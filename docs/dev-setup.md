@@ -31,3 +31,9 @@
 ## Git
 - One branch per task (`cc-<n>-<slug>`), rebased on `main` before merging; `npm run test:quick` must pass; test, commit and push as separate commands.
 - The VM pushes over SSH with its deploy key (host alias `github-cc` or `GIT_SSH_COMMAND` with the key).
+
+## Linear ↔ GitHub
+- Linear sees commits through its GitHub app, which only sees repos it has been given access to.
+- Check once: github.com/settings/installations → Linear → Configure → Repository access; with "Only select repositories", add `gitgithan/conquercourse` and save ("All repositories" needs nothing).
+- Then "Part of CC-n" links a commit to its issue and "Fixes CC-n" closes the issue when the commit reaches `main`; a branch named after the issue links too.
+- Test: after the next commit that names an issue, the commit appears in that issue's activity.
