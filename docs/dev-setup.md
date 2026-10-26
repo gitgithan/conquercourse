@@ -18,6 +18,8 @@
 
 ## Front end
 - `npm install`, then `npm run dev` (Vite) and `npm run test:quick` (unit and mechanic tests).
+- `npm run test:smoke [webgpu|webgl2]` boots the page headless on port 5174 and saves a screenshot to `test-results/`.
+- Port 5173 can be taken by another project's dev server on the laptop; check before assuming a page is ours.
 - Browser tests: Playwright with headless Chromium and WebGPU on SwiftShader:
   - flags `--enable-unsafe-webgpu --enable-features=Vulkan --use-vulkan=swiftshader --use-angle=swiftshader --disable-vulkan-surface --ignore-gpu-blocklist`;
   - pages must be served from `localhost` (WebGPU needs a secure context).
