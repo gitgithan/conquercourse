@@ -1,0 +1,9 @@
+788d1333e0ae4f62fed1d6c171749ccb822d3366f2d55cdc393c4bf316fcba57  ./rookie-a/generated_image_url.jpeg
+86063826975b0f174dedd46588017c07d55928503aba4f582aac5d40cd050e0d  ./rookie-a/model_url.fbx
+f54adbc7c03a8772170c3c54602baf3c3aec46c39f9f76a4ad4ba981708bbde4  ./rookie-a/rendered_image_url.webp
+39fe768719d469dcb2ae4d795de04a2b80f5be0a020570b7715bd5f48dbd6e1c  ./rookie-a/request.json
+1df724713cdb7aca94fbceb4e1da05951db9f015d21b968e8191ed7eb08d4d21  ./rookie-b/image-prompt.txt
+9f51144a4d73a29050c57e4a1da04cc1a47af8660a6e4b875983bae177575017  ./rookie-b/model_url.fbx
+b69ccd8e231c874ccf38dd54ef9c747d4731f9786b43bf20caf49e53ea09ca59  ./rookie-b/reference-b-01.png
+731184a72a0c863ef24513ce2940066cd150773fcdbce1ec5e827d92943155b7  ./rookie-b/rendered_image_url.webp
+a80b373b9f9e15def156f2defabbb424bc73e8cf42e86c9afa27453d88d03c12  ./rookie-b/request.json
