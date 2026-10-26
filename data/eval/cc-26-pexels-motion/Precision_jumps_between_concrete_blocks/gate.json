@@ -1,0 +1,126 @@
+{
+ "raw": {
+  "pass": false,
+  "hard": {
+   "knees_bend_forward": {
+    "ok": true,
+    "worst_axis_angle_deg": 27.159579600152746
+   },
+   "legs_not_twisted": {
+    "ok": true,
+    "worst_deg": 27.159579600152746
+   },
+   "knee_range": {
+    "ok": true,
+    "max_bend_deg": 131.9683751375445
+   },
+   "flight_ballistic": {
+    "frames": [
+     106,
+     174
+    ],
+    "seconds": 2.2355660000000004,
+    "ok": false,
+    "fitted_g": 0.5034275193189338,
+    "rel_err": 0.9486822100592321,
+    "judged": true
+   },
+   "feet_dont_sink": {
+    "ok": false,
+    "sink_m": 0.04404583416704566
+   },
+   "no_teleport": {
+    "ok": true,
+    "max_hip_speed_mps": 2.5171241270504034
+   }
+  },
+  "soft": {
+   "bone_length_dev": {
+    "ok": true,
+    "worst": 3.263050385449162e-09
+   },
+   "max_accel_mps2": {
+    "ok": true,
+    "value": 103.40269001737836
+   }
+  }
+ },
+ "repaired": {
+  "pass": false,
+  "hard": {
+   "knees_bend_forward": {
+    "ok": true,
+    "worst_axis_angle_deg": 27.159579600152746
+   },
+   "legs_not_twisted": {
+    "ok": true,
+    "worst_deg": 27.159579600152746
+   },
+   "knee_range": {
+    "ok": true,
+    "max_bend_deg": 131.9683751375445
+   },
+   "flight_ballistic": {
+    "frames": [
+     106,
+     174
+    ],
+    "seconds": 2.2355660000000004,
+    "ok": false,
+    "fitted_g": 0.5034275193189338,
+    "rel_err": 0.9486822100592321,
+    "judged": true
+   },
+   "feet_dont_sink": {
+    "ok": true,
+    "sink_m": 0.0
+   },
+   "no_teleport": {
+    "ok": true,
+    "max_hip_speed_mps": 2.5171241270504034
+   }
+  },
+  "soft": {
+   "bone_length_dev": {
+    "ok": true,
+    "worst": 3.263050385449162e-09
+   },
+   "max_accel_mps2": {
+    "ok": true,
+    "value": 104.20697629762456
+   }
+  }
+ },
+ "shown_version": "repaired",
+ "supportedBy": null,
+ "free_flight_rule_without_supportedBy": {
+  "frames": [
+   106,
+   174
+  ],
+  "seconds": 2.2355660000000004,
+  "ok": false,
+  "fitted_g": 0.5034275193189338,
+  "rel_err": 0.9486822100592321,
+  "judged": true
+ },
+ "athlete_frames": [
+  0,
+  240
+ ],
+ "verdict": "FAIL",
+ "world": {
+  "orientation_from": "travel",
+  "floor_fit_terms": [
+   "const",
+   "depth",
+   "x"
+  ],
+  "floor_points": 65,
+  "floor_offset_m": -0.6538207409460429,
+  "side_axis_agreement_cos_mean": 0.9983982517958558,
+  "bridged_frames": []
+ },
+ "frames_in_clip": 240,
+ "frames_unmeasured_in_segment": 0
+}

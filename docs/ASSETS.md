@@ -24,6 +24,12 @@
 - Rejected and not used: two clips whose athlete might be under 18, and one dive from height (against "safe by design").
 - More openly licensed candidates (about 45, with licences) are listed in `docs/research/motion-data.md`.
 
+## Derived from the footage (made during the event, CC-26)
+- **What:** `data/eval/cc-26-pexels-motion/<clip>/`: measured 30-joint `motion.json`, contacts, gate report, privacy receipt, and a contact sheet (people blurred, faces pixelated) for each of the four clips above.
+- **Made by:** SAM 3, SAM 3D Body, MoGe 2 and SOMA-X on Modal (2026-10-26), with code written in this repo (`pipelines/video_to_motion/`).
+- **Licence:** derived from Pexels-licensed videos; the creators stay credited in the footage table; none of these motions is shown in the game before it passes the plausibility check (two of four fail).
+- **Kept outside git:** frames, masked frames, MHR parameters (`../conquercourse-assets/work/`).
+
 ## Motion data (third-party)
 - **CMU Graphics Lab Motion Capture Database:** free to use, credit requested ("The data used in this project was obtained from mocap.cs.cmu.edu"); re-imported here with new code.
 - **Candidates checked as publishable:** 100STYLE (CC BY 4.0), HDM05 (CC BY-SA 3.0, derived files must stay CC BY-SA), Kimodo's own generated output (NVIDIA claims no rights in outputs).

@@ -1,0 +1,120 @@
+{
+ "raw": {
+  "pass": false,
+  "hard": {
+   "knees_bend_forward": {
+    "ok": true,
+    "worst_axis_angle_deg": 31.237559480993163
+   },
+   "legs_not_twisted": {
+    "ok": true,
+    "worst_deg": 31.237559480993163
+   },
+   "knee_range": {
+    "ok": true,
+    "max_bend_deg": 148.9996967011461
+   },
+   "flight_ballistic": {
+    "frames": [
+     211,
+     248
+    ],
+    "seconds": 1.2012,
+    "ok": true,
+    "note": "supported by a brick wall"
+   },
+   "feet_dont_sink": {
+    "ok": false,
+    "sink_m": 0.09047318109734592
+   },
+   "no_teleport": {
+    "ok": true,
+    "max_hip_speed_mps": 3.6914120113543594
+   }
+  },
+  "soft": {
+   "bone_length_dev": {
+    "ok": true,
+    "worst": 3.987539631822301e-09
+   },
+   "max_accel_mps2": {
+    "ok": true,
+    "value": 114.22914613110963
+   }
+  }
+ },
+ "repaired": {
+  "pass": true,
+  "hard": {
+   "knees_bend_forward": {
+    "ok": true,
+    "worst_axis_angle_deg": 31.237559480993163
+   },
+   "legs_not_twisted": {
+    "ok": true,
+    "worst_deg": 31.237559480993163
+   },
+   "knee_range": {
+    "ok": true,
+    "max_bend_deg": 148.9996967011461
+   },
+   "flight_ballistic": {
+    "frames": [
+     211,
+     248
+    ],
+    "seconds": 1.2012,
+    "ok": true,
+    "note": "supported by a brick wall"
+   },
+   "feet_dont_sink": {
+    "ok": true,
+    "sink_m": 0.0
+   },
+   "no_teleport": {
+    "ok": true,
+    "max_hip_speed_mps": 3.6914120113543594
+   }
+  },
+  "soft": {
+   "bone_length_dev": {
+    "ok": true,
+    "worst": 3.987539631822301e-09
+   },
+   "max_accel_mps2": {
+    "ok": true,
+    "value": 120.20543920933724
+   }
+  }
+ },
+ "shown_version": "repaired",
+ "supportedBy": "a brick wall",
+ "free_flight_rule_without_supportedBy": {
+  "frames": [
+   211,
+   248
+  ],
+  "seconds": 1.2012,
+  "ok": false,
+  "fitted_g": 4.706118289018576,
+  "rel_err": 0.5202733650337843,
+  "judged": true
+ },
+ "athlete_frames": [
+  0,
+  300
+ ],
+ "verdict": "PASS",
+ "world": {
+  "orientation_from": "travel (left on -x: mirrored)",
+  "floor_fit_terms": [
+   "const"
+  ],
+  "floor_points": 24,
+  "floor_offset_m": -0.9365587089179442,
+  "side_axis_agreement_cos_mean": 0.9927744107752869,
+  "bridged_frames": []
+ },
+ "frames_in_clip": 300,
+ "frames_unmeasured_in_segment": 0
+}
