@@ -1,0 +1,8 @@
+{
+ "pass_lines_fixed_before_running": {
+  "flight": "a flight of at least 0.2 s while the hips travel at least 2 m",
+  "wall_grab": "a foot planted 0.4-1.6 m up while running (travel at least 2 m), then a hand grip above the head with feet off the floor for at least 0.3 s",
+  "grip": "a hand grip above the head with feet off the floor for at least 0.5 s"
+ },
+ "gate": "pipelines/ccpipe/gate.py, VERSION 1"
+}

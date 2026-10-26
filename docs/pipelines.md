@@ -71,6 +71,7 @@
 - **Pitfalls:** CMU's credit line must travel with every clip; the published library on Kimodo's skeleton was regenerated from raw files each time, never hand-edited.
 - **Check it worked:** a contact sheet of the library; every clip passes the gate test.
 - **Measured:** 16 moves covered; CPU only, seconds per trial.
+- **Rebuilt in this repo (CC-17):** `pipelines/ccpipe/cmu.py`; thin the AMC frames to every 4th *before* the forward kinematics (about 4x faster); hand tips ride the wrist bone (finger curl changed a bone's length by 58 %); real CMU flights fitted 10.0 and 10.6 m/s² unrepaired. Results: `data/eval/starter-clips/README.md`.
 
 ## 3. Kimodo on the simulator's path
 - **Purpose:** a smooth, human-looking body that follows the simulator's exact centre-of-mass path, for moves and outcomes mocap doesn't cover; the blind test preferred it to mocap leaps 3 times out of 3.
@@ -94,6 +95,7 @@
   - Lifting the hips during a kong vault's hand plant put the shoulders out of reach of the box.
 - **Check it worked:** hips within 3 cm of the simulator's path; contacts within 10 cm before IK; bone hits near zero; the gate.
 - **Measured:** about 5-20 s per generation once loaded (7 s with late projection); six grid clips in 34 s on one L4 (model load 7 s); collision spike: tic-tac 108 → 2-5 bones inside with contacts within 6 cm; kong vault 41 → 23 with hands 16-22 cm off (open).
+- **Rebuilt in this repo (CC-17):** `pipelines/kimodo_clips.py` (one L4; a list prompt with `num_samples` gives one motion, so loop the seeds yourself; the model's output has 77 joints, take the 30 by name with `get_skel_slice`); text-only wall run-up never passed (0 of 36), grab 0 of 12, leap 3 of 12 show a flight.
 - **What failed and why:** targets can only nudge a pose the source already has (a rope grip with arms down never reached the grip, 155-161 cm off); the vault's hands remain the open problem.
 
 ## 4. Plausibility gate and repairs
@@ -105,6 +107,7 @@
   - **Flight is ballistic:** over the longest unsupported stretch, the centre of mass (Winter's segment masses) falls at the clip's gravity within 15 %.
   - **Feet don't sink:** the lowest foot no more than 3 cm under the floor.
   - **No teleport:** hips never faster than 12 m/s (the fastest sprinters reach about 12.4 m/s briefly).
+  - **Held clips are held (added in CC-17):** a clip with `supportedBy` skips the flight law, but no stretch longer than 0.6 s may have the feet off the floor and no still hand or foot (a Kimodo "wall run" that floated 3 m up passed without it).
 - **Soft rules (reported, not fatal):** bones keep their length within 2 % of their median; feet on the ground (within 5 cm of the lowest point) slide no more than 3 cm; no joint accelerates more than 200 m/s² between frames.
 - **Support detection:** a body is supported when its lowest joint is within 15 cm of the floor (sand-pit landings and flat shoes sit about 10 cm up) or any hand or foot is still (under 0.3 m/s for at least 4 frames; a hand above the head counts as gripping up to 1.0 m/s, since the wrist rolls round a bar); a clip with `supportedBy` isn't judged as free flight.
 - **Repairs (the only ones allowed, before the gate):**

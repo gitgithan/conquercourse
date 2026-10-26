@@ -1,0 +1,50 @@
+{
+ "run": {
+  "trial": "09_01",
+  "first_frame_30fps": 0,
+  "last_frame_30fps": null,
+  "supportedBy": null,
+  "what": "a steady run"
+ },
+ "leap": {
+  "trial": "49_04",
+  "first_frame_30fps": 0,
+  "last_frame_30fps": null,
+  "supportedBy": null,
+  "what": "run-up, a leap through the air, landing"
+ },
+ "land": {
+  "trial": "49_05",
+  "first_frame_30fps": 17,
+  "last_frame_30fps": null,
+  "supportedBy": null,
+  "what": "the last of the flight, touch-down and recovery"
+ },
+ "hang": {
+  "trial": "01_10",
+  "first_frame_30fps": 385,
+  "last_frame_30fps": 440,
+  "supportedBy": [
+   "playground bars"
+  ],
+  "what": "hanging by the hands, feet off the ground"
+ },
+ "swing": {
+  "trial": "01_10",
+  "first_frame_30fps": 360,
+  "last_frame_30fps": 460,
+  "supportedBy": [
+   "playground bars"
+  ],
+  "what": "hanging and swinging the legs"
+ },
+ "reach": {
+  "trial": "14_09",
+  "first_frame_30fps": 625,
+  "last_frame_30fps": 680,
+  "supportedBy": [
+   "something overhead"
+  ],
+  "what": "a hop up to reach and grab something overhead"
+ }
+}

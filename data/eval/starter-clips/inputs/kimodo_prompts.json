@@ -1,0 +1,51 @@
+{
+ "leap_a": {
+  "prompt": "A person sprints and leaps far forward through the air, then lands on both feet.",
+  "seconds": 4.0
+ },
+ "leap_b": {
+  "prompt": "A person takes a running start and does a long jump, flying with both feet off the ground, then lands.",
+  "seconds": 4.0
+ },
+ "wall_a": {
+  "prompt": "A person sprints at a wall, runs up it with two quick steps and reaches high to grab the top edge.",
+  "seconds": 5.0
+ },
+ "wall_b": {
+  "prompt": "A person runs toward a wall, plants a foot high on the wall to push up, and catches the top ledge with both hands.",
+  "seconds": 5.0
+ },
+ "wall_c": {
+  "prompt": "A parkour runner does a wall run: sprints, steps up the wall with one foot, then grabs the ledge with both hands and hangs.",
+  "seconds": 5.0
+ },
+ "wall_a3": {
+  "prompt": "A person sprints at a wall, runs up it with two quick steps and reaches high to grab the top edge.",
+  "seconds": 3.0
+ },
+ "wall_b3": {
+  "prompt": "A person runs toward a wall, plants a foot high on the wall to push up, and catches the top ledge with both hands.",
+  "seconds": 3.0
+ },
+ "wall_c3": {
+  "prompt": "A parkour runner does a wall run: sprints, steps up the wall with one foot, then grabs the ledge with both hands and hangs.",
+  "seconds": 3.0
+ },
+ "grab_a": {
+  "prompt": "A person jumps up and grabs an overhead bar with both hands, then hangs from it.",
+  "seconds": 4.0
+ },
+ "grab_b": {
+  "prompt": "A person jumps and catches a high ledge with both hands and hangs there with straight arms.",
+  "seconds": 4.0
+ },
+ "_settings": {
+  "model": "kimodo-soma-rp",
+  "kimodo_commit": "e1c219c99b4b94ba48be1fb6a1cbc64ecee4c954",
+  "denoising_steps": 100,
+  "base_seed": 7,
+  "samples_per_prompt": 6,
+  "seed_of_sample_i": "base_seed + i",
+  "post_processing": true
+ }
+}
