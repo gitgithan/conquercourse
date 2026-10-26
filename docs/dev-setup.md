@@ -30,7 +30,7 @@
 
 ## Git
 - One branch per task (`cc-<n>-<slug>`), rebased on `main` before merging; `npm run test:quick` must pass; test, commit and push as separate commands.
-- The VM pushes over SSH with its deploy key (host alias `github-cc` or `GIT_SSH_COMMAND` with the key).
+- The VM pushes over SSH with its deploy key: `GIT_SSH_COMMAND="ssh -i /root/.ssh/cc_deploy -o IdentitiesOnly=yes" git push`.
 
 ## Linear ↔ GitHub
 - Linear sees commits through its GitHub app, which only sees repos it has been given access to.
