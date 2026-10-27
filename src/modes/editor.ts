@@ -38,6 +38,7 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
   let view = { cx: 8, cz: 0, ppm: 36 }; // plan view: the world point in the middle, pixels per metre
   let cropMode = false;
   let verdict = '';
+  const pendingObjects: Saved['pieces'] = []; // saved photo objects, loaded once the list is in
 
   // a new piece goes just past the last one, on the lane's line, so pieces do not pile up
   const freeSpot = (id: string) => { const m = lib(id).mesh(); const w = size(m).w * (id === 'brick' ? 15 : 1); const right = pieces.reduce((r, p) => Math.max(r, p.x + (size(p.mesh).w * p.scale) / 2), 0); return { x: right + 1.5 + w / 2, z: 0 }; };
@@ -46,7 +47,8 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
   function load() {
     try {
       const s = JSON.parse(localStorage.getItem(KEY) ?? '') as Saved;
-      pieces = s.pieces.map((q) => ({ ...newPiece(lib(q.src).label, lib(q.src).mesh(), { x: q.x, z: q.z }), src: q.src, y: q.y, yaw: q.yaw, scale: q.scale }));
+      pendingObjects.push(...s.pieces.filter((q) => q.src.startsWith('obj:')));
+      pieces = s.pieces.filter((q) => !q.src.startsWith('obj:')).map((q) => ({ ...newPiece(lib(q.src).label, lib(q.src).mesh(), { x: q.x, z: q.z }), src: q.src, y: q.y, yaw: q.yaw, scale: q.scale }));
       angle = s.angle; offset = s.offset; level = s.level;
     } catch {
       add('bench', { x: 2, z: 0 }); add('dome', { x: 8, z: 0 }); add('low-wall', { x: 14, z: 0 }); selected = null;
@@ -63,6 +65,29 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
   const addBar = el('div', root, { className: 'top' });
   el('strong', addBar, { text: 'Add:' });
   for (const l of LIBRARY) el('button', addBar, { text: l.label }).onclick = () => { add(l.id, freeSpot(l.id)); changed(); };
+  // objects lifted from real photos (SAM 3D Objects, CC-38): each is a baked .glb at its real size
+  const photoBar = addBar;
+  void (async () => {
+    try {
+      const idx = (await (await fetch('/assets/objects/index.json')).json()) as { objects: { name: string; glb: string; label: string; height_m: number; author: string }[] };
+      el('strong', photoBar, { text: 'From real photos:' });
+      for (const o of idx.objects) {
+        const b = el('button', photoBar, { text: `${o.label} (${o.height_m} m)`, title: `Photo by ${o.author}` });
+        b.dataset.object = o.name;
+        b.onclick = async () => {
+          try {
+            const p: P = { ...newPiece(o.name, readGlbMesh(await (await fetch(`/assets/objects/${o.glb}`)).arrayBuffer()), freeSpot('bench')), src: `obj:${o.glb}` };
+            p.x = freeSpot('bench').x + size(p.mesh).w / 2; pieces.push(p); selected = p.id; changed();
+          } catch { verdict = 'That object could not be loaded.'; draw(); }
+        };
+      }
+      // pieces saved from a past visit
+      for (const q of pendingObjects) {
+        try { const p: P = { ...newPiece(q.src, readGlbMesh(await (await fetch(`/assets/objects/${q.src.slice(4)}`)).arrayBuffer()), { x: q.x, z: q.z }), src: q.src, y: q.y, yaw: q.yaw, scale: q.scale }; pieces.push(p); } catch { /* a missing object is skipped */ }
+      }
+      if (pendingObjects.length) { pendingObjects.length = 0; changed(); }
+    } catch { /* no objects on this site */ }
+  })();
   const file = el('input', addBar, { type: 'file', accept: '.glb' });
   file.hidden = true;
   el('button', addBar, { text: 'Import a .glb…', id: 'import' }).onclick = () => file.click();
@@ -132,7 +157,7 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
     slider('Where the water starts (level)', 'level', 0, 4, 0.05, () => level, (v) => (level = v), (v) => `${v.toFixed(2)} m`);
     el('button', lanePanel, { text: 'Find the best lane for me', id: 'best' }).onclick = () => {
       const s = worldSamples(pieces);
-      const found = bestSlices({ positions: Array.from(s) }, { top: 1, levels: [level] });
+      const found = bestSlices({ positions: Array.from(s) }, { top: 1, levels: [level], centre: { x: 0, z: 0 } }); // the editor's rod is the origin, so the lane it finds is the lane it shows
       if (!found.length) { verdict = 'No lane the runner can clear was found: try other pieces or levels.'; drawLanePanel(); return; }
       angle = found[0].angle; offset = found[0].offset; level = found[0].level; verdict = '';
       save(); drawLanePanel(); draw(); drawProfile(); verify();

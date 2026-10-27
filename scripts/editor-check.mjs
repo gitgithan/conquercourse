@@ -9,7 +9,7 @@ try {
   await new Promise((r) => setTimeout(r, 3000));
   const browser = await chromium.launch({ args: flags });
   const page = await browser.newPage({ viewport: { width: 1300, height: 900 } });
-  const errors = []; page.on('pageerror', (e) => errors.push(e.message));
+  const errors = []; page.on('pageerror', (e) => { errors.push(e.message); console.log('PAGEERROR', e.message.slice(0, 200)); });
   await page.goto(`http://localhost:${port}/?mode=editor`);
   await page.waitForSelector('#plan', { timeout: 60000 });
   mkdirSync('test-results/editor', { recursive: true });
@@ -27,6 +27,12 @@ try {
     await page.screenshot({ path: `test-results/editor/layout-${w}x${h}.png` });
   }
   await page.setViewportSize({ width: 1300, height: 900 });
+  // an object lifted from a real photo, placed at its real size
+  await page.waitForSelector('button[data-object=railing-iron]', { timeout: 20000 });
+  await page.click('button[data-object=railing-iron]');
+  await page.waitForFunction(() => /railing-iron/.test(document.querySelector('#panel')?.textContent ?? ''), null, { timeout: 20000 });
+  checks.photoObjectAtRealSize = /2\.52 × 0\.07 m, 1\.00 m high/.test(await text('#realsize'));
+  await page.click('#del');
   // a toy brick: 3 cm, enlarged x15 to a half-metre block
   await page.click('text=Toy brick (3 cm)');
   checks.brickIsBlockSized = /0\.4\d × 0\.2\d m, 0\.1\d m high/.test(await text('#realsize'));

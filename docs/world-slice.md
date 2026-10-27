@@ -101,3 +101,9 @@ The set of obstacle shapes is fixed, and each shape offers a fixed set of moves.
   - A real drop, such as the edge of a platform, still lets go.
   - Three tests fail on the old code and pass on the new.
 - **Side effect found and fixed:** with domes now passable, many trial runs of the ideal-run search ended pressed against something and stood still until the 80 s limit, which made the slice search and the editor's check about 10 times slower; a run now stops after 1.5 s of standing still (same result, about the old speed).
+
+## Photo objects in the editor (CC-38 meets CC-40)
+- **The "From real photos" row** in the editor lists the objects lifted by SAM 3D Objects (`public/assets/objects/index.json`): a skate rail, a skate box, a concrete bench and an iron railing, each at its real size (the railing is 2.52 m long and 1 m high).
+- **They are pieces like any other:** move, turn, scale, lift, copy, crop; the lane is cut from their real shape.
+- **Fix found on the way:** "Find the best lane" measured the sideways step from the middle of the scene, but the editor draws the lane from the origin, so a lane it found could differ from the lane it showed.
+  - The search now takes the editor's rod as its centre (test added).
