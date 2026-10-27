@@ -138,5 +138,13 @@
 - **To confirm before the bodies ship:** the `mhr_model.pt` we used came inside the SAM 3D Body checkpoint, so the SAM License may apply to the file even though the MHR repo is Apache 2.0; ship the licence texts with the GLBs until it is settled.
 - Used only behind the switch `?look=custom` in the Course (a third Rookie button); the default Rookies are unchanged.
 
+## Places from open map data (made during the event, CC-46)
+| File | What | Source | Licence | Made with |
+|---|---|---|---|---|
+| `data/eval/cc-46-osm-world/<place>/overpass.json` | building outlines and height tags for three places (Eixample, Montmartre, Circular Quay), 120 m around a point, kept to the tags we use | © OpenStreetMap contributors, via the Overpass API (https://overpass-api.de), fetched 2026-10-27, no key | ODbL 1.0 (https://www.openstreetmap.org/copyright); credit "© OpenStreetMap contributors" wherever a course made from it is shown | `scripts/osm-lane.ts` |
+| `data/eval/cc-46-osm-world/montmartre-paris/elevation.json` | ground height on a 20 m grid around Montmartre | AWS Terrain Tiles (Terrarium, zoom 15, `s3://elevation-tiles-prod`), fetched 2026-10-27, no account | open data (NASADEM, USGS 3DEP and others); credit as in https://github.com/tilezen/joerd/blob/master/docs/attribution.md | same |
+| `public/assets/experiments/osm/<place>.glb`, `.course.json` | extruded, shrunk building meshes (56 to 141 KB) and the best lane cut from each | derived from the two rows above | ODbL (a derived database: keep the credit and share alike); course JSON is ours | same |
+| `data/eval/cc-46-osm-world/*.png`, `run.json`, `README.md` | screenshots, numbers and the report (ours) | ConquerCourse | ours | `scripts/osm-shots.mjs` |
+
 ## The product owner's own clips (to come)
 - Filmed by the product owner, an adult, about themselves, with no bystanders; their written consent is recorded here when added.

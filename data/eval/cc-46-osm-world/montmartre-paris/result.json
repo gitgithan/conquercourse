@@ -1,0 +1,69 @@
+{
+  "place": "montmartre-paris",
+  "lat": 48.8867,
+  "lon": 2.3431,
+  "radius": 120,
+  "terrain": true,
+  "terrainRelief_m": 38.5,
+  "buildings": 42,
+  "withRealHeight": 35,
+  "medianHeight_m": 9,
+  "shrink": 0.072,
+  "shrinkTries": [
+    {
+      "shrink": 0.556,
+      "lanes": 0
+    },
+    {
+      "shrink": 0.333,
+      "lanes": 0
+    },
+    {
+      "shrink": 0.2,
+      "lanes": 0
+    },
+    {
+      "shrink": 0.12,
+      "lanes": 0
+    },
+    {
+      "shrink": 0.072,
+      "lanes": 2
+    }
+  ],
+  "triangles": 2534,
+  "shrunkHeightRange_m": [
+    0.2,
+    6
+  ],
+  "samples": 33038,
+  "lanesFound": 2,
+  "secondsTaken": 42,
+  "bestLane": {
+    "turnDeg": 170,
+    "sidewaysM": -4,
+    "levelM": 1,
+    "gaps": 1,
+    "steps": 4,
+    "curves": 0,
+    "faces": 0,
+    "length": 17.8,
+    "variety": 2,
+    "maxRise": 0.4545232057571411,
+    "score": 7.5,
+    "searchIdealRunCleared": true
+  },
+  "candidates": [
+    {
+      "turnDeg": 170,
+      "sidewaysM": -4,
+      "score": 7.5
+    },
+    {
+      "turnDeg": 110,
+      "sidewaysM": -7.5,
+      "score": 1
+    }
+  ],
+  "glbBytes": 135808
+}
