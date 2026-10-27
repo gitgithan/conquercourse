@@ -71,7 +71,8 @@ export async function createRookieActor(scene: Scene, opts: { rookie: RookieId }
   const takeoffCom = scale * (takeoffFrame[0][1] - Math.min(...takeoffFrame.map((p) => p[1]))) + scale * comAboveHips(names, takeoffFrame);
 
   const standPose = (): Pose => {
-    const a = sample(reach, 0, false);
+    // an upright, relaxed frame (arms down, head level, feet together) found by scoring every frame of the shipped clips
+    const a = sample(land, 13 / land.fps, false);
     return place(a.rel, a.hipsAbove);
   };
   const lerpPose = (a: Pose, b: Pose, w: number): Pose => ({

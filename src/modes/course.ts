@@ -116,7 +116,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
   msg.style.cssText = 'position:fixed;left:0;right:0;top:38%;text-align:center;font:700 28px system-ui,sans-serif;color:#10141c;text-shadow:0 1px 0 #fff;pointer-events:none';
   const help = document.createElement('div');
   help.style.cssText = 'position:fixed;left:16px;bottom:12px;font:500 14px system-ui,sans-serif;color:#10141c;pointer-events:none';
-  help.textContent = 'Hold ← or → to run · Space to jump (or let go of the rope, or press on the trampoline) · hold ↓ when you land from a high drop · R retry this obstacle · Shift+R from the start · I ideal run · T Dojo · C camera';
+  help.textContent = 'Hold ← or → to run · Space to jump (or let go of the rope, or press on the trampoline) · hold ↓ when you land from a high drop · R retry this obstacle · Shift+R from the start · I ideal run · T Dojo · C camera (side, 45°, first person)';
   const panel = document.createElement('div');
   panel.style.cssText = 'position:fixed;left:50%;top:26%;transform:translateX(-50%);width:min(520px,92vw);background:#fffffff2;border:1px solid #cfd6d0;border-radius:12px;padding:16px;font:16px/1.4 system-ui,sans-serif;color:#17201d;display:none;gap:10px;box-shadow:0 8px 30px #0003';
   const hint = document.createElement('div');
@@ -161,6 +161,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
   let toastUntil = 0, squashUntil = 0, squashDepth = 1;
   const gText = gauge.querySelector('#gtext') as HTMLElement, gFill = gauge.querySelector('#gfill') as HTMLElement;
   const gNeed = gauge.querySelector('#gneed') as HTMLElement, gNext = gauge.querySelector('#gnext') as HTMLElement;
+  try { localStorage.setItem('cc.course', JSON.stringify(course)); } catch { /* the Dojo falls back to the default course */ }
   const specs = gapSpecs(course);
   const zoneOf = (x: number) => course.zones?.find((z) => x >= z.x0 && x < z.x1);
   const wallNeed = course.wall ? minSpeedForWall(course.wall) : Infinity;
@@ -179,7 +180,9 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
   // input
   const keys = new Set<string>();
   let jumpQueued = false;
-  let camMode: 'side' | 'chase' = 'side';
+  type Cam = 'side' | 'angle' | 'first';
+  const CAMS: { id: Cam; name: string }[] = [{ id: 'side', name: 'Side view' }, { id: 'angle', name: '45° view' }, { id: 'first', name: 'First person' }];
+  let camMode: Cam = 'side';
   addEventListener('keydown', (e) => {
     if (e.repeat) return;
     keys.add(e.code);
@@ -188,7 +191,11 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
     if (e.code === 'KeyI') showIdeal(zoneAt(world.runner.x)?.id ?? 'gap');
     if (e.code === 'KeyT') openDojo();
     if (e.code === 'Escape' && replay) { replay = null; clearGuides(); showAgain(); }
-    if (e.code === 'KeyC') camMode = camMode === 'side' ? 'chase' : 'side';
+    if (e.code === 'KeyC') {
+      const next = CAMS[(CAMS.findIndex((c2) => c2.id === camMode) + 1) % CAMS.length];
+      camMode = next.id;
+      toast.textContent = `Camera: ${next.name}`; toast.style.display = 'block'; toastUntil = world.runner.tick + 100;
+    }
   });
   addEventListener('keyup', (e) => keys.delete(e.code));
   addEventListener('resize', () => {
@@ -481,11 +488,22 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
     gFill.style.background = need && spd < need ? '#c4572a' : '#0f6b5c';
     gNext.textContent = msgNext;
     hud.textContent = `Time ${(r.tick / 120).toFixed(1)} s   ·   ${Math.max(0, Math.round(r.x))} m of ${course.finishX} m`;
-    const tx = r.x + 5, ty = r.y + 2.5;
-    const want = camMode === 'side' ? new THREE.Vector3(tx, ty + 1, 17) : new THREE.Vector3(r.x - 7, r.y + 4, 11);
-    camPos.lerp(want, 0.12);
-    camera.position.copy(camPos);
-    camera.lookAt(tx, ty, 0);
+    // three views, switched with C: from the side, from behind at 45 degrees, and through the runner's eyes
+    const fov = camMode === 'first' ? 75 : 40;
+    if (camera.fov !== fov) { camera.fov = fov; camera.updateProjectionMatrix(); }
+    if (actor) actor.object.visible = camMode !== 'first';
+    body.visible = !actor && camMode !== 'first';
+    if (camMode === 'first') {
+      camera.position.set(r.x + 0.15 * facing, r.y + 1.62, 0.1);
+      camera.lookAt(r.x + 10 * facing, r.y + 1.2, 0);
+      camPos.copy(camera.position);
+    } else {
+      const tx = r.x + 5, ty = r.y + 2.5;
+      const want = camMode === 'side' ? new THREE.Vector3(tx, ty + 1, 17) : new THREE.Vector3(r.x - 8, r.y + 4.5, 11);
+      camPos.lerp(want, 0.12);
+      camera.position.copy(camPos);
+      camera.lookAt(camMode === 'side' ? tx : r.x + 4, camMode === 'side' ? ty : r.y + 1.5, 0);
+    }
     renderer.render(scene, camera);
     document.documentElement.dataset.tick = String(r.tick);
     document.documentElement.dataset.outcome = world.outcome;

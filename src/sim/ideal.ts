@@ -59,7 +59,7 @@ export function edges(course: CourseData): { x: number; name: string }[] {
   const out: { x: number; name: string }[] = [];
   ps.forEach((p, i) => {
     const nxt = ps[i + 1];
-    if (nxt && nxt.x0 - p.x1 > 0.01) out.push({ x: p.x1, name: `edge at ${p.x1} m` });
+    if (nxt && nxt.x0 - p.x1 > 0.01 && p.x1 >= course.startX) out.push({ x: p.x1, name: `edge at ${p.x1} m` }); // edges behind the start are not part of this run
   });
   return out;
 }

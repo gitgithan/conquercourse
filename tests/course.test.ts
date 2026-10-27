@@ -90,3 +90,11 @@ describe('every obstacle can be started from standing still just before it (R3-G
     });
   }
 });
+
+describe('the ideal run from a checkpoint has no warm-up jumps (R4-G3)', () => {
+  it('from the trampoline checkpoint the plan only has presses for obstacles ahead', () => {
+    const found = searchIdealRun({ ...C, startX: 86 });
+    expect(found.plan.jumpXs.every((x) => x >= 80)).toBe(true);
+    expect(found.windows.every((w) => !w.obstacle.startsWith('edge at') || Number(w.obstacle.replace(/[^0-9.]/g, '')) >= 86)).toBe(true);
+  });
+});
