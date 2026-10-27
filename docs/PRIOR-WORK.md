@@ -26,3 +26,8 @@
 ## How the code is written
 - The product owner sets requirements and reviews; AI coding agents (Claude Code) write most of the code, each change tied to an issue in the `conquercourse` Linear project.
 - Every commit is dated in this repo's history, which starts on 2026-10-27.
+
+## Muse Spark Open (Baseten, hackathon key)
+- **Used for:** the course-design partner in the World editor (`functions/api/designer.ts`, `src/slice/designer.ts`); new work in this project.
+- **Model and key:** the hackathon key works only with `meta-models/muse-spark-open-1026` (other models answer 403); it always reasons first, so calls leave room (`max_tokens` 4000) and its reasoning text is never shown.
+- **Rule kept:** it suggests moves, the simulator checks them; it never grades a player.

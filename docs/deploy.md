@@ -66,3 +66,9 @@
   - The Park has a "Paint the photo on the obstacles" switch (on by default); the gallery always paints.
 - **Check it:** `npm run build`, then `node scripts/community-check.mjs` (it draws a striped "mural", shares it, approves it, plays it and checks the picture was painted).
 - **Not yet:** the 3D lift (CC-38) will replace the flat picture with a real 3D object once it is ready.
+
+## Course-design partner (Muse Spark Open on Baseten)
+- **What it is:** `functions/api/designer.ts` answers the editor's design helper; the key never reaches the page.
+- **Before deploy (the product owner runs this once):** `npx wrangler pages secret put BASETEN_API_KEY` and paste the hackathon key when asked; without it the function answers 503 and the editor hides the helper.
+- **Locally:** `npm run dev` serves `/api/designer` by reading `BASETEN_API_KEY` from `~/.config/ninja/baseten.env` on the server side only (skipped silently if the file is absent).
+- **Cost:** about $1.25 per million input and $4.25 per million output tokens; one answer is about 1,000 to 1,500 tokens (it reasons first), so well under 1 cent; a light per-address limit (20 per 10 minutes) guards the rest.
