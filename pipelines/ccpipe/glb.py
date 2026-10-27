@@ -1,10 +1,12 @@
 """A small binary glTF (GLB) writer for one coloured mesh: positions, smooth normals, vertex colours, indices.
 
 No textures and no extensions, so a shipped object stays far under 1.5 MB (6,000 faces is about 150 KB)."""
+import io
 import json
 import struct
 
 import numpy as np
+from PIL import Image
 
 FLOAT, UBYTE, USHORT, UINT = 5126, 5121, 5123, 5125
 ARRAY_BUFFER, ELEMENT_ARRAY_BUFFER = 34962, 34963
@@ -27,8 +29,11 @@ def srgb_to_linear(c01):
     return np.where(c <= 0.04045, c / 12.92, ((c + 0.055) / 1.055) ** 2.4)
 
 
-def write_glb(path, v, f, colours_u8=None, name="object"):
-    """Write the mesh to `path`; `colours_u8` are sRGB (what a photo holds) and are stored as glTF's linear vertex colours."""
+def write_glb(path, v, f, colours_u8=None, name="object", uv=None, texture=None, jpeg_quality=90):
+    """Write the mesh to `path`.
+
+    `colours_u8` are sRGB (what a photo holds) and are stored as glTF's linear vertex colours.
+    `uv` (glTF convention, origin top-left) and `texture` (uint8 h x w x 3, sRGB) give a base-colour texture, stored as an embedded JPEG."""
     v = np.asarray(v, np.float32)
     f = np.asarray(f, np.int64)
     n = vertex_normals(v, f).astype(np.float32)
@@ -52,15 +57,30 @@ def write_glb(path, v, f, colours_u8=None, name="object"):
     if colours_u8 is not None:
         lin = np.round(srgb_to_linear(np.asarray(colours_u8, float) / 255) * 255).astype(np.uint8)
         attrs["COLOR_0"] = add(lin, UBYTE, "VEC3", ARRAY_BUFFER, {"normalized": True})
+    if uv is not None:
+        attrs["TEXCOORD_0"] = add(np.asarray(uv, np.float32), FLOAT, "VEC2", ARRAY_BUFFER)
     indices = add(f.astype(idx_dtype).reshape(-1), idx_type, "SCALAR", ELEMENT_ARRAY_BUFFER)
+    material = {"name": "skin", "doubleSided": True, "pbrMetallicRoughness": {"baseColorFactor": [1, 1, 1, 1], "metallicFactor": 0, "roughnessFactor": 1}}
+    extra = {}
+    if texture is not None:
+        buf = io.BytesIO()
+        Image.fromarray(np.asarray(texture, np.uint8)).save(buf, "JPEG", quality=jpeg_quality)
+        raw = buf.getvalue()
+        pad = (-sum(len(b) for b in blobs)) % 4
+        if pad:
+            blobs.append(b"\0" * pad)
+        views.append({"buffer": 0, "byteOffset": sum(len(b) for b in blobs), "byteLength": len(raw)})
+        blobs.append(raw)
+        extra = {"images": [{"bufferView": len(views) - 1, "mimeType": "image/jpeg"}], "textures": [{"source": 0, "sampler": 0}],
+                 "samplers": [{"magFilter": 9729, "minFilter": 9987, "wrapS": 33071, "wrapT": 33071}]}
+        material["pbrMetallicRoughness"]["baseColorTexture"] = {"index": 0}
     body = b"".join(blobs)
     body += b"\0" * ((-len(body)) % 4)
     doc = {
         "asset": {"version": "2.0", "generator": "ConquerCourse photo_to_object"},
         "scene": 0, "scenes": [{"nodes": [0]}], "nodes": [{"mesh": 0, "name": name}],
         "meshes": [{"name": name, "primitives": [{"attributes": attrs, "indices": indices, "material": 0, "mode": 4}]}],
-        "materials": [{"name": "skin", "doubleSided": True, "pbrMetallicRoughness": {"baseColorFactor": [1, 1, 1, 1], "metallicFactor": 0, "roughnessFactor": 1}}],
-        "buffers": [{"byteLength": len(body)}], "bufferViews": views, "accessors": accessors,
+        "materials": [material], "buffers": [{"byteLength": len(body)}], "bufferViews": views, "accessors": accessors, **extra,
     }
     js = json.dumps(doc, separators=(",", ":")).encode()
     js += b" " * ((-len(js)) % 4)
@@ -87,7 +107,7 @@ def read_glb(path):
         a = doc["accessors"][i]
         bv = doc["bufferViews"][a["bufferView"]]
         dt = {FLOAT: np.float32, UBYTE: np.uint8, USHORT: np.uint16, UINT: np.uint32}[a["componentType"]]
-        w = {"SCALAR": 1, "VEC3": 3}[a["type"]]
+        w = {"SCALAR": 1, "VEC2": 2, "VEC3": 3}[a["type"]]
         return np.frombuffer(binary, dt, a["count"] * w, bv["byteOffset"]).reshape(a["count"], w)
 
     prim = doc["meshes"][0]["primitives"][0]

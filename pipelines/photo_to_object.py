@@ -211,7 +211,8 @@ if modal is not None:
         print(json.dumps(check_lift_imports.remote(), indent=2))
 
     @app.local_entrypoint()
-    def main(exp: str = "data/eval/cc-38-photo-to-3d", rnd: str = "r1", only: str = "", grow: int = 0, k: int = 4, budget_usd: float = 4.0):
+    def main(exp: str = "data/eval/cc-38-photo-to-3d", rnd: str = "r1", only: str = "", grow: int = 0, k: int = 4, budget_usd: float = 4.0,
+             pad: float = 0.0, texture: bool = False):
         photos = _photos(exp, only)
         out_root = f"{exp}/{rnd}"
         os.makedirs(out_root, exist_ok=True)
@@ -227,7 +228,11 @@ if modal is not None:
             mask_png = m["mask_png"]
             if grow:
                 mask_png = _grow_png(mask_png, grow)
-            r = lift_w.run.remote(m["masked_jpeg"], mask_png, SEED)
+            lift_jpeg, lift_mask = m["masked_jpeg"], mask_png
+            if pad:  # context round: the lift sees the photo on a larger canvas
+                lift_jpeg, lift_mask = _pad_inputs(lift_jpeg, lift_mask, pad)
+                open(f"{d}/lift_input.jpg", "wb").write(lift_jpeg)
+            r = lift_w.run.remote(lift_jpeg, lift_mask, SEED)
             wall = time.time() - t0
             open(f"{d}/masked.jpg", "wb").write(m["masked_jpeg"])
             open(f"{d}/mask.png", "wb").write(mask_png)
@@ -245,13 +250,13 @@ if modal is not None:
                 break
         loads = {"mask_load_seconds": round(m["load_seconds"], 1), "lift_load_seconds": round(r["load_seconds"], 1)}
         run = {"experiment": "cc-38-photo-to-3d", "round": rnd, "issue": "CC-38", "date": time.strftime("%Y-%m-%d"), "seed": SEED,
-               "settings": {"mask_grow_px": grow, "colour_k": k}, "photos": per, **loads,
+               "settings": {"mask_grow_px": grow, "colour_k": k, "pad_fraction": pad, "texture": texture}, "photos": per, **loads,
                "gpu_seconds": {"l4": round(gpu["l4_seconds"] + m["load_seconds"]), "l40s": round(gpu["l40s_seconds"] + r["load_seconds"])},
                "gpu_minutes": round((gpu["l4_seconds"] + gpu["l40s_seconds"] + m["load_seconds"] + r["load_seconds"]) / 60, 1),
                "estimated_usd": round(_usd(gpu, m["load_seconds"], r["load_seconds"]), 3),
                "price_basis": "L40S $1.95/h, L4 $0.80/h, container seconds in methods plus one model load each; idle scale-down time not included"}
         json.dump(run, open(f"{out_root}/run.json", "w"), indent=2)
-        bake_round(exp, rnd, only, k=k)
+        bake_round(exp, rnd, only, k=k, texture=texture)
 
 
 def _usd(gpu, l4_load, l40_load):
@@ -264,6 +269,19 @@ def _photos(exp, only):
     return [p for p in ps if not keep or p["photo"] in keep]
 
 
+def _pad_inputs(jpeg, mask_png, frac):
+    """Paste the photo (edge pixels repeated) and its mask (zeros) onto a canvas 1 + 2 * frac times as large."""
+    import numpy as np
+    from PIL import Image
+    img = np.asarray(Image.open(io.BytesIO(jpeg)).convert("RGB"))
+    m = np.asarray(Image.open(io.BytesIO(mask_png)).convert("L"))
+    py, px = round(img.shape[0] * frac), round(img.shape[1] * frac)
+    bi, bm = io.BytesIO(), io.BytesIO()
+    Image.fromarray(np.pad(img, ((py, py), (px, px), (0, 0)), mode="edge")).save(bi, "JPEG", quality=95)
+    Image.fromarray(np.pad(m, ((py, py), (px, px)), mode="constant")).save(bm, "PNG")
+    return bi.getvalue(), bm.getvalue()
+
+
 def _grow_png(png, px):
     import numpy as np
     from PIL import Image
@@ -274,27 +292,40 @@ def _grow_png(png, px):
     return b.getvalue()
 
 
-def bake_round(exp, rnd, only="", k=4):
-    """The CPU part: raw lift -> GLB, mesh.json and the contact sheet, for each photo of the round that has a raw.npz."""
+def bake_round(exp, rnd, only="", k=4, texture=False, raw_from=None, size=1024):
+    """The CPU part: raw lift -> GLB, mesh.json and the contact sheet, for each photo that has a raw.npz.
+
+    `raw_from` names an earlier round whose lifts (and masks) are re-used, so a bake-only change costs no GPU."""
     import numpy as np
     from ccpipe import glb, objbake, objsheet
     rows = []
     for p in _photos(exp, only):
         d = f"{exp}/{rnd}/{p['photo']}"
-        if not os.path.exists(f"{d}/raw.npz"):
+        src = f"{exp}/{raw_from or rnd}/{p['photo']}"
+        if not os.path.exists(f"{src}/raw.npz"):  # big files live outside git: <assets>/cc-38-raw/<round>/<photo>/
+            src = f"{os.environ.get('CC_ASSETS_DIR', os.path.join(HERE, '..', '..', 'conquercourse-assets'))}/cc-38-raw/{raw_from or rnd}/{p['photo']}"
+        if not os.path.exists(f"{src}/raw.npz"):
             continue
+        os.makedirs(d, exist_ok=True)
         t0 = time.time()
-        raw = np.load(f"{d}/raw.npz")
-        v, f, col, info = objbake.bake(raw["vertices"], raw["faces"], raw["splat_xyz"], raw["splat_dc"], raw["splat_opacity"],
-                                       p["label"], p.get("height_m"), k=k)
-        size = glb.write_glb(f"{d}/mesh.glb", v, f, col, name=p["photo"])
-        info.update(photo=p["photo"], box=p["box"], bytes=size, model="SAM 3D Objects (seed 42)", bake_seconds=round(time.time() - t0, 2),
-                    raw_faces=int(len(raw["faces"])), splat_points=int(len(raw["splat_xyz"])))
+        raw = np.load(f"{src}/raw.npz")
+        args = (raw["vertices"], raw["faces"], raw["splat_xyz"], raw["splat_dc"], raw["splat_opacity"], p["label"], p.get("height_m"))
+        if texture:
+            v, f, uv, tex, info = objbake.bake_textured(*args, k=k, texture_size=size)
+            col = None
+        else:
+            v, f, col, info = objbake.bake(*args, k=k)
+            uv = tex = None
+        out = f"{d}/mesh.glb"
+        nbytes = glb.write_glb(out, v, f, col, name=p["photo"], uv=uv, texture=tex)
+        info.update(photo=p["photo"], box=p["box"], bytes=nbytes, model="SAM 3D Objects (seed 42)", bake_seconds=round(time.time() - t0, 2),
+                    raw_faces=int(len(raw["faces"])), splat_points=int(len(raw["splat_xyz"])), lift_round=raw_from or rnd)
         json.dump(info, open(f"{d}/mesh.json", "w"), indent=2)
-        objsheet.sheet(f"{exp}/inputs/{p['photo']}.jpg", p["box"], f"{d}/mask.png", v, f, col, f"{d}/sheet.png",
-                       title=f"{p['photo']}: {p['label']}, {info['height_m']} m ({info['scale_source']})")
+        mask = f"{exp}/{raw_from or rnd}/{p['photo']}/mask.png"
+        objsheet.sheet(f"{exp}/inputs/{p['photo']}.jpg", p["box"], mask, v, f, col, f"{d}/sheet.png",
+                       title=f"{p['photo']}: {p['label']}, {info['height_m']} m ({info['scale_source']})", uv=uv, tex=tex)
         rows.append(info)
-        print(p["photo"], info["faces"], "faces", size, "bytes", info["height_m"], "m tilt", info["tilt_deg"])
+        print(p["photo"], info["faces"], "faces", nbytes, "bytes", info["height_m"], "m tilt", info["tilt_deg"], f"{info['bake_seconds']}s")
     return rows
 
 
@@ -306,5 +337,8 @@ if __name__ == "__main__":
     ap.add_argument("--round", default="r1")
     ap.add_argument("--only", default="")
     ap.add_argument("--k", type=int, default=4)
+    ap.add_argument("--texture", action="store_true", help="bake the colour into a UV texture instead of vertex colours")
+    ap.add_argument("--raw-from", default=None, help="re-use the lifts of this earlier round (no GPU)")
+    ap.add_argument("--size", type=int, default=1024)
     a = ap.parse_args()
-    bake_round(a.exp, a.round, a.only, a.k)
+    bake_round(a.exp, a.round, a.only, a.k, a.texture, a.raw_from, a.size)
