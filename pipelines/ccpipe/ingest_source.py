@@ -52,22 +52,23 @@ def write_sums(folder):
     (folder / "SHA256SUMS").write_text("\n".join(lines) + "\n")
 
 
-def ytdlp(*args, cookies=None):
-    cmd = [sys.executable, "-m", "yt_dlp", "--js-runtimes", "node", *(["--cookies", str(cookies)] if cookies else []), *args]
+def ytdlp(*args):
+    # No login and no cookies, ever: a personal cookie file must never reach this repo or a server.
+    cmd = [sys.executable, "-m", "yt_dlp", "--js-runtimes", "node", *args]
     return subprocess.run(cmd, capture_output=True, text=True)
 
 
-def fetch_info(url, cookies=None):
-    r = ytdlp("--skip-download", "--dump-single-json", url, cookies=cookies)
+def fetch_info(url):
+    r = ytdlp("--skip-download", "--dump-single-json", url)
     if r.returncode != 0:
         raise Refused("could not read the video's details: " + (r.stderr.strip().splitlines() or ["unknown error"])[-1][:300])
     return json.loads(r.stdout)
 
 
-def download(url, folder, cookies=None):
+def download(url, folder):
     folder = Path(folder)
     folder.mkdir(parents=True, exist_ok=True)
-    r = ytdlp("-f", "bv*[height<=1920]+ba/b[height<=1920]/b", "--merge-output-format", "mp4", "-o", str(folder / "source.%(ext)s"), url, cookies=cookies)
+    r = ytdlp("-f", "bv*[height<=1920]+ba/b[height<=1920]/b", "--merge-output-format", "mp4", "-o", str(folder / "source.%(ext)s"), url)
     if r.returncode != 0:
         raise Refused("download failed: " + (r.stderr.strip().splitlines() or ["unknown error"])[-1][:300])
     return folder / "source.mp4"

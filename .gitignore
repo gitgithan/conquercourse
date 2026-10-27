@@ -7,3 +7,7 @@ playwright-report/
 .env*
 __pycache__/
 .venv/
+cookies*.txt
+*cookies*.txt
+*.cookies
+

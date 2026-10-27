@@ -73,10 +73,10 @@
 
 - **Result for the game:** the ingest machinery is built and tested, but **none of the three videos has been processed yet**, so no Rookie move and no demo beat has been gained from them.
   - YouTube refused every download from this machine ("confirm you're not a bot"); I tried yt-dlp's default, tv, web_safari, android_vr and mweb clients with a JS runtime and stopped there.
-  - I did not use cookies, proxies or download mirrors; a cookies file or the files themselves have to come from the product owner.
+  - I did not use cookies, proxies or download mirrors; the files themselves have to come from the product owner's laptop.
 - **What does work (checked on real data):** on the CC-26 brick-wall clip as a stand-in, SAM 3.1 found the wall, its ledge caps and the poles with clean masks, and the fit gave the wall as a primitive with a metric height and an uncertainty (`data/eval/cc-29-fixture-brick-wall/`).
   - It is a pipeline check, not an ingest result: that clip is Pexels-licensed, not CC BY.
-- **Recommendation:** send a yt-dlp cookies file (or the three downloaded videos with their `.info.json`), then run the commands below; expected spend is about $3.5 and about 133 GPU minutes over at most 3 containers.
+- **Recommendation:** send the three downloaded videos with their `.info.json` (no cookies), then run the commands below; expected spend is about $3.5 and about 133 GPU minutes over at most 3 containers.
 - **Wall clip (task D), my expectation, not a result:** the 2:29-2:35 clip is most likely **contact targets for Kimodo, not a starter clip**.
   - The ingest's gate has just become stricter (see below), and a 480x480 side view has weak vertical scale (CC-26 found heights 30-80 % off).
   - The CC-26 brick-wall climb shows why: it meets CC-17's wall-run numbers (plant 1.29 m, travel 2.24 m, grip 2.7 s) yet **fails the gate** (1.23 s with nothing holding the body), so passing the move check does not make a clip shippable.
@@ -94,7 +94,7 @@
 
 ## How to run it when the videos are available
 - Setup: `uv pip install yt-dlp pillow opencv-python-headless meta_sam_parser jsonschema numpy`; set `CC_ASSETS_DIR` to the folder that holds `video/` and `work/`; load the Meta key (`set -a; . ~/.config/ninja/meta.env; set +a`); a Modal token.
-- On a machine YouTube lets in, or with `--cookies cookies.txt`, the command fetches everything itself:
+- On a machine YouTube lets in (the laptop, not logged in), the command fetches everything itself:
   - `python pipelines/ingest_video.py https://www.youtube.com/watch?v=7soV521Xk1A --start 149 --end 155 --id muan-warped-wall --supported-by "a warped wall"`
   - `python pipelines/ingest_video.py https://www.youtube.com/shorts/NCq1BAUcXF8 --start 0 --end 24 --id wnl-warped-wall-short --supported-by "a warped wall"`
   - `python pipelines/ingest_video.py https://www.youtube.com/watch?v=hb5IOXSxqt0 --start 0 --end 38 --id wnl-new-wall-rules --supported-by "a warped wall"`

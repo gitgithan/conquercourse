@@ -197,7 +197,6 @@ def parse_args(argv=None):
     ap.add_argument("--id", required=True)
     ap.add_argument("--info-json", help="a yt-dlp .info.json made elsewhere (when this machine cannot reach the site); with --file")
     ap.add_argument("--file", help="the downloaded video that goes with --info-json")
-    ap.add_argument("--cookies", help="a cookies file for yt-dlp, supplied by the product owner")
     ap.add_argument("--supported-by", help="what holds the athlete in a held move (a human-chosen label, like 'a wall')")
     ap.add_argument("--known-height", help="'phrase=metres', e.g. 'curved wall=4.3': scale from an object of known height")
     ap.add_argument("--obstacle", help="the phrase of the obstacle the move is about (default: the one the contacts fit best)")
@@ -230,7 +229,7 @@ def main(argv=None):
             if args.info_json:
                 info = json.loads(Path(args.info_json).read_text())
             else:
-                info = S.fetch_info(args.url, args.cookies)
+                info = S.fetch_info(args.url)
             run["source"] = S.source_record(info, args.url, args.start, args.end)
             run["licence_check"] = S.check_licence(info)
             hits = S.screen_text_for_minors(info)
@@ -263,7 +262,7 @@ def main(argv=None):
         # 2 cut ----------------------------------------------------------------------------------------------------
         if start_i <= 1:
             vdir.mkdir(parents=True, exist_ok=True)
-            src = Path(args.file) if args.file else (vdir / "source.mp4" if (vdir / "source.mp4").exists() else S.download(args.url, vdir, args.cookies))
+            src = Path(args.file) if args.file else (vdir / "source.mp4" if (vdir / "source.mp4").exists() else S.download(args.url, vdir))
             if args.file and Path(args.file).resolve() != (vdir / "source.mp4").resolve():
                 (vdir / "source.mp4").write_bytes(src.read_bytes())
             if not args.scan:
