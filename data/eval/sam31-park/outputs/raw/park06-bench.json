@@ -1,1 +1,54 @@
-{"metadata": {"include_confidence": "true"}, "top_logprobs": 0, "temperature": 1.0, "top_p": 1.0, "service_tier": "auto", "model": "sam-3.1", "background": false, "tools": [], "tool_choice": "auto", "truncation": "disabled", "id": "resp_6adfbd7de3951a7348dc4d26", "object": "response", "status": "completed", "created_at": 1793047933.0, "completed_at": 1793047933.0, "error": null, "incomplete_details": null, "output": [{"type": "message", "id": "msg_9a05af07-9a0b-4bba-9893-6feda3470966", "role": "assistant", "content": [{"type": "output_text", "text": "", "annotations": [], "logprobs": []}], "status": "completed"}], "instructions": null, "usage": {"input_tokens": 0, "input_tokens_details": {"cached_tokens": 0}, "output_tokens": 0, "output_tokens_details": {"reasoning_tokens": 0}, "total_tokens": 0, "images_processed": 1}, "parallel_tool_calls": true, "store": true, "_ms": 2450, "_seconds": 2.454522132873535}
+{
+  "metadata": {
+    "include_confidence": "true"
+  },
+  "top_logprobs": 0,
+  "temperature": 1,
+  "top_p": 1,
+  "service_tier": "auto",
+  "model": "sam-3.1",
+  "background": false,
+  "tools": [],
+  "tool_choice": "auto",
+  "truncation": "disabled",
+  "id": "resp_6adfbd7de3951a7348dc4d26",
+  "object": "response",
+  "status": "completed",
+  "created_at": 1793047933,
+  "completed_at": 1793047933,
+  "error": null,
+  "incomplete_details": null,
+  "output": [
+    {
+      "type": "message",
+      "id": "msg_9a05af07-9a0b-4bba-9893-6feda3470966",
+      "role": "assistant",
+      "content": [
+        {
+          "type": "output_text",
+          "text": "",
+          "annotations": [],
+          "logprobs": []
+        }
+      ],
+      "status": "completed"
+    }
+  ],
+  "instructions": null,
+  "usage": {
+    "input_tokens": 0,
+    "input_tokens_details": {
+      "cached_tokens": 0
+    },
+    "output_tokens": 0,
+    "output_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "total_tokens": 0,
+    "images_processed": 1
+  },
+  "parallel_tool_calls": true,
+  "store": true,
+  "_ms": 2450,
+  "_seconds": 2.454522132873535
+}
