@@ -64,6 +64,18 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
   const scene = new THREE.Scene();
   scene.background = new THREE.Color(0x9fc5e8);
   const camera = new THREE.PerspectiveCamera(40, host.clientWidth / host.clientHeight, 0.1, 400);
+  // the front view window (bottom right, above the drum lane's row): its frame is a div, its picture a second camera drawn in the same canvas
+  const PIP_W = 260, PIP_H = 195, PIP_BOTTOM = 118;
+  const frontCam = new THREE.PerspectiveCamera(38, PIP_W / PIP_H, 0.1, 100);
+  let frontForced = params.get('front') === '1';
+  const pipFrame = document.createElement('div');
+  pipFrame.id = 'frontview';
+  pipFrame.style.cssText = `position:fixed;right:16px;bottom:${PIP_BOTTOM}px;width:${PIP_W}px;height:${PIP_H}px;box-sizing:border-box;border:3px solid #17201d;border-radius:10px;pointer-events:none;display:none;box-shadow:0 4px 14px #0004`;
+  const pipLabel = document.createElement('div');
+  pipLabel.textContent = 'Front view (F)';
+  pipLabel.style.cssText = 'position:absolute;left:8px;top:6px;font:700 12px system-ui,sans-serif;color:#fff;text-shadow:0 1px 2px #000a';
+  pipFrame.appendChild(pipLabel);
+  document.body.appendChild(pipFrame);
   scene.add(new THREE.HemisphereLight(0xffffff, 0x6b7f5a, 1.7));
   const sun = new THREE.DirectionalLight(0xffffff, 2.2);
   sun.position.set(20, 40, 30);
@@ -209,7 +221,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
   // the controls, always visible top-left as a card of key caps (collapse with H)
   const help = document.createElement('div');
   help.id = 'keys';
-  const KEYS: [string, string][] = [['← →', 'Run (hold)'], ['Space', 'Jump · let go of the rope · press on the trampoline'], ['↓', 'Bend your knees (hold, on big drops)'], ...(course !== defaultCourse ? ([['Q / E', 'Hold a bar with the left or right hand (in the air)'], ['← → on a bar', 'Pump the swing: push the way you swing'], ['V', 'Vault over a step with a hand on top (fast, saves energy)']] as [string, string][]) : []), ['G', 'Drums: where the ideal run presses Space'], ['B', 'Debug view: see the collision boxes and where a jump goes'], ['Mouse', 'Drag to turn the view, wheel to zoom, double-click to reset']]; // retry, ideal run and Dojo are on the fall panel and the buttons
+  const KEYS: [string, string][] = [['← →', 'Run (hold)'], ['Space', 'Jump · let go of the rope · press on the trampoline'], ['↓', 'Bend your knees (hold, on big drops)'], ...(course !== defaultCourse ? ([['Q / E', 'Hold a bar with the left or right hand (in the air)'], ['← → on a bar', 'Pump the swing: push the way you swing'], ['V', 'Vault over a step with a hand on top (fast, saves energy)'], ['F', 'Front view window (it shows by itself on a bar)']] as [string, string][]) : []), ['G', 'Drums: where the ideal run presses Space'], ['B', 'Debug view: see the collision boxes and where a jump goes'], ['Mouse', 'Drag to turn the view, wheel to zoom, double-click to reset']]; // retry, ideal run and Dojo are on the fall panel and the buttons
   help.style.cssText = 'position:fixed;left:16px;top:48px;width:290px;background:#fffffff0;border:1px solid #cfd6d0;border-radius:12px;padding:8px 10px;font:500 14px system-ui,sans-serif;color:#17201d;box-shadow:0 2px 10px #0002;pointer-events:none;display:grid;gap:5px';
   const paintKeys = (open: boolean) => {
     help.innerHTML = `<div style="font-weight:700;display:flex;justify-content:space-between">Controls <span style="font-weight:400;color:#58635d">H ${open ? 'hides' : 'shows'}</span></div>` + (open ? KEYS.map(([k, d]) => `<div style="display:grid;grid-template-columns:78px 1fr;gap:8px;align-items:center"><kbd style="font:700 13px ui-monospace,monospace;background:#eef1ec;border:1px solid #b9c2bb;border-bottom-width:3px;border-radius:6px;padding:1px 6px;text-align:center">${k}</kbd><span>${d}</span></div>`).join('') : '');
@@ -373,6 +385,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
     if (e.code === 'Escape' && replay) { replay = null; clearGuides(); showAgain(); }
     if (e.code === 'KeyC') nextCam();
     if (e.code === 'KeyG') drumLane.toggle();
+    if (e.code === 'KeyF') frontForced = !frontForced;
     if (e.code === 'KeyB') toggleDebug();
     if (e.code === 'KeyH') { keysTouched = true; keysOpen = !keysOpen; paintKeys(keysOpen); }
   });
@@ -764,6 +777,21 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
       camera.lookAt(tx, ty, 0);
     }
     renderer.render(scene, camera);
+    // the front view: a small second camera in a corner window, shown while hanging from a bar (F shows it any time)
+    const showFront = frontForced || world.mode === 'hang';
+    pipFrame.style.display = showFront ? 'block' : 'none';
+    if (showFront) {
+      const hold = world.hang ? course.holds?.[world.hang.hold] : undefined;
+      const fx = hold ? hold.x : r.x, fy = hold ? hold.y - 0.9 : r.y + 1.1;
+      frontCam.position.set(fx + 2.9, fy + 0.35, 0.8); frontCam.lookAt(fx, fy, 0);
+      const W = host.clientWidth, H = host.clientHeight;
+      renderer.autoClear = false;
+      renderer.setScissorTest(true);
+      const py = H - PIP_BOTTOM - PIP_H; // the WebGPU viewport counts from the top
+      renderer.setViewport(W - PIP_W - 16, py, PIP_W, PIP_H); renderer.setScissor(W - PIP_W - 16, py, PIP_W, PIP_H);
+      renderer.render(scene, frontCam);
+      renderer.setScissorTest(false); renderer.setViewport(0, 0, W, H); renderer.autoClear = true;
+    }
     document.documentElement.dataset.tick = String(r.tick);
     document.documentElement.dataset.outcome = world.outcome;
     document.documentElement.dataset.mode = world.mode;
