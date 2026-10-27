@@ -1,0 +1,67 @@
+{
+  "version": 1,
+  "name": "Lache demo: run, vault, swing",
+  "startX": 0,
+  "finishX": 56,
+  "jumpSpeed": 4.5,
+  "jumpKeep": 0.88,
+  "terrain": {
+    "waterY": -1.5,
+    "platforms": [
+      {
+        "x0": -10,
+        "x1": 22,
+        "top": 0
+      },
+      {
+        "x0": 22,
+        "x1": 30,
+        "top": 1.0
+      },
+      {
+        "x0": 30,
+        "x1": 36,
+        "top": 0
+      },
+      {
+        "x0": 45,
+        "x1": 64,
+        "top": 0
+      }
+    ]
+  },
+  "holds": [
+    {
+      "x": 39,
+      "y": 2.9
+    },
+    {
+      "x": 42.5,
+      "y": 2.9
+    }
+  ],
+  "zones": [
+    {
+      "id": "vault",
+      "name": "Vault",
+      "x0": 19,
+      "x1": 31
+    },
+    {
+      "id": "lache",
+      "name": "Lache pair",
+      "x0": 31,
+      "x1": 47
+    }
+  ],
+  "checkpoints": [
+    {
+      "id": "vault",
+      "x": 10
+    },
+    {
+      "id": "lache",
+      "x": 28
+    }
+  ]
+}
