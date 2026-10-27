@@ -1,0 +1,91 @@
+{
+  "version": 1,
+  "course": "First Course",
+  "cleared": true,
+  "plan": {
+    "jumpXs": [
+      29.14,
+      40.86,
+      46.98,
+      54.28,
+      62,
+      102.5,
+      116.06,
+      125.5
+    ],
+    "releaseAfter": 34,
+    "bouncePress": 8
+  },
+  "windows": [
+    {
+      "obstacle": "edge at 30 m",
+      "best": 29.14,
+      "lo": 28.3,
+      "hi": 29.96,
+      "widthMs": 227
+    },
+    {
+      "obstacle": "edge at 42 m",
+      "best": 40.86,
+      "lo": 39.76,
+      "hi": 41.96,
+      "widthMs": 300
+    },
+    {
+      "obstacle": "edge at 48.5 m",
+      "best": 46.98,
+      "lo": 45.5,
+      "hi": 48.44,
+      "widthMs": 400
+    },
+    {
+      "obstacle": "edge at 56 m",
+      "best": 54.28,
+      "lo": 53,
+      "hi": 55.54,
+      "widthMs": 346
+    },
+    {
+      "obstacle": "edge at 63.5 m",
+      "best": 62,
+      "lo": 60.5,
+      "hi": 63.48,
+      "widthMs": 405
+    },
+    {
+      "obstacle": "edge at 104 m",
+      "best": 102.5,
+      "lo": 101,
+      "hi": 104,
+      "widthMs": 408
+    },
+    {
+      "obstacle": "rope release",
+      "best": 34,
+      "lo": 28,
+      "hi": 40,
+      "widthMs": 117
+    },
+    {
+      "obstacle": "edge at 118 m",
+      "best": 116.06,
+      "lo": 115,
+      "hi": 118,
+      "widthMs": 408
+    },
+    {
+      "obstacle": "trampoline press",
+      "best": 8,
+      "lo": 4,
+      "hi": 12,
+      "widthMs": 75
+    },
+    {
+      "obstacle": "edge at 127 m",
+      "best": 125.5,
+      "lo": 124,
+      "hi": 127,
+      "widthMs": 408
+    }
+  ]
+}
