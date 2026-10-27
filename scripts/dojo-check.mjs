@@ -26,6 +26,9 @@ try {
   for (const [speed, jump] of [[7, 4.5], [6, 3.5], [8, 5]]) {
     await set('knob-speed', speed); await set('knob-jump', jump); await set('guess', (2 * speed * jump) / 9.81);
     await page.click('#run');
+    checks.lockedAfterRun = (checks.lockedAfterRun ?? true) && (await page.$eval('#guess', (e) => e.disabled)) && (await page.$eval('#run', (e) => e.disabled));
+    checks.canScrub = (checks.canScrub ?? true) && (await page.$$('#scrub')).length === 1;
+    await page.click('#newguess');
   }
   await page.screenshot({ path: 'test-results/dojo/2-try.png' });
   checks.sayingEarned = await has('already decided');
@@ -40,7 +43,7 @@ try {
   checks.formulaShown = await has('2 × speed × push ÷ g');
   await page.screenshot({ path: 'test-results/dojo/4-formula.png' });
   await page.click('#next');
-  checks.appliedToGap = (await page.textContent('#apply')).includes('4.5 m wide');
+  checks.appliedToGap = (await page.textContent('#apply')).includes('Gap 1: 4.5 m wide');
   await page.screenshot({ path: 'test-results/dojo/5-course.png' });
   checks.backLink = (await page.$$('a.btn')).length >= 1;
   console.log(checks, 'errors:', errors);
