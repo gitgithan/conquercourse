@@ -20,6 +20,8 @@ export interface RunnerInput {
   jump: boolean; // leave the ground this tick if standing on it
   jumpSpeed: number; // upward speed at take-off, m/s
   squat: boolean; // bend the knees (read at touchdown)
+  handL?: boolean; // Q: the left hand holds on (a bar)
+  handR?: boolean; // E: the right hand holds on (a bar)
 }
 
 export const NO_INPUT: RunnerInput = { run: false, jump: false, jumpSpeed: 0, squat: false };
