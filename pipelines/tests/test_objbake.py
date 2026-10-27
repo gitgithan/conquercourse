@@ -92,6 +92,33 @@ def test_decimate_caps_faces_and_keeps_the_shape():
     assert np.allclose(np.ptp(v2, axis=0), [2, 1, 0.5], atol=1e-6)
 
 
+def ellipsoid(rx, ry, rz, n=120):
+    """A closed smooth surface like a lift's (one watertight skin), 2 * n * (n - 1) faces."""
+    th = np.linspace(0, np.pi, n + 1)
+    ph = np.linspace(0, 2 * np.pi, 2 * n, endpoint=False)
+    T, Ph = np.meshgrid(th, ph, indexing="ij")
+    v = np.stack([rx * np.sin(T) * np.cos(Ph), ry * np.sin(T) * np.sin(Ph), rz * np.cos(T)], -1).reshape(-1, 3)
+    f = []
+    m = 2 * n
+    for i in range(n):
+        for j in range(m):
+            a, b = i * m + j, i * m + (j + 1) % m
+            c, d = (i + 1) * m + j, (i + 1) * m + (j + 1) % m
+            if i > 0:
+                f.append([a, c, b])
+            if i < n - 1:
+                f.append([b, c, d])
+    return v, np.array(f)
+
+
+def test_decimate_a_smooth_closed_surface_keeps_its_size_and_never_exceeds_the_cap():
+    v, f = ellipsoid(1.5, 0.5, 0.4)
+    assert len(f) > 40000
+    v2, f2 = B.decimate(v, f, 6000)
+    assert 3000 < len(f2) <= 6000
+    assert np.allclose(np.ptp(v2, axis=0), np.ptp(v, axis=0), rtol=0.02)
+
+
 def test_decimate_leaves_small_meshes_alone():
     v, f = box_mesh(1, 1, 1, n=2)
     v2, f2 = B.decimate(v, f, 6000)

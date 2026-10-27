@@ -101,12 +101,18 @@ def base_tilt_deg(v, f, facing=0.7):
 
 
 def decimate(v, f, max_faces=MAX_FACES):
-    """Quadric decimation to at most max_faces; also drops unused vertices."""
+    """Quadric decimation to at most max_faces (retrying with a lower target, since the simplifier may stop early); drops unused vertices."""
     import fast_simplification as fs
     v = np.asarray(v, float)
     f = np.asarray(f, np.int64)
+    target = int(max_faces * 0.97)
+    for _ in range(12):
+        if len(f) <= max_faces:
+            break
+        v, f = fs.simplify(v, f, target_count=target, agg=5)
+        target = int(target * 0.85)
     if len(f) > max_faces:
-        v, f = fs.simplify(v, f, target_count=int(max_faces * 0.97), agg=5)
+        raise RuntimeError(f"could not decimate to {max_faces} faces (stopped at {len(f)})")
     used, inv = np.unique(f, return_inverse=True)
     return v[used], inv.reshape(-1, 3)
 
