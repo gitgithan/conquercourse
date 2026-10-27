@@ -1,0 +1,164 @@
+{
+  "experiment": "cc-26-pexels-motion",
+  "issue": "CC-26",
+  "date": "2026-10-26",
+  "pipeline": "docs/pipelines.md #1 (video to motion)",
+  "command": "python pipelines/video_to_motion/run_clip.py <clip>; python pipelines/video_to_motion/post.py <clip>",
+  "models": {
+    "SAM 3": "facebook/sam3 (sam-checkpoints volume), prompts person/face/license plate at 0.5/0.4/0.4",
+    "SAM 3D Body": "sam-3d-body-dinov3",
+    "FOV": "MoGe 2 (Ruicheng/moge-2-vitl-normal), median of 5 frames per clip",
+    "SOMA-X": "py-soma-x 0.3.4, identity mhr, PoseInversion body_iters 2, full_iters 1, lie_iters 3"
+  },
+  "modal": {
+    "gpu": "L4",
+    "max_containers": 3,
+    "clip_runs_gpu_seconds_estimate": 3168,
+    "clip_runs_gpu_minutes_estimate": 52.8,
+    "smoke_and_debug_runs_gpu_seconds_rough_estimate": 1500,
+    "total_gpu_minutes_estimate": 77.8,
+    "cost_usd_estimate": 1.04,
+    "note": "container time summed from in-container timers plus model load; Modal bills container lifetime, so the true bill can be somewhat higher; L4 list price 0.000222 USD/s; whether credits cover it was not checked"
+  },
+  "clips": {
+    "Jump_over_an_obstacle_vault": {
+      "frames": 124,
+      "frames_measured": 124,
+      "athlete_frames": [
+        7,
+        98
+      ],
+      "focal_px_moge2": 1428.2454013824463,
+      "soma_vertex_err_cm": {
+        "mean": 0.7683637142181396,
+        "median": 0.5101107954978943,
+        "max": 12.679353713989258
+      },
+      "privacy": {
+        "frames_with_people": 124,
+        "frames_with_a_face": 116,
+        "total_faces": 194,
+        "total_plates": 0
+      },
+      "gate_verdict": "FAIL",
+      "gate_hard": {
+        "knees_bend_forward": true,
+        "legs_not_twisted": true,
+        "knee_range": true,
+        "flight_ballistic": false,
+        "feet_dont_sink": true,
+        "no_teleport": true
+      },
+      "supportedBy": null,
+      "free_flight_fitted_g_without_supportedBy": 0.7757025105827418,
+      "contacts": 9,
+      "container_gpu_seconds": 533,
+      "l4_cost_usd": 0.118
+    },
+    "Monkey_bars_hang_and_swing": {
+      "frames": 300,
+      "frames_measured": 300,
+      "athlete_frames": [
+        0,
+        300
+      ],
+      "focal_px_moge2": 1736.0456228256226,
+      "soma_vertex_err_cm": {
+        "mean": 1.0397253036499023,
+        "median": 0.6203676462173462,
+        "max": 13.308897972106934
+      },
+      "privacy": {
+        "frames_with_people": 300,
+        "frames_with_a_face": 249,
+        "total_faces": 262,
+        "total_plates": 0
+      },
+      "gate_verdict": "PASS",
+      "gate_hard": {
+        "knees_bend_forward": true,
+        "legs_not_twisted": true,
+        "knee_range": true,
+        "flight_ballistic": true,
+        "feet_dont_sink": true,
+        "no_teleport": true
+      },
+      "supportedBy": "playground bars",
+      "free_flight_fitted_g_without_supportedBy": 0.18279598825140453,
+      "contacts": 45,
+      "container_gpu_seconds": 985,
+      "l4_cost_usd": 0.219
+    },
+    "Over_a_brick_wall_vault_or_wall_move": {
+      "frames": 300,
+      "frames_measured": 300,
+      "athlete_frames": [
+        0,
+        300
+      ],
+      "focal_px_moge2": 1325.5432748794556,
+      "soma_vertex_err_cm": {
+        "mean": 0.9466990828514099,
+        "median": 0.6061193346977234,
+        "max": 13.709099769592285
+      },
+      "privacy": {
+        "frames_with_people": 300,
+        "frames_with_a_face": 174,
+        "total_faces": 253,
+        "total_plates": 0
+      },
+      "gate_verdict": "PASS",
+      "gate_hard": {
+        "knees_bend_forward": true,
+        "legs_not_twisted": true,
+        "knee_range": true,
+        "flight_ballistic": true,
+        "feet_dont_sink": true,
+        "no_teleport": true
+      },
+      "supportedBy": "a brick wall",
+      "free_flight_fitted_g_without_supportedBy": 4.706118289018576,
+      "contacts": 37,
+      "container_gpu_seconds": 823,
+      "l4_cost_usd": 0.183
+    },
+    "Precision_jumps_between_concrete_blocks": {
+      "frames": 240,
+      "frames_measured": 240,
+      "athlete_frames": [
+        0,
+        240
+      ],
+      "focal_px_moge2": 1379.6932125091553,
+      "soma_vertex_err_cm": {
+        "mean": 0.8167867660522461,
+        "median": 0.5353817939758301,
+        "max": 11.606019020080566
+      },
+      "privacy": {
+        "frames_with_people": 240,
+        "frames_with_a_face": 216,
+        "total_faces": 224,
+        "total_plates": 0
+      },
+      "gate_verdict": "FAIL",
+      "gate_hard": {
+        "knees_bend_forward": true,
+        "legs_not_twisted": true,
+        "knee_range": true,
+        "flight_ballistic": false,
+        "feet_dont_sink": true,
+        "no_teleport": true
+      },
+      "supportedBy": null,
+      "free_flight_fitted_g_without_supportedBy": 0.5034275193189338,
+      "contacts": 13,
+      "container_gpu_seconds": 827,
+      "l4_cost_usd": 0.184
+    }
+  },
+  "errors": [
+    "first image builds failed on missing braceexpand and bf16/fp32 mismatch; fixed, see README"
+  ]
+}

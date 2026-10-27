@@ -1,0 +1,157 @@
+[
+  {
+    "joint": "LeftFoot",
+    "frames": [
+      39,
+      39
+    ],
+    "t": [
+      1.84,
+      1.84
+    ],
+    "point": [
+      0.948,
+      2.248,
+      5.056
+    ],
+    "kind": "obstacle",
+    "brief_plant": true
+  },
+  {
+    "joint": "RightFoot",
+    "frames": [
+      40,
+      40
+    ],
+    "t": [
+      1.88,
+      1.88
+    ],
+    "point": [
+      0.682,
+      2.36,
+      5.438
+    ],
+    "kind": "obstacle",
+    "brief_plant": true
+  },
+  {
+    "joint": "LeftFoot",
+    "frames": [
+      49,
+      54
+    ],
+    "t": [
+      2.24,
+      2.44
+    ],
+    "point": [
+      0.105,
+      0.044,
+      5.763
+    ],
+    "kind": "ground"
+  },
+  {
+    "joint": "RightFoot",
+    "frames": [
+      51,
+      54
+    ],
+    "t": [
+      2.32,
+      2.44
+    ],
+    "point": [
+      0.066,
+      0.062,
+      6.096
+    ],
+    "kind": "ground"
+  },
+  {
+    "joint": "RightFoot",
+    "frames": [
+      56,
+      90
+    ],
+    "t": [
+      2.52,
+      3.88
+    ],
+    "point": [
+      0.066,
+      0.071,
+      6.163
+    ],
+    "kind": "ground"
+  },
+  {
+    "joint": "RightHand",
+    "frames": [
+      60,
+      90
+    ],
+    "t": [
+      2.68,
+      3.88
+    ],
+    "point": [
+      -0.202,
+      0.878,
+      5.963
+    ],
+    "kind": "obstacle"
+  },
+  {
+    "joint": "LeftFoot",
+    "frames": [
+      66,
+      69
+    ],
+    "t": [
+      2.92,
+      3.04
+    ],
+    "point": [
+      -0.1,
+      0.101,
+      6.274
+    ],
+    "kind": "ground"
+  },
+  {
+    "joint": "LeftHand",
+    "frames": [
+      72,
+      90
+    ],
+    "t": [
+      3.16,
+      3.88
+    ],
+    "point": [
+      0.137,
+      0.93,
+      6.53
+    ],
+    "kind": "obstacle"
+  },
+  {
+    "joint": "LeftFoot",
+    "frames": [
+      73,
+      90
+    ],
+    "t": [
+      3.2,
+      3.88
+    ],
+    "point": [
+      0.173,
+      0.071,
+      6.342
+    ],
+    "kind": "ground"
+  }
+]
