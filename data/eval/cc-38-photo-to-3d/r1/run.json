@@ -117,12 +117,12 @@
     {
       "photo": "rail01",
       "mask_seconds": 0.4,
-      "lift_seconds": 8.0,
+      "lift_seconds": 8,
       "wall_seconds": 14.2,
       "mask": {
         "how": "box-prompt",
         "score": 0.9375,
-        "iou_with_box": 0.0,
+        "iou_with_box": 0,
         "candidates": 0,
         "pixels": 7383
       },

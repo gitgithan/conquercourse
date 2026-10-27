@@ -15,7 +15,7 @@
     "l40s": 0
   },
   "gpu_minutes": 0,
-  "estimated_usd": 0.0,
+  "estimated_usd": 0,
   "price_basis": "CPU only; re-uses the lifts of r1",
   "photos": [
     {
@@ -39,14 +39,14 @@
       "faces": 5820,
       "bytes": 359976,
       "height_m": 0.9,
-      "tilt_deg": 2.0,
+      "tilt_deg": 2,
       "bake_seconds": 6.74
     },
     {
       "photo": "park01",
       "faces": 5819,
       "bytes": 330196,
-      "height_m": 1.0,
+      "height_m": 1,
       "tilt_deg": 0.96,
       "bake_seconds": 4.59
     },
@@ -54,7 +54,7 @@
       "photo": "park02",
       "faces": 5820,
       "bytes": 341988,
-      "height_m": 1.0,
+      "height_m": 1,
       "tilt_deg": 8.62,
       "bake_seconds": 3.99
     },
@@ -86,7 +86,7 @@
       "photo": "rail01",
       "faces": 5820,
       "bytes": 584968,
-      "height_m": 1.0,
+      "height_m": 1,
       "tilt_deg": 2.03,
       "bake_seconds": 6.64
     }
