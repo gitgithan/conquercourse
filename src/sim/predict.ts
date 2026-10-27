@@ -15,7 +15,7 @@ export interface Prediction {
 
 export function predictJump(w: WorldState, course: CourseData, maxTicks = 240): Prediction {
   if (w.outcome !== 'running') return { path: [], result: 'other-move', why: 'The run is over: press R to try again.' };
-  if (w.mode !== 'run') return { path: [], result: 'other-move', why: w.mode === 'swing' ? 'On the rope: Space lets go.' : w.mode === 'bounce' ? 'On the trampoline: Space pumps the bounce.' : 'On the wall: the move plays itself.' };
+  if (w.mode !== 'run') return { path: [], result: 'other-move', why: w.mode === 'swing' ? 'On the rope: Space lets go.' : w.mode === 'bounce' ? 'On the trampoline: Space pumps the bounce.' : w.mode === 'hang' ? 'On a bar: let go of Q and E to fly; push the arrows to build the swing.' : w.mode === 'vault' ? 'Going over the step with a hand on top.' : 'On the wall: the move plays itself.' };
   const path = [{ x: w.runner.x, y: w.runner.y }];
   let s = w;
   let left = !w.runner.grounded;

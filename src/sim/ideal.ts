@@ -65,6 +65,7 @@ export function playPlan(course: CourseData, plan: Plan, maxTicks = 120 * 80): R
   for (let i = 0; i < maxTicks && w.outcome === 'running'; i++) {
     w = stepWorld(w, inputFor(plan, w, st), course);
     events.push(...w.events);
+    if (!Number.isFinite(w.runner.x)) break; // a state that went to NaN has nowhere to go
     maxX = Math.max(maxX, w.runner.x);
     // a runner pressed against something it cannot pass will never get anywhere: stop after 1.5 s of standing still (it only costs time to go on)
     still = w.mode === 'run' && w.runner.grounded && Math.abs(w.runner.vx) < 0.01 ? still + 1 : 0;
@@ -117,6 +118,36 @@ export function searchIdealRun(course: CourseData): { plan: Plan; windows: Windo
   void progress;
   for (let k = 0; k < es.length; k++) {
     const e = es[k];
+    // bars within a swing of this edge: a joint search over the press and the hang times on the first two bars (a swing and the next catch depend on each other,
+    // so tuning one at a time misses lines that clear), coarse first, then finer around the best few
+    if (!e.riser && holds.some((h) => h.x > e.x - 1 && h.x < e.x + 9) && plan.hangTicks) {
+      const nh = Math.min(2, plan.hangTicks.length);
+      const trial = (jx: number, hs: number[]): { sc: number; plan: Plan } => {
+        const ht = plan.hangTicks!.map((t, i) => (i < nh ? hs[i] : t));
+        const pl: Plan = { ...plan, jumpXs: [...plan.jumpXs, jx], hangTicks: ht };
+        return { sc: score(playPlan(course, pl, 120 * 25)), plan: pl };
+      };
+      let found: { sc: number; plan: Plan }[] = [];
+      const grid = (jxs: number[], hang: number[][]) => {
+        for (const jx of jxs) for (const hs of cross(hang)) { const t = trial(jx, hs); found.push(t); if (t.sc >= 1e6) return true; }
+        return false;
+      };
+      const hangVals = (from: number, to: number, step: number) => Array.from({ length: Math.floor((to - from) / step) + 1 }, (_, i) => from + i * step);
+      let done = grid(candidates(e.x - 3, e.x, 0.3), Array.from({ length: nh }, () => hangVals(0, 480, 30)));
+      if (!done) {
+        const tops = [...found].sort((a, b) => b.sc - a.sc).slice(0, 3);
+        for (const t of tops) {
+          const jx = t.plan.jumpXs[t.plan.jumpXs.length - 1];
+          done = grid(candidates(jx - 0.25, jx + 0.25, 0.05), t.plan.hangTicks!.slice(0, nh).map((h) => hangVals(Math.max(0, h - 24), h + 24, 6)));
+          if (done) break;
+        }
+      }
+      const win = found.reduce((a, b) => (b.sc > a.sc ? b : a));
+      plan.jumpXs = win.plan.jumpXs; plan.hangTicks = win.plan.hangTicks;
+      windows.push({ obstacle: `${e.name} (take-off)`, best: plan.jumpXs[plan.jumpXs.length - 1], lo: plan.jumpXs[plan.jumpXs.length - 1], hi: plan.jumpXs[plan.jumpXs.length - 1], widthMs: 0 });
+      for (let pass = 0; pass < 2; pass++) for (let i = 0; i < plan.hangTicks!.length; i++) tuneHang(course, plan, i, windows, score, pass === 1);
+      continue;
+    }
     if (e.riser) {
       // a step up too tall for a casual walk-up: try a vault and a jump at every press, keep the one that gets farthest (a vault wins a tie: it is faster)
       let best: { x: number; vault: boolean; s: number } | null = null;
@@ -170,12 +201,18 @@ export function searchIdealRun(course: CourseData): { plan: Plan; windows: Windo
   return { plan, windows, cleared: final.world.outcome === 'cleared' };
 }
 
+// Every combination of one value from each list.
+function cross(lists: number[][]): number[][] {
+  return lists.reduce<number[][]>((acc, l) => acc.flatMap((a) => l.map((v) => [...a, v])), [[]]);
+}
+
 // Tune how long to hang on bar i (ticks), keeping the others: the centre of the times that do best.
 function tuneHang(course: CourseData, plan: Plan, i: number, windows: Window[], score: (r: RunResult) => number, last: boolean) {
   const rs: { t: number; s: number }[] = [];
   for (let t = 0; t <= 480; t += 6) rs.push({ t, s: score(playPlan(course, { ...plan, hangTicks: plan.hangTicks!.map((q, j) => (j === i ? t : q)) })) });
   const best = Math.max(...rs.map((r) => r.s));
   const good = rs.filter((r) => r.s >= best - 1e-9).map((r) => r.t);
+  if (!good.length) return;
   plan.hangTicks![i] = good[Math.floor(good.length / 2)];
   if (last) windows.push({ obstacle: `hang on bar ${i + 1}`, best: plan.hangTicks![i], lo: Math.min(...good), hi: Math.max(...good), widthMs: (Math.max(...good) - Math.min(...good) + 6) * DT * 1000 });
 }
