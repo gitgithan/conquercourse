@@ -11,7 +11,7 @@ try {
   const browser = await chromium.launch({ args: flags });
   const page = await browser.newPage({ viewport: { width: 1280, height: 720 } });
   const errors = []; page.on('pageerror', (e) => errors.push(e.message));
-    await page.goto(`http://localhost:${port}/?bot=ideal&startx=${process.env.STARTX ?? 45}&timescale=0.05`);
+    await page.goto(`http://localhost:${port}/?bot=ideal&startx=${process.env.STARTX ?? 45}&timescale=0.05&wallh=${process.env.WALLH ?? 4.3}`);
   await page.waitForSelector('html[data-ready=true]', { timeout: 120000 });
   await page.mouse.move(640, 360); await page.mouse.wheel(0, -500); // zoom in on the runner
   mkdirSync('test-results/wall', { recursive: true });
