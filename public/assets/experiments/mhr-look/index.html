@@ -1,0 +1,32 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>CC-41 MHR look test</title>
+<style>body{margin:0;background:#dfe6ee;font:14px sans-serif}#l{position:fixed;left:8px;top:8px;background:#fffc;padding:4px 8px}</style>
+<div id="l">Top: the Rookie, then the MHR neutral body and 5 shape variants. Bottom: the same bodies on the Rookie's bones, arm up and knee bent.</div>
+<script type="importmap">{"imports":{"three":"/node_modules/three/build/three.module.js","three/addons/":"/node_modules/three/examples/jsm/"}}</script>
+<script type="module">
+import * as THREE from 'three';
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+const R = renderer();
+function renderer() { const r = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true }); r.setSize(innerWidth, innerHeight); document.body.appendChild(r.domElement); return r; }
+const scene = new THREE.Scene(); scene.background = new THREE.Color(0xdfe6ee);
+scene.add(new THREE.HemisphereLight(0xffffff, 0x8899aa, 1.6)); const dl = new THREE.DirectionalLight(0xffffff, 1.5); dl.position.set(2, 4, 5); scene.add(dl);
+const cam = new THREE.PerspectiveCamera(30, innerWidth / innerHeight, 0.1, 100); cam.position.set(0, 1.75, 17); cam.lookAt(0, 1.75, 0);
+const names = ['neutral', 'tall', 'short', 'broad', 'slim', 'stocky'];
+const L = new GLTFLoader(); const load = u => new Promise((ok, no) => L.load(u, ok, undefined, no));
+const dx = 2.1, x0 = -3.5 * dx;
+function place(o, i, y) { o.position.set(x0 + i * dx, y, 0); scene.add(o); }
+const rk = await load('/assets/characters/rookie-a.glb'); place(rk.scene, 0, 2.2);
+for (let i = 0; i < 6; i++) { const g = await load(`./mhr-${names[i]}.glb`); place(g.scene, i + 1, 2.2); }
+const rig = await load('/assets/characters/rookie-a.glb'); place(rig.scene, 0, -0.2);
+function pose(root) {
+  root.traverse(n => {
+    if (n.name === 'RightArm') n.rotateZ(-1.2);
+    if (n.name === 'LeftLeg') n.rotateX(-1.0);
+    if (n.name === 'LeftShin') n.rotateX(1.4);
+  });
+}
+pose(rig.scene);
+for (let i = 0; i < 6; i++) { const g = await load(`./mhr-${names[i]}-rookie-rig.glb`); pose(g.scene); place(g.scene, i + 1, -0.2); }
+R.render(scene, cam); window.__done = true;
+</script>
