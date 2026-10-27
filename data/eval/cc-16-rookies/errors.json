@@ -1,0 +1,26 @@
+{
+  "a": {
+    "worstBones": {
+      "LeftEye": 42,
+      "RightEye": 37,
+      "LeftShoulder": 69,
+      "LeftHandThumbEnd": 26,
+      "RightShoulder": 69
+    },
+    "aimWorstDeg": 69.5,
+    "hipsFromPathM": 0.0788,
+    "floorLiftM": 0.079
+  },
+  "b": {
+    "worstBones": {
+      "LeftEye": 42,
+      "RightEye": 37,
+      "LeftShoulder": 70,
+      "LeftHandThumbEnd": 26,
+      "RightShoulder": 69
+    },
+    "aimWorstDeg": 69.7,
+    "hipsFromPathM": 0.0395,
+    "floorLiftM": 0.04
+  }
+}

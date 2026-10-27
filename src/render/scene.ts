@@ -12,7 +12,7 @@ export interface Stage {
 }
 
 // WebGPU where the browser has it; three's renderer falls back to WebGL 2 on its own.
-export async function createStage(host: HTMLElement): Promise<Stage> {
+export async function createStage(host: HTMLElement, withRookie = true): Promise<Stage> {
   const wantWebGL2 = new URLSearchParams(location.search).get('backend') === 'webgl2';
   const renderer = new THREE.WebGPURenderer({ antialias: true, forceWebGL: wantWebGL2 });
   await renderer.init();
@@ -33,14 +33,13 @@ export async function createStage(host: HTMLElement): Promise<Stage> {
   scene.add(sun);
 
   const ground = new THREE.Mesh(
-    new THREE.PlaneGeometry(40, 40),
+    new THREE.PlaneGeometry(2000, 2000),
     new THREE.MeshStandardMaterial({ color: 0x7aa95c }),
   );
   ground.rotation.x = -Math.PI / 2;
   scene.add(ground);
 
-  const gltf = await new GLTFLoader().loadAsync('/assets/characters/rookie-a.glb');
-  const rookie = gltf.scene;
+  const rookie = withRookie ? (await new GLTFLoader().loadAsync('/assets/characters/rookie-a.glb')).scene : new THREE.Object3D();
   scene.add(rookie);
 
   addEventListener('resize', () => {
