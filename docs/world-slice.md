@@ -183,3 +183,6 @@ The set of obstacle shapes is fixed, and each shape offers a fixed set of moves.
 ## Swing aids: push and let-go cues (CC-44)
 - **On a bar:** the hint says which arrow to push (the way the body is swinging) and, from a look ahead run on the simulator's own physics (`predictRelease`), "LET GO NOW" when letting go reaches the next bar or the far ground, or why to keep swinging ("you would land back on the near side", "you fall in the water").
 - **Debug view:** while hanging it draws the path of letting go now instead of a jump.
+
+## Demo menu (CC-44)
+- **A menu at the right of the Course** ("Open another course") lists every course we have made: the stock course, the lache demo, two lanes from the demo scene, three places from the map spike (Barcelona, Montmartre, Sydney) and a link to the editor; `scripts/demos-check.mjs` opens each one.
