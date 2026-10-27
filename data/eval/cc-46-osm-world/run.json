@@ -1,0 +1,199 @@
+{
+  "experiment": "cc-46-osm-world",
+  "date": "2026-10-27",
+  "script": "scripts/osm-lane.ts",
+  "sources": [
+    "OpenStreetMap via Overpass API (no key)",
+    "AWS Terrain Tiles, Terrarium z15 (no account), Montmartre only"
+  ],
+  "places": {
+    "eixample-barcelona": {
+      "place": "eixample-barcelona",
+      "lat": 41.3917,
+      "lon": 2.1649,
+      "radius": 120,
+      "terrain": false,
+      "terrainRelief_m": 0,
+      "buildings": 47,
+      "withRealHeight": 36,
+      "medianHeight_m": 21,
+      "shrink": 0.238,
+      "shrinkTries": [
+        {
+          "shrink": 0.238,
+          "lanes": 2
+        }
+      ],
+      "triangles": 2627,
+      "shrunkHeightRange_m": [
+        0.7,
+        8
+      ],
+      "samples": 533215,
+      "lanesFound": 2,
+      "secondsTaken": 10,
+      "bestLane": {
+        "turnDeg": 100,
+        "sidewaysM": 28.1,
+        "levelM": 1,
+        "gaps": 0,
+        "steps": 1,
+        "curves": 0,
+        "faces": 0,
+        "length": 33.300000000000004,
+        "variety": 1,
+        "maxRise": 0.6791263818740845,
+        "score": 3.5,
+        "searchIdealRunCleared": true
+      },
+      "candidates": [
+        {
+          "turnDeg": 100,
+          "sidewaysM": 28.1,
+          "score": 3.5
+        },
+        {
+          "turnDeg": 120,
+          "sidewaysM": 33,
+          "score": 3.5
+        }
+      ],
+      "glbBytes": 141112
+    },
+    "montmartre-paris": {
+      "place": "montmartre-paris",
+      "lat": 48.8867,
+      "lon": 2.3431,
+      "radius": 120,
+      "terrain": true,
+      "terrainRelief_m": 38.5,
+      "buildings": 42,
+      "withRealHeight": 35,
+      "medianHeight_m": 9,
+      "shrink": 0.072,
+      "shrinkTries": [
+        {
+          "shrink": 0.556,
+          "lanes": 0
+        },
+        {
+          "shrink": 0.333,
+          "lanes": 0
+        },
+        {
+          "shrink": 0.2,
+          "lanes": 0
+        },
+        {
+          "shrink": 0.12,
+          "lanes": 0
+        },
+        {
+          "shrink": 0.072,
+          "lanes": 2
+        }
+      ],
+      "triangles": 2534,
+      "shrunkHeightRange_m": [
+        0.2,
+        6
+      ],
+      "samples": 33038,
+      "lanesFound": 2,
+      "secondsTaken": 42,
+      "bestLane": {
+        "turnDeg": 170,
+        "sidewaysM": -4,
+        "levelM": 1,
+        "gaps": 1,
+        "steps": 4,
+        "curves": 0,
+        "faces": 0,
+        "length": 17.8,
+        "variety": 2,
+        "maxRise": 0.4545232057571411,
+        "score": 7.5,
+        "searchIdealRunCleared": true
+      },
+      "candidates": [
+        {
+          "turnDeg": 170,
+          "sidewaysM": -4,
+          "score": 7.5
+        },
+        {
+          "turnDeg": 110,
+          "sidewaysM": -7.5,
+          "score": 1
+        }
+      ],
+      "glbBytes": 135808
+    },
+    "circular-quay-sydney": {
+      "place": "circular-quay-sydney",
+      "lat": -33.861,
+      "lon": 151.2111,
+      "radius": 120,
+      "terrain": false,
+      "terrainRelief_m": 0,
+      "buildings": 44,
+      "withRealHeight": 18,
+      "medianHeight_m": 9,
+      "shrink": 0.2,
+      "shrinkTries": [
+        {
+          "shrink": 0.556,
+          "lanes": 0
+        },
+        {
+          "shrink": 0.333,
+          "lanes": 0
+        },
+        {
+          "shrink": 0.2,
+          "lanes": 3
+        }
+      ],
+      "triangles": 989,
+      "shrunkHeightRange_m": [
+        0.6,
+        8
+      ],
+      "samples": 235686,
+      "lanesFound": 3,
+      "secondsTaken": 42,
+      "bestLane": {
+        "turnDeg": 160,
+        "sidewaysM": 20.8,
+        "levelM": 1,
+        "gaps": 2,
+        "steps": 4,
+        "curves": 0,
+        "faces": 0,
+        "length": 24.5,
+        "variety": 2,
+        "maxRise": 0.637169361114502,
+        "score": 8,
+        "searchIdealRunCleared": true
+      },
+      "candidates": [
+        {
+          "turnDeg": 160,
+          "sidewaysM": 20.8,
+          "score": 8
+        },
+        {
+          "turnDeg": 150,
+          "sidewaysM": 13.7,
+          "score": 7.5
+        },
+        {
+          "turnDeg": 30,
+          "sidewaysM": -24.3,
+          "score": 7
+        }
+      ],
+      "glbBytes": 55696
+    }
+  }
+}
