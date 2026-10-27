@@ -262,7 +262,8 @@ def main(argv=None):
             if not args.scan:
                 clip = S.cut(vdir / "source.mp4", args.start, args.end, vdir / "clip.mp4")
                 import cut_frames
-                cut_frames.main(str(clip), str(work / "frames"), 1920)
+                st = cut_frames.probe(clip)
+                cut_frames.main(str(clip), str(work / "frames"), min(1920, max(st["width"], st["height"])))   # never upscale a small video
                 say(f"cut {args.start}-{args.end} s into {len(list((work / 'frames').glob('f*.jpg')))} frames")
             S.write_sums(vdir)
         # scan mode ------------------------------------------------------------------------------------------------

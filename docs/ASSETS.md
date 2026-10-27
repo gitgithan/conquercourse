@@ -48,6 +48,17 @@
 - **Licence:** derived from Pexels-licensed videos; the creators stay credited in the footage table; none of these motions is shown in the game before it passes the plausibility check (two of four fail).
 - **Kept outside git:** frames, masked frames, MHR parameters (`../conquercourse-assets/work/`).
 
+## Video ingest sources (CC-29; not fetched yet)
+| Video (kept outside git in `../conquercourse-assets/video/<id>/` once fetched) | Uploader | Licence (as given in the brief, to be confirmed by the ingest's licence check) | URL | Fetched |
+|---|---|---|---|---|
+| 7soV521Xk1A, ninja warrior runs, side view, 276 s, 480x480 (warped wall at 2:29-2:35) | Andrew Muan | CC BY | https://www.youtube.com/watch?v=7soV521Xk1A | not yet: YouTube's bot check blocked the download (2026-10-27) |
+| NCq1BAUcXF8, warped wall, 1080x1920, 24 s | World Ninja League | CC BY | https://www.youtube.com/shorts/NCq1BAUcXF8 | not yet (same) |
+| hb5IOXSxqt0, "New Warped Wall Rules", 38 s | World Ninja League | CC BY | https://www.youtube.com/watch?v=hb5IOXSxqt0 | not yet (same) |
+- **Rule:** the ingest records the real uploader, licence, URL and date in each run's `inputs/source.json` and refuses anything but CC BY or CC0; update these rows from it after each run.
+- **Nothing derived from these videos is used by the game yet;** no motion is shown before it passes the plausibility check.
+- **Dev fixture:** `data/eval/cc-29-fixture-brick-wall/` re-uses the CC-26 Pexels brick-wall clip (see the Pexels row above) to check the ingest code; its overlay and GIF show a blurred person only.
+- **Derived outputs** (per run, in `data/eval/<id>/`): obstacle overlay (people blurred, faces pixelated), contact sheet, GIF, `primitives.json`, `recipe.json`; credit the uploader wherever they are shown.
+
 ## Motion data (third-party)
 - **CMU Graphics Lab Motion Capture Database:** free to use, credit requested ("The data used in this project was obtained from mocap.cs.cmu.edu"); re-imported here with new code.
 - **Candidates checked as publishable:** 100STYLE (CC BY 4.0), HDM05 (CC BY-SA 3.0, derived files must stay CC BY-SA), Kimodo's own generated output (NVIDIA claims no rights in outputs).
