@@ -62,6 +62,15 @@ try {
     await page.waitForFunction(() => /can clear/.test(document.documentElement.dataset.verdict ?? ''), null, { timeout: 20000 }).catch(() => {});
     checks.adviceClears = /can clear/.test(await page.evaluate(() => document.documentElement.dataset.verdict));
   }
+  // the helper window is not covered by anything and its text box is big enough to write in
+  const geo = await page.evaluate(() => { const h = document.getElementById('helper').getBoundingClientRect(), t = document.getElementById('ask').getBoundingClientRect(), f = [...document.querySelectorAll('button')].find((b) => b.textContent === 'Feedback')?.getBoundingClientRect(); const top = document.elementFromPoint(t.left + t.width / 2, t.top + t.height / 2); return { askH: t.height, askW: t.width, covered: !(top && (top.id === 'ask')), overFeedback: !!f && !(f.right < h.left || f.left > h.right || f.bottom < h.top || f.top > h.bottom) }; });
+  checks.helperNotCovered = !geo.covered && !geo.overFeedback && geo.askH >= 50 && geo.askW >= 250;
+  // Fix it: one click changes the layout into one the simulator can clear
+  await page.click('#fixit');
+  await page.waitForFunction(() => document.documentElement.dataset.fixed, null, { timeout: 40000 }).catch(() => {});
+  await page.waitForFunction(() => /can clear/.test(document.documentElement.dataset.verdict ?? ''), null, { timeout: 20000 }).catch(() => {});
+  checks.fixItClears = /can clear/.test(await page.evaluate(() => document.documentElement.dataset.verdict ?? ''));
+  await page.screenshot({ path: 'test-results/editor/fixed.png' });
   // the design partner answers (real Muse Spark call, a fraction of a cent); skipped quietly with no key
   await page.click('#what');
   await page.waitForFunction(() => { const t = document.querySelector('#reply')?.textContent ?? ''; return t && !/Thinking/.test(t); }, null, { timeout: 90000 }).catch(() => {});
