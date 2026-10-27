@@ -4,21 +4,12 @@ import { diagram } from './diagrams';
 import defaultCourse from '../course/default-course.json';
 import type { CourseData } from '../course/course';
 import { courseFacts } from '../course/facts';
-import { addTry, discovered, type Try } from './sayings';
 import { DEFAULT_LANDING } from '../sim/landing';
 import { GRAVITY } from '../sim/units';
 
 // The Dojo: a guided lesson per obstacle. Why it matters, what to try, the shape of the relationship, a rule of
 // thumb, the exact formula (earned, last), and what it means on the Course. Formulas appear only here.
-const KEY = 'cc.dojo.v1';
-interface Save { earned: string[]; tries: Record<string, Try[]> }
-function load(): Save {
-  try { const s = JSON.parse(localStorage.getItem(KEY) ?? '') as Save; return { earned: s.earned ?? [], tries: s.tries ?? {} }; } catch { return { earned: [], tries: {} }; }
-}
-function store(s: Save) { try { localStorage.setItem(KEY, JSON.stringify(s)); } catch { /* private window: keep going */ } }
-
 const STEPS = ['Why it matters', 'Try it', 'The shape', 'A rule of thumb', 'The exact formula', 'On the Course'];
-interface Run { values: Record<string, number>; trial: Trial }
 
 export function startDojo(host: HTMLElement): { backend: 'webgl2' } {
   const q = new URLSearchParams(location.search);
@@ -33,7 +24,6 @@ export function startDojo(host: HTMLElement): { backend: 'webgl2' } {
     wallHeight: num('wallh') ?? facts.wall?.height, ropeLength: num('length') ?? facts.rope?.length,
   };
   const fromCourse = q.get('from') === 'course';
-  const save = load();
   const style = document.createElement('style');
   style.textContent = `
     .dojo{font:16px/1.45 system-ui,sans-serif;color:#17201d;background:#eef1ec;min-height:100%;padding:16px;display:grid;gap:12px;max-width:1200px;margin:0 auto}
@@ -59,7 +49,6 @@ export function startDojo(host: HTMLElement): { backend: 'webgl2' } {
   let exp: Experiment = EXPERIMENTS.find((e) => e.id === q.get('ex')) ?? EXPERIMENTS[0];
   let values = defaults(exp, ctx);
   let step = 0;
-  let runs: Run[] = [];
   let diagramKind: 'real' | 'principle' = 'real';
 
   let refresh: () => void = () => {}; // redraws whatever the current step shows when a slider moves
@@ -73,13 +62,13 @@ export function startDojo(host: HTMLElement): { backend: 'webgl2' } {
   };
   const ctxFor = (e: Experiment): Context => (e.id === 'gap' || e.id === 'wall' || e.id === 'rope' ? ctx : {});
   // each obstacle keeps its own place: switching never throws the lesson away (R2-D2)
-  const states: Record<string, { values: Record<string, number>; step: number; runs: Run[] }> = {};
+  const states: Record<string, { values: Record<string, number>; step: number }> = {};
   const choose = (e: Experiment) => {
-    states[exp.id] = { values, step, runs };
+    states[exp.id] = { values, step };
     exp = e;
     const st = states[e.id];
-    if (st) ({ values, step, runs } = st);
-    else { values = defaults(e, ctx); step = 0; runs = []; }
+    if (st) ({ values, step } = st);
+    else { values = defaults(e, ctx); step = 0; }
     render();
   };
 
@@ -98,7 +87,7 @@ export function startDojo(host: HTMLElement): { backend: 'webgl2' } {
     }
     const tabs = el('div', root, { className: 'tabs' });
     for (const e of EXPERIMENTS) {
-      const b = el<HTMLButtonElement>('button', tabs, { text: e.name + (save.earned.some((s) => e.sayings.includes(s)) ? ' ★' : '') });
+      const b = el<HTMLButtonElement>('button', tabs, { text: e.name });
       b.setAttribute('aria-pressed', String(e === exp));
       b.onclick = () => choose(e);
     }
@@ -147,10 +136,7 @@ export function startDojo(host: HTMLElement): { backend: 'webgl2' } {
       }
       el('strong', panel, { text: exp.question });
       const out = el('div', panel, { id: 'out' });
-      const rb = el('div', panel, { className: 'tabs' });
-      el<HTMLButtonElement>('button', rb, { text: 'Run it', className: 'go', id: 'run' }).onclick = runIt;
-      el<HTMLButtonElement>('button', rb, { text: 'Clear the old lines', id: 'reset' }).onclick = () => { runs = []; render(); };
-      el('span', panel, { className: 'muted', text: 'The picture follows the sliders as you drag them. "Run it" keeps the line, so you can compare it with the next one.' });
+      el('span', panel, { className: 'muted', text: 'Drag the sliders: the picture and the answer follow you at once.' });
       showResult(out);
       refresh = () => { draw(canvas); showResult(out); };
     } else if (step === 2) {
@@ -158,7 +144,7 @@ export function startDojo(host: HTMLElement): { backend: 'webgl2' } {
       const cls = classify(pts);
       const k = exp.knobs.find((kk) => kk.id === exp.primary)!;
       el('strong', panel, { text: `The shape: ${k.label} against the answer` });
-      el('p', panel, { text: `The grey curve is the simulator answering for every ${k.label.toLowerCase()} from ${k.min} to ${k.max}. Your own runs are the dots.` });
+      el('p', panel, { text: `The grey curve is the simulator answering for every ${k.label.toLowerCase()} from ${k.min} to ${k.max}. The dot is where your sliders are now.` });
       el('p', panel, { id: 'shape', text: `This curve is ${L.shapeWords[cls.shape] ?? 'a smooth curve; the next step gives a rule of thumb for it.'}` });
     } else if (step === 3) {
       el('strong', panel, { text: 'A rule of thumb' });
@@ -204,11 +190,6 @@ export function startDojo(host: HTMLElement): { backend: 'webgl2' } {
     const nx = el<HTMLButtonElement>('button', nav, { text: 'Next →', className: 'go', id: 'next' });
     nx.disabled = step === STEPS.length - 1;
     nx.onclick = () => { step++; render(); };
-    if (save.earned.length) {
-      const cab = el('div', root, { className: 'panel', id: 'cabinet' });
-      el('strong', cab, { text: `Trophy cabinet: ${save.earned.length} of ${EXPERIMENTS.reduce((n, e) => n + e.sayings.length, 0)}` });
-      save.earned.forEach((s) => el('div', cab, { className: 'saying', text: s }));
-    }
     draw(canvas);
   }
 
@@ -217,20 +198,7 @@ export function startDojo(host: HTMLElement): { backend: 'webgl2' } {
     out.innerHTML = '';
     const t = preview();
     el('div', out, { className: 'result', text: `${t.answer.toFixed(1)} ${exp.answerUnit}. ${t.note ?? ''}` });
-    const list = save.tries[exp.id] ?? [];
-    if (!discovered(list, primaryKnob())) el('div', out, { className: 'muted', text: `Run it at clearly different ${primaryKnob().label.toLowerCase()} settings to discover this lesson's saying (${Math.min(list.length, 3)} of 3 runs kept).` });
-    else save.earned.filter((s) => exp.sayings.includes(s)).forEach((s) => el('div', out, { className: 'saying', text: s }));
-  }
-
-  const primaryKnob = () => exp.knobs.find((k) => k.id === exp.primary)!;
-
-  function runIt() {
-    runs.push({ values: { ...values }, trial: preview() });
-    if (runs.length > 3) runs.shift(); // the last three runs stay on the picture
-    save.tries[exp.id] = addTry(save.tries[exp.id] ?? [], { v: values[exp.primary], a: preview().answer }, primaryKnob());
-    if (discovered(save.tries[exp.id], primaryKnob())) for (const s of exp.sayings) if (!save.earned.includes(s)) save.earned.push(s);
-    store(save);
-    render();
+    exp.sayings.forEach((say) => el('div', out, { className: 'saying', text: say }));
   }
 
   // a simple stick-figure person, feet at (px, py), `s` pixels per metre
@@ -260,7 +228,7 @@ export function startDojo(host: HTMLElement): { backend: 'webgl2' } {
     if (step === 2) return drawShape(c, W, H, pad);
     const lastTrial = preview(); // the picture follows the sliders; kept runs stay behind it
     if (exp.axis === 'meter') return drawForce(c, W, H, pad, lastTrial);
-    const paths: Point[][] = [...runs.map((r) => r.trial.path), lastTrial.path];
+    const paths: Point[][] = [lastTrial.path];
     const overlays = (lastTrial.overlays ?? []) as Overlay[];
     const meter = false;
     const bottom = meter ? H - 110 : H - pad;
@@ -285,13 +253,11 @@ export function startDojo(host: HTMLElement): { backend: 'webgl2' } {
       c.beginPath(); pts.forEach((p, i) => (i ? c.lineTo(sx(p.x), sy(p.y)) : c.moveTo(sx(p.x), sy(p.y)))); c.stroke(); c.setLineDash([]);
     };
     for (const o of overlays) { line(o.pts, o.color, 5); c.fillStyle = o.color; c.fillText(o.label, sx(o.pts[o.pts.length - 1].x) + 8, sy(o.pts[o.pts.length - 1].y) + 4); }
-    const shades = ['#c3cdc7', '#8bb3a8'];
-    runs.forEach((r, i) => line(r.trial.path, shades[Math.max(0, i - runs.length + 2)], 2.5, [5, 4]));
     line(lastTrial.path, '#0f6b5c', 4);
     if (exp.id === 'rope') {
       const L = values.length, cx = sx(0), cy = sy(L);
       c.fillStyle = '#8a5a2b'; c.fillRect(cx - 18, cy - 8, 36, 8); c.fillStyle = '#58635d'; c.fillText('beam', cx + 24, cy - 2);
-      const th = ((lastTrial ? runs[runs.length - 1].values.angle : values.angle) * Math.PI) / 180;
+      const th = (values.angle * Math.PI) / 180;
       c.strokeStyle = '#c9893b'; c.lineWidth = 2; c.beginPath(); c.arc(cx, cy, 46, Math.PI / 2 - th, Math.PI / 2); c.stroke();
       c.fillStyle = '#c9893b'; c.fillText(`angle ${Math.round((th * 180) / Math.PI)}°`, cx + 52, cy + 40);
       c.fillStyle = '#58635d'; c.fillText('The angle is how far the rope has swung from hanging straight down when you let go.', pad, H - 8);
@@ -304,7 +270,7 @@ export function startDojo(host: HTMLElement): { backend: 'webgl2' } {
       c.fillStyle = '#2f7fc1'; c.fillRect(sx(0), sy(0), sx(farSide) - sx(0), 10);
       c.fillStyle = '#17201d'; c.fillText('water', sx(farSide / 2) - 14, sy(0) + 28); c.fillText(`far side: ${farSide.toFixed(1)} m`, sx(farSide) - 30, sy(0) - 8);
     }
-    c.fillStyle = '#58635d'; c.fillText(runs.length ? `Teal follows the sliders; ${runs.length} kept run${runs.length > 1 ? 's' : ''} in grey` : 'The teal line follows the sliders. Press "Run it" to keep one.', pad, 20);
+    c.fillStyle = '#58635d'; c.fillText('The teal line follows the sliders.', pad, 20);
   }
 
   // Landing: the push on you against time. The block's width is the time you take to stop, its height the push,
@@ -312,7 +278,7 @@ export function startDojo(host: HTMLElement): { backend: 'webgl2' } {
   function drawForce(c: CanvasRenderingContext2D, W: number, H: number, pad: number, now: Trial) {
     const bend = exp.knobs.find((k) => k.id === 'bend')!;
     const tMax = bend.max, left = 64;
-    const top = Math.max(80, now.answer, ...runs.map((r) => r.trial.answer));
+    const top = Math.max(80, now.answer);
     const yMax = Math.ceil((top * 1.15) / 20) * 20;
     const sx = (t: number) => left + (t / tMax) * (W - left - pad), sy = (f: number) => H - 50 - (f / yMax) * (H - 50 - pad - 16);
     c.strokeStyle = '#9aa59e'; c.lineWidth = 1; c.beginPath(); c.moveTo(left, pad); c.lineTo(left, sy(0)); c.lineTo(W - pad, sy(0)); c.stroke();
@@ -330,14 +296,13 @@ export function startDojo(host: HTMLElement): { backend: 'webgl2' } {
       if (fill) { c.fillStyle = fill; c.fillRect(sx(0), sy(bh), sx(bw) - sx(0), sy(0) - sy(bh)); }
       c.strokeStyle = stroke; c.lineWidth = w; c.strokeRect(sx(0), sy(bh), sx(bw) - sx(0), sy(0) - sy(bh));
     };
-    runs.forEach((r) => block(r.trial, null, '#8bb3a8', 2));
     block(now, '#0f6b5c55', '#0f6b5c', 3);
     const speed = Math.sqrt(2 * GRAVITY * values.drop);
     c.fillStyle = '#0f6b5c'; c.font = '600 14px system-ui';
     const bw = now.path[2].x, bh = now.path[2].y;
     c.fillText(`area = ${speed.toFixed(1)} m/s (the speed you lose)`, Math.min(sx(bw) + 10, W - 280), Math.max(pad + 14, sy(bh) + 18));
     c.fillText(`${bh.toFixed(0)} m/s² for ${bw.toFixed(2)} s`, Math.min(sx(bw) + 10, W - 280), Math.max(pad + 34, sy(bh) + 38));
-    c.fillStyle = '#58635d'; c.font = '13px system-ui'; c.fillText(runs.length ? 'Grey outlines: your kept runs' : 'Drag the sliders: the block changes shape but not its area (for the same drop).', left, 18);
+    c.fillStyle = '#58635d'; c.font = '13px system-ui'; c.fillText('Drag the sliders: the block changes shape but not its area (for the same drop).', left, 18);
   }
 
   function drawShape(c: CanvasRenderingContext2D, W: number, H: number, pad: number) {
@@ -352,7 +317,7 @@ export function startDojo(host: HTMLElement): { backend: 'webgl2' } {
     c.strokeStyle = '#8b958f'; c.lineWidth = 3; c.beginPath();
     pts.forEach((p, i) => (i ? c.lineTo(sx(p.x), sy(p.y)) : c.moveTo(sx(p.x), sy(p.y)))); c.stroke();
     c.fillStyle = '#0f6b5c';
-    for (const r of runs) { c.beginPath(); c.arc(sx(r.values[exp.primary]), sy(r.trial.answer), 6, 0, Math.PI * 2); c.fill(); }
+    c.beginPath(); c.arc(sx(values[exp.primary]), sy(exp.run(values, ctxFor(exp)).answer), 6, 0, Math.PI * 2); c.fill(); // where your sliders are now
     void maxX;
   }
 
