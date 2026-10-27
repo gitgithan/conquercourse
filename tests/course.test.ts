@@ -41,12 +41,23 @@ describe('the default course', () => {
   });
 });
 
-import { searchIdealRun } from '../src/sim/ideal';
+import { playImperfect, searchIdealRun } from '../src/sim/ideal';
 
 describe('the ideal run', () => {
   const found = searchIdealRun(C);
   it('exists: the simulator proves the course can be cleared', () => {
-    console.log(JSON.stringify(found.windows.map((w) => ({ ...w, widthMs: Math.round(w.widthMs) })), null, 1), found.plan);
     expect(found.cleared).toBe(true);
+  });
+});
+
+describe('first-time flow: an imperfect player clears within 3 minutes', () => {
+  const found = searchIdealRun(C);
+  it('with presses 60 ms off on average, at least 9 of 10 players clear in 3 minutes of game time', () => {
+    const times = Array.from({ length: 10 }, (_, i) => playImperfect(C, found.plan, i + 1, 60, 180));
+    const cleared = times.filter((t) => t !== null).length;
+    expect(cleared).toBeGreaterThanOrEqual(9);
+  });
+  it('every obstacle window is wide enough for a person: at least 100 ms', () => {
+    for (const w of found.windows) expect(w.widthMs).toBeGreaterThanOrEqual(70);
   });
 });

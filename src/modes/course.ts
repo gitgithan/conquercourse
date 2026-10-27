@@ -96,7 +96,11 @@ export async function startCourse(host: HTMLElement): Promise<CourseGame> {
   const help = document.createElement('div');
   help.style.cssText = 'position:fixed;left:16px;bottom:12px;font:500 14px system-ui,sans-serif;color:#10141c;pointer-events:none';
   help.textContent = 'Hold → to run · Space to jump (or let go of the rope, or press on the trampoline) · ↓ to bend your knees when you land · R to restart · C for camera';
-  document.body.append(hud, msg, help);
+  const panel = document.createElement('div');
+  panel.style.cssText = 'position:fixed;left:50%;top:26%;transform:translateX(-50%);width:min(520px,92vw);background:#fffffff2;border:1px solid #cfd6d0;border-radius:12px;padding:16px;font:16px/1.4 system-ui,sans-serif;color:#17201d;display:none;gap:10px;box-shadow:0 8px 30px #0003';
+  const hint = document.createElement('div');
+  hint.style.cssText = 'position:fixed;left:50%;bottom:48px;transform:translateX(-50%);font:600 20px system-ui,sans-serif;color:#10141c;background:#fffc;border-radius:10px;padding:8px 16px;pointer-events:none';
+  document.body.append(hud, msg, help, panel, hint);
 
   // input
   const keys = new Set<string>();
@@ -107,6 +111,7 @@ export async function startCourse(host: HTMLElement): Promise<CourseGame> {
     keys.add(e.code);
     if (e.code === 'Space') { jumpQueued = true; e.preventDefault(); }
     if (e.code === 'KeyR') restart();
+    if (e.code === 'Escape' && replay) { replay = null; showAgain(); }
     if (e.code === 'KeyC') camMode = camMode === 'side' ? 'chase' : 'side';
   });
   addEventListener('keyup', (e) => keys.delete(e.code));
@@ -123,11 +128,69 @@ export async function startCourse(host: HTMLElement): Promise<CourseGame> {
 
   let world = newWorld(course);
   const log: GameEvent[] = [];
+  const frames: { x: number; y: number }[] = [];
+  let replay: { i: number; from: number; to: number } | null = null;
+  let falls = 0;
+  let everCleared = false;
+  try { everCleared = localStorage.getItem('cc.course.cleared') === '1'; } catch { /* keep going */ }
+  let windows: ReturnType<typeof searchIdealRun>['windows'] | null = null;
+  const zoneAt = (x: number) => course.zones?.find((z) => x >= z.x0 && x < z.x1);
   function restart() {
     world = newWorld(course);
     log.length = 0;
     botState.next = 0; botState.caught = null; botState.bedAt = null;
     msg.textContent = '';
+    frames.length = 0; replay = null; panel.style.display = 'none';
+  }
+
+  // After a fall: retry at once, one tip, a skippable replay, and the offer to train that obstacle.
+  let lastFall: 'splash' | 'slide' = 'splash';
+  function onFall(what: 'splash' | 'slide') {
+    falls++;
+    lastFall = what;
+    const r = world.runner;
+    const zone = zoneAt(what === 'slide' && course.wall ? course.wall.x0 + 1 : r.x);
+    const jump = [...log].reverse().find((e) => e.type === 'jump');
+    let tip = 'Try again.';
+    if (what === 'slide') tip = 'You ran out of speed on the curve. Start the run-up earlier and keep running.';
+    else if (zone?.id === 'trampoline') tip = 'Press Space at the bottom of the bounce for extra height.';
+    else if (zone?.id === 'rope') tip = 'Grab the rope on the way up, then press Space to let go when you are rising.';
+    else if (!jump) tip = 'Press Space just before the edge.';
+    else {
+      windows ??= searchIdealRun(course).windows;
+      const w = windows.find((q) => q.obstacle.startsWith('edge') && Math.abs(q.best - r.x) < 9);
+      if (w) tip = r.x < w.best ? 'You jumped a bit late. Try pressing Space a little earlier.' : 'You jumped a bit early. Try pressing Space a little later.';
+    }
+    const train = everCleared || falls >= 3;
+    panel.innerHTML = '';
+    panel.style.display = 'grid';
+    const h = document.createElement('strong');
+    h.textContent = what === 'slide' ? 'You slid back down the wall.' : `You fell in the water at the ${zone?.name ?? 'course'}.`;
+    const t = document.createElement('div'); t.textContent = tip;
+    const row = document.createElement('div'); row.style.cssText = 'display:flex;flex-wrap:wrap;gap:8px';
+    const mk = (label: string, fn: () => void, primary = false) => {
+      const b = document.createElement('button');
+      b.textContent = label;
+      b.style.cssText = `font:inherit;border:1px solid ${primary ? '#0f6b5c' : '#b9c2bb'};background:${primary ? '#0f6b5c' : '#fff'};color:${primary ? '#fff' : '#17201d'};border-radius:8px;padding:6px 12px;cursor:pointer;font-weight:${primary ? 700 : 400}`;
+      b.onclick = fn; row.appendChild(b); return b;
+    };
+    const retry = mk('Try again (R)', restart, true);
+    mk('Watch what happened', () => { panel.style.display = 'none'; replay = { i: Math.max(0, frames.length - 240), from: Math.max(0, frames.length - 240), to: frames.length }; });
+    if (train) mk(`Train the ${zone?.name ?? 'obstacle'}`, () => { location.search = `?mode=dojo&ex=${zone?.id ?? 'gap'}`; });
+    panel.append(h, t, row);
+    retry.focus();
+  }
+
+  function showAgain() { falls--; onFall(lastFall); }
+
+  // Controls are taught while you play: one short hint at a time, then none.
+  function hintFor(w: WorldState): string {
+    const r = w.runner;
+    if (everCleared || falls > 0) return '';
+    if (r.tick < 60 || (r.x < 4 && r.tick < 600)) return 'Hold → to run';
+    if (r.x > 22 && r.x < 36 && r.grounded) return 'Press Space just before the edge to jump';
+    if (!r.grounded && r.y > 0.3 && r.x < 60) return 'Hold ↓ as you land to bend your knees';
+    return '';
   }
 
   let last = performance.now();
@@ -144,13 +207,26 @@ export async function startCourse(host: HTMLElement): Promise<CourseGame> {
         input = { run: keys.has('ArrowRight') || keys.has('KeyD'), jump: jumpQueued, jumpSpeed: 0, squat: keys.has('ArrowDown') || keys.has('KeyS') };
         jumpQueued = false;
       }
+      const prev = world.outcome;
       world = stepWorld(world, input, course);
       log.push(...world.events);
+      if (replay === null && prev === 'running') frames.push({ x: world.runner.x, y: world.runner.y });
+      if (frames.length > 1200) frames.shift();
+      if (prev === 'running' && world.outcome === 'splash') onFall('splash');
+      if (world.events.some((e) => e.type === 'wall-slide')) onFall('slide');
+      if (prev === 'running' && world.outcome === 'cleared') { everCleared = true; try { localStorage.setItem('cc.course.cleared', '1'); } catch { /* ok */ } }
     }
-    const r = world.runner;
+    let r = world.runner;
+    if (replay) {
+      const f = frames[replay.i];
+      replay.i += 1;
+      if (replay.i >= replay.to || !f) { replay = null; if (world.outcome !== 'running') showAgain(); } else r = { ...r, x: f.x, y: f.y };
+    }
     body.position.set(r.x, r.y + 0.85, 0);
+    hint.textContent = hintFor(world);
+    hint.style.display = hint.textContent ? 'block' : 'none';
     ropeGroup.rotation.z = world.swing ? -world.swing.theta : 0;
-    if (world.outcome !== 'running') msg.textContent = MESSAGES[world.outcome] ?? '';
+    msg.textContent = world.outcome === 'cleared' ? MESSAGES.cleared : '';
     hud.textContent = `Time ${(r.tick / 120).toFixed(1)} s   ·   ${Math.max(0, Math.round(r.x))} m of ${course.finishX} m`;
     const tx = r.x + 5, ty = r.y + 2.5;
     const want = camMode === 'side' ? new THREE.Vector3(tx, ty + 1, 24) : new THREE.Vector3(r.x - 7, r.y + 4, 12);

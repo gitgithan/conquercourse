@@ -28,7 +28,7 @@ export function startDojo(host: HTMLElement): { backend: 'webgl2' } {
   root.className = 'dojo';
   host.appendChild(root);
 
-  let exp: Experiment = EXPERIMENTS[0];
+  let exp: Experiment = EXPERIMENTS.find((e) => e.id === new URLSearchParams(location.search).get('ex')) ?? EXPERIMENTS[0];
   let values = defaults(exp);
   let guess = exp.answerMax / 2;
   let last: Trial | null = null;
