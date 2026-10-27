@@ -171,3 +171,7 @@ The set of obstacle shapes is fixed, and each shape offers a fixed set of moves.
 - **Undo and redo:** Ctrl+Z and Ctrl+Y or the buttons (80 steps).
 - **Test from the selected piece:** starts the runner about 8 m before the selected piece, on the nearest ground.
 - **Not yet for bars:** Fix it and the shift advice (they say so), the front-view window.
+
+## Front view window (CC-44)
+- **What:** a small second camera drawn in a corner window (bottom right) shows the runner from the front while hanging from a bar, so the hands on the bar and the swing can be read next to the side view; F shows it at any time (`?front=1` too).
+- **How:** the same scene is drawn twice in one canvas (a scissored second viewport; the WebGPU viewport counts from the top).
