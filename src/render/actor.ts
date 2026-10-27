@@ -71,7 +71,7 @@ export async function createRookieActor(scene: Scene, opts: { rookie: RookieId }
   const takeoffCom = scale * (takeoffFrame[0][1] - Math.min(...takeoffFrame.map((p) => p[1]))) + scale * comAboveHips(names, takeoffFrame);
 
   // The ready stance, built bone by bone (clip axes: +z forward, +x left, y up): straight up, no lean,
-  // knees soft, feet under the hips, arms hanging with the elbows bent forward and the hands loose.
+  // knees soft, feet under the hips, arms hanging straight down, shoulders level, elbows straight.
   const stand = (() => {
     const f = land.frames[13]; // only for the bone lengths and the face details
     const len = (i: number) => Math.hypot(...f[i].map((v, k) => v - f[land.parents[i]][k]));
@@ -84,12 +84,12 @@ export async function createRookieActor(scene: Scene, opts: { rookie: RookieId }
       let d: Vector3 | null = null;
       if (/^(Spine1|Spine2|Chest|Neck1|Neck2)$/.test(n)) d = up(LEAN);
       else if (n === 'Head') d = up(0);
-      else if (/Shoulder$/.test(n)) d = new Vector3(side * 0.95, 0.3, 0.05);
+      else if (/Shoulder$/.test(n)) d = new Vector3(side * 0.95, 0.3, 0);
       else if (/Arm$/.test(n) && !/Fore/.test(n)) d = new Vector3(side * 0.9, 0.1, 0);
-      else if (/ForeArm$/.test(n)) d = new Vector3(side * 0.08, -1, 0.12);
-      else if (/Hand$/.test(n)) d = new Vector3(side * 0.04, -1, 0.5);
-      else if (/ThumbEnd$/.test(n)) d = new Vector3(side * 0.3, -0.7, 0.5);
-      else if (/MiddleEnd$/.test(n)) d = new Vector3(side * 0.02, -1, 0.5);
+      else if (/ForeArm$/.test(n)) d = new Vector3(side * 0.03, -1, 0);
+      else if (/Hand$/.test(n)) d = new Vector3(0, -1, 0);
+      else if (/ThumbEnd$/.test(n)) d = new Vector3(side * 0.2, -1, 0.15);
+      else if (/MiddleEnd$/.test(n)) d = new Vector3(0, -1, 0);
       else if (/Leg$/.test(n)) d = new Vector3(side * 0.9, -0.5, 0);
       else if (/Shin$/.test(n)) d = new Vector3(0, -1, 0.1);
       else if (/Foot$/.test(n)) d = new Vector3(0, -1, -0.06);
