@@ -23,18 +23,16 @@ try {
   await page.screenshot({ path: 'test-results/dojo/1-why.png' });
   await page.click('#next');
   checks.nextNeverLocked = !(await page.$eval('#next', (b) => b.disabled));
-  checks.noGuessOrLock = (await page.$$('#guess, #newguess, #scrub')).length === 0;
+  checks.noGuessOrLockOrRun = (await page.$$('#guess, #newguess, #scrub, #run')).length === 0;
+  checks.sayingShownAtOnce = await has('already decided');
   for (const [speed, jump] of [[3, 4.5], [6, 4.5], [9, 4.5]]) {
     await set('knob-speed', speed); await set('knob-jump', jump);
     checks.liveResult = (checks.liveResult ?? true) && (await page.textContent('#out')).includes(`${((2 * speed * jump) / 9.81).toFixed(1)} m`);
-    await page.click('#run');
-    checks.runStaysFree = (checks.runStaysFree ?? true) && !(await page.$eval('#run', (e) => e.disabled));
   }
   await page.screenshot({ path: 'test-results/dojo/2-try.png' });
-  checks.sayingEarned = await has('already decided');
   // switching obstacles keeps the lesson place (R2-D2)
   await page.click('text=Landing'); await page.click('text=Gap jump');
-  checks.keepsPlace = (await page.textContent('body')).includes('Runs') === false && (await page.$$('#run')).length === 1;
+  checks.keepsPlace = (await page.$$('#knob-speed')).length === 1;
   await page.click('#next');
   await page.screenshot({ path: 'test-results/dojo/3-shape.png' });
   checks.shapeSaysDirect = (await page.textContent('#shape')).includes('twice the speed flies twice as far');
