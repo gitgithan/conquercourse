@@ -18,7 +18,8 @@
 3. Create the database: `npx wrangler d1 create conquercourse-feedback`; copy the `database_id` it prints into `wrangler.toml`.
 4. Create the table: `npx wrangler d1 migrations apply conquercourse-feedback --remote`.
 5. First publish: `npm run deploy`; when asked, create the Pages project named `conquercourse` with production branch `main`.
-6. Open the address it prints. Send that address to testers.
+6. Open the address it prints.
+  - Send that address to testers.
 7. In the Cloudflare dashboard, Pages, `conquercourse`, Settings, Functions, check the D1 binding `DB` points at `conquercourse-feedback` (the `wrangler.toml` already declares it).
 
 ## Every update
