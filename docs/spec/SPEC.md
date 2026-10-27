@@ -84,7 +84,8 @@
 - **Skeleton:** NVIDIA SOMA 30 joints (Kimodo's), names and arrays always the same length (assert it).
 - **Library, pre-generated offline:** per obstacle type × phase × outcome (clean, short-but-caught, slide back, miss), about 60 clips; speeds and heights handled by time-warp plus a small contact IK at runtime (one mid clip covers 3-7 m/s within 4 cm, measured earlier).
 - **Sources:** Kimodo on the simulator's path (preferred for leaps: the owner's blind test chose it 3/3 over mocap), CMU mocap for everyday moves, measured video for moves nobody recorded.
-- **Obstacle-aware generation (proven 2026-10-27):** Kimodo's prediction is pushed out of obstacle boxes on the last 15 % of denoising steps and read from positions, then two-bone contact IK; tic-tac 108 → 2-5 bones inside, contacts within 6 cm. Open: the kong vault (hands short), foot clean-up.
+- **Obstacle-aware generation (proven 2026-10-27):** Kimodo's prediction is pushed out of obstacle boxes on the last 15 % of denoising steps and read from positions, then two-bone contact IK; tic-tac 108 → 2-5 bones inside, contacts within 6 cm.
+  - Open: the kong vault (hands short), foot clean-up.
 - **Plausibility gate:** every clip passes before it ships: knees forward, knee range ≤ 165°, bone lengths, feet don't sink or slide, ballistic flight, no teleport, no jitter; supported phases (hands on a box, hanging) are marked so they're not judged as free flight.
 - **Runtime posing:** bones aim at the clip's joint positions; hips on the simulator's path; a skin-overlap check pushes limbs out of obstacles each frame.
 - **Experiment clips that haven't passed the gate never go in the game's motion folders.**

@@ -14,7 +14,8 @@
 
 ## Machines and access (all checked 2026-10-27)
 - **Laptop:** main work and the dev server (`http://localhost:5173`); at most one browser test run at a time.
-- **Vultr VM** (`root@<vm1-address>`): Claude Code logged in (`ssh root@<vm> 'claude -p "<task>"'`); a deploy key that pushes only to this repo (`GIT_SSH_COMMAND="ssh -i /root/.ssh/cc_deploy -o IdentitiesOnly=yes"`); the Meta key (`/root/.config/ninja/meta.env`), Modal token and Linear key in private files. About $0.22 an hour while running.
+- **Vultr VM** (`root@<vm1-address>`): Claude Code logged in (`ssh root@<vm> 'claude -p "<task>"'`); a deploy key that pushes only to this repo (`GIT_SSH_COMMAND="ssh -i /root/.ssh/cc_deploy -o IdentitiesOnly=yes"`); the Meta key (`/root/.config/ninja/meta.env`), Modal token and Linear key in private files.
+  - About $0.22 an hour while running.
 - **Linear:** team ConquerCourse (`CC`), project `conquercourse`, milestones M0-M5.
 - **GitHub:** `gitgithan/conquercourse`, private until reviewed for secrets and names, public before submission.
 
