@@ -75,7 +75,7 @@ export function createView3d(wrap: HTMLElement, host: Host): View3d {
     const geo = new THREE.BufferGeometry();
     geo.setAttribute('position', new THREE.Float32BufferAttribute(Array.from(p.mesh.positions as ArrayLike<number>), 3));
     geo.setIndex(Array.from((p.mesh.indices ?? []) as ArrayLike<number>)); geo.computeVertexNormals();
-    return new THREE.Mesh(geo, new THREE.MeshStandardMaterial({ color: 0xa9a392, roughness: 0.95, flatShading: true }));
+    return new THREE.Mesh(geo, p.src === 'hold:bar' ? new THREE.MeshStandardMaterial({ color: 0xd8dde3, metalness: 0.7, roughness: 0.3 }) : new THREE.MeshStandardMaterial({ color: 0xa9a392, roughness: 0.95, flatShading: true }));
   };
   const meshSig = (p: P3) => `${p.src ?? ''}|${p.mesh.positions.length}|${p.mesh.indices?.length ?? 0}|${(p.mesh.positions as ArrayLike<number>)[1] ?? 0}`;
 
