@@ -11,7 +11,7 @@ SCHEMA = json.loads((Path(__file__).resolve().parents[2] / "course/primitives.sc
 
 
 def valid(prims):
-    doc = {"schemaVersion": "0.1.0", "primitives": [{k: v for k, v in p.items() if k != "sizeUncertainty"} for p in prims]}
+    doc = {"schemaVersion": "0.1.0", "primitives": prims}
     jsonschema.Draft202012Validator(SCHEMA).validate(doc)
 
 
@@ -88,3 +88,20 @@ def test_gaps_between_platforms_and_contact_check():
     ok = P.check_with_contacts(wall, [{"kind": "obstacle", "joint": "LeftHand", "point": [0, 1.9, 0]}])
     bad = P.check_with_contacts(wall, [{"kind": "obstacle", "joint": "LeftHand", "point": [0, 3.5, 0]}])
     assert ok["consistent"] and not bad["consistent"]
+
+
+def test_an_oblique_view_trusts_heights_only():
+    scale = P.scale_body_height(300)
+    side = P.fit(det("wall", [0, 100, 900, 400]), scale, 400, view="side")
+    obl = P.fit(det("wall", [0, 100, 900, 400]), scale, 400, view="oblique")
+    assert side["sizes"]["thickness"] > 1.5 and obl["sizes"]["thickness"] == P.TYPICAL_THICKNESS_M
+    assert side["sizes"]["height"] == obl["sizes"]["height"] and obl["sizeUncertainty"]["thickness"] == 0.5
+    assert "oblique" in obl["fit"]["note"]
+    valid([obl])
+
+
+def test_keep_best_drops_specks_and_caps_each_phrase():
+    ds = [det("pole", [0, 0, 5, 5], mask_px=10)] + [det("ledge", [i * 50, 0, i * 50 + 40, 40], mask_px=1000 + i, score=0.5 + i / 100) for i in range(6)]
+    kept = P.keep_best(ds, image_px=100_000)
+    assert [d["phrase"] for d in kept].count("ledge") == 3 and not any(d["phrase"] == "pole" for d in kept)
+    assert min(d["mask_px"] for d in kept) >= 1003

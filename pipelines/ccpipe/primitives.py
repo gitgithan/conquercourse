@@ -88,10 +88,15 @@ def _rel(scale, size_px):
     return round(math.hypot(scale["relativeUncertainty"], PIXEL_SLOP / max(size_px, 1.0)), 3)
 
 
-def fit(det, scale, floor_row_px, edge_points_px=None, idx=1):
+TYPICAL_THICKNESS_M = 0.3
+TYPICAL_RUN_M = 2.0
+
+
+def fit(det, scale, floor_row_px, edge_points_px=None, idx=1, view="side"):
     """One detection {phrase, score, box [x1,y1,x2,y2], mask_px, frames} to a primitive dict, or None when the phrase maps to no primitive.
 
-    floor_row_px: image row of the floor under the obstacle (from the athlete's feet); heights are measured up from it."""
+    floor_row_px: image row of the floor under the obstacle (from the athlete's feet); heights are measured up from it.
+    view: "side" (the camera looks across the run: horizontal sizes are metric) or "oblique" (horizontal sizes are not trusted and fall back to typical values)."""
     rule = primitive_for_phrase(det["phrase"])
     if rule is None:
         return None
@@ -101,40 +106,44 @@ def fit(det, scale, floor_row_px, edge_points_px=None, idx=1):
     w_px, h_px = x2 - x1, y2 - y1
     top_px = max(floor_row_px - y1, 1.0)
     notes, unc = [], {}
+    side = view == "side"
+    if not side:
+        notes.append("oblique view: the horizontal sizes are typical values, only the height is measured")
+        w_px = None
     if ptype == "wall":
-        sizes = {"height": top_px * mpp, "width": TYPICAL_WIDTH_M, "thickness": max(w_px * mpp, 0.05)}
-        unc = {"height": _rel(scale, top_px), "thickness": _rel(scale, w_px)}
+        sizes = {"height": top_px * mpp, "width": TYPICAL_WIDTH_M, "thickness": max(w_px * mpp, 0.05) if side else TYPICAL_THICKNESS_M}
+        unc = {"height": _rel(scale, top_px), "thickness": _rel(scale, w_px) if side else 0.5}
         notes.append(f"width {TYPICAL_WIDTH_M} m is a typical value (not visible in a side view)")
     elif ptype == "ramp":
-        sizes = {"height": top_px * mpp, "run": w_px * mpp, "width": TYPICAL_WIDTH_M, "profile": extra["profile"]}
-        unc = {"height": _rel(scale, top_px), "run": _rel(scale, w_px)}
+        sizes = {"height": top_px * mpp, "run": w_px * mpp if side else TYPICAL_RUN_M, "width": TYPICAL_WIDTH_M, "profile": extra["profile"]}
+        unc = {"height": _rel(scale, top_px), "run": _rel(scale, w_px) if side else 0.5}
         notes.append(f"width {TYPICAL_WIDTH_M} m is a typical value (not visible in a side view)")
         if extra["profile"] == "arc":
-            if edge_points_px is not None and len(edge_points_px) >= 10:
+            if edge_points_px is not None and len(edge_points_px) >= 10 and side:
                 _, _, r_px = fit_circle(edge_points_px)
                 sizes["radius"] = r_px * mpp
                 unc["radius"] = max(_rel(scale, r_px), 0.15)
                 notes.append("radius fitted to the mask's curved edge")
             else:
-                sizes["radius"] = max(top_px, w_px) * mpp
+                sizes["radius"] = max(top_px, w_px or 0) * mpp
                 unc["radius"] = 0.35
                 notes.append("radius guessed as the larger of height and run (a quarter-circle-like curve); no edge points")
     elif ptype == "platform":
-        sizes = {"length": w_px * mpp, "width": TYPICAL_WIDTH_M, "height": top_px * mpp}
-        unc = {"length": _rel(scale, w_px), "height": _rel(scale, top_px)}
+        sizes = {"length": w_px * mpp if side else TYPICAL_RUN_M, "width": TYPICAL_WIDTH_M, "height": top_px * mpp}
+        unc = {"length": _rel(scale, w_px) if side else 0.5, "height": _rel(scale, top_px)}
         notes.append(f"width {TYPICAL_WIDTH_M} m is a typical value (not visible in a side view)")
     elif ptype == "bar":
         mid = floor_row_px - (y1 + y2) / 2
-        sizes = {"height": max(mid, 1.0) * mpp, "length": max(w_px, h_px) * mpp, "diameter": TYPICAL_BAR_DIAMETER_M,
-                 "orientation": "across" if h_px > 1.5 * w_px else "along"}
-        unc = {"height": _rel(scale, mid), "length": _rel(scale, max(w_px, h_px))}
+        sizes = {"height": max(mid, 1.0) * mpp, "length": max(w_px or 0, h_px) * mpp if side else TYPICAL_WIDTH_M, "diameter": TYPICAL_BAR_DIAMETER_M,
+                 "orientation": "across" if (not side or h_px > 1.5 * w_px) else "along"}
+        unc = {"height": _rel(scale, mid), "length": _rel(scale, max(w_px or 0, h_px)) if side else 0.5}
         notes.append("diameter is a typical value")
     elif ptype == "ropeAnchor":
         sizes = {"anchorHeight": top_px * mpp, "ropeLength": h_px * mpp}
         unc = {"anchorHeight": _rel(scale, top_px), "ropeLength": _rel(scale, h_px)}
     elif ptype == "water":
-        sizes = {"length": w_px * mpp, "width": TYPICAL_WIDTH_M}
-        unc = {"length": _rel(scale, w_px)}
+        sizes = {"length": w_px * mpp if side else TYPICAL_RUN_M, "width": TYPICAL_WIDTH_M}
+        unc = {"length": _rel(scale, w_px) if side else 0.5}
     else:   # spring
         sizes = {"width": TYPICAL_WIDTH_M, "restHeight": top_px * mpp, "stiffness": 20000.0}
         unc = {"restHeight": _rel(scale, top_px), "stiffness": 1.0}
@@ -151,7 +160,17 @@ def fit(det, scale, floor_row_px, edge_points_px=None, idx=1):
     return prim
 
 
-def fit_all(dets, scale, floor_row_px, edges=None):
+def keep_best(dets, image_px, min_area_frac=0.004, max_per_phrase=3):
+    """Drop specks (mask under `min_area_frac` of the picture) and keep the `max_per_phrase` biggest-and-best objects per phrase."""
+    big = [d for d in dets if (d.get("mask_px") or 0) >= min_area_frac * image_px]
+    out = []
+    for ph in sorted({d["phrase"] for d in big}):
+        group = sorted((d for d in big if d["phrase"] == ph), key=lambda d: -(d["mask_px"] * (d.get("score") or 0)))
+        out += group[:max_per_phrase]
+    return out
+
+
+def fit_all(dets, scale, floor_row_px, edges=None, view="side"):
     """Merge detections, fit each, number the ids per type. `edges` maps (phrase, box tuple) to edge points."""
     prims, count = [], {}
     for d in merge_detections(dets):
@@ -160,7 +179,7 @@ def fit_all(dets, scale, floor_row_px, edges=None):
         if ptype is None:
             continue
         count[ptype] = count.get(ptype, 0) + 1
-        prims.append(fit(d, scale, floor_row_px, ep, count[ptype]))
+        prims.append(fit(d, scale, floor_row_px, ep, count[ptype], view))
     return prims
 
 

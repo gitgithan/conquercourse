@@ -16,18 +16,19 @@ sys.path.insert(0, str(Path(__file__).parent))
 import modal_app as M
 
 WORK = Path(os.environ.get("CC_ASSETS_DIR", Path(__file__).resolve().parents[3] / "conquercourse-assets")) / "work"
-EVAL = Path(__file__).resolve().parents[2] / "data/eval/cc-26-pexels-motion"
+EVAL = Path(os.environ.get("CC_EVAL_DIR", Path(__file__).resolve().parents[2] / "data/eval/cc-26-pexels-motion"))
 CHUNK = 30
 L4_PER_SECOND = 0.000222  # USD, Modal list price for an L4 (checked at run time in run.json notes)
 
 
-def main(stem):
+def main(stem, eval_dir=None):
+    """eval_dir: folder that holds one subfolder per clip (default: the CC-26 folder)."""
     t0 = time.time()
     fdir = WORK / stem / "frames"
     times = json.loads((fdir / "times.json").read_text())
     n = times["n"]
     frames = [(fdir / f"f{i:05d}.jpg").read_bytes() for i in range(n)]
-    out_small = EVAL / stem
+    out_small = Path(eval_dir or EVAL) / stem
     out_small.mkdir(parents=True, exist_ok=True)
     (WORK / stem / "masked").mkdir(exist_ok=True)
     with modal.enable_output(), M.app.run():
