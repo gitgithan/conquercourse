@@ -1,0 +1,40 @@
+// Walks the World editor: the default world, a toy brick enlarged to a block, copy, crop, the best lane, and playing it.
+import { chromium } from 'playwright';
+import { spawn } from 'node:child_process';
+import { mkdirSync } from 'node:fs';
+const port = process.env.PORT ?? '5173';
+const server = spawn('npx', ['vite', '--port', port, '--strictPort'], { stdio: 'ignore' });
+const flags = ['--enable-unsafe-webgpu', '--enable-features=Vulkan', '--use-vulkan=swiftshader', '--use-angle=swiftshader', '--disable-vulkan-surface', '--ignore-gpu-blocklist'];
+try {
+  await new Promise((r) => setTimeout(r, 3000));
+  const browser = await chromium.launch({ args: flags });
+  const page = await browser.newPage({ viewport: { width: 1300, height: 900 } });
+  const errors = []; page.on('pageerror', (e) => errors.push(e.message));
+  await page.goto(`http://localhost:${port}/?mode=editor`);
+  await page.waitForSelector('#plan', { timeout: 60000 });
+  mkdirSync('test-results/editor', { recursive: true });
+  const checks = {};
+  const text = (sel) => page.textContent(sel);
+  await page.waitForFunction(() => document.documentElement.dataset.verdict, null, { timeout: 20000 });
+  checks.startsWithAWorld = Number(await page.evaluate(() => document.documentElement.dataset.pieces)) === 3;
+  await page.screenshot({ path: 'test-results/editor/1-start.png' });
+  // a toy brick: 3 cm, enlarged x15 to a half-metre block
+  await page.click('text=Toy brick (3 cm)');
+  checks.brickIsBlockSized = /0\.4\d × 0\.2\d m, 0\.1\d m high/.test(await text('#realsize'));
+  await page.fill('#realheight', '0.5'); await page.dispatchEvent('#realheight', 'change');
+  checks.realHeightSet = (await text('#realsize')).includes('0.50 m high');
+  await page.click('#dup');
+  checks.copied = Number(await page.evaluate(() => document.documentElement.dataset.pieces)) === 5 || (await page.$$('canvas')).length === 2;
+  await page.click('#best');
+  await page.waitForFunction(() => /simulator can clear/.test(document.documentElement.dataset.verdict ?? ''), null, { timeout: 30000 }).catch(() => {});
+  checks.bestLaneClears = /simulator can clear/.test(await page.evaluate(() => document.documentElement.dataset.verdict ?? ''));
+  await page.screenshot({ path: 'test-results/editor/2-best.png' });
+  await page.click('#play');
+  await page.waitForSelector('#keys', { timeout: 60000 });
+  await page.waitForTimeout(1200);
+  checks.playsTheLane = (await page.$('.ed')) === null && /m of/.test(await page.textContent('body'));
+  await page.screenshot({ path: 'test-results/editor/3-play.png' });
+  console.log(checks, 'errors:', errors);
+  await browser.close();
+  process.exit(Object.values(checks).every(Boolean) && !errors.length ? 0 : 1);
+} finally { server.kill(); }

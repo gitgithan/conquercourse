@@ -68,7 +68,23 @@ The set of obstacle shapes is fixed, and each shape offers a fixed set of moves.
 - **Honest limits:** one lane per course (no tunnels or overhangs); a lane of 2 m; thin or lacy objects (railings seen from the side) come out as a rod, not a surface, but turning the rod shows a railing from the end, where it is a wide, solid shape.
 - **Not yet checked:** lanes from a real scan (the meshes from CC-38 are not in yet); a lane's look when drawn with its real mesh.
 
+## The product: from photos to a world you can edit (CC-40)
+- **What a user gives us:** photos of their surroundings, drone footage, a scan, or a toy model on a desk.
+  - A **.glb** file is only the format the reconstruction step writes (SAM 3D Objects, photogrammetry apps); users never see it.
+  - The slice search also works on plain point clouds (a mesh without triangles is its own points).
+- **Scale is a number, not a fact:** every piece has a scale (metres per unit of its own mesh).
+  - A drone scan of a whole park is shrunk until it is a course; a 3 cm toy brick is enlarged ×15 until it is a half-metre block.
+  - "Real height" is the one way to say it: type how tall the thing is, and the piece takes that size.
+- **Edit it like an image:** move, turn, scale, lift, copy and paste, and crop (a box cuts every triangle at the box's sides and keeps the inside where it was).
+- **Then choose the lane:** by hand (turn about the rod, sideways, level) or "Find the best lane", seen from the side as it is edited, and played with one button.
+- **Built (the World editor, `?mode=editor`):** a plan view with seven library pieces and .glb import; all of the above; a side view of the lane; the simulator's verdict; Play.
+- **Not built yet:** a 3D view of the world; photos and drone footage going in directly (they go through the reconstruction pipeline first: CC-38); undo; snapping; saving imported pieces between visits; sharing a built world with the community.
+
 ## Try it yourself
+- **The editor:** with `npm run dev` running, open `http://localhost:5173/?mode=editor` (also linked from the Park and the gallery).
+  - Add "Toy brick (3 cm)": it arrives enlarged ×15; type 0.5 in "Real height" and it is a half-metre block.
+  - "Copy and paste" it, drag the copy along the orange band, "Find the best lane for me", then "Play this lane".
+  - Check it: `node scripts/editor-check.mjs`.
 - **Tests:** `npx vitest run tests/slice.test.ts tests/terrain-profile.test.ts` (the slice search, the .glb reader, curved ground).
 - **See lanes cut from a scene:** `npx tsx scripts/demo-scene.ts` writes `public/assets/demo/demo-scene.glb` (a bench, a dome, a low wall, a rounded block and a lone tower) and the best lanes as courses; then, with `npm run dev` running, open `http://localhost:5173/?course=/assets/demo/lane-1.course.json` (and `lane-2`).
 - **Your own scene:** `npx tsx scripts/slice-glb.ts yourscene.glb` prints the best three lanes and writes a sketch and a course for each into `test-results/slices/`.
