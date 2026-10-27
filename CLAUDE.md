@@ -35,6 +35,7 @@ A ninja-warrior physics game where real parks and real moves become the course, 
 
 ## How work is done
 - **Main work happens on the laptop** (the product owner watches at `http://localhost:5173`); the Vultr VM is extra compute: self-contained tasks on their own branches, pulled, reviewed and merged on the laptop.
+- **Agents never touch `node_modules` in git:** run `npm ci` in your own worktree; never symlink it or commit it (a committed symlink once wiped the owner's install).
 - **At most one browser test run at a time on the laptop** (about 7 GB of RAM); heavy runs go to the VM.
 - **JSON is committed pretty-printed** (2 spaces): write it with `indent=2` or run `npm run format:json`; `npm run test:quick` fails on unformatted files.
 - **Order by dependencies:** before an issue or experiment, list what it needs (upstream issues, tools, known lessons in `docs/`); build those first or flag the block; a weakened test that fails is "not tested", not "failed".
