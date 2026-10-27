@@ -1,0 +1,32 @@
+{
+  "label": "stairs",
+  "extents_m": {
+    "x": 4.836,
+    "y": 0.699,
+    "z": 1.543
+  },
+  "height_m": 0.699,
+  "target_height_m": 0.7,
+  "scale_source": "typical:stairs",
+  "scale_factor": 4.8247,
+  "raw_height": 0.1451,
+  "yaw_deg": 0.5,
+  "tilt_deg": 1.35,
+  "faces": 5820,
+  "vertices": 3805,
+  "width_to_height": 6.921,
+  "texture": "1024x1024",
+  "photo": "park07",
+  "box": [
+    168,
+    286,
+    811,
+    394
+  ],
+  "bytes": 345712,
+  "model": "SAM 3D Objects (seed 42)",
+  "bake_seconds": 6.3,
+  "raw_faces": 214216,
+  "splat_points": 175168,
+  "lift_round": "r1"
+}

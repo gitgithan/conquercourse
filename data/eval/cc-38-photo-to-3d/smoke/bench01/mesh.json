@@ -1,0 +1,30 @@
+{
+  "label": "bench",
+  "extents_m": {
+    "x": 1.888,
+    "y": 0.8,
+    "z": 0.64
+  },
+  "height_m": 0.8,
+  "target_height_m": 0.8,
+  "scale_source": "typical:bench",
+  "scale_factor": 1.892,
+  "raw_height": 0.4228,
+  "yaw_deg": 0.0,
+  "tilt_deg": 0.82,
+  "faces": 5820,
+  "vertices": 2910,
+  "width_to_height": 2.361,
+  "photo": "bench01",
+  "box": [
+    165,
+    345,
+    720,
+    660
+  ],
+  "bytes": 114676,
+  "model": "SAM 3D Objects (seed 42)",
+  "bake_seconds": 2.6,
+  "raw_faces": 393048,
+  "splat_points": 318432
+}
