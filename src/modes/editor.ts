@@ -63,8 +63,13 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
       selected = null;
     }
   }
-  const save = () => { try { localStorage.setItem(KEY, JSON.stringify({ pieces: pieces.filter((p) => p.src).map((p) => ({ src: p.src as string, x: p.x, z: p.z, y: p.y, yaw: p.yaw, scale: p.scale })), angle, offset, level } satisfies Saved)); } catch { /* private window */ } };
+  const save = () => { try { localStorage.setItem(KEY, JSON.stringify({ pieces: pieces.filter((p) => p.src && !p.src.startsWith('map:')).map((p) => ({ src: p.src as string, x: p.x, z: p.z, y: p.y, yaw: p.yaw, scale: p.scale })), angle, offset, level } satisfies Saved)); } catch { /* private window */ } };
   load();
+  try { // a place built in ?mode=map arrives once, as the whole world; it is not saved
+    const m = JSON.parse(sessionStorage.getItem('cc.map.piece') ?? 'null') as { name: string; positions: number[]; indices: number[] } | null;
+    sessionStorage.removeItem('cc.map.piece');
+    if (m) { pendingObjects.length = 0; pieces = [{ ...newPiece(m.name, { positions: m.positions, indices: m.indices }), src: `map:${m.name}` }]; selected = pieces[0].id; }
+  } catch { /* no place waiting */ }
 
   const el = <K extends keyof HTMLElementTagNameMap>(tag: K, parent: HTMLElement, props: Partial<HTMLElementTagNameMap[K]> & { text?: string } = {}) => { const { text, ...rest } = props as Record<string, unknown> & { text?: string }; const e = Object.assign(document.createElement(tag), rest); if (text) e.textContent = text; parent.appendChild(e); return e as HTMLElementTagNameMap[K]; };
 

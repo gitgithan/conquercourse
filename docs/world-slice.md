@@ -186,3 +186,15 @@ The set of obstacle shapes is fixed, and each shape offers a fixed set of moves.
 
 ## Demo menu (CC-44)
 - **A menu at the right of the Course** ("Open another course") lists every course we have made: the stock course, the lache demo, two lanes from the demo scene, three places from the map spike (Barcelona, Montmartre, Sydney) and a link to the editor; `scripts/demos-check.mjs` opens each one.
+## Map mode: pick a place, get a piece (CC-48)
+- **What:** `?mode=map` shows a world map; search for a place or click to drop a pin, then "Build this place".
+  - The buildings around the pin become one piece in the world editor (`?mode=editor`), ready for "Find the best lane for me".
+- **Parts:**
+  - `src/world/osm.ts`: pure; an Overpass answer becomes extruded buildings (height tag, else levels x 3 m, else 9 m), shrunk, capped at 8 m after the shrink, centred on the pin, standing on y = 0.
+  - `src/modes/map.ts`: the map (MapLibre GL, OpenFreeMap tiles), the search (Nominatim, one call per press of Search, a short list of famous places if it fails), the sliders, Overpass (three mirrors, retried, one query per place and radius, cached in `sessionStorage`).
+  - The hand-over: `sessionStorage['cc.map.piece']` holds `{name, positions, indices}`; the editor reads it once at start, removes it, and shows the place as the whole world.
+  - A map piece (`src` `map:<name>`) is never saved to the editor's `localStorage`.
+- **Sliders:** radius 80 to 250 m (default 120); shrink 0.02 to 1 (default 0.2, the middle of what cleared in the spike: 0.07 to 0.24).
+- **Credit:** the map shows "© OpenStreetMap contributors" and "OpenFreeMap"; terms in `docs/ASSETS.md`.
+- **Checked by:** `tests/osm.test.ts` (saved Overpass answer, no network) and `scripts/map-check.mjs` (screenshots in `data/eval/cc-48-map-mode/`).
+- **Not done:** ground height, roads and water (CC-46 next steps); courtyards; a place with no buildings says so and stays on the map.

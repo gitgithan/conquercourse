@@ -20,6 +20,7 @@
     "community": "node scripts/community-review.mjs"
   },
   "dependencies": {
+    "maplibre-gl": "^6.16.0",
     "three": "^0.186.1"
   },
   "devDependencies": {

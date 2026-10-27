@@ -148,3 +148,7 @@
 
 ## The product owner's own clips (to come)
 - Filmed by the product owner, an adult, about themselves, with no bystanders; their written consent is recorded here when added.
+| (runtime, not stored) map tiles and style for `?mode=map` | the street map behind the pin | OpenFreeMap (https://openfreemap.org), style `https://tiles.openfreemap.org/styles/liberty`, no key; map data from OpenMapTiles and OpenStreetMap | free to use, no key, no limits stated; credit "OpenFreeMap © OpenMapTiles Data from OpenStreetMap" (shown by the map's own credit line, plus "© OpenStreetMap contributors") | `src/modes/map.ts` |
+| `maplibre-gl` (npm package) | draws the map | MapLibre GL JS (https://maplibre.org) | BSD-3-Clause; fine for any use | `package.json` |
+| (runtime, not stored) place search for `?mode=map` | name to latitude and longitude | Nominatim at `nominatim.openstreetmap.org`, no key | usage policy (https://operations.osmfoundation.org/policies/nominatim/): at most 1 request a second, no autocomplete, identify the app (the browser sends no Referer, so the app name is the only mark; no bulk use); results are © OpenStreetMap contributors, ODbL; if it fails, a short list of famous places is shown | same |
+| `tests/fixtures/overpass-quay.json` | 10 building outlines near Circular Quay, Sydney, for `tests/osm.test.ts` and `scripts/map-check.mjs` | cut from `data/eval/cc-46-osm-world/circular-quay-sydney/overpass.json` (row above) | ODbL 1.0, credit "© OpenStreetMap contributors" | `tests/osm.test.ts` |
