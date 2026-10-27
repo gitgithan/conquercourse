@@ -334,13 +334,15 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
   document.body.append(comm);
   document.body.append(sstyle, strip);
   // demo courses: every course we have made, one choice away (the stock course, the lache demo, lanes from real objects, places from the map)
-  const demos: [string, string][] = [['', 'Stock course'], ['/assets/demo/lache.course.json', 'Lache demo: run, vault, swing'], ['/assets/demo/lane-1.course.json', 'Demo scene, lane 1'], ['/assets/demo/lane-2.course.json', 'Demo scene, lane 2'], ['/assets/experiments/osm/eixample-barcelona.course.json', 'Place: Barcelona block'], ['/assets/experiments/osm/montmartre-paris.course.json', 'Place: Montmartre, Paris'], ['/assets/experiments/osm/circular-quay-sydney.course.json', 'Place: Sydney quay'], ['editor', 'Build your own (editor)']];
+  const demos: [string, string][] = [['', 'Stock course'], ['/assets/demo/lache.course.json', 'Lache demo: run, vault, swing'], ['generate', 'Make me a new course (random)'], ['/assets/demo/lane-1.course.json', 'Demo scene, lane 1'], ['/assets/demo/lane-2.course.json', 'Demo scene, lane 2'], ['/assets/experiments/osm/eixample-barcelona.course.json', 'Place: Barcelona block'], ['/assets/experiments/osm/montmartre-paris.course.json', 'Place: Montmartre, Paris'], ['/assets/experiments/osm/circular-quay-sydney.course.json', 'Place: Sydney quay'], ['editor', 'Build your own (editor)']];
   const pick2 = document.createElement('select');
   pick2.id = 'democourses'; pick2.title = 'Open another course';
   pick2.style.cssText = 'position:fixed;right:16px;top:196px;max-width:210px;font:600 12px system-ui,sans-serif;border:2px solid #17201d;background:#fff;color:#17201d;border-radius:10px;padding:3px 6px;cursor:pointer';
   const now = params.get('course') ?? '';
-  for (const [v, label] of demos) pick2.add(new Option(label, v, false, v === now));
-  pick2.onchange = () => { pick2.blur(); location.href = pick2.value === 'editor' ? '?mode=editor' : pick2.value ? `?course=${pick2.value}` : '?'; };
+  const seedNow = params.get('generate');
+  if (seedNow !== null) pick2.add(new Option(`Generated course (seed ${seedNow})`, 'generate-same', true, true));
+  for (const [v, label] of demos) pick2.add(new Option(label, v, false, v === now && seedNow === null));
+  pick2.onchange = () => { pick2.blur(); location.href = pick2.value === 'editor' ? '?mode=editor' : pick2.value === 'generate' ? `?generate=${Math.floor(Math.random() * 1e6)}` : pick2.value === 'generate-same' ? location.href : pick2.value ? `?course=${pick2.value}` : '?'; };
   document.body.append(pick2);
   // the drum lane (taiko style): on by default for a course someone built (editor or shared), off for the stock course until D is pressed
   const drumLane = createDrumLane(document.body, course !== defaultCourse || params.get('drums') === '1');
@@ -410,7 +412,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
   let plan: Plan | null = null;
   const botState = { next: 0, caught: null as number | null, bedAt: null as number | null };
   const startAt = params.get('startx') === null ? undefined : Number(params.get('startx')); // ?startx=45 begins there (for tests and films)
-  if (params.get('bot') === 'ideal') plan = searchIdealRun(startAt === undefined ? course : { ...course, startX: startAt }).plan;
+  if (params.get('bot') === 'ideal') plan = startAt === undefined && course.plan ? course.plan : searchIdealRun(startAt === undefined ? course : { ...course, startX: startAt }).plan;
 
   const botMode = params.get('bot') === 'ideal';
   let retryX = resume ? resume.retryX : course.startX; // "try this obstacle again" starts standing still just before it

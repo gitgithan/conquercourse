@@ -219,3 +219,8 @@ The set of obstacle shapes is fixed, and each shape offers a fixed set of moves.
   - A sample, `public/assets/demo/generated-1.course.json` (seed 2: step, gap, lache, wall), opens at `/?course=/assets/demo/generated-1.course.json`.
   - The test (`tests/generator.test.ts`) proves it with the full search, which takes about 40 s.
 - **Not yet:** the trampoline; a rope without the 9 s proof; several walls (the course has one wall).
+
+## Make me a course (CC-47)
+- **`/?generate=7`** builds the course for seed 7 (a seed always gives the same one) and the Course menu has "Make me a new course (random)".
+- **The proved line travels with the course** (`course.plan`), so the drum lane and `&bot=ideal` need no search (a whole-course proof with a lache took about 38 s).
+- **Checked in the browser:** the bot clears seed 2 (step, gap, lache pair, warped wall) end to end (`QUERY='?generate=2' node scripts/lache-check.mjs`).
