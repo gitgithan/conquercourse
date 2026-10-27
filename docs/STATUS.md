@@ -5,6 +5,7 @@
 ## Now (2026-10-27)
 - **Done:** CC-1, the knowledge and asset transfer (spec, sayings, research briefs, characters, footage manifest, lessons, learning design, challenges, pipelines, experiments, CLAUDE.md, dev setup, prior work).
 - **CC-17 (branch `cc-17-starter-clips`, not merged):** run, leap, land, hang, swing shipped from CMU (plus a reach and a Kimodo leap) through the gate with a guard test; wall run-up and grab NOT achieved (Kimodo text only: 0 of 36 samples); see `data/eval/starter-clips/README.md`. Next for it: contact targets for the wall move (pipelines 3, 5 and 6) or the Pexels wall footage (CC-26).
+- **CC-29 (branch `cc-29-video-ingest`, not merged):** video ingest built and tested (`pipelines/ingest_video.py`, primitives doc and schema, move recipes, one shared gate); the three videos are NOT processed: YouTube's bot check blocked the download from this machine; needs a cookies file or the files from the product owner; see `data/eval/cc-29-video-ingest/README.md`. The shared gate now fails CC-26's two "conditional pass" clips.
 - **Next, in order:**
   1. **CC-2** app skeleton (Vite + TypeScript + three.js WebGPU; Rookie A standing; `npm run test:quick`), on the laptop.
   2. **CC-5** simulator core, then **CC-6 to CC-10**: good work for the VM (pure TypeScript and tests).

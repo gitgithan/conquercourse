@@ -1,0 +1,185 @@
+{
+  "schemaVersion": "0.1.0",
+  "primitives": [
+    {
+      "id": "wall-1",
+      "type": "wall",
+      "roles": [
+        "vault",
+        "grab"
+      ],
+      "sizes": {
+        "height": 1.242,
+        "width": 2.0,
+        "thickness": 0.3
+      },
+      "scale": {
+        "source": "body-height",
+        "metresPerPixel": 0.003028,
+        "relativeUncertainty": 0.078179,
+        "note": "athlete 578 px tall taken as 1.75 m (adult range 1.6-1.9 m); obstacle assumed at the athlete's depth"
+      },
+      "sizeUncertainty": {
+        "height": 0.078,
+        "thickness": 0.5
+      },
+      "fit": {
+        "phrase": "wall",
+        "score": 0.8476190567016602,
+        "boxPx": [
+          1035.0,
+          318.0,
+          1919.0,
+          1079.0
+        ],
+        "maskPx": 409931,
+        "frames": [
+          0,
+          149,
+          299
+        ],
+        "note": "oblique view: the horizontal sizes are typical values, only the height is measured; width 2.0 m is a typical value (not visible in a side view)"
+      },
+      "contactCheck": {
+        "checked": true,
+        "highest_hand_m": 1.825,
+        "fitted_top_m": 1.242,
+        "difference_m": 0.583,
+        "consistent": false
+      }
+    },
+    {
+      "id": "platform-1",
+      "type": "platform",
+      "roles": [
+        "stand"
+      ],
+      "sizes": {
+        "length": 2.0,
+        "width": 2.0,
+        "height": 1.163
+      },
+      "scale": {
+        "source": "body-height",
+        "metresPerPixel": 0.003028,
+        "relativeUncertainty": 0.078179,
+        "note": "athlete 578 px tall taken as 1.75 m (adult range 1.6-1.9 m); obstacle assumed at the athlete's depth"
+      },
+      "sizeUncertainty": {
+        "length": 0.5,
+        "height": 0.078
+      },
+      "fit": {
+        "phrase": "ledge",
+        "score": 0.8241757750511169,
+        "boxPx": [
+          983.0,
+          344.0,
+          1919.0,
+          513.0
+        ],
+        "maskPx": 50867,
+        "frames": [
+          149,
+          299
+        ],
+        "note": "oblique view: the horizontal sizes are typical values, only the height is measured; width 2.0 m is a typical value (not visible in a side view)"
+      },
+      "contactCheck": {
+        "checked": true,
+        "highest_hand_m": 1.825,
+        "fitted_top_m": 1.163,
+        "difference_m": 0.662,
+        "consistent": false
+      }
+    },
+    {
+      "id": "platform-2",
+      "type": "platform",
+      "roles": [
+        "stand"
+      ],
+      "sizes": {
+        "length": 2.0,
+        "width": 2.0,
+        "height": 1.251
+      },
+      "scale": {
+        "source": "body-height",
+        "metresPerPixel": 0.003028,
+        "relativeUncertainty": 0.078179,
+        "note": "athlete 578 px tall taken as 1.75 m (adult range 1.6-1.9 m); obstacle assumed at the athlete's depth"
+      },
+      "sizeUncertainty": {
+        "length": 0.5,
+        "height": 0.078
+      },
+      "fit": {
+        "phrase": "ledge",
+        "score": 0.6521739363670349,
+        "boxPx": [
+          1505.0,
+          315.0,
+          1919.0,
+          449.0
+        ],
+        "maskPx": 26046,
+        "frames": [
+          0
+        ],
+        "note": "oblique view: the horizontal sizes are typical values, only the height is measured; width 2.0 m is a typical value (not visible in a side view)"
+      },
+      "contactCheck": {
+        "checked": true,
+        "highest_hand_m": 1.825,
+        "fitted_top_m": 1.251,
+        "difference_m": 0.574,
+        "consistent": false
+      }
+    },
+    {
+      "id": "platform-3",
+      "type": "platform",
+      "roles": [
+        "stand"
+      ],
+      "sizes": {
+        "length": 2.0,
+        "width": 2.0,
+        "height": 0.533
+      },
+      "scale": {
+        "source": "body-height",
+        "metresPerPixel": 0.003028,
+        "relativeUncertainty": 0.078179,
+        "note": "athlete 578 px tall taken as 1.75 m (adult range 1.6-1.9 m); obstacle assumed at the athlete's depth"
+      },
+      "sizeUncertainty": {
+        "length": 0.5,
+        "height": 0.079
+      },
+      "fit": {
+        "phrase": "ledge",
+        "score": 0.5311355590820312,
+        "boxPx": [
+          421.0,
+          552.0,
+          770.0,
+          1079.0
+        ],
+        "maskPx": 37308,
+        "frames": [
+          149
+        ],
+        "note": "oblique view: the horizontal sizes are typical values, only the height is measured; width 2.0 m is a typical value (not visible in a side view)"
+      },
+      "contactCheck": {
+        "checked": true,
+        "highest_hand_m": 1.825,
+        "fitted_top_m": 0.533,
+        "difference_m": 1.292,
+        "consistent": false
+      }
+    }
+  ]
+}
