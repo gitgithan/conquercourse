@@ -3,11 +3,17 @@
 *Serves the Warped Wall demo beat: the Rookie runs up the 4.3 m curve, hangs from the top edge and pulls up onto the deck; CC-17 could not make it in one clip.*
 
 ## So what
-- **Status:** plan written before any run; results are filled in below after each round.
-- **Why two clips:** CC-17 showed Kimodo cannot lift the hips 4.3 m in one clip (all 8 seeds ended 2.4 m too low), and it works up to about 2.5 m of rise.
-- **The two rises:** stage A lifts the hips 2.23 m (1.0 m to 3.23 m), stage B lifts them 2.0 m (about 3.3 m to 5.3 m), so both are under 2.5 m.
-  - The task note said stage B rises about 1.5 m; the simulator's own numbers give 2.0 m (hang with the hips 1.0 m under the ledge, finish 1.0 m over the deck).
-- **Recommendation and next step:** written after round 1 (see Results).
+- **Result:** two stages did not work yet; no clip ships and nothing was added to `public/`.
+  - Round 1: 3 of 6 pass lines at best for each stage; round 2: 4 of 6 for each; the stop rule ended the series.
+  - Joining was not built, because it needs both stages to pass.
+- **What it means for the wall beat:** keep the current climb for the demo; Kimodo is closer than in CC-17 but still does not reach the top.
+- **The finding:** the ceiling is the hips' height in the model's frame, not the size of the rise.
+  - Round 1: each stage rises under 2.5 m, yet the hips stopped near 2.5 m (A) and 2.9 m (B, local frame) and fell back; A ended 1.0-1.15 m short, B 0.3-0.6 m short.
+  - Round 2 (the one change: lower the frame by 0.7 m for A and 0.6 m for B): the shortfall dropped to 0.43-0.63 m for A and 0.19-0.44 m for B; the hips now peaked near 3.0 m of world height in both, so the ceiling is not a fixed 2.5 m either.
+- **Nearest miss:** stage B, round 2, seed 7 (4 of 6): the hang and the wall line pass, the hips end 0.768 m over the deck (line needs 0.8 m), and the gate fails on knees and twisted legs.
+- **Recommendation:** do not wire a Kimodo clip in; the next cheap try is a third frame drop (stage B by 1.0 m, stage A in a frame with the ground below zero) plus the knee fixes, with the owner's approval of one more round (about $0.05).
+  - The cost so far is below budget; a physics tracker (CC-17 option C) remains the strong option if the lowered frame stalls.
+- **Spend:** 7.5 GPU minutes on L4s, about $0.10 at list price (budget $0.50); queue time (about 20 minutes for stage B in round 1) is not billed.
 
 ## Hypothesis
 - **If** the climb is cut at the foot-of-the-ledge moment into a run-up (A) and a hang-and-pull-up (B), each with the recipe of CC-17 (root path, hips pins, contact targets, Kimodo's own post-processing, then wall push-out and contact IK),
@@ -84,4 +90,32 @@
 - **Recorded:** GPU minutes and the estimated cost go into `run.json` after every round.
 
 ## Results
-- Filled in after each round.
+| Round | Change | Stage | Best seed | Pass lines (best, worst of 8) | Hips shortfall, max over frames | Wall depth after push-out |
+|---|---|---|---|---|---|---|
+| 1 | none: the recipe | A | 7 | 3 of 6, 2 of 6 | 0.95-1.15 m | 0.058-0.19 m |
+| 1 | none: the recipe | B | 12 | 3 of 6, 3 of 6 | 0.30-0.61 m | 0.064-0.18 m |
+| 2 | frame lowered 0.7 m (A) and 0.6 m (B) | A | 9 | 4 of 6, 2 of 6 | 0.43-0.63 m | 0.010-0.047 m |
+| 2 | frame lowered 0.7 m (A) and 0.6 m (B) | B | 7 | 4 of 6, 3 of 6 | 0.19-0.44 m | 0.020-0.103 m |
+
+- **Lines met in every sample:** A: 4 (arms rising) and 6 (shape); B: 2 (hang, after IK), 5 (shape) and 6 (rise).
+- **Line 1 (gate) fails in all 32 samples:** knees (`knees_bend_forward`, `legs_not_twisted`, `knees_within_range`), plus `held_clips_are_held` in all 8 round-2 stage A samples (and 1 of 8 in round 1).
+- **Stage A line 2 (hips on the path) fails in all 16 samples:** the shortfall is at the top of the climb; the best is 0.43 m.
+- **Stage A line 3 (plant):** met in 7 of 8 samples in round 1 and 6 of 8 in round 2 (the IK puts a foot on the curve).
+- **Stage A line 5 (wall):** met by none in round 1 and by one in round 2 (seed 9, 0.0098 m), which still fails the gate and line 2.
+- **Stage B line 3 (pull-up):** met by none in round 1; in round 2 by 4 of 8 (seeds 8, 9, 10, 13), and each of those is 3-10 cm inside the deck or curve (line 4) and fails the gate.
+- **Stage B line 4 (wall and deck):** met by one sample in round 2 (seed 7, 0.0196 m), which is the nearest miss: its hips end 0.768 m over the deck, 3 cm short of line 3, and it fails the gate.
+- **Stage B line 2 (hang):** met in every repaired sample; the raw samples fail it (the wrists are off the ledge before IK).
+- **Not run:** the join (`public/assets/motion/wall_climb.json`), because it needs both stages to pass.
+
+## Pictures (every candidate, passing and failing alike)
+- Left panel: the text-only motion of the same seed, not moved onto the path; right panel: the sample after repairs, push-out and IK, red rings are targets, the green square is the intended hips.
+- Round 1, stage A: [seed 7](outputs/round1/a/gifs/seed7.gif) (best), [8](outputs/round1/a/gifs/seed8.gif), [9](outputs/round1/a/gifs/seed9.gif), [10](outputs/round1/a/gifs/seed10.gif), [11](outputs/round1/a/gifs/seed11.gif), [12](outputs/round1/a/gifs/seed12.gif), [13](outputs/round1/a/gifs/seed13.gif), [14](outputs/round1/a/gifs/seed14.gif).
+- Round 1, stage B: [seed 12](outputs/round1/b/gifs/seed12.gif) (best), [7](outputs/round1/b/gifs/seed7.gif), [8](outputs/round1/b/gifs/seed8.gif), [9](outputs/round1/b/gifs/seed9.gif), [10](outputs/round1/b/gifs/seed10.gif), [11](outputs/round1/b/gifs/seed11.gif), [13](outputs/round1/b/gifs/seed13.gif), [14](outputs/round1/b/gifs/seed14.gif).
+- Round 2, stage A: [seed 9](outputs/round2/a/gifs/seed9.gif) (best), [7](outputs/round2/a/gifs/seed7.gif), [8](outputs/round2/a/gifs/seed8.gif), [10](outputs/round2/a/gifs/seed10.gif), [11](outputs/round2/a/gifs/seed11.gif), [12](outputs/round2/a/gifs/seed12.gif), [13](outputs/round2/a/gifs/seed13.gif), [14](outputs/round2/a/gifs/seed14.gif).
+- Round 2, stage B: [seed 7](outputs/round2/b/gifs/seed7.gif) (best, nearest miss), [8](outputs/round2/b/gifs/seed8.gif), [9](outputs/round2/b/gifs/seed9.gif), [10](outputs/round2/b/gifs/seed10.gif), [11](outputs/round2/b/gifs/seed11.gif), [12](outputs/round2/b/gifs/seed12.gif), [13](outputs/round2/b/gifs/seed13.gif), [14](outputs/round2/b/gifs/seed14.gif).
+- Per-sample numbers: `outputs/round<n>/<stage>/summary.json`.
+
+## Where things are
+- Samples and final clips outside git: `../conquercourse-assets/cc-36-wall-two-stage/round1/` and `round2/` (with `SHA256SUMS`).
+- Run record with GPU minutes and cost: `run.json`.
+- Code: `pipelines/ccpipe/wall_stages.py` (targets, scoring, the join, the lowered frame), `pipelines/wall_two_stage_targets.py`, `pipelines/wall_two_stage_post.py`, tests in `pipelines/tests/test_wall_stages.py`.

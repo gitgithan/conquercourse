@@ -37,16 +37,16 @@
         "RightFoot@38-47": 0.063
       },
       "target_error_final_m": {
-        "LeftHand@0-20": 0.0,
-        "RightHand@0-20": 0.0,
-        "LeftFoot@38-47": 0.0,
-        "RightFoot@38-47": 0.0
+        "LeftHand@0-20": 0,
+        "RightHand@0-20": 0,
+        "LeftFoot@38-47": 0,
+        "RightFoot@38-47": 0
       },
       "ik_leftover_m": [
-        0.0,
-        0.0,
-        0.0,
-        0.0
+        0,
+        0,
+        0,
+        0
       ],
       "repairs": {
         "fix_knees": 0,
@@ -69,8 +69,8 @@
           "value": {
             "frames": 22,
             "closest_wrists_m": {
-              "LeftHand": 0.0,
-              "RightHand": 0.0
+              "LeftHand": 0,
+              "RightHand": 0
             }
           },
           "limit": ">= 9 frames within 5 cm of the ledge, no foot on the ground or deck"
@@ -79,7 +79,7 @@
           "ok": false,
           "value": {
             "hips_above_deck": 0.563,
-            "ankle_height_dev": 0.0,
+            "ankle_height_dev": 0,
             "ankle_z_min": 4.7,
             "hang_ends_at": 22
           },
@@ -137,16 +137,16 @@
         "RightFoot@38-47": 0.145
       },
       "target_error_final_m": {
-        "LeftHand@0-20": 0.0,
-        "RightHand@0-20": 0.0,
-        "LeftFoot@38-47": 0.0,
-        "RightFoot@38-47": 0.0
+        "LeftHand@0-20": 0,
+        "RightHand@0-20": 0,
+        "LeftFoot@38-47": 0,
+        "RightFoot@38-47": 0
       },
       "ik_leftover_m": [
-        0.0,
-        0.0,
-        0.0,
-        0.0
+        0,
+        0,
+        0,
+        0
       ],
       "repairs": {
         "fix_knees": 0,
@@ -169,8 +169,8 @@
           "value": {
             "frames": 22,
             "closest_wrists_m": {
-              "LeftHand": 0.0,
-              "RightHand": 0.0
+              "LeftHand": 0,
+              "RightHand": 0
             }
           },
           "limit": ">= 9 frames within 5 cm of the ledge, no foot on the ground or deck"
@@ -179,7 +179,7 @@
           "ok": false,
           "value": {
             "hips_above_deck": 0.625,
-            "ankle_height_dev": 0.0,
+            "ankle_height_dev": 0,
             "ankle_z_min": 4.7,
             "hang_ends_at": 22
           },
@@ -237,16 +237,16 @@
         "RightFoot@38-47": 0.056
       },
       "target_error_final_m": {
-        "LeftHand@0-20": 0.0,
-        "RightHand@0-20": 0.0,
-        "LeftFoot@38-47": 0.0,
-        "RightFoot@38-47": 0.0
+        "LeftHand@0-20": 0,
+        "RightHand@0-20": 0,
+        "LeftFoot@38-47": 0,
+        "RightFoot@38-47": 0
       },
       "ik_leftover_m": [
-        0.0,
-        0.0,
-        0.0,
-        0.0
+        0,
+        0,
+        0,
+        0
       ],
       "repairs": {
         "fix_knees": 0,
@@ -269,8 +269,8 @@
           "value": {
             "frames": 22,
             "closest_wrists_m": {
-              "LeftHand": 0.0,
-              "RightHand": 0.0
+              "LeftHand": 0,
+              "RightHand": 0
             }
           },
           "limit": ">= 9 frames within 5 cm of the ledge, no foot on the ground or deck"
@@ -279,7 +279,7 @@
           "ok": false,
           "value": {
             "hips_above_deck": 0.68,
-            "ankle_height_dev": 0.0,
+            "ankle_height_dev": 0,
             "ankle_z_min": 4.7,
             "hang_ends_at": 22
           },
@@ -337,16 +337,16 @@
         "RightFoot@38-47": 0.065
       },
       "target_error_final_m": {
-        "LeftHand@0-20": 0.0,
-        "RightHand@0-20": 0.0,
-        "LeftFoot@38-47": 0.0,
-        "RightFoot@38-47": 0.0
+        "LeftHand@0-20": 0,
+        "RightHand@0-20": 0,
+        "LeftFoot@38-47": 0,
+        "RightFoot@38-47": 0
       },
       "ik_leftover_m": [
-        0.0,
-        0.0,
-        0.0,
-        0.0
+        0,
+        0,
+        0,
+        0
       ],
       "repairs": {
         "fix_knees": 0,
@@ -369,8 +369,8 @@
           "value": {
             "frames": 22,
             "closest_wrists_m": {
-              "LeftHand": 0.0,
-              "RightHand": 0.0
+              "LeftHand": 0,
+              "RightHand": 0
             }
           },
           "limit": ">= 9 frames within 5 cm of the ledge, no foot on the ground or deck"
@@ -379,7 +379,7 @@
           "ok": false,
           "value": {
             "hips_above_deck": 0.693,
-            "ankle_height_dev": 0.0,
+            "ankle_height_dev": 0,
             "ankle_z_min": 4.7,
             "hang_ends_at": 22
           },
@@ -437,16 +437,16 @@
         "RightFoot@38-47": 0.029
       },
       "target_error_final_m": {
-        "LeftHand@0-20": 0.0,
-        "RightHand@0-20": 0.0,
-        "LeftFoot@38-47": 0.0,
-        "RightFoot@38-47": 0.0
+        "LeftHand@0-20": 0,
+        "RightHand@0-20": 0,
+        "LeftFoot@38-47": 0,
+        "RightFoot@38-47": 0
       },
       "ik_leftover_m": [
-        0.0,
-        0.0,
-        0.0,
-        0.0
+        0,
+        0,
+        0,
+        0
       ],
       "repairs": {
         "fix_knees": 0,
@@ -469,8 +469,8 @@
           "value": {
             "frames": 22,
             "closest_wrists_m": {
-              "LeftHand": 0.0,
-              "RightHand": 0.0
+              "LeftHand": 0,
+              "RightHand": 0
             }
           },
           "limit": ">= 9 frames within 5 cm of the ledge, no foot on the ground or deck"
@@ -479,7 +479,7 @@
           "ok": false,
           "value": {
             "hips_above_deck": 0.605,
-            "ankle_height_dev": 0.0,
+            "ankle_height_dev": 0,
             "ankle_z_min": 4.7,
             "hang_ends_at": 22
           },
@@ -535,23 +535,23 @@
         "RightFoot@38-47": 0.228
       },
       "target_error_final_m": {
-        "LeftHand@0-20": 0.0,
-        "RightHand@0-20": 0.0,
-        "LeftFoot@38-47": 0.0,
-        "RightFoot@38-47": 0.0
+        "LeftHand@0-20": 0,
+        "RightHand@0-20": 0,
+        "LeftFoot@38-47": 0,
+        "RightFoot@38-47": 0
       },
       "ik_leftover_m": [
-        0.0,
-        0.0,
-        0.0,
-        0.0
+        0,
+        0,
+        0,
+        0
       ],
       "repairs": {
         "fix_knees": 0,
         "lift_to_floor": 0,
         "limit_knee_bend": 0
       },
-      "gen_s": 6.0,
+      "gen_s": 6,
       "lines": {
         "1_gate": {
           "ok": false,
@@ -565,8 +565,8 @@
           "value": {
             "frames": 22,
             "closest_wrists_m": {
-              "LeftHand": 0.0,
-              "RightHand": 0.0
+              "LeftHand": 0,
+              "RightHand": 0
             }
           },
           "limit": ">= 9 frames within 5 cm of the ledge, no foot on the ground or deck"
@@ -575,7 +575,7 @@
           "ok": false,
           "value": {
             "hips_above_deck": 0.703,
-            "ankle_height_dev": 0.0,
+            "ankle_height_dev": 0,
             "ankle_z_min": 4.7,
             "hang_ends_at": 22
           },
@@ -633,16 +633,16 @@
         "RightFoot@38-47": 0.132
       },
       "target_error_final_m": {
-        "LeftHand@0-20": 0.0,
-        "RightHand@0-20": 0.0,
-        "LeftFoot@38-47": 0.0,
-        "RightFoot@38-47": 0.0
+        "LeftHand@0-20": 0,
+        "RightHand@0-20": 0,
+        "LeftFoot@38-47": 0,
+        "RightFoot@38-47": 0
       },
       "ik_leftover_m": [
-        0.0,
-        0.0,
-        0.0,
-        0.0
+        0,
+        0,
+        0,
+        0
       ],
       "repairs": {
         "fix_knees": 3,
@@ -665,8 +665,8 @@
           "value": {
             "frames": 22,
             "closest_wrists_m": {
-              "LeftHand": 0.0,
-              "RightHand": 0.0
+              "LeftHand": 0,
+              "RightHand": 0
             }
           },
           "limit": ">= 9 frames within 5 cm of the ledge, no foot on the ground or deck"
@@ -675,7 +675,7 @@
           "ok": false,
           "value": {
             "hips_above_deck": 0.651,
-            "ankle_height_dev": 0.0,
+            "ankle_height_dev": 0,
             "ankle_z_min": 4.7,
             "hang_ends_at": 22
           },
@@ -731,16 +731,16 @@
         "RightFoot@38-47": 0.343
       },
       "target_error_final_m": {
-        "LeftHand@0-20": 0.0,
-        "RightHand@0-20": 0.0,
-        "LeftFoot@38-47": 0.0,
-        "RightFoot@38-47": 0.0
+        "LeftHand@0-20": 0,
+        "RightHand@0-20": 0,
+        "LeftFoot@38-47": 0,
+        "RightFoot@38-47": 0
       },
       "ik_leftover_m": [
-        0.0,
-        0.0,
-        0.0,
-        0.0
+        0,
+        0,
+        0,
+        0
       ],
       "repairs": {
         "fix_knees": 1,
@@ -761,8 +761,8 @@
           "value": {
             "frames": 22,
             "closest_wrists_m": {
-              "LeftHand": 0.0,
-              "RightHand": 0.0
+              "LeftHand": 0,
+              "RightHand": 0
             }
           },
           "limit": ">= 9 frames within 5 cm of the ledge, no foot on the ground or deck"
@@ -771,7 +771,7 @@
           "ok": false,
           "value": {
             "hips_above_deck": 0.393,
-            "ankle_height_dev": 0.0,
+            "ankle_height_dev": 0,
             "ankle_z_min": 4.7,
             "hang_ends_at": 22
           },

@@ -37,15 +37,37 @@
       "gpu_minutes": 3.48,
       "finding": "hips peak near 2.5 m (A) and 2.7 m (B local) of absolute height and then fall back, though each rise is under 2.5 m: the ceiling is height, not rise",
       "next_change": "lower the model's frame (A by 0.7 m, B by 0.6 m) so the highest hips are about 2.5 m; results are moved back; nothing else changes"
+    },
+    {
+      "round": 2,
+      "change": "lowered frame: A by 0.7 m, B by 0.6 m (the one change; chosen from round 1's nearest misses, written before the run)",
+      "stages": {
+        "a": {
+          "model_load_s": 69.2,
+          "container_s": 125.6,
+          "gpu_minutes": 2.09,
+          "best_seed": 9,
+          "best_pass_lines": "4 of 6"
+        },
+        "b": {
+          "model_load_s": 69.6,
+          "container_s": 117.3,
+          "gpu_minutes": 1.95,
+          "best_seed": 7,
+          "best_pass_lines": "4 of 6"
+        }
+      },
+      "gpu_minutes": 4.04
     }
   ],
-  "gpu_minutes_total": 3.48,
-  "cost_usd_estimate": 0.046,
+  "gpu_minutes_total": 7.52,
+  "cost_usd_estimate": 0.1,
   "cost_note": "list price $0.80 an hour for container time; queue time (about 20-25 minutes for stage B) is not billed; whether workspace credits cover it was not checked",
   "budget": {
     "usd": 0.5,
     "max_rounds": 2,
     "max_containers": 3,
     "used_containers_at_once": 2
-  }
+  },
+  "outcome": "not shipped; neither stage met all its pass lines; stopped after round 2 by the written stop rule"
 }

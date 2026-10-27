@@ -17,7 +17,7 @@
 - **Next, in order:**
   1. Merge the CC-16, CC-3 and CC-25 branches; fix conflicts in `src/main.ts`.
   2. Film the demo beats (CC-28) with the film helper.
-  3. The wall clip (CC-17): tried with the simulator's path and contact targets (2 rounds, nothing ships: Kimodo cannot lift the hips 4.3 m); the owner picks an option in `data/eval/cc-17-wall/README.md`; then the strobe overlay (CC-27).
+  3. The wall clip (CC-17): tried with the simulator's path and contact targets (2 rounds, nothing ships: Kimodo cannot lift the hips 4.3 m); the owner picks an option in `data/eval/cc-17-wall/README.md`; option A (two clips) was tried in CC-36 and also did not pass (`data/eval/cc-36-wall-two-stage/README.md`); then the strobe overlay (CC-27).
   4. A real person plays it (CC-15, CC-11 notes).
 - **Issue numbers:** CC-1 to CC-18 and CC-24 to CC-29; CC-19 to CC-23 do not exist.
 

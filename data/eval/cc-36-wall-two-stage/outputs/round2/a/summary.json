@@ -1,0 +1,770 @@
+{
+  "stage": "a",
+  "round": 2,
+  "best_seed": 9,
+  "best_met": 4,
+  "of": 6,
+  "samples": [
+    {
+      "seed": 7,
+      "met_final": 3,
+      "met_raw": 2,
+      "of": 6,
+      "failed_final": [
+        "1_gate",
+        "2_hips_on_path",
+        "5_wall"
+      ],
+      "failed_raw": [
+        "1_gate",
+        "2_hips_on_path",
+        "3_plant",
+        "5_wall"
+      ],
+      "gate_failed_final": [
+        "legs_not_twisted",
+        "held_clips_are_held"
+      ],
+      "soft_failed_final": [
+        "no_jitter"
+      ],
+      "wall_depth_raw": 0.4022,
+      "target_error_raw_m": {
+        "RightFoot@40-44": 0.152,
+        "LeftFoot@51-55": 0.065,
+        "LeftHand@55-59": 1.177,
+        "RightHand@55-59": 1.222
+      },
+      "target_error_final_m": {
+        "RightFoot@40-44": 0.0,
+        "LeftFoot@51-55": 0.0,
+        "LeftHand@55-59": 0.243,
+        "RightHand@55-59": 0.26
+      },
+      "ik_leftover_m": [
+        0.0,
+        0.0,
+        0.3175,
+        0.3118
+      ],
+      "repairs": {
+        "fix_knees": 13,
+        "lift_to_floor": 0,
+        "limit_knee_bend": 29
+      },
+      "gen_s": 10.5,
+      "lines": {
+        "1_gate": {
+          "ok": false,
+          "value": [
+            "legs_not_twisted",
+            "held_clips_are_held"
+          ],
+          "limit": "all hard rules"
+        },
+        "2_hips_on_path": {
+          "ok": false,
+          "value": 0.4708,
+          "limit": "<= 0.05 m on every frame"
+        },
+        "3_plant": {
+          "ok": true,
+          "value": [
+            "LeftFoot",
+            5,
+            2.15
+          ],
+          "limit": "a foot still >= 4 frames, ankle 5-12 cm off the curve, >= 0.4 m up"
+        },
+        "4_arms_rising": {
+          "ok": true,
+          "value": {
+            "Left": 0.65,
+            "Right": 0.655
+          },
+          "limit": "both wrists above their shoulders on the last frame"
+        },
+        "5_wall": {
+          "ok": false,
+          "value": 0.0234,
+          "limit": "<= 0.02 m inside"
+        },
+        "6_shape": {
+          "ok": true,
+          "value": [
+            60,
+            30
+          ],
+          "limit": "60 frames, 30 joints"
+        }
+      }
+    },
+    {
+      "seed": 8,
+      "met_final": 3,
+      "met_raw": 2,
+      "of": 6,
+      "failed_final": [
+        "1_gate",
+        "2_hips_on_path",
+        "5_wall"
+      ],
+      "failed_raw": [
+        "1_gate",
+        "2_hips_on_path",
+        "3_plant",
+        "5_wall"
+      ],
+      "gate_failed_final": [
+        "knees_bend_forward",
+        "legs_not_twisted",
+        "held_clips_are_held"
+      ],
+      "soft_failed_final": [
+        "no_jitter"
+      ],
+      "wall_depth_raw": 0.299,
+      "target_error_raw_m": {
+        "RightFoot@40-44": 0.585,
+        "LeftFoot@51-55": 0.18,
+        "LeftHand@55-59": 0.557,
+        "RightHand@55-59": 0.619
+      },
+      "target_error_final_m": {
+        "RightFoot@40-44": 0.0,
+        "LeftFoot@51-55": 0.0,
+        "LeftHand@55-59": 0.249,
+        "RightHand@55-59": 0.272
+      },
+      "ik_leftover_m": [
+        0.0,
+        0.0,
+        0.3367,
+        0.3576
+      ],
+      "repairs": {
+        "fix_knees": 12,
+        "lift_to_floor": 0,
+        "limit_knee_bend": 12
+      },
+      "gen_s": 6.5,
+      "lines": {
+        "1_gate": {
+          "ok": false,
+          "value": [
+            "knees_bend_forward",
+            "legs_not_twisted",
+            "held_clips_are_held"
+          ],
+          "limit": "all hard rules"
+        },
+        "2_hips_on_path": {
+          "ok": false,
+          "value": 0.4942,
+          "limit": "<= 0.05 m on every frame"
+        },
+        "3_plant": {
+          "ok": true,
+          "value": [
+            "LeftFoot",
+            5,
+            2.15
+          ],
+          "limit": "a foot still >= 4 frames, ankle 5-12 cm off the curve, >= 0.4 m up"
+        },
+        "4_arms_rising": {
+          "ok": true,
+          "value": {
+            "Left": 0.655,
+            "Right": 0.635
+          },
+          "limit": "both wrists above their shoulders on the last frame"
+        },
+        "5_wall": {
+          "ok": false,
+          "value": 0.0464,
+          "limit": "<= 0.02 m inside"
+        },
+        "6_shape": {
+          "ok": true,
+          "value": [
+            60,
+            30
+          ],
+          "limit": "60 frames, 30 joints"
+        }
+      }
+    },
+    {
+      "seed": 9,
+      "met_final": 4,
+      "met_raw": 2,
+      "of": 6,
+      "failed_final": [
+        "1_gate",
+        "2_hips_on_path"
+      ],
+      "failed_raw": [
+        "1_gate",
+        "2_hips_on_path",
+        "3_plant",
+        "5_wall"
+      ],
+      "gate_failed_final": [
+        "knees_bend_forward",
+        "legs_not_twisted",
+        "held_clips_are_held"
+      ],
+      "soft_failed_final": [
+        "no_jitter"
+      ],
+      "wall_depth_raw": 0.3322,
+      "target_error_raw_m": {
+        "RightFoot@40-44": 0.212,
+        "LeftFoot@51-55": 0.224,
+        "LeftHand@55-59": 0.97,
+        "RightHand@55-59": 0.947
+      },
+      "target_error_final_m": {
+        "RightFoot@40-44": 0.0,
+        "LeftFoot@51-55": 0.0,
+        "LeftHand@55-59": 0.269,
+        "RightHand@55-59": 0.256
+      },
+      "ik_leftover_m": [
+        0.0,
+        0.0,
+        0.3138,
+        0.2941
+      ],
+      "repairs": {
+        "fix_knees": 15,
+        "lift_to_floor": 0,
+        "limit_knee_bend": 27
+      },
+      "gen_s": 6.5,
+      "lines": {
+        "1_gate": {
+          "ok": false,
+          "value": [
+            "knees_bend_forward",
+            "legs_not_twisted",
+            "held_clips_are_held"
+          ],
+          "limit": "all hard rules"
+        },
+        "2_hips_on_path": {
+          "ok": false,
+          "value": 0.4576,
+          "limit": "<= 0.05 m on every frame"
+        },
+        "3_plant": {
+          "ok": true,
+          "value": [
+            "LeftFoot",
+            5,
+            2.15
+          ],
+          "limit": "a foot still >= 4 frames, ankle 5-12 cm off the curve, >= 0.4 m up"
+        },
+        "4_arms_rising": {
+          "ok": true,
+          "value": {
+            "Left": 0.652,
+            "Right": 0.665
+          },
+          "limit": "both wrists above their shoulders on the last frame"
+        },
+        "5_wall": {
+          "ok": true,
+          "value": 0.0098,
+          "limit": "<= 0.02 m inside"
+        },
+        "6_shape": {
+          "ok": true,
+          "value": [
+            60,
+            30
+          ],
+          "limit": "60 frames, 30 joints"
+        }
+      }
+    },
+    {
+      "seed": 10,
+      "met_final": 2,
+      "met_raw": 1,
+      "of": 6,
+      "failed_final": [
+        "1_gate",
+        "2_hips_on_path",
+        "3_plant",
+        "5_wall"
+      ],
+      "failed_raw": [
+        "1_gate",
+        "2_hips_on_path",
+        "3_plant",
+        "4_arms_rising",
+        "5_wall"
+      ],
+      "gate_failed_final": [
+        "knees_bend_forward",
+        "legs_not_twisted",
+        "held_clips_are_held"
+      ],
+      "soft_failed_final": [
+        "no_jitter"
+      ],
+      "wall_depth_raw": 0.4985,
+      "target_error_raw_m": {
+        "RightFoot@40-44": 0.438,
+        "LeftFoot@51-55": 0.461,
+        "LeftHand@55-59": 1.261,
+        "RightHand@55-59": 1.355
+      },
+      "target_error_final_m": {
+        "RightFoot@40-44": 0.0,
+        "LeftFoot@51-55": 0.0,
+        "LeftHand@55-59": 0.372,
+        "RightHand@55-59": 0.353
+      },
+      "ik_leftover_m": [
+        0.0,
+        0.0,
+        0.4574,
+        0.4333
+      ],
+      "repairs": {
+        "fix_knees": 17,
+        "lift_to_floor": 0,
+        "limit_knee_bend": 7
+      },
+      "gen_s": 6.5,
+      "lines": {
+        "1_gate": {
+          "ok": false,
+          "value": [
+            "knees_bend_forward",
+            "legs_not_twisted",
+            "held_clips_are_held"
+          ],
+          "limit": "all hard rules"
+        },
+        "2_hips_on_path": {
+          "ok": false,
+          "value": 0.6035,
+          "limit": "<= 0.05 m on every frame"
+        },
+        "3_plant": {
+          "ok": false,
+          "value": null,
+          "limit": "a foot still >= 4 frames, ankle 5-12 cm off the curve, >= 0.4 m up"
+        },
+        "4_arms_rising": {
+          "ok": true,
+          "value": {
+            "Left": 0.667,
+            "Right": 0.689
+          },
+          "limit": "both wrists above their shoulders on the last frame"
+        },
+        "5_wall": {
+          "ok": false,
+          "value": 0.0211,
+          "limit": "<= 0.02 m inside"
+        },
+        "6_shape": {
+          "ok": true,
+          "value": [
+            60,
+            30
+          ],
+          "limit": "60 frames, 30 joints"
+        }
+      }
+    },
+    {
+      "seed": 11,
+      "met_final": 3,
+      "met_raw": 2,
+      "of": 6,
+      "failed_final": [
+        "1_gate",
+        "2_hips_on_path",
+        "5_wall"
+      ],
+      "failed_raw": [
+        "1_gate",
+        "2_hips_on_path",
+        "3_plant",
+        "5_wall"
+      ],
+      "gate_failed_final": [
+        "knees_bend_forward",
+        "legs_not_twisted",
+        "held_clips_are_held"
+      ],
+      "soft_failed_final": [
+        "no_jitter"
+      ],
+      "wall_depth_raw": 0.4772,
+      "target_error_raw_m": {
+        "RightFoot@40-44": 0.046,
+        "LeftFoot@51-55": 0.165,
+        "LeftHand@55-59": 0.873,
+        "RightHand@55-59": 0.841
+      },
+      "target_error_final_m": {
+        "RightFoot@40-44": 0.0,
+        "LeftFoot@51-55": 0.0,
+        "LeftHand@55-59": 0.26,
+        "RightHand@55-59": 0.26
+      },
+      "ik_leftover_m": [
+        0.0,
+        0.0,
+        0.3337,
+        0.3237
+      ],
+      "repairs": {
+        "fix_knees": 16,
+        "lift_to_floor": 0,
+        "limit_knee_bend": 11
+      },
+      "gen_s": 6.5,
+      "lines": {
+        "1_gate": {
+          "ok": false,
+          "value": [
+            "knees_bend_forward",
+            "legs_not_twisted",
+            "held_clips_are_held"
+          ],
+          "limit": "all hard rules"
+        },
+        "2_hips_on_path": {
+          "ok": false,
+          "value": 0.4463,
+          "limit": "<= 0.05 m on every frame"
+        },
+        "3_plant": {
+          "ok": true,
+          "value": [
+            "LeftFoot",
+            5,
+            2.15
+          ],
+          "limit": "a foot still >= 4 frames, ankle 5-12 cm off the curve, >= 0.4 m up"
+        },
+        "4_arms_rising": {
+          "ok": true,
+          "value": {
+            "Left": 0.617,
+            "Right": 0.621
+          },
+          "limit": "both wrists above their shoulders on the last frame"
+        },
+        "5_wall": {
+          "ok": false,
+          "value": 0.047,
+          "limit": "<= 0.02 m inside"
+        },
+        "6_shape": {
+          "ok": true,
+          "value": [
+            60,
+            30
+          ],
+          "limit": "60 frames, 30 joints"
+        }
+      }
+    },
+    {
+      "seed": 12,
+      "met_final": 3,
+      "met_raw": 2,
+      "of": 6,
+      "failed_final": [
+        "1_gate",
+        "2_hips_on_path",
+        "5_wall"
+      ],
+      "failed_raw": [
+        "1_gate",
+        "2_hips_on_path",
+        "3_plant",
+        "5_wall"
+      ],
+      "gate_failed_final": [
+        "knees_bend_forward",
+        "legs_not_twisted",
+        "held_clips_are_held"
+      ],
+      "soft_failed_final": [
+        "no_jitter"
+      ],
+      "wall_depth_raw": 0.3374,
+      "target_error_raw_m": {
+        "RightFoot@40-44": 0.101,
+        "LeftFoot@51-55": 0.211,
+        "LeftHand@55-59": 0.837,
+        "RightHand@55-59": 0.885
+      },
+      "target_error_final_m": {
+        "RightFoot@40-44": 0.0,
+        "LeftFoot@51-55": 0.0,
+        "LeftHand@55-59": 0.352,
+        "RightHand@55-59": 0.356
+      },
+      "ik_leftover_m": [
+        0.0698,
+        0.0,
+        0.4211,
+        0.4153
+      ],
+      "repairs": {
+        "fix_knees": 25,
+        "lift_to_floor": 0,
+        "limit_knee_bend": 12
+      },
+      "gen_s": 6.6,
+      "lines": {
+        "1_gate": {
+          "ok": false,
+          "value": [
+            "knees_bend_forward",
+            "legs_not_twisted",
+            "held_clips_are_held"
+          ],
+          "limit": "all hard rules"
+        },
+        "2_hips_on_path": {
+          "ok": false,
+          "value": 0.5559,
+          "limit": "<= 0.05 m on every frame"
+        },
+        "3_plant": {
+          "ok": true,
+          "value": [
+            "LeftFoot",
+            4,
+            2.15
+          ],
+          "limit": "a foot still >= 4 frames, ankle 5-12 cm off the curve, >= 0.4 m up"
+        },
+        "4_arms_rising": {
+          "ok": true,
+          "value": {
+            "Left": 0.64,
+            "Right": 0.637
+          },
+          "limit": "both wrists above their shoulders on the last frame"
+        },
+        "5_wall": {
+          "ok": false,
+          "value": 0.0391,
+          "limit": "<= 0.02 m inside"
+        },
+        "6_shape": {
+          "ok": true,
+          "value": [
+            60,
+            30
+          ],
+          "limit": "60 frames, 30 joints"
+        }
+      }
+    },
+    {
+      "seed": 13,
+      "met_final": 2,
+      "met_raw": 2,
+      "of": 6,
+      "failed_final": [
+        "1_gate",
+        "2_hips_on_path",
+        "3_plant",
+        "5_wall"
+      ],
+      "failed_raw": [
+        "1_gate",
+        "2_hips_on_path",
+        "3_plant",
+        "5_wall"
+      ],
+      "gate_failed_final": [
+        "knees_bend_forward",
+        "legs_not_twisted",
+        "held_clips_are_held"
+      ],
+      "soft_failed_final": [
+        "no_jitter"
+      ],
+      "wall_depth_raw": 0.395,
+      "target_error_raw_m": {
+        "RightFoot@40-44": 0.311,
+        "LeftFoot@51-55": 0.303,
+        "LeftHand@55-59": 1.156,
+        "RightHand@55-59": 1.139
+      },
+      "target_error_final_m": {
+        "RightFoot@40-44": 0.0,
+        "LeftFoot@51-55": 0.0,
+        "LeftHand@55-59": 0.384,
+        "RightHand@55-59": 0.389
+      },
+      "ik_leftover_m": [
+        0.0261,
+        0.0,
+        0.4573,
+        0.4503
+      ],
+      "repairs": {
+        "fix_knees": 17,
+        "lift_to_floor": 0,
+        "limit_knee_bend": 26
+      },
+      "gen_s": 6.6,
+      "lines": {
+        "1_gate": {
+          "ok": false,
+          "value": [
+            "knees_bend_forward",
+            "legs_not_twisted",
+            "held_clips_are_held"
+          ],
+          "limit": "all hard rules"
+        },
+        "2_hips_on_path": {
+          "ok": false,
+          "value": 0.6186,
+          "limit": "<= 0.05 m on every frame"
+        },
+        "3_plant": {
+          "ok": false,
+          "value": null,
+          "limit": "a foot still >= 4 frames, ankle 5-12 cm off the curve, >= 0.4 m up"
+        },
+        "4_arms_rising": {
+          "ok": true,
+          "value": {
+            "Left": 0.67,
+            "Right": 0.676
+          },
+          "limit": "both wrists above their shoulders on the last frame"
+        },
+        "5_wall": {
+          "ok": false,
+          "value": 0.0437,
+          "limit": "<= 0.02 m inside"
+        },
+        "6_shape": {
+          "ok": true,
+          "value": [
+            60,
+            30
+          ],
+          "limit": "60 frames, 30 joints"
+        }
+      }
+    },
+    {
+      "seed": 14,
+      "met_final": 3,
+      "met_raw": 1,
+      "of": 6,
+      "failed_final": [
+        "1_gate",
+        "2_hips_on_path",
+        "5_wall"
+      ],
+      "failed_raw": [
+        "1_gate",
+        "2_hips_on_path",
+        "3_plant",
+        "4_arms_rising",
+        "5_wall"
+      ],
+      "gate_failed_final": [
+        "knees_bend_forward",
+        "legs_not_twisted",
+        "held_clips_are_held"
+      ],
+      "soft_failed_final": [
+        "no_jitter"
+      ],
+      "wall_depth_raw": 0.6088,
+      "target_error_raw_m": {
+        "RightFoot@40-44": 0.269,
+        "LeftFoot@51-55": 0.365,
+        "LeftHand@55-59": 1.405,
+        "RightHand@55-59": 1.447
+      },
+      "target_error_final_m": {
+        "RightFoot@40-44": 0.0,
+        "LeftFoot@51-55": 0.0,
+        "LeftHand@55-59": 0.455,
+        "RightHand@55-59": 0.441
+      },
+      "ik_leftover_m": [
+        0.0272,
+        0.0,
+        0.5185,
+        0.4898
+      ],
+      "repairs": {
+        "fix_knees": 30,
+        "lift_to_floor": 0,
+        "limit_knee_bend": 13
+      },
+      "gen_s": 6.6,
+      "lines": {
+        "1_gate": {
+          "ok": false,
+          "value": [
+            "knees_bend_forward",
+            "legs_not_twisted",
+            "held_clips_are_held"
+          ],
+          "limit": "all hard rules"
+        },
+        "2_hips_on_path": {
+          "ok": false,
+          "value": 0.6504,
+          "limit": "<= 0.05 m on every frame"
+        },
+        "3_plant": {
+          "ok": true,
+          "value": [
+            "LeftFoot",
+            4,
+            2.15
+          ],
+          "limit": "a foot still >= 4 frames, ankle 5-12 cm off the curve, >= 0.4 m up"
+        },
+        "4_arms_rising": {
+          "ok": true,
+          "value": {
+            "Left": 0.66,
+            "Right": 0.687
+          },
+          "limit": "both wrists above their shoulders on the last frame"
+        },
+        "5_wall": {
+          "ok": false,
+          "value": 0.0266,
+          "limit": "<= 0.02 m inside"
+        },
+        "6_shape": {
+          "ok": true,
+          "value": [
+            60,
+            30
+          ],
+          "limit": "60 frames, 30 joints"
+        }
+      }
+    }
+  ]
+}

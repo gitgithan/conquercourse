@@ -27,6 +27,9 @@
 - **Kimodo cannot follow a hips path that rises more than about 2.5 m (CC-17 wall, 2026-10-27).**
   - Given the simulator's path and contact targets it tracked the run to within 5 cm but ended 2.4 m too low on a 4.3 m wall, in all 8 seeds; stronger constraint guidance made it worse.
   - So split a tall move into pieces that each stay inside that range, or track it with physics.
+- **Kimodo's limit is the hips' height in its frame, and lowering the frame helps (CC-36, 2026-10-27).**
+  - Two clips with rises under 2.5 m (2.23 m and 2.0 m) still stopped near 2.5-2.9 m of hip height and fell back; lowering each frame by 0.6-0.7 m cut the shortfall from 1.0 m to 0.45 m (run-up) and from 0.4 m to 0.2 m (pull-up).
+  - Neither stage passed the gate (knees) or the hips line, so the wall climb is still not a Kimodo clip; the next try is a bigger drop and the knee fixes.
 - **The simulator's wall grab is easier than a body can do:** at 7 m/s its grab tick has the hands 2.4 m from the hips, and an arm reaches 1.07 m.
 - **One mid-speed clip, time-warped, covers a whole human speed range** (3-7 m/s within 4 cm); add clips for new moves and outcomes, not new speeds.
 

@@ -99,6 +99,7 @@
 - **Measured:** about 5-20 s per generation once loaded (7 s with late projection); six grid clips in 34 s on one L4 (model load 7 s); collision spike: tic-tac 108 → 2-5 bones inside with contacts within 6 cm; kong vault 41 → 23 with hands 16-22 cm off (open).
 - **Rebuilt in this repo (CC-17):** `pipelines/kimodo_clips.py` (one L4; a list prompt with `num_samples` gives one motion, so loop the seeds yourself; the model's output has 77 joints, take the 30 by name with `get_skel_slice`); text-only wall run-up never passed (0 of 36), grab 0 of 12, leap 3 of 12 show a flight.
 - **Wall run-up and grab with the simulator's path and targets (CC-17, 2 rounds, 16 samples):** the run tracked within 5 cm but the hips ended 2.4 m low on the 4.3 m wall; nothing ships (`data/eval/cc-17-wall/README.md`).
+- **Wall climb in two clips (CC-36, 2 rounds, 32 samples):** a run-up (rise 2.23 m) and a hang and pull-up in a ledge-local frame (rise 2.0 m) each peaked near 2.5-2.9 m of hip height and fell back; lowering the frame by 0.6-0.7 m (round 2) halved the shortfall but no sample passed the gate or all its lines; nothing ships (`data/eval/cc-36-wall-two-stage/README.md`, code in `ccpipe/wall_stages.py`).
 - **What failed and why:** targets can only nudge a pose the source already has (a rope grip with arms down never reached the grip, 155-161 cm off); the vault's hands remain the open problem.
 
 ## 4. Plausibility gate and repairs
