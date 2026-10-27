@@ -1,0 +1,211 @@
+{
+  "experiment": "cc-38-photo-to-3d",
+  "round": "r1",
+  "issue": "CC-38",
+  "date": "2026-10-27",
+  "seed": 42,
+  "settings": {
+    "mask_grow_px": 0,
+    "colour_k": 4
+  },
+  "photos": [
+    {
+      "photo": "park01",
+      "mask_seconds": 1.4,
+      "lift_seconds": 8.8,
+      "wall_seconds": 90.2,
+      "mask": {
+        "how": "text",
+        "score": 0.97265625,
+        "iou_with_box": 0.995,
+        "candidates": 1,
+        "pixels": 6254
+      },
+      "privacy": {
+        "people": 0,
+        "faces": 0,
+        "plates": 0,
+        "changed": false
+      },
+      "n_faces_raw": 21516,
+      "n_gaussians": 16672
+    },
+    {
+      "photo": "park02",
+      "mask_seconds": 0.3,
+      "lift_seconds": 7.7,
+      "wall_seconds": 9.1,
+      "mask": {
+        "how": "text",
+        "score": 0.95703125,
+        "iou_with_box": 0.991,
+        "candidates": 1,
+        "pixels": 6379
+      },
+      "privacy": {
+        "people": 0,
+        "faces": 0,
+        "plates": 0,
+        "changed": false
+      },
+      "n_faces_raw": 14208,
+      "n_gaussians": 10720
+    },
+    {
+      "photo": "park03",
+      "mask_seconds": 0.3,
+      "lift_seconds": 9.5,
+      "wall_seconds": 15.1,
+      "mask": {
+        "how": "text",
+        "score": 0.84375,
+        "iou_with_box": 0.991,
+        "candidates": 3,
+        "pixels": 59835
+      },
+      "privacy": {
+        "people": 0,
+        "faces": 0,
+        "plates": 0,
+        "changed": false
+      },
+      "n_faces_raw": 422740,
+      "n_gaussians": 322720
+    },
+    {
+      "photo": "park06",
+      "mask_seconds": 0.3,
+      "lift_seconds": 7.8,
+      "wall_seconds": 9.4,
+      "mask": {
+        "how": "text",
+        "score": 0.48828125,
+        "iou_with_box": 0.972,
+        "candidates": 3,
+        "pixels": 15385
+      },
+      "privacy": {
+        "people": 0,
+        "faces": 0,
+        "plates": 0,
+        "changed": false
+      },
+      "n_faces_raw": 42556,
+      "n_gaussians": 38048
+    },
+    {
+      "photo": "park07",
+      "mask_seconds": 0.3,
+      "lift_seconds": 8.6,
+      "wall_seconds": 15.2,
+      "mask": {
+        "how": "text",
+        "score": 0.89453125,
+        "iou_with_box": 0.982,
+        "candidates": 1,
+        "pixels": 52719
+      },
+      "privacy": {
+        "people": 0,
+        "faces": 0,
+        "plates": 0,
+        "changed": false
+      },
+      "n_faces_raw": 214216,
+      "n_gaussians": 175168
+    },
+    {
+      "photo": "rail01",
+      "mask_seconds": 0.4,
+      "lift_seconds": 8.0,
+      "wall_seconds": 14.2,
+      "mask": {
+        "how": "box-prompt",
+        "score": 0.9375,
+        "iou_with_box": 0.0,
+        "candidates": 0,
+        "pixels": 7383
+      },
+      "privacy": {
+        "people": 0,
+        "faces": 0,
+        "plates": 0,
+        "changed": false
+      },
+      "n_faces_raw": 91952,
+      "n_gaussians": 59328
+    },
+    {
+      "photo": "mural01",
+      "mask_seconds": 0.5,
+      "lift_seconds": 8.5,
+      "wall_seconds": 15.1,
+      "mask": {
+        "how": "text",
+        "score": 0.84375,
+        "iou_with_box": 0.819,
+        "candidates": 4,
+        "pixels": 474396
+      },
+      "privacy": {
+        "people": 1,
+        "faces": 2,
+        "plates": 0,
+        "changed": true
+      },
+      "n_faces_raw": 213908,
+      "n_gaussians": 173376
+    },
+    {
+      "photo": "mural02",
+      "mask_seconds": 0.5,
+      "lift_seconds": 8.9,
+      "wall_seconds": 14.3,
+      "mask": {
+        "how": "text",
+        "score": 0.451171875,
+        "iou_with_box": 0.916,
+        "candidates": 3,
+        "pixels": 317965
+      },
+      "privacy": {
+        "people": 1,
+        "faces": 3,
+        "plates": 1,
+        "changed": true
+      },
+      "n_faces_raw": 313944,
+      "n_gaussians": 235200
+    },
+    {
+      "photo": "bench01",
+      "mask_seconds": 0.3,
+      "lift_seconds": 9.4,
+      "wall_seconds": 14.5,
+      "mask": {
+        "how": "text",
+        "score": 0.97265625,
+        "iou_with_box": 0.859,
+        "candidates": 1,
+        "pixels": 95462
+      },
+      "privacy": {
+        "people": 0,
+        "faces": 0,
+        "plates": 0,
+        "changed": false
+      },
+      "n_faces_raw": 385428,
+      "n_gaussians": 318016
+    }
+  ],
+  "mask_load_seconds": 14.4,
+  "lift_load_seconds": 47.1,
+  "gpu_seconds": {
+    "l4": 19,
+    "l40s": 124
+  },
+  "gpu_minutes": 2.4,
+  "estimated_usd": 0.072,
+  "price_basis": "L40S $1.95/h, L4 $0.80/h, container seconds in methods plus one model load each; idle scale-down time not included"
+}

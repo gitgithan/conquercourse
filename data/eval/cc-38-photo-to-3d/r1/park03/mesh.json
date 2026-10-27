@@ -1,0 +1,30 @@
+{
+  "label": "platform",
+  "extents_m": {
+    "x": 4.42,
+    "y": 0.5,
+    "z": 2.91
+  },
+  "height_m": 0.5,
+  "target_height_m": 0.5,
+  "scale_source": "typical:platform",
+  "scale_factor": 4.4248,
+  "raw_height": 0.113,
+  "yaw_deg": 0.0,
+  "tilt_deg": 0.5,
+  "faces": 5820,
+  "vertices": 2914,
+  "width_to_height": 8.846,
+  "photo": "park03",
+  "box": [
+    66,
+    234,
+    662,
+    407
+  ],
+  "bytes": 114780,
+  "model": "SAM 3D Objects (seed 42)",
+  "bake_seconds": 2.29,
+  "raw_faces": 422740,
+  "splat_points": 322720
+}

@@ -1,0 +1,30 @@
+{
+  "label": "ledge",
+  "extents_m": {
+    "x": 33.243,
+    "y": 0.501,
+    "z": 4.914
+  },
+  "height_m": 0.501,
+  "target_height_m": 0.5,
+  "scale_source": "typical:ledge",
+  "scale_factor": 33.2179,
+  "raw_height": 0.0151,
+  "yaw_deg": 0.0,
+  "tilt_deg": 0.63,
+  "faces": 5820,
+  "vertices": 2912,
+  "width_to_height": 66.414,
+  "photo": "park06",
+  "box": [
+    220,
+    598,
+    774,
+    637
+  ],
+  "bytes": 114728,
+  "model": "SAM 3D Objects (seed 42)",
+  "bake_seconds": 0.18,
+  "raw_faces": 42556,
+  "splat_points": 38048
+}

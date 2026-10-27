@@ -1,0 +1,30 @@
+{
+  "label": "rail",
+  "extents_m": {
+    "x": 2.402,
+    "y": 1.0,
+    "z": 0.072
+  },
+  "height_m": 1.0,
+  "target_height_m": 1.0,
+  "scale_source": "typical:rail",
+  "scale_factor": 2.401,
+  "raw_height": 0.4165,
+  "yaw_deg": 90.5,
+  "tilt_deg": 2.03,
+  "faces": 5820,
+  "vertices": 2759,
+  "width_to_height": 2.403,
+  "photo": "rail01",
+  "box": [
+    130,
+    150,
+    900,
+    480
+  ],
+  "bytes": 110596,
+  "model": "SAM 3D Objects (seed 42)",
+  "bake_seconds": 0.44,
+  "raw_faces": 91952,
+  "splat_points": 59328
+}
