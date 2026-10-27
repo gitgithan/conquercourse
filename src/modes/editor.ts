@@ -6,6 +6,7 @@ import { crop, duplicate, hits, newPiece, realSize, scaleBy, scaleToHeight, size
 import { searchIdealRun } from '../sim/ideal';
 import { createView3d } from '../slice/view3d';
 import { sceneFor } from '../slice/scene';
+import { barMesh, holdsOf, isHold, REACH_JUMPING, REACH_STANDING } from '../slice/holds-world';
 import { fixLayout } from '../slice/fixit';
 import { adviseLane, type Advice } from '../slice/advice';
 import { applyEdits, parseReply, worldBrief, type Edit } from '../slice/designer';
@@ -53,7 +54,7 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
     try {
       const s = JSON.parse(localStorage.getItem(KEY) ?? '') as Saved;
       pendingObjects.push(...s.pieces.filter((q) => q.src.startsWith('obj:')));
-      pieces = s.pieces.filter((q) => !q.src.startsWith('obj:')).map((q) => ({ ...newPiece(lib(q.src).label, lib(q.src).mesh(), { x: q.x, z: q.z }), src: q.src, y: q.y, yaw: q.yaw, scale: q.scale }));
+      pieces = s.pieces.filter((q) => !q.src.startsWith('obj:')).map((q) => (q.src === 'hold:bar' ? { ...newPiece('Bar', barMesh(), { x: q.x, z: q.z }), src: q.src, y: q.y, yaw: q.yaw, scale: q.scale } : { ...newPiece(lib(q.src).label, lib(q.src).mesh(), { x: q.x, z: q.z }), src: q.src, y: q.y, yaw: q.yaw, scale: q.scale }));
       angle = s.angle; offset = s.offset; level = s.level;
     } catch {
       // a first world made of real objects (no blocks): a bench, a long low box and a rail, loaded once the object list is in
@@ -72,6 +73,18 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
   const addBar = el('div', root, { className: 'top' });
   el('strong', addBar, { text: 'Basic shapes:' });
   for (const l of LIBRARY) el('button', addBar, { text: l.label }).onclick = () => { add(l.id, freeSpot(l.id)); changed(); };
+  // undo and redo: a snapshot after every change (pieces are copied shallowly; a crop makes a new mesh, so old meshes stay valid)
+  interface Snap { pieces: P[]; angle: number; offset: number; level: number }
+  const hist: Snap[] = [];
+  let hi = -1;
+  const snapNow = (): Snap => ({ pieces: pieces.map((q) => ({ ...q })), angle, offset, level });
+  const same = (a: Snap, b: Snap) => a.angle === b.angle && a.offset === b.offset && a.level === b.level && a.pieces.length === b.pieces.length && a.pieces.every((q, i) => { const r = b.pieces[i]; return q.id === r.id && q.x === r.x && q.z === r.z && q.y === r.y && q.yaw === r.yaw && q.scale === r.scale && q.mesh === r.mesh; });
+  const remember = () => { const n = snapNow(); if (hi >= 0 && same(hist[hi], n)) return; hist.splice(hi + 1); hist.push(n); if (hist.length > 80) hist.shift(); hi = hist.length - 1; undoBtn.disabled = hi < 1; redoBtn.disabled = true; };
+  const goto = (k: number) => { const t = hist[k]; if (!t) return; hi = k; pieces = t.pieces.map((q) => ({ ...q })); angle = t.angle; offset = t.offset; level = t.level; if (!pieces.some((q) => q.id === selected)) selected = null; undoBtn.disabled = hi < 1; redoBtn.disabled = hi >= hist.length - 1; changed(false); };
+  const undoBtn = el('button', top, { text: 'Undo', id: 'undo', title: 'Undo (Ctrl+Z)' });
+  const redoBtn = el('button', top, { text: 'Redo', id: 'redo', title: 'Redo (Ctrl+Y)' });
+  undoBtn.disabled = redoBtn.disabled = true;
+  undoBtn.onclick = () => goto(hi - 1); redoBtn.onclick = () => goto(hi + 1);
   // objects lifted from real photos (SAM 3D Objects, CC-38): each is a baked .glb at its real size
   const photoBar = addBar;
   void (async () => {
@@ -92,9 +105,15 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
       for (const q of pendingObjects) {
         try { const p: P = { ...newPiece(q.src, readGlbMesh(await (await fetch(`/assets/objects/${q.src.slice(4)}`)).arrayBuffer()), { x: q.x, z: q.z }), src: q.src, y: q.y, yaw: q.yaw, scale: q.scale }; pieces.push(p); } catch { /* a missing object is skipped */ }
       }
-      if (pendingObjects.length) { pendingObjects.length = 0; changed(); }
+      if (pendingObjects.length) { pendingObjects.length = 0; changed(false); hist.length = 0; hi = -1; remember(); } // the saved or first world is the starting point of the undo list
     } catch { /* no objects on this site */ }
   })();
+  // overhead: bars hanging in the air (a game, not real: they need no frame); the side view is where they are dragged
+  el('strong', addBar, { text: 'Overhead:' });
+  const nextX = () => pieces.reduce((r, q) => Math.max(r, q.x + (size(q.mesh).w * q.scale) / 2), 0) + 3;
+  const addBarPiece = (x: number, y: number): P => { const q: P = { ...newPiece('Bar', barMesh(), { x, z: 0 }), src: 'hold:bar', y }; pieces.push(q); selected = q.id; return q; };
+  el('button', addBar, { text: 'Bar', id: 'addbar' }).onclick = () => { addBarPiece(nextX(), 2.86); changed(); };
+  el('button', addBar, { text: 'Lache pair', id: 'addlache', title: 'Two bars to swing between' }).onclick = () => { const x = nextX(); addBarPiece(x, 2.86); addBarPiece(x + 3.5, 2.86); changed(); };
   // size references: a Rookie (1.75 m, T-pose) and the demo scene, so a piece can be judged against a person
   el('strong', addBar, { text: 'Size references:' });
   for (const r of [{ id: 'rookie-a', label: 'Person (1.75 m)', url: '/assets/characters/rookie-a.glb', src: 'obj:../characters/rookie-a.glb' }, { id: 'demo-scene', label: 'Demo scene', url: '/assets/demo/demo-scene.glb', src: 'obj:../demo/demo-scene.glb' }]) {
@@ -249,7 +268,7 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
     slider('Sideways', 'offset', -30, 30, 0.5, () => offset, (v) => (offset = v), (v) => `${v.toFixed(1)} m`);
     slider('Where the water starts (level)', 'level', 0, 4, 0.05, () => level, (v) => (level = v), (v) => `${v.toFixed(2)} m`);
     el('button', lanePanel, { text: 'Find the best lane for me', id: 'best' }).onclick = () => {
-      const s = worldSamples(pieces);
+      const s = worldSamples(ground());
       const found = bestSlices({ positions: Array.from(s) }, { top: 1, levels: [level], centre: { x: 0, z: 0 } }); // the editor's rod is the origin, so the lane it finds is the lane it shows
       if (!found.length) { verdict = 'No lane the runner can clear was found: try other pieces or levels.'; drawLanePanel(); return; }
       angle = found[0].angle; offset = found[0].offset; level = found[0].level; verdict = '';
@@ -257,10 +276,25 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
     };
     const play = el('button', lanePanel, { text: 'Play this lane', className: 'go', id: 'play' });
     play.onclick = () => {
-      const course = laneToCourse(currentProfile(), 'My world');
+      const course = courseNow();
       if (!searchIdealRun(course).cleared) { verdict = 'The simulator cannot find a way to clear this lane: widen a gap or lower a step.'; drawLanePanel(); return; }
       // the real objects are drawn in the game instead of blocks (a cropped photo object is drawn whole; its collision is still the cropped lane)
-      course.scene = sceneFor(pieces, { angle, offset, level }, course.uMap ?? []);
+      course.scene = sceneFor(ground(), { angle, offset, level }, course.uMap ?? []);
+      root.remove(); style.remove();
+      void startCourse(document.body, course);
+    };
+    const testBtn = el('button', lanePanel, { text: 'Test from the selected piece', id: 'testhere', title: 'Start the runner a few metres before the selected piece and play from there' });
+    testBtn.onclick = () => {
+      const q = pieces.find((x) => x.id === selected);
+      const course = courseNow();
+      if (!q) { verdict = 'Select a piece first: the test starts just before it.'; drawLanePanel(); return; }
+      course.scene = sceneFor(ground(), { angle, offset, level }, course.uMap ?? []);
+      const gx = isHold(q) ? (course.holds?.[barsNow().findIndex((b) => b.id === q.id)]?.x ?? 0) : sceneFor([q], { angle, offset, level }, course.uMap ?? [])[0]?.x ?? 0;
+      // start on the ground about 8 m before it (on the nearest ground at or before that spot)
+      const want = Math.max(course.startX, gx - 8);
+      const ps = [...course.terrain.platforms].sort((a, b) => a.x0 - b.x0);
+      const on = ps.find((r) => want >= r.x0 && want <= r.x1);
+      course.startX = on ? want : Math.max(course.startX, (ps.filter((r) => r.x1 <= want).pop()?.x1 ?? course.startX) - 1);
       root.remove(); style.remove();
       void startCourse(document.body, course);
     };
@@ -268,20 +302,25 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
     el('div', lanePanel, { className: 'muted help', text: 'The runner goes left to right along the orange band; the shapes in it are what you see underneath.' });
   }
 
-  const currentProfile = () => sliceProfile(worldSamples(pieces), { x: 0, z: 0 }, { angle, offset, level });
+  const ground = () => pieces.filter((q) => !isHold(q)); // bars are not ground
+  const currentProfile = () => sliceProfile(worldSamples(ground()), { x: 0, z: 0 }, { angle, offset, level });
+  const barsNow = () => holdsOf(pieces, { angle, offset, level });
+  const courseNow = () => laneToCourse(currentProfile(), 'My world', barsNow());
   let verifyTimer = 0, adviceRun = 0;
   function verify() {
     clearTimeout(verifyTimer);
     verifyTimer = window.setTimeout(() => {
       const p = currentProfile();
       if (p.length < 8) { verdict = 'Nothing is in the lane: move the lane or the pieces.'; }
-      else { const r = describeLane(p); verdict = searchIdealRun(laneToCourse(p)).cleared ? `The simulator can clear this lane (${r.gaps} gaps, ${r.steps} steps, ${r.curves} curves, ${r.faces} faces, ${r.length.toFixed(0)} m).` : 'The simulator cannot find a way to clear this lane: widen a gap or lower a step.'; }
+      else { const r = describeLane(p); verdict = searchIdealRun(laneToCourse(p, 'My world', barsNow())).cleared ? `The simulator can clear this lane (${r.gaps} gaps, ${r.steps} steps, ${r.curves} curves, ${r.faces} faces, ${r.length.toFixed(0)} m).` : 'The simulator cannot find a way to clear this lane: widen a gap or lower a step.'; }
       const v = lanePanel.querySelector('#verdict') as HTMLElement | null;
       if (v) { v.textContent = verdict; v.className = verdict.startsWith('The simulator can') ? 'ok' : 'bad'; }
       document.documentElement.dataset.verdict = verdict;
       // when it cannot be cleared, say what to shift (each suggestion was proved by the simulator)
       adviceList = []; showAdvice();
-      if (!verdict.startsWith('The simulator can') && p.length >= 8) {
+      if (!verdict.startsWith('The simulator can') && p.length >= 8 && barsNow().length) {
+        adviceBox.textContent = 'This lane has bars. Drag them in the side view (position and height); Fix it and the shift advice do not handle bars yet.';
+      } else if (!verdict.startsWith('The simulator can') && p.length >= 8) {
         const mine = ++adviceRun;
         setTimeout(() => { if (mine !== adviceRun) return; adviceList = adviseLane(pieces, { angle, offset, level }); showAdvice(); if (!adviceList.length) adviceBox.textContent = 'No single small shift clears it. Press "What should I change?" to think it through together.'; document.documentElement.dataset.advice = String(adviceList.length); }, 30);
       } else document.documentElement.dataset.advice = '0';
@@ -319,24 +358,67 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
     });
     if (rubber) { c.strokeStyle = '#0f6b5c'; c.setLineDash([5, 4]); c.strokeRect(sx(rubber.x0), sz(rubber.z0), (rubber.x1 - rubber.x0) * view.ppm, (rubber.z1 - rubber.z0) * view.ppm); c.setLineDash([]); }
   }
+  // the side view: the lane's ground, the bars (drag them here), and where a person can reach
+  let sideMap = { uMin: 0, ppm: 20, ph: 20, base: 100 };
   function drawProfile() {
     const c = profileCanvas.getContext('2d')!;
     const W = profileCanvas.width, H = profileCanvas.height;
     c.clearRect(0, 0, W, H);
     const prof = currentProfile();
+    const bars = barsNow();
+    const o = prof.origin ?? 0;
+    const uLo = Math.min(prof.length ? o : 0, ...bars.map((b) => b.u));
+    const uHi = Math.max(prof.length ? o + prof.length : -Infinity, ...bars.map((b) => b.u), uLo + 10);
     c.fillStyle = '#58635d'; c.font = '12px system-ui';
-    c.fillText('What the runner sees: the lane from the side (water at the bottom, grid every metre)', 8, 14);
-    const base = H - 14, ppm = Math.min(30, (W - 20) / Math.max(10, prof.length)), ph = Math.max(14, (base - 24) / 4.3);
+    c.fillText('What the runner sees: the lane from the side (water at the bottom, grid every metre). Drag a bar to move it.', 8, 14);
+    const base = H - 14, ppm = Math.min(30, (W - 40) / Math.max(10, uHi - uLo + 1)), ph = Math.max(14, (base - 24) / 4.3);
+    sideMap = { uMin: uLo, ppm, ph, base };
     c.fillStyle = '#cfe3f5'; c.fillRect(0, base, W, 14);
     c.strokeStyle = '#e3e8e4';
     for (let m = 0; m < 5; m++) { c.beginPath(); c.moveTo(0, base - m * ph); c.lineTo(W, base - m * ph); c.stroke(); }
+    // reach guide: what hands can grab standing and with a jump (the simulator's own numbers)
+    c.setLineDash([6, 4]); c.lineWidth = 1.5; c.font = '11px system-ui';
+    for (const [h, col, label] of [[REACH_STANDING, '#2f9e5b', 'hands reach standing'], [REACH_JUMPING, '#c9951b', 'hands reach with a jump']] as [number, string, string][]) {
+      c.strokeStyle = col; c.fillStyle = col; c.beginPath(); c.moveTo(0, base - h * ph); c.lineTo(W, base - h * ph); c.stroke(); c.fillText(`${label} (${h} m)`, W - 190, base - h * ph - 3);
+    }
+    c.setLineDash([]);
     c.fillStyle = '#17201d'; c.strokeStyle = '#17201d'; c.lineWidth = 2;
     c.beginPath();
     let pen = false;
-    prof.cells.forEach((h, i) => { if (h === null) { pen = false; return; } const x = 10 + i * CELL * ppm, y = base - h * ph; if (!pen) { c.moveTo(x, y); pen = true; } else c.lineTo(x, y); });
+    prof.cells.forEach((h, i) => { if (h === null) { pen = false; return; } const x = 10 + (o - uLo + i * CELL) * ppm, y = base - h * ph; if (!pen) { c.moveTo(x, y); pen = true; } else c.lineTo(x, y); });
     c.stroke();
+    for (const b of bars) {
+      const x = 10 + (b.u - uLo) * ppm, y = base - b.y * ph, sel = b.id === selected;
+      c.strokeStyle = '#c9ced4'; c.lineWidth = 4; c.beginPath(); c.moveTo(x - 12, y); c.lineTo(x + 12, y); c.stroke();
+      c.strokeStyle = sel ? '#0f6b5c' : '#f0a020'; c.lineWidth = 3; c.beginPath(); c.arc(x, y, 9, 0, 7); c.stroke();
+      c.fillStyle = '#17201d'; c.fillText(`${b.y.toFixed(2)} m`, x + 12, y - 8);
+    }
     document.documentElement.dataset.laneLength = String(prof.length.toFixed(1));
+    document.documentElement.dataset.bars = String(bars.length);
+    document.documentElement.dataset.barPx = JSON.stringify(bars.map((b) => [10 + (b.u - uLo) * ppm, base - b.y * ph]));
+    document.documentElement.dataset.barYs = JSON.stringify(bars.map((b) => Number(b.y.toFixed(2))));
   }
+  const barAtPx = (px: number, py: number) => barsNow().find((b) => Math.hypot(10 + (b.u - sideMap.uMin) * sideMap.ppm - px, sideMap.base - b.y * sideMap.ph - py) < 16);
+  let barDrag: { p: P } | null = null;
+  profileCanvas.addEventListener('pointerdown', (e) => {
+    const r = profileCanvas.getBoundingClientRect();
+    const b = barAtPx(e.clientX - r.left, e.clientY - r.top);
+    const p = b && pieces.find((q) => q.id === b.id);
+    if (!p) return;
+    selected = p.id; barDrag = { p }; profileCanvas.setPointerCapture(e.pointerId); drawPanel(); draw(); drawProfile();
+  });
+  profileCanvas.addEventListener('pointermove', (e) => {
+    const r = profileCanvas.getBoundingClientRect();
+    if (!barDrag) { profileCanvas.style.cursor = barAtPx(e.clientX - r.left, e.clientY - r.top) ? 'grab' : 'default'; return; }
+    const p = barDrag.p, c = Math.cos(angle), s = Math.sin(angle);
+    const u = Math.round((sideMap.uMin + (e.clientX - r.left - 10) / sideMap.ppm) * 20) / 20;
+    const y = Math.min(4.3, Math.max(0.35, Math.round(((sideMap.base - (e.clientY - r.top)) / sideMap.ph - 0.04) * 20) / 20));
+    const v = -p.x * s + p.z * c; // keep the sideways place, move along the run
+    p.x = u * c - v * s; p.z = u * s + v * c; p.y = y;
+    draw(); drawProfile();
+  });
+  const endBar = () => { if (!barDrag) return; barDrag = null; changed(); };
+  profileCanvas.addEventListener('pointerup', endBar); profileCanvas.addEventListener('pointercancel', endBar);
 
   // ---- the mouse on the picture
   let rubber: { x0: number; z0: number; x1: number; z1: number } | null = null;
@@ -380,6 +462,8 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
   addEventListener('keydown', (e) => {
     const t = e.target as HTMLElement | null;
     if (t && /^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName) && (t as HTMLInputElement).type !== 'range') return;
+    if ((e.ctrlKey || e.metaKey) && e.code === 'KeyZ') { e.preventDefault(); goto(e.shiftKey ? hi + 1 : hi - 1); return; }
+    if ((e.ctrlKey || e.metaKey) && e.code === 'KeyY') { e.preventDefault(); goto(hi + 1); return; }
     if (e.code === 'KeyT') location.href = '?';
     const p = pieces.find((q) => q.id === selected);
     if (!p) return;
@@ -387,8 +471,9 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
     if (e.code === 'KeyD') { const q = duplicate(p, size(p.mesh).w * p.scale + 0.5, 0) as P; q.src = p.src; pieces.push(q); selected = q.id; changed(); }
   });
 
-  function changed() { document.documentElement.dataset.pieces = String(pieces.length); save(); drawPanel(); drawLanePanel(); draw(); drawProfile(); verify(); }
+  function changed(record = true) { if (record) remember(); document.documentElement.dataset.pieces = String(pieces.length); save(); drawPanel(); drawLanePanel(); draw(); drawProfile(); verify(); }
   drawPanel(); drawLanePanel(); draw(); drawProfile(); verify();
+  remember();
   document.documentElement.dataset.pieces = String(pieces.length);
   return { backend: 'webgl2' };
 }

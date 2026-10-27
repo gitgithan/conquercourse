@@ -163,3 +163,11 @@ The set of obstacle shapes is fixed, and each shape offers a fixed set of moves.
 - **Drums:** the lane shows vault, grab (Q / E) and release presses.
 - **Why the search got bigger:** tuning one bar at a time missed lines that clear (the swing and the next catch depend on each other), so a joint search over the take-off and the first two hang times is used; it also guards against states that go to NaN.
 - **Limits of the swing:** the arms keep 35 % of the speed on a catch, and the swing stops 100° from straight down (no flips).
+
+## Bars in the editor (CC-44)
+- **Overhead row:** "Bar" and "Lache pair" add bars hanging in the air; a bar is a piece with `src` "hold:bar" (not ground: the slice ignores it, `src/slice/holds-world.ts`).
+- **Side view is where bars are dragged:** along the run and up or down (5 cm steps, 0.35 to 4.3 m); the green and gold dashed lines show what hands reach standing (2.55 m) and with a jump (3.6 m), the simulator's own numbers.
+- **Lanes with bars keep their real gaps** (up to 14 m) and their jumps cost speed (`jumpKeep` 0.88), so a vault and a swing are worth learning; the ideal-run proof includes the bars.
+- **Undo and redo:** Ctrl+Z and Ctrl+Y or the buttons (80 steps).
+- **Test from the selected piece:** starts the runner about 8 m before the selected piece, on the nearest ground.
+- **Not yet for bars:** Fix it and the shift advice (they say so), the front-view window.

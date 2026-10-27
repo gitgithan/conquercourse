@@ -90,7 +90,9 @@ export function describe(profile: Profile): SliceReport {
 }
 
 // The lane as a course: a start deck, then each stretch of ground with its real outline, with real gaps (bridged if tiny, capped if huge).
-export function laneToCourse(profile: Profile, name = 'Slice'): CourseData {
+// holds: bars in the air in the editor's world (u along the run, y above the level). A lane with bars keeps its real gaps (they are what the swing has to cross)
+// and its jumps cost speed at take-off (jumpKeep), so a vault and a swing are worth learning.
+export function laneToCourse(profile: Profile, name = 'Slice', holds: { u: number; y: number }[] = []): CourseData {
   const c = profile.cells;
   const runs: { a: number; b: number }[] = [];
   let start = -1;
@@ -114,7 +116,9 @@ export function laneToCourse(profile: Profile, name = 'Slice'): CourseData {
   const origin = profile.origin ?? 0;
   let x = 6;
   merged.forEach((r, k) => {
-    const gapM = k === 0 ? 3 : Math.min(5, (r.a - merged[k - 1].b - 1) * CELL);
+    const realGap = k === 0 ? 3 : (r.a - merged[k - 1].b - 1) * CELL;
+    const firstU = holds.length ? Math.min(...holds.map((h) => h.u)) : Infinity;
+    const gapM = holds.length ? (k === 0 ? Math.max(3, origin + r.a * CELL - firstU + 2.5) : Math.min(14, realGap)) : k === 0 ? 3 : Math.min(5, realGap);
     const x0 = x + gapM;
     const pts: [number, number][] = [];
     for (let i = r.a; i <= r.b; i += Math.max(1, Math.floor((r.b - r.a) / 24))) pts.push([x0 + (i - r.a) * CELL, c[i] as number]);
@@ -128,7 +132,12 @@ export function laneToCourse(profile: Profile, name = 'Slice'): CourseData {
     x = x1;
   });
   platforms.push({ x0: round(x + 3), x1: round(x + 11), top: 0 });
-  return { version: 1, name, startX: 0, finishX: round(x + 5), jumpSpeed: 4.5, terrain: { waterY: -1.5, platforms }, uMap };
+  const mapped = holds.map((h) => {
+    let best = uMap[0], d = Infinity;
+    for (const r of uMap) { const dd = h.u < r.u0 ? r.u0 - h.u : h.u > r.u1 ? h.u - r.u1 : 0; if (dd < d) { d = dd; best = r; } }
+    return best ? { x: round(h.u + (best.x0 - best.u0)), y: round(h.y) } : null;
+  }).filter((h): h is { x: number; y: number } => h !== null).sort((a, b) => a.x - b.x);
+  return { version: 1, name, startX: 0, finishX: round(x + 5), jumpSpeed: 4.5, terrain: { waterY: -1.5, platforms }, uMap, ...(mapped.length ? { holds: mapped, jumpKeep: 0.88 } : {}) };
 }
 const round = (v: number) => Math.round(v * 100) / 100;
 
