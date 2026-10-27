@@ -3,6 +3,7 @@ export interface Platform {
   x0: number;
   x1: number;
   top: number; // height of the standing surface, m
+  bouncy?: boolean; // a trampoline bed: landing here starts a bounce
 }
 
 export interface Terrain {
@@ -22,4 +23,9 @@ export function groundAt(t: Terrain, x: number): number {
 // The platform whose left edge is the next one at or after x (used when the runner hits a block's side).
 export function platformAt(t: Terrain, x: number): Platform | undefined {
   return t.platforms.filter((p) => x >= p.x0 && x <= p.x1).sort((a, b) => b.top - a.top)[0];
+}
+
+// The platform the feet stand on at x (the highest one there).
+export function standingOn(t: Terrain, x: number): Platform | undefined {
+  return platformAt(t, x);
 }
