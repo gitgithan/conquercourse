@@ -179,3 +179,7 @@ The set of obstacle shapes is fixed, and each shape offers a fixed set of moves.
 ## Fix it and the design partner know about bars (CC-44)
 - **Fix it with bars (`src/slice/fixbars.ts`):** tries small moves of the bars (up or down, along the run, both together), skips any that leave no bar a jump can reach, and keeps the smallest one the ideal-run search proves; it stops after 6 s and says so.
 - **Design partner:** the world description now lists the bars (where along the run, how high) and the prompt explains the reach numbers, the swing, the vault and the cost of a jump.
+
+## Swing aids: push and let-go cues (CC-44)
+- **On a bar:** the hint says which arrow to push (the way the body is swinging) and, from a look ahead run on the simulator's own physics (`predictRelease`), "LET GO NOW" when letting go reaches the next bar or the far ground, or why to keep swinging ("you would land back on the near side", "you fall in the water").
+- **Debug view:** while hanging it draws the path of letting go now instead of a jump.

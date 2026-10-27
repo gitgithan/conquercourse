@@ -21,6 +21,7 @@ import { groundAt } from '../sim/terrain';
 import { drumsFor } from '../sim/drums';
 import { createDrumLane } from '../ui/drum-lane';
 import { createDebugView } from '../ui/debug-view';
+import { predictRelease } from '../sim/predict';
 
 // The Course: the five obstacles in a row. The simulator decides everything; this file only draws it
 // and turns keys into inputs. Time comes from the simulator's tick count, never from the browser's clock.
@@ -636,7 +637,11 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
       return 'Trampoline ahead: press Space the moment you land on it for extra height';
     }
     if (w.mode === 'swing') return 'Press Space to let go while you are still rising';
-    if (w.mode === 'hang') return 'Keep holding Q or E. Push ← → the way you swing to build the swing, then let go of both to fly.';
+    if (w.mode === 'hang') {
+      // a push cue (the way the body is swinging) and a let-go cue from the simulator's own look ahead
+      const fwd = (w.hang?.omega ?? 0) >= 0, rel = predictRelease(w, course);
+      return `${fwd ? 'Push →' : 'Push ←'} with the swing (hold Q or E)  ·  ${rel.result === 'lands' && /next bar|ground/.test(rel.why) ? 'LET GO NOW: ' + rel.why : 'keep swinging: ' + rel.why}`;
+    }
     if (course.holds?.length && w.mode === 'run' && !r.grounded) { const next = course.holds.find((h) => h.x > r.x - 0.5); if (next && Math.abs(next.x - r.x) < 2.5) return 'Hold Q or E to grab the bar'; }
     if (everCleared || falls > 0) return '';
     if (r.tick < 60 || (r.x < 4 && r.tick < 600)) return 'Hold → to run';
