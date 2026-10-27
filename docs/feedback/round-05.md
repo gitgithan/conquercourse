@@ -36,3 +36,4 @@
   - The feet must now climb 2.0 m instead of 1.2 m, so the wall needs about 6.6 m/s at its foot instead of 5.1 m/s.
   - The Dojo, the speed meter and the ideal run follow the new number; the bot still clears the whole Course.
 - R5-G1c: the stance had shoulders slightly forward and bent elbows; now the shoulders are level with the body and the arms hang straight down with straight elbows.
+- R5-G1d: the shoulders looked tense and raised; the stance now takes the shoulder and upper-arm directions from the model's own T-pose (kept level, never raised), then lets the arms hang straight down.
