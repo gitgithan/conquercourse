@@ -29,3 +29,6 @@
 
 ## Open
 - Interactive objects on the picture itself (drag the take-off point or the release angle) are not built; the sliders are the interaction for now.
+
+## Follow-up (same day)
+- R5-G1b: the forward lean made the Rookie look hunched; the ready stance now stands straight up with no lean.

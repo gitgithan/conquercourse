@@ -70,20 +70,20 @@ export async function createRookieActor(scene: Scene, opts: { rookie: RookieId }
   const takeoffFrame = leap.frames[leap.takeoff!];
   const takeoffCom = scale * (takeoffFrame[0][1] - Math.min(...takeoffFrame.map((p) => p[1]))) + scale * comAboveHips(names, takeoffFrame);
 
-  // The ready stance, built bone by bone (clip axes: +z forward, +x left, y up): upright with a slight forward lean,
+  // The ready stance, built bone by bone (clip axes: +z forward, +x left, y up): straight up, no lean,
   // knees soft, feet under the hips, arms hanging with the elbows bent forward and the hands loose.
   const stand = (() => {
     const f = land.frames[13]; // only for the bone lengths and the face details
     const len = (i: number) => Math.hypot(...f[i].map((v, k) => v - f[land.parents[i]][k]));
     const out: number[][] = f.map(() => [0, 0, 0]);
-    const LEAN = 0.12; // rad
+    const LEAN = 0; // rad: stand straight, no lean
     const up = (a: number) => new Vector3(0, Math.cos(a), Math.sin(a));
     names.forEach((n, i) => {
       if (i === 0) return;
       const par = out[land.parents[i]], side = n.startsWith('Left') ? 1 : -1;
       let d: Vector3 | null = null;
       if (/^(Spine1|Spine2|Chest|Neck1|Neck2)$/.test(n)) d = up(LEAN);
-      else if (n === 'Head') d = up(0.04);
+      else if (n === 'Head') d = up(0);
       else if (/Shoulder$/.test(n)) d = new Vector3(side * 0.95, 0.3, 0.05);
       else if (/Arm$/.test(n) && !/Fore/.test(n)) d = new Vector3(side * 0.9, 0.1, 0);
       else if (/ForeArm$/.test(n)) d = new Vector3(side * 0.08, -1, 0.12);
