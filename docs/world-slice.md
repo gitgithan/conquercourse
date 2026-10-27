@@ -20,6 +20,20 @@
 4. **Take the profile:** for each position along the run, the highest surface inside the lane and inside the band; thin it to at most 24 points; steeper than 45° counts as a face, not a slope.
 5. **Name the primitive** (below) and write its numbers into the course; keep the mesh as its skin.
 
+## Choosing the lane: turn the rod
+*Idea from the product owner: put a vertical rod through the middle of the scene and turn the scene about it; each turn shows a different 2 m lane, and one of them has the interesting shapes.*
+- **Three free choices:** the turn about the rod (every 10 degrees over half a turn; the other half is the same lane run backwards), the sideways step across the scene (about every metre), and the level (where the water starts).
+- **Scoring (`src/slice/slice.ts`):** a lane is worth more for each kind of shape it holds, with about equal weight: real gaps, steps, curved stretches and tall faces.
+  - It is worth less if it is too short or too long, or has a face a jump cannot make (more than 0.9 m up).
+  - A crack narrower than 1.2 m is bridged, because nobody jumps a crack.
+- **The simulator has the last word:** the best lanes are kept only if the ideal-run search proves the lane can be cleared; three near-copies of the same lane are not offered.
+- **Tried by a script:** `npx tsx scripts/slice-glb.ts scene.glb` prints the best three lanes, sketches each, and writes a course for each.
+  - On a synthetic scene (a bench, a dome, a block along one line and a lone tower off to the side) the search turns to the line through the objects and ignores the tower; this is a test.
+- **Where AI comes in (not built):**
+  1. The scoring above is a plain rule, fast and testable.
+  2. The top three lanes can be shown as thumbnails to the maker, who picks one (the Park would get a "turn the rod" slider with a live side sketch).
+  3. A vision model could re-rank those three by looking at their sketches and the photo ("which lane would be most fun and still look like the real place?"); worth trying only after the rule-based pick is seen to fail.
+
 ## The fixed moves
 The set of obstacle shapes is fixed, and each shape offers a fixed set of moves. A new object is not a new rule; it is one of these shapes, drawn differently.
 
@@ -51,4 +65,5 @@ The set of obstacle shapes is fixed, and each shape offers a fixed set of moves.
   2. Draw the real mesh on its profile (CC-38 gives the meshes).
   3. The `bar` primitive and its moves (hang, swing, shimmy).
   4. Classify automatically from the profile (flat, curved, face, thin rod).
-- **Honest limits:** one slice per course (no tunnels or overhangs); a lane of 2 m; thin or lacy objects (railings seen from the side) come out as a rod, not a surface.
+- **Honest limits:** one lane per course (no tunnels or overhangs); a lane of 2 m; thin or lacy objects (railings seen from the side) come out as a rod, not a surface, but turning the rod shows a railing from the end, where it is a wide, solid shape.
+- **Not yet checked:** lanes from a real scan (the meshes from CC-38 are not in yet); a lane's look when drawn with its real mesh.
