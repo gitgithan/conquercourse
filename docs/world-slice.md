@@ -198,3 +198,24 @@ The set of obstacle shapes is fixed, and each shape offers a fixed set of moves.
 - **Credit:** the map shows "© OpenStreetMap contributors" and "OpenFreeMap"; terms in `docs/ASSETS.md`.
 - **Checked by:** `tests/osm.test.ts` (saved Overpass answer, no network) and `scripts/map-check.mjs` (screenshots in `data/eval/cc-48-map-mode/`).
 - **Not done:** ground height, roads and water (CC-46 next steps); courtyards; a place with no buildings says so and stays on the map.
+## Course generator v1 (CC-47)
+- **What it does:** `generateCourse(seed, { moves, length, difficulty })` in `src/slice/generator.ts` turns a number into a course of proved moves.
+- **Moves that work:**
+  - gap jump (2.5 to 5.2 m of water);
+  - step up (0.4 to 1.3 m, a vault or a jump, whichever the proof finds faster);
+  - lache pair (bars at 2.8 to 3.0 m, spacing 2.2 to 3.5 m, a gap of 6.5 to 7.8 m);
+  - warped wall (3.4 to 4.3 m; the deck stays up after it, because the wall only starts from ground level).
+- **Move that works but is only used when asked for:** the rope (gap of 6, 8 or 9.5 m); its proof takes about 9 s.
+- **Move not built:** the trampoline.
+- **Ramp:** the first move is at 10 % of its size range, the last at `difficulty` (default 0.7); a move is never easier than the one before.
+- **Order:** the same seed gives the same course; no move twice in a row; at most one wall, one lache and one rope.
+- **Proof:**
+  - each move is proved alone with `searchIdealRun` (cached), then the proved presses are laid along the whole course and played once;
+  - if the whole course fails, every move shrinks a little, and then moves are dropped from the end, so the course returned is always cleared;
+  - 36 m of flat deck sits before each move, so the runner is at full speed (the speed climbs towards 9 m/s and is within 0.03 m/s of it at 36 m).
+- **HUD strip and checkpoints:** one zone and one checkpoint per move; `jumpKeep` is 0.88 when the course has bars or steps.
+- **Timing:** about 1.5 to 2.5 s for a default course with a cold cache; the first lache costs about 1.5 s of that; a rope costs about 9 s.
+- **Try it:** `npx tsx scripts/generate-course.ts 2 out.json` (flags `--moves=gap,step --length=5 --difficulty=0.9`).
+  - A sample, `public/assets/demo/generated-1.course.json` (seed 2: step, gap, lache, wall), opens at `/?course=/assets/demo/generated-1.course.json`.
+  - The test (`tests/generator.test.ts`) proves it with the full search, which takes about 40 s.
+- **Not yet:** the trampoline; a rope without the 9 s proof; several walls (the course has one wall).

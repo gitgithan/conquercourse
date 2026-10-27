@@ -1,0 +1,101 @@
+{
+  "version": 1,
+  "name": "Generated course: step, gap, lache, wall",
+  "startX": 0,
+  "finishX": 182.56,
+  "jumpSpeed": 4.5,
+  "jumpKeep": 0.88,
+  "terrain": {
+    "waterY": -1.5,
+    "platforms": [
+      {
+        "x0": -10,
+        "x1": 36,
+        "top": 0
+      },
+      {
+        "x0": 36,
+        "x1": 40,
+        "top": 0.49
+      },
+      {
+        "x0": 40,
+        "x1": 82,
+        "top": 0
+      },
+      {
+        "x0": 85.4,
+        "x1": 127.4,
+        "top": 0
+      },
+      {
+        "x0": 134.56,
+        "x1": 176.56,
+        "top": 0
+      },
+      {
+        "x0": 176.56,
+        "x1": 186.56,
+        "top": 4
+      }
+    ]
+  },
+  "wall": {
+    "x0": 172.56,
+    "height": 4
+  },
+  "holds": [
+    {
+      "x": 130.4,
+      "y": 2.96
+    },
+    {
+      "x": 132.75,
+      "y": 2.96
+    }
+  ],
+  "zones": [
+    {
+      "id": "step-1",
+      "name": "Step up",
+      "x0": 33,
+      "x1": 42
+    },
+    {
+      "id": "gap-2",
+      "name": "Gap jump",
+      "x0": 79,
+      "x1": 87.4
+    },
+    {
+      "id": "lache-3",
+      "name": "Lache pair",
+      "x0": 124.4,
+      "x1": 136.56
+    },
+    {
+      "id": "wall-4",
+      "name": "Warped wall",
+      "x0": 173.56,
+      "x1": 178.56
+    }
+  ],
+  "checkpoints": [
+    {
+      "id": "step-1",
+      "x": 26
+    },
+    {
+      "id": "gap-2",
+      "x": 72
+    },
+    {
+      "id": "lache-3",
+      "x": 117.4
+    },
+    {
+      "id": "wall-4",
+      "x": 166.56
+    }
+  ]
+}
