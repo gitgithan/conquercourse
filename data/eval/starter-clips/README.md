@@ -7,6 +7,7 @@
   - the earlier practice project got wall moves working by feeding Kimodo the simulator's path plus hand and foot targets (`docs/pipelines.md`, pipelines 3, 5 and 6);
   - so "0 of 36" says text alone is not enough, not that the move is out of reach.
 - **Recommendation:** do not drop the wall; build the wall move from CC-29 video measurements (a real wall run: path, plant height, grip height and timing) plus contact targets for Kimodo.
+- **Update (CC-17, wall run-up tried with the simulator's path and targets):** still nothing ships; Kimodo cannot lift the hips 4.3 m, see `data/eval/cc-17-wall/README.md`.
 - **Next step:** CC-29 ingests the filmed wall run (side view, 2:29-2:35 of the first video) and writes a move recipe; use its plant and grip points as Kimodo's targets, then run the same move check.
 
 *Serves: the motion library for the Rookies (run, leap, land, hang, swing, wall run-up and grab); demo beat "nothing impossible is ever shown".*
