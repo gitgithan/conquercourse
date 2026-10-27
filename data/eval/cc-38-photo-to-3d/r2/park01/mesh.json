@@ -1,0 +1,32 @@
+{
+  "label": "handrail",
+  "extents_m": {
+    "x": 3.844,
+    "y": 1.0,
+    "z": 0.2
+  },
+  "height_m": 1.0,
+  "target_height_m": 1.0,
+  "scale_source": "typical:handrail",
+  "scale_factor": 3.8406,
+  "raw_height": 0.2604,
+  "yaw_deg": 90.0,
+  "tilt_deg": 0.96,
+  "faces": 5819,
+  "vertices": 3849,
+  "width_to_height": 3.844,
+  "texture": "1024x1024",
+  "photo": "park01",
+  "box": [
+    294,
+    183,
+    658,
+    454
+  ],
+  "bytes": 330196,
+  "model": "SAM 3D Objects (seed 42)",
+  "bake_seconds": 4.59,
+  "raw_faces": 21516,
+  "splat_points": 16672,
+  "lift_round": "r1"
+}

@@ -1,0 +1,32 @@
+{
+  "label": "wall",
+  "extents_m": {
+    "x": 1.538,
+    "y": 0.9,
+    "z": 0.07
+  },
+  "height_m": 0.9,
+  "target_height_m": 0.9,
+  "scale_source": "typical:wall",
+  "scale_factor": 1.538,
+  "raw_height": 0.5852,
+  "yaw_deg": 0.0,
+  "tilt_deg": 0.33,
+  "faces": 5820,
+  "vertices": 4120,
+  "width_to_height": 1.709,
+  "texture": "1024x1024",
+  "photo": "mural01",
+  "box": [
+    0,
+    45,
+    1024,
+    600
+  ],
+  "bytes": 424464,
+  "model": "SAM 3D Objects (seed 42)",
+  "bake_seconds": 7.53,
+  "raw_faces": 213908,
+  "splat_points": 173376,
+  "lift_round": "r1"
+}
