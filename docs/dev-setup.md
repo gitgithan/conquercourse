@@ -22,7 +22,13 @@
 - Browser tests: Playwright with headless Chromium and WebGPU on SwiftShader:
   - flags `--enable-unsafe-webgpu --enable-features=Vulkan --use-vulkan=swiftshader --use-angle=swiftshader --disable-vulkan-surface --ignore-gpu-blocklist`;
   - pages must be served from `localhost` (WebGPU needs a secure context).
-- **True-speed films:** replace `performance.now` with a stepped value in an init script, advance it one frame per screenshot, and encode at the game's frame rate.
+- **First time on a machine:** `npx playwright install --with-deps chromium` (about 120 MB).
+- **True-speed films:** `npm run film -- --query "demo=rookie" --frames 90 --out test-results/film.mp4`.
+  - Options: `--fps` (default 30), `--width` and `--height` (default 960 and 540), `--port`.
+  - The script replaces `performance.now` with a stepped value in an init script, advances it one frame per screenshot, and encodes with ffmpeg at the same rate.
+  - Game code must read time from `performance.now`, never from `Date.now` or the animation-frame argument.
+  - The page must set `data-ready=true` on `<html>` when it can be filmed.
+  - Playwright and the scripts clear `test-results/`; copy films to `../conquercourse-assets/evidence/` before the next run.
 
 ## Downloading videos (offline development only)
 - Run `yt-dlp` on the laptop, logged out, with no cookies: it works there, and datacenter machines (the VM) get a bot check.
