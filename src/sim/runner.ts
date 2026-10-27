@@ -15,7 +15,8 @@ export interface RunnerParams {
 export const DEFAULT_PARAMS: RunnerParams = { topSpeed: 9, acceleration: 10, grip: 0.8, gravity: GRAVITY, landing: DEFAULT_LANDING, stepUp: 0.3 };
 
 export interface RunnerInput {
-  run: boolean; // sprint toward top speed
+  run: boolean; // sprint to the right toward top speed
+  left?: boolean; // sprint to the left (if both are held the runner just brakes)
   jump: boolean; // leave the ground this tick if standing on it
   jumpSpeed: number; // upward speed at take-off, m/s
   squat: boolean; // bend the knees (read at touchdown)
@@ -49,7 +50,8 @@ export function step(s: RunnerState, input: RunnerInput, p: RunnerParams, terrai
   if (s.grounded) {
     if (input.jump) return takeOff(next, input.jumpSpeed);
     // Without a push the feet skid: braking is the same grip-limited law.
-    return onGround(input.run ? sprint(next, p) : skid(next, p), s, p, terrain);
+    const dir = input.left && !input.run ? -1 : input.run && !input.left ? 1 : 0;
+    return onGround(dir !== 0 ? sprint(next, p, dir) : skid(next, p), s, p, terrain);
   }
   return fly(next, input, p, terrain);
 }
@@ -60,20 +62,23 @@ function takeOff(s: RunnerState, jumpSpeed: number): RunnerState {
 }
 
 // dv/dt = (top - v) / tau, so v(t) = top - (top - v0) e^(-t/tau).
-function sprint(s: RunnerState, p: RunnerParams): RunnerState {
+function sprint(s: RunnerState, p: RunnerParams, dir: 1 | -1 = 1): RunnerState {
   const tau = p.topSpeed / p.acceleration;
   const decay = Math.exp(-DT / tau);
-  const vx = p.topSpeed - (p.topSpeed - s.vx) * decay;
-  const x = s.x + p.topSpeed * DT - (p.topSpeed - s.vx) * tau * (1 - decay);
+  const target = dir * p.topSpeed;
+  const vx = target - (target - s.vx) * decay;
+  const x = s.x + target * DT - (target - s.vx) * tau * (1 - decay);
   return { ...s, vx, x };
 }
 
 // Coulomb friction: constant deceleration grip * g until the feet stop.
 function skid(s: RunnerState, p: RunnerParams): RunnerState {
   const decel = p.grip * p.gravity;
-  const stopTime = s.vx / decel;
-  if (stopTime >= DT) return { ...s, vx: s.vx - decel * DT, x: s.x + s.vx * DT - 0.5 * decel * DT * DT };
-  return { ...s, vx: 0, x: s.x + 0.5 * s.vx * stopTime };
+  const sign = s.vx < 0 ? -1 : 1;
+  const speed = Math.abs(s.vx);
+  const stopTime = speed / decel;
+  if (stopTime >= DT) return { ...s, vx: sign * (speed - decel * DT), x: s.x + sign * (speed * DT - 0.5 * decel * DT * DT) };
+  return { ...s, vx: 0, x: s.x + sign * 0.5 * speed * stopTime };
 }
 
 // After moving on the ground: step up a small curb, stop at a tall block, or walk off an edge.
@@ -81,7 +86,8 @@ function onGround(moved: RunnerState, before: RunnerState, p: RunnerParams, t: T
   const here = groundAt(t, moved.x);
   if (here > before.y + p.stepUp) {
     const block = platformAt(t, moved.x);
-    return { ...moved, x: block ? block.x0 - 1e-6 : before.x, vx: 0 };
+    if (!block) return { ...moved, x: before.x, vx: 0 };
+    return { ...moved, x: moved.x < before.x ? block.x1 + 1e-6 : block.x0 - 1e-6, vx: 0 };
   }
   if (here < before.y - 1e-9) return { ...moved, grounded: false, vy: 0 }; // off the edge: fall
   return { ...moved, y: here };
@@ -97,7 +103,7 @@ function fly(s: RunnerState, input: RunnerInput, p: RunnerParams, t: Terrain): R
   // Flew into the side of a block that stands higher than the feet: stop against it and drop.
   if (ground > s.y + 1e-9 && groundAt(t, s.x) < ground) {
     const block = platformAt(t, x);
-    if (block) { x = block.x0 - 1e-6; vx = 0; }
+    if (block) { x = s.vx < 0 ? block.x1 + 1e-6 : block.x0 - 1e-6; vx = 0; }
   }
   const floor = groundAt(t, x);
   if (y > floor) {
@@ -113,7 +119,7 @@ function fly(s: RunnerState, input: RunnerInput, p: RunnerParams, t: Terrain): R
     ...s,
     x: landedAtX,
     y: floor,
-    vx: report.stumbled ? vx * p.landing.stumbleKeep : vx,
+    vx: report.stumbled && !platformAt(t, landedAtX)?.bouncy ? vx * p.landing.stumbleKeep : vx, // a trampoline catches the fall
     vy: 0,
     grounded: true,
     landedAtTick: s.tick - 1 + tHit / DT, // s.tick already counts this step

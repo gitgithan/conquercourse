@@ -25,7 +25,7 @@ describe('landing', () => {
     near(stiff.peakDecel, 4 / stiff.stopTime, 1e-12);
   });
   it('a hard landing stumbles stiff-legged and is fine with a squat', () => {
-    const v = Math.sqrt(2 * GRAVITY * 1.5); // dropping 1.5 m
+    const v = Math.sqrt(2 * GRAVITY * 2.5); // dropping 2.5 m
     expect(landing(v, false).stumbled).toBe(true);
     expect(landing(v, true).stumbled).toBe(false);
   });
@@ -33,8 +33,8 @@ describe('landing', () => {
     expect(landing(Math.sqrt(2 * GRAVITY * 0.2), false).stumbled).toBe(false);
   });
   it('a stumble costs forward speed, a squat does not', () => {
-    const drop: Terrain = { platforms: [{ x0: -50, x1: 3, top: 1.5 }, { x0: 3.001, x1: 100, top: 0 }], waterY: -2 };
-    const from = { ...startState(), y: 1.5, vx: 6 };
+    const drop: Terrain = { platforms: [{ x0: -50, x1: 3, top: 2.5 }, { x0: 3.001, x1: 100, top: 0 }], waterY: -2 };
+    const from = { ...startState(), y: 2.5, vx: 6 };
     const land = (squat: boolean) => {
       let s = from;
       for (let i = 0; i < 120 * 5 && !s.landing; i++) s = step(s, { ...sprinting, squat }, P, drop);
@@ -104,5 +104,48 @@ describe('precision steps', () => {
   it('a jump that peaks lower than the block top hits its side and falls back', () => {
     const s = jumpAt(blocks, { ...startState(), vx: 8 }, 3.5, 2.5);
     expect(s.y).toBeLessThan(0.6);
+  });
+});
+
+describe('momentum carries (R2-G5)', () => {
+  it('a normal jump on level ground does not stumble and keeps its forward speed', () => {
+    let s = { ...startState(), vx: 8 };
+    s = step(s, { ...NO_INPUT, run: true, jump: true, jumpSpeed: 4.5 }, P);
+    while (!s.grounded) s = step(s, { ...NO_INPUT, run: true }, P);
+    expect(s.landing!.stumbled).toBe(false);
+    expect(s.vx).toBeGreaterThan(7.9);
+  });
+  it('a fall from 3 m without bending the knees still stumbles and loses speed', () => {
+    const drop: Terrain = { platforms: [{ x0: -50, x1: 3, top: 3 }, { x0: 3.001, x1: 100, top: 0 }], waterY: -2 };
+    let s = { ...startState(), y: 3, vx: 8 };
+    for (let i = 0; i < 600 && !s.landing; i++) s = step(s, { ...NO_INPUT, run: true }, P, drop);
+    expect(s.landing!.stumbled).toBe(true);
+    expect(s.vx).toBeLessThan(4);
+  });
+  it('bending the knees on that fall keeps the speed', () => {
+    const drop: Terrain = { platforms: [{ x0: -50, x1: 3, top: 3 }, { x0: 3.001, x1: 100, top: 0 }], waterY: -2 };
+    let s = { ...startState(), y: 3, vx: 8 };
+    for (let i = 0; i < 600 && !s.landing; i++) s = step(s, { ...NO_INPUT, run: true, squat: true }, P, drop);
+    expect(s.landing!.stumbled).toBe(false);
+  });
+});
+
+describe('running left mirrors running right (R2-G1)', () => {
+  it('the same distance and speed the other way', () => {
+    const right = run({ ...startState(0) }, () => ({ ...NO_INPUT, run: true }), 240);
+    const left = run({ ...startState(0) }, () => ({ ...NO_INPUT, left: true }), 240);
+    expect(left.x).toBeCloseTo(-right.x, 9);
+    expect(left.vx).toBeCloseTo(-right.vx, 9);
+  });
+  it('braking from a leftward run stops at the same distance', () => {
+    const s = run({ ...startState(0), vx: -7 }, () => NO_INPUT, 1200);
+    expect(s.x).toBeCloseTo(-49 / (2 * 0.8 * 9.81), 6);
+    expect(s.vx).toBe(0);
+  });
+  it('running left into a block stops at its right side', () => {
+    const t: Terrain = { platforms: [{ x0: -50, x1: 100, top: 0 }, { x0: 5, x1: 8, top: 1 }], waterY: -1 };
+    const s = run({ ...startState(20), vx: -6 }, () => ({ ...NO_INPUT, left: true }), 600, P, t);
+    expect(s.x).toBeGreaterThan(8);
+    expect(s.vx).toBe(0);
   });
 });

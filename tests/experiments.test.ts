@@ -36,7 +36,7 @@ describe('Dojo experiments come from the simulator', () => {
     expect(E.trampoline.run({ drop: 3 }).answer).toBeGreaterThan(E.trampoline.run({ drop: 1 }).answer);
   });
   it('landing: a longer stop makes a smaller push', () => {
-    expect(E.landing.run({ drop: 1.5, bend: 0.3 }).answer).toBeLessThan(E.landing.run({ drop: 1.5, bend: 0.08 }).answer);
+    expect(E.landing.run({ drop: 1.5, bend: 0.3 }).answer).toBeLessThan(E.landing.run({ drop: 1.5, bend: 0.1 }).answer);
   });
   it('every experiment runs at its default knobs and returns a path', () => {
     for (const e of EXPERIMENTS) {

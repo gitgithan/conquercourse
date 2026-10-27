@@ -17,7 +17,7 @@ describe('the speed a gap needs', () => {
   it('every gap of the default course can be crossed at the runner top speed', () => {
     for (const g of gapSpecs(C)) expect(g.needed).toBeLessThan(9);
   });
-  it('the first gap is easy: it needs well under the speed reached by x = 30 m', () => {
+  it('the first gap is easy: it needs well under the speed reached by the edge (14 m from the start)', () => {
     expect(gapSpecs(C)[0].needed).toBeLessThan(6);
   });
 });

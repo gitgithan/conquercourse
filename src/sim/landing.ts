@@ -6,7 +6,7 @@ export interface LandingParams {
   stumbleKeep: number; // share of forward speed kept after a stumble
 }
 
-export const DEFAULT_LANDING: LandingParams = { stiffStopTime: 0.08, squatStopTime: 0.3, stumbleDecel: 45, stumbleKeep: 0.3 };
+export const DEFAULT_LANDING: LandingParams = { stiffStopTime: 0.1, squatStopTime: 0.3, stumbleDecel: 60, stumbleKeep: 0.3 };
 
 export interface LandingReport {
   impactSpeed: number; // m/s, downward speed at touchdown
@@ -21,3 +21,7 @@ export function landing(impactSpeed: number, squatted: boolean, p: LandingParams
   const peakDecel = impactSpeed / stopTime;
   return { impactSpeed, squatted, stopTime, peakDecel, stumbled: peakDecel > p.stumbleDecel };
 }
+
+// How it feels, not a physics number: 0 is a feather, 3 is a firm landing, 6 is a stumble, 10 is a broken bone.
+export const ouch = (peakDecel: number): number => Math.min(10, Math.max(0, peakDecel / 10));
+export const ouchWord = (o: number): string => (o < 3 ? 'soft' : o < 6 ? 'firm' : o < 8 ? 'hard' : 'dangerous');

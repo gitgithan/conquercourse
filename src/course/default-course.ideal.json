@@ -4,59 +4,35 @@
   "cleared": true,
   "plan": {
     "jumpXs": [
-      28.5,
-      39.5,
-      47.46,
-      55.08,
-      63.48,
-      102.5,
-      116.6,
-      125.5
+      12.5,
+      23.48,
+      75.5,
+      89.6,
+      98.5
     ],
     "releaseAfter": 70,
     "bouncePress": 8
   },
   "windows": [
     {
-      "obstacle": "edge at 30 m",
-      "best": 28.5,
-      "lo": 27,
-      "hi": 29.98,
+      "obstacle": "edge at 14 m",
+      "best": 12.5,
+      "lo": 11,
+      "hi": 13.98,
       "widthMs": 405
     },
     {
-      "obstacle": "edge at 41 m",
-      "best": 39.5,
-      "lo": 38,
-      "hi": 40.98,
-      "widthMs": 405
-    },
-    {
-      "obstacle": "edge at 49 m",
-      "best": 47.46,
-      "lo": 46,
-      "hi": 48.92,
-      "widthMs": 397
-    },
-    {
-      "obstacle": "edge at 57 m",
-      "best": 55.08,
-      "lo": 54,
-      "hi": 56.98,
-      "widthMs": 405
-    },
-    {
-      "obstacle": "edge at 65 m",
-      "best": 63.48,
-      "lo": 62,
-      "hi": 64.94,
+      "obstacle": "edge at 25 m",
+      "best": 23.48,
+      "lo": 22,
+      "hi": 24.94,
       "widthMs": 400
     },
     {
-      "obstacle": "edge at 104 m",
-      "best": 102.5,
-      "lo": 101,
-      "hi": 104,
+      "obstacle": "edge at 77 m",
+      "best": 75.5,
+      "lo": 74,
+      "hi": 77,
       "widthMs": 408
     },
     {
@@ -67,24 +43,17 @@
       "widthMs": 417
     },
     {
-      "obstacle": "edge at 118 m",
-      "best": 116.6,
-      "lo": 115.76,
-      "hi": 118,
+      "obstacle": "edge at 91 m",
+      "best": 89.6,
+      "lo": 88.76,
+      "hi": 91,
       "widthMs": 305
     },
     {
-      "obstacle": "trampoline press",
-      "best": 8,
-      "lo": 4,
-      "hi": 12,
-      "widthMs": 75
-    },
-    {
-      "obstacle": "edge at 127 m",
-      "best": 125.5,
-      "lo": 124,
-      "hi": 127,
+      "obstacle": "edge at 100 m",
+      "best": 98.5,
+      "lo": 97,
+      "hi": 100,
       "widthMs": 408
     }
   ]
