@@ -19,6 +19,7 @@ A ninja-warrior physics game where real parks and real moves become the course, 
 ## How work is tracked
 - **Linear:** team ConquerCourse (key `CC`), project `conquercourse`, milestones M0-M5 from the spec.
 - **Every issue opens with a Links block:** "Depends on" (what must exist first, and why), "Affects" (what it unlocks or changes), "Why this exists" (planned in the spec, or which finding in which issue created it); also set the blocked-by relations in Linear so the product owner can travel both ways.
+- **Every issue also has a "Definition of Done"** (a checklist, ticked as it is met) **and "How we judge quality"** (the tests, measurements, side-by-side or by-eye checks, and any known gap); an issue closes only when every box is ticked.
 - **Issue first:** create the issue (one testable outcome, about half a day) before writing code; its first line says which player, lesson or demo beat it serves.
 - **Commits:** one logical change per commit, one issue per commit; every message carries a magic word: "Part of CC-12" for partial work, "Fixes CC-12" only on the commit that finishes it (we push to `main`, so "Fixes" closes the issue at once).
 - **Findings:** a one-line Linear comment plus the details in the repo (the relevant doc or `data/eval/<experiment>/README.md`).
