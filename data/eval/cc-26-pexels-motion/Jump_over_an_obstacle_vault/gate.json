@@ -1,129 +1,129 @@
 {
- "raw": {
-  "pass": false,
-  "hard": {
-   "knees_bend_forward": {
-    "ok": true,
-    "worst_axis_angle_deg": 33.499050186730635
-   },
-   "legs_not_twisted": {
-    "ok": true,
-    "worst_deg": 33.499050186730635
-   },
-   "knee_range": {
-    "ok": true,
-    "max_bend_deg": 141.86892525133175
-   },
-   "flight_ballistic": {
+  "raw": {
+    "pass": false,
+    "hard": {
+      "knees_bend_forward": {
+        "ok": true,
+        "worst_axis_angle_deg": 33.499050186730635
+      },
+      "legs_not_twisted": {
+        "ok": true,
+        "worst_deg": 33.499050186730635
+      },
+      "knee_range": {
+        "ok": true,
+        "max_bend_deg": 141.86892525133175
+      },
+      "flight_ballistic": {
+        "frames": [
+          0,
+          47
+        ],
+        "seconds": 1.84,
+        "ok": false,
+        "fitted_g": 0.7757025105827418,
+        "rel_err": 0.9209273689518103,
+        "judged": true
+      },
+      "feet_dont_sink": {
+        "ok": true,
+        "sink_m": 0.02806767148692746
+      },
+      "no_teleport": {
+        "ok": true,
+        "max_hip_speed_mps": 5.253026244141272
+      }
+    },
+    "soft": {
+      "bone_length_dev": {
+        "ok": true,
+        "worst": 1.5467633551757842e-7
+      },
+      "max_accel_mps2": {
+        "ok": true,
+        "value": 140.2055001314659
+      }
+    }
+  },
+  "repaired": {
+    "pass": false,
+    "hard": {
+      "knees_bend_forward": {
+        "ok": true,
+        "worst_axis_angle_deg": 33.499050186730635
+      },
+      "legs_not_twisted": {
+        "ok": true,
+        "worst_deg": 33.499050186730635
+      },
+      "knee_range": {
+        "ok": true,
+        "max_bend_deg": 141.86892525133175
+      },
+      "flight_ballistic": {
+        "frames": [
+          0,
+          47
+        ],
+        "seconds": 1.84,
+        "ok": false,
+        "fitted_g": 0.7757025105827418,
+        "rel_err": 0.9209273689518103,
+        "judged": true
+      },
+      "feet_dont_sink": {
+        "ok": true,
+        "sink_m": 0
+      },
+      "no_teleport": {
+        "ok": true,
+        "max_hip_speed_mps": 5.253026244141272
+      }
+    },
+    "soft": {
+      "bone_length_dev": {
+        "ok": true,
+        "worst": 1.5467633551757842e-7
+      },
+      "max_accel_mps2": {
+        "ok": true,
+        "value": 140.2055001314659
+      }
+    }
+  },
+  "shown_version": "repaired",
+  "supportedBy": null,
+  "free_flight_rule_without_supportedBy": {
     "frames": [
-     0,
-     47
+      0,
+      47
     ],
     "seconds": 1.84,
     "ok": false,
     "fitted_g": 0.7757025105827418,
     "rel_err": 0.9209273689518103,
     "judged": true
-   },
-   "feet_dont_sink": {
-    "ok": true,
-    "sink_m": 0.02806767148692746
-   },
-   "no_teleport": {
-    "ok": true,
-    "max_hip_speed_mps": 5.253026244141272
-   }
   },
-  "soft": {
-   "bone_length_dev": {
-    "ok": true,
-    "worst": 1.5467633551757842e-07
-   },
-   "max_accel_mps2": {
-    "ok": true,
-    "value": 140.2055001314659
-   }
-  }
- },
- "repaired": {
-  "pass": false,
-  "hard": {
-   "knees_bend_forward": {
-    "ok": true,
-    "worst_axis_angle_deg": 33.499050186730635
-   },
-   "legs_not_twisted": {
-    "ok": true,
-    "worst_deg": 33.499050186730635
-   },
-   "knee_range": {
-    "ok": true,
-    "max_bend_deg": 141.86892525133175
-   },
-   "flight_ballistic": {
-    "frames": [
-     0,
-     47
+  "athlete_frames": [
+    7,
+    98
+  ],
+  "verdict": "FAIL",
+  "world": {
+    "orientation_from": "travel",
+    "floor_fit_terms": [
+      "const",
+      "depth",
+      "x"
     ],
-    "seconds": 1.84,
-    "ok": false,
-    "fitted_g": 0.7757025105827418,
-    "rel_err": 0.9209273689518103,
-    "judged": true
-   },
-   "feet_dont_sink": {
-    "ok": true,
-    "sink_m": 0.0
-   },
-   "no_teleport": {
-    "ok": true,
-    "max_hip_speed_mps": 5.253026244141272
-   }
+    "floor_points": 25,
+    "floor_offset_m": 0.2243106435324286,
+    "side_axis_agreement_cos_mean": 0.9994103076234113,
+    "bridged_frames": [
+      46,
+      47
+    ]
   },
-  "soft": {
-   "bone_length_dev": {
-    "ok": true,
-    "worst": 1.5467633551757842e-07
-   },
-   "max_accel_mps2": {
-    "ok": true,
-    "value": 140.2055001314659
-   }
-  }
- },
- "shown_version": "repaired",
- "supportedBy": null,
- "free_flight_rule_without_supportedBy": {
-  "frames": [
-   0,
-   47
-  ],
-  "seconds": 1.84,
-  "ok": false,
-  "fitted_g": 0.7757025105827418,
-  "rel_err": 0.9209273689518103,
-  "judged": true
- },
- "athlete_frames": [
-  7,
-  98
- ],
- "verdict": "FAIL",
- "world": {
-  "orientation_from": "travel",
-  "floor_fit_terms": [
-   "const",
-   "depth",
-   "x"
-  ],
-  "floor_points": 25,
-  "floor_offset_m": 0.2243106435324286,
-  "side_axis_agreement_cos_mean": 0.9994103076234113,
-  "bridged_frames": [
-   46,
-   47
-  ]
- },
- "frames_in_clip": 124,
- "frames_unmeasured_in_segment": 0
+  "frames_in_clip": 124,
+  "frames_unmeasured_in_segment": 0
 }
