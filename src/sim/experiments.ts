@@ -3,6 +3,7 @@ import { DEFAULT_PARAMS, NO_INPUT, startState, step } from './runner';
 import { DEFAULT_LANDING, landing } from './landing';
 import { DEFAULT_WALL, runWall } from './wall';
 import { swingStep, type Swing } from './rope';
+import { DEFAULT_HANG, hangStep, measureHangPeriod, type Hang } from './holds';
 import { DEFAULT_TRAMPOLINE, bounce } from './trampoline';
 import { minSpeedToCross } from './needs';
 
@@ -24,7 +25,7 @@ export interface Trial {
   note?: string; // plain-words outcome
 }
 export interface Experiment {
-  id: 'gap' | 'wall' | 'rope' | 'trampoline' | 'landing';
+  id: 'gap' | 'wall' | 'rope' | 'trampoline' | 'landing' | 'bars';
   name: string;
   question: string;
   answerUnit: string;
@@ -165,7 +166,40 @@ const landingExp: Experiment = {
   },
 };
 
-export const EXPERIMENTS: Experiment[] = [gap, wall, rope, trampoline, landingExp];
+// Swinging on a bar (the lache pair): how long one swing takes depends only on the length, and pushing in step with it grows the swing.
+const bars: Experiment = {
+  id: 'bars', name: 'Swing on a bar', question: 'How long does one full swing take?', answerUnit: 's', answerMax: 3, axis: 'x', primary: 'length',
+  knobs: [
+    { id: 'length', label: 'Swinging length (hands to the middle of the body)', unit: 'm', min: 0.6, max: 3, def: 1.4, step: 0.05, why: 'A longer swing is a slower one, like a longer rope.' },
+    { id: 'push', label: 'Push with the swing (1) or against it (−1)', unit: '', min: -1, max: 1, def: 1, step: 0.1, why: 'Pushing the way you swing adds energy and the swing grows; pushing against it takes energy away.' },
+    { id: 'seconds', label: 'How long you keep pushing', unit: 's', min: 0, max: 10, def: 6, step: 0.5, why: 'Each push adds a little; the swing grows with every swing you push.' },
+  ],
+  sayings: ['Push with the swing and it grows; push against it and it fades.'],
+  run(v) {
+    const H = v.length * 1.5; // the pendulum is two thirds of the hands-to-feet length
+    const p = { ...DEFAULT_HANG, handHeight: H };
+    const period = measureHangPeriod(0.05, { ...p, drag: 0 });
+    let s: Hang = { hold: 0, theta: 0.15, omega: 0 };
+    let peak = 0, peakAt = { x: 0, y: -H };
+    const path: Point[] = [];
+    for (let i = 0; i < 120 * 12; i++) {
+      const t = i / 120;
+      s = hangStep(s, t < v.seconds ? v.push * Math.sign(s.omega || 1) : 0, p);
+      const pt = { x: H * Math.sin(s.theta), y: -H * Math.cos(s.theta) };
+      if (i % 4 === 0) path.push(pt);
+      if (Math.abs(s.theta) > peak) { peak = Math.abs(s.theta); peakAt = pt; }
+    }
+    const deg = Math.round((peak * 180) / Math.PI);
+    return {
+      answer: period, path,
+      overlays: [{ pts: [{ x: 0, y: 0 }, peakAt], color: '#8a5a2b', label: `highest swing: ${deg}°` }],
+      people: [{ x: 0, y: -H, pose: 'hang', hand: { x: 0, y: 0 }, label: 'hanging' }, { x: peakAt.x, y: peakAt.y, pose: 'hang', hand: { x: 0, y: 0 }, label: 'highest' }],
+      note: `One swing takes about ${period.toFixed(1)} s whatever the size of the swing. After ${v.seconds.toFixed(1)} s of pushing ${v.push > 0 ? 'with' : v.push < 0 ? 'against' : 'neither with nor against'} the swing, it climbs to about ${deg}° from straight down.`,
+    };
+  },
+};
+
+export const EXPERIMENTS: Experiment[] = [gap, wall, rope, trampoline, landingExp, bars];
 export const defaults = (e: Experiment, ctx: Context = {}): Record<string, number> => {
   const d = Object.fromEntries(e.knobs.map((k) => [k.id, k.def]));
   if (e.id === 'gap' && ctx.speed) d.speed = Math.min(10, Math.max(2, ctx.speed));

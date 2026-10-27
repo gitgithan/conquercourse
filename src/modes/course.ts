@@ -471,7 +471,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
 
   // The Dojo opens on the very obstacle the player fell at, with its real numbers (R1-L1, R1-L3).
   function trainLink(zoneId: string, x: number): string {
-    const q = new URLSearchParams({ mode: 'dojo', ex: zoneId, from: 'course' });
+    const q = new URLSearchParams({ mode: 'dojo', ex: zoneId === 'lache' ? 'bars' : zoneId, from: 'course' }); // the lache pair trains on the bar swing
     const jump = [...log].reverse().find((e) => e.type === 'jump');
     if (jump?.detail?.vx) q.set('speed', (jump.detail.vx as number).toFixed(1));
     if (zoneId === 'gap' || zoneId === 'landing') {
@@ -809,6 +809,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
       renderer.setScissorTest(false); renderer.setViewport(0, 0, W, H); renderer.autoClear = true;
     }
     document.documentElement.dataset.tick = String(r.tick);
+    document.documentElement.dataset.x = r.x.toFixed(2); document.documentElement.dataset.omega = (world.hang?.omega ?? 0).toFixed(3); // for the keyboard check
     document.documentElement.dataset.outcome = world.outcome;
     document.documentElement.dataset.mode = world.mode;
     requestAnimationFrame(frame);
