@@ -11,3 +11,4 @@ cookies*.txt
 *cookies*.txt
 *.cookies
 data/eval/cc-16-rookies/posed-*.json
+.wrangler/
