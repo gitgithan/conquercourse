@@ -20,6 +20,7 @@ import { actorStateFor } from '../motion/actor-state';
 import { groundAt } from '../sim/terrain';
 import { drumsFor } from '../sim/drums';
 import { createDrumLane } from '../ui/drum-lane';
+import { createDebugView } from '../ui/debug-view';
 
 // The Course: the five obstacles in a row. The simulator decides everything; this file only draws it
 // and turns keys into inputs. Time comes from the simulator's tick count, never from the browser's clock.
@@ -200,7 +201,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
   // the controls, always visible top-left as a card of key caps (collapse with H)
   const help = document.createElement('div');
   help.id = 'keys';
-  const KEYS: [string, string][] = [['← →', 'Run (hold)'], ['Space', 'Jump · let go of the rope · press on the trampoline'], ['↓', 'Bend your knees (hold, on big drops)'], ['D', 'Drums: where the ideal run presses Space'], ['Mouse', 'Drag to turn the view, wheel to zoom, double-click to reset']]; // retry, ideal run and Dojo are on the fall panel and the buttons
+  const KEYS: [string, string][] = [['← →', 'Run (hold)'], ['Space', 'Jump · let go of the rope · press on the trampoline'], ['↓', 'Bend your knees (hold, on big drops)'], ['G', 'Drums: where the ideal run presses Space'], ['B', 'Debug view: see the collision boxes and where a jump goes'], ['Mouse', 'Drag to turn the view, wheel to zoom, double-click to reset']]; // retry, ideal run and Dojo are on the fall panel and the buttons
   help.style.cssText = 'position:fixed;left:16px;top:48px;width:290px;background:#fffffff0;border:1px solid #cfd6d0;border-radius:12px;padding:8px 10px;font:500 14px system-ui,sans-serif;color:#17201d;box-shadow:0 2px 10px #0002;pointer-events:none;display:grid;gap:5px';
   const paintKeys = (open: boolean) => {
     help.innerHTML = `<div style="font-weight:700;display:flex;justify-content:space-between">Controls <span style="font-weight:400;color:#58635d">H ${open ? 'hides' : 'shows'}</span></div>` + (open ? KEYS.map(([k, d]) => `<div style="display:grid;grid-template-columns:78px 1fr;gap:8px;align-items:center"><kbd style="font:700 13px ui-monospace,monospace;background:#eef1ec;border:1px solid #b9c2bb;border-bottom-width:3px;border-radius:6px;padding:1px 6px;text-align:center">${k}</kbd><span>${d}</span></div>`).join('') : '');
@@ -314,7 +315,10 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
   // the drum lane (taiko style): on by default for a course someone built (editor or shared), off for the stock course until D is pressed
   const drumLane = createDrumLane(document.body, course !== defaultCourse || params.get('drums') === '1');
   setTimeout(() => { try { drumLane.set(drumsFor(course)); } catch { /* no drums if the search fails */ } }, 0);
-  document.body.append(hud, msg, help, panel, hint, gauge, dojoBtn, idealBtn, pick, camBtn);
+  const dbgBtn = document.createElement('button');
+  dbgBtn.id = 'debugbtn'; dbgBtn.textContent = 'Debug (B)'; dbgBtn.title = 'Show the collision boxes and where a jump right now would go';
+  dbgBtn.style.cssText = 'position:fixed;right:16px;top:166px;border:2px solid #17201d;background:#fff;color:#17201d;border-radius:10px;padding:3px 10px;cursor:pointer;font:600 12px system-ui,sans-serif';
+  document.body.append(hud, msg, help, panel, hint, gauge, dojoBtn, idealBtn, pick, camBtn, dbgBtn);
   const toast = document.createElement('div');
   toast.style.cssText = 'position:fixed;left:50%;top:44%;transform:translateX(-50%);font:700 22px system-ui,sans-serif;color:#10141c;background:#fffffff0;border-radius:10px;padding:6px 14px;pointer-events:none;display:none';
   document.body.append(toast);
@@ -359,7 +363,8 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
     if (e.code === 'KeyT') openDojo();
     if (e.code === 'Escape' && replay) { replay = null; clearGuides(); showAgain(); }
     if (e.code === 'KeyC') nextCam();
-    if (e.code === 'KeyD') drumLane.toggle();
+    if (e.code === 'KeyG') drumLane.toggle();
+    if (e.code === 'KeyB') toggleDebug();
     if (e.code === 'KeyH') { keysTouched = true; keysOpen = !keysOpen; paintKeys(keysOpen); }
   });
   addEventListener('keyup', (e) => keys.delete(e.code));
@@ -389,6 +394,9 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
   let prevMode: string = 'run', prevVx = 0;
   let lastZone = 'gap';
 
+  const debug = createDebugView(scene, course, document.body, params.get('debug') === '1');
+  const toggleDebug = () => { debug.toggle(); dbgBtn.textContent = debug.shown ? 'Debug: on (B)' : 'Debug (B)'; dbgBtn.blur(); };
+  dbgBtn.onclick = toggleDebug;
   let world = resume?.world ?? newWorld(course, resume ? resume.retryX : startAt);
   let paused = !!resume?.world; // a run that was in progress waits for a key, so the player is not dropped into the middle of a jump
   const log: GameEvent[] = [];
@@ -686,6 +694,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
     if (world.runner.tick > toastUntil) toast.style.display = 'none';
     paintStrip(r.x);
     drumLane.update(r.x);
+    debug.update(world);
     if (params.get('check') === '1' && actor && ledge && world.mode === 'wall') {
       // how close the nearest hand gets to the wall's top edge while the climb is on
       const j = actor.joints();

@@ -24,16 +24,16 @@ try {
   await page.waitForTimeout(2500);
   await page.screenshot({ path: 'test-results/drums/built-running.png' });
   await page.keyboard.up('ArrowRight');
-  await page.keyboard.press('KeyD');
+  await page.keyboard.press('KeyG');
   checks.dTogglesOff = !(await lane()).shown;
-  await page.keyboard.press('KeyD');
+  await page.keyboard.press('KeyG');
   checks.dTogglesOn = (await lane()).shown;
   // the stock course: off until D
   await page.goto(`http://localhost:${port}/`);
   await page.waitForSelector('#drums', { state: 'attached', timeout: 60000 });
   await page.waitForFunction(() => document.querySelectorAll('#drums div[style*="radial"]').length > 0, null, { timeout: 90000 });
   checks.offForStockCourse = !(await lane()).shown;
-  await page.keyboard.press('KeyD');
+  await page.keyboard.press('KeyG');
   checks.stockOnWithD = (await lane()).shown;
   await page.screenshot({ path: 'test-results/drums/stock.png' });
   console.log(checks, 'errors:', errors);

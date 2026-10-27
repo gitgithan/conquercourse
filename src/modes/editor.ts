@@ -6,6 +6,7 @@ import { crop, duplicate, hits, newPiece, realSize, scaleBy, scaleToHeight, size
 import { searchIdealRun } from '../sim/ideal';
 import { createView3d } from '../slice/view3d';
 import { sceneFor } from '../slice/scene';
+import { fixLayout } from '../slice/fixit';
 import { adviseLane, type Advice } from '../slice/advice';
 import { applyEdits, parseReply, worldBrief, type Edit } from '../slice/designer';
 
@@ -26,7 +27,7 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
     .ed .planwrap{min-height:0;min-width:0;position:relative;background:#fff;border:1px solid #cfd6d0;border-radius:10px;overflow:hidden}
     .ed canvas{display:block;touch-action:none}
     .ed .profilewrap{background:#fff;border:1px solid #cfd6d0;border-radius:10px;overflow:hidden;min-width:0}
-    .ed .aside{padding-bottom:46px;display:grid;gap:8px;grid-template-rows:auto auto minmax(0,1fr);align-content:start;min-height:0;overflow:hidden}.ed .helper{min-height:0;grid-template-rows:auto auto minmax(0,1fr) auto;overflow:hidden}.ed .reply{overflow:auto;font-size:13px;min-height:0}.ed textarea{font:inherit;width:100%;box-sizing:border-box;border:1px solid #b9c2bb;border-radius:8px;padding:4px 6px;resize:none}
+    .ed .aside{padding-bottom:46px;display:grid;gap:8px;grid-template-rows:auto auto minmax(0,1fr);align-content:start;min-height:0;overflow:hidden}.ed .helper{position:absolute;right:10px;bottom:10px;z-index:5;width:min(400px,calc(100% - 20px));height:min(330px,calc(100% - 20px));box-sizing:border-box;box-shadow:0 6px 24px #0003;grid-template-rows:auto auto minmax(0,1fr) auto;overflow:hidden}.ed .helper.closed{display:none}.ed .helper textarea{min-height:56px}.ed .reply{overflow:auto;font-size:13px;min-height:0}.ed textarea{font:inherit;width:100%;box-sizing:border-box;border:1px solid #b9c2bb;border-radius:8px;padding:4px 6px;resize:none}
     .ed .panel{background:#fff;border:1px solid #cfd6d0;border-radius:10px;padding:8px;display:grid;gap:5px;align-content:start}
     .ed label{display:grid;gap:1px;font-size:13px}.ed .muted{color:#58635d;font-size:12px}.ed .ok{border-left:4px solid #0f6b5c;padding:3px 6px;background:#f3f7f4;font-weight:600;font-size:13px}.ed .bad{border-left:4px solid #c0392b;padding:3px 6px;background:#fbeeee;font-weight:600;font-size:13px}
     .ed .row{display:flex;flex-wrap:wrap;gap:5px;align-items:center}.ed input[type=range]{width:100%;margin:0}.ed input[type=number]{width:100%;box-sizing:border-box}
@@ -132,14 +133,32 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
   const side = el('div', aside, { className: 'panel', id: 'panel' });
   const lanePanel = el('div', aside, { className: 'panel' });
   // ---- helpers: what to shift when the lane cannot be cleared, and a design partner (Muse Spark Open) to talk it through
-  const helper = el('div', aside, { className: 'panel helper', id: 'helper' });
-  el('strong', helper, { text: 'Design partner' });
+  const helper = el('div', planWrap, { className: 'panel helper', id: 'helper' });
+  const head = el('div', helper, { className: 'row' });
+  el('strong', head, { text: 'Design partner' });
+  el('button', head, { text: 'Fix it', id: 'fixit', className: 'go', title: 'Change the layout now into one the simulator can clear' }).onclick = () => runFix();
+  el('button', head, { text: '✕', id: 'closehelper', title: 'Hide' }).onclick = () => { helper.classList.add('closed'); helperBtn.setAttribute('aria-pressed', 'false'); };
   const adviceBox = el('div', helper, { id: 'advice' });
   const reply = el('div', helper, { className: 'reply muted', id: 'reply', text: 'Ask for a change, or press "What should I change?".' });
   const askRow = el('div', helper, { className: 'row' });
   const ask = el('textarea', askRow, { id: 'ask', rows: 2, placeholder: 'e.g. make the gap easier, or a harder second half' });
   const sendBtn = el('button', askRow, { text: 'Ask', id: 'send', className: 'go' });
   const whatBtn = el('button', askRow, { text: 'What should I change?', id: 'what' });
+  const helperBtn = el('button', top, { text: 'Design partner', id: 'helperbtn', title: 'Show or hide the design partner' });
+  helperBtn.setAttribute('aria-pressed', 'true');
+  helperBtn.onclick = () => { const closed = helper.classList.toggle('closed'); helperBtn.setAttribute('aria-pressed', String(!closed)); };
+  function runFix() {
+    reply.className = 'reply'; reply.textContent = 'Working it out…';
+    setTimeout(() => {
+      const r = fixLayout(pieces, { angle, offset, level });
+      for (const q of r.pieces) { const mine = pieces.find((x) => x.id === q.id); if (mine) { mine.x = q.x; mine.z = q.z; mine.y = q.y; mine.yaw = q.yaw; mine.scale = q.scale; } }
+      angle = r.lane.angle; offset = r.lane.offset; level = r.lane.level;
+      changed();
+      reply.className = r.ok ? 'reply ok' : 'reply bad';
+      reply.textContent = r.ok ? (r.steps.length ? 'Fixed. ' + r.steps.join(' ') : 'It already works.') : 'I could not find a layout that works. ' + r.steps.join(' ') + ' Try other pieces.';
+      document.documentElement.dataset.fixed = r.ok ? '1' : '0';
+    }, 30);
+  }
   let adviceList: Advice[] = [];
   let pendingEdits: Edit[] = [];
   const chat: { role: 'user' | 'assistant'; content: string }[] = [];
@@ -170,6 +189,7 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
       const got = parseReply(((await r.json()) as { reply: string }).reply, pieces.map((q) => q.id));
       chat.push({ role: 'assistant', content: got.text });
       reply.textContent = got.text; pendingEdits = got.edits;
+      if (!verdict.startsWith('The simulator can')) el('button', reply, { text: 'Fix it', className: 'go', id: 'replyfix' }).onclick = () => runFix();
       if (got.edits.length) el('button', reply, { text: `Do these ${got.edits.length} change${got.edits.length > 1 ? 's' : ''}`, className: 'go', id: 'applyedits' }).onclick = () => { applyEdits(pieces, pendingEdits); pendingEdits = []; changed(); };
     } catch { reply.className = 'reply bad'; reply.textContent = 'The design partner could not answer. Try again.'; }
     finally { sendBtn.disabled = whatBtn.disabled = false; }
