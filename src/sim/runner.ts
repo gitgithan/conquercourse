@@ -86,7 +86,8 @@ const MAX_SLOPE = 1; // rise over run: a curved top steeper than 45 degrees cann
 
 function onGround(moved: RunnerState, before: RunnerState, p: RunnerParams, t: Terrain): RunnerState {
   const here = groundAt(t, moved.x);
-  if (platformAt(t, moved.x)?.profile || platformAt(t, before.x)?.profile) {
+  const nowOn = platformAt(t, moved.x), wasOn = platformAt(t, before.x);
+  if (nowOn?.profile || wasOn?.profile) {
     // on a curved top: too steep to run up means stopping where it becomes that steep (found by halving the step)
     const climbs = (x: number) => groundAt(t, x) - before.y > MAX_SLOPE * Math.abs(x - before.x) + 1e-9;
     if (climbs(moved.x)) {
@@ -96,14 +97,14 @@ function onGround(moved: RunnerState, before: RunnerState, p: RunnerParams, t: T
     }
   }
   if (here > before.y + p.stepUp) {
-    const block = platformAt(t, moved.x);
+    const block = nowOn;
     if (!block) return { ...moved, x: before.x, vx: 0 };
     return { ...moved, x: moved.x < before.x ? block.x1 + 1e-6 : block.x0 - 1e-6, vx: 0 };
   }
   if (here < before.y - 1e-9) {
     // down a curved top the feet stay on the ground as long as the slope is gentler than 45 degrees: running over a dome is not
     // leaving the ground (so Space still works on the way down); a real drop (an edge) still lets go
-    const onCurve = platformAt(t, moved.x)?.profile !== undefined && platformAt(t, before.x)?.profile !== undefined;
+    const onCurve = nowOn?.profile !== undefined && wasOn?.profile !== undefined;
     if (onCurve && before.y - here <= MAX_SLOPE * Math.abs(moved.x - before.x) + 1e-9) return { ...moved, y: here };
     return { ...moved, grounded: false, vy: 0 }; // off the edge: fall
   }

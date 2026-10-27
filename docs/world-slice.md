@@ -100,3 +100,4 @@ The set of obstacle shapes is fixed, and each shape offers a fixed set of moves.
 - **Fix:** on a curved top the feet stay on the ground down any slope gentler than 45°, and a curved top has no side to hit in the air (rising ground is met by landing).
   - A real drop, such as the edge of a platform, still lets go.
   - Three tests fail on the old code and pass on the new.
+- **Side effect found and fixed:** with domes now passable, many trial runs of the ideal-run search ended pressed against something and stood still until the 80 s limit, which made the slice search and the editor's check about 10 times slower; a run now stops after 1.5 s of standing still (same result, about the old speed).

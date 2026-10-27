@@ -1,6 +1,7 @@
 import type { CourseData } from '../course/course';
 import type { Platform } from '../sim/terrain';
 import { searchIdealRun } from '../sim/ideal';
+import { gapSpecs } from '../sim/needs';
 
 // Cutting a 2 m lane out of a 3D scene to make a course (docs/world-slice.md).
 // A scene is turned about a vertical rod through its middle; each turn, each sideways step and each height level gives
@@ -160,11 +161,14 @@ export function bestSlices(mesh: Mesh, opts: { angles?: number; offsets?: number
   }
   all.sort((a, b) => b.report.score - a.report.score);
   const out: Candidate[] = [];
+  let proofs = 0;
   for (const cand of all) {
     if (out.length >= (opts.top ?? 3)) break;
     if (out.some((o) => Math.abs(o.angle - cand.angle) < 0.2 && Math.abs(o.offset - cand.offset) < 1.5 && o.level === cand.level)) continue; // not three copies of the same lane
-    const found = searchIdealRun(laneToCourse({ cells: [...cand.profile.cells], length: cand.profile.length }));
-    if (found.cleared) out.push(cand);
+    const course = laneToCourse({ cells: [...cand.profile.cells], length: cand.profile.length });
+    if (gapSpecs(course).some((g) => g.needed > 8.5)) continue; // a gap needing nearly top speed is not a fair lane: skip the slow proof
+    if (++proofs > 12) break; // proving a lane costs a full ideal-run search: try at most this many
+    if (searchIdealRun(course).cleared) out.push(cand);
   }
   return out;
 }

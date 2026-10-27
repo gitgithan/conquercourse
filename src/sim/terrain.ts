@@ -35,7 +35,13 @@ export function groundAt(t: Terrain, x: number): number {
 
 // The platform whose left edge is the next one at or after x (used when the runner hits a block's side).
 export function platformAt(t: Terrain, x: number): Platform | undefined {
-  return t.platforms.filter((p) => x >= p.x0 && x <= p.x1).sort((a, b) => heightAt(b, x) - heightAt(a, x))[0];
+  let best: Platform | undefined, bestH = -Infinity;
+  for (const p of t.platforms) {
+    if (x < p.x0 || x > p.x1) continue;
+    const h = p.profile ? heightAt(p, x) : p.top;
+    if (h > bestH) { best = p; bestH = h; }
+  }
+  return best;
 }
 
 // The platform the feet stand on at x (the highest one there).
