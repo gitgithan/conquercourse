@@ -45,10 +45,14 @@ export function playPlan(course: CourseData, plan: Plan, maxTicks = 120 * 80): R
   const st = { next: 0, caught: null as number | null, bedAt: null as number | null };
   const events: GameEvent[] = [];
   let maxX = 0;
+  let still = 0;
   for (let i = 0; i < maxTicks && w.outcome === 'running'; i++) {
     w = stepWorld(w, inputFor(plan, w, st), course);
     events.push(...w.events);
     maxX = Math.max(maxX, w.runner.x);
+    // a runner pressed against something it cannot pass will never get anywhere: stop after 1.5 s of standing still (it only costs time to go on)
+    still = w.mode === 'run' && w.runner.grounded && Math.abs(w.runner.vx) < 0.01 ? still + 1 : 0;
+    if (still > 180) break;
   }
   return { world: w, events, maxX, jumps: st.next };
 }
