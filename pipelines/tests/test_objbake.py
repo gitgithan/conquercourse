@@ -238,3 +238,45 @@ def test_privacy_with_nobody_changes_nothing():
     img = np.random.default_rng(2).integers(0, 255, (60, 80, 3), dtype=np.uint8)
     out, rc = P.apply_privacy(img, [], [], [])
     assert (out == img).all() and rc["changed"] is False
+
+
+# ---- texture (round 2) ----
+xatlas = pytest.importorskip("xatlas")
+
+
+def test_texture_bake_gives_each_point_of_the_surface_the_colour_of_the_nearest_splat():
+    v, f = box_mesh(2, 1, 1, n=4)  # x runs -1 .. 1
+    xyz = np.random.default_rng(3).uniform(-0.5, 0.5, (30000, 3)) * np.array([2, 1, 1])
+    rgb = np.where(xyz[:, :1] > 0, [[1.0, 0, 0]], [[0, 0, 1.0]])  # red on the +x half, blue on the -x half
+    v2, f2, uv = B.unwrap(v, f)
+    tex = B.bake_texture(v2, f2, uv, xyz, rgb, None, size=256)
+    assert tex.shape == (256, 256, 3) and tex.dtype == np.uint8
+    # sample the texture at each vertex's uv (row = v * size, glTF convention): colour follows x
+    px = np.clip((uv * 255).round().astype(int), 0, 255)
+    got = tex[px[:, 1], px[:, 0]].astype(int)
+    far_red, far_blue = v2[:, 0] > 0.6, v2[:, 0] < -0.6
+    assert far_red.any() and far_blue.any()
+    assert got[far_red][:, 0].mean() > 200 and got[far_red][:, 2].mean() < 60
+    assert got[far_blue][:, 2].mean() > 200 and got[far_blue][:, 0].mean() < 60
+
+
+def test_unwrap_keeps_the_shape_and_gives_uvs_in_the_unit_square():
+    v, f = box_mesh(1, 1, 1, n=2)
+    v2, f2, uv = B.unwrap(v, f)
+    assert len(f2) == len(f) and len(uv) == len(v2) and uv.min() >= 0 and uv.max() <= 1
+    assert np.allclose(np.sort(np.unique(v2.round(6), axis=0), axis=0), np.sort(np.unique(v.round(6), axis=0), axis=0))
+
+
+def test_bake_with_texture_meets_the_pass_lines(tmp_path):
+    v, f = box_mesh(3, 0.2, 1.0, n=40, centre=(1, 2, 3))
+    xyz = np.random.default_rng(0).uniform(-0.5, 0.5, (20000, 3)) * np.array([3, 0.2, 1.0]) + np.array([1, 2, 3])
+    dc = np.where(xyz[:, :1] > 1, [[2.0, -2.0, -2.0]], [[-2.0, -2.0, 2.0]])
+    vb, fb, uv, tex, info = B.bake_textured(v, f, xyz, dc, np.ones(len(xyz)), "wall", texture_size=512)
+    assert info["faces"] <= 6000 and abs(info["height_m"] - 0.9) < 0.01 and info["texture"] == "512x512"
+    out = tmp_path / "t.glb"
+    size = glb.write_glb(out, vb, fb, None, uv=uv, texture=tex)
+    assert size < 1.5e6
+    v2, f2, c2, doc = glb.read_glb(out)
+    assert c2 is None and "TEXCOORD_0" in doc["meshes"][0]["primitives"][0]["attributes"]
+    assert doc["materials"][0]["pbrMetallicRoughness"]["baseColorTexture"]["index"] == 0
+    assert doc["images"][0]["mimeType"] == "image/jpeg" and len(doc["images"]) == 1 and (f2 == fb).all()
