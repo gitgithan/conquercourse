@@ -19,3 +19,10 @@
 ## Dojo: back to the Course
 - **T closes the Dojo,** as it opens it from the Course (not while typing in a box).
 - **"Back to the Course (T)"** is a large button fixed in the top-right corner of every Dojo step, the same place every time.
+
+## Dojo: back to where you were
+- **Leaving for the Dojo saves the Course** (the course in play, the runner's whole state, the facing and the fall count) in the tab's session storage; coming back by T or by the Back button puts it back.
+  - A run in progress waits for a key ("Back from the Dojo. Press any key to carry on.") so you are not dropped mid-jump.
+  - After a fall (the Train button on the fall panel), you come back standing at the start of the obstacle you fell at, as "Try this obstacle again" does.
+  - A community or Park course comes back too, not the default one.
+- **Checked** by `scripts/resume-check.mjs`: same tick and place after T, after the button, waits for a key, carries on.
