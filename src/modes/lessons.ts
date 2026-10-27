@@ -1,6 +1,7 @@
 import type { Context, Experiment, Shape } from '../sim/experiments';
 import type { CourseFacts } from '../course/facts';
 import { GRAVITY } from '../sim/units';
+import { DEFAULT_WALL } from '../sim/wall';
 
 // The guided lesson for each obstacle: why it matters, what to try, what shape the relationship has, a rule of
 // thumb, the exact formula (earned, last), and what it means on the Course. Plain words; formulas only here.
@@ -48,7 +49,7 @@ export const LESSONS: Record<Experiment['id'], Lesson> = {
       const w = f.wall;
       if (!w) return 'This course has no warped wall.';
       const H = c.wallHeight ?? w.height;
-      return `The wall in this course is ${H.toFixed(1)} m high. Your hands reach 3.1 m above your feet, so your feet must climb ${(H - 3.1).toFixed(1)} m.\nYou need at least ${w.needSpeed.toFixed(1)} m/s at the foot of the wall (the speed meter shows it as you approach).`;
+      return `The wall in this course is ${H.toFixed(1)} m high. Your hands reach ${(DEFAULT_WALL.hipHeight + DEFAULT_WALL.reach).toFixed(1)} m above your feet, so your feet must climb ${(H - DEFAULT_WALL.hipHeight - DEFAULT_WALL.reach).toFixed(1)} m.\nYou need at least ${w.needSpeed.toFixed(1)} m/s at the foot of the wall (the speed meter shows it as you approach).`;
     },
   },
   rope: {
