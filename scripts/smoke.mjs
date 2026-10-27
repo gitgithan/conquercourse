@@ -4,7 +4,7 @@ import { spawn } from 'node:child_process';
 import { mkdirSync } from 'node:fs';
 
 const backend = process.argv[2] ?? 'webgpu';
-const server = spawn('npx', ['vite', '--port', '5174', '--strictPort'], { stdio: 'ignore' });
+const server = spawn('npx', ['vite', '--port', '5173', '--strictPort'], { stdio: 'ignore' });
 const flags = ['--enable-unsafe-webgpu', '--enable-features=Vulkan', '--use-vulkan=swiftshader',
   '--use-angle=swiftshader', '--disable-vulkan-surface', '--ignore-gpu-blocklist'];
 try {
@@ -12,7 +12,7 @@ try {
   const browser = await chromium.launch({ args: flags });
   const page = await browser.newPage({ viewport: { width: 1280, height: 720 } });
   page.on('pageerror', (e) => console.error('pageerror', e.message));
-  await page.goto(`http://localhost:5174/?backend=${backend}`);
+  await page.goto(`http://localhost:5173/?backend=${backend}`);
   await page.waitForSelector('html[data-ready=true]', { timeout: 90000 });
   await page.waitForTimeout(1500);
   mkdirSync('test-results', { recursive: true });
