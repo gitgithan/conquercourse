@@ -1,0 +1,59 @@
+{
+  "experiment": "muan-scan",
+  "issue": "CC-29",
+  "date": "2026-10-27",
+  "command": "ingest_video.py https://www.youtube.com/watch?v=7soV521Xk1A --start 0.0 --end 276.0 --id muan-scan",
+  "phrases": [
+    "wall",
+    "curved wall",
+    "ramp",
+    "platform",
+    "bar",
+    "rope",
+    "ledge",
+    "box",
+    "steps",
+    "pole"
+  ],
+  "stages": {},
+  "cost": {
+    "gpu_container_seconds": 137,
+    "modal_usd": 0.03,
+    "meta_usd": 0.0916,
+    "total_usd_list": 0.122
+  },
+  "source": {
+    "url": "https://www.youtube.com/watch?v=7soV521Xk1A",
+    "id": "7soV521Xk1A",
+    "title": "Amazing American Ninja Warrior Nation",
+    "uploader": "Andrew Muan",
+    "licence": "Creative Commons Attribution license (reuse allowed)",
+    "duration_s": 276,
+    "size": [
+      480,
+      480
+    ],
+    "fps": 30,
+    "upload_date": "20190425",
+    "range_s": [
+      0.0,
+      276.0
+    ],
+    "fetched": "2026-10-27"
+  },
+  "licence_check": "Creative Commons Attribution license (reuse allowed)",
+  "estimate": {
+    "frames": 138,
+    "gpu_container_seconds": 633,
+    "gpu_minutes": 10.6,
+    "sam31_images": 0,
+    "usd": {
+      "modal_l4": 0.141,
+      "sam31": 0.0,
+      "meta_vision": 0.72
+    },
+    "usd_total": 0.861
+  },
+  "wall_seconds": 0,
+  "cost_actual_note": "The first attempt was refused by the cost guard before any paid step (the guard counted all 8,280 frames; fixed in the same branch to count the 138 scan frames); this is the second attempt."
+}

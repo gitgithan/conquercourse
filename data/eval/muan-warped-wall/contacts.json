@@ -1,0 +1,175 @@
+[
+ {
+  "joint": "RightHand",
+  "frames": [
+   0,
+   34
+  ],
+  "t": [
+   0.0,
+   1.134467
+  ],
+  "point": [
+   -0.058,
+   1.013,
+   0.359
+  ],
+  "kind": "obstacle"
+ },
+ {
+  "joint": "LeftFoot",
+  "frames": [
+   0,
+   50
+  ],
+  "t": [
+   0.0,
+   1.668333
+  ],
+  "point": [
+   0.066,
+   0.074,
+   0.218
+  ],
+  "kind": "ground"
+ },
+ {
+  "joint": "RightFoot",
+  "frames": [
+   7,
+   42
+  ],
+  "t": [
+   0.233567,
+   1.4014
+  ],
+  "point": [
+   -0.627,
+   0.045,
+   0.156
+  ],
+  "kind": "ground"
+ },
+ {
+  "joint": "LeftHand",
+  "frames": [
+   11,
+   37
+  ],
+  "t": [
+   0.367033,
+   1.234567
+  ],
+  "point": [
+   -0.137,
+   0.845,
+   -0.155
+  ],
+  "kind": "obstacle"
+ },
+ {
+  "joint": "RightHand",
+  "frames": [
+   97,
+   100
+  ],
+  "t": [
+   3.236567,
+   3.336667
+  ],
+  "point": [
+   3.554,
+   2.752,
+   -0.807
+  ],
+  "kind": "obstacle"
+ },
+ {
+  "joint": "LeftFoot",
+  "frames": [
+   132,
+   132
+  ],
+  "t": [
+   4.4044,
+   4.4044
+  ],
+  "point": [
+   1.405,
+   1.62,
+   0.536
+  ],
+  "kind": "obstacle",
+  "brief_plant": true
+ },
+ {
+  "joint": "LeftHand",
+  "frames": [
+   135,
+   141
+  ],
+  "t": [
+   4.5045,
+   4.7047
+  ],
+  "point": [
+   1.816,
+   1.533,
+   0.076
+  ],
+  "kind": "obstacle"
+ },
+ {
+  "joint": "LeftFoot",
+  "frames": [
+   163,
+   179
+  ],
+  "t": [
+   5.438767,
+   5.972633
+  ],
+  "point": [
+   -0.255,
+   0.995,
+   3.505
+  ],
+  "kind": "obstacle"
+ },
+ {
+  "joint": "RightFoot",
+  "frames": [
+   164,
+   164
+  ],
+  "t": [
+   5.472133,
+   5.472133
+  ],
+  "point": [
+   -0.694,
+   1.386,
+   3.469
+  ],
+  "kind": "obstacle",
+  "brief_plant": true
+ },
+ {
+  "joint": "RightFoot",
+  "frames": [
+   168,
+   168
+  ],
+  "t": [
+   5.6056,
+   5.6056
+  ],
+  "point": [
+   -0.493,
+   1.401,
+   3.632
+  ],
+  "kind": "obstacle",
+  "brief_plant": true
+ }
+]
