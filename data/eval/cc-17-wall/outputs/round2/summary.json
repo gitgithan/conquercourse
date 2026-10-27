@@ -204,16 +204,16 @@
         "RightFoot@80-89": 1.338
       },
       "target_error_final_m": {
-        "RightFoot@49-55": 0.0,
-        "LeftFoot@56-62": 0.0,
+        "RightFoot@49-55": 0,
+        "LeftFoot@56-62": 0,
         "LeftHand@65-74": 0.816,
         "RightHand@65-74": 0.813,
         "LeftFoot@80-89": 1.196,
         "RightFoot@80-89": 1.196
       },
       "ik_leftover_m": [
-        0.0,
-        0.0,
+        0,
+        0,
         0.9277,
         0.9221,
         1.4133,
@@ -348,8 +348,8 @@
         "RightFoot@80-89": 0.247
       },
       "target_error_final_m": {
-        "RightFoot@49-55": 0.0,
-        "LeftFoot@56-62": 0.0,
+        "RightFoot@49-55": 0,
+        "LeftFoot@56-62": 0,
         "LeftHand@65-74": 0.323,
         "RightHand@65-74": 0.112,
         "LeftFoot@80-89": 0.166,
@@ -628,15 +628,15 @@
       },
       "target_error_final_m": {
         "RightFoot@49-55": 0.089,
-        "LeftFoot@56-62": 0.0,
+        "LeftFoot@56-62": 0,
         "LeftHand@65-74": 1.787,
         "RightHand@65-74": 1.786,
-        "LeftFoot@80-89": 0.0,
-        "RightFoot@80-89": 0.0
+        "LeftFoot@80-89": 0,
+        "RightFoot@80-89": 0
       },
       "ik_leftover_m": [
         0.0889,
-        0.0,
+        0,
         1.7873,
         1.7865,
         2.4886,
@@ -736,7 +736,7 @@
       "hips_err_final": 4.0764,
       "hips_err_raw": 4.0764,
       "wrists_final": {
-        "LeftHand": 0.0,
+        "LeftHand": 0,
         "RightHand": 0.3241
       },
       "wrists_raw": {
@@ -773,10 +773,10 @@
       "target_error_final_m": {
         "RightFoot@49-55": 0.155,
         "LeftFoot@56-62": 0.797,
-        "LeftHand@65-74": 0.0,
-        "RightHand@65-74": 0.0,
-        "LeftFoot@80-89": 0.0,
-        "RightFoot@80-89": 0.0
+        "LeftHand@65-74": 0,
+        "RightHand@65-74": 0,
+        "LeftFoot@80-89": 0,
+        "RightFoot@80-89": 0
       },
       "ik_leftover_m": [
         1.7464,
@@ -812,7 +812,7 @@
         "3_grab": {
           "ok": false,
           "value": {
-            "LeftHand": 0.0,
+            "LeftHand": 0,
             "RightHand": 0.3241
           },
           "limit": "<= 0.05 m at the grab frame"
@@ -1050,7 +1050,7 @@
       },
       "target_error_final_m": {
         "RightFoot@49-55": 0.757,
-        "LeftFoot@56-62": 0.0,
+        "LeftFoot@56-62": 0,
         "LeftHand@65-74": 1.102,
         "RightHand@65-74": 0.959,
         "LeftFoot@80-89": 0.835,
