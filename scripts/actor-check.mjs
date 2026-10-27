@@ -15,7 +15,7 @@ const SHEETS = {
   rope: [1640, 1700, 1722, 1750, 1790, 1800, 1850, 1960, 1990],
   tramp: [2030, 2060, 2200, 2224, 2232, 2243, 2300, 2380, 2430],
 };
-const server = spawn('npx', ['vite', '--port', '5173', '--strictPort'], { stdio: 'ignore' });
+const server = spawn('node', ['node_modules/vite/bin/vite.js', '--port', '5173', '--strictPort'], { stdio: 'ignore' });
 const dir = mkdtempSync(join(tmpdir(), 'asheet-'));
 mkdirSync('test-results', { recursive: true });
 try {

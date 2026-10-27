@@ -4,7 +4,7 @@ import { spawn } from 'node:child_process';
 import { mkdirSync } from 'node:fs';
 
 const port = process.env.PORT ?? '5173';
-const server = spawn('npx', ['vite', '--port', port, '--strictPort'], { stdio: 'ignore' });
+const server = spawn('node', ['node_modules/vite/bin/vite.js', '--port', port, '--strictPort'], { stdio: 'ignore' });
 let failed = false;
 try {
   await new Promise((r) => setTimeout(r, 3000));

@@ -5,7 +5,7 @@ import { mkdirSync } from 'node:fs';
 
 const backend = process.argv[2] ?? 'webgpu';
 const port = process.env.PORT ?? '5173';
-const server = spawn('npx', ['vite', '--port', port, '--strictPort'], { stdio: 'ignore' });
+const server = spawn('node', ['node_modules/vite/bin/vite.js', '--port', port, '--strictPort'], { stdio: 'ignore' });
 const flags = ['--enable-unsafe-webgpu', '--enable-features=Vulkan', '--use-vulkan=swiftshader',
   '--use-angle=swiftshader', '--disable-vulkan-surface', '--ignore-gpu-blocklist'];
 try {

@@ -4,7 +4,8 @@ import { groundAt, heightAt, platformAt } from './terrain';
 // The vault (V): a hand goes on top of an obstacle and the body goes over it without leaving the ground in a long arc.
 // It needs speed, an obstacle just ahead whose top is 0.35 to 1.3 m above the feet, and ground to land on. It keeps most of the speed.
 export const VAULT_MIN_SPEED = 3; // m/s
-export const VAULT_REACH = 0.9; // m ahead of the feet where the front face must be
+export const VAULT_REACH = 1.2; // m ahead of the feet where the front face must be
+export const VAULT_BUFFER = 24; // ticks (0.2 s): a V pressed this early still counts when the obstacle comes in reach
 export const VAULT_MIN_RISE = 0.35;
 export const VAULT_MAX_RISE = 1.3;
 export const VAULT_KEEP = 0.92; // share of the speed kept

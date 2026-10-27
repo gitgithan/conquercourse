@@ -6,7 +6,7 @@ import { mkdirSync } from 'node:fs';
 
 const port = process.env.PORT ?? '5173';
 const photos = (process.env.PHOTOS ?? 'park01,park07').split(',');
-const server = spawn('npx', ['vite', '--port', port, '--strictPort'], { stdio: 'ignore' });
+const server = spawn('node', ['node_modules/vite/bin/vite.js', '--port', port, '--strictPort'], { stdio: 'ignore' });
 const flags = ['--enable-unsafe-webgpu', '--enable-features=Vulkan', '--use-vulkan=swiftshader',
   '--use-angle=swiftshader', '--disable-vulkan-surface', '--ignore-gpu-blocklist'];
 let failed = false;
