@@ -26,6 +26,8 @@ A ninja-warrior physics game where real parks and real moves become the course, 
 - **Main work happens on the laptop** (the product owner watches at `http://localhost:5173`); the Vultr VM is extra compute: self-contained tasks on their own branches, pulled, reviewed and merged on the laptop.
 - **At most one browser test run at a time on the laptop** (about 7 GB of RAM); heavy runs go to the VM.
 - **JSON is committed pretty-printed** (2 spaces): write it with `indent=2` or run `npm run format:json`; `npm run test:quick` fails on unformatted files.
+- **Order by dependencies:** before an issue or experiment, list what it needs (upstream issues, tools, known lessons in `docs/`); build those first or flag the block; a weakened test that fails is "not tested", not "failed".
+- **Reports lead with the so-what:** what it means for the game and demo in project terms, the recommendation and the next step; technical detail after.
 - **Tests:** physics-law tests first; `npm run test:quick` on every change and before every merge; browser smoke tests after UI changes.
 - **Visual evidence:** a UI or motion change is done only with a screenshot or clip under `test-results/` (copied out before the next run) and linked in its issue; films use the stepped clock.
 - **Experiment trail:** every experiment saves its inputs, outputs and a `run.json` in `data/eval/<experiment>/`.
