@@ -1,0 +1,9 @@
+# Cloudflare Pages: the game is static files (dist/) plus one function (functions/api/submit.ts) that stores feedback in D1.
+name = "conquercourse"
+pages_build_output_dir = "dist"
+compatibility_date = "2026-10-01"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "conquercourse-feedback"
+database_id = "REPLACE-WITH-THE-ID-FROM-wrangler-d1-create"
