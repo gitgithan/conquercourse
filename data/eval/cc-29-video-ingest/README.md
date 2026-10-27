@@ -3,6 +3,74 @@
 *Serves the Warped Wall beat and the Park's "filmed move becomes motion" beat; the wall run-up and grab is the one Rookie move still missing (`data/eval/starter-clips/README.md`).*
 
 ## So what
+- **Result for the game:** the real run on the three videos gave **no new Rookie move and no usable Kimodo targets yet**; both wall clips that could be measured failed the shared gate, and the third was skipped on purpose.
+  - The wall run needs a steadier, closer, side-on clip (or a tripod film of our own) before a measurement can be trusted.
+- **Recommendation:** make the next recipe from the **salmon ladder** (bar hops), not from these wall clips; the scan found it five times, with clean side views.
+- **Next step:** ingest 96-118 s and 124-132 s of video 1 as a normal run, and for the wall use a clip with the whole wall in view and a still camera.
+- **Spend:** about $1.2 in total at list prices (cap was $5); whether Modal credits cover it is still not visible from here.
+
+## Answers
+### 1. Can the 2:29-2:35 wall run serve as a starter clip or as contact targets?
+- **Starter clip: no.** The shared gate says FAIL (`held_clips_are_held`: 2.64 s held with nothing the gate accepts as support, and the unrepaired `feet_dont_sink`); a clip that fails the gate does not ship.
+  - It also fails the move check (plant 0.91 m, travel 3.7 m, grip 4 frames).
+  - The clip's skeleton is not trustworthy: the body model measured the athlete at 2.44 m tall, the scale is about 1.4 times too big, and the camera pans and cuts away.
+- **Contact targets for Kimodo: not yet either.** The fit did not find the wall at all: SAM 3.1 returned a `platform` 1.69 m high (box 480 x 225 px along the bottom) and two thin poles, so "height as a fraction of the obstacle" has no valid obstacle to divide by.
+  - `--known-height` was **not** used: the 4.3 m top is never fully in view (the frame crops it at 2:32 and the camera pans), so a known-height scale would have been wrong.
+  - What is usable by eye: the order of events (run-up on the curve, one foot on the face, hands to the top ledge, pull over); not the numbers.
+- **Gate verdicts:**
+  - 2:29-2:35 (`muan-warped-wall`): FAIL, `held_clips_are_held`; GIF: [move.gif](../muan-warped-wall/move.gif).
+  - Short with Beth Lodge (`wnl-warped-wall-short`): **skipped**, no GIF; the tags say "girl" and "girl power" (the text screen skips any such tag without looking at a frame).
+  - Rules video 0-38 s (`wnl-new-wall-rules`): FAIL, `held_clips_are_held` and `no_teleport` (17.6 m/s); GIF: [move.gif](../wnl-new-wall-rules/move.gif).
+- **The skip on video 2 is a doubt, not a finding:** the description names an adult (UK athlete, Premier Series finals), so the tag is probably search wording, but the rule says skip on any doubt, so I did not override it.
+  - To unlock it the product owner can say so in writing; the run then costs about $0.73.
+
+### 2. What else did the scan find, and what is worth a recipe?
+- Full table with time ranges: [muan-scan/README.md](../muan-scan/README.md); 21 segments, labels from the vision model at one frame per 2 s, so times are good to about 2 s.
+- **Worth a recipe, best first:**
+  - **Salmon ladder (bar hops), 96-118 s, 124-132 s, 176-190 s:** the same move five times, most with a side view; it would confirm the proposed `bar` primitive and teach hanging, pulling and timing.
+  - **Rope and ring swings, 4 s, 24-28 s, 174 s, 192-198 s:** maps to the canonical `ropeAnchor` (pendulum) and the library already has swing clips; the 24-28 s ring swing is a clean side view.
+  - **Warped wall, 148-166 s:** the clip we ran; later wall runs by other athletes in a cleaner shot would be better.
+  - **Floating steps, 78 s, 170-172 s, 222 s:** short, and the scan saw one frame in two of the three, so check before spending.
+- **Not worth it now:** wheels (10-22 s), sliders (32-62 s, 198-214 s) and trapeze (240-262 s) need grips and track primitives we do not have; the gap jump at 216 s has no visible landing.
+- Nothing in the scan was measured, so no GIFs exist for these segments; a GIF is made when a segment is ingested.
+
+### 3. Does the measured wall recipe agree with the videos?
+- **Short answer: no, and it cannot be judged yet**, because the video measurements fail the gate and their scale is wrong.
+- Reference recipe: CC-17's move check (plant 0.4-1.6 m up, grip with feet off the floor at least 0.3 s) and the CC-26 brick wall (plant 1.29 m, travel 2.24 m, grip 2.7 s); both are in `data/eval/starter-clips/README.md` and CC-26.
+| Number | Brick wall (CC-26) | 2:29 warped wall | Rules video 0-38 s | Video 2 |
+|---|---|---|---|---|
+| Plant height as a fraction of the obstacle | not stored as a fraction (1.29 m on a 1.24 m wall) | 0.96 of a mis-fitted 1.69 m "platform" (1.62 m); about 0.38 of 4.3 m, or about 0.27 after the 1.4 times scale error | 0.83 of a 1.71 m "wall", but this is not a wall run | skipped |
+| Grip time | 2.7 s | 0.2 s | 3.0 s on the first contact, not trustworthy (see below) | skipped |
+| Run-up speed at the plant | not stored | 1.66 m/s (peak hip 10.3 m/s is a measurement artefact) | 0.25 m/s | skipped |
+- **How well they agree:** the grip time of the first clip (0.2 s) is far from the brick wall (2.7 s), and a real warped wall run is short, so that is plausible, but the run-up speed (1.66 m/s) is far too slow for a run up a curved wall.
+  - The only fair reading is "the shape of the move is the same (plant, grip, release)", not "the numbers agree".
+- **Rules video:** the contact sheet (0-11 s of the clip) shows a head-mounted camera in a gym, with a person's legs close to the lens (2.9 m tall by the model) and no wall being climbed; I did not review 11-38 s frame by frame.
+  - So this run says nothing about wall runs; the right fix is to pick the section of that video where someone actually climbs, which needs a scan first (about $0.12).
+
+## What went wrong, so the next run is cheaper
+- **The ingest broke at the GIF step** on this VM because `matplotlib` was not installed; I installed it and resumed from stage `seg`, which paid SAM 3.1 twice (extra $0.075).
+- **The scan was refused by the cost guard** because the guard counted all 8,280 frames instead of the 138 scan frames; fixed in `pipelines/ingest_video.py` (estimate for a scan now 138 frames, $0.86; actual $0.12).
+- **Body-height scale is unreliable on these clips:** it gave athletes of 2.44 m and 2.90 m; the pipeline should reject a clip whose athlete comes out above 2.2 m, and I have not added that rule (it is a next-step item, not done).
+
+## Actual cost (list prices)
+| Run | Modal | SAM 3.1 | Meta | Total | Expected |
+|---|---|---|---|---|---|
+| muan-warped-wall (2:29-2:35) | $0.126 | $0.15 (paid twice) | $0.006 | $0.28 | $0.31 |
+| wnl-warped-wall-short | $0 | $0 | $0 | $0 (skipped) | $0.73 |
+| wnl-new-wall-rules (0-38 s) | $0.69 | $0.075 | $0.012 | $0.78 | $1.06 |
+| muan-scan (every 2 s) | $0.03 | $0 | $0.092 | $0.12 | $0.86 (after guard fix) |
+| **Total** | | | | **$1.18** | |
+- Never more than 2 Modal containers ran at once (the wall-rules measure plus the scan).
+
+## Definition of Done
+- The Linear issue's Definition of Done is **not fully met**, so no commit says "Fixes CC-29":
+  - not met: one starter clip or one set of contact targets that passes the shared gate (neither does);
+  - not met: the video 2 run (skipped on the adult-check rule);
+  - not met: a recipe whose numbers agree with a trusted wall measurement.
+  - met: the three runs and the scan with costs in `run.json`, the answers above, and a GIF for each measured move.
+
+## Before the videos arrived (kept for the record)
+
 - **Result for the game:** the ingest machinery is built and tested, but **none of the three videos has been processed yet**, so no Rookie move and no demo beat has been gained from them.
   - YouTube refused every download from this machine ("confirm you're not a bot"); I tried yt-dlp's default, tv, web_safari, android_vr and mweb clients with a JS runtime and stopped there.
   - I did not use cookies, proxies or download mirrors; a cookies file or the files themselves have to come from the product owner.
