@@ -1,11 +1,119 @@
 [
-  {"photo": "park01", "label": "handrail", "box": [294, 183, 658, 454], "height_m": null},
-  {"photo": "park02", "label": "handrail", "box": [265, 196, 773, 395], "height_m": null},
-  {"photo": "park03", "label": "platform", "box": [66, 234, 662, 407], "height_m": null},
-  {"photo": "park06", "label": "ledge", "box": [220, 598, 774, 637], "height_m": null},
-  {"photo": "park07", "label": "stairs", "box": [168, 286, 811, 394], "height_m": null},
-  {"photo": "rail01", "label": "rail", "box": [130, 150, 900, 480], "height_m": null},
-  {"photo": "mural01", "label": "wall", "box": [0, 45, 1024, 600], "height_m": null},
-  {"photo": "mural02", "label": "wall", "box": [0, 30, 1024, 640], "height_m": null},
-  {"photo": "bench01", "label": "bench", "box": [170, 365, 705, 650], "height_m": null}
+  {
+    "photo": "park01",
+    "label": "handrail",
+    "box": [
+      294,
+      183,
+      658,
+      454
+    ],
+    "height_m": null,
+    "author": "Neoclassicism Enthusiast",
+    "licence": "CC0"
+  },
+  {
+    "photo": "park02",
+    "label": "handrail",
+    "box": [
+      265,
+      196,
+      773,
+      395
+    ],
+    "height_m": null,
+    "author": "Neoclassicism Enthusiast",
+    "licence": "CC0"
+  },
+  {
+    "photo": "park03",
+    "label": "platform",
+    "box": [
+      66,
+      234,
+      662,
+      407
+    ],
+    "height_m": null,
+    "author": "Alexis Jazz",
+    "licence": "CC BY 4.0"
+  },
+  {
+    "photo": "park06",
+    "label": "ledge",
+    "box": [
+      220,
+      598,
+      774,
+      637
+    ],
+    "height_m": null,
+    "author": "Dmytro Petishkin",
+    "licence": "CC BY 4.0"
+  },
+  {
+    "photo": "park07",
+    "label": "stairs",
+    "box": [
+      168,
+      286,
+      811,
+      394
+    ],
+    "height_m": null,
+    "author": "Ajznponar",
+    "licence": "CC0"
+  },
+  {
+    "photo": "rail01",
+    "label": "rail",
+    "box": [
+      130,
+      150,
+      900,
+      480
+    ],
+    "height_m": null,
+    "author": "Peter Broster",
+    "licence": "CC0"
+  },
+  {
+    "photo": "mural01",
+    "label": "wall",
+    "box": [
+      0,
+      45,
+      1024,
+      600
+    ],
+    "height_m": null,
+    "author": "Milhojas 72 (photo); the painting is by its artist",
+    "licence": "CC0 photo"
+  },
+  {
+    "photo": "mural02",
+    "label": "wall",
+    "box": [
+      0,
+      30,
+      1024,
+      640
+    ],
+    "height_m": null,
+    "author": "Milhojas 72 (photo); the painting is by its artist",
+    "licence": "CC0 photo"
+  },
+  {
+    "photo": "bench01",
+    "label": "bench",
+    "box": [
+      165,
+      345,
+      720,
+      660
+    ],
+    "height_m": null,
+    "author": "Rick Obst",
+    "licence": "CC BY 2.0"
+  }
 ]
