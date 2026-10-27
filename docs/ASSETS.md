@@ -106,5 +106,17 @@
 - The murals are in the experiment only: a street artist's painting is theirs even when the photographer's licence is CC0, so no mural object ships without the owner's decision.
 - The raw lifts (`raw.npz`, several MB each) are kept outside git in `../conquercourse-assets/cc-38-raw/` with `SHA256SUMS`.
 
+## Objects made from photos (made during the event, CC-38)
+| File | What | Photo and author | Licence | Made with |
+|---|---|---|---|---|
+| `public/assets/objects/rail-skate-01.glb` | level handrail with posts, 1.0 m high, 5,819 faces, 330 KB | park01, Neoclassicism Enthusiast | CC0 | SAM 3 mask, SAM 3D Objects lift (seed 42), CPU bake with a 1024 texture (round 2) |
+| `public/assets/objects/box-skate-03.glb` | low box with a step, 0.5 m high, 5,820 faces, 351 KB | park03, Alexis Jazz | CC BY 4.0: credit "Alexis Jazz, Voltaplatz skatepark, ledge" wherever the object is shown | same (round 2) |
+| `public/assets/objects/bench-concrete.glb` | concrete bench with a back, 0.8 m high, 5,820 faces, 348 KB | bench01, Rick Obst | CC BY 2.0: credit "Rick Obst, Concrete bench in Valley Wood Park" wherever the object is shown | same, photo padded (round 3) |
+| `public/assets/objects/railing-iron.glb` | iron railing panel, 1.0 m high, 5,820 faces, 565 KB | rail01, Peter Broster | CC0 | same, photo padded (round 3) |
+| `public/assets/objects/index.json` | maps each photo and box to its GLB, with height, extents, look and credit (ours) | ConquerCourse | same as each photo | `pipelines/ship_objects.py` |
+- Each GLB is a skin only (no collision), made from one photo with open-weight models (SAM 3 and SAM 3D Objects, Meta; their licences are in `docs/PRIOR-WORK.md`); the sizes come from typical heights, not from the photo.
+- Not shipped: the two mural walls (`data/eval/cc-38-photo-to-3d/r3/mural0*/mesh.glb`), because a mural belongs to its artist even when the photo is CC0; the park02, park06 and park07 objects (judged "partly" with a sloped base, "no" and "no").
+- Kept outside git: the raw lifts (`raw.npz`, about 100 MB) and the privacy-masked photos in `../conquercourse-assets/cc-38-raw/` with `SHA256SUMS`.
+
 ## The product owner's own clips (to come)
 - Filmed by the product owner, an adult, about themselves, with no bystanders; their written consent is recorded here when added.

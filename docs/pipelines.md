@@ -145,12 +145,26 @@
   1. **Privacy (Modal L4):** as in pipeline 1, for people, faces and plates.
   2. **Mask (L4):** SAM 3 from the text prompt; keep the best mask; on the Meta Model API, SAM 3.1 takes one noun phrase per request, up to 16 objects, masks as base85 text.
   3. **Lift (Modal L40S, 48 GB; the model needs about 32 GB):** SAM 3D Objects turns photo + mask into a mesh and its Gaussian splat, seed 42.
-  4. **Bake (CPU):** keep the mesh upright in its own frame (don't apply the camera layout: it tilts objects by the camera's pitch); turn it so its widest side faces the side-on camera; centre it and stand it on the ground; colour each vertex from its nearest Gaussians in the splat (the mesh itself has no colour); scale to a typical height for the label (bench 0.8 m, wooden crate 1.0 m, rail 1.0 m, bollard 0.95 m, cone 0.7 m), keeping both heights; reduce to at most 6,000 faces.
+  4. **Bake (CPU):** the lift's mesh is upright in its own frame (z up); turn it to y up and don't apply the camera layout (it tilts objects by the camera's pitch); turn it so its widest side faces the side-on camera (smallest horizontal bounding box, longer side along x); centre it and stand it on the ground; reduce to at most 6,000 faces (quadric, retrying until under the cap); take colour from the splat, not the mesh (the degree-0 colour of each Gaussian, 0.5 + 0.282 x dc); scale so the height is the typed height, else a typical one for the label (bench 0.8 m with its back, wall and low wall 0.9, rail and handrail 1.0, ledge and platform 0.5, steps 0.7).
+     - Colour goes into a 1024 x 1024 UV texture (xatlas unwrap, each texel from its 4 nearest Gaussians, gutter filled), stored as an embedded JPEG: vertex colours on about 2,900 vertices smeared a mural.
+     - The GLB is written by our own small writer (positions, normals, UVs, texture); 320 to 565 KB each.
   5. **Fit and place (CPU):** fit a primitive to the extents with its role (platform, vault rail, wall, hazard); space obstacles about 7 m apart on one deck (a running jump flies about 6 m) so a run can be timed; prove the course clearable with the simulator.
 - **Image-build fixes for SAM 3D Objects on Modal:** use `pypi.nvidia.com` (not `pypi.ngc.nvidia.com`, which doesn't resolve from Modal's builders) and drop `nvidia-pyindex`; install `wheel` and `setuptools` before `--no-build-isolation` builds; set `CC=gcc CXX=g++ LDSHARED='g++ -pthread -shared'` (Modal's Python was built with clang); set `CONDA_PREFIX` and `CUDA_HOME` to `/usr/local/cuda`; install nvdiffrast v0.3.3 from its repository (no requirements file lists it); CUDA arch list "8.0;8.6;8.9"; flash-attention 2.8.3 wheel for cu12/torch 2.5/py3.11.
 - **Pitfalls:** one photo's depth gets proportions right and size wrong (a bench at a third of its size); "parallel bars" found nothing where "metal bars" found the rail; thin and stair-like objects come out flat (steps became a slab: leave them out).
 - **Check it worked:** a sheet per photo (photo → privacy → mask → mesh from three sides → primitive); each mesh sits on its primitive at its measured width; under 1.5 MB per mesh; licences travel with each object; a bot runs the course without falling.
-- **Measured:** 10-38 s per object on the L40S once loaded; the image build is a one-time cost.
+- **Measured (CC-38, rebuilt 2026-10-27, `pipelines/photo_to_object.py`):**
+  - 8-10 s for the lift on the L40S and 0.3-2 s for the mask on an L4 once loaded; about 15 s per object end to end; the first object takes 90-100 s because both models load; about 2 cents per object.
+  - The image build ran on CPU builders in three tries (about 25 minutes); the second and third tries only re-ran the last layers.
+  - 9 photos: 7 "yes" or "partly" (bench, level rail, skate box, iron railing, two mural walls); steps and a thin strip fail (`data/eval/cc-38-photo-to-3d/README.md`).
+- **More image-build facts (CC-38):**
+  - Two images, not one: SAM 3 needs torch 2.10 (`cu128`), SAM 3D Objects needs torch 2.5.1 (`cu121`); mask on an L4, lift on an L40S.
+  - Pin `numpy==1.26.4` and `pandas==2.2.3` in the last layer: an unpinned late install pulled numpy 2 and broke kaolin, OpenCV and open3d at import.
+  - Check the image on a CPU-only function that imports every module (`check_lift_imports`) before paying for any GPU.
+  - Build pytorch3d from the pinned commit with `--no-build-isolation` (about 10 minutes); the flash-attn 2.8.3 and kaolin 0.17 wheels install in seconds; gsplat compiles in about 4 minutes.
+  - Call the pipeline's `run` directly (`with_layout_postprocess=False`, no mesh post-processing, no texture baking) instead of the notebook wrapper, which imports gradio and a viewer.
+  - SAM 3 needs `torch.autocast("cuda", dtype=torch.bfloat16)`, or the first matrix multiply fails on mixed dtypes.
+  - Give GPU classes a fallback list (`["L4", "A10G", "L40S"]`, `["L40S", "A100-80GB"]`): one run waited 10 minutes with no container; a killed local run can leave its container alive, so stop the app (`modal app stop --yes <id>`).
+- **Photo tricks that mattered:** a wall that fills the frame was lifted as a table until the photo was pasted onto a 1.5 x canvas (edge pixels repeated); a thin box (a shadow strip) is lifted as a slab and scaled by its typical height to 33 m, so check the box before the lift.
 - **Fallback that must exist:** the photo as a backdrop with editable boxes the player drags onto the objects.
 
 ## 8. Character: generate, rig, check
