@@ -15,7 +15,10 @@ export interface HangParams {
   gravity: number;
 }
 
-export const DEFAULT_HANG: HangParams = { handHeight: 2.1, bodyLength: 1.1, reach: 0.45, catchKeep: 0.7, pump: 1.5, drag: 0.04, gravity: GRAVITY };
+export const DEFAULT_HANG: HangParams = { handHeight: 2.1, bodyLength: 1.1, reach: 0.45, catchKeep: 0.35, pump: 1.5, drag: 0.04, gravity: GRAVITY };
+
+// The arms cannot hold the body higher than this from straight down (a bit past horizontal): the swing stops there and falls back.
+export const MAX_SWING = 1.75; // rad, 100 degrees
 
 export interface Hang {
   hold: number; // index into the course's holds
@@ -56,7 +59,9 @@ export function hangStep(s: Hang, pump: -1 | 0 | 1, p: HangParams = DEFAULT_HANG
   const k2t = s.omega + 0.5 * DT * k1w, k2w = f(s.theta + 0.5 * DT * k1t, k2t);
   const k3t = s.omega + 0.5 * DT * k2w, k3w = f(s.theta + 0.5 * DT * k2t, k3t);
   const k4t = s.omega + DT * k3w, k4w = f(s.theta + DT * k3t, k4t);
-  return { hold: s.hold, theta: s.theta + (DT / 6) * (k1t + 2 * k2t + 2 * k3t + k4t), omega: s.omega + (DT / 6) * (k1w + 2 * k2w + 2 * k3w + k4w) };
+  const theta = s.theta + (DT / 6) * (k1t + 2 * k2t + 2 * k3t + k4t), omega = s.omega + (DT / 6) * (k1w + 2 * k2w + 2 * k3w + k4w);
+  if (Math.abs(theta) > MAX_SWING) return { hold: s.hold, theta: Math.sign(theta) * MAX_SWING, omega: Math.sign(theta) * omega > 0 ? 0 : omega }; // the top of the swing: it stops, then falls back
+  return { hold: s.hold, theta, omega };
 }
 
 // Letting go: the feet are where they were, the body flies on with its own velocity.

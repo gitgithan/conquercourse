@@ -73,6 +73,14 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
   const stone = new THREE.MeshStandardMaterial({ color: 0xb9b2a3 });
   const grass = new THREE.MeshStandardMaterial({ color: 0x7aa95c });
   const bed = new THREE.MeshStandardMaterial({ color: 0xd9453a });
+  // bars hanging in the air (holds): a thin metal bar across the lane with a soft glow so they read from far away
+  for (const h of course.holds ?? []) {
+    const bar = new THREE.Mesh(new THREE.CylinderGeometry(0.045, 0.045, LANE_DEPTH + 0.6, 12), new THREE.MeshStandardMaterial({ color: 0xc9ced4, metalness: 0.7, roughness: 0.3 }));
+    bar.rotation.x = Math.PI / 2; bar.position.set(h.x, h.y, 0);
+    const halo = new THREE.Mesh(new THREE.TorusGeometry(0.28, 0.02, 8, 24), new THREE.MeshBasicMaterial({ color: 0xffd24a, transparent: true, opacity: 0.55 }));
+    halo.position.set(h.x, h.y, LANE_DEPTH / 2 + 0.32);
+    scene.add(bar, halo);
+  }
   // a course from the editor draws its real objects instead of blocks: only the start and finish decks stay as ground
   const realObjects = !!course.scene?.length;
   const lastPlatform = course.terrain.platforms.length - 1;
@@ -201,7 +209,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
   // the controls, always visible top-left as a card of key caps (collapse with H)
   const help = document.createElement('div');
   help.id = 'keys';
-  const KEYS: [string, string][] = [['← →', 'Run (hold)'], ['Space', 'Jump · let go of the rope · press on the trampoline'], ['↓', 'Bend your knees (hold, on big drops)'], ['G', 'Drums: where the ideal run presses Space'], ['B', 'Debug view: see the collision boxes and where a jump goes'], ['Mouse', 'Drag to turn the view, wheel to zoom, double-click to reset']]; // retry, ideal run and Dojo are on the fall panel and the buttons
+  const KEYS: [string, string][] = [['← →', 'Run (hold)'], ['Space', 'Jump · let go of the rope · press on the trampoline'], ['↓', 'Bend your knees (hold, on big drops)'], ...(course !== defaultCourse ? ([['Q / E', 'Hold a bar with the left or right hand (in the air)'], ['← → on a bar', 'Pump the swing: push the way you swing'], ['V', 'Vault over a step with a hand on top (fast, saves energy)']] as [string, string][]) : []), ['G', 'Drums: where the ideal run presses Space'], ['B', 'Debug view: see the collision boxes and where a jump goes'], ['Mouse', 'Drag to turn the view, wheel to zoom, double-click to reset']]; // retry, ideal run and Dojo are on the fall panel and the buttons
   help.style.cssText = 'position:fixed;left:16px;top:48px;width:290px;background:#fffffff0;border:1px solid #cfd6d0;border-radius:12px;padding:8px 10px;font:500 14px system-ui,sans-serif;color:#17201d;box-shadow:0 2px 10px #0002;pointer-events:none;display:grid;gap:5px';
   const paintKeys = (open: boolean) => {
     help.innerHTML = `<div style="font-weight:700;display:flex;justify-content:space-between">Controls <span style="font-weight:400;color:#58635d">H ${open ? 'hides' : 'shows'}</span></div>` + (open ? KEYS.map(([k, d]) => `<div style="display:grid;grid-template-columns:78px 1fr;gap:8px;align-items:center"><kbd style="font:700 13px ui-monospace,monospace;background:#eef1ec;border:1px solid #b9c2bb;border-bottom-width:3px;border-radius:6px;padding:1px 6px;text-align:center">${k}</kbd><span>${d}</span></div>`).join('') : '');
@@ -343,7 +351,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
 
   // input
   const keys = new Set<string>();
-  let jumpQueued = false;
+  let jumpQueued = false, vaultQueued = false;
   type Cam = 'side' | 'angle' | 'first';
   const CAMS: { id: Cam; name: string }[] = [{ id: 'side', name: 'Side view' }, { id: 'angle', name: '45° view' }, { id: 'first', name: 'First person' }];
   let camMode: Cam = 'side';
@@ -353,11 +361,12 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
     return document.getElementById('cc-feedback') !== null || (!!t && (/^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName) || t.isContentEditable));
   };
   addEventListener('keydown', (e) => {
-    if (typing(e)) { keys.clear(); jumpQueued = false; return; }
+    if (typing(e)) { keys.clear(); jumpQueued = false; vaultQueued = false; return; }
     if (paused && !e.repeat) { paused = false; last = performance.now(); }
     if (e.repeat) return;
     keys.add(e.code);
     if (e.code === 'Space') { jumpQueued = true; e.preventDefault(); }
+    if (e.code === 'KeyV') vaultQueued = true;
     if (e.code === 'KeyR') { if (e.shiftKey) { retryX = course.startX; restart(course.startX); } else restart(); }
     if (e.code === 'KeyI') showIdeal(zoneAt(world.runner.x)?.id ?? 'gap');
     if (e.code === 'KeyT') openDojo();
@@ -614,6 +623,8 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
       return 'Trampoline ahead: press Space the moment you land on it for extra height';
     }
     if (w.mode === 'swing') return 'Press Space to let go while you are still rising';
+    if (w.mode === 'hang') return 'Keep holding Q or E. Push ← → the way you swing to build the swing, then let go of both to fly.';
+    if (course.holds?.length && w.mode === 'run' && !r.grounded) { const next = course.holds.find((h) => h.x > r.x - 0.5); if (next && Math.abs(next.x - r.x) < 2.5) return 'Hold Q or E to grab the bar'; }
     if (everCleared || falls > 0) return '';
     if (r.tick < 60 || (r.x < 4 && r.tick < 600)) return 'Hold → to run';
     const g = specs.find((q2) => q2.x + 0.2 >= r.x && q2.x - r.x < 9);
@@ -654,8 +665,8 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
       let input: RunnerInput = NO_INPUT;
       if (plan) input = inputFor(plan, world, botState);
       else {
-        input = { run: keys.has('ArrowRight') || keys.has('KeyD'), left: keys.has('ArrowLeft') || keys.has('KeyA'), jump: jumpQueued, jumpSpeed: 0, squat: keys.has('ArrowDown') || keys.has('KeyS') };
-        jumpQueued = false;
+        input = { run: keys.has('ArrowRight') || keys.has('KeyD'), left: keys.has('ArrowLeft') || keys.has('KeyA'), jump: jumpQueued, jumpSpeed: 0, squat: keys.has('ArrowDown') || keys.has('KeyS'), handL: keys.has('KeyQ'), handR: keys.has('KeyE'), vault: vaultQueued };
+        jumpQueued = false; vaultQueued = false;
       }
       const prev = world.outcome;
       prevMode = world.mode; prevVx = world.runner.vx;

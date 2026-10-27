@@ -156,3 +156,10 @@ The set of obstacle shapes is fixed, and each shape offers a fixed set of moves.
 - **Why it is worth it:** on a course with `jumpKeep` below 1 (a jump loses speed at take-off) a vault gets to the same point sooner; both spend energy (`src/sim/energy.ts`: a vault costs less than half a jump).
 - **Proof:** the ideal-run search now also looks at steps (0.3 to 1.3 m, touching the ground before them), tries a vault and a jump at each press, and keeps the one that gets farthest (a vault wins a tie).
 - **Stock course:** unchanged (`jumpKeep` is 1 there, and its plan is the same as before).
+
+## The lache demo in the game (CC-44)
+- **Open it:** `/?course=/assets/demo/lache.course.json` (a run, a vault over a 1 m box, then two bars over 9 m of water); add `&bot=ideal` to watch the proven line.
+- **Keys on a custom course:** Q or E in the air grabs a bar, the arrows pump the swing, letting go of both flies on, V vaults; the controls card lists them.
+- **Drums:** the lane shows vault, grab (Q / E) and release presses.
+- **Why the search got bigger:** tuning one bar at a time missed lines that clear (the swing and the next catch depend on each other), so a joint search over the take-off and the first two hang times is used; it also guards against states that go to NaN.
+- **Limits of the swing:** the arms keep 35 % of the speed on a catch, and the swing stops 100° from straight down (no flips).
