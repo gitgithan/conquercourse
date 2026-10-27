@@ -41,3 +41,7 @@
   - It only showed during the bounce itself; now it appears about 14 m before the trampoline and stays up to 4 seconds (measured 3.95 s of game time before the bounce with the ideal bot).
   - It switches to "Press Space now" when the bounce starts.
 - R5-G5b: after a full restart the trampoline cue showed again; the cue now starts over whenever the runner is far from the bed or the attempt is over (checked: no cue after Shift+R).
+- R5-G6: an obstacle strip under the speed meter.
+  - One icon per obstacle of the course in play (gap, precision block, wall, rope, trampoline); cleared ones are dimmed and grey.
+  - The ones still ahead glow gold in a wave that runs along the strip; the next one is bigger and shows its name.
+  - An obstacle counts as cleared once the runner is past the end of its zone; it follows the course, so a redesigned course gets its own icons.
