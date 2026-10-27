@@ -1,4 +1,5 @@
-// Holds → on the Course: the runner falls in the first gap. Checks the fall panel, the replay and a clean retry.
+// Holds → on the Course: the runner falls in the first gap. Checks the fall panel, the slow replay with numbers and guide lines,
+// the ideal run, and the restart from this obstacle (not from the start).
 import { chromium } from 'playwright';
 import { spawn } from 'node:child_process';
 import { mkdirSync } from 'node:fs';
@@ -15,22 +16,31 @@ try {
   await page.goto(`http://localhost:${port}/`);
   await page.waitForSelector('html[data-ready=true]', { timeout: 120000 });
   mkdirSync('test-results/course-fall', { recursive: true });
-  await page.screenshot({ path: 'test-results/course-fall/0-start-hint.png' });
+  const checks = {};
+  // run, and jump too early at the first gap (too slow to clear it): hold right, press Space soon after the start
   await page.keyboard.down('ArrowRight');
+  await page.waitForFunction(() => Number(document.documentElement.dataset.tick) > 100, null, { timeout: 60000 });
+  await page.keyboard.press('Space');
   await page.waitForFunction(() => document.documentElement.dataset.outcome === 'splash', null, { timeout: 200000 });
   await page.keyboard.up('ArrowRight');
-  await page.waitForTimeout(500);
+  await page.waitForTimeout(400);
   await page.screenshot({ path: 'test-results/course-fall/1-fall-panel.png' });
-  const text = await page.textContent('body');
-  console.log('panel says fell:', text.includes('You fell in the water'), '| train offered:', text.includes('Train the'));
-  await page.click('text=Watch what happened');
+  const body = async () => await page.textContent('body');
+  checks.panelHasRetryHere = (await body()).includes('Try this gap again');
+  await page.click('text=Watch what happened, with the numbers');
   await page.waitForTimeout(1500);
-  await page.screenshot({ path: 'test-results/course-fall/2-replay.png' });
+  await page.screenshot({ path: 'test-results/course-fall/2-replay-numbers.png' });
+  checks.replayHasNumbers = (await body()).includes('Speed when you jumped');
   await page.keyboard.press('Escape');
+  await page.click('text=Show me the ideal run');
+  await page.waitForFunction(() => document.documentElement.dataset.mode !== undefined, null, { timeout: 60000 });
+  await page.waitForTimeout(2500);
+  await page.screenshot({ path: 'test-results/course-fall/3-ideal.png' });
+  checks.idealBanner = (await body()).includes('Ideal run');
   await page.keyboard.press('KeyR');
   await page.waitForTimeout(500);
-  const outcome = await page.evaluate(() => document.documentElement.dataset.outcome);
-  console.log('after retry outcome:', outcome, 'errors:', errors);
+  checks.restartRunning = (await page.evaluate(() => document.documentElement.dataset.outcome)) === 'running';
+  console.log(checks, 'errors:', errors);
   await browser.close();
-  process.exit(outcome === 'running' && !errors.length ? 0 : 1);
+  process.exit(Object.values(checks).every(Boolean) && !errors.length ? 0 : 1);
 } finally { server.kill(); }

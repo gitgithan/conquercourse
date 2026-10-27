@@ -4,18 +4,20 @@ import { DT, GRAVITY } from './units';
 export interface TrampolineParams {
   stiffness: number; // 1/s², spring constant per unit mass
   damping: number; // 1/s, damping per unit mass
-  pump: number; // m/s added by a well-timed press
-  pumpWindow: number; // s either side of the deepest point in which a press counts
+  pump: number; // m/s added by a perfectly timed press
+  pumpWindow: number; // s either side of the deepest point with the full push
+  pumpFade: number; // s over which the push fades to nothing beyond that window
   gravity: number;
 }
 
-export const DEFAULT_TRAMPOLINE: TrampolineParams = { stiffness: 400, damping: 2, pump: 1.5, pumpWindow: 0.04, gravity: GRAVITY };
+export const DEFAULT_TRAMPOLINE: TrampolineParams = { stiffness: 400, damping: 2, pump: 2, pumpWindow: 0.05, pumpFade: 0.11, gravity: GRAVITY };
 
 export interface Bounce {
   vyOut: number; // m/s upward when the feet leave the bed
   maxCompression: number; // m
   ticksOnBed: number;
   pumped: boolean;
+  gain: number; // m/s the press added (0 if none)
   path: number[]; // feet height relative to the rest surface, per tick
 }
 
@@ -48,6 +50,9 @@ export function bounce(vyIn: number, p: TrampolineParams = DEFAULT_TRAMPOLINE, p
       break;
     }
   }
-  const near = pressAtTick !== null && Math.abs(pressAtTick - deepestTick) * DT <= p.pumpWindow;
-  return { vyOut: v + (near ? p.pump : 0), maxCompression: -deepest, ticksOnBed: tick, pumped: near, path };
+  // The push is full close to the deepest point and fades to nothing further away: any press while on the bed helps a little.
+  const off = pressAtTick === null ? Infinity : Math.abs(pressAtTick - deepestTick) * DT;
+  const share = off <= p.pumpWindow ? 1 : Math.max(0, 1 - (off - p.pumpWindow) / p.pumpFade);
+  const gain = p.pump * share;
+  return { vyOut: v + gain, maxCompression: -deepest, ticksOnBed: tick, pumped: gain > 0, gain, path };
 }

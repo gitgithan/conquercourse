@@ -81,3 +81,12 @@ describe('stored ideal run (npm run ideal)', () => {
     for (const w of ideal.windows) expect(w.widthMs).toBeGreaterThan(0);
   });
 });
+
+describe('every obstacle can be started from standing still just before it (R3-G3)', () => {
+  for (const cp of (C.checkpoints ?? [])) {
+    it(`from the ${cp.id} checkpoint the rest of the course can be cleared`, () => {
+      const found = searchIdealRun({ ...C, startX: cp.x });
+      expect(found.cleared).toBe(true);
+    });
+  }
+});

@@ -44,3 +44,24 @@ export function minSpeedForWall(p: Partial<WallParams> = {}): number {
   for (let i = 0; i < 40; i++) { const mid = (lo + hi) / 2; if (runWall(mid, wp).grabbed) hi = mid; else lo = mid; }
   return hi;
 }
+
+// What a jump does from a given place and speed: the flight path and where it ends. Used by the Course's replay
+// to draw the player's flight and the flight that would have worked.
+export interface Flight { pts: { x: number; y: number }[]; landed: boolean; x: number }
+export function flightPath(t: Terrain, x: number, y: number, vx: number, jumpSpeed: number): Flight {
+  let s = { ...startState(x), y, vx };
+  s = step(s, { ...NO_INPUT, jump: true, jumpSpeed }, DEFAULT_PARAMS, t);
+  const pts = [{ x: s.x, y: s.y }];
+  for (let i = 0; i < 120 * 20 && !s.grounded && !s.splashed; i++) { s = step(s, NO_INPUT, DEFAULT_PARAMS, t); pts.push({ x: s.x, y: s.y }); }
+  return { pts, landed: s.grounded && !s.splashed, x: s.x };
+}
+
+// The stretch before an edge where pressing jump at this speed still clears the gap (null: no press does).
+export function pressBand(t: Terrain, edgeX: number, edgeY: number, width: number, speed: number, jumpSpeed: number): { lo: number; hi: number } | null {
+  let lo = Infinity, hi = -Infinity;
+  for (let p = edgeX - 6; p <= edgeX + 1e-9; p += 0.05) {
+    const f = flightPath(t, p, edgeY, speed, jumpSpeed);
+    if (f.landed && f.x >= edgeX + width) { lo = Math.min(lo, p); hi = Math.max(hi, p); }
+  }
+  return hi < lo ? null : { lo, hi };
+}

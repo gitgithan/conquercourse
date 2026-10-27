@@ -25,13 +25,15 @@ export interface WorldState {
   swing: Swing | null;
   bed: { base: Bounce; vIn: number; start: number; press: number | null; vx: number; top: number } | null;
   noCatchUntil: number;
+  lastPress: number; // tick of the last Space press, so a press just before landing counts
   events: GameEvent[];
 }
 
-export function newWorld(course: CourseData): WorldState {
-  const r = startState(course.startX);
-  r.y = groundAt(course.terrain, course.startX);
-  return { runner: r, mode: 'run', outcome: 'running', wall: null, swing: null, bed: null, noCatchUntil: 0, events: [] };
+// A start standing still on the ground at x: the whole course, or the start of one obstacle (a checkpoint).
+export function newWorld(course: CourseData, x: number = course.startX): WorldState {
+  const r = startState(x);
+  r.y = groundAt(course.terrain, x);
+  return { runner: r, mode: 'run', outcome: 'running', wall: null, swing: null, bed: null, noCatchUntil: 0, lastPress: -1000, events: [] };
 }
 
 const wallParams = (c: CourseData): WallParams => ({ ...DEFAULT_WALL, ...(c.wall ?? {}) });
@@ -43,7 +45,7 @@ export function stepWorld(w: WorldState, input: RunnerInput, course: CourseData,
   const events: GameEvent[] = [];
   const tick = w.runner.tick + 1;
   const ev = (type: GameEvent['type'], detail?: GameEvent['detail']) => events.push({ tick, type, detail });
-  let n: WorldState = { ...w };
+  let n: WorldState = { ...w, lastPress: input.jump ? w.runner.tick + 1 : w.lastPress };
 
   if (w.mode === 'wall') return stepWall(w, course);
   if (w.mode === 'swing') return stepSwing(w, input, course);
@@ -60,7 +62,8 @@ export function stepWorld(w: WorldState, input: RunnerInput, course: CourseData,
     if (plat?.bouncy) {
       const base = bounce(r.landing.impactSpeed, DEFAULT_TRAMPOLINE);
       n.mode = 'bounce';
-      n.bed = { base, vIn: r.landing.impactSpeed, start: r.tick, press: null, vx: r.vx, top: r.y };
+      const early = r.tick - w.lastPress <= 8; // a press just before landing counts as a press at the start of the bounce
+      n.bed = { base, vIn: r.landing.impactSpeed, start: r.tick, press: early ? 0 : null, vx: r.vx, top: r.y };
       ev('bounce', { vIn: r.landing.impactSpeed });
     }
   }
@@ -152,7 +155,7 @@ function stepBounce(w: WorldState, input: RunnerInput): WorldState {
   const x = w.runner.x + bed.vx * DT;
   if (k >= bed.base.ticksOnBed) {
     const out = bounce(bed.vIn, DEFAULT_TRAMPOLINE, press);
-    const events: GameEvent[] = [{ tick, type: 'bounce', detail: { vyOut: out.vyOut, pumped: out.pumped } }];
+    const events: GameEvent[] = [{ tick, type: 'bounce', detail: { vyOut: out.vyOut, pumped: out.pumped, gain: out.gain } }];
     return { ...w, mode: 'run', bed: null, events, runner: { ...w.runner, tick, x, y: bed.top, vx: bed.vx, vy: out.vyOut, grounded: false } };
   }
   return { ...w, bed: { ...bed, press }, events: [], runner: { ...w.runner, tick, x, y: bed.top + bed.base.path[k], vy: 0 } };
