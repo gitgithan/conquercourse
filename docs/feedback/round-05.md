@@ -53,3 +53,8 @@
   - Drag turns the view (up to 80 degrees either way, never under the ground), the wheel zooms, a double-click or C goes back to the preset.
   - In first person, drag turns your head.
   - The three presets stay; the mouse only changes the view on top of them.
+- R5-G10: the Rookie sank into the wall and the deck.
+  - Cause 1: on the steep top of the curve the body leaned forward, into the wall; the deepest sink-in over a whole run was 0.51 m.
+  - Cause 2: during the climb over the edge the simulator's feet are in the corner of the deck block.
+  - Fix: the body now tilts back toward the curve's centre where the curve is steep, every body point is pushed out of platforms and the curve (`src/course/collide.ts`), and the whole body is moved out of a corner, eased so it does not jump.
+  - Measured with the ideal bot (`scripts/overlap-check.mjs`): the deepest overlap is 0.135 m including an 0.08 m skin margin, so about 5 cm of real sink-in, at a toe; it was 0.51 m.
