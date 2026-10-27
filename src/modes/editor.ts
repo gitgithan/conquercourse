@@ -88,6 +88,15 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
       if (pendingObjects.length) { pendingObjects.length = 0; changed(); }
     } catch { /* no objects on this site */ }
   })();
+  // size references: a Rookie (1.75 m, T-pose) and the demo scene, so a piece can be judged against a person
+  el('strong', addBar, { text: 'Size references:' });
+  for (const r of [{ id: 'rookie-a', label: 'Person (1.75 m)', url: '/assets/characters/rookie-a.glb', src: 'obj:../characters/rookie-a.glb' }, { id: 'demo-scene', label: 'Demo scene', url: '/assets/demo/demo-scene.glb', src: 'obj:../demo/demo-scene.glb' }]) {
+    const b = el('button', addBar, { text: r.label });
+    b.dataset.object = r.id;
+    b.onclick = async () => {
+      try { const p: P = { ...newPiece(r.id, readGlbMesh(await (await fetch(r.url)).arrayBuffer()), freeSpot('bench')), src: r.src }; p.x = freeSpot('bench').x + size(p.mesh).w / 2; pieces.push(p); selected = p.id; changed(); } catch { verdict = 'That reference could not be loaded.'; draw(); }
+    };
+  }
   const file = el('input', addBar, { type: 'file', accept: '.glb' });
   file.hidden = true;
   el('button', addBar, { text: 'Import a .glb…', id: 'import' }).onclick = () => file.click();
@@ -285,7 +294,7 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
     if (e.code === 'KeyD') { const q = duplicate(p, size(p.mesh).w * p.scale + 0.5, 0) as P; q.src = p.src; pieces.push(q); selected = q.id; changed(); }
   });
 
-  function changed() { save(); drawPanel(); drawLanePanel(); draw(); drawProfile(); verify(); }
+  function changed() { document.documentElement.dataset.pieces = String(pieces.length); save(); drawPanel(); drawLanePanel(); draw(); drawProfile(); verify(); }
   drawPanel(); drawLanePanel(); draw(); drawProfile(); verify();
   document.documentElement.dataset.pieces = String(pieces.length);
   return { backend: 'webgl2' };

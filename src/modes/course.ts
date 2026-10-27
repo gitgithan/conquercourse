@@ -16,6 +16,8 @@ import { createRookieActor } from '../render/actor';
 import { makeObstacle } from '../course/collide';
 import { actorStateFor } from '../motion/actor-state';
 import { groundAt } from '../sim/terrain';
+import { drumsFor } from '../sim/drums';
+import { createDrumLane } from '../ui/drum-lane';
 
 // The Course: the five obstacles in a row. The simulator decides everything; this file only draws it
 // and turns keys into inputs. Time comes from the simulator's tick count, never from the browser's clock.
@@ -168,7 +170,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
   // the controls, always visible top-left as a card of key caps (collapse with H)
   const help = document.createElement('div');
   help.id = 'keys';
-  const KEYS: [string, string][] = [['← →', 'Run (hold)'], ['Space', 'Jump · let go of the rope · press on the trampoline'], ['↓', 'Bend your knees (hold, on big drops)'], ['Mouse', 'Drag to turn the view, wheel to zoom, double-click to reset']]; // retry, ideal run and Dojo are on the fall panel and the buttons
+  const KEYS: [string, string][] = [['← →', 'Run (hold)'], ['Space', 'Jump · let go of the rope · press on the trampoline'], ['↓', 'Bend your knees (hold, on big drops)'], ['D', 'Drums: where the ideal run presses Space'], ['Mouse', 'Drag to turn the view, wheel to zoom, double-click to reset']]; // retry, ideal run and Dojo are on the fall panel and the buttons
   help.style.cssText = 'position:fixed;left:16px;top:48px;width:290px;background:#fffffff0;border:1px solid #cfd6d0;border-radius:12px;padding:8px 10px;font:500 14px system-ui,sans-serif;color:#17201d;box-shadow:0 2px 10px #0002;pointer-events:none;display:grid;gap:5px';
   const paintKeys = (open: boolean) => {
     help.innerHTML = `<div style="font-weight:700;display:flex;justify-content:space-between">Controls <span style="font-weight:400;color:#58635d">H ${open ? 'hides' : 'shows'}</span></div>` + (open ? KEYS.map(([k, d]) => `<div style="display:grid;grid-template-columns:78px 1fr;gap:8px;align-items:center"><kbd style="font:700 13px ui-monospace,monospace;background:#eef1ec;border:1px solid #b9c2bb;border-bottom-width:3px;border-radius:6px;padding:1px 6px;text-align:center">${k}</kbd><span>${d}</span></div>`).join('') : '');
@@ -177,7 +179,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
   const panel = document.createElement('div');
   panel.style.cssText = 'position:fixed;left:50%;top:26%;transform:translateX(-50%);width:min(520px,92vw);background:#fffffff2;border:1px solid #cfd6d0;border-radius:12px;padding:16px;font:16px/1.4 system-ui,sans-serif;color:#17201d;display:none;gap:10px;box-shadow:0 8px 30px #0003';
   const hint = document.createElement('div');
-  hint.style.cssText = 'position:fixed;left:50%;bottom:48px;transform:translateX(-50%);font:600 20px system-ui,sans-serif;color:#10141c;background:#fffc;border-radius:10px;padding:8px 16px;pointer-events:none';
+  hint.style.cssText = 'position:fixed;left:50%;bottom:124px;transform:translateX(-50%);font:600 20px system-ui,sans-serif;color:#10141c;background:#fffc;border-radius:10px;padding:8px 16px;pointer-events:none';
   const gauge = document.createElement('div');
   gauge.style.cssText = 'position:fixed;left:50%;top:10px;transform:translateX(-50%);width:min(420px,60vw);font:600 15px system-ui,sans-serif;color:#10141c;text-shadow:0 1px 0 #fff8;pointer-events:none;text-align:center';
   gauge.innerHTML = '<div id="gtext">Speed</div><div style="position:relative;height:14px;background:#10141c33;border-radius:7px;margin-top:3px"><div id="gfill" style="height:100%;width:0;background:#0f6b5c;border-radius:7px"></div><div id="gneed" style="position:absolute;top:-4px;width:3px;height:22px;background:#c4572a;display:none"></div></div><div id="gnext" style="margin-top:4px;font-weight:500"></div>';
@@ -270,6 +272,9 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
   comm.style.cssText = 'position:fixed;right:16px;top:124px;font:600 13px system-ui,sans-serif;border:1px solid #17201d;background:#fff;color:#17201d;border-radius:8px;padding:4px 10px;text-decoration:none';
   document.body.append(comm);
   document.body.append(sstyle, strip);
+  // the drum lane (taiko style): on by default for a course someone built (editor or shared), off for the stock course until D is pressed
+  const drumLane = createDrumLane(document.body, course !== defaultCourse || params.get('drums') === '1');
+  setTimeout(() => { try { drumLane.set(drumsFor(course)); } catch { /* no drums if the search fails */ } }, 0);
   document.body.append(hud, msg, help, panel, hint, gauge, dojoBtn, idealBtn, pick, camBtn);
   const toast = document.createElement('div');
   toast.style.cssText = 'position:fixed;left:50%;top:44%;transform:translateX(-50%);font:700 22px system-ui,sans-serif;color:#10141c;background:#fffffff0;border-radius:10px;padding:6px 14px;pointer-events:none;display:none';
@@ -315,6 +320,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
     if (e.code === 'KeyT') openDojo();
     if (e.code === 'Escape' && replay) { replay = null; clearGuides(); showAgain(); }
     if (e.code === 'KeyC') nextCam();
+    if (e.code === 'KeyD') drumLane.toggle();
     if (e.code === 'KeyH') { keysTouched = true; keysOpen = !keysOpen; paintKeys(keysOpen); }
   });
   addEventListener('keyup', (e) => keys.delete(e.code));
@@ -640,6 +646,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
     if (actor) actor.update({ ...actorStateFor(world, keys.has('ArrowDown') || keys.has('KeyS'), facing), x: r.x, y: r.y, ledge, next: world.mode === 'run' ? nextObstacle(r.x) : undefined });
     if (world.runner.tick > toastUntil) toast.style.display = 'none';
     paintStrip(r.x);
+    drumLane.update(r.x);
     if (params.get('check') === '1' && actor && ledge && world.mode === 'wall') {
       // how close the nearest hand gets to the wall's top edge while the climb is on
       const j = actor.joints();
