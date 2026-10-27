@@ -40,3 +40,4 @@
 - R5-G5: the trampoline message flashed too fast to read.
   - It only showed during the bounce itself; now it appears about 14 m before the trampoline and stays up to 4 seconds (measured 3.95 s of game time before the bounce with the ideal bot).
   - It switches to "Press Space now" when the bounce starts.
+- R5-G5b: after a full restart the trampoline cue showed again; the cue now starts over whenever the runner is far from the bed or the attempt is over (checked: no cue after Shift+R).

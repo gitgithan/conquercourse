@@ -434,8 +434,8 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
     if (w.mode === 'bounce') { cueDone = true; return 'Press Space now for extra height!'; }
     // the trampoline cue comes early and stays for 4 seconds (or until you land on the bed), so it can be read before the bounce
     const bed = course.terrain.platforms.find((q2) => q2.bouncy && r.x < q2.x1);
-    if (cueSince !== null && r.tick < cueSince) { cueSince = null; cueDone = false; } // restarted
-    if (bed && !cueDone && w.mode === 'run' && (bed.x0 - r.x < 14 || (cueSince !== null && r.tick - cueSince < 480))) {
+    if (!bed || bed.x0 - r.x > 14 || w.outcome !== 'running') { cueSince = null; cueDone = false; } // far from the bed, or restarted: the cue starts over
+    if (bed && !cueDone && w.mode === 'run' && w.outcome === 'running' && (bed.x0 - r.x < 14 || (cueSince !== null && r.tick - cueSince < 480))) {
       cueSince ??= r.tick;
       return r.grounded && r.x < bed.x0 - 2 ? 'Trampoline ahead: press Space the moment you land on it for extra height' : 'Land on the trampoline, then press Space while it squashes';
     }
