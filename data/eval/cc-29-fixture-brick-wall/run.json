@@ -19,7 +19,7 @@
   "cost": {
     "meta_usd": 0.022,
     "gpu_container_seconds": 0,
-    "modal_usd": 0.0,
+    "modal_usd": 0,
     "sam31_images": 30,
     "sam31_usd": 0.075,
     "sam31_seconds": 29.4
@@ -38,7 +38,7 @@
   "estimate": {
     "frames": 300,
     "gpu_container_seconds": 1200,
-    "gpu_minutes": 20.0,
+    "gpu_minutes": 20,
     "sam31_images": 30,
     "usd": {
       "modal_l4": 0.266,

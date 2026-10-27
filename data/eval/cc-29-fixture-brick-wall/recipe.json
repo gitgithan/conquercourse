@@ -31,7 +31,7 @@
     ],
     "sizes": {
       "height": 1.242,
-      "width": 2.0,
+      "width": 2,
       "thickness": 0.3
     },
     "height_m": 1.242,
@@ -54,7 +54,7 @@
         16
       ],
       "t": [
-        0.0,
+        0,
         0.5
       ],
       "measured": true
@@ -66,7 +66,7 @@
         6
       ],
       "t": [
-        0.0,
+        0,
         0.167
       ],
       "measured": true
@@ -138,7 +138,7 @@
       "on": "wall",
       "height_m": 0.42,
       "height_frac": 0.338,
-      "metres_past_first_plant": 0.0,
+      "metres_past_first_plant": 0,
       "brief_plant": false,
       "measured": true
     },
@@ -657,7 +657,7 @@
     "duration_s": 9.977,
     "peak_hip_speed_mps": 2.24,
     "speed_at_plant_mps": 0.14,
-    "plant_to_grip_s": 0.0,
+    "plant_to_grip_s": 0,
     "held_by_hands_s": 9.977,
     "longest_flight_s": 1.235
   },

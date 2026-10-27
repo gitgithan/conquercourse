@@ -72,7 +72,8 @@
 - **Pitfalls:** CMU's credit line must travel with every clip; the published library on Kimodo's skeleton was regenerated from raw files each time, never hand-edited.
 - **Check it worked:** a contact sheet of the library; every clip passes the gate test.
 - **Measured:** 16 moves covered; CPU only, seconds per trial.
-- **Rebuilt in this repo (CC-17):** `pipelines/ccpipe/cmu.py`; thin the AMC frames to every 4th *before* the forward kinematics (about 4x faster); hand tips ride the wrist bone (finger curl changed a bone's length by 58 %); real CMU flights fitted 10.0 and 10.6 m/s² unrepaired. Results: `data/eval/starter-clips/README.md`.
+- **Rebuilt in this repo (CC-17):** `pipelines/ccpipe/cmu.py`; thin the AMC frames to every 4th *before* the forward kinematics (about 4x faster); hand tips ride the wrist bone (finger curl changed a bone's length by 58 %); real CMU flights fitted 10.0 and 10.6 m/s² unrepaired.
+  - Results: `data/eval/starter-clips/README.md`.
 
 ## 3. Kimodo on the simulator's path
 - **Purpose:** a smooth, human-looking body that follows the simulator's exact centre-of-mass path, for moves and outcomes mocap doesn't cover; the blind test preferred it to mocap leaps 3 times out of 3.

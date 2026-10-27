@@ -54,7 +54,8 @@
 - **Kimodo grab from text:** 0 of 12 show a hand grip with feet off the floor (Kimodo's training labels hold 0 hangs, `docs/research/motion-data.md`).
 
 ## What changed in the gate while building (each came from a real clip)
-- **New hard rule `held_clips_are_held`:** a clip marked `supportedBy` skips the free-flight law, but no stretch longer than 0.6 s may have the feet off the floor with no still hand or foot. Without it, a Kimodo "wall run" that floated 3 m up with nothing touching it passed.
+- **New hard rule `held_clips_are_held`:** a clip marked `supportedBy` skips the free-flight law, but no stretch longer than 0.6 s may have the feet off the floor with no still hand or foot.
+  - Without it, a Kimodo "wall run" that floated 3 m up with nothing touching it passed.
 - **Planted-foot slide:** counted only for a foot near the floor and slower than 1 m/s (a swinging foot skimming the floor read as 50 cm of slide).
 - **Mitten hands:** CMU's finger curl changed the wrist-to-fingertip distance by up to 58 %, so thumb and middle-finger tips ride the wrist bone's turn.
 
