@@ -1,0 +1,14 @@
+{
+  "experiment": "cc-45-sa3dao",
+  "date": "2026-10-27",
+  "inputs": {
+    "dataset_page": "https://ai.meta.com/datasets/sa-3dao-sam-3d-artist-objects/",
+    "downloads_page": "https://ai.meta.com/datasets/sa-3dao-sam-3d-artist-objects-downloads/",
+    "licence": "CC BY-NC 4.0"
+  },
+  "outcome": "stopped_at_licence",
+  "reason": "no anonymous download link found; non-commercial licence",
+  "downloaded": false,
+  "structures_baked": 0,
+  "lanes_cleared": null
+}
