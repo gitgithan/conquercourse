@@ -5,7 +5,7 @@
 interface Stmt { bind(...v: unknown[]): { run(): Promise<unknown>; first<T>(): Promise<T | null>; all<T>(): Promise<{ results: T[] }> } }
 interface Env { DB: { prepare(sql: string): Stmt } }
 
-export const PHRASES = ['bench', 'wall', 'low wall', 'steps', 'rail', 'ledge', 'platform', 'person']; // kept equal to src/park/fit.ts (a test checks)
+export const PHRASES = ['bench', 'wall', 'low wall', 'steps', 'rail', 'ledge', 'platform', 'mound', 'person']; // kept equal to src/park/fit.ts (a test checks)
 export const MAX_IMAGE_CHARS = 460_000; // about 340 KB of jpeg
 const MAX_BODY = MAX_IMAGE_CHARS + 6000;
 

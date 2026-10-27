@@ -71,8 +71,20 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
   for (const p of course.terrain.platforms) {
     const bottom = course.terrain.waterY - 2;
     const h = p.top - bottom;
-    const m = new THREE.Mesh(new THREE.BoxGeometry(p.x1 - p.x0, h, LANE_DEPTH), p.bouncy ? bed : p.top === 0 ? grass : stone);
-    m.position.set((p.x0 + p.x1) / 2, bottom + h / 2, 0);
+    let geo: THREE.BufferGeometry = new THREE.BoxGeometry(p.x1 - p.x0, h, LANE_DEPTH);
+    let at: [number, number, number] = [(p.x0 + p.x1) / 2, bottom + h / 2, 0];
+    if (p.profile) {
+      // a curved top: the side view's outline, pushed out across the lane
+      const shape = new THREE.Shape();
+      shape.moveTo(p.x0, bottom);
+      for (const [px, py] of p.profile) shape.lineTo(px, py);
+      shape.lineTo(p.x1, bottom);
+      shape.closePath();
+      geo = new THREE.ExtrudeGeometry(shape, { depth: LANE_DEPTH, bevelEnabled: false });
+      at = [0, 0, -LANE_DEPTH / 2];
+    }
+    const m = new THREE.Mesh(geo, p.bouncy ? bed : p.top === 0 ? grass : stone);
+    m.position.set(...at);
     scene.add(m);
     if (p.skin) paintSkin(p);
   }
