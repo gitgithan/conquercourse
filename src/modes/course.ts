@@ -117,7 +117,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
   // the controls, always visible top-left as a card of key caps (collapse with H)
   const help = document.createElement('div');
   help.id = 'keys';
-  const KEYS: [string, string][] = [['← →', 'Run (hold)'], ['Space', 'Jump · let go of the rope · press on the trampoline'], ['↓', 'Bend your knees (hold, on big drops)']]; // retry, ideal run and Dojo are on the fall panel and the buttons
+  const KEYS: [string, string][] = [['← →', 'Run (hold)'], ['Space', 'Jump · let go of the rope · press on the trampoline'], ['↓', 'Bend your knees (hold, on big drops)'], ['Mouse', 'Drag to turn the view, wheel to zoom, double-click to reset']]; // retry, ideal run and Dojo are on the fall panel and the buttons
   help.style.cssText = 'position:fixed;left:16px;top:48px;width:290px;background:#fffffff0;border:1px solid #cfd6d0;border-radius:12px;padding:8px 10px;font:500 14px system-ui,sans-serif;color:#17201d;box-shadow:0 2px 10px #0002;pointer-events:none;display:grid;gap:5px';
   const paintKeys = (open: boolean) => {
     help.innerHTML = `<div style="font-weight:700;display:flex;justify-content:space-between">Controls <span style="font-weight:400;color:#58635d">H ${open ? 'hides' : 'shows'}</span></div>` + (open ? KEYS.map(([k, d]) => `<div style="display:grid;grid-template-columns:78px 1fr;gap:8px;align-items:center"><kbd style="font:700 13px ui-monospace,monospace;background:#eef1ec;border:1px solid #b9c2bb;border-bottom-width:3px;border-radius:6px;padding:1px 6px;text-align:center">${k}</kbd><span>${d}</span></div>`).join('') : '');
@@ -171,7 +171,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
   let camTurn = 0;
   const nextCam = () => {
     const next = CAMS[(CAMS.findIndex((c2) => c2.id === camMode) + 1) % CAMS.length];
-    camMode = next.id; camTurn += 120;
+    camMode = next.id; camTurn += 120; resetOrbit();
     (camBtn.querySelector('#ring') as SVGElement).style.transform = `rotate(${camTurn}deg)`;
     camBtn.title = `Camera: ${next.name}`;
     toast.textContent = `Camera: ${next.name}`; toast.style.display = 'block'; toastUntil = world.runner.tick + 100;
@@ -487,6 +487,27 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
   let last = performance.now();
   let acc = 0;
   const camPos = new THREE.Vector3();
+  // Mouse: drag turns the view around the runner, the wheel zooms, a double-click (or C) goes back to the preset.
+  // The numbers are changes on top of the preset view, so zero means the preset exactly.
+  const orbit = { yaw: 0, pitch: 0, zoom: 1 };
+  const resetOrbit = () => { orbit.yaw = 0; orbit.pitch = 0; orbit.zoom = 1; };
+  const clamp = (v: number, lo: number, hi: number) => Math.min(hi, Math.max(lo, v));
+  const dom = renderer.domElement;
+  let dragging: { x: number; y: number } | null = null;
+  dom.addEventListener('pointerdown', (e) => { if (e.button === 0) { dragging = { x: e.clientX, y: e.clientY }; dom.setPointerCapture(e.pointerId); dom.style.cursor = 'grabbing'; } });
+  dom.addEventListener('pointermove', (e) => {
+    if (!dragging) return;
+    const dx = e.clientX - dragging.x, dy = e.clientY - dragging.y;
+    dragging = { x: e.clientX, y: e.clientY };
+    if (camMode === 'first') { orbit.yaw = clamp(orbit.yaw + dx * 0.006, -1.4, 1.4); orbit.pitch = clamp(orbit.pitch - dy * 0.004, -0.6, 0.6); }
+    else { orbit.yaw = clamp(orbit.yaw - dx * 0.006, -1.4, 1.4); orbit.pitch = clamp(orbit.pitch + dy * 0.004, -0.5, 1.0); }
+  });
+  const stopDrag = () => { dragging = null; dom.style.cursor = 'grab'; };
+  dom.addEventListener('pointerup', stopDrag); dom.addEventListener('pointercancel', stopDrag);
+  dom.addEventListener('wheel', (e) => { e.preventDefault(); if (camMode !== 'first') orbit.zoom = clamp(orbit.zoom * Math.exp(e.deltaY * 0.001), 0.45, 1.7); }, { passive: false });
+  dom.addEventListener('dblclick', resetOrbit);
+  dom.addEventListener('contextmenu', (e) => e.preventDefault());
+  dom.style.cursor = 'grab';
   function frame(now: number) {
     acc = Math.min(acc + (now - last) / 1000, 0.25);
     last = now;
@@ -562,14 +583,19 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
     body.visible = !actor && camMode !== 'first';
     if (camMode === 'first') {
       camera.position.set(r.x + 0.15 * facing, r.y + 1.62, 0.1);
-      camera.lookAt(r.x + 10 * facing, r.y + 1.2, 0);
+      const ch = Math.cos(orbit.pitch); // drag turns your head
+      camera.lookAt(r.x + 0.15 * facing + 10 * facing * Math.cos(orbit.yaw) * ch, r.y + 1.62 - 0.42 + 10 * Math.sin(orbit.pitch), 0.1 + 10 * facing * Math.sin(orbit.yaw) * ch);
       camPos.copy(camera.position);
     } else {
-      const tx = r.x + 5, ty = r.y + 2.5;
-      const want = camMode === 'side' ? new THREE.Vector3(tx, ty + 1.5, 25) : new THREE.Vector3(r.x - 8, r.y + 4.5, 11);
+      // the preset is a target point and an offset from it; the mouse turns and scales the offset around the target
+      const tx = camMode === 'side' ? r.x + 5 : r.x + 4, ty = camMode === 'side' ? r.y + 2.5 : r.y + 1.5;
+      const off = camMode === 'side' ? new THREE.Vector3(0, 1.5, 25) : new THREE.Vector3(-12, 3, 11);
+      const len = off.length() * orbit.zoom;
+      const yaw = Math.atan2(off.x, off.z) + orbit.yaw, pitch = clamp(Math.asin(off.y / off.length()) + orbit.pitch, 0.03, 1.35);
+      const want = new THREE.Vector3(tx + len * Math.cos(pitch) * Math.sin(yaw), Math.max(0.5, ty + len * Math.sin(pitch)), len * Math.cos(pitch) * Math.cos(yaw));
       camPos.lerp(want, 0.12);
       camera.position.copy(camPos);
-      camera.lookAt(camMode === 'side' ? tx : r.x + 4, camMode === 'side' ? ty : r.y + 1.5, 0);
+      camera.lookAt(tx, ty, 0);
     }
     renderer.render(scene, camera);
     document.documentElement.dataset.tick = String(r.tick);
