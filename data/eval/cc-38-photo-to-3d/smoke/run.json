@@ -1,0 +1,43 @@
+{
+  "experiment": "cc-38-photo-to-3d",
+  "round": "smoke",
+  "issue": "CC-38",
+  "date": "2026-10-27",
+  "seed": 42,
+  "settings": {
+    "mask_grow_px": 0,
+    "colour_k": 4
+  },
+  "photos": [
+    {
+      "photo": "bench01",
+      "mask_seconds": 1.4,
+      "lift_seconds": 18.7,
+      "wall_seconds": 118.8,
+      "mask": {
+        "how": "text",
+        "score": 0.97265625,
+        "iou_with_box": 0.859,
+        "candidates": 1,
+        "pixels": 95462
+      },
+      "privacy": {
+        "people": 0,
+        "faces": 0,
+        "plates": 0,
+        "changed": false
+      },
+      "n_faces_raw": 393048,
+      "n_gaussians": 318432
+    }
+  ],
+  "mask_load_seconds": 14.2,
+  "lift_load_seconds": 64.0,
+  "gpu_seconds": {
+    "l4": 16,
+    "l40s": 83
+  },
+  "gpu_minutes": 1.6,
+  "estimated_usd": 0.048,
+  "price_basis": "L40S $1.95/h, L4 $0.80/h, container seconds in methods plus one model load each; idle scale-down time not included"
+}

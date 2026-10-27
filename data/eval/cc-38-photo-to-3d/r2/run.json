@@ -1,0 +1,94 @@
+{
+  "experiment": "cc-38-photo-to-3d",
+  "round": "r2",
+  "issue": "CC-38",
+  "date": "2026-10-27",
+  "seed": 42,
+  "settings": {
+    "change": "colour baked into a 1024x1024 UV texture (xatlas) instead of per-vertex colour",
+    "lift_round": "r1",
+    "colour_k": 4,
+    "texture": true
+  },
+  "gpu_seconds": {
+    "l4": 0,
+    "l40s": 0
+  },
+  "gpu_minutes": 0,
+  "estimated_usd": 0.0,
+  "price_basis": "CPU only; re-uses the lifts of r1",
+  "photos": [
+    {
+      "photo": "bench01",
+      "faces": 5820,
+      "bytes": 347492,
+      "height_m": 0.8,
+      "tilt_deg": 1.25,
+      "bake_seconds": 6.67
+    },
+    {
+      "photo": "mural01",
+      "faces": 5820,
+      "bytes": 424464,
+      "height_m": 0.9,
+      "tilt_deg": 0.33,
+      "bake_seconds": 7.53
+    },
+    {
+      "photo": "mural02",
+      "faces": 5820,
+      "bytes": 359976,
+      "height_m": 0.9,
+      "tilt_deg": 2.0,
+      "bake_seconds": 6.74
+    },
+    {
+      "photo": "park01",
+      "faces": 5819,
+      "bytes": 330196,
+      "height_m": 1.0,
+      "tilt_deg": 0.96,
+      "bake_seconds": 4.59
+    },
+    {
+      "photo": "park02",
+      "faces": 5820,
+      "bytes": 341988,
+      "height_m": 1.0,
+      "tilt_deg": 8.62,
+      "bake_seconds": 3.99
+    },
+    {
+      "photo": "park03",
+      "faces": 5820,
+      "bytes": 350652,
+      "height_m": 0.5,
+      "tilt_deg": 0.5,
+      "bake_seconds": 9.08
+    },
+    {
+      "photo": "park06",
+      "faces": 5820,
+      "bytes": 318300,
+      "height_m": 0.501,
+      "tilt_deg": 0.63,
+      "bake_seconds": 4.04
+    },
+    {
+      "photo": "park07",
+      "faces": 5820,
+      "bytes": 345712,
+      "height_m": 0.699,
+      "tilt_deg": 1.35,
+      "bake_seconds": 6.3
+    },
+    {
+      "photo": "rail01",
+      "faces": 5820,
+      "bytes": 584968,
+      "height_m": 1.0,
+      "tilt_deg": 2.03,
+      "bake_seconds": 6.64
+    }
+  ]
+}

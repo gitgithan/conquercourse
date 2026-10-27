@@ -1,0 +1,108 @@
+{
+  "experiment": "cc-38-photo-to-3d",
+  "round": "r3",
+  "issue": "CC-38",
+  "date": "2026-10-27",
+  "seed": 42,
+  "settings": {
+    "mask_grow_px": 0,
+    "colour_k": 4,
+    "pad_fraction": 0.25,
+    "texture": true
+  },
+  "photos": [
+    {
+      "photo": "rail01",
+      "mask_seconds": 2.0,
+      "lift_seconds": 9.6,
+      "wall_seconds": 95.5,
+      "mask": {
+        "how": "box-prompt",
+        "score": 0.9375,
+        "iou_with_box": 0.0,
+        "candidates": 0,
+        "pixels": 7874
+      },
+      "privacy": {
+        "people": 0,
+        "faces": 0,
+        "plates": 0,
+        "changed": false
+      },
+      "n_faces_raw": 84204,
+      "n_gaussians": 54912
+    },
+    {
+      "photo": "mural01",
+      "mask_seconds": 0.8,
+      "lift_seconds": 8.9,
+      "wall_seconds": 13.7,
+      "mask": {
+        "how": "text",
+        "score": 0.83984375,
+        "iou_with_box": 0.819,
+        "candidates": 4,
+        "pixels": 476569
+      },
+      "privacy": {
+        "people": 1,
+        "faces": 2,
+        "plates": 0,
+        "changed": true
+      },
+      "n_faces_raw": 237344,
+      "n_gaussians": 181248
+    },
+    {
+      "photo": "mural02",
+      "mask_seconds": 0.9,
+      "lift_seconds": 8.8,
+      "wall_seconds": 13.8,
+      "mask": {
+        "how": "text",
+        "score": 0.435546875,
+        "iou_with_box": 0.916,
+        "candidates": 3,
+        "pixels": 295646
+      },
+      "privacy": {
+        "people": 1,
+        "faces": 3,
+        "plates": 1,
+        "changed": true
+      },
+      "n_faces_raw": 230676,
+      "n_gaussians": 187200
+    },
+    {
+      "photo": "bench01",
+      "mask_seconds": 0.6,
+      "lift_seconds": 9.7,
+      "wall_seconds": 14.7,
+      "mask": {
+        "how": "text",
+        "score": 0.97265625,
+        "iou_with_box": 0.859,
+        "candidates": 1,
+        "pixels": 95460
+      },
+      "privacy": {
+        "people": 0,
+        "faces": 0,
+        "plates": 0,
+        "changed": false
+      },
+      "n_faces_raw": 387796,
+      "n_gaussians": 333824
+    }
+  ],
+  "mask_load_seconds": 18.5,
+  "lift_load_seconds": 45.7,
+  "gpu_seconds": {
+    "l4": 23,
+    "l40s": 83
+  },
+  "gpu_minutes": 1.8,
+  "estimated_usd": 0.05,
+  "price_basis": "L40S $1.95/h, L4 $0.80/h, container seconds in methods plus one model load each; idle scale-down time not included"
+}
