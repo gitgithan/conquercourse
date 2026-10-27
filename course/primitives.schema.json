@@ -168,6 +168,18 @@
         },
         "fit": {
           "$ref": "#/$defs/fit"
+        },
+        "sizeUncertainty": {
+          "description": "relative 1-sigma uncertainty per size (0.1 = 10 %), for fitted primitives",
+          "type": "object",
+          "additionalProperties": {
+            "type": "number",
+            "minimum": 0
+          }
+        },
+        "contactCheck": {
+          "description": "how the fitted size compares with where the athlete's hands actually were",
+          "type": "object"
         }
       }
     },

@@ -261,15 +261,15 @@ def repair_frames(w, t, supported_by=None):
     return clip.frames
 
 
-def main(stem):
-    out = EVAL / stem
+def main(stem, supported_by=None, eval_dir=None):
+    out = Path(eval_dir or EVAL) / stem
     times, world, ok, (a, b), diag = build(stem)
     world = world[a:b]
     t = np.array(times["times"])[a:b]
     times = dict(times, times=list(t), n=b - a, n_total=times["n"])
     ok = [i - a for i in ok if a <= i < b]
     w, info = orient_and_level(world, t)
-    sup = SUPPORTED_BY.get(stem)
+    sup = supported_by or SUPPORTED_BY.get(stem)
     free_flight = G.run_gate_times(w, t)          # the rule as written, with no supportedBy
     raw_gate = G.run_gate_times(w, t, supported_by=sup)
     rep = repair_frames(w, t, sup)

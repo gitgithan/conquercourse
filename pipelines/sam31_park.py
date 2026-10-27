@@ -111,4 +111,5 @@ def main(exp, proxy):
     print(json.dumps(run, indent=1))
 
 
-main(sys.argv[1], sys.argv[2] if len(sys.argv) > 2 else "http://127.0.0.1:8787")
+if __name__ == "__main__":
+    main(sys.argv[1], sys.argv[2] if len(sys.argv) > 2 else "http://127.0.0.1:8787")
