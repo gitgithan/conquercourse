@@ -1,0 +1,110 @@
+{
+  "schemaVersion": "0.1.0",
+  "note": "a skin only: collision always comes from a primitive",
+  "objects": [
+    {
+      "name": "rail-skate-01",
+      "photo": "park01",
+      "round": "r2",
+      "box": [
+        294,
+        183,
+        658,
+        454
+      ],
+      "label": "handrail",
+      "glb": "rail-skate-01.glb",
+      "height_m": 1.0,
+      "extents_m": {
+        "x": 3.844,
+        "y": 1.0,
+        "z": 0.2
+      },
+      "scale_source": "typical:handrail",
+      "faces": 5819,
+      "bytes": 330196,
+      "author": "Neoclassicism Enthusiast",
+      "licence": "CC0",
+      "look": "yes: a level handrail with its posts, grey metal; the real one follows stairs, this one is drawn level",
+      "config": "texture 1024; no padding"
+    },
+    {
+      "name": "box-skate-03",
+      "photo": "park03",
+      "round": "r2",
+      "box": [
+        66,
+        234,
+        662,
+        407
+      ],
+      "label": "platform",
+      "glb": "box-skate-03.glb",
+      "height_m": 0.5,
+      "extents_m": {
+        "x": 4.42,
+        "y": 0.5,
+        "z": 2.91
+      },
+      "scale_source": "typical:platform",
+      "faces": 5820,
+      "bytes": 350652,
+      "author": "Alexis Jazz",
+      "licence": "CC BY 4.0",
+      "look": "yes: a long low box with a step at one end, red sides; graffiti is soft",
+      "config": "texture 1024; no padding"
+    },
+    {
+      "name": "bench-concrete",
+      "photo": "bench01",
+      "round": "r3",
+      "box": [
+        165,
+        345,
+        720,
+        660
+      ],
+      "label": "bench",
+      "glb": "bench-concrete.glb",
+      "height_m": 0.8,
+      "extents_m": {
+        "x": 1.881,
+        "y": 0.8,
+        "z": 0.627
+      },
+      "scale_source": "typical:bench",
+      "faces": 5820,
+      "bytes": 347856,
+      "author": "Rick Obst",
+      "licence": "CC BY 2.0",
+      "look": "yes: a bench with a back and arms; the colour is a little grey",
+      "config": "texture 1024; photo padded 1.5x"
+    },
+    {
+      "name": "railing-iron",
+      "photo": "rail01",
+      "round": "r3",
+      "box": [
+        130,
+        150,
+        900,
+        480
+      ],
+      "label": "rail",
+      "glb": "railing-iron.glb",
+      "height_m": 0.999,
+      "extents_m": {
+        "x": 2.522,
+        "y": 0.999,
+        "z": 0.066
+      },
+      "scale_source": "typical:rail",
+      "faces": 5820,
+      "bytes": 564784,
+      "author": "Peter Broster",
+      "licence": "CC0",
+      "look": "partly: reads as an iron railing panel with spear tops; the gate and the fence merged into one panel",
+      "config": "texture 1024; photo padded 1.5x"
+    }
+  ]
+}
