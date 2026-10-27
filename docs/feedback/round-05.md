@@ -49,3 +49,7 @@
   - R and Shift+R are on the fall panel, where they matter; I (Ideal run) and T (Dojo) are on their buttons.
   - "Rotate Camera (C)" is the caption of the camera ring; the view's name shows briefly when it changes and as a tooltip.
 - R5-G8: the trampoline shows one message only ("Trampoline ahead: press Space the moment you land on it for extra height"); the two others are gone.
+- R5-G9: the mouse turns the camera around the runner.
+  - Drag turns the view (up to 80 degrees either way, never under the ground), the wheel zooms, a double-click or C goes back to the preset.
+  - In first person, drag turns your head.
+  - The three presets stay; the mouse only changes the view on top of them.
