@@ -49,6 +49,30 @@ try {
   await page.reload();
   await page.waitForSelector('#view3d', { timeout: 60000 });
   await page.waitForSelector('button[data-object=rookie-a]', { timeout: 20000 });
+  // a lane that cannot be cleared: a block made too tall; the editor says what to shift, and doing it clears the lane
+  await page.click('text=Block');
+  await page.click('text=× 10');
+  await page.waitForFunction(() => /cannot find/.test(document.documentElement.dataset.verdict ?? ''), null, { timeout: 20000 });
+  checks.cannotClearSaid = true;
+  await page.waitForFunction(() => document.querySelector('#advice button'), null, { timeout: 30000 }).catch(() => {});
+  checks.adviceOffered = (await page.$$('#advice button')).length > 0;
+  await page.screenshot({ path: 'test-results/editor/advice.png' });
+  if (checks.adviceOffered) {
+    await page.click('#advice button');
+    await page.waitForFunction(() => /can clear/.test(document.documentElement.dataset.verdict ?? ''), null, { timeout: 20000 }).catch(() => {});
+    checks.adviceClears = /can clear/.test(await page.evaluate(() => document.documentElement.dataset.verdict));
+  }
+  // the design partner answers (real Muse Spark call, a fraction of a cent); skipped quietly with no key
+  await page.click('#what');
+  await page.waitForFunction(() => { const t = document.querySelector('#reply')?.textContent ?? ''; return t && !/Thinking/.test(t); }, null, { timeout: 90000 }).catch(() => {});
+  const said = await page.evaluate(() => document.querySelector('#reply')?.textContent ?? '');
+  checks.partnerAnswers = said.length > 20 && !/could not answer|switched off/.test(said);
+  console.log('PARTNER SAID:', said.slice(0, 300));
+  await page.screenshot({ path: 'test-results/editor/partner.png' });
+  await page.evaluate(() => localStorage.removeItem('cc.world.v1'));
+  await page.reload();
+  await page.waitForSelector('#view3d', { timeout: 60000 });
+  await page.waitForSelector('button[data-object=rookie-a]', { timeout: 20000 });
   // a toy brick: 3 cm, enlarged x15 to a half-metre block
   await page.click('text=Toy brick (3 cm)');
   checks.brickIsBlockSized = /0\.4\d × 0\.2\d m, 0\.1\d m high/.test(await text('#realsize'));
@@ -62,7 +86,8 @@ try {
   await page.screenshot({ path: 'test-results/editor/2-best.png' });
   await page.click('#play');
   await page.waitForSelector('#keys', { timeout: 60000 });
-  await page.waitForTimeout(1200);
+  await page.waitForTimeout(4000);
+  await page.screenshot({ path: 'test-results/editor/3-play.png' });
   checks.playsTheLane = (await page.$('.ed')) === null && /m of/.test(await page.textContent('body'));
   await page.screenshot({ path: 'test-results/editor/3-play.png' });
   console.log(checks, 'errors:', errors);
