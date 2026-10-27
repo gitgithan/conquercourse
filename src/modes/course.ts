@@ -809,7 +809,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
       renderer.setScissorTest(false); renderer.setViewport(0, 0, W, H); renderer.autoClear = true;
     }
     document.documentElement.dataset.tick = String(r.tick);
-    document.documentElement.dataset.x = r.x.toFixed(2); document.documentElement.dataset.omega = (world.hang?.omega ?? 0).toFixed(3); // for the keyboard check
+    document.documentElement.dataset.x = r.x.toFixed(2); document.documentElement.dataset.omega = (world.hang?.omega ?? 0).toFixed(3); document.documentElement.dataset.grounded = world.runner.grounded ? '1' : '0'; // for the keyboard check
     document.documentElement.dataset.outcome = world.outcome;
     document.documentElement.dataset.mode = world.mode;
     requestAnimationFrame(frame);

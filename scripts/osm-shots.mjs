@@ -3,7 +3,7 @@
 import { chromium } from 'playwright';
 import { spawn } from 'node:child_process';
 const port = process.env.PORT ?? '5188';
-const server = spawn('npx', ['vite', '--port', port, '--strictPort'], { stdio: 'ignore' });
+const server = spawn('node', ['node_modules/vite/bin/vite.js', '--port', port, '--strictPort'], { stdio: 'ignore' });
 const flags = ['--enable-unsafe-webgpu', '--enable-features=Vulkan', '--use-vulkan=swiftshader', '--use-angle=swiftshader', '--disable-vulkan-surface', '--ignore-gpu-blocklist'];
 try {
   await new Promise((r) => setTimeout(r, 3000));

@@ -4,7 +4,7 @@ import { spawn } from 'node:child_process';
 const port = process.env.PORT ?? '5173';
 const query = process.env.QUERY ?? 'bot=ideal&startx=60&timescale=0.25';
 const until = process.env.UNTIL ?? 'swing';
-const server = spawn('npx', ['vite', '--port', port, '--strictPort'], { stdio: 'ignore' });
+const server = spawn('node', ['node_modules/vite/bin/vite.js', '--port', port, '--strictPort'], { stdio: 'ignore' });
 const flags = ['--enable-unsafe-webgpu', '--enable-features=Vulkan', '--use-vulkan=swiftshader', '--use-angle=swiftshader', '--disable-vulkan-surface', '--ignore-gpu-blocklist'];
 try {
   await new Promise((r) => setTimeout(r, 3000));

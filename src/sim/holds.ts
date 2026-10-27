@@ -15,7 +15,7 @@ export interface HangParams {
   gravity: number;
 }
 
-export const DEFAULT_HANG: HangParams = { handHeight: 2.1, bodyLength: 1.1, reach: 0.45, catchKeep: 0.35, pump: 1.5, drag: 0.04, gravity: GRAVITY };
+export const DEFAULT_HANG: HangParams = { handHeight: 2.1, bodyLength: 1.1, reach: 0.6, catchKeep: 0.35, pump: 1.5, drag: 0.04, gravity: GRAVITY };
 
 // The arms cannot hold the body higher than this from straight down (a bit past horizontal): the swing stops there and falls back.
 export const MAX_SWING = 1.75; // rad, 100 degrees

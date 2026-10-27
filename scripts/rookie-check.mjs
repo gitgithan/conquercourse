@@ -11,7 +11,7 @@ const flags = ['--enable-unsafe-webgpu', '--enable-features=Vulkan', '--use-vulk
 // nine poses: three of the run, three of the leap, the landing, then the run again and the end of the loop
 const PARENTS = [-1, 0, 1, 2, 3, 4, 5, 6, 6, 6, 3, 10, 11, 12, 13, 13, 3, 16, 17, 18, 19, 19, 0, 22, 23, 24, 0, 26, 27, 28];
 const SHEET_TICKS = [300, 311, 322, 421, 440, 470, 500, 530, 600];
-const server = spawn('npx', ['vite', '--port', '5173', '--strictPort'], { stdio: 'ignore' });
+const server = spawn('node', ['node_modules/vite/bin/vite.js', '--port', '5173', '--strictPort'], { stdio: 'ignore' });
 const dir = mkdtempSync(join(tmpdir(), 'sheet-'));
 mkdirSync('test-results', { recursive: true });
 mkdirSync('data/eval/cc-16-rookies', { recursive: true });

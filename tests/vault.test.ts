@@ -59,4 +59,17 @@ describe('the vault', () => {
     expect(tall.w.mode).toBe('run');
     expect(tall.w.runner.x).toBeLessThan(21);
   });
+  it('a V pressed a moment early still vaults when the step comes in reach, but not much too early', () => {
+    const c = box(0.8);
+    const tryAt = (xPress: number) => {
+      let w = newWorld(c, 0), vaulted = false;
+      for (let i = 0; i < 120 * 6; i++) {
+        w = stepWorld(w, { ...NO_INPUT, run: true, squat: true, vault: w.runner.x >= xPress && w.runner.x < xPress + 0.2 }, c);
+        if (w.mode === 'vault') vaulted = true;
+      }
+      return vaulted;
+    };
+    expect(tryAt(18.4)).toBe(true); // about 0.2 s before the face is in reach at a run
+    expect(tryAt(16.0)).toBe(false); // far too early
+  });
 });

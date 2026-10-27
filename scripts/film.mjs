@@ -26,7 +26,7 @@ const stepped = `(() => {
   window.__stepClock = (ms) => { t += ms; return t; };
 })();`;
 
-const server = spawn('npx', ['vite', '--port', port, '--strictPort'], { stdio: 'ignore' });
+const server = spawn('node', ['node_modules/vite/bin/vite.js', '--port', port, '--strictPort'], { stdio: 'ignore' });
 const dir = mkdtempSync(join(tmpdir(), 'film-'));
 try {
   await new Promise((r) => setTimeout(r, 3000));

@@ -150,15 +150,18 @@ export function searchIdealRun(course: CourseData): { plan: Plan; windows: Windo
     }
     if (e.riser) {
       // a step up too tall for a casual walk-up: try a vault and a jump at every press, keep the one that gets farthest (a vault wins a tie: it is faster)
-      let best: { x: number; vault: boolean; s: number } | null = null;
-      for (const x of candidates(e.x - 0.9, e.x - 0.05)) {
-        for (const vault of [false, true]) {
-          const trial: Plan = vault ? { ...plan, vaultXs: [...(plan.vaultXs ?? []), x] } : { ...plan, jumpXs: [...plan.jumpXs, x] };
-          const sc = score(playPlan(course, trial));
-          if (!best || sc > best.s + 1e-9 || (Math.abs(sc - best.s) <= 1e-9 && vault && !best.vault)) best = { x, vault, s: sc };
-        }
+      const tries: { x: number; vault: boolean; s: number }[] = [];
+      for (const x of candidates(e.x - 1.2, e.x - 0.05)) for (const vault of [false, true]) {
+        const trial: Plan = vault ? { ...plan, vaultXs: [...(plan.vaultXs ?? []), x] } : { ...plan, jumpXs: [...plan.jumpXs, x] };
+        tries.push({ x, vault, s: score(playPlan(course, trial)) });
       }
-      if (best) { if (best.vault) plan.vaultXs = [...(plan.vaultXs ?? []), best.x]; else plan.jumpXs.push(best.x); windows.push({ obstacle: `${best.vault ? 'vault' : 'jump'} at ${e.name}`, best: best.x, lo: best.x, hi: best.x, widthMs: 0 }); }
+      const top = Math.max(...tries.map((t) => t.s));
+      const good = tries.filter((t) => t.s >= top - (top >= 1e6 ? 1e-9 : 0.3)); // before the rest of the course is planned the score is how far the run gets: near ties count as ties
+      // the centre of the window of presses that work (a vault wins a tie with a jump: it is faster), not its edge
+      const kind = good.some((t) => t.vault);
+      const mine = good.filter((t) => t.vault === kind).map((t) => t.x);
+      const best = mine.length ? { x: mine[Math.floor(mine.length / 2)], vault: kind } : null;
+      if (best) { if (best.vault) plan.vaultXs = [...(plan.vaultXs ?? []), best.x]; else plan.jumpXs.push(best.x); windows.push({ obstacle: `${best.vault ? 'vault' : 'jump'} at ${e.name}`, best: best.x, lo: Math.min(...mine), hi: Math.max(...mine), widthMs: ((Math.max(...mine) - Math.min(...mine) + 0.02) / 7.4) * 1000 }); }
       continue;
     }
     // a bar within a swing of this edge: try presses on a coarser grid and, for each, several hang times on the first bar

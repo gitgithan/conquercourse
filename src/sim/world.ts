@@ -6,7 +6,7 @@ import { DEFAULT_WALL, runWall, type WallParams, type WallResult } from './wall'
 import { DEFAULT_ROPE, ropePoint, release, swingStep, tryCatch, type RopeParams, type Swing } from './rope';
 import { DEFAULT_TRAMPOLINE, bounce, type Bounce } from './trampoline';
 import { JUMP_COST, VAULT_COST } from './energy';
-import { VAULT_KEEP, findVault, vaultAt, type Vault } from './vault';
+import { VAULT_BUFFER, VAULT_KEEP, findVault, vaultAt, type Vault } from './vault';
 import { DEFAULT_HANG, feetOf, hangStep, releaseHang, tryGrab, type Hang } from './holds';
 
 // One world for the Course: the runner plus whichever obstacle has hold of the runner right now.
@@ -32,6 +32,7 @@ export interface WorldState {
   bed: { base: Bounce; vIn: number; start: number; press: number | null; vx: number; top: number } | null;
   noCatchUntil: number;
   lastPress: number; // tick of the last Space press, so a press just before landing counts
+  lastVault: number; // tick of the last V press, so a press a moment before the obstacle still vaults it
   events: GameEvent[];
 }
 
@@ -39,7 +40,7 @@ export interface WorldState {
 export function newWorld(course: CourseData, x: number = course.startX): WorldState {
   const r = startState(x);
   r.y = groundAt(course.terrain, x);
-  return { runner: r, mode: 'run', outcome: 'running', wall: null, swing: null, hang: null, vault: null, energy: 1, bed: null, noCatchUntil: 0, lastPress: -1000, events: [] };
+  return { runner: r, mode: 'run', outcome: 'running', wall: null, swing: null, hang: null, vault: null, energy: 1, bed: null, noCatchUntil: 0, lastPress: -1000, lastVault: -1000, events: [] };
 }
 
 const wallParams = (c: CourseData): WallParams => ({ ...DEFAULT_WALL, ...(c.wall ?? {}) });
@@ -51,7 +52,7 @@ export function stepWorld(w: WorldState, input: RunnerInput, course: CourseData,
   const events: GameEvent[] = [];
   const tick = w.runner.tick + 1;
   const ev = (type: GameEvent['type'], detail?: GameEvent['detail']) => events.push({ tick, type, detail });
-  let n: WorldState = { ...w, lastPress: input.jump ? w.runner.tick + 1 : w.lastPress };
+  let n: WorldState = { ...w, lastPress: input.jump ? w.runner.tick + 1 : w.lastPress, lastVault: input.vault ? w.runner.tick + 1 : w.lastVault };
 
   if (w.mode === 'wall') return stepWall(w, course);
   if (w.mode === 'swing') return stepSwing(w, input, course);
@@ -60,11 +61,11 @@ export function stepWorld(w: WorldState, input: RunnerInput, course: CourseData,
   if (w.mode === 'vault') return stepVault(w);
 
   // the vault: a hand on top of the obstacle just ahead, the body goes over it and keeps most of the speed
-  if (input.vault && w.runner.grounded) {
+  if (n.lastVault >= 0 && w.runner.tick + 1 - n.lastVault <= VAULT_BUFFER && w.runner.grounded) { // a V pressed up to a fifth of a second early still counts
     const v = findVault(course.terrain, w.runner.x, w.runner.y, w.runner.vx);
     if (v) {
       ev('vault', { rise: v.y1 - v.y0, vx: w.runner.vx });
-      return { ...w, mode: 'vault', vault: v, energy: Math.max(0, w.energy - VAULT_COST), lastPress: n.lastPress, events, runner: { ...w.runner, tick, grounded: false } };
+      return { ...w, mode: 'vault', vault: v, energy: Math.max(0, w.energy - VAULT_COST), lastPress: n.lastPress, lastVault: -1000, events, runner: { ...w.runner, tick, grounded: false } };
     }
   }
 
