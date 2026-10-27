@@ -11,6 +11,7 @@ import {
 } from '../motion/actor-pose';
 import { loadRookie, type RookieId } from './rookie';
 import type { Obstacle } from '../course/collide';
+import { anticipation, getReady, ik2, ledgeReach } from '../motion/compose';
 
 export type { ActorState } from '../motion/actor-pose';
 
@@ -19,6 +20,7 @@ export interface RookieActor {
   update(s: ActorState): void;
   dispose(): void;
   setObstacle(o: Obstacle | null): void; // body points are pushed out of platforms and the wall
+  names(): string[]; // the joint names, in the order joints() gives them
   joints(): Vector3[]; // where the 30 bones are now, world metres (for the plausibility gate and the tests)
 }
 
@@ -162,6 +164,7 @@ export async function createRookieActor(scene: Scene, opts: { rookie: RookieId }
         // the legs keep running up the curve; the arms start to rise early and are overhead by the top, so the reach is not a late snap
         const a = sample(run, runSeconds(run, distance, scale), true);
         const body = place(a.rel, a.hipsAbove).joints;
+        if (s.ledge) return body; // the arms reach for the real ledge after the pose is tilted (below)
         const p = s.wallProgress ?? 0;
         const t = Math.min(Math.max((p - ARMS_FROM) / (ARMS_TO - ARMS_FROM), 0), 1);
         if (t <= 0) return body;
@@ -214,6 +217,24 @@ export async function createRookieActor(scene: Scene, opts: { rookie: RookieId }
     return out;
   }
 
+  // Send both hands to the wall's top edge with two-bone reach. How much depends on how far the edge is from the shoulder,
+  // so a taller or shorter wall just starts the reach earlier or later; after the shoulders pass the edge the hands let go.
+  function reachLedge(joints: Vector3[], s: ActorState): void {
+    const target = new Vector3(s.facing * (s.ledge!.x - s.x) + 0.08, s.ledge!.y - s.y - footClear + 0.03, 0);
+    for (const side of ['Left', 'Right']) {
+      const sh = joints[ix(side + 'Arm')], el = joints[ix(side + 'ForeArm')], hand = joints[ix(side + 'Hand')];
+      const l1 = sh.distanceTo(el), l2 = el.distanceTo(hand);
+      const reach = ledgeReach(sh.distanceTo(target), l1 + l2);
+      const letGo = 1 - Math.min(1, Math.max(0, (sh.y - target.y) / 0.25));
+      const w = reach * letGo;
+      if (w <= 0) continue;
+      const r = ik2(sh, target, l1, l2, new Vector3(-0.6, -1, 0));
+      const delta = r.hand.clone().sub(hand).multiplyScalar(w);
+      joints[ix(side + 'ForeArm')] = el.clone().lerp(r.elbow, w);
+      for (const n of ['Hand', 'HandThumbEnd', 'HandMiddleEnd']) joints[ix(side + n)] = joints[ix(side + n)].clone().add(delta);
+    }
+  }
+
   const rotateZ = (joints: Vector3[], about: Vector3, angle: number) => {
     for (const p of joints) p.sub(about).applyAxisAngle(new Vector3(0, 0, 1), angle).add(about);
   };
@@ -254,6 +275,10 @@ export async function createRookieActor(scene: Scene, opts: { rookie: RookieId }
     if (Math.abs(lean) > 1e-4) rotateZ(joints, new Vector3(0, 0, 0), -lean);
     if (s.mode === 'swing') rotateZ(joints, new Vector3(0, HAND_HEIGHT, 0), localAngle(s.swingTheta ?? 0, s.facing));
 
+    // composing: the arms reach for the real ledge, and the body gets ready for the next obstacle before it arrives
+    if (s.mode === 'wall' && s.ledge) reachLedge(joints, s);
+    else if (s.next && s.mode === 'run') getReady(joints, ix, s.next.kind, anticipation(s.next.distance / Math.max(Math.abs(s.vx), 2)));
+
     // pose the bones in the unturned frame at the surface, then move the group to the feet
     group.position.set(0, 0, 0);
     group.rotation.set(0, 0, 0);
@@ -292,6 +317,7 @@ export async function createRookieActor(scene: Scene, opts: { rookie: RookieId }
     object: group,
     update,
     setObstacle: (o) => { obstacle = o; },
+    names: () => names,
     joints: () => rookie.world(),
     dispose() {
       scene.remove(group);

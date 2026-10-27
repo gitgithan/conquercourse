@@ -44,6 +44,12 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
     if (raw && !params.get('mode')) resume = JSON.parse(raw) as Resume;
   } catch { /* start fresh */ }
   if (resume) course = resume.course;
+  // ?wallh=5 makes the wall that high (for tests): the curve stays the same and the deck on top rises with it
+  const wallH = Number(params.get('wallh'));
+  if (course.wall && wallH >= 3 && wallH <= 6) {
+    const R0 = course.wall.radius ?? course.wall.height ?? 4.3;
+    course = { ...course, wall: { ...course.wall, height: wallH, radius: R0 }, terrain: { ...course.terrain, platforms: course.terrain.platforms.map((q) => (Math.abs(q.x0 - (course.wall!.x0 + R0)) < 0.5 ? { ...q, top: wallH } : q)) } };
+  }
   const renderer = new THREE.WebGPURenderer({ antialias: true, forceWebGL: params.get('backend') === 'webgl2' });
   await renderer.init();
   renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
@@ -494,7 +500,21 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
   function showAgain() { falls--; onFall(lastFall); }
 
   // Controls are taught while you play: one short hint at a time, then none.
-  let maxPen = 0;
+  // what the Rookie needs to know about the course: where the top edge of the wall is, and the next obstacle ahead
+  const wallR = course.wall ? course.wall.radius ?? course.wall.height ?? DEFAULT_WALL.height : 0;
+  const ledge = course.wall ? { x: course.wall.x0 + wallR, y: course.wall.height ?? DEFAULT_WALL.height } : undefined;
+  const aheadOf: { kind: 'gap' | 'wall' | 'rope' | 'bounce'; x: number }[] = [
+    ...specs.map((g) => ({ kind: 'gap' as const, x: g.x })),
+    ...(course.wall ? [{ kind: 'wall' as const, x: course.wall.x0 }] : []),
+    ...(course.rope ? [{ kind: 'rope' as const, x: course.rope.anchorX - 3 }] : []),
+    ...course.terrain.platforms.filter((q) => q.bouncy).map((q) => ({ kind: 'bounce' as const, x: q.x0 })),
+  ];
+  function nextObstacle(x: number): { kind: 'gap' | 'wall' | 'rope' | 'bounce'; distance: number } | undefined {
+    let best: { kind: 'gap' | 'wall' | 'rope' | 'bounce'; distance: number } | undefined;
+    for (const o of aheadOf) { const d = o.x - x; if (d > -0.2 && (!best || d < best.distance)) best = { kind: o.kind, distance: Math.max(0, d) }; }
+    return best;
+  }
+  let maxPen = 0, handErr = 9;
   let cueSince: number | null = null, cueDone = false;
   function hintFor(w: WorldState): string {
     const r = w.runner;
@@ -583,9 +603,17 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
     body.scale.set(1 / Math.sqrt(sq), sq, 1 / Math.sqrt(sq));
     body.position.set(r.x, r.y + 0.85 * sq, 0);
     if (Math.abs(world.runner.vx) > 0.3) facing = world.runner.vx < 0 ? -1 : 1;
-    if (actor) actor.update({ ...actorStateFor(world, keys.has('ArrowDown') || keys.has('KeyS'), facing), x: r.x, y: r.y });
+    if (actor) actor.update({ ...actorStateFor(world, keys.has('ArrowDown') || keys.has('KeyS'), facing), x: r.x, y: r.y, ledge, next: world.mode === 'run' ? nextObstacle(r.x) : undefined });
     if (world.runner.tick > toastUntil) toast.style.display = 'none';
     paintStrip(r.x);
+    if (params.get('check') === '1' && actor && ledge && world.mode === 'wall') {
+      // how close the nearest hand gets to the wall's top edge while the climb is on
+      const j = actor.joints();
+      const hands = j.filter((_, i) => /Hand$/.test(actor!.names()[i]));
+      const err = Math.min(...hands.map((h) => Math.hypot(h.x - ledge.x, h.y - ledge.y)));
+      handErr = Math.min(handErr, err);
+      document.documentElement.dataset.handErr = handErr.toFixed(3);
+    }
     if (params.get('check') === '1' && actor) {
       // measurement for the tests: the deepest any joint sits inside a block or the wall, over the whole run (metres)
       const hit = makeObstacle(course);
