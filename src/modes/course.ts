@@ -10,7 +10,7 @@ import { inputFor, searchIdealRun, type Plan } from '../sim/ideal';
 
 // The Course: the five obstacles in a row. The simulator decides everything; this file only draws it
 // and turns keys into inputs. Time comes from the simulator's tick count, never from the browser's clock.
-const course = courseJson as unknown as CourseData;
+const defaultCourse = courseJson as unknown as CourseData;
 
 export interface CourseGame {
   backend: 'webgpu' | 'webgl2';
@@ -23,7 +23,7 @@ const MESSAGES: Record<string, string> = {
   cleared: 'You made it! Press R to run it again.',
 };
 
-export async function startCourse(host: HTMLElement): Promise<CourseGame> {
+export async function startCourse(host: HTMLElement, course: CourseData = defaultCourse): Promise<CourseGame> {
   const params = new URLSearchParams(location.search);
   const renderer = new THREE.WebGPURenderer({ antialias: true, forceWebGL: params.get('backend') === 'webgl2' });
   await renderer.init();
@@ -51,7 +51,7 @@ export async function startCourse(host: HTMLElement): Promise<CourseGame> {
     scene.add(m);
   }
   const water = new THREE.Mesh(new THREE.BoxGeometry(400, 0.1, 30), new THREE.MeshStandardMaterial({ color: 0x2f7fc1, transparent: true, opacity: 0.8 }));
-  water.position.set(60, course.terrain.waterY, 0);
+  water.position.set(course.finishX / 2, course.terrain.waterY, 0);
   scene.add(water);
 
   // the warped wall: a quarter circle, flat at the bottom and upright at the top

@@ -1,0 +1,42 @@
+{
+  "photo": "park01",
+  "file": "park01.jpg",
+  "width": 1024,
+  "height": 760,
+  "credit": "Ledges, stairs with rail and a bank of the IOR Skatepark in Bucharest (01), Neoclassicism Enthusiast, CC0",
+  "objects": [
+    {
+      "id": 1,
+      "phrase": "handrail",
+      "score": 0.96,
+      "box": [
+        294,
+        183,
+        658,
+        454
+      ]
+    },
+    {
+      "id": 2,
+      "phrase": "low wall",
+      "score": 0.8,
+      "box": [
+        372,
+        219,
+        866,
+        573
+      ]
+    },
+    {
+      "id": 3,
+      "phrase": "wall",
+      "score": 0.57,
+      "box": [
+        663,
+        158,
+        962,
+        206
+      ]
+    }
+  ]
+}

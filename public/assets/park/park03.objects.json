@@ -1,0 +1,31 @@
+{
+  "photo": "park03",
+  "file": "park03.jpg",
+  "width": 1024,
+  "height": 468,
+  "credit": "Krefeld, Germany - Voltaplatz skatepark, ledge, Alexis Jazz, CC BY 4.0",
+  "objects": [
+    {
+      "id": 1,
+      "phrase": "platform",
+      "score": 0.84,
+      "box": [
+        66,
+        234,
+        662,
+        407
+      ]
+    },
+    {
+      "id": 2,
+      "phrase": "platform",
+      "score": 0.62,
+      "box": [
+        524,
+        135,
+        678,
+        193
+      ]
+    }
+  ]
+}

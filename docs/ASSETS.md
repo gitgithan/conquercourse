@@ -42,6 +42,18 @@
 - CC BY-SA 4.0 and 2.0 photos (park04, park05, park08, park09, park10): overlays and any other adaptation must be shared under the same licence; keep them out of the shipped game unless that is accepted.
 - park09 has two small, distant bystanders at the left edge; it is used for the spike only, not for the demo.
 - The overlays in `data/eval/sam31-park/outputs/overlays/` are our own drawings on these photos (same licence as the photo).
+
+## Park photos shipped in the game (CC-25)
+| File | What | Author | Source | Licence |
+|---|---|---|---|---|
+| `public/assets/park/park01.jpg` | park01 above, scaled to 1024 px wide, metadata removed | Neoclassicism Enthusiast | see park01 above | CC0 |
+| `public/assets/park/park02.jpg` | park02 above, same treatment | Neoclassicism Enthusiast | see park02 above | CC0 |
+| `public/assets/park/park03.jpg` | park03 above, same treatment | Alexis Jazz | see park03 above | CC BY 4.0 (credit shown on the Park page) |
+| `public/assets/park/park06.jpg` | park06 above, same treatment | Dmytro Petishkin | see park06 above | CC BY 4.0 (credit shown on the Park page) |
+| `public/assets/park/park07.jpg` | park07 above, same treatment | Ajznponar | see park07 above | CC0 |
+| `public/assets/park/<photo>.objects.json` | boxes, phrases and scores from the saved SAM 3.1 results, merged by overlap (ours) | ConquerCourse | `scripts/make-park-assets.mjs` | same as the photo |
+- Only CC0 and CC BY photos ship; the CC BY-SA photos (park04, 05, 08, 09, 10) stay in the spike folder.
+- Each file is under 300 KB.
 ## Derived from the footage (made during the event, CC-26)
 - **What:** `data/eval/cc-26-pexels-motion/<clip>/`: measured 30-joint `motion.json`, contacts, gate report, privacy receipt, and a contact sheet (people blurred, faces pixelated) for each of the four clips above.
 - **Made by:** SAM 3, SAM 3D Body, MoGe 2 and SOMA-X on Modal (2026-10-26), with code written in this repo (`pipelines/video_to_motion/`).
