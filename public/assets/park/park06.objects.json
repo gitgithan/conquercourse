@@ -1,0 +1,42 @@
+{
+  "photo": "park06",
+  "file": "park06.jpg",
+  "width": 1024,
+  "height": 702,
+  "credit": "Stairs in Massandra Park, Dmytro Petishkin, CC BY 4.0",
+  "objects": [
+    {
+      "id": 1,
+      "phrase": "handrail",
+      "score": 0.67,
+      "box": [
+        217,
+        398,
+        343,
+        598
+      ]
+    },
+    {
+      "id": 2,
+      "phrase": "ledge",
+      "score": 0.52,
+      "box": [
+        220,
+        598,
+        774,
+        637
+      ]
+    },
+    {
+      "id": 3,
+      "phrase": "handrail",
+      "score": 0.66,
+      "box": [
+        670,
+        406,
+        789,
+        606
+      ]
+    }
+  ]
+}
