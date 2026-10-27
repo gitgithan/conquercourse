@@ -94,7 +94,18 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
   scene.add(body);
   // the real Rookie replaces the capsule when its model loads; the capsule stays as the fallback
   let actor: Awaited<ReturnType<typeof createRookieActor>> | null = null;
-  try { actor = await createRookieActor(scene, { rookie: params.get('rookie') === 'b' ? 'b' : 'a' }); body.visible = false; } catch (e) { console.warn('Rookie not loaded, using the capsule', e); }
+  let choice: 'a' | 'b' = 'a';
+  try { const saved = localStorage.getItem('cc.rookie'); if (saved === 'a' || saved === 'b') choice = saved; } catch { /* keep going */ }
+  if (params.get('rookie') === 'a' || params.get('rookie') === 'b') choice = params.get('rookie') as 'a' | 'b';
+  async function loadRookie(which: 'a' | 'b') {
+    try {
+      const next = await createRookieActor(scene, { rookie: which });
+      actor?.dispose();
+      actor = next; body.visible = false; choice = which;
+      try { localStorage.setItem('cc.rookie', which); } catch { /* ok */ }
+    } catch (e) { console.warn('Rookie not loaded, using the capsule', e); }
+  }
+  await loadRookie(choice);
   let facing: 1 | -1 = 1;
 
   // HUD
@@ -120,7 +131,29 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
   idealBtn.textContent = 'Ideal run (I)';
   idealBtn.style.cssText = 'position:fixed;right:120px;top:12px;font:600 15px system-ui,sans-serif;border:1px solid #17201d;background:#fff;color:#17201d;border-radius:8px;padding:6px 14px;cursor:pointer';
   idealBtn.onclick = () => showIdeal(zoneAt(world.runner.x)?.id ?? 'gap');
-  document.body.append(hud, msg, help, panel, hint, gauge, dojoBtn, idealBtn);
+  // choose your runner: the male or the female Rookie (remembered between visits)
+  const pick = document.createElement('div');
+  pick.style.cssText = 'position:fixed;right:250px;top:12px;display:flex;gap:6px';
+  const icon = (kind: 'a' | 'b') => `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${kind === 'a'
+    ? '<circle cx="10" cy="14" r="5.5"/><path d="M14 10 L20 4 M15 4 H20 V9"/>'
+    : '<circle cx="12" cy="9" r="5.5"/><path d="M12 14.5 V21 M9 18 H15"/>'}</svg>`;
+  const pickBtns = (['a', 'b'] as const).map((k) => {
+    const b = document.createElement('button');
+    b.innerHTML = icon(k);
+    b.title = k === 'a' ? 'Run as the male Rookie' : 'Run as the female Rookie';
+    b.setAttribute('aria-label', b.title);
+    b.onclick = async () => { await loadRookie(k); paintPick(); };
+    pick.appendChild(b); return b;
+  });
+  function paintPick() {
+    pickBtns.forEach((b, i) => {
+      const on = (i === 0 ? 'a' : 'b') === choice;
+      b.setAttribute('aria-pressed', String(on));
+      b.style.cssText = `display:grid;place-items:center;width:38px;height:34px;border-radius:8px;cursor:pointer;border:2px solid ${on ? '#0f6b5c' : '#b9c2bb'};background:${on ? '#0f6b5c' : '#fff'};color:${on ? '#fff' : '#17201d'}`;
+    });
+  }
+  paintPick();
+  document.body.append(hud, msg, help, panel, hint, gauge, dojoBtn, idealBtn, pick);
   const toast = document.createElement('div');
   toast.style.cssText = 'position:fixed;left:50%;top:44%;transform:translateX(-50%);font:700 22px system-ui,sans-serif;color:#10141c;background:#fffffff0;border-radius:10px;padding:6px 14px;pointer-events:none;display:none';
   document.body.append(toast);
