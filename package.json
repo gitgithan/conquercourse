@@ -12,7 +12,10 @@
     "test:park": "node scripts/park-test.mjs",
     "film": "node scripts/film.mjs",
     "format:json": "node scripts/format-json.mjs",
-    "ideal": "tsx scripts/ideal-run.ts"
+    "ideal": "tsx scripts/ideal-run.ts",
+    "deploy": "npm run build && wrangler pages deploy dist --project-name conquercourse --branch main",
+    "deploy:preview": "npm run build && wrangler pages deploy dist --project-name conquercourse --branch preview",
+    "feedback": "node scripts/feedback-summary.mjs"
   },
   "dependencies": {
     "three": "^0.186.1"
@@ -24,6 +27,7 @@
     "tsx": "^4.23.15",
     "typescript": "^5.9.0",
     "vite": "^7.0.0",
-    "vitest": "^3.2.0"
+    "vitest": "^3.2.0",
+    "wrangler": "^4.0.0"
   }
 }
