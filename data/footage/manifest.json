@@ -1,45 +1,45 @@
 {
- "stored": "../conquercourse-assets/footage/ (outside git)",
- "clips": [
-  {
-   "file": "Jump_over_an_obstacle_vault.mp4",
-   "move": "jump over an obstacle",
-   "creator": "Anh Nguyen",
-   "source": "https://www.pexels.com/video/dynamic-parkour-jump-over-blue-obstacle-32109501/",
-   "licence": "Pexels License (free use and modification; credit given)",
-   "downloaded": "2026-10-27, by hand",
-   "sha256": "6ecf0435422ae20a29bb90c4af1544352508c7467a6041f667a8e7b74b8fbea3",
-   "camera": "static, side or three-quarter view, adult athlete"
-  },
-  {
-   "file": "Precision_jumps_between_concrete_blocks.mp4",
-   "move": "precision jumps between blocks",
-   "creator": "Mary Taylor",
-   "source": "https://www.pexels.com/video/a-man-jumping-around-concrete-structures-6002472/",
-   "licence": "Pexels License (free use and modification; credit given)",
-   "downloaded": "2026-10-27, by hand",
-   "sha256": "97228df93c92ab8e1b6d9b4a1ff46a34ed30b3734224e900a896dd70535e90d6",
-   "camera": "static, side or three-quarter view, adult athlete"
-  },
-  {
-   "file": "Monkey_bars_hang_and_swing.mp4",
-   "move": "hang and swing on bars",
-   "creator": "Mary Taylor",
-   "source": "https://www.pexels.com/video/man-doing-parkour-on-a-playground-6002530/",
-   "licence": "Pexels License (free use and modification; credit given)",
-   "downloaded": "2026-10-27, by hand",
-   "sha256": "3298622ab5e114f558f89c1119512c272e4d1917d17e29c9f01c5c6bf032a5f8",
-   "camera": "static, side or three-quarter view, adult athlete"
-  },
-  {
-   "file": "Over_a_brick_wall_vault_or_wall_move.mp4",
-   "move": "climb up and drop down a wall",
-   "creator": "Mary Taylor",
-   "source": "https://www.pexels.com/video/a-man-jumping-off-the-wall-6002059/",
-   "licence": "Pexels License (free use and modification; credit given)",
-   "downloaded": "2026-10-27, by hand",
-   "sha256": "a19b08c63214aae1527b9cdecac00f85f8e3b0535f9297ca7c7eeb11aa283c03",
-   "camera": "static, side or three-quarter view, adult athlete"
-  }
- ]
+  "stored": "../conquercourse-assets/footage/ (outside git)",
+  "clips": [
+    {
+      "file": "Jump_over_an_obstacle_vault.mp4",
+      "move": "jump over an obstacle",
+      "creator": "Anh Nguyen",
+      "source": "https://www.pexels.com/video/dynamic-parkour-jump-over-blue-obstacle-32109501/",
+      "licence": "Pexels License (free use and modification; credit given)",
+      "downloaded": "2026-10-27, by hand",
+      "sha256": "6ecf0435422ae20a29bb90c4af1544352508c7467a6041f667a8e7b74b8fbea3",
+      "camera": "static, side or three-quarter view, adult athlete"
+    },
+    {
+      "file": "Precision_jumps_between_concrete_blocks.mp4",
+      "move": "precision jumps between blocks",
+      "creator": "Mary Taylor",
+      "source": "https://www.pexels.com/video/a-man-jumping-around-concrete-structures-6002472/",
+      "licence": "Pexels License (free use and modification; credit given)",
+      "downloaded": "2026-10-27, by hand",
+      "sha256": "97228df93c92ab8e1b6d9b4a1ff46a34ed30b3734224e900a896dd70535e90d6",
+      "camera": "static, side or three-quarter view, adult athlete"
+    },
+    {
+      "file": "Monkey_bars_hang_and_swing.mp4",
+      "move": "hang and swing on bars",
+      "creator": "Mary Taylor",
+      "source": "https://www.pexels.com/video/man-doing-parkour-on-a-playground-6002530/",
+      "licence": "Pexels License (free use and modification; credit given)",
+      "downloaded": "2026-10-27, by hand",
+      "sha256": "3298622ab5e114f558f89c1119512c272e4d1917d17e29c9f01c5c6bf032a5f8",
+      "camera": "static, side or three-quarter view, adult athlete"
+    },
+    {
+      "file": "Over_a_brick_wall_vault_or_wall_move.mp4",
+      "move": "climb up and drop down a wall",
+      "creator": "Mary Taylor",
+      "source": "https://www.pexels.com/video/a-man-jumping-off-the-wall-6002059/",
+      "licence": "Pexels License (free use and modification; credit given)",
+      "downloaded": "2026-10-27, by hand",
+      "sha256": "a19b08c63214aae1527b9cdecac00f85f8e3b0535f9297ca7c7eeb11aa283c03",
+      "camera": "static, side or three-quarter view, adult athlete"
+    }
+  ]
 }
