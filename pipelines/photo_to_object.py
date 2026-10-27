@@ -90,7 +90,7 @@ if modal is not None:
         return b.getvalue()
 
     # ---------- privacy and mask (L4) ----------
-    @app.cls(gpu="L4", image=mask_image, volumes={CK: ck_vol}, timeout=1800, max_containers=1, scaledown_window=30)
+    @app.cls(gpu=["L4", "A10G", "L40S"], image=mask_image, volumes={CK: ck_vol}, timeout=1800, max_containers=1, scaledown_window=30)
     class Mask:
         @modal.enter()
         def load(self):
@@ -109,6 +109,11 @@ if modal is not None:
 
         @modal.method()
         def run(self, jpeg, label, box):
+            import torch
+            with torch.autocast("cuda", dtype=torch.bfloat16):  # SAM 3's weights are bfloat16
+                return self._run(jpeg, label, box)
+
+        def _run(self, jpeg, label, box):
             import numpy as np
             from PIL import Image
             from ccpipe import objmask, privacy
@@ -144,7 +149,7 @@ if modal is not None:
                     "seconds": time.time() - t0, "load_seconds": self.load_s}
 
     # ---------- lift (L40S) ----------
-    @app.cls(gpu="L40S", image=lift_image, volumes={CK: ck_vol}, timeout=1800, max_containers=1, scaledown_window=30)
+    @app.cls(gpu=["L40S", "A100-80GB"], image=lift_image, volumes={CK: ck_vol}, timeout=1800, max_containers=1, scaledown_window=30)
     class Lift:
         @modal.enter()
         def load(self):
