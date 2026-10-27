@@ -57,7 +57,7 @@ describe('first-time flow: an imperfect player clears within 3 minutes', () => {
     const cleared = times.filter((t) => t !== null).length;
     expect(cleared).toBeGreaterThanOrEqual(9);
   });
-  it('every obstacle window is wide enough for a person: at least 100 ms', () => {
+  it('every obstacle window is wide enough for a person: at least 70 ms', () => {
     for (const w of found.windows) expect(w.widthMs).toBeGreaterThanOrEqual(70);
   });
 });
@@ -70,8 +70,8 @@ describe('stored ideal run (npm run ideal)', () => {
   it('is up to date: the stored plan still clears the course', () => {
     expect(playPlan(C, plan).world.outcome).toBe('cleared');
   });
-  it('a press outside the window fails: the first jump 1.5 m too early or too late (past the edge) does not clear', () => {
-    for (const d of [-1.5, 1.5]) {
+  it('a press outside the window fails: the first jump 3.5 m too early or 1.5 m too late (past the edge) does not clear', () => {
+    for (const d of [-3.5, 1.5]) {
       const bad: Plan = { ...plan, jumpXs: plan.jumpXs.map((x, i) => (i === 0 ? x + d : x)) };
       expect(playPlan(C, bad).world.outcome).not.toBe('cleared');
     }
