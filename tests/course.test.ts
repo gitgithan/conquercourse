@@ -57,6 +57,10 @@ describe('first-time flow: an imperfect player clears within 3 minutes', () => {
     const cleared = times.filter((t) => t !== null).length;
     expect(cleared).toBeGreaterThanOrEqual(9);
   });
+  it('even with presses 80 ms off, at least 9 of 10 players clear in 3 minutes', () => {
+    const times = Array.from({ length: 10 }, (_, i) => playImperfect(C, found.plan, i + 101, 80, 180));
+    expect(times.filter((t) => t !== null).length).toBeGreaterThanOrEqual(9);
+  });
   it('every obstacle window is wide enough for a person: at least 70 ms', () => {
     for (const w of found.windows) expect(w.widthMs).toBeGreaterThanOrEqual(70);
   });

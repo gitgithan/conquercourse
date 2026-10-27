@@ -4,15 +4,16 @@ import { diagram } from './diagrams';
 import defaultCourse from '../course/default-course.json';
 import type { CourseData } from '../course/course';
 import { courseFacts } from '../course/facts';
+import { addTry, discovered, type Try } from './sayings';
 import { DEFAULT_LANDING } from '../sim/landing';
 import { GRAVITY } from '../sim/units';
 
 // The Dojo: a guided lesson per obstacle. Why it matters, what to try, the shape of the relationship, a rule of
 // thumb, the exact formula (earned, last), and what it means on the Course. Formulas appear only here.
 const KEY = 'cc.dojo.v1';
-interface Save { earned: string[]; close: Record<string, string[]> }
+interface Save { earned: string[]; tries: Record<string, Try[]> }
 function load(): Save {
-  try { const s = JSON.parse(localStorage.getItem(KEY) ?? '') as Save; return { earned: s.earned ?? [], close: s.close ?? {} }; } catch { return { earned: [], close: {} }; }
+  try { const s = JSON.parse(localStorage.getItem(KEY) ?? '') as Save; return { earned: s.earned ?? [], tries: s.tries ?? {} }; } catch { return { earned: [], tries: {} }; }
 }
 function store(s: Save) { try { localStorage.setItem(KEY, JSON.stringify(s)); } catch { /* private window: keep going */ } }
 
@@ -216,18 +217,18 @@ export function startDojo(host: HTMLElement): { backend: 'webgl2' } {
     out.innerHTML = '';
     const t = preview();
     el('div', out, { className: 'result', text: `${t.answer.toFixed(1)} ${exp.answerUnit}. ${t.note ?? ''}` });
-    const n = save.close[exp.id]?.length ?? 0;
-    if (n < 3) el('div', out, { className: 'muted', text: `Settings you have run: ${n} of 3 (run three different ones to earn this lesson's saying).` });
+    const list = save.tries[exp.id] ?? [];
+    if (!discovered(list, primaryKnob())) el('div', out, { className: 'muted', text: `Run it at clearly different ${primaryKnob().label.toLowerCase()} settings to discover this lesson's saying (${Math.min(list.length, 3)} of 3 runs kept).` });
     else save.earned.filter((s) => exp.sayings.includes(s)).forEach((s) => el('div', out, { className: 'saying', text: s }));
   }
+
+  const primaryKnob = () => exp.knobs.find((k) => k.id === exp.primary)!;
 
   function runIt() {
     runs.push({ values: { ...values }, trial: preview() });
     if (runs.length > 3) runs.shift(); // the last three runs stay on the picture
-    const sig = JSON.stringify(values);
-    const list = (save.close[exp.id] ??= []);
-    if (!list.includes(sig)) list.push(sig);
-    if (list.length >= 3) for (const s of exp.sayings) if (!save.earned.includes(s)) save.earned.push(s);
+    save.tries[exp.id] = addTry(save.tries[exp.id] ?? [], { v: values[exp.primary], a: preview().answer }, primaryKnob());
+    if (discovered(save.tries[exp.id], primaryKnob())) for (const s of exp.sayings) if (!save.earned.includes(s)) save.earned.push(s);
     store(save);
     render();
   }

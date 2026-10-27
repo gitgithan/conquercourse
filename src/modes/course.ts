@@ -125,7 +125,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
   const paintKeys = (open: boolean) => {
     help.innerHTML = `<div style="font-weight:700;display:flex;justify-content:space-between">Controls <span style="font-weight:400;color:#58635d">H ${open ? 'hides' : 'shows'}</span></div>` + (open ? KEYS.map(([k, d]) => `<div style="display:grid;grid-template-columns:78px 1fr;gap:8px;align-items:center"><kbd style="font:700 13px ui-monospace,monospace;background:#eef1ec;border:1px solid #b9c2bb;border-bottom-width:3px;border-radius:6px;padding:1px 6px;text-align:center">${k}</kbd><span>${d}</span></div>`).join('') : '');
   };
-  let keysOpen = true; paintKeys(true);
+  let keysOpen = true, keysTouched = false; paintKeys(true);
   const panel = document.createElement('div');
   panel.style.cssText = 'position:fixed;left:50%;top:26%;transform:translateX(-50%);width:min(520px,92vw);background:#fffffff2;border:1px solid #cfd6d0;border-radius:12px;padding:16px;font:16px/1.4 system-ui,sans-serif;color:#17201d;display:none;gap:10px;box-shadow:0 8px 30px #0003';
   const hint = document.createElement('div');
@@ -266,7 +266,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
     if (e.code === 'KeyT') openDojo();
     if (e.code === 'Escape' && replay) { replay = null; clearGuides(); showAgain(); }
     if (e.code === 'KeyC') nextCam();
-    if (e.code === 'KeyH') { keysOpen = !keysOpen; paintKeys(keysOpen); }
+    if (e.code === 'KeyH') { keysTouched = true; keysOpen = !keysOpen; paintKeys(keysOpen); }
   });
   addEventListener('keyup', (e) => keys.delete(e.code));
   addEventListener('resize', () => {
@@ -542,6 +542,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
       if (demo && (world.outcome !== 'running' || world.runner.x > demo.x1)) demoEnd();
       log.push(...world.events);
       for (const e of world.events) {
+        if (e.type === 'jump' && keysOpen && !keysTouched) { keysOpen = false; paintKeys(false); } // the controls card has done its job once you have jumped
         if (e.type === 'land' && (e.detail?.impact as number) > 2 && !e.detail?.bouncy) {
           const o = ouch(e.detail?.peakDecel as number);
           squashUntil = world.runner.tick + 40; squashDepth = e.detail?.squat ? 0.7 : o >= 6 ? 0.6 : 0.88;

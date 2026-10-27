@@ -24,7 +24,7 @@ try {
   await page.click('#next');
   checks.nextNeverLocked = !(await page.$eval('#next', (b) => b.disabled));
   checks.noGuessOrLock = (await page.$$('#guess, #newguess, #scrub')).length === 0;
-  for (const [speed, jump] of [[7, 4.5], [6, 3.5], [8, 5]]) {
+  for (const [speed, jump] of [[3, 4.5], [6, 4.5], [9, 4.5]]) {
     await set('knob-speed', speed); await set('knob-jump', jump);
     checks.liveResult = (checks.liveResult ?? true) && (await page.textContent('#out')).includes(`${((2 * speed * jump) / 9.81).toFixed(1)} m`);
     await page.click('#run');
