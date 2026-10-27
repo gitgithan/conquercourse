@@ -61,6 +61,7 @@ export function startPark(host: HTMLElement): { backend: 'webgl2' } {
   const out = el('div', { cls: 'panel' });
   out.hidden = true;
   const credit = el('div', { cls: 'muted' });
+  const paint = el('input', { type: 'checkbox', id: 'paint', checked: true }); // paint the photo's pictures on the obstacles in the game
   root.append(title, intro, picker, stage, tools, out, credit);
 
   // your own photo: shrunk and re-saved as a jpeg in the browser, which also drops any location data it carried
@@ -198,13 +199,13 @@ export function startPark(host: HTMLElement): { backend: 'webgl2' } {
     hm.oninput = () => { if (sel) { if (hm.value === '') delete sel.heightM; else sel.heightM = Number(hm.value); } };
     const make = el('button', { textContent: 'Make my course', cls: 'go', id: 'make' });
     make.onclick = makeCourse;
-    tools.append(add, del, el('label', {}, 'This is a: ', what), el('label', {}, 'Real height (m, optional): ', hm), make);
+    tools.append(add, del, el('label', {}, 'This is a: ', what), el('label', {}, 'Real height (m, optional): ', hm), el('label', {}, paint, ' Paint the photo on the obstacles'), make);
   }
 
   function makeCourse() {
     if (!data) return;
     const prims = fitPrimitives(boxes);
-    proof = proveCourse(prims, `Park: ${data.photo}`);
+    proof = proveCourse(prims, `Park: ${data.photo}`, paint.checked ? (data.file.startsWith('data:') ? data.file : `/assets/park/${data.file}`) : undefined);
     showCourse(prims, proof);
   }
 

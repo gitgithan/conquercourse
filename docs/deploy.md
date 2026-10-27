@@ -59,3 +59,10 @@
 - **Park mode:** it works offline from saved results; the live photo upload is off, so no key is exposed.
 - **Browsers:** WebGPU where available, WebGL 2 otherwise; very old phones may be slow.
 - **Cost:** $0 on the free tier (the limits are generous for a feedback round).
+
+## Photo skins (CC-39)
+- **What it does:** a course made in the Park paints each box's part of the photo on the front of its obstacle in the game, so a painted wall shows its painting.
+  - It is looks only: the obstacle's collision is still its box, and the bot still clears the course.
+  - The Park has a "Paint the photo on the obstacles" switch (on by default); the gallery always paints.
+- **Check it:** `npm run build`, then `node scripts/community-check.mjs` (it draws a striped "mural", shares it, approves it, plays it and checks the picture was painted).
+- **Not yet:** the 3D lift (CC-38) will replace the flat picture with a real 3D object once it is ready.

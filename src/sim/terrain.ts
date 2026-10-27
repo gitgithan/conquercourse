@@ -4,6 +4,7 @@ export interface Platform {
   x1: number;
   top: number; // height of the standing surface, m
   bouncy?: boolean; // a trampoline bed: landing here starts a bounce
+  skin?: { image: string; crop: [number, number, number, number] }; // a picture painted on the front face: the image's address and the part of it (in pixels) to use; looks only, never collision
 }
 
 export interface Terrain {

@@ -8,7 +8,7 @@ const server = spawn('npx', ['wrangler', 'pages', 'dev', 'dist', '--port', port,
 const flags = ['--enable-unsafe-webgpu', '--enable-features=Vulkan', '--use-vulkan=swiftshader', '--use-angle=swiftshader', '--disable-vulkan-surface', '--ignore-gpu-blocklist'];
 const sql = (q) => execFileSync('npx', ['wrangler', 'd1', 'execute', 'conquercourse-feedback', '--local', '--command', q], { encoding: 'utf8' });
 try {
-  await new Promise((r) => setTimeout(r, 9000));
+  for (let i = 0; i < 60; i++) { try { if ((await fetch(`http://localhost:${port}/`)).ok) break; } catch { /* not up yet */ } await new Promise((r) => setTimeout(r, 1000)); } // wait for wrangler to come up
   const browser = await chromium.launch({ args: flags });
   const page = await browser.newPage({ viewport: { width: 1100, height: 900 } });
   const errors = []; page.on('pageerror', (e) => errors.push(e.message));
@@ -18,6 +18,7 @@ try {
     const c = document.createElement('canvas'); c.width = 900; c.height = 600; const g = c.getContext('2d');
     g.fillStyle = '#9ec5ea'; g.fillRect(0, 0, 900, 600); g.fillStyle = '#6a8f4f'; g.fillRect(0, 400, 900, 200);
     g.fillStyle = '#9b9488'; g.fillRect(120, 300, 300, 120); g.fillRect(520, 340, 280, 80);
+    for (let i = 0; i < 6; i++) { g.fillStyle = ['#e8453c', '#f2b134', '#2d9cdb', '#6fcf97', '#bb6bd9', '#f2994a'][i]; g.fillRect(130 + i * 48, 310, 40, 100); } // a painted wall
     return c.toDataURL('image/png').split(',')[1];
   });
   const { writeFileSync } = await import('node:fs');
@@ -60,6 +61,8 @@ try {
   await card.$('button.go').then((b) => b.click());
   await page.waitForFunction(() => document.documentElement.dataset.ready === 'true' && Number(document.documentElement.dataset.tick) >= 0, null, { timeout: 120000 });
   await page.waitForTimeout(1500);
+  await page.waitForFunction(() => Number(document.documentElement.dataset.skins ?? 0) >= 1, null, { timeout: 30000 }).catch(() => {});
+  checks.photoPaintedOnObstacles = Number(await page.evaluate(() => document.documentElement.dataset.skins ?? 0)) >= 2;
   checks.playsInCourse = (await page.$('.gal')) === null && /m of/.test(await page.textContent('body'));
   await page.screenshot({ path: 'test-results/community/play.png' });
   console.log(checks, 'errors:', errors);
