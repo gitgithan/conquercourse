@@ -66,3 +66,12 @@ describe('the course generator', () => {
     expect(searchIdealRun(file).cleared).toBe(true);
   }, 120_000);
 });
+
+describe('a generated course carries its proved line', () => {
+  it('has a plan that clears it from the start (so drums and the bot need no search)', async () => {
+    const { playPlan } = await import('../src/sim/ideal');
+    const c = generateCourse(1);
+    expect(c.plan).toBeDefined();
+    expect(playPlan(c, c.plan!, 120 * 90).world.outcome).toBe('cleared');
+  }, 120000);
+});

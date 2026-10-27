@@ -9,7 +9,7 @@ export interface Drum {
   what: 'jump' | 'let go' | 'bounce' | 'vault' | 'grab' | 'release';
 }
 
-export function drumsFor(course: CourseData, plan: Plan = searchIdealRun(course).plan, maxTicks = 120 * 80): Drum[] {
+export function drumsFor(course: CourseData, plan: Plan = course.plan ?? searchIdealRun(course).plan, maxTicks = 120 * 80): Drum[] {
   let w = newWorld(course);
   const st = { next: 0, caught: null as number | null, bedAt: null as number | null };
   const drums: Drum[] = [];
