@@ -175,3 +175,7 @@ The set of obstacle shapes is fixed, and each shape offers a fixed set of moves.
 ## Front view window (CC-44)
 - **What:** a small second camera drawn in a corner window (bottom right) shows the runner from the front while hanging from a bar, so the hands on the bar and the swing can be read next to the side view; F shows it at any time (`?front=1` too).
 - **How:** the same scene is drawn twice in one canvas (a scissored second viewport; the WebGPU viewport counts from the top).
+
+## Fix it and the design partner know about bars (CC-44)
+- **Fix it with bars (`src/slice/fixbars.ts`):** tries small moves of the bars (up or down, along the run, both together), skips any that leave no bar a jump can reach, and keeps the smallest one the ideal-run search proves; it stops after 6 s and says so.
+- **Design partner:** the world description now lists the bars (where along the run, how high) and the prompt explains the reach numbers, the swing, the vault and the cost of a jump.
