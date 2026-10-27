@@ -118,3 +118,24 @@ function tuneTicks(course: CourseData, plan: Plan, key: 'releaseAfter' | 'bounce
   plan[key] = good[Math.floor(good.length / 2)];
   windows.push({ obstacle: name, best: plan[key], lo, hi, widthMs: ((hi - lo + stepSize) * DT) * 1000 });
 }
+
+// A player who is good but not perfect: every press is a little off (sigma in ms of game time), and a fall
+// means starting again. Returns the game seconds until the first clear, or null if it never clears in `limitS`.
+export function playImperfect(course: CourseData, plan: Plan, seed: number, sigmaMs: number, limitS = 180): number | null {
+  let state = seed >>> 0 || 1;
+  const rnd = () => { state = (Math.imul(state, 1664525) + 1013904223) >>> 0; return state / 2 ** 32; };
+  const gauss = () => Math.sqrt(-2 * Math.log(Math.max(rnd(), 1e-12))) * Math.cos(2 * Math.PI * rnd());
+  const sigmaX = (sigmaMs / 1000) * 7.4; // metres of run at about 7.4 m/s
+  let total = 0;
+  while (total < limitS) {
+    const noisy: Plan = {
+      jumpXs: plan.jumpXs.map((x) => x + gauss() * sigmaX),
+      releaseAfter: Math.max(0, Math.round(plan.releaseAfter + (gauss() * sigmaMs) / (DT * 1000))),
+      bouncePress: Math.max(0, Math.round(plan.bouncePress + (gauss() * sigmaMs) / (DT * 1000))),
+    };
+    const r = playPlan(course, noisy);
+    total += r.world.runner.tick * DT + 1; // one second to restart
+    if (r.world.outcome === 'cleared') return total;
+  }
+  return null;
+}

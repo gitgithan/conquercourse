@@ -72,5 +72,37 @@
     "anchorX": 108,
     "anchorY": 10.9,
     "length": 9
-  }
+  },
+  "zones": [
+    {
+      "id": "gap",
+      "name": "gap",
+      "x0": -10,
+      "x1": 36
+    },
+    {
+      "id": "landing",
+      "name": "precision steps",
+      "x0": 36,
+      "x1": 70
+    },
+    {
+      "id": "wall",
+      "name": "warped wall",
+      "x0": 70,
+      "x1": 90
+    },
+    {
+      "id": "rope",
+      "name": "rope swing",
+      "x0": 90,
+      "x1": 115
+    },
+    {
+      "id": "trampoline",
+      "name": "trampoline",
+      "x0": 115,
+      "x1": 140
+    }
+  ]
 }

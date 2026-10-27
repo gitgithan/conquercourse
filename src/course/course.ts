@@ -10,6 +10,7 @@ export interface CourseData {
   finishX: number; // crossing it standing on a platform clears the course
   jumpSpeed: number; // m/s upward when Space is pressed on the ground
   terrain: Terrain;
+  zones?: { id: string; name: string; x0: number; x1: number }[]; // where each obstacle lives, for messages and the Dojo link
   wall?: { x0: number } & Partial<WallParams>; // curve starts at x0 and rises over `height` metres of run
   rope?: Partial<RopeParams> & { anchorX: number; anchorY: number };
 }
