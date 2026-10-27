@@ -85,6 +85,13 @@
 - **Usable clips have a still camera, a side or three-quarter view, the whole body and the ground in frame, and a normal lens.**
 - **Scrub workspace names and home paths from committed logs.**
 
+## Photos to 3D objects
+- **A photo becomes a skin, never a collider, and colour must go in a texture.**
+  - SAM 3D Objects gives a mesh that is upright in its own frame (z up) and a splat that holds the colour; keep both, drop the camera layout.
+  - Vertex colours on 6,000 faces smeared a painted wall; a 1024 texture baked from the splat fixed it, and a wall that fills the frame needed padding to stop being lifted as a table.
+  - Size still comes from a typed or typical height; thin or long things (a shadow strip, steps) fail.
+  - Why: nine photos, three rounds, about $0.17 of GPU (`data/eval/cc-38-photo-to-3d/README.md`).
+
 ## Design
 - **One rule with a tension carries the game:** "Speed gets you over the obstacle; speed also throws you off it."
 - **Each obstacle has one physics saying,** earned by discovery, never a formula (`docs/sayings.md`).
