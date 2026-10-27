@@ -1,0 +1,45 @@
+{
+  "pass": true,
+  "answer": {
+    "all_adults": "yes",
+    "children_seen": false,
+    "people": 5,
+    "reasons": [
+      "adult body size and proportions relative to large warped walls",
+      "full-size professional ninja gym equipment and course scale",
+      "adult athletic clothing",
+      "National Ninja League Season V adult competition context"
+    ]
+  },
+  "usage": {
+    "completion_tokens": 573,
+    "prompt_tokens": 7354,
+    "total_tokens": 7927,
+    "completion_tokens_details": {
+      "reasoning_tokens": 502
+    },
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "seconds": 3.9,
+    "model": "muse-spark-1.3"
+  },
+  "usd": 0.0116,
+  "frames_sent": 6,
+  "frames": [
+    0,
+    227,
+    455,
+    683,
+    911,
+    1139
+  ],
+  "faces_found_per_frame": [
+    0,
+    0,
+    1,
+    0,
+    0,
+    0
+  ]
+}

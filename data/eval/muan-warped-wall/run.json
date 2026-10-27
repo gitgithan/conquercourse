@@ -1,0 +1,130 @@
+{
+  "experiment": "muan-warped-wall",
+  "issue": "CC-29",
+  "date": "2026-10-27",
+  "command": "ingest_video.py https://www.youtube.com/watch?v=7soV521Xk1A --start 149.0 --end 155.0 --id muan-warped-wall",
+  "phrases": [
+    "wall",
+    "curved wall",
+    "ramp",
+    "platform",
+    "bar",
+    "rope",
+    "ledge",
+    "box",
+    "steps",
+    "pole"
+  ],
+  "stages": {},
+  "cost": {
+    "meta_usd": 0.0056,
+    "gpu_container_seconds": 565.4227766990662,
+    "modal_usd": 0.126,
+    "sam31_images": 30,
+    "sam31_usd": 0.075,
+    "sam31_seconds": 2.2,
+    "sam31_images_paid": 60,
+    "sam31_usd_paid": 0.15,
+    "total_usd_list": 0.282
+  },
+  "source": {
+    "url": "https://www.youtube.com/watch?v=7soV521Xk1A",
+    "id": "7soV521Xk1A",
+    "title": "Amazing American Ninja Warrior Nation",
+    "uploader": "Andrew Muan",
+    "licence": "Creative Commons Attribution license (reuse allowed)",
+    "duration_s": 276,
+    "size": [
+      480,
+      480
+    ],
+    "fps": 30,
+    "upload_date": "20190425",
+    "range_s": [
+      149.0,
+      155.0
+    ],
+    "fetched": "2026-10-27"
+  },
+  "estimate": {
+    "frames": 180,
+    "gpu_container_seconds": 780,
+    "gpu_minutes": 13.0,
+    "sam31_images": 30,
+    "usd": {
+      "modal_l4": 0.173,
+      "sam31": 0.075,
+      "meta_vision": 0.06
+    },
+    "usd_total": 0.308
+  },
+  "adult_check": {
+    "pass": true,
+    "answer": {
+      "all_adults": "yes",
+      "children_seen": false,
+      "people": 1,
+      "reasons": [
+        "Mature athletic female build on warped wall",
+        "American Ninja Warrior Indianapolis adult course",
+        "Adult proportion to large equipment",
+        "Crowd blurred with no identifiable child"
+      ]
+    },
+    "usage": {
+      "completion_tokens": 756,
+      "prompt_tokens": 1912,
+      "total_tokens": 2668,
+      "completion_tokens_details": {
+        "reasoning_tokens": 689
+      },
+      "prompt_tokens_details": {
+        "cached_tokens": 0
+      },
+      "seconds": 6.1,
+      "model": "muse-spark-1.3"
+    },
+    "usd": 0.0056,
+    "frames_sent": 6,
+    "frames": [
+      0,
+      35,
+      71,
+      107,
+      143,
+      179
+    ],
+    "faces_found_per_frame": [
+      42,
+      42,
+      18,
+      1,
+      0,
+      1
+    ]
+  },
+  "scale": {
+    "source": "body-height",
+    "metresPerPixel": 0.009320805908752264,
+    "relativeUncertainty": 0.07882558310734988,
+    "note": "athlete 188 px tall taken as 1.75 m (adult range 1.6-1.9 m); obstacle assumed at the athlete's depth"
+  },
+  "gate": {
+    "verdict": "FAIL",
+    "failed_rules": [
+      "held_clips_are_held"
+    ]
+  },
+  "starter_move_check": {
+    "passes": false,
+    "numbers": {
+      "plant_m": 0.91,
+      "travel_m": 3.7,
+      "grip_frames": 4
+    }
+  },
+  "wall_seconds": 14,
+  "id": "muan-warped-wall",
+  "recipe_file": "recipe.json",
+  "cost_actual_note": "The first pass measured on Modal (565 GPU s, $0.126) and ran SAM 3.1, then stopped at the GIF step (missing matplotlib on the VM); the resume from stage seg ran SAM 3.1 again, so SAM 3.1 was paid twice (60 images, $0.15 in all). Total actual about $0.28 at list prices."
+}

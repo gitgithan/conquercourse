@@ -1,0 +1,44 @@
+{
+  "experiment": "wnl-warped-wall-short",
+  "issue": "CC-29",
+  "date": "2026-10-27",
+  "command": "ingest_video.py https://www.youtube.com/shorts/NCq1BAUcXF8 --start 0.0 --end 24.0 --id wnl-warped-wall-short",
+  "phrases": [
+    "wall",
+    "curved wall",
+    "ramp",
+    "platform",
+    "bar",
+    "rope",
+    "ledge",
+    "box",
+    "steps",
+    "pole"
+  ],
+  "stages": {},
+  "cost": {},
+  "source": {
+    "url": "https://www.youtube.com/shorts/NCq1BAUcXF8",
+    "id": "NCq1BAUcXF8",
+    "title": "\ud83c\uddec\ud83c\udde7 Beth Lodge Beats the Warped Wall! \ud83c\uddec\ud83c\udde7",
+    "uploader": "World Ninja League",
+    "licence": "Creative Commons Attribution license (reuse allowed)",
+    "duration_s": 24,
+    "size": [
+      1080,
+      1920
+    ],
+    "fps": 30.0,
+    "upload_date": "20231103",
+    "range_s": [
+      0.0,
+      24.0
+    ],
+    "fetched": "2026-10-27"
+  },
+  "licence_check": "Creative Commons Attribution license (reuse allowed)",
+  "skipped": "the title, description or tags mention ['girl']: possible children, so the segment is skipped without looking at any frame",
+  "wall_seconds": 0,
+  "id": "wnl-warped-wall-short",
+  "recipe_file": null
+}

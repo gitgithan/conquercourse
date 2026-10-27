@@ -1,0 +1,45 @@
+{
+  "pass": true,
+  "answer": {
+    "all_adults": "yes",
+    "children_seen": false,
+    "people": 1,
+    "reasons": [
+      "Mature athletic female build on warped wall",
+      "American Ninja Warrior Indianapolis adult course",
+      "Adult proportion to large equipment",
+      "Crowd blurred with no identifiable child"
+    ]
+  },
+  "usage": {
+    "completion_tokens": 756,
+    "prompt_tokens": 1912,
+    "total_tokens": 2668,
+    "completion_tokens_details": {
+      "reasoning_tokens": 689
+    },
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "seconds": 6.1,
+    "model": "muse-spark-1.3"
+  },
+  "usd": 0.0056,
+  "frames_sent": 6,
+  "frames": [
+    0,
+    35,
+    71,
+    107,
+    143,
+    179
+  ],
+  "faces_found_per_frame": [
+    42,
+    42,
+    18,
+    1,
+    0,
+    1
+  ]
+}
