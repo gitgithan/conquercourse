@@ -11,6 +11,7 @@ import { TICKS_PER_SECOND } from '../sim/units';
 import { createStage } from '../render/scene';
 import { createRookieActor } from '../render/actor';
 import { actorStateFor } from '../motion/actor-state';
+import { lookUrl } from '../render/look';
 
 const data = course as unknown as CourseData;
 
@@ -48,7 +49,7 @@ export async function startActorDemo(): Promise<void> {
   const ropeMesh = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.04, 1, 8), mat(0x8a5a2b));
   if (rope) scene.add(ropeMesh);
 
-  const actor = await createRookieActor(scene, { rookie: params.get('rookie') === 'b' ? 'b' : 'a' });
+  const actor = await createRookieActor(scene, { rookie: params.get('rookie') === 'b' ? 'b' : 'a', url: params.get('look') ? lookUrl(params.get('look')!) : undefined });
 
   // the whole run up front: states[tick] is the simulator's world at that tick
   const plan = ideal.plan as Plan;
