@@ -1,5 +1,16 @@
 # CC-26: four Pexels clips to measured motion
 
+## So what
+- **Result for the game:** none of the four clips can be shown to a player yet; the Park's "filmed move becomes motion" path runs end to end, but its output is not trustworthy enough to ship.
+  - Jump over an obstacle: fails the gate (flight fits 0.8 m/s², the athlete flips); use for nothing yet.
+  - Precision jumps: fails the gate (flight not ballistic, feet under the floor, the camera moves); use for nothing yet.
+  - Monkey bars: fails the stricter shared gate (0.73 s with nothing holding the body; the line is 0.6 s); hang and swing already ship from CMU, so this clip adds only a timing check for hand grips.
+  - Brick wall: fails the stricter shared gate (1.23 s with nothing holding the body); its 37 contacts show where hands and feet touch a wall, so it is a test input for the obstacle-and-move code (CC-29), not a starter clip.
+- **What the four clips do prove:** the whole chain (faces masked first, SAM 3D Body, 30 joints on the clip's own clock, contacts, gate) works on real footage for about $1.
+- **Recommendation:** keep Pexels clips as test inputs; for shippable wall and bar motion, use clips with a still camera and a side view (CC-29 ingests CC BY videos of that kind), and fix the vertical scale before trusting any height.
+- **Next step:** CC-29's ingest command runs the same chain plus obstacle segmentation, and its gate is now the shared one in `pipelines/ccpipe/gate.py`.
+- **Gate update (2026-10-27):** the two "conditional pass" rows below were judged by the old video gate; the shared, stricter gate fails both (`gate_shared.json` in each clip folder).
+
 *Serves the Park beat: a filmed move becomes measured motion (pipeline 1 in `docs/pipelines.md`).*
 
 ## What was run
@@ -14,7 +25,7 @@
 - **Fixed body:** every bone gets its median length for the clip, with each frame's bone directions kept.
 - **Floor:** a plane fitted to the feet's lowest points on frames where a foot is nearly still.
 - **Contacts:** a hand or foot under 1.0 m/s for at least 3 frames (4 for hands, 3 well above the hips), plus brief wall plants; off the ground (over 0.25 m) means an obstacle, written as a thin implied slab.
-- **Gate:** the pipeline 4 rules (`pipelines/video_to_motion/gate.py`, tests in `pipelines/video_to_motion/tests/`), run on the raw and the repaired motion (knee mirror, lift to floor).
+- **Gate:** the pipeline 4 rules (now the shared `pipelines/ccpipe/gate.py`; tests in `pipelines/tests/`; `pipelines/video_to_motion/regate.py` re-runs it on committed motion), run on the raw and the repaired motion (knee mirror, lift to floor).
 - **Commands (set `CC_ASSETS_DIR` to the folder that holds `footage/` and `work/`):** `python pipelines/video_to_motion/run_clip.py CLIP` then `python pipelines/video_to_motion/post.py CLIP`.
 
 ## Results
@@ -22,8 +33,8 @@
 |---|---|---|---|---|---|
 | Jump over an obstacle | 91 of 124 | 116 of 124 frames | 9 | **FAIL** | flight fits g = 0.8 m/s² (rule: 9.81 ± 15 %); the athlete flips; short plants on the bench are not seen as support |
 | Precision jumps | 240 of 240 | 216 of 240 | 13 | **FAIL** | flight not ballistic and feet 4 cm under the floor; the camera moves (blocks shift in frame) |
-| Monkey bars | 300 of 300 | 249 of 300 | 45 | PASS (conditional) | passes only with `supportedBy` "playground bars" and the floor lift; the free-flight rule alone gives g = 0.18; the camera pans |
-| Brick wall | 300 of 300 | 174 of 300 | 37 | PASS (conditional) | passes only with `supportedBy` "a brick wall" and the floor lift; free-flight g = 4.7; the camera pans |
+| Monkey bars | 300 of 300 | 249 of 300 | 45 | PASS (conditional; **FAIL** under the shared gate, `held_clips_are_held`) | passes only with `supportedBy` "playground bars" and the floor lift; the free-flight rule alone gives g = 0.18; the camera pans |
+| Brick wall | 300 of 300 | 174 of 300 | 37 | PASS (conditional; **FAIL** under the shared gate, `held_clips_are_held`) | passes only with `supportedBy` "a brick wall" and the floor lift; free-flight g = 4.7; the camera pans |
 
 - **Faces first:** every frame with a face found had it pixelated before measuring; frames without a found face have the whole person blurred in the kept image.
 - **Clock:** `motion.json` times are the clip's own (25 fps for the jump clip, 29.97 fps for the others), never a typed-in rate.
