@@ -1,5 +1,14 @@
 # Starter clips through the plausibility gate (CC-17)
 
+## So what
+- **Result for the game:** 5 of the 6 Rookie moves ship: run, leap, land, hang and swing all pass the gate and the guard test (plus two extras, reach and a Kimodo leap).
+- **The one missing move is the wall run-up and grab (the Warped Wall beat),** and the failure is about the method, not about the wall:
+  - the 36 Kimodo samples were text-only prompts, tried before the simulator path and the contact targets existed;
+  - the earlier practice project got wall moves working by feeding Kimodo the simulator's path plus hand and foot targets (`docs/pipelines.md`, pipelines 3, 5 and 6);
+  - so "0 of 36" says text alone is not enough, not that the move is out of reach.
+- **Recommendation:** do not drop the wall; build the wall move from CC-29 video measurements (a real wall run: path, plant height, grip height and timing) plus contact targets for Kimodo.
+- **Next step:** CC-29 ingests the filmed wall run (side view, 2:29-2:35 of the first video) and writes a move recipe; use its plant and grip points as Kimodo's targets, then run the same move check.
+
 *Serves: the motion library for the Rookies (run, leap, land, hang, swing, wall run-up and grab); demo beat "nothing impossible is ever shown".*
 
 ## Question
