@@ -152,3 +152,62 @@ def bake(raw_vertices, raw_faces, splat_xyz, splat_dc, splat_opacity, label, typ
         "faces": int(len(f)), "vertices": int(len(v)), "width_to_height": round(float(ext[0] / ext[1]), 3),
     }
     return v, f, col, info
+
+
+def unwrap(v, f):
+    """UV-unwrap with xatlas: (vertices split along seams, faces, uv in glTF convention: origin top-left, v down)."""
+    import xatlas
+    vm, idx, uv = xatlas.parametrize(np.asarray(v, np.float32), np.asarray(f, np.uint32))
+    uv = np.asarray(uv, float).copy()
+    uv[:, 1] = 1 - uv[:, 1]
+    return np.asarray(v)[vm], idx.astype(np.int64), uv
+
+
+def bake_texture(v, f, uv, splat_xyz, splat_rgb01, splat_opacity=None, size=1024, k=4):
+    """A size x size sRGB texture: each texel takes the colour of the splat's nearest Gaussians at its point on the surface.
+
+    Texels outside every triangle are filled from the nearest inside texel, so bilinear filtering never shows a seam."""
+    from scipy import ndimage
+    v = np.asarray(v, float)
+    px = np.asarray(uv, float) * size
+    pos = np.zeros((size, size, 3))
+    inside = np.zeros((size, size), bool)
+    for tri in np.asarray(f, np.int64):
+        xs, ys = px[tri, 0], px[tri, 1]
+        x0, x1 = max(0, int(np.floor(xs.min()))), min(size - 1, int(np.ceil(xs.max())))
+        y0, y1 = max(0, int(np.floor(ys.min()))), min(size - 1, int(np.ceil(ys.max())))
+        den = (ys[1] - ys[2]) * (xs[0] - xs[2]) + (xs[2] - xs[1]) * (ys[0] - ys[2])
+        if abs(den) < 1e-12 or x1 < x0 or y1 < y0:
+            continue
+        gx, gy = np.meshgrid(np.arange(x0, x1 + 1) + 0.5, np.arange(y0, y1 + 1) + 0.5)
+        l0 = ((ys[1] - ys[2]) * (gx - xs[2]) + (xs[2] - xs[1]) * (gy - ys[2])) / den
+        l1 = ((ys[2] - ys[0]) * (gx - xs[2]) + (xs[0] - xs[2]) * (gy - ys[2])) / den
+        l2 = 1 - l0 - l1
+        m = (l0 >= -1e-6) & (l1 >= -1e-6) & (l2 >= -1e-6)
+        if not m.any():
+            continue
+        p3 = l0[..., None] * v[tri[0]] + l1[..., None] * v[tri[1]] + l2[..., None] * v[tri[2]]
+        pos[y0:y1 + 1, x0:x1 + 1][m] = p3[m]
+        inside[y0:y1 + 1, x0:x1 + 1][m] = True
+    tex = np.zeros((size, size, 3), np.uint8)
+    tex[inside] = vertex_colours(pos[inside], splat_xyz, splat_rgb01, splat_opacity, k=k)
+    near = ndimage.distance_transform_edt(~inside, return_distances=False, return_indices=True)
+    return tex[near[0], near[1]]
+
+
+def bake_textured(raw_vertices, raw_faces, splat_xyz, splat_dc, splat_opacity, label, typed_height=None, max_faces=MAX_FACES, k=4, texture_size=1024):
+    """Like bake, but the colour goes into a UV texture: (vertices, faces, uv, texture uint8, info)."""
+    height, source = resolve_height(label, typed_height)
+    pose, pinfo = fit_pose(raw_vertices, height)
+    v, f = decimate(pose.apply(raw_vertices), raw_faces, max_faces)
+    v, f, uv = unwrap(v, f)
+    tex = bake_texture(v, f, uv, pose.apply(splat_xyz), splat_rgb(splat_dc), splat_opacity, size=texture_size, k=k)
+    ext = v.max(0) - v.min(0)
+    tilt = base_tilt_deg(v, f)
+    info = {
+        "label": label, "extents_m": {"x": round(float(ext[0]), 3), "y": round(float(ext[1]), 3), "z": round(float(ext[2]), 3)},
+        "height_m": round(float(ext[1]), 3), "target_height_m": height, "scale_source": source, "scale_factor": pinfo["scale"],
+        "raw_height": pinfo["raw_height"], "yaw_deg": pinfo["yaw_deg"], "tilt_deg": None if tilt is None else round(tilt, 2),
+        "faces": int(len(f)), "vertices": int(len(v)), "width_to_height": round(float(ext[0] / ext[1]), 3), "texture": f"{texture_size}x{texture_size}",
+    }
+    return v, f, uv, tex, info
