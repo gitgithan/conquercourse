@@ -100,7 +100,13 @@ function onGround(moved: RunnerState, before: RunnerState, p: RunnerParams, t: T
     if (!block) return { ...moved, x: before.x, vx: 0 };
     return { ...moved, x: moved.x < before.x ? block.x1 + 1e-6 : block.x0 - 1e-6, vx: 0 };
   }
-  if (here < before.y - 1e-9) return { ...moved, grounded: false, vy: 0 }; // off the edge: fall
+  if (here < before.y - 1e-9) {
+    // down a curved top the feet stay on the ground as long as the slope is gentler than 45 degrees: running over a dome is not
+    // leaving the ground (so Space still works on the way down); a real drop (an edge) still lets go
+    const onCurve = platformAt(t, moved.x)?.profile !== undefined && platformAt(t, before.x)?.profile !== undefined;
+    if (onCurve && before.y - here <= MAX_SLOPE * Math.abs(moved.x - before.x) + 1e-9) return { ...moved, y: here };
+    return { ...moved, grounded: false, vy: 0 }; // off the edge: fall
+  }
   return { ...moved, y: here };
 }
 
@@ -114,7 +120,7 @@ function fly(s: RunnerState, input: RunnerInput, p: RunnerParams, t: Terrain): R
   // Flew into the side of a block that stands higher than the feet: stop against it and drop.
   if (ground > s.y + 1e-9 && groundAt(t, s.x) < ground) {
     const block = platformAt(t, x);
-    if (block) { x = s.vx < 0 ? block.x1 + 1e-6 : block.x0 - 1e-6; vx = 0; }
+    if (block && !block.profile) { x = s.vx < 0 ? block.x1 + 1e-6 : block.x0 - 1e-6; vx = 0; } // a curved top has no side to hit: rising ground is met by landing on it
   }
   const floor = groundAt(t, x);
   if (y > floor) {

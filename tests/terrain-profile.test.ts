@@ -60,3 +60,42 @@ describe('a mound in a Park course', () => {
     expect(searchIdealRun(proof.course).cleared).toBe(true);
   });
 });
+
+describe('running and jumping on a dome', () => {
+  // a dome 3 m long and 0.8 m high on the level ground
+  const dome: Terrain = { waterY: -1.5, platforms: [{ x0: -10, x1: 12, top: 0 }, { x0: 12, x1: 15, top: 0.8, profile: bumpProfile(12, 15, 0.8) }, { x0: 15, x1: 40, top: 0 }] };
+  const run = (x0: number, v: number, ticks: number, jumpAt?: number) => {
+    let s = { ...startState(x0), vx: v };
+    const trail: typeof s[] = [];
+    for (let i = 0; i < ticks; i++) { s = step(s, { ...NO_INPUT, run: true, jump: jumpAt === i, jumpSpeed: 4.5 }, DEFAULT_PARAMS, dome); trail.push(s); }
+    return trail;
+  };
+  it('a jump from the rising side carries on forward: it is never thrown back', () => {
+    for (const x0 of [11, 11.4, 11.8]) {
+      const trail = run(x0, 7, 60, 40);
+      for (let i = 1; i < trail.length; i++) expect(trail[i].x).toBeGreaterThanOrEqual(trail[i - 1].x - 1e-9);
+      expect(trail.some((s) => s.vx === 0 && s.tick > 5)).toBe(false);
+    }
+  });
+  it('running over the crest and down the far side keeps the feet on the ground', () => {
+    const trail = run(11, 6, 90).filter((s) => s.x > 12 && s.x < 15);
+    expect(trail.length).toBeGreaterThan(20);
+    expect(trail.every((s) => s.grounded)).toBe(true);
+  });
+  it('Space works on the far side of the dome', () => {
+    let s = { ...startState(11), vx: 6 };
+    let jumped = false;
+    for (let i = 0; i < 200; i++) {
+      const onFarSide = s.x > 13.7 && s.x < 14.6;
+      s = step(s, { ...NO_INPUT, run: true, jump: onFarSide && s.grounded && !jumped, jumpSpeed: 4.5 }, DEFAULT_PARAMS, dome);
+      if (onFarSide && !s.grounded && s.vy > 4) jumped = true;
+    }
+    expect(jumped).toBe(true);
+  });
+  it('a real drop is still a fall: the edge of a flat platform lets go', () => {
+    const cliff: Terrain = { waterY: -3, platforms: [{ x0: -10, x1: 10, top: 1 }, { x0: 12, x1: 20, top: 0 }] };
+    let s = { ...startState(8), y: 1, vx: 7 };
+    for (let i = 0; i < 60; i++) s = step(s, { ...NO_INPUT, run: true }, DEFAULT_PARAMS, cliff);
+    expect(s.x > 10 && (s.grounded === false || s.y < 1)).toBe(true);
+  });
+});
