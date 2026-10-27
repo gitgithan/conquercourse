@@ -84,6 +84,22 @@ def _frame_path(path, tick):
     return path[a] + (path[b] - path[a]) * (t - a)
 
 
+def find_plant(wall, hips, foot, a, b):
+    """A pin for `foot` on frames a..b: the lowest point on the curve whose ankle the hips never get farther than
+    a straight leg from (or nearer than a folded one to)."""
+    for z in np.linspace(2.0, wall.r - 0.1, 441):
+        p, n = wall.curve_point(z)
+        d = np.linalg.norm(hips[a:b + 1] - (p + n * ANKLE_OFFSET + [FOOT_SPACING * (1 if foot == "LeftFoot" else -1), 0, 0]), axis=1)
+        if d.min() >= PLANT_REACH[0] and d.max() <= PLANT_REACH[1]:
+            break
+    else:
+        raise ValueError(f"no point on the curve can hold the {foot} for frames {a}-{b}")
+    ankle = p + n * ANKLE_OFFSET
+    ankle[0] = FOOT_SPACING if foot == "LeftFoot" else -FOOT_SPACING
+    return {"joint": foot, "frames": [a, b], "point": ankle.round(4).tolist(), "sole": p.round(4).tolist(),
+            "hips_to_ankle": [round(float(d.min()), 3), round(float(d.max()), 3)]}
+
+
 def build_targets(sim, wall=None):
     """Targets for the clip from the exported simulator wall run (scripts/wall-path-export.ts).
 
@@ -107,20 +123,7 @@ def build_targets(sim, wall=None):
     mid = (wrist["LeftHand"] + wrist["RightHand"]) / 2
     reach = np.linalg.norm(sim_hips - mid, axis=1)
     grab = int(next(f for f in range(ENTRY_FRAME, CLIP_FRAMES) if reach[f] <= GRIP_REACH))
-    plants = []
-    for foot, a, b in PLANTS:
-        # the lowest point on the curve whose ankle the hips never get farther than a straight leg from (or nearer than a folded one to)
-        for z in np.linspace(2.0, wall.r - 0.1, 441):
-            p, n = wall.curve_point(z)
-            d = np.linalg.norm(hips[a:b + 1] - (p + n * ANKLE_OFFSET + [FOOT_SPACING * (1 if foot == "LeftFoot" else -1), 0, 0]), axis=1)
-            if d.min() >= PLANT_REACH[0] and d.max() <= PLANT_REACH[1]:
-                break
-        else:
-            raise ValueError(f"no point on the curve can hold the {foot} for frames {a}-{b}")
-        ankle = p + n * ANKLE_OFFSET
-        ankle[0] = FOOT_SPACING if foot == "LeftFoot" else -FOOT_SPACING
-        plants.append({"joint": foot, "frames": [a, b], "point": ankle.round(4).tolist(), "sole": p.round(4).tolist(),
-                       "hips_to_ankle": [round(float(d.min()), 3), round(float(d.max()), 3)]})
+    plants = [find_plant(wall, hips, foot, a, b) for foot, a, b in PLANTS]
     deck_y = wall.h + ANKLE_OFFSET
     deck_z = float(feet[-1, 0])
     deck = [{"joint": "LeftFoot", "frames": [DECK_FIRST, CLIP_FRAMES - 1], "point": [FOOT_SPACING, deck_y, deck_z]},

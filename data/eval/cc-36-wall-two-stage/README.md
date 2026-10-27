@@ -21,7 +21,7 @@
   - Frames 30-59: the simulator's `runWall` path (entry 7 m/s, 4.3 m curve, friction 0.1) from the foot to its feet at 2.23 m up the curve (`apexPath`, ticks 0-116).
   - Frames 40-44: right foot planted on the curve (ankle 8 cm off the surface, about 1.0 m up).
   - Frames 51-55: left foot planted on the curve (about 2.1 m up).
-  - Frames 55-59: both wrists aimed 1.0 m from the hips toward the ledge (the arms start to rise; the ledge is 1.23 m from the hips there, out of reach by 0.16 m).
+  - Frames 55-59: both wrists aimed 1.0 m from the hips toward the ledge (the arms start to rise; the ledge is 1.17 m from the hips there, out of reach by 0.10 m).
   - The hips are aimed 2 cm under the simulator's path (as in CC-17); the pass line is measured against the simulator's own path.
 - **Stage B, hang and pull-up (48 frames, 1.6 s), in a frame local to the ledge:**
   - Local frame: the ledge's top edge is at z = 0 and y = 2.1 m (the world edge is at z = 4.3 m, y = 4.3 m, so world = local + (0, 2.2, 4.3)).

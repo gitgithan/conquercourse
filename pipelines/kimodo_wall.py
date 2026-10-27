@@ -86,7 +86,7 @@ def generate(targets: dict, seeds: list, cfg: dict):
     skel = model.skeleton
     sl = skel.get_skel_slice(SOMASkeleton77())
     T = targets["frames"]
-    prompt = cfg.get("prompt", PROMPT)
+    prompt = cfg.get("prompt", targets.get("prompt", PROMPT))
     out = {"model": resolved, "kimodo_commit": KIMODO_COMMIT, "steps": STEPS, "torch": str(torch.__version__), "load_s": round(load_s, 1),
            "bone_order_names": list(skel.bone_order_names), "config": cfg, "samples": []}
     hips = torch.tensor(targets["hips"], dtype=torch.float32)
