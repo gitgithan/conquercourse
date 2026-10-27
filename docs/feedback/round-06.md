@@ -37,3 +37,8 @@
   - Before a gap or the trampoline it sinks a little, leans in and swings the arms back; before the rope the hands begin to rise; before the wall it leans in.
   - It is only how the Rookie looks; the physics and the landing do not change.
 - **Not checked:** walls lower than the curve (3 m or less): the curve and the deck would need new geometry.
+
+## The text that flashed before the rope (CC-15)
+- **Cause:** the trampoline cue started 14 m before the trampoline, which is before the rope, so it showed for about 0.09 s and was replaced by the rope hint.
+- **Fix:** the trampoline cue waits until the rope is behind the runner; the other messages before the rope (the edge hint, 0.9 s) stay.
+- **Checked:** `scripts/text-watch.mjs` lists every message with how long it stayed on screen: the trampoline cue now shows once, for about 3.4 s of game time, after the rope.
