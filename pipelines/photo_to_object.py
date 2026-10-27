@@ -78,6 +78,7 @@ if modal is not None:
             "pip install --no-deps 'git+https://github.com/microsoft/MoGe.git@a8c37341bc0325ca99b9d57981cc3bb2bd3e255b'",
             "pip install --no-deps -e /opt/sam-3d-objects",
             "python /opt/sam-3d-objects/patching/hydra",
+            "pip install 'numpy==1.26.4' 'pandas==2.2.3'",  # a late layer pulled numpy 2, which the compiled wheels (kaolin, cv2, open3d) cannot load
         )
         .env({"PYTHONPATH": "/opt/sam-3d-objects", "LIDRA_SKIP_INIT": "true", "HF_HUB_CACHE": f"{CK}/hf/hub", "HF_HUB_OFFLINE": "1"})
     )
