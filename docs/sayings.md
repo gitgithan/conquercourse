@@ -25,6 +25,8 @@
 | Braking and sprint | *"Your feet can only stop you as fast as they can grip."* | Friction limits deceleration |
 | Rolling Log | *"Stay still and it spins you off; move with it and it carries you."* | Rotation and reaction force |
 | Hang obstacles | *"Swing your legs to move your hands."* | Moving the centre of mass and transferring momentum |
+| Lache pair (bars) | *"Push with the swing and it grows; push against it and it fades."* | A pendulum gains energy when the push is in step with its motion, and loses it when out of step |
+| Vault | *"A jump buys height with speed; a vault keeps the speed but needs a hand on the obstacle."* | A jump loses speed at take-off; a vault moves on with a hand as the pivot |
 | The roll | *"Turn your fall into a roll and the ground forgives you."* | Downward speed turned into rotation |
 
 ## Where they appear
