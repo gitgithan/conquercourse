@@ -522,7 +522,8 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
     // the trampoline cue comes early and stays for 4 seconds (or until you land on the bed), so it can be read before the bounce
     const bed = course.terrain.platforms.find((q2) => q2.bouncy && r.x < q2.x1);
     if (!bed || bed.x0 - r.x > 14 || w.outcome !== 'running') { cueSince = null; cueDone = false; } // far from the bed, or restarted: the cue starts over
-    if (bed && !cueDone && w.mode === 'run' && w.outcome === 'running' && (bed.x0 - r.x < 14 || (cueSince !== null && r.tick - cueSince < 480))) {
+    if (bed && !cueDone && w.mode === 'run' && w.outcome === 'running' && !(course.rope && r.x < course.rope.anchorX + 1) && // not while the rope is still ahead: it only flashed for a moment there
+       (bed.x0 - r.x < 14 || (cueSince !== null && r.tick - cueSince < 480))) {
       cueSince ??= r.tick;
       return 'Trampoline ahead: press Space the moment you land on it for extra height';
     }
