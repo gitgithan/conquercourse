@@ -11,13 +11,12 @@ try {
   const browser = await chromium.launch({ args: flags });
   const page = await browser.newPage({ viewport: { width: 1280, height: 720 } });
   const errors = []; page.on('pageerror', (e) => errors.push(e.message));
-  await page.addInitScript(stepped);
-  await page.goto(`http://localhost:${port}/?bot=ideal`);
+    await page.goto(`http://localhost:${port}/?bot=ideal&startx=${process.env.STARTX ?? 45}&timescale=0.05`);
   await page.waitForSelector('html[data-ready=true]', { timeout: 120000 });
+  await page.mouse.move(640, 360); await page.mouse.wheel(0, -500); // zoom in on the runner
   mkdirSync('test-results/wall', { recursive: true });
-  const step = (ms) => page.evaluate((m) => window.__stepClock(m), ms);
-  for (let i = 0; i < 3000; i++) { await step(1000 / 30); if ((await page.evaluate(() => document.documentElement.dataset.mode)) === 'wall') break; }
-  for (let i = 0; i < 12; i++) { await page.screenshot({ path: `test-results/wall/w${String(i).padStart(2, '0')}.png`, clip: { x: 340, y: 160, width: 600, height: 420 } }); for (let k = 0; k < 3; k++) await step(1000 / 30); }
+  await page.waitForFunction(() => document.documentElement.dataset.mode === 'wall', null, { timeout: 200000, polling: 50 });
+  for (let i = 0; i < 16; i++) { await page.screenshot({ path: `test-results/wall/w${String(i).padStart(2, '0')}.png`, clip: { x: 170, y: 300, width: 300, height: 300 } }); await page.waitForTimeout(550); }
   console.log('errors:', errors);
   await browser.close();
 } finally { server.kill(); }

@@ -20,6 +20,7 @@ import { groundAt } from '../sim/terrain';
 // The Course: the five obstacles in a row. The simulator decides everything; this file only draws it
 // and turns keys into inputs. Time comes from the simulator's tick count, never from the browser's clock.
 const defaultCourse = courseJson as unknown as CourseData;
+const LANE_DEPTH = 2; // m, how thick the blocks and the wall are across the screen: thin enough that a camera ahead of the runner cannot hide them behind the block face
 
 export interface CourseGame {
   backend: 'webgpu' | 'webgl2';
@@ -55,7 +56,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
   for (const p of course.terrain.platforms) {
     const bottom = course.terrain.waterY - 2;
     const h = p.top - bottom;
-    const m = new THREE.Mesh(new THREE.BoxGeometry(p.x1 - p.x0, h, 5), p.bouncy ? bed : p.top === 0 ? grass : stone);
+    const m = new THREE.Mesh(new THREE.BoxGeometry(p.x1 - p.x0, h, LANE_DEPTH), p.bouncy ? bed : p.top === 0 ? grass : stone);
     m.position.set((p.x0 + p.x1) / 2, bottom + h / 2, 0);
     scene.add(m);
   }
@@ -74,8 +75,8 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
     }
     shape.lineTo(H, 0);
     shape.lineTo(0, 0);
-    const wall = new THREE.Mesh(new THREE.ExtrudeGeometry(shape, { depth: 5, bevelEnabled: false }), new THREE.MeshStandardMaterial({ color: 0xc9893b }));
-    wall.position.set(course.wall.x0, 0, -2.5);
+    const wall = new THREE.Mesh(new THREE.ExtrudeGeometry(shape, { depth: LANE_DEPTH, bevelEnabled: false }), new THREE.MeshStandardMaterial({ color: 0xc9893b }));
+    wall.position.set(course.wall.x0, 0, -LANE_DEPTH / 2);
     scene.add(wall);
   }
 
@@ -86,7 +87,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
     ropeMesh = new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.06, ropeLen, 8), new THREE.MeshStandardMaterial({ color: 0x8a5a2b }));
     ropeMesh.position.set(course.rope.anchorX, course.rope.anchorY - ropeLen / 2, 0);
     scene.add(ropeMesh);
-    const beam = new THREE.Mesh(new THREE.BoxGeometry(0.4, 0.4, 5), stone);
+    const beam = new THREE.Mesh(new THREE.BoxGeometry(0.4, 0.4, LANE_DEPTH), stone);
     beam.position.set(course.rope.anchorX, course.rope.anchorY + 0.2, 0);
     scene.add(beam);
   }
@@ -267,7 +268,8 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
   // bot: ?bot=ideal runs the ideal line the simulator found, so the whole course can be filmed hands-free
   let plan: Plan | null = null;
   const botState = { next: 0, caught: null as number | null, bedAt: null as number | null };
-  if (params.get('bot') === 'ideal') plan = searchIdealRun(course).plan;
+  const startAt = params.get('startx') === null ? undefined : Number(params.get('startx')); // ?startx=45 begins there (for tests and films)
+  if (params.get('bot') === 'ideal') plan = searchIdealRun(startAt === undefined ? course : { ...course, startX: startAt }).plan;
 
   const botMode = params.get('bot') === 'ideal';
   let retryX = course.startX; // "try this obstacle again" starts standing still just before it
@@ -283,7 +285,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
   let prevMode: string = 'run', prevVx = 0;
   let lastZone = 'gap';
 
-  let world = newWorld(course);
+  let world = newWorld(course, startAt);
   const log: GameEvent[] = [];
   const frames: { x: number; y: number }[] = [];
   let replay: { i: number; from: number; to: number } | null = null; // i is a float: the replay runs at half speed
@@ -511,8 +513,9 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
   dom.addEventListener('dblclick', resetOrbit);
   dom.addEventListener('contextmenu', (e) => e.preventDefault());
   dom.style.cursor = 'grab';
+  const timeScale = Number(params.get('timescale') ?? 1); // ?timescale=0.1 runs the game at a tenth of its speed (for stills)
   function frame(now: number) {
-    acc = Math.min(acc + (now - last) / 1000, 0.25);
+    acc = Math.min(acc + ((now - last) / 1000) * timeScale, 0.25);
     last = now;
     while (acc >= DT) {
       acc -= DT;
@@ -560,7 +563,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
     if (params.get('check') === '1' && actor) {
       // measurement for the tests: the deepest any joint sits inside a block or the wall, over the whole run (metres)
       const hit = makeObstacle(course);
-      actor.joints().forEach((j, i) => { const o = hit(j.x, j.y); if (o && Math.hypot(o.dx, o.dy) > maxPen) { maxPen = Math.hypot(o.dx, o.dy); document.documentElement.dataset.maxPenWhere = `${world.mode} x=${r.x.toFixed(1)} y=${r.y.toFixed(1)} joint=${i} at (${j.x.toFixed(2)}, ${j.y.toFixed(2)})`; } });
+      actor.joints().forEach((j, i) => { const o = hit(j.x, j.y, 0); if (o && Math.hypot(o.dx, o.dy) > maxPen) { maxPen = Math.hypot(o.dx, o.dy); document.documentElement.dataset.maxPenWhere = `${world.mode} x=${r.x.toFixed(1)} y=${r.y.toFixed(1)} joint=${i} at (${j.x.toFixed(2)}, ${j.y.toFixed(2)})`; } });
       document.documentElement.dataset.maxPen = maxPen.toFixed(3);
     }
     hint.textContent = hintFor(world);

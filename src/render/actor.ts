@@ -7,7 +7,7 @@ import { clipToWorld } from '../motion/pose';
 import { comAboveHips, legLength } from '../motion/timeline';
 import {
   advanceDistance, chooseClip, crouchDepth, facingYaw, flightProgress, landSeconds, leapSeconds, localAngle,
-  reachSeconds, runSeconds, runWeight, type ActorState, type ClipKind,
+  runSeconds, runWeight, type ActorState, type ClipKind,
 } from '../motion/actor-pose';
 import { loadRookie, type RookieId } from './rookie';
 import type { Obstacle } from '../course/collide';
@@ -26,6 +26,8 @@ const BLEND_TICKS = 12;
 const HAND_HEIGHT = 2.1; // m, the grip above the feet (the simulator's handHeight)
 const WALL_BACK = 0.5; // rad, on the steep top of the curve the body tilts back toward the curve's centre instead, so the head stays out of the wall
 const WALL_LEAN = 0.3; // rad, the most the body leans into the slope (at 45 degrees; upright again on the vertical part, where the head would meet the wall)
+const ARMS_FROM = 0.3; // the arms start to rise at this share of the wall climb ...
+const ARMS_TO = 0.8; // ... and are overhead here (the legs keep running)
 const STRETCH = 1.08; // the bounce pose, stretched
 
 interface Pose {
@@ -155,13 +157,25 @@ export async function createRookieActor(scene: Scene, opts: { rookie: RookieId }
         const a = sample(leap, leap.takeoff! / leap.fps, false);
         return place(a.rel, a.hipsAbove).joints.map((p) => new Vector3(p.x, p.y * STRETCH, p.z));
       }
-      case 'wall-run': {
-        const a = sample(run, runSeconds(run, distance, scale), true);
-        return place(a.rel, a.hipsAbove).joints;
-      }
+      case 'wall-run':
       case 'wall-reach': {
-        const a = sample(reach, reachSeconds(reach, s.wallProgress ?? 1), false);
-        return place(a.rel, a.hipsAbove).joints;
+        // the legs keep running up the curve; the arms start to rise early and are overhead by the top, so the reach is not a late snap
+        const a = sample(run, runSeconds(run, distance, scale), true);
+        const body = place(a.rel, a.hipsAbove).joints;
+        const p = s.wallProgress ?? 0;
+        const t = Math.min(Math.max((p - ARMS_FROM) / (ARMS_TO - ARMS_FROM), 0), 1);
+        if (t <= 0) return body;
+        const w = t * t * (3 - 2 * t);
+        const r = sample(reach, (t * (reach.frames.length - 1)) / reach.fps, false);
+        for (const side of ['Left', 'Right']) {
+          const sh = ix(side + 'Arm');
+          for (const n of ['ForeArm', 'Hand', 'HandThumbEnd', 'HandMiddleEnd']) {
+            const i = ix(side + n);
+            const target = body[sh].clone().add(r.rel[i]).sub(r.rel[sh]); // the reach clip's arm, hung from the running body's shoulder
+            body[i] = body[i].clone().lerp(target, w);
+          }
+        }
+        return body;
       }
       case 'swing':
         return hanging(sample(swing, s.tick / 120, true).rel);
@@ -246,17 +260,18 @@ export async function createRookieActor(scene: Scene, opts: { rookie: RookieId }
     group.updateMatrixWorld(true);
     // carry the foot clearance so the soles, not the ankles, touch the surface
     const lifted = joints.map((p) => p.clone().add(new Vector3(0, footClear, 0)));
-    if (obstacle) {
+    const ob = obstacle;
+    if (ob) {
       // the simulator's feet can sit in a corner (the climb over the wall's edge): move the whole body out of it, eased so it does not pop
-      const root = obstacle(s.x, s.y + 0.15) ?? { dx: 0, dy: 0 };
+      const root = ob(s.x, s.y + 0.15) ?? { dx: 0, dy: 0 };
       const ease = 1 - Math.pow(0.6, dticks);
       shift.x += (root.dx - shift.x) * ease; shift.y += (root.dy - shift.y) * ease;
       for (const p of lifted) { p.x += s.facing * shift.x; p.y += shift.y; }
       // and keep every body point out of the blocks and the curve (the motion need not be exact, but it must not overlap)
-      for (const p of lifted) {
-        const out = obstacle(s.x + s.facing * p.x, s.y + p.y);
+      lifted.forEach((p, i) => {
+        const out = ob(s.x + s.facing * p.x, s.y + p.y, footBones.includes(i) ? 0.03 : undefined); // feet may touch the surface; the rest keeps its thickness out
         if (out) { p.x += s.facing * out.dx; p.y += out.dy; }
-      }
+      });
     }
     rookie.apply(lifted);
     if (s.mode !== 'swing' && k !== 'leap') {
