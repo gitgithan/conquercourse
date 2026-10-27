@@ -122,3 +122,12 @@ The set of obstacle shapes is fixed, and each shape offers a fixed set of moves.
 - **Moving things:** drag a piece along the ground; "Top plan" switches to the flat plan, which is still the way to crop.
 - **No blocks by default:** the first world is a concrete bench, the long low box and the rail from real photos; the basic shapes are still in the "Basic shapes" row.
 - **A cropped piece** falls back to plain geometry (its texture does not survive a crop yet).
+
+## Play draws the real objects; helpers in the editor (2026-10-28)
+- **Play view:** a lane from the editor carries `scene` (each piece placed in the game's frame: along the run, height above the level, across the lane, turn and scale) and `uMap` (where each run of ground landed once gaps were squeezed).
+  - The game draws the real objects (their own meshes and photo textures) instead of blocks; only the start and finish decks stay as ground.
+  - Collision is still the lane's profile, so what you see and what you stand on come from the same mesh.
+  - A piece uses the run nearest its middle, so an object with a gap inside it is shifted as one piece.
+- **What to shift (`src/slice/advice.ts`):** when the lane cannot be cleared, the editor lists fixes the simulator has proved (slide, resize, lower, turn the lane, sideways, level), each with a "Do it" button; if no single small shift works it says so.
+- **Design partner (`src/slice/designer.ts`, `functions/api/designer.ts`):** Muse Spark Open sees the world, the verdict and the proved fixes, answers in a few sentences and offers edits you accept with one click; it is off when no key is set.
+- **Repair:** a `node_modules` symlink was committed by mistake in `b79be31` and removed in `3b5808a`; `node_modules` is ignored now.
