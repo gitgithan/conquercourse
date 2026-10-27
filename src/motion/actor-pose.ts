@@ -1,6 +1,7 @@
 // The pure parts of the Rookie actor (CC-31): which clip a simulator state asks for, and how each clip is timed.
 // Nothing here touches three.js or the page, so the unit tests can check it directly.
 import { secondsForDistance, type Clip } from './clip';
+import type { Next } from './compose';
 
 export interface ActorState {
   tick: number; // game ticks of 1/120 s
@@ -15,6 +16,8 @@ export interface ActorState {
   wallProgress?: number; // 0..1 along the wall climb
   swingTheta?: number; // rad from straight down; positive swings toward +x
   facing: 1 | -1;
+  ledge?: { x: number; y: number }; // the top edge of the wall in the world: the hands reach for it, whatever its height
+  next?: Next; // the next obstacle ahead and how far: the body gets ready for it before it arrives
 }
 
 export type ClipKind = 'stand' | 'run' | 'leap' | 'land' | 'swing' | 'wall-run' | 'wall-reach' | 'bounce';

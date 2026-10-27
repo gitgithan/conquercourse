@@ -26,3 +26,14 @@
   - After a fall (the Train button on the fall panel), you come back standing at the start of the obstacle you fell at, as "Try this obstacle again" does.
   - A community or Park course comes back too, not the default one.
 - **Checked** by `scripts/resume-check.mjs`: same tick and place after T, after the button, waits for a key, carries on.
+
+## Wall composition and anticipation (CC-16)
+- **Why:** a baked clip fits one wall height; the wall can be edited to other heights, so the climb is composed from parts that follow the course.
+- **The hands reach the real ledge:** two-bone reach from the shoulders to the wall's top edge.
+  - How much they reach depends on how far the edge is from the shoulder, so a taller or shorter wall just starts the reach earlier or later.
+  - They let go once the shoulders pass the edge.
+  - Checked with the ideal bot at the default 4.3 m wall and a 5 m wall (`scripts/ledge-check.mjs`, `?wallh=5`): the hands come within 13 cm and 15 cm of the edge, and the run clears.
+- **Anticipation:** the body gets ready about half a second before an obstacle, building smoothly.
+  - Before a gap or the trampoline it sinks a little, leans in and swings the arms back; before the rope the hands begin to rise; before the wall it leans in.
+  - It is only how the Rookie looks; the physics and the landing do not change.
+- **Not checked:** walls lower than the curve (3 m or less): the curve and the deck would need new geometry.
