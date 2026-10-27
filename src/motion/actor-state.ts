@@ -11,11 +11,11 @@ export function actorStateFor(w: WorldState, squat: boolean, facing: 1 | -1 = 1)
     vx: r.vx,
     vy: r.vy,
     grounded: r.grounded,
-    mode: w.mode,
+    mode: w.mode === 'hang' ? 'swing' : w.mode, // hanging from a bar uses the rope's swing pose, turned about the hands
     squat,
     landedTicksAgo: r.landedAtTick === null ? null : r.tick - r.landedAtTick,
     wallProgress: w.wall ? w.wall.index / Math.max(1, w.wall.path.length - 1) : undefined,
-    swingTheta: w.swing?.theta,
+    swingTheta: w.swing?.theta ?? w.hang?.theta,
     facing,
   };
 }

@@ -5,15 +5,16 @@ import { groundAt, standingOn } from './terrain';
 import { DEFAULT_WALL, runWall, type WallParams, type WallResult } from './wall';
 import { DEFAULT_ROPE, ropePoint, release, swingStep, tryCatch, type RopeParams, type Swing } from './rope';
 import { DEFAULT_TRAMPOLINE, bounce, type Bounce } from './trampoline';
+import { DEFAULT_HANG, feetOf, hangStep, releaseHang, tryGrab, type Hang } from './holds';
 
 // One world for the Course: the runner plus whichever obstacle has hold of the runner right now.
 // The simulator is the truth: everything the screen shows comes from this state, one tick at a time.
-export type Mode = 'run' | 'wall' | 'swing' | 'bounce';
+export type Mode = 'run' | 'wall' | 'swing' | 'bounce' | 'hang';
 export type Outcome = 'running' | 'cleared' | 'splash';
 
 export interface GameEvent {
   tick: number;
-  type: 'jump' | 'land' | 'stumble' | 'splash' | 'wall-grab' | 'wall-slide' | 'rope-catch' | 'rope-release' | 'bounce' | 'cleared';
+  type: 'jump' | 'land' | 'stumble' | 'splash' | 'wall-grab' | 'wall-slide' | 'rope-catch' | 'rope-release' | 'hang-catch' | 'hang-release' | 'bounce' | 'cleared';
   detail?: Record<string, number | boolean>;
 }
 
@@ -23,6 +24,7 @@ export interface WorldState {
   outcome: Outcome;
   wall: { result: WallResult; path: { x: number; y: number }[]; index: number; x0: number } | null;
   swing: Swing | null;
+  hang: Hang | null; // hanging from a bar in the air
   bed: { base: Bounce; vIn: number; start: number; press: number | null; vx: number; top: number } | null;
   noCatchUntil: number;
   lastPress: number; // tick of the last Space press, so a press just before landing counts
@@ -33,7 +35,7 @@ export interface WorldState {
 export function newWorld(course: CourseData, x: number = course.startX): WorldState {
   const r = startState(x);
   r.y = groundAt(course.terrain, x);
-  return { runner: r, mode: 'run', outcome: 'running', wall: null, swing: null, bed: null, noCatchUntil: 0, lastPress: -1000, events: [] };
+  return { runner: r, mode: 'run', outcome: 'running', wall: null, swing: null, hang: null, bed: null, noCatchUntil: 0, lastPress: -1000, events: [] };
 }
 
 const wallParams = (c: CourseData): WallParams => ({ ...DEFAULT_WALL, ...(c.wall ?? {}) });
@@ -50,6 +52,7 @@ export function stepWorld(w: WorldState, input: RunnerInput, course: CourseData,
   if (w.mode === 'wall') return stepWall(w, course);
   if (w.mode === 'swing') return stepSwing(w, input, course);
   if (w.mode === 'bounce') return stepBounce(w, input);
+  if (w.mode === 'hang') return stepHang(w, input, course);
 
   const before = w.runner;
   const r = step(before, input2, p, course.terrain);
@@ -84,6 +87,16 @@ export function stepWorld(w: WorldState, input: RunnerInput, course: CourseData,
       n.mode = 'swing';
       n.swing = sw;
       ev('rope-catch', { grip: sw.grip, omega: sw.omega });
+    }
+  }
+
+  // a bar: airborne with a hand on the key and the hands within reach of it
+  if (course.holds?.length && n.mode === 'run' && !r.grounded && r.tick >= w.noCatchUntil && (input.handL || input.handR)) {
+    const g = tryGrab(course.holds, r.x, r.y, r.vx, r.vy);
+    if (g) {
+      n.mode = 'hang';
+      n.hang = g;
+      ev('hang-catch', { hold: g.hold, omega: g.omega });
     }
   }
 
@@ -145,6 +158,21 @@ function stepSwing(w: WorldState, input: RunnerInput, course: CourseData): World
   const hand = ropePoint(rp, sw.grip, sw.theta);
   const speed = sw.omega * sw.grip;
   return { ...w, swing: sw, events, runner: { ...w.runner, tick, x: hand.x, y: hand.y - rp.handHeight, vx: speed * Math.cos(sw.theta), vy: speed * Math.sin(sw.theta), grounded: false } };
+}
+
+function stepHang(w: WorldState, input: RunnerInput, course: CourseData): WorldState {
+  const holds = course.holds ?? [];
+  const h = holds[w.hang!.hold];
+  const tick = w.runner.tick + 1;
+  // both hands off the bar: let go and fly on
+  if (!input.handL && !input.handR) {
+    const rel = releaseHang(h, w.hang!);
+    return { ...w, mode: 'run', hang: null, noCatchUntil: tick + 24, events: [{ tick, type: 'hang-release', detail: { vx: rel.vx, vy: rel.vy } }], runner: { ...w.runner, tick, x: rel.x, y: rel.y, vx: rel.vx, vy: rel.vy, grounded: false } };
+  }
+  const pump = ((input.run ? 1 : 0) - (input.left ? 1 : 0)) as -1 | 0 | 1;
+  const s = hangStep(w.hang!, pump);
+  const f = feetOf(h, s);
+  return { ...w, hang: s, events: [], runner: { ...w.runner, tick, x: f.x, y: f.y, vx: s.omega * DEFAULT_HANG.bodyLength * Math.cos(s.theta), vy: s.omega * DEFAULT_HANG.bodyLength * Math.sin(s.theta), grounded: false } };
 }
 
 function stepBounce(w: WorldState, input: RunnerInput): WorldState {
