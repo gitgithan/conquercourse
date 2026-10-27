@@ -18,6 +18,15 @@ try {
   await page.waitForFunction(() => document.documentElement.dataset.verdict, null, { timeout: 20000 });
   checks.startsWithAWorld = Number(await page.evaluate(() => document.documentElement.dataset.pieces)) === 3;
   await page.screenshot({ path: 'test-results/editor/1-start.png' });
+  // no vertical scrolling at common window sizes
+  for (const [w, h] of [[1280, 720], [1024, 640], [1440, 900]]) {
+    await page.setViewportSize({ width: w, height: h });
+    await page.waitForTimeout(400);
+    const fits = await page.evaluate(() => { const e = document.querySelector('.ed'); return { root: e.scrollHeight <= e.clientHeight + 1, page: document.scrollingElement.scrollHeight <= innerHeight + 1, panels: [...document.querySelectorAll('.aside, .main')].every((n) => n.scrollHeight <= n.clientHeight + 1) }; });
+    checks[`no scroll at ${w}x${h}`] = fits.root && fits.page && fits.panels;
+    await page.screenshot({ path: `test-results/editor/layout-${w}x${h}.png` });
+  }
+  await page.setViewportSize({ width: 1300, height: 900 });
   // a toy brick: 3 cm, enlarged x15 to a half-metre block
   await page.click('text=Toy brick (3 cm)');
   checks.brickIsBlockSized = /0\.4\d × 0\.2\d m, 0\.1\d m high/.test(await text('#realsize'));
