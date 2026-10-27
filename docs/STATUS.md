@@ -7,6 +7,7 @@
   - `/?mode=editor`: 3D editor with real objects, bars (Overhead row), side-view dragging, undo and redo, Fix it, the design partner, Test from the selected piece.
 - **In CC-44:** holds, hang, vault, energy, the proof for them, the front view window, push and let-go cues.
 - **Spikes merged:** CC-45 (SA-3DAO: stopped at the licence, needs a person), CC-46 (map place to course, three places).
+- **After pulling, run `npm ci`** (map mode added the `maplibre-gl` package); the first load of `?mode=map` is slow while Vite prepares it.
 - **Waiting on the product owner:** deploy (`npx wrangler d1 migrations apply conquercourse-feedback --remote`, `npx wrangler pages secret put BASETEN_API_KEY`, `npm run deploy`); the V key choice; a consented photo for the custom body.
 
 
