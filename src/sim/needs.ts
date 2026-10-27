@@ -1,6 +1,7 @@
 import type { CourseData } from '../course/course';
 import { DEFAULT_PARAMS, NO_INPUT, startState, step } from './runner';
 import { groundAt, type Terrain } from './terrain';
+import { DEFAULT_WALL, runWall, type WallParams } from './wall';
 
 // What the Course asks of the player at each gap, found by trying the simulator: how wide it is and the least
 // speed at the edge that still clears it. The Dojo and the Course use these same numbers.
@@ -34,3 +35,12 @@ export function gapSpecs(course: CourseData): GapSpec[] {
   return out;
 }
 export { groundAt };
+
+// Least speed (m/s) at the foot of the wall for the hands to reach the top.
+export function minSpeedForWall(p: Partial<WallParams> = {}): number {
+  const wp = { ...DEFAULT_WALL, ...p };
+  let lo = 0.5, hi = 20;
+  if (!runWall(hi, wp).grabbed) return Infinity;
+  for (let i = 0; i < 40; i++) { const mid = (lo + hi) / 2; if (runWall(mid, wp).grabbed) hi = mid; else lo = mid; }
+  return hi;
+}
