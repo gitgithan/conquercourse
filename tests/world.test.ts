@@ -81,3 +81,12 @@ describe('a course from pieces', () => {
     expect(best[0].report.variety).toBeGreaterThanOrEqual(3);
   });
 });
+
+describe('the lane the search finds is the lane the editor shows', () => {
+  it('with the rod at the origin, the best lane rebuilt by hand is clearable too', () => {
+    const pieces = [{ ...newPiece('bench', box(1.8, 0.45, 0.5)), x: 2, z: 3 }, { ...newPiece('dome', dome(1.5, 0.8, 1)), x: 8, z: 3 }, { ...newPiece('wall', box(3, 0.8, 0.4)), x: 14, z: 3 }, { ...newPiece('tower', box(3, 6, 3)), x: 8, z: -7 }];
+    const best = bestSlices({ positions: Array.from(worldSamples(pieces)) }, { top: 1, levels: [0], centre: { x: 0, z: 0 } })[0];
+    const prof = sliceProfile(worldSamples(pieces), { x: 0, z: 0 }, { angle: best.angle, offset: best.offset, level: best.level });
+    expect(searchIdealRun(laneToCourse(prof)).cleared).toBe(true);
+  });
+});

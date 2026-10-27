@@ -143,11 +143,11 @@ function offsetsFor(samples: Float32Array, centre: { x: number; z: number }, ang
   return Array.from({ length: n + 1 }, (_, i) => lo + HALF_LANE + ((hi - lo - 2 * HALF_LANE) * i) / n);
 }
 
-export function bestSlices(mesh: Mesh, opts: { angles?: number; offsets?: number[]; levels?: number[]; top?: number } = {}): Candidate[] {
+export function bestSlices(mesh: Mesh, opts: { angles?: number; offsets?: number[]; levels?: number[]; top?: number; centre?: { x: number; z: number } } = {}): Candidate[] {
   const samples = surfaceSamples(mesh);
   let minX = Infinity, maxX = -Infinity, minZ = Infinity, maxZ = -Infinity, minY = Infinity, maxY = -Infinity;
   for (let i = 0; i < samples.length; i += 3) { minX = Math.min(minX, samples[i]); maxX = Math.max(maxX, samples[i]); minY = Math.min(minY, samples[i + 1]); maxY = Math.max(maxY, samples[i + 1]); minZ = Math.min(minZ, samples[i + 2]); maxZ = Math.max(maxZ, samples[i + 2]); }
-  const centre = { x: (minX + maxX) / 2, z: (minZ + maxZ) / 2 };
+  const centre = opts.centre ?? { x: (minX + maxX) / 2, z: (minZ + maxZ) / 2 }; // the rod: the middle of the scene unless the caller has its own (the editor's is the origin)
   const turns = opts.angles ?? 18; // 10 degree steps over half a turn (the other half is the same lane run backwards)
   const levels = opts.levels ?? [minY, minY + 0.5, minY + 1];
   const all: Candidate[] = [];
