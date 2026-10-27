@@ -247,7 +247,13 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
   type Cam = 'side' | 'angle' | 'first';
   const CAMS: { id: Cam; name: string }[] = [{ id: 'side', name: 'Side view' }, { id: 'angle', name: '45° view' }, { id: 'first', name: 'First person' }];
   let camMode: Cam = 'side';
+  // while the feedback form is open, or a text box has the focus, no game key does anything (typing a T must not open the Dojo)
+  const typing = (e: KeyboardEvent): boolean => {
+    const t = e.target as HTMLElement | null;
+    return document.getElementById('cc-feedback') !== null || (!!t && (/^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName) || t.isContentEditable));
+  };
   addEventListener('keydown', (e) => {
+    if (typing(e)) { keys.clear(); jumpQueued = false; return; }
     if (e.repeat) return;
     keys.add(e.code);
     if (e.code === 'Space') { jumpQueued = true; e.preventDefault(); }
