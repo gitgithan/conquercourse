@@ -22,14 +22,16 @@ try {
   checks.noFormulaYet = !(await has('2 × speed × push'));
   await page.screenshot({ path: 'test-results/dojo/1-why.png' });
   await page.click('#next');
-  checks.nextLockedUntilRuns = await page.$eval('#next', (b) => b.disabled);
+  checks.nextNeverLocked = !(await page.$eval('#next', (b) => b.disabled));
   for (const [speed, jump] of [[7, 4.5], [6, 3.5], [8, 5]]) {
     await set('knob-speed', speed); await set('knob-jump', jump); await set('guess', (2 * speed * jump) / 9.81);
     await page.click('#run');
   }
   await page.screenshot({ path: 'test-results/dojo/2-try.png' });
   checks.sayingEarned = await has('already decided');
-  checks.nextOpen = !(await page.$eval('#next', (b) => b.disabled));
+  // switching obstacles keeps the lesson place (R2-D2)
+  await page.click('text=Landing'); await page.click('text=Gap jump');
+  checks.keepsPlace = (await page.textContent('body')).includes('Runs') === false && (await page.$$('#run')).length === 1;
   await page.click('#next');
   await page.screenshot({ path: 'test-results/dojo/3-shape.png' });
   checks.shapeSaysDirect = (await page.textContent('#shape')).includes('twice the speed flies twice as far');

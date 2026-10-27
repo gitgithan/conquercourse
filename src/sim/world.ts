@@ -54,9 +54,9 @@ export function stepWorld(w: WorldState, input: RunnerInput, course: CourseData,
   n.runner = r;
   if (before.grounded && !r.grounded && input2.jump) ev('jump', { vy: r.vy, vx: r.vx, x: r.x });
   if (!before.grounded && r.grounded && r.landing) {
-    ev('land', { impact: r.landing.impactSpeed, peakDecel: r.landing.peakDecel, squat: r.landing.squatted });
-    if (r.landing.stumbled) ev('stumble', { peakDecel: r.landing.peakDecel });
     const plat = standingOn(course.terrain, r.x);
+    ev('land', { impact: r.landing.impactSpeed, peakDecel: r.landing.peakDecel, squat: r.landing.squatted, bouncy: !!plat?.bouncy });
+    if (r.landing.stumbled && !plat?.bouncy) ev('stumble', { peakDecel: r.landing.peakDecel });
     if (plat?.bouncy) {
       const base = bounce(r.landing.impactSpeed, DEFAULT_TRAMPOLINE);
       n.mode = 'bounce';

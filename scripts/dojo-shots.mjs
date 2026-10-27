@@ -10,7 +10,7 @@ try {
   const page = await browser.newPage({ viewport: { width: 1280, height: 900 } });
   mkdirSync('test-results/dojo', { recursive: true });
   const set = (id, v) => page.$eval(`#${id}`, (el, v) => { el.value = String(v); el.dispatchEvent(new Event('input', { bubbles: true })); }, v);
-  for (const [ex, knobs] of [['wall', { speed: 6, height: 4.3 }], ['wall', { speed: 6, height: 6 }], ['rope', { speed: 7, length: 5, angle: 60 }], ['landing', { drop: 1.5, bend: 0.08 }]]) {
+  for (const [ex, knobs] of [['gap', { speed: 7, jump: 4.5 }], ['wall', { speed: 6, height: 4.3 }], ['wall', { speed: 6, height: 6 }], ['rope', { speed: 7, length: 5, angle: 60 }], ['trampoline', { drop: 2.5 }], ['landing', { drop: 2.5, bend: 0.1 }]]) {
     await page.goto(`http://localhost:${port}/?mode=dojo&ex=${ex}`);
     await page.waitForSelector('html[data-ready=true]');
     await page.click('#next');
