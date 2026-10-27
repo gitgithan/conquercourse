@@ -1,0 +1,591 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://conquercourse.invalid/schemas/primitives/0.1.0",
+  "title": "ConquerCourse obstacle primitives",
+  "description": "Draft 0.1.0. A set of primitives, each with a role and editable sizes in metres. Used by the Builder, the Park (photo and video fits) and move recipes. Metres, y up, run along +z, left on +x.",
+  "version": "0.1.0",
+  "type": "object",
+  "required": [
+    "schemaVersion",
+    "primitives"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "schemaVersion": {
+      "const": "0.1.0"
+    },
+    "primitives": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/primitive"
+      }
+    }
+  },
+  "$defs": {
+    "role": {
+      "enum": [
+        "stand",
+        "grab",
+        "vault",
+        "hazard"
+      ]
+    },
+    "metres": {
+      "type": "number",
+      "exclusiveMinimum": 0
+    },
+    "pose": {
+      "description": "Where the primitive's near-bottom-centre sits on the course deck and which way it faces (degrees about y; 0 = facing +z).",
+      "type": "object",
+      "required": [
+        "x",
+        "z"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "x": {
+          "type": "number"
+        },
+        "y": {
+          "type": "number",
+          "default": 0
+        },
+        "z": {
+          "type": "number"
+        },
+        "yawDeg": {
+          "type": "number",
+          "default": 0
+        }
+      }
+    },
+    "scale": {
+      "description": "Where the metres came from and how far to trust them. A size is only as good as this block says.",
+      "type": "object",
+      "required": [
+        "source",
+        "relativeUncertainty"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "source": {
+          "enum": [
+            "known-height",
+            "body-height",
+            "contact-height",
+            "typical-size",
+            "depth-model",
+            "player-entered"
+          ]
+        },
+        "metresPerPixel": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "relativeUncertainty": {
+          "type": "number",
+          "minimum": 0,
+          "description": "1-sigma guess as a fraction of the size (0.1 = 10 %)"
+        },
+        "note": {
+          "type": "string"
+        }
+      }
+    },
+    "fit": {
+      "description": "How a segmented object became this primitive (absent for hand-built ones).",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "phrase": {
+          "type": "string",
+          "description": "the SAM 3.1 noun phrase that found it"
+        },
+        "score": {
+          "type": "number"
+        },
+        "boxPx": {
+          "type": "array",
+          "items": {
+            "type": "number"
+          },
+          "minItems": 4,
+          "maxItems": 4
+        },
+        "maskPx": {
+          "type": "integer"
+        },
+        "frames": {
+          "type": "array",
+          "items": {
+            "type": "integer"
+          }
+        },
+        "note": {
+          "type": "string"
+        }
+      }
+    },
+    "base": {
+      "type": "object",
+      "required": [
+        "id",
+        "type",
+        "roles",
+        "sizes"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "type": {
+          "type": "string"
+        },
+        "status": {
+          "enum": [
+            "canonical",
+            "proposed"
+          ],
+          "default": "canonical"
+        },
+        "roles": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/role"
+          },
+          "minItems": 1,
+          "uniqueItems": true
+        },
+        "pose": {
+          "$ref": "#/$defs/pose"
+        },
+        "sizes": {
+          "type": "object"
+        },
+        "scale": {
+          "$ref": "#/$defs/scale"
+        },
+        "fit": {
+          "$ref": "#/$defs/fit"
+        }
+      }
+    },
+    "primitive": {
+      "oneOf": [
+        {
+          "$ref": "#/$defs/platform"
+        },
+        {
+          "$ref": "#/$defs/gap"
+        },
+        {
+          "$ref": "#/$defs/wall"
+        },
+        {
+          "$ref": "#/$defs/ramp"
+        },
+        {
+          "$ref": "#/$defs/spring"
+        },
+        {
+          "$ref": "#/$defs/ropeAnchor"
+        },
+        {
+          "$ref": "#/$defs/movingHazard"
+        },
+        {
+          "$ref": "#/$defs/water"
+        },
+        {
+          "$ref": "#/$defs/bar"
+        }
+      ]
+    },
+    "platform": {
+      "x-teaches": "stopping and starting on a deck: grip-limited braking, landing decks",
+      "allOf": [
+        {
+          "$ref": "#/$defs/base"
+        },
+        {
+          "properties": {
+            "type": {
+              "const": "platform"
+            },
+            "sizes": {
+              "type": "object",
+              "required": [
+                "length",
+                "width",
+                "height"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "length": {
+                  "$ref": "#/$defs/metres"
+                },
+                "width": {
+                  "$ref": "#/$defs/metres"
+                },
+                "height": {
+                  "$ref": "#/$defs/metres",
+                  "description": "top above the course deck"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "unevaluatedProperties": false
+    },
+    "gap": {
+      "x-teaches": "flight is decided at take-off: how far a run-up carries you",
+      "allOf": [
+        {
+          "$ref": "#/$defs/base"
+        },
+        {
+          "properties": {
+            "type": {
+              "const": "gap"
+            },
+            "sizes": {
+              "type": "object",
+              "required": [
+                "span"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "span": {
+                  "$ref": "#/$defs/metres",
+                  "description": "take-off edge to landing edge"
+                },
+                "drop": {
+                  "type": "number",
+                  "description": "landing top minus take-off top (negative = lands lower)"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "unevaluatedProperties": false
+    },
+    "wall": {
+      "x-teaches": "height is spent from speed or reach: vaulting and hanging from the top",
+      "allOf": [
+        {
+          "$ref": "#/$defs/base"
+        },
+        {
+          "properties": {
+            "type": {
+              "const": "wall"
+            },
+            "sizes": {
+              "type": "object",
+              "required": [
+                "height",
+                "width"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "height": {
+                  "$ref": "#/$defs/metres"
+                },
+                "width": {
+                  "$ref": "#/$defs/metres"
+                },
+                "thickness": {
+                  "$ref": "#/$defs/metres"
+                },
+                "topEdge": {
+                  "enum": [
+                    "flat",
+                    "ledge"
+                  ],
+                  "description": "ledge = a lip the hands can hook over"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "unevaluatedProperties": false
+    },
+    "ramp": {
+      "x-teaches": "speed becomes height: a curve turns run speed into climb (the warped wall)",
+      "description": "A straight ramp (profile line) or a curved one (profile arc, as on the warped wall: the curve is a quarter-circle-like arc that goes from the floor to near vertical).",
+      "allOf": [
+        {
+          "$ref": "#/$defs/base"
+        },
+        {
+          "properties": {
+            "type": {
+              "const": "ramp"
+            },
+            "sizes": {
+              "type": "object",
+              "required": [
+                "height",
+                "run",
+                "width",
+                "profile"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "height": {
+                  "$ref": "#/$defs/metres",
+                  "description": "top edge above the floor"
+                },
+                "run": {
+                  "$ref": "#/$defs/metres",
+                  "description": "horizontal distance from the foot of the curve to the top edge"
+                },
+                "width": {
+                  "$ref": "#/$defs/metres"
+                },
+                "profile": {
+                  "enum": [
+                    "line",
+                    "arc"
+                  ]
+                },
+                "radius": {
+                  "$ref": "#/$defs/metres",
+                  "description": "arc only: radius of the curve"
+                },
+                "topLedge": {
+                  "$ref": "#/$defs/metres",
+                  "description": "depth of a flat platform on top that hands can grab (0 or absent = none)"
+                }
+              }
+            }
+          },
+          "if": {
+            "properties": {
+              "sizes": {
+                "properties": {
+                  "profile": {
+                    "const": "arc"
+                  }
+                },
+                "required": [
+                  "profile"
+                ]
+              }
+            },
+            "required": [
+              "sizes"
+            ]
+          },
+          "then": {
+            "properties": {
+              "sizes": {
+                "required": [
+                  "radius"
+                ]
+              }
+            }
+          }
+        }
+      ],
+      "unevaluatedProperties": false
+    },
+    "spring": {
+      "x-teaches": "stored energy returns: the harder you land, the higher it throws you",
+      "allOf": [
+        {
+          "$ref": "#/$defs/base"
+        },
+        {
+          "properties": {
+            "type": {
+              "const": "spring"
+            },
+            "sizes": {
+              "type": "object",
+              "required": [
+                "width",
+                "restHeight",
+                "stiffness"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "width": {
+                  "$ref": "#/$defs/metres"
+                },
+                "restHeight": {
+                  "$ref": "#/$defs/metres"
+                },
+                "travel": {
+                  "$ref": "#/$defs/metres",
+                  "description": "most it can squash"
+                },
+                "stiffness": {
+                  "$ref": "#/$defs/metres",
+                  "description": "newtons per metre"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "unevaluatedProperties": false
+    },
+    "ropeAnchor": {
+      "x-teaches": "a pendulum: energy swaps between height and speed; release timing",
+      "allOf": [
+        {
+          "$ref": "#/$defs/base"
+        },
+        {
+          "properties": {
+            "type": {
+              "const": "ropeAnchor"
+            },
+            "sizes": {
+              "type": "object",
+              "required": [
+                "anchorHeight",
+                "ropeLength"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "anchorHeight": {
+                  "$ref": "#/$defs/metres",
+                  "description": "anchor above the deck"
+                },
+                "ropeLength": {
+                  "$ref": "#/$defs/metres"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "unevaluatedProperties": false
+    },
+    "movingHazard": {
+      "x-teaches": "timing and relative motion: when to go",
+      "allOf": [
+        {
+          "$ref": "#/$defs/base"
+        },
+        {
+          "properties": {
+            "type": {
+              "const": "movingHazard"
+            },
+            "sizes": {
+              "type": "object",
+              "required": [
+                "size",
+                "speed",
+                "travel"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "size": {
+                  "$ref": "#/$defs/metres"
+                },
+                "speed": {
+                  "$ref": "#/$defs/metres",
+                  "description": "metres per second"
+                },
+                "travel": {
+                  "$ref": "#/$defs/metres",
+                  "description": "length of its path"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "unevaluatedProperties": false
+    },
+    "water": {
+      "x-teaches": "failure is cheap: falling in means a splash and a retry",
+      "allOf": [
+        {
+          "$ref": "#/$defs/base"
+        },
+        {
+          "properties": {
+            "type": {
+              "const": "water"
+            },
+            "sizes": {
+              "type": "object",
+              "required": [
+                "length",
+                "width"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "length": {
+                  "$ref": "#/$defs/metres"
+                },
+                "width": {
+                  "$ref": "#/$defs/metres"
+                },
+                "depth": {
+                  "$ref": "#/$defs/metres"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "unevaluatedProperties": false
+    },
+    "bar": {
+      "x-teaches": "hanging and swinging from the hands: grip, arm reach (proposed, see docs/primitives.md)",
+      "allOf": [
+        {
+          "$ref": "#/$defs/base"
+        },
+        {
+          "properties": {
+            "type": {
+              "const": "bar"
+            },
+            "status": {
+              "const": "proposed"
+            },
+            "sizes": {
+              "type": "object",
+              "required": [
+                "height",
+                "length"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "height": {
+                  "$ref": "#/$defs/metres",
+                  "description": "bar centre above the deck"
+                },
+                "length": {
+                  "$ref": "#/$defs/metres"
+                },
+                "diameter": {
+                  "$ref": "#/$defs/metres"
+                },
+                "orientation": {
+                  "enum": [
+                    "across",
+                    "along"
+                  ],
+                  "description": "across = at right angles to the run (a pull-up bar); along = parallel to it (a rail)"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "unevaluatedProperties": false
+    }
+  }
+}
