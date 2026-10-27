@@ -21,7 +21,7 @@ export function createDrumLane(parent: HTMLElement, on: boolean): DrumLane {
   const ring = document.createElement('div');
   ring.style.cssText = `position:absolute;left:${HIT_AT * 100}%;top:50%;width:62px;height:62px;margin:-31px 0 0 -31px;border:3px dashed #ffd24a88;border-radius:50%`;
   const tag = document.createElement('div');
-  tag.textContent = 'Drums (D)';
+  tag.textContent = 'Drums (G)';
   tag.style.cssText = 'position:absolute;right:10px;top:6px;color:#c9b393;font-weight:500';
   root.append(ring, hit, tag);
   parent.appendChild(root);

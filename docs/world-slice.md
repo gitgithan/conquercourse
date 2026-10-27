@@ -112,7 +112,7 @@ The set of obstacle shapes is fixed, and each shape offers a fixed set of moves.
 - **Drum lane (`src/sim/drums.ts`, `src/ui/drum-lane.ts`):**
   - plays the ideal run once and records where it presses Space (jump, rope let-go, trampoline press);
   - shows those places as taiko drums that slide toward a hit line as the runner closes in;
-  - on by default for a course someone built (editor or `?course=`), off for the stock course until D (or `?drums=1`);
+  - on by default for a course someone built (editor or `?course=`), off for the stock course until G (or `?drums=1`);
   - shows the line only; it never scores the player's own presses.
 - **Editor objects:** every object we have is placed from the editor: the photo objects (including park02 rail and park07 stairs, test-only), plus size references (a 1.75 m person from the Rookie model, and the demo scene).
 - **Not in the editor:** the two mural walls (the artist's rights) and the park06 slab (33 m, wrong size).
@@ -131,3 +131,12 @@ The set of obstacle shapes is fixed, and each shape offers a fixed set of moves.
 - **What to shift (`src/slice/advice.ts`):** when the lane cannot be cleared, the editor lists fixes the simulator has proved (slide, resize, lower, turn the lane, sideways, level), each with a "Do it" button; if no single small shift works it says so.
 - **Design partner (`src/slice/designer.ts`, `functions/api/designer.ts`):** Muse Spark Open sees the world, the verdict and the proved fixes, answers in a few sentences and offers edits you accept with one click; it is off when no key is set.
 - **Repair:** a `node_modules` symlink was committed by mistake in `b79be31` and removed in `3b5808a`; `node_modules` is ignored now.
+
+## Debug view, Fix it, and the helper window (2026-10-28)
+- **Debug view (B, or the "Debug (B)" button; `?debug=1`):** draws what the simulator really uses, like a fighting game's hitboxes:
+  - yellow is the collision outline of the ground and the wall;
+  - blue is the runner's body box and feet point;
+  - green or red is where a jump right now goes, run on the simulator's own physics (`src/sim/predict.ts`), with the reason in words ("lands 0.3 m from the edge", "falls 1.2 m before the next ground", "the step ahead is 1.4 m high").
+- **Keys:** the drum lane moved to G, because D is also a run key.
+- **Fix it (`src/slice/fixit.ts`):** one click changes the layout into one the simulator clears: the smallest proved fix again and again, shrinking a step no jump can climb, and as a last resort the best lane through the pieces. The result and the steps taken are written in the helper window.
+- **Helper window:** it floats over the 3D view (open or close it with the "Design partner" button), with a larger text box, and nothing covers it.
