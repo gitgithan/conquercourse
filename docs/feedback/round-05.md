@@ -25,7 +25,7 @@
 - R5-G2: the controls are a card of key caps at the top left (H hides it).
 - R5-G3: the camera button is a ring with three nodes that turns a third each time C is pressed (or when it is clicked), with the view's name under it.
 - R5-G4: the side camera is further back, so the whole trampoline is in view.
-- R5-F1: every question on the feedback form says "(optional)", and a banner says so.
+- R5-F1: the feedback form says at the top that every question is optional (the word is not repeated on each question).
 
 ## Open
 - Interactive objects on the picture itself (drag the take-off point or the release angle) are not built; the sliders are the interaction for now.
@@ -66,3 +66,6 @@
   - Fix: blocks and the wall are 2 m thick; the push-out keeps 16 cm of body thickness from walls (3 cm for the feet).
   - Measured (`scripts/overlap-check.mjs`): the deepest sink-in is 0.11 m, a thumb on the top edge of the wall.
 - Tools: `?startx=45` starts the Course at a place and `?timescale=0.05` slows the game, so stills can be taken (`scripts/wall-shots.mjs`).
+- R5-G13: typing in the feedback form triggered game keys (a T opened the Dojo).
+  - Now no game key does anything while the form is open or a text box has the focus, and held keys are released; Space types a space again.
+  - Checked by typing every game key into the box (`scripts/feedback-keys.mjs`): the Course stays, the text arrives, and the keys work again after Close.

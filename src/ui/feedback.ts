@@ -38,7 +38,7 @@ async function openForm(mode: string): Promise<void> {
   for (const q of round.questions) {
     const box = document.createElement('fieldset');
     box.style.cssText = 'border:0;padding:0;margin:0;display:grid;gap:6px';
-    const lg = document.createElement('legend'); lg.textContent = q.text + ' (optional)'; lg.style.cssText = 'font-weight:600;padding:0'; box.appendChild(lg);
+    const lg = document.createElement('legend'); lg.textContent = q.text; lg.style.cssText = 'font-weight:600;padding:0'; box.appendChild(lg);
     const row = document.createElement('div'); row.style.cssText = 'display:flex;flex-wrap:wrap;gap:6px'; box.appendChild(row);
     if (q.type === 'scale') {
       for (let n = 1; n <= 5; n++) row.appendChild(chip(String(n), () => { answers[q.id] = n; paint(row, String(n)); }));
