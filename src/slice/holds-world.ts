@@ -7,8 +7,8 @@ import type { Piece } from './world';
 export type P = Piece & { src?: string };
 export const isHold = (p: P): boolean => p.src === 'hold:bar';
 export const HOLD_LENGTH = 2.0; // m across the lane
-export const REACH_STANDING = 2.55; // m: hands 2.1 m over the feet plus the 0.45 m reach (src/sim/holds.ts)
-export const REACH_JUMPING = 3.6; // m: a jump lifts the hands about 1 m more
+export const REACH_STANDING = 2.7; // m: hands 2.1 m over the feet plus the 0.6 m reach (src/sim/holds.ts)
+export const REACH_JUMPING = 3.7; // m: a jump lifts the hands about 1 m more
 
 export function barMesh(): Mesh {
   const [w, h, d] = [0.08, 0.08, HOLD_LENGTH];

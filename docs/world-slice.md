@@ -144,7 +144,7 @@ The set of obstacle shapes is fixed, and each shape offers a fixed set of moves.
 
 ## Holds and the lache pair (CC-44, 2026-10-28)
 - **Holds (`src/sim/holds.ts`):** bars hanging in the air, seen from the side (`course.holds`: x along the run, y high; no frame needed).
-  - Grab: airborne, a hand key (Q or E) held, and the hands (2.1 m over the feet) within 0.45 m of a bar; the arms keep 70 % of the speed along the swing.
+  - Grab: airborne, a hand key (Q or E) held, and the hands (2.1 m over the feet) within 0.6 m of a bar; the arms keep 70 % of the speed along the swing.
   - Hang: a pendulum about the bar, effective length 2/3 of the hands-to-feet length (RK4 at the fixed step); the small-swing period is 2π√(L/g).
   - Pump: the arrow keys drive the swing (1.5 rad/s²); pressing the way the body moves adds energy, pressing against it takes energy out; a swing nobody pumps slowly dies.
   - Let go: both hands off; the body flies on with its own velocity; no re-grab for 0.2 s.
@@ -166,7 +166,7 @@ The set of obstacle shapes is fixed, and each shape offers a fixed set of moves.
 
 ## Bars in the editor (CC-44)
 - **Overhead row:** "Bar" and "Lache pair" add bars hanging in the air; a bar is a piece with `src` "hold:bar" (not ground: the slice ignores it, `src/slice/holds-world.ts`).
-- **Side view is where bars are dragged:** along the run and up or down (5 cm steps, 0.35 to 4.3 m); the green and gold dashed lines show what hands reach standing (2.55 m) and with a jump (3.6 m), the simulator's own numbers.
+- **Side view is where bars are dragged:** along the run and up or down (5 cm steps, 0.35 to 4.3 m); the green and gold dashed lines show what hands reach standing (2.7 m) and with a jump (3.7 m), the simulator's own numbers.
 - **Lanes with bars keep their real gaps** (up to 14 m) and their jumps cost speed (`jumpKeep` 0.88), so a vault and a swing are worth learning; the ideal-run proof includes the bars.
 - **Undo and redo:** Ctrl+Z and Ctrl+Y or the buttons (80 steps).
 - **Test from the selected piece:** starts the runner about 8 m before the selected piece, on the nearest ground.

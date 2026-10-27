@@ -11,7 +11,7 @@ const flags = ['--enable-unsafe-webgpu', '--enable-features=Vulkan', '--use-vulk
 // the run: from the start through the sprint; the leap: from the last strides, through the flight, to the run on
 const STRETCHES = { run: [120, 480], leap: [440, 680] };
 mkdirSync('data/eval/cc-31-actor', { recursive: true });
-const server = spawn('npx', ['vite', '--port', '5173', '--strictPort'], { stdio: 'ignore' });
+const server = spawn('node', ['node_modules/vite/bin/vite.js', '--port', '5173', '--strictPort'], { stdio: 'ignore' });
 try {
   await new Promise((r) => setTimeout(r, 3000));
   const browser = await chromium.launch({ args: flags });
