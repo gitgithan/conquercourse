@@ -61,3 +61,23 @@ describe('first-time flow: an imperfect player clears within 3 minutes', () => {
     for (const w of found.windows) expect(w.widthMs).toBeGreaterThanOrEqual(70);
   });
 });
+
+import ideal from '../src/course/default-course.ideal.json';
+import { playPlan, type Plan } from '../src/sim/ideal';
+
+describe('stored ideal run (npm run ideal)', () => {
+  const plan = ideal.plan as Plan;
+  it('is up to date: the stored plan still clears the course', () => {
+    expect(playPlan(C, plan).world.outcome).toBe('cleared');
+  });
+  it('a press outside the window fails: the first jump 1.5 m too early or too late (past the edge) does not clear', () => {
+    for (const d of [-1.5, 1.5]) {
+      const bad: Plan = { ...plan, jumpXs: plan.jumpXs.map((x, i) => (i === 0 ? x + d : x)) };
+      expect(playPlan(C, bad).world.outcome).not.toBe('cleared');
+    }
+  });
+  it('the stored windows are real numbers in milliseconds', () => {
+    expect(ideal.windows.length).toBeGreaterThanOrEqual(8);
+    for (const w of ideal.windows) expect(w.widthMs).toBeGreaterThan(0);
+  });
+});
