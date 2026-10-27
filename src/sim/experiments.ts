@@ -29,7 +29,7 @@ export interface Experiment {
   question: string;
   answerUnit: string;
   answerMax: number; // top of the guess slider
-  axis: 'x' | 'y'; // which way the guess is measured on the picture
+  axis: 'x' | 'y' | 'meter'; // which way the guess is measured on the picture ('meter': a gauge under the plot)
   primary: string; // the knob the lesson sweeps
   knobs: Knob[];
   sayings: string[];
@@ -149,7 +149,7 @@ const trampoline: Experiment = {
 };
 
 const landingExp: Experiment = {
-  id: 'landing', name: 'Landing', question: 'How much will the landing hurt? (0 = a feather, 10 = broken bones)', answerUnit: 'out of 10', answerMax: 12, axis: 'y', primary: 'bend',
+  id: 'landing', name: 'Landing', question: 'How much will the landing hurt? (0 = a feather, 10 = broken bones)', answerUnit: 'out of 10', answerMax: 12, axis: 'meter', primary: 'bend',
   knobs: [
     { id: 'drop', label: 'Height you drop from', unit: 'm', min: 0.3, max: 4, def: 2.5, step: 0.1, why: 'The longer you fall, the faster you hit the ground, and the more speed has to be stopped.' },
     { id: 'bend', label: 'Time spent bending your knees', unit: 's', min: 0.05, max: 0.5, def: 0.1, step: 0.01, why: 'Stopping over more time needs a gentler push. In the Course, hold the down arrow as you land to bend your knees.' },
@@ -159,12 +159,13 @@ const landingExp: Experiment = {
     const impact = Math.sqrt(2 * GRAVITY * v.drop);
     const rep = landing(impact, true, { stiffStopTime: v.bend, squatStopTime: v.bend, stumbleDecel: 45, stumbleKeep: 0.3 });
     const g = ouch(rep.peakDecel);
+    // speed against time: it grows while you fall, then drops to zero over the time you take to stop (steeper = it hurts more)
     const path: Point[] = [];
     const tf = impact / GRAVITY;
-    for (let t = 0; t <= tf; t += DT * 4) path.push({ x: t, y: v.drop - 0.5 * GRAVITY * t * t });
-    path.push({ x: tf + v.bend, y: 0 });
+    for (let t = 0; t <= tf; t += DT * 4) path.push({ x: t, y: GRAVITY * t });
+    path.push({ x: tf, y: impact }, { x: tf + v.bend, y: 0 });
     const word = g < 3 ? 'a soft landing' : g < 6 ? 'a firm landing' : g < 8 ? 'a hard landing: you stumble' : 'a dangerous landing: you could break something';
-    return { answer: g, path, people: [{ x: 0, y: v.drop, pose: 'fly', label: 'drop' }, { x: tf + v.bend, y: 0, pose: 'crouch', label: 'landing' }], cleared: !rep.stumbled, note: `That is ${g.toFixed(1)} out of 10: ${word}.` };
+    return { answer: g, path, cleared: !rep.stumbled, note: `That is ${g.toFixed(1)} out of 10: ${word}.` };
   },
 };
 

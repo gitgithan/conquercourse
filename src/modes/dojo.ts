@@ -1,6 +1,9 @@
 import { EXPERIMENTS, GAP_WIDTH, classify, closeEnough, defaults, sweep, type Context, type Experiment, type Overlay, type Person, type Point, type Pose, type Trial } from '../sim/experiments';
 import { LESSONS } from './lessons';
 import { diagram } from './diagrams';
+import defaultCourse from '../course/default-course.json';
+import type { CourseData } from '../course/course';
+import { courseFacts } from '../course/facts';
 
 // The Dojo: a guided lesson per obstacle. Why it matters, what to try, the shape of the relationship, a rule of
 // thumb, the exact formula (earned, last), and what it means on the Course. Formulas appear only here.
@@ -17,7 +20,15 @@ interface Run { values: Record<string, number>; trial: Trial; guess: number }
 export function startDojo(host: HTMLElement): { backend: 'webgl2' } {
   const q = new URLSearchParams(location.search);
   const num = (k: string) => (q.get(k) === null ? undefined : Number(q.get(k)));
-  const ctx: Context = { width: num('width'), rise: num('rise'), needed: num('needed'), speed: num('speed'), wallHeight: num('wallh'), ropeLength: num('length') };
+  // the course in play (saved by the Course or the Park), else the default one: the lessons read their numbers from it
+  let course = defaultCourse as unknown as CourseData;
+  try { const saved = localStorage.getItem('cc.course'); if (saved) course = JSON.parse(saved) as CourseData; } catch { /* use the default */ }
+  const facts = courseFacts(course);
+  const g0 = facts.gaps[0];
+  const ctx: Context = {
+    width: num('width') ?? g0?.width, rise: num('rise') ?? g0?.rise, needed: num('needed') ?? g0?.needed, speed: num('speed'),
+    wallHeight: num('wallh') ?? facts.wall?.height, ropeLength: num('length') ?? facts.rope?.length,
+  };
   const fromCourse = q.get('from') === 'course';
   const save = load();
   const style = document.createElement('style');
@@ -49,6 +60,8 @@ export function startDojo(host: HTMLElement): { backend: 'webgl2' } {
   let runs: Run[] = [];
   let lastGuess: number | null = null;
   let diagramKind: 'real' | 'principle' = 'real';
+  let locked = false; // after a run the guess is locked until the player makes a new prediction
+  let scrub: number | null = null; // 0..1 along the last run, once it has been revealed
 
   const el = <T extends HTMLElement>(tag: string, parent: HTMLElement, props: Partial<T> & { text?: string } = {}): T => {
     const e = document.createElement(tag) as T;
@@ -60,13 +73,13 @@ export function startDojo(host: HTMLElement): { backend: 'webgl2' } {
   };
   const ctxFor = (e: Experiment): Context => (e.id === 'gap' || e.id === 'wall' || e.id === 'rope' ? ctx : {});
   // each obstacle keeps its own place: switching never throws the lesson away (R2-D2)
-  const states: Record<string, { values: Record<string, number>; guess: number; step: number; runs: Run[]; lastGuess: number | null }> = {};
+  const states: Record<string, { values: Record<string, number>; guess: number; step: number; runs: Run[]; lastGuess: number | null; locked: boolean; scrub: number | null }> = {};
   const choose = (e: Experiment) => {
-    states[exp.id] = { values, guess, step, runs, lastGuess };
+    states[exp.id] = { values, guess, step, runs, lastGuess, locked, scrub };
     exp = e;
     const st = states[e.id];
-    if (st) ({ values, guess, step, runs, lastGuess } = st);
-    else { values = defaults(e, ctx); guess = e.answerMax / 2; step = 0; runs = []; lastGuess = null; }
+    if (st) ({ values, guess, step, runs, lastGuess, locked, scrub } = st);
+    else { values = defaults(e, ctx); guess = e.answerMax / 2; step = 0; runs = []; lastGuess = null; locked = false; scrub = null; }
     render();
   };
 
@@ -135,12 +148,22 @@ export function startDojo(host: HTMLElement): { backend: 'webgl2' } {
       const gl = el<HTMLLabelElement>('label', panel);
       const gs = el('span', gl, { text: `Your guess: ${guess.toFixed(1)} ${exp.answerUnit}` });
       const gr = el<HTMLInputElement>('input', gl, { type: 'range', id: 'guess', min: '0', max: String(exp.answerMax), step: '0.1', value: String(guess) });
+      gr.disabled = locked;
       gr.oninput = () => { guess = Number(gr.value); gs.textContent = `Your guess: ${guess.toFixed(1)} ${exp.answerUnit}`; draw(canvas); };
       const rb = el('div', panel, { className: 'tabs' });
-      el<HTMLButtonElement>('button', rb, { text: 'Run it', className: 'go', id: 'run' }).onclick = runIt;
+      const runBtn = el<HTMLButtonElement>('button', rb, { text: locked ? 'Run it (make a new prediction first)' : 'Lock in my guess and run it', className: 'go', id: 'run' });
+      runBtn.disabled = locked;
+      runBtn.onclick = runIt;
+      if (locked) el<HTMLButtonElement>('button', rb, { text: 'Make a new prediction', id: 'newguess' }).onclick = () => { locked = false; scrub = null; render(); };
       el<HTMLButtonElement>('button', rb, { text: 'Clear the old lines', id: 'reset' }).onclick = () => { runs = []; render(); };
       const out = el('div', panel, { id: 'out' });
       if (runs.length && lastGuess !== null) showResult(out);
+      if (locked && runs.length) {
+        const sl = el<HTMLLabelElement>('label', panel);
+        el('span', sl, { text: 'Replay the run: drag to scrub through it' });
+        const sr = el<HTMLInputElement>('input', sl, { type: 'range', id: 'scrub', min: '0', max: '1', step: '0.01', value: String(scrub ?? 1) });
+        sr.oninput = () => { scrub = Number(sr.value); draw(canvas); };
+      }
     } else if (step === 2) {
       const pts = sweep(exp, values, exp.primary, ctxFor(exp));
       const cls = classify(pts);
@@ -158,7 +181,8 @@ export function startDojo(host: HTMLElement): { backend: 'webgl2' } {
       el('p', panel, { text: L.formulaWords });
     } else {
       el('strong', panel, { text: 'On the Course' });
-      el('p', panel, { id: 'apply', text: L.apply(ctx, values) });
+      const ap = el('div', panel, { id: 'apply' });
+      L.apply(facts, ctx, values).split('\n').forEach((line) => el('p', ap, { text: line }));
       el<HTMLAnchorElement>('a', panel, { text: 'Back to the Course', href: '?', className: 'btn go' });
       const next = EXPERIMENTS[(EXPERIMENTS.indexOf(exp) + 1) % EXPERIMENTS.length];
       el<HTMLButtonElement>('button', panel, { text: `Learn the ${next.name} next` }).onclick = () => choose(next);
@@ -202,6 +226,7 @@ export function startDojo(host: HTMLElement): { backend: 'webgl2' } {
       store(save);
     }
     runCount[exp.id] = (runCount[exp.id] ?? 0) + 1;
+    locked = true; scrub = null;
     render();
   }
   const runCount: Record<string, number> = {};
@@ -235,26 +260,33 @@ export function startDojo(host: HTMLElement): { backend: 'webgl2' } {
     const paths: Point[][] = runs.map((r) => r.trial.path);
     const overlays = (runs[runs.length - 1]?.trial.overlays ?? []) as Overlay[];
     const lastTrial = runs[runs.length - 1]?.trial;
-    const defaultPeople: Person[] = exp.id === 'rope' ? [{ x: 0, y: -2.1, pose: 'hang', hand: { x: 0, y: 0 } }] : exp.id === 'trampoline' || exp.id === 'landing' ? [{ x: 0, y: values.drop ?? 2, pose: 'fly' }] : [{ x: 0, y: 0, pose: 'stand' }];
-    const people = lastTrial?.people ?? defaultPeople;
+    const meter = exp.axis === 'meter';
+    const bottom = meter ? H - 110 : H - pad;
+    const defaultPeople: Person[] = exp.id === 'rope' ? [{ x: 0, y: -2.1, pose: 'hang', hand: { x: 0, y: 0 } }] : exp.id === 'trampoline' ? [{ x: 0, y: values.drop ?? 2, pose: 'fly' }] : exp.id === 'landing' ? [] : [{ x: 0, y: 0, pose: 'stand' }];
+    let people = lastTrial?.people ?? defaultPeople;
+    if (scrub !== null && lastTrial) {
+      const k = Math.min(lastTrial.path.length - 1, Math.floor(scrub * (lastTrial.path.length - 1)));
+      const at = lastTrial.path[k];
+      people = meter ? [] : [{ x: at.x, y: exp.id === 'rope' ? at.y - 2.1 : at.y, pose: exp.id === 'wall' ? 'climb' : exp.id === 'rope' ? 'hang' : 'fly', hand: exp.id === 'rope' ? { x: at.x, y: at.y } : undefined }];
+    }
     const all = [...paths.flat(), ...overlays.flatMap((o) => o.pts), ...people.flatMap((q) => [{ x: q.x, y: q.y }, { x: q.x, y: q.y + 1.8 }])];
     const farSide = exp.id === 'gap' ? ctx.width ?? GAP_WIDTH : 0;
     const maxX = Math.max(exp.axis === 'x' ? exp.answerMax : 6, farSide + 1, ...all.map((p) => p.x), 1);
     const maxY = Math.max(exp.axis === 'y' ? exp.answerMax : 4, ...all.map((p) => p.y), 1);
     const minY = Math.min(0, ...all.map((p) => p.y));
     const sx = (x: number) => pad + (x / maxX) * (W - 2 * pad);
-    const sy = (y: number) => H - pad - ((y - minY) / (maxY - minY)) * (H - 2 * pad);
+    const sy = (y: number) => bottom - ((y - minY) / (maxY - minY)) * (bottom - pad);
     c.strokeStyle = '#9aa59e'; c.lineWidth = 1;
     c.beginPath(); c.moveTo(pad, sy(0)); c.lineTo(W - pad, sy(0)); c.stroke();
     c.fillStyle = '#58635d'; c.font = '13px system-ui';
     for (let m = 0; m <= maxX; m += Math.max(1, Math.round(maxX / 8))) c.fillText(`${m}`, sx(m) - 4, sy(0) + 16);
     for (let m = Math.ceil(minY); m <= maxY; m += Math.max(1, Math.round((maxY - minY) / 6))) c.fillText(`${m}`, 8, sy(m) + 4);
-    c.fillText('metres', W - pad - 40, sy(0) + 30);
+    c.fillText(meter ? 'seconds' : 'metres', W - pad - 50, sy(0) + 30);
     c.strokeStyle = '#c9893b'; c.setLineDash([6, 5]); c.lineWidth = 2;
     c.beginPath();
-    if (exp.axis === 'x') { c.moveTo(sx(guess), sy(0)); c.lineTo(sx(guess), pad); } else { c.moveTo(pad, sy(guess)); c.lineTo(W - pad, sy(guess)); }
+    if (meter) { /* the guess lives on the gauge below */ } else if (exp.axis === 'x') { c.moveTo(sx(guess), sy(0)); c.lineTo(sx(guess), pad); } else { c.moveTo(pad, sy(guess)); c.lineTo(W - pad, sy(guess)); }
     c.stroke(); c.setLineDash([]);
-    c.fillStyle = '#c9893b'; c.fillText('your guess', exp.axis === 'x' ? sx(guess) + 4 : W - pad - 70, exp.axis === 'x' ? pad + 12 : sy(guess) - 6);
+    if (!meter) { c.fillStyle = '#c9893b'; c.fillText('your guess', exp.axis === 'x' ? sx(guess) + 4 : W - pad - 70, exp.axis === 'x' ? pad + 12 : sy(guess) - 6); }
     const line = (pts: Point[], color: string, w: number, dash: number[] = []) => {
       if (pts.length < 2) return;
       c.strokeStyle = color; c.lineWidth = w; c.setLineDash(dash);
@@ -274,6 +306,19 @@ export function startDojo(host: HTMLElement): { backend: 'webgl2' } {
     {
       const pxm = Math.min(sx(1) - sx(0), (sy(0) - sy(1)));
       for (const q of people) person(c, sx(q.x), sy(q.y), pxm, q.pose, q.hand ? { px: sx(q.hand.x) - sx(q.x), py: sy(q.hand.y) } : undefined, q.label);
+    }
+    if (meter) {
+      // the ouch gauge: where you guessed, and where it really was once the run is revealed
+      const gx = (v: number) => pad + (Math.min(v, 12) / 12) * (W - 2 * pad), gy = H - 70;
+      const bands: [number, number, string, string][] = [[0, 3, '#bfe3cf', 'soft'], [3, 6, '#f3e6a8', 'firm'], [6, 8, '#f5c28a', 'hard'], [8, 12, '#f0a39a', 'dangerous']];
+      for (const [a, b, col, word] of bands) { c.fillStyle = col; c.fillRect(gx(a), gy, gx(b) - gx(a), 26); c.fillStyle = '#17201d'; c.font = '12px system-ui'; c.fillText(word, gx(a) + 6, gy + 17); }
+      c.fillStyle = '#58635d'; c.fillText('How much it hurts: 0 = a feather, 10 = broken bones', pad, gy - 8);
+      c.strokeStyle = '#c9893b'; c.setLineDash([5, 4]); c.lineWidth = 2; c.beginPath(); c.moveTo(gx(guess), gy - 4); c.lineTo(gx(guess), gy + 34); c.stroke(); c.setLineDash([]);
+      c.fillStyle = '#c9893b'; c.fillText('your guess', gx(guess) + 4, gy + 46);
+      if (locked && lastTrial) { c.strokeStyle = '#0f6b5c'; c.lineWidth = 3; c.beginPath(); c.moveTo(gx(lastTrial.answer), gy - 4); c.lineTo(gx(lastTrial.answer), gy + 34); c.stroke(); c.fillStyle = '#0f6b5c'; c.fillText('the real one', gx(lastTrial.answer) + 4, gy - 8 + 0); }
+      // two people at fixed places: falling, and stopping with the knees bent for this long
+      person(c, W - pad - 150, pad + 100, 70, 'fly', undefined, 'falling');
+      person(c, W - pad - 50, pad + 100, 70, 'crouch', undefined, 'stopping');
     }
     if (exp.id === 'gap') {
       c.fillStyle = '#2f7fc1'; c.fillRect(sx(0), sy(0), sx(farSide) - sx(0), 10);
