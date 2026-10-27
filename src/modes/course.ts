@@ -428,9 +428,17 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
   function showAgain() { falls--; onFall(lastFall); }
 
   // Controls are taught while you play: one short hint at a time, then none.
+  let cueSince: number | null = null, cueDone = false;
   function hintFor(w: WorldState): string {
     const r = w.runner;
-    if (w.mode === 'bounce') return 'Press Space now for extra height!';
+    if (w.mode === 'bounce') { cueDone = true; return 'Press Space now for extra height!'; }
+    // the trampoline cue comes early and stays for 4 seconds (or until you land on the bed), so it can be read before the bounce
+    const bed = course.terrain.platforms.find((q2) => q2.bouncy && r.x < q2.x1);
+    if (cueSince !== null && r.tick < cueSince) { cueSince = null; cueDone = false; } // restarted
+    if (bed && !cueDone && w.mode === 'run' && (bed.x0 - r.x < 14 || (cueSince !== null && r.tick - cueSince < 480))) {
+      cueSince ??= r.tick;
+      return r.grounded && r.x < bed.x0 - 2 ? 'Trampoline ahead: press Space the moment you land on it for extra height' : 'Land on the trampoline, then press Space while it squashes';
+    }
     if (w.mode === 'swing') return 'Press Space to let go while you are still rising';
     if (everCleared || falls > 0) return '';
     if (r.tick < 60 || (r.x < 4 && r.tick < 600)) return 'Hold → to run';
