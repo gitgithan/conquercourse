@@ -1,4 +1,4 @@
-// Walks the Dojo lesson for the gap jump: why, try it (three close guesses at different speeds), shape, rule, formula,
+// Walks the Dojo lesson for the gap jump: why, try it (three runs at different speeds), shape, rule, formula,
 // Course; checks the saying is earned only after the guesses, the formula appears only at its step, and the way back.
 import { chromium } from 'playwright';
 import { spawn } from 'node:child_process';
@@ -23,12 +23,12 @@ try {
   await page.screenshot({ path: 'test-results/dojo/1-why.png' });
   await page.click('#next');
   checks.nextNeverLocked = !(await page.$eval('#next', (b) => b.disabled));
+  checks.noGuessOrLock = (await page.$$('#guess, #newguess, #scrub')).length === 0;
   for (const [speed, jump] of [[7, 4.5], [6, 3.5], [8, 5]]) {
-    await set('knob-speed', speed); await set('knob-jump', jump); await set('guess', (2 * speed * jump) / 9.81);
+    await set('knob-speed', speed); await set('knob-jump', jump);
+    checks.liveResult = (checks.liveResult ?? true) && (await page.textContent('#out')).includes(`${((2 * speed * jump) / 9.81).toFixed(1)} m`);
     await page.click('#run');
-    checks.lockedAfterRun = (checks.lockedAfterRun ?? true) && (await page.$eval('#guess', (e) => e.disabled)) && (await page.$eval('#run', (e) => e.disabled));
-    checks.canScrub = (checks.canScrub ?? true) && (await page.$$('#scrub')).length === 1;
-    await page.click('#newguess');
+    checks.runStaysFree = (checks.runStaysFree ?? true) && !(await page.$eval('#run', (e) => e.disabled));
   }
   await page.screenshot({ path: 'test-results/dojo/2-try.png' });
   checks.sayingEarned = await has('already decided');
@@ -41,6 +41,10 @@ try {
   await page.click('#next');
   await page.click('#next');
   checks.formulaShown = await has('2 × speed × push ÷ g');
+  await set('knob-speed', 5); await set('knob-jump', 4);
+  checks.formulaLive = (await page.textContent('#answer')).includes(`${((2 * 5 * 4) / 9.81).toFixed(2)} m`);
+  await set('knob-speed', 10);
+  checks.formulaLive2 = (await page.textContent('#answer')).includes(`${((2 * 10 * 4) / 9.81).toFixed(2)} m`) && (await page.textContent('#working')).includes('10.0');
   await page.screenshot({ path: 'test-results/dojo/4-formula.png' });
   await page.click('#next');
   checks.appliedToGap = (await page.textContent('#apply')).includes('Gap 1: 4.5 m wide');

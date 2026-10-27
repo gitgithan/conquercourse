@@ -14,7 +14,7 @@ try {
   await page.goto(`http://localhost:${port}/?bot=ideal`);
   await page.waitForSelector('html[data-ready=true]', { timeout: 120000 });
   mkdirSync('test-results/cameras', { recursive: true });
-  await page.waitForFunction(() => Number(document.documentElement.dataset.tick) > 400, null, { timeout: 120000 });
+  await page.waitForFunction((t) => Number(document.documentElement.dataset.tick) > t, Number(process.env.TICK ?? 400), { timeout: 240000 });
   for (const name of ['side', 'angle', 'first']) {
     await page.waitForTimeout(600);
     await page.screenshot({ path: `test-results/cameras/${name}.png` });
