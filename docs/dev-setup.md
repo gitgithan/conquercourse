@@ -24,6 +24,12 @@
   - pages must be served from `localhost` (WebGPU needs a secure context).
 - **True-speed films:** replace `performance.now` with a stepped value in an init script, advance it one frame per screenshot, and encode at the game's frame rate.
 
+## Downloading videos (offline development only)
+- Run `yt-dlp` on the laptop, logged out, with no cookies: it works there, and datacenter machines (the VM) get a bot check.
+- Never use a personal cookies file: it holds the account's login and must never reach the repo, the VM or a server.
+- Keep the downloaded video and its `.info.json` in `../conquercourse-assets/video/`, then copy them to the VM.
+- The deployed app never calls `yt-dlp`: it only uses results processed beforehand, or files a player uploads.
+
 ## Python pipelines
 - `uv run --no-project --with numpy python -I <script>` for small tools; Modal jobs via `modal run --detach <script>` started in the background with a log and a status check.
 - Video ingest (`pipelines/ingest_video.py`): `yt-dlp`, `pillow`, `opencv-python-headless`, `meta_sam_parser`, `jsonschema` in the venv; `CC_ASSETS_DIR` names the folder that holds `video/` and `work/` (needed in a git worktree, where `../conquercourse-assets` is the wrong place); YouTube may refuse datacenter IPs with a bot check, so pass `--cookies` (a file the product owner exports) or fetch elsewhere and use `--info-json` and `--file`.
