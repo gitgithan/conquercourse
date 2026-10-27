@@ -13,6 +13,7 @@ import { DEFAULT_TRAMPOLINE } from '../sim/trampoline';
 import { ouch } from '../sim/landing';
 import { track } from '../ui/feedback';
 import { createRookieActor } from '../render/actor';
+import { makeObstacle } from '../course/collide';
 import { actorStateFor } from '../motion/actor-state';
 import { groundAt } from '../sim/terrain';
 
@@ -103,6 +104,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
       const next = await createRookieActor(scene, { rookie: which });
       actor?.dispose();
       actor = next; body.visible = false; choice = which;
+      if (params.get('nopush') !== '1') actor.setObstacle(makeObstacle(course));
       try { localStorage.setItem('cc.rookie', which); } catch { /* ok */ }
     } catch (e) { console.warn('Rookie not loaded, using the capsule', e); }
   }
@@ -465,6 +467,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
   function showAgain() { falls--; onFall(lastFall); }
 
   // Controls are taught while you play: one short hint at a time, then none.
+  let maxPen = 0;
   let cueSince: number | null = null, cueDone = false;
   function hintFor(w: WorldState): string {
     const r = w.runner;
@@ -554,6 +557,12 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
     if (actor) actor.update({ ...actorStateFor(world, keys.has('ArrowDown') || keys.has('KeyS'), facing), x: r.x, y: r.y });
     if (world.runner.tick > toastUntil) toast.style.display = 'none';
     paintStrip(r.x);
+    if (params.get('check') === '1' && actor) {
+      // measurement for the tests: the deepest any joint sits inside a block or the wall, over the whole run (metres)
+      const hit = makeObstacle(course);
+      actor.joints().forEach((j, i) => { const o = hit(j.x, j.y); if (o && Math.hypot(o.dx, o.dy) > maxPen) { maxPen = Math.hypot(o.dx, o.dy); document.documentElement.dataset.maxPenWhere = `${world.mode} x=${r.x.toFixed(1)} y=${r.y.toFixed(1)} joint=${i} at (${j.x.toFixed(2)}, ${j.y.toFixed(2)})`; } });
+      document.documentElement.dataset.maxPen = maxPen.toFixed(3);
+    }
     hint.textContent = hintFor(world);
     hint.style.display = hint.textContent ? 'block' : 'none';
     if (ropeMesh && course.rope) {
