@@ -8,6 +8,7 @@ import { fitPrimitives, proveCourse, type ParkObject } from '../park/fit';
 const STARTERS = ['park01', 'park02', 'park03', 'park06', 'park07'];
 interface Entry { key: string; id?: number; name: string; by: string; image: string; width: number; height: number; boxes: ParkObject[] }
 
+
 export function startGallery(host: HTMLElement): { backend: 'webgl2' } {
   const style = document.createElement('style');
   style.textContent = `
@@ -50,7 +51,7 @@ export function startGallery(host: HTMLElement): { backend: 'webgl2' } {
     const play = document.createElement('button'); play.className = 'go'; play.textContent = 'Play this course';
     const msg = document.createElement('div'); msg.className = 'muted';
     play.onclick = () => {
-      const proof = proveCourse(fitPrimitives(e.boxes), e.name);
+      const proof = proveCourse(fitPrimitives(e.boxes), e.name, e.image); // the photo is painted on the obstacles
       if (!proof.cleared) { msg.textContent = 'The simulator could not find a way to clear this one.'; return; }
       root.remove(); style.remove();
       void startCourse(document.body, proof.course);

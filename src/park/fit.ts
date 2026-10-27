@@ -26,6 +26,7 @@ export interface Primitive {
   length: number; // m
   risers?: number;
   scale: { source: ScaleSource; uncertainty: number; reference?: string };
+  box?: [number, number, number, number]; // where it was in the photo (pixels), for painting that part of the photo on it
 }
 
 // Typical sizes by phrase: height and length in metres (steps: height of one riser).
@@ -77,7 +78,7 @@ export function fitPrimitives(objects: ParkObject[]): Primitive[] {
     if (typed) { height = o.heightM!; if (kind === 'steps') risers = clamp(Math.round(height / t.height), 2, 8); }
     out.push({
       id: o.id, phrase: o.phrase, kind, type: t.type, roles: t.roles, x: (o.box[0] + o.box[2]) / 2,
-      height: round(height), length: round(length), risers,
+      height: round(height), length: round(length), risers, box: [...o.box] as Primitive['box'],
       scale: typed ? { source: 'maker', uncertainty: 0.1, reference: 'the height typed by the maker' } : ref ? { source: ref.source, uncertainty: ref.uncertainty, reference: ref.reference } : { source: 'typical-size', uncertainty: 0.35 },
     });
   }
@@ -90,13 +91,13 @@ export const MIN_GAP = 1.5;
 export const MAX_GAP = 5;
 
 // One platform per primitive, left to right, each across a stretch of water; gapScale shrinks every gap.
-export function buildCourse(prims: Primitive[], name = 'Park Course', gapScale = 1): CourseData {
+export function buildCourse(prims: Primitive[], name = 'Park Course', gapScale = 1, photo?: string): CourseData {
   const platforms: CourseData['terrain']['platforms'] = [{ x0: -10, x1: 6, top: 0 }];
   let x = 6;
   for (const p of prims) {
     const len = clamp(p.length, 2.5, 6);
     const gap = clamp((PITCH - len) * gapScale, MIN_GAP, MAX_GAP);
-    platforms.push({ x0: round(x + gap), x1: round(x + gap + len), top: round(Math.min(p.height, MAX_TOP)) });
+    platforms.push({ x0: round(x + gap), x1: round(x + gap + len), top: round(Math.min(p.height, MAX_TOP)), ...(photo && p.box ? { skin: { image: photo, crop: [...p.box] as [number, number, number, number] } } : {}) });
     x += gap + len;
   }
   const gap = clamp((PITCH - 6) * gapScale + 1, MIN_GAP, MAX_GAP);
@@ -116,12 +117,12 @@ export interface Proof {
 }
 
 // Prove the course clearable with the simulator; if it is not, shrink the gaps (down to MIN_GAP) and try again.
-export function proveCourse(prims: Primitive[], name?: string): Proof {
+export function proveCourse(prims: Primitive[], name?: string, photo?: string): Proof {
   const notes: string[] = [];
   for (const p of prims) if (p.height > MAX_TOP) notes.push(`${p.phrase} (${p.height} m) is flattened to ${MAX_TOP} m so a run can step up`);
   let gapScale = 1;
   for (let i = 0; i < 8; i++) {
-    const course = buildCourse(prims, name, gapScale);
+    const course = buildCourse(prims, name, gapScale, photo);
     const found = searchIdealRun(course);
     const windows = found.windows.filter((w) => w.obstacle.startsWith('edge')).map((w) => ({ ...w, ms: Math.round(w.widthMs) }));
     if (found.cleared) {
