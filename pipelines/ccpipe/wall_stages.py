@@ -190,3 +190,15 @@ def join(a, b, blend=BLEND):
             q[j] = q[p] + d / max(np.linalg.norm(d), 1e-9) * (la + (lb - la) * e)
         mid.append(q)
     return np.concatenate([a, np.array(mid), b], axis=0)
+
+
+def lowered(t, dy):
+    """The same targets with every height lowered by `dy`, for a model whose hips stop climbing near 2.5 m (CC-36 round 2).
+
+    `sim_hips` stays in the world; `model_shift_y` tells the post-processing to put the sample back."""
+    out = dict(t)
+    out["hips"] = (np.array(t["hips"]) - [0, dy, 0]).round(4).tolist()
+    for k in ("plants", "grips", "deck"):
+        out[k] = [{**p, "point": (np.array(p["point"]) - [0, dy, 0]).round(4).tolist()} for p in t[k]]
+    out["model_shift_y"] = dy
+    return out

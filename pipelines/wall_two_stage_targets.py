@@ -16,4 +16,11 @@ if __name__ == "__main__":
         with open(os.path.join(sys.argv[2], name), "w") as f:
             json.dump(t, f, indent=2)
             f.write("\n")
+        if name == "targets_a.json":
+            lo = wall_stages.lowered(t, 0.7)
+        else:
+            lo = wall_stages.lowered(t, 0.6)
+        with open(os.path.join(sys.argv[2], name.replace(".json", "_r2.json")), "w") as f:
+            json.dump(lo, f, indent=2)
+            f.write("\n")
         print(name, {k: v for k, v in t.items() if k in ("frames", "hips_rise", "hips_to_edge_wrist_at_end", "hips_to_wrist_at_hang")}, [(p["joint"], p["frames"], p["point"], p.get("hips_to_ankle")) for p in t["plants"]])

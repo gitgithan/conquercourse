@@ -1,0 +1,801 @@
+{
+  "stage": "b",
+  "round": 1,
+  "best_seed": 12,
+  "best_met": 3,
+  "of": 6,
+  "samples": [
+    {
+      "seed": 7,
+      "met_final": 3,
+      "met_raw": 2,
+      "of": 6,
+      "failed_final": [
+        "1_gate",
+        "3_pull_up",
+        "4_wall_and_deck"
+      ],
+      "failed_raw": [
+        "1_gate",
+        "2_hang",
+        "3_pull_up",
+        "4_wall_and_deck"
+      ],
+      "gate_failed_final": [
+        "knees_bend_forward",
+        "legs_not_twisted",
+        "knees_within_range"
+      ],
+      "soft_failed_final": [
+        "no_jitter"
+      ],
+      "wall_depth_raw": 0.4198,
+      "target_error_raw_m": {
+        "LeftHand@0-20": 1.1,
+        "RightHand@0-20": 1.067,
+        "LeftFoot@38-47": 0.042,
+        "RightFoot@38-47": 0.063
+      },
+      "target_error_final_m": {
+        "LeftHand@0-20": 0.0,
+        "RightHand@0-20": 0.0,
+        "LeftFoot@38-47": 0.0,
+        "RightFoot@38-47": 0.0
+      },
+      "ik_leftover_m": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "repairs": {
+        "fix_knees": 0,
+        "lift_to_floor": 0,
+        "limit_knee_bend": 0
+      },
+      "gen_s": 9.8,
+      "lines": {
+        "1_gate": {
+          "ok": false,
+          "value": [
+            "knees_bend_forward",
+            "legs_not_twisted",
+            "knees_within_range"
+          ],
+          "limit": "all hard rules"
+        },
+        "2_hang": {
+          "ok": true,
+          "value": {
+            "frames": 22,
+            "closest_wrists_m": {
+              "LeftHand": 0.0,
+              "RightHand": 0.0
+            }
+          },
+          "limit": ">= 9 frames within 5 cm of the ledge, no foot on the ground or deck"
+        },
+        "3_pull_up": {
+          "ok": false,
+          "value": {
+            "hips_above_deck": 0.563,
+            "ankle_height_dev": 0.0,
+            "ankle_z_min": 4.7,
+            "hang_ends_at": 22
+          },
+          "limit": "after the hang, last 5 frames: hips >= 0.8 m above the deck, ankles within 10 cm of deck height and past the edge"
+        },
+        "4_wall_and_deck": {
+          "ok": false,
+          "value": 0.1168,
+          "limit": "<= 0.02 m inside"
+        },
+        "5_shape": {
+          "ok": true,
+          "value": [
+            48,
+            30
+          ],
+          "limit": "48 frames, 30 joints"
+        },
+        "6_rise": {
+          "ok": true,
+          "value": 1.767,
+          "limit": "hips rise < 2.5 m"
+        }
+      }
+    },
+    {
+      "seed": 8,
+      "met_final": 3,
+      "met_raw": 2,
+      "of": 6,
+      "failed_final": [
+        "1_gate",
+        "3_pull_up",
+        "4_wall_and_deck"
+      ],
+      "failed_raw": [
+        "1_gate",
+        "2_hang",
+        "3_pull_up",
+        "4_wall_and_deck"
+      ],
+      "gate_failed_final": [
+        "knees_bend_forward",
+        "legs_not_twisted",
+        "knees_within_range"
+      ],
+      "soft_failed_final": [
+        "no_jitter"
+      ],
+      "wall_depth_raw": 0.5037,
+      "target_error_raw_m": {
+        "LeftHand@0-20": 1.02,
+        "RightHand@0-20": 0.967,
+        "LeftFoot@38-47": 0.127,
+        "RightFoot@38-47": 0.145
+      },
+      "target_error_final_m": {
+        "LeftHand@0-20": 0.0,
+        "RightHand@0-20": 0.0,
+        "LeftFoot@38-47": 0.0,
+        "RightFoot@38-47": 0.0
+      },
+      "ik_leftover_m": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "repairs": {
+        "fix_knees": 0,
+        "lift_to_floor": 0,
+        "limit_knee_bend": 0
+      },
+      "gen_s": 5.8,
+      "lines": {
+        "1_gate": {
+          "ok": false,
+          "value": [
+            "knees_bend_forward",
+            "legs_not_twisted",
+            "knees_within_range"
+          ],
+          "limit": "all hard rules"
+        },
+        "2_hang": {
+          "ok": true,
+          "value": {
+            "frames": 22,
+            "closest_wrists_m": {
+              "LeftHand": 0.0,
+              "RightHand": 0.0
+            }
+          },
+          "limit": ">= 9 frames within 5 cm of the ledge, no foot on the ground or deck"
+        },
+        "3_pull_up": {
+          "ok": false,
+          "value": {
+            "hips_above_deck": 0.625,
+            "ankle_height_dev": 0.0,
+            "ankle_z_min": 4.7,
+            "hang_ends_at": 22
+          },
+          "limit": "after the hang, last 5 frames: hips >= 0.8 m above the deck, ankles within 10 cm of deck height and past the edge"
+        },
+        "4_wall_and_deck": {
+          "ok": false,
+          "value": 0.064,
+          "limit": "<= 0.02 m inside"
+        },
+        "5_shape": {
+          "ok": true,
+          "value": [
+            48,
+            30
+          ],
+          "limit": "48 frames, 30 joints"
+        },
+        "6_rise": {
+          "ok": true,
+          "value": 1.807,
+          "limit": "hips rise < 2.5 m"
+        }
+      }
+    },
+    {
+      "seed": 9,
+      "met_final": 3,
+      "met_raw": 2,
+      "of": 6,
+      "failed_final": [
+        "1_gate",
+        "3_pull_up",
+        "4_wall_and_deck"
+      ],
+      "failed_raw": [
+        "1_gate",
+        "2_hang",
+        "3_pull_up",
+        "4_wall_and_deck"
+      ],
+      "gate_failed_final": [
+        "knees_bend_forward",
+        "legs_not_twisted",
+        "knees_within_range"
+      ],
+      "soft_failed_final": [
+        "no_jitter"
+      ],
+      "wall_depth_raw": 0.3627,
+      "target_error_raw_m": {
+        "LeftHand@0-20": 0.996,
+        "RightHand@0-20": 0.939,
+        "LeftFoot@38-47": 0.091,
+        "RightFoot@38-47": 0.056
+      },
+      "target_error_final_m": {
+        "LeftHand@0-20": 0.0,
+        "RightHand@0-20": 0.0,
+        "LeftFoot@38-47": 0.0,
+        "RightFoot@38-47": 0.0
+      },
+      "ik_leftover_m": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "repairs": {
+        "fix_knees": 0,
+        "lift_to_floor": 0,
+        "limit_knee_bend": 0
+      },
+      "gen_s": 5.9,
+      "lines": {
+        "1_gate": {
+          "ok": false,
+          "value": [
+            "knees_bend_forward",
+            "legs_not_twisted",
+            "knees_within_range"
+          ],
+          "limit": "all hard rules"
+        },
+        "2_hang": {
+          "ok": true,
+          "value": {
+            "frames": 22,
+            "closest_wrists_m": {
+              "LeftHand": 0.0,
+              "RightHand": 0.0
+            }
+          },
+          "limit": ">= 9 frames within 5 cm of the ledge, no foot on the ground or deck"
+        },
+        "3_pull_up": {
+          "ok": false,
+          "value": {
+            "hips_above_deck": 0.68,
+            "ankle_height_dev": 0.0,
+            "ankle_z_min": 4.7,
+            "hang_ends_at": 22
+          },
+          "limit": "after the hang, last 5 frames: hips >= 0.8 m above the deck, ankles within 10 cm of deck height and past the edge"
+        },
+        "4_wall_and_deck": {
+          "ok": false,
+          "value": 0.1154,
+          "limit": "<= 0.02 m inside"
+        },
+        "5_shape": {
+          "ok": true,
+          "value": [
+            48,
+            30
+          ],
+          "limit": "48 frames, 30 joints"
+        },
+        "6_rise": {
+          "ok": true,
+          "value": 1.72,
+          "limit": "hips rise < 2.5 m"
+        }
+      }
+    },
+    {
+      "seed": 10,
+      "met_final": 3,
+      "met_raw": 2,
+      "of": 6,
+      "failed_final": [
+        "1_gate",
+        "3_pull_up",
+        "4_wall_and_deck"
+      ],
+      "failed_raw": [
+        "1_gate",
+        "2_hang",
+        "3_pull_up",
+        "4_wall_and_deck"
+      ],
+      "gate_failed_final": [
+        "knees_bend_forward",
+        "legs_not_twisted",
+        "knees_within_range"
+      ],
+      "soft_failed_final": [
+        "no_jitter"
+      ],
+      "wall_depth_raw": 0.2968,
+      "target_error_raw_m": {
+        "LeftHand@0-20": 1.04,
+        "RightHand@0-20": 0.968,
+        "LeftFoot@38-47": 0.112,
+        "RightFoot@38-47": 0.065
+      },
+      "target_error_final_m": {
+        "LeftHand@0-20": 0.0,
+        "RightHand@0-20": 0.0,
+        "LeftFoot@38-47": 0.0,
+        "RightFoot@38-47": 0.0
+      },
+      "ik_leftover_m": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "repairs": {
+        "fix_knees": 0,
+        "lift_to_floor": 0,
+        "limit_knee_bend": 0
+      },
+      "gen_s": 5.9,
+      "lines": {
+        "1_gate": {
+          "ok": false,
+          "value": [
+            "knees_bend_forward",
+            "legs_not_twisted",
+            "knees_within_range"
+          ],
+          "limit": "all hard rules"
+        },
+        "2_hang": {
+          "ok": true,
+          "value": {
+            "frames": 22,
+            "closest_wrists_m": {
+              "LeftHand": 0.0,
+              "RightHand": 0.0
+            }
+          },
+          "limit": ">= 9 frames within 5 cm of the ledge, no foot on the ground or deck"
+        },
+        "3_pull_up": {
+          "ok": false,
+          "value": {
+            "hips_above_deck": 0.693,
+            "ankle_height_dev": 0.0,
+            "ankle_z_min": 4.7,
+            "hang_ends_at": 22
+          },
+          "limit": "after the hang, last 5 frames: hips >= 0.8 m above the deck, ankles within 10 cm of deck height and past the edge"
+        },
+        "4_wall_and_deck": {
+          "ok": false,
+          "value": 0.1814,
+          "limit": "<= 0.02 m inside"
+        },
+        "5_shape": {
+          "ok": true,
+          "value": [
+            48,
+            30
+          ],
+          "limit": "48 frames, 30 joints"
+        },
+        "6_rise": {
+          "ok": true,
+          "value": 1.745,
+          "limit": "hips rise < 2.5 m"
+        }
+      }
+    },
+    {
+      "seed": 11,
+      "met_final": 3,
+      "met_raw": 2,
+      "of": 6,
+      "failed_final": [
+        "1_gate",
+        "3_pull_up",
+        "4_wall_and_deck"
+      ],
+      "failed_raw": [
+        "1_gate",
+        "2_hang",
+        "3_pull_up",
+        "4_wall_and_deck"
+      ],
+      "gate_failed_final": [
+        "knees_bend_forward",
+        "legs_not_twisted",
+        "knees_within_range"
+      ],
+      "soft_failed_final": [
+        "no_jitter"
+      ],
+      "wall_depth_raw": 0.427,
+      "target_error_raw_m": {
+        "LeftHand@0-20": 0.906,
+        "RightHand@0-20": 0.889,
+        "LeftFoot@38-47": 0.057,
+        "RightFoot@38-47": 0.029
+      },
+      "target_error_final_m": {
+        "LeftHand@0-20": 0.0,
+        "RightHand@0-20": 0.0,
+        "LeftFoot@38-47": 0.0,
+        "RightFoot@38-47": 0.0
+      },
+      "ik_leftover_m": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "repairs": {
+        "fix_knees": 0,
+        "lift_to_floor": 0,
+        "limit_knee_bend": 0
+      },
+      "gen_s": 5.9,
+      "lines": {
+        "1_gate": {
+          "ok": false,
+          "value": [
+            "knees_bend_forward",
+            "legs_not_twisted",
+            "knees_within_range"
+          ],
+          "limit": "all hard rules"
+        },
+        "2_hang": {
+          "ok": true,
+          "value": {
+            "frames": 22,
+            "closest_wrists_m": {
+              "LeftHand": 0.0,
+              "RightHand": 0.0
+            }
+          },
+          "limit": ">= 9 frames within 5 cm of the ledge, no foot on the ground or deck"
+        },
+        "3_pull_up": {
+          "ok": false,
+          "value": {
+            "hips_above_deck": 0.605,
+            "ankle_height_dev": 0.0,
+            "ankle_z_min": 4.7,
+            "hang_ends_at": 22
+          },
+          "limit": "after the hang, last 5 frames: hips >= 0.8 m above the deck, ankles within 10 cm of deck height and past the edge"
+        },
+        "4_wall_and_deck": {
+          "ok": false,
+          "value": 0.1197,
+          "limit": "<= 0.02 m inside"
+        },
+        "5_shape": {
+          "ok": true,
+          "value": [
+            48,
+            30
+          ],
+          "limit": "48 frames, 30 joints"
+        },
+        "6_rise": {
+          "ok": true,
+          "value": 1.701,
+          "limit": "hips rise < 2.5 m"
+        }
+      }
+    },
+    {
+      "seed": 12,
+      "met_final": 3,
+      "met_raw": 2,
+      "of": 6,
+      "failed_final": [
+        "1_gate",
+        "3_pull_up",
+        "4_wall_and_deck"
+      ],
+      "failed_raw": [
+        "1_gate",
+        "2_hang",
+        "3_pull_up",
+        "4_wall_and_deck"
+      ],
+      "gate_failed_final": [
+        "legs_not_twisted"
+      ],
+      "soft_failed_final": [
+        "no_jitter"
+      ],
+      "wall_depth_raw": 0.395,
+      "target_error_raw_m": {
+        "LeftHand@0-20": 1.006,
+        "RightHand@0-20": 0.966,
+        "LeftFoot@38-47": 0.237,
+        "RightFoot@38-47": 0.228
+      },
+      "target_error_final_m": {
+        "LeftHand@0-20": 0.0,
+        "RightHand@0-20": 0.0,
+        "LeftFoot@38-47": 0.0,
+        "RightFoot@38-47": 0.0
+      },
+      "ik_leftover_m": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "repairs": {
+        "fix_knees": 0,
+        "lift_to_floor": 0,
+        "limit_knee_bend": 0
+      },
+      "gen_s": 6.0,
+      "lines": {
+        "1_gate": {
+          "ok": false,
+          "value": [
+            "legs_not_twisted"
+          ],
+          "limit": "all hard rules"
+        },
+        "2_hang": {
+          "ok": true,
+          "value": {
+            "frames": 22,
+            "closest_wrists_m": {
+              "LeftHand": 0.0,
+              "RightHand": 0.0
+            }
+          },
+          "limit": ">= 9 frames within 5 cm of the ledge, no foot on the ground or deck"
+        },
+        "3_pull_up": {
+          "ok": false,
+          "value": {
+            "hips_above_deck": 0.703,
+            "ankle_height_dev": 0.0,
+            "ankle_z_min": 4.7,
+            "hang_ends_at": 22
+          },
+          "limit": "after the hang, last 5 frames: hips >= 0.8 m above the deck, ankles within 10 cm of deck height and past the edge"
+        },
+        "4_wall_and_deck": {
+          "ok": false,
+          "value": 0.1424,
+          "limit": "<= 0.02 m inside"
+        },
+        "5_shape": {
+          "ok": true,
+          "value": [
+            48,
+            30
+          ],
+          "limit": "48 frames, 30 joints"
+        },
+        "6_rise": {
+          "ok": true,
+          "value": 1.823,
+          "limit": "hips rise < 2.5 m"
+        }
+      }
+    },
+    {
+      "seed": 13,
+      "met_final": 3,
+      "met_raw": 2,
+      "of": 6,
+      "failed_final": [
+        "1_gate",
+        "3_pull_up",
+        "4_wall_and_deck"
+      ],
+      "failed_raw": [
+        "1_gate",
+        "2_hang",
+        "3_pull_up",
+        "4_wall_and_deck"
+      ],
+      "gate_failed_final": [
+        "knees_bend_forward",
+        "legs_not_twisted",
+        "knees_within_range"
+      ],
+      "soft_failed_final": [
+        "no_jitter"
+      ],
+      "wall_depth_raw": 0.3152,
+      "target_error_raw_m": {
+        "LeftHand@0-20": 1.072,
+        "RightHand@0-20": 1.038,
+        "LeftFoot@38-47": 0.057,
+        "RightFoot@38-47": 0.132
+      },
+      "target_error_final_m": {
+        "LeftHand@0-20": 0.0,
+        "RightHand@0-20": 0.0,
+        "LeftFoot@38-47": 0.0,
+        "RightFoot@38-47": 0.0
+      },
+      "ik_leftover_m": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "repairs": {
+        "fix_knees": 3,
+        "lift_to_floor": 0,
+        "limit_knee_bend": 0
+      },
+      "gen_s": 5.9,
+      "lines": {
+        "1_gate": {
+          "ok": false,
+          "value": [
+            "knees_bend_forward",
+            "legs_not_twisted",
+            "knees_within_range"
+          ],
+          "limit": "all hard rules"
+        },
+        "2_hang": {
+          "ok": true,
+          "value": {
+            "frames": 22,
+            "closest_wrists_m": {
+              "LeftHand": 0.0,
+              "RightHand": 0.0
+            }
+          },
+          "limit": ">= 9 frames within 5 cm of the ledge, no foot on the ground or deck"
+        },
+        "3_pull_up": {
+          "ok": false,
+          "value": {
+            "hips_above_deck": 0.651,
+            "ankle_height_dev": 0.0,
+            "ankle_z_min": 4.7,
+            "hang_ends_at": 22
+          },
+          "limit": "after the hang, last 5 frames: hips >= 0.8 m above the deck, ankles within 10 cm of deck height and past the edge"
+        },
+        "4_wall_and_deck": {
+          "ok": false,
+          "value": 0.0686,
+          "limit": "<= 0.02 m inside"
+        },
+        "5_shape": {
+          "ok": true,
+          "value": [
+            48,
+            30
+          ],
+          "limit": "48 frames, 30 joints"
+        },
+        "6_rise": {
+          "ok": true,
+          "value": 1.829,
+          "limit": "hips rise < 2.5 m"
+        }
+      }
+    },
+    {
+      "seed": 14,
+      "met_final": 3,
+      "met_raw": 2,
+      "of": 6,
+      "failed_final": [
+        "1_gate",
+        "3_pull_up",
+        "4_wall_and_deck"
+      ],
+      "failed_raw": [
+        "1_gate",
+        "2_hang",
+        "3_pull_up",
+        "4_wall_and_deck"
+      ],
+      "gate_failed_final": [
+        "legs_not_twisted"
+      ],
+      "soft_failed_final": [
+        "no_jitter"
+      ],
+      "wall_depth_raw": 0.4938,
+      "target_error_raw_m": {
+        "LeftHand@0-20": 0.974,
+        "RightHand@0-20": 0.968,
+        "LeftFoot@38-47": 0.189,
+        "RightFoot@38-47": 0.343
+      },
+      "target_error_final_m": {
+        "LeftHand@0-20": 0.0,
+        "RightHand@0-20": 0.0,
+        "LeftFoot@38-47": 0.0,
+        "RightFoot@38-47": 0.0
+      },
+      "ik_leftover_m": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "repairs": {
+        "fix_knees": 1,
+        "lift_to_floor": 0,
+        "limit_knee_bend": 0
+      },
+      "gen_s": 5.9,
+      "lines": {
+        "1_gate": {
+          "ok": false,
+          "value": [
+            "legs_not_twisted"
+          ],
+          "limit": "all hard rules"
+        },
+        "2_hang": {
+          "ok": true,
+          "value": {
+            "frames": 22,
+            "closest_wrists_m": {
+              "LeftHand": 0.0,
+              "RightHand": 0.0
+            }
+          },
+          "limit": ">= 9 frames within 5 cm of the ledge, no foot on the ground or deck"
+        },
+        "3_pull_up": {
+          "ok": false,
+          "value": {
+            "hips_above_deck": 0.393,
+            "ankle_height_dev": 0.0,
+            "ankle_z_min": 4.7,
+            "hang_ends_at": 22
+          },
+          "limit": "after the hang, last 5 frames: hips >= 0.8 m above the deck, ankles within 10 cm of deck height and past the edge"
+        },
+        "4_wall_and_deck": {
+          "ok": false,
+          "value": 0.1277,
+          "limit": "<= 0.02 m inside"
+        },
+        "5_shape": {
+          "ok": true,
+          "value": [
+            48,
+            30
+          ],
+          "limit": "48 frames, 30 joints"
+        },
+        "6_rise": {
+          "ok": true,
+          "value": 1.657,
+          "limit": "hips rise < 2.5 m"
+        }
+      }
+    }
+  ]
+}

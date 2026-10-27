@@ -141,7 +141,7 @@ def main(targets: str, out: str = "", round: int = 1, seeds: str = "7,8,9,10,11,
     with open(os.path.join(out, "kimodo_samples.json"), "w") as f:
         json.dump(res, f)
     meta = {k: v for k, v in res.items() if k != "samples"}
-    meta["wall_s"] = round(time.time() - t, 1)
+    meta["wall_s"] = float(f"{time.time() - t:.1f}")
     meta["gen_s"] = [s["gen_s"] for s in res["samples"]]
     with open(os.path.join(out, "kimodo_run.json"), "w") as f:
         json.dump(meta, f, indent=2)

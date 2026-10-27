@@ -48,7 +48,10 @@ def main():
     with open(a.targets) as f:
         targets = json.load(f)
     assert data["bone_order_names"] == NAMES, "the model's joint order differs from ccpipe.skeleton.NAMES"
-    shift = np.array(targets.get("world_shift", [0, 0, 0]))
+    shift = np.array(targets.get("world_shift", [0, 0, 0])) + [0, targets.get("model_shift_y", 0.0), 0]
+    if "model_shift_y" in targets:                       # round 2: the targets are in the lowered frame; score in the world
+        targets = ws.lowered(targets, -targets["model_shift_y"])
+        targets.pop("model_shift_y")
     world = ws.world_targets_b(targets) if a.stage == "b" else targets
     wall = Wall()
     os.makedirs(os.path.join(a.out, "gifs"), exist_ok=True)

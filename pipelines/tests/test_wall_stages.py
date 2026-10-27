@@ -95,3 +95,13 @@ def test_join_keeps_bone_lengths_between_the_two_poses_and_both_ends_untouched()
             la = np.linalg.norm(a[0, j] - a[0, PARENTS[j]])
             assert abs(np.linalg.norm(out[t, j] - out[t, PARENTS[j]]) - la) < 1e-6
     assert np.all(np.diff(out[5:17, 0, 2]) > 0)                              # the hips move steadily toward B
+
+
+def test_lowered_targets_keep_the_world_path_and_drop_every_height():
+    t = ws.build_targets_a(sim())
+    lo = ws.lowered(t, 0.7)
+    assert lo["model_shift_y"] == 0.7 and lo["sim_hips"] == t["sim_hips"]
+    assert np.allclose(np.array(lo["hips"])[:, 1], np.array(t["hips"])[:, 1] - 0.7)
+    assert np.isclose(lo["plants"][0]["point"][1], t["plants"][0]["point"][1] - 0.7)
+    back = ws.lowered(lo, -0.7)
+    assert np.allclose(back["hips"], t["hips"], atol=1e-3)
