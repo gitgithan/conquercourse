@@ -35,3 +35,4 @@
 - R5-S1: the wall's hand reach is now 1.3 m above the hips (it was 2.1 m, more than a body can stretch; the CC-17 finding).
   - The feet must now climb 2.0 m instead of 1.2 m, so the wall needs about 6.6 m/s at its foot instead of 5.1 m/s.
   - The Dojo, the speed meter and the ideal run follow the new number; the bot still clears the whole Course.
+- R5-G1c: the stance had shoulders slightly forward and bent elbows; now the shoulders are level with the body and the arms hang straight down with straight elbows.
