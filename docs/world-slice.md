@@ -150,3 +150,9 @@ The set of obstacle shapes is fixed, and each shape offers a fixed set of moves.
   - Let go: both hands off; the body flies on with its own velocity; no re-grab for 0.2 s.
 - **Proof:** the ideal-run search tunes the take-off press and how long to hang on each bar; a lache pair over an 8 m gap is cleared with about 3 s of pumping on the first bar, a plain jump splashes, and a gap of 14 m or bars out of reach are not cleared.
 - **Not yet:** vault, the editor's Overhead row and side-view dragging, the front-view window, and the bar drawn in the game.
+
+## The vault and energy (CC-44)
+- **Vault (V):** with speed (3 m/s or more) and an obstacle whose front face is within 0.9 m ahead and whose top is 0.35 to 1.3 m above the feet, a hand goes on top and the body goes over without a long arc; it keeps 92 % of the speed.
+- **Why it is worth it:** on a course with `jumpKeep` below 1 (a jump loses speed at take-off) a vault gets to the same point sooner; both spend energy (`src/sim/energy.ts`: a vault costs less than half a jump).
+- **Proof:** the ideal-run search now also looks at steps (0.3 to 1.3 m, touching the ground before them), tries a vault and a jump at each press, and keeps the one that gets farthest (a vault wins a tie).
+- **Stock course:** unchanged (`jumpKeep` is 1 there, and its plan is the same as before).

@@ -9,6 +9,7 @@ export interface Plan {
   jumpXs: number[]; // press at the first moment the feet are on the ground at or past this x
   releaseAfter: number; // ticks after catching the rope
   bouncePress: number; // ticks after touching the trampoline bed
+  vaultXs?: number[]; // press V at the first moment the feet are on the ground at or past this x
   hands?: boolean; // hold the hand key while airborne (so a bar in reach is grabbed)
   hangTicks?: number[]; // per bar: ticks to hang (pumping with the swing) before letting go
 }
@@ -21,7 +22,7 @@ export interface Window {
   widthMs: number; // how long the clearing window lasts, in milliseconds of game time
 }
 
-export function inputFor(plan: Plan, w: WorldState, state: { next: number; caught: number | null; bedAt: number | null; hangAt?: number | null; hangs?: number }): RunnerInput {
+export function inputFor(plan: Plan, w: WorldState, state: { next: number; caught: number | null; bedAt: number | null; hangAt?: number | null; hangs?: number; vnext?: number }): RunnerInput {
   const base: RunnerInput = { ...NO_INPUT, run: true, squat: true };
   if (w.mode === 'hang') {
     if (state.hangAt == null) state.hangAt = w.runner.tick;
@@ -42,6 +43,10 @@ export function inputFor(plan: Plan, w: WorldState, state: { next: number; caugh
     return w.runner.tick - state.bedAt >= plan.bouncePress ? { ...base, jump: true } : base;
   }
   state.bedAt = null;
+  if (w.mode === 'run' && w.runner.grounded && plan.vaultXs && (state.vnext ?? 0) < plan.vaultXs.length && w.runner.x >= plan.vaultXs[state.vnext ?? 0]) {
+    state.vnext = (state.vnext ?? 0) + 1;
+    return { ...base, vault: true };
+  }
   if (w.runner.grounded && state.next < plan.jumpXs.length && w.runner.x >= plan.jumpXs[state.next]) {
     state.next++;
     return { ...base, jump: true };
@@ -53,7 +58,7 @@ export interface RunResult { world: WorldState; events: GameEvent[]; maxX: numbe
 
 export function playPlan(course: CourseData, plan: Plan, maxTicks = 120 * 80): RunResult {
   let w = newWorld(course);
-  const st = { next: 0, caught: null as number | null, bedAt: null as number | null, hangAt: null as number | null, hangs: 0 };
+  const st = { next: 0, caught: null as number | null, bedAt: null as number | null, hangAt: null as number | null, hangs: 0, vnext: 0 };
   const events: GameEvent[] = [];
   let maxX = 0;
   let still = 0;
@@ -79,6 +84,19 @@ export function edges(course: CourseData): { x: number; name: string }[] {
   return out;
 }
 
+// Steps up that touch the ground before them and are too tall to walk up (0.3 m) but within a vault's reach (the wall is another move).
+export function risers(course: CourseData): { x: number; name: string; riser: true }[] {
+  const ps = [...course.terrain.platforms].sort((a, b) => a.x0 - b.x0);
+  const out: { x: number; name: string; riser: true }[] = [];
+  ps.forEach((p, i) => {
+    const nxt = ps[i + 1];
+    if (!nxt || nxt.x0 - p.x1 > 0.02 || p.x1 < course.startX) return;
+    const rise = nxt.top - p.top;
+    if (rise > 0.3 && rise <= 1.3 && !(course.wall && Math.abs(nxt.x0 - (course.wall.x0 + (course.wall.radius ?? course.wall.height ?? 4.3))) < 0.5)) out.push({ x: p.x1, name: `step at ${p.x1} m`, riser: true });
+  });
+  return out;
+}
+
 const candidates = (from: number, to: number, step = 0.02) => {
   const out: number[] = [];
   for (let x = from; x <= to + 1e-9; x += step) out.push(Math.round(x * 1000) / 1000);
@@ -91,7 +109,7 @@ export function searchIdealRun(course: CourseData): { plan: Plan; windows: Windo
   const holds = course.holds ?? [];
   const plan: Plan = { jumpXs: [], releaseAfter: 60, bouncePress: 8, ...(holds.length ? { hands: true, hangTicks: holds.map(() => 90) } : {}) };
   const windows: Window[] = [];
-  const es = edges(course);
+  const es: { x: number; name: string; riser?: boolean }[] = [...edges(course), ...risers(course)].sort((a, b) => a.x - b.x);
   const hasRope = !!course.rope;
   // rope: the jump at the deck edge before the rope's gap is one of the edges; tune the release after it
   const score = (r: RunResult) => (r.world.outcome === 'cleared' ? 1e6 : r.maxX);
@@ -99,6 +117,19 @@ export function searchIdealRun(course: CourseData): { plan: Plan; windows: Windo
   void progress;
   for (let k = 0; k < es.length; k++) {
     const e = es[k];
+    if (e.riser) {
+      // a step up too tall for a casual walk-up: try a vault and a jump at every press, keep the one that gets farthest (a vault wins a tie: it is faster)
+      let best: { x: number; vault: boolean; s: number } | null = null;
+      for (const x of candidates(e.x - 0.9, e.x - 0.05)) {
+        for (const vault of [false, true]) {
+          const trial: Plan = vault ? { ...plan, vaultXs: [...(plan.vaultXs ?? []), x] } : { ...plan, jumpXs: [...plan.jumpXs, x] };
+          const sc = score(playPlan(course, trial));
+          if (!best || sc > best.s + 1e-9 || (Math.abs(sc - best.s) <= 1e-9 && vault && !best.vault)) best = { x, vault, s: sc };
+        }
+      }
+      if (best) { if (best.vault) plan.vaultXs = [...(plan.vaultXs ?? []), best.x]; else plan.jumpXs.push(best.x); windows.push({ obstacle: `${best.vault ? 'vault' : 'jump'} at ${e.name}`, best: best.x, lo: best.x, hi: best.x, widthMs: 0 }); }
+      continue;
+    }
     // a bar within a swing of this edge: try presses on a coarser grid and, for each, several hang times on the first bar
     const holdEdge = holds.some((h) => h.x > e.x - 1 && h.x < e.x + 9);
     const cs = candidates(e.x - 3, e.x, holdEdge ? 0.1 : 0.02);
