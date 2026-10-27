@@ -1,4 +1,5 @@
 // Plays the lache demo with real key presses (not the bot): V at the box, Space at the edge, hold E on the bar, push the arrow the way the swing goes, let go.
+// Status: vault, jump, grab, pump and the second grab all work through the real keys; the let-go timing of this script is crude (it ends in a splash), so it is a manual aid, not a pass/fail test.
 // Run: npx tsx scripts/keys-check.ts  (the game runs at half of real speed so a poll every 20 ms is exact enough)
 import { chromium } from 'playwright';
 import { spawn } from 'node:child_process';
@@ -39,7 +40,7 @@ try {
       // hang time in game ticks is plan.hangTicks[k]; the game runs at 0.2 speed, so wall time = ticks / 120 / 0.2
       const wallMs = ((plan.hangTicks?.[hangCount] ?? 90) / 120 / SCALE) * 1000;
       const cue = await page.evaluate(() => document.body.textContent?.includes('LET GO NOW') ?? false); // the game's own look-ahead says when letting go works
-      if (Date.now() - hangStart > wallMs * 0.5 && cue) { await page.keyboard.up('KeyE'); hangCount++; grabbed = false; await page.keyboard.up(pumping); pumping = ''; await page.keyboard.down('ArrowRight'); if (hangCount < (plan.hangTicks?.length ?? 0)) { await page.waitForTimeout(150); await page.keyboard.down('KeyE'); grabbed = true; hangStart = Date.now() + 1e9; } }
+      if ((Date.now() - hangStart > wallMs * 0.5 && cue) || Date.now() - hangStart > wallMs * 1.6) { await page.keyboard.up('KeyE'); hangCount++; grabbed = false; await page.keyboard.up(pumping); pumping = ''; await page.keyboard.down('ArrowRight'); if (hangCount < (plan.hangTicks?.length ?? 0)) { await page.waitForTimeout(150); await page.keyboard.down('KeyE'); grabbed = true; hangStart = Date.now() + 1e9; } }
     }
     if (grabbed && s.mode === 'run' && hangStart > Date.now() + 1e8) hangStart = Date.now();
     await page.waitForTimeout(20);
