@@ -178,6 +178,43 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
     camBtn.blur();
   };
   camBtn.onclick = nextCam;
+  // the obstacle strip: one icon per obstacle; cleared ones dim, the rest glow gold in a wave that runs along the strip, the next one is biggest
+  const strip = document.createElement('div');
+  strip.id = 'strip';
+  strip.style.cssText = 'position:fixed;left:50%;top:92px;transform:translateX(-50%);display:flex;gap:10px;align-items:flex-end;pointer-events:none';
+  const sstyle = document.createElement('style');
+  sstyle.textContent = `@keyframes ccwave{0%,100%{filter:drop-shadow(0 0 2px #e8b43a88);opacity:.72}50%{filter:drop-shadow(0 0 9px #ffd24a);opacity:1}}
+    #strip .ob{display:grid;justify-items:center;gap:1px;font:600 11px system-ui,sans-serif;color:#7a5a00;transition:transform .3s,opacity .3s}
+    #strip .ob svg{width:34px;height:34px;padding:5px;border-radius:12px;background:#fff8dc;border:2px solid #d9a521;color:#b07d00;box-sizing:content-box}
+    #strip .ob.todo svg{animation:ccwave 2.2s ease-in-out infinite}
+    #strip .ob.next{transform:scale(1.25);color:#5b4200}#strip .ob.next svg{background:#ffe38a;border-color:#f0b400;color:#6b4a00}
+    #strip .ob.done{opacity:.35;filter:grayscale(1)}#strip .ob.done svg{animation:none;background:#eef1ec;border-color:#9aa59e;color:#58635d}`;
+  const ICONS: Record<string, string> = {
+    gap: '<path d="M3 20 H11 V12 M21 20 H29 V12 M11 12 H3 M21 12 H29 M12 8 Q16 2 20 8" />',
+    landing: '<rect x="9" y="12" width="14" height="8" rx="1"/><path d="M16 4 V9 M13 7 L16 10 L19 7"/>',
+    wall: '<path d="M4 26 Q22 26 26 4 M26 4 H29"/>',
+    rope: '<path d="M5 5 H27 M16 5 V19"/><circle cx="16" cy="23" r="3.5"/>',
+    trampoline: '<path d="M4 20 H28 M7 20 L9 26 M25 20 L23 26 M13 14 Q16 4 19 14"/>',
+  };
+  const stripKey = { v: '' };
+  function paintStrip(x: number) {
+    const zs = course.zones ?? [];
+    const firstTodo = zs.findIndex((z) => x < z.x1);
+    const key = zs.map((_, i) => (firstTodo === -1 || i < firstTodo ? 'd' : i === firstTodo ? 'n' : 't')).join('');
+    if (key === stripKey.v) return;
+    stripKey.v = key;
+    strip.innerHTML = '';
+    zs.forEach((z, i) => {
+      const st = key[i];
+      const d = document.createElement('div');
+      d.className = 'ob ' + (st === 'd' ? 'done' : st === 'n' ? 'todo next' : 'todo');
+      d.style.animationDelay = `${i * 0.35}s`;
+      d.title = `${z.name}${st === 'd' ? ' (cleared)' : ''}`;
+      d.innerHTML = `<svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="animation-delay:${(i * 0.35).toFixed(2)}s">${ICONS[z.id] ?? '<circle cx="16" cy="16" r="6"/>'}</svg><span>${st === 'n' ? z.name : ''}</span>`;
+      strip.appendChild(d);
+    });
+  }
+  document.body.append(sstyle, strip);
   document.body.append(hud, msg, help, panel, hint, gauge, dojoBtn, idealBtn, pick, camBtn);
   const toast = document.createElement('div');
   toast.style.cssText = 'position:fixed;left:50%;top:44%;transform:translateX(-50%);font:700 22px system-ui,sans-serif;color:#10141c;background:#fffffff0;border-radius:10px;padding:6px 14px;pointer-events:none;display:none';
@@ -495,6 +532,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
     if (Math.abs(world.runner.vx) > 0.3) facing = world.runner.vx < 0 ? -1 : 1;
     if (actor) actor.update({ ...actorStateFor(world, keys.has('ArrowDown') || keys.has('KeyS'), facing), x: r.x, y: r.y });
     if (world.runner.tick > toastUntil) toast.style.display = 'none';
+    paintStrip(r.x);
     hint.textContent = hintFor(world);
     hint.style.display = hint.textContent ? 'block' : 'none';
     if (ropeMesh && course.rope) {
