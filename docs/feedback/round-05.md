@@ -45,3 +45,6 @@
   - One icon per obstacle of the course in play (gap, precision block, wall, rope, trampoline); cleared ones are dimmed and grey.
   - The ones still ahead glow gold in a wave that runs along the strip; the next one is bigger and shows its name.
   - An obstacle counts as cleared once the runner is past the end of its zone; it follows the course, so a redesigned course gets its own icons.
+- R5-G7: the controls card only lists the three keys you hold or press while running (arrows, Space, down arrow).
+  - R and Shift+R are on the fall panel, where they matter; I (Ideal run) and T (Dojo) are on their buttons.
+  - "C to rotate" is the caption of the camera ring; the view's name shows briefly when it changes and as a tooltip.
