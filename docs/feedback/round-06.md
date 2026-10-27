@@ -15,3 +15,7 @@
 - **Bot check, in the quick tests:** with presses about 60 ms off, and again about 80 ms off, at least 9 of 10 simulated players clear the whole Course within 3 minutes of game time.
 - **Words on screen:** measured by `scripts/first-minute.mjs` (see the numbers in the issue).
 - **A real person:** the product owner's five playtest rounds are the real-person trials; a first-time stranger trial happens with the public feedback form.
+
+## Dojo: back to the Course
+- **T closes the Dojo,** as it opens it from the Course (not while typing in a box).
+- **"Back to the Course (T)"** is a large button fixed in the top-right corner of every Dojo step, the same place every time.

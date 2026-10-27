@@ -48,6 +48,11 @@ try {
   checks.appliedToGap = (await page.textContent('#apply')).includes('Gap 1: 4.5 m wide');
   await page.screenshot({ path: 'test-results/dojo/5-course.png' });
   checks.backLink = (await page.$$('a.btn')).length >= 1;
+  const box = await page.$eval('#back', (e) => { const r = e.getBoundingClientRect(); return { right: innerWidth - r.right, top: r.top, w: r.width }; });
+  checks.backIsTopRight = box.top < 30 && box.right < 40 && box.w > 150;
+  await page.keyboard.press('KeyT');
+  await page.waitForFunction(() => !document.querySelector('.dojo'), null, { timeout: 60000 });
+  checks.tClosesDojo = true;
   console.log(checks, 'errors:', errors);
   await browser.close();
   process.exit(Object.values(checks).every(Boolean) && !errors.length ? 0 : 1);
