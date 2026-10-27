@@ -34,6 +34,13 @@
 - One branch per task (`cc-<n>-<slug>`), rebased on `main` before merging; `npm run test:quick` must pass; test, commit and push as separate commands.
 - The VM pushes over SSH with its deploy key: `GIT_SSH_COMMAND="ssh -i /root/.ssh/cc_deploy -o IdentitiesOnly=yes" git push`.
 
+## Shipping a change (pull request, so Linear updates itself)
+- Linear's GitHub app only reacts to pull requests; commits pushed straight to `main` are not linked (tested 2026-10-27).
+- `scripts/ship.sh CC-12 --part` ships the current branch: tests, rebase on `main`, pull request with "Part of CC-12", rebase-merge.
+- `--fixes` closes the issue when the pull request merges.
+- A branch a VM agent pushed: `scripts/ship.sh CC-16 --fixes cc-16-rookies`.
+- Never close an issue by hand; if Linear did not react, check the pull request has the magic word in its description.
+
 ## Linear ↔ GitHub
 - Linear sees commits through its GitHub app, which only sees repos it has been given access to.
 - Check once: github.com/settings/installations → Linear → Configure → Repository access; with "Only select repositories", add `gitgithan/conquercourse` and save ("All repositories" needs nothing).
