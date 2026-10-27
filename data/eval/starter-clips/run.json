@@ -1,103 +1,103 @@
 {
- "experiment": "starter-clips",
- "issue": "CC-17",
- "date": "2026-10-27",
- "base_commit": "8f962bc",
- "gate_version": 1,
- "versions": {
-  "numpy": "2.5.4",
-  "python": "3.12",
-  "kimodo_commit": "e1c219c99b4b94ba48be1fb6a1cbc64ecee4c954",
-  "kimodo_model": "kimodo-soma-rp",
-  "kimodo_torch": "2.14.1+cu130"
- },
- "seeds": {
-  "kimodo_base": 7,
-  "sample_i": "base + i"
- },
- "cmu": {
-  "trials": [
-   "01_10",
-   "09_01",
-   "14_09",
-   "49_04",
-   "49_05"
-  ],
-  "cpu_seconds": "about 20 for all six imports"
- },
- "modal": {
-  "gpu": "L4",
-  "containers_at_once": 1,
-  "runs": [
-   {
-    "n": 1,
-    "note": "model download and first generation, 1 sample per prompt; the result failed to come back (a torch version string could not be read locally); not timed, estimated 3 min",
-    "function_s": null
-   },
-   {
-    "n": 2,
-    "note": "same prompts, 1 sample each, superseded",
-    "function_s": 90.7
-   },
-   {
-    "n": 3,
-    "note": "7 prompts x 1 sample (a list prompt ignores num_samples: found here), superseded",
-    "function_s": 152.8
-   },
-   {
-    "n": 4,
-    "note": "7 prompts x 6 seeds (leap a/b, wall a/b/c at 5 s, grab a/b)",
-    "function_s": 248.1,
-    "model_load_s": 50.1
-   },
-   {
-    "n": 5,
-    "note": "round 2: 3 wall prompts at 3 s x 6 seeds",
-    "function_s": 143.7,
-    "model_load_s": 74.8
-   }
-  ],
-  "gpu_minutes_recorded": 10.6,
-  "gpu_minutes_estimated_total": 14,
-  "cost_usd_estimate": 0.19,
-  "cost_basis": "L4 list price about $0.80 per hour ($0.000222 per second); whether workspace credits cover it was not checked"
- },
- "results": {
-  "cmu_clips": {
-   "run": true,
-   "leap": true,
-   "land": true,
-   "hang": true,
-   "swing": true,
-   "reach": true,
-   "kimodo_leap": true
+  "experiment": "starter-clips",
+  "issue": "CC-17",
+  "date": "2026-10-27",
+  "base_commit": "8f962bc",
+  "gate_version": 1,
+  "versions": {
+    "numpy": "2.5.4",
+    "python": "3.12",
+    "kimodo_commit": "e1c219c99b4b94ba48be1fb6a1cbc64ecee4c954",
+    "kimodo_model": "kimodo-soma-rp",
+    "kimodo_torch": "2.14.1+cu130"
   },
-  "kimodo_summaries": {
-   "_kimodo_leap_summary": {
-    "candidates": 12,
-    "gate_pass": 12,
-    "meets_expectation": 3,
-    "both": 3,
-    "shipped": "leap_a_s3"
-   },
-   "_wall_runup_grab_summary": {
-    "candidates": 36,
-    "gate_pass": 4,
-    "meets_expectation": 0,
-    "both": 0,
-    "shipped": null
-   },
-   "_kimodo_grab_summary": {
-    "candidates": 12,
-    "gate_pass": 8,
-    "meets_expectation": 0,
-    "both": 0,
-    "shipped": null
-   }
-  }
- },
- "errors": [
-  "Modal run 1: DeserializationError reading a torch version string locally (fixed: str())",
-  "a list prompt with num_samples=8 returned one motion per prompt: seeds now looped by hand"
- ]
+  "seeds": {
+    "kimodo_base": 7,
+    "sample_i": "base + i"
+  },
+  "cmu": {
+    "trials": [
+      "01_10",
+      "09_01",
+      "14_09",
+      "49_04",
+      "49_05"
+    ],
+    "cpu_seconds": "about 20 for all six imports"
+  },
+  "modal": {
+    "gpu": "L4",
+    "containers_at_once": 1,
+    "runs": [
+      {
+        "n": 1,
+        "note": "model download and first generation, 1 sample per prompt; the result failed to come back (a torch version string could not be read locally); not timed, estimated 3 min",
+        "function_s": null
+      },
+      {
+        "n": 2,
+        "note": "same prompts, 1 sample each, superseded",
+        "function_s": 90.7
+      },
+      {
+        "n": 3,
+        "note": "7 prompts x 1 sample (a list prompt ignores num_samples: found here), superseded",
+        "function_s": 152.8
+      },
+      {
+        "n": 4,
+        "note": "7 prompts x 6 seeds (leap a/b, wall a/b/c at 5 s, grab a/b)",
+        "function_s": 248.1,
+        "model_load_s": 50.1
+      },
+      {
+        "n": 5,
+        "note": "round 2: 3 wall prompts at 3 s x 6 seeds",
+        "function_s": 143.7,
+        "model_load_s": 74.8
+      }
+    ],
+    "gpu_minutes_recorded": 10.6,
+    "gpu_minutes_estimated_total": 14,
+    "cost_usd_estimate": 0.19,
+    "cost_basis": "L4 list price about $0.80 per hour ($0.000222 per second); whether workspace credits cover it was not checked"
+  },
+  "results": {
+    "cmu_clips": {
+      "run": true,
+      "leap": true,
+      "land": true,
+      "hang": true,
+      "swing": true,
+      "reach": true,
+      "kimodo_leap": true
+    },
+    "kimodo_summaries": {
+      "_kimodo_leap_summary": {
+        "candidates": 12,
+        "gate_pass": 12,
+        "meets_expectation": 3,
+        "both": 3,
+        "shipped": "leap_a_s3"
+      },
+      "_wall_runup_grab_summary": {
+        "candidates": 36,
+        "gate_pass": 4,
+        "meets_expectation": 0,
+        "both": 0,
+        "shipped": null
+      },
+      "_kimodo_grab_summary": {
+        "candidates": 12,
+        "gate_pass": 8,
+        "meets_expectation": 0,
+        "both": 0,
+        "shipped": null
+      }
+    }
+  },
+  "errors": [
+    "Modal run 1: DeserializationError reading a torch version string locally (fixed: str())",
+    "a list prompt with num_samples=8 returned one motion per prompt: seeds now looped by hand"
+  ]
 }

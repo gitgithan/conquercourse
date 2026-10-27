@@ -1,890 +1,890 @@
 {
- "run": {
-  "pass": true,
-  "folder": "public/assets/motion",
-  "source": "CMU 09_01 (http://mocap.cs.cmu.edu/subjects/09/09_01.amc)",
-  "frames": 37,
-  "failed": [],
-  "raw_gate_pass": true,
-  "raw_fitted_gravity": null,
-  "repairs": {
-   "fix_knees": 0,
-   "lift_to_floor": 0,
-   "limit_knee_bend": 0,
-   "make_ballistic": 0
-  },
-  "soft_failed": []
- },
- "leap": {
-  "pass": true,
-  "folder": "public/assets/motion",
-  "source": "CMU 49_04 (http://mocap.cs.cmu.edu/subjects/49/49_04.amc)",
-  "frames": 63,
-  "failed": [],
-  "raw_gate_pass": true,
-  "raw_fitted_gravity": 10.0095,
-  "repairs": {
-   "fix_knees": 0,
-   "lift_to_floor": 0,
-   "limit_knee_bend": 0,
-   "make_ballistic": 12
-  },
-  "soft_failed": [
-   "feet_dont_slide",
-   "no_jitter"
-  ]
- },
- "land": {
-  "pass": true,
-  "folder": "public/assets/motion",
-  "source": "CMU 49_05 (http://mocap.cs.cmu.edu/subjects/49/49_05.amc)",
-  "frames": 24,
-  "failed": [],
-  "raw_gate_pass": true,
-  "raw_fitted_gravity": 10.6385,
-  "repairs": {
-   "fix_knees": 0,
-   "lift_to_floor": 0,
-   "limit_knee_bend": 0,
-   "make_ballistic": 8
-  },
-  "soft_failed": [
-   "feet_dont_slide"
-  ]
- },
- "hang": {
-  "pass": true,
-  "folder": "public/assets/motion",
-  "source": "CMU 01_10 (http://mocap.cs.cmu.edu/subjects/01/01_10.amc)",
-  "frames": 55,
-  "failed": [],
-  "raw_gate_pass": true,
-  "raw_fitted_gravity": null,
-  "repairs": {
-   "fix_knees": 0,
-   "lift_to_floor": 0,
-   "limit_knee_bend": 0
-  },
-  "soft_failed": [
-   "feet_dont_slide"
-  ]
- },
- "swing": {
-  "pass": true,
-  "folder": "public/assets/motion",
-  "source": "CMU 01_10 (http://mocap.cs.cmu.edu/subjects/01/01_10.amc)",
-  "frames": 100,
-  "failed": [],
-  "raw_gate_pass": true,
-  "raw_fitted_gravity": null,
-  "repairs": {
-   "fix_knees": 0,
-   "lift_to_floor": 0,
-   "limit_knee_bend": 0
-  },
-  "soft_failed": [
-   "feet_dont_slide"
-  ]
- },
- "reach": {
-  "pass": true,
-  "folder": "public/assets/motion",
-  "source": "CMU 14_09 (http://mocap.cs.cmu.edu/subjects/14/14_09.amc)",
-  "frames": 55,
-  "failed": [],
-  "raw_gate_pass": true,
-  "raw_fitted_gravity": null,
-  "repairs": {
-   "fix_knees": 0,
-   "lift_to_floor": 0,
-   "limit_knee_bend": 0
-  },
-  "soft_failed": [
-   "feet_dont_slide"
-  ]
- },
- "kimodo_leap_leap_a_s0": {
-  "pass": true,
-  "meets_expectation": false,
-  "expect_numbers": {
-   "flight_frames": 0,
-   "travel_m": 3.28
-  },
-  "failed": [],
-  "folder": "public/assets/experiments/starter-clips",
-  "shipped": false
- },
- "kimodo_leap_leap_a_s1": {
-  "pass": true,
-  "meets_expectation": false,
-  "expect_numbers": {
-   "flight_frames": 0,
-   "travel_m": 5.19
-  },
-  "failed": [],
-  "folder": "public/assets/experiments/starter-clips",
-  "shipped": false
- },
- "kimodo_leap_leap_a_s2": {
-  "pass": true,
-  "meets_expectation": false,
-  "expect_numbers": {
-   "flight_frames": 0,
-   "travel_m": 3.94
-  },
-  "failed": [],
-  "folder": "public/assets/experiments/starter-clips",
-  "shipped": false
- },
- "kimodo_leap": {
-  "pass": true,
-  "folder": "public/assets/motion",
-  "source": "Kimodo-SOMA-RP, prompt leap_a, sample 3",
-  "frames": 120,
-  "failed": [],
-  "raw_gate_pass": false,
-  "raw_fitted_gravity": 13.5299,
-  "repairs": {
-   "fix_knees": 0,
-   "lift_to_floor": 0,
-   "limit_knee_bend": 0,
-   "make_ballistic": 7
-  },
-  "soft_failed": [
-   "feet_dont_slide"
-  ]
- },
- "kimodo_leap_leap_a_s4": {
-  "pass": true,
-  "meets_expectation": false,
-  "expect_numbers": {
-   "flight_frames": 0,
-   "travel_m": 2.08
-  },
-  "failed": [],
-  "folder": "public/assets/experiments/starter-clips",
-  "shipped": false
- },
- "kimodo_leap_leap_a_s5": {
-  "pass": true,
-  "meets_expectation": false,
-  "expect_numbers": {
-   "flight_frames": 0,
-   "travel_m": 3.33
-  },
-  "failed": [],
-  "folder": "public/assets/experiments/starter-clips",
-  "shipped": false
- },
- "kimodo_leap_leap_b_s0": {
-  "pass": true,
-  "meets_expectation": false,
-  "expect_numbers": {
-   "flight_frames": 0,
-   "travel_m": 1.54
-  },
-  "failed": [],
-  "folder": "public/assets/experiments/starter-clips",
-  "shipped": false
- },
- "kimodo_leap_leap_b_s1": {
-  "pass": true,
-  "meets_expectation": true,
-  "expect_numbers": {
-   "flight_frames": 17,
-   "travel_m": 4.88
-  },
-  "failed": [],
-  "folder": "public/assets/experiments/starter-clips",
-  "shipped": false
- },
- "kimodo_leap_leap_b_s2": {
-  "pass": true,
-  "meets_expectation": true,
-  "expect_numbers": {
-   "flight_frames": 7,
-   "travel_m": 2.16
-  },
-  "failed": [],
-  "folder": "public/assets/experiments/starter-clips",
-  "shipped": false
- },
- "kimodo_leap_leap_b_s3": {
-  "pass": true,
-  "meets_expectation": false,
-  "expect_numbers": {
-   "flight_frames": 0,
-   "travel_m": 2.23
-  },
-  "failed": [],
-  "folder": "public/assets/experiments/starter-clips",
-  "shipped": false
- },
- "kimodo_leap_leap_b_s4": {
-  "pass": true,
-  "meets_expectation": false,
-  "expect_numbers": {
-   "flight_frames": 0,
-   "travel_m": 1.95
-  },
-  "failed": [],
-  "folder": "public/assets/experiments/starter-clips",
-  "shipped": false
- },
- "kimodo_leap_leap_b_s5": {
-  "pass": true,
-  "meets_expectation": false,
-  "expect_numbers": {
-   "flight_frames": 0,
-   "travel_m": 1.43
-  },
-  "failed": [],
-  "folder": "public/assets/experiments/starter-clips",
-  "shipped": false
- },
- "_kimodo_leap_summary": {
-  "candidates": 12,
-  "gate_pass": 12,
-  "meets_expectation": 3,
-  "both": 3,
-  "shipped": "leap_a_s3"
- },
- "wall_runup_grab_wall_a_s0": {
-  "pass": false,
-  "meets_expectation": false,
-  "expect_numbers": {
-   "plant_m": 2.87,
-   "travel_m": 6.8,
-   "grip_frames": 0
-  },
-  "failed": [
-   "held_clips_are_held"
-  ],
-  "folder": "public/assets/experiments/starter-clips",
-  "shipped": false
- },
- "wall_runup_grab_wall_a_s1": {
-  "pass": false,
-  "meets_expectation": false,
-  "expect_numbers": {
-   "plant_m": 2.91,
-   "travel_m": 6.76,
-   "grip_frames": 0
-  },
-  "failed": [
-   "held_clips_are_held"
-  ],
-  "folder": "public/assets/experiments/starter-clips",
-  "shipped": false
- },
- "wall_runup_grab_wall_a_s2": {
-  "pass": false,
-  "meets_expectation": false,
-  "expect_numbers": {
-   "plant_m": 2.75,
-   "travel_m": 6.51,
-   "grip_frames": 0
-  },
-  "failed": [
-   "held_clips_are_held"
-  ],
-  "folder": "public/assets/experiments/starter-clips",
-  "shipped": false
- },
- "wall_runup_grab_wall_a_s3": {
-  "pass": false,
-  "meets_expectation": false,
-  "expect_numbers": {
-   "plant_m": 2.95,
-   "travel_m": 6.91,
-   "grip_frames": 0
-  },
-  "failed": [
-   "held_clips_are_held"
-  ],
-  "folder": "public/assets/experiments/starter-clips",
-  "shipped": false
- },
- "wall_runup_grab_wall_a_s4": {
-  "pass": false,
-  "meets_expectation": false,
-  "expect_numbers": {
-   "plant_m": 2.77,
-   "travel_m": 6.34,
-   "grip_frames": 0
-  },
-  "failed": [
-   "held_clips_are_held"
-  ],
-  "folder": "public/assets/experiments/starter-clips",
-  "shipped": false
- },
- "wall_runup_grab_wall_a_s5": {
-  "pass": false,
-  "meets_expectation": false,
-  "expect_numbers": {
-   "plant_m": 2.91,
-   "travel_m": 6.25,
-   "grip_frames": 0
-  },
-  "failed": [
-   "held_clips_are_held"
-  ],
-  "folder": "public/assets/experiments/starter-clips",
-  "shipped": false
- },
- "wall_runup_grab_wall_b_s0": {
-  "pass": false,
-  "meets_expectation": false,
-  "expect_numbers": {
-   "plant_m": 2.72,
-   "travel_m": 6.35,
-   "grip_frames": 0
-  },
-  "failed": [
-   "held_clips_are_held"
-  ],
-  "folder": "public/assets/experiments/starter-clips",
-  "shipped": false
- },
- "wall_runup_grab_wall_b_s1": {
-  "pass": false,
-  "meets_expectation": false,
-  "expect_numbers": {
-   "plant_m": 2.76,
-   "travel_m": 5.91,
-   "grip_frames": 0
-  },
-  "failed": [
-   "held_clips_are_held"
-  ],
-  "folder": "public/assets/experiments/starter-clips",
-  "shipped": false
- },
- "wall_runup_grab_wall_b_s2": {
-  "pass": false,
-  "meets_expectation": false,
-  "expect_numbers": {
-   "plant_m": 2.72,
-   "travel_m": 6.22,
-   "grip_frames": 0
-  },
-  "failed": [
-   "held_clips_are_held"
-  ],
-  "folder": "public/assets/experiments/starter-clips",
-  "shipped": false
- },
- "wall_runup_grab_wall_b_s3": {
-  "pass": false,
-  "meets_expectation": false,
-  "expect_numbers": {
-   "plant_m": 2.84,
-   "travel_m": 6.63,
-   "grip_frames": 0
-  },
-  "failed": [
-   "held_clips_are_held"
-  ],
-  "folder": "public/assets/experiments/starter-clips",
-  "shipped": false
- },
- "wall_runup_grab_wall_b_s4": {
-  "pass": false,
-  "meets_expectation": false,
-  "expect_numbers": {
-   "plant_m": 2.62,
-   "travel_m": 5.44,
-   "grip_frames": 0
-  },
-  "failed": [
-   "held_clips_are_held"
-  ],
-  "folder": "public/assets/experiments/starter-clips",
-  "shipped": false
- },
- "wall_runup_grab_wall_b_s5": {
-  "pass": false,
-  "meets_expectation": false,
-  "expect_numbers": {
-   "plant_m": 2.82,
-   "travel_m": 5.86,
-   "grip_frames": 0
-  },
-  "failed": [
-   "held_clips_are_held"
-  ],
-  "folder": "public/assets/experiments/starter-clips",
-  "shipped": false
- },
- "wall_runup_grab_wall_c_s0": {
-  "pass": false,
-  "meets_expectation": false,
-  "expect_numbers": {
-   "plant_m": 2.75,
-   "travel_m": 6.69,
-   "grip_frames": 0
-  },
-  "failed": [
-   "held_clips_are_held"
-  ],
-  "folder": "public/assets/experiments/starter-clips",
-  "shipped": false
- },
- "wall_runup_grab_wall_c_s1": {
-  "pass": false,
-  "meets_expectation": false,
-  "expect_numbers": {
-   "plant_m": 2.76,
-   "travel_m": 6.64,
-   "grip_frames": 0
-  },
-  "failed": [
-   "held_clips_are_held"
-  ],
-  "folder": "public/assets/experiments/starter-clips",
-  "shipped": false
- },
- "wall_runup_grab_wall_c_s2": {
-  "pass": false,
-  "meets_expectation": false,
-  "expect_numbers": {
-   "plant_m": 2.67,
-   "travel_m": 6.42,
-   "grip_frames": 0
-  },
-  "failed": [
-   "held_clips_are_held"
-  ],
-  "folder": "public/assets/experiments/starter-clips",
-  "shipped": false
- },
- "wall_runup_grab_wall_c_s3": {
-  "pass": false,
-  "meets_expectation": false,
-  "expect_numbers": {
-   "plant_m": 2.84,
-   "travel_m": 6.9,
-   "grip_frames": 0
-  },
-  "failed": [
-   "held_clips_are_held"
-  ],
-  "folder": "public/assets/experiments/starter-clips",
-  "shipped": false
- },
- "wall_runup_grab_wall_c_s4": {
-  "pass": false,
-  "meets_expectation": false,
-  "expect_numbers": {
-   "plant_m": 2.74,
-   "travel_m": 6.14,
-   "grip_frames": 0
-  },
-  "failed": [
-   "held_clips_are_held"
-  ],
-  "folder": "public/assets/experiments/starter-clips",
-  "shipped": false
- },
- "wall_runup_grab_wall_c_s5": {
-  "pass": false,
-  "meets_expectation": false,
-  "expect_numbers": {
-   "plant_m": 2.77,
-   "travel_m": 6.17,
-   "grip_frames": 0
-  },
-  "failed": [
-   "held_clips_are_held"
-  ],
-  "folder": "public/assets/experiments/starter-clips",
-  "shipped": false
- },
- "wall_runup_grab_wall_a3_s0": {
-  "pass": false,
-  "meets_expectation": false,
-  "expect_numbers": {
-   "plant_m": 2.34,
-   "travel_m": 5.78,
-   "grip_frames": 0
-  },
-  "failed": [
-   "held_clips_are_held"
-  ],
-  "folder": "public/assets/experiments/starter-clips",
-  "shipped": false
- },
- "wall_runup_grab_wall_a3_s1": {
-  "pass": false,
-  "meets_expectation": false,
-  "expect_numbers": {
-   "plant_m": 2.29,
-   "travel_m": 6.32,
-   "grip_frames": 0
-  },
-  "failed": [
-   "held_clips_are_held"
-  ],
-  "folder": "public/assets/experiments/starter-clips",
-  "shipped": false
- },
- "wall_runup_grab_wall_a3_s2": {
-  "pass": false,
-  "meets_expectation": false,
-  "expect_numbers": {
-   "plant_m": 2.41,
-   "travel_m": 5.54,
-   "grip_frames": 0
-  },
-  "failed": [
-   "held_clips_are_held"
-  ],
-  "folder": "public/assets/experiments/starter-clips",
-  "shipped": false
- },
- "wall_runup_grab_wall_a3_s3": {
-  "pass": false,
-  "meets_expectation": false,
-  "expect_numbers": {
-   "plant_m": 2.22,
-   "travel_m": 6.02,
-   "grip_frames": 0
-  },
-  "failed": [
-   "held_clips_are_held"
-  ],
-  "folder": "public/assets/experiments/starter-clips",
-  "shipped": false
- },
- "wall_runup_grab_wall_a3_s4": {
-  "pass": false,
-  "meets_expectation": false,
-  "expect_numbers": {
-   "plant_m": 2.12,
-   "travel_m": 5.7,
-   "grip_frames": 0
-  },
-  "failed": [
-   "held_clips_are_held"
-  ],
-  "folder": "public/assets/experiments/starter-clips",
-  "shipped": false
- },
- "wall_runup_grab_wall_a3_s5": {
-  "pass": false,
-  "meets_expectation": false,
-  "expect_numbers": {
-   "plant_m": 2.32,
-   "travel_m": 5.5,
-   "grip_frames": 0
-  },
-  "failed": [
-   "held_clips_are_held"
-  ],
-  "folder": "public/assets/experiments/starter-clips",
-  "shipped": false
- },
- "wall_runup_grab_wall_b3_s0": {
-  "pass": false,
-  "meets_expectation": false,
-  "expect_numbers": {
-   "plant_m": 2.07,
-   "travel_m": 4.51,
-   "grip_frames": 0
-  },
-  "failed": [
-   "held_clips_are_held"
-  ],
-  "folder": "public/assets/experiments/starter-clips",
-  "shipped": false
- },
- "wall_runup_grab_wall_b3_s1": {
-  "pass": false,
-  "meets_expectation": false,
-  "expect_numbers": {
-   "plant_m": 1.96,
-   "travel_m": 5.34,
-   "grip_frames": 0
-  },
-  "failed": [
-   "held_clips_are_held"
-  ],
-  "folder": "public/assets/experiments/starter-clips",
-  "shipped": false
- },
- "wall_runup_grab_wall_b3_s2": {
-  "pass": true,
-  "meets_expectation": false,
-  "expect_numbers": {
-   "plant_m": 1.92,
-   "travel_m": 4.2,
-   "grip_frames": 0
-  },
-  "failed": [],
-  "folder": "public/assets/experiments/starter-clips",
-  "shipped": false
- },
- "wall_runup_grab_wall_b3_s3": {
-  "pass": false,
-  "meets_expectation": false,
-  "expect_numbers": {
-   "plant_m": 1.74,
-   "travel_m": 4.82,
-   "grip_frames": 0
-  },
-  "failed": [
-   "held_clips_are_held"
-  ],
-  "folder": "public/assets/experiments/starter-clips",
-  "shipped": false
- },
- "wall_runup_grab_wall_b3_s4": {
-  "pass": false,
-  "meets_expectation": false,
-  "expect_numbers": {
-   "plant_m": 1.71,
-   "travel_m": 4.41,
-   "grip_frames": 0
-  },
-  "failed": [
-   "held_clips_are_held"
-  ],
-  "folder": "public/assets/experiments/starter-clips",
-  "shipped": false
- },
- "wall_runup_grab_wall_b3_s5": {
-  "pass": true,
-  "meets_expectation": false,
-  "expect_numbers": {
-   "plant_m": 1.69,
-   "travel_m": 4.32,
-   "grip_frames": 0
-  },
-  "failed": [],
-  "folder": "public/assets/experiments/starter-clips",
-  "shipped": false
- },
- "wall_runup_grab_wall_c3_s0": {
-  "pass": false,
-  "meets_expectation": false,
-  "expect_numbers": {
-   "plant_m": 2.12,
-   "travel_m": 6.19,
-   "grip_frames": 0
-  },
-  "failed": [
-   "held_clips_are_held"
-  ],
-  "folder": "public/assets/experiments/starter-clips",
-  "shipped": false
- },
- "wall_runup_grab_wall_c3_s1": {
-  "pass": false,
-  "meets_expectation": false,
-  "expect_numbers": {
-   "plant_m": 2.05,
-   "travel_m": 6.57,
-   "grip_frames": 0
-  },
-  "failed": [
-   "held_clips_are_held"
-  ],
-  "folder": "public/assets/experiments/starter-clips",
-  "shipped": false
- },
- "wall_runup_grab_wall_c3_s2": {
-  "pass": true,
-  "meets_expectation": false,
-  "expect_numbers": {
-   "plant_m": 2.25,
-   "travel_m": 5.01,
-   "grip_frames": 0
-  },
-  "failed": [],
-  "folder": "public/assets/experiments/starter-clips",
-  "shipped": false
- },
- "wall_runup_grab_wall_c3_s3": {
-  "pass": false,
-  "meets_expectation": false,
-  "expect_numbers": {
-   "plant_m": 2.03,
-   "travel_m": 6.05,
-   "grip_frames": 0
-  },
-  "failed": [
-   "held_clips_are_held"
-  ],
-  "folder": "public/assets/experiments/starter-clips",
-  "shipped": false
- },
- "wall_runup_grab_wall_c3_s4": {
-  "pass": false,
-  "meets_expectation": false,
-  "expect_numbers": {
-   "plant_m": 1.98,
-   "travel_m": 5.34,
-   "grip_frames": 0
-  },
-  "failed": [
-   "held_clips_are_held"
-  ],
-  "folder": "public/assets/experiments/starter-clips",
-  "shipped": false
- },
- "wall_runup_grab_wall_c3_s5": {
-  "pass": true,
-  "meets_expectation": false,
-  "expect_numbers": {
-   "plant_m": 1.74,
-   "travel_m": 4.73,
-   "grip_frames": 9
-  },
-  "failed": [],
-  "folder": "public/assets/experiments/starter-clips",
-  "shipped": false
- },
- "_wall_runup_grab_summary": {
-  "candidates": 36,
-  "gate_pass": 4,
-  "meets_expectation": 0,
-  "both": 0,
-  "shipped": null
- },
- "kimodo_grab_grab_a_s0": {
-  "pass": true,
-  "meets_expectation": false,
-  "expect_numbers": {
-   "grip_frames": 0
-  },
-  "failed": [],
-  "folder": "public/assets/experiments/starter-clips",
-  "shipped": false
- },
- "kimodo_grab_grab_a_s1": {
-  "pass": true,
-  "meets_expectation": false,
-  "expect_numbers": {
-   "grip_frames": 0
-  },
-  "failed": [],
-  "folder": "public/assets/experiments/starter-clips",
-  "shipped": false
- },
- "kimodo_grab_grab_a_s2": {
-  "pass": true,
-  "meets_expectation": false,
-  "expect_numbers": {
-   "grip_frames": 0
-  },
-  "failed": [],
-  "folder": "public/assets/experiments/starter-clips",
-  "shipped": false
- },
- "kimodo_grab_grab_a_s3": {
-  "pass": true,
-  "meets_expectation": false,
-  "expect_numbers": {
-   "grip_frames": 0
-  },
-  "failed": [],
-  "folder": "public/assets/experiments/starter-clips",
-  "shipped": false
- },
- "kimodo_grab_grab_a_s4": {
-  "pass": true,
-  "meets_expectation": false,
-  "expect_numbers": {
-   "grip_frames": 0
-  },
-  "failed": [],
-  "folder": "public/assets/experiments/starter-clips",
-  "shipped": false
- },
- "kimodo_grab_grab_a_s5": {
-  "pass": true,
-  "meets_expectation": false,
-  "expect_numbers": {
-   "grip_frames": 0
-  },
-  "failed": [],
-  "folder": "public/assets/experiments/starter-clips",
-  "shipped": false
- },
- "kimodo_grab_grab_b_s0": {
-  "pass": true,
-  "meets_expectation": false,
-  "expect_numbers": {
-   "grip_frames": 0
-  },
-  "failed": [],
-  "folder": "public/assets/experiments/starter-clips",
-  "shipped": false
- },
- "kimodo_grab_grab_b_s1": {
-  "pass": false,
-  "meets_expectation": false,
-  "expect_numbers": {
-   "grip_frames": 0
-  },
-  "failed": [
-   "held_clips_are_held"
-  ],
-  "folder": "public/assets/experiments/starter-clips",
-  "shipped": false
- },
- "kimodo_grab_grab_b_s2": {
-  "pass": false,
-  "meets_expectation": false,
-  "expect_numbers": {
-   "grip_frames": 0
-  },
-  "failed": [
-   "held_clips_are_held"
-  ],
-  "folder": "public/assets/experiments/starter-clips",
-  "shipped": false
- },
- "kimodo_grab_grab_b_s3": {
-  "pass": false,
-  "meets_expectation": false,
-  "expect_numbers": {
-   "grip_frames": 0
-  },
-  "failed": [
-   "held_clips_are_held"
-  ],
-  "folder": "public/assets/experiments/starter-clips",
-  "shipped": false
- },
- "kimodo_grab_grab_b_s4": {
-  "pass": false,
-  "meets_expectation": false,
-  "expect_numbers": {
-   "grip_frames": 0
-  },
-  "failed": [
-   "held_clips_are_held"
-  ],
-  "folder": "public/assets/experiments/starter-clips",
-  "shipped": false
- },
- "kimodo_grab_grab_b_s5": {
-  "pass": true,
-  "meets_expectation": false,
-  "expect_numbers": {
-   "grip_frames": 11
-  },
-  "failed": [],
-  "folder": "public/assets/experiments/starter-clips",
-  "shipped": false
- },
- "_kimodo_grab_summary": {
-  "candidates": 12,
-  "gate_pass": 8,
-  "meets_expectation": 0,
-  "both": 0,
-  "shipped": null
- }
+  "run": {
+    "pass": true,
+    "folder": "public/assets/motion",
+    "source": "CMU 09_01 (http://mocap.cs.cmu.edu/subjects/09/09_01.amc)",
+    "frames": 37,
+    "failed": [],
+    "raw_gate_pass": true,
+    "raw_fitted_gravity": null,
+    "repairs": {
+      "fix_knees": 0,
+      "lift_to_floor": 0,
+      "limit_knee_bend": 0,
+      "make_ballistic": 0
+    },
+    "soft_failed": []
+  },
+  "leap": {
+    "pass": true,
+    "folder": "public/assets/motion",
+    "source": "CMU 49_04 (http://mocap.cs.cmu.edu/subjects/49/49_04.amc)",
+    "frames": 63,
+    "failed": [],
+    "raw_gate_pass": true,
+    "raw_fitted_gravity": 10.0095,
+    "repairs": {
+      "fix_knees": 0,
+      "lift_to_floor": 0,
+      "limit_knee_bend": 0,
+      "make_ballistic": 12
+    },
+    "soft_failed": [
+      "feet_dont_slide",
+      "no_jitter"
+    ]
+  },
+  "land": {
+    "pass": true,
+    "folder": "public/assets/motion",
+    "source": "CMU 49_05 (http://mocap.cs.cmu.edu/subjects/49/49_05.amc)",
+    "frames": 24,
+    "failed": [],
+    "raw_gate_pass": true,
+    "raw_fitted_gravity": 10.6385,
+    "repairs": {
+      "fix_knees": 0,
+      "lift_to_floor": 0,
+      "limit_knee_bend": 0,
+      "make_ballistic": 8
+    },
+    "soft_failed": [
+      "feet_dont_slide"
+    ]
+  },
+  "hang": {
+    "pass": true,
+    "folder": "public/assets/motion",
+    "source": "CMU 01_10 (http://mocap.cs.cmu.edu/subjects/01/01_10.amc)",
+    "frames": 55,
+    "failed": [],
+    "raw_gate_pass": true,
+    "raw_fitted_gravity": null,
+    "repairs": {
+      "fix_knees": 0,
+      "lift_to_floor": 0,
+      "limit_knee_bend": 0
+    },
+    "soft_failed": [
+      "feet_dont_slide"
+    ]
+  },
+  "swing": {
+    "pass": true,
+    "folder": "public/assets/motion",
+    "source": "CMU 01_10 (http://mocap.cs.cmu.edu/subjects/01/01_10.amc)",
+    "frames": 100,
+    "failed": [],
+    "raw_gate_pass": true,
+    "raw_fitted_gravity": null,
+    "repairs": {
+      "fix_knees": 0,
+      "lift_to_floor": 0,
+      "limit_knee_bend": 0
+    },
+    "soft_failed": [
+      "feet_dont_slide"
+    ]
+  },
+  "reach": {
+    "pass": true,
+    "folder": "public/assets/motion",
+    "source": "CMU 14_09 (http://mocap.cs.cmu.edu/subjects/14/14_09.amc)",
+    "frames": 55,
+    "failed": [],
+    "raw_gate_pass": true,
+    "raw_fitted_gravity": null,
+    "repairs": {
+      "fix_knees": 0,
+      "lift_to_floor": 0,
+      "limit_knee_bend": 0
+    },
+    "soft_failed": [
+      "feet_dont_slide"
+    ]
+  },
+  "kimodo_leap_leap_a_s0": {
+    "pass": true,
+    "meets_expectation": false,
+    "expect_numbers": {
+      "flight_frames": 0,
+      "travel_m": 3.28
+    },
+    "failed": [],
+    "folder": "public/assets/experiments/starter-clips",
+    "shipped": false
+  },
+  "kimodo_leap_leap_a_s1": {
+    "pass": true,
+    "meets_expectation": false,
+    "expect_numbers": {
+      "flight_frames": 0,
+      "travel_m": 5.19
+    },
+    "failed": [],
+    "folder": "public/assets/experiments/starter-clips",
+    "shipped": false
+  },
+  "kimodo_leap_leap_a_s2": {
+    "pass": true,
+    "meets_expectation": false,
+    "expect_numbers": {
+      "flight_frames": 0,
+      "travel_m": 3.94
+    },
+    "failed": [],
+    "folder": "public/assets/experiments/starter-clips",
+    "shipped": false
+  },
+  "kimodo_leap": {
+    "pass": true,
+    "folder": "public/assets/motion",
+    "source": "Kimodo-SOMA-RP, prompt leap_a, sample 3",
+    "frames": 120,
+    "failed": [],
+    "raw_gate_pass": false,
+    "raw_fitted_gravity": 13.5299,
+    "repairs": {
+      "fix_knees": 0,
+      "lift_to_floor": 0,
+      "limit_knee_bend": 0,
+      "make_ballistic": 7
+    },
+    "soft_failed": [
+      "feet_dont_slide"
+    ]
+  },
+  "kimodo_leap_leap_a_s4": {
+    "pass": true,
+    "meets_expectation": false,
+    "expect_numbers": {
+      "flight_frames": 0,
+      "travel_m": 2.08
+    },
+    "failed": [],
+    "folder": "public/assets/experiments/starter-clips",
+    "shipped": false
+  },
+  "kimodo_leap_leap_a_s5": {
+    "pass": true,
+    "meets_expectation": false,
+    "expect_numbers": {
+      "flight_frames": 0,
+      "travel_m": 3.33
+    },
+    "failed": [],
+    "folder": "public/assets/experiments/starter-clips",
+    "shipped": false
+  },
+  "kimodo_leap_leap_b_s0": {
+    "pass": true,
+    "meets_expectation": false,
+    "expect_numbers": {
+      "flight_frames": 0,
+      "travel_m": 1.54
+    },
+    "failed": [],
+    "folder": "public/assets/experiments/starter-clips",
+    "shipped": false
+  },
+  "kimodo_leap_leap_b_s1": {
+    "pass": true,
+    "meets_expectation": true,
+    "expect_numbers": {
+      "flight_frames": 17,
+      "travel_m": 4.88
+    },
+    "failed": [],
+    "folder": "public/assets/experiments/starter-clips",
+    "shipped": false
+  },
+  "kimodo_leap_leap_b_s2": {
+    "pass": true,
+    "meets_expectation": true,
+    "expect_numbers": {
+      "flight_frames": 7,
+      "travel_m": 2.16
+    },
+    "failed": [],
+    "folder": "public/assets/experiments/starter-clips",
+    "shipped": false
+  },
+  "kimodo_leap_leap_b_s3": {
+    "pass": true,
+    "meets_expectation": false,
+    "expect_numbers": {
+      "flight_frames": 0,
+      "travel_m": 2.23
+    },
+    "failed": [],
+    "folder": "public/assets/experiments/starter-clips",
+    "shipped": false
+  },
+  "kimodo_leap_leap_b_s4": {
+    "pass": true,
+    "meets_expectation": false,
+    "expect_numbers": {
+      "flight_frames": 0,
+      "travel_m": 1.95
+    },
+    "failed": [],
+    "folder": "public/assets/experiments/starter-clips",
+    "shipped": false
+  },
+  "kimodo_leap_leap_b_s5": {
+    "pass": true,
+    "meets_expectation": false,
+    "expect_numbers": {
+      "flight_frames": 0,
+      "travel_m": 1.43
+    },
+    "failed": [],
+    "folder": "public/assets/experiments/starter-clips",
+    "shipped": false
+  },
+  "_kimodo_leap_summary": {
+    "candidates": 12,
+    "gate_pass": 12,
+    "meets_expectation": 3,
+    "both": 3,
+    "shipped": "leap_a_s3"
+  },
+  "wall_runup_grab_wall_a_s0": {
+    "pass": false,
+    "meets_expectation": false,
+    "expect_numbers": {
+      "plant_m": 2.87,
+      "travel_m": 6.8,
+      "grip_frames": 0
+    },
+    "failed": [
+      "held_clips_are_held"
+    ],
+    "folder": "public/assets/experiments/starter-clips",
+    "shipped": false
+  },
+  "wall_runup_grab_wall_a_s1": {
+    "pass": false,
+    "meets_expectation": false,
+    "expect_numbers": {
+      "plant_m": 2.91,
+      "travel_m": 6.76,
+      "grip_frames": 0
+    },
+    "failed": [
+      "held_clips_are_held"
+    ],
+    "folder": "public/assets/experiments/starter-clips",
+    "shipped": false
+  },
+  "wall_runup_grab_wall_a_s2": {
+    "pass": false,
+    "meets_expectation": false,
+    "expect_numbers": {
+      "plant_m": 2.75,
+      "travel_m": 6.51,
+      "grip_frames": 0
+    },
+    "failed": [
+      "held_clips_are_held"
+    ],
+    "folder": "public/assets/experiments/starter-clips",
+    "shipped": false
+  },
+  "wall_runup_grab_wall_a_s3": {
+    "pass": false,
+    "meets_expectation": false,
+    "expect_numbers": {
+      "plant_m": 2.95,
+      "travel_m": 6.91,
+      "grip_frames": 0
+    },
+    "failed": [
+      "held_clips_are_held"
+    ],
+    "folder": "public/assets/experiments/starter-clips",
+    "shipped": false
+  },
+  "wall_runup_grab_wall_a_s4": {
+    "pass": false,
+    "meets_expectation": false,
+    "expect_numbers": {
+      "plant_m": 2.77,
+      "travel_m": 6.34,
+      "grip_frames": 0
+    },
+    "failed": [
+      "held_clips_are_held"
+    ],
+    "folder": "public/assets/experiments/starter-clips",
+    "shipped": false
+  },
+  "wall_runup_grab_wall_a_s5": {
+    "pass": false,
+    "meets_expectation": false,
+    "expect_numbers": {
+      "plant_m": 2.91,
+      "travel_m": 6.25,
+      "grip_frames": 0
+    },
+    "failed": [
+      "held_clips_are_held"
+    ],
+    "folder": "public/assets/experiments/starter-clips",
+    "shipped": false
+  },
+  "wall_runup_grab_wall_b_s0": {
+    "pass": false,
+    "meets_expectation": false,
+    "expect_numbers": {
+      "plant_m": 2.72,
+      "travel_m": 6.35,
+      "grip_frames": 0
+    },
+    "failed": [
+      "held_clips_are_held"
+    ],
+    "folder": "public/assets/experiments/starter-clips",
+    "shipped": false
+  },
+  "wall_runup_grab_wall_b_s1": {
+    "pass": false,
+    "meets_expectation": false,
+    "expect_numbers": {
+      "plant_m": 2.76,
+      "travel_m": 5.91,
+      "grip_frames": 0
+    },
+    "failed": [
+      "held_clips_are_held"
+    ],
+    "folder": "public/assets/experiments/starter-clips",
+    "shipped": false
+  },
+  "wall_runup_grab_wall_b_s2": {
+    "pass": false,
+    "meets_expectation": false,
+    "expect_numbers": {
+      "plant_m": 2.72,
+      "travel_m": 6.22,
+      "grip_frames": 0
+    },
+    "failed": [
+      "held_clips_are_held"
+    ],
+    "folder": "public/assets/experiments/starter-clips",
+    "shipped": false
+  },
+  "wall_runup_grab_wall_b_s3": {
+    "pass": false,
+    "meets_expectation": false,
+    "expect_numbers": {
+      "plant_m": 2.84,
+      "travel_m": 6.63,
+      "grip_frames": 0
+    },
+    "failed": [
+      "held_clips_are_held"
+    ],
+    "folder": "public/assets/experiments/starter-clips",
+    "shipped": false
+  },
+  "wall_runup_grab_wall_b_s4": {
+    "pass": false,
+    "meets_expectation": false,
+    "expect_numbers": {
+      "plant_m": 2.62,
+      "travel_m": 5.44,
+      "grip_frames": 0
+    },
+    "failed": [
+      "held_clips_are_held"
+    ],
+    "folder": "public/assets/experiments/starter-clips",
+    "shipped": false
+  },
+  "wall_runup_grab_wall_b_s5": {
+    "pass": false,
+    "meets_expectation": false,
+    "expect_numbers": {
+      "plant_m": 2.82,
+      "travel_m": 5.86,
+      "grip_frames": 0
+    },
+    "failed": [
+      "held_clips_are_held"
+    ],
+    "folder": "public/assets/experiments/starter-clips",
+    "shipped": false
+  },
+  "wall_runup_grab_wall_c_s0": {
+    "pass": false,
+    "meets_expectation": false,
+    "expect_numbers": {
+      "plant_m": 2.75,
+      "travel_m": 6.69,
+      "grip_frames": 0
+    },
+    "failed": [
+      "held_clips_are_held"
+    ],
+    "folder": "public/assets/experiments/starter-clips",
+    "shipped": false
+  },
+  "wall_runup_grab_wall_c_s1": {
+    "pass": false,
+    "meets_expectation": false,
+    "expect_numbers": {
+      "plant_m": 2.76,
+      "travel_m": 6.64,
+      "grip_frames": 0
+    },
+    "failed": [
+      "held_clips_are_held"
+    ],
+    "folder": "public/assets/experiments/starter-clips",
+    "shipped": false
+  },
+  "wall_runup_grab_wall_c_s2": {
+    "pass": false,
+    "meets_expectation": false,
+    "expect_numbers": {
+      "plant_m": 2.67,
+      "travel_m": 6.42,
+      "grip_frames": 0
+    },
+    "failed": [
+      "held_clips_are_held"
+    ],
+    "folder": "public/assets/experiments/starter-clips",
+    "shipped": false
+  },
+  "wall_runup_grab_wall_c_s3": {
+    "pass": false,
+    "meets_expectation": false,
+    "expect_numbers": {
+      "plant_m": 2.84,
+      "travel_m": 6.9,
+      "grip_frames": 0
+    },
+    "failed": [
+      "held_clips_are_held"
+    ],
+    "folder": "public/assets/experiments/starter-clips",
+    "shipped": false
+  },
+  "wall_runup_grab_wall_c_s4": {
+    "pass": false,
+    "meets_expectation": false,
+    "expect_numbers": {
+      "plant_m": 2.74,
+      "travel_m": 6.14,
+      "grip_frames": 0
+    },
+    "failed": [
+      "held_clips_are_held"
+    ],
+    "folder": "public/assets/experiments/starter-clips",
+    "shipped": false
+  },
+  "wall_runup_grab_wall_c_s5": {
+    "pass": false,
+    "meets_expectation": false,
+    "expect_numbers": {
+      "plant_m": 2.77,
+      "travel_m": 6.17,
+      "grip_frames": 0
+    },
+    "failed": [
+      "held_clips_are_held"
+    ],
+    "folder": "public/assets/experiments/starter-clips",
+    "shipped": false
+  },
+  "wall_runup_grab_wall_a3_s0": {
+    "pass": false,
+    "meets_expectation": false,
+    "expect_numbers": {
+      "plant_m": 2.34,
+      "travel_m": 5.78,
+      "grip_frames": 0
+    },
+    "failed": [
+      "held_clips_are_held"
+    ],
+    "folder": "public/assets/experiments/starter-clips",
+    "shipped": false
+  },
+  "wall_runup_grab_wall_a3_s1": {
+    "pass": false,
+    "meets_expectation": false,
+    "expect_numbers": {
+      "plant_m": 2.29,
+      "travel_m": 6.32,
+      "grip_frames": 0
+    },
+    "failed": [
+      "held_clips_are_held"
+    ],
+    "folder": "public/assets/experiments/starter-clips",
+    "shipped": false
+  },
+  "wall_runup_grab_wall_a3_s2": {
+    "pass": false,
+    "meets_expectation": false,
+    "expect_numbers": {
+      "plant_m": 2.41,
+      "travel_m": 5.54,
+      "grip_frames": 0
+    },
+    "failed": [
+      "held_clips_are_held"
+    ],
+    "folder": "public/assets/experiments/starter-clips",
+    "shipped": false
+  },
+  "wall_runup_grab_wall_a3_s3": {
+    "pass": false,
+    "meets_expectation": false,
+    "expect_numbers": {
+      "plant_m": 2.22,
+      "travel_m": 6.02,
+      "grip_frames": 0
+    },
+    "failed": [
+      "held_clips_are_held"
+    ],
+    "folder": "public/assets/experiments/starter-clips",
+    "shipped": false
+  },
+  "wall_runup_grab_wall_a3_s4": {
+    "pass": false,
+    "meets_expectation": false,
+    "expect_numbers": {
+      "plant_m": 2.12,
+      "travel_m": 5.7,
+      "grip_frames": 0
+    },
+    "failed": [
+      "held_clips_are_held"
+    ],
+    "folder": "public/assets/experiments/starter-clips",
+    "shipped": false
+  },
+  "wall_runup_grab_wall_a3_s5": {
+    "pass": false,
+    "meets_expectation": false,
+    "expect_numbers": {
+      "plant_m": 2.32,
+      "travel_m": 5.5,
+      "grip_frames": 0
+    },
+    "failed": [
+      "held_clips_are_held"
+    ],
+    "folder": "public/assets/experiments/starter-clips",
+    "shipped": false
+  },
+  "wall_runup_grab_wall_b3_s0": {
+    "pass": false,
+    "meets_expectation": false,
+    "expect_numbers": {
+      "plant_m": 2.07,
+      "travel_m": 4.51,
+      "grip_frames": 0
+    },
+    "failed": [
+      "held_clips_are_held"
+    ],
+    "folder": "public/assets/experiments/starter-clips",
+    "shipped": false
+  },
+  "wall_runup_grab_wall_b3_s1": {
+    "pass": false,
+    "meets_expectation": false,
+    "expect_numbers": {
+      "plant_m": 1.96,
+      "travel_m": 5.34,
+      "grip_frames": 0
+    },
+    "failed": [
+      "held_clips_are_held"
+    ],
+    "folder": "public/assets/experiments/starter-clips",
+    "shipped": false
+  },
+  "wall_runup_grab_wall_b3_s2": {
+    "pass": true,
+    "meets_expectation": false,
+    "expect_numbers": {
+      "plant_m": 1.92,
+      "travel_m": 4.2,
+      "grip_frames": 0
+    },
+    "failed": [],
+    "folder": "public/assets/experiments/starter-clips",
+    "shipped": false
+  },
+  "wall_runup_grab_wall_b3_s3": {
+    "pass": false,
+    "meets_expectation": false,
+    "expect_numbers": {
+      "plant_m": 1.74,
+      "travel_m": 4.82,
+      "grip_frames": 0
+    },
+    "failed": [
+      "held_clips_are_held"
+    ],
+    "folder": "public/assets/experiments/starter-clips",
+    "shipped": false
+  },
+  "wall_runup_grab_wall_b3_s4": {
+    "pass": false,
+    "meets_expectation": false,
+    "expect_numbers": {
+      "plant_m": 1.71,
+      "travel_m": 4.41,
+      "grip_frames": 0
+    },
+    "failed": [
+      "held_clips_are_held"
+    ],
+    "folder": "public/assets/experiments/starter-clips",
+    "shipped": false
+  },
+  "wall_runup_grab_wall_b3_s5": {
+    "pass": true,
+    "meets_expectation": false,
+    "expect_numbers": {
+      "plant_m": 1.69,
+      "travel_m": 4.32,
+      "grip_frames": 0
+    },
+    "failed": [],
+    "folder": "public/assets/experiments/starter-clips",
+    "shipped": false
+  },
+  "wall_runup_grab_wall_c3_s0": {
+    "pass": false,
+    "meets_expectation": false,
+    "expect_numbers": {
+      "plant_m": 2.12,
+      "travel_m": 6.19,
+      "grip_frames": 0
+    },
+    "failed": [
+      "held_clips_are_held"
+    ],
+    "folder": "public/assets/experiments/starter-clips",
+    "shipped": false
+  },
+  "wall_runup_grab_wall_c3_s1": {
+    "pass": false,
+    "meets_expectation": false,
+    "expect_numbers": {
+      "plant_m": 2.05,
+      "travel_m": 6.57,
+      "grip_frames": 0
+    },
+    "failed": [
+      "held_clips_are_held"
+    ],
+    "folder": "public/assets/experiments/starter-clips",
+    "shipped": false
+  },
+  "wall_runup_grab_wall_c3_s2": {
+    "pass": true,
+    "meets_expectation": false,
+    "expect_numbers": {
+      "plant_m": 2.25,
+      "travel_m": 5.01,
+      "grip_frames": 0
+    },
+    "failed": [],
+    "folder": "public/assets/experiments/starter-clips",
+    "shipped": false
+  },
+  "wall_runup_grab_wall_c3_s3": {
+    "pass": false,
+    "meets_expectation": false,
+    "expect_numbers": {
+      "plant_m": 2.03,
+      "travel_m": 6.05,
+      "grip_frames": 0
+    },
+    "failed": [
+      "held_clips_are_held"
+    ],
+    "folder": "public/assets/experiments/starter-clips",
+    "shipped": false
+  },
+  "wall_runup_grab_wall_c3_s4": {
+    "pass": false,
+    "meets_expectation": false,
+    "expect_numbers": {
+      "plant_m": 1.98,
+      "travel_m": 5.34,
+      "grip_frames": 0
+    },
+    "failed": [
+      "held_clips_are_held"
+    ],
+    "folder": "public/assets/experiments/starter-clips",
+    "shipped": false
+  },
+  "wall_runup_grab_wall_c3_s5": {
+    "pass": true,
+    "meets_expectation": false,
+    "expect_numbers": {
+      "plant_m": 1.74,
+      "travel_m": 4.73,
+      "grip_frames": 9
+    },
+    "failed": [],
+    "folder": "public/assets/experiments/starter-clips",
+    "shipped": false
+  },
+  "_wall_runup_grab_summary": {
+    "candidates": 36,
+    "gate_pass": 4,
+    "meets_expectation": 0,
+    "both": 0,
+    "shipped": null
+  },
+  "kimodo_grab_grab_a_s0": {
+    "pass": true,
+    "meets_expectation": false,
+    "expect_numbers": {
+      "grip_frames": 0
+    },
+    "failed": [],
+    "folder": "public/assets/experiments/starter-clips",
+    "shipped": false
+  },
+  "kimodo_grab_grab_a_s1": {
+    "pass": true,
+    "meets_expectation": false,
+    "expect_numbers": {
+      "grip_frames": 0
+    },
+    "failed": [],
+    "folder": "public/assets/experiments/starter-clips",
+    "shipped": false
+  },
+  "kimodo_grab_grab_a_s2": {
+    "pass": true,
+    "meets_expectation": false,
+    "expect_numbers": {
+      "grip_frames": 0
+    },
+    "failed": [],
+    "folder": "public/assets/experiments/starter-clips",
+    "shipped": false
+  },
+  "kimodo_grab_grab_a_s3": {
+    "pass": true,
+    "meets_expectation": false,
+    "expect_numbers": {
+      "grip_frames": 0
+    },
+    "failed": [],
+    "folder": "public/assets/experiments/starter-clips",
+    "shipped": false
+  },
+  "kimodo_grab_grab_a_s4": {
+    "pass": true,
+    "meets_expectation": false,
+    "expect_numbers": {
+      "grip_frames": 0
+    },
+    "failed": [],
+    "folder": "public/assets/experiments/starter-clips",
+    "shipped": false
+  },
+  "kimodo_grab_grab_a_s5": {
+    "pass": true,
+    "meets_expectation": false,
+    "expect_numbers": {
+      "grip_frames": 0
+    },
+    "failed": [],
+    "folder": "public/assets/experiments/starter-clips",
+    "shipped": false
+  },
+  "kimodo_grab_grab_b_s0": {
+    "pass": true,
+    "meets_expectation": false,
+    "expect_numbers": {
+      "grip_frames": 0
+    },
+    "failed": [],
+    "folder": "public/assets/experiments/starter-clips",
+    "shipped": false
+  },
+  "kimodo_grab_grab_b_s1": {
+    "pass": false,
+    "meets_expectation": false,
+    "expect_numbers": {
+      "grip_frames": 0
+    },
+    "failed": [
+      "held_clips_are_held"
+    ],
+    "folder": "public/assets/experiments/starter-clips",
+    "shipped": false
+  },
+  "kimodo_grab_grab_b_s2": {
+    "pass": false,
+    "meets_expectation": false,
+    "expect_numbers": {
+      "grip_frames": 0
+    },
+    "failed": [
+      "held_clips_are_held"
+    ],
+    "folder": "public/assets/experiments/starter-clips",
+    "shipped": false
+  },
+  "kimodo_grab_grab_b_s3": {
+    "pass": false,
+    "meets_expectation": false,
+    "expect_numbers": {
+      "grip_frames": 0
+    },
+    "failed": [
+      "held_clips_are_held"
+    ],
+    "folder": "public/assets/experiments/starter-clips",
+    "shipped": false
+  },
+  "kimodo_grab_grab_b_s4": {
+    "pass": false,
+    "meets_expectation": false,
+    "expect_numbers": {
+      "grip_frames": 0
+    },
+    "failed": [
+      "held_clips_are_held"
+    ],
+    "folder": "public/assets/experiments/starter-clips",
+    "shipped": false
+  },
+  "kimodo_grab_grab_b_s5": {
+    "pass": true,
+    "meets_expectation": false,
+    "expect_numbers": {
+      "grip_frames": 11
+    },
+    "failed": [],
+    "folder": "public/assets/experiments/starter-clips",
+    "shipped": false
+  },
+  "_kimodo_grab_summary": {
+    "candidates": 12,
+    "gate_pass": 8,
+    "meets_expectation": 0,
+    "both": 0,
+    "shipped": null
+  }
 }
