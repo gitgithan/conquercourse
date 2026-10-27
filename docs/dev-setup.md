@@ -65,3 +65,9 @@
 - Check once: github.com/settings/installations → Linear → Configure → Repository access; with "Only select repositories", add `gitgithan/conquercourse` and save ("All repositories" needs nothing).
 - Then "Part of CC-n" links a commit to its issue and "Fixes CC-n" closes the issue when the commit reaches `main`; a branch named after the issue links too.
 - Test: after the next commit that names an issue, the commit appears in that issue's activity.
+
+## The Rookie actor (CC-31)
+- `http://localhost:5173/?demo=actor` runs the real simulator hands-free on the ideal plan and draws the Rookie instead of a capsule; `&rookie=b`, `&t0=<tick>` (start later).
+- `src/render/actor.ts` has `createRookieActor(scene, { rookie })`; give it `actorStateFor(world, squat)` (`src/motion/actor-state.ts`) every tick.
+- `scripts/film-actor.sh a` films the first gap and the wall; `node scripts/actor-check.mjs a` saves contact sheets; `node scripts/actor-gate.mjs a` exports the posed joints for the gate.
+- Details and the list of missing motions: `data/eval/cc-31-actor/README.md`.
