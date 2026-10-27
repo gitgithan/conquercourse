@@ -5,8 +5,8 @@
     "uploader": "Andrew Muan",
     "licence": "Creative Commons Attribution license (reuse allowed)",
     "range_s": [
-      149.0,
-      155.0
+      149,
+      155
     ],
     "id": "muan-warped-wall"
   },
@@ -30,7 +30,7 @@
     ],
     "sizes": {
       "length": 4.465,
-      "width": 2.0,
+      "width": 2,
       "height": 1.688
     },
     "height_m": 1.688,
@@ -87,7 +87,7 @@
     {
       "joint": "RightHand",
       "t": [
-        0.0,
+        0,
         1.134
       ],
       "hold_s": 1.134,
@@ -102,7 +102,7 @@
     {
       "joint": "LeftFoot",
       "t": [
-        0.0,
+        0,
         1.668
       ],
       "hold_s": 1.668,
@@ -165,12 +165,12 @@
         4.404,
         4.404
       ],
-      "hold_s": 0.0,
+      "hold_s": 0,
       "phase": "plant",
       "on": "platform",
       "height_m": 1.62,
       "height_frac": 0.96,
-      "metres_past_first_plant": 0.0,
+      "metres_past_first_plant": 0,
       "brief_plant": true,
       "measured": true
     },
@@ -210,7 +210,7 @@
         5.472,
         5.472
       ],
-      "hold_s": 0.0,
+      "hold_s": 0,
       "phase": null,
       "on": "platform",
       "height_m": 1.386,
@@ -225,7 +225,7 @@
         5.606,
         5.606
       ],
-      "hold_s": 0.0,
+      "hold_s": 0,
       "phase": null,
       "on": "platform",
       "height_m": 1.401,

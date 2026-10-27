@@ -20,7 +20,7 @@
   "source": {
     "url": "https://www.youtube.com/shorts/NCq1BAUcXF8",
     "id": "NCq1BAUcXF8",
-    "title": "\ud83c\uddec\ud83c\udde7 Beth Lodge Beats the Warped Wall! \ud83c\uddec\ud83c\udde7",
+    "title": "🇬🇧 Beth Lodge Beats the Warped Wall! 🇬🇧",
     "uploader": "World Ninja League",
     "licence": "Creative Commons Attribution license (reuse allowed)",
     "duration_s": 24,
@@ -28,11 +28,11 @@
       1080,
       1920
     ],
-    "fps": 30.0,
+    "fps": 30,
     "upload_date": "20231103",
     "range_s": [
-      0.0,
-      24.0
+      0,
+      24
     ],
     "fetched": "2026-10-27"
   },
