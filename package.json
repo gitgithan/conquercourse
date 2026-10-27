@@ -15,7 +15,8 @@
     "ideal": "tsx scripts/ideal-run.ts",
     "deploy": "npm run build && wrangler pages deploy dist --project-name conquercourse --branch main",
     "deploy:preview": "npm run build && wrangler pages deploy dist --project-name conquercourse --branch preview",
-    "feedback": "node scripts/feedback-summary.mjs"
+    "feedback": "node scripts/feedback-summary.mjs",
+    "feedback:rows": "node scripts/feedback-rows.mjs"
   },
   "dependencies": {
     "three": "^0.186.1"

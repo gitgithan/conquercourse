@@ -70,10 +70,38 @@ export async function createRookieActor(scene: Scene, opts: { rookie: RookieId }
   const takeoffFrame = leap.frames[leap.takeoff!];
   const takeoffCom = scale * (takeoffFrame[0][1] - Math.min(...takeoffFrame.map((p) => p[1]))) + scale * comAboveHips(names, takeoffFrame);
 
+  // The ready stance, built bone by bone (clip axes: +z forward, +x left, y up): upright with a slight forward lean,
+  // knees soft, feet under the hips, arms hanging with the elbows bent forward and the hands loose.
+  const stand = (() => {
+    const f = land.frames[13]; // only for the bone lengths and the face details
+    const len = (i: number) => Math.hypot(...f[i].map((v, k) => v - f[land.parents[i]][k]));
+    const out: number[][] = f.map(() => [0, 0, 0]);
+    const LEAN = 0.12; // rad
+    const up = (a: number) => new Vector3(0, Math.cos(a), Math.sin(a));
+    names.forEach((n, i) => {
+      if (i === 0) return;
+      const par = out[land.parents[i]], side = n.startsWith('Left') ? 1 : -1;
+      let d: Vector3 | null = null;
+      if (/^(Spine1|Spine2|Chest|Neck1|Neck2)$/.test(n)) d = up(LEAN);
+      else if (n === 'Head') d = up(0.04);
+      else if (/Shoulder$/.test(n)) d = new Vector3(side * 0.95, 0.3, 0.05);
+      else if (/Arm$/.test(n) && !/Fore/.test(n)) d = new Vector3(side * 0.9, 0.1, 0);
+      else if (/ForeArm$/.test(n)) d = new Vector3(side * 0.08, -1, 0.12);
+      else if (/Hand$/.test(n)) d = new Vector3(side * 0.04, -1, 0.5);
+      else if (/ThumbEnd$/.test(n)) d = new Vector3(side * 0.3, -0.7, 0.5);
+      else if (/MiddleEnd$/.test(n)) d = new Vector3(side * 0.02, -1, 0.5);
+      else if (/Leg$/.test(n)) d = new Vector3(side * 0.9, -0.5, 0);
+      else if (/Shin$/.test(n)) d = new Vector3(0, -1, 0.1);
+      else if (/Foot$/.test(n)) d = new Vector3(0, -1, -0.06);
+      else if (/ToeBase$/.test(n)) d = new Vector3(0, -0.3, 1);
+      if (d) { d.normalize().multiplyScalar(len(i)); out[i] = [par[0] + d.x, par[1] + d.y, par[2] + d.z]; }
+      else out[i] = [par[0] + f[i][0] - f[land.parents[i]][0], par[1] + f[i][1] - f[land.parents[i]][1], par[2] + f[i][2] - f[land.parents[i]][2]]; // jaw, eyes
+    });
+    return out;
+  })();
   const standPose = (): Pose => {
-    // an upright, relaxed frame (arms down, head level, feet together) found by scoring every frame of the shipped clips
-    const a = sample(land, 13 / land.fps, false);
-    return place(a.rel, a.hipsAbove);
+    const rel = stand.map((p) => clipToWorld(p).multiplyScalar(scale));
+    return place(rel, -Math.min(...rel.map((p) => p.y)));
   };
   const lerpPose = (a: Pose, b: Pose, w: number): Pose => ({
     joints: a.joints.map((p, i) => p.clone().lerp(b.joints[i], w)),
