@@ -13,7 +13,9 @@
 - A click on the map drops a pin and enables "Build this place".
 - Build fetches Overpass (the script waits 150 s, then falls back to the saved answer in `tests/fixtures/overpass-quay.json`; `run.json` says which was used).
 - The editor opens at `?mode=editor` with exactly one piece, the key `cc.map.piece` is removed, and the piece is not saved to `localStorage`.
-- `1-map.png`: the map. `2-pin.png`: pin dropped (Circular Quay). `3-editor.png`: the place in the editor.
+- `1-map.png`: the map.
+  - `2-pin.png`: pin dropped (Circular Quay).
+  - `3-editor.png`: the place in the editor.
 
 ## Notes
 - Vite's dev server cannot find MapLibre's worker by itself; the worker file is passed with `setWorkerUrl` and Vite's `?url`.
