@@ -24,6 +24,10 @@
   - It has no idea obstacles exist: push its prediction out of obstacle boxes on the last 15 % of denoising steps and read the result from positions; then snap contacts with two-bone IK.
   - Build its constraint objects on the CPU and move them to the GPU with `.to()`.
 - **Blind tests decide, not opinions:** in a blind A/B test the product owner chose Kimodo's leaps over real motion capture three times out of three ("mocap jumps look weak").
+- **Kimodo cannot follow a hips path that rises more than about 2.5 m (CC-17 wall, 2026-10-27).**
+  - Given the simulator's path and contact targets it tracked the run to within 5 cm but ended 2.4 m too low on a 4.3 m wall, in all 8 seeds; stronger constraint guidance made it worse.
+  - So split a tall move into pieces that each stay inside that range, or track it with physics.
+- **The simulator's wall grab is easier than a body can do:** at 7 m/s its grab tick has the hands 2.4 m from the hips, and an arm reaches 1.07 m.
 - **One mid-speed clip, time-warped, covers a whole human speed range** (3-7 m/s within 4 cm); add clips for new moves and outcomes, not new speeds.
 
 ## Characters and rigging

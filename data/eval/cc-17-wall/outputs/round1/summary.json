@@ -1,0 +1,1152 @@
+{
+  "round": 1,
+  "best_seed": 11,
+  "best_met": 2,
+  "samples": [
+    {
+      "seed": 7,
+      "met_final": 2,
+      "met_raw": 1,
+      "failed_final": [
+        "1_gate",
+        "2_hips_on_path",
+        "3_grab",
+        "4_hang",
+        "6_pull_up",
+        "7_wall"
+      ],
+      "failed_raw": [
+        "1_gate",
+        "2_hips_on_path",
+        "3_grab",
+        "4_hang",
+        "5_plant",
+        "6_pull_up",
+        "7_wall"
+      ],
+      "hips_err_final": 2.3889,
+      "hips_err_raw": 2.3889,
+      "wrists_final": {
+        "LeftHand": 0.4144,
+        "RightHand": 0.424
+      },
+      "wrists_raw": {
+        "LeftHand": 1.2295,
+        "RightHand": 1.2151
+      },
+      "hang_frames": 0,
+      "plant": [
+        "RightFoot",
+        6,
+        2.1499
+      ],
+      "pull_up": {
+        "hips_above_deck": -1.389,
+        "hips_dz": 0.416,
+        "feet_off_deck_height": 0.62
+      },
+      "wall_depth_final": 0.4495,
+      "wall_depth_raw": 1.2076,
+      "gate_failed_final": [
+        "knees_bend_forward",
+        "legs_not_twisted",
+        "held_clips_are_held"
+      ],
+      "soft_failed_final": [
+        "no_jitter"
+      ],
+      "target_error_raw_m": {
+        "RightFoot@49-55": 0.307,
+        "LeftFoot@56-62": 0.165,
+        "LeftHand@65-74": 0.761,
+        "RightHand@65-74": 0.686,
+        "LeftFoot@80-89": 0.573,
+        "RightFoot@80-89": 0.6
+      },
+      "target_error_final_m": {
+        "RightFoot@49-55": 0.0,
+        "LeftFoot@56-62": 0.0,
+        "LeftHand@65-74": 0.341,
+        "RightHand@65-74": 0.329,
+        "LeftFoot@80-89": 0.484,
+        "RightFoot@80-89": 0.481
+      },
+      "ik_leftover_m": [
+        0.0,
+        0.0,
+        0.4345,
+        0.4277,
+        0.6246,
+        0.621
+      ],
+      "repairs": {
+        "fix_knees": 12,
+        "lift_to_floor": 0,
+        "limit_knee_bend": 0
+      },
+      "gen_s": 11.5,
+      "lines": {
+        "1_gate": {
+          "ok": false,
+          "value": [
+            "knees_bend_forward",
+            "legs_not_twisted",
+            "held_clips_are_held"
+          ],
+          "limit": "all hard rules"
+        },
+        "2_hips_on_path": {
+          "ok": false,
+          "value": 2.3889,
+          "limit": "<= 0.05 m on every frame"
+        },
+        "3_grab": {
+          "ok": false,
+          "value": {
+            "LeftHand": 0.4144,
+            "RightHand": 0.424
+          },
+          "limit": "<= 0.05 m at the grab frame"
+        },
+        "4_hang": {
+          "ok": false,
+          "value": 0,
+          "limit": ">= 9 frames within 8 cm, no foot on the ground or deck"
+        },
+        "5_plant": {
+          "ok": true,
+          "value": [
+            "RightFoot",
+            6,
+            2.1499
+          ],
+          "limit": "a foot still >= 4 frames, ankle 5-12 cm off the curve, >= 0.4 m up, before the grab"
+        },
+        "6_pull_up": {
+          "ok": false,
+          "value": {
+            "hips_above_deck": -1.389,
+            "hips_dz": 0.416,
+            "feet_off_deck_height": 0.62
+          },
+          "limit": "hips >= 0.8 m above deck, within 0.5 m of the edge, feet within 10 cm of deck height"
+        },
+        "7_wall": {
+          "ok": false,
+          "value": 0.4495,
+          "limit": "<= 0.02 m inside"
+        },
+        "8_shape": {
+          "ok": true,
+          "value": [
+            90,
+            30
+          ],
+          "limit": "90 frames, 30 joints"
+        }
+      }
+    },
+    {
+      "seed": 8,
+      "met_final": 2,
+      "met_raw": 1,
+      "failed_final": [
+        "1_gate",
+        "2_hips_on_path",
+        "3_grab",
+        "4_hang",
+        "6_pull_up",
+        "7_wall"
+      ],
+      "failed_raw": [
+        "1_gate",
+        "2_hips_on_path",
+        "3_grab",
+        "4_hang",
+        "5_plant",
+        "6_pull_up",
+        "7_wall"
+      ],
+      "hips_err_final": 2.3776,
+      "hips_err_raw": 2.3776,
+      "wrists_final": {
+        "LeftHand": 0.4591,
+        "RightHand": 0.4585
+      },
+      "wrists_raw": {
+        "LeftHand": 1.009,
+        "RightHand": 0.9904
+      },
+      "hang_frames": 0,
+      "plant": [
+        "LeftFoot",
+        6,
+        2.3816
+      ],
+      "pull_up": {
+        "hips_above_deck": -1.378,
+        "hips_dz": 0.43,
+        "feet_off_deck_height": 0.608
+      },
+      "wall_depth_final": 0.4647,
+      "wall_depth_raw": 1.2504,
+      "gate_failed_final": [
+        "knees_bend_forward",
+        "legs_not_twisted"
+      ],
+      "soft_failed_final": [
+        "no_jitter"
+      ],
+      "target_error_raw_m": {
+        "RightFoot@49-55": 0.144,
+        "LeftFoot@56-62": 0.095,
+        "LeftHand@65-74": 0.571,
+        "RightHand@65-74": 0.631,
+        "LeftFoot@80-89": 0.568,
+        "RightFoot@80-89": 0.546
+      },
+      "target_error_final_m": {
+        "RightFoot@49-55": 0.0,
+        "LeftFoot@56-62": 0.0,
+        "LeftHand@65-74": 0.35,
+        "RightHand@65-74": 0.348,
+        "LeftFoot@80-89": 0.411,
+        "RightFoot@80-89": 0.408
+      },
+      "ik_leftover_m": [
+        0.0,
+        0.0,
+        0.4591,
+        0.4585,
+        0.6119,
+        0.609
+      ],
+      "repairs": {
+        "fix_knees": 25,
+        "lift_to_floor": 0,
+        "limit_knee_bend": 0
+      },
+      "gen_s": 7.5,
+      "lines": {
+        "1_gate": {
+          "ok": false,
+          "value": [
+            "knees_bend_forward",
+            "legs_not_twisted"
+          ],
+          "limit": "all hard rules"
+        },
+        "2_hips_on_path": {
+          "ok": false,
+          "value": 2.3776,
+          "limit": "<= 0.05 m on every frame"
+        },
+        "3_grab": {
+          "ok": false,
+          "value": {
+            "LeftHand": 0.4591,
+            "RightHand": 0.4585
+          },
+          "limit": "<= 0.05 m at the grab frame"
+        },
+        "4_hang": {
+          "ok": false,
+          "value": 0,
+          "limit": ">= 9 frames within 8 cm, no foot on the ground or deck"
+        },
+        "5_plant": {
+          "ok": true,
+          "value": [
+            "LeftFoot",
+            6,
+            2.3816
+          ],
+          "limit": "a foot still >= 4 frames, ankle 5-12 cm off the curve, >= 0.4 m up, before the grab"
+        },
+        "6_pull_up": {
+          "ok": false,
+          "value": {
+            "hips_above_deck": -1.378,
+            "hips_dz": 0.43,
+            "feet_off_deck_height": 0.608
+          },
+          "limit": "hips >= 0.8 m above deck, within 0.5 m of the edge, feet within 10 cm of deck height"
+        },
+        "7_wall": {
+          "ok": false,
+          "value": 0.4647,
+          "limit": "<= 0.02 m inside"
+        },
+        "8_shape": {
+          "ok": true,
+          "value": [
+            90,
+            30
+          ],
+          "limit": "90 frames, 30 joints"
+        }
+      }
+    },
+    {
+      "seed": 9,
+      "met_final": 2,
+      "met_raw": 1,
+      "failed_final": [
+        "1_gate",
+        "2_hips_on_path",
+        "3_grab",
+        "4_hang",
+        "6_pull_up",
+        "7_wall"
+      ],
+      "failed_raw": [
+        "1_gate",
+        "2_hips_on_path",
+        "3_grab",
+        "4_hang",
+        "5_plant",
+        "6_pull_up",
+        "7_wall"
+      ],
+      "hips_err_final": 2.3601,
+      "hips_err_raw": 2.3601,
+      "wrists_final": {
+        "LeftHand": 0.4011,
+        "RightHand": 0.373
+      },
+      "wrists_raw": {
+        "LeftHand": 0.7975,
+        "RightHand": 0.8693
+      },
+      "hang_frames": 0,
+      "plant": [
+        "LeftFoot",
+        6,
+        2.3816
+      ],
+      "pull_up": {
+        "hips_above_deck": -1.36,
+        "hips_dz": 0.411,
+        "feet_off_deck_height": 0.592
+      },
+      "wall_depth_final": 0.4753,
+      "wall_depth_raw": 0.9809,
+      "gate_failed_final": [
+        "knees_bend_forward",
+        "legs_not_twisted",
+        "knees_within_range",
+        "held_clips_are_held"
+      ],
+      "soft_failed_final": [
+        "no_jitter"
+      ],
+      "target_error_raw_m": {
+        "RightFoot@49-55": 0.165,
+        "LeftFoot@56-62": 0.104,
+        "LeftHand@65-74": 0.444,
+        "RightHand@65-74": 0.431,
+        "LeftFoot@80-89": 0.598,
+        "RightFoot@80-89": 0.623
+      },
+      "target_error_final_m": {
+        "RightFoot@49-55": 0.0,
+        "LeftFoot@56-62": 0.0,
+        "LeftHand@65-74": 0.298,
+        "RightHand@65-74": 0.284,
+        "LeftFoot@80-89": 0.514,
+        "RightFoot@80-89": 0.51
+      },
+      "ik_leftover_m": [
+        0.0,
+        0.0,
+        0.4011,
+        0.373,
+        0.5977,
+        0.5928
+      ],
+      "repairs": {
+        "fix_knees": 14,
+        "lift_to_floor": 0,
+        "limit_knee_bend": 0
+      },
+      "gen_s": 7.6,
+      "lines": {
+        "1_gate": {
+          "ok": false,
+          "value": [
+            "knees_bend_forward",
+            "legs_not_twisted",
+            "knees_within_range",
+            "held_clips_are_held"
+          ],
+          "limit": "all hard rules"
+        },
+        "2_hips_on_path": {
+          "ok": false,
+          "value": 2.3601,
+          "limit": "<= 0.05 m on every frame"
+        },
+        "3_grab": {
+          "ok": false,
+          "value": {
+            "LeftHand": 0.4011,
+            "RightHand": 0.373
+          },
+          "limit": "<= 0.05 m at the grab frame"
+        },
+        "4_hang": {
+          "ok": false,
+          "value": 0,
+          "limit": ">= 9 frames within 8 cm, no foot on the ground or deck"
+        },
+        "5_plant": {
+          "ok": true,
+          "value": [
+            "LeftFoot",
+            6,
+            2.3816
+          ],
+          "limit": "a foot still >= 4 frames, ankle 5-12 cm off the curve, >= 0.4 m up, before the grab"
+        },
+        "6_pull_up": {
+          "ok": false,
+          "value": {
+            "hips_above_deck": -1.36,
+            "hips_dz": 0.411,
+            "feet_off_deck_height": 0.592
+          },
+          "limit": "hips >= 0.8 m above deck, within 0.5 m of the edge, feet within 10 cm of deck height"
+        },
+        "7_wall": {
+          "ok": false,
+          "value": 0.4753,
+          "limit": "<= 0.02 m inside"
+        },
+        "8_shape": {
+          "ok": true,
+          "value": [
+            90,
+            30
+          ],
+          "limit": "90 frames, 30 joints"
+        }
+      }
+    },
+    {
+      "seed": 10,
+      "met_final": 2,
+      "met_raw": 1,
+      "failed_final": [
+        "1_gate",
+        "2_hips_on_path",
+        "3_grab",
+        "4_hang",
+        "6_pull_up",
+        "7_wall"
+      ],
+      "failed_raw": [
+        "1_gate",
+        "2_hips_on_path",
+        "3_grab",
+        "4_hang",
+        "5_plant",
+        "6_pull_up",
+        "7_wall"
+      ],
+      "hips_err_final": 2.3391,
+      "hips_err_raw": 2.3391,
+      "wrists_final": {
+        "LeftHand": 0.4463,
+        "RightHand": 0.4391
+      },
+      "wrists_raw": {
+        "LeftHand": 1.371,
+        "RightHand": 1.3811
+      },
+      "hang_frames": 0,
+      "plant": [
+        "LeftFoot",
+        5,
+        2.3816
+      ],
+      "pull_up": {
+        "hips_above_deck": -1.339,
+        "hips_dz": 0.425,
+        "feet_off_deck_height": 0.572
+      },
+      "wall_depth_final": 0.482,
+      "wall_depth_raw": 1.2028,
+      "gate_failed_final": [
+        "knees_bend_forward",
+        "legs_not_twisted",
+        "held_clips_are_held"
+      ],
+      "soft_failed_final": [
+        "feet_dont_slide",
+        "no_jitter"
+      ],
+      "target_error_raw_m": {
+        "RightFoot@49-55": 0.42,
+        "LeftFoot@56-62": 0.324,
+        "LeftHand@65-74": 0.902,
+        "RightHand@65-74": 0.892,
+        "LeftFoot@80-89": 0.557,
+        "RightFoot@80-89": 0.556
+      },
+      "target_error_final_m": {
+        "RightFoot@49-55": 0.0,
+        "LeftFoot@56-62": 0.0,
+        "LeftHand@65-74": 0.432,
+        "RightHand@65-74": 0.423,
+        "LeftFoot@80-89": 0.461,
+        "RightFoot@80-89": 0.459
+      },
+      "ik_leftover_m": [
+        0.0,
+        0.0,
+        0.5318,
+        0.5267,
+        0.5777,
+        0.5744
+      ],
+      "repairs": {
+        "fix_knees": 17,
+        "lift_to_floor": 0,
+        "limit_knee_bend": 1
+      },
+      "gen_s": 7.6,
+      "lines": {
+        "1_gate": {
+          "ok": false,
+          "value": [
+            "knees_bend_forward",
+            "legs_not_twisted",
+            "held_clips_are_held"
+          ],
+          "limit": "all hard rules"
+        },
+        "2_hips_on_path": {
+          "ok": false,
+          "value": 2.3391,
+          "limit": "<= 0.05 m on every frame"
+        },
+        "3_grab": {
+          "ok": false,
+          "value": {
+            "LeftHand": 0.4463,
+            "RightHand": 0.4391
+          },
+          "limit": "<= 0.05 m at the grab frame"
+        },
+        "4_hang": {
+          "ok": false,
+          "value": 0,
+          "limit": ">= 9 frames within 8 cm, no foot on the ground or deck"
+        },
+        "5_plant": {
+          "ok": true,
+          "value": [
+            "LeftFoot",
+            5,
+            2.3816
+          ],
+          "limit": "a foot still >= 4 frames, ankle 5-12 cm off the curve, >= 0.4 m up, before the grab"
+        },
+        "6_pull_up": {
+          "ok": false,
+          "value": {
+            "hips_above_deck": -1.339,
+            "hips_dz": 0.425,
+            "feet_off_deck_height": 0.572
+          },
+          "limit": "hips >= 0.8 m above deck, within 0.5 m of the edge, feet within 10 cm of deck height"
+        },
+        "7_wall": {
+          "ok": false,
+          "value": 0.482,
+          "limit": "<= 0.02 m inside"
+        },
+        "8_shape": {
+          "ok": true,
+          "value": [
+            90,
+            30
+          ],
+          "limit": "90 frames, 30 joints"
+        }
+      }
+    },
+    {
+      "seed": 11,
+      "met_final": 2,
+      "met_raw": 1,
+      "failed_final": [
+        "1_gate",
+        "2_hips_on_path",
+        "3_grab",
+        "4_hang",
+        "6_pull_up",
+        "7_wall"
+      ],
+      "failed_raw": [
+        "1_gate",
+        "2_hips_on_path",
+        "3_grab",
+        "4_hang",
+        "5_plant",
+        "6_pull_up",
+        "7_wall"
+      ],
+      "hips_err_final": 2.3351,
+      "hips_err_raw": 2.3351,
+      "wrists_final": {
+        "LeftHand": 0.3977,
+        "RightHand": 0.4029
+      },
+      "wrists_raw": {
+        "LeftHand": 1.3212,
+        "RightHand": 1.2896
+      },
+      "hang_frames": 0,
+      "plant": [
+        "RightFoot",
+        6,
+        2.1499
+      ],
+      "pull_up": {
+        "hips_above_deck": -1.335,
+        "hips_dz": 0.407,
+        "feet_off_deck_height": 0.568
+      },
+      "wall_depth_final": 0.4071,
+      "wall_depth_raw": 1.2071,
+      "gate_failed_final": [
+        "knees_bend_forward",
+        "legs_not_twisted",
+        "held_clips_are_held"
+      ],
+      "soft_failed_final": [
+        "no_jitter"
+      ],
+      "target_error_raw_m": {
+        "RightFoot@49-55": 0.157,
+        "LeftFoot@56-62": 0.146,
+        "LeftHand@65-74": 0.83,
+        "RightHand@65-74": 0.747,
+        "LeftFoot@80-89": 0.495,
+        "RightFoot@80-89": 0.501
+      },
+      "target_error_final_m": {
+        "RightFoot@49-55": 0.0,
+        "LeftFoot@56-62": 0.0,
+        "LeftHand@65-74": 0.391,
+        "RightHand@65-74": 0.38,
+        "LeftFoot@80-89": 0.419,
+        "RightFoot@80-89": 0.416
+      },
+      "ik_leftover_m": [
+        0.0,
+        0.0,
+        0.4056,
+        0.4041,
+        0.5729,
+        0.5681
+      ],
+      "repairs": {
+        "fix_knees": 5,
+        "lift_to_floor": 0,
+        "limit_knee_bend": 0
+      },
+      "gen_s": 7.6,
+      "lines": {
+        "1_gate": {
+          "ok": false,
+          "value": [
+            "knees_bend_forward",
+            "legs_not_twisted",
+            "held_clips_are_held"
+          ],
+          "limit": "all hard rules"
+        },
+        "2_hips_on_path": {
+          "ok": false,
+          "value": 2.3351,
+          "limit": "<= 0.05 m on every frame"
+        },
+        "3_grab": {
+          "ok": false,
+          "value": {
+            "LeftHand": 0.3977,
+            "RightHand": 0.4029
+          },
+          "limit": "<= 0.05 m at the grab frame"
+        },
+        "4_hang": {
+          "ok": false,
+          "value": 0,
+          "limit": ">= 9 frames within 8 cm, no foot on the ground or deck"
+        },
+        "5_plant": {
+          "ok": true,
+          "value": [
+            "RightFoot",
+            6,
+            2.1499
+          ],
+          "limit": "a foot still >= 4 frames, ankle 5-12 cm off the curve, >= 0.4 m up, before the grab"
+        },
+        "6_pull_up": {
+          "ok": false,
+          "value": {
+            "hips_above_deck": -1.335,
+            "hips_dz": 0.407,
+            "feet_off_deck_height": 0.568
+          },
+          "limit": "hips >= 0.8 m above deck, within 0.5 m of the edge, feet within 10 cm of deck height"
+        },
+        "7_wall": {
+          "ok": false,
+          "value": 0.4071,
+          "limit": "<= 0.02 m inside"
+        },
+        "8_shape": {
+          "ok": true,
+          "value": [
+            90,
+            30
+          ],
+          "limit": "90 frames, 30 joints"
+        }
+      }
+    },
+    {
+      "seed": 12,
+      "met_final": 2,
+      "met_raw": 1,
+      "failed_final": [
+        "1_gate",
+        "2_hips_on_path",
+        "3_grab",
+        "4_hang",
+        "6_pull_up",
+        "7_wall"
+      ],
+      "failed_raw": [
+        "1_gate",
+        "2_hips_on_path",
+        "3_grab",
+        "4_hang",
+        "5_plant",
+        "6_pull_up",
+        "7_wall"
+      ],
+      "hips_err_final": 2.3963,
+      "hips_err_raw": 2.3963,
+      "wrists_final": {
+        "LeftHand": 0.4415,
+        "RightHand": 0.4162
+      },
+      "wrists_raw": {
+        "LeftHand": 1.089,
+        "RightHand": 1.0427
+      },
+      "hang_frames": 0,
+      "plant": [
+        "LeftFoot",
+        7,
+        2.3816
+      ],
+      "pull_up": {
+        "hips_above_deck": -1.396,
+        "hips_dz": 0.415,
+        "feet_off_deck_height": 0.627
+      },
+      "wall_depth_final": 0.4715,
+      "wall_depth_raw": 1.0718,
+      "gate_failed_final": [
+        "legs_not_twisted",
+        "knees_within_range",
+        "held_clips_are_held"
+      ],
+      "soft_failed_final": [
+        "no_jitter"
+      ],
+      "target_error_raw_m": {
+        "RightFoot@49-55": 0.323,
+        "LeftFoot@56-62": 0.145,
+        "LeftHand@65-74": 0.634,
+        "RightHand@65-74": 0.582,
+        "LeftFoot@80-89": 0.552,
+        "RightFoot@80-89": 0.557
+      },
+      "target_error_final_m": {
+        "RightFoot@49-55": 0.0,
+        "LeftFoot@56-62": 0.0,
+        "LeftHand@65-74": 0.431,
+        "RightHand@65-74": 0.399,
+        "LeftFoot@80-89": 0.468,
+        "RightFoot@80-89": 0.465
+      },
+      "ik_leftover_m": [
+        0.0,
+        0.0,
+        0.4823,
+        0.4831,
+        0.632,
+        0.6281
+      ],
+      "repairs": {
+        "fix_knees": 5,
+        "lift_to_floor": 0,
+        "limit_knee_bend": 0
+      },
+      "gen_s": 7.6,
+      "lines": {
+        "1_gate": {
+          "ok": false,
+          "value": [
+            "legs_not_twisted",
+            "knees_within_range",
+            "held_clips_are_held"
+          ],
+          "limit": "all hard rules"
+        },
+        "2_hips_on_path": {
+          "ok": false,
+          "value": 2.3963,
+          "limit": "<= 0.05 m on every frame"
+        },
+        "3_grab": {
+          "ok": false,
+          "value": {
+            "LeftHand": 0.4415,
+            "RightHand": 0.4162
+          },
+          "limit": "<= 0.05 m at the grab frame"
+        },
+        "4_hang": {
+          "ok": false,
+          "value": 0,
+          "limit": ">= 9 frames within 8 cm, no foot on the ground or deck"
+        },
+        "5_plant": {
+          "ok": true,
+          "value": [
+            "LeftFoot",
+            7,
+            2.3816
+          ],
+          "limit": "a foot still >= 4 frames, ankle 5-12 cm off the curve, >= 0.4 m up, before the grab"
+        },
+        "6_pull_up": {
+          "ok": false,
+          "value": {
+            "hips_above_deck": -1.396,
+            "hips_dz": 0.415,
+            "feet_off_deck_height": 0.627
+          },
+          "limit": "hips >= 0.8 m above deck, within 0.5 m of the edge, feet within 10 cm of deck height"
+        },
+        "7_wall": {
+          "ok": false,
+          "value": 0.4715,
+          "limit": "<= 0.02 m inside"
+        },
+        "8_shape": {
+          "ok": true,
+          "value": [
+            90,
+            30
+          ],
+          "limit": "90 frames, 30 joints"
+        }
+      }
+    },
+    {
+      "seed": 13,
+      "met_final": 2,
+      "met_raw": 1,
+      "failed_final": [
+        "1_gate",
+        "2_hips_on_path",
+        "3_grab",
+        "4_hang",
+        "6_pull_up",
+        "7_wall"
+      ],
+      "failed_raw": [
+        "1_gate",
+        "2_hips_on_path",
+        "3_grab",
+        "4_hang",
+        "5_plant",
+        "6_pull_up",
+        "7_wall"
+      ],
+      "hips_err_final": 2.3993,
+      "hips_err_raw": 2.3993,
+      "wrists_final": {
+        "LeftHand": 0.4389,
+        "RightHand": 0.4355
+      },
+      "wrists_raw": {
+        "LeftHand": 1.0629,
+        "RightHand": 1.0623
+      },
+      "hang_frames": 0,
+      "plant": [
+        "RightFoot",
+        6,
+        2.1499
+      ],
+      "pull_up": {
+        "hips_above_deck": -1.399,
+        "hips_dz": 0.431,
+        "feet_off_deck_height": 0.629
+      },
+      "wall_depth_final": 0.4739,
+      "wall_depth_raw": 0.9808,
+      "gate_failed_final": [
+        "knees_bend_forward",
+        "legs_not_twisted",
+        "held_clips_are_held"
+      ],
+      "soft_failed_final": [
+        "no_jitter"
+      ],
+      "target_error_raw_m": {
+        "RightFoot@49-55": 0.212,
+        "LeftFoot@56-62": 0.183,
+        "LeftHand@65-74": 0.624,
+        "RightHand@65-74": 0.613,
+        "LeftFoot@80-89": 0.617,
+        "RightFoot@80-89": 0.642
+      },
+      "target_error_final_m": {
+        "RightFoot@49-55": 0.0,
+        "LeftFoot@56-62": 0.0,
+        "LeftHand@65-74": 0.39,
+        "RightHand@65-74": 0.376,
+        "LeftFoot@80-89": 0.53,
+        "RightFoot@80-89": 0.527
+      },
+      "ik_leftover_m": [
+        0.0,
+        0.0,
+        0.4552,
+        0.4527,
+        0.633,
+        0.6299
+      ],
+      "repairs": {
+        "fix_knees": 13,
+        "lift_to_floor": 1,
+        "limit_knee_bend": 3
+      },
+      "gen_s": 7.6,
+      "lines": {
+        "1_gate": {
+          "ok": false,
+          "value": [
+            "knees_bend_forward",
+            "legs_not_twisted",
+            "held_clips_are_held"
+          ],
+          "limit": "all hard rules"
+        },
+        "2_hips_on_path": {
+          "ok": false,
+          "value": 2.3993,
+          "limit": "<= 0.05 m on every frame"
+        },
+        "3_grab": {
+          "ok": false,
+          "value": {
+            "LeftHand": 0.4389,
+            "RightHand": 0.4355
+          },
+          "limit": "<= 0.05 m at the grab frame"
+        },
+        "4_hang": {
+          "ok": false,
+          "value": 0,
+          "limit": ">= 9 frames within 8 cm, no foot on the ground or deck"
+        },
+        "5_plant": {
+          "ok": true,
+          "value": [
+            "RightFoot",
+            6,
+            2.1499
+          ],
+          "limit": "a foot still >= 4 frames, ankle 5-12 cm off the curve, >= 0.4 m up, before the grab"
+        },
+        "6_pull_up": {
+          "ok": false,
+          "value": {
+            "hips_above_deck": -1.399,
+            "hips_dz": 0.431,
+            "feet_off_deck_height": 0.629
+          },
+          "limit": "hips >= 0.8 m above deck, within 0.5 m of the edge, feet within 10 cm of deck height"
+        },
+        "7_wall": {
+          "ok": false,
+          "value": 0.4739,
+          "limit": "<= 0.02 m inside"
+        },
+        "8_shape": {
+          "ok": true,
+          "value": [
+            90,
+            30
+          ],
+          "limit": "90 frames, 30 joints"
+        }
+      }
+    },
+    {
+      "seed": 14,
+      "met_final": 2,
+      "met_raw": 1,
+      "failed_final": [
+        "1_gate",
+        "2_hips_on_path",
+        "3_grab",
+        "4_hang",
+        "6_pull_up",
+        "7_wall"
+      ],
+      "failed_raw": [
+        "1_gate",
+        "2_hips_on_path",
+        "3_grab",
+        "4_hang",
+        "5_plant",
+        "6_pull_up",
+        "7_wall"
+      ],
+      "hips_err_final": 2.3761,
+      "hips_err_raw": 2.3761,
+      "wrists_final": {
+        "LeftHand": 0.4224,
+        "RightHand": 0.435
+      },
+      "wrists_raw": {
+        "LeftHand": 1.0972,
+        "RightHand": 1.0658
+      },
+      "hang_frames": 0,
+      "plant": [
+        "RightFoot",
+        6,
+        2.1499
+      ],
+      "pull_up": {
+        "hips_above_deck": -1.376,
+        "hips_dz": 0.423,
+        "feet_off_deck_height": 0.608
+      },
+      "wall_depth_final": 0.4707,
+      "wall_depth_raw": 0.9757,
+      "gate_failed_final": [
+        "knees_bend_forward",
+        "legs_not_twisted",
+        "held_clips_are_held"
+      ],
+      "soft_failed_final": [
+        "no_jitter"
+      ],
+      "target_error_raw_m": {
+        "RightFoot@49-55": 0.252,
+        "LeftFoot@56-62": 0.129,
+        "LeftHand@65-74": 0.767,
+        "RightHand@65-74": 0.692,
+        "LeftFoot@80-89": 0.556,
+        "RightFoot@80-89": 0.57
+      },
+      "target_error_final_m": {
+        "RightFoot@49-55": 0.0,
+        "LeftFoot@56-62": 0.0,
+        "LeftHand@65-74": 0.321,
+        "RightHand@65-74": 0.31,
+        "LeftFoot@80-89": 0.447,
+        "RightFoot@80-89": 0.443
+      },
+      "ik_leftover_m": [
+        0.0,
+        0.0,
+        0.4251,
+        0.435,
+        0.6127,
+        0.6092
+      ],
+      "repairs": {
+        "fix_knees": 19,
+        "lift_to_floor": 0,
+        "limit_knee_bend": 1
+      },
+      "gen_s": 7.6,
+      "lines": {
+        "1_gate": {
+          "ok": false,
+          "value": [
+            "knees_bend_forward",
+            "legs_not_twisted",
+            "held_clips_are_held"
+          ],
+          "limit": "all hard rules"
+        },
+        "2_hips_on_path": {
+          "ok": false,
+          "value": 2.3761,
+          "limit": "<= 0.05 m on every frame"
+        },
+        "3_grab": {
+          "ok": false,
+          "value": {
+            "LeftHand": 0.4224,
+            "RightHand": 0.435
+          },
+          "limit": "<= 0.05 m at the grab frame"
+        },
+        "4_hang": {
+          "ok": false,
+          "value": 0,
+          "limit": ">= 9 frames within 8 cm, no foot on the ground or deck"
+        },
+        "5_plant": {
+          "ok": true,
+          "value": [
+            "RightFoot",
+            6,
+            2.1499
+          ],
+          "limit": "a foot still >= 4 frames, ankle 5-12 cm off the curve, >= 0.4 m up, before the grab"
+        },
+        "6_pull_up": {
+          "ok": false,
+          "value": {
+            "hips_above_deck": -1.376,
+            "hips_dz": 0.423,
+            "feet_off_deck_height": 0.608
+          },
+          "limit": "hips >= 0.8 m above deck, within 0.5 m of the edge, feet within 10 cm of deck height"
+        },
+        "7_wall": {
+          "ok": false,
+          "value": 0.4707,
+          "limit": "<= 0.02 m inside"
+        },
+        "8_shape": {
+          "ok": true,
+          "value": [
+            90,
+            30
+          ],
+          "limit": "90 frames, 30 joints"
+        }
+      }
+    }
+  ]
+}
