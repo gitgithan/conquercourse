@@ -4,6 +4,7 @@ Hard rules block publishing; soft rules are reported. See docs/pipelines.md, pip
 import numpy as np
 
 from . import motion
+from .clip import Clip
 from .motion import G
 from .skeleton import BONES, FEET, IDX
 
@@ -111,3 +112,28 @@ def run_gate(clip):
 
 def failures(report):
     return [k for k, r in report["hard"].items() if not r["ok"]]
+
+
+def clip_from_times(frames, times, floor=0.0, **meta):
+    """A Clip from measured video: (T, 30, 3) metres, y up, each frame's own time in seconds.
+
+    The floor becomes y = 0. The gate works on an even clock, so frames are resampled to the clip's average rate
+    only when the times are uneven (more than 2 % of a frame off); constant-rate video is never resampled."""
+    frames, t = np.asarray(frames, float), np.asarray(times, float)
+    assert len(frames) == len(t) >= 2 and np.all(np.diff(t) > 0), "times must increase, one per frame"
+    fps = (len(t) - 1) / (t[-1] - t[0])
+    even = t[0] + np.arange(len(t)) / fps
+    if np.abs(t - even).max() * fps > 0.02:
+        flat = frames.reshape(len(t), -1)
+        frames = np.stack([np.interp(even, t, flat[:, c]) for c in range(flat.shape[1])], axis=1).reshape(frames.shape)
+    frames = frames.copy()
+    frames[:, :, 1] -= floor
+    return Clip(frames, fps, meta=meta)
+
+
+def run_gate_times(frames, times, floor=0.0, gravity=G, supported_by=None):
+    """The gate on measured video (see clip_from_times); `supported_by` marks a clip held by equipment."""
+    meta = {"gravity": gravity}
+    if supported_by:
+        meta["supportedBy"] = supported_by
+    return run_gate(clip_from_times(frames, times, floor, **meta))

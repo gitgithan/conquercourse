@@ -10,11 +10,11 @@ from pathlib import Path
 import numpy as np
 
 sys.path.insert(0, str(Path(__file__).parent))
-import gate as G
-from joints import IDX, NAMES, j, speeds
+from joints import IDX, NAMES, j, speeds  # also puts pipelines/ on the path for ccpipe
+from ccpipe import gate as G, repairs  # noqa: E402
 
 WORK = Path(os.environ.get("CC_ASSETS_DIR", Path(__file__).resolve().parents[3] / "conquercourse-assets")) / "work"
-EVAL = Path(__file__).resolve().parents[2] / "data/eval/cc-26-pexels-motion"
+EVAL = Path(os.environ.get("CC_EVAL_DIR", Path(__file__).resolve().parents[2] / "data/eval/cc-26-pexels-motion"))
 # moves held by equipment carry supportedBy (pipeline 2); a free-flight rule is not applied to them
 SUPPORTED_BY = {"Monkey_bars_hang_and_swing": "playground bars", "Over_a_brick_wall_vault_or_wall_move": "a brick wall"}
 GROUND_UP = 0.25   # a contact higher than this above the floor touches an obstacle
@@ -253,6 +253,14 @@ def sheet(stem, a, b, out_png, n=8):
     cv2.imwrite(str(out_png), np.vstack(rows), [cv2.IMWRITE_JPEG_QUALITY, 80])
 
 
+def repair_frames(w, t, supported_by=None):
+    """The allowed repairs (knee mirror, lift to the floor) on (T,30,3) metres; returns the new frames."""
+    clip = G.clip_from_times(w, t, supportedBy=supported_by) if supported_by else G.clip_from_times(w, t)
+    clip, _ = repairs.fix_knees(clip)
+    clip, _ = repairs.lift_to_floor(clip)
+    return clip.frames
+
+
 def main(stem):
     out = EVAL / stem
     times, world, ok, (a, b), diag = build(stem)
@@ -262,10 +270,10 @@ def main(stem):
     ok = [i - a for i in ok if a <= i < b]
     w, info = orient_and_level(world, t)
     sup = SUPPORTED_BY.get(stem)
-    free_flight = G.run_gate(w, t, floor=0.0)          # the rule as written, with no supportedBy
-    raw_gate = G.run_gate(w, t, floor=0.0, supported_by=sup)
-    rep = G.lift_to_floor(G.fix_knees(w))
-    rep_gate = G.run_gate(rep, t, floor=0.0, supported_by=sup)
+    free_flight = G.run_gate_times(w, t)          # the rule as written, with no supportedBy
+    raw_gate = G.run_gate_times(w, t, supported_by=sup)
+    rep = repair_frames(w, t, sup)
+    rep_gate = G.run_gate_times(rep, t, supported_by=sup)
     final, verdict_on = (rep, "repaired") if rep_gate["pass"] or not raw_gate["pass"] else (w, "raw")
     cs = contacts(final, t)
     motion = {"names": NAMES, "fps": times["fps"], "first_frame": int(a), "times": [round(float(x), 5) for x in t],
@@ -273,7 +281,7 @@ def main(stem):
     assert all(len(f) == len(NAMES) for f in motion["frames"])
     (out / "motion.json").write_text(json.dumps(motion))
     (out / "contacts.json").write_text(json.dumps(cs, indent=1))
-    (out / "gate.json").write_text(json.dumps({"raw": raw_gate, "repaired": rep_gate, "shown_version": verdict_on, "supportedBy": sup, "free_flight_rule_without_supportedBy": free_flight["hard"]["flight_ballistic"],
+    (out / "gate.json").write_text(json.dumps({"raw": raw_gate, "repaired": rep_gate, "shown_version": verdict_on, "supportedBy": sup, "free_flight_rule_without_supportedBy": free_flight["hard"]["flight_is_ballistic"],
                                                 "athlete_frames": [int(a), int(b)],
                                                 "verdict": "PASS" if (rep_gate["pass"] or raw_gate["pass"]) else "FAIL",
                                                 "world": dict(info, **diag), "athlete_frames": [a, b], "frames_in_clip": times["n_total"], "frames_unmeasured_in_segment": len(t) - len(ok)}, indent=1,
