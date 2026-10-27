@@ -22,6 +22,7 @@ export interface RunnerInput {
   squat: boolean; // bend the knees (read at touchdown)
   handL?: boolean; // Q: the left hand holds on (a bar)
   handR?: boolean; // E: the right hand holds on (a bar)
+  vault?: boolean; // V: go over the obstacle just ahead with a hand on top (keeps the speed)
 }
 
 export const NO_INPUT: RunnerInput = { run: false, jump: false, jumpSpeed: 0, squat: false };
