@@ -1,6 +1,6 @@
 import type { CourseData } from '../course/course';
 import { DEFAULT_PARAMS, NO_INPUT, startState, step } from './runner';
-import { groundAt, type Terrain } from './terrain';
+import { heightAt, groundAt, type Terrain } from './terrain';
 import { DEFAULT_WALL, runWall, type WallParams } from './wall';
 
 // What the Course asks of the player at each gap, found by trying the simulator: how wide it is and the least
@@ -29,7 +29,7 @@ export function gapSpecs(course: CourseData): GapSpec[] {
     const n = ps[i + 1];
     if (!n || n.x0 - p.x1 < 0.01 || p.bouncy) return;
     const width = n.x0 - p.x1;
-    const rise = n.top - p.top;
+    const rise = heightAt(n, n.x0) - heightAt(p, p.x1); // from where the feet leave to where they arrive
     out.push({ x: p.x1, width, rise, needed: minSpeedToCross(width, rise, course.jumpSpeed), name: `gap at ${p.x1} m` });
   });
   return out;

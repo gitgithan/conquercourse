@@ -12,7 +12,7 @@ export interface ParkObject {
   heightM?: number; // the real height in metres, typed by the maker of the course (beats every guess)
 }
 
-export type Kind = 'bench' | 'wall' | 'steps' | 'rail' | 'ledge' | 'platform' | 'person';
+export type Kind = 'bench' | 'wall' | 'steps' | 'rail' | 'ledge' | 'platform' | 'mound' | 'person';
 export type ScaleSource = 'body-height' | 'typical-size' | 'maker'; // 'maker': the person who drew the box typed the real height
 
 export interface Primitive {
@@ -37,13 +37,14 @@ export const TYPICAL: Record<Exclude<Kind, 'person'>, { height: number; length: 
   rail: { height: 1.0, length: 3, type: 'bar', roles: ['grab'] },
   ledge: { height: 0.5, length: 3, type: 'platform', roles: ['stand', 'grab'] },
   platform: { height: 0.5, length: 3, type: 'platform', roles: ['stand'] },
+  mound: { height: 0.7, length: 3, type: 'platform', roles: ['stand'] }, // anything with a rounded top: a hill, a dome, a curved wall
 };
 export const PERSON_HEIGHT = 1.75;
 const SYNONYMS: Record<string, Kind> = {
   bench: 'bench', wall: 'wall', 'low wall': 'wall', 'concrete block': 'wall', steps: 'steps', stairs: 'steps',
-  rail: 'rail', handrail: 'rail', ledge: 'ledge', platform: 'platform', box: 'platform', person: 'person',
+  rail: 'rail', handrail: 'rail', ledge: 'ledge', platform: 'platform', box: 'platform', mound: 'mound', hill: 'mound', dome: 'mound', person: 'person',
 };
-export const PHRASES = ['bench', 'wall', 'low wall', 'steps', 'rail', 'ledge', 'platform', 'person'];
+export const PHRASES = ['bench', 'wall', 'low wall', 'steps', 'rail', 'ledge', 'platform', 'mound', 'person'];
 export const kindOf = (phrase: string): Kind | null => SYNONYMS[phrase.trim().toLowerCase()] ?? null;
 
 const round = (v: number, d = 2) => Math.round(v * 10 ** d) / 10 ** d;
@@ -85,6 +86,11 @@ export function fitPrimitives(objects: ParkObject[]): Primitive[] {
   return out.sort((a, b) => a.x - b.x);
 }
 
+// A smooth hill from x0 to x1: level at both ends, highest in the middle (a cosine, so no sudden steps for the runner).
+export function bumpProfile(x0: number, x1: number, height: number, points = 17): [number, number][] {
+  return Array.from({ length: points }, (_, i) => { const u = i / (points - 1); return [round(x0 + (x1 - x0) * u), round(height * (0.5 - 0.5 * Math.cos(2 * Math.PI * u)))] as [number, number]; });
+}
+
 export const MAX_TOP = 0.9; // the tallest step-up the runner can make; a taller primitive is flattened to it
 export const PITCH = 7; // m from the start of one platform to the start of the next
 export const MIN_GAP = 1.5;
@@ -97,7 +103,8 @@ export function buildCourse(prims: Primitive[], name = 'Park Course', gapScale =
   for (const p of prims) {
     const len = clamp(p.length, 2.5, 6);
     const gap = clamp((PITCH - len) * gapScale, MIN_GAP, MAX_GAP);
-    platforms.push({ x0: round(x + gap), x1: round(x + gap + len), top: round(Math.min(p.height, MAX_TOP)), ...(photo && p.box ? { skin: { image: photo, crop: [...p.box] as [number, number, number, number] } } : {}) });
+    const px0 = round(x + gap), px1 = round(x + gap + len), ptop = round(Math.min(p.height, MAX_TOP));
+    platforms.push({ x0: px0, x1: px1, top: ptop, ...(p.kind === 'mound' ? { profile: bumpProfile(px0, px1, ptop) } : {}), ...(photo && p.box ? { skin: { image: photo, crop: [...p.box] as [number, number, number, number] } } : {}) });
     x += gap + len;
   }
   const gap = clamp((PITCH - 6) * gapScale + 1, MIN_GAP, MAX_GAP);

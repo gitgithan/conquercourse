@@ -1,5 +1,6 @@
 import type { CourseData } from './course';
 import { DEFAULT_WALL } from '../sim/wall';
+import { heightAt } from '../sim/terrain';
 
 // Where a point of the body is inside the world (a platform or the warped wall), and how far to move it out.
 // The Rookie's joints are pushed out of these so the body never sinks into a block or the curve.
@@ -15,10 +16,11 @@ export function makeObstacle(course: CourseData): Obstacle {
     let best: { dx: number; dy: number } | null = null;
     const take = (dx: number, dy: number) => { if (!best || Math.hypot(dx, dy) > Math.hypot(best.dx, best.dy)) best = { dx, dy }; };
     for (const p of platforms) {
-      if (x <= p.x0 - SIDE || x >= p.x1 + SIDE || y >= p.top - 0.01) continue;
-      const up = p.top - y + TOP, left = x - p.x0 + SIDE, right = p.x1 - x + SIDE;
+      const top = heightAt(p, Math.min(p.x1, Math.max(p.x0, x))); // the surface under this point (a curved top is not flat)
+      if (x <= p.x0 - SIDE || x >= p.x1 + SIDE || y >= top - 0.01) continue;
+      const up = top - y + TOP, left = x - p.x0 + SIDE, right = p.x1 - x + SIDE;
       // a point only a little under the top is lifted onto it (feet sunk into the floor); a deeper one goes out sideways (toes in a vertical face)
-      const lift = p.top - y < 0.2 ? up : up * 4;
+      const lift = top - y < 0.2 ? up : up * 4;
       const m = Math.min(lift, left, right);
       take(m === lift ? 0 : m === left ? -left : right, m === lift ? up : 0);
     }

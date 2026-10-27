@@ -82,8 +82,19 @@ function skid(s: RunnerState, p: RunnerParams): RunnerState {
 }
 
 // After moving on the ground: step up a small curb, stop at a tall block, or walk off an edge.
+const MAX_SLOPE = 1; // rise over run: a curved top steeper than 45 degrees cannot be run up
+
 function onGround(moved: RunnerState, before: RunnerState, p: RunnerParams, t: Terrain): RunnerState {
   const here = groundAt(t, moved.x);
+  if (platformAt(t, moved.x)?.profile || platformAt(t, before.x)?.profile) {
+    // on a curved top: too steep to run up means stopping where it becomes that steep (found by halving the step)
+    const climbs = (x: number) => groundAt(t, x) - before.y > MAX_SLOPE * Math.abs(x - before.x) + 1e-9;
+    if (climbs(moved.x)) {
+      let lo = before.x, hi = moved.x;
+      for (let i = 0; i < 30; i++) { const mid = (lo + hi) / 2; if (climbs(mid)) hi = mid; else lo = mid; }
+      return { ...moved, x: lo, y: before.y, vx: 0 };
+    }
+  }
   if (here > before.y + p.stepUp) {
     const block = platformAt(t, moved.x);
     if (!block) return { ...moved, x: before.x, vx: 0 };
@@ -111,6 +122,24 @@ function fly(s: RunnerState, input: RunnerInput, p: RunnerParams, t: Terrain): R
     return { ...s, x, vx, y, vy };
   }
   // Touchdown inside this step: find the exact moment so range doesn't depend on the step size.
+  const curved = platformAt(t, x)?.profile !== undefined || platformAt(t, s.x)?.profile !== undefined;
+  if (curved) {
+    // over a curved top the floor changes during the step: find the moment the path meets it by halving the time
+    let lo = 0, hi = DT;
+    for (let i = 0; i < 30; i++) {
+      const tm = (lo + hi) / 2;
+      const ym = s.y + s.vy * tm - 0.5 * p.gravity * tm * tm;
+      if (ym > groundAt(t, s.x + s.vx * tm)) lo = tm; else hi = tm;
+    }
+    const tHit = hi, landedAtX = s.x + s.vx * tHit, landY = groundAt(t, landedAtX);
+    const vyHit = s.vy - p.gravity * tHit;
+    const report = landing(Math.max(0, -vyHit), input.squat, p.landing);
+    return {
+      ...s, x: landedAtX, y: landY,
+      vx: report.stumbled && !platformAt(t, landedAtX)?.bouncy ? vx * p.landing.stumbleKeep : vx,
+      vy: 0, grounded: true, landedAtTick: s.tick - 1 + tHit / DT, landedAtX, landing: report,
+    };
+  }
   const disc = Math.sqrt(s.vy * s.vy + 2 * p.gravity * (s.y - floor));
   const tHit = (s.vy + disc) / p.gravity;
   const landedAtX = s.x + s.vx * tHit;
