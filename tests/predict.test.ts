@@ -28,3 +28,24 @@ describe('jump preview', () => {
     expect(predictJump(newWorld(course, 0), course).why.length).toBeGreaterThan(10);
   });
 });
+
+describe('release preview', () => {
+  it('says when letting go reaches the next bar or the ground, and not before the swing is big enough', async () => {
+    const { readFileSync } = await import('node:fs');
+    const { predictRelease } = await import('../src/sim/predict');
+    const { stepWorld } = await import('../src/sim/world');
+    const { searchIdealRun, inputFor } = await import('../src/sim/ideal');
+    const c = JSON.parse(readFileSync('public/assets/demo/lache.course.json', 'utf8')) as CourseData;
+    const plan = searchIdealRun(c).plan;
+    const st = { next: 0, caught: null as number | null, bedAt: null as number | null, hangAt: null as number | null, hangs: 0, vnext: 0 };
+    let w = newWorld(c, 0);
+    const verdicts: string[] = [];
+    for (let i = 0; i < 120 * 40 && w.outcome === 'running'; i++) {
+      w = stepWorld(w, inputFor(plan, w, st), c);
+      if (w.mode === 'hang' && i % 20 === 0) verdicts.push(predictRelease(w, c).result);
+    }
+    expect(verdicts.length).toBeGreaterThan(5);
+    expect(verdicts).toContain('lands'); // at some moment in the swing, letting go is right
+    expect(verdicts.some((v) => v !== 'lands')).toBe(true); // and at others it is not
+  });
+});
