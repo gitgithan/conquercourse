@@ -1,5 +1,6 @@
 import { EXPERIMENTS, GAP_WIDTH, classify, closeEnough, defaults, sweep, type Context, type Experiment, type Overlay, type Person, type Point, type Pose, type Trial } from '../sim/experiments';
 import { LESSONS } from './lessons';
+import { diagram } from './diagrams';
 
 // The Dojo: a guided lesson per obstacle. Why it matters, what to try, the shape of the relationship, a rule of
 // thumb, the exact formula (earned, last), and what it means on the Course. Formulas appear only here.
@@ -47,6 +48,7 @@ export function startDojo(host: HTMLElement): { backend: 'webgl2' } {
   let step = 0;
   let runs: Run[] = [];
   let lastGuess: number | null = null;
+  let diagramKind: 'real' | 'principle' = 'real';
 
   const el = <T extends HTMLElement>(tag: string, parent: HTMLElement, props: Partial<T> & { text?: string } = {}): T => {
     const e = document.createElement(tag) as T;
@@ -94,6 +96,23 @@ export function startDojo(host: HTMLElement): { backend: 'webgl2' } {
     const row = el('div', root, { className: 'row' });
     const canvas = el<HTMLCanvasElement>('canvas', row, { width: 760, height: 440 });
     const panel = el('div', row, { className: 'panel' });
+    if (step === 0) {
+      // step 1 uses the plot's space for a picture: the real obstacle with its forces, or the idea behind it
+      canvas.style.display = 'none';
+      const box = el('div', row, { id: 'diagram' });
+      row.insertBefore(box, panel);
+      box.style.cssText = 'display:grid;gap:8px;align-content:start';
+      const tg = el('div', box, { className: 'tabs' });
+      (['real', 'principle'] as const).forEach((k) => {
+        const b = el<HTMLButtonElement>('button', tg, { text: k === 'real' ? 'The real obstacle' : 'The idea' });
+        b.setAttribute('aria-pressed', String(diagramKind === k));
+        b.onclick = () => { diagramKind = k; render(); };
+      });
+      const svgBox = el('div', box);
+      svgBox.style.cssText = 'background:#fff;border:1px solid #cfd6d0;border-radius:10px;padding:6px';
+      svgBox.innerHTML = diagram(exp.id, diagramKind);
+      const svg = svgBox.querySelector('svg'); if (svg) { svg.setAttribute('width', '100%'); svg.removeAttribute('height'); (svg as SVGElement).style.height = 'auto'; }
+    }
     const L = LESSONS[exp.id];
     if (step === 0) {
       el('strong', panel, { text: `${exp.name}: why it matters` });
