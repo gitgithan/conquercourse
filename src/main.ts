@@ -1,5 +1,6 @@
 import { createStage } from './render/scene';
 import { startCourse } from './modes/course';
+import type { CourseData } from './course/course';
 import { startDojo } from './modes/dojo';
 import { initFeedback } from './ui/feedback';
 import { startPark } from './modes/park';
@@ -12,8 +13,14 @@ if (new URLSearchParams(location.search).get('demo') === 'rookie') {
   const { startActorDemo } = await import('./modes/demo-actor');
   await startActorDemo();
 } else {
+// ?course=/assets/demo/lane-1.course.json opens a course file from this site (a lane cut from a 3D scene, for example)
+async function courseFromUrl(): Promise<CourseData | undefined> {
+  const url = new URLSearchParams(location.search).get('course');
+  if (!url || !/^\/assets\/[\w./-]+\.json$/.test(url)) return undefined;
+  try { return (await (await fetch(url)).json()) as CourseData; } catch { return undefined; }
+}
 const mode = new URLSearchParams(location.search).get('mode') ?? 'course';
-const game = mode === 'diagrams' ? (await import('./modes/diagrams-page')).startDiagrams(document.body) : mode === 'rookie' ? await createStage(document.body) : mode === 'dojo' ? startDojo(document.body) : mode === 'park' ? startPark(document.body) : mode === 'gallery' ? (await import('./modes/gallery')).startGallery(document.body) : await startCourse(document.body);
+const game = mode === 'diagrams' ? (await import('./modes/diagrams-page')).startDiagrams(document.body) : mode === 'rookie' ? await createStage(document.body) : mode === 'dojo' ? startDojo(document.body) : mode === 'park' ? startPark(document.body) : mode === 'gallery' ? (await import('./modes/gallery')).startGallery(document.body) : await startCourse(document.body, await courseFromUrl());
 document.documentElement.dataset.backend = game.backend;
 document.documentElement.dataset.ready = 'true';
 }
