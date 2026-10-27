@@ -1,0 +1,17 @@
+{
+  "experiment": "cc-17-wall",
+  "model": "kimodo-soma-rp",
+  "kimodo_commit": "e1c219c99b4b94ba48be1fb6a1cbc64ecee4c954",
+  "steps": 100,
+  "seeds": [7, 8, 9, 10, 11, 12, 13, 14],
+  "gpu": "Modal L4",
+  "rounds": [
+    {"round": 1, "change": "none (the recipe: root path, hips pins, contact targets)", "model_load_s": 112.1, "container_s": 177.0, "gpu_minutes": 2.95, "best_seed": 11, "best_pass_lines": 2},
+    {"round": 2, "change": "constraint guidance 2.0 -> 6.0 (cfg_weight [2.0, 6.0])", "model_load_s": 67.7, "container_s": 131.3, "gpu_minutes": 2.19, "best_seed": 8, "best_pass_lines": 2}
+  ],
+  "gpu_minutes_total": 5.14,
+  "cost_usd_estimate": 0.07,
+  "cost_note": "list price $0.80 an hour for the container time of the two generate calls; queue time (about 20 minutes per round waiting for an L4) is not billed; the CPU dry run is not included; whether workspace credits cover it was not checked",
+  "budget": {"gpu_hours": 4, "usd": 3.2, "max_containers": 3, "used_containers_at_once": 1},
+  "outcome": "not shipped; stopped after round 2 by the written stop rule"
+}

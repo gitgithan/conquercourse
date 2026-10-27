@@ -98,6 +98,7 @@
 - **Check it worked:** hips within 3 cm of the simulator's path; contacts within 10 cm before IK; bone hits near zero; the gate.
 - **Measured:** about 5-20 s per generation once loaded (7 s with late projection); six grid clips in 34 s on one L4 (model load 7 s); collision spike: tic-tac 108 → 2-5 bones inside with contacts within 6 cm; kong vault 41 → 23 with hands 16-22 cm off (open).
 - **Rebuilt in this repo (CC-17):** `pipelines/kimodo_clips.py` (one L4; a list prompt with `num_samples` gives one motion, so loop the seeds yourself; the model's output has 77 joints, take the 30 by name with `get_skel_slice`); text-only wall run-up never passed (0 of 36), grab 0 of 12, leap 3 of 12 show a flight.
+- **Wall run-up and grab with the simulator's path and targets (CC-17, 2 rounds, 16 samples):** the run tracked within 5 cm but the hips ended 2.4 m low on the 4.3 m wall; nothing ships (`data/eval/cc-17-wall/README.md`).
 - **What failed and why:** targets can only nudge a pose the source already has (a rope grip with arms down never reached the grip, 155-161 cm off); the vault's hands remain the open problem.
 
 ## 4. Plausibility gate and repairs

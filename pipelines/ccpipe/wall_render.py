@@ -42,7 +42,7 @@ def candidate_gif(path, sample, baseline, targets, wall, label, max_frames=45):
         zc, yc = float(targets["sim_hips"][i][2]), float(targets["sim_hips"][i][1])
         view = (zc - 2.6, zc + 2.6, min(yc - 2.4, 0.0) if yc < 2.4 else yc - 2.4, (min(yc - 2.4, 0.0) if yc < 2.4 else yc - 2.4) + 7.0)
         both = Image.new("RGB", (2 * W, H))
-        both.paste(_frame(baseline, i, wall, targets, "text only", view), (0, 0))
+        both.paste(_frame(baseline, i, wall, targets, "text only (unmoved)", view), (0, 0))
         both.paste(_frame(sample, i, wall, targets, label, view), (W, 0))
         frames.append(both.resize((W * 3 // 2, H * 3 // 4)).quantize(colors=32))
     frames[0].save(path, save_all=True, append_images=frames[1:], duration=int(1000 * 2 / 30), loop=0, optimize=True)

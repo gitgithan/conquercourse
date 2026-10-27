@@ -100,7 +100,8 @@ def generate(targets: dict, seeds: list, cfg: dict):
         cons = build_constraints(skel, targets, moved, src_rot, cfg)
         cons = [c.to("cuda:0") for c in cons]
         seed_everything(seed)
-        res = model(prompt, T, num_denoising_steps=STEPS, num_samples=1, constraint_lst=cons, post_processing=True, return_numpy=True)
+        extra = {"cfg_weight": cfg["cfg_weight"]} if "cfg_weight" in cfg else {}
+        res = model(prompt, T, num_denoising_steps=STEPS, num_samples=1, constraint_lst=cons, post_processing=True, return_numpy=True, **extra)
         out["samples"].append({"seed": seed, "gen_s": round(time.time() - t1, 1),
                                "baseline": np.round(src_pos.numpy(), 4).tolist(),
                                "moved_source": np.round(moved.numpy(), 4).tolist(),
