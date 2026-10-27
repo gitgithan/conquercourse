@@ -19,7 +19,7 @@ try {
     await page.waitForTimeout(1000);
     const body = await page.textContent('body');
     const hint = body.includes('Keep holding Q or E');
-    if (hint && !sawHang) { sawHang = true; await page.screenshot({ path: 'test-results/lache/hang.png' }); }
+    if (hint && !sawHang) { sawHang = true; checks.frontViewShown = (await page.evaluate(() => getComputedStyle(document.getElementById('frontview')).display)) !== 'none'; await page.waitForTimeout(700); await page.screenshot({ path: 'test-results/lache/hang.png' }); }
     if (i % 6 === 0) await page.screenshot({ path: `test-results/lache/t${String(shot++).padStart(2, '0')}.png` });
     cleared = /You made it/.test(body);
   }
