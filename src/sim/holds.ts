@@ -52,7 +52,7 @@ export function tryGrab(holds: Hold[], x: number, y: number, vx: number, vy: num
 }
 
 // One step. pump is +1 (forward key), -1 (back key) or 0: pressing the way the body is already moving adds energy, pressing against it takes energy out.
-export function hangStep(s: Hang, pump: -1 | 0 | 1, p: HangParams = DEFAULT_HANG): Hang {
+export function hangStep(s: Hang, pump: number, p: HangParams = DEFAULT_HANG): Hang {
   const L = pendulumLength(p);
   const f = (th: number, w: number) => -(p.gravity / L) * Math.sin(th) + p.pump * pump - p.drag * w;
   const k1t = s.omega, k1w = f(s.theta, s.omega);

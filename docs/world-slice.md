@@ -224,3 +224,8 @@ The set of obstacle shapes is fixed, and each shape offers a fixed set of moves.
 - **`/?generate=7`** builds the course for seed 7 (a seed always gives the same one) and the Course menu has "Make me a new course (random)".
 - **The proved line travels with the course** (`course.plan`), so the drum lane and `&bot=ideal` need no search (a whole-course proof with a lache took about 38 s).
 - **Checked in the browser:** the bot clears seed 2 (step, gap, lache pair, warped wall) end to end (`QUERY='?generate=2' node scripts/lache-check.mjs`).
+
+## The swing lesson in the Dojo (CC-44)
+- **New tab "Swing on a bar"** (`/?mode=dojo&ex=bars`; the Course's Dojo button opens it from the lache zone): the answer is the time of one swing, which follows the square root of the swinging length (so the formula page has live sliders); two more sliders (push with or against the swing, how long) show the swing growing or fading, and the saying "Push with the swing and it grows; push against it and it fades." is earned there.
+- **Picture:** it borrows the rope's diagram until it has its own.
+- **Check:** `scripts/dojo-bars.mjs`.
