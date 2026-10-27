@@ -37,7 +37,7 @@ export function surfaceSamples(mesh: Mesh, perM2 = 600): Float32Array {
 
 export interface SliceOptions { angle: number; offset: number; level: number } // radians about the vertical rod, metres sideways, metres up
 
-export interface Profile { cells: (number | null)[]; length: number } // height above the level per 0.1 m along the run, null where there is no ground
+export interface Profile { cells: (number | null)[]; length: number; origin?: number } // origin: where cell 0 sits along the run in the editor's world, in metres // height above the level per 0.1 m along the run, null where there is no ground
 
 export function sliceProfile(samples: Float32Array, centre: { x: number; z: number }, o: SliceOptions): Profile {
   const dx = Math.cos(o.angle), dz = Math.sin(o.angle), nx = -dz, nz = dx;
@@ -54,7 +54,7 @@ export function sliceProfile(samples: Float32Array, centre: { x: number; z: numb
   if (lo > hi) return { cells: [], length: 0 };
   const cells: (number | null)[] = [];
   for (let u = lo; u <= hi; u++) cells.push(tops.get(u) ?? null);
-  return { cells, length: cells.length * CELL };
+  return { cells, length: cells.length * CELL, origin: lo * CELL };
 }
 
 // What a lane contains, and how interesting it is for a runner.
@@ -110,6 +110,8 @@ export function laneToCourse(profile: Profile, name = 'Slice'): CourseData {
     } else merged.push({ ...r });
   }
   const platforms: Platform[] = [{ x0: -10, x1: 6, top: 0 }];
+  const uMap: { u0: number; u1: number; x0: number }[] = []; // where each run of ground in the editor's world sits in the game (gaps are squeezed)
+  const origin = profile.origin ?? 0;
   let x = 6;
   merged.forEach((r, k) => {
     const gapM = k === 0 ? 3 : Math.min(5, (r.a - merged[k - 1].b - 1) * CELL);
@@ -121,11 +123,12 @@ export function laneToCourse(profile: Profile, name = 'Slice'): CourseData {
     const x1 = last[0];
     const top = Math.max(...pts.map((p) => p[1]));
     const flat = top - Math.min(...pts.map((p) => p[1])) < 0.02;
+    uMap.push({ u0: origin + r.a * CELL, u1: origin + (r.b + 1) * CELL, x0: round(x0) });
     platforms.push({ x0: round(x0), x1: round(x1), top: round(top), ...(flat ? {} : { profile: pts.map(([px, py]) => [round(px), round(py)] as [number, number]) }) });
     x = x1;
   });
   platforms.push({ x0: round(x + 3), x1: round(x + 11), top: 0 });
-  return { version: 1, name, startX: 0, finishX: round(x + 5), jumpSpeed: 4.5, terrain: { waterY: -1.5, platforms } };
+  return { version: 1, name, startX: 0, finishX: round(x + 5), jumpSpeed: 4.5, terrain: { waterY: -1.5, platforms }, uMap };
 }
 const round = (v: number) => Math.round(v * 100) / 100;
 

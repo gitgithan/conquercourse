@@ -1,4 +1,5 @@
 import * as THREE from 'three/webgpu';
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import courseJson from '../course/default-course.json';
 import type { CourseData } from '../course/course';
 import { NO_INPUT, type RunnerInput } from '../sim/runner';
@@ -70,7 +71,11 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
   const stone = new THREE.MeshStandardMaterial({ color: 0xb9b2a3 });
   const grass = new THREE.MeshStandardMaterial({ color: 0x7aa95c });
   const bed = new THREE.MeshStandardMaterial({ color: 0xd9453a });
-  for (const p of course.terrain.platforms) {
+  // a course from the editor draws its real objects instead of blocks: only the start and finish decks stay as ground
+  const realObjects = !!course.scene?.length;
+  const lastPlatform = course.terrain.platforms.length - 1;
+  course.terrain.platforms.forEach((p, pi) => {
+    if (realObjects && pi > 0 && pi < lastPlatform) return;
     const bottom = course.terrain.waterY - 2;
     const h = p.top - bottom;
     let geo: THREE.BufferGeometry = new THREE.BoxGeometry(p.x1 - p.x0, h, LANE_DEPTH);
@@ -89,6 +94,27 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
     m.position.set(...at);
     scene.add(m);
     if (p.skin) paintSkin(p);
+  });
+  if (course.scene) {
+    const gl = new GLTFLoader();
+    const matte = new THREE.MeshStandardMaterial({ color: 0xa9a392, roughness: 0.95, flatShading: true });
+    for (const it of course.scene) {
+      const g = new THREE.Group();
+      g.position.set(it.x, it.y, it.z); g.rotation.y = it.rotY; g.scale.setScalar(it.scale);
+      scene.add(g);
+      if (it.url) {
+        void gl.loadAsync(it.url).then((got) => {
+          const obj = got.scene, box = new THREE.Box3().setFromObject(obj), c = box.getCenter(new THREE.Vector3());
+          obj.position.set(-c.x, -box.min.y, -c.z);
+          g.add(obj);
+        }).catch(() => { /* no picture for this one; its collision still works */ });
+      } else if (it.mesh) {
+        const geo = new THREE.BufferGeometry();
+        geo.setAttribute('position', new THREE.Float32BufferAttribute(it.mesh.positions, 3));
+        geo.setIndex(it.mesh.indices); geo.computeVertexNormals();
+        g.add(new THREE.Mesh(geo, matte));
+      }
+    }
   }
   // a picture from a real photo painted on the front of an obstacle (looks only; the obstacle's collision is its box)
   function paintSkin(p: { x0: number; x1: number; top: number; skin?: { image: string; crop: [number, number, number, number] } }) {

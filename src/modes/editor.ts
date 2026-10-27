@@ -5,6 +5,9 @@ import { bestSlices, describe as describeLane, laneToCourse, sliceProfile, CELL,
 import { crop, duplicate, hits, newPiece, realSize, scaleBy, scaleToHeight, size, worldSamples, type Piece } from '../slice/world';
 import { searchIdealRun } from '../sim/ideal';
 import { createView3d } from '../slice/view3d';
+import { sceneFor } from '../slice/scene';
+import { adviseLane, type Advice } from '../slice/advice';
+import { applyEdits, parseReply, worldBrief, type Edit } from '../slice/designer';
 
 // The World editor (beta): build a world from pieces on a plan view, scale them (a toy brick becomes a block), turn, copy, crop and move them,
 // choose the lane the runner takes (turn about the rod, sideways, level), and play it. Everything is in metres.
@@ -23,7 +26,7 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
     .ed .planwrap{min-height:0;min-width:0;position:relative;background:#fff;border:1px solid #cfd6d0;border-radius:10px;overflow:hidden}
     .ed canvas{display:block;touch-action:none}
     .ed .profilewrap{background:#fff;border:1px solid #cfd6d0;border-radius:10px;overflow:hidden;min-width:0}
-    .ed .aside{display:grid;gap:8px;grid-template-rows:auto auto;align-content:start;min-height:0;overflow:hidden}
+    .ed .aside{padding-bottom:46px;display:grid;gap:8px;grid-template-rows:auto auto minmax(0,1fr);align-content:start;min-height:0;overflow:hidden}.ed .helper{min-height:0;grid-template-rows:auto auto minmax(0,1fr) auto;overflow:hidden}.ed .reply{overflow:auto;font-size:13px;min-height:0}.ed textarea{font:inherit;width:100%;box-sizing:border-box;border:1px solid #b9c2bb;border-radius:8px;padding:4px 6px;resize:none}
     .ed .panel{background:#fff;border:1px solid #cfd6d0;border-radius:10px;padding:8px;display:grid;gap:5px;align-content:start}
     .ed label{display:grid;gap:1px;font-size:13px}.ed .muted{color:#58635d;font-size:12px}.ed .ok{border-left:4px solid #0f6b5c;padding:3px 6px;background:#f3f7f4;font-weight:600;font-size:13px}.ed .bad{border-left:4px solid #c0392b;padding:3px 6px;background:#fbeeee;font-weight:600;font-size:13px}
     .ed .row{display:flex;flex-wrap:wrap;gap:5px;align-items:center}.ed input[type=range]{width:100%;margin:0}.ed input[type=number]{width:100%;box-sizing:border-box}
@@ -128,6 +131,52 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
   const aside = el('div', root, { className: 'aside' });
   const side = el('div', aside, { className: 'panel', id: 'panel' });
   const lanePanel = el('div', aside, { className: 'panel' });
+  // ---- helpers: what to shift when the lane cannot be cleared, and a design partner (Muse Spark Open) to talk it through
+  const helper = el('div', aside, { className: 'panel helper', id: 'helper' });
+  el('strong', helper, { text: 'Design partner' });
+  const adviceBox = el('div', helper, { id: 'advice' });
+  const reply = el('div', helper, { className: 'reply muted', id: 'reply', text: 'Ask for a change, or press "What should I change?".' });
+  const askRow = el('div', helper, { className: 'row' });
+  const ask = el('textarea', askRow, { id: 'ask', rows: 2, placeholder: 'e.g. make the gap easier, or a harder second half' });
+  const sendBtn = el('button', askRow, { text: 'Ask', id: 'send', className: 'go' });
+  const whatBtn = el('button', askRow, { text: 'What should I change?', id: 'what' });
+  let adviceList: Advice[] = [];
+  let pendingEdits: Edit[] = [];
+  const chat: { role: 'user' | 'assistant'; content: string }[] = [];
+  function applyAdvice(a: Advice) {
+    const p = pieces.find((q) => q.id === a.piece);
+    const c = a.change;
+    if (p) { p.x += c.dx ?? 0; p.z += c.dz ?? 0; p.y = Math.max(0, p.y + (c.dy ?? 0)); if (c.scale !== undefined) p.scale = c.scale; if (c.yaw !== undefined) p.yaw += c.yaw; }
+    if (c.angle !== undefined) angle = c.angle;
+    if (c.offset !== undefined) offset = c.offset;
+    if (c.level !== undefined) level = c.level;
+    changed();
+  }
+  function showAdvice() {
+    adviceBox.textContent = '';
+    for (const a of adviceList) {
+      const row = el('div', adviceBox, { className: 'row' });
+      el('span', row, { text: a.text });
+      el('button', row, { text: 'Do it', className: 'go' }).onclick = () => applyAdvice(a);
+    }
+  }
+  async function askPartner(text: string) {
+    chat.push({ role: 'user', content: text });
+    reply.className = 'reply'; reply.textContent = 'Thinking…'; sendBtn.disabled = whatBtn.disabled = true;
+    try {
+      const r = await fetch('/api/designer', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ messages: chat.slice(-6), world: worldBrief(pieces, { angle, offset, level }, verdict, adviceList.map((a) => a.text)) }) });
+      if (r.status === 503) { reply.className = 'reply muted'; reply.textContent = 'The design partner is switched off on this site (no key set).'; return; }
+      if (!r.ok) throw new Error(String(r.status));
+      const got = parseReply(((await r.json()) as { reply: string }).reply, pieces.map((q) => q.id));
+      chat.push({ role: 'assistant', content: got.text });
+      reply.textContent = got.text; pendingEdits = got.edits;
+      if (got.edits.length) el('button', reply, { text: `Do these ${got.edits.length} change${got.edits.length > 1 ? 's' : ''}`, className: 'go', id: 'applyedits' }).onclick = () => { applyEdits(pieces, pendingEdits); pendingEdits = []; changed(); };
+    } catch { reply.className = 'reply bad'; reply.textContent = 'The design partner could not answer. Try again.'; }
+    finally { sendBtn.disabled = whatBtn.disabled = false; }
+  }
+  sendBtn.onclick = () => { const t = ask.value.trim(); if (t) { ask.value = ''; void askPartner(t); } };
+  whatBtn.onclick = () => void askPartner(verdict.startsWith('The simulator can') ? 'The lane clears. Suggest one change that makes it more interesting to run.' : 'The lane does not clear. What should I change?');
+
   // the two pictures fill their boxes exactly, so nothing ever scrolls
   const fit = () => {
     plan.width = Math.max(200, planWrap.clientWidth); plan.height = Math.max(120, planWrap.clientHeight);
@@ -190,6 +239,8 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
     play.onclick = () => {
       const course = laneToCourse(currentProfile(), 'My world');
       if (!searchIdealRun(course).cleared) { verdict = 'The simulator cannot find a way to clear this lane: widen a gap or lower a step.'; drawLanePanel(); return; }
+      // the real objects are drawn in the game instead of blocks (a cropped photo object is drawn whole; its collision is still the cropped lane)
+      course.scene = sceneFor(pieces, { angle, offset, level }, course.uMap ?? []);
       root.remove(); style.remove();
       void startCourse(document.body, course);
     };
@@ -198,7 +249,7 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
   }
 
   const currentProfile = () => sliceProfile(worldSamples(pieces), { x: 0, z: 0 }, { angle, offset, level });
-  let verifyTimer = 0;
+  let verifyTimer = 0, adviceRun = 0;
   function verify() {
     clearTimeout(verifyTimer);
     verifyTimer = window.setTimeout(() => {
@@ -208,6 +259,12 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
       const v = lanePanel.querySelector('#verdict') as HTMLElement | null;
       if (v) { v.textContent = verdict; v.className = verdict.startsWith('The simulator can') ? 'ok' : 'bad'; }
       document.documentElement.dataset.verdict = verdict;
+      // when it cannot be cleared, say what to shift (each suggestion was proved by the simulator)
+      adviceList = []; showAdvice();
+      if (!verdict.startsWith('The simulator can') && p.length >= 8) {
+        const mine = ++adviceRun;
+        setTimeout(() => { if (mine !== adviceRun) return; adviceList = adviseLane(pieces, { angle, offset, level }); showAdvice(); if (!adviceList.length) adviceBox.textContent = 'No single small shift clears it. Press "What should I change?" to think it through together.'; document.documentElement.dataset.advice = String(adviceList.length); }, 30);
+      } else document.documentElement.dataset.advice = '0';
     }, 350);
   }
 
