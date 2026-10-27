@@ -24,6 +24,9 @@
   - It has no idea obstacles exist: push its prediction out of obstacle boxes on the last 15 % of denoising steps and read the result from positions; then snap contacts with two-bone IK.
   - Build its constraint objects on the CPU and move them to the GPU with `.to()`.
 - **Blind tests decide, not opinions:** in a blind A/B test the product owner chose Kimodo's leaps over real motion capture three times out of three ("mocap jumps look weak").
+- **Decision (product owner, 2026-10-27): the game keeps motion capture for the Rookie for now.**
+  - The run, leap, land, hang and swing clips are CMU motion capture, composed and blended to follow the simulator (the clip's progress follows the real flight, the body follows the arc, clips blend over 0.1 s, the hands reach the real ledge, the body gets ready before an obstacle).
+  - Kimodo is reconsidered only when a move looks ugly and composing or blending clips cannot fix it; the Kimodo leap (`kimodo_leap.json`) stays in the repo, unused, for that day.
 - **Kimodo cannot follow a hips path that rises more than about 2.5 m (CC-17 wall, 2026-10-27).**
   - Given the simulator's path and contact targets it tracked the run to within 5 cm but ended 2.4 m too low on a 4.3 m wall, in all 8 seeds; stronger constraint guidance made it worse.
   - So split a tall move into pieces that each stay inside that range, or track it with physics.
