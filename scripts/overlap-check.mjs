@@ -14,7 +14,7 @@ try {
   await page.waitForFunction(() => document.documentElement.dataset.outcome === 'cleared', null, { timeout: 400000, polling: 100 });
   const pen = Number(await page.evaluate(() => document.documentElement.dataset.maxPen));
   console.log('where:', await page.evaluate(() => document.documentElement.dataset.maxPenWhere));
-  console.log('deepest overlap (m, includes the 0.08 m skin margin):', pen, 'errors:', errors);
+  console.log('deepest overlap (m, measured against the surface itself, no margin):', pen, 'errors:', errors);
   await browser.close();
   process.exit(pen < 0.2 && !errors.length ? 0 : 1);
 } finally { server.kill(); }

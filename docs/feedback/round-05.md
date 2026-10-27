@@ -58,3 +58,11 @@
   - Cause 2: during the climb over the edge the simulator's feet are in the corner of the deck block.
   - Fix: the body now tilts back toward the curve's centre where the curve is steep, every body point is pushed out of platforms and the curve (`src/course/collide.ts`), and the whole body is moved out of a corner, eased so it does not jump.
   - Measured with the ideal bot (`scripts/overlap-check.mjs`): the deepest overlap is 0.135 m including an 0.08 m skin margin, so about 5 cm of real sink-in, at a toe; it was 0.51 m.
+- R5-G11: the arm raise on the wall came only after the legs were up.
+  - Cause: the climb ran the running clip, then switched to a "reach" clip (hop and reach, legs included) for the last quarter.
+  - Fix: the legs keep the running clip the whole way and the arms of the reach clip are blended in from 30 % to 80 % of the climb, hung from the running body's shoulders.
+- R5-G12: the body seemed to vanish into the deck at the top of the wall.
+  - Cause: the blocks were 5 m thick across the screen and the camera sits ahead of the runner, so the block's front face hid the runner next to it; the push-out already kept the body outside.
+  - Fix: blocks and the wall are 2 m thick; the push-out keeps 16 cm of body thickness from walls (3 cm for the feet).
+  - Measured (`scripts/overlap-check.mjs`): the deepest sink-in is 0.11 m, a thumb on the top edge of the wall.
+- Tools: `?startx=45` starts the Course at a place and `?timescale=0.05` slows the game, so stills can be taken (`scripts/wall-shots.mjs`).
