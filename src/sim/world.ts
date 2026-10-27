@@ -21,7 +21,7 @@ export interface WorldState {
   runner: RunnerState;
   mode: Mode;
   outcome: Outcome;
-  wall: { result: WallResult; index: number; x0: number } | null;
+  wall: { result: WallResult; path: { x: number; y: number }[]; index: number; x0: number } | null;
   swing: Swing | null;
   bed: { base: Bounce; vIn: number; start: number; press: number | null; vx: number; top: number } | null;
   noCatchUntil: number;
@@ -71,7 +71,7 @@ export function stepWorld(w: WorldState, input: RunnerInput, course: CourseData,
     const wp = wallParams(course);
     const result = runWall(r.vx, wp);
     n.mode = 'wall';
-    n.wall = { result, index: 0, x0: course.wall.x0 };
+    n.wall = { result, path: wallPath(result, course.wall.x0, wp.height), index: 0, x0: course.wall.x0 };
   }
 
   // the rope: airborne hands meet it
@@ -90,17 +90,36 @@ export function stepWorld(w: WorldState, input: RunnerInput, course: CourseData,
   return n;
 }
 
+// After the hands reach the top the runner pulls up and over: a smooth hand-over from the grab point to the deck,
+// so nothing ever jumps (no teleport). Positions are feet positions.
+export const MANTLE_RUN = 0.4;
+const MANTLE_TICKS = 72;
+export function wallPath(result: WallResult, x0: number, height: number): { x: number; y: number }[] {
+  if (!result.grabbed) return result.path;
+  const up = result.path.slice(0, result.grabTick! + 1);
+  const from = up[up.length - 1];
+  const to = { x: height + MANTLE_RUN, y: height };
+  const out = [...up];
+  for (let i = 1; i <= MANTLE_TICKS; i++) {
+    const t = i / MANTLE_TICKS;
+    const e = t * t * (3 - 2 * t); // smoothstep: slow start and end
+    out.push({ x: from.x + (to.x - from.x) * e, y: from.y + (to.y - from.y) * e });
+  }
+  void x0;
+  return out;
+}
+
 function stepWall(w: WorldState, course: CourseData): WorldState {
   const wl = w.wall!;
-  const path = wl.result.path;
+  const path = wl.path;
   const i = wl.index;
   const tick = w.runner.tick + 1;
   const events: GameEvent[] = [];
-  if (i >= path.length - 1 || (wl.result.grabbed && i >= wl.result.grabTick!)) {
+  if (i >= path.length - 1) {
     const wp = wallParams(course);
     if (wl.result.grabbed) {
       events.push({ tick, type: 'wall-grab', detail: { margin: wl.result.margin } });
-      const x = wl.x0 + wp.height + 0.4;
+      const x = wl.x0 + wp.height + MANTLE_RUN;
       return { ...w, mode: 'run', wall: null, events, runner: { ...w.runner, tick, x, y: wp.height, vx: 0, vy: 0, grounded: true } };
     }
     events.push({ tick, type: 'wall-slide', detail: { margin: wl.result.margin, exit: wl.result.exitSpeed } });

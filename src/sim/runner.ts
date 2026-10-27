@@ -12,7 +12,7 @@ export interface RunnerParams {
   stepUp: number; // m, the tallest curb the runner steps onto without jumping
 }
 
-export const DEFAULT_PARAMS: RunnerParams = { topSpeed: 8, acceleration: 6, grip: 0.8, gravity: GRAVITY, landing: DEFAULT_LANDING, stepUp: 0.3 };
+export const DEFAULT_PARAMS: RunnerParams = { topSpeed: 9, acceleration: 10, grip: 0.8, gravity: GRAVITY, landing: DEFAULT_LANDING, stepUp: 0.3 };
 
 export interface RunnerInput {
   run: boolean; // sprint toward top speed
