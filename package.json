@@ -9,6 +9,7 @@
     "typecheck": "tsc --noEmit",
     "test:quick": "vitest run",
     "test:smoke": "node scripts/smoke.mjs",
+    "test:park": "node scripts/park-test.mjs",
     "format:json": "node scripts/format-json.mjs",
     "ideal": "tsx scripts/ideal-run.ts"
   },
