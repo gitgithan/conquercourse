@@ -28,6 +28,7 @@ export interface CourseGame {
   restart: () => void;
 }
 
+interface Resume { course: CourseData; world: WorldState | null; retryX: number; facing: 1 | -1; falls: number }
 const MESSAGES: Record<string, string> = {
   splash: 'Splash! You fell in the water. Press R to try again.',
   cleared: 'You made it! Press R to run it again.',
@@ -35,6 +36,14 @@ const MESSAGES: Record<string, string> = {
 
 export async function startCourse(host: HTMLElement, course: CourseData = defaultCourse): Promise<CourseGame> {
   const params = new URLSearchParams(location.search);
+  // Coming back from the Dojo: the Course is put back exactly as it was (same course, same place), not started again.
+  let resume: Resume | null = null;
+  try {
+    const raw = sessionStorage.getItem('cc.resume');
+    sessionStorage.removeItem('cc.resume');
+    if (raw && !params.get('mode')) resume = JSON.parse(raw) as Resume;
+  } catch { /* start fresh */ }
+  if (resume) course = resume.course;
   const renderer = new THREE.WebGPURenderer({ antialias: true, forceWebGL: params.get('backend') === 'webgl2' });
   await renderer.init();
   renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
@@ -110,7 +119,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
     } catch (e) { console.warn('Rookie not loaded, using the capsule', e); }
   }
   await loadRookie(choice);
-  let facing: 1 | -1 = 1;
+  let facing: 1 | -1 = resume ? resume.facing : 1;
 
   // HUD
   const hud = document.createElement('div');
@@ -258,6 +267,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
   };
   addEventListener('keydown', (e) => {
     if (typing(e)) { keys.clear(); jumpQueued = false; return; }
+    if (paused && !e.repeat) { paused = false; last = performance.now(); }
     if (e.repeat) return;
     keys.add(e.code);
     if (e.code === 'Space') { jumpQueued = true; e.preventDefault(); }
@@ -282,7 +292,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
   if (params.get('bot') === 'ideal') plan = searchIdealRun(startAt === undefined ? course : { ...course, startX: startAt }).plan;
 
   const botMode = params.get('bot') === 'ideal';
-  let retryX = course.startX; // "try this obstacle again" starts standing still just before it
+  let retryX = resume ? resume.retryX : course.startX; // "try this obstacle again" starts standing still just before it
   let demo: { x1: number } | null = null;
   const idealCache = new Map<number, Plan>();
   const cpFor = (zoneId: string) => course.checkpoints?.find((c) => c.id === zoneId)?.x ?? course.startX;
@@ -295,11 +305,12 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
   let prevMode: string = 'run', prevVx = 0;
   let lastZone = 'gap';
 
-  let world = newWorld(course, startAt);
+  let world = resume?.world ?? newWorld(course, resume ? resume.retryX : startAt);
+  let paused = !!resume?.world; // a run that was in progress waits for a key, so the player is not dropped into the middle of a jump
   const log: GameEvent[] = [];
   const frames: { x: number; y: number }[] = [];
   let replay: { i: number; from: number; to: number } | null = null; // i is a float: the replay runs at half speed
-  let falls = 0;
+  let falls = resume ? resume.falls : 0;
   let everCleared = false;
   try { everCleared = localStorage.getItem('cc.course.cleared') === '1'; } catch { /* keep going */ }
   let windows: ReturnType<typeof searchIdealRun>['windows'] | null = null;
@@ -321,8 +332,12 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
   }
 
   // The Dojo is reachable any time: it opens on the obstacle nearest the runner (R2-G4).
+  function saveResume() {
+    try { sessionStorage.setItem('cc.resume', JSON.stringify({ course, world: world.outcome === 'running' ? world : null, retryX, facing, falls } satisfies Resume)); } catch { /* the Course starts again */ }
+  }
   function openDojo() {
     track('dojo_opens');
+    saveResume();
     const x = world.runner.x;
     const z = zoneAt(x)?.id ?? 'gap';
     location.search = trainLink(z, x);
@@ -471,7 +486,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
       diagBox.style.display = 'block';
     });
     mk('Show me the ideal run (I)', () => showIdeal(lastZone));
-    if (train) mk(`Train the ${zone?.name ?? 'obstacle'}`, () => { location.search = trainLink(zone?.id ?? 'gap', r.x); });
+    if (train) mk(`Train the ${zone?.name ?? 'obstacle'}`, () => { saveResume(); location.search = trainLink(zone?.id ?? 'gap', r.x); });
     panel.append(h, t, row);
     retry.focus();
   }
@@ -525,7 +540,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
   dom.style.cursor = 'grab';
   const timeScale = Number(params.get('timescale') ?? 1); // ?timescale=0.1 runs the game at a tenth of its speed (for stills)
   function frame(now: number) {
-    acc = Math.min(acc + ((now - last) / 1000) * timeScale, 0.25);
+    acc = paused ? 0 : Math.min(acc + ((now - last) / 1000) * timeScale, 0.25);
     last = now;
     while (acc >= DT) {
       acc -= DT;
@@ -586,7 +601,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
       ropeMesh.position.set(course.rope.anchorX + (ropeLen / 2) * Math.sin(th), course.rope.anchorY - (ropeLen / 2) * Math.cos(th), 0);
       ropeMesh.updateMatrix(); ropeMesh.updateMatrixWorld(true);
     }
-    msg.textContent = world.outcome === 'cleared' ? MESSAGES.cleared : '';
+    msg.textContent = paused ? 'Back from the Dojo. Press any key to carry on.' : world.outcome === 'cleared' ? MESSAGES.cleared : '';
     const spd = Math.abs(r.vx);
     gText.textContent = `Speed ${spd.toFixed(1)} m/s`;
     gFill.style.width = `${Math.min(100, (spd / GAUGE_MAX) * 100)}%`;
