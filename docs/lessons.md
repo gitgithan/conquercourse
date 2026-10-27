@@ -49,7 +49,8 @@
 - **The run log is the single source** for ghosts, the data table, the replay timeline, teacher review and any AI input: one record, many views, never a second copy.
 - **Spike the riskiest model call on day 1** (SAM 3.1 on park photos, Muse Spark latency) and cut what isn't integral after the first playtest.
 - **When an experiment fails, ask whether knowledge or tools were missing.**
-  - Why: we tried to generate a wall run-up from text prompts alone and 0 of 36 samples worked. We already knew the fix ("contacts need targets, not more words"); what was missing was the tools that supply the targets: a physics path for the body to follow and measured motion from real footage.
+  - Why: we tried to generate a wall run-up from text prompts alone and 0 of 36 samples worked.
+    - We already knew the fix ("contacts need targets, not more words"); what was missing was the tools that supply the targets: a physics path for the body to follow and measured motion from real footage.
   - Rule: before an experiment, list the inputs it needs and check that each exists; if one doesn't, build it first or run the experiment in its strongest form.
   - A weakened experiment that fails is "not tested", not "failed"; report it that way so nobody drops a good idea.
   - Good plan order: the physics engine and measurement tools first, then the experiments that depend on them.

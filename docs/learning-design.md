@@ -44,7 +44,8 @@
 | **Ratios instead of arithmetic** | Pick two runs: "×2 → ×4" | Offloads the division so the player thinks in proportions | Dojo |
 | **One nudge after a miss** | The one knob that matters, as buttons, in words | A racer gets what to change without a table | Course |
 - **Ghosts stay silhouettes:** their job is where and when, not looks; it keeps up to six cheap on school laptops and the player's own character the clear focus.
-- **The run log is the single source** for ghosts, the timeline, graphs, the teacher's review and any AI summary: knob values, sampled states at the simulator's rate, derived measures (peak, airtime, distance, landing speed and force) and events (predictions, outcomes, skips). One format to test, one to share.
+- **The run log is the single source** for ghosts, the timeline, graphs, the teacher's review and any AI summary: knob values, sampled states at the simulator's rate, derived measures (peak, airtime, distance, landing speed and force) and events (predictions, outcomes, skips).
+  - One format to test, one to share.
 
 ## The concept ladder and the course story
 - **Relationships in words (what players learn to say):** no effect · goes up steadily · goes up faster and faster · goes up but slows down · goes down · swings back and forth · shrinks by halves; each has a graph shape players learn to recognise.
