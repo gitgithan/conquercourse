@@ -27,12 +27,14 @@
 - **Boring lanes in tall, regular places:** Barcelona's best lane is nearly flat (score 3.5); the streets between blocks are cut by the scoring, not drawn as ground.
 - **No ground between buildings:** only roofs are ground, so streets are water; a gap needing too much speed is skipped.
 - **Heights are guesses for many buildings:** Sydney had only 18 of 44 with a height tag.
-- **Terrain:** worked (Terrarium z15, a 20 m grid sampled at each building's middle, 38.5 m of relief in Montmartre), but it only lifts each building base; the slope between is not ground, so a stair is not a stair yet. At 3 to 5 m per pixel it cannot see steps.
+- **Terrain:** worked (Terrarium z15, a 20 m grid sampled at each building's middle, 38.5 m of relief in Montmartre), but it only lifts each building base; the slope between is not ground, so a stair is not a stair yet.
+  - At 3 to 5 m per pixel it cannot see steps.
 - **Mesh quirks:** courtyards in multipolygon buildings are ignored; a few walls render black (ring direction on some relation parts).
 - **Overpass:** the main server answered 502 or timed out on several first tries; the script retries with backoff over three mirrors (a polite one-query-per-place cache avoids repeat load).
 - **Speed:** the search on 150k to 500k points took 10 to 42 s per place at 80 points per m²; the first run at the default density was much slower.
 
 ## Sources and credit
 - Buildings: © OpenStreetMap contributors, ODbL 1.0 (https://www.openstreetmap.org/copyright).
-- Ground: AWS Terrain Tiles (Terrarium), built from open elevation data (NASADEM, 3DEP, and others; see https://github.com/tilezen/joerd/blob/master/docs/attribution.md). Used for Montmartre only.
+- Ground: AWS Terrain Tiles (Terrarium), built from open elevation data (NASADEM, 3DEP, and others; see https://github.com/tilezen/joerd/blob/master/docs/attribution.md).
+  - Used for Montmartre only.
 - Rows in `docs/ASSETS.md`.
