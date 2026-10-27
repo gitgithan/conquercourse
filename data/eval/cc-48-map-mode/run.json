@@ -1,0 +1,16 @@
+{
+  "checks": {
+    "mapCanvas": true,
+    "tilesStyleLoaded": true,
+    "attribution": true,
+    "pinDropped": true,
+    "landedInEditor": true,
+    "pieceInEditor": true,
+    "keyRemoved": true,
+    "notSaved": true
+  },
+  "notes": [
+    "Overpass did not answer in time; used the saved answer"
+  ],
+  "pass": true
+}
