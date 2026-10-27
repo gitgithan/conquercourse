@@ -41,7 +41,7 @@ def test_experiment_clips_stay_out_of_the_motion_folder():
 
 
 # Starter moves still without a shipped clip (CC-17: Kimodo's text-only wall run-up never passed the fixed line, see
-# data/eval/starter-clips/README.md). the move is reported as xfail; when one ships, test_open_moves_really_are_open fails until it is removed here.
+# data/eval/starter-clips/README.md; CC-17 round 2 with the simulator's path and contact targets also failed, see data/eval/cc-17-wall/README.md). the move is reported as xfail; when one ships, test_open_moves_really_are_open fails until it is removed here.
 OPEN_MOVES = {"wall_runup_grab"}
 
 
