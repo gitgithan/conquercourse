@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "name": "Generated course: step, gap, lache, wall",
+  "name": "Generated course 2",
   "startX": 0,
   "finishX": 182.56,
   "jumpSpeed": 4.5,
@@ -97,5 +97,20 @@
       "id": "wall-4",
       "x": 166.56
     }
-  ]
+  ],
+  "plan": {
+    "jumpXs": [
+      80.48,
+      124.4
+    ],
+    "releaseAfter": 60,
+    "bouncePress": 8,
+    "vaultXs": [
+      35.1
+    ],
+    "hangTicks": [
+      342
+    ],
+    "hands": true
+  }
 }

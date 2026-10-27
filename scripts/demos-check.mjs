@@ -16,7 +16,8 @@ try {
   const options = await page.$$eval('#democourses option', (os) => os.map((o) => [o.value, o.textContent]));
   const checks = {};
   for (const [v, label] of options) {
-    if (v === 'editor') continue;
+    if (v === 'editor' || v === 'generate-same') continue;
+    if (v === 'generate') { await page.goto(`http://localhost:${port}/?generate=2`); await page.waitForSelector('#democourses', { timeout: 120000 }); await page.waitForFunction(() => document.documentElement.dataset.tick !== undefined, null, { timeout: 120000 }); await page.waitForTimeout(1200); checks[label] = /m of/.test(await page.textContent('body')); await page.screenshot({ path: 'test-results/demos/generated.png' }); continue; }
     await page.goto(`http://localhost:${port}/${v ? `?course=${v}` : ''}`);
     await page.waitForSelector('#democourses', { timeout: 60000 });
     await page.waitForFunction(() => document.documentElement.dataset.tick !== undefined, null, { timeout: 60000 });

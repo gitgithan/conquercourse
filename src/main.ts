@@ -15,6 +15,9 @@ if (new URLSearchParams(location.search).get('demo') === 'rookie') {
 } else {
 // ?course=/assets/demo/lane-1.course.json opens a course file from this site (a lane cut from a 3D scene, for example)
 async function courseFromUrl(): Promise<CourseData | undefined> {
+  // ?generate=7 makes a course from seed 7 (a seed always gives the same course), every move proved clearable by the simulator
+  const seed = new URLSearchParams(location.search).get('generate');
+  if (seed !== null && /^\d{1,9}$/.test(seed)) { const { generateCourse } = await import('./slice/generator'); return generateCourse(Number(seed)); }
   const url = new URLSearchParams(location.search).get('course');
   if (!url || !/^\/assets\/[\w./-]+\.json$/.test(url)) return undefined;
   try { return (await (await fetch(url)).json()) as CourseData; } catch { return undefined; }

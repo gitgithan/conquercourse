@@ -131,7 +131,9 @@ export function generateDetailed(seed: number, opts: GenOptions = {}): Generated
     if (!plan.vaultXs!.length) delete plan.vaultXs;
     if (!plan.hangTicks!.length) delete plan.hangTicks;
     const run = playPlan(a.course, plan, 120 * 60);
-    return { course: a.course, moves: a.moves, cleared: run.world.outcome === 'cleared' };
+    const cleared = run.world.outcome === 'cleared';
+    if (cleared) a.course.plan = plan; // the proved line travels with the course (drums and the bot use it without searching again)
+    return { course: a.course, moves: a.moves, cleared };
   };
   // shrink every move a little until the whole course clears, then drop moves from the end; a single move that will not clear alone is dropped
   let idx = kinds.map((_, i) => i);

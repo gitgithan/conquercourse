@@ -11,11 +11,11 @@ try {
   const page = await browser.newPage({ viewport: { width: 1280, height: 720 } });
   const errors = []; page.on('pageerror', (e) => { errors.push(e.message); console.log('PAGEERROR', e.message.slice(0, 200)); });
   mkdirSync('test-results/lache', { recursive: true });
-  await page.goto(`http://localhost:${port}/?course=/assets/demo/lache.course.json&bot=ideal&debug=1`);
+  await page.goto(`http://localhost:${port}/${process.env.QUERY ?? '?course=/assets/demo/lache.course.json'}&bot=ideal&debug=1`);
   await page.waitForSelector('#debugbtn', { timeout: 60000 });
   const checks = {};
   let shot = 0, sawHang = false, cleared = false;
-  for (let i = 0; i < 120 && !cleared; i++) {
+  for (let i = 0; i < Number(process.env.SECONDS ?? 120) && !cleared; i++) {
     await page.waitForTimeout(1000);
     const body = await page.textContent('body');
     const hint = /Push [→←] with the swing/.test(body);
