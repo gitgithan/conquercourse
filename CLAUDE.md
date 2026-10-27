@@ -25,7 +25,12 @@ A ninja-warrior physics game where real parks and real moves become the course, 
   - Also set the blocked-by relations in Linear so the product owner can travel both ways.
 - **Every issue also has a "Definition of Done"** (a checklist, ticked as it is met) **and "How we judge quality"** (the tests, measurements, side-by-side or by-eye checks, and any known gap); an issue closes only when every box is ticked.
 - **Issue first:** create the issue (one testable outcome, about half a day) before writing code; its first line says which player, lesson or demo beat it serves.
-- **Commits:** one logical change per commit, one issue per commit; every message carries a magic word: "Part of CC-12" for partial work, "Fixes CC-12" only on the commit that finishes it (we push to `main`, so "Fixes" closes the issue at once).
+- **Commits:** one logical change per commit, one issue per commit; every message carries a magic word: "Part of CC-12" for partial work, "Fixes CC-12" only on the commit that finishes it.
+- **Ship through a pull request:**
+  - Linear's GitHub app only reacts to pull requests, not to commits pushed straight to `main` (tested 2026-10-27).
+  - Work on a branch named `hanqi91/cc-12-short-name`.
+  - Run `scripts/ship.sh CC-12 --part` (or `--fixes` on the finishing change); it tests, rebases, opens the pull request with the magic word, and rebase-merges it.
+  - Linear then links the pull request and moves or closes the issue by itself; never close issues by hand.
 - **Findings:** a one-line Linear comment plus the details in the repo (the relevant doc or `data/eval/<experiment>/README.md`).
 
 ## How work is done
