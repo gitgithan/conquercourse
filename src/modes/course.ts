@@ -217,6 +217,10 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
       strip.appendChild(d);
     });
   }
+  const comm = document.createElement('a');
+  comm.href = '?mode=gallery'; comm.id = 'community'; comm.textContent = 'Community courses';
+  comm.style.cssText = 'position:fixed;right:16px;top:124px;font:600 13px system-ui,sans-serif;border:1px solid #17201d;background:#fff;color:#17201d;border-radius:8px;padding:4px 10px;text-decoration:none';
+  document.body.append(comm);
   document.body.append(sstyle, strip);
   document.body.append(hud, msg, help, panel, hint, gauge, dojoBtn, idealBtn, pick, camBtn);
   const toast = document.createElement('div');

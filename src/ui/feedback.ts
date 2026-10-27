@@ -8,7 +8,7 @@ interface Round { round: string; title: string; intro: string; questions: Questi
 const counters: Record<string, number> = {};
 export const track = (name: string, by = 1): void => { counters[name] = (counters[name] ?? 0) + by; };
 
-function session(): string {
+export function session(): string {
   try {
     let s = localStorage.getItem('cc.session');
     if (!s) { s = crypto.randomUUID(); localStorage.setItem('cc.session', s); }
