@@ -5,8 +5,8 @@
     "uploader": "World Ninja League",
     "licence": "Creative Commons Attribution license (reuse allowed)",
     "range_s": [
-      0.0,
-      38.0
+      0,
+      38
     ],
     "id": "wnl-new-wall-rules"
   },
@@ -32,7 +32,7 @@
     ],
     "sizes": {
       "height": 1.709,
-      "width": 2.0,
+      "width": 2,
       "thickness": 3.135
     },
     "height_m": 1.709,
@@ -80,7 +80,7 @@
       ],
       "t": [
         2.967,
-        6.0
+        6
       ],
       "measured": true
     },
@@ -91,7 +91,7 @@
         135
       ],
       "t": [
-        6.0,
+        6,
         7.3
       ],
       "measured": true
@@ -114,7 +114,7 @@
       "joint": "RightHand",
       "t": [
         2.967,
-        6.0
+        6
       ],
       "hold_s": 3.033,
       "phase": "plant",
@@ -136,14 +136,14 @@
       "on": "wall",
       "height_m": 1.422,
       "height_frac": 0.832,
-      "metres_past_first_plant": 0.0,
+      "metres_past_first_plant": 0,
       "brief_plant": false,
       "measured": true
     },
     {
       "joint": "LeftFoot",
       "t": [
-        3.0,
+        3,
         6.633
       ],
       "hold_s": 3.633,
@@ -282,7 +282,7 @@
     "approach_speed_mps": 0.13,
     "run_up_s": 0.1,
     "speed_at_plant_mps": 0.25,
-    "plant_to_grip_s": 0.0,
+    "plant_to_grip_s": 0,
     "held_by_hands_s": 4.333,
     "longest_flight_s": 2.8
   },
