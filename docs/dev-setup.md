@@ -36,6 +36,13 @@
 - Keep the downloaded video and its `.info.json` in `../conquercourse-assets/video/`, then copy them to the VM.
 - The deployed app never calls `yt-dlp`: it only uses results processed beforehand, or files a player uploads.
 
+## The Rookie demo (CC-16)
+- `http://localhost:5173/?demo=rookie` shows a Rookie running, leaping, landing and running on, with a side camera; `&rookie=b` starts with Rookie B; the buttons (or keys A and B) switch.
+- `npm run film -- --query "demo=rookie&rookie=a" --frames 180 --out test-results/rookie-a.mp4` films one 6-second lap (about 8 minutes with software rendering).
+- `node scripts/rookie-check.mjs` saves the nine-pose contact sheets (`test-results/rookie-sheet-{a,b}.png`) and exports the posed joints.
+- `uv run --no-project --with numpy python -I pipelines/gate_posed.py data/eval/cc-16-rookies/posed-a.json` runs the plausibility gate on the posed output.
+- Code: `src/motion/` (clip loader, time-warp, posing, the path and phases) and `src/render/rookie.ts` (the model).
+
 ## Python pipelines
 - `uv run --no-project --with numpy python -I <script>` for small tools; Modal jobs via `modal run --detach <script>` started in the background with a log and a status check.
 - Video ingest (`pipelines/ingest_video.py`): `yt-dlp`, `pillow`, `opencv-python-headless`, `meta_sam_parser`, `jsonschema` in the venv; `CC_ASSETS_DIR` names the folder that holds `video/` and `work/` (needed in a git worktree, where `../conquercourse-assets` is the wrong place); YouTube may refuse datacenter IPs with a bot check, so pass `--cookies` (a file the product owner exports) or fetch elsewhere and use `--info-json` and `--file`.
