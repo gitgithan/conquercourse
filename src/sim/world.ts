@@ -5,16 +5,18 @@ import { groundAt, standingOn } from './terrain';
 import { DEFAULT_WALL, runWall, type WallParams, type WallResult } from './wall';
 import { DEFAULT_ROPE, ropePoint, release, swingStep, tryCatch, type RopeParams, type Swing } from './rope';
 import { DEFAULT_TRAMPOLINE, bounce, type Bounce } from './trampoline';
+import { JUMP_COST, VAULT_COST } from './energy';
+import { VAULT_KEEP, findVault, vaultAt, type Vault } from './vault';
 import { DEFAULT_HANG, feetOf, hangStep, releaseHang, tryGrab, type Hang } from './holds';
 
 // One world for the Course: the runner plus whichever obstacle has hold of the runner right now.
 // The simulator is the truth: everything the screen shows comes from this state, one tick at a time.
-export type Mode = 'run' | 'wall' | 'swing' | 'bounce' | 'hang';
+export type Mode = 'run' | 'wall' | 'swing' | 'bounce' | 'hang' | 'vault';
 export type Outcome = 'running' | 'cleared' | 'splash';
 
 export interface GameEvent {
   tick: number;
-  type: 'jump' | 'land' | 'stumble' | 'splash' | 'wall-grab' | 'wall-slide' | 'rope-catch' | 'rope-release' | 'hang-catch' | 'hang-release' | 'bounce' | 'cleared';
+  type: 'jump' | 'land' | 'stumble' | 'splash' | 'wall-grab' | 'wall-slide' | 'rope-catch' | 'rope-release' | 'hang-catch' | 'hang-release' | 'vault' | 'bounce' | 'cleared';
   detail?: Record<string, number | boolean>;
 }
 
@@ -25,6 +27,8 @@ export interface WorldState {
   wall: { result: WallResult; path: { x: number; y: number }[]; index: number; x0: number } | null;
   swing: Swing | null;
   hang: Hang | null; // hanging from a bar in the air
+  vault: Vault | null; // going over an obstacle with a hand on top
+  energy: number; // 1 = fresh; each move spends some (src/sim/energy.ts)
   bed: { base: Bounce; vIn: number; start: number; press: number | null; vx: number; top: number } | null;
   noCatchUntil: number;
   lastPress: number; // tick of the last Space press, so a press just before landing counts
@@ -35,7 +39,7 @@ export interface WorldState {
 export function newWorld(course: CourseData, x: number = course.startX): WorldState {
   const r = startState(x);
   r.y = groundAt(course.terrain, x);
-  return { runner: r, mode: 'run', outcome: 'running', wall: null, swing: null, hang: null, bed: null, noCatchUntil: 0, lastPress: -1000, events: [] };
+  return { runner: r, mode: 'run', outcome: 'running', wall: null, swing: null, hang: null, vault: null, energy: 1, bed: null, noCatchUntil: 0, lastPress: -1000, events: [] };
 }
 
 const wallParams = (c: CourseData): WallParams => ({ ...DEFAULT_WALL, ...(c.wall ?? {}) });
@@ -53,11 +57,21 @@ export function stepWorld(w: WorldState, input: RunnerInput, course: CourseData,
   if (w.mode === 'swing') return stepSwing(w, input, course);
   if (w.mode === 'bounce') return stepBounce(w, input);
   if (w.mode === 'hang') return stepHang(w, input, course);
+  if (w.mode === 'vault') return stepVault(w);
+
+  // the vault: a hand on top of the obstacle just ahead, the body goes over it and keeps most of the speed
+  if (input.vault && w.runner.grounded) {
+    const v = findVault(course.terrain, w.runner.x, w.runner.y, w.runner.vx);
+    if (v) {
+      ev('vault', { rise: v.y1 - v.y0, vx: w.runner.vx });
+      return { ...w, mode: 'vault', vault: v, energy: Math.max(0, w.energy - VAULT_COST), lastPress: n.lastPress, events, runner: { ...w.runner, tick, grounded: false } };
+    }
+  }
 
   const before = w.runner;
   const r = step(before, input2, p, course.terrain);
   n.runner = r;
-  if (before.grounded && !r.grounded && input2.jump) ev('jump', { vy: r.vy, vx: r.vx, x: r.x });
+  if (before.grounded && !r.grounded && input2.jump) { ev('jump', { vy: r.vy, vx: r.vx, x: r.x }); n.energy = Math.max(0, w.energy - JUMP_COST); if (course.jumpKeep !== undefined && course.jumpKeep !== 1) n.runner = { ...r, vx: r.vx * course.jumpKeep }; }
   if (!before.grounded && r.grounded && r.landing) {
     const plat = standingOn(course.terrain, r.x);
     ev('land', { impact: r.landing.impactSpeed, peakDecel: r.landing.peakDecel, squat: r.landing.squatted, bouncy: !!plat?.bouncy });
@@ -158,6 +172,18 @@ function stepSwing(w: WorldState, input: RunnerInput, course: CourseData): World
   const hand = ropePoint(rp, sw.grip, sw.theta);
   const speed = sw.omega * sw.grip;
   return { ...w, swing: sw, events, runner: { ...w.runner, tick, x: hand.x, y: hand.y - rp.handHeight, vx: speed * Math.cos(sw.theta), vy: speed * Math.sin(sw.theta), grounded: false } };
+}
+
+function stepVault(w: WorldState): WorldState {
+  const v = w.vault!;
+  const tick = w.runner.tick + 1;
+  const i = v.i + 1;
+  if (i >= v.n) {
+    const end = vaultAt(v, v.n);
+    return { ...w, mode: 'run', vault: null, events: [], runner: { ...w.runner, tick, x: end.x, y: end.y, vx: v.vx * VAULT_KEEP, vy: 0, grounded: true } };
+  }
+  const q = vaultAt(v, i);
+  return { ...w, vault: { ...v, i }, events: [], runner: { ...w.runner, tick, x: q.x, y: q.y, vx: v.vx * VAULT_KEEP, vy: 0, grounded: false } };
 }
 
 function stepHang(w: WorldState, input: RunnerInput, course: CourseData): WorldState {
