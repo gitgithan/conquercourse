@@ -1,0 +1,1724 @@
+{
+  "prompts": {
+    "person": 0.5,
+    "face": 0.4,
+    "license plate": 0.4
+  },
+  "frames": 124,
+  "frames_with_a_face": 116,
+  "frames_with_people": 124,
+  "total_faces": 194,
+  "total_plates": 0,
+  "per_frame": [
+    {
+      "frame": 0,
+      "people": 1,
+      "faces": 1,
+      "plates": 0,
+      "person_scores": [
+        0.91
+      ],
+      "face_scores": [
+        0.609
+      ]
+    },
+    {
+      "frame": 1,
+      "people": 1,
+      "faces": 1,
+      "plates": 0,
+      "person_scores": [
+        0.914
+      ],
+      "face_scores": [
+        0.609
+      ]
+    },
+    {
+      "frame": 2,
+      "people": 1,
+      "faces": 1,
+      "plates": 0,
+      "person_scores": [
+        0.918
+      ],
+      "face_scores": [
+        0.637
+      ]
+    },
+    {
+      "frame": 3,
+      "people": 1,
+      "faces": 1,
+      "plates": 0,
+      "person_scores": [
+        0.902
+      ],
+      "face_scores": [
+        0.613
+      ]
+    },
+    {
+      "frame": 4,
+      "people": 1,
+      "faces": 1,
+      "plates": 0,
+      "person_scores": [
+        0.891
+      ],
+      "face_scores": [
+        0.598
+      ]
+    },
+    {
+      "frame": 5,
+      "people": 1,
+      "faces": 1,
+      "plates": 0,
+      "person_scores": [
+        0.91
+      ],
+      "face_scores": [
+        0.613
+      ]
+    },
+    {
+      "frame": 6,
+      "people": 1,
+      "faces": 1,
+      "plates": 0,
+      "person_scores": [
+        0.902
+      ],
+      "face_scores": [
+        0.629
+      ]
+    },
+    {
+      "frame": 7,
+      "people": 3,
+      "faces": 2,
+      "plates": 0,
+      "person_scores": [
+        0.543,
+        0.891,
+        0.812
+      ],
+      "face_scores": [
+        0.625,
+        0.832
+      ]
+    },
+    {
+      "frame": 8,
+      "people": 2,
+      "faces": 2,
+      "plates": 0,
+      "person_scores": [
+        0.938,
+        0.914
+      ],
+      "face_scores": [
+        0.625,
+        0.801
+      ]
+    },
+    {
+      "frame": 9,
+      "people": 2,
+      "faces": 2,
+      "plates": 0,
+      "person_scores": [
+        0.953,
+        0.887
+      ],
+      "face_scores": [
+        0.77,
+        0.512
+      ]
+    },
+    {
+      "frame": 10,
+      "people": 2,
+      "faces": 2,
+      "plates": 0,
+      "person_scores": [
+        0.938,
+        0.883
+      ],
+      "face_scores": [
+        0.773,
+        0.566
+      ]
+    },
+    {
+      "frame": 11,
+      "people": 2,
+      "faces": 2,
+      "plates": 0,
+      "person_scores": [
+        0.965,
+        0.863
+      ],
+      "face_scores": [
+        0.551,
+        0.75
+      ]
+    },
+    {
+      "frame": 12,
+      "people": 2,
+      "faces": 2,
+      "plates": 0,
+      "person_scores": [
+        0.891,
+        0.973
+      ],
+      "face_scores": [
+        0.535,
+        0.781
+      ]
+    },
+    {
+      "frame": 13,
+      "people": 2,
+      "faces": 2,
+      "plates": 0,
+      "person_scores": [
+        0.973,
+        0.902
+      ],
+      "face_scores": [
+        0.707,
+        0.555
+      ]
+    },
+    {
+      "frame": 14,
+      "people": 2,
+      "faces": 2,
+      "plates": 0,
+      "person_scores": [
+        0.969,
+        0.84
+      ],
+      "face_scores": [
+        0.73,
+        0.535
+      ]
+    },
+    {
+      "frame": 15,
+      "people": 2,
+      "faces": 2,
+      "plates": 0,
+      "person_scores": [
+        0.965,
+        0.879
+      ],
+      "face_scores": [
+        0.605,
+        0.793
+      ]
+    },
+    {
+      "frame": 16,
+      "people": 2,
+      "faces": 2,
+      "plates": 0,
+      "person_scores": [
+        0.969,
+        0.891
+      ],
+      "face_scores": [
+        0.617,
+        0.801
+      ]
+    },
+    {
+      "frame": 17,
+      "people": 2,
+      "faces": 2,
+      "plates": 0,
+      "person_scores": [
+        0.969,
+        0.859
+      ],
+      "face_scores": [
+        0.426,
+        0.707
+      ]
+    },
+    {
+      "frame": 18,
+      "people": 2,
+      "faces": 2,
+      "plates": 0,
+      "person_scores": [
+        0.953,
+        0.82
+      ],
+      "face_scores": [
+        0.475,
+        0.719
+      ]
+    },
+    {
+      "frame": 19,
+      "people": 2,
+      "faces": 2,
+      "plates": 0,
+      "person_scores": [
+        0.863,
+        0.941
+      ],
+      "face_scores": [
+        0.469,
+        0.746
+      ]
+    },
+    {
+      "frame": 20,
+      "people": 2,
+      "faces": 2,
+      "plates": 0,
+      "person_scores": [
+        0.902,
+        0.957
+      ],
+      "face_scores": [
+        0.447,
+        0.762
+      ]
+    },
+    {
+      "frame": 21,
+      "people": 2,
+      "faces": 2,
+      "plates": 0,
+      "person_scores": [
+        0.875,
+        0.957
+      ],
+      "face_scores": [
+        0.594,
+        0.75
+      ]
+    },
+    {
+      "frame": 22,
+      "people": 2,
+      "faces": 2,
+      "plates": 0,
+      "person_scores": [
+        0.863,
+        0.957
+      ],
+      "face_scores": [
+        0.547,
+        0.785
+      ]
+    },
+    {
+      "frame": 23,
+      "people": 2,
+      "faces": 2,
+      "plates": 0,
+      "person_scores": [
+        0.852,
+        0.945
+      ],
+      "face_scores": [
+        0.59,
+        0.785
+      ]
+    },
+    {
+      "frame": 24,
+      "people": 2,
+      "faces": 3,
+      "plates": 0,
+      "person_scores": [
+        0.891,
+        0.949
+      ],
+      "face_scores": [
+        0.467,
+        0.551,
+        0.445
+      ]
+    },
+    {
+      "frame": 25,
+      "people": 2,
+      "faces": 1,
+      "plates": 0,
+      "person_scores": [
+        0.887,
+        0.957
+      ],
+      "face_scores": [
+        0.523
+      ]
+    },
+    {
+      "frame": 26,
+      "people": 2,
+      "faces": 1,
+      "plates": 0,
+      "person_scores": [
+        0.953,
+        0.871
+      ],
+      "face_scores": [
+        0.543
+      ]
+    },
+    {
+      "frame": 27,
+      "people": 2,
+      "faces": 2,
+      "plates": 0,
+      "person_scores": [
+        0.949,
+        0.875
+      ],
+      "face_scores": [
+        0.504,
+        0.482
+      ]
+    },
+    {
+      "frame": 28,
+      "people": 2,
+      "faces": 2,
+      "plates": 0,
+      "person_scores": [
+        0.957,
+        0.863
+      ],
+      "face_scores": [
+        0.441,
+        0.566
+      ]
+    },
+    {
+      "frame": 29,
+      "people": 2,
+      "faces": 2,
+      "plates": 0,
+      "person_scores": [
+        0.961,
+        0.887
+      ],
+      "face_scores": [
+        0.512,
+        0.793
+      ]
+    },
+    {
+      "frame": 30,
+      "people": 2,
+      "faces": 2,
+      "plates": 0,
+      "person_scores": [
+        0.871,
+        0.965
+      ],
+      "face_scores": [
+        0.664,
+        0.578
+      ]
+    },
+    {
+      "frame": 31,
+      "people": 2,
+      "faces": 2,
+      "plates": 0,
+      "person_scores": [
+        0.867,
+        0.961
+      ],
+      "face_scores": [
+        0.504,
+        0.543
+      ]
+    },
+    {
+      "frame": 32,
+      "people": 2,
+      "faces": 1,
+      "plates": 0,
+      "person_scores": [
+        0.871,
+        0.969
+      ],
+      "face_scores": [
+        0.527
+      ]
+    },
+    {
+      "frame": 33,
+      "people": 2,
+      "faces": 1,
+      "plates": 0,
+      "person_scores": [
+        0.848,
+        0.969
+      ],
+      "face_scores": [
+        0.5
+      ]
+    },
+    {
+      "frame": 34,
+      "people": 2,
+      "faces": 1,
+      "plates": 0,
+      "person_scores": [
+        0.816,
+        0.969
+      ],
+      "face_scores": [
+        0.451
+      ]
+    },
+    {
+      "frame": 35,
+      "people": 2,
+      "faces": 2,
+      "plates": 0,
+      "person_scores": [
+        0.824,
+        0.953
+      ],
+      "face_scores": [
+        0.504,
+        0.469
+      ]
+    },
+    {
+      "frame": 36,
+      "people": 2,
+      "faces": 0,
+      "plates": 0,
+      "person_scores": [
+        0.852,
+        0.945
+      ],
+      "face_scores": []
+    },
+    {
+      "frame": 37,
+      "people": 2,
+      "faces": 0,
+      "plates": 0,
+      "person_scores": [
+        0.859,
+        0.949
+      ],
+      "face_scores": []
+    },
+    {
+      "frame": 38,
+      "people": 2,
+      "faces": 1,
+      "plates": 0,
+      "person_scores": [
+        0.824,
+        0.965
+      ],
+      "face_scores": [
+        0.441
+      ]
+    },
+    {
+      "frame": 39,
+      "people": 2,
+      "faces": 1,
+      "plates": 0,
+      "person_scores": [
+        0.844,
+        0.969
+      ],
+      "face_scores": [
+        0.484
+      ]
+    },
+    {
+      "frame": 40,
+      "people": 2,
+      "faces": 1,
+      "plates": 0,
+      "person_scores": [
+        0.832,
+        0.949
+      ],
+      "face_scores": [
+        0.479
+      ]
+    },
+    {
+      "frame": 41,
+      "people": 2,
+      "faces": 1,
+      "plates": 0,
+      "person_scores": [
+        0.844,
+        0.914
+      ],
+      "face_scores": [
+        0.473
+      ]
+    },
+    {
+      "frame": 42,
+      "people": 2,
+      "faces": 1,
+      "plates": 0,
+      "person_scores": [
+        0.84,
+        0.863
+      ],
+      "face_scores": [
+        0.473
+      ]
+    },
+    {
+      "frame": 43,
+      "people": 2,
+      "faces": 1,
+      "plates": 0,
+      "person_scores": [
+        0.84,
+        0.906
+      ],
+      "face_scores": [
+        0.52
+      ]
+    },
+    {
+      "frame": 44,
+      "people": 2,
+      "faces": 1,
+      "plates": 0,
+      "person_scores": [
+        0.828,
+        0.68
+      ],
+      "face_scores": [
+        0.488
+      ]
+    },
+    {
+      "frame": 45,
+      "people": 2,
+      "faces": 1,
+      "plates": 0,
+      "person_scores": [
+        0.852,
+        0.516
+      ],
+      "face_scores": [
+        0.484
+      ]
+    },
+    {
+      "frame": 46,
+      "people": 1,
+      "faces": 0,
+      "plates": 0,
+      "person_scores": [
+        0.758
+      ],
+      "face_scores": []
+    },
+    {
+      "frame": 47,
+      "people": 2,
+      "faces": 0,
+      "plates": 0,
+      "person_scores": [
+        0.75,
+        0.754
+      ],
+      "face_scores": []
+    },
+    {
+      "frame": 48,
+      "people": 1,
+      "faces": 0,
+      "plates": 0,
+      "person_scores": [
+        0.684
+      ],
+      "face_scores": []
+    },
+    {
+      "frame": 49,
+      "people": 1,
+      "faces": 0,
+      "plates": 0,
+      "person_scores": [
+        0.77
+      ],
+      "face_scores": []
+    },
+    {
+      "frame": 50,
+      "people": 1,
+      "faces": 0,
+      "plates": 0,
+      "person_scores": [
+        0.918
+      ],
+      "face_scores": []
+    },
+    {
+      "frame": 51,
+      "people": 1,
+      "faces": 0,
+      "plates": 0,
+      "person_scores": [
+        0.953
+      ],
+      "face_scores": []
+    },
+    {
+      "frame": 52,
+      "people": 3,
+      "faces": 1,
+      "plates": 0,
+      "person_scores": [
+        0.957,
+        0.59,
+        0.762
+      ],
+      "face_scores": [
+        0.496
+      ]
+    },
+    {
+      "frame": 53,
+      "people": 3,
+      "faces": 2,
+      "plates": 0,
+      "person_scores": [
+        0.965,
+        0.871,
+        0.652
+      ],
+      "face_scores": [
+        0.457,
+        0.512
+      ]
+    },
+    {
+      "frame": 54,
+      "people": 3,
+      "faces": 2,
+      "plates": 0,
+      "person_scores": [
+        0.961,
+        0.852,
+        0.695
+      ],
+      "face_scores": [
+        0.443,
+        0.48
+      ]
+    },
+    {
+      "frame": 55,
+      "people": 3,
+      "faces": 3,
+      "plates": 0,
+      "person_scores": [
+        0.965,
+        0.859,
+        0.793
+      ],
+      "face_scores": [
+        0.629,
+        0.412,
+        0.531
+      ]
+    },
+    {
+      "frame": 56,
+      "people": 3,
+      "faces": 3,
+      "plates": 0,
+      "person_scores": [
+        0.973,
+        0.859,
+        0.781
+      ],
+      "face_scores": [
+        0.457,
+        0.691,
+        0.582
+      ]
+    },
+    {
+      "frame": 57,
+      "people": 3,
+      "faces": 2,
+      "plates": 0,
+      "person_scores": [
+        0.973,
+        0.887,
+        0.824
+      ],
+      "face_scores": [
+        0.715,
+        0.555
+      ]
+    },
+    {
+      "frame": 58,
+      "people": 3,
+      "faces": 2,
+      "plates": 0,
+      "person_scores": [
+        0.973,
+        0.887,
+        0.777
+      ],
+      "face_scores": [
+        0.656,
+        0.59
+      ]
+    },
+    {
+      "frame": 59,
+      "people": 3,
+      "faces": 2,
+      "plates": 0,
+      "person_scores": [
+        0.969,
+        0.871,
+        0.715
+      ],
+      "face_scores": [
+        0.715,
+        0.527
+      ]
+    },
+    {
+      "frame": 60,
+      "people": 3,
+      "faces": 2,
+      "plates": 0,
+      "person_scores": [
+        0.973,
+        0.883,
+        0.84
+      ],
+      "face_scores": [
+        0.691,
+        0.555
+      ]
+    },
+    {
+      "frame": 61,
+      "people": 3,
+      "faces": 4,
+      "plates": 0,
+      "person_scores": [
+        0.977,
+        0.863,
+        0.844
+      ],
+      "face_scores": [
+        0.432,
+        0.75,
+        0.547,
+        0.408
+      ]
+    },
+    {
+      "frame": 62,
+      "people": 3,
+      "faces": 3,
+      "plates": 0,
+      "person_scores": [
+        0.848,
+        0.969,
+        0.852
+      ],
+      "face_scores": [
+        0.461,
+        0.801,
+        0.531
+      ]
+    },
+    {
+      "frame": 63,
+      "people": 3,
+      "faces": 2,
+      "plates": 0,
+      "person_scores": [
+        0.969,
+        0.855,
+        0.824
+      ],
+      "face_scores": [
+        0.812,
+        0.551
+      ]
+    },
+    {
+      "frame": 64,
+      "people": 3,
+      "faces": 3,
+      "plates": 0,
+      "person_scores": [
+        0.965,
+        0.863,
+        0.801
+      ],
+      "face_scores": [
+        0.809,
+        0.566,
+        0.512
+      ]
+    },
+    {
+      "frame": 65,
+      "people": 2,
+      "faces": 2,
+      "plates": 0,
+      "person_scores": [
+        0.969,
+        0.871
+      ],
+      "face_scores": [
+        0.832,
+        0.613
+      ]
+    },
+    {
+      "frame": 66,
+      "people": 2,
+      "faces": 2,
+      "plates": 0,
+      "person_scores": [
+        0.957,
+        0.871
+      ],
+      "face_scores": [
+        0.812,
+        0.602
+      ]
+    },
+    {
+      "frame": 67,
+      "people": 3,
+      "faces": 2,
+      "plates": 0,
+      "person_scores": [
+        0.969,
+        0.871,
+        0.816
+      ],
+      "face_scores": [
+        0.84,
+        0.641
+      ]
+    },
+    {
+      "frame": 68,
+      "people": 3,
+      "faces": 3,
+      "plates": 0,
+      "person_scores": [
+        0.973,
+        0.859,
+        0.859
+      ],
+      "face_scores": [
+        0.809,
+        0.637,
+        0.484
+      ]
+    },
+    {
+      "frame": 69,
+      "people": 3,
+      "faces": 3,
+      "plates": 0,
+      "person_scores": [
+        0.969,
+        0.855,
+        0.859
+      ],
+      "face_scores": [
+        0.812,
+        0.645,
+        0.441
+      ]
+    },
+    {
+      "frame": 70,
+      "people": 3,
+      "faces": 4,
+      "plates": 0,
+      "person_scores": [
+        0.961,
+        0.852,
+        0.848
+      ],
+      "face_scores": [
+        0.789,
+        0.652,
+        0.41,
+        0.52
+      ]
+    },
+    {
+      "frame": 71,
+      "people": 3,
+      "faces": 3,
+      "plates": 0,
+      "person_scores": [
+        0.961,
+        0.855,
+        0.871
+      ],
+      "face_scores": [
+        0.805,
+        0.66,
+        0.523
+      ]
+    },
+    {
+      "frame": 72,
+      "people": 3,
+      "faces": 3,
+      "plates": 0,
+      "person_scores": [
+        0.957,
+        0.852,
+        0.875
+      ],
+      "face_scores": [
+        0.77,
+        0.656,
+        0.463
+      ]
+    },
+    {
+      "frame": 73,
+      "people": 3,
+      "faces": 2,
+      "plates": 0,
+      "person_scores": [
+        0.953,
+        0.867,
+        0.867
+      ],
+      "face_scores": [
+        0.781,
+        0.641
+      ]
+    },
+    {
+      "frame": 74,
+      "people": 3,
+      "faces": 2,
+      "plates": 0,
+      "person_scores": [
+        0.953,
+        0.871,
+        0.883
+      ],
+      "face_scores": [
+        0.773,
+        0.648
+      ]
+    },
+    {
+      "frame": 75,
+      "people": 3,
+      "faces": 3,
+      "plates": 0,
+      "person_scores": [
+        0.949,
+        0.883,
+        0.879
+      ],
+      "face_scores": [
+        0.711,
+        0.586,
+        0.408
+      ]
+    },
+    {
+      "frame": 76,
+      "people": 3,
+      "faces": 3,
+      "plates": 0,
+      "person_scores": [
+        0.949,
+        0.867,
+        0.805
+      ],
+      "face_scores": [
+        0.621,
+        0.688,
+        0.455
+      ]
+    },
+    {
+      "frame": 77,
+      "people": 3,
+      "faces": 2,
+      "plates": 0,
+      "person_scores": [
+        0.945,
+        0.895,
+        0.855
+      ],
+      "face_scores": [
+        0.664,
+        0.574
+      ]
+    },
+    {
+      "frame": 78,
+      "people": 3,
+      "faces": 2,
+      "plates": 0,
+      "person_scores": [
+        0.945,
+        0.902,
+        0.875
+      ],
+      "face_scores": [
+        0.609,
+        0.715
+      ]
+    },
+    {
+      "frame": 79,
+      "people": 3,
+      "faces": 2,
+      "plates": 0,
+      "person_scores": [
+        0.945,
+        0.902,
+        0.844
+      ],
+      "face_scores": [
+        0.566,
+        0.652
+      ]
+    },
+    {
+      "frame": 80,
+      "people": 3,
+      "faces": 2,
+      "plates": 0,
+      "person_scores": [
+        0.949,
+        0.902,
+        0.887
+      ],
+      "face_scores": [
+        0.586,
+        0.641
+      ]
+    },
+    {
+      "frame": 81,
+      "people": 3,
+      "faces": 2,
+      "plates": 0,
+      "person_scores": [
+        0.938,
+        0.891,
+        0.852
+      ],
+      "face_scores": [
+        0.676,
+        0.562
+      ]
+    },
+    {
+      "frame": 82,
+      "people": 2,
+      "faces": 2,
+      "plates": 0,
+      "person_scores": [
+        0.938,
+        0.863
+      ],
+      "face_scores": [
+        0.57,
+        0.668
+      ]
+    },
+    {
+      "frame": 83,
+      "people": 2,
+      "faces": 2,
+      "plates": 0,
+      "person_scores": [
+        0.855,
+        0.926
+      ],
+      "face_scores": [
+        0.621,
+        0.594
+      ]
+    },
+    {
+      "frame": 84,
+      "people": 3,
+      "faces": 2,
+      "plates": 0,
+      "person_scores": [
+        0.949,
+        0.805,
+        0.672
+      ],
+      "face_scores": [
+        0.605,
+        0.486
+      ]
+    },
+    {
+      "frame": 85,
+      "people": 3,
+      "faces": 2,
+      "plates": 0,
+      "person_scores": [
+        0.945,
+        0.855,
+        0.715
+      ],
+      "face_scores": [
+        0.59,
+        0.428
+      ]
+    },
+    {
+      "frame": 86,
+      "people": 3,
+      "faces": 3,
+      "plates": 0,
+      "person_scores": [
+        0.906,
+        0.863,
+        0.871
+      ],
+      "face_scores": [
+        0.551,
+        0.49,
+        0.422
+      ]
+    },
+    {
+      "frame": 87,
+      "people": 3,
+      "faces": 3,
+      "plates": 0,
+      "person_scores": [
+        0.914,
+        0.875,
+        0.852
+      ],
+      "face_scores": [
+        0.516,
+        0.434,
+        0.412
+      ]
+    },
+    {
+      "frame": 88,
+      "people": 3,
+      "faces": 2,
+      "plates": 0,
+      "person_scores": [
+        0.902,
+        0.867,
+        0.828
+      ],
+      "face_scores": [
+        0.5,
+        0.4
+      ]
+    },
+    {
+      "frame": 89,
+      "people": 3,
+      "faces": 1,
+      "plates": 0,
+      "person_scores": [
+        0.926,
+        0.867,
+        0.828
+      ],
+      "face_scores": [
+        0.434
+      ]
+    },
+    {
+      "frame": 90,
+      "people": 3,
+      "faces": 1,
+      "plates": 0,
+      "person_scores": [
+        0.906,
+        0.848,
+        0.824
+      ],
+      "face_scores": [
+        0.49
+      ]
+    },
+    {
+      "frame": 91,
+      "people": 3,
+      "faces": 1,
+      "plates": 0,
+      "person_scores": [
+        0.914,
+        0.855,
+        0.816
+      ],
+      "face_scores": [
+        0.504
+      ]
+    },
+    {
+      "frame": 92,
+      "people": 3,
+      "faces": 1,
+      "plates": 0,
+      "person_scores": [
+        0.91,
+        0.863,
+        0.738
+      ],
+      "face_scores": [
+        0.498
+      ]
+    },
+    {
+      "frame": 93,
+      "people": 3,
+      "faces": 1,
+      "plates": 0,
+      "person_scores": [
+        0.855,
+        0.914,
+        0.863
+      ],
+      "face_scores": [
+        0.482
+      ]
+    },
+    {
+      "frame": 94,
+      "people": 3,
+      "faces": 1,
+      "plates": 0,
+      "person_scores": [
+        0.805,
+        0.902,
+        0.871
+      ],
+      "face_scores": [
+        0.512
+      ]
+    },
+    {
+      "frame": 95,
+      "people": 3,
+      "faces": 1,
+      "plates": 0,
+      "person_scores": [
+        0.871,
+        0.844,
+        0.879
+      ],
+      "face_scores": [
+        0.512
+      ]
+    },
+    {
+      "frame": 96,
+      "people": 3,
+      "faces": 1,
+      "plates": 0,
+      "person_scores": [
+        0.832,
+        0.824,
+        0.867
+      ],
+      "face_scores": [
+        0.531
+      ]
+    },
+    {
+      "frame": 97,
+      "people": 4,
+      "faces": 1,
+      "plates": 0,
+      "person_scores": [
+        0.836,
+        0.746,
+        0.867,
+        0.504
+      ],
+      "face_scores": [
+        0.527
+      ]
+    },
+    {
+      "frame": 98,
+      "people": 3,
+      "faces": 1,
+      "plates": 0,
+      "person_scores": [
+        0.707,
+        0.859,
+        0.883
+      ],
+      "face_scores": [
+        0.574
+      ]
+    },
+    {
+      "frame": 99,
+      "people": 3,
+      "faces": 1,
+      "plates": 0,
+      "person_scores": [
+        0.781,
+        0.844,
+        0.883
+      ],
+      "face_scores": [
+        0.578
+      ]
+    },
+    {
+      "frame": 100,
+      "people": 2,
+      "faces": 1,
+      "plates": 0,
+      "person_scores": [
+        0.539,
+        0.879
+      ],
+      "face_scores": [
+        0.586
+      ]
+    },
+    {
+      "frame": 101,
+      "people": 2,
+      "faces": 1,
+      "plates": 0,
+      "person_scores": [
+        0.551,
+        0.883
+      ],
+      "face_scores": [
+        0.574
+      ]
+    },
+    {
+      "frame": 102,
+      "people": 1,
+      "faces": 1,
+      "plates": 0,
+      "person_scores": [
+        0.887
+      ],
+      "face_scores": [
+        0.594
+      ]
+    },
+    {
+      "frame": 103,
+      "people": 1,
+      "faces": 1,
+      "plates": 0,
+      "person_scores": [
+        0.891
+      ],
+      "face_scores": [
+        0.605
+      ]
+    },
+    {
+      "frame": 104,
+      "people": 1,
+      "faces": 1,
+      "plates": 0,
+      "person_scores": [
+        0.887
+      ],
+      "face_scores": [
+        0.609
+      ]
+    },
+    {
+      "frame": 105,
+      "people": 1,
+      "faces": 1,
+      "plates": 0,
+      "person_scores": [
+        0.895
+      ],
+      "face_scores": [
+        0.617
+      ]
+    },
+    {
+      "frame": 106,
+      "people": 1,
+      "faces": 1,
+      "plates": 0,
+      "person_scores": [
+        0.887
+      ],
+      "face_scores": [
+        0.59
+      ]
+    },
+    {
+      "frame": 107,
+      "people": 2,
+      "faces": 1,
+      "plates": 0,
+      "person_scores": [
+        0.656,
+        0.895
+      ],
+      "face_scores": [
+        0.629
+      ]
+    },
+    {
+      "frame": 108,
+      "people": 1,
+      "faces": 1,
+      "plates": 0,
+      "person_scores": [
+        0.895
+      ],
+      "face_scores": [
+        0.609
+      ]
+    },
+    {
+      "frame": 109,
+      "people": 2,
+      "faces": 1,
+      "plates": 0,
+      "person_scores": [
+        0.84,
+        0.895
+      ],
+      "face_scores": [
+        0.617
+      ]
+    },
+    {
+      "frame": 110,
+      "people": 3,
+      "faces": 1,
+      "plates": 0,
+      "person_scores": [
+        0.543,
+        0.824,
+        0.898
+      ],
+      "face_scores": [
+        0.578
+      ]
+    },
+    {
+      "frame": 111,
+      "people": 2,
+      "faces": 1,
+      "plates": 0,
+      "person_scores": [
+        0.855,
+        0.898
+      ],
+      "face_scores": [
+        0.59
+      ]
+    },
+    {
+      "frame": 112,
+      "people": 2,
+      "faces": 1,
+      "plates": 0,
+      "person_scores": [
+        0.828,
+        0.895
+      ],
+      "face_scores": [
+        0.605
+      ]
+    },
+    {
+      "frame": 113,
+      "people": 2,
+      "faces": 1,
+      "plates": 0,
+      "person_scores": [
+        0.848,
+        0.898
+      ],
+      "face_scores": [
+        0.602
+      ]
+    },
+    {
+      "frame": 114,
+      "people": 3,
+      "faces": 1,
+      "plates": 0,
+      "person_scores": [
+        0.531,
+        0.836,
+        0.898
+      ],
+      "face_scores": [
+        0.594
+      ]
+    },
+    {
+      "frame": 115,
+      "people": 4,
+      "faces": 1,
+      "plates": 0,
+      "person_scores": [
+        0.555,
+        0.887,
+        0.902,
+        0.715
+      ],
+      "face_scores": [
+        0.602
+      ]
+    },
+    {
+      "frame": 116,
+      "people": 4,
+      "faces": 2,
+      "plates": 0,
+      "person_scores": [
+        0.551,
+        0.898,
+        0.902,
+        0.812
+      ],
+      "face_scores": [
+        0.625,
+        0.494
+      ]
+    },
+    {
+      "frame": 117,
+      "people": 2,
+      "faces": 1,
+      "plates": 0,
+      "person_scores": [
+        0.898,
+        0.902
+      ],
+      "face_scores": [
+        0.605
+      ]
+    },
+    {
+      "frame": 118,
+      "people": 3,
+      "faces": 1,
+      "plates": 0,
+      "person_scores": [
+        0.543,
+        0.91,
+        0.906
+      ],
+      "face_scores": [
+        0.625
+      ]
+    },
+    {
+      "frame": 119,
+      "people": 2,
+      "faces": 1,
+      "plates": 0,
+      "person_scores": [
+        0.875,
+        0.906
+      ],
+      "face_scores": [
+        0.629
+      ]
+    },
+    {
+      "frame": 120,
+      "people": 2,
+      "faces": 1,
+      "plates": 0,
+      "person_scores": [
+        0.895,
+        0.902
+      ],
+      "face_scores": [
+        0.621
+      ]
+    },
+    {
+      "frame": 121,
+      "people": 3,
+      "faces": 1,
+      "plates": 0,
+      "person_scores": [
+        0.852,
+        0.504,
+        0.898
+      ],
+      "face_scores": [
+        0.605
+      ]
+    },
+    {
+      "frame": 122,
+      "people": 2,
+      "faces": 1,
+      "plates": 0,
+      "person_scores": [
+        0.883,
+        0.902
+      ],
+      "face_scores": [
+        0.609
+      ]
+    },
+    {
+      "frame": 123,
+      "people": 2,
+      "faces": 1,
+      "plates": 0,
+      "person_scores": [
+        0.895,
+        0.906
+      ],
+      "face_scores": [
+        0.602
+      ]
+    }
+  ]
+}
