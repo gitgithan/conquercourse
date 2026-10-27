@@ -8,7 +8,8 @@
     "build": "tsc --noEmit && vite build",
     "typecheck": "tsc --noEmit",
     "test:quick": "vitest run",
-    "test:smoke": "node scripts/smoke.mjs"
+    "test:smoke": "node scripts/smoke.mjs",
+    "format:json": "node scripts/format-json.mjs"
   },
   "dependencies": {
     "three": "^0.186.1"
