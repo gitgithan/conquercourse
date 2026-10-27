@@ -11,12 +11,14 @@ try {
   const page = await browser.newPage({ viewport: { width: 1300, height: 900 } });
   const errors = []; page.on('pageerror', (e) => { errors.push(e.message); console.log('PAGEERROR', e.message.slice(0, 200)); });
   await page.goto(`http://localhost:${port}/?mode=editor`);
-  await page.waitForSelector('#plan', { timeout: 60000 });
+  await page.waitForSelector('#view3d', { timeout: 60000 });
   mkdirSync('test-results/editor', { recursive: true });
   const checks = {};
   const text = (sel) => page.textContent(sel);
-  await page.waitForFunction(() => document.documentElement.dataset.verdict, null, { timeout: 20000 });
-  checks.startsWithAWorld = Number(await page.evaluate(() => document.documentElement.dataset.pieces)) === 3;
+  await page.waitForFunction(() => document.documentElement.dataset.pieces === '3', null, { timeout: 30000 });
+  await page.waitForTimeout(1500);
+  checks.startsWithAWorld = true;
+  checks.viewIs3d = (await page.evaluate(() => getComputedStyle(document.getElementById('view3d')).display)) !== 'none' && (await page.evaluate(() => getComputedStyle(document.getElementById('plan')).display)) === 'none';
   await page.screenshot({ path: 'test-results/editor/1-start.png' });
   // no vertical scrolling at common window sizes
   for (const [w, h] of [[1280, 720], [1024, 640], [1440, 900]]) {
@@ -45,7 +47,7 @@ try {
   await page.screenshot({ path: 'test-results/editor/all-objects.png' });
   await page.evaluate(() => localStorage.removeItem('cc.world.v1'));
   await page.reload();
-  await page.waitForSelector('#plan', { timeout: 60000 });
+  await page.waitForSelector('#view3d', { timeout: 60000 });
   await page.waitForSelector('button[data-object=rookie-a]', { timeout: 20000 });
   // a toy brick: 3 cm, enlarged x15 to a half-metre block
   await page.click('text=Toy brick (3 cm)');

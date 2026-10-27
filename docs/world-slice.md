@@ -116,3 +116,9 @@ The set of obstacle shapes is fixed, and each shape offers a fixed set of moves.
   - shows the line only; it never scores the player's own presses.
 - **Editor objects:** every object we have is placed from the editor: the photo objects (including park02 rail and park07 stairs, test-only), plus size references (a 1.75 m person from the Rookie model, and the demo scene).
 - **Not in the editor:** the two mural walls (the artist's rights) and the park06 slab (33 m, wrong size).
+
+## The editor is 3D (2026-10-28)
+- **3D view (`src/slice/view3d.ts`):** the main picture is now a rotatable 3D scene (drag empty space to turn, right-drag to pan, wheel to zoom); pieces are drawn as the real baked objects with their photo textures, on a paved ground, with the lane as a gold strip and the rod as a post; water shows when the level is above 0.
+- **Moving things:** drag a piece along the ground; "Top plan" switches to the flat plan, which is still the way to crop.
+- **No blocks by default:** the first world is a concrete bench, the long low box and the rail from real photos; the basic shapes are still in the "Basic shapes" row.
+- **A cropped piece** falls back to plain geometry (its texture does not survive a crop yet).

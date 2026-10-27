@@ -4,6 +4,7 @@ import { LIBRARY } from '../slice/shapes';
 import { bestSlices, describe as describeLane, laneToCourse, sliceProfile, CELL, HALF_LANE } from '../slice/slice';
 import { crop, duplicate, hits, newPiece, realSize, scaleBy, scaleToHeight, size, worldSamples, type Piece } from '../slice/world';
 import { searchIdealRun } from '../sim/ideal';
+import { createView3d } from '../slice/view3d';
 
 // The World editor (beta): build a world from pieces on a plan view, scale them (a toy brick becomes a block), turn, copy, crop and move them,
 // choose the lane the runner takes (turn about the rod, sideways, level), and play it. Everything is in metres.
@@ -51,7 +52,9 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
       pieces = s.pieces.filter((q) => !q.src.startsWith('obj:')).map((q) => ({ ...newPiece(lib(q.src).label, lib(q.src).mesh(), { x: q.x, z: q.z }), src: q.src, y: q.y, yaw: q.yaw, scale: q.scale }));
       angle = s.angle; offset = s.offset; level = s.level;
     } catch {
-      add('bench', { x: 2, z: 0 }); add('dome', { x: 8, z: 0 }); add('low-wall', { x: 14, z: 0 }); selected = null;
+      // a first world made of real objects (no blocks): a bench, a long low box and a rail, loaded once the object list is in
+      pendingObjects.push({ src: 'obj:bench-concrete.glb', x: 3, z: 0, y: 0, yaw: 0, scale: 1 }, { src: 'obj:box-skate-03.glb', x: 9, z: 0, y: 0, yaw: 0, scale: 1 }, { src: 'obj:rail-skate-01.glb', x: 16, z: 0, y: 0, yaw: 0, scale: 1 });
+      selected = null;
     }
   }
   const save = () => { try { localStorage.setItem(KEY, JSON.stringify({ pieces: pieces.filter((p) => p.src).map((p) => ({ src: p.src as string, x: p.x, z: p.z, y: p.y, yaw: p.yaw, scale: p.scale })), angle, offset, level } satisfies Saved)); } catch { /* private window */ } };
@@ -63,7 +66,7 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
   el('h1', top, { text: 'World editor (beta)' });
   el('a', top, { text: 'Back to the Course', href: '?', className: 'btn go' });
   const addBar = el('div', root, { className: 'top' });
-  el('strong', addBar, { text: 'Add:' });
+  el('strong', addBar, { text: 'Basic shapes:' });
   for (const l of LIBRARY) el('button', addBar, { text: l.label }).onclick = () => { add(l.id, freeSpot(l.id)); changed(); };
   // objects lifted from real photos (SAM 3D Objects, CC-38): each is a baked .glb at its real size
   const photoBar = addBar;
@@ -109,6 +112,17 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
   const main = el('div', root, { className: 'main' });
   const planWrap = el('div', main, { className: 'planwrap' });
   const plan = el('canvas', planWrap, { width: 900, height: 520, id: 'plan' });
+  // the 3D view is the main picture; the flat plan is kept for exact dragging and cropping (button "Top plan")
+  const view3d = createView3d(planWrap, {
+    pieces: () => pieces, selected: () => selected, lane: () => ({ angle, offset, level }),
+    select: (id) => { selected = id; drawPanel(); draw(); },
+    moved: (p, x, z) => { p.x = x; p.z = z; draw(); drawProfile(); },
+    dropped: () => changed(),
+  });
+  let topPlan = false;
+  const setView = (plan2d: boolean) => { topPlan = plan2d; plan.style.display = plan2d ? 'block' : 'none'; view3d.show(!plan2d); viewBtn.textContent = plan2d ? '3D view' : 'Top plan'; viewBtn.setAttribute('aria-pressed', String(plan2d)); if (plan2d) fit(); };
+  const viewBtn = el('button', top, { text: 'Top plan', id: 'viewmode', title: 'Switch between the 3D view and the flat plan (the plan is for cropping)' });
+  viewBtn.onclick = () => setView(!topPlan);
   const profileWrap = el('div', main, { className: 'profilewrap' });
   const profileCanvas = el('canvas', profileWrap, { width: 900, height: 128, id: 'profile' });
   const aside = el('div', root, { className: 'aside' });
@@ -122,6 +136,7 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
   };
   new ResizeObserver(fit).observe(planWrap);
   new ResizeObserver(fit).observe(profileWrap);
+  setView(false);
 
   // ---- the selected piece
   function drawPanel() {
@@ -203,6 +218,7 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
   const wz = (py: number) => (py - plan.height / 2) / view.ppm + view.cz;
   const COLORS = ['#c9893b', '#6fa3c9', '#8bb36b', '#b779b0', '#d96a5b', '#7b8f9c'];
   function draw() {
+    view3d.sync();
     const c = plan.getContext('2d')!;
     c.clearRect(0, 0, plan.width, plan.height);
     c.strokeStyle = '#e3e8e4'; c.lineWidth = 1; c.fillStyle = '#58635d'; c.font = '11px system-ui';
