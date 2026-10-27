@@ -1,0 +1,28 @@
+{
+  "experiment": "cc-41-mhr-look",
+  "date": "2026-10-27",
+  "inputs": {
+    "mhr_model": "modal volume sam-checkpoints body/sam-3d-body-dinov3/assets/mhr_model.pt (696,110,248 bytes)",
+    "rookie": "public/assets/characters/rookie-a.glb",
+    "regate_dir": "data/eval/cc-26-pexels-motion",
+    "photos_of_people": "none"
+  },
+  "code": [
+    "pipelines/video_to_motion/regate.py",
+    "tools/mhr_look/export_variants.py"
+  ],
+  "outputs": {
+    "regate": "data/eval/cc-41-mhr-look/regate/*.json (4 FAIL)",
+    "glbs": "public/assets/experiments/mhr-look/mhr-*.glb (12)",
+    "variants": "public/assets/experiments/mhr-look/variants.json",
+    "screenshot": "data/eval/cc-41-mhr-look/variants.png"
+  },
+  "hardware": "CPU only",
+  "modal_cost_usd": 0,
+  "gpu_minutes": 0,
+  "verdict": {
+    "variants": "made",
+    "skinned_to_rookie": "rough; A-pose vs T-pose blocks arms",
+    "gate": "4 of 4 FAIL"
+  }
+}
