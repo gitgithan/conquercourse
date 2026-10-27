@@ -32,7 +32,7 @@
     }
   ],
   "mask_load_seconds": 14.2,
-  "lift_load_seconds": 64.0,
+  "lift_load_seconds": 64,
   "gpu_seconds": {
     "l4": 16,
     "l40s": 83

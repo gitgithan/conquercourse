@@ -13,13 +13,13 @@
   "photos": [
     {
       "photo": "rail01",
-      "mask_seconds": 2.0,
+      "mask_seconds": 2,
       "lift_seconds": 9.6,
       "wall_seconds": 95.5,
       "mask": {
         "how": "box-prompt",
         "score": 0.9375,
-        "iou_with_box": 0.0,
+        "iou_with_box": 0,
         "candidates": 0,
         "pixels": 7874
       },
