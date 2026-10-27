@@ -11,6 +11,8 @@ import { flightPath, gapSpecs, minSpeedForWall, pressBand } from '../sim/needs';
 import { bounce } from '../sim/trampoline';
 import { DEFAULT_TRAMPOLINE } from '../sim/trampoline';
 import { ouch } from '../sim/landing';
+import { createRookieActor } from '../render/actor';
+import { actorStateFor } from '../motion/actor-state';
 import { groundAt } from '../sim/terrain';
 
 // The Course: the five obstacles in a row. The simulator decides everything; this file only draws it
@@ -77,13 +79,11 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
 
   // the rope hangs from its anchor; it is drawn straight down (it only swings with the runner)
   const ropeLen = course.rope?.length ?? DEFAULT_ROPE.length;
-  const ropeGroup = new THREE.Group();
+  let ropeMesh: THREE.Mesh | null = null;
   if (course.rope) {
-    const rope = new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.06, ropeLen, 8), new THREE.MeshStandardMaterial({ color: 0x8a5a2b }));
-    rope.position.y = -ropeLen / 2;
-    ropeGroup.add(rope);
-    ropeGroup.position.set(course.rope.anchorX, course.rope.anchorY, 0);
-    scene.add(ropeGroup);
+    ropeMesh = new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.06, ropeLen, 8), new THREE.MeshStandardMaterial({ color: 0x8a5a2b }));
+    ropeMesh.position.set(course.rope.anchorX, course.rope.anchorY - ropeLen / 2, 0);
+    scene.add(ropeMesh);
     const beam = new THREE.Mesh(new THREE.BoxGeometry(0.4, 0.4, 5), stone);
     beam.position.set(course.rope.anchorX, course.rope.anchorY + 0.2, 0);
     scene.add(beam);
@@ -92,6 +92,10 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
   // the runner (a capsule until the Rookie is wired in)
   const body = new THREE.Mesh(new THREE.CapsuleGeometry(0.28, 1.1, 6, 12), new THREE.MeshStandardMaterial({ color: 0xf07b1d }));
   scene.add(body);
+  // the real Rookie replaces the capsule when its model loads; the capsule stays as the fallback
+  let actor: Awaited<ReturnType<typeof createRookieActor>> | null = null;
+  try { actor = await createRookieActor(scene, { rookie: params.get('rookie') === 'b' ? 'b' : 'a' }); body.visible = false; } catch (e) { console.warn('Rookie not loaded, using the capsule', e); }
+  let facing: 1 | -1 = 1;
 
   // HUD
   const hud = document.createElement('div');
@@ -129,10 +133,10 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
   const GAUGE_MAX = 10;
   // numbers painted on the course so the player can see how wide a gap is and how high the wall is
   function label(text: string, x: number, y: number) {
-    const c = document.createElement('canvas'); c.width = 256; c.height = 96;
-    const g = c.getContext('2d')!; g.fillStyle = '#fffffff0'; g.fillRect(0, 0, 256, 96); g.fillStyle = '#10141c'; g.font = '700 54px system-ui'; g.textAlign = 'center'; g.fillText(text, 128, 66);
+    const c = document.createElement('canvas'); c.width = 400; c.height = 96;
+    const g = c.getContext('2d')!; g.fillStyle = '#fffffff0'; g.fillRect(0, 0, 400, 96); g.fillStyle = '#10141c'; g.font = '700 50px system-ui'; g.textAlign = 'center'; g.fillText(text, 200, 66);
     const sp = new THREE.Sprite(new THREE.SpriteMaterial({ map: new THREE.CanvasTexture(c) }));
-    sp.scale.set(3.2, 1.2, 1); sp.position.set(x, y, 0.5); scene.add(sp);
+    sp.scale.set(4.6, 1.1, 1); sp.position.set(x, y, 0.5); scene.add(sp);
   }
   for (const g of specs) { const z = zoneOf(g.x); if (z && (z.id === 'gap' || z.id === 'landing')) label(`${g.width.toFixed(1)} m`, g.x + g.width / 2, Math.max(0, g.rise) + 3); }
   if (course.wall) label(`${(course.wall.height ?? DEFAULT_WALL.height).toFixed(1)} m high`, course.wall.x0 + 2, (course.wall.height ?? DEFAULT_WALL.height) + 1.2);
@@ -417,10 +421,18 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
     const sq = world.runner.tick < squashUntil ? squashDepth : 1;
     body.scale.set(1 / Math.sqrt(sq), sq, 1 / Math.sqrt(sq));
     body.position.set(r.x, r.y + 0.85 * sq, 0);
+    if (Math.abs(world.runner.vx) > 0.3) facing = world.runner.vx < 0 ? -1 : 1;
+    if (actor) actor.update({ ...actorStateFor(world, keys.has('ArrowDown') || keys.has('KeyS'), facing), x: r.x, y: r.y });
     if (world.runner.tick > toastUntil) toast.style.display = 'none';
     hint.textContent = hintFor(world);
     hint.style.display = hint.textContent ? 'block' : 'none';
-    ropeGroup.rotation.z = world.swing ? world.swing.theta : 0;
+    if (ropeMesh && course.rope) {
+      // the rope swings about its anchor with the runner: its middle is half a rope length along the swing
+      const th = world.swing ? world.swing.theta : 0;
+      ropeMesh.rotation.z = th;
+      ropeMesh.position.set(course.rope.anchorX + (ropeLen / 2) * Math.sin(th), course.rope.anchorY - (ropeLen / 2) * Math.cos(th), 0);
+      ropeMesh.updateMatrix(); ropeMesh.updateMatrixWorld(true);
+    }
     msg.textContent = world.outcome === 'cleared' ? MESSAGES.cleared : '';
     const spd = Math.abs(r.vx);
     gText.textContent = `Speed ${spd.toFixed(1)} m/s`;
@@ -435,7 +447,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
     gNext.textContent = msgNext;
     hud.textContent = `Time ${(r.tick / 120).toFixed(1)} s   ·   ${Math.max(0, Math.round(r.x))} m of ${course.finishX} m`;
     const tx = r.x + 5, ty = r.y + 2.5;
-    const want = camMode === 'side' ? new THREE.Vector3(tx, ty + 1, 24) : new THREE.Vector3(r.x - 7, r.y + 4, 12);
+    const want = camMode === 'side' ? new THREE.Vector3(tx, ty + 1, 17) : new THREE.Vector3(r.x - 7, r.y + 4, 11);
     camPos.lerp(want, 0.12);
     camera.position.copy(camPos);
     camera.lookAt(tx, ty, 0);
@@ -445,7 +457,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
     document.documentElement.dataset.mode = world.mode;
     requestAnimationFrame(frame);
   }
-  camPos.set(5, 3.5, 24);
+  camPos.set(5, 3.5, 17);
   requestAnimationFrame(frame);
 
   const backend = (renderer.backend as { isWebGPUBackend?: boolean }).isWebGPUBackend ? 'webgpu' : 'webgl2';
