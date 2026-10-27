@@ -1,21 +1,11 @@
-"""The 30 joints (Kimodo's SOMA model skeleton) and small helpers."""
+"""The 30 joints (Kimodo's SOMA model skeleton) and small helpers; the skeleton itself lives in ccpipe."""
+import sys
+from pathlib import Path
+
 import numpy as np
 
-BASE = ["Hips", "Spine1", "Spine2", "Chest", "Neck1", "Neck2", "Head", "Jaw", "LeftEye", "RightEye"]
-SIDE = ["Shoulder", "Arm", "ForeArm", "Hand", "HandThumbEnd", "HandMiddleEnd", "Leg", "Shin", "Foot", "ToeBase"]
-NAMES = BASE + [s + j for s in ("Left", "Right") for j in SIDE]
-PARENTS_BY_NAME = {
-    "Hips": None, "Spine1": "Hips", "Spine2": "Spine1", "Chest": "Spine2", "Neck1": "Chest", "Neck2": "Neck1",
-    "Head": "Neck2", "Jaw": "Head", "LeftEye": "Head", "RightEye": "Head",
-}
-for _s in ("Left", "Right"):
-    PARENTS_BY_NAME.update({
-        _s + "Shoulder": "Chest", _s + "Arm": _s + "Shoulder", _s + "ForeArm": _s + "Arm", _s + "Hand": _s + "ForeArm",
-        _s + "HandThumbEnd": _s + "Hand", _s + "HandMiddleEnd": _s + "Hand", _s + "Leg": "Hips",
-        _s + "Shin": _s + "Leg", _s + "Foot": _s + "Shin", _s + "ToeBase": _s + "Foot"})
-PARENTS = [-1 if PARENTS_BY_NAME[n] is None else NAMES.index(PARENTS_BY_NAME[n]) for n in NAMES]
-IDX = {n: i for i, n in enumerate(NAMES)}
-assert len(NAMES) == 30
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+from ccpipe.skeleton import IDX, NAMES, PARENTS  # noqa: E402,F401
 
 
 def j(a, name):

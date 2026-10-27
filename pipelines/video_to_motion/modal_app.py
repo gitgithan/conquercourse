@@ -153,6 +153,26 @@ class Worker:
         except Exception as e:  # report, fall back to SAM 3D Body's own default
             return {"focal_px": None, "error": repr(e)[:500]}
 
+    # ---------- faces masked, nothing else (for the adult check and the scan) ----------
+    @modal.method()
+    def mask_for_review(self, frames_jpeg, blur_people=False):
+        """Faces and plates pixelated first; with blur_people the whole person is blurred as well. Returns JPEGs and receipt rows.
+
+        The adult check needs the body shape (faces masked, people kept); the scan and everything kept in git use blur_people=True."""
+        import cv2
+        import numpy as np
+        torch = self.torch
+        t0 = time.time()
+        out, receipt = [], []
+        for i, fj in enumerate(frames_jpeg):
+            img = cv2.cvtColor(cv2.imdecode(np.frombuffer(fj, np.uint8), 1), cv2.COLOR_BGR2RGB)
+            with torch.autocast("cuda", dtype=torch.bfloat16):
+                det = self._detect(img)
+            shown = self._blur_people(img, det)[0] if blur_people else self._mask_faces(img, det)
+            out.append(_jpeg(shown))
+            receipt.append({"i": i, "people": len(det["person"]), "faces": len(det["face"]), "plates": len(det["license plate"])})
+        return {"masked": out, "receipt": receipt, "seconds": time.time() - t0, "load_s": self.load_s}
+
     # ---------- privacy + measure ----------
     @modal.method()
     def privacy_and_measure(self, frames_jpeg, first_index, focal_px=None, prev_center=None):

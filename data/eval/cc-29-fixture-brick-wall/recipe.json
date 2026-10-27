@@ -1,0 +1,724 @@
+{
+  "recipeVersion": "0.1.0",
+  "source": {
+    "url": "https://www.pexels.com/video/a-man-jumping-off-the-wall-6002059/",
+    "uploader": "Mary Taylor",
+    "licence": "Pexels License",
+    "range_s": [
+      0,
+      10
+    ],
+    "id": "cc-29-fixture-brick-wall"
+  },
+  "move": "wall-run-and-grab",
+  "gate": {
+    "verdict": "FAIL",
+    "failed_rules": [
+      "held_clips_are_held"
+    ]
+  },
+  "athlete": {
+    "standing_height_m": 1.976,
+    "highest_hand_m": 2.26,
+    "highest_hip_m": 1.914
+  },
+  "obstacle": {
+    "id": "wall-1",
+    "type": "wall",
+    "roles": [
+      "vault",
+      "grab"
+    ],
+    "sizes": {
+      "height": 1.242,
+      "width": 2.0,
+      "thickness": 0.3
+    },
+    "height_m": 1.242,
+    "scale": {
+      "source": "body-height",
+      "metresPerPixel": 0.003028,
+      "relativeUncertainty": 0.078179,
+      "note": "athlete 578 px tall taken as 1.75 m (adult range 1.6-1.9 m); obstacle assumed at the athlete's depth"
+    },
+    "sizeUncertainty": {
+      "height": 0.078,
+      "thickness": 0.5
+    }
+  },
+  "phases": [
+    {
+      "name": "plant",
+      "frames": [
+        0,
+        16
+      ],
+      "t": [
+        0.0,
+        0.5
+      ],
+      "measured": true
+    },
+    {
+      "name": "grip",
+      "frames": [
+        0,
+        6
+      ],
+      "t": [
+        0.0,
+        0.167
+      ],
+      "measured": true
+    },
+    {
+      "name": "hang-or-pull",
+      "frames": [
+        5,
+        300
+      ],
+      "t": [
+        0.167,
+        9.977
+      ],
+      "measured": true
+    },
+    {
+      "name": "release",
+      "frames": [
+        299,
+        300
+      ],
+      "t": [
+        9.977,
+        9.977
+      ],
+      "measured": true
+    }
+  ],
+  "contactEvents": [
+    {
+      "joint": "LeftHand",
+      "t": [
+        0,
+        0.167
+      ],
+      "hold_s": 0.167,
+      "phase": "plant",
+      "on": "wall",
+      "height_m": 1.263,
+      "height_frac": 1.017,
+      "metres_past_first_plant": 0.015,
+      "brief_plant": false,
+      "measured": true
+    },
+    {
+      "joint": "RightHand",
+      "t": [
+        0,
+        0.601
+      ],
+      "hold_s": 0.601,
+      "phase": "plant",
+      "on": "wall",
+      "height_m": 1.758,
+      "height_frac": 1.415,
+      "metres_past_first_plant": -0.102,
+      "brief_plant": false,
+      "measured": true
+    },
+    {
+      "joint": "LeftFoot",
+      "t": [
+        0,
+        0.5
+      ],
+      "hold_s": 0.5,
+      "phase": "plant",
+      "on": "wall",
+      "height_m": 0.42,
+      "height_frac": 0.338,
+      "metres_past_first_plant": 0.0,
+      "brief_plant": false,
+      "measured": true
+    },
+    {
+      "joint": "RightFoot",
+      "t": [
+        0,
+        0.133
+      ],
+      "hold_s": 0.133,
+      "phase": "plant",
+      "on": "wall",
+      "height_m": 0.812,
+      "height_frac": 0.654,
+      "metres_past_first_plant": 0.02,
+      "brief_plant": false,
+      "measured": true
+    },
+    {
+      "joint": "LeftHand",
+      "t": [
+        0.234,
+        0.534
+      ],
+      "hold_s": 0.3,
+      "phase": "plant",
+      "on": "wall",
+      "height_m": 1.166,
+      "height_frac": 0.939,
+      "metres_past_first_plant": 0.003,
+      "brief_plant": false,
+      "measured": true
+    },
+    {
+      "joint": "LeftHand",
+      "t": [
+        0.767,
+        1.301
+      ],
+      "hold_s": 0.534,
+      "phase": "hang-or-pull",
+      "on": "wall",
+      "height_m": 1.24,
+      "height_frac": 0.998,
+      "metres_past_first_plant": 0.059,
+      "brief_plant": false,
+      "measured": true
+    },
+    {
+      "joint": "RightHand",
+      "t": [
+        0.901,
+        3.637
+      ],
+      "hold_s": 2.736,
+      "phase": "hang-or-pull",
+      "on": "wall",
+      "height_m": 1.809,
+      "height_frac": 1.457,
+      "metres_past_first_plant": 0.022,
+      "brief_plant": false,
+      "measured": true
+    },
+    {
+      "joint": "LeftFoot",
+      "t": [
+        1.502,
+        1.602
+      ],
+      "hold_s": 0.1,
+      "phase": "hang-or-pull",
+      "on": "wall",
+      "height_m": 0.485,
+      "height_frac": 0.39,
+      "metres_past_first_plant": 0.131,
+      "brief_plant": false,
+      "measured": true
+    },
+    {
+      "joint": "LeftHand",
+      "t": [
+        1.668,
+        2.269
+      ],
+      "hold_s": 0.601,
+      "phase": "hang-or-pull",
+      "on": "wall",
+      "height_m": 1.243,
+      "height_frac": 1.001,
+      "metres_past_first_plant": 0.2,
+      "brief_plant": false,
+      "measured": true
+    },
+    {
+      "joint": "LeftFoot",
+      "t": [
+        1.668,
+        3.203
+      ],
+      "hold_s": 1.535,
+      "phase": "hang-or-pull",
+      "on": "wall",
+      "height_m": 0.549,
+      "height_frac": 0.442,
+      "metres_past_first_plant": 0.177,
+      "brief_plant": false,
+      "measured": true
+    },
+    {
+      "joint": "RightFoot",
+      "t": [
+        1.735,
+        2.936
+      ],
+      "hold_s": 1.201,
+      "phase": "hang-or-pull",
+      "on": "wall",
+      "height_m": 1.247,
+      "height_frac": 1.004,
+      "metres_past_first_plant": 0.144,
+      "brief_plant": false,
+      "measured": true
+    },
+    {
+      "joint": "LeftHand",
+      "t": [
+        2.502,
+        2.636
+      ],
+      "hold_s": 0.133,
+      "phase": "hang-or-pull",
+      "on": "wall",
+      "height_m": 1.715,
+      "height_frac": 1.381,
+      "metres_past_first_plant": 0.213,
+      "brief_plant": false,
+      "measured": true
+    },
+    {
+      "joint": "LeftFoot",
+      "t": [
+        3.503,
+        3.77
+      ],
+      "hold_s": 0.267,
+      "phase": "hang-or-pull",
+      "on": "wall",
+      "height_m": 0.471,
+      "height_frac": 0.379,
+      "metres_past_first_plant": 0.268,
+      "brief_plant": false,
+      "measured": true
+    },
+    {
+      "joint": "RightFoot",
+      "t": [
+        3.503,
+        3.67
+      ],
+      "hold_s": 0.167,
+      "phase": "hang-or-pull",
+      "on": "ground",
+      "height_m": 0.072,
+      "height_frac": null,
+      "metres_past_first_plant": 0.696,
+      "brief_plant": false,
+      "measured": true
+    },
+    {
+      "joint": "RightHand",
+      "t": [
+        3.704,
+        7.007
+      ],
+      "hold_s": 3.303,
+      "phase": "hang-or-pull",
+      "on": "wall",
+      "height_m": 1.759,
+      "height_frac": 1.416,
+      "metres_past_first_plant": 0.191,
+      "brief_plant": false,
+      "measured": true
+    },
+    {
+      "joint": "LeftFoot",
+      "t": [
+        3.904,
+        4.004
+      ],
+      "hold_s": 0.1,
+      "phase": "hang-or-pull",
+      "on": "wall",
+      "height_m": 0.542,
+      "height_frac": 0.436,
+      "metres_past_first_plant": 0.313,
+      "brief_plant": false,
+      "measured": true
+    },
+    {
+      "joint": "LeftHand",
+      "t": [
+        4.037,
+        4.238
+      ],
+      "hold_s": 0.2,
+      "phase": "hang-or-pull",
+      "on": "wall",
+      "height_m": 1.382,
+      "height_frac": 1.113,
+      "metres_past_first_plant": 0.401,
+      "brief_plant": false,
+      "measured": true
+    },
+    {
+      "joint": "RightFoot",
+      "t": [
+        4.071,
+        6.139
+      ],
+      "hold_s": 2.069,
+      "phase": "hang-or-pull",
+      "on": "wall",
+      "height_m": 1.205,
+      "height_frac": 0.97,
+      "metres_past_first_plant": 0.356,
+      "brief_plant": false,
+      "measured": true
+    },
+    {
+      "joint": "LeftFoot",
+      "t": [
+        4.104,
+        6.373
+      ],
+      "hold_s": 2.269,
+      "phase": "hang-or-pull",
+      "on": "wall",
+      "height_m": 0.556,
+      "height_frac": 0.448,
+      "metres_past_first_plant": 0.397,
+      "brief_plant": false,
+      "measured": true
+    },
+    {
+      "joint": "LeftHand",
+      "t": [
+        4.438,
+        5.672
+      ],
+      "hold_s": 1.235,
+      "phase": "hang-or-pull",
+      "on": "wall",
+      "height_m": 1.766,
+      "height_frac": 1.422,
+      "metres_past_first_plant": 0.359,
+      "brief_plant": false,
+      "measured": true
+    },
+    {
+      "joint": "LeftHand",
+      "t": [
+        6.039,
+        6.24
+      ],
+      "hold_s": 0.2,
+      "phase": "hang-or-pull",
+      "on": "wall",
+      "height_m": 1.715,
+      "height_frac": 1.381,
+      "metres_past_first_plant": 0.313,
+      "brief_plant": false,
+      "measured": true
+    },
+    {
+      "joint": "LeftHand",
+      "t": [
+        6.373,
+        6.94
+      ],
+      "hold_s": 0.567,
+      "phase": "hang-or-pull",
+      "on": "wall",
+      "height_m": 1.693,
+      "height_frac": 1.363,
+      "metres_past_first_plant": 0.31,
+      "brief_plant": false,
+      "measured": true
+    },
+    {
+      "joint": "LeftFoot",
+      "t": [
+        6.506,
+        6.94
+      ],
+      "hold_s": 0.434,
+      "phase": "hang-or-pull",
+      "on": "wall",
+      "height_m": 0.517,
+      "height_frac": 0.416,
+      "metres_past_first_plant": 0.427,
+      "brief_plant": false,
+      "measured": true
+    },
+    {
+      "joint": "RightFoot",
+      "t": [
+        6.673,
+        6.807
+      ],
+      "hold_s": 0.133,
+      "phase": "hang-or-pull",
+      "on": "ground",
+      "height_m": 0.047,
+      "height_frac": null,
+      "metres_past_first_plant": 0.729,
+      "brief_plant": false,
+      "measured": true
+    },
+    {
+      "joint": "RightHand",
+      "t": [
+        7.14,
+        7.441
+      ],
+      "hold_s": 0.3,
+      "phase": "hang-or-pull",
+      "on": "wall",
+      "height_m": 1.825,
+      "height_frac": 1.469,
+      "metres_past_first_plant": 0.213,
+      "brief_plant": false,
+      "measured": true
+    },
+    {
+      "joint": "RightFoot",
+      "t": [
+        7.241,
+        7.508
+      ],
+      "hold_s": 0.267,
+      "phase": "hang-or-pull",
+      "on": "wall",
+      "height_m": 1.167,
+      "height_frac": 0.94,
+      "metres_past_first_plant": 0.386,
+      "brief_plant": false,
+      "measured": true
+    },
+    {
+      "joint": "LeftFoot",
+      "t": [
+        8.141,
+        9.142
+      ],
+      "hold_s": 1.001,
+      "phase": "hang-or-pull",
+      "on": "wall",
+      "height_m": 0.406,
+      "height_frac": 0.327,
+      "metres_past_first_plant": 2.218,
+      "brief_plant": false,
+      "measured": true
+    },
+    {
+      "joint": "RightFoot",
+      "t": [
+        8.208,
+        8.408
+      ],
+      "hold_s": 0.2,
+      "phase": "hang-or-pull",
+      "on": "wall",
+      "height_m": 0.351,
+      "height_frac": 0.283,
+      "metres_past_first_plant": 2.468,
+      "brief_plant": false,
+      "measured": true
+    },
+    {
+      "joint": "RightHand",
+      "t": [
+        8.242,
+        8.442
+      ],
+      "hold_s": 0.2,
+      "phase": "hang-or-pull",
+      "on": "wall",
+      "height_m": 1.026,
+      "height_frac": 0.826,
+      "metres_past_first_plant": 2.622,
+      "brief_plant": false,
+      "measured": true
+    },
+    {
+      "joint": "RightFoot",
+      "t": [
+        8.475,
+        8.642
+      ],
+      "hold_s": 0.167,
+      "phase": "hang-or-pull",
+      "on": "wall",
+      "height_m": 0.421,
+      "height_frac": 0.339,
+      "metres_past_first_plant": 2.404,
+      "brief_plant": false,
+      "measured": true
+    },
+    {
+      "joint": "RightHand",
+      "t": [
+        8.675,
+        9.476
+      ],
+      "hold_s": 0.801,
+      "phase": "hang-or-pull",
+      "on": "wall",
+      "height_m": 1.234,
+      "height_frac": 0.994,
+      "metres_past_first_plant": 2.733,
+      "brief_plant": false,
+      "measured": true
+    },
+    {
+      "joint": "RightFoot",
+      "t": [
+        8.709,
+        9.076
+      ],
+      "hold_s": 0.367,
+      "phase": "hang-or-pull",
+      "on": "wall",
+      "height_m": 0.396,
+      "height_frac": 0.319,
+      "metres_past_first_plant": 2.485,
+      "brief_plant": false,
+      "measured": true
+    },
+    {
+      "joint": "LeftHand",
+      "t": [
+        8.775,
+        9.176
+      ],
+      "hold_s": 0.4,
+      "phase": "hang-or-pull",
+      "on": "wall",
+      "height_m": 1.387,
+      "height_frac": 1.117,
+      "metres_past_first_plant": 2.209,
+      "brief_plant": false,
+      "measured": true
+    },
+    {
+      "joint": "RightFoot",
+      "t": [
+        9.176,
+        9.977
+      ],
+      "hold_s": 0.801,
+      "phase": "hang-or-pull",
+      "on": "wall",
+      "height_m": 0.373,
+      "height_frac": 0.3,
+      "metres_past_first_plant": 2.723,
+      "brief_plant": false,
+      "measured": true
+    },
+    {
+      "joint": "LeftFoot",
+      "t": [
+        9.276,
+        9.977
+      ],
+      "hold_s": 0.701,
+      "phase": "hang-or-pull",
+      "on": "wall",
+      "height_m": 0.375,
+      "height_frac": 0.302,
+      "metres_past_first_plant": 2.455,
+      "brief_plant": false,
+      "measured": true
+    },
+    {
+      "joint": "RightHand",
+      "t": [
+        9.61,
+        9.977
+      ],
+      "hold_s": 0.367,
+      "phase": "hang-or-pull",
+      "on": "wall",
+      "height_m": 1.232,
+      "height_frac": 0.992,
+      "metres_past_first_plant": 2.471,
+      "brief_plant": false,
+      "measured": true
+    },
+    {
+      "joint": "LeftHand",
+      "t": [
+        9.81,
+        9.977
+      ],
+      "hold_s": 0.167,
+      "phase": "hang-or-pull",
+      "on": "wall",
+      "height_m": 1.23,
+      "height_frac": 0.99,
+      "metres_past_first_plant": 2.601,
+      "brief_plant": false,
+      "measured": true
+    }
+  ],
+  "timing": {
+    "duration_s": 9.977,
+    "peak_hip_speed_mps": 2.24,
+    "speed_at_plant_mps": 0.14,
+    "plant_to_grip_s": 0.0,
+    "held_by_hands_s": 9.977,
+    "longest_flight_s": 1.235
+  },
+  "reach": {
+    "highest_hand_m": 2.26,
+    "grip_height_frac": 1.82
+  },
+  "transfer": [
+    {
+      "to": "ramp",
+      "how": "swap the flat face for a curve: the plant moves higher and the run-up speed becomes the lesson",
+      "confidence": "guess"
+    },
+    {
+      "to": "platform",
+      "how": "as a climb onto a high deck: grab the edge, pull up",
+      "confidence": "guess"
+    },
+    {
+      "to": "wall",
+      "how": "a wall of another height: scale contact heights by the height ratio",
+      "confidence": "guess"
+    }
+  ],
+  "provenance": {
+    "phases": "measured (from contacts of the gated 30-joint motion)",
+    "contactEvents": "measured times; heights measured in metres with the body model's weak vertical scale",
+    "timing": "measured on the clip's own clock",
+    "athlete": "measured",
+    "reach": "measured",
+    "obstacle.sizes": "estimated: athlete 578 px tall taken as 1.75 m (adult range 1.6-1.9 m); obstacle assumed at the athlete's depth",
+    "transfer": "guess: rules by obstacle type, not tested in the simulator"
+  },
+  "warnings": [
+    "the clip failed the plausibility gate: use the recipe's shape, not its numbers, and never show the motion"
+  ],
+  "transferChecks": [
+    {
+      "target": "platform-1",
+      "ok": false,
+      "height_scale": 0.936,
+      "reasons": [
+        "the source clip failed the gate"
+      ]
+    },
+    {
+      "target": "platform-2",
+      "ok": false,
+      "height_scale": 1.007,
+      "reasons": [
+        "the source clip failed the gate"
+      ]
+    },
+    {
+      "target": "platform-3",
+      "ok": false,
+      "height_scale": 0.429,
+      "reasons": [
+        "height ratio 0.43 is outside (0.7, 1.3): needs a new clip, not a scaled one",
+        "the source clip failed the gate"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,10 @@
+{
+  "model": "kimodo-soma-rp",
+  "kimodo_commit": "e1c219c99b4b94ba48be1fb6a1cbc64ecee4c954",
+  "steps": 100,
+  "seed": 7,
+  "torch": "2.14.1+cu130",
+  "load_s": 74.8,
+  "total_s": 143.7,
+  "wall_s": 355.2
+}

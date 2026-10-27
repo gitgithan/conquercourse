@@ -26,6 +26,7 @@
 
 ## Python pipelines
 - `uv run --no-project --with numpy python -I <script>` for small tools; Modal jobs via `modal run --detach <script>` started in the background with a log and a status check.
+- Video ingest (`pipelines/ingest_video.py`): `yt-dlp`, `pillow`, `opencv-python-headless`, `meta_sam_parser`, `jsonschema` in the venv; `CC_ASSETS_DIR` names the folder that holds `video/` and `work/` (needed in a git worktree, where `../conquercourse-assets` is the wrong place); YouTube may refuse datacenter IPs with a bot check, so pass `--cookies` (a file the product owner exports) or fetch elsewhere and use `--info-json` and `--file`.
 - Blender headless (for rigging) from its own Python environment; FBX and GLB both import.
 - Each run writes `data/eval/<experiment>/` (inputs, outputs, `run.json`, README with the command and cost).
 

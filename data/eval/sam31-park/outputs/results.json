@@ -1,0 +1,2321 @@
+[
+  {
+    "photo": "park01",
+    "phrase": "bench",
+    "http": 200,
+    "seconds": 2.24,
+    "api_ms": 2042,
+    "images_processed": 1,
+    "count": 0,
+    "scores": [],
+    "boxes": [],
+    "mask_px": []
+  },
+  {
+    "photo": "park01",
+    "phrase": "wall",
+    "http": 200,
+    "seconds": 4.79,
+    "api_ms": 3908,
+    "images_processed": 1,
+    "count": 3,
+    "scores": [
+      0.5704697966575623,
+      0.5508772134780884,
+      0.7104072570800781
+    ],
+    "boxes": [
+      [
+        829,
+        198,
+        1203,
+        258
+      ],
+      [
+        120,
+        192,
+        1279,
+        522
+      ],
+      [
+        465,
+        274,
+        1082,
+        715
+      ]
+    ],
+    "mask_px": [
+      14729,
+      58574,
+      112859
+    ]
+  },
+  {
+    "photo": "park01",
+    "phrase": "rail",
+    "http": 200,
+    "seconds": 2.76,
+    "api_ms": 2488,
+    "images_processed": 1,
+    "count": 1,
+    "scores": [
+      0.8632478713989258
+    ],
+    "boxes": [
+      [
+        367,
+        229,
+        823,
+        567
+      ]
+    ],
+    "mask_px": [
+      9990
+    ]
+  },
+  {
+    "photo": "park01",
+    "phrase": "ledge",
+    "http": 200,
+    "seconds": 2.37,
+    "api_ms": 2202,
+    "images_processed": 1,
+    "count": 0,
+    "scores": [],
+    "boxes": [],
+    "mask_px": []
+  },
+  {
+    "photo": "park01",
+    "phrase": "steps",
+    "http": 200,
+    "seconds": 3.49,
+    "api_ms": 3292,
+    "images_processed": 1,
+    "count": 1,
+    "scores": [
+      0.827957034111023
+    ],
+    "boxes": [
+      [
+        386,
+        327,
+        769,
+        521
+      ]
+    ],
+    "mask_px": [
+      29891
+    ]
+  },
+  {
+    "photo": "park01",
+    "phrase": "stairs",
+    "http": 200,
+    "seconds": 3.52,
+    "api_ms": 3216,
+    "images_processed": 1,
+    "count": 1,
+    "scores": [
+      0.8827838897705078
+    ],
+    "boxes": [
+      [
+        386,
+        327,
+        769,
+        521
+      ]
+    ],
+    "mask_px": [
+      29821
+    ]
+  },
+  {
+    "photo": "park01",
+    "phrase": "handrail",
+    "http": 200,
+    "seconds": 2.57,
+    "api_ms": 2382,
+    "images_processed": 1,
+    "count": 1,
+    "scores": [
+      0.9649122953414917
+    ],
+    "boxes": [
+      [
+        367,
+        229,
+        823,
+        567
+      ]
+    ],
+    "mask_px": [
+      9811
+    ]
+  },
+  {
+    "photo": "park01",
+    "phrase": "platform",
+    "http": 200,
+    "seconds": 3.99,
+    "api_ms": 3880,
+    "images_processed": 1,
+    "count": 0,
+    "scores": [],
+    "boxes": [],
+    "mask_px": []
+  },
+  {
+    "photo": "park01",
+    "phrase": "concrete block",
+    "http": 200,
+    "seconds": 3.31,
+    "api_ms": 2830,
+    "images_processed": 1,
+    "count": 4,
+    "scores": [
+      0.5704697966575623,
+      0.5151515007019043,
+      0.5114504098892212,
+      0.5241636037826538
+    ],
+    "boxes": [
+      [
+        465,
+        275,
+        1082,
+        715
+      ],
+      [
+        511,
+        374,
+        681,
+        419
+      ],
+      [
+        555,
+        350,
+        729,
+        390
+      ],
+      [
+        413,
+        430,
+        583,
+        487
+      ]
+    ],
+    "mask_px": [
+      117230,
+      4678,
+      4249,
+      6024
+    ]
+  },
+  {
+    "photo": "park01",
+    "phrase": "low wall",
+    "http": 200,
+    "seconds": 5.04,
+    "api_ms": 4436,
+    "images_processed": 1,
+    "count": 2,
+    "scores": [
+      0.5661016702651978,
+      0.7968254089355469
+    ],
+    "boxes": [
+      [
+        120,
+        192,
+        1279,
+        522
+      ],
+      [
+        465,
+        274,
+        1082,
+        716
+      ]
+    ],
+    "mask_px": [
+      58797,
+      113255
+    ]
+  },
+  {
+    "photo": "park02",
+    "phrase": "bench",
+    "http": 200,
+    "seconds": 3.53,
+    "api_ms": 3520,
+    "images_processed": 1,
+    "count": 0,
+    "scores": [],
+    "boxes": [],
+    "mask_px": []
+  },
+  {
+    "photo": "park02",
+    "phrase": "wall",
+    "http": 200,
+    "seconds": 3.4,
+    "api_ms": 2747,
+    "images_processed": 1,
+    "count": 2,
+    "scores": [
+      0.7387754917144775,
+      0.6559139490127563
+    ],
+    "boxes": [
+      [
+        138,
+        311,
+        1140,
+        662
+      ],
+      [
+        299,
+        271,
+        1279,
+        482
+      ]
+    ],
+    "mask_px": [
+      156584,
+      52984
+    ]
+  },
+  {
+    "photo": "park02",
+    "phrase": "rail",
+    "http": 200,
+    "seconds": 2.46,
+    "api_ms": 2298,
+    "images_processed": 1,
+    "count": 1,
+    "scores": [
+      0.8083832263946533
+    ],
+    "boxes": [
+      [
+        331,
+        245,
+        966,
+        494
+      ]
+    ],
+    "mask_px": [
+      10020
+    ]
+  },
+  {
+    "photo": "park02",
+    "phrase": "ledge",
+    "http": 200,
+    "seconds": 2.13,
+    "api_ms": 2122,
+    "images_processed": 1,
+    "count": 0,
+    "scores": [],
+    "boxes": [],
+    "mask_px": []
+  },
+  {
+    "photo": "park02",
+    "phrase": "steps",
+    "http": 200,
+    "seconds": 2.37,
+    "api_ms": 2361,
+    "images_processed": 1,
+    "count": 0,
+    "scores": [],
+    "boxes": [],
+    "mask_px": []
+  },
+  {
+    "photo": "park02",
+    "phrase": "stairs",
+    "http": 200,
+    "seconds": 3.94,
+    "api_ms": 3930,
+    "images_processed": 1,
+    "count": 0,
+    "scores": [],
+    "boxes": [],
+    "mask_px": []
+  },
+  {
+    "photo": "park02",
+    "phrase": "handrail",
+    "http": 200,
+    "seconds": 3.16,
+    "api_ms": 3070,
+    "images_processed": 1,
+    "count": 1,
+    "scores": [
+      0.941605806350708
+    ],
+    "boxes": [
+      [
+        331,
+        245,
+        966,
+        494
+      ]
+    ],
+    "mask_px": [
+      9815
+    ]
+  },
+  {
+    "photo": "park02",
+    "phrase": "platform",
+    "http": 200,
+    "seconds": 2.38,
+    "api_ms": 2369,
+    "images_processed": 1,
+    "count": 0,
+    "scores": [],
+    "boxes": [],
+    "mask_px": []
+  },
+  {
+    "photo": "park02",
+    "phrase": "concrete block",
+    "http": 200,
+    "seconds": 1.99,
+    "api_ms": 1982,
+    "images_processed": 1,
+    "count": 0,
+    "scores": [],
+    "boxes": [],
+    "mask_px": []
+  },
+  {
+    "photo": "park02",
+    "phrase": "low wall",
+    "http": 200,
+    "seconds": 3.47,
+    "api_ms": 2844,
+    "images_processed": 1,
+    "count": 2,
+    "scores": [
+      0.8012422323226929,
+      0.6717948913574219
+    ],
+    "boxes": [
+      [
+        138,
+        310,
+        1140,
+        662
+      ],
+      [
+        298,
+        271,
+        1279,
+        482
+      ]
+    ],
+    "mask_px": [
+      156764,
+      53394
+    ]
+  },
+  {
+    "photo": "park03",
+    "phrase": "bench",
+    "http": 200,
+    "seconds": 3.57,
+    "api_ms": 3565,
+    "images_processed": 1,
+    "count": 0,
+    "scores": [],
+    "boxes": [],
+    "mask_px": []
+  },
+  {
+    "photo": "park03",
+    "phrase": "wall",
+    "http": 200,
+    "seconds": 2.17,
+    "api_ms": 2152,
+    "images_processed": 1,
+    "count": 0,
+    "scores": [],
+    "boxes": [],
+    "mask_px": []
+  },
+  {
+    "photo": "park03",
+    "phrase": "rail",
+    "http": 200,
+    "seconds": 0.97,
+    "api_ms": 962,
+    "images_processed": 1,
+    "count": 0,
+    "scores": [],
+    "boxes": [],
+    "mask_px": []
+  },
+  {
+    "photo": "park03",
+    "phrase": "ledge",
+    "http": 200,
+    "seconds": 2.63,
+    "api_ms": 2622,
+    "images_processed": 1,
+    "count": 0,
+    "scores": [],
+    "boxes": [],
+    "mask_px": []
+  },
+  {
+    "photo": "park03",
+    "phrase": "steps",
+    "http": 200,
+    "seconds": 2.25,
+    "api_ms": 2241,
+    "images_processed": 1,
+    "count": 0,
+    "scores": [],
+    "boxes": [],
+    "mask_px": []
+  },
+  {
+    "photo": "park03",
+    "phrase": "stairs",
+    "http": 200,
+    "seconds": 2.43,
+    "api_ms": 2413,
+    "images_processed": 1,
+    "count": 0,
+    "scores": [],
+    "boxes": [],
+    "mask_px": []
+  },
+  {
+    "photo": "park03",
+    "phrase": "handrail",
+    "http": 200,
+    "seconds": 1.93,
+    "api_ms": 1914,
+    "images_processed": 1,
+    "count": 0,
+    "scores": [],
+    "boxes": [],
+    "mask_px": []
+  },
+  {
+    "photo": "park03",
+    "phrase": "platform",
+    "http": 200,
+    "seconds": 2.67,
+    "api_ms": 2312,
+    "images_processed": 1,
+    "count": 3,
+    "scores": [
+      0.8012422323226929,
+      0.8358974456787109,
+      0.6213017702102661
+    ],
+    "boxes": [
+      [
+        1024,
+        199,
+        1203,
+        230
+      ],
+      [
+        82,
+        293,
+        827,
+        509
+      ],
+      [
+        655,
+        169,
+        848,
+        241
+      ]
+    ],
+    "mask_px": [
+      4859,
+      93721,
+      9056
+    ]
+  },
+  {
+    "photo": "park03",
+    "phrase": "concrete block",
+    "http": 200,
+    "seconds": 2.18,
+    "api_ms": 2172,
+    "images_processed": 1,
+    "count": 0,
+    "scores": [],
+    "boxes": [],
+    "mask_px": []
+  },
+  {
+    "photo": "park03",
+    "phrase": "low wall",
+    "http": 200,
+    "seconds": 3.57,
+    "api_ms": 3547,
+    "images_processed": 1,
+    "count": 0,
+    "scores": [],
+    "boxes": [],
+    "mask_px": []
+  },
+  {
+    "photo": "park04",
+    "phrase": "bench",
+    "http": 200,
+    "seconds": 2.2,
+    "api_ms": 1953,
+    "images_processed": 1,
+    "count": 1,
+    "scores": [
+      0.507692277431488
+    ],
+    "boxes": [
+      [
+        18,
+        593,
+        1122,
+        959
+      ]
+    ],
+    "mask_px": [
+      116059
+    ]
+  },
+  {
+    "photo": "park04",
+    "phrase": "wall",
+    "http": 200,
+    "seconds": 3.34,
+    "api_ms": 2838,
+    "images_processed": 1,
+    "count": 1,
+    "scores": [
+      0.8358974456787109
+    ],
+    "boxes": [
+      [
+        0,
+        0,
+        971,
+        892
+      ]
+    ],
+    "mask_px": [
+      549595
+    ]
+  },
+  {
+    "photo": "park04",
+    "phrase": "rail",
+    "http": 200,
+    "seconds": 1.85,
+    "api_ms": 1843,
+    "images_processed": 1,
+    "count": 0,
+    "scores": [],
+    "boxes": [],
+    "mask_px": []
+  },
+  {
+    "photo": "park04",
+    "phrase": "ledge",
+    "http": 200,
+    "seconds": 5.75,
+    "api_ms": 5275,
+    "images_processed": 1,
+    "count": 2,
+    "scores": [
+      0.5704697966575623,
+      0.5586206912994385
+    ],
+    "boxes": [
+      [
+        18,
+        594,
+        1123,
+        959
+      ],
+      [
+        209,
+        0,
+        962,
+        282
+      ]
+    ],
+    "mask_px": [
+      100579,
+      30674
+    ]
+  },
+  {
+    "photo": "park04",
+    "phrase": "steps",
+    "http": 200,
+    "seconds": 0.86,
+    "api_ms": 852,
+    "images_processed": 1,
+    "count": 0,
+    "scores": [],
+    "boxes": [],
+    "mask_px": []
+  },
+  {
+    "photo": "park04",
+    "phrase": "stairs",
+    "http": 200,
+    "seconds": 2.26,
+    "api_ms": 2248,
+    "images_processed": 1,
+    "count": 0,
+    "scores": [],
+    "boxes": [],
+    "mask_px": []
+  },
+  {
+    "photo": "park04",
+    "phrase": "handrail",
+    "http": 200,
+    "seconds": 2.47,
+    "api_ms": 2445,
+    "images_processed": 1,
+    "count": 0,
+    "scores": [],
+    "boxes": [],
+    "mask_px": []
+  },
+  {
+    "photo": "park04",
+    "phrase": "platform",
+    "http": 200,
+    "seconds": 2.63,
+    "api_ms": 2606,
+    "images_processed": 1,
+    "count": 0,
+    "scores": [],
+    "boxes": [],
+    "mask_px": []
+  },
+  {
+    "photo": "park04",
+    "phrase": "concrete block",
+    "http": 200,
+    "seconds": 3.31,
+    "api_ms": 3028,
+    "images_processed": 1,
+    "count": 43,
+    "scores": [
+      0.8160918951034546,
+      0.6404494643211365,
+      0.7460317611694336,
+      0.8552036285400391,
+      0.8358974456787109,
+      0.7697842121124268,
+      0.8160918951034546,
+      0.5428571701049805,
+      0.8518518805503845,
+      0.8476190567016602,
+      0.8518518805503845,
+      0.8202247023582458,
+      0.8518518805503845,
+      0.8400000333786011,
+      0.6717948913574219,
+      0.8241757750511169,
+      0.8476190567016602,
+      0.8241757750511169,
+      0.8358974456787109,
+      0.8518518805503845,
+      0.8358974456787109,
+      0.8552036285400391,
+      0.8358974456787109,
+      0.8518518805503845,
+      0.6444444060325623,
+      0.8241757750511169,
+      0.5151515007019043,
+      0.8552036285400391,
+      0.5395683646202087,
+      0.859649121761322,
+      0.8324607610702515,
+      0.5241636037826538,
+      0.8083832263946533,
+      0.8202247023582458,
+      0.8400000333786011,
+      0.8400000333786011,
+      0.8324607610702515,
+      0.8400000333786011,
+      0.7264957427978516,
+      0.8400000333786011,
+      0.5311355590820312,
+      0.675126850605011,
+      0.6444444060325623
+    ],
+    "boxes": [
+      [
+        883,
+        341,
+        964,
+        400
+      ],
+      [
+        506,
+        555,
+        704,
+        655
+      ],
+      [
+        697,
+        281,
+        876,
+        336
+      ],
+      [
+        614,
+        309,
+        778,
+        394
+      ],
+      [
+        881,
+        282,
+        961,
+        341
+      ],
+      [
+        5,
+        0,
+        237,
+        155
+      ],
+      [
+        886,
+        403,
+        966,
+        461
+      ],
+      [
+        77,
+        700,
+        640,
+        929
+      ],
+      [
+        0,
+        436,
+        71,
+        651
+      ],
+      [
+        407,
+        466,
+        526,
+        569
+      ],
+      [
+        529,
+        464,
+        621,
+        552
+      ],
+      [
+        891,
+        520,
+        973,
+        586
+      ],
+      [
+        525,
+        377,
+        700,
+        463
+      ],
+      [
+        0,
+        8,
+        60,
+        234
+      ],
+      [
+        244,
+        632,
+        407,
+        755
+      ],
+      [
+        888,
+        461,
+        969,
+        521
+      ],
+      [
+        0,
+        605,
+        248,
+        796
+      ],
+      [
+        396,
+        248,
+        499,
+        366
+      ],
+      [
+        520,
+        285,
+        614,
+        382
+      ],
+      [
+        71,
+        443,
+        402,
+        629
+      ],
+      [
+        401,
+        357,
+        523,
+        461
+      ],
+      [
+        0,
+        221,
+        242,
+        448
+      ],
+      [
+        250,
+        576,
+        404,
+        689
+      ],
+      [
+        701,
+        396,
+        882,
+        462
+      ],
+      [
+        20,
+        914,
+        447,
+        959
+      ],
+      [
+        59,
+        58,
+        367,
+        329
+      ],
+      [
+        495,
+        280,
+        526,
+        372
+      ],
+      [
+        243,
+        311,
+        399,
+        457
+      ],
+      [
+        226,
+        5,
+        396,
+        237
+      ],
+      [
+        620,
+        464,
+        785,
+        541
+      ],
+      [
+        390,
+        139,
+        494,
+        272
+      ],
+      [
+        494,
+        150,
+        689,
+        280
+      ],
+      [
+        706,
+        525,
+        878,
+        579
+      ],
+      [
+        234,
+        91,
+        364,
+        222
+      ],
+      [
+        409,
+        563,
+        511,
+        684
+      ],
+      [
+        531,
+        538,
+        705,
+        610
+      ],
+      [
+        519,
+        236,
+        694,
+        317
+      ],
+      [
+        784,
+        461,
+        885,
+        526
+      ],
+      [
+        0,
+        701,
+        244,
+        888
+      ],
+      [
+        778,
+        333,
+        880,
+        397
+      ],
+      [
+        480,
+        625,
+        838,
+        729
+      ],
+      [
+        340,
+        232,
+        397,
+        346
+      ],
+      [
+        704,
+        543,
+        888,
+        609
+      ]
+    ],
+    "mask_px": [
+      4538,
+      8309,
+      6941,
+      11196,
+      4393,
+      18694,
+      4526,
+      65785,
+      14003,
+      11227,
+      7419,
+      4828,
+      13393,
+      11409,
+      9298,
+      4611,
+      28941,
+      9508,
+      7542,
+      47987,
+      11109,
+      41780,
+      12172,
+      11312,
+      16408,
+      43988,
+      2095,
+      18864,
+      10427,
+      11376,
+      9414,
+      12784,
+      6993,
+      8904,
+      10087,
+      8758,
+      7491,
+      6165,
+      19232,
+      6106,
+      17239,
+      3509,
+      5757
+    ]
+  },
+  {
+    "photo": "park04",
+    "phrase": "low wall",
+    "http": 200,
+    "seconds": 4.06,
+    "api_ms": 3387,
+    "images_processed": 1,
+    "count": 1,
+    "scores": [
+      0.859649121761322
+    ],
+    "boxes": [
+      [
+        0,
+        0,
+        970,
+        893
+      ]
+    ],
+    "mask_px": [
+      549747
+    ]
+  },
+  {
+    "photo": "park05",
+    "phrase": "bench",
+    "http": 200,
+    "seconds": 3.5,
+    "api_ms": 3445,
+    "images_processed": 1,
+    "count": 1,
+    "scores": [
+      0.9569892287254333
+    ],
+    "boxes": [
+      [
+        682,
+        491,
+        938,
+        637
+      ]
+    ],
+    "mask_px": [
+      20832
+    ]
+  },
+  {
+    "photo": "park05",
+    "phrase": "wall",
+    "http": 200,
+    "seconds": 2.71,
+    "api_ms": 2465,
+    "images_processed": 1,
+    "count": 1,
+    "scores": [
+      0.5775577425956726
+    ],
+    "boxes": [
+      [
+        236,
+        472,
+        1023,
+        586
+      ]
+    ],
+    "mask_px": [
+      42168
+    ]
+  },
+  {
+    "photo": "park05",
+    "phrase": "rail",
+    "http": 200,
+    "seconds": 2.59,
+    "api_ms": 2579,
+    "images_processed": 1,
+    "count": 0,
+    "scores": [],
+    "boxes": [],
+    "mask_px": []
+  },
+  {
+    "photo": "park05",
+    "phrase": "ledge",
+    "http": 200,
+    "seconds": 2.93,
+    "api_ms": 2923,
+    "images_processed": 1,
+    "count": 0,
+    "scores": [],
+    "boxes": [],
+    "mask_px": []
+  },
+  {
+    "photo": "park05",
+    "phrase": "steps",
+    "http": 200,
+    "seconds": 2.37,
+    "api_ms": 2361,
+    "images_processed": 1,
+    "count": 0,
+    "scores": [],
+    "boxes": [],
+    "mask_px": []
+  },
+  {
+    "photo": "park05",
+    "phrase": "stairs",
+    "http": 200,
+    "seconds": 1.45,
+    "api_ms": 1444,
+    "images_processed": 1,
+    "count": 0,
+    "scores": [],
+    "boxes": [],
+    "mask_px": []
+  },
+  {
+    "photo": "park05",
+    "phrase": "handrail",
+    "http": 200,
+    "seconds": 1.38,
+    "api_ms": 1331,
+    "images_processed": 1,
+    "count": 0,
+    "scores": [],
+    "boxes": [],
+    "mask_px": []
+  },
+  {
+    "photo": "park05",
+    "phrase": "platform",
+    "http": 200,
+    "seconds": 2.46,
+    "api_ms": 2452,
+    "images_processed": 1,
+    "count": 0,
+    "scores": [],
+    "boxes": [],
+    "mask_px": []
+  },
+  {
+    "photo": "park05",
+    "phrase": "concrete block",
+    "http": 200,
+    "seconds": 4.31,
+    "api_ms": 4293,
+    "images_processed": 1,
+    "count": 0,
+    "scores": [],
+    "boxes": [],
+    "mask_px": []
+  },
+  {
+    "photo": "park05",
+    "phrase": "low wall",
+    "http": 200,
+    "seconds": 1.54,
+    "api_ms": 1360,
+    "images_processed": 1,
+    "count": 1,
+    "scores": [
+      0.7344398498535156
+    ],
+    "boxes": [
+      [
+        236,
+        472,
+        1023,
+        586
+      ]
+    ],
+    "mask_px": [
+      41822
+    ]
+  },
+  {
+    "photo": "park06",
+    "phrase": "bench",
+    "http": 200,
+    "seconds": 2.45,
+    "api_ms": 2450,
+    "images_processed": 1,
+    "count": 0,
+    "scores": [],
+    "boxes": [],
+    "mask_px": []
+  },
+  {
+    "photo": "park06",
+    "phrase": "wall",
+    "http": 200,
+    "seconds": 2.56,
+    "api_ms": 2552,
+    "images_processed": 1,
+    "count": 0,
+    "scores": [],
+    "boxes": [],
+    "mask_px": []
+  },
+  {
+    "photo": "park06",
+    "phrase": "rail",
+    "http": 200,
+    "seconds": 2.37,
+    "api_ms": 2360,
+    "images_processed": 1,
+    "count": 0,
+    "scores": [],
+    "boxes": [],
+    "mask_px": []
+  },
+  {
+    "photo": "park06",
+    "phrase": "ledge",
+    "http": 200,
+    "seconds": 2.36,
+    "api_ms": 2306,
+    "images_processed": 1,
+    "count": 1,
+    "scores": [
+      0.518796980381012
+    ],
+    "boxes": [
+      [
+        275,
+        748,
+        967,
+        796
+      ]
+    ],
+    "mask_px": [
+      24422
+    ]
+  },
+  {
+    "photo": "park06",
+    "phrase": "steps",
+    "http": 200,
+    "seconds": 2.42,
+    "api_ms": 2416,
+    "images_processed": 1,
+    "count": 0,
+    "scores": [],
+    "boxes": [],
+    "mask_px": []
+  },
+  {
+    "photo": "park06",
+    "phrase": "stairs",
+    "http": 200,
+    "seconds": 1.85,
+    "api_ms": 1842,
+    "images_processed": 1,
+    "count": 0,
+    "scores": [],
+    "boxes": [],
+    "mask_px": []
+  },
+  {
+    "photo": "park06",
+    "phrase": "handrail",
+    "http": 200,
+    "seconds": 2.96,
+    "api_ms": 2701,
+    "images_processed": 1,
+    "count": 4,
+    "scores": [
+      0.5540069937705994,
+      0.6640419960021973,
+      0.5276752710342407,
+      0.6683937907218933
+    ],
+    "boxes": [
+      [
+        437,
+        667,
+        500,
+        749
+      ],
+      [
+        837,
+        507,
+        986,
+        758
+      ],
+      [
+        776,
+        674,
+        829,
+        755
+      ],
+      [
+        271,
+        497,
+        429,
+        748
+      ]
+    ],
+    "mask_px": [
+      2609,
+      20033,
+      2536,
+      21928
+    ]
+  },
+  {
+    "photo": "park06",
+    "phrase": "platform",
+    "http": 200,
+    "seconds": 3.35,
+    "api_ms": 3342,
+    "images_processed": 1,
+    "count": 0,
+    "scores": [],
+    "boxes": [],
+    "mask_px": []
+  },
+  {
+    "photo": "park06",
+    "phrase": "concrete block",
+    "http": 200,
+    "seconds": 2.12,
+    "api_ms": 2118,
+    "images_processed": 1,
+    "count": 0,
+    "scores": [],
+    "boxes": [],
+    "mask_px": []
+  },
+  {
+    "photo": "park06",
+    "phrase": "low wall",
+    "http": 200,
+    "seconds": 2.03,
+    "api_ms": 2023,
+    "images_processed": 1,
+    "count": 0,
+    "scores": [],
+    "boxes": [],
+    "mask_px": []
+  },
+  {
+    "photo": "park07",
+    "phrase": "bench",
+    "http": 200,
+    "seconds": 1.86,
+    "api_ms": 1858,
+    "images_processed": 1,
+    "count": 0,
+    "scores": [],
+    "boxes": [],
+    "mask_px": []
+  },
+  {
+    "photo": "park07",
+    "phrase": "wall",
+    "http": 200,
+    "seconds": 2.47,
+    "api_ms": 2453,
+    "images_processed": 1,
+    "count": 0,
+    "scores": [],
+    "boxes": [],
+    "mask_px": []
+  },
+  {
+    "photo": "park07",
+    "phrase": "rail",
+    "http": 200,
+    "seconds": 1.96,
+    "api_ms": 1945,
+    "images_processed": 1,
+    "count": 0,
+    "scores": [],
+    "boxes": [],
+    "mask_px": []
+  },
+  {
+    "photo": "park07",
+    "phrase": "ledge",
+    "http": 200,
+    "seconds": 2.58,
+    "api_ms": 2570,
+    "images_processed": 1,
+    "count": 0,
+    "scores": [],
+    "boxes": [],
+    "mask_px": []
+  },
+  {
+    "photo": "park07",
+    "phrase": "steps",
+    "http": 200,
+    "seconds": 1.63,
+    "api_ms": 1409,
+    "images_processed": 1,
+    "count": 1,
+    "scores": [
+      0.8632478713989258
+    ],
+    "boxes": [
+      [
+        210,
+        357,
+        1014,
+        492
+      ]
+    ],
+    "mask_px": [
+      81002
+    ]
+  },
+  {
+    "photo": "park07",
+    "phrase": "stairs",
+    "http": 200,
+    "seconds": 1.1,
+    "api_ms": 1070,
+    "images_processed": 1,
+    "count": 1,
+    "scores": [
+      0.8827838897705078
+    ],
+    "boxes": [
+      [
+        210,
+        357,
+        1014,
+        492
+      ]
+    ],
+    "mask_px": [
+      81300
+    ]
+  },
+  {
+    "photo": "park07",
+    "phrase": "handrail",
+    "http": 200,
+    "seconds": 2.49,
+    "api_ms": 2488,
+    "images_processed": 1,
+    "count": 0,
+    "scores": [],
+    "boxes": [],
+    "mask_px": []
+  },
+  {
+    "photo": "park07",
+    "phrase": "platform",
+    "http": 200,
+    "seconds": 2.53,
+    "api_ms": 2520,
+    "images_processed": 1,
+    "count": 0,
+    "scores": [],
+    "boxes": [],
+    "mask_px": []
+  },
+  {
+    "photo": "park07",
+    "phrase": "concrete block",
+    "http": 200,
+    "seconds": 1.9,
+    "api_ms": 1892,
+    "images_processed": 1,
+    "count": 0,
+    "scores": [],
+    "boxes": [],
+    "mask_px": []
+  },
+  {
+    "photo": "park07",
+    "phrase": "low wall",
+    "http": 200,
+    "seconds": 2.84,
+    "api_ms": 2830,
+    "images_processed": 1,
+    "count": 0,
+    "scores": [],
+    "boxes": [],
+    "mask_px": []
+  },
+  {
+    "photo": "park08",
+    "phrase": "bench",
+    "http": 200,
+    "seconds": 2.95,
+    "api_ms": 2657,
+    "images_processed": 1,
+    "count": 1,
+    "scores": [
+      0.96875
+    ],
+    "boxes": [
+      [
+        270,
+        667,
+        975,
+        926
+      ]
+    ],
+    "mask_px": [
+      80688
+    ]
+  },
+  {
+    "photo": "park08",
+    "phrase": "wall",
+    "http": 200,
+    "seconds": 2.19,
+    "api_ms": 2178,
+    "images_processed": 1,
+    "count": 0,
+    "scores": [],
+    "boxes": [],
+    "mask_px": []
+  },
+  {
+    "photo": "park08",
+    "phrase": "rail",
+    "http": 200,
+    "seconds": 1.29,
+    "api_ms": 1289,
+    "images_processed": 1,
+    "count": 0,
+    "scores": [],
+    "boxes": [],
+    "mask_px": []
+  },
+  {
+    "photo": "park08",
+    "phrase": "ledge",
+    "http": 200,
+    "seconds": 1.12,
+    "api_ms": 1098,
+    "images_processed": 1,
+    "count": 0,
+    "scores": [],
+    "boxes": [],
+    "mask_px": []
+  },
+  {
+    "photo": "park08",
+    "phrase": "steps",
+    "http": 200,
+    "seconds": 1.4,
+    "api_ms": 1391,
+    "images_processed": 1,
+    "count": 0,
+    "scores": [],
+    "boxes": [],
+    "mask_px": []
+  },
+  {
+    "photo": "park08",
+    "phrase": "stairs",
+    "http": 200,
+    "seconds": 1.02,
+    "api_ms": 1010,
+    "images_processed": 1,
+    "count": 0,
+    "scores": [],
+    "boxes": [],
+    "mask_px": []
+  },
+  {
+    "photo": "park08",
+    "phrase": "handrail",
+    "http": 200,
+    "seconds": 0.85,
+    "api_ms": 851,
+    "images_processed": 1,
+    "count": 0,
+    "scores": [],
+    "boxes": [],
+    "mask_px": []
+  },
+  {
+    "photo": "park08",
+    "phrase": "platform",
+    "http": 200,
+    "seconds": 0.84,
+    "api_ms": 838,
+    "images_processed": 1,
+    "count": 0,
+    "scores": [],
+    "boxes": [],
+    "mask_px": []
+  },
+  {
+    "photo": "park08",
+    "phrase": "concrete block",
+    "http": 200,
+    "seconds": 1.73,
+    "api_ms": 1723,
+    "images_processed": 1,
+    "count": 0,
+    "scores": [],
+    "boxes": [],
+    "mask_px": []
+  },
+  {
+    "photo": "park08",
+    "phrase": "low wall",
+    "http": 200,
+    "seconds": 1.46,
+    "api_ms": 1458,
+    "images_processed": 1,
+    "count": 0,
+    "scores": [],
+    "boxes": [],
+    "mask_px": []
+  },
+  {
+    "photo": "park09",
+    "phrase": "bench",
+    "http": 200,
+    "seconds": 0.84,
+    "api_ms": 829,
+    "images_processed": 1,
+    "count": 3,
+    "scores": [
+      0.6800000071525574,
+      0.7264957427978516,
+      0.7575758099555969
+    ],
+    "boxes": [
+      [
+        223,
+        220,
+        255,
+        246
+      ],
+      [
+        19,
+        223,
+        87,
+        254
+      ],
+      [
+        130,
+        222,
+        207,
+        250
+      ]
+    ],
+    "mask_px": [
+      709,
+      1345,
+      1439
+    ]
+  },
+  {
+    "photo": "park09",
+    "phrase": "wall",
+    "http": 200,
+    "seconds": 1.03,
+    "api_ms": 976,
+    "images_processed": 1,
+    "count": 13,
+    "scores": [
+      0.7142857313156128,
+      0.7500000596046448,
+      0.7299578189849854,
+      0.6363636255264282,
+      0.7229437232017517,
+      0.5631399154663086,
+      0.6878048777580261,
+      0.7770034670829773,
+      0.7419355511665344,
+      0.7264957427978516,
+      0.7419355511665344,
+      0.7037037014961243,
+      0.7500000596046448
+    ],
+    "boxes": [
+      [
+        849,
+        142,
+        902,
+        242
+      ],
+      [
+        1015,
+        137,
+        1163,
+        271
+      ],
+      [
+        848,
+        238,
+        951,
+        341
+      ],
+      [
+        983,
+        258,
+        1172,
+        320
+      ],
+      [
+        786,
+        269,
+        873,
+        381
+      ],
+      [
+        711,
+        147,
+        753,
+        254
+      ],
+      [
+        0,
+        266,
+        367,
+        403
+      ],
+      [
+        446,
+        141,
+        560,
+        300
+      ],
+      [
+        927,
+        118,
+        988,
+        311
+      ],
+      [
+        711,
+        254,
+        845,
+        335
+      ],
+      [
+        601,
+        134,
+        712,
+        310
+      ],
+      [
+        661,
+        264,
+        735,
+        364
+      ],
+      [
+        752,
+        127,
+        846,
+        253
+      ]
+    ],
+    "mask_px": [
+      4942,
+      16414,
+      7801,
+      9804,
+      8456,
+      3411,
+      42026,
+      15898,
+      9310,
+      5523,
+      15476,
+      6670,
+      11033
+    ]
+  },
+  {
+    "photo": "park09",
+    "phrase": "rail",
+    "http": 200,
+    "seconds": 1.28,
+    "api_ms": 1269,
+    "images_processed": 1,
+    "count": 0,
+    "scores": [],
+    "boxes": [],
+    "mask_px": []
+  },
+  {
+    "photo": "park09",
+    "phrase": "ledge",
+    "http": 200,
+    "seconds": 1.94,
+    "api_ms": 1927,
+    "images_processed": 1,
+    "count": 0,
+    "scores": [],
+    "boxes": [],
+    "mask_px": []
+  },
+  {
+    "photo": "park09",
+    "phrase": "steps",
+    "http": 200,
+    "seconds": 0.95,
+    "api_ms": 935,
+    "images_processed": 1,
+    "count": 0,
+    "scores": [],
+    "boxes": [],
+    "mask_px": []
+  },
+  {
+    "photo": "park09",
+    "phrase": "stairs",
+    "http": 200,
+    "seconds": 1.06,
+    "api_ms": 1051,
+    "images_processed": 1,
+    "count": 0,
+    "scores": [],
+    "boxes": [],
+    "mask_px": []
+  },
+  {
+    "photo": "park09",
+    "phrase": "handrail",
+    "http": 200,
+    "seconds": 1.78,
+    "api_ms": 1774,
+    "images_processed": 1,
+    "count": 0,
+    "scores": [],
+    "boxes": [],
+    "mask_px": []
+  },
+  {
+    "photo": "park09",
+    "phrase": "platform",
+    "http": 200,
+    "seconds": 2.47,
+    "api_ms": 2459,
+    "images_processed": 1,
+    "count": 0,
+    "scores": [],
+    "boxes": [],
+    "mask_px": []
+  },
+  {
+    "photo": "park09",
+    "phrase": "concrete block",
+    "http": 200,
+    "seconds": 3.6,
+    "api_ms": 3130,
+    "images_processed": 1,
+    "count": 23,
+    "scores": [
+      0.6012461185455322,
+      0.6332378387451172,
+      0.6246334314346313,
+      0.6167664527893066,
+      0.6483516097068787,
+      0.5857605338096619,
+      0.6878048777580261,
+      0.5936508178710938,
+      0.6444444060325623,
+      0.5114504098892212,
+      0.6213017702102661,
+      0.6363636255264282,
+      0.6332378387451172,
+      0.6289855241775513,
+      0.5345454812049866,
+      0.7064220309257507,
+      0.604938268661499,
+      0.5816993117332458,
+      0.6559139490127563,
+      0.7064220309257507,
+      0.6246334314346313,
+      0.6878048777580261,
+      0.6213017702102661
+    ],
+    "boxes": [
+      [
+        849,
+        142,
+        902,
+        243
+      ],
+      [
+        708,
+        254,
+        845,
+        335
+      ],
+      [
+        1015,
+        137,
+        1163,
+        271
+      ],
+      [
+        868,
+        342,
+        1097,
+        374
+      ],
+      [
+        1109,
+        440,
+        1192,
+        488
+      ],
+      [
+        640,
+        297,
+        661,
+        344
+      ],
+      [
+        685,
+        400,
+        756,
+        480
+      ],
+      [
+        489,
+        318,
+        657,
+        345
+      ],
+      [
+        531,
+        377,
+        584,
+        410
+      ],
+      [
+        0,
+        266,
+        367,
+        403
+      ],
+      [
+        847,
+        238,
+        950,
+        341
+      ],
+      [
+        446,
+        141,
+        560,
+        300
+      ],
+      [
+        162,
+        274,
+        206,
+        299
+      ],
+      [
+        927,
+        117,
+        988,
+        311
+      ],
+      [
+        981,
+        271,
+        1097,
+        319
+      ],
+      [
+        786,
+        269,
+        873,
+        382
+      ],
+      [
+        600,
+        134,
+        712,
+        311
+      ],
+      [
+        1090,
+        258,
+        1172,
+        319
+      ],
+      [
+        906,
+        359,
+        966,
+        425
+      ],
+      [
+        661,
+        264,
+        735,
+        364
+      ],
+      [
+        751,
+        127,
+        845,
+        253
+      ],
+      [
+        390,
+        445,
+        473,
+        521
+      ],
+      [
+        947,
+        314,
+        1127,
+        345
+      ]
+    ],
+    "mask_px": [
+      5020,
+      5561,
+      16487,
+      4172,
+      3507,
+      828,
+      5544,
+      3374,
+      1696,
+      41330,
+      7686,
+      16214,
+      918,
+      9429,
+      5067,
+      8521,
+      15548,
+      4800,
+      3763,
+      6621,
+      11040,
+      5943,
+      3506
+    ]
+  },
+  {
+    "photo": "park09",
+    "phrase": "low wall",
+    "http": 200,
+    "seconds": 1.87,
+    "api_ms": 1538,
+    "images_processed": 1,
+    "count": 9,
+    "scores": [
+      0.7229437232017517,
+      0.7104072570800781,
+      0.7142857313156128,
+      0.7730495929718018,
+      0.7142857313156128,
+      0.5345454812049866,
+      0.5276752710342407,
+      0.6995305418968201,
+      0.5038759708404541
+    ],
+    "boxes": [
+      [
+        707,
+        254,
+        845,
+        335
+      ],
+      [
+        982,
+        258,
+        1172,
+        320
+      ],
+      [
+        786,
+        269,
+        873,
+        381
+      ],
+      [
+        0,
+        266,
+        367,
+        403
+      ],
+      [
+        848,
+        238,
+        954,
+        341
+      ],
+      [
+        446,
+        141,
+        561,
+        300
+      ],
+      [
+        600,
+        134,
+        713,
+        311
+      ],
+      [
+        661,
+        264,
+        735,
+        364
+      ],
+      [
+        751,
+        127,
+        845,
+        253
+      ]
+    ],
+    "mask_px": [
+      5582,
+      9781,
+      8461,
+      42100,
+      8029,
+      16537,
+      15803,
+      6653,
+      11094
+    ]
+  },
+  {
+    "photo": "park10",
+    "phrase": "bench",
+    "http": 200,
+    "seconds": 0.87,
+    "api_ms": 853,
+    "images_processed": 1,
+    "count": 0,
+    "scores": [],
+    "boxes": [],
+    "mask_px": []
+  },
+  {
+    "photo": "park10",
+    "phrase": "wall",
+    "http": 200,
+    "seconds": 1.24,
+    "api_ms": 1227,
+    "images_processed": 1,
+    "count": 0,
+    "scores": [],
+    "boxes": [],
+    "mask_px": []
+  },
+  {
+    "photo": "park10",
+    "phrase": "rail",
+    "http": 200,
+    "seconds": 2.52,
+    "api_ms": 2515,
+    "images_processed": 1,
+    "count": 0,
+    "scores": [],
+    "boxes": [],
+    "mask_px": []
+  },
+  {
+    "photo": "park10",
+    "phrase": "ledge",
+    "http": 200,
+    "seconds": 1.69,
+    "api_ms": 1673,
+    "images_processed": 1,
+    "count": 0,
+    "scores": [],
+    "boxes": [],
+    "mask_px": []
+  },
+  {
+    "photo": "park10",
+    "phrase": "steps",
+    "http": 200,
+    "seconds": 1.8,
+    "api_ms": 1779,
+    "images_processed": 1,
+    "count": 0,
+    "scores": [],
+    "boxes": [],
+    "mask_px": []
+  },
+  {
+    "photo": "park10",
+    "phrase": "stairs",
+    "http": 200,
+    "seconds": 1.09,
+    "api_ms": 1084,
+    "images_processed": 1,
+    "count": 0,
+    "scores": [],
+    "boxes": [],
+    "mask_px": []
+  },
+  {
+    "photo": "park10",
+    "phrase": "handrail",
+    "http": 200,
+    "seconds": 1.16,
+    "api_ms": 1158,
+    "images_processed": 1,
+    "count": 0,
+    "scores": [],
+    "boxes": [],
+    "mask_px": []
+  },
+  {
+    "photo": "park10",
+    "phrase": "platform",
+    "http": 200,
+    "seconds": 0.99,
+    "api_ms": 975,
+    "images_processed": 1,
+    "count": 0,
+    "scores": [],
+    "boxes": [],
+    "mask_px": []
+  },
+  {
+    "photo": "park10",
+    "phrase": "concrete block",
+    "http": 200,
+    "seconds": 2.36,
+    "api_ms": 2344,
+    "images_processed": 1,
+    "count": 0,
+    "scores": [],
+    "boxes": [],
+    "mask_px": []
+  },
+  {
+    "photo": "park10",
+    "phrase": "low wall",
+    "http": 200,
+    "seconds": 1.24,
+    "api_ms": 1214,
+    "images_processed": 1,
+    "count": 0,
+    "scores": [],
+    "boxes": [],
+    "mask_px": []
+  }
+]
