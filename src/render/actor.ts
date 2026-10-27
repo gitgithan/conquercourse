@@ -10,6 +10,7 @@ import {
   reachSeconds, runSeconds, runWeight, type ActorState, type ClipKind,
 } from '../motion/actor-pose';
 import { loadRookie, type RookieId } from './rookie';
+import type { Obstacle } from '../course/collide';
 
 export type { ActorState } from '../motion/actor-pose';
 
@@ -17,12 +18,14 @@ export interface RookieActor {
   object: Object3D;
   update(s: ActorState): void;
   dispose(): void;
+  setObstacle(o: Obstacle | null): void; // body points are pushed out of platforms and the wall
   joints(): Vector3[]; // where the 30 bones are now, world metres (for the plausibility gate and the tests)
 }
 
 const BLEND_TICKS = 12;
 const HAND_HEIGHT = 2.1; // m, the grip above the feet (the simulator's handHeight)
-const WALL_LEAN = 0.45; // rad, the most the body leans into the slope (at 45 degrees; upright again on the vertical part, where the head would meet the wall)
+const WALL_BACK = 0.5; // rad, on the steep top of the curve the body tilts back toward the curve's centre instead, so the head stays out of the wall
+const WALL_LEAN = 0.3; // rad, the most the body leans into the slope (at 45 degrees; upright again on the vertical part, where the head would meet the wall)
 const STRETCH = 1.08; // the bounce pose, stretched
 
 interface Pose {
@@ -110,6 +113,9 @@ export async function createRookieActor(scene: Scene, opts: { rookie: RookieId }
     joints: a.joints.map((p, i) => p.clone().lerp(b.joints[i], w)),
     hipsAbove: a.hipsAbove + (b.hipsAbove - a.hipsAbove) * w,
   });
+
+  let obstacle: Obstacle | null = null;
+  const shift = { x: 0, y: 0 }; // how far the whole body is moved out of an obstacle (local axes: x along the run)
 
   // memory between updates (the actor is driven one tick at a time; a jump in ticks just restarts the easing)
   let prev: { x: number; y: number; tick: number } | null = null;
@@ -230,7 +236,7 @@ export async function createRookieActor(scene: Scene, opts: { rookie: RookieId }
       const dy = s.y - prev.y;
       if (Math.hypot(dx, dy) > 1e-6) slope = Math.atan2(dy, Math.max(dx, 0));
     } else if (s.mode !== 'wall') slope = 0;
-    lean += (WALL_LEAN * Math.sin(2 * slope) - lean) * (1 - Math.pow(0.9, dticks));
+    lean += (WALL_LEAN * Math.sin(2 * slope) - WALL_BACK * Math.sin(slope) ** 3 - lean) * (1 - Math.pow(0.9, dticks));
     if (Math.abs(lean) > 1e-4) rotateZ(joints, new Vector3(0, 0, 0), -lean);
     if (s.mode === 'swing') rotateZ(joints, new Vector3(0, HAND_HEIGHT, 0), localAngle(s.swingTheta ?? 0, s.facing));
 
@@ -240,6 +246,18 @@ export async function createRookieActor(scene: Scene, opts: { rookie: RookieId }
     group.updateMatrixWorld(true);
     // carry the foot clearance so the soles, not the ankles, touch the surface
     const lifted = joints.map((p) => p.clone().add(new Vector3(0, footClear, 0)));
+    if (obstacle) {
+      // the simulator's feet can sit in a corner (the climb over the wall's edge): move the whole body out of it, eased so it does not pop
+      const root = obstacle(s.x, s.y + 0.15) ?? { dx: 0, dy: 0 };
+      const ease = 1 - Math.pow(0.6, dticks);
+      shift.x += (root.dx - shift.x) * ease; shift.y += (root.dy - shift.y) * ease;
+      for (const p of lifted) { p.x += s.facing * shift.x; p.y += shift.y; }
+      // and keep every body point out of the blocks and the curve (the motion need not be exact, but it must not overlap)
+      for (const p of lifted) {
+        const out = obstacle(s.x + s.facing * p.x, s.y + p.y);
+        if (out) { p.x += s.facing * out.dx; p.y += out.dy; }
+      }
+    }
     rookie.apply(lifted);
     if (s.mode !== 'swing' && k !== 'leap') {
       const low = Math.min(...footBones.map((i) => rookie.bones[i].getWorldPosition(new Vector3()).y));
@@ -258,6 +276,7 @@ export async function createRookieActor(scene: Scene, opts: { rookie: RookieId }
   return {
     object: group,
     update,
+    setObstacle: (o) => { obstacle = o; },
     joints: () => rookie.world(),
     dispose() {
       scene.remove(group);
