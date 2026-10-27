@@ -47,3 +47,20 @@ describe('warped wall: the grab and the slide back', () => {
     expect(runWall(vJust + 0.1, high).grabbed).toBe(false);
   });
 });
+
+import { wallPath } from '../src/sim/world';
+
+describe('no teleport at the wall top', () => {
+  it('the hand-over from the grab to the deck never moves more than 8 cm in one tick', () => {
+    const r = runWall(7);
+    expect(r.grabbed).toBe(true);
+    const p = wallPath(r, 0, DEFAULT_WALL.height);
+    for (let i = 1; i < p.length; i++) expect(Math.hypot(p[i].x - p[i - 1].x, p[i].y - p[i - 1].y)).toBeLessThan(0.08);
+    expect(p[p.length - 1].y).toBeCloseTo(DEFAULT_WALL.height, 9);
+  });
+  it('the same speed reaches the same height whatever the wall height (energy only)', () => {
+    const h = (H: number) => runWall(6, { ...DEFAULT_WALL, height: H, radius: 4.3, stopAtGrab: false }).heightGained;
+    near(h(3), h(6), 0.005);
+    near(h(4.3), h(9), 0.005);
+  });
+});

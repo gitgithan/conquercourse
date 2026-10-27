@@ -85,9 +85,18 @@ export function searchIdealRun(course: CourseData): { plan: Plan; windows: Windo
     const e = es[k];
     const cs = candidates(e.x - 3, e.x);
     // the runner jumps from a platform: the press must happen while still on it
+    const ropeEdge = hasRope && e.x < course.rope!.anchorX && e.x > course.rope!.anchorX - 8;
+    const releases = ropeEdge ? Array.from({ length: 21 }, (_, i) => i * 15) : [plan.releaseAfter];
     const results = cs.map((x) => {
-      const r = playPlan(course, { ...plan, jumpXs: [...plan.jumpXs, x] });
-      return { x, s: score(r), r };
+      // at the rope's edge a press is good if SOME release timing then clears, so try several
+      let bestS = -1;
+      let r = playPlan(course, { ...plan, jumpXs: [...plan.jumpXs, x] });
+      for (const rel of releases) {
+        const rr = playPlan(course, { ...plan, jumpXs: [...plan.jumpXs, x], releaseAfter: rel });
+        const sc = score(rr);
+        if (sc > bestS) { bestS = sc; r = rr; }
+      }
+      return { x, s: bestS, r };
     });
     // a press is good if the run then gets farther than any press can do by standing still at the edge
     const best = Math.max(...results.map((r) => r.s));
@@ -100,7 +109,7 @@ export function searchIdealRun(course: CourseData): { plan: Plan; windows: Windo
     const speed = 7.4;
     windows.push({ obstacle: e.name, best: mid, lo, hi, widthMs: ((hi - lo + 0.02) / speed) * 1000 });
     // tune the rope release and the bounce press once the runner can reach them
-    if (hasRope && Math.abs(e.x - 104) < 0.5) tuneTicks(course, plan, 'releaseAfter', 0, 360, windows, 'rope release', score);
+    if (ropeEdge) tuneTicks(course, plan, 'releaseAfter', 0, 360, windows, 'rope release', score);
     if (e.x > 117 && e.x < 119) {
       tuneTicks(course, plan, 'bouncePress', 0, 40, windows, 'trampoline press', score, 1);
     }

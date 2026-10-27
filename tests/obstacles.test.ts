@@ -35,8 +35,13 @@ describe('landing', () => {
   it('a stumble costs forward speed, a squat does not', () => {
     const drop: Terrain = { platforms: [{ x0: -50, x1: 3, top: 1.5 }, { x0: 3.001, x1: 100, top: 0 }], waterY: -2 };
     const from = { ...startState(), y: 1.5, vx: 6 };
-    const stiff = jumpAt(drop, from, 2.9, 0, false);
-    const soft = jumpAt(drop, from, 2.9, 0, true);
+    const land = (squat: boolean) => {
+      let s = from;
+      for (let i = 0; i < 120 * 5 && !s.landing; i++) s = step(s, { ...sprinting, squat }, P, drop);
+      return s;
+    };
+    const stiff = land(false);
+    const soft = land(true);
     expect(stiff.landing!.stumbled).toBe(true);
     expect(soft.landing!.stumbled).toBe(false);
     expect(soft.vx).toBeGreaterThan(stiff.vx * 2);

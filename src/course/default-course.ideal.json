@@ -4,53 +4,53 @@
   "cleared": true,
   "plan": {
     "jumpXs": [
-      29.14,
-      40.86,
-      46.98,
-      54.28,
-      62,
+      28.5,
+      39.5,
+      47.46,
+      55.08,
+      63.48,
       102.5,
-      116.06,
+      116.6,
       125.5
     ],
-    "releaseAfter": 34,
+    "releaseAfter": 70,
     "bouncePress": 8
   },
   "windows": [
     {
       "obstacle": "edge at 30 m",
-      "best": 29.14,
-      "lo": 28.3,
-      "hi": 29.96,
-      "widthMs": 227
-    },
-    {
-      "obstacle": "edge at 42 m",
-      "best": 40.86,
-      "lo": 39.76,
-      "hi": 41.96,
-      "widthMs": 300
-    },
-    {
-      "obstacle": "edge at 48.5 m",
-      "best": 46.98,
-      "lo": 45.5,
-      "hi": 48.44,
-      "widthMs": 400
-    },
-    {
-      "obstacle": "edge at 56 m",
-      "best": 54.28,
-      "lo": 53,
-      "hi": 55.54,
-      "widthMs": 346
-    },
-    {
-      "obstacle": "edge at 63.5 m",
-      "best": 62,
-      "lo": 60.5,
-      "hi": 63.48,
+      "best": 28.5,
+      "lo": 27,
+      "hi": 29.98,
       "widthMs": 405
+    },
+    {
+      "obstacle": "edge at 41 m",
+      "best": 39.5,
+      "lo": 38,
+      "hi": 40.98,
+      "widthMs": 405
+    },
+    {
+      "obstacle": "edge at 49 m",
+      "best": 47.46,
+      "lo": 46,
+      "hi": 48.92,
+      "widthMs": 397
+    },
+    {
+      "obstacle": "edge at 57 m",
+      "best": 55.08,
+      "lo": 54,
+      "hi": 56.98,
+      "widthMs": 405
+    },
+    {
+      "obstacle": "edge at 65 m",
+      "best": 63.48,
+      "lo": 62,
+      "hi": 64.94,
+      "widthMs": 400
     },
     {
       "obstacle": "edge at 104 m",
@@ -61,17 +61,17 @@
     },
     {
       "obstacle": "rope release",
-      "best": 34,
-      "lo": 28,
-      "hi": 40,
-      "widthMs": 117
+      "best": 70,
+      "lo": 32,
+      "hi": 80,
+      "widthMs": 417
     },
     {
       "obstacle": "edge at 118 m",
-      "best": 116.06,
-      "lo": 115,
+      "best": 116.6,
+      "lo": 115.76,
       "hi": 118,
-      "widthMs": 408
+      "widthMs": 305
     },
     {
       "obstacle": "trampoline press",
