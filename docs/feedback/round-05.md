@@ -37,3 +37,6 @@
   - The Dojo, the speed meter and the ideal run follow the new number; the bot still clears the whole Course.
 - R5-G1c: the stance had shoulders slightly forward and bent elbows; now the shoulders are level with the body and the arms hang straight down with straight elbows.
 - R5-G1d: the shoulders looked tense and raised; the stance now takes the shoulder and upper-arm directions from the model's own T-pose (kept level, never raised), then lets the arms hang straight down.
+- R5-G5: the trampoline message flashed too fast to read.
+  - It only showed during the bounce itself; now it appears about 14 m before the trampoline and stays up to 4 seconds (measured 3.95 s of game time before the bounce with the ideal bot).
+  - It switches to "Press Space now" when the bounce starts.
