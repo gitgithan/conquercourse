@@ -14,15 +14,20 @@ type P = Piece & { src?: string };
 export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
   const style = document.createElement('style');
   style.textContent = `
-    .ed{font:15px/1.4 system-ui,sans-serif;color:#17201d;background:#eef1ec;position:fixed;inset:0;overflow:auto;padding:12px;display:grid;gap:10px;grid-template-columns:minmax(0,1fr) 300px;grid-auto-rows:min-content;align-content:start}
-    .ed h1{margin:0;font-size:22px}.ed .top{grid-column:1/3;display:flex;flex-wrap:wrap;gap:8px;align-items:center}
-    .ed button,.ed select,.ed input[type=number],.ed a.btn{font:inherit;border:1px solid #b9c2bb;background:#fff;color:#17201d;border-radius:8px;padding:5px 10px;cursor:pointer;text-decoration:none}
+    .ed{font:14px/1.35 system-ui,sans-serif;color:#17201d;background:#eef1ec;position:fixed;inset:0;overflow:hidden;padding:8px;display:grid;gap:8px;grid-template-columns:minmax(0,1fr) 270px;grid-template-rows:auto auto minmax(0,1fr)}
+    .ed h1{margin:0;font-size:18px}.ed .top{grid-column:1/3;display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+    .ed button,.ed select,.ed input[type=number],.ed a.btn{font:inherit;border:1px solid #b9c2bb;background:#fff;color:#17201d;border-radius:8px;padding:3px 9px;cursor:pointer;text-decoration:none}
     .ed .go{background:#0f6b5c;color:#fff;border-color:#0f6b5c;font-weight:700}.ed button[aria-pressed=true]{background:#17201d;color:#fff}
-    .ed canvas{width:100%;height:auto;align-self:start;background:#fff;border:1px solid #cfd6d0;border-radius:10px;touch-action:none}
-    .ed .panel{background:#fff;border:1px solid #cfd6d0;border-radius:10px;padding:10px;display:grid;gap:8px;align-content:start}
-    .ed label{display:grid;gap:2px;font-size:14px}.ed .muted{color:#58635d;font-size:13px}.ed .ok{border-left:4px solid #0f6b5c;padding:4px 8px;background:#f3f7f4;font-weight:600}.ed .bad{border-left:4px solid #c0392b;padding:4px 8px;background:#fbeeee;font-weight:600}
-    .ed .row{display:flex;flex-wrap:wrap;gap:6px;align-items:center}@media(max-width:900px){.ed{grid-template-columns:1fr}.ed .top{grid-column:1}}`;
-  document.head.appendChild(style);
+    .ed .main{display:grid;grid-template-rows:minmax(0,2fr) minmax(0,1fr);gap:8px;min-height:0;min-width:0}
+    .ed .planwrap{min-height:0;min-width:0;position:relative;background:#fff;border:1px solid #cfd6d0;border-radius:10px;overflow:hidden}
+    .ed canvas{display:block;touch-action:none}
+    .ed .profilewrap{background:#fff;border:1px solid #cfd6d0;border-radius:10px;overflow:hidden;min-width:0}
+    .ed .aside{display:grid;gap:8px;grid-template-rows:auto auto;align-content:start;min-height:0;overflow:hidden}
+    .ed .panel{background:#fff;border:1px solid #cfd6d0;border-radius:10px;padding:8px;display:grid;gap:5px;align-content:start}
+    .ed label{display:grid;gap:1px;font-size:13px}.ed .muted{color:#58635d;font-size:12px}.ed .ok{border-left:4px solid #0f6b5c;padding:3px 6px;background:#f3f7f4;font-weight:600;font-size:13px}.ed .bad{border-left:4px solid #c0392b;padding:3px 6px;background:#fbeeee;font-weight:600;font-size:13px}
+    .ed .row{display:flex;flex-wrap:wrap;gap:5px;align-items:center}.ed input[type=range]{width:100%;margin:0}.ed input[type=number]{width:100%;box-sizing:border-box}
+    @media(max-height:700px){.ed .muted.help{display:none}}
+    @media(max-width:800px){.ed{grid-template-columns:minmax(0,1fr) 220px}}`;  document.head.appendChild(style);
   const root = document.createElement('div');
   root.className = 'ed';
   host.appendChild(root);
@@ -67,10 +72,22 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
     try { const p = scaleToHeight(newPiece(f.name.replace(/\.glb$/i, ''), readGlbMesh(await f.arrayBuffer()), { x: view.cx, z: view.cz }), 1); pieces.push(p); p.x = freeSpot('bench').x; selected = p.id; changed(); } catch { verdict = 'That file could not be read as a .glb.'; draw(); }
   };
 
-  const plan = el('canvas', root, { width: 900, height: 520, id: 'plan' });
-  const side = el('div', root, { className: 'panel', id: 'panel' });
-  const profileCanvas = el('canvas', root, { width: 900, height: 170, id: 'profile' });
-  const lanePanel = el('div', root, { className: 'panel' });
+  const main = el('div', root, { className: 'main' });
+  const planWrap = el('div', main, { className: 'planwrap' });
+  const plan = el('canvas', planWrap, { width: 900, height: 520, id: 'plan' });
+  const profileWrap = el('div', main, { className: 'profilewrap' });
+  const profileCanvas = el('canvas', profileWrap, { width: 900, height: 128, id: 'profile' });
+  const aside = el('div', root, { className: 'aside' });
+  const side = el('div', aside, { className: 'panel', id: 'panel' });
+  const lanePanel = el('div', aside, { className: 'panel' });
+  // the two pictures fill their boxes exactly, so nothing ever scrolls
+  const fit = () => {
+    plan.width = Math.max(200, planWrap.clientWidth); plan.height = Math.max(120, planWrap.clientHeight);
+    profileCanvas.width = Math.max(200, profileWrap.clientWidth); profileCanvas.height = Math.max(60, profileWrap.clientHeight);
+    draw(); drawProfile();
+  };
+  new ResizeObserver(fit).observe(planWrap);
+  new ResizeObserver(fit).observe(profileWrap);
 
   // ---- the selected piece
   function drawPanel() {
@@ -128,7 +145,7 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
       void startCourse(document.body, course);
     };
     el('div', lanePanel, { id: 'verdict', className: verdict.startsWith('The simulator can') ? 'ok' : verdict ? 'bad' : 'muted', text: verdict });
-    el('div', lanePanel, { className: 'muted', text: 'The runner goes left to right along the orange band on the picture; the shapes in it are what you see underneath.' });
+    el('div', lanePanel, { className: 'muted help', text: 'The runner goes left to right along the orange band; the shapes in it are what you see underneath.' });
   }
 
   const currentProfile = () => sliceProfile(worldSamples(pieces), { x: 0, z: 0 }, { angle, offset, level });
@@ -182,8 +199,8 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
     const prof = currentProfile();
     c.fillStyle = '#58635d'; c.font = '12px system-ui';
     c.fillText('What the runner sees: the lane from the side (water at the bottom, grid every metre)', 8, 14);
-    const base = H - 20, ppm = Math.min(30, (W - 20) / Math.max(10, prof.length)), ph = 28;
-    c.fillStyle = '#cfe3f5'; c.fillRect(0, base, W, 20);
+    const base = H - 14, ppm = Math.min(30, (W - 20) / Math.max(10, prof.length)), ph = Math.max(14, (base - 24) / 4.3);
+    c.fillStyle = '#cfe3f5'; c.fillRect(0, base, W, 14);
     c.strokeStyle = '#e3e8e4';
     for (let m = 0; m < 5; m++) { c.beginPath(); c.moveTo(0, base - m * ph); c.lineTo(W, base - m * ph); c.stroke(); }
     c.fillStyle = '#17201d'; c.strokeStyle = '#17201d'; c.lineWidth = 2;
