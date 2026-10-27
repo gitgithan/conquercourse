@@ -30,14 +30,14 @@ describe('the default course', () => {
     const { w, log } = play(() => hold);
     expect(w.outcome).toBe('splash');
     expect(log.some((e) => e.type === 'splash')).toBe(true);
-    expect(w.runner.x).toBeGreaterThan(30);
-    expect(w.runner.x).toBeLessThan(36);
+    expect(w.runner.x).toBeGreaterThan(14);
+    expect(w.runner.x).toBeLessThan(19);
   });
   it('jumping at the first gap edge clears it', () => {
-    const { w, log } = play((s) => (s.runner.x >= 28.8 && s.runner.grounded && s.mode === 'run' ? press : hold), 120 * 20);
+    const { w, log } = play((s) => (s.runner.x >= 12.8 && s.runner.grounded && s.mode === 'run' ? press : hold), 120 * 20);
     const land = log.find((e) => e.type === 'land');
     expect(land).toBeDefined();
-    expect(w.runner.x).toBeGreaterThan(35.5);
+    expect(w.runner.x).toBeGreaterThan(18.5);
   });
 });
 
@@ -77,7 +77,7 @@ describe('stored ideal run (npm run ideal)', () => {
     }
   });
   it('the stored windows are real numbers in milliseconds', () => {
-    expect(ideal.windows.length).toBeGreaterThanOrEqual(8);
+    expect(ideal.windows.length).toBeGreaterThanOrEqual(6);
     for (const w of ideal.windows) expect(w.widthMs).toBeGreaterThan(0);
   });
 });

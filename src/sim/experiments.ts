@@ -1,6 +1,6 @@
 import { DT, GRAVITY } from './units';
 import { DEFAULT_PARAMS, NO_INPUT, startState, step } from './runner';
-import { landing } from './landing';
+import { landing, ouch } from './landing';
 import { DEFAULT_WALL, runWall } from './wall';
 import { swingStep, type Swing } from './rope';
 import { DEFAULT_TRAMPOLINE, bounce } from './trampoline';
@@ -13,10 +13,13 @@ export interface Point { x: number; y: number }
 export interface Overlay { pts: Point[]; color: string; label: string }
 // The real numbers of the obstacle the player came from (the Course passes them in the link).
 export interface Context { width?: number; rise?: number; needed?: number; speed?: number; wallHeight?: number; ropeLength?: number }
+export type Pose = 'stand' | 'fly' | 'hang' | 'crouch' | 'climb';
+export interface Person { x: number; y: number; pose: Pose; hand?: Point; label?: string } // feet position; `hand` is where the hands are (hanging)
 export interface Trial {
   answer: number; // the measured value the player predicted
   path: Point[]; // side view, metres: x along the track, y up
-  overlays?: Point[][] | Overlay[]; // pieces of the obstacle drawn in another colour
+  overlays?: Overlay[]; // pieces of the obstacle drawn in another colour
+  people?: Person[]; // the runner at key moments, so every scene has a person
   cleared?: boolean; // for goals
   note?: string; // plain-words outcome
 }
@@ -57,8 +60,10 @@ const gap: Experiment = {
     for (let i = 0; i < 120 * 20 && !s.grounded; i++) { s = step(s, NO_INPUT, DEFAULT_PARAMS); path.push({ x: s.x, y: s.y }); }
     const d = s.landedAtX ?? s.x;
     const need = minSpeedToCross(width, ctx.rise ?? 0, v.jump);
+    const apex = path.reduce((a, p) => (p.y > a.y ? p : a), path[0]);
     return {
       answer: d, path, cleared: d >= width,
+      people: [{ x: 0, y: 0, pose: 'stand', label: 'take-off' }, { x: apex.x, y: apex.y, pose: 'fly' }, { x: d, y: 0, pose: 'stand', label: 'landing' }],
       note: (d >= width ? `You clear the ${width.toFixed(1)} m gap.` : `You land ${(width - d).toFixed(1)} m short of the far side.`) + ` With this push, this gap needs at least ${need.toFixed(1)} m/s.`,
     };
   },
@@ -80,6 +85,7 @@ const wall: Experiment = {
     return {
       answer: r.heightGained, path: r.path,
       overlays: [{ pts: wallLine, color: '#c9893b', label: `wall (${v.height.toFixed(1)} m)` }],
+      people: [{ x: 0, y: 0, pose: 'stand', label: 'start' }, { ...r.path[r.path.length - 1], pose: 'climb' }],
       cleared: r.heightGained >= needed,
       note: r.heightGained >= needed ? 'Your hands reach the top of this wall.' : `Your hands stay ${(needed - r.heightGained).toFixed(1)} m short of the top.`,
     };
@@ -107,11 +113,20 @@ const rope: Experiment = {
       if (sw.omega > 0 && next.omega <= 0) break; // turned around before the chosen angle
       sw = next;
     }
-    if (!release) return { answer: 0, path, note: 'The swing runs out of energy before that angle: you never get there and swing back. Try more speed or an earlier release.' };
+    const anchor = { x: 0, y: L };
+    const ropeAt = (th: number): Overlay => ({ pts: [anchor, { x: L * Math.sin(th), y: L * (1 - Math.cos(th)) }], color: '#8a5a2b', label: '' });
+    const base: Overlay[] = [{ pts: [anchor, { x: 0, y: 0 }], color: '#c3cdc7', label: 'rope hanging straight' }];
+    if (!release) return { answer: 0, path, overlays: base, people: [{ x: 0, y: -2.1, pose: 'hang', hand: { x: 0, y: 0 } }], note: 'The swing runs out of energy before that angle: you never get there and swing back. Try more speed or an earlier release.' };
     let x = release.x, y = release.y, vy = release.vy;
     const fly: Point[] = [{ x, y }];
     for (let i = 0; i < 120 * 20 && !(y < 0 && vy < 0); i++) { x += release.vx * DT; y += vy * DT - 0.5 * GRAVITY * DT * DT; vy -= GRAVITY * DT; fly.push({ x, y }); }
-    return { answer: Math.max(0, x), path: [...path, ...fly], note: `You land ${x.toFixed(1)} m across from where you grabbed, back at the height of the grab.` };
+    const rel = ropeAt(target); rel.label = `rope at ${Math.round(v.angle)}° (where you let go)`;
+    const hang = { x: release.x, y: release.y - 2.1 };
+    return {
+      answer: Math.max(0, x), path: [...path, ...fly], overlays: [...base, rel],
+      people: [{ x: 0, y: -2.1, pose: 'hang', hand: { x: 0, y: 0 }, label: 'grab' }, { x: hang.x, y: hang.y, pose: 'hang', hand: { x: release.x, y: release.y }, label: 'let go' }, { x, y: -2.1 + 2.1, pose: 'stand', label: 'land' }],
+      note: `You land ${x.toFixed(1)} m across from where you grabbed, back at the height of the grab.`,
+    };
   },
 };
 
@@ -125,26 +140,27 @@ const trampoline: Experiment = {
     const h = (b.vyOut * b.vyOut) / (2 * GRAVITY);
     const rise: Point[] = [];
     for (let t = 0; t <= (2 * b.vyOut) / GRAVITY; t += 0.02) rise.push({ x: 1.5 + t * 2, y: b.vyOut * t - 0.5 * GRAVITY * t * t });
-    return { answer: h, path: [{ x: 0, y: v.drop }, { x: 1.4, y: 0 }, ...rise], note: `It throws you ${h.toFixed(1)} m high (you dropped ${v.drop.toFixed(1)} m). The spring keeps about ${Math.round((h / v.drop) * 100)} % of your height.` };
+    return { answer: h, path: [{ x: 0, y: v.drop }, { x: 1.4, y: 0 }, ...rise], people: [{ x: 0, y: v.drop, pose: 'fly', label: 'drop' }, { x: 1.5 + ((2 * b.vyOut) / GRAVITY / 2) * 2, y: h, pose: 'fly', label: 'top of the bounce' }], note: `It throws you ${h.toFixed(1)} m high (you dropped ${v.drop.toFixed(1)} m). The spring keeps about ${Math.round((h / v.drop) * 100)} % of your height.` };
   },
 };
 
 const landingExp: Experiment = {
-  id: 'landing', name: 'Landing', question: 'How many times your own weight will the landing push on you?', answerUnit: '×', answerMax: 15, axis: 'y', primary: 'bend',
+  id: 'landing', name: 'Landing', question: 'How much will the landing hurt? (0 = a feather, 10 = broken bones)', answerUnit: 'out of 10', answerMax: 12, axis: 'y', primary: 'bend',
   knobs: [
-    { id: 'drop', label: 'Height you drop from', unit: 'm', min: 0.3, max: 3, def: 1.5, step: 0.1, why: 'The longer you fall, the faster you hit the ground, and the more speed has to be stopped.' },
-    { id: 'bend', label: 'Time spent bending your knees', unit: 's', min: 0.05, max: 0.5, def: 0.08, step: 0.01, why: 'Stopping over more time needs a gentler push. In the Course, hold the down arrow as you land to bend your knees.' },
+    { id: 'drop', label: 'Height you drop from', unit: 'm', min: 0.3, max: 4, def: 2.5, step: 0.1, why: 'The longer you fall, the faster you hit the ground, and the more speed has to be stopped.' },
+    { id: 'bend', label: 'Time spent bending your knees', unit: 's', min: 0.05, max: 0.5, def: 0.1, step: 0.01, why: 'Stopping over more time needs a gentler push. In the Course, hold the down arrow as you land to bend your knees.' },
   ],
   sayings: ['Soft knees, safe landing: the same stop, spread over more time.'],
   run(v) {
     const impact = Math.sqrt(2 * GRAVITY * v.drop);
     const rep = landing(impact, true, { stiffStopTime: v.bend, squatStopTime: v.bend, stumbleDecel: 45, stumbleKeep: 0.3 });
-    const g = rep.peakDecel / GRAVITY;
+    const g = ouch(rep.peakDecel);
     const path: Point[] = [];
     const tf = impact / GRAVITY;
     for (let t = 0; t <= tf; t += DT * 4) path.push({ x: t, y: v.drop - 0.5 * GRAVITY * t * t });
     path.push({ x: tf + v.bend, y: 0 });
-    return { answer: g, path, cleared: !rep.stumbled, note: rep.stumbled ? `That is ${g.toFixed(1)} times your weight: too hard, and you stumble (the limit is about 4.6 times).` : `That is ${g.toFixed(1)} times your weight: you land cleanly.` };
+    const word = g < 3 ? 'a soft landing' : g < 6 ? 'a firm landing' : g < 8 ? 'a hard landing: you stumble' : 'a dangerous landing: you could break something';
+    return { answer: g, path, people: [{ x: 0, y: v.drop, pose: 'fly', label: 'drop' }, { x: tf + v.bend, y: 0, pose: 'crouch', label: 'landing' }], cleared: !rep.stumbled, note: `That is ${g.toFixed(1)} out of 10: ${word}.` };
   },
 };
 

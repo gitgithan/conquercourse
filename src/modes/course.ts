@@ -8,6 +8,7 @@ import { DEFAULT_WALL } from '../sim/wall';
 import { DEFAULT_ROPE } from '../sim/rope';
 import { inputFor, searchIdealRun, type Plan } from '../sim/ideal';
 import { gapSpecs, minSpeedForWall } from '../sim/needs';
+import { ouch } from '../sim/landing';
 
 // The Course: the five obstacles in a row. The simulator decides everything; this file only draws it
 // and turns keys into inputs. Time comes from the simulator's tick count, never from the browser's clock.
@@ -96,7 +97,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
   msg.style.cssText = 'position:fixed;left:0;right:0;top:38%;text-align:center;font:700 28px system-ui,sans-serif;color:#10141c;text-shadow:0 1px 0 #fff;pointer-events:none';
   const help = document.createElement('div');
   help.style.cssText = 'position:fixed;left:16px;bottom:12px;font:500 14px system-ui,sans-serif;color:#10141c;pointer-events:none';
-  help.textContent = 'Hold → to run · Space to jump (or let go of the rope, or press on the trampoline) · ↓ to bend your knees when you land · R to restart · C for camera';
+  help.textContent = 'Hold ← or → to run · Space to jump (or let go of the rope, or press on the trampoline) · hold ↓ when you land from a high drop · R restart · C camera · T Dojo';
   const panel = document.createElement('div');
   panel.style.cssText = 'position:fixed;left:50%;top:26%;transform:translateX(-50%);width:min(520px,92vw);background:#fffffff2;border:1px solid #cfd6d0;border-radius:12px;padding:16px;font:16px/1.4 system-ui,sans-serif;color:#17201d;display:none;gap:10px;box-shadow:0 8px 30px #0003';
   const hint = document.createElement('div');
@@ -104,7 +105,11 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
   const gauge = document.createElement('div');
   gauge.style.cssText = 'position:fixed;left:50%;top:10px;transform:translateX(-50%);width:min(420px,60vw);font:600 15px system-ui,sans-serif;color:#10141c;text-shadow:0 1px 0 #fff8;pointer-events:none;text-align:center';
   gauge.innerHTML = '<div id="gtext">Speed</div><div style="position:relative;height:14px;background:#10141c33;border-radius:7px;margin-top:3px"><div id="gfill" style="height:100%;width:0;background:#0f6b5c;border-radius:7px"></div><div id="gneed" style="position:absolute;top:-4px;width:3px;height:22px;background:#c4572a;display:none"></div></div><div id="gnext" style="margin-top:4px;font-weight:500"></div>';
-  document.body.append(hud, msg, help, panel, hint, gauge);
+  const dojoBtn = document.createElement('button');
+  dojoBtn.textContent = 'Dojo (T)';
+  dojoBtn.style.cssText = 'position:fixed;right:16px;top:12px;font:600 15px system-ui,sans-serif;border:1px solid #0f6b5c;background:#0f6b5c;color:#fff;border-radius:8px;padding:6px 14px;cursor:pointer';
+  dojoBtn.onclick = () => openDojo();
+  document.body.append(hud, msg, help, panel, hint, gauge, dojoBtn);
   const toast = document.createElement('div');
   toast.style.cssText = 'position:fixed;left:50%;top:44%;transform:translateX(-50%);font:700 22px system-ui,sans-serif;color:#10141c;background:#fffffff0;border-radius:10px;padding:6px 14px;pointer-events:none;display:none';
   document.body.append(toast);
@@ -135,6 +140,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
     keys.add(e.code);
     if (e.code === 'Space') { jumpQueued = true; e.preventDefault(); }
     if (e.code === 'KeyR') restart();
+    if (e.code === 'KeyT') openDojo();
     if (e.code === 'Escape' && replay) { replay = null; showAgain(); }
     if (e.code === 'KeyC') camMode = camMode === 'side' ? 'chase' : 'side';
   });
@@ -165,6 +171,14 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
     botState.next = 0; botState.caught = null; botState.bedAt = null;
     msg.textContent = '';
     frames.length = 0; replay = null; panel.style.display = 'none';
+    squashUntil = 0; toastUntil = 0; toast.style.display = 'none';
+  }
+
+  // The Dojo is reachable any time: it opens on the obstacle nearest the runner (R2-G4).
+  function openDojo() {
+    const x = world.runner.x;
+    const z = zoneAt(x)?.id ?? 'gap';
+    location.search = trainLink(z, x);
   }
 
   // The Dojo opens on the very obstacle the player fell at, with its real numbers (R1-L1, R1-L3).
@@ -230,8 +244,8 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
     const r = w.runner;
     if (everCleared || falls > 0) return '';
     if (r.tick < 60 || (r.x < 4 && r.tick < 600)) return 'Hold → to run';
-    if (r.x > 22 && r.x < 36 && r.grounded) return 'Press Space just before the edge to jump';
-    if (!r.grounded && r.y > 0.3 && r.x < 60) return 'Hold ↓ as you land to bend your knees';
+    const g = specs.find((q2) => q2.x + 0.2 >= r.x && q2.x - r.x < 9);
+    if (g && r.grounded) return 'Press Space just before the edge to jump';
     return '';
   }
 
@@ -246,19 +260,20 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
       let input: RunnerInput = NO_INPUT;
       if (plan) input = inputFor(plan, world, botState);
       else {
-        input = { run: keys.has('ArrowRight') || keys.has('KeyD'), jump: jumpQueued, jumpSpeed: 0, squat: keys.has('ArrowDown') || keys.has('KeyS') };
+        input = { run: keys.has('ArrowRight') || keys.has('KeyD'), left: keys.has('ArrowLeft') || keys.has('KeyA'), jump: jumpQueued, jumpSpeed: 0, squat: keys.has('ArrowDown') || keys.has('KeyS') };
         jumpQueued = false;
       }
       const prev = world.outcome;
       world = stepWorld(world, input, course);
       log.push(...world.events);
       for (const e of world.events) {
-        if (e.type === 'land' && (e.detail?.impact as number) > 2) {
-          const hard = (e.detail?.peakDecel as number) > 45;
-          const times = ((e.detail?.peakDecel as number) / 9.81).toFixed(1);
-          toast.textContent = hard ? `Hard landing! ${times}× your weight: you stumble.` : e.detail?.squat ? `Soft landing: knees bent, ${times}× your weight.` : `Landing: ${times}× your weight. Hold ↓ to bend your knees.`;
-          toast.style.display = 'block'; toastUntil = world.runner.tick + 150;
-          squashUntil = world.runner.tick + 40; squashDepth = e.detail?.squat ? 0.65 : 0.85;
+        if (e.type === 'land' && (e.detail?.impact as number) > 2 && !e.detail?.bouncy) {
+          const o = ouch(e.detail?.peakDecel as number);
+          squashUntil = world.runner.tick + 40; squashDepth = e.detail?.squat ? 0.7 : o >= 6 ? 0.6 : 0.88;
+          if (o >= 3) {
+            toast.textContent = o >= 8 ? 'Ouch! Dangerous landing: bend your knees (↓) on big drops.' : o >= 6 ? 'Hard landing: you stumble. Hold ↓ to bend your knees.' : 'Firm landing.';
+            toast.style.display = 'block'; toastUntil = world.runner.tick + 90;
+          }
         }
       }
       if (replay === null && prev === 'running') frames.push({ x: world.runner.x, y: world.runner.y });
@@ -279,7 +294,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
     if (world.runner.tick > toastUntil) toast.style.display = 'none';
     hint.textContent = hintFor(world);
     hint.style.display = hint.textContent ? 'block' : 'none';
-    ropeGroup.rotation.z = world.swing ? -world.swing.theta : 0;
+    ropeGroup.rotation.z = world.swing ? world.swing.theta : 0;
     msg.textContent = world.outcome === 'cleared' ? MESSAGES.cleared : '';
     const spd = Math.abs(r.vx);
     gText.textContent = `Speed ${spd.toFixed(1)} m/s`;
