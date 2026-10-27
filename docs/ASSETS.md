@@ -113,9 +113,11 @@
 | `public/assets/objects/box-skate-03.glb` | low box with a step, 0.5 m high, 5,820 faces, 351 KB | park03, Alexis Jazz | CC BY 4.0: credit "Alexis Jazz, Voltaplatz skatepark, ledge" wherever the object is shown | same (round 2) |
 | `public/assets/objects/bench-concrete.glb` | concrete bench with a back, 0.8 m high, 5,820 faces, 348 KB | bench01, Rick Obst | CC BY 2.0: credit "Rick Obst, Concrete bench in Valley Wood Park" wherever the object is shown | same, photo padded (round 3) |
 | `public/assets/objects/railing-iron.glb` | iron railing panel, 1.0 m high, 5,820 faces, 565 KB | rail01, Peter Broster | CC0 | same, photo padded (round 3) |
+| `public/assets/objects/rail-skate-02.glb` | handrail (follows stairs, posts uneven), 1.0 m high, 5,820 faces, 342 KB | park02, Neoclassicism Enthusiast | CC0 | same (round 2); editor-only test object |
+| `public/assets/objects/stairs-park-07.glb` | park stairs as a soft block, 0.7 m high, 5,820 faces, 346 KB | park07, Ajznponar | CC0 | same (round 2); editor-only test object |
 | `public/assets/objects/index.json` | maps each photo and box to its GLB, with height, extents, look and credit (ours) | ConquerCourse | same as each photo | `pipelines/ship_objects.py` |
 - Each GLB is a skin only (no collision), made from one photo with open-weight models (SAM 3 and SAM 3D Objects, Meta; their licences are in `docs/PRIOR-WORK.md`); the sizes come from typical heights, not from the photo.
-- Not shipped: the two mural walls (`data/eval/cc-38-photo-to-3d/r3/mural0*/mesh.glb`), because a mural belongs to its artist even when the photo is CC0; the park02, park06 and park07 objects (judged "partly" with a sloped base, "no" and "no").
+- Not shipped: the two mural walls (`data/eval/cc-38-photo-to-3d/r3/mural0*/mesh.glb`), because a mural belongs to its artist even when the photo is CC0; the park06 object (a 33 m slab). park02 and park07 are in the editor for size tests only, judged "partly".
 - Kept outside git: the raw lifts (`raw.npz`, about 100 MB) and the privacy-masked photos in `../conquercourse-assets/cc-38-raw/` with `SHA256SUMS`.
 
 ## The product owner's own clips (to come)

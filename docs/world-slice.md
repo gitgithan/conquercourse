@@ -107,3 +107,12 @@ The set of obstacle shapes is fixed, and each shape offers a fixed set of moves.
 - **They are pieces like any other:** move, turn, scale, lift, copy, crop; the lane is cut from their real shape.
 - **Fix found on the way:** "Find the best lane" measured the sideways step from the middle of the scene, but the editor draws the lane from the origin, so a lane it found could differ from the lane it showed.
   - The search now takes the editor's rod as its centre (test added).
+
+## Drum lane and size references (2026-10-28)
+- **Drum lane (`src/sim/drums.ts`, `src/ui/drum-lane.ts`):**
+  - plays the ideal run once and records where it presses Space (jump, rope let-go, trampoline press);
+  - shows those places as taiko drums that slide toward a hit line as the runner closes in;
+  - on by default for a course someone built (editor or `?course=`), off for the stock course until D (or `?drums=1`);
+  - shows the line only; it never scores the player's own presses.
+- **Editor objects:** every object we have is placed from the editor: the photo objects (including park02 rail and park07 stairs, test-only), plus size references (a 1.75 m person from the Rookie model, and the demo scene).
+- **Not in the editor:** the two mural walls (the artist's rights) and the park06 slab (33 m, wrong size).
