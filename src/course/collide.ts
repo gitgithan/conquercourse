@@ -3,15 +3,15 @@ import { DEFAULT_WALL } from '../sim/wall';
 
 // Where a point of the body is inside the world (a platform or the warped wall), and how far to move it out.
 // The Rookie's joints are pushed out of these so the body never sinks into a block or the curve.
-export type Obstacle = (x: number, y: number) => { dx: number; dy: number } | null;
+export type Obstacle = (x: number, y: number, skin?: number) => { dx: number; dy: number } | null;
 
-const SIDE = 0.08; // m, how far outside a side face or the curve a body point is kept (about the body's thickness)
+const DEFAULT_SIDE = 0.16; // m, how far outside a side face or the curve a body point is kept by default (a body's half thickness; the feet use less)
 const TOP = 0.02;
 
 export function makeObstacle(course: CourseData): Obstacle {
   const platforms = course.terrain.platforms;
   const wall = course.wall ? { x0: course.wall.x0, R: course.wall.radius ?? course.wall.height ?? DEFAULT_WALL.height } : null;
-  return (x, y) => {
+  return (x, y, SIDE = DEFAULT_SIDE) => {
     let best: { dx: number; dy: number } | null = null;
     const take = (dx: number, dy: number) => { if (!best || Math.hypot(dx, dy) > Math.hypot(best.dx, best.dy)) best = { dx, dy }; };
     for (const p of platforms) {
