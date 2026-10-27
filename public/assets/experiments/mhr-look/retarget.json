@@ -1,0 +1,44 @@
+{
+  "neutral": {
+    "glb": "mhr-neutral-t.glb",
+    "bytes": 1339444,
+    "height_m": 1.75,
+    "arm_span_m": 1.878,
+    "top_m": 1.75
+  },
+  "tall": {
+    "glb": "mhr-tall-t.glb",
+    "bytes": 1339440,
+    "height_m": 1.75,
+    "arm_span_m": 1.878,
+    "top_m": 1.75
+  },
+  "short": {
+    "glb": "mhr-short-t.glb",
+    "bytes": 1339444,
+    "height_m": 1.75,
+    "arm_span_m": 1.879,
+    "top_m": 1.75
+  },
+  "broad": {
+    "glb": "mhr-broad-t.glb",
+    "bytes": 1339440,
+    "height_m": 1.75,
+    "arm_span_m": 1.878,
+    "top_m": 1.75
+  },
+  "slim": {
+    "glb": "mhr-slim-t.glb",
+    "bytes": 1339440,
+    "height_m": 1.75,
+    "arm_span_m": 1.878,
+    "top_m": 1.75
+  },
+  "stocky": {
+    "glb": "mhr-stocky-t.glb",
+    "bytes": 1339440,
+    "height_m": 1.75,
+    "arm_span_m": 1.879,
+    "top_m": 1.75
+  }
+}

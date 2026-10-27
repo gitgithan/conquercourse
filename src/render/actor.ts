@@ -37,11 +37,11 @@ interface Pose {
   hipsAbove: number;
 }
 
-export async function createRookieActor(scene: Scene, opts: { rookie: RookieId }): Promise<RookieActor> {
+export async function createRookieActor(scene: Scene, opts: { rookie: RookieId; url?: string }): Promise<RookieActor> {
   const phases: Phase[] = ['run', 'leap', 'land', 'swing'];
   const [run, leap, land, swing] = await Promise.all(phases.map((p) => loadClip(p)));
   const reach: Clip = parseClip(await (await fetch('/assets/motion/reach.json')).json());
-  const rookie = await loadRookie(opts.rookie, run.names, run.parents);
+  const rookie = await loadRookie(opts.rookie, run.names, run.parents, undefined, opts.url);
   const group = new Group();
   group.add(rookie.object);
   scene.add(group);

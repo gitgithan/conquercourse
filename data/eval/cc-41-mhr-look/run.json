@@ -24,5 +24,30 @@
     "variants": "made",
     "skinned_to_rookie": "rough; A-pose vs T-pose blocks arms",
     "gate": "4 of 4 FAIL"
+  },
+  "part2": {
+    "date": "2026-10-27",
+    "code": [
+      "tools/mhr_look/retarget.py",
+      "tools/mhr_look/shots.mjs",
+      "pipelines/video_to_motion/modal_app.py::shape_from_photo",
+      "src/render/look.ts"
+    ],
+    "modal": {
+      "gpu": "L4",
+      "seconds": 72,
+      "cost_usd_estimate": 0.02,
+      "photo": "frame at 7.97 s of Precision_jumps_between_concrete_blocks.mp4 (Pexels), outside git",
+      "result": {
+        "people": 1,
+        "faces_masked": 1,
+        "height_m_estimate": 1.702
+      }
+    },
+    "outputs": [
+      "public/assets/experiments/mhr-look/mhr-*-t.glb",
+      "data/eval/cc-41-mhr-look/retarget-run-leap-hang.png",
+      "data/eval/cc-41-mhr-look/retarget-photo-body.png"
+    ]
   }
 }

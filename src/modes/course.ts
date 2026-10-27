@@ -14,6 +14,7 @@ import { DEFAULT_TRAMPOLINE } from '../sim/trampoline';
 import { ouch } from '../sim/landing';
 import { track } from '../ui/feedback';
 import { createRookieActor } from '../render/actor';
+import { lookSwitchOn, lookUrl } from '../render/look';
 import { makeObstacle } from '../course/collide';
 import { actorStateFor } from '../motion/actor-state';
 import { groundAt } from '../sim/terrain';
@@ -176,16 +177,19 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
   let choice: 'a' | 'b' = 'a';
   try { const saved = localStorage.getItem('cc.rookie'); if (saved === 'a' || saved === 'b') choice = saved; } catch { /* keep going */ }
   if (params.get('rookie') === 'a' || params.get('rookie') === 'b') choice = params.get('rookie') as 'a' | 'b';
-  async function loadRookie(which: 'a' | 'b') {
+  // CC-41: with ?look=custom a third button wears the MHR body (skinned to the Rookie's bones); nothing changes without the switch
+  const look = lookSwitchOn(location.search);
+  let custom = false;
+  async function loadRookie(which: 'a' | 'b', wear = false) {
     try {
-      const next = await createRookieActor(scene, { rookie: which });
+      const next = await createRookieActor(scene, { rookie: which, url: wear ? lookUrl(look ?? 'custom') : undefined });
       actor?.dispose();
-      actor = next; body.visible = false; choice = which;
+      actor = next; body.visible = false; choice = which; custom = wear;
       if (params.get('nopush') !== '1') actor.setObstacle(makeObstacle(course));
-      try { localStorage.setItem('cc.rookie', which); } catch { /* ok */ }
+      if (!wear) try { localStorage.setItem('cc.rookie', which); } catch { /* ok */ }
     } catch (e) { console.warn('Rookie not loaded, using the capsule', e); }
   }
-  await loadRookie(choice);
+  await loadRookie(choice, look !== null);
   let facing: 1 | -1 = resume ? resume.facing : 1;
 
   // HUD
@@ -231,9 +235,18 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
     b.onclick = async () => { await loadRookie(k); paintPick(); };
     pick.appendChild(b); return b;
   });
+  if (look !== null) {
+    const b = document.createElement('button');
+    b.id = 'look-custom';
+    b.innerHTML = '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="5" r="2.5"/><path d="M12 8 V16 M5 11 H19 M12 16 L8 21 M12 16 L16 21"/></svg>';
+    b.title = 'Run as your own look';
+    b.setAttribute('aria-label', b.title);
+    b.onclick = async () => { await loadRookie('a', true); paintPick(); };
+    pick.appendChild(b); pickBtns.push(b);
+  }
   function paintPick() {
     pickBtns.forEach((b, i) => {
-      const on = (i === 0 ? 'a' : 'b') === choice;
+      const on = i === 2 ? custom : !custom && (i === 0 ? 'a' : 'b') === choice;
       b.setAttribute('aria-pressed', String(on));
       b.style.cssText = `display:grid;place-items:center;width:38px;height:34px;border-radius:8px;cursor:pointer;border:2px solid ${on ? '#0f6b5c' : '#b9c2bb'};background:${on ? '#0f6b5c' : '#fff'};color:${on ? '#fff' : '#17201d'}`;
     });

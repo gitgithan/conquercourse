@@ -30,7 +30,8 @@ Run: `uv run --no-project --with numpy python pipelines/video_to_motion/regate.p
 ## 3. Wearing them
 - **Done:** `tools/mhr_look/export_variants.py` copies bone weights from the nearest Rookie vertices (4 nearest, best 4 bones) and keeps the Rookie's skeleton and bind matrices.
 - **Seen:** `variants.png` (top: Rookie and six bodies; bottom: the same posed with the right arm up and the left knee bent); page `public/assets/experiments/mhr-look/index.html` (needs `npm run dev`).
-- **Blocker, plainly:** retargeting is the blocker. The nearest-vertex copy is wrong where the A-pose and T-pose differ (shoulders, upper arms), so the raised right arm barely lifts the MHR bodies' arms; the legs bend fine.
+- **Blocker, plainly:** retargeting is the blocker.
+  - The nearest-vertex copy is wrong where the A-pose and T-pose differ (shoulders, upper arms), so the raised right arm barely lifts the MHR bodies' arms; the legs bend fine.
 - **Not done:** textures and clothes (the bodies are plain skin), hands and face bones, any game code change.
 
 ## 4. Cost
@@ -42,3 +43,38 @@ Run: `uv run --no-project --with numpy python pipelines/video_to_motion/regate.p
 - **Command once a consented adult photo exists:** `modal run pipelines/video_to_motion/modal_app.py::shape_from_photo --photo ../conquercourse-assets/owner-photo/photo.jpg --out ../conquercourse-assets/work/owner-look/`
   - **Not real yet:** `modal_app.py` has the SAM 3D Body class (`@app.cls`) but no `shape_from_photo` entrypoint; that small entrypoint is the first step of the next issue.
   - **Then:** feed the 45 `shape_params` it returns to `export_variants.py` as one more variant; the photo and the numbers stay outside git.
+
+## Part 2: a body becomes a playable character
+### So what
+- **It works:** an MHR body now plays every existing clip (run, leap, hang) on the Rookie's bones, shoulders straight, with no change to the clips or the actor.
+- **Evidence:** `retarget-run-leap-hang.png` (top Rookie, bottom the neutral MHR body) and `retarget-photo-body.png` (the body made from the stock-photo shape, 1.70 m).
+- **In the game:** `?look=custom` adds a third Rookie button (and starts on the new body); `?look=tall` etc. picks a variant; `?look=url:/path.glb` loads a photo-made GLB; without the switch nothing changes.
+- **Cost:** about $0.02 of Modal L4 time (one run of 72 s); under the $1 cap.
+- **Still rough:** bodies are plain skin, no clothes, hands are stiff blocks, and the neutral body has a soft belly (MHR's average shape); `broad` and `stocky` stay heavy.
+- **The motion clips are still not cleared:** all four CC-26 clips fail the gate (part 1); this part only changes the look.
+
+### Method
+- **T-pose:** each arm's upper arm, forearm and hand are turned (minimal rotation) to point along the Rookie's bones, using the MHR's own skin weights; no MHR pose numbers were needed.
+- **Fit:** arms are stretched along x so elbow and wrist land on the Rookie's joints; the body is stretched along y so ankle, knee, hip and shoulder land on the Rookie's; legs move in to the Rookie's hip width.
+- **Weights:** each MHR joint (127) maps to one Rookie bone (34); fingers go to the hand; each vertex keeps its best 4.
+  - This replaced the nearest-vertex copy of part 1.
+- **Height:** the whole rig is scaled by `height / 1.75` on a root node `mhr-height`; the 45 shape numbers are not touched.
+  - The actor reads the scaled bones, so leg length adapts.
+- **Size:** 1.34 MB each, under 1.5 MB.
+
+### Photo entrypoint
+- **Code:** `Worker.shape_from_photo` and `shape_from_photo` in `pipelines/video_to_motion/modal_app.py`.
+- **Order:** find people and faces; refuse unless exactly one person and at least one face; pixelate faces; only then run SAM 3D Body; return numbers only (45 shape, 68 scale, height estimate, receipt counts).
+- **Test:** a frame of an adult in the Pexels clip `Precision_jumps_between_concrete_blocks` (the repo has no licensed still of a clear adult; the park photos show none, or tiny bystanders).
+  - Result: 1 person, 1 face masked, height estimate 1.702 m.
+- **Commands:**
+  - `modal run pipelines/video_to_motion/modal_app.py::shape_from_photo --photo P.jpg --out DIR/`
+  - `python tools/mhr_look/retarget.py MHR_MODEL_PT public/assets/characters/rookie-a.glb OUT --shape DIR/shape.json --name custom --height-m 1.80`
+  - then open the Course with `?look=url:/path/to/mhr-custom-t.glb`.
+- **Caution:** the height estimate from one photo is a guess; the owner should give their real height with `--height-m`.
+- **Honest limit:** the stock body is close to the average shape (shape norm 3.1); one side-on photo gives little shape.
+- **Kept out of git:** the frame and `shape.json` are in `../conquercourse-assets/work/cc-41-photo/`.
+
+### Tools
+- `tools/mhr_look/retarget.py` (the GLBs), `tools/mhr_look/shots.mjs` (screenshots; needs `npx vite --port 5191` and `PORT=5191`).
+- **In the Course:** `course-look-custom.png` (`?look=custom`: third button lit, the new body standing on the start platform).
