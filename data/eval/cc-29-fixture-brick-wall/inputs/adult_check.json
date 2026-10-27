@@ -1,28 +1,28 @@
 {
- "pass": true,
- "answer": {
-  "all_adults": "yes",
-  "children_seen": false,
-  "people": 1,
-  "reasons": [
-   "Description says 'A man jumping off the wall'",
-   "Jumper's size vs wall and railing looks adult",
-   "Only one person visible in all frames"
-  ]
- },
- "usage": {
-  "completion_tokens": 379,
-  "prompt_tokens": 16332,
-  "total_tokens": 16711,
-  "completion_tokens_details": {
-   "reasoning_tokens": 320
+  "pass": true,
+  "answer": {
+    "all_adults": "yes",
+    "children_seen": false,
+    "people": 1,
+    "reasons": [
+      "Description says 'A man jumping off the wall'",
+      "Jumper's size vs wall and railing looks adult",
+      "Only one person visible in all frames"
+    ]
   },
-  "prompt_tokens_details": {
-   "cached_tokens": 0
+  "usage": {
+    "completion_tokens": 379,
+    "prompt_tokens": 16332,
+    "total_tokens": 16711,
+    "completion_tokens_details": {
+      "reasoning_tokens": 320
+    },
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "seconds": 5.5,
+    "model": "muse-spark-1.3"
   },
-  "seconds": 5.5,
-  "model": "muse-spark-1.3"
- },
- "usd": 0.022,
- "frames_sent": 6
+  "usd": 0.022,
+  "frames_sent": 6
 }
