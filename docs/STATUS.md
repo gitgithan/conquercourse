@@ -2,19 +2,24 @@
 
 *Kept current by whoever works; a new session reads this first, after `CLAUDE.md`.*
 
-## Now (2026-10-27)
-- **Done:** CC-1, the knowledge and asset transfer (spec, sayings, research briefs, characters, footage manifest, lessons, learning design, challenges, pipelines, experiments, CLAUDE.md, dev setup, prior work).
-- **CC-17 (branch `cc-17-starter-clips`, not merged):** run, leap, land, hang, swing shipped from CMU (plus a reach and a Kimodo leap) through the gate with a guard test; wall run-up and grab NOT achieved (Kimodo text only: 0 of 36 samples); see `data/eval/starter-clips/README.md`.
-  - Next for it: contact targets for the wall move (pipelines 3, 5 and 6) or the Pexels wall footage (CC-26).
-- **CC-29 (branch `cc-29-video-ingest`, not merged):** video ingest built and tested (`pipelines/ingest_video.py`, primitives doc and schema, move recipes, one shared gate); the three videos are NOT processed: YouTube's bot check blocked the download from this machine; needs a cookies file or the files from the product owner; see `data/eval/cc-29-video-ingest/README.md`.
-  - The shared gate now fails CC-26's two "conditional pass" clips.
+## Now (2026-10-27, afternoon)
+- **Done:**
+  - CC-1 to CC-2: repo, knowledge, app skeleton.
+  - CC-5 to CC-10: the simulator (sprint, braking, flight, gap, steps, landing, warped wall, rope, trampoline) and the ideal-run search.
+  - CC-24 and CC-26: the SAM 3.1 spike and the Pexels clips.
+- **Playable on main:**
+  - The Course (`/`), the Dojo (`/?mode=dojo`), and a hands-free bot (`/?bot=ideal`).
+  - Run `npm run dev`, then open `http://localhost:5173`.
+- **Running on the VM:**
+  - CC-16 (Rookie in the game) and CC-3 (true-speed film helper).
+  - CC-25 (photo to course, the hero beat).
+  - CC-29 (video ingest; the wall clip fails the gate, so it becomes Kimodo targets).
 - **Next, in order:**
-  1. **CC-2** app skeleton (Vite + TypeScript + three.js WebGPU; Rookie A standing; `npm run test:quick`), on the laptop.
-  2. **CC-5** simulator core, then **CC-6 to CC-10**: good work for the VM (pure TypeScript and tests).
-  3. **CC-24** the SAM 3.1 park-photo spike, early (the hero beat's riskiest assumption; spec §12).
-  4. **CC-3** browser smoke test and true-speed filming on the VM; **CC-4** the merge path.
-  5. Then M2 (CC-11 to CC-15) and M3 (CC-16 to CC-18), and M4 (CC-25 to CC-27), M5 (CC-28).
-- **Issue numbers:** CC-1 to CC-18 and CC-24 to CC-28; CC-19 to CC-23 don't exist (used up by attempts the free plan's issue limit refused).
+  1. Merge the CC-16, CC-3 and CC-25 branches; fix conflicts in `src/main.ts`.
+  2. Film the demo beats (CC-28) with the film helper.
+  3. The wall clip from targets (CC-17) and the strobe overlay (CC-27).
+  4. A real person plays it (CC-15, CC-11 notes).
+- **Issue numbers:** CC-1 to CC-18 and CC-24 to CC-29; CC-19 to CC-23 do not exist.
 
 ## Machines and access (all checked 2026-10-27)
 - **Laptop:** main work and the dev server (`http://localhost:5173`); at most one browser test run at a time.
