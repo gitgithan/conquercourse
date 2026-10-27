@@ -7,12 +7,12 @@ export interface WallParams {
   radius?: number; // m, curve radius (default: the wall height); the Dojo keeps it constant so height does not change the curve
   stopAtGrab?: boolean; // default true: the run ends when the hands reach the top; false follows the climb to its peak
   hipHeight: number; // m, hips above the feet while running
-  reach: number; // m, hands above the hips when stretched up (spec: 2.1)
+  reach: number; // m, hands above the hips when stretched up (1.3: about what a body can stretch; was 2.1 in the spec)
   loss: number; // friction loss as a share of the climb energy (starting value)
   gravity: number;
 }
 
-export const DEFAULT_WALL: WallParams = { height: 4.3, hipHeight: 1.0, reach: 2.1, loss: 0.1, gravity: GRAVITY };
+export const DEFAULT_WALL: WallParams = { height: 4.3, hipHeight: 1.0, reach: 1.3, loss: 0.1, gravity: GRAVITY };
 
 export interface WallResult {
   grabbed: boolean;
