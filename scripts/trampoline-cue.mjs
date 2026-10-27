@@ -15,7 +15,7 @@ try {
     const out = { first: null, bounce: null, text: '' };
     const iv = setInterval(() => {
       const tick = Number(document.documentElement.dataset.tick), mode = document.documentElement.dataset.mode;
-      const el = [...document.querySelectorAll('div')].find((d) => /^(Trampoline ahead|Land on the trampoline)/.test(d.textContent ?? '') && d.children.length === 0 && getComputedStyle(d).display !== 'none');
+      const el = [...document.querySelectorAll('div')].find((d) => /^Trampoline ahead/.test(d.textContent ?? '') && d.children.length === 0 && getComputedStyle(d).display !== 'none');
       if (el && out.first === null) { out.first = tick; out.text = el.textContent; }
       if (mode === 'bounce' && out.bounce === null) { out.bounce = tick; clearInterval(iv); res(out); }
     }, 20);
@@ -25,7 +25,7 @@ try {
   await page.waitForTimeout(500);
   await page.keyboard.press('Shift+KeyR');
   await page.waitForTimeout(1500);
-  const afterRestart = await page.evaluate(() => [...document.querySelectorAll('div')].some((d) => /^(Trampoline ahead|Land on the trampoline|Press Space now)/.test(d.textContent ?? '') && d.children.length === 0 && getComputedStyle(d).display !== 'none'));
+  const afterRestart = await page.evaluate(() => [...document.querySelectorAll('div')].some((d) => /^(Trampoline ahead|Press Space now|Land on the trampoline)/.test(d.textContent ?? '') && d.children.length === 0 && getComputedStyle(d).display !== 'none'));
   console.log('cue showing after a full restart:', afterRestart);
   const secs = seen.first !== null && seen.bounce !== null ? (seen.bounce - seen.first) / 120 : null;
   console.log(seen, 'seconds before the bounce:', secs, 'errors:', errors);

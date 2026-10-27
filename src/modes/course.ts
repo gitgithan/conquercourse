@@ -164,9 +164,9 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
   const camBtn = document.createElement('button');
   camBtn.id = 'cam';
   camBtn.setAttribute('aria-label', 'Change the camera (C)'); camBtn.title = 'Camera: Side view';
-  camBtn.style.cssText = 'position:fixed;right:340px;top:6px;display:grid;justify-items:center;gap:0;border:2px solid #17201d;background:#fff;color:#17201d;border-radius:12px;padding:3px 8px 2px;cursor:pointer;font:600 11px system-ui,sans-serif';
+  camBtn.style.cssText = 'position:fixed;right:16px;top:56px;display:grid;justify-items:center;gap:0;border:2px solid #17201d;background:#fff;color:#17201d;border-radius:12px;padding:3px 8px 2px;cursor:pointer;font:600 11px system-ui,sans-serif';
   const node = (a: number) => `<circle cx="${(20 + 13 * Math.sin((a * Math.PI) / 180)).toFixed(1)}" cy="${(20 - 13 * Math.cos((a * Math.PI) / 180)).toFixed(1)}" r="4.2" class="n"/>`;
-  camBtn.innerHTML = `<svg width="40" height="40" viewBox="0 0 40 40" aria-hidden="true"><g id="ring" style="transform-origin:20px 20px;transition:transform .35s ease"><circle cx="20" cy="20" r="13" fill="none" stroke="currentColor" stroke-width="2.4"/>${node(0)}${node(120)}${node(240)}</g><path d="M20 2 L24 7 L16 7 Z" fill="#c4572a"/></svg><span id="camname">C to rotate</span>`;
+  camBtn.innerHTML = `<svg width="40" height="40" viewBox="0 0 40 40" aria-hidden="true"><g id="ring" style="transform-origin:20px 20px;transition:transform .35s ease"><circle cx="20" cy="20" r="13" fill="none" stroke="currentColor" stroke-width="2.4"/>${node(0)}${node(120)}${node(240)}</g><path d="M20 2 L24 7 L16 7 Z" fill="#c4572a"/></svg><span id="camname">Rotate Camera (C)</span>`;
   camBtn.querySelectorAll('.n').forEach((n) => { (n as SVGElement).style.fill = '#17201d'; });
   let camTurn = 0;
   const nextCam = () => {
@@ -468,13 +468,13 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
   let cueSince: number | null = null, cueDone = false;
   function hintFor(w: WorldState): string {
     const r = w.runner;
-    if (w.mode === 'bounce') { cueDone = true; return 'Press Space now for extra height!'; }
+    if (w.mode === 'bounce') { cueDone = true; return ''; }
     // the trampoline cue comes early and stays for 4 seconds (or until you land on the bed), so it can be read before the bounce
     const bed = course.terrain.platforms.find((q2) => q2.bouncy && r.x < q2.x1);
     if (!bed || bed.x0 - r.x > 14 || w.outcome !== 'running') { cueSince = null; cueDone = false; } // far from the bed, or restarted: the cue starts over
     if (bed && !cueDone && w.mode === 'run' && w.outcome === 'running' && (bed.x0 - r.x < 14 || (cueSince !== null && r.tick - cueSince < 480))) {
       cueSince ??= r.tick;
-      return r.grounded && r.x < bed.x0 - 2 ? 'Trampoline ahead: press Space the moment you land on it for extra height' : 'Land on the trampoline, then press Space while it squashes';
+      return 'Trampoline ahead: press Space the moment you land on it for extra height';
     }
     if (w.mode === 'swing') return 'Press Space to let go while you are still rising';
     if (everCleared || falls > 0) return '';
