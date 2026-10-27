@@ -21,8 +21,14 @@ try {
     }, 20);
     setTimeout(() => { clearInterval(iv); res(out); }, 280000);
   }));
+  // a full restart must not show the cue
+  await page.waitForTimeout(500);
+  await page.keyboard.press('Shift+KeyR');
+  await page.waitForTimeout(1500);
+  const afterRestart = await page.evaluate(() => [...document.querySelectorAll('div')].some((d) => /^(Trampoline ahead|Land on the trampoline|Press Space now)/.test(d.textContent ?? '') && d.children.length === 0 && getComputedStyle(d).display !== 'none'));
+  console.log('cue showing after a full restart:', afterRestart);
   const secs = seen.first !== null && seen.bounce !== null ? (seen.bounce - seen.first) / 120 : null;
   console.log(seen, 'seconds before the bounce:', secs, 'errors:', errors);
   await browser.close();
-  process.exit(secs !== null && secs >= 1.5 && !errors.length ? 0 : 1);
+  process.exit(secs !== null && secs >= 1.5 && !afterRestart && !errors.length ? 0 : 1);
 } finally { server.kill(); }
