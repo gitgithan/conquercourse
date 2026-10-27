@@ -6,7 +6,7 @@
     "z": 0.066
   },
   "height_m": 0.999,
-  "target_height_m": 1.0,
+  "target_height_m": 1,
   "scale_source": "typical:rail",
   "scale_factor": 2.5186,
   "raw_height": 0.397,

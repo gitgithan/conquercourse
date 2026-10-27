@@ -10,7 +10,7 @@
   "scale_source": "typical:bench",
   "scale_factor": 1.892,
   "raw_height": 0.4228,
-  "yaw_deg": 0.0,
+  "yaw_deg": 0,
   "tilt_deg": 0.82,
   "faces": 5820,
   "vertices": 2910,

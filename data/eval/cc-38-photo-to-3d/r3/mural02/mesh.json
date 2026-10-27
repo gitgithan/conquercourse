@@ -10,7 +10,7 @@
   "scale_source": "typical:wall",
   "scale_factor": 1.3137,
   "raw_height": 0.6851,
-  "yaw_deg": 0.0,
+  "yaw_deg": 0,
   "tilt_deg": 1.46,
   "faces": 5820,
   "vertices": 3350,
