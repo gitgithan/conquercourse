@@ -138,5 +138,6 @@ The set of obstacle shapes is fixed, and each shape offers a fixed set of moves.
   - blue is the runner's body box and feet point;
   - green or red is where a jump right now goes, run on the simulator's own physics (`src/sim/predict.ts`), with the reason in words ("lands 0.3 m from the edge", "falls 1.2 m before the next ground", "the step ahead is 1.4 m high").
 - **Keys:** the drum lane moved to G, because D is also a run key.
-- **Fix it (`src/slice/fixit.ts`):** one click changes the layout into one the simulator clears: the smallest proved fix again and again, shrinking a step no jump can climb, and as a last resort the best lane through the pieces. The result and the steps taken are written in the helper window.
+- **Fix it (`src/slice/fixit.ts`):** one click changes the layout into one the simulator clears: the smallest proved fix again and again, shrinking a step no jump can climb, and as a last resort the best lane through the pieces.
+  - The result and the steps taken are written in the helper window.
 - **Helper window:** it floats over the 3D view (open or close it with the "Design partner" button), with a larger text box, and nothing covers it.
