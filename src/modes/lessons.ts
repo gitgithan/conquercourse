@@ -68,6 +68,17 @@ export const LESSONS: Record<Experiment['id'], Lesson> = {
     },
     apply: (f, c, v) => (f.rope ? `The rope in this course is ${(c.ropeLength ?? f.rope.length).toFixed(0)} m long and hangs from ${f.rope.anchorHeight.toFixed(1)} m up. Grab it on the way up, hold on while you are rising, and let go near ${Math.round(v.angle)}° of the swing.` : 'This course has no rope.'),
   },
+  bars: {
+    why: 'On a bar you hang like a pendulum. How long one swing takes depends on the length of your swing and nothing else. But the size of the swing is yours to change: push in step with it and it grows, push against it and it fades.',
+    tries: ['Drag the length from 1 to 3 m and watch how the time of one swing grows.', 'Keep the length and push with the swing for 6 seconds, then push against it.', 'Find how long you need to push to swing high enough to reach the next bar.'],
+    shapeWords: { root: 'a curve that flattens: four times the length makes the swing take only twice as long (the time grows with the square root of the length).' },
+    rule: 'A longer swing is slower. Pushing in step with the swing adds energy every time, so it grows; pushing out of step takes energy away.',
+    formula: 'time of one swing = 2π × √(length ÷ g)',
+    formulaWords: 'This is exact for a small swing of a point on a stiff arm and no air resistance (g = 9.81 m/s²). A big swing takes a little longer. The body is a rod, so the length is two thirds of the way from hands to feet. The size of the swing does not appear: that is why you can grow it without changing its beat.',
+    inputs: ['length'],
+    calc: (v) => { const T = 2 * Math.PI * Math.sqrt(v.length / GRAVITY); return { label: 'time of one swing', value: T, unit: 's', working: `2π × √(${v.length.toFixed(2)} ÷ ${GRAVITY}) = ${T.toFixed(2)} s` }; },
+    apply: () => 'On the lache pair, hold Q or E on the bar and push the arrow the way you swing: the swing grows each time. Let go when the hint says LET GO NOW.',
+  },
   trampoline: {
     why: 'A trampoline is a spring: it stores the energy of your landing and gives it back. The harder you land, the higher it throws you. And you can add to it: pressing Space at the bottom of the bounce adds speed on top of what the spring returns.',
     tries: ['Drop from 1 m, then 2 m, then 4 m, with no extra push.', 'Watch how much of your height you get back each time.', 'Now add an extra push at the bottom and see how much higher you go.'],

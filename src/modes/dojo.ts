@@ -114,7 +114,7 @@ export function startDojo(host: HTMLElement): { backend: 'webgl2' } {
       });
       const svgBox = el('div', box);
       svgBox.style.cssText = 'background:#fff;border:1px solid #cfd6d0;border-radius:10px;padding:6px';
-      svgBox.innerHTML = diagram(exp.id, diagramKind);
+      svgBox.innerHTML = diagram(exp.id === 'bars' ? 'rope' : exp.id, diagramKind); // a bar swing is a pendulum like the rope: it borrows the rope's picture until it has its own
       const svg = svgBox.querySelector('svg'); if (svg) { svg.setAttribute('width', '100%'); svg.removeAttribute('height'); (svg as SVGElement).style.height = 'auto'; }
     }
     const L = LESSONS[exp.id];
