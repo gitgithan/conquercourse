@@ -1,0 +1,295 @@
+{
+  "recipeVersion": "0.1.0",
+  "source": {
+    "url": "https://www.youtube.com/watch?v=7soV521Xk1A",
+    "uploader": "Andrew Muan",
+    "licence": "Creative Commons Attribution license (reuse allowed)",
+    "range_s": [
+      149.0,
+      155.0
+    ],
+    "id": "muan-warped-wall"
+  },
+  "move": "wall-run-and-grab",
+  "gate": {
+    "verdict": "FAIL",
+    "failed_rules": [
+      "held_clips_are_held"
+    ]
+  },
+  "athlete": {
+    "standing_height_m": 2.437,
+    "highest_hand_m": 2.763,
+    "highest_hip_m": 2.164
+  },
+  "obstacle": {
+    "id": "platform-1",
+    "type": "platform",
+    "roles": [
+      "stand"
+    ],
+    "sizes": {
+      "length": 4.465,
+      "width": 2.0,
+      "height": 1.688
+    },
+    "height_m": 1.688,
+    "scale": {
+      "source": "body-height",
+      "metresPerPixel": 0.009321,
+      "relativeUncertainty": 0.078826,
+      "note": "athlete 188 px tall taken as 1.75 m (adult range 1.6-1.9 m); obstacle assumed at the athlete's depth"
+    },
+    "sizeUncertainty": {
+      "length": 0.079,
+      "height": 0.08
+    }
+  },
+  "phases": [
+    {
+      "name": "plant",
+      "frames": [
+        132,
+        133
+      ],
+      "t": [
+        4.404,
+        4.404
+      ],
+      "measured": true
+    },
+    {
+      "name": "grip",
+      "frames": [
+        135,
+        142
+      ],
+      "t": [
+        4.505,
+        4.705
+      ],
+      "measured": true
+    },
+    {
+      "name": "release",
+      "frames": [
+        141,
+        144
+      ],
+      "t": [
+        4.705,
+        4.771
+      ],
+      "measured": true
+    }
+  ],
+  "contactEvents": [
+    {
+      "joint": "RightHand",
+      "t": [
+        0.0,
+        1.134
+      ],
+      "hold_s": 1.134,
+      "phase": null,
+      "on": "platform",
+      "height_m": 1.013,
+      "height_frac": 0.6,
+      "metres_past_first_plant": -0.177,
+      "brief_plant": false,
+      "measured": true
+    },
+    {
+      "joint": "LeftFoot",
+      "t": [
+        0.0,
+        1.668
+      ],
+      "hold_s": 1.668,
+      "phase": null,
+      "on": "ground",
+      "height_m": 0.074,
+      "height_frac": null,
+      "metres_past_first_plant": -0.318,
+      "brief_plant": false,
+      "measured": true
+    },
+    {
+      "joint": "RightFoot",
+      "t": [
+        0.234,
+        1.401
+      ],
+      "hold_s": 1.168,
+      "phase": null,
+      "on": "ground",
+      "height_m": 0.045,
+      "height_frac": null,
+      "metres_past_first_plant": -0.38,
+      "brief_plant": false,
+      "measured": true
+    },
+    {
+      "joint": "LeftHand",
+      "t": [
+        0.367,
+        1.235
+      ],
+      "hold_s": 0.868,
+      "phase": null,
+      "on": "platform",
+      "height_m": 0.845,
+      "height_frac": 0.501,
+      "metres_past_first_plant": -0.691,
+      "brief_plant": false,
+      "measured": true
+    },
+    {
+      "joint": "RightHand",
+      "t": [
+        3.237,
+        3.337
+      ],
+      "hold_s": 0.1,
+      "phase": null,
+      "on": "platform",
+      "height_m": 2.752,
+      "height_frac": 1.63,
+      "metres_past_first_plant": -1.343,
+      "brief_plant": false,
+      "measured": true
+    },
+    {
+      "joint": "LeftFoot",
+      "t": [
+        4.404,
+        4.404
+      ],
+      "hold_s": 0.0,
+      "phase": "plant",
+      "on": "platform",
+      "height_m": 1.62,
+      "height_frac": 0.96,
+      "metres_past_first_plant": 0.0,
+      "brief_plant": true,
+      "measured": true
+    },
+    {
+      "joint": "LeftHand",
+      "t": [
+        4.505,
+        4.705
+      ],
+      "hold_s": 0.2,
+      "phase": "grip",
+      "on": "platform",
+      "height_m": 1.533,
+      "height_frac": 0.908,
+      "metres_past_first_plant": -0.46,
+      "brief_plant": false,
+      "measured": true
+    },
+    {
+      "joint": "LeftFoot",
+      "t": [
+        5.439,
+        5.973
+      ],
+      "hold_s": 0.534,
+      "phase": null,
+      "on": "platform",
+      "height_m": 0.995,
+      "height_frac": 0.589,
+      "metres_past_first_plant": 2.969,
+      "brief_plant": false,
+      "measured": true
+    },
+    {
+      "joint": "RightFoot",
+      "t": [
+        5.472,
+        5.472
+      ],
+      "hold_s": 0.0,
+      "phase": null,
+      "on": "platform",
+      "height_m": 1.386,
+      "height_frac": 0.821,
+      "metres_past_first_plant": 2.933,
+      "brief_plant": true,
+      "measured": true
+    },
+    {
+      "joint": "RightFoot",
+      "t": [
+        5.606,
+        5.606
+      ],
+      "hold_s": 0.0,
+      "phase": null,
+      "on": "platform",
+      "height_m": 1.401,
+      "height_frac": 0.83,
+      "metres_past_first_plant": 3.096,
+      "brief_plant": true,
+      "measured": true
+    }
+  ],
+  "timing": {
+    "duration_s": 5.973,
+    "peak_hip_speed_mps": 10.26,
+    "speed_at_plant_mps": 1.66,
+    "plant_to_grip_s": 0.101,
+    "held_by_hands_s": 0.2,
+    "longest_flight_s": 2.636
+  },
+  "reach": {
+    "highest_hand_m": 2.763,
+    "grip_height_frac": 1.637
+  },
+  "transfer": [
+    {
+      "to": "wall",
+      "how": "a step-up becomes a vault or climb when the top is higher than the hips",
+      "confidence": "guess"
+    },
+    {
+      "to": "platform",
+      "how": "another deck height: scale the take-off and landing heights",
+      "confidence": "guess"
+    }
+  ],
+  "provenance": {
+    "phases": "measured (from contacts of the gated 30-joint motion)",
+    "contactEvents": "measured times; heights measured in metres with the body model's weak vertical scale",
+    "timing": "measured on the clip's own clock",
+    "athlete": "measured",
+    "reach": "measured",
+    "obstacle.sizes": "estimated: athlete 188 px tall taken as 1.75 m (adult range 1.6-1.9 m); obstacle assumed at the athlete's depth",
+    "transfer": "guess: rules by obstacle type, not tested in the simulator"
+  },
+  "warnings": [
+    "the clip failed the plausibility gate: use the recipe's shape, not its numbers, and never show the motion"
+  ],
+  "transferChecks": [
+    {
+      "target": "bar-1",
+      "ok": false,
+      "height_scale": 1.08,
+      "reasons": [
+        "no transfer guess from platform to bar",
+        "the source clip failed the gate"
+      ]
+    },
+    {
+      "target": "bar-2",
+      "ok": false,
+      "height_scale": 1.34,
+      "reasons": [
+        "no transfer guess from platform to bar",
+        "height ratio 1.34 is outside (0.7, 1.3): needs a new clip, not a scaled one",
+        "the source clip failed the gate"
+      ]
+    }
+  ]
+}

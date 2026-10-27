@@ -1,0 +1,410 @@
+{
+  "schemaVersion": "0.1.0",
+  "primitives": [
+    {
+      "id": "wall-1",
+      "type": "wall",
+      "roles": [
+        "vault",
+        "grab"
+      ],
+      "sizes": {
+        "height": 1.709,
+        "width": 2.0,
+        "thickness": 3.135
+      },
+      "scale": {
+        "source": "body-height",
+        "metresPerPixel": 0.002917,
+        "relativeUncertainty": 0.078174,
+        "note": "athlete 600 px tall taken as 1.75 m (adult range 1.6-1.9 m); obstacle assumed at the athlete's depth"
+      },
+      "sizeUncertainty": {
+        "height": 0.078,
+        "thickness": 0.078
+      },
+      "fit": {
+        "phrase": "wall",
+        "score": 0.7852349281311035,
+        "boxPx": [
+          183.0,
+          74.0,
+          1258.0,
+          605.0
+        ],
+        "maskPx": 142088,
+        "frames": [
+          338
+        ],
+        "note": "width 2.0 m is a typical value (not visible in a side view)"
+      },
+      "contactCheck": {
+        "checked": true,
+        "highest_hand_m": 2.971,
+        "fitted_top_m": 1.709,
+        "difference_m": 1.262,
+        "consistent": false
+      }
+    },
+    {
+      "id": "platform-1",
+      "type": "platform",
+      "roles": [
+        "stand"
+      ],
+      "sizes": {
+        "length": 0.563,
+        "width": 2.0,
+        "height": 0.773
+      },
+      "scale": {
+        "source": "body-height",
+        "metresPerPixel": 0.002917,
+        "relativeUncertainty": 0.078174,
+        "note": "athlete 600 px tall taken as 1.75 m (adult range 1.6-1.9 m); obstacle assumed at the athlete's depth"
+      },
+      "sizeUncertainty": {
+        "length": 0.079,
+        "height": 0.079
+      },
+      "fit": {
+        "phrase": "platform",
+        "score": 0.7229437232017517,
+        "boxPx": [
+          166.0,
+          395.0,
+          359.0,
+          456.0
+        ],
+        "maskPx": 9218,
+        "frames": [
+          211
+        ],
+        "note": "width 2.0 m is a typical value (not visible in a side view)"
+      },
+      "contactCheck": {
+        "checked": true,
+        "highest_hand_m": 2.971,
+        "fitted_top_m": 0.773,
+        "difference_m": 2.198,
+        "consistent": false
+      }
+    },
+    {
+      "id": "platform-2",
+      "type": "platform",
+      "roles": [
+        "stand"
+      ],
+      "sizes": {
+        "length": 2.742,
+        "width": 2.0,
+        "height": 0.636
+      },
+      "scale": {
+        "source": "body-height",
+        "metresPerPixel": 0.002917,
+        "relativeUncertainty": 0.078174,
+        "note": "athlete 600 px tall taken as 1.75 m (adult range 1.6-1.9 m); obstacle assumed at the athlete's depth"
+      },
+      "sizeUncertainty": {
+        "length": 0.078,
+        "height": 0.079
+      },
+      "fit": {
+        "phrase": "platform",
+        "score": 0.7104072570800781,
+        "boxPx": [
+          339.0,
+          442.0,
+          1279.0,
+          719.0
+        ],
+        "maskPx": 85240,
+        "frames": [
+          211
+        ],
+        "note": "width 2.0 m is a typical value (not visible in a side view)"
+      },
+      "contactCheck": {
+        "checked": true,
+        "highest_hand_m": 2.971,
+        "fitted_top_m": 0.636,
+        "difference_m": 2.335,
+        "consistent": false
+      }
+    },
+    {
+      "id": "bar-1",
+      "type": "bar",
+      "roles": [
+        "grab"
+      ],
+      "sizes": {
+        "height": 0.459,
+        "length": 0.925,
+        "diameter": 0.04,
+        "orientation": "across"
+      },
+      "scale": {
+        "source": "body-height",
+        "metresPerPixel": 0.002917,
+        "relativeUncertainty": 0.078174,
+        "note": "athlete 600 px tall taken as 1.75 m (adult range 1.6-1.9 m); obstacle assumed at the athlete's depth"
+      },
+      "sizeUncertainty": {
+        "height": 0.079,
+        "length": 0.078
+      },
+      "fit": {
+        "phrase": "pole",
+        "score": 0.6831682920455933,
+        "boxPx": [
+          115.0,
+          344.0,
+          140.0,
+          661.0
+        ],
+        "maskPx": 5640,
+        "frames": [
+          338
+        ],
+        "note": "diameter is a typical value"
+      },
+      "status": "proposed",
+      "contactCheck": {
+        "checked": true,
+        "highest_hand_m": 2.971,
+        "fitted_top_m": 0.459,
+        "difference_m": 2.512,
+        "consistent": false
+      }
+    },
+    {
+      "id": "wall-2",
+      "type": "wall",
+      "roles": [
+        "vault",
+        "grab"
+      ],
+      "sizes": {
+        "height": 1.756,
+        "width": 2.0,
+        "thickness": 0.522
+      },
+      "scale": {
+        "source": "body-height",
+        "metresPerPixel": 0.002917,
+        "relativeUncertainty": 0.078174,
+        "note": "athlete 600 px tall taken as 1.75 m (adult range 1.6-1.9 m); obstacle assumed at the athlete's depth"
+      },
+      "sizeUncertainty": {
+        "height": 0.078,
+        "thickness": 0.079
+      },
+      "fit": {
+        "phrase": "wall",
+        "score": 0.6831682920455933,
+        "boxPx": [
+          944.0,
+          58.0,
+          1123.0,
+          373.0
+        ],
+        "maskPx": 35832,
+        "frames": [
+          85
+        ],
+        "note": "width 2.0 m is a typical value (not visible in a side view)"
+      },
+      "contactCheck": {
+        "checked": true,
+        "highest_hand_m": 2.971,
+        "fitted_top_m": 1.756,
+        "difference_m": 1.215,
+        "consistent": false
+      }
+    },
+    {
+      "id": "platform-3",
+      "type": "platform",
+      "roles": [
+        "stand"
+      ],
+      "sizes": {
+        "length": 1.289,
+        "width": 2.0,
+        "height": 0.265
+      },
+      "scale": {
+        "source": "body-height",
+        "metresPerPixel": 0.002917,
+        "relativeUncertainty": 0.078174,
+        "note": "athlete 600 px tall taken as 1.75 m (adult range 1.6-1.9 m); obstacle assumed at the athlete's depth"
+      },
+      "sizeUncertainty": {
+        "length": 0.078,
+        "height": 0.081
+      },
+      "fit": {
+        "phrase": "platform",
+        "score": 0.6604774594306946,
+        "boxPx": [
+          335.0,
+          569.0,
+          777.0,
+          719.0
+        ],
+        "maskPx": 41979,
+        "frames": [
+          338
+        ],
+        "note": "width 2.0 m is a typical value (not visible in a side view)"
+      },
+      "contactCheck": {
+        "checked": true,
+        "highest_hand_m": 2.971,
+        "fitted_top_m": 0.265,
+        "difference_m": 2.706,
+        "consistent": false
+      }
+    },
+    {
+      "id": "bar-2",
+      "type": "bar",
+      "roles": [
+        "grab"
+      ],
+      "sizes": {
+        "height": 0.003,
+        "length": 0.478,
+        "diameter": 0.04,
+        "orientation": "along"
+      },
+      "scale": {
+        "source": "body-height",
+        "metresPerPixel": 0.002917,
+        "relativeUncertainty": 0.078174,
+        "note": "athlete 600 px tall taken as 1.75 m (adult range 1.6-1.9 m); obstacle assumed at the athlete's depth"
+      },
+      "sizeUncertainty": {
+        "height": 2.002,
+        "length": 0.079
+      },
+      "fit": {
+        "phrase": "pole",
+        "score": 0.6604774594306946,
+        "boxPx": [
+          523.0,
+          600.0,
+          687.0,
+          719.0
+        ],
+        "maskPx": 11338,
+        "frames": [
+          211
+        ],
+        "note": "diameter is a typical value"
+      },
+      "status": "proposed",
+      "contactCheck": {
+        "checked": true,
+        "highest_hand_m": 2.971,
+        "fitted_top_m": 0.003,
+        "difference_m": 2.968,
+        "consistent": false
+      }
+    },
+    {
+      "id": "wall-3",
+      "type": "wall",
+      "roles": [
+        "vault",
+        "grab"
+      ],
+      "sizes": {
+        "height": 1.925,
+        "width": 2.0,
+        "thickness": 0.318
+      },
+      "scale": {
+        "source": "body-height",
+        "metresPerPixel": 0.002917,
+        "relativeUncertainty": 0.078174,
+        "note": "athlete 600 px tall taken as 1.75 m (adult range 1.6-1.9 m); obstacle assumed at the athlete's depth"
+      },
+      "sizeUncertainty": {
+        "height": 0.078,
+        "thickness": 0.08
+      },
+      "fit": {
+        "phrase": "wall",
+        "score": 0.6559139490127563,
+        "boxPx": [
+          0.0,
+          0.0,
+          109.0,
+          568.0
+        ],
+        "maskPx": 36714,
+        "frames": [
+          211
+        ],
+        "note": "width 2.0 m is a typical value (not visible in a side view)"
+      },
+      "contactCheck": {
+        "checked": true,
+        "highest_hand_m": 2.971,
+        "fitted_top_m": 1.925,
+        "difference_m": 1.046,
+        "consistent": false
+      }
+    },
+    {
+      "id": "bar-3",
+      "type": "bar",
+      "roles": [
+        "grab"
+      ],
+      "sizes": {
+        "height": 0.662,
+        "length": 0.852,
+        "diameter": 0.04,
+        "orientation": "across"
+      },
+      "scale": {
+        "source": "body-height",
+        "metresPerPixel": 0.002917,
+        "relativeUncertainty": 0.078174,
+        "note": "athlete 600 px tall taken as 1.75 m (adult range 1.6-1.9 m); obstacle assumed at the athlete's depth"
+      },
+      "sizeUncertainty": {
+        "height": 0.079,
+        "length": 0.078
+      },
+      "fit": {
+        "phrase": "pole",
+        "score": 0.6097560524940491,
+        "boxPx": [
+          483.0,
+          287.0,
+          512.0,
+          579.0
+        ],
+        "maskPx": 7238,
+        "frames": [
+          338
+        ],
+        "note": "diameter is a typical value"
+      },
+      "status": "proposed",
+      "contactCheck": {
+        "checked": true,
+        "highest_hand_m": 2.971,
+        "fitted_top_m": 0.662,
+        "difference_m": 2.309,
+        "consistent": false
+      }
+    }
+  ]
+}

@@ -1,0 +1,397 @@
+{
+  "recipeVersion": "0.1.0",
+  "source": {
+    "url": "https://www.youtube.com/watch?v=hb5IOXSxqt0",
+    "uploader": "World Ninja League",
+    "licence": "Creative Commons Attribution license (reuse allowed)",
+    "range_s": [
+      0.0,
+      38.0
+    ],
+    "id": "wnl-new-wall-rules"
+  },
+  "move": "wall-run-and-grab",
+  "gate": {
+    "verdict": "FAIL",
+    "failed_rules": [
+      "held_clips_are_held",
+      "no_teleport"
+    ]
+  },
+  "athlete": {
+    "standing_height_m": 2.903,
+    "highest_hand_m": 2.985,
+    "highest_hip_m": 2.414
+  },
+  "obstacle": {
+    "id": "wall-1",
+    "type": "wall",
+    "roles": [
+      "vault",
+      "grab"
+    ],
+    "sizes": {
+      "height": 1.709,
+      "width": 2.0,
+      "thickness": 3.135
+    },
+    "height_m": 1.709,
+    "scale": {
+      "source": "body-height",
+      "metresPerPixel": 0.002917,
+      "relativeUncertainty": 0.078174,
+      "note": "athlete 600 px tall taken as 1.75 m (adult range 1.6-1.9 m); obstacle assumed at the athlete's depth"
+    },
+    "sizeUncertainty": {
+      "height": 0.078,
+      "thickness": 0.078
+    }
+  },
+  "phases": [
+    {
+      "name": "run-up",
+      "frames": [
+        0,
+        4
+      ],
+      "t": [
+        2.833,
+        2.933
+      ],
+      "measured": true
+    },
+    {
+      "name": "plant",
+      "frames": [
+        4,
+        109
+      ],
+      "t": [
+        2.967,
+        6.433
+      ],
+      "measured": true
+    },
+    {
+      "name": "grip",
+      "frames": [
+        4,
+        96
+      ],
+      "t": [
+        2.967,
+        6.0
+      ],
+      "measured": true
+    },
+    {
+      "name": "hang-or-pull",
+      "frames": [
+        95,
+        135
+      ],
+      "t": [
+        6.0,
+        7.3
+      ],
+      "measured": true
+    },
+    {
+      "name": "release",
+      "frames": [
+        134,
+        137
+      ],
+      "t": [
+        7.3,
+        7.367
+      ],
+      "measured": true
+    }
+  ],
+  "contactEvents": [
+    {
+      "joint": "RightHand",
+      "t": [
+        2.967,
+        6.0
+      ],
+      "hold_s": 3.033,
+      "phase": "plant",
+      "on": "wall",
+      "height_m": 2.381,
+      "height_frac": 1.393,
+      "metres_past_first_plant": -0.519,
+      "brief_plant": false,
+      "measured": true
+    },
+    {
+      "joint": "RightFoot",
+      "t": [
+        2.967,
+        6.433
+      ],
+      "hold_s": 3.467,
+      "phase": "plant",
+      "on": "wall",
+      "height_m": 1.422,
+      "height_frac": 0.832,
+      "metres_past_first_plant": 0.0,
+      "brief_plant": false,
+      "measured": true
+    },
+    {
+      "joint": "LeftFoot",
+      "t": [
+        3.0,
+        6.633
+      ],
+      "hold_s": 3.633,
+      "phase": "plant",
+      "on": "wall",
+      "height_m": 1.426,
+      "height_frac": 0.834,
+      "metres_past_first_plant": -0.143,
+      "brief_plant": false,
+      "measured": true
+    },
+    {
+      "joint": "LeftHand",
+      "t": [
+        3.3,
+        5.767
+      ],
+      "hold_s": 2.467,
+      "phase": "plant",
+      "on": "wall",
+      "height_m": 2.383,
+      "height_frac": 1.394,
+      "metres_past_first_plant": -0.154,
+      "brief_plant": false,
+      "measured": true
+    },
+    {
+      "joint": "LeftHand",
+      "t": [
+        5.933,
+        6.367
+      ],
+      "hold_s": 0.433,
+      "phase": "plant",
+      "on": "wall",
+      "height_m": 2.372,
+      "height_frac": 1.388,
+      "metres_past_first_plant": 0.297,
+      "brief_plant": false,
+      "measured": true
+    },
+    {
+      "joint": "LeftFoot",
+      "t": [
+        6.7,
+        6.833
+      ],
+      "hold_s": 0.133,
+      "phase": "hang-or-pull",
+      "on": "wall",
+      "height_m": 1.479,
+      "height_frac": 0.865,
+      "metres_past_first_plant": 0.226,
+      "brief_plant": false,
+      "measured": true
+    },
+    {
+      "joint": "LeftHand",
+      "t": [
+        6.867,
+        6.967
+      ],
+      "hold_s": 0.1,
+      "phase": "hang-or-pull",
+      "on": "wall",
+      "height_m": 2.827,
+      "height_frac": 1.654,
+      "metres_past_first_plant": -0.234,
+      "brief_plant": false,
+      "measured": true
+    },
+    {
+      "joint": "LeftHand",
+      "t": [
+        7.1,
+        7.3
+      ],
+      "hold_s": 0.2,
+      "phase": "hang-or-pull",
+      "on": "wall",
+      "height_m": 2.971,
+      "height_frac": 1.738,
+      "metres_past_first_plant": -0.177,
+      "brief_plant": false,
+      "measured": true
+    },
+    {
+      "joint": "RightHand",
+      "t": [
+        7.133,
+        7.233
+      ],
+      "hold_s": 0.1,
+      "phase": "hang-or-pull",
+      "on": "wall",
+      "height_m": 2.725,
+      "height_frac": 1.594,
+      "metres_past_first_plant": -0.817,
+      "brief_plant": false,
+      "measured": true
+    },
+    {
+      "joint": "RightFoot",
+      "t": [
+        8.2,
+        8.3
+      ],
+      "hold_s": 0.1,
+      "phase": null,
+      "on": "wall",
+      "height_m": 1.356,
+      "height_frac": 0.793,
+      "metres_past_first_plant": -0.858,
+      "brief_plant": false,
+      "measured": true
+    },
+    {
+      "joint": "RightFoot",
+      "t": [
+        8.467,
+        8.6
+      ],
+      "hold_s": 0.133,
+      "phase": null,
+      "on": "wall",
+      "height_m": 1.267,
+      "height_frac": 0.741,
+      "metres_past_first_plant": -0.904,
+      "brief_plant": false,
+      "measured": true
+    }
+  ],
+  "timing": {
+    "duration_s": 8.433,
+    "peak_hip_speed_mps": 16.14,
+    "approach_speed_mps": 0.13,
+    "run_up_s": 0.1,
+    "speed_at_plant_mps": 0.25,
+    "plant_to_grip_s": 0.0,
+    "held_by_hands_s": 4.333,
+    "longest_flight_s": 2.8
+  },
+  "reach": {
+    "highest_hand_m": 2.985,
+    "grip_height_frac": 1.747
+  },
+  "transfer": [
+    {
+      "to": "ramp",
+      "how": "swap the flat face for a curve: the plant moves higher and the run-up speed becomes the lesson",
+      "confidence": "guess"
+    },
+    {
+      "to": "platform",
+      "how": "as a climb onto a high deck: grab the edge, pull up",
+      "confidence": "guess"
+    },
+    {
+      "to": "wall",
+      "how": "a wall of another height: scale contact heights by the height ratio",
+      "confidence": "guess"
+    }
+  ],
+  "provenance": {
+    "phases": "measured (from contacts of the gated 30-joint motion)",
+    "contactEvents": "measured times; heights measured in metres with the body model's weak vertical scale",
+    "timing": "measured on the clip's own clock",
+    "athlete": "measured",
+    "reach": "measured",
+    "obstacle.sizes": "estimated: athlete 600 px tall taken as 1.75 m (adult range 1.6-1.9 m); obstacle assumed at the athlete's depth",
+    "transfer": "guess: rules by obstacle type, not tested in the simulator"
+  },
+  "warnings": [
+    "the clip failed the plausibility gate: use the recipe's shape, not its numbers, and never show the motion"
+  ],
+  "transferChecks": [
+    {
+      "target": "platform-1",
+      "ok": false,
+      "height_scale": 0.452,
+      "reasons": [
+        "height ratio 0.45 is outside (0.7, 1.3): needs a new clip, not a scaled one",
+        "the source clip failed the gate"
+      ]
+    },
+    {
+      "target": "platform-2",
+      "ok": false,
+      "height_scale": 0.372,
+      "reasons": [
+        "height ratio 0.37 is outside (0.7, 1.3): needs a new clip, not a scaled one",
+        "the source clip failed the gate"
+      ]
+    },
+    {
+      "target": "bar-1",
+      "ok": false,
+      "height_scale": 0.269,
+      "reasons": [
+        "no transfer guess from wall to bar",
+        "height ratio 0.27 is outside (0.7, 1.3): needs a new clip, not a scaled one",
+        "the source clip failed the gate"
+      ]
+    },
+    {
+      "target": "wall-2",
+      "ok": false,
+      "height_scale": 1.028,
+      "reasons": [
+        "the source clip failed the gate"
+      ]
+    },
+    {
+      "target": "platform-3",
+      "ok": false,
+      "height_scale": 0.155,
+      "reasons": [
+        "height ratio 0.16 is outside (0.7, 1.3): needs a new clip, not a scaled one",
+        "the source clip failed the gate"
+      ]
+    },
+    {
+      "target": "bar-2",
+      "ok": false,
+      "height_scale": 0.002,
+      "reasons": [
+        "no transfer guess from wall to bar",
+        "height ratio 0.00 is outside (0.7, 1.3): needs a new clip, not a scaled one",
+        "the source clip failed the gate"
+      ]
+    },
+    {
+      "target": "wall-3",
+      "ok": false,
+      "height_scale": 1.126,
+      "reasons": [
+        "the source clip failed the gate"
+      ]
+    },
+    {
+      "target": "bar-3",
+      "ok": false,
+      "height_scale": 0.387,
+      "reasons": [
+        "no transfer guess from wall to bar",
+        "height ratio 0.39 is outside (0.7, 1.3): needs a new clip, not a scaled one",
+        "the source clip failed the gate"
+      ]
+    }
+  ]
+}

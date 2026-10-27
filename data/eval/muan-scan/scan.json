@@ -1,0 +1,178 @@
+{
+  "step_s": 2.0,
+  "range_s": [
+    0.0,
+    276.0
+  ],
+  "segments": [
+    {
+      "end_s": 4,
+      "move": "swing on rope toward platform",
+      "note": "single replay frame labeled qualifying course; full times not clear",
+      "obstacle": "rope swing",
+      "side_view": true,
+      "start_s": 4
+    },
+    {
+      "end_s": 10,
+      "move": "run and bounce off trampoline to grab first wheel",
+      "note": "launch into wheel obstacle",
+      "obstacle": "trampoline to hanging wheel",
+      "side_view": true,
+      "start_s": 8
+    },
+    {
+      "end_s": 22,
+      "move": "hang and swing transferring from wheel to wheel",
+      "note": "traverse across overhead rolling wheels",
+      "obstacle": "rolling wheels on overhead track",
+      "side_view": true,
+      "start_s": 10
+    },
+    {
+      "end_s": 28,
+      "move": "swing on ring and jump to platform",
+      "note": "lands on platform",
+      "obstacle": "ring swing",
+      "side_view": true,
+      "start_s": 24
+    },
+    {
+      "end_s": 46,
+      "move": "hang and slide across rails",
+      "note": "continues sliding toward far end",
+      "obstacle": "slider",
+      "side_view": true,
+      "start_s": 32
+    },
+    {
+      "end_s": 62,
+      "move": "jump to rings and swing across to landing platform",
+      "note": "lands on platform at 62s",
+      "obstacle": "slider",
+      "side_view": true,
+      "start_s": 48
+    },
+    {
+      "end_s": 78,
+      "move": "running across steps",
+      "note": "only single 78s frame shows action so full stretch unknown",
+      "obstacle": "floating steps",
+      "side_view": true,
+      "start_s": 78
+    },
+    {
+      "end_s": 94,
+      "move": "climbing with bar",
+      "note": "only single 94s frame shows action so full stretch unknown",
+      "obstacle": "salmon ladder",
+      "side_view": true,
+      "start_s": 94
+    },
+    {
+      "end_s": 118,
+      "move": "hanging and hopping bar up rungs",
+      "note": "mix of side wide shots and rear close-ups, crowd inset at end",
+      "obstacle": "salmon ladder",
+      "side_view": true,
+      "start_s": 96
+    },
+    {
+      "end_s": 121,
+      "move": "swings through air and lands on platform",
+      "note": "wide shot; exact landing moment between labels",
+      "obstacle": "bar jump",
+      "side_view": true,
+      "start_s": 120
+    },
+    {
+      "end_s": 132,
+      "move": "climbs bar up rungs then jumps to platform",
+      "note": "close side views then wide dismount; gap 121s to 124s not shown",
+      "obstacle": "salmon ladder",
+      "side_view": true,
+      "start_s": 124
+    },
+    {
+      "end_s": 166,
+      "move": "run up ramp and climb over top",
+      "note": "reaches top; cutaways to crowd and hosts interrupt view",
+      "obstacle": "warped wall",
+      "side_view": true,
+      "start_s": 148
+    },
+    {
+      "end_s": 172,
+      "move": "running across angled steps",
+      "note": "starts standing then runs",
+      "obstacle": "floating steps",
+      "side_view": true,
+      "start_s": 170
+    },
+    {
+      "end_s": 174,
+      "move": "swinging through air on rope",
+      "note": "only one label shows mid-swing",
+      "obstacle": "rope swing",
+      "side_view": false,
+      "start_s": 174
+    },
+    {
+      "end_s": 184,
+      "move": "hanging and kipping on bar",
+      "note": "wide side view with crowd cutaway",
+      "obstacle": "salmon ladder",
+      "side_view": true,
+      "start_s": 176
+    },
+    {
+      "end_s": 190,
+      "move": "hopping bar up rungs",
+      "note": "close-up from below/front",
+      "obstacle": "salmon ladder",
+      "side_view": false,
+      "start_s": 186
+    },
+    {
+      "end_s": 198,
+      "move": "swing and dismount to platform",
+      "note": "lands on platform and grabs next handles",
+      "obstacle": "rope swing",
+      "side_view": false,
+      "start_s": 192
+    },
+    {
+      "end_s": 214,
+      "move": "hang and slide along track",
+      "note": "travels across gap on red handles",
+      "obstacle": "slider",
+      "side_view": true,
+      "start_s": 198
+    },
+    {
+      "end_s": 218,
+      "move": "jumping through air",
+      "note": "airborne in 216s frame; landing not visible so end time approximate",
+      "obstacle": "gap jump",
+      "side_view": true,
+      "start_s": 216
+    },
+    {
+      "end_s": 222,
+      "move": "running across platform",
+      "note": "only single 222s frame shows action; times cannot be told precisely",
+      "obstacle": "floating steps",
+      "side_view": true,
+      "start_s": 222
+    },
+    {
+      "end_s": 262,
+      "move": "grabs overhead bar, swings off platform and falls into water",
+      "note": "crowd cutaways interspersed; close-ups then wide then water",
+      "obstacle": "trapeze swing",
+      "side_view": true,
+      "start_s": 240
+    }
+  ],
+  "note": "listed by a vision model from face-masked frames; time ranges are the model's reading of the labels, so check before use"
+}
