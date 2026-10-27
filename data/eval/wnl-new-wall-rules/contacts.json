@@ -1,189 +1,189 @@
 [
- {
-  "joint": "RightHand",
-  "frames": [
-   4,
-   95
-  ],
-  "t": [
-   2.966667,
-   6.0
-  ],
-  "point": [
-   0.358,
-   2.381,
-   -0.246
-  ],
-  "kind": "obstacle"
- },
- {
-  "joint": "RightFoot",
-  "frames": [
-   4,
-   108
-  ],
-  "t": [
-   2.966667,
-   6.433333
-  ],
-  "point": [
-   0.343,
-   1.422,
-   0.273
-  ],
-  "kind": "obstacle"
- },
- {
-  "joint": "LeftFoot",
-  "frames": [
-   5,
-   114
-  ],
-  "t": [
-   3.0,
-   6.633333
-  ],
-  "point": [
-   0.07,
-   1.426,
-   0.13
-  ],
-  "kind": "obstacle"
- },
- {
-  "joint": "LeftHand",
-  "frames": [
-   14,
-   88
-  ],
-  "t": [
-   3.3,
-   5.766667
-  ],
-  "point": [
-   -0.174,
-   2.383,
-   0.119
-  ],
-  "kind": "obstacle"
- },
- {
-  "joint": "LeftHand",
-  "frames": [
-   93,
-   106
-  ],
-  "t": [
-   5.933333,
-   6.366667
-  ],
-  "point": [
-   0.079,
-   2.372,
-   0.57
-  ],
-  "kind": "obstacle"
- },
- {
-  "joint": "LeftFoot",
-  "frames": [
-   116,
-   120
-  ],
-  "t": [
-   6.7,
-   6.833333
-  ],
-  "point": [
-   0.318,
-   1.479,
-   0.499
-  ],
-  "kind": "obstacle"
- },
- {
-  "joint": "LeftHand",
-  "frames": [
-   121,
-   124
-  ],
-  "t": [
-   6.866667,
-   6.966667
-  ],
-  "point": [
-   -0.503,
-   2.827,
-   0.039
-  ],
-  "kind": "obstacle"
- },
- {
-  "joint": "LeftHand",
-  "frames": [
-   128,
-   134
-  ],
-  "t": [
-   7.1,
-   7.3
-  ],
-  "point": [
-   -0.397,
-   2.971,
-   0.096
-  ],
-  "kind": "obstacle"
- },
- {
-  "joint": "RightHand",
-  "frames": [
-   129,
-   132
-  ],
-  "t": [
-   7.133333,
-   7.233333
-  ],
-  "point": [
-   -0.134,
-   2.725,
-   -0.544
-  ],
-  "kind": "obstacle"
- },
- {
-  "joint": "RightFoot",
-  "frames": [
-   161,
-   164
-  ],
-  "t": [
-   8.2,
-   8.3
-  ],
-  "point": [
-   0.399,
-   1.356,
-   -0.585
-  ],
-  "kind": "obstacle"
- },
- {
-  "joint": "RightFoot",
-  "frames": [
-   169,
-   173
-  ],
-  "t": [
-   8.466667,
-   8.6
-  ],
-  "point": [
-   0.618,
-   1.267,
-   -0.631
-  ],
-  "kind": "obstacle"
- }
+  {
+    "joint": "RightHand",
+    "frames": [
+      4,
+      95
+    ],
+    "t": [
+      2.966667,
+      6
+    ],
+    "point": [
+      0.358,
+      2.381,
+      -0.246
+    ],
+    "kind": "obstacle"
+  },
+  {
+    "joint": "RightFoot",
+    "frames": [
+      4,
+      108
+    ],
+    "t": [
+      2.966667,
+      6.433333
+    ],
+    "point": [
+      0.343,
+      1.422,
+      0.273
+    ],
+    "kind": "obstacle"
+  },
+  {
+    "joint": "LeftFoot",
+    "frames": [
+      5,
+      114
+    ],
+    "t": [
+      3,
+      6.633333
+    ],
+    "point": [
+      0.07,
+      1.426,
+      0.13
+    ],
+    "kind": "obstacle"
+  },
+  {
+    "joint": "LeftHand",
+    "frames": [
+      14,
+      88
+    ],
+    "t": [
+      3.3,
+      5.766667
+    ],
+    "point": [
+      -0.174,
+      2.383,
+      0.119
+    ],
+    "kind": "obstacle"
+  },
+  {
+    "joint": "LeftHand",
+    "frames": [
+      93,
+      106
+    ],
+    "t": [
+      5.933333,
+      6.366667
+    ],
+    "point": [
+      0.079,
+      2.372,
+      0.57
+    ],
+    "kind": "obstacle"
+  },
+  {
+    "joint": "LeftFoot",
+    "frames": [
+      116,
+      120
+    ],
+    "t": [
+      6.7,
+      6.833333
+    ],
+    "point": [
+      0.318,
+      1.479,
+      0.499
+    ],
+    "kind": "obstacle"
+  },
+  {
+    "joint": "LeftHand",
+    "frames": [
+      121,
+      124
+    ],
+    "t": [
+      6.866667,
+      6.966667
+    ],
+    "point": [
+      -0.503,
+      2.827,
+      0.039
+    ],
+    "kind": "obstacle"
+  },
+  {
+    "joint": "LeftHand",
+    "frames": [
+      128,
+      134
+    ],
+    "t": [
+      7.1,
+      7.3
+    ],
+    "point": [
+      -0.397,
+      2.971,
+      0.096
+    ],
+    "kind": "obstacle"
+  },
+  {
+    "joint": "RightHand",
+    "frames": [
+      129,
+      132
+    ],
+    "t": [
+      7.133333,
+      7.233333
+    ],
+    "point": [
+      -0.134,
+      2.725,
+      -0.544
+    ],
+    "kind": "obstacle"
+  },
+  {
+    "joint": "RightFoot",
+    "frames": [
+      161,
+      164
+    ],
+    "t": [
+      8.2,
+      8.3
+    ],
+    "point": [
+      0.399,
+      1.356,
+      -0.585
+    ],
+    "kind": "obstacle"
+  },
+  {
+    "joint": "RightFoot",
+    "frames": [
+      169,
+      173
+    ],
+    "t": [
+      8.466667,
+      8.6
+    ],
+    "point": [
+      0.618,
+      1.267,
+      -0.631
+    ],
+    "kind": "obstacle"
+  }
 ]

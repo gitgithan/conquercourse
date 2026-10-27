@@ -41,15 +41,15 @@
     "fps": 30,
     "upload_date": "20190425",
     "range_s": [
-      149.0,
-      155.0
+      149,
+      155
     ],
     "fetched": "2026-10-27"
   },
   "estimate": {
     "frames": 180,
     "gpu_container_seconds": 780,
-    "gpu_minutes": 13.0,
+    "gpu_minutes": 13,
     "sam31_images": 30,
     "usd": {
       "modal_l4": 0.173,
