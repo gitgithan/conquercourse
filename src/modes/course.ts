@@ -7,8 +7,11 @@ import { newWorld, stepWorld, type GameEvent, type WorldState } from '../sim/wor
 import { DEFAULT_WALL } from '../sim/wall';
 import { DEFAULT_ROPE } from '../sim/rope';
 import { inputFor, searchIdealRun, type Plan } from '../sim/ideal';
-import { gapSpecs, minSpeedForWall } from '../sim/needs';
+import { flightPath, gapSpecs, minSpeedForWall, pressBand } from '../sim/needs';
+import { bounce } from '../sim/trampoline';
+import { DEFAULT_TRAMPOLINE } from '../sim/trampoline';
 import { ouch } from '../sim/landing';
+import { groundAt } from '../sim/terrain';
 
 // The Course: the five obstacles in a row. The simulator decides everything; this file only draws it
 // and turns keys into inputs. Time comes from the simulator's tick count, never from the browser's clock.
@@ -97,7 +100,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
   msg.style.cssText = 'position:fixed;left:0;right:0;top:38%;text-align:center;font:700 28px system-ui,sans-serif;color:#10141c;text-shadow:0 1px 0 #fff;pointer-events:none';
   const help = document.createElement('div');
   help.style.cssText = 'position:fixed;left:16px;bottom:12px;font:500 14px system-ui,sans-serif;color:#10141c;pointer-events:none';
-  help.textContent = 'Hold ← or → to run · Space to jump (or let go of the rope, or press on the trampoline) · hold ↓ when you land from a high drop · R restart · C camera · T Dojo';
+  help.textContent = 'Hold ← or → to run · Space to jump (or let go of the rope, or press on the trampoline) · hold ↓ when you land from a high drop · R retry this obstacle · Shift+R from the start · I ideal run · T Dojo · C camera';
   const panel = document.createElement('div');
   panel.style.cssText = 'position:fixed;left:50%;top:26%;transform:translateX(-50%);width:min(520px,92vw);background:#fffffff2;border:1px solid #cfd6d0;border-radius:12px;padding:16px;font:16px/1.4 system-ui,sans-serif;color:#17201d;display:none;gap:10px;box-shadow:0 8px 30px #0003';
   const hint = document.createElement('div');
@@ -109,7 +112,11 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
   dojoBtn.textContent = 'Dojo (T)';
   dojoBtn.style.cssText = 'position:fixed;right:16px;top:12px;font:600 15px system-ui,sans-serif;border:1px solid #0f6b5c;background:#0f6b5c;color:#fff;border-radius:8px;padding:6px 14px;cursor:pointer';
   dojoBtn.onclick = () => openDojo();
-  document.body.append(hud, msg, help, panel, hint, gauge, dojoBtn);
+  const idealBtn = document.createElement('button');
+  idealBtn.textContent = 'Ideal run (I)';
+  idealBtn.style.cssText = 'position:fixed;right:120px;top:12px;font:600 15px system-ui,sans-serif;border:1px solid #17201d;background:#fff;color:#17201d;border-radius:8px;padding:6px 14px;cursor:pointer';
+  idealBtn.onclick = () => showIdeal(zoneAt(world.runner.x)?.id ?? 'gap');
+  document.body.append(hud, msg, help, panel, hint, gauge, dojoBtn, idealBtn);
   const toast = document.createElement('div');
   toast.style.cssText = 'position:fixed;left:50%;top:44%;transform:translateX(-50%);font:700 22px system-ui,sans-serif;color:#10141c;background:#fffffff0;border-radius:10px;padding:6px 14px;pointer-events:none;display:none';
   document.body.append(toast);
@@ -139,9 +146,10 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
     if (e.repeat) return;
     keys.add(e.code);
     if (e.code === 'Space') { jumpQueued = true; e.preventDefault(); }
-    if (e.code === 'KeyR') restart();
+    if (e.code === 'KeyR') { if (e.shiftKey) { retryX = course.startX; restart(course.startX); } else restart(); }
+    if (e.code === 'KeyI') showIdeal(zoneAt(world.runner.x)?.id ?? 'gap');
     if (e.code === 'KeyT') openDojo();
-    if (e.code === 'Escape' && replay) { replay = null; showAgain(); }
+    if (e.code === 'Escape' && replay) { replay = null; clearGuides(); showAgain(); }
     if (e.code === 'KeyC') camMode = camMode === 'side' ? 'chase' : 'side';
   });
   addEventListener('keyup', (e) => keys.delete(e.code));
@@ -156,17 +164,38 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
   const botState = { next: 0, caught: null as number | null, bedAt: null as number | null };
   if (params.get('bot') === 'ideal') plan = searchIdealRun(course).plan;
 
+  const botMode = params.get('bot') === 'ideal';
+  let retryX = course.startX; // "try this obstacle again" starts standing still just before it
+  let demo: { x1: number } | null = null;
+  const idealCache = new Map<number, Plan>();
+  const cpFor = (zoneId: string) => course.checkpoints?.find((c) => c.id === zoneId)?.x ?? course.startX;
+  const guides = new THREE.Group();
+  scene.add(guides);
+  const diagBox = document.createElement('div');
+  diagBox.style.cssText = 'position:fixed;left:16px;top:70px;width:min(460px,90vw);background:#fffffff2;border:1px solid #cfd6d0;border-radius:10px;padding:10px 14px;font:15px/1.4 system-ui,sans-serif;color:#17201d;display:none;box-shadow:0 4px 18px #0002';
+  document.body.append(diagBox);
+  let wallEntry = 0;
+  let prevMode: string = 'run', prevVx = 0;
+  let lastZone = 'gap';
+
   let world = newWorld(course);
   const log: GameEvent[] = [];
   const frames: { x: number; y: number }[] = [];
-  let replay: { i: number; from: number; to: number } | null = null;
+  let replay: { i: number; from: number; to: number } | null = null; // i is a float: the replay runs at half speed
   let falls = 0;
   let everCleared = false;
   try { everCleared = localStorage.getItem('cc.course.cleared') === '1'; } catch { /* keep going */ }
   let windows: ReturnType<typeof searchIdealRun>['windows'] | null = null;
   const zoneAt = (x: number) => course.zones?.find((z) => x >= z.x0 && x < z.x1);
-  function restart() {
-    world = newWorld(course);
+  function clearGuides() {
+    while (guides.children.length) { const c = guides.children[0] as THREE.Mesh; guides.remove(c); c.geometry?.dispose(); }
+    diagBox.style.display = 'none';
+  }
+  function restart(x: number = retryX) {
+    clearGuides();
+    if (!botMode) plan = null;
+    demo = null;
+    world = newWorld(course, x);
     log.length = 0;
     botState.next = 0; botState.caught = null; botState.bedAt = null;
     msg.textContent = '';
@@ -195,6 +224,87 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
     return '?' + q.toString();
   }
 
+  // The ideal run for one obstacle: the simulator's own best line, from standing still just before it.
+  function showIdeal(zoneId: string) {
+    const x0 = cpFor(zoneId);
+    let p = idealCache.get(x0);
+    if (!p) { msg.textContent = 'Working out the ideal run…'; p = searchIdealRun({ ...course, startX: x0 }).plan; idealCache.set(x0, p); }
+    clearGuides();
+    world = newWorld(course, x0);
+    log.length = 0; frames.length = 0; replay = null; panel.style.display = 'none';
+    plan = p; botState.next = 0; botState.caught = null; botState.bedAt = null;
+    demo = { x1: (course.zones?.find((z) => z.id === zoneId)?.x1 ?? 1e9) + 3 };
+    msg.textContent = 'Ideal run: watch how it is done, then press R to try it yourself.';
+  }
+  function demoEnd() {
+    plan = botMode ? plan : null; demo = null;
+    panel.innerHTML = ''; panel.style.display = 'grid';
+    const h = document.createElement('strong'); h.textContent = 'That was the ideal run. Your turn.';
+    const row = document.createElement('div'); row.style.cssText = 'display:flex;gap:8px;flex-wrap:wrap';
+    const b = document.createElement('button'); b.textContent = 'Try it myself (R)';
+    b.style.cssText = 'font:inherit;border:1px solid #0f6b5c;background:#0f6b5c;color:#fff;border-radius:8px;padding:6px 12px;cursor:pointer;font-weight:700';
+    b.onclick = () => restart(); row.appendChild(b); panel.append(h, row); b.focus();
+  }
+
+  // Replay numbers and guiding lines, so the player learns something new instead of watching the same thing again.
+  function guideBand(x0: number, x1: number, y: number, color: number) {
+    const m = new THREE.Mesh(new THREE.BoxGeometry(Math.max(0.05, x1 - x0), 0.06, 1.6), new THREE.MeshBasicMaterial({ color, transparent: true, opacity: 0.55 }));
+    m.position.set((x0 + x1) / 2, y + 0.04, 0.4); guides.add(m);
+  }
+  function guideLine(x: number, y: number, h: number, color: number) {
+    const m = new THREE.Mesh(new THREE.BoxGeometry(0.07, h, 0.07), new THREE.MeshBasicMaterial({ color })); m.position.set(x, y + h / 2, 0.4); guides.add(m);
+  }
+  function guidePath(pts: { x: number; y: number }[], color: number) {
+    const g = new THREE.BufferGeometry().setFromPoints(pts.filter((_, i) => i % 3 === 0).map((q) => new THREE.Vector3(q.x, q.y + 0.9, 0.5)));
+    guides.add(new THREE.Line(g, new THREE.LineBasicMaterial({ color })));
+  }
+  function buildDiag(zoneId: string, what: 'splash' | 'slide'): string[] {
+    const L: string[] = [];
+    const jump = [...log].reverse().find((e) => e.type === 'jump');
+    const push = course.jumpSpeed;
+    if (what === 'slide' && course.wall) {
+      const wp = { ...DEFAULT_WALL, ...course.wall };
+      const need = wp.height - wp.hipHeight - wp.reach;
+      const ev = [...log].reverse().find((e) => e.type === 'wall-slide');
+      const margin = (ev?.detail?.margin as number) ?? 0;
+      L.push(`Speed at the foot of the wall: ${wallEntry.toFixed(1)} m/s. This wall needs at least ${wallNeed.toFixed(1)} m/s.`);
+      L.push(`Your feet climbed ${(need + margin).toFixed(1)} m; they had to climb ${need.toFixed(1)} m for your hands to reach the top.`);
+      guideBand(course.wall.x0, course.wall.x0 + 3, need, 0x2ca66f); guideBand(course.wall.x0, course.wall.x0 + 3, need + margin, 0xe8622c);
+      L.push('Green line: the height you needed. Orange line: the height you reached.');
+    } else if ((zoneId === 'gap' || zoneId === 'landing') && jump) {
+      const v = jump.detail?.vx as number, px = jump.detail?.x as number;
+      const g = specs.find((q2) => px >= q2.x - 6.5 && px <= q2.x + 0.2) ?? specs.find((q2) => q2.x >= px - 1);
+      if (g) {
+        const y0 = groundAt(course.terrain, g.x - 0.1);
+        L.push(`Speed when you jumped: ${v.toFixed(1)} m/s. This ${g.width.toFixed(1)} m gap needs at least ${g.needed.toFixed(1)} m/s.`);
+        L.push(`You pressed Space ${Math.max(0, g.x - px).toFixed(1)} m before the edge.`);
+        const band = pressBand(course.terrain, g.x, y0, g.width, v, push);
+        if (band) { L.push(`At ${v.toFixed(1)} m/s, pressing between ${(g.x - band.hi).toFixed(1)} and ${(g.x - band.lo).toFixed(1)} m before the edge works (green strip).`); guideBand(band.lo, band.hi, y0, 0x2ca66f); }
+        else L.push(`At ${v.toFixed(1)} m/s no press works: even at the very edge you fall short. Run longer first.`);
+        const mine = flightPath(course.terrain, px, y0, v, push);
+        const ideal = flightPath(course.terrain, g.x - 0.2, y0, Math.max(g.needed + 0.4, v), push);
+        L.push(`Your jump flew ${(mine.x - px).toFixed(1)} m; the far side is ${(g.x + g.width - px).toFixed(1)} m from where you jumped.`);
+        guidePath(mine.pts, 0xe8622c); guidePath(ideal.pts, 0x2ca66f); guideLine(px, y0, 2.5, 0xd33);
+        L.push('Orange: your flight. Green: a flight that works. Red post: where you pressed.');
+      }
+    } else if (zoneId === 'trampoline') {
+      const ev = [...log].reverse().find((e) => e.type === 'bounce' && e.detail?.vyOut !== undefined);
+      const bedTop = groundAt(course.terrain, course.terrain.platforms.find((q2) => q2.bouncy)?.x0 ?? 0);
+      const top = course.terrain.platforms[course.terrain.platforms.length - 1].top;
+      const vIn = Math.sqrt(2 * 9.81 * (course.terrain.platforms.find((q2) => q2.bouncy) ? Math.max(0.1, top - bedTop) : 4));
+      const base = bounce(vIn, DEFAULT_TRAMPOLINE).vyOut;
+      const needV = Math.sqrt(2 * 9.81 * (top - bedTop + 0.3));
+      L.push(`Your press added ${((ev?.detail?.gain as number) ?? 0).toFixed(1)} of a possible ${DEFAULT_TRAMPOLINE.pump.toFixed(1)} m/s.`);
+      L.push(`Without a press the trampoline throws you ${((base * base) / (2 * 9.81)).toFixed(1)} m high; the far platform is ${(top - bedTop).toFixed(1)} m up, so you need an extra ${Math.max(0, needV - base).toFixed(1)} m/s.`);
+      L.push('Press Space while you are pressing into the trampoline (the bottom of the bounce is best).');
+    } else if (zoneId === 'rope') {
+      const ev = [...log].reverse().find((e) => e.type === 'rope-release');
+      if (ev) L.push((ev.detail?.vy as number) > 0 ? 'You let go while rising: good. If you fell short, let go a little later.' : 'You let go while falling back down: let go earlier, while you are still rising.');
+      else L.push('You never grabbed the rope. Jump from the end of the deck so your hands meet it.');
+    }
+    return L;
+  }
+
   // After a fall: retry at once, one tip, a skippable replay, and the offer to train that obstacle.
   let lastFall: 'splash' | 'slide' = 'splash';
   function onFall(what: 'splash' | 'slide') {
@@ -202,6 +312,8 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
     lastFall = what;
     const r = world.runner;
     const zone = zoneAt(what === 'slide' && course.wall ? course.wall.x0 + 1 : r.x);
+    lastZone = zone?.id ?? 'gap';
+    retryX = cpFor(lastZone);
     const jump = [...log].reverse().find((e) => e.type === 'jump');
     let tip = 'Try again.';
     if (what === 'slide') tip = 'You ran out of speed on the curve. Start the run-up earlier and keep running.';
@@ -230,8 +342,17 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
       b.style.cssText = `font:inherit;border:1px solid ${primary ? '#0f6b5c' : '#b9c2bb'};background:${primary ? '#0f6b5c' : '#fff'};color:${primary ? '#fff' : '#17201d'};border-radius:8px;padding:6px 12px;cursor:pointer;font-weight:${primary ? 700 : 400}`;
       b.onclick = fn; row.appendChild(b); return b;
     };
-    const retry = mk('Try again (R)', restart, true);
-    mk('Watch what happened', () => { panel.style.display = 'none'; replay = { i: Math.max(0, frames.length - 240), from: Math.max(0, frames.length - 240), to: frames.length }; });
+    const retry = mk(`Try this ${zone?.name ?? 'obstacle'} again (R)`, () => restart(retryX), true);
+    if (retryX !== course.startX) mk('Start from the beginning (Shift+R)', () => { retryX = course.startX; restart(course.startX); });
+    mk('Watch what happened, with the numbers', () => {
+      panel.style.display = 'none';
+      const from = Math.max(0, frames.length - 300);
+      replay = { i: from, from, to: frames.length };
+      const lines = buildDiag(lastZone, what);
+      diagBox.innerHTML = `<strong>Slow-motion replay</strong><ul style="margin:6px 0 0;padding-left:18px">${lines.map((l) => `<li>${l}</li>`).join('')}</ul><div style="color:#58635d;font-size:13px;margin-top:6px">Esc to skip</div>`;
+      diagBox.style.display = 'block';
+    });
+    mk('Show me the ideal run (I)', () => showIdeal(lastZone));
     if (train) mk(`Train the ${zone?.name ?? 'obstacle'}`, () => { location.search = trainLink(zone?.id ?? 'gap', r.x); });
     panel.append(h, t, row);
     retry.focus();
@@ -242,6 +363,8 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
   // Controls are taught while you play: one short hint at a time, then none.
   function hintFor(w: WorldState): string {
     const r = w.runner;
+    if (w.mode === 'bounce') return 'Press Space now for extra height!';
+    if (w.mode === 'swing') return 'Press Space to let go while you are still rising';
     if (everCleared || falls > 0) return '';
     if (r.tick < 60 || (r.x < 4 && r.tick < 600)) return 'Hold → to run';
     const g = specs.find((q2) => q2.x + 0.2 >= r.x && q2.x - r.x < 9);
@@ -264,7 +387,10 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
         jumpQueued = false;
       }
       const prev = world.outcome;
+      prevMode = world.mode; prevVx = world.runner.vx;
       world = stepWorld(world, input, course);
+      if (prevMode === 'run' && world.mode === 'wall') wallEntry = prevVx;
+      if (demo && (world.outcome !== 'running' || world.runner.x > demo.x1)) demoEnd();
       log.push(...world.events);
       for (const e of world.events) {
         if (e.type === 'land' && (e.detail?.impact as number) > 2 && !e.detail?.bouncy) {
@@ -284,9 +410,9 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
     }
     let r = world.runner;
     if (replay) {
-      const f = frames[replay.i];
-      replay.i += 1;
-      if (replay.i >= replay.to || !f) { replay = null; if (world.outcome !== 'running') showAgain(); } else r = { ...r, x: f.x, y: f.y };
+      const f = frames[Math.floor(replay.i)];
+      replay.i += 0.5;
+      if (replay.i >= replay.to || !f) { replay = null; clearGuides(); if (world.outcome !== 'running') showAgain(); } else r = { ...r, x: f.x, y: f.y };
     }
     const sq = world.runner.tick < squashUntil ? squashDepth : 1;
     body.scale.set(1 / Math.sqrt(sq), sq, 1 / Math.sqrt(sq));

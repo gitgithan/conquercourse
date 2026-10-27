@@ -132,15 +132,19 @@ const rope: Experiment = {
 
 const trampoline: Experiment = {
   id: 'trampoline', name: 'Trampoline', question: 'How high will the trampoline throw you?', answerUnit: 'm', answerMax: 8, axis: 'y', primary: 'drop',
-  knobs: [{ id: 'drop', label: 'Height you drop from', unit: 'm', min: 0.5, max: 4.5, def: 2, step: 0.1, why: 'A longer fall means a harder landing, so more energy is stored in the spring and then given back.' }],
+  knobs: [
+    { id: 'drop', label: 'Height you drop from', unit: 'm', min: 0.5, max: 4.5, def: 2, step: 0.1, why: 'A longer fall means a harder landing, so more energy is stored in the spring and then given back.' },
+    { id: 'press', label: 'Extra push you add (Space at the bottom)', unit: 'm/s', min: 0, max: 2, def: 0, step: 0.1, why: 'Pressing at the bottom of the bounce adds speed on top of what the spring gives back, so it adds height too. In the Course a perfect press adds 2 m/s; a rough one adds less.' },
+  ],
   sayings: ['The harder you land, the higher it throws you.'],
   run(v) {
     const vIn = Math.sqrt(2 * GRAVITY * v.drop);
     const b = bounce(vIn, DEFAULT_TRAMPOLINE);
-    const h = (b.vyOut * b.vyOut) / (2 * GRAVITY);
+    const vOut = b.vyOut + (v.press ?? 0);
+    const h = (vOut * vOut) / (2 * GRAVITY);
     const rise: Point[] = [];
-    for (let t = 0; t <= (2 * b.vyOut) / GRAVITY; t += 0.02) rise.push({ x: 1.5 + t * 2, y: b.vyOut * t - 0.5 * GRAVITY * t * t });
-    return { answer: h, path: [{ x: 0, y: v.drop }, { x: 1.4, y: 0 }, ...rise], people: [{ x: 0, y: v.drop, pose: 'fly', label: 'drop' }, { x: 1.5 + ((2 * b.vyOut) / GRAVITY / 2) * 2, y: h, pose: 'fly', label: 'top of the bounce' }], note: `It throws you ${h.toFixed(1)} m high (you dropped ${v.drop.toFixed(1)} m). The spring keeps about ${Math.round((h / v.drop) * 100)} % of your height.` };
+    for (let t = 0; t <= (2 * vOut) / GRAVITY; t += 0.02) rise.push({ x: 1.5 + t * 2, y: vOut * t - 0.5 * GRAVITY * t * t });
+    return { answer: h, path: [{ x: 0, y: v.drop }, { x: 1.4, y: 0 }, ...rise], people: [{ x: 0, y: v.drop, pose: 'fly', label: 'drop' }, { x: 1.5 + ((2 * vOut) / GRAVITY / 2) * 2, y: h, pose: 'fly', label: 'top of the bounce' }], note: `It throws you ${h.toFixed(1)} m high (you dropped ${v.drop.toFixed(1)} m). The spring keeps about ${Math.round((h / v.drop) * 100)} % of your height.` };
   },
 };
 
