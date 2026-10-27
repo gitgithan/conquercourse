@@ -7,10 +7,10 @@
       12.5,
       23.48,
       75.5,
-      89.6,
+      90.14,
       98.5
     ],
-    "releaseAfter": 70,
+    "releaseAfter": 60,
     "bouncePress": 8
   },
   "windows": [
@@ -37,17 +37,17 @@
     },
     {
       "obstacle": "rope release",
-      "best": 70,
-      "lo": 32,
-      "hi": 80,
-      "widthMs": 417
+      "best": 60,
+      "lo": 24,
+      "hi": 96,
+      "widthMs": 617
     },
     {
       "obstacle": "edge at 91 m",
-      "best": 89.6,
-      "lo": 88.76,
+      "best": 90.14,
+      "lo": 89.26,
       "hi": 91,
-      "widthMs": 305
+      "widthMs": 238
     },
     {
       "obstacle": "edge at 100 m",
