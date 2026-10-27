@@ -28,7 +28,7 @@
     },
     "feet_dont_sink": {
       "ok": true,
-      "value": -0.0,
+      "value": 0,
       "limit": "<= 0.03 m under the floor",
       "note": ""
     },
@@ -42,13 +42,13 @@
   "soft": {
     "bones_keep_length": {
       "ok": true,
-      "value": 0.0,
+      "value": 0,
       "limit": "<= 2% off the median",
       "note": ""
     },
     "feet_dont_slide": {
       "ok": true,
-      "value": 0.0,
+      "value": 0,
       "limit": "<= 0.03 m",
       "note": ""
     },
