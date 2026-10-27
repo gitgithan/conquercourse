@@ -333,6 +333,15 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
   comm.style.cssText = 'position:fixed;right:16px;top:124px;font:600 13px system-ui,sans-serif;border:1px solid #17201d;background:#fff;color:#17201d;border-radius:8px;padding:4px 10px;text-decoration:none';
   document.body.append(comm);
   document.body.append(sstyle, strip);
+  // demo courses: every course we have made, one choice away (the stock course, the lache demo, lanes from real objects, places from the map)
+  const demos: [string, string][] = [['', 'Stock course'], ['/assets/demo/lache.course.json', 'Lache demo: run, vault, swing'], ['/assets/demo/lane-1.course.json', 'Demo scene, lane 1'], ['/assets/demo/lane-2.course.json', 'Demo scene, lane 2'], ['/assets/experiments/osm/eixample-barcelona.course.json', 'Place: Barcelona block'], ['/assets/experiments/osm/montmartre-paris.course.json', 'Place: Montmartre, Paris'], ['/assets/experiments/osm/circular-quay-sydney.course.json', 'Place: Sydney quay'], ['editor', 'Build your own (editor)']];
+  const pick2 = document.createElement('select');
+  pick2.id = 'democourses'; pick2.title = 'Open another course';
+  pick2.style.cssText = 'position:fixed;right:16px;top:196px;max-width:210px;font:600 12px system-ui,sans-serif;border:2px solid #17201d;background:#fff;color:#17201d;border-radius:10px;padding:3px 6px;cursor:pointer';
+  const now = params.get('course') ?? '';
+  for (const [v, label] of demos) pick2.add(new Option(label, v, false, v === now));
+  pick2.onchange = () => { pick2.blur(); location.href = pick2.value === 'editor' ? '?mode=editor' : pick2.value ? `?course=${pick2.value}` : '?'; };
+  document.body.append(pick2);
   // the drum lane (taiko style): on by default for a course someone built (editor or shared), off for the stock course until D is pressed
   const drumLane = createDrumLane(document.body, course !== defaultCourse || params.get('drums') === '1');
   setTimeout(() => { try { drumLane.set(drumsFor(course)); } catch { /* no drums if the search fails */ } }, 0);
