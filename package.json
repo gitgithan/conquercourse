@@ -16,7 +16,8 @@
     "deploy": "npm run build && wrangler pages deploy dist --project-name conquercourse --branch main",
     "deploy:preview": "npm run build && wrangler pages deploy dist --project-name conquercourse --branch preview",
     "feedback": "node scripts/feedback-summary.mjs",
-    "feedback:rows": "node scripts/feedback-rows.mjs"
+    "feedback:rows": "node scripts/feedback-rows.mjs",
+    "community": "node scripts/community-review.mjs"
   },
   "dependencies": {
     "three": "^0.186.1"

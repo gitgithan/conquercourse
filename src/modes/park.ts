@@ -1,4 +1,5 @@
 import { startCourse } from './course';
+import { session } from '../ui/feedback';
 import { PHRASES, fitPrimitives, proveCourse, type ParkObject, type Proof, type Primitive } from '../park/fit';
 
 // The Park: a photo with boxes over it (from the saved SAM 3.1 results, or drawn by the player), turned into
@@ -41,6 +42,7 @@ export function startPark(host: HTMLElement): { backend: 'webgl2' } {
   let selected: number | null = null;
   let nextId = 100;
   let proof: Proof | null = null;
+  let lastKind = 'steps'; // what a newly drawn box is, until it is changed
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const el = (tag: string, props: Record<string, any> = {}, ...kids: (Node | string)[]): any => {
@@ -52,7 +54,7 @@ export function startPark(host: HTMLElement): { backend: 'webgl2' } {
   };
 
   const title = el('h1', { textContent: 'The Park: photo in, course out' });
-  const intro = el('div', { cls: 'muted', textContent: 'Pick a photo. Move, resize, add or delete the orange boxes until they match the real things. Then make your course.' });
+  const intro = el('div', { cls: 'muted', textContent: 'Pick a photo, or use your own. Drag on the picture to draw a box around a real obstacle (or move and resize the orange boxes), say what it is, and type its real height if you know it. Then make your course.' });
   const picker = el('div', { cls: 'bar' });
   const stage = el('div', { cls: 'stage' });
   const tools = el('div', { cls: 'bar' });
@@ -61,11 +63,39 @@ export function startPark(host: HTMLElement): { backend: 'webgl2' } {
   const credit = el('div', { cls: 'muted' });
   root.append(title, intro, picker, stage, tools, out, credit);
 
+  // your own photo: shrunk and re-saved as a jpeg in the browser, which also drops any location data it carried
+  const file = el('input', { type: 'file', accept: 'image/*', id: 'upload' });
+  file.hidden = true;
+  const own = el('button', { textContent: 'Use my own photo', id: 'own' });
+  own.onclick = () => file.click();
+  file.onchange = async () => {
+    const f = file.files?.[0];
+    if (!f) return;
+    try { await loadOwn(f); } catch { credit.textContent = 'That file could not be read as a photo.'; }
+  };
+  picker.append(own, file, el('a', { href: '?mode=gallery', textContent: 'Community courses →', style: 'margin-left:auto' }));
+
   PHOTOS.forEach((p) => {
     const b = el('button', { textContent: p.label, id: `pick-${p.id}` });
     b.onclick = () => void load(p.id);
     picker.appendChild(b);
   });
+
+  async function loadOwn(f: File) {
+    const bmp = await createImageBitmap(f);
+    const k = Math.min(1, 1280 / Math.max(bmp.width, bmp.height));
+    const w = Math.round(bmp.width * k), h = Math.round(bmp.height * k);
+    const cv = document.createElement('canvas'); cv.width = w; cv.height = h;
+    cv.getContext('2d')!.drawImage(bmp, 0, 0, w, h);
+    let q = 0.85, url = cv.toDataURL('image/jpeg', q);
+    while (url.length > 440_000 && q > 0.3) { q -= 0.1; url = cv.toDataURL('image/jpeg', q); }
+    if (url.length > 440_000) throw new Error('too big');
+    data = { photo: 'upload', file: url, width: w, height: h, credit: 'your photo', objects: [] };
+    boxes = []; selected = null; proof = null; out.hidden = true;
+    picker.querySelectorAll('button').forEach((b: Element) => b.setAttribute('aria-pressed', 'false'));
+    credit.textContent = 'Your photo stays in your browser until you choose to share the course.';
+    drawStage(); drawTools();
+  }
 
   async function load(id: string) {
     const r = await fetch(`/assets/park/${id}.objects.json`);
@@ -81,7 +111,7 @@ export function startPark(host: HTMLElement): { backend: 'webgl2' } {
   function drawStage() {
     if (!data) return;
     const d = data;
-    stage.replaceChildren(el('img', { src: `/assets/park/${d.file}`, alt: 'a park photo' }));
+    stage.replaceChildren(el('img', { src: d.file.startsWith('data:') ? d.file : `/assets/park/${d.file}`, alt: 'a park photo' }));
     for (const o of boxes) {
       const [x0, y0, x1, y1] = o.box;
       const b = el('div', { cls: 'box' + (o.id === selected ? ' sel' : '') }, el('span', { textContent: `${o.phrase}` }), el('i'));
@@ -97,7 +127,25 @@ export function startPark(host: HTMLElement): { backend: 'webgl2' } {
     if (!data) return;
     const t = e.target as HTMLElement;
     const boxEl = t.closest('.box') as HTMLElement | null;
-    if (!boxEl) { selected = null; drawStage(); drawTools(); return; }
+    if (!boxEl) {
+      // drag on the empty picture to draw a new box
+      selected = null;
+      const rect0 = stage.getBoundingClientRect(), k0 = data.width / rect0.width;
+      const x0 = (e.clientX - rect0.left) * k0, y0 = (e.clientY - rect0.top) * k0;
+      const d0 = data;
+      const o: ParkObject = { id: nextId++, phrase: lastKind, box: [x0, y0, x0, y0].map(Math.round) as ParkObject['box'], score: 1 };
+      let drawn = false;
+      const move0 = (ev: PointerEvent) => {
+        const x1 = Math.min(d0.width, Math.max(0, (ev.clientX - rect0.left) * k0)), y1 = Math.min(d0.height, Math.max(0, (ev.clientY - rect0.top) * k0));
+        o.box = [Math.min(x0, x1), Math.min(y0, y1), Math.max(x0, x1), Math.max(y0, y1)].map(Math.round) as ParkObject['box'];
+        if (!drawn && Math.hypot(x1 - x0, y1 - y0) > 12) { drawn = true; boxes.push(o); selected = o.id; }
+        if (drawn) drawStage();
+      };
+      const up0 = () => { removeEventListener('pointermove', move0); removeEventListener('pointerup', up0); if (drawn && (o.box[2] - o.box[0] < 20 || o.box[3] - o.box[1] < 20)) { boxes = boxes.filter((b) => b !== o); selected = null; } drawStage(); drawTools(); };
+      addEventListener('pointermove', move0); addEventListener('pointerup', up0);
+      drawStage(); drawTools(); e.preventDefault();
+      return;
+    }
     const o = boxes.find((b) => b.id === Number(boxEl.dataset.id));
     if (!o) return;
     const resize = t.tagName === 'I';
@@ -142,10 +190,15 @@ export function startPark(host: HTMLElement): { backend: 'webgl2' } {
     const sel = boxes.find((b) => b.id === selected);
     what.disabled = !sel;
     if (sel) what.value = PHRASES.includes(sel.phrase) ? sel.phrase : 'platform';
-    what.onchange = () => { if (sel) { sel.phrase = what.value; drawStage(); } };
+    what.onchange = () => { if (sel) { sel.phrase = what.value; lastKind = what.value; drawStage(); } };
+    const hm = el('input', { type: 'number', id: 'heightm', min: '0.1', max: '3', step: '0.05', placeholder: 'metres' });
+    hm.style.width = '90px';
+    hm.disabled = !sel || sel.phrase === 'person';
+    if (sel?.heightM !== undefined) hm.value = String(sel.heightM);
+    hm.oninput = () => { if (sel) { if (hm.value === '') delete sel.heightM; else sel.heightM = Number(hm.value); } };
     const make = el('button', { textContent: 'Make my course', cls: 'go', id: 'make' });
     make.onclick = makeCourse;
-    tools.append(add, del, el('label', {}, 'This is a: ', what), make);
+    tools.append(add, del, el('label', {}, 'This is a: ', what), el('label', {}, 'Real height (m, optional): ', hm), make);
   }
 
   function makeCourse() {
@@ -161,7 +214,7 @@ export function startPark(host: HTMLElement): { backend: 'webgl2' } {
     if (!prims.length) { out.append(el('div', { cls: 'bad', textContent: 'No boxes yet: add a box and say what it is.' })); return; }
     const rows = prims.map((q, i) => el('tr', {}, el('td', { textContent: String(i + 1) }), el('td', { textContent: q.phrase }), el('td', { textContent: q.type + (q.risers ? ` (${q.risers} steps)` : '') }),
       el('td', { textContent: `${q.height.toFixed(2)} m high` }), el('td', { textContent: `${q.length.toFixed(1)} m long` }),
-      el('td', { textContent: `${q.scale.source === 'body-height' ? 'from a person in the photo' : q.scale.reference ? `from ${q.scale.reference}` : 'typical size'} (± ${Math.round(q.scale.uncertainty * 100)} %)` })));
+      el('td', { textContent: `${q.scale.source === 'maker' ? 'from the height you typed' : q.scale.source === 'body-height' ? 'from a person in the photo' : q.scale.reference ? `from ${q.scale.reference}` : 'typical size'} (± ${Math.round(q.scale.uncertainty * 100)} %)` })));
     out.append(el('table', {}, el('tr', {}, ...['#', 'Thing', 'Shape', 'Height', 'Length', 'Where the size comes from'].map((t) => el('th', { textContent: t }))), ...rows));
     out.append(el('div', { cls: p.cleared ? 'ok' : 'bad', id: 'proof', textContent: p.cleared ? 'The simulator found a way to clear it.' : 'Too hard: widen a gap (or move a box).' }));
     if (p.windows.length) out.append(el('div', { cls: 'muted', textContent: 'Clearing window per jump: ' + p.windows.map((w, i) => `jump ${i + 1}: ${w.ms} ms`).join(' · ') }));
@@ -173,7 +226,40 @@ export function startPark(host: HTMLElement): { backend: 'webgl2' } {
     };
     run.disabled = !p.cleared;
     out.append(run);
+    if (data?.photo === 'upload' && p.cleared) out.append(sharePanel());
     document.documentElement.dataset.parkCleared = String(p.cleared);
+  }
+
+  // sharing: the photo, the boxes and a name go to the community; it shows in the gallery once the owner has looked at it
+  function sharePanel(): HTMLElement {
+    const box = el('div', { cls: 'panel', id: 'share' });
+    const name = el('input', { id: 'cname', maxLength: 60, placeholder: 'Name your course, e.g. Library steps' });
+    const nick = el('input', { id: 'cnick', maxLength: 30, placeholder: 'A nickname (not your real name), or leave empty' });
+    const trap = el('input', { name: 'website', tabIndex: -1, autocomplete: 'off' });
+    trap.style.cssText = 'position:absolute;left:-9999px';
+    const ok = el('input', { type: 'checkbox', id: 'cok' });
+    const send = el('button', { textContent: 'Share with the community', cls: 'go', id: 'sharego' });
+    const note = el('div', { cls: 'muted', id: 'sharenote' });
+    send.onclick = async () => {
+      if (!data) return;
+      if (!ok.checked) { note.textContent = 'Please tick the box about the photo first.'; return; }
+      if (name.value.trim().length < 3) { note.textContent = 'Please give the course a name (at least 3 letters).'; return; }
+      send.disabled = true; note.textContent = 'Sending…';
+      try {
+        const res = await fetch('/api/community', {
+          method: 'POST', headers: { 'content-type': 'application/json' },
+          body: JSON.stringify({ session: session(), name: name.value, nick: nick.value, confirm: true, website: trap.value, width: data.width, height: data.height, image: data.file, boxes: boxes.map((b) => ({ phrase: b.phrase, box: b.box, heightM: b.heightM })) }),
+        });
+        const body = await res.json().catch(() => ({})) as { error?: string };
+        if (!res.ok) throw new Error(body.error ?? String(res.status));
+        box.replaceChildren(el('div', { cls: 'ok', id: 'shared', textContent: 'Thank you! Your course is waiting for a quick check. Once it is approved it appears in the Community gallery.' }), el('a', { href: '?mode=gallery', textContent: 'Open the gallery →' }));
+      } catch (e) { note.textContent = `That did not send (${(e as Error).message}). Please try again later.`; send.disabled = false; }
+    };
+    box.append(el('h3', { textContent: 'Share it', style: 'margin:0' }), name, nick, trap,
+      el('label', {}, ok, ' This is my photo (or I may share it), and no person\'s face can be recognised in it.'), send, note,
+      el('div', { cls: 'muted', textContent: 'Your photo and boxes are shown to others after a quick check. Do not share photos of people, private places or anything you would not want public.' }));
+    box.querySelectorAll('input[type=text],input:not([type])').forEach((i: Element) => ((i as HTMLElement).style.cssText += 'font:inherit;padding:6px;border:1px solid #b9c2bb;border-radius:8px'));
+    return box;
   }
 
   void load(PHOTOS.find((p) => p.id === params.get('photo'))?.id ?? PHOTOS[0].id);

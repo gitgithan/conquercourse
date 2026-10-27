@@ -13,7 +13,7 @@ if (new URLSearchParams(location.search).get('demo') === 'rookie') {
   await startActorDemo();
 } else {
 const mode = new URLSearchParams(location.search).get('mode') ?? 'course';
-const game = mode === 'diagrams' ? (await import('./modes/diagrams-page')).startDiagrams(document.body) : mode === 'rookie' ? await createStage(document.body) : mode === 'dojo' ? startDojo(document.body) : mode === 'park' ? startPark(document.body) : await startCourse(document.body);
+const game = mode === 'diagrams' ? (await import('./modes/diagrams-page')).startDiagrams(document.body) : mode === 'rookie' ? await createStage(document.body) : mode === 'dojo' ? startDojo(document.body) : mode === 'park' ? startPark(document.body) : mode === 'gallery' ? (await import('./modes/gallery')).startGallery(document.body) : await startCourse(document.body);
 document.documentElement.dataset.backend = game.backend;
 document.documentElement.dataset.ready = 'true';
 }
