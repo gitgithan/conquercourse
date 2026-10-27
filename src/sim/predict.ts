@@ -45,3 +45,24 @@ export function predictJump(w: WorldState, course: CourseData, maxTicks = 240): 
   return { path, result: 'lands', why: 'Still running at the end of the preview.' };
 }
 
+
+// "If I let go of the bar now, what happens?": the same physics run on with both hands off, then the right hand held so the next bar is grabbed if it is in reach.
+export function predictRelease(w: WorldState, course: CourseData, maxTicks = 360): Prediction {
+  if (w.mode !== 'hang' || w.outcome !== 'running') return { path: [], result: 'other-move', why: 'Not on a bar.' };
+  const path = [{ x: w.runner.x, y: w.runner.y }];
+  let s = stepWorld(w, { ...NO_INPUT }, course); // both hands off: let go
+  path.push({ x: s.runner.x, y: s.runner.y });
+  let left = false;
+  for (let i = 0; i < maxTicks; i++) {
+    s = stepWorld(s, { ...NO_INPUT, run: true, squat: true, handR: true }, course);
+    path.push({ x: s.runner.x, y: s.runner.y });
+    if (s.mode === 'hang') return { path, result: 'lands', landX: s.runner.x, why: 'You reach the next bar: hold Q or E in the air to grab it.' };
+    if (s.outcome === 'splash') return { path, result: 'splash', landX: s.runner.x, why: 'You fall in the water: wait for a bigger swing.' };
+    if (!s.runner.grounded) left = true;
+    if (left && s.runner.grounded) {
+      if (s.runner.x < w.runner.x + 0.5) return { path, result: 'blocked', landX: s.runner.x, why: 'You would land back on the near side.' };
+      return { path, result: 'lands', landX: s.runner.x, why: `You land on the ground at ${s.runner.x.toFixed(1)} m.` };
+    }
+  }
+  return { path, result: 'lands', why: 'Still in the air at the end of the preview.' };
+}
