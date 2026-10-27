@@ -94,5 +94,17 @@
 - `docs/sayings.md`: written for this project on 2026-10-27.
 - Coaching texts used to make contact targets: Wikibooks "Parkour/Basic Moves/Tic Tac" and Wikipedia "Vault (urban movement)", both CC BY-SA 4.0 (credited wherever used).
 
+## Photos for the photo-to-object experiment (third-party, downloaded 2026-10-27, CC-38)
+| File | Photo | Creator | Source | Licence |
+|---|---|---|---|---|
+| `data/eval/cc-38-photo-to-3d/inputs/rail01.jpg` | Churchyard Gates & Railings to St.Mary's Parish Church, Queen's Square | Peter Broster | [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Churchyard_Gates_%26_Railings_to_St.Mary%27s_Parish_Church,Queen%27s_Square.jpg) | CC0 |
+| `data/eval/cc-38-photo-to-3d/inputs/mural01.jpg` | Mural by Zue | Milhojas 72 | [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Mural_by_Zue.jpg) | CC0 (the photo; the painting belongs to its artist) |
+| `data/eval/cc-38-photo-to-3d/inputs/mural02.jpg` | Mural by LOSE | Milhojas 72 | [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Mural_by_LOSE.jpg) | CC0 (the photo; the painting belongs to its artist) |
+| `data/eval/cc-38-photo-to-3d/inputs/bench01.jpg` | Concrete bench in Valley Wood Park | Rick Obst | [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Concrete_bench_in_Valley_Wood_Park.jpg) | CC BY 2.0 (credit shown wherever the photo or an object made from it appears) |
+- Each file is the Commons copy scaled to 1024 px wide, metadata removed; the five starters in the same folder are copies of `public/assets/park/`.
+- No people are visible in any of the four; the murals show painted faces, which are artwork, not people.
+- The murals are in the experiment only: a street artist's painting is theirs even when the photographer's licence is CC0, so no mural object ships without the owner's decision.
+- The raw lifts (`raw.npz`, several MB each) are kept outside git in `../conquercourse-assets/cc-38-raw/` with `SHA256SUMS`.
+
 ## The product owner's own clips (to come)
 - Filmed by the product owner, an adult, about themselves, with no bystanders; their written consent is recorded here when added.

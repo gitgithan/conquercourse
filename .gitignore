@@ -12,3 +12,4 @@ cookies*.txt
 *.cookies
 data/eval/cc-16-rookies/posed-*.json
 .wrangler/
+data/eval/cc-38-photo-to-3d/*/*/raw.npz
