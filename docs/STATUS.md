@@ -33,3 +33,4 @@
 - Confirm Tripo's commercial rights for the two rookies.
 - Self-filming of safe moves, when there's time (spec §13); one real park gap as a photo and as a video for the hero beat.
 - Make the repo public at the first reviewed checkpoint.
+
