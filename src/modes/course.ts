@@ -74,6 +74,27 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
     const m = new THREE.Mesh(new THREE.BoxGeometry(p.x1 - p.x0, h, LANE_DEPTH), p.bouncy ? bed : p.top === 0 ? grass : stone);
     m.position.set((p.x0 + p.x1) / 2, bottom + h / 2, 0);
     scene.add(m);
+    if (p.skin) paintSkin(p);
+  }
+  // a picture from a real photo painted on the front of an obstacle (looks only; the obstacle's collision is its box)
+  function paintSkin(p: { x0: number; x1: number; top: number; skin?: { image: string; crop: [number, number, number, number] } }) {
+    if (!p.skin) return;
+    const { image, crop: [cx0, cy0, cx1, cy1] } = p.skin;
+    const img = new Image();
+    img.onload = () => {
+      const k = Math.min(1, 512 / Math.max(cx1 - cx0, cy1 - cy0));
+      const cv = document.createElement('canvas');
+      cv.width = Math.max(8, Math.round((cx1 - cx0) * k)); cv.height = Math.max(8, Math.round((cy1 - cy0) * k));
+      cv.getContext('2d')!.drawImage(img, cx0, cy0, cx1 - cx0, cy1 - cy0, 0, 0, cv.width, cv.height);
+      const tex = new THREE.CanvasTexture(cv);
+      tex.colorSpace = THREE.SRGBColorSpace;
+      const faceH = p.top - course.terrain.waterY;
+      const plane = new THREE.Mesh(new THREE.PlaneGeometry(p.x1 - p.x0, faceH), new THREE.MeshBasicMaterial({ map: tex }));
+      plane.position.set((p.x0 + p.x1) / 2, course.terrain.waterY + faceH / 2, LANE_DEPTH / 2 + 0.01);
+      scene.add(plane);
+      document.documentElement.dataset.skins = String(Number(document.documentElement.dataset.skins ?? 0) + 1);
+    };
+    img.src = image;
   }
   const water = new THREE.Mesh(new THREE.BoxGeometry(400, 0.1, 30), new THREE.MeshStandardMaterial({ color: 0x2f7fc1, transparent: true, opacity: 0.8 }));
   water.position.set(course.finishX / 2, course.terrain.waterY, 0);

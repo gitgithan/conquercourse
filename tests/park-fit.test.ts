@@ -61,3 +61,17 @@ describe('fit: course', () => {
     });
   }
 });
+
+describe('photo skins', () => {
+  const prims = fitPrimitives([o(1, 'wall', [100, 100, 300, 250]), o(2, 'bench', [400, 150, 600, 250])]);
+  it('paint the part of the photo each obstacle was in, and only when a photo is given', () => {
+    const withPhoto = buildCourse(prims, 'x', 1, '/p.jpg').terrain.platforms.filter((p) => p.skin);
+    expect(withPhoto.map((p) => p.skin!.crop)).toEqual([[100, 100, 300, 250], [400, 150, 600, 250]]);
+    expect(withPhoto.every((p) => p.skin!.image === '/p.jpg')).toBe(true);
+    expect(buildCourse(prims, 'x').terrain.platforms.some((p) => p.skin)).toBe(false);
+  });
+  it('change looks only: the platforms are the same with or without skins', () => {
+    const strip = (c: ReturnType<typeof buildCourse>) => c.terrain.platforms.map(({ x0, x1, top }) => [x0, x1, top]);
+    expect(strip(buildCourse(prims, 'x', 1, '/p.jpg'))).toEqual(strip(buildCourse(prims, 'x', 1)));
+  });
+});
