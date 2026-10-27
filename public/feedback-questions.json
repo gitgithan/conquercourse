@@ -3,16 +3,94 @@
   "title": "Tell us how it felt",
   "intro": "Two minutes, no sign-in, no names. Answer what you can. Please do not type personal information.",
   "questions": [
-    { "id": "who", "type": "choice", "text": "I am a…", "options": ["student", "teacher", "parent", "gamer", "other"] },
-    { "id": "clear", "type": "scale", "text": "I understood what to do within the first minute." },
-    { "id": "controls", "type": "scale", "text": "The controls felt responsive." },
-    { "id": "furthest", "type": "choice", "text": "How far did you get?", "options": ["the first gap", "the block", "the warped wall", "the rope", "the trampoline", "I finished the Course"] },
-    { "id": "hardest", "type": "choice", "text": "Which obstacle was hardest?", "options": ["the gap", "the block", "the warped wall", "the rope", "the trampoline", "none"] },
-    { "id": "speedmeter", "type": "scale", "text": "The speed meter helped me decide when to jump." },
-    { "id": "dojo", "type": "choice", "text": "Did you open the Dojo?", "options": ["yes, it helped", "yes, it did not help", "no, I did not know it was there", "no, I did not want to"] },
-    { "id": "dojolearn", "type": "scale", "text": "After the Dojo I could do the obstacle better." },
-    { "id": "physics", "type": "choice", "text": "Did you learn something about physics?", "options": ["yes, something new", "yes, but I mostly knew it", "no"] },
-    { "id": "confusing", "type": "text", "text": "What was the most confusing moment?" },
-    { "id": "again", "type": "text", "text": "What would make you play again?" }
+    {
+      "id": "who",
+      "type": "choice",
+      "text": "I am a…",
+      "options": [
+        "student",
+        "teacher",
+        "parent",
+        "gamer",
+        "other"
+      ]
+    },
+    {
+      "id": "clear",
+      "type": "scale",
+      "text": "I understood what to do within the first minute."
+    },
+    {
+      "id": "controls",
+      "type": "scale",
+      "text": "The controls felt responsive."
+    },
+    {
+      "id": "furthest",
+      "type": "choice",
+      "text": "How far did you get?",
+      "options": [
+        "the first gap",
+        "the block",
+        "the warped wall",
+        "the rope",
+        "the trampoline",
+        "I finished the Course"
+      ]
+    },
+    {
+      "id": "hardest",
+      "type": "choice",
+      "text": "Which obstacle was hardest?",
+      "options": [
+        "the gap",
+        "the block",
+        "the warped wall",
+        "the rope",
+        "the trampoline",
+        "none"
+      ]
+    },
+    {
+      "id": "speedmeter",
+      "type": "scale",
+      "text": "The speed meter helped me decide when to jump."
+    },
+    {
+      "id": "dojo",
+      "type": "choice",
+      "text": "Did you open the Dojo?",
+      "options": [
+        "yes, it helped",
+        "yes, it did not help",
+        "no, I did not know it was there",
+        "no, I did not want to"
+      ]
+    },
+    {
+      "id": "dojolearn",
+      "type": "scale",
+      "text": "After the Dojo I could do the obstacle better."
+    },
+    {
+      "id": "physics",
+      "type": "choice",
+      "text": "Did you learn something about physics?",
+      "options": [
+        "yes, something new",
+        "yes, but I mostly knew it",
+        "no"
+      ]
+    },
+    {
+      "id": "confusing",
+      "type": "text",
+      "text": "What was the most confusing moment?"
+    },
+    {
+      "id": "again",
+      "type": "text",
+      "text": "What would make you play again?"
+    }
   ]
 }
