@@ -11,6 +11,7 @@ import { flightPath, gapSpecs, minSpeedForWall, pressBand } from '../sim/needs';
 import { bounce } from '../sim/trampoline';
 import { DEFAULT_TRAMPOLINE } from '../sim/trampoline';
 import { ouch } from '../sim/landing';
+import { track } from '../ui/feedback';
 import { createRookieActor } from '../render/actor';
 import { actorStateFor } from '../motion/actor-state';
 import { groundAt } from '../sim/terrain';
@@ -242,6 +243,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
 
   // The Dojo is reachable any time: it opens on the obstacle nearest the runner (R2-G4).
   function openDojo() {
+    track('dojo_opens');
     const x = world.runner.x;
     const z = zoneAt(x)?.id ?? 'gap';
     location.search = trainLink(z, x);
@@ -345,7 +347,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
   // After a fall: retry at once, one tip, a skippable replay, and the offer to train that obstacle.
   let lastFall: 'splash' | 'slide' = 'splash';
   function onFall(what: 'splash' | 'slide') {
-    falls++;
+    falls++; track('falls');
     lastFall = what;
     const r = world.runner;
     const zone = zoneAt(what === 'slide' && course.wall ? course.wall.x0 + 1 : r.x);
@@ -443,7 +445,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
       if (frames.length > 1200) frames.shift();
       if (prev === 'running' && world.outcome === 'splash') onFall('splash');
       if (world.events.some((e) => e.type === 'wall-slide')) onFall('slide');
-      if (prev === 'running' && world.outcome === 'cleared') { everCleared = true; try { localStorage.setItem('cc.course.cleared', '1'); } catch { /* ok */ } }
+      if (prev === 'running' && world.outcome === 'cleared') { everCleared = true; track('clears'); try { localStorage.setItem('cc.course.cleared', '1'); } catch { /* ok */ } }
     }
     let r = world.runner;
     if (replay) {

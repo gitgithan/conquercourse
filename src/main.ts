@@ -1,6 +1,7 @@
 import { createStage } from './render/scene';
 import { startCourse } from './modes/course';
 import { startDojo } from './modes/dojo';
+import { initFeedback } from './ui/feedback';
 import { startPark } from './modes/park';
 
 // ?mode=dojo, ?mode=rookie, ?demo=rookie (the Rookie demo); the default is the Course.
@@ -16,3 +17,4 @@ const game = mode === 'diagrams' ? (await import('./modes/diagrams-page')).start
 document.documentElement.dataset.backend = game.backend;
 document.documentElement.dataset.ready = 'true';
 }
+initFeedback(new URLSearchParams(location.search).get('mode') ?? 'course');
