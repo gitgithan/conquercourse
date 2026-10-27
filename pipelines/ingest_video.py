@@ -244,13 +244,20 @@ def main(argv=None):
         # estimate (before any paid step) ---------------------------------------------------------------------------
         fps_guess = float(info.get("fps") or 30)
         n_guess = int(round((args.end - args.start) * fps_guess))
-        est = estimate(n_guess, len(phrases))
+        if args.scan:
+            # a scan masks one frame per step and never runs SAM 3.1 or the full measure
+            scan_est = ((args.end - args.start) / args.scan_step)
+            calls = max(1, int(np.ceil(scan_est / 12)))
+            gpu_s = FIXED_SECONDS + SECONDS_PER_FRAME * scan_est
+            parts = {"modal_l4": round(gpu_s * L4_PER_SECOND, 3), "sam31": 0.0, "meta_vision": round(calls * META_CALL_USD, 3)}
+            est = {"frames": round(scan_est), "gpu_container_seconds": round(gpu_s), "gpu_minutes": round(gpu_s / 60, 1), "sam31_images": 0,
+                   "usd": parts, "usd_total": round(sum(parts.values()), 3)}
+            say(f"scan: {scan_est:.0f} frames masked on Modal, {calls} Meta vision calls")
+        else:
+            est = estimate(n_guess, len(phrases))
         run["estimate"] = est
         say(f"expected cost before the run: {est['frames']} frames, {est['gpu_minutes']} GPU minutes (about ${est['usd']['modal_l4']}), "
-            f"{est['sam31_images']} SAM 3.1 images (${est['usd']['sam31']}), one Meta vision call (${est['usd']['meta_vision']}); total about ${est['usd_total']}")
-        if args.scan:
-            scan_est = ((args.end - args.start) / args.scan_step)
-            say(f"scan: {scan_est:.0f} frames masked on Modal, {max(1, int(np.ceil(scan_est / 12)))} Meta vision calls")
+            f"{est['sam31_images']} SAM 3.1 images (${est['usd']['sam31']}), Meta vision (${est['usd']['meta_vision']}); total about ${est['usd_total']}")
         if est["usd_total"] > args.max_usd:
             raise S.Refused(f"expected cost ${est['usd_total']} is above --max-usd {args.max_usd}")
         # 2 cut ----------------------------------------------------------------------------------------------------
