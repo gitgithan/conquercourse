@@ -105,6 +105,58 @@
       "licence": "CC0",
       "look": "partly: reads as an iron railing panel with spear tops; the gate and the fence merged into one panel",
       "config": "texture 1024; photo padded 1.5x"
+    },
+    {
+      "name": "rail-skate-02",
+      "photo": "park02",
+      "round": "r2",
+      "box": [
+        265,
+        196,
+        773,
+        395
+      ],
+      "label": "handrail",
+      "glb": "rail-skate-02.glb",
+      "height_m": 1,
+      "extents_m": {
+        "x": 3.625,
+        "y": 1,
+        "z": 0.083
+      },
+      "scale_source": "typical:handrail",
+      "faces": 5820,
+      "bytes": 341988,
+      "author": "Neoclassicism Enthusiast",
+      "licence": "CC0",
+      "look": "partly: the rail follows the stairs, so its posts end at different heights",
+      "config": "texture 1024; no padding"
+    },
+    {
+      "name": "stairs-park-07",
+      "photo": "park07",
+      "round": "r2",
+      "box": [
+        168,
+        286,
+        811,
+        394
+      ],
+      "label": "stairs",
+      "glb": "stairs-park-07.glb",
+      "height_m": 0.699,
+      "extents_m": {
+        "x": 4.836,
+        "y": 0.699,
+        "z": 1.543
+      },
+      "scale_source": "typical:stairs",
+      "faces": 5820,
+      "bytes": 345712,
+      "author": "Ajznponar",
+      "licence": "CC0",
+      "look": "partly: stairs come out as a flat ramp-like block; steps are soft",
+      "config": "texture 1024; no padding"
     }
   ]
 }

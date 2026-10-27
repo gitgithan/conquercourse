@@ -33,6 +33,20 @@ try {
   await page.waitForFunction(() => /railing-iron/.test(document.querySelector('#panel')?.textContent ?? ''), null, { timeout: 20000 });
   checks.photoObjectAtRealSize = /2\.52 × 0\.07 m, 1\.00 m high/.test(await text('#realsize'));
   await page.click('#del');
+  // every object we have, one after the other: all load, the person is about 1.75 m, and the room is not scrolled
+  const names = await page.$$eval('button[data-object]', (bs) => bs.map((b) => b.dataset.object));
+  checks.allObjectsListed = names.length >= 8 && names.includes('rookie-a') && names.includes('stairs-park-07');
+  const before = Number(await page.evaluate(() => document.documentElement.dataset.pieces));
+  for (const [i, n] of names.entries()) { await page.click(`button[data-object=${n}]`); await page.waitForFunction((c) => Number(document.documentElement.dataset.pieces) >= c, before + i + 1, { timeout: 8000 }).catch(async () => { console.log('NOT PLACED', n, await page.evaluate(() => document.documentElement.dataset.verdict + ' | ' + document.documentElement.dataset.pieces)); }); }
+  checks.allObjectsPlaced = Number(await page.evaluate(() => document.documentElement.dataset.pieces)) === before + names.length;
+  await page.click('button[data-object=rookie-a]');
+  await page.waitForFunction(() => /rookie-a/.test(document.querySelector('#panel')?.textContent ?? ''), null, { timeout: 20000 });
+  checks.personIsPersonSized = /1\.[67]\d m high/.test(await text('#realsize'));
+  await page.screenshot({ path: 'test-results/editor/all-objects.png' });
+  await page.evaluate(() => localStorage.removeItem('cc.world.v1'));
+  await page.reload();
+  await page.waitForSelector('#plan', { timeout: 60000 });
+  await page.waitForSelector('button[data-object=rookie-a]', { timeout: 20000 });
   // a toy brick: 3 cm, enlarged x15 to a half-metre block
   await page.click('text=Toy brick (3 cm)');
   checks.brickIsBlockSized = /0\.4\d × 0\.2\d m, 0\.1\d m high/.test(await text('#realsize'));
