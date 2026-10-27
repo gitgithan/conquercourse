@@ -11,7 +11,7 @@ A ninja-warrior physics game where real parks and real moves become the course, 
 
 ## Hard rules
 - **New work only:** never copy code from the practice project; write it from the spec.
-- **Never:** formulas on screen; chat tutors; grading or coaching a person's technique; Moon or low-gravity scenarios; robotics framing; footage of minors.
+- **Never:** formulas on screen, except as the last, earned step of a Dojo lesson (owner, 2026-10-27; never on the Course); chat tutors; grading or coaching a person's technique; Moon or low-gravity scenarios; robotics framing; footage of minors.
 - **Never commit:** secrets (keys live in private env files outside the repo), the product owner's name, home paths or workspace names, big binaries (they go in `../conquercourse-assets/` with `SHA256SUMS`).
 - **Every asset gets a row in `docs/ASSETS.md`** before the game uses it.
 - **No motion is shown before it passes the plausibility check;** experiments live in `public/assets/experiments/`.

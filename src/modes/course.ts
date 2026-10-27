@@ -7,6 +7,7 @@ import { newWorld, stepWorld, type GameEvent, type WorldState } from '../sim/wor
 import { DEFAULT_WALL } from '../sim/wall';
 import { DEFAULT_ROPE } from '../sim/rope';
 import { inputFor, searchIdealRun, type Plan } from '../sim/ideal';
+import { gapSpecs, minSpeedForWall } from '../sim/needs';
 
 // The Course: the five obstacles in a row. The simulator decides everything; this file only draws it
 // and turns keys into inputs. Time comes from the simulator's tick count, never from the browser's clock.
@@ -100,7 +101,30 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
   panel.style.cssText = 'position:fixed;left:50%;top:26%;transform:translateX(-50%);width:min(520px,92vw);background:#fffffff2;border:1px solid #cfd6d0;border-radius:12px;padding:16px;font:16px/1.4 system-ui,sans-serif;color:#17201d;display:none;gap:10px;box-shadow:0 8px 30px #0003';
   const hint = document.createElement('div');
   hint.style.cssText = 'position:fixed;left:50%;bottom:48px;transform:translateX(-50%);font:600 20px system-ui,sans-serif;color:#10141c;background:#fffc;border-radius:10px;padding:8px 16px;pointer-events:none';
-  document.body.append(hud, msg, help, panel, hint);
+  const gauge = document.createElement('div');
+  gauge.style.cssText = 'position:fixed;left:50%;top:10px;transform:translateX(-50%);width:min(420px,60vw);font:600 15px system-ui,sans-serif;color:#10141c;text-shadow:0 1px 0 #fff8;pointer-events:none;text-align:center';
+  gauge.innerHTML = '<div id="gtext">Speed</div><div style="position:relative;height:14px;background:#10141c33;border-radius:7px;margin-top:3px"><div id="gfill" style="height:100%;width:0;background:#0f6b5c;border-radius:7px"></div><div id="gneed" style="position:absolute;top:-4px;width:3px;height:22px;background:#c4572a;display:none"></div></div><div id="gnext" style="margin-top:4px;font-weight:500"></div>';
+  document.body.append(hud, msg, help, panel, hint, gauge);
+  const toast = document.createElement('div');
+  toast.style.cssText = 'position:fixed;left:50%;top:44%;transform:translateX(-50%);font:700 22px system-ui,sans-serif;color:#10141c;background:#fffffff0;border-radius:10px;padding:6px 14px;pointer-events:none;display:none';
+  document.body.append(toast);
+  let toastUntil = 0, squashUntil = 0, squashDepth = 1;
+  const gText = gauge.querySelector('#gtext') as HTMLElement, gFill = gauge.querySelector('#gfill') as HTMLElement;
+  const gNeed = gauge.querySelector('#gneed') as HTMLElement, gNext = gauge.querySelector('#gnext') as HTMLElement;
+  const specs = gapSpecs(course);
+  const zoneOf = (x: number) => course.zones?.find((z) => x >= z.x0 && x < z.x1);
+  const wallNeed = course.wall ? minSpeedForWall(course.wall) : Infinity;
+  const GAUGE_MAX = 10;
+  // numbers painted on the course so the player can see how wide a gap is and how high the wall is
+  function label(text: string, x: number, y: number) {
+    const c = document.createElement('canvas'); c.width = 256; c.height = 96;
+    const g = c.getContext('2d')!; g.fillStyle = '#fffffff0'; g.fillRect(0, 0, 256, 96); g.fillStyle = '#10141c'; g.font = '700 54px system-ui'; g.textAlign = 'center'; g.fillText(text, 128, 66);
+    const sp = new THREE.Sprite(new THREE.SpriteMaterial({ map: new THREE.CanvasTexture(c) }));
+    sp.scale.set(3.2, 1.2, 1); sp.position.set(x, y, 0.5); scene.add(sp);
+  }
+  for (const g of specs) { const z = zoneOf(g.x); if (z && (z.id === 'gap' || z.id === 'landing')) label(`${g.width.toFixed(1)} m`, g.x + g.width / 2, Math.max(0, g.rise) + 3); }
+  if (course.wall) label(`${(course.wall.height ?? DEFAULT_WALL.height).toFixed(1)} m high`, course.wall.x0 + 2, (course.wall.height ?? DEFAULT_WALL.height) + 1.2);
+  if (course.rope) label(`rope ${ropeLen.toFixed(0)} m`, course.rope.anchorX, course.rope.anchorY + 1.6);
 
   // input
   const keys = new Set<string>();
@@ -143,6 +167,20 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
     frames.length = 0; replay = null; panel.style.display = 'none';
   }
 
+  // The Dojo opens on the very obstacle the player fell at, with its real numbers (R1-L1, R1-L3).
+  function trainLink(zoneId: string, x: number): string {
+    const q = new URLSearchParams({ mode: 'dojo', ex: zoneId, from: 'course' });
+    const jump = [...log].reverse().find((e) => e.type === 'jump');
+    if (jump?.detail?.vx) q.set('speed', (jump.detail.vx as number).toFixed(1));
+    if (zoneId === 'gap' || zoneId === 'landing') {
+      const g = specs.find((q2) => x >= q2.x - 0.5 && x <= q2.x + q2.width + 1) ?? specs.find((q2) => q2.x >= x - 12);
+      if (g) { q.set('ex', 'gap'); q.set('width', g.width.toFixed(1)); q.set('rise', g.rise.toFixed(1)); q.set('needed', g.needed.toFixed(1)); }
+    }
+    if (zoneId === 'wall') { q.set('ex', 'wall'); q.set('wallh', String(course.wall?.height ?? DEFAULT_WALL.height)); }
+    if (zoneId === 'rope') { q.set('ex', 'rope'); q.set('length', String(course.rope?.length ?? DEFAULT_ROPE.length)); }
+    return '?' + q.toString();
+  }
+
   // After a fall: retry at once, one tip, a skippable replay, and the offer to train that obstacle.
   let lastFall: 'splash' | 'slide' = 'splash';
   function onFall(what: 'splash' | 'slide') {
@@ -156,7 +194,11 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
     else if (zone?.id === 'trampoline') tip = 'Press Space at the bottom of the bounce for extra height.';
     else if (zone?.id === 'rope') tip = 'Grab the rope on the way up, then press Space to let go when you are rising.';
     else if (!jump) tip = 'Press Space just before the edge.';
-    else {
+    else if (jump && (jump.detail?.vx as number) !== undefined && (zone?.id === 'gap' || zone?.id === 'landing')) {
+      const g = specs.find((q2) => r.x >= q2.x - 0.5 && r.x <= q2.x + q2.width + 1) ?? specs.find((q2) => q2.x >= r.x - 12);
+      const v = jump.detail!.vx as number;
+      tip = g && v < g.needed ? `You left the edge at ${v.toFixed(1)} m/s, but this ${g.width.toFixed(1)} m gap needs at least ${g.needed.toFixed(1)} m/s. Run longer before you jump.` : 'Your speed was enough. Try pressing Space a little closer to the edge.';
+    } else {
       windows ??= searchIdealRun(course).windows;
       const w = windows.find((q) => q.obstacle.startsWith('edge') && Math.abs(q.best - r.x) < 9);
       if (w) tip = r.x < w.best ? 'You jumped a bit late. Try pressing Space a little earlier.' : 'You jumped a bit early. Try pressing Space a little later.';
@@ -176,7 +218,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
     };
     const retry = mk('Try again (R)', restart, true);
     mk('Watch what happened', () => { panel.style.display = 'none'; replay = { i: Math.max(0, frames.length - 240), from: Math.max(0, frames.length - 240), to: frames.length }; });
-    if (train) mk(`Train the ${zone?.name ?? 'obstacle'}`, () => { location.search = `?mode=dojo&ex=${zone?.id ?? 'gap'}`; });
+    if (train) mk(`Train the ${zone?.name ?? 'obstacle'}`, () => { location.search = trainLink(zone?.id ?? 'gap', r.x); });
     panel.append(h, t, row);
     retry.focus();
   }
@@ -210,6 +252,15 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
       const prev = world.outcome;
       world = stepWorld(world, input, course);
       log.push(...world.events);
+      for (const e of world.events) {
+        if (e.type === 'land' && (e.detail?.impact as number) > 2) {
+          const hard = (e.detail?.peakDecel as number) > 45;
+          const times = ((e.detail?.peakDecel as number) / 9.81).toFixed(1);
+          toast.textContent = hard ? `Hard landing! ${times}× your weight: you stumble.` : e.detail?.squat ? `Soft landing: knees bent, ${times}× your weight.` : `Landing: ${times}× your weight. Hold ↓ to bend your knees.`;
+          toast.style.display = 'block'; toastUntil = world.runner.tick + 150;
+          squashUntil = world.runner.tick + 40; squashDepth = e.detail?.squat ? 0.65 : 0.85;
+        }
+      }
       if (replay === null && prev === 'running') frames.push({ x: world.runner.x, y: world.runner.y });
       if (frames.length > 1200) frames.shift();
       if (prev === 'running' && world.outcome === 'splash') onFall('splash');
@@ -222,11 +273,25 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
       replay.i += 1;
       if (replay.i >= replay.to || !f) { replay = null; if (world.outcome !== 'running') showAgain(); } else r = { ...r, x: f.x, y: f.y };
     }
-    body.position.set(r.x, r.y + 0.85, 0);
+    const sq = world.runner.tick < squashUntil ? squashDepth : 1;
+    body.scale.set(1 / Math.sqrt(sq), sq, 1 / Math.sqrt(sq));
+    body.position.set(r.x, r.y + 0.85 * sq, 0);
+    if (world.runner.tick > toastUntil) toast.style.display = 'none';
     hint.textContent = hintFor(world);
     hint.style.display = hint.textContent ? 'block' : 'none';
     ropeGroup.rotation.z = world.swing ? -world.swing.theta : 0;
     msg.textContent = world.outcome === 'cleared' ? MESSAGES.cleared : '';
+    const spd = Math.abs(r.vx);
+    gText.textContent = `Speed ${spd.toFixed(1)} m/s`;
+    gFill.style.width = `${Math.min(100, (spd / GAUGE_MAX) * 100)}%`;
+    const nextGap = specs.find((g) => g.x + 0.2 >= r.x && g.x - r.x < 40 && ['gap', 'landing'].includes(zoneOf(g.x)?.id ?? ''));
+    let need = 0, msgNext = '';
+    if (nextGap && world.mode === 'run') { need = nextGap.needed; msgNext = `Next gap: ${nextGap.width.toFixed(1)} m wide. You need at least ${need.toFixed(1)} m/s at the edge.`; }
+    else if (course.wall && world.mode === 'run' && r.x < course.wall.x0 && course.wall.x0 - r.x < 45) { need = wallNeed; msgNext = `Warped wall: ${(course.wall.height ?? DEFAULT_WALL.height).toFixed(1)} m high. You need at least ${need.toFixed(1)} m/s at its foot.`; }
+    gNeed.style.display = need ? 'block' : 'none';
+    gNeed.style.left = `${Math.min(100, (need / GAUGE_MAX) * 100)}%`;
+    gFill.style.background = need && spd < need ? '#c4572a' : '#0f6b5c';
+    gNext.textContent = msgNext;
     hud.textContent = `Time ${(r.tick / 120).toFixed(1)} s   ·   ${Math.max(0, Math.round(r.x))} m of ${course.finishX} m`;
     const tx = r.x + 5, ty = r.y + 2.5;
     const want = camMode === 'side' ? new THREE.Vector3(tx, ty + 1, 24) : new THREE.Vector3(r.x - 7, r.y + 4, 12);

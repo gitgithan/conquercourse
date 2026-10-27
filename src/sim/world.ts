@@ -52,7 +52,7 @@ export function stepWorld(w: WorldState, input: RunnerInput, course: CourseData,
   const before = w.runner;
   const r = step(before, input2, p, course.terrain);
   n.runner = r;
-  if (before.grounded && !r.grounded && input2.jump) ev('jump', { vy: r.vy });
+  if (before.grounded && !r.grounded && input2.jump) ev('jump', { vy: r.vy, vx: r.vx, x: r.x });
   if (!before.grounded && r.grounded && r.landing) {
     ev('land', { impact: r.landing.impactSpeed, peakDecel: r.landing.peakDecel, squat: r.landing.squatted });
     if (r.landing.stumbled) ev('stumble', { peakDecel: r.landing.peakDecel });
