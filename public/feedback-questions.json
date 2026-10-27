@@ -1,7 +1,7 @@
 {
   "round": "public-1",
   "title": "Tell us how it felt",
-  "intro": "Two minutes, no sign-in, no names. Answer what you can. Please do not type personal information.",
+  "intro": "Two minutes, no sign-in, no names. Please do not type personal information.",
   "questions": [
     {
       "id": "who",

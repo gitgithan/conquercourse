@@ -32,6 +32,15 @@
 - Raw rows stay in the database; only the summary goes in the repo.
 - Turn the summary into a Linear issue the same way as the playtest rounds (CC-30, CC-31, CC-32): numbered items `P1-...`, fix at once, document what cannot be fixed.
 
+## Looking at the feedback database
+- The database is a Cloudflare D1 database named `conquercourse-feedback`, in your Cloudflare account; the site writes to it through `functions/api/submit.ts`.
+- In the dashboard: Storage and databases, then D1, then `conquercourse-feedback`, then the Explore data tab, then the `feedback` table.
+- From the terminal (after `npx wrangler login`):
+  - `npm run feedback:rows` prints the newest ten submissions.
+  - `npm run feedback` writes a summary of the current round into `docs/feedback/`.
+- The binding in `wrangler.toml` must be called `DB` (the function reads `env.DB`); the name Cloudflare suggests in its wizard is not used.
+- The "website" field in the form is a trap for bots: it is hidden off the screen, a person never fills it, and a submission that has it filled is dropped silently.
+
 ## Before you share the address
 - **Licences:** the Park photos are CC0 or CC BY (credits are in `docs/ASSETS.md`); the Rookie models come from Tripo, whose commercial rights depend on your plan (still to confirm in `docs/STATUS.md`); add a Credits line if you want the CC BY names visible.
 - **Park mode:** it works offline from saved results; the live photo upload is off, so no key is exposed.

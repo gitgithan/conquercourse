@@ -6,4 +6,4 @@ compatibility_date = "2026-10-01"
 [[d1_databases]]
 binding = "DB"
 database_name = "conquercourse-feedback"
-database_id = "REPLACE-WITH-THE-ID-FROM-wrangler-d1-create"
+database_id = "153f511c-2d03-4442-b7cb-9f988a84becd"

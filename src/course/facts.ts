@@ -13,7 +13,7 @@ export interface CourseFacts {
   wall?: { height: number; needSpeed: number };
   rope?: { length: number; anchorHeight: number };
   trampoline?: { drop: number; farRise: number; springHeight: number; extraNeeded: number; pump: number };
-  biggestDrop?: { height: number; ouchStiff: number; ouchBent: number };
+  biggestDrop?: { height: number; ouchStiff: number; ouchBent: number; pushStiff: number; pushBent: number };
 }
 
 export function courseFacts(course: CourseData): CourseFacts {
@@ -40,7 +40,7 @@ export function courseFacts(course: CourseData): CourseFacts {
   ps.forEach((p, i) => { const n = ps[i + 1]; if (n && !n.bouncy && n.x0 - p.x1 < 0.5 && p.top - n.top > best) best = p.top - n.top; });
   if (best > 0) {
     const v = Math.sqrt(2 * GRAVITY * best);
-    facts.biggestDrop = { height: best, ouchStiff: ouch(landing(v, false, DEFAULT_LANDING).peakDecel), ouchBent: ouch(landing(v, true, DEFAULT_LANDING).peakDecel) };
+    facts.biggestDrop = { height: best, ouchStiff: ouch(landing(v, false, DEFAULT_LANDING).peakDecel), ouchBent: ouch(landing(v, true, DEFAULT_LANDING).peakDecel), pushStiff: landing(v, false, DEFAULT_LANDING).peakDecel, pushBent: landing(v, true, DEFAULT_LANDING).peakDecel };
   }
   return facts;
 }

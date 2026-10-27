@@ -114,9 +114,15 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
   hud.style.cssText = 'position:fixed;left:16px;top:12px;font:600 18px system-ui,sans-serif;color:#10141c;text-shadow:0 1px 0 #fff8;pointer-events:none';
   const msg = document.createElement('div');
   msg.style.cssText = 'position:fixed;left:0;right:0;top:38%;text-align:center;font:700 28px system-ui,sans-serif;color:#10141c;text-shadow:0 1px 0 #fff;pointer-events:none';
+  // the controls, always visible top-left as a card of key caps (collapse with H)
   const help = document.createElement('div');
-  help.style.cssText = 'position:fixed;left:16px;bottom:12px;font:500 14px system-ui,sans-serif;color:#10141c;pointer-events:none';
-  help.textContent = 'Hold ← or → to run · Space to jump (or let go of the rope, or press on the trampoline) · hold ↓ when you land from a high drop · R retry this obstacle · Shift+R from the start · I ideal run · T Dojo · C camera (side, 45°, first person)';
+  help.id = 'keys';
+  const KEYS: [string, string][] = [['← →', 'Run (hold)'], ['Space', 'Jump · let go of the rope · press on the trampoline'], ['↓', 'Bend your knees (hold, on big drops)'], ['R', 'Retry this obstacle'], ['Shift R', 'Start again from the beginning'], ['I', 'Ideal run'], ['T', 'Dojo'], ['C', 'Change the camera']];
+  help.style.cssText = 'position:fixed;left:16px;top:48px;width:290px;background:#fffffff0;border:1px solid #cfd6d0;border-radius:12px;padding:8px 10px;font:500 14px system-ui,sans-serif;color:#17201d;box-shadow:0 2px 10px #0002;pointer-events:none;display:grid;gap:5px';
+  const paintKeys = (open: boolean) => {
+    help.innerHTML = `<div style="font-weight:700;display:flex;justify-content:space-between">Controls <span style="font-weight:400;color:#58635d">H ${open ? 'hides' : 'shows'}</span></div>` + (open ? KEYS.map(([k, d]) => `<div style="display:grid;grid-template-columns:78px 1fr;gap:8px;align-items:center"><kbd style="font:700 13px ui-monospace,monospace;background:#eef1ec;border:1px solid #b9c2bb;border-bottom-width:3px;border-radius:6px;padding:1px 6px;text-align:center">${k}</kbd><span>${d}</span></div>`).join('') : '');
+  };
+  let keysOpen = true; paintKeys(true);
   const panel = document.createElement('div');
   panel.style.cssText = 'position:fixed;left:50%;top:26%;transform:translateX(-50%);width:min(520px,92vw);background:#fffffff2;border:1px solid #cfd6d0;border-radius:12px;padding:16px;font:16px/1.4 system-ui,sans-serif;color:#17201d;display:none;gap:10px;box-shadow:0 8px 30px #0003';
   const hint = document.createElement('div');
@@ -154,7 +160,25 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
     });
   }
   paintPick();
-  document.body.append(hud, msg, help, panel, hint, gauge, dojoBtn, idealBtn, pick);
+  // the camera switch: a ring with three nodes (side, 45°, first person); the ring turns a third each time
+  const camBtn = document.createElement('button');
+  camBtn.id = 'cam';
+  camBtn.setAttribute('aria-label', 'Change the camera (C)');
+  camBtn.style.cssText = 'position:fixed;right:340px;top:6px;display:grid;justify-items:center;gap:0;border:2px solid #17201d;background:#fff;color:#17201d;border-radius:12px;padding:3px 8px 2px;cursor:pointer;font:600 11px system-ui,sans-serif';
+  const node = (a: number) => `<circle cx="${(20 + 13 * Math.sin((a * Math.PI) / 180)).toFixed(1)}" cy="${(20 - 13 * Math.cos((a * Math.PI) / 180)).toFixed(1)}" r="4.2" class="n"/>`;
+  camBtn.innerHTML = `<svg width="40" height="40" viewBox="0 0 40 40" aria-hidden="true"><g id="ring" style="transform-origin:20px 20px;transition:transform .35s ease"><circle cx="20" cy="20" r="13" fill="none" stroke="currentColor" stroke-width="2.4"/>${node(0)}${node(120)}${node(240)}</g><path d="M20 2 L24 7 L16 7 Z" fill="#c4572a"/></svg><span id="camname">Side view</span>`;
+  camBtn.querySelectorAll('.n').forEach((n) => { (n as SVGElement).style.fill = '#17201d'; });
+  let camTurn = 0;
+  const nextCam = () => {
+    const next = CAMS[(CAMS.findIndex((c2) => c2.id === camMode) + 1) % CAMS.length];
+    camMode = next.id; camTurn += 120;
+    (camBtn.querySelector('#ring') as SVGElement).style.transform = `rotate(${camTurn}deg)`;
+    camBtn.querySelector('#camname')!.textContent = next.name;
+    toast.textContent = `Camera: ${next.name}`; toast.style.display = 'block'; toastUntil = world.runner.tick + 100;
+    camBtn.blur();
+  };
+  camBtn.onclick = nextCam;
+  document.body.append(hud, msg, help, panel, hint, gauge, dojoBtn, idealBtn, pick, camBtn);
   const toast = document.createElement('div');
   toast.style.cssText = 'position:fixed;left:50%;top:44%;transform:translateX(-50%);font:700 22px system-ui,sans-serif;color:#10141c;background:#fffffff0;border-radius:10px;padding:6px 14px;pointer-events:none;display:none';
   document.body.append(toast);
@@ -191,11 +215,8 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
     if (e.code === 'KeyI') showIdeal(zoneAt(world.runner.x)?.id ?? 'gap');
     if (e.code === 'KeyT') openDojo();
     if (e.code === 'Escape' && replay) { replay = null; clearGuides(); showAgain(); }
-    if (e.code === 'KeyC') {
-      const next = CAMS[(CAMS.findIndex((c2) => c2.id === camMode) + 1) % CAMS.length];
-      camMode = next.id;
-      toast.textContent = `Camera: ${next.name}`; toast.style.display = 'block'; toastUntil = world.runner.tick + 100;
-    }
+    if (e.code === 'KeyC') nextCam();
+    if (e.code === 'KeyH') { keysOpen = !keysOpen; paintKeys(keysOpen); }
   });
   addEventListener('keyup', (e) => keys.delete(e.code));
   addEventListener('resize', () => {
@@ -499,7 +520,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
       camPos.copy(camera.position);
     } else {
       const tx = r.x + 5, ty = r.y + 2.5;
-      const want = camMode === 'side' ? new THREE.Vector3(tx, ty + 1, 17) : new THREE.Vector3(r.x - 8, r.y + 4.5, 11);
+      const want = camMode === 'side' ? new THREE.Vector3(tx, ty + 1.5, 25) : new THREE.Vector3(r.x - 8, r.y + 4.5, 11);
       camPos.lerp(want, 0.12);
       camera.position.copy(camPos);
       camera.lookAt(camMode === 'side' ? tx : r.x + 4, camMode === 'side' ? ty : r.y + 1.5, 0);

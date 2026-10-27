@@ -1,6 +1,6 @@
 import { DT, GRAVITY } from './units';
 import { DEFAULT_PARAMS, NO_INPUT, startState, step } from './runner';
-import { landing, ouch } from './landing';
+import { DEFAULT_LANDING, landing } from './landing';
 import { DEFAULT_WALL, runWall } from './wall';
 import { swingStep, type Swing } from './rope';
 import { DEFAULT_TRAMPOLINE, bounce } from './trampoline';
@@ -149,7 +149,7 @@ const trampoline: Experiment = {
 };
 
 const landingExp: Experiment = {
-  id: 'landing', name: 'Landing', question: 'How much will the landing hurt? (0 = a feather, 10 = broken bones)', answerUnit: 'out of 10', answerMax: 12, axis: 'meter', primary: 'bend',
+  id: 'landing', name: 'Landing', question: 'How hard is the push that stops you?', answerUnit: 'm/s²', answerMax: 180, axis: 'meter', primary: 'bend',
   knobs: [
     { id: 'drop', label: 'Height you drop from', unit: 'm', min: 0.3, max: 4, def: 2.5, step: 0.1, why: 'The longer you fall, the faster you hit the ground, and the more speed has to be stopped.' },
     { id: 'bend', label: 'Time spent bending your knees', unit: 's', min: 0.05, max: 0.5, def: 0.1, step: 0.01, why: 'Stopping over more time needs a gentler push. In the Course, hold the down arrow as you land to bend your knees.' },
@@ -157,15 +157,11 @@ const landingExp: Experiment = {
   sayings: ['Soft knees, safe landing: the same stop, spread over more time.'],
   run(v) {
     const impact = Math.sqrt(2 * GRAVITY * v.drop);
-    const rep = landing(impact, true, { stiffStopTime: v.bend, squatStopTime: v.bend, stumbleDecel: 45, stumbleKeep: 0.3 });
-    const g = ouch(rep.peakDecel);
-    // speed against time: it grows while you fall, then drops to zero over the time you take to stop (steeper = it hurts more)
-    const path: Point[] = [];
-    const tf = impact / GRAVITY;
-    for (let t = 0; t <= tf; t += DT * 4) path.push({ x: t, y: GRAVITY * t });
-    path.push({ x: tf, y: impact }, { x: tf + v.bend, y: 0 });
-    const word = g < 3 ? 'a soft landing' : g < 6 ? 'a firm landing' : g < 8 ? 'a hard landing: you stumble' : 'a dangerous landing: you could break something';
-    return { answer: g, path, cleared: !rep.stumbled, note: `That is ${g.toFixed(1)} out of 10: ${word}.` };
+    const rep = landing(impact, true, { ...DEFAULT_LANDING, squatStopTime: v.bend });
+    // push against time: a block as wide as the stopping time and as tall as the push; its area is the speed you lose (always the impact speed)
+    const F = rep.peakDecel;
+    const path: Point[] = [{ x: 0, y: 0 }, { x: 0, y: F }, { x: v.bend, y: F }, { x: v.bend, y: 0 }];
+    return { answer: F, path, cleared: !rep.stumbled, note: `You hit the ground at ${impact.toFixed(1)} m/s and stop in ${v.bend.toFixed(2)} s, so the ground pushes you with ${F.toFixed(0)} m/s² (${(F / GRAVITY).toFixed(1)} times gravity). ${rep.stumbled ? 'In the Course, that is a stumble.' : 'In the Course, that is a clean landing.'}` };
   },
 };
 

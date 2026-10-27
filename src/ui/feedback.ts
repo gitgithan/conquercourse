@@ -33,12 +33,12 @@ async function openForm(mode: string): Promise<void> {
   wrap.style.cssText = 'position:fixed;inset:0;z-index:60;background:#0008;display:grid;place-items:center;padding:12px';
   const card = document.createElement('form');
   card.style.cssText = 'background:#fff;color:#17201d;border-radius:12px;max-width:640px;width:100%;max-height:92vh;overflow:auto;padding:18px;font:15px/1.45 system-ui,sans-serif;display:grid;gap:14px';
-  card.innerHTML = `<h2 style="margin:0;font-size:20px">${round.title}</h2><p style="margin:0;color:#58635d">${round.intro}</p>`;
+  card.innerHTML = `<h2 style="margin:0;font-size:20px">${round.title}</h2><p style="margin:0;color:#58635d">${round.intro}</p><p style="margin:0;background:#e6f2ee;border:1px solid #0f6b5c;border-radius:8px;padding:8px 10px;font-weight:600">Every question is optional. Skip any you like; even one answer helps.</p>`;
   const answers: Record<string, string | number> = {};
   for (const q of round.questions) {
     const box = document.createElement('fieldset');
     box.style.cssText = 'border:0;padding:0;margin:0;display:grid;gap:6px';
-    const lg = document.createElement('legend'); lg.textContent = q.text; lg.style.cssText = 'font-weight:600;padding:0'; box.appendChild(lg);
+    const lg = document.createElement('legend'); lg.textContent = q.text + ' (optional)'; lg.style.cssText = 'font-weight:600;padding:0'; box.appendChild(lg);
     const row = document.createElement('div'); row.style.cssText = 'display:flex;flex-wrap:wrap;gap:6px'; box.appendChild(row);
     if (q.type === 'scale') {
       for (let n = 1; n <= 5; n++) row.appendChild(chip(String(n), () => { answers[q.id] = n; paint(row, String(n)); }));
@@ -60,7 +60,7 @@ async function openForm(mode: string): Promise<void> {
   const note = document.createElement('div'); note.style.cssText = 'font-size:12px;color:#58635d'; card.appendChild(note);
   card.onsubmit = async (e) => {
     e.preventDefault();
-    if (!Object.keys(answers).length) { note.textContent = 'Please answer at least one question.'; return; }
+    if (!Object.keys(answers).length) { note.textContent = 'Answer any one question, then press Send. All of them are optional.'; return; }
     send.disabled = true; note.textContent = 'Sending…';
     try {
       const res = await fetch('/api/submit', {
