@@ -8,6 +8,7 @@ import { createView3d } from '../slice/view3d';
 import { sceneFor } from '../slice/scene';
 import { barMesh, holdsOf, isHold, REACH_JUMPING, REACH_STANDING } from '../slice/holds-world';
 import { fixLayout } from '../slice/fixit';
+import { fixBars } from '../slice/fixbars';
 import { adviseLane, type Advice } from '../slice/advice';
 import { applyEdits, parseReply, worldBrief, type Edit } from '../slice/designer';
 
@@ -169,6 +170,15 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
   function runFix() {
     reply.className = 'reply'; reply.textContent = 'Working it out…';
     setTimeout(() => {
+      if (barsNow().length) {
+        const rb = fixBars(pieces, { angle, offset, level });
+        for (const q of rb.pieces) { const mine = pieces.find((x) => x.id === q.id); if (mine) { mine.x = q.x; mine.z = q.z; mine.y = q.y; } }
+        changed();
+        reply.className = rb.ok ? 'reply ok' : 'reply bad';
+        reply.textContent = rb.ok ? (rb.steps.length ? 'Fixed. ' + rb.steps.join(' ') : 'It already works.') : rb.steps.join(' ');
+        document.documentElement.dataset.fixed = rb.ok ? '1' : '0';
+        return;
+      }
       const r = fixLayout(pieces, { angle, offset, level });
       for (const q of r.pieces) { const mine = pieces.find((x) => x.id === q.id); if (mine) { mine.x = q.x; mine.z = q.z; mine.y = q.y; mine.yaw = q.yaw; mine.scale = q.scale; } }
       angle = r.lane.angle; offset = r.lane.offset; level = r.lane.level;
@@ -202,7 +212,7 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
     chat.push({ role: 'user', content: text });
     reply.className = 'reply'; reply.textContent = 'Thinking…'; sendBtn.disabled = whatBtn.disabled = true;
     try {
-      const r = await fetch('/api/designer', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ messages: chat.slice(-6), world: worldBrief(pieces, { angle, offset, level }, verdict, adviceList.map((a) => a.text)) }) });
+      const r = await fetch('/api/designer', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ messages: chat.slice(-6), world: worldBrief(pieces, { angle, offset, level }, verdict, adviceList.map((a) => a.text), barsNow()) }) });
       if (r.status === 503) { reply.className = 'reply muted'; reply.textContent = 'The design partner is switched off on this site (no key set).'; return; }
       if (!r.ok) throw new Error(String(r.status));
       const got = parseReply(((await r.json()) as { reply: string }).reply, pieces.map((q) => q.id));
@@ -319,7 +329,7 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
       // when it cannot be cleared, say what to shift (each suggestion was proved by the simulator)
       adviceList = []; showAdvice();
       if (!verdict.startsWith('The simulator can') && p.length >= 8 && barsNow().length) {
-        adviceBox.textContent = 'This lane has bars. Drag them in the side view (position and height); Fix it and the shift advice do not handle bars yet.';
+        adviceBox.textContent = 'This lane has bars. Drag them in the side view (position and height), or press Fix it to try small moves of the bars.';
       } else if (!verdict.startsWith('The simulator can') && p.length >= 8) {
         const mine = ++adviceRun;
         setTimeout(() => { if (mine !== adviceRun) return; adviceList = adviseLane(pieces, { angle, offset, level }); showAdvice(); if (!adviceList.length) adviceBox.textContent = 'No single small shift clears it. Press "What should I change?" to think it through together.'; document.documentElement.dataset.advice = String(adviceList.length); }, 30);

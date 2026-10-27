@@ -14,15 +14,17 @@ export const SYSTEM_PROMPT = [
   'The human builds a course from real objects; a runner goes left to right along a 2 m wide lane and must jump from piece to piece over water.',
   'Earth physics only. Never show formulas. Use plain words a 13-year-old can follow.',
   'You suggest; you never grade a player or coach technique. The simulator decides what is possible and its verified advice is given to you: prefer it over guessing.',
+  'Pieces named Bar hang in the air (no frame): hands reach a bar up to 2.55 m standing and 3.6 m with a jump, a swing between two bars crosses up to about 10 m of water, the V key vaults a 0.4 to 1.3 m step fast and saves energy, and a plain jump costs some speed on courses with bars.',
   'Reply with at most 3 short sentences.',
   'Then, if you suggest moving or resizing pieces, add the changes in one fenced ```json block holding an array of {"piece": <id>, "dx": m, "dz": m, "dy": m, "scale": factor, "yaw": radians} items (leave out what does not change).',
   'Use only the piece ids in the world description. Keep each move under 10 m. If nothing needs changing, give no json block.',
 ].join(' ');
 
-export function worldBrief(pieces: Piece[], lane: LaneView, verdict: string, advice: string[] = []): string {
+export function worldBrief(pieces: Piece[], lane: LaneView, verdict: string, advice: string[] = [], bars: { u: number; y: number; id?: number }[] = []): string {
   return JSON.stringify({
     pieces: pieces.map((p) => { const s = realSize(p); return { id: p.id, name: p.name, x: r2(p.x), z: r2(p.z), height_off_ground: r2(p.y), turn_deg: Math.round((p.yaw * 180) / Math.PI), size_m: { long: r2(s.w), high: r2(s.h), deep: r2(s.d) } }; }),
     lane: { turn_deg: Math.round((lane.angle * 180) / Math.PI), sideways_m: r2(lane.offset), water_level_m: r2(lane.level) },
+    bars_in_the_lane: bars.map((b) => ({ id: b.id, along_m: r2(b.u), height_m: r2(b.y) })),
     simulator_verdict: verdict,
     verified_advice: advice.slice(0, 6),
   });
