@@ -71,7 +71,7 @@ export async function createRookieActor(scene: Scene, opts: { rookie: RookieId }
   const takeoffCom = scale * (takeoffFrame[0][1] - Math.min(...takeoffFrame.map((p) => p[1]))) + scale * comAboveHips(names, takeoffFrame);
 
   // The ready stance, built bone by bone (clip axes: +z forward, +x left, y up): straight up, no lean,
-  // knees soft, feet under the hips, arms hanging straight down, shoulders level, elbows straight.
+  // knees soft, feet under the hips, shoulders from the model's T-pose (relaxed, a touch back), arms hanging straight down.
   const stand = (() => {
     const f = land.frames[13]; // only for the bone lengths and the face details
     const len = (i: number) => Math.hypot(...f[i].map((v, k) => v - f[land.parents[i]][k]));
@@ -84,8 +84,11 @@ export async function createRookieActor(scene: Scene, opts: { rookie: RookieId }
       let d: Vector3 | null = null;
       if (/^(Spine1|Spine2|Chest|Neck1|Neck2)$/.test(n)) d = up(LEAN);
       else if (n === 'Head') d = up(0);
-      else if (/Shoulder$/.test(n)) d = new Vector3(side * 0.95, 0.3, 0);
-      else if (/Arm$/.test(n) && !/Fore/.test(n)) d = new Vector3(side * 0.9, 0.1, 0);
+      else if (/Shoulder$|Arm$/.test(n) && !/Fore/.test(n)) {
+        // from the model's own T-pose, so the shoulders sit relaxed and level, then a touch back
+        d = rookie.rig.bones[i].restPos.clone().sub(rookie.rig.bones[land.parents[i]].restPos);
+        d.y = Math.min(d.y, 0);
+      }
       else if (/ForeArm$/.test(n)) d = new Vector3(side * 0.03, -1, 0);
       else if (/Hand$/.test(n)) d = new Vector3(0, -1, 0);
       else if (/ThumbEnd$/.test(n)) d = new Vector3(side * 0.2, -1, 0.15);
