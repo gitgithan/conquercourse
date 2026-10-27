@@ -1,0 +1,138 @@
+{
+  "gate": "ccpipe.gate (shared)",
+  "supportedBy": "playground bars",
+  "verdict": "FAIL",
+  "failed_rules": [
+    "held_clips_are_held"
+  ],
+  "report": {
+    "version": 1,
+    "pass": false,
+    "hard": {
+      "knees_bend_forward": {
+        "ok": true,
+        "value": 44.6025,
+        "limit": "< 120 deg off the side axis",
+        "note": ""
+      },
+      "legs_not_twisted": {
+        "ok": true,
+        "value": 44.6025,
+        "limit": "<= 60 deg off the side axis",
+        "note": ""
+      },
+      "knees_within_range": {
+        "ok": true,
+        "value": 151.7719,
+        "limit": "<= 165 deg",
+        "note": ""
+      },
+      "flight_is_ballistic": {
+        "ok": true,
+        "value": null,
+        "limit": "not judged",
+        "note": "held by playground bars"
+      },
+      "held_clips_are_held": {
+        "ok": false,
+        "value": 0.7341,
+        "limit": "<= 0.6 s with nothing holding the body",
+        "note": "held by playground bars"
+      },
+      "feet_dont_sink": {
+        "ok": true,
+        "value": -0.0,
+        "limit": "<= 0.03 m under the floor",
+        "note": ""
+      },
+      "no_teleport": {
+        "ok": true,
+        "value": 3.9972,
+        "limit": "<= 12.0 m/s",
+        "note": ""
+      }
+    },
+    "soft": {
+      "bones_keep_length": {
+        "ok": true,
+        "value": 0.0033,
+        "limit": "<= 2% off the median",
+        "note": ""
+      },
+      "feet_dont_slide": {
+        "ok": false,
+        "value": 0.128,
+        "limit": "<= 0.03 m",
+        "note": ""
+      },
+      "no_jitter": {
+        "ok": false,
+        "value": 360.1225,
+        "limit": "<= 200.0 m/s^2",
+        "note": ""
+      }
+    }
+  },
+  "free_flight_report": {
+    "version": 1,
+    "pass": false,
+    "hard": {
+      "knees_bend_forward": {
+        "ok": true,
+        "value": 44.6025,
+        "limit": "< 120 deg off the side axis",
+        "note": ""
+      },
+      "legs_not_twisted": {
+        "ok": true,
+        "value": 44.6025,
+        "limit": "<= 60 deg off the side axis",
+        "note": ""
+      },
+      "knees_within_range": {
+        "ok": true,
+        "value": 151.7719,
+        "limit": "<= 165 deg",
+        "note": ""
+      },
+      "flight_is_ballistic": {
+        "ok": false,
+        "value": 2.8196,
+        "limit": "within 15% of 9.81",
+        "note": "frames 14-35, off by 71.3%"
+      },
+      "feet_dont_sink": {
+        "ok": true,
+        "value": -0.0,
+        "limit": "<= 0.03 m under the floor",
+        "note": ""
+      },
+      "no_teleport": {
+        "ok": true,
+        "value": 3.9972,
+        "limit": "<= 12.0 m/s",
+        "note": ""
+      }
+    },
+    "soft": {
+      "bones_keep_length": {
+        "ok": true,
+        "value": 0.0033,
+        "limit": "<= 2% off the median",
+        "note": ""
+      },
+      "feet_dont_slide": {
+        "ok": false,
+        "value": 0.128,
+        "limit": "<= 0.03 m",
+        "note": ""
+      },
+      "no_jitter": {
+        "ok": false,
+        "value": 360.1225,
+        "limit": "<= 200.0 m/s^2",
+        "note": ""
+      }
+    }
+  }
+}

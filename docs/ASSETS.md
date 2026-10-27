@@ -120,5 +120,20 @@
 - Not shipped: the two mural walls (`data/eval/cc-38-photo-to-3d/r3/mural0*/mesh.glb`), because a mural belongs to its artist even when the photo is CC0; the park06 object (a 33 m slab). park02 and park07 are in the editor for size tests only, judged "partly".
 - Kept outside git: the raw lifts (`raw.npz`, about 100 MB) and the privacy-masked photos in `../conquercourse-assets/cc-38-raw/` with `SHA256SUMS`.
 
+## Body shapes from MHR (made during the event, CC-41)
+| File | What | Source | Licence | Made with |
+|---|---|---|---|---|
+| `public/assets/experiments/mhr-look/mhr-<name>.glb` | the neutral MHR body and 5 shape variants (tall, short, broad, slim, stocky), 18,439 vertices, 36,874 faces, 0.89 MB each, fitted to 1.75 m | the MHR body model (`assets/mhr_model.pt`, lod1) from the SAM 3D Body checkpoint; no photo of a person | MHR: Apache 2.0; SAM 3D Body checkpoint: SAM License (see below) | `tools/mhr_look/export_variants.py`, CPU only |
+| `public/assets/experiments/mhr-look/mhr-<name>-rookie-rig.glb` | the same bodies with the Rookie's 34-node skeleton and bone weights copied from the nearest Rookie vertices, 1.34 MB each | same, plus `rookie-a.glb` | same | same |
+| `public/assets/experiments/mhr-look/variants.json`, `index.html` | the shape numbers used, and the test page (ours) | ConquerCourse | ours | same |
+- **MHR** (https://github.com/facebookresearch/MHR): the repo `LICENSE` opens "Apache License / Version 2.0, January 2004"; SOMA-X's `ATTRIBUTIONS.MD` carries the same text headed "MHR Apache License".
+- **SAM 3D Body** (https://huggingface.co/facebook/sam-3d-body-dinov3): the model card says `license: other`, `license_name: sam-license`, and the `LICENSE` file opens "SAM License / Last Updated: November 19, 2025".
+  - 1.a: "You are granted a non-exclusive, worldwide, non-transferable and royalty-free limited license ... to use, reproduce, distribute, copy, create derivative works of, and make modifications to the SAM Materials."
+  - 1.b.i: "If you distribute or make the SAM Materials, or any derivative works thereof, available to a third party, you may only do so under the terms of this Agreement and you shall provide a copy of this Agreement with any such SAM Materials."
+  - 1.b.iv: "Your use of the SAM Materials will not involve or encourage others to reverse engineer, decompile or discover the underlying components of the SAM Materials."
+  - 5.a: "with respect to any derivative works and modifications of the SAM Materials that are made by you, as between you and Meta, you are and will be the owner of such derivative works and modifications."
+- **To confirm before the bodies ship:** the `mhr_model.pt` we used came inside the SAM 3D Body checkpoint, so the SAM License may apply to the file even though the MHR repo is Apache 2.0; ship the licence texts with the GLBs until it is settled.
+- Not used in the game yet; the Course keeps the standard Rookie.
+
 ## The product owner's own clips (to come)
 - Filmed by the product owner, an adult, about themselves, with no bystanders; their written consent is recorded here when added.
