@@ -237,6 +237,45 @@ class Worker:
                 "last_center": None if center is None else center.tolist(),
                 "seconds": time.time() - t0, "load_s": self.load_s}
 
+    # ---------- one adult photo -> body shape (CC-41) ----------
+    @modal.method()
+    def shape_from_photo(self, photo_jpeg):
+        """One photo of one adult. Faces are pixelated first; the body model sees only that masked image.
+
+        Returns numbers only: the 45 MHR shape numbers, the 68 scale numbers, a height estimate and a receipt.
+        No picture and no face data leave the container.
+        """
+        import cv2
+        import numpy as np
+        torch = self.torch
+        img = cv2.cvtColor(cv2.imdecode(np.frombuffer(photo_jpeg, np.uint8), 1), cv2.COLOR_BGR2RGB)
+        h, w = img.shape[:2]
+        with torch.autocast("cuda", dtype=torch.bfloat16):
+            det = self._detect(img)
+        receipt = {"people": len(det["person"]), "faces": len(det["face"]), "image_wh": [w, h]}
+        if len(det["person"]) != 1:
+            return {"ok": False, "reason": f"need exactly one person, found {len(det['person'])}", "receipt": receipt}
+        if len(det["face"]) < 1:
+            return {"ok": False, "reason": "no face found to mask; refusing to run on an unmasked face", "receipt": receipt}
+        face_masked = self._mask_faces(img, det)  # step 1: faces first
+        b = det["person"][0][1]
+        bw, bh = b[2] - b[0], b[3] - b[1]
+        box = np.array([max(0, b[0] - 0.1 * bw), max(0, b[1] - 0.1 * bh), min(w, b[2] + 0.1 * bw), min(h, b[3] + 0.1 * bh)])
+        outs = self.body.process_one_image(face_masked, bboxes=box[None])
+        if not outs:
+            return {"ok": False, "reason": "SAM 3D Body found no body", "receipt": receipt}
+        o = outs[0]
+        shape = np.asarray(o["shape_params"], float).reshape(-1)
+        mp = np.asarray(o["mhr_model_params"], float).reshape(-1)
+        mhr = torch.jit.load(f"{BODY_DIR}/assets/mhr_model.pt", map_location="cpu")
+        rest = torch.zeros(1, 204)
+        rest[0, 136:] = torch.from_numpy(mp[136:]).float()  # body scale numbers, no pose
+        with torch.no_grad():
+            verts, _ = mhr(torch.from_numpy(shape).float()[None], rest, torch.zeros(1, 72))
+        height_m = float((verts[0, :, 1].max() - verts[0, :, 1].min()) / 100.0)
+        return {"ok": True, "shape_params": shape.tolist(), "scale_params": mp[136:].tolist(),
+                "height_m_estimate": round(height_m, 3), "receipt": receipt}
+
     # ---------- MHR to SOMA ----------
     @modal.method()
     def mhr_to_soma(self, shape, model_params, ok):
@@ -285,3 +324,18 @@ class Worker:
                 "vertex_err_cm": {"mean": float(err.mean()), "median": float(err.median()), "max": float(err.max())},
                 "joints_cm": torch.cat(joints).numpy().tolist(),
                 "seconds": time.time() - t0}
+
+
+@app.local_entrypoint()
+def shape_from_photo(photo: str, out: str):
+    """modal run pipelines/video_to_motion/modal_app.py::shape_from_photo --photo p.jpg --out dir/
+
+    Writes dir/shape.json (numbers only, no picture). The photo never leaves the container unmasked and is not copied.
+    Then: python tools/mhr_look/retarget.py MHR_MODEL_PT public/assets/characters/rookie-a.glb OUT --shape dir/shape.json --name custom --height-m 1.80
+    """
+    import json
+    from pathlib import Path
+    res = Worker().shape_from_photo.remote(Path(photo).read_bytes())
+    o = Path(out); o.mkdir(parents=True, exist_ok=True)
+    (o / "shape.json").write_text(json.dumps(res, indent=2))
+    print({k: v for k, v in res.items() if k not in ("shape_params", "scale_params")})

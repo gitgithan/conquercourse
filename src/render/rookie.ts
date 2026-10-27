@@ -15,8 +15,9 @@ export interface PosedRookie {
   world(): Vector3[]; // where the bones are now
 }
 
-export async function loadRookie(id: RookieId, names: string[], parents: number[], base = '/assets/characters'): Promise<PosedRookie> {
-  const gltf = await new GLTFLoader().loadAsync(`${base}/rookie-${id}.glb`);
+// `url` swaps in another body built on the Rookie's 34 bones (the custom look, CC-41); the default is rookie-<id>.glb
+export async function loadRookie(id: RookieId, names: string[], parents: number[], base = '/assets/characters', url?: string): Promise<PosedRookie> {
+  const gltf = await new GLTFLoader().loadAsync(url ?? `${base}/rookie-${id}.glb`);
   const object = gltf.scene;
   object.updateMatrixWorld(true);
   object.traverse((o) => (o.frustumCulled = false)); // skinned meshes keep their bind-pose bounds

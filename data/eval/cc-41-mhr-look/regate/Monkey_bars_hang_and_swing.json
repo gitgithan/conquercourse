@@ -41,7 +41,7 @@
       },
       "feet_dont_sink": {
         "ok": true,
-        "value": -0.0,
+        "value": 0,
         "limit": "<= 0.03 m under the floor",
         "note": ""
       },
@@ -103,7 +103,7 @@
       },
       "feet_dont_sink": {
         "ok": true,
-        "value": -0.0,
+        "value": 0,
         "limit": "<= 0.03 m under the floor",
         "note": ""
       },
