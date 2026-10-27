@@ -9,10 +9,11 @@ export interface ParkObject {
   phrase: string;
   box: [number, number, number, number]; // x0, y0, x1, y1 in image pixels
   score: number;
+  heightM?: number; // the real height in metres, typed by the maker of the course (beats every guess)
 }
 
 export type Kind = 'bench' | 'wall' | 'steps' | 'rail' | 'ledge' | 'platform' | 'person';
-export type ScaleSource = 'body-height' | 'typical-size';
+export type ScaleSource = 'body-height' | 'typical-size' | 'maker'; // 'maker': the person who drew the box typed the real height
 
 export interface Primitive {
   id: number;
@@ -72,10 +73,12 @@ export function fitPrimitives(objects: ParkObject[]): Primitive[] {
       risers = ref ? clamp(Math.round(hPx / ref.pxPerM / t.height), 2, 5) : 4;
       height = risers * t.height;
     }
+    const typed = o.heightM !== undefined && o.heightM >= 0.1 && o.heightM <= 3;
+    if (typed) { height = o.heightM!; if (kind === 'steps') risers = clamp(Math.round(height / t.height), 2, 8); }
     out.push({
       id: o.id, phrase: o.phrase, kind, type: t.type, roles: t.roles, x: (o.box[0] + o.box[2]) / 2,
       height: round(height), length: round(length), risers,
-      scale: ref ? { source: ref.source, uncertainty: ref.uncertainty, reference: ref.reference } : { source: 'typical-size', uncertainty: 0.35 },
+      scale: typed ? { source: 'maker', uncertainty: 0.1, reference: 'the height typed by the maker' } : ref ? { source: ref.source, uncertainty: ref.uncertainty, reference: ref.reference } : { source: 'typical-size', uncertainty: 0.35 },
     });
   }
   return out.sort((a, b) => a.x - b.x);
