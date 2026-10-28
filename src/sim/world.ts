@@ -91,6 +91,14 @@ export function stepWorld(w: WorldState, input: RunnerInput, course: CourseData,
   const ev = (type: GameEvent['type'], detail?: GameEvent['detail']) => events.push({ tick, type, detail });
   let n: WorldState = { ...w, lastPress: input.jump ? w.runner.tick + 1 : w.lastPress, lastVault: input.vault ? w.runner.tick + 1 : w.lastVault, lastRoll: input.roll ? w.runner.tick + 1 : w.lastRoll };
 
+  // the wait is over: the stumble or hard landing counts now, whatever the runner is doing (the cart and other modes included)
+  if (w.landGrace && tick > w.landGrace.until) { // (a press on the third tick after touchdown still counts)
+    const g = w.landGrace;
+    n.landGrace = null;
+    if (g.stumbled) ev('stumble', { peakDecel: g.peakDecel });
+    if (g.hurt) { n.outcome = 'hurt'; ev('hard-landing', { impact: g.impact, peakDecel: g.peakDecel, rolled: false, squat: g.squat }); return { ...n, events }; }
+  }
+
   if (w.mode === 'wall') return stepWall(w, course);
   if (w.mode === 'swing') return stepSwing(w, input, course);
   if (w.mode === 'bounce') return stepBounce(w, input);
@@ -112,20 +120,13 @@ export function stepWorld(w: WorldState, input: RunnerInput, course: CourseData,
     }
   }
 
-  // a stumble or hard landing waits ROLL_FORGIVE_TICKS: an X pressed in that time is forgiven and the landing becomes the roll; otherwise the landing counts now
-  if (w.landGrace) {
+  // a stumble or hard landing waits ROLL_FORGIVE_TICKS: an X pressed in that time is forgiven and the landing becomes the roll
+  if (w.landGrace && input.roll && w.mode === 'run') {
     const g = w.landGrace;
-    if (input.roll) {
-      const redone = step(g.before, { ...g.input, roll: true }, p, course.terrain); // the same touchdown, rolled
-      const since = tick - g.landTick;
-      ev('roll', { vx: redone.vx, late: true });
-      return { ...n, runner: { ...redone, tick, x: redone.x + redone.vx * DT * since }, rolledAt: tick, landGrace: null, rollArmed: false, events };
-    }
-    if (tick >= g.until) {
-      n.landGrace = null;
-      if (g.stumbled) ev('stumble', { peakDecel: g.peakDecel });
-      if (g.hurt) { n.outcome = 'hurt'; ev('hard-landing', { impact: g.impact, peakDecel: g.peakDecel, rolled: false, squat: g.squat }); n.events = events; return { ...n, events }; }
-    }
+    const redone = step(g.before, { ...g.input, roll: true }, p, course.terrain); // the same touchdown, rolled
+    const since = tick - g.landTick;
+    ev('roll', { vx: redone.vx, late: true });
+    return { ...n, runner: { ...redone, tick, x: redone.x + redone.vx * DT * since }, rolledAt: tick, landGrace: null, rollArmed: false, events };
   }
 
   // the ground roll (X on the ground, standing or running; a fresh press, not the one still held from a landing roll)
@@ -247,7 +248,7 @@ export function stepWorld(w: WorldState, input: RunnerInput, course: CourseData,
   }
 
   // finish: standing on the finish platform past the line
-  if (n.outcome === 'running' && r.grounded && r.x >= course.finishX && n.mode === 'run') { n.outcome = 'cleared'; ev('cleared'); }
+  if (n.outcome === 'running' && r.grounded && r.x >= course.finishX && n.mode === 'run' && !n.landGrace) { n.outcome = 'cleared'; ev('cleared'); }
   n.events = events;
   return n;
 }
