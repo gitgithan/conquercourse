@@ -25,7 +25,7 @@ describe('landing', () => {
     near(stiff.peakDecel, 4 / stiff.stopTime, 1e-12);
   });
   it('a hard landing stumbles stiff-legged and is fine with a squat', () => {
-    const v = Math.sqrt(2 * GRAVITY * 2.5); // dropping 2.5 m
+    const v = Math.sqrt(2 * GRAVITY * 2); // dropping 2 m (stiff-legged, 2.5 m is already a hard landing: CC-56)
     expect(landing(v, false).stumbled).toBe(true);
     expect(landing(v, true).stumbled).toBe(false);
   });
@@ -33,8 +33,8 @@ describe('landing', () => {
     expect(landing(Math.sqrt(2 * GRAVITY * 0.2), false).stumbled).toBe(false);
   });
   it('a stumble costs forward speed, a squat does not', () => {
-    const drop: Terrain = { platforms: [{ x0: -50, x1: 3, top: 2.5 }, { x0: 3.001, x1: 100, top: 0 }], waterY: -2 };
-    const from = { ...startState(), y: 2.5, vx: 6 };
+    const drop: Terrain = { platforms: [{ x0: -50, x1: 3, top: 2 }, { x0: 3.001, x1: 100, top: 0 }], waterY: -2 };
+    const from = { ...startState(), y: 2, vx: 6 };
     const land = (squat: boolean) => {
       let s = from;
       for (let i = 0; i < 120 * 5 && !s.landing; i++) s = step(s, { ...sprinting, squat }, P, drop);
@@ -115,12 +115,12 @@ describe('momentum carries (R2-G5)', () => {
     expect(s.landing!.stumbled).toBe(false);
     expect(s.vx).toBeGreaterThan(7.9);
   });
-  it('a fall from 3 m without bending the knees still stumbles and loses speed', () => {
+  it('a fall from 3 m without bending the knees is a hard landing: the run stops dead', () => {
     const drop: Terrain = { platforms: [{ x0: -50, x1: 3, top: 3 }, { x0: 3.001, x1: 100, top: 0 }], waterY: -2 };
     let s = { ...startState(), y: 3, vx: 8 };
     for (let i = 0; i < 600 && !s.landing; i++) s = step(s, { ...NO_INPUT, run: true }, P, drop);
-    expect(s.landing!.stumbled).toBe(true);
-    expect(s.vx).toBeLessThan(4);
+    expect(s.landing!.hurt).toBe(true);
+    expect(s.vx).toBe(0);
   });
   it('bending the knees on that fall keeps the speed', () => {
     const drop: Terrain = { platforms: [{ x0: -50, x1: 3, top: 3 }, { x0: 3.001, x1: 100, top: 0 }], waterY: -2 };

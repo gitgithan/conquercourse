@@ -158,7 +158,7 @@ const landingExp: Experiment = {
   sayings: ['Soft knees, safe landing: the same stop, spread over more time.'],
   run(v) {
     const impact = Math.sqrt(2 * GRAVITY * v.drop);
-    const rep = landing(impact, true, { ...DEFAULT_LANDING, squatStopTime: v.bend });
+    const rep = landing(impact, true, { ...DEFAULT_LANDING, squatStopTime: v.bend, squatTravel: undefined });
     // push against time: a block as wide as the stopping time and as tall as the push; its area is the speed you lose (always the impact speed)
     const F = rep.peakDecel;
     const path: Point[] = [{ x: 0, y: 0 }, { x: 0, y: F }, { x: v.bend, y: F }, { x: v.bend, y: 0 }];

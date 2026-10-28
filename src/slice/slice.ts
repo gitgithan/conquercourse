@@ -1,3 +1,4 @@
+import { LANE_DROP } from '../sim/drop';
 import type { CourseData } from '../course/course';
 import type { Platform } from '../sim/terrain';
 import { searchIdealRun } from '../sim/ideal';
@@ -10,7 +11,8 @@ import { gapSpecs } from '../sim/needs';
 
 export interface Mesh { positions: ArrayLike<number>; indices?: ArrayLike<number> } // xyz triples; triangles if indices are given
 
-export const BAND = 4.3; // m of height above the slice level the moves can handle (the Warped Wall's height)
+// No cap on the height above the level: what a runner can reach is decided by the moves (a step above a jump is simply not a course),
+// and what it can survive going down by the landing physics (LANE_DROP, src/sim/drop.ts).
 export const HALF_LANE = 1; // m each side of the lane's middle
 export const CELL = 0.1; // m along the run
 
@@ -45,11 +47,10 @@ export function sliceProfile(samples: Float32Array, centre: { x: number; z: numb
   let lo = Infinity, hi = -Infinity;
   for (let i = 0; i < samples.length; i += 3) {
     const x = samples[i] - centre.x, z = samples[i + 2] - centre.z, y = samples[i + 1] - o.level;
-    if (Math.abs(x * nx + z * nz - o.offset) > HALF_LANE || y < 0) continue; // outside the lane, or below the level (water)
+    if (Math.abs(x * nx + z * nz - o.offset) > HALF_LANE || y < -LANE_DROP) continue; // outside the lane, or further below the level than a runner can drop (water)
     const u = Math.floor((x * dx + z * dz) / CELL);
     lo = Math.min(lo, u); hi = Math.max(hi, u);
-    const h = Math.min(y, BAND);
-    if (h > (tops.get(u) ?? -1)) tops.set(u, h);
+    if (y > (tops.get(u) ?? -Infinity)) tops.set(u, y);
   }
   if (lo > hi) return { cells: [], length: 0 };
   const cells: (number | null)[] = [];
@@ -58,7 +59,7 @@ export function sliceProfile(samples: Float32Array, centre: { x: number; z: numb
 }
 
 // What a lane contains, and how interesting it is for a runner.
-export interface SliceReport { gaps: number; steps: number; curves: number; faces: number; length: number; variety: number; maxRise: number; score: number }
+export interface SliceReport { gaps: number; steps: number; curves: number; faces: number; length: number; variety: number; maxRise: number; maxDrop: number; score: number }
 
 export const JUMPABLE = 0.9; // m: the highest step up a jump from a run can make (the take-off speed 4.5 m/s lifts about 1 m)
 
@@ -68,13 +69,13 @@ const STEP_M = 0.25; // a jump in height this big between neighbouring cells is 
 export function describe(profile: Profile): SliceReport {
   const c = profile.cells;
   let gaps = 0, steps = 0, faces = 0, curved = 0, run = 0, curveCells = 0;
-  let gapLen = 0, prev: number | null = null, lastGround = -1, lastH: number | null = null, maxRise = 0;
+  let gapLen = 0, prev: number | null = null, lastGround = -1, lastH: number | null = null, maxRise = 0, maxDrop = 0;
   for (let i = 0; i < c.length; i++) {
     const h = c[i];
     if (h === null) { gapLen++; continue; }
     if (gapLen * CELL >= MIN_GAP_M && lastGround >= 0) gaps++;
     gapLen = 0;
-    if (lastH !== null) maxRise = Math.max(maxRise, h - lastH); // up from the last ground, across any gap
+    if (lastH !== null) { maxRise = Math.max(maxRise, h - lastH); maxDrop = Math.max(maxDrop, lastH - h); } // up or down from the last ground, across any gap
     lastH = h;
     if (prev !== null && Math.abs(h - prev) >= STEP_M) { if (Math.abs(h - prev) >= 1.2) faces++; else steps++; }
     if (prev !== null && Math.abs(h - prev) > 0.004 && Math.abs(h - prev) < STEP_M * 0.35) { curveCells++; run++; } else { if (run * CELL >= 1) curved++; run = 0; }
@@ -86,7 +87,7 @@ export function describe(profile: Profile): SliceReport {
   const variety = [gaps, steps, curved, faces].filter((n) => n > 0).length;
   const lengthScore = length < 12 ? -2 : length > 70 ? -1 : 1;
   const score = 2 * variety + 0.5 * Math.min(gaps + steps + curved + faces, 8) + lengthScore - 2 * Math.max(0, faces - 2);
-  return { gaps, steps, curves: curved, faces, length, variety, maxRise, score };
+  return { gaps, steps, curves: curved, faces, length, variety, maxRise, maxDrop, score };
 }
 
 // The lane as a course: a start deck, then each stretch of ground with its real outline, with real gaps (bridged if tiny, capped if huge).
@@ -131,13 +132,16 @@ export function laneToCourse(profile: Profile, name = 'Slice', holds: { u: numbe
     platforms.push({ x0: round(x0), x1: round(x1), top: round(top), ...(flat ? {} : { profile: pts.map(([px, py]) => [round(px), round(py)] as [number, number]) }) });
     x = x1;
   });
-  platforms.push({ x0: round(x + 3), x1: round(x + 11), top: 0 });
+  const lastH = merged.length ? (c[merged[merged.length - 1].b] as number) : 0;
+  const endTop = lastH > 1 ? lastH - 1 : Math.min(0, lastH); // the finish deck: a metre below a high ending (a short drop across the gap), the old flat deck after a low one, level with a deep one
+  platforms.push({ x0: round(x + 3), x1: round(x + 11), top: round(endTop) });
+  const lowest = Math.min(0, endTop, ...platforms.map((p) => Math.min(p.top, ...(p.profile ?? []).map(([, py]) => py))));
   const mapped = holds.map((h) => {
     let best = uMap[0], d = Infinity;
     for (const r of uMap) { const dd = h.u < r.u0 ? r.u0 - h.u : h.u > r.u1 ? h.u - r.u1 : 0; if (dd < d) { d = dd; best = r; } }
     return best ? { x: round(h.u + (best.x0 - best.u0)), y: round(h.y) } : null;
   }).filter((h): h is { x: number; y: number } => h !== null).sort((a, b) => a.x - b.x);
-  return { version: 1, name, startX: 0, finishX: round(x + 5), jumpSpeed: 4.5, terrain: { waterY: -1.5, platforms }, uMap, ...(mapped.length ? { holds: mapped, jumpKeep: 0.88 } : {}) };
+  return { version: 1, name, startX: 0, finishX: round(x + 5), jumpSpeed: 4.5, terrain: { waterY: Math.min(-1.5, round(lowest - 1.5)), platforms }, uMap, ...(mapped.length ? { holds: mapped, jumpKeep: 0.88 } : {}) };
 }
 const round = (v: number) => Math.round(v * 100) / 100;
 
@@ -161,7 +165,7 @@ export function bestSlices(mesh: Mesh, opts: { angles?: number; offsets?: number
   for (let i = 0; i < samples.length; i += 3) { minX = Math.min(minX, samples[i]); maxX = Math.max(maxX, samples[i]); minY = Math.min(minY, samples[i + 1]); maxY = Math.max(maxY, samples[i + 1]); minZ = Math.min(minZ, samples[i + 2]); maxZ = Math.max(maxZ, samples[i + 2]); }
   const centre = opts.centre ?? { x: (minX + maxX) / 2, z: (minZ + maxZ) / 2 }; // the rod: the middle of the scene unless the caller has its own (the editor's is the origin)
   const turns = opts.angles ?? 18; // 10 degree steps over half a turn (the other half is the same lane run backwards)
-  const levels = opts.levels ?? [minY, minY + 0.5, minY + 1];
+  const levels = opts.levels ?? [minY, minY + 0.5, minY + 1, minY + 3, minY + 6]; // the higher levels start the lane on a roof, so the way down is a drop
   const all: Candidate[] = [];
   for (let k = 0; k < turns; k++) for (const offset of offsetsFor(samples, centre, (Math.PI * k) / turns, opts.offsets)) for (const level of levels) {
     const o = { angle: (Math.PI * k) / turns, offset, level };
@@ -169,6 +173,7 @@ export function bestSlices(mesh: Mesh, opts: { angles?: number; offsets?: number
     if (profile.length < 8) continue;
     const report = describe(profile);
     if (report.maxRise > JUMPABLE) continue; // a step no jump can make: not a course
+    if (report.maxDrop > LANE_DROP) continue; // a fall no roll survives: not a course
     all.push({ ...o, profile, report });
   }
   all.sort((a, b) => b.report.score - a.report.score);

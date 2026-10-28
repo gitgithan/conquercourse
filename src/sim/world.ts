@@ -11,12 +11,13 @@ import { DEFAULT_HANG, feetOf, hangStep, releaseHang, tryGrab, type Hang } from 
 
 // One world for the Course: the runner plus whichever obstacle has hold of the runner right now.
 // The simulator is the truth: everything the screen shows comes from this state, one tick at a time.
+export const ROLL_BUFFER = 30; // ticks (a quarter of a second): a C press this long before touchdown still rolls
 export type Mode = 'run' | 'wall' | 'swing' | 'bounce' | 'hang' | 'vault';
-export type Outcome = 'running' | 'cleared' | 'splash';
+export type Outcome = 'running' | 'cleared' | 'splash' | 'hurt'; // hurt: a landing harder than the body can take
 
 export interface GameEvent {
   tick: number;
-  type: 'jump' | 'land' | 'stumble' | 'splash' | 'wall-grab' | 'wall-slide' | 'rope-catch' | 'rope-release' | 'hang-catch' | 'hang-release' | 'vault' | 'bounce' | 'cleared';
+  type: 'jump' | 'land' | 'stumble' | 'hard-landing' | 'splash' | 'wall-grab' | 'wall-slide' | 'rope-catch' | 'rope-release' | 'hang-catch' | 'hang-release' | 'vault' | 'bounce' | 'cleared';
   detail?: Record<string, number | boolean>;
 }
 
@@ -33,6 +34,7 @@ export interface WorldState {
   noCatchUntil: number;
   lastPress: number; // tick of the last Space press, so a press just before landing counts
   lastVault: number; // tick of the last V press, so a press a moment before the obstacle still vaults it
+  lastRoll: number; // tick of the last C press, so a press a quarter of a second before touchdown still rolls
   events: GameEvent[];
 }
 
@@ -40,7 +42,7 @@ export interface WorldState {
 export function newWorld(course: CourseData, x: number = course.startX): WorldState {
   const r = startState(x);
   r.y = groundAt(course.terrain, x);
-  return { runner: r, mode: 'run', outcome: 'running', wall: null, swing: null, hang: null, vault: null, energy: 1, bed: null, noCatchUntil: 0, lastPress: -1000, lastVault: -1000, events: [] };
+  return { runner: r, mode: 'run', outcome: 'running', wall: null, swing: null, hang: null, vault: null, energy: 1, bed: null, noCatchUntil: 0, lastPress: -1000, lastVault: -1000, lastRoll: -1000, events: [] };
 }
 
 const wallParams = (c: CourseData): WallParams => ({ ...DEFAULT_WALL, ...(c.wall ?? {}) });
@@ -48,11 +50,12 @@ const ropeParams = (c: CourseData): RopeParams => ({ ...DEFAULT_ROPE, ...(c.rope
 
 export function stepWorld(w: WorldState, input: RunnerInput, course: CourseData, p: RunnerParams = DEFAULT_PARAMS): WorldState {
   if (w.outcome !== 'running') return { ...w, runner: { ...w.runner, tick: w.runner.tick + 1 } };
-  const input2: RunnerInput = input.jump && w.runner.grounded && w.mode === 'run' ? { ...input, jumpSpeed: course.jumpSpeed } : input;
+  const rolling = input.roll || w.runner.tick + 1 - w.lastRoll <= ROLL_BUFFER;
+  const input2: RunnerInput = { ...(input.jump && w.runner.grounded && w.mode === 'run' ? { ...input, jumpSpeed: course.jumpSpeed } : input), roll: rolling };
   const events: GameEvent[] = [];
   const tick = w.runner.tick + 1;
   const ev = (type: GameEvent['type'], detail?: GameEvent['detail']) => events.push({ tick, type, detail });
-  let n: WorldState = { ...w, lastPress: input.jump ? w.runner.tick + 1 : w.lastPress, lastVault: input.vault ? w.runner.tick + 1 : w.lastVault };
+  let n: WorldState = { ...w, lastPress: input.jump ? w.runner.tick + 1 : w.lastPress, lastVault: input.vault ? w.runner.tick + 1 : w.lastVault, lastRoll: input.roll ? w.runner.tick + 1 : w.lastRoll };
 
   if (w.mode === 'wall') return stepWall(w, course);
   if (w.mode === 'swing') return stepSwing(w, input, course);
@@ -75,8 +78,9 @@ export function stepWorld(w: WorldState, input: RunnerInput, course: CourseData,
   if (before.grounded && !r.grounded && input2.jump) { ev('jump', { vy: r.vy, vx: r.vx, x: r.x }); n.energy = Math.max(0, w.energy - JUMP_COST); if (course.jumpKeep !== undefined && course.jumpKeep !== 1) n.runner = { ...r, vx: r.vx * course.jumpKeep }; }
   if (!before.grounded && r.grounded && r.landing) {
     const plat = standingOn(course.terrain, r.x);
-    ev('land', { impact: r.landing.impactSpeed, peakDecel: r.landing.peakDecel, squat: r.landing.squatted, bouncy: !!plat?.bouncy });
+    ev('land', { impact: r.landing.impactSpeed, peakDecel: r.landing.peakDecel, squat: r.landing.squatted, rolled: r.landing.rolled, bouncy: !!plat?.bouncy });
     if (r.landing.stumbled && !plat?.bouncy) ev('stumble', { peakDecel: r.landing.peakDecel });
+    if (r.landing.hurt && !plat?.bouncy) { n.outcome = 'hurt'; ev('hard-landing', { impact: r.landing.impactSpeed, peakDecel: r.landing.peakDecel, rolled: r.landing.rolled, squat: r.landing.squatted }); }
     if (plat?.bouncy) {
       const base = bounce(r.landing.impactSpeed, DEFAULT_TRAMPOLINE);
       n.mode = 'bounce';

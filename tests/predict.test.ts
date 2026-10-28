@@ -41,7 +41,7 @@ describe('release preview', () => {
     let w = newWorld(c, 0);
     const verdicts: string[] = [];
     for (let i = 0; i < 120 * 40 && w.outcome === 'running'; i++) {
-      w = stepWorld(w, inputFor(plan, w, st), c);
+      w = stepWorld(w, inputFor(plan, w, st, c), c);
       if (w.mode === 'hang' && i % 20 === 0) verdicts.push(predictRelease(w, c).result);
     }
     expect(verdicts.length).toBeGreaterThan(5);
