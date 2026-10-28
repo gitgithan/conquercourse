@@ -1054,3 +1054,42 @@ The set of obstacle shapes is fixed, and each shape offers a fixed set of moves.
 - **Chosen photos:** only wide views with no person who can be recognised; a distant crowd is too small to identify.
   - Five candidates were left out (a flag on a balcony, a street with pedestrians, a promenade crowd, a panorama too wide to scale, and two with people at the edge).
 - **Known gap:** the photos show the place from a hill, the water or the street, while the course is one slice through it.
+## Performance (CC-75)
+- **So what:** the places and the coaster were already cheap (5 to 12 draws), so the win is for crowded editor courses: 300 loose pieces went from 167 draws to 11, and a city of 3,000 buildings draws half the triangles.
+- **Overlay:** `?perf=1` or key P shows it in the Course, the editor 3D view and the map.
+  - It shows the frame time and fps, draws, triangles, meshes, instanced meshes and their instances, geometries, textures, the renderer, the simulator step cost and the heap.
+  - The same numbers are written to `<html data-perf>` as JSON for scripts.
+  - The map shows only the frame time, because MapLibre does not expose its draw counts.
+- **What was merged** (`src/render/static-merge.ts`, used by `src/modes/course.ts`):
+  - **Decks:** one mesh per material (grass, stone, bed) instead of one per deck.
+  - **Loose pieces:** raw meshes are merged into one mesh and, over 20,000 triangles, cut into 64 m chunks so the renderer skips the chunks it cannot see.
+  - **Photo objects:** the same file used several times is loaded once and drawn as an instanced mesh per 8 m of the run, so far-apart copies are still culled apart.
+  - **Cups and the editor's plain pieces:** one shared material each instead of one per piece.
+  - **Far chunks:** a big place stops drawing chunks more than 260 m from the camera.
+- **Numbers** (software GPU, best of two runs, same machine; `data/eval/cc-75-perf/before.json` and `after.json`):
+
+| Scene | Draws before | Draws after | Triangles before | Triangles after | Render ms before | Render ms after |
+|---|---|---|---|---|---|---|
+| Montmartre | 5 | 5 | 12,751 | 12,763 | 43 | 46 |
+| San Francisco hill | 5 | 5 | 13,045 | 13,057 | 50 | 41 |
+| Coaster | 12 | 12 | 15,133 | 15,133 | 35 | 24 |
+| Stacks | 7 | 6 | 14,081 | 14,081 | 37 | 39 |
+| 300 pieces, 30 benches, 12 stacks | 167 | 11 | 85,697 | 139,901 | 128 | 62 |
+| 3,000 buildings in one mesh | 6 | 17 | 46,229 | 24,340 | 167 | 137 |
+
+- **The trade, in words:**
+  - **Crowded courses:** fewer draws cost more triangles, because an instanced mesh is drawn whole when any copy shows.
+    - That is the right trade on a real graphics card, where draws cost the processor and triangles are cheap.
+    - It was also faster here.
+  - **Big city:** chunking draws more calls but half the triangles.
+  - **Places and coaster:** already small, so they did not change.
+    - Times of 20 to 50 ms are noise from other work on the machine.
+- **Frustum culling:** it is on everywhere.
+  - Only the skinned Rookie and the debug lines turn it off, and the Rookie must, because its bounds are the bind pose.
+- **Dispose on mode change:** nothing to do, because switching mode reloads the page.
+  - The Course does not rebuild its scene on restart.
+- **Check:** `npm run perf` loads the six reference scenes and fails if draws or triangles go over `scripts/perf-budget.json` (about 30% above today's numbers).
+- **Known gaps:**
+  - Software-GPU times are relative, not what a real graphics card gives.
+  - The editor 3D view was only given shared materials; its pieces stay separate because each can be picked and dragged.
+  - The map piece is already one mesh, so the Slicer (CC-72) can draw several cut planes without a draw-call problem, but a place of thousands of buildings should be cut into chunks when it is built (the Course does it on load).
