@@ -58,7 +58,7 @@
         "move_check": {
           "ok": false,
           "standing_hips_m": 0.73,
-          "down_s": 0.0,
+          "down_s": 0,
           "forward_turn_deg": 24.3,
           "max_trunk_turn_deg": 24.3,
           "starts_upright": false
@@ -71,7 +71,7 @@
         "move_check": {
           "ok": false,
           "standing_hips_m": 0.96,
-          "down_s": 0.0,
+          "down_s": 0,
           "forward_turn_deg": 9.9,
           "max_trunk_turn_deg": 9.9,
           "starts_upright": true
@@ -123,7 +123,7 @@
         "move_check": {
           "ok": false,
           "standing_hips_m": 0.94,
-          "down_s": 0.0,
+          "down_s": 0,
           "forward_turn_deg": 66.4,
           "max_trunk_turn_deg": 66.4,
           "starts_upright": true
@@ -144,7 +144,7 @@
       "move_check": {
         "ok": false,
         "standing_hips_m": 0.73,
-        "down_s": 0.0,
+        "down_s": 0,
         "forward_turn_deg": 24.3,
         "max_trunk_turn_deg": 24.3,
         "starts_upright": false
@@ -162,7 +162,7 @@
       "move_check": {
         "ok": false,
         "standing_hips_m": 0.96,
-        "down_s": 0.0,
+        "down_s": 0,
         "forward_turn_deg": 9.9,
         "max_trunk_turn_deg": 9.9,
         "starts_upright": true
@@ -237,7 +237,7 @@
       "move_check": {
         "ok": false,
         "standing_hips_m": 0.94,
-        "down_s": 0.0,
+        "down_s": 0,
         "forward_turn_deg": 66.4,
         "max_trunk_turn_deg": 66.4,
         "starts_upright": true
