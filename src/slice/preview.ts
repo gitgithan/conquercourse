@@ -1,6 +1,8 @@
 import type { Advice, Change, LaneSetting } from './advice';
 import type { Edit } from './designer';
 import { realSize, type Piece, type Role } from './world';
+import { DEFAULT_TREBUCHET } from '../sim/trebuchet';
+import type { Machine } from './launch-lane';
 
 // Preview before apply: every way the editor can change the layout (Fix it, the design partner's changes, one piece of advice) first becomes a
 // Proposal, a list of things that would move from where to where. Nothing is applied until the player says so; each change can be switched off.
@@ -8,7 +10,8 @@ import { realSize, type Piece, type Role } from './world';
 export interface PieceState { x: number; y: number; z: number; yaw: number; scale: number; role?: Role }
 export type Item =
   | { kind: 'piece'; id: number; name: string; from: PieceState; to: PieceState; words: string; on: boolean }
-  | { kind: 'lane'; key: keyof LaneSetting; from: number; to: number; words: string; on: boolean };
+  | { kind: 'lane'; key: keyof LaneSetting; from: number; to: number; words: string; on: boolean }
+  | { kind: 'machine'; key: 'counterweight' | 'short' | 'pin'; from: number | null; to: number; words: string; on: boolean }; // a setting of the trebuchet at the start of the lane
 export interface Proposal { source: 'fixit' | 'partner' | 'advice' | 'role' | 'shortcut' | 'easier'; title: string; items: Item[]; steps: string[]; known?: boolean } // known: the simulator already proved the all-on result
 
 const stateOf = (p: Piece): PieceState => ({ x: p.x, y: p.y, z: p.z, yaw: p.yaw, scale: p.scale, role: p.role ?? 'ground' });
@@ -50,8 +53,25 @@ function laneWords(key: keyof LaneSetting, from: number, to: number): string {
   return to > from ? `Raise the water ${metres(to - from)} (the lane starts higher up).` : `Lower the water ${metres(to - from)}.`;
 }
 
+function machineWords(key: 'counterweight' | 'short' | 'pin', from: number | null, to: number): string {
+  if (key === 'counterweight') return `Use a ${to} kg counterweight${from !== null ? ` (now ${from} kg)` : ''}.`;
+  if (key === 'short') return `Change the arm to ${(DEFAULT_TREBUCHET.long / to).toFixed(1)} to 1: the counterweight end ${to.toFixed(2)} m from the pivot${from !== null ? ` (now ${(DEFAULT_TREBUCHET.long / from).toFixed(1)} to 1)` : ''}.`;
+  return `Add a pin at ${to}°: the machine lets the rider go by itself.`;
+}
+
+// The machine settings that differ between two machines become items.
+export function machineItems(from: Machine | null | undefined, to: Machine | null | undefined): Item[] {
+  if (!from || !to) return [];
+  const items: Item[] = [];
+  if (from.counterweight !== to.counterweight) items.push({ kind: 'machine', key: 'counterweight', from: from.counterweight, to: to.counterweight, words: machineWords('counterweight', from.counterweight, to.counterweight), on: true });
+  const sf = from.short ?? DEFAULT_TREBUCHET.short, st = to.short ?? DEFAULT_TREBUCHET.short;
+  if (Math.abs(sf - st) > 1e-9) items.push({ kind: 'machine', key: 'short', from: sf, to: st, words: machineWords('short', sf, st), on: true });
+  if (to.pin !== undefined && to.pin !== from.pin) items.push({ kind: 'machine', key: 'pin', from: from.pin ?? null, to: to.pin, words: machineWords('pin', from.pin ?? null, to.pin), on: true });
+  return items;
+}
+
 // Everything that differs between two layouts becomes one item (a piece with all its changes, or one lane setting).
-export function diffProposal(source: Proposal['source'], title: string, pieces: Piece[], lane: LaneSetting, nextPieces: Piece[], nextLane: LaneSetting, steps: string[] = [], known?: boolean): Proposal {
+export function diffProposal(source: Proposal['source'], title: string, pieces: Piece[], lane: LaneSetting, nextPieces: Piece[], nextLane: LaneSetting, steps: string[] = [], known?: boolean, machine?: Machine | null, nextMachine?: Machine | null): Proposal {
   const names = labelsOf(pieces), items: Item[] = [];
   for (const p of pieces) {
     const q = nextPieces.find((x) => x.id === p.id);
@@ -59,6 +79,7 @@ export function diffProposal(source: Proposal['source'], title: string, pieces: 
     items.push({ kind: 'piece', id: p.id, name: names.get(p.id)!, from: stateOf(p), to: stateOf(q), words: pieceWords(names.get(p.id)!, lane, stateOf(p), stateOf(q), realSize(p).h), on: true });
   }
   for (const key of ['angle', 'offset', 'level'] as const) if (Math.abs(lane[key] - nextLane[key]) > 1e-6) items.push({ kind: 'lane', key, from: lane[key], to: nextLane[key], words: laneWords(key, lane[key], nextLane[key]), on: true });
+  items.push(...machineItems(machine, nextMachine));
   return { source, title, items, steps, known };
 }
 
@@ -69,9 +90,9 @@ export function applyChange<T extends Piece>(pieces: T[], lane: LaneSetting, id:
     lane: { angle: c.angle ?? lane.angle, offset: c.offset ?? lane.offset, level: c.level ?? lane.level },
   };
 }
-export function fromAdvice<T extends Piece>(pieces: T[], lane: LaneSetting, a: Advice): Proposal {
+export function fromAdvice<T extends Piece>(pieces: T[], lane: LaneSetting, a: Advice, machine?: Machine | null): Proposal {
   const next = applyChange(pieces, lane, a.piece, a.change);
-  return diffProposal('advice', 'A suggested change', pieces, lane, next.pieces, next.lane, [a.text], a.verified || undefined);
+  return diffProposal('advice', 'A suggested change', pieces, lane, next.pieces, next.lane, [a.text], a.verified || undefined, machine, a.machine ? a.machine : machine);
 }
 
 // The design partner's edits (deltas, a scale factor, a turn), applied in order to copies.
@@ -88,15 +109,17 @@ export function fromEdits<T extends Piece>(pieces: T[], lane: LaneSetting, edits
 }
 
 // The layout after the switched-on changes. The pieces are copies; the originals are never touched.
-export function resultOf<T extends Piece>(pieces: T[], lane: LaneSetting, proposal: Proposal): { pieces: T[]; lane: LaneSetting } {
+export function resultOf<T extends Piece>(pieces: T[], lane: LaneSetting, proposal: Proposal, machine?: Machine | null): { pieces: T[]; lane: LaneSetting; machine: Machine | null } {
   const next = pieces.map((p) => ({ ...p })), l = { ...lane };
+  let m: Machine | null = machine ? { ...machine } : null;
   for (const it of proposal.items) {
     if (!it.on) continue;
     if (it.kind === 'lane') { l[it.key] = it.to; continue; }
+    if (it.kind === 'machine') { if (m) m = { ...m, [it.key]: it.to }; continue; }
     const p = next.find((q) => q.id === it.id);
     if (p) { p.x = it.to.x; p.y = it.to.y; p.z = it.to.z; p.yaw = it.to.yaw; p.scale = it.to.scale; p.role = it.to.role === 'ground' ? undefined : it.to.role; }
   }
-  return { pieces: next, lane: l };
+  return { pieces: next, lane: l, machine: m };
 }
 
 export const enabledCount = (p: Proposal) => p.items.filter((i) => i.on).length;

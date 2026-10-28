@@ -103,9 +103,9 @@ export function roleCourse(pieces: P[], lane: LaneSetting, name = 'My world'): R
   return { course, notes, length: pr.length };
 }
 
-export const clears = (pieces: P[], lane: LaneSetting): boolean => {
+export const clears = (pieces: P[], lane: LaneSetting, wrap?: (c: CourseData) => CourseData): boolean => {
   const { course, length } = roleCourse(pieces, lane, 'roles proof');
-  return length >= 8 && searchIdealRun(course).cleared; // under 8 m of ground is not a lane
+  return length >= 8 && searchIdealRun(wrap ? wrap(course) : course).cleared; // under 8 m of ground is not a lane; wrap puts a machine at its start
 };
 
 // ---- which moves a world has ----
