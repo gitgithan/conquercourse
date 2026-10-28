@@ -9,6 +9,7 @@ import { bestSlices, laneToCourse, surfaceSamples, type Mesh } from '../src/slic
 import { centred } from '../src/slice/world';
 import { sceneFor } from '../src/slice/scene';
 import { searchIdealRun } from '../src/sim/ideal';
+import { fetchGround, groundAt, relief as reliefOf, type Ground } from '../src/world/terrain';
 
 const args = process.argv.slice(2).filter((a) => !a.startsWith('--'));
 const useTerrain = process.argv.includes('--terrain');
@@ -58,42 +59,13 @@ function heightOf(tags: Record<string, string> = {}): { h: number; real: boolean
   return { h: 9, real: false };
 }
 
-// ---- 2. Terrain: Terrarium tiles, height = R*256 + G + B/256 - 32768
-const Z = 15;
-const tileXY = (la: number, lo: number) => { const n = 2 ** Z, x = ((lo + 180) / 360) * n, y = ((1 - Math.log(Math.tan((la * Math.PI) / 180) + 1 / Math.cos((la * Math.PI) / 180)) / Math.PI) / 2) * n; return { x, y }; };
-async function elevationGrid(step = 20): Promise<{ step: number; n: number; h: number[] } | null> {
+// ---- 2. Terrain: Terrarium tiles (shared with the map mode in src/world/terrain.ts)
+async function elevationGrid(step = 20): Promise<Ground | null> {
   const cache = `${dir}/elevation.json`;
-  if (existsSync(cache)) return JSON.parse(readFileSync(cache, 'utf8'));
-  const tiles = new Map<string, { data: Buffer; w: number }>();
-  const get = async (tx: number, ty: number) => {
-    const key = `${tx}/${ty}`;
-    if (!tiles.has(key)) {
-      const r = await fetch(`https://s3.amazonaws.com/elevation-tiles-prod/terrarium/${Z}/${tx}/${ty}.png`, { headers: { 'User-Agent': UA } });
-      if (!r.ok) throw new Error(`terrain tile ${key}: HTTP ${r.status}`);
-      const { data, info } = await sharp(Buffer.from(await r.arrayBuffer())).removeAlpha().raw().toBuffer({ resolveWithObject: true });
-      tiles.set(key, { data, w: info.width });
-    }
-    return tiles.get(key)!;
-  };
-  const px = async (X: number, Y: number) => { // X, Y in tile units (float)
-    const t = await get(Math.floor(X), Math.floor(Y)), i = (Math.min(255, Math.floor((Y % 1) * 256)) * t.w + Math.min(255, Math.floor((X % 1) * 256))) * 3;
-    return t.data[i] * 256 + t.data[i + 1] + t.data[i + 2] / 256 - 32768;
-  };
-  const n = Math.ceil((2 * radius) / step) + 1, h: number[] = [];
-  for (let j = 0; j < n; j++) for (let i = 0; i < n; i++) {
-    const x = -radius + i * step, z = -radius + j * step; // east, south
-    const t = tileXY(lat - z / mPerDegLat, lon + x / mPerDegLon);
-    h.push(Math.round((await px(t.x, t.y)) * 10) / 10);
-  }
-  const g = { step, n, h };
-  writeFileSync(cache, JSON.stringify(g));
+  if (existsSync(cache)) return { radius, ...JSON.parse(readFileSync(cache, 'utf8')) } as Ground;
+  const g = await fetchGround(lat, lon, radius, async (png) => { const { data, info } = await sharp(Buffer.from(png)).removeAlpha().raw().toBuffer({ resolveWithObject: true }); return { data, width: info.width, channels: 3 }; }, { step });
+  writeFileSync(cache, JSON.stringify({ step: g.step, n: g.n, h: g.h }));
   return g;
-}
-function groundAt(g: { step: number; n: number; h: number[] } | null, x: number, z: number): number {
-  if (!g) return 0;
-  const fi = Math.min(g.n - 1.001, Math.max(0, (x + radius) / g.step)), fj = Math.min(g.n - 1.001, Math.max(0, (z + radius) / g.step));
-  const i = Math.floor(fi), j = Math.floor(fj), a = fi - i, b = fj - j, H = (ii: number, jj: number) => g.h[jj * g.n + ii];
-  return H(i, j) * (1 - a) * (1 - b) + H(i + 1, j) * a * (1 - b) + H(i, j + 1) * (1 - a) * b + H(i + 1, j + 1) * a * b;
 }
 
 // ---- 3. Extrude: walls plus a flat roof, one vertex set per face so the picture has flat shading
@@ -119,7 +91,7 @@ function earClip(p: [number, number][]): number[][] { // returns triangles as in
 }
 interface Building { ring: [number, number][]; h: number; real: boolean }
 
-function buildMesh(bs: Building[], ground: { step: number; n: number; h: number[] } | null, k: number) {
+function buildMesh(bs: Building[], ground: Ground | null, k: number) {
   const pos: number[] = [], nor: number[] = [], idx: number[] = [];
   const quad = (a: number[], b: number[], c: number[], d: number[], n: number[]) => { const o = pos.length / 3; for (const v of [a, b, c, d]) { pos.push(...v); nor.push(...n); } idx.push(o, o + 1, o + 2, o, o + 2, o + 3); };
   for (const b of bs) {
@@ -168,7 +140,7 @@ for (const e of osm.elements) {
 const ground = useTerrain ? await elevationGrid().catch((e) => { console.log('terrain skipped:', (e as Error).message); return null; }) : null;
 const heights = buildings.map((b) => b.h).sort((a, b) => a - b);
 const median = heights[Math.floor(heights.length / 2)] ?? 9;
-const relief = ground ? Math.max(...ground.h) - Math.min(...ground.h) : 0;
+const relief = reliefOf(ground);
 // "auto": start with a typical building about 5 m, then shrink by 0.6 each time until the search finds a lane it can clear (at most 5 tries)
 const ladder = shrinkS === 'auto' ? Array.from({ length: 5 }, (_, i) => Math.min(1, Math.max(0.02, 5 / median)) * 0.6 ** i) : [Number(shrinkS)];
 const tries: { shrink: number; lanes: number }[] = [];

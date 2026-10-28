@@ -4,6 +4,7 @@ import * as maplibregl from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
 import workerUrl from 'maplibre-gl/dist/maplibre-gl-worker.mjs?url';
 import { buildingsFrom, MIRRORS, osmToMesh, overpassQuery, type OverpassAnswer } from '../world/osm';
+import { fetchGround, relief, TERRAIN_ATTRIBUTION, type Ground, type Tile } from '../world/terrain';
 
 export const PIECE_KEY = 'cc.map.piece';
 const STYLE = 'https://tiles.openfreemap.org/styles/liberty';
@@ -14,6 +15,14 @@ const PLACES = [
   { name: 'Shibuya Crossing, Tokyo', lat: 35.6595, lon: 139.7005 },
   { name: 'Central Park, New York', lat: 40.7829, lon: -73.9654 },
 ];
+
+// A PNG tile to raw pixels in the browser
+async function decodePng(png: ArrayBuffer): Promise<Tile> {
+  const bmp = await createImageBitmap(new Blob([png], { type: 'image/png' }));
+  const c = document.createElement('canvas'); c.width = bmp.width; c.height = bmp.height;
+  const g = c.getContext('2d', { willReadFrequently: true })!; g.drawImage(bmp, 0, 0);
+  return { data: g.getImageData(0, 0, bmp.width, bmp.height).data, width: bmp.width, channels: 4 };
+}
 
 async function overpass(lat: number, lon: number, radius: number, say: (s: string) => void): Promise<OverpassAnswer> {
   const key = `cc.map.overpass:${lat.toFixed(4)},${lon.toFixed(4)},${radius}`; // one query per place
@@ -59,11 +68,12 @@ export function startMap(host: HTMLElement): { backend: 'webgl2' } {
     <div class="muted">Or click the map to drop a pin.</div>
     <label><span>Radius: <b id="radiusv">120</b> m</span><input type="range" id="radius" min="80" max="250" step="10" value="120"></label>
     <label><span>Shrink: <b id="shrinkv">0.2</b> (1 = real size)</span><input type="range" id="shrink" min="0.02" max="1" step="0.01" value="0.2"></label>
+    <label style="grid-auto-flow:column;justify-content:start;gap:6px;align-items:center"><input type="checkbox" id="hills"${q.get('hills') === '0' ? '' : ' checked'}><span>Real hills (ground height from satellite maps)</span></label>
     <div class="muted">Real buildings are 15 to 40 m tall and a runner jumps under 1 m up, so the place is shrunk.</div>
     <button id="build" class="go" disabled>Build this place</button>
     <div id="say" class="say">No pin yet.</div>
     <a class="btn" href="?mode=editor">Back to the editor</a>
-    <div class="muted">Map: OpenFreeMap. Search: Nominatim. Buildings: Overpass. Data © OpenStreetMap contributors (ODbL).</div>`;
+    <div class="muted">Map: OpenFreeMap. Search: Nominatim. Buildings: Overpass. Data © OpenStreetMap contributors (ODbL). ${TERRAIN_ATTRIBUTION}.</div>`;
   const $ = <T extends HTMLElement>(id: string) => side.querySelector('#' + id) as T;
   const radius = $<HTMLInputElement>('radius'), shrink = $<HTMLInputElement>('shrink'), build = $<HTMLButtonElement>('build'), say = $('say'), hits = $('hits');
   const tell = (s: string, bad = false) => { say.textContent = s; say.classList.toggle('bad', bad); };
@@ -110,11 +120,17 @@ export function startMap(host: HTMLElement): { backend: 'webgl2' } {
       const r = Number(radius.value), answer = await overpass(pin.lat, pin.lon, r, (s) => tell(s));
       const bs = buildingsFrom(answer, pin.lat, pin.lon);
       if (!bs.length) { tell('No buildings here. Move the pin and try again.', true); build.disabled = false; return; }
-      const m = osmToMesh(answer, pin.lat, pin.lon, Number(shrink.value));
+      let ground: Ground | null = null;
+      if ($<HTMLInputElement>('hills').checked) {
+        tell('Reading the height of the ground...');
+        try { ground = await fetchGround(pin.lat, pin.lon, r, decodePng); } catch { tell('The height maps did not answer, so the place is built flat.', true); }
+      }
+      const m = osmToMesh(answer, pin.lat, pin.lon, Number(shrink.value), ground);
       const name = (($<HTMLInputElement>('search').value.trim().split(',')[0]) || `${pin.lat.toFixed(3)},${pin.lon.toFixed(3)}`).slice(0, 40);
       const rd = (a: number[]) => a.map((v) => Math.round(v * 100) / 100);
       sessionStorage.setItem(PIECE_KEY, JSON.stringify({ name, positions: rd(m.positions), indices: m.indices }));
-      tell(`Built ${m.buildings} buildings. Opening the editor...`);
+      tell(`Built ${m.buildings} buildings${ground ? `, on a hill of ${Math.round(relief(ground))} m (${m.relief.toFixed(1)} m once shrunk)` : ''}. Opening the editor...`);
+      document.documentElement.dataset.hill = ground ? String(Math.round(relief(ground))) : '0';
       location.search = '?mode=editor';
     } catch (e) { tell((e as Error).message, true); build.disabled = false; }
   };

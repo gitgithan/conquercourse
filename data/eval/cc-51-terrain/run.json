@@ -1,0 +1,37 @@
+{
+  "experiment": "cc-51-terrain",
+  "date": "2026-10-28",
+  "source": "AWS Terrain Tiles (Terrarium, zoom 15) vs Open-Meteo elevation API (Copernicus GLO-90, a surface model that includes buildings and trees) and two facts",
+  "radius_m": 120,
+  "step_m": 20,
+  "passes": [
+    {
+      "place": "Montmartre, Sacre-Coeur (hilly)",
+      "ok": true
+    },
+    {
+      "place": "Paris, Place Pigalle (foot of the hill)",
+      "ok": true
+    },
+    {
+      "place": "San Francisco, Lombard Street top (hilly)",
+      "ok": true
+    },
+    {
+      "place": "San Francisco, Embarcadero (flat, sea level)",
+      "ok": true
+    },
+    {
+      "place": "Barcelona, Eixample (flat)",
+      "ok": true
+    },
+    {
+      "place": "Sydney, Circular Quay (flat, sea level)",
+      "ok": true
+    },
+    {
+      "place": "Denver, State Capitol (flat, Mile High)",
+      "ok": true
+    }
+  ]
+}
