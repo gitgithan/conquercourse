@@ -266,3 +266,14 @@ The set of obstacle shapes is fixed, and each shape offers a fixed set of moves.
 - **Not tested:** the point prompt ("what is the part under this point?"); that is the form the editor would use, so it is the next thing to try.
 - **Cost and time:** about 25 GPU minutes on an L4, an estimate of about $1 (exact figure on the Modal dashboard); the model needs about 70 to 125 s per mesh including load.
 - **Known gap:** six objects, one answer key by one labeller, so a small sample.
+
+## Sounds (CC-53)
+- **So what:** the player now hears the grab and the let-go, so timing on the lache pair can be learned by ear as well as by eye.
+- **How:** plain tones made in code (`src/ui/audio.ts`), so there are no files and no licence to track.
+- **Events:** jump, landing (silent for a soft touch-down), vault, grab (bar, rope or wall), let-go (bar or rope), splash and finish.
+- **Never:** a sound that says how well you did; each sound only says what happened.
+- **Start and mute:** audio wakes on the first key press; M or the small button at the bottom right mutes, and the choice is remembered.
+- **Dojo:** shares the mute switch only, because the Dojo has no simulator events.
+- **Checks:** `tests/audio.test.ts` (fake AudioContext, each event plays once, mute works) and `scripts/sound-check.mjs`.
+- **Bot run on the lache demo:** vault 1, jump 1, grab 2, let-go 2, landing 2, finish 1, no errors.
+- **Not tested:** how it sounds; headless Chromium cannot be heard, so the product owner should listen once.

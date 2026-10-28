@@ -1,3 +1,4 @@
+import { playedSounds, soundButton, soundsFor, startAudio } from '../ui/audio';
 import * as THREE from 'three/webgpu';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import courseJson from '../course/default-course.json';
@@ -426,6 +427,9 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
   document.body.append(diagBox);
   let wallEntry = 0;
   let prevMode: string = 'run', prevVx = 0;
+  let soundCount = 0;
+  let soundedEvents: ReturnType<typeof newWorld>['events'] | null = null;
+  startAudio(); document.body.append(soundButton());
   let lastZone = 'gap';
 
   const debug = createDebugView(scene, course, document.body, params.get('debug') === '1');
@@ -703,6 +707,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
       if (prevMode === 'run' && world.mode === 'wall') wallEntry = prevVx;
       if (demo && (world.outcome !== 'running' || world.runner.x > demo.x1)) demoEnd();
       log.push(...world.events);
+      if (world.events !== soundedEvents) { soundedEvents = world.events; if (!replay) soundsFor(world.events); } // after the end the same events array stays: it sounds once
       for (const e of world.events) {
         if (e.type === 'jump' && keysOpen && !keysTouched) { keysOpen = false; paintKeys(false); } // the controls card has done its job once you have jumped
         if (e.type === 'land' && (e.detail?.impact as number) > 2 && !e.detail?.bouncy) {
@@ -811,6 +816,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
     document.documentElement.dataset.tick = String(r.tick);
     document.documentElement.dataset.x = r.x.toFixed(2); document.documentElement.dataset.omega = (world.hang?.omega ?? 0).toFixed(3); document.documentElement.dataset.grounded = world.runner.grounded ? '1' : '0'; // for the keyboard check
     document.documentElement.dataset.outcome = world.outcome;
+    if (playedSounds().length !== soundCount) { soundCount = playedSounds().length; document.documentElement.dataset.sounds = playedSounds().join(','); } // for the bot check: headless cannot be heard
     document.documentElement.dataset.mode = world.mode;
     requestAnimationFrame(frame);
   }

@@ -23,7 +23,7 @@ describe('mesh census', () => {
     expect(censusProblems(meshCensus(cube(0.001))).join()).toMatch(/scale bug/);
   });
   it('catches a hole (two triangles of one face removed)', () => {
-    const m = cube(), c = meshCensus({ positions: m.positions, indices: m.indices!.slice(6) });
+    const m = cube(), c = meshCensus({ positions: m.positions, indices: Array.from(m.indices!).slice(6) });
     expect(c.openEdges).toBeGreaterThan(0);
     expect(censusProblems(c).join()).toMatch(/open edges/);
   });
