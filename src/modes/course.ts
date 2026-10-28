@@ -224,7 +224,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
   // the controls, always visible top-left as a card of key caps (collapse with H)
   const help = document.createElement('div');
   help.id = 'keys';
-  const KEYS: [string, string][] = [['← →', 'Run (hold)'], ['Space', 'Jump · let go of the rope · press on the trampoline'], ['↓', 'Bend your knees (hold, on big drops)'], ['C', 'Roll out of a big drop (tap just before you land)'], ...(course !== defaultCourse ? ([['Q / E', 'Hold a bar with the left or right hand (in the air)'], ['← → on a bar', 'Pump the swing: push the way you swing'], ['V', 'Vault over a step with a hand on top (fast, saves energy)'], ['F', 'Front view window (it shows by itself on a bar)']] as [string, string][]) : []), ['I', 'Ideal run of this obstacle (Shift+I: the whole course, any key stops it)'], ['G', 'Drums: where the ideal run presses Space'], ['B', 'Debug view: see the collision boxes and where a jump goes'], ['Mouse', 'Drag to turn the view, wheel to zoom, double-click to reset']]; // retry, ideal run and Dojo are on the fall panel and the buttons
+  const KEYS: [string, string][] = [['← →', 'Run (hold)'], ['Space', 'Jump · let go of the rope · press on the trampoline'], ['↓', 'Bend your knees (hold, on big drops)'], ['X', 'Roll out of a big drop (tap just before you land)'], ...(course !== defaultCourse ? ([['Q / E', 'Hold a bar with the left or right hand (in the air)'], ['← → on a bar', 'Pump the swing: push the way you swing'], ['V', 'Vault over a step with a hand on top (fast, saves energy)'], ['F', 'Front view window (it shows by itself on a bar)']] as [string, string][]) : []), ['I', 'Ideal run of this obstacle (Shift+I: the whole course, any key stops it)'], ['G', 'Drums: where the ideal run presses Space'], ['B', 'Debug view: see the collision boxes and where a jump goes'], ['Mouse', 'Drag to turn the view, wheel to zoom, double-click to reset']]; // retry, ideal run and Dojo are on the fall panel and the buttons
   help.style.cssText = 'position:fixed;left:16px;top:48px;width:290px;background:#fffffff0;border:1px solid #cfd6d0;border-radius:12px;padding:8px 10px;font:500 14px system-ui,sans-serif;color:#17201d;box-shadow:0 2px 10px #0002;pointer-events:none;display:grid;gap:5px';
   const paintKeys = (open: boolean) => {
     help.innerHTML = `<div style="font-weight:700;display:flex;justify-content:space-between">Controls <span style="font-weight:400;color:#58635d">H ${open ? 'hides' : 'shows'}</span></div>` + (open ? KEYS.map(([k, d]) => `<div style="display:grid;grid-template-columns:78px 1fr;gap:8px;align-items:center"><kbd style="font:700 13px ui-monospace,monospace;background:#eef1ec;border:1px solid #b9c2bb;border-bottom-width:3px;border-radius:6px;padding:1px 6px;text-align:center">${k}</kbd><span>${d}</span></div>`).join('') : '');
@@ -399,7 +399,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
     keys.add(e.code);
     if (e.code === 'Space') { jumpQueued = true; e.preventDefault(); }
     if (e.code === 'KeyV') vaultQueued = true;
-    if (e.code === 'KeyC') rollQueued = true;
+    if (e.code === 'KeyX') rollQueued = true;
     if (e.code === 'KeyR') { if (e.shiftKey) { retryX = course.startX; restart(course.startX); } else restart(); }
     if (idealWhole && !botMode && e.code !== 'KeyI' && !/^(Shift|Control|Alt|Meta)/.test(e.code)) stopWholeIdeal(); // any key takes the run back
     if (e.code === 'KeyI') { if (e.shiftKey) showWholeIdeal(); else showIdeal(zoneAt(world.runner.x)?.id ?? 'gap'); }
@@ -620,7 +620,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
     const jump = [...log].reverse().find((e) => e.type === 'jump');
     let tip = 'Try again.';
     if (what === 'slide') tip = 'You ran out of speed on the curve. Start the run-up earlier and keep running.';
-    else if (what === 'hurt') tip = 'The ground stopped you too fast. Tap C just before you land to roll: the same fall is spread over more time, and a roll keeps most of your speed.';
+    else if (what === 'hurt') tip = 'The ground stopped you too fast. Tap X just before you land to roll: the same fall is spread over more time, and a roll keeps most of your speed.';
     else if (zone?.id === 'trampoline') tip = 'Press Space at the bottom of the bounce for extra height.';
     else if (zone?.id === 'rope') tip = 'Grab the rope on the way up, then press Space to let go when you are rising.';
     else if (!jump) tip = 'Press Space just before the edge.';

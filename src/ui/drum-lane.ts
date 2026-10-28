@@ -5,7 +5,7 @@ import type { Drum } from '../sim/drums';
 const PX_PER_M = 46;
 const HIT_AT = 0.2; // the hit line sits this far across the lane
 
-const LABEL: Record<Drum['what'], string> = { jump: 'Space', 'let go': 'Let go', bounce: 'Press', vault: 'V', grab: 'Q / E', release: 'Release', roll: 'C' };
+const LABEL: Record<Drum['what'], string> = { jump: 'Space', 'let go': 'Let go', bounce: 'Press', vault: 'V', grab: 'Q / E', release: 'Release', roll: 'X' };
 
 export interface DrumLane {
   set(drums: Drum[]): void;
