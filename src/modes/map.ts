@@ -9,6 +9,7 @@ import { buildingTops, contourSegments, cutBuildings, cutRange, ladderLevels, la
 import { reducedMotion, runFlight, scaleWords } from './map-flight';
 import { loadPhotoIndex, loadPlacePhotos, mountPlacePhotos, nearestPlace, type PhotosHandle } from '../ui/place-photos';
 import type { LaneSummary, SliceAnswer, SliceAsk } from '../slice/slicer-worker';
+import { createPerf } from '../ui/perf';
 
 export const PIECE_KEY = 'cc.map.piece';
 const STYLE = 'https://tiles.openfreemap.org/styles/liberty';
@@ -108,6 +109,8 @@ export function startMap(host: HTMLElement): { backend: 'webgl2' } {
   shrink.oninput = () => { $('shrinkv').textContent = shrink.value; };
 
   const map = new maplibregl.Map({ container: mapEl, style: STYLE, center: [Number(q.get('lon') ?? 2.1649), Number(q.get('lat') ?? 41.3917)], zoom: Number(q.get('z') ?? 15), attributionControl: false, canvasContextAttributes: { preserveDrawingBuffer: true } });
+  const perf = createPerf({ label: 'Map', backend: 'webgl2 (MapLibre)', onDemand: true });
+  map.on('render', () => perf.frame());
   map.addControl(new maplibregl.AttributionControl({ customAttribution: ['© OpenStreetMap contributors', 'OpenFreeMap'], compact: false }), 'bottom-right');
   map.addControl(new maplibregl.NavigationControl({ showCompass: false }), 'top-left');
   const marker = new maplibregl.Marker({ color: '#0f6b5c' });
