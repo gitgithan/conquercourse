@@ -39,6 +39,7 @@ import { topAt } from '../sim/beam';
 import { crestSpeedLimit, railsOf } from '../sim/cart';
 import { installGraphStudio } from './graph-studio';
 import { createPerf, type PerfSource } from '../ui/perf';
+import { chunked, cullFar, mergeStatic, type Part } from '../render/static-merge';
 
 // The Course: the five obstacles in a row. The simulator decides everything; this file only draws it
 // and turns keys into inputs. Time comes from the simulator's tick count, never from the browser's clock.
@@ -121,6 +122,8 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
   // a course from the editor draws its real objects instead of blocks: only the start and finish decks stay as ground
   const realObjects = !!course.scene?.length;
   const lastPlatform = course.terrain.platforms.length - 1;
+  // the decks are merged into one mesh per material (grass, stone, bed): a course with a dozen decks is three draws, not twelve
+  const deckParts: Part[] = [];
   course.terrain.platforms.forEach((p, pi) => {
     if (p.coasterRail) return; // the rails are already drawn by TrackView; this profile exists only for landing collision
     if (realObjects && pi > 0 && pi < lastPlatform) return;
@@ -138,32 +141,59 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
       geo = new THREE.ExtrudeGeometry(shape, { depth: LANE_DEPTH, bevelEnabled: false });
       at = [0, 0, -LANE_DEPTH / 2];
     }
-    const m = new THREE.Mesh(geo, p.bouncy ? bed : p.top === 0 ? grass : stone);
-    m.position.set(...at);
-    scene.add(m);
+    geo.translate(...at);
+    deckParts.push({ geo, mat: p.bouncy ? bed : p.top === 0 ? grass : stone });
     if (p.skin) paintSkin(p);
   });
+  for (const m of mergeStatic(deckParts)) scene.add(m);
+  // the editor's pieces: raw meshes are merged into one mesh (cut into chunks when big, so the renderer skips what it cannot see); cups stay
+  // instanced; the same photo object used several times is loaded once and drawn as one instanced mesh per part
+  const chunks: THREE.Mesh[] = [];
   if (course.scene) {
-    const gl = new GLTFLoader();
+    const gl = new GLTFLoader(), loads = new Map<string, Promise<{ scene: THREE.Group }>>();
+    const loadOnce = (url: string) => { let p = loads.get(url); if (!p) { p = gl.loadAsync(url); loads.set(url, p); } return p; }; // one download and parse per file, however many pieces use it
+    const INSTANCE_CELL = 8; // m along the run
     const matte = new THREE.MeshStandardMaterial({ color: 0xa9a392, roughness: 0.95, flatShading: true });
+    const itemMatrix = (it: NonNullable<typeof course.scene>[number]) => new THREE.Matrix4().compose(
+      new THREE.Vector3(it.x, it.y, it.z), new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 1, 0), it.rotY), new THREE.Vector3(it.scale, it.scale, it.scale));
+    const meshParts: Part[] = [];
+    const byUrl = new Map<string, NonNullable<typeof course.scene>>();
     for (const it of course.scene) {
-      const g = new THREE.Group();
-      g.position.set(it.x, it.y, it.z); g.rotation.y = it.rotY; g.scale.setScalar(it.scale);
-      scene.add(g);
-      if (it.url) {
-        void gl.loadAsync(it.url).then((got) => {
-          const obj = got.scene, box = new THREE.Box3().setFromObject(obj), c = box.getCenter(new THREE.Vector3());
-          obj.position.set(-c.x, -box.min.y, -c.z);
-          g.add(obj);
-        }).catch(() => { /* no picture for this one; its collision still works */ });
-      } else if (it.stack) {
-        g.add(cupsGroup(it.stack));
+      if (it.url) { const key = `${it.url}|${Math.floor(it.x / INSTANCE_CELL)}`; const l = byUrl.get(key) ?? []; l.push(it); byUrl.set(key, l); } // the same object, near each other, is one instanced mesh; far apart stays culled apart
+      else if (it.stack) {
+        const g = new THREE.Group();
+        g.position.set(it.x, it.y, it.z); g.rotation.y = it.rotY; g.scale.setScalar(it.scale);
+        g.add(cupsGroup(it.stack)); scene.add(g);
       } else if (it.mesh) {
         const geo = new THREE.BufferGeometry();
         geo.setAttribute('position', new THREE.Float32BufferAttribute(it.mesh.positions, 3));
         geo.setIndex(it.mesh.indices); geo.computeVertexNormals();
-        g.add(new THREE.Mesh(geo, matte));
+        geo.applyMatrix4(itemMatrix(it));
+        meshParts.push({ geo, mat: matte });
       }
+    }
+    for (const m of chunked(mergeStatic(meshParts))) { scene.add(m); chunks.push(m); }
+    for (const [key, items] of byUrl) {
+      const url = key.slice(0, key.lastIndexOf('|'));
+      void loadOnce(url).then((got) => {
+        const obj = got.scene.clone(true), box = new THREE.Box3().setFromObject(obj), c = box.getCenter(new THREE.Vector3());
+        obj.position.set(-c.x, -box.min.y, -c.z);
+        if (items.length < 2) { // one use: as before
+          const it = items[0], g = new THREE.Group();
+          g.position.set(it.x, it.y, it.z); g.rotation.y = it.rotY; g.scale.setScalar(it.scale);
+          g.add(obj); scene.add(g);
+          return;
+        }
+        obj.updateMatrixWorld(true);
+        obj.traverse((o) => {
+          const part = o as THREE.Mesh;
+          if (!part.isMesh) return;
+          const inst = new THREE.InstancedMesh(part.geometry, part.material, items.length);
+          items.forEach((it, i) => inst.setMatrixAt(i, itemMatrix(it).multiply(part.matrixWorld)));
+          inst.instanceMatrix.needsUpdate = true; inst.computeBoundingSphere();
+          scene.add(inst);
+        });
+      }).catch(() => { /* no picture for this one; its collision still works */ });
     }
   }
   // a picture from a real photo painted on the front of an obstacle (looks only; the obstacle's collision is its box)
@@ -1231,6 +1261,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
       camera.lookAt(tx, ty, 0);
     }
     floor.update(now / 1000);
+    if (chunks.length > 8) cullFar(chunks, camera.position, 260); // far chunks of a big place are not drawn
     perf.renderStart();
     renderer.render(scene, camera);
     perf.renderEnd();
