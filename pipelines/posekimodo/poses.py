@@ -70,16 +70,22 @@ def swing_pose(phi, bar_y=2.1, bar_z=0.0):
     return out + bar
 
 
-def vault_pose(box_y=1.0):
-    """A speed vault over a box, mid-way: the right hand on top, the body leaning over it, both legs swung out to the left."""
-    p = build(torso=(0.15, 1, 0.55), arm_l=(0.3, -0.2, 1), fore_l=(0.2, -0.3, 1), arm_r=(-0.1, -0.6, 0.8), fore_r=(0, -1, 0.3),
-              leg_l=(0.9, -0.25, 0.25), shin_l=(0.55, -0.85, -0.1), leg_r=(0.85, -0.35, 0.2), shin_r=(0.5, -0.85, -0.2), foot=(0.3, -0.3, 0.9))
+def vault_pose(box_y=1.0, tucked=False):
+    """A speed vault over a box, mid-way: the right hand on top, the body leaning over it.
+    Round 1: both legs swung out to the left (the gate calls a knee turned more than 60 degrees from the side axis twisted).
+    Round 2 (tucked): the knees come up in front, so the knees hinge the way a knee does."""
+    if tucked:
+        p = build(torso=(0.1, 1, 0.5), arm_l=(0.3, -0.2, 1), fore_l=(0.2, -0.3, 1), arm_r=(-0.1, -0.6, 0.8), fore_r=(0, -1, 0.3),
+                  leg_l=(0.25, -0.1, 1), shin_l=(0.1, -1, -0.15), leg_r=(0.1, -0.2, 1), shin_r=(0, -1, -0.25), foot=(0, -0.3, 1))
+    else:
+        p = build(torso=(0.15, 1, 0.55), arm_l=(0.3, -0.2, 1), fore_l=(0.2, -0.3, 1), arm_r=(-0.1, -0.6, 0.8), fore_r=(0, -1, 0.3),
+                  leg_l=(0.9, -0.25, 0.25), shin_l=(0.55, -0.85, -0.1), leg_r=(0.85, -0.35, 0.2), shin_r=(0.5, -0.85, -0.2), foot=(0.3, -0.3, 0.9))
     rh = p[IDX["RightHand"]]
-    return p + np.array([0, box_y, 0]) - rh + np.array([0, 0, 0.0])
+    return p + np.array([0, box_y, 0]) - rh
 
 
 def all_poses():
-    return {"hang": hang_pose(), "swing_front": swing_pose(0.5), "swing_back": swing_pose(-0.5), "vault": vault_pose()}
+    return {"hang": hang_pose(), "swing_front": swing_pose(0.5), "swing_back": swing_pose(-0.5), "vault": vault_pose(), "vault_tucked": vault_pose(tucked=True)}
 
 
 if __name__ == "__main__":
