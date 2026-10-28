@@ -23,6 +23,8 @@ import { parseReply, worldBrief, type Edit } from '../slice/designer';
 import { diffProposal, enabledCount, fromAdvice, fromEdits, resultOf, type Proposal } from '../slice/preview';
 import { ROLE_NAME, applySuggestion, movesInWorld, roleCourse, suggestRoles, type Role, type RoleSuggestion } from '../slice/roles';
 import { deviceMesh, RECOIL_PAD_LENGTH, TREBUCHET_PIVOT_FROM_CENTRE } from '../slice/device';
+import { shortcutLine, type Shortcut } from '../sim/shortcuts';
+import { closeShortcut } from '../slice/shortcut-close';
 
 // The World editor (beta): build a world from pieces on a plan view, scale them (a toy brick becomes a block), turn, copy, crop and move them,
 // choose the lane the runner takes (turn about the rod, sideways, level), and play it. Everything is in metres.
@@ -259,6 +261,42 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
   el('button', head, { text: 'Fix it', id: 'fixit', className: 'go', title: 'Show a layout the simulator can clear, before anything changes' }).onclick = () => runFix();
   el('button', head, { text: '✕', id: 'closehelper', title: 'Hide' }).onclick = () => { helper.classList.add('closed'); helperBtn.setAttribute('aria-pressed', 'false'); };
   const adviceBox = el('div', helper, { id: 'advice' });
+  // ---- routes you did not plan (CC-71): the simulator looks for lines that skip an obstacle; Close it previews a change that shuts one, Keep it marks it as meant
+  const designed = new Set<string>();
+  let routes: Shortcut[] = [], routesWorker: Worker | null = null;
+  const routesHead = el('div', helper, { className: 'row', id: 'routeshead' });
+  const findRoutesBtn = el('button', routesHead, { text: 'Look for routes you did not plan', id: 'findroutes', title: 'The simulator tries the course with each bar, wall or rope taken away and tells you which skips are faster' });
+  const routesBox = el('div', helper, { id: 'routes' });
+  const routesBrief = () => routes.filter((r) => !designed.has(r.id)).map((r) => shortcutLine(r));
+  function renderRoutes() {
+    routesBox.replaceChildren();
+    if (!routes.length) { el('div', routesBox, { className: 'muted', text: 'No route that skips an obstacle is faster than the planned line.' }); return; }
+    for (const s of routes) {
+      const row = el('div', routesBox, { className: 'row', id: `route-${s.id}` });
+      el('span', row, { text: shortcutLine(s) + (designed.has(s.id) ? ' (kept: meant by the designer)' : '') });
+      el('button', row, { text: 'Close it', className: 'go', title: 'See a change that shuts this route before anything moves' }).onclick = () => closeRoute(s);
+      el('button', row, { text: designed.has(s.id) ? 'Unkeep' : 'Keep it', title: 'Mark this route as meant: it stays, and is drawn as a dashed arrow' }).onclick = () => { if (designed.has(s.id)) designed.delete(s.id); else designed.add(s.id); renderRoutes(); drawProfile(); };
+    }
+  }
+  function lookForRoutes() {
+    findRoutesBtn.disabled = true; routesBox.replaceChildren(); el('div', routesBox, { className: 'muted', text: 'Looking for routes (about a minute)…' });
+    const done = (list: Shortcut[]) => { routes = list; findRoutesBtn.disabled = false; renderRoutes(); drawProfile(); document.documentElement.dataset.routes = String(list.length); };
+    try {
+      routesWorker ??= new Worker(new URL('../sim/shortcuts-worker.ts', import.meta.url), { type: 'module' });
+      routesWorker.onmessage = (e: MessageEvent) => done((e.data.shortcuts as Shortcut[]) ?? []);
+      routesWorker.postMessage({ course: courseNow() });
+    } catch { done([]); }
+  }
+  findRoutesBtn.onclick = lookForRoutes;
+  function closeRoute(s: Shortcut) {
+    reply.className = 'reply'; reply.textContent = 'Working out a change that closes it… (up to two minutes)'; helper.classList.remove('closed'); helperBtn.setAttribute('aria-pressed', 'true');
+    setTimeout(() => {
+      const now = { angle, offset, level }, r = closeShortcut(pieces as P[], now, s);
+      if (!r.ok) { reply.className = 'reply bad'; reply.textContent = r.steps.join(' '); return; }
+      leadText = '';
+      showProposal(diffProposal('shortcut', `Close the shortcut: ${s.how}`, pieces, now, r.pieces, now, r.steps, true));
+    }, 30);
+  }
   const reply = el('div', helper, { className: 'reply muted', id: 'reply', text: 'Ask for a change, or press "What should I change?".' });
   const askRow = el('div', helper, { className: 'row' });
   const ask = el('textarea', askRow, { id: 'ask', rows: 2, placeholder: 'e.g. make the gap easier, or a harder second half' });
@@ -532,7 +570,7 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
     chat.push({ role: 'user', content: text });
     reply.className = 'reply'; reply.textContent = 'Thinking…'; sendBtn.disabled = whatBtn.disabled = true;
     try {
-      const r = await fetch('/api/designer', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ messages: chat.slice(-6), world: worldBrief(pieces, { angle, offset, level }, verdict, adviceList.map((a) => a.text), barsNow()) }) });
+      const r = await fetch('/api/designer', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ messages: chat.slice(-6), world: worldBrief(pieces, { angle, offset, level }, verdict, adviceList.map((a) => a.text), barsNow(), routesBrief()) }) });
       if (r.status === 503) { reply.className = 'reply muted'; reply.textContent = 'The design partner is switched off on this site (no key set).'; return; }
       if (!r.ok) throw new Error(String(r.status));
       const got = parseReply(((await r.json()) as { reply: string }).reply, pieces.map((q) => q.id));
@@ -719,7 +757,7 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
     if (trebuchetKg) { const p = pieces.find((q) => q.src?.startsWith('device:trebuchet:')); const u = p ? p.x * Math.cos(angle) + p.z * Math.sin(angle) + TREBUCHET_PIVOT_FROM_CENTRE * p.scale : 0; return withTrebuchet(c, trebuchetKg, u); }
     return recoilCfg ? withRecoil(c, recoilCfg, recoilRange()) : c;
   };
-  const courseNow = () => { const c = laneCourse(currentProfile()); if (floorChoice !== 'water') c.hazard = floorChoice; return c; };
+  const courseNow = () => { const c = laneCourse(currentProfile()); if (floorChoice !== 'water') c.hazard = floorChoice; if (designed.size) c.designedShortcuts = [...designed]; return c; };
   let verifyTimer = 0, adviceRun = 0, verifyVersion = 0, searchVersion = 0;
   let searchWorker: Worker | null = null, finishSearch: ((cleared: boolean | null) => void) | null = null;
   let activeSearch: { key: string; promise: Promise<boolean | null> } | null = null;
@@ -890,6 +928,16 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
       c.strokeStyle = '#c9ced4'; c.lineWidth = 4; c.beginPath(); c.moveTo(x - 12, y); c.lineTo(x + 12, y); c.stroke();
       c.strokeStyle = sel ? '#0f6b5c' : '#f0a020'; c.lineWidth = 3; c.beginPath(); c.arc(x, y, 9, 0, 7); c.stroke();
       c.fillStyle = '#17201d'; c.fillText(`${b.y.toFixed(2)} m`, x + 12, y - 8);
+    }
+    for (const s of routes) { // kept shortcuts: a dashed arrow from the bar before the skipped ones to the bar after them (or the end of the lane)
+      if (!designed.has(s.id)) continue;
+      const ix = s.skipped.map((n) => /^Bar (\d+)$/.exec(n)).filter((m): m is RegExpExecArray => !!m).map((m) => Number(m[1]) - 1);
+      if (!ix.length) continue;
+      const sorted = [...bars].sort((a, b) => a.u - b.u), a0 = sorted[Math.min(...ix) - 1], a1 = sorted[Math.max(...ix) + 1];
+      if (!a0) continue;
+      const x0 = 10 + (a0.u - uLo) * ppm, y0 = base - a0.y * ph, x1 = a1 ? 10 + (a1.u - uLo) * ppm : 10 + (o + prof.length - uLo) * ppm, y1 = a1 ? base - a1.y * ph : base;
+      c.save(); c.strokeStyle = '#7a4fd1'; c.fillStyle = '#7a4fd1'; c.lineWidth = 2; c.setLineDash([5, 5]); c.beginPath(); c.moveTo(x0, y0); c.quadraticCurveTo((x0 + x1) / 2, Math.min(y0, y1) - 40, x1, y1); c.stroke(); c.setLineDash([]);
+      const a = Math.atan2(y1 - (Math.min(y0, y1) - 20), x1 - (x0 + x1) / 2); c.beginPath(); c.moveTo(x1, y1); c.lineTo(x1 - 9 * Math.cos(a - 0.45), y1 - 9 * Math.sin(a - 0.45)); c.lineTo(x1 - 9 * Math.cos(a + 0.45), y1 - 9 * Math.sin(a + 0.45)); c.closePath(); c.fill(); c.restore();
     }
     if (pv) { // the preview: the ground after the change (dashed teal) and the bars where they would hang, with an arrow from where they are now
       c.save(); c.strokeStyle = '#0f9d84'; c.lineWidth = 2; c.setLineDash([6, 4]); c.beginPath();

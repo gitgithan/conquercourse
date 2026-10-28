@@ -11,6 +11,8 @@ import { newWorld, stepWorld, type GameEvent, type WorldState } from '../sim/wor
 import { DEFAULT_WALL } from '../sim/wall';
 import { DEFAULT_ROPE } from '../sim/rope';
 import { inputFor, searchIdealRun, type Plan } from '../sim/ideal';
+import { findShortcuts, shortcutLine, type Shortcut } from '../sim/shortcuts';
+const findShortcutsNow = (c: CourseData): Shortcut[] => findShortcuts(c, { moveChoices: false }).shortcuts; // ?bot=shortcut only: blocks the page while it searches
 import { flightPath, gapSpecs, minSpeedForWall, pressBand } from '../sim/needs';
 import { bounce } from '../sim/trampoline';
 import { DEFAULT_TRAMPOLINE } from '../sim/trampoline';
@@ -509,7 +511,8 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
   const startAt = params.get('startx') === null ? undefined : Number(params.get('startx')); // ?startx=45 begins there (for tests and films)
   if (params.get('bot') === 'ideal') plan = startAt === undefined && course.plan ? course.plan : searchIdealRun(startAt === undefined ? course : { ...course, startX: startAt }).plan;
 
-  const botMode = params.get('bot') === 'ideal';
+  if (params.get('bot') === 'shortcut') { const list = course.shortcuts?.length ? course.shortcuts : findShortcutsNow(course); if (list[0]) plan = list[0].plan; else plan = course.plan ?? searchIdealRun(course).plan; }
+  const botMode = params.get('bot') === 'ideal' || params.get('bot') === 'shortcut';
   let retryX = resume ? resume.retryX : course.startX; // "try this obstacle again" starts standing still just before it
   let demo: { x1: number } | null = null;
   const idealCache = new Map<number, Plan>();
@@ -719,6 +722,39 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
 
   // The ideal run: the simulator's own best line from standing still at x0. A plan always runs on to the finish, so
   // "this obstacle" only stops it at the end of the zone (demo) and "the whole course" lets it run (Shift+I).
+  // Shortcuts: routes the designer did not plan (src/sim/shortcuts.ts). Stored with a demo course, or worked out on first request in a worker.
+  let shortcuts: Shortcut[] | null = course.shortcuts ?? null, shortcutWorker: Worker | null = null, shortcutAsk: Promise<Shortcut[]> | null = null;
+  function ensureShortcuts(): Promise<Shortcut[]> {
+    if (shortcuts) return Promise.resolve(shortcuts);
+    shortcutAsk ??= new Promise<Shortcut[]>((resolve) => {
+      try {
+        shortcutWorker ??= new Worker(new URL('../sim/shortcuts-worker.ts', import.meta.url), { type: 'module' });
+        const w = shortcutWorker;
+        w.onmessage = (e: MessageEvent) => { shortcuts = (e.data.shortcuts as Shortcut[]) ?? []; resolve(shortcuts); };
+        w.postMessage({ course });
+      } catch { shortcuts = []; resolve(shortcuts); } // no worker here: no shortcut list
+    });
+    return shortcutAsk;
+  }
+  function startShortcut(s: Shortcut) {
+    clearGuides();
+    world = newWorld(course, course.startX);
+    log.length = 0; frames.length = 0; replay = null; panel.style.display = 'none';
+    plan = s.plan; botState.next = 0; botState.caught = null; botState.bedAt = null;
+    idealWhole = true; demo = null; retryX = course.startX;
+    idealNote = shortcutLine(s) + ' Watch it, press any key to take over.';
+  }
+  function shortcutRow(): HTMLElement | null {
+    const s = shortcuts?.[0];
+    if (!s) return null;
+    const box = document.createElement('div'); box.style.cssText = 'display:grid;gap:6px;margin-top:6px;padding-top:6px;border-top:1px solid #d6dcd9';
+    const t = document.createElement('span'); t.textContent = `A shortcut exists: ${s.how}. It saves ${s.secondsSaved.toFixed(1)} s.`; t.id = 'shortcutnote';
+    const b = document.createElement('button'); b.textContent = 'Watch the shortcut'; b.id = 'watchshortcut';
+    b.style.cssText = 'font:inherit;border:1px solid #17201d;background:#fff;color:#17201d;border-radius:8px;padding:6px 12px;cursor:pointer;font-weight:700;justify-self:start';
+    b.onclick = () => startShortcut(s);
+    box.append(t, b);
+    return box;
+  }
   function findPlan(c: CourseData): Promise<Plan> {
     return new Promise((resolve) => {
       try {
@@ -748,6 +784,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
     idealWhole = zoneId === null;
     demo = zoneId === null ? null : { x1: (course.zones?.find((z) => z.id === zoneId)?.x1 ?? 1e9) + 3 };
     idealNote = zoneId === null ? 'Ideal run through every obstacle: watch it, press any key to take over.' : 'Ideal run: watch how it is done, then press R to try it yourself.';
+    if (zoneId === null) void ensureShortcuts().then((list) => { if (list[0] && plan === p && idealWhole) idealNote += ' ' + shortcutLine(list[0]); });
   }
   function showIdeal(zoneId: string) { idealWhole = false; void startIdeal(cpFor(zoneId), zoneId); }
   // Shift+I: from the start, or from where retry would start (the checkpoint before the obstacle you fell at), to the finish
@@ -766,6 +803,17 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
     const b = document.createElement('button'); b.textContent = 'Try it myself (R)';
     b.style.cssText = 'font:inherit;border:1px solid #0f6b5c;background:#0f6b5c;color:#fff;border-radius:8px;padding:6px 12px;cursor:pointer;font-weight:700';
     b.onclick = () => restart(); row.appendChild(b); panel.append(h, row); b.focus();
+    if (whole) void ensureShortcuts().then(() => { const sr = shortcutRow(); if (sr && panel.contains(h)) panel.appendChild(sr); });
+  }
+
+  // after a clear: say a shortcut exists (a fact, never a grade)
+  function clearedNote() {
+    void ensureShortcuts().then(() => {
+      if (world.outcome !== 'cleared' || !shortcuts?.length) return;
+      const sr = shortcutRow(); if (!sr) return;
+      if (panel.style.display === 'none' || !panel.firstChild) { panel.innerHTML = ''; panel.style.display = 'grid'; const h = document.createElement('strong'); h.textContent = 'You made it!'; panel.append(h); }
+      panel.appendChild(sr);
+    });
   }
 
   // Replay numbers and guiding lines, so the player learns something new instead of watching the same thing again.
@@ -1068,6 +1116,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
         const again = document.createElement('button'); again.textContent = 'Run again (R)'; again.style.cssText = 'font:inherit;border:1px solid #0f6b5c;background:#0f6b5c;color:#fff;border-radius:8px;padding:6px 12px;cursor:pointer;font-weight:700'; again.onclick = () => restart(course.startX);
         const close = document.createElement('button'); close.textContent = 'Close report'; close.style.cssText = 'font:inherit;border:1px solid #b9c2bb;background:#fff;color:#17201d;border-radius:8px;padding:6px 12px;cursor:pointer'; close.onclick = () => { panel.style.display = 'none'; };
         actions.append(again, close); panel.append(reportTitle, reportPanel('cleared'), actions); again.focus();
+        if (!botMode && !demo && !idealWhole) clearedNote(); // a shortcut, if the simulator knows one (a fact, never a grade)
       }
     }
     let r = world.runner;
