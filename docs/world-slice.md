@@ -598,6 +598,12 @@ The set of obstacle shapes is fixed, and each shape offers a fixed set of moves.
 - **Tests:** `tests/cart.test.ts` (energy conserved, never above the start height, friction only takes energy out, leaves the rails on a sharp top and stays on a broad one, braking proof, stall, a bigger push climbs higher), `tests/fixcart.test.ts`, `tests/demo-coaster.test.ts`.
 - **Checks on the VM:** `scripts/coaster-check.mjs` (the bot rides two demos home, the third stalls with the right message) and `scripts/coaster-builder-check.mjs` (drag, Fix it, Play it).
 - **Screenshots:** `data/eval/cc-61-coaster/`.
+- **What "a ride" means (changed after CC-61 shipped):**
+  - A direct commit (3696eaf) made the track ground, so a cart that flies off a hilltop can land on the track again and finish.
+  - Three coaster tests and Fix it then passed or failed for the wrong reason: the sharp hilltop "cleared" with no brake.
+  - A coaster is now ridden well only when the cart finishes and never left the rails on a hilltop (`flewOff` in `src/sim/cart.ts`); the proof, Fix it and the tests use that.
+  - Flying across the planned gap between two rail sections does not count as leaving.
+  - The demo plans were regenerated with `npx tsx scripts/coaster-demos.ts`: the sharp hilltop needs the brake again (17.6 to 25.6 m).
 - **Known gaps:**
   - No loops (the track is a function of x).
   - The track is 2D only: no banking.
@@ -871,3 +877,297 @@ The set of obstacle shapes is fixed, and each shape offers a fixed set of moves.
   - Fix it for the launcher shows the new ball in words and a button, not outlines like the pieces' preview (CC-63).
   - One dimension only along the lane for the ground shot; the throw in the air also moves the runner up or down by the ball's upward part.
   - A second shot per visit (`shots` above 1) works in the simulator and has no editor knob.
+
+## Plank bridge (CC-82)
+- **So what:** a plank is the first obstacle the player can break by building it wrong.
+  - It teaches architecture through one number you can feel: a longer plank sags far more, a thicker one far less, and a post in the middle helps a lot.
+- **The physics** (`src/sim/beam.ts`, Earth gravity only):
+  - A plank rests on two decks (and on a post in the middle if asked).
+    - The rider is a load that walks along it.
+  - Sag under a load in the middle is `load × length³ ÷ (48 × stiffness × I)`, with `I = width × thickness³ ÷ 12`.
+    - The plank's own weight is spread evenly and adds its own sag.
+  - It breaks when the bending stress in its outer face reaches the material's strength.
+    - The stress is `moment × (thickness ÷ 2) ÷ I`.
+  - Numbers (sources: the Wood Handbook of the US Forest Products Laboratory for pine, mild structural steel):
+    - **Pine:** stiffness 9 GPa, bending strength 40 MPa, density 500 kg/m³.
+    - **Steel:** stiffness 200 GPa, yield 250 MPa, density 7850 kg/m³.
+    - **Rider:** 70 kg.
+- **Simplifications, stated:**
+  - The load is the rider's weight applied slowly: no extra push from running or jumping.
+  - A post in the middle makes two planks that meet on the post.
+    - The gain from a continuous beam is ignored, so a post helps slightly less than in a real plank.
+  - No knots, no creep, no damage from earlier crossings.
+- **In the game:**
+  - **Mode:** running onto a plank hands the runner to it (`mode 'plank'`).
+    - The feet follow the bent plank, a dip costs speed (climbing out of it, and the plank shaking some away), and Space jumps off.
+  - **Break:** a plank that bends past its strength snaps under the feet (event `plank-break`) and the runner falls into the floor below or onto a lower deck.
+    - The fall words say how much it bent and what would have helped, never how well you did.
+  - **Search:** a gap with a plank over it is not a jump edge, so the ideal run just runs across.
+    - The proof says a course is clearable only if the plank holds.
+- **Demos** (`scripts/make-plank-demo.ts`):
+  - **Plank bridge: it sags but holds:** a 9 m gap, wider than any running jump (about 8 m at top speed), with a 3.5 cm pine plank.
+    - The worst place is the middle: it dips 100 cm and uses 53% of what pine can take.
+    - Without the plank the course cannot be cleared (a test).
+  - **Plank bridge: too thin, it breaks:** the same gap with a 2 cm plank.
+    - It would use 134% of what pine can take, so it snaps at the middle.
+    - Fix it says: use a plank 2.8 cm thick.
+- **Editor:**
+  - A "Plank" button adds a plank piece.
+    - Its knobs (material, thickness, width, a post in the middle, drawing length) are in the piece panel, with a line saying whether it holds over its length.
+  - Where the piece lies across a gap between two pieces of ground, the lane keeps the real gap (up to 14 m) and the course gets a plank over it.
+    - The real span is the gap, not the piece's drawn length.
+  - Fix it for a plank that would snap says the smallest change in words (a thicker plank, or a post) and applies it on "Make it so".
+- **Dojo:** "Plank bridge: how far it sags" (knobs: length of the gap, thickness, a post).
+  - The learner finds that doubling the length gives eight times the sag and doubling the thickness gives one eighth.
+  - The formula is the last step, never on the Course.
+  - The shape classifier gained two shapes for this: a cube curve and an inverse cube curve.
+- **Saying:** "A plank that is twice as long sags eight times as much."
+- **Evidence:** `data/eval/cc-82-plank/` (the plank dipping under the runner, the thin plank's fall panel, the Dojo lesson and its diagram); `scripts/plank-check.mjs`; 19 beam and Dojo tests, 10 plank-in-the-world tests, 5 editor tests.
+- **Gaps:**
+  - A single beam: no trusses, no continuous-beam gain from a post, no dynamic load from a running rider.
+  - A broken plank just disappears (no falling pieces).
+  - A plank piece must be laid roughly along the lane and across a gap whose two sides are at the same height.
+  - The runner's feet follow the bent plank but the Rookie keeps its running pose.
+
+## Poses for the cart, the sling, a hard landing and the giant swing (CC-77)
+- **So what:** the Rookie's body now matches the simulator in the four places the owner saw a wrong or missing motion; every move in the motion table has a clip or a built pose, and `motionGaps()` is empty.
+- **Seated rider (coaster):**
+  - Hips on the seat (0.34 m up), knees bent with the thigh nearly level, back leaning a little, both hands on a grab bar in front.
+  - The thigh pitch is solved from the bone lengths so the feet land on the cart floor (`seatThighPitch`, `src/motion/poses.ts`); the hands reach the bar by two-bone reach (`ik2`).
+  - The cart now has the grab bar (`src/render/track.ts`), 0.5 m ahead of the hips and 0.72 m up.
+  - It replaces the swing clip's folded body, which had the hands up.
+- **Sling rider (trebuchet):** tucked, leaning back, knees up and forward, both hands up and forward on the sling lines.
+  - The sling lines are not drawn by the Course yet, so the hands reach a point where the lines would be (a known gap).
+- **Hard landing:**
+  - Clip: CMU 90_16 ("fall on face") passed the gate and the new hurt check; it plays at its own speed (2.1 s), the body lies still for 1.2 s and gets up slowly over 2.5 s.
+  - Fallback: without the clip the same three parts are built from bones (stand, the tuck, lying flat on the front).
+  - The check was needed: without it the pipeline chose a stumble into a second person.
+  - `?hurt=bones` forces the built fall; `?demo=hurt-ab` is a blind A/B of clip against built fall, with the answer saved in the browser.
+- **Giant swing:** the body is the swing clip's hang, turned about the bar by theta (as before), plus two things from the simulator:
+  - the legs lag behind a fast swing (up to 0.45 rad, from omega), and
+  - over the top the knees come up and the legs tuck, then open again on the way down.
+  - The bones keep their lengths (a test), and the hands stay on the bar.
+- **Gallery:** `?demo=poses` draws each pose for pictures; `scripts/poses-check.mjs` writes them to `test-results/poses/` (contact sheets in `data/eval/cc-77-poses/`).
+- **Tests:** `tests/poses.test.ts` (seat geometry, hurt phases, giant-swing legs, which pose a state asks for), `tests/motion-table.test.ts` (no gaps), `pipelines/tests/test_movecheck.py` (the hurt check: a fall passes; a stumble, a dip that comes back up and a fall onto the back do not).
+- **Gaps:**
+  - The sling lines and the trebuchet's seat are not drawn, so the sling pose floats on the arm's end.
+  - The hurt clip is acted (a stage fall with arms thrown up first); the blind A/B will say if the built crumple reads better.
+  - No tuck animation is drawn for the roll over the top of the giant swing, only the legs.
+
+
+## Climb (CC-76)
+- **So what:** a wall the jump and the vault cannot take is now a move: hold E at its edge and pull up.
+  - On San Francisco's steep hills the best lane grew from 8.2 m to 27.2 m.
+  - Montmartre's hills did not change (8.7 m): its hills are steep curved slopes, not walls, and the climb takes walls only.
+- **How it plays:**
+  - Run at the wall (or jump) and hold E when the hands meet the top edge.
+  - The body stops against the wall, hangs from the edge for 0.25 s and pulls up and over in 0.85 s, 1.1 s in all, and stands on the top at 2 m/s.
+  - The run speed is gone and the pull-up spends as much energy as two jumps.
+  - Letting go of E while still hanging drops the body; after the pull-up starts it is committed.
+- **Where the limits come from (Earth gravity, the Rookie's reach):**
+  - The hands are 2.1 m over the feet with the arms stretched up and the fingers must get 0.1 m over the edge: from the ground a wall up to 2.2 m can be grabbed, from 1.0 m up (below that a jump or a vault does it).
+  - A jump adds the height gained while the body is slow enough to catch: the hands close on an edge only while the body rises no faster than 2 m/s, which at a 4.5 m/s take-off is 0.83 m up.
+  - Edge at most 2.2 + 0.83 = 3.03 m over the ground, minus 0.2 m for the arms to start the pull-up: the tallest wall is 2.83 m.
+  - A vault takes up to 1.3 m (CC-68), so the climb is the move from there up.
+- **The search:** above a vault's reach, `searchIdealRun` tries standing at the foot of the wall holding E, and a jump with E held in the air, and keeps the one that clears; the plan carries `climbXs` or `climbHands`.
+  - In the air the bot holds E only until the last bar is behind it, so a fall beside a ledge stays a fall (a rescue grab of the edge below made the lache-wide demo skip its roll).
+- **The lane builder:** a step up to 2.83 m no longer rules a lane out (`CLIMBABLE` in `src/slice/slice.ts`; before, 0.9 m).
+- **Seen in play:** the debug view (B) puts a cyan ring on the edge of the next wall the hands can take and says how to take it; the drum lane shows the E grab where the hands meet the edge; the hint says "hold E at the wall".
+- **Pose:** the hang pose for the hold, the hands pinned on the real edge, then the body folds up to the stand pose (procedural, not a clip).
+- **Demo:** `/?course=/assets/demo/climb.course.json`: a 2 m wall, then a 5 m drop to roll out of.
+- **Real keys (`scripts/climb-check.mjs`):** the climb starts 0.6 m from the wall, ends on the top and the run goes on.
+
+### Places with the climb
+| Place | Before the climb | With the climb |
+|---|---|---|
+| San Francisco, hills | shrink 0.455, best lane 8.2 m | shrink 0.455, best lane 27.2 m, 3 lanes |
+| San Francisco, flat | shrink 0.455, best lane 41.2 m | shrink 0.455, best lane 27.2 m (the score now prefers a lane with a climb) |
+| Montmartre, hills | shrink 0.333, best lane 8.7 m | shrink 0.333, best lane 8.7 m (no change) |
+| Montmartre, flat | shrink 0.556, best lane 63 m | shrink 0.556, best lane 65.7 m |
+- **A lane's length is not what it can do:** the search keeps the lanes with the best score (variety of obstacles), not the longest, so a flat place can show a shorter best lane when a lane with a climb scores higher.
+- **Why Montmartre did not change:** its lane (found at shrink 0.556) starts with a curved top that rises 2.6 m in 1.4 m, a slope steeper than 45 degrees, and the climb only takes vertical faces.
+- **Next:** treat a steep curved top like a wall (the edge is where the slope eases below 45 degrees).
+
+## Shortcut discovery (CC-71)
+- **So what:** the simulator now finds routes the designer did not plan, so the ideal run can show a player a shortcut they did not think was possible, and the editor and the generator can use it.
+- **How it works** (`src/sim/shortcuts.ts`):
+  - It looks at the ideal line first: does it already skip a bar?
+  - Then it switches off each bar, each pair of neighbouring bars, the wall and the rope in turn (`variantsOf`), and runs the ideal-run search on the course without it.
+  - A line counts only when it clears the real course with everything in place (bars not held are flown past: `plan.noGrab`) and is faster than the line that holds every bar.
+  - The baseline is the stored bar-to-bar route from CC-67 (`course.routes`), so nothing is searched twice.
+  - It also reports move choices: the best line with the vault or the roll switched off (`course.off`, used only by this search).
+- **Where it shows:**
+  - The Course: I and Shift+I say "Shortcut: ..." next to the ideal run.
+  - The end panel of the ideal run and of a normal clear says a shortcut exists, with a "Watch the shortcut" button (a fact, never a grade).
+  - `?bot=shortcut` plays the best one.
+  - Demo courses store their shortcuts beside the plan (`npm run plans`); any other course works them out in a worker the first time.
+  - The editor: "Look for routes you did not plan" lists them.
+  - "Close it" previews a change with the CC-63 outlines: everything after the skipped bar moves on, the smallest push that the simulator proves.
+  - "Keep it" marks the route as meant (`designedShortcuts`) and draws a dashed purple arrow in the side view.
+  - The design partner's brief carries the list (`routes_the_simulator_found_that_the_designer_did_not_plan`).
+  - The generator: `generateChecked(seed, { shortcuts: 'label' | 'refuse' })` stores the shortcuts or tries the next seeds.
+- **Shortcuts on every demo course** (planned line, shortcuts found, move choices; `data/eval/cc-71-shortcuts/`):
+
+| Course | Planned line | Shortcuts found | Move choices |
+|---|---|---|---|
+| circular-quay-sydney | 5.99 s | none | roll: 5.85 s without |
+| drop | 6.85 s | none | roll: cannot be cleared without it |
+| eixample-barcelona | 6.78 s | none | - |
+| generated-1 | 25.03 s | Bar 1 + Bar 2: jump past bar 1 and bar 2; saves 1.93 s | vault: 32.76 s without |
+| lache-wide | 14.55 s | none | vault: cannot be cleared without it |
+| lache | 10.5 s | Bar 2: pump 1.74 s on the bar you hold, let go, and fly past bar 2; saves 1.14 s (kept by the designer) | vault: cannot be cleared without it; roll: 11.39 s without |
+| lane-1 | 3.73 s | none | - |
+| lane-2 | 3.98 s | none | - |
+| launch-bar | 5.59 s | none | - |
+| launch | 3.91 s | none | roll: cannot be cleared without it |
+| montmartre-paris | 4.67 s | none | - |
+| san-francisco-lombard | 5.18 s | none | - |
+| stack | 3.03 s | none | - |
+
+- **The ones nobody planned:**
+  - **Every generated course with a lache can skip the lache by a plain jump** (11 of 11 seeds scanned, seeds 1 to 12; the one course without a lache had none).
+  - The generator's lache gap is 5.5 to 6.8 m; a plain run-and-jump clears a flat gap up to 8 m at full speed (7 m when a jump costs speed, as on bar courses).
+  - The jump saves about 2 s against swinging, so the bars are optional in all of them.
+  - **The lache demo:** a full pump on bar 1 flies over bar 2 and saves 1.14 s; CC-67 made this on purpose, so the demo keeps it (`designedShortcuts`).
+  - **Roll pays in the lache demo:** without the roll the best line takes 11.39 s against 9.36 s, because the last landing is a 3 m fall.
+  - **Required moves:** the vault in both lache demos, the roll in the drop and launch demos (they cannot be cleared without them).
+  - **No shortcut** in the lane, stack, launch, wide-lache and place courses (the OSM places have no bars, wall or rope to skip).
+- **Fallback and next steps:**
+  - The generator's lache is still skippable: its gap needs to be at least 8.5 m (and at most what two bars reach) to need the bars; `generateChecked` with `refuse` finds no course until that changes.
+  - Only single bars, neighbouring pairs, the wall and the rope are switched off (not every combination), and only the vault and the roll are compared.
+  - The band, the trebuchet and the recoil are not switched off yet.
+  - "Close it" works for bars only; for the wall and the rope it says so and leaves the change to the designer.
+  - A first look for a course without stored shortcuts takes about a minute in the worker (the table shows the search seconds per course).
+
+## Real photos beside the real worlds (CC-85)
+- **So what:** the real-world courses show only extruded blocks; next to them the player now sees the real place, so the skyline is appreciated and the shrinking is understood.
+- **What shows:**
+  - Montmartre, Eixample, Circular Quay and Lombard Street each have 2 to 3 photos from Wikimedia Commons (CC0, CC BY or CC BY-SA).
+  - Small thumbnails sit at the bottom left of the Course, with the author and licence under each one.
+  - A click opens a large view: "Real photo of <place>, <author>, <licence>", a "Where is this?" line and links to the licence and the source.
+  - Arrow keys move between photos, Esc closes, and the game does not run while a photo is open.
+  - The Hide switch (remembered) and `?photos=0` turn the strip off.
+- **Map mode:** a pin inside a place with photos shows the same strip in the side panel.
+- **Where the files are:** `public/assets/places/<place>/photo-N.jpg` (under 250 KB each), `credits.json` and `public/assets/places/photos-index.json` (place centres for the pin match).
+- **How a course finds its photos:** the OSM courses are named `OSM <slug>`, and the slug is the folder.
+- **Adding a place:** put 2 to 3 licensed photos and a `credits.json` in a new folder, add it to `photos-index.json` and add a row for each photo to `docs/ASSETS.md`; `tests/place-photos.test.ts` fails without a file, a free licence, a credit or an ASSETS row.
+- **Chosen photos:** only wide views with no person who can be recognised; a distant crowd is too small to identify.
+  - Five candidates were left out (a flag on a balcony, a street with pedestrians, a promenade crowd, a panorama too wide to scale, and two with people at the edge).
+- **Known gap:** the photos show the place from a hill, the water or the street, while the course is one slice through it.
+## Performance (CC-75)
+- **So what:** the places and the coaster were already cheap (5 to 12 draws), so the win is for crowded editor courses: 300 loose pieces went from 167 draws to 11, and a city of 3,000 buildings draws half the triangles.
+- **Overlay:** `?perf=1` or key P shows it in the Course, the editor 3D view and the map.
+  - It shows the frame time and fps, draws, triangles, meshes, instanced meshes and their instances, geometries, textures, the renderer, the simulator step cost and the heap.
+  - The same numbers are written to `<html data-perf>` as JSON for scripts.
+  - The map shows only the frame time, because MapLibre does not expose its draw counts.
+- **What was merged** (`src/render/static-merge.ts`, used by `src/modes/course.ts`):
+  - **Decks:** one mesh per material (grass, stone, bed) instead of one per deck.
+  - **Loose pieces:** raw meshes are merged into one mesh and, over 20,000 triangles, cut into 64 m chunks so the renderer skips the chunks it cannot see.
+  - **Photo objects:** the same file used several times is loaded once and drawn as an instanced mesh per 8 m of the run, so far-apart copies are still culled apart.
+  - **Cups and the editor's plain pieces:** one shared material each instead of one per piece.
+  - **Far chunks:** a big place stops drawing chunks more than 260 m from the camera.
+- **Numbers** (software GPU, best of two runs, same machine; `data/eval/cc-75-perf/before.json` and `after.json`):
+
+| Scene | Draws before | Draws after | Triangles before | Triangles after | Render ms before | Render ms after |
+|---|---|---|---|---|---|---|
+| Montmartre | 5 | 5 | 12,751 | 12,763 | 43 | 46 |
+| San Francisco hill | 5 | 5 | 13,045 | 13,057 | 50 | 41 |
+| Coaster | 12 | 12 | 15,133 | 15,133 | 35 | 24 |
+| Stacks | 7 | 6 | 14,081 | 14,081 | 37 | 39 |
+| 300 pieces, 30 benches, 12 stacks | 167 | 11 | 85,697 | 139,901 | 128 | 62 |
+| 3,000 buildings in one mesh | 6 | 17 | 46,229 | 24,340 | 167 | 137 |
+
+- **The trade, in words:**
+  - **Crowded courses:** fewer draws cost more triangles, because an instanced mesh is drawn whole when any copy shows.
+    - That is the right trade on a real graphics card, where draws cost the processor and triangles are cheap.
+    - It was also faster here.
+  - **Big city:** chunking draws more calls but half the triangles.
+  - **Places and coaster:** already small, so they did not change.
+    - Times of 20 to 50 ms are noise from other work on the machine.
+- **Frustum culling:** it is on everywhere.
+  - Only the skinned Rookie and the debug lines turn it off, and the Rookie must, because its bounds are the bind pose.
+- **Dispose on mode change:** nothing to do, because switching mode reloads the page.
+  - The Course does not rebuild its scene on restart.
+- **Check:** `npm run perf` loads the six reference scenes and fails if draws or triangles go over `scripts/perf-budget.json` (about 30% above today's numbers).
+- **Known gaps:**
+  - Software-GPU times are relative, not what a real graphics card gives.
+  - The editor 3D view was only given shared materials; its pieces stay separate because each can be picked and dragged.
+  - The map piece is already one mesh, so the Slicer (CC-72) can draw several cut planes without a draw-call problem, but a place of thousands of buildings should be cut into chunks when it is built (the Course does it on load).
+## The cannon: more power and an aimed angle (CC-66)
+- **So what:** the recoil idea now has a big, aimed cannon: one shot throws the runner tens of metres a second, and the player decides the angle.
+  - The demo is a 32 m gap with a 4 m drop onto the far deck; nothing a runner can do crosses it, one aimed shot does, and the landing needs a roll.
+  - A steep shot flies high and lands too hard even for a roll; a flat one falls short: the middle is the answer, which is the lesson.
+- **The numbers:** an 80 kg ball at 45 m/s against the 70 kg runner gives 24 m/s of push (a sprint is 9).
+  - The tank must store the energy the shot makes, half the reduced mass times the muzzle speed squared: about 38 kJ, the energy of a 1000 kg car rolling at about 31 km/h (shown while the cannon is loaded).
+  - A smaller tank limits the muzzle speed (a test).
+- **A vector law:** the ball leaves backward and down by the aim angle, so the runner is pushed forward and up by it.
+  - Momentum is conserved along the lane and up, to 8 decimals in tests, at any aim and any running speed.
+  - On the ground a push up counts (it lifts you off) and a push down does not (the ground holds you up); in the air both count.
+- **Aiming:** while the cannon is loaded, Up (or W) tilts the barrel steeper and Down flatter (34 degrees a second, from level to 77 degrees); the barrel on screen tilts with it.
+  - Dots show where you would land, from the same prediction the debug view uses (a test compares it with the real flight and with the textbook range).
+  - The words say the aim, the tank energy and the landing ("a hard landing unless you tap X just before the ground").
+- **Best angle:** on level ground the range peaks within 4 degrees of 45 (test); a steeper shot goes higher and shorter, a flatter one lower and shorter.
+  - On the demo the stored line aims about 14 degrees, fires at 11 m and rolls out of the landing.
+  - The window of aims that clear is wide at low angles and ends where the landing is too hard.
+- **The ideal run** searches the angle and the fire place together (`searchCannon`); the drum lane shows an aim drum (the angle) and the K drum, and the X drum before the landing.
+- **Editor:** a "Cannon" button next to "Launcher" and "Heavy crate", with the mass and speed of the ball as knobs (the proof searches the angle); Fix it for a cannon raises the speed first, then the mass, up to 120 kg at 60 m/s.
+- **Dojo:** "Cannon: the best angle" with a hill-shaped curve, two diagrams, and the formula (distance = forward speed x time in the air) as the last step.
+- **Gaps and fallbacks:**
+  - The Rookie is drawn standing in front of the cannon, not sitting on it.
+    - Fallback: the running pose; a seated pose belongs to the motion pipeline (CC-64).
+  - The ball is drawn as a big rubber ball; there is no muzzle blast or sound of its own (the shot uses the existing clang).
+  - Fix it for a cannon takes 10 to 60 seconds (each test runs the full search, CC-69).
+  - The aim cannot be changed in the air, only while loaded.
+## Elastic band (CC-65)
+- **So what:** the band is the first move that throws the runner faster than the legs can run, and it teaches stored energy: what you spend stretching it comes back as speed.
+- **A correction to the first idea ("run into it"):** a band can only pull toward its post, so a forward throw needs the band stretched backward.
+  - The player runs away from the post, which stretches it, then turns round and runs toward the post.
+  - Running forward into a band that is tied behind would only drag the runner back.
+- **How it plays** (`/?course=/assets/demo/band.course.json`):
+  - The runner starts clipped on, one rest length (1 m) behind a striped post.
+  - Hold ← to run away from the post and stretch the band.
+    - The hint says how far it is stretched.
+  - Hold → to turn round.
+    - The band pulls toward the post while it is stretched, on top of the legs.
+  - At the rest length it goes slack and unclips (no drag back).
+    - Then it is an ordinary run: press Space at the edge.
+  - Stretched past its limit (22 m on the demo) it snaps, lets go, and nobody is hurt.
+  - Debug view (B): "If you turn round now" draws where the throw lands.
+  - The drum lane shows a "Turn →" drum at the stretch the ideal run turns at, then the jump drum at the edge.
+- **Physics** (`src/sim/band.ts`, all metres, seconds and kilograms; the runner weighs 70 kg):
+  - The pull is the stiffness times the stretch (a spring that only pulls); the stored energy is half the stiffness times the stretch squared.
+  - The legs can push away from the post with at most the standstill acceleration (10 m/s²), so the stretch where pull equals push is acceleration × mass ÷ stiffness: a softer band stretches farther and stores more (the energy at that stretch is proportional to one over the stiffness).
+  - Momentum carries the runner a little past that point (up to about a quarter farther).
+  - Above top speed the legs only stop pushing: they do not brake the extra speed, so an assisted sprint can pass 9 m/s.
+    - A little drag is kept.
+  - Energy law, tested: the work the band does pushing forward never exceeds what it stored (within 3 %), and most of it is given back (over 60 %).
+- **What a stiffness does** (`scripts/band-explore.ts`; pull to 85 % of the reachable stretch, take-off 2.5 m past the clip):
+
+| Stiffness (N/m) | Stretch (m) | Speed leaving the clip (m/s) | Speed at the edge (m/s) | Range of a jump there (m) |
+|---|---|---|---|---|
+| 1500 | 0.5 | 3.6 | 5.8 | 5.3 |
+| 150 | 4.3 | 8.1 | 8.3 | 7.6 |
+| 90 | 6.9 | 9.2 | 9.2 | 8.4 |
+| 60 | 10.2 | 10.5 | 10.2 | 9.3 |
+| 45 | 13.5 | 11.7 | 11.1 | 10.2 |
+| 35 | 17.2 | 12.9 | 12.2 | 11.2 |
+| 28 | 21.4 | 14.1 | 13.3 | 12.2 |
+
+  - A plain run-up jumps about 8.3 m at best; a soft band and a long stretch clear 11 to 12 m.
+  - A stiff band hardly stretches and gives no boost (the 1500 N/m row is slower than a plain run, because the runner has not had room to speed up).
+- **The demo course:** a 10 m gap (1.5 to 11.5 m), a 35 N/m band that snaps at 22 m, a runway of 40 m behind the post.
+  - The ideal run stretches it about 16 m and turns; stretches from 14.4 to 20 m all clear.
+    - A stretch of 14 m or less lands in the water.
+  - No plain run-up clears it (tested over every take-off point).
+- **Proof and Fix it:** the ideal-run search finds the stretch and the take-off press together (`searchBand` in `src/sim/ideal.ts`).
+  - Fix it for a band tries softer bands (15 % steps down to 20 N/m) and says which one clears (`src/slice/fixband.ts`); it takes about ten seconds when nothing clears.
+- **Editor:** a "Band" button in the Overhead row starts the lane at a band, with a stiffness box (`src/slice/band-lane.ts`).
+  - The Trebuchet and Band buttons switch each other off.
+- **Dojo lesson "Stored energy":** knobs are the stretch and the stiffness; the answer is the speed the band alone gives.
+  - The formula (speed = stretch × √(stiffness ÷ mass)) is the last, earned step.
+  - Saying: "A soft band pulled far outthrows a stiff one pulled little."
+- **Known gaps:**
+  - A straight band in the side view only; the clip pulls at belt height and the post is a plain striped pole.
+  - The runner is drawn in the running pose, also while pulling (facing left); there is no leaning or braced pose.
+  - The jump while clipped on is not allowed (the clip unclips only when the runner is back at the rest length).
+  - A real band also pulls sideways and in the air; ours is along the run only.

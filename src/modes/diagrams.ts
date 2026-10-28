@@ -1,8 +1,8 @@
 // Labelled Dojo diagrams (CC-31): one "real" drawing and one "principle" picture per obstacle, as inline SVG strings.
 // Original art, drawn in code; words only, no formulas.
-export type DiagramId = 'gap' | 'wall' | 'rope' | 'trampoline' | 'landing' | 'coaster' | 'lever' | 'recoil';
+export type DiagramId = 'gap' | 'wall' | 'rope' | 'trampoline' | 'landing' | 'coaster' | 'lever' | 'recoil' | 'bridge' | 'cannon' | 'stored';
 export type DiagramKind = 'real' | 'principle';
-export const DIAGRAM_IDS: DiagramId[] = ['gap', 'wall', 'rope', 'trampoline', 'landing', 'coaster', 'lever', 'recoil'];
+export const DIAGRAM_IDS: DiagramId[] = ['gap', 'wall', 'rope', 'trampoline', 'landing', 'coaster', 'lever', 'recoil', 'bridge', 'cannon', 'stored'];
 
 const INK = '#1f2937', SPEED = '#2563eb', FORCE = '#dc2626', GRAV = '#d97706', ENERGY = '#16a34a', GROUND = '#9ca3af', SOFT = '#e5e7eb';
 type P = [number, number];
@@ -281,7 +281,92 @@ function recoilPrinciple(): string {
   return wrap('Recoil: heavy and slow, or light and fast', body);
 }
 
+function bridgeReal(): string {
+  // two decks, a plank that dips under a stick figure standing in the middle, the level line it started on
+  const sag = (x: number) => 4 * 70 * ((x - 150) / 460) * (1 - (x - 150) / 460); // a parabola-like dip, 70 px at the middle
+  const pts: P[] = [];
+  for (let i = 0; i <= 24; i++) { const x = 150 + (460 * i) / 24; pts.push([x, 230 + sag(x)]); }
+  const body =
+    `<rect x="40" y="226" width="110" height="170" fill="${SOFT}"/><rect x="610" y="226" width="110" height="170" fill="${SOFT}"/>` +
+    `<line x1="150" y1="230" x2="610" y2="230" stroke="${GROUND}" stroke-width="3" stroke-dasharray="8 8"/>` + txt(250, 216, 'where the plank started (level)', { color: GROUND, size: 13, bold: true }) +
+    poly(pts, GRAV, 9) +
+    fig({ head: [380, 222], neck: [380, 236], hip: [380, 268], arms: [[[368, 246], [360, 258]], [[392, 246], [400, 258]]], legs: [[[388, 284], [392, 298]], [[372, 284], [368, 298]]] }) +
+    arrow([380, 150], [380, 196], FORCE, 5) + txt(400, 170, 'your weight pushes down', { color: FORCE, bold: true, size: 14, anchor: 'start' }) +
+    txt(380, 350, 'The plank dips most in the middle, and not at all at the ends', { bold: true });
+  return wrap('Plank bridge: sag', body);
+}
+
+function bridgePrinciple(): string {
+  // three planks: the long one sags a lot, the thick one sags less, the one with a post sags least
+  const plank = (x0: number, w: number, y: number, dip: number, th: number, post: boolean, label: string): string => {
+    const pts: P[] = [];
+    for (let i = 0; i <= 20; i++) { const x = x0 + (w * i) / 20, t = i / 20; pts.push([x, y + 4 * dip * t * (1 - t)]); }
+    return poly(pts, GRAV, th) + (post ? `<rect x="${x0 + w / 2 - 6}" y="${y + dip}" width="12" height="${150 - dip}" fill="${GROUND}"/>` : '') +
+      `<line x1="${x0}" y1="${y}" x2="${x0 + w}" y2="${y}" stroke="${GROUND}" stroke-width="2" stroke-dasharray="6 6"/>` + txt(x0 + w / 2, y + 150, label, { size: 14, bold: true });
+  };
+  const body =
+    plank(30, 210, 150, 14, 8, false, 'A plank') +
+    plank(270, 210, 150, 14 * 8, 8, false, 'Twice as long:\neight times the sag') +
+    plank(510, 210, 150, 14 / 8, 8, false, 'Twice as thick:\none eighth the sag') +
+    txt(380, 52, 'Sag grows with the cube of the length and falls with the cube of the thickness', { bold: true, size: 15 }) +
+    txt(380, 420, 'A post in the middle turns one long plank into two short ones.', { size: 15 });
+  return wrap('Plank bridge: what changes the sag', body);
+}
+function storedReal(): string {
+  const body =
+    `<rect x="0" y="400" width="760" height="40" fill="${SOFT}"/>` +
+    `<rect x="650" y="300" width="18" height="100" fill="#f2efe6" stroke="${INK}" stroke-width="3"/>` + `<rect x="650" y="330" width="18" height="12" fill="${FORCE}"/><rect x="650" y="360" width="18" height="12" fill="${FORCE}"/>` +
+    `<line x1="659" y1="304" x2="150" y2="330" stroke="${ENERGY}" stroke-width="5"/>` +
+    fig({ head: [124, 258], neck: [124, 276], hip: [140, 330], arms: [[[148, 300], [152, 326]], [[110, 300], [100, 326]]], legs: [[[130, 360], [112, 398]], [[152, 362], [166, 398]]] }) +
+    arrow([260, 300], [100, 300], FORCE, 5) + txt(200, 280, 'You run away\nfrom the post', { color: FORCE, bold: true }) +
+    arrow([560, 372], [420, 372], SPEED, 5) + txt(490, 360, 'The band pulls you back', { color: SPEED, bold: true, size: 14 }) +
+    txt(380, 40, 'The longer you stretch it, the more it stores', { bold: true });
+  return wrap('Band: stretching stores energy', body);
+}
+
+function storedPrinciple(): string {
+  const stages: [string, number, number][] = [['Fully stretched', 1, 0], ['Half way back', 0.25, 0.87], ['Back at the start', 0, 1]];
+  let body = '';
+  stages.forEach(([name, e, v], i) => {
+    const cx = 130 + i * 250;
+    body += txt(cx + 20, 85, name, { bold: true, size: 17 }) + bar(cx - 40, 330, 200, e, ENERGY, 50) + bar(cx + 30, 330, 200, v, SPEED, 50) +
+      txt(cx - 15, 354, 'Stored', { size: 13, color: ENERGY, bold: true }) + txt(cx + 55, 354, 'Speed', { size: 13, color: SPEED, bold: true });
+    if (i < 2) body += arrow([cx + 105, 220], [cx + 150, 220], INK, 4);
+  });
+  body += txt(380, 392, 'The energy in the band turns into your speed as it shortens.', { bold: true }) +
+    txt(380, 416, 'Half the way back, the band has given up three quarters of what it stored.', { size: 15 });
+  return wrap('Band: stored energy becomes speed', body);
+}
+
+function cannonReal(): string {
+  const arc = (deg: number, color: string, w = 4) => {
+    const a = (deg * Math.PI) / 180, v = 28, T = (2 * v * Math.sin(a)) / 9.81, pts: P[] = [];
+    for (let i = 0; i <= 24; i++) { const t = (T * i) / 24; pts.push([80 + (v * Math.cos(a) * t) * 8.2, 372 - (v * Math.sin(a) * t - 4.905 * t * t) * 8.2]); }
+    return poly(pts, color, w);
+  };
+  const body =
+    `<rect x="0" y="372" width="760" height="68" fill="${SOFT}"/>` + line([0, 372], [760, 372], GROUND, 5) +
+    arc(75, GRAV) + arc(45, ENERGY, 6) + arc(20, SPEED) +
+    txt(190, 110, 'Steep: high,\nshort', { color: GRAV, bold: true, size: 14 }) + txt(430, 196, 'Middle: farthest', { color: ENERGY, bold: true, size: 15 }) + txt(560, 330, 'Flat: low and\nnot far', { color: SPEED, bold: true, size: 14 }) +
+    `<rect x="40" y="338" width="62" height="26" rx="6" fill="#4a4f55"/><circle cx="52" cy="368" r="9" fill="#1f2937"/><circle cx="90" cy="368" r="9" fill="#1f2937"/>` +
+    txt(380, 70, 'The same push, three angles', { bold: true, size: 17 });
+  return wrap('Cannon: the angle decides the flight', body);
+}
+
+function cannonPrinciple(): string {
+  const split = (cx: number, deg: number, name: string) => {
+    const a = (deg * Math.PI) / 180, L = 150, ex = cx + L * Math.cos(a), ey = 330 - L * Math.sin(a);
+    return arrow([cx, 330], [ex, ey], INK, 5) + line([cx, 330], [ex, 330], SPEED, 4, '6 5') + line([ex, 330], [ex, ey], ENERGY, 4, '6 5') +
+      txt(cx + L / 2, 352, 'Forward', { color: SPEED, size: 13, bold: true }) + txt(ex + 36, (330 + ey) / 2, 'Up', { color: ENERGY, size: 13, bold: true }) + txt(cx + 70, 110, name, { bold: true, size: 15 });
+  };
+  const body = split(70, 20, 'Flat: mostly forward') + split(300, 45, 'Middle: even') + split(530, 70, 'Steep: mostly up') +
+    txt(380, 400, 'The push has a forward part and an upward part. Forward covers ground; up keeps you in the air.', { bold: true, size: 14 }) +
+    txt(380, 424, 'Spend it evenly and you land farthest.', { size: 14 });
+  return wrap('Cannon: one push, split two ways', body);
+}
+
 const table: Record<DiagramId, Record<DiagramKind, () => string>> = {
+  cannon: { real: cannonReal, principle: cannonPrinciple },
   recoil: { real: recoilReal, principle: recoilPrinciple },
   gap: { real: gapReal, principle: gapPrinciple },
   wall: { real: wallReal, principle: wallPrinciple },
@@ -290,6 +375,8 @@ const table: Record<DiagramId, Record<DiagramKind, () => string>> = {
   landing: { real: landingReal, principle: landingPrinciple },
   lever: { real: leverReal, principle: leverPrinciple },
   coaster: { real: coasterReal, principle: coasterPrinciple },
+  bridge: { real: bridgeReal, principle: bridgePrinciple },
+  stored: { real: storedReal, principle: storedPrinciple },
 };
 
 export function diagram(id: DiagramId, kind: DiagramKind): string {

@@ -5,6 +5,7 @@ import { readFileSync, writeFileSync } from 'node:fs';
 import type { CourseData } from '../src/course/course';
 import { DEMO_COURSE_FILES } from '../src/course/demo-list';
 import { searchIdealRun } from '../src/sim/ideal';
+import { findShortcuts } from '../src/sim/shortcuts';
 import { generateCourse } from '../src/slice/generator';
 
 // A generated sample is the generator's own output for its seed (its plan is composed from proved moves, cheap), not a whole-course search.
@@ -17,15 +18,24 @@ for (const f of files) {
   const seed = GENERATED[f.split('/').pop()!];
   if (seed !== undefined) {
     const g = generateCourse(seed);
+    delete g.shortcuts;
+    const sc0 = findShortcuts(g, { moveChoices: false }).shortcuts; // routes the generator did not plan (CC-71)
+    if (sc0.length) g.shortcuts = sc0;
     writeFileSync(f, JSON.stringify(g, null, 2) + '\n');
     console.log(`${f}: regenerated from seed ${seed}, plan ${g.plan ? 'stored' : 'MISSING'} (${((Date.now() - t0) / 1000).toFixed(1)} s)`);
     if (!g.plan) bad++;
     continue;
   }
   const course = JSON.parse(readFileSync(f, 'utf8')) as CourseData;
-  delete course.plan; delete course.routes;
+  delete course.plan; delete course.routes; delete course.shortcuts;
   const r = searchIdealRun(course, { routes: true });
-  if (r.cleared) { course.plan = r.plan; if (r.routes) course.routes = r.routes; writeFileSync(f, JSON.stringify(course, null, 2) + '\n'); } else bad++;
+  if (r.cleared) {
+    course.plan = r.plan; if (r.routes) course.routes = r.routes;
+    // routes nobody planned (src/sim/shortcuts.ts), stored beside the plan so the Course can say so at once
+    const sc = findShortcuts(course, { moveChoices: false }).shortcuts;
+    if (sc.length) course.shortcuts = sc;
+    writeFileSync(f, JSON.stringify(course, null, 2) + '\n');
+  } else bad++;
   console.log(`${f}: ${r.cleared ? 'plan stored' : 'NOT CLEARED, no plan stored'} (${((Date.now() - t0) / 1000).toFixed(1)} s)`);
 }
 process.exit(bad ? 1 : 0);

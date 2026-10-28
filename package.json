@@ -19,7 +19,8 @@
     "feedback": "node scripts/feedback-summary.mjs",
     "feedback:rows": "node scripts/feedback-rows.mjs",
     "community": "node scripts/community-review.mjs",
-    "motion": "node scripts/motion.mjs"
+    "motion": "node scripts/motion.mjs",
+    "perf": "node scripts/perf-check.mjs --budget"
   },
   "dependencies": {
     "maplibre-gl": "^6.16.0",

@@ -1,0 +1,48 @@
+{
+  "place": "san-francisco-lombard",
+  "name": "Lombard Street, San Francisco",
+  "photos": [
+    {
+      "file": "photo-1.jpg",
+      "title": "Lombard Street in 2020 01.jpg",
+      "author": "Christopher Michel",
+      "licence": "CC BY-SA 4.0",
+      "licenceUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+      "source": "https://commons.wikimedia.org/wiki/File:Lombard_Street_in_2020_01.jpg",
+      "date": "2020-08-11 12:14:56",
+      "hint": "The crooked block of Lombard Street seen from above.",
+      "changes": "Scaled to 1200 px wide and recompressed as JPEG.",
+      "width": 1200,
+      "height": 800,
+      "bytes": 230193
+    },
+    {
+      "file": "photo-2.jpg",
+      "title": "Lombard Street from the top of the street.jpg",
+      "author": "Miscellaneous contributor",
+      "licence": "CC0",
+      "licenceUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+      "source": "https://commons.wikimedia.org/wiki/File:Lombard_Street_from_the_top_of_the_street.jpg",
+      "date": "24 June 2015",
+      "hint": "Looking down Lombard Street from the top of the hill.",
+      "changes": "Scaled to 1200 px wide and recompressed as JPEG.",
+      "width": 1200,
+      "height": 900,
+      "bytes": 189364
+    },
+    {
+      "file": "photo-3.jpg",
+      "title": "Lombard Street, crooked, looking towards Telegraph Hill, San Francisco, CA (August 2009).jpg",
+      "author": "Edocarli",
+      "licence": "CC BY-SA 4.0",
+      "licenceUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+      "source": "https://commons.wikimedia.org/wiki/File:Lombard_Street,_crooked,_looking_towards_Telegraph_Hill,_San_Francisco,_CA_(August_2009).jpg",
+      "date": "2009-08-07 00:23:37",
+      "hint": "The crooked section of Lombard Street, looking towards Telegraph Hill.",
+      "changes": "Scaled to 1200 px wide and recompressed as JPEG.",
+      "width": 1200,
+      "height": 674,
+      "bytes": 230220
+    }
+  ]
+}

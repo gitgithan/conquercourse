@@ -1,0 +1,32 @@
+{
+  "places": [
+    {
+      "slug": "montmartre-paris",
+      "name": "Montmartre, Paris",
+      "lat": 48.8867,
+      "lon": 2.3431,
+      "radiusKm": 3
+    },
+    {
+      "slug": "eixample-barcelona",
+      "name": "Eixample, Barcelona",
+      "lat": 41.3917,
+      "lon": 2.1649,
+      "radiusKm": 3
+    },
+    {
+      "slug": "circular-quay-sydney",
+      "name": "Circular Quay, Sydney",
+      "lat": -33.8614,
+      "lon": 151.2108,
+      "radiusKm": 3
+    },
+    {
+      "slug": "san-francisco-lombard",
+      "name": "Lombard Street, San Francisco",
+      "lat": 37.8021,
+      "lon": -122.4187,
+      "radiusKm": 3
+    }
+  ]
+}

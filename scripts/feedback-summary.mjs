@@ -17,6 +17,8 @@ for (const question of q.questions) {
     lines.push(`- Average ${(n.reduce((a, b) => a + b, 0) / Math.max(1, n.length)).toFixed(1)} out of 5.`, `- Spread: ${[1, 2, 3, 4, 5].map((k) => `${k}: ${n.filter((v) => v === k).length}`).join(', ')}.`);
   } else if (question.type === 'choice') {
     for (const o of question.options) lines.push(`- ${o}: ${vals.filter((v) => v === o).length}`);
+  } else if (question.type === 'multi') {
+    for (const o of question.options) lines.push(`- ${o}: ${vals.filter((v) => String(v).split(', ').includes(o)).length}`);
   } else {
     vals.forEach((v) => lines.push(`- "${String(v).replace(/\n/g, ' ')}"`));
   }

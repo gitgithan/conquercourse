@@ -1,4 +1,5 @@
 import { playPlan, searchIdealRun, type Plan } from '../sim/ideal';
+import { flewOff } from '../sim/cart';
 import { coasterCourse } from './coaster';
 
 // "Fix it" for a coaster: the smallest change to the track that makes the cart roll home with no brake.
@@ -8,7 +9,8 @@ export interface FixedCart { ok: boolean; pts: [number, number][]; steps: string
 
 const NO_BRAKE: Plan = { jumpXs: [], releaseAfter: 0, bouncePress: 0, cartBrake: [] };
 
-export const cartRides = (pts: [number, number][], push = 1.5): boolean => playPlan(coasterCourse('t', pts, push), NO_BRAKE).world.outcome === 'cleared';
+// Rides home on the rails with no brake: it finishes, and it never left the rails on the way.
+export const cartRides = (pts: [number, number][], push = 1.5): boolean => { const r = playPlan(coasterCourse('t', pts, push), NO_BRAKE); return r.world.outcome === 'cleared' && !flewOff(r.events); };
 
 export function fixCart(pts: [number, number][], push = 1.5): FixedCart {
   const p = [...pts].sort((a, b) => a[0] - b[0]);

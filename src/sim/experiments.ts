@@ -1,3 +1,4 @@
+import { DEFAULT_BAND, bandOnlySpeed } from './band';
 import { DT, GRAVITY } from './units';
 import { DEFAULT_PARAMS, NO_INPUT, startState, step } from './runner';
 import { DEFAULT_LANDING, landing } from './landing';
@@ -8,7 +9,8 @@ import { DEFAULT_TRAMPOLINE, bounce } from './trampoline';
 import { minSpeedToCross } from './needs';
 import { DEFAULT_TREBUCHET, deg, launchStep, startLaunch, type TrebuchetParams } from './trebuchet';
 import { DEFAULT_CART, cartStep, makeRails } from './cart';
-import { DEFAULT_RECOIL, ballSpeedFromRest, standingPush } from './recoil';
+import { DEFAULT_CANNON, DEFAULT_RECOIL, ballSpeedFromRest, levelRange, shot, standingPush } from './recoil';
+import { RIDER_MASS, sagAt, worstCase, type PlankData } from './beam';
 
 // The Dojo's experiments: one obstacle each, a few knobs, one question. Every answer comes from running the
 // simulator, never from a formula typed in here, so the lesson is always true to the game's physics.
@@ -28,7 +30,7 @@ export interface Trial {
   note?: string; // plain-words outcome
 }
 export interface Experiment {
-  id: 'gap' | 'wall' | 'rope' | 'trampoline' | 'landing' | 'bars' | 'coaster' | 'lever' | 'recoil';
+  id: 'gap' | 'wall' | 'rope' | 'trampoline' | 'landing' | 'bars' | 'coaster' | 'lever' | 'recoil' | 'bridge' | 'cannon' | 'stored';
   name: string;
   question: string;
   answerUnit: string;
@@ -246,6 +248,32 @@ const leverExp: Experiment = {
 };
 void leverTurn;
 
+// The elastic band (stored energy): you stretch a band by some distance and let go; it gives back what it stored, so the speed grows with the stretch
+// and with the square root of how stiff the band is. The answer is the speed the band alone gives (no legs, no friction): all the stored energy becomes motion.
+const BAND_KG = DEFAULT_BAND.mass;
+const storedExp: Experiment = {
+  id: 'stored', name: 'Stored energy', question: 'How fast will the band throw you when it lets go?', answerUnit: 'm/s', answerMax: 20, axis: 'meter', primary: 'stretch',
+  knobs: [
+    { id: 'stretch', label: 'How far you stretch the band', unit: 'm', min: 1, max: 20, def: 8, step: 0.5, why: 'Stretching it farther stores more energy, and the energy grows faster than the distance: twice the stretch stores four times as much.' },
+    { id: 'stiffness', label: 'How stiff the band is', unit: 'N/m', min: 20, max: 300, def: 60, step: 5, why: 'A stiffer band pulls harder for the same stretch, so it stores more. But your legs can only pull so hard, so a stiff band cannot be stretched far.' },
+  ],
+  sayings: ['A soft band pulled far outthrows a stiff one pulled little.'],
+  run(v) {
+    const p = { ...DEFAULT_BAND, k: v.stiffness };
+    const speed = bandOnlySpeed(p, v.stretch);
+    const reach = (DEFAULT_PARAMS.acceleration * BAND_KG) / v.stiffness; // the farthest your legs can pull it
+    const path: Point[] = Array.from({ length: 25 }, (_, i) => ({ x: -v.stretch * (1 - i / 24), y: 0 }));
+    const stiffer = bandOnlySpeed({ ...p, k: v.stiffness * 4 }, v.stretch);
+    return {
+      answer: speed,
+      path,
+      overlays: [{ pts: [{ x: 0, y: 0 }, { x: 0, y: 1.2 }], color: '#d33a2c', label: 'post' }, { pts: [{ x: -v.stretch, y: 1 }, { x: 0, y: 1.15 }], color: '#2ca66f', label: `band stretched ${v.stretch.toFixed(1)} m` }],
+      people: [{ x: -v.stretch, y: 0, pose: 'crouch', label: `you, ${BAND_KG} kg` }],
+      note: `Stretched ${v.stretch.toFixed(1)} m, a ${v.stiffness.toFixed(0)} N/m band throws you at ${speed.toFixed(1)} m/s. A band four times as stiff, stretched the same, would throw you ${stiffer.toFixed(1)} m/s: twice as fast. Your legs can only stretch this band about ${reach.toFixed(0)} m.`,
+    };
+  },
+};
+
 // A coaster (the cart on rails): how high a hill the cart can climb depends on the height it starts from, plus a little from the push.
 const coaster: Experiment = {
   id: 'coaster', name: 'Coaster: hills and speed', question: 'How high a hill can the cart climb?', answerUnit: 'm', answerMax: 14, axis: 'y', primary: 'height',
@@ -299,7 +327,64 @@ const recoilExp: Experiment = {
   },
 };
 
-export const EXPERIMENTS: Experiment[] = [gap, wall, rope, trampoline, landingExp, bars, coaster, leverExp, recoilExp];
+// A plank bridge: how far a plank sags with you in the middle. Sag grows with the cube of the span and falls with the cube of the thickness; a post in the middle halves the span.
+const bridge: Experiment = {
+  id: 'bridge', name: 'Plank bridge: how far it sags', question: 'How much further does the plank sag with you standing on it?', answerUnit: 'cm', answerMax: 150, axis: 'meter', primary: 'span',
+  knobs: [
+    { id: 'span', label: 'Length of the gap', unit: 'm', min: 1.5, max: 10, def: 4, step: 0.25, why: 'A longer plank has more of itself to bend between its two ends, and it bends far more than you would guess.' },
+    { id: 'thickness', label: 'Thickness of the plank', unit: 'cm', min: 1, max: 6, def: 2, step: 0.25, why: 'A thicker plank is much stiffer: the stiffness grows with the thickness multiplied by itself three times.' },
+    { id: 'post', label: 'Post under the middle (0 = none, 1 = one)', unit: '', min: 0, max: 1, def: 0, step: 1, why: 'A post makes two short planks out of one long one, and a short plank sags far less.' },
+  ],
+  sayings: ['A plank that is twice as long sags eight times as much.'],
+  run(v) {
+    const pk: PlankData = { x0: 0, x1: v.span, y: 0, thickness: v.thickness / 100, width: 0.6, material: 'wood', support: v.post >= 0.5 };
+    // you stand where the plank bends most: the middle of the plank, or the middle of one half if there is a post
+    const a = pk.support ? v.span / 4 : v.span / 2;
+    const extra = sagAt(pk, a, a) - sagAt(pk, -1, a); // how much more it sags because you stand on it
+    const path: Point[] = [];
+    for (let i = 0; i <= 40; i++) { const x = (v.span * i) / 40; path.push({ x, y: -sagAt(pk, a, x) }); }
+    const wc = worstCase(pk);
+    return {
+      answer: extra * 100,
+      path,
+      overlays: [{ pts: [{ x: 0, y: 0 }, { x: v.span, y: 0 }], color: '#9aa3ab', label: 'level' }],
+      people: [{ x: a, y: -sagAt(pk, a, a), pose: 'stand', label: `you, ${RIDER_MASS} kg` }],
+      note: `A ${v.span.toFixed(2)} m pine plank ${v.thickness.toFixed(2)} cm thick${pk.support ? ', with a post under the middle,' : ''} sags ${(extra * 100).toFixed(1)} cm more with you on it. ${wc.ratio >= 1 ? 'It would snap: the bending is more than pine can take.' : `It holds, using ${(wc.ratio * 100).toFixed(0)}% of what pine can take before snapping.`}`,
+    };
+  },
+};
+
+// The cannon (CC-66): the same push, aimed. The runner is pushed forward and up by the angle of the barrel, so the angle sets both speeds; on level ground the range peaks near 45 degrees.
+const cannonExp: Experiment = {
+  id: 'cannon', name: 'Cannon: the best angle', question: 'How far from the cannon do you land, on level ground?', answerUnit: 'm', answerMax: 90, axis: 'x', primary: 'angle',
+  knobs: [
+    { id: 'angle', label: 'Angle of the push above level', unit: '°', min: 5, max: 85, def: 25, step: 1, why: 'The barrel points backward and down, so you are pushed forward and up. A steeper barrel puts more of the push into going up and less into going forward.' },
+    { id: 'mass', label: 'Mass of the ball', unit: 'kg', min: 20, max: 120, def: DEFAULT_CANNON.ballMass, step: 5, why: 'A heavier ball carries more push away with it, so the whole push is bigger.' },
+    { id: 'muzzle', label: 'Speed of the ball leaving the cannon', unit: 'm/s', min: 20, max: 60, def: DEFAULT_CANNON.muzzle, step: 1, why: 'A faster ball carries more push away with it.' },
+  ],
+  sayings: ['Aim between high and flat: the middle angle flies farthest.'],
+  run(v) {
+    const p = { ...DEFAULT_RECOIL, kind: 'bigcannon' as const, ballMass: v.mass, muzzle: v.muzzle };
+    const a = (v.angle * Math.PI) / 180, s = shot(p, 0, 0, false, a);
+    let x = 0, y = 0, vy = s.dvy, top = 0;
+    const path: Point[] = [{ x: 0, y: 0 }];
+    for (let i = 0; i < 120 * 40; i++) {
+      const ny = y + vy * DT - 0.5 * GRAVITY * DT * DT;
+      vy -= GRAVITY * DT; x += s.dvx * DT; y = ny; top = Math.max(top, y);
+      if (y <= 0) { y = 0; path.push({ x, y }); break; }
+      if (i % 6 === 0) path.push({ x, y });
+    }
+    const flat = Array.from({ length: 5 }, (_, i) => 15 + i * 15).map((d) => { const q = shot(p, 0, 0, false, (d * Math.PI) / 180); return { d, r: levelRange(q.dvx, q.dvy) }; });
+    return {
+      answer: x, path,
+      overlays: [{ pts: [{ x: 0, y: top }, { x, y: top }], color: '#16a34a', label: `highest point: ${top.toFixed(0)} m` }],
+      people: [{ x: 0, y: 0, pose: 'stand', label: 'the shot' }, { x: x / 2, y: top, pose: 'fly' }, { x, y: 0, pose: 'stand', label: 'landing' }],
+      note: `The push is ${(Math.hypot(s.dvx, s.dvy)).toFixed(1)} m/s at ${v.angle.toFixed(0)}° above level: ${s.dvx.toFixed(1)} m/s forward and ${s.dvy.toFixed(1)} m/s up. You fly ${x.toFixed(0)} m and rise ${top.toFixed(0)} m. The same push at 15°, 30°, 45°, 60° and 75° flies ${flat.map((f) => f.r.toFixed(0)).join(', ')} m.`,
+    };
+  },
+};
+
+export const EXPERIMENTS: Experiment[] = [gap, wall, rope, trampoline, landingExp, bars, coaster, leverExp, recoilExp, bridge, cannonExp, storedExp];
 export const defaults = (e: Experiment, ctx: Context = {}): Record<string, number> => {
   const d = Object.fromEntries(e.knobs.map((k) => [k.id, k.def]));
   if (e.id === 'gap' && ctx.speed) d.speed = Math.min(10, Math.max(2, ctx.speed));
@@ -319,7 +404,7 @@ export function sweep(e: Experiment, values: Record<string, number>, knobId: str
   return out;
 }
 
-export type Shape = 'direct' | 'inverse' | 'square' | 'root' | 'hump' | 'exponential' | 'flat' | 'other';
+export type Shape = 'direct' | 'inverse' | 'square' | 'cube' | 'inverse-cube' | 'root' | 'hump' | 'exponential' | 'flat' | 'other';
 // Classify the curve by its log-log slope (a power law shows as a straight line there) and a few simple checks.
 export function classify(pts: Point[]): { shape: Shape; slope: number } {
   const ok = pts.filter((p) => p.x > 0 && p.y > 0.02);
@@ -342,6 +427,8 @@ export function classify(pts: Point[]): { shape: Shape; slope: number } {
     const s = pw.slope;
     if (Math.abs(s - 1) < 0.2) return { shape: 'direct', slope: s };
     if (Math.abs(s - 2) < 0.35) return { shape: 'square', slope: s };
+    if (Math.abs(s - 3) < 0.4) return { shape: 'cube', slope: s };
+    if (Math.abs(s + 3) < 0.4) return { shape: 'inverse-cube', slope: s };
     if (Math.abs(s + 1) < 0.25) return { shape: 'inverse', slope: s };
     if (Math.abs(s - 0.5) < 0.15) return { shape: 'root', slope: s };
     return { shape: 'other', slope: s };

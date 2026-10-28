@@ -8,9 +8,13 @@ import type { CourseData } from '../course/course';
 import { createView3d, type Ghosts } from '../slice/view3d';
 import { sceneFor } from '../slice/scene';
 import { barMesh, holdsOf, isHold, REACH_JUMPING, REACH_STANDING } from '../slice/holds-world';
+import { DEFAULT_PLANK, isPlankPiece, plankPiece, plankSpecOf, planksOf, setPlank, type PlankSpec } from '../slice/plank-world';
+import { fixPlank, plankHolds, worstCase } from '../sim/beam';
 import { withTrebuchet } from '../slice/launch-lane';
 import { withRecoil, type RecoilCfg } from '../slice/recoil-lane';
 import { fixRecoil } from '../slice/fixrecoil';
+import { withBand } from '../slice/band-lane';
+import { fixBand } from '../slice/fixband';
 import { CUP, PATTERNS, patternOf, stackPiece, stackSrc } from '../slice/stack';
 import { fixLayout } from '../slice/fixit';
 import { layoutToPieces, parseLayout, pieceFromSrc } from '../slice/photo-course';
@@ -21,6 +25,8 @@ import { parseReply, worldBrief, type Edit } from '../slice/designer';
 import { diffProposal, enabledCount, fromAdvice, fromEdits, resultOf, type Proposal } from '../slice/preview';
 import { ROLE_NAME, applySuggestion, movesInWorld, roleCourse, suggestRoles, type Role, type RoleSuggestion } from '../slice/roles';
 import { deviceMesh, RECOIL_PAD_LENGTH, TREBUCHET_PIVOT_FROM_CENTRE } from '../slice/device';
+import { shortcutLine, type Shortcut } from '../sim/shortcuts';
+import { closeShortcut } from '../slice/shortcut-close';
 
 // The World editor (beta): build a world from pieces on a plan view, scale them (a toy brick becomes a block), turn, copy, crop and move them,
 // choose the lane the runner takes (turn about the rod, sideways, level), and play it. Everything is in metres.
@@ -70,7 +76,7 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
     try {
       const s = JSON.parse(localStorage.getItem(KEY) ?? '') as Saved;
       pendingObjects.push(...s.pieces.filter((q) => q.src.startsWith('obj:')));
-      pieces = s.pieces.filter((q) => !q.src.startsWith('obj:')).map((q) => (q.src.startsWith('device:') ? { ...newPiece(q.src, deviceMesh(q.src), { x: q.x, z: q.z }), src: q.src, y: q.y, yaw: q.yaw, scale: q.scale } : patternOf(q.src) ? { ...stackPiece(q.src, { x: q.x, z: q.z })!, y: q.y, yaw: q.yaw, scale: q.scale } : q.src.startsWith('box:') ? { ...pieceFromSrc(q.src, { x: q.x, z: q.z })!, y: q.y, yaw: q.yaw, scale: q.scale } : q.src === 'hold:bar' ? { ...newPiece('Bar', barMesh(), { x: q.x, z: q.z }), src: q.src, y: q.y, yaw: q.yaw, scale: q.scale } : { ...newPiece(lib(q.src).label, lib(q.src).mesh(), { x: q.x, z: q.z }), src: q.src, y: q.y, yaw: q.yaw, scale: q.scale }));
+      pieces = s.pieces.filter((q) => !q.src.startsWith('obj:')).map((q) => (q.src.startsWith('device:') ? { ...newPiece(q.src, deviceMesh(q.src), { x: q.x, z: q.z }), src: q.src, y: q.y, yaw: q.yaw, scale: q.scale } : patternOf(q.src) ? { ...stackPiece(q.src, { x: q.x, z: q.z })!, y: q.y, yaw: q.yaw, scale: q.scale } : q.src.startsWith('box:') ? { ...pieceFromSrc(q.src, { x: q.x, z: q.z })!, y: q.y, yaw: q.yaw, scale: q.scale } : plankSpecOf(q.src) ? { ...plankPiece(plankSpecOf(q.src)!, { x: q.x, z: q.z }), y: q.y, yaw: q.yaw, scale: q.scale } : q.src === 'hold:bar' ? { ...newPiece('Bar', barMesh(), { x: q.x, z: q.z }), src: q.src, y: q.y, yaw: q.yaw, scale: q.scale } : { ...newPiece(lib(q.src).label, lib(q.src).mesh(), { x: q.x, z: q.z }), src: q.src, y: q.y, yaw: q.yaw, scale: q.scale }));
       s.pieces.filter((q) => !q.src.startsWith('obj:')).forEach((q, i) => { if (q.role && pieces[i]) pieces[i].role = q.role; });
       angle = s.angle; offset = s.offset; level = s.level;
     } catch {
@@ -171,22 +177,27 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
   trebInput.onchange = () => { const v = Number(trebInput.value); if (v >= 300 && v <= 4000) { updateDeviceSource('device:trebuchet', `device:trebuchet:${v}`); changed(); } };
   // a launcher on the start deck (recoil): the ball goes back, the runner goes forward; the ball's mass and speed are the knobs (the proof says whether it reaches)
   const recoilKnobs = el('span', addBar, {}); recoilKnobs.style.display = 'none';
-  const recoilKg = el('input', el('label', recoilKnobs, { text: 'Ball (kg) ' }), { type: 'number', min: '2', max: '60', step: '1', value: '12', id: 'recoilkg' });
-  const recoilSpeed = el('input', el('label', recoilKnobs, { text: 'Speed (m/s) ' }), { type: 'number', min: '3', max: '40', step: '1', value: '30', id: 'recoilspeed' });
+  const recoilKg = el('input', el('label', recoilKnobs, { text: 'Ball (kg) ' }), { type: 'number', min: '2', max: '150', step: '1', value: '12', id: 'recoilkg' });
+  const recoilSpeed = el('input', el('label', recoilKnobs, { text: 'Speed (m/s) ' }), { type: 'number', min: '3', max: '60', step: '1', value: '30', id: 'recoilspeed' });
   const syncRecoil = () => { recoilKnobs.style.display = recoilCfg ? '' : 'none'; if (recoilCfg) { recoilKg.value = String(recoilCfg.ballMass); recoilSpeed.value = String(recoilCfg.muzzle); } };
-  for (const [kind, text, id, mass, speed, title] of [['cannon', 'Launcher', 'addrecoil', 12, 30, 'A pad on the start deck clips on an air launcher: the ball goes back, you go forward (momentum is conserved)'], ['crate', 'Heavy crate', 'addcrate', 25, 6, 'A pad on the start deck with a heavy crate to throw backward: the same law, a slower throw']] as const) {
+  for (const [kind, text, id, mass, speed, title] of [['bigcannon', 'Cannon', 'addcannon', 80, 45, 'A pad on the start deck with a big wheeled air cannon: aim it with Up and Down, fire it with K; the ball goes back, you fly forward and up (the proof searches the angle)'], ['cannon', 'Launcher', 'addrecoil', 12, 30, 'A pad on the start deck clips on an air launcher: the ball goes back, you go forward (momentum is conserved)'], ['crate', 'Heavy crate', 'addcrate', 25, 6, 'A pad on the start deck with a heavy crate to throw backward: the same law, a slower throw']] as const) {
     el('button', addBar, { text, id, title }).onclick = () => {
       const first = !recoilPiece();
       const device = first
         ? makeRecoilDevice(kind, mass, speed)
-        : makeDevice(`device:${kind}:${mass}:${speed}:${RECOIL_PAD_LENGTH}`, kind === 'crate' ? 'Heavy crate' : 'Launcher', nextLaneU() + RECOIL_PAD_LENGTH / 2);
+        : makeDevice(`device:${kind}:${mass}:${speed}:${RECOIL_PAD_LENGTH}`, kind === 'crate' ? 'Heavy crate' : kind === 'bigcannon' ? 'Cannon' : 'Launcher', nextLaneU() + RECOIL_PAD_LENGTH / 2);
       pieces.push(device); selected = device.id;
       changed(); syncRecoil();
       view.cx = device.x; view.cz = device.z; view3d.look(0, 65, { x: device.x, z: device.z }, 13);
     };
   }
-  const recoilEdit = () => { const m = Number(recoilKg.value), u = Number(recoilSpeed.value); if (recoilCfg && m >= 2 && m <= 60 && u >= 3 && u <= 40) { const p = recoilPiece(), len = p?.src?.split(':')[4] ?? String(RECOIL_PAD_LENGTH); updateDeviceSource(`device:${recoilCfg.kind}`, `device:${recoilCfg.kind}:${m}:${u}:${len}`); changed(); } };
+  const recoilEdit = () => { const m = Number(recoilKg.value), u = Number(recoilSpeed.value); if (recoilCfg && m >= 2 && m <= 150 && u >= 3 && u <= 60) { const p = recoilPiece(), len = p?.src?.split(':')[4] ?? String(RECOIL_PAD_LENGTH); updateDeviceSource(`device:${recoilCfg.kind}`, `device:${recoilCfg.kind}:${m}:${u}:${len}`); changed(); } };
   recoilKg.onchange = recoilEdit; recoilSpeed.onchange = recoilEdit;
+  // an elastic band at the start: stretch it by running away from the post, turn round, and be thrown to the lane; the stiffness is the knob (the proof says whether it reaches)
+  el('button', addBar, { text: 'Band', id: 'addband', title: 'Start the lane at an elastic band: stretch it, turn round, and it throws you onto the lane' }).onclick = () => { bandK = bandK ? null : 35; bandLabel.style.display = bandK ? '' : 'none'; bandInput.value = String(bandK ?? 35); changed(); };
+  const bandLabel = el('label', addBar, { text: 'Stiffness (N/m) ' }); bandLabel.style.display = 'none';
+  const bandInput = el('input', bandLabel, { type: 'number', min: '20', max: '300', step: '5', value: '35', id: 'bandk' });
+  bandInput.onchange = () => { const v = Number(bandInput.value); if (v >= 20 && v <= 300) { bandK = v; changed(); } };
   // stacks: sport-stacking cups (mouth down, pyramids) as obstacle shapes; the piece scale makes a 9 cm cup runner-sized
   el('strong', addBar, { text: 'Stacks:' });
   for (const pt of PATTERNS) {
@@ -194,6 +205,8 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
       const q = stackPiece(stackSrc(pt.id), { x: nextX() + 1, z: 0 })!; pieces.push(q); selected = q.id; changed();
     };
   }
+  // a plank bridge: lay it across a gap between two pieces of ground; it sags and can break (the knobs are in the piece panel)
+  el('button', addBar, { text: 'Plank', id: 'addplank', title: 'A plank bridge laid across a gap: it sags under the runner and breaks if it is too thin or too long' }).onclick = () => { const q = plankPiece(DEFAULT_PLANK, { x: nextX() + 1, z: 0 }); pieces.push(q); selected = q.id; changed(); };
   // size references: a Rookie (1.75 m, T-pose) and the demo scene, so a piece can be judged against a person
   el('strong', addBar, { text: 'Size references:' });
   for (const r of [{ id: 'person', label: 'Person reference (toggle)', url: '', src: '' }, { id: 'demo-scene', label: 'Demo scene', url: '/assets/demo/demo-scene.glb', src: 'obj:../demo/demo-scene.glb' }]) {
@@ -255,6 +268,42 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
   el('button', head, { text: 'Fix it', id: 'fixit', className: 'go', title: 'Show a layout the simulator can clear, before anything changes' }).onclick = () => runFix();
   el('button', head, { text: '✕', id: 'closehelper', title: 'Hide' }).onclick = () => { helper.classList.add('closed'); helperBtn.setAttribute('aria-pressed', 'false'); };
   const adviceBox = el('div', helper, { id: 'advice' });
+  // ---- routes you did not plan (CC-71): the simulator looks for lines that skip an obstacle; Close it previews a change that shuts one, Keep it marks it as meant
+  const designed = new Set<string>();
+  let routes: Shortcut[] = [], routesWorker: Worker | null = null;
+  const routesHead = el('div', helper, { className: 'row', id: 'routeshead' });
+  const findRoutesBtn = el('button', routesHead, { text: 'Look for routes you did not plan', id: 'findroutes', title: 'The simulator tries the course with each bar, wall or rope taken away and tells you which skips are faster' });
+  const routesBox = el('div', helper, { id: 'routes' });
+  const routesBrief = () => routes.filter((r) => !designed.has(r.id)).map((r) => shortcutLine(r));
+  function renderRoutes() {
+    routesBox.replaceChildren();
+    if (!routes.length) { el('div', routesBox, { className: 'muted', text: 'No route that skips an obstacle is faster than the planned line.' }); return; }
+    for (const s of routes) {
+      const row = el('div', routesBox, { className: 'row', id: `route-${s.id}` });
+      el('span', row, { text: shortcutLine(s) + (designed.has(s.id) ? ' (kept: meant by the designer)' : '') });
+      el('button', row, { text: 'Close it', className: 'go', title: 'See a change that shuts this route before anything moves' }).onclick = () => closeRoute(s);
+      el('button', row, { text: designed.has(s.id) ? 'Unkeep' : 'Keep it', title: 'Mark this route as meant: it stays, and is drawn as a dashed arrow' }).onclick = () => { if (designed.has(s.id)) designed.delete(s.id); else designed.add(s.id); renderRoutes(); drawProfile(); };
+    }
+  }
+  function lookForRoutes() {
+    findRoutesBtn.disabled = true; routesBox.replaceChildren(); el('div', routesBox, { className: 'muted', text: 'Looking for routes (about a minute)…' });
+    const done = (list: Shortcut[]) => { routes = list; findRoutesBtn.disabled = false; renderRoutes(); drawProfile(); document.documentElement.dataset.routes = String(list.length); };
+    try {
+      routesWorker ??= new Worker(new URL('../sim/shortcuts-worker.ts', import.meta.url), { type: 'module' });
+      routesWorker.onmessage = (e: MessageEvent) => done((e.data.shortcuts as Shortcut[]) ?? []);
+      routesWorker.postMessage({ course: courseNow() });
+    } catch { done([]); }
+  }
+  findRoutesBtn.onclick = lookForRoutes;
+  function closeRoute(s: Shortcut) {
+    reply.className = 'reply'; reply.textContent = 'Working out a change that closes it… (up to two minutes)'; helper.classList.remove('closed'); helperBtn.setAttribute('aria-pressed', 'true');
+    setTimeout(() => {
+      const now = { angle, offset, level }, r = closeShortcut(pieces as P[], now, s);
+      if (!r.ok) { reply.className = 'reply bad'; reply.textContent = r.steps.join(' '); return; }
+      leadText = '';
+      showProposal(diffProposal('shortcut', `Close the shortcut: ${s.how}`, pieces, now, r.pieces, now, r.steps, true));
+    }, 30);
+  }
   const reply = el('div', helper, { className: 'reply muted', id: 'reply', text: 'Ask for a change, or press "What should I change?".' });
   const askRow = el('div', helper, { className: 'row' });
   const ask = el('textarea', askRow, { id: 'ask', rows: 2, placeholder: 'e.g. make the gap easier, or a harder second half' });
@@ -415,12 +464,28 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
     helper.classList.remove('closed'); helperBtn.setAttribute('aria-pressed', 'true');
     reply.className = 'reply'; reply.textContent = 'Working it out…' + (pieces.some(isHold) ? ' (bars take a while: up to 40 seconds)' : '');
     setTimeout(() => {
+      const pf = plankFixNow(); // a plank that would snap: the smallest change is a thicker plank or a post, said in words first
+      if (pf) {
+        reply.className = 'reply bad'; reply.textContent = 'The plank would snap. ' + pf.steps.join(' ') + ' ';
+        const mk = el('button', reply, { text: 'Make it so', className: 'go', id: 'plankfix' });
+        mk.onclick = () => { pf.apply(); changed(); reply.className = 'reply ok'; reply.textContent = 'Done: the plank is stronger now.'; };
+        document.documentElement.dataset.fixed = '0';
+        return;
+      }
       if (recoilCfg && !trebuchetKg && !verdict.startsWith('The simulator can')) { // the launcher is the first thing to change: a heavier or faster ball
         const fr = fixRecoil(courseNow(), recoilCfg);
         reply.className = fr.ok ? 'reply ok' : 'reply bad';
         reply.textContent = fr.ok ? (fr.steps[0] ?? 'It already works.') : fr.steps.join(' ');
         document.documentElement.dataset.fixed = fr.ok ? '1' : '0';
         if (fr.ok && fr.steps.length) el('button', reply, { text: 'Use it', className: 'go', id: 'userecoil' }).onclick = () => { const len = recoilPiece()?.src?.split(':')[4] ?? String(RECOIL_PAD_LENGTH); updateDeviceSource(`device:${fr.cfg.kind}`, `device:${fr.cfg.kind}:${fr.cfg.ballMass}:${fr.cfg.muzzle}:${len}`); syncRecoil(); changed(); };
+        return;
+      }
+      if (bandK) { // the band: the only thing Fix it can change is its stiffness; it says so and waits for Apply
+        const bf = fixBand(laneCourse(currentProfile()));
+        document.documentElement.dataset.fixed = bf.ok ? '1' : '0';
+        reply.className = bf.ok ? 'reply ok' : 'reply bad';
+        reply.textContent = bf.ok ? (bf.steps.length ? bf.steps.join(' ') : 'It already works.') : bf.steps.join(' ');
+        if (bf.ok && bf.steps.length) el('button', reply, { text: 'Apply', id: 'applyband', className: 'go' }).onclick = () => { bandK = bf.k; bandInput.value = String(bf.k); changed(); reply.textContent = 'Applied.'; };
         return;
       }
       const now = { angle, offset, level }, start = from ?? { pieces, lane: now };
@@ -520,7 +585,7 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
     chat.push({ role: 'user', content: text });
     reply.className = 'reply'; reply.textContent = 'Thinking…'; sendBtn.disabled = whatBtn.disabled = true;
     try {
-      const r = await fetch('/api/designer', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ messages: chat.slice(-6), world: worldBrief(pieces, { angle, offset, level }, verdict, adviceList.map((a) => a.text), barsNow()) }) });
+      const r = await fetch('/api/designer', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ messages: chat.slice(-6), world: worldBrief(pieces, { angle, offset, level }, verdict, adviceList.map((a) => a.text), barsNow(), routesBrief()) }) });
       if (r.status === 503) { reply.className = 'reply muted'; reply.textContent = 'The design partner is switched off on this site (no key set).'; return; }
       if (!r.ok) throw new Error(String(r.status));
       const got = parseReply(((await r.json()) as { reply: string }).reply, pieces.map((q) => q.id));
@@ -547,6 +612,34 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
   new ResizeObserver(fit).observe(profileWrap);
   setView(false);
 
+  function plankFixNow(): { steps: string[]; apply: () => void } | null {
+    const c = courseNow(), laid = planksOf(pieces as P[], { angle, offset, level });
+    const fixes: { piece: P; spec: PlankSpec; fix: ReturnType<typeof fixPlank> }[] = [];
+    (c.planks ?? []).forEach((pk, i) => { const pc = laid[i] ? (pieces.find((q) => q.id === laid[i].id) as P | undefined) : undefined; if (pc && !plankHolds(pk)) fixes.push({ piece: pc, spec: plankSpecOf(pc.src)!, fix: fixPlank(pk) }); });
+    if (!fixes.length) return null;
+    return { steps: fixes.flatMap((f) => f.fix.steps), apply: () => fixes.forEach((f) => { if (f.fix.ok) setPlank(f.piece, { ...f.spec, thickness: f.fix.plank.thickness, support: !!f.fix.plank.support }); }) };
+  }
+
+  // ---- a plank bridge's knobs: material, thickness, width, a post in the middle (the length is the gap it lies across)
+  function plankKnobs(p: P) {
+    const spec = plankSpecOf(p.src)!;
+    const set = (patch: Partial<PlankSpec>) => { setPlank(p, { ...spec, ...patch }); changed(); };
+    const mat = el('label', side, { text: 'Material ' });
+    const sel = el('select', mat, { id: 'plankmat' }) as HTMLSelectElement;
+    for (const [v, t] of [['wood', 'Pine plank'], ['steel', 'Steel plate']] as const) { const o = el('option', sel, { text: t }); o.value = v; if (v === spec.material) o.selected = true; }
+    sel.onchange = () => set({ material: sel.value === 'steel' ? 'steel' : 'wood' });
+    const num = (label: string, id: string, v: number, min: number, max: number, step: number, apply: (n: number) => Partial<PlankSpec>) => {
+      const l = el('label', side, { text: label }); const i = el('input', l, { type: 'number', id, min: String(min), max: String(max), step: String(step), value: String(v) });
+      i.onchange = () => { const n = Number(i.value); if (n >= min && n <= max) set(apply(n)); };
+    };
+    num('Thickness (cm) ', 'plankthick', Math.round(spec.thickness * 1000) / 10, 0.5, 20, 0.5, (n) => ({ thickness: n / 100 }));
+    num('Width (cm) ', 'plankwidth', Math.round(spec.width * 100), 20, 200, 5, (n) => ({ width: n / 100 }));
+    num('Length (m, drawing only: the gap decides) ', 'plankspan', spec.span, 1, 20, 0.5, (n) => ({ span: n }));
+    const post = el('label', side, { text: 'Post under the middle ' }); const cb = el('input', post, { type: 'checkbox', id: 'plankpost' }) as HTMLInputElement; cb.checked = spec.support; cb.onchange = () => set({ support: cb.checked });
+    const span = spec.span * p.scale, w = worstCase({ x0: 0, x1: span, y: 0, thickness: spec.thickness, width: spec.width, material: spec.material, ...(spec.support ? { support: true } : {}) });
+    el('div', side, { id: 'plankinfo', className: w.ratio >= 1 ? 'bad' : 'muted', text: w.ratio >= 1 ? `Over ${span.toFixed(1)} m it would snap (${(w.sag * 100).toFixed(0)} cm of sag at the worst place).` : `Over ${span.toFixed(1)} m it holds: ${(w.sag * 100).toFixed(0)} cm of sag at the worst place, ${(w.ratio * 100).toFixed(0)}% of what it can take.` });
+  }
+
   // ---- the selected piece
   function drawPanel() {
     side.replaceChildren();
@@ -562,6 +655,7 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
       el('button', row, { text: 'Delete', id: 'del' }).onclick = () => { pieces = pieces.filter((q) => q !== p); selected = null; changed(); };
       return;
     }
+    if (isPlankPiece(p as P)) plankKnobs(p as P);
     const r = realSize(p);
     el('div', side, { id: 'realsize', className: 'muted', text: `Real size: ${r.w.toFixed(2)} × ${r.d.toFixed(2)} m, ${r.h.toFixed(2)} m high (scale ×${p.scale.toPrecision(3)})` });
     const lab = el('label', side, { text: 'Real height (m): make it this tall' });
@@ -647,38 +741,39 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
     const c = Math.cos(angle), s = Math.sin(angle), x = u * c - offset * s, z = u * s + offset * c;
     return { ...newPiece(name, deviceMesh(src), { x, z }), src, yaw: angle };
   };
-  const makeRecoilDevice = (kind: 'cannon' | 'crate', mass: number, muzzle: number): P => {
+  const makeRecoilDevice = (kind: 'cannon' | 'crate' | 'bigcannon', mass: number, muzzle: number): P => {
     const cfg = { kind, ballMass: mass, muzzle }, base = roleCourse(coursePieces(), { angle, offset, level }, 'My world').course, withPad = withRecoil(base, cfg);
     const pad = withPad.recoil, x0 = pad?.x0 ?? base.startX + 1.5, x1 = pad?.x1 ?? base.startX + 4;
     const len = Math.max(0.8, x1 - x0), src = `device:${kind}:${mass}:${muzzle}:${len}`;
-    return makeDevice(src, kind === 'crate' ? 'Heavy crate' : 'Launcher', (x0 + x1) / 2);
+    return makeDevice(src, kind === 'crate' ? 'Heavy crate' : kind === 'bigcannon' ? 'Cannon' : 'Launcher', (x0 + x1) / 2);
   };
   const updateDeviceSource = (prefix: string, src: string) => {
     const p = pieces.find((q) => q.src?.startsWith(prefix));
     if (p) { p.src = src; p.mesh = centred(deviceMesh(src)); }
   };
-  const ground = () => coursePieces().filter((q) => !isHold(q) && q.role !== 'rope'); // references, bars and rope anchors are not ground
+  const ground = () => coursePieces().filter((q) => !isHold(q) && q.role !== 'rope' && !isPlankPiece(q)); // references, bars, rope anchors and planks are not ground
   const currentProfile = () => sliceProfile(worldSamples(ground()), { x: 0, z: 0 }, { angle, offset, level });
   const barsNow = () => holdsOf(pieces, { angle, offset, level });
   let floorChoice: Hazard = 'water'; // the floor you must not touch (saved in the course)
+  let bandK: number | null = null; // the lane starts at an elastic band (its stiffness in N/m)
   let trebuchetKg: number | null = null; // the lane starts in a trebuchet (the counterweight in kg), or on a plain deck
   let recoilCfg: RecoilCfg | null = null; // the start deck carries a launcher pad (CC-66), or not
-  const recoilPiece = () => pieces.find((p) => p.src?.startsWith('device:cannon:') || p.src?.startsWith('device:crate:'));
+  const recoilPiece = () => pieces.find((p) => p.src?.startsWith('device:cannon:') || p.src?.startsWith('device:bigcannon:') || p.src?.startsWith('device:crate:'));
   const recoilRange = () => { const p = recoilPiece(); if (!p) return undefined; const u = p.x * Math.cos(angle) + p.z * Math.sin(angle), length = Number(p.src?.split(':')[4]) || RECOIL_PAD_LENGTH; return { x0: u - length / 2, x1: u + length / 2 }; };
   function syncDeviceState() {
     const tre = pieces.find((p) => p.src?.startsWith('device:trebuchet:'));
     trebuchetKg = tre ? Number(tre.src!.split(':')[2]) || 1200 : null;
     const recoil = recoilPiece(), parts = recoil?.src?.split(':');
-    recoilCfg = recoil && parts ? { kind: parts[1] as 'cannon' | 'crate', ballMass: Number(parts[2]) || 12, muzzle: Number(parts[3]) || 30 } : null;
+    recoilCfg = recoil && parts ? { kind: parts[1] as 'cannon' | 'crate' | 'bigcannon', ballMass: Number(parts[2]) || 12, muzzle: Number(parts[3]) || 30 } : null;
     trebLabel.style.display = trebuchetKg ? '' : 'none'; trebInput.value = String(trebuchetKg ?? 1200);
     syncRecoil();
   }
   const laneCourse = (_p?: ReturnType<typeof currentProfile>) => {
     const c = roleCourse(coursePieces(), { angle, offset, level }, 'My world').course;
     if (trebuchetKg) { const p = pieces.find((q) => q.src?.startsWith('device:trebuchet:')); const u = p ? p.x * Math.cos(angle) + p.z * Math.sin(angle) + TREBUCHET_PIVOT_FROM_CENTRE * p.scale : 0; return withTrebuchet(c, trebuchetKg, u); }
-    return recoilCfg ? withRecoil(c, recoilCfg, recoilRange()) : c;
+    return recoilCfg ? withRecoil(c, recoilCfg, recoilRange()) : bandK ? withBand(c, bandK) : c;
   };
-  const courseNow = () => { const c = laneCourse(currentProfile()); if (floorChoice !== 'water') c.hazard = floorChoice; return c; };
+  const courseNow = () => { const c = laneCourse(currentProfile()); if (floorChoice !== 'water') c.hazard = floorChoice; if (designed.size) c.designedShortcuts = [...designed]; return c; };
   let verifyTimer = 0, adviceRun = 0, verifyVersion = 0, searchVersion = 0;
   let searchWorker: Worker | null = null, finishSearch: ((cleared: boolean | null) => void) | null = null;
   let activeSearch: { key: string; promise: Promise<boolean | null> } | null = null;
@@ -850,6 +945,16 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
       c.strokeStyle = sel ? '#0f6b5c' : '#f0a020'; c.lineWidth = 3; c.beginPath(); c.arc(x, y, 9, 0, 7); c.stroke();
       c.fillStyle = '#17201d'; c.fillText(`${b.y.toFixed(2)} m`, x + 12, y - 8);
     }
+    for (const s of routes) { // kept shortcuts: a dashed arrow from the bar before the skipped ones to the bar after them (or the end of the lane)
+      if (!designed.has(s.id)) continue;
+      const ix = s.skipped.map((n) => /^Bar (\d+)$/.exec(n)).filter((m): m is RegExpExecArray => !!m).map((m) => Number(m[1]) - 1);
+      if (!ix.length) continue;
+      const sorted = [...bars].sort((a, b) => a.u - b.u), a0 = sorted[Math.min(...ix) - 1], a1 = sorted[Math.max(...ix) + 1];
+      if (!a0) continue;
+      const x0 = 10 + (a0.u - uLo) * ppm, y0 = base - a0.y * ph, x1 = a1 ? 10 + (a1.u - uLo) * ppm : 10 + (o + prof.length - uLo) * ppm, y1 = a1 ? base - a1.y * ph : base;
+      c.save(); c.strokeStyle = '#7a4fd1'; c.fillStyle = '#7a4fd1'; c.lineWidth = 2; c.setLineDash([5, 5]); c.beginPath(); c.moveTo(x0, y0); c.quadraticCurveTo((x0 + x1) / 2, Math.min(y0, y1) - 40, x1, y1); c.stroke(); c.setLineDash([]);
+      const a = Math.atan2(y1 - (Math.min(y0, y1) - 20), x1 - (x0 + x1) / 2); c.beginPath(); c.moveTo(x1, y1); c.lineTo(x1 - 9 * Math.cos(a - 0.45), y1 - 9 * Math.sin(a - 0.45)); c.lineTo(x1 - 9 * Math.cos(a + 0.45), y1 - 9 * Math.sin(a + 0.45)); c.closePath(); c.fill(); c.restore();
+    }
     if (pv) { // the preview: the ground after the change (dashed teal) and the bars where they would hang, with an arrow from where they are now
       c.save(); c.strokeStyle = '#0f9d84'; c.lineWidth = 2; c.setLineDash([6, 4]); c.beginPath();
       let pen2 = false;
@@ -948,7 +1053,7 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
     if (e.code === 'KeyD') { const q = duplicate(p, size(p.mesh).w * p.scale + 0.5, 0) as P; q.src = p.src; pieces.push(q); selected = q.id; changed(); }
   });
 
-  function changed(record = true) { if (proposal) closePreview('The layout changed, so the preview was closed.'); if (record) remember(); syncDeviceState(); document.documentElement.dataset.pieces = String(pieces.length); save(); drawPanel(); drawLanePanel(); draw(); drawProfile(); verify(); renderMoves(); }
+  function changed(record = true) { if (proposal) closePreview('The layout changed, so the preview was closed.'); if (record) remember(); syncDeviceState(); document.documentElement.dataset.pieces = String(pieces.length); document.documentElement.dataset.band = bandK ? String(bandK) : ''; save(); drawPanel(); drawLanePanel(); draw(); drawProfile(); verify(); renderMoves(); }
   syncDeviceState();
   drawPanel(); drawLanePanel(); draw(); drawProfile(); verify();
   remember();

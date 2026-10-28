@@ -1,10 +1,13 @@
 import * as THREE from 'three/webgpu';
 import type { CourseData } from '../course/course';
 import { heightAt } from '../sim/terrain';
-import { predictCart, predictJump, predictLaunch, predictRelease } from '../sim/predict';
+import { predictBand, predictCart, predictJump, predictLaunch, predictRelease, predictShot } from '../sim/predict';
+import { isAimable } from '../sim/recoil';
+import { recoilParams } from '../sim/world';
 import type { WorldState } from '../sim/world';
 import { DEFAULT_WALL } from '../sim/wall';
 import { planVault, vaultAt, vaultHand, type Vault } from '../sim/vault';
+import { CLIMB_REACH_X, CLIMB_TICKS, climbAhead } from '../sim/climb';
 import { ROLL_DRUM_TICKS } from '../sim/drums';
 import { DEFAULT_LANDING, safeDrop } from '../sim/landing';
 import { GRAVITY } from '../sim/units';
@@ -57,6 +60,9 @@ export function createDebugView(scene: THREE.Scene, course: CourseData, parent: 
   for (const [a, b] of [[[-0.12, 0], [0.12, 0]], [[0, -0.12], [0, 0.12]]] as const) { const l = new THREE.Line(new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(a[0], a[1], Z), new THREE.Vector3(b[0], b[1], Z)]), mat(0xff9d2e)); l.renderOrder = 999; l.frustumCulled = false; contactMark.add(l); }
   const vaultPoints = (v: Vault) => { const out: THREE.Vector3[] = []; for (let i = 0; i <= v.n; i += 2) { const q = vaultAt(v, i); out.push(new THREE.Vector3(q.x, q.y + 0.9, Z)); } const e = vaultAt(v, v.n); out.push(new THREE.Vector3(e.x, e.y + 0.9, Z)); return out; };
 
+  // the climb: a cyan ring on the edge of the next wall the hands can take (hold E within a hand's reach of the wall), or the real path while hanging and pulling up
+  const climbMark = line(Array.from({ length: 17 }, (_, i) => new THREE.Vector3(Math.cos((i / 16) * 2 * Math.PI) * 0.2, Math.sin((i / 16) * 2 * Math.PI) * 0.2, Z)), 0x2de0ff, true); climbMark.visible = false;
+
   const panel = document.createElement('div');
   panel.id = 'debugpanel';
   panel.style.cssText = 'position:fixed;left:16px;bottom:124px;width:min(380px,90vw);background:#10141cdd;color:#f3f5f1;border-radius:12px;padding:8px 12px;font:13px/1.4 system-ui,sans-serif;pointer-events:none;display:' + (on ? 'block' : 'none');
@@ -72,7 +78,7 @@ export function createDebugView(scene: THREE.Scene, course: CourseData, parent: 
       box.position.set(r.x, r.y, 0); feet.position.set(r.x, r.y, 0);
       if (w.runner.tick === tick) return; // the preview only changes when the world does
       tick = w.runner.tick;
-      const pr = w.mode === 'hang' ? predictRelease(w, course) : w.mode === 'cart' ? predictCart(w, course) : w.mode === 'launch' ? predictLaunch(w, course) : predictJump(w, course);
+      const pr = w.mode === 'hang' ? predictRelease(w, course) : w.mode === 'cart' ? predictCart(w, course) : w.mode === 'launch' ? predictLaunch(w, course) : w.mode === 'band' ? predictBand(w, course) : course.recoil && isAimable(recoilParams(course)) && (w.recoil?.armed ?? 0) > 0 ? predictShot(w, course) : predictJump(w, course);
       const n = pr.path.length;
       arc.geometry.dispose();
       arc.geometry = new THREE.BufferGeometry().setFromPoints(pr.path.length > 1 ? pr.path.map((q) => new THREE.Vector3(q.x, q.y, Z)) : [new THREE.Vector3(), new THREE.Vector3()]);
@@ -100,11 +106,18 @@ export function createDebugView(scene: THREE.Scene, course: CourseData, parent: 
         if (pv && !live) { plantMark.position.set(pv.plantX, r.y, 0); vaultText = `<div style="color:#d05cff;font-weight:700">Vault: plant ${(pv.vault.edge - pv.plantX).toFixed(1)} m before the step (press V between ${(pv.vault.edge - pv.windowFrom).toFixed(1)} and ${(pv.vault.edge - pv.windowTo).toFixed(1)} m), land ${(pv.vault.x1 - pv.vault.edge).toFixed(1)} m past its edge; hands on the <span style="color:#ff9d2e">orange cross</span></div>`; }
         else if (live) vaultText = `<div style="color:#d05cff;font-weight:700">Vaulting: the path goes from ${live.x0.toFixed(1)} to ${live.x1.toFixed(1)} m in ${(live.n / 120).toFixed(2)} s; hands pinned on the <span style="color:#ff9d2e">orange cross</span></div>`;
       }
+      // the climb
+      let climbText = '';
+      const ca = w.mode === 'run' ? climbAhead(course.terrain, r.x, r.grounded ? r.y : r.y, 10, course.jumpSpeed) : null;
+      const cl = w.mode === 'climb' ? w.climb : null;
+      climbMark.visible = ca !== null || cl !== null;
+      if (cl) { climbMark.position.set(cl.edge, cl.top, 0); climbText = `<div style="color:#2de0ff;font-weight:700">Climbing: the hands hold the edge at ${cl.top.toFixed(1)} m; ${((CLIMB_TICKS - cl.i) / 120).toFixed(1)} s to the top</div>`; }
+      else if (ca) { climbMark.position.set(ca.edge, ca.top, 0); climbText = `<div style="color:#2de0ff;font-weight:700">Climb: a ${ca.rise.toFixed(1)} m wall at ${ca.edge.toFixed(1)} m. Hold E within ${CLIMB_REACH_X} m of it${ca.standing ? ' (the hands reach it from the ground)' : ' at the top of a jump'}; the pull-up takes ${(CLIMB_TICKS / 120).toFixed(1)} s and the run speed is lost</div>`; }
       const hex = '#' + colour.toString(16).padStart(6, '0');
       // the ways through a pair of bars and their times, as found with the plan (a fact about the course, not a grade)
       const routesText = course.routes && course.routes.length > 1 && w.mode !== 'cart' ? `<div style="color:#c9d1c9;margin-top:3px">Routes: ${course.routes.map((q) => `${q.name} ${(q.ticks / 120).toFixed(1)} s${q.chosen ? ' (faster)' : ''}`).join(' · ')}. A full pump on the first bar skips the second bar.</div>` : '';
-      panel.innerHTML = `${vaultText}${rollText}${routesText}<strong>Debug view (B)</strong><div>${r.grounded ? 'On the ground' : 'In the air'} · speed ${Math.abs(r.vx).toFixed(1)} m/s · ${r.y.toFixed(2)} m up</div>`
-        + `<div style="color:${hex};font-weight:700">${w.mode === 'cart' ? 'If the cart rolls on: ' : w.mode === 'hang' || w.mode === 'launch' ? 'If you let go now: ' : r.grounded || pr.result === 'other-move' ? 'If you jump now: ' : 'You are in the air; carrying on: '}${pr.why}</div>`
+      panel.innerHTML = `${climbText}${vaultText}${rollText}${routesText}<strong>Debug view (B)</strong><div>${r.grounded ? 'On the ground' : 'In the air'} · speed ${Math.abs(r.vx).toFixed(1)} m/s · ${r.y.toFixed(2)} m up</div>`
+        + `<div style="color:${hex};font-weight:700">${w.mode === 'cart' ? 'If the cart rolls on: ' : w.mode === 'band' ? 'If you turn round now: ' : w.mode === 'hang' || w.mode === 'launch' ? 'If you let go now: ' : r.grounded || pr.result === 'other-move' ? 'If you jump now: ' : 'You are in the air; carrying on: '}${pr.why}</div>`
         + `<div style="color:#c9d1c9;font-size:12px;margin-top:3px"><span style="color:#ffe14a">yellow</span> = what you stand on and bump into · <span style="color:#2de0ff">blue</span> = your body box · <span style="color:#38d26b">green</span>/<span style="color:#ff5a4a">red</span> = where a jump now goes</div>`;
     },
   };

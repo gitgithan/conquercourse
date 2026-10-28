@@ -7,7 +7,9 @@ import { buildingsFrom, extrude, MIRRORS, osmToMesh, overpassQuery, type Overpas
 import { fetchGround, lowest, relief, TERRAIN_ATTRIBUTION, type Ground, type Tile } from '../world/terrain';
 import { buildingTops, contourSegments, cutBuildings, cutRange, ladderLevels, ladderStep, laneLine, piecesFrom, resample, slopeCells, toLonLat, type Seg } from '../slice/slicer';
 import { reducedMotion, runFlight, scaleWords } from './map-flight';
+import { loadPhotoIndex, loadPlacePhotos, mountPlacePhotos, nearestPlace, type PhotosHandle } from '../ui/place-photos';
 import type { LaneSummary, SliceAnswer, SliceAsk } from '../slice/slicer-worker';
+import { createPerf } from '../ui/perf';
 
 export const PIECE_KEY = 'cc.map.piece';
 const STYLE = 'https://tiles.openfreemap.org/styles/liberty';
@@ -76,6 +78,7 @@ export function startMap(host: HTMLElement): { backend: 'webgl2' } {
     <label><span>Shrink: <b id="shrinkv">0.2</b> (1 = real size)</span><input type="range" id="shrink" min="0.02" max="1" step="0.01" value="0.2"></label>
     <label style="grid-auto-flow:column;justify-content:start;gap:6px;align-items:center"><input type="checkbox" id="hills"${q.get('hills') === '0' ? '' : ' checked'}><span>Real hills (ground height from satellite maps)</span></label>
     <div class="muted">Real buildings are 15 to 40 m tall and a runner jumps under 1 m up, so the place is shrunk.</div>
+    <div id="mapphotos"></div>
     <button id="build" class="go" disabled>Build this place</button>
     <button id="slice" disabled>Slice this place</button>
     <div id="slicer" hidden>
@@ -106,13 +109,25 @@ export function startMap(host: HTMLElement): { backend: 'webgl2' } {
   shrink.oninput = () => { $('shrinkv').textContent = shrink.value; };
 
   const map = new maplibregl.Map({ container: mapEl, style: STYLE, center: [Number(q.get('lon') ?? 2.1649), Number(q.get('lat') ?? 41.3917)], zoom: Number(q.get('z') ?? 15), attributionControl: false, canvasContextAttributes: { preserveDrawingBuffer: true } });
+  const perf = createPerf({ label: 'Map', backend: 'webgl2 (MapLibre)', onDemand: true });
+  map.on('render', () => perf.frame());
   map.addControl(new maplibregl.AttributionControl({ customAttribution: ['© OpenStreetMap contributors', 'OpenFreeMap'], compact: false }), 'bottom-right');
   map.addControl(new maplibregl.NavigationControl({ showCompass: false }), 'top-left');
   const marker = new maplibregl.Marker({ color: '#0f6b5c' });
   let pin: { lat: number; lon: number } | null = null;
+  // CC-85: a pin inside a place with real photos shows them in the side panel, with the credit under each
+  let photos: PhotosHandle | null = null;
+  async function showPhotos(lat: number, lon: number) {
+    const near = nearestPlace(await loadPhotoIndex(), lat, lon);
+    const d = near ? await loadPlacePhotos(near.slug) : null;
+    photos?.destroy(); photos = null;
+    const box = side.querySelector('#mapphotos') as HTMLElement | null;
+    if (d && box) photos = mountPlacePhotos(box, d, { floating: false });
+  }
   const dropPin = (lat: number, lon: number) => {
     pin = { lat, lon }; marker.setLngLat([lon, lat]).addTo(map); build.disabled = false; sliceBtn.disabled = false;
     document.documentElement.dataset.pin = `${lat.toFixed(5)},${lon.toFixed(5)}`;
+    void showPhotos(lat, lon);
     tell(`Pin at ${lat.toFixed(4)}, ${lon.toFixed(4)}.`);
   };
   map.on('click', (e) => { if (S) pickClick(e.point); else dropPin(e.lngLat.lat, e.lngLat.lng); });

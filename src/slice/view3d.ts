@@ -5,6 +5,7 @@ import { HALF_LANE } from './slice';
 import { size as meshSize, type Piece } from './world';
 import { patternOf } from './stack';
 import { cupsGroup } from './cups';
+import { createPerf } from '../ui/perf';
 
 // The editor's 3D view: the pieces are drawn as the real baked objects (their own meshes and photo textures), on a textured ground,
 // with the lane drawn as a gold strip. Drag a piece to move it along the ground; drag the empty space to turn the view
@@ -50,6 +51,7 @@ export function createView3d(wrap: HTMLElement, host: Host): View3d {
   wrap.appendChild(renderer.domElement);
 
   const scene = new THREE.Scene();
+  const perf = createPerf({ label: 'Editor', backend: 'webgl2', renderer, scene, onDemand: true });
   scene.background = new THREE.Color(0xcfe3f2);
   scene.fog = new THREE.Fog(0xcfe3f2, 60, 220);
   scene.add(new THREE.HemisphereLight(0xffffff, 0x8a8a78, 1.5));
@@ -111,15 +113,19 @@ export function createView3d(wrap: HTMLElement, host: Host): View3d {
   let dirty = true, on = true;
   const redraw = () => { dirty = true; };
   controls.addEventListener('change', redraw);
-  const loop = () => { requestAnimationFrame(loop); if (!on || !dirty) return; dirty = false; renderer.render(scene, camera); };
+  const loop = () => { requestAnimationFrame(loop); if (!on || !dirty) return; dirty = false; perf.frame(); perf.renderStart(); renderer.render(scene, camera); perf.renderEnd(); };
   requestAnimationFrame(loop);
 
+  const pieceMaterials = new Map<string, THREE.MeshStandardMaterial>();
   const plain = (p: P3): THREE.Mesh => {
     const geo = new THREE.BufferGeometry();
     geo.setAttribute('position', new THREE.Float32BufferAttribute(Array.from(p.mesh.positions as ArrayLike<number>), 3));
     geo.setIndex(Array.from((p.mesh.indices ?? []) as ArrayLike<number>)); geo.computeVertexNormals();
-    const color = p.src === 'hold:bar' ? 0xd8dde3 : p.src?.startsWith('device:trebuchet:') ? 0x805936 : p.src?.startsWith('device:crate:') ? 0x9a7043 : p.src?.startsWith('device:cannon:') ? 0x526875 : 0xa9a392;
-    return new THREE.Mesh(geo, new THREE.MeshStandardMaterial({ color, metalness: p.src === 'hold:bar' || p.src?.startsWith('device:cannon:') ? 0.7 : 0, roughness: 0.78, flatShading: true }));
+    const color = p.src === 'hold:bar' ? 0xd8dde3 : p.src?.startsWith('device:trebuchet:') ? 0x805936 : p.src?.startsWith('device:crate:') ? 0x9a7043 : (p.src?.startsWith('device:cannon:') || p.src?.startsWith('device:bigcannon:')) ? 0x526875 : 0xa9a392;
+    const metal = p.src === 'hold:bar' || p.src?.startsWith('device:cannon:') || p.src?.startsWith('device:bigcannon:') ? 0.7 : 0, key = `${color}|${metal}`; // one material per look, shared by every piece with it
+    let mat = pieceMaterials.get(key);
+    if (!mat) { mat = new THREE.MeshStandardMaterial({ color, metalness: metal, roughness: 0.78, flatShading: true }); pieceMaterials.set(key, mat); }
+    return new THREE.Mesh(geo, mat);
   };
   const meshSig = (p: P3) => `${p.src ?? ''}|${p.mesh.positions.length}|${p.mesh.indices?.length ?? 0}|${(p.mesh.positions as ArrayLike<number>)[1] ?? 0}`;
 

@@ -12,7 +12,8 @@ const snapshot = (ps: P[]) => JSON.stringify(ps.map((p) => [p.id, p.x, p.y, p.z,
 
 // Three small worlds, one per role (the simulator's own proof tells the roles apart from plain ground)
 const wallWorld = (role?: P['role']) => [mk('Deck', 30, 0.5, 1.8, 15), mk('Wall', 2, 4.0, 1.8, 31, 0, role)];
-const bedWorld = (role?: P['role']) => [mk('A', 12, 3, 1.8, -6), mk('Bed', 8, 0.3, 1.8, 10, 0, role), mk('B', 12, 3, 1.8, 21.4)];
+// deck B is 3.4 m up: from the bed ground (0.3 m) that is a 3.1 m wall, above the climb limit (2.83 m), so only the trampoline gets over it
+const bedWorld = (role?: P['role']) => [mk('A', 12, 3, 1.8, -6), mk('Bed', 8, 0.3, 1.8, 10, 0, role), mk('B', 12, 3.4, 1.8, 21.4)];
 const bedLane = { angle: 0, offset: 0, level: 3 };
 const ropeWorld = (role?: P['role']) => [mk('D1', 12, 0.5, 1.8, 4), mk('Pole', 0.3, 6.6, 0.3, 14, 0, role), mk('D2', 12, 0.5, 1.8, 24)];
 const ropeLane = { angle: 0, offset: 0, level: 0.5 };

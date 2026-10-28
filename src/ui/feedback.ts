@@ -2,7 +2,7 @@
 // the round) and posts the answers, a random session id, the build id and a few play counters to /api/submit.
 declare const __BUILD__: string;
 
-interface Question { id: string; type: 'scale' | 'choice' | 'text'; text: string; options?: string[] }
+interface Question { id: string; type: 'scale' | 'choice' | 'multi' | 'text'; text: string; options?: string[] }
 interface Round { round: string; title: string; intro: string; questions: Question[] }
 
 const counters: Record<string, number> = {};
@@ -71,6 +71,14 @@ async function openForm(mode: string): Promise<void> {
       const hint = document.createElement('div'); hint.textContent = '1 = not at all · 5 = completely'; hint.style.cssText = 'font-size:12px;color:#58635d'; box.appendChild(hint);
     } else if (q.type === 'choice') {
       for (const o of q.options ?? []) row.appendChild(chip(o, () => { answers[q.id] = o; paint(row, o); }));
+    } else if (q.type === 'multi') {
+      // several chips can be on; the answer is the ticked options joined with a comma (the server stores text, so the database does not change)
+      const on = new Set<string>();
+      for (const o of q.options ?? []) row.appendChild(chip(o, () => {
+        if (on.has(o)) on.delete(o); else on.add(o);
+        if (on.size) answers[q.id] = [...on].join(', '); else delete answers[q.id];
+        paintMany(row, on);
+      }));
     } else {
       const t = document.createElement('textarea'); t.rows = 2; t.maxLength = 600; t.style.cssText = 'font:inherit;border:1px solid #b9c2bb;border-radius:8px;padding:6px;width:100%';
       t.oninput = () => { if (t.value.trim()) answers[q.id] = t.value.trim(); else delete answers[q.id]; };
@@ -92,7 +100,7 @@ async function openForm(mode: string): Promise<void> {
     try {
       const res = await fetch('/api/submit', {
         method: 'POST', headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({ round: round.round, session: session(), build: __BUILD__, mode, answers, website: trap.value, context: { ...counters, w: innerWidth, h: innerHeight, rookie: safe('cc.rookie') } }),
+        body: JSON.stringify({ round: round.round, session: session(), build: __BUILD__, mode, answers, website: trap.value, context: { ...counters, w: innerWidth, h: innerHeight, rookie: safe('cc.rookie'), where: whereNow(mode) } }),
       });
       if (!res.ok) throw new Error(String(res.status));
       card.innerHTML = '<h2 style="margin:0;font-size:20px">Thank you!</h2><p>Your answers were saved. You can keep playing.</p>';
@@ -105,12 +113,21 @@ async function openForm(mode: string): Promise<void> {
   document.body.appendChild(wrap);
 }
 
+// Where the player was when they opened the form (a course file, a generated seed, a place, or the mode), so an answer like "the second bar" can be placed.
+function whereNow(mode: string): string {
+  const p = new URLSearchParams(location.search);
+  const c = p.get('course') ?? (p.has('generate') ? `generate-${p.get('generate')}` : p.has('coaster') ? 'coaster' : '');
+  return (c ? `${mode}:${c}` : mode).replace(/^\/assets\//, '').slice(0, 60);
+}
 const safe = (k: string): string => { try { return localStorage.getItem(k) ?? ''; } catch { return ''; } };
 const btnCss = (primary: boolean) => `font:inherit;border:1px solid ${primary ? '#0f6b5c' : '#b9c2bb'};background:${primary ? '#0f6b5c' : '#fff'};color:${primary ? '#fff' : '#17201d'};border-radius:8px;padding:6px 14px;cursor:pointer;font-weight:${primary ? 700 : 400}`;
 function chip(label: string, on: () => void): HTMLButtonElement {
   const b = document.createElement('button'); b.type = 'button'; b.textContent = label; b.dataset.v = label;
   b.style.cssText = 'font:inherit;border:1px solid #b9c2bb;background:#fff;color:#17201d;border-radius:999px;padding:4px 12px;cursor:pointer';
   b.onclick = on; return b;
+}
+function paintMany(row: HTMLElement, values: Set<string>): void {
+  row.querySelectorAll('button').forEach((b) => { const on = values.has((b as HTMLButtonElement).dataset.v ?? ''); (b as HTMLElement).style.background = on ? '#17201d' : '#fff'; (b as HTMLElement).style.color = on ? '#fff' : '#17201d'; });
 }
 function paint(row: HTMLElement, value: string): void {
   row.querySelectorAll('button').forEach((b) => { const on = (b as HTMLButtonElement).dataset.v === value; (b as HTMLElement).style.background = on ? '#17201d' : '#fff'; (b as HTMLElement).style.color = on ? '#fff' : '#17201d'; });

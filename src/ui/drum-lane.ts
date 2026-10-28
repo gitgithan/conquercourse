@@ -5,7 +5,7 @@ import type { Drum } from '../sim/drums';
 const PX_PER_M = 46;
 const HIT_AT = 0.2; // the hit line sits this far across the lane
 
-const LABEL: Record<Drum['what'], string> = { jump: 'Space', 'let go': 'Let go', bounce: 'Press', vault: 'V', grab: 'E', release: 'Release', roll: 'X', fire: 'K' };
+const LABEL: Record<Drum['what'], string> = { jump: 'Space', 'let go': 'Let go', bounce: 'Press', vault: 'V', grab: 'E', release: 'Release', roll: 'X', fire: 'K', aim: '↑↓', turn: 'Turn →' };
 
 export interface DrumLane {
   set(drums: Drum[]): void;
@@ -36,7 +36,7 @@ export function createDrumLane(parent: HTMLElement, on: boolean): DrumLane {
   const make = (d: Drum): HTMLDivElement => {
     const e = document.createElement('div');
     e.style.cssText = 'position:absolute;top:50%;width:54px;height:54px;margin:-27px 0 0 -27px;border-radius:50%;background:radial-gradient(circle at 50% 45%,#fff3d6 0 52%,#c8382a 54% 100%);border:3px solid #7d1f16;display:grid;place-items:center;color:#5a1a10;font:800 11px system-ui,sans-serif;text-align:center;line-height:1';
-    e.innerHTML = `<span>${LABEL[d.what]}</span>`;
+    e.innerHTML = `<span>${LABEL[d.what]}${d.note ? `<br><small>${d.note}</small>` : ''}</span>`;
     root.appendChild(e);
     return e;
   };
@@ -60,7 +60,7 @@ export function createDrumLane(parent: HTMLElement, on: boolean): DrumLane {
         e.style.display = visible ? 'grid' : 'none';
         if (!visible) return;
         e.style.left = `${px}px`;
-        const passed = d.x < runnerX - 0.05;
+        const passed = d.what === 'turn' ? runnerX < d.x - 0.05 : d.x < runnerX - 0.05; // the turn drum is met running left: it is passed once the runner is beyond it
         e.style.opacity = passed ? '0.25' : '1';
         e.style.transform = i === nextUp ? 'scale(1.18)' : 'scale(1)';
       });
