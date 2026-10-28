@@ -17,7 +17,7 @@ const applyChange = (ps: Piece[], l: LaneSetting, id: number | undefined, c: Cha
   lane: { angle: c.angle ?? l.angle, offset: c.offset ?? l.offset, level: c.level ?? l.level },
 });
 
-export function fixLayout(pieces: Piece[], lane: LaneSetting, budgetMs = 6000): Fixed {
+export function fixLayout(pieces: Piece[], lane: LaneSetting, budgetMs = 12000): Fixed {
   const t0 = performance.now();
   let ps = pieces.map((p) => ({ ...p }));
   let l = { ...lane };

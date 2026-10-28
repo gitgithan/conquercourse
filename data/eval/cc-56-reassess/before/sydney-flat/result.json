@@ -1,0 +1,66 @@
+{
+  "place": "sydney-flat",
+  "lat": -33.861,
+  "lon": 151.2111,
+  "radius": 120,
+  "terrain": false,
+  "terrainRelief_m": 0,
+  "buildings": 44,
+  "withRealHeight": 18,
+  "medianHeight_m": 9,
+  "shrink": 0.2,
+  "shrinkTries": [
+    {
+      "shrink": 0.556,
+      "lanes": 0
+    },
+    {
+      "shrink": 0.333,
+      "lanes": 0
+    },
+    {
+      "shrink": 0.2,
+      "lanes": 3
+    }
+  ],
+  "triangles": 989,
+  "shrunkHeightRange_m": [
+    0.6,
+    8
+  ],
+  "samples": 235686,
+  "lanesFound": 3,
+  "secondsTaken": 54,
+  "bestLane": {
+    "turnDeg": 160,
+    "sidewaysM": 20.8,
+    "levelM": 1,
+    "gaps": 2,
+    "steps": 4,
+    "curves": 0,
+    "faces": 0,
+    "length": 24.5,
+    "variety": 2,
+    "maxRise": 0.637169361114502,
+    "score": 8,
+    "searchIdealRunCleared": true
+  },
+  "candidates": [
+    {
+      "turnDeg": 160,
+      "sidewaysM": 20.8,
+      "score": 8
+    },
+    {
+      "turnDeg": 150,
+      "sidewaysM": 13.7,
+      "score": 7.5
+    },
+    {
+      "turnDeg": 30,
+      "sidewaysM": -24.3,
+      "score": 7
+    }
+  ],
+  "glbBytes": 55696
+}
