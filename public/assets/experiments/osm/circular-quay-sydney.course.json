@@ -494,5 +494,15 @@
       "scale": 1,
       "url": "/assets/experiments/osm/circular-quay-sydney.glb"
     }
-  ]
+  ],
+  "plan": {
+    "jumpXs": [
+      5.18,
+      10.36,
+      20.1,
+      30.54
+    ],
+    "releaseAfter": 60,
+    "bouncePress": 8
+  }
 }

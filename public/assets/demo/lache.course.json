@@ -64,5 +64,20 @@
       "x": 28
     }
   ],
-  "hazard": "lava"
+  "hazard": "lava",
+  "plan": {
+    "jumpXs": [
+      33
+    ],
+    "releaseAfter": 60,
+    "bouncePress": 8,
+    "hands": true,
+    "hangTicks": [
+      354,
+      360
+    ],
+    "vaultXs": [
+      21.38
+    ]
+  }
 }
