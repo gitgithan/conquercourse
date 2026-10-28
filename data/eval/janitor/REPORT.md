@@ -18,3 +18,21 @@
   3. Press R, then play it yourself: run with the arrow keys, Space to jump at each edge; each gap is 1.6 to 3 m, so every jump should be easy.
   4. Wrong would be: falling in the water at the last edge, or the runner stopping before the last deck.
   - Screenshots: `data/eval/janitor/park-rail-run/start.png` and `ideal-run.png` (cleared, 6.0 s, report 100%).
+
+## 2. "Make it easier" cannot-clear test (CC-80, Part of; shipped in the commit before this one)
+- **Problem:** `tests/easier.test.ts` "says so when the lane cannot be cleared at all" failed (the search found a fix for a lane the test called impossible).
+- **Cause:** the test used a 2.5 m step "nobody jumps"; since CC-76 the climb (hold E) gets over steps of 1.0 to 2.83 m, so the lane is clearable and the game was right.
+- **Fix:** the test now uses a 3.5 m step, taller than any jump, vault or climb.
+  - No game code changed.
+- **Tests run on VM3:** `tests/easier.test.ts`, 5 of 5 (14 s).
+- **Not covered:** nothing in the game changed, so there is no new visual check.
+- **How to test it by eye:** nothing to look at.
+  - To see the fact behind it, open `/?mode=editor`, place a 0.5 m box and a 2.5 m box 4 m apart, press Play, and hold E at the tall box: the climb gets the runner up.
+
+## 3. fixbars test timeout under load (CC-47, Part of)
+- **Problem:** `tests/fixbars.test.ts` failed with "Test timed out in 60000ms" in the slow tier (the file takes 38 s and 27 s alone, 104 s with other tests running).
+- **Cause:** an explicit 60 s timeout on the first test overrides the 180 s slow-tier setting; the second test used the default.
+- **Fix:** both tests now have 180 s.
+- **Tests run on VM3:** `tests/fixbars.test.ts` alone, 2 of 2 (65 s, with 4 other jobs running).
+- **Not covered:** the Fix it for bars feature was not changed; a faster Fix it would remove the need.
+- **How to test it by eye:** nothing to look at.
