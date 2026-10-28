@@ -322,13 +322,17 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
   const editBtn = document.createElement('button');
   editBtn.id = 'editcourse'; editBtn.textContent = 'Edit this course';
   editBtn.title = 'Open this course in the editor, at this obstacle; "Back to the Course" brings you back here';
-  editBtn.style.cssText = 'position:fixed;right:312px;top:56px;font:600 13px system-ui,sans-serif;border:1px solid #17201d;background:#fff;color:#17201d;border-radius:8px;padding:4px 10px;cursor:pointer';
+  editBtn.style.cssText = 'font:600 13px system-ui,sans-serif;border:1px solid #17201d;background:#fff;color:#17201d;border-radius:8px;padding:4px 10px;cursor:pointer;white-space:nowrap';
   editBtn.onclick = () => { editBtn.blur(); openEditor('edit'); };
   const wholeBtn = document.createElement('button');
   wholeBtn.id = 'wholeideal'; wholeBtn.textContent = 'Whole course (Shift+I)';
   wholeBtn.title = 'Watch one ideal run through every obstacle; any key stops it';
-  wholeBtn.style.cssText = 'position:fixed;right:158px;top:56px;font:600 13px system-ui,sans-serif;border:1px solid #17201d;background:#fff;color:#17201d;border-radius:8px;padding:4px 10px;cursor:pointer';
+  wholeBtn.style.cssText = 'font:600 13px system-ui,sans-serif;border:1px solid #17201d;background:#fff;color:#17201d;border-radius:8px;padding:4px 10px;cursor:pointer;white-space:nowrap';
   wholeBtn.onclick = () => { wholeBtn.blur(); showWholeIdeal(); };
+  // the two small buttons share one row, so they cannot overlap whatever their text widths are
+  const rowBtns = document.createElement('div');
+  rowBtns.id = 'coursebtns'; rowBtns.style.cssText = 'position:fixed;right:158px;top:56px;display:flex;gap:8px;align-items:center';
+  rowBtns.append(editBtn, wholeBtn);
   // choose your runner: the male or the female Rookie (remembered between visits)
   const pick = document.createElement('div');
   pick.style.cssText = 'position:fixed;right:250px;top:12px;display:flex;gap:6px';
@@ -510,7 +514,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
   const dbgBtn = document.createElement('button');
   dbgBtn.id = 'debugbtn'; dbgBtn.textContent = 'Debug (B)'; dbgBtn.title = 'Show the collision boxes and where a jump right now would go';
   dbgBtn.style.cssText = 'position:fixed;right:16px;top:166px;border:2px solid #17201d;background:#fff;color:#17201d;border-radius:10px;padding:3px 10px;cursor:pointer;font:600 12px system-ui,sans-serif';
-  document.body.append(hud, msg, help, panel, hint, gauge, dojoBtn, idealBtn, wholeBtn, editBtn, pick, camBtn, dbgBtn);
+  document.body.append(hud, msg, help, panel, hint, gauge, dojoBtn, idealBtn, rowBtns, pick, camBtn, dbgBtn);
   // CC-85: a real place shows its real photos (credit under each, a large view on click); ?photos=0 or the Hide switch turns them off
   const placeSlug = slugOfCourse(course.name);
   if (placeSlug && new URLSearchParams(location.search).get('photos') !== '0') void loadPlacePhotos(placeSlug).then((d) => { if (d) mountPlacePhotos(document.body, d); });
