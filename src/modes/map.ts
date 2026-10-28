@@ -4,7 +4,9 @@ import * as maplibregl from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
 import workerUrl from 'maplibre-gl/dist/maplibre-gl-worker.mjs?url';
 import { buildingsFrom, MIRRORS, osmToMesh, overpassQuery, type OverpassAnswer } from '../world/osm';
-import { fetchGround, relief, TERRAIN_ATTRIBUTION, type Ground, type Tile } from '../world/terrain';
+import { fetchGround, lowest, relief, TERRAIN_ATTRIBUTION, type Ground, type Tile } from '../world/terrain';
+import { buildingTops, contourSegments, cutBuildings, cutRange, ladderLevels, ladderStep, laneLine, resample, slopeCells, toLonLat, type Seg } from '../slice/slicer';
+import type { LaneSummary, SliceAnswer, SliceAsk } from '../slice/slicer-worker';
 
 export const PIECE_KEY = 'cc.map.piece';
 const STYLE = 'https://tiles.openfreemap.org/styles/liberty';
@@ -56,6 +58,7 @@ export function startMap(host: HTMLElement): { backend: 'webgl2' } {
     .mp h1{margin:0;font-size:18px}.mp .muted{color:#58635d;font-size:12px}.mp label{display:grid;gap:1px;font-size:13px}.mp input[type=range]{width:100%;margin:0}
     .mp button,.mp input[type=search],.mp a.btn{font:inherit;border:1px solid #b9c2bb;background:#fff;color:#17201d;border-radius:8px;padding:4px 9px;cursor:pointer;text-decoration:none;box-sizing:border-box}
     .mp input[type=search]{width:100%;cursor:text}.mp .go{background:#0f6b5c;color:#fff;border-color:#0f6b5c;font-weight:700}.mp button:disabled{opacity:.5;cursor:default}
+    .mp [hidden]{display:none!important}
     .mp .hits{display:grid;gap:4px}.mp .hits button{text-align:left}.mp .say{border-left:4px solid #0f6b5c;padding:3px 6px;background:#f3f7f4;font-size:13px}.mp .say.bad{border-color:#c0392b;background:#fbeeee}
     @media(max-width:700px){.mp{grid-template-columns:minmax(0,1fr) 220px}}`;
   document.head.appendChild(style);
@@ -71,11 +74,22 @@ export function startMap(host: HTMLElement): { backend: 'webgl2' } {
     <label style="grid-auto-flow:column;justify-content:start;gap:6px;align-items:center"><input type="checkbox" id="hills"${q.get('hills') === '0' ? '' : ' checked'}><span>Real hills (ground height from satellite maps)</span></label>
     <div class="muted">Real buildings are 15 to 40 m tall and a runner jumps under 1 m up, so the place is shrunk.</div>
     <button id="build" class="go" disabled>Build this place</button>
+    <button id="slice" disabled>Slice this place</button>
+    <div id="slicer" hidden>
+      <b>The Slicer</b>
+      <div style="display:grid;grid-template-columns:auto 1fr;gap:10px;align-items:center;margin:6px 0">
+        <input type="range" id="cut" min="0" max="40" step="0.5" value="10" aria-label="Cut height" style="writing-mode:vertical-lr;direction:rtl;height:170px;width:28px">
+        <div style="display:grid;gap:6px"><div>Cut height: <b id="cutv">0</b> m</div><div class="muted">metres above the lowest ground, real size</div><button id="ladder" type="button">Contour ladder</button></div>
+      </div>
+      <div id="sliceread" class="say">Pick a place, press Slice.</div>
+      <div class="muted">Orange line: the ground at this height. Orange blocks: buildings the cut goes through (their floor plan). Faded: above the cut. Green line: the lane the Course would use at this height. Tint under the map: red is steep.</div>
+    </div>
     <div id="say" class="say">No pin yet.</div>
     <a class="btn" href="?mode=editor">Back to the editor</a>
     <div class="muted">Map: OpenFreeMap. Search: Nominatim. Buildings: Overpass. Data © OpenStreetMap contributors (ODbL). ${TERRAIN_ATTRIBUTION}.</div>`;
   const $ = <T extends HTMLElement>(id: string) => side.querySelector('#' + id) as T;
   const radius = $<HTMLInputElement>('radius'), shrink = $<HTMLInputElement>('shrink'), build = $<HTMLButtonElement>('build'), say = $('say'), hits = $('hits');
+  const sliceBtn = $<HTMLButtonElement>('slice'), slicer = $('slicer'), cut = $<HTMLInputElement>('cut'), read = $('sliceread');
   const tell = (s: string, bad = false) => { say.textContent = s; say.classList.toggle('bad', bad); };
   radius.oninput = () => { $('radiusv').textContent = radius.value; };
   shrink.oninput = () => { $('shrinkv').textContent = shrink.value; };
@@ -86,7 +100,7 @@ export function startMap(host: HTMLElement): { backend: 'webgl2' } {
   const marker = new maplibregl.Marker({ color: '#0f6b5c' });
   let pin: { lat: number; lon: number } | null = null;
   const dropPin = (lat: number, lon: number) => {
-    pin = { lat, lon }; marker.setLngLat([lon, lat]).addTo(map); build.disabled = false;
+    pin = { lat, lon }; marker.setLngLat([lon, lat]).addTo(map); build.disabled = false; sliceBtn.disabled = false;
     document.documentElement.dataset.pin = `${lat.toFixed(5)},${lon.toFixed(5)}`;
     tell(`Pin at ${lat.toFixed(4)}, ${lon.toFixed(4)}.`);
   };
@@ -133,6 +147,156 @@ export function startMap(host: HTMLElement): { backend: 'webgl2' } {
       document.documentElement.dataset.hill = ground ? String(Math.round(relief(ground))) : '0';
       location.search = '?mode=editor';
     } catch (e) { tell((e as Error).message, true); build.disabled = false; }
+  };
+  // ---- the Slicer (CC-73, Atlas CC-72): a cut height slider; contours, floor plans and the lane at that height
+  interface SliceState { answer: OverpassAnswer; lat: number; lon: number; r: number; k: number; ground: Ground | null; fine: Ground | null; tops: ReturnType<typeof buildingTops>; mesh: { positions: number[]; indices: number[] }; range: number }
+  let S: SliceState | null = null, sliceWorker: Worker | null = null, laneToken = 0, laneTimer = 0, layersReady = false;
+  const laneCache = new Map<string, { quick: LaneSummary | null; proved: LaneSummary | null | undefined }>();
+  const empty = { type: 'FeatureCollection' as const, features: [] as unknown[] };
+  const num1 = (v: number) => (Math.round(v * 10) / 10).toString();
+  const dset = (k: string, v: string | number) => { document.documentElement.dataset[k] = String(v); };
+  const ll = (x: number, z: number) => toLonLat(S!.lat, S!.lon, x, z);
+  const poly = (ring: [number, number][]) => [[...ring.map(([x, z]) => ll(x, z)), ll(ring[0][0], ring[0][1])]];
+  const src = (id: string) => map.getSource(id) as maplibregl.GeoJSONSource;
+  const lines = (segs: Seg[]) => ({ type: 'Feature' as const, properties: {}, geometry: { type: 'MultiLineString' as const, coordinates: segs.map((s) => [ll(s[0], s[1]), ll(s[2], s[3])]) } });
+  const GREY = '#8f9c94';
+
+  async function groundFor(lat: number, lon: number, r: number): Promise<Ground | null> {
+    const key = `cc.map.ground:${lat.toFixed(4)},${lon.toFixed(4)},${r}`;
+    try { const c = sessionStorage.getItem(key); if (c) return JSON.parse(c) as Ground; } catch { /* no cache */ }
+    const g = await fetchGround(lat, lon, r, decodePng);
+    try { sessionStorage.setItem(key, JSON.stringify(g)); } catch { /* too big to cache */ }
+    return g;
+  }
+
+  function ensureLayers() {
+    if (layersReady) return;
+    const add = (l: Record<string, unknown>) => map.addLayer(l as never); // the layer specs use expressions; the types are strict about them
+    for (const id of ['slope', 'below', 'above', 'face', 'plane', 'contour', 'ladder', 'lane']) map.addSource('sl-' + id, { type: 'geojson', data: empty as never });
+    const ext = (id: string, color: string, opacity: number) => add({ id: 'sl-' + id, type: 'fill-extrusion', source: 'sl-' + id, paint: { 'fill-extrusion-color': color, 'fill-extrusion-opacity': opacity, 'fill-extrusion-base': ['get', 'base'], 'fill-extrusion-height': ['get', 'height'] } });
+    add({ id: 'sl-slope', type: 'fill', source: 'sl-slope', paint: { 'fill-color': ['interpolate', ['linear'], ['get', 'deg'], 0, '#7fbf7b', 8, '#f1e27a', 18, '#e8622c', 30, '#a50f15'], 'fill-opacity': 0.22 } });
+    ext('below', GREY, 0.9); ext('above', GREY, 0.14); ext('face', '#e8622c', 0.95); ext('plane', '#2aa198', 0.28);
+    add({ id: 'sl-contour', type: 'line', source: 'sl-contour', paint: { 'line-color': '#d35400', 'line-width': 3.5 } });
+    add({ id: 'sl-ladder', type: 'line', source: 'sl-ladder', layout: { visibility: 'none' }, paint: { 'line-color': '#7a5230', 'line-width': 1.3, 'line-opacity': 0.85 } });
+    add({ id: 'sl-lane-dash', type: 'line', source: 'sl-lane', layout: { visibility: 'none' }, paint: { 'line-color': '#0f6b5c', 'line-width': 6, 'line-dasharray': [1.4, 1.2] } });
+    add({ id: 'sl-lane', type: 'line', source: 'sl-lane', layout: { visibility: 'none' }, paint: { 'line-color': '#0f6b5c', 'line-width': 6 } });
+    // the map style draws its own grey 3D buildings; hide them so only the buildings the game builds are cut
+    for (const l of map.getStyle().layers) if (l.type === 'fill-extrusion' && !l.id.startsWith('sl-')) map.setLayoutProperty(l.id, 'visibility', 'none');
+    layersReady = true;
+  }
+
+  // everything that follows the slider at once: the plane, the contour, the cut buildings (the lane waits for the slider to stop)
+  function paint(c: number) {
+    if (!S) return;
+    $('cutv').textContent = num1(c);
+    const cb = cutBuildings(S.tops, c), r = S.r;
+    const below: unknown[] = [], above: unknown[] = [], face: unknown[] = [];
+    let cutCount = 0;
+    for (const b of cb) {
+      const geometry = { type: 'Polygon' as const, coordinates: poly(b.ring) };
+      const f = (base: number, height: number) => ({ type: 'Feature' as const, properties: { base, height }, geometry });
+      if (!b.cut) { below.push(f(0, Math.max(0.05, b.top))); continue; }
+      cutCount++;
+      const lo = Math.max(0, c - 0.4);
+      below.push(f(0, Math.max(0.02, lo))); face.push(f(lo, Math.max(lo + 0.02, c)));
+      if (b.top > c + 0.05) above.push(f(c, b.top));
+    }
+    const sq: [number, number][] = [[-r, -r], [r, -r], [r, r], [-r, r]];
+    const plane = { type: 'Feature' as const, properties: { base: Math.max(0, c - 0.2), height: Math.max(0.05, c) }, geometry: { type: 'Polygon' as const, coordinates: poly(sq) } };
+    const col = (features: unknown[]) => ({ type: 'FeatureCollection' as const, features });
+    src('sl-below').setData(col(below) as never); src('sl-above').setData(col(above) as never); src('sl-face').setData(col(face) as never); src('sl-plane').setData(col([plane]) as never);
+    const segs = S.fine ? contourSegments(S.fine, lowest(S.fine) + c, 99) : [];
+    src('sl-contour').setData(col(segs.length ? [lines(segs)] : []) as never);
+    dset('sliceCut', c); dset('sliceCutBuildings', cutCount); dset('sliceBelowBuildings', cb.length - cutCount); dset('sliceContourSegs', segs.length);
+  }
+
+  function drawLane(l: LaneSummary | null, proved: boolean) {
+    const has = !!l && !!S;
+    if (has) src('sl-lane').setData({ type: 'Feature', properties: {}, geometry: { type: 'LineString', coordinates: laneLine(l!, S!.k).map(([x, z]) => ll(x, z)) } } as never);
+    map.setLayoutProperty('sl-lane-dash', 'visibility', has && !proved ? 'visible' : 'none');
+    map.setLayoutProperty('sl-lane', 'visibility', has && proved ? 'visible' : 'none');
+  }
+
+  function showLane(c: number, quick: LaneSummary | null, proved: LaneSummary | null | undefined) {
+    const head = `Cut at ${num1(c)} m: `;
+    if (proved) { drawLane(proved, true); read.textContent = `${head}the lane is ${Math.round(proved.length)} m long in the game, clearable.`; dset('sliceLane', 'clearable'); dset('sliceLaneLength', Math.round(proved.length)); }
+    else if (proved === null && quick) { drawLane(quick, false); read.textContent = `${head}a lane of ${Math.round(quick.length)} m, but the simulator could not clear it.`; dset('sliceLane', 'not-clearable'); }
+    else if (proved === null) { drawLane(null, false); read.textContent = `${head}no lane here (too short, too steep, or nothing to run on).`; dset('sliceLane', 'none'); }
+    else if (quick) { drawLane(quick, false); read.textContent = `${head}a lane of ${Math.round(quick.length)} m; checking that it can be cleared…`; dset('sliceLane', 'checking'); }
+    else { drawLane(null, false); read.textContent = `${head}looking for a lane…`; dset('sliceLane', 'working'); }
+  }
+
+  function askLane(c: number) {
+    if (!S) return;
+    const key = `${c}|${S.k}|${S.r}`, hit = laneCache.get(key);
+    const my = ++laneToken; sliceWorker?.terminate(); sliceWorker = null;
+    if (hit && hit.proved !== undefined) { showLane(c, hit.quick, hit.proved); return; }
+    showLane(c, null, undefined); dset('sliceLane', 'working');
+    try { sliceWorker = new Worker(new URL('../slice/slicer-worker.ts', import.meta.url), { type: 'module' }); } catch { read.textContent = 'This browser cannot run the lane search in the background.'; return; }
+    let quick: LaneSummary | null = null;
+    sliceWorker.onmessage = (e: MessageEvent<SliceAnswer>) => {
+      const a = e.data; if (a.id !== my) return;
+      if (a.phase === 'quick') { quick = a.lane; laneCache.set(key, { quick, proved: undefined }); showLane(c, quick, undefined); }
+      else { laneCache.set(key, { quick, proved: a.lane }); showLane(c, quick, a.lane); }
+    };
+    sliceWorker.postMessage({ id: my, positions: S.mesh.positions, indices: S.mesh.indices, level: c * S.k } satisfies SliceAsk);
+  }
+
+  const cutChanged = (instant: boolean) => {
+    const c = Number(cut.value); paint(c);
+    clearTimeout(laneTimer);
+    if (instant) askLane(c); else laneTimer = window.setTimeout(() => askLane(c), 500);
+  };
+  cut.oninput = () => cutChanged(false);
+  cut.onchange = () => cutChanged(true);
+
+  function rebuild() { // the place at the current shrink: the roofs and the mesh the lane is cut from
+    if (!S) return;
+    const answer = S.answer, k = Number(shrink.value), bs = buildingsFrom(answer, S.lat, S.lon);
+    S.k = k; S.tops = buildingTops(bs, k, S.ground);
+    const m = osmToMesh(answer, S.lat, S.lon, k, S.ground); S.mesh = { positions: m.positions, indices: m.indices };
+    S.range = cutRange(S.tops, S.ground);
+  }
+  shrink.onchange = () => { if (!S) return; rebuild(); cut.max = String(S.range); cutChanged(true); };
+
+  const ladderBtn = $<HTMLButtonElement>('ladder');
+  let ladderOn = false;
+  ladderBtn.onclick = () => {
+    if (!S?.fine) { read.textContent = 'This place is flat in the height maps, so there are no contour lines.'; return; }
+    ladderOn = !ladderOn;
+    const rel = relief(S.ground), levels = ladderLevels(rel);
+    src('sl-ladder').setData({ type: 'FeatureCollection', features: ladderOn ? levels.map((h) => lines(contourSegments(S!.fine!, lowest(S!.fine!) + h, 99))) : [] } as never);
+    map.setLayoutProperty('sl-ladder', 'visibility', ladderOn ? 'visible' : 'none');
+    ladderBtn.textContent = ladderOn ? 'Hide the contour ladder' : 'Contour ladder';
+    if (ladderOn) read.textContent = `Lines every ${ladderStep(rel)} m, from ${levels[0]} m up to ${levels[levels.length - 1]} m. Lines close together mean steep ground.`;
+    dset('ladderLines', ladderOn ? levels.length : 0);
+  };
+
+  sliceBtn.onclick = async () => {
+    if (!pin) return;
+    sliceBtn.disabled = true;
+    try {
+      const r = Number(radius.value), answer = await overpass(pin.lat, pin.lon, r, (s) => tell(s));
+      let ground: Ground | null = null;
+      if ($<HTMLInputElement>('hills').checked) {
+        tell('Reading the height of the ground...');
+        try { ground = await groundFor(pin.lat, pin.lon, r); } catch { tell('The height maps did not answer, so the place is cut flat.', true); }
+      }
+      if (!buildingsFrom(answer, pin.lat, pin.lon).length && !ground) { tell('Nothing to slice here. Move the pin and try again.', true); sliceBtn.disabled = false; return; }
+      S = { answer, lat: pin.lat, lon: pin.lon, r, k: Number(shrink.value), ground, fine: ground ? resample(ground, 4) : null, tops: [], mesh: { positions: [], indices: [] }, range: 0 };
+      rebuild();
+      if (!map.isStyleLoaded()) await new Promise<void>((res) => map.once('idle', () => res()));
+      ensureLayers();
+      src('sl-slope').setData({ type: 'FeatureCollection', features: ground ? slopeCells(ground).map((c) => ({ type: 'Feature', properties: { deg: c.deg }, geometry: { type: 'Polygon', coordinates: poly([[c.x0, c.z0], [c.x1, c.z0], [c.x1, c.z1], [c.x0, c.z1]]) } })) : [] } as never);
+      cut.min = '0'; cut.max = String(S.range); cut.step = '0.5'; cut.value = String(Math.round(S.range * 0.35 * 2) / 2);
+      slicer.hidden = false;
+      const zoom = Math.min(18.5, Math.log2((156543 * Math.cos((pin.lat * Math.PI) / 180) * 900) / (3 * r)));
+      map.easeTo({ center: [pin.lon, pin.lat], zoom, pitch: 55, bearing: -25, duration: 700 });
+      tell(`Sliced ${S.tops.length} buildings${ground ? `, ground ${Math.round(relief(ground))} m from the lowest to the highest point` : ' (flat ground)'}. Drag the cut height.`);
+      dset('sliceReady', '1'); dset('sliceRange', S.range); dset('sliceRelief', Math.round(relief(ground)));
+      cutChanged(true);
+    } catch (e) { tell((e as Error).message, true); }
+    sliceBtn.disabled = false;
   };
   return { backend: 'webgl2' };
 }
