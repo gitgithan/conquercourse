@@ -6,7 +6,7 @@ import { DEFAULT_WALL, runWall, type WallParams, type WallResult } from './wall'
 import { DEFAULT_ROPE, ropePoint, release, swingStep, tryCatch, type RopeParams, type Swing } from './rope';
 import { DEFAULT_TRAMPOLINE, bounce, type Bounce } from './trampoline';
 import { JUMP_COST, VAULT_COST } from './energy';
-import { VAULT_BUFFER, VAULT_KEEP, findVault, vaultAt, type Vault } from './vault';
+import { VAULT_BUFFER, VAULT_PLANT_GRIP, VAULT_PLANT_TICKS, findVault, vaultAt, vaultExitSpeed, type Vault } from './vault';
 import { GROUND_ROLL_COST, GROUND_ROLL_RECOVERY, startGroundRoll, stepGroundRoll, type GroundRoll } from './roll';
 import { bodyVelocity, feetOf, gripSlips, hangStep, releaseHang, tryGrab, type Hang } from './holds';
 import { enterCart, stepCartWorld, type Cart } from './cart';
@@ -40,6 +40,7 @@ export interface WorldState {
   lastPress: number; // tick of the last Space press, so a press just before landing counts
   lastVault: number; // tick of the last V press, so a press a moment before the obstacle still vaults it
   lastRoll: number; // tick of the last X press, so a press a quarter of a second before touchdown still rolls
+  plantUntil: number; // tick until which the feet plant after a vault (no key held: brake hard)
   rolledAt: number; // tick of the last roll, on landing or on the ground (the actor plays the roll clip from here); -1000 = none
   groundRoll: GroundRoll | null; // a roll along the ground in progress (X on the ground)
   rollReadyAt: number; // tick from which the next ground roll may start (a short recovery)
@@ -54,9 +55,9 @@ export function newWorld(course: CourseData, x: number = course.startX): WorldSt
   if (tp && x <= tp.x + 0.5) { // the course starts in the sling: the rider lies at the end of the sling behind the machine
     const ln = startLaunch(tp, groundAt(course.terrain, tp.x));
     const f = feetAt(tp, ln);
-    return { runner: { ...r, x: f.x, y: f.y }, mode: 'launch', outcome: 'running', wall: null, swing: null, hang: null, vault: null, cart: null, launch: ln, energy: 1, bed: null, noCatchUntil: 0, lastPress: -1000, lastVault: -1000, lastRoll: -1000, rolledAt: -1000, groundRoll: null, rollReadyAt: 0, events: [] };
+    return { runner: { ...r, x: f.x, y: f.y }, mode: 'launch', outcome: 'running', wall: null, swing: null, hang: null, vault: null, cart: null, launch: ln, energy: 1, bed: null, noCatchUntil: 0, lastPress: -1000, lastVault: -1000, lastRoll: -1000, rolledAt: -1000, plantUntil: -1000, groundRoll: null, rollReadyAt: 0, events: [] };
   }
-  const w: WorldState = { runner: r, mode: 'run', outcome: 'running', wall: null, swing: null, hang: null, vault: null, cart: null, launch: null, energy: 1, bed: null, noCatchUntil: 0, lastPress: -1000, lastVault: -1000, lastRoll: -1000, rolledAt: -1000, groundRoll: null, rollReadyAt: 0, events: [] };
+  const w: WorldState = { runner: r, mode: 'run', outcome: 'running', wall: null, swing: null, hang: null, vault: null, cart: null, launch: null, energy: 1, bed: null, noCatchUntil: 0, lastPress: -1000, lastVault: -1000, lastRoll: -1000, rolledAt: -1000, plantUntil: -1000, groundRoll: null, rollReadyAt: 0, events: [] };
   return course.track ? enterCart(w, course) : w;
 }
 
@@ -97,12 +98,13 @@ export function stepWorld(w: WorldState, input: RunnerInput, course: CourseData,
     n.groundRoll = g; n.rolledAt = tick; n.energy = Math.max(0, w.energy - GROUND_ROLL_COST);
   }
   const before = w.runner;
+  const planting = w.plantUntil > tick && !input2.run && !input2.left; // just off a vault with no key held: the feet plant and the runner stops
   let r: RunnerState;
   if (n.groundRoll) {
     const g = stepGroundRoll(before, n.groundRoll, course.terrain);
     r = g.runner;
     if (g.ended) { n.rollReadyAt = tick + Math.round(GROUND_ROLL_RECOVERY * 120); n.groundRoll = null; }
-  } else r = step(before, input2, p, course.terrain);
+  } else r = step(before, input2, planting ? { ...p, grip: p.grip * VAULT_PLANT_GRIP } : p, course.terrain);
   n.runner = r;
   if (before.grounded && !r.grounded && input2.jump) { ev('jump', { vy: r.vy, vx: r.vx, x: r.x }); n.energy = Math.max(0, w.energy - JUMP_COST); if (course.jumpKeep !== undefined && course.jumpKeep !== 1) n.runner = { ...r, vx: r.vx * course.jumpKeep }; }
   if (!before.grounded && r.grounded && r.landing) {
@@ -215,10 +217,10 @@ function stepVault(w: WorldState): WorldState {
   const i = v.i + 1;
   if (i >= v.n) {
     const end = vaultAt(v, v.n);
-    return { ...w, mode: 'run', vault: null, events: [], runner: { ...w.runner, tick, x: end.x, y: end.y, vx: v.vx * VAULT_KEEP, vy: 0, grounded: true } };
+    return { ...w, mode: 'run', vault: null, plantUntil: tick + VAULT_PLANT_TICKS, events: [], runner: { ...w.runner, tick, x: end.x, y: end.y, vx: vaultExitSpeed(v), vy: 0, grounded: true } };
   }
   const q = vaultAt(v, i);
-  return { ...w, vault: { ...v, i }, events: [], runner: { ...w.runner, tick, x: q.x, y: q.y, vx: v.vx * VAULT_KEEP, vy: 0, grounded: false } };
+  return { ...w, vault: { ...v, i }, events: [], runner: { ...w.runner, tick, x: q.x, y: q.y, vx: vaultExitSpeed(v), vy: 0, grounded: false } };
 }
 
 function stepHang(w: WorldState, input: RunnerInput, course: CourseData): WorldState {

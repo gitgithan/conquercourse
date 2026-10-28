@@ -17,6 +17,7 @@ export function actorStateFor(w: WorldState, squat: boolean, facing: 1 | -1 = 1)
     squat,
     landedTicksAgo: r.landedAtTick === null ? null : r.tick - r.landedAtTick,
     rolledAt: w.rolledAt,
+    vaultProgress: w.mode === 'vault' && w.vault ? w.vault.i / w.vault.n : undefined,
     wallProgress: w.wall ? w.wall.index / Math.max(1, w.wall.path.length - 1) : undefined,
     swingTheta: w.swing?.theta ?? w.hang?.theta,
     facing,

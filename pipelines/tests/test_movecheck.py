@@ -102,3 +102,46 @@ def test_a_clip_that_leans_only_at_its_last_frame_is_not_a_roll_and_does_not_cra
     f = c.frames.copy()
     f[-1, IDX["Neck1"], 2] += 0.6  # leans forward on the very last frame
     assert movecheck.roll_check(Clip(f, c.fps))[0] is False
+
+
+def vaulting(hand_down=True, peak=0.45, travel=4.0, n=40, fps=30.0, airborne=(8, 26)):
+    """A stick body that runs in, leaves the floor for `airborne` frames while the hips rise `peak` m and travel on, and lands upright.
+    With `hand_down` one hand comes down low and ahead of the hips (on the obstacle)."""
+    frames = []
+    for i in range(n):
+        p = i / (n - 1)
+        a, b = airborne
+        up = np.sin(np.pi * min(max((i - a) / (b - a), 0.0), 1.0)) if a <= i <= b else 0.0
+        hip = np.array([0.0, 0.95 + peak * up, 2.0 * travel * p / 2])
+        j = body((0, 0, 0))
+        j -= j[IDX["Hips"]]
+        j = j + hip
+        if hand_down and a <= i <= b:
+            j[IDX["RightHand"]] = hip + np.array([0.0, -0.3, 0.45])  # low and ahead of the hips
+        if a <= i <= b:  # both feet off the floor
+            j[IDX["LeftFoot"], 1] += 0.3 * up + 0.12
+            j[IDX["RightFoot"], 1] += 0.3 * up + 0.12
+        frames.append(j)
+    f = np.array(frames)
+    return Clip(f, fps)
+
+
+def test_a_hop_with_a_hand_down_over_a_metre_is_a_vault():
+    ok, nums, win = movecheck.vault_check(vaulting())
+    assert ok, nums
+    assert nums["hand_plant"] == "RightHand" and nums["travel_m"] >= 1.0
+
+
+def test_a_hop_without_a_hand_on_the_obstacle_is_not_a_vault():
+    ok, nums, _ = movecheck.vault_check(vaulting(hand_down=False))
+    assert not ok and nums["hand_plant"] is None
+
+
+def test_a_front_flip_is_not_a_vault():
+    ok, nums, _ = movecheck.vault_check(vaulting(peak=1.5))
+    assert not ok and nums["peak_hips_vs_standing"] > movecheck.VAULT_MAX_HIPS
+
+
+def test_standing_still_is_not_a_vault():
+    ok, nums, _ = movecheck.vault_check(vaulting(airborne=(100, 101)))
+    assert not ok

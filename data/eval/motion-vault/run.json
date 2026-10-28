@@ -1,0 +1,832 @@
+{
+  "move": "vault",
+  "serves": "the vault over a step (key V, CC-44)",
+  "started": "2026-10-28T07:27:04+0000",
+  "steps": [],
+  "cmu": {
+    "terms": [
+      "vault",
+      "jump over",
+      "hurdle",
+      "step over",
+      "box jump"
+    ],
+    "skip": [],
+    "hits": [
+      {
+        "id": "15_02",
+        "desc": "climb, step over, sit on, stand on stepstool",
+        "subject": 15,
+        "fps": 120
+      },
+      {
+        "id": "40_06",
+        "desc": "climb, step over, sit on, jump over stepstool",
+        "subject": 40,
+        "fps": 120
+      },
+      {
+        "id": "40_07",
+        "desc": "climb, step over, jump over stepstool",
+        "subject": 40,
+        "fps": 120
+      },
+      {
+        "id": "40_08",
+        "desc": "climb, step over, jump over stepstool",
+        "subject": 40,
+        "fps": 120
+      },
+      {
+        "id": "40_09",
+        "desc": "climb, step over, jump over stepstool",
+        "subject": 40,
+        "fps": 120
+      },
+      {
+        "id": "41_07",
+        "desc": "climb, step over, jump over, navigate around stepstool",
+        "subject": 41,
+        "fps": 120
+      },
+      {
+        "id": "41_08",
+        "desc": "climb, step over, jump over, navigate around stepstool",
+        "subject": 41,
+        "fps": 120
+      },
+      {
+        "id": "41_09",
+        "desc": "climb, step over, jump over, navigate around stepstool",
+        "subject": 41,
+        "fps": 120
+      },
+      {
+        "id": "75_12",
+        "desc": "box jump",
+        "subject": 75,
+        "fps": 60
+      },
+      {
+        "id": "141_09",
+        "desc": "Step Over",
+        "subject": 141,
+        "fps": 120
+      },
+      {
+        "id": "143_14",
+        "desc": "Walk And Step Over",
+        "subject": 143,
+        "fps": 120
+      },
+      {
+        "id": "143_15",
+        "desc": "Walk And Step Over",
+        "subject": 143,
+        "fps": 120
+      },
+      {
+        "id": "143_16",
+        "desc": "Walk And Step Over",
+        "subject": 143,
+        "fps": 120
+      }
+    ],
+    "skipped_not_on_disk": [
+      "143_16"
+    ],
+    "candidates": [
+      {
+        "id": "15_02",
+        "gate_pass": true,
+        "move_check_pass": false,
+        "move_check": {
+          "ok": false,
+          "standing_hips_m": 1.02,
+          "air_s": 5.0,
+          "window_frames": [
+            5,
+            154
+          ],
+          "travel_m": 0.11,
+          "hand_plant": null,
+          "peak_hips_vs_standing": 1.4,
+          "max_trunk_turn_deg": 23.1,
+          "ends_upright": true
+        }
+      },
+      {
+        "id": "40_06",
+        "gate_pass": true,
+        "move_check_pass": false,
+        "move_check": {
+          "ok": false,
+          "standing_hips_m": 1.03,
+          "air_s": 3.3,
+          "window_frames": [
+            4,
+            102
+          ],
+          "travel_m": 0.05,
+          "hand_plant": null,
+          "peak_hips_vs_standing": 1.36,
+          "max_trunk_turn_deg": 5.2,
+          "ends_upright": true
+        }
+      },
+      {
+        "id": "40_07",
+        "gate_pass": true,
+        "move_check_pass": false,
+        "move_check": {
+          "ok": false,
+          "standing_hips_m": 1.01,
+          "air_s": 2.67,
+          "window_frames": [
+            4,
+            83
+          ],
+          "travel_m": 0.49,
+          "hand_plant": null,
+          "peak_hips_vs_standing": 1.39,
+          "max_trunk_turn_deg": 23.2,
+          "ends_upright": true
+        }
+      },
+      {
+        "id": "40_08",
+        "gate_pass": true,
+        "move_check_pass": false,
+        "move_check": {
+          "ok": false,
+          "standing_hips_m": 1.04,
+          "air_s": 3.7,
+          "window_frames": [
+            4,
+            114
+          ],
+          "travel_m": -0.06,
+          "hand_plant": null,
+          "peak_hips_vs_standing": 1.37,
+          "max_trunk_turn_deg": 8.1,
+          "ends_upright": true
+        }
+      },
+      {
+        "id": "40_09",
+        "gate_pass": true,
+        "move_check_pass": false,
+        "move_check": {
+          "ok": false,
+          "standing_hips_m": 1.01,
+          "air_s": 3.1,
+          "window_frames": [
+            5,
+            97
+          ],
+          "travel_m": -0.01,
+          "hand_plant": null,
+          "peak_hips_vs_standing": 1.38,
+          "max_trunk_turn_deg": 3.8,
+          "ends_upright": true
+        }
+      },
+      {
+        "id": "41_07",
+        "gate_pass": true,
+        "move_check_pass": false,
+        "move_check": {
+          "ok": false,
+          "standing_hips_m": 1.04,
+          "air_s": 3.33,
+          "window_frames": [
+            5,
+            104
+          ],
+          "travel_m": -0.1,
+          "hand_plant": null,
+          "peak_hips_vs_standing": 1.37,
+          "max_trunk_turn_deg": 14.8,
+          "ends_upright": true
+        }
+      },
+      {
+        "id": "41_08",
+        "gate_pass": true,
+        "move_check_pass": false,
+        "move_check": {
+          "ok": false,
+          "standing_hips_m": 1.02,
+          "air_s": 3.4,
+          "window_frames": [
+            5,
+            106
+          ],
+          "travel_m": -0.07,
+          "hand_plant": null,
+          "peak_hips_vs_standing": 1.38,
+          "max_trunk_turn_deg": 8.1,
+          "ends_upright": true
+        }
+      },
+      {
+        "id": "41_09",
+        "gate_pass": true,
+        "move_check_pass": false,
+        "move_check": {
+          "ok": false,
+          "standing_hips_m": 1.01,
+          "air_s": 1.6,
+          "window_frames": [
+            4,
+            51
+          ],
+          "travel_m": 0.62,
+          "hand_plant": null,
+          "peak_hips_vs_standing": 1.37,
+          "max_trunk_turn_deg": 9.3,
+          "ends_upright": true
+        }
+      },
+      {
+        "id": "75_12",
+        "gate_pass": true,
+        "move_check_pass": false,
+        "move_check": {
+          "ok": false,
+          "standing_hips_m": 0.81,
+          "air_s": 0.47,
+          "window_frames": [
+            4,
+            17
+          ],
+          "travel_m": 0.67,
+          "hand_plant": null,
+          "peak_hips_vs_standing": 1.53,
+          "max_trunk_turn_deg": 28.3,
+          "ends_upright": true
+        }
+      },
+      {
+        "id": "141_09",
+        "gate_pass": true,
+        "move_check_pass": false,
+        "move_check": {
+          "ok": false,
+          "standing_hips_m": 0.86,
+          "why": "the feet never leave the floor"
+        }
+      },
+      {
+        "id": "143_14",
+        "gate_pass": true,
+        "move_check_pass": false,
+        "move_check": {
+          "ok": false,
+          "standing_hips_m": 0.82,
+          "why": "the feet never leave the floor"
+        }
+      },
+      {
+        "id": "143_15",
+        "gate_pass": true,
+        "move_check_pass": false,
+        "move_check": {
+          "ok": false,
+          "standing_hips_m": 0.82,
+          "why": "the feet never leave the floor"
+        }
+      }
+    ]
+  },
+  "kimodo": {
+    "reused": "data/eval/motion-vault/inputs/kimodo",
+    "wall_s": 257.8,
+    "estimated_usd": 0.057,
+    "usd_per_hour_assumed": 0.8,
+    "cap_usd": 15.0
+  },
+  "candidates": [
+    {
+      "id": "15_02",
+      "source": "CMU 15_02 (climb, step over, sit on, stand on stepstool)",
+      "gate_pass": true,
+      "move_check_pass": false,
+      "failed_gate": [],
+      "soft_failed": [
+        "feet_dont_slide"
+      ],
+      "move_check": {
+        "ok": false,
+        "standing_hips_m": 1.02,
+        "air_s": 5.0,
+        "window_frames": [
+          5,
+          154
+        ],
+        "travel_m": 0.11,
+        "hand_plant": null,
+        "peak_hips_vs_standing": 1.4,
+        "max_trunk_turn_deg": 23.1,
+        "ends_upright": true
+      }
+    },
+    {
+      "id": "40_06",
+      "source": "CMU 40_06 (climb, step over, sit on, jump over stepstool)",
+      "gate_pass": true,
+      "move_check_pass": false,
+      "failed_gate": [],
+      "soft_failed": [
+        "feet_dont_slide"
+      ],
+      "move_check": {
+        "ok": false,
+        "standing_hips_m": 1.03,
+        "air_s": 3.3,
+        "window_frames": [
+          4,
+          102
+        ],
+        "travel_m": 0.05,
+        "hand_plant": null,
+        "peak_hips_vs_standing": 1.36,
+        "max_trunk_turn_deg": 5.2,
+        "ends_upright": true
+      }
+    },
+    {
+      "id": "40_07",
+      "source": "CMU 40_07 (climb, step over, jump over stepstool)",
+      "gate_pass": true,
+      "move_check_pass": false,
+      "failed_gate": [],
+      "soft_failed": [],
+      "move_check": {
+        "ok": false,
+        "standing_hips_m": 1.01,
+        "air_s": 2.67,
+        "window_frames": [
+          4,
+          83
+        ],
+        "travel_m": 0.49,
+        "hand_plant": null,
+        "peak_hips_vs_standing": 1.39,
+        "max_trunk_turn_deg": 23.2,
+        "ends_upright": true
+      }
+    },
+    {
+      "id": "40_08",
+      "source": "CMU 40_08 (climb, step over, jump over stepstool)",
+      "gate_pass": true,
+      "move_check_pass": false,
+      "failed_gate": [],
+      "soft_failed": [],
+      "move_check": {
+        "ok": false,
+        "standing_hips_m": 1.04,
+        "air_s": 3.7,
+        "window_frames": [
+          4,
+          114
+        ],
+        "travel_m": -0.06,
+        "hand_plant": null,
+        "peak_hips_vs_standing": 1.37,
+        "max_trunk_turn_deg": 8.1,
+        "ends_upright": true
+      }
+    },
+    {
+      "id": "40_09",
+      "source": "CMU 40_09 (climb, step over, jump over stepstool)",
+      "gate_pass": true,
+      "move_check_pass": false,
+      "failed_gate": [],
+      "soft_failed": [],
+      "move_check": {
+        "ok": false,
+        "standing_hips_m": 1.01,
+        "air_s": 3.1,
+        "window_frames": [
+          5,
+          97
+        ],
+        "travel_m": -0.01,
+        "hand_plant": null,
+        "peak_hips_vs_standing": 1.38,
+        "max_trunk_turn_deg": 3.8,
+        "ends_upright": true
+      }
+    },
+    {
+      "id": "41_07",
+      "source": "CMU 41_07 (climb, step over, jump over, navigate around stepstool)",
+      "gate_pass": true,
+      "move_check_pass": false,
+      "failed_gate": [],
+      "soft_failed": [
+        "feet_dont_slide"
+      ],
+      "move_check": {
+        "ok": false,
+        "standing_hips_m": 1.04,
+        "air_s": 3.33,
+        "window_frames": [
+          5,
+          104
+        ],
+        "travel_m": -0.1,
+        "hand_plant": null,
+        "peak_hips_vs_standing": 1.37,
+        "max_trunk_turn_deg": 14.8,
+        "ends_upright": true
+      }
+    },
+    {
+      "id": "41_08",
+      "source": "CMU 41_08 (climb, step over, jump over, navigate around stepstool)",
+      "gate_pass": true,
+      "move_check_pass": false,
+      "failed_gate": [],
+      "soft_failed": [
+        "feet_dont_slide"
+      ],
+      "move_check": {
+        "ok": false,
+        "standing_hips_m": 1.02,
+        "air_s": 3.4,
+        "window_frames": [
+          5,
+          106
+        ],
+        "travel_m": -0.07,
+        "hand_plant": null,
+        "peak_hips_vs_standing": 1.38,
+        "max_trunk_turn_deg": 8.1,
+        "ends_upright": true
+      }
+    },
+    {
+      "id": "41_09",
+      "source": "CMU 41_09 (climb, step over, jump over, navigate around stepstool)",
+      "gate_pass": true,
+      "move_check_pass": false,
+      "failed_gate": [],
+      "soft_failed": [
+        "feet_dont_slide"
+      ],
+      "move_check": {
+        "ok": false,
+        "standing_hips_m": 1.01,
+        "air_s": 1.6,
+        "window_frames": [
+          4,
+          51
+        ],
+        "travel_m": 0.62,
+        "hand_plant": null,
+        "peak_hips_vs_standing": 1.37,
+        "max_trunk_turn_deg": 9.3,
+        "ends_upright": true
+      }
+    },
+    {
+      "id": "75_12",
+      "source": "CMU 75_12 (box jump)",
+      "gate_pass": true,
+      "move_check_pass": false,
+      "failed_gate": [],
+      "soft_failed": [],
+      "move_check": {
+        "ok": false,
+        "standing_hips_m": 0.81,
+        "air_s": 0.47,
+        "window_frames": [
+          4,
+          17
+        ],
+        "travel_m": 0.67,
+        "hand_plant": null,
+        "peak_hips_vs_standing": 1.53,
+        "max_trunk_turn_deg": 28.3,
+        "ends_upright": true
+      }
+    },
+    {
+      "id": "141_09",
+      "source": "CMU 141_09 (Step Over)",
+      "gate_pass": true,
+      "move_check_pass": false,
+      "failed_gate": [],
+      "soft_failed": [
+        "feet_dont_slide"
+      ],
+      "move_check": {
+        "ok": false,
+        "standing_hips_m": 0.86,
+        "why": "the feet never leave the floor"
+      }
+    },
+    {
+      "id": "143_14",
+      "source": "CMU 143_14 (Walk And Step Over)",
+      "gate_pass": true,
+      "move_check_pass": false,
+      "failed_gate": [],
+      "soft_failed": [
+        "feet_dont_slide"
+      ],
+      "move_check": {
+        "ok": false,
+        "standing_hips_m": 0.82,
+        "why": "the feet never leave the floor"
+      }
+    },
+    {
+      "id": "143_15",
+      "source": "CMU 143_15 (Walk And Step Over)",
+      "gate_pass": true,
+      "move_check_pass": false,
+      "failed_gate": [],
+      "soft_failed": [
+        "feet_dont_slide",
+        "no_jitter"
+      ],
+      "move_check": {
+        "ok": false,
+        "standing_hips_m": 0.82,
+        "why": "the feet never leave the floor"
+      }
+    },
+    {
+      "id": "vault_a_s0",
+      "source": "Kimodo-SOMA-RP, prompt vault_a, sample 0",
+      "gate_pass": true,
+      "move_check_pass": false,
+      "failed_gate": [],
+      "soft_failed": [],
+      "move_check": {
+        "ok": false,
+        "standing_hips_m": 0.87,
+        "air_s": 1.27,
+        "window_frames": [
+          3,
+          40
+        ],
+        "travel_m": 0.89,
+        "hand_plant": null,
+        "peak_hips_vs_standing": 2.82,
+        "max_trunk_turn_deg": 48.0,
+        "ends_upright": true
+      }
+    },
+    {
+      "id": "vault_a_s1",
+      "source": "Kimodo-SOMA-RP, prompt vault_a, sample 1",
+      "gate_pass": true,
+      "move_check_pass": false,
+      "failed_gate": [],
+      "soft_failed": [],
+      "move_check": {
+        "ok": false,
+        "standing_hips_m": 0.83,
+        "air_s": 0.73,
+        "window_frames": [
+          3,
+          24
+        ],
+        "travel_m": 1.37,
+        "hand_plant": null,
+        "peak_hips_vs_standing": 2.25,
+        "max_trunk_turn_deg": 58.6,
+        "ends_upright": true
+      }
+    },
+    {
+      "id": "vault_a_s2",
+      "source": "Kimodo-SOMA-RP, prompt vault_a, sample 2",
+      "gate_pass": true,
+      "move_check_pass": false,
+      "failed_gate": [],
+      "soft_failed": [],
+      "move_check": {
+        "ok": false,
+        "standing_hips_m": 0.92,
+        "air_s": 0.7,
+        "window_frames": [
+          3,
+          23
+        ],
+        "travel_m": 1.63,
+        "hand_plant": null,
+        "peak_hips_vs_standing": 1.78,
+        "max_trunk_turn_deg": 27.1,
+        "ends_upright": true
+      }
+    },
+    {
+      "id": "vault_a_s3",
+      "source": "Kimodo-SOMA-RP, prompt vault_a, sample 3",
+      "gate_pass": true,
+      "move_check_pass": false,
+      "failed_gate": [],
+      "soft_failed": [],
+      "move_check": {
+        "ok": false,
+        "standing_hips_m": 0.9,
+        "air_s": 0.5,
+        "window_frames": [
+          3,
+          17
+        ],
+        "travel_m": 1.41,
+        "hand_plant": "RightHand",
+        "peak_hips_vs_standing": 1.68,
+        "max_trunk_turn_deg": 62.5,
+        "ends_upright": true
+      }
+    },
+    {
+      "id": "vault_a_s4",
+      "source": "Kimodo-SOMA-RP, prompt vault_a, sample 4",
+      "gate_pass": true,
+      "move_check_pass": false,
+      "failed_gate": [],
+      "soft_failed": [],
+      "move_check": {
+        "ok": false,
+        "standing_hips_m": 0.81,
+        "air_s": 0.53,
+        "window_frames": [
+          3,
+          18
+        ],
+        "travel_m": 1.31,
+        "hand_plant": null,
+        "peak_hips_vs_standing": 1.79,
+        "max_trunk_turn_deg": 25.4,
+        "ends_upright": true
+      }
+    },
+    {
+      "id": "vault_a_s5",
+      "source": "Kimodo-SOMA-RP, prompt vault_a, sample 5",
+      "gate_pass": true,
+      "move_check_pass": false,
+      "failed_gate": [],
+      "soft_failed": [],
+      "move_check": {
+        "ok": false,
+        "standing_hips_m": 0.89,
+        "air_s": 0.67,
+        "window_frames": [
+          3,
+          22
+        ],
+        "travel_m": 1.48,
+        "hand_plant": null,
+        "peak_hips_vs_standing": 1.78,
+        "max_trunk_turn_deg": 29.8,
+        "ends_upright": true
+      }
+    },
+    {
+      "id": "vault_b_s0",
+      "source": "Kimodo-SOMA-RP, prompt vault_b, sample 0",
+      "gate_pass": true,
+      "move_check_pass": true,
+      "failed_gate": [],
+      "soft_failed": [],
+      "move_check": {
+        "ok": true,
+        "standing_hips_m": 0.97,
+        "air_s": 0.5,
+        "window_frames": [
+          3,
+          17
+        ],
+        "travel_m": 1.5,
+        "hand_plant": "RightHand",
+        "peak_hips_vs_standing": 1.47,
+        "max_trunk_turn_deg": 39.1,
+        "ends_upright": true
+      }
+    },
+    {
+      "id": "vault_b_s1",
+      "source": "Kimodo-SOMA-RP, prompt vault_b, sample 1",
+      "gate_pass": true,
+      "move_check_pass": false,
+      "failed_gate": [],
+      "soft_failed": [],
+      "move_check": {
+        "ok": false,
+        "standing_hips_m": 0.9,
+        "air_s": 0.1,
+        "window_frames": [
+          3,
+          5
+        ],
+        "travel_m": 0.18,
+        "hand_plant": null,
+        "peak_hips_vs_standing": 1.12,
+        "max_trunk_turn_deg": 2.2,
+        "ends_upright": true
+      }
+    },
+    {
+      "id": "vault_b_s2",
+      "source": "Kimodo-SOMA-RP, prompt vault_b, sample 2",
+      "gate_pass": true,
+      "move_check_pass": false,
+      "failed_gate": [],
+      "soft_failed": [],
+      "move_check": {
+        "ok": false,
+        "standing_hips_m": 0.96,
+        "why": "the feet never leave the floor"
+      }
+    },
+    {
+      "id": "vault_b_s3",
+      "source": "Kimodo-SOMA-RP, prompt vault_b, sample 3",
+      "gate_pass": true,
+      "move_check_pass": true,
+      "failed_gate": [],
+      "soft_failed": [
+        "feet_dont_slide"
+      ],
+      "move_check": {
+        "ok": true,
+        "standing_hips_m": 0.88,
+        "air_s": 0.5,
+        "window_frames": [
+          3,
+          17
+        ],
+        "travel_m": 1.4,
+        "hand_plant": "RightHand",
+        "peak_hips_vs_standing": 1.59,
+        "max_trunk_turn_deg": 17.7,
+        "ends_upright": true
+      }
+    },
+    {
+      "id": "vault_b_s4",
+      "source": "Kimodo-SOMA-RP, prompt vault_b, sample 4",
+      "gate_pass": true,
+      "move_check_pass": false,
+      "failed_gate": [],
+      "soft_failed": [],
+      "move_check": {
+        "ok": false,
+        "standing_hips_m": 0.96,
+        "air_s": 0.23,
+        "window_frames": [
+          3,
+          9
+        ],
+        "travel_m": 0.45,
+        "hand_plant": null,
+        "peak_hips_vs_standing": 1.19,
+        "max_trunk_turn_deg": 3.8,
+        "ends_upright": true
+      }
+    },
+    {
+      "id": "vault_b_s5",
+      "source": "Kimodo-SOMA-RP, prompt vault_b, sample 5",
+      "gate_pass": true,
+      "move_check_pass": true,
+      "failed_gate": [],
+      "soft_failed": [
+        "feet_dont_slide"
+      ],
+      "move_check": {
+        "ok": true,
+        "standing_hips_m": 0.89,
+        "air_s": 0.57,
+        "window_frames": [
+          3,
+          19
+        ],
+        "travel_m": 1.14,
+        "hand_plant": "LeftHand",
+        "peak_hips_vs_standing": 1.51,
+        "max_trunk_turn_deg": 54.7,
+        "ends_upright": true
+      }
+    }
+  ],
+  "summary": {
+    "candidates": 24,
+    "pass_gate": 24,
+    "pass_move_check": 3,
+    "pass_both": 3
+  },
+  "best": "vault_b_s0",
+  "shipped_to": "public/assets/motion/vault.json"
+}

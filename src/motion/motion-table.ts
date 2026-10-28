@@ -20,7 +20,7 @@ export const ROLL_TICKS = Math.round((DEFAULT_LANDING.rollStopTime + ROLL_GET_UP
 export const MOTION_TABLE: Record<MoveName, MoveEntry> = {
   roll: { clip: 'roll', fallback: 'tuck', ticks: ROLL_TICKS, from: "event 'land' with rolled (WorldState.rolledAt)" },
   hurt: { clip: null, fallback: 'none', ticks: null, from: "outcome 'hurt' (event 'hard-landing')" },
-  vault: { clip: null, fallback: 'none', ticks: null, from: "mode 'vault' (shown as the run today: a gap)" },
+  vault: { clip: 'vault', fallback: 'none', ticks: null, from: "mode 'vault' (progress = WorldState.vault.i / n; without the clip the run pose is shown: a gap)" },
   hang: { clip: 'swing', fallback: 'none', ticks: null, from: "mode 'hang' (the rope's swing pose, turned about the hands)" },
   'giant-swing': { clip: null, fallback: 'none', ticks: null, from: "mode 'hang' with the swing past horizontal (CC-58)" },
   seated: { clip: null, fallback: 'none', ticks: null, from: "mode 'cart' (CC-61)" },

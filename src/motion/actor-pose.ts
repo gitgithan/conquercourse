@@ -14,6 +14,7 @@ export interface ActorState {
   mode: 'run' | 'wall' | 'swing' | 'bounce' | 'cart';
   squat: boolean;
   landedTicksAgo: number | null;
+  vaultProgress?: number; // 0 to 1 through the vault (WorldState.vault.i / n); only while the runner is over an obstacle
   rolledAt?: number; // tick of the last roll landing (WorldState.rolledAt): the roll plays for the simulator's roll time from here
   wallProgress?: number; // 0..1 along the wall climb
   swingTheta?: number; // rad from straight down; positive swings toward +x
@@ -23,7 +24,7 @@ export interface ActorState {
   next?: Next; // the next obstacle ahead and how far: the body gets ready for it before it arrives
 }
 
-export type ClipKind = 'stand' | 'run' | 'leap' | 'land' | 'swing' | 'wall-run' | 'wall-reach' | 'bounce' | 'roll' | 'sit';
+export type ClipKind = 'stand' | 'run' | 'leap' | 'land' | 'swing' | 'wall-run' | 'wall-reach' | 'bounce' | 'roll' | 'vault' | 'sit';
 
 export const LAND_TICKS = 60; // how long the landing clip is held after touch-down (matches the Rookie demo)
 export const REACH_FROM = 0.75; // the reach clip plays over the last quarter of the wall climb
@@ -32,6 +33,7 @@ export const RUN_FROM = 0.9; // m/s: faster than this is fully running (in betwe
 
 export function chooseClip(s: ActorState): ClipKind {
   if (s.mode === 'cart') return 'sit';
+  if (s.mode === 'run' && s.vaultProgress !== undefined) return 'vault';
   if (s.mode === 'run' && s.rolledAt !== undefined && moveProgress(MOTION_TABLE.roll, s.rolledAt, s.tick) !== null) return 'roll';
   if (s.mode === 'swing') return 'swing';
   if (s.mode === 'bounce') return 'bounce';
