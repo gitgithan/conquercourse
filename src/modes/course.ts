@@ -249,7 +249,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
   const wholeBtn = document.createElement('button');
   wholeBtn.id = 'wholeideal'; wholeBtn.textContent = 'Whole course (Shift+I)';
   wholeBtn.title = 'Watch one ideal run through every obstacle; any key stops it';
-  wholeBtn.style.cssText = 'position:fixed;right:120px;top:56px;font:600 13px system-ui,sans-serif;border:1px solid #17201d;background:#fff;color:#17201d;border-radius:8px;padding:4px 10px;cursor:pointer';
+  wholeBtn.style.cssText = 'position:fixed;right:158px;top:56px;font:600 13px system-ui,sans-serif;border:1px solid #17201d;background:#fff;color:#17201d;border-radius:8px;padding:4px 10px;cursor:pointer';
   wholeBtn.onclick = () => { wholeBtn.blur(); showWholeIdeal(); };
   // choose your runner: the male or the female Rookie (remembered between visits)
   const pick = document.createElement('div');

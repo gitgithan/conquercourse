@@ -354,3 +354,27 @@ The set of obstacle shapes is fixed, and each shape offers a fixed set of moves.
   - Screenshots `data/eval/photo-course/screens/1-bars-draft.png` and `2-skate-draft-fixed.png` (VM run of `scripts/photo-check.mjs`, saved model answers, ALL OK).
   - Raw answers `data/eval/photo-course/outputs/`, scores `results.json`, `run.json`.
   - Scripts `scripts/photo-course-ask.ts` (needs the key, runs where the key lives), `scripts/photo-course-score.ts` (no key, heavy, run on the VM).
+
+
+## Shift+I and hazard floors (CC-57)
+- **So what:** the demo can now show the whole course done right with one key, and a fall no longer always means water.
+- **Shift+I:**
+  - It plays one ideal run from the start (or from where retry would start) to the finish, without handing back after each obstacle.
+  - Plain I still shows one obstacle.
+  - Any other key takes the run back, and R retries as before.
+  - A button "Whole course (Shift+I)" sits next to "Ideal run (I)".
+- **Stored plans:** every demo course carries its whole-course plan (`course.plan`), so Shift+I starts at once.
+  - `npm run plans` makes new plans for all eight demo courses (about 2 s each on the VM).
+  - `tests/demo-plans.test.ts` fails when a plan no longer clears its course, so a change to the simulator or the search cannot leave a stale plan behind.
+  - A course without a plan is searched in a Worker (`src/sim/ideal-worker.ts`), so the page keeps drawing.
+- **Bug found on the way:** the "Ideal run: watch how it is done" line was wiped every frame by the message code, so nobody saw it.
+  - It stays on screen now.
+- **Floors:** a course names its floor in `hazard` (water by default, lava, mud, spikes, dark drop).
+  - Only the paint, the words and the sound change; the run ends the same way on every floor, and the simulator still says "splash".
+  - Words say what the floor did and what would have worked, never how well you did.
+  - Lava glows and pulses, mud has bubbles, spikes are steel cones, the dark drop is a gradient that falls away.
+  - `?hazard=lava` tries a floor on any course; the editor has a "Floor you must not touch" picker; the generator picks by seed (`seed % 5`, water on every fifth) without changing the random draws.
+  - Demo choices: the lache demo is lava, lane 1 is spikes, the generated sample (seed 2) is mud.
+- **Checks:** `scripts/ideal-all-check.mjs` runs Shift+I on all eight demo courses (all clear, run on the VM), the any-key stop, and each floor (fall, words, sound).
+  - Screenshots: `data/eval/cc-57-floors/`.
+- **Known gap:** lava, mud and spikes are paint, words and sound only; mud does not slow you down.
