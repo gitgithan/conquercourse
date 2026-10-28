@@ -1,0 +1,26 @@
+{
+  "experiment": "pose-kimodo",
+  "issue": "CC-54",
+  "date": "2026-10-28",
+  "model": "kimodo-soma-rp",
+  "kimodo_commit": "e1c219c99b4b94ba48be1fb6a1cbc64ecee4c954",
+  "steps": 100,
+  "gpu": "Modal L4",
+  "rounds": {
+    "1": {
+      "gpu_s": 203.5
+    },
+    "2": {
+      "gpu_s": 196.0
+    }
+  },
+  "seeds": [
+    7,
+    8,
+    9,
+    10
+  ],
+  "gate": "pipelines/ccpipe/gate.py version 1, unchanged",
+  "cost_usd_estimate": 0.2,
+  "samples": "../conquercourse-assets/pose-kimodo/ (SHA256SUMS)"
+}

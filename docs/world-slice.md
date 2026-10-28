@@ -412,3 +412,14 @@ The set of obstacle shapes is fixed, and each shape offers a fixed set of moves.
   - The roll is a state with no tuck animation yet.
   - Fix it does not yet shorten a lane drop.
   - The key is X (C was already the camera); the product owner confirms.
+
+## Pose-conditioned Kimodo (CC-54)
+- **So what:** holding Kimodo to key poses makes a plain hang pass the gate in all four seeds, but a swing and a vault still fail, so the Rookie keeps motion capture for those moves.
+- **What it was:** hand-set key poses for hang, swing and vault go to Kimodo as full-body position constraints; the same text without poses is the baseline.
+- **Hang:** 4 of 4 pass, and the hands end 0.23 m from the pose on average (0.57 m without the pose).
+- **Swing:** 0 of 4 pass in two rounds; the knees fold and the hands leave the bar, so the pendulum is not followed.
+- **Vault:** 0 of 4 pass in two rounds; the tucked pose is fine alone, but the result is in the air longer than the held rule allows.
+- **MediaPipe:** found the body in 4 of 4 front pictures and 1 of 4 side pictures of a plain mannequin, so it did not feed Kimodo.
+- **Cost:** about $0.2 of Modal.
+- **Next step:** no more spend here; a swing is better tracked from the simulator's own pendulum path.
+- **Details:** `data/eval/pose-kimodo/README.md`.
