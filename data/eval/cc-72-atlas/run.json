@@ -1,0 +1,49 @@
+{
+  "checks": {
+    "mapStyleLoaded": true,
+    "sliceButtonEnabled": true,
+    "sliceReady": true,
+    "sliderReachesAboveTheHill": true,
+    "cutBuildingsFallAsThePlaneRises": true,
+    "contourLinesAppear": true,
+    "contourChangesWithHeight": true,
+    "readoutChanges": true,
+    "readoutSaysCutHeight": true,
+    "someHeightIsClearable": true,
+    "someHeightHasAnAnswer": true,
+    "ladderHasSixToTenLines": true
+  },
+  "levels": {
+    "low": {
+      "cut": 5,
+      "cutBuildings": 41,
+      "below": 0,
+      "contourSegs": 16,
+      "lane": "not-clearable",
+      "laneLength": null,
+      "readout": "Cut at 5 m: a lane of 20 m, but the simulator could not clear it."
+    },
+    "mid": {
+      "cut": 20,
+      "cutBuildings": 41,
+      "below": 0,
+      "contourSegs": 116,
+      "lane": "not-clearable",
+      "laneLength": null,
+      "readout": "Cut at 20 m: a lane of 20 m, but the simulator could not clear it."
+    },
+    "high": {
+      "cut": 35,
+      "cutBuildings": 35,
+      "below": 6,
+      "contourSegs": 115,
+      "lane": "clearable",
+      "laneLength": "24",
+      "readout": "Cut at 35 m: the lane is 24 m long in the game, clearable."
+    }
+  },
+  "notes": [
+    "ladder lines: 7"
+  ],
+  "pass": true
+}

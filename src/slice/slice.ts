@@ -172,7 +172,8 @@ function offsetsFor(samples: Float32Array, centre: { x: number; z: number }, ang
   return Array.from({ length: n + 1 }, (_, i) => lo + HALF_LANE + ((hi - lo - 2 * HALF_LANE) * i) / n);
 }
 
-export function bestSlices(mesh: Mesh, opts: { angles?: number; offsets?: number[]; levels?: number[]; top?: number; centre?: { x: number; z: number } } = {}): Candidate[] {
+// prove: false returns the best lanes by their shape without the slow simulator proof (the Slicer shows them at once); maxProofs: how many lanes to try to clear (default 12).
+export function bestSlices(mesh: Mesh, opts: { angles?: number; offsets?: number[]; levels?: number[]; top?: number; centre?: { x: number; z: number }; prove?: boolean; maxProofs?: number } = {}): Candidate[] {
   const samples = surfaceSamples(mesh);
   let minX = Infinity, maxX = -Infinity, minZ = Infinity, maxZ = -Infinity, minY = Infinity, maxY = -Infinity;
   for (let i = 0; i < samples.length; i += 3) { minX = Math.min(minX, samples[i]); maxX = Math.max(maxX, samples[i]); minY = Math.min(minY, samples[i + 1]); maxY = Math.max(maxY, samples[i + 1]); minZ = Math.min(minZ, samples[i + 2]); maxZ = Math.max(maxZ, samples[i + 2]); }
@@ -195,9 +196,10 @@ export function bestSlices(mesh: Mesh, opts: { angles?: number; offsets?: number
   for (const cand of all) {
     if (out.length >= (opts.top ?? 3)) break;
     if (out.some((o) => Math.abs(o.angle - cand.angle) < 0.2 && Math.abs(o.offset - cand.offset) < 1.5 && o.level === cand.level)) continue; // not three copies of the same lane
+    if (opts.prove === false) { out.push(cand); continue; }
     const course = laneToCourse({ cells: [...cand.profile.cells], length: cand.profile.length });
     if (gapSpecs(course).some((g) => g.needed > 8.5)) continue; // a gap needing nearly top speed is not a fair lane: skip the slow proof
-    if (++proofs > 12) break; // proving a lane costs a full ideal-run search: try at most this many
+    if (++proofs > (opts.maxProofs ?? 12)) break; // proving a lane costs a full ideal-run search: try at most this many
     if (searchIdealRun(course).cleared) out.push(cand);
   }
   return out;
