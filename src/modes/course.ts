@@ -239,7 +239,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
   // the controls, always visible top-left as a card of key caps (collapse with H)
   const help = document.createElement('div');
   help.id = 'keys';
-  const KEYS: [string, string][] = [['← →', 'Run (hold)'], ['Space or ↑', 'Jump · let go of the rope · press on the trampoline'], ['↓', 'Bend your knees (hold, on big drops)'], ['X', 'Hold as you land to roll; you can also tap shortly before contact'], ...(course.recoil ? ([['K', 'Fire the launcher (clip it on at the teal pad): the ball goes back, you go forward']] as [string, string][]) : []), ...(course.trebuchet ? ([['→ (hold), then Space or ↑', 'Trebuchet: pull the pin, then let the rider go when the hint says LET GO NOW']] as [string, string][]) : []), ...(course !== defaultCourse ? ([['E', 'Hold a bar with the hands (in the air; let go to fly on)'], ['← → on a bar', 'Pump the swing: push the way you swing'], ['V', 'Vault over a step with a hand on top (fast, saves energy)']] as [string, string][]) : []), ['F', 'Toggle the Looking ahead inset'], ...(course.track ? ([['→ or Space or ↑', 'Push off at the top of the first hill'], ['↓ (hold)', 'Brake (S works too)']] as [string, string][]) : []), ['I', 'Ideal run of this obstacle (Shift+I: the whole course, any key stops it)'], ['G', 'Drums: where the ideal run presses Space'], ['B', 'Debug view: see the collision boxes and where a jump goes'], ['Mouse', 'Drag to turn the view, wheel to zoom, double-click to reset']]; // retry, ideal run and Dojo are on the fall panel and the buttons
+  const KEYS: [string, string][] = [['← →', 'Run (hold)'], ['Space / ↑ / W', 'Jump · let go of the rope · press on the trampoline'], ['↓ / S', 'Bend your knees (hold, on big drops)'], ['X', 'Hold as you land to roll; you can also tap shortly before contact'], ...(course.recoil ? ([['K', 'Fire the launcher (clip it on at the teal pad): the ball goes back, you go forward']] as [string, string][]) : []), ...(course.trebuchet ? ([['→ (hold), then Space, ↑ or W', 'Trebuchet: pull the pin, then let the rider go when the hint says LET GO NOW']] as [string, string][]) : []), ...(course !== defaultCourse ? ([['E', 'Hold a bar with the hands (in the air; let go to fly on)'], ['← → on a bar', 'Pump the swing: push the way you swing'], ['V', 'Vault over a step with a hand on top (fast, saves energy)']] as [string, string][]) : []), ['F', 'Toggle the Looking ahead inset'], ...(course.track ? ([['→, Space, ↑ or W', 'Push off at the top of the first hill'], ['↓ / S (hold)', 'Brake']] as [string, string][]) : []), ['I', 'Ideal run of this obstacle (Shift+I: the whole course, any key stops it)'], ['G', 'Drums: where the ideal run presses Space'], ['B', 'Debug view: see the collision boxes and where a jump goes'], ['Mouse', 'Drag to turn the view, wheel to zoom, double-click to reset']]; // retry, ideal run and Dojo are on the fall panel and the buttons
   help.style.cssText = 'position:fixed;left:16px;top:48px;width:290px;background:#fffffff0;border:1px solid #cfd6d0;border-radius:12px;padding:8px 10px;font:500 14px system-ui,sans-serif;color:#17201d;box-shadow:0 2px 10px #0002;pointer-events:none;display:grid;gap:5px';
   const paintKeys = (open: boolean) => {
     help.innerHTML = `<div style="font-weight:700;display:flex;justify-content:space-between">Controls <span style="font-weight:400;color:#58635d">H ${open ? 'hides' : 'shows'}</span></div>` + (open ? KEYS.map(([k, d]) => `<div style="display:grid;grid-template-columns:78px 1fr;gap:8px;align-items:center"><kbd style="font:700 13px ui-monospace,monospace;background:#eef1ec;border:1px solid #b9c2bb;border-bottom-width:3px;border-radius:6px;padding:1px 6px;text-align:center">${k}</kbd><span>${d}</span></div>`).join('') : '');
@@ -388,15 +388,23 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
     pick2.style.cssText = 'position:fixed;right:16px;top:196px;z-index:20;width:auto;max-width:min(300px,45vw);min-height:0;margin:0;font:600 12px system-ui,sans-serif;border:2px solid #17201d;background:#fff;color:#17201d;border-radius:10px;padding:5px 8px;cursor:pointer';
     document.body.append(pick2);
   };
-  enterWorld.onclick = () => { compactPicker(); };
+  const rememberWorldWelcome = () => { try { localStorage.setItem('cc.worldWelcome.seen', '1'); } catch { /* the chooser can still be used */ } };
+  enterWorld.onclick = () => { rememberWorldWelcome(); compactPicker(); };
   pick2.onchange = () => {
     pick2.blur();
+    rememberWorldWelcome();
     if (pick2.value === 'stay') return;
     const suffix = '&welcome=0';
     location.href = pick2.value === 'editor' ? `?mode=editor${suffix}` : pick2.value === 'coaster-builder' ? `?mode=coaster${suffix}` : pick2.value === 'generate' ? `?generate=${Math.floor(Math.random() * 1e6)}${suffix}` : pick2.value === 'generate-same' ? `${location.pathname}${location.search}${location.search.includes('?') ? '&' : '?'}welcome=0` : pick2.value ? `?course=${pick2.value}${suffix}` : `?welcome=0`;
   };
-  const showWorldWelcome = params.get('welcome') !== '0' && !params.has('course') && !params.has('generate') && !params.has('coaster');
-  if (showWorldWelcome) document.body.append(welcome); else compactPicker();
+  let worldWelcomeSeen = false;
+  try { worldWelcomeSeen = localStorage.getItem('cc.worldWelcome.seen') === '1'; } catch { /* use the one-time URL option when storage is unavailable */ }
+  const mode = params.get('mode');
+  const showWorldWelcome = !resume && !worldWelcomeSeen && params.get('welcome') !== '0' && (!mode || mode === 'course') && !params.has('course') && !params.has('generate') && !params.has('coaster');
+  if (!resume && (!mode || mode === 'course')) {
+    if (showWorldWelcome) document.body.append(welcome); else compactPicker();
+  }
+  if (!showWorldWelcome) rememberWorldWelcome(); // direct course starts (including Community Play) count as the first play
   if (course.track) {
     const edit = document.createElement('a');
     edit.id = 'edit-coaster'; edit.textContent = '← Back to coaster builder'; edit.title = 'Return to the coaster builder with this track and push';
@@ -406,9 +414,22 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
     edit.style.cssText = 'position:fixed;right:16px;top:232px;z-index:21;font:700 16px system-ui,sans-serif;border:3px solid #064e3b;background:#0f6b5c;color:#fff;border-radius:12px;padding:12px 16px;text-decoration:none;box-shadow:0 4px 14px #0004';
     document.body.append(edit);
   }
-  // the drum lane (taiko style): on by default for a course someone built (editor or shared), off for the stock course until D is pressed
-  const drumLane = createDrumLane(document.body, course !== defaultCourse || params.get('drums') === '1');
-  setTimeout(() => { try { drumLane.set(drumsFor(course)); } catch { /* no drums if the search fails */ } }, 0);
+  // The drum lane is on by default wherever the course has a planned player route; a coaster is mostly passive cart motion.
+  const forceDrums = params.get('drums') === '1';
+  const drumLane = createDrumLane(document.body, !course.track);
+  setTimeout(() => {
+    try {
+      if (course.track) { drumLane.set([]); if (drumLane.shown) drumLane.toggle(); return; }
+      const result = course.plan ? { plan: course.plan, cleared: true } : searchIdealRun(course);
+      const drums = result.cleared ? drumsFor(course, result.plan) : [];
+      drumLane.set(drums);
+      const show = forceDrums || drums.length > 0;
+      if (drumLane.shown !== show) drumLane.toggle();
+    } catch {
+      drumLane.set([]);
+      if (drumLane.shown !== forceDrums) drumLane.toggle();
+    }
+  }, 0);
   const dbgBtn = document.createElement('button');
   dbgBtn.id = 'debugbtn'; dbgBtn.textContent = 'Debug (B)'; dbgBtn.title = 'Show the collision boxes and where a jump right now would go';
   dbgBtn.style.cssText = 'position:fixed;right:16px;top:166px;border:2px solid #17201d;background:#fff;color:#17201d;border-radius:10px;padding:3px 10px;cursor:pointer;font:600 12px system-ui,sans-serif';
@@ -452,7 +473,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
     if (paused && !e.repeat) { paused = false; last = performance.now(); }
     if (e.repeat) return;
     keys.add(e.code);
-    if (e.code === 'Space' || e.code === 'ArrowUp') { jumpQueued = true; e.preventDefault(); }
+    if (e.code === 'Space' || e.code === 'ArrowUp' || e.code === 'KeyW') { jumpQueued = true; e.preventDefault(); }
     if (e.code === 'KeyV') vaultQueued = true;
     if (e.code === 'KeyX') rollQueued = true;
     if (e.code === 'KeyK') fireQueued = true;

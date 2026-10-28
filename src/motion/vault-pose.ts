@@ -118,18 +118,24 @@ export function vaultPose(rig: VaultRig, inp: VaultPoseIn): VaultPoseOut {
     hands[side.toLowerCase()] = hand;
   }
 
-  // the legs: gathered together under the hips and swung up behind and to one side, knees bent (a speed vault); blended in after the hands are down and out before the landing
+  // the legs sweep around the side while the hands support the body, like a small mushroom circle; they open back into the run for landing
   const legW = lean * lean * (3 - 2 * lean); // the legs gather as the body gives itself to the obstacle and open out after
   if (legW > 0) {
-    const a = up(phi).multiplyScalar(-1); // down the body, away from the shoulders
+    const sweep = smooth(0.18, 0.78, p); // trail behind, circle out to the side, then come forward for the landing
+    const theta = -Math.PI + Math.PI * sweep; // rotate the leg direction from back, around the side (z), to forward (x)
+    const lift = 0.12 + 0.28 * Math.sin(Math.PI * sweep); // keep the legs lifted as they pass the obstacle
+    const legDirection = (angle: number, elevation: number) => new Vector3(
+      Math.cos(angle) * Math.cos(elevation), Math.sin(elevation), Math.sin(angle) * Math.cos(elevation),
+    );
     for (const side of ['Left', 'Right']) {
       const z = side === 'Left' ? -1 : 1;
       const hip = ix(side + 'Leg'), knee = ix(side + 'Shin'), foot = ix(side + 'Foot'), toe = ix(side + 'ToeBase');
       const hipJ = hips.clone().add(off(side + 'Leg'));
-      // legs together: the hip joints pulled in, the thighs swung forward of the body line, the shins folded back
-      const thigh = rotZ(a, -0.25).normalize(), shin = rotZ(thigh, 0.55).normalize(); // keep the legs long with a modest knee bend as they trail behind the vault
+      // Keep a slight knee softness, but carry the whole leg around the side instead of folding it under the torso.
+      const thigh = legDirection(theta, lift).normalize();
+      const shin = legDirection(theta + 0.12, lift - 0.14).normalize();
       const kneeP = hipJ.clone().add(thigh.multiplyScalar(len[knee])), footP = kneeP.clone().add(shin.multiplyScalar(len[foot])), toeP = footP.clone().add(rotZ(shin, Math.PI / 2).multiplyScalar(len[toe]));
-      kneeP.z += z * 0.05; footP.z += z * 0.03; toeP.z += z * 0.03;
+      kneeP.z += z * 0.06; footP.z += z * 0.06; toeP.z += z * 0.06;
       out[hip] = out[hip].clone().lerp(hipJ, legW);
       out[knee] = inp.base[knee].clone().lerp(kneeP, legW);
       out[foot] = inp.base[foot].clone().lerp(footP, legW);
