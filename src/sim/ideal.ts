@@ -19,6 +19,7 @@ export interface Plan {
   climbHands?: boolean; // hold the hand key while airborne everywhere: a tall wall's edge is to be caught (src/sim/climb.ts)
   hangTicks?: number[]; // per bar: ticks to hang (pumping with the swing) before letting go
   airHands?: boolean[]; // per release: hold the hand key in the air afterwards (default true); false flies past the next bar (a skip)
+  noGrab?: number[]; // bars (indexes into course.holds) the run flies past without holding (a shortcut that skips them)
   launchRelease?: number; // trebuchet: ticks after the pin is pulled at which Space lets the rider go
   fireXs?: number[]; // a launcher (recoil pad): press K at the first moment the runner is at or past this x
   fireAfterJump?: number; // or press K this many ticks after the take-off, so the shot adds to a jump
@@ -67,7 +68,7 @@ function inputForBase(plan: Plan, w: WorldState, state: PlanState, course?: Cour
   }
   state.hangAt = null;
   const barsAhead = !course?.holds?.length || course.holds.some((h) => h.x + 1.5 > w.runner.x); // past the last bar the hands stay off, so a fall beside a ledge is a fall, not a grab
-  if (((plan.hands && barsAhead) || plan.climbHands) && w.mode === 'run' && !w.runner.grounded && plan.airHands?.[(state.hangs ?? 0) - 1] !== false) return { ...base, handR: true };
+  if (((plan.hands && barsAhead) || plan.climbHands) && w.mode === 'run' && !w.runner.grounded && plan.airHands?.[(state.hangs ?? 0) - 1] !== false && !skipsNext(plan, w, course)) return { ...base, handR: true };
   if (w.mode === 'swing') {
     if (state.caught === null) state.caught = w.runner.tick;
     return w.runner.tick - state.caught >= plan.releaseAfter ? { ...base, jump: true } : base;
@@ -88,6 +89,14 @@ function inputForBase(plan: Plan, w: WorldState, state: PlanState, course?: Cour
     return { ...base, jump: true };
   }
   return base;
+}
+
+// the next bar ahead of the runner is one the plan flies past: do not hold the hand key for it
+function skipsNext(plan: Plan, w: WorldState, course?: CourseData): boolean {
+  if (!plan.noGrab?.length || !course?.holds) return false;
+  let best = -1, bd = Infinity;
+  course.holds.forEach((h, i) => { const d = h.x - w.runner.x; if (d > -1.5 && d < bd) { bd = d; best = i; } });
+  return best >= 0 && plan.noGrab.includes(best);
 }
 
 export interface RunResult { world: WorldState; events: GameEvent[]; maxX: number; jumps: number }

@@ -1,0 +1,42 @@
+{
+  "course": "generated-1",
+  "title": "Generated course 2",
+  "intendedSeconds": 32.83,
+  "searches": 6,
+  "searchSeconds": 379,
+  "complete": true,
+  "shortcuts": [
+    {
+      "id": "skip-bars-1-2",
+      "skipped": [
+        "Bar 1",
+        "Bar 2"
+      ],
+      "how": "jump past bar 1 and bar 2",
+      "secondsSaved": 9.73,
+      "seconds": 23.1,
+      "pumpSeconds": null,
+      "windowMs": 11,
+      "designed": false
+    },
+    {
+      "id": "skip-bar-2",
+      "skipped": [
+        "Bar 2"
+      ],
+      "how": "pump 3.01 s on the bar you hold, let go, and fly past bar 2",
+      "secondsSaved": 6.73,
+      "seconds": 26.09,
+      "pumpSeconds": 3.01,
+      "windowMs": 11,
+      "designed": false
+    }
+  ],
+  "moveChoices": [
+    {
+      "move": "vault",
+      "withSeconds": 32.83,
+      "withoutSeconds": 32.76
+    }
+  ]
+}

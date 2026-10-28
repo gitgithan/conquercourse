@@ -32,5 +32,8 @@ export interface CourseData {
   trebuchet?: Partial<import('../sim/trebuchet').TrebuchetParams> & { x: number }; // a trebuchet at x: the course starts with the rider in its sling
   recoil?: Partial<import('../sim/recoil').RecoilParams> & { x0: number; x1: number }; // a launcher pad (src/sim/recoil.ts): stepping on it clips the launcher on; K fires it
   planks?: import('../sim/beam').PlankData[]; // plank bridges laid across gaps: they sag and break under the rider (src/sim/beam.ts)
+  off?: ('vault' | 'wall' | 'rope' | 'roll')[]; // shortcut search only: switch a move off (the geometry stays) to see if the course can be cleared without it
+  shortcuts?: import('../sim/shortcuts').Shortcut[]; // routes the designer did not plan, found by the shortcut search and stored like `plan` (npm run plans)
+  designedShortcuts?: string[]; // ids of shortcuts the designer keeps on purpose (src/sim/shortcuts.ts)
   hazard?: import('./hazard').Hazard; // the floor you must not touch: water (default), lava, mud, spikes or void; paint, words and sound only
 }

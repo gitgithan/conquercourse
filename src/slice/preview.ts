@@ -9,7 +9,7 @@ export interface PieceState { x: number; y: number; z: number; yaw: number; scal
 export type Item =
   | { kind: 'piece'; id: number; name: string; from: PieceState; to: PieceState; words: string; on: boolean }
   | { kind: 'lane'; key: keyof LaneSetting; from: number; to: number; words: string; on: boolean };
-export interface Proposal { source: 'fixit' | 'partner' | 'advice' | 'role'; title: string; items: Item[]; steps: string[]; known?: boolean } // known: the simulator already proved the all-on result
+export interface Proposal { source: 'fixit' | 'partner' | 'advice' | 'role' | 'shortcut'; title: string; items: Item[]; steps: string[]; known?: boolean } // known: the simulator already proved the all-on result
 
 const stateOf = (p: Piece): PieceState => ({ x: p.x, y: p.y, z: p.z, yaw: p.yaw, scale: p.scale, role: p.role ?? 'ground' });
 const same = (a: PieceState, b: PieceState) => Math.abs(a.x - b.x) < 1e-6 && Math.abs(a.y - b.y) < 1e-6 && Math.abs(a.z - b.z) < 1e-6 && Math.abs(a.yaw - b.yaw) < 1e-6 && Math.abs(a.scale / b.scale - 1) < 1e-6 && (a.role ?? 'ground') === (b.role ?? 'ground');
