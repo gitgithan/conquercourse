@@ -58,7 +58,22 @@ try {
   checks.adviceOffered = (await page.$$('#advice button')).length > 0;
   await page.screenshot({ path: 'test-results/editor/advice.png' });
   if (checks.adviceOffered) {
+    // a piece of advice previews first: outlines, the plain words and the simulator's verdict, then Apply
     await page.click('#advice button');
+    await page.waitForSelector('#applypreview', { timeout: 10000 });
+    checks.advicePreviewsFirst = (await page.evaluate(() => document.documentElement.dataset.verdict ?? '')).includes('cannot find');
+    await page.waitForFunction(() => document.documentElement.dataset.preview === 'clears', null, { timeout: 40000 }).catch(() => {});
+    checks.previewSaysClears = (await page.evaluate(() => document.documentElement.dataset.preview)) === 'clears';
+    await page.screenshot({ path: 'test-results/editor/preview-3d.png' });
+    await page.click('#viewmode');
+    await page.waitForTimeout(300);
+    await page.screenshot({ path: 'test-results/editor/preview-plan.png' });
+    await page.click('#viewmode');
+    await page.click('#cancelpreview');
+    checks.cancelChangesNothing = (await page.evaluate(() => document.documentElement.dataset.verdict ?? '')).includes('cannot find');
+    await page.click('#advice button');
+    await page.waitForSelector('#applypreview', { timeout: 10000 });
+    await page.click('#applypreview');
     await page.waitForFunction(() => /can clear/.test(document.documentElement.dataset.verdict ?? ''), null, { timeout: 20000 }).catch(() => {});
     checks.adviceClears = /can clear/.test(await page.evaluate(() => document.documentElement.dataset.verdict));
   }
@@ -68,6 +83,10 @@ try {
   // Fix it: one click changes the layout into one the simulator can clear
   await page.click('#fixit');
   await page.waitForFunction(() => document.documentElement.dataset.fixed, null, { timeout: 40000 }).catch(() => {});
+  await page.waitForSelector('#applypreview', { timeout: 10000 }).catch(() => {});
+  checks.fixItPreviewsFirst = (await page.$('#applypreview')) !== null && (await page.evaluate(() => document.documentElement.dataset.verdict ?? '')).length >= 0;
+  await page.screenshot({ path: 'test-results/editor/fixit-preview.png' });
+  if (await page.$('#applypreview')) await page.click('#applypreview');
   await page.waitForFunction(() => /can clear/.test(document.documentElement.dataset.verdict ?? ''), null, { timeout: 20000 }).catch(() => {});
   checks.fixItClears = /can clear/.test(await page.evaluate(() => document.documentElement.dataset.verdict ?? ''));
   await page.screenshot({ path: 'test-results/editor/fixed.png' });
@@ -144,6 +163,34 @@ try {
   await page.reload();
   await page.waitForSelector('#view3d', { timeout: 60000 });
   checks.stackKeptAfterReload = await page.waitForFunction(() => document.documentElement.dataset.pieces === '4', null, { timeout: 30000 }).then(() => true, () => false);
+  // bars out of reach: Fix it previews the bars' moves (outlines in the side view, 3D and plan), then Apply moves them, and one Undo brings them back
+  await page.goto(`http://localhost:${port}/?mode=editor`);
+  await page.evaluate(() => localStorage.setItem('cc.world.v1', JSON.stringify({ pieces: [{ src: 'box:8:0.5:1.8', x: 0, z: 0, y: 0, yaw: 0, scale: 1 }, { src: 'box:8:0.5:1.8', x: 17, z: 0, y: 0, yaw: 0, scale: 1 }, { src: 'hold:bar', x: 6.5, z: 0, y: 4.4, yaw: 0, scale: 1 }, { src: 'hold:bar', x: 10, z: 0, y: 4.4, yaw: 0, scale: 1 }], angle: 0, offset: 0, level: 0 })));
+  await page.reload();
+  await page.waitForSelector('#view3d', { timeout: 60000 });
+  await page.waitForFunction(() => document.documentElement.dataset.bars === '2', null, { timeout: 30000 });
+  const high = await page.evaluate(() => document.documentElement.dataset.barYs);
+  await page.click('#fixit');
+  await page.waitForSelector('#applypreview', { timeout: 240000 }).catch(async () => { console.log('NO PREVIEW; reply says:', (await page.textContent('#reply')).slice(0, 300), await page.evaluate(() => JSON.stringify({ fixed: document.documentElement.dataset.fixed, preview: document.documentElement.dataset.preview, verdict: document.documentElement.dataset.verdict })), (await page.$('#helper.closed')) ? 'helper closed' : 'helper open'); throw new Error('no preview'); });
+  checks.barsPreviewListsMoves = /Bar [12]/.test(await page.textContent('#reply')) && (await page.evaluate(() => document.documentElement.dataset.barYs)) === high;
+  await page.waitForFunction(() => document.documentElement.dataset.preview === 'clears', null, { timeout: 30000 }).catch(() => {});
+  checks.barsPreviewSaysClears = (await page.evaluate(() => document.documentElement.dataset.preview)) === 'clears';
+  await page.screenshot({ path: 'test-results/editor/preview-bars-3d.png' });
+  await page.click('#viewmode'); await page.waitForTimeout(300);
+  await page.screenshot({ path: 'test-results/editor/preview-bars-plan.png' });
+  await page.click('#viewmode');
+  await page.locator('#profile').screenshot({ path: 'test-results/editor/preview-bars-side.png' });
+  await page.click('#reply input[type=checkbox]'); // switch the only (or first) change off
+  await page.waitForFunction(() => ['none', 'checking', 'clears', 'blocked'].includes(document.documentElement.dataset.preview), null, { timeout: 60000 });
+  checks.switchOffRerunsTheProof = true;
+  await page.click('#reply input[type=checkbox]');
+  await page.waitForFunction(() => document.documentElement.dataset.preview === 'clears', null, { timeout: 60000 });
+  await page.click('#applypreview');
+  await page.waitForTimeout(500);
+  checks.applyMovesTheBars = (await page.evaluate(() => document.documentElement.dataset.barYs)) !== high;
+  await page.click('#undo');
+  await page.waitForTimeout(400);
+  checks.oneUndoBringsThemBack = (await page.evaluate(() => document.documentElement.dataset.barYs)) === high;
   console.log(checks, 'errors:', errors);
   await browser.close();
   process.exit(Object.values(checks).every(Boolean) && !errors.length ? 0 : 1);

@@ -527,3 +527,25 @@ The set of obstacle shapes is fixed, and each shape offers a fixed set of moves.
   - The seated pose is the rope's swing clip, not a made-for-the-cart pose.
   - The finish deck is a plain block.
   - The builder is a separate page, not a piece inside the world editor.
+## Preview before apply (CC-63)
+- **So what:** Fix it, the design partner's changes and one piece of advice no longer change the layout behind the player's back.
+  - Each one first becomes a proposal: hollow outlines show where things would go, and the simulator says whether the lane clears after it.
+  - The player decides: Apply (one undo step), Cancel, or switch single changes off.
+- **Why one flow:** the three sources answered different wishes ("make it work", "do what my partner said", "try this small shift"), but they all end in the same question, "is this how I want it?"
+  - So the buttons stay different at the start (the header Fix it needs no chat; the partner's button appears only when it suggested something; an advice row says "Show it").
+  - The step after them is shared.
+- **What the preview draws:**
+  - **Plan and 3D view:** a grey outline where a piece is now, a teal hollow outline where it would be, and an arrow between them.
+    - A turned or resized piece shows that in its outline.
+    - A turned or shifted lane shows a dashed teal line.
+  - **Side view:** a dashed teal ground line after the change, and bars as teal circles with an arrow from where they hang now.
+  - **Words:** one line per change ("Move “Bar 1” 0.8 m down.") with a checkbox.
+    - Switching one off redraws the outlines and re-runs the proof.
+- **The partner's buttons:** the duplicate Fix it inside the reply is gone. "Show these N changes" previews the edits; if they do not clear, "Fix it from here" previews the smallest further changes starting from them.
+- **Bars:** Fix it for bars now gets 40 seconds, because one proof is 7 to 20 seconds (more on a busy machine) and the old 6 seconds gave up before the first try.
+- **Code:** `src/slice/preview.ts` (pure: proposals, plain words, the result of the switched-on changes), `src/slice/view3d.ts` (ghosts), `src/modes/editor.ts` (the card and the drawing); tests in `tests/preview.test.ts`, browser walk in `scripts/editor-check.mjs`.
+- **Known gap:** the outline shows position, size and turn, not what a drop or a swing would cost.
+- **Pictures:** `data/eval/cc-63-preview/` holds the 3D, plan and side view of a bars preview and the Fix it card (bars too high, one bar would move 0.8 m down).
+- **Browser walk:** the new steps pass on the VM (Fix it previews first, bars preview, switch off re-runs the proof, Apply moves the bars, one Undo brings them back).
+  - Two older steps did not pass in that run and are not from this change: "no scroll at 1024x640" (the top bar now wraps with the Stacks buttons) and "advice offered" (timed out while the VM load was above 30).
+  - "Design partner answers" needs the Baseten key, which the VM does not have.
