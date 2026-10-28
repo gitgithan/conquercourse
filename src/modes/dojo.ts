@@ -1,3 +1,4 @@
+import { soundButton, startAudio } from '../ui/audio';
 import { EXPERIMENTS, GAP_WIDTH, classify, defaults, sweep, type Context, type Experiment, type Overlay, type Person, type Point, type Pose, type Trial } from '../sim/experiments';
 import { LESSONS } from './lessons';
 import { diagram } from './diagrams';
@@ -328,6 +329,7 @@ export function startDojo(host: HTMLElement): { backend: 'webgl2' } {
     if (e.code !== 'KeyT' || e.repeat || e.ctrlKey || e.metaKey || e.altKey || document.getElementById('cc-feedback') || (t && /^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName) && (t as HTMLInputElement).type !== 'range')) return;
     location.href = '?';
   });
+  startAudio(); document.body.append(soundButton()); // the Dojo shares the mute switch with the Course
   render();
   return { backend: 'webgl2' };
 }
