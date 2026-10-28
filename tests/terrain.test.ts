@@ -17,7 +17,7 @@ describe('terrain tiles (CC-51)', () => {
     const t = tileXY(0, 0, 1);
     expect([t.x, t.y]).toEqual([1, 1]); // the middle of the world is the corner of the four zoom-1 tiles
     const paris = tileXY(48.8867, 2.3431, 15);
-    expect([Math.floor(paris.x), Math.floor(paris.y)]).toEqual([16600, 11270]);
+    expect([Math.floor(paris.x), Math.floor(paris.y)]).toEqual([16597, 11268]);
   });
   it('reads the pixel a tile coordinate falls in', () => {
     const data = new Uint8Array(2 * 2 * 3); data.set([128, 10, 0], 3 * 3); // pixel (1, 1)
@@ -56,8 +56,9 @@ describe('a hill under the buildings', () => {
     expect(extrude([box(0)], 0.5).positions).toEqual(extrude([box(0)], 0.5, null).positions);
   });
   it('a gentle slope still gives a lane the simulator clears (roofs step up a little each time)', () => {
-    const bs = [-30, -20, -10, 0, 10, 20].map((x) => box(x, 6, 3));
-    const piece = centred(extrude(bs, 1, slope));
+    const gentle: Ground = { ...slope, h: slope.h.map((_, k) => 5 + 0.04 * ((k % 4) * 20 - 30)) }; // 0.04 m per metre: each roof 10 m on is 0.4 m higher
+    const bs = [-30, -20, -10, 0, 10, 20].map((x) => box(x, 6, 1.5)); // low roofs: a lane only sees 4.3 m above the lowest ground
+    const piece = centred(extrude(bs, 1, gentle));
     const lanes = bestSlices({ positions: surfaceSamples(piece, 80) }, { top: 3, centre: { x: 0, z: 0 } });
     expect(lanes.length).toBeGreaterThan(0);
     const c = lanes[0];

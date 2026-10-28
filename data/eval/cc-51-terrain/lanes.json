@@ -1,0 +1,42 @@
+[
+  {
+    "place": "montmartre-paris",
+    "reliefM": 38.5,
+    "shrinkWithHills": 0.072,
+    "shrinkFlat": null,
+    "lanes": 2,
+    "gaps": 1,
+    "steps": 4,
+    "idealRunCleared": true
+  },
+  {
+    "place": "eixample-barcelona-hills",
+    "reliefM": 9.4,
+    "shrinkWithHills": 0.086,
+    "shrinkFlat": 0.238,
+    "lanes": 3,
+    "gaps": 0,
+    "steps": 2,
+    "idealRunCleared": true
+  },
+  {
+    "place": "circular-quay-sydney-hills",
+    "reliefM": 36.9,
+    "shrinkWithHills": 0.12,
+    "shrinkFlat": 0.2,
+    "lanes": 3,
+    "gaps": 2,
+    "steps": 5,
+    "idealRunCleared": true
+  },
+  {
+    "place": "san-francisco-lombard",
+    "reliefM": 62.4,
+    "shrinkWithHills": 0.098,
+    "shrinkFlat": null,
+    "lanes": 1,
+    "gaps": 2,
+    "steps": 7,
+    "idealRunCleared": true
+  }
+]
