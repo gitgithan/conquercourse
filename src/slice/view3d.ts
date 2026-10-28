@@ -3,6 +3,8 @@ import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { HALF_LANE } from './slice';
 import type { Piece } from './world';
+import { patternOf } from './stack';
+import { cupsGroup } from './cups';
 
 // The editor's 3D view: the pieces are drawn as the real baked objects (their own meshes and photo textures), on a textured ground,
 // with the lane drawn as a gold strip. Drag a piece to move it along the ground; drag the empty space to turn the view
@@ -82,7 +84,8 @@ export function createView3d(wrap: HTMLElement, host: Host): View3d {
   function build(p: P3): THREE.Group {
     const g = new THREE.Group();
     g.userData.pieceId = p.id;
-    const stand = plain(p); g.add(stand);
+    const stand = plain(p);
+    if (patternOf(p.src)) { const cups = cupsGroup(p.src!); cups.userData.cups = true; g.add(cups); } else g.add(stand);
     // a photo object is drawn as the real baked object (with its texture) while the mesh is still the original; a cropped one falls back to plain geometry
     if (p.src?.startsWith('obj:')) {
       const url = `/assets/objects/${p.src.slice(4)}`;

@@ -7,6 +7,7 @@ import type { WallParams } from '../sim/wall';
 export interface SceneItem {
   url?: string; // a baked .glb under /assets
   mesh?: { positions: number[]; indices: number[] }; // or an inline mesh (basic shapes, cropped pieces), already standing on y = 0 and centred
+  stack?: string; // or a sport-stacking pattern ("3-6-3"): drawn as instanced cups, scale = metres per cup metre
   x: number; y: number; z: number; rotY: number; scale: number;
 }
 
