@@ -201,7 +201,19 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
       setTimeout(() => {
         if (proves(pieces as P[], { angle, offset, level })) return done('cleared', `${parsed.text} The simulator can clear this draft as it is.`, true);
         document.documentElement.dataset.photoDraft = 'fixing'; runFix();
-        const wait = window.setInterval(() => { if (reply.textContent === 'Working it out…') return; clearInterval(wait); document.documentElement.dataset.photoDraft = proves(pieces as P[], { angle, offset, level }) ? 'fixed' : 'unfixed'; }, 300);
+        const wait = window.setInterval(() => {
+          if (reply.textContent === 'Working it out…') return;
+          clearInterval(wait);
+          if (!proves(pieces as P[], { angle, offset, level }) && pieces.some((q) => isHold(q as P))) { // the photo had nothing to hang from? take the bars out and try the ground alone
+            pieces = pieces.filter((q) => !isHold(q as P)); changed(); reply.className = 'reply'; reply.textContent = 'Took out the bars (the photo may have nothing to hang from). Working it out again…';
+            if (!proves(pieces as P[], { angle, offset, level })) runFix();
+            const again = window.setInterval(() => {
+              if (reply.textContent === 'Working it out…' || reply.textContent?.startsWith('Took out the bars')) return;
+              clearInterval(again); document.documentElement.dataset.photoDraft = proves(pieces as P[], { angle, offset, level }) ? 'fixed' : 'unfixed';
+            }, 300);
+            if (proves(pieces as P[], { angle, offset, level })) { clearInterval(again); done('fixed', 'Took out the bars (the photo may have nothing to hang from): the simulator can clear what is left.', true); }
+          } else document.documentElement.dataset.photoDraft = proves(pieces as P[], { angle, offset, level }) ? 'fixed' : 'unfixed';
+        }, 300);
       }, 50);
     } catch { done('error', 'The photo helper is not available here.'); }
   }
