@@ -9,6 +9,9 @@ import { startPark } from './modes/park';
 if (new URLSearchParams(location.search).get('demo') === 'rookie') {
   const { startRookieDemo } = await import('./modes/demo-rookie');
   await startRookieDemo();
+} else if (new URLSearchParams(location.search).get('demo') === 'roll-ab') {
+  const { startRollAB } = await import('./modes/demo-roll-ab');
+  await startRollAB();
 } else if (new URLSearchParams(location.search).get('demo') === 'actor') {
   const { startActorDemo } = await import('./modes/demo-actor');
   await startActorDemo();

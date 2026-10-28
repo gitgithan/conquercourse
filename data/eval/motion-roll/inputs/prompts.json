@@ -1,0 +1,14 @@
+{
+  "roll_a": [
+    "A person runs forward, drops into a forward roll on the ground with the head tucked, and springs back up to run.",
+    3.0
+  ],
+  "roll_b": [
+    "A parkour runner does a forward roll, somersaulting over one shoulder with a tucked body, then stands up running.",
+    3.0
+  ],
+  "roll_c": [
+    "A person lands from a jump and absorbs the landing with a forward roll, then gets up and keeps running.",
+    3.0
+  ]
+}

@@ -1,0 +1,709 @@
+{
+  "move": "roll",
+  "serves": "the roll out of a big drop (key X, CC-56)",
+  "started": "2026-10-28T06:26:19+0000",
+  "steps": [],
+  "cmu": {
+    "terms": [
+      "roll",
+      "somersault",
+      "summersult",
+      "tumbl",
+      "flip forward",
+      "front hand flip",
+      "dive"
+    ],
+    "skip": [
+      "wide leg roll",
+      "dance"
+    ],
+    "hits": [
+      {
+        "id": "90_01",
+        "desc": "bkwd summersult",
+        "subject": 90,
+        "fps": 120
+      },
+      {
+        "id": "90_09",
+        "desc": "Flip forward onto hands and back again",
+        "subject": 90,
+        "fps": 120
+      },
+      {
+        "id": "90_14",
+        "desc": "front hand flip",
+        "subject": 90,
+        "fps": 120
+      },
+      {
+        "id": "90_15",
+        "desc": "front hand flip",
+        "subject": 90,
+        "fps": 120
+      }
+    ],
+    "skipped_not_on_disk": [],
+    "candidates": [
+      {
+        "id": "90_01",
+        "gate_pass": true,
+        "move_check_pass": false,
+        "move_check": {
+          "ok": false,
+          "max_turn_deg": 74.1,
+          "min_turn_deg": 0.0,
+          "peak_hips_vs_standing": 1.0,
+          "longest_air_s": 0.2,
+          "window_frames": [
+            8,
+            13
+          ],
+          "window_s": 0.17,
+          "turn_in_window_deg": 33.2,
+          "travel_m": -0.14,
+          "upside_down": false,
+          "starts_and_ends_upright": true
+        }
+      },
+      {
+        "id": "90_09",
+        "gate_pass": true,
+        "move_check_pass": false,
+        "move_check": {
+          "ok": false,
+          "max_turn_deg": 152.8,
+          "min_turn_deg": -0.9,
+          "peak_hips_vs_standing": 1.4,
+          "longest_air_s": 0.13,
+          "window_frames": [
+            7,
+            16
+          ],
+          "window_s": 0.3,
+          "turn_in_window_deg": 117.3,
+          "travel_m": 0.37,
+          "upside_down": true,
+          "starts_and_ends_upright": true
+        }
+      },
+      {
+        "id": "90_14",
+        "gate_pass": true,
+        "move_check_pass": false,
+        "move_check": {
+          "ok": false,
+          "max_turn_deg": 368.3,
+          "min_turn_deg": 0.0,
+          "peak_hips_vs_standing": 1.11,
+          "longest_air_s": 0.23,
+          "window_frames": [
+            7,
+            59
+          ],
+          "window_s": 1.73,
+          "turn_in_window_deg": 326.7,
+          "travel_m": 2.1,
+          "upside_down": true,
+          "starts_and_ends_upright": true
+        }
+      },
+      {
+        "id": "90_15",
+        "gate_pass": true,
+        "move_check_pass": false,
+        "move_check": {
+          "ok": false,
+          "max_turn_deg": 367.6,
+          "min_turn_deg": 0.0,
+          "peak_hips_vs_standing": 1.06,
+          "longest_air_s": 0.07,
+          "window_frames": [
+            9,
+            62
+          ],
+          "window_s": 1.77,
+          "turn_in_window_deg": 324.8,
+          "travel_m": 1.98,
+          "upside_down": true,
+          "starts_and_ends_upright": true
+        }
+      }
+    ]
+  },
+  "candidates": [
+    {
+      "id": "90_01",
+      "source": "CMU 90_01 (bkwd summersult)",
+      "gate_pass": true,
+      "move_check_pass": false,
+      "failed_gate": [],
+      "soft_failed": [],
+      "move_check": {
+        "ok": false,
+        "max_turn_deg": 74.1,
+        "min_turn_deg": 0.0,
+        "peak_hips_vs_standing": 1.0,
+        "longest_air_s": 0.2,
+        "window_frames": [
+          8,
+          13
+        ],
+        "window_s": 0.17,
+        "turn_in_window_deg": 33.2,
+        "travel_m": -0.14,
+        "upside_down": false,
+        "starts_and_ends_upright": true
+      }
+    },
+    {
+      "id": "90_09",
+      "source": "CMU 90_09 (Flip forward onto hands and back again)",
+      "gate_pass": true,
+      "move_check_pass": false,
+      "failed_gate": [],
+      "soft_failed": [
+        "no_jitter"
+      ],
+      "move_check": {
+        "ok": false,
+        "max_turn_deg": 152.8,
+        "min_turn_deg": -0.9,
+        "peak_hips_vs_standing": 1.4,
+        "longest_air_s": 0.13,
+        "window_frames": [
+          7,
+          16
+        ],
+        "window_s": 0.3,
+        "turn_in_window_deg": 117.3,
+        "travel_m": 0.37,
+        "upside_down": true,
+        "starts_and_ends_upright": true
+      }
+    },
+    {
+      "id": "90_14",
+      "source": "CMU 90_14 (front hand flip)",
+      "gate_pass": true,
+      "move_check_pass": false,
+      "failed_gate": [],
+      "soft_failed": [
+        "feet_dont_slide"
+      ],
+      "move_check": {
+        "ok": false,
+        "max_turn_deg": 368.3,
+        "min_turn_deg": 0.0,
+        "peak_hips_vs_standing": 1.11,
+        "longest_air_s": 0.23,
+        "window_frames": [
+          7,
+          59
+        ],
+        "window_s": 1.73,
+        "turn_in_window_deg": 326.7,
+        "travel_m": 2.1,
+        "upside_down": true,
+        "starts_and_ends_upright": true
+      }
+    },
+    {
+      "id": "90_15",
+      "source": "CMU 90_15 (front hand flip)",
+      "gate_pass": true,
+      "move_check_pass": false,
+      "failed_gate": [],
+      "soft_failed": [
+        "feet_dont_slide"
+      ],
+      "move_check": {
+        "ok": false,
+        "max_turn_deg": 367.6,
+        "min_turn_deg": 0.0,
+        "peak_hips_vs_standing": 1.06,
+        "longest_air_s": 0.07,
+        "window_frames": [
+          9,
+          62
+        ],
+        "window_s": 1.77,
+        "turn_in_window_deg": 324.8,
+        "travel_m": 1.98,
+        "upside_down": true,
+        "starts_and_ends_upright": true
+      }
+    },
+    {
+      "id": "roll_a_s0",
+      "source": "Kimodo-SOMA-RP, prompt roll_a, sample 0",
+      "gate_pass": true,
+      "move_check_pass": false,
+      "failed_gate": [],
+      "soft_failed": [
+        "feet_dont_slide"
+      ],
+      "move_check": {
+        "ok": false,
+        "max_turn_deg": 397.0,
+        "min_turn_deg": 0.0,
+        "peak_hips_vs_standing": 0.95,
+        "longest_air_s": 0.1,
+        "window_frames": [
+          14,
+          64
+        ],
+        "window_s": 1.67,
+        "turn_in_window_deg": 362.0,
+        "travel_m": 5.61,
+        "upside_down": true,
+        "starts_and_ends_upright": true
+      }
+    },
+    {
+      "id": "roll_a_s1",
+      "source": "Kimodo-SOMA-RP, prompt roll_a, sample 1",
+      "gate_pass": true,
+      "move_check_pass": true,
+      "failed_gate": [],
+      "soft_failed": [
+        "feet_dont_slide"
+      ],
+      "move_check": {
+        "ok": true,
+        "max_turn_deg": 373.4,
+        "min_turn_deg": 0.0,
+        "peak_hips_vs_standing": 0.89,
+        "longest_air_s": 0.17,
+        "window_frames": [
+          22,
+          54
+        ],
+        "window_s": 1.07,
+        "turn_in_window_deg": 337.0,
+        "travel_m": 4.0,
+        "upside_down": true,
+        "starts_and_ends_upright": true
+      }
+    },
+    {
+      "id": "roll_a_s2",
+      "source": "Kimodo-SOMA-RP, prompt roll_a, sample 2",
+      "gate_pass": true,
+      "move_check_pass": true,
+      "failed_gate": [],
+      "soft_failed": [
+        "feet_dont_slide"
+      ],
+      "move_check": {
+        "ok": true,
+        "max_turn_deg": 351.7,
+        "min_turn_deg": 0.0,
+        "peak_hips_vs_standing": 0.88,
+        "longest_air_s": 0.03,
+        "window_frames": [
+          17,
+          53
+        ],
+        "window_s": 1.2,
+        "turn_in_window_deg": 314.8,
+        "travel_m": 3.8,
+        "upside_down": true,
+        "starts_and_ends_upright": true
+      }
+    },
+    {
+      "id": "roll_a_s3",
+      "source": "Kimodo-SOMA-RP, prompt roll_a, sample 3",
+      "gate_pass": true,
+      "move_check_pass": false,
+      "failed_gate": [],
+      "soft_failed": [
+        "feet_dont_slide"
+      ],
+      "move_check": {
+        "ok": false,
+        "max_turn_deg": 345.2,
+        "min_turn_deg": 0.0,
+        "peak_hips_vs_standing": 1.39,
+        "longest_air_s": 0.37,
+        "window_frames": [
+          11,
+          38
+        ],
+        "window_s": 0.9,
+        "turn_in_window_deg": 309.0,
+        "travel_m": 3.76,
+        "upside_down": true,
+        "starts_and_ends_upright": true
+      }
+    },
+    {
+      "id": "roll_a_s4",
+      "source": "Kimodo-SOMA-RP, prompt roll_a, sample 4",
+      "gate_pass": true,
+      "move_check_pass": true,
+      "failed_gate": [],
+      "soft_failed": [
+        "feet_dont_slide"
+      ],
+      "move_check": {
+        "ok": true,
+        "max_turn_deg": 418.6,
+        "min_turn_deg": 0.0,
+        "peak_hips_vs_standing": 0.87,
+        "longest_air_s": 0.1,
+        "window_frames": [
+          18,
+          54
+        ],
+        "window_s": 1.2,
+        "turn_in_window_deg": 379.6,
+        "travel_m": 4.06,
+        "upside_down": true,
+        "starts_and_ends_upright": true
+      }
+    },
+    {
+      "id": "roll_a_s5",
+      "source": "Kimodo-SOMA-RP, prompt roll_a, sample 5",
+      "gate_pass": true,
+      "move_check_pass": true,
+      "failed_gate": [],
+      "soft_failed": [
+        "feet_dont_slide",
+        "no_jitter"
+      ],
+      "move_check": {
+        "ok": true,
+        "max_turn_deg": 367.9,
+        "min_turn_deg": 0.0,
+        "peak_hips_vs_standing": 0.9,
+        "longest_air_s": 0.2,
+        "window_frames": [
+          23,
+          53
+        ],
+        "window_s": 1.0,
+        "turn_in_window_deg": 330.3,
+        "travel_m": 3.87,
+        "upside_down": true,
+        "starts_and_ends_upright": true
+      }
+    },
+    {
+      "id": "roll_b_s0",
+      "source": "Kimodo-SOMA-RP, prompt roll_b, sample 0",
+      "gate_pass": true,
+      "move_check_pass": false,
+      "failed_gate": [],
+      "soft_failed": [
+        "feet_dont_slide"
+      ],
+      "move_check": {
+        "ok": false,
+        "max_turn_deg": 343.2,
+        "min_turn_deg": 0.0,
+        "peak_hips_vs_standing": 1.36,
+        "longest_air_s": 0.2,
+        "window_frames": [
+          8,
+          36
+        ],
+        "window_s": 0.93,
+        "turn_in_window_deg": 304.9,
+        "travel_m": 3.34,
+        "upside_down": true,
+        "starts_and_ends_upright": true
+      }
+    },
+    {
+      "id": "roll_b_s1",
+      "source": "Kimodo-SOMA-RP, prompt roll_b, sample 1",
+      "gate_pass": true,
+      "move_check_pass": false,
+      "failed_gate": [],
+      "soft_failed": [
+        "feet_dont_slide"
+      ],
+      "move_check": {
+        "ok": false,
+        "max_turn_deg": 353.9,
+        "min_turn_deg": 0.0,
+        "peak_hips_vs_standing": 1.28,
+        "longest_air_s": 0.17,
+        "window_frames": [
+          6,
+          37
+        ],
+        "window_s": 1.03,
+        "turn_in_window_deg": 315.9,
+        "travel_m": 3.71,
+        "upside_down": true,
+        "starts_and_ends_upright": true
+      }
+    },
+    {
+      "id": "roll_b_s2",
+      "source": "Kimodo-SOMA-RP, prompt roll_b, sample 2",
+      "gate_pass": true,
+      "move_check_pass": true,
+      "failed_gate": [],
+      "soft_failed": [
+        "feet_dont_slide"
+      ],
+      "move_check": {
+        "ok": true,
+        "max_turn_deg": 340.4,
+        "min_turn_deg": -1.9,
+        "peak_hips_vs_standing": 0.92,
+        "longest_air_s": 0.0,
+        "window_frames": [
+          10,
+          41
+        ],
+        "window_s": 1.03,
+        "turn_in_window_deg": 301.6,
+        "travel_m": 3.41,
+        "upside_down": true,
+        "starts_and_ends_upright": true
+      }
+    },
+    {
+      "id": "roll_b_s3",
+      "source": "Kimodo-SOMA-RP, prompt roll_b, sample 3",
+      "gate_pass": true,
+      "move_check_pass": false,
+      "failed_gate": [],
+      "soft_failed": [
+        "feet_dont_slide",
+        "no_jitter"
+      ],
+      "move_check": {
+        "ok": false,
+        "max_turn_deg": 351.2,
+        "min_turn_deg": 0.0,
+        "peak_hips_vs_standing": 1.27,
+        "longest_air_s": 0.23,
+        "window_frames": [
+          6,
+          35
+        ],
+        "window_s": 0.97,
+        "turn_in_window_deg": 308.1,
+        "travel_m": 3.87,
+        "upside_down": true,
+        "starts_and_ends_upright": true
+      }
+    },
+    {
+      "id": "roll_b_s4",
+      "source": "Kimodo-SOMA-RP, prompt roll_b, sample 4",
+      "gate_pass": true,
+      "move_check_pass": false,
+      "failed_gate": [],
+      "soft_failed": [
+        "feet_dont_slide"
+      ],
+      "move_check": {
+        "ok": false,
+        "max_turn_deg": 374.4,
+        "min_turn_deg": 0.0,
+        "peak_hips_vs_standing": 1.29,
+        "longest_air_s": 0.13,
+        "window_frames": [
+          7,
+          41
+        ],
+        "window_s": 1.13,
+        "turn_in_window_deg": 338.9,
+        "travel_m": 3.42,
+        "upside_down": true,
+        "starts_and_ends_upright": true
+      }
+    },
+    {
+      "id": "roll_b_s5",
+      "source": "Kimodo-SOMA-RP, prompt roll_b, sample 5",
+      "gate_pass": true,
+      "move_check_pass": false,
+      "failed_gate": [],
+      "soft_failed": [
+        "feet_dont_slide",
+        "no_jitter"
+      ],
+      "move_check": {
+        "ok": false,
+        "max_turn_deg": 365.4,
+        "min_turn_deg": 0.0,
+        "peak_hips_vs_standing": 1.51,
+        "longest_air_s": 0.73,
+        "window_frames": [
+          8,
+          45
+        ],
+        "window_s": 1.23,
+        "turn_in_window_deg": 325.9,
+        "travel_m": 3.62,
+        "upside_down": true,
+        "starts_and_ends_upright": true
+      }
+    },
+    {
+      "id": "roll_c_s0",
+      "source": "Kimodo-SOMA-RP, prompt roll_c, sample 0",
+      "gate_pass": true,
+      "move_check_pass": false,
+      "failed_gate": [],
+      "soft_failed": [
+        "feet_dont_slide"
+      ],
+      "move_check": {
+        "ok": false,
+        "max_turn_deg": 363.6,
+        "min_turn_deg": -0.9,
+        "peak_hips_vs_standing": 1.48,
+        "longest_air_s": 0.5,
+        "window_frames": [
+          8,
+          42
+        ],
+        "window_s": 1.13,
+        "turn_in_window_deg": 320.4,
+        "travel_m": 4.13,
+        "upside_down": true,
+        "starts_and_ends_upright": true
+      }
+    },
+    {
+      "id": "roll_c_s1",
+      "source": "Kimodo-SOMA-RP, prompt roll_c, sample 1",
+      "gate_pass": false,
+      "move_check_pass": false,
+      "failed_gate": [
+        "legs_not_twisted"
+      ],
+      "soft_failed": [
+        "feet_dont_slide",
+        "no_jitter"
+      ],
+      "move_check": {
+        "ok": false,
+        "max_turn_deg": 391.8,
+        "min_turn_deg": -1.4,
+        "peak_hips_vs_standing": 1.35,
+        "longest_air_s": 0.37,
+        "window_frames": [
+          7,
+          45
+        ],
+        "window_s": 1.27,
+        "turn_in_window_deg": 357.3,
+        "travel_m": 5.4,
+        "upside_down": true,
+        "starts_and_ends_upright": true
+      }
+    },
+    {
+      "id": "roll_c_s2",
+      "source": "Kimodo-SOMA-RP, prompt roll_c, sample 2",
+      "gate_pass": true,
+      "move_check_pass": false,
+      "failed_gate": [],
+      "soft_failed": [
+        "feet_dont_slide"
+      ],
+      "move_check": {
+        "ok": false,
+        "max_turn_deg": 345.0,
+        "min_turn_deg": 0.0,
+        "peak_hips_vs_standing": 1.32,
+        "longest_air_s": 0.23,
+        "window_frames": [
+          10,
+          58
+        ],
+        "window_s": 1.6,
+        "turn_in_window_deg": 306.8,
+        "travel_m": 6.0,
+        "upside_down": true,
+        "starts_and_ends_upright": true
+      }
+    },
+    {
+      "id": "roll_c_s3",
+      "source": "Kimodo-SOMA-RP, prompt roll_c, sample 3",
+      "gate_pass": true,
+      "move_check_pass": false,
+      "failed_gate": [],
+      "soft_failed": [
+        "feet_dont_slide",
+        "no_jitter"
+      ],
+      "move_check": {
+        "ok": false,
+        "max_turn_deg": 351.5,
+        "min_turn_deg": 0.0,
+        "peak_hips_vs_standing": 1.21,
+        "longest_air_s": 0.33,
+        "window_frames": [
+          7,
+          32
+        ],
+        "window_s": 0.83,
+        "turn_in_window_deg": 310.6,
+        "travel_m": 3.07,
+        "upside_down": true,
+        "starts_and_ends_upright": true
+      }
+    },
+    {
+      "id": "roll_c_s4",
+      "source": "Kimodo-SOMA-RP, prompt roll_c, sample 4",
+      "gate_pass": true,
+      "move_check_pass": false,
+      "failed_gate": [],
+      "soft_failed": [],
+      "move_check": {
+        "ok": false,
+        "max_turn_deg": 20.7,
+        "min_turn_deg": 0.0,
+        "why": "the trunk never leans forward"
+      }
+    },
+    {
+      "id": "roll_c_s5",
+      "source": "Kimodo-SOMA-RP, prompt roll_c, sample 5",
+      "gate_pass": true,
+      "move_check_pass": false,
+      "failed_gate": [],
+      "soft_failed": [
+        "feet_dont_slide"
+      ],
+      "move_check": {
+        "ok": false,
+        "max_turn_deg": 353.2,
+        "min_turn_deg": -1.0,
+        "peak_hips_vs_standing": 1.33,
+        "longest_air_s": 0.03,
+        "window_frames": [
+          9,
+          32
+        ],
+        "window_s": 0.77,
+        "turn_in_window_deg": 315.0,
+        "travel_m": 3.21,
+        "upside_down": true,
+        "starts_and_ends_upright": true
+      }
+    }
+  ],
+  "summary": {
+    "candidates": 22,
+    "pass_gate": 21,
+    "pass_move_check": 5,
+    "pass_both": 5
+  },
+  "best": "roll_a_s4",
+  "shipped_to": "public/assets/motion/roll.json"
+}

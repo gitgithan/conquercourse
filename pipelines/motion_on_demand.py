@@ -158,6 +158,11 @@ def main():
         spent = 0.0
         if a.kimodo:
             folder = a.kimodo
+            kr = os.path.join(folder, "kimodo_run.json")  # the earlier run's own record: wall time of the Modal job and the price assumed
+            if os.path.exists(kr):
+                with open(kr) as f:
+                    secs = json.load(f)["wall_s"]
+                run["kimodo"] = {"reused": folder, "wall_s": secs, "estimated_usd": round(secs / 3600 * MODAL_L4_USD_PER_HOUR, 3), "usd_per_hour_assumed": MODAL_L4_USD_PER_HOUR, "cap_usd": CAP_USD}
         else:
             print("No CMU trial passes the gate and the move check: asking Kimodo on Modal")
             folder, secs = run_kimodo(spec, a.move, os.path.join(out, "inputs"), a.samples)
