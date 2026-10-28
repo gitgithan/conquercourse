@@ -71,18 +71,19 @@ def generate(moves: dict, seeds: list):
 
 
 @app.local_entrypoint()
-def main(out: str = "data/eval/pose-kimodo/outputs", seeds: str = "7,8,9,10", only: str = ""):
+def main(out: str = "data/eval/pose-kimodo/outputs", seeds: str = "7,8,9,10", only: str = "", round: int = 1):
     import numpy as np
     from spec import moves as make
 
-    mv = {k: {**v, "keys": [(f, np.asarray(p).tolist()) for f, p in v["keys"]]} for k, v in make().items() if not only or k in only.split(",")}
+    mv = {k: {**v, "keys": [(f, np.asarray(p).tolist()) for f, p in v["keys"]]} for k, v in make(round).items() if not only or k in only.split(",")}
     os.makedirs(out, exist_ok=True)
     t = time.time()
     res = generate.remote(mv, [int(s) for s in seeds.split(",")])
+    res["round"] = round
     with open(os.path.join(out, "kimodo_samples.json"), "w") as f:
         json.dump(res, f)
     meta = {k: v for k, v in res.items() if k != "moves"}
-    meta["wall_s"] = round(time.time() - t, 1)
+    meta["wall_s"] = float(f"{time.time() - t:.1f}")
     meta["gen_s"] = {m: [s["gen_s"] for s in v["samples"]] for m, v in res["moves"].items()}
     with open(os.path.join(out, "kimodo_run.json"), "w") as f:
         json.dump(meta, f, indent=2)
