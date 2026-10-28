@@ -315,3 +315,42 @@ The set of obstacle shapes is fixed, and each shape offers a fixed set of moves.
   - Tiles are about 3 to 5 m per pixel and the grid is 20 m, so small steps still come from OSM.
 - **Tests:** `tests/terrain.test.ts` (height decoding, tile maths, blending, a fake-network grid, a roof lifted by its hill, a gentle slope that a lane clears).
 - **Try it:** `/?mode=map`, search "Lombard Street San Francisco", build; or the Course menu "Place: San Francisco hill".
+## Photo to course draft (CC-52)
+- **So what:** the model can read a park photo into a rough course, but not reliably enough to trust.
+  - It finds the obstacles in the photo, but adds extra ones, and its sizes are off by about 40%.
+  - Two thirds of its drafts clear as drawn, and the simulator is what makes the rest safe.
+  - The demo beat is "drop a photo, get a draft, the simulator tells you if it clears".
+  - It is not "drop a photo, get a finished course".
+- **How it works:**
+  - Muse Spark Open (it can see images) is asked for a short list of ground, gaps, blocks (steps, ledges, boxes, benches, rails) and bars, in metres (`src/slice/photo-course.ts`, `functions/api/photo-course.ts`).
+  - The answer becomes editor pieces, the simulator proves them, Fix it repairs what it can (`src/slice/photo-proof.ts`).
+  - Try it in the editor with `?mode=editor&labs=1` (button "Photo to course (labs)") or `?photo=/assets/park/park01.jpg`; it is hidden without `labs`.
+- **The test:** 10 park photos (6 we had, 4 new CC0 ones), 2 answers each, scored against a hand-made answer key (`data/eval/photo-course/answer-key.json`).
+  - The key is one person's estimate from the photo, so the score means agreement with a careful eyeball, not truth.
+- **Results (20 answers):**
+  - 19 gave a readable layout; 1 ran out of room at 4,000 tokens and gave nothing (park01, first answer).
+  - 13 of 19 clear as drawn.
+  - Fix it repaired none of the other 6; taking out invented bars repaired 2 more, so 15 of 19 end clearable.
+  - The model found 95% of the obstacles in the key, but only 5 of 20 answers had the same number of obstacles as the key (it adds extras).
+  - Mean size error is 41% of the key's size; the best photos are a bench or box with one obstacle (3% to 33%), the worst are crowded skateparks (50% to 70%).
+  - The same photo gives a different layout on a second try for 6 of 10 photos.
+- **What goes wrong:**
+  - It invents bars to hang from in photos with none (a railing, a tree branch): 5 of the 6 failing drafts had one.
+  - Fix it for bars only moves bars, so it cannot remove one; the editor now takes invented bars out as a second repair.
+  - A photo has no scale, so heights are guesses from known things (a stair step, a bench seat).
+  - On a crowded skatepark it lists everything instead of one line a runner would take.
+  - Fix it's 6 s budget is shorter than one proof on the VM (about 7 s), so it can give up before it finds a fix (park03, second answer).
+- **Cost:** about 3,150 tokens and 12 s per photo (63,116 tokens for all 20 answers, mostly the model's own reasoning).
+  - We do not know the unit price for this model, so there is no money figure.
+- **Not tested:**
+  - Photos with people, because we do not use them.
+  - A prompt tuned to these photos (the prompt was run as first written; tuning on 10 photos would not be a fair test).
+  - Scale from a reference object.
+- **Next step if we keep it:**
+  - Ask for one line only (the runner's path).
+  - Give the model a known object for scale.
+  - Allow bars only when the photo shows a bar.
+- **Evidence:**
+  - Screenshots `data/eval/photo-course/screens/1-bars-draft.png` and `2-skate-draft-fixed.png` (VM run of `scripts/photo-check.mjs`, saved model answers, ALL OK).
+  - Raw answers `data/eval/photo-course/outputs/`, scores `results.json`, `run.json`.
+  - Scripts `scripts/photo-course-ask.ts` (needs the key, runs where the key lives), `scripts/photo-course-score.ts` (no key, heavy, run on the VM).
