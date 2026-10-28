@@ -491,3 +491,39 @@ The set of obstacle shapes is fixed, and each shape offers a fixed set of moves.
 - **New demo:** the Course menu has "Wide lache: a 6 m swing" (bars 6.3 m apart), and every stored plan was regenerated.
 - **Screenshots:** `data/eval/cc-58-swing/` (`rookie-pivot.png`: the Rookie at 0, 60, 120 and 180 degrees about the bar; `custom-pivot.png`: the custom body at 60 and 120 degrees; the other custom pictures came out blank in the software renderer); `?hangtest=1.05` (radians) hangs the runner still on the first bar for pictures.
 - **Gaps:** the arms are a pose (up, straight) and not a grip animation; the body does not tuck when it goes over the top; the 180 degree picture has the bar behind the hint banner.
+
+## Roller coaster (CC-61)
+- **So what:** the game now has a contraption with no legs and no arms: a cart on rails.
+  - Nothing drives it but gravity, so the lesson is the shape of the track: height is stored speed.
+  - A first hill that is too low stalls the cart; a hilltop that bends away too fast throws it off the rails.
+  - It is the first of the "any setup becomes an obstacle world" contraptions (CC-59).
+- **Physics** (`src/sim/cart.ts`, Earth gravity only):
+  - The rails are a smooth curve (a natural cubic spline) through the dots; the cart's speed along them comes from the height it gains or loses, minus a little rolling and air drag.
+  - It is integrated with RK4 at the fixed step, like the rope and the bars.
+  - The rails push up on the cart with `g cos(slope) + bend × speed²` per kilogram; in a valley that is more than the weight, on a crest it is less.
+  - At zero the rails let go and the cart flies on as an ordinary projectile (a splash, or a landing on the finish deck).
+  - On a hill it cannot climb the speed reaches zero; it rolls back for a moment and the run ends as "stalled".
+- **Keys:** the first push is → or Space; holding ↓ (or S) brakes.
+  - The brake is the only skill: slowing before a sharp hilltop keeps the cart on.
+- **Proof** (`searchCartRun` in `src/sim/ideal.ts`):
+  - The ideal run pushes at the start and finds where to brake, one crest at a time, as the starting point that clears the whole course with the widest window.
+  - Fix it for a track (`src/slice/fixcart.ts`) tries, in order of size: raise the first hill, lower a hill, make a hilltop broader; the first that rolls home with no brake wins.
+- **Demo courses** (`public/assets/demo/coaster*.course.json`, made by `npx tsx scripts/coaster-demos.ts`, which must be run again whenever `src/sim` changes; `tests/demo-coaster.test.ts` fails on a stale plan):
+  - "Coaster: ride the hills": rolls home with no brake.
+  - "Coaster: a sharp hilltop (brake)": the proof brakes from 17.6 to 25.6 m; without the brake the cart leaves the rails.
+  - "Coaster: first hill too low": stalls on the second hill, and carries no proof because none exists.
+- **Builder** (`?mode=coaster`): drag the dots, double-click to add or remove one, and the verdict under the picture is the same physics.
+  - Fix it and a push slider are there; "Play it" opens the Course with the track in the address (`?coaster=0,9;7,5;...&push=1.5`).
+  - A track is not a lane through pieces, so it has its own small editor instead of a piece in the world editor.
+- **Dojo:** "Coaster: hills and speed" asks how high a hill the cart can climb; the formula (start height plus push squared over two g) is the last, earned step.
+- **Rendering:** rails, ties and posts from the same curve, the cart, and the Rookie seated in it with the swing clip's own seated body (hands up).
+- **Debug view (B):** on a coaster it rolls the cart on with no brake and says where it leaves the rails or stalls.
+- **Tests:** `tests/cart.test.ts` (energy conserved, never above the start height, friction only takes energy out, leaves the rails on a sharp top and stays on a broad one, braking proof, stall, a bigger push climbs higher), `tests/fixcart.test.ts`, `tests/demo-coaster.test.ts`.
+- **Checks on the VM:** `scripts/coaster-check.mjs` (the bot rides two demos home, the third stalls with the right message) and `scripts/coaster-builder-check.mjs` (drag, Fix it, Play it).
+- **Screenshots:** `data/eval/cc-61-coaster/`.
+- **Known gaps:**
+  - No loops (the track is a function of x).
+  - The track is 2D only: no banking.
+  - The seated pose is the rope's swing clip, not a made-for-the-cart pose.
+  - The finish deck is a plain block.
+  - The builder is a separate page, not a piece inside the world editor.

@@ -11,7 +11,9 @@ export function actorStateFor(w: WorldState, squat: boolean, facing: 1 | -1 = 1)
     vx: r.vx,
     vy: r.vy,
     grounded: r.grounded,
-    mode: w.mode === 'hang' ? 'swing' : w.mode === 'vault' ? 'run' : w.mode, // hanging from a bar uses the rope's swing pose, turned about the hands
+    mode: w.mode === 'hang' ? 'swing' : w.mode === 'vault' ? 'run' : w.mode, // a cart seats the rider (clip 'sit'); the rest as before
+    tilt: w.cart?.tilt,
+    // hanging from a bar uses the rope's swing pose, turned about the hands
     squat,
     landedTicksAgo: r.landedAtTick === null ? null : r.tick - r.landedAtTick,
     rolledAt: w.rolledAt,

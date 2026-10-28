@@ -6,6 +6,7 @@ import { swingStep, type Swing } from './rope';
 import { DEFAULT_HANG, hangStep, measureHangPeriod, type Hang } from './holds';
 import { DEFAULT_TRAMPOLINE, bounce } from './trampoline';
 import { minSpeedToCross } from './needs';
+import { DEFAULT_CART, cartStep, makeRails } from './cart';
 
 // The Dojo's experiments: one obstacle each, a few knobs, one question. Every answer comes from running the
 // simulator, never from a formula typed in here, so the lesson is always true to the game's physics.
@@ -25,7 +26,7 @@ export interface Trial {
   note?: string; // plain-words outcome
 }
 export interface Experiment {
-  id: 'gap' | 'wall' | 'rope' | 'trampoline' | 'landing' | 'bars';
+  id: 'gap' | 'wall' | 'rope' | 'trampoline' | 'landing' | 'bars' | 'coaster';
   name: string;
   question: string;
   answerUnit: string;
@@ -199,7 +200,38 @@ const bars: Experiment = {
   },
 };
 
-export const EXPERIMENTS: Experiment[] = [gap, wall, rope, trampoline, landingExp, bars];
+// A coaster (the cart on rails): how high a hill the cart can climb depends on the height it starts from, plus a little from the push.
+const coaster: Experiment = {
+  id: 'coaster', name: 'Coaster: hills and speed', question: 'How high a hill can the cart climb?', answerUnit: 'm', answerMax: 14, axis: 'y', primary: 'height',
+  knobs: [
+    { id: 'height', label: 'Height of the first hill', unit: 'm', min: 2, max: 12, def: 8, step: 0.25, why: 'The higher the cart starts, the more speed it has at the bottom, and speed carries it up the next hill.' },
+    { id: 'push', label: 'Push at the start', unit: 'm/s', min: 0, max: 4, def: 1.5, step: 0.1, why: 'A push adds a little speed, which buys a little height.' },
+  ],
+  sayings: ['A coaster has no engine: it climbs no higher than where it started.'],
+  run(v) {
+    // the cart rolls down into a valley and up a very tall, smooth hill; where it turns round is the highest hill it could climb
+    const pts: [number, number][] = [[0, v.height], [10, 0], [22, 8], [34, 24]];
+    const rails = makeRails(pts);
+    let x = 0, speed = v.push, top = v.height;
+    const path: Point[] = [{ x: 0, y: v.height }];
+    for (let i = 0; i < 120 * 40; i++) {
+      ({ x, v: speed } = cartStep(rails, x, speed, false, { ...DEFAULT_CART, push: v.push }));
+      const y = rails.y(x);
+      if (i % 6 === 0) path.push({ x, y });
+      if (y > top) top = y;
+      if (speed <= 0 && rails.slope(x) > 0 && x > 10) break;
+    }
+    const best = top;
+    return {
+      answer: best, path,
+      overlays: [{ pts: [{ x: 0, y: best }, { x: 34, y: best }], color: '#16a34a', label: `highest it reached: ${best.toFixed(1)} m` }],
+      people: [{ x: 0, y: v.height, pose: 'stand', label: 'start' }],
+      note: `The cart starts ${v.height.toFixed(1)} m up with a push of ${v.push.toFixed(1)} m/s. It climbs a hill about ${best.toFixed(1)} m high before it stops, a little lower than start plus push because friction and air take some energy.`,
+    };
+  },
+};
+
+export const EXPERIMENTS: Experiment[] = [gap, wall, rope, trampoline, landingExp, bars, coaster];
 export const defaults = (e: Experiment, ctx: Context = {}): Record<string, number> => {
   const d = Object.fromEntries(e.knobs.map((k) => [k.id, k.def]));
   if (e.id === 'gap' && ctx.speed) d.speed = Math.min(10, Math.max(2, ctx.speed));
