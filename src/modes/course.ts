@@ -76,7 +76,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
   // the front view window (bottom right, above the drum lane's row): its frame is a div, its picture a second camera drawn in the same canvas
   const PIP_W = 260, PIP_H = 195, PIP_BOTTOM = 118;
   const frontCam = new THREE.PerspectiveCamera(75, PIP_W / PIP_H, 0.1, 200); // first person: wide, from the eyes
-  let frontForced = params.get('front') === '1';
+  let frontOverride: boolean | null = params.has('front') ? params.get('front') === '1' : null;
   let pipRoll = 0, pipClock = 0; // the head's turn about the bar (rad) and the clock it settles by
   const pipFrame = document.createElement('div');
   pipFrame.id = 'frontview';
@@ -112,6 +112,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
   const realObjects = !!course.scene?.length;
   const lastPlatform = course.terrain.platforms.length - 1;
   course.terrain.platforms.forEach((p, pi) => {
+    if (p.coasterRail) return; // the rails are already drawn by TrackView; this profile exists only for landing collision
     if (realObjects && pi > 0 && pi < lastPlatform) return;
     const bottom = course.terrain.waterY - 2;
     const h = p.top - bottom;
@@ -238,7 +239,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
   // the controls, always visible top-left as a card of key caps (collapse with H)
   const help = document.createElement('div');
   help.id = 'keys';
-  const KEYS: [string, string][] = [['← →', 'Run (hold)'], ['Space or ↑', 'Jump · let go of the rope · press on the trampoline'], ['↓', 'Bend your knees (hold, on big drops)'], ['X', 'Roll: on the ground (standing or running), or tap just before you land from a big drop'], ...(course.recoil ? ([['K', 'Fire the launcher (clip it on at the teal pad): the ball goes back, you go forward']] as [string, string][]) : []), ...(course.trebuchet ? ([['→ (hold), then Space or ↑', 'Trebuchet: pull the pin, then let the rider go when the hint says LET GO NOW']] as [string, string][]) : []), ...(course !== defaultCourse ? ([['E', 'Hold a bar with the hands (in the air; let go to fly on)'], ['← → on a bar', 'Pump the swing: push the way you swing'], ['V', 'Vault over a step with a hand on top (fast, saves energy)'], ['F', 'Looking-ahead window, from your eyes (it shows by itself on a bar)']] as [string, string][]) : []), ...(course.track ? ([['→ or Space or ↑', 'Push off at the top of the first hill'], ['↓ (hold)', 'Brake (S works too)']] as [string, string][]) : []), ['I', 'Ideal run of this obstacle (Shift+I: the whole course, any key stops it)'], ['G', 'Drums: where the ideal run presses Space'], ['B', 'Debug view: see the collision boxes and where a jump goes'], ['Mouse', 'Drag to turn the view, wheel to zoom, double-click to reset']]; // retry, ideal run and Dojo are on the fall panel and the buttons
+  const KEYS: [string, string][] = [['← →', 'Run (hold)'], ['Space or ↑', 'Jump · let go of the rope · press on the trampoline'], ['↓', 'Bend your knees (hold, on big drops)'], ['X', 'Hold as you land to roll; you can also tap shortly before contact'], ...(course.recoil ? ([['K', 'Fire the launcher (clip it on at the teal pad): the ball goes back, you go forward']] as [string, string][]) : []), ...(course.trebuchet ? ([['→ (hold), then Space or ↑', 'Trebuchet: pull the pin, then let the rider go when the hint says LET GO NOW']] as [string, string][]) : []), ...(course !== defaultCourse ? ([['E', 'Hold a bar with the hands (in the air; let go to fly on)'], ['← → on a bar', 'Pump the swing: push the way you swing'], ['V', 'Vault over a step with a hand on top (fast, saves energy)']] as [string, string][]) : []), ['F', 'Toggle the Looking ahead inset'], ...(course.track ? ([['→ or Space or ↑', 'Push off at the top of the first hill'], ['↓ (hold)', 'Brake (S works too)']] as [string, string][]) : []), ['I', 'Ideal run of this obstacle (Shift+I: the whole course, any key stops it)'], ['G', 'Drums: where the ideal run presses Space'], ['B', 'Debug view: see the collision boxes and where a jump goes'], ['Mouse', 'Drag to turn the view, wheel to zoom, double-click to reset']]; // retry, ideal run and Dojo are on the fall panel and the buttons
   help.style.cssText = 'position:fixed;left:16px;top:48px;width:290px;background:#fffffff0;border:1px solid #cfd6d0;border-radius:12px;padding:8px 10px;font:500 14px system-ui,sans-serif;color:#17201d;box-shadow:0 2px 10px #0002;pointer-events:none;display:grid;gap:5px';
   const paintKeys = (open: boolean) => {
     help.innerHTML = `<div style="font-weight:700;display:flex;justify-content:space-between">Controls <span style="font-weight:400;color:#58635d">H ${open ? 'hides' : 'shows'}</span></div>` + (open ? KEYS.map(([k, d]) => `<div style="display:grid;grid-template-columns:78px 1fr;gap:8px;align-items:center"><kbd style="font:700 13px ui-monospace,monospace;background:#eef1ec;border:1px solid #b9c2bb;border-bottom-width:3px;border-radius:6px;padding:1px 6px;text-align:center">${k}</kbd><span>${d}</span></div>`).join('') : '');
@@ -462,7 +463,10 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
     if (e.code === 'Escape' && replay) { replay = null; clearGuides(); showAgain(); }
     if (e.code === 'KeyC') nextCam();
     if (e.code === 'KeyG') drumLane.toggle();
-    if (e.code === 'KeyF') frontForced = !frontForced;
+    if (e.code === 'KeyF') {
+      frontOverride = !(frontOverride ?? (world.mode === 'hang' || camMode === 'side'));
+      e.preventDefault();
+    }
     if (e.code === 'KeyB') toggleDebug();
     if (e.code === 'KeyH') { keysTouched = true; keysOpen = !keysOpen; paintKeys(keysOpen); }
   });
@@ -832,7 +836,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
     const jump = [...log].reverse().find((e) => e.type === 'jump');
     let tip = 'Try again.';
     if (what === 'slide') tip = 'You ran out of speed on the curve. Start the run-up earlier and keep running.';
-    else if (what === 'hurt') tip = 'The ground stopped you too fast. Tap X just before you land to roll: the same fall is spread over more time, and a roll keeps most of your speed.';
+    else if (what === 'hurt') tip = 'The ground stopped you too fast. Hold X as you land to roll: the same fall is spread over more time, and a roll keeps most of your speed.';
     else if (course.track) tip = cartTip(what);
     else if (course.recoil && zone?.id === 'recoil') tip = world.recoil && world.recoil.fired > 0 ? 'The push was not enough. A heavier ball, or a faster one, pushes harder. Fire as you leave the edge so the push carries through the whole flight.' : 'Run onto the teal pad, then press K to fire the launcher as you jump.';
     else if (zone?.id === 'trampoline') tip = 'Press Space at the bottom of the bounce for extra height.';
@@ -964,7 +968,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
       let input: RunnerInput = NO_INPUT;
       if (plan) input = inputFor(plan, world, botState, course);
       else {
-        input = { run: keys.has('ArrowRight') || keys.has('KeyD'), left: keys.has('ArrowLeft') || keys.has('KeyA'), jump: jumpQueued, jumpSpeed: 0, squat: keys.has('ArrowDown') || keys.has('KeyS'), handL: keys.has('KeyE'), handR: keys.has('KeyE'), vault: vaultQueued, roll: rollQueued, fire: fireQueued };
+        input = { run: keys.has('ArrowRight') || keys.has('KeyD'), left: keys.has('ArrowLeft') || keys.has('KeyA'), jump: jumpQueued, jumpSpeed: 0, squat: keys.has('ArrowDown') || keys.has('KeyS'), handL: keys.has('KeyE'), handR: keys.has('KeyE'), vault: vaultQueued, roll: rollQueued || keys.has('KeyX'), fire: fireQueued };
         jumpQueued = false; vaultQueued = false; rollQueued = false; fireQueued = false;
       }
       const prev = world.outcome;
@@ -1121,8 +1125,8 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
     }
     floor.update(now / 1000);
     renderer.render(scene, camera);
-    // A small front view accompanies the default side view; F can show it in other camera modes.
-    const showFront = frontForced || world.mode === 'hang' || camMode === 'side';
+    // The front inset accompanies the default side view; F toggles it in every camera mode.
+    const showFront = frontOverride ?? (world.mode === 'hang' || camMode === 'side');
     pipFrame.style.display = showFront ? 'block' : 'none';
     if (showFront) {
       // On a coaster the inset rides with the cart and looks forward along its rails; elsewhere it shows the runner's eyes.

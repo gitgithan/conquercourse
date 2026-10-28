@@ -5,6 +5,7 @@ export interface Platform {
   top: number; // height of the standing surface, m
   bouncy?: boolean; // a trampoline bed: landing here starts a bounce
   profile?: [number, number][]; // a curved top: [x, height] points from x0 to x1 (x rising), joined by straight pieces; `top` is then its highest point
+  coasterRail?: boolean; // collision surface for landing on a coaster rail; the visible rail is drawn by src/render/track.ts
   skin?: { image: string; crop: [number, number, number, number] }; // a picture painted on the front face: the image's address and the part of it (in pixels) to use; looks only, never collision
 }
 

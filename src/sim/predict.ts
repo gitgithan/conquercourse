@@ -30,12 +30,12 @@ export function predictJump(w: WorldState, course: CourseData, maxTicks = 240): 
       return { path, result: 'splash', landX: s.runner.x, why: ahead && ahead.x0 > s.runner.x ? `Falls in the water ${(ahead.x0 - s.runner.x).toFixed(1)} m before the next ground. Jump later, or run faster.` : 'Falls in the water: there is no ground left to land on.' };
     }
     if (!s.runner.grounded) left = true;
-    if (s.outcome === 'hurt') return { path, result: 'hurt', landX: s.runner.x, why: `Hard landing: ${((s.events.find((e) => e.type === 'hard-landing')?.detail?.impact as number) ?? 0).toFixed(1)} m/s into the ground is too much even with bent knees. Tap X just before you land to roll it out.` };
+    if (s.outcome === 'hurt') return { path, result: 'hurt', landX: s.runner.x, why: `Hard landing: ${((s.events.find((e) => e.type === 'hard-landing')?.detail?.impact as number) ?? 0).toFixed(1)} m/s into the ground is too much even with bent knees. Hold X as you land to roll it out.` };
     if (left && s.runner.grounded) {
       const p = platformAt(course.terrain, s.runner.x);
       const margin = p ? Math.min(s.runner.x - p.x0, p.x1 - s.runner.x) : 0;
       const impact = s.events.find((e) => e.type === 'land')?.detail?.impact as number | undefined;
-      const hit = impact !== undefined && impact > 6 ? ` You hit the ground at ${impact.toFixed(1)} m/s: ${landing(impact, true).stumbled ? 'a stumble that costs speed (tap X just before you land to roll)' : 'a clean landing'}.` : '';
+      const hit = impact !== undefined && impact > 6 ? ` You hit the ground at ${impact.toFixed(1)} m/s: ${landing(impact, true).stumbled ? 'a stumble that costs speed (hold X as you land to roll)' : 'a clean landing'}.` : '';
       return { path, result: 'lands', landX: s.runner.x, why: `Lands at ${s.runner.x.toFixed(1)} m, ${margin.toFixed(1)} m from the edge of the ground${margin < 0.3 ? ' (close: a little less speed and it would miss)' : ''}.${hit}` };
     }
     still = Math.abs(s.runner.vx) < 0.05 ? still + 1 : 0;
@@ -101,7 +101,7 @@ export function predictLaunch(w: WorldState, course: CourseData, maxTicks = 600)
     path.push({ x: s.runner.x, y: s.runner.y });
     if (s.mode === 'hang') return { path, result: 'lands', landX: s.runner.x, why: 'You reach the bar: hold E in the air to grab it.' };
     if (s.outcome === 'splash') return { path, result: 'splash', landX: s.runner.x, why: 'You come down in the water, short of the ground.' };
-    if (s.outcome === 'hurt') return { path, result: 'hurt', landX: s.runner.x, why: 'You come down too hard: tap X just before you land to roll it out.' };
+    if (s.outcome === 'hurt') return { path, result: 'hurt', landX: s.runner.x, why: 'You come down too hard: hold X as you land to roll it out.' };
     if (!s.runner.grounded) left = true;
     if (left && s.runner.grounded) return { path, result: 'lands', landX: s.runner.x, why: `You land at ${s.runner.x.toFixed(1)} m.` };
   }

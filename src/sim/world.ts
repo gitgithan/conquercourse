@@ -1,7 +1,7 @@
 import type { CourseData } from '../course/course';
 import { DT } from './units';
 import { DEFAULT_PARAMS, NO_INPUT, startState, step, type RunnerInput, type RunnerParams, type RunnerState } from './runner';
-import { groundAt, standingOn } from './terrain';
+import { groundAt, heightAt, standingOn } from './terrain';
 import { DEFAULT_WALL, runWall, type WallParams, type WallResult } from './wall';
 import { DEFAULT_ROPE, ropePoint, release, swingStep, tryCatch, type RopeParams, type Swing } from './rope';
 import { DEFAULT_TRAMPOLINE, bounce, type Bounce } from './trampoline';
@@ -102,12 +102,18 @@ export function stepWorld(w: WorldState, input: RunnerInput, course: CourseData,
   }
   const before = w.runner;
   const planting = w.plantUntil > tick && !input2.run && !input2.left; // just off a vault with no key held: the feet plant and the runner stops
+  let flightTerrain = course.terrain;
+  if (course.track && !before.grounded) {
+    const nextX = before.x + before.vx * DT;
+    const underRail = course.terrain.platforms.some((platform) => platform.coasterRail && nextX >= platform.x0 && nextX <= platform.x1 && before.y < heightAt(platform, nextX) - 0.02);
+    if (underRail) flightTerrain = { ...course.terrain, platforms: course.terrain.platforms.filter((platform) => !platform.coasterRail) };
+  }
   let r: RunnerState;
   if (n.groundRoll) {
-    const g = stepGroundRoll(before, n.groundRoll, course.terrain);
+    const g = stepGroundRoll(before, n.groundRoll, flightTerrain);
     r = g.runner;
     if (g.ended) { n.rollReadyAt = tick + Math.round(GROUND_ROLL_RECOVERY * 120); n.groundRoll = null; }
-  } else r = step(before, input2, planting ? { ...p, grip: p.grip * VAULT_PLANT_GRIP } : p, course.terrain);
+  } else r = step(before, input2, planting ? { ...p, grip: p.grip * VAULT_PLANT_GRIP } : p, flightTerrain);
   n.runner = r;
   let caughtTrack = false;
   if (course.track && !before.grounded && r.grounded && r.landing) {
@@ -115,7 +121,9 @@ export function stepWorld(w: WorldState, input: RunnerInput, course: CourseData,
     const segment = trackSegments(course.track).findIndex((pts) => x >= pts[0][0] && x <= pts[pts.length - 1][0]);
     if (segment >= 0) {
       const rails = railsOf(course.track, segment), slope = rails.slope(x), cos = 1 / Math.sqrt(1 + slope * slope);
-      if (Math.abs(r.y - (rails.y(x) + params.seat)) <= 0.12) {
+      const previousHeight = rails.y(before.x) + params.seat;
+      const normalVelocity = before.vy - slope * before.vx;
+      if (Math.abs(r.y - (rails.y(x) + params.seat)) <= 0.12 && before.y >= previousHeight - 0.02 && normalVelocity < -0.05) {
         const v = before.vx * cos - r.landing.impactSpeed * slope * cos;
         if (v > 0.5) {
           n.mode = 'cart'; n.outcome = 'running'; caughtTrack = true;

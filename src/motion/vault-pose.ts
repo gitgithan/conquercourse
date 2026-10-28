@@ -127,7 +127,7 @@ export function vaultPose(rig: VaultRig, inp: VaultPoseIn): VaultPoseOut {
       const hip = ix(side + 'Leg'), knee = ix(side + 'Shin'), foot = ix(side + 'Foot'), toe = ix(side + 'ToeBase');
       const hipJ = hips.clone().add(off(side + 'Leg'));
       // legs together: the hip joints pulled in, the thighs swung forward of the body line, the shins folded back
-      const thigh = rotZ(a, -0.55).normalize(), shin = rotZ(thigh, 1.25).normalize(); // thighs trailing behind and a little up, knees bent about 70 degrees, shins down and back
+      const thigh = rotZ(a, -0.25).normalize(), shin = rotZ(thigh, 0.55).normalize(); // keep the legs long with a modest knee bend as they trail behind the vault
       const kneeP = hipJ.clone().add(thigh.multiplyScalar(len[knee])), footP = kneeP.clone().add(shin.multiplyScalar(len[foot])), toeP = footP.clone().add(rotZ(shin, Math.PI / 2).multiplyScalar(len[toe]));
       kneeP.z += z * 0.05; footP.z += z * 0.03; toeP.z += z * 0.03;
       out[hip] = out[hip].clone().lerp(hipJ, legW);

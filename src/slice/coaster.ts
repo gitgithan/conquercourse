@@ -18,7 +18,7 @@ export function coasterCourse(name: string, points: [number, number][] | [number
   const low = Math.min(...samples.flat().map((q) => q[1]));
   const trackPlatforms = segments.map((segment, i) => {
     const profile = samples[i];
-    return { x0: segment[0][0], x1: segment[segment.length - 1][0], top: Math.max(...profile.map((q) => q[1])), profile };
+    return { x0: segment[0][0], x1: segment[segment.length - 1][0], top: Math.max(...profile.map((q) => q[1])), profile, coasterRail: true };
   });
   return {
     version: 1, name, startX: x0, finishX: x1, jumpSpeed: 4.5,
