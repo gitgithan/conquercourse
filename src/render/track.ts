@@ -18,9 +18,9 @@ export function buildTrack(course: CourseData): TrackView {
   const track = course.track!;
   const railsList = trackSegments(track).map((_, i) => railsOf(track, i));
   const group = new THREE.Group();
-  const steel = new THREE.MeshStandardMaterial({ color: 0xc9ced4, metalness: 0.6, roughness: 0.35 });
-  const wood = new THREE.MeshStandardMaterial({ color: 0x7a5a3a });
-  const post = new THREE.MeshStandardMaterial({ color: 0x8d949c });
+  const steel = new THREE.MeshStandardMaterial({ color: 0xc9ced4, metalness: 0.6, roughness: 0.35, transparent: true, opacity: 0.62, depthWrite: false });
+  const wood = new THREE.MeshStandardMaterial({ color: 0x7a5a3a, transparent: true, opacity: 0.42, depthWrite: false });
+  const post = new THREE.MeshStandardMaterial({ color: 0x8d949c, transparent: true, opacity: 0.28, depthWrite: false });
   const STEP = 0.4;
   // Draw each rail section separately so visible gaps match the ride physics.
   const floor = course.terrain.waterY - 2;
