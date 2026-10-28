@@ -26,6 +26,9 @@ try {
   const ground = JSON.parse(readFileSync('tests/fixtures/ground-montmartre.json', 'utf8'));
   await page.evaluate(([a, b, ka, kb]) => { sessionStorage.setItem(ka, a); sessionStorage.setItem(kb, b); },
     [JSON.stringify({ elements: overpass.elements }), JSON.stringify(ground), `cc.map.overpass:${lat.toFixed(4)},${lon.toFixed(4)},120`, `cc.map.ground:${lat.toFixed(4)},${lon.toFixed(4)},120`]);
+  // the buildings come from /api/places now (CC-78): answer it with the saved answer, and do not snap to the ready Montmartre
+  await page.route('**/api/places*', (r) => r.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ elements: overpass.elements, source: 'fixture', cache: 'miss' }) }));
+  await page.evaluate(() => (document.getElementById('useready').checked = false));
   await page.$eval('#shrink', (el) => { el.value = '0.1'; el.dispatchEvent(new Event('input')); el.dispatchEvent(new Event('change')); }); // a lane that clears needs the place shrunk enough
   checks.sliceButtonEnabled = !(await page.$eval('#slice', (b) => b.disabled));
   await page.click('#slice');

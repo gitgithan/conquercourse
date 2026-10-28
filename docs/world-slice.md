@@ -1284,3 +1284,65 @@ The set of obstacle shapes is fixed, and each shape offers a fixed set of moves.
   - Now it never says go for the machine's deck, and it flies the throw a second time with the roll tapped before the ground when the first flight hurts.
   - Against what really happens (release at each tick, play the stored plan on) it agrees on at least 95% of ticks, and the landing it shows equals the real landing to 5 cm.
 - **Known gaps:** the trebuchet is not in the shortcut finder yet (CC-71); the pin takes the skill out of the release, so it is offered only as an assist.
+
+
+
+## Dropping a pin (CC-78)
+- **So what:** a pin used to wait on the public map servers, and they are often down.
+  - Now the site asks all of them at once, keeps the answer, and twelve places are built ahead of time and load in about a second.
+  - Nothing in the demo depends on a public server answering.
+- **Cause of "timed out after dropping a pin"** (measured from a Vultr machine in Singapore on 2026-10-28, three places, two runs):
+
+| Step | Answer | Time |
+|---|---|---|
+| Overpass `overpass-api.de` | 406 for tool user agents, 502 with a named one, no answer for a browser-like one | 0.5 s, or hangs |
+| Overpass `lz4.overpass-api.de` | no answer | 25 s limit |
+| Overpass `z.overpass-api.de` | 502 once; later 200 for Shibuya, Edinburgh, Valletta, Hamburg, Rome and Lisbon | 31 to 39 s |
+| Overpass `overpass.kumi.systems`, `overpass.private.coffee` | no answer on every try (one answered Rome once) | 60 s limit, 81 s once |
+| Overpass `overpass.openstreetmap.fr` | 403 | 0.5 s |
+| Overpass `maps.mail.ru` | 200 (Eixample, Positano, Ciutadella), 504 or no answer for others | 16 to 23 s |
+| Nominatim search | 200 | 0.7 s |
+| Terrain tile | 200 (99 KB) | 1.7 s |
+| Map style | 200 | 0.1 s |
+
+- **What the old code did:** it asked three servers one after another, six tries in all, each up to 60 s, with waits of 3, 6, 12, 15, 15 and 15 s between.
+  - Worst case: about 7 minutes before an error, and two of the three servers never answered from this machine.
+  - The lane search is not in the pin's path (the editor does it later); alone it took 23 to 372 s per place on a busy machine.
+- **The fix**
+  - **`/api/places`:** the site's own function asks six servers at once (28 s limit each), the first good answer wins and the rest are cancelled.
+    - It keeps each answer 30 days in the Cloudflare Cache API, by pin rounded to 11 m and radius to 10 m.
+    - D1 was not used: the Cache API needs no migration and no binding, and an answer is only a cache.
+    - Limits: radius 60 to 300 m, 20 new places per address in ten minutes (cache hits are free), answers under 1.5 MB.
+    - Run in the Workers runtime (`wrangler pages dev`): a miss took 15 s, the next call 0.04 s with `x-cache: hit`.
+  - **Dev server:** `vite.config.ts` serves the same lookup at `/api/places` and keeps answers on disk in `node_modules/.cache/cc-places`.
+  - **The browser:** asks the site first (35 s), then the six servers straight from the browser (20 s), then gives a plain error that offers the three nearest ready places.
+  - **Ready places:** twelve places in `public/assets/places/` (940 KB on disk, 11 to 214 KB each, pretty-printed like all JSON; served compressed), built by `npx tsx scripts/make-places.ts`.
+    - Each holds the trimmed building answer, the ground heights and the lane the simulator cleared.
+    - A pin within 300 m of one snaps to it (a tick box turns this off); the list shows them with their hill size.
+  - **Steps with times and a Cancel button:** asking the map, height of the ground, building the place, finding a lane (in a worker, so the page never freezes).
+  - **Explain strip:** after Build the editor no longer opens by itself; the strip says what was found and how the place was shrunk, and the map paints each footprint by what it became.
+    - Colours: flat run (green), step (yellow), wall to climb (red), edge of a gap (purple), not used (grey), with the lane as a dashed line.
+    - "Open in the editor" opens the place (`?auto=1` opens it at once).
+- **Ready places built:**
+
+| Place | Hill | Buildings | Lane | Shrink |
+|---|---|---|---|---|
+| Montmartre steps, Paris | 39 m | 42 | 21.3 m (5 steps, 1 walls, 2 gaps; footprints: 4 gap-edge, 1 step) | 0.12 |
+| Eixample, Barcelona | 9 m | 47 | 37.5 m (3 steps, 2 walls, 1 gaps; footprints: 2 gap-edge) | 0.238 |
+| Circular Quay, Sydney | 37 m | 44 | 37.9 m (3 steps, 0 walls, 2 gaps; footprints: 3 gap-edge) | 0.333 |
+| Lombard Street, San Francisco | 62 m | 95 | 22.9 m (6 steps, 0 walls, 1 gaps; footprints: 2 gap-edge) | 0.273 |
+| Shibuya, Tokyo | 34 m | 69 | 14.7 m (3 steps, 1 walls, 1 gaps; footprints: 2 gap-edge) | 0.283 |
+| Ciutadella Park, Barcelona | 13 m | 6 | 41.9 m (4 steps, 0 walls, 2 gaps; footprints: 1 deck) | 0.556 |
+| Old Town, Edinburgh | 23 m | 77 | 33.4 m (7 steps, 2 walls, 2 gaps; footprints: 1 deck, 3 gap-edge, 4 step) | 0.2 |
+| Positano, Italy | 100 m | 86 | 36 m (1 steps, 1 walls, 2 gaps; footprints: 1 deck, 1 gap-edge, 2 step) | 0.12 |
+| Grand Harbour, Valletta | 22 m | 18 | 23.8 m (2 steps, 0 walls, 1 gaps; footprints: 1 deck) | 0.556 |
+| Speicherstadt, Hamburg | 12 m | 21 | 103.3 m (5 steps, 1 walls, 2 gaps; footprints: 3 gap-edge) | 0.417 |
+| Alfama, Lisbon | 49 m | 278 | 26.2 m (8 steps, 0 walls, 1 gaps; footprints: 2 gap-edge) | 0.333 |
+| Spanish Steps, Rome | 26 m | 35 | 69.8 m (8 steps, 0 walls, 3 gaps; footprints: 1 deck, 3 gap-edge) | 0.556 |
+- **Where to find it:** the Course's "Open another course" menu has "Pick a real place on the map (labs)" with `?labs=1` (the browser remembers it); `?mode=map` works without it.
+- **Checks:** `tests/places.test.ts` (14 tests) and `scripts/map-places-check.mjs` (14 checks, a test proxy refuses the map servers: ready place in about 1.4 s, a pin far from any place with the saved answer, the error with ready places offered, Cancel in under a second); `scripts/map-check.mjs` follows the new flow.
+- **Known gaps**
+  - A new place still needs a public server (the first pin there); the ready places are the fallback.
+  - The footprints named on the map are the buildings the lane runs over or brushes; the search also counts steps and walls at the cuts between roofs, so the counts can be higher than the number of footprints (Alfama: 8 steps, 2 footprints).
+  - The lane search for a new place takes seconds to minutes in a worker; the editor can be opened meanwhile, and the piece is re-cut to the lane's size when the search finishes.
+  - The Cloudflare cache is per data centre, so a place can be asked again from another one.

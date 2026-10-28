@@ -27,23 +27,17 @@ try {
   await page.mouse.click(box.x + box.width / 2, box.y + box.height / 2);
   await page.waitForFunction(() => !!document.documentElement.dataset.pin, null, { timeout: 10000 });
   checks.pinDropped = !(await page.$eval('#build', (b) => b.disabled));
-  const [lat, lon] = (await page.evaluate(() => document.documentElement.dataset.pin)).split(',').map(Number);
   await page.screenshot({ path: `${out}/2-pin.png` });
-  // Overpass: try it for real first; if it does not answer in time, inject the saved answer under the cache key
+  // The buildings come from /api/places (CC-78). The public map servers are not part of this check: /api/places is answered by the saved answer,
+  // and with MAP_REAL=1 it is asked for real. Build no longer jumps to the editor: it shows the steps, and the editor opens on a button.
   const fixture = JSON.parse(readFileSync('tests/fixtures/overpass-quay.json', 'utf8'));
-  const real = process.env.MAP_FIXTURE !== '1';
-  if (!real) await page.evaluate(([k, v]) => sessionStorage.setItem(k, v), [`cc.map.overpass:${lat.toFixed(4)},${lon.toFixed(4)},120`, JSON.stringify({ elements: fixture.elements })]);
+  if (process.env.MAP_REAL !== '1') await page.route('**/api/places*', (r) => r.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ elements: fixture.elements, source: 'fixture', cache: 'miss' }) }));
+  await page.evaluate(() => (document.getElementById('useready').checked = false)); // the ready place would answer first
   await page.click('#build');
-  let landed = await page.waitForFunction(() => new URLSearchParams(location.search).get('mode') === 'editor', null, { timeout: 150000 }).then(() => true, () => false);
-  if (!landed) {
-    notes.push('Overpass did not answer in time; used the saved answer');
-    await page.evaluate(([k, v]) => sessionStorage.setItem(k, v), [`cc.map.overpass:${lat.toFixed(4)},${lon.toFixed(4)},120`, JSON.stringify({ elements: fixture.elements })]);
-    await page.waitForTimeout(25000); // the running attempt gives up on its own
-    await page.reload(); await page.waitForSelector('#map canvas');
-    await page.mouse.click(box.x + box.width / 2, box.y + box.height / 2);
-    await page.click('#build');
-    landed = await page.waitForFunction(() => new URLSearchParams(location.search).get('mode') === 'editor', null, { timeout: 60000 }).then(() => true, () => false);
-  } else notes.push(real ? 'Overpass answered for real' : 'saved answer used');
+  await page.waitForSelector('#openeditor:not([hidden])', { timeout: 150000 });
+  notes.push(process.env.MAP_REAL === '1' ? 'the map servers answered for real' : 'saved answer used');
+  await page.click('#openeditor');
+  const landed = await page.waitForFunction(() => new URLSearchParams(location.search).get('mode') === 'editor', null, { timeout: 60000 }).then(() => true, () => false);
   checks.landedInEditor = landed;
   await page.waitForFunction(() => document.documentElement.dataset.pieces === '1', null, { timeout: 60000 }).then(() => { checks.pieceInEditor = true; }, () => { checks.pieceInEditor = false; });
   await page.waitForTimeout(2500);

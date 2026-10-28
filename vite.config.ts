@@ -1,9 +1,10 @@
 import { execSync } from 'node:child_process';
-import { readFileSync } from 'node:fs';
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { homedir } from 'node:os';
 import { defineConfig, type Plugin } from 'vite';
 import { askSpark, limited, MAX_BODY } from './functions/api/designer';
 import { askPhoto, MAX_PHOTO_BODY } from './functions/api/photo-course';
+import { lookup } from './functions/api/places';
 
 const build = (() => { try { return execSync('git rev-parse --short HEAD').toString().trim(); } catch { return 'dev'; } })();
 
@@ -43,8 +44,28 @@ const designerDev = (): Plugin => ({
   },
 });
 
+// Dev only: /api/places on this machine (the same lookup as the Pages Function), with the answers kept on disk so a restart keeps them.
+const placesDev = (): Plugin => ({
+  name: 'places-dev',
+  configureServer(server) {
+    const dir = 'node_modules/.cache/cc-places';
+    const file = (k: string) => `${dir}/${k.replace(/[^\d.,-]/g, '_')}.json`;
+    const store = {
+      async get(k: string) { try { return existsSync(file(k)) ? readFileSync(file(k), 'utf8') : null; } catch { return null; } },
+      async put(k: string, v: string) { try { mkdirSync(dir, { recursive: true }); writeFileSync(file(k), v); } catch { /* no disk cache */ } },
+    };
+    server.middlewares.use('/api/places', async (req, res) => {
+      const u = new URL(req.url ?? '/', 'http://localhost');
+      const r = await lookup(u.searchParams, 'dev', store);
+      res.statusCode = r.status; res.setHeader('content-type', 'application/json');
+      for (const [k, v] of Object.entries(r.headers)) res.setHeader(k, v);
+      res.end(JSON.stringify(r.body));
+    });
+  },
+});
+
 export default defineConfig({
-  plugins: [designerDev()],
+  plugins: [designerDev(), placesDev()],
   define: { __BUILD__: JSON.stringify(build + ' ' + new Date().toISOString().slice(0, 10)) },
   server: { host: 'localhost', port: Number(process.env.PORT ?? 5173) },
   test: { include: ['tests/**/*.test.ts'], testTimeout: 60000 },

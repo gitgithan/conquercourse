@@ -3,7 +3,8 @@
 import * as maplibregl from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
 import workerUrl from 'maplibre-gl/dist/maplibre-gl-worker.mjs?url';
-import { buildingsFrom, extrude, MIRRORS, osmToMesh, overpassQuery, type OverpassAnswer } from '../world/osm';
+import { buildingsFrom, extrude, osmToMesh, type OverpassAnswer } from '../world/osm';
+import { installPlaces } from './map-place';
 import { fetchGround, lowest, relief, TERRAIN_ATTRIBUTION, type Ground, type Tile } from '../world/terrain';
 import { buildingTops, contourSegments, cutBuildings, cutRange, ladderLevels, ladderStep, laneLine, piecesFrom, resample, slopeCells, toLonLat, type Seg } from '../slice/slicer';
 import { reducedMotion, runFlight, scaleWords } from './map-flight';
@@ -27,28 +28,6 @@ async function decodePng(png: ArrayBuffer): Promise<Tile> {
   const c = document.createElement('canvas'); c.width = bmp.width; c.height = bmp.height;
   const g = c.getContext('2d', { willReadFrequently: true })!; g.drawImage(bmp, 0, 0);
   return { data: g.getImageData(0, 0, bmp.width, bmp.height).data, width: bmp.width, channels: 4 };
-}
-
-async function overpass(lat: number, lon: number, radius: number, say: (s: string) => void): Promise<OverpassAnswer> {
-  const key = `cc.map.overpass:${lat.toFixed(4)},${lon.toFixed(4)},${radius}`; // one query per place
-  try { const c = sessionStorage.getItem(key); if (c) return JSON.parse(c) as OverpassAnswer; } catch { /* no cache */ }
-  let wait = 3000;
-  for (let attempt = 0; attempt < 6; attempt++) {
-    const url = MIRRORS[attempt % MIRRORS.length];
-    say(`Asking the map data servers (try ${attempt + 1} of 6)...`);
-    try {
-      const r = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, body: 'data=' + encodeURIComponent(overpassQuery(lat, lon, radius)), signal: AbortSignal.timeout(60000) });
-      if (r.ok) {
-        const j = (await r.json()) as OverpassAnswer;
-        const keep = ['building', 'height', 'building:levels']; // keep the cache small: tags that matter only
-        for (const e of j.elements) if (e.tags) e.tags = Object.fromEntries(Object.entries(e.tags).filter(([k]) => keep.includes(k)));
-        try { sessionStorage.setItem(key, JSON.stringify({ elements: j.elements })); } catch { /* too big to cache */ }
-        return j;
-      }
-    } catch { /* try the next mirror */ }
-    await new Promise((r) => setTimeout(r, wait)); wait = Math.min(wait * 2, 15000);
-  }
-  throw new Error('The map data servers did not answer. Try again in a minute.');
 }
 
 export function startMap(host: HTMLElement): { backend: 'webgl2' } {
@@ -77,6 +56,7 @@ export function startMap(host: HTMLElement): { backend: 'webgl2' } {
     <label><span>Radius: <b id="radiusv">120</b> m</span><input type="range" id="radius" min="80" max="250" step="10" value="120"></label>
     <label><span>Shrink: <b id="shrinkv">0.2</b> (1 = real size)</span><input type="range" id="shrink" min="0.02" max="1" step="0.01" value="0.2"></label>
     <label style="grid-auto-flow:column;justify-content:start;gap:6px;align-items:center"><input type="checkbox" id="hills"${q.get('hills') === '0' ? '' : ' checked'}><span>Real hills (ground height from satellite maps)</span></label>
+    <label style="grid-auto-flow:column;justify-content:start;gap:6px;align-items:center"><input type="checkbox" id="useready" checked><span>Use a ready place when one is near (loads at once)</span></label>
     <div class="muted">Real buildings are 15 to 40 m tall and a runner jumps under 1 m up, so the place is shrunk.</div>
     <div id="mapphotos"></div>
     <button id="build" class="go" disabled>Build this place</button>
@@ -115,6 +95,7 @@ export function startMap(host: HTMLElement): { backend: 'webgl2' } {
   map.addControl(new maplibregl.NavigationControl({ showCompass: false }), 'top-left');
   const marker = new maplibregl.Marker({ color: '#0f6b5c' });
   let pin: { lat: number; lon: number } | null = null;
+  let places: ReturnType<typeof installPlaces> | null = null;
   // CC-85: a pin inside a place with real photos shows them in the side panel, with the credit under each
   let photos: PhotosHandle | null = null;
   async function showPhotos(lat: number, lon: number) {
@@ -128,9 +109,14 @@ export function startMap(host: HTMLElement): { backend: 'webgl2' } {
     pin = { lat, lon }; marker.setLngLat([lon, lat]).addTo(map); build.disabled = false; sliceBtn.disabled = false;
     document.documentElement.dataset.pin = `${lat.toFixed(5)},${lon.toFixed(5)}`;
     void showPhotos(lat, lon);
-    tell(`Pin at ${lat.toFixed(4)}, ${lon.toFixed(4)}.`);
+    tell(`Pin at ${lat.toFixed(4)}, ${lon.toFixed(4)}.${places?.snapNote(lat, lon) ?? ''}`);
   };
   map.on('click', (e) => { if (S) pickClick(e.point); else dropPin(e.lngLat.lat, e.lngLat.lng); });
+  places = installPlaces({
+    map, side, tell, pin: () => pin, radius: () => Number(radius.value), hills: () => $<HTMLInputElement>('hills').checked,
+    setPin: (lat, lon) => dropPin(lat, lon), setRadius: (r) => { radius.value = String(r); $('radiusv').textContent = String(r); },
+    groundFor: (lat, lon, r) => groundFor(lat, lon, r),
+  });
   map.boxZoom.disable(); // Shift and drag picks a box of buildings here
   map.on('load', () => { document.documentElement.dataset.mapready = 'true'; });
   map.on('error', (e) => { if (!document.documentElement.dataset.mapready) tell(`The map tiles are slow to load (${String(e.error?.message ?? 'network').slice(0, 60)}).`, true); });
@@ -154,26 +140,29 @@ export function startMap(host: HTMLElement): { backend: 'webgl2' } {
     go.disabled = false;
   };
 
+  const storePiece = (m: ReturnType<typeof osmToMesh>, name: string) => {
+    const rd = (a: number[]) => a.map((v) => Math.round(v * 100) / 100);
+    sessionStorage.setItem(PIECE_KEY, JSON.stringify({ name, positions: rd(m.positions), indices: m.indices }));
+  };
   build.onclick = async () => {
-    if (!pin) return;
+    if (!pin || !places) return;
     build.disabled = true;
     try {
-      const r = Number(radius.value), answer = await overpass(pin.lat, pin.lon, r, (s) => tell(s));
-      const bs = buildingsFrom(answer, pin.lat, pin.lon);
-      if (!bs.length) { tell('No buildings here. Move the pin and try again.', true); build.disabled = false; return; }
-      let ground: Ground | null = null;
-      if ($<HTMLInputElement>('hills').checked) {
-        tell('Reading the height of the ground...');
-        try { ground = await fetchGround(pin.lat, pin.lon, r, decodePng); } catch { tell('The height maps did not answer, so the place is built flat.', true); }
-      }
-      const m = osmToMesh(answer, pin.lat, pin.lon, Number(shrink.value), ground);
-      const name = (($<HTMLInputElement>('search').value.trim().split(',')[0]) || `${pin.lat.toFixed(3)},${pin.lon.toFixed(3)}`).slice(0, 40);
-      const rd = (a: number[]) => a.map((v) => Math.round(v * 100) / 100);
-      sessionStorage.setItem(PIECE_KEY, JSON.stringify({ name, positions: rd(m.positions), indices: m.indices }));
-      tell(`Built ${m.buildings} buildings${ground ? `, on a hill of ${Math.round(relief(ground))} m (${m.relief.toFixed(1)} m once shrunk)` : ''}. Opening the editor...`);
-      document.documentElement.dataset.hill = ground ? String(Math.round(relief(ground))) : '0';
-      location.search = '?mode=editor';
-    } catch (e) { tell((e as Error).message, true); build.disabled = false; }
+      const o = await places.obtain();
+      if (!o) { build.disabled = false; return; }
+      places.setStep('mesh', 'doing');
+      if (!buildingsFrom(o.answer, o.lat, o.lon).length) { places.setStep('mesh', 'failed', 'No buildings here'); tell('No buildings here. Move the pin and try again.', true); build.disabled = false; return; }
+      const k0 = o.lane?.cleared ? o.lane.shrink : Number(shrink.value);
+      const setShrink = (k: number) => { shrink.value = String(k); $('shrinkv').textContent = String(k); };
+      setShrink(k0);
+      const name = (o.name || ($<HTMLInputElement>('search').value.trim().split(',')[0]) || `${o.lat.toFixed(3)},${o.lon.toFixed(3)}`).slice(0, 40);
+      const m = osmToMesh(o.answer, o.lat, o.lon, k0, o.ground);
+      storePiece(m, name);
+      tell(`Built ${m.buildings} buildings${o.ground ? `, on a hill of ${Math.round(relief(o.ground))} m (${m.relief.toFixed(1)} m once shrunk)` : ''}. Open it in the editor, or look at how the pin became a course below.`);
+      document.documentElement.dataset.hill = o.ground ? String(Math.round(relief(o.ground))) : '0';
+      places.finish(o, m, k0, (k) => { setShrink(k); const m2 = osmToMesh(o.answer, o.lat, o.lon, k, o.ground); storePiece(m2, name); return m2; });
+    } catch (e) { tell((e as Error).message, true); }
+    build.disabled = false;
   };
   // ---- the Slicer (CC-73, Atlas CC-72): a cut height slider; contours, floor plans and the lane at that height
   interface SliceState { picked: Set<number>; answer: OverpassAnswer; lat: number; lon: number; r: number; k: number; ground: Ground | null; fine: Ground | null; tops: ReturnType<typeof buildingTops>; mesh: { positions: number[]; indices: number[] }; range: number }
@@ -392,15 +381,12 @@ export function startMap(host: HTMLElement): { backend: 'webgl2' } {
   if (q.get('hooks') === '1') (window as unknown as Record<string, unknown>).__ccMap = { map, tops: () => S?.tops ?? [], picked: () => [...(S?.picked ?? [])] };
 
   sliceBtn.onclick = async () => {
-    if (!pin) return;
+    if (!pin || !places) return;
     sliceBtn.disabled = true;
     try {
-      const r = Number(radius.value), answer = await overpass(pin.lat, pin.lon, r, (s) => tell(s));
-      let ground: Ground | null = null;
-      if ($<HTMLInputElement>('hills').checked) {
-        tell('Reading the height of the ground...');
-        try { ground = await groundFor(pin.lat, pin.lon, r); } catch { tell('The height maps did not answer, so the place is cut flat.', true); }
-      }
+      const o = await places.obtain();
+      if (!o) { sliceBtn.disabled = false; return; }
+      const r = o.radius, answer = o.answer, ground = o.ground;
       if (!buildingsFrom(answer, pin.lat, pin.lon).length && !ground) { tell('Nothing to slice here. Move the pin and try again.', true); sliceBtn.disabled = false; return; }
       S = { picked: new Set(), answer, lat: pin.lat, lon: pin.lon, r, k: Number(shrink.value), ground, fine: ground ? resample(ground, 4) : null, tops: [], mesh: { positions: [], indices: [] }, range: 0 };
       rebuild(); S.picked = new Set(S.tops.keys()); rebuild();
