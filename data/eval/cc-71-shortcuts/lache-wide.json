@@ -1,0 +1,16 @@
+{
+  "course": "lache-wide",
+  "title": "Wide lache: a 6 m swing between bars",
+  "intendedSeconds": 14.55,
+  "searches": 5,
+  "searchSeconds": 85,
+  "complete": true,
+  "shortcuts": [],
+  "moveChoices": [
+    {
+      "move": "vault",
+      "withSeconds": 14.55,
+      "withoutSeconds": null
+    }
+  ]
+}

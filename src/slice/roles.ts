@@ -2,6 +2,7 @@ import type { CourseData } from '../course/course';
 import { searchIdealRun } from '../sim/ideal';
 import { groundAt } from '../sim/terrain';
 import { DEFAULT_WALL } from '../sim/wall';
+import { lanePlanks } from './plank-world';
 import { holdsOf, isHold, type P } from './holds-world';
 import { describe, HALF_LANE, laneToCourse, sliceProfile } from './slice';
 import { patternOf } from './stack';
@@ -77,7 +78,7 @@ export function roleCourse(pieces: P[], lane: LaneSetting, name = 'My world'): R
   const splits: number[] = [];
   for (const p of walls) splits.push(footprint(p, lane).u - footprint(p, lane).alongHalf);
   for (const p of beds) { const f = footprint(p, lane); splits.push(f.u - f.alongHalf, f.u + f.alongHalf); }
-  const course = laneToCourse({ cells: [...pr.cells], length: pr.length, origin: pr.origin }, name, holdsOf(pieces, lane), { keepGaps: ropes.length > 0, splits });
+  const course = laneToCourse({ cells: [...pr.cells], length: pr.length, origin: pr.origin }, name, holdsOf(pieces, lane), { keepGaps: ropes.length > 0, splits }, lanePlanks(pieces, lane));
   const notes: string[] = [], uMap = course.uMap ?? [], plats = course.terrain.platforms;
   if (!uMap.length) return { course, notes, length: pr.length };
   const wall = walls[0];

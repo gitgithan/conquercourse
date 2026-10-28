@@ -1,0 +1,27 @@
+{
+  "seed": 1,
+  "name": "Generated course 1",
+  "zones": [
+    "Gap jump",
+    "Lache pair",
+    "Warped wall",
+    "Step up"
+  ],
+  "intendedSeconds": 25.35,
+  "searchSeconds": 594,
+  "shortcuts": [
+    {
+      "id": "skip-bars-1-2",
+      "skipped": [
+        "Bar 1",
+        "Bar 2"
+      ],
+      "how": "jump past bar 1 and bar 2",
+      "secondsSaved": 2,
+      "seconds": 23.35,
+      "pumpSeconds": null,
+      "windowMs": 11,
+      "designed": false
+    }
+  ]
+}

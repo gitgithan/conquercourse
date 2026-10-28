@@ -1,0 +1,16 @@
+{
+  "course": "launch",
+  "title": "Launch: the trebuchet throws you onto the tower",
+  "intendedSeconds": 3.91,
+  "searches": 1,
+  "searchSeconds": 1,
+  "complete": true,
+  "shortcuts": [],
+  "moveChoices": [
+    {
+      "move": "roll",
+      "withSeconds": 3.91,
+      "withoutSeconds": null
+    }
+  ]
+}

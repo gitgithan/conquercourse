@@ -11,21 +11,24 @@ export interface ActorState {
   vx: number;
   vy: number;
   grounded: boolean;
-  mode: 'run' | 'wall' | 'swing' | 'bounce' | 'cart';
+  mode: 'run' | 'wall' | 'swing' | 'bounce' | 'cart' | 'launch';
   squat: boolean;
   landedTicksAgo: number | null;
   vaultContact?: { x: number; y: number }; // where the hands stay on the obstacle (the simulator's contact point, world metres)
+  climbProgress?: number; // 0 to 1 through a climb (WorldState.climb.i / n): hanging from the edge, then pulling up and over
   vaultProgress?: number; // 0 to 1 through the vault (WorldState.vault.i / n); only while the runner is over an obstacle
   rolledAt?: number; // tick of the last roll landing (WorldState.rolledAt): the roll plays for the simulator's roll time from here
   wallProgress?: number; // 0..1 along the wall climb
   swingTheta?: number; // rad from straight down; positive swings toward +x
+  hurt?: boolean; // the run ended in a hard landing (outcome 'hurt'): the body crumples, stays down, then gets up slowly (src/motion/poses.ts)
+  swingOmega?: number; // rad/s on a bar: the legs lag behind a fast swing and tuck over the top (CC-77)
   tilt?: number; // rad the rails rise here; the seated rider in a cart leans with it
   facing: 1 | -1;
   ledge?: { x: number; y: number }; // the top edge of the wall in the world: the hands reach for it, whatever its height
   next?: Next; // the next obstacle ahead and how far: the body gets ready for it before it arrives
 }
 
-export type ClipKind = 'stand' | 'run' | 'leap' | 'land' | 'swing' | 'wall-run' | 'wall-reach' | 'bounce' | 'roll' | 'vault' | 'sit';
+export type ClipKind = 'stand' | 'run' | 'leap' | 'land' | 'swing' | 'wall-run' | 'wall-reach' | 'bounce' | 'roll' | 'vault' | 'climb' | 'sit' | 'sling' | 'hurt';
 
 export const LAND_TICKS = 60; // how long the landing clip is held after touch-down (matches the Rookie demo)
 export const REACH_FROM = 0.75; // the reach clip plays over the last quarter of the wall climb
@@ -33,7 +36,10 @@ export const STAND_BELOW = 0.25; // m/s: slower than this is standing
 export const RUN_FROM = 0.9; // m/s: faster than this is fully running (in between the two poses are blended)
 
 export function chooseClip(s: ActorState): ClipKind {
+  if (s.hurt) return 'hurt';
+  if (s.mode === 'launch') return 'sling';
   if (s.mode === 'cart') return 'sit';
+  if (s.mode === 'run' && s.climbProgress !== undefined) return 'climb';
   if (s.mode === 'run' && s.vaultProgress !== undefined) return 'vault';
   if (s.mode === 'run' && s.rolledAt !== undefined && moveProgress(MOTION_TABLE.roll, s.rolledAt, s.tick) !== null) return 'roll';
   if (s.mode === 'swing') return 'swing';

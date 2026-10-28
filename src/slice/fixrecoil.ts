@@ -9,7 +9,7 @@ export interface RecoilFix { ok: boolean; cfg: RecoilCfg; steps: string[] }
 export function fixRecoil(c: CourseData, cfg: RecoilCfg): RecoilFix {
   const clears = (k: RecoilCfg) => searchIdealRun(withRecoil(c, k)).cleared;
   if (clears(cfg)) return { ok: true, cfg, steps: [] };
-  const speedMax = cfg.kind === 'crate' ? 12 : 40, massMax = cfg.kind === 'crate' ? 60 : 40;
+  const speedMax = cfg.kind === 'crate' ? 12 : cfg.kind === 'bigcannon' ? 60 : 40, massMax = cfg.kind === 'crate' ? 60 : cfg.kind === 'bigcannon' ? 120 : 40; // the angle is the player's to aim: the proof searches it
   for (let m = cfg.ballMass; m <= massMax; m = Math.round(m * 1.25 + 1)) {
     if (!clears({ ...cfg, ballMass: m, muzzle: speedMax })) continue;
     let lo = Math.min(cfg.muzzle, speedMax), hi = speedMax; // hi clears

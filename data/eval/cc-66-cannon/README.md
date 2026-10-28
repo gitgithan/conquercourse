@@ -1,0 +1,11 @@
+# CC-66: the cannon (more power, aimed angle)
+- **So what:** a big wheeled air cannon throws the runner at 24 m/s (a sprint is 9); the player tilts the barrel with Up and Down and sees where the shot lands; the demo gap is 32 m with a 4 m drop, so the angle and the roll both matter.
+- **Files:**
+  - loaded.png: the cannon on the pad with the hint (aim, tank energy and landing words).
+  - aimed-low.png and aimed-high.png: the barrel and the dotted preview at a low and a high aim.
+  - shot.png: the toast after the shot.
+  - end.png: the end of the run.
+  - editor.png: the editor with the Cannon button and the ball knobs (80 kg, 45 m/s).
+  - dojo.png: the Dojo lesson "Cannon: the best angle".
+- **Numbers:** 80 kg at 45 m/s against 70 kg gives 24 m/s of push; the tank must store about 38 kJ; the stored line aims about 14 degrees; range on level ground peaks at 45 degrees (within 4 in a test).
+- **Checks:** scripts/cannon-check.mjs (bot clears, keys tilt the barrel: 40, then 23, then 66 degrees), scripts/cannon-shots.mjs, scripts/ideal-all-check.mjs (Shift+I clears both demos), tests/cannon.test.ts, tests/recoil-law.test.ts.

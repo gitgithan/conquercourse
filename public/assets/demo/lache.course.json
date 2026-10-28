@@ -65,6 +65,9 @@
     }
   ],
   "hazard": "lava",
+  "designedShortcuts": [
+    "skip-bar-2"
+  ],
   "plan": {
     "jumpXs": [
       33
@@ -94,6 +97,37 @@
       "ticks": 1123,
       "bars": 1,
       "chosen": true
+    }
+  ],
+  "shortcuts": [
+    {
+      "id": "skip-bar-2",
+      "skipped": [
+        "Bar 2"
+      ],
+      "how": "pump 1.74 s on the bar you hold, let go, and fly past bar 2",
+      "secondsSaved": 1.14,
+      "seconds": 9.36,
+      "pumpSeconds": 1.74,
+      "windowMs": null,
+      "designed": true,
+      "plan": {
+        "jumpXs": [
+          33
+        ],
+        "releaseAfter": 60,
+        "bouncePress": 8,
+        "hands": true,
+        "hangTicks": [
+          208
+        ],
+        "vaultXs": [
+          19.68
+        ],
+        "airHands": [
+          false
+        ]
+      }
     }
   ]
 }

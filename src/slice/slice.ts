@@ -2,6 +2,7 @@ import { LANE_DROP } from '../sim/drop';
 import type { CourseData } from '../course/course';
 import type { Platform } from '../sim/terrain';
 import { searchIdealRun } from '../sim/ideal';
+import { climbMaxRise } from '../sim/climb';
 import { gapSpecs } from '../sim/needs';
 
 // Cutting a 2 m lane out of a 3D scene to make a course (docs/world-slice.md).
@@ -61,6 +62,7 @@ export function sliceProfile(samples: Float32Array, centre: { x: number; z: numb
 // What a lane contains, and how interesting it is for a runner.
 export interface SliceReport { gaps: number; steps: number; curves: number; faces: number; length: number; variety: number; maxRise: number; maxDrop: number; score: number }
 
+export const CLIMBABLE = climbMaxRise(4.5); // m: the tallest step up the hands and a pull-up can make (2.8 m); a vault does up to 1.3 m, a jump 0.9 m
 export const JUMPABLE = 0.9; // m: the highest step up a jump from a run can make (the take-off speed 4.5 m/s lifts about 1 m)
 
 const MIN_GAP_M = 1.2; // a crack narrower than this is bridged: nobody jumps a crack
@@ -93,10 +95,11 @@ export function describe(profile: Profile): SliceReport {
 // The lane as a course: a start deck, then each stretch of ground with its real outline, with real gaps (bridged if tiny, capped if huge).
 // holds: bars in the air in the editor's world (u along the run, y above the level). A lane with bars keeps its real gaps (they are what the swing has to cross)
 // and its jumps cost speed at take-off (jumpKeep), so a vault and a swing are worth learning.
+export interface LanePlank { u0: number; u1: number; thickness: number; width: number; material: 'wood' | 'steel'; support: boolean } // a plank piece along the lane (src/slice/plank-world.ts)
 // opts.keepGaps: keep real gaps up to 14 m even without bars (a rope needs the gap it swings over).
 // opts.splits: u positions (along the run, in the editor's world) where a run of ground is cut into two platforms, so a wall face or the two ends of a trampoline bed are real platform edges.
 export interface LaneOptions { keepGaps?: boolean; splits?: number[] }
-export function laneToCourse(profile: Profile, name = 'Slice', holds: { u: number; y: number }[] = [], opts: LaneOptions = {}): CourseData {
+export function laneToCourse(profile: Profile, name = 'Slice', holds: { u: number; y: number }[] = [], opts: LaneOptions = {}, planks: LanePlank[] = []): CourseData {
   const c = profile.cells;
   const runs: { a: number; b: number }[] = [];
   let start = -1;
@@ -132,7 +135,7 @@ export function laneToCourse(profile: Profile, name = 'Slice', holds: { u: numbe
   merged.forEach((r, k) => {
     const realGap = k === 0 ? 3 : (r.a - merged[k - 1].b - 1) * CELL;
     const firstU = holds.length ? Math.min(...holds.map((h) => h.u)) : Infinity;
-    const gapM = holds.length ? (k === 0 ? Math.max(3, origin + r.a * CELL - firstU + 2.5) : Math.min(14, realGap)) : k === 0 ? 3 : Math.min(opts.keepGaps ? 14 : 5, realGap);
+    const gapM = holds.length || planks.length ? (k === 0 ? Math.max(3, origin + r.a * CELL - firstU + 2.5) : Math.min(14, realGap)) : k === 0 ? 3 : Math.min(opts.keepGaps ? 14 : 5, realGap);
     const x0 = x + gapM;
     const pts: [number, number][] = [];
     for (let i = r.a; i <= r.b; i += Math.max(1, Math.floor((r.b - r.a) / 24))) pts.push([x0 + (i - r.a) * CELL, c[i] as number]);
@@ -154,7 +157,17 @@ export function laneToCourse(profile: Profile, name = 'Slice', holds: { u: numbe
     for (const r of uMap) { const dd = h.u < r.u0 ? r.u0 - h.u : h.u > r.u1 ? h.u - r.u1 : 0; if (dd < d) { d = dd; best = r; } }
     return best ? { x: round(h.u + (best.x0 - best.u0)), y: round(h.y) } : null;
   }).filter((h): h is { x: number; y: number } => h !== null).sort((a, b) => a.x - b.x);
-  return { version: 1, name, startX: 0, finishX: round(x + 5), jumpSpeed: 4.5, terrain: { waterY: Math.min(-1.5, round(lowest - 1.5)), platforms }, uMap, ...(mapped.length ? { holds: mapped, jumpKeep: 0.88 } : {}) };
+  // a plank lies across a gap: it starts where one run of ground ends and ends where the next begins (platform 0 is the start deck)
+  const laid: NonNullable<CourseData['planks']> = [];
+  for (const pl of planks) {
+    const mid = (pl.u0 + pl.u1) / 2;
+    const k = uMap.findIndex((r, i) => i + 1 < uMap.length && mid >= r.u1 - 0.5 && mid <= uMap[i + 1].u0 + 0.5 && pl.u0 <= r.u1 + 1.5 && pl.u1 >= uMap[i + 1].u0 - 1.5); // the plank lies across this gap and reaches both sides
+    if (k < 0) continue;
+    const a = platforms[1 + k], b = platforms[2 + k];
+    if (!a || !b || Math.abs(a.top - b.top) > 0.05 || b.x0 - a.x1 < 1) continue;
+    laid.push({ x0: round(a.x1), x1: round(b.x0), y: round(a.top), thickness: pl.thickness, width: pl.width, material: pl.material, ...(pl.support ? { support: true } : {}) });
+  }
+  return { version: 1, name, startX: 0, finishX: round(x + 5), jumpSpeed: 4.5, terrain: { waterY: Math.min(-1.5, round(lowest - 1.5)), platforms }, uMap, ...(mapped.length ? { holds: mapped, jumpKeep: 0.88 } : {}), ...(laid.length ? { planks: laid } : {}) };
 }
 const round = (v: number) => Math.round(v * 100) / 100;
 
@@ -186,7 +199,7 @@ export function bestSlices(mesh: Mesh, opts: { angles?: number; offsets?: number
     const profile = sliceProfile(samples, centre, o);
     if (profile.length < 8) continue;
     const report = describe(profile);
-    if (report.maxRise > JUMPABLE) continue; // a step no jump can make: not a course
+    if (report.maxRise > CLIMBABLE) continue; // a wall no jump, vault or climb can make: not a course
     if (report.maxDrop > LANE_DROP) continue; // a fall no roll survives: not a course
     all.push({ ...o, profile, report });
   }

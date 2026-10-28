@@ -24,6 +24,9 @@ export interface RunnerInput {
   handL?: boolean; // E: the hands hold on (a bar); both fields come from the one hold key
   handR?: boolean; // E: the right hand holds on (a bar)
   vault?: boolean; // V: go over the obstacle just ahead with a hand on top (keeps the speed)
+  aim?: number; // a big cannon: set the barrel angle (rad), for the bot and tests; the player tilts it with aimUp and aimDown
+  aimUp?: boolean; // Up arrow or W: tilt the barrel so the push goes higher
+  aimDown?: boolean; // Down arrow: tilt it flatter
   fire?: boolean; // K: fire the launcher clipped on at a recoil pad (the ball goes back, the runner goes forward)
 }
 

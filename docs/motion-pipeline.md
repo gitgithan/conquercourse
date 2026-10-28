@@ -32,12 +32,12 @@
 | Move | Starts when (simulator) | Clip | Plays | Root motion | First source | Status |
 |---|---|---|---|---|---|---|
 | Roll | event `land` with `rolled` (`WorldState.rolledAt`) | `roll` | once, 0.7 s: the stop time (0.5 s) plus 0.2 s to get up | the simulator's: the clip is drawn in place, hips-relative | Kimodo text (CMU has none) | **clip shipped**, tuck fallback |
-| Hard landing | outcome `hurt` (event `hard-landing`) | `hurt` | once, then held lying | the simulator stops the runner | CMU "fall on face", "RugPullFall", "BannanaPeelSlip" (subject 90) | not made: shows the landing clip today (a gap) |
+| Hard landing | outcome `hurt` (event `hard-landing`) | `hurt` | once, then held lying | the simulator stops the runner | CMU "fall on face", "RugPullFall", "BannanaPeelSlip" (subject 90) | **clip shipped (CC-77)**: CMU 90_16 plays as the fall, then the body lies still and gets up slowly; a built crumple is the fallback |
 | Vault | mode `vault` (progress = `WorldState.vault.i / n`, contact = `vaultHand`) | none: `src/motion/vault-pose.ts` | once, the vault's length (about 0.4 to 0.6 s) | the simulator's path; the pose is built from the contact point | procedural: hands pinned on the top of the step, shoulders over the hands, hips lifted by the arms, legs gathered (the Kimodo clip shows no hands on the top, so it is not used) | made (CC-68 round two); the clip stays in the repo for a later base |
 | Hang, arms up | mode `hang` | `swing` (the rope's) | loop | turned about the hands | CMU playground bars (shipped) | works; hands set by code |
-| Giant swing | mode `hang` past horizontal (CC-58) | `giant-swing` | follows theta | about the bar | Kimodo key poses | not made |
-| Seated in the cart | mode `cart` (CC-61) | `seated` | loop | the cart's | hand-made pose blend (CMU "sit on high stool" is the nearest take) | not made |
-| Sling and launch | mode `launch` (CC-62) | `launch` | follows the arm | the sling's | hand-made blend, then key poses | not made |
+| Giant swing | mode `hang` past horizontal (CC-58) | none (the hang clip plus code) | follows theta and omega | about the bar | the swing clip's hang; the legs lag behind a fast swing and tuck over the top (`giantSwingLegs`, CC-77) | **built pose** (Kimodo key poses failed the gate for the swing, CC-54) |
+| Seated in the cart | mode `cart` (CC-61) | `seated` | loop | the cart's | hand-made pose from bones (hips on the seat, hands on the grab bar by two-bone reach) | **built pose** (CC-77) |
+| Sling and launch | mode `launch` (CC-62) | `launch` | follows the arm | the sling's | hand-made pose from bones (tucked, leaning back, hands up on the sling lines) | **built pose** (CC-77) |
 | Ready crouch (before the release) | trebuchet armed | `ready` | hold | none | hand-made blend | not made |
 
 - **The list of gaps lives in code:** `motionGaps()` in `src/motion/motion-table.ts` names every move that has neither a clip nor a fallback, so a missing motion is never hidden.
@@ -60,6 +60,11 @@
   - the runner ends upright.
   - **The hips limit was set after seeing the data:** the first limit was 1.45, and the three best Kimodo samples sat at 1.47 to 1.59.
     - The new 1.6 is argued from the move (hips clear a waist-high box and the hand pushes), and the flip is stopped by the trunk-turn limit, but it is a limit set with the results in hand, so the pass counts as "passes a check tuned on its own samples".
+- **Move check for the hard fall** (`hurt_check`, CC-77):
+  - the hips start at least 0.8 m up (a body on its feet), come down to 45% of that height and stay there for at least half a second;
+  - the trunk goes forward by at least 50 degrees (a fall onto the face; a fall onto the back, a stumble that recovers and a dip that comes straight back up are refused);
+  - the window runs from just before the hips start to come down to 0.6 s after the body is down, so the standing lead-in is cut away.
+  - **Why it was needed:** with no check the pipeline picked "A stumbles into B" (two people) as the best fall, because the gate alone passes anything a body could do.
 - **Moves with no special check** are judged by the gate alone and the report says so.
 
 ## Retarget and clip format

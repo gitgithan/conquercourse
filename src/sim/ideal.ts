@@ -2,7 +2,13 @@ import type { CourseData } from '../course/course';
 import { NO_INPUT, type RunnerInput } from './runner';
 import { newWorld, recoilParams, stepWorld, type GameEvent, type WorldState } from './world';
 import { DT } from './units';
+import { flewOff } from './cart';
 import { rollNeeded } from './drop';
+import { CLIMB_MIN_RISE, climbMaxRise } from './climb';
+import { VAULT_MAX_RISE } from './vault';
+import { groundAt, heightAt } from './terrain';
+import { AIM_MAX, AIM_RATE, isAimable, type RecoilParams } from './recoil';
+import { bandParams, reachableStretch, slackX, stretchAt } from './band';
 
 // The ideal run: where to press Space at each obstacle, found by trying the simulator, and how wide the
 // window of good presses is. It is the difficulty of each obstacle as a number.
@@ -11,13 +17,18 @@ export interface Plan {
   releaseAfter: number; // ticks after catching the rope
   bouncePress: number; // ticks after touching the trampoline bed
   vaultXs?: number[]; // press V at the first moment the feet are on the ground at or past this x
-  hands?: boolean; // hold the hand key while airborne (so a bar in reach is grabbed)
+  climbXs?: number[]; // hold the hand key from this x on the ground: the hands meet a tall wall's edge and the body pulls up (src/sim/climb.ts)
+  hands?: boolean; // hold the hand key while airborne (so a bar in reach is grabbed), until the last bar is behind
+  climbHands?: boolean; // hold the hand key while airborne everywhere: a tall wall's edge is to be caught (src/sim/climb.ts)
   hangTicks?: number[]; // per bar: ticks to hang (pumping with the swing) before letting go
   airHands?: boolean[]; // per release: hold the hand key in the air afterwards (default true); false flies past the next bar (a skip)
+  noGrab?: number[]; // bars (indexes into course.holds) the run flies past without holding (a shortcut that skips them)
   launchRelease?: number; // trebuchet: ticks after the pin is pulled at which Space lets the rider go
+  aim?: number; // a big cannon: the barrel angle (rad) the line aims at before it fires
   fireXs?: number[]; // a launcher (recoil pad): press K at the first moment the runner is at or past this x
   fireAfterJump?: number; // or press K this many ticks after the take-off, so the shot adds to a jump
   cartBrake?: [number, number][]; // a coaster: hold the brake between these x values (the first push is always given at the start)
+  bandStretch?: number; // the elastic band: run away from the post until the band is stretched this many metres, then turn round and run toward it
 }
 
 export interface Window {
@@ -28,26 +39,36 @@ export interface Window {
   widthMs: number; // how long the clearing window lasts, in milliseconds of game time
 }
 
-type PlanState = { next: number; caught: number | null; bedAt: number | null; hangAt?: number | null; hangs?: number; vnext?: number; fnext?: number; airSince?: number | null };
+type PlanState = { next: number; caught: number | null; bedAt: number | null; hangAt?: number | null; hangs?: number; vnext?: number; cnext?: number; inClimb?: boolean; fnext?: number; airSince?: number | null; bandTurned?: boolean };
 // The launcher (recoil): fire at a place along the run, or a number of ticks after the take-off (a shot in the air adds to a jump)
 export function inputFor(plan: Plan, w: WorldState, state: PlanState, course?: CourseData): RunnerInput {
   const inp = inputForBase(plan, w, state, course);
   if (w.mode !== 'run') return inp;
   if (w.runner.grounded) state.airSince = null; else if (state.airSince == null) state.airSince = w.runner.tick;
   if (!w.recoil || w.recoil.armed <= 0) return inp;
+  const aimed = plan.aim !== undefined ? { ...inp, aim: plan.aim } : inp; // a big cannon: tilt the barrel to the planned angle
   const byX = plan.fireXs && (state.fnext ?? 0) < plan.fireXs.length && w.runner.x >= plan.fireXs[state.fnext ?? 0];
   const byAir = plan.fireAfterJump !== undefined && state.airSince != null && w.runner.tick - state.airSince >= plan.fireAfterJump;
-  if (!byX && !byAir) return inp;
+  if (!byX && !byAir) return aimed;
   state.fnext = (state.fnext ?? 0) + 1;
-  return { ...inp, fire: true };
+  return { ...aimed, fire: true };
 }
 function inputForBase(plan: Plan, w: WorldState, state: PlanState, course?: CourseData): RunnerInput {
   if (w.mode === 'cart') { // the cart: push at the start, brake where the plan says
     const x = w.runner.x;
     return { ...NO_INPUT, run: !w.cart?.started, squat: !!plan.cartBrake?.some(([a, b]) => x >= a && x <= b) };
   }
+  if (w.mode === 'band' && course) { // the band: pull it to the planned stretch (running away from the post), then run toward the post and let it throw you
+    if (!state.bandTurned && stretchAt(bandParams(course), w.runner.x) >= (plan.bandStretch ?? 8)) state.bandTurned = true;
+    return state.bandTurned ? { ...NO_INPUT, run: true, squat: true } : { ...NO_INPUT, left: true };
+  }
   const base: RunnerInput = { ...NO_INPUT, run: true, squat: true, ...(course && rollNeeded(w, course) ? { roll: true } : {}) }; // a drop a squat cannot take cleanly: roll just before the ground
   if (w.mode === 'launch') return { ...NO_INPUT, run: true, squat: true, ...(w.launch?.fired && w.launch.t >= (plan.launchRelease ?? 120) ? { jump: true } : {}) }; // pull the pin, then let go at the planned moment
+  if (w.mode === 'climb') { // hanging from the edge: keep the hold key down through the pull-up
+    if (!state.inClimb) { state.inClimb = true; state.cnext = (state.cnext ?? 0) + 1; }
+    return { ...NO_INPUT, handL: true, handR: true, squat: true };
+  }
+  state.inClimb = false;
   if (w.mode === 'hang') {
     if (state.hangAt == null) state.hangAt = w.runner.tick;
     const idx = state.hangs ?? 0;
@@ -56,7 +77,8 @@ function inputForBase(plan: Plan, w: WorldState, state: PlanState, course?: Cour
     return { ...NO_INPUT, squat: true, handL: true, handR: true, run: forward, left: !forward };
   }
   state.hangAt = null;
-  if (plan.hands && w.mode === 'run' && !w.runner.grounded && plan.airHands?.[(state.hangs ?? 0) - 1] !== false) return { ...base, handR: true };
+  const barsAhead = !course?.holds?.length || course.holds.some((h) => h.x + 1.5 > w.runner.x); // past the last bar the hands stay off, so a fall beside a ledge is a fall, not a grab
+  if (((plan.hands && barsAhead) || plan.climbHands) && w.mode === 'run' && !w.runner.grounded && plan.airHands?.[(state.hangs ?? 0) - 1] !== false && !skipsNext(plan, w, course)) return { ...base, handR: true };
   if (w.mode === 'swing') {
     if (state.caught === null) state.caught = w.runner.tick;
     return w.runner.tick - state.caught >= plan.releaseAfter ? { ...base, jump: true } : base;
@@ -67,6 +89,7 @@ function inputForBase(plan: Plan, w: WorldState, state: PlanState, course?: Cour
     return w.runner.tick - state.bedAt >= plan.bouncePress ? { ...base, jump: true } : base;
   }
   state.bedAt = null;
+  if (w.mode === 'run' && w.runner.grounded && plan.climbXs && (state.cnext ?? 0) < plan.climbXs.length && w.runner.x >= plan.climbXs[state.cnext ?? 0]) return { ...base, handL: true, handR: true };
   if (w.mode === 'run' && w.runner.grounded && plan.vaultXs && (state.vnext ?? 0) < plan.vaultXs.length && w.runner.x >= plan.vaultXs[state.vnext ?? 0]) {
     state.vnext = (state.vnext ?? 0) + 1;
     return { ...base, vault: true };
@@ -78,11 +101,19 @@ function inputForBase(plan: Plan, w: WorldState, state: PlanState, course?: Cour
   return base;
 }
 
+// the next bar ahead of the runner is one the plan flies past: do not hold the hand key for it
+function skipsNext(plan: Plan, w: WorldState, course?: CourseData): boolean {
+  if (!plan.noGrab?.length || !course?.holds) return false;
+  let best = -1, bd = Infinity;
+  course.holds.forEach((h, i) => { const d = h.x - w.runner.x; if (d > -1.5 && d < bd) { bd = d; best = i; } });
+  return best >= 0 && plan.noGrab.includes(best);
+}
+
 export interface RunResult { world: WorldState; events: GameEvent[]; maxX: number; jumps: number }
 
 export function playPlan(course: CourseData, plan: Plan, maxTicks = 120 * 80): RunResult {
   let w = newWorld(course);
-  const st = { next: 0, caught: null as number | null, bedAt: null as number | null, hangAt: null as number | null, hangs: 0, vnext: 0, fnext: 0, airSince: null as number | null };
+  const st = { next: 0, caught: null as number | null, bedAt: null as number | null, hangAt: null as number | null, hangs: 0, vnext: 0, cnext: 0, inClimb: false, fnext: 0, airSince: null as number | null, bandTurned: false };
   const events: GameEvent[] = [];
   let maxX = 0;
   let still = 0;
@@ -104,20 +135,21 @@ export function edges(course: CourseData): { x: number; name: string }[] {
   const out: { x: number; name: string }[] = [];
   ps.forEach((p, i) => {
     const nxt = ps[i + 1];
-    if (nxt && nxt.x0 - p.x1 > 0.01 && p.x1 >= course.startX && !p.bouncy) out.push({ x: p.x1, name: `edge at ${p.x1} m` }); // edges behind the start are not part of this run; a bed is left by its bounce, not by a jump
+    const planked = !!course.planks?.some((pk) => Math.abs(pk.x0 - p.x1) < 0.05 && pk.x1 <= nxt?.x0 + 0.05); // a plank is laid across this gap: nobody needs to jump it
+    if (nxt && !planked && nxt.x0 - p.x1 > 0.01 && p.x1 >= course.startX && !p.bouncy) out.push({ x: p.x1, name: `edge at ${p.x1} m` }); // edges behind the start are not part of this run; a bed is left by its bounce, not by a jump
   });
   return out;
 }
 
-// Steps up that touch the ground before them and are too tall to walk up (0.3 m) but within a vault's reach (the wall is another move).
-export function risers(course: CourseData): { x: number; name: string; riser: true }[] {
+// Steps up that touch the ground before them and are too tall to walk up (0.3 m) but within a vault's or a climb's reach (the Warped Wall is another move).
+export function risers(course: CourseData): { x: number; name: string; riser: true; rise: number }[] {
   const ps = [...course.terrain.platforms].sort((a, b) => a.x0 - b.x0);
-  const out: { x: number; name: string; riser: true }[] = [];
+  const out: { x: number; name: string; riser: true; rise: number }[] = [];
   ps.forEach((p, i) => {
     const nxt = ps[i + 1];
     if (!nxt || nxt.x0 - p.x1 > 0.02 || p.x1 < course.startX) return;
     const rise = nxt.top - p.top;
-    if (rise > 0.3 && rise <= 1.3 && !(course.wall && Math.abs(nxt.x0 - (course.wall.x0 + (course.wall.radius ?? course.wall.height ?? 4.3))) < 0.5)) out.push({ x: p.x1, name: `step at ${p.x1} m`, riser: true });
+    if (rise > 0.3 && rise <= climbMaxRise(course.jumpSpeed) && !(course.wall && Math.abs(nxt.x0 - (course.wall.x0 + (course.wall.radius ?? course.wall.height ?? 4.3))) < 0.5)) out.push({ x: p.x1, name: `step at ${p.x1} m`, riser: true, rise });
   });
   return out;
 }
@@ -140,7 +172,7 @@ export function searchIdealRun(course: CourseData, opts: { routes?: boolean } = 
   const windows: Window[] = [];
   const tre = course.trebuchet;
   const onMachine = (x: number) => !!tre && course.terrain.platforms.some((p) => p.x0 <= tre.x && tre.x <= p.x1 && x >= p.x0 && x <= p.x1 + 0.01); // the machine's own deck: nobody runs off it, the rider is thrown
-  const es: { x: number; name: string; riser?: boolean }[] = [...edges(course), ...risers(course)].filter((e) => !onMachine(e.x)).sort((a, b) => a.x - b.x);
+  const es: { x: number; name: string; riser?: boolean; rise?: number }[] = [...edges(course), ...risers(course)].filter((e) => !onMachine(e.x)).sort((a, b) => a.x - b.x);
   const hasRope = !!course.rope;
   // rope: the jump at the deck edge before the rope's gap is one of the edges; tune the release after it
   const score = (r: RunResult) => (r.world.outcome === 'cleared' ? 1e6 : r.maxX);
@@ -148,9 +180,11 @@ export function searchIdealRun(course: CourseData, opts: { routes?: boolean } = 
   void progress;
   if (tre) searchLaunch(course, plan, windows, score);
   const handled = course.recoil ? searchRecoil(course, plan, windows, score) : null; // the first gap after the pad is planned together with the shot
+  const bandEdge = course.band ? searchBand(course, plan, windows, score) : null; // the band and the jump at the edge after it are found together
   for (let k = 0; k < es.length; k++) {
     const e = es[k];
     if (handled !== null && Math.abs(e.x - handled) < 0.01) continue;
+    if (bandEdge !== null && Math.abs(e.x - bandEdge) < 0.01) continue;
     // bars within a swing of this edge: a joint search over the press and the hang times on the first two bars (a swing and the next catch depend on each other,
     // so tuning one at a time misses lines that clear), coarse first, then finer around the best few
     if (!e.riser && holds.some((h) => h.x > e.x - 1 && h.x < e.x + 9) && plan.hangTicks) {
@@ -192,6 +226,22 @@ export function searchIdealRun(course: CourseData, opts: { routes?: boolean } = 
         tries.push({ x, vault, s: score(playPlan(course, trial)) });
       }
       const top = Math.max(...tries.map((t) => t.s));
+      // a wall no vault or jump gets over: the hands meet its edge and the body pulls up (stand at the foot and hold, or jump and hold in the air)
+      if (top < e.x + 1.0 && (e.rise ?? 9) > VAULT_MAX_RISE) { // above a vault's reach only
+        const ct: { kind: 'stand' | 'jump'; x: number; s: number }[] = [];
+        for (const x of candidates(e.x - 3, e.x - 0.05, 0.5)) ct.push({ kind: 'stand', x, s: score(playPlan(course, { ...plan, climbXs: [...(plan.climbXs ?? []), x] })) });
+        if (!ct.some((t) => t.s >= 1e6)) for (const x of candidates(e.x - 4.5, e.x - 0.1, 0.2)) ct.push({ kind: 'jump', x, s: score(playPlan(course, { ...plan, jumpXs: [...plan.jumpXs, x], climbHands: true })) });
+        const cbest = Math.max(...ct.map((t) => t.s));
+        if (cbest > top + 0.3) {
+          const good = ct.filter((t) => t.s >= cbest - (cbest >= 1e6 ? 1e-9 : 0.3));
+          const kind = good.some((t) => t.kind === 'stand') ? 'stand' : 'jump'; // standing at the foot of the wall is simpler than a jump
+          const xs = good.filter((t) => t.kind === kind).map((t) => t.x);
+          const mid = xs[Math.floor(xs.length / 2)];
+          if (kind === 'stand') plan.climbXs = [...(plan.climbXs ?? []), mid]; else { plan.jumpXs.push(mid); plan.climbHands = true; }
+          windows.push({ obstacle: `climb at ${e.name}`, best: mid, lo: Math.min(...xs), hi: Math.max(...xs), widthMs: ((Math.max(...xs) - Math.min(...xs) + 0.1) / 7.4) * 1000 });
+          continue;
+        }
+      }
       const good = tries.filter((t) => t.s >= top - (top >= 1e6 ? 1e-9 : 0.3)); // before the rest of the course is planned the score is how far the run gets: near ties count as ties
       // the centre of the window of presses that work (a vault wins a tie with a jump: it is faster), not its edge
       const kind = good.some((t) => t.vault);
@@ -202,6 +252,9 @@ export function searchIdealRun(course: CourseData, opts: { routes?: boolean } = 
       if (best) { if (best.vault) plan.vaultXs = [...(plan.vaultXs ?? []), best.x]; else plan.jumpXs.push(best.x); windows.push({ obstacle: `${best.vault ? 'vault' : 'jump'} at ${e.name}`, best: best.x, lo: Math.min(...mine), hi: Math.max(...mine), widthMs: ((Math.max(...mine) - Math.min(...mine) + 0.02) / 7.4) * 1000 }); }
       continue;
     }
+    // a tall wall across the gap: the jump has to bring the hands to its edge, so the hold key is down in the air (src/sim/climb.ts)
+    { const nextP = [...course.terrain.platforms].filter((q) => q.x0 > e.x - 0.01).sort((q, r) => q.x0 - r.x0)[0]; const here = groundAt(course.terrain, e.x - 0.05);
+      if (nextP && Number.isFinite(here) && heightAt(nextP, nextP.x0) - here >= CLIMB_MIN_RISE) plan.climbHands = true; }
     // a bar within a swing of this edge: try presses on a coarser grid and, for each, several hang times on the first bar
     const holdEdge = holds.some((h) => h.x > e.x - 1 && h.x < e.x + 9);
     const cs = candidates(e.x - 3, e.x, holdEdge ? 0.1 : 0.02);
@@ -304,6 +357,7 @@ function searchRecoil(course: CourseData, plan: Plan, windows: Window[], score: 
   const rp = recoilParams(course);
   const e = edges(course).find((q) => q.x > rp.x1);
   if (!e) return null;
+  if (isAimable(rp)) return searchCannon(course, plan, windows, score, rp, e.x, e.name);
   type T = { sc: number; jx: number; fire: { x?: number; air?: number } };
   const mk = (jx: number, fire: { x?: number; air?: number }): Plan => ({ ...plan, jumpXs: [...plan.jumpXs, jx], ...(fire.x !== undefined ? { fireXs: [fire.x] } : {}), ...(fire.air !== undefined ? { fireAfterJump: fire.air } : {}) });
   const trial = (jx: number, fire: { x?: number; air?: number }): T => ({ sc: score(playPlan(course, mk(jx, fire), 120 * 30)), jx, fire });
@@ -322,6 +376,48 @@ function searchRecoil(course: CourseData, plan: Plan, windows: Window[], score: 
   plan.jumpXs.push(mid.jx);
   if (mid.fire.x !== undefined) plan.fireXs = [mid.fire.x]; else plan.fireAfterJump = mid.fire.air;
   windows.push({ obstacle: `jump at ${e.name}`, best: mid.jx, lo: Math.min(...jxsGood), hi: Math.max(...jxsGood), widthMs: ((Math.max(...jxsGood) - Math.min(...jxsGood) + 0.02) / 7.4) * 1000 });
+  return e.x;
+}
+// A big cannon: the barrel angle and where to fire, found together (the push goes forward and up by the angle, so the angle sets how far and how high).
+// No jump is needed: the shot lifts the runner off the deck. A landing too hard for a straight-legged landing is rolled out by the base line.
+function searchCannon(course: CourseData, plan: Plan, windows: Window[], score: (r: RunResult) => number, rp: RecoilParams, edgeX: number, name: string): number {
+  type T = { sc: number; aim: number; fx: number };
+  const trial = (aim: number, fx: number): T => ({ sc: score(playPlan(course, { ...plan, aim, fireXs: [fx] }, 120 * 30)), aim, fx });
+  const found: T[] = [];
+  const fxs = candidates(rp.x0 + 0.3, Math.max(rp.x0 + 0.3, edgeX - 0.5), 0.75);
+  for (let a = 0.05; a <= AIM_MAX - 0.04; a += 0.05) for (const fx of fxs) found.push(trial(Math.round(a * 100) / 100, fx));
+  const tops = [...found].sort((a, b) => b.sc - a.sc).slice(0, 6);
+  for (const t of tops) for (let a = t.aim - 0.04; a <= t.aim + 0.04; a += 0.01) if (a >= 0) found.push(trial(Math.round(a * 1000) / 1000, t.fx));
+  const best = Math.max(...found.map((f) => f.sc));
+  const good = found.filter((f) => f.sc >= best - 1e-9);
+  const mid = [...good].sort((a, b) => a.aim - b.aim)[Math.floor(good.length / 2)];
+  plan.aim = mid.aim; plan.fireXs = [mid.fx];
+  const aims = good.filter((g) => g.fx === mid.fx).map((g) => g.aim);
+  windows.push({ obstacle: `cannon aim at ${name}`, best: mid.aim, lo: Math.min(...aims), hi: Math.max(...aims), widthMs: ((Math.max(...aims) - Math.min(...aims) + 0.01) / AIM_RATE) * 1000 }); // the time it takes to tilt across the window
+  return edgeX;
+}
+
+
+// The elastic band: how far to stretch it before turning round, found together with the press at the edge after it (a stronger throw changes where the press is best).
+function searchBand(course: CourseData, plan: Plan, windows: Window[], score: (r: RunResult) => number): number | null {
+  const bp = bandParams(course);
+  const e = edges(course).find((q) => q.x >= slackX(bp) - 0.01);
+  if (!e) return null;
+  const top = Math.max(1, Math.min(bp.snap - 0.6, reachableStretch(bp) * 1.2));
+  const trial = (st: number, jx: number) => { const pl: Plan = { ...plan, bandStretch: st, jumpXs: [...plan.jumpXs, jx] }; return { sc: score(playPlan(course, pl, 120 * 40)), st, jx }; };
+  const found: { sc: number; st: number; jx: number }[] = [];
+  for (let st = Math.min(1, top); st <= top + 1e-9; st += top > 8 ? 1 : 0.5) for (const jx of candidates(e.x - 2.5, e.x, 0.25)) found.push(trial(st, jx));
+  const tops = [...found].sort((a, b) => b.sc - a.sc).slice(0, 6);
+  for (const t of tops) for (let st = Math.max(0.3, t.st - 0.6); st <= Math.min(top, t.st + 0.6) + 1e-9; st += 0.1) for (const jx of candidates(t.jx - 0.25, Math.min(e.x, t.jx + 0.25), 0.05)) found.push(trial(Math.round(st * 10) / 10, jx));
+  const best = Math.max(...found.map((f) => f.sc));
+  const good = found.filter((f) => f.sc >= best - 1e-9);
+  const sts = [...new Set(good.map((g) => g.st))].sort((a, b) => a - b);
+  const st = sts[Math.floor(sts.length / 2)]; // the middle of the stretches that work
+  const jxs = good.filter((g) => g.st === st).map((g) => g.jx).sort((a, b) => a - b);
+  const jx = jxs[Math.floor(jxs.length / 2)];
+  plan.bandStretch = st; plan.jumpXs.push(jx);
+  windows.push({ obstacle: 'band stretch', best: st, lo: sts[0], hi: sts[sts.length - 1], widthMs: ((sts[sts.length - 1] - sts[0] + 0.1) / 6) * 1000 });
+  windows.push({ obstacle: `${e.name} (take-off)`, best: jx, lo: jxs[0], hi: jxs[jxs.length - 1], widthMs: ((jxs[jxs.length - 1] - jxs[0] + 0.05) / 11) * 1000 });
   return e.x;
 }
 const median = (xs: number[]): number => { const s = [...xs].sort((a, b) => a - b); return s[Math.floor(s.length / 2)]; };
@@ -375,14 +471,17 @@ export function playImperfect(course: CourseData, plan: Plan, seed: number, sigm
 
 // A coaster: the push is given at the start; the only thing to find is where to brake. Every time the cart leaves the track on a crest, try braking
 // through that crest from a point earlier on (the nearest start that makes the whole course clear), then look at the next crest.
+// A coaster is ridden well when the cart rolls home on the rails: finishing by flying off a hilltop, landing on the track and running on is not a ride.
+const rode = (r: RunResult): boolean => r.world.outcome === 'cleared' && !flewOff(r.events);
+
 export function searchCartRun(course: CourseData): { plan: Plan; windows: Window[]; cleared: boolean } {
   const plan: Plan = { jumpXs: [], releaseAfter: 60, bouncePress: 8, cartBrake: [] };
   const windows: Window[] = [];
   const cap = 120 * 90;
   for (let round = 0; round < 5; round++) {
     const r = playPlan(course, plan, cap);
-    if (r.world.outcome === 'cleared') return { plan, windows, cleared: true };
-    const off = r.events.find((e) => e.type === 'cart-off');
+    if (rode(r)) return { plan, windows, cleared: true };
+    const off = r.events.find((e) => e.type === 'cart-off' && !e.detail?.end);
     if (!off) return { plan, windows, cleared: false }; // stalled or something else: braking cannot help
     const xOff = off.detail!.x as number;
     const x0 = course.track!.pts.reduce((m, q) => Math.min(m, q[0]), Infinity);
@@ -390,8 +489,8 @@ export function searchCartRun(course: CourseData): { plan: Plan; windows: Window
     for (let a = xOff - 1; a >= x0; a -= 1) {
       const trial: Plan = { ...plan, cartBrake: [...plan.cartBrake!, [a, xOff + 1]] };
       const rr = playPlan(course, trial, cap);
-      const cleared = rr.world.outcome === 'cleared';
-      const left = rr.events.find((e) => e.type === 'cart-off');
+      const cleared = rode(rr);
+      const left = rr.events.find((e) => e.type === 'cart-off' && !e.detail?.end);
       best.push({ a, cleared, ok: cleared || !left || (left.detail!.x as number) > xOff + 1 });
     }
     const good = best.some((b) => b.cleared) ? best.filter((b) => b.cleared) : best.filter((b) => b.ok); // starts that clear the whole course first; else any that gets over this crest
@@ -401,5 +500,5 @@ export function searchCartRun(course: CourseData): { plan: Plan; windows: Window
     plan.cartBrake!.push([pick, xOff + 1]);
     windows.push({ obstacle: `crest at ${xOff.toFixed(0)} m`, best: pick, lo, hi, widthMs: ((hi - lo + 1) / 8) * 1000 });
   }
-  return { plan, windows, cleared: playPlan(course, plan, cap).world.outcome === 'cleared' };
+  return { plan, windows, cleared: rode(playPlan(course, plan, cap)) };
 }

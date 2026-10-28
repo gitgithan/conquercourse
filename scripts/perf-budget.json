@@ -1,0 +1,26 @@
+{
+  "montmartre": {
+    "calls": 8,
+    "triangles": 17000
+  },
+  "san-francisco": {
+    "calls": 8,
+    "triangles": 17000
+  },
+  "coaster": {
+    "calls": 16,
+    "triangles": 20000
+  },
+  "stacks": {
+    "calls": 9,
+    "triangles": 18500
+  },
+  "many-pieces": {
+    "calls": 16,
+    "triangles": 185000
+  },
+  "big-place": {
+    "calls": 24,
+    "triangles": 32000
+  }
+}

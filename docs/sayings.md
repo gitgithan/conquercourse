@@ -28,11 +28,16 @@
 | Lache pair (bars) | *"Push with the swing and it grows; push against it and it fades."* | A pendulum gains energy when the push is in step with its motion, and loses it when out of step |
 | Vault | *"A jump buys height with speed; a vault keeps the speed but needs a hand on the obstacle."* | A jump loses speed at take-off; a vault moves on with a hand as the pivot |
 | Coaster | *"A coaster has no engine: it climbs no higher than where it started."* | Energy is conserved: height is stored speed |
+| Elastic band | *"A soft band pulled far outthrows a stiff one pulled little."* | The legs can only pull so hard, so a softer band stretches farther and stores more energy, which it gives back as speed |
 | Coaster | *"Over a sharp hilltop, speed lets go of the rails."* | A crest that bends away faster than gravity can follow lets the cart leave the track |
+| Elastic band | *"A soft band pulled far outthrows a stiff one pulled little."* | The legs can only pull so hard, so a softer band stretches farther and stores more energy, which it gives back as speed |
 | The roll | *"Turn your fall into a roll and the ground forgives you."* | Downward speed turned into rotation |
 | The trebuchet | *"A long arm gets you far; letting go late gets you thrown into the ground."* | The moment (weight times distance from the pivot) turns the arm, a longer arm moves its tip faster, and the release moment decides the flight |
+| Plank bridge | *"A plank that is twice as long sags eight times as much."* | A longer plank bends far more, and a thicker one bends far less; a post in the middle makes two short planks |
 | Cup stacks | *"Speed climbs the cups, and speed carries you off the top."* | A step up needs speed, but the narrow flat top is crossed in a blink at that speed |
 | Recoil | *"The heavy thing goes slow, the light thing fast, and both carry the same."* | Momentum is conserved: the ball carries a push away backward and the runner carries the same push forward |
+| Climb | *"Speed gets you to the wall; arms get you over it."* | The run speed is gone at the wall: the arms pull the body up on their own strength, so a taller wall costs more time and effort than it costs speed |
+| Cannon | *"Aim between high and flat: the middle angle flies farthest."* | The push is split by the angle into a forward part and an upward part; level ground is won at about 45 degrees, and a steep shot lands harder |
 
 ## Where they appear
 - **A law the player earns:** shown only after the player has discovered that principle in the Dojo (for example, their rope predictions get close); collected sayings fill the trophy cabinet.

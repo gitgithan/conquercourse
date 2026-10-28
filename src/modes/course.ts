@@ -7,10 +7,13 @@ import courseJson from '../course/default-course.json';
 import type { CourseData } from '../course/course';
 import { NO_INPUT, type RunnerInput } from '../sim/runner';
 import { DT } from '../sim/units';
-import { newWorld, stepWorld, type GameEvent, type WorldState } from '../sim/world';
+import { newWorld, recoilParams, stepWorld, type GameEvent, type WorldState } from '../sim/world';
+import { energyWords, isAimable, shotEnergy } from '../sim/recoil';
 import { DEFAULT_WALL } from '../sim/wall';
 import { DEFAULT_ROPE } from '../sim/rope';
 import { inputFor, searchIdealRun, type Plan } from '../sim/ideal';
+import { findShortcuts, shortcutLine, type Shortcut } from '../sim/shortcuts';
+const findShortcutsNow = (c: CourseData): Shortcut[] => findShortcuts(c, { moveChoices: false }).shortcuts; // ?bot=shortcut only: blocks the page while it searches
 import { flightPath, gapSpecs, minSpeedForWall, pressBand } from '../sim/needs';
 import { bounce } from '../sim/trampoline';
 import { DEFAULT_TRAMPOLINE } from '../sim/trampoline';
@@ -19,18 +22,27 @@ import { track, trackCourseEvent, courseKey } from '../ui/feedback';
 import { createRookieActor } from '../render/actor';
 import { lookSwitchOn, lookUrl } from '../render/look';
 import { makeObstacle } from '../course/collide';
+import { climbAhead } from '../sim/climb';
 import { DEFAULT_HANG, feetOf, handOffset } from '../sim/holds';
 import { actorStateFor } from '../motion/actor-state';
 import { groundAt } from '../sim/terrain';
 import { drumsFor } from '../sim/drums';
 import { createDrumLane } from '../ui/drum-lane';
 import { createDebugView } from '../ui/debug-view';
-import { barName, predictLaunch, predictRelease } from '../sim/predict';
+import { loadPlacePhotos, mountPlacePhotos, slugOfCourse } from '../ui/place-photos';
+import { barName, predictBand, predictLaunch, predictRelease, predictShot, type Prediction } from '../sim/predict';
 import { createTrebuchetView } from '../ui/trebuchet-view';
 import { createRecoilView } from '../ui/recoil-view';
+import { createBandView } from '../ui/band-view';
+import { bandParams, stretchAt } from '../sim/band';
 import { cupsGroup } from '../slice/cups';
 import { buildTrack, type TrackView } from '../render/track';
+import { buildPlanks } from '../render/plank';
+import { topAt } from '../sim/beam';
 import { crestSpeedLimit, railsOf } from '../sim/cart';
+import { installGraphStudio } from './graph-studio';
+import { createPerf, type PerfSource } from '../ui/perf';
+import { chunked, cullFar, mergeStatic, type Part } from '../render/static-merge';
 
 // The Course: the five obstacles in a row. The simulator decides everything; this file only draws it
 // and turns keys into inputs. Time comes from the simulator's tick count, never from the browser's clock.
@@ -106,11 +118,23 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
   // a coaster: rails, ties, posts and the cart (src/render/track.ts); the Rookie sits in it
   let trackView: TrackView | null = null, cartFlying = false;
   if (course.track) { trackView = buildTrack(course); scene.add(trackView.group); }
+  const plankView = course.planks?.length ? buildPlanks(course) : null; // plank bridges: they bend under the runner (src/sim/beam.ts)
+  if (plankView) scene.add(plankView.group);
   const trebView = course.trebuchet ? createTrebuchetView(scene, course) : null;
   const recoilView = course.recoil ? createRecoilView(scene, course) : null;
+  let shotCache: { key: string; pr: Prediction } | null = null; // the dotted preview of a loaded cannon: the same prediction the debug view uses, worked out once per tick
+  const shotPreview = (w: WorldState): Prediction | null => {
+    if (!course.recoil || !isAimable(recoilParams(course)) || w.mode !== 'run' || (w.recoil?.armed ?? 0) <= 0) return null;
+    const key = `${w.runner.tick}:${w.recoil!.aim}`;
+    if (shotCache?.key !== key) shotCache = { key, pr: predictShot(w, course) };
+    return shotCache.pr;
+  };
+  const bandView = course.band ? createBandView(scene, course) : null;
   // a course from the editor draws its real objects instead of blocks: only the start and finish decks stay as ground
   const realObjects = !!course.scene?.length;
   const lastPlatform = course.terrain.platforms.length - 1;
+  // the decks are merged into one mesh per material (grass, stone, bed): a course with a dozen decks is three draws, not twelve
+  const deckParts: Part[] = [];
   course.terrain.platforms.forEach((p, pi) => {
     if (p.coasterRail) return; // the rails are already drawn by TrackView; this profile exists only for landing collision
     if (realObjects && pi > 0 && pi < lastPlatform) return;
@@ -128,32 +152,59 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
       geo = new THREE.ExtrudeGeometry(shape, { depth: LANE_DEPTH, bevelEnabled: false });
       at = [0, 0, -LANE_DEPTH / 2];
     }
-    const m = new THREE.Mesh(geo, p.bouncy ? bed : p.top === 0 ? grass : stone);
-    m.position.set(...at);
-    scene.add(m);
+    geo.translate(...at);
+    deckParts.push({ geo, mat: p.bouncy ? bed : p.top === 0 ? grass : stone });
     if (p.skin) paintSkin(p);
   });
+  for (const m of mergeStatic(deckParts)) scene.add(m);
+  // the editor's pieces: raw meshes are merged into one mesh (cut into chunks when big, so the renderer skips what it cannot see); cups stay
+  // instanced; the same photo object used several times is loaded once and drawn as one instanced mesh per part
+  const chunks: THREE.Mesh[] = [];
   if (course.scene) {
-    const gl = new GLTFLoader();
+    const gl = new GLTFLoader(), loads = new Map<string, Promise<{ scene: THREE.Group }>>();
+    const loadOnce = (url: string) => { let p = loads.get(url); if (!p) { p = gl.loadAsync(url); loads.set(url, p); } return p; }; // one download and parse per file, however many pieces use it
+    const INSTANCE_CELL = 8; // m along the run
     const matte = new THREE.MeshStandardMaterial({ color: 0xa9a392, roughness: 0.95, flatShading: true });
+    const itemMatrix = (it: NonNullable<typeof course.scene>[number]) => new THREE.Matrix4().compose(
+      new THREE.Vector3(it.x, it.y, it.z), new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 1, 0), it.rotY), new THREE.Vector3(it.scale, it.scale, it.scale));
+    const meshParts: Part[] = [];
+    const byUrl = new Map<string, NonNullable<typeof course.scene>>();
     for (const it of course.scene) {
-      const g = new THREE.Group();
-      g.position.set(it.x, it.y, it.z); g.rotation.y = it.rotY; g.scale.setScalar(it.scale);
-      scene.add(g);
-      if (it.url) {
-        void gl.loadAsync(it.url).then((got) => {
-          const obj = got.scene, box = new THREE.Box3().setFromObject(obj), c = box.getCenter(new THREE.Vector3());
-          obj.position.set(-c.x, -box.min.y, -c.z);
-          g.add(obj);
-        }).catch(() => { /* no picture for this one; its collision still works */ });
-      } else if (it.stack) {
-        g.add(cupsGroup(it.stack));
+      if (it.url) { const key = `${it.url}|${Math.floor(it.x / INSTANCE_CELL)}`; const l = byUrl.get(key) ?? []; l.push(it); byUrl.set(key, l); } // the same object, near each other, is one instanced mesh; far apart stays culled apart
+      else if (it.stack) {
+        const g = new THREE.Group();
+        g.position.set(it.x, it.y, it.z); g.rotation.y = it.rotY; g.scale.setScalar(it.scale);
+        g.add(cupsGroup(it.stack)); scene.add(g);
       } else if (it.mesh) {
         const geo = new THREE.BufferGeometry();
         geo.setAttribute('position', new THREE.Float32BufferAttribute(it.mesh.positions, 3));
         geo.setIndex(it.mesh.indices); geo.computeVertexNormals();
-        g.add(new THREE.Mesh(geo, matte));
+        geo.applyMatrix4(itemMatrix(it));
+        meshParts.push({ geo, mat: matte });
       }
+    }
+    for (const m of chunked(mergeStatic(meshParts))) { scene.add(m); chunks.push(m); }
+    for (const [key, items] of byUrl) {
+      const url = key.slice(0, key.lastIndexOf('|'));
+      void loadOnce(url).then((got) => {
+        const obj = got.scene.clone(true), box = new THREE.Box3().setFromObject(obj), c = box.getCenter(new THREE.Vector3());
+        obj.position.set(-c.x, -box.min.y, -c.z);
+        if (items.length < 2) { // one use: as before
+          const it = items[0], g = new THREE.Group();
+          g.position.set(it.x, it.y, it.z); g.rotation.y = it.rotY; g.scale.setScalar(it.scale);
+          g.add(obj); scene.add(g);
+          return;
+        }
+        obj.updateMatrixWorld(true);
+        obj.traverse((o) => {
+          const part = o as THREE.Mesh;
+          if (!part.isMesh) return;
+          const inst = new THREE.InstancedMesh(part.geometry, part.material, items.length);
+          items.forEach((it, i) => inst.setMatrixAt(i, itemMatrix(it).multiply(part.matrixWorld)));
+          inst.instanceMatrix.needsUpdate = true; inst.computeBoundingSphere();
+          scene.add(inst);
+        });
+      }).catch(() => { /* no picture for this one; its collision still works */ });
     }
   }
   // a picture from a real photo painted on the front of an obstacle (looks only; the obstacle's collision is its box)
@@ -239,7 +290,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
   // the controls, always visible top-left as a card of key caps (collapse with H)
   const help = document.createElement('div');
   help.id = 'keys';
-  const KEYS: [string, string][] = [['← →', 'Run (hold)'], ['Space / ↑ / W', 'Jump · let go of the rope · press on the trampoline'], ['↓ / S', 'Bend your knees (hold, on big drops)'], ['X', 'Hold as you land to roll; you can also tap shortly before contact'], ...(course.recoil ? ([['K', 'Fire the launcher (clip it on at the teal pad): the ball goes back, you go forward']] as [string, string][]) : []), ...(course.trebuchet ? ([['→ (hold), then Space, ↑ or W', 'Trebuchet: pull the pin, then let the rider go when the hint says LET GO NOW']] as [string, string][]) : []), ...(course !== defaultCourse ? ([['E', 'Hold a bar with the hands (in the air; let go to fly on)'], ['← → on a bar', 'Pump the swing: push the way you swing'], ['V', 'Vault over a step with a hand on top (fast, saves energy)']] as [string, string][]) : []), ['F', 'Toggle the Looking ahead inset'], ...(course.track ? ([['→, Space, ↑ or W', 'Push off at the top of the first hill'], ['↓ / S (hold)', 'Brake']] as [string, string][]) : []), ['I', 'Ideal run of this obstacle (Shift+I: the whole course, any key stops it)'], ['G', 'Drums: where the ideal run presses Space'], ['B', 'Debug view: see the collision boxes and where a jump goes'], ['Mouse', 'Drag to turn the view, wheel to zoom, double-click to reset']]; // retry, ideal run and Dojo are on the fall panel and the buttons
+  const KEYS: [string, string][] = [['← →', 'Run (hold)'], ['Space / ↑ / W', 'Jump · let go of the rope · press on the trampoline'], ['↓ / S', 'Bend your knees (hold, on big drops)'], ['X', 'Hold as you land to roll; you can also tap shortly before contact'], ...(course.recoil ? ([['K', 'Fire the launcher (clip it on at the teal pad): the ball goes back, you go forward'], ...(isAimable(recoilParams(course)) ? [['↑ ↓ (or W)', 'Tilt the cannon barrel while it is loaded (Up does not jump then): it points backward and down, so the push goes forward and up; dots show where you would land']] : [])] as [string, string][]) : []), ...(course.trebuchet ? ([['→ (hold), then Space, ↑ or W', 'Trebuchet: pull the pin, then let the rider go when the hint says LET GO NOW']] as [string, string][]) : []), ...(course !== defaultCourse ? ([['E', 'Hold a bar in the air (let go to fly on), or at a tall wall: grab its edge and climb'], ['← → on a bar', 'Pump the swing: push the way you swing'], ['V', 'Vault over a step with a hand on top (fast, saves energy)']] as [string, string][]) : []), ['F', 'Toggle the Looking ahead inset'], ...(course.track ? ([['→, Space, ↑ or W', 'Push off at the top of the first hill'], ['↓ / S (hold)', 'Brake']] as [string, string][]) : []), ['I', 'Ideal run of this obstacle (Shift+I: the whole course, any key stops it)'], ...(course.band ? ([['←, then →', 'Elastic band: hold ← to stretch it, then turn round (hold →) and it throws you']] as [string, string][]) : []), ['G', 'Drums: where the ideal run presses Space'], ['B', 'Debug view: see the collision boxes and where a jump goes'], ['Mouse', 'Drag to turn the view, wheel to zoom, double-click to reset']]; // retry, ideal run and Dojo are on the fall panel and the buttons
   help.style.cssText = 'position:fixed;left:16px;top:48px;width:290px;background:#fffffff0;border:1px solid #cfd6d0;border-radius:12px;padding:8px 10px;font:500 14px system-ui,sans-serif;color:#17201d;box-shadow:0 2px 10px #0002;pointer-events:none;display:grid;gap:5px';
   const paintKeys = (open: boolean) => {
     help.innerHTML = `<div style="font-weight:700;display:flex;justify-content:space-between">Controls <span style="font-weight:400;color:#58635d">H ${open ? 'hides' : 'shows'}</span></div>` + (open ? KEYS.map(([k, d]) => `<div style="display:grid;grid-template-columns:78px 1fr;gap:8px;align-items:center"><kbd style="font:700 13px ui-monospace,monospace;background:#eef1ec;border:1px solid #b9c2bb;border-bottom-width:3px;border-radius:6px;padding:1px 6px;text-align:center">${k}</kbd><span>${d}</span></div>`).join('') : '');
@@ -392,7 +443,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
   document.body.append(comm);
   document.body.append(sstyle, strip);
   // demo courses: every course we have made, one choice away (the stock course, the lache demo, lanes from real objects, places from the map)
-  const demos: [string, string][] = [['', 'Stock course'], ['/assets/demo/lache.course.json', 'Lache demo: run, vault, swing'], ['/assets/demo/lache-wide.course.json', 'Wide lache: a 6 m swing'], ['/assets/demo/stack.course.json', 'Stack demo: climb the cup pyramids'], ['/assets/demo/drop.course.json', 'Big drop: run off a ledge and roll'], ['/assets/demo/launch.course.json', 'Launch: the trebuchet throws you onto the tower'], ['/assets/demo/launch-bar.course.json', 'Launch and catch: grab the bar in the air'], ['/assets/demo/recoil.course.json', 'Recoil: throw a ball back, fly forward'], ['/assets/demo/coaster.course.json', 'Coaster: ride the hills'], ['/assets/demo/coaster-sharp.course.json', 'Coaster: a sharp hilltop (brake)'], ['/assets/demo/coaster-low.course.json', 'Coaster: first hill too low'], ['coaster-builder', 'Build your own coaster'], ['generate', 'Make me a new course (random)'], ['/assets/demo/lane-1.course.json', 'Demo scene, lane 1'], ['/assets/demo/lane-2.course.json', 'Demo scene, lane 2'], ['/assets/experiments/osm/eixample-barcelona.course.json', 'Place: Barcelona block'], ['/assets/experiments/osm/montmartre-paris.course.json', 'Place: Montmartre, Paris'], ['/assets/experiments/osm/circular-quay-sydney.course.json', 'Place: Sydney quay'], ['/assets/experiments/osm/san-francisco-lombard.course.json', 'Place: San Francisco hill (62 m of hill)'], ['editor', 'Build your own (editor)']];
+  const demos: [string, string][] = [['', 'Stock course'], ['/assets/demo/lache.course.json', 'Lache demo: run, vault, swing'], ['/assets/demo/lache-wide.course.json', 'Wide lache: a 6 m swing'], ['/assets/demo/stack.course.json', 'Stack demo: climb the cup pyramids'], ['/assets/demo/climb.course.json', 'Climb: over a 2 m wall, then a big drop'], ['/assets/demo/drop.course.json', 'Big drop: run off a ledge and roll'], ['/assets/demo/plank.course.json', 'Plank bridge: it sags but holds'], ['/assets/demo/plank-thin.course.json', 'Plank bridge: too thin, it breaks'], ['/assets/demo/launch.course.json', 'Launch: the trebuchet throws you onto the tower'], ['/assets/demo/band.course.json', 'Band: stretch it, turn round, be thrown'], ['/assets/demo/launch-bar.course.json', 'Launch and catch: grab the bar in the air'], ['/assets/demo/recoil.course.json', 'Recoil: throw a ball back, fly forward'], ['/assets/demo/cannon.course.json', 'Cannon: aim it, fire it, roll out of the landing'], ['/assets/demo/coaster.course.json', 'Coaster: ride the hills'], ['/assets/demo/coaster-sharp.course.json', 'Coaster: a sharp hilltop (brake)'], ['/assets/demo/coaster-low.course.json', 'Coaster: first hill too low'], ['coaster-builder', 'Build your own coaster'], ['generate', 'Make me a new course (random)'], ['/assets/demo/lane-1.course.json', 'Demo scene, lane 1'], ['/assets/demo/lane-2.course.json', 'Demo scene, lane 2'], ['/assets/experiments/osm/eixample-barcelona.course.json', 'Place: Barcelona block'], ['/assets/experiments/osm/montmartre-paris.course.json', 'Place: Montmartre, Paris'], ['/assets/experiments/osm/circular-quay-sydney.course.json', 'Place: Sydney quay'], ['/assets/experiments/osm/san-francisco-lombard.course.json', 'Place: San Francisco hill (62 m of hill)'], ['editor', 'Build your own (editor)']];
   const welcome = document.createElement('section');
   welcome.id = 'choose-world';
   welcome.setAttribute('role', 'dialog'); welcome.setAttribute('aria-labelledby', 'choose-world-title');
@@ -469,6 +520,9 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
   dbgBtn.id = 'debugbtn'; dbgBtn.textContent = 'Debug (B)'; dbgBtn.title = 'Show the collision boxes and where a jump right now would go';
   dbgBtn.style.cssText = 'position:fixed;right:16px;top:166px;border:2px solid #17201d;background:#fff;color:#17201d;border-radius:10px;padding:3px 10px;cursor:pointer;font:600 12px system-ui,sans-serif';
   document.body.append(hud, msg, help, panel, hint, gauge, dojoBtn, idealBtn, wholeBtn, pick, camBtn, dbgBtn);
+  // CC-85: a real place shows its real photos (credit under each, a large view on click); ?photos=0 or the Hide switch turns them off
+  const placeSlug = slugOfCourse(course.name);
+  if (placeSlug && new URLSearchParams(location.search).get('photos') !== '0') void loadPlacePhotos(placeSlug).then((d) => { if (d) mountPlacePhotos(document.body, d); });
   const toast = document.createElement('div');
   toast.style.cssText = 'position:fixed;left:50%;top:44%;transform:translateX(-50%);font:700 22px system-ui,sans-serif;color:#10141c;background:#fffffff0;border-radius:10px;padding:6px 14px;pointer-events:none;display:none';
   document.body.append(toast);
@@ -508,7 +562,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
     if (paused && !e.repeat) { paused = false; last = performance.now(); }
     if (e.repeat) return;
     keys.add(e.code);
-    if (e.code === 'Space' || e.code === 'ArrowUp' || e.code === 'KeyW') { jumpQueued = true; e.preventDefault(); }
+    if (e.code === 'Space' || ((e.code === 'ArrowUp' || e.code === 'KeyW') && !(course.recoil && isAimable(recoilParams(course)) && (world.recoil?.armed ?? 0) > 0))) { jumpQueued = true; e.preventDefault(); } // a loaded cannon takes Up and W to tilt the barrel instead of jumping
     if (e.code === 'KeyV') vaultQueued = true;
     if (e.code === 'KeyX') rollQueued = true;
     if (e.code === 'KeyK') fireQueued = true;
@@ -539,7 +593,8 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
   const startAt = params.get('startx') === null ? undefined : Number(params.get('startx')); // ?startx=45 begins there (for tests and films)
   if (params.get('bot') === 'ideal') plan = startAt === undefined && course.plan ? course.plan : searchIdealRun(startAt === undefined ? course : { ...course, startX: startAt }).plan;
 
-  const botMode = params.get('bot') === 'ideal';
+  if (params.get('bot') === 'shortcut') { const list = course.shortcuts?.length ? course.shortcuts : findShortcutsNow(course); if (list[0]) plan = list[0].plan; else plan = course.plan ?? searchIdealRun(course).plan; }
+  const botMode = params.get('bot') === 'ideal' || params.get('bot') === 'shortcut';
   let retryX = resume ? resume.retryX : course.startX; // "try this obstacle again" starts standing still just before it
   let demo: { x1: number } | null = null;
   const idealCache = new Map<number, Plan>();
@@ -676,6 +731,12 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
   }
   // ?hangtest=1.0 (radians) hangs the runner still on the first bar at that angle, for the pivot screenshots
   const hangTest = params.get('hangtest') !== null && course.holds?.length ? Number(params.get('hangtest')) : null;
+  // ?planktest=0.5 stands the runner still on the first plank, that share of the way across, for the sag screenshots
+  const plankTest = params.get('planktest') !== null && course.planks?.length ? Number(params.get('planktest')) : null;
+  if (plankTest !== null) {
+    const pk = course.planks![0], a = plankTest * (pk.x1 - pk.x0);
+    world = { ...world, mode: 'plank', plank: { i: 0, v: 0, sagged: true }, runner: { ...world.runner, x: pk.x0 + a, y: topAt(pk, a, pk.x0 + a), vx: 0, vy: 0, grounded: true } };
+  }
   if (hangTest !== null) {
     const f = feetOf(course.holds![0], { hold: 0, theta: hangTest, omega: 0 });
     world = { ...world, mode: 'hang', hang: { hold: 0, theta: hangTest, omega: 0 }, runner: { ...world.runner, x: f.x, y: f.y, vx: 0, vy: 0, grounded: false } };
@@ -729,7 +790,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
 
   // The Dojo opens on the very obstacle the player fell at, with its real numbers (R1-L1, R1-L3).
   function trainLink(zoneId: string, x: number): string {
-    const q = new URLSearchParams({ mode: 'dojo', ex: zoneId === 'lache' ? 'bars' : zoneId === 'launch' ? 'lever' : zoneId, from: 'course' }); // the lache pair trains on the bar swing
+    const q = new URLSearchParams({ mode: 'dojo', ex: zoneId === 'lache' ? 'bars' : zoneId === 'launch' ? 'lever' : zoneId === 'band' ? 'stored' : zoneId === 'plank' ? 'bridge' : zoneId === 'recoil' && course.recoil && isAimable(recoilParams(course)) ? 'cannon' : zoneId, from: 'course' }); // the lache pair trains on the bar swing
     const jump = [...log].reverse().find((e) => e.type === 'jump');
     if (jump?.detail?.vx) q.set('speed', (jump.detail.vx as number).toFixed(1));
     if (zoneId === 'gap' || zoneId === 'landing') {
@@ -743,6 +804,39 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
 
   // The ideal run: the simulator's own best line from standing still at x0. A plan always runs on to the finish, so
   // "this obstacle" only stops it at the end of the zone (demo) and "the whole course" lets it run (Shift+I).
+  // Shortcuts: routes the designer did not plan (src/sim/shortcuts.ts). Stored with a demo course, or worked out on first request in a worker.
+  let shortcuts: Shortcut[] | null = course.shortcuts ?? null, shortcutWorker: Worker | null = null, shortcutAsk: Promise<Shortcut[]> | null = null;
+  function ensureShortcuts(): Promise<Shortcut[]> {
+    if (shortcuts) return Promise.resolve(shortcuts);
+    shortcutAsk ??= new Promise<Shortcut[]>((resolve) => {
+      try {
+        shortcutWorker ??= new Worker(new URL('../sim/shortcuts-worker.ts', import.meta.url), { type: 'module' });
+        const w = shortcutWorker;
+        w.onmessage = (e: MessageEvent) => { shortcuts = (e.data.shortcuts as Shortcut[]) ?? []; resolve(shortcuts); };
+        w.postMessage({ course });
+      } catch { shortcuts = []; resolve(shortcuts); } // no worker here: no shortcut list
+    });
+    return shortcutAsk;
+  }
+  function startShortcut(s: Shortcut) {
+    clearGuides();
+    world = newWorld(course, course.startX);
+    log.length = 0; frames.length = 0; replay = null; panel.style.display = 'none';
+    plan = s.plan; botState.next = 0; botState.caught = null; botState.bedAt = null;
+    idealWhole = true; demo = null; retryX = course.startX;
+    idealNote = shortcutLine(s) + ' Watch it, press any key to take over.';
+  }
+  function shortcutRow(): HTMLElement | null {
+    const s = shortcuts?.[0];
+    if (!s) return null;
+    const box = document.createElement('div'); box.style.cssText = 'display:grid;gap:6px;margin-top:6px;padding-top:6px;border-top:1px solid #d6dcd9';
+    const t = document.createElement('span'); t.textContent = `${s.designed ? 'The course keeps a shortcut on purpose' : 'A shortcut exists'}: ${s.how}. It saves ${s.secondsSaved.toFixed(1)} s.`; t.id = 'shortcutnote';
+    const b = document.createElement('button'); b.textContent = 'Watch the shortcut'; b.id = 'watchshortcut';
+    b.style.cssText = 'font:inherit;border:1px solid #17201d;background:#fff;color:#17201d;border-radius:8px;padding:6px 12px;cursor:pointer;font-weight:700;justify-self:start';
+    b.onclick = () => startShortcut(s);
+    box.append(t, b);
+    return box;
+  }
   function findPlan(c: CourseData): Promise<Plan> {
     return new Promise((resolve) => {
       try {
@@ -772,6 +866,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
     idealWhole = zoneId === null;
     demo = zoneId === null ? null : { x1: (course.zones?.find((z) => z.id === zoneId)?.x1 ?? 1e9) + 3 };
     idealNote = zoneId === null ? 'Ideal run through every obstacle: watch it, press any key to take over.' : 'Ideal run: watch how it is done, then press R to try it yourself.';
+    if (zoneId === null) void ensureShortcuts().then((list) => { if (list[0] && plan === p && idealWhole) idealNote += ' ' + shortcutLine(list[0]); });
   }
   function showIdeal(zoneId: string) { idealWhole = false; void startIdeal(cpFor(zoneId), zoneId); }
   // Shift+I: from the start, or from where retry would start (the checkpoint before the obstacle you fell at), to the finish
@@ -790,6 +885,17 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
     const b = document.createElement('button'); b.textContent = 'Try it myself (R)';
     b.style.cssText = 'font:inherit;border:1px solid #0f6b5c;background:#0f6b5c;color:#fff;border-radius:8px;padding:6px 12px;cursor:pointer;font-weight:700';
     b.onclick = () => restart(); row.appendChild(b); panel.append(h, row); b.focus();
+    if (whole) void ensureShortcuts().then(() => { const sr = shortcutRow(); if (sr && panel.contains(h)) panel.appendChild(sr); });
+  }
+
+  // after a clear: say a shortcut exists (a fact, never a grade)
+  function clearedNote() {
+    void ensureShortcuts().then(() => {
+      if (world.outcome !== 'cleared' || !shortcuts?.length) return;
+      const sr = shortcutRow(); if (!sr) return;
+      if (panel.style.display === 'none' || !panel.firstChild) { panel.innerHTML = ''; panel.style.display = 'grid'; const h = document.createElement('strong'); h.textContent = 'You made it!'; panel.append(h); }
+      panel.appendChild(sr);
+    });
   }
 
   // Replay numbers and guiding lines, so the player learns something new instead of watching the same thing again.
@@ -817,6 +923,15 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
     }
     if (st) L.push(`It turned round on a hill ${(st.detail!.height as number).toFixed(1)} m up: the highest it could reach was about the height it started from.`);
     return L;
+  }
+  // The elastic band: what the throw was, and what would have gone farther (never how well you did)
+  function bandTip(): string {
+    const rel = [...log].reverse().find((e) => e.type === 'band-release');
+    const snap = [...log].reverse().find((e) => e.type === 'band-snap');
+    const bp = bandParams(course);
+    if (snap) return `The band snapped at ${(snap.detail!.stretch as number).toFixed(0)} m: it takes ${bp.snap.toFixed(0)} m at most. Turn round (hold \u2192) a little sooner.`;
+    if (!rel) return 'Hold \u2190 to run away from the post and stretch the band first. Then turn round (hold \u2192).';
+    return `You left the band at ${(rel.detail!.vx as number).toFixed(1)} m/s after stretching it ${(rel.detail!.stretch as number).toFixed(0)} m. A longer stretch throws faster: hold \u2190 a little longer before you turn round (it snaps at ${bp.snap.toFixed(0)} m).`;
   }
   function buildDiag(zoneId: string, what: 'splash' | 'slide'): string[] {
     const L: string[] = [];
@@ -866,6 +981,14 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
   }
 
   // Coaster tips: what the track did, and what would have worked. Nothing about how well the rider played.
+  // The plank broke: what bent it too far, in plain words (no formulas on the Course).
+  function plankTip(): string {
+    const br = log.find((e) => e.type === 'plank-break');
+    const pk = course.planks?.[0];
+    if (!br || !pk) return 'The plank was too weak for the gap. Try again.';
+    const cm = ((br.detail?.sag as number) * 100).toFixed(0);
+    return `The plank bent ${cm} cm under you, more than it can take, and snapped ${(br.detail?.at as number).toFixed(1)} m from the edge. A thicker plank, a shorter gap, or a post under the middle each make it bend less. Try the Dojo bridge lesson to find out how much.`;
+  }
   function cartTip(what: 'splash' | 'slide' | 'stall'): string {
     if (what === 'stall') {
       const st = log.find((e) => e.type === 'cart-stall');
@@ -894,7 +1017,10 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
     if (what === 'slide') tip = 'You ran out of speed on the curve. Start the run-up earlier and keep running.';
     else if (what === 'hurt') tip = 'The ground stopped you too fast. Hold X as you land to roll: the same fall is spread over more time, and a roll keeps most of your speed.';
     else if (course.track) tip = cartTip(what);
+    else if (what === 'splash' && course.recoil && isAimable(recoilParams(course)) && zone?.id === 'recoil') tip = 'Tilt the barrel with the arrow keys until the dotted path ends on the far deck, then press K. A steeper shot flies higher and lands harder: tap X just before the ground.';
     else if (course.recoil && zone?.id === 'recoil') tip = world.recoil && world.recoil.fired > 0 ? 'The push was not enough. A heavier ball, or a faster one, pushes harder. Fire as you leave the edge so the push carries through the whole flight.' : 'Run onto the teal pad, then press K to fire the launcher as you jump.';
+    else if (log.some((e) => e.type === 'plank-break')) tip = plankTip();
+    else if (course.band) tip = bandTip();
     else if (zone?.id === 'trampoline') tip = 'Press Space at the bottom of the bounce for extra height.';
     else if (zone?.id === 'rope') tip = 'Grab the rope on the way up, then press Space to let go when you are rising.';
     else if (!jump) tip = 'Press Space just before the edge.';
@@ -911,7 +1037,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
     panel.innerHTML = '';
     panel.style.display = 'grid';
     const h = document.createElement('strong');
-    h.textContent = what === 'slide' ? 'You slid back down the wall.' : what === 'hurt' ? `Hard landing at the ${zone?.name ?? 'course'}.` : what === 'stall' ? 'The cart ran out of speed on a hill.' : log.some((e) => e.type === 'cart-off') ? 'The cart left the track at a hilltop.' : HAZARD_INFO[hazard].headline(zone?.name ?? 'course');
+    h.textContent = what === 'slide' ? 'You slid back down the wall.' : what === 'hurt' ? `Hard landing at the ${zone?.name ?? 'course'}.` : what === 'stall' ? 'The cart ran out of speed on a hill.' : log.some((e) => e.type === 'plank-break') ? 'The plank broke under you.' : log.some((e) => e.type === 'cart-off') ? 'The cart left the track at a hilltop.' : HAZARD_INFO[hazard].headline(zone?.name ?? 'course');
     const t = document.createElement('div'); t.textContent = tip;
     const floorNote = document.createElement('div'); floorNote.style.cssText = 'color:#58635d;font-size:13px'; floorNote.textContent = what === 'slide' || what === 'hurt' ? '' : HAZARD_INFO[hazard].hint;
     const row = document.createElement('div'); row.style.cssText = 'display:flex;flex-wrap:wrap;gap:8px';
@@ -958,6 +1084,8 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
   let cueSince: number | null = null, cueDone = false;
   function hintFor(w: WorldState): string {
     const r = w.runner;
+    if (w.mode === 'plank') return 'The plank dips under you: it gives most in the middle. Keep running.';
+    if (course.planks?.length && w.mode === 'run' && w.outcome === 'running') { const pk = course.planks.find((q, i) => !w.broken?.includes(i) && q.x0 - w.runner.x > 0 && q.x0 - w.runner.x < 8); if (pk) return 'A plank bridge: run across it. A plank bends under your weight, most in the middle.'; }
     if (w.mode === 'cart') return w.cart?.started ? 'Height is speed. Hold ↓ to brake before a sharp hilltop.' : 'Press → to push off';
     if (w.mode === 'bounce') { cueDone = true; return ''; }
     // the trampoline cue comes early and stays for 4 seconds (or until you land on the bed), so it can be read before the bounce
@@ -968,7 +1096,17 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
       cueSince ??= r.tick;
       return 'Trampoline ahead: press Space the moment you land on it for extra height';
     }
+    if (w.mode === 'band') { // the elastic band: stretch it by running away from the post, then turn round
+      const s = stretchAt(bandParams(course), w.runner.x);
+      if (s < 0.5 && w.band!.maxStretch < 0.5) return 'Hold ← to run away from the post and stretch the band. Then turn round (hold →): it throws you forward.';
+      const pb = predictBand(w, course);
+      return pb.result === 'lands' ? `TURN NOW (hold →): ${pb.why}` : `Stretched ${s.toFixed(0)} m: ${pb.why}`;
+    }
     if (course.recoil && w.mode === 'run') { // the launcher: clip it on at the pad, then fire it (on the ground, or in the air to add to a jump)
+      if (w.recoil && w.recoil.armed > 0 && isAimable(recoilParams(course))) {
+        const rp = recoilParams(course), deg = Math.round(((w.recoil.aim ?? rp.angle) * 180) / Math.PI), pr = shotPreview(w);
+        return `Cannon loaded: aim ${deg}° (↑ ↓ tilt the barrel), then press K. The tank holds ${energyWords(shotEnergy(rp))}.${pr ? ' ' + pr.why : ''}`;
+      }
       if (w.recoil && w.recoil.armed > 0) return 'Launcher on: press K to fire. The ball flies back and pushes you forward. Fire in the air to add to a jump.';
       if (!w.recoil || w.recoil.fired === 0) return 'Run onto the teal pad to clip the launcher on.';
     }
@@ -984,6 +1122,8 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
       return `${fwd ? 'Push →' : 'Push ←'} with the swing (hold E)  ·  ${rel.result === 'lands' && /reach the .* bar|ground/.test(rel.why) ? 'LET GO NOW: ' + rel.why : 'keep swinging: ' + rel.why}`;
     }
     if (course.holds?.length && w.mode === 'run' && !r.grounded) { const next = course.holds.find((h) => h.x > r.x - 0.5); if (next && Math.abs(next.x - r.x) < 2.5) return 'Hold E to grab the bar'; }
+    if (w.mode === 'climb') return 'Keep holding E: the arms pull you up';
+    { const ca = w.mode === 'run' ? climbAhead(course.terrain, r.x, r.y, 2.5, course.jumpSpeed) : null; if (ca) return ca.standing ? 'A tall wall: hold E at the wall to grab the edge and climb' : 'A very tall wall: jump and hold E at the top of the jump'; }
     if (everCleared || falls > 0) return '';
     if (r.tick < 60 || (r.x < 4 && r.tick < 600)) return 'Hold → to run';
     const g = specs.find((q2) => q2.x + 0.2 >= r.x && q2.x - r.x < 9);
@@ -993,6 +1133,9 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
 
   let last = performance.now();
   let acc = 0;
+  let studioHold = false; // the Graph Studio has the clock stopped (not the Dojo's "press any key" pause)
+  // Graph Studio (CC-86): Tab pauses the Course and opens the ground as a graph to drag; "Play from here" carries on with the edited course
+  if (!botMode) installGraphStudio({ env: () => ({ course, retryX, facing, falls, runnerX: world.runner.x }), pause: () => { studioHold = true; paused = true; }, resume: () => { studioHold = false; paused = false; last = performance.now(); keys.clear(); }, chipWhen: () => falls > 0 || params.get('edit') === '1' });
   const camPos = new THREE.Vector3();
   // Mouse: drag turns the view around the runner, the wheel zooms, a double-click (or C) goes back to the preset.
   // The numbers are changes on top of the preset view, so zero means the preset exactly.
@@ -1017,6 +1160,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
   dom.style.cursor = 'grab';
   const timeScale = Number(params.get('timescale') ?? 1); // ?timescale=0.1 runs the game at a tenth of its speed (for stills)
   function frame(now: number) {
+    perf.frame(now);
     acc = paused ? 0 : Math.min(acc + ((now - last) / 1000) * timeScale, 0.25);
     last = now;
     while (acc >= DT) {
@@ -1024,12 +1168,14 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
       let input: RunnerInput = NO_INPUT;
       if (plan) input = inputFor(plan, world, botState, course);
       else {
-        input = { run: keys.has('ArrowRight') || keys.has('KeyD'), left: keys.has('ArrowLeft') || keys.has('KeyA'), jump: jumpQueued, jumpSpeed: 0, squat: keys.has('ArrowDown') || keys.has('KeyS'), handL: keys.has('KeyE'), handR: keys.has('KeyE'), vault: vaultQueued, roll: rollQueued || keys.has('KeyX'), fire: fireQueued };
+        input = { run: keys.has('ArrowRight') || keys.has('KeyD'), left: keys.has('ArrowLeft') || keys.has('KeyA'), jump: jumpQueued, jumpSpeed: 0, squat: keys.has('ArrowDown') || keys.has('KeyS'), handL: keys.has('KeyE'), handR: keys.has('KeyE'), vault: vaultQueued, roll: rollQueued || keys.has('KeyX'), fire: fireQueued, aimUp: keys.has('ArrowUp') || keys.has('KeyW'), aimDown: keys.has('ArrowDown') };
         jumpQueued = false; vaultQueued = false; rollQueued = false; fireQueued = false;
       }
       const prev = world.outcome;
       prevMode = world.mode; prevVx = world.runner.vx;
-      if (hangTest === null) world = stepWorld(world, input, course);
+      perf.simStart();
+      if (hangTest === null && plankTest === null) world = stepWorld(world, input, course);
+      perf.simEnd();
       updateRunProgress(world.runner.x);
       updateFlow(world.runner.tick, world.runner.vx, world.runner.vy);
       if (prevMode === 'run' && world.mode === 'wall') wallEntry = prevVx;
@@ -1038,7 +1184,10 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
       log.push(...world.events);
       if (world.events !== soundedEvents) { soundedEvents = world.events; if (!replay) soundsFor(world.events, hazard); } // after the end the same events array stays: it sounds once
       for (const e of world.events) {
+        if (e.type === 'recoil') { toast.textContent = `Shot! The ball flies back and you are pushed forward by ${(e.detail?.dvx as number).toFixed(1)} m/s${(e.detail?.dvy as number) > 0.5 ? ` and up by ${(e.detail?.dvy as number).toFixed(1)} m/s` : ''}.`; toast.style.display = 'block'; toastUntil = world.runner.tick + 180; }
         if (e.type === 'recoil') { toast.textContent = `Shot! The ball flies back and you are pushed forward by ${(e.detail?.dvx as number).toFixed(1)} m/s.`; toast.style.display = 'block'; toastUntil = world.runner.tick + 180; }
+        if (e.type === 'band-snap') { toast.textContent = `The band snapped at ${(e.detail?.stretch as number).toFixed(0)} m: it can only stretch so far. Press R and turn round sooner.`; toast.style.display = 'block'; toastUntil = world.runner.tick + 360; }
+        if (e.type === 'band-release') { toast.textContent = `The band lets go: you leave it at ${(e.detail?.vx as number).toFixed(1)} m/s.`; toast.style.display = 'block'; toastUntil = world.runner.tick + 180; }
         if (e.type === 'launch-dud') { toast.textContent = 'The counterweight is too light: the arm hardly moves. Try a heavier weight.'; toast.style.display = 'block'; toastUntil = world.runner.tick + 240; }
         if (e.type === 'hang-release') { releasedAtX = world.runner.x; caughtSince.clear(); }
         if (e.type === 'hang-catch') caughtSince.add(e.detail?.hold as number);
@@ -1079,6 +1228,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
         const again = document.createElement('button'); again.textContent = 'Run again (R)'; again.style.cssText = 'font:inherit;border:1px solid #0f6b5c;background:#0f6b5c;color:#fff;border-radius:8px;padding:6px 12px;cursor:pointer;font-weight:700'; again.onclick = () => restart(course.startX);
         const close = document.createElement('button'); close.textContent = 'Close report'; close.style.cssText = 'font:inherit;border:1px solid #b9c2bb;background:#fff;color:#17201d;border-radius:8px;padding:6px 12px;cursor:pointer'; close.onclick = () => { panel.style.display = 'none'; };
         actions.append(again, close); panel.append(reportTitle, reportPanel('cleared'), actions); again.focus();
+        if (!botMode && !demo && !idealWhole) clearedNote(); // a shortcut, if the simulator knows one (a fact, never a grade)
       }
     }
     let r = world.runner;
@@ -1096,9 +1246,10 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
     const hangHold = world.mode === 'hang' && world.hang ? course.holds?.[world.hang.hold] : undefined;
     const hOff = hangHold && world.hang ? handOffset(world.hang) : { x: 0, y: 0 }; // the hands ease onto the bar over a few ticks after a catch
     const ax = hangHold ? hangHold.x + hOff.x : r.x, ay = hangHold ? hangHold.y + hOff.y - DEFAULT_HANG.handHeight : r.y;
-    if (actor) actor.update({ ...actorStateFor(world, keys.has('ArrowDown') || keys.has('KeyS'), facing), x: ax, y: ay, ledge, next: world.mode === 'run' ? nextObstacle(r.x) : undefined });
+    if (actor) actor.update({ ...actorStateFor(world, keys.has('ArrowDown') || keys.has('KeyS'), facing), x: ax, y: ay, ledge: world.mode === 'climb' && world.climb ? { x: world.climb.edge, y: world.climb.top } : ledge, next: world.mode === 'run' ? nextObstacle(r.x) : undefined });
     if (world.events.some((e) => e.type === 'cart-off')) cartFlying = true;
     trackView?.place(world, cartFlying);
+    plankView?.place(world);
     if (world.runner.tick > toastUntil) toast.style.display = 'none';
     paintStrip(r.x);
     drumLane.update(r.x);
@@ -1118,7 +1269,8 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
       document.documentElement.dataset.maxPen = maxPen.toFixed(3);
     }
     trebView?.update(world);
-    recoilView?.update(world, facing);
+    recoilView?.update(world, facing, shotPreview(world)?.path);
+    bandView?.update(world);
     hint.textContent = hintFor(world);
     hint.style.display = hint.textContent ? 'block' : 'none';
     if (ropeMesh && course.rope) {
@@ -1128,7 +1280,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
       ropeMesh.position.set(course.rope.anchorX + (ropeLen / 2) * Math.sin(th), course.rope.anchorY - (ropeLen / 2) * Math.cos(th), 0);
       ropeMesh.updateMatrix(); ropeMesh.updateMatrixWorld(true);
     }
-    msg.textContent = paused ? 'Back from the Dojo. Press any key to carry on.' : world.outcome === 'cleared' ? MESSAGES.cleared : idealNote;
+    msg.textContent = paused && !studioHold ? 'Back from the Dojo. Press any key to carry on.' : world.outcome === 'cleared' ? MESSAGES.cleared : idealNote;
     const onCoaster = world.mode === 'cart' && world.cart !== null;
     const spd = onCoaster ? Math.abs(world.cart!.v) : Math.abs(r.vx);
     const gaugeMax = onCoaster ? 40 : GAUGE_MAX;
@@ -1180,7 +1332,10 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
       camera.lookAt(tx, ty, 0);
     }
     floor.update(now / 1000);
+    if (chunks.length > 8) cullFar(chunks, camera.position, 260); // far chunks of a big place are not drawn
+    perf.renderStart();
     renderer.render(scene, camera);
+    perf.renderEnd();
     // The front inset accompanies the default side view; F toggles it in every camera mode.
     const showFront = frontOverride ?? (world.mode === 'hang' || camMode === 'side');
     pipFrame.style.display = showFront ? 'block' : 'none';
@@ -1216,6 +1371,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
     document.documentElement.dataset.mode = world.mode;
     requestAnimationFrame(frame);
   }
+  const perf = createPerf({ label: 'Course', backend: (renderer.backend as { isWebGPUBackend?: boolean }).isWebGPUBackend ? 'webgpu' : 'webgl2', renderer: renderer as unknown as PerfSource['renderer'], scene });
   camPos.set(5, 3.5, 17);
   requestAnimationFrame(frame);
 

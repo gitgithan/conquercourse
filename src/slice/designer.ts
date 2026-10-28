@@ -20,13 +20,14 @@ export const SYSTEM_PROMPT = [
   'Use only the piece ids in the world description. Keep each move under 10 m. If nothing needs changing, give no json block.',
 ].join(' ');
 
-export function worldBrief(pieces: Piece[], lane: LaneView, verdict: string, advice: string[] = [], bars: { u: number; y: number; id?: number }[] = []): string {
+export function worldBrief(pieces: Piece[], lane: LaneView, verdict: string, advice: string[] = [], bars: { u: number; y: number; id?: number }[] = [], routes: string[] = []): string {
   return JSON.stringify({
     pieces: pieces.map((p) => { const s = realSize(p); return { id: p.id, name: p.name, x: r2(p.x), z: r2(p.z), height_off_ground: r2(p.y), turn_deg: Math.round((p.yaw * 180) / Math.PI), size_m: { long: r2(s.w), high: r2(s.h), deep: r2(s.d) } }; }),
     lane: { turn_deg: Math.round((lane.angle * 180) / Math.PI), sideways_m: r2(lane.offset), water_level_m: r2(lane.level) },
     bars_in_the_lane: bars.map((b) => ({ id: b.id, along_m: r2(b.u), height_m: r2(b.y) })),
     simulator_verdict: verdict,
     verified_advice: advice.slice(0, 6),
+    routes_the_simulator_found_that_the_designer_did_not_plan: routes.slice(0, 4), // shortcuts: lines that skip an obstacle and are faster
   });
 }
 

@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { NO_INPUT } from '../src/sim/runner';
 import { newWorld, stepWorld } from '../src/sim/world';
 import { playPlan, searchIdealRun } from '../src/sim/ideal';
-import { DEFAULT_CART, cartStep, crestSpeedLimit, makeRails, railPush, type CartParams } from '../src/sim/cart';
+import { DEFAULT_CART, cartStep, crestSpeedLimit, flewOff, makeRails, railPush, type CartParams } from '../src/sim/cart';
 import { coasterCourse } from '../src/slice/coaster';
 import { GRAVITY } from '../src/sim/units';
 
@@ -76,7 +76,7 @@ describe('leaving the track', () => {
   it('on a sharp hilltop at speed the cart leaves the rails and flies on, past where the limit says', () => {
     const { events, w } = ride(sharp);
     expect(events).toContain('cart-off');
-    expect(w.outcome).not.toBe('cleared');
+    expect(w.mode === 'cart' || w.outcome !== 'running').toBe(true); // it may land back on the rails and roll on (the track is ground now), but it was not held on: that is not a ride
     const r = makeRails(sharp);
     expect(crestSpeedLimit(r, 27)).toBeLessThan(9);
   });
@@ -90,7 +90,10 @@ describe('leaving the track', () => {
     const s = searchIdealRun(c);
     expect(s.cleared).toBe(true);
     expect(s.plan.cartBrake?.length).toBeGreaterThan(0);
-    expect(playPlan(c, s.plan).world.outcome).toBe('cleared');
+    const planned = playPlan(c, s.plan);
+    expect(planned.world.outcome).toBe('cleared');
+    expect(flewOff(planned.events)).toBe(false); // it rode the rails all the way
+    expect(flewOff(playPlan(c, { ...s.plan, cartBrake: [] }).events)).toBe(true); // and without the brake it left them
   });
 });
 

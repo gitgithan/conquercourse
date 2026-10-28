@@ -163,6 +163,13 @@ try {
   await page.reload();
   await page.waitForSelector('#view3d', { timeout: 60000 });
   checks.stackKeptAfterReload = await page.waitForFunction(() => document.documentElement.dataset.pieces === '4', null, { timeout: 30000 }).then(() => true, () => false);
+  // a plank bridge: add one, its knobs show, and a 1 cm plank is reported as snapping
+  await page.click('#addplank');
+  await page.waitForSelector('#plankthick', { timeout: 10000 });
+  await page.fill('#plankthick', '1');
+  await page.dispatchEvent('#plankthick', 'change');
+  await page.waitForFunction(() => /snap/.test(document.querySelector('#plankinfo')?.textContent ?? ''), null, { timeout: 10000 }).catch(() => {});
+  checks.plankKnobsAndInfo = /snap/.test(await page.textContent('#plankinfo').catch(() => ''));
   // bars out of reach: Fix it previews the bars' moves (outlines in the side view, 3D and plan), then Apply moves them, and one Undo brings them back
   await page.goto(`http://localhost:${port}/?mode=editor`);
   await page.evaluate(() => localStorage.setItem('cc.world.v1', JSON.stringify({ pieces: [{ src: 'box:8:0.5:1.8', x: 0, z: 0, y: 0, yaw: 0, scale: 1 }, { src: 'box:8:0.5:1.8', x: 17, z: 0, y: 0, yaw: 0, scale: 1 }, { src: 'hold:bar', x: 6.5, z: 0, y: 4.4, yaw: 0, scale: 1 }, { src: 'hold:bar', x: 10, z: 0, y: 4.4, yaw: 0, scale: 1 }], angle: 0, offset: 0, level: 0 })));
@@ -215,6 +222,27 @@ try {
     await page.screenshot({ path: 'test-results/editor/moves-preview.png' });
     await page.click('#cancelpreview');
   } else checks.suggestionOpensTheSharedPreview = true; // none to show for a bench: nothing to open
+  // routes you did not plan (CC-71): the button runs the shortcut search in a worker and lists what it finds (maybe nothing for this lane)
+  await page.click('#findroutes');
+  checks.routesSearchAnswers = await page.waitForFunction(() => document.documentElement.dataset.routes !== undefined, null, { timeout: 420000 }).then(() => true, () => false);
+  await page.screenshot({ path: 'test-results/editor/routes.png' });
+  // the elastic band: a Band button starts the lane at a band with a stiffness box; Fix it offers a softer band when the lane does not clear
+  await page.goto(`http://localhost:${port}/?mode=editor`);
+  await page.evaluate(() => localStorage.removeItem('cc.world.v1'));
+  await page.reload();
+  await page.waitForSelector('#view3d', { timeout: 60000 });
+  await page.waitForFunction(() => document.documentElement.dataset.pieces === '3', null, { timeout: 30000 });
+  await page.click('#addband');
+  checks.bandOn = await page.waitForFunction(() => document.documentElement.dataset.band === '35', null, { timeout: 10000 }).then(() => true, () => false);
+  checks.bandBoxShown = await page.isVisible('#bandk');
+  await page.fill('#bandk', '150'); await page.dispatchEvent('#bandk', 'change');
+  checks.bandStiffnessKept = await page.waitForFunction(() => document.documentElement.dataset.band === '150', null, { timeout: 10000 }).then(() => true, () => false);
+  await page.screenshot({ path: 'test-results/editor/band.png' });
+  await page.click('#fixit', { noWaitAfter: true, timeout: 120000 }); // the search runs on the page's own thread for a while
+  await page.waitForFunction(() => document.documentElement.dataset.fixed !== undefined && /band|works/i.test(document.getElementById('reply')?.textContent ?? ''), null, { timeout: 240000 }).catch(() => {});
+  const bandReply = await page.textContent('#reply');
+  checks.bandFixItSpeaks = /softer band|already works|No band/.test(bandReply);
+  console.log('band Fix it says:', bandReply.slice(0, 200));
   console.log(checks, 'errors:', errors);
   await browser.close();
   process.exit(Object.values(checks).every(Boolean) && !errors.length ? 0 : 1);

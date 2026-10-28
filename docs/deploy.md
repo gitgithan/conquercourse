@@ -27,7 +27,11 @@
 - Want to try a change privately first: `npm run deploy:preview` gives a separate preview address.
 
 ## Collecting and reading feedback
-- Change the questions by editing `public/feedback-questions.json` and bumping its `round` (for example `public-2`); deploy.
+- Change the questions by editing `public/feedback-questions.json` and bumping its `round` (for example `public-3`); deploy.
+  - Question types: `text`, `scale`, `choice` (one chip) and `multi` (several chips; the answer is stored as the ticked options joined with a comma).
+  - The database does not change: answers are JSON text keyed by question id (letters, digits, `_` or `-`, up to 40 characters), so any round fits the existing `feedback` table.
+  - Round `public-3` keeps the ids `liked`, `confusing`, `world`, `explore` and `anything_else` from `public-2`, so the summaries can be compared; it adds `tried`, `surprise`, `learned` and `use`.
+  - Each submission also records `where` (the mode and course the player was in) in its context.
 - Read the results: `node scripts/feedback-summary.mjs`; it writes `docs/feedback/public-<round>-<date>.md` (averages, counts, written answers).
 - Raw rows stay in the database; only the summary goes in the repo.
 - Turn the summary into a Linear issue the same way as the playtest rounds (CC-30, CC-31, CC-32): numbered items `P1-...`, fix at once, document what cannot be fixed.

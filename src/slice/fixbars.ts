@@ -8,6 +8,13 @@ import { searchIdealRun } from '../sim/ideal';
 type Lane = { angle: number; offset: number; level: number };
 export interface FixedBars { ok: boolean; pieces: P[]; steps: string[] }
 
+// the course a layout makes (the shortcut search and its Close it use this)
+export function courseFor(ps: P[], lane: Lane): import('../course/course').CourseData | null {
+  const ground = ps.filter((p) => !isHold(p));
+  const pr = sliceProfile(worldSamples(ground), { x: 0, z: 0 }, lane);
+  return pr.length >= 8 ? laneToCourse({ cells: [...pr.cells], length: pr.length, origin: pr.origin }, 'shortcuts', holdsOf(ps, lane)) : null;
+}
+
 const proof = (ps: P[], lane: Lane): boolean => {
   const ground = ps.filter((p) => !isHold(p));
   const pr = sliceProfile(worldSamples(ground), { x: 0, z: 0 }, lane);

@@ -1,0 +1,34 @@
+{
+  "course": "lache",
+  "title": "Lache demo: run, vault, swing",
+  "intendedSeconds": 10.5,
+  "searches": 5,
+  "searchSeconds": 56,
+  "complete": true,
+  "shortcuts": [
+    {
+      "id": "skip-bar-2",
+      "skipped": [
+        "Bar 2"
+      ],
+      "how": "pump 1.74 s on the bar you hold, let go, and fly past bar 2",
+      "secondsSaved": 1.14,
+      "seconds": 9.36,
+      "pumpSeconds": 1.74,
+      "windowMs": null,
+      "designed": true
+    }
+  ],
+  "moveChoices": [
+    {
+      "move": "vault",
+      "withSeconds": 9.36,
+      "withoutSeconds": null
+    },
+    {
+      "move": "roll",
+      "withSeconds": 9.36,
+      "withoutSeconds": 11.39
+    }
+  ]
+}

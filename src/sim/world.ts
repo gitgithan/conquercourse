@@ -10,18 +10,21 @@ import { VAULT_BUFFER, VAULT_PLANT_GRIP, VAULT_PLANT_TICKS, findVault, vaultAt, 
 import { GROUND_ROLL_COST, GROUND_ROLL_RECOVERY, startGroundRoll, stepGroundRoll, type GroundRoll } from './roll';
 import { bodyVelocity, feetOf, gripSlips, hangStep, releaseHang, tryGrab, type Hang } from './holds';
 import { enterCart, railsOf, stepCartWorld, trackParams, trackSegments, type Cart } from './cart';
-import { DEFAULT_RECOIL, NO_RECOIL, padHas, shot, stepBall, type RecoilParams, type RecoilState } from './recoil';
+import { AIM_RATE, DEFAULT_RECOIL, NO_RECOIL, clampAim, isAimable, padHas, shot, stepBall, type RecoilParams, type RecoilState } from './recoil';
+import { maybeEnterPlank, stepPlankWorld, type PlankState } from './beam';
+import { CLIMB_CATCH_TICKS, CLIMB_COST, CLIMB_EXIT_SPEED, CLIMB_HOLD_TICKS, findClimb, type Climb } from './climb';
+import { enterBand, stepBandWorld, type Band } from './band';
 import { DEFAULT_TREBUCHET, deg, feetAt, isDud, launchStep, startLaunch, type Launch, type TrebuchetParams } from './trebuchet';
 
 // One world for the Course: the runner plus whichever obstacle has hold of the runner right now.
 // The simulator is the truth: everything the screen shows comes from this state, one tick at a time.
 export const ROLL_BUFFER = 30; // ticks (a quarter of a second): an X press this long before touchdown still rolls
-export type Mode = 'run' | 'wall' | 'swing' | 'bounce' | 'hang' | 'vault' | 'cart' | 'launch';
+export type Mode = 'run' | 'wall' | 'swing' | 'bounce' | 'hang' | 'vault' | 'cart' | 'launch' | 'plank' | 'climb' | 'band';
 export type Outcome = 'running' | 'cleared' | 'splash' | 'hurt' | 'stalled'; // hurt: a landing harder than the body can take; stalled: the cart ran out of speed on a hill
 
 export interface GameEvent {
   tick: number;
-  type: 'jump' | 'roll' | 'land' | 'stumble' | 'hard-landing' | 'splash' | 'wall-grab' | 'wall-slide' | 'rope-catch' | 'rope-release' | 'hang-catch' | 'hang-release' | 'vault' | 'bounce' | 'cleared' | 'cart-start' | 'cart-stall' | 'cart-off' | 'cart-catch' | 'launch-fire' | 'launch-release' | 'launch-dud' | 'recoil';
+  type: 'jump' | 'roll' | 'land' | 'stumble' | 'hard-landing' | 'splash' | 'wall-grab' | 'wall-slide' | 'rope-catch' | 'rope-release' | 'hang-catch' | 'hang-release' | 'vault' | 'climb' | 'climb-drop' | 'bounce' | 'cleared' | 'cart-start' | 'cart-stall' | 'cart-off' | 'cart-catch' | 'launch-fire' | 'launch-release' | 'launch-dud' | 'recoil' | 'plank-sag' | 'plank-break' | 'plank-off' | 'band-release' | 'band-snap';
   detail?: Record<string, number | boolean>;
 }
 
@@ -33,9 +36,13 @@ export interface WorldState {
   swing: Swing | null;
   hang: Hang | null; // hanging from a bar in the air
   vault: Vault | null; // going over an obstacle with a hand on top
+  climb: Climb | null; // hanging from a wall's top edge and pulling up (src/sim/climb.ts)
   launch: Launch | null; // sitting in the trebuchet's sling (before the pin and while it swings)
   recoil?: RecoilState; // the launcher clipped on at a recoil pad: loads left, shots fired, balls in flight (src/sim/recoil.ts)
   cart: Cart | null; // riding the rails of a track (src/sim/cart.ts)
+  plank?: PlankState | null; // walking on a plank bridge (src/sim/beam.ts)
+  broken?: number[]; // planks that have broken (they are gone)
+  band: Band | null; // clipped on to the elastic band (src/sim/band.ts)
   energy: number; // 1 = fresh; each move spends some (src/sim/energy.ts)
   bed: { base: Bounce; vIn: number; start: number; press: number | null; vx: number; top: number } | null;
   noCatchUntil: number;
@@ -57,9 +64,10 @@ export function newWorld(course: CourseData, x: number = course.startX): WorldSt
   if (tp && x <= tp.x + 0.5) { // the course starts in the sling: the rider lies at the end of the sling behind the machine
     const ln = startLaunch(tp, groundAt(course.terrain, tp.x));
     const f = feetAt(tp, ln);
-    return { runner: { ...r, x: f.x, y: f.y }, mode: 'launch', outcome: 'running', wall: null, swing: null, hang: null, vault: null, cart: null, launch: ln, energy: 1, bed: null, noCatchUntil: 0, lastPress: -1000, lastVault: -1000, lastRoll: -1000, rolledAt: -1000, plantUntil: -1000, groundRoll: null, rollReadyAt: 0, events: [] };
+    return { runner: { ...r, x: f.x, y: f.y }, mode: 'launch', outcome: 'running', wall: null, swing: null, hang: null, vault: null, climb: null, cart: null, band: null, launch: ln, energy: 1, bed: null, noCatchUntil: 0, lastPress: -1000, lastVault: -1000, lastRoll: -1000, rolledAt: -1000, plantUntil: -1000, groundRoll: null, rollReadyAt: 0, events: [] };
   }
-  const w: WorldState = { runner: r, mode: 'run', outcome: 'running', wall: null, swing: null, hang: null, vault: null, cart: null, launch: null, energy: 1, bed: null, noCatchUntil: 0, lastPress: -1000, lastVault: -1000, lastRoll: -1000, rolledAt: -1000, plantUntil: -1000, groundRoll: null, rollReadyAt: 0, events: [] };
+  const w: WorldState = { runner: r, mode: 'run', outcome: 'running', wall: null, swing: null, hang: null, vault: null, climb: null, cart: null, band: null, launch: null, energy: 1, bed: null, noCatchUntil: 0, lastPress: -1000, lastVault: -1000, lastRoll: -1000, rolledAt: -1000, plantUntil: -1000, groundRoll: null, rollReadyAt: 0, events: [] };
+  if (course.band && x <= course.band.x) return enterBand(w, course);
   return course.track ? enterCart(w, course) : w;
 }
 
@@ -70,7 +78,7 @@ const ropeParams = (c: CourseData): RopeParams => ({ ...DEFAULT_ROPE, ...(c.rope
 
 export function stepWorld(w: WorldState, input: RunnerInput, course: CourseData, p: RunnerParams = DEFAULT_PARAMS): WorldState {
   if (w.outcome !== 'running') return { ...w, runner: { ...w.runner, tick: w.runner.tick + 1 } };
-  const rolling = input.roll || w.runner.tick + 1 - w.lastRoll <= ROLL_BUFFER;
+  const rolling = !course.off?.includes('roll') && (input.roll || w.runner.tick + 1 - w.lastRoll <= ROLL_BUFFER);
   const input2: RunnerInput = { ...(input.jump && w.runner.grounded && w.mode === 'run' ? { ...input, jumpSpeed: course.jumpSpeed } : input), roll: rolling };
   const events: GameEvent[] = [];
   const tick = w.runner.tick + 1;
@@ -82,11 +90,15 @@ export function stepWorld(w: WorldState, input: RunnerInput, course: CourseData,
   if (w.mode === 'bounce') return stepBounce(w, input);
   if (w.mode === 'hang') return stepHang(w, input, course);
   if (w.mode === 'cart') return stepCartWorld(w, input, course);
+  if (w.mode === 'band') return stepBandWorld(w, input, course);
   if (w.mode === 'vault') return stepVault(w);
+  if (w.mode === 'climb') return stepClimb(w, input);
   if (w.mode === 'launch') return stepLaunchMode(w, input, course);
+  if (w.mode === 'plank') return stepPlankWorld(w, input, course);
+  if (course.planks) { const onPlank = maybeEnterPlank(w, input, course); if (onPlank) return onPlank; }
 
   // the vault: a hand on top of the obstacle just ahead, the body goes over it and keeps most of the speed
-  if (n.lastVault >= 0 && w.runner.tick + 1 - n.lastVault <= VAULT_BUFFER && w.runner.grounded) { // a V pressed up to a fifth of a second early still counts
+  if (n.lastVault >= 0 && !course.off?.includes('vault') && w.runner.tick + 1 - n.lastVault <= VAULT_BUFFER && w.runner.grounded) { // a V pressed up to a fifth of a second early still counts
     const v = findVault(course.terrain, w.runner.x, w.runner.y, w.runner.vx);
     if (v) {
       ev('vault', { rise: v.y1 - v.y0, vx: w.runner.vx });
@@ -151,25 +163,29 @@ export function stepWorld(w: WorldState, input: RunnerInput, course: CourseData,
   }
   if (r.splashed) { n.outcome = 'splash'; ev('splash', { x: r.x }); }
 
-  // recoil: the pad clips the launcher on (one load per visit); the fire key throws the ball back and pushes the runner forward by the momentum the ball carries away
+  // recoil: the pad clips the launcher on (one load per visit); the fire key throws the ball back and pushes the runner by the momentum the ball carries away.
+  // A big cannon is aimed first: up and down tilt the barrel while it is loaded (the barrel points backward and down, so the push goes forward and up).
   if (course.recoil && n.outcome === 'running') {
     const rp = recoilParams(course);
     const prev = w.recoil ?? NO_RECOIL;
     const onPad = n.runner.grounded && padHas(rp, n.runner.x);
     let armed = onPad && !prev.onPad ? rp.shots : prev.armed, fired = prev.fired;
+    let aim = prev.aim ?? clampAim(rp.angle);
+    if (isAimable(rp) && armed > 0) aim = input.aim !== undefined ? clampAim(input.aim) : clampAim(aim + ((input.aimUp ? 1 : 0) - (input.aimDown ? 1 : 0)) * AIM_RATE * DT);
     const balls = prev.balls.map((b) => stepBall(b, course.terrain)).slice(-6);
     if (input.fire && armed > 0) {
-      const sh = shot(rp, n.runner.vx, n.runner.vy, !n.runner.grounded);
-      n.runner = { ...n.runner, vx: n.runner.vx + sh.dvx, vy: n.runner.vy + sh.dvy };
+      const airborne = !n.runner.grounded;
+      const sh = shot(rp, n.runner.vx, n.runner.vy, airborne, isAimable(rp) ? aim : rp.angle);
+      n.runner = { ...n.runner, vx: n.runner.vx + sh.dvx, vy: n.runner.vy + sh.dvy, ...(sh.dvy > 0 ? { grounded: false } : {}) }; // pushed up: off the ground
       armed--; fired++;
-      balls.push({ x: n.runner.x - 0.3, y: n.runner.y + 1.0, vx: sh.ballVx, vy: sh.ballVy, landed: false });
-      ev('recoil', { dvx: sh.dvx, dvy: sh.dvy, muzzle: sh.muzzle, ball: Math.hypot(sh.ballVx, sh.ballVy) });
+      balls.push({ x: n.runner.x - 0.3 - 1.2 * Math.cos(sh.angle), y: n.runner.y + 1.0 - 1.2 * Math.sin(sh.angle), vx: sh.ballVx, vy: sh.ballVy, landed: false });
+      ev('recoil', { dvx: sh.dvx, dvy: sh.dvy, muzzle: sh.muzzle, ball: Math.hypot(sh.ballVx, sh.ballVy), angle: sh.angle });
     }
-    n.recoil = { armed, fired, onPad, balls };
+    n.recoil = { armed, fired, onPad, aim, balls };
   }
 
   // the wall: running onto the curve with the feet on the ground
-  if (course.wall && n.mode === 'run' && r.grounded && r.vx > 0.5 && r.x >= course.wall.x0 && r.y === groundAt(course.terrain, course.wall.x0)) {
+  if (course.wall && !course.off?.includes('wall') && n.mode === 'run' && r.grounded && r.vx > 0.5 && r.x >= course.wall.x0 && r.y === groundAt(course.terrain, course.wall.x0)) {
     const wp = wallParams(course);
     const result = runWall(r.vx, wp);
     n.mode = 'wall';
@@ -177,7 +193,7 @@ export function stepWorld(w: WorldState, input: RunnerInput, course: CourseData,
   }
 
   // the rope: airborne hands meet it
-  if (course.rope && n.mode === 'run' && !r.grounded && r.tick >= w.noCatchUntil) {
+  if (course.rope && !course.off?.includes('rope') && n.mode === 'run' && !r.grounded && r.tick >= w.noCatchUntil) {
     const sw = tryCatch(ropeParams(course), r.x, r.y, r.vx, r.vy, 0);
     if (sw) {
       n.mode = 'swing';
@@ -193,6 +209,16 @@ export function stepWorld(w: WorldState, input: RunnerInput, course: CourseData,
       n.mode = 'hang';
       n.hang = g;
       ev('hang-catch', { hold: g.hold, omega: g.omega });
+    }
+  }
+
+  // a wall's top edge: the hands (hold key) meet it, from the ground or in the air (src/sim/climb.ts); the run speed is lost
+  if (n.mode === 'run' && n.outcome === 'running' && (input.handL || input.handR) && r.tick >= w.noCatchUntil) {
+    const c = findClimb(course.terrain, r.x, r.y, r.vx, r.vy, course.jumpSpeed);
+    if (c) {
+      n.mode = 'climb'; n.climb = c; n.energy = Math.max(0, w.energy - CLIMB_COST);
+      n.runner = { ...r, vx: 0, vy: 0, grounded: false };
+      ev('climb', { rise: c.top - r.y, vx: r.vx });
     }
   }
 
@@ -266,6 +292,23 @@ function stepVault(w: WorldState): WorldState {
   }
   const q = vaultAt(v, i);
   return { ...w, vault: { ...v, i }, events: [], runner: { ...w.runner, tick, x: q.x, y: q.y, vx: q.vx, vy: q.vy, grounded: false } };
+}
+
+const CLIMB_HANG_END = CLIMB_CATCH_TICKS + CLIMB_HOLD_TICKS; // the pull-up is committed after this tick
+function stepClimb(w: WorldState, input: RunnerInput): WorldState {
+  const c = w.climb!;
+  const tick = w.runner.tick + 1;
+  const i = c.i + 1;
+  // letting go of the hold key while still hanging (before the pull-up starts): the body drops from where it hangs
+  if (!input.handL && !input.handR && i < CLIMB_HANG_END) {
+    const q = c.path[c.i];
+    return { ...w, mode: 'run', climb: null, noCatchUntil: tick + 60, events: [{ tick, type: 'climb-drop' }], runner: { ...w.runner, tick, x: q.x, y: q.y, vx: 0, vy: 0, grounded: false } };
+  }
+  if (i >= c.n) {
+    return { ...w, mode: 'run', climb: null, events: [], runner: { ...w.runner, tick, x: c.exit.x, y: c.exit.y, vx: CLIMB_EXIT_SPEED, vy: 0, grounded: true } };
+  }
+  const q = c.path[i], prev = c.path[c.i];
+  return { ...w, climb: { ...c, i }, events: [], runner: { ...w.runner, tick, x: q.x, y: q.y, vx: (q.x - prev.x) * 120, vy: (q.y - prev.y) * 120, grounded: false } };
 }
 
 function stepHang(w: WorldState, input: RunnerInput, course: CourseData): WorldState {
