@@ -46,8 +46,8 @@ export function rollWindowStart(path: { x: number; y: number }[]): number {
 }
 
 // Is the runner about to land from a fall a squat would not take cleanly, and inside the roll window? Then the roll is pressed now (the ideal run does this at the first tick of the window).
+const ROLL_NEEDED_ABOVE = safeDrop('squat', DEFAULT_LANDING).clean * 0.9; // worked out once: the search asks this in every simulated step
 export function rollNeeded(w: WorldState, course: CourseData): boolean {
   const f = comingFall(w, course);
-  const limit = safeDrop('squat', DEFAULT_LANDING).clean;
-  return !!f && f.tau <= ROLL_WINDOW_S + 1e-9 && f.h <= ROLL_WINDOW_M + 1e-9 && f.v * f.v / (2 * GRAVITY) > limit * 0.9;
+  return !!f && f.tau <= ROLL_WINDOW_S + 1e-9 && f.h <= ROLL_WINDOW_M + 1e-9 && f.v * f.v / (2 * GRAVITY) > ROLL_NEEDED_ABOVE;
 }

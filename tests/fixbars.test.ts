@@ -1,3 +1,4 @@
+import { workSeconds } from '../src/sim/ideal';
 import { describe, expect, it } from 'vitest';
 import { fixBars } from '../src/slice/fixbars';
 import { barMesh, type P } from '../src/slice/holds-world';
@@ -17,7 +18,7 @@ const lane = { angle: 0, offset: 0, level: 0 };
 describe('Fix it for bars', () => {
   it('moves bars that are too high to reach back into reach, and the result clears', () => {
     const ps: P[] = [deck(0, 8), deck(17, 8), bar(6.5, 4.4), bar(10, 4.4)];
-    const r = fixBars(ps, lane, 50000);
+    const r = fixBars(ps, lane, workSeconds(50));
     expect(r.ok).toBe(true);
     expect(r.steps.length).toBe(1);
     const lower = r.pieces.filter((p) => p.src === 'hold:bar' && p.y < 4.4);

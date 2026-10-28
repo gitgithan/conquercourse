@@ -47,5 +47,6 @@
     "jumpXs": [],
     "releaseAfter": 60,
     "bouncePress": 8
-  }
+  },
+  "windows": []
 }

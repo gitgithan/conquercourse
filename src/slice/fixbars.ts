@@ -1,11 +1,11 @@
 import { holdsOf, isHold, type P } from './holds-world';
 import { laneToCourse, sliceProfile } from './slice';
 import { worldSamples } from './world';
-import { searchIdealRun } from '../sim/ideal';
+import { clearedCached, meter, workSeconds } from '../sim/ideal';
 import type { CourseData } from '../course/course';
 
 // "Fix it" for a lane with bars: try small moves of the bars (up or down, along the run, both together) and keep the smallest one the
-// ideal-run search proves clearable. Each candidate is a whole proof, so the search is cut off by a time budget.
+// ideal-run search proves clearable. Each candidate is a whole proof, so the search is cut off by a budget of simulated ticks.
 type Lane = { angle: number; offset: number; level: number };
 export interface FixedBars { ok: boolean; pieces: P[]; steps: string[] }
 
@@ -22,11 +22,11 @@ const proof = (ps: P[], lane: Lane, wrap?: Wrap): boolean => {
   const pr = sliceProfile(worldSamples(ground), { x: 0, z: 0 }, lane);
   if (pr.length < 8) return false;
   const course = laneToCourse({ cells: [...pr.cells], length: pr.length, origin: pr.origin }, 'fix', holdsOf(ps, lane));
-  return searchIdealRun(wrap ? wrap(course) : course).cleared;
+  return clearedCached(wrap ? wrap(course) : course);
 };
 
-export function fixBars(pieces: P[], lane: Lane, budgetMs = 6000, wrap?: Wrap): FixedBars {
-  const t0 = performance.now();
+export function fixBars(pieces: P[], lane: Lane, budget = workSeconds(6), wrap?: Wrap): FixedBars { // budget in simulated ticks
+  const t0 = meter.ticks;
   const bars = pieces.filter(isHold).sort((a, b) => a.x - b.x);
   if (!bars.length) return { ok: proof(pieces, lane, wrap), pieces, steps: [] };
   if (proof(pieces, lane, wrap)) return { ok: true, pieces, steps: [] };
@@ -45,7 +45,7 @@ export function fixBars(pieces: P[], lane: Lane, budgetMs = 6000, wrap?: Wrap): 
   }
   cands.sort((a, b) => a.cost - b.cost);
   for (const c of cands) {
-    if (performance.now() - t0 > budgetMs) break;
+    if (meter.ticks - t0 > budget) break;
     const next = c.apply(pieces);
     if (!next.some((p) => isHold(p) && p.y + 0.04 >= 2.0 && p.y + 0.04 <= 3.4)) continue; // no bar a jump can reach: no need for a whole proof
     if (proof(next, lane, wrap)) return { ok: true, pieces: next, steps: [c.text] };
