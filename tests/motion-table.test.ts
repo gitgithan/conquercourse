@@ -47,7 +47,7 @@ describe('motion table (CC-64)', () => {
       const clip = parseClip(JSON.parse(readFileSync(`public/assets/motion/${MOTION_TABLE[move].clip}.json`, 'utf8')));
       expect(clip.names).toEqual(run.names); // the actor samples them with the run clip's joint order
       expect(clip.parents).toEqual(run.parents);
-      expect(clip.frames.length).toBeGreaterThan(60); // the played stretch (frames 21 to 69 / 36 to 59) must exist
+      expect(clip.frames.length).toBeGreaterThan(move === 'vault' ? 69 : 59); // the played stretch (frames 21 to 69 / 36 to 59) must exist
     }
   });
 });
