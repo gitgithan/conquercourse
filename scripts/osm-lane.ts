@@ -17,7 +17,7 @@ const [place, latS, lonS, radS = '120', shrinkS = 'auto'] = args;
 if (!place || !latS || !lonS) { console.error('Usage: npx tsx scripts/osm-lane.ts <place> <lat> <lon> [radius] [shrink] [--terrain]'); process.exit(1); }
 const lat = Number(latS), lon = Number(lonS), radius = Number(radS);
 const UA = 'ConquerCourse-spike/0.1 (hackathon research; one query per place)';
-const dir = `data/eval/cc-46-osm-world/${place}`;
+const dir = `${process.env.OSM_EVAL_DIR ?? 'data/eval/cc-46-osm-world'}/${place}`;
 mkdirSync(dir, { recursive: true });
 
 // ---- 1. Overpass: one query per place, cached
@@ -147,10 +147,11 @@ const tries: { shrink: number; lanes: number }[] = [];
 let shrink = ladder[0], mesh0 = buildMesh([], null, 1), piece: Mesh = { positions: [] }, samples = new Float32Array(0), cands: ReturnType<typeof bestSlices> = [], shrunkHeights: number[] = [];
 for (const k of ladder) {
   shrink = k;
-  mesh0 = buildMesh(buildings.map((b) => ({ ...b, h: Math.min(b.h, 8 / k) })), ground, k); // no building taller than 8 m once shrunk
+  const clamp = !process.argv.includes('--noclamp'); // CC-56 reassess: --noclamp lifts the script's own 8 m rule
+  mesh0 = buildMesh(buildings.map((b) => ({ ...b, h: clamp ? Math.min(b.h, 8 / k) : b.h })), ground, k); // no building taller than 8 m once shrunk
   if (!mesh0.idx.length) break;
   piece = centred({ positions: mesh0.pos, indices: mesh0.idx });
-  shrunkHeights = buildings.map((b) => Math.min(b.h, 8 / k) * k);
+  shrunkHeights = buildings.map((b) => (clamp ? Math.min(b.h, 8 / k) : b.h) * k);
   samples = surfaceSamples(piece, 80); // the search samples the surface itself, lighter than its default (a district is big)
   cands = bestSlices({ positions: samples }, { top: 3, centre: { x: 0, z: 0 } });
   tries.push({ shrink: Math.round(k * 1000) / 1000, lanes: cands.length });
@@ -169,7 +170,7 @@ result.bestLane = { turnDeg: Math.round((best.angle * 180) / Math.PI), sidewaysM
 result.candidates = cands.map((c) => ({ turnDeg: Math.round((c.angle * 180) / Math.PI), sidewaysM: Math.round(c.offset * 10) / 10, score: c.report.score }));
 
 // ---- 4. save the mesh (if small) and the course
-const out = 'public/assets/experiments/osm';
+const out = process.env.OSM_OUT_DIR ?? 'public/assets/experiments/osm';
 mkdirSync(out, { recursive: true });
 // the centred mesh keeps the per-face normals: re-centre the same way (x, z middle; lowest point y = 0)
 let ox = 0, oz = 0, oy = Infinity, xs = [Infinity, -Infinity], zs = [Infinity, -Infinity];

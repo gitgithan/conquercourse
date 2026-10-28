@@ -1,0 +1,66 @@
+{
+  "place": "sf-flat",
+  "lat": 37.8021,
+  "lon": -122.4187,
+  "radius": 120,
+  "terrain": false,
+  "terrainRelief_m": 0,
+  "buildings": 95,
+  "withRealHeight": 75,
+  "medianHeight_m": 11,
+  "shrink": 0.164,
+  "shrinkTries": [
+    {
+      "shrink": 0.455,
+      "lanes": 0
+    },
+    {
+      "shrink": 0.273,
+      "lanes": 0
+    },
+    {
+      "shrink": 0.164,
+      "lanes": 3
+    }
+  ],
+  "triangles": 2828,
+  "shrunkHeightRange_m": [
+    0.7,
+    8
+  ],
+  "samples": 209024,
+  "lanesFound": 3,
+  "secondsTaken": 99,
+  "bestLane": {
+    "turnDeg": 40,
+    "sidewaysM": 1.4,
+    "levelM": 1,
+    "gaps": 3,
+    "steps": 9,
+    "curves": 0,
+    "faces": 0,
+    "length": 38.1,
+    "variety": 2,
+    "maxRise": 0.6545454263687134,
+    "score": 9,
+    "searchIdealRunCleared": true
+  },
+  "candidates": [
+    {
+      "turnDeg": 40,
+      "sidewaysM": 1.4,
+      "score": 9
+    },
+    {
+      "turnDeg": 170,
+      "sidewaysM": 12.5,
+      "score": 9
+    },
+    {
+      "turnDeg": 0,
+      "sidewaysM": 0,
+      "score": 8.5
+    }
+  ],
+  "glbBytes": 155420
+}

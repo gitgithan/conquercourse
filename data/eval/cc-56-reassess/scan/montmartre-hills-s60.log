@@ -1,0 +1,59 @@
+{
+  "place": "montmartre-hills-s60",
+  "lat": 48.8867,
+  "lon": 2.3431,
+  "radius": 120,
+  "terrain": true,
+  "terrainRelief_m": 38.5,
+  "buildings": 42,
+  "withRealHeight": 35,
+  "medianHeight_m": 9,
+  "shrink": 0.6,
+  "shrinkTries": [
+    {
+      "shrink": 0.6,
+      "lanes": 3
+    }
+  ],
+  "triangles": 2534,
+  "shrunkHeightRange_m": [
+    1.8,
+    50.4
+  ],
+  "samples": 2203743,
+  "lanesFound": 3,
+  "secondsTaken": 53,
+  "bestLane": {
+    "turnDeg": 0,
+    "sidewaysM": 74.6,
+    "levelM": 3,
+    "gaps": 0,
+    "steps": 0,
+    "curves": 0,
+    "faces": 0,
+    "length": 8.1,
+    "variety": 0,
+    "maxRise": 0.24716734886169434,
+    "maxDrop": 0,
+    "score": -2,
+    "searchIdealRunCleared": true
+  },
+  "candidates": [
+    {
+      "turnDeg": 0,
+      "sidewaysM": 74.6,
+      "score": -2
+    },
+    {
+      "turnDeg": 0,
+      "sidewaysM": 74.6,
+      "score": -2
+    },
+    {
+      "turnDeg": 10,
+      "sidewaysM": 78.8,
+      "score": -2
+    }
+  ],
+  "glbBytes": 135812
+}

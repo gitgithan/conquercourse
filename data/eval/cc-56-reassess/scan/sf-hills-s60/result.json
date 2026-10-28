@@ -1,0 +1,27 @@
+{
+  "place": "sf-hills-s60",
+  "lat": 37.8021,
+  "lon": -122.4187,
+  "radius": 120,
+  "terrain": true,
+  "terrainRelief_m": 62.4,
+  "buildings": 95,
+  "withRealHeight": 75,
+  "medianHeight_m": 11,
+  "shrink": 0.6,
+  "shrinkTries": [
+    {
+      "shrink": 0.6,
+      "lanes": 0
+    }
+  ],
+  "triangles": 2828,
+  "shrunkHeightRange_m": [
+    2.4,
+    33
+  ],
+  "samples": 2801112,
+  "lanesFound": 0,
+  "secondsTaken": 62,
+  "note": "no lane the simulator could clear"
+}

@@ -1,0 +1,66 @@
+{
+  "place": "eixample-hills",
+  "lat": 41.3917,
+  "lon": 2.1649,
+  "radius": 120,
+  "terrain": true,
+  "terrainRelief_m": 9.4,
+  "buildings": 47,
+  "withRealHeight": 36,
+  "medianHeight_m": 21,
+  "shrink": 0.086,
+  "shrinkTries": [
+    {
+      "shrink": 0.238,
+      "lanes": 0
+    },
+    {
+      "shrink": 0.143,
+      "lanes": 0
+    },
+    {
+      "shrink": 0.086,
+      "lanes": 3
+    }
+  ],
+  "triangles": 2627,
+  "shrunkHeightRange_m": [
+    0.3,
+    3.1
+  ],
+  "samples": 70460,
+  "lanesFound": 3,
+  "secondsTaken": 24,
+  "bestLane": {
+    "turnDeg": 100,
+    "sidewaysM": 9.7,
+    "levelM": 1,
+    "gaps": 0,
+    "steps": 2,
+    "curves": 0,
+    "faces": 0,
+    "length": 12.3,
+    "variety": 1,
+    "maxRise": 0.8677321672439575,
+    "score": 4,
+    "searchIdealRunCleared": true
+  },
+  "candidates": [
+    {
+      "turnDeg": 100,
+      "sidewaysM": 9.7,
+      "score": 4
+    },
+    {
+      "turnDeg": 160,
+      "sidewaysM": 6.6,
+      "score": 1
+    },
+    {
+      "turnDeg": 120,
+      "sidewaysM": 11.3,
+      "score": 0.5
+    }
+  ],
+  "glbBytes": 141132
+}

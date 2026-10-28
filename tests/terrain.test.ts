@@ -57,11 +57,11 @@ describe('a hill under the buildings', () => {
   });
   it('a gentle slope still gives a lane the simulator clears (roofs step up a little each time)', () => {
     const gentle: Ground = { ...slope, h: slope.h.map((_, k) => 5 + 0.04 * ((k % 4) * 20 - 30)) }; // 0.04 m per metre: each roof 10 m on is 0.4 m higher
-    const bs = [-30, -20, -10, 0, 10, 20].map((x) => box(x, 6, 1.5)); // low roofs: a lane only sees 4.3 m above the lowest ground
+    const bs = [-30, -20, -10, 0, 10, 20].map((x) => box(x, 6, 1.5)); // low roofs, so a plain jump can climb from one to the next
     const piece = centred(extrude(bs, 1, gentle));
     const lanes = bestSlices({ positions: surfaceSamples(piece, 80) }, { top: 3, centre: { x: 0, z: 0 } });
     expect(lanes.length).toBeGreaterThan(0);
     const c = lanes[0];
     expect(searchIdealRun(laneToCourse({ cells: [...c.profile.cells], length: c.profile.length, origin: c.profile.origin }, 'hill')).cleared).toBe(true);
-  });
+  }, 180000); // a real lane search over five start levels: about a minute on a busy machine
 });
