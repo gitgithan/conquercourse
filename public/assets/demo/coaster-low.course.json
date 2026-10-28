@@ -1,0 +1,56 @@
+{
+  "version": 1,
+  "name": "Coaster: first hill too low",
+  "startX": 0,
+  "finishX": 42,
+  "jumpSpeed": 4.5,
+  "terrain": {
+    "platforms": [
+      {
+        "x0": 42,
+        "x1": 66,
+        "top": 0.2
+      }
+    ],
+    "waterY": -3
+  },
+  "zones": [
+    {
+      "id": "coaster",
+      "name": "Coaster",
+      "x0": 0,
+      "x1": 42
+    }
+  ],
+  "checkpoints": [
+    {
+      "id": "coaster",
+      "x": 0
+    }
+  ],
+  "track": {
+    "pts": [
+      [
+        0,
+        5
+      ],
+      [
+        8,
+        1
+      ],
+      [
+        18,
+        6.5
+      ],
+      [
+        30,
+        1
+      ],
+      [
+        42,
+        0.2
+      ]
+    ],
+    "push": 1.5
+  }
+}

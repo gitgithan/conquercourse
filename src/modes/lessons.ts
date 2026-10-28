@@ -79,6 +79,17 @@ export const LESSONS: Record<Experiment['id'], Lesson> = {
     calc: (v) => { const T = 2 * Math.PI * Math.sqrt(v.length / GRAVITY); return { label: 'time of one swing', value: T, unit: 's', working: `2π × √(${v.length.toFixed(2)} ÷ ${GRAVITY}) = ${T.toFixed(2)} s` }; },
     apply: () => 'On the lache pair, hold E on the bar and push the arrow the way you swing: the swing grows each time. Let go when the hint says LET GO NOW.',
   },
+  coaster: {
+    why: 'A coaster has no engine. The only energy it has is the height it starts from. Going down, height turns into speed; going up the next hill, speed turns back into height. So the first hill decides how high any later hill can be.',
+    tries: ['Drag the first hill from 4 m to 10 m and watch the highest hill the cart can climb.', 'Keep the hill and add a push of 3 m/s: how much more does it climb?', 'Find the smallest first hill that can still climb a hill 7 m high.'],
+    shapeWords: { direct: 'a straight line: every extra metre on the first hill gives about one extra metre of climb (a direct proportion), a little less each time because friction takes some.' },
+    rule: 'The cart climbs about as high as it started, plus a little for the push. Friction and air take a little, so it always stops a bit lower.',
+    formula: 'highest hill = start height + push² ÷ (2 × g)',
+    formulaWords: 'This is exact with no friction or air (g = 9.81 m/s²): speed squared over two g is the height that speed can buy. With friction the cart reaches a little less. The shape of the track in between does not matter, only the heights.',
+    inputs: ['height', 'push'],
+    calc: (v) => { const h = v.height + (v.push * v.push) / (2 * GRAVITY); return { label: 'highest hill the cart can climb', value: h, unit: 'm', working: `${v.height.toFixed(1)} + ${v.push.toFixed(1)}² ÷ (2 × ${GRAVITY}) = ${h.toFixed(2)} m` }; },
+    apply: () => 'On a coaster course, keep every later hill lower than the first hill plus a little for the push.\nIf the cart stalls, raise the first hill or lower the hill it stopped on.\nIf it leaves the rails on a hilltop, make that top broader, or hold ↓ to brake before it.',
+  },
   trampoline: {
     why: 'A trampoline is a spring: it stores the energy of your landing and gives it back. The harder you land, the higher it throws you. And you can add to it: pressing Space at the bottom of the bounce adds speed on top of what the spring returns.',
     tries: ['Drop from 1 m, then 2 m, then 4 m, with no extra push.', 'Watch how much of your height you get back each time.', 'Now add an extra push at the bottom and see how much higher you go.'],

@@ -27,6 +27,8 @@ import { createDrumLane } from '../ui/drum-lane';
 import { createDebugView } from '../ui/debug-view';
 import { predictRelease } from '../sim/predict';
 import { cupsGroup } from '../slice/cups';
+import { buildTrack, type TrackView } from '../render/track';
+import { crestSpeedLimit, railsOf } from '../sim/cart';
 
 // The Course: the five obstacles in a row. The simulator decides everything; this file only draws it
 // and turns keys into inputs. Time comes from the simulator's tick count, never from the browser's clock.
@@ -98,6 +100,9 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
     halo.position.set(h.x, h.y, LANE_DEPTH / 2 + 0.32);
     scene.add(bar, halo);
   }
+  // a coaster: rails, ties, posts and the cart (src/render/track.ts); the Rookie sits in it
+  let trackView: TrackView | null = null, cartFlying = false;
+  if (course.track) { trackView = buildTrack(course); scene.add(trackView.group); }
   // a course from the editor draws its real objects instead of blocks: only the start and finish decks stay as ground
   const realObjects = !!course.scene?.length;
   const lastPlatform = course.terrain.platforms.length - 1;
@@ -228,7 +233,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
   // the controls, always visible top-left as a card of key caps (collapse with H)
   const help = document.createElement('div');
   help.id = 'keys';
-  const KEYS: [string, string][] = [['← →', 'Run (hold)'], ['Space', 'Jump · let go of the rope · press on the trampoline'], ['↓', 'Bend your knees (hold, on big drops)'], ['X', 'Roll out of a big drop (tap just before you land)'], ...(course !== defaultCourse ? ([['E', 'Hold a bar with the hands (in the air; let go to fly on)'], ['← → on a bar', 'Pump the swing: push the way you swing'], ['V', 'Vault over a step with a hand on top (fast, saves energy)'], ['F', 'Front view window (it shows by itself on a bar)']] as [string, string][]) : []), ['I', 'Ideal run of this obstacle (Shift+I: the whole course, any key stops it)'], ['G', 'Drums: where the ideal run presses Space'], ['B', 'Debug view: see the collision boxes and where a jump goes'], ['Mouse', 'Drag to turn the view, wheel to zoom, double-click to reset']]; // retry, ideal run and Dojo are on the fall panel and the buttons
+  const KEYS: [string, string][] = [['← →', 'Run (hold)'], ['Space', 'Jump · let go of the rope · press on the trampoline'], ['↓', 'Bend your knees (hold, on big drops)'], ['X', 'Roll out of a big drop (tap just before you land)'], ...(course !== defaultCourse ? ([['E', 'Hold a bar with the hands (in the air; let go to fly on)'], ['← → on a bar', 'Pump the swing: push the way you swing'], ['V', 'Vault over a step with a hand on top (fast, saves energy)'], ['F', 'Front view window (it shows by itself on a bar)']] as [string, string][]) : []), ...(course.track ? ([['→ or Space', 'Push off at the top of the first hill'], ['↓ (hold)', 'Brake (S works too)']] as [string, string][]) : []), ['I', 'Ideal run of this obstacle (Shift+I: the whole course, any key stops it)'], ['G', 'Drums: where the ideal run presses Space'], ['B', 'Debug view: see the collision boxes and where a jump goes'], ['Mouse', 'Drag to turn the view, wheel to zoom, double-click to reset']]; // retry, ideal run and Dojo are on the fall panel and the buttons
   help.style.cssText = 'position:fixed;left:16px;top:48px;width:290px;background:#fffffff0;border:1px solid #cfd6d0;border-radius:12px;padding:8px 10px;font:500 14px system-ui,sans-serif;color:#17201d;box-shadow:0 2px 10px #0002;pointer-events:none;display:grid;gap:5px';
   const paintKeys = (open: boolean) => {
     help.innerHTML = `<div style="font-weight:700;display:flex;justify-content:space-between">Controls <span style="font-weight:400;color:#58635d">H ${open ? 'hides' : 'shows'}</span></div>` + (open ? KEYS.map(([k, d]) => `<div style="display:grid;grid-template-columns:78px 1fr;gap:8px;align-items:center"><kbd style="font:700 13px ui-monospace,monospace;background:#eef1ec;border:1px solid #b9c2bb;border-bottom-width:3px;border-radius:6px;padding:1px 6px;text-align:center">${k}</kbd><span>${d}</span></div>`).join('') : '');
@@ -346,7 +351,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
   document.body.append(comm);
   document.body.append(sstyle, strip);
   // demo courses: every course we have made, one choice away (the stock course, the lache demo, lanes from real objects, places from the map)
-  const demos: [string, string][] = [['', 'Stock course'], ['/assets/demo/lache.course.json', 'Lache demo: run, vault, swing'], ['/assets/demo/lache-wide.course.json', 'Wide lache: a 6 m swing'], ['/assets/demo/stack.course.json', 'Stack demo: climb the cup pyramids'], ['/assets/demo/drop.course.json', 'Big drop: run off a ledge and roll'], ['generate', 'Make me a new course (random)'], ['/assets/demo/lane-1.course.json', 'Demo scene, lane 1'], ['/assets/demo/lane-2.course.json', 'Demo scene, lane 2'], ['/assets/experiments/osm/eixample-barcelona.course.json', 'Place: Barcelona block'], ['/assets/experiments/osm/montmartre-paris.course.json', 'Place: Montmartre, Paris'], ['/assets/experiments/osm/circular-quay-sydney.course.json', 'Place: Sydney quay'], ['/assets/experiments/osm/san-francisco-lombard.course.json', 'Place: San Francisco hill (62 m of hill)'], ['editor', 'Build your own (editor)']];
+  const demos: [string, string][] = [['', 'Stock course'], ['/assets/demo/lache.course.json', 'Lache demo: run, vault, swing'], ['/assets/demo/lache-wide.course.json', 'Wide lache: a 6 m swing'], ['/assets/demo/stack.course.json', 'Stack demo: climb the cup pyramids'], ['/assets/demo/drop.course.json', 'Big drop: run off a ledge and roll'], ['/assets/demo/coaster.course.json', 'Coaster: ride the hills'], ['/assets/demo/coaster-sharp.course.json', 'Coaster: a sharp hilltop (brake)'], ['/assets/demo/coaster-low.course.json', 'Coaster: first hill too low'], ['coaster-builder', 'Build your own coaster'], ['generate', 'Make me a new course (random)'], ['/assets/demo/lane-1.course.json', 'Demo scene, lane 1'], ['/assets/demo/lane-2.course.json', 'Demo scene, lane 2'], ['/assets/experiments/osm/eixample-barcelona.course.json', 'Place: Barcelona block'], ['/assets/experiments/osm/montmartre-paris.course.json', 'Place: Montmartre, Paris'], ['/assets/experiments/osm/circular-quay-sydney.course.json', 'Place: Sydney quay'], ['/assets/experiments/osm/san-francisco-lombard.course.json', 'Place: San Francisco hill (62 m of hill)'], ['editor', 'Build your own (editor)']];
   const pick2 = document.createElement('select');
   pick2.id = 'democourses'; pick2.title = 'Open another course';
   pick2.style.cssText = 'position:fixed;right:16px;top:196px;max-width:210px;font:600 12px system-ui,sans-serif;border:2px solid #17201d;background:#fff;color:#17201d;border-radius:10px;padding:3px 6px;cursor:pointer';
@@ -354,7 +359,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
   const seedNow = params.get('generate');
   if (seedNow !== null) pick2.add(new Option(`Generated course (seed ${seedNow})`, 'generate-same', true, true));
   for (const [v, label] of demos) pick2.add(new Option(label, v, false, v === now && seedNow === null));
-  pick2.onchange = () => { pick2.blur(); location.href = pick2.value === 'editor' ? '?mode=editor' : pick2.value === 'generate' ? `?generate=${Math.floor(Math.random() * 1e6)}` : pick2.value === 'generate-same' ? location.href : pick2.value ? `?course=${pick2.value}` : '?'; };
+  pick2.onchange = () => { pick2.blur(); location.href = pick2.value === 'editor' ? '?mode=editor' : pick2.value === 'coaster-builder' ? '?mode=coaster' : pick2.value === 'generate' ? `?generate=${Math.floor(Math.random() * 1e6)}` : pick2.value === 'generate-same' ? location.href : pick2.value ? `?course=${pick2.value}` : '?'; };
   document.body.append(pick2);
   // the drum lane (taiko style): on by default for a course someone built (editor or shared), off for the stock course until D is pressed
   const drumLane = createDrumLane(document.body, course !== defaultCourse || params.get('drums') === '1');
@@ -474,6 +479,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
     if (!botMode) plan = null;
     demo = null; idealWhole = false; idealPending = 0;
     world = newWorld(course, x);
+    cartFlying = false;
     log.length = 0;
     botState.next = 0; botState.caught = null; botState.bedAt = null;
     idealNote = '';
@@ -571,6 +577,20 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
     const g = new THREE.BufferGeometry().setFromPoints(pts.filter((_, i) => i % 3 === 0).map((q) => new THREE.Vector3(q.x, q.y + 0.9, 0.5)));
     guides.add(new THREE.Line(g, new THREE.LineBasicMaterial({ color })));
   }
+  // The numbers behind a coaster fall: where the cart started, how fast it was, and what the hilltop could hold.
+  function cartDiag(): string[] {
+    const rails = railsOf(course.track!), L: string[] = [];
+    const start = rails.y(rails.x0);
+    L.push(`The cart started ${start.toFixed(1)} m up and was pushed off at ${(course.track!.push ?? 1.5).toFixed(1)} m/s.`);
+    const off = log.find((e) => e.type === 'cart-off'), st = log.find((e) => e.type === 'cart-stall');
+    if (off) {
+      const x = off.detail!.x as number;
+      L.push(`It left the rails at ${x.toFixed(0)} m, ${rails.y(x).toFixed(1)} m up, doing ${(off.detail!.v as number).toFixed(1)} m/s.`);
+      L.push(`That hilltop lets go above ${crestSpeedLimit(rails, x).toFixed(1)} m/s: the sharper the top, the slower the limit.`);
+    }
+    if (st) L.push(`It turned round on a hill ${(st.detail!.height as number).toFixed(1)} m up: the highest it could reach was about the height it started from.`);
+    return L;
+  }
   function buildDiag(zoneId: string, what: 'splash' | 'slide'): string[] {
     const L: string[] = [];
     const jump = [...log].reverse().find((e) => e.type === 'jump');
@@ -618,9 +638,19 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
     return L;
   }
 
+  // Coaster tips: what the track did, and what would have worked. Nothing about how well the rider played.
+  function cartTip(what: 'splash' | 'slide' | 'stall'): string {
+    if (what === 'stall') {
+      const st = log.find((e) => e.type === 'cart-stall');
+      return `It turned round on a hill ${st ? (st.detail?.height as number).toFixed(1) + ' m high' : ''}. A cart can only climb as high as it started, plus a little from the push. Make the first hill higher, or the hill it stopped on lower.`;
+    }
+    const off = log.find((e) => e.type === 'cart-off');
+    return off ? `At ${(off.detail?.v as number).toFixed(1)} m/s the top of that hill bends away faster than gravity can hold the cart down, so the rails let go. Hold ↓ to brake before the crest, or make the crest broader.` : 'Try again.';
+  }
+
   // After a fall: retry at once, one tip, a skippable replay, and the offer to train that obstacle.
-  let lastFall: 'splash' | 'slide' | 'hurt' = 'splash';
-  function onFall(what: 'splash' | 'slide' | 'hurt') {
+  let lastFall: 'splash' | 'slide' | 'hurt' | 'stall' = 'splash';
+  function onFall(what: 'splash' | 'slide' | 'hurt' | 'stall') {
     falls++; track('falls');
     lastFall = what;
     const r = world.runner;
@@ -631,6 +661,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
     let tip = 'Try again.';
     if (what === 'slide') tip = 'You ran out of speed on the curve. Start the run-up earlier and keep running.';
     else if (what === 'hurt') tip = 'The ground stopped you too fast. Tap X just before you land to roll: the same fall is spread over more time, and a roll keeps most of your speed.';
+    else if (course.track) tip = cartTip(what);
     else if (zone?.id === 'trampoline') tip = 'Press Space at the bottom of the bounce for extra height.';
     else if (zone?.id === 'rope') tip = 'Grab the rope on the way up, then press Space to let go when you are rising.';
     else if (!jump) tip = 'Press Space just before the edge.';
@@ -647,7 +678,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
     panel.innerHTML = '';
     panel.style.display = 'grid';
     const h = document.createElement('strong');
-    h.textContent = what === 'slide' ? 'You slid back down the wall.' : what === 'hurt' ? `Hard landing at the ${zone?.name ?? 'course'}.` : HAZARD_INFO[hazard].headline(zone?.name ?? 'course');
+    h.textContent = what === 'slide' ? 'You slid back down the wall.' : what === 'hurt' ? `Hard landing at the ${zone?.name ?? 'course'}.` : what === 'stall' ? 'The cart ran out of speed on a hill.' : log.some((e) => e.type === 'cart-off') ? 'The cart left the track at a hilltop.' : HAZARD_INFO[hazard].headline(zone?.name ?? 'course');
     const t = document.createElement('div'); t.textContent = tip;
     const floorNote = document.createElement('div'); floorNote.style.cssText = 'color:#58635d;font-size:13px'; floorNote.textContent = what === 'slide' || what === 'hurt' ? '' : HAZARD_INFO[hazard].hint;
     const row = document.createElement('div'); row.style.cssText = 'display:flex;flex-wrap:wrap;gap:8px';
@@ -663,7 +694,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
       panel.style.display = 'none';
       const from = Math.max(0, frames.length - 300);
       replay = { i: from, from, to: frames.length };
-      const lines = buildDiag(lastZone, what === 'slide' ? 'slide' : 'splash');
+      const lines = course.track ? cartDiag() : buildDiag(lastZone, what === 'slide' ? 'slide' : 'splash');
       diagBox.innerHTML = `<strong>Slow-motion replay</strong><ul style="margin:6px 0 0;padding-left:18px">${lines.map((l) => `<li>${l}</li>`).join('')}</ul><div style="color:#58635d;font-size:13px;margin-top:6px">Esc to skip</div>`;
       diagBox.style.display = 'block';
     });
@@ -694,6 +725,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
   let cueSince: number | null = null, cueDone = false;
   function hintFor(w: WorldState): string {
     const r = w.runner;
+    if (w.mode === 'cart') return w.cart?.started ? 'Height is speed. Hold ↓ to brake before a sharp hilltop.' : 'Press → to push off';
     if (w.mode === 'bounce') { cueDone = true; return ''; }
     // the trampoline cue comes early and stays for 4 seconds (or until you land on the bed), so it can be read before the bounce
     const bed = course.terrain.platforms.find((q2) => q2.bouncy && r.x < q2.x1);
@@ -777,6 +809,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
       if (frames.length > 1200) frames.shift();
       if (prev === 'running' && world.outcome === 'splash') onFall('splash');
       if (prev === 'running' && world.outcome === 'hurt') onFall('hurt');
+      if (prev === 'running' && world.outcome === 'stalled') onFall('stall');
       if (world.events.some((e) => e.type === 'wall-slide')) onFall('slide');
       if (prev === 'running' && world.outcome === 'cleared') { everCleared = true; track('clears'); try { localStorage.setItem('cc.course.cleared', '1'); } catch { /* ok */ } }
     }
@@ -794,6 +827,8 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
     const hangHold = world.mode === 'hang' && world.hang ? course.holds?.[world.hang.hold] : undefined;
     const ax = hangHold ? hangHold.x : r.x, ay = hangHold ? hangHold.y - DEFAULT_HANG.handHeight : r.y;
     if (actor) actor.update({ ...actorStateFor(world, keys.has('ArrowDown') || keys.has('KeyS'), facing), x: ax, y: ay, ledge, next: world.mode === 'run' ? nextObstacle(r.x) : undefined });
+    if (world.events.some((e) => e.type === 'cart-off')) cartFlying = true;
+    trackView?.place(world, cartFlying);
     if (world.runner.tick > toastUntil) toast.style.display = 'none';
     paintStrip(r.x);
     drumLane.update(r.x);

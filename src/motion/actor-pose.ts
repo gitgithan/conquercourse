@@ -11,18 +11,19 @@ export interface ActorState {
   vx: number;
   vy: number;
   grounded: boolean;
-  mode: 'run' | 'wall' | 'swing' | 'bounce';
+  mode: 'run' | 'wall' | 'swing' | 'bounce' | 'cart';
   squat: boolean;
   landedTicksAgo: number | null;
   rolledAt?: number; // tick of the last roll landing (WorldState.rolledAt): the roll plays for the simulator's roll time from here
   wallProgress?: number; // 0..1 along the wall climb
   swingTheta?: number; // rad from straight down; positive swings toward +x
+  tilt?: number; // rad the rails rise here; the seated rider in a cart leans with it
   facing: 1 | -1;
   ledge?: { x: number; y: number }; // the top edge of the wall in the world: the hands reach for it, whatever its height
   next?: Next; // the next obstacle ahead and how far: the body gets ready for it before it arrives
 }
 
-export type ClipKind = 'stand' | 'run' | 'leap' | 'land' | 'swing' | 'wall-run' | 'wall-reach' | 'bounce' | 'roll';
+export type ClipKind = 'stand' | 'run' | 'leap' | 'land' | 'swing' | 'wall-run' | 'wall-reach' | 'bounce' | 'roll' | 'sit';
 
 export const LAND_TICKS = 60; // how long the landing clip is held after touch-down (matches the Rookie demo)
 export const REACH_FROM = 0.75; // the reach clip plays over the last quarter of the wall climb
@@ -30,6 +31,7 @@ export const STAND_BELOW = 0.25; // m/s: slower than this is standing
 export const RUN_FROM = 0.9; // m/s: faster than this is fully running (in between the two poses are blended)
 
 export function chooseClip(s: ActorState): ClipKind {
+  if (s.mode === 'cart') return 'sit';
   if (s.mode === 'run' && s.rolledAt !== undefined && moveProgress(MOTION_TABLE.roll, s.rolledAt, s.tick) !== null) return 'roll';
   if (s.mode === 'swing') return 'swing';
   if (s.mode === 'bounce') return 'bounce';

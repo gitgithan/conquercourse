@@ -25,6 +25,7 @@ export interface CourseData {
   plan?: import('../sim/ideal').Plan; // a proved line for the whole course from its start (generated courses carry it: a whole-course proof is slow)
   jumpKeep?: number; // share of the forward speed kept when a jump takes off (default 1: none lost); below 1, a jump costs speed and a vault, which keeps more, pays
   holds?: { x: number; y: number }[]; // bars hanging in the air: where along the run and how high (side view)
+  track?: import('../sim/cart').TrackData; // a coaster: the cart rolls along these rails from the first push (src/sim/cart.ts)
   uMap?: { u0: number; u1: number; x0: number }[]; // editor lanes: where each run of ground came from
   scene?: SceneItem[]; // editor lanes: the real objects, drawn instead of blocks
   hazard?: import('./hazard').Hazard; // the floor you must not touch: water (default), lava, mud, spikes or void; paint, words and sound only

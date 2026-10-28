@@ -9,15 +9,17 @@ import { JUMP_COST, VAULT_COST } from './energy';
 import { VAULT_BUFFER, VAULT_KEEP, findVault, vaultAt, type Vault } from './vault';
 import { comDistance, DEFAULT_HANG, feetOf, gripSlips, hangStep, releaseHang, tryGrab, type Hang } from './holds';
 
+import { enterCart, stepCartWorld, type Cart } from './cart';
+
 // One world for the Course: the runner plus whichever obstacle has hold of the runner right now.
 // The simulator is the truth: everything the screen shows comes from this state, one tick at a time.
 export const ROLL_BUFFER = 30; // ticks (a quarter of a second): an X press this long before touchdown still rolls
-export type Mode = 'run' | 'wall' | 'swing' | 'bounce' | 'hang' | 'vault';
-export type Outcome = 'running' | 'cleared' | 'splash' | 'hurt'; // hurt: a landing harder than the body can take
+export type Mode = 'run' | 'wall' | 'swing' | 'bounce' | 'hang' | 'vault' | 'cart';
+export type Outcome = 'running' | 'cleared' | 'splash' | 'hurt' | 'stalled'; // hurt: a landing harder than the body can take; stalled: the cart ran out of speed on a hill
 
 export interface GameEvent {
   tick: number;
-  type: 'jump' | 'land' | 'stumble' | 'hard-landing' | 'splash' | 'wall-grab' | 'wall-slide' | 'rope-catch' | 'rope-release' | 'hang-catch' | 'hang-release' | 'vault' | 'bounce' | 'cleared';
+  type: 'jump' | 'land' | 'stumble' | 'hard-landing' | 'splash' | 'wall-grab' | 'wall-slide' | 'rope-catch' | 'rope-release' | 'hang-catch' | 'hang-release' | 'vault' | 'bounce' | 'cleared' | 'cart-start' | 'cart-stall' | 'cart-off';
   detail?: Record<string, number | boolean>;
 }
 
@@ -29,6 +31,7 @@ export interface WorldState {
   swing: Swing | null;
   hang: Hang | null; // hanging from a bar in the air
   vault: Vault | null; // going over an obstacle with a hand on top
+  cart: Cart | null; // riding the rails of a track (src/sim/cart.ts)
   energy: number; // 1 = fresh; each move spends some (src/sim/energy.ts)
   bed: { base: Bounce; vIn: number; start: number; press: number | null; vx: number; top: number } | null;
   noCatchUntil: number;
@@ -43,7 +46,8 @@ export interface WorldState {
 export function newWorld(course: CourseData, x: number = course.startX): WorldState {
   const r = startState(x);
   r.y = groundAt(course.terrain, x);
-  return { runner: r, mode: 'run', outcome: 'running', wall: null, swing: null, hang: null, vault: null, energy: 1, bed: null, noCatchUntil: 0, lastPress: -1000, lastVault: -1000, lastRoll: -1000, rolledAt: -1000, events: [] };
+  const w: WorldState = { runner: r, mode: 'run', outcome: 'running', wall: null, swing: null, hang: null, vault: null, cart: null, energy: 1, bed: null, noCatchUntil: 0, lastPress: -1000, lastVault: -1000, lastRoll: -1000, rolledAt: -1000, events: [] };
+  return course.track ? enterCart(w, course) : w;
 }
 
 const wallParams = (c: CourseData): WallParams => ({ ...DEFAULT_WALL, ...(c.wall ?? {}) });
@@ -62,6 +66,7 @@ export function stepWorld(w: WorldState, input: RunnerInput, course: CourseData,
   if (w.mode === 'swing') return stepSwing(w, input, course);
   if (w.mode === 'bounce') return stepBounce(w, input);
   if (w.mode === 'hang') return stepHang(w, input, course);
+  if (w.mode === 'cart') return stepCartWorld(w, input, course);
   if (w.mode === 'vault') return stepVault(w);
 
   // the vault: a hand on top of the obstacle just ahead, the body goes over it and keeps most of the speed

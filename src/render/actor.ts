@@ -28,6 +28,7 @@ export interface RookieActor {
 }
 
 const BLEND_TICKS = 12;
+const SEAT_HIPS = 0.34; // m, the hips of a seated rider above the cart's floor
 const HAND_HEIGHT = 2.1; // m, the grip above the feet (the simulator's handHeight)
 const WALL_BACK = 0.5; // rad, on the steep top of the curve the body tilts back toward the curve's centre instead, so the head stays out of the wall
 const WALL_LEAN = 0.3; // rad, the most the body leans into the slope (at 45 degrees; upright again on the vertical part, where the head would meet the wall)
@@ -240,6 +241,11 @@ export async function createRookieActor(scene: Scene, opts: { rookie: RookieId; 
         }
         return tuckRoll(p);
       }
+      case 'sit': { // seated in a cart, hands up: the swing clip's own body is a seat (hips low, knees up), so it is used as it is, set down on the cart floor
+        const rel = sample(swing, 0, false).rel;
+        const down = new Vector3(0, SEAT_HIPS, 0).sub(rel[0]);
+        return rel.map((p) => p.clone().add(down));
+      }
     }
   }
 
@@ -332,6 +338,7 @@ export async function createRookieActor(scene: Scene, opts: { rookie: RookieId; 
     lean += (WALL_LEAN * Math.sin(2 * slope) - WALL_BACK * Math.sin(slope) ** 3 - lean) * (1 - Math.pow(0.9, dticks));
     if (Math.abs(lean) > 1e-4) rotateZ(joints, new Vector3(0, 0, 0), -lean);
     if (s.mode === 'swing') rotateZ(joints, new Vector3(0, HAND_HEIGHT, 0), localAngle(s.swingTheta ?? 0, s.facing));
+    if (s.mode === 'cart') rotateZ(joints, new Vector3(0, 0, 0), localAngle(s.tilt ?? 0, s.facing)); // the cart pitches with the rails
 
     // composing: the arms reach for the real ledge, and the body gets ready for the next obstacle before it arrives
     if (s.mode === 'wall' && s.ledge) reachLedge(joints, s);

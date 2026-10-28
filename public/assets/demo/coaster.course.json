@@ -1,0 +1,70 @@
+{
+  "version": 1,
+  "name": "Coaster",
+  "startX": 0,
+  "finishX": 56,
+  "jumpSpeed": 4.5,
+  "terrain": {
+    "platforms": [
+      {
+        "x0": 56,
+        "x1": 80,
+        "top": 0.2
+      }
+    ],
+    "waterY": -3
+  },
+  "zones": [
+    {
+      "id": "coaster",
+      "name": "Coaster",
+      "x0": 0,
+      "x1": 56
+    }
+  ],
+  "checkpoints": [
+    {
+      "id": "coaster",
+      "x": 0
+    }
+  ],
+  "track": {
+    "pts": [
+      [
+        0,
+        9
+      ],
+      [
+        7,
+        5
+      ],
+      [
+        14,
+        1
+      ],
+      [
+        22,
+        0.6
+      ],
+      [
+        34,
+        3.6
+      ],
+      [
+        46,
+        0.6
+      ],
+      [
+        56,
+        0.2
+      ]
+    ],
+    "push": 1.5
+  },
+  "plan": {
+    "jumpXs": [],
+    "releaseAfter": 60,
+    "bouncePress": 8,
+    "cartBrake": []
+  }
+}
