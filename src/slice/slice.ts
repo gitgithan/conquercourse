@@ -38,6 +38,27 @@ export function surfaceSamples(mesh: Mesh, perM2 = 600): Float32Array {
   return Float32Array.from(out);
 }
 
+// The lane is a strip 2 m wide: read it from every triangle the strip touches, as densely as asked (CC-91).
+// A sample of the whole scene is too sparse in a big scene (the editor capped it at 40,000 points), and a lane read from sparse points is full of false steps and walls.
+export function laneSamples(mesh: Mesh, o: { angle: number; offset: number }, centre: { x: number; z: number } = { x: 0, z: 0 }, perM2 = 600, cap = 300000): Float32Array {
+  const p = mesh.positions, idx = mesh.indices;
+  if (!idx) return Float32Array.from(p as ArrayLike<number>);
+  const nx = -Math.sin(o.angle), nz = Math.cos(o.angle), lo = o.offset - HALF_LANE - 0.2, hi = o.offset + HALF_LANE + 0.2;
+  const keep: number[] = [];
+  let area = 0;
+  for (let t = 0; t + 2 < idx.length; t += 3) {
+    const a = idx[t] * 3, b = idx[t + 1] * 3, c = idx[t + 2] * 3;
+    const la = (p[a] - centre.x) * nx + (p[a + 2] - centre.z) * nz, lb = (p[b] - centre.x) * nx + (p[b + 2] - centre.z) * nz, lc = (p[c] - centre.x) * nx + (p[c + 2] - centre.z) * nz;
+    if (Math.max(la, lb, lc) < lo || Math.min(la, lb, lc) > hi) continue;
+    keep.push(idx[t], idx[t + 1], idx[t + 2]);
+    const ux = p[b] - p[a], uy = p[b + 1] - p[a + 1], uz = p[b + 2] - p[a + 2], vx = p[c] - p[a], vy = p[c + 1] - p[a + 1], vz = p[c + 2] - p[a + 2];
+    area += 0.5 * Math.hypot(uy * vz - uz * vy, uz * vx - ux * vz, ux * vy - uy * vx);
+  }
+  let d = perM2;
+  while (area * d > cap && d > 1) d /= 2;
+  return surfaceSamples({ positions: p, indices: keep }, d);
+}
+
 export interface SliceOptions { angle: number; offset: number; level: number } // radians about the vertical rod, metres sideways, metres up
 
 export interface Profile { cells: (number | null)[]; length: number; origin?: number } // origin: where cell 0 sits along the run in the editor's world, in metres // height above the level per 0.1 m along the run, null where there is no ground
@@ -186,7 +207,7 @@ function offsetsFor(samples: Float32Array, centre: { x: number; z: number }, ang
 }
 
 // prove: false returns the best lanes by their shape without the slow simulator proof (the Slicer shows them at once); maxProofs: how many lanes to try to clear (default 12).
-export function bestSlices(mesh: Mesh, opts: { angles?: number; offsets?: number[]; levels?: number[]; top?: number; centre?: { x: number; z: number }; prove?: boolean; maxProofs?: number } = {}): Candidate[] {
+export function bestSlices(mesh: Mesh, opts: { angles?: number; offsets?: number[]; levels?: number[]; top?: number; centre?: { x: number; z: number }; prove?: boolean; maxProofs?: number; reprofile?: (c: Candidate) => Profile } = {}): Candidate[] {
   const samples = surfaceSamples(mesh);
   let minX = Infinity, maxX = -Infinity, minZ = Infinity, maxZ = -Infinity, minY = Infinity, maxY = -Infinity;
   for (let i = 0; i < samples.length; i += 3) { minX = Math.min(minX, samples[i]); maxX = Math.max(maxX, samples[i]); minY = Math.min(minY, samples[i + 1]); maxY = Math.max(maxY, samples[i + 1]); minZ = Math.min(minZ, samples[i + 2]); maxZ = Math.max(maxZ, samples[i + 2]); }
@@ -210,6 +231,8 @@ export function bestSlices(mesh: Mesh, opts: { angles?: number; offsets?: number
     if (out.length >= (opts.top ?? 3)) break;
     if (out.some((o) => Math.abs(o.angle - cand.angle) < 0.2 && Math.abs(o.offset - cand.offset) < 1.5 && o.level === cand.level)) continue; // not three copies of the same lane
     if (opts.prove === false) { out.push(cand); continue; }
+    if (opts.reprofile) cand.profile = opts.reprofile(cand); // the proof reads the lane the way the editor will (CC-91), not from the coarse points the search used
+    if (opts.reprofile) { cand.report = describe(cand.profile); if (cand.profile.length < 8 || cand.report.maxRise > CLIMBABLE || cand.report.maxDrop > LANE_DROP) continue; } // the dense read can show a wall the light read missed
     const course = laneToCourse({ cells: [...cand.profile.cells], length: cand.profile.length });
     if (gapSpecs(course).some((g) => g.needed > 8.5)) continue; // a gap needing nearly top speed is not a fair lane: skip the slow proof
     if (++proofs > (opts.maxProofs ?? 12)) break; // proving a lane costs a full ideal-run search: try at most this many

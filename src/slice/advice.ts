@@ -2,8 +2,8 @@ import { LANE_DROP } from '../sim/drop';
 import { clearedCached, meter, workSeconds } from '../sim/ideal';
 import type { CourseData } from '../course/course';
 import type { Machine } from './launch-lane';
-import { CLIMBABLE, describe, laneToCourse, sliceProfile } from './slice';
-import { realSize, worldSamples, type Piece } from './world';
+import { CLIMBABLE, describe, laneToCourse } from './slice';
+import { realSize, laneProfile, type Piece } from './world';
 
 // When the simulator cannot clear a lane, say what to shift. Pure: it tries small changes (slide a piece along the lane, make it
 // smaller, turn the lane, step it sideways, change the water level), keeps the ones the simulator really clears (checked with the
@@ -18,7 +18,7 @@ interface Verdict { ok: boolean; why: string }
 // The cheap check first (a profile and its tallest step, no search), then the full ideal-run proof (the truth).
 function check(pieces: Piece[], lane: LaneSetting, proof: boolean, wrap?: (c: CourseData) => CourseData): Verdict {
   if (!pieces.length) return { ok: false, why: 'There is nothing in the lane.' };
-  const profile = sliceProfile(worldSamples(pieces), { x: 0, z: 0 }, lane);
+  const profile = laneProfile(pieces, lane);
   if (profile.length < 8) return { ok: false, why: 'The lane is almost empty: nothing for the runner to stand on.' };
   const report = describe(profile);
   if (report.maxDrop > LANE_DROP) return { ok: false, why: `a drop of ${report.maxDrop.toFixed(1)} m; even a roll survives about ${LANE_DROP} m` };

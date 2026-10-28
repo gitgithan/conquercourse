@@ -4,9 +4,9 @@ import { groundAt } from '../sim/terrain';
 import { DEFAULT_WALL } from '../sim/wall';
 import { lanePlanks } from './plank-world';
 import { holdsOf, isHold, type P } from './holds-world';
-import { describe, HALF_LANE, laneToCourse, sliceProfile } from './slice';
+import { describe, HALF_LANE, laneToCourse } from './slice';
 import { patternOf } from './stack';
-import { realSize, worldSamples, type Role } from './world';
+import { realSize, laneProfile, type Role } from './world';
 import type { LaneSetting } from './advice';
 
 // Smart roles (CC-43). A piece can play a role in the course: plain ground (the default), the Warped Wall, a rope anchor or a trampoline bed.
@@ -73,7 +73,7 @@ function extendTop(course: CourseData, xFace: number, minLen: number): void {
 export interface RoleBuild { course: CourseData; notes: string[]; length: number } // notes: why a role could not be used; length: metres of ground in the lane
 export function roleCourse(pieces: P[], lane: LaneSetting, name = 'My world'): RoleBuild {
   const ground = pieces.filter((p) => !isHold(p) && p.role !== 'rope'); // bars and rope anchors are not ground
-  const pr = sliceProfile(worldSamples(ground), { x: 0, z: 0 }, lane);
+  const pr = laneProfile(ground, lane);
   const walls = pieces.filter((p) => p.role === 'wall' && inLane(p, lane)), beds = pieces.filter((p) => p.role === 'trampoline' && inLane(p, lane)), ropes = pieces.filter((p) => p.role === 'rope' && inLane(p, lane));
   const splits: number[] = [];
   for (const p of walls) splits.push(footprint(p, lane).u - footprint(p, lane).alongHalf);
@@ -113,7 +113,7 @@ export type Have = 'yes' | 'no' | 'elsewhere';
 export interface MoveStatus extends MoveInfo { have: Have; detail: string }
 export function movesInWorld(pieces: P[], lane: LaneSetting, extra: { trebuchet?: boolean } = {}): MoveStatus[] {
   const ps = pieces.filter((p) => !isHold(p) && p.role !== 'rope');
-  const prof = sliceProfile(worldSamples(ps), { x: 0, z: 0 }, lane), report = describe(prof);
+  const prof = laneProfile(ps, lane), report = describe(prof);
   const { course, notes } = roleCourse(pieces, lane);
   const bars = course.holds?.length ?? 0, bed = course.terrain.platforms.some((q) => q.bouncy);
   const fact = (id: MoveId): { have: Have; detail: string } => {
@@ -201,7 +201,7 @@ export function suggestRoles(pieces: P[], lane: LaneSetting, opts: { budgetMs?: 
     if (Date.now() - t0 > budget) { out.push(s); continue; }
     const next = applySuggestion(pieces, s);
     if (s.role === 'turn') {
-      const before = describe(sliceProfile(worldSamples(pieces.filter((q) => !isHold(q))), { x: 0, z: 0 }, lane)), after = describe(sliceProfile(worldSamples(next.filter((q) => !isHold(q))), { x: 0, z: 0 }, lane));
+      const before = describe(laneProfile(pieces.filter((q) => !isHold(q)), lane)), after = describe(laneProfile(next.filter((q) => !isHold(q)), lane));
       if (after.gaps <= before.gaps) continue; // turning does not open a gap: not worth showing
     }
     s.proved = clears(next, lane);
