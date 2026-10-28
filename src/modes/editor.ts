@@ -5,7 +5,7 @@ import { LIBRARY } from '../slice/shapes';
 import { bestSlices, describe as describeLane, laneToCourse, sliceProfile, CELL, HALF_LANE } from '../slice/slice';
 import { crop, duplicate, hits, newPiece, realSize, scaleBy, scaleToHeight, size, worldSamples, type Piece } from '../slice/world';
 import { searchIdealRun } from '../sim/ideal';
-import { createView3d } from '../slice/view3d';
+import { createView3d, type Ghosts } from '../slice/view3d';
 import { sceneFor } from '../slice/scene';
 import { barMesh, holdsOf, isHold, REACH_JUMPING, REACH_STANDING } from '../slice/holds-world';
 import { CUP, PATTERNS, patternOf, stackPiece, stackSrc } from '../slice/stack';
@@ -14,7 +14,8 @@ import { layoutToPieces, parseLayout, pieceFromSrc } from '../slice/photo-course
 import { proves } from '../slice/photo-proof';
 import { fixBars } from '../slice/fixbars';
 import { adviseLane, type Advice } from '../slice/advice';
-import { applyEdits, parseReply, worldBrief, type Edit } from '../slice/designer';
+import { parseReply, worldBrief, type Edit } from '../slice/designer';
+import { diffProposal, enabledCount, fromAdvice, fromEdits, resultOf, type Proposal } from '../slice/preview';
 
 // The World editor (beta): build a world from pieces on a plan view, scale them (a toy brick becomes a block), turn, copy, crop and move them,
 // choose the lane the runner takes (turn about the rod, sideways, level), and play it. Everything is in metres.
@@ -36,6 +37,7 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
     .ed .aside{padding-bottom:46px;display:grid;gap:8px;grid-template-rows:auto auto minmax(0,1fr);align-content:start;min-height:0;overflow:hidden}.ed .helper{position:absolute;right:10px;bottom:10px;z-index:5;width:min(400px,calc(100% - 20px));height:min(330px,calc(100% - 20px));box-sizing:border-box;box-shadow:0 6px 24px #0003;grid-template-rows:auto auto minmax(0,1fr) auto;overflow:hidden}.ed .helper.closed{display:none}.ed .helper textarea{min-height:56px}.ed .reply{overflow:auto;font-size:13px;min-height:0}.ed textarea{font:inherit;width:100%;box-sizing:border-box;border:1px solid #b9c2bb;border-radius:8px;padding:4px 6px;resize:none}
     .ed .panel{background:#fff;border:1px solid #cfd6d0;border-radius:10px;padding:8px;display:grid;gap:5px;align-content:start}
     .ed label{display:grid;gap:1px;font-size:13px}.ed .muted{color:#58635d;font-size:12px}.ed .ok{border-left:4px solid #0f6b5c;padding:3px 6px;background:#f3f7f4;font-weight:600;font-size:13px}.ed .bad{border-left:4px solid #c0392b;padding:3px 6px;background:#fbeeee;font-weight:600;font-size:13px}
+    .ed .pvrow{display:flex;gap:6px;align-items:flex-start;font-size:13px;margin:2px 0}.ed .pvrow input{margin-top:2px}
     .ed .row{display:flex;flex-wrap:wrap;gap:5px;align-items:center}.ed input[type=range]{width:100%;margin:0}.ed input[type=number]{width:100%;box-sizing:border-box}
     @media(max-height:700px){.ed .muted.help{display:none}}
     @media(max-width:800px){.ed{grid-template-columns:minmax(0,1fr) 220px}}`;  document.head.appendChild(style);
@@ -158,6 +160,7 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
     select: (id) => { selected = id; drawPanel(); draw(); },
     moved: (p, x, z) => { p.x = x; p.z = z; draw(); drawProfile(); },
     dropped: () => changed(),
+    ghosts: () => ghostData(),
   });
   let topPlan = false;
   const setView = (plan2d: boolean) => { topPlan = plan2d; plan.style.display = plan2d ? 'block' : 'none'; view3d.show(!plan2d); viewBtn.textContent = plan2d ? '3D view' : 'Top plan'; viewBtn.setAttribute('aria-pressed', String(plan2d)); if (plan2d) fit(); };
@@ -172,7 +175,7 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
   const helper = el('div', planWrap, { className: 'panel helper', id: 'helper' });
   const head = el('div', helper, { className: 'row' });
   el('strong', head, { text: 'Design partner' });
-  el('button', head, { text: 'Fix it', id: 'fixit', className: 'go', title: 'Change the layout now into one the simulator can clear' }).onclick = () => runFix();
+  el('button', head, { text: 'Fix it', id: 'fixit', className: 'go', title: 'Show a layout the simulator can clear, before anything changes' }).onclick = () => runFix();
   el('button', head, { text: '✕', id: 'closehelper', title: 'Hide' }).onclick = () => { helper.classList.add('closed'); helperBtn.setAttribute('aria-pressed', 'false'); };
   const adviceBox = el('div', helper, { id: 'advice' });
   const reply = el('div', helper, { className: 'reply muted', id: 'reply', text: 'Ask for a change, or press "What should I change?".' });
@@ -209,13 +212,13 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
       reply.className = 'reply'; reply.textContent = `${parsed.text} Checking the draft with the simulator…`;
       setTimeout(() => {
         if (proves(pieces as P[], { angle, offset, level })) return done('cleared', `${parsed.text} The simulator can clear this draft as it is.`, true);
-        document.documentElement.dataset.photoDraft = 'fixing'; runFix();
+        document.documentElement.dataset.photoDraft = 'fixing'; runFixDirect();
         const wait = window.setInterval(() => {
           if (reply.textContent === 'Working it out…') return;
           clearInterval(wait);
           if (!proves(pieces as P[], { angle, offset, level }) && pieces.some((q) => isHold(q as P))) { // the photo had nothing to hang from? take the bars out and try the ground alone
             pieces = pieces.filter((q) => !isHold(q as P)); changed(); reply.className = 'reply'; reply.textContent = 'Took out the bars (the photo may have nothing to hang from). Working it out again…';
-            if (!proves(pieces as P[], { angle, offset, level })) runFix();
+            if (!proves(pieces as P[], { angle, offset, level })) runFixDirect();
             const again = window.setInterval(() => {
               if (reply.textContent === 'Working it out…' || reply.textContent?.startsWith('Took out the bars')) return;
               clearInterval(again); document.documentElement.dataset.photoDraft = proves(pieces as P[], { angle, offset, level }) ? 'fixed' : 'unfixed';
@@ -226,7 +229,8 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
       }, 50);
     } catch { done('error', 'The photo helper is not available here.'); }
   }
-  function runFix() {
+  // the photo draft changes the layout at once (it is a first draft, not the player's own layout)
+  function runFixDirect() {
     reply.className = 'reply'; reply.textContent = 'Working it out…';
     setTimeout(() => {
       if (barsNow().length) {
@@ -247,24 +251,121 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
       document.documentElement.dataset.fixed = r.ok ? '1' : '0';
     }, 30);
   }
+
+  // ---- preview before apply: Fix it, the partner's changes and one piece of advice all become a Proposal that is drawn as outlines first
+  let proposal: Proposal | null = null;
+  let preview: { pieces: P[]; lane: { angle: number; offset: number; level: number } } | null = null;
+  let previewProfile: ReturnType<typeof sliceProfile> | null = null;
+  let previewBars: ReturnType<typeof holdsOf> = [];
+  let proofRun = 0, leadText = '';
+  const proofs = new Map<string, boolean>();
+  const keyOf = (pr: Proposal) => pr.items.map((i) => (i.on ? '1' : '0')).join('');
+  const ghostData = (): Ghosts | null => {
+    if (!proposal || !preview) return null;
+    const items = proposal.items.flatMap((i) => (i.kind === 'piece' && i.on ? [{ id: i.id, from: i.from, to: i.to }] : []));
+    const laneMoved = proposal.items.some((i) => i.kind === 'lane' && i.on && i.key !== 'level');
+    return { items, lane: laneMoved ? { angle: preview.lane.angle, offset: preview.lane.offset } : null };
+  };
+  function computeFix(ps: P[], lane: { angle: number; offset: number; level: number }): { ok: boolean; pieces: P[]; lane: { angle: number; offset: number; level: number }; steps: string[] } {
+    if (ps.some(isHold)) { const rb = fixBars(ps, lane, 40000); return { ok: rb.ok, pieces: rb.pieces, lane, steps: rb.steps }; }
+    const r = fixLayout(ps, lane);
+    return { ok: r.ok, pieces: r.pieces as P[], lane: r.lane, steps: r.steps };
+  }
+  function runFix(from?: { pieces: P[]; lane: { angle: number; offset: number; level: number } }) {
+    helper.classList.remove('closed'); helperBtn.setAttribute('aria-pressed', 'true');
+    reply.className = 'reply'; reply.textContent = 'Working it out…' + (pieces.some(isHold) ? ' (bars take a while: up to 40 seconds)' : '');
+    setTimeout(() => {
+      const now = { angle, offset, level }, start = from ?? { pieces, lane: now };
+      const r = computeFix(start.pieces, start.lane);
+      document.documentElement.dataset.fixed = r.ok ? '1' : '0';
+      const prop = diffProposal('fixit', from ? 'Fix it, starting from your partner’s changes' : 'Fix it', pieces, now, r.pieces, r.lane, r.steps, r.ok);
+      if (!prop.items.length) {
+        reply.className = r.ok ? 'reply ok' : 'reply bad';
+        reply.textContent = r.ok ? 'It already works.' : pieces.some(isHold) ? r.steps.join(' ') : 'I could not find a layout that works. ' + r.steps.join(' ') + ' Try other pieces.';
+        return;
+      }
+      leadText = '';
+      showProposal(prop);
+    }, 30);
+  }
+  function showProposal(pr: Proposal) {
+    helper.classList.remove('closed'); helperBtn.setAttribute('aria-pressed', 'true');
+    proposal = pr; proofs.clear();
+    if (pr.known !== undefined) proofs.set(keyOf(pr), pr.known);
+    renderProposal(); updatePreview();
+    document.documentElement.dataset.previewItems = String(pr.items.length);
+  }
+  function closePreview(message?: string) {
+    proposal = null; preview = null; previewProfile = null; previewBars = []; proofRun++;
+    document.documentElement.dataset.preview = '';
+    if (message) { reply.className = 'reply muted'; reply.textContent = message; }
+    draw(); drawProfile();
+  }
+  function renderProposal() {
+    const pr = proposal;
+    if (!pr) return;
+    reply.className = 'reply'; reply.replaceChildren();
+    if (leadText) el('div', reply, { text: leadText });
+    el('strong', reply, { text: pr.title });
+    el('div', reply, { className: 'muted', text: 'The outlines show where things would go (grey: now, teal: after). Nothing changes until you press Apply.' });
+    for (const it of pr.items) {
+      const row = el('label', reply, { className: 'pvrow' });
+      const cb = el('input', row, { type: 'checkbox', checked: it.on });
+      cb.onchange = () => { it.on = cb.checked; updatePreview(); };
+      el('span', row, { text: it.words });
+    }
+    el('div', reply, { id: 'previewverdict', className: 'muted' });
+    const row = el('div', reply, { className: 'row', id: 'previewbuttons' });
+    el('button', row, { text: 'Apply', id: 'applypreview', className: 'go' }).onclick = applyProposal;
+    el('button', row, { text: 'Cancel', id: 'cancelpreview' }).onclick = () => closePreview('Cancelled: nothing changed.');
+  }
+  function paintVerdict(state: 'checking' | 'clears' | 'blocked' | 'none') {
+    const v = document.getElementById('previewverdict'), apply = document.getElementById('applypreview') as HTMLButtonElement | null, rowEl = document.getElementById('previewbuttons');
+    if (!v || !apply || !rowEl) return;
+    document.documentElement.dataset.preview = state;
+    v.className = state === 'clears' ? 'ok' : state === 'blocked' ? 'bad' : 'muted';
+    v.textContent = state === 'checking' ? 'Checking with the simulator…' : state === 'clears' ? 'After this change the lane clears.' : state === 'blocked' ? 'After this change the lane does not clear.' : 'Nothing is switched on.';
+    apply.disabled = state === 'none';
+    rowEl.querySelector('#fixfromhere')?.remove();
+    if (state === 'blocked' && proposal && proposal.source !== 'fixit' && preview) {
+      const from = { pieces: preview.pieces, lane: preview.lane };
+      el('button', rowEl, { text: 'Fix it from here', id: 'fixfromhere', title: 'Show the smallest further changes that make it clear' }).onclick = () => runFix(from);
+    }
+  }
+  function updatePreview() {
+    if (!proposal) { preview = null; previewProfile = null; previewBars = []; return; }
+    preview = resultOf(pieces, { angle, offset, level }, proposal);
+    previewProfile = sliceProfile(worldSamples(preview.pieces.filter((q) => !isHold(q))), { x: 0, z: 0 }, preview.lane);
+    previewBars = holdsOf(preview.pieces, preview.lane);
+    draw(); drawProfile();
+    const key = keyOf(proposal), mine = ++proofRun;
+    if (!enabledCount(proposal)) return paintVerdict('none');
+    const known = proofs.get(key);
+    if (known !== undefined) return paintVerdict(known ? 'clears' : 'blocked');
+    paintVerdict('checking');
+    const snapshot = preview;
+    setTimeout(() => { if (mine !== proofRun || !proposal) return; const ok = proves(snapshot.pieces, snapshot.lane); proofs.set(key, ok); paintVerdict(ok ? 'clears' : 'blocked'); }, 30);
+  }
+  function applyProposal() {
+    if (!proposal || !preview) return;
+    const r = preview, words = proposal.items.filter((i) => i.on).map((i) => i.words).join(' ');
+    for (const q of r.pieces) { const mine = pieces.find((x) => x.id === q.id); if (mine) { mine.x = q.x; mine.z = q.z; mine.y = q.y; mine.yaw = q.yaw; mine.scale = q.scale; } }
+    angle = r.lane.angle; offset = r.lane.offset; level = r.lane.level;
+    proposal = null; preview = null; previewProfile = null; previewBars = []; proofRun++;
+    changed(); // one undo step
+    reply.className = 'reply ok'; reply.textContent = `Applied. ${words} (Undo goes back.)`;
+    document.documentElement.dataset.preview = 'applied';
+  }
   let adviceList: Advice[] = [];
   let pendingEdits: Edit[] = [];
   const chat: { role: 'user' | 'assistant'; content: string }[] = [];
-  function applyAdvice(a: Advice) {
-    const p = pieces.find((q) => q.id === a.piece);
-    const c = a.change;
-    if (p) { p.x += c.dx ?? 0; p.z += c.dz ?? 0; p.y = Math.max(0, p.y + (c.dy ?? 0)); if (c.scale !== undefined) p.scale = c.scale; if (c.yaw !== undefined) p.yaw += c.yaw; }
-    if (c.angle !== undefined) angle = c.angle;
-    if (c.offset !== undefined) offset = c.offset;
-    if (c.level !== undefined) level = c.level;
-    changed();
-  }
+  const previewAdvice = (a: Advice) => { leadText = ''; showProposal(fromAdvice(pieces, { angle, offset, level }, a)); };
   function showAdvice() {
     adviceBox.textContent = '';
     for (const a of adviceList) {
       const row = el('div', adviceBox, { className: 'row' });
       el('span', row, { text: a.text });
-      el('button', row, { text: 'Do it', className: 'go' }).onclick = () => applyAdvice(a);
+      el('button', row, { text: 'Show it', className: 'go', title: 'See where it would go before anything changes' }).onclick = () => previewAdvice(a);
     }
   }
   async function askPartner(text: string) {
@@ -277,8 +378,11 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
       const got = parseReply(((await r.json()) as { reply: string }).reply, pieces.map((q) => q.id));
       chat.push({ role: 'assistant', content: got.text });
       reply.textContent = got.text; pendingEdits = got.edits;
-      if (!verdict.startsWith('The simulator can')) el('button', reply, { text: 'Fix it', className: 'go', id: 'replyfix' }).onclick = () => runFix();
-      if (got.edits.length) el('button', reply, { text: `Do these ${got.edits.length} change${got.edits.length > 1 ? 's' : ''}`, className: 'go', id: 'applyedits' }).onclick = () => { applyEdits(pieces, pendingEdits); pendingEdits = []; changed(); };
+      if (got.edits.length) el('button', reply, { text: `Show these ${got.edits.length} change${got.edits.length > 1 ? 's' : ''}`, className: 'go', id: 'applyedits', title: 'See where the pieces would go before anything changes' }).onclick = () => {
+        const pr = fromEdits(pieces, { angle, offset, level }, pendingEdits);
+        if (!pr.items.length) { reply.textContent = got.text + ' (Those changes would not move anything.)'; return; }
+        leadText = got.text; showProposal(pr);
+      };
     } catch { reply.className = 'reply bad'; reply.textContent = 'The design partner could not answer. Try again.'; }
     finally { sendBtn.disabled = whatBtn.disabled = false; }
   }
@@ -430,6 +534,31 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
       c.restore();
       c.fillStyle = '#17201d'; c.font = '12px system-ui'; c.fillText(`${p.name} ${(s.h * p.scale + p.y).toFixed(2)} m`, sx(p.x) - 28, sz(p.z) + 4);
     });
+    if (proposal && preview) { // the preview: grey outline where a piece is now, teal outline where it would be, an arrow between
+      const arrow = (x0: number, y0: number, x1: number, y1: number) => {
+        const a = Math.atan2(y1 - y0, x1 - x0);
+        c.beginPath(); c.moveTo(x0, y0); c.lineTo(x1, y1); c.stroke();
+        c.beginPath(); c.moveTo(x1, y1); c.lineTo(x1 - 10 * Math.cos(a - 0.4), y1 - 10 * Math.sin(a - 0.4)); c.lineTo(x1 - 10 * Math.cos(a + 0.4), y1 - 10 * Math.sin(a + 0.4)); c.closePath(); c.fillStyle = '#0f9d84'; c.fill();
+      };
+      c.lineWidth = 2; c.setLineDash([6, 4]);
+      for (const it of proposal.items) {
+        if (!it.on || it.kind !== 'piece') continue;
+        const mine = pieces.find((q) => q.id === it.id);
+        if (!mine) continue;
+        const s2 = size(mine.mesh);
+        for (const [st, col] of [[it.from, '#7d8a84'], [it.to, '#0f9d84']] as const) {
+          c.save(); c.translate(sx(st.x), sz(st.z)); c.rotate(st.yaw);
+          c.strokeStyle = col; c.strokeRect((-s2.w * st.scale * view.ppm) / 2, (-s2.d * st.scale * view.ppm) / 2, s2.w * st.scale * view.ppm, s2.d * st.scale * view.ppm);
+          c.restore();
+        }
+        if (Math.hypot(it.to.x - it.from.x, it.to.z - it.from.z) > 0.05) { c.strokeStyle = '#0f9d84'; c.setLineDash([]); arrow(sx(it.from.x), sz(it.from.z), sx(it.to.x), sz(it.to.z)); c.setLineDash([6, 4]); }
+      }
+      if (proposal.items.some((i) => i.kind === 'lane' && i.on && i.key !== 'level')) { // the lane would turn or step sideways: a dashed line where it would run
+        c.save(); c.translate(sx(0), sz(0)); c.rotate(preview.lane.angle); c.strokeStyle = '#0f9d84';
+        c.beginPath(); c.moveTo(-400 * view.ppm, preview.lane.offset * view.ppm); c.lineTo(400 * view.ppm, preview.lane.offset * view.ppm); c.stroke(); c.restore();
+      }
+      c.setLineDash([]);
+    }
     if (rubber) { c.strokeStyle = '#0f6b5c'; c.setLineDash([5, 4]); c.strokeRect(sx(rubber.x0), sz(rubber.z0), (rubber.x1 - rubber.x0) * view.ppm, (rubber.z1 - rubber.z0) * view.ppm); c.setLineDash([]); }
   }
   // the side view: the lane's ground, the bars (drag them here), and where a person can reach
@@ -441,8 +570,10 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
     const prof = currentProfile();
     const bars = barsNow();
     const o = prof.origin ?? 0;
-    const uLo = Math.min(prof.length ? o : 0, ...bars.map((b) => b.u));
-    const uHi = Math.max(prof.length ? o + prof.length : -Infinity, ...bars.map((b) => b.u), uLo + 10);
+    const pv = proposal && preview ? { prof: previewProfile!, bars: previewBars } : null;
+    const po = pv?.prof?.origin ?? 0;
+    const uLo = Math.min(prof.length ? o : 0, ...bars.map((b) => b.u), ...(pv ? [pv.prof.length ? po : Infinity, ...pv.bars.map((b) => b.u)] : []));
+    const uHi = Math.max(prof.length ? o + prof.length : -Infinity, ...bars.map((b) => b.u), ...(pv ? [pv.prof.length ? po + pv.prof.length : -Infinity, ...pv.bars.map((b) => b.u)] : []), uLo + 10);
     c.fillStyle = '#58635d'; c.font = '12px system-ui';
     c.fillText('What the runner sees: the lane from the side (water at the bottom, grid every metre). Drag a bar to move it.', 8, 14);
     const base = H - 14, ppm = Math.min(30, (W - 40) / Math.max(10, uHi - uLo + 1)), ph = Math.max(14, (base - 24) / 4.3);
@@ -466,6 +597,25 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
       c.strokeStyle = '#c9ced4'; c.lineWidth = 4; c.beginPath(); c.moveTo(x - 12, y); c.lineTo(x + 12, y); c.stroke();
       c.strokeStyle = sel ? '#0f6b5c' : '#f0a020'; c.lineWidth = 3; c.beginPath(); c.arc(x, y, 9, 0, 7); c.stroke();
       c.fillStyle = '#17201d'; c.fillText(`${b.y.toFixed(2)} m`, x + 12, y - 8);
+    }
+    if (pv) { // the preview: the ground after the change (dashed teal) and the bars where they would hang, with an arrow from where they are now
+      c.save(); c.strokeStyle = '#0f9d84'; c.lineWidth = 2; c.setLineDash([6, 4]); c.beginPath();
+      let pen2 = false;
+      pv.prof.cells.forEach((h, i) => { if (h === null) { pen2 = false; return; } const x = 10 + (po - uLo + i * CELL) * ppm, y = base - h * ph; if (!pen2) { c.moveTo(x, y); pen2 = true; } else c.lineTo(x, y); });
+      c.stroke(); c.setLineDash([]);
+      for (const nb of pv.bars) {
+        const x = 10 + (nb.u - uLo) * ppm, y = base - nb.y * ph, was = bars.find((b) => b.id === nb.id);
+        c.strokeStyle = '#0f9d84'; c.fillStyle = '#0f9d8433'; c.lineWidth = 3; c.beginPath(); c.arc(x, y, 9, 0, 7); c.fill(); c.stroke();
+        if (was) {
+          const x0 = 10 + (was.u - uLo) * ppm, y0 = base - was.y * ph;
+          if (Math.hypot(x - x0, y - y0) > 4) {
+            const a = Math.atan2(y - y0, x - x0), x1 = x - 11 * Math.cos(a), y1 = y - 11 * Math.sin(a);
+            c.lineWidth = 2; c.beginPath(); c.moveTo(x0 + 11 * Math.cos(a), y0 + 11 * Math.sin(a)); c.lineTo(x1, y1); c.stroke();
+            c.fillStyle = '#0f9d84'; c.beginPath(); c.moveTo(x1, y1); c.lineTo(x1 - 8 * Math.cos(a - 0.45), y1 - 8 * Math.sin(a - 0.45)); c.lineTo(x1 - 8 * Math.cos(a + 0.45), y1 - 8 * Math.sin(a + 0.45)); c.closePath(); c.fill();
+          }
+        }
+      }
+      c.restore();
     }
     document.documentElement.dataset.laneLength = String(prof.length.toFixed(1));
     document.documentElement.dataset.bars = String(bars.length);
@@ -538,6 +688,7 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
     if (t && /^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName) && (t as HTMLInputElement).type !== 'range') return;
     if ((e.ctrlKey || e.metaKey) && e.code === 'KeyZ') { e.preventDefault(); goto(e.shiftKey ? hi + 1 : hi - 1); return; }
     if ((e.ctrlKey || e.metaKey) && e.code === 'KeyY') { e.preventDefault(); goto(hi + 1); return; }
+    if (e.code === 'Escape' && proposal) { closePreview('Cancelled: nothing changed.'); return; }
     if (e.code === 'KeyT') location.href = '?';
     const p = pieces.find((q) => q.id === selected);
     if (!p) return;
@@ -545,7 +696,7 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
     if (e.code === 'KeyD') { const q = duplicate(p, size(p.mesh).w * p.scale + 0.5, 0) as P; q.src = p.src; pieces.push(q); selected = q.id; changed(); }
   });
 
-  function changed(record = true) { if (record) remember(); document.documentElement.dataset.pieces = String(pieces.length); save(); drawPanel(); drawLanePanel(); draw(); drawProfile(); verify(); }
+  function changed(record = true) { if (proposal) closePreview('The layout changed, so the preview was closed.'); if (record) remember(); document.documentElement.dataset.pieces = String(pieces.length); save(); drawPanel(); drawLanePanel(); draw(); drawProfile(); verify(); }
   drawPanel(); drawLanePanel(); draw(); drawProfile(); verify();
   remember();
   document.documentElement.dataset.pieces = String(pieces.length);

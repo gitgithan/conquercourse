@@ -2,7 +2,7 @@ import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { HALF_LANE } from './slice';
-import type { Piece } from './world';
+import { size as meshSize, type Piece } from './world';
 import { patternOf } from './stack';
 import { cupsGroup } from './cups';
 
@@ -17,7 +17,10 @@ export interface Host {
   select(id: number | null): void;
   moved(p: P3, x: number, z: number): void; // while dragging
   dropped(): void; // when the drag ends
+  ghosts?(): Ghosts | null; // a preview of a change: hollow outlines where pieces would be, arrows from where they are
 }
+export interface GhostState { x: number; y: number; z: number; yaw: number; scale: number }
+export interface Ghosts { items: { id: number; from: GhostState; to: GhostState }[]; lane: { angle: number; offset: number } | null }
 export interface View3d { sync(): void; show(on: boolean): void; readonly el: HTMLCanvasElement; resize(): void }
 
 const loader = new GLTFLoader();
@@ -65,6 +68,41 @@ export function createView3d(wrap: HTMLElement, host: Host): View3d {
   mid.rotation.x = -Math.PI / 2; mid.position.y = 0.025;
   laneG.add(band, mid); scene.add(laneG);
   const rod = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.05, 2.5, 12), new THREE.MeshStandardMaterial({ color: 0x17201d })); rod.position.y = 1.25; scene.add(rod);
+
+  // the preview of a change: a hollow outline at the new place (teal), a faint one where the piece is now (grey), an arrow between, a dashed new lane line
+  const ghostG = new THREE.Group(); scene.add(ghostG);
+  let ghostSig = '';
+  const TEAL = 0x0f9d84, GREY = 0x7d8a84;
+  function syncGhosts() {
+    const gh = host.ghosts?.() ?? null;
+    const sig = gh ? JSON.stringify(gh) : '';
+    if (sig === ghostSig) return;
+    ghostSig = sig;
+    for (const c of [...ghostG.children]) { ghostG.remove(c); c.traverse((o) => { const m = o as THREE.Mesh; m.geometry?.dispose(); }); }
+    if (!gh) return;
+    const outline = (w: number, h: number, d: number, st: GhostState, color: number, fill: boolean) => {
+      const box = new THREE.BoxGeometry(Math.max(0.02, w), Math.max(0.02, h), Math.max(0.02, d));
+      const g = new THREE.Group();
+      g.add(new THREE.LineSegments(new THREE.EdgesGeometry(box), new THREE.LineBasicMaterial({ color, transparent: true, opacity: fill ? 1 : 0.55, depthTest: false })));
+      if (fill) g.add(new THREE.Mesh(box, new THREE.MeshBasicMaterial({ color, transparent: true, opacity: 0.1, depthWrite: false })));
+      g.position.set(st.x, st.y + h / 2, st.z); g.rotation.y = -st.yaw; g.renderOrder = 10;
+      return g;
+    };
+    for (const it of gh.items) {
+      const p = host.pieces().find((q) => q.id === it.id);
+      if (!p) continue;
+      const s = meshSize(p.mesh), dims = (st: GhostState) => [s.w * st.scale, s.h * st.scale, s.d * st.scale] as const;
+      const [fw, fh, fd] = dims(it.from), [tw, th, td] = dims(it.to);
+      ghostG.add(outline(fw, fh, fd, it.from, GREY, false), outline(tw, th, td, it.to, TEAL, true));
+      const a = new THREE.Vector3(it.from.x, it.from.y + fh / 2, it.from.z), b = new THREE.Vector3(it.to.x, it.to.y + th / 2, it.to.z), dir = b.clone().sub(a), len = dir.length();
+      if (len > 0.05) { const arrow = new THREE.ArrowHelper(dir.normalize(), a, len, TEAL, Math.min(0.6, len * 0.35), Math.min(0.3, len * 0.18)); arrow.renderOrder = 11; (arrow.line.material as THREE.Material).depthTest = false; (arrow.cone.material as THREE.Material).depthTest = false; ghostG.add(arrow); }
+    }
+    if (gh.lane) {
+      const line = new THREE.Line(new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(-400, 0.06, 0), new THREE.Vector3(400, 0.06, 0)]), new THREE.LineDashedMaterial({ color: TEAL, dashSize: 0.6, gapSize: 0.4 }));
+      line.computeLineDistances(); line.position.z = gh.lane.offset;
+      const holder = new THREE.Group(); holder.rotation.y = -gh.lane.angle; holder.add(line); ghostG.add(holder);
+    }
+  }
 
   const nodes = new Map<number, { g: THREE.Group; sig: string; box?: THREE.BoxHelper }>();
   let dirty = true, on = true;
@@ -122,6 +160,7 @@ export function createView3d(wrap: HTMLElement, host: Host): View3d {
     const { angle, offset, level } = host.lane();
     laneG.rotation.y = -angle; band.position.z = offset; mid.position.z = offset;
     water.visible = level > 0.001; water.position.y = level;
+    syncGhosts();
     redraw();
   }
 
