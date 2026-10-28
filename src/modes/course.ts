@@ -37,6 +37,7 @@ import { buildTrack, type TrackView } from '../render/track';
 import { buildPlanks } from '../render/plank';
 import { topAt } from '../sim/beam';
 import { crestSpeedLimit, railsOf } from '../sim/cart';
+import { installGraphStudio } from './graph-studio';
 
 // The Course: the five obstacles in a row. The simulator decides everything; this file only draws it
 // and turns keys into inputs. Time comes from the simulator's tick count, never from the browser's clock.
@@ -1034,6 +1035,9 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
 
   let last = performance.now();
   let acc = 0;
+  let studioHold = false; // the Graph Studio has the clock stopped (not the Dojo's "press any key" pause)
+  // Graph Studio (CC-86): Tab pauses the Course and opens the ground as a graph to drag; "Play from here" carries on with the edited course
+  if (!botMode) installGraphStudio({ env: () => ({ course, retryX, facing, falls, runnerX: world.runner.x }), pause: () => { studioHold = true; paused = true; }, resume: () => { studioHold = false; paused = false; last = performance.now(); keys.clear(); }, chipWhen: () => falls > 0 || params.get('edit') === '1' });
   const camPos = new THREE.Vector3();
   // Mouse: drag turns the view around the runner, the wheel zooms, a double-click (or C) goes back to the preset.
   // The numbers are changes on top of the preset view, so zero means the preset exactly.
@@ -1171,7 +1175,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
       ropeMesh.position.set(course.rope.anchorX + (ropeLen / 2) * Math.sin(th), course.rope.anchorY - (ropeLen / 2) * Math.cos(th), 0);
       ropeMesh.updateMatrix(); ropeMesh.updateMatrixWorld(true);
     }
-    msg.textContent = paused ? 'Back from the Dojo. Press any key to carry on.' : world.outcome === 'cleared' ? MESSAGES.cleared : idealNote;
+    msg.textContent = paused && !studioHold ? 'Back from the Dojo. Press any key to carry on.' : world.outcome === 'cleared' ? MESSAGES.cleared : idealNote;
     const onCoaster = world.mode === 'cart' && world.cart !== null;
     const spd = onCoaster ? Math.abs(world.cart!.v) : Math.abs(r.vx);
     const gaugeMax = onCoaster ? 40 : GAUGE_MAX;
