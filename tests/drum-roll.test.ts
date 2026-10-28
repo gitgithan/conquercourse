@@ -25,4 +25,19 @@ describe('roll drums', () => {
     expect(roll).toBeDefined();
     expect(roll.x).toBeGreaterThan(release.x);
   });
+  for (const demo of ['lache', 'lache-wide']) {
+    it(`the ${demo} demo shows the X drum after the second release (the landing would stumble without it)`, () => {
+      const c = JSON.parse(readFileSync(`public/assets/demo/${demo}.course.json`, 'utf8')) as CourseData;
+      const drums = drumsFor(c);
+      const releases = drums.filter((d) => d.what === 'release');
+      expect(releases.length).toBe(2);
+      const roll = drums.find((d) => d.what === 'roll');
+      expect(roll).toBeDefined();
+      expect(roll!.x).toBeGreaterThan(releases[1].x);
+    });
+  }
+  it('a landing that is clean with straight legs has no X drum (the lane is not cluttered)', () => {
+    const c = JSON.parse(readFileSync('public/assets/demo/lane-1.course.json', 'utf8')) as CourseData;
+    expect(drumsFor(c).some((d) => d.what === 'roll')).toBe(false);
+  });
 });

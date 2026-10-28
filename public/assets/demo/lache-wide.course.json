@@ -6,7 +6,7 @@
   "jumpSpeed": 4.5,
   "jumpKeep": 0.88,
   "terrain": {
-    "waterY": -1.5,
+    "waterY": -6,
     "platforms": [
       {
         "x0": -10,
@@ -24,9 +24,9 @@
         "top": 0
       },
       {
-        "x0": 50,
+        "x0": 51,
         "x1": 70,
-        "top": 0
+        "top": -2
       }
     ]
   },
@@ -67,14 +67,14 @@
   "hazard": "spikes",
   "plan": {
     "jumpXs": [
-      35.75
+      35.15
     ],
     "releaseAfter": 60,
     "bouncePress": 8,
     "hands": true,
     "hangTicks": [
       372,
-      378
+      372
     ],
     "vaultXs": [
       21.38

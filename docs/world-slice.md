@@ -702,3 +702,24 @@ The set of obstacle shapes is fixed, and each shape offers a fixed set of moves.
   - `scripts/editor-check` has three false answers that are the same on the code before CC-56 (the 1024x640 no-scroll check, the advice offer, and the partner, which needs the key that lives on the laptop).
   - The generated sample course is unchanged, and the stored plans test passes.
 
+
+## Lache playtest fixes, round two (CC-67)
+- **So what:** the corner window turns with the body, a body that hops off a bar and comes back can catch it again, and every landing that could stumble or hurt shows the X drum.
+- **Corner window turns with the body:** the camera sits at the head and turns about the bar by the swing angle (a quaternion, so it passes the top without a flip).
+  - At 90 degrees it looks straight up at the sky; at 180 degrees it is upside down and shows the lava floor and the deck above.
+  - After a release the head settles level over about 0.3 s (the body has no spin in flight); on the ground it is level.
+  - Screenshots at 0, 90 and 180 degrees: `data/eval/cc-67-fixes/looking-ahead-theta-*.png`.
+- **Regrab:** once the hands have let go of a bar, the zone for grabbing is an ellipse round the bar, 1.2 m along the run and 0.6 m up and down (`regrabX`, `regrabY`), after the 0.2 s no-catch time.
+  - A release straight up comes back down about 1.05 m to the side of the bar (half a rod), so the ellipse is wider than the 1.0 m first guessed.
+  - Falling past the bar from above counts.
+    - The first grab from a run and jump keeps the 0.6 m circle.
+  - The catch does not move the body: the hands start where they were and ease onto the bar over 8 ticks (`handOffset`), so the path is continuous (a test checks that no tick moves the feet more than 15 cm).
+  - The same catch speed rule (`catchKeep`) applies.
+    - A release that carries the hands more than about 1.2 m away is not caught again (a test).
+  - Effect on the lache: the widest gap a full pump crosses is now 7.5 m (it was 7 m); 8 m is out of reach.
+- **Roll drums:** the X drum is on the strip at every landing that would stumble or hurt with straight legs and no roll (a fall of more than about 1.8 m, `rollAdvised` in `src/sim/drop.ts`), as well as where the ideal run presses the roll to survive.
+  - The prediction treats the floor over a gap as the water until the real landing deck is found; before, a fall over a gap onto a deck was missed.
+  - The lache demos had no X drum after the second release because their last landing was only a 1.5 m fall, which is clean even with straight legs.
+    - The final decks are now 2 m lower, so the landing is a 3 m fall and the X drum shows (and the demo teaches the roll).
+  - The lache pair is needed again: with the stronger release one bar could be skipped, so the last deck is 3 m farther (48 m); the plan uses both bars (a test).
+  - If the owner meant a red cross for a wrong press on the strip, that is not built; the strip still only shows the ideal line.

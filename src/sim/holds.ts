@@ -12,7 +12,9 @@ export interface Hold { x: number; y: number } // the bar, seen from the side: w
 
 export interface HangParams {
   handHeight: number; // m, hands above the feet when the arms are stretched up (the rod's length)
-  reach: number; // m, how close the hands must be to the bar to grab it
+  reach: number; // m, how close the hands must be to the bar to grab it (a circle: the first grab from a run and jump)
+  regrabX: number; // m, along the run: how far the hands may be from a bar to grab it again after a release (an ellipse, wider than tall)
+  regrabY: number; // m, up and down: how far the hands may be above or below the bar (falling past it from above counts)
   catchKeep: number; // share of the speed along the swing that the arms keep when they catch (the rest is absorbed)
   pump: number; // rad/s^2, how hard the body can drive the swing with the arrow keys
   grip: number; // the most the bar may pull on the hands, in body weights; above it the hands open
@@ -22,12 +24,22 @@ export interface HangParams {
 
 // grip 5.5: strain-gauge bars measured about 3.5 to 3.7 body weights in ordinary forward and backward giant swings (Kopp and Reid 1980),
 // an estimate of 4.9 at the top of the pull (Cureton 1939), and 5 to 6.6 for an elite gymnast in strapped grips (Cagran et al. 2009).
-export const DEFAULT_HANG: HangParams = { handHeight: 2.1, reach: 0.6, catchKeep: 0.35, pump: 6, grip: 5.5, drag: 0.04, gravity: GRAVITY };
+export const DEFAULT_HANG: HangParams = { handHeight: 2.1, reach: 0.6, regrabX: 1.2, regrabY: 0.6, catchKeep: 0.35, pump: 6, grip: 5.5, drag: 0.04, gravity: GRAVITY };
 
 export interface Hang {
   hold: number; // index into the course's holds
   theta: number; // rad from hanging straight down, wrapped to (-pi, pi]; positive swings forward (toward +x)
   omega: number; // rad/s
+  ox?: number; // m, where the hands were from the bar when they closed (along the run); they ease onto the bar so nothing jumps
+  oy?: number; // m, the same, up
+  et?: number; // ticks of easing left (EASE_TICKS at the grab, 0 when the hands are on the bar)
+}
+export const EASE_TICKS = 8; // the hands slide onto the bar over a fifteenth of a second
+
+// How far the hands still are from the bar while they ease onto it.
+export function handOffset(s: Hang): { x: number; y: number } {
+  const k = (s.et ?? 0) / EASE_TICKS;
+  return { x: (s.ox ?? 0) * k, y: (s.oy ?? 0) * k };
 }
 
 // The effective pendulum length of a stretched body hanging by the hands (a uniform rod of length handHeight: 2/3 of it).
@@ -37,7 +49,8 @@ export const comDistance = (p: HangParams = DEFAULT_HANG): number => p.handHeigh
 
 // Where the feet are while hanging.
 export function feetOf(h: Hold, s: Hang, p: HangParams = DEFAULT_HANG): { x: number; y: number } {
-  return { x: h.x + p.handHeight * Math.sin(s.theta), y: h.y - p.handHeight * Math.cos(s.theta) };
+  const o = handOffset(s);
+  return { x: h.x + o.x + p.handHeight * Math.sin(s.theta), y: h.y + o.y - p.handHeight * Math.cos(s.theta) };
 }
 
 // The radius the body flies away with. The stiff rod swings with kinetic energy 1/2 I w^2 about the bar (I = m L^2 / 3 for a rod of length L),
@@ -66,14 +79,20 @@ export function bottomLoad(s: Hang, p: HangParams = DEFAULT_HANG): number {
 }
 
 // Grab: the hands (above the feet at x, y) must be within reach of the bar. The arms keep part of the speed along the swing.
-export function tryGrab(holds: Hold[], x: number, y: number, vx: number, vy: number, p: HangParams = DEFAULT_HANG): Hang | null {
+// The first grab (from a run and jump) needs the hands within `reach` of the bar; once the hands have let go of a bar (`again`) the zone is an ellipse
+// (`regrabX` along the run, `regrabY` up and down), so a body that hops straight up and comes back down can catch the bar it let go of, or fall onto one from above.
+export function tryGrab(holds: Hold[], x: number, y: number, vx: number, vy: number, p: HangParams = DEFAULT_HANG, again = false): Hang | null {
   const hx = x, hy = y + p.handHeight;
   let best = -1, bd = Infinity;
-  holds.forEach((h, i) => { const d = Math.hypot(hx - h.x, hy - h.y); if (d <= p.reach && d < bd) { bd = d; best = i; } });
+  holds.forEach((h, i) => {
+    const d = again ? Math.hypot((hx - h.x) / p.regrabX, (hy - h.y) / p.regrabY) : Math.hypot(hx - h.x, hy - h.y) / p.reach;
+    if (d <= 1 && d < bd) { bd = d; best = i; }
+  });
   if (best < 0) return null;
-  // hang from the bar: the body hangs straight down from the hands, moving with the tangent speed at the bottom of the swing
-  const theta = 0;
-  return { hold: best, theta, omega: (vx * p.catchKeep) / releaseRadius(p) + 0 * vy };
+  // hang from the bar: the body hangs straight down from the hands, moving with the tangent speed at the bottom of the swing;
+  // the hands were a little off the bar, so they ease onto it over a few ticks (the path stays continuous)
+  const h = holds[best];
+  return { hold: best, theta: 0, omega: (vx * p.catchKeep) / releaseRadius(p) + 0 * vy, ox: hx - h.x, oy: hy - h.y, et: EASE_TICKS };
 }
 
 // One step. pump is +1 (forward key), -1 (back key) or 0: pressing the way the body is already moving adds energy, pressing against it takes energy out.
@@ -91,7 +110,7 @@ export function hangStep(s: Hang, pump: number, p: HangParams = DEFAULT_HANG): H
   let theta = s.theta + (DT / 6) * (k1t + 2 * k2t + 2 * k3t + k4t);
   const omega = s.omega + (DT / 6) * (k1w + 2 * k2w + 2 * k3w + k4w);
   theta -= 2 * Math.PI * Math.round(theta / (2 * Math.PI)); // round and round is the same as turning once
-  return { hold: s.hold, theta, omega };
+  return { hold: s.hold, theta, omega, ox: s.ox, oy: s.oy, et: Math.max(0, (s.et ?? 0) - 1) };
 }
 
 // True when the bar pulls harder than the hands can hold: they open.
