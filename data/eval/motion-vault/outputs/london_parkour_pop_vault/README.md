@@ -9,8 +9,12 @@ The 7-second source segment (video time 32–39 s) was processed at 30000/1001 f
 - 210 source frames; 130 frames measured by SAM 3D Body; 130 converted to SOMA joints.
 - SOMA fit error: 0.97 cm mean, 0.66 cm median.
 - Contact extraction found 9 candidate contacts.
-- Plausibility gate: **FAIL**. Estimated flight acceleration is 3.47 m/s² (expected 9.81 m/s² within 15%); frame range 38–61 of the extracted athlete segment. Floor repair fixed foot sinking, but not the flight result. Several contacts also persist into the end of the segment, so contact timing needs review.
-- Do not ship this candidate as a game animation yet. The runner used the default camera field of view, which can affect scale.
+- Plausibility gate: **FAIL**.
+- Estimated flight acceleration is 3.47 m/s² (expected 9.81 m/s² within 15%), on frames 38–61 of the extracted athlete segment.
+- Floor repair fixed foot sinking, but not the flight result.
+- Several contacts also persist into the end of the segment, so contact timing needs review.
+- Do not ship this candidate as a game animation yet.
+- The runner used the default camera field of view, which can affect scale.
 - Estimated Modal processing cost: $0.13.
 
 ## Reproduction

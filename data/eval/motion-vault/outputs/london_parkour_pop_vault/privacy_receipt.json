@@ -1,1 +1,2202 @@
-{"prompts": {"person": 0.5, "face": 0.4, "license plate": 0.4}, "frames": 210, "frames_with_a_face": 124, "frames_with_people": 130, "total_faces": 124, "total_plates": 0, "per_frame": [{"frame": 0, "people": 1, "faces": 0, "plates": 0, "person_scores": [0.582], "face_scores": []}, {"frame": 1, "people": 1, "faces": 0, "plates": 0, "person_scores": [0.574], "face_scores": []}, {"frame": 2, "people": 0, "faces": 0, "plates": 0, "person_scores": [], "face_scores": []}, {"frame": 3, "people": 0, "faces": 0, "plates": 0, "person_scores": [], "face_scores": []}, {"frame": 4, "people": 0, "faces": 0, "plates": 0, "person_scores": [], "face_scores": []}, {"frame": 5, "people": 0, "faces": 0, "plates": 0, "person_scores": [], "face_scores": []}, {"frame": 6, "people": 0, "faces": 0, "plates": 0, "person_scores": [], "face_scores": []}, {"frame": 7, "people": 0, "faces": 0, "plates": 0, "person_scores": [], "face_scores": []}, {"frame": 8, "people": 0, "faces": 0, "plates": 0, "person_scores": [], "face_scores": []}, {"frame": 9, "people": 0, "faces": 0, "plates": 0, "person_scores": [], "face_scores": []}, {"frame": 10, "people": 0, "faces": 0, "plates": 0, "person_scores": [], "face_scores": []}, {"frame": 11, "people": 0, "faces": 0, "plates": 0, "person_scores": [], "face_scores": []}, {"frame": 12, "people": 0, "faces": 0, "plates": 0, "person_scores": [], "face_scores": []}, {"frame": 13, "people": 0, "faces": 0, "plates": 0, "person_scores": [], "face_scores": []}, {"frame": 14, "people": 0, "faces": 0, "plates": 0, "person_scores": [], "face_scores": []}, {"frame": 15, "people": 0, "faces": 0, "plates": 0, "person_scores": [], "face_scores": []}, {"frame": 16, "people": 0, "faces": 0, "plates": 0, "person_scores": [], "face_scores": []}, {"frame": 17, "people": 0, "faces": 0, "plates": 0, "person_scores": [], "face_scores": []}, {"frame": 18, "people": 0, "faces": 0, "plates": 0, "person_scores": [], "face_scores": []}, {"frame": 19, "people": 0, "faces": 0, "plates": 0, "person_scores": [], "face_scores": []}, {"frame": 20, "people": 0, "faces": 0, "plates": 0, "person_scores": [], "face_scores": []}, {"frame": 21, "people": 0, "faces": 0, "plates": 0, "person_scores": [], "face_scores": []}, {"frame": 22, "people": 0, "faces": 0, "plates": 0, "person_scores": [], "face_scores": []}, {"frame": 23, "people": 0, "faces": 0, "plates": 0, "person_scores": [], "face_scores": []}, {"frame": 24, "people": 0, "faces": 0, "plates": 0, "person_scores": [], "face_scores": []}, {"frame": 25, "people": 0, "faces": 0, "plates": 0, "person_scores": [], "face_scores": []}, {"frame": 26, "people": 0, "faces": 0, "plates": 0, "person_scores": [], "face_scores": []}, {"frame": 27, "people": 0, "faces": 0, "plates": 0, "person_scores": [], "face_scores": []}, {"frame": 28, "people": 0, "faces": 0, "plates": 0, "person_scores": [], "face_scores": []}, {"frame": 29, "people": 0, "faces": 0, "plates": 0, "person_scores": [], "face_scores": []}, {"frame": 30, "people": 0, "faces": 0, "plates": 0, "person_scores": [], "face_scores": []}, {"frame": 31, "people": 0, "faces": 0, "plates": 0, "person_scores": [], "face_scores": []}, {"frame": 32, "people": 0, "faces": 0, "plates": 0, "person_scores": [], "face_scores": []}, {"frame": 33, "people": 0, "faces": 0, "plates": 0, "person_scores": [], "face_scores": []}, {"frame": 34, "people": 0, "faces": 0, "plates": 0, "person_scores": [], "face_scores": []}, {"frame": 35, "people": 0, "faces": 0, "plates": 0, "person_scores": [], "face_scores": []}, {"frame": 36, "people": 0, "faces": 0, "plates": 0, "person_scores": [], "face_scores": []}, {"frame": 37, "people": 0, "faces": 0, "plates": 0, "person_scores": [], "face_scores": []}, {"frame": 38, "people": 0, "faces": 0, "plates": 0, "person_scores": [], "face_scores": []}, {"frame": 39, "people": 0, "faces": 0, "plates": 0, "person_scores": [], "face_scores": []}, {"frame": 40, "people": 0, "faces": 0, "plates": 0, "person_scores": [], "face_scores": []}, {"frame": 41, "people": 0, "faces": 0, "plates": 0, "person_scores": [], "face_scores": []}, {"frame": 42, "people": 0, "faces": 0, "plates": 0, "person_scores": [], "face_scores": []}, {"frame": 43, "people": 0, "faces": 0, "plates": 0, "person_scores": [], "face_scores": []}, {"frame": 44, "people": 0, "faces": 0, "plates": 0, "person_scores": [], "face_scores": []}, {"frame": 45, "people": 0, "faces": 0, "plates": 0, "person_scores": [], "face_scores": []}, {"frame": 46, "people": 0, "faces": 0, "plates": 0, "person_scores": [], "face_scores": []}, {"frame": 47, "people": 0, "faces": 0, "plates": 0, "person_scores": [], "face_scores": []}, {"frame": 48, "people": 0, "faces": 0, "plates": 0, "person_scores": [], "face_scores": []}, {"frame": 49, "people": 0, "faces": 0, "plates": 0, "person_scores": [], "face_scores": []}, {"frame": 50, "people": 0, "faces": 0, "plates": 0, "person_scores": [], "face_scores": []}, {"frame": 51, "people": 0, "faces": 0, "plates": 0, "person_scores": [], "face_scores": []}, {"frame": 52, "people": 0, "faces": 0, "plates": 0, "person_scores": [], "face_scores": []}, {"frame": 53, "people": 0, "faces": 0, "plates": 0, "person_scores": [], "face_scores": []}, {"frame": 54, "people": 0, "faces": 0, "plates": 0, "person_scores": [], "face_scores": []}, {"frame": 55, "people": 0, "faces": 0, "plates": 0, "person_scores": [], "face_scores": []}, {"frame": 56, "people": 0, "faces": 0, "plates": 0, "person_scores": [], "face_scores": []}, {"frame": 57, "people": 0, "faces": 0, "plates": 0, "person_scores": [], "face_scores": []}, {"frame": 58, "people": 0, "faces": 0, "plates": 0, "person_scores": [], "face_scores": []}, {"frame": 59, "people": 0, "faces": 0, "plates": 0, "person_scores": [], "face_scores": []}, {"frame": 60, "people": 0, "faces": 0, "plates": 0, "person_scores": [], "face_scores": []}, {"frame": 61, "people": 0, "faces": 0, "plates": 0, "person_scores": [], "face_scores": []}, {"frame": 62, "people": 0, "faces": 0, "plates": 0, "person_scores": [], "face_scores": []}, {"frame": 63, "people": 0, "faces": 0, "plates": 0, "person_scores": [], "face_scores": []}, {"frame": 64, "people": 0, "faces": 0, "plates": 0, "person_scores": [], "face_scores": []}, {"frame": 65, "people": 0, "faces": 0, "plates": 0, "person_scores": [], "face_scores": []}, {"frame": 66, "people": 0, "faces": 0, "plates": 0, "person_scores": [], "face_scores": []}, {"frame": 67, "people": 0, "faces": 0, "plates": 0, "person_scores": [], "face_scores": []}, {"frame": 68, "people": 0, "faces": 0, "plates": 0, "person_scores": [], "face_scores": []}, {"frame": 69, "people": 0, "faces": 0, "plates": 0, "person_scores": [], "face_scores": []}, {"frame": 70, "people": 0, "faces": 0, "plates": 0, "person_scores": [], "face_scores": []}, {"frame": 71, "people": 0, "faces": 0, "plates": 0, "person_scores": [], "face_scores": []}, {"frame": 72, "people": 0, "faces": 0, "plates": 0, "person_scores": [], "face_scores": []}, {"frame": 73, "people": 0, "faces": 0, "plates": 0, "person_scores": [], "face_scores": []}, {"frame": 74, "people": 0, "faces": 0, "plates": 0, "person_scores": [], "face_scores": []}, {"frame": 75, "people": 0, "faces": 0, "plates": 0, "person_scores": [], "face_scores": []}, {"frame": 76, "people": 0, "faces": 0, "plates": 0, "person_scores": [], "face_scores": []}, {"frame": 77, "people": 0, "faces": 0, "plates": 0, "person_scores": [], "face_scores": []}, {"frame": 78, "people": 0, "faces": 0, "plates": 0, "person_scores": [], "face_scores": []}, {"frame": 79, "people": 0, "faces": 0, "plates": 0, "person_scores": [], "face_scores": []}, {"frame": 80, "people": 0, "faces": 0, "plates": 0, "person_scores": [], "face_scores": []}, {"frame": 81, "people": 0, "faces": 0, "plates": 0, "person_scores": [], "face_scores": []}, {"frame": 82, "people": 1, "faces": 0, "plates": 0, "person_scores": [0.656], "face_scores": []}, {"frame": 83, "people": 1, "faces": 0, "plates": 0, "person_scores": [0.68], "face_scores": []}, {"frame": 84, "people": 1, "faces": 0, "plates": 0, "person_scores": [0.691], "face_scores": []}, {"frame": 85, "people": 1, "faces": 0, "plates": 0, "person_scores": [0.645], "face_scores": []}, {"frame": 86, "people": 1, "faces": 1, "plates": 0, "person_scores": [0.832], "face_scores": [0.672]}, {"frame": 87, "people": 1, "faces": 1, "plates": 0, "person_scores": [0.875], "face_scores": [0.789]}, {"frame": 88, "people": 1, "faces": 1, "plates": 0, "person_scores": [0.902], "face_scores": [0.809]}, {"frame": 89, "people": 1, "faces": 1, "plates": 0, "person_scores": [0.941], "face_scores": [0.77]}, {"frame": 90, "people": 1, "faces": 1, "plates": 0, "person_scores": [0.953], "face_scores": [0.758]}, {"frame": 91, "people": 1, "faces": 1, "plates": 0, "person_scores": [0.957], "face_scores": [0.773]}, {"frame": 92, "people": 1, "faces": 1, "plates": 0, "person_scores": [0.961], "face_scores": [0.762]}, {"frame": 93, "people": 1, "faces": 1, "plates": 0, "person_scores": [0.961], "face_scores": [0.734]}, {"frame": 94, "people": 1, "faces": 1, "plates": 0, "person_scores": [0.969], "face_scores": [0.75]}, {"frame": 95, "people": 1, "faces": 1, "plates": 0, "person_scores": [0.969], "face_scores": [0.785]}, {"frame": 96, "people": 1, "faces": 1, "plates": 0, "person_scores": [0.969], "face_scores": [0.77]}, {"frame": 97, "people": 1, "faces": 1, "plates": 0, "person_scores": [0.969], "face_scores": [0.781]}, {"frame": 98, "people": 1, "faces": 1, "plates": 0, "person_scores": [0.973], "face_scores": [0.789]}, {"frame": 99, "people": 1, "faces": 1, "plates": 0, "person_scores": [0.973], "face_scores": [0.762]}, {"frame": 100, "people": 1, "faces": 1, "plates": 0, "person_scores": [0.977], "face_scores": [0.746]}, {"frame": 101, "people": 1, "faces": 1, "plates": 0, "person_scores": [0.977], "face_scores": [0.77]}, {"frame": 102, "people": 1, "faces": 1, "plates": 0, "person_scores": [0.98], "face_scores": [0.777]}, {"frame": 103, "people": 1, "faces": 1, "plates": 0, "person_scores": [0.977], "face_scores": [0.777]}, {"frame": 104, "people": 1, "faces": 1, "plates": 0, "person_scores": [0.977], "face_scores": [0.762]}, {"frame": 105, "people": 1, "faces": 1, "plates": 0, "person_scores": [0.973], "face_scores": [0.77]}, {"frame": 106, "people": 1, "faces": 1, "plates": 0, "person_scores": [0.969], "face_scores": [0.789]}, {"frame": 107, "people": 1, "faces": 1, "plates": 0, "person_scores": [0.965], "face_scores": [0.762]}, {"frame": 108, "people": 1, "faces": 1, "plates": 0, "person_scores": [0.965], "face_scores": [0.762]}, {"frame": 109, "people": 1, "faces": 1, "plates": 0, "person_scores": [0.969], "face_scores": [0.75]}, {"frame": 110, "people": 1, "faces": 1, "plates": 0, "person_scores": [0.969], "face_scores": [0.777]}, {"frame": 111, "people": 1, "faces": 1, "plates": 0, "person_scores": [0.977], "face_scores": [0.77]}, {"frame": 112, "people": 1, "faces": 1, "plates": 0, "person_scores": [0.977], "face_scores": [0.73]}, {"frame": 113, "people": 1, "faces": 1, "plates": 0, "person_scores": [0.973], "face_scores": [0.762]}, {"frame": 114, "people": 1, "faces": 1, "plates": 0, "person_scores": [0.969], "face_scores": [0.77]}, {"frame": 115, "people": 1, "faces": 1, "plates": 0, "person_scores": [0.973], "face_scores": [0.793]}, {"frame": 116, "people": 1, "faces": 1, "plates": 0, "person_scores": [0.965], "face_scores": [0.762]}, {"frame": 117, "people": 1, "faces": 1, "plates": 0, "person_scores": [0.961], "face_scores": [0.73]}, {"frame": 118, "people": 1, "faces": 1, "plates": 0, "person_scores": [0.965], "face_scores": [0.746]}, {"frame": 119, "people": 1, "faces": 1, "plates": 0, "person_scores": [0.969], "face_scores": [0.742]}, {"frame": 120, "people": 1, "faces": 1, "plates": 0, "person_scores": [0.973], "face_scores": [0.77]}, {"frame": 121, "people": 1, "faces": 1, "plates": 0, "person_scores": [0.973], "face_scores": [0.742]}, {"frame": 122, "people": 1, "faces": 1, "plates": 0, "person_scores": [0.973], "face_scores": [0.746]}, {"frame": 123, "people": 1, "faces": 1, "plates": 0, "person_scores": [0.973], "face_scores": [0.734]}, {"frame": 124, "people": 1, "faces": 1, "plates": 0, "person_scores": [0.973], "face_scores": [0.754]}, {"frame": 125, "people": 1, "faces": 1, "plates": 0, "person_scores": [0.973], "face_scores": [0.75]}, {"frame": 126, "people": 1, "faces": 1, "plates": 0, "person_scores": [0.977], "face_scores": [0.777]}, {"frame": 127, "people": 1, "faces": 1, "plates": 0, "person_scores": [0.973], "face_scores": [0.805]}, {"frame": 128, "people": 1, "faces": 1, "plates": 0, "person_scores": [0.973], "face_scores": [0.793]}, {"frame": 129, "people": 1, "faces": 1, "plates": 0, "person_scores": [0.973], "face_scores": [0.777]}, {"frame": 130, "people": 1, "faces": 1, "plates": 0, "person_scores": [0.973], "face_scores": [0.684]}, {"frame": 131, "people": 1, "faces": 1, "plates": 0, "person_scores": [0.973], "face_scores": [0.688]}, {"frame": 132, "people": 1, "faces": 1, "plates": 0, "person_scores": [0.977], "face_scores": [0.652]}, {"frame": 133, "people": 1, "faces": 1, "plates": 0, "person_scores": [0.977], "face_scores": [0.715]}, {"frame": 134, "people": 1, "faces": 1, "plates": 0, "person_scores": [0.977], "face_scores": [0.734]}, {"frame": 135, "people": 1, "faces": 1, "plates": 0, "person_scores": [0.973], "face_scores": [0.75]}, {"frame": 136, "people": 1, "faces": 1, "plates": 0, "person_scores": [0.977], "face_scores": [0.711]}, {"frame": 137, "people": 1, "faces": 1, "plates": 0, "person_scores": [0.973], "face_scores": [0.75]}, {"frame": 138, "people": 1, "faces": 1, "plates": 0, "person_scores": [0.965], "face_scores": [0.699]}, {"frame": 139, "people": 1, "faces": 1, "plates": 0, "person_scores": [0.969], "face_scores": [0.746]}, {"frame": 140, "people": 1, "faces": 1, "plates": 0, "person_scores": [0.969], "face_scores": [0.715]}, {"frame": 141, "people": 1, "faces": 1, "plates": 0, "person_scores": [0.961], "face_scores": [0.723]}, {"frame": 142, "people": 1, "faces": 1, "plates": 0, "person_scores": [0.969], "face_scores": [0.695]}, {"frame": 143, "people": 1, "faces": 1, "plates": 0, "person_scores": [0.969], "face_scores": [0.668]}, {"frame": 144, "people": 1, "faces": 1, "plates": 0, "person_scores": [0.973], "face_scores": [0.719]}, {"frame": 145, "people": 1, "faces": 1, "plates": 0, "person_scores": [0.973], "face_scores": [0.762]}, {"frame": 146, "people": 1, "faces": 1, "plates": 0, "person_scores": [0.977], "face_scores": [0.758]}, {"frame": 147, "people": 1, "faces": 1, "plates": 0, "person_scores": [0.977], "face_scores": [0.758]}, {"frame": 148, "people": 1, "faces": 1, "plates": 0, "person_scores": [0.973], "face_scores": [0.754]}, {"frame": 149, "people": 1, "faces": 1, "plates": 0, "person_scores": [0.977], "face_scores": [0.77]}, {"frame": 150, "people": 1, "faces": 1, "plates": 0, "person_scores": [0.977], "face_scores": [0.762]}, {"frame": 151, "people": 1, "faces": 1, "plates": 0, "person_scores": [0.977], "face_scores": [0.754]}, {"frame": 152, "people": 1, "faces": 1, "plates": 0, "person_scores": [0.973], "face_scores": [0.758]}, {"frame": 153, "people": 1, "faces": 1, "plates": 0, "person_scores": [0.973], "face_scores": [0.758]}, {"frame": 154, "people": 1, "faces": 1, "plates": 0, "person_scores": [0.977], "face_scores": [0.773]}, {"frame": 155, "people": 1, "faces": 1, "plates": 0, "person_scores": [0.973], "face_scores": [0.766]}, {"frame": 156, "people": 1, "faces": 1, "plates": 0, "person_scores": [0.977], "face_scores": [0.773]}, {"frame": 157, "people": 1, "faces": 1, "plates": 0, "person_scores": [0.977], "face_scores": [0.762]}, {"frame": 158, "people": 1, "faces": 1, "plates": 0, "person_scores": [0.977], "face_scores": [0.789]}, {"frame": 159, "people": 1, "faces": 1, "plates": 0, "person_scores": [0.977], "face_scores": [0.777]}, {"frame": 160, "people": 1, "faces": 1, "plates": 0, "person_scores": [0.973], "face_scores": [0.789]}, {"frame": 161, "people": 1, "faces": 1, "plates": 0, "person_scores": [0.973], "face_scores": [0.758]}, {"frame": 162, "people": 1, "faces": 1, "plates": 0, "person_scores": [0.977], "face_scores": [0.777]}, {"frame": 163, "people": 1, "faces": 1, "plates": 0, "person_scores": [0.973], "face_scores": [0.773]}, {"frame": 164, "people": 1, "faces": 1, "plates": 0, "person_scores": [0.98], "face_scores": [0.781]}, {"frame": 165, "people": 1, "faces": 1, "plates": 0, "person_scores": [0.977], "face_scores": [0.781]}, {"frame": 166, "people": 1, "faces": 1, "plates": 0, "person_scores": [0.973], "face_scores": [0.777]}, {"frame": 167, "people": 1, "faces": 1, "plates": 0, "person_scores": [0.977], "face_scores": [0.785]}, {"frame": 168, "people": 1, "faces": 1, "plates": 0, "person_scores": [0.977], "face_scores": [0.793]}, {"frame": 169, "people": 1, "faces": 1, "plates": 0, "person_scores": [0.973], "face_scores": [0.789]}, {"frame": 170, "people": 1, "faces": 1, "plates": 0, "person_scores": [0.977], "face_scores": [0.785]}, {"frame": 171, "people": 1, "faces": 1, "plates": 0, "person_scores": [0.973], "face_scores": [0.785]}, {"frame": 172, "people": 1, "faces": 1, "plates": 0, "person_scores": [0.977], "face_scores": [0.793]}, {"frame": 173, "people": 1, "faces": 1, "plates": 0, "person_scores": [0.977], "face_scores": [0.801]}, {"frame": 174, "people": 1, "faces": 1, "plates": 0, "person_scores": [0.973], "face_scores": [0.805]}, {"frame": 175, "people": 1, "faces": 1, "plates": 0, "person_scores": [0.973], "face_scores": [0.805]}, {"frame": 176, "people": 1, "faces": 1, "plates": 0, "person_scores": [0.973], "face_scores": [0.801]}, {"frame": 177, "people": 1, "faces": 1, "plates": 0, "person_scores": [0.973], "face_scores": [0.797]}, {"frame": 178, "people": 1, "faces": 1, "plates": 0, "person_scores": [0.973], "face_scores": [0.797]}, {"frame": 179, "people": 1, "faces": 1, "plates": 0, "person_scores": [0.977], "face_scores": [0.797]}, {"frame": 180, "people": 1, "faces": 1, "plates": 0, "person_scores": [0.977], "face_scores": [0.797]}, {"frame": 181, "people": 1, "faces": 1, "plates": 0, "person_scores": [0.977], "face_scores": [0.809]}, {"frame": 182, "people": 1, "faces": 1, "plates": 0, "person_scores": [0.977], "face_scores": [0.809]}, {"frame": 183, "people": 1, "faces": 1, "plates": 0, "person_scores": [0.977], "face_scores": [0.809]}, {"frame": 184, "people": 1, "faces": 1, "plates": 0, "person_scores": [0.973], "face_scores": [0.801]}, {"frame": 185, "people": 1, "faces": 1, "plates": 0, "person_scores": [0.973], "face_scores": [0.781]}, {"frame": 186, "people": 1, "faces": 1, "plates": 0, "person_scores": [0.973], "face_scores": [0.785]}, {"frame": 187, "people": 1, "faces": 1, "plates": 0, "person_scores": [0.977], "face_scores": [0.789]}, {"frame": 188, "people": 1, "faces": 1, "plates": 0, "person_scores": [0.977], "face_scores": [0.789]}, {"frame": 189, "people": 1, "faces": 1, "plates": 0, "person_scores": [0.977], "face_scores": [0.789]}, {"frame": 190, "people": 1, "faces": 1, "plates": 0, "person_scores": [0.977], "face_scores": [0.789]}, {"frame": 191, "people": 1, "faces": 1, "plates": 0, "person_scores": [0.977], "face_scores": [0.797]}, {"frame": 192, "people": 1, "faces": 1, "plates": 0, "person_scores": [0.977], "face_scores": [0.785]}, {"frame": 193, "people": 1, "faces": 1, "plates": 0, "person_scores": [0.977], "face_scores": [0.781]}, {"frame": 194, "people": 1, "faces": 1, "plates": 0, "person_scores": [0.977], "face_scores": [0.777]}, {"frame": 195, "people": 1, "faces": 1, "plates": 0, "person_scores": [0.977], "face_scores": [0.777]}, {"frame": 196, "people": 1, "faces": 1, "plates": 0, "person_scores": [0.973], "face_scores": [0.789]}, {"frame": 197, "people": 1, "faces": 1, "plates": 0, "person_scores": [0.977], "face_scores": [0.789]}, {"frame": 198, "people": 1, "faces": 1, "plates": 0, "person_scores": [0.977], "face_scores": [0.789]}, {"frame": 199, "people": 1, "faces": 1, "plates": 0, "person_scores": [0.977], "face_scores": [0.793]}, {"frame": 200, "people": 1, "faces": 1, "plates": 0, "person_scores": [0.973], "face_scores": [0.793]}, {"frame": 201, "people": 1, "faces": 1, "plates": 0, "person_scores": [0.977], "face_scores": [0.785]}, {"frame": 202, "people": 1, "faces": 1, "plates": 0, "person_scores": [0.977], "face_scores": [0.789]}, {"frame": 203, "people": 1, "faces": 1, "plates": 0, "person_scores": [0.969], "face_scores": [0.781]}, {"frame": 204, "people": 1, "faces": 1, "plates": 0, "person_scores": [0.977], "face_scores": [0.781]}, {"frame": 205, "people": 1, "faces": 1, "plates": 0, "person_scores": [0.977], "face_scores": [0.781]}, {"frame": 206, "people": 1, "faces": 1, "plates": 0, "person_scores": [0.977], "face_scores": [0.773]}, {"frame": 207, "people": 1, "faces": 1, "plates": 0, "person_scores": [0.977], "face_scores": [0.785]}, {"frame": 208, "people": 1, "faces": 1, "plates": 0, "person_scores": [0.977], "face_scores": [0.777]}, {"frame": 209, "people": 1, "faces": 1, "plates": 0, "person_scores": [0.977], "face_scores": [0.785]}]}
+{
+  "prompts": {
+    "person": 0.5,
+    "face": 0.4,
+    "license plate": 0.4
+  },
+  "frames": 210,
+  "frames_with_a_face": 124,
+  "frames_with_people": 130,
+  "total_faces": 124,
+  "total_plates": 0,
+  "per_frame": [
+    {
+      "frame": 0,
+      "people": 1,
+      "faces": 0,
+      "plates": 0,
+      "person_scores": [
+        0.582
+      ],
+      "face_scores": []
+    },
+    {
+      "frame": 1,
+      "people": 1,
+      "faces": 0,
+      "plates": 0,
+      "person_scores": [
+        0.574
+      ],
+      "face_scores": []
+    },
+    {
+      "frame": 2,
+      "people": 0,
+      "faces": 0,
+      "plates": 0,
+      "person_scores": [],
+      "face_scores": []
+    },
+    {
+      "frame": 3,
+      "people": 0,
+      "faces": 0,
+      "plates": 0,
+      "person_scores": [],
+      "face_scores": []
+    },
+    {
+      "frame": 4,
+      "people": 0,
+      "faces": 0,
+      "plates": 0,
+      "person_scores": [],
+      "face_scores": []
+    },
+    {
+      "frame": 5,
+      "people": 0,
+      "faces": 0,
+      "plates": 0,
+      "person_scores": [],
+      "face_scores": []
+    },
+    {
+      "frame": 6,
+      "people": 0,
+      "faces": 0,
+      "plates": 0,
+      "person_scores": [],
+      "face_scores": []
+    },
+    {
+      "frame": 7,
+      "people": 0,
+      "faces": 0,
+      "plates": 0,
+      "person_scores": [],
+      "face_scores": []
+    },
+    {
+      "frame": 8,
+      "people": 0,
+      "faces": 0,
+      "plates": 0,
+      "person_scores": [],
+      "face_scores": []
+    },
+    {
+      "frame": 9,
+      "people": 0,
+      "faces": 0,
+      "plates": 0,
+      "person_scores": [],
+      "face_scores": []
+    },
+    {
+      "frame": 10,
+      "people": 0,
+      "faces": 0,
+      "plates": 0,
+      "person_scores": [],
+      "face_scores": []
+    },
+    {
+      "frame": 11,
+      "people": 0,
+      "faces": 0,
+      "plates": 0,
+      "person_scores": [],
+      "face_scores": []
+    },
+    {
+      "frame": 12,
+      "people": 0,
+      "faces": 0,
+      "plates": 0,
+      "person_scores": [],
+      "face_scores": []
+    },
+    {
+      "frame": 13,
+      "people": 0,
+      "faces": 0,
+      "plates": 0,
+      "person_scores": [],
+      "face_scores": []
+    },
+    {
+      "frame": 14,
+      "people": 0,
+      "faces": 0,
+      "plates": 0,
+      "person_scores": [],
+      "face_scores": []
+    },
+    {
+      "frame": 15,
+      "people": 0,
+      "faces": 0,
+      "plates": 0,
+      "person_scores": [],
+      "face_scores": []
+    },
+    {
+      "frame": 16,
+      "people": 0,
+      "faces": 0,
+      "plates": 0,
+      "person_scores": [],
+      "face_scores": []
+    },
+    {
+      "frame": 17,
+      "people": 0,
+      "faces": 0,
+      "plates": 0,
+      "person_scores": [],
+      "face_scores": []
+    },
+    {
+      "frame": 18,
+      "people": 0,
+      "faces": 0,
+      "plates": 0,
+      "person_scores": [],
+      "face_scores": []
+    },
+    {
+      "frame": 19,
+      "people": 0,
+      "faces": 0,
+      "plates": 0,
+      "person_scores": [],
+      "face_scores": []
+    },
+    {
+      "frame": 20,
+      "people": 0,
+      "faces": 0,
+      "plates": 0,
+      "person_scores": [],
+      "face_scores": []
+    },
+    {
+      "frame": 21,
+      "people": 0,
+      "faces": 0,
+      "plates": 0,
+      "person_scores": [],
+      "face_scores": []
+    },
+    {
+      "frame": 22,
+      "people": 0,
+      "faces": 0,
+      "plates": 0,
+      "person_scores": [],
+      "face_scores": []
+    },
+    {
+      "frame": 23,
+      "people": 0,
+      "faces": 0,
+      "plates": 0,
+      "person_scores": [],
+      "face_scores": []
+    },
+    {
+      "frame": 24,
+      "people": 0,
+      "faces": 0,
+      "plates": 0,
+      "person_scores": [],
+      "face_scores": []
+    },
+    {
+      "frame": 25,
+      "people": 0,
+      "faces": 0,
+      "plates": 0,
+      "person_scores": [],
+      "face_scores": []
+    },
+    {
+      "frame": 26,
+      "people": 0,
+      "faces": 0,
+      "plates": 0,
+      "person_scores": [],
+      "face_scores": []
+    },
+    {
+      "frame": 27,
+      "people": 0,
+      "faces": 0,
+      "plates": 0,
+      "person_scores": [],
+      "face_scores": []
+    },
+    {
+      "frame": 28,
+      "people": 0,
+      "faces": 0,
+      "plates": 0,
+      "person_scores": [],
+      "face_scores": []
+    },
+    {
+      "frame": 29,
+      "people": 0,
+      "faces": 0,
+      "plates": 0,
+      "person_scores": [],
+      "face_scores": []
+    },
+    {
+      "frame": 30,
+      "people": 0,
+      "faces": 0,
+      "plates": 0,
+      "person_scores": [],
+      "face_scores": []
+    },
+    {
+      "frame": 31,
+      "people": 0,
+      "faces": 0,
+      "plates": 0,
+      "person_scores": [],
+      "face_scores": []
+    },
+    {
+      "frame": 32,
+      "people": 0,
+      "faces": 0,
+      "plates": 0,
+      "person_scores": [],
+      "face_scores": []
+    },
+    {
+      "frame": 33,
+      "people": 0,
+      "faces": 0,
+      "plates": 0,
+      "person_scores": [],
+      "face_scores": []
+    },
+    {
+      "frame": 34,
+      "people": 0,
+      "faces": 0,
+      "plates": 0,
+      "person_scores": [],
+      "face_scores": []
+    },
+    {
+      "frame": 35,
+      "people": 0,
+      "faces": 0,
+      "plates": 0,
+      "person_scores": [],
+      "face_scores": []
+    },
+    {
+      "frame": 36,
+      "people": 0,
+      "faces": 0,
+      "plates": 0,
+      "person_scores": [],
+      "face_scores": []
+    },
+    {
+      "frame": 37,
+      "people": 0,
+      "faces": 0,
+      "plates": 0,
+      "person_scores": [],
+      "face_scores": []
+    },
+    {
+      "frame": 38,
+      "people": 0,
+      "faces": 0,
+      "plates": 0,
+      "person_scores": [],
+      "face_scores": []
+    },
+    {
+      "frame": 39,
+      "people": 0,
+      "faces": 0,
+      "plates": 0,
+      "person_scores": [],
+      "face_scores": []
+    },
+    {
+      "frame": 40,
+      "people": 0,
+      "faces": 0,
+      "plates": 0,
+      "person_scores": [],
+      "face_scores": []
+    },
+    {
+      "frame": 41,
+      "people": 0,
+      "faces": 0,
+      "plates": 0,
+      "person_scores": [],
+      "face_scores": []
+    },
+    {
+      "frame": 42,
+      "people": 0,
+      "faces": 0,
+      "plates": 0,
+      "person_scores": [],
+      "face_scores": []
+    },
+    {
+      "frame": 43,
+      "people": 0,
+      "faces": 0,
+      "plates": 0,
+      "person_scores": [],
+      "face_scores": []
+    },
+    {
+      "frame": 44,
+      "people": 0,
+      "faces": 0,
+      "plates": 0,
+      "person_scores": [],
+      "face_scores": []
+    },
+    {
+      "frame": 45,
+      "people": 0,
+      "faces": 0,
+      "plates": 0,
+      "person_scores": [],
+      "face_scores": []
+    },
+    {
+      "frame": 46,
+      "people": 0,
+      "faces": 0,
+      "plates": 0,
+      "person_scores": [],
+      "face_scores": []
+    },
+    {
+      "frame": 47,
+      "people": 0,
+      "faces": 0,
+      "plates": 0,
+      "person_scores": [],
+      "face_scores": []
+    },
+    {
+      "frame": 48,
+      "people": 0,
+      "faces": 0,
+      "plates": 0,
+      "person_scores": [],
+      "face_scores": []
+    },
+    {
+      "frame": 49,
+      "people": 0,
+      "faces": 0,
+      "plates": 0,
+      "person_scores": [],
+      "face_scores": []
+    },
+    {
+      "frame": 50,
+      "people": 0,
+      "faces": 0,
+      "plates": 0,
+      "person_scores": [],
+      "face_scores": []
+    },
+    {
+      "frame": 51,
+      "people": 0,
+      "faces": 0,
+      "plates": 0,
+      "person_scores": [],
+      "face_scores": []
+    },
+    {
+      "frame": 52,
+      "people": 0,
+      "faces": 0,
+      "plates": 0,
+      "person_scores": [],
+      "face_scores": []
+    },
+    {
+      "frame": 53,
+      "people": 0,
+      "faces": 0,
+      "plates": 0,
+      "person_scores": [],
+      "face_scores": []
+    },
+    {
+      "frame": 54,
+      "people": 0,
+      "faces": 0,
+      "plates": 0,
+      "person_scores": [],
+      "face_scores": []
+    },
+    {
+      "frame": 55,
+      "people": 0,
+      "faces": 0,
+      "plates": 0,
+      "person_scores": [],
+      "face_scores": []
+    },
+    {
+      "frame": 56,
+      "people": 0,
+      "faces": 0,
+      "plates": 0,
+      "person_scores": [],
+      "face_scores": []
+    },
+    {
+      "frame": 57,
+      "people": 0,
+      "faces": 0,
+      "plates": 0,
+      "person_scores": [],
+      "face_scores": []
+    },
+    {
+      "frame": 58,
+      "people": 0,
+      "faces": 0,
+      "plates": 0,
+      "person_scores": [],
+      "face_scores": []
+    },
+    {
+      "frame": 59,
+      "people": 0,
+      "faces": 0,
+      "plates": 0,
+      "person_scores": [],
+      "face_scores": []
+    },
+    {
+      "frame": 60,
+      "people": 0,
+      "faces": 0,
+      "plates": 0,
+      "person_scores": [],
+      "face_scores": []
+    },
+    {
+      "frame": 61,
+      "people": 0,
+      "faces": 0,
+      "plates": 0,
+      "person_scores": [],
+      "face_scores": []
+    },
+    {
+      "frame": 62,
+      "people": 0,
+      "faces": 0,
+      "plates": 0,
+      "person_scores": [],
+      "face_scores": []
+    },
+    {
+      "frame": 63,
+      "people": 0,
+      "faces": 0,
+      "plates": 0,
+      "person_scores": [],
+      "face_scores": []
+    },
+    {
+      "frame": 64,
+      "people": 0,
+      "faces": 0,
+      "plates": 0,
+      "person_scores": [],
+      "face_scores": []
+    },
+    {
+      "frame": 65,
+      "people": 0,
+      "faces": 0,
+      "plates": 0,
+      "person_scores": [],
+      "face_scores": []
+    },
+    {
+      "frame": 66,
+      "people": 0,
+      "faces": 0,
+      "plates": 0,
+      "person_scores": [],
+      "face_scores": []
+    },
+    {
+      "frame": 67,
+      "people": 0,
+      "faces": 0,
+      "plates": 0,
+      "person_scores": [],
+      "face_scores": []
+    },
+    {
+      "frame": 68,
+      "people": 0,
+      "faces": 0,
+      "plates": 0,
+      "person_scores": [],
+      "face_scores": []
+    },
+    {
+      "frame": 69,
+      "people": 0,
+      "faces": 0,
+      "plates": 0,
+      "person_scores": [],
+      "face_scores": []
+    },
+    {
+      "frame": 70,
+      "people": 0,
+      "faces": 0,
+      "plates": 0,
+      "person_scores": [],
+      "face_scores": []
+    },
+    {
+      "frame": 71,
+      "people": 0,
+      "faces": 0,
+      "plates": 0,
+      "person_scores": [],
+      "face_scores": []
+    },
+    {
+      "frame": 72,
+      "people": 0,
+      "faces": 0,
+      "plates": 0,
+      "person_scores": [],
+      "face_scores": []
+    },
+    {
+      "frame": 73,
+      "people": 0,
+      "faces": 0,
+      "plates": 0,
+      "person_scores": [],
+      "face_scores": []
+    },
+    {
+      "frame": 74,
+      "people": 0,
+      "faces": 0,
+      "plates": 0,
+      "person_scores": [],
+      "face_scores": []
+    },
+    {
+      "frame": 75,
+      "people": 0,
+      "faces": 0,
+      "plates": 0,
+      "person_scores": [],
+      "face_scores": []
+    },
+    {
+      "frame": 76,
+      "people": 0,
+      "faces": 0,
+      "plates": 0,
+      "person_scores": [],
+      "face_scores": []
+    },
+    {
+      "frame": 77,
+      "people": 0,
+      "faces": 0,
+      "plates": 0,
+      "person_scores": [],
+      "face_scores": []
+    },
+    {
+      "frame": 78,
+      "people": 0,
+      "faces": 0,
+      "plates": 0,
+      "person_scores": [],
+      "face_scores": []
+    },
+    {
+      "frame": 79,
+      "people": 0,
+      "faces": 0,
+      "plates": 0,
+      "person_scores": [],
+      "face_scores": []
+    },
+    {
+      "frame": 80,
+      "people": 0,
+      "faces": 0,
+      "plates": 0,
+      "person_scores": [],
+      "face_scores": []
+    },
+    {
+      "frame": 81,
+      "people": 0,
+      "faces": 0,
+      "plates": 0,
+      "person_scores": [],
+      "face_scores": []
+    },
+    {
+      "frame": 82,
+      "people": 1,
+      "faces": 0,
+      "plates": 0,
+      "person_scores": [
+        0.656
+      ],
+      "face_scores": []
+    },
+    {
+      "frame": 83,
+      "people": 1,
+      "faces": 0,
+      "plates": 0,
+      "person_scores": [
+        0.68
+      ],
+      "face_scores": []
+    },
+    {
+      "frame": 84,
+      "people": 1,
+      "faces": 0,
+      "plates": 0,
+      "person_scores": [
+        0.691
+      ],
+      "face_scores": []
+    },
+    {
+      "frame": 85,
+      "people": 1,
+      "faces": 0,
+      "plates": 0,
+      "person_scores": [
+        0.645
+      ],
+      "face_scores": []
+    },
+    {
+      "frame": 86,
+      "people": 1,
+      "faces": 1,
+      "plates": 0,
+      "person_scores": [
+        0.832
+      ],
+      "face_scores": [
+        0.672
+      ]
+    },
+    {
+      "frame": 87,
+      "people": 1,
+      "faces": 1,
+      "plates": 0,
+      "person_scores": [
+        0.875
+      ],
+      "face_scores": [
+        0.789
+      ]
+    },
+    {
+      "frame": 88,
+      "people": 1,
+      "faces": 1,
+      "plates": 0,
+      "person_scores": [
+        0.902
+      ],
+      "face_scores": [
+        0.809
+      ]
+    },
+    {
+      "frame": 89,
+      "people": 1,
+      "faces": 1,
+      "plates": 0,
+      "person_scores": [
+        0.941
+      ],
+      "face_scores": [
+        0.77
+      ]
+    },
+    {
+      "frame": 90,
+      "people": 1,
+      "faces": 1,
+      "plates": 0,
+      "person_scores": [
+        0.953
+      ],
+      "face_scores": [
+        0.758
+      ]
+    },
+    {
+      "frame": 91,
+      "people": 1,
+      "faces": 1,
+      "plates": 0,
+      "person_scores": [
+        0.957
+      ],
+      "face_scores": [
+        0.773
+      ]
+    },
+    {
+      "frame": 92,
+      "people": 1,
+      "faces": 1,
+      "plates": 0,
+      "person_scores": [
+        0.961
+      ],
+      "face_scores": [
+        0.762
+      ]
+    },
+    {
+      "frame": 93,
+      "people": 1,
+      "faces": 1,
+      "plates": 0,
+      "person_scores": [
+        0.961
+      ],
+      "face_scores": [
+        0.734
+      ]
+    },
+    {
+      "frame": 94,
+      "people": 1,
+      "faces": 1,
+      "plates": 0,
+      "person_scores": [
+        0.969
+      ],
+      "face_scores": [
+        0.75
+      ]
+    },
+    {
+      "frame": 95,
+      "people": 1,
+      "faces": 1,
+      "plates": 0,
+      "person_scores": [
+        0.969
+      ],
+      "face_scores": [
+        0.785
+      ]
+    },
+    {
+      "frame": 96,
+      "people": 1,
+      "faces": 1,
+      "plates": 0,
+      "person_scores": [
+        0.969
+      ],
+      "face_scores": [
+        0.77
+      ]
+    },
+    {
+      "frame": 97,
+      "people": 1,
+      "faces": 1,
+      "plates": 0,
+      "person_scores": [
+        0.969
+      ],
+      "face_scores": [
+        0.781
+      ]
+    },
+    {
+      "frame": 98,
+      "people": 1,
+      "faces": 1,
+      "plates": 0,
+      "person_scores": [
+        0.973
+      ],
+      "face_scores": [
+        0.789
+      ]
+    },
+    {
+      "frame": 99,
+      "people": 1,
+      "faces": 1,
+      "plates": 0,
+      "person_scores": [
+        0.973
+      ],
+      "face_scores": [
+        0.762
+      ]
+    },
+    {
+      "frame": 100,
+      "people": 1,
+      "faces": 1,
+      "plates": 0,
+      "person_scores": [
+        0.977
+      ],
+      "face_scores": [
+        0.746
+      ]
+    },
+    {
+      "frame": 101,
+      "people": 1,
+      "faces": 1,
+      "plates": 0,
+      "person_scores": [
+        0.977
+      ],
+      "face_scores": [
+        0.77
+      ]
+    },
+    {
+      "frame": 102,
+      "people": 1,
+      "faces": 1,
+      "plates": 0,
+      "person_scores": [
+        0.98
+      ],
+      "face_scores": [
+        0.777
+      ]
+    },
+    {
+      "frame": 103,
+      "people": 1,
+      "faces": 1,
+      "plates": 0,
+      "person_scores": [
+        0.977
+      ],
+      "face_scores": [
+        0.777
+      ]
+    },
+    {
+      "frame": 104,
+      "people": 1,
+      "faces": 1,
+      "plates": 0,
+      "person_scores": [
+        0.977
+      ],
+      "face_scores": [
+        0.762
+      ]
+    },
+    {
+      "frame": 105,
+      "people": 1,
+      "faces": 1,
+      "plates": 0,
+      "person_scores": [
+        0.973
+      ],
+      "face_scores": [
+        0.77
+      ]
+    },
+    {
+      "frame": 106,
+      "people": 1,
+      "faces": 1,
+      "plates": 0,
+      "person_scores": [
+        0.969
+      ],
+      "face_scores": [
+        0.789
+      ]
+    },
+    {
+      "frame": 107,
+      "people": 1,
+      "faces": 1,
+      "plates": 0,
+      "person_scores": [
+        0.965
+      ],
+      "face_scores": [
+        0.762
+      ]
+    },
+    {
+      "frame": 108,
+      "people": 1,
+      "faces": 1,
+      "plates": 0,
+      "person_scores": [
+        0.965
+      ],
+      "face_scores": [
+        0.762
+      ]
+    },
+    {
+      "frame": 109,
+      "people": 1,
+      "faces": 1,
+      "plates": 0,
+      "person_scores": [
+        0.969
+      ],
+      "face_scores": [
+        0.75
+      ]
+    },
+    {
+      "frame": 110,
+      "people": 1,
+      "faces": 1,
+      "plates": 0,
+      "person_scores": [
+        0.969
+      ],
+      "face_scores": [
+        0.777
+      ]
+    },
+    {
+      "frame": 111,
+      "people": 1,
+      "faces": 1,
+      "plates": 0,
+      "person_scores": [
+        0.977
+      ],
+      "face_scores": [
+        0.77
+      ]
+    },
+    {
+      "frame": 112,
+      "people": 1,
+      "faces": 1,
+      "plates": 0,
+      "person_scores": [
+        0.977
+      ],
+      "face_scores": [
+        0.73
+      ]
+    },
+    {
+      "frame": 113,
+      "people": 1,
+      "faces": 1,
+      "plates": 0,
+      "person_scores": [
+        0.973
+      ],
+      "face_scores": [
+        0.762
+      ]
+    },
+    {
+      "frame": 114,
+      "people": 1,
+      "faces": 1,
+      "plates": 0,
+      "person_scores": [
+        0.969
+      ],
+      "face_scores": [
+        0.77
+      ]
+    },
+    {
+      "frame": 115,
+      "people": 1,
+      "faces": 1,
+      "plates": 0,
+      "person_scores": [
+        0.973
+      ],
+      "face_scores": [
+        0.793
+      ]
+    },
+    {
+      "frame": 116,
+      "people": 1,
+      "faces": 1,
+      "plates": 0,
+      "person_scores": [
+        0.965
+      ],
+      "face_scores": [
+        0.762
+      ]
+    },
+    {
+      "frame": 117,
+      "people": 1,
+      "faces": 1,
+      "plates": 0,
+      "person_scores": [
+        0.961
+      ],
+      "face_scores": [
+        0.73
+      ]
+    },
+    {
+      "frame": 118,
+      "people": 1,
+      "faces": 1,
+      "plates": 0,
+      "person_scores": [
+        0.965
+      ],
+      "face_scores": [
+        0.746
+      ]
+    },
+    {
+      "frame": 119,
+      "people": 1,
+      "faces": 1,
+      "plates": 0,
+      "person_scores": [
+        0.969
+      ],
+      "face_scores": [
+        0.742
+      ]
+    },
+    {
+      "frame": 120,
+      "people": 1,
+      "faces": 1,
+      "plates": 0,
+      "person_scores": [
+        0.973
+      ],
+      "face_scores": [
+        0.77
+      ]
+    },
+    {
+      "frame": 121,
+      "people": 1,
+      "faces": 1,
+      "plates": 0,
+      "person_scores": [
+        0.973
+      ],
+      "face_scores": [
+        0.742
+      ]
+    },
+    {
+      "frame": 122,
+      "people": 1,
+      "faces": 1,
+      "plates": 0,
+      "person_scores": [
+        0.973
+      ],
+      "face_scores": [
+        0.746
+      ]
+    },
+    {
+      "frame": 123,
+      "people": 1,
+      "faces": 1,
+      "plates": 0,
+      "person_scores": [
+        0.973
+      ],
+      "face_scores": [
+        0.734
+      ]
+    },
+    {
+      "frame": 124,
+      "people": 1,
+      "faces": 1,
+      "plates": 0,
+      "person_scores": [
+        0.973
+      ],
+      "face_scores": [
+        0.754
+      ]
+    },
+    {
+      "frame": 125,
+      "people": 1,
+      "faces": 1,
+      "plates": 0,
+      "person_scores": [
+        0.973
+      ],
+      "face_scores": [
+        0.75
+      ]
+    },
+    {
+      "frame": 126,
+      "people": 1,
+      "faces": 1,
+      "plates": 0,
+      "person_scores": [
+        0.977
+      ],
+      "face_scores": [
+        0.777
+      ]
+    },
+    {
+      "frame": 127,
+      "people": 1,
+      "faces": 1,
+      "plates": 0,
+      "person_scores": [
+        0.973
+      ],
+      "face_scores": [
+        0.805
+      ]
+    },
+    {
+      "frame": 128,
+      "people": 1,
+      "faces": 1,
+      "plates": 0,
+      "person_scores": [
+        0.973
+      ],
+      "face_scores": [
+        0.793
+      ]
+    },
+    {
+      "frame": 129,
+      "people": 1,
+      "faces": 1,
+      "plates": 0,
+      "person_scores": [
+        0.973
+      ],
+      "face_scores": [
+        0.777
+      ]
+    },
+    {
+      "frame": 130,
+      "people": 1,
+      "faces": 1,
+      "plates": 0,
+      "person_scores": [
+        0.973
+      ],
+      "face_scores": [
+        0.684
+      ]
+    },
+    {
+      "frame": 131,
+      "people": 1,
+      "faces": 1,
+      "plates": 0,
+      "person_scores": [
+        0.973
+      ],
+      "face_scores": [
+        0.688
+      ]
+    },
+    {
+      "frame": 132,
+      "people": 1,
+      "faces": 1,
+      "plates": 0,
+      "person_scores": [
+        0.977
+      ],
+      "face_scores": [
+        0.652
+      ]
+    },
+    {
+      "frame": 133,
+      "people": 1,
+      "faces": 1,
+      "plates": 0,
+      "person_scores": [
+        0.977
+      ],
+      "face_scores": [
+        0.715
+      ]
+    },
+    {
+      "frame": 134,
+      "people": 1,
+      "faces": 1,
+      "plates": 0,
+      "person_scores": [
+        0.977
+      ],
+      "face_scores": [
+        0.734
+      ]
+    },
+    {
+      "frame": 135,
+      "people": 1,
+      "faces": 1,
+      "plates": 0,
+      "person_scores": [
+        0.973
+      ],
+      "face_scores": [
+        0.75
+      ]
+    },
+    {
+      "frame": 136,
+      "people": 1,
+      "faces": 1,
+      "plates": 0,
+      "person_scores": [
+        0.977
+      ],
+      "face_scores": [
+        0.711
+      ]
+    },
+    {
+      "frame": 137,
+      "people": 1,
+      "faces": 1,
+      "plates": 0,
+      "person_scores": [
+        0.973
+      ],
+      "face_scores": [
+        0.75
+      ]
+    },
+    {
+      "frame": 138,
+      "people": 1,
+      "faces": 1,
+      "plates": 0,
+      "person_scores": [
+        0.965
+      ],
+      "face_scores": [
+        0.699
+      ]
+    },
+    {
+      "frame": 139,
+      "people": 1,
+      "faces": 1,
+      "plates": 0,
+      "person_scores": [
+        0.969
+      ],
+      "face_scores": [
+        0.746
+      ]
+    },
+    {
+      "frame": 140,
+      "people": 1,
+      "faces": 1,
+      "plates": 0,
+      "person_scores": [
+        0.969
+      ],
+      "face_scores": [
+        0.715
+      ]
+    },
+    {
+      "frame": 141,
+      "people": 1,
+      "faces": 1,
+      "plates": 0,
+      "person_scores": [
+        0.961
+      ],
+      "face_scores": [
+        0.723
+      ]
+    },
+    {
+      "frame": 142,
+      "people": 1,
+      "faces": 1,
+      "plates": 0,
+      "person_scores": [
+        0.969
+      ],
+      "face_scores": [
+        0.695
+      ]
+    },
+    {
+      "frame": 143,
+      "people": 1,
+      "faces": 1,
+      "plates": 0,
+      "person_scores": [
+        0.969
+      ],
+      "face_scores": [
+        0.668
+      ]
+    },
+    {
+      "frame": 144,
+      "people": 1,
+      "faces": 1,
+      "plates": 0,
+      "person_scores": [
+        0.973
+      ],
+      "face_scores": [
+        0.719
+      ]
+    },
+    {
+      "frame": 145,
+      "people": 1,
+      "faces": 1,
+      "plates": 0,
+      "person_scores": [
+        0.973
+      ],
+      "face_scores": [
+        0.762
+      ]
+    },
+    {
+      "frame": 146,
+      "people": 1,
+      "faces": 1,
+      "plates": 0,
+      "person_scores": [
+        0.977
+      ],
+      "face_scores": [
+        0.758
+      ]
+    },
+    {
+      "frame": 147,
+      "people": 1,
+      "faces": 1,
+      "plates": 0,
+      "person_scores": [
+        0.977
+      ],
+      "face_scores": [
+        0.758
+      ]
+    },
+    {
+      "frame": 148,
+      "people": 1,
+      "faces": 1,
+      "plates": 0,
+      "person_scores": [
+        0.973
+      ],
+      "face_scores": [
+        0.754
+      ]
+    },
+    {
+      "frame": 149,
+      "people": 1,
+      "faces": 1,
+      "plates": 0,
+      "person_scores": [
+        0.977
+      ],
+      "face_scores": [
+        0.77
+      ]
+    },
+    {
+      "frame": 150,
+      "people": 1,
+      "faces": 1,
+      "plates": 0,
+      "person_scores": [
+        0.977
+      ],
+      "face_scores": [
+        0.762
+      ]
+    },
+    {
+      "frame": 151,
+      "people": 1,
+      "faces": 1,
+      "plates": 0,
+      "person_scores": [
+        0.977
+      ],
+      "face_scores": [
+        0.754
+      ]
+    },
+    {
+      "frame": 152,
+      "people": 1,
+      "faces": 1,
+      "plates": 0,
+      "person_scores": [
+        0.973
+      ],
+      "face_scores": [
+        0.758
+      ]
+    },
+    {
+      "frame": 153,
+      "people": 1,
+      "faces": 1,
+      "plates": 0,
+      "person_scores": [
+        0.973
+      ],
+      "face_scores": [
+        0.758
+      ]
+    },
+    {
+      "frame": 154,
+      "people": 1,
+      "faces": 1,
+      "plates": 0,
+      "person_scores": [
+        0.977
+      ],
+      "face_scores": [
+        0.773
+      ]
+    },
+    {
+      "frame": 155,
+      "people": 1,
+      "faces": 1,
+      "plates": 0,
+      "person_scores": [
+        0.973
+      ],
+      "face_scores": [
+        0.766
+      ]
+    },
+    {
+      "frame": 156,
+      "people": 1,
+      "faces": 1,
+      "plates": 0,
+      "person_scores": [
+        0.977
+      ],
+      "face_scores": [
+        0.773
+      ]
+    },
+    {
+      "frame": 157,
+      "people": 1,
+      "faces": 1,
+      "plates": 0,
+      "person_scores": [
+        0.977
+      ],
+      "face_scores": [
+        0.762
+      ]
+    },
+    {
+      "frame": 158,
+      "people": 1,
+      "faces": 1,
+      "plates": 0,
+      "person_scores": [
+        0.977
+      ],
+      "face_scores": [
+        0.789
+      ]
+    },
+    {
+      "frame": 159,
+      "people": 1,
+      "faces": 1,
+      "plates": 0,
+      "person_scores": [
+        0.977
+      ],
+      "face_scores": [
+        0.777
+      ]
+    },
+    {
+      "frame": 160,
+      "people": 1,
+      "faces": 1,
+      "plates": 0,
+      "person_scores": [
+        0.973
+      ],
+      "face_scores": [
+        0.789
+      ]
+    },
+    {
+      "frame": 161,
+      "people": 1,
+      "faces": 1,
+      "plates": 0,
+      "person_scores": [
+        0.973
+      ],
+      "face_scores": [
+        0.758
+      ]
+    },
+    {
+      "frame": 162,
+      "people": 1,
+      "faces": 1,
+      "plates": 0,
+      "person_scores": [
+        0.977
+      ],
+      "face_scores": [
+        0.777
+      ]
+    },
+    {
+      "frame": 163,
+      "people": 1,
+      "faces": 1,
+      "plates": 0,
+      "person_scores": [
+        0.973
+      ],
+      "face_scores": [
+        0.773
+      ]
+    },
+    {
+      "frame": 164,
+      "people": 1,
+      "faces": 1,
+      "plates": 0,
+      "person_scores": [
+        0.98
+      ],
+      "face_scores": [
+        0.781
+      ]
+    },
+    {
+      "frame": 165,
+      "people": 1,
+      "faces": 1,
+      "plates": 0,
+      "person_scores": [
+        0.977
+      ],
+      "face_scores": [
+        0.781
+      ]
+    },
+    {
+      "frame": 166,
+      "people": 1,
+      "faces": 1,
+      "plates": 0,
+      "person_scores": [
+        0.973
+      ],
+      "face_scores": [
+        0.777
+      ]
+    },
+    {
+      "frame": 167,
+      "people": 1,
+      "faces": 1,
+      "plates": 0,
+      "person_scores": [
+        0.977
+      ],
+      "face_scores": [
+        0.785
+      ]
+    },
+    {
+      "frame": 168,
+      "people": 1,
+      "faces": 1,
+      "plates": 0,
+      "person_scores": [
+        0.977
+      ],
+      "face_scores": [
+        0.793
+      ]
+    },
+    {
+      "frame": 169,
+      "people": 1,
+      "faces": 1,
+      "plates": 0,
+      "person_scores": [
+        0.973
+      ],
+      "face_scores": [
+        0.789
+      ]
+    },
+    {
+      "frame": 170,
+      "people": 1,
+      "faces": 1,
+      "plates": 0,
+      "person_scores": [
+        0.977
+      ],
+      "face_scores": [
+        0.785
+      ]
+    },
+    {
+      "frame": 171,
+      "people": 1,
+      "faces": 1,
+      "plates": 0,
+      "person_scores": [
+        0.973
+      ],
+      "face_scores": [
+        0.785
+      ]
+    },
+    {
+      "frame": 172,
+      "people": 1,
+      "faces": 1,
+      "plates": 0,
+      "person_scores": [
+        0.977
+      ],
+      "face_scores": [
+        0.793
+      ]
+    },
+    {
+      "frame": 173,
+      "people": 1,
+      "faces": 1,
+      "plates": 0,
+      "person_scores": [
+        0.977
+      ],
+      "face_scores": [
+        0.801
+      ]
+    },
+    {
+      "frame": 174,
+      "people": 1,
+      "faces": 1,
+      "plates": 0,
+      "person_scores": [
+        0.973
+      ],
+      "face_scores": [
+        0.805
+      ]
+    },
+    {
+      "frame": 175,
+      "people": 1,
+      "faces": 1,
+      "plates": 0,
+      "person_scores": [
+        0.973
+      ],
+      "face_scores": [
+        0.805
+      ]
+    },
+    {
+      "frame": 176,
+      "people": 1,
+      "faces": 1,
+      "plates": 0,
+      "person_scores": [
+        0.973
+      ],
+      "face_scores": [
+        0.801
+      ]
+    },
+    {
+      "frame": 177,
+      "people": 1,
+      "faces": 1,
+      "plates": 0,
+      "person_scores": [
+        0.973
+      ],
+      "face_scores": [
+        0.797
+      ]
+    },
+    {
+      "frame": 178,
+      "people": 1,
+      "faces": 1,
+      "plates": 0,
+      "person_scores": [
+        0.973
+      ],
+      "face_scores": [
+        0.797
+      ]
+    },
+    {
+      "frame": 179,
+      "people": 1,
+      "faces": 1,
+      "plates": 0,
+      "person_scores": [
+        0.977
+      ],
+      "face_scores": [
+        0.797
+      ]
+    },
+    {
+      "frame": 180,
+      "people": 1,
+      "faces": 1,
+      "plates": 0,
+      "person_scores": [
+        0.977
+      ],
+      "face_scores": [
+        0.797
+      ]
+    },
+    {
+      "frame": 181,
+      "people": 1,
+      "faces": 1,
+      "plates": 0,
+      "person_scores": [
+        0.977
+      ],
+      "face_scores": [
+        0.809
+      ]
+    },
+    {
+      "frame": 182,
+      "people": 1,
+      "faces": 1,
+      "plates": 0,
+      "person_scores": [
+        0.977
+      ],
+      "face_scores": [
+        0.809
+      ]
+    },
+    {
+      "frame": 183,
+      "people": 1,
+      "faces": 1,
+      "plates": 0,
+      "person_scores": [
+        0.977
+      ],
+      "face_scores": [
+        0.809
+      ]
+    },
+    {
+      "frame": 184,
+      "people": 1,
+      "faces": 1,
+      "plates": 0,
+      "person_scores": [
+        0.973
+      ],
+      "face_scores": [
+        0.801
+      ]
+    },
+    {
+      "frame": 185,
+      "people": 1,
+      "faces": 1,
+      "plates": 0,
+      "person_scores": [
+        0.973
+      ],
+      "face_scores": [
+        0.781
+      ]
+    },
+    {
+      "frame": 186,
+      "people": 1,
+      "faces": 1,
+      "plates": 0,
+      "person_scores": [
+        0.973
+      ],
+      "face_scores": [
+        0.785
+      ]
+    },
+    {
+      "frame": 187,
+      "people": 1,
+      "faces": 1,
+      "plates": 0,
+      "person_scores": [
+        0.977
+      ],
+      "face_scores": [
+        0.789
+      ]
+    },
+    {
+      "frame": 188,
+      "people": 1,
+      "faces": 1,
+      "plates": 0,
+      "person_scores": [
+        0.977
+      ],
+      "face_scores": [
+        0.789
+      ]
+    },
+    {
+      "frame": 189,
+      "people": 1,
+      "faces": 1,
+      "plates": 0,
+      "person_scores": [
+        0.977
+      ],
+      "face_scores": [
+        0.789
+      ]
+    },
+    {
+      "frame": 190,
+      "people": 1,
+      "faces": 1,
+      "plates": 0,
+      "person_scores": [
+        0.977
+      ],
+      "face_scores": [
+        0.789
+      ]
+    },
+    {
+      "frame": 191,
+      "people": 1,
+      "faces": 1,
+      "plates": 0,
+      "person_scores": [
+        0.977
+      ],
+      "face_scores": [
+        0.797
+      ]
+    },
+    {
+      "frame": 192,
+      "people": 1,
+      "faces": 1,
+      "plates": 0,
+      "person_scores": [
+        0.977
+      ],
+      "face_scores": [
+        0.785
+      ]
+    },
+    {
+      "frame": 193,
+      "people": 1,
+      "faces": 1,
+      "plates": 0,
+      "person_scores": [
+        0.977
+      ],
+      "face_scores": [
+        0.781
+      ]
+    },
+    {
+      "frame": 194,
+      "people": 1,
+      "faces": 1,
+      "plates": 0,
+      "person_scores": [
+        0.977
+      ],
+      "face_scores": [
+        0.777
+      ]
+    },
+    {
+      "frame": 195,
+      "people": 1,
+      "faces": 1,
+      "plates": 0,
+      "person_scores": [
+        0.977
+      ],
+      "face_scores": [
+        0.777
+      ]
+    },
+    {
+      "frame": 196,
+      "people": 1,
+      "faces": 1,
+      "plates": 0,
+      "person_scores": [
+        0.973
+      ],
+      "face_scores": [
+        0.789
+      ]
+    },
+    {
+      "frame": 197,
+      "people": 1,
+      "faces": 1,
+      "plates": 0,
+      "person_scores": [
+        0.977
+      ],
+      "face_scores": [
+        0.789
+      ]
+    },
+    {
+      "frame": 198,
+      "people": 1,
+      "faces": 1,
+      "plates": 0,
+      "person_scores": [
+        0.977
+      ],
+      "face_scores": [
+        0.789
+      ]
+    },
+    {
+      "frame": 199,
+      "people": 1,
+      "faces": 1,
+      "plates": 0,
+      "person_scores": [
+        0.977
+      ],
+      "face_scores": [
+        0.793
+      ]
+    },
+    {
+      "frame": 200,
+      "people": 1,
+      "faces": 1,
+      "plates": 0,
+      "person_scores": [
+        0.973
+      ],
+      "face_scores": [
+        0.793
+      ]
+    },
+    {
+      "frame": 201,
+      "people": 1,
+      "faces": 1,
+      "plates": 0,
+      "person_scores": [
+        0.977
+      ],
+      "face_scores": [
+        0.785
+      ]
+    },
+    {
+      "frame": 202,
+      "people": 1,
+      "faces": 1,
+      "plates": 0,
+      "person_scores": [
+        0.977
+      ],
+      "face_scores": [
+        0.789
+      ]
+    },
+    {
+      "frame": 203,
+      "people": 1,
+      "faces": 1,
+      "plates": 0,
+      "person_scores": [
+        0.969
+      ],
+      "face_scores": [
+        0.781
+      ]
+    },
+    {
+      "frame": 204,
+      "people": 1,
+      "faces": 1,
+      "plates": 0,
+      "person_scores": [
+        0.977
+      ],
+      "face_scores": [
+        0.781
+      ]
+    },
+    {
+      "frame": 205,
+      "people": 1,
+      "faces": 1,
+      "plates": 0,
+      "person_scores": [
+        0.977
+      ],
+      "face_scores": [
+        0.781
+      ]
+    },
+    {
+      "frame": 206,
+      "people": 1,
+      "faces": 1,
+      "plates": 0,
+      "person_scores": [
+        0.977
+      ],
+      "face_scores": [
+        0.773
+      ]
+    },
+    {
+      "frame": 207,
+      "people": 1,
+      "faces": 1,
+      "plates": 0,
+      "person_scores": [
+        0.977
+      ],
+      "face_scores": [
+        0.785
+      ]
+    },
+    {
+      "frame": 208,
+      "people": 1,
+      "faces": 1,
+      "plates": 0,
+      "person_scores": [
+        0.977
+      ],
+      "face_scores": [
+        0.777
+      ]
+    },
+    {
+      "frame": 209,
+      "people": 1,
+      "faces": 1,
+      "plates": 0,
+      "person_scores": [
+        0.977
+      ],
+      "face_scores": [
+        0.785
+      ]
+    }
+  ]
+}
