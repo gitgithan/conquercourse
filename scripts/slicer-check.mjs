@@ -15,7 +15,7 @@ try {
   const browser = await chromium.launch({ args: flags });
   const page = await browser.newPage({ viewport: { width: 1300, height: 800 } });
   page.on('pageerror', (e) => console.log('PAGEERROR', e.message.slice(0, 200)));
-  await page.goto(`http://localhost:${port}/?mode=map&lat=48.8867&lon=2.3431&z=17`);
+  await page.goto(`http://localhost:${port}/?mode=map&lat=48.8867&lon=2.3431&z=17&flight=0`);
   await page.waitForSelector('#map canvas.maplibregl-canvas', { timeout: 60000 });
   await page.waitForFunction(() => document.documentElement.dataset.mapready === 'true', null, { timeout: 90000 }).then(() => { checks.mapStyleLoaded = true; }, () => { checks.mapStyleLoaded = false; notes.push('map style did not load in time (network)'); });
   const box = await (await page.$('#map canvas.maplibregl-canvas')).boundingBox();

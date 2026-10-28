@@ -3,9 +3,10 @@
 import * as maplibregl from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
 import workerUrl from 'maplibre-gl/dist/maplibre-gl-worker.mjs?url';
-import { buildingsFrom, MIRRORS, osmToMesh, overpassQuery, type OverpassAnswer } from '../world/osm';
+import { buildingsFrom, extrude, MIRRORS, osmToMesh, overpassQuery, type OverpassAnswer } from '../world/osm';
 import { fetchGround, lowest, relief, TERRAIN_ATTRIBUTION, type Ground, type Tile } from '../world/terrain';
-import { buildingTops, contourSegments, cutBuildings, cutRange, ladderLevels, ladderStep, laneLine, resample, slopeCells, toLonLat, type Seg } from '../slice/slicer';
+import { buildingTops, contourSegments, cutBuildings, cutRange, ladderLevels, ladderStep, laneLine, piecesFrom, resample, slopeCells, toLonLat, type Seg } from '../slice/slicer';
+import { reducedMotion, runFlight, scaleWords } from './map-flight';
 import type { LaneSummary, SliceAnswer, SliceAsk } from '../slice/slicer-worker';
 
 export const PIECE_KEY = 'cc.map.piece';
@@ -59,6 +60,8 @@ export function startMap(host: HTMLElement): { backend: 'webgl2' } {
     .mp button,.mp input[type=search],.mp a.btn{font:inherit;border:1px solid #b9c2bb;background:#fff;color:#17201d;border-radius:8px;padding:4px 9px;cursor:pointer;text-decoration:none;box-sizing:border-box}
     .mp input[type=search]{width:100%;cursor:text}.mp .go{background:#0f6b5c;color:#fff;border-color:#0f6b5c;font-weight:700}.mp button:disabled{opacity:.5;cursor:default}
     .mp [hidden]{display:none!important}
+    .mp .map{position:relative}.mp .fcap{position:absolute;left:10px;bottom:34px;max-width:70%;background:rgba(23,32,29,.86);color:#fff;padding:6px 10px;border-radius:8px;font-size:14px;z-index:6}
+    .mp .fskip{position:absolute;left:10px;top:84px;z-index:6}
     .mp .hits{display:grid;gap:4px}.mp .hits button{text-align:left}.mp .say{border-left:4px solid #0f6b5c;padding:3px 6px;background:#f3f7f4;font-size:13px}.mp .say.bad{border-color:#c0392b;background:#fbeeee}
     @media(max-width:700px){.mp{grid-template-columns:minmax(0,1fr) 220px}}`;
   document.head.appendChild(style);
@@ -82,6 +85,12 @@ export function startMap(host: HTMLElement): { backend: 'webgl2' } {
         <div style="display:grid;gap:6px"><div>Cut height: <b id="cutv">0</b> m</div><div class="muted">metres above the lowest ground, real size</div><button id="ladder" type="button">Contour ladder</button></div>
       </div>
       <div id="sliceread" class="say">Pick a place, press Slice.</div>
+      <div id="scalewords" class="say"></div>
+      <b>Pick the buildings</b>
+      <div class="muted">Click a building to leave it out or put it back. Hold Shift and drag to pick a box (Alt takes buildings out).</div>
+      <div id="pickcount" class="muted"></div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap"><button id="pickall" type="button">Pick all</button><button id="pickclear" type="button">Clear</button></div>
+      <button id="buildpieces" class="go" type="button">Build the picked buildings</button>
       <div class="muted">Orange line: the ground at this height. Orange blocks: buildings the cut goes through (their floor plan). Faded: above the cut. Green line: the lane the Course would use at this height. Tint under the map: red is steep.</div>
     </div>
     <div id="say" class="say">No pin yet.</div>
@@ -89,6 +98,8 @@ export function startMap(host: HTMLElement): { backend: 'webgl2' } {
     <div class="muted">Map: OpenFreeMap. Search: Nominatim. Buildings: Overpass. Data © OpenStreetMap contributors (ODbL). ${TERRAIN_ATTRIBUTION}.</div>`;
   const $ = <T extends HTMLElement>(id: string) => side.querySelector('#' + id) as T;
   const radius = $<HTMLInputElement>('radius'), shrink = $<HTMLInputElement>('shrink'), build = $<HTMLButtonElement>('build'), say = $('say'), hits = $('hits');
+  const flightcap = document.createElement('div'); flightcap.className = 'fcap'; flightcap.hidden = true; mapEl.appendChild(flightcap);
+  const flightskip = document.createElement('button'); flightskip.className = 'fskip'; flightskip.textContent = 'Skip the flight'; flightskip.hidden = true; mapEl.appendChild(flightskip);
   const sliceBtn = $<HTMLButtonElement>('slice'), slicer = $('slicer'), cut = $<HTMLInputElement>('cut'), read = $('sliceread');
   const tell = (s: string, bad = false) => { say.textContent = s; say.classList.toggle('bad', bad); };
   radius.oninput = () => { $('radiusv').textContent = radius.value; };
@@ -104,7 +115,8 @@ export function startMap(host: HTMLElement): { backend: 'webgl2' } {
     document.documentElement.dataset.pin = `${lat.toFixed(5)},${lon.toFixed(5)}`;
     tell(`Pin at ${lat.toFixed(4)}, ${lon.toFixed(4)}.`);
   };
-  map.on('click', (e) => dropPin(e.lngLat.lat, e.lngLat.lng));
+  map.on('click', (e) => { if (S) pickClick(e.point); else dropPin(e.lngLat.lat, e.lngLat.lng); });
+  map.boxZoom.disable(); // Shift and drag picks a box of buildings here
   map.on('load', () => { document.documentElement.dataset.mapready = 'true'; });
   map.on('error', (e) => { if (!document.documentElement.dataset.mapready) tell(`The map tiles are slow to load (${String(e.error?.message ?? 'network').slice(0, 60)}).`, true); });
 
@@ -149,7 +161,7 @@ export function startMap(host: HTMLElement): { backend: 'webgl2' } {
     } catch (e) { tell((e as Error).message, true); build.disabled = false; }
   };
   // ---- the Slicer (CC-73, Atlas CC-72): a cut height slider; contours, floor plans and the lane at that height
-  interface SliceState { answer: OverpassAnswer; lat: number; lon: number; r: number; k: number; ground: Ground | null; fine: Ground | null; tops: ReturnType<typeof buildingTops>; mesh: { positions: number[]; indices: number[] }; range: number }
+  interface SliceState { picked: Set<number>; answer: OverpassAnswer; lat: number; lon: number; r: number; k: number; ground: Ground | null; fine: Ground | null; tops: ReturnType<typeof buildingTops>; mesh: { positions: number[]; indices: number[] }; range: number }
   let S: SliceState | null = null, sliceWorker: Worker | null = null, laneToken = 0, laneTimer = 0, layersReady = false;
   const laneCache = new Map<string, { quick: LaneSummary | null; proved: LaneSummary | null | undefined }>();
   const empty = { type: 'FeatureCollection' as const, features: [] as unknown[] };
@@ -172,10 +184,13 @@ export function startMap(host: HTMLElement): { backend: 'webgl2' } {
   function ensureLayers() {
     if (layersReady) return;
     const add = (l: Record<string, unknown>) => map.addLayer(l as never); // the layer specs use expressions; the types are strict about them
-    for (const id of ['slope', 'below', 'above', 'face', 'plane', 'contour', 'ladder', 'lane']) map.addSource('sl-' + id, { type: 'geojson', data: empty as never });
+    for (const id of ['slope', 'below', 'above', 'face', 'plane', 'contour', 'ladder', 'lane', 'out', 'pick', 'skip', 'circle']) map.addSource('sl-' + id, { type: 'geojson', data: empty as never });
     const ext = (id: string, color: string, opacity: number) => add({ id: 'sl-' + id, type: 'fill-extrusion', source: 'sl-' + id, paint: { 'fill-extrusion-color': color, 'fill-extrusion-opacity': opacity, 'fill-extrusion-base': ['get', 'base'], 'fill-extrusion-height': ['get', 'height'] } });
     add({ id: 'sl-slope', type: 'fill', source: 'sl-slope', paint: { 'fill-color': ['interpolate', ['linear'], ['get', 'deg'], 0, '#7fbf7b', 8, '#f1e27a', 18, '#e8622c', 30, '#a50f15'], 'fill-opacity': 0.22 } });
-    ext('below', GREY, 0.9); ext('above', GREY, 0.14); ext('face', '#e8622c', 0.95); ext('plane', '#2aa198', 0.28);
+    ext('out', '#b8beb9', 0.1); ext('below', GREY, 0.9); ext('above', GREY, 0.14); ext('face', '#e8622c', 0.95); ext('plane', '#2aa198', 0.28);
+    add({ id: 'sl-pick', type: 'line', source: 'sl-pick', paint: { 'line-color': '#e8622c', 'line-width': 2.5 } });
+    add({ id: 'sl-skip', type: 'line', source: 'sl-skip', paint: { 'line-color': '#7a847e', 'line-width': 1.5, 'line-dasharray': [2, 2] } });
+    add({ id: 'sl-circle', type: 'line', source: 'sl-circle', paint: { 'line-color': '#0f6b5c', 'line-width': 3, 'line-dasharray': [3, 2] } });
     add({ id: 'sl-contour', type: 'line', source: 'sl-contour', paint: { 'line-color': '#d35400', 'line-width': 3.5 } });
     add({ id: 'sl-ladder', type: 'line', source: 'sl-ladder', layout: { visibility: 'none' }, paint: { 'line-color': '#7a5230', 'line-width': 1.3, 'line-opacity': 0.85 } });
     add({ id: 'sl-lane-dash', type: 'line', source: 'sl-lane', layout: { visibility: 'none' }, paint: { 'line-color': '#0f6b5c', 'line-width': 6, 'line-dasharray': [1.4, 1.2] } });
@@ -190,24 +205,33 @@ export function startMap(host: HTMLElement): { backend: 'webgl2' } {
     if (!S) return;
     $('cutv').textContent = num1(c);
     const cb = cutBuildings(S.tops, c), r = S.r;
-    const below: unknown[] = [], above: unknown[] = [], face: unknown[] = [];
+    const below: unknown[] = [], above: unknown[] = [], face: unknown[] = [], out: unknown[] = [], pickLines: Seg[] = [], skipLines: Seg[] = [];
     let cutCount = 0;
-    for (const b of cb) {
+    cb.forEach((b, i) => {
       const geometry = { type: 'Polygon' as const, coordinates: poly(b.ring) };
-      const f = (base: number, height: number) => ({ type: 'Feature' as const, properties: { base, height }, geometry });
-      if (!b.cut) { below.push(f(0, Math.max(0.05, b.top))); continue; }
+      const mx = b.ring.reduce((t, p) => t + p[0], 0) / b.ring.length, mz = b.ring.reduce((t, p) => t + p[1], 0) / b.ring.length;
+      const reach = Math.min(1, Math.hypot(mx, mz) / r);
+      const f = (base: number, height: number) => ({ type: 'Feature' as const, properties: { base, height, i, reach }, geometry });
+      const edge = b.ring.map((p, j) => { const q = b.ring[(j + 1) % b.ring.length]; return [p[0], p[1], q[0], q[1]] as Seg; });
+      if (!S!.picked.has(i)) { out.push(f(0, Math.max(0.05, b.top))); skipLines.push(...edge); return; }
+      pickLines.push(...edge);
+      if (!b.cut) { below.push(f(0, Math.max(0.05, b.top))); return; }
       cutCount++;
       const lo = Math.max(0, c - 0.4);
       below.push(f(0, Math.max(0.02, lo))); face.push(f(lo, Math.max(lo + 0.02, c)));
       if (b.top > c + 0.05) above.push(f(c, b.top));
-    }
+    });
+    const picked = S.picked.size;
+    dset('slicePicked', picked); dset('sliceTotal', cb.length);
+    $('pickcount').textContent = `Picked ${picked} of ${cb.length} buildings.`;
     const sq: [number, number][] = [[-r, -r], [r, -r], [r, r], [-r, r]];
     const plane = { type: 'Feature' as const, properties: { base: Math.max(0, c - 0.2), height: Math.max(0.05, c) }, geometry: { type: 'Polygon' as const, coordinates: poly(sq) } };
     const col = (features: unknown[]) => ({ type: 'FeatureCollection' as const, features });
+    src('sl-out').setData(col(out) as never); src('sl-pick').setData(col(pickLines.length ? [lines(pickLines)] : []) as never); src('sl-skip').setData(col(skipLines.length ? [lines(skipLines)] : []) as never);
     src('sl-below').setData(col(below) as never); src('sl-above').setData(col(above) as never); src('sl-face').setData(col(face) as never); src('sl-plane').setData(col([plane]) as never);
     const segs = S.fine ? contourSegments(S.fine, lowest(S.fine) + c, 99) : [];
     src('sl-contour').setData(col(segs.length ? [lines(segs)] : []) as never);
-    dset('sliceCut', c); dset('sliceCutBuildings', cutCount); dset('sliceBelowBuildings', cb.length - cutCount); dset('sliceContourSegs', segs.length);
+    dset('sliceCut', c); dset('sliceCutBuildings', cutCount); dset('sliceBelowBuildings', picked - cutCount); dset('sliceContourSegs', segs.length);
   }
 
   function drawLane(l: LaneSummary | null, proved: boolean) {
@@ -254,7 +278,8 @@ export function startMap(host: HTMLElement): { backend: 'webgl2' } {
     if (!S) return;
     const answer = S.answer, k = Number(shrink.value), bs = buildingsFrom(answer, S.lat, S.lon);
     S.k = k; S.tops = buildingTops(bs, k, S.ground);
-    const m = osmToMesh(answer, S.lat, S.lon, k, S.ground); S.mesh = { positions: m.positions, indices: m.indices };
+    const picked = S.picked, m = extrude(S.tops.filter((_, i) => picked.has(i)).map((t) => t.b), k, S.ground); S.mesh = { positions: m.positions, indices: m.indices };
+    $('scalewords').textContent = scaleWords(S.r, k, bs.length ? bs.map((b) => b.h).sort((a, b2) => a - b2)[Math.floor(bs.length / 2)] : 9);
     S.range = cutRange(S.tops, S.ground);
   }
   shrink.onchange = () => { if (!S) return; rebuild(); cut.max = String(S.range); cutChanged(true); };
@@ -272,6 +297,85 @@ export function startMap(host: HTMLElement): { backend: 'webgl2' } {
     dset('ladderLines', ladderOn ? levels.length : 0);
   };
 
+  // ---- the flight (CC-79): steps 1 to 3 here; step 4 (the hand-over to the editor) is the Build button
+  const setWave = (w: number | null) => {
+    const k = w === null ? null : ['max', 0, ['min', 1, ['-', ['*', w, 1.6], ['*', ['get', 'reach'], 0.6]]]];
+    for (const id of ['sl-out', 'sl-below', 'sl-above', 'sl-face']) {
+      map.setPaintProperty(id, 'fill-extrusion-height', (k ? ['*', ['get', 'height'], k] : ['get', 'height']) as never);
+      map.setPaintProperty(id, 'fill-extrusion-base', (k ? ['*', ['get', 'base'], k] : ['get', 'base']) as never);
+    }
+  };
+  let skipFlight: (() => void) | null = null;
+  function flyIn(fit: number) {
+    const q2 = new URLSearchParams(location.search), at = q2.get('flightat');
+    const reduced = reducedMotion() || q2.get('flight') === '0';
+    const end = () => {
+      setWave(null); skipFlight = null; flightcap.hidden = true; flightskip.hidden = true;
+      map.setLayoutProperty('sl-plane', 'visibility', 'visible'); slicer.hidden = false;
+      dset('flightDone', '1'); cutChanged(true);
+    };
+    paint(S!.range); // while the buildings rise nothing is cut: the whole place is solid
+    map.setLayoutProperty('sl-plane', 'visibility', 'none'); slicer.hidden = at !== null ? false : true;
+    flightcap.hidden = false; flightskip.hidden = at !== null || reduced;
+    const f = runFlight({
+      camera: (c) => map.jumpTo({ center: [S!.lon, S!.lat], zoom: c.zoom, pitch: c.pitch, bearing: c.bearing }),
+      wave: (w) => setWave(w), say: (t) => { flightcap.textContent = t; }, end,
+    }, fit, S!.r, { at: at !== null ? Number(at) : undefined, reduced });
+    if (!reduced && at === null) skipFlight = f.skip;
+    flightskip.onclick = () => f.skip();
+    if (at !== null) dset('flightAt', at);
+  }
+  window.addEventListener('keydown', (e) => { if (e.key === 'Escape' && skipFlight) skipFlight(); });
+
+  // ---- picking: click a building, or hold Shift and drag a box (Alt takes buildings out)
+  const PICK_LAYERS = ['sl-below', 'sl-face', 'sl-above', 'sl-out'];
+  const ids = (fs: maplibregl.MapGeoJSONFeature[]) => [...new Set(fs.map((f) => Number(f.properties?.i)).filter((n) => Number.isFinite(n)))];
+  function picksChanged() { if (!S) return; rebuild(); paint(Number(cut.value)); clearTimeout(laneTimer); laneTimer = window.setTimeout(() => askLane(Number(cut.value)), 500); }
+  function pickClick(pt: maplibregl.Point) {
+    if (!S || skipFlight) return;
+    const hit = ids(map.queryRenderedFeatures([pt.x, pt.y], { layers: PICK_LAYERS }));
+    if (!hit.length) return;
+    for (const i of hit.slice(0, 1)) { if (S.picked.has(i)) S.picked.delete(i); else S.picked.add(i); }
+    picksChanged();
+  }
+  $('pickall').onclick = () => { if (!S) return; S.picked = new Set(S.tops.keys()); picksChanged(); };
+  $('pickclear').onclick = () => { if (!S) return; S.picked = new Set(); picksChanged(); };
+  const boxHost = map.getCanvasContainer();
+  let box: { x0: number; y0: number; el: HTMLDivElement } | null = null;
+  boxHost.addEventListener('mousedown', (e) => {
+    if (!S || !e.shiftKey || skipFlight) return;
+    e.preventDefault(); e.stopPropagation(); map.dragPan.disable();
+    const r = boxHost.getBoundingClientRect(), el = document.createElement('div');
+    el.style.cssText = 'position:absolute;border:2px dashed #e8622c;background:rgba(232,98,44,.12);pointer-events:none;z-index:5';
+    boxHost.appendChild(el); box = { x0: e.clientX - r.left, y0: e.clientY - r.top, el };
+  }, true);
+  window.addEventListener('mousemove', (e) => {
+    if (!box) return;
+    const r = boxHost.getBoundingClientRect(), x = e.clientX - r.left, y = e.clientY - r.top;
+    Object.assign(box.el.style, { left: Math.min(x, box.x0) + 'px', top: Math.min(y, box.y0) + 'px', width: Math.abs(x - box.x0) + 'px', height: Math.abs(y - box.y0) + 'px' });
+  });
+  window.addEventListener('mouseup', (e) => {
+    if (!box || !S) return;
+    const r = boxHost.getBoundingClientRect(), x = e.clientX - r.left, y = e.clientY - r.top, b = box;
+    box = null; b.el.remove(); map.dragPan.enable();
+    if (Math.abs(x - b.x0) < 4 && Math.abs(y - b.y0) < 4) return;
+    const hit = ids(map.queryRenderedFeatures([[Math.min(x, b.x0), Math.min(y, b.y0)], [Math.max(x, b.x0), Math.max(y, b.y0)]], { layers: PICK_LAYERS }));
+    for (const i of hit) { if (e.altKey) S.picked.delete(i); else S.picked.add(i); }
+    picksChanged();
+  });
+
+  // step 4: the picked buildings go to the editor as separate pieces, with the camera heading and tilt the player ended on
+  $('buildpieces').onclick = () => {
+    if (!S) return;
+    const pieces = piecesFrom(S.tops, S.picked, S.k, S.ground);
+    if (!pieces.length) { tell('Pick at least one building first.', true); return; }
+    try { sessionStorage.setItem(PIECE_KEY, JSON.stringify({ name: 'Place', pieces, camera: { heading: map.getBearing(), pitch: map.getPitch(), distance: Math.max(12, S.r * S.k * 1.8) } })); } catch { tell('That is too many buildings to hand over at once. Pick fewer.', true); return; }
+    dset('handover', pieces.length);
+    mapEl.style.transition = 'opacity .4s'; mapEl.style.opacity = '0.2';
+    setTimeout(() => { location.search = '?mode=editor'; }, 450);
+  };
+  if (q.get('hooks') === '1') (window as unknown as Record<string, unknown>).__ccMap = { map, tops: () => S?.tops ?? [], picked: () => [...(S?.picked ?? [])] };
+
   sliceBtn.onclick = async () => {
     if (!pin) return;
     sliceBtn.disabled = true;
@@ -283,18 +387,17 @@ export function startMap(host: HTMLElement): { backend: 'webgl2' } {
         try { ground = await groundFor(pin.lat, pin.lon, r); } catch { tell('The height maps did not answer, so the place is cut flat.', true); }
       }
       if (!buildingsFrom(answer, pin.lat, pin.lon).length && !ground) { tell('Nothing to slice here. Move the pin and try again.', true); sliceBtn.disabled = false; return; }
-      S = { answer, lat: pin.lat, lon: pin.lon, r, k: Number(shrink.value), ground, fine: ground ? resample(ground, 4) : null, tops: [], mesh: { positions: [], indices: [] }, range: 0 };
-      rebuild();
+      S = { picked: new Set(), answer, lat: pin.lat, lon: pin.lon, r, k: Number(shrink.value), ground, fine: ground ? resample(ground, 4) : null, tops: [], mesh: { positions: [], indices: [] }, range: 0 };
+      rebuild(); S.picked = new Set(S.tops.keys()); rebuild();
       if (!map.isStyleLoaded()) await new Promise<void>((res) => map.once('idle', () => res()));
       ensureLayers();
       src('sl-slope').setData({ type: 'FeatureCollection', features: ground ? slopeCells(ground).map((c) => ({ type: 'Feature', properties: { deg: c.deg }, geometry: { type: 'Polygon', coordinates: poly([[c.x0, c.z0], [c.x1, c.z0], [c.x1, c.z1], [c.x0, c.z1]]) } })) : [] } as never);
+      src('sl-circle').setData({ type: 'Feature', properties: {}, geometry: { type: 'Polygon', coordinates: [Array.from({ length: 65 }, (_, i) => ll(r * Math.cos((i / 64) * 2 * Math.PI), r * Math.sin((i / 64) * 2 * Math.PI)))] } } as never);
       cut.min = '0'; cut.max = String(S.range); cut.step = '0.5'; cut.value = String(Math.round(S.range * 0.35 * 2) / 2);
-      slicer.hidden = false;
-      const zoom = Math.min(18.5, Math.log2((156543 * Math.cos((pin.lat * Math.PI) / 180) * 900) / (3 * r)));
-      map.easeTo({ center: [pin.lon, pin.lat], zoom, pitch: 55, bearing: -25, duration: 700 });
       tell(`Sliced ${S.tops.length} buildings${ground ? `, ground ${Math.round(relief(ground))} m from the lowest to the highest point` : ' (flat ground)'}. Drag the cut height.`);
       dset('sliceReady', '1'); dset('sliceRange', S.range); dset('sliceRelief', Math.round(relief(ground)));
-      cutChanged(true);
+      const fit = Math.min(18.5, Math.log2((156543 * Math.cos((pin.lat * Math.PI) / 180) * 900) / (3 * r)));
+      flyIn(fit);
     } catch (e) { tell((e as Error).message, true); }
     sliceBtn.disabled = false;
   };
