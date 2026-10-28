@@ -23,7 +23,7 @@ try {
   const pick = async () => { await page.evaluate(() => { delete document.documentElement.dataset.photoDraft; document.getElementById('photofile').value = ''; }); await page.setInputFiles('#photofile', 'public/assets/park/park01.jpg'); };
   const settled = () => page.waitForFunction(() => ['cleared', 'fixed', 'unfixed', 'unreadable', 'error'].includes(document.documentElement.dataset.photoDraft), null, { timeout: 150000 });
   await page.goto(`http://localhost:${port}/?mode=editor&labs=1`);
-  await page.waitForSelector('#photobtn', { timeout: 60000 });
+  await page.waitForSelector('#photobtn', { state: 'attached', timeout: 60000 }); // the labs button lives in the More menu
   checks.buttonShownWithLabs = true;
   // 1. three bars (new03): a draft arrives as pieces and the simulator proves it
   await pick(); await settled();

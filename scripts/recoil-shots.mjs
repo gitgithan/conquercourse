@@ -13,8 +13,8 @@ try {
   const errors = []; page.on('pageerror', (e) => { errors.push(e.message); console.log('PAGEERROR', e.message.slice(0, 200)); });
   mkdirSync('test-results/recoil', { recursive: true });
   await page.goto(`http://localhost:${port}/?mode=editor`);
-  await page.waitForSelector('#addrecoil', { timeout: 60000 });
-  await page.click('#addrecoil');
+  await page.waitForSelector('#addrecoil', { state: 'attached', timeout: 60000 });
+  await page.click('#addpiece'); await page.click('#addrecoil');
   const knobs = await page.$$eval('#recoilkg, #recoilspeed', (els) => els.map((e) => e.value));
   await page.waitForTimeout(3000);
   await page.screenshot({ path: 'test-results/recoil/editor.png' });

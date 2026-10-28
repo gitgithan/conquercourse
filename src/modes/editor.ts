@@ -1,4 +1,5 @@
 import { HAZARDS, HAZARD_INFO, type Hazard } from '../course/hazard';
+import { organizeEditor } from '../ui/editor-layout';
 import { startCourse } from './course';
 import { readGlbMesh } from '../slice/glb';
 import { LIBRARY } from '../slice/shapes';
@@ -381,8 +382,8 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
     document.documentElement.dataset.moves = JSON.stringify(Object.fromEntries(status.map((m) => [m.id, m.have])));
     for (const m of status) {
       const row = el('div', movesBox, { className: 'mv' });
-      el('span', row, { className: m.have === 'yes' ? 'yes' : m.have === 'no' ? 'no' : 'muted', text: m.have === 'yes' ? '✓' : m.have === 'no' ? '✗' : '↗' });
-      el('span', row, { text: `${m.name}: ${m.detail}` });
+      el('span', row, { className: `mvicon ${m.have === 'yes' ? 'yes' : m.have === 'no' ? 'no' : 'muted'}`, text: m.have === 'yes' ? '✓' : m.have === 'no' ? '+' : '↗', title: m.have === 'yes' ? 'This world has it' : m.have === 'no' ? 'Missing: it can be added' : 'Built somewhere else' });
+      el('span', row, { className: 'mvtext', text: `${m.name}: ${m.detail}` });
       if (m.have !== 'yes') el('span', row, { className: 'need', text: m.need });
       if (m.have === 'no' && m.id === 'lache') el('button', row, { text: 'Add two bars', id: 'addbars', className: 'go' }).onclick = () => { addBarPiece(view.cx - 1.6, 2.9); addBarPiece(view.cx + 1.6, 2.9); changed(); };
       if (m.have === 'no' && m.id === 'trebuchet') el('button', row, { text: 'Start in a trebuchet', id: 'movestreb' }).onclick = () => document.getElementById('addtreb')?.click();
@@ -1225,6 +1226,7 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
       }
     } catch { /* no history to bring back */ }
   }
+  organizeEditor(root); // CC-94: the controls in one bar, one add menu, one dock, a command palette
   if (!pendingObjects.length) onWorld(); // else onWorld runs when the saved photo objects are in
   document.documentElement.dataset.pieces = String(pieces.length);
   return { backend: 'webgl2' };
