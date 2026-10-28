@@ -22,7 +22,7 @@ try {
     await page.waitForSelector('#democourses', { timeout: 60000 });
     await page.waitForFunction(() => document.documentElement.dataset.tick !== undefined, null, { timeout: 60000 });
     await page.waitForTimeout(1200);
-    checks[label] = /m of/.test(await page.textContent('body'));
+    checks[label] = /m of/.test(await page.textContent('body')) && (await page.evaluate(() => { const f = document.getElementById('frontview'); return !!f && getComputedStyle(f).display !== 'none'; })); // loaded, and the front view is on
     await page.screenshot({ path: `test-results/demos/${(v.split('/').pop() || 'stock').replace(/\W+/g, '_')}.png` });
   }
   console.log(checks, 'errors:', errors);
