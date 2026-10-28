@@ -36,3 +36,23 @@
 - **Tests run on VM3:** `tests/fixbars.test.ts` alone, 2 of 2 (65 s, with 4 other jobs running).
 - **Not covered:** the Fix it for bars feature was not changed; a faster Fix it would remove the need.
 - **How to test it by eye:** nothing to look at.
+
+## 4. JSON format of the CC-90 photo files (CC-90, Part of)
+- **Problem:** `tests/json-format.test.ts` (and `npm run test:quick`) failed on main because 10 files in `data/eval/cc-90-photos/` were committed unformatted.
+- **Fix:** `npm run format:json` (whitespace only, no values changed).
+- **Tests run on VM3:** `node scripts/format-json.mjs --check` (0 of 634 unformatted), `tests/json-format.test.ts`.
+- **How to test it by eye:** nothing to look at; run `npm run test:quick` on a VM and the json-format test is green.
+
+## 5. Edit this course no longer overlaps Whole course (CC-80, Part of)
+- **Problem:** in the Course the "Edit this course" button sat on top of "Whole course (Shift+I)" at 1280x720 and 1024x640.
+- **Cause:** both buttons had their own fixed right offsets (312 px and 158 px), but the Whole button is wider than 154 px.
+- **Fix:** the two buttons now share one flex row (`#coursebtns`, right 158 px, top 56 px), so they cannot overlap whatever their text widths are.
+- **Check added:** `scripts/course-buttons-check.mjs` fails when any two controls in the top 120 px overlap.
+  - Before the fix it reported "wholeideal x editcourse" at both sizes; after: none.
+- **Tests run on VM3:** the new check at both sizes, `tsc --noEmit`.
+- **Not covered:** the other modes' top bars (the editor cleanup agent owns those) and phone widths (390 px).
+- **How to test it by eye:**
+  1. Open `/?course=/assets/demo/lache.course.json&welcome=0` in a 1024 px wide window.
+  2. Look under "Ideal run (I)": "Edit this course" and "Whole course (Shift+I)" sit side by side with a gap.
+  3. Wrong would be one covering the other's text.
+  - Screenshots: `data/eval/janitor/course-buttons/1280x720.png` and `1024x640.png`.
