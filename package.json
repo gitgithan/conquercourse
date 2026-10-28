@@ -13,6 +13,7 @@
     "film": "node scripts/film.mjs",
     "format:json": "node scripts/format-json.mjs",
     "ideal": "tsx scripts/ideal-run.ts",
+    "plans": "tsx scripts/plans.ts",
     "deploy": "npm run build && wrangler pages deploy dist --project-name conquercourse --branch main",
     "deploy:preview": "npm run build && wrangler pages deploy dist --project-name conquercourse --branch preview",
     "feedback": "node scripts/feedback-summary.mjs",

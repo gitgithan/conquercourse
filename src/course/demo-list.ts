@@ -1,0 +1,11 @@
+// The demo courses that carry a stored whole-course plan (Shift+I plays it at once). `npm run plans` rewrites them.
+export const DEMO_COURSE_FILES = [
+  'public/assets/demo/lache.course.json',
+  'public/assets/demo/lane-1.course.json',
+  'public/assets/demo/lane-2.course.json',
+  'public/assets/demo/generated-1.course.json',
+  'public/assets/experiments/osm/eixample-barcelona.course.json',
+  'public/assets/experiments/osm/montmartre-paris.course.json',
+  'public/assets/experiments/osm/circular-quay-sydney.course.json',
+  'public/assets/experiments/osm/san-francisco-lombard.course.json',
+] as const;

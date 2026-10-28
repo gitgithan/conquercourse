@@ -1,3 +1,5 @@
+import { hazardOf, HAZARD_INFO } from '../course/hazard';
+import { buildFloor } from '../course/floor';
 import { playedSounds, soundButton, soundsFor, startAudio } from '../ui/audio';
 import * as THREE from 'three/webgpu';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
@@ -37,7 +39,6 @@ export interface CourseGame {
 
 interface Resume { course: CourseData; world: WorldState | null; retryX: number; facing: 1 | -1; falls: number }
 const MESSAGES: Record<string, string> = {
-  splash: 'Splash! You fell in the water. Press R to try again.',
   cleared: 'You made it! Press R to run it again.',
 };
 
@@ -160,9 +161,9 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
     };
     img.src = image;
   }
-  const water = new THREE.Mesh(new THREE.BoxGeometry(400, 0.1, 30), new THREE.MeshStandardMaterial({ color: 0x2f7fc1, transparent: true, opacity: 0.8 }));
-  water.position.set(course.finishX / 2, course.terrain.waterY, 0);
-  scene.add(water);
+  const hazard = hazardOf(params.get('hazard') ?? course.hazard); // ?hazard=lava tries a floor without editing the course
+  const floor = buildFloor(hazard, course.terrain.waterY, course.finishX);
+  scene.add(floor.object);
 
   // the warped wall: a quarter circle, flat at the bottom and upright at the top
   if (course.wall) {
@@ -223,7 +224,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
   // the controls, always visible top-left as a card of key caps (collapse with H)
   const help = document.createElement('div');
   help.id = 'keys';
-  const KEYS: [string, string][] = [['← →', 'Run (hold)'], ['Space', 'Jump · let go of the rope · press on the trampoline'], ['↓', 'Bend your knees (hold, on big drops)'], ...(course !== defaultCourse ? ([['Q / E', 'Hold a bar with the left or right hand (in the air)'], ['← → on a bar', 'Pump the swing: push the way you swing'], ['V', 'Vault over a step with a hand on top (fast, saves energy)'], ['F', 'Front view window (it shows by itself on a bar)']] as [string, string][]) : []), ['G', 'Drums: where the ideal run presses Space'], ['B', 'Debug view: see the collision boxes and where a jump goes'], ['Mouse', 'Drag to turn the view, wheel to zoom, double-click to reset']]; // retry, ideal run and Dojo are on the fall panel and the buttons
+  const KEYS: [string, string][] = [['← →', 'Run (hold)'], ['Space', 'Jump · let go of the rope · press on the trampoline'], ['↓', 'Bend your knees (hold, on big drops)'], ...(course !== defaultCourse ? ([['Q / E', 'Hold a bar with the left or right hand (in the air)'], ['← → on a bar', 'Pump the swing: push the way you swing'], ['V', 'Vault over a step with a hand on top (fast, saves energy)'], ['F', 'Front view window (it shows by itself on a bar)']] as [string, string][]) : []), ['I', 'Ideal run of this obstacle (Shift+I: the whole course, any key stops it)'], ['G', 'Drums: where the ideal run presses Space'], ['B', 'Debug view: see the collision boxes and where a jump goes'], ['Mouse', 'Drag to turn the view, wheel to zoom, double-click to reset']]; // retry, ideal run and Dojo are on the fall panel and the buttons
   help.style.cssText = 'position:fixed;left:16px;top:48px;width:290px;background:#fffffff0;border:1px solid #cfd6d0;border-radius:12px;padding:8px 10px;font:500 14px system-ui,sans-serif;color:#17201d;box-shadow:0 2px 10px #0002;pointer-events:none;display:grid;gap:5px';
   const paintKeys = (open: boolean) => {
     help.innerHTML = `<div style="font-weight:700;display:flex;justify-content:space-between">Controls <span style="font-weight:400;color:#58635d">H ${open ? 'hides' : 'shows'}</span></div>` + (open ? KEYS.map(([k, d]) => `<div style="display:grid;grid-template-columns:78px 1fr;gap:8px;align-items:center"><kbd style="font:700 13px ui-monospace,monospace;background:#eef1ec;border:1px solid #b9c2bb;border-bottom-width:3px;border-radius:6px;padding:1px 6px;text-align:center">${k}</kbd><span>${d}</span></div>`).join('') : '');
@@ -243,7 +244,13 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
   const idealBtn = document.createElement('button');
   idealBtn.textContent = 'Ideal run (I)';
   idealBtn.style.cssText = 'position:fixed;right:120px;top:12px;font:600 15px system-ui,sans-serif;border:1px solid #17201d;background:#fff;color:#17201d;border-radius:8px;padding:6px 14px;cursor:pointer';
+  idealBtn.title = 'Watch the ideal run of this obstacle (I)';
   idealBtn.onclick = () => showIdeal(zoneAt(world.runner.x)?.id ?? 'gap');
+  const wholeBtn = document.createElement('button');
+  wholeBtn.id = 'wholeideal'; wholeBtn.textContent = 'Whole course (Shift+I)';
+  wholeBtn.title = 'Watch one ideal run through every obstacle; any key stops it';
+  wholeBtn.style.cssText = 'position:fixed;right:120px;top:56px;font:600 13px system-ui,sans-serif;border:1px solid #17201d;background:#fff;color:#17201d;border-radius:8px;padding:4px 10px;cursor:pointer';
+  wholeBtn.onclick = () => { wholeBtn.blur(); showWholeIdeal(); };
   // choose your runner: the male or the female Rookie (remembered between visits)
   const pick = document.createElement('div');
   pick.style.cssText = 'position:fixed;right:250px;top:12px;display:flex;gap:6px';
@@ -351,7 +358,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
   const dbgBtn = document.createElement('button');
   dbgBtn.id = 'debugbtn'; dbgBtn.textContent = 'Debug (B)'; dbgBtn.title = 'Show the collision boxes and where a jump right now would go';
   dbgBtn.style.cssText = 'position:fixed;right:16px;top:166px;border:2px solid #17201d;background:#fff;color:#17201d;border-radius:10px;padding:3px 10px;cursor:pointer;font:600 12px system-ui,sans-serif';
-  document.body.append(hud, msg, help, panel, hint, gauge, dojoBtn, idealBtn, pick, camBtn, dbgBtn);
+  document.body.append(hud, msg, help, panel, hint, gauge, dojoBtn, idealBtn, wholeBtn, pick, camBtn, dbgBtn);
   const toast = document.createElement('div');
   toast.style.cssText = 'position:fixed;left:50%;top:44%;transform:translateX(-50%);font:700 22px system-ui,sans-serif;color:#10141c;background:#fffffff0;border-radius:10px;padding:6px 14px;pointer-events:none;display:none';
   document.body.append(toast);
@@ -393,7 +400,8 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
     if (e.code === 'Space') { jumpQueued = true; e.preventDefault(); }
     if (e.code === 'KeyV') vaultQueued = true;
     if (e.code === 'KeyR') { if (e.shiftKey) { retryX = course.startX; restart(course.startX); } else restart(); }
-    if (e.code === 'KeyI') showIdeal(zoneAt(world.runner.x)?.id ?? 'gap');
+    if (idealWhole && !botMode && e.code !== 'KeyI' && !/^(Shift|Control|Alt|Meta)/.test(e.code)) stopWholeIdeal(); // any key takes the run back
+    if (e.code === 'KeyI') { if (e.shiftKey) showWholeIdeal(); else showIdeal(zoneAt(world.runner.x)?.id ?? 'gap'); }
     if (e.code === 'KeyT') openDojo();
     if (e.code === 'Escape' && replay) { replay = null; clearGuides(); showAgain(); }
     if (e.code === 'KeyC') nextCam();
@@ -452,7 +460,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
   function restart(x: number = retryX) {
     clearGuides();
     if (!botMode) plan = null;
-    demo = null;
+    demo = null; idealWhole = false; idealPending = 0;
     world = newWorld(course, x);
     log.length = 0;
     botState.next = 0; botState.caught = null; botState.bedAt = null;
@@ -487,22 +495,53 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
     return '?' + q.toString();
   }
 
-  // The ideal run for one obstacle: the simulator's own best line, from standing still just before it.
-  function showIdeal(zoneId: string) {
-    const x0 = cpFor(zoneId);
-    let p = idealCache.get(x0);
-    if (!p) { msg.textContent = 'Working out the ideal run…'; p = searchIdealRun({ ...course, startX: x0 }).plan; idealCache.set(x0, p); }
+  // The ideal run: the simulator's own best line from standing still at x0. A plan always runs on to the finish, so
+  // "this obstacle" only stops it at the end of the zone (demo) and "the whole course" lets it run (Shift+I).
+  let idealWhole = false, idealToken = 0, idealWorker: Worker | null = null;
+  function findPlan(c: CourseData): Promise<Plan> {
+    return new Promise((resolve) => {
+      try {
+        idealWorker ??= new Worker(new URL('../sim/ideal-worker.ts', import.meta.url), { type: 'module' });
+        const w = idealWorker, id = ++idealToken;
+        const on = (e: MessageEvent) => { if (e.data.id !== id) return; w.removeEventListener('message', on); resolve(e.data.plan as Plan); };
+        w.addEventListener('message', on);
+        w.postMessage({ id, course: c });
+      } catch { resolve(searchIdealRun(c).plan); } // no worker here: search on the page's thread
+    });
+  }
+  async function startIdeal(x0: number, zoneId: string | null) {
+    let p = idealCache.get(x0) ?? (x0 === course.startX ? course.plan : undefined);
+    const token = ++idealToken;
+    if (!p) {
+      msg.textContent = 'Working out the ideal run… (any key cancels)';
+      idealPending = token;
+      p = await findPlan({ ...course, startX: x0 });
+      if (idealPending !== token) return; // cancelled while the search ran
+      idealPending = 0;
+      idealCache.set(x0, p);
+    }
     clearGuides();
     world = newWorld(course, x0);
     log.length = 0; frames.length = 0; replay = null; panel.style.display = 'none';
     plan = p; botState.next = 0; botState.caught = null; botState.bedAt = null;
-    demo = { x1: (course.zones?.find((z) => z.id === zoneId)?.x1 ?? 1e9) + 3 };
-    msg.textContent = 'Ideal run: watch how it is done, then press R to try it yourself.';
+    idealWhole = zoneId === null;
+    demo = zoneId === null ? null : { x1: (course.zones?.find((z) => z.id === zoneId)?.x1 ?? 1e9) + 3 };
+    msg.textContent = zoneId === null ? 'Ideal run through every obstacle: watch it, press any key to take over.' : 'Ideal run: watch how it is done, then press R to try it yourself.';
+  }
+  let idealPending = 0;
+  function showIdeal(zoneId: string) { idealWhole = false; void startIdeal(cpFor(zoneId), zoneId); }
+  // Shift+I: from the start, or from where retry would start (the checkpoint before the obstacle you fell at), to the finish
+  function showWholeIdeal() { void startIdeal(retryX, null); }
+  function stopWholeIdeal() {
+    idealWhole = false; idealPending = 0; idealToken++;
+    if (!botMode) plan = null;
+    if (msg.textContent?.startsWith('Ideal run') || msg.textContent?.startsWith('Working out')) msg.textContent = 'Your turn.';
   }
   function demoEnd() {
-    plan = botMode ? plan : null; demo = null;
+    const whole = idealWhole;
+    plan = botMode ? plan : null; demo = null; idealWhole = false;
     panel.innerHTML = ''; panel.style.display = 'grid';
-    const h = document.createElement('strong'); h.textContent = 'That was the ideal run. Your turn.';
+    const h = document.createElement('strong'); h.textContent = whole ? 'That was the ideal run through every obstacle. Your turn.' : 'That was the ideal run. Your turn.';
     const row = document.createElement('div'); row.style.cssText = 'display:flex;gap:8px;flex-wrap:wrap';
     const b = document.createElement('button'); b.textContent = 'Try it myself (R)';
     b.style.cssText = 'font:inherit;border:1px solid #0f6b5c;background:#0f6b5c;color:#fff;border-radius:8px;padding:6px 12px;cursor:pointer;font-weight:700';
@@ -596,8 +635,9 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
     panel.innerHTML = '';
     panel.style.display = 'grid';
     const h = document.createElement('strong');
-    h.textContent = what === 'slide' ? 'You slid back down the wall.' : `You fell in the water at the ${zone?.name ?? 'course'}.`;
+    h.textContent = what === 'slide' ? 'You slid back down the wall.' : HAZARD_INFO[hazard].headline(zone?.name ?? 'course');
     const t = document.createElement('div'); t.textContent = tip;
+    const floorNote = document.createElement('div'); floorNote.style.cssText = 'color:#58635d;font-size:13px'; floorNote.textContent = what === 'slide' ? '' : HAZARD_INFO[hazard].hint;
     const row = document.createElement('div'); row.style.cssText = 'display:flex;flex-wrap:wrap;gap:8px';
     const mk = (label: string, fn: () => void, primary = false) => {
       const b = document.createElement('button');
@@ -617,7 +657,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
     });
     mk('Show me the ideal run (I)', () => showIdeal(lastZone));
     if (train) mk(`Train the ${zone?.name ?? 'obstacle'}`, () => { saveResume(); location.search = trainLink(zone?.id ?? 'gap', r.x); });
-    panel.append(h, t, row);
+    panel.append(h, t, floorNote, row);
     retry.focus();
   }
 
@@ -706,8 +746,9 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
       world = stepWorld(world, input, course);
       if (prevMode === 'run' && world.mode === 'wall') wallEntry = prevVx;
       if (demo && (world.outcome !== 'running' || world.runner.x > demo.x1)) demoEnd();
+      else if (idealWhole && world.outcome !== 'running') demoEnd();
       log.push(...world.events);
-      if (world.events !== soundedEvents) { soundedEvents = world.events; if (!replay) soundsFor(world.events); } // after the end the same events array stays: it sounds once
+      if (world.events !== soundedEvents) { soundedEvents = world.events; if (!replay) soundsFor(world.events, hazard); } // after the end the same events array stays: it sounds once
       for (const e of world.events) {
         if (e.type === 'jump' && keysOpen && !keysTouched) { keysOpen = false; paintKeys(false); } // the controls card has done its job once you have jumped
         if (e.type === 'land' && (e.detail?.impact as number) > 2 && !e.detail?.bouncy) {
@@ -797,6 +838,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
       camera.position.copy(camPos);
       camera.lookAt(tx, ty, 0);
     }
+    floor.update(now / 1000);
     renderer.render(scene, camera);
     // the front view: a small second camera in a corner window, shown while hanging from a bar (F shows it any time)
     const showFront = frontForced || world.mode === 'hang';
