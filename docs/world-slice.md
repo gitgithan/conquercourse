@@ -423,3 +423,24 @@ The set of obstacle shapes is fixed, and each shape offers a fixed set of moves.
 - **Cost:** about $0.2 of Modal.
 - **Next step:** no more spend here; a swing is better tracked from the simulator's own pendulum path.
 - **Details:** `data/eval/pose-kimodo/README.md`.
+## Cup stacks (CC-60)
+- **So what:** a familiar real set-up, sport-stacking cups, is now an obstacle shape.
+  - Any pyramid the player knows becomes steps to climb and a valley to cross.
+  - It is the cheapest "any object becomes a world" step, because the simulator already has steps and vaults.
+- **What it is:** a Stack piece in the editor (`Stacks:` row: 3-3-3, 3-6-3, 6-6, 1-10-1, Cycle).
+  - The picture is real stacked cups, mouth down, one colour per row, drawn with one instanced cone per cup (`src/slice/cups.ts`).
+  - The collision is a thin floor with the stepped outline of the pyramids on it (`src/slice/stack.ts`), so the lane, the proof, the vault and the ideal run work as for any other piece.
+  - A cup is 9 cm; the piece scale makes it runner-sized (default stacks are 0.7 to 1.1 m tall).
+- **What the proof found** (the ideal-run search, from a standing start, 9 m run-up):
+  - 3-3-3 at scale 5, 3-6-3 at 4.5 and the cycle at 3 clear.
+  - 6-6 and 1-10-1 do not clear at 4.5 or more, so their defaults are 3.5 and 3.
+  - The valley between two tall pyramids is the hard part: a 1 m climb out of a valley one cup wide.
+- **Demo:** `?course=/assets/demo/stack.course.json` ("Stack demo: climb the cup pyramids" in the menu), made by `scripts/make-stack-demo.ts` through the same road as the editor.
+- **Saying:** "Speed climbs the cups, and speed carries you off the top."
+  - Backed by a test: at running speed the one-cup flat top is crossed in under a fifth of a second.
+- **Tests:** `tests/stack.test.ts` (cup counts, row geometry, default heights, the lane equals the outline, the demo clears); `scripts/editor-check.mjs` adds a stack and reloads.
+- **Evidence:** screenshots of the run in Play with real cups, and the stepped outline in the editor's side view, linked on CC-60.
+- **Known gaps:**
+  - Cups are shapes, not rigid bodies: they do not fall over.
+  - At scale 3 or less the steps are about as narrow as a 10 cm cell, so the outline is blurred.
+  - The stack is one row of pyramids across the lane (four cups wide), not a free 3D pile.

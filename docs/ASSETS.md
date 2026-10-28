@@ -168,3 +168,7 @@
 - Scaled by Commons to 1280 px wide; no people in any of the four (checked by eye); details in `data/eval/photo-course/inputs/sources.json`.
 - The experiment also reuses park01, park02, park03, park05, park07 and park08 from the rows above (park04 and park09 are left out because people are in them).
 - `data/eval/photo-course/outputs/*.json` are the model's raw answers for these photos (our own output, no third-party content).
+
+## Cup stacks (CC-60)
+- `public/assets/demo/stack.course.json`: our own course, made by `scripts/make-stack-demo.ts`; no third-party content.
+- The cups are drawn from code (instanced cones, standard colours, no logos); there are no image or model files.
