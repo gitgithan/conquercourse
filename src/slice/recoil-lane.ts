@@ -5,11 +5,12 @@ import { DEFAULT_RECOIL } from '../sim/recoil';
 // so the proof and the Play button see the launcher too. The knobs are the ball's mass and its speed leaving the launcher.
 export interface RecoilCfg { kind: 'cannon' | 'crate'; ballMass: number; muzzle: number }
 
-export function withRecoil(c: CourseData, cfg: RecoilCfg): CourseData {
-  const p0 = c.terrain.platforms.find((p) => p.x0 <= c.startX + 0.01 && p.x1 > c.startX);
+export function withRecoil(c: CourseData, cfg: RecoilCfg, range?: { x0: number; x1: number }): CourseData {
+  const p0 = range ? c.terrain.platforms.find((p) => p.x0 <= range.x0 && p.x1 >= range.x1) : c.terrain.platforms.find((p) => p.x0 <= c.startX + 0.01 && p.x1 > c.startX);
   if (!p0) return c;
-  const x0 = Math.round((c.startX + 1.5) * 100) / 100, x1 = Math.round(Math.min(c.startX + 4, p0.x1 - 0.5) * 100) / 100;
-  if (x1 - x0 < 1) return c; // no room for a pad on the start deck
+  const x0 = Math.round((range?.x0 ?? c.startX + 1.5) * 100) / 100;
+  const x1 = Math.round((range?.x1 ?? Math.min(c.startX + 4, p0.x1 - 0.5)) * 100) / 100;
+  if (x1 - x0 < 1) return c;
   const { plan: _plan, ...keep } = c;
   void _plan; // a stored line was found without the launcher
   return { ...keep, recoil: { ...DEFAULT_RECOIL, x0, x1, kind: cfg.kind, ballMass: cfg.ballMass, muzzle: cfg.muzzle } };

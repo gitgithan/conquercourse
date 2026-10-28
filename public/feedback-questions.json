@@ -1,96 +1,37 @@
 {
-  "round": "public-1",
-  "title": "Tell us how it felt",
-  "intro": "Two minutes, no sign-in, no names. Please do not type personal information.",
+  "round": "public-2",
+  "title": "Help shape ConquerCourse",
+  "intro": "What stood out, what got in the way, and what should this world become? No sign-in or names. Please do not include personal information.",
   "questions": [
     {
-      "id": "who",
-      "type": "choice",
-      "text": "I am a…",
-      "options": [
-        "student",
-        "teacher",
-        "parent",
-        "gamer",
-        "other"
-      ]
-    },
-    {
-      "id": "clear",
-      "type": "scale",
-      "text": "I understood what to do within the first minute."
-    },
-    {
-      "id": "controls",
-      "type": "scale",
-      "text": "The controls felt responsive."
-    },
-    {
-      "id": "furthest",
-      "type": "choice",
-      "text": "How far did you get?",
-      "options": [
-        "the first gap",
-        "the block",
-        "the warped wall",
-        "the rope",
-        "the trampoline",
-        "I finished the Course"
-      ]
-    },
-    {
-      "id": "hardest",
-      "type": "choice",
-      "text": "Which obstacle was hardest?",
-      "options": [
-        "the gap",
-        "the block",
-        "the warped wall",
-        "the rope",
-        "the trampoline",
-        "none"
-      ]
-    },
-    {
-      "id": "speedmeter",
-      "type": "scale",
-      "text": "The speed meter helped me decide when to jump."
-    },
-    {
-      "id": "dojo",
-      "type": "choice",
-      "text": "Did you open the Dojo?",
-      "options": [
-        "yes, it helped",
-        "yes, it did not help",
-        "no, I did not know it was there",
-        "no, I did not want to"
-      ]
-    },
-    {
-      "id": "dojolearn",
-      "type": "scale",
-      "text": "After the Dojo I could do the obstacle better."
-    },
-    {
-      "id": "physics",
-      "type": "choice",
-      "text": "Did you learn something about physics?",
-      "options": [
-        "yes, something new",
-        "yes, but I mostly knew it",
-        "no"
-      ]
+      "id": "liked",
+      "type": "text",
+      "text": "What did you enjoy, notice, or want to try more of?"
     },
     {
       "id": "confusing",
       "type": "text",
-      "text": "What was the most confusing moment?"
+      "text": "Was anything confusing, frustrating, or harder to understand than it should have been? What happened?"
     },
     {
-      "id": "again",
+      "id": "obstacle",
       "type": "text",
-      "text": "What would make you play again?"
+      "text": "Did you get stuck on an obstacle, control, instruction, or other part of the experience? Tell us where and what you expected to happen."
+    },
+    {
+      "id": "world",
+      "type": "text",
+      "text": "What would you like to build, change, or bring into this world?"
+    },
+    {
+      "id": "explore",
+      "type": "text",
+      "text": "What other kind of world or place would you want to explore here? What could it help someone learn or understand?"
+    },
+    {
+      "id": "anything_else",
+      "type": "text",
+      "text": "Anything else you want us to know?"
     }
   ]
 }

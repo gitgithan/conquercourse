@@ -14,7 +14,6 @@ export interface Prediction {
   landX?: number;
   why: string; // plain words
 }
-
 export function predictJump(w: WorldState, course: CourseData, maxTicks = 240): Prediction {
   if (w.outcome !== 'running') return { path: [], result: 'other-move', why: 'The run is over: press R to try again.' };
   if (w.mode !== 'run') return { path: [], result: 'other-move', why: w.mode === 'swing' ? 'On the rope: Space lets go.' : w.mode === 'bounce' ? 'On the trampoline: Space pumps the bounce.' : w.mode === 'hang' ? 'On a bar: let go of Q and E to fly; push the arrows to build the swing.' : w.mode === 'vault' ? 'Going over the step with a hand on top.' : 'On the wall: the move plays itself.' };
@@ -112,30 +111,24 @@ export function predictLaunch(w: WorldState, course: CourseData, maxTicks = 600)
 // "If I let the cart roll from here, what happens?": the same cart physics run forward with no brake. Used by the debug view on a coaster.
 export function predictCart(w: WorldState, course: CourseData, maxTicks = 120 * 60): Prediction {
   if (w.outcome !== 'running') return { path: [], result: 'other-move', why: 'The run is over: press R to try again.' };
-  const rails = railsOf(course.track!);
   const path = [{ x: w.runner.x, y: w.runner.y }];
-  let s = w;
+  let s = w, firstOff: { x: number; v: number; segment: number } | null = null, caught = false;
   for (let i = 0; i < maxTicks; i++) {
     s = stepWorld(s, { ...NO_INPUT, run: !s.cart?.started }, course);
     if (i % 4 === 0 || s.outcome !== 'running') path.push({ x: s.runner.x, y: s.runner.y });
     const off = s.events.find((e) => e.type === 'cart-off');
-    if (off) {
-      const x = off.detail!.x as number, v = off.detail!.v as number, limit = crestSpeedLimit(rails, x);
-      return { path: [...path, ...flyOn(s, course)], result: 'splash', landX: x, why: `Leaves the track at ${x.toFixed(0)} m: ${v.toFixed(1)} m/s over a hilltop that lets go above ${limit.toFixed(1)} m/s. Brake (hold ↓) before it, or make the crest broader.` };
-    }
+    if (off && !firstOff) firstOff = { x: off.detail!.x as number, v: off.detail!.v as number, segment: Number(off.detail!.segment ?? 0) };
+    if (s.events.some((e) => e.type === 'cart-catch')) caught = true;
     if (s.events.some((e) => e.type === 'cart-stall')) {
       const st = s.events.find((e) => e.type === 'cart-stall')!;
       return { path, result: 'blocked', landX: st.detail!.x as number, why: `Runs out of speed on the hill at ${(st.detail!.x as number).toFixed(0)} m (${(st.detail!.height as number).toFixed(1)} m high). Make the first hill higher or that hill lower.` };
     }
-    if (s.outcome === 'cleared') return { path, result: 'lands', landX: s.runner.x, why: 'Rolls all the way to the finish.' };
+    if (s.outcome === 'cleared') return { path, result: 'lands', landX: s.runner.x, why: caught ? 'Flies off one section, lands on the next, and reaches the finish.' : 'Rolls all the way to the finish.' };
+    if (s.outcome === 'splash' && firstOff) {
+      const rails = railsOf(course.track!, firstOff.segment), limit = crestSpeedLimit(rails, firstOff.x);
+      return { path, result: 'splash', landX: s.runner.x, why: `Leaves the track at ${firstOff.x.toFixed(0)} m at ${firstOff.v.toFixed(1)} m/s but misses the next section. That crest lets go above ${limit.toFixed(1)} m/s.` };
+    }
     if (s.outcome !== 'running') break;
   }
   return { path, result: 'other-move', why: s.cart?.started ? 'Rolling.' : 'Press → to push off.' };
-}
-
-function flyOn(w: WorldState, course: CourseData): { x: number; y: number }[] {
-  const out: { x: number; y: number }[] = [];
-  let s = w;
-  for (let i = 0; i < 240 && s.outcome === 'running'; i++) { s = stepWorld(s, NO_INPUT, course); if (i % 3 === 0) out.push({ x: s.runner.x, y: s.runner.y }); }
-  return out;
 }

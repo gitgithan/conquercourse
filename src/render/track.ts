@@ -1,6 +1,6 @@
 import * as THREE from 'three/webgpu';
 import type { CourseData } from '../course/course';
-import { railsOf, trackParams } from '../sim/cart';
+import { railsOf, trackSegments } from '../sim/cart';
 import type { WorldState } from '../sim/world';
 
 // The coaster the Course draws: two rails and ties along the smooth curve, posts down to the water, and the cart.
@@ -16,43 +16,42 @@ export interface TrackView {
 
 export function buildTrack(course: CourseData): TrackView {
   const track = course.track!;
-  const rails = railsOf(track), p = trackParams(course);
+  const railsList = trackSegments(track).map((_, i) => railsOf(track, i));
   const group = new THREE.Group();
   const steel = new THREE.MeshStandardMaterial({ color: 0xc9ced4, metalness: 0.6, roughness: 0.35 });
   const wood = new THREE.MeshStandardMaterial({ color: 0x7a5a3a });
   const post = new THREE.MeshStandardMaterial({ color: 0x8d949c });
   const STEP = 0.4;
-  const n = Math.max(2, Math.ceil((rails.x1 - rails.x0) / STEP));
-  const pt = (i: number) => { const x = rails.x0 + ((rails.x1 - rails.x0) * i) / n; return { x, y: rails.y(x) }; };
-  // one thin box per piece of rail, set along the curve
-  const railGeo = new THREE.BoxGeometry(1, 0.07, 0.07);
-  const railMesh = new THREE.InstancedMesh(railGeo, steel, n * 2);
-  const m = new THREE.Matrix4(), q = new THREE.Quaternion(), s = new THREE.Vector3(), t = new THREE.Vector3();
-  for (let i = 0; i < n; i++) {
-    const a = pt(i), b = pt(i + 1), len = Math.hypot(b.x - a.x, b.y - a.y), ang = Math.atan2(b.y - a.y, b.x - a.x);
-    q.setFromAxisAngle(new THREE.Vector3(0, 0, 1), ang); s.set(len * 1.02, 1, 1);
-    for (const [k, z] of [[0, -RAIL_GAP], [1, RAIL_GAP]] as const) { t.set((a.x + b.x) / 2, (a.y + b.y) / 2, z); m.compose(t, q, s); railMesh.setMatrixAt(i * 2 + k, m); }
-  }
-  group.add(railMesh);
-  // ties across the rails every 0.7 m
-  const tieCount = Math.floor((rails.x1 - rails.x0) / 0.7);
-  const ties = new THREE.InstancedMesh(new THREE.BoxGeometry(0.1, 0.05, RAIL_GAP * 2 + 0.2), wood, tieCount);
-  for (let i = 0; i < tieCount; i++) {
-    const x = rails.x0 + 0.35 + i * 0.7, ang = Math.atan(rails.slope(x));
-    q.setFromAxisAngle(new THREE.Vector3(0, 0, 1), ang); s.set(1, 1, 1); t.set(x, rails.y(x) - 0.06, 0); m.compose(t, q, s); ties.setMatrixAt(i, m);
-  }
-  group.add(ties);
-  // posts from the rails down to the water, every 4 m
+  // Draw each rail section separately so visible gaps match the ride physics.
   const floor = course.terrain.waterY - 2;
-  const posts: number[] = [];
-  for (let x = rails.x0; x <= rails.x1 + 1e-6; x += 4) posts.push(x);
-  const postMesh = new THREE.InstancedMesh(new THREE.BoxGeometry(0.16, 1, 0.16), post, posts.length * 2);
-  posts.forEach((x, i) => {
-    const top = rails.y(x) - 0.08, h = Math.max(0.1, top - floor);
-    q.identity(); s.set(1, h, 1);
-    for (const [k, z] of [[0, -RAIL_GAP], [1, RAIL_GAP]] as const) { t.set(x, floor + h / 2, z); m.compose(t, q, s); postMesh.setMatrixAt(i * 2 + k, m); }
+  railsList.forEach((rails) => {
+    const n = Math.max(2, Math.ceil((rails.x1 - rails.x0) / STEP));
+    const pt = (i: number) => { const x = rails.x0 + ((rails.x1 - rails.x0) * i) / n; return { x, y: rails.y(x) }; };
+    const railMesh = new THREE.InstancedMesh(new THREE.BoxGeometry(1, 0.07, 0.07), steel, n * 2);
+    const m = new THREE.Matrix4(), q = new THREE.Quaternion(), s = new THREE.Vector3(), t = new THREE.Vector3();
+    for (let i = 0; i < n; i++) {
+      const a = pt(i), b = pt(i + 1), len = Math.hypot(b.x - a.x, b.y - a.y), ang = Math.atan2(b.y - a.y, b.x - a.x);
+      q.setFromAxisAngle(new THREE.Vector3(0, 0, 1), ang); s.set(len * 1.02, 1, 1);
+      for (const [k, z] of [[0, -RAIL_GAP], [1, RAIL_GAP]] as const) { t.set((a.x + b.x) / 2, (a.y + b.y) / 2, z); m.compose(t, q, s); railMesh.setMatrixAt(i * 2 + k, m); }
+    }
+    group.add(railMesh);
+    const tieCount = Math.max(1, Math.floor((rails.x1 - rails.x0) / 0.7));
+    const ties = new THREE.InstancedMesh(new THREE.BoxGeometry(0.1, 0.05, RAIL_GAP * 2 + 0.2), wood, tieCount);
+    for (let i = 0; i < tieCount; i++) {
+      const x = Math.min(rails.x1, rails.x0 + 0.35 + i * 0.7), ang = Math.atan(rails.slope(x));
+      q.setFromAxisAngle(new THREE.Vector3(0, 0, 1), ang); s.set(1, 1, 1); t.set(x, rails.y(x) - 0.06, 0); m.compose(t, q, s); ties.setMatrixAt(i, m);
+    }
+    group.add(ties);
+    const posts: number[] = [];
+    for (let x = rails.x0; x <= rails.x1 + 1e-6; x += 4) posts.push(x);
+    const postMesh = new THREE.InstancedMesh(new THREE.BoxGeometry(0.16, 1, 0.16), post, posts.length * 2);
+    posts.forEach((x, i) => {
+      const top = rails.y(x) - 0.08, h = Math.max(0.1, top - floor);
+      q.identity(); s.set(1, h, 1);
+      for (const [k, z] of [[0, -RAIL_GAP], [1, RAIL_GAP]] as const) { t.set(x, floor + h / 2, z); m.compose(t, q, s); postMesh.setMatrixAt(i * 2 + k, m); }
+    });
+    group.add(postMesh);
   });
-  group.add(postMesh);
 
   // the cart: a low red box with a front lip; the rider sits on top of it (the runner's feet are the box's top)
   const cart = new THREE.Group();
@@ -66,8 +65,6 @@ export function buildTrack(course: CourseData): TrackView {
   }
   cart.add(body, lip);
   group.add(cart);
-  void p;
-
   return {
     group, cart,
     place(w, flyingCart) {
