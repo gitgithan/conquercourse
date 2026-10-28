@@ -1352,3 +1352,78 @@ The set of obstacle shapes is fixed, and each shape offers a fixed set of moves.
 - **Changes:** the search is a generator with a one-thread driver and a pool driver (`src/sim/ideal-pool.ts`), proofs are remembered, budgets count simulated ticks (`workSeconds`), Fix it and the advice run in workers (`src/slice/proof-client.ts`), and a course stores the windows of its take-offs next to its plan.
 - **A bug on the way:** the editor's "can clear" check also matched "cannot find", so a failing lane looked green and no advice was ever offered.
 - **Numbers, logs and how to repeat:** `data/eval/cc-69-speed/README.md`.
+
+
+## Live nearby photos (CC-90, steps 1 and 2)
+- **Question:** can the game show real photos of the buildings the runner is passing, and could that become live, like a giant touring the world?
+- **Answer:** yes.
+  - Mapillary (owned by Meta) has dense street-level photos along all three lanes tested.
+  - Wikimedia Commons adds landmark photos that already work in CC-85.
+  - What stands in the way is not coverage but people in the pictures, and the licence fine print.
+- **How it was measured**
+  - `scripts/photos_coverage.py` takes the lane line of a ready place (metres east and south of the pin, as in `src/world/osm.ts`).
+  - It walks the line every 10 m and counts photos within 60 m of each step.
+  - A Mapillary photo "faces the lane" when its compass angle is within 60 degrees of the direction to the lane point; a 360 degree photo always counts.
+  - Commons gives no viewing direction, so facing is not measured for it.
+  - The line is walked in whole 10 m steps (170, 150 and 160 m), so the per 100 m figures use those lengths.
+  - Inputs, outputs and `run.json` are in `data/eval/cc-90-photos/`; the token is never saved.
+
+| Place | Lane | Mapillary photos within 60 m | Per 100 m of lane | Lane with a photo | Lane with a facing photo | Median distance | Commons files within 60 m |
+|---|---|---|---|---|---|---|---|
+| Montmartre, Paris | 178 m | 301 | 177 | 100% | 100% | 21 m | 1079 |
+| Eixample, Barcelona | 158 m | 214 | 143 | 94% | 88% | 21 m | 240 |
+| Edinburgh Old Town | 167 m | 621 | 388 | 100% | 100% | 6 m | 364 |
+
+- **Capture years of the Mapillary photos near each lane**
+  - Montmartre: mostly 2019 (216 of 301), then 2015 (43), 2023 (18), 2012 (15).
+  - Eixample: mostly 2017 (117 of 214), then 2021, 2015 and 2025.
+  - Edinburgh: 2019, 2020 and 2024 (about 150 to 175 each), up to 2026.
+  - Panoramas: 9% in Montmartre, none in the other two.
+  - The photos come from only 7 to 15 distinct creators per place, and one drive gives many frames, so the real variety is less than the counts suggest.
+- **Commons caveats**
+  - Commons geosearch finds files by their coordinate, which is often the landmark and not the camera.
+  - Montmartre has 1079 files near the lane because many are filed under the basilica's position.
+  - So Commons is good for "famous thing here" and weak for "what the street looks like from here".
+
+### People in the pictures (the real risk)
+- A contact sheet of up to 12 photos per place was viewed by eye; this is a small sample, not a measurement.
+  - Montmartre: 7 of 12 show people close up, including a small child in a stroller; faces were blurred but the body, clothes and a child were clearly visible.
+    - Only the 6 pictures without people close up are kept in the repo.
+  - Eixample: 2 of 12 show adults, at a distance, in a street seen from a car.
+  - Edinburgh: 1 of 12 shows two adults from behind; the rest are lanes seen from a car.
+- Mapillary blurs faces and number plates, but blurring is not enough for the "never show footage of minors" rule, because a child can still be recognised by size, clothes and setting.
+- Pedestrian places (Montmartre) are the worst; streets seen from a car dashboard (Eixample, Edinburgh) are the safest.
+
+### Sources compared (facts from the live pages, 2026-10-29)
+- **Mapillary Graph API v4** (`graph.mapillary.com/images`)
+  - Search by `bbox` (area smaller than 0.01 degrees square, up to 2000 images) or by `lat`, `lng` and `radius` (at most 50 m, up to 100 images, best image first).
+  - Fields we need exist: `geometry`, `computed_geometry`, `compass_angle`, `computed_compass_angle`, `captured_at`, `is_pano`, `thumb_1024_url`, `creator` (all returned in the test).
+  - Rate limit: 10,000 search requests per minute per app.
+  - Authentication: a client token in the `Authorization: OAuth` header worked; the `access_token` query parameter returned nothing in our test, so use the header.
+  - Licence: user photos are CC BY-SA 4.0 unless Mapillary says otherwise; showing a photo needs the Mapillary logo and a link back, and the credit to the creator.
+  - Caching: the terms set no caching period, but forbid scraping outside the published interfaces, and say an app must "materially supplement" Mapillary and not "merely redistribute" its content.
+  - Privacy: faces and number plates are blurred by Mapillary; users may not try to undo it; photos of children may not be made available.
+  - Commercial use falls under separate terms (section 12); a free hackathon demo is not that, but a paid product would need a check.
+  - The help-centre licence page returned 403 to our fetch tool; the licence statements come from `mapillary.com/terms` and a search of the help centre.
+- **Wikimedia Commons** (`list=geosearch`)
+  - No key; a file is free to reuse with credit (CC0, public domain, CC BY, CC BY-SA), as in CC-85.
+  - At most 500 files per query, and the search service answered "too busy" several times, so queries need a pause and a retry.
+  - No viewing direction in the results.
+- **Flickr**
+  - Needs an API key we do not have, so it was not called and not measured.
+  - It would give a licence filter and geo search; check its limits when a key exists.
+- **Google Photorealistic 3D Tiles and Street View**
+  - The only single system with both a 3D city and photos.
+  - Its Map Tiles policy forbids pre-fetching, storing or caching content, and forbids machine analysis, geodata extraction and offline use, so it can only be shown live, never baked into the game.
+  - Street View needs a visible "Report a problem" link; only panorama IDs may be stored.
+  - Paid; not tested.
+
+### Recommendation
+- **Source order:** Mapillary first (street-level, facing known, free, Meta), Commons second (landmarks with a free licence, already shipped), Flickr third when a key exists, Google only as a live-demo option.
+- **Place:** Edinburgh Old Town is the best test lane (388 photos per 100 m, median 6 m away, 100% of the lane covered, mostly from a car); Montmartre has the best landmarks but is full of pedestrians; Eixample is good but has a gap in 6% of the lane.
+- **Fallback if live fetching fails:** the stored CC-85 strip (3 Commons photos per place, credits in `credits.json`), which already works and is checked by `tests/place-photos.test.ts`.
+- **Known gaps**
+  - No person detector yet, so we cannot say how many photos in a place show people.
+  - Only three lanes, each about 100 m, so nothing is known about longer routes.
+  - Camera heading in Mapillary is sometimes the phone's, not the lens's; "faces the lane" is a good guess, not a proof.
+  - Photos from one drive can all be the same few minutes of one day, so a live view will repeat itself.
