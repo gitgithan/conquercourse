@@ -1,7 +1,7 @@
 import * as THREE from 'three/webgpu';
 import type { CourseData } from '../course/course';
 import { heightAt } from '../sim/terrain';
-import { predictCart, predictJump, predictRelease } from '../sim/predict';
+import { predictCart, predictJump, predictLaunch, predictRelease } from '../sim/predict';
 import type { WorldState } from '../sim/world';
 import { DEFAULT_WALL } from '../sim/wall';
 
@@ -56,7 +56,7 @@ export function createDebugView(scene: THREE.Scene, course: CourseData, parent: 
       box.position.set(r.x, r.y, 0); feet.position.set(r.x, r.y, 0);
       if (w.runner.tick === tick) return; // the preview only changes when the world does
       tick = w.runner.tick;
-      const pr = w.mode === 'hang' ? predictRelease(w, course) : w.mode === 'cart' ? predictCart(w, course) : predictJump(w, course);
+      const pr = w.mode === 'hang' ? predictRelease(w, course) : w.mode === 'cart' ? predictCart(w, course) : w.mode === 'launch' ? predictLaunch(w, course) : predictJump(w, course);
       const n = pr.path.length;
       arc.geometry.dispose();
       arc.geometry = new THREE.BufferGeometry().setFromPoints(pr.path.length > 1 ? pr.path.map((q) => new THREE.Vector3(q.x, q.y, Z)) : [new THREE.Vector3(), new THREE.Vector3()]);
@@ -67,7 +67,7 @@ export function createDebugView(scene: THREE.Scene, course: CourseData, parent: 
       endMark.visible = pr.result !== 'other-move';
       const hex = '#' + colour.toString(16).padStart(6, '0');
       panel.innerHTML = `<strong>Debug view (B)</strong><div>${r.grounded ? 'On the ground' : 'In the air'} · speed ${Math.abs(r.vx).toFixed(1)} m/s · ${r.y.toFixed(2)} m up</div>`
-        + `<div style="color:${hex};font-weight:700">${w.mode === 'cart' ? 'If the cart rolls on: ' : w.mode === 'hang' ? 'If you let go now: ' : r.grounded || pr.result === 'other-move' ? 'If you jump now: ' : 'You are in the air; carrying on: '}${pr.why}</div>`
+        + `<div style="color:${hex};font-weight:700">${w.mode === 'cart' ? 'If the cart rolls on: ' : w.mode === 'hang' || w.mode === 'launch' ? 'If you let go now: ' : r.grounded || pr.result === 'other-move' ? 'If you jump now: ' : 'You are in the air; carrying on: '}${pr.why}</div>`
         + `<div style="color:#c9d1c9;font-size:12px;margin-top:3px"><span style="color:#ffe14a">yellow</span> = what you stand on and bump into · <span style="color:#2de0ff">blue</span> = your body box · <span style="color:#38d26b">green</span>/<span style="color:#ff5a4a">red</span> = where a jump now goes</div>`;
     },
   };

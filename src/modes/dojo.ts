@@ -229,7 +229,7 @@ export function startDojo(host: HTMLElement): { backend: 'webgl2' } {
     c.clearRect(0, 0, W, H);
     if (step === 2) return drawShape(c, W, H, pad);
     const lastTrial = preview(); // the picture follows the sliders; kept runs stay behind it
-    if (exp.axis === 'meter') return drawForce(c, W, H, pad, lastTrial);
+    if (exp.axis === 'meter' && exp.id === 'landing') return drawForce(c, W, H, pad, lastTrial);
     const paths: Point[][] = [lastTrial.path];
     const overlays = (lastTrial.overlays ?? []) as Overlay[];
     const meter = false;
