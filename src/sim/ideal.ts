@@ -248,12 +248,14 @@ export function searchIdealRun(course: CourseData, opts: { routes?: boolean } = 
   return driveSync(course, searchGen(course, opts));
 }
 
-export function* searchGen(course: CourseData, opts: { routes?: boolean } = {}): Gen<SearchResult> {
+// `alt` is the second-best branch (see the end of the search): for an edge index, which share (0 to 1) of the range of presses is taken, instead of the middle of the best ones.
+export function* searchGen(course: CourseData, opts: { routes?: boolean; alt?: Record<number, number> } = {}): Gen<SearchResult> {
   if (course.track) return searchCartRun(course);
   if (course.drone) return searchDroneRun(course);
   const holds = course.holds ?? [];
   const plan: Plan = { jumpXs: [], releaseAfter: 60, bouncePress: 8, ...(holds.length ? { hands: true, hangTicks: holds.map(() => 90) } : {}) };
   const windows: Window[] = [];
+  const ties: number[] = []; // the plain take-off edges that were planned: where the greedy choice may strand a later edge
   const tre = course.trebuchet;
   const onMachine = (x: number) => !!tre && course.terrain.platforms.some((p) => p.x0 <= tre.x && tre.x <= p.x1 && x >= p.x0 && x <= p.x1 + 0.01); // the machine's own deck: nobody runs off it, the rider is thrown
   const es: { x: number; name: string; riser?: boolean; rise?: number }[] = [...edges(course), ...risers(course)].filter((e) => !onMachine(e.x)).sort((a, b) => a.x - b.x);
@@ -358,7 +360,9 @@ export function* searchGen(course: CourseData, opts: { routes?: boolean } = {}):
     // group = the longest run of consecutive candidates that all reach `best`
     const xs = good.map((g) => g.x);
     const lo = Math.min(...xs), hi = Math.max(...xs);
-    const mid = good[Math.floor(good.length / 2)].x;
+    ties.push(k);
+    const share = opts.alt?.[k];
+    const mid = share === undefined ? good[Math.floor(good.length / 2)].x : results[Math.round(share * (results.length - 1))].x; // the second-best branch spreads over every press
     plan.jumpXs.push(mid);
     const speed = 7.4;
     windows.push({ obstacle: e.name, best: mid, lo, hi, widthMs: ((hi - lo + 0.02) / speed) * 1000 });
@@ -375,7 +379,16 @@ export function* searchGen(course: CourseData, opts: { routes?: boolean } = {}):
     if (final.world.outcome === 'cleared') return { ...compareRoutes(course, plan, final, windows), windows };
   }
   const final: number[] = yield { jobs: [{ plan }], label: 'the whole course', step: es.length, of: es.length };
-  return { plan, windows, cleared: final[0] >= CLEARED };
+  const found = { plan, windows, cleared: final[0] >= CLEARED };
+  // The greedy choice (the middle of the presses that reach farthest) can strand a later edge: a jump that lands well but leaves the next press no room.
+  // When the run got to the last edges and still did not clear, try presses spread over the whole range at the last two take-off edges (a press that reaches less far now can leave the next edge room).
+  const lastX = es.length ? es[es.length - 1].x : 0;
+  if (found.cleared || opts.alt || ties.length === 0 || final[0] < lastX - 3) return found;
+  for (const k of ties.slice(-2).reverse()) for (const share of [0, 0.25, 0.5, 0.75, 1]) {
+    const r: SearchResult = yield* searchGen(course, { ...opts, alt: { [k]: share } });
+    if (r.cleared) return r;
+  }
+  return found;
 }
 
 type AtFn = (jobs: Job[], stopOnClear?: boolean) => Batch;
