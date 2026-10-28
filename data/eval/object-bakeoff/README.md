@@ -50,3 +50,13 @@
   - It says free-user outputs stay with Tripo (stricter than its blog, which reads CC BY 4.0 as allowing commercial use with credit).
   - Nothing found about whether API outputs follow the same plan rules, or about the collaboration program; the product owner should check both in the program's paperwork.
 - **To unblock:** top up about 660 credits ($6.60) or run three objects (about 330 credits, just over our own 300 cap, so the cap needs a new decision).
+
+## Access re-check (2026-10-28, after the product owner requested DINOv3 access)
+- **So what:** TRELLIS.2 and Pixal3D still cannot run, because the account behind the `sam-hf` secret has no DINOv3 access yet.
+- **Result of the CPU probe** (`pipelines/objbake/probe_access.py`, no GPU, nothing downloaded or accepted):
+  - open to us: `microsoft/TRELLIS.2-4B`, `microsoft/TRELLIS-image-large`, `TencentARC/Pixal3D`, `tencent/Hunyuan3D-2.1`
+  - still 403: `facebook/dinov3-vitl16-pretrain-lvd1689m`, `briaai/RMBG-2.0`, `stabilityai/stable-fast-3d`
+- **Which account:** the secret belongs to the Hugging Face user `gitgithan`; the access request has to come from that account, or the secret has to be swapped for a token of the account that was approved.
+- **Likely cause:** approval for gated Meta repos can take a while, or the request was made from another account.
+- **Next:** run the probe again after approval; if DINOv3 shows "yes", TRELLIS.2 and Pixal3D run on one Modal GPU (cap $10) with a plain crop or SAM 3 mask instead of RMBG-2.0.
+- **Cost of this check:** about $0 (two CPU runs).
