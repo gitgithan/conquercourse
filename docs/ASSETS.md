@@ -156,3 +156,15 @@
 | (runtime, not stored) ground height for `?mode=map` ("Real hills") | height of the ground under a pin, from 7 to 9 map tiles per place | AWS Terrain Tiles, Terrarium format, zoom 15, `https://s3.amazonaws.com/elevation-tiles-prod/terrarium/{z}/{x}/{y}.png`, no key, no account | open data (SRTM, ASTER, USGS 3DEP and others); credit as in https://github.com/tilezen/joerd/blob/master/docs/attribution.md; shown in the map mode's footer | `src/world/terrain.ts` |
 | `data/eval/cc-46-osm-world/{san-francisco-lombard,eixample-barcelona-hills,circular-quay-sydney-hills}/` and `public/assets/experiments/osm/san-francisco-lombard.{glb,course.json}` | Overpass answer, ground heights and the best lane for a steep San Francisco block, plus Barcelona and Sydney re-run with hills | the Overpass and AWS Terrain Tiles rows above, fetched 2026-10-28 | ODbL 1.0 (share alike, credit "© OpenStreetMap contributors") plus the terrain credit above; course JSON is ours | `scripts/osm-lane.ts --terrain` |
 | `data/eval/cc-51-terrain/elevations.json`, `run.json`, `lanes.json` | ground height at seven places against Open-Meteo (https://open-meteo.com, Copernicus GLO-90) and two known heights | Open-Meteo elevation API, no key, fetched 2026-10-28 | one-off check only, nothing from it ships: Open-Meteo's free API is for non-commercial use and its data is CC BY 4.0 (credit Open-Meteo); numbers and report are ours | `scripts/terrain-check.ts` |
+
+## Photos for the photo-to-course experiment (third-party, downloaded 2026-10-28, CC-52)
+| File | What | Author | Source | Licence |
+|---|---|---|---|---|
+| `data/eval/photo-course/inputs/new01.jpg` | Box of the IOR Skatepark in Bucharest (02) | Neoclassicism Enthusiast | [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Box_of_the_IOR_Skatepark_in_Bucharest_(02).jpg) | CC0 |
+| `data/eval/photo-course/inputs/new02.jpg` | Skatepark, Crabtree Park, Camberley, Surrey | Mertbiol | [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Skatepark,_Crabtree_Park,_Camberley,_Surrey.jpg) | CC0 |
+| `data/eval/photo-course/inputs/new03.jpg` | Klimmzugstangen Neues Ufer Berlin 1v2 (pull-up bars) | Singlespeedfahrer | [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Klimmzugstangen_Neues_Ufer_Berlin_1v2.jpg) | CC0 |
+| `data/eval/photo-course/inputs/new04.jpg` | Stair obstructed by handrail and sign, Skilled Park, Robina, Gold Coast (IMGP9749) | John Robert McPherson | [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Stair_obstructed_by_handrail_and_sign,_Skilled_Park,_Robina,_Gold_Coast_IMGP9749.jpg) | CC0 |
+
+- Scaled by Commons to 1280 px wide; no people in any of the four (checked by eye); details in `data/eval/photo-course/inputs/sources.json`.
+- The experiment also reuses park01, park02, park03, park05, park07 and park08 from the rows above (park04 and park09 are left out because people are in them).
+- `data/eval/photo-course/outputs/*.json` are the model's raw answers for these photos (our own output, no third-party content).

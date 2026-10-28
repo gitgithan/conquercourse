@@ -1,0 +1,1005 @@
+{
+  "summary": {
+    "runs": 20,
+    "gaveALayout": 19,
+    "clearsAsDrawn": 13,
+    "clearsAfterFixIt": 13,
+    "clearsAfterDroppingBars": 15,
+    "sameObstacleCountAsKey": 5,
+    "meanMatchedShare": 0.95,
+    "meanRelativeSizeError": 0.41,
+    "totalTokens": 63116,
+    "meanTokensPerPhoto": 3156,
+    "meanSecondsPerPhoto": 11.9
+  },
+  "rows": [
+    {
+      "photo": "new01",
+      "run": 1,
+      "tokens": 2927,
+      "seconds": 10.7,
+      "problems": [],
+      "said": "A long low concrete ledge runs along the flat ground as a vault obstacle.",
+      "layout": [
+        {
+          "kind": "ground",
+          "length": 3
+        },
+        {
+          "kind": "block",
+          "length": 5,
+          "height": 0.4
+        },
+        {
+          "kind": "ground",
+          "length": 4
+        }
+      ],
+      "clearsAsDrawn": true,
+      "clearsAfterFixIt": true,
+      "proofSeconds": 0.9,
+      "score": {
+        "keyCount": 1,
+        "modelCount": 1,
+        "matched": 1,
+        "extra": 0,
+        "meanRelError": 0.33,
+        "meanAbsError": 1
+      }
+    },
+    {
+      "photo": "new01",
+      "run": 2,
+      "tokens": 5105,
+      "seconds": 18.9,
+      "problems": [],
+      "said": "A long low concrete skate ledge sits in the middle of flat pavement.",
+      "layout": [
+        {
+          "kind": "ground",
+          "length": 3
+        },
+        {
+          "kind": "block",
+          "length": 5,
+          "height": 0.4
+        },
+        {
+          "kind": "ground",
+          "length": 3
+        }
+      ],
+      "clearsAsDrawn": true,
+      "clearsAfterFixIt": true,
+      "proofSeconds": 0.8,
+      "score": {
+        "keyCount": 1,
+        "modelCount": 1,
+        "matched": 1,
+        "extra": 0,
+        "meanRelError": 0.33,
+        "meanAbsError": 1
+      }
+    },
+    {
+      "photo": "new02",
+      "run": 1,
+      "tokens": 3272,
+      "seconds": 12.1,
+      "problems": [],
+      "said": "Skatepark line from raised deck down through low banks to a tall end ramp.",
+      "layout": [
+        {
+          "kind": "ground",
+          "length": 4
+        },
+        {
+          "kind": "block",
+          "length": 1.5,
+          "height": 2.4
+        },
+        {
+          "kind": "ground",
+          "length": 5
+        },
+        {
+          "kind": "block",
+          "length": 2,
+          "height": 0.6
+        },
+        {
+          "kind": "gap",
+          "width": 1.2
+        },
+        {
+          "kind": "block",
+          "length": 2.5,
+          "height": 1
+        },
+        {
+          "kind": "block",
+          "length": 1.8,
+          "height": 0.4
+        },
+        {
+          "kind": "block",
+          "length": 2.5,
+          "height": 1.7
+        },
+        {
+          "kind": "bar",
+          "height": 2.6
+        },
+        {
+          "kind": "ground",
+          "length": 5
+        }
+      ],
+      "clearsAsDrawn": false,
+      "clearsAfterFixIt": false,
+      "fixSteps": [
+        "No small move of the bars makes it clearable: try different gaps between the decks."
+      ],
+      "clearsAfterDroppingBars": true,
+      "proofSeconds": 24.7,
+      "score": {
+        "keyCount": 3,
+        "modelCount": 7,
+        "matched": 3,
+        "extra": 4,
+        "meanRelError": 0.57,
+        "meanAbsError": 0.48
+      }
+    },
+    {
+      "photo": "new02",
+      "run": 2,
+      "tokens": 3139,
+      "seconds": 11.3,
+      "problems": [],
+      "said": "Skate park line running left to right over pump bumps, ledge and quarter pipe to platform.",
+      "layout": [
+        {
+          "kind": "ground",
+          "length": 4
+        },
+        {
+          "kind": "block",
+          "length": 2.5,
+          "height": 0.5
+        },
+        {
+          "kind": "ground",
+          "length": 2.5
+        },
+        {
+          "kind": "block",
+          "length": 2.5,
+          "height": 0.7
+        },
+        {
+          "kind": "ground",
+          "length": 1.5
+        },
+        {
+          "kind": "block",
+          "length": 1.8,
+          "height": 0.4
+        },
+        {
+          "kind": "ground",
+          "length": 2
+        },
+        {
+          "kind": "block",
+          "length": 3,
+          "height": 1.8
+        },
+        {
+          "kind": "bar",
+          "height": 2.7
+        },
+        {
+          "kind": "ground",
+          "length": 3
+        }
+      ],
+      "clearsAsDrawn": false,
+      "clearsAfterFixIt": false,
+      "fixSteps": [
+        "No small move of the bars makes it clearable: try different gaps between the decks."
+      ],
+      "clearsAfterDroppingBars": true,
+      "proofSeconds": 21.1,
+      "score": {
+        "keyCount": 3,
+        "modelCount": 5,
+        "matched": 3,
+        "extra": 2,
+        "meanRelError": 0.53,
+        "meanAbsError": 0.72
+      }
+    },
+    {
+      "photo": "new03",
+      "run": 1,
+      "tokens": 3126,
+      "seconds": 11.3,
+      "problems": [],
+      "said": "Outdoor exercise area with three horizontal bars and a small ground step converted into a traverse course.",
+      "layout": [
+        {
+          "kind": "ground",
+          "length": 3
+        },
+        {
+          "kind": "bar",
+          "height": 1.8
+        },
+        {
+          "kind": "ground",
+          "length": 2.5
+        },
+        {
+          "kind": "block",
+          "length": 0.6,
+          "height": 0.3
+        },
+        {
+          "kind": "ground",
+          "length": 2
+        },
+        {
+          "kind": "bar",
+          "height": 2.3
+        },
+        {
+          "kind": "ground",
+          "length": 2.5
+        },
+        {
+          "kind": "bar",
+          "height": 1.5
+        },
+        {
+          "kind": "ground",
+          "length": 4
+        }
+      ],
+      "clearsAsDrawn": true,
+      "clearsAfterFixIt": true,
+      "proofSeconds": 8.5,
+      "score": {
+        "keyCount": 3,
+        "modelCount": 4,
+        "matched": 3,
+        "extra": 1,
+        "meanRelError": 0.18,
+        "meanAbsError": 0.4
+      }
+    },
+    {
+      "photo": "new03",
+      "run": 2,
+      "tokens": 2452,
+      "seconds": 9.8,
+      "problems": [],
+      "said": "A left-to-right line crosses the three bar stations and the low central step.",
+      "layout": [
+        {
+          "kind": "ground",
+          "length": 4
+        },
+        {
+          "kind": "bar",
+          "height": 2
+        },
+        {
+          "kind": "ground",
+          "length": 2.5
+        },
+        {
+          "kind": "bar",
+          "height": 2.5
+        },
+        {
+          "kind": "ground",
+          "length": 2
+        },
+        {
+          "kind": "block",
+          "length": 0.6,
+          "height": 0.25
+        },
+        {
+          "kind": "ground",
+          "length": 1.5
+        },
+        {
+          "kind": "bar",
+          "height": 1.5
+        },
+        {
+          "kind": "ground",
+          "length": 4
+        }
+      ],
+      "clearsAsDrawn": true,
+      "clearsAfterFixIt": true,
+      "proofSeconds": 8,
+      "score": {
+        "keyCount": 3,
+        "modelCount": 4,
+        "matched": 3,
+        "extra": 1,
+        "meanRelError": 0.15,
+        "meanAbsError": 0.33
+      }
+    },
+    {
+      "photo": "new04",
+      "run": 1,
+      "tokens": 2959,
+      "seconds": 10.9,
+      "problems": [],
+      "said": "The route climbs the three steps onto the raised platform and continues off down the ramp.",
+      "layout": [
+        {
+          "kind": "ground",
+          "length": 3
+        },
+        {
+          "kind": "block",
+          "length": 0.35,
+          "height": 0.15
+        },
+        {
+          "kind": "ground",
+          "length": 0.5
+        },
+        {
+          "kind": "block",
+          "length": 0.35,
+          "height": 0.3
+        },
+        {
+          "kind": "ground",
+          "length": 0.5
+        },
+        {
+          "kind": "block",
+          "length": 0.35,
+          "height": 0.45
+        },
+        {
+          "kind": "ground",
+          "length": 2
+        },
+        {
+          "kind": "bar",
+          "height": 1.5
+        },
+        {
+          "kind": "ground",
+          "length": 3
+        }
+      ],
+      "clearsAsDrawn": true,
+      "clearsAfterFixIt": true,
+      "proofSeconds": 0.9,
+      "score": {
+        "keyCount": 1,
+        "modelCount": 4,
+        "matched": 1,
+        "extra": 3,
+        "meanRelError": 0.73,
+        "meanAbsError": 0.75
+      }
+    },
+    {
+      "photo": "new04",
+      "run": 2,
+      "tokens": 3030,
+      "seconds": 11.6,
+      "problems": [],
+      "said": "The course goes from the lower asphalt up the central steps onto the upper platform and past the rails.",
+      "layout": [
+        {
+          "kind": "ground",
+          "length": 3
+        },
+        {
+          "kind": "block",
+          "length": 0.9,
+          "height": 0.45
+        },
+        {
+          "kind": "ground",
+          "length": 1.5
+        },
+        {
+          "kind": "bar",
+          "height": 1.5
+        },
+        {
+          "kind": "ground",
+          "length": 2.5
+        }
+      ],
+      "clearsAsDrawn": true,
+      "clearsAfterFixIt": true,
+      "proofSeconds": 1.1,
+      "score": {
+        "keyCount": 1,
+        "modelCount": 2,
+        "matched": 1,
+        "extra": 1,
+        "meanRelError": 0.25,
+        "meanAbsError": 0.32
+      }
+    },
+    {
+      "photo": "park01",
+      "run": 1,
+      "tokens": 4970,
+      "seconds": 20,
+      "problems": [
+        "the model ran out of room and gave no answer"
+      ],
+      "said": "",
+      "layout": null,
+      "score": {
+        "keyCount": 2,
+        "modelCount": 0,
+        "matched": 0,
+        "extra": 0,
+        "meanRelError": null,
+        "meanAbsError": null
+      }
+    },
+    {
+      "photo": "park01",
+      "run": 2,
+      "tokens": 3750,
+      "seconds": 14.1,
+      "problems": [],
+      "said": "Course runs left to right across the flat concrete over the two side ledges and the central stair set.",
+      "layout": [
+        {
+          "kind": "ground",
+          "length": 4
+        },
+        {
+          "kind": "block",
+          "length": 0.6,
+          "height": 0.65
+        },
+        {
+          "kind": "ground",
+          "length": 0.5
+        },
+        {
+          "kind": "block",
+          "length": 2.2,
+          "height": 1
+        },
+        {
+          "kind": "bar",
+          "height": 1.5
+        },
+        {
+          "kind": "ground",
+          "length": 0.6
+        },
+        {
+          "kind": "block",
+          "length": 0.7,
+          "height": 0.75
+        },
+        {
+          "kind": "ground",
+          "length": 5
+        }
+      ],
+      "clearsAsDrawn": false,
+      "clearsAfterFixIt": false,
+      "fixSteps": [
+        "No small move of the bars makes it clearable: try different gaps between the decks."
+      ],
+      "clearsAfterDroppingBars": false,
+      "proofSeconds": 23.8,
+      "score": {
+        "keyCount": 2,
+        "modelCount": 4,
+        "matched": 2,
+        "extra": 2,
+        "meanRelError": 0.31,
+        "meanAbsError": 1.44
+      }
+    },
+    {
+      "photo": "park02",
+      "run": 1,
+      "tokens": 2580,
+      "seconds": 9.5,
+      "problems": [],
+      "said": "A flat skate park with a long angled concrete ledge in front and stairs with a handrail behind.",
+      "layout": [
+        {
+          "kind": "ground",
+          "length": 5
+        },
+        {
+          "kind": "block",
+          "length": 6,
+          "height": 0.6
+        },
+        {
+          "kind": "ground",
+          "length": 2
+        },
+        {
+          "kind": "gap",
+          "width": 1.2
+        },
+        {
+          "kind": "block",
+          "length": 2.5,
+          "height": 0.6
+        },
+        {
+          "kind": "bar",
+          "height": 1.5
+        },
+        {
+          "kind": "ground",
+          "length": 5
+        }
+      ],
+      "clearsAsDrawn": true,
+      "clearsAfterFixIt": true,
+      "proofSeconds": 1.2,
+      "score": {
+        "keyCount": 1,
+        "modelCount": 4,
+        "matched": 1,
+        "extra": 3,
+        "meanRelError": 0.17,
+        "meanAbsError": 0.55
+      }
+    },
+    {
+      "photo": "park02",
+      "run": 2,
+      "tokens": 3467,
+      "seconds": 13.2,
+      "problems": [],
+      "said": "Runner crosses the flat concrete, vaults the long low graffiti ledge and climbs the small stairs beside the rail.",
+      "layout": [
+        {
+          "kind": "ground",
+          "length": 5
+        },
+        {
+          "kind": "block",
+          "length": 1,
+          "height": 0.6
+        },
+        {
+          "kind": "ground",
+          "length": 2.5
+        },
+        {
+          "kind": "block",
+          "length": 2,
+          "height": 0.54
+        },
+        {
+          "kind": "bar",
+          "height": 1.5
+        },
+        {
+          "kind": "ground",
+          "length": 5
+        }
+      ],
+      "clearsAsDrawn": true,
+      "clearsAfterFixIt": true,
+      "proofSeconds": 1,
+      "score": {
+        "keyCount": 1,
+        "modelCount": 3,
+        "matched": 1,
+        "extra": 2,
+        "meanRelError": 0.47,
+        "meanAbsError": 2.05
+      }
+    },
+    {
+      "photo": "park03",
+      "run": 1,
+      "tokens": 2973,
+      "seconds": 11,
+      "problems": [],
+      "said": "A left-to-right lane crosses the low foreground platform, the central quarter-pipe, and the far ledge.",
+      "layout": [
+        {
+          "kind": "ground",
+          "length": 5
+        },
+        {
+          "kind": "block",
+          "length": 5,
+          "height": 0.45
+        },
+        {
+          "kind": "ground",
+          "length": 8
+        },
+        {
+          "kind": "block",
+          "length": 2.2,
+          "height": 1.2
+        },
+        {
+          "kind": "ground",
+          "length": 7
+        },
+        {
+          "kind": "block",
+          "length": 3,
+          "height": 0.4
+        },
+        {
+          "kind": "ground",
+          "length": 5
+        }
+      ],
+      "clearsAsDrawn": true,
+      "clearsAfterFixIt": true,
+      "proofSeconds": 1.5,
+      "score": {
+        "keyCount": 2,
+        "modelCount": 3,
+        "matched": 2,
+        "extra": 1,
+        "meanRelError": 0.52,
+        "meanAbsError": 0.64
+      }
+    },
+    {
+      "photo": "park03",
+      "run": 2,
+      "tokens": 3187,
+      "seconds": 11.8,
+      "problems": [],
+      "said": "A clear run crosses the flat ledges and the quarter-pipe from left to right.",
+      "layout": [
+        {
+          "kind": "ground",
+          "length": 4
+        },
+        {
+          "kind": "block",
+          "length": 5,
+          "height": 0.4
+        },
+        {
+          "kind": "ground",
+          "length": 4
+        },
+        {
+          "kind": "block",
+          "length": 2,
+          "height": 1.2
+        },
+        {
+          "kind": "ground",
+          "length": 5
+        },
+        {
+          "kind": "block",
+          "length": 2.5,
+          "height": 0.45
+        },
+        {
+          "kind": "ground",
+          "length": 3
+        }
+      ],
+      "clearsAsDrawn": false,
+      "clearsAfterFixIt": false,
+      "fixSteps": [
+        "Raise the water 0.3 m (the lane starts higher up)."
+      ],
+      "proofSeconds": 6.7,
+      "score": {
+        "keyCount": 2,
+        "modelCount": 3,
+        "matched": 2,
+        "extra": 1,
+        "meanRelError": 0.51,
+        "meanAbsError": 0.68
+      }
+    },
+    {
+      "photo": "park05",
+      "run": 1,
+      "tokens": 2362,
+      "seconds": 8.7,
+      "problems": [],
+      "said": "A left to right path through the trees past the stone wall and bench under a low branch.",
+      "layout": [
+        {
+          "kind": "ground",
+          "length": 4
+        },
+        {
+          "kind": "block",
+          "length": 1,
+          "height": 0.3
+        },
+        {
+          "kind": "ground",
+          "length": 2
+        },
+        {
+          "kind": "block",
+          "length": 0.6,
+          "height": 0.8
+        },
+        {
+          "kind": "ground",
+          "length": 1.5
+        },
+        {
+          "kind": "bar",
+          "height": 2.2
+        },
+        {
+          "kind": "ground",
+          "length": 1
+        },
+        {
+          "kind": "block",
+          "length": 0.6,
+          "height": 0.45
+        },
+        {
+          "kind": "ground",
+          "length": 3
+        }
+      ],
+      "clearsAsDrawn": false,
+      "clearsAfterFixIt": false,
+      "fixSteps": [
+        "No small move of the bars makes it clearable: try different gaps between the decks."
+      ],
+      "clearsAfterDroppingBars": false,
+      "proofSeconds": 46.1,
+      "score": {
+        "keyCount": 1,
+        "modelCount": 4,
+        "matched": 1,
+        "extra": 3,
+        "meanRelError": 0.56,
+        "meanAbsError": 0.7
+      }
+    },
+    {
+      "photo": "park05",
+      "run": 2,
+      "tokens": 2941,
+      "seconds": 10.8,
+      "problems": [],
+      "said": "Path runs from left woods across the ivy edge, past the large tree and low branch, then over the stone wall and bench.",
+      "layout": [
+        {
+          "kind": "ground",
+          "length": 3
+        },
+        {
+          "kind": "block",
+          "length": 1,
+          "height": 0.3
+        },
+        {
+          "kind": "ground",
+          "length": 2
+        },
+        {
+          "kind": "block",
+          "length": 0.8,
+          "height": 0.9
+        },
+        {
+          "kind": "ground",
+          "length": 1.5
+        },
+        {
+          "kind": "bar",
+          "height": 2.2
+        },
+        {
+          "kind": "ground",
+          "length": 1
+        },
+        {
+          "kind": "block",
+          "length": 0.5,
+          "height": 0.7
+        },
+        {
+          "kind": "block",
+          "length": 0.6,
+          "height": 0.45
+        },
+        {
+          "kind": "ground",
+          "length": 3
+        }
+      ],
+      "clearsAsDrawn": false,
+      "clearsAfterFixIt": false,
+      "fixSteps": [
+        "No small move of the bars makes it clearable: try different gaps between the decks."
+      ],
+      "clearsAfterDroppingBars": false,
+      "proofSeconds": 29.4,
+      "score": {
+        "keyCount": 1,
+        "modelCount": 5,
+        "matched": 1,
+        "extra": 4,
+        "meanRelError": 0.56,
+        "meanAbsError": 0.7
+      }
+    },
+    {
+      "photo": "park07",
+      "run": 1,
+      "tokens": 2991,
+      "seconds": 12,
+      "problems": [],
+      "said": "The lane crosses flat grass then climbs three concrete steps to the upper terrace.",
+      "layout": [
+        {
+          "kind": "ground",
+          "length": 5
+        },
+        {
+          "kind": "block",
+          "length": 0.4,
+          "height": 0.16
+        },
+        {
+          "kind": "block",
+          "length": 0.4,
+          "height": 0.32
+        },
+        {
+          "kind": "block",
+          "length": 0.5,
+          "height": 0.48
+        },
+        {
+          "kind": "ground",
+          "length": 6
+        }
+      ],
+      "clearsAsDrawn": true,
+      "clearsAfterFixIt": true,
+      "proofSeconds": 0.8,
+      "score": {
+        "keyCount": 1,
+        "modelCount": 3,
+        "matched": 1,
+        "extra": 2,
+        "meanRelError": 0.66,
+        "meanAbsError": 0.54
+      }
+    },
+    {
+      "photo": "park07",
+      "run": 2,
+      "tokens": 1913,
+      "seconds": 7.3,
+      "problems": [],
+      "said": "The lane crosses grass to climb three low steps onto the upper hilltop.",
+      "layout": [
+        {
+          "kind": "ground",
+          "length": 6
+        },
+        {
+          "kind": "block",
+          "length": 1.2,
+          "height": 0.48
+        },
+        {
+          "kind": "ground",
+          "length": 5
+        }
+      ],
+      "clearsAsDrawn": true,
+      "clearsAfterFixIt": true,
+      "proofSeconds": 0.8,
+      "score": {
+        "keyCount": 1,
+        "modelCount": 1,
+        "matched": 1,
+        "extra": 0,
+        "meanRelError": 0.03,
+        "meanAbsError": 0.01
+      }
+    },
+    {
+      "photo": "park08",
+      "run": 1,
+      "tokens": 2874,
+      "seconds": 10.6,
+      "problems": [],
+      "said": "A clear line runs from the foreground gravel over the blue bench toward the open field behind.",
+      "layout": [
+        {
+          "kind": "ground",
+          "length": 4
+        },
+        {
+          "kind": "block",
+          "length": 0.6,
+          "height": 0.45
+        },
+        {
+          "kind": "ground",
+          "length": 6
+        }
+      ],
+      "clearsAsDrawn": true,
+      "clearsAfterFixIt": true,
+      "proofSeconds": 1.1,
+      "score": {
+        "keyCount": 1,
+        "modelCount": 1,
+        "matched": 1,
+        "extra": 0,
+        "meanRelError": 0.58,
+        "meanAbsError": 0.83
+      }
+    },
+    {
+      "photo": "park08",
+      "run": 2,
+      "tokens": 3098,
+      "seconds": 11.5,
+      "problems": [],
+      "said": "The lane runs on flat ground and over the central bench obstacle.",
+      "layout": [
+        {
+          "kind": "ground",
+          "length": 5
+        },
+        {
+          "kind": "block",
+          "length": 2,
+          "height": 0.45
+        },
+        {
+          "kind": "ground",
+          "length": 5
+        }
+      ],
+      "clearsAsDrawn": true,
+      "clearsAfterFixIt": true,
+      "proofSeconds": 0.8,
+      "score": {
+        "keyCount": 1,
+        "modelCount": 1,
+        "matched": 1,
+        "extra": 0,
+        "meanRelError": 0.31,
+        "meanAbsError": 0.32
+      }
+    }
+  ]
+}
