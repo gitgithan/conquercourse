@@ -399,7 +399,7 @@ The set of obstacle shapes is fixed, and each shape offers a fixed set of moves.
 - **New failure:** a landing past the limit is a "hard landing" (`outcome 'hurt'`, event `hard-landing`), not water.
   - The panel says what the ground did and what would have worked: tap X just before you land.
   - It never grades technique.
-- **Input:** C, buffered a quarter of a second (`ROLL_BUFFER`); a press on the ground does nothing.
+- **Input:** X, buffered a quarter of a second (`ROLL_BUFFER`) before a landing; a fresh press on the ground starts a ground roll (below).
 - **Lanes:** `LANE_DROP` is 7.8 m (80% of the roll limit, so the ideal run has room to spare); a lane with a bigger drop between grounds is not a course, and the advice says so.
   - A lane may start on a roof: levels 3 m and 6 m above the lowest point are tried, and ground down to 7.8 m below the level counts.
   - The finish deck sits a metre below a high ending, level with a deep one.
@@ -591,3 +591,29 @@ The set of obstacle shapes is fixed, and each shape offers a fixed set of moves.
 - **Browser walk:** the new steps pass on the VM (Fix it previews first, bars preview, switch off re-runs the proof, Apply moves the bars, one Undo brings them back).
   - Two older steps did not pass in that run and are not from this change: "no scroll at 1024x640" (the top bar now wraps with the Stacks buttons) and "advice offered" (timed out while the VM load was above 30).
   - "Design partner answers" needs the Baseten key, which the VM does not have.
+## Lache playtest fixes (CC-67)
+- **So what:** the corner window shows what is ahead, a release throws with all the swing's energy, and a roll works on the ground as well as on a landing.
+- **Corner window:** it is now a first-person view from the eyes (just under the hands on a bar, 1.62 m up on the ground), looking along the way the body faces and a little down; the horizon stays level when the body swings.
+  - The body is hidden while it is drawn.
+  - F still toggles it and it shows by itself on a bar.
+- **Release, measured** (a swing at about 6.3 rad/s, released at the bottom):
+  - Flight was ballistic before the fix too (the horizontal speed stayed 6.66 m/s for 60 ticks, no drag), so nothing leaked in the air.
+  - The weak feel had two causes.
+    - The flight kept only the middle's own speed (rod: w x 1.05 m), 75 % of the swing's kinetic energy; the other 25 % was spin about the middle, which the picture drops the moment the hands open while the legs are whipping at twice the speed (13.3 m/s).
+    - The flight started from the feet's place, up to 0.75 m ahead of and 0.27 m above where the middle really was, then the body went upright: a jump in the picture at the moment of release.
+  - The fix (`releaseRadius`, `releaseHang` in `src/sim/holds.ts`):
+    - A body that lets go tucked in turns all the swing's energy into flight, so the speed is w x L / sqrt(3) = w x 1.21 m: 7.69 m/s instead of 6.66 m/s at the bottom (15.5 % more speed, 33 % more range).
+    - The middle keeps its place, and the feet drop to half a rod under it, so the path is continuous.
+  - Tests (`tests/release.test.ts`): the flight energy equals the swing energy; the speed on the runner while swinging is the same number; the middle does not jump; the horizontal speed is constant and the middle follows a parabola; the range on level ground is v^2 sin(2a) / g within 2 %.
+- **What changed for the lache:** the widest gap a full pump crosses is now 7 m between the bars (it was 6.8 m); 7.5 m is still out of reach.
+  - A short pump no longer crosses 3 to 6 m on its own: they need a swing built over about 1.6 s.
+- **Ground roll (X on the ground, standing or running):**
+  - From a stand it rolls about 1.6 m (starts at 2.5 m/s, ends at 85 % of it); running, it keeps 85 % of the speed over 0.7 s, the same time as the landing roll (0.5 s to roll out, 0.2 s to get up).
+  - The push-off of 2.5 m/s comes from the legs pushing for 0.4 s at about 0.6 g.
+  - It costs 0.02 of the energy store (a vault is 0.025) and the next roll waits 0.3 s after getting up: it cannot be spammed.
+  - It ends at an edge or at the face of something it cannot roll over, so it never falls off a ledge by accident.
+  - It cannot start in the air: a press there is the landing roll, as before.
+    - The rolled body height (0.55 m) is a constant (`ROLL_BODY_HEIGHT`) for a later duck-under obstacle; nothing uses it yet.
+  - The roll clip plays for ground rolls too (`rolledAt`), with the soft landing sound.
+- **Roll drums:** the X drum shows for every landing the ideal run rolls out of (a test covers the 5 m ledge of the drop demo and a release from a bar onto a deck 5 m lower).
+- **Generator:** a lache pair's deck gap is drawn from 5.5 to 6.8 m now (it was 6.5 to 7.8 m): with the new release a 7 m gap leaves almost no room, and one seed lost its moves when the proved presses were laid along the whole course.

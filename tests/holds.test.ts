@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { bottomLoad, comDistance, DEFAULT_HANG, feetOf, gripLoad, gripSlips, hangStep, measureHangPeriod, pendulumLength, releaseHang, tryGrab, type Hang } from '../src/sim/holds';
+import { bottomLoad, comDistance, DEFAULT_HANG, feetOf, gripLoad, gripSlips, hangStep, measureHangPeriod, pendulumLength, releaseHang, releaseRadius, tryGrab, type Hang } from '../src/sim/holds';
 import { GRAVITY } from '../src/sim/units';
 
 const NO_DRAG = { ...DEFAULT_HANG, drag: 0 };
@@ -97,7 +97,7 @@ describe('grabbing and letting go', () => {
   });
   it('keeps part of the speed on the catch (the arms absorb the rest)', () => {
     const g = tryGrab(bar, 10, 3 - DEFAULT_HANG.handHeight, 6, 0)!;
-    expect(g.omega * comDistance()).toBeCloseTo(6 * DEFAULT_HANG.catchKeep, 6);
+    expect(g.omega * releaseRadius()).toBeCloseTo(6 * DEFAULT_HANG.catchKeep, 6);
   });
   it('the feet hang straight down from the bar at rest and swing out along an arc', () => {
     expect(feetOf(bar[0], { hold: 0, theta: 0, omega: 0 })).toEqual({ x: 10, y: 3 - DEFAULT_HANG.handHeight });
@@ -107,13 +107,13 @@ describe('grabbing and letting go', () => {
   });
   it('letting go flies on along the swing: at the bottom the body moves level', () => {
     const r = releaseHang(bar[0], { hold: 0, theta: 0, omega: 3 });
-    expect(r.vx).toBeCloseTo(3 * comDistance(), 6);
+    expect(r.vx).toBeCloseTo(3 * releaseRadius(), 6);
     expect(r.vy).toBeCloseTo(0, 6);
   });
-  it('letting go on the way up throws the body along the swing: the speed is omega times the middle of the body', () => {
+  it('letting go on the way up throws the body along the swing: the speed is omega times the radius the swing energy turns into flight', () => {
     const s: Hang = { hold: 0, theta: Math.PI / 4, omega: 5 };
     const r = releaseHang(bar[0], s);
-    expect(Math.hypot(r.vx, r.vy)).toBeCloseTo(5 * comDistance(), 9);
+    expect(Math.hypot(r.vx, r.vy)).toBeCloseTo(5 * releaseRadius(), 9);
     expect(r.vy / r.vx).toBeCloseTo(1, 9); // 45 degrees up
   });
 });

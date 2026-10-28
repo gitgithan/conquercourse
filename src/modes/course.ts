@@ -74,13 +74,13 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
   const camera = new THREE.PerspectiveCamera(40, host.clientWidth / host.clientHeight, 0.1, 400);
   // the front view window (bottom right, above the drum lane's row): its frame is a div, its picture a second camera drawn in the same canvas
   const PIP_W = 260, PIP_H = 195, PIP_BOTTOM = 118;
-  const frontCam = new THREE.PerspectiveCamera(38, PIP_W / PIP_H, 0.1, 100);
+  const frontCam = new THREE.PerspectiveCamera(75, PIP_W / PIP_H, 0.1, 200); // first person: wide, from the eyes
   let frontForced = params.get('front') === '1';
   const pipFrame = document.createElement('div');
   pipFrame.id = 'frontview';
   pipFrame.style.cssText = `position:fixed;right:16px;bottom:${PIP_BOTTOM}px;width:${PIP_W}px;height:${PIP_H}px;box-sizing:border-box;border:3px solid #17201d;border-radius:10px;pointer-events:none;display:none;box-shadow:0 4px 14px #0004`;
   const pipLabel = document.createElement('div');
-  pipLabel.textContent = 'Front view (F)';
+  pipLabel.textContent = 'Looking ahead (F)';
   pipLabel.style.cssText = 'position:absolute;left:8px;top:6px;font:700 12px system-ui,sans-serif;color:#fff;text-shadow:0 1px 2px #000a';
   pipFrame.appendChild(pipLabel);
   document.body.appendChild(pipFrame);
@@ -235,7 +235,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
   // the controls, always visible top-left as a card of key caps (collapse with H)
   const help = document.createElement('div');
   help.id = 'keys';
-  const KEYS: [string, string][] = [['← →', 'Run (hold)'], ['Space', 'Jump · let go of the rope · press on the trampoline'], ['↓', 'Bend your knees (hold, on big drops)'], ['X', 'Roll out of a big drop (tap just before you land)'], ...(course.trebuchet ? ([['→ (hold), then Space', 'Trebuchet: pull the pin, then let the rider go when the hint says LET GO NOW']] as [string, string][]) : []), ...(course !== defaultCourse ? ([['E', 'Hold a bar with the hands (in the air; let go to fly on)'], ['← → on a bar', 'Pump the swing: push the way you swing'], ['V', 'Vault over a step with a hand on top (fast, saves energy)'], ['F', 'Front view window (it shows by itself on a bar)']] as [string, string][]) : []), ...(course.track ? ([['→ or Space', 'Push off at the top of the first hill'], ['↓ (hold)', 'Brake (S works too)']] as [string, string][]) : []), ['I', 'Ideal run of this obstacle (Shift+I: the whole course, any key stops it)'], ['G', 'Drums: where the ideal run presses Space'], ['B', 'Debug view: see the collision boxes and where a jump goes'], ['Mouse', 'Drag to turn the view, wheel to zoom, double-click to reset']]; // retry, ideal run and Dojo are on the fall panel and the buttons
+  const KEYS: [string, string][] = [['← →', 'Run (hold)'], ['Space', 'Jump · let go of the rope · press on the trampoline'], ['↓', 'Bend your knees (hold, on big drops)'], ['X', 'Roll: on the ground (standing or running), or tap just before you land from a big drop'], ...(course.trebuchet ? ([['→ (hold), then Space', 'Trebuchet: pull the pin, then let the rider go when the hint says LET GO NOW']] as [string, string][]) : []), ...(course !== defaultCourse ? ([['E', 'Hold a bar with the hands (in the air; let go to fly on)'], ['← → on a bar', 'Pump the swing: push the way you swing'], ['V', 'Vault over a step with a hand on top (fast, saves energy)'], ['F', 'Looking-ahead window, from your eyes (it shows by itself on a bar)']] as [string, string][]) : []), ...(course.track ? ([['→ or Space', 'Push off at the top of the first hill'], ['↓ (hold)', 'Brake (S works too)']] as [string, string][]) : []), ['I', 'Ideal run of this obstacle (Shift+I: the whole course, any key stops it)'], ['G', 'Drums: where the ideal run presses Space'], ['B', 'Debug view: see the collision boxes and where a jump goes'], ['Mouse', 'Drag to turn the view, wheel to zoom, double-click to reset']]; // retry, ideal run and Dojo are on the fall panel and the buttons
   help.style.cssText = 'position:fixed;left:16px;top:48px;width:290px;background:#fffffff0;border:1px solid #cfd6d0;border-radius:12px;padding:8px 10px;font:500 14px system-ui,sans-serif;color:#17201d;box-shadow:0 2px 10px #0002;pointer-events:none;display:grid;gap:5px';
   const paintKeys = (open: boolean) => {
     help.innerHTML = `<div style="font-weight:700;display:flex;justify-content:space-between">Controls <span style="font-weight:400;color:#58635d">H ${open ? 'hides' : 'shows'}</span></div>` + (open ? KEYS.map(([k, d]) => `<div style="display:grid;grid-template-columns:78px 1fr;gap:8px;align-items:center"><kbd style="font:700 13px ui-monospace,monospace;background:#eef1ec;border:1px solid #b9c2bb;border-bottom-width:3px;border-radius:6px;padding:1px 6px;text-align:center">${k}</kbd><span>${d}</span></div>`).join('') : '');
@@ -905,15 +905,21 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
     const showFront = frontForced || world.mode === 'hang';
     pipFrame.style.display = showFront ? 'block' : 'none';
     if (showFront) {
+      // first person: the eyes, looking ahead along the way the body faces and a little down; the horizon stays level (the head is steady, it does not roll with the swing)
       const hold = world.hang ? course.holds?.[world.hang.hold] : undefined;
-      const fx = hold ? hold.x : r.x, fy = hold ? hold.y - 0.9 : r.y + 1.1;
-      frontCam.position.set(fx + 2.9, fy + 0.35, 0.8); frontCam.lookAt(fx, fy, 0);
+      const eye = hold && world.hang
+        ? { x: hold.x + 0.4 * Math.sin(world.hang.theta) + 0.15 * facing, y: hold.y - 0.4 * Math.cos(world.hang.theta) } // just under the hands, along the arms
+        : { x: r.x + 0.15 * facing, y: r.y + 1.62 };
+      frontCam.position.set(eye.x, eye.y, 0.1); frontCam.lookAt(eye.x + 10 * facing, eye.y - 1.2, 0.1);
+      const actorWasVisible = actor?.object.visible ?? false;
+      if (actor) actor.object.visible = false; // no body in front of the eyes
       const W = host.clientWidth, H = host.clientHeight;
       renderer.autoClear = false;
       renderer.setScissorTest(true);
       const py = H - PIP_BOTTOM - PIP_H; // the WebGPU viewport counts from the top
       renderer.setViewport(W - PIP_W - 16, py, PIP_W, PIP_H); renderer.setScissor(W - PIP_W - 16, py, PIP_W, PIP_H);
       renderer.render(scene, frontCam);
+      if (actor) actor.object.visible = actorWasVisible;
       renderer.setScissorTest(false); renderer.setViewport(0, 0, W, H); renderer.autoClear = true;
     }
     document.documentElement.dataset.tick = String(r.tick);
