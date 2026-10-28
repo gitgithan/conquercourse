@@ -17,7 +17,9 @@ function fall(h: number, input: Partial<RunnerInput>, rollAt: 'early' | 'late' |
   const c = dropCourse(h);
   let w = newWorld(c, 4);
   w.runner = { ...w.runner, x: 4, y: h, vx: 7 };
-  for (let i = 0; i < 120 * 8 && w.outcome === 'running' && !(w.runner.landing && w.runner.grounded && w.runner.x > 10); i++) {
+  let after = 0; // a stumble or hard landing waits 3 ticks for a forgiven press, so play a few ticks past the touchdown
+  for (let i = 0; i < 120 * 8 && w.outcome === 'running' && after < 6; i++) {
+    if (w.runner.landing && w.runner.grounded && w.runner.x > 10) after++;
     const airborne = !w.runner.grounded;
     const near = airborne && w.runner.y < 1.2;
     const press = rollAt === 'late' ? near : rollAt === 'early' ? airborne && w.runner.y > h - 0.05 : false;
@@ -92,20 +94,23 @@ describe('roll in the world (CC-56)', () => {
   it('a drop past the roll limit still ends the run', () => {
     expect(fall(ROLL_SURVIVE_DROP + 1.5, { squat: true }, 'late').outcome).toBe('hurt');
   });
-  it('a roll pressed a quarter of a second early still counts; one pressed long before does not', () => {
+  it('a roll counts only inside the window (the last 0.15 s and 1.2 m); a press a quarter of a second early or at the edge is ignored', () => {
     const c = dropCourse(5);
     const run = (pressAtY: number) => {
       let w = newWorld(c, 4);
       w.runner = { ...w.runner, x: 4, y: 5, vx: 7 };
       let pressed = false;
-      for (let i = 0; i < 120 * 6 && w.outcome === 'running' && !(w.runner.landing && w.runner.grounded && w.runner.x > 10); i++) {
+      let after = 0;
+      for (let i = 0; i < 120 * 6 && w.outcome === 'running' && after < 6; i++) {
+        if (w.runner.landing && w.runner.grounded && w.runner.x > 10) after++;
         const press = !pressed && !w.runner.grounded && w.runner.y <= pressAtY;
         if (press) pressed = true;
         w = stepWorld(w, { ...NO_INPUT, run: true, squat: true, roll: press }, c);
       }
       return w;
     };
-    expect(run(1.0).outcome).toBe('running'); // pressed about 0.2 s before the ground
+    expect(run(1.0).outcome).toBe('running'); // pressed about 0.1 s before the ground: inside the window
+    expect(run(2.5).outcome).toBe('hurt'); // pressed about a quarter of a second before the ground: ignored, no hidden buffer
     expect(run(4.9).outcome).toBe('hurt'); // pressed at the edge, long before the ground
   });
   it('rollNeeded says so only for a fall a squat cannot take cleanly, close to the ground', () => {

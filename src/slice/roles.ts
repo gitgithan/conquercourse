@@ -26,7 +26,7 @@ export const MOVES: MoveInfo[] = [
   { id: 'rope', name: 'Rope swing', need: 'A rope anchor about 6.6 m above the ground, over a gap of 6 to 9 m. Catch the rope in the air and swing across.' },
   { id: 'trampoline', name: 'Trampoline', need: 'A low flat bed, 2 to 6 m long, in front of ground 2 to 4 m higher. Press Space at the bottom of the bounce for extra push.' },
   { id: 'lache', name: 'Lache pair', need: 'Two bars 2 to 7 m apart, 2.8 to 3.2 m up, over a gap. Hold E, pump with the arrows, let go.' },
-  { id: 'drop', name: 'Drop with a roll', need: 'A fall of 1.8 to 9.8 m. Tap X just before you land (it is safe up to about 9.8 m).' },
+  { id: 'drop', name: 'Drop with a roll', need: 'A fall of 1.8 to 9.8 m. Hold X as you land (it counts in the last 0.15 s, about a metre up; a tap earlier does nothing) (it is safe up to about 9.8 m).' },
   { id: 'stack', name: 'Cup stack', need: 'A Stack piece from the Stacks row: pyramids of cups to climb and cross.' },
   { id: 'trebuchet', name: 'Trebuchet', need: 'Start the lane in a trebuchet: set its counterweight and let go at the right moment.' },
   { id: 'coaster', name: 'Roller coaster', need: 'Built on its own page (?mode=coaster): shape the track, then ride it.' },
