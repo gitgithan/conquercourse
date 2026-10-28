@@ -1499,3 +1499,16 @@ The set of obstacle shapes is fixed, and each shape offers a fixed set of moves.
   - The line is a whole line through the place: the lane runs over everything solid on it, so the two end dots set its direction and sideways step, not where it starts and stops.
   - The strip does not follow a dragged line; it always shows the best lane per height.
   - Dragging works with a mouse; touch dragging is not checked.
+## The Courses gallery (CC-89)
+- Every page has a small "Courses" button; it opens a gallery of cards, one per world.
+- A card has a picture, a title and one line about the world, under the same headings as the old menu (Real places, Real objects, Contraptions, Moves, Make your own, Basics).
+- Click a card, or move with the arrow keys and press Enter, and the page goes to that world; the world you are in is marked "You are here".
+- The search box narrows the cards as you type; Esc or a click outside closes the gallery.
+- The Course waits while the gallery is open, and no key reaches the game or the editor behind it.
+- The first-visit chooser is the same gallery in a dialog; it replaces the old drop-down list.
+- The list lives in `src/ui/world-picker.ts` (`DEMO_GROUPS`), so a new course is added in one place and shows up on every page.
+- Pictures: `npm run thumbs` takes a still of each course at its first obstacle into `public/assets/thumbs/`; `tests/world-picker.test.ts` fails when a card has no picture.
+- The "Make your own" cards (random course, editor, coaster builder, map) have a drawn icon instead of a still.
+- Where the button sits: top right everywhere (in the Course under the Debug button, in the Dojo left of the Back button); `scripts/picker-check.mjs` checks that it covers no control at 1280x720, 1024x640 and a phone width.
+- On a phone the button sits bottom left, away from the Feedback button.
+- Not done: a pick leaves the page, so unsaved editor work is lost unless that mode already asks first.

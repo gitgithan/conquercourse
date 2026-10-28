@@ -16,7 +16,7 @@ try {
   mkdirSync('test-results/experience', { recursive: true });
   const open = async (url) => {
     await page.goto(`http://localhost:${port}/${url}`);
-    await page.waitForSelector('#democourses', { timeout: 90000 });
+    await page.waitForSelector('#courses-btn', { timeout: 90000 });
     await page.waitForFunction(() => document.documentElement.dataset.tick !== undefined, null, { timeout: 90000 });
     await page.waitForTimeout(1500);
   };
@@ -24,16 +24,17 @@ try {
   await page.waitForSelector('#choose-world', { timeout: 90000 }).catch(() => {});
   await page.waitForTimeout(1500);
   out.welcome = await page.evaluate(() => !!document.getElementById('choose-world'));
-  out.welcomeDefault = await page.evaluate(() => document.querySelector('#choose-world select')?.value ?? null);
+  out.welcomeCards = await page.evaluate(() => document.querySelectorAll('#choose-world .wg-card').length); // the first-run chooser is the picture gallery
+  out.groups = await page.$$eval('#choose-world section', (gs) => gs.map((g) => `${g.dataset.group}: ${g.querySelectorAll('.wg-card').length}`));
+  const cards = await page.$$eval('#choose-world .wg-card', (cs) => cs.map((c) => [c.dataset.value, c.querySelector('b').textContent]));
+  out.menuHasLanes = cards.some(([, t]) => /Demo scene/.test(t ?? ''));
   await page.screenshot({ path: 'test-results/experience/welcome.png' });
   await open('?course=/assets/demo/park-rail-run.course.json');
-  out.groups = await page.$$eval('#democourses optgroup', (gs) => gs.map((g) => `${g.label}: ${g.querySelectorAll('option').length}`));
-  out.menuHasLanes = await page.$$eval('#democourses option', (os) => os.some((o) => /Demo scene/.test(o.textContent ?? '')));
-  await page.screenshot({ path: 'test-results/experience/menu.png' });
-  await page.focus('#democourses');
-  await page.keyboard.press('Alt+ArrowDown').catch(() => {});
+  await page.click('#courses-btn'); await page.waitForTimeout(600);
+  await page.screenshot({ path: 'test-results/experience/menu.png' }); // the Courses overlay
+  await page.keyboard.press('Escape');
+  const options = cards.filter(([v]) => v.startsWith('/assets'));
   // the front view on every menu course
-  const options = await page.$$eval('#democourses option', (os) => os.map((o) => [o.value, o.textContent]).filter(([v]) => v.startsWith('/assets')));
   for (const [v, label] of options) {
     await open(`?course=${v}`);
     out.front[label] = await page.evaluate(() => { const f = document.getElementById('frontview'); return !!f && getComputedStyle(f).display !== 'none'; });
