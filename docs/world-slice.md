@@ -598,6 +598,12 @@ The set of obstacle shapes is fixed, and each shape offers a fixed set of moves.
 - **Tests:** `tests/cart.test.ts` (energy conserved, never above the start height, friction only takes energy out, leaves the rails on a sharp top and stays on a broad one, braking proof, stall, a bigger push climbs higher), `tests/fixcart.test.ts`, `tests/demo-coaster.test.ts`.
 - **Checks on the VM:** `scripts/coaster-check.mjs` (the bot rides two demos home, the third stalls with the right message) and `scripts/coaster-builder-check.mjs` (drag, Fix it, Play it).
 - **Screenshots:** `data/eval/cc-61-coaster/`.
+- **What "a ride" means (changed after CC-61 shipped):**
+  - A direct commit (3696eaf) made the track ground, so a cart that flies off a hilltop can land on the track again and finish.
+  - Three coaster tests and Fix it then passed or failed for the wrong reason: the sharp hilltop "cleared" with no brake.
+  - A coaster is now ridden well only when the cart finishes and never left the rails on a hilltop (`flewOff` in `src/sim/cart.ts`); the proof, Fix it and the tests use that.
+  - Flying across the planned gap between two rail sections does not count as leaving.
+  - The demo plans were regenerated with `npx tsx scripts/coaster-demos.ts`: the sharp hilltop needs the brake again (17.6 to 25.6 m).
 - **Known gaps:**
   - No loops (the track is a function of x).
   - The track is 2D only: no banking.
