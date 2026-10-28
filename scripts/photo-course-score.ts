@@ -3,7 +3,7 @@
 import { readdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { fixLayout } from '../src/slice/fixit';
 import { fixBars } from '../src/slice/fixbars';
-import { holdsOf } from '../src/slice/holds-world';
+import { holdsOf, isHold } from '../src/slice/holds-world';
 import { NO_TURN, proves } from '../src/slice/photo-proof';
 import { layoutToPieces, parseLayout, scoreLayout, type Layout } from '../src/slice/photo-course';
 
@@ -27,6 +27,10 @@ for (const f of readdirSync(`${dir}/outputs`).filter((n) => n.endsWith('.json'))
     else {
       const fx = hasBars ? fixBars(pieces, lane) : fixLayout(pieces, lane);
       row.clearsAfterFixIt = fx.ok && proves(fx.pieces, lane); row.fixSteps = fx.steps;
+      if (!row.clearsAfterFixIt && hasBars) { // the second repair the editor tries: take the bars out and fix the ground alone
+        const ground = pieces.filter((q) => !isHold(q));
+        row.clearsAfterDroppingBars = proves(ground, lane) || (fixLayout(ground, lane).ok && proves(fixLayout(ground, lane).pieces, lane));
+      }
     }
     row.proofSeconds = Math.round((performance.now() - t0) / 100) / 10;
   }
@@ -37,7 +41,7 @@ for (const f of readdirSync(`${dir}/outputs`).filter((n) => n.endsWith('.json'))
 const ok = rows.filter((r) => r.layout);
 const mean = (a: number[]) => (a.length ? Math.round((a.reduce((s, v) => s + v, 0) / a.length) * 100) / 100 : null);
 const summary = {
-  runs: rows.length, gaveALayout: ok.length, clearsAsDrawn: ok.filter((r) => r.clearsAsDrawn).length, clearsAfterFixIt: ok.filter((r) => r.clearsAfterFixIt).length,
+  runs: rows.length, gaveALayout: ok.length, clearsAsDrawn: ok.filter((r) => r.clearsAsDrawn).length, clearsAfterFixIt: ok.filter((r) => r.clearsAfterFixIt).length, clearsAfterDroppingBars: ok.filter((r) => r.clearsAfterFixIt || r.clearsAfterDroppingBars).length,
   sameObstacleCountAsKey: rows.filter((r) => (r.score as { modelCount: number; keyCount: number }).modelCount === (r.score as { keyCount: number }).keyCount).length,
   meanMatchedShare: mean(rows.map((r) => (r.score as { matched: number; keyCount: number }).matched / (r.score as { keyCount: number }).keyCount)),
   meanRelativeSizeError: mean(rows.map((r) => (r.score as { meanRelError: number | null }).meanRelError).filter((v): v is number => v !== null)),
