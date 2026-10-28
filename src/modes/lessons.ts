@@ -1,3 +1,4 @@
+import { DEFAULT_BAND } from '../sim/band';
 import type { Context, Experiment, Shape } from '../sim/experiments';
 import type { CourseFacts } from '../course/facts';
 import { GRAVITY } from '../sim/units';
@@ -114,6 +115,17 @@ export const LESSONS: Record<Experiment['id'], Lesson> = {
     inputs: ['angle', 'mass', 'muzzle'],
     calc: (v) => { const m = DEFAULT_RECOIL.charMass, sp = (v.mass * v.muzzle) / (m + v.mass), a = (v.angle * Math.PI) / 180, d = (2 * sp * sp * Math.sin(a) * Math.cos(a)) / GRAVITY; return { label: 'distance on level ground', value: d, unit: 'm', working: `(${sp.toFixed(1)} × cos ${v.angle.toFixed(0)}°) × (2 × ${sp.toFixed(1)} × sin ${v.angle.toFixed(0)}° ÷ ${GRAVITY}) = ${d.toFixed(1)} m`, note: `Your speed after the shot is ${v.mass.toFixed(0)} × ${v.muzzle.toFixed(0)} ÷ (${m} + ${v.mass.toFixed(0)}) = ${sp.toFixed(1)} m/s.` }; },
     apply: () => 'On the Cannon course, tilt the barrel with ↑ ↓ until the dotted path ends on the far deck, then press K. The far deck is 4 m lower, so a steep shot lands too hard: tap X just before the ground to roll it out.',
+  },
+  stored: {
+    why: 'A stretched band is stored energy. Every metre you pull it, you do work against it, and the band keeps that work until you let go. Then it gives it all back as speed. That is how a band can throw you faster than your legs can run: your legs spend a long time stretching it, and it pays you back in a short moment.',
+    tries: ['Drag the stretch from 2 to 16 m and watch the speed it gives.', 'Keep the stretch and make the band four times as stiff: how much faster is the throw?', 'Find a soft band and a long stretch that throw you faster than a stiff band stretched a little.'],
+    shapeWords: { direct: 'a straight line: twice the stretch gives twice the speed (a direct proportion), even though the stored energy grows four times.', root: 'a curve that flattens: four times as stiff gives only twice the speed (the speed grows with the square root of the stiffness).' },
+    rule: 'The stretch counts most: twice the stretch stores four times the energy and gives twice the speed. A stiffer band stores more, but your legs can only pull so hard, so a soft band that you can stretch far wins.',
+    formula: 'speed = stretch × √(stiffness ÷ mass)',
+    formulaWords: 'This comes from the energy the band stores, ½ × stiffness × stretch², turning into movement energy, ½ × mass × speed². It is exact with no friction and no legs, and it is the most the band alone can give. On the Course your legs add a little at the start and the ground and air take a little, so the throw is close to this number but not the same.',
+    inputs: ['stretch', 'stiffness'],
+    calc: (v) => { const s = v.stretch * Math.sqrt(v.stiffness / DEFAULT_BAND.mass); return { label: 'speed the band gives', value: s, unit: 'm/s', working: `${v.stretch.toFixed(1)} × √(${v.stiffness.toFixed(0)} ÷ ${DEFAULT_BAND.mass}) = ${s.toFixed(1)} m/s` }; },
+    apply: () => 'On the Band course the band is 35 N/m and snaps at 22 m. Hold ← to stretch it about 16 m (the hint says when), then turn round (hold →) and press Space at the edge. The throw leaves you far faster than the 9 m/s you can run.',
   },
   coaster: {
     why: 'A coaster has no engine. The only energy it has is the height it starts from. Going down, height turns into speed; going up the next hill, speed turns back into height. So the first hill decides how high any later hill can be.',

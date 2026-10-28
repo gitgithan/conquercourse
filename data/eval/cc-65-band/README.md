@@ -1,0 +1,15 @@
+# Elastic band (CC-65): evidence
+- **So what:** the band throws the runner faster than the legs can run, and the Band demo is a gap no run-up can jump.
+- **Pictures:**
+  - `bot-start.png`: the demo at the start, clipped on one metre behind the post.
+  - `hand-stretched.png`: held ← for 9 s; the hint says where a turn now would land.
+  - `bot-end.png`: the ideal-run bot clears the course.
+  - `editor-band.png`: the editor with the Band button and the stiffness box.
+- **Checks run on a free port** (`scripts/band-check.mjs`, `scripts/editor-check.mjs`, `scripts/demos-check.mjs`, `scripts/ideal-all-check.mjs`).
+  - The bot stretches the band about 16.6 m, turns, and clears.
+  - By hand, ← stretches it and the hint changes from "Hold ← to run away from the post" to "TURN NOW (hold →)".
+- **Numbers:** stiffness table in `docs/world-slice.md` (section "Elastic band (CC-65)"), made by `scripts/band-explore.ts`.
+- **Notes on the checks:**
+  - `scripts/band-editor-check.mjs` runs the Band piece in the editor on its own, because the long `scripts/editor-check.mjs` stops earlier on `main` (it cannot find the `rookie-a` button), with or without this change.
+  - `scripts/drums-check.mjs` reports the stock course drum lane as off on `main` as well.
+  - Three cart tests (`tests/cart.test.ts`, `tests/fixcart.test.ts`) fail on `main` before this change.

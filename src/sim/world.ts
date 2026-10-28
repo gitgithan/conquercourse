@@ -13,17 +13,18 @@ import { enterCart, railsOf, stepCartWorld, trackParams, trackSegments, type Car
 import { AIM_RATE, DEFAULT_RECOIL, NO_RECOIL, clampAim, isAimable, padHas, shot, stepBall, type RecoilParams, type RecoilState } from './recoil';
 import { maybeEnterPlank, stepPlankWorld, type PlankState } from './beam';
 import { CLIMB_CATCH_TICKS, CLIMB_COST, CLIMB_EXIT_SPEED, CLIMB_HOLD_TICKS, findClimb, type Climb } from './climb';
+import { enterBand, stepBandWorld, type Band } from './band';
 import { DEFAULT_TREBUCHET, deg, feetAt, isDud, launchStep, startLaunch, type Launch, type TrebuchetParams } from './trebuchet';
 
 // One world for the Course: the runner plus whichever obstacle has hold of the runner right now.
 // The simulator is the truth: everything the screen shows comes from this state, one tick at a time.
 export const ROLL_BUFFER = 30; // ticks (a quarter of a second): an X press this long before touchdown still rolls
-export type Mode = 'run' | 'wall' | 'swing' | 'bounce' | 'hang' | 'vault' | 'cart' | 'launch' | 'plank' | 'climb';
+export type Mode = 'run' | 'wall' | 'swing' | 'bounce' | 'hang' | 'vault' | 'cart' | 'launch' | 'plank' | 'climb' | 'band';
 export type Outcome = 'running' | 'cleared' | 'splash' | 'hurt' | 'stalled'; // hurt: a landing harder than the body can take; stalled: the cart ran out of speed on a hill
 
 export interface GameEvent {
   tick: number;
-  type: 'jump' | 'roll' | 'land' | 'stumble' | 'hard-landing' | 'splash' | 'wall-grab' | 'wall-slide' | 'rope-catch' | 'rope-release' | 'hang-catch' | 'hang-release' | 'vault' | 'climb' | 'climb-drop' | 'bounce' | 'cleared' | 'cart-start' | 'cart-stall' | 'cart-off' | 'cart-catch' | 'launch-fire' | 'launch-release' | 'launch-dud' | 'recoil' | 'plank-sag' | 'plank-break' | 'plank-off';
+  type: 'jump' | 'roll' | 'land' | 'stumble' | 'hard-landing' | 'splash' | 'wall-grab' | 'wall-slide' | 'rope-catch' | 'rope-release' | 'hang-catch' | 'hang-release' | 'vault' | 'climb' | 'climb-drop' | 'bounce' | 'cleared' | 'cart-start' | 'cart-stall' | 'cart-off' | 'cart-catch' | 'launch-fire' | 'launch-release' | 'launch-dud' | 'recoil' | 'plank-sag' | 'plank-break' | 'plank-off' | 'band-release' | 'band-snap';
   detail?: Record<string, number | boolean>;
 }
 
@@ -41,6 +42,7 @@ export interface WorldState {
   cart: Cart | null; // riding the rails of a track (src/sim/cart.ts)
   plank?: PlankState | null; // walking on a plank bridge (src/sim/beam.ts)
   broken?: number[]; // planks that have broken (they are gone)
+  band: Band | null; // clipped on to the elastic band (src/sim/band.ts)
   energy: number; // 1 = fresh; each move spends some (src/sim/energy.ts)
   bed: { base: Bounce; vIn: number; start: number; press: number | null; vx: number; top: number } | null;
   noCatchUntil: number;
@@ -62,9 +64,10 @@ export function newWorld(course: CourseData, x: number = course.startX): WorldSt
   if (tp && x <= tp.x + 0.5) { // the course starts in the sling: the rider lies at the end of the sling behind the machine
     const ln = startLaunch(tp, groundAt(course.terrain, tp.x));
     const f = feetAt(tp, ln);
-    return { runner: { ...r, x: f.x, y: f.y }, mode: 'launch', outcome: 'running', wall: null, swing: null, hang: null, vault: null, climb: null, cart: null, launch: ln, energy: 1, bed: null, noCatchUntil: 0, lastPress: -1000, lastVault: -1000, lastRoll: -1000, rolledAt: -1000, plantUntil: -1000, groundRoll: null, rollReadyAt: 0, events: [] };
+    return { runner: { ...r, x: f.x, y: f.y }, mode: 'launch', outcome: 'running', wall: null, swing: null, hang: null, vault: null, climb: null, cart: null, band: null, launch: ln, energy: 1, bed: null, noCatchUntil: 0, lastPress: -1000, lastVault: -1000, lastRoll: -1000, rolledAt: -1000, plantUntil: -1000, groundRoll: null, rollReadyAt: 0, events: [] };
   }
-  const w: WorldState = { runner: r, mode: 'run', outcome: 'running', wall: null, swing: null, hang: null, vault: null, climb: null, cart: null, launch: null, energy: 1, bed: null, noCatchUntil: 0, lastPress: -1000, lastVault: -1000, lastRoll: -1000, rolledAt: -1000, plantUntil: -1000, groundRoll: null, rollReadyAt: 0, events: [] };
+  const w: WorldState = { runner: r, mode: 'run', outcome: 'running', wall: null, swing: null, hang: null, vault: null, climb: null, cart: null, band: null, launch: null, energy: 1, bed: null, noCatchUntil: 0, lastPress: -1000, lastVault: -1000, lastRoll: -1000, rolledAt: -1000, plantUntil: -1000, groundRoll: null, rollReadyAt: 0, events: [] };
+  if (course.band && x <= course.band.x) return enterBand(w, course);
   return course.track ? enterCart(w, course) : w;
 }
 
@@ -87,6 +90,7 @@ export function stepWorld(w: WorldState, input: RunnerInput, course: CourseData,
   if (w.mode === 'bounce') return stepBounce(w, input);
   if (w.mode === 'hang') return stepHang(w, input, course);
   if (w.mode === 'cart') return stepCartWorld(w, input, course);
+  if (w.mode === 'band') return stepBandWorld(w, input, course);
   if (w.mode === 'vault') return stepVault(w);
   if (w.mode === 'climb') return stepClimb(w, input);
   if (w.mode === 'launch') return stepLaunchMode(w, input, course);
