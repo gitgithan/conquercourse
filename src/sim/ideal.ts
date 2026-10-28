@@ -13,6 +13,7 @@ export interface Plan {
   vaultXs?: number[]; // press V at the first moment the feet are on the ground at or past this x
   hands?: boolean; // hold the hand key while airborne (so a bar in reach is grabbed)
   hangTicks?: number[]; // per bar: ticks to hang (pumping with the swing) before letting go
+  airHands?: boolean[]; // per release: hold the hand key in the air afterwards (default true); false flies past the next bar (a skip)
   launchRelease?: number; // trebuchet: ticks after the pin is pulled at which Space lets the rider go
   cartBrake?: [number, number][]; // a coaster: hold the brake between these x values (the first push is always given at the start)
 }
@@ -40,7 +41,7 @@ export function inputFor(plan: Plan, w: WorldState, state: { next: number; caugh
     return { ...NO_INPUT, squat: true, handL: true, handR: true, run: forward, left: !forward };
   }
   state.hangAt = null;
-  if (plan.hands && w.mode === 'run' && !w.runner.grounded) return { ...base, handR: true };
+  if (plan.hands && w.mode === 'run' && !w.runner.grounded && plan.airHands?.[(state.hangs ?? 0) - 1] !== false) return { ...base, handR: true };
   if (w.mode === 'swing') {
     if (state.caught === null) state.caught = w.runner.tick;
     return w.runner.tick - state.caught >= plan.releaseAfter ? { ...base, jump: true } : base;
@@ -114,7 +115,10 @@ const candidates = (from: number, to: number, step = 0.02) => {
 
 // Greedy search: for each obstacle in order, try presses and keep the ones that reach farthest; the centre of the
 // best group is the ideal press and the group's width is the clearing window.
-export function searchIdealRun(course: CourseData): { plan: Plan; windows: Window[]; cleared: boolean } {
+// One way through a course with bars, with the time it takes (ticks at 120 Hz); `chosen` marks the faster one the plan follows.
+export interface Route { name: string; ticks: number; bars: number; chosen: boolean }
+
+export function searchIdealRun(course: CourseData, opts: { routes?: boolean } = {}): { plan: Plan; windows: Window[]; cleared: boolean; routes?: Route[] } {
   if (course.track) return searchCartRun(course);
   const holds = course.holds ?? [];
   const plan: Plan = { jumpXs: [], releaseAfter: 60, bouncePress: 8, ...(holds.length ? { hands: true, hangTicks: holds.map(() => 90) } : {}) };
@@ -218,7 +222,44 @@ export function searchIdealRun(course: CourseData): { plan: Plan; windows: Windo
     }
   }
   const final = playPlan(course, plan);
+  if (opts.routes && holds.length >= 2 && plan.hangTicks && final.world.outcome === 'cleared') return { ...compareRoutes(course, plan, final, windows), windows };
   return { plan, windows, cleared: final.world.outcome === 'cleared' };
+}
+
+// Two ways through a pair of bars (asked for with `{ routes: true }`: it adds about 250 runs, so the stored plans and the tests that need it use it, not every search):
+// bar to bar (the plan the search found), or a full pump on the first bar and a flight over the second (a skip).
+// Both are tried and the shorter total time is the line the plan follows; both are reported (the hint and the debug view say what is possible, as a fact).
+function compareRoutes(course: CourseData, plan: Plan, base: RunResult, windows: Window[]): { plan: Plan; cleared: boolean; routes: Route[] } {
+  const catches = (r: RunResult) => r.events.filter((e) => e.type === 'hang-catch').length;
+  const baseBars = catches(base);
+  type Opt = { plan: Plan; ticks: number; bars: number };
+  const jx0 = plan.jumpXs[plan.jumpXs.length - 1];
+  // bar to bar: the fastest way that catches both bars (the plan found may fly over the second one by luck, so the two ways are searched on their own)
+  let viaBars: Opt | null = baseBars >= 2 ? { plan, ticks: base.world.runner.tick, bars: baseBars } : null;
+  for (let h1 = 0; h1 <= 300; h1 += 30) for (let h2 = 0; h2 <= 480; h2 += 30) {
+    const pl: Plan = { ...plan, hangTicks: [h1, h2, ...(plan.hangTicks?.slice(2) ?? [])] };
+    delete pl.airHands;
+    const r = playPlan(course, pl, 120 * 40);
+    if (r.world.outcome === 'cleared' && catches(r) >= 2 && (!viaBars || r.world.runner.tick < viaBars.ticks)) viaBars = { plan: pl, ticks: r.world.runner.tick, bars: catches(r) };
+  }
+  // skip: a full pump on the first bar and the hand kept off in the air, so the second bar is flown over
+  let skip: Opt | null = baseBars === 1 ? { plan, ticks: base.world.runner.tick, bars: 1 } : null;
+  const skipPlan = (h: number, jx: number): Plan => ({ ...plan, jumpXs: [...plan.jumpXs.slice(0, -1), jx], hangTicks: [h], airHands: [false] });
+  const tryHang = (jx: number, hs: number[]) => {
+    for (const h of hs) {
+      const r = playPlan(course, skipPlan(h, jx), 120 * 40);
+      if (r.world.outcome === 'cleared' && catches(r) === 1 && (!skip || r.world.runner.tick < skip.ticks)) skip = { plan: skipPlan(h, jx), ticks: r.world.runner.tick, bars: 1 };
+    }
+  };
+  const coarse = Array.from({ length: 91 }, (_, i) => i * 6);
+  for (const jx of [jx0, ...[-0.3, -0.2, -0.1, 0.1, 0.2, 0.3].map((d) => Math.round((jx0 + d) * 100) / 100)]) { tryHang(jx, coarse); if (skip && skip.plan.airHands) break; }
+  if (skip && skip.plan.airHands) { const b = skip as Opt; tryHang(b.plan.jumpXs[b.plan.jumpXs.length - 1], Array.from({ length: 13 }, (_, i) => Math.max(0, b.plan.hangTicks![0] - 6 + i))); }
+  const opts = [viaBars && { name: 'bar to bar', ...viaBars }, skip && { name: 'skip the second bar', ...(skip as Opt) }].filter((o): o is Opt & { name: string } => !!o);
+  if (!opts.length) return { plan, cleared: true, routes: [{ name: baseBars >= 2 ? 'bar to bar' : 'one bar', ticks: base.world.runner.tick, bars: baseBars, chosen: true }] };
+  const fastest = opts.reduce((a, b) => (b.ticks < a.ticks ? b : a));
+  const routes: Route[] = opts.map((o) => ({ name: o.name, ticks: o.ticks, bars: o.bars, chosen: o === fastest }));
+  if (fastest.name.startsWith('skip')) windows.push({ obstacle: 'skip the second bar', best: fastest.plan.hangTicks![0], lo: fastest.plan.hangTicks![0], hi: fastest.plan.hangTicks![0], widthMs: DT * 1000 });
+  return { plan: fastest.plan, cleared: true, routes };
 }
 
 // The trebuchet: when to let the rider go (ticks after the pin), found together with the hang time on the first bar when there is one.

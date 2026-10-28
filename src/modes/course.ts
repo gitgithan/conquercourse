@@ -25,7 +25,7 @@ import { groundAt } from '../sim/terrain';
 import { drumsFor } from '../sim/drums';
 import { createDrumLane } from '../ui/drum-lane';
 import { createDebugView } from '../ui/debug-view';
-import { predictLaunch, predictRelease } from '../sim/predict';
+import { barName, predictLaunch, predictRelease } from '../sim/predict';
 import { createTrebuchetView } from '../ui/trebuchet-view';
 import { cupsGroup } from '../slice/cups';
 import { buildTrack, type TrackView } from '../render/track';
@@ -375,6 +375,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
   toast.style.cssText = 'position:fixed;left:50%;top:44%;transform:translateX(-50%);font:700 22px system-ui,sans-serif;color:#10141c;background:#fffffff0;border-radius:10px;padding:6px 14px;pointer-events:none;display:none';
   document.body.append(toast);
   let toastUntil = 0, squashUntil = 0, squashDepth = 1;
+  let releasedAtX: number | null = null; const caughtSince = new Set<number>(); // the bars passed since the last release: a bar flown over without a grab is said to be skipped
   const gText = gauge.querySelector('#gtext') as HTMLElement, gFill = gauge.querySelector('#gfill') as HTMLElement;
   const gNeed = gauge.querySelector('#gneed') as HTMLElement, gNext = gauge.querySelector('#gnext') as HTMLElement;
   try { localStorage.setItem('cc.course', JSON.stringify(course)); } catch { /* the Dojo falls back to the default course */ }
@@ -398,7 +399,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
   let jumpQueued = false, vaultQueued = false, rollQueued = false;
   type Cam = 'side' | 'angle' | 'first';
   const CAMS: { id: Cam; name: string }[] = [{ id: 'side', name: 'Side view' }, { id: 'angle', name: '45° view' }, { id: 'first', name: 'First person' }];
-  let camMode: Cam = 'side';
+  let camMode: Cam = params.get('cam') === 'first' ? 'first' : 'side'; // ?cam=first starts in the runner's eyes (for pictures)
   // while the feedback form is open, or a text box has the focus, no game key does anything (typing a T must not open the Dojo)
   const typing = (e: KeyboardEvent): boolean => {
     const t = e.target as HTMLElement | null;
@@ -488,7 +489,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
     idealNote = '';
     msg.textContent = '';
     frames.length = 0; replay = null; panel.style.display = 'none';
-    squashUntil = 0; toastUntil = 0; toast.style.display = 'none';
+    squashUntil = 0; toastUntil = 0; toast.style.display = 'none'; releasedAtX = null; caughtSince.clear();
   }
 
   // The Dojo is reachable any time: it opens on the obstacle nearest the runner (R2-G4).
@@ -747,7 +748,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
     if (w.mode === 'hang') {
       // a push cue (the way the body is swinging) and a let-go cue from the simulator's own look ahead
       const fwd = (w.hang?.omega ?? 0) >= 0, rel = predictRelease(w, course);
-      return `${fwd ? 'Push →' : 'Push ←'} with the swing (hold E)  ·  ${rel.result === 'lands' && /next bar|ground/.test(rel.why) ? 'LET GO NOW: ' + rel.why : 'keep swinging: ' + rel.why}`;
+      return `${fwd ? 'Push →' : 'Push ←'} with the swing (hold E)  ·  ${rel.result === 'lands' && /reach the .* bar|ground/.test(rel.why) ? 'LET GO NOW: ' + rel.why : 'keep swinging: ' + rel.why}`;
     }
     if (course.holds?.length && w.mode === 'run' && !r.grounded) { const next = course.holds.find((h) => h.x > r.x - 0.5); if (next && Math.abs(next.x - r.x) < 2.5) return 'Hold E to grab the bar'; }
     if (everCleared || falls > 0) return '';
@@ -803,12 +804,19 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
       if (world.events !== soundedEvents) { soundedEvents = world.events; if (!replay) soundsFor(world.events, hazard); } // after the end the same events array stays: it sounds once
       for (const e of world.events) {
         if (e.type === 'launch-dud') { toast.textContent = 'The counterweight is too light: the arm hardly moves. Try a heavier weight.'; toast.style.display = 'block'; toastUntil = world.runner.tick + 240; }
+        if (e.type === 'hang-release') { releasedAtX = world.runner.x; caughtSince.clear(); }
+        if (e.type === 'hang-catch') caughtSince.add(e.detail?.hold as number);
+        if (e.type === 'land' && releasedAtX !== null) { // a bar flown over between the release and the landing, never held: a fact, not a grade
+          const skipped = (course.holds ?? []).map((h, k) => ({ h, k })).filter(({ h, k }) => !caughtSince.has(k) && h.x > releasedAtX! + 0.5 && h.x < world.runner.x - 0.3);
+          if (skipped.length) { toast.textContent = `You skipped the ${skipped.map(({ k }) => barName(k)).join(' and the ')}.`; toast.style.display = 'block'; toastUntil = world.runner.tick + 150; }
+          releasedAtX = null;
+        }
         if (e.type === 'jump' && keysOpen && !keysTouched) { keysOpen = false; paintKeys(false); } // the controls card has done its job once you have jumped
         if (e.type === 'hang-release' && e.detail?.slipped) { toast.textContent = 'Your grip gave out: the bar pulled harder than your hands could hold.'; toast.style.display = 'block'; toastUntil = world.runner.tick + 120; }
         if (e.type === 'land' && (e.detail?.impact as number) > 2 && !e.detail?.bouncy) {
           const o = ouch(e.detail?.peakDecel as number);
           squashUntil = world.runner.tick + 40; squashDepth = e.detail?.squat ? 0.7 : o >= 6 ? 0.6 : 0.88;
-          if (o >= 3) {
+          if (o >= 3 && toastUntil < world.runner.tick + 100) { // (a fresh 'You skipped the bar' stays)
             toast.textContent = o >= 8 ? 'Ouch! Dangerous landing: bend your knees (↓) on big drops.' : o >= 6 ? 'Hard landing: you stumble. Hold ↓ to bend your knees.' : 'Firm landing.';
             toast.style.display = 'block'; toastUntil = world.runner.tick + 90;
           }
@@ -880,17 +888,32 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
     gFill.style.background = need && spd < need ? '#c4572a' : '#0f6b5c';
     gNext.textContent = msgNext;
     hud.textContent = `Time ${(r.tick / 120).toFixed(1)} s   ·   ${Math.max(0, Math.round(r.x))} m of ${course.finishX} m`;
+    // the head: the body's turn about the bar (swing angle theta, a rotation so it passes the top smoothly) and where the eyes are; the first-person camera and the corner window both use it.
+    // After a release the head settles level over about 0.3 s (the body has no spin in flight); on the ground it is level.
+    const nowS = performance.now() / 1000, dtHead = Math.min(0.05, Math.max(0, nowS - pipClock)); pipClock = nowS;
+    if (world.mode === 'hang' && world.hang) pipRoll = world.hang.theta;
+    else if (!r.grounded) pipRoll *= Math.exp(-dtHead / 0.1);
+    else pipRoll = 0;
+    const qRoll = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 0, 1), pipRoll);
+    const nose = new THREE.Vector3(0.15 * facing, 0, 0).applyQuaternion(qRoll);
+    const headHold = world.hang ? course.holds?.[world.hang.hold] : undefined;
+    const eye = headHold && world.hang
+      ? { x: headHold.x + 0.4 * Math.sin(world.hang.theta) + nose.x, y: headHold.y - 0.4 * Math.cos(world.hang.theta) + nose.y } // just under the hands, along the arms
+      : { x: r.x + nose.x, y: r.y + 1.62 + nose.y };
     // three views, switched with C: from the side, from behind at 45 degrees, and through the runner's eyes
     const fov = camMode === 'first' ? 75 : 40;
     if (camera.fov !== fov) { camera.fov = fov; camera.updateProjectionMatrix(); }
     if (actor) actor.object.visible = camMode !== 'first';
     body.visible = !actor && camMode !== 'first';
     if (camMode === 'first') {
-      camera.position.set(r.x + 0.15 * facing, r.y + 1.62, 0.1);
+      camera.position.set(eye.x, eye.y, 0.1);
       const ch = Math.cos(orbit.pitch); // drag turns your head
-      camera.lookAt(r.x + 0.15 * facing + 10 * facing * Math.cos(orbit.yaw) * ch, r.y + 1.62 - 0.42 + 10 * Math.sin(orbit.pitch), 0.1 + 10 * facing * Math.sin(orbit.yaw) * ch);
+      const dir = new THREE.Vector3(facing * Math.cos(orbit.yaw) * ch, Math.sin(orbit.pitch) - 0.042, facing * Math.sin(orbit.yaw) * ch).applyQuaternion(qRoll);
+      camera.up.set(0, 1, 0).applyQuaternion(qRoll); // the whole view tilts with the body, through the top of a full circle
+      camera.lookAt(eye.x + 10 * dir.x, eye.y + 10 * dir.y, 0.1 + 10 * dir.z);
       camPos.copy(camera.position);
     } else {
+      camera.up.set(0, 1, 0);
       // the preset is a target point and an offset from it; the mouse turns and scales the offset around the target
       const tx = camMode === 'side' ? r.x + 5 : r.x + 4, ty = camMode === 'side' ? r.y + 2.5 : r.y + 1.5;
       const off = camMode === 'side' ? new THREE.Vector3(0, 1.5, 25) : new THREE.Vector3(-12, 3, 11);
@@ -907,19 +930,8 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
     const showFront = frontForced || world.mode === 'hang';
     pipFrame.style.display = showFront ? 'block' : 'none';
     if (showFront) {
-      // first person: the eyes, looking the way the body faces and a little down, turned with the body about the bar (a rotation, so it passes the top smoothly):
-      // swinging round shows the sky and the ground. After a release the head settles level over about 0.3 s (the body has no spin in flight); on the ground it is level.
-      const nowS = performance.now() / 1000, dt = Math.min(0.05, Math.max(0, nowS - pipClock)); pipClock = nowS;
-      if (world.mode === 'hang' && world.hang) pipRoll = world.hang.theta;
-      else if (!r.grounded) pipRoll *= Math.exp(-dt / 0.1);
-      else pipRoll = 0;
-      const qRoll = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 0, 1), pipRoll);
+      // first person: the eyes (above), looking the way the body faces and a little down, turned with the body about the bar
       const fwd = new THREE.Vector3(facing * Math.cos(0.1), -Math.sin(0.1), 0).applyQuaternion(qRoll);
-      const nose = new THREE.Vector3(0.15 * facing, 0, 0).applyQuaternion(qRoll);
-      const hold = world.hang ? course.holds?.[world.hang.hold] : undefined;
-      const eye = hold && world.hang
-        ? { x: hold.x + 0.4 * Math.sin(world.hang.theta) + nose.x, y: hold.y - 0.4 * Math.cos(world.hang.theta) + nose.y } // just under the hands, along the arms
-        : { x: r.x + nose.x, y: r.y + 1.62 + nose.y };
       frontCam.up.set(0, 1, 0).applyQuaternion(qRoll);
       frontCam.position.set(eye.x, eye.y, 0.1); frontCam.lookAt(eye.x + 10 * fwd.x, eye.y + 10 * fwd.y, 0.1);
       const actorWasVisible = actor?.object.visible ?? false;
