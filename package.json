@@ -23,7 +23,8 @@
     "feedback:rows": "node scripts/feedback-rows.mjs",
     "community": "node scripts/community-review.mjs",
     "motion": "node scripts/motion.mjs",
-    "perf": "node scripts/perf-check.mjs --budget"
+    "perf": "node scripts/perf-check.mjs --budget",
+    "thumbs": "tsx scripts/make-thumbs.ts"
   },
   "dependencies": {
     "maplibre-gl": "^6.16.0",

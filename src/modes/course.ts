@@ -1,4 +1,3 @@
-import { labsOn } from '../ui/labs';
 import { hazardOf, HAZARD_INFO } from '../course/hazard';
 import { buildFloor } from '../course/floor';
 import { playedSounds, soundButton, soundsFor, startAudio } from '../ui/audio';
@@ -31,6 +30,7 @@ import { actorStateFor } from '../motion/actor-state';
 import { groundAt } from '../sim/terrain';
 import { drumsFor } from '../sim/drums';
 import { createDrumLane } from '../ui/drum-lane';
+import { BUTTON_PLACE, buildGallery, currentWorld, DEMOS, GALLERY_EVENT, modalAttrs, mountWorldGallery, worldHref } from '../ui/world-picker';
 import { createDebugView } from '../ui/debug-view';
 import { loadPlacePhotos, mountPlacePhotos, slugOfCourse } from '../ui/place-photos';
 import { barName, predictBand, predictLaunch, predictRelease, predictShot, type Prediction } from '../sim/predict';
@@ -455,112 +455,32 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
   document.body.append(comm);
   document.body.append(sstyle, strip);
   // demo courses: every course we have made, one choice away (the stock course, the lache demo, lanes from real objects, places from the map)
-  // the demo menu, grouped by what each course shows: real places first, then real objects, contraptions and moves (value, label, one line about it)
-  type Demo = [string, string, string];
-  const DEMO_GROUPS: [string, Demo[]][] = [
-    ['Real places', [
-      ['/assets/experiments/osm/montmartre-paris.course.json', 'Montmartre, Paris', 'Real streets and roofs on a hill, cut at one level and shrunk to run on.'],
-      ['/assets/experiments/osm/eixample-barcelona.course.json', 'Barcelona block', 'The Eixample grid: rooftops of a flat city block.'],
-      ['/assets/experiments/osm/circular-quay-sydney.course.json', 'Sydney quay', 'Waterfront buildings at Circular Quay.'],
-      ['/assets/experiments/osm/san-francisco-lombard.course.json', 'San Francisco hill (62 m of hill)', 'Lombard Street: the hill is real and so are the roofs.'],
-    ]],
-    ['Real objects, built in the editor', [
-      ['/assets/demo/park-rail-run.course.json', 'Park rail run', 'Three real handrails and a skate box in a row: vault, jump, repeat.'],
-      ['/assets/demo/bench-and-stairs.course.json', 'Bench and stairs', 'A skate box, a concrete bench and park stairs: small steps up and down.'],
-      ['/assets/demo/skate-box-and-rail.course.json', 'Skate box and rail', 'Stairs, a long box, a handrail and a bench: a plaza line.'],
-    ]],
-    ['Contraptions', [
-      ['/assets/demo/coaster.course.json', 'Coaster: ride the hills', 'Height turns into speed: a cart on a track.'],
-      ['/assets/demo/coaster-sharp.course.json', 'Coaster: a sharp hilltop (brake)', 'A hilltop that bends away too fast: brake before it.'],
-      ['/assets/demo/coaster-low.course.json', 'Coaster: first hill too low', 'The cart stalls: it cannot climb above where it started.'],
-      ['/assets/demo/launch.course.json', 'Launch: the trebuchet throws you onto the tower', 'Sit in the sling and let go at the right moment.'],
-      ['/assets/demo/band.course.json', 'Band: stretch it, turn round, be thrown', 'Run away to stretch the band, turn round and it throws you.'],
-      ['/assets/demo/drone.course.json', 'Drone ferry: carried across a gap', 'A drone carries you over a gap you cannot jump.'],
-      ['/assets/demo/launch-bar.course.json', 'Launch and catch: grab the bar in the air', 'The throw falls short: catch the bar and swing the rest.'],
-      ['/assets/demo/launch-bar-hard.course.json', 'Launch and catch: hard', 'The same throw with a bar higher up: the window to let go is under a quarter of a second.'],
-      ['/assets/demo/recoil.course.json', 'Recoil: throw a ball back, fly forward', 'The heavy ball goes back slowly, you go forward fast.'],
-      ['/assets/demo/cannon.course.json', 'Cannon: aim it, fire it, roll out of the landing', 'Aim the barrel up or down: the recoil pushes you forward and up.'],
-      ['/assets/demo/stack.course.json', 'Stack demo: climb the cup pyramids', 'Sport-stacking cups as obstacles.'],
-      ['/assets/demo/plank.course.json', 'Plank bridge: it sags but holds', 'A wooden plank bends under you and holds.'],
-      ['/assets/demo/plank-thin.course.json', 'Plank bridge: too thin, it breaks', 'A thinner plank breaks: find what makes it hold.'],
-    ]],
-    ['Moves', [
-      ['/assets/demo/lache.course.json', 'Lache demo: run, vault, swing', 'Vault a box, pump the swing, and let go for the far deck.'],
-      ['/assets/demo/lache-wide.course.json', 'Wide lache: a 6 m swing', 'Pump hard for a long swing between far bars.'],
-      ['/assets/demo/climb.course.json', 'Climb: over a 2 m wall, then a big drop', 'Pull yourself up a tall wall, then roll out of the drop.'],
-      ['/assets/demo/drop.course.json', 'Big drop: run off a ledge and roll', 'Tap X just before you land to roll out of a 5 m fall.'],
-    ]],
-    ['Make your own', [
-      ['generate', 'Make me a new course (random)', 'A random course the simulator has proved clearable.'],
-      ['editor', 'Build your own (editor)', 'Place real objects and bars; the simulator checks the lane.'],
-      ['coaster-builder', 'Build your own coaster', 'Drag the dots of the track and ride it.'],
-    ]],
-    ['Basics', [['', 'Stock course', 'The plain training course: a gap, a wall, a rope and a trampoline.']]],
-  ];
-  const demos: [string, string][] = DEMO_GROUPS.flatMap(([, ds]) => ds.map((d) => [d[0], d[1]] as [string, string]));
-  const DEMO_ABOUT = new Map<string, string>(DEMO_GROUPS.flatMap(([, ds]) => ds.map((d) => [d[0], d[2]] as [string, string])));
+  const demos = DEMOS;
+  const here = currentWorld(params, course.name);
+  const rememberWorldWelcome = () => { try { localStorage.setItem('cc.worldWelcome.seen', '1'); } catch { /* the chooser can still be used */ } };
+  // the first-visit chooser is the course gallery inside a dialog; after it, a "Courses" button in the corner opens the same gallery (CC-89)
   const welcome = document.createElement('section');
   welcome.id = 'choose-world';
-  welcome.setAttribute('role', 'dialog'); welcome.setAttribute('aria-labelledby', 'choose-world-title');
-  welcome.style.cssText = 'position:fixed;inset:0;z-index:1000;display:grid;place-items:center;padding:20px;box-sizing:border-box;background:#10182099;backdrop-filter:blur(4px)';
+  modalAttrs(welcome); welcome.setAttribute('aria-labelledby', 'choose-world-title');
+  welcome.style.cssText = 'position:fixed;inset:0;z-index:1000;display:grid;place-items:center;padding:12px;box-sizing:border-box;background:#10182099;backdrop-filter:blur(4px)';
   const welcomeCard = document.createElement('div');
-  welcomeCard.style.cssText = 'width:min(620px,100%);box-sizing:border-box;padding:clamp(24px,5vw,44px);border-radius:24px;background:#fffdf7;color:#17201d;box-shadow:0 24px 80px #0006;text-align:center';
+  welcomeCard.style.cssText = 'width:min(1000px,100%);max-height:100%;overflow:auto;box-sizing:border-box;padding:clamp(14px,3vw,28px);border-radius:20px;background:#fffdf7;color:#17201d;box-shadow:0 24px 80px #0006';
   const welcomeTitle = document.createElement('h1');
   welcomeTitle.id = 'choose-world-title'; welcomeTitle.textContent = 'Choose Your World';
-  welcomeTitle.style.cssText = 'margin:0 0 12px;font:800 clamp(30px,6vw,46px)/1.05 system-ui,sans-serif;letter-spacing:-.04em';
+  welcomeTitle.style.cssText = 'margin:0 0 6px;font:800 clamp(26px,5vw,40px)/1.05 system-ui,sans-serif;letter-spacing:-.04em';
   const welcomeCopy = document.createElement('p');
-  welcomeCopy.textContent = `Welcome to ConquerCourse. Explore ${demos.length} worlds, from obstacle courses to real places, or make your own.`;
-  welcomeCopy.style.cssText = 'max-width:460px;margin:0 auto 24px;color:#58635d;font:500 17px/1.5 system-ui,sans-serif';
-  welcome.append(welcomeCard); welcomeCard.append(welcomeTitle, welcomeCopy);
-  const pick2 = document.createElement('select');
-  pick2.id = 'democourses'; pick2.title = 'Choose a world'; pick2.setAttribute('aria-label', 'Choose your world');
-  pick2.style.cssText = 'display:block;width:min(520px,100%);min-height:58px;margin:0 auto 18px;box-sizing:border-box;font:700 19px system-ui,sans-serif;border:2px solid #0f6b5c;background:#fff;color:#17201d;border-radius:14px;padding:10px 16px;cursor:pointer;box-shadow:0 4px 14px #0f6b5c22';
-  const now = params.get('course') ?? '';
-  const seedNow = params.get('generate');
-  if (seedNow !== null) pick2.add(new Option(`Generated course (seed ${seedNow})`, 'generate-same', true, true));
-  else if (now && !demos.some(([v]) => v === now)) pick2.add(new Option(`Current world: ${course.name}`, 'stay', true, true));
-  for (const [group, ds] of DEMO_GROUPS) {
-    const og = document.createElement('optgroup'); og.label = group;
-    for (const [v, label, about] of ds) { const o = new Option(label, v, false, v === now && seedNow === null && !['generate', 'editor', 'coaster-builder'].includes(v)); o.title = about; og.append(o); }
-    pick2.append(og);
-  }
-  if (labsOn()) { // CC-78: map mode, behind the labs switch
-    const og = document.createElement('optgroup'); og.label = 'Labs'; og.append(new Option('Pick a real place on the map', 'map')); pick2.append(og);
-  }
-  const demoNote = document.createElement('div'); demoNote.id = 'demonote';
-  demoNote.style.cssText = 'max-width:520px;margin:-6px auto 14px;font:15px system-ui,sans-serif;color:#58635d';
-  demoNote.textContent = DEMO_ABOUT.get(seedNow !== null ? 'generate' : now) ?? '';
-  demoNote.style.display = demoNote.textContent ? 'block' : 'none';
-  const enterWorld = document.createElement('button');
-  enterWorld.type = 'button'; enterWorld.textContent = 'Explore this world';
-  enterWorld.style.cssText = 'min-height:48px;padding:10px 24px;border:0;border-radius:12px;background:#0f6b5c;color:#fff;font:700 17px system-ui,sans-serif;cursor:pointer;box-shadow:0 4px 12px #0f6b5c33';
-  welcomeCard.append(pick2, demoNote, enterWorld);
-  const compactPicker = () => {
-    welcome.remove();
-    pick2.style.cssText = 'position:fixed;right:16px;top:196px;z-index:20;width:auto;max-width:min(300px,45vw);min-height:0;margin:0;font:600 12px system-ui,sans-serif;border:2px solid #17201d;background:#fff;color:#17201d;border-radius:10px;padding:5px 8px;cursor:pointer';
-    document.body.append(pick2);
-    demoNote.remove(); // the one-line note lives in the chooser; in the corner the option tooltips say it
-  };
-  const rememberWorldWelcome = () => { try { localStorage.setItem('cc.worldWelcome.seen', '1'); } catch { /* the chooser can still be used */ } };
-  enterWorld.onclick = () => { rememberWorldWelcome(); if (pick2.value !== now && pick2.value !== 'stay') pick2.onchange?.(new Event('change')); else compactPicker(); };
-  pick2.onchange = () => {
-    pick2.blur();
-    rememberWorldWelcome();
-    if (pick2.value === 'stay') return;
-    const suffix = '&welcome=0';
-    location.href = pick2.value === 'map' ? `?mode=map${suffix}` : pick2.value === 'editor' ? `?mode=editor${suffix}` : pick2.value === 'coaster-builder' ? `?mode=coaster${suffix}` : pick2.value === 'generate' ? `?generate=${Math.floor(Math.random() * 1e6)}${suffix}` : pick2.value === 'generate-same' ? `${location.pathname}${location.search}${location.search.includes('?') ? '&' : '?'}welcome=0` : pick2.value ? `?course=${pick2.value}${suffix}` : `?welcome=0`;
-  };
+  welcomeCopy.textContent = `Welcome to ConquerCourse. Click a picture: ${demos.length} worlds, from obstacle courses to real places, or make your own.`;
+  welcomeCopy.style.cssText = 'margin:0 0 12px;color:#58635d;font:500 16px/1.45 system-ui,sans-serif';
+  welcome.append(welcomeCard);
+  const courseButton = mountWorldGallery(document.body, { current: here, place: BUTTON_PLACE.course, onPick: (v) => { rememberWorldWelcome(); location.href = worldHref(v); } });
+  const closeWelcome = () => { welcome.remove(); courseButton.button.focus({ preventScroll: true }); };
+  const welcomeGallery = buildGallery({ current: here, heading: 'Courses', onClose: () => { rememberWorldWelcome(); closeWelcome(); }, onPick: (v) => { rememberWorldWelcome(); if (v === 'stay' || v === here.value) closeWelcome(); else location.href = worldHref(v); } });
+  welcomeCard.append(welcomeTitle, welcomeCopy, welcomeGallery.el);
   let worldWelcomeSeen = false;
   try { worldWelcomeSeen = localStorage.getItem('cc.worldWelcome.seen') === '1'; } catch { /* use the one-time URL option when storage is unavailable */ }
   const mode = params.get('mode');
   const showWorldWelcome = !resume && !worldWelcomeSeen && params.get('welcome') !== '0' && (!mode || mode === 'course') && !params.has('course') && !params.has('generate') && !params.has('coaster');
-  if (!resume) {
-    if (showWorldWelcome) {
-      if (!now && seedNow === null) { pick2.value = '/assets/demo/park-rail-run.course.json'; demoNote.textContent = DEMO_ABOUT.get(pick2.value) ?? ''; demoNote.style.display = 'block'; } // the first thing a new player is offered is a real-object course
-      pick2.addEventListener('input', () => { demoNote.textContent = DEMO_ABOUT.get(pick2.value) ?? ''; demoNote.style.display = demoNote.textContent ? 'block' : 'none'; });
-      document.body.append(welcome);
-    } else compactPicker();
-  }
+  if (showWorldWelcome) { document.body.append(welcome); welcomeGallery.focusStart(); }
   if (!showWorldWelcome) rememberWorldWelcome(); // direct course starts (including Community Play) count as the first play
   if (course.track) {
     const edit = document.createElement('a');
@@ -1249,6 +1169,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
   let studioHold = false; // the Graph Studio has the clock stopped (not the Dojo's "press any key" pause)
   // Graph Studio (CC-86): Tab pauses the Course and opens the ground as a graph to drag; "Play from here" carries on with the edited course
   if (!botMode) installGraphStudio({ env: () => ({ course, retryX, facing, falls, runnerX: world.runner.x }), pause: () => { studioHold = true; paused = true; }, resume: () => { studioHold = false; paused = false; last = performance.now(); keys.clear(); }, chipWhen: () => falls > 0 || params.get('edit') === '1' });
+  { let heldBefore = false; window.addEventListener(GALLERY_EVENT, (ev) => { if ((ev as CustomEvent).detail.open) { heldBefore = paused; paused = true; keys.clear(); } else { paused = heldBefore; last = performance.now(); } }); } // the Courses gallery stops the game while it is open
   const camPos = new THREE.Vector3();
   // Mouse: drag turns the view around the runner, the wheel zooms, a double-click (or C) goes back to the preset.
   // The numbers are changes on top of the preset view, so zero means the preset exactly.
