@@ -15,7 +15,7 @@ function courseFrom(src: CourseSource): CourseData {
   return { ...laneToCourse({ cells: [...pr.cells], length: pr.length, origin: pr.origin }, 'My world', holdsOf(ps, lane)), source: src };
 }
 const SOURCE: CourseSource = {
-  kind: 'editor', angle: 0, offset: 0, level: 0, floor: 'lava', trebuchetKg: null,
+  kind: 'editor', angle: 0, offset: 0, level: 0, floor: 'lava',
   pieces: [
     { src: 'box:8:0.5:2', x: 0, z: 0, y: 0, yaw: 0, scale: 1 },
     { src: 'box:8:0.5:2', x: 17, z: 0, y: 0, yaw: 0, scale: 1 },
