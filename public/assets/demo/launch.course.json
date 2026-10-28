@@ -42,5 +42,6 @@
     "releaseAfter": 60,
     "bouncePress": 8,
     "launchRelease": 247
-  }
+  },
+  "windows": []
 }

@@ -118,13 +118,37 @@ function skipsNext(plan: Plan, w: WorldState, course?: CourseData): boolean {
 
 export interface RunResult { world: WorldState; events: GameEvent[]; maxX: number; jumps: number }
 
+// The work the searches have done so far, in simulated ticks. A budget counted in ticks gives the same answer on a slow machine as on a fast one
+// (a budget counted in milliseconds does not): Fix it and the advice stop after so many ticks, not so many seconds.
+export const meter = { ticks: 0 };
+// A budget is written in work seconds: how long the work takes on the reference machine (about 330 000 simulated ticks a second).
+// It is a count of ticks, so a slow machine takes longer for the same answer instead of giving up early.
+export const TICKS_PER_WORK_SECOND = 330_000;
+export const workSeconds = (s: number): number => Math.round(s * TICKS_PER_WORK_SECOND);
+
+// "Does the ideal run clear this course?" asked again and again by Fix it and the advice (the same lane is proved once to check it, once to start a fix, once to confirm it).
+// The answer is remembered; a repeat still adds the ticks the first proof cost, so a budget counts the same work whether or not the answer was remembered.
+const proved = new Map<string, { cleared: boolean; ticks: number }>();
+export function clearedCached(course: CourseData): boolean {
+  const key = JSON.stringify(course);
+  const hit = proved.get(key);
+  if (hit) { meter.ticks += hit.ticks; return hit.cleared; }
+  const m0 = meter.ticks;
+  const cleared = searchIdealRun(course).cleared;
+  proved.set(key, { cleared, ticks: meter.ticks - m0 });
+  if (proved.size > 300) proved.delete(proved.keys().next().value!);
+  return cleared;
+}
+
 export function playPlan(course: CourseData, plan: Plan, maxTicks = 120 * 80): RunResult {
   let w = newWorld(course);
   const st = { next: 0, caught: null as number | null, bedAt: null as number | null, hangAt: null as number | null, hangs: 0, vnext: 0, cnext: 0, inClimb: false, fnext: 0, airSince: null as number | null, bandTurned: false };
   const events: GameEvent[] = [];
   let maxX = 0;
   let still = 0;
+  let spent = 0;
   for (let i = 0; i < maxTicks && w.outcome === 'running'; i++) {
+    spent++;
     w = stepWorld(w, inputFor(plan, w, st, course), course);
     events.push(...w.events);
     if (!Number.isFinite(w.runner.x)) break; // a state that went to NaN has nowhere to go
@@ -133,6 +157,7 @@ export function playPlan(course: CourseData, plan: Plan, maxTicks = 120 * 80): R
     still = w.mode === 'run' && w.runner.grounded && Math.abs(w.runner.vx) < 0.01 ? still + 1 : 0;
     if (still > 180) break;
   }
+  meter.ticks += spent;
   return { world: w, events, maxX, jumps: st.next };
 }
 
@@ -167,12 +192,63 @@ const candidates = (from: number, to: number, step = 0.02) => {
   return out;
 }
 
+// ---- The search, written as a generator ----
+// It never plays the simulator itself: it hands over batches of plans to try and gets their scores back. A driver decides where the batches run:
+// `driveSync` plays them one by one on this thread, `driveAsync` hands them to a pool of workers (src/sim/ideal-pool.ts). Same plans in the same
+// order, so the answer is the same either way.
+export interface Job { plan: Plan; maxTicks?: number }
+export interface Batch { jobs: Job[]; stopOnClear?: boolean; label: string; step: number; of: number } // stopOnClear: the scores after the first clear are not wanted
+export interface SearchResult { plan: Plan; windows: Window[]; cleared: boolean; routes?: Route[] }
+type Gen<T> = Generator<Batch, T, number[]>;
+
+export const CLEARED = 1e6;
+
+// The windows measured in metres along the run (the take-off edges, vaults and steps), the ones a course can store next to its plan; the others are in ticks of one search.
+export const xWindows = (ws: Window[]): Window[] => ws.filter((w) => /^(edge at|vault at|jump at)/.test(w.obstacle));
+export const shiftWindow = (w: Window, dx: number): Window => ({ ...w, obstacle: w.obstacle.replace(/(-?\d+(?:\.\d+)?) m/, (_m, n: string) => `${Math.round((Number(n) + dx) * 100) / 100} m`), best: Math.round((w.best + dx) * 100) / 100, lo: Math.round((w.lo + dx) * 100) / 100, hi: Math.round((w.hi + dx) * 100) / 100 });
+const scoreOf = (r: RunResult): number => (r.world.outcome === 'cleared' ? CLEARED : r.maxX);
+export const evalJob = (course: CourseData, j: Job): number => scoreOf(playPlan(course, j.plan, j.maxTicks));
+
+export function driveSync<T>(course: CourseData, g: Gen<T>): T {
+  let r = g.next();
+  while (!r.done) {
+    const { jobs, stopOnClear } = r.value;
+    const out: number[] = [];
+    for (const j of jobs) { const s = evalJob(course, j); out.push(s); if (stopOnClear && s >= CLEARED) break; }
+    r = g.next(out);
+  }
+  return r.value;
+}
+
+// `evaluate` plays a list of jobs somewhere else and gives back their scores in the same order. A batch that stops at the first clear is asked for in rounds.
+export async function driveAsync<T>(g: Gen<T>, evaluate: (jobs: Job[]) => Promise<number[]>, round = 48, onBatch?: (b: Batch) => void): Promise<T> {
+  let r = g.next();
+  while (!r.done) {
+    const b = r.value;
+    onBatch?.(b);
+    const out: number[] = [];
+    if (!b.stopOnClear) out.push(...(await evaluate(b.jobs)));
+    else for (let i = 0; i < b.jobs.length; i += round) {
+      const got = await evaluate(b.jobs.slice(i, i + round));
+      const k = got.findIndex((s) => s >= CLEARED);
+      if (k >= 0) { out.push(...got.slice(0, k + 1)); break; }
+      out.push(...got);
+    }
+    r = g.next(out);
+  }
+  return r.value;
+}
+
 // Greedy search: for each obstacle in order, try presses and keep the ones that reach farthest; the centre of the
 // best group is the ideal press and the group's width is the clearing window.
 // One way through a course with bars, with the time it takes (ticks at 120 Hz); `chosen` marks the faster one the plan follows.
 export interface Route { name: string; ticks: number; bars: number; chosen: boolean }
 
-export function searchIdealRun(course: CourseData, opts: { routes?: boolean } = {}): { plan: Plan; windows: Window[]; cleared: boolean; routes?: Route[] } {
+export function searchIdealRun(course: CourseData, opts: { routes?: boolean } = {}): SearchResult {
+  return driveSync(course, searchGen(course, opts));
+}
+
+export function* searchGen(course: CourseData, opts: { routes?: boolean } = {}): Gen<SearchResult> {
   if (course.track) return searchCartRun(course);
   if (course.drone) return searchDroneRun(course);
   const holds = course.holds ?? [];
@@ -182,57 +258,54 @@ export function searchIdealRun(course: CourseData, opts: { routes?: boolean } = 
   const onMachine = (x: number) => !!tre && course.terrain.platforms.some((p) => p.x0 <= tre.x && tre.x <= p.x1 && x >= p.x0 && x <= p.x1 + 0.01); // the machine's own deck: nobody runs off it, the rider is thrown
   const es: { x: number; name: string; riser?: boolean; rise?: number }[] = [...edges(course), ...risers(course)].filter((e) => !onMachine(e.x)).sort((a, b) => a.x - b.x);
   const hasRope = !!course.rope;
-  // rope: the jump at the deck edge before the rope's gap is one of the edges; tune the release after it
-  const score = (r: RunResult) => (r.world.outcome === 'cleared' ? 1e6 : r.maxX);
-  const progress = (): void => {};
-  void progress;
-  if (tre) searchLaunch(course, plan, windows, score);
+  const score = scoreOf; // the searches below that play their trials on this thread (the launcher, the band, climbing) use it
+  if (tre) yield* searchLaunchGen(course, plan, windows);
   const handled = course.recoil ? searchRecoil(course, plan, windows, score) : null; // the first gap after the pad is planned together with the shot
   const bandEdge = course.band ? searchBand(course, plan, windows, score) : null; // the band and the jump at the edge after it are found together
   for (let k = 0; k < es.length; k++) {
     const e = es[k];
     if (handled !== null && Math.abs(e.x - handled) < 0.01) continue;
     if (bandEdge !== null && Math.abs(e.x - bandEdge) < 0.01) continue;
+    const at = (jobs: Job[], stopOnClear = false): Batch => ({ jobs, stopOnClear, label: e.name, step: k, of: es.length });
     // bars within a swing of this edge: a joint search over the press and the hang times on the first two bars (a swing and the next catch depend on each other,
     // so tuning one at a time misses lines that clear), coarse first, then finer around the best few
     if (!e.riser && holds.some((h) => h.x > e.x - 1 && h.x < e.x + 9) && plan.hangTicks) {
       const nh = Math.min(2, plan.hangTicks.length);
-      const trial = (jx: number, hs: number[]): { sc: number; plan: Plan } => {
-        const ht = plan.hangTicks!.map((t, i) => (i < nh ? hs[i] : t));
-        const pl: Plan = { ...plan, jumpXs: [...plan.jumpXs, jx], hangTicks: ht };
-        return { sc: score(playPlan(course, pl, 120 * 25)), plan: pl };
-      };
-      let found: { sc: number; plan: Plan }[] = [];
-      const grid = (jxs: number[], hang: number[][]) => {
-        for (const jx of jxs) for (const hs of cross(hang)) { const t = trial(jx, hs); found.push(t); if (t.sc >= 1e6) return true; }
-        return false;
+      const found: { sc: number; plan: Plan }[] = [];
+      const grid = function* (jxs: number[], hang: number[][]): Gen<boolean> {
+        const plans: Plan[] = [];
+        for (const jx of jxs) for (const hs of cross(hang)) plans.push({ ...plan, jumpXs: [...plan.jumpXs, jx], hangTicks: plan.hangTicks!.map((t, i) => (i < nh ? hs[i] : t)) });
+        const sc: number[] = yield at(plans.map((pl) => ({ plan: pl, maxTicks: 120 * 25 })), true);
+        sc.forEach((s, i) => found.push({ sc: s, plan: plans[i] }));
+        return sc.length > 0 && sc[sc.length - 1] >= CLEARED;
       };
       const hangVals = (from: number, to: number, step: number) => Array.from({ length: Math.floor((to - from) / step) + 1 }, (_, i) => from + i * step);
-      let done = grid(candidates(e.x - 3, e.x, 0.3), Array.from({ length: nh }, () => hangVals(0, 480, 30)));
+      let done = yield* grid(candidates(e.x - 3, e.x, 0.3), Array.from({ length: nh }, () => hangVals(0, 480, 30)));
       // a narrow basin can fall between the coarse hang times: shift the grid by half a step before refining
-      if (!done) done = grid(candidates(e.x - 3, e.x, 0.3), Array.from({ length: nh }, () => hangVals(15, 465, 30)));
+      if (!done) done = yield* grid(candidates(e.x - 3, e.x, 0.3), Array.from({ length: nh }, () => hangVals(15, 465, 30)));
       if (!done) {
         const tops = [...found].sort((a, b) => b.sc - a.sc).slice(0, 8); // the coarse grid misses a narrow basin, so the finer search tries more of the best starts
         for (const t of tops) {
           const jx = t.plan.jumpXs[t.plan.jumpXs.length - 1];
-          done = grid(candidates(jx - 0.25, jx + 0.25, 0.05), t.plan.hangTicks!.slice(0, nh).map((h) => hangVals(Math.max(0, h - 24), h + 24, 6)));
+          done = yield* grid(candidates(jx - 0.25, jx + 0.25, 0.05), t.plan.hangTicks!.slice(0, nh).map((h) => hangVals(Math.max(0, h - 24), h + 24, 6)));
           if (done) break;
         }
       }
       const win = found.reduce((a, b) => (b.sc > a.sc ? b : a));
       plan.jumpXs = win.plan.jumpXs; plan.hangTicks = win.plan.hangTicks;
       windows.push({ obstacle: `${e.name} (take-off)`, best: plan.jumpXs[plan.jumpXs.length - 1], lo: plan.jumpXs[plan.jumpXs.length - 1], hi: plan.jumpXs[plan.jumpXs.length - 1], widthMs: 0 });
-      for (let pass = 0; pass < 2; pass++) for (let i = 0; i < plan.hangTicks!.length; i++) tuneHang(course, plan, i, windows, score, pass === 1);
+      for (let pass = 0; pass < 2; pass++) for (let i = 0; i < plan.hangTicks!.length; i++) yield* tuneHangGen(plan, i, windows, pass === 1, at);
       continue;
     }
     if (e.riser) {
       // a step up too tall for a casual walk-up: try a vault and a jump at every press, keep the one that gets farthest (a vault wins a tie: it is faster)
-      const tries: { x: number; vault: boolean; s: number }[] = [];
       // a vault plants further back (a speed vault: 1 to 3 m before the face, plus the 0.2 s a press is held), so its presses are searched on a wider, coarser grid
+      const trials: { x: number; vault: boolean; plan: Plan }[] = [];
       for (const vault of [false, true]) for (const x of vault ? candidates(e.x - 5, e.x - 0.05, 0.04) : candidates(e.x - 1.2, e.x - 0.05)) {
-        const trial: Plan = vault ? { ...plan, vaultXs: [...(plan.vaultXs ?? []), x] } : { ...plan, jumpXs: [...plan.jumpXs, x] };
-        tries.push({ x, vault, s: score(playPlan(course, trial)) });
+        trials.push({ x, vault, plan: vault ? { ...plan, vaultXs: [...(plan.vaultXs ?? []), x] } : { ...plan, jumpXs: [...plan.jumpXs, x] } });
       }
+      const sc: number[] = yield at(trials.map((t) => ({ plan: t.plan })));
+      const tries = trials.map((t, n) => ({ x: t.x, vault: t.vault, s: sc[n] }));
       const top = Math.max(...tries.map((t) => t.s));
       // a wall no vault or jump gets over: the hands meet its edge and the body pulls up (stand at the foot and hold, or jump and hold in the air)
       if (top < e.x + 1.0 && (e.rise ?? 9) > VAULT_MAX_RISE) { // above a vault's reach only
@@ -250,7 +323,7 @@ export function searchIdealRun(course: CourseData, opts: { routes?: boolean } = 
           continue;
         }
       }
-      const good = tries.filter((t) => t.s >= top - (top >= 1e6 ? 1e-9 : 0.3)); // before the rest of the course is planned the score is how far the run gets: near ties count as ties
+      const good = tries.filter((t) => t.s >= top - (top >= CLEARED ? 1e-9 : 0.3)); // before the rest of the course is planned the score is how far the run gets: near ties count as ties
       // the centre of the window of presses that work (a vault wins a tie with a jump: it is faster), not its edge
       const kind = good.some((t) => t.vault);
       let mine = good.filter((t) => t.vault === kind).map((t) => t.x);
@@ -270,18 +343,15 @@ export function searchIdealRun(course: CourseData, opts: { routes?: boolean } = 
     const ropeEdge = hasRope && e.x < course.rope!.anchorX && e.x > course.rope!.anchorX - 8;
     const releases = ropeEdge ? Array.from({ length: 21 }, (_, i) => i * 15) : [plan.releaseAfter];
     const hangOptions = holdEdge ? Array.from({ length: 13 }, (_, i) => i * 30) : [0];
-    const results = cs.map((x) => {
-      // at the rope's edge a press is good if SOME release timing then clears, so try several
-      let bestS = -1;
-      let r = playPlan(course, { ...plan, jumpXs: [...plan.jumpXs, x] });
-      for (const rel of releases) for (const hang of hangOptions) {
-        const ht = holdEdge && plan.hangTicks ? plan.hangTicks.map((t, i) => (i === 0 ? hang : t)) : plan.hangTicks;
-        const rr = playPlan(course, { ...plan, jumpXs: [...plan.jumpXs, x], releaseAfter: rel, hangTicks: ht });
-        const sc = score(rr);
-        if (sc > bestS) { bestS = sc; r = rr; }
-      }
-      return { x, s: bestS, r };
-    });
+    // at the rope's edge a press is good if SOME release timing then clears, so every press is tried with several
+    const jobs: Job[] = [];
+    for (const x of cs) for (const rel of releases) for (const hang of hangOptions) {
+      const ht = holdEdge && plan.hangTicks ? plan.hangTicks.map((t, i) => (i === 0 ? hang : t)) : plan.hangTicks;
+      jobs.push({ plan: { ...plan, jumpXs: [...plan.jumpXs, x], releaseAfter: rel, hangTicks: ht } });
+    }
+    const sc: number[] = yield at(jobs);
+    const per = releases.length * hangOptions.length;
+    const results = cs.map((x, n) => ({ x, s: Math.max(...sc.slice(n * per, (n + 1) * per)) }));
     // a press is good if the run then gets farther than any press can do by standing still at the edge
     const best = Math.max(...results.map((r) => r.s));
     const good = results.filter((r) => r.s >= best - 1e-9);
@@ -293,16 +363,22 @@ export function searchIdealRun(course: CourseData, opts: { routes?: boolean } = 
     const speed = 7.4;
     windows.push({ obstacle: e.name, best: mid, lo, hi, widthMs: ((hi - lo + 0.02) / speed) * 1000 });
     // tune the rope release and the bounce press once the runner can reach them
-    if (ropeEdge) tuneTicks(course, plan, 'releaseAfter', 0, 360, windows, 'rope release', score);
-    if (holdEdge && plan.hangTicks) for (let pass = 0; pass < 2; pass++) for (let i = 0; i < plan.hangTicks.length; i++) tuneHang(course, plan, i, windows, score, pass === 1);
+    if (ropeEdge) yield* tuneTicksGen(plan, 'releaseAfter', 0, 360, windows, 'rope release', at);
+    if (holdEdge && plan.hangTicks) for (let pass = 0; pass < 2; pass++) for (let i = 0; i < plan.hangTicks.length; i++) yield* tuneHangGen(plan, i, windows, pass === 1, at);
     if (e.x > 117 && e.x < 119) {
-      tuneTicks(course, plan, 'bouncePress', 0, 40, windows, 'trampoline press', score, 1);
+      yield* tuneTicksGen(plan, 'bouncePress', 0, 40, windows, 'trampoline press', at, 1);
     }
   }
-  const final = playPlan(course, plan);
-  if (opts.routes && holds.length >= 2 && plan.hangTicks && final.world.outcome === 'cleared') return { ...compareRoutes(course, plan, final, windows), windows };
-  return { plan, windows, cleared: final.world.outcome === 'cleared' };
+  // two ways through a pair of bars, asked for with `{ routes: true }`: it plays about 250 runs of its own on this thread
+  if (opts.routes && holds.length >= 2 && plan.hangTicks) {
+    const final = playPlan(course, plan);
+    if (final.world.outcome === 'cleared') return { ...compareRoutes(course, plan, final, windows), windows };
+  }
+  const final: number[] = yield { jobs: [{ plan }], label: 'the whole course', step: es.length, of: es.length };
+  return { plan, windows, cleared: final[0] >= CLEARED };
 }
+
+type AtFn = (jobs: Job[], stopOnClear?: boolean) => Batch;
 
 // Two ways through a pair of bars (asked for with `{ routes: true }`: it adds about 250 runs, so the stored plans and the tests that need it use it, not every search):
 // bar to bar (the plan the search found), or a full pump on the first bar and a flight over the second (a skip).
@@ -341,17 +417,20 @@ function compareRoutes(course: CourseData, plan: Plan, base: RunResult, windows:
 }
 
 // The trebuchet: when to let the rider go (ticks after the pin), found together with the hang time on the first bar when there is one.
-function searchLaunch(course: CourseData, plan: Plan, windows: Window[], score: (r: RunResult) => number) {
+function* searchLaunchGen(course: CourseData, plan: Plan, windows: Window[]): Gen<void> {
   const bars = (course.holds ?? []).length > 0;
-  const trial = (rel: number, hang: number): { sc: number; rel: number; hang: number } => {
-    const pl: Plan = { ...plan, launchRelease: rel, ...(bars ? { hangTicks: plan.hangTicks!.map((t, i) => (i === 0 ? hang : t)) } : {}) };
-    return { sc: score(playPlan(course, pl, 120 * 30)), rel, hang };
-  };
+  const mk = (rel: number, hang: number): Job => ({ plan: { ...plan, launchRelease: rel, ...(bars ? { hangTicks: plan.hangTicks!.map((t, i) => (i === 0 ? hang : t)) } : {}) }, maxTicks: 120 * 30 });
+  const batch = (cells: { rel: number; hang: number }[]): Batch => ({ jobs: cells.map((c) => mk(c.rel, c.hang)), label: 'the trebuchet release', step: 0, of: 1 });
   const hangs = bars ? Array.from({ length: 17 }, (_, i) => i * 30) : [0];
-  let found: { sc: number; rel: number; hang: number }[] = [];
-  for (let rel = 20; rel <= 360; rel += 6) for (const h of hangs) { found.push(trial(rel, h)); }
+  const cells: { rel: number; hang: number }[] = [];
+  for (let rel = 20; rel <= 360; rel += 6) for (const h of hangs) cells.push({ rel, hang: h });
+  const sc: number[] = yield batch(cells);
+  const found: { sc: number; rel: number; hang: number }[] = cells.map((c, i) => ({ sc: sc[i], ...c }));
   const tops = [...found].sort((a, b) => b.sc - a.sc).slice(0, 8); // the coarse grid misses a narrow basin, so the finer search tries more of the best starts
-  for (const t of tops) for (let rel = t.rel - 6; rel <= t.rel + 6; rel += 1) for (let h = Math.max(0, t.hang - 24); h <= t.hang + 24; h += bars ? 6 : 100) found.push(trial(rel, h));
+  const fine: { rel: number; hang: number }[] = [];
+  for (const t of tops) for (let rel = t.rel - 6; rel <= t.rel + 6; rel += 1) for (let h = Math.max(0, t.hang - 24); h <= t.hang + 24; h += bars ? 6 : 100) fine.push({ rel, hang: h });
+  const sc2: number[] = yield batch(fine);
+  fine.forEach((c, i) => found.push({ sc: sc2[i], ...c }));
   const best = Math.max(...found.map((f) => f.sc));
   const good = found.filter((f) => f.sc >= best - 1e-9);
   const centre = good.reduce((a, b) => (Math.abs(b.rel - median(good.map((g) => g.rel))) < Math.abs(a.rel - median(good.map((g) => g.rel))) ? b : a));
@@ -436,9 +515,11 @@ function cross(lists: number[][]): number[][] {
 }
 
 // Tune how long to hang on bar i (ticks), keeping the others: the centre of the times that do best.
-function tuneHang(course: CourseData, plan: Plan, i: number, windows: Window[], score: (r: RunResult) => number, last: boolean) {
-  const rs: { t: number; s: number }[] = [];
-  for (let t = 0; t <= 480; t += 6) rs.push({ t, s: score(playPlan(course, { ...plan, hangTicks: plan.hangTicks!.map((q, j) => (j === i ? t : q)) })) });
+function* tuneHangGen(plan: Plan, i: number, windows: Window[], last: boolean, at: AtFn): Gen<void> {
+  const ts: number[] = [];
+  for (let t = 0; t <= 480; t += 6) ts.push(t);
+  const sc: number[] = yield at(ts.map((t) => ({ plan: { ...plan, hangTicks: plan.hangTicks!.map((q, j) => (j === i ? t : q)) } })));
+  const rs = ts.map((t, n) => ({ t, s: sc[n] }));
   const best = Math.max(...rs.map((r) => r.s));
   const good = rs.filter((r) => r.s >= best - 1e-9).map((r) => r.t);
   if (!good.length) return;
@@ -446,9 +527,11 @@ function tuneHang(course: CourseData, plan: Plan, i: number, windows: Window[], 
   if (last) windows.push({ obstacle: `hang on bar ${i + 1}`, best: plan.hangTicks![i], lo: Math.min(...good), hi: Math.max(...good), widthMs: (Math.max(...good) - Math.min(...good) + 6) * DT * 1000 });
 }
 
-function tuneTicks(course: CourseData, plan: Plan, key: 'releaseAfter' | 'bouncePress', from: number, to: number, windows: Window[], name: string, score: (r: RunResult) => number, stepSize = 2) {
-  const rs: { t: number; s: number }[] = [];
-  for (let t = from; t <= to; t += stepSize) rs.push({ t, s: score(playPlan(course, { ...plan, [key]: t })) });
+function* tuneTicksGen(plan: Plan, key: 'releaseAfter' | 'bouncePress', from: number, to: number, windows: Window[], name: string, at: AtFn, stepSize = 2): Gen<void> {
+  const ts: number[] = [];
+  for (let t = from; t <= to; t += stepSize) ts.push(t);
+  const sc: number[] = yield at(ts.map((t) => ({ plan: { ...plan, [key]: t } })));
+  const rs = ts.map((t, n) => ({ t, s: sc[n] }));
   const best = Math.max(...rs.map((r) => r.s));
   const good = rs.filter((r) => r.s >= best - 1e-9).map((r) => r.t);
   const lo = Math.min(...good), hi = Math.max(...good);

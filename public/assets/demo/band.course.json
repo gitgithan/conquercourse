@@ -46,5 +46,14 @@
     "releaseAfter": 60,
     "bouncePress": 8,
     "bandStretch": 16.2
-  }
+  },
+  "windows": [
+    {
+      "obstacle": "edge at 1.5 m (take-off)",
+      "best": 0.9,
+      "lo": 0.35,
+      "hi": 1.4,
+      "widthMs": 99.99999999999999
+    }
+  ]
 }

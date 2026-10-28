@@ -118,6 +118,29 @@
     ],
     "hands": true
   },
+  "windows": [
+    {
+      "obstacle": "vault at step at 36 m",
+      "best": 34.16,
+      "lo": 33.32,
+      "hi": 34.96,
+      "widthMs": 224.32432432432438
+    },
+    {
+      "obstacle": "edge at 82 m",
+      "best": 80.48,
+      "lo": 79,
+      "hi": 81.96,
+      "widthMs": 402.7027027027028
+    },
+    {
+      "obstacle": "edge at 127.4 m (take-off)",
+      "best": 124.4,
+      "lo": 124.4,
+      "hi": 124.4,
+      "widthMs": 0
+    }
+  ],
   "shortcuts": [
     {
       "id": "skip-bars-1-2",

@@ -1,0 +1,16 @@
+whole lache.course.json                           3.42 s wall    4.06 s cpu 0fdf949d3e06580d
+whole drop.course.json                            0.01 s wall    0.01 s cpu 5a57652c48e45a37
+whole launch.course.json                          0.50 s wall    0.78 s cpu b67056eafba16286
+whole launch-bar.course.json                      7.11 s wall    7.29 s cpu f1ed18b809d8dd97
+whole lache-wide.course.json                     21.87 s wall   22.16 s cpu 13a394c28ef09ba7
+whole lane-1.course.json                          2.47 s wall    2.77 s cpu 21f68431f8e22b30
+whole lane-2.course.json                          1.99 s wall    2.02 s cpu 21de7cae6ee5427f
+whole generated-1.course.json                    80.15 s wall   80.51 s cpu c7b16e521e85c1f0
+whole eixample-barcelona.course.json              2.47 s wall    2.48 s cpu 91531db97619d3df
+whole montmartre-paris.course.json                2.63 s wall    2.65 s cpu 58856d9c6df3b41e
+whole circular-quay-sydney.course.json            4.62 s wall    4.63 s cpu f34bd91c20ab2a13
+whole san-francisco-lombard.course.json           3.74 s wall    3.75 s cpu 5adec53ad0aa8698
+fix it: block ten times too big                   6.73 s wall    7.07 s cpu 88b3b0b7b2dad2ea
+fix it: tall wall                                 5.88 s wall    5.90 s cpu f8a7c1e947abf2d1
+advice: tall wall                                 1.87 s wall    1.88 s cpu f278c89911a66974
+generateCourse(2)                                 3.86 s wall    3.90 s cpu e7aee17c854789a3

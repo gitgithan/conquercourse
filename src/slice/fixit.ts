@@ -1,7 +1,7 @@
 import { adviseLane, type Change, type LaneSetting } from './advice';
 import { bestSlices, laneToCourse, sliceProfile } from './slice';
 import { realSize, worldSamples, type Piece } from './world';
-import { searchIdealRun } from '../sim/ideal';
+import { clearedCached, meter, workSeconds } from '../sim/ideal';
 import type { CourseData } from '../course/course';
 
 // "Fix it": change the layout, right now, into one the simulator can clear. It applies the smallest proved fix again and again
@@ -12,7 +12,7 @@ export const clears = (ps: Piece[], l: LaneSetting, wrap?: (c: CourseData) => Co
   const pr = sliceProfile(worldSamples(ps), { x: 0, z: 0 }, l);
   if (pr.length < 8) return false;
   const course = laneToCourse({ cells: [...pr.cells], length: pr.length, origin: pr.origin });
-  return searchIdealRun(wrap ? wrap(course) : course).cleared;
+  return clearedCached(wrap ? wrap(course) : course);
 };
 
 const applyChange = (ps: Piece[], l: LaneSetting, id: number | undefined, c: Change): { ps: Piece[]; lane: LaneSetting } => ({
@@ -20,14 +20,14 @@ const applyChange = (ps: Piece[], l: LaneSetting, id: number | undefined, c: Cha
   lane: { angle: c.angle ?? l.angle, offset: c.offset ?? l.offset, level: c.level ?? l.level },
 });
 
-export function fixLayout(pieces: Piece[], lane: LaneSetting, budgetMs = 12000, wrap?: (c: CourseData) => CourseData): Fixed {
-  const t0 = performance.now();
+export function fixLayout(pieces: Piece[], lane: LaneSetting, budget = workSeconds(12), wrap?: (c: CourseData) => CourseData): Fixed { // budget in simulated ticks, so the answer does not depend on the machine's speed
+  const t0 = meter.ticks;
   let ps = pieces.map((p) => ({ ...p }));
   let l = { ...lane };
   const steps: string[] = [];
-  for (let round = 0; round < 6 && performance.now() - t0 < budgetMs; round++) {
+  for (let round = 0; round < 6 && meter.ticks - t0 < budget; round++) {
     if (clears(ps, l, wrap)) return { ok: true, pieces: ps, lane: l, steps };
-    const adv = adviseLane(ps, l, { budgetMs: 900, max: 1, wrap });
+    const adv = adviseLane(ps, l, { budget: workSeconds(0.9), max: 1, wrap });
     if (adv.length) { const a = adv[0]; ({ ps, lane: l } = applyChange(ps, l, a.piece, a.change)); steps.push(a.text); continue; }
     // no single small shift works: shrink the tallest thing that no jump could climb
     const tall = wrap ? undefined : ps.filter((p) => { const r = realSize(p); return r.h + p.y > 1.0; }).sort((a, b) => realSize(b).h - realSize(a).h)[0];

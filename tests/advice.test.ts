@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { adviseLane, type Advice, type LaneSetting } from '../src/slice/advice';
 import { laneToCourse, sliceProfile, type Mesh } from '../src/slice/slice';
-import { searchIdealRun } from '../src/sim/ideal';
+import { meter, searchIdealRun, workSeconds } from '../src/sim/ideal';
 import { newPiece, worldSamples, type Piece } from '../src/slice/world';
 
 function box(w: number, h: number, d: number): Mesh {
@@ -23,9 +23,9 @@ describe('lane advice', () => {
   it('says what to shift when a step is too tall, and the shift really clears', () => {
     const ps = bad();
     expect(clears(ps, lane)).toBe(false);
-    const t0 = performance.now();
+    const w0 = meter.ticks;
     const advice = adviseLane(ps, lane);
-    expect(performance.now() - t0).toBeLessThan(4000);
+    expect(meter.ticks - w0).toBeLessThan(workSeconds(6)); // a work guard, not a clock: the same on a slow machine
     expect(advice.length).toBeGreaterThan(0);
     expect(advice.length).toBeLessThanOrEqual(3);
     for (const a of advice) { expect(a.verified).toBe(true); expect(a.text.length).toBeGreaterThan(10); const n = apply(ps, lane, a); expect(clears(n.ps, n.lane)).toBe(true); }

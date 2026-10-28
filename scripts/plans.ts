@@ -4,13 +4,16 @@
 import { readFileSync, writeFileSync } from 'node:fs';
 import type { CourseData } from '../src/course/course';
 import { DEMO_COURSE_FILES } from '../src/course/demo-list';
-import { searchIdealRun } from '../src/sim/ideal';
+import { xWindows } from '../src/sim/ideal';
+import { nodePool } from '../src/sim/ideal-pool-node';
 import { findShortcuts } from '../src/sim/shortcuts';
 import { generateCourse } from '../src/slice/generator';
 
 // A generated sample is the generator's own output for its seed (its plan is composed from proved moves, cheap), not a whole-course search.
 const GENERATED: Record<string, number> = { 'generated-1.course.json': 2 };
 
+// The whole-course searches run on all the machine's cores (worker threads; same answers as one thread).
+const pool = nodePool();
 const files = process.argv.length > 2 ? process.argv.slice(2) : [...DEMO_COURSE_FILES];
 let bad = 0;
 for (const f of files) {
@@ -27,10 +30,10 @@ for (const f of files) {
     continue;
   }
   const course = JSON.parse(readFileSync(f, 'utf8')) as CourseData;
-  delete course.plan; delete course.routes; delete course.shortcuts;
-  const r = searchIdealRun(course, { routes: true });
+  delete course.plan; delete course.routes; delete course.shortcuts; delete course.windows;
+  const r = await pool.search(course, undefined, undefined, { routes: true });
   if (r.cleared) {
-    course.plan = r.plan; if (r.routes) course.routes = r.routes;
+    course.plan = r.plan; course.windows = xWindows(r.windows); if (r.routes) course.routes = r.routes;
     // routes nobody planned (src/sim/shortcuts.ts), stored beside the plan so the Course can say so at once
     const sc = findShortcuts(course, { moveChoices: false }).shortcuts;
     if (sc.length) course.shortcuts = sc;
@@ -38,4 +41,5 @@ for (const f of files) {
   } else bad++;
   console.log(`${f}: ${r.cleared ? 'plan stored' : 'NOT CLEARED, no plan stored'} (${((Date.now() - t0) / 1000).toFixed(1)} s)`);
 }
+pool.close();
 process.exit(bad ? 1 : 0);

@@ -1,7 +1,7 @@
 import { HAZARDS } from '../course/hazard';
 import { findShortcuts, type Shortcut } from '../sim/shortcuts';
 import type { CourseData } from '../course/course';
-import { playPlan, searchIdealRun, type Plan } from '../sim/ideal';
+import { playPlan, searchIdealRun, shiftWindow, xWindows, type Plan, type Window } from '../sim/ideal';
 
 // Course generator v1: a seed becomes a course of a few moves, each one proved clearable by the ideal-run search.
 // Pure: no DOM, no clock, no random source but the seed.
@@ -108,7 +108,7 @@ export function generateDetailed(seed: number, opts: GenOptions = {}): Generated
     if (r === undefined) {
       const alone = assemble([kinds[i]], [size], [styles[i]], keep).course;
       const found = searchIdealRun(alone);
-      r = found.cleared ? { plan: found.plan, hangs: playPlan(alone, found.plan).events.filter((e) => e.type === 'hang-catch').length } : null;
+      r = found.cleared ? { plan: found.plan, hangs: playPlan(alone, found.plan).events.filter((e) => e.type === 'hang-catch').length, windows: xWindows(found.windows) } : null;
       PROOFS.set(key, r);
     }
     return r;
@@ -124,9 +124,11 @@ export function generateDetailed(seed: number, opts: GenOptions = {}): Generated
     const floor = HAZARDS[seed % HAZARDS.length]; // the floor follows the seed (water on every fifth), without touching the random draws
     if (floor !== 'water') a.course.hazard = floor;
     const plan: Plan = { jumpXs: [], releaseAfter: 60, bouncePress: 8, vaultXs: [], hangTicks: [] };
+    const windows: Window[] = [];
     parts.forEach((pr, j) => {
       const p = pr!.plan;
       const dx = a.moves[j].x0 - RUNUP;
+      windows.push(...pr!.windows.map((w) => shiftWindow(w, dx)));
       plan.jumpXs.push(...p.jumpXs.map((x) => r2(x + dx)));
       plan.vaultXs!.push(...(p.vaultXs ?? []).map((x) => r2(x + dx)));
       plan.hangTicks!.push(...Array.from({ length: pr!.hangs }, (_, h) => p.hangTicks?.[h] ?? 90));
@@ -138,7 +140,7 @@ export function generateDetailed(seed: number, opts: GenOptions = {}): Generated
     if (!plan.airHands?.some((a) => !a)) delete plan.airHands; // only a skip needs it
     const run = playPlan(a.course, plan, 120 * 60);
     const cleared = run.world.outcome === 'cleared';
-    if (cleared) a.course.plan = plan; // the proved line travels with the course (drums and the bot use it without searching again)
+    if (cleared) { a.course.plan = plan; if (windows.length) a.course.windows = windows; } // the proved line travels with the course (drums and the bot use it without searching again)
     return { course: a.course, moves: a.moves, cleared };
   };
   // shrink every move a little until the whole course clears, then drop moves from the end; a single move that will not clear alone is dropped
@@ -154,7 +156,7 @@ export function generateDetailed(seed: number, opts: GenOptions = {}): Generated
 }
 
 const PROOFS = new Map<string, Proved | null>();
-interface Proved { plan: Plan; hangs: number } // hangs: how many times the proved line catches a bar (the next move's hang times follow these)
+interface Proved { plan: Plan; hangs: number; windows: Window[] } // hangs: how many times the proved line catches a bar (the next move's hang times follow these)
 
 export function generateCourse(seed: number, opts?: GenOptions): CourseData {
   return generateDetailed(seed, opts).course;

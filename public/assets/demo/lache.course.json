@@ -85,6 +85,22 @@
       false
     ]
   },
+  "windows": [
+    {
+      "obstacle": "vault at step at 22 m",
+      "best": 19.68,
+      "lo": 19.32,
+      "hi": 20.04,
+      "widthMs": 99.99999999999984
+    },
+    {
+      "obstacle": "edge at 36 m (take-off)",
+      "best": 33,
+      "lo": 33,
+      "hi": 33,
+      "widthMs": 0
+    }
+  ],
   "routes": [
     {
       "name": "bar to bar",

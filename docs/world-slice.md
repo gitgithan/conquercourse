@@ -1346,3 +1346,9 @@ The set of obstacle shapes is fixed, and each shape offers a fixed set of moves.
   - The footprints named on the map are the buildings the lane runs over or brushes; the search also counts steps and walls at the cuts between roofs, so the counts can be higher than the number of footprints (Alfama: 8 steps, 2 footprints).
   - The lane search for a new place takes seconds to minutes in a worker; the editor can be opened meanwhile, and the piece is re-cut to the lane's size when the search finishes.
   - The Cloudflare cache is per data centre, so a place can be asked again from another one.
+## Search speed (CC-69, CC-70)
+- **So what:** the ideal-run search, Fix it and the advice give the same answers as before, 1.5 to 3 times faster on one thread and 5 to 14 times faster in a pool of workers; the page no longer freezes after a fall on a generated course.
+- **Causes found:** a constant (`safeDrop`) worked out in every simulated step, an unused run at every edge, the same proof asked three times, and budgets counted in milliseconds.
+- **Changes:** the search is a generator with a one-thread driver and a pool driver (`src/sim/ideal-pool.ts`), proofs are remembered, budgets count simulated ticks (`workSeconds`), Fix it and the advice run in workers (`src/slice/proof-client.ts`), and a course stores the windows of its take-offs next to its plan.
+- **A bug on the way:** the editor's "can clear" check also matched "cannot find", so a failing lane looked green and no advice was ever offered.
+- **Numbers, logs and how to repeat:** `data/eval/cc-69-speed/README.md`.

@@ -504,5 +504,35 @@
     ],
     "releaseAfter": 60,
     "bouncePress": 8
-  }
+  },
+  "windows": [
+    {
+      "obstacle": "edge at 6 m",
+      "best": 5.18,
+      "lo": 4.46,
+      "hi": 5.9,
+      "widthMs": 197.29729729729735
+    },
+    {
+      "obstacle": "edge at 11.9 m",
+      "best": 10.36,
+      "lo": 8.9,
+      "hi": 11.8,
+      "widthMs": 394.59459459459464
+    },
+    {
+      "obstacle": "edge at 21.6 m",
+      "best": 20.1,
+      "lo": 18.6,
+      "hi": 21.6,
+      "widthMs": 408.1081081081081
+    },
+    {
+      "obstacle": "edge at 32.1 m",
+      "best": 30.54,
+      "lo": 29.1,
+      "hi": 31.98,
+      "widthMs": 391.8918918918917
+    }
+  ]
 }

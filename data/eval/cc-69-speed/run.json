@@ -1,0 +1,27 @@
+{
+  "issues": [
+    "CC-69",
+    "CC-70"
+  ],
+  "machine": "8 vCPU (4 cores, 2 threads each), idle, same machine for every column",
+  "before": "main at d9c53d3 (logs/bench-1-before.log)",
+  "one_thread": "this branch, search as a generator driven on one thread (logs/bench-2-after.log)",
+  "pool": "worker threads, 8 and 4 (logs/bench-3-pool8.log, logs/bench-4-pool4.log)",
+  "answers_identical": true,
+  "restart_check": {
+    "before_block_ms": [
+      32824,
+      31495,
+      31299
+    ],
+    "after_block_ms": [
+      183,
+      172,
+      175
+    ],
+    "after_restart_block_ms": [
+      77,
+      84
+    ]
+  }
+}

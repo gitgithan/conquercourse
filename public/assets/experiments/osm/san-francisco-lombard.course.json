@@ -326,5 +326,35 @@
     ],
     "releaseAfter": 60,
     "bouncePress": 8
-  }
+  },
+  "windows": [
+    {
+      "obstacle": "edge at 6 m",
+      "best": 5.48,
+      "lo": 5.46,
+      "hi": 5.5,
+      "widthMs": 8.108108108108114
+    },
+    {
+      "obstacle": "edge at 10.3 m",
+      "best": 8.8,
+      "lo": 7.3,
+      "hi": 10.3,
+      "widthMs": 408.10810810810824
+    },
+    {
+      "obstacle": "edge at 18.2 m",
+      "best": 17.94,
+      "lo": 17.68,
+      "hi": 18.2,
+      "widthMs": 72.97297297297291
+    },
+    {
+      "obstacle": "edge at 22.4 m",
+      "best": 20.9,
+      "lo": 19.4,
+      "hi": 22.4,
+      "widthMs": 408.1081081081081
+    }
+  ]
 }
