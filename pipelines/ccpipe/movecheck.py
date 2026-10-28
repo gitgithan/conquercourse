@@ -1,0 +1,93 @@
+"""Move checks: does a clip that passed the plausibility gate actually show the move that was asked for (CC-64)?
+
+The gate says a body could have done it; a move check says it is the roll (or the vault ...) and not a stumble.
+Numbers come from the joints alone, so a Kimodo sample, a CMU trial and a filmed clip are judged the same way."""
+import json
+import re
+
+import numpy as np
+
+from .clip import Clip
+from .skeleton import IDX
+
+ROLL_MIN_TURN_DEG = 300      # the trunk turns nearly a full circle forward
+ROLL_MIN_TRAVEL_M = 0.6      # and the body moves on (the sim moves it, but a roll in place is a cartwheel of the spot)
+ROLL_MAX_TRAVEL_M = 5.0
+ROLL_MAX_S = 2.0             # the rolling part, not the run-in and get-up
+ROLL_MIN_S = 0.3
+UPRIGHT_HIPS = 0.55          # the hips at the ends of the window are above this share of the standing hips height
+
+
+def search_cmu(index, terms, skip=()):
+    """Trials of the CMU index whose description mentions a term (case-insensitive), minus the skipped phrases."""
+    pats = [re.compile(re.escape(t), re.I) for t in terms]
+    skips = [s.lower() for s in skip]
+    out = []
+    for t in index:
+        text = f"{t['desc']} | {t['subjectDesc']}"
+        if any(p.search(t["desc"]) for p in pats) and not any(s in t["desc"].lower() for s in skips):
+            out.append({"id": t["id"], "desc": t["desc"], "subject": t["subject"], "fps": t["fps"]})
+    return out
+
+
+def load_index(path):
+    with open(path) as f:
+        return json.load(f)
+
+
+def trunk_pitch_deg(frames):
+    """Turn of the hips-to-neck line in the side plane, degrees, unwrapped: 0 upright, +90 leaning forward, +180 upside down."""
+    v = frames[:, IDX["Neck1"]] - frames[:, IDX["Hips"]]
+    return np.degrees(np.unwrap(np.arctan2(v[:, 2], v[:, 1])))
+
+
+def roll_window(frames, margin_deg=20):
+    """(first, last) frame of the turning part: from 20 degrees of forward lean to 20 degrees short of the end of the turn."""
+    p = trunk_pitch_deg(frames) - trunk_pitch_deg(frames)[0]
+    hi = int(np.argmax(p))
+    start = np.where(p >= margin_deg)[0]
+    if len(start) == 0:
+        return None
+    a = int(start[0])
+    end = np.where(p[a:] >= p[hi] - margin_deg)[0]
+    b = a + int(end[0]) if len(end) else hi
+    return (a, max(b, a + 1))
+
+
+def roll_check(clip):
+    """(ok, numbers, window) for a clip that should be a forward roll. The window is the rolling part, in frames."""
+    f, fps = clip.frames, clip.fps
+    pitch = trunk_pitch_deg(f) - trunk_pitch_deg(f)[0]
+    win = roll_window(f)
+    nums = {"max_turn_deg": round(float(pitch.max()), 1), "min_turn_deg": round(float(pitch.min()), 1)}
+    if win is None:
+        nums["why"] = "the trunk never leans forward"
+        return False, nums, None
+    a, b = win
+    travel = float(np.linalg.norm(f[b, IDX["Hips"], [0, 2]] - f[a, IDX["Hips"], [0, 2]]))
+    inverted = bool((np.abs(pitch[a:b + 1] % 360 - 180) < 60).any())
+    standing = float(np.percentile(f[:, IDX["Hips"], 1], 90))
+    ends_up = bool(f[0, IDX["Hips"], 1] > UPRIGHT_HIPS * standing and f[-1, IDX["Hips"], 1] > UPRIGHT_HIPS * standing)
+    nums.update(window_frames=[a, b], window_s=round((b - a) / fps, 2), turn_in_window_deg=round(float(pitch[b] - pitch[a]), 1),
+                travel_m=round(travel, 2), upside_down=inverted, starts_and_ends_upright=ends_up)
+    ok = (pitch.max() >= ROLL_MIN_TURN_DEG and inverted and ROLL_MIN_TRAVEL_M <= travel <= ROLL_MAX_TRAVEL_M
+          and ROLL_MIN_S <= (b - a) / fps <= ROLL_MAX_S and ends_up)
+    return bool(ok), nums, win
+
+
+def generic_check(clip):
+    """Moves without a special check are judged by the gate alone (and say so in the report)."""
+    return True, {"note": "no move check for this move: the gate alone judged it"}, None
+
+
+CHECKS = {"roll": roll_check, "generic": generic_check}
+
+
+def trim(clip, window, pad_s=0.25):
+    """The clip cut to the window plus `pad_s` each side (the run-in and the get-up), re-centred on its first frame."""
+    a, b = window
+    pad = int(round(pad_s * clip.fps))
+    lo, hi = max(0, a - pad), min(clip.n, b + pad + 1)
+    f = clip.frames[lo:hi].copy()
+    f[:, :, [0, 2]] -= f[0, IDX["Hips"], [0, 2]]
+    return Clip(f, clip.fps, list(clip.names), list(clip.parents), dict(clip.meta))

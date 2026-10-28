@@ -1,0 +1,37 @@
+{
+  "note": "The pipeline contract per move (CC-64): where to look for motion, what to ask Kimodo, what the motion must show. docs/motion-pipeline.md explains each field.",
+  "roll": {
+    "serves": "the roll out of a big drop (key X, CC-56)",
+    "cmu_terms": ["roll", "somersault", "summersult", "tumbl", "flip forward", "front hand flip", "dive"],
+    "cmu_skip": ["wide leg roll", "dance"],
+    "check": "roll",
+    "seconds": 3.0,
+    "prompts": {
+      "roll_a": "A person runs forward, drops into a forward roll on the ground with the head tucked, and springs back up to run.",
+      "roll_b": "A parkour runner does a forward roll, somersaulting over one shoulder with a tucked body, then stands up running.",
+      "roll_c": "A person lands from a jump and absorbs the landing with a forward roll, then gets up and keeps running."
+    }
+  },
+  "hurt": {
+    "serves": "a hard landing that ends the run (outcome hurt, CC-56)",
+    "cmu_terms": ["fall on face", "BannanaPeelSlip", "RugPullFall", "stumble"],
+    "cmu_skip": [],
+    "check": "generic",
+    "seconds": 3.0,
+    "prompts": {
+      "hurt_a": "A person lands hard from a high drop, crumples to the ground and lies there.",
+      "hurt_b": "A person falls forward onto the ground after a bad landing and stays down."
+    }
+  },
+  "vault": {
+    "serves": "the vault over a step (key V, CC-44)",
+    "cmu_terms": ["vault", "jump over", "hurdle", "step over"],
+    "cmu_skip": [],
+    "check": "generic",
+    "seconds": 3.0,
+    "prompts": {
+      "vault_a": "A person runs at a waist-high box, plants one hand on top and swings both legs over it, then lands and keeps running.",
+      "vault_b": "A parkour runner does a speed vault over a low wall with one hand on top, then runs on."
+    }
+  }
+}

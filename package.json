@@ -18,7 +18,8 @@
     "deploy:preview": "npm run build && wrangler pages deploy dist --project-name conquercourse --branch preview",
     "feedback": "node scripts/feedback-summary.mjs",
     "feedback:rows": "node scripts/feedback-rows.mjs",
-    "community": "node scripts/community-review.mjs"
+    "community": "node scripts/community-review.mjs",
+    "motion": "node scripts/motion.mjs"
   },
   "dependencies": {
     "maplibre-gl": "^6.16.0",
