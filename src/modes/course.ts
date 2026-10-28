@@ -19,6 +19,7 @@ import { track } from '../ui/feedback';
 import { createRookieActor } from '../render/actor';
 import { lookSwitchOn, lookUrl } from '../render/look';
 import { makeObstacle } from '../course/collide';
+import { DEFAULT_HANG, feetOf } from '../sim/holds';
 import { actorStateFor } from '../motion/actor-state';
 import { groundAt } from '../sim/terrain';
 import { drumsFor } from '../sim/drums';
@@ -345,7 +346,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
   document.body.append(comm);
   document.body.append(sstyle, strip);
   // demo courses: every course we have made, one choice away (the stock course, the lache demo, lanes from real objects, places from the map)
-  const demos: [string, string][] = [['', 'Stock course'], ['/assets/demo/lache.course.json', 'Lache demo: run, vault, swing'], ['/assets/demo/stack.course.json', 'Stack demo: climb the cup pyramids'], ['/assets/demo/drop.course.json', 'Big drop: run off a ledge and roll'], ['generate', 'Make me a new course (random)'], ['/assets/demo/lane-1.course.json', 'Demo scene, lane 1'], ['/assets/demo/lane-2.course.json', 'Demo scene, lane 2'], ['/assets/experiments/osm/eixample-barcelona.course.json', 'Place: Barcelona block'], ['/assets/experiments/osm/montmartre-paris.course.json', 'Place: Montmartre, Paris'], ['/assets/experiments/osm/circular-quay-sydney.course.json', 'Place: Sydney quay'], ['/assets/experiments/osm/san-francisco-lombard.course.json', 'Place: San Francisco hill (62 m of hill)'], ['editor', 'Build your own (editor)']];
+  const demos: [string, string][] = [['', 'Stock course'], ['/assets/demo/lache.course.json', 'Lache demo: run, vault, swing'], ['/assets/demo/lache-wide.course.json', 'Wide lache: a 6 m swing'], ['/assets/demo/stack.course.json', 'Stack demo: climb the cup pyramids'], ['/assets/demo/drop.course.json', 'Big drop: run off a ledge and roll'], ['generate', 'Make me a new course (random)'], ['/assets/demo/lane-1.course.json', 'Demo scene, lane 1'], ['/assets/demo/lane-2.course.json', 'Demo scene, lane 2'], ['/assets/experiments/osm/eixample-barcelona.course.json', 'Place: Barcelona block'], ['/assets/experiments/osm/montmartre-paris.course.json', 'Place: Montmartre, Paris'], ['/assets/experiments/osm/circular-quay-sydney.course.json', 'Place: Sydney quay'], ['/assets/experiments/osm/san-francisco-lombard.course.json', 'Place: San Francisco hill (62 m of hill)'], ['editor', 'Build your own (editor)']];
   const pick2 = document.createElement('select');
   pick2.id = 'democourses'; pick2.title = 'Open another course';
   pick2.style.cssText = 'position:fixed;right:16px;top:196px;max-width:210px;font:600 12px system-ui,sans-serif;border:2px solid #17201d;background:#fff;color:#17201d;border-radius:10px;padding:3px 6px;cursor:pointer';
@@ -449,6 +450,12 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
   const toggleDebug = () => { debug.toggle(); dbgBtn.textContent = debug.shown ? 'Debug: on (B)' : 'Debug (B)'; dbgBtn.blur(); };
   dbgBtn.onclick = toggleDebug;
   let world = resume?.world ?? newWorld(course, resume ? resume.retryX : startAt);
+  // ?hangtest=1.0 (radians) hangs the runner still on the first bar at that angle, for the pivot screenshots
+  const hangTest = params.get('hangtest') !== null && course.holds?.length ? Number(params.get('hangtest')) : null;
+  if (hangTest !== null) {
+    const f = feetOf(course.holds![0], { hold: 0, theta: hangTest, omega: 0 });
+    world = { ...world, mode: 'hang', hang: { hold: 0, theta: hangTest, omega: 0 }, runner: { ...world.runner, x: f.x, y: f.y, vx: 0, vy: 0, grounded: false } };
+  }
   let paused = !!resume?.world; // a run that was in progress waits for a key, so the player is not dropped into the middle of a jump
   const log: GameEvent[] = [];
   const frames: { x: number; y: number }[] = [];
@@ -748,7 +755,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
       }
       const prev = world.outcome;
       prevMode = world.mode; prevVx = world.runner.vx;
-      world = stepWorld(world, input, course);
+      if (hangTest === null) world = stepWorld(world, input, course);
       if (prevMode === 'run' && world.mode === 'wall') wallEntry = prevVx;
       if (demo && (world.outcome !== 'running' || world.runner.x > demo.x1)) demoEnd();
       else if (idealWhole && world.outcome !== 'running') demoEnd();
@@ -756,6 +763,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
       if (world.events !== soundedEvents) { soundedEvents = world.events; if (!replay) soundsFor(world.events, hazard); } // after the end the same events array stays: it sounds once
       for (const e of world.events) {
         if (e.type === 'jump' && keysOpen && !keysTouched) { keysOpen = false; paintKeys(false); } // the controls card has done its job once you have jumped
+        if (e.type === 'hang-release' && e.detail?.slipped) { toast.textContent = 'Your grip gave out: the bar pulled harder than your hands could hold.'; toast.style.display = 'block'; toastUntil = world.runner.tick + 120; }
         if (e.type === 'land' && (e.detail?.impact as number) > 2 && !e.detail?.bouncy) {
           const o = ouch(e.detail?.peakDecel as number);
           squashUntil = world.runner.tick + 40; squashDepth = e.detail?.squat ? 0.7 : o >= 6 ? 0.6 : 0.88;
@@ -781,8 +789,11 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
     const sq = world.runner.tick < squashUntil ? squashDepth : 1;
     body.scale.set(1 / Math.sqrt(sq), sq, 1 / Math.sqrt(sq));
     body.position.set(r.x, r.y + 0.85 * sq, 0);
-    if (Math.abs(world.runner.vx) > 0.3) facing = world.runner.vx < 0 ? -1 : 1;
-    if (actor) actor.update({ ...actorStateFor(world, keys.has('ArrowDown') || keys.has('KeyS'), facing), x: r.x, y: r.y, ledge, next: world.mode === 'run' ? nextObstacle(r.x) : undefined });
+    if (Math.abs(world.runner.vx) > 0.3 && world.mode !== 'hang') facing = world.runner.vx < 0 ? -1 : 1; // on a bar the body keeps facing one way, whichever way it swings
+    // on a bar the actor is turned about its hands, so it is placed with the hands on the bar (feet straight below it before the turn), like the rope
+    const hangHold = world.mode === 'hang' && world.hang ? course.holds?.[world.hang.hold] : undefined;
+    const ax = hangHold ? hangHold.x : r.x, ay = hangHold ? hangHold.y - DEFAULT_HANG.handHeight : r.y;
+    if (actor) actor.update({ ...actorStateFor(world, keys.has('ArrowDown') || keys.has('KeyS'), facing), x: ax, y: ay, ledge, next: world.mode === 'run' ? nextObstacle(r.x) : undefined });
     if (world.runner.tick > toastUntil) toast.style.display = 'none';
     paintStrip(r.x);
     drumLane.update(r.x);

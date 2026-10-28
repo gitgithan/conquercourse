@@ -11,7 +11,7 @@ if [ -n "$remote_branch" ]; then git fetch -q origin "$remote_branch"; git switc
 word="Part of"; [ "$mode" = "--fixes" ] && word="Fixes"
 branch="$(git branch --show-current)"
 [ "$branch" = "main" ] && { echo "Work on a branch (git switch -c hanqi91/${issue,,}-short-name), not on main." >&2; exit 1; }
-npm run test:quick --silent
+[ "${SKIP_QUICK:-}" = 1 ] || npm run test:quick --silent # SKIP_QUICK=1 when the tests already passed on the VM (the laptop is for playtesting)
 git fetch -q origin main
 git rebase -q origin/main
 git push -q -u origin HEAD --force-with-lease
