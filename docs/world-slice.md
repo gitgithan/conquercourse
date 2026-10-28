@@ -381,7 +381,7 @@ The set of obstacle shapes is fixed, and each shape offers a fixed set of moves.
 
 ## Roll and survivable drops (CC-56)
 - **So what:** a big drop is no longer a wall of the editor; it is a move.
-  - Tap C just before you land and a fall that would end the run is spread out and survived, keeping most of your speed.
+  - Tap X just before you land and a fall that would end the run is spread out and survived, keeping most of your speed.
   - Lanes are cut by what a player can survive and reach, not by a 4.3 m band.
 - **Physics, same as before:** the same speed change spread over more time is a gentler push.
   - Fall speed at touchdown is `v = sqrt(2 g h)`.
@@ -394,21 +394,21 @@ The set of obstacle shapes is fixed, and each shape offers a fixed set of moves.
 |---|---|---|
 | Straight legs | 1.8 m | 2.4 m |
 | Bent knees (hold the down key) | 3.7 m | 4.9 m |
-| Roll (tap C just before the ground) | 9.8 m | 9.8 m |
+| Roll (tap X just before the ground) | 9.8 m | 9.8 m |
 
 - **New failure:** a landing past the limit is a "hard landing" (`outcome 'hurt'`, event `hard-landing`), not water.
-  - The panel says what the ground did and what would have worked: tap C just before you land.
+  - The panel says what the ground did and what would have worked: tap X just before you land.
   - It never grades technique.
 - **Input:** C, buffered a quarter of a second (`ROLL_BUFFER`); a press on the ground does nothing.
 - **Lanes:** `LANE_DROP` is 7.8 m (80% of the roll limit, so the ideal run has room to spare); a lane with a bigger drop between grounds is not a course, and the advice says so.
   - A lane may start on a roof: levels 3 m and 6 m above the lowest point are tried, and ground down to 7.8 m below the level counts.
   - The finish deck sits a metre below a high ending, level with a deep one.
-- **Ideal run and drums:** the plan presses C itself when a fall is more than a squat takes cleanly (`rollNeeded`); the drum lane shows a C drum.
-- **Prediction (debug view, B):** says "You hit the ground at N m/s: a clean landing / a stumble (tap C)", or "Hard landing".
+- **Ideal run and drums:** the plan presses X itself when a fall is more than a squat takes cleanly (`rollNeeded`); the drum lane shows an X drum.
+- **Prediction (debug view, B):** says "You hit the ground at N m/s: a clean landing / a stumble (tap X)", or "Hard landing".
 - **Demo:** `/?course=/assets/demo/drop.course.json` (a 5 m ledge; add `&bot=ideal` to watch the roll).
 - **Tests:** `tests/roll.test.ts` (drops of 1, 3, 4, 5, 8 m with and without squat and roll; the limits against the landing report; the early-press buffer), `tests/demo-drop.test.ts`.
   - Two older tests changed because a 2.5 m and a 3 m fall with straight legs are now a hard landing, not a stumble.
 - **Gaps:**
   - The roll is a state with no tuck animation yet.
   - Fix it does not yet shorten a lane drop.
-  - The key C is proposed; the product owner confirms.
+  - The key is X (C was already the camera); the product owner confirms.
