@@ -21,7 +21,7 @@ export interface Host {
 }
 export interface GhostState { x: number; y: number; z: number; yaw: number; scale: number }
 export interface Ghosts { items: { id: number; from: GhostState; to: GhostState }[]; lane: { angle: number; offset: number } | null }
-export interface View3d { sync(): void; show(on: boolean): void; readonly el: HTMLCanvasElement; resize(): void }
+export interface View3d { look(heading: number, pitch: number, target?: { x: number; z: number }, distance?: number): void; sync(): void; show(on: boolean): void; readonly el: HTMLCanvasElement; resize(): void }
 
 const loader = new GLTFLoader();
 const cache = new Map<string, Promise<THREE.Object3D>>();
@@ -194,5 +194,13 @@ export function createView3d(wrap: HTMLElement, host: Host): View3d {
   };
   new ResizeObserver(resize).observe(wrap);
   resize();
-  return { sync, resize, el: renderer.domElement, show(v) { on = v; renderer.domElement.style.display = v ? 'block' : 'none'; if (v) { resize(); redraw(); } } };
+  // Put the camera where a map flight ended (CC-79): heading = the compass direction it looks toward, pitch = degrees from straight down, as in MapLibre. x is east, z is south.
+  function look(heading: number, pitch: number, target?: { x: number; z: number }, distance?: number) {
+    const d = distance ?? camera.position.distanceTo(controls.target), p = Math.min(Math.PI / 2 - 0.05, Math.max(0.1, (pitch * Math.PI) / 180)), b = (heading * Math.PI) / 180;
+    if (target) controls.target.set(target.x, 0.5, target.z);
+    const t = controls.target;
+    camera.position.set(t.x - Math.sin(b) * d * Math.sin(p), t.y + d * Math.cos(p), t.z + Math.cos(b) * d * Math.sin(p));
+    controls.update(); redraw();
+  }
+  return { look, sync, resize, el: renderer.domElement, show(v) { on = v; renderer.domElement.style.display = v ? 'block' : 'none'; if (v) { resize(); redraw(); } } };
 }

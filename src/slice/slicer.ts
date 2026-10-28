@@ -2,7 +2,7 @@
 // A horizontal cut of a hill is a contour line; a horizontal cut of a building is its floor plan; the lane the Course uses is cut at one height.
 // Pure maths: no page, no network. Metres, x east, z south, centred on the pin, like src/world/osm.ts.
 import { groundAt, lowest, relief, type Ground } from '../world/terrain';
-import { MAX_SHRUNK_HEIGHT, type Building } from '../world/osm';
+import { extrude, MAX_SHRUNK_HEIGHT, type Building } from '../world/osm';
 
 export type Seg = [number, number, number, number]; // x0, z0, x1, z1
 
@@ -70,21 +70,22 @@ export function slopeCells(g: Ground, cell = 6): SlopeCell[] {
 
 // Buildings as the game builds them (src/world/osm.ts extrude): walls run from the lowest ground up to the roof,
 // which is its own (shrunk) height above the ground at the building's middle. `top` is real metres above the lowest ground.
+export interface Top { ring: [number, number][]; top: number; b: Building } // b: the building it came from, so a picked building can become a piece
 export interface CutBuilding { ring: [number, number][]; top: number; cut: boolean }
 const area2 = (p: [number, number][]) => p.reduce((s, a, i) => { const b = p[(i + 1) % p.length]; return s + a[0] * b[1] - b[0] * a[1]; }, 0);
-export function buildingTops(bs: Building[], k: number, ground?: Ground | null): { ring: [number, number][]; top: number }[] {
-  const out: { ring: [number, number][]; top: number }[] = [];
+export function buildingTops(bs: Building[], k: number, ground?: Ground | null): Top[] {
+  const out: Top[] = [];
   for (const b of bs) {
     const ring = b.ring.slice();
     if (ring.length > 1 && ring[0][0] === ring[ring.length - 1][0] && ring[0][1] === ring[ring.length - 1][1]) ring.pop();
     if (ring.length < 3 || Math.abs(area2(ring)) < 4) continue; // the same rule as the game's mesh
     const cx = ring.reduce((t, p) => t + p[0], 0) / ring.length, cz = ring.reduce((t, p) => t + p[1], 0) / ring.length;
-    out.push({ ring, top: (ground ? groundAt(ground, cx, cz) - lowest(ground) : 0) + Math.min(b.h, MAX_SHRUNK_HEIGHT / k) });
+    out.push({ ring, b, top: (ground ? groundAt(ground, cx, cz) - lowest(ground) : 0) + Math.min(b.h, MAX_SHRUNK_HEIGHT / k) });
   }
   return out;
 }
 // The plane at `c` metres cuts every building whose roof is at or above it.
-export const cutBuildings = (tops: { ring: [number, number][]; top: number }[], c: number): CutBuilding[] => tops.map((t) => ({ ...t, cut: c <= t.top }));
+export const cutBuildings = (tops: { ring: [number, number][]; top: number }[], c: number): CutBuilding[] => tops.map((t) => ({ ring: t.ring, top: t.top, cut: c <= t.top }));
 // The highest the slider needs to go: the highest roof.
 export const cutRange = (tops: { top: number }[], ground?: Ground | null) => Math.max(Math.ceil(relief(ground)), Math.ceil(Math.max(0, ...tops.map((t) => t.top))));
 
@@ -97,4 +98,19 @@ export function laneLine(l: { angle: number; offset: number; origin: number; len
 // Metres east and south of the pin to [lon, lat]
 export function toLonLat(lat0: number, lon0: number, x: number, z: number): [number, number] {
   return [lon0 + x / (111320 * Math.cos((lat0 * Math.PI) / 180)), lat0 - z / 111320];
+}
+
+// The picked buildings as separate pieces for the editor (CC-79): each one centred on its own middle, with where that middle is (shrunk metres from the pin).
+export interface MapPiece { name: string; positions: number[]; indices: number[]; x: number; z: number }
+export function piecesFrom(tops: Top[], picked: ReadonlySet<number>, k: number, ground?: Ground | null): MapPiece[] {
+  const out: MapPiece[] = [], r2 = (v: number) => Math.round(v * 100) / 100;
+  tops.forEach((t, i) => {
+    if (!picked.has(i)) return;
+    const m = extrude([t.b], k, ground);
+    if (!m.indices.length) return;
+    let x0 = Infinity, x1 = -Infinity, z0 = Infinity, z1 = -Infinity;
+    for (let j = 0; j < m.positions.length; j += 3) { x0 = Math.min(x0, m.positions[j]); x1 = Math.max(x1, m.positions[j]); z0 = Math.min(z0, m.positions[j + 2]); z1 = Math.max(z1, m.positions[j + 2]); }
+    out.push({ name: `Building ${out.length + 1}`, positions: m.positions.map(r2), indices: m.indices, x: r2((x0 + x1) / 2), z: r2((z0 + z1) / 2) });
+  });
+  return out;
 }

@@ -77,10 +77,15 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
   }
   const save = () => { try { localStorage.setItem(KEY, JSON.stringify({ pieces: pieces.filter((p) => p.src && !p.src.startsWith('map:')).map((p) => ({ src: p.src as string, x: p.x, z: p.z, y: p.y, yaw: p.yaw, scale: p.scale, ...(p.role ? { role: p.role } : {}) })), angle, offset, level } satisfies Saved)); } catch { /* private window */ } };
   load();
-  try { // a place built in ?mode=map arrives once, as the whole world; it is not saved
-    const m = JSON.parse(sessionStorage.getItem('cc.map.piece') ?? 'null') as { name: string; positions: number[]; indices: number[] } | null;
+  let mapCamera: { heading: number; pitch: number; distance?: number } | null = null;
+  try { // a place built in ?mode=map arrives once, as the whole world or as the buildings the player picked; it is not saved
+    const m = JSON.parse(sessionStorage.getItem('cc.map.piece') ?? 'null') as { name: string; positions: number[]; indices: number[]; pieces?: { name: string; positions: number[]; indices: number[]; x: number; z: number }[]; camera?: { heading: number; pitch: number; distance?: number } } | null;
     sessionStorage.removeItem('cc.map.piece');
-    if (m) { pendingObjects.length = 0; pieces = [{ ...newPiece(m.name, { positions: m.positions, indices: m.indices }), src: `map:${m.name}` }]; selected = pieces[0].id; }
+    if (m?.pieces?.length) { // picked buildings from the map flight (CC-79): separate pieces, each where it stood
+      pendingObjects.length = 0;
+      pieces = m.pieces.map((q) => ({ ...newPiece(q.name, { positions: q.positions, indices: q.indices }), x: q.x, z: q.z, src: `map:${q.name}` }));
+      selected = pieces[0].id; mapCamera = m.camera ?? null;
+    } else if (m) { pendingObjects.length = 0; pieces = [{ ...newPiece(m.name, { positions: m.positions, indices: m.indices }), src: `map:${m.name}` }]; selected = pieces[0].id; }
   } catch { /* no place waiting */ }
 
   const el = <K extends keyof HTMLElementTagNameMap>(tag: K, parent: HTMLElement, props: Partial<HTMLElementTagNameMap[K]> & { text?: string } = {}) => { const { text, ...rest } = props as Record<string, unknown> & { text?: string }; const e = Object.assign(document.createElement(tag), rest); if (text) e.textContent = text; parent.appendChild(e); return e as HTMLElementTagNameMap[K]; };
@@ -183,6 +188,7 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
     dropped: () => changed(),
     ghosts: () => ghostData(),
   });
+  if (mapCamera) view3d.look(mapCamera.heading, mapCamera.pitch, { x: 0, z: 0 }, mapCamera.distance); // the 3D view starts where the map flight ended
   let topPlan = false;
   const setView = (plan2d: boolean) => { topPlan = plan2d; plan.style.display = plan2d ? 'block' : 'none'; view3d.show(!plan2d); viewBtn.textContent = plan2d ? '3D view' : 'Top plan'; viewBtn.setAttribute('aria-pressed', String(plan2d)); if (plan2d) fit(); };
   const viewBtn = el('button', top, { text: 'Top plan', id: 'viewmode', title: 'Switch between the 3D view and the flat plan (the plan is for cropping)' });
