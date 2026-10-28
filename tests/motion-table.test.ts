@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { MOTION_TABLE, ROLL_TICKS, moveProgress, motionGaps, rollLookFrom } from '../src/motion/motion-table';
+import { MOTION_TABLE, ROLL_GET_UP_S, ROLL_TICKS, moveProgress, motionGaps, rollLookFrom } from '../src/motion/motion-table';
 import { chooseClip, type ActorState } from '../src/motion/actor-pose';
 import { actorStateFor } from '../src/motion/actor-state';
 import { DEFAULT_LANDING } from '../src/sim/landing';
@@ -11,7 +11,7 @@ const base: ActorState = { tick: 1000, x: 10, y: 0, vx: 5, vy: 0, grounded: true
 
 describe('motion table (CC-64)', () => {
   it('a roll lasts as long as the simulator says the roll takes', () => {
-    expect(ROLL_TICKS).toBe(Math.round(DEFAULT_LANDING.rollStopTime * 120));
+    expect(ROLL_TICKS).toBe(Math.round((DEFAULT_LANDING.rollStopTime + ROLL_GET_UP_S) * 120)); // the stop time, then the get-up
     expect(MOTION_TABLE.roll.ticks).toBe(ROLL_TICKS);
   });
   it('progress runs 0 to 1 from the roll landing and is off before and after', () => {
