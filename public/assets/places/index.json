@@ -1,0 +1,134 @@
+[
+  {
+    "slug": "montmartre-paris",
+    "name": "Montmartre steps, Paris",
+    "lat": 48.8867,
+    "lon": 2.3431,
+    "radius": 120,
+    "hill_m": 39,
+    "buildings": 42,
+    "bytes": 86412,
+    "blurb": "A hill of stairs and narrow streets."
+  },
+  {
+    "slug": "eixample-barcelona",
+    "name": "Eixample, Barcelona",
+    "lat": 41.3917,
+    "lon": 2.1649,
+    "radius": 120,
+    "hill_m": 9,
+    "buildings": 47,
+    "bytes": 90879,
+    "blurb": "A grid of tall blocks with cut corners."
+  },
+  {
+    "slug": "circular-quay-sydney",
+    "name": "Circular Quay, Sydney",
+    "lat": -33.861,
+    "lon": 151.2111,
+    "radius": 120,
+    "hill_m": 37,
+    "buildings": 44,
+    "bytes": 43678,
+    "blurb": "A harbour edge that climbs to the Rocks."
+  },
+  {
+    "slug": "lombard-street-san-francisco",
+    "name": "Lombard Street, San Francisco",
+    "lat": 37.8021,
+    "lon": -122.4187,
+    "radius": 120,
+    "hill_m": 62,
+    "buildings": 95,
+    "bytes": 111448,
+    "blurb": "The steepest block of the crooked street."
+  },
+  {
+    "slug": "shibuya-tokyo",
+    "name": "Shibuya, Tokyo",
+    "lat": 35.6595,
+    "lon": 139.7005,
+    "radius": 120,
+    "hill_m": 34,
+    "buildings": 69,
+    "bytes": 67660,
+    "blurb": "Tall, packed blocks around the big crossing."
+  },
+  {
+    "slug": "ciutadella-barcelona",
+    "name": "Ciutadella Park, Barcelona",
+    "lat": 41.3888,
+    "lon": 2.187,
+    "radius": 150,
+    "hill_m": 13,
+    "buildings": 6,
+    "bytes": 11049,
+    "blurb": "A flat park with a few low halls."
+  },
+  {
+    "slug": "edinburgh-old-town",
+    "name": "Old Town, Edinburgh",
+    "lat": 55.9496,
+    "lon": -3.1904,
+    "radius": 120,
+    "hill_m": 23,
+    "buildings": 77,
+    "bytes": 123439,
+    "blurb": "A ridge of stone houses falling away on both sides."
+  },
+  {
+    "slug": "positano-italy",
+    "name": "Positano, Italy",
+    "lat": 40.628,
+    "lon": 14.4871,
+    "radius": 120,
+    "hill_m": 100,
+    "buildings": 86,
+    "bytes": 92251,
+    "blurb": "A hill town stacked down to the sea."
+  },
+  {
+    "slug": "valletta-harbour-malta",
+    "name": "Grand Harbour, Valletta",
+    "lat": 35.8989,
+    "lon": 14.5146,
+    "radius": 120,
+    "hill_m": 22,
+    "buildings": 18,
+    "bytes": 17707,
+    "blurb": "Fort walls and harbour steps."
+  },
+  {
+    "slug": "speicherstadt-hamburg",
+    "name": "Speicherstadt, Hamburg",
+    "lat": 53.5436,
+    "lon": 9.9886,
+    "radius": 120,
+    "hill_m": 12,
+    "buildings": 21,
+    "bytes": 18930,
+    "blurb": "Brick warehouses along the canals."
+  },
+  {
+    "slug": "alfama-lisbon",
+    "name": "Alfama, Lisbon",
+    "lat": 38.711,
+    "lon": -9.1286,
+    "radius": 120,
+    "hill_m": 49,
+    "buildings": 278,
+    "bytes": 213960,
+    "blurb": "A steep old quarter of narrow lanes."
+  },
+  {
+    "slug": "spanish-steps-rome",
+    "name": "Spanish Steps, Rome",
+    "lat": 41.906,
+    "lon": 12.4828,
+    "radius": 120,
+    "hill_m": 26,
+    "buildings": 35,
+    "bytes": 46361,
+    "blurb": "A wide staircase between old palaces."
+  }
+]
