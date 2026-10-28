@@ -7,13 +7,8 @@ import { findShortcuts, shortcutLine, variantsOf } from '../src/sim/shortcuts';
 
 const demo = (name: string) => JSON.parse(readFileSync(`public/assets/demo/${name}.course.json`, 'utf8')) as CourseData;
 
-// The lache demo with its far deck brought within reach of the first bar: a full pump on bar 1 flies over bar 2 and lands on it.
-function skipCourse(): CourseData {
-  const c = demo('lache');
-  delete c.plan; delete c.shortcuts;
-  c.terrain.platforms[3] = { ...c.terrain.platforms[3], x0: 45.5 };
-  return c;
-}
+// The lache demo: its far deck is within reach of a full pump on bar 1, so flying over bar 2 is a faster line (CC-67 made it on purpose, so the designer keeps it).
+const skipCourse = (): CourseData => demo('lache');
 
 describe('shortcut search', () => {
   it('lists the ways to take a move away: each bar, each neighbouring pair, the wall, the rope', () => {
@@ -24,9 +19,10 @@ describe('shortcut search', () => {
     expect(d).toContain('skip-rope');
   });
 
-  it('finds the skip over bar 2 when the far deck is within reach of bar 1, and the saving is right', () => {
+  it('finds the skip over bar 2 in the lache demo (a full pump on bar 1), and the saving is right', () => {
     const c = skipCourse();
     const r = findShortcuts(c, { onlyIds: ['skip-bar-2'], moveChoices: false });
+    expect(r.intendedSeconds).toBeCloseTo((c.routes!.find((x) => x.bars >= 2)!.ticks) / 120, 1); // the baseline is the bar-to-bar route the search stored
     const s = r.shortcuts.find((x) => x.id === 'skip-bar-2');
     expect(s, 'a skip over bar 2').toBeTruthy();
     expect(s!.skipped).toEqual(['Bar 2']);
@@ -37,6 +33,7 @@ describe('shortcut search', () => {
     expect(s!.seconds).toBeCloseTo(played.world.runner.tick / 120, 1);
     expect(r.intendedSeconds! - s!.seconds).toBeCloseTo(s!.secondsSaved, 1);
     expect(s!.secondsSaved).toBeGreaterThan(0.3);
+    expect(s!.designed).toBe(true); // the demo keeps it on purpose (designedShortcuts)
     expect(shortcutLine(s!)).toMatch(/^Shortcut: .* saves \d+\.\d s/);
   }, 600_000);
 

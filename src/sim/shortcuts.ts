@@ -69,22 +69,6 @@ function mapPlan(plan: Plan, real: CourseData, v: Variant): Plan {
   return { ...plan, hangTicks, noGrab: v.skipIdx, hands: n > 0 };
 }
 
-// the quickest line that holds EVERY bar (what the designer drew): the ideal plan's take-off with the pump times of the first bars tried on a grid
-function fullRoute(course: CourseData, plan: Plan): { seconds: number; plan: Plan } | null {
-  const n = (course.holds ?? []).length;
-  if (n === 0) return null;
-  const vals = Array.from({ length: 21 }, (_, i) => i * 24);
-  let best: { seconds: number; plan: Plan } | null = null;
-  const lists = [vals, n > 1 ? vals : [90], n > 2 ? vals : [90]];
-  for (const a of lists[0]) for (const b of lists[1]) for (const c of lists[2]) {
-    const ht = Array.from({ length: n }, (_, i) => (i === 0 ? a : i === 1 ? b : i === 2 ? c : plan.hangTicks?.[i] ?? 90));
-    const pl: Plan = { ...plan, hangTicks: ht, noGrab: undefined, hands: true };
-    const u = usedBy(playPlan(course, pl, 120 * 40));
-    if (u && u.caught.length === n && (!best || u.seconds < best.seconds)) best = { seconds: u.seconds, plan: pl };
-  }
-  return best;
-}
-
 function say(skipped: string[], u: Used): string {
   const longest = u.pumps.length ? Math.max(...u.pumps) : 0;
   const names = skipped.map((s) => s.toLowerCase()).join(' and ');
@@ -95,8 +79,10 @@ function say(skipped: string[], u: Used): string {
 export function findShortcuts(course: CourseData, opts: ShortcutOptions = {}): ShortcutReport {
   const t0 = Date.now();
   const holds = course.holds ?? [];
-  const idealFound = course.plan ? null : searchIdealRun({ ...course, plan: undefined } as CourseData);
+  // the ideal search with routes (CC-67) already compares bar to bar against a full pump that flies over the second bar, and keeps the faster; reuse its answer
+  const idealFound = course.plan && (course.routes || holds.length < 2) ? null : searchIdealRun({ ...course, plan: undefined, routes: undefined } as CourseData, { routes: holds.length >= 2 });
   const idealPlan = course.plan ?? idealFound!.plan;
+  const routes = course.routes ?? idealFound?.routes;
   const idealUsed = usedBy(playPlan(course, idealPlan));
   const report: ShortcutReport = { intendedSeconds: idealUsed?.seconds ?? null, intended: idealPlan, shortcuts: [], moveChoices: [], searches: idealFound ? 1 : 0, complete: true };
   if (!idealUsed) return report;
@@ -105,10 +91,8 @@ export function findShortcuts(course: CourseData, opts: ShortcutOptions = {}): S
 
   // the line that uses every bar: the designer's route, and the baseline for the saving when the ideal line already skips a bar
   let baseline = idealUsed.seconds;
-  if (holds.length && idealUsed.caught.length < holds.length) {
-    const full = fullRoute(course, idealPlan);
-    if (full) { baseline = full.seconds; report.intended = full.plan; }
-  }
+  const viaBars = routes?.find((r) => holds.length >= 2 && r.bars >= holds.length); // the route that holds every bar, when the ideal line flies over one
+  if (viaBars) baseline = viaBars.ticks * DT;
   report.intendedSeconds = r2(baseline);
 
   const found = new Map<string, Shortcut>();
