@@ -222,6 +222,10 @@ try {
     await page.screenshot({ path: 'test-results/editor/moves-preview.png' });
     await page.click('#cancelpreview');
   } else checks.suggestionOpensTheSharedPreview = true; // none to show for a bench: nothing to open
+  // routes you did not plan (CC-71): the button runs the shortcut search in a worker and lists what it finds (maybe nothing for this lane)
+  await page.click('#findroutes');
+  checks.routesSearchAnswers = await page.waitForFunction(() => document.documentElement.dataset.routes !== undefined, null, { timeout: 420000 }).then(() => true, () => false);
+  await page.screenshot({ path: 'test-results/editor/routes.png' });
   console.log(checks, 'errors:', errors);
   await browser.close();
   process.exit(Object.values(checks).every(Boolean) && !errors.length ? 0 : 1);

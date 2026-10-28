@@ -1,0 +1,39 @@
+{
+  "seed": 10,
+  "name": "Generated course 10",
+  "zones": [
+    "Warped wall",
+    "Lache pair",
+    "Step up",
+    "Gap jump"
+  ],
+  "intendedSeconds": 33.17,
+  "searchSeconds": 433,
+  "shortcuts": [
+    {
+      "id": "skip-bars-1-2",
+      "skipped": [
+        "Bar 1",
+        "Bar 2"
+      ],
+      "how": "jump past bar 1 and bar 2",
+      "secondsSaved": 9.7,
+      "seconds": 23.47,
+      "pumpSeconds": null,
+      "windowMs": 192,
+      "designed": false
+    },
+    {
+      "id": "skip-bar-2",
+      "skipped": [
+        "Bar 2"
+      ],
+      "how": "pump 1.91 s on the bar you hold, let go, and fly past bar 2",
+      "secondsSaved": 6.18,
+      "seconds": 26.98,
+      "pumpSeconds": 1.91,
+      "windowMs": 219,
+      "designed": false
+    }
+  ]
+}
