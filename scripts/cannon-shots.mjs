@@ -13,8 +13,8 @@ try {
   const errors = []; page.on('pageerror', (e) => { errors.push(e.message); console.log('PAGEERROR', e.message.slice(0, 200)); });
   mkdirSync('test-results/cannon', { recursive: true });
   await page.goto(`http://localhost:${port}/?mode=editor`);
-  await page.waitForSelector('#addcannon', { timeout: 60000 });
-  await page.click('#addcannon');
+  await page.waitForSelector('#addcannon', { state: 'attached', timeout: 60000 });
+  await page.click('#addpiece'); await page.click('#addcannon');
   const knobs = await page.$$eval('#recoilkg, #recoilspeed', (els) => els.map((e) => e.value));
   await page.waitForTimeout(3000);
   await page.screenshot({ path: 'test-results/cannon/editor.png' });

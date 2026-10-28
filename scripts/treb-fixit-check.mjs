@@ -15,7 +15,7 @@ try {
   await page.waitForFunction(() => document.documentElement.dataset.pieces === '3', null, { timeout: 30000 });
   mkdirSync('test-results/treb-fixit', { recursive: true });
   const out = {};
-  await page.click('#addtreb');
+  await page.click('#addpiece'); await page.click('#addtreb');
   await page.fill('#trebkg', '300');
   await page.dispatchEvent('#trebkg', 'change');
   await page.waitForTimeout(2500);

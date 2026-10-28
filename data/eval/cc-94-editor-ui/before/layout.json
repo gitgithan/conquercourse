@@ -1,0 +1,134 @@
+{
+  "1280x720 closed": {
+    "controls": 44,
+    "buttons": 40,
+    "topControls": 6,
+    "bad": [],
+    "overlaps": [],
+    "offscreen": [],
+    "pageFits": true,
+    "ok": true
+  },
+  "1280x720 moves": {
+    "controls": 49,
+    "buttons": 45,
+    "topControls": 6,
+    "bad": [
+      "clipped: Add two bars",
+      "clipped: Start in a trebuchet",
+      "clipped: Open the coaster builder"
+    ],
+    "overlaps": [],
+    "offscreen": [],
+    "pageFits": true,
+    "ok": false
+  },
+  "1280x720 partner": {
+    "controls": 51,
+    "buttons": 46,
+    "topControls": 6,
+    "bad": [],
+    "overlaps": [],
+    "offscreen": [],
+    "pageFits": true,
+    "ok": true
+  },
+  "1280x720 addmenu": {
+    "skipped": "no Add piece menu"
+  },
+  "1280x720 overflow": {
+    "skipped": "no overflow menu"
+  },
+  "1280x720 palette": {
+    "skipped": "no command palette"
+  },
+  "1280x720 pageerrors": [],
+  "1024x640 closed": {
+    "controls": 44,
+    "buttons": 40,
+    "topControls": 6,
+    "bad": [],
+    "overlaps": [],
+    "offscreen": [],
+    "pageFits": true,
+    "ok": true
+  },
+  "1024x640 moves": {
+    "controls": 49,
+    "buttons": 45,
+    "topControls": 6,
+    "bad": [
+      "clipped: Add two bars",
+      "clipped: Start in a trebuchet",
+      "clipped: Open the coaster builder"
+    ],
+    "overlaps": [],
+    "offscreen": [],
+    "pageFits": true,
+    "ok": false
+  },
+  "1024x640 partner": {
+    "controls": 51,
+    "buttons": 46,
+    "topControls": 6,
+    "bad": [],
+    "overlaps": [],
+    "offscreen": [],
+    "pageFits": true,
+    "ok": true
+  },
+  "1024x640 addmenu": {
+    "skipped": "no Add piece menu"
+  },
+  "1024x640 overflow": {
+    "skipped": "no overflow menu"
+  },
+  "1024x640 palette": {
+    "skipped": "no command palette"
+  },
+  "1024x640 pageerrors": [],
+  "1920x1080 closed": {
+    "controls": 44,
+    "buttons": 40,
+    "topControls": 6,
+    "bad": [],
+    "overlaps": [],
+    "offscreen": [],
+    "pageFits": true,
+    "ok": true
+  },
+  "1920x1080 moves": {
+    "controls": 49,
+    "buttons": 45,
+    "topControls": 6,
+    "bad": [
+      "clipped: Add two bars",
+      "clipped: Start in a trebuchet",
+      "clipped: Open the coaster builder"
+    ],
+    "overlaps": [],
+    "offscreen": [],
+    "pageFits": true,
+    "ok": false
+  },
+  "1920x1080 partner": {
+    "controls": 51,
+    "buttons": 46,
+    "topControls": 6,
+    "bad": [],
+    "overlaps": [],
+    "offscreen": [],
+    "pageFits": true,
+    "ok": true
+  },
+  "1920x1080 addmenu": {
+    "skipped": "no Add piece menu"
+  },
+  "1920x1080 overflow": {
+    "skipped": "no overflow menu"
+  },
+  "1920x1080 palette": {
+    "skipped": "no command palette"
+  },
+  "1920x1080 pageerrors": []
+}

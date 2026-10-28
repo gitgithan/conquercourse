@@ -16,7 +16,7 @@ try {
   await page.evaluate(() => localStorage.removeItem('cc.world.v1'));
   await page.reload();
   await page.waitForSelector('#view3d', { timeout: 60000 });
-  await page.click('#addlache');
+  await page.click('#addpiece'); await page.click('#addlache');
   await page.waitForFunction(() => document.documentElement.dataset.bars === '2', null, { timeout: 10000 });
   if (await page.evaluate(() => document.getElementById('helper')?.classList.contains('closed'))) await page.click('#helperbtn');
   await page.waitForSelector('#findroutes', { timeout: 20000 });
