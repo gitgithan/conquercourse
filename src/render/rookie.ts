@@ -11,7 +11,7 @@ export interface PosedRookie {
   bones: Object3D[]; // clip order
   legLength: number; // metres
   lift: number; // metres the hips were raised above the path to keep the feet on the floor
-  apply(joints: Vector3[]): void; // bones aim at these world joint positions
+  apply(joints: Vector3[], opts?: { floor?: boolean }): void; // bones aim at these world joint positions; `floor: false` keeps them exactly there (no lift to keep the feet above the floor: the vault's feet are not near the ground)
   world(): Vector3[]; // where the bones are now
 }
 
@@ -45,7 +45,7 @@ export async function loadRookie(id: RookieId, names: string[], parents: number[
     rig,
     bones,
     legLength: length,
-    apply(joints) {
+    apply(joints, opts) {
       const q = solveBones(rig, parents, names, joints);
       bones[0].parent!.updateWorldMatrix(true, false);
       bones[0].position.copy(bones[0].parent!.worldToLocal(joints[0].clone()));
@@ -54,7 +54,7 @@ export async function loadRookie(id: RookieId, names: string[], parents: number[
       // The aimed bones keep the Rookie's own proportions, so a bent leg can end lower than the clip's: lift the hips
       // by that much so no foot goes through the floor (the lift is reported by `lift`).
       const lowest = Math.min(...feet.map((i) => bones[i].getWorldPosition(new Vector3()).y));
-      rookie.lift = Math.max(0, -lowest);
+      rookie.lift = opts?.floor === false ? 0 : Math.max(0, -lowest);
       if (rookie.lift > 0) {
         bones[0].position.copy(bones[0].parent!.worldToLocal(joints[0].clone().add(new Vector3(0, rookie.lift, 0))));
         object.updateMatrixWorld(true);
