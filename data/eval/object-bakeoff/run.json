@@ -1,0 +1,20 @@
+{
+  "experiment": "object-bakeoff",
+  "issue": "CC-55",
+  "date": "2026-10-28",
+  "status": "stopped at licence gate",
+  "models_run": [],
+  "models_blocked": {
+    "TRELLIS.2": "needs gated facebook/dinov3-vitl16-pretrain-lvd1689m (and briaai/RMBG-2.0)",
+    "Pixal3D": "same backbone, same DINOv3 gate"
+  },
+  "gpu_seconds": 0,
+  "estimated_usd": 0.01,
+  "price_basis": "three CPU probe runs on Modal, a few seconds each",
+  "inputs": "public/assets/objects/index.json photos in data/eval/cc-38-photo-to-3d/inputs",
+  "outputs": [
+    "sam3d-census.json"
+  ],
+  "script": "scripts/bakeoff-census.ts",
+  "probe": "pipelines/objbake/probe_access.py"
+}
