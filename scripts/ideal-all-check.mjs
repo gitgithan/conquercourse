@@ -38,10 +38,13 @@ try {
   await page.waitForTimeout(2500);
   const x1 = Number(await page.evaluate(() => document.documentElement.dataset.x));
   await page.keyboard.press('ArrowLeft'); await page.keyboard.up('ArrowLeft');
-  await page.waitForTimeout(3000);
+  await page.waitForTimeout(700);
+  const yourTurn = /Your turn/.test(await page.textContent('body'));
+  await page.waitForTimeout(2500);
   const x2 = Number(await page.evaluate(() => document.documentElement.dataset.x));
-  const text = await page.textContent('body');
-  out.anyKeyStops = { x1, x2, yourTurn: /Your turn/.test(text), notCleared: (await outcome()) === 'running' };
+  await page.waitForTimeout(2500);
+  const x3 = Number(await page.evaluate(() => document.documentElement.dataset.x));
+  out.anyKeyStops = { x1, x2, x3, yourTurn, stoodStill: Math.abs(x3 - x2) < 0.05, notCleared: (await outcome()) === 'running' };
   console.log('anyKeyStops', out.anyKeyStops);
 
   // the floors: walk off the deck into the first gap of the lache demo

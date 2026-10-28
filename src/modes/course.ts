@@ -427,6 +427,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
   let retryX = resume ? resume.retryX : course.startX; // "try this obstacle again" starts standing still just before it
   let demo: { x1: number } | null = null;
   const idealCache = new Map<number, Plan>();
+  let idealWhole = false, idealToken = 0, idealPending = 0, idealWorker: Worker | null = null, idealNote = ''; // idealNote: the line shown while an ideal run is working or playing
   const cpFor = (zoneId: string) => course.checkpoints?.find((c) => c.id === zoneId)?.x ?? course.startX;
   const guides = new THREE.Group();
   scene.add(guides);
@@ -464,6 +465,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
     world = newWorld(course, x);
     log.length = 0;
     botState.next = 0; botState.caught = null; botState.bedAt = null;
+    idealNote = '';
     msg.textContent = '';
     frames.length = 0; replay = null; panel.style.display = 'none';
     squashUntil = 0; toastUntil = 0; toast.style.display = 'none';
@@ -497,7 +499,6 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
 
   // The ideal run: the simulator's own best line from standing still at x0. A plan always runs on to the finish, so
   // "this obstacle" only stops it at the end of the zone (demo) and "the whole course" lets it run (Shift+I).
-  let idealWhole = false, idealToken = 0, idealWorker: Worker | null = null;
   function findPlan(c: CourseData): Promise<Plan> {
     return new Promise((resolve) => {
       try {
@@ -513,7 +514,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
     let p = idealCache.get(x0) ?? (x0 === course.startX ? course.plan : undefined);
     const token = ++idealToken;
     if (!p) {
-      msg.textContent = 'Working out the ideal run… (any key cancels)';
+      idealNote = 'Working out the ideal run… (any key cancels)';
       idealPending = token;
       p = await findPlan({ ...course, startX: x0 });
       if (idealPending !== token) return; // cancelled while the search ran
@@ -526,19 +527,18 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
     plan = p; botState.next = 0; botState.caught = null; botState.bedAt = null;
     idealWhole = zoneId === null;
     demo = zoneId === null ? null : { x1: (course.zones?.find((z) => z.id === zoneId)?.x1 ?? 1e9) + 3 };
-    msg.textContent = zoneId === null ? 'Ideal run through every obstacle: watch it, press any key to take over.' : 'Ideal run: watch how it is done, then press R to try it yourself.';
+    idealNote = zoneId === null ? 'Ideal run through every obstacle: watch it, press any key to take over.' : 'Ideal run: watch how it is done, then press R to try it yourself.';
   }
-  let idealPending = 0;
   function showIdeal(zoneId: string) { idealWhole = false; void startIdeal(cpFor(zoneId), zoneId); }
   // Shift+I: from the start, or from where retry would start (the checkpoint before the obstacle you fell at), to the finish
   function showWholeIdeal() { void startIdeal(retryX, null); }
   function stopWholeIdeal() {
     idealWhole = false; idealPending = 0; idealToken++;
     if (!botMode) plan = null;
-    if (msg.textContent?.startsWith('Ideal run') || msg.textContent?.startsWith('Working out')) msg.textContent = 'Your turn.';
+    idealNote = 'Your turn.'; setTimeout(() => { if (idealNote === 'Your turn.') idealNote = ''; }, 2500);
   }
   function demoEnd() {
-    const whole = idealWhole;
+    const whole = idealWhole; idealNote = '';
     plan = botMode ? plan : null; demo = null; idealWhole = false;
     panel.innerHTML = ''; panel.style.display = 'grid';
     const h = document.createElement('strong'); h.textContent = whole ? 'That was the ideal run through every obstacle. Your turn.' : 'That was the ideal run. Your turn.';
@@ -804,7 +804,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
       ropeMesh.position.set(course.rope.anchorX + (ropeLen / 2) * Math.sin(th), course.rope.anchorY - (ropeLen / 2) * Math.cos(th), 0);
       ropeMesh.updateMatrix(); ropeMesh.updateMatrixWorld(true);
     }
-    msg.textContent = paused ? 'Back from the Dojo. Press any key to carry on.' : world.outcome === 'cleared' ? MESSAGES.cleared : '';
+    msg.textContent = paused ? 'Back from the Dojo. Press any key to carry on.' : world.outcome === 'cleared' ? MESSAGES.cleared : idealNote;
     const spd = Math.abs(r.vx);
     gText.textContent = `Speed ${spd.toFixed(1)} m/s`;
     gFill.style.width = `${Math.min(100, (spd / GAUGE_MAX) * 100)}%`;
