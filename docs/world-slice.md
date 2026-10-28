@@ -1093,3 +1093,28 @@ The set of obstacle shapes is fixed, and each shape offers a fixed set of moves.
   - Software-GPU times are relative, not what a real graphics card gives.
   - The editor 3D view was only given shared materials; its pieces stay separate because each can be picked and dragged.
   - The map piece is already one mesh, so the Slicer (CC-72) can draw several cut planes without a draw-call problem, but a place of thousands of buildings should be cut into chunks when it is built (the Course does it on load).
+## The cannon: more power and an aimed angle (CC-66)
+- **So what:** the recoil idea now has a big, aimed cannon: one shot throws the runner tens of metres a second, and the player decides the angle.
+  - The demo is a 32 m gap with a 4 m drop onto the far deck; nothing a runner can do crosses it, one aimed shot does, and the landing needs a roll.
+  - A steep shot flies high and lands too hard even for a roll; a flat one falls short: the middle is the answer, which is the lesson.
+- **The numbers:** an 80 kg ball at 45 m/s against the 70 kg runner gives 24 m/s of push (a sprint is 9).
+  - The tank must store the energy the shot makes, half the reduced mass times the muzzle speed squared: about 38 kJ, the energy of a 1000 kg car rolling at about 31 km/h (shown while the cannon is loaded).
+  - A smaller tank limits the muzzle speed (a test).
+- **A vector law:** the ball leaves backward and down by the aim angle, so the runner is pushed forward and up by it.
+  - Momentum is conserved along the lane and up, to 8 decimals in tests, at any aim and any running speed.
+  - On the ground a push up counts (it lifts you off) and a push down does not (the ground holds you up); in the air both count.
+- **Aiming:** while the cannon is loaded, Up (or W) tilts the barrel steeper and Down flatter (34 degrees a second, from level to 77 degrees); the barrel on screen tilts with it.
+  - Dots show where you would land, from the same prediction the debug view uses (a test compares it with the real flight and with the textbook range).
+  - The words say the aim, the tank energy and the landing ("a hard landing unless you tap X just before the ground").
+- **Best angle:** on level ground the range peaks within 4 degrees of 45 (test); a steeper shot goes higher and shorter, a flatter one lower and shorter.
+  - On the demo the stored line aims about 14 degrees, fires at 11 m and rolls out of the landing.
+  - The window of aims that clear is wide at low angles and ends where the landing is too hard.
+- **The ideal run** searches the angle and the fire place together (`searchCannon`); the drum lane shows an aim drum (the angle) and the K drum, and the X drum before the landing.
+- **Editor:** a "Cannon" button next to "Launcher" and "Heavy crate", with the mass and speed of the ball as knobs (the proof searches the angle); Fix it for a cannon raises the speed first, then the mass, up to 120 kg at 60 m/s.
+- **Dojo:** "Cannon: the best angle" with a hill-shaped curve, two diagrams, and the formula (distance = forward speed x time in the air) as the last step.
+- **Gaps and fallbacks:**
+  - The Rookie is drawn standing in front of the cannon, not sitting on it.
+    - Fallback: the running pose; a seated pose belongs to the motion pipeline (CC-64).
+  - The ball is drawn as a big rubber ball; there is no muzzle blast or sound of its own (the shot uses the existing clang).
+  - Fix it for a cannon takes 10 to 60 seconds (each test runs the full search, CC-69).
+  - The aim cannot be changed in the air, only while loaded.

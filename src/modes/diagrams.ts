@@ -1,8 +1,8 @@
 // Labelled Dojo diagrams (CC-31): one "real" drawing and one "principle" picture per obstacle, as inline SVG strings.
 // Original art, drawn in code; words only, no formulas.
-export type DiagramId = 'gap' | 'wall' | 'rope' | 'trampoline' | 'landing' | 'coaster' | 'lever' | 'recoil' | 'bridge';
+export type DiagramId = 'gap' | 'wall' | 'rope' | 'trampoline' | 'landing' | 'coaster' | 'lever' | 'recoil' | 'bridge' | 'cannon';
 export type DiagramKind = 'real' | 'principle';
-export const DIAGRAM_IDS: DiagramId[] = ['gap', 'wall', 'rope', 'trampoline', 'landing', 'coaster', 'lever', 'recoil', 'bridge'];
+export const DIAGRAM_IDS: DiagramId[] = ['gap', 'wall', 'rope', 'trampoline', 'landing', 'coaster', 'lever', 'recoil', 'bridge', 'cannon'];
 
 const INK = '#1f2937', SPEED = '#2563eb', FORCE = '#dc2626', GRAV = '#d97706', ENERGY = '#16a34a', GROUND = '#9ca3af', SOFT = '#e5e7eb';
 type P = [number, number];
@@ -313,7 +313,35 @@ function bridgePrinciple(): string {
   return wrap('Plank bridge: what changes the sag', body);
 }
 
+function cannonReal(): string {
+  const arc = (deg: number, color: string, w = 4) => {
+    const a = (deg * Math.PI) / 180, v = 28, T = (2 * v * Math.sin(a)) / 9.81, pts: P[] = [];
+    for (let i = 0; i <= 24; i++) { const t = (T * i) / 24; pts.push([80 + (v * Math.cos(a) * t) * 8.2, 372 - (v * Math.sin(a) * t - 4.905 * t * t) * 8.2]); }
+    return poly(pts, color, w);
+  };
+  const body =
+    `<rect x="0" y="372" width="760" height="68" fill="${SOFT}"/>` + line([0, 372], [760, 372], GROUND, 5) +
+    arc(75, GRAV) + arc(45, ENERGY, 6) + arc(20, SPEED) +
+    txt(190, 110, 'Steep: high,\nshort', { color: GRAV, bold: true, size: 14 }) + txt(430, 196, 'Middle: farthest', { color: ENERGY, bold: true, size: 15 }) + txt(560, 330, 'Flat: low and\nnot far', { color: SPEED, bold: true, size: 14 }) +
+    `<rect x="40" y="338" width="62" height="26" rx="6" fill="#4a4f55"/><circle cx="52" cy="368" r="9" fill="#1f2937"/><circle cx="90" cy="368" r="9" fill="#1f2937"/>` +
+    txt(380, 70, 'The same push, three angles', { bold: true, size: 17 });
+  return wrap('Cannon: the angle decides the flight', body);
+}
+
+function cannonPrinciple(): string {
+  const split = (cx: number, deg: number, name: string) => {
+    const a = (deg * Math.PI) / 180, L = 150, ex = cx + L * Math.cos(a), ey = 330 - L * Math.sin(a);
+    return arrow([cx, 330], [ex, ey], INK, 5) + line([cx, 330], [ex, 330], SPEED, 4, '6 5') + line([ex, 330], [ex, ey], ENERGY, 4, '6 5') +
+      txt(cx + L / 2, 352, 'Forward', { color: SPEED, size: 13, bold: true }) + txt(ex + 36, (330 + ey) / 2, 'Up', { color: ENERGY, size: 13, bold: true }) + txt(cx + 70, 110, name, { bold: true, size: 15 });
+  };
+  const body = split(70, 20, 'Flat: mostly forward') + split(300, 45, 'Middle: even') + split(530, 70, 'Steep: mostly up') +
+    txt(380, 400, 'The push has a forward part and an upward part. Forward covers ground; up keeps you in the air.', { bold: true, size: 14 }) +
+    txt(380, 424, 'Spend it evenly and you land farthest.', { size: 14 });
+  return wrap('Cannon: one push, split two ways', body);
+}
+
 const table: Record<DiagramId, Record<DiagramKind, () => string>> = {
+  cannon: { real: cannonReal, principle: cannonPrinciple },
   recoil: { real: recoilReal, principle: recoilPrinciple },
   gap: { real: gapReal, principle: gapPrinciple },
   wall: { real: wallReal, principle: wallPrinciple },

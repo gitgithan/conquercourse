@@ -6,6 +6,10 @@ import { predictShot } from '../src/sim/predict';
 import { AIM_MAX, AIM_RATE, DEFAULT_CANNON, DEFAULT_RECOIL, energyWords, levelRange, shot, shotEnergy, effectiveMuzzle } from '../src/sim/recoil';
 import { NO_INPUT } from '../src/sim/runner';
 import { newWorld, recoilParams, stepWorld, type WorldState } from '../src/sim/world';
+import { EXPERIMENTS, classify, defaults, sweep } from '../src/sim/experiments';
+import { LESSONS } from '../src/modes/lessons';
+import { fixRecoil } from '../src/slice/fixrecoil';
+import { withRecoil } from '../src/slice/recoil-lane';
 
 const demo = JSON.parse(readFileSync('public/assets/demo/cannon.course.json', 'utf8')) as CourseData;
 
@@ -167,4 +171,45 @@ describe('the cannon demo course', () => {
     expect(playPlan(first, first.plan as Plan).world.outcome).toBe('cleared');
     expect(DEFAULT_RECOIL.kind).toBe('cannon');
   });
+});
+
+describe('the Dojo lesson for the angle', () => {
+  const exp = EXPERIMENTS.find((e) => e.id === 'cannon')!;
+  const range = (deg: number) => exp.run({ angle: deg, mass: DEFAULT_CANNON.ballMass, muzzle: DEFAULT_CANNON.muzzle }).answer;
+  it('the answer peaks near 45 degrees and is a hill', () => {
+    const rows = Array.from({ length: 17 }, (_, i) => 5 + i * 5).map((d) => ({ d, r: range(d) }));
+    const best = rows.reduce((a, b) => (b.r > a.r ? b : a));
+    expect(Math.abs(best.d - 45)).toBeLessThanOrEqual(4);
+    expect(classify(sweep(exp, defaults(exp), 'angle')).shape).toBe('hump');
+  });
+  it('the lesson formula agrees with the experiment', () => {
+    for (const angle of [15, 45, 70]) { const v = { angle, mass: 80, muzzle: 45 }; expect(LESSONS.cannon.calc(v).value).toBeCloseTo(exp.run(v).answer, 0); }
+  });
+  it('the saying is short, plain and has no numbers', () => {
+    const s = exp.sayings[0];
+    expect(s.split(/\s+/).length).toBeLessThanOrEqual(15);
+    expect(s).not.toMatch(/[0-9=×÷√²]/);
+  });
+});
+
+describe('the editor lane with a cannon, and Fix it for it', () => {
+  const lane = (gap: number): CourseData => ({
+    version: 1, name: 'lane', startX: 0, finishX: 18 + gap + 8, jumpSpeed: 4.5,
+    terrain: { waterY: -10, platforms: [{ x0: -10, x1: 18, top: 0 }, { x0: 18 + gap, x1: 18 + gap + 30, top: -4 }] },
+  });
+  it('the proof searches the angle: a 32 m gap with a 4 m drop clears with the big cannon and not without it', () => {
+    const c = withRecoil(lane(32), { kind: 'bigcannon', ballMass: 80, muzzle: 45 });
+    expect(c.recoil).toMatchObject({ kind: 'bigcannon', angle: DEFAULT_CANNON.angle, ballMass: 80, muzzle: 45 });
+    const r = searchIdealRun(c);
+    expect(r.cleared).toBe(true);
+    expect(r.plan.aim).toBeGreaterThan(0);
+    expect(searchIdealRun(lane(32)).cleared).toBe(false);
+  });
+  it('Fix it makes a weak cannon strong enough, and the proof agrees', () => {
+    const weak = { kind: 'bigcannon' as const, ballMass: 30, muzzle: 25 };
+    const r = fixRecoil(lane(32), weak);
+    expect(r.ok).toBe(true);
+    expect(r.cfg.ballMass * r.cfg.muzzle).toBeGreaterThan(weak.ballMass * weak.muzzle);
+    expect(searchIdealRun(withRecoil(lane(32), r.cfg)).cleared).toBe(true);
+  }, 400000);
 });
