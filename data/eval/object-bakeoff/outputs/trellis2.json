@@ -1,0 +1,32 @@
+{
+  "model": "trellis2",
+  "load_seconds": 83.4,
+  "container_seconds": 566.2,
+  "usd_estimate": 0.307,
+  "objects": {
+    "rail-skate-01": {
+      "seconds": 176.1,
+      "bytes": 5532280
+    },
+    "box-skate-03": {
+      "seconds": 91.0,
+      "bytes": 4867804
+    },
+    "bench-concrete": {
+      "seconds": 26.8,
+      "bytes": 6088916
+    },
+    "railing-iron": {
+      "seconds": 79.0,
+      "bytes": 6294452
+    },
+    "rail-skate-02": {
+      "seconds": 68.7,
+      "bytes": 5528056
+    },
+    "stairs-park-07": {
+      "seconds": 32.2,
+      "bytes": 5658292
+    }
+  }
+}

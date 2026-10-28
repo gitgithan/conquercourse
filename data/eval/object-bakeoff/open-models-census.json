@@ -1,0 +1,235 @@
+[
+  {
+    "model": "trellis2",
+    "name": "rail-skate-01",
+    "size_m": [
+      7.666,
+      1,
+      0.168
+    ],
+    "triangles": 99316,
+    "openEdges": 0,
+    "nonManifoldEdges": 4,
+    "flippedEdges": 0,
+    "empty": 0,
+    "looseVertices": 0,
+    "widthOverHeight": 7.67,
+    "photoBoxWidthOverHeight": 1.34,
+    "seconds": 176.1,
+    "problems": []
+  },
+  {
+    "model": "trellis2",
+    "name": "box-skate-03",
+    "size_m": [
+      2.627,
+      0.5,
+      4.909
+    ],
+    "triangles": 98760,
+    "openEdges": 0,
+    "nonManifoldEdges": 1,
+    "flippedEdges": 0,
+    "empty": 0,
+    "looseVertices": 0,
+    "widthOverHeight": 9.82,
+    "photoBoxWidthOverHeight": 3.45,
+    "seconds": 91,
+    "problems": []
+  },
+  {
+    "model": "trellis2",
+    "name": "bench-concrete",
+    "size_m": [
+      1.732,
+      0.8,
+      0.696
+    ],
+    "triangles": 97239,
+    "openEdges": 36,
+    "nonManifoldEdges": 13,
+    "flippedEdges": 0,
+    "empty": 12,
+    "looseVertices": 0,
+    "widthOverHeight": 2.16,
+    "photoBoxWidthOverHeight": 1.76,
+    "seconds": 26.8,
+    "problems": []
+  },
+  {
+    "model": "trellis2",
+    "name": "railing-iron",
+    "size_m": [
+      1.486,
+      0.999,
+      1.486
+    ],
+    "triangles": 99516,
+    "openEdges": 1045,
+    "nonManifoldEdges": 0,
+    "flippedEdges": 0,
+    "empty": 67,
+    "looseVertices": 18,
+    "widthOverHeight": 1.49,
+    "photoBoxWidthOverHeight": 2.33,
+    "seconds": 79,
+    "problems": [
+      "1045 open edges (holes)"
+    ]
+  },
+  {
+    "model": "trellis2",
+    "name": "rail-skate-02",
+    "size_m": [
+      6.745,
+      1,
+      0.112
+    ],
+    "triangles": 93220,
+    "openEdges": 12,
+    "nonManifoldEdges": 2,
+    "flippedEdges": 0,
+    "empty": 8,
+    "looseVertices": 0,
+    "widthOverHeight": 6.75,
+    "photoBoxWidthOverHeight": 2.55,
+    "seconds": 68.7,
+    "problems": []
+  },
+  {
+    "model": "trellis2",
+    "name": "stairs-park-07",
+    "size_m": [
+      5.159,
+      0.699,
+      1.107
+    ],
+    "triangles": 98024,
+    "openEdges": 0,
+    "nonManifoldEdges": 3,
+    "flippedEdges": 0,
+    "empty": 0,
+    "looseVertices": 0,
+    "widthOverHeight": 7.38,
+    "photoBoxWidthOverHeight": 5.95,
+    "seconds": 32.2,
+    "problems": []
+  },
+  {
+    "model": "pixal3d",
+    "name": "rail-skate-01",
+    "size_m": [
+      1.362,
+      1,
+      0.924
+    ],
+    "triangles": 96286,
+    "openEdges": 8460,
+    "nonManifoldEdges": 5,
+    "flippedEdges": 0,
+    "empty": 7367,
+    "looseVertices": 909,
+    "widthOverHeight": 1.36,
+    "photoBoxWidthOverHeight": 1.34,
+    "seconds": 226.6,
+    "problems": [
+      "7367 empty triangles",
+      "8460 open edges (holes)"
+    ]
+  },
+  {
+    "model": "pixal3d",
+    "name": "box-skate-03",
+    "size_m": [
+      1.723,
+      0.5,
+      1.729
+    ],
+    "triangles": 97819,
+    "openEdges": 19,
+    "nonManifoldEdges": 1,
+    "flippedEdges": 0,
+    "empty": 14,
+    "looseVertices": 3,
+    "widthOverHeight": 3.46,
+    "photoBoxWidthOverHeight": 3.45,
+    "seconds": 103.8,
+    "problems": []
+  },
+  {
+    "model": "pixal3d",
+    "name": "bench-concrete",
+    "size_m": [
+      1.562,
+      0.8,
+      1.092
+    ],
+    "triangles": 97401,
+    "openEdges": 61,
+    "nonManifoldEdges": 104,
+    "flippedEdges": 0,
+    "empty": 35,
+    "looseVertices": 4,
+    "widthOverHeight": 1.95,
+    "photoBoxWidthOverHeight": 1.76,
+    "seconds": 64.5,
+    "problems": []
+  },
+  {
+    "model": "pixal3d",
+    "name": "railing-iron",
+    "size_m": [
+      1.973,
+      0.999,
+      1.593
+    ],
+    "triangles": 94980,
+    "openEdges": 18,
+    "nonManifoldEdges": 254,
+    "flippedEdges": 0,
+    "empty": 16,
+    "looseVertices": 3,
+    "widthOverHeight": 1.98,
+    "photoBoxWidthOverHeight": 2.33,
+    "seconds": 77.8,
+    "problems": []
+  },
+  {
+    "model": "pixal3d",
+    "name": "rail-skate-02",
+    "size_m": [
+      2.478,
+      1,
+      2.47
+    ],
+    "triangles": 94802,
+    "openEdges": 648,
+    "nonManifoldEdges": 3,
+    "flippedEdges": 0,
+    "empty": 234,
+    "looseVertices": 3,
+    "widthOverHeight": 2.48,
+    "photoBoxWidthOverHeight": 2.55,
+    "seconds": 53.8,
+    "problems": []
+  },
+  {
+    "model": "pixal3d",
+    "name": "stairs-park-07",
+    "size_m": [
+      3.874,
+      0.699,
+      3.182
+    ],
+    "triangles": 94651,
+    "openEdges": 3,
+    "nonManifoldEdges": 405,
+    "flippedEdges": 0,
+    "empty": 10,
+    "looseVertices": 2,
+    "widthOverHeight": 5.54,
+    "photoBoxWidthOverHeight": 5.95,
+    "seconds": 101.8,
+    "problems": []
+  }
+]

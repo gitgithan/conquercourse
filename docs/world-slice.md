@@ -279,19 +279,54 @@ The set of obstacle shapes is fixed, and each shape offers a fixed set of moves.
 - **Not tested:** how it sounds; headless Chromium cannot be heard, so the product owner should listen once.
 
 ## Object bake-off (CC-55)
-- **So what:** we cannot compare TRELLIS.2 and Pixal3D yet, because both need a licence a person has to accept first.
-  - The blocker is Meta's DINOv3 image encoder (gated on Hugging Face; the `sam-hf` account has no access).
-  - Until then SAM 3D Objects stays our only object source with results.
-- **What is needed to unblock (the product owner's call):**
-  - Read the DINOv3 License and accept it on Hugging Face with the account behind `sam-hf`, or decide not to.
-  - TRELLIS.2 and Pixal3D then run in about an hour on one Modal GPU, for a few dollars.
-  - `briaai/RMBG-2.0` stays out: it is non-commercial and a SAM 3 mask replaces it.
-- **Other options found:**
-  - Hunyuan3D-2.1 is open to us, but its Tencent Community License excludes the EU, UK and South Korea.
-  - Stable Fast 3D is gated like DINOv3.
-- **Census of the SAM 3D results:** eight of nine pass; park06 is refused for being 33 m long.
-- **Tripo:** it only made the two Rookies, so there is no earlier Tripo object result, and no new paid step was taken.
-- **Details:** `data/eval/object-bakeoff/` (README, probe table, census, `run.json`); cost under $0.01, no GPU.
+- **So what:** for the shapes a course needs (thin rails, boxes, benches), TRELLIS.2 is the best of the three at the shape, SAM 3D Objects is the safest, and Pixal3D is not good enough yet.
+  - Shape matters most, because collision comes from the same mesh as the picture; texture is judged second and only by eye.
+  - All three give a plausible bench and stairs; the difference is in the thin parts and in the hard case (a lattice railing).
+- **What was compared** (six crops, one object each, the same cut-outs for both new models; `data/eval/object-bakeoff/inputs/`):
+  - **SAM 3D Objects:** the shipped objects from CC-38 (seed 42, padded photo for the bench and the railing, scaled to a typical height).
+  - **TRELLIS.2 (4B):** Microsoft, MIT weights; DINOv3 image encoder; one L40S on Modal.
+  - **Pixal3D:** Tencent, MIT; it sits on the TRELLIS.2 backbone and estimates the camera with MoGe-2.
+  - **Tripo:** not run; the account has 60 credits and one textured object costs about 110 (see the README), so the product owner decides on a top-up.
+  - The railing crop is a plain box crop for the two new models, because the SAM 3 mask of that photo covers only 1% of it (a thin lattice).
+    - That makes the railing row a mask-failure test for them, not a fair comparison with SAM 3D, which used a padded photo.
+- **Shape, one object at a time** (picture: `data/eval/object-bakeoff/sheet-3q.png`, side view `sheet-side.png`, grey shading so only the shape shows):
+  - **Handrails (2):** TRELLIS.2 gives a clean continuous tube with its posts, the best of the three; Pixal3D collapses them into a small tangle (8,460 open edges on one, flagged by the census).
+    - TRELLIS.2 makes the rails too long (7.7 m and 6.7 m after scaling to 1 m high; SAM 3D 3.8 m and 3.6 m), because the photo is a slanted view.
+  - **Box (platform):** SAM 3D and TRELLIS.2 both give a long low box with a step; Pixal3D gives a small block.
+  - **Bench:** all three have a seat and a back; Pixal3D fills the space under the seat.
+  - **Railing (hard case):** SAM 3D keeps the spear-topped panel; TRELLIS.2 gives a solid box and Pixal3D a stone pier with a gate, neither usable.
+  - **Stairs:** Pixal3D keeps the steps (stripes), TRELLIS.2 a flat wedge and SAM 3D a flat ramp; none is good for stepping on.
+- **Census (the same rules as CC-50, after scaling every mesh to the typical height):**
+  - TRELLIS.2: five of six pass; the railing fails with 1,045 open edges (about 1%).
+  - Pixal3D: five of six pass, but the first handrail fails with 7,367 empty triangles and 8,460 open edges, and the stairs and bench have 100 to 400 edges shared by three triangles.
+  - Both give about 95,000 to 100,000 triangles (we asked for 100,000); the game needs 5,800, so every object would need decimating, as the SAM 3D ones were.
+  - Numbers: `data/eval/object-bakeoff/open-models-census.json`.
+- **Time and cost** (one L40S, about $1.95 an hour; the Modal dashboard has the exact figure):
+  - TRELLIS.2: 566 s in all, 83 s to load, 27 to 176 s per object, about $0.31.
+  - Pixal3D: 636 s in all, 54 to 227 s per object, about $0.34 (one run of 25 minutes stalled in the UV step at its default 1,000,000 faces and a 4,096 texture and was stopped, about $0.8; the second run uses the same 100,000 faces and 1,024 texture as TRELLIS.2).
+  - SAM 3D: already done, $0 now.
+- **Licences, as far as the public pages show (not legal advice):**
+  - **TRELLIS.2 and Pixal3D weights and code:** MIT; third-party parts keep their own terms (Pixal3D lists them in its NOTICE file).
+  - **DINOv3 License** (Meta, both models load it): a limited, worldwide, royalty-free licence to use, copy, modify and distribute; it does not mention commercial use either way.
+    - Distributing the weights needs the licence text and a visible "Built with DINOv3"; it bans reverse engineering and uses such as military or nuclear.
+    - You own what you make with it; Meta changes the terms at will and the licence ends on breach.
+    - A game that ships only meshes made with it, not the weights, is not addressed by the text; the product owner may want a lawyer's view before shipping.
+  - **Pixal3D loads DINOv3 from a third-party mirror** (`camenduru/dinov3-vitl16-pretrain-lvd1689m`), not from Meta; same licence in principle, but not the official copy.
+  - **NAF upsampler** (pulled from `valeoai/NAF` by Pixal3D at run time): its licence was not checked.
+  - **RMBG-2.0** (non-commercial, gated) was never loaded: a stand-in returns our cut-outs, so no output depends on it.
+  - **SAM 3D Objects:** SAM License (see `docs/ASSETS.md`); the shipped objects are CC0 or credited photos.
+  - **Tripo:** paid-plan rights per its help page; free-user and API terms unclear (README).
+- **Recommendation:**
+  - Keep SAM 3D Objects as the shipping source (Meta model, results exist, one licence we already read).
+  - Use TRELLIS.2 where SAM 3D is weak: long thin rails, which it draws better; it would need its length fixed and its mesh decimated.
+  - Skip Pixal3D for now.
+  - Run Tripo only if the product owner tops up and wants the collaboration beat; the two Rookies already carry that story.
+- **Gaps, said plainly:**
+  - Six crops and one judge (by eye); sizes come from a typical height, not from the real object, so no model can be scored on true size.
+  - The railing row compares a plain crop with a padded photo, so it says nothing about the models' skill on railings.
+  - Stairs are not good on any of the three; the steps do not survive.
+  - Texture was not judged beyond a glance (grey sheets); that is the lower priority.
+- **Files:** `pipelines/objbake/modal_app.py`, `scripts/bakeoff-census2.ts`, `scripts/bakeoff_sheet.py`, `data/eval/object-bakeoff/` (README, inputs, `outputs/*.json`, census, sheets); the twelve GLBs (54 MB) are in `../conquercourse-assets/objbake/` with `SHA256SUMS`.
 ## Real hills (CC-51)
 - **So what:** a place on the map now keeps its real hills, so Montmartre or a San Francisco block is a climb and not a flat plate.
   - It costs the player a smaller place: a hill uses up the height a lane can see, so hilly places must be shrunk much harder.
