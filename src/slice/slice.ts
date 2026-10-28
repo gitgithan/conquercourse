@@ -93,7 +93,10 @@ export function describe(profile: Profile): SliceReport {
 // The lane as a course: a start deck, then each stretch of ground with its real outline, with real gaps (bridged if tiny, capped if huge).
 // holds: bars in the air in the editor's world (u along the run, y above the level). A lane with bars keeps its real gaps (they are what the swing has to cross)
 // and its jumps cost speed at take-off (jumpKeep), so a vault and a swing are worth learning.
-export function laneToCourse(profile: Profile, name = 'Slice', holds: { u: number; y: number }[] = []): CourseData {
+// opts.keepGaps: keep real gaps up to 14 m even without bars (a rope needs the gap it swings over).
+// opts.splits: u positions (along the run, in the editor's world) where a run of ground is cut into two platforms, so a wall face or the two ends of a trampoline bed are real platform edges.
+export interface LaneOptions { keepGaps?: boolean; splits?: number[] }
+export function laneToCourse(profile: Profile, name = 'Slice', holds: { u: number; y: number }[] = [], opts: LaneOptions = {}): CourseData {
   const c = profile.cells;
   const runs: { a: number; b: number }[] = [];
   let start = -1;
@@ -112,14 +115,24 @@ export function laneToCourse(profile: Profile, name = 'Slice', holds: { u: numbe
       last.b = r.b;
     } else merged.push({ ...r });
   }
+  const origin = profile.origin ?? 0;
+  if (opts.splits?.length) {
+    const cut: { a: number; b: number }[] = [];
+    for (const r of merged) {
+      let a = r.a;
+      const at = opts.splits.map((u) => Math.round((u - origin) / CELL)).filter((i) => i > r.a && i < r.b).sort((p, q) => p - q);
+      for (const i of at) if (i > a) { cut.push({ a, b: i - 1 }); a = i; }
+      cut.push({ a, b: r.b });
+    }
+    merged.length = 0; merged.push(...cut);
+  }
   const platforms: Platform[] = [{ x0: -10, x1: 6, top: 0 }];
   const uMap: { u0: number; u1: number; x0: number }[] = []; // where each run of ground in the editor's world sits in the game (gaps are squeezed)
-  const origin = profile.origin ?? 0;
   let x = 6;
   merged.forEach((r, k) => {
     const realGap = k === 0 ? 3 : (r.a - merged[k - 1].b - 1) * CELL;
     const firstU = holds.length ? Math.min(...holds.map((h) => h.u)) : Infinity;
-    const gapM = holds.length ? (k === 0 ? Math.max(3, origin + r.a * CELL - firstU + 2.5) : Math.min(14, realGap)) : k === 0 ? 3 : Math.min(5, realGap);
+    const gapM = holds.length ? (k === 0 ? Math.max(3, origin + r.a * CELL - firstU + 2.5) : Math.min(14, realGap)) : k === 0 ? 3 : Math.min(opts.keepGaps ? 14 : 5, realGap);
     const x0 = x + gapM;
     const pts: [number, number][] = [];
     for (let i = r.a; i <= r.b; i += Math.max(1, Math.floor((r.b - r.a) / 24))) pts.push([x0 + (i - r.a) * CELL, c[i] as number]);
