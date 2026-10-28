@@ -2,7 +2,7 @@
   "version": 1,
   "name": "Generated course 2",
   "startX": 0,
-  "finishX": 181.56,
+  "finishX": 184.66,
   "jumpSpeed": 4.5,
   "jumpKeep": 0.88,
   "terrain": {
@@ -29,19 +29,19 @@
         "top": 0
       },
       {
-        "x0": 133.56,
-        "x1": 175.56,
+        "x0": 136.66,
+        "x1": 178.66,
         "top": 0
       },
       {
-        "x0": 175.56,
-        "x1": 185.56,
+        "x0": 178.66,
+        "x1": 188.66,
         "top": 4
       }
     ]
   },
   "wall": {
-    "x0": 171.56,
+    "x0": 174.66,
     "height": 4
   },
   "holds": [
@@ -71,13 +71,13 @@
       "id": "lache-3",
       "name": "Lache pair",
       "x0": 124.4,
-      "x1": 135.56
+      "x1": 138.66
     },
     {
       "id": "wall-4",
       "name": "Warped wall",
-      "x0": 172.56,
-      "x1": 177.56
+      "x0": 175.66,
+      "x1": 180.66
     }
   ],
   "checkpoints": [
@@ -95,7 +95,7 @@
     },
     {
       "id": "wall-4",
-      "x": 165.56
+      "x": 168.66
     }
   ],
   "hazard": "mud",
@@ -110,11 +110,8 @@
       34.16
     ],
     "hangTicks": [
-      204,
-      264,
-      90,
-      90,
-      90
+      30,
+      414
     ],
     "hands": true
   },
@@ -143,36 +140,34 @@
   ],
   "shortcuts": [
     {
-      "id": "skip-bars-1-2",
+      "id": "skip-bar-2",
       "skipped": [
-        "Bar 1",
         "Bar 2"
       ],
-      "how": "jump past bar 1 and bar 2",
-      "secondsSaved": 1.93,
-      "seconds": 23.1,
-      "pumpSeconds": null,
+      "how": "pump 3.06 s on the bar you hold, let go, and fly past bar 2",
+      "secondsSaved": 0.06,
+      "seconds": 26.61,
+      "pumpSeconds": 3.06,
       "windowMs": 11,
       "designed": false,
       "plan": {
         "jumpXs": [
           81.92,
-          126.8
+          127.1
         ],
         "releaseAfter": 60,
         "bouncePress": 8,
+        "hands": true,
+        "hangTicks": [
+          366,
+          0
+        ],
         "vaultXs": [
           34.16
         ],
-        "hangTicks": [
-          0,
-          0
-        ],
         "noGrab": [
-          0,
           1
-        ],
-        "hands": true
+        ]
       }
     }
   ]

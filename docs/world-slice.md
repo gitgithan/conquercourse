@@ -1512,3 +1512,10 @@ The set of obstacle shapes is fixed, and each shape offers a fixed set of moves.
 - Where the button sits: top right everywhere (in the Course under the Debug button, in the Dojo left of the Back button, in the editor left of its More menu); `scripts/picker-check.mjs` checks that it covers no control at 1280x720, 1024x640 and a phone width.
 - On a phone the button sits bottom left, away from the Feedback button.
 - Not done: a pick leaves the page, so unsaved editor work is lost unless that mode already asks first.
+
+## Lache gap in the generator (2026-10-29, CC-47)
+- The 24 generated lache courses of the shortcut job were all skippable by a plain jump, because the lache gap (5.5 to 6.8 m) was under what a jump clears (8 m).
+- The lache gap is now 8.5 to 10 m, so the bars are needed.
+  - Sweep with one lache between two gaps: 8.5 m, 10 m and 12 m clear with the bars; 14 m does not (`data/eval/janitor/lache-gap/sweep.txt`).
+  - At 8.5 m and 10 m the only shortcut left is inside the lache (pump on bar 1, let go, fly past bar 2); no plain-jump skip.
+- Sample `generated-1` and its plan were regenerated; its golden hash changed on purpose (the course changed).

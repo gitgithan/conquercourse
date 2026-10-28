@@ -44,6 +44,11 @@ describe('the course generator', () => {
       expect(!!g.course.holds).toBe(g.moves.some((m) => m.kind === 'lache'));
     }
   });
+  it('a lache gap is wider than a plain jump clears (8.5 m up), so the bars are needed (CC-47, CC-71)', () => {
+    const lache = runs.flatMap((g) => g.moves).filter((m) => m.kind === 'lache');
+    expect(lache.length).toBeGreaterThan(0);
+    for (const m of lache) { expect(m.size).toBeGreaterThanOrEqual(8.5); expect(m.size).toBeLessThanOrEqual(10); }
+  });
   it('the options choose the moves and the length', () => {
     const g = generateDetailed(4, { moves: ['gap', 'step'], length: 5 });
     expect(g.moves.length).toBe(5);
