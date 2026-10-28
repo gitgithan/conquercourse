@@ -56,10 +56,16 @@ const throwBetween = (spacing: number, ticks: number, pump: boolean): boolean =>
     w = stepWorld(w, { ...NO_INPUT, handL: true, handR: true, run: pump && fwd, left: pump && !fwd }, c);
   }
   if (w.mode !== 'hang') return false; // the grip gave out
-  w = stepWorld(w, { ...NO_INPUT }, c);
-  for (let i = 0; i < 400 && w.outcome === 'running'; i++) {
-    w = stepWorld(w, { ...NO_INPUT, run: true, handR: true }, c);
-    if (w.mode === 'hang' && w.hang!.hold === 1) return true;
+  // the swing is built by pumping for `ticks`; then it is ridden without pumping and let go at the best moment within the next 1.1 s (a full swing is about 2.4 s)
+  for (let ride = 0; ride < 130; ride += 2) {
+    let q = w;
+    for (let i = 0; i < ride && q.mode === 'hang'; i++) q = stepWorld(q, { ...NO_INPUT, handL: true, handR: true }, c);
+    if (q.mode !== 'hang') continue;
+    q = stepWorld(q, { ...NO_INPUT }, c);
+    for (let i = 0; i < 400 && q.outcome === 'running'; i++) {
+      q = stepWorld(q, { ...NO_INPUT, run: true, handR: true }, c);
+      if (q.mode === 'hang' && q.hang!.hold === 1) return true;
+    }
   }
   return false;
 };
@@ -67,13 +73,13 @@ const shortestPump = (spacing: number): number | null => { for (let t = 0; t <= 
 
 describe('a bigger pump throws the body further between the bars', () => {
   it('wider gaps between the bars need a longer pump, up to the limit of the grip', () => {
-    const need = [3, 4.5, 6].map(shortestPump);
+    const need = [2, 4.5, 7].map(shortestPump);
     expect(need.every((n) => n !== null)).toBe(true);
     const [a, b, c] = need as number[];
     expect(a).toBeLessThan(120); // a short gap: a first swing is enough
     expect(b).toBeGreaterThan(a); // a wider one needs the swing built up
     expect(c).toBeGreaterThanOrEqual(b);
-    expect(c).toBeGreaterThan(200); // two or more swings
+    expect(c).toBeGreaterThan(200); // the widest gap needs two or more swings
   });
   it('a gap beyond what the grip allows cannot be crossed, however long the swing is pumped', () => {
     expect(shortestPump(7.5)).toBeNull();

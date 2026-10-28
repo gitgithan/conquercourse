@@ -40,9 +40,15 @@ export function feetOf(h: Hold, s: Hang, p: HangParams = DEFAULT_HANG): { x: num
   return { x: h.x + p.handHeight * Math.sin(s.theta), y: h.y - p.handHeight * Math.cos(s.theta) };
 }
 
-// The velocity of the body's middle (what flies on when the hands let go).
+// The radius the body flies away with. The stiff rod swings with kinetic energy 1/2 I w^2 about the bar (I = m L^2 / 3 for a rod of length L),
+// and a body that lets go tucked in turns all of it into flight: 1/2 m v^2 = 1/2 I w^2, so v = w L / sqrt(3), a little more than the middle's own
+// w L / 2 (the spin the rod had about its middle goes into the throw, not into a tumble). Measured in CC-67: with the middle's speed alone the flight
+// had a quarter of the swing's energy missing, and it looked weaker than the whipping body.
+export const releaseRadius = (p: HangParams = DEFAULT_HANG): number => p.handHeight / Math.sqrt(3);
+
+// The velocity of the body's middle after the hands let go (also what the runner shows while it swings, so one number everywhere).
 export function bodyVelocity(s: Hang, p: HangParams = DEFAULT_HANG): { vx: number; vy: number } {
-  const v = s.omega * comDistance(p);
+  const v = s.omega * releaseRadius(p);
   return { vx: v * Math.cos(s.theta), vy: v * Math.sin(s.theta) };
 }
 
@@ -67,7 +73,7 @@ export function tryGrab(holds: Hold[], x: number, y: number, vx: number, vy: num
   if (best < 0) return null;
   // hang from the bar: the body hangs straight down from the hands, moving with the tangent speed at the bottom of the swing
   const theta = 0;
-  return { hold: best, theta, omega: (vx * p.catchKeep) / comDistance(p) + 0 * vy };
+  return { hold: best, theta, omega: (vx * p.catchKeep) / releaseRadius(p) + 0 * vy };
 }
 
 // One step. pump is +1 (forward key), -1 (back key) or 0: pressing the way the body is already moving adds energy, pressing against it takes energy out.
@@ -91,10 +97,11 @@ export function hangStep(s: Hang, pump: number, p: HangParams = DEFAULT_HANG): H
 // True when the bar pulls harder than the hands can hold: they open.
 export const gripSlips = (s: Hang, p: HangParams = DEFAULT_HANG): boolean => Math.abs(gripLoad(s, p)) > p.grip;
 
-// Letting go: the feet are where they were, the body flies on with its own velocity.
+// Letting go: the body's middle keeps its place and flies on with the velocity above. The body is upright in flight, so the feet are one
+// half rod (the middle's height above the feet) under the middle; this keeps the path continuous (no jump of up to 0.75 m at the moment of release).
 export function releaseHang(h: Hold, s: Hang, p: HangParams = DEFAULT_HANG) {
-  const f = feetOf(h, s, p), v = bodyVelocity(s, p);
-  return { x: f.x, y: f.y, vx: v.vx, vy: v.vy };
+  const d = comDistance(p), v = bodyVelocity(s, p);
+  return { x: h.x + d * Math.sin(s.theta), y: h.y - d * Math.cos(s.theta) - d, vx: v.vx, vy: v.vy };
 }
 
 // Measured small-swing period (for the tests and the Dojo): time between two returns to the same side, no pumping, no drag.

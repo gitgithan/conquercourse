@@ -67,14 +67,14 @@
   "hazard": "spikes",
   "plan": {
     "jumpXs": [
-      33
+      35.75
     ],
     "releaseAfter": 60,
     "bouncePress": 8,
     "hands": true,
     "hangTicks": [
-      366,
-      390
+      372,
+      378
     ],
     "vaultXs": [
       21.38
