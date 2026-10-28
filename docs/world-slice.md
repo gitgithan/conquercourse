@@ -654,6 +654,12 @@ The set of obstacle shapes is fixed, and each shape offers a fixed set of moves.
   - One Fix it case is clearly slower after CC-56: about 3.7 s before and 5.2 s after (35 to 45% more), the same answer.
   - Cause not isolated; the per-tick roll check and the heavier landing are the suspects.
   - Fix it's time budget went from 6 s to 12 s so it does not give up early on a busy machine.
+- **Two editor-check failures, bisected** (first-parent commits since the marathon end, on the VM):
+  - `no scroll at 1024x640` began at the CC-57 commit that added the floor picker to the lane panel (a8443cb): one more row pushed the side panel 27 px past the screen.
+  - **Fix:** the floor is one line, and on short screens (under 700 px) the panel's rows sit closer; the check passes again.
+  - `adviceOffered` is false on the VM already at the marathon-end commit, so no merge broke it: advice has a 1.5 s clock and one proof of the ten-times-too-big block takes 4 to 5 s there.
+  - The CC-56 slowdown makes the tipping point likelier on slower machines; CC-69 (speed) and CC-70 (run advice and Fix it in a worker, with a budget that does not depend on the clock) cover it.
+  - `partnerAnswers` is false on the VM because the key lives on the laptop.
 - **Regression check** (on the VM):
   - `npm run test:quick`: 334 of 334 pass on a quiet machine; on a busy one four time-based tests failed (two of them also fail on the code before CC-56 under the same load).
   - The slope test in `tests/terrain.test.ts` now has a 3 minute limit, because its lane search tries five start levels instead of three.

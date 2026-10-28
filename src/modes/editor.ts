@@ -40,7 +40,7 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
     .ed label{display:grid;gap:1px;font-size:13px}.ed .muted{color:#58635d;font-size:12px}.ed .ok{border-left:4px solid #0f6b5c;padding:3px 6px;background:#f3f7f4;font-weight:600;font-size:13px}.ed .bad{border-left:4px solid #c0392b;padding:3px 6px;background:#fbeeee;font-weight:600;font-size:13px}
     .ed .pvrow{display:flex;gap:6px;align-items:flex-start;font-size:13px;margin:2px 0}.ed .pvrow input{margin-top:2px}
     .ed .row{display:flex;flex-wrap:wrap;gap:5px;align-items:center}.ed input[type=range]{width:100%;margin:0}.ed input[type=number]{width:100%;box-sizing:border-box}
-    @media(max-height:700px){.ed .muted.help{display:none}}
+    @media(max-height:700px){.ed .muted.help{display:none}.ed .panel{gap:3px}}
     @media(max-width:800px){.ed{grid-template-columns:minmax(0,1fr) 220px}}`;  document.head.appendChild(style);
   const root = document.createElement('div');
   root.className = 'ed';
@@ -436,7 +436,7 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
   // ---- the lane
   function drawLanePanel() {
     lanePanel.replaceChildren();
-    el('strong', lanePanel, { text: 'The lane the runner takes' });
+    el('strong', lanePanel, { text: 'The lane the runner takes', title: 'The runner goes left to right along the orange band; the shapes in it are what you see underneath.' }); // the long help line moved here: the panel must fit at 1024 x 640
     const slider = (label: string, id: string, min: number, max: number, step: number, get: () => number, set: (v: number) => void, fmt: (v: number) => string) => {
       const l = el('label', lanePanel, { text: `${label}: ${fmt(get())}` });
       const i = el('input', l, { type: 'range', id, min: String(min), max: String(max), step: String(step), value: String(get()) });
@@ -462,7 +462,7 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
       root.remove(); style.remove();
       void startCourse(document.body, course);
     };
-    const floorRow = el('label', lanePanel, { className: 'muted', text: 'Floor you must not touch: ' });
+    const floorRow = el('label', lanePanel, { className: 'muted', text: 'Floor you must not touch: ' }); floorRow.style.cssText = 'display:flex;align-items:center;gap:6px'; // one line, not two (the panel must fit at 1024 x 640)
     const floorSel = el('select', floorRow, { id: 'floor', title: 'What is painted under the gaps (the run ends the same way on every floor)' });
     for (const h of HAZARDS) floorSel.add(new Option(HAZARD_INFO[h].label, h, false, h === floorChoice));
     floorSel.onchange = () => { floorChoice = floorSel.value as Hazard; document.documentElement.dataset.floor = floorChoice; };
@@ -482,7 +482,6 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
       void startCourse(document.body, course);
     };
     el('div', lanePanel, { id: 'verdict', className: verdict.startsWith('The simulator can') ? 'ok' : verdict ? 'bad' : 'muted', text: verdict });
-    el('div', lanePanel, { className: 'muted help', text: 'The runner goes left to right along the orange band; the shapes in it are what you see underneath.' });
   }
 
   const ground = () => pieces.filter((q) => !isHold(q)); // bars are not ground
