@@ -17,7 +17,7 @@ import { withBand } from '../slice/band-lane';
 import { fixBand } from '../slice/fixband';
 import { DRONE_PAD_LENGTH, withDrone, type DroneCfg } from '../slice/drone-lane';
 import { fixDrone } from '../slice/fixdrone';
-import { CUP, PATTERNS, patternOf, stackPiece, stackSrc } from '../slice/stack';
+import { CUP, PATTERNS, stackPiece, stackSrc } from '../slice/stack';
 import { fixLayout } from '../slice/fixit';
 import { layoutToPieces, parseLayout } from '../slice/photo-course';
 import { proves } from '../slice/photo-proof';
