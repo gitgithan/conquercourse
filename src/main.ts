@@ -4,6 +4,9 @@ import type { CourseData } from './course/course';
 import { startDojo } from './modes/dojo';
 import { initFeedback } from './ui/feedback';
 import { startPark } from './modes/park';
+import { installGalleryKeyGuard, mountWorldGallery, currentWorld, DEFAULT_PLACE, BUTTON_PLACE } from './ui/world-picker';
+
+installGalleryKeyGuard(); // before any mode starts, so it sees every key first
 
 // ?mode=dojo, ?mode=rookie, ?demo=rookie (the Rookie demo), ?demo=captured-vault (captured move review); the default is the Course.
 if (new URLSearchParams(location.search).get('demo') === 'captured-vault') {
@@ -39,6 +42,7 @@ async function courseFromUrl(): Promise<CourseData | undefined> {
 const mode = new URLSearchParams(location.search).get('mode') ?? 'course';
 const game = mode === 'diagrams' ? (await import('./modes/diagrams-page')).startDiagrams(document.body) : mode === 'rookie' ? await createStage(document.body) : mode === 'dojo' ? startDojo(document.body) : mode === 'park' ? startPark(document.body) : mode === 'editor' ? (await import('./modes/editor')).startEditor(document.body) : mode === 'map' ? (await import('./modes/map')).startMap(document.body) : mode === 'coaster' ? (await import('./modes/coaster')).startCoaster(document.body) : mode === 'gallery' ? (await import('./modes/gallery')).startGallery(document.body) : await startCourse(document.body, await courseFromUrl());
 document.documentElement.dataset.backend = game.backend;
+if (mode !== 'course') mountWorldGallery(document.body, { current: currentWorld(new URLSearchParams(location.search)), place: BUTTON_PLACE[mode] ?? DEFAULT_PLACE }); // CC-89: every other mode has the Courses button too (the Course mounts its own)
 document.documentElement.dataset.ready = 'true';
 }
 initFeedback(new URLSearchParams(location.search).get('mode') ?? 'course');

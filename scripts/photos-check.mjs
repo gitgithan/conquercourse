@@ -64,7 +64,7 @@ try {
     checks[`${vw}x${vh}: switch brings them back`] = await page.locator('#placephotos .pp-row').isVisible();
     // a course that is not a real place has no strip
     await page.goto(`http://localhost:${port}/?course=/assets/demo/lache.course.json`);
-    await page.waitForSelector('#democourses'); await page.waitForTimeout(800);
+    await page.waitForSelector('#courses-btn'); await page.waitForTimeout(800);
     checks[`${vw}x${vh}: no strip on the lache demo`] = (await page.$('#placephotos')) === null;
     await page.close();
   }
