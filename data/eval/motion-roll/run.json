@@ -1,7 +1,7 @@
 {
   "move": "roll",
   "serves": "the roll out of a big drop (key X, CC-56)",
-  "started": "2026-10-28T06:26:19+0000",
+  "started": "2026-10-28T06:31:33+0000",
   "steps": [],
   "cmu": {
     "terms": [
@@ -51,17 +51,17 @@
         "move_check_pass": false,
         "move_check": {
           "ok": false,
-          "max_turn_deg": 74.1,
-          "min_turn_deg": 0.0,
-          "peak_hips_vs_standing": 1.0,
-          "longest_air_s": 0.2,
+          "max_turn_deg": 60.9,
+          "min_turn_deg": 0,
+          "peak_hips_vs_standing": 1,
+          "longest_air_s": 0.13,
           "window_frames": [
-            8,
-            13
+            4,
+            7
           ],
-          "window_s": 0.17,
-          "turn_in_window_deg": 33.2,
-          "travel_m": -0.14,
+          "window_s": 0.1,
+          "turn_in_window_deg": 20.5,
+          "travel_m": -0.09,
           "upside_down": false,
           "starts_and_ends_upright": true
         }
@@ -72,17 +72,17 @@
         "move_check_pass": false,
         "move_check": {
           "ok": false,
-          "max_turn_deg": 152.8,
-          "min_turn_deg": -0.9,
-          "peak_hips_vs_standing": 1.4,
+          "max_turn_deg": 139.7,
+          "min_turn_deg": 0,
+          "peak_hips_vs_standing": 1.32,
           "longest_air_s": 0.13,
           "window_frames": [
-            7,
-            16
+            5,
+            11
           ],
-          "window_s": 0.3,
-          "turn_in_window_deg": 117.3,
-          "travel_m": 0.37,
+          "window_s": 0.2,
+          "turn_in_window_deg": 106.8,
+          "travel_m": 0.34,
           "upside_down": true,
           "starts_and_ends_upright": true
         }
@@ -93,17 +93,17 @@
         "move_check_pass": false,
         "move_check": {
           "ok": false,
-          "max_turn_deg": 368.3,
-          "min_turn_deg": 0.0,
-          "peak_hips_vs_standing": 1.11,
-          "longest_air_s": 0.23,
+          "max_turn_deg": 351.4,
+          "min_turn_deg": 0,
+          "peak_hips_vs_standing": 1.08,
+          "longest_air_s": 0.17,
           "window_frames": [
-            7,
-            59
+            4,
+            52
           ],
-          "window_s": 1.73,
-          "turn_in_window_deg": 326.7,
-          "travel_m": 2.1,
+          "window_s": 1.6,
+          "turn_in_window_deg": 307.4,
+          "travel_m": 2.11,
           "upside_down": true,
           "starts_and_ends_upright": true
         }
@@ -114,22 +114,29 @@
         "move_check_pass": false,
         "move_check": {
           "ok": false,
-          "max_turn_deg": 367.6,
-          "min_turn_deg": 0.0,
+          "max_turn_deg": 356.2,
+          "min_turn_deg": 0,
           "peak_hips_vs_standing": 1.06,
           "longest_air_s": 0.07,
           "window_frames": [
-            9,
-            62
+            5,
+            55
           ],
-          "window_s": 1.77,
-          "turn_in_window_deg": 324.8,
+          "window_s": 1.67,
+          "turn_in_window_deg": 315.2,
           "travel_m": 1.98,
           "upside_down": true,
           "starts_and_ends_upright": true
         }
       }
     ]
+  },
+  "kimodo": {
+    "reused": "data/eval/motion-roll/inputs/kimodo",
+    "wall_s": 193.2,
+    "estimated_usd": 0.043,
+    "usd_per_hour_assumed": 0.8,
+    "cap_usd": 15
   },
   "candidates": [
     {
@@ -141,17 +148,17 @@
       "soft_failed": [],
       "move_check": {
         "ok": false,
-        "max_turn_deg": 74.1,
-        "min_turn_deg": 0.0,
-        "peak_hips_vs_standing": 1.0,
-        "longest_air_s": 0.2,
+        "max_turn_deg": 60.9,
+        "min_turn_deg": 0,
+        "peak_hips_vs_standing": 1,
+        "longest_air_s": 0.13,
         "window_frames": [
-          8,
-          13
+          4,
+          7
         ],
-        "window_s": 0.17,
-        "turn_in_window_deg": 33.2,
-        "travel_m": -0.14,
+        "window_s": 0.1,
+        "turn_in_window_deg": 20.5,
+        "travel_m": -0.09,
         "upside_down": false,
         "starts_and_ends_upright": true
       }
@@ -167,17 +174,17 @@
       ],
       "move_check": {
         "ok": false,
-        "max_turn_deg": 152.8,
-        "min_turn_deg": -0.9,
-        "peak_hips_vs_standing": 1.4,
+        "max_turn_deg": 139.7,
+        "min_turn_deg": 0,
+        "peak_hips_vs_standing": 1.32,
         "longest_air_s": 0.13,
         "window_frames": [
-          7,
-          16
+          5,
+          11
         ],
-        "window_s": 0.3,
-        "turn_in_window_deg": 117.3,
-        "travel_m": 0.37,
+        "window_s": 0.2,
+        "turn_in_window_deg": 106.8,
+        "travel_m": 0.34,
         "upside_down": true,
         "starts_and_ends_upright": true
       }
@@ -193,17 +200,17 @@
       ],
       "move_check": {
         "ok": false,
-        "max_turn_deg": 368.3,
-        "min_turn_deg": 0.0,
-        "peak_hips_vs_standing": 1.11,
-        "longest_air_s": 0.23,
+        "max_turn_deg": 351.4,
+        "min_turn_deg": 0,
+        "peak_hips_vs_standing": 1.08,
+        "longest_air_s": 0.17,
         "window_frames": [
-          7,
-          59
+          4,
+          52
         ],
-        "window_s": 1.73,
-        "turn_in_window_deg": 326.7,
-        "travel_m": 2.1,
+        "window_s": 1.6,
+        "turn_in_window_deg": 307.4,
+        "travel_m": 2.11,
         "upside_down": true,
         "starts_and_ends_upright": true
       }
@@ -219,16 +226,16 @@
       ],
       "move_check": {
         "ok": false,
-        "max_turn_deg": 367.6,
-        "min_turn_deg": 0.0,
+        "max_turn_deg": 356.2,
+        "min_turn_deg": 0,
         "peak_hips_vs_standing": 1.06,
         "longest_air_s": 0.07,
         "window_frames": [
-          9,
-          62
+          5,
+          55
         ],
-        "window_s": 1.77,
-        "turn_in_window_deg": 324.8,
+        "window_s": 1.67,
+        "turn_in_window_deg": 315.2,
         "travel_m": 1.98,
         "upside_down": true,
         "starts_and_ends_upright": true
@@ -238,24 +245,24 @@
       "id": "roll_a_s0",
       "source": "Kimodo-SOMA-RP, prompt roll_a, sample 0",
       "gate_pass": true,
-      "move_check_pass": false,
+      "move_check_pass": true,
       "failed_gate": [],
       "soft_failed": [
         "feet_dont_slide"
       ],
       "move_check": {
-        "ok": false,
-        "max_turn_deg": 397.0,
-        "min_turn_deg": 0.0,
-        "peak_hips_vs_standing": 0.95,
+        "ok": true,
+        "max_turn_deg": 384.2,
+        "min_turn_deg": 0,
+        "peak_hips_vs_standing": 0.98,
         "longest_air_s": 0.1,
         "window_frames": [
-          14,
-          64
+          21,
+          58
         ],
-        "window_s": 1.67,
-        "turn_in_window_deg": 362.0,
-        "travel_m": 5.61,
+        "window_s": 1.23,
+        "turn_in_window_deg": 343.4,
+        "travel_m": 4.33,
         "upside_down": true,
         "starts_and_ends_upright": true
       }
@@ -271,17 +278,17 @@
       ],
       "move_check": {
         "ok": true,
-        "max_turn_deg": 373.4,
-        "min_turn_deg": 0.0,
-        "peak_hips_vs_standing": 0.89,
+        "max_turn_deg": 358.2,
+        "min_turn_deg": 0,
+        "peak_hips_vs_standing": 0.99,
         "longest_air_s": 0.17,
         "window_frames": [
-          22,
-          54
+          19,
+          48
         ],
-        "window_s": 1.07,
-        "turn_in_window_deg": 337.0,
-        "travel_m": 4.0,
+        "window_s": 0.97,
+        "turn_in_window_deg": 320.7,
+        "travel_m": 3.75,
         "upside_down": true,
         "starts_and_ends_upright": true
       }
@@ -290,26 +297,26 @@
       "id": "roll_a_s2",
       "source": "Kimodo-SOMA-RP, prompt roll_a, sample 2",
       "gate_pass": true,
-      "move_check_pass": true,
+      "move_check_pass": false,
       "failed_gate": [],
       "soft_failed": [
         "feet_dont_slide"
       ],
       "move_check": {
-        "ok": true,
-        "max_turn_deg": 351.7,
-        "min_turn_deg": 0.0,
-        "peak_hips_vs_standing": 0.88,
+        "ok": false,
+        "max_turn_deg": 337,
+        "min_turn_deg": 0,
+        "peak_hips_vs_standing": 0.9,
         "longest_air_s": 0.03,
         "window_frames": [
-          17,
-          53
+          15,
+          47
         ],
-        "window_s": 1.2,
-        "turn_in_window_deg": 314.8,
-        "travel_m": 3.8,
+        "window_s": 1.07,
+        "turn_in_window_deg": 299,
+        "travel_m": 3.52,
         "upside_down": true,
-        "starts_and_ends_upright": true
+        "starts_and_ends_upright": false
       }
     },
     {
@@ -318,22 +325,20 @@
       "gate_pass": true,
       "move_check_pass": false,
       "failed_gate": [],
-      "soft_failed": [
-        "feet_dont_slide"
-      ],
+      "soft_failed": [],
       "move_check": {
         "ok": false,
-        "max_turn_deg": 345.2,
-        "min_turn_deg": 0.0,
+        "max_turn_deg": 344.7,
+        "min_turn_deg": 0,
         "peak_hips_vs_standing": 1.39,
         "longest_air_s": 0.37,
         "window_frames": [
-          11,
-          38
+          6,
+          33
         ],
         "window_s": 0.9,
-        "turn_in_window_deg": 309.0,
-        "travel_m": 3.76,
+        "turn_in_window_deg": 309.7,
+        "travel_m": 3.73,
         "upside_down": true,
         "starts_and_ends_upright": true
       }
@@ -349,17 +354,17 @@
       ],
       "move_check": {
         "ok": true,
-        "max_turn_deg": 418.6,
-        "min_turn_deg": 0.0,
-        "peak_hips_vs_standing": 0.87,
+        "max_turn_deg": 411,
+        "min_turn_deg": 0,
+        "peak_hips_vs_standing": 0.89,
         "longest_air_s": 0.1,
         "window_frames": [
-          18,
-          54
+          15,
+          49
         ],
-        "window_s": 1.2,
-        "turn_in_window_deg": 379.6,
-        "travel_m": 4.06,
+        "window_s": 1.13,
+        "turn_in_window_deg": 370.3,
+        "travel_m": 3.9,
         "upside_down": true,
         "starts_and_ends_upright": true
       }
@@ -368,27 +373,27 @@
       "id": "roll_a_s5",
       "source": "Kimodo-SOMA-RP, prompt roll_a, sample 5",
       "gate_pass": true,
-      "move_check_pass": true,
+      "move_check_pass": false,
       "failed_gate": [],
       "soft_failed": [
         "feet_dont_slide",
         "no_jitter"
       ],
       "move_check": {
-        "ok": true,
-        "max_turn_deg": 367.9,
-        "min_turn_deg": 0.0,
-        "peak_hips_vs_standing": 0.9,
+        "ok": false,
+        "max_turn_deg": 358.3,
+        "min_turn_deg": 0,
+        "peak_hips_vs_standing": 0.97,
         "longest_air_s": 0.2,
         "window_frames": [
-          23,
-          53
+          20,
+          48
         ],
-        "window_s": 1.0,
-        "turn_in_window_deg": 330.3,
-        "travel_m": 3.87,
+        "window_s": 0.93,
+        "turn_in_window_deg": 322.9,
+        "travel_m": 3.67,
         "upside_down": true,
-        "starts_and_ends_upright": true
+        "starts_and_ends_upright": false
       }
     },
     {
@@ -402,17 +407,17 @@
       ],
       "move_check": {
         "ok": false,
-        "max_turn_deg": 343.2,
-        "min_turn_deg": 0.0,
-        "peak_hips_vs_standing": 1.36,
+        "max_turn_deg": 333.3,
+        "min_turn_deg": 0,
+        "peak_hips_vs_standing": 1.35,
         "longest_air_s": 0.2,
         "window_frames": [
-          8,
-          36
+          4,
+          30
         ],
-        "window_s": 0.93,
-        "turn_in_window_deg": 304.9,
-        "travel_m": 3.34,
+        "window_s": 0.87,
+        "turn_in_window_deg": 292,
+        "travel_m": 3.15,
         "upside_down": true,
         "starts_and_ends_upright": true
       }
@@ -428,19 +433,19 @@
       ],
       "move_check": {
         "ok": false,
-        "max_turn_deg": 353.9,
-        "min_turn_deg": 0.0,
-        "peak_hips_vs_standing": 1.28,
+        "max_turn_deg": 332.6,
+        "min_turn_deg": 0,
+        "peak_hips_vs_standing": 1.33,
         "longest_air_s": 0.17,
         "window_frames": [
-          6,
-          37
+          4,
+          31
         ],
-        "window_s": 1.03,
-        "turn_in_window_deg": 315.9,
-        "travel_m": 3.71,
+        "window_s": 0.9,
+        "turn_in_window_deg": 288.4,
+        "travel_m": 3.05,
         "upside_down": true,
-        "starts_and_ends_upright": true
+        "starts_and_ends_upright": false
       }
     },
     {
@@ -454,17 +459,17 @@
       ],
       "move_check": {
         "ok": true,
-        "max_turn_deg": 340.4,
-        "min_turn_deg": -1.9,
-        "peak_hips_vs_standing": 0.92,
-        "longest_air_s": 0.0,
+        "max_turn_deg": 341.2,
+        "min_turn_deg": 0,
+        "peak_hips_vs_standing": 0.91,
+        "longest_air_s": 0,
         "window_frames": [
-          10,
-          41
+          5,
+          36
         ],
         "window_s": 1.03,
-        "turn_in_window_deg": 301.6,
-        "travel_m": 3.41,
+        "turn_in_window_deg": 303.4,
+        "travel_m": 3.43,
         "upside_down": true,
         "starts_and_ends_upright": true
       }
@@ -481,17 +486,17 @@
       ],
       "move_check": {
         "ok": false,
-        "max_turn_deg": 351.2,
-        "min_turn_deg": 0.0,
-        "peak_hips_vs_standing": 1.27,
+        "max_turn_deg": 328.9,
+        "min_turn_deg": 0,
+        "peak_hips_vs_standing": 1.36,
         "longest_air_s": 0.23,
         "window_frames": [
-          6,
-          35
+          5,
+          30
         ],
-        "window_s": 0.97,
-        "turn_in_window_deg": 308.1,
-        "travel_m": 3.87,
+        "window_s": 0.83,
+        "turn_in_window_deg": 289.8,
+        "travel_m": 3.17,
         "upside_down": true,
         "starts_and_ends_upright": true
       }
@@ -507,17 +512,17 @@
       ],
       "move_check": {
         "ok": false,
-        "max_turn_deg": 374.4,
-        "min_turn_deg": 0.0,
-        "peak_hips_vs_standing": 1.29,
+        "max_turn_deg": 367.2,
+        "min_turn_deg": 0,
+        "peak_hips_vs_standing": 1.39,
         "longest_air_s": 0.13,
         "window_frames": [
-          7,
-          41
+          3,
+          35
         ],
-        "window_s": 1.13,
-        "turn_in_window_deg": 338.9,
-        "travel_m": 3.42,
+        "window_s": 1.07,
+        "turn_in_window_deg": 327.4,
+        "travel_m": 3.17,
         "upside_down": true,
         "starts_and_ends_upright": true
       }
@@ -529,22 +534,21 @@
       "move_check_pass": false,
       "failed_gate": [],
       "soft_failed": [
-        "feet_dont_slide",
-        "no_jitter"
+        "feet_dont_slide"
       ],
       "move_check": {
         "ok": false,
-        "max_turn_deg": 365.4,
-        "min_turn_deg": 0.0,
-        "peak_hips_vs_standing": 1.51,
+        "max_turn_deg": 353.5,
+        "min_turn_deg": 0,
+        "peak_hips_vs_standing": 1.48,
         "longest_air_s": 0.73,
         "window_frames": [
-          8,
-          45
+          4,
+          39
         ],
-        "window_s": 1.23,
-        "turn_in_window_deg": 325.9,
-        "travel_m": 3.62,
+        "window_s": 1.17,
+        "turn_in_window_deg": 314.7,
+        "travel_m": 3.45,
         "upside_down": true,
         "starts_and_ends_upright": true
       }
@@ -560,17 +564,17 @@
       ],
       "move_check": {
         "ok": false,
-        "max_turn_deg": 363.6,
-        "min_turn_deg": -0.9,
-        "peak_hips_vs_standing": 1.48,
+        "max_turn_deg": 346.7,
+        "min_turn_deg": 0,
+        "peak_hips_vs_standing": 1.44,
         "longest_air_s": 0.5,
         "window_frames": [
-          8,
-          42
+          4,
+          36
         ],
-        "window_s": 1.13,
-        "turn_in_window_deg": 320.4,
-        "travel_m": 4.13,
+        "window_s": 1.07,
+        "turn_in_window_deg": 307.2,
+        "travel_m": 3.99,
         "upside_down": true,
         "starts_and_ends_upright": true
       }
@@ -589,17 +593,17 @@
       ],
       "move_check": {
         "ok": false,
-        "max_turn_deg": 391.8,
-        "min_turn_deg": -1.4,
-        "peak_hips_vs_standing": 1.35,
+        "max_turn_deg": 379.2,
+        "min_turn_deg": 0,
+        "peak_hips_vs_standing": 1.37,
         "longest_air_s": 0.37,
         "window_frames": [
-          7,
-          45
+          4,
+          39
         ],
-        "window_s": 1.27,
-        "turn_in_window_deg": 357.3,
-        "travel_m": 5.4,
+        "window_s": 1.17,
+        "turn_in_window_deg": 338.4,
+        "travel_m": 5.01,
         "upside_down": true,
         "starts_and_ends_upright": true
       }
@@ -615,17 +619,17 @@
       ],
       "move_check": {
         "ok": false,
-        "max_turn_deg": 345.0,
-        "min_turn_deg": 0.0,
-        "peak_hips_vs_standing": 1.32,
+        "max_turn_deg": 324.5,
+        "min_turn_deg": 0,
+        "peak_hips_vs_standing": 1.36,
         "longest_air_s": 0.23,
         "window_frames": [
-          10,
-          58
+          24,
+          52
         ],
-        "window_s": 1.6,
-        "turn_in_window_deg": 306.8,
-        "travel_m": 6.0,
+        "window_s": 0.93,
+        "turn_in_window_deg": 288.3,
+        "travel_m": 3.86,
         "upside_down": true,
         "starts_and_ends_upright": true
       }
@@ -637,24 +641,23 @@
       "move_check_pass": false,
       "failed_gate": [],
       "soft_failed": [
-        "feet_dont_slide",
         "no_jitter"
       ],
       "move_check": {
         "ok": false,
-        "max_turn_deg": 351.5,
-        "min_turn_deg": 0.0,
-        "peak_hips_vs_standing": 1.21,
-        "longest_air_s": 0.33,
+        "max_turn_deg": 332.9,
+        "min_turn_deg": 0,
+        "peak_hips_vs_standing": 0.99,
+        "longest_air_s": 0.27,
         "window_frames": [
-          7,
-          32
+          4,
+          26
         ],
-        "window_s": 0.83,
-        "turn_in_window_deg": 310.6,
-        "travel_m": 3.07,
+        "window_s": 0.73,
+        "turn_in_window_deg": 293.9,
+        "travel_m": 2.63,
         "upside_down": true,
-        "starts_and_ends_upright": true
+        "starts_and_ends_upright": false
       }
     },
     {
@@ -666,8 +669,8 @@
       "soft_failed": [],
       "move_check": {
         "ok": false,
-        "max_turn_deg": 20.7,
-        "min_turn_deg": 0.0,
+        "max_turn_deg": 8,
+        "min_turn_deg": 0,
         "why": "the trunk never leans forward"
       }
     },
@@ -682,27 +685,27 @@
       ],
       "move_check": {
         "ok": false,
-        "max_turn_deg": 353.2,
-        "min_turn_deg": -1.0,
-        "peak_hips_vs_standing": 1.33,
+        "max_turn_deg": 348.9,
+        "min_turn_deg": 0,
+        "peak_hips_vs_standing": 1.26,
         "longest_air_s": 0.03,
         "window_frames": [
-          9,
-          32
+          4,
+          27
         ],
         "window_s": 0.77,
-        "turn_in_window_deg": 315.0,
-        "travel_m": 3.21,
+        "turn_in_window_deg": 315.9,
+        "travel_m": 3.2,
         "upside_down": true,
-        "starts_and_ends_upright": true
+        "starts_and_ends_upright": false
       }
     }
   ],
   "summary": {
     "candidates": 22,
     "pass_gate": 21,
-    "pass_move_check": 5,
-    "pass_both": 5
+    "pass_move_check": 4,
+    "pass_both": 4
   },
   "best": "roll_a_s4",
   "shipped_to": "public/assets/motion/roll.json"

@@ -31,6 +31,10 @@
   - Given the simulator's path and contact targets it tracked the run to within 5 cm but ended 2.4 m too low on a 4.3 m wall, in all 8 seeds; stronger constraint guidance made it worse.
   - So split a tall move into pieces that each stay inside that range, or track it with physics.
 - **The simulator's wall grab is easier than a body can do:** at 7 m/s its grab tick has the hands 2.4 m from the hips, and an arm reaches 1.07 m.
+- **A move check says what a clip shows; the gate only says a body could do it (CC-64).**
+  - A front flip passed the gate as a "roll" until the check required a low body that keeps touching the ground.
+  - Judge turning by the way the body faces, not the way it travels, or a backward somersault reads as forward.
+- **CMU has no forward roll (CC-64):** its nearest takes are flips and a backward somersault; Kimodo text made 4 passing rolls in 18 samples (about $0.04), so a move with no source is a Kimodo job, not a dead end.
 - **One mid-speed clip, time-warped, covers a whole human speed range** (3-7 m/s within 4 cm); add clips for new moves and outcomes, not new speeds.
 
 ## Characters and rigging
