@@ -316,5 +316,15 @@
       "scale": 1,
       "url": "/assets/experiments/osm/san-francisco-lombard.glb"
     }
-  ]
+  ],
+  "plan": {
+    "jumpXs": [
+      5.48,
+      8.8,
+      17.94,
+      20.9
+    ],
+    "releaseAfter": 60,
+    "bouncePress": 8
+  }
 }
