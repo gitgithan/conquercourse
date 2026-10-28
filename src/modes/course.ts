@@ -332,10 +332,45 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
     wall: '<path d="M4 26 Q22 26 26 4 M26 4 H29"/>',
     rope: '<path d="M5 5 H27 M16 5 V19"/><circle cx="16" cy="23" r="3.5"/>',
     trampoline: '<path d="M4 20 H28 M7 20 L9 26 M25 20 L23 26 M13 14 Q16 4 19 14"/>',
+    lache: '<path d="M4 5 H28 M8 5 V13 M16 5 V13 M24 5 V13 M5 22 Q16 12 27 22"/>',
+    launch: '<path d="M5 25 L25 7 M19 7 H25 V13 M8 23 L13 28"/><circle cx="10" cy="9" r="3"/>',
+    recoil: '<path d="M5 16 H26 M5 16 L11 10 M5 16 L11 22 M27 7 V25"/>',
+    step: '<path d="M4 24 H12 V18 H20 V12 H28"/>',
+    drop: '<path d="M8 5 V20 M4 16 L8 21 L12 16 M17 23 H28"/>',
+    coaster: '<path d="M3 23 Q9 23 11 9 Q13 2 16 14 Q20 29 24 15 Q26 9 29 9"/>',
+    course: '<path d="M4 25 H10 L14 10 L19 21 L23 13 H28"/><circle cx="7" cy="19" r="2"/>',
   };
+  const progressZones = course.zones?.length ? course.zones : (() => {
+    const found: { id: string; name: string; x0: number; x1: number }[] = [];
+    const add = (id: string, name: string, x0: number, x1: number) => {
+      if (x1 > x0) found.push({ id, name, x0, x1 });
+    };
+    const platforms = [...course.terrain.platforms].sort((a, b) => a.x0 - b.x0);
+    platforms.forEach((p, i) => {
+      const next = platforms[i + 1];
+      if (!next) return;
+      const gap = next.x0 - p.x1, rise = next.top - p.top;
+      if (gap > 0.15) add('gap', 'Gap', p.x1, next.x0 + 0.1);
+      else if (rise > 0.25) add('step', 'Step up', next.x0 - 1.5, next.x0 + 2);
+      else if (rise < -1.2) add('drop', 'Drop landing', p.x1 - 1.5, next.x0 + 2);
+    });
+    platforms.filter((p) => p.bouncy).forEach((p) => add('trampoline', 'Trampoline', p.x0, p.x1));
+    if (course.wall) add('wall', 'Warped wall', course.wall.x0, course.wall.x0 + Math.max(8, (course.wall.height ?? 4.3) * 2));
+    if (course.rope) add('rope', 'Rope swing', course.rope.anchorX - Math.max(6, course.rope.length ?? 9), course.rope.anchorX + 3);
+    if (course.holds?.length) add('lache', 'Bars', course.holds[0].x - 3, course.holds[course.holds.length - 1].x + 3);
+    if (course.trebuchet) add('launch', 'Trebuchet launch', course.trebuchet.x - 12, course.trebuchet.x + 5);
+    if (course.recoil) add('recoil', 'Recoil launcher', course.recoil.x0, course.recoil.x1);
+    if (course.track) add('coaster', 'Coaster', course.startX, course.finishX);
+    const ordered = found
+      .map((z) => ({ ...z, center: (z.x0 + z.x1) / 2 }))
+      .filter((z) => z.center >= course.startX && z.center <= course.finishX)
+      .sort((a, b) => a.center - b.center);
+    if (!ordered.length) return [{ id: 'course', name: course.name, x0: course.startX, x1: course.finishX }];
+    return ordered.map((z, i) => ({ ...z, x1: i + 1 < ordered.length ? (z.center + ordered[i + 1].center) / 2 : course.finishX }));
+  })();
   const stripKey = { v: '' };
   function paintStrip(x: number) {
-    const zs = course.zones ?? [];
+    const zs = progressZones;
     const firstTodo = zs.findIndex((z) => x < z.x1);
     const key = zs.map((_, i) => (firstTodo === -1 || i < firstTodo ? 'd' : i === firstTodo ? 'n' : 't')).join('');
     if (key === stripKey.v) return;
@@ -401,7 +436,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
   try { worldWelcomeSeen = localStorage.getItem('cc.worldWelcome.seen') === '1'; } catch { /* use the one-time URL option when storage is unavailable */ }
   const mode = params.get('mode');
   const showWorldWelcome = !resume && !worldWelcomeSeen && params.get('welcome') !== '0' && (!mode || mode === 'course') && !params.has('course') && !params.has('generate') && !params.has('coaster');
-  if (!resume && (!mode || mode === 'course')) {
+  if (!resume) {
     if (showWorldWelcome) document.body.append(welcome); else compactPicker();
   }
   if (!showWorldWelcome) rememberWorldWelcome(); // direct course starts (including Community Play) count as the first play
