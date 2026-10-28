@@ -187,13 +187,13 @@ function stepWall(w: WorldState, course: CourseData): WorldState {
     if (wl.result.grabbed) {
       events.push({ tick, type: 'wall-grab', detail: { margin: wl.result.margin } });
       const x = wl.x0 + wp.height + MANTLE_RUN;
-      return { ...w, mode: 'run', wall: null, events, runner: { ...w.runner, tick, x, y: wp.height, vx: 0, vy: 0, grounded: true } };
+      return { ...w, mode: 'run', wall: null, events, runner: { ...w.runner, tick, x, y: groundAt(course.terrain, wl.x0) + wp.height, vx: 0, vy: 0, grounded: true } }; // the wall stands on the ground at its foot, not only on level 0
     }
     events.push({ tick, type: 'wall-slide', detail: { margin: wl.result.margin, exit: wl.result.exitSpeed } });
     return { ...w, mode: 'run', wall: null, events, runner: { ...w.runner, tick, x: wl.x0 - 0.5, y: groundAt(course.terrain, wl.x0 - 1), vx: 0, vy: 0, grounded: true } };
   }
   const q = path[i];
-  return { ...w, wall: { ...wl, index: i + 1 }, events, runner: { ...w.runner, tick, x: wl.x0 + q.x, y: q.y, vx: 0, vy: 0, grounded: true } };
+  return { ...w, wall: { ...wl, index: i + 1 }, events, runner: { ...w.runner, tick, x: wl.x0 + q.x, y: groundAt(course.terrain, wl.x0) + q.y, vx: 0, vy: 0, grounded: true } };
 }
 
 function stepSwing(w: WorldState, input: RunnerInput, course: CourseData): WorldState {
