@@ -1171,3 +1171,29 @@ The set of obstacle shapes is fixed, and each shape offers a fixed set of moves.
   - The runner is drawn in the running pose, also while pulling (facing left); there is no leaning or braced pose.
   - The jump while clipped on is not allowed (the clip unclips only when the runner is back at the rest length).
   - A real band also pulls sideways and in the air; ours is along the run only.
+
+## Round trip between the Course and the editor (CC-80)
+- **So what:** a course is no longer a one-way street: from the Course you can go back to the very same pieces in the editor, and when a hard press keeps ending in a fall, the editor can offer the smallest change that makes it easier.
+- **What a course remembers:** an editor course carries its source in `course.source` (the pieces, the lane, the floor, the trebuchet counterweight).
+  - A course without a source (a demo, a generated one) becomes an editable copy: each platform a box, a stepped or curved top split into columns of equal height, bars as bars.
+  - The copy is approximate on purpose: the lane cuts steep faces into ramps, so a copy of a cup stack may not clear.
+    - The lache copy does.
+  - A coaster opens its track in the coaster builder instead.
+- **Edit this course:** a button under the top bar and on the fall panel.
+  - It writes a handoff into the session (the course without its baked scene and plans, where the runner was, the checkpoint, how many falls).
+  - The editor opens on those pieces, selects the piece nearest the runner and centres the 3D view on it.
+- **Back to the Course:** the button in the editor's top bar (and T) rebuilds the course from the pieces now, checks that it clears, and returns at the same obstacle, a few metres before the selected piece.
+  - It goes through the same resume the Dojo uses, so the Course puts itself back.
+  - The undo list (the last 25 steps) is kept in the session and comes back when the world is the one it ended with.
+  - Worlds with photo objects or a map place do not keep their undo list: their meshes are too big for the session.
+- **Make it easier:** on the fall panel, and as a button in the design partner.
+  - The narrowest press window is the hardest press in milliseconds (the jump off the start deck is left out: the lane always puts the first ground 3 m past it).
+  - The search tries the smallest changes to the three pieces nearest the fall (move along the lane, lower a bar, make a block smaller) in order of size, and offers the first that widens that window by a quarter, or the best that widens it by 15%.
+  - It is shown with the same hollow outlines as every other change, with one sentence ("The narrowest press window grows from 314 ms to 405 ms."), and **Apply and try it** returns to the Course with the change in place.
+  - When nothing small helps it says so, and the layout is left alone.
+- **Measured:** a 5 m gap between two decks gives "Move “Block 1” 1 m further along: 314 ms to 405 ms"; a 4 m gap is already comfortable and gets no offer.
+- **Speed and gaps:**
+  - A lane with bars takes about a minute for each search on a busy machine, so it gets a 150 s budget and may find nothing in time.
+  - The step budget and worker pool of CC-69 will help.
+  - The Course cannot be rebuilt in place, so "try it" is a page reload that lands back on the same obstacle.
+- **Checks:** `tests/roundtrip.test.ts` (an unedited course comes back byte for byte, the copy of the lache demo clears), `tests/easier.test.ts`, and `scripts/roundtrip-check.mjs` (play, fall, make it easier, apply and try it, edit again, back, clear).
