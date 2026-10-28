@@ -21,6 +21,7 @@ try {
     const hint = /Push [→←] with the swing/.test(body);
     if (hint && !sawHang) { sawHang = true; checks.frontViewShown = (await page.evaluate(() => getComputedStyle(document.getElementById('frontview')).display)) !== 'none'; await page.waitForTimeout(700); await page.screenshot({ path: 'test-results/lache/hang.png' }); }
     if (i % 6 === 0) await page.screenshot({ path: `test-results/lache/t${String(shot++).padStart(2, '0')}.png` });
+    if (/You skipped the second bar/.test(body)) checks.sawSkipNote = true; // the fact after a flight over the second bar
     cleared = /You made it/.test(body);
   }
   await page.screenshot({ path: 'test-results/lache/end.png' });

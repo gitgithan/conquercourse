@@ -24,7 +24,7 @@
         "top": 0
       },
       {
-        "x0": 48,
+        "x0": 45.8,
         "x1": 64,
         "top": -2
       }
@@ -73,11 +73,27 @@
     "bouncePress": 8,
     "hands": true,
     "hangTicks": [
-      42,
-      420
+      208
     ],
     "vaultXs": [
       19.68
+    ],
+    "airHands": [
+      false
     ]
-  }
+  },
+  "routes": [
+    {
+      "name": "bar to bar",
+      "ticks": 1260,
+      "bars": 2,
+      "chosen": false
+    },
+    {
+      "name": "skip the second bar",
+      "ticks": 1123,
+      "bars": 1,
+      "chosen": true
+    }
+  ]
 }

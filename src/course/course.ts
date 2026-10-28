@@ -22,6 +22,7 @@ export interface CourseData {
   zones?: { id: string; name: string; x0: number; x1: number }[]; // where each obstacle lives, for messages and the Dojo link
   wall?: { x0: number } & Partial<WallParams>; // curve starts at x0 and rises over `height` metres of run
   rope?: Partial<RopeParams> & { anchorX: number; anchorY: number };
+  routes?: import('../sim/ideal').Route[]; // the ways through a pair of bars and their times (bar to bar, or a skip), found with the plan
   plan?: import('../sim/ideal').Plan; // a proved line for the whole course from its start (generated courses carry it: a whole-course proof is slow)
   jumpKeep?: number; // share of the forward speed kept when a jump takes off (default 1: none lost); below 1, a jump costs speed and a vault, which keeps more, pays
   holds?: { x: number; y: number }[]; // bars hanging in the air: where along the run and how high (side view)

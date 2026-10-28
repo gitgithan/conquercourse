@@ -79,5 +79,13 @@
     "vaultXs": [
       19.68
     ]
-  }
+  },
+  "routes": [
+    {
+      "name": "bar to bar",
+      "ticks": 1746,
+      "bars": 2,
+      "chosen": true
+    }
+  ]
 }

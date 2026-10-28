@@ -761,3 +761,27 @@ The set of obstacle shapes is fixed, and each shape offers a fixed set of moves.
 - **Reference only:** the owner named the mobile parkour game Vector as a model of how parkour moves should look; none of its footage, animation or assets is used.
   - Real vault types for reference: speed, safety, kong and lazy vaults; ours is a speed vault.
 - **Known gaps:** no hand-on-the-box contact is drawn (the arms come from the clip); a vault over a very long or curved top uses the first 0.5 m only; the arm pose is not checked against the real top height.
+
+## Lache playtest fixes, round three (CC-67)
+- **So what:** the first-person camera turns with the body, the roll drum sits where the key is pressed, and a hard pump on the first bar is a real shortcut over the second bar.
+- **First-person camera (C key's third view):** it uses the same head as the corner window: the eyes just under the hands on a bar, turned about the bar by the swing angle with a rotation (no flip at the top), so the whole view tilts and goes upside down through a full circle.
+  - After a release it settles level over about 0.3 s; on the ground it is level.
+    - Dragging still turns the head, relative to the body.
+  - `?cam=first` starts in that view (for pictures).
+    - Pictures at 0, 90 and 180 degrees, corner window and main camera: `data/eval/cc-67-fixes/corner-theta-*.png` and `main-first-theta-*.png`.
+- **Roll drum place:** the X drum sits on the path point 36 ticks (0.3 s) before touchdown (`ROLL_DRUM_TICKS`), not at the landing and not at the moment the fall is first seen.
+  - The key buffer is 0.25 s, so a press there always counts.
+  - The debug view draws an orange ring at the same point on its predicted path and says "tap X at the orange ring".
+  - Tests check the drop demo and both lache demos: the drum is within 2 cm of the path point 36 ticks before the landing.
+- **The skip:** a full pump on the first bar, then letting go with the hand kept off the key, flies over the second bar onto the far deck.
+  - In the lache demo the far deck is 6.8 m from the first bar (it was 9 m, so one bar could not reach it).
+    - The deck is 2 m lower, so a full pump reaches about 8.7 m; 6.8 m needs a hard pump (about 1.7 s, 208 ticks) and leaves a window of about 0.3 s to let go.
+  - The search compares the two routes (`searchIdealRun(course, { routes: true })`, used by `npm run plans`): bar to bar 10.5 s and skip the second bar 9.4 s here, so the plan follows the skip.
+    - Both are stored in the course as `routes`.
+  - New plan field `airHands`: false keeps the hand off after that release, so the second bar is not grabbed on the way over.
+    - The hint and the debug view say it as a fact: "Or keep your hand off it: you land on the ground at 45.9 m. You fly over the second bar: it is skipped." After the landing: "You skipped the second bar."
+  - No scoring and no grading: the messages say what happens, nothing about how well it was done.
+  - The wide lache demo (bars 6.3 m apart) has no skip: its far deck is 12 m from the first bar, beyond any swing.
+    - It reports one route.
+- **Tests:** `tests/skip-route.test.ts` (the skip works; a short swing does not; bar to bar still works; the search follows the faster route and reports both; the hint is a fact) and the new drum tests.
+- **Cost:** comparing routes adds about 250 runs to a search, so it is opt-in (stored plans and the explore scripts use it); ordinary searches are as fast as before.
