@@ -65,6 +65,9 @@
     }
   ],
   "hazard": "lava",
+  "designedShortcuts": [
+    "skip-bar-2"
+  ],
   "plan": {
     "jumpXs": [
       33
@@ -126,8 +129,5 @@
         ]
       }
     }
-  ],
-  "designedShortcuts": [
-    "skip-bar-2"
   ]
 }
