@@ -1,0 +1,34 @@
+{
+  "place": "eixample-barcelona",
+  "name": "Eixample, Barcelona",
+  "photos": [
+    {
+      "file": "photo-1.jpg",
+      "title": "Barcelona Eixample & Gràcia cityscape from Montjuïc 2026-08-14.jpg",
+      "author": "Ilkka Simomaa",
+      "licence": "CC BY 4.0",
+      "licenceUrl": "https://creativecommons.org/licenses/by/4.0",
+      "source": "https://commons.wikimedia.org/wiki/File:Barcelona_Eixample_%26_Gr%C3%A0cia_cityscape_from_Montju%C3%AFc_2026-08-14.jpg",
+      "date": "2026-08-14 20:22:25",
+      "hint": "The Eixample and Gràcia districts seen from the Montjuïc hill: blocks as far as you can see.",
+      "changes": "Scaled to 1200 px wide and recompressed as JPEG.",
+      "width": 1200,
+      "height": 800,
+      "bytes": 230613
+    },
+    {
+      "file": "photo-2.jpg",
+      "title": "Dreta de l Eixample, Barcelona (P1170596).jpg",
+      "author": "Matti Blume",
+      "licence": "CC BY-SA 4.0",
+      "licenceUrl": "https://creativecommons.org/licenses/by-sa/4.0/deed.en",
+      "source": "https://commons.wikimedia.org/wiki/File:Dreta_de_l_Eixample,_Barcelona_(P1170596).jpg",
+      "date": "2024-02-03 13:10:44",
+      "hint": "The Dreta de l’Eixample district of Barcelona, seen from above.",
+      "changes": "Scaled to 1200 px wide and recompressed as JPEG.",
+      "width": 1200,
+      "height": 900,
+      "bytes": 217237
+    }
+  ]
+}

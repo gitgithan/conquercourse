@@ -1,0 +1,48 @@
+{
+  "place": "circular-quay-sydney",
+  "name": "Circular Quay, Sydney",
+  "photos": [
+    {
+      "file": "photo-1.jpg",
+      "title": "Circular Quay skyline, Sydney.jpg",
+      "author": "Alan and Flora Botting",
+      "licence": "CC BY-SA 2.0",
+      "licenceUrl": "https://creativecommons.org/licenses/by-sa/2.0",
+      "source": "https://commons.wikimedia.org/wiki/File:Circular_Quay_skyline,_Sydney.jpg",
+      "date": "2016-07-18",
+      "hint": "Office towers above Circular Quay, seen from the water’s edge.",
+      "changes": "Scaled to 1200 px wide and recompressed as JPEG.",
+      "width": 1200,
+      "height": 798,
+      "bytes": 194793
+    },
+    {
+      "file": "photo-2.jpg",
+      "title": "Sydney skyline from Sydney Harbour, May 2021.jpg",
+      "author": "zombieite",
+      "licence": "CC BY 2.0",
+      "licenceUrl": "https://creativecommons.org/licenses/by/2.0",
+      "source": "https://commons.wikimedia.org/wiki/File:Sydney_skyline_from_Sydney_Harbour,_May_2021.jpg",
+      "date": "2021-05-08 20:35:31",
+      "hint": "The Sydney skyline from the harbour.",
+      "changes": "Scaled to 1200 px wide and recompressed as JPEG.",
+      "width": 1200,
+      "height": 900,
+      "bytes": 143459
+    },
+    {
+      "file": "photo-3.jpg",
+      "title": "Sydney Circular Quay Wharfs 4 and 5 seen from the water.jpg",
+      "author": "Ymblanter",
+      "licence": "CC BY-SA 4.0",
+      "licenceUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+      "source": "https://commons.wikimedia.org/wiki/File:Sydney_Circular_Quay_Wharfs_4_and_5_seen_from_the_water.jpg",
+      "date": "11 April 2024, 03:45:19 +09:00",
+      "hint": "Circular Quay’s ferry wharfs 4 and 5 seen from the water.",
+      "changes": "Scaled to 1200 px wide and recompressed as JPEG.",
+      "width": 1200,
+      "height": 799,
+      "bytes": 237766
+    }
+  ]
+}
