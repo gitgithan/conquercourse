@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { CUP, patternOf, stackCups, STACK_PREFIX } from './stack';
+import { ACROSS, CUP, FLOOR, patternOf, stackCups, STACK_PREFIX } from './stack';
 
 // The cups of a stack, drawn: one instanced cone per cup (mouth down), a colour per row like the plastic sets (no logos).
 // In cup metres, standing on y = 0 and centred; the caller scales it to the piece or scene item.
@@ -22,5 +22,9 @@ export function cupsGroup(src: string): THREE.Group {
   inst.instanceMatrix.needsUpdate = true;
   if (inst.instanceColor) inst.instanceColor.needsUpdate = true;
   g.add(inst);
+  // the floor under the stack (the collision is a thin floor too): a block like the decks, so the cups do not float over the water
+  const floor = new THREE.Mesh(new THREE.BoxGeometry(length + 2 * CUP.mouth, 0.35, ACROSS * CUP.mouth + 0.04), new THREE.MeshStandardMaterial({ color: 0xb9b4a8, roughness: 0.95 }));
+  floor.position.y = FLOOR - 0.175;
+  g.add(floor);
   return g;
 }

@@ -138,6 +138,7 @@ try {
   await page.click('#addstack-3-6-3');
   await page.waitForFunction(() => document.documentElement.dataset.pieces === '4', null, { timeout: 10000 });
   checks.stackAdded = true;
+  await page.click('#helperbtn'); // hide the design partner so the stack is in view
   await page.waitForTimeout(800);
   await page.screenshot({ path: 'test-results/editor/stack.png' });
   await page.reload();
