@@ -52,24 +52,39 @@ export function predictJump(w: WorldState, course: CourseData, maxTicks = 240): 
 
 
 // "If I let go of the bar now, what happens?": the same physics run on with both hands off, then the right hand held so the next bar is grabbed if it is in reach.
-export function predictRelease(w: WorldState, course: CourseData, maxTicks = 360): Prediction {
-  if (w.mode !== 'hang' || w.outcome !== 'running') return { path: [], result: 'other-move', why: 'Not on a bar.' };
+// When a flight with the hand kept off would clear the next bar and land beyond it, that is said too, as a fact (a skip), never as a grade.
+const ORDINAL = ['first', 'second', 'third', 'fourth', 'fifth', 'sixth'];
+export const barName = (i: number): string => `${ORDINAL[i] ?? `no. ${i + 1}`} bar`;
+
+function releaseFlight(w: WorldState, course: CourseData, hand: boolean, maxTicks: number): Prediction {
   const path = [{ x: w.runner.x, y: w.runner.y }];
   let s = stepWorld(w, { ...NO_INPUT }, course); // both hands off: let go
   path.push({ x: s.runner.x, y: s.runner.y });
   let left = false;
   for (let i = 0; i < maxTicks; i++) {
-    s = stepWorld(s, { ...NO_INPUT, run: true, squat: true, handR: true }, course);
+    s = stepWorld(s, { ...NO_INPUT, run: true, squat: true, handR: hand }, course);
     path.push({ x: s.runner.x, y: s.runner.y });
-    if (s.mode === 'hang') return { path, result: 'lands', landX: s.runner.x, why: 'You reach the next bar: hold E in the air to grab it.' };
+    if (s.mode === 'hang') return { path, result: 'lands', landX: s.runner.x, why: `You reach the ${barName(s.hang!.hold)}: hold E in the air to grab it.` };
     if (s.outcome === 'splash') return { path, result: 'splash', landX: s.runner.x, why: 'You fall in the water: wait for a bigger swing.' };
     if (!s.runner.grounded) left = true;
     if (left && s.runner.grounded) {
       if (s.runner.x < w.runner.x + 0.5) return { path, result: 'blocked', landX: s.runner.x, why: 'You would land back on the near side.' };
-      return { path, result: 'lands', landX: s.runner.x, why: `You land on the ground at ${s.runner.x.toFixed(1)} m.` };
+      const passed = (course.holds ?? []).map((h, k) => ({ h, k })).filter(({ h, k }) => k !== w.hang!.hold && h.x > w.runner.x + 0.5 && h.x < s.runner.x - 0.3);
+      const skip = passed.length ? ` You fly over the ${passed.map(({ k }) => barName(k)).join(' and the ')}: it is skipped.` : '';
+      return { path, result: 'lands', landX: s.runner.x, why: `You land on the ground at ${s.runner.x.toFixed(1)} m.${skip}` };
     }
   }
   return { path, result: 'lands', why: 'Still in the air at the end of the preview.' };
+}
+
+export function predictRelease(w: WorldState, course: CourseData, maxTicks = 360): Prediction {
+  if (w.mode !== 'hang' || w.outcome !== 'running') return { path: [], result: 'other-move', why: 'Not on a bar.' };
+  const withHand = releaseFlight(w, course, true, maxTicks);
+  if (withHand.why.startsWith('You reach the')) { // the next bar is in reach: is there a second way, over it?
+    const over = releaseFlight(w, course, false, maxTicks);
+    if (over.result === 'lands' && over.why.includes('skipped')) return { ...withHand, why: `${withHand.why} Or keep your hand off it: ${over.why.charAt(0).toLowerCase() + over.why.slice(1)}` };
+  }
+  return withHand;
 }
 
 

@@ -23,9 +23,9 @@ for (const f of files) {
     continue;
   }
   const course = JSON.parse(readFileSync(f, 'utf8')) as CourseData;
-  delete course.plan;
-  const r = searchIdealRun(course);
-  if (r.cleared) { course.plan = r.plan; writeFileSync(f, JSON.stringify(course, null, 2) + '\n'); } else bad++;
+  delete course.plan; delete course.routes;
+  const r = searchIdealRun(course, { routes: true });
+  if (r.cleared) { course.plan = r.plan; if (r.routes) course.routes = r.routes; writeFileSync(f, JSON.stringify(course, null, 2) + '\n'); } else bad++;
   console.log(`${f}: ${r.cleared ? 'plan stored' : 'NOT CLEARED, no plan stored'} (${((Date.now() - t0) / 1000).toFixed(1)} s)`);
 }
 process.exit(bad ? 1 : 0);

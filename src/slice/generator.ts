@@ -129,10 +129,12 @@ export function generateDetailed(seed: number, opts: GenOptions = {}): Generated
       plan.jumpXs.push(...p.jumpXs.map((x) => r2(x + dx)));
       plan.vaultXs!.push(...(p.vaultXs ?? []).map((x) => r2(x + dx)));
       plan.hangTicks!.push(...Array.from({ length: pr!.hangs }, (_, h) => p.hangTicks?.[h] ?? 90));
+      (plan.airHands ??= []).push(...Array.from({ length: pr!.hangs }, (_, h) => p.airHands?.[h] ?? true)); // a proved skip keeps its hands off in the air
       if (p.hands) plan.hands = true;
     });
     if (!plan.vaultXs!.length) delete plan.vaultXs;
     if (!plan.hangTicks!.length) delete plan.hangTicks;
+    if (!plan.airHands?.some((a) => !a)) delete plan.airHands; // only a skip needs it
     const run = playPlan(a.course, plan, 120 * 60);
     const cleared = run.world.outcome === 'cleared';
     if (cleared) a.course.plan = plan; // the proved line travels with the course (drums and the bot use it without searching again)

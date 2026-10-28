@@ -5,6 +5,9 @@ import { predictCart, predictJump, predictLaunch, predictRelease } from '../sim/
 import type { WorldState } from '../sim/world';
 import { DEFAULT_WALL } from '../sim/wall';
 import { planVault, vaultAt, type Vault } from '../sim/vault';
+import { ROLL_DRUM_TICKS } from '../sim/drums';
+import { DEFAULT_LANDING, safeDrop } from '../sim/landing';
+import { GRAVITY } from '../sim/units';
 
 // The debug view (like a fighting game's hitbox mode): draws what the simulator really uses, and says what a jump right now would do.
 //   yellow  = the ground and the wall the runner stands on and bumps into (the collision outline, not the pretty picture)
@@ -42,6 +45,9 @@ export function createDebugView(scene: THREE.Scene, course: CourseData, parent: 
   const arc = new THREE.Line(new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(), new THREE.Vector3()]), arcMat); arc.renderOrder = 999; arc.frustumCulled = false; group.add(arc);
   const endMark = line(Array.from({ length: 17 }, (_, i) => new THREE.Vector3(Math.cos((i / 16) * 2 * Math.PI) * 0.18, Math.sin((i / 16) * 2 * Math.PI) * 0.18, Z)), 0x38d26b, true);
 
+  // where to press X: the point on the path ROLL_DRUM_TICKS (0.3 s) before the landing, when the fall would stumble or hurt with straight legs
+  const rollMark = line(Array.from({ length: 17 }, (_, i) => new THREE.Vector3(Math.cos((i / 16) * 2 * Math.PI) * 0.22, Math.sin((i / 16) * 2 * Math.PI) * 0.22, Z)), 0xffb02e, true); rollMark.visible = false;
+
   // the vault's path (magenta): from the ideal plant point of the next vaultable step to just past its edge, or the real path while vaulting; a tick marks the plant
   const vaultMat = mat(0xd05cff);
   const vaultLine = new THREE.Line(new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(), new THREE.Vector3()]), vaultMat); vaultLine.renderOrder = 999; vaultLine.frustumCulled = false; vaultLine.visible = false; group.add(vaultLine);
@@ -72,6 +78,12 @@ export function createDebugView(scene: THREE.Scene, course: CourseData, parent: 
       const last = pr.path[n - 1];
       if (last) endMark.position.set(last.x, last.y, 0);
       endMark.visible = pr.result !== 'other-move';
+      // the roll point: the same place the drum lane puts the X drum
+      let rollText = '';
+      const fall = n > ROLL_DRUM_TICKS + 2 && (pr.result === 'lands' || pr.result === 'hurt') ? Math.abs(pr.path[n - 1].y - pr.path[n - 2].y) * 120 : 0; // speed into the ground, m/s
+      const advised = fall > 0 && (fall * fall) / (2 * GRAVITY) > safeDrop('stiff', DEFAULT_LANDING).clean;
+      rollMark.visible = advised;
+      if (advised) { const q = pr.path[n - 1 - ROLL_DRUM_TICKS]; rollMark.position.set(q.x, q.y, 0); rollText = `<div style="color:#ffb02e;font-weight:700">Roll: tap X at the orange ring (0.3 s before the ground; a fall of ${((fall * fall) / (2 * GRAVITY)).toFixed(1)} m)</div>`; }
       // the vault path
       let vaultText = '';
       const pv = w.mode === 'run' && r.grounded ? planVault(course.terrain, r.x, r.y, r.vx) : null;
@@ -84,7 +96,9 @@ export function createDebugView(scene: THREE.Scene, course: CourseData, parent: 
         else if (live) vaultText = `<div style="color:#d05cff;font-weight:700">Vaulting: the path goes from ${live.x0.toFixed(1)} to ${live.x1.toFixed(1)} m in ${(live.n / 120).toFixed(2)} s</div>`;
       }
       const hex = '#' + colour.toString(16).padStart(6, '0');
-      panel.innerHTML = `${vaultText}<strong>Debug view (B)</strong><div>${r.grounded ? 'On the ground' : 'In the air'} · speed ${Math.abs(r.vx).toFixed(1)} m/s · ${r.y.toFixed(2)} m up</div>`
+      // the ways through a pair of bars and their times, as found with the plan (a fact about the course, not a grade)
+      const routesText = course.routes && course.routes.length > 1 && w.mode !== 'cart' ? `<div style="color:#c9d1c9;margin-top:3px">Routes: ${course.routes.map((q) => `${q.name} ${(q.ticks / 120).toFixed(1)} s${q.chosen ? ' (faster)' : ''}`).join(' · ')}. A full pump on the first bar skips the second bar.</div>` : '';
+      panel.innerHTML = `${vaultText}${rollText}${routesText}<strong>Debug view (B)</strong><div>${r.grounded ? 'On the ground' : 'In the air'} · speed ${Math.abs(r.vx).toFixed(1)} m/s · ${r.y.toFixed(2)} m up</div>`
         + `<div style="color:${hex};font-weight:700">${w.mode === 'cart' ? 'If the cart rolls on: ' : w.mode === 'hang' || w.mode === 'launch' ? 'If you let go now: ' : r.grounded || pr.result === 'other-move' ? 'If you jump now: ' : 'You are in the air; carrying on: '}${pr.why}</div>`
         + `<div style="color:#c9d1c9;font-size:12px;margin-top:3px"><span style="color:#ffe14a">yellow</span> = what you stand on and bump into · <span style="color:#2de0ff">blue</span> = your body box · <span style="color:#38d26b">green</span>/<span style="color:#ff5a4a">red</span> = where a jump now goes</div>`;
     },
