@@ -1,3 +1,4 @@
+import { labsOn } from '../ui/labs';
 import { hazardOf, HAZARD_INFO } from '../course/hazard';
 import { buildFloor } from '../course/floor';
 import { playedSounds, soundButton, soundsFor, startAudio } from '../ui/audio';
@@ -522,6 +523,9 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
     for (const [v, label, about] of ds) { const o = new Option(label, v, false, v === now && seedNow === null && !['generate', 'editor', 'coaster-builder'].includes(v)); o.title = about; og.append(o); }
     pick2.append(og);
   }
+  if (labsOn()) { // CC-78: map mode, behind the labs switch
+    const og = document.createElement('optgroup'); og.label = 'Labs'; og.append(new Option('Pick a real place on the map', 'map')); pick2.append(og);
+  }
   const demoNote = document.createElement('div'); demoNote.id = 'demonote';
   demoNote.style.cssText = 'max-width:520px;margin:-6px auto 14px;font:15px system-ui,sans-serif;color:#58635d';
   demoNote.textContent = DEMO_ABOUT.get(seedNow !== null ? 'generate' : now) ?? '';
@@ -543,7 +547,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
     rememberWorldWelcome();
     if (pick2.value === 'stay') return;
     const suffix = '&welcome=0';
-    location.href = pick2.value === 'editor' ? `?mode=editor${suffix}` : pick2.value === 'coaster-builder' ? `?mode=coaster${suffix}` : pick2.value === 'generate' ? `?generate=${Math.floor(Math.random() * 1e6)}${suffix}` : pick2.value === 'generate-same' ? `${location.pathname}${location.search}${location.search.includes('?') ? '&' : '?'}welcome=0` : pick2.value ? `?course=${pick2.value}${suffix}` : `?welcome=0`;
+    location.href = pick2.value === 'map' ? `?mode=map${suffix}` : pick2.value === 'editor' ? `?mode=editor${suffix}` : pick2.value === 'coaster-builder' ? `?mode=coaster${suffix}` : pick2.value === 'generate' ? `?generate=${Math.floor(Math.random() * 1e6)}${suffix}` : pick2.value === 'generate-same' ? `${location.pathname}${location.search}${location.search.includes('?') ? '&' : '?'}welcome=0` : pick2.value ? `?course=${pick2.value}${suffix}` : `?welcome=0`;
   };
   let worldWelcomeSeen = false;
   try { worldWelcomeSeen = localStorage.getItem('cc.worldWelcome.seen') === '1'; } catch { /* use the one-time URL option when storage is unavailable */ }
