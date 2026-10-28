@@ -20,7 +20,7 @@ UPRIGHT_HIPS = 0.55          # the hips at the ends of the window are above this
 
 def search_cmu(index, terms, skip=()):
     """Trials of the CMU index whose description mentions a term (case-insensitive), minus the skipped phrases."""
-    pats = [re.compile(re.escape(t), re.I) for t in terms]
+    pats = [re.compile(r"\b" + re.escape(t), re.I) for t in terms]  # a term starts a word: "tumbl" must not match "stumble"
     skips = [s.lower() for s in skip]
     out = []
     for t in index:
@@ -35,10 +35,22 @@ def load_index(path):
         return json.load(f)
 
 
+def facing(frames, t=0):
+    """The way the body faces at frame t (a horizontal unit vector), from the hips' left-right line: not the way it travels,
+    because a backward somersault travels backward and would otherwise read as a forward one."""
+    left = frames[t, IDX["LeftLeg"]] - frames[t, IDX["RightLeg"]]
+    left[1] = 0
+    n = np.linalg.norm(left)
+    left = left / n if n > 1e-9 else np.array([1.0, 0.0, 0.0])
+    return np.cross(left, [0.0, 1.0, 0.0])
+
+
 def trunk_pitch_deg(frames):
-    """Turn of the hips-to-neck line in the side plane, degrees, unwrapped: 0 upright, +90 leaning forward, +180 upside down."""
+    """Turn of the hips-to-neck line in the plane of 'up' and the way the body faces at the start, degrees, unwrapped:
+    0 upright, +90 leaning toward where it faces, +180 upside down; a backward somersault counts negative."""
+    face = facing(frames)
     v = frames[:, IDX["Neck1"]] - frames[:, IDX["Hips"]]
-    return np.degrees(np.unwrap(np.arctan2(v[:, 2], v[:, 1])))
+    return np.degrees(np.unwrap(np.arctan2(v @ face, v[:, 1])))
 
 
 def roll_window(frames, margin_deg=20):
@@ -64,7 +76,8 @@ def roll_check(clip):
         nums["why"] = "the trunk never leans forward"
         return False, nums, None
     a, b = win
-    travel = float(np.linalg.norm(f[b, IDX["Hips"], [0, 2]] - f[a, IDX["Hips"], [0, 2]]))
+    move = f[b, IDX["Hips"]] - f[a, IDX["Hips"]]
+    travel = float(move @ facing(f))  # metres toward where the body faces
     inverted = bool((np.abs(pitch[a:b + 1] % 360 - 180) < 60).any())
     standing = float(np.percentile(f[:, IDX["Hips"], 1], 90))
     ends_up = bool(f[0, IDX["Hips"], 1] > UPRIGHT_HIPS * standing and f[-1, IDX["Hips"], 1] > UPRIGHT_HIPS * standing)
