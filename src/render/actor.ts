@@ -3,6 +3,7 @@
 // is then moved to the feet position and turned for the direction of travel.
 import { Box3, Group, Vector3, type Object3D, type Scene } from 'three/webgpu';
 import { clipDuration, loadClip, parseClip, sampleClip, type Clip, type Phase } from '../motion/clip';
+import { vaultPose, type VaultRig } from '../motion/vault-pose';
 import { MOTION_TABLE, moveProgress, rollLookFrom, type RollLook } from '../motion/motion-table';
 import { clipToWorld } from '../motion/pose';
 import { comAboveHips, legLength } from '../motion/timeline';
@@ -51,12 +52,6 @@ export async function createRookieActor(scene: Scene, opts: { rookie: RookieId; 
     const r = await fetch('/assets/motion/roll.json');
     if (r.ok) rollClip = parseClip(await r.json());
   } catch { /* no roll clip yet */ }
-  // the vault clip is optional too: without it the run pose is drawn over the obstacle (a listed gap in src/motion/motion-table.ts)
-  let vaultClip: Clip | null = null;
-  try {
-    const r = await fetch('/assets/motion/vault.json');
-    if (r.ok) vaultClip = parseClip(await r.json());
-  } catch { /* no vault clip yet */ }
   let rollLook: RollLook = typeof location === 'undefined' ? 'auto' : rollLookFrom(location.search);
   const rookie = await loadRookie(opts.rookie, run.names, run.parents, undefined, opts.url);
   const group = new Group();
@@ -67,6 +62,12 @@ export async function createRookieActor(scene: Scene, opts: { rookie: RookieId; 
   const ix = (n: string) => names.indexOf(n);
   const scale = rookie.legLength / legLength(names, (i) => new Vector3(...run.frames[0][i]));
   const footBones = names.map((n, i) => (/Foot$|ToeBase$/.test(n) ? i : -1)).filter((i) => i >= 0);
+
+  // the bone lengths of the vault pose: the stand recipe's (the clips' lengths), scaled to the Rookie
+  const vaultRig: VaultRig = (() => {
+    const f = land.frames[13];
+    return { names, parents: land.parents, len: names.map((_, i) => (i === 0 ? 0 : scale * Math.hypot(...f[i].map((v, k) => v - f[land.parents[i]][k])))) };
+  })();
 
   // How high the lowest foot bone sits above the sole when the Rookie stands in its rest pose.
   rookie.object.updateMatrixWorld(true);
@@ -240,11 +241,11 @@ export async function createRookieActor(scene: Scene, opts: { rookie: RookieId; 
       case 'swing':
         return hanging(sample(swing, s.tick / 120, true).rel);
       case 'vault': {
-        if (!vaultClip) return build(s, 'run'); // no clip: the run pose, as before
-        // the clip gives the limbs; the simulator carries the body (its feet arc over the obstacle), so the hips sit as far above the lowest foot as in the clip
-        const a = sample(vaultClip, (s.vaultProgress ?? 1) * clipDuration(vaultClip), false);
-        const lowest = Math.min(...footBones.map((i) => a.rel[i].y));
-        return place(a.rel, -lowest).joints;
+        // the hands on the obstacle: the pose is built from the simulator's contact point (the base is the running pose it starts and ends in)
+        const base = build(s, 'run');
+        if (!s.vaultContact) return base;
+        const contact = { x: (s.vaultContact.x - s.x) * s.facing, y: s.vaultContact.y - s.y - footClear }; // (the pose is lifted by footClear below, so the hands land on the surface)
+        return vaultPose(vaultRig, { progress: s.vaultProgress ?? 1, contact, base }).joints;
       }
       case 'roll': {
         const p = moveProgress(MOTION_TABLE.roll, s.rolledAt!, s.tick) ?? 1;
@@ -363,7 +364,7 @@ export async function createRookieActor(scene: Scene, opts: { rookie: RookieId; 
     group.updateMatrixWorld(true);
     // carry the foot clearance so the soles, not the ankles, touch the surface
     const lifted = joints.map((p) => p.clone().add(new Vector3(0, footClear, 0)));
-    const ob = obstacle;
+    const ob = k === 'vault' ? null : obstacle; // the hands are meant to touch the step: the pose keeps itself above it
     if (ob) {
       // the simulator's feet can sit in a corner (the climb over the wall's edge): move the whole body out of it, eased so it does not pop
       const root = ob(s.x, s.y + 0.15) ?? { dx: 0, dy: 0 };
@@ -376,7 +377,7 @@ export async function createRookieActor(scene: Scene, opts: { rookie: RookieId; 
         if (out) { p.x += s.facing * out.dx; p.y += out.dy; }
       });
     }
-    rookie.apply(lifted);
+    rookie.apply(lifted, { floor: k !== 'vault' }); // in a vault the feet are over the step, not near the floor of the pose's frame: no lift, so the hands stay on the contact point
     if (s.mode !== 'swing' && k !== 'leap' && k !== 'roll' && k !== 'vault') {
       const low = Math.min(...footBones.map((i) => rookie.bones[i].getWorldPosition(new Vector3()).y));
       if (low < footClear) {

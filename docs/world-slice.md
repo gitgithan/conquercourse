@@ -822,3 +822,23 @@ The set of obstacle shapes is fixed, and each shape offers a fixed set of moves.
   - The advice that suggests shifts for an unclearable lane does not know roles; when a world uses roles the editor says so and points to Moves and Fix it.
   - The trampoline proof depends on the ideal-run search landing a full-speed jump on the bed; a bed that needs a slower approach is not found.
   - The window lists the lache pair, stacks and trebuchet but only adds the bars; a stack comes from the Stacks row.
+
+
+## The vault uses the hands (CC-68, round two)
+- **So what:** the vault no longer looks like running up the step: the hands go on the top, the arms hold the body while it passes over, then let go.
+- **Owner feedback (2026-10-28):** after the plant fix, the vault still looked like running up the step; a vault must use the hands.
+- **How it is built** (`src/motion/vault-pose.ts`, from the simulator's contact point `vaultHand` = just behind the front edge, on the top):
+  - **Plant:** the body leans into the obstacle and the near hand reaches toward the top as far as the arm goes.
+  - **Hands down:** while the contact point is within the arms' reach (ahead of the shoulders or just behind them), both hands are pinned exactly on it (the arms are solved to that point), the shoulders go above the hands and the hips are lifted by the arms, so the body arcs over the top.
+  - **Legs:** gathered together and folded behind the body while it is over the hands (a speed vault), then opened out for the landing.
+  - **Head:** turned back up so it looks ahead, not down with the trunk.
+  - **Release:** the hands let go once the body is past, and the pose blends into the running pose at the landing, so nothing jumps.
+  - **Clock:** the simulator's vault progress (tick over length) drives it; the shoulders' position comes from the simulator's feet path.
+- **The Kimodo clip is not used:** it passed the gate but shows no hands on the top, so the procedural pose wins (`public/assets/motion/vault.json` stays in the repo and in `docs/ASSETS.md`).
+- **Tests** (`tests/vault-pose.test.ts`, on the real simulator vault over a 1 m step):
+  - While the hands are down, both hands are within 3 cm of the contact point.
+  - The hands are down in the middle of the vault, not at the plant and not after the landing.
+  - The pose starts and ends exactly in the running pose, and no joint moves more than 25 cm between two frames of 1/120 s.
+  - The shoulders are above the hands and the head looks ahead.
+- **Debug view (B):** an orange cross marks the contact point on the step, next to the vault path and plant mark.
+- **Pictures:** `data/eval/cc-68-vault/film/` (the stepped clock, one frame per stage) and a contact sheet; see the report for how they look.

@@ -4,7 +4,7 @@ import { heightAt } from '../sim/terrain';
 import { predictCart, predictJump, predictLaunch, predictRelease } from '../sim/predict';
 import type { WorldState } from '../sim/world';
 import { DEFAULT_WALL } from '../sim/wall';
-import { planVault, vaultAt, type Vault } from '../sim/vault';
+import { planVault, vaultAt, vaultHand, type Vault } from '../sim/vault';
 import { ROLL_DRUM_TICKS } from '../sim/drums';
 import { DEFAULT_LANDING, safeDrop } from '../sim/landing';
 import { GRAVITY } from '../sim/units';
@@ -52,6 +52,9 @@ export function createDebugView(scene: THREE.Scene, course: CourseData, parent: 
   const vaultMat = mat(0xd05cff);
   const vaultLine = new THREE.Line(new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(), new THREE.Vector3()]), vaultMat); vaultLine.renderOrder = 999; vaultLine.frustumCulled = false; vaultLine.visible = false; group.add(vaultLine);
   const plantMark = line([new THREE.Vector3(0, 0, Z), new THREE.Vector3(0, 0.7, Z)], 0xd05cff); plantMark.visible = false;
+  // where the hands are pinned on the step (the contact point): a cross
+  const contactMark = new THREE.Group(); contactMark.visible = false; group.add(contactMark);
+  for (const [a, b] of [[[-0.12, 0], [0.12, 0]], [[0, -0.12], [0, 0.12]]] as const) { const l = new THREE.Line(new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(a[0], a[1], Z), new THREE.Vector3(b[0], b[1], Z)]), mat(0xff9d2e)); l.renderOrder = 999; l.frustumCulled = false; contactMark.add(l); }
   const vaultPoints = (v: Vault) => { const out: THREE.Vector3[] = []; for (let i = 0; i <= v.n; i += 2) { const q = vaultAt(v, i); out.push(new THREE.Vector3(q.x, q.y + 0.9, Z)); } const e = vaultAt(v, v.n); out.push(new THREE.Vector3(e.x, e.y + 0.9, Z)); return out; };
 
   const panel = document.createElement('div');
@@ -90,10 +93,12 @@ export function createDebugView(scene: THREE.Scene, course: CourseData, parent: 
       const live = w.mode === 'vault' ? w.vault : null;
       const vv = live ?? pv?.vault ?? null;
       vaultLine.visible = vv !== null; plantMark.visible = pv !== null && live === null;
+      contactMark.visible = vv !== null;
+      if (vv) { const hc = vaultHand(vv); contactMark.position.set(hc.x, hc.y, 0); }
       if (vv) {
         vaultLine.geometry.dispose(); vaultLine.geometry = new THREE.BufferGeometry().setFromPoints(vaultPoints(vv));
-        if (pv && !live) { plantMark.position.set(pv.plantX, r.y, 0); vaultText = `<div style="color:#d05cff;font-weight:700">Vault: plant ${(pv.vault.edge - pv.plantX).toFixed(1)} m before the step (press V between ${(pv.vault.edge - pv.windowFrom).toFixed(1)} and ${(pv.vault.edge - pv.windowTo).toFixed(1)} m), land ${(pv.vault.x1 - pv.vault.edge).toFixed(1)} m past its edge</div>`; }
-        else if (live) vaultText = `<div style="color:#d05cff;font-weight:700">Vaulting: the path goes from ${live.x0.toFixed(1)} to ${live.x1.toFixed(1)} m in ${(live.n / 120).toFixed(2)} s</div>`;
+        if (pv && !live) { plantMark.position.set(pv.plantX, r.y, 0); vaultText = `<div style="color:#d05cff;font-weight:700">Vault: plant ${(pv.vault.edge - pv.plantX).toFixed(1)} m before the step (press V between ${(pv.vault.edge - pv.windowFrom).toFixed(1)} and ${(pv.vault.edge - pv.windowTo).toFixed(1)} m), land ${(pv.vault.x1 - pv.vault.edge).toFixed(1)} m past its edge; hands on the <span style="color:#ff9d2e">orange cross</span></div>`; }
+        else if (live) vaultText = `<div style="color:#d05cff;font-weight:700">Vaulting: the path goes from ${live.x0.toFixed(1)} to ${live.x1.toFixed(1)} m in ${(live.n / 120).toFixed(2)} s; hands pinned on the <span style="color:#ff9d2e">orange cross</span></div>`;
       }
       const hex = '#' + colour.toString(16).padStart(6, '0');
       // the ways through a pair of bars and their times, as found with the plan (a fact about the course, not a grade)
