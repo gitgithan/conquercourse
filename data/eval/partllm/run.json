@@ -24,7 +24,7 @@
   ],
   "gpu_seconds_in_final_run": 926.4,
   "gpu_seconds_total_estimate": 1500,
-  "cost_usd_estimate": 1.0,
+  "cost_usd_estimate": 1,
   "cost_note": "L4 about $0.8 per hour plus CPU image builds; exact figure is on the Modal dashboard, budget cap was $20",
   "scores": "scores.json",
   "answer_key": "answer-key.json",
