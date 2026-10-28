@@ -68,12 +68,43 @@ def infer(meshes: dict, prompts: list, full_shape: bool = True):
     return {"logs": logs, "files": files}
 
 
+@app.function(image=image, gpu="L4", volumes={CK: ck_vol}, timeout=1800, max_containers=3)
+def click(job: dict):
+    """job: {mesh, glb (bytes), i (probe index), point [x, y, z]}. One interactive segmentation: what part is under this point."""
+    root = pathlib.Path(f"/tmp/work-{job['mesh']}-{job['i']}")
+    root.mkdir(parents=True, exist_ok=True)
+    mesh = root / f"{job['mesh']}.glb"
+    mesh.write_bytes(job["glb"])
+    out = root / "out"
+    x, y, z = job["point"]
+    log = _run(["bash", "scripts/infer.sh", "interactive", MODEL, str(mesh), str(out), "--point", str(x), str(y), str(z)], {"USE_VLLM": "0"})
+    files = {str(f.relative_to(out)): f.read_bytes() for f in out.rglob("*") if f.is_file() and f.suffix in (".npy", ".json", ".txt")}
+    return {"mesh": job["mesh"], "i": job["i"], "log": log, "files": files}
+
+
 @app.local_entrypoint()
 def main(step: str = "weights", prompts: str = "bar,rail,ledge,step", only: str = ""):
     out = pathlib.Path("data/eval/partllm")
     out.mkdir(parents=True, exist_ok=True)
     if step == "weights":
         print(json.dumps(fetch_weights.remote(), indent=2))
+        return
+    if step == "points":
+        probes = json.loads((out / "probes.json").read_text())
+        glbs = {p.stem: p.read_bytes() for p in pathlib.Path("public/assets/objects").glob("*.glb")}
+        jobs = [{"mesh": n, "i": i, "glb": glbs[n], "point": pr["point"]} for n, ps in probes.items() for i, pr in enumerate(ps)]
+        if only:
+            jobs = [j for j in jobs if j["mesh"] in only.split(",")]
+        t = time.time()
+        summary = []
+        for res in click.map(jobs, order_outputs=False):
+            d = out / "raw" / "points" / res["mesh"] / str(res["i"])
+            for name, b in res["files"].items():
+                (d / name).parent.mkdir(parents=True, exist_ok=True)
+                (d / name).write_bytes(b)
+            summary.append({"mesh": res["mesh"], "i": res["i"], "code": res["log"]["code"], "seconds": res["log"]["seconds"]})
+            print(summary[-1], flush=True)
+        (out / "logs-points.json").write_text(json.dumps({"seconds": round(time.time() - t, 1), "runs": sorted(summary, key=lambda r: (r["mesh"], r["i"]))}, indent=2) + "\n")
         return
     meshes = {p.stem: p.read_bytes() for p in sorted(pathlib.Path("public/assets/objects").glob("*.glb")) if not only or p.stem in only.split(",")}
     t = time.time()
