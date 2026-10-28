@@ -842,3 +842,32 @@ The set of obstacle shapes is fixed, and each shape offers a fixed set of moves.
   - The shoulders are above the hands and the head looks ahead.
 - **Debug view (B):** an orange cross marks the contact point on the step, next to the vault path and plant mark.
 - **Pictures:** `data/eval/cc-68-vault/film/` (the stepped clock, one frame per stage) and a contact sheet; see the report for how they look.
+## Recoil: momentum is conserved (CC-66)
+- **So what:** the game now has a move that gives you speed beyond what you can run, and it teaches one law: what the ball carries away backward, you carry forward.
+  - The demo is a gap no run-up can jump: a 10.5 m gap, against under 8 m for a perfect running jump (7.5 m clears, 8 m does not).
+  - The proof (ideal run) finds where to fire and where to jump, and the bot clears it.
+- **How it plays:** run onto the teal pad to clip the launcher on (one load per visit), then press K.
+  - On the ground the push is forward only; the ground takes the upward part.
+  - In the air both parts count, so a shot just after take-off adds to the jump and nothing slows it (a fire on the ground decays: sprinting pulls the speed back toward top speed with a time constant of 0.9 s).
+  - Fire at take-off or just after: the search found a window of about 1.3 m of good jump presses.
+- **The law, in code** (`src/sim/recoil.ts`):
+  - The ball leaves at a muzzle speed relative to the runner (how a launcher is rated), backward and `angle` above the horizontal.
+  - Before the shot the runner and the loaded ball move together; after it the total momentum is the same, exactly (tests to 9 decimals, along the lane and up).
+  - The runner's gain is ball mass x muzzle speed x cos(angle) / (runner mass + ball mass); in the air the upward part gives a push down.
+  - An optional stored energy limits the muzzle speed: the shot cannot make more kinetic energy than the launcher stores (a test checks it at three running speeds).
+- **Defaults:** the runner is 70 kg, the ball 12 kg at 30 m/s, so one shot gives 4.4 m/s; the heavy crate piece is 25 kg thrown at 6 m/s, which gives 1.6 m/s (a gap of up to about 9 m, not 10.5).
+- **Heavy and slow, or light and fast:** 24 kg at 15 m/s and 12 kg at 30 m/s push within 15% of each other (the total mass differs a little), and a ball twice as heavy gives about twice the push.
+- **Pieces:**
+  - Course: `course.recoil = { x0, x1, kind, ballMass, muzzle, angle, charMass, energy?, shots }`, the K key, a view with the pad, the launcher on the runner's back and the ball flying back (`src/ui/recoil-view.ts`).
+  - Editor: "Launcher" and "Heavy crate" buttons next to the trebuchet, with the ball's mass and speed as the knobs; the pad goes on the start deck (`src/slice/recoil-lane.ts`).
+  - Fix it for the launcher (`src/slice/fixrecoil.ts`): a faster ball first, then a heavier one, tested with the real proof; the reply has a "Use it" button.
+  - Drums: a K drum where the ideal run fires.
+  - Dojo: "Recoil: push back, go forward" with its lesson and two diagrams; the formula is the last, earned step (ball mass x its speed = your mass x your speed, against the ground).
+- **Outcomes:** a clean boost clears the gap; a light or slow ball falls short into the water (a test); the fall panel says what the push did and that a heavier or faster ball pushes harder.
+- **Gaps and fallbacks:**
+  - "Too much" is not a failure here: more push only carries the runner farther, and the far deck is long, so nobody overshoots.
+    - Fallback: a hard landing from the 7.8 m drop limit and X rolls (CC-56) still apply to any lane that ends in a drop.
+  - The crate is drawn as a box on the runner's back with no carrying pose; the Rookie keeps the running pose (the cannon looks plausible, the crate is plain).
+  - Fix it for the launcher shows the new ball in words and a button, not outlines like the pieces' preview (CC-63).
+  - One dimension only along the lane for the ground shot; the throw in the air also moves the runner up or down by the ball's upward part.
+  - A second shot per visit (`shots` above 1) works in the simulator and has no editor knob.
