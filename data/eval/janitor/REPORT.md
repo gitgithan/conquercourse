@@ -68,3 +68,16 @@
   2. Press Shift+I and watch the run: at the Lache pair the runner must hold the bars and swing; a plain jump from the deck should fall short.
   3. Try yourself: run at the lache, jump without E, and you drop into the water.
   - Screenshot: `data/eval/janitor/lache-gap/ideal-run.png`.
+
+## 7. Drum lane check matches the new default (CC-57, Part of)
+- **Problem:** `scripts/drums-check.mjs` reported the stock course lane as "not off".
+- **Cause:** the game changed on purpose: the drum lane is on for every course that has a planned route (`src/modes/course.ts`, comment "on by default wherever the course has a planned player route"); the check and `docs/world-slice.md` still said "off for the stock course until G".
+- **Fix:** the check now expects the lane on at the stock course, hidden by G and shown again by G, and fails the run (exit code 1) when any check is false; the doc line was corrected.
+  - No game code changed.
+- **Tests run on VM3:** `drums-check.mjs`, all 6 checks true, no page errors.
+- **Not covered:** the drum timing itself (covered by `drum-roll` and `roll-window` tests).
+- **How to test it by eye:**
+  1. Open `/` (the stock course).
+  2. The drum lane (dark strip, bottom) is already showing with drums sliding in.
+  3. Press G: the lane hides; press G again: it shows.
+  - Screenshot: `data/eval/janitor/drums/stock.png`.

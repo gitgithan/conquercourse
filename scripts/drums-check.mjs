@@ -1,4 +1,4 @@
-// The drum lane: on for a built course, off for the stock course until D; drums slide toward the hit line as the runner closes in.
+// The drum lane: on by default wherever the course has a planned route (a built course and the stock course), G toggles it; drums slide toward the hit line as the runner closes in.
 import { chromium } from 'playwright';
 import { spawn } from 'node:child_process';
 import { mkdirSync } from 'node:fs';
@@ -28,14 +28,17 @@ try {
   checks.dTogglesOff = !(await lane()).shown;
   await page.keyboard.press('KeyG');
   checks.dTogglesOn = (await lane()).shown;
-  // the stock course: off until D
+  // the stock course: on by itself too (it has a planned route); G hides it and shows it again
   await page.goto(`http://localhost:${port}/`);
   await page.waitForSelector('#drums', { state: 'attached', timeout: 60000 });
   await page.waitForFunction(() => document.querySelectorAll('#drums div[style*="radial"]').length > 0, null, { timeout: 90000 });
-  checks.offForStockCourse = !(await lane()).shown;
+  checks.onForStockCourse = (await lane()).shown;
   await page.keyboard.press('KeyG');
-  checks.stockOnWithD = (await lane()).shown;
+  checks.stockHidesWithG = !(await lane()).shown;
+  await page.keyboard.press('KeyG');
+  checks.stockShowsAgainWithG = (await lane()).shown;
   await page.screenshot({ path: 'test-results/drums/stock.png' });
   console.log(checks, 'errors:', errors);
+  if (errors.length || Object.values(checks).some((v) => !v)) process.exitCode = 1;
   await browser.close();
 } finally { server.kill(); }
