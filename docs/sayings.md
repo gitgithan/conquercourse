@@ -28,6 +28,7 @@
 | Lache pair (bars) | *"Push with the swing and it grows; push against it and it fades."* | A pendulum gains energy when the push is in step with its motion, and loses it when out of step |
 | Vault | *"A jump buys height with speed; a vault keeps the speed but needs a hand on the obstacle."* | A jump loses speed at take-off; a vault moves on with a hand as the pivot |
 | The roll | *"Turn your fall into a roll and the ground forgives you."* | Downward speed turned into rotation |
+| Cup stacks | *"Speed climbs the cups, and speed carries you off the top."* | A step up needs speed, but the narrow flat top is crossed in a blink at that speed |
 
 ## Where they appear
 - **A law the player earns:** shown only after the player has discovered that principle in the Dojo (for example, their rope predictions get close); collected sayings fill the trophy cabinet.
