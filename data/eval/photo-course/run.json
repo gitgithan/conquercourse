@@ -1,0 +1,19 @@
+{
+  "experiment": "photo-course",
+  "model": "meta-models/muse-spark-open-1026",
+  "summary": {
+    "runs": 20,
+    "gaveALayout": 19,
+    "clearsAsDrawn": 13,
+    "clearsAfterFixIt": 13,
+    "clearsAfterDroppingBars": 15,
+    "sameObstacleCountAsKey": 5,
+    "meanMatchedShare": 0.95,
+    "meanRelativeSizeError": 0.41,
+    "totalTokens": 63116,
+    "meanTokensPerPhoto": 3156,
+    "meanSecondsPerPhoto": 11.9
+  },
+  "inputs": "outputs/*.json (raw replies), answer-key.json",
+  "note": "costs: token counts only; the unit price is not published to us"
+}
