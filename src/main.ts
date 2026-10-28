@@ -9,6 +9,12 @@ import { startPark } from './modes/park';
 if (new URLSearchParams(location.search).get('demo') === 'rookie') {
   const { startRookieDemo } = await import('./modes/demo-rookie');
   await startRookieDemo();
+} else if (new URLSearchParams(location.search).get('demo') === 'poses') {
+  const { startPoses } = await import('./modes/demo-poses');
+  await startPoses();
+} else if (new URLSearchParams(location.search).get('demo') === 'hurt-ab') {
+  const { startHurtAB } = await import('./modes/demo-poses');
+  await startHurtAB();
 } else if (new URLSearchParams(location.search).get('demo') === 'roll-ab') {
   const { startRollAB } = await import('./modes/demo-roll-ab');
   await startRollAB();

@@ -3,12 +3,13 @@
 // A move without a clip never shows a wrong motion: it shows its fallback pose, or, if it has none, it says so here.
 import { DEFAULT_LANDING } from '../sim/landing';
 import { TICKS_PER_SECOND } from '../sim/units';
+import { HURT_TICKS } from './poses';
 
 export type MoveName = 'roll' | 'hurt' | 'vault' | 'hang' | 'giant-swing' | 'seated' | 'launch';
 
 export interface MoveEntry {
   clip: string | null; // public/assets/motion/<clip>.json once it passes the gate and the move check (pipelines/moves.json); null = none yet
-  fallback: 'tuck' | 'hands' | 'none'; // what is drawn while the clip is missing or switched off: 'none' keeps the old motion and is listed as a gap
+  fallback: 'tuck' | 'hands' | 'pose' | 'none'; // what is drawn while the clip is missing or switched off: 'tuck', 'hands' and 'pose' are bone-built poses (src/render/actor.ts, src/motion/vault-pose.ts); 'none' keeps the old motion and is listed as a gap
   ticks: number | null; // how long the move lasts in game ticks, from the simulator's own numbers (null = as long as the state lasts)
   from: string; // the simulator state or event that starts it
 }
@@ -19,12 +20,12 @@ export const ROLL_TICKS = Math.round((DEFAULT_LANDING.rollStopTime + ROLL_GET_UP
 
 export const MOTION_TABLE: Record<MoveName, MoveEntry> = {
   roll: { clip: 'roll', fallback: 'tuck', ticks: ROLL_TICKS, from: "event 'land' with rolled (WorldState.rolledAt)" },
-  hurt: { clip: null, fallback: 'none', ticks: null, from: "outcome 'hurt' (event 'hard-landing')" },
+  hurt: { clip: 'hurt', fallback: 'pose', ticks: HURT_TICKS, from: "outcome 'hurt' (event 'hard-landing')" },
   vault: { clip: null, fallback: 'hands', ticks: null, from: "mode 'vault' (progress = WorldState.vault.i / n): built from the contact point, hands pinned on the step (src/motion/vault-pose.ts); the Kimodo clip is not used because it shows no hands on the top" },
   hang: { clip: 'swing', fallback: 'none', ticks: null, from: "mode 'hang' (the rope's swing pose, turned about the hands)" },
-  'giant-swing': { clip: null, fallback: 'none', ticks: null, from: "mode 'hang' with the swing past horizontal (CC-58)" },
-  seated: { clip: null, fallback: 'none', ticks: null, from: "mode 'cart' (CC-61)" },
-  launch: { clip: null, fallback: 'none', ticks: null, from: "mode 'launch' (CC-62)" },
+  'giant-swing': { clip: null, fallback: 'pose', ticks: null, from: "mode 'hang' with the swing past horizontal (CC-58): the swing clip's hang, legs lagging and tucking over the top" },
+  seated: { clip: null, fallback: 'pose', ticks: null, from: "mode 'cart' (CC-61)" },
+  launch: { clip: null, fallback: 'pose', ticks: null, from: "mode 'launch' (CC-62)" },
 };
 
 // How the roll is shown: 'auto' plays the clip when it loaded, 'clip' requires it, 'crouch' always shows the tuck (the blind A/B, ?roll=).

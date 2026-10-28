@@ -1,6 +1,7 @@
 import * as THREE from 'three/webgpu';
 import type { CourseData } from '../course/course';
 import { railsOf, trackSegments } from '../sim/cart';
+import { BAR_AHEAD, BAR_HEIGHT } from '../motion/poses';
 import type { WorldState } from '../sim/world';
 
 // The coaster the Course draws: two rails and ties along the smooth curve, posts down to the water, and the cart.
@@ -64,6 +65,11 @@ export function buildTrack(course: CourseData): TrackView {
     const wh = new THREE.Mesh(wheelGeo, wheelMat); wh.rotation.x = Math.PI / 2; wh.position.set(dx, -CART_HEIGHT - 0.0, z); cart.add(wh);
   }
   cart.add(body, lip);
+  // the grab bar the rider holds (the seated pose puts both hands on it)
+  const grab = new THREE.Mesh(new THREE.CylinderGeometry(0.025, 0.025, CART_DEPTH * 0.85, 10), steel);
+  grab.rotation.x = Math.PI / 2; grab.position.set(BAR_AHEAD, BAR_HEIGHT, 0);
+  cart.add(grab);
+  for (const z of [-CART_DEPTH * 0.4, CART_DEPTH * 0.4]) { const post = new THREE.Mesh(new THREE.BoxGeometry(0.04, BAR_HEIGHT, 0.04), steel); post.position.set(BAR_AHEAD, BAR_HEIGHT / 2, z); cart.add(post); }
   group.add(cart);
   return {
     group, cart,
