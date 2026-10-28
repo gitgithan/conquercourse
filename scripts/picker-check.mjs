@@ -20,6 +20,7 @@ const MODES = [
   ['gallery', '?mode=gallery'],
   ['diagrams', '?mode=diagrams'],
 ];
+const ONLY_MODES = process.env.MODES?.split(','); // MODES=editor,map runs those only
 const SIZES = (process.env.SIZES ?? '1280x720,1024x640,390x800').split(',').map((z) => z.split('x').map(Number)); // SIZES=390x800 runs one size
 const results = {}; const errors = []; const notTested = [];
 const ok = (k, v) => { results[k] = !!v; };
@@ -31,6 +32,7 @@ try {
     for (const [name, query] of MODES) {
       if (name === 'generated' && vw !== 1280) continue; // the same page at every size adds nothing
       if (name === 'unlisted' && vw !== 1280) continue;
+      if (ONLY_MODES && !ONLY_MODES.includes(name)) continue;
       const tag = `${vw}x${vh} ${name}`;
       const page = await browser.newPage({ viewport: { width: vw, height: vh } });
       try {

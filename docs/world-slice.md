@@ -1509,6 +1509,6 @@ The set of obstacle shapes is fixed, and each shape offers a fixed set of moves.
 - The list lives in `src/ui/world-picker.ts` (`DEMO_GROUPS`), so a new course is added in one place and shows up on every page.
 - Pictures: `npm run thumbs` takes a still of each course at its first obstacle into `public/assets/thumbs/`; `tests/world-picker.test.ts` fails when a card has no picture.
 - The "Make your own" cards (random course, editor, coaster builder, map) have a drawn icon instead of a still.
-- Where the button sits: top right everywhere (in the Course under the Debug button, in the Dojo left of the Back button); `scripts/picker-check.mjs` checks that it covers no control at 1280x720, 1024x640 and a phone width.
+- Where the button sits: top right everywhere (in the Course under the Debug button, in the Dojo left of the Back button, in the editor left of its More menu); `scripts/picker-check.mjs` checks that it covers no control at 1280x720, 1024x640 and a phone width.
 - On a phone the button sits bottom left, away from the Feedback button.
 - Not done: a pick leaves the page, so unsaved editor work is lost unless that mode already asks first.
