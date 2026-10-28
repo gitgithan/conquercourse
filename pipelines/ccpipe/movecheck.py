@@ -8,12 +8,15 @@ import re
 import numpy as np
 
 from .clip import Clip
+from .motion import _runs
 from .skeleton import IDX
 
 ROLL_MIN_TURN_DEG = 300      # the trunk turns nearly a full circle forward
 ROLL_MIN_TRAVEL_M = 0.6      # and the body moves on (the sim moves it, but a roll in place is a cartwheel of the spot)
 ROLL_MAX_TRAVEL_M = 5.0
-ROLL_MAX_S = 2.0             # the rolling part, not the run-in and get-up
+ROLL_MAX_S = 1.4             # the rolling part, not the run-in and get-up
+ROLL_MAX_HIPS = 1.05         # the hips never rise above this share of their standing height (a front flip goes up; a roll stays low)
+ROLL_MAX_AIR_S = 0.25        # and nothing is airborne longer than this inside the window (a roll keeps touching the ground)
 ROLL_MIN_S = 0.3
 UPRIGHT_HIPS = 0.55          # the hips at the ends of the window are above this share of the standing hips height
 
@@ -79,12 +82,15 @@ def roll_check(clip):
     move = f[b, IDX["Hips"]] - f[a, IDX["Hips"]]
     travel = float(move @ facing(f))  # metres toward where the body faces
     inverted = bool((np.abs(pitch[a:b + 1] % 360 - 180) < 60).any())
-    standing = float(np.percentile(f[:, IDX["Hips"], 1], 90))
+    standing = float(f[0, IDX["Hips"], 1])  # the clip starts upright, on its feet
     ends_up = bool(f[0, IDX["Hips"], 1] > UPRIGHT_HIPS * standing and f[-1, IDX["Hips"], 1] > UPRIGHT_HIPS * standing)
-    nums.update(window_frames=[a, b], window_s=round((b - a) / fps, 2), turn_in_window_deg=round(float(pitch[b] - pitch[a]), 1),
+    peak = float(f[a:b + 1, IDX["Hips"], 1].max() / standing)
+    air = f[a:b + 1, :, 1].min(axis=1) > 0.15  # no joint within 15 cm of the floor
+    air_s = max(((y - x) for x, y in _runs(air)), default=0) / fps
+    nums.update(peak_hips_vs_standing=round(peak, 2), longest_air_s=round(air_s, 2), window_frames=[a, b], window_s=round((b - a) / fps, 2), turn_in_window_deg=round(float(pitch[b] - pitch[a]), 1),
                 travel_m=round(travel, 2), upside_down=inverted, starts_and_ends_upright=ends_up)
     ok = (pitch.max() >= ROLL_MIN_TURN_DEG and inverted and ROLL_MIN_TRAVEL_M <= travel <= ROLL_MAX_TRAVEL_M
-          and ROLL_MIN_S <= (b - a) / fps <= ROLL_MAX_S and ends_up)
+          and ROLL_MIN_S <= (b - a) / fps <= ROLL_MAX_S and ends_up and peak <= ROLL_MAX_HIPS and air_s <= ROLL_MAX_AIR_S)
     return bool(ok), nums, win
 
 
