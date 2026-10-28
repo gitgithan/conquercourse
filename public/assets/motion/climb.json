@@ -67,9 +67,9 @@
   "frames": [
     [
       [
-        0.0,
+        0,
         0.9341,
-        0.0
+        0
       ],
       [
         -0.0023,
@@ -213,7 +213,7 @@
       ],
       [
         0.0802,
-        0.0,
+        0,
         0.067
       ]
     ],
@@ -365,7 +365,7 @@
       ],
       [
         0.059,
-        0.0,
+        0,
         0.0894
       ]
     ],
@@ -517,7 +517,7 @@
       ],
       [
         0.0239,
-        0.0,
+        0,
         0.1129
       ]
     ],
@@ -669,7 +669,7 @@
       ],
       [
         -0.0246,
-        0.0,
+        0,
         0.1228
       ]
     ],
@@ -821,7 +821,7 @@
       ],
       [
         -0.0787,
-        0.0,
+        0,
         0.1374
       ]
     ],
@@ -1409,7 +1409,7 @@
       ],
       [
         0.1246,
-        0.0,
+        0,
         0.2225
       ],
       [
@@ -1561,7 +1561,7 @@
       ],
       [
         0.101,
-        0.0,
+        0,
         0.2271
       ],
       [
@@ -1634,7 +1634,7 @@
       [
         0.1258,
         1.3172,
-        1.0
+        1
       ],
       [
         0.1056,
@@ -9196,10 +9196,10 @@
     "description": "Climb onto the wall top and settle at its higher height.",
     "supported_by": "a higher ledge",
     "license": "Creative Commons Attribution (reuse allowed)",
-    "credit": "Learn Parkour : Pop Vault \u2014 London Parkour",
+    "credit": "Learn Parkour : Pop Vault — London Parkour",
     "source_url": "https://www.youtube.com/watch?v=gP9CHhAmEP4"
   },
   "move": "climb",
   "supportedBy": "a higher ledge",
-  "credit": "Learn Parkour : Pop Vault \u2014 London Parkour"
+  "credit": "Learn Parkour : Pop Vault — London Parkour"
 }
