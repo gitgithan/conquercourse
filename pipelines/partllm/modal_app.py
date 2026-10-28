@@ -68,7 +68,7 @@ def infer(meshes: dict, prompts: list, full_shape: bool = True):
     return {"logs": logs, "files": files}
 
 
-@app.function(image=image, gpu="L4", volumes={CK: ck_vol}, timeout=1800, max_containers=3)
+@app.function(image=image, gpu=["L4", "A10G"], volumes={CK: ck_vol}, timeout=1800, max_containers=3)
 def click(job: dict):
     """job: {mesh, glb (bytes), i (probe index), point [x, y, z]}. One interactive segmentation: what part is under this point."""
     root = pathlib.Path(f"/tmp/work-{job['mesh']}-{job['i']}")
