@@ -1,0 +1,16 @@
+[
+  "tests/course.test.ts",
+  "tests/drone-editor.test.ts",
+  "tests/easier.test.ts",
+  "tests/editor-holds.test.ts",
+  "tests/fixbars.test.ts",
+  "tests/generator.test.ts",
+  "tests/golden-search.test.ts",
+  "tests/lache.test.ts",
+  "tests/places.test.ts",
+  "tests/recoil-editor.test.ts",
+  "tests/roles.test.ts",
+  "tests/shortcut-close.test.ts",
+  "tests/shortcuts.test.ts",
+  "tests/trebuchet-polish.test.ts"
+]
