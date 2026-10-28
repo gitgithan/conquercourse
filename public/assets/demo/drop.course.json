@@ -1,0 +1,36 @@
+{
+  "version": 1,
+  "name": "Big drop: run off a ledge and roll",
+  "startX": 0,
+  "finishX": 52,
+  "jumpSpeed": 4.5,
+  "terrain": {
+    "waterY": -4,
+    "platforms": [
+      {
+        "x0": -10,
+        "x1": 18,
+        "top": 5
+      },
+      {
+        "x0": 18.001,
+        "x1": 70,
+        "top": 0
+      }
+    ]
+  },
+  "zones": [
+    {
+      "id": "drop",
+      "name": "Big drop",
+      "x0": 12,
+      "x1": 30
+    }
+  ],
+  "checkpoints": [
+    {
+      "id": "drop",
+      "x": 6
+    }
+  ]
+}

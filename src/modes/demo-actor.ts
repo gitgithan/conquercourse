@@ -57,7 +57,7 @@ export async function startActorDemo(): Promise<void> {
   let w: WorldState = newWorld(data);
   const worlds: { w: WorldState; squat: boolean }[] = [{ w, squat: false }];
   for (let i = 0; i < TICKS_PER_SECOND * 80; i++) {
-    const input = inputFor(plan, w, st);
+    const input = inputFor(plan, w, st, data);
     w = stepWorld(w, input, data);
     worlds.push({ w, squat: input.squat });
     if (w.outcome !== 'running') break;

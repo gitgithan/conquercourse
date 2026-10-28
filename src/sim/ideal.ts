@@ -2,6 +2,7 @@ import type { CourseData } from '../course/course';
 import { NO_INPUT, type RunnerInput } from './runner';
 import { newWorld, stepWorld, type GameEvent, type WorldState } from './world';
 import { DT } from './units';
+import { rollNeeded } from './drop';
 
 // The ideal run: where to press Space at each obstacle, found by trying the simulator, and how wide the
 // window of good presses is. It is the difficulty of each obstacle as a number.
@@ -22,8 +23,8 @@ export interface Window {
   widthMs: number; // how long the clearing window lasts, in milliseconds of game time
 }
 
-export function inputFor(plan: Plan, w: WorldState, state: { next: number; caught: number | null; bedAt: number | null; hangAt?: number | null; hangs?: number; vnext?: number }): RunnerInput {
-  const base: RunnerInput = { ...NO_INPUT, run: true, squat: true };
+export function inputFor(plan: Plan, w: WorldState, state: { next: number; caught: number | null; bedAt: number | null; hangAt?: number | null; hangs?: number; vnext?: number }, course?: CourseData): RunnerInput {
+  const base: RunnerInput = { ...NO_INPUT, run: true, squat: true, ...(course && rollNeeded(w, course) ? { roll: true } : {}) }; // a drop a squat cannot take cleanly: roll just before the ground
   if (w.mode === 'hang') {
     if (state.hangAt == null) state.hangAt = w.runner.tick;
     const idx = state.hangs ?? 0;
@@ -63,7 +64,7 @@ export function playPlan(course: CourseData, plan: Plan, maxTicks = 120 * 80): R
   let maxX = 0;
   let still = 0;
   for (let i = 0; i < maxTicks && w.outcome === 'running'; i++) {
-    w = stepWorld(w, inputFor(plan, w, st), course);
+    w = stepWorld(w, inputFor(plan, w, st, course), course);
     events.push(...w.events);
     if (!Number.isFinite(w.runner.x)) break; // a state that went to NaN has nowhere to go
     maxX = Math.max(maxX, w.runner.x);

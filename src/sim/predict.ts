@@ -1,5 +1,6 @@
 import type { CourseData } from '../course/course';
 import { NO_INPUT } from './runner';
+import { landing } from './landing';
 import { platformAt } from './terrain';
 import { stepWorld, type WorldState } from './world';
 import { JUMPABLE_STEP } from './needs-limits';
@@ -8,7 +9,7 @@ import { JUMPABLE_STEP } from './needs-limits';
 // and the run key held. The debug view draws the path and says why the jump works or does not. Nothing here is a second model.
 export interface Prediction {
   path: { x: number; y: number }[];
-  result: 'lands' | 'splash' | 'blocked' | 'not-grounded' | 'other-move';
+  result: 'lands' | 'splash' | 'hurt' | 'blocked' | 'not-grounded' | 'other-move';
   landX?: number;
   why: string; // plain words
 }
@@ -29,10 +30,13 @@ export function predictJump(w: WorldState, course: CourseData, maxTicks = 240): 
       return { path, result: 'splash', landX: s.runner.x, why: ahead && ahead.x0 > s.runner.x ? `Falls in the water ${(ahead.x0 - s.runner.x).toFixed(1)} m before the next ground. Jump later, or run faster.` : 'Falls in the water: there is no ground left to land on.' };
     }
     if (!s.runner.grounded) left = true;
+    if (s.outcome === 'hurt') return { path, result: 'hurt', landX: s.runner.x, why: `Hard landing: ${((s.events.find((e) => e.type === 'hard-landing')?.detail?.impact as number) ?? 0).toFixed(1)} m/s into the ground is too much even with bent knees. Tap C just before you land to roll it out.` };
     if (left && s.runner.grounded) {
       const p = platformAt(course.terrain, s.runner.x);
       const margin = p ? Math.min(s.runner.x - p.x0, p.x1 - s.runner.x) : 0;
-      return { path, result: 'lands', landX: s.runner.x, why: `Lands at ${s.runner.x.toFixed(1)} m, ${margin.toFixed(1)} m from the edge of the ground${margin < 0.3 ? ' (close: a little less speed and it would miss)' : ''}.` };
+      const impact = s.events.find((e) => e.type === 'land')?.detail?.impact as number | undefined;
+      const hit = impact !== undefined && impact > 6 ? ` You hit the ground at ${impact.toFixed(1)} m/s: ${landing(impact, true).stumbled ? 'a stumble that costs speed (tap C just before you land to roll)' : 'a clean landing'}.` : '';
+      return { path, result: 'lands', landX: s.runner.x, why: `Lands at ${s.runner.x.toFixed(1)} m, ${margin.toFixed(1)} m from the edge of the ground${margin < 0.3 ? ' (close: a little less speed and it would miss)' : ''}.${hit}` };
     }
     still = Math.abs(s.runner.vx) < 0.05 ? still + 1 : 0;
     if (s.runner.grounded && still > 30) {

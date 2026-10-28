@@ -224,7 +224,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
   // the controls, always visible top-left as a card of key caps (collapse with H)
   const help = document.createElement('div');
   help.id = 'keys';
-  const KEYS: [string, string][] = [['← →', 'Run (hold)'], ['Space', 'Jump · let go of the rope · press on the trampoline'], ['↓', 'Bend your knees (hold, on big drops)'], ...(course !== defaultCourse ? ([['Q / E', 'Hold a bar with the left or right hand (in the air)'], ['← → on a bar', 'Pump the swing: push the way you swing'], ['V', 'Vault over a step with a hand on top (fast, saves energy)'], ['F', 'Front view window (it shows by itself on a bar)']] as [string, string][]) : []), ['I', 'Ideal run of this obstacle (Shift+I: the whole course, any key stops it)'], ['G', 'Drums: where the ideal run presses Space'], ['B', 'Debug view: see the collision boxes and where a jump goes'], ['Mouse', 'Drag to turn the view, wheel to zoom, double-click to reset']]; // retry, ideal run and Dojo are on the fall panel and the buttons
+  const KEYS: [string, string][] = [['← →', 'Run (hold)'], ['Space', 'Jump · let go of the rope · press on the trampoline'], ['↓', 'Bend your knees (hold, on big drops)'], ['C', 'Roll out of a big drop (tap just before you land)'], ...(course !== defaultCourse ? ([['Q / E', 'Hold a bar with the left or right hand (in the air)'], ['← → on a bar', 'Pump the swing: push the way you swing'], ['V', 'Vault over a step with a hand on top (fast, saves energy)'], ['F', 'Front view window (it shows by itself on a bar)']] as [string, string][]) : []), ['I', 'Ideal run of this obstacle (Shift+I: the whole course, any key stops it)'], ['G', 'Drums: where the ideal run presses Space'], ['B', 'Debug view: see the collision boxes and where a jump goes'], ['Mouse', 'Drag to turn the view, wheel to zoom, double-click to reset']]; // retry, ideal run and Dojo are on the fall panel and the buttons
   help.style.cssText = 'position:fixed;left:16px;top:48px;width:290px;background:#fffffff0;border:1px solid #cfd6d0;border-radius:12px;padding:8px 10px;font:500 14px system-ui,sans-serif;color:#17201d;box-shadow:0 2px 10px #0002;pointer-events:none;display:grid;gap:5px';
   const paintKeys = (open: boolean) => {
     help.innerHTML = `<div style="font-weight:700;display:flex;justify-content:space-between">Controls <span style="font-weight:400;color:#58635d">H ${open ? 'hides' : 'shows'}</span></div>` + (open ? KEYS.map(([k, d]) => `<div style="display:grid;grid-template-columns:78px 1fr;gap:8px;align-items:center"><kbd style="font:700 13px ui-monospace,monospace;background:#eef1ec;border:1px solid #b9c2bb;border-bottom-width:3px;border-radius:6px;padding:1px 6px;text-align:center">${k}</kbd><span>${d}</span></div>`).join('') : '');
@@ -342,7 +342,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
   document.body.append(comm);
   document.body.append(sstyle, strip);
   // demo courses: every course we have made, one choice away (the stock course, the lache demo, lanes from real objects, places from the map)
-  const demos: [string, string][] = [['', 'Stock course'], ['/assets/demo/lache.course.json', 'Lache demo: run, vault, swing'], ['generate', 'Make me a new course (random)'], ['/assets/demo/lane-1.course.json', 'Demo scene, lane 1'], ['/assets/demo/lane-2.course.json', 'Demo scene, lane 2'], ['/assets/experiments/osm/eixample-barcelona.course.json', 'Place: Barcelona block'], ['/assets/experiments/osm/montmartre-paris.course.json', 'Place: Montmartre, Paris'], ['/assets/experiments/osm/circular-quay-sydney.course.json', 'Place: Sydney quay'], ['/assets/experiments/osm/san-francisco-lombard.course.json', 'Place: San Francisco hill (62 m of hill)'], ['editor', 'Build your own (editor)']];
+  const demos: [string, string][] = [['', 'Stock course'], ['/assets/demo/lache.course.json', 'Lache demo: run, vault, swing'], ['/assets/demo/drop.course.json', 'Big drop: run off a ledge and roll'], ['generate', 'Make me a new course (random)'], ['/assets/demo/lane-1.course.json', 'Demo scene, lane 1'], ['/assets/demo/lane-2.course.json', 'Demo scene, lane 2'], ['/assets/experiments/osm/eixample-barcelona.course.json', 'Place: Barcelona block'], ['/assets/experiments/osm/montmartre-paris.course.json', 'Place: Montmartre, Paris'], ['/assets/experiments/osm/circular-quay-sydney.course.json', 'Place: Sydney quay'], ['/assets/experiments/osm/san-francisco-lombard.course.json', 'Place: San Francisco hill (62 m of hill)'], ['editor', 'Build your own (editor)']];
   const pick2 = document.createElement('select');
   pick2.id = 'democourses'; pick2.title = 'Open another course';
   pick2.style.cssText = 'position:fixed;right:16px;top:196px;max-width:210px;font:600 12px system-ui,sans-serif;border:2px solid #17201d;background:#fff;color:#17201d;border-radius:10px;padding:3px 6px;cursor:pointer';
@@ -383,7 +383,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
 
   // input
   const keys = new Set<string>();
-  let jumpQueued = false, vaultQueued = false;
+  let jumpQueued = false, vaultQueued = false, rollQueued = false;
   type Cam = 'side' | 'angle' | 'first';
   const CAMS: { id: Cam; name: string }[] = [{ id: 'side', name: 'Side view' }, { id: 'angle', name: '45° view' }, { id: 'first', name: 'First person' }];
   let camMode: Cam = 'side';
@@ -393,12 +393,13 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
     return document.getElementById('cc-feedback') !== null || (!!t && (/^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName) || t.isContentEditable));
   };
   addEventListener('keydown', (e) => {
-    if (typing(e)) { keys.clear(); jumpQueued = false; vaultQueued = false; return; }
+    if (typing(e)) { keys.clear(); jumpQueued = false; vaultQueued = false; rollQueued = false; return; }
     if (paused && !e.repeat) { paused = false; last = performance.now(); }
     if (e.repeat) return;
     keys.add(e.code);
     if (e.code === 'Space') { jumpQueued = true; e.preventDefault(); }
     if (e.code === 'KeyV') vaultQueued = true;
+    if (e.code === 'KeyC') rollQueued = true;
     if (e.code === 'KeyR') { if (e.shiftKey) { retryX = course.startX; restart(course.startX); } else restart(); }
     if (idealWhole && !botMode && e.code !== 'KeyI' && !/^(Shift|Control|Alt|Meta)/.test(e.code)) stopWholeIdeal(); // any key takes the run back
     if (e.code === 'KeyI') { if (e.shiftKey) showWholeIdeal(); else showIdeal(zoneAt(world.runner.x)?.id ?? 'gap'); }
@@ -608,8 +609,8 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
   }
 
   // After a fall: retry at once, one tip, a skippable replay, and the offer to train that obstacle.
-  let lastFall: 'splash' | 'slide' = 'splash';
-  function onFall(what: 'splash' | 'slide') {
+  let lastFall: 'splash' | 'slide' | 'hurt' = 'splash';
+  function onFall(what: 'splash' | 'slide' | 'hurt') {
     falls++; track('falls');
     lastFall = what;
     const r = world.runner;
@@ -619,6 +620,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
     const jump = [...log].reverse().find((e) => e.type === 'jump');
     let tip = 'Try again.';
     if (what === 'slide') tip = 'You ran out of speed on the curve. Start the run-up earlier and keep running.';
+    else if (what === 'hurt') tip = 'The ground stopped you too fast. Tap C just before you land to roll: the same fall is spread over more time, and a roll keeps most of your speed.';
     else if (zone?.id === 'trampoline') tip = 'Press Space at the bottom of the bounce for extra height.';
     else if (zone?.id === 'rope') tip = 'Grab the rope on the way up, then press Space to let go when you are rising.';
     else if (!jump) tip = 'Press Space just before the edge.';
@@ -635,7 +637,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
     panel.innerHTML = '';
     panel.style.display = 'grid';
     const h = document.createElement('strong');
-    h.textContent = what === 'slide' ? 'You slid back down the wall.' : HAZARD_INFO[hazard].headline(zone?.name ?? 'course');
+    h.textContent = what === 'slide' ? 'You slid back down the wall.' : what === 'hurt' ? `Hard landing at the ${zone?.name ?? 'course'}.` : HAZARD_INFO[hazard].headline(zone?.name ?? 'course');
     const t = document.createElement('div'); t.textContent = tip;
     const floorNote = document.createElement('div'); floorNote.style.cssText = 'color:#58635d;font-size:13px'; floorNote.textContent = what === 'slide' ? '' : HAZARD_INFO[hazard].hint;
     const row = document.createElement('div'); row.style.cssText = 'display:flex;flex-wrap:wrap;gap:8px';
@@ -651,7 +653,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
       panel.style.display = 'none';
       const from = Math.max(0, frames.length - 300);
       replay = { i: from, from, to: frames.length };
-      const lines = buildDiag(lastZone, what);
+      const lines = buildDiag(lastZone, what === 'slide' ? 'slide' : 'splash');
       diagBox.innerHTML = `<strong>Slow-motion replay</strong><ul style="margin:6px 0 0;padding-left:18px">${lines.map((l) => `<li>${l}</li>`).join('')}</ul><div style="color:#58635d;font-size:13px;margin-top:6px">Esc to skip</div>`;
       diagBox.style.display = 'block';
     });
@@ -736,10 +738,10 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
     while (acc >= DT) {
       acc -= DT;
       let input: RunnerInput = NO_INPUT;
-      if (plan) input = inputFor(plan, world, botState);
+      if (plan) input = inputFor(plan, world, botState, course);
       else {
-        input = { run: keys.has('ArrowRight') || keys.has('KeyD'), left: keys.has('ArrowLeft') || keys.has('KeyA'), jump: jumpQueued, jumpSpeed: 0, squat: keys.has('ArrowDown') || keys.has('KeyS'), handL: keys.has('KeyQ'), handR: keys.has('KeyE'), vault: vaultQueued };
-        jumpQueued = false; vaultQueued = false;
+        input = { run: keys.has('ArrowRight') || keys.has('KeyD'), left: keys.has('ArrowLeft') || keys.has('KeyA'), jump: jumpQueued, jumpSpeed: 0, squat: keys.has('ArrowDown') || keys.has('KeyS'), handL: keys.has('KeyQ'), handR: keys.has('KeyE'), vault: vaultQueued, roll: rollQueued };
+        jumpQueued = false; vaultQueued = false; rollQueued = false;
       }
       const prev = world.outcome;
       prevMode = world.mode; prevVx = world.runner.vx;
@@ -763,6 +765,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
       if (replay === null && prev === 'running') frames.push({ x: world.runner.x, y: world.runner.y });
       if (frames.length > 1200) frames.shift();
       if (prev === 'running' && world.outcome === 'splash') onFall('splash');
+      if (prev === 'running' && world.outcome === 'hurt') onFall('hurt');
       if (world.events.some((e) => e.type === 'wall-slide')) onFall('slide');
       if (prev === 'running' && world.outcome === 'cleared') { everCleared = true; track('clears'); try { localStorage.setItem('cc.course.cleared', '1'); } catch { /* ok */ } }
     }
