@@ -5,6 +5,7 @@ import { HALF_LANE } from './slice';
 import { size as meshSize, type Piece } from './world';
 import { patternOf } from './stack';
 import { cupsGroup } from './cups';
+import { createPerf } from '../ui/perf';
 
 // The editor's 3D view: the pieces are drawn as the real baked objects (their own meshes and photo textures), on a textured ground,
 // with the lane drawn as a gold strip. Drag a piece to move it along the ground; drag the empty space to turn the view
@@ -50,6 +51,7 @@ export function createView3d(wrap: HTMLElement, host: Host): View3d {
   wrap.appendChild(renderer.domElement);
 
   const scene = new THREE.Scene();
+  const perf = createPerf({ label: 'Editor', backend: 'webgl2', renderer, scene, onDemand: true });
   scene.background = new THREE.Color(0xcfe3f2);
   scene.fog = new THREE.Fog(0xcfe3f2, 60, 220);
   scene.add(new THREE.HemisphereLight(0xffffff, 0x8a8a78, 1.5));
@@ -111,7 +113,7 @@ export function createView3d(wrap: HTMLElement, host: Host): View3d {
   let dirty = true, on = true;
   const redraw = () => { dirty = true; };
   controls.addEventListener('change', redraw);
-  const loop = () => { requestAnimationFrame(loop); if (!on || !dirty) return; dirty = false; renderer.render(scene, camera); };
+  const loop = () => { requestAnimationFrame(loop); if (!on || !dirty) return; dirty = false; perf.frame(); perf.renderStart(); renderer.render(scene, camera); perf.renderEnd(); };
   requestAnimationFrame(loop);
 
   const plain = (p: P3): THREE.Mesh => {
