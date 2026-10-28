@@ -1,0 +1,17 @@
+{
+  "experiment": "cc-56-reassess",
+  "date": "2026-10-28",
+  "question": "What changed for real places once the 4.3 m lane cap was gone (CC-56), and did anything regress?",
+  "before": "commit before 090f211 (lane cap BAND = 4.3 m, ground below the lane level is water)",
+  "after": "origin/main at 0d12b76 (no cap, drops up to 7.8 m, lanes start at levels up to 6 m)",
+  "variants": {
+    "before": "scripts/osm-lane.ts on the old commit, shrink ladder from a 5 m typical building down by 0.6 per try",
+    "after": "the same script on main",
+    "noclamp": "main, and the script own rule that no building is taller than 8 m once shrunk is lifted",
+    "scan": "main with no clamp at a fixed shrink of 0.6 (0.8 and 1.0 were started and stopped: too slow, Eixample flat found no lane at either)"
+  },
+  "places": ["eixample-flat", "eixample-hills", "sydney-flat", "sydney-hills", "montmartre-flat", "montmartre-hills", "sf-flat", "sf-hills"],
+  "machine": "Vultr VM, 8 cores, load average 8 to 20 from other agents while this ran, so seconds are noisy",
+  "inputs": "Overpass and terrain caches from data/eval/cc-46-osm-world (not copied here)",
+  "outputs": ["summary.json", "table.md", "<variant>/<place>/{result.json,course.json}"]
+}

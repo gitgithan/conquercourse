@@ -1,0 +1,66 @@
+{
+  "place": "montmartre-flat",
+  "lat": 48.8867,
+  "lon": 2.3431,
+  "radius": 120,
+  "terrain": false,
+  "terrainRelief_m": 0,
+  "buildings": 42,
+  "withRealHeight": 35,
+  "medianHeight_m": 9,
+  "shrink": 0.2,
+  "shrinkTries": [
+    {
+      "shrink": 0.556,
+      "lanes": 0
+    },
+    {
+      "shrink": 0.333,
+      "lanes": 0
+    },
+    {
+      "shrink": 0.2,
+      "lanes": 3
+    }
+  ],
+  "triangles": 2534,
+  "shrunkHeightRange_m": [
+    0.6,
+    8
+  ],
+  "samples": 203528,
+  "lanesFound": 3,
+  "secondsTaken": 44,
+  "bestLane": {
+    "turnDeg": 90,
+    "sidewaysM": 18.5,
+    "levelM": 1,
+    "gaps": 4,
+    "steps": 3,
+    "curves": 0,
+    "faces": 0,
+    "length": 31.400000000000002,
+    "variety": 2,
+    "maxRise": 0.31230616569519043,
+    "score": 8.5,
+    "searchIdealRunCleared": true
+  },
+  "candidates": [
+    {
+      "turnDeg": 90,
+      "sidewaysM": 18.5,
+      "score": 8.5
+    },
+    {
+      "turnDeg": 30,
+      "sidewaysM": 12.9,
+      "score": 7
+    },
+    {
+      "turnDeg": 110,
+      "sidewaysM": 10.9,
+      "score": 6
+    }
+  ],
+  "glbBytes": 135796
+}

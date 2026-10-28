@@ -1,0 +1,59 @@
+{
+  "place": "sydney-hills",
+  "lat": -33.861,
+  "lon": 151.2111,
+  "radius": 120,
+  "terrain": true,
+  "terrainRelief_m": 36.9,
+  "buildings": 44,
+  "withRealHeight": 18,
+  "medianHeight_m": 9,
+  "shrink": 0.556,
+  "shrinkTries": [
+    {
+      "shrink": 0.556,
+      "lanes": 3
+    }
+  ],
+  "triangles": 989,
+  "shrunkHeightRange_m": [
+    1.7,
+    78.3
+  ],
+  "samples": 2896639,
+  "lanesFound": 3,
+  "secondsTaken": 78,
+  "bestLane": {
+    "turnDeg": 10,
+    "sidewaysM": -56,
+    "levelM": 6,
+    "gaps": 4,
+    "steps": 3,
+    "curves": 0,
+    "faces": 0,
+    "length": 114.10000000000001,
+    "variety": 2,
+    "maxRise": 0.602630615234375,
+    "maxDrop": 0.25589799880981445,
+    "score": 6.5,
+    "searchIdealRunCleared": true
+  },
+  "candidates": [
+    {
+      "turnDeg": 10,
+      "sidewaysM": -56,
+      "score": 6.5
+    },
+    {
+      "turnDeg": 10,
+      "sidewaysM": -46,
+      "score": 6.5
+    },
+    {
+      "turnDeg": 30,
+      "sidewaysM": -69.2,
+      "score": 6.5
+    }
+  ],
+  "glbBytes": 55708
+}

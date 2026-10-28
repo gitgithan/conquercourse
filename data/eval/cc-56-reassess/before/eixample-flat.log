@@ -1,0 +1,53 @@
+{
+  "place": "eixample-flat",
+  "lat": 41.3917,
+  "lon": 2.1649,
+  "radius": 120,
+  "terrain": false,
+  "terrainRelief_m": 0,
+  "buildings": 47,
+  "withRealHeight": 36,
+  "medianHeight_m": 21,
+  "shrink": 0.238,
+  "shrinkTries": [
+    {
+      "shrink": 0.238,
+      "lanes": 2
+    }
+  ],
+  "triangles": 2627,
+  "shrunkHeightRange_m": [
+    0.7,
+    8
+  ],
+  "samples": 533215,
+  "lanesFound": 2,
+  "secondsTaken": 13,
+  "bestLane": {
+    "turnDeg": 100,
+    "sidewaysM": 28.1,
+    "levelM": 1,
+    "gaps": 0,
+    "steps": 1,
+    "curves": 0,
+    "faces": 0,
+    "length": 33.300000000000004,
+    "variety": 1,
+    "maxRise": 0.6791263818740845,
+    "score": 3.5,
+    "searchIdealRunCleared": true
+  },
+  "candidates": [
+    {
+      "turnDeg": 100,
+      "sidewaysM": 28.1,
+      "score": 3.5
+    },
+    {
+      "turnDeg": 120,
+      "sidewaysM": 33,
+      "score": 3.5
+    }
+  ],
+  "glbBytes": 141112
+}

@@ -617,3 +617,47 @@ The set of obstacle shapes is fixed, and each shape offers a fixed set of moves.
   - The roll clip plays for ground rolls too (`rolledAt`), with the soft landing sound.
 - **Roll drums:** the X drum shows for every landing the ideal run rolls out of (a test covers the 5 m ledge of the drop demo and a release from a bar onto a deck 5 m lower).
 - **Generator:** a lache pair's deck gap is drawn from 5.5 to 6.8 m now (it was 6.5 to 7.8 m): with the new release a 7 m gap leaves almost no room, and one seed lost its moves when the proved presses were laid along the whole course.
+  - The key C is proposed; the product owner confirms.
+
+## Places after the cap (CC-56 reassess)
+- **So what:** with the 4.3 m cap gone, real places need much less shrinking and give longer lanes, and the "hilly places are tiny worlds" finding no longer holds for gentle and medium hills.
+  - The steep hills (Montmartre, San Francisco) still give short lanes, so the pitch line is "any place, shrunk to about half to a third", not "any place at real size".
+  - Real size is still not a course: Barcelona's 20 m blocks give no lane at 0.8 or 1.0.
+- **What was run:** the same OSM script (`scripts/osm-lane.ts`) on the commit before CC-56 and on `main`, on the same saved map data, with and without real hills (`scripts/reassess-cap.ts` makes the table; everything is in `data/eval/cc-56-reassess/`).
+  - A third variant lifts the script's own rule that no building is taller than 8 m once shrunk; it changes almost nothing.
+  - A fixed-shrink scan at 0.6 asks how far the ladder could have gone; the 0.8 and 1.0 scans were stopped as too slow (the one that finished, Barcelona flat, found no lane).
+- **Before and after** (shrink is the factor each place needed; lane is the best lane's length after shrinking; every lane was cleared by the ideal-run search):
+
+| Place | Shrink before | Shrink after | Lane before | Lane after | Tallest drop after |
+|---|---|---|---|---|---|
+| Barcelona, flat | 0.238 | 0.238 | 33 m | 51 m | 2.1 m |
+| Barcelona, hills (9 m) | 0.086 | 0.238 | 12 m | 56 m | 2.7 m |
+| Sydney quay, flat | 0.200 | 0.556 | 25 m | 52 m | 2.3 m |
+| Sydney quay, hills (37 m) | 0.120 | 0.556 | 16 m | 37 m | 1.4 m |
+| Montmartre, flat | 0.200 | 0.556 | 31 m | 63 m | 3.2 m |
+| Montmartre, hills (39 m) | 0.072 | 0.333 | 18 m | 9 m | 0.6 m |
+| San Francisco, flat | 0.164 | 0.455 | 38 m | 41 m | 0.6 m |
+| San Francisco, hills (62 m) | 0.098 | 0.455 | 14 m | 8 m | 0.3 m |
+
+- **What changed:**
+  - The shrink needed is 2 to 5 times larger (a bigger, less tiny world): Sydney 0.12 became 0.56, Barcelona hills 0.09 became 0.24, San Francisco hills 0.10 became 0.46, Montmartre hills 0.07 became 0.33.
+  - These "after" values are the first rung of the search ladder in most cases, so the true limit is higher: at a fixed 0.6 Sydney hills still gives a 53 m lane, while Barcelona hills and San Francisco hills give none.
+  - Flat lanes are longer (24 to 38 m became 41 to 63 m) because a lane can start on a roof and drop (levels 3 m and 6 m above the lowest ground are tried).
+  - The tallest drop a lane uses is 0.3 to 3.2 m, far below the 7.8 m limit; roofs are mostly stepped, not dropped, so the roll matters less on real places than on the drop demo.
+- **What still holds:**
+  - Steep hills give short lanes: Montmartre and San Francisco hills give lanes of 8 to 9 m, shorter than before, because the next roof uphill is more than 0.9 m up (no jump makes it).
+  - A tilted cut that follows the hill is still the likely fix; not built.
+  - Streets between buildings are still water, and there is still no slope physics.
+  - All 8 places still clear with the ideal-run search.
+  - The 4.3 m cap was not the only limit: the 0.9 m climb limit now decides, so tall buildings still drop out of the lane.
+- **Search time:** the table's seconds are noisy (the VM ran at 8 to 20 load from other work), and show no clear slowdown for whole places.
+  - One Fix it case is clearly slower after CC-56: about 3.7 s before and 5.2 s after (35 to 45% more), the same answer.
+  - Cause not isolated; the per-tick roll check and the heavier landing are the suspects.
+  - Fix it's time budget went from 6 s to 12 s so it does not give up early on a busy machine.
+- **Regression check** (on the VM):
+  - `npm run test:quick`: 334 of 334 pass on a quiet machine; on a busy one four time-based tests failed (two of them also fail on the code before CC-56 under the same load).
+  - The slope test in `tests/terrain.test.ts` now has a 3 minute limit, because its lane search tries five start levels instead of three.
+  - Browser checks pass: demos, lache, map (after a warm-up run), drums, debug, ideal-all, roll, sound.
+  - `scripts/editor-check` has three false answers that are the same on the code before CC-56 (the 1024x640 no-scroll check, the advice offer, and the partner, which needs the key that lives on the laptop).
+  - The generated sample course is unchanged, and the stored plans test passes.
+
