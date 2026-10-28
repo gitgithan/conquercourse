@@ -5,7 +5,14 @@ import type { CourseData } from '../course/course';
 export const TREBUCHET_DECK_END = 3; // m: the machine's deck ends just past the pivot (the pivot is at x = 0)
 export const LANDING_FROM = 14; // m: where the lane's first ground starts, a throw away from the machine
 
-export function withTrebuchet(c: CourseData, counterweight: number, pivotX = 0): CourseData {
+// The knobs of the machine the editor can change: the counterweight (kg), the short end of the arm (m, the arm ratio is long / short),
+// and a pin (the arm angle in degrees at which the machine lets the rider go by itself).
+export interface Machine { counterweight: number; short?: number; pin?: number }
+export type Wrap = (c: CourseData) => CourseData;
+export const wrapFor = (m: Machine | null | undefined, pivotX = 0): Wrap | undefined => (m ? (c) => withTrebuchet(c, m, pivotX) : undefined);
+
+export function withTrebuchet(c: CourseData, machine: number | Machine, pivotX = 0): CourseData {
+  const m: Machine = typeof machine === 'number' ? { counterweight: machine } : machine;
   const ps = c.terrain.platforms;
   if (ps.length < 2) return c;
   const landingFrom = pivotX + LANDING_FROM;
@@ -23,6 +30,6 @@ export function withTrebuchet(c: CourseData, counterweight: number, pivotX = 0):
     uMap: c.uMap?.map((m) => ({ ...m, x0: Math.round((m.x0 + dx) * 100) / 100 })),
     zones: [{ id: 'launch', name: 'Trebuchet', x0: pivotX - 12, x1: landingFrom }],
     checkpoints: [{ id: 'launch', x: pivotX - 12 }],
-    trebuchet: { x: pivotX, counterweight },
+    trebuchet: { x: pivotX, counterweight: m.counterweight, ...(m.short !== undefined ? { short: m.short } : {}), ...(m.pin !== undefined ? { pin: m.pin } : {}) },
   };
 }

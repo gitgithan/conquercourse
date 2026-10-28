@@ -2,6 +2,7 @@ import { holdsOf, isHold, type P } from './holds-world';
 import { laneToCourse, sliceProfile } from './slice';
 import { worldSamples } from './world';
 import { searchIdealRun } from '../sim/ideal';
+import type { CourseData } from '../course/course';
 
 // "Fix it" for a lane with bars: try small moves of the bars (up or down, along the run, both together) and keep the smallest one the
 // ideal-run search proves clearable. Each candidate is a whole proof, so the search is cut off by a time budget.
@@ -15,17 +16,20 @@ export function courseFor(ps: P[], lane: Lane): import('../course/course').Cours
   return pr.length >= 8 ? laneToCourse({ cells: [...pr.cells], length: pr.length, origin: pr.origin }, 'shortcuts', holdsOf(ps, lane)) : null;
 }
 
-const proof = (ps: P[], lane: Lane): boolean => {
+type Wrap = (c: CourseData) => CourseData;
+const proof = (ps: P[], lane: Lane, wrap?: Wrap): boolean => {
   const ground = ps.filter((p) => !isHold(p));
   const pr = sliceProfile(worldSamples(ground), { x: 0, z: 0 }, lane);
-  return pr.length >= 8 && searchIdealRun(laneToCourse({ cells: [...pr.cells], length: pr.length, origin: pr.origin }, 'fix', holdsOf(ps, lane))).cleared;
+  if (pr.length < 8) return false;
+  const course = laneToCourse({ cells: [...pr.cells], length: pr.length, origin: pr.origin }, 'fix', holdsOf(ps, lane));
+  return searchIdealRun(wrap ? wrap(course) : course).cleared;
 };
 
-export function fixBars(pieces: P[], lane: Lane, budgetMs = 6000): FixedBars {
+export function fixBars(pieces: P[], lane: Lane, budgetMs = 6000, wrap?: Wrap): FixedBars {
   const t0 = performance.now();
   const bars = pieces.filter(isHold).sort((a, b) => a.x - b.x);
-  if (!bars.length) return { ok: proof(pieces, lane), pieces, steps: [] };
-  if (proof(pieces, lane)) return { ok: true, pieces, steps: [] };
+  if (!bars.length) return { ok: proof(pieces, lane, wrap), pieces, steps: [] };
+  if (proof(pieces, lane, wrap)) return { ok: true, pieces, steps: [] };
   type Cand = { cost: number; text: string; apply: (ps: P[]) => P[] };
   const cands: Cand[] = [];
   const along = Math.cos(lane.angle), across = Math.sin(lane.angle);
@@ -44,7 +48,7 @@ export function fixBars(pieces: P[], lane: Lane, budgetMs = 6000): FixedBars {
     if (performance.now() - t0 > budgetMs) break;
     const next = c.apply(pieces);
     if (!next.some((p) => isHold(p) && p.y + 0.04 >= 2.0 && p.y + 0.04 <= 3.4)) continue; // no bar a jump can reach: no need for a whole proof
-    if (proof(next, lane)) return { ok: true, pieces: next, steps: [c.text] };
+    if (proof(next, lane, wrap)) return { ok: true, pieces: next, steps: [c.text] };
   }
   return { ok: false, pieces, steps: ['No small move of the bars makes it clearable: try different gaps between the decks.'] };
 }

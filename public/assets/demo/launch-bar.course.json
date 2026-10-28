@@ -39,8 +39,8 @@
   },
   "holds": [
     {
-      "x": 18,
-      "y": 8
+      "x": 16,
+      "y": 9
     }
   ],
   "plan": {
@@ -49,8 +49,8 @@
     "bouncePress": 8,
     "hands": true,
     "hangTicks": [
-      18
+      198
     ],
-    "launchRelease": 241
+    "launchRelease": 238
   }
 }
