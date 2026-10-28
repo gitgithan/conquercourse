@@ -39,25 +39,30 @@
 - **Already moving elsewhere:** (h) is the Slicer; (d), (e) and (g) belong to their own builder pages once those pieces are settled.
 
 ## What is built (a): pause and drag the ground
-- **Open:** Tab, or the "Edit the ground (Tab)" chip (after a first fall, or with `?edit=1`). The clock stops and the game hears no keys while it is open.
+- **Open:** Tab, or the "Edit the ground (Tab)" chip (after a first fall, or with `?edit=1`).
+  - The clock stops and the game hears no keys while it is open.
 - **The picture:** the ground line of the course around the runner, decks as blocks, bars as short bars, water below, the start of the try as a green line.
 - **Handles:**
   - A square on top of a deck: drag up or down to change its height (snaps to 0.1 m).
   - A circle on a deck's edge: drag along the run to change the gap (snaps to 0.25 m; decks never overlap, never get thinner than 0.8 m, and keep the start and the finish on the ground).
   - A bar: drag in both directions (bars keep 1 m apart).
-  - Double-click a deck: cut a 2 m gap into it. Double-click a deck's edge: close the gap on that side.
+  - Double-click a deck: cut a 2 m gap into it.
+    - Double-click a deck's edge: close the gap on that side.
   - Fixed decks (curved, trampoline, the wall, the trebuchet, the launcher, the rope anchor) show "fixed" and have no handles; their shapes belong to their own move.
 - **The ghost:** the old outline stays as a grey dashed line, the new one is teal, and a teal arrow shows how far a deck moved (the same look as the CC-63 preview ghosts).
 - **The verdict:** the Course's ideal-run search runs in a worker, from the checkpoint; it says "clears in 17.5 s, 1.2 s faster than before" or "finds no way through: the ideal run gets as far as 18 m". A quick line under it names the hardest gap and the speed a jump needs at its edge.
 - **Words:** "Deck 2: raise it 1.8 m (now 1.8 m high)", "Gap 1: wider, 4.0 m to 5.0 m", "Bar 1: 1 m closer to the start".
-- **Play from here:** the edited course is saved (it is what the Dojo and the next visit see) and the Course reloads at the same checkpoint on the edited ground. The edit list is kept with it.
+- **Play from here:** the edited course is saved (it is what the Dojo and the next visit see) and the Course reloads at the same checkpoint on the edited ground.
+  - The edit list is kept with it.
 - **Undo my edits** puts the course back as it was when the studio opened.
 
 ## Fallbacks and gaps
-- **Real objects:** an edited course draws its real objects as plain blocks, because the pictures were placed on the old ground. The studio says so.
+- **Real objects:** an edited course draws its real objects as plain blocks, because the pictures were placed on the old ground.
+  - The studio says so.
 - **Source in the course data:** when the two-way editor work (CC-80) lands, the edits belong in `course.source`; until then they are stored with the course and the edit list.
 - **The verdict is the ideal run,** which can take seconds on long courses; a new drag cancels the old search, and a step budget comes with the search-speed work (CC-69).
-- **Only decks and bars** so far. The jump arc and the swing range band are designed above and not built.
+- **Only decks and bars** so far.
+  - The jump arc and the swing range band are designed above and not built.
 - **A coaster** has its own builder (`?mode=coaster`), so the studio leaves it alone.
 
 ## Files
