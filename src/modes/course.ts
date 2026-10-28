@@ -38,6 +38,7 @@ import { buildPlanks } from '../render/plank';
 import { topAt } from '../sim/beam';
 import { crestSpeedLimit, railsOf } from '../sim/cart';
 import { installGraphStudio } from './graph-studio';
+import { createPerf, type PerfSource } from '../ui/perf';
 
 // The Course: the five obstacles in a row. The simulator decides everything; this file only draws it
 // and turns keys into inputs. Time comes from the simulator's tick count, never from the browser's clock.
@@ -1062,6 +1063,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
   dom.style.cursor = 'grab';
   const timeScale = Number(params.get('timescale') ?? 1); // ?timescale=0.1 runs the game at a tenth of its speed (for stills)
   function frame(now: number) {
+    perf.frame(now);
     acc = paused ? 0 : Math.min(acc + ((now - last) / 1000) * timeScale, 0.25);
     last = now;
     while (acc >= DT) {
@@ -1074,7 +1076,9 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
       }
       const prev = world.outcome;
       prevMode = world.mode; prevVx = world.runner.vx;
+      perf.simStart();
       if (hangTest === null && plankTest === null) world = stepWorld(world, input, course);
+      perf.simEnd();
       updateRunProgress(world.runner.x);
       updateFlow(world.runner.tick, world.runner.vx, world.runner.vy);
       if (prevMode === 'run' && world.mode === 'wall') wallEntry = prevVx;
@@ -1227,7 +1231,9 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
       camera.lookAt(tx, ty, 0);
     }
     floor.update(now / 1000);
+    perf.renderStart();
     renderer.render(scene, camera);
+    perf.renderEnd();
     // The front inset accompanies the default side view; F toggles it in every camera mode.
     const showFront = frontOverride ?? (world.mode === 'hang' || camMode === 'side');
     pipFrame.style.display = showFront ? 'block' : 'none';
@@ -1263,6 +1269,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
     document.documentElement.dataset.mode = world.mode;
     requestAnimationFrame(frame);
   }
+  const perf = createPerf({ label: 'Course', backend: (renderer.backend as { isWebGPUBackend?: boolean }).isWebGPUBackend ? 'webgpu' : 'webgl2', renderer: renderer as unknown as PerfSource['renderer'], scene });
   camPos.set(5, 3.5, 17);
   requestAnimationFrame(frame);
 
