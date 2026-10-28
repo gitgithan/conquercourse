@@ -2,7 +2,8 @@
 // Local frame while posing: x forward, y up from the surface under the feet, z toward the camera; the group
 // is then moved to the feet position and turned for the direction of travel.
 import { Box3, Group, Vector3, type Object3D, type Scene } from 'three/webgpu';
-import { loadClip, parseClip, sampleClip, type Clip, type Phase } from '../motion/clip';
+import { clipDuration, loadClip, parseClip, sampleClip, type Clip, type Phase } from '../motion/clip';
+import { MOTION_TABLE, moveProgress, rollLookFrom, type RollLook } from '../motion/motion-table';
 import { clipToWorld } from '../motion/pose';
 import { comAboveHips, legLength } from '../motion/timeline';
 import {
@@ -22,6 +23,8 @@ export interface RookieActor {
   setObstacle(o: Obstacle | null): void; // body points are pushed out of platforms and the wall
   names(): string[]; // the joint names, in the order joints() gives them
   joints(): Vector3[]; // where the 30 bones are now, world metres (for the plausibility gate and the tests)
+  setRollLook(look: RollLook): void; // 'crouch' always shows the tucked fallback, 'clip' the mocap/Kimodo roll, 'auto' the clip when it loaded (the blind A/B)
+  hasRollClip(): boolean;
 }
 
 const BLEND_TICKS = 12;
@@ -41,6 +44,13 @@ export async function createRookieActor(scene: Scene, opts: { rookie: RookieId; 
   const phases: Phase[] = ['run', 'leap', 'land', 'swing'];
   const [run, leap, land, swing] = await Promise.all(phases.map((p) => loadClip(p)));
   const reach: Clip = parseClip(await (await fetch('/assets/motion/reach.json')).json());
+  // the roll clip is optional: until one passes the gate and the move check, the roll is drawn as a tuck (src/motion/motion-table.ts)
+  let rollClip: Clip | null = null;
+  try {
+    const r = await fetch('/assets/motion/roll.json');
+    if (r.ok) rollClip = parseClip(await r.json());
+  } catch { /* no roll clip yet */ }
+  let rollLook: RollLook = typeof location === 'undefined' ? 'auto' : rollLookFrom(location.search);
   const rookie = await loadRookie(opts.rookie, run.names, run.parents, undefined, opts.url);
   const group = new Group();
   group.add(rookie.object);
@@ -113,6 +123,46 @@ export async function createRookieActor(scene: Scene, opts: { rookie: RookieId; 
     const rel = stand.map((p) => clipToWorld(p).multiplyScalar(scale));
     return place(rel, -Math.min(...rel.map((p) => p.y)));
   };
+  // The tuck: knees to the chest, chin down, arms round the shins. Same recipe as the stand: a direction per joint, the bone lengths of the clips.
+  const tuck = (() => {
+    const f = land.frames[13];
+    const len = (i: number) => Math.hypot(...f[i].map((v, k) => v - f[land.parents[i]][k]));
+    const out: number[][] = f.map(() => [0, 0, 0]);
+    names.forEach((n, i) => {
+      if (i === 0) return;
+      const par = out[land.parents[i]], side = n.startsWith('Left') ? 1 : -1;
+      let d: Vector3 | null = null;
+      if (n === 'Spine1') d = new Vector3(0, 0.62, 0.78);
+      else if (n === 'Spine2') d = new Vector3(0, 0.34, 0.94);
+      else if (n === 'Chest') d = new Vector3(0, 0.17, 0.98);
+      else if (n === 'Neck1') d = new Vector3(0, -0.1, 1);
+      else if (n === 'Neck2') d = new Vector3(0, -0.3, 0.95);
+      else if (n === 'Head') d = new Vector3(0, -0.6, 0.8);
+      else if (/Shoulder$|Arm$/.test(n) && !/Fore/.test(n)) { d = rookie.rig.bones[i].restPos.clone().sub(rookie.rig.bones[land.parents[i]].restPos); d.y = Math.min(d.y, 0); }
+      else if (/ForeArm$/.test(n)) d = new Vector3(side * 0.15, -0.55, 0.8);
+      else if (/Hand$/.test(n)) d = new Vector3(-side * 0.25, -0.6, 0.6);
+      else if (/ThumbEnd$/.test(n)) d = new Vector3(side * 0.1, -0.5, 0.4);
+      else if (/MiddleEnd$/.test(n)) d = new Vector3(0, -0.5, 0.6);
+      else if (/Leg$/.test(n)) d = new Vector3(side * 0.9, -0.5, 0);
+      else if (/Shin$/.test(n)) d = new Vector3(side * 0.1, 0.55, 0.83);
+      else if (/Foot$/.test(n)) d = new Vector3(0, -0.85, -0.5);
+      else if (/ToeBase$/.test(n)) d = new Vector3(0, -0.5, -0.2);
+      if (d) { d.normalize().multiplyScalar(len(i)); out[i] = [par[0] + d.x, par[1] + d.y, par[2] + d.z]; }
+      else out[i] = [par[0] + f[i][0] - f[land.parents[i]][0], par[1] + f[i][1] - f[land.parents[i]][1], par[2] + f[i][2] - f[land.parents[i]][2]];
+    });
+    return out;
+  })();
+  // The fallback roll: the tuck turned once round its middle, forward, over the simulator's roll time, then opened out into the stand.
+  const tuckRoll = (p: number): Vector3[] => {
+    const rel = tuck.map((q) => clipToWorld(q).multiplyScalar(scale));
+    const mid = rel.reduce((a, q) => a.add(q), new Vector3()).multiplyScalar(1 / rel.length);
+    const e = p * p * (3 - 2 * p); // eases in and out
+    for (const q of rel) q.sub(mid).applyAxisAngle(new Vector3(0, 0, 1), -2 * Math.PI * e).add(mid);
+    const low = Math.min(...rel.map((q) => q.y));
+    const body = rel.map((q) => new Vector3(q.x - mid.x, q.y - low, q.z));
+    const open = Math.min(Math.max((p - 0.75) / 0.25, 0), 1);
+    return open <= 0 ? body : lerpPose({ joints: body, hipsAbove: 0 }, standPose(), open * open * (3 - 2 * open)).joints;
+  };
   const lerpPose = (a: Pose, b: Pose, w: number): Pose => ({
     joints: a.joints.map((p, i) => p.clone().lerp(b.joints[i], w)),
     hipsAbove: a.hipsAbove + (b.hipsAbove - a.hipsAbove) * w,
@@ -182,6 +232,14 @@ export async function createRookieActor(scene: Scene, opts: { rookie: RookieId; 
       }
       case 'swing':
         return hanging(sample(swing, s.tick / 120, true).rel);
+      case 'roll': {
+        const p = moveProgress(MOTION_TABLE.roll, s.rolledAt!, s.tick) ?? 1;
+        if (rollClip && rollLook !== 'crouch') {
+          const a = sample(rollClip, p * clipDuration(rollClip), false); // the simulator's roll time stretched over the clip
+          return place(a.rel, a.hipsAbove).joints;
+        }
+        return tuckRoll(p);
+      }
     }
   }
 
@@ -299,7 +357,7 @@ export async function createRookieActor(scene: Scene, opts: { rookie: RookieId; 
       });
     }
     rookie.apply(lifted);
-    if (s.mode !== 'swing' && k !== 'leap') {
+    if (s.mode !== 'swing' && k !== 'leap' && k !== 'roll') {
       const low = Math.min(...footBones.map((i) => rookie.bones[i].getWorldPosition(new Vector3()).y));
       if (low < footClear) {
         const hips = rookie.bones[0].getWorldPosition(new Vector3());
@@ -319,6 +377,8 @@ export async function createRookieActor(scene: Scene, opts: { rookie: RookieId; 
     setObstacle: (o) => { obstacle = o; },
     names: () => names,
     joints: () => rookie.world(),
+    setRollLook: (l) => { rollLook = l; },
+    hasRollClip: () => rollClip !== null,
     dispose() {
       scene.remove(group);
       group.traverse((o) => {

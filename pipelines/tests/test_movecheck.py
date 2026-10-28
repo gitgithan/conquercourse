@@ -94,3 +94,11 @@ def test_a_roll_facing_the_other_way_still_passes():
     f[:, :, 2] *= -1
     f[:, :, 0] *= -1
     assert movecheck.roll_check(Clip(cmu.orient(f), c.fps))[0]
+
+
+def test_a_clip_that_leans_only_at_its_last_frame_is_not_a_roll_and_does_not_crash():
+    from synth import standing
+    c = standing(30)
+    f = c.frames.copy()
+    f[-1, IDX["Neck1"], 2] += 0.6  # leans forward on the very last frame
+    assert movecheck.roll_check(Clip(f, c.fps))[0] is False
