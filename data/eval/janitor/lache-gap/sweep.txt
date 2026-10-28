@@ -1,0 +1,4 @@
+gap 8.5 style 0.5 bars clear: true shortcuts: 1 pump 1.74 s on the bar you hold, let go, and fly past bar 2
+gap 10 style 0.5 bars clear: true shortcuts: 1 pump 1.78 s on the bar you hold, let go, and fly past bar 2
+gap 12 style 0.5 bars clear: true shortcuts: 0 
+gap 14 style 0.5 bars clear: false shortcuts: 0 

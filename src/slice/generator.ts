@@ -17,7 +17,7 @@ const ONCE: MoveKind[] = ['wall', 'lache', 'rope'];
 const RUNUP = 36; // m of flat deck before each move: enough to be at full speed
 const LAND = 6; // m of deck after each move
 const KEEP = 0.88; // share of speed kept at a jump take-off when the course has bars or steps
-const SIZE: Record<MoveKind, [number, number]> = { gap: [2.5, 5.2], step: [0.4, 1.3], lache: [5.5, 6.8], wall: [3.4, 4.3], rope: [6, 9.5] };
+const SIZE: Record<MoveKind, [number, number]> = { gap: [2.5, 5.2], step: [0.4, 1.3], lache: [8.5, 10], wall: [3.4, 4.3], rope: [6, 9.5] };
 const NAME: Record<MoveKind, string> = { gap: 'Gap jump', step: 'Step up', lache: 'Lache pair', wall: 'Warped wall', rope: 'Rope swing' };
 
 function rng(seed: number): () => number {
