@@ -39,6 +39,8 @@ const WALL_LEAN = 0.3; // rad, the most the body leans into the slope (at 45 deg
 const ARMS_FROM = 0.3; // the arms start to rise at this share of the wall climb ...
 const ARMS_TO = 0.8; // ... and are overhead here (the legs keep running)
 const STRETCH = 1.08; // the bounce pose, stretched
+const CLIMB_CLIP_FROM = 36, CLIMB_CLIP_TO = 59; // frames of the captured climb the game plays: hands on the ledge to feet on top (contacts in data/eval/motion-vault)
+const VAULT_CLIP_FROM = 21, VAULT_CLIP_TO = 69; // frames of the captured vault the game plays: the plant foot lands to the landing and run-on
 
 interface Pose {
   joints: Vector3[]; // local frame, y above the surface
@@ -61,6 +63,17 @@ export async function createRookieActor(scene: Scene, opts: { rookie: RookieId; 
     const r = await fetch('/assets/motion/hurt.json');
     if (r.ok) hurtClip = parseClip(await r.json());
   } catch { /* no hurt clip yet */ }
+  // the captured climb and vault clips are optional too: without one, the climb is the hang-to-stand blend and the vault the contact-point pose
+  let climbClip: Clip | null = null;
+  try {
+    const r = await fetch('/assets/motion/climb.json');
+    if (r.ok) climbClip = parseClip(await r.json());
+  } catch { /* no climb clip yet */ }
+  let vaultClip: Clip | null = null;
+  try {
+    const r = await fetch('/assets/motion/vault.json');
+    if (r.ok) vaultClip = parseClip(await r.json());
+  } catch { /* no vault clip yet */ }
   let hurtLook: 'auto' | 'bones' = typeof location === 'undefined' ? 'auto' : new URLSearchParams(location.search).get('hurt') === 'bones' ? 'bones' : 'auto';
   let rollLook: RollLook = typeof location === 'undefined' ? 'auto' : rollLookFrom(location.search);
   const rookie = await loadRookie(opts.rookie, run.names, run.parents, undefined, opts.url);
@@ -101,6 +114,9 @@ export async function createRookieActor(scene: Scene, opts: { rookie: RookieId; 
     };
   };
   const place = (rel: Vector3[], hipsAbove: number): Pose => ({ joints: rel.map((p) => p.clone().add(new Vector3(0, hipsAbove, 0))), hipsAbove });
+  // a stretch of a clip (frame from..to) stretched over a move's progress 0..1: the simulator stays the master clock
+  const sampleSegment = (clip: Clip, from: number, to: number, p: number): ReturnType<typeof sample> =>
+    sample(clip, (from + Math.min(Math.max(p, 0), 1) * (to - from)) / clip.fps, false);
 
   const takeoffFrame = leap.frames[leap.takeoff!];
   const takeoffCom = scale * (takeoffFrame[0][1] - Math.min(...takeoffFrame.map((p) => p[1]))) + scale * comAboveHips(names, takeoffFrame);
@@ -356,9 +372,15 @@ export async function createRookieActor(scene: Scene, opts: { rookie: RookieId; 
       case 'hurt':
         return hurtPose(s.tick - (hurtStart ?? s.tick));
       case 'climb': {
+        const p = s.climbProgress ?? 0;
+        if (climbClip) {
+          // the captured pull-up stretched over the simulator's climb; reachLedge below holds the hands on the real edge, whatever its height
+          const a = sampleSegment(climbClip, CLIMB_CLIP_FROM, CLIMB_CLIP_TO, p);
+          return place(a.rel, a.hipsAbove).joints;
+        }
         // hanging by the hands from the edge (the swing clip straightened: arms up, body hanging), then the body folds up and stands on the top;
         // the hands are held on the real edge afterwards by reachLedge, so only the body has to change from hanging to standing
-        const p = s.climbProgress ?? 0, hangEnd = 30 / 132, t = Math.min(1, Math.max(0, (p - hangEnd) / (1 - hangEnd)));
+        const hangEnd = 30 / 132, t = Math.min(1, Math.max(0, (p - hangEnd) / (1 - hangEnd)));
         const w = Math.min(1, Math.max(0, (t - 0.25) / 0.6)), e = w * w * (3 - 2 * w);
         const hang = hanging(sample(swing, 0, false).rel);
         if (e <= 0) return hang;
@@ -366,11 +388,19 @@ export async function createRookieActor(scene: Scene, opts: { rookie: RookieId; 
         return hang.map((q, i) => q.clone().lerp(stand[i], e));
       }
       case 'vault': {
+        if (!s.vaultContact) return build(s, 'run');
+        const p = s.vaultProgress ?? 1;
+        if (vaultClip) {
+          // the captured vault stretched over the simulator's vault; the hands are pinned on this obstacle's contact point, not the filmed one
+          const a = sampleSegment(vaultClip, VAULT_CLIP_FROM, VAULT_CLIP_TO, p);
+          const joints = place(a.rel, a.hipsAbove).joints;
+          pinVaultHands(joints, s, p);
+          return joints;
+        }
         // the hands on the obstacle: the pose is built from the simulator's contact point (the base is the running pose it starts and ends in)
         const base = build(s, 'run');
-        if (!s.vaultContact) return base;
         const contact = { x: (s.vaultContact.x - s.x) * s.facing, y: s.vaultContact.y - s.y - footClear }; // (the pose is lifted by footClear below, so the hands land on the surface)
-        return vaultPose(vaultRig, { progress: s.vaultProgress ?? 1, contact, base }).joints;
+        return vaultPose(vaultRig, { progress: p, contact, base }).joints;
       }
       case 'roll': {
         const p = moveProgress(MOTION_TABLE.roll, s.rolledAt!, s.tick) ?? 1;
@@ -428,6 +458,24 @@ export async function createRookieActor(scene: Scene, opts: { rookie: RookieId; 
       const letGo = 1 - Math.min(1, Math.max(0, (sh.y - target.y) / 0.25));
       const w = reach * letGo;
       if (w <= 0) continue;
+      const r = ik2(sh, target, l1, l2, new Vector3(-0.6, -1, 0));
+      const delta = r.hand.clone().sub(hand).multiplyScalar(w);
+      joints[ix(side + 'ForeArm')] = el.clone().lerp(r.elbow, w);
+      for (const n of ['Hand', 'HandThumbEnd', 'HandMiddleEnd']) joints[ix(side + n)] = joints[ix(side + n)].clone().add(delta);
+    }
+  }
+
+  // Pin both hands on the vault's contact point while the body passes over it: the captured hands were measured on another wall,
+  // so they are solved onto this one (full weight while the clip's own hands are down, easing in before and out after).
+  function pinVaultHands(joints: Vector3[], s: ActorState, p: number): void {
+    const ramp = (a: number, b: number) => Math.min(1, Math.max(0, (p - a) / (b - a)));
+    const w = ramp(0.12, 0.22) * (1 - ramp(0.62, 0.78));
+    if (w <= 0) return;
+    const target = new Vector3((s.vaultContact!.x - s.x) * s.facing, s.vaultContact!.y - s.y - footClear + 0.03, 0);
+    for (const side of ['Left', 'Right']) {
+      const sh = joints[ix(side + 'Arm')], el = joints[ix(side + 'ForeArm')], hand = joints[ix(side + 'Hand')];
+      target.z = hand.z; // each hand lands on the top at its own side, not both on the centre line
+      const l1 = sh.distanceTo(el), l2 = el.distanceTo(hand);
       const r = ik2(sh, target, l1, l2, new Vector3(-0.6, -1, 0));
       const delta = r.hand.clone().sub(hand).multiplyScalar(w);
       joints[ix(side + 'ForeArm')] = el.clone().lerp(r.elbow, w);
