@@ -32,5 +32,10 @@
       "id": "drop",
       "x": 6
     }
-  ]
+  ],
+  "plan": {
+    "jumpXs": [],
+    "releaseAfter": 60,
+    "bouncePress": 8
+  }
 }
