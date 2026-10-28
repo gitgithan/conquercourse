@@ -21,7 +21,7 @@ export interface RunnerInput {
   jumpSpeed: number; // upward speed at take-off, m/s
   squat: boolean; // bend the knees (read at touchdown)
   roll?: boolean; // C: roll out of the fall (read at touchdown; the world keeps a press for a quarter of a second)
-  handL?: boolean; // Q: the left hand holds on (a bar)
+  handL?: boolean; // E: the hands hold on (a bar); both fields come from the one hold key
   handR?: boolean; // E: the right hand holds on (a bar)
   vault?: boolean; // V: go over the obstacle just ahead with a hand on top (keeps the speed)
 }

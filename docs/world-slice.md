@@ -144,7 +144,7 @@ The set of obstacle shapes is fixed, and each shape offers a fixed set of moves.
 
 ## Holds and the lache pair (CC-44, 2026-10-28)
 - **Holds (`src/sim/holds.ts`):** bars hanging in the air, seen from the side (`course.holds`: x along the run, y high; no frame needed).
-  - Grab: airborne, a hand key (Q or E) held, and the hands (2.1 m over the feet) within 0.6 m of a bar; the arms keep 70 % of the speed along the swing.
+  - Grab: airborne, the hold key (E) held, and the hands (2.1 m over the feet) within 0.6 m of a bar; the arms keep 70 % of the speed along the swing.
   - Hang: a pendulum about the bar, effective length 2/3 of the hands-to-feet length (RK4 at the fixed step); the small-swing period is 2π√(L/g).
   - Pump: the arrow keys drive the swing (1.5 rad/s²); pressing the way the body moves adds energy, pressing against it takes energy out; a swing nobody pumps slowly dies.
   - Let go: both hands off; the body flies on with its own velocity; no re-grab for 0.2 s.
@@ -159,8 +159,8 @@ The set of obstacle shapes is fixed, and each shape offers a fixed set of moves.
 
 ## The lache demo in the game (CC-44)
 - **Open it:** `/?course=/assets/demo/lache.course.json` (a run, a vault over a 1 m box, then two bars over 9 m of water); add `&bot=ideal` to watch the proven line.
-- **Keys on a custom course:** Q or E in the air grabs a bar, the arrows pump the swing, letting go of both flies on, V vaults; the controls card lists them.
-- **Drums:** the lane shows vault, grab (Q / E) and release presses.
+- **Keys on a custom course:** E in the air grabs a bar, the arrows pump the swing, letting go of both flies on, V vaults; the controls card lists them.
+- **Drums:** the lane shows vault, grab (E) and release presses.
 - **Why the search got bigger:** tuning one bar at a time missed lines that clear (the swing and the next catch depend on each other), so a joint search over the take-off and the first two hang times is used; it also guards against states that go to NaN.
 - **Limits of the swing:** the arms keep 35 % of the speed on a catch, and the swing stops 100° from straight down (no flips).
 

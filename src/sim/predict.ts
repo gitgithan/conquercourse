@@ -60,7 +60,7 @@ export function predictRelease(w: WorldState, course: CourseData, maxTicks = 360
   for (let i = 0; i < maxTicks; i++) {
     s = stepWorld(s, { ...NO_INPUT, run: true, squat: true, handR: true }, course);
     path.push({ x: s.runner.x, y: s.runner.y });
-    if (s.mode === 'hang') return { path, result: 'lands', landX: s.runner.x, why: 'You reach the next bar: hold Q or E in the air to grab it.' };
+    if (s.mode === 'hang') return { path, result: 'lands', landX: s.runner.x, why: 'You reach the next bar: hold E in the air to grab it.' };
     if (s.outcome === 'splash') return { path, result: 'splash', landX: s.runner.x, why: 'You fall in the water: wait for a bigger swing.' };
     if (!s.runner.grounded) left = true;
     if (left && s.runner.grounded) {
