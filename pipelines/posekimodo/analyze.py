@@ -50,7 +50,7 @@ def summarise(name, frames, spec):
 
 def main(d):
     data = json.load(open(os.path.join(d, "kimodo_samples.json")))
-    specs = moves()
+    specs = moves(data.get("round", 1))
     results = {}
     for name, item in data["moves"].items():
         spec = specs[name]
