@@ -20,6 +20,7 @@ export interface RunnerInput {
   jump: boolean; // leave the ground this tick if standing on it
   jumpSpeed: number; // upward speed at take-off, m/s
   squat: boolean; // bend the knees (read at touchdown)
+  roll?: boolean; // C: roll out of the fall (read at touchdown; the world keeps a press for a quarter of a second)
   handL?: boolean; // Q: the left hand holds on (a bar)
   handR?: boolean; // E: the right hand holds on (a bar)
   vault?: boolean; // V: go over the obstacle just ahead with a hand on top (keeps the speed)
@@ -143,28 +144,36 @@ function fly(s: RunnerState, input: RunnerInput, p: RunnerParams, t: Terrain): R
     }
     const tHit = hi, landedAtX = s.x + s.vx * tHit, landY = groundAt(t, landedAtX);
     const vyHit = s.vy - p.gravity * tHit;
-    const report = landing(Math.max(0, -vyHit), input.squat, p.landing);
+    const report = landing(Math.max(0, -vyHit), input.squat, p.landing, !!input.roll);
     return {
       ...s, x: landedAtX, y: landY,
-      vx: report.stumbled && !platformAt(t, landedAtX)?.bouncy ? vx * p.landing.stumbleKeep : vx,
+      vx: afterLanding(report, vx, p, !!platformAt(t, landedAtX)?.bouncy),
       vy: 0, grounded: true, landedAtTick: s.tick - 1 + tHit / DT, landedAtX, landing: report,
     };
   }
   const disc = Math.sqrt(s.vy * s.vy + 2 * p.gravity * (s.y - floor));
   const tHit = (s.vy + disc) / p.gravity;
   const landedAtX = s.x + s.vx * tHit;
-  const report = landing(-(s.vy - p.gravity * tHit), input.squat, p.landing);
+  const report = landing(-(s.vy - p.gravity * tHit), input.squat, p.landing, !!input.roll);
   return {
     ...s,
     x: landedAtX,
     y: floor,
-    vx: report.stumbled && !platformAt(t, landedAtX)?.bouncy ? vx * p.landing.stumbleKeep : vx, // a trampoline catches the fall
+    vx: afterLanding(report, vx, p, !!platformAt(t, landedAtX)?.bouncy), // a trampoline catches the fall
     vy: 0,
     grounded: true,
     landedAtTick: s.tick - 1 + tHit / DT, // s.tick already counts this step
     landedAtX,
     landing: report,
   };
+}
+
+// Forward speed after touchdown: a stumble loses most of it, a roll keeps most, a hurt landing stops the runner dead.
+function afterLanding(report: LandingReport, vx: number, p: RunnerParams, bouncy: boolean): number {
+  if (bouncy) return vx;
+  if (report.hurt) return 0;
+  if (report.rolled) return vx * p.landing.rollKeep;
+  return report.stumbled ? vx * p.landing.stumbleKeep : vx;
 }
 
 export function run(

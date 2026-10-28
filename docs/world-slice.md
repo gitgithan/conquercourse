@@ -14,7 +14,7 @@
 ## The slice
 1. **Orient and size the object:** upright, its long side along the run, scaled to its real height (typed by the maker, else a typical size for its label).
 2. **Choose the slice level (lift the world):** pick a height `h0` in the object; everything below it is water, everything above is course.
-   - The playable band is `h0` to `h0 + 4.3 m` (the Warped Wall's height, the tallest thing the moves handle).
+   - The lane has no height cap any more (CC-56): a step above one jump is simply not a course, and ground below `h0` counts down to the drop a roll survives (7.8 m).
    - A big object (a building, a statue) is not squeezed: the maker slides `h0` up or down to the layer they want to run on, so one scan gives many courses.
 3. **Cut a lane:** keep only the part of the object within the lane (2 m across the screen, the same thickness the blocks have).
 4. **Take the profile:** for each position along the run, the highest surface inside the lane and inside the band; thin it to at most 24 points; steeper than 45° counts as a face, not a slope.
@@ -307,7 +307,7 @@ The set of obstacle shapes is fixed, and each shape offers a fixed set of moves.
   - Barcelona Eixample (9 m of slope): the shrink must go from 0.24 to 0.09.
   - Sydney quay (37 m): 0.20 to 0.12.
   - Montmartre (39 m) 0.07 and San Francisco Lombard (62 m) 0.10; neither works at the flat shrink.
-  - **Why:** a lane cuts one level plane and sees only 4.3 m above the lowest ground (`BAND`); on a hill, the roofs uphill poke above that and drop out unless everything is smaller.
+  - **Why (before CC-56):** a lane cut one level plane and saw only 4.3 m above the lowest ground (`BAND`, now removed); on a hill, the roofs uphill poked above that and dropped out unless everything was smaller.
 - **Gaps, said plainly:**
   - The simulator has no slope physics (no slower uphill, no sliding); a slope is only the steps between roofs.
   - Streets between buildings are still water, so the hill shows only on rooftops.
@@ -378,3 +378,37 @@ The set of obstacle shapes is fixed, and each shape offers a fixed set of moves.
 - **Checks:** `scripts/ideal-all-check.mjs` runs Shift+I on all eight demo courses (all clear, run on the VM), the any-key stop, and each floor (fall, words, sound).
   - Screenshots: `data/eval/cc-57-floors/`.
 - **Known gap:** lava, mud and spikes are paint, words and sound only; mud does not slow you down.
+
+## Roll and survivable drops (CC-56)
+- **So what:** a big drop is no longer a wall of the editor; it is a move.
+  - Tap C just before you land and a fall that would end the run is spread out and survived, keeping most of your speed.
+  - Lanes are cut by what a player can survive and reach, not by a 4.3 m band.
+- **Physics, same as before:** the same speed change spread over more time is a gentler push.
+  - Fall speed at touchdown is `v = sqrt(2 g h)`.
+  - The push is `v / stop time`, but the stop cannot last longer than the body can travel (`2 x travel / v`), so a big fall is stopped harder than a soft landing time alone would say.
+  - Numbers (`src/sim/landing.ts`): stiff legs 0.1 s or 0.3 m of travel, bent knees 0.3 s or 0.6 m, roll 0.5 s or 1.2 m; a stop above 60 m/s² is a stumble (keeps 30% of the speed); above 80 m/s² the run is over.
+  - A roll is never a stumble and keeps 85% of the forward speed.
+- **What each landing survives** (worked out by `safeDrop`, tested at the edge):
+
+| Landing | Clean up to | Survives up to |
+|---|---|---|
+| Straight legs | 1.8 m | 2.4 m |
+| Bent knees (hold the down key) | 3.7 m | 4.9 m |
+| Roll (tap C just before the ground) | 9.8 m | 9.8 m |
+
+- **New failure:** a landing past the limit is a "hard landing" (`outcome 'hurt'`, event `hard-landing`), not water.
+  - The panel says what the ground did and what would have worked: tap C just before you land.
+  - It never grades technique.
+- **Input:** C, buffered a quarter of a second (`ROLL_BUFFER`); a press on the ground does nothing.
+- **Lanes:** `LANE_DROP` is 7.8 m (80% of the roll limit, so the ideal run has room to spare); a lane with a bigger drop between grounds is not a course, and the advice says so.
+  - A lane may start on a roof: levels 3 m and 6 m above the lowest point are tried, and ground down to 7.8 m below the level counts.
+  - The finish deck sits a metre below a high ending, level with a deep one.
+- **Ideal run and drums:** the plan presses C itself when a fall is more than a squat takes cleanly (`rollNeeded`); the drum lane shows a C drum.
+- **Prediction (debug view, B):** says "You hit the ground at N m/s: a clean landing / a stumble (tap C)", or "Hard landing".
+- **Demo:** `/?course=/assets/demo/drop.course.json` (a 5 m ledge; add `&bot=ideal` to watch the roll).
+- **Tests:** `tests/roll.test.ts` (drops of 1, 3, 4, 5, 8 m with and without squat and roll; the limits against the landing report; the early-press buffer), `tests/demo-drop.test.ts`.
+  - Two older tests changed because a 2.5 m and a 3 m fall with straight legs are now a hard landing, not a stumble.
+- **Gaps:**
+  - The roll is a state with no tuck animation yet.
+  - Fix it does not yet shorten a lane drop.
+  - The key C is proposed; the product owner confirms.
