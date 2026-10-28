@@ -1,4 +1,5 @@
 import type { CourseData } from '../course/course';
+import { rollWindowOpen } from './drop';
 import { DEFAULT_LANDING, safeDrop } from './landing';
 import { GRAVITY } from './units';
 import { inputFor, searchIdealRun, type Plan } from './ideal';
@@ -12,16 +13,12 @@ export interface Drum {
   what: 'jump' | 'let go' | 'bounce' | 'vault' | 'grab' | 'release' | 'roll' | 'fire' | 'aim' | 'turn';
 }
 
-// The roll drum's place: this many ticks (0.3 s at 120 Hz) before touchdown.
-export const ROLL_DRUM_TICKS = 36;
-
 export function drumsFor(course: CourseData, plan: Plan = course.plan ?? searchIdealRun(course).plan, maxTicks = 120 * 80): Drum[] {
   let w = newWorld(course);
   const st = { next: 0, caught: null as number | null, bedAt: null as number | null };
   const drums: Drum[] = [];
   let was = false, wasVault = false, wasFire = false, wasAim = false, wasTurn = false, prevMode = w.mode;
-  const xs: number[] = []; // the runner's x at the start of every tick, so the roll drum can sit on the path point a fixed time before the landing
-  let airStart = 0; // the tick the runner last left the ground
+  let windowX: number | null = null; // where the runner was when the roll window opened in this flight
   let still = 0;
   for (let i = 0; i < maxTicks && w.outcome === 'running'; i++) {
     const input = inputFor(plan, w, st, course);
@@ -30,8 +27,8 @@ export function drumsFor(course: CourseData, plan: Plan = course.plan ?? searchI
     was = input.jump;
     if (input.vault && !wasVault) drums.push({ x: w.runner.x, what: 'vault' });
     wasVault = !!input.vault;
-    xs.push(w.runner.x);
-    if (w.runner.grounded) airStart = i;
+    if (w.runner.grounded) windowX = null;
+    else if (windowX === null && w.mode === 'run' && rollWindowOpen(w, course)) windowX = w.runner.x; // the same window the simulator uses: the last 0.15 s and 1.2 m
     if (input.fire && !wasFire) drums.push({ x: w.runner.x, what: 'fire' }); // K fires the launcher on a recoil pad
     wasFire = !!input.fire;
     if (input.aim !== undefined && !wasAim) drums.push({ x: w.runner.x, what: 'aim', note: `${Math.round((input.aim * 180) / Math.PI)}°` }); // tilt the barrel (Up and Down), then K
@@ -42,11 +39,10 @@ export function drumsFor(course: CourseData, plan: Plan = course.plan ?? searchI
     wasTurn = turning;
     w = stepWorld(w, input, course);
     // one X drum per landing that the roll is for: a fall that would stumble or hurt with straight legs and no roll, or one the line rolls out of.
-    // The drum sits where the runner is ROLL_DRUM_TICKS before touchdown (the key buffer is a quarter of a second, so 0.3 s before is early enough and not too early).
+    // The drum sits where the roll window opens (the key is due there: a press earlier does nothing), not at the landing.
     const land = w.events.find((e) => e.type === 'land');
     if (land && (land.detail?.rolled || ((land.detail?.impact as number) ** 2) / (2 * GRAVITY) > safeDrop('stiff', DEFAULT_LANDING).clean)) {
-      const at = Math.max(airStart, i - ROLL_DRUM_TICKS);
-      drums.push({ x: xs[at], what: 'roll' });
+      drums.push({ x: windowX ?? w.runner.x, what: 'roll' });
     }
     if (prevMode !== 'hang' && w.mode === 'hang') drums.push({ x: w.runner.x, what: 'grab' }); // E closes on the bar
     if (prevMode !== 'climb' && w.mode === 'climb') drums.push({ x: w.runner.x, what: 'grab' }); // E closes on a wall's edge

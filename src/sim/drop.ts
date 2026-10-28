@@ -10,7 +10,13 @@ export const ROLL_SURVIVE_DROP = safeDrop('roll').survive; // m: a roll survives
 export const LANE_DROP = Math.floor(ROLL_SURVIVE_DROP * 0.8 * 10) / 10; // m: lanes allow this much drop, so the ideal run has room to spare
 
 // Where the runner is about to land and how hard: the fall in the next quarter of a second (null when not falling toward the ground).
-function comingFall(w: WorldState, course: CourseData): { v: number; tau: number } | null {
+// The roll is pressed inside a tight window: the last 0.15 s before touchdown AND the last 1.2 m above the ground (both at once, so whichever is shorter).
+// An earlier press does nothing (there is no hidden buffer: the landing is then a normal one); a press up to 3 ticks after touchdown is forgiven.
+export const ROLL_WINDOW_S = 0.15;
+export const ROLL_WINDOW_M = 1.2;
+export const ROLL_FORGIVE_TICKS = 3;
+
+function comingFall(w: WorldState, course: CourseData): { v: number; tau: number; h: number } | null {
   const r = w.runner;
   if (r.grounded || w.mode !== 'run' || r.vy >= 0) return null;
   const under = (x: number) => Math.max(course.terrain.waterY, groundAt(course.terrain, x)); // over a gap there is no ground: the water is the floor
@@ -22,20 +28,26 @@ function comingFall(w: WorldState, course: CourseData): { v: number; tau: number
     if (next === floor) break;
     floor = next;
   }
-  return { v: Math.sqrt(r.vy * r.vy + 2 * GRAVITY * Math.max(0, r.y - floor)), tau };
+  return { v: Math.sqrt(r.vy * r.vy + 2 * GRAVITY * Math.max(0, r.y - floor)), tau, h: Math.max(0, r.y - floor) };
 }
 
-// Is the runner about to land from a fall a squat would not take cleanly? Then a roll is needed: pressed within the last quarter second it counts.
+// Is the runner inside the roll window right now?
+export function rollWindowOpen(w: WorldState, course: CourseData): boolean {
+  const f = comingFall(w, course);
+  return !!f && f.tau <= ROLL_WINDOW_S + 1e-9 && f.h <= ROLL_WINDOW_M + 1e-9;
+}
+
+// The same window on a predicted path (one point per tick, the last point is the landing): the index of the point where the window opens.
+export function rollWindowStart(path: { x: number; y: number }[]): number {
+  const n = path.length, end = path[n - 1];
+  let k = n - 1;
+  while (k > 0 && n - 1 - (k - 1) <= Math.round(ROLL_WINDOW_S * 120) && path[k - 1].y - end.y <= ROLL_WINDOW_M + 1e-9) k--;
+  return k;
+}
+
+// Is the runner about to land from a fall a squat would not take cleanly, and inside the roll window? Then the roll is pressed now (the ideal run does this at the first tick of the window).
 export function rollNeeded(w: WorldState, course: CourseData): boolean {
   const f = comingFall(w, course);
   const limit = safeDrop('squat', DEFAULT_LANDING).clean;
-  return !!f && f.tau <= 0.2 && f.v * f.v / (2 * GRAVITY) > limit * 0.9;
-}
-
-// Would landing with straight legs and no roll stumble or hurt? (about 1.8 m of fall, from the same landing physics) Then the drum lane shows the X drum:
-// every landing that can cause a warning (a stumble) or a failure (a hard landing) has the key that avoids it on the strip, not only the landings that need it to survive.
-export function rollAdvised(w: WorldState, course: CourseData): boolean {
-  const f = comingFall(w, course);
-  const limit = safeDrop('stiff', DEFAULT_LANDING).clean;
-  return !!f && f.tau <= 0.2 && f.v * f.v / (2 * GRAVITY) > limit;
+  return !!f && f.tau <= ROLL_WINDOW_S + 1e-9 && f.h <= ROLL_WINDOW_M + 1e-9 && f.v * f.v / (2 * GRAVITY) > limit * 0.9;
 }
