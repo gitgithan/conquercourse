@@ -785,3 +785,40 @@ The set of obstacle shapes is fixed, and each shape offers a fixed set of moves.
     - It reports one route.
 - **Tests:** `tests/skip-route.test.ts` (the skip works; a short swing does not; bar to bar still works; the search follows the faster route and reports both; the hint is a fact) and the new drum tests.
 - **Cost:** comparing routes adds about 250 runs to a search, so it is opt-in (stored plans and the explore scripts use it); ordinary searches are as fast as before.
+## Roles for pieces and the Moves window (CC-43)
+- **So what:** a world can now use every move of the game.
+  - A piece can play a role: the Warped Wall, a rope anchor or a trampoline bed.
+  - The editor says which moves the world has and lacks.
+  - Every suggestion it makes is proved by the simulator before it is shown, and goes through the same preview as Fix it.
+- **Where it lives:**
+  - `src/slice/roles.ts` is pure: the course a world makes with its roles (`roleCourse`), the moves a world has (`movesInWorld`), the candidates for one piece (`roleCandidates`) and the proved list (`suggestRoles`).
+  - `Piece.role` is saved with the world and travels through undo and the preview.
+  - The Moves button in the editor opens the window.
+- **What each move needs, in plain words** (`MOVES` in `roles.ts`, shown in the window):
+  - **Gap jump:** a gap of 2.5 to 5 m between two pieces of ground.
+  - **Step up:** a block 0.3 to 0.9 m high to jump on, up to 1.3 m to vault.
+  - **Warped Wall:** a face 3.4 to 4.3 m high after a flat run-up as long as it is tall (it needs about 4.9 to 6.6 m/s at the foot of the curve).
+  - **Rope swing:** an anchor about 6.6 m up over a gap of 6 to 9 m.
+  - **Trampoline:** a low flat bed, 2 to 6 m long, in front of ground 2 to 4 m higher.
+  - **Lache pair, drop with a roll, stacks, trebuchet:** as in their own sections; the coaster has its own page.
+- **Suggestions are the smallest change that gives a piece the size its role needs:**
+  - A 2 m face becomes a wall with scale ×2.
+  - A 1.2 m mat becomes a bed with scale ×2.5.
+  - A 3.3 m pole becomes a rope anchor with scale ×2, and a floating beam is lifted or lowered to 6.6 m.
+  - A long block can be turned 90° so it is short along the run, which can open a gap.
+- **Proofs:** each role was tested with a small world that clears with the role and does not clear without it (`tests/roles.test.ts`).
+  - Wall: a 4 m face on a 0.5 m deck.
+  - Trampoline: a 3 m drop onto a bed 8 m long, then a deck 2.7 m higher.
+  - Rope: a 7 m gap under a pole 6.6 m tall.
+- **Simulator changes this needed** (small, with tests):
+  - The wall stands on the ground at its foot (`groundAt`), not only on level 0; before, a wall on a raised deck put the runner 0.5 m under the top and stuck.
+  - The ideal-run search no longer plans a jump off the end of a bed; a bed is left by its bounce (a spurious jump made every bed course fail).
+  - `laneToCourse` can cut a run of ground into platforms at chosen points (a wall face, the two ends of a bed) and can keep real gaps up to 14 m for a rope.
+- **Modelling choices:**
+  - The deck on top of a wall is made at least 8 m long, because the runner stops there and needs room to run on (`WALL_TOP_RUN`).
+  - A trampoline bed must be flat ground of its own; a curved piece is refused with a plain note.
+  - Rope anchors are not ground.
+- **Known gaps:**
+  - The advice that suggests shifts for an unclearable lane does not know roles; when a world uses roles the editor says so and points to Moves and Fix it.
+  - The trampoline proof depends on the ideal-run search landing a full-speed jump on the bed; a bed that needs a slower approach is not found.
+  - The window lists the lache pair, stacks and trebuchet but only adds the bars; a stack comes from the Stacks row.
