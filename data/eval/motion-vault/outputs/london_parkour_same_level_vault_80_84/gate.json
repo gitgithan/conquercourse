@@ -1,0 +1,167 @@
+{
+ "raw": {
+  "version": 1,
+  "pass": false,
+  "hard": {
+   "knees_bend_forward": {
+    "ok": true,
+    "value": 22.7906,
+    "limit": "< 120 deg off the side axis",
+    "note": ""
+   },
+   "legs_not_twisted": {
+    "ok": true,
+    "value": 22.7906,
+    "limit": "<= 60 deg off the side axis",
+    "note": ""
+   },
+   "knees_within_range": {
+    "ok": true,
+    "value": 127.6826,
+    "limit": "<= 165 deg",
+    "note": ""
+   },
+   "flight_is_ballistic": {
+    "ok": true,
+    "value": null,
+    "limit": "not judged",
+    "note": "held by a wall"
+   },
+   "held_clips_are_held": {
+    "ok": false,
+    "value": 0.9676,
+    "limit": "<= 0.6 s with nothing holding the body",
+    "note": "held by a wall"
+   },
+   "feet_dont_sink": {
+    "ok": false,
+    "value": 0.0773,
+    "limit": "<= 0.03 m under the floor",
+    "note": ""
+   },
+   "no_teleport": {
+    "ok": true,
+    "value": 4.7713,
+    "limit": "<= 12.0 m/s",
+    "note": ""
+   }
+  },
+  "soft": {
+   "bones_keep_length": {
+    "ok": true,
+    "value": 0.0,
+    "limit": "<= 2% off the median",
+    "note": ""
+   },
+   "feet_dont_slide": {
+    "ok": false,
+    "value": 0.0633,
+    "limit": "<= 0.03 m",
+    "note": ""
+   },
+   "no_jitter": {
+    "ok": true,
+    "value": 165.126,
+    "limit": "<= 200.0 m/s^2",
+    "note": ""
+   }
+  }
+ },
+ "repaired": {
+  "version": 1,
+  "pass": false,
+  "hard": {
+   "knees_bend_forward": {
+    "ok": true,
+    "value": 22.7906,
+    "limit": "< 120 deg off the side axis",
+    "note": ""
+   },
+   "legs_not_twisted": {
+    "ok": true,
+    "value": 22.7906,
+    "limit": "<= 60 deg off the side axis",
+    "note": ""
+   },
+   "knees_within_range": {
+    "ok": true,
+    "value": 127.6826,
+    "limit": "<= 165 deg",
+    "note": ""
+   },
+   "flight_is_ballistic": {
+    "ok": true,
+    "value": null,
+    "limit": "not judged",
+    "note": "held by a wall"
+   },
+   "held_clips_are_held": {
+    "ok": false,
+    "value": 0.9676,
+    "limit": "<= 0.6 s with nothing holding the body",
+    "note": "held by a wall"
+   },
+   "feet_dont_sink": {
+    "ok": true,
+    "value": -0.0,
+    "limit": "<= 0.03 m under the floor",
+    "note": ""
+   },
+   "no_teleport": {
+    "ok": true,
+    "value": 4.7718,
+    "limit": "<= 12.0 m/s",
+    "note": ""
+   }
+  },
+  "soft": {
+   "bones_keep_length": {
+    "ok": true,
+    "value": 0.0,
+    "limit": "<= 2% off the median",
+    "note": ""
+   },
+   "feet_dont_slide": {
+    "ok": false,
+    "value": 0.0962,
+    "limit": "<= 0.03 m",
+    "note": ""
+   },
+   "no_jitter": {
+    "ok": true,
+    "value": 153.7838,
+    "limit": "<= 200.0 m/s^2",
+    "note": ""
+   }
+  }
+ },
+ "shown_version": "repaired",
+ "supportedBy": "a wall",
+ "free_flight_rule_without_supportedBy": {
+  "ok": false,
+  "value": 6.4813,
+  "limit": "within 15% of 9.81",
+  "note": "frames 28-56, off by 33.9%"
+ },
+ "athlete_frames": [
+  24,
+  120
+ ],
+ "verdict": "FAIL",
+ "world": {
+  "orientation_from": "travel",
+  "floor_fit_terms": [
+   "const",
+   "depth",
+   "x"
+  ],
+  "floor_points": 21,
+  "floor_offset_m": -3.236661161872741,
+  "side_axis_agreement_cos_mean": 0.9990439127352019,
+  "bridged_frames": [
+   24
+  ]
+ },
+ "frames_in_clip": 120,
+ "frames_unmeasured_in_segment": 0
+}

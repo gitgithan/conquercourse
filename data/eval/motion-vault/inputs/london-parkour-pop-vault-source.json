@@ -1,0 +1,31 @@
+{
+  "source_url": "https://www.youtube.com/watch?v=gP9CHhAmEP4",
+  "youtube_id": "gP9CHhAmEP4",
+  "title": "Learn Parkour : Pop Vault",
+  "creator": "London Parkour",
+  "license": "Creative Commons Attribution license (reuse allowed)",
+  "license_url": "https://www.youtube.com/t/creative_commons",
+  "source_duration_seconds": 90,
+  "source_frame_rate": "30000/1001",
+  "segment_seconds": [
+    32,
+    39
+  ],
+  "segment_description": "Side-on pop vault over a low wall, including approach, hand support, leg passage, and landing.",
+  "downloaded_at": "2026-10-28",
+  "attribution": "Learn Parkour : Pop Vault by London Parkour, sourced from YouTube under Creative Commons Attribution license (reuse allowed).",
+  "segments": [
+    {
+      "name": "ledge-climb-landing",
+      "start_seconds": 35,
+      "end_seconds": 37,
+      "description": "Climbing onto the ledge and landing at the higher height."
+    },
+    {
+      "name": "same-level-vault",
+      "start_seconds": 80,
+      "end_seconds": 84,
+      "description": "Vaulting over the wall and landing at the same level."
+    }
+  ]
+}

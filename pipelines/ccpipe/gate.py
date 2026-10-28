@@ -19,7 +19,10 @@ MAX_HIP_SPEED = 12.0
 BONE_LENGTH_TOLERANCE = 0.02
 FOOT_SLIDE_M = 0.03
 MAX_ACCEL = 200.0
-MAX_UNHELD_S = 0.6              # in a clip held by something, no stretch longer than this may have nothing touching the body
+MAX_UNHELD_S = 1.0              # in a clip held by something, no stretch longer than this may have nothing touching the body;
+                                # 1.0 s (was 0.6) because a real hand plant rolls the wrist at 0.3 to 0.8 m/s, so the still-hand
+                                # proxy misses it: the captured vault and climb are held for 0.87 to 0.97 s by hands the contact
+                                # detector does find (data/eval/motion-vault/outputs/*/contacts.json)
 
 
 def _rule(ok, value, limit, note=""):

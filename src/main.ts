@@ -5,8 +5,11 @@ import { startDojo } from './modes/dojo';
 import { initFeedback } from './ui/feedback';
 import { startPark } from './modes/park';
 
-// ?mode=dojo, ?mode=rookie, ?demo=rookie (the Rookie demo); the default is the Course.
-if (new URLSearchParams(location.search).get('demo') === 'rookie') {
+// ?mode=dojo, ?mode=rookie, ?demo=rookie (the Rookie demo), ?demo=captured-vault (captured move review); the default is the Course.
+if (new URLSearchParams(location.search).get('demo') === 'captured-vault') {
+  const { startCapturedVaultDemo } = await import('./modes/demo-captured-vault');
+  await startCapturedVaultDemo();
+} else if (new URLSearchParams(location.search).get('demo') === 'rookie') {
   const { startRookieDemo } = await import('./modes/demo-rookie');
   await startRookieDemo();
 } else if (new URLSearchParams(location.search).get('demo') === 'poses') {
