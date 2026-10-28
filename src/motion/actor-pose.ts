@@ -2,6 +2,7 @@
 // Nothing here touches three.js or the page, so the unit tests can check it directly.
 import { secondsForDistance, type Clip } from './clip';
 import type { Next } from './compose';
+import { MOTION_TABLE, moveProgress } from './motion-table';
 
 export interface ActorState {
   tick: number; // game ticks of 1/120 s
@@ -13,6 +14,7 @@ export interface ActorState {
   mode: 'run' | 'wall' | 'swing' | 'bounce';
   squat: boolean;
   landedTicksAgo: number | null;
+  rolledAt?: number; // tick of the last roll landing (WorldState.rolledAt): the roll plays for the simulator's roll time from here
   wallProgress?: number; // 0..1 along the wall climb
   swingTheta?: number; // rad from straight down; positive swings toward +x
   facing: 1 | -1;
@@ -20,7 +22,7 @@ export interface ActorState {
   next?: Next; // the next obstacle ahead and how far: the body gets ready for it before it arrives
 }
 
-export type ClipKind = 'stand' | 'run' | 'leap' | 'land' | 'swing' | 'wall-run' | 'wall-reach' | 'bounce';
+export type ClipKind = 'stand' | 'run' | 'leap' | 'land' | 'swing' | 'wall-run' | 'wall-reach' | 'bounce' | 'roll';
 
 export const LAND_TICKS = 60; // how long the landing clip is held after touch-down (matches the Rookie demo)
 export const REACH_FROM = 0.75; // the reach clip plays over the last quarter of the wall climb
@@ -28,6 +30,7 @@ export const STAND_BELOW = 0.25; // m/s: slower than this is standing
 export const RUN_FROM = 0.9; // m/s: faster than this is fully running (in between the two poses are blended)
 
 export function chooseClip(s: ActorState): ClipKind {
+  if (s.mode === 'run' && s.rolledAt !== undefined && moveProgress(MOTION_TABLE.roll, s.rolledAt, s.tick) !== null) return 'roll';
   if (s.mode === 'swing') return 'swing';
   if (s.mode === 'bounce') return 'bounce';
   if (s.mode === 'wall') return (s.wallProgress ?? 0) >= REACH_FROM ? 'wall-reach' : 'wall-run';
