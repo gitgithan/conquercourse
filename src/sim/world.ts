@@ -9,7 +9,7 @@ import { JUMP_COST, VAULT_COST } from './energy';
 import { VAULT_BUFFER, VAULT_PLANT_GRIP, VAULT_PLANT_TICKS, findVault, vaultAt, vaultExitSpeed, type Vault } from './vault';
 import { GROUND_ROLL_COST, GROUND_ROLL_RECOVERY, startGroundRoll, stepGroundRoll, type GroundRoll } from './roll';
 import { bodyVelocity, feetOf, gripSlips, hangStep, releaseHang, tryGrab, type Hang } from './holds';
-import { enterCart, stepCartWorld, type Cart } from './cart';
+import { enterCart, railsOf, stepCartWorld, trackParams, trackSegments, type Cart } from './cart';
 import { DEFAULT_RECOIL, NO_RECOIL, padHas, shot, stepBall, type RecoilParams, type RecoilState } from './recoil';
 import { DEFAULT_TREBUCHET, deg, feetAt, isDud, launchStep, startLaunch, type Launch, type TrebuchetParams } from './trebuchet';
 
@@ -21,7 +21,7 @@ export type Outcome = 'running' | 'cleared' | 'splash' | 'hurt' | 'stalled'; // 
 
 export interface GameEvent {
   tick: number;
-  type: 'jump' | 'roll' | 'land' | 'stumble' | 'hard-landing' | 'splash' | 'wall-grab' | 'wall-slide' | 'rope-catch' | 'rope-release' | 'hang-catch' | 'hang-release' | 'vault' | 'bounce' | 'cleared' | 'cart-start' | 'cart-stall' | 'cart-off' | 'launch-fire' | 'launch-release' | 'launch-dud' | 'recoil';
+  type: 'jump' | 'roll' | 'land' | 'stumble' | 'hard-landing' | 'splash' | 'wall-grab' | 'wall-slide' | 'rope-catch' | 'rope-release' | 'hang-catch' | 'hang-release' | 'vault' | 'bounce' | 'cleared' | 'cart-start' | 'cart-stall' | 'cart-off' | 'cart-catch' | 'launch-fire' | 'launch-release' | 'launch-dud' | 'recoil';
   detail?: Record<string, number | boolean>;
 }
 
@@ -109,8 +109,25 @@ export function stepWorld(w: WorldState, input: RunnerInput, course: CourseData,
     if (g.ended) { n.rollReadyAt = tick + Math.round(GROUND_ROLL_RECOVERY * 120); n.groundRoll = null; }
   } else r = step(before, input2, planting ? { ...p, grip: p.grip * VAULT_PLANT_GRIP } : p, course.terrain);
   n.runner = r;
+  let caughtTrack = false;
+  if (course.track && !before.grounded && r.grounded && r.landing) {
+    const params = trackParams(course), x = r.landedAtX ?? r.x;
+    const segment = trackSegments(course.track).findIndex((pts) => x >= pts[0][0] && x <= pts[pts.length - 1][0]);
+    if (segment >= 0) {
+      const rails = railsOf(course.track, segment), slope = rails.slope(x), cos = 1 / Math.sqrt(1 + slope * slope);
+      if (Math.abs(r.y - (rails.y(x) + params.seat)) <= 0.12) {
+        const v = before.vx * cos - r.landing.impactSpeed * slope * cos;
+        if (v > 0.5) {
+          n.mode = 'cart'; n.outcome = 'running'; caughtTrack = true;
+          n.cart = { segment, x, v, started: true, stalledAt: null, tilt: Math.atan(slope) };
+          n.runner = { ...r, x, y: rails.y(x) + params.seat, vx: v * cos, vy: v * slope * cos, grounded: true, landing: null, landedAtTick: null, landedAtX: null, splashed: false };
+          ev('cart-catch', { segment, x, v });
+        }
+      }
+    }
+  }
   if (before.grounded && !r.grounded && input2.jump) { ev('jump', { vy: r.vy, vx: r.vx, x: r.x }); n.energy = Math.max(0, w.energy - JUMP_COST); if (course.jumpKeep !== undefined && course.jumpKeep !== 1) n.runner = { ...r, vx: r.vx * course.jumpKeep }; }
-  if (!before.grounded && r.grounded && r.landing) {
+  if (!caughtTrack && !before.grounded && r.grounded && r.landing) {
     const plat = standingOn(course.terrain, r.x);
     ev('land', { impact: r.landing.impactSpeed, peakDecel: r.landing.peakDecel, squat: r.landing.squatted, rolled: r.landing.rolled, bouncy: !!plat?.bouncy });
     if (r.landing.rolled) n.rolledAt = r.tick;

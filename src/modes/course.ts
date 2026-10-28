@@ -15,7 +15,7 @@ import { flightPath, gapSpecs, minSpeedForWall, pressBand } from '../sim/needs';
 import { bounce } from '../sim/trampoline';
 import { DEFAULT_TRAMPOLINE } from '../sim/trampoline';
 import { ouch } from '../sim/landing';
-import { track } from '../ui/feedback';
+import { track, trackCourseEvent, courseKey } from '../ui/feedback';
 import { createRookieActor } from '../render/actor';
 import { lookSwitchOn, lookUrl } from '../render/look';
 import { makeObstacle } from '../course/collide';
@@ -228,7 +228,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
     } catch (e) { console.warn('Rookie not loaded, using the capsule', e); }
   }
   await loadRookie(choice, look !== null);
-  let facing: 1 | -1 = resume ? resume.facing : 1;
+  let facing: 1 | -1 = course.track ? 1 : resume ? resume.facing : 1;
 
   // HUD
   const hud = document.createElement('div');
@@ -238,14 +238,14 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
   // the controls, always visible top-left as a card of key caps (collapse with H)
   const help = document.createElement('div');
   help.id = 'keys';
-  const KEYS: [string, string][] = [['← →', 'Run (hold)'], ['Space', 'Jump · let go of the rope · press on the trampoline'], ['↓', 'Bend your knees (hold, on big drops)'], ['X', 'Roll: on the ground (standing or running), or tap just before you land from a big drop'], ...(course.recoil ? ([['K', 'Fire the launcher (clip it on at the teal pad): the ball goes back, you go forward']] as [string, string][]) : []), ...(course.trebuchet ? ([['→ (hold), then Space', 'Trebuchet: pull the pin, then let the rider go when the hint says LET GO NOW']] as [string, string][]) : []), ...(course !== defaultCourse ? ([['E', 'Hold a bar with the hands (in the air; let go to fly on)'], ['← → on a bar', 'Pump the swing: push the way you swing'], ['V', 'Vault over a step with a hand on top (fast, saves energy)'], ['F', 'Looking-ahead window, from your eyes (it shows by itself on a bar)']] as [string, string][]) : []), ...(course.track ? ([['→ or Space', 'Push off at the top of the first hill'], ['↓ (hold)', 'Brake (S works too)']] as [string, string][]) : []), ['I', 'Ideal run of this obstacle (Shift+I: the whole course, any key stops it)'], ['G', 'Drums: where the ideal run presses Space'], ['B', 'Debug view: see the collision boxes and where a jump goes'], ['Mouse', 'Drag to turn the view, wheel to zoom, double-click to reset']]; // retry, ideal run and Dojo are on the fall panel and the buttons
+  const KEYS: [string, string][] = [['← →', 'Run (hold)'], ['Space or ↑', 'Jump · let go of the rope · press on the trampoline'], ['↓', 'Bend your knees (hold, on big drops)'], ['X', 'Roll: on the ground (standing or running), or tap just before you land from a big drop'], ...(course.recoil ? ([['K', 'Fire the launcher (clip it on at the teal pad): the ball goes back, you go forward']] as [string, string][]) : []), ...(course.trebuchet ? ([['→ (hold), then Space or ↑', 'Trebuchet: pull the pin, then let the rider go when the hint says LET GO NOW']] as [string, string][]) : []), ...(course !== defaultCourse ? ([['E', 'Hold a bar with the hands (in the air; let go to fly on)'], ['← → on a bar', 'Pump the swing: push the way you swing'], ['V', 'Vault over a step with a hand on top (fast, saves energy)'], ['F', 'Looking-ahead window, from your eyes (it shows by itself on a bar)']] as [string, string][]) : []), ...(course.track ? ([['→ or Space or ↑', 'Push off at the top of the first hill'], ['↓ (hold)', 'Brake (S works too)']] as [string, string][]) : []), ['I', 'Ideal run of this obstacle (Shift+I: the whole course, any key stops it)'], ['G', 'Drums: where the ideal run presses Space'], ['B', 'Debug view: see the collision boxes and where a jump goes'], ['Mouse', 'Drag to turn the view, wheel to zoom, double-click to reset']]; // retry, ideal run and Dojo are on the fall panel and the buttons
   help.style.cssText = 'position:fixed;left:16px;top:48px;width:290px;background:#fffffff0;border:1px solid #cfd6d0;border-radius:12px;padding:8px 10px;font:500 14px system-ui,sans-serif;color:#17201d;box-shadow:0 2px 10px #0002;pointer-events:none;display:grid;gap:5px';
   const paintKeys = (open: boolean) => {
     help.innerHTML = `<div style="font-weight:700;display:flex;justify-content:space-between">Controls <span style="font-weight:400;color:#58635d">H ${open ? 'hides' : 'shows'}</span></div>` + (open ? KEYS.map(([k, d]) => `<div style="display:grid;grid-template-columns:78px 1fr;gap:8px;align-items:center"><kbd style="font:700 13px ui-monospace,monospace;background:#eef1ec;border:1px solid #b9c2bb;border-bottom-width:3px;border-radius:6px;padding:1px 6px;text-align:center">${k}</kbd><span>${d}</span></div>`).join('') : '');
   };
   let keysOpen = true, keysTouched = false; paintKeys(true);
   const panel = document.createElement('div');
-  panel.style.cssText = 'position:fixed;left:50%;top:26%;transform:translateX(-50%);width:min(520px,92vw);background:#fffffff2;border:1px solid #cfd6d0;border-radius:12px;padding:16px;font:16px/1.4 system-ui,sans-serif;color:#17201d;display:none;gap:10px;box-shadow:0 8px 30px #0003';
+  panel.style.cssText = 'position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);width:min(760px,94vw);max-height:88vh;overflow:auto;box-sizing:border-box;background:#fffffff5;border:1px solid #cfd6d0;border-radius:12px;padding:16px;font:15px/1.4 system-ui,sans-serif;color:#17201d;display:none;gap:10px;box-shadow:0 8px 30px #0003';
   const hint = document.createElement('div');
   hint.style.cssText = 'position:fixed;left:50%;bottom:124px;transform:translateX(-50%);font:600 20px system-ui,sans-serif;color:#10141c;background:#fffc;border-radius:10px;padding:8px 16px;pointer-events:none';
   const gauge = document.createElement('div');
@@ -357,15 +357,54 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
   document.body.append(sstyle, strip);
   // demo courses: every course we have made, one choice away (the stock course, the lache demo, lanes from real objects, places from the map)
   const demos: [string, string][] = [['', 'Stock course'], ['/assets/demo/lache.course.json', 'Lache demo: run, vault, swing'], ['/assets/demo/lache-wide.course.json', 'Wide lache: a 6 m swing'], ['/assets/demo/stack.course.json', 'Stack demo: climb the cup pyramids'], ['/assets/demo/drop.course.json', 'Big drop: run off a ledge and roll'], ['/assets/demo/launch.course.json', 'Launch: the trebuchet throws you onto the tower'], ['/assets/demo/launch-bar.course.json', 'Launch and catch: grab the bar in the air'], ['/assets/demo/recoil.course.json', 'Recoil: throw a ball back, fly forward'], ['/assets/demo/coaster.course.json', 'Coaster: ride the hills'], ['/assets/demo/coaster-sharp.course.json', 'Coaster: a sharp hilltop (brake)'], ['/assets/demo/coaster-low.course.json', 'Coaster: first hill too low'], ['coaster-builder', 'Build your own coaster'], ['generate', 'Make me a new course (random)'], ['/assets/demo/lane-1.course.json', 'Demo scene, lane 1'], ['/assets/demo/lane-2.course.json', 'Demo scene, lane 2'], ['/assets/experiments/osm/eixample-barcelona.course.json', 'Place: Barcelona block'], ['/assets/experiments/osm/montmartre-paris.course.json', 'Place: Montmartre, Paris'], ['/assets/experiments/osm/circular-quay-sydney.course.json', 'Place: Sydney quay'], ['/assets/experiments/osm/san-francisco-lombard.course.json', 'Place: San Francisco hill (62 m of hill)'], ['editor', 'Build your own (editor)']];
+  const welcome = document.createElement('section');
+  welcome.id = 'choose-world';
+  welcome.setAttribute('role', 'dialog'); welcome.setAttribute('aria-labelledby', 'choose-world-title');
+  welcome.style.cssText = 'position:fixed;inset:0;z-index:1000;display:grid;place-items:center;padding:20px;box-sizing:border-box;background:#10182099;backdrop-filter:blur(4px)';
+  const welcomeCard = document.createElement('div');
+  welcomeCard.style.cssText = 'width:min(620px,100%);box-sizing:border-box;padding:clamp(24px,5vw,44px);border-radius:24px;background:#fffdf7;color:#17201d;box-shadow:0 24px 80px #0006;text-align:center';
+  const welcomeTitle = document.createElement('h1');
+  welcomeTitle.id = 'choose-world-title'; welcomeTitle.textContent = 'Choose Your World';
+  welcomeTitle.style.cssText = 'margin:0 0 12px;font:800 clamp(30px,6vw,46px)/1.05 system-ui,sans-serif;letter-spacing:-.04em';
+  const welcomeCopy = document.createElement('p');
+  welcomeCopy.textContent = `Welcome to ConquerCourse. Explore ${demos.length} worlds, from obstacle courses to real places, or make your own.`;
+  welcomeCopy.style.cssText = 'max-width:460px;margin:0 auto 24px;color:#58635d;font:500 17px/1.5 system-ui,sans-serif';
+  welcome.append(welcomeCard); welcomeCard.append(welcomeTitle, welcomeCopy);
   const pick2 = document.createElement('select');
-  pick2.id = 'democourses'; pick2.title = 'Open another course';
-  pick2.style.cssText = 'position:fixed;right:16px;top:196px;max-width:210px;font:600 12px system-ui,sans-serif;border:2px solid #17201d;background:#fff;color:#17201d;border-radius:10px;padding:3px 6px;cursor:pointer';
+  pick2.id = 'democourses'; pick2.title = 'Choose a world'; pick2.setAttribute('aria-label', 'Choose your world');
+  pick2.style.cssText = 'display:block;width:min(520px,100%);min-height:58px;margin:0 auto 18px;box-sizing:border-box;font:700 19px system-ui,sans-serif;border:2px solid #0f6b5c;background:#fff;color:#17201d;border-radius:14px;padding:10px 16px;cursor:pointer;box-shadow:0 4px 14px #0f6b5c22';
   const now = params.get('course') ?? '';
   const seedNow = params.get('generate');
   if (seedNow !== null) pick2.add(new Option(`Generated course (seed ${seedNow})`, 'generate-same', true, true));
+  else if (now && !demos.some(([v]) => v === now)) pick2.add(new Option(`Current world: ${course.name}`, 'stay', true, true));
   for (const [v, label] of demos) pick2.add(new Option(label, v, false, v === now && seedNow === null));
-  pick2.onchange = () => { pick2.blur(); location.href = pick2.value === 'editor' ? '?mode=editor' : pick2.value === 'coaster-builder' ? '?mode=coaster' : pick2.value === 'generate' ? `?generate=${Math.floor(Math.random() * 1e6)}` : pick2.value === 'generate-same' ? location.href : pick2.value ? `?course=${pick2.value}` : '?'; };
-  document.body.append(pick2);
+  const enterWorld = document.createElement('button');
+  enterWorld.type = 'button'; enterWorld.textContent = 'Explore this world';
+  enterWorld.style.cssText = 'min-height:48px;padding:10px 24px;border:0;border-radius:12px;background:#0f6b5c;color:#fff;font:700 17px system-ui,sans-serif;cursor:pointer;box-shadow:0 4px 12px #0f6b5c33';
+  welcomeCard.append(pick2, enterWorld);
+  const compactPicker = () => {
+    welcome.remove();
+    pick2.style.cssText = 'position:fixed;right:16px;top:196px;z-index:20;width:auto;max-width:min(300px,45vw);min-height:0;margin:0;font:600 12px system-ui,sans-serif;border:2px solid #17201d;background:#fff;color:#17201d;border-radius:10px;padding:5px 8px;cursor:pointer';
+    document.body.append(pick2);
+  };
+  enterWorld.onclick = () => { compactPicker(); };
+  pick2.onchange = () => {
+    pick2.blur();
+    if (pick2.value === 'stay') return;
+    const suffix = '&welcome=0';
+    location.href = pick2.value === 'editor' ? `?mode=editor${suffix}` : pick2.value === 'coaster-builder' ? `?mode=coaster${suffix}` : pick2.value === 'generate' ? `?generate=${Math.floor(Math.random() * 1e6)}${suffix}` : pick2.value === 'generate-same' ? `${location.pathname}${location.search}${location.search.includes('?') ? '&' : '?'}welcome=0` : pick2.value ? `?course=${pick2.value}${suffix}` : `?welcome=0`;
+  };
+  const showWorldWelcome = params.get('welcome') !== '0' && !params.has('course') && !params.has('generate') && !params.has('coaster');
+  if (showWorldWelcome) document.body.append(welcome); else compactPicker();
+  if (course.track) {
+    const edit = document.createElement('a');
+    edit.id = 'edit-coaster'; edit.textContent = '← Back to coaster builder'; edit.title = 'Return to the coaster builder with this track and push';
+    const encodedTrack = (course.track.segments ?? [course.track.pts]).map((section) => section.map(([x, y]) => `${+x.toFixed(2)},${+y.toFixed(2)}`).join(';')).join('|');
+    const values = new URLSearchParams({ coaster: encodedTrack, push: String(course.track.push ?? 1.5) });
+    edit.href = `?mode=coaster&${values}`;
+    edit.style.cssText = 'position:fixed;right:16px;top:232px;z-index:21;font:700 16px system-ui,sans-serif;border:3px solid #064e3b;background:#0f6b5c;color:#fff;border-radius:12px;padding:12px 16px;text-decoration:none;box-shadow:0 4px 14px #0004';
+    document.body.append(edit);
+  }
   // the drum lane (taiko style): on by default for a course someone built (editor or shared), off for the stock course until D is pressed
   const drumLane = createDrumLane(document.body, course !== defaultCourse || params.get('drums') === '1');
   setTimeout(() => { try { drumLane.set(drumsFor(course)); } catch { /* no drums if the search fails */ } }, 0);
@@ -412,7 +451,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
     if (paused && !e.repeat) { paused = false; last = performance.now(); }
     if (e.repeat) return;
     keys.add(e.code);
-    if (e.code === 'Space') { jumpQueued = true; e.preventDefault(); }
+    if (e.code === 'Space' || e.code === 'ArrowUp') { jumpQueued = true; e.preventDefault(); }
     if (e.code === 'KeyV') vaultQueued = true;
     if (e.code === 'KeyX') rollQueued = true;
     if (e.code === 'KeyK') fireQueued = true;
@@ -462,6 +501,119 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
   const toggleDebug = () => { debug.toggle(); dbgBtn.textContent = debug.shown ? 'Debug: on (B)' : 'Debug (B)'; dbgBtn.blur(); };
   dbgBtn.onclick = toggleDebug;
   let world = resume?.world ?? newWorld(course, resume ? resume.retryX : startAt);
+  type RunKind = 'attempt' | 'practice';
+  type ObstacleCounts = { attempts: number; successes: number; failures: number };
+  type RunSummary = { runs: number; failures: number; completions: number; ticks: number; progressSum: number; progressCount: number; landings: number; landingOuch: number; bentLandings: number; obstacles: Record<string, ObstacleCounts> };
+  const summary = (): RunSummary => ({ runs: 0, failures: 0, completions: 0, ticks: 0, progressSum: 0, progressCount: 0, landings: 0, landingOuch: 0, bentLandings: 0, obstacles: {} });
+  const summaries: Record<RunKind, RunSummary> = { attempt: summary(), practice: summary() };
+  let runKind: RunKind = (resume ? resume.retryX : startAt ?? course.startX) > course.startX + 0.01 ? 'practice' : 'attempt';
+  let runStartX = world.runner.x, runFurthestX = world.runner.x, runFailures = 0, runLandingOuch = 0, runLandings = 0, runBentLandings = 0;
+  let flowSampleTick = world.runner.tick, flowSampleVx = world.runner.vx, flowSampleVy = world.runner.vy;
+  let flowAccelX: number | null = null, flowAccelY: number | null = null, runJerkSum = 0, runJerkSamples = 0;
+  let attemptEnded = false;
+  const enteredZones = new Set<string>(), clearedZones = new Set<string>();
+  let previousRunX = world.runner.x;
+  const zones = course.zones?.length ? course.zones : [{ id: 'course', name: course.name, x0: course.startX, x1: course.finishX }];
+  const countsFor = (bucket: RunSummary, zoneId: string): ObstacleCounts => bucket.obstacles[zoneId] ?? (bucket.obstacles[zoneId] = { attempts: 0, successes: 0, failures: 0 });
+  const enterZone = (zoneId: string) => {
+    if (enteredZones.has(zoneId)) return;
+    enteredZones.add(zoneId); countsFor(summaries[runKind], zoneId).attempts++;
+  };
+  function updateRunProgress(x: number) {
+    runFurthestX = Math.max(runFurthestX, x);
+    for (const z of zones) {
+      if (x >= z.x0 && x < z.x1) enterZone(z.id);
+      if (x >= z.x1 && previousRunX < z.x1 && x >= z.x0 && !clearedZones.has(z.id)) { enterZone(z.id); clearedZones.add(z.id); countsFor(summaries[runKind], z.id).successes++; }
+    }
+    previousRunX = x;
+  }
+  function updateFlow(tick: number, vx: number, vy: number) {
+    if (tick - flowSampleTick < 12) return; // sample at 10 Hz to measure movement changes, not individual simulator ticks
+    const seconds = (tick - flowSampleTick) * DT;
+    const ax = (vx - flowSampleVx) / seconds, ay = (vy - flowSampleVy) / seconds;
+    if (flowAccelX !== null && flowAccelY !== null) {
+      runJerkSum += Math.hypot(ax - flowAccelX, ay - flowAccelY) / seconds;
+      runJerkSamples++;
+    }
+    flowSampleTick = tick; flowSampleVx = vx; flowSampleVy = vy; flowAccelX = ax; flowAccelY = ay;
+  }
+  function resetFlowSample() {
+    flowSampleTick = world.runner.tick; flowSampleVx = world.runner.vx; flowSampleVy = world.runner.vy;
+    flowAccelX = null; flowAccelY = null; runJerkSum = 0; runJerkSamples = 0;
+  }
+  function clearFinishZone(x: number) {
+    const z = zones.find((zone) => x >= zone.x0 && x <= zone.x1);
+    if (z && !clearedZones.has(z.id)) { enterZone(z.id); clearedZones.add(z.id); countsFor(summaries[runKind], z.id).successes++; }
+  }
+  function finishRun(success: boolean) {
+    if (attemptEnded) return;
+    attemptEnded = true;
+    const bucket = summaries[runKind];
+    bucket.ticks += world.runner.tick;
+    bucket.progressSum += Math.max(0, Math.min(100, (runFurthestX - runStartX) / Math.max(1, course.finishX - runStartX) * 100)); bucket.progressCount++;
+    if (success) bucket.completions++;
+    else { bucket.failures++; runFailures++; }
+  }
+  const resetRunStats = (x: number) => {
+    runKind = x > course.startX + 0.01 ? 'practice' : 'attempt';
+    summaries[runKind].runs++;
+    runStartX = x; runFurthestX = x; runFailures = 0; runLandingOuch = 0; runLandings = 0; runBentLandings = 0; previousRunX = x; resetFlowSample();
+    attemptEnded = false; enteredZones.clear(); clearedZones.clear();
+  };
+  summaries[runKind].runs++;
+  updateRunProgress(world.runner.x);
+  function reportPanel(outcome: 'cleared' | 'failed') {
+    const bucket = summaries[runKind];
+    const completion = Math.max(0, Math.min(100, (runFurthestX - runStartX) / Math.max(1, course.finishX - runStartX) * 100));
+    const obstacleScore = enteredZones.size ? clearedZones.size / enteredZones.size * 100 : 0;
+    const landingScore = runLandings ? Math.max(0, 100 - runLandingOuch / runLandings * 10) : 50;
+    const meanJerk = runJerkSamples ? runJerkSum / runJerkSamples : 0;
+    const flowScore = 100 * Math.exp(-meanJerk / 150);
+    const scores = [flowScore, landingScore, obstacleScore, completion];
+    const overall = Math.round(scores.reduce((a, b) => a + b, 0) / scores.length);
+    const ns = 'http://www.w3.org/2000/svg';
+    const box = document.createElement('section');
+    box.style.cssText = 'border-top:1px solid #d7ddd8;padding-top:10px;display:grid;gap:10px';
+    const title = document.createElement('div'); title.style.cssText = 'display:flex;justify-content:space-between;gap:8px;align-items:baseline;flex-wrap:wrap';
+    const heading = document.createElement('strong'); heading.textContent = `${runKind === 'practice' ? 'Practice' : 'Attempt'} report · ${overall}/100`;
+    const details = document.createElement('span'); details.style.cssText = 'color:#58635d'; details.textContent = `${outcome === 'cleared' ? 'Course cleared' : 'Run ended'} · ${(world.runner.tick / 120).toFixed(1)} s this run · ${bucket.runs} ${runKind} runs, ${(bucket.ticks / 120).toFixed(1)} s total`;
+    title.append(heading, details); box.appendChild(title);
+    const chart = document.createElementNS(ns, 'svg'); chart.setAttribute('viewBox', '0 0 320 250'); chart.setAttribute('role', 'img'); chart.setAttribute('aria-label', `Radar: flow ${Math.round(flowScore)}, landing care ${Math.round(landingScore)}, obstacle pass rate ${Math.round(obstacleScore)}, completion ${Math.round(completion)}`); chart.style.cssText = 'width:min(100%,360px);height:auto;justify-self:center';
+    const cx = 160, cy = 120, radius = 78, angles = [-Math.PI / 2, 0, Math.PI / 2, Math.PI];
+    for (const fraction of [0.25, 0.5, 0.75, 1]) {
+      const ring = document.createElementNS(ns, 'polygon');
+      ring.setAttribute('points', angles.map((a) => `${cx + Math.cos(a) * radius * fraction},${cy + Math.sin(a) * radius * fraction}`).join(' '));
+      ring.setAttribute('fill', 'none'); ring.setAttribute('stroke', '#d7ddd8'); chart.appendChild(ring);
+    }
+    angles.forEach((a, i) => {
+      const line = document.createElementNS(ns, 'line'); line.setAttribute('x1', String(cx)); line.setAttribute('y1', String(cy)); line.setAttribute('x2', String(cx + Math.cos(a) * radius)); line.setAttribute('y2', String(cy + Math.sin(a) * radius)); line.setAttribute('stroke', '#aeb8b0'); chart.appendChild(line);
+      const label = document.createElementNS(ns, 'text'); label.setAttribute('x', String(cx + Math.cos(a) * (radius + 19))); label.setAttribute('y', String(cy + Math.sin(a) * (radius + 19) + 4)); label.setAttribute('text-anchor', 'middle'); label.setAttribute('font-size', '11'); label.setAttribute('fill', '#17201d'); label.textContent = ['Flow', 'Landing care', 'Obstacle clears', 'Completion'][i]; chart.appendChild(label);
+    });
+    const area = document.createElementNS(ns, 'polygon'); area.setAttribute('points', scores.map((score, i) => `${cx + Math.cos(angles[i]) * radius * score / 100},${cy + Math.sin(angles[i]) * radius * score / 100}`).join(' ')); area.setAttribute('fill', '#0f6b5c44'); area.setAttribute('stroke', '#0f6b5c'); area.setAttribute('stroke-width', '2'); chart.appendChild(area); box.appendChild(chart);
+    const metrics = document.createElement('div'); metrics.style.cssText = 'font-size:13px;color:#58635d;text-align:center'; metrics.textContent = `This run: ${runFailures} failed obstacle${runFailures === 1 ? '' : 's'} · average movement jerk ${runJerkSamples ? `${meanJerk.toFixed(1)} m/s³` : 'not measured'} · ${runLandings ? `${runBentLandings}/${runLandings} landings with knees bent; average impact ${(runLandingOuch / runLandings).toFixed(1)}/10` : 'no measured landings'}. Landing care reflects simulated impact, not injury.`; box.appendChild(metrics);
+    const table = document.createElement('div'); table.style.cssText = 'overflow:auto';
+    const grid = document.createElement('table'); grid.style.cssText = 'width:100%;border-collapse:collapse;font-size:13px;text-align:right';
+    const headRow = document.createElement('tr');
+    for (const label of ['Obstacle', 'Attempt tries / pass / fail', 'Practice tries / pass / fail', 'Attempt score', 'Practice score']) { const th = document.createElement('th'); th.textContent = label; th.style.cssText = 'padding:5px;border-bottom:1px solid #cfd6d0'; headRow.appendChild(th); }
+    const thead = document.createElement('thead'); thead.appendChild(headRow); grid.appendChild(thead);
+    const tbody = document.createElement('tbody');
+    for (const zone of zones) {
+      const tr = document.createElement('tr');
+      const name = document.createElement('th'); name.textContent = zone.name; name.style.cssText = 'padding:5px;text-align:left;border-bottom:1px solid #e5e9e5'; tr.appendChild(name);
+      for (const kind of ['attempt', 'practice'] as const) {
+        const count = summaries[kind].obstacles[zone.id] ?? { attempts: 0, successes: 0, failures: 0 };
+        const td = document.createElement('td'); td.textContent = `${count.attempts} / ${count.successes} / ${count.failures}`; td.style.cssText = 'padding:5px;border-bottom:1px solid #e5e9e5'; tr.appendChild(td);
+      }
+      for (const kind of ['attempt', 'practice'] as const) {
+        const count = summaries[kind].obstacles[zone.id];
+        const td = document.createElement('td'); td.textContent = count?.attempts ? `${Math.round(count.successes / count.attempts * 100)}%` : '—'; td.style.cssText = 'padding:5px;border-bottom:1px solid #e5e9e5'; tr.appendChild(td);
+      }
+      tbody.appendChild(tr);
+    }
+    grid.appendChild(tbody); table.appendChild(grid); box.appendChild(table);
+    const note = document.createElement('div'); note.style.cssText = 'font-size:12px;color:#58635d'; note.textContent = `Run score averages these four axes. Flow measures smoothness: mean change in acceleration (jerk) sampled at 10 Hz, mapped by 100 × e^(−jerk / 150 m/s³). Landing care uses average simulated impact; obstacle clears is zones cleared / zones entered. Unmeasured landing care is neutral (50); landing impact is not an injury estimate. The table below accumulates ${runKind} history for this page.`; box.appendChild(note);
+    return box;
+  }
   // ?hangtest=1.0 (radians) hangs the runner still on the first bar at that angle, for the pivot screenshots
   const hangTest = params.get('hangtest') !== null && course.holds?.length ? Number(params.get('hangtest')) : null;
   if (hangTest !== null) {
@@ -473,6 +625,11 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
   const frames: { x: number; y: number }[] = [];
   let replay: { i: number; from: number; to: number } | null = null; // i is a float: the replay runs at half speed
   let falls = resume ? resume.falls : 0;
+  const analyticsCourseKey = courseKey(course.name);
+  const analyticsMode = new URLSearchParams(location.search).get('mode') ?? 'course';
+  let analyticsRunId = crypto.randomUUID();
+  let failedThisAttempt = false;
+  if (!resume) trackCourseEvent('start', analyticsCourseKey, course.name, analyticsRunId, analyticsMode);
   let everCleared = false;
   try { everCleared = localStorage.getItem('cc.course.cleared') === '1'; } catch { /* keep going */ }
   let windows: ReturnType<typeof searchIdealRun>['windows'] | null = null;
@@ -486,6 +643,9 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
     if (!botMode) plan = null;
     demo = null; idealWhole = false; idealPending = 0;
     world = newWorld(course, x);
+    resetRunStats(x);
+    analyticsRunId = crypto.randomUUID(); failedThisAttempt = false;
+    trackCourseEvent('start', analyticsCourseKey, course.name, analyticsRunId, analyticsMode);
     cartFlying = false;
     log.length = 0;
     botState.next = 0; botState.caught = null; botState.bedAt = null;
@@ -586,7 +746,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
   }
   // The numbers behind a coaster fall: where the cart started, how fast it was, and what the hilltop could hold.
   function cartDiag(): string[] {
-    const rails = railsOf(course.track!), L: string[] = [];
+    const rails = railsOf(course.track!, world.cart?.segment ?? Number(log.find((e) => e.type === 'cart-off')?.detail?.segment ?? 0)), L: string[] = [];
     const start = rails.y(rails.x0);
     L.push(`The cart started ${start.toFixed(1)} m up and was pushed off at ${(course.track!.push ?? 1.5).toFixed(1)} m/s.`);
     const off = log.find((e) => e.type === 'cart-off'), st = log.find((e) => e.type === 'cart-stall');
@@ -663,6 +823,11 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
     const r = world.runner;
     const zone = zoneAt(what === 'slide' && course.wall ? course.wall.x0 + 1 : r.x);
     lastZone = zone?.id ?? 'gap';
+    if (!failedThisAttempt) {
+      failedThisAttempt = true; trackCourseEvent('fail', analyticsCourseKey, course.name, analyticsRunId, analyticsMode);
+      const failedZone = zone?.id ?? lastZone;
+      enterZone(failedZone); countsFor(summaries[runKind], failedZone).failures++; finishRun(false);
+    }
     retryX = cpFor(lastZone);
     const jump = [...log].reverse().find((e) => e.type === 'jump');
     let tip = 'Try again.';
@@ -708,7 +873,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
     });
     mk('Show me the ideal run (I)', () => showIdeal(lastZone));
     if (train) mk(`Train the ${zone?.name ?? 'obstacle'}`, () => { saveResume(); location.search = trainLink(zone?.id ?? 'gap', r.x); });
-    panel.append(h, t, floorNote, row);
+    panel.append(h, t, floorNote, reportPanel('failed'), row);
     retry.focus();
   }
 
@@ -805,6 +970,8 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
       const prev = world.outcome;
       prevMode = world.mode; prevVx = world.runner.vx;
       if (hangTest === null) world = stepWorld(world, input, course);
+      updateRunProgress(world.runner.x);
+      updateFlow(world.runner.tick, world.runner.vx, world.runner.vy);
       if (prevMode === 'run' && world.mode === 'wall') wallEntry = prevVx;
       if (demo && (world.outcome !== 'running' || world.runner.x > demo.x1)) demoEnd();
       else if (idealWhole && world.outcome !== 'running') demoEnd();
@@ -822,6 +989,12 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
         }
         if (e.type === 'jump' && keysOpen && !keysTouched) { keysOpen = false; paintKeys(false); } // the controls card has done its job once you have jumped
         if (e.type === 'hang-release' && e.detail?.slipped) { toast.textContent = 'Your grip gave out: the bar pulled harder than your hands could hold.'; toast.style.display = 'block'; toastUntil = world.runner.tick + 120; }
+        if (e.type === 'land' && !e.detail?.bouncy) {
+          const o = ouch(e.detail?.peakDecel as number);
+          runLandings++; runLandingOuch += o;
+          const bucket = summaries[runKind]; bucket.landings++; bucket.landingOuch += o;
+          if (e.detail?.squat) { runBentLandings++; bucket.bentLandings++; }
+        }
         if (e.type === 'land' && (e.detail?.impact as number) > 2 && !e.detail?.bouncy) {
           const o = ouch(e.detail?.peakDecel as number);
           squashUntil = world.runner.tick + 40; squashDepth = e.detail?.squat ? 0.7 : o >= 6 ? 0.6 : 0.88;
@@ -837,7 +1010,16 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
       if (prev === 'running' && world.outcome === 'hurt') onFall('hurt');
       if (prev === 'running' && world.outcome === 'stalled') onFall('stall');
       if (world.events.some((e) => e.type === 'wall-slide')) onFall('slide');
-      if (prev === 'running' && world.outcome === 'cleared') { everCleared = true; track('clears'); try { localStorage.setItem('cc.course.cleared', '1'); } catch { /* ok */ } }
+      if (prev === 'running' && world.outcome === 'cleared') {
+        clearFinishZone(world.runner.x); everCleared = true; track('clears'); finishRun(true); trackCourseEvent('success', analyticsCourseKey, course.name, analyticsRunId, analyticsMode);
+        try { localStorage.setItem('cc.course.cleared', '1'); } catch { /* ok */ }
+        panel.innerHTML = ''; panel.style.display = 'grid';
+        const reportTitle = document.createElement('strong'); reportTitle.textContent = 'Course cleared · run report';
+        const actions = document.createElement('div'); actions.style.cssText = 'display:flex;gap:8px;flex-wrap:wrap';
+        const again = document.createElement('button'); again.textContent = 'Run again (R)'; again.style.cssText = 'font:inherit;border:1px solid #0f6b5c;background:#0f6b5c;color:#fff;border-radius:8px;padding:6px 12px;cursor:pointer;font-weight:700'; again.onclick = () => restart(course.startX);
+        const close = document.createElement('button'); close.textContent = 'Close report'; close.style.cssText = 'font:inherit;border:1px solid #b9c2bb;background:#fff;color:#17201d;border-radius:8px;padding:6px 12px;cursor:pointer'; close.onclick = () => { panel.style.display = 'none'; };
+        actions.append(again, close); panel.append(reportTitle, reportPanel('cleared'), actions); again.focus();
+      }
     }
     let r = world.runner;
     if (replay) {
@@ -848,7 +1030,8 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
     const sq = world.runner.tick < squashUntil ? squashDepth : 1;
     body.scale.set(1 / Math.sqrt(sq), sq, 1 / Math.sqrt(sq));
     body.position.set(r.x, r.y + 0.85 * sq, 0);
-    if (Math.abs(world.runner.vx) > 0.3 && world.mode !== 'hang') facing = world.runner.vx < 0 ? -1 : 1; // on a bar the body keeps facing one way, whichever way it swings
+    const facingSpeed = world.mode === 'cart' && world.cart ? world.cart.v : world.runner.vx;
+    if (Math.abs(facingSpeed) > 0.3 && world.mode !== 'hang') facing = facingSpeed < 0 ? -1 : 1; // on a bar the body keeps facing one way, whichever way it swings
     // on a bar the actor is turned about its hands, so it is placed with the hands on the bar (feet straight below it before the turn), like the rope
     const hangHold = world.mode === 'hang' && world.hang ? course.holds?.[world.hang.hold] : undefined;
     const hOff = hangHold && world.hang ? handOffset(world.hang) : { x: 0, y: 0 }; // the hands ease onto the bar over a few ticks after a catch
@@ -886,15 +1069,17 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
       ropeMesh.updateMatrix(); ropeMesh.updateMatrixWorld(true);
     }
     msg.textContent = paused ? 'Back from the Dojo. Press any key to carry on.' : world.outcome === 'cleared' ? MESSAGES.cleared : idealNote;
-    const spd = Math.abs(r.vx);
-    gText.textContent = `Speed ${spd.toFixed(1)} m/s`;
-    gFill.style.width = `${Math.min(100, (spd / GAUGE_MAX) * 100)}%`;
+    const onCoaster = world.mode === 'cart' && world.cart !== null;
+    const spd = onCoaster ? Math.abs(world.cart!.v) : Math.abs(r.vx);
+    const gaugeMax = onCoaster ? 40 : GAUGE_MAX;
+    gText.textContent = `${onCoaster ? 'Speed along track' : 'Speed'} ${spd.toFixed(1)} m/s`;
+    gFill.style.width = `${Math.min(100, (spd / gaugeMax) * 100)}%`;
     const nextGap = specs.find((g) => g.x + 0.2 >= r.x && g.x - r.x < 40 && ['gap', 'landing'].includes(zoneOf(g.x)?.id ?? ''));
     let need = 0, msgNext = '';
     if (nextGap && world.mode === 'run') { need = nextGap.needed; msgNext = `Next gap: ${nextGap.width.toFixed(1)} m wide. You need at least ${need.toFixed(1)} m/s at the edge.`; }
     else if (course.wall && world.mode === 'run' && r.x < course.wall.x0 && course.wall.x0 - r.x < 45) { need = wallNeed; msgNext = `Warped wall: ${(course.wall.height ?? DEFAULT_WALL.height).toFixed(1)} m high. You need at least ${need.toFixed(1)} m/s at its foot.`; }
     gNeed.style.display = need ? 'block' : 'none';
-    gNeed.style.left = `${Math.min(100, (need / GAUGE_MAX) * 100)}%`;
+    gNeed.style.left = `${Math.min(100, (need / gaugeMax) * 100)}%`;
     gFill.style.background = need && spd < need ? '#c4572a' : '#0f6b5c';
     gNext.textContent = msgNext;
     hud.textContent = `Time ${(r.tick / 120).toFixed(1)} s   ·   ${Math.max(0, Math.round(r.x))} m of ${course.finishX} m`;
@@ -936,14 +1121,23 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
     }
     floor.update(now / 1000);
     renderer.render(scene, camera);
-    // the front view: a small second camera in a corner window, shown while hanging from a bar (F shows it any time)
-    const showFront = frontForced || world.mode === 'hang';
+    // A small front view accompanies the default side view; F can show it in other camera modes.
+    const showFront = frontForced || world.mode === 'hang' || camMode === 'side';
     pipFrame.style.display = showFront ? 'block' : 'none';
     if (showFront) {
-      // first person: the eyes (above), looking the way the body faces and a little down, turned with the body about the bar
-      const fwd = new THREE.Vector3(facing * Math.cos(0.1), -Math.sin(0.1), 0).applyQuaternion(qRoll);
-      frontCam.up.set(0, 1, 0).applyQuaternion(qRoll);
-      frontCam.position.set(eye.x, eye.y, 0.1); frontCam.lookAt(eye.x + 10 * fwd.x, eye.y + 10 * fwd.y, 0.1);
+      // On a coaster the inset rides with the cart and looks forward along its rails; elsewhere it shows the runner's eyes.
+      if (course.track && world.mode === 'cart' && world.cart) {
+        const direction = world.cart.v < -0.3 ? -1 : 1;
+        const rails = railsOf(course.track, world.cart?.segment ?? 0), aheadX = r.x + direction * 12;
+        frontCam.up.set(0, 1, 0);
+        frontCam.position.set(r.x, r.y + 1.4, 0);
+        frontCam.lookAt(aheadX, rails.y(aheadX) + 1.4, 0);
+      } else {
+        // First person: the eyes, looking the way the body faces and a little down, turned with the body about the bar.
+        const fwd = new THREE.Vector3(facing * Math.cos(0.1), -Math.sin(0.1), 0).applyQuaternion(qRoll);
+        frontCam.up.set(0, 1, 0).applyQuaternion(qRoll);
+        frontCam.position.set(eye.x, eye.y, 0.1); frontCam.lookAt(eye.x + 10 * fwd.x, eye.y + 10 * fwd.y, 0.1);
+      }
       const actorWasVisible = actor?.object.visible ?? false;
       if (actor) actor.object.visible = false; // no body in front of the eyes
       const W = host.clientWidth, H = host.clientHeight;

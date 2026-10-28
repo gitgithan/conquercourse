@@ -17,6 +17,8 @@ export interface Host {
   select(id: number | null): void;
   moved(p: P3, x: number, z: number): void; // while dragging
   dropped(): void; // when the drag ends
+  interactionStart?(): void; // cancel background checks while the player uses the 3D view
+  interactionEnd?(): void; // resume the debounced check after the interaction
   ghosts?(): Ghosts | null; // a preview of a change: hollow outlines where pieces would be, arrows from where they are
 }
 export interface GhostState { x: number; y: number; z: number; yaw: number; scale: number }
@@ -26,6 +28,7 @@ export interface View3d { look(heading: number, pitch: number, target?: { x: num
 const loader = new GLTFLoader();
 const cache = new Map<string, Promise<THREE.Object3D>>();
 const loadObject = (url: string) => { let p = cache.get(url); if (!p) { p = loader.loadAsync(url).then((g) => g.scene); cache.set(url, p); } return p; };
+const isPersonReference = (p: P3) => p.src === 'obj:../characters/rookie-a.glb' || p.src === 'obj:../characters/rookie-b.glb';
 
 function groundTexture(): THREE.CanvasTexture {
   // speckled warm paving with faint slab joints, tiled across the ground
@@ -115,18 +118,23 @@ export function createView3d(wrap: HTMLElement, host: Host): View3d {
     const geo = new THREE.BufferGeometry();
     geo.setAttribute('position', new THREE.Float32BufferAttribute(Array.from(p.mesh.positions as ArrayLike<number>), 3));
     geo.setIndex(Array.from((p.mesh.indices ?? []) as ArrayLike<number>)); geo.computeVertexNormals();
-    return new THREE.Mesh(geo, p.src === 'hold:bar' ? new THREE.MeshStandardMaterial({ color: 0xd8dde3, metalness: 0.7, roughness: 0.3 }) : new THREE.MeshStandardMaterial({ color: 0xa9a392, roughness: 0.95, flatShading: true }));
+    const color = p.src === 'hold:bar' ? 0xd8dde3 : p.src?.startsWith('device:trebuchet:') ? 0x805936 : p.src?.startsWith('device:crate:') ? 0x9a7043 : p.src?.startsWith('device:cannon:') ? 0x526875 : 0xa9a392;
+    return new THREE.Mesh(geo, new THREE.MeshStandardMaterial({ color, metalness: p.src === 'hold:bar' || p.src?.startsWith('device:cannon:') ? 0.7 : 0, roughness: 0.78, flatShading: true }));
   };
   const meshSig = (p: P3) => `${p.src ?? ''}|${p.mesh.positions.length}|${p.mesh.indices?.length ?? 0}|${(p.mesh.positions as ArrayLike<number>)[1] ?? 0}`;
 
   function build(p: P3): THREE.Group {
     const g = new THREE.Group();
     g.userData.pieceId = p.id;
-    const stand = plain(p);
-    if (patternOf(p.src)) { const cups = cupsGroup(p.src!); cups.userData.cups = true; g.add(cups); } else g.add(stand);
-    // a photo object is drawn as the real baked object (with its texture) while the mesh is still the original; a cropped one falls back to plain geometry
+    let fallback: THREE.Mesh | null = null;
+    fallback = plain(p);
+    if (p.src?.startsWith('device:')) g.add(fallback);
+    else if (patternOf(p.src)) { const cups = cupsGroup(p.src!); cups.userData.cups = true; g.add(cups); }
+    else g.add(fallback);
+    // Draw imported objects and the real game character model; the original mesh remains as a fallback.
     if (p.src?.startsWith('obj:')) {
-      const url = `/assets/objects/${p.src.slice(4)}`;
+      const character = p.src.startsWith('obj:../characters/');
+      const url = character ? `/assets/characters/${p.src.slice('obj:../characters/'.length)}` : `/assets/objects/${p.src.slice(4)}`;
       const triangles = p.mesh.indices?.length ?? 0;
       void loadObject(url).then((src) => {
         let tri = 0; src.traverse((o) => { const m = o as THREE.Mesh; if (m.isMesh) tri += (m.geometry.index?.count ?? m.geometry.attributes.position.count); });
@@ -134,8 +142,13 @@ export function createView3d(wrap: HTMLElement, host: Host): View3d {
         const obj = src.clone(true);
         const box = new THREE.Box3().setFromObject(obj);
         const c = box.getCenter(new THREE.Vector3());
-        obj.position.set(-c.x, -box.min.y, -c.z);
-        g.remove(stand); g.add(obj); redraw();
+        const sourceHeight = box.max.y - box.min.y, targetHeight = meshSize(p.mesh).h;
+        const fit = sourceHeight > 1e-6 ? targetHeight / sourceHeight : 1;
+        obj.scale.setScalar(fit);
+        obj.position.set(-c.x * fit, -box.min.y * fit, -c.z * fit);
+        if (fallback) g.remove(fallback); g.add(obj); redraw();
+        const node = nodes.get(p.id);
+        if (node?.box) { g.updateMatrixWorld(true); node.box.setFromObject(g); node.box.update(); }
       }).catch(() => { /* keep the plain mesh */ });
     }
     scene.add(g);
@@ -151,7 +164,7 @@ export function createView3d(wrap: HTMLElement, host: Host): View3d {
       if (n && n.sig !== sig) { scene.remove(n.g); if (n.box) scene.remove(n.box); nodes.delete(p.id); n = undefined; }
       if (!n) { n = { g: build(p), sig }; nodes.set(p.id, n); }
       n.g.position.set(p.x, p.y, p.z); n.g.rotation.y = -p.yaw; n.g.scale.setScalar(p.scale);
-      if (p.id === sel) {
+      if (p.id === sel && !isPersonReference(p)) {
         if (!n.box) { n.box = new THREE.BoxHelper(n.g, 0x0f6b5c); scene.add(n.box); }
         n.g.updateMatrixWorld(true); n.box.setFromObject(n.g); n.box.update();
       } else if (n.box) { scene.remove(n.box); n.box = undefined; }
@@ -169,9 +182,11 @@ export function createView3d(wrap: HTMLElement, host: Host): View3d {
   const aim = (e: PointerEvent) => { const r = renderer.domElement.getBoundingClientRect(); ndc.set(((e.clientX - r.left) / r.width) * 2 - 1, -((e.clientY - r.top) / r.height) * 2 + 1); ray.setFromCamera(ndc, camera); };
   let drag: { p: P3; dx: number; dz: number } | null = null;
   renderer.domElement.addEventListener('pointerdown', (e) => {
+    host.interactionStart?.();
     if (e.button !== 0) return;
     aim(e);
-    const hit = ray.intersectObjects([...nodes.values()].map((n) => n.g), true)[0];
+    const selectable = host.pieces().filter((p) => !isPersonReference(p)).map((p) => nodes.get(p.id)?.g).filter((g): g is THREE.Group => !!g);
+    const hit = ray.intersectObjects(selectable, true)[0];
     let id: number | null = null;
     for (let o: THREE.Object3D | null = hit?.object ?? null; o; o = o.parent) if (o.userData.pieceId !== undefined) { id = o.userData.pieceId as number; break; }
     host.select(id);
@@ -185,7 +200,10 @@ export function createView3d(wrap: HTMLElement, host: Host): View3d {
     aim(e); const at = new THREE.Vector3();
     if (ray.ray.intersectPlane(floor, at)) host.moved(drag.p, Math.round((at.x - drag.dx) * 20) / 20, Math.round((at.z - drag.dz) * 20) / 20);
   });
-  const up = () => { if (!drag) return; drag = null; controls.enabled = true; host.dropped(); };
+  const up = () => {
+    if (drag) { drag = null; controls.enabled = true; host.dropped(); }
+    host.interactionEnd?.();
+  };
   renderer.domElement.addEventListener('pointerup', up); renderer.domElement.addEventListener('pointercancel', up);
 
   const resize = () => {

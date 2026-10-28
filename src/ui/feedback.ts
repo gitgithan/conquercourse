@@ -8,6 +8,32 @@ interface Round { round: string; title: string; intro: string; questions: Questi
 const counters: Record<string, number> = {};
 export const track = (name: string, by = 1): void => { counters[name] = (counters[name] ?? 0) + by; };
 
+export type CourseEvent = 'start' | 'fail' | 'success';
+export function trackCourseEvent(event: CourseEvent, courseKey: string, courseName: string, runId: string, mode: string): void {
+  void fetch('/api/course-event', {
+    method: 'POST', headers: { 'content-type': 'application/json' }, keepalive: true,
+    body: JSON.stringify({ event, session: session(), build: __BUILD__, courseKey, courseName, runId, mode, source: courseSource() }),
+  }).catch(() => { /* telemetry must never interrupt a run */ });
+}
+
+function courseSource(): string {
+  const p = new URLSearchParams(location.search);
+  if (p.has('generate')) return 'generated';
+  if (p.has('coaster')) return 'coaster-builder';
+  const path = p.get('course');
+  if (path) return path.startsWith('/assets/experiments/osm/') ? 'real-place' : path.startsWith('/assets/demo/') ? 'demo' : 'course-file';
+  return 'default';
+}
+
+export function courseKey(name: string): string {
+  const p = new URLSearchParams(location.search);
+  if (p.has('generate')) return `generated-${p.get('generate')}`;
+  if (p.has('coaster')) return 'coaster-custom';
+  const path = p.get('course');
+  if (path) return path.replace(/^\/assets\//, '').replace(/\.course\.json$/, '').replace(/[^a-zA-Z0-9_-]/g, '-').slice(0, 100);
+  return name.toLowerCase().normalize('NFKD').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 100) || 'unnamed-course';
+}
+
 export function session(): string {
   try {
     let s = localStorage.getItem('cc.session');
@@ -54,7 +80,8 @@ async function openForm(mode: string): Promise<void> {
   }
   const trap = document.createElement('input'); trap.name = 'website'; trap.tabIndex = -1; trap.autocomplete = 'off'; trap.style.cssText = 'position:absolute;left:-9999px'; card.appendChild(trap);
   const row = document.createElement('div'); row.style.cssText = 'display:flex;gap:8px;justify-content:flex-end';
-  const cancel = document.createElement('button'); cancel.type = 'button'; cancel.textContent = 'Close'; cancel.style.cssText = btnCss(false); cancel.onclick = () => wrap.remove();
+  const close = () => { wrap.remove(); };
+  const cancel = document.createElement('button'); cancel.type = 'button'; cancel.textContent = 'Close'; cancel.style.cssText = btnCss(false); cancel.onclick = close;
   const send = document.createElement('button'); send.type = 'submit'; send.textContent = 'Send'; send.style.cssText = btnCss(true);
   row.append(cancel, send); card.appendChild(row);
   const note = document.createElement('div'); note.style.cssText = 'font-size:12px;color:#58635d'; card.appendChild(note);
@@ -73,7 +100,8 @@ async function openForm(mode: string): Promise<void> {
     } catch { note.textContent = 'Sorry, that did not send. Please try again in a minute.'; send.disabled = false; }
   };
   wrap.appendChild(card);
-  wrap.onclick = (e) => { if (e.target === wrap) wrap.remove(); };
+  wrap.onclick = (e) => { if (e.target === wrap) close(); };
+  wrap.onkeydown = (e) => { if (e.key === 'Escape') { e.preventDefault(); close(); } };
   document.body.appendChild(wrap);
 }
 

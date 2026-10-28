@@ -10,8 +10,11 @@ import type { GameEvent, WorldState } from './world';
 
 export interface TrackData {
   pts: [number, number][]; // where the track passes: [x, height] seen from the side, x rising; a smooth curve goes through them
+  segments?: [number, number][][]; // separate rail splines, ordered from the start; the cart may fly between them
   push?: number; // m/s the first push gives (a shove at the top of the first hill)
 }
+
+export const trackSegments = (t: TrackData): [number, number][][] => t.segments?.length ? t.segments : [t.pts];
 
 export interface CartParams {
   rolling: number; // rolling resistance (share of the weight along the track)
@@ -25,6 +28,7 @@ export interface CartParams {
 export const DEFAULT_CART: CartParams = { rolling: 0.012, drag: 0.0015, brake: 4.5, seat: 0.45, push: 1.5, gravity: GRAVITY };
 
 export interface Cart {
+  segment: number; // which disconnected rail spline the cart is currently riding
   x: number; // m along the run (the rails are a function of x)
   v: number; // m/s along the rails, positive toward +x
   started: boolean; // has the first push been given
@@ -83,11 +87,16 @@ export function makeRails(pts: [number, number][]): Rails {
 }
 
 const railsCache = new WeakMap<object, Rails>();
-export function railsOf(t: TrackData): Rails {
+export function railsOf(t: TrackData, segment = 0): Rails {
   let r = railsCache.get(t);
   if (!r) { r = makeRails(t.pts); railsCache.set(t, r); }
-  return r;
+  if (segment === 0 && !t.segments?.length) return r;
+  const perTrack = railsSetsCache.get(t) ?? trackSegments(t).map(makeRails);
+  railsSetsCache.set(t, perTrack);
+  return perTrack[segment] ?? perTrack[0];
 }
+
+const railsSetsCache = new WeakMap<object, Rails[]>();
 
 // How hard the rails push up on the cart, per kilogram: the weight across the slope plus the push of a valley, minus the lift of a crest.
 // At zero or below the cart is no longer held on and leaves the track.
@@ -122,20 +131,20 @@ export const trackParams = (course: CourseData): CartParams => ({ ...DEFAULT_CAR
 
 // The world when a course has a track: the cart waits at the start of the rails, at rest, until the first push.
 export function enterCart(w: WorldState, course: CourseData): WorldState {
-  const rails = railsOf(course.track!);
+  const rails = railsOf(course.track!, 0);
   const p = trackParams(course);
   const x = rails.x0;
-  return { ...w, mode: 'cart', cart: { x, v: 0, started: false, stalledAt: null, tilt: Math.atan(rails.slope(x)) }, runner: { ...w.runner, x, y: rails.y(x) + p.seat, vx: 0, vy: 0, grounded: true } };
+  return { ...w, mode: 'cart', cart: { segment: 0, x, v: 0, started: false, stalledAt: null, tilt: Math.atan(rails.slope(x)) }, runner: { ...w.runner, x, y: rails.y(x) + p.seat, vx: 0, vy: 0, grounded: true } };
 }
 
 const STALL_ROLL_TICKS = 100; // after the turn-round the cart rolls back this long, then the run is over
 
 export function stepCartWorld(w: WorldState, input: RunnerInput, course: CourseData): WorldState {
   const track = course.track!;
-  const rails = railsOf(track), p = trackParams(course);
+  const c = w.cart!;
+  const rails = railsOf(track, c.segment), p = trackParams(course);
   const tick = w.runner.tick + 1;
   const events: GameEvent[] = [];
-  const c = w.cart!;
   let { x, v, started, stalledAt } = c;
   if (!started) {
     if (input.run || input.jump) { started = true; v = p.push; events.push({ tick, type: 'cart-start', detail: { v: p.push } }); }
@@ -146,18 +155,25 @@ export function stepCartWorld(w: WorldState, input: RunnerInput, course: CourseD
   x = nx.x; v = nx.v;
   const s = rails.slope(x), cosPhi = 1 / Math.sqrt(1 + s * s);
   const y = rails.y(x) + p.seat;
-  let out: WorldState = { ...w, cart: { x, v, started, stalledAt, tilt: Math.atan(s) }, events, runner: { ...w.runner, tick, x, y, vx: v * cosPhi, vy: v * s * cosPhi, grounded: true } };
-  // the end of the rails: the finish
-  if (x >= rails.x1 && v > 0) return { ...out, outcome: 'cleared', events: [...events, { tick, type: 'cleared' }] };
+  let out: WorldState = { ...w, cart: { segment: c.segment, x, v, started, stalledAt, tilt: Math.atan(s) }, events, runner: { ...w.runner, tick, x, y, vx: v * cosPhi, vy: v * s * cosPhi, grounded: true } };
+  // At the end of a segment, fly toward the following section; the last rail end is the finish.
+  if (x >= rails.x1 && v > 0) {
+    if (c.segment + 1 < trackSegments(track).length) {
+      const endX = rails.x1, slope = rails.slope(endX), cos = 1 / Math.sqrt(1 + slope * slope);
+      events.push({ tick, type: 'cart-off', detail: { x: endX, v, segment: c.segment, end: true } });
+      return { ...out, mode: 'run', cart: null, events, runner: { ...out.runner, x: endX, y: rails.y(endX) + p.seat, vx: v * cos, vy: v * slope * cos, grounded: false, landedAtTick: null, landedAtX: null } };
+    }
+    return { ...out, outcome: 'cleared', events: [...events, { tick, type: 'cleared' }] };
+  }
   // turned round on a hill: stalled; it rolls back a moment, then the run is over
   if (stalledAt === null && prevV > 0 && v <= 0 && s > 0) {
     stalledAt = tick; events.push({ tick, type: 'cart-stall', detail: { x, height: rails.y(x) } });
-    out = { ...out, cart: { x, v, started, stalledAt, tilt: Math.atan(s) }, events };
+    out = { ...out, cart: { segment: c.segment, x, v, started, stalledAt, tilt: Math.atan(s) }, events };
   }
   if (stalledAt !== null && (tick - stalledAt >= STALL_ROLL_TICKS || x <= rails.x0)) return { ...out, outcome: 'stalled', events };
   // the rails stop pushing: the cart leaves the track and flies on (the ordinary flight takes over from here)
   if (v > 0 && railPush(rails, x, v, p.gravity) <= 0) {
-    events.push({ tick, type: 'cart-off', detail: { x, v, push: railPush(rails, x, v, p.gravity) } });
+    events.push({ tick, type: 'cart-off', detail: { x, v, push: railPush(rails, x, v, p.gravity), segment: c.segment } });
     return { ...out, mode: 'run', cart: null, events, runner: { ...out.runner, grounded: false, landedAtTick: null, landedAtX: null } };
   }
   return out;
