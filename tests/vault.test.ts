@@ -4,7 +4,7 @@ import { playPlan, searchIdealRun } from '../src/sim/ideal';
 import { NO_INPUT } from '../src/sim/runner';
 import { newWorld, stepWorld } from '../src/sim/world';
 import { JUMP_COST, VAULT_COST } from '../src/sim/energy';
-import { VAULT_KEEP, VAULT_LAND_OFF, VAULT_LIFT, VAULT_MIN_GAP, VAULT_PLANT_TICKS, findVault, takeoffDistance, vaultAt, vaultExitSpeed } from '../src/sim/vault';
+import { VAULT_KEEP, VAULT_LAND_OFF, VAULT_LIFT, VAULT_MIN_GAP, VAULT_PLANT_TICKS, findVault, planVault, takeoffDistance, vaultAt, vaultExitSpeed } from '../src/sim/vault';
 
 // A deck, then a tall step (a box), then more deck on top of it.
 const box = (h: number): CourseData => ({
@@ -12,6 +12,7 @@ const box = (h: number): CourseData => ({
   terrain: { waterY: -1.5, platforms: [{ x0: -10, x1: 20, top: 0 }, { x0: 20, x1: 45, top: h }] },
   jumpKeep: 0.88, // a jump costs speed on this course, so the vault pays
 });
+const T = (h: number) => box(h).terrain;
 const run = (c: CourseData, ticks: number, press: (x: number, w: ReturnType<typeof newWorld>) => 'jump' | 'vault' | null) => {
   let w = newWorld(c, 0);
   const log: { x: number; vx: number; tick: number }[] = [];
@@ -75,12 +76,11 @@ describe('the vault', () => {
 });
 
 describe('the speed vault: plant far back, arc over, land just past the edge, plant the feet', () => {
-  const T = (h: number) => box(h).terrain;
   it('the takeoff distance grows with speed and with the height of the step, and sits in the speed-vault range', () => {
     expect(takeoffDistance(8, 0.8)).toBeGreaterThan(takeoffDistance(5, 0.8));
     expect(takeoffDistance(6, 1.2)).toBeGreaterThan(takeoffDistance(6, 0.4));
     for (const [v, r] of [[5, 0.5], [6, 0.8], [7, 1.0], [8, 1.2]]) expect(takeoffDistance(v, r)).toBeGreaterThan(1.4);
-    for (const [v, r] of [[5, 0.5], [6, 0.8], [7, 1.0], [8, 1.2]]) expect(takeoffDistance(v, r)).toBeLessThan(3.3);
+    for (const [v, r] of [[5, 0.5], [6, 0.8], [7, 1.0], [8, 1.2]]) expect(takeoffDistance(v, r)).toBeLessThanOrEqual(2.6);
   });
   it('a plant too close is refused, and one a little too far still works', () => {
     expect(findVault(T(0.8), 20 - 0.2, 0, 7)).toBeNull(); // too late
@@ -106,7 +106,7 @@ describe('the speed vault: plant far back, arc over, land just past the edge, pl
   it('a vault from the ideal plant keeps the kept share of the speed; a late one is slower', () => {
     const v = findVault(T(0.8), 20 - takeoffDistance(7, 0.8), 0, 7)!;
     expect(vaultExitSpeed(v)).toBeCloseTo(7 * VAULT_KEEP, 1);
-    const late = findVault(T(0.8), 20 - 0.5, 0, 7)!;
+    const late = findVault(T(0.8), 20 - 1.05, 0, 7)!;
     expect(vaultExitSpeed(late)).toBeLessThan(vaultExitSpeed(v));
     expect(vaultExitSpeed(late)).toBeGreaterThanOrEqual(0.6 * 7 * VAULT_KEEP - 1e-9);
   });
@@ -127,5 +127,62 @@ describe('the speed vault: plant far back, arc over, land just past the edge, pl
     while (k.mode === 'vault') k = stepWorld(k, { ...NO_INPUT, run: true }, c);
     for (let i = 0; i < VAULT_PLANT_TICKS; i++) k = stepWorld(k, { ...NO_INPUT, run: true }, c);
     expect(k.runner.vx).toBeGreaterThan(6);
+  });
+});
+
+describe('the vault never teleports (owner playtest, 2026-10-28)', () => {
+  const DT = 1 / 120;
+  // run the vault tick by tick from a plant `gap` m before the face at speed vx; returns every tick's position and velocity, from the tick before the V
+  const trace = (rise: number, vx: number, gap: number) => {
+    const c = box(rise);
+    let w = newWorld(c, 20 - gap);
+    w = { ...w, runner: { ...w.runner, vx } };
+    const pts = [{ x: w.runner.x, y: w.runner.y, vx: w.runner.vx, vy: w.runner.vy }];
+    w = stepWorld(w, { ...NO_INPUT, run: true, vault: true }, c);
+    while (w.mode === 'vault') { pts.push({ x: w.runner.x, y: w.runner.y, vx: w.runner.vx, vy: w.runner.vy }); w = stepWorld(w, { ...NO_INPUT, run: true }, c); }
+    pts.push({ x: w.runner.x, y: w.runner.y, vx: w.runner.vx, vy: w.runner.vy });
+    return { pts, w };
+  };
+  const cases: [number, number, number][] = [];
+  for (const rise of [0.4, 0.8, 1.2]) for (const vx of [4, 6, 8]) {
+    const d = takeoffDistance(vx, rise);
+    for (const gap of [VAULT_MIN_GAP + 0.05, d * 0.7, d, d + 0.1]) cases.push([rise, vx, Math.min(gap, d + 0.1)]);
+  }
+  it('no tick moves the runner further than its own speed times dt (plus a small margin), at the start, in the middle or at the end', () => {
+    for (const [rise, vx, gap] of cases) {
+      const { pts } = trace(rise, vx, gap);
+      for (let i = 1; i < pts.length; i++) {
+        const moved = Math.hypot(pts[i].x - pts[i - 1].x, pts[i].y - pts[i - 1].y);
+        const speed = Math.max(Math.hypot(pts[i].vx, pts[i].vy), Math.hypot(pts[i - 1].vx, pts[i - 1].vy));
+        expect(moved).toBeLessThanOrEqual(speed * DT + 0.02);
+      }
+    }
+  });
+  it('the velocity is continuous: it changes by a small amount every tick, and never runs backward', () => {
+    for (const [rise, vx, gap] of cases) {
+      const { pts } = trace(rise, vx, gap);
+      for (let i = 1; i < pts.length; i++) {
+        expect(Math.abs(pts[i].vx - pts[i - 1].vx)).toBeLessThan(0.7); // about 80 m/s squared at most
+        expect(Math.abs(pts[i].vy - pts[i - 1].vy)).toBeLessThan(1.0);
+        expect(pts[i].vx).toBeGreaterThan(0);
+      }
+    }
+  });
+  it('the whole vault covers a believable distance: the plant distance plus the landing past the edge, never a jump forward of metres', () => {
+    for (const [rise, vx, gap] of cases) {
+      const { pts } = trace(rise, vx, gap);
+      const covered = pts[pts.length - 1].x - pts[0].x;
+      expect(covered).toBeCloseTo(gap + VAULT_LAND_OFF, 1);
+      expect(covered).toBeLessThan(3.4);
+    }
+  });
+  it('the plan the debug view draws starts at the ideal plant, 1.2 to 2.6 m before the face, and ends 0.5 m past the edge', () => {
+    const p = planVault(T(0.8), 12, 0, 7)!;
+    expect(p).not.toBeNull();
+    expect(20 - p.plantX).toBeGreaterThanOrEqual(1.2);
+    expect(20 - p.plantX).toBeLessThanOrEqual(2.6);
+    expect(p.vault.x1 - 20).toBeCloseTo(VAULT_LAND_OFF, 6);
+    expect(p.windowFrom).toBeLessThan(p.plantX);
+    expect(p.windowTo).toBeCloseTo(20 - VAULT_MIN_GAP, 6);
   });
 });

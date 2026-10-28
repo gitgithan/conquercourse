@@ -1,4 +1,4 @@
-import type { Terrain } from './terrain';
+import type { Platform, Terrain } from './terrain';
 import { groundAt, heightAt, platformAt } from './terrain';
 
 // The vault (V): a speed vault. The runner plants a foot well before the obstacle, puts one hand on top in the middle of the flight and the body
@@ -11,22 +11,35 @@ export const VAULT_MAX_RISE = 1.3;
 export const VAULT_KEEP = 0.92; // share of the speed kept
 export const VAULT_LAND_OFF = 0.5; // m: the feet come down this far past the front edge (0.3 to 0.8 m)
 export const VAULT_LIFT = 0.25; // m: the feet pass this far above the top (the hand's push lifts the legs)
-export const VAULT_MIN_GAP = 0.3; // m: closer than this to the front face is too late
+export const VAULT_MIN_GAP = 1.0; // m: closer than this to the front face is too late
 export const VAULT_SLACK = 0.15; // m: a plant a little further than the ideal distance still works
 export const VAULT_PLANT_TICKS = 36; // 0.3 s: after landing, with no key held, the feet plant and the runner stops
 export const VAULT_PLANT_GRIP = 4; // times the ground grip while planting
 
-// How long the vault lasts (s): longer for a taller obstacle (more to climb over).
-export const vaultTime = (rise: number): number => 0.34 + 0.18 * rise;
+// Where the runner plants the foot, in metres before the front face: further for a faster runner and for a taller obstacle (a speed vault:
+// about 1.5 to 2.5 m at running speed), always inside 1.2 to 2.6 m.
+export const takeoffDistance = (vx: number, rise: number): number => Math.min(2.6, Math.max(1.2, 0.9 + 0.12 * vx + 0.45 * rise));
 
-// Where the runner plants the foot, in metres before the front face: the body travels at the kept speed for the whole vault and the feet come down
-// VAULT_LAND_OFF past the edge, so the distance is what is left (a faster runner or a taller obstacle plants further back, the speed-vault way).
-export const takeoffDistance = (vx: number, rise: number): number => Math.min(3.2, Math.max(0.9, vx * VAULT_KEEP * vaultTime(rise) - VAULT_LAND_OFF));
+// How long the vault lasts (s): the time to cover the plant distance plus the landing past the edge at the kept speed, and never less than it takes to
+// climb over (a taller obstacle needs longer, so a very tall one at top speed costs some speed).
+export const vaultTime = (vx: number, rise: number): number => Math.max(0.3 + 0.15 * rise, (takeoffDistance(vx, rise) + VAULT_LAND_OFF) / (Math.max(vx, VAULT_MIN_SPEED) * VAULT_KEEP));
 
 export interface Vault {
   x0: number; y0: number; x1: number; y1: number; i: number; n: number; vx: number;
   edge: number; // x of the front face
   top: number; // height of the top at the front face
+}
+
+// The vault that starts now from feet at (x, y) running at vx, over platform p: null if it is not possible.
+function make(t: Terrain, x: number, y: number, vx: number, p: Platform, gapMin: number): Vault | null {
+  const top = heightAt(p, p.x0), rise = top - groundAt(t, x);
+  if (rise < VAULT_MIN_RISE || rise > VAULT_MAX_RISE) return null;
+  const gap = p.x0 - x;
+  if (gap < gapMin || gap > takeoffDistance(vx, rise) + VAULT_SLACK) return null;
+  const n = Math.max(1, Math.round(vaultTime(vx, rise) * 120));
+  // the feet come down just past the edge (or in the middle of a short top)
+  const x1 = Math.max(p.x0 + 0.15, Math.min(p.x0 + VAULT_LAND_OFF, p.x1 - 0.1, (p.x0 + p.x1) / 2));
+  return { x0: x, y0: y, x1, y1: heightAt(p, x1), i: 0, n, vx, edge: p.x0, top };
 }
 
 export function findVault(t: Terrain, x: number, y: number, vx: number): Vault | null {
@@ -36,26 +49,43 @@ export function findVault(t: Terrain, x: number, y: number, vx: number): Vault |
   for (const p of t.platforms) {
     if (p === here || p.x0 < x - 1e-6) continue;
     if (here.x1 < p.x0 - 0.02) continue; // a gap between: that is a jump, not a vault
-    const top = heightAt(p, p.x0), rise = top - groundAt(t, x);
-    if (rise < VAULT_MIN_RISE || rise > VAULT_MAX_RISE) continue;
-    const gap = p.x0 - x;
-    if (gap < VAULT_MIN_GAP || gap > takeoffDistance(vx, rise) + VAULT_SLACK) continue;
-    const n = Math.max(1, Math.round(vaultTime(rise) * 120));
-    // the feet come down just past the edge (or in the middle of a short top)
-    const x1 = Math.max(p.x0 + 0.15, Math.min(p.x0 + VAULT_LAND_OFF, p.x1 - 0.1, (p.x0 + p.x1) / 2));
-    return { x0: x, y0: y, x1, y1: heightAt(p, x1), i: 0, n, vx, edge: p.x0, top };
+    const v = make(t, x, y, vx, p, VAULT_MIN_GAP);
+    if (v) return v;
   }
   return null;
 }
 
-// Where the feet are after tick i of a vault: along at a steady pace, and up over the edge on a parabola that peaks VAULT_LIFT above the top
-// (about 60 to 70% of the way through), then down onto the top. The hand's push is why the arc is tighter than a free fall.
-export function vaultAt(v: Vault, i: number): { x: number; y: number } {
-  const t = Math.min(1, i / v.n), rise = v.y1 - v.y0;
-  const r = Math.sqrt(1 + rise / VAULT_LIFT); // from y0 = apex - lift*r^2 and y1 = apex - lift
-  const tp = r / (1 + r); // the apex, as a share of the vault
-  const y = v.y1 + VAULT_LIFT - VAULT_LIFT * ((t - tp) / (1 - tp)) ** 2;
-  return { x: v.x0 + (v.x1 - v.x0) * t, y: Math.max(Math.min(v.y0, v.y1), y) };
+// The vault the runner would make from the ideal plant point of the next vaultable step ahead (for the debug view and the tests), or null.
+export function planVault(t: Terrain, x: number, y: number, vx: number, within = 10): { vault: Vault; plantX: number; windowFrom: number; windowTo: number } | null {
+  if (vx < VAULT_MIN_SPEED) return null;
+  const here = platformAt(t, x);
+  if (!here) return null;
+  for (const p of t.platforms) {
+    if (p === here || p.x0 < x || p.x0 - x > within) continue;
+    if (here.x1 < p.x0 - 0.02) continue;
+    const rise = heightAt(p, p.x0) - groundAt(t, x);
+    if (rise < VAULT_MIN_RISE || rise > VAULT_MAX_RISE) continue;
+    const d = takeoffDistance(vx, rise), plantX = p.x0 - d;
+    const v = make(t, plantX, y, vx, p, VAULT_MIN_GAP);
+    if (v) return { vault: v, plantX, windowFrom: p.x0 - d - VAULT_SLACK - vx * (VAULT_BUFFER / 120), windowTo: p.x0 - VAULT_MIN_GAP };
+  }
+  return null;
+}
+
+// Where the feet are after tick i of a vault, and how fast they move (so nothing ever jumps: position and velocity are continuous every tick).
+//   along: a cubic that starts at the speed the runner had and ends at the exit speed, covering the plant distance plus the landing past the edge;
+//   up: a smooth rise (no push-off jump: speed 0 at the start) to VAULT_LIFT above the top at 60 to 70% of the vault, then a smooth drop onto the top (speed 0 at the end).
+export function vaultAt(v: Vault, i: number): { x: number; y: number; vx: number; vy: number } {
+  const T = v.n / 120, t = Math.min(1, i / v.n), D = v.x1 - v.x0, v0 = v.vx, v1 = vaultExitSpeed(v);
+  const h01 = -2 * t ** 3 + 3 * t ** 2, h10 = t ** 3 - 2 * t ** 2 + t, h11 = t ** 3 - t ** 2;
+  const dh01 = -6 * t ** 2 + 6 * t, dh10 = 3 * t ** 2 - 4 * t + 1, dh11 = 3 * t ** 2 - 2 * t;
+  const x = v.x0 + D * h01 + v0 * T * h10 + v1 * T * h11;
+  const vx = (D * dh01 + v0 * T * dh10 + v1 * T * dh11) / T;
+  const rise = v.y1 - v.y0, r = Math.sqrt(1 + rise / VAULT_LIFT), tp = r / (1 + r), apex = v.y1 + VAULT_LIFT;
+  const S = (u: number) => 3 * u * u - 2 * u ** 3, dS = (u: number) => 6 * u - 6 * u * u;
+  if (t < tp) { const u = t / tp; return { x, vx, y: v.y0 + (apex - v.y0) * S(u), vy: ((apex - v.y0) * dS(u)) / (tp * T) }; }
+  const u = (t - tp) / (1 - tp);
+  return { x, vx, y: apex - VAULT_LIFT * S(u), vy: (-VAULT_LIFT * dS(u)) / ((1 - tp) * T) };
 }
 
 // The hand: on top of the obstacle just behind its front edge, at about 40% of the vault (before the feet pass the edge).
