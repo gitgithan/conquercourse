@@ -1,0 +1,13 @@
+{
+  "photo": "park07",
+  "run": 1,
+  "status": 200,
+  "ms": 12022,
+  "imageBytes": 157057,
+  "usage": {
+    "prompt_tokens": 1018,
+    "completion_tokens": 1973,
+    "total_tokens": 2991
+  },
+  "reply": "The lane crosses flat grass then climbs three concrete steps to the upper terrace.\n```json\n{\"items\": [{\"kind\": \"ground\", \"length\": 5}, {\"kind\": \"block\", \"length\": 0.4, \"height\": 0.16}, {\"kind\": \"block\", \"length\": 0.4, \"height\": 0.32}, {\"kind\": \"block\", \"length\": 0.5, \"height\": 0.48}, {\"kind\": \"ground\", \"length\": 6}]}\n```"
+}

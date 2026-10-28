@@ -1,0 +1,13 @@
+{
+  "photo": "park03",
+  "run": 1,
+  "status": 200,
+  "ms": 11013,
+  "imageBytes": 70469,
+  "usage": {
+    "prompt_tokens": 794,
+    "completion_tokens": 2179,
+    "total_tokens": 2973
+  },
+  "reply": "A left-to-right lane crosses the low foreground platform, the central quarter-pipe, and the far ledge.\n```json\n{\n  \"items\": [\n    {\"kind\": \"ground\", \"length\": 5},\n    {\"kind\": \"block\", \"length\": 5, \"height\": 0.45},\n    {\"kind\": \"ground\", \"length\": 8},\n    {\"kind\": \"block\", \"length\": 2.2, \"height\": 1.2},\n    {\"kind\": \"ground\", \"length\": 7},\n    {\"kind\": \"block\", \"length\": 3, \"height\": 0.4},\n    {\"kind\": \"ground\", \"length\": 5}\n  ]\n}\n```"
+}

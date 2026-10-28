@@ -1,0 +1,13 @@
+{
+  "photo": "park05",
+  "run": 1,
+  "status": 200,
+  "ms": 8745,
+  "imageBytes": 174316,
+  "usage": {
+    "prompt_tokens": 1018,
+    "completion_tokens": 1344,
+    "total_tokens": 2362
+  },
+  "reply": "A left to right path through the trees past the stone wall and bench under a low branch.\n\n```json\n{\n  \"items\": [\n    {\"kind\": \"ground\", \"length\": 4},\n    {\"kind\": \"block\", \"length\": 1.0, \"height\": 0.3},\n    {\"kind\": \"ground\", \"length\": 2},\n    {\"kind\": \"block\", \"length\": 0.6, \"height\": 0.8},\n    {\"kind\": \"ground\", \"length\": 1.5},\n    {\"kind\": \"bar\", \"height\": 2.2},\n    {\"kind\": \"ground\", \"length\": 1},\n    {\"kind\": \"block\", \"length\": 0.6, \"height\": 0.45},\n    {\"kind\": \"ground\", \"length\": 3}\n  ]\n}\n```"
+}
