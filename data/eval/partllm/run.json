@@ -1,0 +1,32 @@
+{
+  "experiment": "partllm",
+  "issue": "CC-49",
+  "date": "2026-10-28",
+  "model": "Czvvd/PartLLM (Apache-2.0), vLLM off",
+  "gpu": "Modal L4",
+  "inputs": [
+    "bench-concrete.glb",
+    "box-skate-03.glb",
+    "rail-skate-01.glb",
+    "rail-skate-02.glb",
+    "railing-iron.glb",
+    "stairs-park-07.glb"
+  ],
+  "prompts": [
+    "bar",
+    "rail",
+    "ledge",
+    "step"
+  ],
+  "tasks": [
+    "text_guided (all four names in one request, per mesh)",
+    "full_shape (all six meshes once)"
+  ],
+  "gpu_seconds_in_final_run": 926.4,
+  "gpu_seconds_total_estimate": 1500,
+  "cost_usd_estimate": 1.0,
+  "cost_note": "L4 about $0.8 per hour plus CPU image builds; exact figure is on the Modal dashboard, budget cap was $20",
+  "scores": "scores.json",
+  "answer_key": "answer-key.json",
+  "raw_outputs": "../conquercourse-assets/partllm/raw (62 MB, not in git)"
+}
