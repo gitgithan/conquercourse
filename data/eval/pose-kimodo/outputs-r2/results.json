@@ -1,0 +1,563 @@
+{
+  "hang": {
+    "samples": [
+      {
+        "seed": 7,
+        "baseline": {
+          "gate_pass": true,
+          "failures": [],
+          "hard": {
+            "knees_bend_forward": 27.9978,
+            "legs_not_twisted": 27.9978,
+            "knees_within_range": 147.1522,
+            "flight_is_ballistic": null,
+            "held_clips_are_held": 0.4333,
+            "feet_dont_sink": -0.0196,
+            "no_teleport": 3.1117
+          },
+          "hands_height_error_m": 1.203,
+          "key_pose_error_mean_m": 0.536,
+          "key_pose_error_worst_m": 1.492
+        },
+        "keyed": {
+          "gate_pass": true,
+          "failures": [],
+          "hard": {
+            "knees_bend_forward": 25.4417,
+            "legs_not_twisted": 25.4417,
+            "knees_within_range": 126.5399,
+            "flight_is_ballistic": null,
+            "held_clips_are_held": 0.4333,
+            "feet_dont_sink": 0.0087,
+            "no_teleport": 3.1193
+          },
+          "hands_height_error_m": 0.401,
+          "key_pose_error_mean_m": 0.226,
+          "key_pose_error_worst_m": 0.837
+        }
+      },
+      {
+        "seed": 8,
+        "baseline": {
+          "gate_pass": true,
+          "failures": [],
+          "hard": {
+            "knees_bend_forward": 18.2023,
+            "legs_not_twisted": 18.2023,
+            "knees_within_range": 150.0988,
+            "flight_is_ballistic": null,
+            "held_clips_are_held": 0.3333,
+            "feet_dont_sink": -0.02,
+            "no_teleport": 2.743
+          },
+          "hands_height_error_m": 1.223,
+          "key_pose_error_mean_m": 0.567,
+          "key_pose_error_worst_m": 1.542
+        },
+        "keyed": {
+          "gate_pass": true,
+          "failures": [],
+          "hard": {
+            "knees_bend_forward": 23.5505,
+            "legs_not_twisted": 23.5505,
+            "knees_within_range": 129.3317,
+            "flight_is_ballistic": null,
+            "held_clips_are_held": 0.0333,
+            "feet_dont_sink": -0.0176,
+            "no_teleport": 2.5356
+          },
+          "hands_height_error_m": 0.396,
+          "key_pose_error_mean_m": 0.226,
+          "key_pose_error_worst_m": 0.837
+        }
+      },
+      {
+        "seed": 9,
+        "baseline": {
+          "gate_pass": true,
+          "failures": [],
+          "hard": {
+            "knees_bend_forward": 24.4582,
+            "legs_not_twisted": 24.4582,
+            "knees_within_range": 135.1383,
+            "flight_is_ballistic": null,
+            "held_clips_are_held": 0.3667,
+            "feet_dont_sink": -0.0201,
+            "no_teleport": 2.2638
+          },
+          "hands_height_error_m": 1.229,
+          "key_pose_error_mean_m": 0.603,
+          "key_pose_error_worst_m": 1.518
+        },
+        "keyed": {
+          "gate_pass": true,
+          "failures": [],
+          "hard": {
+            "knees_bend_forward": 22.9556,
+            "legs_not_twisted": 22.9556,
+            "knees_within_range": 120.2819,
+            "flight_is_ballistic": null,
+            "held_clips_are_held": 0.0,
+            "feet_dont_sink": -0.0201,
+            "no_teleport": 2.7277
+          },
+          "hands_height_error_m": 0.405,
+          "key_pose_error_mean_m": 0.226,
+          "key_pose_error_worst_m": 0.837
+        }
+      },
+      {
+        "seed": 10,
+        "baseline": {
+          "gate_pass": true,
+          "failures": [],
+          "hard": {
+            "knees_bend_forward": 29.7458,
+            "legs_not_twisted": 29.7458,
+            "knees_within_range": 120.4014,
+            "flight_is_ballistic": null,
+            "held_clips_are_held": 0.3333,
+            "feet_dont_sink": -0.02,
+            "no_teleport": 2.9516
+          },
+          "hands_height_error_m": 1.225,
+          "key_pose_error_mean_m": 0.556,
+          "key_pose_error_worst_m": 1.512
+        },
+        "keyed": {
+          "gate_pass": true,
+          "failures": [],
+          "hard": {
+            "knees_bend_forward": 14.5392,
+            "legs_not_twisted": 14.5392,
+            "knees_within_range": 93.1222,
+            "flight_is_ballistic": null,
+            "held_clips_are_held": 0.1,
+            "feet_dont_sink": -0.0199,
+            "no_teleport": 2.633
+          },
+          "hands_height_error_m": 0.398,
+          "key_pose_error_mean_m": 0.226,
+          "key_pose_error_worst_m": 0.837
+        }
+      }
+    ],
+    "baseline_pass": 4,
+    "keyed_pass": 4,
+    "n": 4,
+    "baseline_key_error_mean_m": 0.566,
+    "keyed_key_error_mean_m": 0.226
+  },
+  "swing": {
+    "samples": [
+      {
+        "seed": 7,
+        "baseline": {
+          "gate_pass": true,
+          "failures": [],
+          "hard": {
+            "knees_bend_forward": 8.7849,
+            "legs_not_twisted": 8.7849,
+            "knees_within_range": 55.6041,
+            "flight_is_ballistic": null,
+            "held_clips_are_held": 0.0,
+            "feet_dont_sink": -2.0318,
+            "no_teleport": 0.3257
+          },
+          "hands_height_error_m": 0.895,
+          "hips_z_range_m": 0.151,
+          "key_pose_error_mean_m": 1.588,
+          "key_pose_error_worst_m": 2.01
+        },
+        "keyed": {
+          "gate_pass": false,
+          "failures": [
+            "knees_bend_forward",
+            "legs_not_twisted",
+            "knees_within_range",
+            "held_clips_are_held"
+          ],
+          "hard": {
+            "knees_bend_forward": 132.5529,
+            "legs_not_twisted": 132.5529,
+            "knees_within_range": 176.156,
+            "flight_is_ballistic": null,
+            "held_clips_are_held": 1.8,
+            "feet_dont_sink": -0.0202,
+            "no_teleport": 2.3815
+          },
+          "hands_height_error_m": 0.221,
+          "hips_z_range_m": 1.149,
+          "key_pose_error_mean_m": 0.296,
+          "key_pose_error_worst_m": 0.865
+        }
+      },
+      {
+        "seed": 8,
+        "baseline": {
+          "gate_pass": true,
+          "failures": [],
+          "hard": {
+            "knees_bend_forward": 0.0,
+            "legs_not_twisted": 0.0,
+            "knees_within_range": 10.9922,
+            "flight_is_ballistic": null,
+            "held_clips_are_held": 0.0,
+            "feet_dont_sink": -1.918,
+            "no_teleport": 0.4421
+          },
+          "hands_height_error_m": 1.991,
+          "hips_z_range_m": 0.223,
+          "key_pose_error_mean_m": 1.305,
+          "key_pose_error_worst_m": 2.207
+        },
+        "keyed": {
+          "gate_pass": false,
+          "failures": [
+            "knees_bend_forward",
+            "legs_not_twisted",
+            "held_clips_are_held",
+            "feet_dont_sink"
+          ],
+          "hard": {
+            "knees_bend_forward": 177.7282,
+            "legs_not_twisted": 177.7282,
+            "knees_within_range": 158.2355,
+            "flight_is_ballistic": null,
+            "held_clips_are_held": 1.3667,
+            "feet_dont_sink": 0.0579,
+            "no_teleport": 3.4149
+          },
+          "hands_height_error_m": 0.713,
+          "hips_z_range_m": 0.994,
+          "key_pose_error_mean_m": 0.296,
+          "key_pose_error_worst_m": 0.865
+        }
+      },
+      {
+        "seed": 9,
+        "baseline": {
+          "gate_pass": true,
+          "failures": [],
+          "hard": {
+            "knees_bend_forward": 0.0,
+            "legs_not_twisted": 0.0,
+            "knees_within_range": 14.1523,
+            "flight_is_ballistic": null,
+            "held_clips_are_held": 0.0,
+            "feet_dont_sink": -1.919,
+            "no_teleport": 0.1487
+          },
+          "hands_height_error_m": 1.976,
+          "hips_z_range_m": 0.132,
+          "key_pose_error_mean_m": 1.311,
+          "key_pose_error_worst_m": 2.242
+        },
+        "keyed": {
+          "gate_pass": false,
+          "failures": [
+            "knees_bend_forward",
+            "legs_not_twisted",
+            "knees_within_range",
+            "held_clips_are_held"
+          ],
+          "hard": {
+            "knees_bend_forward": 134.9475,
+            "legs_not_twisted": 134.9475,
+            "knees_within_range": 171.7875,
+            "flight_is_ballistic": null,
+            "held_clips_are_held": 0.8333,
+            "feet_dont_sink": 0.0271,
+            "no_teleport": 2.3201
+          },
+          "hands_height_error_m": 1.071,
+          "hips_z_range_m": 0.898,
+          "key_pose_error_mean_m": 0.296,
+          "key_pose_error_worst_m": 0.865
+        }
+      },
+      {
+        "seed": 10,
+        "baseline": {
+          "gate_pass": true,
+          "failures": [],
+          "hard": {
+            "knees_bend_forward": 6.4682,
+            "legs_not_twisted": 6.4682,
+            "knees_within_range": 23.9683,
+            "flight_is_ballistic": null,
+            "held_clips_are_held": 0.0,
+            "feet_dont_sink": -1.8368,
+            "no_teleport": 0.7671
+          },
+          "hands_height_error_m": 1.991,
+          "hips_z_range_m": 0.561,
+          "key_pose_error_mean_m": 1.342,
+          "key_pose_error_worst_m": 2.225
+        },
+        "keyed": {
+          "gate_pass": false,
+          "failures": [
+            "legs_not_twisted",
+            "knees_within_range",
+            "held_clips_are_held",
+            "feet_dont_sink"
+          ],
+          "hard": {
+            "knees_bend_forward": 114.4469,
+            "legs_not_twisted": 114.4469,
+            "knees_within_range": 178.4659,
+            "flight_is_ballistic": null,
+            "held_clips_are_held": 1.3,
+            "feet_dont_sink": 0.06,
+            "no_teleport": 5.109
+          },
+          "hands_height_error_m": 0.98,
+          "hips_z_range_m": 1.335,
+          "key_pose_error_mean_m": 0.296,
+          "key_pose_error_worst_m": 0.865
+        }
+      }
+    ],
+    "baseline_pass": 4,
+    "keyed_pass": 0,
+    "n": 4,
+    "baseline_key_error_mean_m": 1.386,
+    "keyed_key_error_mean_m": 0.296
+  },
+  "vault": {
+    "samples": [
+      {
+        "seed": 7,
+        "baseline": {
+          "gate_pass": false,
+          "failures": [
+            "held_clips_are_held"
+          ],
+          "hard": {
+            "knees_bend_forward": 32.2552,
+            "legs_not_twisted": 32.2552,
+            "knees_within_range": 113.7381,
+            "flight_is_ballistic": null,
+            "held_clips_are_held": 1.5667,
+            "feet_dont_sink": -0.0179,
+            "no_teleport": 3.9579
+          },
+          "right_hand_at_frame55_m": [
+            -0.228,
+            0.98,
+            5.221
+          ],
+          "hips_at_frame55_m": [
+            0.053,
+            1.06,
+            5.366
+          ],
+          "key_pose_error_mean_m": 0.361,
+          "key_pose_error_worst_m": 0.53
+        },
+        "keyed": {
+          "gate_pass": false,
+          "failures": [
+            "held_clips_are_held",
+            "feet_dont_sink"
+          ],
+          "hard": {
+            "knees_bend_forward": 26.7909,
+            "legs_not_twisted": 26.7909,
+            "knees_within_range": 105.8495,
+            "flight_is_ballistic": null,
+            "held_clips_are_held": 0.9667,
+            "feet_dont_sink": 0.2122,
+            "no_teleport": 4.3966
+          },
+          "right_hand_at_frame55_m": [
+            -0.723,
+            1.475,
+            4.988
+          ],
+          "hips_at_frame55_m": [
+            0.0,
+            1.046,
+            5.0
+          ],
+          "key_pose_error_mean_m": 0.418,
+          "key_pose_error_worst_m": 1.011
+        }
+      },
+      {
+        "seed": 8,
+        "baseline": {
+          "gate_pass": false,
+          "failures": [
+            "held_clips_are_held"
+          ],
+          "hard": {
+            "knees_bend_forward": 24.608,
+            "legs_not_twisted": 24.608,
+            "knees_within_range": 141.7298,
+            "flight_is_ballistic": null,
+            "held_clips_are_held": 0.6333,
+            "feet_dont_sink": -0.0033,
+            "no_teleport": 4.8999
+          },
+          "right_hand_at_frame55_m": [
+            -1.164,
+            0.974,
+            6.375
+          ],
+          "hips_at_frame55_m": [
+            -0.851,
+            0.941,
+            5.796
+          ],
+          "key_pose_error_mean_m": 1.237,
+          "key_pose_error_worst_m": 1.495
+        },
+        "keyed": {
+          "gate_pass": false,
+          "failures": [
+            "held_clips_are_held"
+          ],
+          "hard": {
+            "knees_bend_forward": 30.8825,
+            "legs_not_twisted": 30.8825,
+            "knees_within_range": 121.6035,
+            "flight_is_ballistic": null,
+            "held_clips_are_held": 0.7333,
+            "feet_dont_sink": 0.0253,
+            "no_teleport": 5.204
+          },
+          "right_hand_at_frame55_m": [
+            -0.723,
+            1.475,
+            4.988
+          ],
+          "hips_at_frame55_m": [
+            0.0,
+            1.046,
+            5.0
+          ],
+          "key_pose_error_mean_m": 0.418,
+          "key_pose_error_worst_m": 1.011
+        }
+      },
+      {
+        "seed": 9,
+        "baseline": {
+          "gate_pass": true,
+          "failures": [],
+          "hard": {
+            "knees_bend_forward": 46.1102,
+            "legs_not_twisted": 46.1102,
+            "knees_within_range": 157.1259,
+            "flight_is_ballistic": null,
+            "held_clips_are_held": 0.5,
+            "feet_dont_sink": -0.0185,
+            "no_teleport": 4.4321
+          },
+          "right_hand_at_frame55_m": [
+            0.054,
+            1.096,
+            4.554
+          ],
+          "hips_at_frame55_m": [
+            0.07,
+            0.896,
+            4.068
+          ],
+          "key_pose_error_mean_m": 1.144,
+          "key_pose_error_worst_m": 1.878
+        },
+        "keyed": {
+          "gate_pass": false,
+          "failures": [
+            "held_clips_are_held",
+            "feet_dont_sink"
+          ],
+          "hard": {
+            "knees_bend_forward": 42.3851,
+            "legs_not_twisted": 42.3851,
+            "knees_within_range": 130.8168,
+            "flight_is_ballistic": null,
+            "held_clips_are_held": 1.4667,
+            "feet_dont_sink": 0.0437,
+            "no_teleport": 4.8997
+          },
+          "right_hand_at_frame55_m": [
+            -0.723,
+            1.475,
+            4.988
+          ],
+          "hips_at_frame55_m": [
+            0.0,
+            1.046,
+            5.0
+          ],
+          "key_pose_error_mean_m": 0.418,
+          "key_pose_error_worst_m": 1.011
+        }
+      },
+      {
+        "seed": 10,
+        "baseline": {
+          "gate_pass": true,
+          "failures": [],
+          "hard": {
+            "knees_bend_forward": 27.8657,
+            "legs_not_twisted": 27.8657,
+            "knees_within_range": 142.6724,
+            "flight_is_ballistic": null,
+            "held_clips_are_held": 0.4,
+            "feet_dont_sink": 0.0021,
+            "no_teleport": 4.8454
+          },
+          "right_hand_at_frame55_m": [
+            -0.034,
+            0.373,
+            6.425
+          ],
+          "hips_at_frame55_m": [
+            0.197,
+            0.834,
+            5.849
+          ],
+          "key_pose_error_mean_m": 0.916,
+          "key_pose_error_worst_m": 1.278
+        },
+        "keyed": {
+          "gate_pass": false,
+          "failures": [
+            "held_clips_are_held"
+          ],
+          "hard": {
+            "knees_bend_forward": 49.658,
+            "legs_not_twisted": 49.658,
+            "knees_within_range": 125.0231,
+            "flight_is_ballistic": null,
+            "held_clips_are_held": 0.6333,
+            "feet_dont_sink": -0.0166,
+            "no_teleport": 5.11
+          },
+          "right_hand_at_frame55_m": [
+            -0.723,
+            1.475,
+            4.988
+          ],
+          "hips_at_frame55_m": [
+            0.0,
+            1.046,
+            5.0
+          ],
+          "key_pose_error_mean_m": 0.418,
+          "key_pose_error_worst_m": 1.011
+        }
+      }
+    ],
+    "baseline_pass": 2,
+    "keyed_pass": 0,
+    "n": 4,
+    "baseline_key_error_mean_m": 0.914,
+    "keyed_key_error_mean_m": 0.418
+  }
+}

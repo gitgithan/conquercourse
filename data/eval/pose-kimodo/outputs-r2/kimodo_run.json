@@ -1,0 +1,30 @@
+{
+  "model": "kimodo-soma-rp",
+  "kimodo_commit": "e1c219c99b4b94ba48be1fb6a1cbc64ecee4c954",
+  "steps": 100,
+  "torch": "2.14.1+cu130",
+  "load_s": 76.0,
+  "total_s": 196.0,
+  "round": 2,
+  "gen_s": {
+    "hang": [
+      12.3,
+      8.9,
+      9.0,
+      9.0
+    ],
+    "swing": [
+      10.6,
+      10.5,
+      10.6,
+      10.7
+    ],
+    "vault": [
+      9.3,
+      9.3,
+      9.4,
+      10.2
+    ]
+  },
+  "note": "wall_s missing: a name clash with the round argument crashed the entrypoint after the samples were saved; fixed in modal_app.py"
+}

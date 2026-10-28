@@ -16,3 +16,4 @@ data/eval/cc-38-photo-to-3d/*/*/raw.npz
 data/eval/cc-38-photo-to-3d/*/*/masked.jpg
 data/eval/cc-38-photo-to-3d/*/*/lift_input.jpg
 node_modules
+data/eval/pose-kimodo/*/kimodo_samples.json
