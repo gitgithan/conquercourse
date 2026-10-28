@@ -129,6 +129,20 @@ try {
   await page.waitForTimeout(2500);
   checks.testFromHereStarts = (await page.$('.ed')) === null && /m of/.test(await page.textContent('body'));
   await page.screenshot({ path: 'test-results/editor/test-from-here.png' });
+  // stacks: a cup pyramid piece is added, shown as cups, kept across a reload, and the lane through it is a course
+  await page.goto(`http://localhost:${port}/?mode=editor`);
+  await page.evaluate(() => localStorage.removeItem('cc.world.v1'));
+  await page.reload();
+  await page.waitForSelector('#view3d', { timeout: 60000 });
+  await page.waitForFunction(() => document.documentElement.dataset.pieces === '3', null, { timeout: 30000 });
+  await page.click('#addstack-3-6-3');
+  await page.waitForFunction(() => document.documentElement.dataset.pieces === '4', null, { timeout: 10000 });
+  checks.stackAdded = true;
+  await page.waitForTimeout(800);
+  await page.screenshot({ path: 'test-results/editor/stack.png' });
+  await page.reload();
+  await page.waitForSelector('#view3d', { timeout: 60000 });
+  checks.stackKeptAfterReload = await page.waitForFunction(() => document.documentElement.dataset.pieces === '4', null, { timeout: 30000 }).then(() => true, () => false);
   console.log(checks, 'errors:', errors);
   await browser.close();
   process.exit(Object.values(checks).every(Boolean) && !errors.length ? 0 : 1);

@@ -12,8 +12,8 @@ export interface Pattern { id: string; label: string; formations: number[]; scal
 export const PATTERNS: Pattern[] = [
   { id: '3-3-3', label: '3-3-3', formations: [3, 3, 3], scale: 5 },
   { id: '3-6-3', label: '3-6-3', formations: [3, 6, 3], scale: 4.5 },
-  { id: '6-6', label: '6-6', formations: [6, 6], scale: 4.5 },
-  { id: '1-10-1', label: '1-10-1', formations: [1, 10, 1], scale: 3.5 },
+  { id: '6-6', label: '6-6', formations: [6, 6], scale: 3.5 },
+  { id: '1-10-1', label: '1-10-1', formations: [1, 10, 1], scale: 3 },
   { id: 'cycle', label: 'Cycle (3-6-3, 6-6)', formations: [3, 6, 3, 6, 6], scale: 3 },
 ];
 export const STACK_PREFIX = 'stack:';
