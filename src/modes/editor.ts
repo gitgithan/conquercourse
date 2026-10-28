@@ -15,7 +15,6 @@ import { withRecoil, type RecoilCfg } from '../slice/recoil-lane';
 import { fixRecoil } from '../slice/fixrecoil';
 import { withBand } from '../slice/band-lane';
 import { fixBand } from '../slice/fixband';
-import { CUP, PATTERNS, stackPiece, stackSrc } from '../slice/stack';
 import { DRONE_PAD_LENGTH, withDrone, type DroneCfg } from '../slice/drone-lane';
 import { fixDrone } from '../slice/fixdrone';
 import { CUP, PATTERNS, patternOf, stackPiece, stackSrc } from '../slice/stack';
