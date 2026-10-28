@@ -1,0 +1,208 @@
+{
+  "summary": {
+    "present_hits": 2,
+    "present_total": 9,
+    "absent_false_claims": 11,
+    "absent_total": 13
+  },
+  "objects": {
+    "rail-skate-01": {
+      "faces_match": true,
+      "prompts": {
+        "bar": {
+          "expected": "present",
+          "area_share": 0.145,
+          "precision": 0.03,
+          "recall": 0.01,
+          "verdict": "miss"
+        },
+        "rail": {
+          "expected": "present",
+          "area_share": 0.521,
+          "precision": 1.0,
+          "recall": 0.95,
+          "verdict": "hit"
+        },
+        "ledge": {
+          "expected": "absent",
+          "area_share": 0.177,
+          "precision": 0.04,
+          "recall": 0.01,
+          "verdict": "false claim"
+        },
+        "step": {
+          "expected": "absent",
+          "area_share": 0.156,
+          "precision": 0.09,
+          "recall": 0.02,
+          "verdict": "false claim"
+        }
+      }
+    },
+    "rail-skate-02": {
+      "faces_match": true,
+      "prompts": {
+        "bar": {
+          "expected": "present",
+          "area_share": 0.139,
+          "precision": 0.03,
+          "recall": 0.01,
+          "verdict": "miss"
+        },
+        "rail": {
+          "expected": "present",
+          "area_share": 0.362,
+          "precision": 0.98,
+          "recall": 0.52,
+          "verdict": "hit"
+        },
+        "ledge": {
+          "expected": "absent",
+          "area_share": 0.087,
+          "precision": 0.05,
+          "recall": 0.01,
+          "verdict": "false claim"
+        },
+        "step": {
+          "expected": "absent",
+          "area_share": 0.412,
+          "precision": 0.79,
+          "recall": 0.47,
+          "verdict": "false claim"
+        }
+      }
+    },
+    "railing-iron": {
+      "faces_match": true,
+      "prompts": {
+        "bar": {
+          "expected": "present",
+          "area_share": 0.527,
+          "precision": 0.14,
+          "recall": 0.35,
+          "verdict": "miss"
+        },
+        "rail": {
+          "expected": "present",
+          "area_share": 0.273,
+          "precision": 0.47,
+          "recall": 0.62,
+          "verdict": "miss"
+        },
+        "ledge": {
+          "expected": "absent",
+          "area_share": 0.196,
+          "precision": 0.02,
+          "recall": 0.02,
+          "verdict": "false claim"
+        },
+        "step": {
+          "expected": "absent",
+          "area_share": 0.004,
+          "precision": 0.0,
+          "recall": 0.0,
+          "verdict": "correctly empty"
+        }
+      }
+    },
+    "bench-concrete": {
+      "faces_match": true,
+      "prompts": {
+        "bar": {
+          "expected": "absent",
+          "area_share": 0.73,
+          "precision": 0.39,
+          "recall": 0.92,
+          "verdict": "false claim"
+        },
+        "rail": {
+          "expected": "absent",
+          "area_share": 0.099,
+          "precision": 0.06,
+          "recall": 0.02,
+          "verdict": "false claim"
+        },
+        "ledge": {
+          "expected": "present",
+          "area_share": 0.17,
+          "precision": 0.11,
+          "recall": 0.06,
+          "verdict": "miss"
+        },
+        "step": {
+          "expected": "absent",
+          "area_share": 0.001,
+          "precision": 0.0,
+          "recall": 0.0,
+          "verdict": "correctly empty"
+        }
+      }
+    },
+    "box-skate-03": {
+      "faces_match": true,
+      "prompts": {
+        "bar": {
+          "expected": "absent",
+          "area_share": 0.311,
+          "precision": 0.03,
+          "recall": 0.13,
+          "verdict": "false claim"
+        },
+        "rail": {
+          "expected": "absent",
+          "area_share": 0.058,
+          "precision": 0.03,
+          "recall": 0.03,
+          "verdict": "false claim"
+        },
+        "ledge": {
+          "expected": "present",
+          "area_share": 0.574,
+          "precision": 0.11,
+          "recall": 0.85,
+          "verdict": "miss"
+        },
+        "step": {
+          "expected": "unclear",
+          "area_share": 0.057,
+          "precision": 0.0,
+          "recall": 0.0,
+          "verdict": "not scored"
+        }
+      }
+    },
+    "stairs-park-07": {
+      "faces_match": true,
+      "prompts": {
+        "bar": {
+          "expected": "absent",
+          "area_share": 0.66,
+          "precision": 0.21,
+          "recall": 0.61,
+          "verdict": "false claim"
+        },
+        "rail": {
+          "expected": "absent",
+          "area_share": 0.128,
+          "precision": 0.45,
+          "recall": 0.25,
+          "verdict": "false claim"
+        },
+        "ledge": {
+          "expected": "present",
+          "area_share": 0.112,
+          "precision": 0.0,
+          "recall": 0.0,
+          "verdict": "miss"
+        },
+        "step": {
+          "expected": "unclear",
+          "area_share": 0.1,
+          "precision": 0.34,
+          "recall": 0.15,
+          "verdict": "not scored"
+        }
+      }
+    }
+  }
+}
