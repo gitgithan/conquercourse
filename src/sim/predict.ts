@@ -4,6 +4,7 @@ import { landing } from './landing';
 import { platformAt } from './terrain';
 import { stepWorld, type WorldState } from './world';
 import { JUMPABLE_STEP } from './needs-limits';
+import { climbMaxRise } from './climb';
 import { crestSpeedLimit, railsOf } from './cart';
 
 // "If I jump now, what happens?": the simulator's own physics run forward from the current state with Space pressed
@@ -43,7 +44,7 @@ export function predictJump(w: WorldState, course: CourseData, maxTicks = 240): 
       const next = course.terrain.platforms.filter((p) => p.x0 >= s.runner.x - 0.3).sort((a, b) => a.x0 - b.x0)[0];
       const ground = platformAt(course.terrain, s.runner.x)?.top ?? 0;
       const rise = next ? next.top - ground : 0;
-      return { path, result: 'blocked', why: rise > JUMPABLE_STEP ? `The step ahead is ${rise.toFixed(1)} m high. One jump lifts about ${JUMPABLE_STEP} m, so this one needs a different move.` : 'The runner is stopped against something: it is in the way.' };
+      return { path, result: 'blocked', why: rise > JUMPABLE_STEP ? `The step ahead is ${rise.toFixed(1)} m high. One jump lifts about ${JUMPABLE_STEP} m, so this one needs a different move: ${rise <= 1.3 ? 'vault it (V)' : rise <= climbMaxRise(course.jumpSpeed) ? 'climb it (hold E at the wall)' : 'it is too high to climb'}.` : 'The runner is stopped against something: it is in the way.' };
     }
   }
   return { path, result: 'lands', why: 'Still running at the end of the preview.' };

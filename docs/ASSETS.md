@@ -175,6 +175,7 @@
 
 ## Cup stacks (CC-60)
 - `public/assets/demo/stack.course.json`: our own course, made by `scripts/make-stack-demo.ts`; no third-party content.
+- `public/assets/demo/climb.course.json`: our own course (a 2 m wall and a 5 m drop), written by hand; no third-party content.
 - The cups are drawn from code (instanced cones, standard colours, no logos); there are no image or model files.
 
 ## Object bake-off inputs and outputs (made during the event, CC-55)

@@ -12,12 +12,13 @@ export function actorStateFor(w: WorldState, squat: boolean, facing: 1 | -1 = 1)
     vx: r.vx,
     vy: r.vy,
     grounded: r.grounded,
-    mode: w.mode === 'hang' ? 'swing' : w.mode === 'vault' || w.mode === 'plank' ? 'run' : w.mode, // a cart seats the rider (pose 'sit'); the trebuchet's sling holds the rider (pose 'sling'); a plank is crossed in the running pose
+    mode: w.mode === 'hang' ? 'swing' : w.mode === 'vault' || w.mode === 'plank' || w.mode === 'climb' ? 'run' : w.mode, // a cart seats the rider (pose 'sit'); the trebuchet's sling holds the rider (pose 'sling'); a plank is crossed in the running pose
     tilt: w.cart?.tilt,
     // hanging from a bar uses the rope's swing pose, turned about the hands
     squat,
     landedTicksAgo: r.landedAtTick === null ? null : r.tick - r.landedAtTick,
     rolledAt: w.rolledAt,
+    climbProgress: w.mode === 'climb' && w.climb ? w.climb.i / w.climb.n : undefined,
     vaultProgress: w.mode === 'vault' && w.vault ? w.vault.i / w.vault.n : undefined,
     vaultContact: w.mode === 'vault' && w.vault ? vaultHand(w.vault) : undefined,
     wallProgress: w.wall ? w.wall.index / Math.max(1, w.wall.path.length - 1) : undefined,
