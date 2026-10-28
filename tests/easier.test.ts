@@ -20,7 +20,7 @@ describe('Make it easier', () => {
     expect(narrowest([])).toBe(0);
   });
   it('says so when the lane cannot be cleared at all (use Fix it first)', async () => {
-    const ps = mk(['box:8:0.5:2', 0, 0], ['box:6:3:2', 12, 0]); // a step of 2.5 m: nobody jumps that
+    const ps = mk(["box:8:0.5:2", 0, 0], ["box:6:4:2", 12, 0]); // a step of 3.5 m: no jump, vault or climb (up to 2.83 m, CC-76) gets over that
     const r = await makeItEasier(ps, lane, 10, { courseOf, xOf: (p) => p.x });
     expect(r.proposal).toBeNull();
     expect(r.note).toMatch(/cannot clear/);
