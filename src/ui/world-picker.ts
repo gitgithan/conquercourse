@@ -264,5 +264,6 @@ export function mountWorldGallery(parent: HTMLElement, o: { current: { value: st
 export const BUTTON_PLACE: Record<string, string> = {
   course: 'right:16px;top:196px',
   dojo: 'right:330px;top:12px', // left of the Back button
+  editor: 'right:60px;top:8px', // left of the top bar's More (⋯) menu
 };
 export const DEFAULT_PLACE = 'right:12px;top:8px'; // the top right corner is empty in the editor, the map, the coaster builder and the park
