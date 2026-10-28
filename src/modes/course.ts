@@ -30,6 +30,8 @@ import { createTrebuchetView } from '../ui/trebuchet-view';
 import { createRecoilView } from '../ui/recoil-view';
 import { cupsGroup } from '../slice/cups';
 import { buildTrack, type TrackView } from '../render/track';
+import { buildPlanks } from '../render/plank';
+import { topAt } from '../sim/beam';
 import { crestSpeedLimit, railsOf } from '../sim/cart';
 
 // The Course: the five obstacles in a row. The simulator decides everything; this file only draws it
@@ -106,6 +108,8 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
   // a coaster: rails, ties, posts and the cart (src/render/track.ts); the Rookie sits in it
   let trackView: TrackView | null = null, cartFlying = false;
   if (course.track) { trackView = buildTrack(course); scene.add(trackView.group); }
+  const plankView = course.planks?.length ? buildPlanks(course) : null; // plank bridges: they bend under the runner (src/sim/beam.ts)
+  if (plankView) scene.add(plankView.group);
   const trebView = course.trebuchet ? createTrebuchetView(scene, course) : null;
   const recoilView = course.recoil ? createRecoilView(scene, course) : null;
   // a course from the editor draws its real objects instead of blocks: only the start and finish decks stay as ground
@@ -357,7 +361,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
   document.body.append(comm);
   document.body.append(sstyle, strip);
   // demo courses: every course we have made, one choice away (the stock course, the lache demo, lanes from real objects, places from the map)
-  const demos: [string, string][] = [['', 'Stock course'], ['/assets/demo/lache.course.json', 'Lache demo: run, vault, swing'], ['/assets/demo/lache-wide.course.json', 'Wide lache: a 6 m swing'], ['/assets/demo/stack.course.json', 'Stack demo: climb the cup pyramids'], ['/assets/demo/drop.course.json', 'Big drop: run off a ledge and roll'], ['/assets/demo/launch.course.json', 'Launch: the trebuchet throws you onto the tower'], ['/assets/demo/launch-bar.course.json', 'Launch and catch: grab the bar in the air'], ['/assets/demo/recoil.course.json', 'Recoil: throw a ball back, fly forward'], ['/assets/demo/coaster.course.json', 'Coaster: ride the hills'], ['/assets/demo/coaster-sharp.course.json', 'Coaster: a sharp hilltop (brake)'], ['/assets/demo/coaster-low.course.json', 'Coaster: first hill too low'], ['coaster-builder', 'Build your own coaster'], ['generate', 'Make me a new course (random)'], ['/assets/demo/lane-1.course.json', 'Demo scene, lane 1'], ['/assets/demo/lane-2.course.json', 'Demo scene, lane 2'], ['/assets/experiments/osm/eixample-barcelona.course.json', 'Place: Barcelona block'], ['/assets/experiments/osm/montmartre-paris.course.json', 'Place: Montmartre, Paris'], ['/assets/experiments/osm/circular-quay-sydney.course.json', 'Place: Sydney quay'], ['/assets/experiments/osm/san-francisco-lombard.course.json', 'Place: San Francisco hill (62 m of hill)'], ['editor', 'Build your own (editor)']];
+  const demos: [string, string][] = [['', 'Stock course'], ['/assets/demo/lache.course.json', 'Lache demo: run, vault, swing'], ['/assets/demo/lache-wide.course.json', 'Wide lache: a 6 m swing'], ['/assets/demo/stack.course.json', 'Stack demo: climb the cup pyramids'], ['/assets/demo/drop.course.json', 'Big drop: run off a ledge and roll'], ['/assets/demo/plank.course.json', 'Plank bridge: it sags but holds'], ['/assets/demo/plank-thin.course.json', 'Plank bridge: too thin, it breaks'], ['/assets/demo/launch.course.json', 'Launch: the trebuchet throws you onto the tower'], ['/assets/demo/launch-bar.course.json', 'Launch and catch: grab the bar in the air'], ['/assets/demo/recoil.course.json', 'Recoil: throw a ball back, fly forward'], ['/assets/demo/coaster.course.json', 'Coaster: ride the hills'], ['/assets/demo/coaster-sharp.course.json', 'Coaster: a sharp hilltop (brake)'], ['/assets/demo/coaster-low.course.json', 'Coaster: first hill too low'], ['coaster-builder', 'Build your own coaster'], ['generate', 'Make me a new course (random)'], ['/assets/demo/lane-1.course.json', 'Demo scene, lane 1'], ['/assets/demo/lane-2.course.json', 'Demo scene, lane 2'], ['/assets/experiments/osm/eixample-barcelona.course.json', 'Place: Barcelona block'], ['/assets/experiments/osm/montmartre-paris.course.json', 'Place: Montmartre, Paris'], ['/assets/experiments/osm/circular-quay-sydney.course.json', 'Place: Sydney quay'], ['/assets/experiments/osm/san-francisco-lombard.course.json', 'Place: San Francisco hill (62 m of hill)'], ['editor', 'Build your own (editor)']];
   const welcome = document.createElement('section');
   welcome.id = 'choose-world';
   welcome.setAttribute('role', 'dialog'); welcome.setAttribute('aria-labelledby', 'choose-world-title');
@@ -641,6 +645,12 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
   }
   // ?hangtest=1.0 (radians) hangs the runner still on the first bar at that angle, for the pivot screenshots
   const hangTest = params.get('hangtest') !== null && course.holds?.length ? Number(params.get('hangtest')) : null;
+  // ?planktest=0.5 stands the runner still on the first plank, that share of the way across, for the sag screenshots
+  const plankTest = params.get('planktest') !== null && course.planks?.length ? Number(params.get('planktest')) : null;
+  if (plankTest !== null) {
+    const pk = course.planks![0], a = plankTest * (pk.x1 - pk.x0);
+    world = { ...world, mode: 'plank', plank: { i: 0, v: 0, sagged: true }, runner: { ...world.runner, x: pk.x0 + a, y: topAt(pk, a, pk.x0 + a), vx: 0, vy: 0, grounded: true } };
+  }
   if (hangTest !== null) {
     const f = feetOf(course.holds![0], { hold: 0, theta: hangTest, omega: 0 });
     world = { ...world, mode: 'hang', hang: { hold: 0, theta: hangTest, omega: 0 }, runner: { ...world.runner, x: f.x, y: f.y, vx: 0, vy: 0, grounded: false } };
@@ -694,7 +704,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
 
   // The Dojo opens on the very obstacle the player fell at, with its real numbers (R1-L1, R1-L3).
   function trainLink(zoneId: string, x: number): string {
-    const q = new URLSearchParams({ mode: 'dojo', ex: zoneId === 'lache' ? 'bars' : zoneId === 'launch' ? 'lever' : zoneId, from: 'course' }); // the lache pair trains on the bar swing
+    const q = new URLSearchParams({ mode: 'dojo', ex: zoneId === 'lache' ? 'bars' : zoneId === 'launch' ? 'lever' : zoneId === 'plank' ? 'bridge' : zoneId, from: 'course' }); // the lache pair trains on the bar swing
     const jump = [...log].reverse().find((e) => e.type === 'jump');
     if (jump?.detail?.vx) q.set('speed', (jump.detail.vx as number).toFixed(1));
     if (zoneId === 'gap' || zoneId === 'landing') {
@@ -831,6 +841,14 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
   }
 
   // Coaster tips: what the track did, and what would have worked. Nothing about how well the rider played.
+  // The plank broke: what bent it too far, in plain words (no formulas on the Course).
+  function plankTip(): string {
+    const br = log.find((e) => e.type === 'plank-break');
+    const pk = course.planks?.[0];
+    if (!br || !pk) return 'The plank was too weak for the gap. Try again.';
+    const cm = ((br.detail?.sag as number) * 100).toFixed(0);
+    return `The plank bent ${cm} cm under you, more than it can take, and snapped ${(br.detail?.at as number).toFixed(1)} m from the edge. A thicker plank, a shorter gap, or a post under the middle each make it bend less. Try the Dojo bridge lesson to find out how much.`;
+  }
   function cartTip(what: 'splash' | 'slide' | 'stall'): string {
     if (what === 'stall') {
       const st = log.find((e) => e.type === 'cart-stall');
@@ -860,6 +878,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
     else if (what === 'hurt') tip = 'The ground stopped you too fast. Hold X as you land to roll: the same fall is spread over more time, and a roll keeps most of your speed.';
     else if (course.track) tip = cartTip(what);
     else if (course.recoil && zone?.id === 'recoil') tip = world.recoil && world.recoil.fired > 0 ? 'The push was not enough. A heavier ball, or a faster one, pushes harder. Fire as you leave the edge so the push carries through the whole flight.' : 'Run onto the teal pad, then press K to fire the launcher as you jump.';
+    else if (log.some((e) => e.type === 'plank-break')) tip = plankTip();
     else if (zone?.id === 'trampoline') tip = 'Press Space at the bottom of the bounce for extra height.';
     else if (zone?.id === 'rope') tip = 'Grab the rope on the way up, then press Space to let go when you are rising.';
     else if (!jump) tip = 'Press Space just before the edge.';
@@ -876,7 +895,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
     panel.innerHTML = '';
     panel.style.display = 'grid';
     const h = document.createElement('strong');
-    h.textContent = what === 'slide' ? 'You slid back down the wall.' : what === 'hurt' ? `Hard landing at the ${zone?.name ?? 'course'}.` : what === 'stall' ? 'The cart ran out of speed on a hill.' : log.some((e) => e.type === 'cart-off') ? 'The cart left the track at a hilltop.' : HAZARD_INFO[hazard].headline(zone?.name ?? 'course');
+    h.textContent = what === 'slide' ? 'You slid back down the wall.' : what === 'hurt' ? `Hard landing at the ${zone?.name ?? 'course'}.` : what === 'stall' ? 'The cart ran out of speed on a hill.' : log.some((e) => e.type === 'plank-break') ? 'The plank broke under you.' : log.some((e) => e.type === 'cart-off') ? 'The cart left the track at a hilltop.' : HAZARD_INFO[hazard].headline(zone?.name ?? 'course');
     const t = document.createElement('div'); t.textContent = tip;
     const floorNote = document.createElement('div'); floorNote.style.cssText = 'color:#58635d;font-size:13px'; floorNote.textContent = what === 'slide' || what === 'hurt' ? '' : HAZARD_INFO[hazard].hint;
     const row = document.createElement('div'); row.style.cssText = 'display:flex;flex-wrap:wrap;gap:8px';
@@ -923,6 +942,8 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
   let cueSince: number | null = null, cueDone = false;
   function hintFor(w: WorldState): string {
     const r = w.runner;
+    if (w.mode === 'plank') return 'The plank dips under you: it gives most in the middle. Keep running.';
+    if (course.planks?.length && w.mode === 'run' && w.outcome === 'running') { const pk = course.planks.find((q, i) => !w.broken?.includes(i) && q.x0 - w.runner.x > 0 && q.x0 - w.runner.x < 8); if (pk) return 'A plank bridge: run across it. A plank bends under your weight, most in the middle.'; }
     if (w.mode === 'cart') return w.cart?.started ? 'Height is speed. Hold ↓ to brake before a sharp hilltop.' : 'Press → to push off';
     if (w.mode === 'bounce') { cueDone = true; return ''; }
     // the trampoline cue comes early and stays for 4 seconds (or until you land on the bed), so it can be read before the bounce
@@ -994,7 +1015,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
       }
       const prev = world.outcome;
       prevMode = world.mode; prevVx = world.runner.vx;
-      if (hangTest === null) world = stepWorld(world, input, course);
+      if (hangTest === null && plankTest === null) world = stepWorld(world, input, course);
       updateRunProgress(world.runner.x);
       updateFlow(world.runner.tick, world.runner.vx, world.runner.vy);
       if (prevMode === 'run' && world.mode === 'wall') wallEntry = prevVx;
@@ -1064,6 +1085,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
     if (actor) actor.update({ ...actorStateFor(world, keys.has('ArrowDown') || keys.has('KeyS'), facing), x: ax, y: ay, ledge, next: world.mode === 'run' ? nextObstacle(r.x) : undefined });
     if (world.events.some((e) => e.type === 'cart-off')) cartFlying = true;
     trackView?.place(world, cartFlying);
+    plankView?.place(world);
     if (world.runner.tick > toastUntil) toast.style.display = 'none';
     paintStrip(r.x);
     drumLane.update(r.x);
