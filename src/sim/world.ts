@@ -7,7 +7,8 @@ import { DEFAULT_ROPE, ropePoint, release, swingStep, tryCatch, type RopeParams,
 import { DEFAULT_TRAMPOLINE, bounce, type Bounce } from './trampoline';
 import { JUMP_COST, VAULT_COST } from './energy';
 import { VAULT_BUFFER, VAULT_KEEP, findVault, vaultAt, type Vault } from './vault';
-import { comDistance, DEFAULT_HANG, feetOf, gripSlips, hangStep, releaseHang, tryGrab, type Hang } from './holds';
+import { GROUND_ROLL_COST, GROUND_ROLL_RECOVERY, startGroundRoll, stepGroundRoll, type GroundRoll } from './roll';
+import { bodyVelocity, feetOf, gripSlips, hangStep, releaseHang, tryGrab, type Hang } from './holds';
 import { enterCart, stepCartWorld, type Cart } from './cart';
 import { DEFAULT_TREBUCHET, deg, feetAt, isDud, launchStep, startLaunch, type Launch, type TrebuchetParams } from './trebuchet';
 
@@ -19,7 +20,7 @@ export type Outcome = 'running' | 'cleared' | 'splash' | 'hurt' | 'stalled'; // 
 
 export interface GameEvent {
   tick: number;
-  type: 'jump' | 'land' | 'stumble' | 'hard-landing' | 'splash' | 'wall-grab' | 'wall-slide' | 'rope-catch' | 'rope-release' | 'hang-catch' | 'hang-release' | 'vault' | 'bounce' | 'cleared' | 'cart-start' | 'cart-stall' | 'cart-off' | 'launch-fire' | 'launch-release' | 'launch-dud';
+  type: 'jump' | 'roll' | 'land' | 'stumble' | 'hard-landing' | 'splash' | 'wall-grab' | 'wall-slide' | 'rope-catch' | 'rope-release' | 'hang-catch' | 'hang-release' | 'vault' | 'bounce' | 'cleared' | 'cart-start' | 'cart-stall' | 'cart-off' | 'launch-fire' | 'launch-release' | 'launch-dud';
   detail?: Record<string, number | boolean>;
 }
 
@@ -39,7 +40,9 @@ export interface WorldState {
   lastPress: number; // tick of the last Space press, so a press just before landing counts
   lastVault: number; // tick of the last V press, so a press a moment before the obstacle still vaults it
   lastRoll: number; // tick of the last X press, so a press a quarter of a second before touchdown still rolls
-  rolledAt: number; // tick of the last roll landing (the actor plays the roll clip from here); -1000 = none
+  rolledAt: number; // tick of the last roll, on landing or on the ground (the actor plays the roll clip from here); -1000 = none
+  groundRoll: GroundRoll | null; // a roll along the ground in progress (X on the ground)
+  rollReadyAt: number; // tick from which the next ground roll may start (a short recovery)
   events: GameEvent[];
 }
 
@@ -51,9 +54,9 @@ export function newWorld(course: CourseData, x: number = course.startX): WorldSt
   if (tp && x <= tp.x + 0.5) { // the course starts in the sling: the rider lies at the end of the sling behind the machine
     const ln = startLaunch(tp, groundAt(course.terrain, tp.x));
     const f = feetAt(tp, ln);
-    return { runner: { ...r, x: f.x, y: f.y }, mode: 'launch', outcome: 'running', wall: null, swing: null, hang: null, vault: null, cart: null, launch: ln, energy: 1, bed: null, noCatchUntil: 0, lastPress: -1000, lastVault: -1000, lastRoll: -1000, rolledAt: -1000, events: [] };
+    return { runner: { ...r, x: f.x, y: f.y }, mode: 'launch', outcome: 'running', wall: null, swing: null, hang: null, vault: null, cart: null, launch: ln, energy: 1, bed: null, noCatchUntil: 0, lastPress: -1000, lastVault: -1000, lastRoll: -1000, rolledAt: -1000, groundRoll: null, rollReadyAt: 0, events: [] };
   }
-  const w: WorldState = { runner: r, mode: 'run', outcome: 'running', wall: null, swing: null, hang: null, vault: null, cart: null, launch: null, energy: 1, bed: null, noCatchUntil: 0, lastPress: -1000, lastVault: -1000, lastRoll: -1000, rolledAt: -1000, events: [] };
+  const w: WorldState = { runner: r, mode: 'run', outcome: 'running', wall: null, swing: null, hang: null, vault: null, cart: null, launch: null, energy: 1, bed: null, noCatchUntil: 0, lastPress: -1000, lastVault: -1000, lastRoll: -1000, rolledAt: -1000, groundRoll: null, rollReadyAt: 0, events: [] };
   return course.track ? enterCart(w, course) : w;
 }
 
@@ -87,8 +90,19 @@ export function stepWorld(w: WorldState, input: RunnerInput, course: CourseData,
     }
   }
 
+  // the ground roll (X on the ground, standing or running; a fresh press, not the one still held from a landing roll)
+  if (!w.groundRoll && w.runner.grounded && input.roll && w.lastRoll < w.runner.tick && w.runner.tick + 1 >= w.rollReadyAt && !input.jump && !input.vault) {
+    const g = startGroundRoll(w.runner, input.run && !input.left ? 1 : input.left && !input.run ? -1 : 0);
+    ev('roll', { vx: g.dir * g.v0 });
+    n.groundRoll = g; n.rolledAt = tick; n.energy = Math.max(0, w.energy - GROUND_ROLL_COST);
+  }
   const before = w.runner;
-  const r = step(before, input2, p, course.terrain);
+  let r: RunnerState;
+  if (n.groundRoll) {
+    const g = stepGroundRoll(before, n.groundRoll, course.terrain);
+    r = g.runner;
+    if (g.ended) { n.rollReadyAt = tick + Math.round(GROUND_ROLL_RECOVERY * 120); n.groundRoll = null; }
+  } else r = step(before, input2, p, course.terrain);
   n.runner = r;
   if (before.grounded && !r.grounded && input2.jump) { ev('jump', { vy: r.vy, vx: r.vx, x: r.x }); n.energy = Math.max(0, w.energy - JUMP_COST); if (course.jumpKeep !== undefined && course.jumpKeep !== 1) n.runner = { ...r, vx: r.vx * course.jumpKeep }; }
   if (!before.grounded && r.grounded && r.landing) {
@@ -223,8 +237,8 @@ function stepHang(w: WorldState, input: RunnerInput, course: CourseData): WorldS
     const rel = releaseHang(h, s);
     return { ...w, mode: 'run', hang: null, noCatchUntil: tick + 24, events: [{ tick, type: 'hang-release', detail: { vx: rel.vx, vy: rel.vy, slipped: true } }], runner: { ...w.runner, tick, x: rel.x, y: rel.y, vx: rel.vx, vy: rel.vy, grounded: false } };
   }
-  const f = feetOf(h, s), d = comDistance(DEFAULT_HANG);
-  return { ...w, hang: s, events: [], runner: { ...w.runner, tick, x: f.x, y: f.y, vx: s.omega * d * Math.cos(s.theta), vy: s.omega * d * Math.sin(s.theta), grounded: false } };
+  const f = feetOf(h, s), v = bodyVelocity(s);
+  return { ...w, hang: s, events: [], runner: { ...w.runner, tick, x: f.x, y: f.y, vx: v.vx, vy: v.vy, grounded: false } };
 }
 
 // The trebuchet: Space-free until the pin is pulled (the run key), then the arm swings; Space (or the pin angle, or the frame) lets the rider go.
