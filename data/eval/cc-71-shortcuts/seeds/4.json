@@ -1,0 +1,13 @@
+{
+  "seed": 4,
+  "name": "Generated course 4",
+  "zones": [
+    "Step up",
+    "Gap jump",
+    "Step up",
+    "Gap jump"
+  ],
+  "intendedSeconds": 22.47,
+  "searchSeconds": 0,
+  "shortcuts": []
+}

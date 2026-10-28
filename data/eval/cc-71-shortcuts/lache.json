@@ -1,0 +1,16 @@
+{
+  "course": "lache",
+  "title": "Lache demo: run, vault, swing",
+  "intendedSeconds": 11.83,
+  "searches": 5,
+  "searchSeconds": 67,
+  "complete": true,
+  "shortcuts": [],
+  "moveChoices": [
+    {
+      "move": "vault",
+      "withSeconds": 11.83,
+      "withoutSeconds": null
+    }
+  ]
+}

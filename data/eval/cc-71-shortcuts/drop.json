@@ -1,0 +1,16 @@
+{
+  "course": "drop",
+  "title": "Big drop: run off a ledge and roll",
+  "intendedSeconds": 6.85,
+  "searches": 1,
+  "searchSeconds": 0,
+  "complete": true,
+  "shortcuts": [],
+  "moveChoices": [
+    {
+      "move": "roll",
+      "withSeconds": 6.85,
+      "withoutSeconds": null
+    }
+  ]
+}

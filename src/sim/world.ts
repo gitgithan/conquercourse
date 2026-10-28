@@ -75,7 +75,7 @@ const ropeParams = (c: CourseData): RopeParams => ({ ...DEFAULT_ROPE, ...(c.rope
 
 export function stepWorld(w: WorldState, input: RunnerInput, course: CourseData, p: RunnerParams = DEFAULT_PARAMS): WorldState {
   if (w.outcome !== 'running') return { ...w, runner: { ...w.runner, tick: w.runner.tick + 1 } };
-  const rolling = input.roll || w.runner.tick + 1 - w.lastRoll <= ROLL_BUFFER;
+  const rolling = !course.off?.includes('roll') && (input.roll || w.runner.tick + 1 - w.lastRoll <= ROLL_BUFFER);
   const input2: RunnerInput = { ...(input.jump && w.runner.grounded && w.mode === 'run' ? { ...input, jumpSpeed: course.jumpSpeed } : input), roll: rolling };
   const events: GameEvent[] = [];
   const tick = w.runner.tick + 1;
@@ -94,7 +94,7 @@ export function stepWorld(w: WorldState, input: RunnerInput, course: CourseData,
   if (course.planks) { const onPlank = maybeEnterPlank(w, input, course); if (onPlank) return onPlank; }
 
   // the vault: a hand on top of the obstacle just ahead, the body goes over it and keeps most of the speed
-  if (n.lastVault >= 0 && w.runner.tick + 1 - n.lastVault <= VAULT_BUFFER && w.runner.grounded) { // a V pressed up to a fifth of a second early still counts
+  if (n.lastVault >= 0 && !course.off?.includes('vault') && w.runner.tick + 1 - n.lastVault <= VAULT_BUFFER && w.runner.grounded) { // a V pressed up to a fifth of a second early still counts
     const v = findVault(course.terrain, w.runner.x, w.runner.y, w.runner.vx);
     if (v) {
       ev('vault', { rise: v.y1 - v.y0, vx: w.runner.vx });
@@ -177,7 +177,7 @@ export function stepWorld(w: WorldState, input: RunnerInput, course: CourseData,
   }
 
   // the wall: running onto the curve with the feet on the ground
-  if (course.wall && n.mode === 'run' && r.grounded && r.vx > 0.5 && r.x >= course.wall.x0 && r.y === groundAt(course.terrain, course.wall.x0)) {
+  if (course.wall && !course.off?.includes('wall') && n.mode === 'run' && r.grounded && r.vx > 0.5 && r.x >= course.wall.x0 && r.y === groundAt(course.terrain, course.wall.x0)) {
     const wp = wallParams(course);
     const result = runWall(r.vx, wp);
     n.mode = 'wall';
@@ -185,7 +185,7 @@ export function stepWorld(w: WorldState, input: RunnerInput, course: CourseData,
   }
 
   // the rope: airborne hands meet it
-  if (course.rope && n.mode === 'run' && !r.grounded && r.tick >= w.noCatchUntil) {
+  if (course.rope && !course.off?.includes('rope') && n.mode === 'run' && !r.grounded && r.tick >= w.noCatchUntil) {
     const sw = tryCatch(ropeParams(course), r.x, r.y, r.vx, r.vy, 0);
     if (sw) {
       n.mode = 'swing';

@@ -1,4 +1,5 @@
 import { HAZARDS } from '../course/hazard';
+import { findShortcuts, type Shortcut } from '../sim/shortcuts';
 import type { CourseData } from '../course/course';
 import { playPlan, searchIdealRun, type Plan } from '../sim/ideal';
 
@@ -157,4 +158,25 @@ interface Proved { plan: Plan; hangs: number } // hangs: how many times the prov
 
 export function generateCourse(seed: number, opts?: GenOptions): CourseData {
   return generateDetailed(seed, opts).course;
+}
+
+// Shortcut check (CC-71): does a generated course contain a route the generator did not plan (src/sim/shortcuts.ts)?
+// 'label' keeps the course and stores what was found in `course.shortcuts`; 'refuse' tries the next seeds until a course has none.
+export interface CheckedOptions extends GenOptions { shortcuts: 'label' | 'refuse'; tries?: number; find?: (c: CourseData) => Shortcut[] }
+export interface Checked { course: CourseData; seed: number; shortcuts: Shortcut[]; refused: number[] }
+export function generateChecked(seed: number, opts: CheckedOptions): Checked {
+  const find = opts.find ?? ((c: CourseData) => findShortcuts(c, { moveChoices: false }).shortcuts);
+  const refused: number[] = [];
+  const tries = opts.shortcuts === 'refuse' ? Math.max(1, opts.tries ?? 6) : 1;
+  let last: Checked | null = null;
+  for (let k = 0; k < tries; k++) {
+    const sd = seed + k * 7919;
+    const course = generateCourse(sd, opts);
+    const found = find(course);
+    last = { course, seed: sd, shortcuts: found, refused };
+    if (!found.length) return last;
+    refused.push(sd);
+  }
+  if (opts.shortcuts === 'label' && last) last.course = { ...last.course, shortcuts: last.shortcuts };
+  return last!;
 }
