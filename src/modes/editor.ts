@@ -2,7 +2,7 @@ import { HAZARDS, HAZARD_INFO, type Hazard } from '../course/hazard';
 import { startCourse } from './course';
 import { readGlbMesh } from '../slice/glb';
 import { LIBRARY } from '../slice/shapes';
-import { bestSlices, describe as describeLane, laneToCourse, sliceProfile, CELL, HALF_LANE } from '../slice/slice';
+import { bestSlices, describe as describeLane, sliceProfile, CELL, HALF_LANE } from '../slice/slice';
 import { crop, duplicate, hits, newPiece, realSize, scaleBy, scaleToHeight, size, worldSamples, type Piece } from '../slice/world';
 import { searchIdealRun } from '../sim/ideal';
 import { createView3d, type Ghosts } from '../slice/view3d';
@@ -17,11 +17,12 @@ import { fixBars } from '../slice/fixbars';
 import { adviseLane, type Advice } from '../slice/advice';
 import { parseReply, worldBrief, type Edit } from '../slice/designer';
 import { diffProposal, enabledCount, fromAdvice, fromEdits, resultOf, type Proposal } from '../slice/preview';
+import { ROLE_NAME, applySuggestion, movesInWorld, roleCourse, suggestRoles, type Role, type RoleSuggestion } from '../slice/roles';
 
 // The World editor (beta): build a world from pieces on a plan view, scale them (a toy brick becomes a block), turn, copy, crop and move them,
 // choose the lane the runner takes (turn about the rod, sideways, level), and play it. Everything is in metres.
 const KEY = 'cc.world.v1';
-interface Saved { pieces: { src: string; x: number; z: number; y: number; yaw: number; scale: number }[]; angle: number; offset: number; level: number }
+interface Saved { pieces: { src: string; x: number; z: number; y: number; yaw: number; scale: number; role?: Role }[]; angle: number; offset: number; level: number }
 type P = Piece & { src?: string };
 
 export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
@@ -35,12 +36,12 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
     .ed .planwrap{min-height:0;min-width:0;position:relative;background:#fff;border:1px solid #cfd6d0;border-radius:10px;overflow:hidden}
     .ed canvas{display:block;touch-action:none}
     .ed .profilewrap{background:#fff;border:1px solid #cfd6d0;border-radius:10px;overflow:hidden;min-width:0}
-    .ed .aside{padding-bottom:46px;display:grid;gap:8px;grid-template-rows:auto auto minmax(0,1fr);align-content:start;min-height:0;overflow:hidden}.ed .helper{position:absolute;right:10px;bottom:10px;z-index:5;width:min(400px,calc(100% - 20px));height:min(330px,calc(100% - 20px));box-sizing:border-box;box-shadow:0 6px 24px #0003;grid-template-rows:auto auto minmax(0,1fr) auto;overflow:hidden}.ed .helper.closed{display:none}.ed .helper textarea{min-height:56px}.ed .reply{overflow:auto;font-size:13px;min-height:0}.ed textarea{font:inherit;width:100%;box-sizing:border-box;border:1px solid #b9c2bb;border-radius:8px;padding:4px 6px;resize:none}
+    .ed .aside{padding-bottom:46px;display:grid;gap:8px;grid-template-rows:auto auto minmax(0,1fr);align-content:start;min-height:0;overflow:hidden}.ed .helper{position:absolute;right:10px;bottom:10px;z-index:5;width:min(400px,calc(100% - 20px));height:min(330px,calc(100% - 20px));box-sizing:border-box;box-shadow:0 6px 24px #0003;grid-template-rows:auto auto minmax(0,1fr) auto;overflow:hidden}.ed .helper.closed{display:none}.ed .moves{position:absolute;left:10px;top:46px;z-index:5;width:min(380px,calc(100% - 20px));max-height:calc(100% - 56px);overflow:auto;box-sizing:border-box;box-shadow:0 6px 24px #0003;display:grid;gap:6px}.ed .moves.closed{display:none}.ed .moves .mv{display:grid;grid-template-columns:20px 1fr;gap:0 6px;font-size:13px}.ed .moves .mv .need{grid-column:2;color:#5b665f;font-size:12px}.ed .moves .yes{color:#0f6b5c;font-weight:700}.ed .moves .no{color:#a33}.ed .moves .sg{border-top:1px solid #dde3dd;padding-top:4px;font-size:13px}.ed .helper textarea{min-height:56px}.ed .reply{overflow:auto;font-size:13px;min-height:0}.ed textarea{font:inherit;width:100%;box-sizing:border-box;border:1px solid #b9c2bb;border-radius:8px;padding:4px 6px;resize:none}
     .ed .panel{background:#fff;border:1px solid #cfd6d0;border-radius:10px;padding:8px;display:grid;gap:5px;align-content:start}
     .ed label{display:grid;gap:1px;font-size:13px}.ed .muted{color:#58635d;font-size:12px}.ed .ok{border-left:4px solid #0f6b5c;padding:3px 6px;background:#f3f7f4;font-weight:600;font-size:13px}.ed .bad{border-left:4px solid #c0392b;padding:3px 6px;background:#fbeeee;font-weight:600;font-size:13px}
     .ed .pvrow{display:flex;gap:6px;align-items:flex-start;font-size:13px;margin:2px 0}.ed .pvrow input{margin-top:2px}
     .ed .row{display:flex;flex-wrap:wrap;gap:5px;align-items:center}.ed input[type=range]{width:100%;margin:0}.ed input[type=number]{width:100%;box-sizing:border-box}
-    @media(max-height:700px){.ed .muted.help{display:none}.ed .panel{gap:3px}}
+    @media(max-height:700px){.ed .muted.help{display:none}.ed .panel{gap:2px;padding:4px 7px}.ed .aside{gap:4px;padding-bottom:40px}}
     @media(max-width:800px){.ed{grid-template-columns:minmax(0,1fr) 220px}}`;  document.head.appendChild(style);
   const root = document.createElement('div');
   root.className = 'ed';
@@ -52,6 +53,7 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
   let view = { cx: 8, cz: 0, ppm: 36 }; // plan view: the world point in the middle, pixels per metre
   let cropMode = false;
   let verdict = '';
+  let movesReady = false; // the Moves window exists (changed() may run before it is built)
   const pendingObjects: Saved['pieces'] = []; // saved photo objects, loaded once the list is in
 
   // a new piece goes just past the last one, on the lane's line, so pieces do not pile up
@@ -63,6 +65,7 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
       const s = JSON.parse(localStorage.getItem(KEY) ?? '') as Saved;
       pendingObjects.push(...s.pieces.filter((q) => q.src.startsWith('obj:')));
       pieces = s.pieces.filter((q) => !q.src.startsWith('obj:')).map((q) => (patternOf(q.src) ? { ...stackPiece(q.src, { x: q.x, z: q.z })!, y: q.y, yaw: q.yaw, scale: q.scale } : q.src.startsWith('box:') ? { ...pieceFromSrc(q.src, { x: q.x, z: q.z })!, y: q.y, yaw: q.yaw, scale: q.scale } : q.src === 'hold:bar' ? { ...newPiece('Bar', barMesh(), { x: q.x, z: q.z }), src: q.src, y: q.y, yaw: q.yaw, scale: q.scale } : { ...newPiece(lib(q.src).label, lib(q.src).mesh(), { x: q.x, z: q.z }), src: q.src, y: q.y, yaw: q.yaw, scale: q.scale }));
+      s.pieces.filter((q) => !q.src.startsWith('obj:')).forEach((q, i) => { if (q.role && pieces[i]) pieces[i].role = q.role; });
       angle = s.angle; offset = s.offset; level = s.level;
     } catch {
       // a first world made of real objects (no blocks): a bench, a long low box and a rail, loaded once the object list is in
@@ -70,7 +73,7 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
       selected = null;
     }
   }
-  const save = () => { try { localStorage.setItem(KEY, JSON.stringify({ pieces: pieces.filter((p) => p.src && !p.src.startsWith('map:')).map((p) => ({ src: p.src as string, x: p.x, z: p.z, y: p.y, yaw: p.yaw, scale: p.scale })), angle, offset, level } satisfies Saved)); } catch { /* private window */ } };
+  const save = () => { try { localStorage.setItem(KEY, JSON.stringify({ pieces: pieces.filter((p) => p.src && !p.src.startsWith('map:')).map((p) => ({ src: p.src as string, x: p.x, z: p.z, y: p.y, yaw: p.yaw, scale: p.scale, ...(p.role ? { role: p.role } : {}) })), angle, offset, level } satisfies Saved)); } catch { /* private window */ } };
   load();
   try { // a place built in ?mode=map arrives once, as the whole world; it is not saved
     const m = JSON.parse(sessionStorage.getItem('cc.map.piece') ?? 'null') as { name: string; positions: number[]; indices: number[] } | null;
@@ -91,7 +94,7 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
   const hist: Snap[] = [];
   let hi = -1;
   const snapNow = (): Snap => ({ pieces: pieces.map((q) => ({ ...q })), angle, offset, level });
-  const same = (a: Snap, b: Snap) => a.angle === b.angle && a.offset === b.offset && a.level === b.level && a.pieces.length === b.pieces.length && a.pieces.every((q, i) => { const r = b.pieces[i]; return q.id === r.id && q.x === r.x && q.z === r.z && q.y === r.y && q.yaw === r.yaw && q.scale === r.scale && q.mesh === r.mesh; });
+  const same = (a: Snap, b: Snap) => a.angle === b.angle && a.offset === b.offset && a.level === b.level && a.pieces.length === b.pieces.length && a.pieces.every((q, i) => { const r = b.pieces[i]; return q.id === r.id && q.x === r.x && q.z === r.z && q.y === r.y && q.yaw === r.yaw && q.scale === r.scale && q.mesh === r.mesh && q.role === r.role; });
   const remember = () => { const n = snapNow(); if (hi >= 0 && same(hist[hi], n)) return; hist.splice(hi + 1); hist.push(n); if (hist.length > 80) hist.shift(); hi = hist.length - 1; undoBtn.disabled = hi < 1; redoBtn.disabled = true; };
   const goto = (k: number) => { const t = hist[k]; if (!t) return; hi = k; pieces = t.pieces.map((q) => ({ ...q })); angle = t.angle; offset = t.offset; level = t.level; if (!pieces.some((q) => q.id === selected)) selected = null; undoBtn.disabled = hi < 1; redoBtn.disabled = hi >= hist.length - 1; changed(false); };
   const undoBtn = el('button', top, { text: 'Undo', id: 'undo', title: 'Undo (Ctrl+Z)' });
@@ -116,7 +119,7 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
       }
       // pieces saved from a past visit
       for (const q of pendingObjects) {
-        try { const p: P = { ...newPiece(q.src, readGlbMesh(await (await fetch(`/assets/objects/${q.src.slice(4)}`)).arrayBuffer()), { x: q.x, z: q.z }), src: q.src, y: q.y, yaw: q.yaw, scale: q.scale }; pieces.push(p); } catch { /* a missing object is skipped */ }
+        try { const p: P = { ...newPiece(q.src, readGlbMesh(await (await fetch(`/assets/objects/${q.src.slice(4)}`)).arrayBuffer()), { x: q.x, z: q.z }), src: q.src, y: q.y, yaw: q.yaw, scale: q.scale, ...(q.role ? { role: q.role } : {}) }; pieces.push(p); } catch { /* a missing object is skipped */ }
       }
       if (pendingObjects.length) { pendingObjects.length = 0; changed(false); hist.length = 0; hi = -1; remember(); } // the saved or first world is the starting point of the undo list
     } catch { /* no objects on this site */ }
@@ -192,6 +195,69 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
   const helperBtn = el('button', top, { text: 'Design partner', id: 'helperbtn', title: 'Show or hide the design partner' });
   helperBtn.setAttribute('aria-pressed', 'true');
   helperBtn.onclick = () => { const closed = helper.classList.toggle('closed'); helperBtn.setAttribute('aria-pressed', String(!closed)); };
+
+  // ---- the Moves window (CC-43): which moves this world has and lacks, and what each piece could be; every suggestion is proved by the simulator and goes through the shared preview
+  const movesBox = el('div', planWrap, { className: 'panel moves closed', id: 'moves' });
+  const movesBtn = el('button', planWrap, { text: 'Moves', id: 'movesbtn', title: 'Which moves this world has, what each needs, and what your pieces could be' }); // a chip on the picture, so the top bar does not grow a line
+  movesBtn.style.cssText = 'position:absolute;left:10px;top:10px;z-index:6';
+  movesBtn.setAttribute('aria-pressed', 'false');
+  movesBtn.onclick = () => { const closed = movesBox.classList.toggle('closed'); movesBtn.setAttribute('aria-pressed', String(!closed)); if (!closed) renderMoves(); };
+  let movesBusy = '', movesList: { label: string; items: RoleSuggestion[] } | null = null;
+  const laneNow = () => ({ angle, offset, level });
+  function roleProposal(sg: RoleSuggestion): Proposal {
+    const next = applySuggestion(pieces, sg);
+    return diffProposal('role', 'A way to use a piece', pieces, laneNow(), next, laneNow(), [sg.words], sg.proved === true ? true : undefined);
+  }
+  function findWays(only?: number) {
+    if (movesBusy) return;
+    movesBusy = only === undefined ? 'the world' : 'this piece'; renderMoves();
+    setTimeout(() => {
+      const items = suggestRoles(pieces, laneNow(), { budgetMs: 40000, ...(only !== undefined ? { only } : {}) }).filter((x) => x.proved);
+      movesList = { label: only === undefined ? 'Ways to add a missing move (each one checked by the simulator)' : 'What this piece could be (each one checked by the simulator)', items };
+      movesBusy = ''; document.documentElement.dataset.roleSuggestions = String(items.length); renderMoves();
+    }, 30);
+  }
+  function renderMoves() {
+    if (!movesReady || movesBox.classList.contains('closed')) return;
+    movesBox.replaceChildren();
+    const hd = el('div', movesBox, { className: 'row' });
+    el('strong', hd, { text: 'Moves in this world' });
+    el('button', hd, { text: '✕', id: 'closemoves', title: 'Hide' }).onclick = () => { movesBox.classList.add('closed'); movesBtn.setAttribute('aria-pressed', 'false'); };
+    const status = movesInWorld(pieces, laneNow(), { trebuchet: !!trebuchetKg });
+    document.documentElement.dataset.moves = JSON.stringify(Object.fromEntries(status.map((m) => [m.id, m.have])));
+    for (const m of status) {
+      const row = el('div', movesBox, { className: 'mv' });
+      el('span', row, { className: m.have === 'yes' ? 'yes' : m.have === 'no' ? 'no' : 'muted', text: m.have === 'yes' ? '✓' : m.have === 'no' ? '✗' : '↗' });
+      el('span', row, { text: `${m.name}: ${m.detail}` });
+      if (m.have !== 'yes') el('span', row, { className: 'need', text: m.need });
+      if (m.have === 'no' && m.id === 'lache') el('button', row, { text: 'Add two bars', id: 'addbars', className: 'go' }).onclick = () => { addBarPiece(view.cx - 1.6, 2.9); addBarPiece(view.cx + 1.6, 2.9); changed(); };
+      if (m.have === 'no' && m.id === 'trebuchet') el('button', row, { text: 'Start in a trebuchet', id: 'movestreb' }).onclick = () => document.getElementById('addtreb')?.click();
+      if (m.have === 'elsewhere') { const a = el('a', row, { text: 'Open the coaster builder', href: '?mode=coaster' }); a.className = 'btn'; }
+    }
+    const sel = pieces.find((q) => q.id === selected);
+    if (sel && !isHold(sel)) {
+      const row = el('div', movesBox, { className: 'sg' });
+      el('div', row, { text: `Selected piece: ${sel.name}` });
+      const lab = el('label', row, { text: 'Use it as ' });
+      const pick = el('select', lab, { id: 'rolepick' });
+      for (const r of ['ground', 'wall', 'rope', 'trampoline'] as Role[]) el('option', pick, { value: r, text: ROLE_NAME[r] });
+      pick.value = sel.role ?? 'ground';
+      pick.onchange = () => { sel.role = pick.value === 'ground' ? undefined : (pick.value as Role); changed(); };
+      el('button', row, { text: 'What could this be?', id: 'whatcould' }).onclick = () => findWays(sel.id);
+    }
+    el('button', movesBox, { text: movesBusy ? `Checking ${movesBusy} with the simulator…` : 'Find ways to add the missing moves', id: 'findways', className: 'go' }).onclick = () => findWays();
+    if (movesBusy) (document.getElementById('findways') as HTMLButtonElement).disabled = true;
+    if (movesList) {
+      el('strong', movesBox, { text: movesList.label });
+      if (!movesList.items.length) el('div', movesBox, { className: 'muted', text: 'No single change gives a missing move here. Try other pieces, or scale one by hand.' });
+      for (const sg of movesList.items) {
+        const row = el('div', movesBox, { className: 'sg' });
+        el('div', row, { text: sg.words });
+        el('button', row, { text: 'Show it', className: 'go', title: 'See where it would go before anything changes' }).onclick = () => { leadText = ''; showProposal(roleProposal(sg)); };
+      }
+    }
+  }
+  movesReady = true;
   // ---- labs (?labs=1, or ?photo=<url>): a park photo becomes a first draft of a course; the simulator checks it and Fix it repairs it
   if (/[?&](labs|photo)\b/.test(location.search)) {
     const fileIn = el('input', top, { type: 'file', accept: 'image/jpeg,image/png', id: 'photofile' }) as HTMLInputElement;
@@ -341,7 +407,7 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
   function updatePreview() {
     if (!proposal) { preview = null; previewProfile = null; previewBars = []; return; }
     preview = resultOf(pieces, { angle, offset, level }, proposal);
-    previewProfile = sliceProfile(worldSamples(preview.pieces.filter((q) => !isHold(q))), { x: 0, z: 0 }, preview.lane);
+    previewProfile = sliceProfile(worldSamples(preview.pieces.filter((q) => !isHold(q) && q.role !== 'rope')), { x: 0, z: 0 }, preview.lane);
     previewBars = holdsOf(preview.pieces, preview.lane);
     draw(); drawProfile();
     const key = keyOf(proposal), mine = ++proofRun;
@@ -355,7 +421,7 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
   function applyProposal() {
     if (!proposal || !preview) return;
     const r = preview, words = proposal.items.filter((i) => i.on).map((i) => i.words).join(' ');
-    for (const q of r.pieces) { const mine = pieces.find((x) => x.id === q.id); if (mine) { mine.x = q.x; mine.z = q.z; mine.y = q.y; mine.yaw = q.yaw; mine.scale = q.scale; } }
+    for (const q of r.pieces) { const mine = pieces.find((x) => x.id === q.id); if (mine) { mine.x = q.x; mine.z = q.z; mine.y = q.y; mine.yaw = q.yaw; mine.scale = q.scale; mine.role = q.role; } }
     angle = r.lane.angle; offset = r.lane.offset; level = r.lane.level;
     proposal = null; preview = null; previewProfile = null; previewBars = []; proofRun++;
     changed(); // one undo step
@@ -484,12 +550,12 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
     el('div', lanePanel, { id: 'verdict', className: verdict.startsWith('The simulator can') ? 'ok' : verdict ? 'bad' : 'muted', text: verdict });
   }
 
-  const ground = () => pieces.filter((q) => !isHold(q)); // bars are not ground
+  const ground = () => pieces.filter((q) => !isHold(q) && q.role !== 'rope'); // bars and rope anchors are not ground
   const currentProfile = () => sliceProfile(worldSamples(ground()), { x: 0, z: 0 }, { angle, offset, level });
   const barsNow = () => holdsOf(pieces, { angle, offset, level });
   let floorChoice: Hazard = 'water'; // the floor you must not touch (saved in the course)
   let trebuchetKg: number | null = null; // the lane starts in a trebuchet (the counterweight in kg), or on a plain deck
-  const laneCourse = (p: ReturnType<typeof currentProfile>) => { const c = laneToCourse(p, 'My world', barsNow()); return trebuchetKg ? withTrebuchet(c, trebuchetKg) : c; };
+  const laneCourse = (_p?: ReturnType<typeof currentProfile>) => { const c = roleCourse(pieces, { angle, offset, level }, 'My world').course; return trebuchetKg ? withTrebuchet(c, trebuchetKg) : c; };
   const courseNow = () => { const c = laneCourse(currentProfile()); if (floorChoice !== 'water') c.hazard = floorChoice; return c; };
   let verifyTimer = 0, adviceRun = 0;
   function verify() {
@@ -505,6 +571,8 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
       adviceList = []; showAdvice();
       if (!verdict.startsWith('The simulator can') && p.length >= 8 && barsNow().length) {
         adviceBox.textContent = 'This lane has bars. Drag them in the side view (position and height), or press Fix it to try small moves of the bars.';
+      } else if (!verdict.startsWith('The simulator can') && p.length >= 8 && pieces.some((q) => q.role && q.role !== 'ground')) {
+        adviceBox.textContent = 'This lane uses roles (wall, rope anchor or trampoline bed). Open Moves to see what each needs, or press Fix it.';
       } else if (!verdict.startsWith('The simulator can') && p.length >= 8) {
         const mine = ++adviceRun;
         setTimeout(() => { if (mine !== adviceRun) return; adviceList = adviseLane(pieces, { angle, offset, level }); showAdvice(); if (!adviceList.length) adviceBox.textContent = 'No single small shift clears it. Press "What should I change?" to think it through together.'; document.documentElement.dataset.advice = String(adviceList.length); }, 30);
@@ -703,7 +771,7 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
     if (e.code === 'KeyD') { const q = duplicate(p, size(p.mesh).w * p.scale + 0.5, 0) as P; q.src = p.src; pieces.push(q); selected = q.id; changed(); }
   });
 
-  function changed(record = true) { if (proposal) closePreview('The layout changed, so the preview was closed.'); if (record) remember(); document.documentElement.dataset.pieces = String(pieces.length); save(); drawPanel(); drawLanePanel(); draw(); drawProfile(); verify(); }
+  function changed(record = true) { if (proposal) closePreview('The layout changed, so the preview was closed.'); if (record) remember(); document.documentElement.dataset.pieces = String(pieces.length); save(); drawPanel(); drawLanePanel(); draw(); drawProfile(); verify(); renderMoves(); }
   drawPanel(); drawLanePanel(); draw(); drawProfile(); verify();
   remember();
   document.documentElement.dataset.pieces = String(pieces.length);
