@@ -141,7 +141,7 @@ export function stepWorld(w: WorldState, input: RunnerInput, course: CourseData,
 
   // a bar: airborne with a hand on the key and the hands within reach of it
   if (course.holds?.length && n.mode === 'run' && !r.grounded && r.tick >= w.noCatchUntil && (input.handL || input.handR)) {
-    const g = tryGrab(course.holds, r.x, r.y, r.vx, r.vy);
+    const g = tryGrab(course.holds, r.x, r.y, r.vx, r.vy, undefined, w.noCatchUntil > 0);
     if (g) {
       n.mode = 'hang';
       n.hang = g;

@@ -1,4 +1,5 @@
 import type { CourseData } from '../course/course';
+import { rollAdvised } from './drop';
 import { inputFor, searchIdealRun, type Plan } from './ideal';
 import { newWorld, stepWorld } from './world';
 
@@ -22,8 +23,10 @@ export function drumsFor(course: CourseData, plan: Plan = course.plan ?? searchI
     was = input.jump;
     if (input.vault && !wasVault) drums.push({ x: w.runner.x, what: 'vault' });
     wasVault = !!input.vault;
-    if (input.roll && !wasRoll) drums.push({ x: w.runner.x, what: 'roll' });
-    wasRoll = !!input.roll;
+    // one X drum per landing: where the line presses the roll, and also where landing without a roll would stumble or hurt
+    const rollNow = !!input.roll || rollAdvised(w, course);
+    if (rollNow && !wasRoll) drums.push({ x: w.runner.x, what: 'roll' });
+    wasRoll = rollNow;
     w = stepWorld(w, input, course);
     if (prevMode !== 'hang' && w.mode === 'hang') drums.push({ x: w.runner.x, what: 'grab' }); // E closes on the bar
     if (prevMode === 'hang' && w.mode !== 'hang') drums.push({ x: w.runner.x, what: 'release' }); // both hands let go

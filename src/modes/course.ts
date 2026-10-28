@@ -19,7 +19,7 @@ import { track } from '../ui/feedback';
 import { createRookieActor } from '../render/actor';
 import { lookSwitchOn, lookUrl } from '../render/look';
 import { makeObstacle } from '../course/collide';
-import { DEFAULT_HANG, feetOf } from '../sim/holds';
+import { DEFAULT_HANG, feetOf, handOffset } from '../sim/holds';
 import { actorStateFor } from '../motion/actor-state';
 import { groundAt } from '../sim/terrain';
 import { drumsFor } from '../sim/drums';
@@ -76,6 +76,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
   const PIP_W = 260, PIP_H = 195, PIP_BOTTOM = 118;
   const frontCam = new THREE.PerspectiveCamera(75, PIP_W / PIP_H, 0.1, 200); // first person: wide, from the eyes
   let frontForced = params.get('front') === '1';
+  let pipRoll = 0, pipClock = 0; // the head's turn about the bar (rad) and the clock it settles by
   const pipFrame = document.createElement('div');
   pipFrame.id = 'frontview';
   pipFrame.style.cssText = `position:fixed;right:16px;bottom:${PIP_BOTTOM}px;width:${PIP_W}px;height:${PIP_H}px;box-sizing:border-box;border:3px solid #17201d;border-radius:10px;pointer-events:none;display:none;box-shadow:0 4px 14px #0004`;
@@ -833,7 +834,8 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
     if (Math.abs(world.runner.vx) > 0.3 && world.mode !== 'hang') facing = world.runner.vx < 0 ? -1 : 1; // on a bar the body keeps facing one way, whichever way it swings
     // on a bar the actor is turned about its hands, so it is placed with the hands on the bar (feet straight below it before the turn), like the rope
     const hangHold = world.mode === 'hang' && world.hang ? course.holds?.[world.hang.hold] : undefined;
-    const ax = hangHold ? hangHold.x : r.x, ay = hangHold ? hangHold.y - DEFAULT_HANG.handHeight : r.y;
+    const hOff = hangHold && world.hang ? handOffset(world.hang) : { x: 0, y: 0 }; // the hands ease onto the bar over a few ticks after a catch
+    const ax = hangHold ? hangHold.x + hOff.x : r.x, ay = hangHold ? hangHold.y + hOff.y - DEFAULT_HANG.handHeight : r.y;
     if (actor) actor.update({ ...actorStateFor(world, keys.has('ArrowDown') || keys.has('KeyS'), facing), x: ax, y: ay, ledge, next: world.mode === 'run' ? nextObstacle(r.x) : undefined });
     if (world.events.some((e) => e.type === 'cart-off')) cartFlying = true;
     trackView?.place(world, cartFlying);
@@ -905,12 +907,21 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
     const showFront = frontForced || world.mode === 'hang';
     pipFrame.style.display = showFront ? 'block' : 'none';
     if (showFront) {
-      // first person: the eyes, looking ahead along the way the body faces and a little down; the horizon stays level (the head is steady, it does not roll with the swing)
+      // first person: the eyes, looking the way the body faces and a little down, turned with the body about the bar (a rotation, so it passes the top smoothly):
+      // swinging round shows the sky and the ground. After a release the head settles level over about 0.3 s (the body has no spin in flight); on the ground it is level.
+      const nowS = performance.now() / 1000, dt = Math.min(0.05, Math.max(0, nowS - pipClock)); pipClock = nowS;
+      if (world.mode === 'hang' && world.hang) pipRoll = world.hang.theta;
+      else if (!r.grounded) pipRoll *= Math.exp(-dt / 0.1);
+      else pipRoll = 0;
+      const qRoll = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 0, 1), pipRoll);
+      const fwd = new THREE.Vector3(facing * Math.cos(0.1), -Math.sin(0.1), 0).applyQuaternion(qRoll);
+      const nose = new THREE.Vector3(0.15 * facing, 0, 0).applyQuaternion(qRoll);
       const hold = world.hang ? course.holds?.[world.hang.hold] : undefined;
       const eye = hold && world.hang
-        ? { x: hold.x + 0.4 * Math.sin(world.hang.theta) + 0.15 * facing, y: hold.y - 0.4 * Math.cos(world.hang.theta) } // just under the hands, along the arms
-        : { x: r.x + 0.15 * facing, y: r.y + 1.62 };
-      frontCam.position.set(eye.x, eye.y, 0.1); frontCam.lookAt(eye.x + 10 * facing, eye.y - 1.2, 0.1);
+        ? { x: hold.x + 0.4 * Math.sin(world.hang.theta) + nose.x, y: hold.y - 0.4 * Math.cos(world.hang.theta) + nose.y } // just under the hands, along the arms
+        : { x: r.x + nose.x, y: r.y + 1.62 + nose.y };
+      frontCam.up.set(0, 1, 0).applyQuaternion(qRoll);
+      frontCam.position.set(eye.x, eye.y, 0.1); frontCam.lookAt(eye.x + 10 * fwd.x, eye.y + 10 * fwd.y, 0.1);
       const actorWasVisible = actor?.object.visible ?? false;
       if (actor) actor.object.visible = false; // no body in front of the eyes
       const W = host.clientWidth, H = host.clientHeight;

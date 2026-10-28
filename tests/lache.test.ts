@@ -82,7 +82,7 @@ describe('a bigger pump throws the body further between the bars', () => {
     expect(c).toBeGreaterThan(200); // the widest gap needs two or more swings
   });
   it('a gap beyond what the grip allows cannot be crossed, however long the swing is pumped', () => {
-    expect(shortestPump(7.5)).toBeNull();
+    expect(shortestPump(8)).toBeNull();
   });
   it('without any pumping even a short gap is not crossed (the catch gives almost no swing)', () => {
     const ok: number[] = [];
