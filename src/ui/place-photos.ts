@@ -4,7 +4,7 @@ export interface PhotoCredit {
   file: string; title: string; author: string; licence: string; licenceUrl: string; source: string; date: string;
   hint: string; changes: string; width: number; height: number; bytes: number;
 }
-export interface PlacePhotos { place: string; name: string; photos: PhotoCredit[] }
+export interface PlacePhotos { place: string; name: string; photos: PhotoCredit[]; note?: string } // note: replaces the default line under the strip (live photos name Mapillary there)
 export interface PlaceIndexEntry { slug: string; name: string; lat: number; lon: number; radiusKm: number }
 
 export const PLACES_DIR = '/assets/places';
@@ -12,6 +12,9 @@ const HIDE_KEY = 'cc.photos.hidden';
 
 // The OSM courses are named "OSM <slug>" (scripts/osm-lane.ts); the slug is the folder of the photos.
 export const slugOfCourse = (name: string): string | null => /^OSM ([a-z0-9-]+)$/.exec(name)?.[1] ?? null;
+
+// A stored photo is a file in the place folder; a live one (CC-90) is a full https address.
+export const srcOf = (d: PlacePhotos, p: PhotoCredit): string => (/^https:\/\//.test(p.file) ? p.file : `${PLACES_DIR}/${d.place}/${p.file}`);
 
 export const captionFor = (d: PlacePhotos, p: PhotoCredit): string => `Real photo of ${d.name}, ${p.author}, ${p.licence}`;
 
@@ -100,13 +103,13 @@ export function mountPlacePhotos(host: HTMLElement, d: PlacePhotos, opts: { floa
     const b = el('button', item, { className: 'pp-thumb', type: 'button' });
     b.setAttribute('aria-label', `Open photo ${i + 1} of ${d.photos.length}: ${p.hint}`);
     b.title = p.hint;
-    const img = el('img', b, { alt: p.hint, loading: 'lazy', decoding: 'async', src: `${PLACES_DIR}/${d.place}/${p.file}` });
+    const img = el('img', b, { alt: p.hint, loading: 'lazy', decoding: 'async', src: srcOf(d, p) });
     img.width = p.width; img.height = p.height;
     b.onclick = () => open(i);
     thumbs.push(b);
     el('div', item, { className: 'pp-credit', text: `${p.author}, ${p.licence}`, title: captionFor(d, p) });
   });
-  el('div', root, { className: 'pp-hint', text: 'Real photos of this place. Click one to see it large.' });
+  el('div', root, { className: 'pp-hint', text: d.note ?? 'Real photos of this place. Click one to see it large.' });
   const paint = () => { root.classList.toggle('hidden', hidden); sw.textContent = hidden ? 'Show photos' : 'Hide'; sw.setAttribute('aria-pressed', String(hidden)); };
   sw.onclick = () => { hidden = !hidden; writeHidden(hidden); paint(); };
   paint();
@@ -126,13 +129,13 @@ export function mountPlacePhotos(host: HTMLElement, d: PlacePhotos, opts: { floa
     index = (i + d.photos.length) % d.photos.length;
     const p = d.photos[index];
     view.dataset.index = String(index);
-    const img = view.querySelector('img')!; img.src = `${PLACES_DIR}/${d.place}/${p.file}`; img.alt = p.hint;
+    const img = view.querySelector('img')!; img.src = srcOf(d, p); img.alt = p.hint;
     view.querySelector('.pp-caption')!.textContent = captionFor(d, p);
     view.querySelector('.pp-where')!.textContent = `Where is this? ${p.hint}`;
     const credit = view.querySelector('.pp-licence')!; credit.textContent = '';
     credit.append(`Photo by ${p.author}, `);
     const l = el('a', null, { href: p.licenceUrl, text: p.licence, target: '_blank', rel: 'noopener noreferrer' }); credit.append(l, ', ');
-    const s = el('a', null, { href: p.source, text: 'source on Wikimedia Commons', target: '_blank', rel: 'noopener noreferrer' }); credit.append(s, `. ${p.changes}`);
+    const s = el('a', null, { href: p.source, text: /mapillary\.com/.test(p.source) ? 'source on Mapillary' : 'source on Wikimedia Commons', target: '_blank', rel: 'noopener noreferrer' }); credit.append(s, `. ${p.changes}`);
     view.querySelector('.pp-count')!.textContent = `${index + 1} / ${d.photos.length}`;
   }
   function open(i: number) {
