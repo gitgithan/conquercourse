@@ -45,5 +45,6 @@ export interface CourseData {
   designedShortcuts?: string[]; // ids of shortcuts the designer keeps on purpose (src/sim/shortcuts.ts)
   band?: Partial<import('../sim/band').BandParams> & { x: number }; // an elastic band tied to a post at x: the course starts clipped on, one rest length behind it
   source?: CourseSource; // editor lanes: the pieces and lane this course was cut from (CC-80)
+  drone?: Partial<import('../sim/drone').DroneParams> & { x0: number; x1: number }; // a drone pad (src/sim/drone.ts): hold E on it to board the cargo drone and fly across
   hazard?: import('./hazard').Hazard; // the floor you must not touch: water (default), lava, mud, spikes or void; paint, words and sound only
 }

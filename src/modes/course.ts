@@ -7,8 +7,9 @@ import courseJson from '../course/default-course.json';
 import type { CourseData } from '../course/course';
 import { NO_INPUT, type RunnerInput } from '../sim/runner';
 import { DT } from '../sim/units';
-import { newWorld, recoilParams, stepWorld, type GameEvent, type WorldState } from '../sim/world';
+import { droneParams, newWorld, recoilParams, stepWorld, type GameEvent, type WorldState } from '../sim/world';
 import { energyWords, isAimable, shotEnergy } from '../sim/recoil';
+import { weight } from '../sim/drone';
 import { DEFAULT_WALL } from '../sim/wall';
 import { DEFAULT_ROPE } from '../sim/rope';
 import { inputFor, searchIdealRun, type Plan } from '../sim/ideal';
@@ -35,6 +36,7 @@ import { createTrebuchetView } from '../ui/trebuchet-view';
 import { createRecoilView } from '../ui/recoil-view';
 import { createBandView } from '../ui/band-view';
 import { bandParams, stretchAt } from '../sim/band';
+import { createDroneView } from '../ui/drone-view';
 import { cupsGroup } from '../slice/cups';
 import { buildTrack, type TrackView } from '../render/track';
 import { buildPlanks } from '../render/plank';
@@ -131,6 +133,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
     return shotCache.pr;
   };
   const bandView = course.band ? createBandView(scene, course) : null;
+  const droneView = course.drone ? createDroneView(scene, course) : null;
   // a course from the editor draws its real objects instead of blocks: only the start and finish decks stay as ground
   const realObjects = !!course.scene?.length;
   const lastPlatform = course.terrain.platforms.length - 1;
@@ -291,7 +294,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
   // the controls, always visible top-left as a card of key caps (collapse with H)
   const help = document.createElement('div');
   help.id = 'keys';
-  const KEYS: [string, string][] = [['← →', 'Run (hold)'], ['Space / ↑ / W', 'Jump · let go of the rope · press on the trampoline'], ['↓ / S', 'Bend your knees (hold, on big drops)'], ['X', 'Roll: hold it as you land (it counts in the last 0.15 s and about a metre up; a tap earlier does nothing); on the ground it rolls along'], ...(course.recoil ? ([['K', 'Fire the launcher (clip it on at the teal pad): the ball goes back, you go forward'], ...(isAimable(recoilParams(course)) ? [['↑ ↓ (or W)', 'Tilt the cannon barrel while it is loaded (Up does not jump then): it points backward and down, so the push goes forward and up; dots show where you would land']] : [])] as [string, string][]) : []), ...(course.trebuchet ? ([['→ (hold), then Space, ↑ or W', 'Trebuchet: pull the pin, then let the rider go when the hint says LET GO NOW']] as [string, string][]) : []), ...(course !== defaultCourse ? ([['E', 'Hold a bar in the air (let go to fly on), or at a tall wall: grab its edge and climb'], ['← → on a bar', 'Pump the swing: push the way you swing'], ['V', 'Vault over a step with a hand on top (fast, saves energy)']] as [string, string][]) : []), ['F', 'Toggle the Looking ahead inset'], ...(course.track ? ([['→, Space, ↑ or W', 'Push off at the top of the first hill'], ['↓ / S (hold)', 'Brake']] as [string, string][]) : []), ['I', 'Ideal run of this obstacle (Shift+I: the whole course, any key stops it)'], ...(course.band ? ([['←, then →', 'Elastic band: hold ← to stretch it, then turn round (hold →) and it throws you']] as [string, string][]) : []), ['G', 'Drums: where the ideal run presses Space'], ['B', 'Debug view: see the collision boxes and where a jump goes'], ['Mouse', 'Drag to turn the view, wheel to zoom, double-click to reset']]; // retry, ideal run and Dojo are on the fall panel and the buttons
+  const KEYS: [string, string][] = [['← →', 'Run (hold)'], ['Space / ↑ / W', 'Jump · let go of the rope · press on the trampoline'], ['↓ / S', 'Bend your knees (hold, on big drops)'], ['X', 'Roll: hold it as you land (it counts in the last 0.15 s and about a metre up; a tap earlier does nothing); on the ground it rolls along'], ...(course.recoil ? ([['K', 'Fire the launcher (clip it on at the teal pad): the ball goes back, you go forward'], ...(isAimable(recoilParams(course)) ? [['↑ ↓ (or W)', 'Tilt the cannon barrel while it is loaded (Up does not jump then): it points backward and down, so the push goes forward and up; dots show where you would land']] : [])] as [string, string][]) : []), ...(course.trebuchet ? ([['→ (hold), then Space, ↑ or W', 'Trebuchet: pull the pin, then let the rider go when the hint says LET GO NOW']] as [string, string][]) : []), ...(course !== defaultCourse ? ([['E', 'Hold a bar in the air (let go to fly on), or at a tall wall: grab its edge and climb'], ['← → on a bar', 'Pump the swing: push the way you swing'], ['V', 'Vault over a step with a hand on top (fast, saves energy)']] as [string, string][]) : []), ['F', 'Toggle the Looking ahead inset'], ...(course.track ? ([['→, Space, ↑ or W', 'Push off at the top of the first hill'], ['↓ / S (hold)', 'Brake']] as [string, string][]) : []), ['I', 'Ideal run of this obstacle (Shift+I: the whole course, any key stops it)'], ...(course.band ? ([['←, then →', 'Elastic band: hold ← to stretch it, then turn round (hold →) and it throws you']] as [string, string][]) : []), ...(course.drone ? ([['E (on the pad)', 'Board the drone; let go to step off'], ['← → in the drone', 'Lean: the drone flies that way'], ['↑ ↓ in the drone', 'Climb, or come down']] as [string, string][]) : []), ['G', 'Drums: where the ideal run presses Space'], ['B', 'Debug view: see the collision boxes and where a jump goes'], ['Mouse', 'Drag to turn the view, wheel to zoom, double-click to reset']]; // retry, ideal run and Dojo are on the fall panel and the buttons
   help.style.cssText = 'position:fixed;left:16px;top:48px;width:290px;background:#fffffff0;border:1px solid #cfd6d0;border-radius:12px;padding:8px 10px;font:500 14px system-ui,sans-serif;color:#17201d;box-shadow:0 2px 10px #0002;pointer-events:none;display:grid;gap:5px';
   const paintKeys = (open: boolean) => {
     help.innerHTML = `<div style="font-weight:700;display:flex;justify-content:space-between">Controls <span style="font-weight:400;color:#58635d">H ${open ? 'hides' : 'shows'}</span></div>` + (open ? KEYS.map(([k, d]) => `<div style="display:grid;grid-template-columns:78px 1fr;gap:8px;align-items:center"><kbd style="font:700 13px ui-monospace,monospace;background:#eef1ec;border:1px solid #b9c2bb;border-bottom-width:3px;border-radius:6px;padding:1px 6px;text-align:center">${k}</kbd><span>${d}</span></div>`).join('') : '');
@@ -450,7 +453,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
   document.body.append(comm);
   document.body.append(sstyle, strip);
   // demo courses: every course we have made, one choice away (the stock course, the lache demo, lanes from real objects, places from the map)
-  const demos: [string, string][] = [['', 'Stock course'], ['/assets/demo/lache.course.json', 'Lache demo: run, vault, swing'], ['/assets/demo/lache-wide.course.json', 'Wide lache: a 6 m swing'], ['/assets/demo/stack.course.json', 'Stack demo: climb the cup pyramids'], ['/assets/demo/climb.course.json', 'Climb: over a 2 m wall, then a big drop'], ['/assets/demo/drop.course.json', 'Big drop: run off a ledge and roll'], ['/assets/demo/plank.course.json', 'Plank bridge: it sags but holds'], ['/assets/demo/plank-thin.course.json', 'Plank bridge: too thin, it breaks'], ['/assets/demo/launch.course.json', 'Launch: the trebuchet throws you onto the tower'], ['/assets/demo/band.course.json', 'Band: stretch it, turn round, be thrown'], ['/assets/demo/launch-bar.course.json', 'Launch and catch: grab the bar in the air'], ['/assets/demo/recoil.course.json', 'Recoil: throw a ball back, fly forward'], ['/assets/demo/cannon.course.json', 'Cannon: aim it, fire it, roll out of the landing'], ['/assets/demo/coaster.course.json', 'Coaster: ride the hills'], ['/assets/demo/coaster-sharp.course.json', 'Coaster: a sharp hilltop (brake)'], ['/assets/demo/coaster-low.course.json', 'Coaster: first hill too low'], ['coaster-builder', 'Build your own coaster'], ['generate', 'Make me a new course (random)'], ['/assets/demo/lane-1.course.json', 'Demo scene, lane 1'], ['/assets/demo/lane-2.course.json', 'Demo scene, lane 2'], ['/assets/experiments/osm/eixample-barcelona.course.json', 'Place: Barcelona block'], ['/assets/experiments/osm/montmartre-paris.course.json', 'Place: Montmartre, Paris'], ['/assets/experiments/osm/circular-quay-sydney.course.json', 'Place: Sydney quay'], ['/assets/experiments/osm/san-francisco-lombard.course.json', 'Place: San Francisco hill (62 m of hill)'], ['editor', 'Build your own (editor)']];
+  const demos: [string, string][] = [['', 'Stock course'], ['/assets/demo/drone.course.json', 'Drone ferry: carried across a gap'], ['/assets/demo/lache.course.json', 'Lache demo: run, vault, swing'], ['/assets/demo/lache-wide.course.json', 'Wide lache: a 6 m swing'], ['/assets/demo/stack.course.json', 'Stack demo: climb the cup pyramids'], ['/assets/demo/climb.course.json', 'Climb: over a 2 m wall, then a big drop'], ['/assets/demo/drop.course.json', 'Big drop: run off a ledge and roll'], ['/assets/demo/plank.course.json', 'Plank bridge: it sags but holds'], ['/assets/demo/plank-thin.course.json', 'Plank bridge: too thin, it breaks'], ['/assets/demo/launch.course.json', 'Launch: the trebuchet throws you onto the tower'], ['/assets/demo/band.course.json', 'Band: stretch it, turn round, be thrown'], ['/assets/demo/launch-bar.course.json', 'Launch and catch: grab the bar in the air'], ['/assets/demo/recoil.course.json', 'Recoil: throw a ball back, fly forward'], ['/assets/demo/cannon.course.json', 'Cannon: aim it, fire it, roll out of the landing'], ['/assets/demo/coaster.course.json', 'Coaster: ride the hills'], ['/assets/demo/coaster-sharp.course.json', 'Coaster: a sharp hilltop (brake)'], ['/assets/demo/coaster-low.course.json', 'Coaster: first hill too low'], ['coaster-builder', 'Build your own coaster'], ['generate', 'Make me a new course (random)'], ['/assets/demo/lane-1.course.json', 'Demo scene, lane 1'], ['/assets/demo/lane-2.course.json', 'Demo scene, lane 2'], ['/assets/experiments/osm/eixample-barcelona.course.json', 'Place: Barcelona block'], ['/assets/experiments/osm/montmartre-paris.course.json', 'Place: Montmartre, Paris'], ['/assets/experiments/osm/circular-quay-sydney.course.json', 'Place: Sydney quay'], ['/assets/experiments/osm/san-francisco-lombard.course.json', 'Place: San Francisco hill (62 m of hill)'], ['editor', 'Build your own (editor)']];
   const welcome = document.createElement('section');
   welcome.id = 'choose-world';
   welcome.setAttribute('role', 'dialog'); welcome.setAttribute('aria-labelledby', 'choose-world-title');
@@ -1032,9 +1035,11 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
     const jump = [...log].reverse().find((e) => e.type === 'jump');
     let tip = 'Try again.';
     if (what === 'slide') tip = 'You ran out of speed on the curve. Start the run-up earlier and keep running.';
+    else if (what === 'hurt' && log.some((e) => e.type === 'drone-crash')) tip = 'The drone touched down too fast or leaning, or flew into the side of a deck. Come down slowly with ↓ over the deck, let go of ← → before the ground so it levels out, and keep E held until it sets you down.';
     else if (what === 'hurt') tip = 'The ground stopped you too fast. Hold X as you land to roll (it counts in the last 0.15 s, about a metre up; a tap earlier does nothing): the same fall is spread over more time, and a roll keeps most of your speed.';
     else if (course.track) tip = cartTip(what);
     else if (what === 'splash' && course.recoil && isAimable(recoilParams(course)) && zone?.id === 'recoil') tip = 'Tilt the barrel with the arrow keys until the dotted path ends on the far deck, then press K. A steeper shot flies higher and lands harder: tap X just before the ground.';
+    else if (course.drone && zone?.id === 'drone') tip = log.some((e) => e.type === 'drone-empty') ? 'The battery ran out before the far deck. Hovering costs a lot of battery: lean and fly straight across, and start coming down only over the deck. A bigger battery or a lighter rider also helps.' : 'You came down short of the far deck. Keep leaning forward longer before you lean back, and start coming down only when you are over the deck.';
     else if (course.recoil && zone?.id === 'recoil') tip = world.recoil && world.recoil.fired > 0 ? 'The push was not enough. A heavier ball, or a faster one, pushes harder. Fire as you leave the edge so the push carries through the whole flight.' : 'Run onto the teal pad, then press K to fire the launcher as you jump.';
     else if (log.some((e) => e.type === 'plank-break')) tip = plankTip();
     else if (course.band) tip = bandTip();
@@ -1121,6 +1126,14 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
       const pb = predictBand(w, course);
       return pb.result === 'lands' ? `TURN NOW (hold →): ${pb.why}` : `Stretched ${s.toFixed(0)} m: ${pb.why}`;
     }
+    if (course.drone && w.mode === 'run' && !w.runner.grounded) return '';
+    if (course.drone && w.mode === 'run' && w.runner.grounded && w.runner.x < course.drone.x0 && w.runner.x > course.startX - 20 && !log.some((e) => e.type === 'drone-board')) return 'Run onto the teal pad, then hold E to board the cargo drone.';
+    if (course.drone && w.mode === 'run' && w.runner.grounded && w.runner.x >= course.drone.x0 && w.runner.x <= course.drone.x1 && !log.some((e) => e.type === 'drone-board')) return 'Hold E to board the drone.';
+    if (w.mode === 'drone' && w.drone) {
+      const dp = droneParams(course), pct = Math.round((100 * w.drone.energy) / (dp.battery * 3600));
+      const state = w.drone.empty ? 'Battery empty: the rotors have stopped.' : `Battery ${pct}% · push ${(w.drone.thrust / 1000).toFixed(1)} kN (hover ${(weight(dp) / 1000).toFixed(1)} kN) · speed ${Math.abs(w.drone.vx).toFixed(1)} m/s`;
+      return `${state}\n← → lean · ↑ ↓ climb or come down · hold E to stay on`;
+    }
     if (course.recoil && w.mode === 'run') { // the launcher: clip it on at the pad, then fire it (on the ground, or in the air to add to a jump)
       if (w.recoil && w.recoil.armed > 0 && isAimable(recoilParams(course))) {
         const rp = recoilParams(course), deg = Math.round(((w.recoil.aim ?? rp.angle) * 180) / Math.PI), pr = shotPreview(w);
@@ -1187,7 +1200,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
       let input: RunnerInput = NO_INPUT;
       if (plan) input = inputFor(plan, world, botState, course);
       else {
-        input = { run: keys.has('ArrowRight') || keys.has('KeyD'), left: keys.has('ArrowLeft') || keys.has('KeyA'), jump: jumpQueued, jumpSpeed: 0, squat: keys.has('ArrowDown') || keys.has('KeyS'), handL: keys.has('KeyE'), handR: keys.has('KeyE'), vault: vaultQueued, roll: rollQueued || keys.has('KeyX'), fire: fireQueued, aimUp: keys.has('ArrowUp') || keys.has('KeyW'), aimDown: keys.has('ArrowDown') };
+        input = { run: keys.has('ArrowRight') || keys.has('KeyD'), left: keys.has('ArrowLeft') || keys.has('KeyA'), jump: jumpQueued, jumpSpeed: 0, squat: keys.has('ArrowDown') || keys.has('KeyS'), handL: keys.has('KeyE'), handR: keys.has('KeyE'), vault: vaultQueued, roll: rollQueued || keys.has('KeyX'), fire: fireQueued, aimUp: keys.has('ArrowUp') || keys.has('KeyW'), aimDown: keys.has('ArrowDown'), up: keys.has('ArrowUp') || keys.has('KeyW') };
         jumpQueued = false; vaultQueued = false; rollQueued = false; fireQueued = false;
       }
       const prev = world.outcome;
@@ -1203,6 +1216,9 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
       log.push(...world.events);
       if (world.events !== soundedEvents) { soundedEvents = world.events; if (!replay) soundsFor(world.events, hazard); } // after the end the same events array stays: it sounds once
       for (const e of world.events) {
+        if (e.type === 'drone-board') { toast.textContent = 'The drone lifts you. Lean with ← →, climb with ↑ and come down with ↓.'; toast.style.display = 'block'; toastUntil = world.runner.tick + 240; }
+        if (e.type === 'drone-empty') { toast.textContent = 'The battery ran out: the rotors stopped and the drone is falling.'; toast.style.display = 'block'; toastUntil = world.runner.tick + 240; }
+        if (e.type === 'drone-land') { toast.textContent = 'The drone sets you down.'; toast.style.display = 'block'; toastUntil = world.runner.tick + 150; }
         if (e.type === 'recoil') { toast.textContent = `Shot! The ball flies back and you are pushed forward by ${(e.detail?.dvx as number).toFixed(1)} m/s${(e.detail?.dvy as number) > 0.5 ? ` and up by ${(e.detail?.dvy as number).toFixed(1)} m/s` : ''}.`; toast.style.display = 'block'; toastUntil = world.runner.tick + 180; }
         if (e.type === 'recoil') { toast.textContent = `Shot! The ball flies back and you are pushed forward by ${(e.detail?.dvx as number).toFixed(1)} m/s.`; toast.style.display = 'block'; toastUntil = world.runner.tick + 180; }
         if (e.type === 'band-snap') { toast.textContent = `The band snapped at ${(e.detail?.stretch as number).toFixed(0)} m: it can only stretch so far. Press R and turn round sooner.`; toast.style.display = 'block'; toastUntil = world.runner.tick + 360; }
@@ -1290,6 +1306,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
     trebView?.update(world);
     recoilView?.update(world, facing, shotPreview(world)?.path);
     bandView?.update(world);
+    droneView?.update(world, facing);
     hint.textContent = hintFor(world);
     hint.style.display = hint.textContent ? 'block' : 'none';
     if (ropeMesh && course.rope) {

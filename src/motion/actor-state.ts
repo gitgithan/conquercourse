@@ -12,8 +12,8 @@ export function actorStateFor(w: WorldState, squat: boolean, facing: 1 | -1 = 1)
     vx: r.vx,
     vy: r.vy,
     grounded: r.grounded,
-    mode: w.mode === 'hang' ? 'swing' : w.mode === 'vault' || w.mode === 'plank' || w.mode === 'climb' || w.mode === 'band' ? 'run' : w.mode, // a cart seats the rider (pose 'sit'); the trebuchet's sling holds the rider (pose 'sling'); a plank is crossed in the running pose
-    tilt: w.cart?.tilt,
+    mode: w.mode === 'hang' ? 'swing' : w.mode === 'vault' || w.mode === 'plank' || w.mode === 'climb' || w.mode === 'band' ? 'run' : w.mode === 'drone' ? 'cart' : w.mode, // a cart seats the rider (pose 'sit'); the trebuchet's sling holds the rider (pose 'sling'); a plank is crossed in the running pose
+    tilt: w.cart?.tilt ?? (w.drone ? -w.drone.lean : undefined), // a drone rider sits on the skids and leans with the drone
     // hanging from a bar uses the rope's swing pose, turned about the hands
     squat,
     landedTicksAgo: r.landedAtTick === null ? null : r.tick - r.landedAtTick,
