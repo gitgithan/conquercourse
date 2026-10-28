@@ -3,31 +3,37 @@ import { DT, GRAVITY } from './units';
 // Holds: bars hanging in the air (a game, not real: they need no frame). The runner grabs one with the hands (Q and/or E)
 // when the hands are within reach, hangs from it as a pendulum, pumps the swing with the arrow keys, and lets go to fly.
 // Everything is a metre or a second; the pendulum is integrated with RK4 at the fixed step, like the rope.
+//
+// The body is one stiff rod, hands at the bar and feet at the far end (length handHeight, a uniform rod):
+// its middle (the centre of mass) is half a rod from the bar and the swing behaves like a simple pendulum two thirds of a rod long.
+// The swing may go over the top and round in full circles; the limit is the grip: the faster the body swings, the harder the bar
+// pulls on the hands (weight plus the pull of the circle), and the hands hold only a few body weights.
 export interface Hold { x: number; y: number } // the bar, seen from the side: where along the run and how high
 
 export interface HangParams {
-  handHeight: number; // m, hands above the feet when the arms are stretched up
-  bodyLength: number; // m, from the hands to the centre of the body (the pendulum's length is 2/3 of the hands-to-feet length for a rod)
+  handHeight: number; // m, hands above the feet when the arms are stretched up (the rod's length)
   reach: number; // m, how close the hands must be to the bar to grab it
   catchKeep: number; // share of the speed along the swing that the arms keep when they catch (the rest is absorbed)
   pump: number; // rad/s^2, how hard the body can drive the swing with the arrow keys
+  grip: number; // the most the bar may pull on the hands, in body weights; above it the hands open
   drag: number; // 1/s, air and grip losses
   gravity: number;
 }
 
-export const DEFAULT_HANG: HangParams = { handHeight: 2.1, bodyLength: 1.1, reach: 0.6, catchKeep: 0.35, pump: 1.5, drag: 0.04, gravity: GRAVITY };
-
-// The arms cannot hold the body higher than this from straight down (a bit past horizontal): the swing stops there and falls back.
-export const MAX_SWING = 1.75; // rad, 100 degrees
+// grip 5.5: strain-gauge bars measured about 3.5 to 3.7 body weights in ordinary forward and backward giant swings (Kopp and Reid 1980),
+// an estimate of 4.9 at the top of the pull (Cureton 1939), and 5 to 6.6 for an elite gymnast in strapped grips (Cagran et al. 2009).
+export const DEFAULT_HANG: HangParams = { handHeight: 2.1, reach: 0.6, catchKeep: 0.35, pump: 6, grip: 5.5, drag: 0.04, gravity: GRAVITY };
 
 export interface Hang {
   hold: number; // index into the course's holds
-  theta: number; // rad from hanging straight down; positive swings forward (toward +x)
+  theta: number; // rad from hanging straight down, wrapped to (-pi, pi]; positive swings forward (toward +x)
   omega: number; // rad/s
 }
 
 // The effective pendulum length of a stretched body hanging by the hands (a uniform rod of length handHeight: 2/3 of it).
 export const pendulumLength = (p: HangParams = DEFAULT_HANG): number => (2 / 3) * p.handHeight;
+// How far the body's middle is from the bar.
+export const comDistance = (p: HangParams = DEFAULT_HANG): number => p.handHeight / 2;
 
 // Where the feet are while hanging.
 export function feetOf(h: Hold, s: Hang, p: HangParams = DEFAULT_HANG): { x: number; y: number } {
@@ -36,8 +42,21 @@ export function feetOf(h: Hold, s: Hang, p: HangParams = DEFAULT_HANG): { x: num
 
 // The velocity of the body's middle (what flies on when the hands let go).
 export function bodyVelocity(s: Hang, p: HangParams = DEFAULT_HANG): { vx: number; vy: number } {
-  const v = s.omega * p.bodyLength;
+  const v = s.omega * comDistance(p);
   return { vx: v * Math.cos(s.theta), vy: v * Math.sin(s.theta) };
+}
+
+// How hard the bar pulls on the hands, in body weights: the weight's share along the arms plus the pull of the circle. Negative at the top
+// of a fast swing means the arms are pushing, not pulling.
+export function gripLoad(s: Hang, p: HangParams = DEFAULT_HANG): number {
+  return Math.cos(s.theta) + (comDistance(p) * s.omega * s.omega) / p.gravity;
+}
+
+// How hard the bar would pull at the bottom of the swing with the energy the body has now (the swing's energy never changes by itself,
+// so this is the most the hands will ever carry unless the body pumps more in).
+export function bottomLoad(s: Hang, p: HangParams = DEFAULT_HANG): number {
+  const w2 = s.omega * s.omega + (2 * p.gravity / pendulumLength(p)) * (1 - Math.cos(s.theta)); // omega squared at the bottom
+  return 1 + (comDistance(p) * w2) / p.gravity;
 }
 
 // Grab: the hands (above the feet at x, y) must be within reach of the bar. The arms keep part of the speed along the swing.
@@ -48,21 +67,29 @@ export function tryGrab(holds: Hold[], x: number, y: number, vx: number, vy: num
   if (best < 0) return null;
   // hang from the bar: the body hangs straight down from the hands, moving with the tangent speed at the bottom of the swing
   const theta = 0;
-  return { hold: best, theta, omega: (vx * p.catchKeep) / p.bodyLength + 0 * vy };
+  return { hold: best, theta, omega: (vx * p.catchKeep) / comDistance(p) + 0 * vy };
 }
 
 // One step. pump is +1 (forward key), -1 (back key) or 0: pressing the way the body is already moving adds energy, pressing against it takes energy out.
+// When the swing already has so much energy that the bar would pull about as hard as the hands can hold at the bottom, pushing the swing further
+// does nothing more: that is the top speed of the swing.
 export function hangStep(s: Hang, pump: number, p: HangParams = DEFAULT_HANG): Hang {
   const L = pendulumLength(p);
-  const f = (th: number, w: number) => -(p.gravity / L) * Math.sin(th) + p.pump * pump - p.drag * w;
+  let drive = p.pump * pump;
+  if (drive * s.omega > 0) drive *= Math.max(0, Math.min(1, (0.97 * p.grip - bottomLoad(s, p)) / (0.1 * p.grip)));
+  const f = (th: number, w: number) => -(p.gravity / L) * Math.sin(th) + drive - p.drag * w;
   const k1t = s.omega, k1w = f(s.theta, s.omega);
   const k2t = s.omega + 0.5 * DT * k1w, k2w = f(s.theta + 0.5 * DT * k1t, k2t);
   const k3t = s.omega + 0.5 * DT * k2w, k3w = f(s.theta + 0.5 * DT * k2t, k3t);
   const k4t = s.omega + DT * k3w, k4w = f(s.theta + DT * k3t, k4t);
-  const theta = s.theta + (DT / 6) * (k1t + 2 * k2t + 2 * k3t + k4t), omega = s.omega + (DT / 6) * (k1w + 2 * k2w + 2 * k3w + k4w);
-  if (Math.abs(theta) > MAX_SWING) return { hold: s.hold, theta: Math.sign(theta) * MAX_SWING, omega: Math.sign(theta) * omega > 0 ? 0 : omega }; // the top of the swing: it stops, then falls back
+  let theta = s.theta + (DT / 6) * (k1t + 2 * k2t + 2 * k3t + k4t);
+  const omega = s.omega + (DT / 6) * (k1w + 2 * k2w + 2 * k3w + k4w);
+  theta -= 2 * Math.PI * Math.round(theta / (2 * Math.PI)); // round and round is the same as turning once
   return { hold: s.hold, theta, omega };
 }
+
+// True when the bar pulls harder than the hands can hold: they open.
+export const gripSlips = (s: Hang, p: HangParams = DEFAULT_HANG): boolean => Math.abs(gripLoad(s, p)) > p.grip;
 
 // Letting go: the feet are where they were, the body flies on with its own velocity.
 export function releaseHang(h: Hold, s: Hang, p: HangParams = DEFAULT_HANG) {

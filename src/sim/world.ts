@@ -7,7 +7,7 @@ import { DEFAULT_ROPE, ropePoint, release, swingStep, tryCatch, type RopeParams,
 import { DEFAULT_TRAMPOLINE, bounce, type Bounce } from './trampoline';
 import { JUMP_COST, VAULT_COST } from './energy';
 import { VAULT_BUFFER, VAULT_KEEP, findVault, vaultAt, type Vault } from './vault';
-import { DEFAULT_HANG, feetOf, hangStep, releaseHang, tryGrab, type Hang } from './holds';
+import { comDistance, DEFAULT_HANG, feetOf, gripSlips, hangStep, releaseHang, tryGrab, type Hang } from './holds';
 
 // One world for the Course: the runner plus whichever obstacle has hold of the runner right now.
 // The simulator is the truth: everything the screen shows comes from this state, one tick at a time.
@@ -202,8 +202,13 @@ function stepHang(w: WorldState, input: RunnerInput, course: CourseData): WorldS
   }
   const pump = ((input.run ? 1 : 0) - (input.left ? 1 : 0)) as -1 | 0 | 1;
   const s = hangStep(w.hang!, pump);
-  const f = feetOf(h, s);
-  return { ...w, hang: s, events: [], runner: { ...w.runner, tick, x: f.x, y: f.y, vx: s.omega * DEFAULT_HANG.bodyLength * Math.cos(s.theta), vy: s.omega * DEFAULT_HANG.bodyLength * Math.sin(s.theta), grounded: false } };
+  // the bar pulls harder than the hands can hold: they open and the body flies on with the speed it has
+  if (gripSlips(s)) {
+    const rel = releaseHang(h, s);
+    return { ...w, mode: 'run', hang: null, noCatchUntil: tick + 24, events: [{ tick, type: 'hang-release', detail: { vx: rel.vx, vy: rel.vy, slipped: true } }], runner: { ...w.runner, tick, x: rel.x, y: rel.y, vx: rel.vx, vy: rel.vy, grounded: false } };
+  }
+  const f = feetOf(h, s), d = comDistance(DEFAULT_HANG);
+  return { ...w, hang: s, events: [], runner: { ...w.runner, tick, x: f.x, y: f.y, vx: s.omega * d * Math.cos(s.theta), vy: s.omega * d * Math.sin(s.theta), grounded: false } };
 }
 
 function stepBounce(w: WorldState, input: RunnerInput): WorldState {

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { DEFAULT_HANG, feetOf, hangStep, measureHangPeriod, pendulumLength, releaseHang, tryGrab, type Hang } from '../src/sim/holds';
+import { bottomLoad, comDistance, DEFAULT_HANG, feetOf, gripLoad, gripSlips, hangStep, measureHangPeriod, pendulumLength, releaseHang, tryGrab, type Hang } from '../src/sim/holds';
 import { GRAVITY } from '../src/sim/units';
 
 const NO_DRAG = { ...DEFAULT_HANG, drag: 0 };
@@ -44,6 +44,50 @@ describe('a body hanging from a bar swings like a pendulum', () => {
   });
 });
 
+describe('over the top and round in full circles, up to the grip', () => {
+  const E = (s: Hang) => 0.5 * s.omega * s.omega + (GRAVITY / pendulumLength(NO_DRAG)) * (1 - Math.cos(s.theta));
+  // a rod hanging from one end needs omega^2 of 12 g d / H^2 at the bottom to get over the top
+  const circleOmega = Math.sqrt((12 * GRAVITY * comDistance()) / DEFAULT_HANG.handHeight ** 2);
+  const turns = (s0: Hang, seconds: number, p = NO_DRAG) => { let s = s0, flips = 0, prev = s0.theta; for (let i = 0; i < 120 * seconds; i++) { s = hangStep(s, 0, p); if (Math.abs(prev - s.theta) > Math.PI) flips++; prev = s.theta; } return { flips, end: s }; };
+  it('started fast enough from the bottom, the body goes over the top again and again and keeps its energy', () => {
+    const start: Hang = { hold: 0, theta: 0, omega: circleOmega * 1.05 };
+    const r = turns(start, 20);
+    expect(r.flips).toBeGreaterThanOrEqual(6);
+    expect(Math.abs(E(r.end) - E(start)) / E(start)).toBeLessThan(0.002);
+  });
+  it('started a little too slow, it swings back before the top', () => {
+    expect(turns({ hold: 0, theta: 0, omega: circleOmega * 0.95 }, 20).flips).toBe(0);
+  });
+  it('like the rope: fastest straight down, slowest at the top', () => {
+    let s: Hang = { hold: 0, theta: 0, omega: circleOmega * 1.1 }, fast = 0, slow = Infinity;
+    for (let i = 0; i < 120 * 6; i++) { s = hangStep(s, 0, NO_DRAG); if (Math.abs(s.theta) < 0.05) fast = Math.max(fast, Math.abs(s.omega)); if (Math.abs(s.theta) > 3.0) slow = Math.min(slow, Math.abs(s.omega)); }
+    expect(fast).toBeGreaterThan(slow * 2);
+  });
+  it('the bar pulls with one body weight when hanging still, more as the swing speeds up', () => {
+    expect(gripLoad({ hold: 0, theta: 0, omega: 0 })).toBeCloseTo(1, 9);
+    expect(gripLoad({ hold: 0, theta: 0, omega: 4 })).toBeCloseTo(1 + (comDistance() * 16) / GRAVITY, 9);
+    expect(bottomLoad({ hold: 0, theta: 0, omega: 4 })).toBeCloseTo(gripLoad({ hold: 0, theta: 0, omega: 4 }), 9);
+  });
+  it('pumping all the time builds the swing up to the grip and no further', () => {
+    let s: Hang = { hold: 0, theta: 0.1, omega: 0 }, top = 0, circled = false;
+    for (let i = 0; i < 120 * 30; i++) { s = hangStep(s, s.omega >= 0 ? 1 : -1); top = Math.max(top, Math.abs(gripLoad(s))); if (gripSlips(s)) break; if (Math.abs(s.theta) > 3.0) circled = true; }
+    expect(gripSlips(s)).toBe(false);
+    expect(top).toBeLessThanOrEqual(DEFAULT_HANG.grip);
+    expect(top).toBeGreaterThan(0.9 * DEFAULT_HANG.grip);
+    expect(circled).toBe(true); // a strong enough grip lets the pumped swing go all the way round
+  });
+  it('hands that hold less than four body weights cannot pump a full circle', () => {
+    const weak = { ...DEFAULT_HANG, grip: 3.8 };
+    let s: Hang = { hold: 0, theta: 0.1, omega: 0 }, circled = false;
+    for (let i = 0; i < 120 * 30; i++) { s = hangStep(s, s.omega >= 0 ? 1 : -1, weak); if (Math.abs(s.theta) > 3.0) circled = true; }
+    expect(circled).toBe(false);
+  });
+  it('the hands open when the bar pulls harder than they can hold', () => {
+    expect(gripSlips({ hold: 0, theta: 0, omega: 8 })).toBe(true);
+    expect(gripSlips({ hold: 0, theta: 0, omega: 2 })).toBe(false);
+  });
+});
+
 describe('grabbing and letting go', () => {
   const bar = [{ x: 10, y: 3 }];
   it('grabs only when the hands are within reach of the bar', () => {
@@ -53,7 +97,7 @@ describe('grabbing and letting go', () => {
   });
   it('keeps part of the speed on the catch (the arms absorb the rest)', () => {
     const g = tryGrab(bar, 10, 3 - DEFAULT_HANG.handHeight, 6, 0)!;
-    expect(g.omega * DEFAULT_HANG.bodyLength).toBeCloseTo(6 * DEFAULT_HANG.catchKeep, 6);
+    expect(g.omega * comDistance()).toBeCloseTo(6 * DEFAULT_HANG.catchKeep, 6);
   });
   it('the feet hang straight down from the bar at rest and swing out along an arc', () => {
     expect(feetOf(bar[0], { hold: 0, theta: 0, omega: 0 })).toEqual({ x: 10, y: 3 - DEFAULT_HANG.handHeight });
@@ -63,7 +107,13 @@ describe('grabbing and letting go', () => {
   });
   it('letting go flies on along the swing: at the bottom the body moves level', () => {
     const r = releaseHang(bar[0], { hold: 0, theta: 0, omega: 3 });
-    expect(r.vx).toBeCloseTo(3 * DEFAULT_HANG.bodyLength, 6);
+    expect(r.vx).toBeCloseTo(3 * comDistance(), 6);
     expect(r.vy).toBeCloseTo(0, 6);
+  });
+  it('letting go on the way up throws the body along the swing: the speed is omega times the middle of the body', () => {
+    const s: Hang = { hold: 0, theta: Math.PI / 4, omega: 5 };
+    const r = releaseHang(bar[0], s);
+    expect(Math.hypot(r.vx, r.vy)).toBeCloseTo(5 * comDistance(), 9);
+    expect(r.vy / r.vx).toBeCloseTo(1, 9); // 45 degrees up
   });
 });
