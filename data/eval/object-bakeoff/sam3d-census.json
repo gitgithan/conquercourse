@@ -1,0 +1,166 @@
+[
+  {
+    "photo": "park01",
+    "label": "handrail",
+    "round": "r2",
+    "size_m": [
+      3.844,
+      1,
+      0.2
+    ],
+    "triangles": 5819,
+    "openEdges": 19,
+    "nonManifoldEdges": 0,
+    "flippedEdges": 0,
+    "empty": 8,
+    "widthOverHeight": 3.84,
+    "photoBoxWidthOverHeight": 1.34,
+    "problems": []
+  },
+  {
+    "photo": "park02",
+    "label": "handrail",
+    "round": "r2",
+    "size_m": [
+      3.625,
+      1,
+      0.083
+    ],
+    "triangles": 5820,
+    "openEdges": 4,
+    "nonManifoldEdges": 0,
+    "flippedEdges": 0,
+    "empty": 2,
+    "widthOverHeight": 3.62,
+    "photoBoxWidthOverHeight": 2.55,
+    "problems": []
+  },
+  {
+    "photo": "park03",
+    "label": "platform",
+    "round": "r2",
+    "size_m": [
+      4.42,
+      0.5,
+      2.91
+    ],
+    "triangles": 5820,
+    "openEdges": 0,
+    "nonManifoldEdges": 0,
+    "flippedEdges": 0,
+    "empty": 4,
+    "widthOverHeight": 8.85,
+    "photoBoxWidthOverHeight": 3.45,
+    "problems": []
+  },
+  {
+    "photo": "park06",
+    "label": "ledge",
+    "round": "r2",
+    "size_m": [
+      33.243,
+      0.501,
+      4.914
+    ],
+    "triangles": 5820,
+    "openEdges": 0,
+    "nonManifoldEdges": 0,
+    "flippedEdges": 0,
+    "empty": 0,
+    "widthOverHeight": 66.41,
+    "photoBoxWidthOverHeight": 14.21,
+    "problems": [
+      "longest side 33.2 m is bigger than a park object (scale bug?)"
+    ]
+  },
+  {
+    "photo": "park07",
+    "label": "stairs",
+    "round": "r2",
+    "size_m": [
+      4.836,
+      0.699,
+      1.543
+    ],
+    "triangles": 5820,
+    "openEdges": 0,
+    "nonManifoldEdges": 0,
+    "flippedEdges": 0,
+    "empty": 0,
+    "widthOverHeight": 6.92,
+    "photoBoxWidthOverHeight": 5.95,
+    "problems": []
+  },
+  {
+    "photo": "bench01",
+    "label": "bench",
+    "round": "r3",
+    "size_m": [
+      1.881,
+      0.8,
+      0.627
+    ],
+    "triangles": 5820,
+    "openEdges": 0,
+    "nonManifoldEdges": 0,
+    "flippedEdges": 0,
+    "empty": 0,
+    "widthOverHeight": 2.35,
+    "photoBoxWidthOverHeight": 1.76,
+    "problems": []
+  },
+  {
+    "photo": "rail01",
+    "label": "rail",
+    "round": "r3",
+    "size_m": [
+      2.522,
+      0.999,
+      0.066
+    ],
+    "triangles": 5820,
+    "openEdges": 4,
+    "nonManifoldEdges": 5,
+    "flippedEdges": 0,
+    "empty": 6,
+    "widthOverHeight": 2.52,
+    "photoBoxWidthOverHeight": 2.33,
+    "problems": []
+  },
+  {
+    "photo": "mural01",
+    "label": "wall",
+    "round": "r3",
+    "size_m": [
+      1.453,
+      0.9,
+      0.07
+    ],
+    "triangles": 5820,
+    "openEdges": 8,
+    "nonManifoldEdges": 0,
+    "flippedEdges": 0,
+    "empty": 6,
+    "widthOverHeight": 1.61,
+    "photoBoxWidthOverHeight": 1.85,
+    "problems": []
+  },
+  {
+    "photo": "mural02",
+    "label": "wall",
+    "round": "r3",
+    "size_m": [
+      1.315,
+      0.9,
+      0.049
+    ],
+    "triangles": 5820,
+    "openEdges": 3,
+    "nonManifoldEdges": 0,
+    "flippedEdges": 0,
+    "empty": 1,
+    "widthOverHeight": 1.46,
+    "photoBoxWidthOverHeight": 1.68,
+    "problems": []
+  }
+]

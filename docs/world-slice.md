@@ -277,3 +277,18 @@ The set of obstacle shapes is fixed, and each shape offers a fixed set of moves.
 - **Checks:** `tests/audio.test.ts` (fake AudioContext, each event plays once, mute works) and `scripts/sound-check.mjs`.
 - **Bot run on the lache demo:** vault 1, jump 1, grab 2, let-go 2, landing 2, finish 1, no errors.
 - **Not tested:** how it sounds; headless Chromium cannot be heard, so the product owner should listen once.
+
+## Object bake-off (CC-55)
+- **So what:** we cannot compare TRELLIS.2 and Pixal3D yet, because both need a licence a person has to accept first.
+  - The blocker is Meta's DINOv3 image encoder (gated on Hugging Face; the `sam-hf` account has no access).
+  - Until then SAM 3D Objects stays our only object source with results.
+- **What is needed to unblock (the product owner's call):**
+  - Read the DINOv3 License and accept it on Hugging Face with the account behind `sam-hf`, or decide not to.
+  - TRELLIS.2 and Pixal3D then run in about an hour on one Modal GPU, for a few dollars.
+  - `briaai/RMBG-2.0` stays out: it is non-commercial and a SAM 3 mask replaces it.
+- **Other options found:**
+  - Hunyuan3D-2.1 is open to us, but its Tencent Community License excludes the EU, UK and South Korea.
+  - Stable Fast 3D is gated like DINOv3.
+- **Census of the SAM 3D results:** eight of nine pass; park06 is refused for being 33 m long.
+- **Tripo:** it only made the two Rookies, so there is no earlier Tripo object result, and no new paid step was taken.
+- **Details:** `data/eval/object-bakeoff/` (README, probe table, census, `run.json`); cost under $0.01, no GPU.
