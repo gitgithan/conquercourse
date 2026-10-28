@@ -13,8 +13,9 @@ export interface MoveEntry {
   from: string; // the simulator state or event that starts it
 }
 
-// A roll lasts as long as the simulator says it takes to stop the fall (src/sim/landing.ts rollStopTime).
-export const ROLL_TICKS = Math.round(DEFAULT_LANDING.rollStopTime * TICKS_PER_SECOND);
+// A roll lasts as long as the simulator says it takes to stop the fall (src/sim/landing.ts rollStopTime), plus 0.2 s to come up onto the feet.
+export const ROLL_GET_UP_S = 0.2;
+export const ROLL_TICKS = Math.round((DEFAULT_LANDING.rollStopTime + ROLL_GET_UP_S) * TICKS_PER_SECOND);
 
 export const MOTION_TABLE: Record<MoveName, MoveEntry> = {
   roll: { clip: 'roll', fallback: 'tuck', ticks: ROLL_TICKS, from: "event 'land' with rolled (WorldState.rolledAt)" },
