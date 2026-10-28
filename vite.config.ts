@@ -64,9 +64,15 @@ const placesDev = (): Plugin => ({
   },
 });
 
+// CC_TESTS=fast skips the files in tests/slow.json; CC_TESTS=slow runs only them with a longer timeout (docs/testing.md)
+const slowFiles: string[] = JSON.parse(readFileSync('tests/slow.json', 'utf8'));
+const tier = process.env.CC_TESTS;
+
 export default defineConfig({
   plugins: [designerDev(), placesDev()],
   define: { __BUILD__: JSON.stringify(build + ' ' + new Date().toISOString().slice(0, 10)) },
   server: { host: 'localhost', port: Number(process.env.PORT ?? 5173) },
-  test: { include: ['tests/**/*.test.ts'], testTimeout: 60000 },
+  test: tier === 'slow'
+    ? { include: slowFiles, testTimeout: 180000 }
+    : { include: ['tests/**/*.test.ts'], exclude: tier === 'fast' ? ['node_modules/**', ...slowFiles] : ['node_modules/**'], testTimeout: 60000 },
 });
