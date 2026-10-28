@@ -100,7 +100,8 @@
 
 ## The map flight (CC-79)
 - **So what:** the first ten seconds should feel like a real place turning into a game, not like loading a form.
-- **It is a flight of four steps, under 6 seconds, skippable with a Skip button or Esc.** If the player's device asks for reduced motion, the flight jumps straight to the end of step 3.
+- **It is a flight of four steps.
+  - Steps 1 to 3 take 5.5 seconds and can be skipped with a Skip button or Esc.** If the player's device asks for reduced motion, the flight jumps straight to the end of step 3.
 - **Where it lives:** the same map screen as the Slicer (the cut height slider and the flight share the map).
   - Steps 1 to 3 are MapLibre pitch, bearing and 3D building extrusion.
   - Step 4 hands the camera to our three.js view.
@@ -110,7 +111,7 @@
 | 1. Bird's eye | 0 to 1.5 | The real map from straight above. A bright circle on the map shows the area the course will be built from. A caption: "This circle is 240 m across." | Pitch 0, zoom about 14 (the circle is a small part of the screen) | `map.easeTo` to the pin; a circle layer |
 | 2. Painted in | 1.5 to 3.5 | Inside the circle the map is "painted": the ground tint by slope fades in, building outlines appear flat and then rise out of the map, one wave from the middle outward. Outside the circle stays plain. | Pitch 0 to 25, zoom to fit the circle | `fill-extrusion-height` animated with a "rise" factor from 0 to 1; slope tint fades in |
 | 3. Tilt down | 3.5 to 5.5 | The camera swings down toward the street until the buildings tower over it. The place feels like a real 3D place. | Pitch 25 to 78, bearing turns about 30 degrees, zoom in about 2 steps | `map.easeTo` with an arc |
-| 4. Hand-over | 5.5 to 6 | The map cross-fades into the editor's 3D view, with the same camera angle and the same buildings as separate pieces. | Our three.js camera starts where MapLibre's ended (distance, heading, tilt) | Pieces and camera saved in `sessionStorage`, then the editor opens |
+| 4. Hand-over | when the player presses Build (a 0.4 s fade) | The map fades into the editor's 3D view, with the same heading and tilt and the picked buildings as separate pieces. | Our three.js camera starts where MapLibre's ended (heading, tilt, distance) | Pieces and camera saved in `sessionStorage`, then the editor opens |
 
 - **What is clickable once the flight ends:**
   - **Buildings are the pieces.** The map data is already cut into one shape per building, so there is nothing to draw.
@@ -151,3 +152,38 @@
 - **Floor plans are footprints,** since the map data has no rooms.
 - **Terrain is coarse:** about 4.8 m per pixel, sampled every 20 m, so small steps still come from the buildings.
 - **No teacher or class features**, and no formal assessment.
+
+## The skyline puzzle (CC-83, designed here, not built yet)
+- **So what:** once a place is in 3D, choosing the route through it is a puzzle the simulator already knows the answer to.
+- **Why it fits:** our lane is a vertical slice through the world, with three numbers: an angle, a sideways step (offset) and a height level (`src/slice/slice.ts`).
+  - Choosing the cut is choosing the route.
+  - The Slicer's cut height is the "level" of this puzzle.
+- **What the player does:**
+  1. Orbit the 3D skyline freely, so the world can be turned sideways.
+  2. Drag a line across the roofs (start, end, and bend points if wanted) and pick a roof level with the cut-height slider.
+  3. The lane is the vertical slice through that line, built by the same lane builder.
+  4. The simulator says at once whether it can be cleared and gives the ideal-run time.
+  5. A button snaps the view along the chosen line, which is the side view the runner will see.
+- **The answer shown afterwards:** a "best route" search tries many lines and levels, runs the ideal run on each, and keeps the fastest one that clears.
+  - It is drawn as a ghost line next to the player's own, and said as a fact: "The simulator found a route 3.2 s faster that starts on the green roof."
+  - It never grades the player's technique.
+    - It only says what the simulator found.
+  - The search is the same family as the shortcut search (CC-71), and runs in the worker pool with a step budget (CC-69).
+- **Where it sits in the Atlas loop:** place, flight, pick buildings, choose the cut (the puzzle), run, then the ghost route, then a Notebook entry ("A route exists that you did not see").
+- **Ready places:** each of the ten ready places (CC-78) keeps a stored best route as the reference, so the ghost line appears at once.
+- **Honest limit:** the runner moves along one line (the simulator is 2D along that line), so moves across the street, or a lane that bends, are not modelled.
+  - A bent line is flattened into one run along its length.
+- **Depends on:** places that load (CC-78), the flight and picking (CC-79, built), the shortcut search (CC-71), and the worker pool (CC-69).
+
+## What the first build does (CC-79)
+- **Flight:** press "Slice this place" and the map flies in (steps 1 to 3).
+  - `?flight=0` or a reduced-motion setting skips it; `?flightat=2.5` freezes it at a second, for pictures.
+- **Picking:** click a building to leave it out or put it back.
+  - Hold Shift and drag a box to pick, hold Alt as well to take out. "Pick all" and "Clear" are buttons.
+  - Left-out buildings are faded and dashed.
+- **The lane and the Slicer use only the picked buildings.**
+- **Build the picked buildings:** each picked building arrives in the editor as its own piece, where it stood, with the camera heading and tilt the player ended on.
+- **Scale:** the caption under the Slicer says it in one sentence, and follows the radius and shrink sliders.
+- **Not yet:** other map features (steps, rails, walls, water, paths, trees, playgrounds).
+  - The map query only asks for buildings today.
+- **Pictures:** `data/eval/cc-79-flight/`.

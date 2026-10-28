@@ -1,0 +1,23 @@
+{
+  "checks": {
+    "threeCaptionsDiffer": true,
+    "step1SaysHowWideTheCircleIs": true,
+    "flightEnds": true,
+    "sliderShownAfterFlight": true,
+    "skipButtonGone": true,
+    "allPickedAtFirst": true,
+    "foundABuildingOnScreen": true,
+    "clickLeavesOneOut": true,
+    "clickAgainPutsItBack": true,
+    "clearPicksNone": true,
+    "boxPicksSome": true,
+    "opensEditor": true,
+    "separatePiecesInEditor": true
+  },
+  "notes": [
+    "{\"1-birds-eye\":\"Step 1 of 3: the real place from above. This circle is 240 m across.\",\"2-painted-in\":\"Step 2 of 3: the place is painted in. The buildings rise out of the map.\",\"3-tilt-down\":\"Step 3 of 3: down to the street.\"}",
+    "flight took about 5.5 s including loading",
+    "box picked 2 of 41"
+  ],
+  "pass": true
+}
