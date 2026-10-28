@@ -10,7 +10,7 @@ import { VAULT_BUFFER, VAULT_PLANT_GRIP, VAULT_PLANT_TICKS, findVault, vaultAt, 
 import { GROUND_ROLL_COST, GROUND_ROLL_RECOVERY, startGroundRoll, stepGroundRoll, type GroundRoll } from './roll';
 import { bodyVelocity, feetOf, gripSlips, hangStep, releaseHang, tryGrab, type Hang } from './holds';
 import { enterCart, railsOf, stepCartWorld, trackParams, trackSegments, type Cart } from './cart';
-import { DEFAULT_RECOIL, NO_RECOIL, padHas, shot, stepBall, type RecoilParams, type RecoilState } from './recoil';
+import { AIM_RATE, DEFAULT_RECOIL, NO_RECOIL, clampAim, isAimable, padHas, shot, stepBall, type RecoilParams, type RecoilState } from './recoil';
 import { maybeEnterPlank, stepPlankWorld, type PlankState } from './beam';
 import { CLIMB_CATCH_TICKS, CLIMB_COST, CLIMB_EXIT_SPEED, CLIMB_HOLD_TICKS, findClimb, type Climb } from './climb';
 import { DEFAULT_TREBUCHET, deg, feetAt, isDud, launchStep, startLaunch, type Launch, type TrebuchetParams } from './trebuchet';
@@ -159,21 +159,25 @@ export function stepWorld(w: WorldState, input: RunnerInput, course: CourseData,
   }
   if (r.splashed) { n.outcome = 'splash'; ev('splash', { x: r.x }); }
 
-  // recoil: the pad clips the launcher on (one load per visit); the fire key throws the ball back and pushes the runner forward by the momentum the ball carries away
+  // recoil: the pad clips the launcher on (one load per visit); the fire key throws the ball back and pushes the runner by the momentum the ball carries away.
+  // A big cannon is aimed first: up and down tilt the barrel while it is loaded (the barrel points backward and down, so the push goes forward and up).
   if (course.recoil && n.outcome === 'running') {
     const rp = recoilParams(course);
     const prev = w.recoil ?? NO_RECOIL;
     const onPad = n.runner.grounded && padHas(rp, n.runner.x);
     let armed = onPad && !prev.onPad ? rp.shots : prev.armed, fired = prev.fired;
+    let aim = prev.aim ?? clampAim(rp.angle);
+    if (isAimable(rp) && armed > 0) aim = input.aim !== undefined ? clampAim(input.aim) : clampAim(aim + ((input.aimUp ? 1 : 0) - (input.aimDown ? 1 : 0)) * AIM_RATE * DT);
     const balls = prev.balls.map((b) => stepBall(b, course.terrain)).slice(-6);
     if (input.fire && armed > 0) {
-      const sh = shot(rp, n.runner.vx, n.runner.vy, !n.runner.grounded);
-      n.runner = { ...n.runner, vx: n.runner.vx + sh.dvx, vy: n.runner.vy + sh.dvy };
+      const airborne = !n.runner.grounded;
+      const sh = shot(rp, n.runner.vx, n.runner.vy, airborne, isAimable(rp) ? aim : rp.angle);
+      n.runner = { ...n.runner, vx: n.runner.vx + sh.dvx, vy: n.runner.vy + sh.dvy, ...(sh.dvy > 0 ? { grounded: false } : {}) }; // pushed up: off the ground
       armed--; fired++;
-      balls.push({ x: n.runner.x - 0.3, y: n.runner.y + 1.0, vx: sh.ballVx, vy: sh.ballVy, landed: false });
-      ev('recoil', { dvx: sh.dvx, dvy: sh.dvy, muzzle: sh.muzzle, ball: Math.hypot(sh.ballVx, sh.ballVy) });
+      balls.push({ x: n.runner.x - 0.3 - 1.2 * Math.cos(sh.angle), y: n.runner.y + 1.0 - 1.2 * Math.sin(sh.angle), vx: sh.ballVx, vy: sh.ballVy, landed: false });
+      ev('recoil', { dvx: sh.dvx, dvy: sh.dvy, muzzle: sh.muzzle, ball: Math.hypot(sh.ballVx, sh.ballVy), angle: sh.angle });
     }
-    n.recoil = { armed, fired, onPad, balls };
+    n.recoil = { armed, fired, onPad, aim, balls };
   }
 
   // the wall: running onto the curve with the feet on the ground

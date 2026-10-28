@@ -19,16 +19,17 @@ describe('recoil: momentum is conserved', () => {
       expect(mom(p, v, s.dvx, s.ballVx)).toBeCloseTo((p.charMass + p.ballMass) * v, 9);
     }
   });
-  it('in the air both parts of the momentum are conserved, up and along', () => {
+  it('in the air both parts of the momentum are conserved, up and along (a vector law)', () => {
     const p = P({ angle: 0.5 }), vx = 8, vy = 2, s = shot(p, vx, vy, true);
     expect(p.charMass * (vx + s.dvx) + p.ballMass * s.ballVx).toBeCloseTo((p.charMass + p.ballMass) * vx, 9);
     expect(p.charMass * (vy + s.dvy) + p.ballMass * s.ballVy).toBeCloseTo((p.charMass + p.ballMass) * vy, 9);
-    expect(s.dvy).toBeLessThan(0); // a ball thrown up and back pushes the runner down
+    expect(s.dvy).toBeGreaterThan(0); // the ball goes backward and down, so the push on the runner is forward and up
   });
-  it('on the ground the ground takes the upward part: only the forward push counts', () => {
-    const s = shot(P({ angle: 0.5 }), 5, 0, false);
-    expect(s.dvy).toBe(0);
-    expect(s.dvx).toBeCloseTo(shot(P({ angle: 0 }), 5, 0, false).dvx * Math.cos(0.5), 9);
+  it('on the ground a push up counts and a push down does not (the ground cannot hold you down, but it does hold you up)', () => {
+    const up = shot(P({ angle: 0.5 }), 5, 0, false);
+    expect(up.dvy).toBeGreaterThan(0);
+    expect(up.dvx).toBeCloseTo(shot(P({ angle: 0 }), 5, 0, false).dvx * Math.cos(0.5), 9);
+    expect(shot(P({ angle: -0.5 }), 5, 0, false).dvy).toBe(0);
   });
 });
 

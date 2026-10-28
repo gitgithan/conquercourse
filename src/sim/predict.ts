@@ -6,6 +6,7 @@ import { stepWorld, type WorldState } from './world';
 import { JUMPABLE_STEP } from './needs-limits';
 import { climbMaxRise } from './climb';
 import { crestSpeedLimit, railsOf } from './cart';
+import { GRAVITY } from './units';
 
 // "If I jump now, what happens?": the simulator's own physics run forward from the current state with Space pressed
 // and the run key held. The debug view draws the path and says why the jump works or does not. Nothing here is a second model.
@@ -107,6 +108,36 @@ export function predictLaunch(w: WorldState, course: CourseData, maxTicks = 600)
     if (left && s.runner.grounded) return { path, result: 'lands', landX: s.runner.x, why: `You land at ${s.runner.x.toFixed(1)} m.` };
   }
   return { path, result: 'lands', why: 'Still in the air at the end of the preview.' };
+}
+
+// "If I fire the cannon now, where do I come down?": the same physics run forward with K pressed this tick and nothing after it. A roll is added in the air
+// to see whether the landing is survivable; the words say whether the roll is needed. The Course draws this path as dots and the debug view says it.
+export function predictShot(w: WorldState, course: CourseData, maxTicks = 900): Prediction {
+  if (w.mode !== 'run' || w.outcome !== 'running' || !course.recoil) return { path: [], result: 'other-move', why: 'No launcher to fire here.' };
+  if (!w.recoil || w.recoil.armed <= 0) return { path: [], result: 'other-move', why: 'Run onto the teal pad to clip the launcher on.' };
+  const fly = (roll: boolean): Prediction & { impact?: number } => {
+    const path = [{ x: w.runner.x, y: w.runner.y }];
+    let s = stepWorld(w, { ...NO_INPUT, fire: true }, course);
+    path.push({ x: s.runner.x, y: s.runner.y });
+    let left = !s.runner.grounded;
+    for (let i = 0; i < maxTicks; i++) {
+      s = stepWorld(s, { ...NO_INPUT, roll: roll && !s.runner.grounded }, course);
+      path.push({ x: s.runner.x, y: s.runner.y });
+      if (!s.runner.grounded) left = true;
+      if (s.outcome === 'splash') {
+        const past = course.terrain.platforms.every((q) => q.x1 < s.runner.x);
+        return { path, result: 'splash', landX: s.runner.x, why: past ? 'You fly past the end of the ground and come down in the water. Tilt the barrel flatter, or use a lighter or slower ball.' : 'You come down in the water, short of the ground. Tilt the barrel, or use a heavier or faster ball.' };
+      }
+      if (s.outcome === 'hurt') return { path, result: 'hurt', landX: s.runner.x, why: 'You come down too hard even for a roll.' };
+      if (left && s.runner.grounded) return { path, result: 'lands', landX: s.runner.x, why: `You land at ${s.runner.x.toFixed(1)} m.`, impact: s.events.find((e) => e.type === 'land')?.detail?.impact as number | undefined };
+    }
+    return { path, result: 'lands', why: 'Still in the air at the end of the preview.' };
+  };
+  const plain = fly(false);
+  const needsRoll = plain.result === 'hurt' || (plain.result === 'lands' && (plain.impact ?? 0) ** 2 / (2 * GRAVITY) > 1.8);
+  if (!needsRoll) return plain; // a clean landing (or a splash): nothing more to say
+  const rolled = fly(true);
+  return rolled.result === 'lands' ? { ...rolled, why: `You land at ${rolled.landX!.toFixed(1)} m, ${plain.result === 'hurt' ? 'a hard landing unless you tap X just before the ground to roll it out' : 'a stumble unless you tap X just before the ground to roll it out'}.` } : { ...plain, why: 'You come down too hard: tilt the barrel flatter, or a slower ball.' };
 }
 
 // "If I let the cart roll from here, what happens?": the same cart physics run forward with no brake. Used by the debug view on a coaster.
