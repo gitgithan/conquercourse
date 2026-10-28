@@ -30,5 +30,6 @@ export interface CourseData {
   uMap?: { u0: number; u1: number; x0: number }[]; // editor lanes: where each run of ground came from
   scene?: SceneItem[]; // editor lanes: the real objects, drawn instead of blocks
   trebuchet?: Partial<import('../sim/trebuchet').TrebuchetParams> & { x: number }; // a trebuchet at x: the course starts with the rider in its sling
+  recoil?: Partial<import('../sim/recoil').RecoilParams> & { x0: number; x1: number }; // a launcher pad (src/sim/recoil.ts): stepping on it clips the launcher on; K fires it
   hazard?: import('./hazard').Hazard; // the floor you must not touch: water (default), lava, mud, spikes or void; paint, words and sound only
 }

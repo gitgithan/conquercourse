@@ -1,0 +1,54 @@
+{
+  "version": 1,
+  "name": "Recoil: the ball goes back, you go forward",
+  "startX": 0,
+  "finishX": 38.5,
+  "jumpSpeed": 4.5,
+  "terrain": {
+    "waterY": -4,
+    "platforms": [
+      {
+        "x0": -10,
+        "x1": 16,
+        "top": 0
+      },
+      {
+        "x0": 26.5,
+        "x1": 66.5,
+        "top": 0
+      }
+    ]
+  },
+  "recoil": {
+    "x0": 2.5,
+    "x1": 5,
+    "kind": "cannon",
+    "ballMass": 12,
+    "muzzle": 30,
+    "angle": 0,
+    "charMass": 70,
+    "shots": 1
+  },
+  "zones": [
+    {
+      "id": "recoil",
+      "name": "Recoil gap",
+      "x0": 2,
+      "x1": 28.5
+    }
+  ],
+  "checkpoints": [
+    {
+      "id": "recoil",
+      "x": 0
+    }
+  ],
+  "plan": {
+    "jumpXs": [
+      15.04
+    ],
+    "releaseAfter": 60,
+    "bouncePress": 8,
+    "fireAfterJump": 0
+  }
+}
