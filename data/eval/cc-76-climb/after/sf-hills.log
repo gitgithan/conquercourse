@@ -1,0 +1,59 @@
+{
+  "place": "sf-hills",
+  "lat": 37.8021,
+  "lon": -122.4187,
+  "radius": 120,
+  "terrain": true,
+  "terrainRelief_m": 62.4,
+  "buildings": 95,
+  "withRealHeight": 75,
+  "medianHeight_m": 11,
+  "shrink": 0.455,
+  "shrinkTries": [
+    {
+      "shrink": 0.455,
+      "lanes": 3
+    }
+  ],
+  "triangles": 2828,
+  "shrunkHeightRange_m": [
+    1.8,
+    8
+  ],
+  "samples": 1450212,
+  "lanesFound": 3,
+  "secondsTaken": 49,
+  "bestLane": {
+    "turnDeg": 50,
+    "sidewaysM": -62.9,
+    "levelM": 6,
+    "gaps": 1,
+    "steps": 3,
+    "curves": 0,
+    "faces": 0,
+    "length": 27.200000000000003,
+    "variety": 2,
+    "maxRise": 1.061204433441162,
+    "maxDrop": 0.39987754821777344,
+    "score": 7,
+    "searchIdealRunCleared": true
+  },
+  "candidates": [
+    {
+      "turnDeg": 50,
+      "sidewaysM": -62.9,
+      "score": 7
+    },
+    {
+      "turnDeg": 10,
+      "sidewaysM": -62.9,
+      "score": 0.5
+    },
+    {
+      "turnDeg": 0,
+      "sidewaysM": -58,
+      "score": -2
+    }
+  ],
+  "glbBytes": 155424
+}

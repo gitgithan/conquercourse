@@ -34,6 +34,7 @@
 | Plank bridge | *"A plank that is twice as long sags eight times as much."* | A longer plank bends far more, and a thicker one bends far less; a post in the middle makes two short planks |
 | Cup stacks | *"Speed climbs the cups, and speed carries you off the top."* | A step up needs speed, but the narrow flat top is crossed in a blink at that speed |
 | Recoil | *"The heavy thing goes slow, the light thing fast, and both carry the same."* | Momentum is conserved: the ball carries a push away backward and the runner carries the same push forward |
+| Climb | *"Speed gets you to the wall; arms get you over it."* | The run speed is gone at the wall: the arms pull the body up on their own strength, so a taller wall costs more time and effort than it costs speed |
 
 ## Where they appear
 - **A law the player earns:** shown only after the player has discovered that principle in the Dojo (for example, their rope predictions get close); collected sayings fill the trophy cabinet.

@@ -947,3 +947,37 @@ The set of obstacle shapes is fixed, and each shape offers a fixed set of moves.
   - The sling lines and the trebuchet's seat are not drawn, so the sling pose floats on the arm's end.
   - The hurt clip is acted (a stage fall with arms thrown up first); the blind A/B will say if the built crumple reads better.
   - No tuck animation is drawn for the roll over the top of the giant swing, only the legs.
+
+
+## Climb (CC-76)
+- **So what:** a wall the jump and the vault cannot take is now a move: hold E at its edge and pull up.
+  - On San Francisco's steep hills the best lane grew from 8.2 m to 27.2 m.
+  - Montmartre's hills did not change (8.7 m): its hills are steep curved slopes, not walls, and the climb takes walls only.
+- **How it plays:**
+  - Run at the wall (or jump) and hold E when the hands meet the top edge.
+  - The body stops against the wall, hangs from the edge for 0.25 s and pulls up and over in 0.85 s, 1.1 s in all, and stands on the top at 2 m/s.
+  - The run speed is gone and the pull-up spends as much energy as two jumps.
+  - Letting go of E while still hanging drops the body; after the pull-up starts it is committed.
+- **Where the limits come from (Earth gravity, the Rookie's reach):**
+  - The hands are 2.1 m over the feet with the arms stretched up and the fingers must get 0.1 m over the edge: from the ground a wall up to 2.2 m can be grabbed, from 1.0 m up (below that a jump or a vault does it).
+  - A jump adds the height gained while the body is slow enough to catch: the hands close on an edge only while the body rises no faster than 2 m/s, which at a 4.5 m/s take-off is 0.83 m up.
+  - Edge at most 2.2 + 0.83 = 3.03 m over the ground, minus 0.2 m for the arms to start the pull-up: the tallest wall is 2.83 m.
+  - A vault takes up to 1.3 m (CC-68), so the climb is the move from there up.
+- **The search:** above a vault's reach, `searchIdealRun` tries standing at the foot of the wall holding E, and a jump with E held in the air, and keeps the one that clears; the plan carries `climbXs` or `climbHands`.
+  - In the air the bot holds E only until the last bar is behind it, so a fall beside a ledge stays a fall (a rescue grab of the edge below made the lache-wide demo skip its roll).
+- **The lane builder:** a step up to 2.83 m no longer rules a lane out (`CLIMBABLE` in `src/slice/slice.ts`; before, 0.9 m).
+- **Seen in play:** the debug view (B) puts a cyan ring on the edge of the next wall the hands can take and says how to take it; the drum lane shows the E grab where the hands meet the edge; the hint says "hold E at the wall".
+- **Pose:** the hang pose for the hold, the hands pinned on the real edge, then the body folds up to the stand pose (procedural, not a clip).
+- **Demo:** `/?course=/assets/demo/climb.course.json`: a 2 m wall, then a 5 m drop to roll out of.
+- **Real keys (`scripts/climb-check.mjs`):** the climb starts 0.6 m from the wall, ends on the top and the run goes on.
+
+### Places with the climb
+| Place | Before the climb | With the climb |
+|---|---|---|
+| San Francisco, hills | shrink 0.455, best lane 8.2 m | shrink 0.455, best lane 27.2 m, 3 lanes |
+| San Francisco, flat | shrink 0.455, best lane 41.2 m | shrink 0.455, best lane 27.2 m (the score now prefers a lane with a climb) |
+| Montmartre, hills | shrink 0.333, best lane 8.7 m | shrink 0.333, best lane 8.7 m (no change) |
+| Montmartre, flat | shrink 0.556, best lane 63 m | shrink 0.556, best lane 65.7 m |
+- **A lane's length is not what it can do:** the search keeps the lanes with the best score (variety of obstacles), not the longest, so a flat place can show a shorter best lane when a lane with a climb scores higher.
+- **Why Montmartre did not change:** its lane (found at shrink 0.556) starts with a curved top that rises 2.6 m in 1.4 m, a slope steeper than 45 degrees, and the climb only takes vertical faces.
+- **Next:** treat a steep curved top like a wall (the edge is where the slope eases below 45 degrees).

@@ -1,6 +1,6 @@
 import { LANE_DROP } from '../sim/drop';
 import { searchIdealRun } from '../sim/ideal';
-import { describe, JUMPABLE, laneToCourse, sliceProfile } from './slice';
+import { CLIMBABLE, describe, laneToCourse, sliceProfile } from './slice';
 import { realSize, worldSamples, type Piece } from './world';
 
 // When the simulator cannot clear a lane, say what to shift. Pure: it tries small changes (slide a piece along the lane, make it
@@ -20,7 +20,7 @@ function check(pieces: Piece[], lane: LaneSetting, proof: boolean): Verdict {
   if (profile.length < 8) return { ok: false, why: 'The lane is almost empty: nothing for the runner to stand on.' };
   const report = describe(profile);
   if (report.maxDrop > LANE_DROP) return { ok: false, why: `a drop of ${report.maxDrop.toFixed(1)} m; even a roll survives about ${LANE_DROP} m` };
-  if (report.maxRise > JUMPABLE) return { ok: false, why: `a step is ${report.maxRise.toFixed(1)} m high; a jump from a run reaches about ${JUMPABLE} m` };
+  if (report.maxRise > CLIMBABLE) return { ok: false, why: `a step is ${report.maxRise.toFixed(1)} m high; a climb reaches about ${CLIMBABLE.toFixed(1)} m (a jump 0.9 m, a vault 1.3 m)` };
   const course = laneToCourse({ cells: [...profile.cells], length: profile.length });
   if (!proof) return { ok: true, why: '' };
   return searchIdealRun(course).cleared ? { ok: true, why: '' } : { ok: false, why: 'the runner cannot find a way through' };
