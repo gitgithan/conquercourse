@@ -91,7 +91,7 @@ export async function startRollAB(): Promise<void> {
   ui.append(note, row, answer, result);
   document.body.appendChild(ui);
 
-  Object.assign(window, { __rollAB: { play, show, reply, map: () => ({ A: lookOf('A'), B: lookOf('B') }), first: () => first, rolledAt: () => rolledAt, ticks: () => worlds.length } });
+  Object.assign(window, { __rollAB: { play, show, reply, map: () => ({ A: lookOf('A'), B: lookOf('B') }), first: () => first, rolledAt: () => rolledAt, rollTicks: () => ROLL_TICKS, ticks: () => worlds.length } });
   show('A', first);
   const t0 = params.has('freeze') ? Infinity : 0;
   stage.renderer.setAnimationLoop(() => {

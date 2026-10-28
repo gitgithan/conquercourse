@@ -13,13 +13,13 @@ try {
   const errors = []; page.on('pageerror', (e) => errors.push(e.message));
   await page.goto(`http://localhost:${port}/?demo=roll-ab&freeze=1`);
   await page.waitForFunction(() => document.documentElement.dataset.ready === 'true', null, { timeout: 180000 });
-  const info = await page.evaluate(() => ({ map: window.__rollAB.map(), rolledAt: window.__rollAB.rolledAt(), ticks: window.__rollAB.ticks(), note: document.body.innerText.slice(0, 120) }));
+  const info = await page.evaluate(() => ({ map: window.__rollAB.map(), rolledAt: window.__rollAB.rolledAt(), ticks: window.__rollAB.ticks(), rollTicks: window.__rollAB.rollTicks(), note: document.body.innerText.slice(0, 120) }));
   mkdirSync('test-results/roll-ab', { recursive: true });
   const frames = [0, 0.2, 0.4, 0.6, 0.8, 1.0];
   for (const label of ['A', 'B']) {
     const kind = info.map[label];
     for (let k = 0; k < frames.length; k++) {
-      await page.evaluate(([l, t]) => window.__rollAB.show(l, t), [label, info.rolledAt + Math.round(frames[k] * 59)]);
+      await page.evaluate(([l, t]) => window.__rollAB.show(l, t), [label, info.rolledAt + Math.round(frames[k] * (info.rollTicks - 1))]);
       await page.waitForTimeout(400);
       await page.screenshot({ path: `test-results/roll-ab/${kind}-${k}.png` });
     }

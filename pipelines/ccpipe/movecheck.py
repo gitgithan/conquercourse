@@ -104,7 +104,7 @@ def generic_check(clip):
 CHECKS = {"roll": roll_check, "generic": generic_check}
 
 
-def trim(clip, window, pad_s=0.25):
+def trim(clip, window, pad_s=0.1):
     """The clip cut to the window plus `pad_s` each side (the run-in and the get-up), re-centred on its first frame."""
     a, b = window
     pad = int(round(pad_s * clip.fps))
