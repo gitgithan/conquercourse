@@ -15,7 +15,7 @@ import { withRecoil, type RecoilCfg } from '../slice/recoil-lane';
 import { fixRecoil } from '../slice/fixrecoil';
 import { withBand } from '../slice/band-lane';
 import { fixBand } from '../slice/fixband';
-import { CUP, PATTERNS, patternOf, stackPiece, stackSrc } from '../slice/stack';
+import { CUP, PATTERNS, stackPiece, stackSrc } from '../slice/stack';
 import { fixLayout } from '../slice/fixit';
 import { layoutToPieces, parseLayout } from '../slice/photo-course';
 import { proves } from '../slice/photo-proof';
@@ -109,7 +109,7 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
   const handoff = readHandoff();
   if (handoff && !pieces.some((q) => q.src?.startsWith('map:'))) {
     pendingObjects.length = 0;
-    restore({ pieces: handoff.course.source!.pieces, angle: handoff.course.source!.angle, offset: handoff.course.source!.offset, level: handoff.course.source!.level, floor: handoff.course.source!.floor });
+    restore({ pieces: handoff.course.source!.pieces as Saved['pieces'], angle: handoff.course.source!.angle, offset: handoff.course.source!.offset, level: handoff.course.source!.level, floor: handoff.course.source!.floor });
     selected = null;
   }
   let focusId: number | null = null; // the piece nearest the place the player was at (chosen once the lane exists)
