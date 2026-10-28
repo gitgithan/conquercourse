@@ -1,0 +1,13 @@
+{
+  "photo": "park01",
+  "run": 1,
+  "status": 200,
+  "ms": 19978,
+  "imageBytes": 112824,
+  "usage": {
+    "prompt_tokens": 970,
+    "completion_tokens": 4000,
+    "total_tokens": 4970
+  },
+  "reply": ""
+}

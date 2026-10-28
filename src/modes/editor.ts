@@ -8,6 +8,8 @@ import { createView3d } from '../slice/view3d';
 import { sceneFor } from '../slice/scene';
 import { barMesh, holdsOf, isHold, REACH_JUMPING, REACH_STANDING } from '../slice/holds-world';
 import { fixLayout } from '../slice/fixit';
+import { layoutToPieces, parseLayout, pieceFromSrc } from '../slice/photo-course';
+import { proves } from '../slice/photo-proof';
 import { fixBars } from '../slice/fixbars';
 import { adviseLane, type Advice } from '../slice/advice';
 import { applyEdits, parseReply, worldBrief, type Edit } from '../slice/designer';
@@ -55,7 +57,7 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
     try {
       const s = JSON.parse(localStorage.getItem(KEY) ?? '') as Saved;
       pendingObjects.push(...s.pieces.filter((q) => q.src.startsWith('obj:')));
-      pieces = s.pieces.filter((q) => !q.src.startsWith('obj:')).map((q) => (q.src === 'hold:bar' ? { ...newPiece('Bar', barMesh(), { x: q.x, z: q.z }), src: q.src, y: q.y, yaw: q.yaw, scale: q.scale } : { ...newPiece(lib(q.src).label, lib(q.src).mesh(), { x: q.x, z: q.z }), src: q.src, y: q.y, yaw: q.yaw, scale: q.scale }));
+      pieces = s.pieces.filter((q) => !q.src.startsWith('obj:')).map((q) => (q.src.startsWith('box:') ? { ...pieceFromSrc(q.src, { x: q.x, z: q.z })!, y: q.y, yaw: q.yaw, scale: q.scale } : q.src === 'hold:bar' ? { ...newPiece('Bar', barMesh(), { x: q.x, z: q.z }), src: q.src, y: q.y, yaw: q.yaw, scale: q.scale } : { ...newPiece(lib(q.src).label, lib(q.src).mesh(), { x: q.x, z: q.z }), src: q.src, y: q.y, yaw: q.yaw, scale: q.scale }));
       angle = s.angle; offset = s.offset; level = s.level;
     } catch {
       // a first world made of real objects (no blocks): a bench, a long low box and a rail, loaded once the object list is in
@@ -172,6 +174,37 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
   const helperBtn = el('button', top, { text: 'Design partner', id: 'helperbtn', title: 'Show or hide the design partner' });
   helperBtn.setAttribute('aria-pressed', 'true');
   helperBtn.onclick = () => { const closed = helper.classList.toggle('closed'); helperBtn.setAttribute('aria-pressed', String(!closed)); };
+  // ---- labs (?labs=1, or ?photo=<url>): a park photo becomes a first draft of a course; the simulator checks it and Fix it repairs it
+  if (/[?&](labs|photo)\b/.test(location.search)) {
+    const fileIn = el('input', top, { type: 'file', accept: 'image/jpeg,image/png', id: 'photofile' }) as HTMLInputElement;
+    fileIn.style.display = 'none';
+    el('button', top, { text: 'Photo to course (labs)', id: 'photobtn', title: 'Pick a park photo: the design partner drafts a course from it, then the simulator checks it' }).onclick = () => fileIn.click();
+    fileIn.onchange = () => { const f = fileIn.files?.[0]; if (f) void draftFrom(f); };
+    const url = new URLSearchParams(location.search).get('photo');
+    if (url) void fetch(url).then((r) => r.blob()).then(draftFrom).catch(() => { reply.className = 'reply bad'; reply.textContent = 'I could not read that photo.'; });
+  }
+  async function draftFrom(file: Blob) {
+    helper.classList.remove('closed'); helperBtn.setAttribute('aria-pressed', 'true');
+    const done = (state: string, text: string, ok = false) => { document.documentElement.dataset.photoDraft = state; reply.className = ok ? 'reply ok' : 'reply bad'; reply.textContent = text; };
+    reply.className = 'reply'; reply.textContent = 'Looking at the photo…'; document.documentElement.dataset.photoDraft = 'asking';
+    try {
+      const bmp = await createImageBitmap(file), k = Math.min(1, 768 / bmp.width);
+      const c = document.createElement('canvas'); c.width = Math.round(bmp.width * k); c.height = Math.round(bmp.height * k);
+      c.getContext('2d')!.drawImage(bmp, 0, 0, c.width, c.height);
+      const r = await fetch('/api/photo-course', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ image: c.toDataURL('image/jpeg', 0.8) }) });
+      const d = (await r.json()) as { reply?: string; error?: string };
+      if (!r.ok || !d.reply) return done('error', d.error ?? 'No draft this time.');
+      const parsed = parseLayout(d.reply);
+      if (!parsed.layout) return done('unreadable', `I could not read a layout from the answer (${parsed.problems.join(', ')}). Try again.`);
+      pieces = layoutToPieces(parsed.layout); angle = 0; offset = 0; level = 0; selected = null; changed();
+      reply.className = 'reply'; reply.textContent = `${parsed.text} Checking the draft with the simulator…`;
+      setTimeout(() => {
+        if (proves(pieces as P[], { angle, offset, level })) return done('cleared', `${parsed.text} The simulator can clear this draft as it is.`, true);
+        document.documentElement.dataset.photoDraft = 'fixing'; runFix();
+        const wait = window.setInterval(() => { if (reply.textContent === 'Working it out…') return; clearInterval(wait); document.documentElement.dataset.photoDraft = proves(pieces as P[], { angle, offset, level }) ? 'fixed' : 'unfixed'; }, 300);
+      }, 50);
+    } catch { done('error', 'The photo helper is not available here.'); }
+  }
   function runFix() {
     reply.className = 'reply'; reply.textContent = 'Working it out…';
     setTimeout(() => {

@@ -1,0 +1,13 @@
+{
+  "photo": "new04",
+  "run": 1,
+  "status": 200,
+  "ms": 10947,
+  "imageBytes": 77827,
+  "usage": {
+    "prompt_tokens": 916,
+    "completion_tokens": 2043,
+    "total_tokens": 2959
+  },
+  "reply": "The route climbs the three steps onto the raised platform and continues off down the ramp.\n\n```json\n{\n  \"items\": [\n    {\"kind\": \"ground\", \"length\": 3},\n    {\"kind\": \"block\", \"length\": 0.35, \"height\": 0.15},\n    {\"kind\": \"ground\", \"length\": 0.3},\n    {\"kind\": \"block\", \"length\": 0.35, \"height\": 0.3},\n    {\"kind\": \"ground\", \"length\": 0.3},\n    {\"kind\": \"block\", \"length\": 0.35, \"height\": 0.45},\n    {\"kind\": \"ground\", \"length\": 2},\n    {\"kind\": \"bar\", \"height\": 1.35},\n    {\"kind\": \"ground\", \"length\": 3}\n  ]\n}\n```"
+}

@@ -1,0 +1,13 @@
+{
+  "photo": "new04",
+  "run": 2,
+  "status": 200,
+  "ms": 11643,
+  "imageBytes": 77827,
+  "usage": {
+    "prompt_tokens": 916,
+    "completion_tokens": 2114,
+    "total_tokens": 3030
+  },
+  "reply": "The course goes from the lower asphalt up the central steps onto the upper platform and past the rails.\n```json\n{\n  \"items\": [\n    {\"kind\": \"ground\", \"length\": 3},\n    {\"kind\": \"block\", \"length\": 0.9, \"height\": 0.45},\n    {\"kind\": \"ground\", \"length\": 1.5},\n    {\"kind\": \"bar\", \"height\": 0.9},\n    {\"kind\": \"ground\", \"length\": 2.5}\n  ]\n}\n```"
+}

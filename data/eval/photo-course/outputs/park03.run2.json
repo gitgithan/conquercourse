@@ -1,0 +1,13 @@
+{
+  "photo": "park03",
+  "run": 2,
+  "status": 200,
+  "ms": 11770,
+  "imageBytes": 70469,
+  "usage": {
+    "prompt_tokens": 794,
+    "completion_tokens": 2393,
+    "total_tokens": 3187
+  },
+  "reply": "A clear run crosses the flat ledges and the quarter-pipe from left to right.\n```json\n{\n  \"items\": [\n    {\"kind\": \"ground\", \"length\": 4},\n    {\"kind\": \"block\", \"length\": 5, \"height\": 0.4},\n    {\"kind\": \"ground\", \"length\": 4},\n    {\"kind\": \"block\", \"length\": 2, \"height\": 1.2},\n    {\"kind\": \"ground\", \"length\": 5},\n    {\"kind\": \"block\", \"length\": 2.5, \"height\": 0.45},\n    {\"kind\": \"ground\", \"length\": 3}\n  ]\n}\n```"
+}
