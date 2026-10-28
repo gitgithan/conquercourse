@@ -2,6 +2,7 @@ import type { CourseData } from '../course/course';
 import { NO_INPUT, type RunnerInput } from './runner';
 import { newWorld, recoilParams, stepWorld, type GameEvent, type WorldState } from './world';
 import { DT } from './units';
+import { flewOff } from './cart';
 import { rollNeeded } from './drop';
 import { CLIMB_MIN_RISE, climbMaxRise } from './climb';
 import { VAULT_MAX_RISE } from './vault';
@@ -416,14 +417,17 @@ export function playImperfect(course: CourseData, plan: Plan, seed: number, sigm
 
 // A coaster: the push is given at the start; the only thing to find is where to brake. Every time the cart leaves the track on a crest, try braking
 // through that crest from a point earlier on (the nearest start that makes the whole course clear), then look at the next crest.
+// A coaster is ridden well when the cart rolls home on the rails: finishing by flying off a hilltop, landing on the track and running on is not a ride.
+const rode = (r: RunResult): boolean => r.world.outcome === 'cleared' && !flewOff(r.events);
+
 export function searchCartRun(course: CourseData): { plan: Plan; windows: Window[]; cleared: boolean } {
   const plan: Plan = { jumpXs: [], releaseAfter: 60, bouncePress: 8, cartBrake: [] };
   const windows: Window[] = [];
   const cap = 120 * 90;
   for (let round = 0; round < 5; round++) {
     const r = playPlan(course, plan, cap);
-    if (r.world.outcome === 'cleared') return { plan, windows, cleared: true };
-    const off = r.events.find((e) => e.type === 'cart-off');
+    if (rode(r)) return { plan, windows, cleared: true };
+    const off = r.events.find((e) => e.type === 'cart-off' && !e.detail?.end);
     if (!off) return { plan, windows, cleared: false }; // stalled or something else: braking cannot help
     const xOff = off.detail!.x as number;
     const x0 = course.track!.pts.reduce((m, q) => Math.min(m, q[0]), Infinity);
@@ -431,8 +435,8 @@ export function searchCartRun(course: CourseData): { plan: Plan; windows: Window
     for (let a = xOff - 1; a >= x0; a -= 1) {
       const trial: Plan = { ...plan, cartBrake: [...plan.cartBrake!, [a, xOff + 1]] };
       const rr = playPlan(course, trial, cap);
-      const cleared = rr.world.outcome === 'cleared';
-      const left = rr.events.find((e) => e.type === 'cart-off');
+      const cleared = rode(rr);
+      const left = rr.events.find((e) => e.type === 'cart-off' && !e.detail?.end);
       best.push({ a, cleared, ok: cleared || !left || (left.detail!.x as number) > xOff + 1 });
     }
     const good = best.some((b) => b.cleared) ? best.filter((b) => b.cleared) : best.filter((b) => b.ok); // starts that clear the whole course first; else any that gets over this crest
@@ -442,5 +446,5 @@ export function searchCartRun(course: CourseData): { plan: Plan; windows: Window
     plan.cartBrake!.push([pick, xOff + 1]);
     windows.push({ obstacle: `crest at ${xOff.toFixed(0)} m`, best: pick, lo, hi, widthMs: ((hi - lo + 1) / 8) * 1000 });
   }
-  return { plan, windows, cleared: playPlan(course, plan, cap).world.outcome === 'cleared' };
+  return { plan, windows, cleared: rode(playPlan(course, plan, cap)) };
 }
