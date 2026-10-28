@@ -137,6 +137,9 @@ export function enterCart(w: WorldState, course: CourseData): WorldState {
   return { ...w, mode: 'cart', cart: { segment: 0, x, v: 0, started: false, stalledAt: null, tilt: Math.atan(rails.slope(x)) }, runner: { ...w.runner, x, y: rails.y(x) + p.seat, vx: 0, vy: 0, grounded: true } };
 }
 
+// Did the cart leave the rails on a hilltop? (Flying across the gap between two rail sections is planned and does not count.)
+export const flewOff = (events: { type: string; detail?: Record<string, number | boolean> }[]): boolean => events.some((e) => e.type === 'cart-off' && !e.detail?.end);
+
 const STALL_ROLL_TICKS = 100; // after the turn-round the cart rolls back this long, then the run is over
 
 export function stepCartWorld(w: WorldState, input: RunnerInput, course: CourseData): WorldState {
