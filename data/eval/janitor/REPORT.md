@@ -98,3 +98,21 @@
 - **Fix:** it now runs `vitest related <files> --run`.
 - **Tests run on VM3:** a change to `src/sim/ideal.ts` now selects 95 files, 848 tests.
 - **How to test it by eye:** edit any file under `src/`, run `npm run test:changed` on a VM: it lists the tests that import it and runs them.
+
+## 10. Piece toolbar on the 3D picture (CC-94, Part of)
+- **Problem:** the chosen piece's tools (turn, scale, copy, crop, delete) lived in the right column, far from the piece, and made that column long.
+- **Fix:** a small toolbar (`#piecebar`) now floats on the picture next to the chosen piece: Turn left and right 15 degrees, × 0.5, × 2, × 10, Copy, Crop, Delete.
+  - It sits above the piece's top (below it when there is no room) and is kept inside the picture; it follows the piece while you drag it, orbit or zoom (`src/slice/view3d.ts` got `project` and `onCamera`).
+  - A machine (band, cannon, trebuchet, drone) gets Delete only.
+  - Crop needs the flat plan, so pressing it switches to the plan; the toolbar then sits by the piece on the plan.
+  - The right column keeps the real size, the real height box and the height-off-the-ground slider.
+  - The ids `del`, `dup` and `crop` moved with the buttons, so `editor-check.mjs` needed no change.
+- **Tests run on VM3:** `editor-layout-check.mjs` at 1280x720, 1024x640 and 1920x1080 in every panel state (PASS; new assertion: in the piece state the toolbar is inside the picture, has all 5 tools and `#del` exists once); `editor-check.mjs` (all pass except `adviceOffered` and `partnerAnswers`, the two known VM quirks: no partner key on the VM, advice clock); `tsc --noEmit`.
+- **Not covered:** touch screens; a piece far off-screen (the toolbar hides when the piece is behind the camera).
+- **How to test it by eye:**
+  1. Open `/?mode=editor`, press "Add piece", choose Bench.
+  2. A white toolbar appears on the picture next to the bench: ↺ 15°, ↻ 15°, × 0.5, × 2, × 10, Copy, Crop, Delete.
+  3. Drag the bench or orbit the picture: the toolbar stays by the bench.
+  4. Press Copy (a second bench appears), × 2 (it doubles), Crop (the view flips to the flat plan: drag a box), Delete.
+  5. The right column no longer has those buttons.
+  - Screenshots: `data/eval/janitor/piece-toolbar/1280x720-piece.png`, `1024x640-piece.png`.
