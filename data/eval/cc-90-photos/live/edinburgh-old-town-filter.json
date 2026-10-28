@@ -1,0 +1,439 @@
+{
+  "place": "edinburgh-old-town",
+  "lane_steps_10m": 17,
+  "photos_in_box_not_pano_with_direction": 1315,
+  "facing_candidates_found": 68,
+  "candidates_checked": 68,
+  "kept": 52,
+  "rejected": 16,
+  "rejected_by_reason": {
+    "person under 2 percent (a small or far figure, could be a child)": 13,
+    "person 2 percent or larger": 2,
+    "download failed": 1
+  },
+  "detector": "torchvision fasterrcnn_resnet50_fpn COCO, person score >= 0.4",
+  "rows": [
+    {
+      "id": "501882817525938",
+      "persons": 2,
+      "person_max_area_share": 0.0044,
+      "kept": false,
+      "reason": "person under 2 percent (a small or far figure, could be a child)"
+    },
+    {
+      "id": "792139546143084",
+      "persons": 19,
+      "person_max_area_share": 0.0626,
+      "kept": false,
+      "reason": "person 2 percent or larger"
+    },
+    {
+      "id": "1400314660332725",
+      "persons": 1,
+      "person_max_area_share": 0.0015,
+      "kept": false,
+      "reason": "person under 2 percent (a small or far figure, could be a child)"
+    },
+    {
+      "id": "1816565585526545",
+      "persons": 15,
+      "person_max_area_share": 0.021,
+      "kept": false,
+      "reason": "person 2 percent or larger"
+    },
+    {
+      "id": "225185289006012",
+      "persons": 1,
+      "person_max_area_share": 0.0011,
+      "kept": false,
+      "reason": "person under 2 percent (a small or far figure, could be a child)"
+    },
+    {
+      "id": "516257109397464",
+      "persons": 1,
+      "person_max_area_share": 0.002,
+      "kept": false,
+      "reason": "person under 2 percent (a small or far figure, could be a child)"
+    },
+    {
+      "id": "3568262436837395",
+      "persons": 40,
+      "person_max_area_share": 0.0113,
+      "kept": false,
+      "reason": "person under 2 percent (a small or far figure, could be a child)"
+    },
+    {
+      "id": "840418390159131",
+      "persons": 2,
+      "person_max_area_share": 0.0005,
+      "kept": false,
+      "reason": "person under 2 percent (a small or far figure, could be a child)"
+    },
+    {
+      "id": "310902500426927",
+      "persons": 0,
+      "person_max_area_share": 0.0,
+      "kept": true
+    },
+    {
+      "id": "302196738117064",
+      "persons": 0,
+      "person_max_area_share": 0.0,
+      "kept": true
+    },
+    {
+      "id": "162394899160193",
+      "persons": 0,
+      "person_max_area_share": 0.0,
+      "kept": true
+    },
+    {
+      "id": "937381763687394",
+      "persons": 0,
+      "person_max_area_share": 0.0,
+      "kept": true
+    },
+    {
+      "id": "519099875771627",
+      "persons": 0,
+      "person_max_area_share": 0.0,
+      "kept": true
+    },
+    {
+      "id": "376071370432000",
+      "persons": 0,
+      "person_max_area_share": 0.0,
+      "kept": true
+    },
+    {
+      "id": "796280574355425",
+      "persons": 0,
+      "person_max_area_share": 0.0,
+      "kept": true
+    },
+    {
+      "id": "948882072538709",
+      "persons": 0,
+      "person_max_area_share": 0.0,
+      "kept": true
+    },
+    {
+      "id": "935267647286751",
+      "persons": 0,
+      "person_max_area_share": 0.0,
+      "kept": true
+    },
+    {
+      "id": "330159651786445",
+      "persons": 0,
+      "person_max_area_share": 0.0,
+      "kept": true
+    },
+    {
+      "id": "160548862681449",
+      "persons": 0,
+      "person_max_area_share": 0.0,
+      "kept": true
+    },
+    {
+      "id": "306303661074221",
+      "persons": 0,
+      "person_max_area_share": 0.0,
+      "kept": true
+    },
+    {
+      "id": "1103134143504634",
+      "persons": 0,
+      "person_max_area_share": 0.0,
+      "kept": true
+    },
+    {
+      "id": "321114299590056",
+      "persons": 0,
+      "person_max_area_share": 0.0,
+      "kept": true
+    },
+    {
+      "id": "538169670672560",
+      "persons": 0,
+      "person_max_area_share": 0.0,
+      "kept": true
+    },
+    {
+      "id": "3079728482263408",
+      "persons": 0,
+      "person_max_area_share": 0.0,
+      "kept": true
+    },
+    {
+      "id": "470833470644239",
+      "persons": 0,
+      "person_max_area_share": 0.0,
+      "kept": true
+    },
+    {
+      "id": "153156640109107",
+      "persons": 0,
+      "person_max_area_share": 0.0,
+      "kept": true
+    },
+    {
+      "id": "465962531160530",
+      "persons": 0,
+      "person_max_area_share": 0.0,
+      "kept": true
+    },
+    {
+      "id": "178081187549631",
+      "persons": 0,
+      "person_max_area_share": 0.0,
+      "kept": true
+    },
+    {
+      "id": "211930330535336",
+      "persons": 0,
+      "person_max_area_share": 0.0,
+      "kept": true
+    },
+    {
+      "id": "4190995860957761",
+      "kept": false,
+      "reason": "download failed"
+    },
+    {
+      "id": "1023162498510153",
+      "persons": 0,
+      "person_max_area_share": 0.0,
+      "kept": true
+    },
+    {
+      "id": "893888081169076",
+      "persons": 0,
+      "person_max_area_share": 0.0,
+      "kept": true
+    },
+    {
+      "id": "313978690169183",
+      "persons": 0,
+      "person_max_area_share": 0.0,
+      "kept": true
+    },
+    {
+      "id": "1078368089322610",
+      "persons": 0,
+      "person_max_area_share": 0.0,
+      "kept": true
+    },
+    {
+      "id": "522167622250715",
+      "persons": 0,
+      "person_max_area_share": 0.0,
+      "kept": true
+    },
+    {
+      "id": "852777662251534",
+      "persons": 0,
+      "person_max_area_share": 0.0,
+      "kept": true
+    },
+    {
+      "id": "301328748158789",
+      "persons": 0,
+      "person_max_area_share": 0.0,
+      "kept": true
+    },
+    {
+      "id": "328338201971849",
+      "persons": 0,
+      "person_max_area_share": 0.0,
+      "kept": true
+    },
+    {
+      "id": "180021974030396",
+      "persons": 0,
+      "person_max_area_share": 0.0,
+      "kept": true
+    },
+    {
+      "id": "2233072873490235",
+      "persons": 0,
+      "person_max_area_share": 0.0,
+      "kept": true
+    },
+    {
+      "id": "826609837973489",
+      "persons": 0,
+      "person_max_area_share": 0.0,
+      "kept": true
+    },
+    {
+      "id": "557470461907873",
+      "persons": 0,
+      "person_max_area_share": 0.0,
+      "kept": true
+    },
+    {
+      "id": "237279081502347",
+      "persons": 0,
+      "person_max_area_share": 0.0,
+      "kept": true
+    },
+    {
+      "id": "299799388407286",
+      "persons": 0,
+      "person_max_area_share": 0.0,
+      "kept": true
+    },
+    {
+      "id": "903941246847459",
+      "persons": 0,
+      "person_max_area_share": 0.0,
+      "kept": true
+    },
+    {
+      "id": "380154626657751",
+      "persons": 0,
+      "person_max_area_share": 0.0,
+      "kept": true
+    },
+    {
+      "id": "163015092493415",
+      "persons": 0,
+      "person_max_area_share": 0.0,
+      "kept": true
+    },
+    {
+      "id": "1470876436593620",
+      "persons": 0,
+      "person_max_area_share": 0.0,
+      "kept": true
+    },
+    {
+      "id": "5020911304609792",
+      "persons": 2,
+      "person_max_area_share": 0.0004,
+      "kept": false,
+      "reason": "person under 2 percent (a small or far figure, could be a child)"
+    },
+    {
+      "id": "338844661097512",
+      "persons": 1,
+      "person_max_area_share": 0.0004,
+      "kept": false,
+      "reason": "person under 2 percent (a small or far figure, could be a child)"
+    },
+    {
+      "id": "496788718401230",
+      "persons": 1,
+      "person_max_area_share": 0.0004,
+      "kept": false,
+      "reason": "person under 2 percent (a small or far figure, could be a child)"
+    },
+    {
+      "id": "145481884262053",
+      "persons": 0,
+      "person_max_area_share": 0.0,
+      "kept": true
+    },
+    {
+      "id": "300383208395282",
+      "persons": 0,
+      "person_max_area_share": 0.0,
+      "kept": true
+    },
+    {
+      "id": "292415979034112",
+      "persons": 0,
+      "person_max_area_share": 0.0,
+      "kept": true
+    },
+    {
+      "id": "822341015367624",
+      "persons": 0,
+      "person_max_area_share": 0.0,
+      "kept": true
+    },
+    {
+      "id": "1108056603022953",
+      "persons": 0,
+      "person_max_area_share": 0.0,
+      "kept": true
+    },
+    {
+      "id": "3086608401617161",
+      "persons": 0,
+      "person_max_area_share": 0.0,
+      "kept": true
+    },
+    {
+      "id": "750408062315175",
+      "persons": 0,
+      "person_max_area_share": 0.0,
+      "kept": true
+    },
+    {
+      "id": "1150846752096785",
+      "persons": 0,
+      "person_max_area_share": 0.0,
+      "kept": true
+    },
+    {
+      "id": "177806087574082",
+      "persons": 0,
+      "person_max_area_share": 0.0,
+      "kept": true
+    },
+    {
+      "id": "838331097794702",
+      "persons": 0,
+      "person_max_area_share": 0.0,
+      "kept": true
+    },
+    {
+      "id": "501086089051660",
+      "persons": 0,
+      "person_max_area_share": 0.0,
+      "kept": true
+    },
+    {
+      "id": "995520025692600",
+      "persons": 2,
+      "person_max_area_share": 0.0014,
+      "kept": false,
+      "reason": "person under 2 percent (a small or far figure, could be a child)"
+    },
+    {
+      "id": "518031166049457",
+      "persons": 0,
+      "person_max_area_share": 0.0,
+      "kept": true
+    },
+    {
+      "id": "440031278932918",
+      "persons": 0,
+      "person_max_area_share": 0.0,
+      "kept": true
+    },
+    {
+      "id": "1916482335956364",
+      "persons": 6,
+      "person_max_area_share": 0.0024,
+      "kept": false,
+      "reason": "person under 2 percent (a small or far figure, could be a child)"
+    },
+    {
+      "id": "856561509671164",
+      "persons": 3,
+      "person_max_area_share": 0.0032,
+      "kept": false,
+      "reason": "person under 2 percent (a small or far figure, could be a child)"
+    },
+    {
+      "id": "2098359613898045",
+      "persons": 1,
+      "person_max_area_share": 0.004,
+      "kept": false,
+      "reason": "person under 2 percent (a small or far figure, could be a child)"
+    }
+  ]
+}

@@ -1519,3 +1519,41 @@ The set of obstacle shapes is fixed, and each shape offers a fixed set of moves.
   - Sweep with one lache between two gaps: 8.5 m, 10 m and 12 m clear with the bars; 14 m does not (`data/eval/janitor/lache-gap/sweep.txt`).
   - At 8.5 m and 10 m the only shortcut left is inside the lache (pump on bar 1, let go, fly past bar 2); no plain-jump skip.
 - Sample `generated-1` and its plan were regenerated; its golden hash changed on purpose (the course changed).
+
+## Live photos that follow the runner (CC-90, step 3 and the people filter)
+- **What the player sees**
+  - On a real-place course the photo strip changes as the runner moves: one to three street photos taken within 60 m of the spot and pointing at it.
+  - Each photo shows the creator, "CC BY-SA 4.0" and, in the large view, a link to the photo on Mapillary; the line under the strip names Mapillary.
+  - Where there is no allowed photo, or the photo service is down, the stored CC-85 strip stays (and where a place has neither, no strip).
+  - The Hide switch and `?photos=0` work as before.
+- **How it works**
+  - `src/world/live-photos.ts` maps the runner's x to a point on the place's lane line (start to finish of the course = the line's two ends), picks allowed photos near it that face it, and asks for new addresses at most every 2 s and 15 m, with one answer per 20 m cell.
+  - `src/ui/live-photos.ts` draws the strip with the CC-85 strip code and falls back to the stored photos.
+  - `functions/api/photos.ts` is the proxy: the token lives only in the Pages secret `MAPILLARY_TOKEN` and never reaches the page; it returns five fields, caches 30 minutes, and limits each address.
+  - Picture addresses expire, so the allow-list holds only ids; the proxy turns an id into a fresh address when the photo is shown.
+- **The people filter (offline)**
+  - `scripts/photos_people.py` takes up to four photos facing the lane at each 10 m step, runs torchvision Faster R-CNN (ResNet-50 FPN, COCO weights) and keeps a photo only if no person is found at any size.
+  - This is stricter than the 2 percent size rule in the brief on purpose: a far figure can be a child, and the detector cannot tell.
+  - So no unfiltered photo reaches a player: the live service is asked only about ids on the list.
+
+| Place | Facing candidates checked | Rejected: person 2 percent or larger | Rejected: smaller or far figure | Kept | Lane steps (10 m) with an allowed photo within 60 m |
+|---|---|---|---|---|---|
+| Edinburgh Old Town | 68 | 2 | 13 (and 1 download failed) | 52 | 17 of 17 (100%) |
+| Montmartre | 55 | 27 | 19 | 9 | 7 of 18 (39%) |
+| Eixample | 53 | 11 | 39 | 3 | 5 of 16 (31%) |
+
+- **Looked at by eye:** the kept sheets (8 photos Edinburgh, 8 Montmartre, 3 Eixample: 19 in all, as many as there are) show no person.
+  - One Montmartre photo has a glass wall where a reflection could hide a person; the detector cannot see inside reflections.
+  - The 3 Eixample photos are frames from one drive and look almost the same.
+- **Before the strict rule** (people under 0.5 percent of the picture allowed): Edinburgh kept 63, Montmartre 19, Eixample 25; 17, 10 and 22 of those had a small person in them, which is why the rule was tightened.
+- **What this means**
+  - Edinburgh Old Town (narrow lanes seen from the pavement) is the place where live photos work; the stored strip is better in Montmartre and Eixample, which are full of pedestrians.
+  - The filter is a detector, not a guarantee: a person it misses gets through, so the list is remade when places or the detector change, and nobody should treat it as proof of "no people".
+- **Gaps**
+  - Edinburgh has a lane and a list but no stand-alone Course yet (the other ready places are reached from map mode), so the browser check runs on Montmartre; Edinburgh is covered by unit tests and by the coverage count above.
+  - The four older OSM courses (Montmartre, Eixample, Circular Quay, Lombard Street) were built before the ready-place lanes, so their course length does not match the place's lane line; the strip spreads the lane evenly over the course, so a photo can be a few tens of metres off.
+  - The official Mapillary logo is not drawn (the terms ask for it); the strip names Mapillary in text and links to the photo.
+  - The per-address limit lives in one server instance, so it is best effort; the edge cache does most of the work.
+- **To switch it on**
+  - Set the secret once: `npx wrangler pages secret put MAPILLARY_TOKEN` (paste the client token), then `npm run deploy`.
+  - Without the secret the proxy answers 503 and the stored strip stays.
