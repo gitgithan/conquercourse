@@ -26,4 +26,5 @@ export interface CourseData {
   holds?: { x: number; y: number }[]; // bars hanging in the air: where along the run and how high (side view)
   uMap?: { u0: number; u1: number; x0: number }[]; // editor lanes: where each run of ground came from
   scene?: SceneItem[]; // editor lanes: the real objects, drawn instead of blocks
+  hazard?: import('./hazard').Hazard; // the floor you must not touch: water (default), lava, mud, spikes or void; paint, words and sound only
 }

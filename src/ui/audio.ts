@@ -1,6 +1,6 @@
 // Plain event sounds, made in code (WebAudio): no files, no licence. They say what happened, never how well.
 // Audio starts after the first key press (browsers refuse earlier); M or the button mutes.
-export type Sfx = 'jump' | 'land' | 'vault' | 'grab' | 'letgo' | 'splash' | 'finish';
+export type Sfx = 'jump' | 'land' | 'vault' | 'grab' | 'letgo' | 'splash' | 'sizzle' | 'squelch' | 'clang' | 'plunge' | 'finish';
 
 // One short sound = a few tones (frequency sweep, length, shape) and optional noise.
 interface Tone { f0: number; f1: number; len: number; type: OscillatorType; gain: number; at?: number }
@@ -11,6 +11,10 @@ const SOUNDS: Record<Sfx, { tones: Tone[]; noise?: { len: number; gain: number; 
   grab: { tones: [{ f0: 700, f1: 700, len: 0.05, type: 'square', gain: 0.07 }, { f0: 1050, f1: 1050, len: 0.07, type: 'square', gain: 0.06, at: 0.05 }] },
   letgo: { tones: [{ f0: 900, f1: 450, len: 0.12, type: 'sine', gain: 0.14 }] },
   splash: { tones: [{ f0: 300, f1: 90, len: 0.3, type: 'sine', gain: 0.12 }], noise: { len: 0.35, gain: 0.22 } },
+  sizzle: { tones: [{ f0: 180, f1: 60, len: 0.4, type: 'sawtooth', gain: 0.07 }], noise: { len: 0.5, gain: 0.3 } },
+  squelch: { tones: [{ f0: 110, f1: 55, len: 0.25, type: 'sine', gain: 0.25 }, { f0: 160, f1: 70, len: 0.18, type: 'sine', gain: 0.18, at: 0.12 }], noise: { len: 0.2, gain: 0.12 } },
+  clang: { tones: [{ f0: 520, f1: 480, len: 0.3, type: 'square', gain: 0.1 }, { f0: 780, f1: 740, len: 0.25, type: 'square', gain: 0.07, at: 0.02 }] },
+  plunge: { tones: [{ f0: 700, f1: 70, len: 0.8, type: 'sine', gain: 0.14 }] },
   finish: { tones: [{ f0: 520, f1: 520, len: 0.12, type: 'triangle', gain: 0.16 }, { f0: 660, f1: 660, len: 0.12, type: 'triangle', gain: 0.16, at: 0.12 }, { f0: 880, f1: 880, len: 0.25, type: 'triangle', gain: 0.18, at: 0.24 }] },
 };
 
@@ -95,9 +99,10 @@ export function sfx(name: Sfx) {
 }
 
 // Plays the sound for each event of one simulator step.
-export function soundsFor(events: readonly { type: string; detail?: Record<string, unknown> }[]) {
+const FALL_SOUND: Record<string, Sfx> = { water: 'splash', lava: 'sizzle', mud: 'squelch', spikes: 'clang', void: 'plunge' };
+export function soundsFor(events: readonly { type: string; detail?: Record<string, unknown> }[], hazard = 'water') {
   for (const e of events) {
-    const s = EVENT[e.type];
+    const s = e.type === 'splash' ? FALL_SOUND[hazard] ?? 'splash' : EVENT[e.type];
     if (!s) continue;
     if (e.type === 'land' && !((e.detail?.impact as number) > 1)) continue; // a soft touch-down after a step is silent
     sfx(s);

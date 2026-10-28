@@ -1,3 +1,4 @@
+import { HAZARDS, HAZARD_INFO, type Hazard } from '../course/hazard';
 import { startCourse } from './course';
 import { readGlbMesh } from '../slice/glb';
 import { LIBRARY } from '../slice/shapes';
@@ -343,6 +344,10 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
       root.remove(); style.remove();
       void startCourse(document.body, course);
     };
+    const floorRow = el('label', lanePanel, { className: 'muted', text: 'Floor you must not touch: ' });
+    const floorSel = el('select', floorRow, { id: 'floor', title: 'What is painted under the gaps (the run ends the same way on every floor)' });
+    for (const h of HAZARDS) floorSel.add(new Option(HAZARD_INFO[h].label, h, false, h === floorChoice));
+    floorSel.onchange = () => { floorChoice = floorSel.value as Hazard; document.documentElement.dataset.floor = floorChoice; };
     const testBtn = el('button', lanePanel, { text: 'Test from the selected piece', id: 'testhere', title: 'Start the runner a few metres before the selected piece and play from there' });
     testBtn.onclick = () => {
       const q = pieces.find((x) => x.id === selected);
@@ -365,7 +370,8 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
   const ground = () => pieces.filter((q) => !isHold(q)); // bars are not ground
   const currentProfile = () => sliceProfile(worldSamples(ground()), { x: 0, z: 0 }, { angle, offset, level });
   const barsNow = () => holdsOf(pieces, { angle, offset, level });
-  const courseNow = () => laneToCourse(currentProfile(), 'My world', barsNow());
+  let floorChoice: Hazard = 'water'; // the floor you must not touch (saved in the course)
+  const courseNow = () => { const c = laneToCourse(currentProfile(), 'My world', barsNow()); if (floorChoice !== 'water') c.hazard = floorChoice; return c; };
   let verifyTimer = 0, adviceRun = 0;
   function verify() {
     clearTimeout(verifyTimer);
