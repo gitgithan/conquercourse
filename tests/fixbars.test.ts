@@ -23,11 +23,11 @@ describe('Fix it for bars', () => {
     expect(r.steps.length).toBe(1);
     const lower = r.pieces.filter((p) => p.src === 'hold:bar' && p.y < 4.4);
     expect(lower.length).toBeGreaterThanOrEqual(1); // at least one bar is back in reach
-  }, 60000);
+  }, 180000); // 38 s and 27 s alone: it needs room when other tests share the machine
   it('leaves a lane that already works alone', () => {
     const ps: P[] = [deck(0, 8), deck(17, 8), bar(6.5, 2.86), bar(10, 2.86)];
     const r = fixBars(ps, lane);
     expect(r.ok).toBe(true);
     expect(r.steps).toEqual([]);
-  });
+  }, 180000);
 });
