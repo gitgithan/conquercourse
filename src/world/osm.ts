@@ -1,10 +1,11 @@
 // OpenStreetMap buildings (an Overpass answer) become one mesh of extruded blocks (CC-48, from the CC-46 spike).
-// Pure: no DOM, no network. Metres, y up, east is +x, south is +z, standing on y = 0, centred on the pin.
+// Pure: no DOM, no network. With a `Ground` (CC-51) each building stands on the real hill, shrunk like the rest. Metres, y up, east is +x, south is +z, standing on y = 0, centred on the pin.
+import { groundAt, lowest, relief, type Ground } from './terrain';
 export interface OsmWay { type: 'way'; tags?: Record<string, string>; geometry?: { lat: number; lon: number }[] }
 export interface OsmRelation { type: 'relation'; tags?: Record<string, string>; members?: { type: string; role: string; geometry?: { lat: number; lon: number }[] }[] }
 export interface OverpassAnswer { elements: (OsmWay | OsmRelation)[] }
 export interface Building { ring: [number, number][]; h: number; real: boolean }
-export interface OsmMesh { positions: number[]; indices: number[]; buildings: number; withRealHeight: number; medianHeight: number; shrink: number }
+export interface OsmMesh { positions: number[]; indices: number[]; buildings: number; withRealHeight: number; medianHeight: number; shrink: number; relief: number }
 
 export const MIRRORS = ['https://overpass-api.de/api/interpreter', 'https://overpass.kumi.systems/api/interpreter', 'https://overpass.private.coffee/api/interpreter'];
 export const overpassQuery = (lat: number, lon: number, radius: number) => `[out:json][timeout:40];(way["building"](around:${radius},${lat},${lon});relation["building"](around:${radius},${lat},${lon}););out geom tags;`;
@@ -56,14 +57,17 @@ export function earClip(p: [number, number][]): number[][] {
 }
 
 // Walls plus a flat roof per building, shrunk by k; heights are capped so they are at most MAX_SHRUNK_HEIGHT after the shrink.
-export function extrude(bs: Building[], k: number): { positions: number[]; indices: number[] } {
+// With a ground, the lowest point of the place is y = 0 and each building's walls run from there up to its roof,
+// which sits its own (shrunk) height above the ground at its middle: a hill becomes steps from roof to roof.
+export function extrude(bs: Building[], k: number, ground?: Ground | null): { positions: number[]; indices: number[] } {
   const positions: number[] = [], indices: number[] = [];
   const quad = (a: number[], b: number[], c: number[], d: number[]) => { const o = positions.length / 3; for (const v of [a, b, c, d]) positions.push(...v); indices.push(o, o + 1, o + 2, o, o + 2, o + 3); };
   for (const b of bs) {
     let ring = b.ring.slice(); if (ring.length > 1 && ring[0][0] === ring[ring.length - 1][0] && ring[0][1] === ring[ring.length - 1][1]) ring.pop();
     if (ring.length < 3 || Math.abs(area2(ring)) < 4) continue;
     if (area2(ring) < 0) ring = ring.reverse();
-    const y1 = Math.min(b.h * k, MAX_SHRUNK_HEIGHT);
+    const cx = ring.reduce((t, p) => t + p[0], 0) / ring.length, cz = ring.reduce((t, p) => t + p[1], 0) / ring.length;
+    const y1 = (ground ? (groundAt(ground, cx, cz) - lowest(ground)) * k : 0) + Math.min(b.h * k, MAX_SHRUNK_HEIGHT);
     for (let i = 0; i < ring.length; i++) {
       const a = ring[i], c = ring[(i + 1) % ring.length];
       quad([a[0] * k, 0, a[1] * k], [a[0] * k, y1, a[1] * k], [c[0] * k, y1, c[1] * k], [c[0] * k, 0, c[1] * k]);
@@ -75,9 +79,9 @@ export function extrude(bs: Building[], k: number): { positions: number[]; indic
   return { positions, indices };
 }
 
-export function osmToMesh(osm: OverpassAnswer, lat: number, lon: number, shrink?: number): OsmMesh {
+export function osmToMesh(osm: OverpassAnswer, lat: number, lon: number, shrink?: number, ground?: Ground | null): OsmMesh {
   const bs = buildingsFrom(osm, lat, lon);
   const k = shrink ?? suggestedShrink(bs);
-  const m = extrude(bs, k);
-  return { ...m, buildings: bs.length, withRealHeight: bs.filter((b) => b.real).length, medianHeight: medianHeight(bs), shrink: k };
+  const m = extrude(bs, k, ground);
+  return { ...m, buildings: bs.length, withRealHeight: bs.filter((b) => b.real).length, medianHeight: medianHeight(bs), shrink: k, relief: relief(ground) * k };
 }
