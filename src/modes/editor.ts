@@ -10,7 +10,7 @@ import { sceneFor } from '../slice/scene';
 import { barMesh, holdsOf, isHold, REACH_JUMPING, REACH_STANDING } from '../slice/holds-world';
 import { DEFAULT_PLANK, isPlankPiece, plankPiece, plankSpecOf, planksOf, setPlank, type PlankSpec } from '../slice/plank-world';
 import { fixPlank, plankHolds, worstCase } from '../sim/beam';
-import { withTrebuchet } from '../slice/launch-lane';
+import { withTrebuchet, wrapFor, type Machine } from '../slice/launch-lane';
 import { withRecoil, type RecoilCfg } from '../slice/recoil-lane';
 import { fixRecoil } from '../slice/fixrecoil';
 import { withBand } from '../slice/band-lane';
@@ -21,6 +21,7 @@ import { CUP, PATTERNS, stackPiece, stackSrc } from '../slice/stack';
 import { fixLayout } from '../slice/fixit';
 import { layoutToPieces, parseLayout } from '../slice/photo-course';
 import { proves } from '../slice/photo-proof';
+import { adviseMachine, fixMachine } from '../slice/fix-launch';
 import { fixBars } from '../slice/fixbars';
 import { adviseLane, type Advice } from '../slice/advice';
 import { parseReply, worldBrief, type Edit } from '../slice/designer';
@@ -476,7 +477,7 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
 
   // ---- preview before apply: Fix it, the partner's changes and one piece of advice all become a Proposal that is drawn as outlines first
   let proposal: Proposal | null = null;
-  let preview: { pieces: P[]; lane: { angle: number; offset: number; level: number } } | null = null;
+  let preview: { pieces: P[]; lane: { angle: number; offset: number; level: number }; machine: Machine | null } | null = null;
   let previewProfile: ReturnType<typeof sliceProfile> | null = null;
   let previewBars: ReturnType<typeof holdsOf> = [];
   let proofRun = 0, leadText = '';
@@ -488,10 +489,13 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
     const laneMoved = proposal.items.some((i) => i.kind === 'lane' && i.on && i.key !== 'level');
     return { items, lane: laneMoved ? { angle: preview.lane.angle, offset: preview.lane.offset } : null };
   };
-  function computeFix(ps: P[], lane: { angle: number; offset: number; level: number }): { ok: boolean; pieces: P[]; lane: { angle: number; offset: number; level: number }; steps: string[] } {
-    if (ps.some(isHold)) { const rb = fixBars(ps, lane, 40000); return { ok: rb.ok, pieces: rb.pieces, lane, steps: rb.steps }; }
-    const r = fixLayout(ps, lane);
-    return { ok: r.ok, pieces: r.pieces as P[], lane: r.lane, steps: r.steps };
+  function computeFix(ps: P[], lane: { angle: number; offset: number; level: number }): { ok: boolean; pieces: P[]; lane: { angle: number; offset: number; level: number }; steps: string[]; machine: Machine | null } {
+    const m = machineNow(), wrap = machineWrap(m);
+    ps = ps.filter((q) => !isSizeReference(q) && !isDevice(q)); // the machine and the size references are not ground
+    if (m) { const mf = fixMachine(ps, lane, m, 40000, trebuchetPivot()); if (mf.ok) return { ok: true, pieces: ps, lane, steps: mf.steps, machine: mf.machine }; } // the machine first: a counterweight or an arm is a smaller change than moving pieces
+    if (ps.some(isHold)) { const rb = fixBars(ps, lane, 40000, wrap); return { ok: rb.ok, pieces: rb.pieces, lane, steps: rb.steps, machine: m }; }
+    const r = fixLayout(ps, lane, 12000, wrap);
+    return { ok: r.ok, pieces: r.pieces as P[], lane: r.lane, steps: r.steps, machine: m };
   }
   function runFix(from?: { pieces: P[]; lane: { angle: number; offset: number; level: number } }) {
     helper.classList.remove('closed'); helperBtn.setAttribute('aria-pressed', 'true');
@@ -532,7 +536,7 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
       const now = { angle, offset, level }, start = from ?? { pieces, lane: now };
       const r = computeFix(start.pieces, start.lane);
       document.documentElement.dataset.fixed = r.ok ? '1' : '0';
-      const prop = diffProposal('fixit', from ? 'Fix it, starting from your partner’s changes' : 'Fix it', pieces, now, r.pieces, r.lane, r.steps, r.ok);
+      const prop = diffProposal('fixit', from ? 'Fix it, starting from your partner’s changes' : 'Fix it', pieces, now, r.pieces, r.lane, r.steps, r.ok, machineNow(), r.machine);
       if (!prop.items.length) {
         reply.className = r.ok ? 'reply ok' : 'reply bad';
         reply.textContent = r.ok ? 'It already works.' : pieces.some(isHold) ? r.steps.join(' ') : 'I could not find a layout that works. ' + r.steps.join(' ') + ' Try other pieces.';
@@ -618,7 +622,7 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
   }
   function updatePreview() {
     if (!proposal) { preview = null; previewProfile = null; previewBars = []; return; }
-    preview = resultOf(pieces, { angle, offset, level }, proposal);
+    preview = resultOf(pieces, { angle, offset, level }, proposal, machineNow());
     previewProfile = sliceProfile(worldSamples(preview.pieces.filter((q) => !isHold(q) && q.role !== 'rope')), { x: 0, z: 0 }, preview.lane);
     previewBars = holdsOf(preview.pieces, preview.lane);
     draw(); drawProfile();
@@ -628,13 +632,14 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
     if (known !== undefined) return paintVerdict(known ? 'clears' : 'blocked');
     paintVerdict('checking');
     const snapshot = preview;
-    setTimeout(() => { if (mine !== proofRun || !proposal) return; const ok = proves(snapshot.pieces, snapshot.lane); proofs.set(key, ok); paintVerdict(ok ? 'clears' : 'blocked'); }, 30);
+    setTimeout(() => { if (mine !== proofRun || !proposal) return; const ok = proves(snapshot.pieces.filter((q) => !isSizeReference(q) && !isDevice(q)), snapshot.lane, machineWrap(snapshot.machine)); proofs.set(key, ok); paintVerdict(ok ? 'clears' : 'blocked'); }, 30);
   }
   function applyProposal() {
     if (!proposal || !preview) return;
     const r = preview, words = proposal.items.filter((i) => i.on).map((i) => i.words).join(' ');
     for (const q of r.pieces) { const mine = pieces.find((x) => x.id === q.id); if (mine) { mine.x = q.x; mine.z = q.z; mine.y = q.y; mine.yaw = q.yaw; mine.scale = q.scale; mine.role = q.role; } }
     angle = r.lane.angle; offset = r.lane.offset; level = r.lane.level;
+    if (r.machine && trebuchetKg) { updateDeviceSource('device:trebuchet', `device:trebuchet:${r.machine.counterweight}`); trebuchetExtra = { ...(r.machine.short !== undefined ? { short: r.machine.short } : {}), ...(r.machine.pin !== undefined ? { pin: r.machine.pin } : {}) }; } // the counterweight lives in the machine piece
     proposal = null; preview = null; previewProfile = null; previewBars = []; proofRun++;
     changed(); // one undo step
     reply.className = 'reply ok'; reply.textContent = `Applied. ${words} (Undo goes back.)`;
@@ -643,7 +648,7 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
   let adviceList: Advice[] = [];
   let pendingEdits: Edit[] = [];
   const chat: { role: 'user' | 'assistant'; content: string }[] = [];
-  const previewAdvice = (a: Advice) => { leadText = ''; showProposal(fromAdvice(pieces, { angle, offset, level }, a)); };
+  const previewAdvice = (a: Advice) => { leadText = ''; showProposal(fromAdvice(pieces, { angle, offset, level }, a, machineNow())); };
   function showAdvice() {
     adviceBox.textContent = '';
     for (const a of adviceList) {
@@ -844,6 +849,7 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
   function syncDeviceState() {
     const tre = pieces.find((p) => p.src?.startsWith('device:trebuchet:'));
     trebuchetKg = tre ? Number(tre.src!.split(':')[2]) || 1200 : null;
+    if (!tre) trebuchetExtra = {};
     const recoil = recoilPiece(), parts = recoil?.src?.split(':');
     recoilCfg = recoil && parts ? { kind: parts[1] as 'cannon' | 'crate' | 'bigcannon', ballMass: Number(parts[2]) || 12, muzzle: Number(parts[3]) || 30 } : null;
     const dr = dronePiece(), dparts = dr?.src?.split(':');
@@ -851,9 +857,14 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
     trebLabel.style.display = trebuchetKg ? '' : 'none'; trebInput.value = String(trebuchetKg ?? 1200);
     syncRecoil(); syncDrone();
   }
+  let trebuchetExtra: { short?: number; pin?: number } = {}; // the arm's short end (m) and the pin angle (degrees), when Fix it or advice changed them
+  const machineNow = (): Machine | null => (trebuchetKg ? { counterweight: trebuchetKg, ...trebuchetExtra } : null);
+  const trebuchetPivot = (): number => { const p = pieces.find((q) => q.src?.startsWith('device:trebuchet:')); return p ? p.x * Math.cos(angle) + p.z * Math.sin(angle) + TREBUCHET_PIVOT_FROM_CENTRE * p.scale : 0; };
+  const machineWrap = (m: Machine | null) => wrapFor(m, trebuchetPivot());
   const laneCourse = (_p?: ReturnType<typeof currentProfile>) => {
     const c = roleCourse(coursePieces(), { angle, offset, level }, 'My world').course;
-    if (trebuchetKg) { const p = pieces.find((q) => q.src?.startsWith('device:trebuchet:')); const u = p ? p.x * Math.cos(angle) + p.z * Math.sin(angle) + TREBUCHET_PIVOT_FROM_CENTRE * p.scale : 0; return withTrebuchet(c, trebuchetKg, u); }
+    const m = machineNow();
+    if (m) return withTrebuchet(c, m, trebuchetPivot());
     if (droneCfg) return withDrone(c, droneCfg, droneRange());
     return recoilCfg ? withRecoil(c, recoilCfg, recoilRange()) : bandK ? withBand(c, bandK) : c;
   };
@@ -963,7 +974,10 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
       document.documentElement.dataset.verdict = verdict;
       // when it cannot be cleared, say what to shift (each suggestion was proved by the simulator)
       adviceList = []; showAdvice();
-      if (!verdict.startsWith('The simulator can') && p.length >= 8 && barsNow().length) {
+      if (machineNow() && p.length >= 8) { // a trebuchet at the start: its counterweight and arm come first, and a narrow release window gets a pin
+        const mine = ++adviceRun, m = machineNow()!, lane = { angle, offset, level }, clear = verdict.startsWith('The simulator can');
+        setTimeout(() => { if (mine !== adviceRun) return; adviceList = adviseMachine(coursePieces(), lane, m, { budgetMs: 8000, max: 1 }, trebuchetPivot()); if (!clear && !barsNow().length) adviceList.push(...adviseLane(coursePieces(), lane, { wrap: machineWrap(m) })); showAdvice(); if (!adviceList.length) adviceBox.textContent = clear ? '' : 'No single change to the machine or a piece clears it. Press Fix it to look further.'; document.documentElement.dataset.advice = String(adviceList.length); }, 30);
+      } else if (!verdict.startsWith('The simulator can') && p.length >= 8 && barsNow().length) {
         adviceBox.textContent = 'This lane has bars. Drag them in the side view (position and height), or press Fix it to try small moves of the bars.';
       } else if (!verdict.startsWith('The simulator can') && p.length >= 8 && pieces.some((q) => q.role && q.role !== 'ground')) {
         adviceBox.textContent = 'This lane uses roles (wall, rope anchor or trampoline bed). Open Moves to see what each needs, or press Fix it.';

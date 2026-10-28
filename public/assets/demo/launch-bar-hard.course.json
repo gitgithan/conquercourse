@@ -1,0 +1,56 @@
+{
+  "version": 1,
+  "name": "Launch and catch, hard: a bar 8 m up and a release window under a quarter of a second",
+  "startX": -12,
+  "finishX": 26,
+  "jumpSpeed": 4.5,
+  "terrain": {
+    "waterY": -3,
+    "platforms": [
+      {
+        "x0": -14,
+        "x1": 3,
+        "top": 0
+      },
+      {
+        "x0": 20,
+        "x1": 30,
+        "top": 4
+      }
+    ]
+  },
+  "zones": [
+    {
+      "id": "launch",
+      "name": "Trebuchet",
+      "x0": -12,
+      "x1": 26
+    }
+  ],
+  "checkpoints": [
+    {
+      "id": "launch",
+      "x": -12
+    }
+  ],
+  "trebuchet": {
+    "x": 0,
+    "counterweight": 1200
+  },
+  "holds": [
+    {
+      "x": 18,
+      "y": 8
+    }
+  ],
+  "plan": {
+    "jumpXs": [],
+    "releaseAfter": 60,
+    "bouncePress": 8,
+    "hands": true,
+    "hangTicks": [
+      18
+    ],
+    "launchRelease": 241
+  }
+}

@@ -103,17 +103,27 @@ export function predictLaunch(w: WorldState, course: CourseData, maxTicks = 600)
   let s = stepWorld(w, { ...NO_INPUT, run: true, jump: true }, course);
   path.push({ x: s.runner.x, y: s.runner.y });
   if (s.mode === 'launch') return { path, result: 'other-move', why: 'The arm has not turned far enough to let go yet.' };
-  let left = false;
-  for (let i = 0; i < maxTicks; i++) {
-    s = settled(stepWorld(s, { ...NO_INPUT, run: true, squat: true, handR: true }, course), course);
-    path.push({ x: s.runner.x, y: s.runner.y });
-    if (s.mode === 'hang') return { path, result: 'lands', landX: s.runner.x, why: 'You reach the bar: hold E in the air to grab it.' };
-    if (s.outcome === 'splash') return { path, result: 'splash', landX: s.runner.x, why: 'You come down in the water, short of the ground.' };
-    if (s.outcome === 'hurt') return { path, result: 'hurt', landX: s.runner.x, why: 'You come down too hard: hold X as you land to roll it out (it counts in the last 0.15 s, about a metre up; a tap earlier does nothing).' };
-    if (!s.runner.grounded) left = true;
-    if (left && s.runner.grounded) return { path, result: 'lands', landX: s.runner.x, why: `You land at ${s.runner.x.toFixed(1)} m.` };
-  }
-  return { path, result: 'lands', why: 'Still in the air at the end of the preview.' };
+  // the same flight twice at most: first as it comes, then (if that hurts) with the roll tapped before the ground, which a player would do
+  const machineDeck = course.terrain.platforms.find((p) => course.trebuchet && p.x0 <= course.trebuchet.x && course.trebuchet.x <= p.x1);
+  const fly = (roll: boolean): Prediction => {
+    let t = s, left = false;
+    const out = path.slice();
+    for (let i = 0; i < maxTicks; i++) {
+      t = settled(stepWorld(t, { ...NO_INPUT, run: true, squat: true, handR: true, roll }, course), course);
+      out.push({ x: t.runner.x, y: t.runner.y });
+      if (t.mode === 'hang') return { path: out, result: 'lands', landX: t.runner.x, why: 'You reach the bar: hold E in the air to grab it.' };
+      if (t.outcome === 'splash') return { path: out, result: 'splash', landX: t.runner.x, why: 'You come down in the water, short of the ground.' };
+      if (t.outcome === 'hurt') return { path: out, result: 'hurt', landX: t.runner.x, why: 'You come down too hard: hold X as you land to roll it out (it counts in the last 0.15 s, about a metre up; a tap earlier does nothing).' };
+      if (!t.runner.grounded) left = true;
+      if (left && t.runner.grounded) {
+        if (machineDeck && t.runner.x >= machineDeck.x0 && t.runner.x <= machineDeck.x1) return { path: out, result: 'blocked', landX: t.runner.x, why: `You come back down on the machine's own deck at ${t.runner.x.toFixed(1)} m: wait a little longer.` };
+        return { path: out, result: 'lands', landX: t.runner.x, why: `You land at ${t.runner.x.toFixed(1)} m${roll ? ': hold X as you land to roll it out' : ''}.` };
+      }
+    }
+    return { path: out, result: 'lands', why: 'Still in the air at the end of the preview.' };
+  };
+  const plain = fly(false);
+  return plain.result === 'hurt' ? fly(true) : plain;
 }
 
 // "If I fire the cannon now, where do I come down?": the same physics run forward with K pressed this tick and nothing after it. A roll is added in the air

@@ -1262,3 +1262,25 @@ The set of obstacle shapes is fixed, and each shape offers a fixed set of moves.
   - The C key keeps its order: side, 45 degrees, first person.
 - **Checks:** `scripts/experience-check.mjs` (menu groups, front view on every menu course, F off and on, face zoom and reset) and `scripts/demos-check.mjs` (every menu course loads and shows the front view).
 - **Known gap:** the face is the Rookie's simple face.
+
+## Trebuchet polish (CC-74)
+- **So what:** a first-time player can now win the launch-and-catch demo, and the editor can tune the machine for them.
+- **Fix it and advice know the machine** (`src/slice/fix-launch.ts`):
+  - The machine has three knobs: the counterweight (kg), the arm (its ratio, long end to short end) and a pin (the arm angle at which it lets the rider go by itself).
+  - Fix it changes the machine before it moves any piece, smallest change first, and every suggestion is proved by the ideal-run search with the machine on.
+  - The preview (CC-63) shows it as one plain line each, for example "Use a 1300 kg counterweight (now 500 kg).", and Apply sets the counterweight box.
+  - When the lane clears but the release window is narrow (under a quarter of a second), advice offers a pin at the best arm angle.
+  - The jumpable-step shortcuts are skipped when a machine throws the rider, because a 4 m landing is fine for a throw.
+- **The release window** (`src/sim/launch-window.ts`):
+  - It is the unbroken run of release times (ticks after the pin) around the best one that still win, where the player may hold the bar for as long as they like (the cue tells them when to let go).
+  - The old numbers measured about 100 ms with the hang time fixed; counted this way they are 175 ms.
+- **The easy bar demo** now has the bar 9 m up and 16 m out (it was 8 m up and 18 m out): the window is 250 ms.
+  - The old numbers stay as "Launch and catch: hard" (175 ms).
+  - Both still need the bar: without it the throw falls short of the tower.
+  - A grid of 99 bar places (x 11 to 21 m, y 4 to 12 m) and two finer ones found these numbers: the bar on the safe edge of the family of throws gives the widest window.
+  - The window stops at 250 ms for this bar because the catch zone is 0.6 m and the rider crosses it at about 15 m/s.
+- **The LET GO NOW cue and the debug preview** (`predictLaunch`):
+  - It used to say go when the rider would come back down on the machine's own deck, and "hurt" for every throw, because it never tapped the roll.
+  - Now it never says go for the machine's deck, and it flies the throw a second time with the roll tapped before the ground when the first flight hurts.
+  - Against what really happens (release at each tick, play the stored plan on) it agrees on at least 95% of ticks, and the landing it shows equals the real landing to 5 cm.
+- **Known gaps:** the trebuchet is not in the shortcut finder yet (CC-71); the pin takes the skill out of the release, so it is offered only as an assist.

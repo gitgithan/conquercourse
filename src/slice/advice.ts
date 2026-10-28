@@ -1,5 +1,7 @@
 import { LANE_DROP } from '../sim/drop';
 import { searchIdealRun } from '../sim/ideal';
+import type { CourseData } from '../course/course';
+import type { Machine } from './launch-lane';
 import { CLIMBABLE, describe, laneToCourse, sliceProfile } from './slice';
 import { realSize, worldSamples, type Piece } from './world';
 
@@ -8,20 +10,20 @@ import { realSize, worldSamples, type Piece } from './world';
 // same ideal-run search the Play button uses), and returns the smallest changes first, as plain words plus the numbers to apply.
 export interface LaneSetting { angle: number; offset: number; level: number }
 export interface Change { dx?: number; dz?: number; dy?: number; scale?: number; yaw?: number; angle?: number; offset?: number; level?: number }
-export interface Advice { text: string; piece?: number; change: Change; verified: boolean }
-export interface AdviceOptions { budgetMs?: number; max?: number }
+export interface Advice { text: string; piece?: number; change: Change; verified: boolean; machine?: Machine } // machine: the trebuchet's settings after this advice, when it changes them
+export interface AdviceOptions { budgetMs?: number; max?: number; wrap?: (c: CourseData) => CourseData }
 
 interface Verdict { ok: boolean; why: string }
 
 // The cheap check first (a profile and its tallest step, no search), then the full ideal-run proof (the truth).
-function check(pieces: Piece[], lane: LaneSetting, proof: boolean): Verdict {
+function check(pieces: Piece[], lane: LaneSetting, proof: boolean, wrap?: (c: CourseData) => CourseData): Verdict {
   if (!pieces.length) return { ok: false, why: 'There is nothing in the lane.' };
   const profile = sliceProfile(worldSamples(pieces), { x: 0, z: 0 }, lane);
   if (profile.length < 8) return { ok: false, why: 'The lane is almost empty: nothing for the runner to stand on.' };
   const report = describe(profile);
   if (report.maxDrop > LANE_DROP) return { ok: false, why: `a drop of ${report.maxDrop.toFixed(1)} m; even a roll survives about ${LANE_DROP} m` };
-  if (report.maxRise > CLIMBABLE) return { ok: false, why: `a step is ${report.maxRise.toFixed(1)} m high; a climb reaches about ${CLIMBABLE.toFixed(1)} m (a jump 0.9 m, a vault 1.3 m)` };
-  const course = laneToCourse({ cells: [...profile.cells], length: profile.length });
+  if (!wrap && report.maxRise > CLIMBABLE) return { ok: false, why: `a step is ${report.maxRise.toFixed(1)} m high; a climb reaches about ${CLIMBABLE.toFixed(1)} m (a jump 0.9 m, a vault 1.3 m)` };
+  const base = laneToCourse({ cells: [...profile.cells], length: profile.length }), course = wrap ? wrap(base) : base;
   if (!proof) return { ok: true, why: '' };
   return searchIdealRun(course).cleared ? { ok: true, why: '' } : { ok: false, why: 'the runner cannot find a way through' };
 }
@@ -32,7 +34,7 @@ const metres = (v: number) => `${Math.abs(v).toFixed(v % 1 === 0 ? 0 : 1)} m`;
 
 export function adviseLane(pieces: Piece[], lane: LaneSetting, opts: AdviceOptions = {}): Advice[] {
   const t0 = performance.now(), budget = opts.budgetMs ?? 1500, max = opts.max ?? 3;
-  const first = check(pieces, lane, true);
+  const first = check(pieces, lane, true, opts.wrap);
   if (first.ok) return []; // nothing to fix
   const ca = Math.cos(lane.angle), sa = Math.sin(lane.angle);
   const cands: Candidate[] = [];
@@ -65,7 +67,7 @@ export function adviseLane(pieces: Piece[], lane: LaneSetting, opts: AdviceOptio
     if (performance.now() - t0 > budget || out.length >= max) break;
     const next = c.apply(pieces, lane);
     if (!check(next.ps, next.lane, false).ok) continue; // cheap checks first
-    if (!check(next.ps, next.lane, true).ok) continue;
+    if (!check(next.ps, next.lane, true, opts.wrap).ok) continue;
     // not three versions of the same kind of change in a row: skip a candidate that changes the same thing as one already kept, by the same piece
     if (out.some((o) => o.piece === c.piece && Object.keys(o.change).join() === Object.keys(c.change).join())) continue;
     out.push({ text: c.text, piece: c.piece, change: c.change, verified: true });

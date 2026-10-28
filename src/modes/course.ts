@@ -475,6 +475,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
       ['/assets/demo/band.course.json', 'Band: stretch it, turn round, be thrown', 'Run away to stretch the band, turn round and it throws you.'],
       ['/assets/demo/drone.course.json', 'Drone ferry: carried across a gap', 'A drone carries you over a gap you cannot jump.'],
       ['/assets/demo/launch-bar.course.json', 'Launch and catch: grab the bar in the air', 'The throw falls short: catch the bar and swing the rest.'],
+      ['/assets/demo/launch-bar-hard.course.json', 'Launch and catch: hard', 'The same throw with a bar higher up: the window to let go is under a quarter of a second.'],
       ['/assets/demo/recoil.course.json', 'Recoil: throw a ball back, fly forward', 'The heavy ball goes back slowly, you go forward fast.'],
       ['/assets/demo/cannon.course.json', 'Cannon: aim it, fire it, roll out of the landing', 'Aim the barrel up or down: the recoil pushes you forward and up.'],
       ['/assets/demo/stack.course.json', 'Stack demo: climb the cup pyramids', 'Sport-stacking cups as obstacles.'],
