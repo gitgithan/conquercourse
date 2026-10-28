@@ -3,6 +3,7 @@ import { edges } from './ideal';
 import { NO_INPUT } from './runner';
 import { landing } from './landing';
 import { platformAt } from './terrain';
+import { ROLL_FORGIVE_TICKS } from './drop';
 import { stepWorld, type WorldState } from './world';
 import { JUMPABLE_STEP } from './needs-limits';
 import { climbMaxRise } from './climb';
@@ -17,6 +18,10 @@ export interface Prediction {
   landX?: number;
   why: string; // plain words
 }
+
+// A stumble or hard landing waits ROLL_FORGIVE_TICKS for a forgiven X press: a prediction without one lets the wait run out, so it says what the landing really is.
+const settled = (s: WorldState, course: CourseData): WorldState => { for (let k = 0; k <= ROLL_FORGIVE_TICKS && s.landGrace; k++) s = stepWorld(s, { ...NO_INPUT, squat: true }, course); return s; };
+
 export function predictJump(w: WorldState, course: CourseData, maxTicks = 240): Prediction {
   if (w.outcome !== 'running') return { path: [], result: 'other-move', why: 'The run is over: press R to try again.' };
   if (w.mode !== 'run') return { path: [], result: 'other-move', why: w.mode === 'swing' ? 'On the rope: Space lets go.' : w.mode === 'bounce' ? 'On the trampoline: Space pumps the bounce.' : w.mode === 'hang' ? 'On a bar: let go of Q and E to fly; push the arrows to build the swing.' : w.mode === 'vault' ? 'Going over the step with a hand on top.' : 'On the wall: the move plays itself.' };
@@ -26,19 +31,19 @@ export function predictJump(w: WorldState, course: CourseData, maxTicks = 240): 
   const startGrounded = w.runner.grounded;
   let still = 0;
   for (let i = 0; i < maxTicks; i++) {
-    s = stepWorld(s, { ...NO_INPUT, run: true, squat: true, jump: i === 0 && startGrounded }, course);
+    s = settled(stepWorld(s, { ...NO_INPUT, run: true, squat: true, jump: i === 0 && startGrounded }, course), course);
     path.push({ x: s.runner.x, y: s.runner.y });
     if (s.outcome === 'splash') {
       const ahead = course.terrain.platforms.filter((p) => p.x0 > s.runner.x - 0.5).sort((a, b) => a.x0 - b.x0)[0];
       return { path, result: 'splash', landX: s.runner.x, why: ahead && ahead.x0 > s.runner.x ? `Falls in the water ${(ahead.x0 - s.runner.x).toFixed(1)} m before the next ground. Jump later, or run faster.` : 'Falls in the water: there is no ground left to land on.' };
     }
     if (!s.runner.grounded) left = true;
-    if (s.outcome === 'hurt') return { path, result: 'hurt', landX: s.runner.x, why: `Hard landing: ${((s.events.find((e) => e.type === 'hard-landing')?.detail?.impact as number) ?? 0).toFixed(1)} m/s into the ground is too much even with bent knees. Hold X as you land to roll it out.` };
+    if (s.outcome === 'hurt') return { path, result: 'hurt', landX: s.runner.x, why: `Hard landing: ${((s.events.find((e) => e.type === 'hard-landing')?.detail?.impact as number) ?? 0).toFixed(1)} m/s into the ground is too much even with bent knees. Hold X as you land to roll it out (it counts in the last 0.15 s, about a metre up; a tap earlier does nothing).` };
     if (left && s.runner.grounded) {
       const p = platformAt(course.terrain, s.runner.x);
       const margin = p ? Math.min(s.runner.x - p.x0, p.x1 - s.runner.x) : 0;
       const impact = s.events.find((e) => e.type === 'land')?.detail?.impact as number | undefined;
-      const hit = impact !== undefined && impact > 6 ? ` You hit the ground at ${impact.toFixed(1)} m/s: ${landing(impact, true).stumbled ? 'a stumble that costs speed (hold X as you land to roll)' : 'a clean landing'}.` : '';
+      const hit = impact !== undefined && impact > 6 ? ` You hit the ground at ${impact.toFixed(1)} m/s: ${landing(impact, true).stumbled ? 'a stumble that costs speed (hold X as you land to roll (it counts in the last 0.15 s, about a metre up; a tap earlier does nothing))' : 'a clean landing'}.` : '';
       return { path, result: 'lands', landX: s.runner.x, why: `Lands at ${s.runner.x.toFixed(1)} m, ${margin.toFixed(1)} m from the edge of the ground${margin < 0.3 ? ' (close: a little less speed and it would miss)' : ''}.${hit}` };
     }
     still = Math.abs(s.runner.vx) < 0.05 ? still + 1 : 0;
@@ -64,7 +69,7 @@ function releaseFlight(w: WorldState, course: CourseData, hand: boolean, maxTick
   path.push({ x: s.runner.x, y: s.runner.y });
   let left = false;
   for (let i = 0; i < maxTicks; i++) {
-    s = stepWorld(s, { ...NO_INPUT, run: true, squat: true, handR: hand }, course);
+    s = settled(stepWorld(s, { ...NO_INPUT, run: true, squat: true, handR: hand }, course), course);
     path.push({ x: s.runner.x, y: s.runner.y });
     if (s.mode === 'hang') return { path, result: 'lands', landX: s.runner.x, why: `You reach the ${barName(s.hang!.hold)}: hold E in the air to grab it.` };
     if (s.outcome === 'splash') return { path, result: 'splash', landX: s.runner.x, why: 'You fall in the water: wait for a bigger swing.' };
@@ -100,11 +105,11 @@ export function predictLaunch(w: WorldState, course: CourseData, maxTicks = 600)
   if (s.mode === 'launch') return { path, result: 'other-move', why: 'The arm has not turned far enough to let go yet.' };
   let left = false;
   for (let i = 0; i < maxTicks; i++) {
-    s = stepWorld(s, { ...NO_INPUT, run: true, squat: true, handR: true }, course);
+    s = settled(stepWorld(s, { ...NO_INPUT, run: true, squat: true, handR: true }, course), course);
     path.push({ x: s.runner.x, y: s.runner.y });
     if (s.mode === 'hang') return { path, result: 'lands', landX: s.runner.x, why: 'You reach the bar: hold E in the air to grab it.' };
     if (s.outcome === 'splash') return { path, result: 'splash', landX: s.runner.x, why: 'You come down in the water, short of the ground.' };
-    if (s.outcome === 'hurt') return { path, result: 'hurt', landX: s.runner.x, why: 'You come down too hard: hold X as you land to roll it out.' };
+    if (s.outcome === 'hurt') return { path, result: 'hurt', landX: s.runner.x, why: 'You come down too hard: hold X as you land to roll it out (it counts in the last 0.15 s, about a metre up; a tap earlier does nothing).' };
     if (!s.runner.grounded) left = true;
     if (left && s.runner.grounded) return { path, result: 'lands', landX: s.runner.x, why: `You land at ${s.runner.x.toFixed(1)} m.` };
   }

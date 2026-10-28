@@ -20,8 +20,8 @@ try {
     if (roll) {
       await page.waitForFunction(() => Number(document.documentElement.dataset.tick) >= 0 && document.documentElement.dataset.grounded === '0', null, { timeout: 60000, polling: 20 });
       const t0 = Number(await page.evaluate(() => document.documentElement.dataset.tick));
-      // 5 m takes about 1 s (120 ticks); tap X at about 0.85 s, a fifth of a second before the ground
-      await page.waitForFunction((t) => Number(document.documentElement.dataset.tick) >= t + 100, t0, { timeout: 300000, polling: 20 });
+      // 5 m takes about 1 s (120 ticks); tap X at about 0.9 s, 0.1 s before the ground (inside the window: the last 0.15 s and 1.2 m)
+      await page.waitForFunction((t) => Number(document.documentElement.dataset.tick) >= t + 109, t0, { timeout: 300000, polling: 20 });
       await page.keyboard.press('KeyX');
     }
     await page.waitForFunction(() => ['running', 'cleared'].every(() => true) && (document.documentElement.dataset.grounded === '1' || document.documentElement.dataset.outcome !== 'running'), null, { timeout: 300000, polling: 50 }).catch(() => {});

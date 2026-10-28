@@ -7,6 +7,7 @@ import { DEFAULT_ROPE, ropePoint, release, swingStep, tryCatch, type RopeParams,
 import { DEFAULT_TRAMPOLINE, bounce, type Bounce } from './trampoline';
 import { JUMP_COST, VAULT_COST } from './energy';
 import { VAULT_BUFFER, VAULT_PLANT_GRIP, VAULT_PLANT_TICKS, findVault, vaultAt, vaultExitSpeed, type Vault } from './vault';
+import { ROLL_FORGIVE_TICKS, rollWindowOpen } from './drop';
 import { GROUND_ROLL_COST, GROUND_ROLL_RECOVERY, startGroundRoll, stepGroundRoll, type GroundRoll } from './roll';
 import { bodyVelocity, feetOf, gripSlips, hangStep, releaseHang, tryGrab, type Hang } from './holds';
 import { enterCart, railsOf, stepCartWorld, trackParams, trackSegments, type Cart } from './cart';
@@ -18,7 +19,6 @@ import { DEFAULT_TREBUCHET, deg, feetAt, isDud, launchStep, startLaunch, type La
 
 // One world for the Course: the runner plus whichever obstacle has hold of the runner right now.
 // The simulator is the truth: everything the screen shows comes from this state, one tick at a time.
-export const ROLL_BUFFER = 30; // ticks (a quarter of a second): an X press this long before touchdown still rolls
 export type Mode = 'run' | 'wall' | 'swing' | 'bounce' | 'hang' | 'vault' | 'cart' | 'launch' | 'plank' | 'climb' | 'band';
 export type Outcome = 'running' | 'cleared' | 'splash' | 'hurt' | 'stalled'; // hurt: a landing harder than the body can take; stalled: the cart ran out of speed on a hill
 
@@ -27,6 +27,9 @@ export interface GameEvent {
   type: 'jump' | 'roll' | 'land' | 'stumble' | 'hard-landing' | 'splash' | 'wall-grab' | 'wall-slide' | 'rope-catch' | 'rope-release' | 'hang-catch' | 'hang-release' | 'vault' | 'climb' | 'climb-drop' | 'bounce' | 'cleared' | 'cart-start' | 'cart-stall' | 'cart-off' | 'cart-catch' | 'launch-fire' | 'launch-release' | 'launch-dud' | 'recoil' | 'plank-sag' | 'plank-break' | 'plank-off' | 'band-release' | 'band-snap';
   detail?: Record<string, number | boolean>;
 }
+
+// A landing that would stumble or hurt waits ROLL_FORGIVE_TICKS before it counts, so an X pressed just after touchdown is forgiven.
+export interface LandGrace { until: number; landTick: number; before: RunnerState; input: RunnerInput; impact: number; peakDecel: number; squat: boolean; hurt: boolean; stumbled: boolean }
 
 export interface WorldState {
   runner: RunnerState;
@@ -48,7 +51,9 @@ export interface WorldState {
   noCatchUntil: number;
   lastPress: number; // tick of the last Space press, so a press just before landing counts
   lastVault: number; // tick of the last V press, so a press a moment before the obstacle still vaults it
-  lastRoll: number; // tick of the last X press, so a press a quarter of a second before touchdown still rolls
+  lastRoll: number; // tick of the last X press (a press on the ground right after a landing roll is not a new ground roll)
+  rollArmed: boolean; // an X press came inside the roll window (the last 0.15 s and 1.2 m before touchdown): the landing is a roll
+  landGrace: LandGrace | null; // a stumble or hard landing waiting 3 ticks: an X press in that time turns it into the roll
   plantUntil: number; // tick until which the feet plant after a vault (no key held: brake hard)
   rolledAt: number; // tick of the last roll, on landing or on the ground (the actor plays the roll clip from here); -1000 = none
   groundRoll: GroundRoll | null; // a roll along the ground in progress (X on the ground)
@@ -64,9 +69,9 @@ export function newWorld(course: CourseData, x: number = course.startX): WorldSt
   if (tp && x <= tp.x + 0.5) { // the course starts in the sling: the rider lies at the end of the sling behind the machine
     const ln = startLaunch(tp, groundAt(course.terrain, tp.x));
     const f = feetAt(tp, ln);
-    return { runner: { ...r, x: f.x, y: f.y }, mode: 'launch', outcome: 'running', wall: null, swing: null, hang: null, vault: null, climb: null, cart: null, band: null, launch: ln, energy: 1, bed: null, noCatchUntil: 0, lastPress: -1000, lastVault: -1000, lastRoll: -1000, rolledAt: -1000, plantUntil: -1000, groundRoll: null, rollReadyAt: 0, events: [] };
+    return { runner: { ...r, x: f.x, y: f.y }, mode: 'launch', outcome: 'running', wall: null, swing: null, hang: null, vault: null, climb: null, cart: null, band: null, launch: ln, energy: 1, bed: null, noCatchUntil: 0, lastPress: -1000, lastVault: -1000, lastRoll: -1000, rolledAt: -1000, plantUntil: -1000, groundRoll: null, rollReadyAt: 0, rollArmed: false, landGrace: null, events: [] };
   }
-  const w: WorldState = { runner: r, mode: 'run', outcome: 'running', wall: null, swing: null, hang: null, vault: null, climb: null, cart: null, band: null, launch: null, energy: 1, bed: null, noCatchUntil: 0, lastPress: -1000, lastVault: -1000, lastRoll: -1000, rolledAt: -1000, plantUntil: -1000, groundRoll: null, rollReadyAt: 0, events: [] };
+  const w: WorldState = { runner: r, mode: 'run', outcome: 'running', wall: null, swing: null, hang: null, vault: null, climb: null, cart: null, band: null, launch: null, energy: 1, bed: null, noCatchUntil: 0, lastPress: -1000, lastVault: -1000, lastRoll: -1000, rolledAt: -1000, plantUntil: -1000, groundRoll: null, rollReadyAt: 0, rollArmed: false, landGrace: null, events: [] };
   if (course.band && x <= course.band.x) return enterBand(w, course);
   return course.track ? enterCart(w, course) : w;
 }
@@ -78,8 +83,9 @@ const ropeParams = (c: CourseData): RopeParams => ({ ...DEFAULT_ROPE, ...(c.rope
 
 export function stepWorld(w: WorldState, input: RunnerInput, course: CourseData, p: RunnerParams = DEFAULT_PARAMS): WorldState {
   if (w.outcome !== 'running') return { ...w, runner: { ...w.runner, tick: w.runner.tick + 1 } };
-  const rolling = !course.off?.includes('roll') && (input.roll || w.runner.tick + 1 - w.lastRoll <= ROLL_BUFFER);
-  const input2: RunnerInput = { ...(input.jump && w.runner.grounded && w.mode === 'run' ? { ...input, jumpSpeed: course.jumpSpeed } : input), roll: rolling };
+  // the roll counts only if X was pressed inside the window before touchdown (an earlier press is ignored: no buffer); a course can switch the roll off
+  const armed = !course.off?.includes('roll') && (w.rollArmed || (!!input.roll && !w.runner.grounded && w.mode === 'run' && rollWindowOpen(w, course)));
+  const input2: RunnerInput = { ...(input.jump && w.runner.grounded && w.mode === 'run' ? { ...input, jumpSpeed: course.jumpSpeed } : input), roll: armed };
   const events: GameEvent[] = [];
   const tick = w.runner.tick + 1;
   const ev = (type: GameEvent['type'], detail?: GameEvent['detail']) => events.push({ tick, type, detail });
@@ -106,6 +112,22 @@ export function stepWorld(w: WorldState, input: RunnerInput, course: CourseData,
     }
   }
 
+  // a stumble or hard landing waits ROLL_FORGIVE_TICKS: an X pressed in that time is forgiven and the landing becomes the roll; otherwise the landing counts now
+  if (w.landGrace) {
+    const g = w.landGrace;
+    if (input.roll) {
+      const redone = step(g.before, { ...g.input, roll: true }, p, course.terrain); // the same touchdown, rolled
+      const since = tick - g.landTick;
+      ev('roll', { vx: redone.vx, late: true });
+      return { ...n, runner: { ...redone, tick, x: redone.x + redone.vx * DT * since }, rolledAt: tick, landGrace: null, rollArmed: false, events };
+    }
+    if (tick >= g.until) {
+      n.landGrace = null;
+      if (g.stumbled) ev('stumble', { peakDecel: g.peakDecel });
+      if (g.hurt) { n.outcome = 'hurt'; ev('hard-landing', { impact: g.impact, peakDecel: g.peakDecel, rolled: false, squat: g.squat }); n.events = events; return { ...n, events }; }
+    }
+  }
+
   // the ground roll (X on the ground, standing or running; a fresh press, not the one still held from a landing roll)
   if (!w.groundRoll && w.runner.grounded && input.roll && w.lastRoll < w.runner.tick && w.runner.tick + 1 >= w.rollReadyAt && !input.jump && !input.vault) {
     const g = startGroundRoll(w.runner, input.run && !input.left ? 1 : input.left && !input.run ? -1 : 0);
@@ -127,6 +149,7 @@ export function stepWorld(w: WorldState, input: RunnerInput, course: CourseData,
     if (g.ended) { n.rollReadyAt = tick + Math.round(GROUND_ROLL_RECOVERY * 120); n.groundRoll = null; }
   } else r = step(before, input2, planting ? { ...p, grip: p.grip * VAULT_PLANT_GRIP } : p, flightTerrain);
   n.runner = r;
+  n.rollArmed = armed && !r.grounded;
   let caughtTrack = false;
   if (course.track && !before.grounded && r.grounded && r.landing) {
     const params = trackParams(course), x = r.landedAtX ?? r.x;
@@ -151,8 +174,9 @@ export function stepWorld(w: WorldState, input: RunnerInput, course: CourseData,
     const plat = standingOn(course.terrain, r.x);
     ev('land', { impact: r.landing.impactSpeed, peakDecel: r.landing.peakDecel, squat: r.landing.squatted, rolled: r.landing.rolled, bouncy: !!plat?.bouncy });
     if (r.landing.rolled) n.rolledAt = r.tick;
-    if (r.landing.stumbled && !plat?.bouncy) ev('stumble', { peakDecel: r.landing.peakDecel });
-    if (r.landing.hurt && !plat?.bouncy) { n.outcome = 'hurt'; ev('hard-landing', { impact: r.landing.impactSpeed, peakDecel: r.landing.peakDecel, rolled: r.landing.rolled, squat: r.landing.squatted }); }
+    if ((r.landing.stumbled || r.landing.hurt) && !r.landing.rolled && !plat?.bouncy) { // the landing waits 3 ticks for a forgiven X press (above)
+      n.landGrace = { until: tick + ROLL_FORGIVE_TICKS, landTick: tick, before, input: input2, impact: r.landing.impactSpeed, peakDecel: r.landing.peakDecel, squat: r.landing.squatted, hurt: r.landing.hurt, stumbled: r.landing.stumbled };
+    } else if (r.landing.hurt && !plat?.bouncy) { n.outcome = 'hurt'; ev('hard-landing', { impact: r.landing.impactSpeed, peakDecel: r.landing.peakDecel, rolled: r.landing.rolled, squat: r.landing.squatted }); }
     if (plat?.bouncy) {
       const base = bounce(r.landing.impactSpeed, DEFAULT_TRAMPOLINE);
       n.mode = 'bounce';

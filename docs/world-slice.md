@@ -1197,3 +1197,19 @@ The set of obstacle shapes is fixed, and each shape offers a fixed set of moves.
   - The step budget and worker pool of CC-69 will help.
   - The Course cannot be rebuilt in place, so "try it" is a page reload that lands back on the same obstacle.
 - **Checks:** `tests/roundtrip.test.ts` (an unedited course comes back byte for byte, the copy of the lache demo clears), `tests/easier.test.ts`, and `scripts/roundtrip-check.mjs` (play, fall, make it easier, apply and try it, edit again, back, clear).
+
+
+## Roll window (CC-67, round four)
+- **So what:** the roll is now a real timing skill: it must be pressed just before the ground, not early, and the drum on the strip arrives exactly when the key is due.
+- **The window:** the last 0.15 s before touchdown and the last 1.2 m above the ground, both at once (`rollWindowOpen` in `src/sim/drop.ts`).
+  - On a 5 m drop the height limit is the shorter one (1.2 m takes about 0.13 s); on a slow fall the time limit is.
+  - A press before the window opens is ignored.
+    - There is no hidden buffer (`ROLL_BUFFER` is gone), so a roll pressed too early gives no benefit and the landing is a normal one: the hard landing is the consequence.
+  - A press up to 3 ticks after touchdown is forgiven (`ROLL_FORGIVE_TICKS`): a stumble or hard landing waits 3 ticks (`landGrace`), and an X in that time turns it into the roll; after 3 ticks it counts.
+- **Where it is used:** the simulator (`stepWorld`: `rollArmed`, `landGrace`), the ideal run (`rollNeeded` presses at the first tick of the window, a tick is 1/120 s so the 18-tick window is easy to hit), the drum lane (the X drum is at the runner's x where the window opens in that flight), the debug view (the orange ring is at the same point on the predicted path, `rollWindowStart`) and the hints (the controls card, the fall panel, the predictions and the Roll role say "the last 0.15 s before you land (about a metre up; earlier does nothing)").
+- **Tests (`tests/roll-window.test.ts`):** every demo course and generated seeds with a roll landing have the drum within 2 cm of a window start; the window opens within 0.15 s and 1.2 m of touchdown and one tick earlier it is closed; on the drop demo an early press at the ledge edge does not roll (hard landing), a press inside the window does, a press 2 ticks after touchdown is forgiven and one 8 ticks after is not.
+- **Changed tests:** the roll tests no longer expect a quarter-second buffer; they play 6 ticks past touchdown because a hard landing now waits 3 ticks.
+- **Replaces round three's drum place:** the X drum was 0.3 s before touchdown (about 2.5 m up on a 5 m drop); it is now where the window opens, about 1.2 m up, which is when the key is due.
+- **Predictions:** the jump, release and launch predictions let the 3-tick wait run out (`settled` in `src/sim/predict.ts`), so a fall with no roll is reported as a hard landing, not as a clean one.
+- **Real keys:** on the drop demo (`scripts/roll-check.mjs`, slow motion), X pressed 0.1 s before the ground rolls and the run goes on; with no roll the outcome is a hard landing.
+  - Picture of the orange ring and the drum: `data/eval/cc-67-fixes/roll-ring-fall-0.png`.

@@ -49,9 +49,9 @@ describe('the ground roll', () => {
     const c = course();
     let w = newWorld(c, 0);
     w = stepWorld(w, { ...NO_INPUT, jump: true }, c);
-    w = run(w, c, 90);
+    w = run(w, c, 100);
     expect(w.runner.grounded).toBe(false);
-    w = stepWorld(w, { ...NO_INPUT, roll: true }, c); // pressed in the air, about a sixth of a second before the ground
+    w = stepWorld(w, { ...NO_INPUT, roll: true }, c); // pressed in the air, inside the window (about a twelfth of a second before the ground)
     expect(w.groundRoll).toBeNull();
     w = run(w, c, 120);
     expect(w.runner.grounded).toBe(true);
