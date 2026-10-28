@@ -1032,3 +1032,19 @@ The set of obstacle shapes is fixed, and each shape offers a fixed set of moves.
   - The band, the trebuchet and the recoil are not switched off yet.
   - "Close it" works for bars only; for the wall and the rope it says so and leaves the change to the designer.
   - A first look for a course without stored shortcuts takes about a minute in the worker (the table shows the search seconds per course).
+
+## Real photos beside the real worlds (CC-85)
+- **So what:** the real-world courses show only extruded blocks; next to them the player now sees the real place, so the skyline is appreciated and the shrinking is understood.
+- **What shows:**
+  - Montmartre, Eixample, Circular Quay and Lombard Street each have 2 to 3 photos from Wikimedia Commons (CC0, CC BY or CC BY-SA).
+  - Small thumbnails sit at the bottom left of the Course, with the author and licence under each one.
+  - A click opens a large view: "Real photo of <place>, <author>, <licence>", a "Where is this?" line and links to the licence and the source.
+  - Arrow keys move between photos, Esc closes, and the game does not run while a photo is open.
+  - The Hide switch (remembered) and `?photos=0` turn the strip off.
+- **Map mode:** a pin inside a place with photos shows the same strip in the side panel.
+- **Where the files are:** `public/assets/places/<place>/photo-N.jpg` (under 250 KB each), `credits.json` and `public/assets/places/photos-index.json` (place centres for the pin match).
+- **How a course finds its photos:** the OSM courses are named `OSM <slug>`, and the slug is the folder.
+- **Adding a place:** put 2 to 3 licensed photos and a `credits.json` in a new folder, add it to `photos-index.json` and add a row for each photo to `docs/ASSETS.md`; `tests/place-photos.test.ts` fails without a file, a free licence, a credit or an ASSETS row.
+- **Chosen photos:** only wide views with no person who can be recognised; a distant crowd is too small to identify.
+  - Five candidates were left out (a flag on a balcony, a street with pedestrians, a promenade crowd, a panorama too wide to scale, and two with people at the edge).
+- **Known gap:** the photos show the place from a hill, the water or the street, while the course is one slice through it.
