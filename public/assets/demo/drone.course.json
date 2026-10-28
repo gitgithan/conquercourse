@@ -1,0 +1,48 @@
+{
+  "version": 1,
+  "name": "Drone ferry: carried across a gap",
+  "startX": 0,
+  "finishX": 62,
+  "jumpSpeed": 4.5,
+  "terrain": {
+    "waterY": -6,
+    "platforms": [
+      {
+        "x0": -10,
+        "x1": 10,
+        "top": 0
+      },
+      {
+        "x0": 50,
+        "x1": 90,
+        "top": 0
+      }
+    ]
+  },
+  "drone": {
+    "x0": 3,
+    "x1": 7,
+    "battery": 50
+  },
+  "zones": [
+    {
+      "id": "drone",
+      "name": "Drone gap",
+      "x0": 2,
+      "x1": 52
+    }
+  ],
+  "checkpoints": [
+    {
+      "id": "drone",
+      "x": 0
+    }
+  ],
+  "plan": {
+    "jumpXs": [],
+    "releaseAfter": 60,
+    "bouncePress": 8,
+    "droneBrakeX": 48,
+    "droneDescendX": 57.5
+  }
+}

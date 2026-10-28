@@ -10,6 +10,7 @@ export const DEMO_COURSE_FILES = [
   'public/assets/demo/lache-wide.course.json',
   'public/assets/demo/recoil.course.json',
   'public/assets/demo/cannon.course.json',
+  'public/assets/demo/drone.course.json',
   'public/assets/demo/lane-1.course.json',
   'public/assets/demo/lane-2.course.json',
   'public/assets/demo/generated-1.course.json',

@@ -1,8 +1,8 @@
 // Labelled Dojo diagrams (CC-31): one "real" drawing and one "principle" picture per obstacle, as inline SVG strings.
 // Original art, drawn in code; words only, no formulas.
-export type DiagramId = 'gap' | 'wall' | 'rope' | 'trampoline' | 'landing' | 'coaster' | 'lever' | 'recoil' | 'bridge' | 'cannon' | 'stored';
+export type DiagramId = 'gap' | 'wall' | 'rope' | 'trampoline' | 'landing' | 'coaster' | 'lever' | 'recoil' | 'bridge' | 'cannon' | 'stored' | 'drone';
 export type DiagramKind = 'real' | 'principle';
-export const DIAGRAM_IDS: DiagramId[] = ['gap', 'wall', 'rope', 'trampoline', 'landing', 'coaster', 'lever', 'recoil', 'bridge', 'cannon', 'stored'];
+export const DIAGRAM_IDS: DiagramId[] = ['gap', 'wall', 'rope', 'trampoline', 'landing', 'coaster', 'lever', 'recoil', 'bridge', 'cannon', 'stored', 'drone'];
 
 const INK = '#1f2937', SPEED = '#2563eb', FORCE = '#dc2626', GRAV = '#d97706', ENERGY = '#16a34a', GROUND = '#9ca3af', SOFT = '#e5e7eb';
 type P = [number, number];
@@ -365,8 +365,41 @@ function cannonPrinciple(): string {
   return wrap('Cannon: one push, split two ways', body);
 }
 
+// a cargo drone seen from the side: a body, two rotor discs, skids, and a rider standing on them
+const droneShape = (cx: number, cy: number, tilt = 0): string => {
+  const c = Math.cos(tilt), s = Math.sin(tilt);
+  const at = (x: number, y: number): P => [f(cx + x * c - y * s), f(cy + x * s + y * c)];
+  return line(at(-70, 0), at(70, 0), INK, 9) + line(at(-70, -8), at(-30, -8), SPEED, 5) + line(at(30, -8), at(70, -8), SPEED, 5) +
+    line(at(-40, 6), at(-40, 52), INK, 3) + line(at(40, 6), at(40, 52), INK, 3) + line(at(-55, 52), at(55, 52), INK, 5);
+};
+
+function droneReal(): string {
+  const body =
+    `<rect x="0" y="380" width="760" height="60" fill="${SOFT}"/>` + line([0, 380], [760, 380], GROUND, 5) +
+    droneShape(380, 160) +
+    fig({ head: [380, 224], neck: [380, 240], hip: [380, 290], arms: [[[394, 200], [398, 176]], [[366, 200], [362, 176]]], legs: [[[392, 330], [396, 360]], [[368, 330], [364, 360]]] }) +
+    arrow([380, 120], [380, 40], ENERGY, 7) + txt(480, 70, 'The rotors push up', { color: ENERGY, bold: true, size: 16, anchor: 'start' }) +
+    arrow([380, 300], [380, 372], GRAV, 7) + txt(480, 340, 'Weight pulls down', { color: GRAV, bold: true, size: 16, anchor: 'start' }) +
+    txt(190, 150, 'Hovering:\nthe push equals the weight', { bold: true, size: 17 }) +
+    txt(380, 424, 'More push than weight and it climbs. Less and it sinks.', { size: 14 });
+  return wrap('Hover: push against weight', body);
+}
+
+function dronePrinciple(): string {
+  const body =
+    `<rect x="0" y="380" width="760" height="60" fill="${SOFT}"/>` + line([0, 380], [760, 380], GROUND, 5) +
+    droneShape(190, 190) + arrow([190, 180], [190, 80], ENERGY, 7) + arrow([190, 200], [190, 290], GRAV, 7) +
+    txt(190, 330, 'Level: the push is straight up\nand just equals the weight', { size: 14, bold: true }) +
+    droneShape(540, 190, 0.5) + arrow([540, 180], [540 + 100 * Math.sin(0.5) * 1.5, 180 - 100 * Math.cos(0.5) * 1.5], ENERGY, 7) +
+    arrow([540, 200], [540, 290], GRAV, 7) + line([540, 180], [540, 180 - 100 * Math.cos(0.5) * 1.5], ENERGY, 3, '6 5') + arrow([540, 180 - 100 * Math.cos(0.5) * 1.5 + 0.1], [540 + 100 * Math.sin(0.5) * 1.5, 180 - 100 * Math.cos(0.5) * 1.5], SPEED, 4) +
+    txt(540, 330, 'Leaning: part of the push goes sideways,\nso the total push must be bigger', { size: 14, bold: true }) +
+    txt(380, 420, 'Only the upward part of the push holds the drone up. The sideways part makes it move.', { size: 14 });
+  return wrap('Hover: why leaning costs push', body);
+}
+
 const table: Record<DiagramId, Record<DiagramKind, () => string>> = {
   cannon: { real: cannonReal, principle: cannonPrinciple },
+  drone: { real: droneReal, principle: dronePrinciple },
   recoil: { real: recoilReal, principle: recoilPrinciple },
   gap: { real: gapReal, principle: gapPrinciple },
   wall: { real: wallReal, principle: wallPrinciple },

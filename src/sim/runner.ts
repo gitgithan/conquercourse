@@ -27,6 +27,7 @@ export interface RunnerInput {
   aim?: number; // a big cannon: set the barrel angle (rad), for the bot and tests; the player tilts it with aimUp and aimDown
   aimUp?: boolean; // Up arrow or W: tilt the barrel so the push goes higher
   aimDown?: boolean; // Down arrow: tilt it flatter
+  up?: boolean; // ArrowUp: climb (in a drone); ArrowDown (squat) descends
   fire?: boolean; // K: fire the launcher clipped on at a recoil pad (the ball goes back, the runner goes forward)
 }
 

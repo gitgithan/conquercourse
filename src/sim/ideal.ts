@@ -27,6 +27,8 @@ export interface Plan {
   aim?: number; // a big cannon: the barrel angle (rad) the line aims at before it fires
   fireXs?: number[]; // a launcher (recoil pad): press K at the first moment the runner is at or past this x
   fireAfterJump?: number; // or press K this many ticks after the take-off, so the shot adds to a jump
+  droneBrakeX?: number; // a drone ferry: lean back (brake) from this x
+  droneDescendX?: number; // and climb down from this x onto the far deck
   cartBrake?: [number, number][]; // a coaster: hold the brake between these x values (the first push is always given at the start)
   bandStretch?: number; // the elastic band: run away from the post until the band is stretched this many metres, then turn round and run toward it
 }
@@ -62,6 +64,11 @@ function inputForBase(plan: Plan, w: WorldState, state: PlanState, course?: Cour
     if (!state.bandTurned && stretchAt(bandParams(course), w.runner.x) >= (plan.bandStretch ?? 8)) state.bandTurned = true;
     return state.bandTurned ? { ...NO_INPUT, run: true, squat: true } : { ...NO_INPUT, left: true };
   }
+  if (w.mode === 'drone' && w.drone) { // the ferry: lean forward to speed up, lean back to slow down, then climb down onto the far deck
+    const x = w.runner.x, braking = x >= (plan.droneBrakeX ?? 1e9);
+    return { ...NO_INPUT, handL: true, handR: true, run: !braking, left: braking && w.drone.vx > 1, squat: x >= (plan.droneDescendX ?? 1e9) };
+  }
+  if (course?.drone && w.mode === 'run' && w.runner.grounded && w.runner.x >= course.drone.x0 && w.runner.x <= course.drone.x1) return { ...NO_INPUT, handL: true, handR: true }; // on the pad: hold E to board
   const base: RunnerInput = { ...NO_INPUT, run: true, squat: true, ...(course && rollNeeded(w, course) ? { roll: true } : {}) }; // a drop a squat cannot take cleanly: roll just before the ground
   if (w.mode === 'launch') return { ...NO_INPUT, run: true, squat: true, ...(w.launch?.fired && w.launch.t >= (plan.launchRelease ?? 120) ? { jump: true } : {}) }; // pull the pin, then let go at the planned moment
   if (w.mode === 'climb') { // hanging from the edge: keep the hold key down through the pull-up
@@ -167,6 +174,7 @@ export interface Route { name: string; ticks: number; bars: number; chosen: bool
 
 export function searchIdealRun(course: CourseData, opts: { routes?: boolean } = {}): { plan: Plan; windows: Window[]; cleared: boolean; routes?: Route[] } {
   if (course.track) return searchCartRun(course);
+  if (course.drone) return searchDroneRun(course);
   const holds = course.holds ?? [];
   const plan: Plan = { jumpXs: [], releaseAfter: 60, bouncePress: 8, ...(holds.length ? { hands: true, hangTicks: holds.map(() => 90) } : {}) };
   const windows: Window[] = [];
@@ -473,6 +481,28 @@ export function playImperfect(course: CourseData, plan: Plan, seed: number, sigm
 // through that crest from a point earlier on (the nearest start that makes the whole course clear), then look at the next crest.
 // A coaster is ridden well when the cart rolls home on the rails: finishing by flying off a hilltop, landing on the track and running on is not a ride.
 const rode = (r: RunResult): boolean => r.world.outcome === 'cleared' && !flewOff(r.events);
+// The drone ferry: where to start leaning back and where to start climbing down so the drone lands softly on the far deck. A bounded grid, then a finer one around the fastest line.
+export function searchDroneRun(course: CourseData): { plan: Plan; windows: Window[]; cleared: boolean } {
+  const d = course.drone!;
+  const plan: Plan = { jumpXs: [], releaseAfter: 60, bouncePress: 8 };
+  const windows: Window[] = [];
+  const far = [...course.terrain.platforms].sort((a, b) => a.x0 - b.x0).find((p) => p.x0 > d.x1 + 3);
+  if (!far) return { plan, windows, cleared: false };
+  const cap = 120 * 60;
+  type T = { b: number; c: number; ok: boolean; t: number };
+  const found: T[] = [];
+  const trial = (b: number, c: number) => { const r = playPlan(course, { ...plan, droneBrakeX: b, droneDescendX: c }, cap); found.push({ b, c, ok: r.world.outcome === 'cleared', t: r.world.runner.tick }); };
+  for (let b = d.x1 + 3; b <= far.x0 + 1; b += 2) for (let c = far.x0 - 6; c <= Math.min(far.x1 - 2, far.x0 + 12); c += 2) trial(b, c);
+  const first = found.filter((f) => f.ok).sort((a, b) => a.t - b.t)[0];
+  if (first) for (let b = first.b - 2; b <= first.b + 2; b += 0.5) for (let c = first.c - 2; c <= first.c + 2; c += 0.5) trial(b, c);
+  const good = found.filter((f) => f.ok);
+  if (!good.length) return { plan, windows, cleared: false };
+  const best = good.sort((a, b) => a.t - b.t)[0];
+  plan.droneBrakeX = best.b; plan.droneDescendX = best.c;
+  const brakes = good.filter((g) => Math.abs(g.c - best.c) < 0.01).map((g) => g.b);
+  windows.push({ obstacle: 'braking point', best: best.b, lo: Math.min(...brakes), hi: Math.max(...brakes), widthMs: ((Math.max(...brakes) - Math.min(...brakes) + 0.5) / 8) * 1000 });
+  return { plan, windows, cleared: true };
+}
 
 export function searchCartRun(course: CourseData): { plan: Plan; windows: Window[]; cleared: boolean } {
   const plan: Plan = { jumpXs: [], releaseAfter: 60, bouncePress: 8, cartBrake: [] };
