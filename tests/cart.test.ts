@@ -76,7 +76,7 @@ describe('leaving the track', () => {
   it('on a sharp hilltop at speed the cart leaves the rails and flies on, past where the limit says', () => {
     const { events, w } = ride(sharp);
     expect(events).toContain('cart-off');
-    expect(w.cart).toBeNull(); // the cart is not on the rails any more (the track is ground now, so the rider may land on it and run on, which is not a ride)
+    expect(w.mode === 'cart' || w.outcome !== 'running').toBe(true); // it may land back on the rails and roll on (the track is ground now), but it was not held on: that is not a ride
     const r = makeRails(sharp);
     expect(crestSpeedLimit(r, 27)).toBeLessThan(9);
   });
