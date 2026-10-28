@@ -121,8 +121,8 @@ export function createView3d(wrap: HTMLElement, host: Host): View3d {
     const geo = new THREE.BufferGeometry();
     geo.setAttribute('position', new THREE.Float32BufferAttribute(Array.from(p.mesh.positions as ArrayLike<number>), 3));
     geo.setIndex(Array.from((p.mesh.indices ?? []) as ArrayLike<number>)); geo.computeVertexNormals();
-    const color = p.src === 'hold:bar' ? 0xd8dde3 : p.src?.startsWith('device:trebuchet:') ? 0x805936 : p.src?.startsWith('device:crate:') ? 0x9a7043 : p.src?.startsWith('device:cannon:') ? 0x526875 : 0xa9a392;
-    const metal = p.src === 'hold:bar' || p.src?.startsWith('device:cannon:') ? 0.7 : 0, key = `${color}|${metal}`; // one material per look, shared by every piece with it
+    const color = p.src === 'hold:bar' ? 0xd8dde3 : p.src?.startsWith('device:trebuchet:') ? 0x805936 : p.src?.startsWith('device:crate:') ? 0x9a7043 : (p.src?.startsWith('device:cannon:') || p.src?.startsWith('device:bigcannon:')) ? 0x526875 : 0xa9a392;
+    const metal = p.src === 'hold:bar' || p.src?.startsWith('device:cannon:') || p.src?.startsWith('device:bigcannon:') ? 0.7 : 0, key = `${color}|${metal}`; // one material per look, shared by every piece with it
     let mat = pieceMaterials.get(key);
     if (!mat) { mat = new THREE.MeshStandardMaterial({ color, metalness: metal, roughness: 0.78, flatShading: true }); pieceMaterials.set(key, mat); }
     return new THREE.Mesh(geo, mat);

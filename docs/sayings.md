@@ -35,6 +35,7 @@
 | Cup stacks | *"Speed climbs the cups, and speed carries you off the top."* | A step up needs speed, but the narrow flat top is crossed in a blink at that speed |
 | Recoil | *"The heavy thing goes slow, the light thing fast, and both carry the same."* | Momentum is conserved: the ball carries a push away backward and the runner carries the same push forward |
 | Climb | *"Speed gets you to the wall; arms get you over it."* | The run speed is gone at the wall: the arms pull the body up on their own strength, so a taller wall costs more time and effort than it costs speed |
+| Cannon | *"Aim between high and flat: the middle angle flies farthest."* | The push is split by the angle into a forward part and an upward part; level ground is won at about 45 degrees, and a steep shot lands harder |
 
 ## Where they appear
 - **A law the player earns:** shown only after the player has discovered that principle in the Dojo (for example, their rope predictions get close); collected sayings fill the trophy cabinet.
