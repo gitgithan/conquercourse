@@ -18,13 +18,13 @@ try {
     await page.keyboard.down('ArrowRight');
     await page.waitForFunction(() => Number(document.documentElement.dataset.x) > 18.05, null, { timeout: 300000, polling: 50 }); // off the ledge
     if (roll) {
-      await page.waitForFunction(() => Number(document.documentElement.dataset.tick) >= 0 && document.documentElement.dataset.grounded === 'false', null, { timeout: 60000, polling: 20 });
+      await page.waitForFunction(() => Number(document.documentElement.dataset.tick) >= 0 && document.documentElement.dataset.grounded === '0', null, { timeout: 60000, polling: 20 });
       const t0 = Number(await page.evaluate(() => document.documentElement.dataset.tick));
       // 5 m takes about 1 s (120 ticks); tap C at about 0.85 s, a fifth of a second before the ground
       await page.waitForFunction((t) => Number(document.documentElement.dataset.tick) >= t + 100, t0, { timeout: 300000, polling: 20 });
       await page.keyboard.press('KeyC');
     }
-    await page.waitForFunction(() => ['running', 'cleared'].every(() => true) && (document.documentElement.dataset.grounded === 'true' || document.documentElement.dataset.outcome !== 'running'), null, { timeout: 300000, polling: 50 }).catch(() => {});
+    await page.waitForFunction(() => ['running', 'cleared'].every(() => true) && (document.documentElement.dataset.grounded === '1' || document.documentElement.dataset.outcome !== 'running'), null, { timeout: 300000, polling: 50 }).catch(() => {});
     await page.waitForTimeout(roll ? 4000 : 1500);
     out[roll ? 'withRoll' : 'withoutRoll'] = { outcome: await page.evaluate(() => document.documentElement.dataset.outcome), x: await page.evaluate(() => document.documentElement.dataset.x), panel: (await page.textContent('body')).includes('Hard landing'), errors };
     if (!roll) await page.screenshot({ path: 'test-results/roll-hard-landing.png' });
