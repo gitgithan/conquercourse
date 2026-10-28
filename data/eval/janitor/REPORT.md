@@ -56,3 +56,15 @@
   2. Look under "Ideal run (I)": "Edit this course" and "Whole course (Shift+I)" sit side by side with a gap.
   3. Wrong would be one covering the other's text.
   - Screenshots: `data/eval/janitor/course-buttons/1280x720.png` and `1024x640.png`.
+
+## 6. Generated lache gaps need the bars (CC-47, Part of)
+- **Problem:** all 24 generated courses with a lache could be skipped with a plain jump, so the bars taught nothing.
+- **Cause:** the generator drew the lache gap from 5.5 to 6.8 m, and a plain jump clears up to 8 m.
+- **Fix:** the gap is drawn from 8.5 to 10 m (12 m still clears with bars, 14 m does not, so there is margin); `generated-1` and its plan were rebuilt; golden hash for `generateCourse(2)` updated (the course itself changed); a new test checks every generated lache is 8.5 to 10 m.
+- **Tests run on VM3:** `generator`, `shortcut-generator`, `demo-plans`, `golden-search` (all pass).
+- **Not covered:** seeds beyond the 12 in the generator tests were not re-proved; the 24-seed shortcut job was not repeated with the new range (about an hour).
+- **How to test it by eye:**
+  1. Open `/?course=/assets/demo/generated-1.course.json&welcome=0`.
+  2. Press Shift+I and watch the run: at the Lache pair the runner must hold the bars and swing; a plain jump from the deck should fall short.
+  3. Try yourself: run at the lache, jump without E, and you drop into the water.
+  - Screenshot: `data/eval/janitor/lache-gap/ideal-run.png`.
