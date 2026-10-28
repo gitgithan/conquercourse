@@ -97,7 +97,7 @@
             "legs_not_twisted": 22.9556,
             "knees_within_range": 120.2819,
             "flight_is_ballistic": null,
-            "held_clips_are_held": 0.0,
+            "held_clips_are_held": 0,
             "feet_dont_sink": -0.0201,
             "no_teleport": 2.7277
           },
@@ -160,7 +160,7 @@
             "legs_not_twisted": 8.7849,
             "knees_within_range": 55.6041,
             "flight_is_ballistic": null,
-            "held_clips_are_held": 0.0,
+            "held_clips_are_held": 0,
             "feet_dont_sink": -2.0318,
             "no_teleport": 0.3257
           },
@@ -182,7 +182,7 @@
             "legs_not_twisted": 173.4837,
             "knees_within_range": 179.1362,
             "flight_is_ballistic": null,
-            "held_clips_are_held": 5.0,
+            "held_clips_are_held": 5,
             "feet_dont_sink": -0.2305,
             "no_teleport": 2.5692
           },
@@ -198,11 +198,11 @@
           "gate_pass": true,
           "failures": [],
           "hard": {
-            "knees_bend_forward": 0.0,
-            "legs_not_twisted": 0.0,
+            "knees_bend_forward": 0,
+            "legs_not_twisted": 0,
             "knees_within_range": 10.9922,
             "flight_is_ballistic": null,
-            "held_clips_are_held": 0.0,
+            "held_clips_are_held": 0,
             "feet_dont_sink": -1.918,
             "no_teleport": 0.4421
           },
@@ -239,11 +239,11 @@
           "gate_pass": true,
           "failures": [],
           "hard": {
-            "knees_bend_forward": 0.0,
-            "legs_not_twisted": 0.0,
+            "knees_bend_forward": 0,
+            "legs_not_twisted": 0,
             "knees_within_range": 14.1523,
             "flight_is_ballistic": null,
-            "held_clips_are_held": 0.0,
+            "held_clips_are_held": 0,
             "feet_dont_sink": -1.919,
             "no_teleport": 0.1487
           },
@@ -285,7 +285,7 @@
             "legs_not_twisted": 6.4682,
             "knees_within_range": 23.9683,
             "flight_is_ballistic": null,
-            "held_clips_are_held": 0.0,
+            "held_clips_are_held": 0,
             "feet_dont_sink": -1.8368,
             "no_teleport": 0.7671
           },
@@ -376,9 +376,9 @@
             4.988
           ],
           "hips_at_frame55_m": [
-            0.0,
+            0,
             1.054,
-            5.0
+            5
           ],
           "key_pose_error_mean_m": 0.451,
           "key_pose_error_worst_m": 1.03
@@ -434,9 +434,9 @@
             4.988
           ],
           "hips_at_frame55_m": [
-            0.0,
+            0,
             1.054,
-            5.0
+            5
           ],
           "key_pose_error_mean_m": 0.451,
           "key_pose_error_worst_m": 1.03
@@ -490,9 +490,9 @@
             4.988
           ],
           "hips_at_frame55_m": [
-            0.0,
+            0,
             1.054,
-            5.0
+            5
           ],
           "key_pose_error_mean_m": 0.451,
           "key_pose_error_worst_m": 1.03
@@ -545,9 +545,9 @@
             4.988
           ],
           "hips_at_frame55_m": [
-            0.0,
+            0,
             1.054,
-            5.0
+            5
           ],
           "key_pose_error_mean_m": 0.451,
           "key_pose_error_worst_m": 1.03
