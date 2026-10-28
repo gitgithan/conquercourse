@@ -639,7 +639,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
     const h = document.createElement('strong');
     h.textContent = what === 'slide' ? 'You slid back down the wall.' : what === 'hurt' ? `Hard landing at the ${zone?.name ?? 'course'}.` : HAZARD_INFO[hazard].headline(zone?.name ?? 'course');
     const t = document.createElement('div'); t.textContent = tip;
-    const floorNote = document.createElement('div'); floorNote.style.cssText = 'color:#58635d;font-size:13px'; floorNote.textContent = what === 'slide' ? '' : HAZARD_INFO[hazard].hint;
+    const floorNote = document.createElement('div'); floorNote.style.cssText = 'color:#58635d;font-size:13px'; floorNote.textContent = what === 'slide' || what === 'hurt' ? '' : HAZARD_INFO[hazard].hint;
     const row = document.createElement('div'); row.style.cssText = 'display:flex;flex-wrap:wrap;gap:8px';
     const mk = (label: string, fn: () => void, primary = false) => {
       const b = document.createElement('button');
