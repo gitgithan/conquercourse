@@ -1,5 +1,7 @@
+import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 import { MOTION_TABLE, ROLL_GET_UP_S, ROLL_TICKS, moveProgress, motionGaps, rollLookFrom } from '../src/motion/motion-table';
+import { parseClip } from '../src/motion/clip';
 import { chooseClip, type ActorState } from '../src/motion/actor-pose';
 import { actorStateFor } from '../src/motion/actor-state';
 import { DEFAULT_LANDING } from '../src/sim/landing';
@@ -38,6 +40,15 @@ describe('motion table (CC-64)', () => {
     for (const m of Object.values(MOTION_TABLE)) expect(m.clip !== null || m.fallback !== 'none').toBe(true);
     expect(motionGaps()).not.toContain('vault'); // the vault has a clip (CC-68)
     expect(motionGaps()).not.toContain('roll'); // the roll always has its tuck
+  });
+  it('the captured vault and climb clips the table names are in the game folder, on the Rookie skeleton', () => {
+    const run = parseClip(JSON.parse(readFileSync('public/assets/motion/run.json', 'utf8')));
+    for (const move of ['vault', 'climb'] as const) {
+      const clip = parseClip(JSON.parse(readFileSync(`public/assets/motion/${MOTION_TABLE[move].clip}.json`, 'utf8')));
+      expect(clip.names).toEqual(run.names); // the actor samples them with the run clip's joint order
+      expect(clip.parents).toEqual(run.parents);
+      expect(clip.frames.length).toBeGreaterThan(60); // the played stretch (frames 21 to 69 / 36 to 59) must exist
+    }
   });
 });
 

@@ -5,10 +5,18 @@ import { DEFAULT_LANDING } from '../sim/landing';
 import { TICKS_PER_SECOND } from '../sim/units';
 import { HURT_TICKS } from './poses';
 
-export type MoveName = 'roll' | 'hurt' | 'vault' | 'hang' | 'giant-swing' | 'seated' | 'launch';
+export type MoveName = 'roll' | 'hurt' | 'vault' | 'climb' | 'hang' | 'giant-swing' | 'seated' | 'launch';
+
+export interface ReviewedMotionCandidate {
+  sources: string[];
+  preview: string;
+  status: 'preview-approved';
+  note: string;
+}
 
 export interface MoveEntry {
   clip: string | null; // public/assets/motion/<clip>.json once it passes the gate and the move check (pipelines/moves.json); null = none yet
+  candidate?: ReviewedMotionCandidate; // reviewed preview recipe; separate from a shipped, game-loaded clip
   fallback: 'tuck' | 'hands' | 'pose' | 'none'; // what is drawn while the clip is missing or switched off: 'tuck', 'hands' and 'pose' are bone-built poses (src/render/actor.ts, src/motion/vault-pose.ts); 'none' keeps the old motion and is listed as a gap
   ticks: number | null; // how long the move lasts in game ticks, from the simulator's own numbers (null = as long as the state lasts)
   from: string; // the simulator state or event that starts it
@@ -21,7 +29,38 @@ export const ROLL_TICKS = Math.round((DEFAULT_LANDING.rollStopTime + ROLL_GET_UP
 export const MOTION_TABLE: Record<MoveName, MoveEntry> = {
   roll: { clip: 'roll', fallback: 'tuck', ticks: ROLL_TICKS, from: "event 'land' with rolled (WorldState.rolledAt)" },
   hurt: { clip: 'hurt', fallback: 'pose', ticks: HURT_TICKS, from: "outcome 'hurt' (event 'hard-landing')" },
-  vault: { clip: null, fallback: 'hands', ticks: null, from: "mode 'vault' (progress = WorldState.vault.i / n): built from the contact point, hands pinned on the step (src/motion/vault-pose.ts); the Kimodo clip is not used because it shows no hands on the top" },
+  vault: {
+    clip: 'vault',
+    candidate: {
+      sources: [
+        'data/eval/motion-vault/outputs/london_parkour_ledge_landing_35_37/clip.json',
+        'data/eval/motion-vault/outputs/london_parkour_same_level_vault_80_84/clip.json',
+        'public/assets/motion/run.json',
+        'public/assets/motion/land.json',
+      ],
+      preview: '/?demo=captured-vault (kick, vault over wall, then fall and land)',
+      status: 'preview-approved',
+      note: 'Ledge-capture kick and pull-up, captured vault pass, IK hand contact, ballistic fall, then run-on.',
+    },
+    fallback: 'hands',
+    ticks: null,
+    from: "mode 'vault' (progress = WorldState.vault.i / n): the captured clip plays with the hands pinned on the contact point; the contact-point pose is the fallback",
+  },
+  climb: {
+    clip: 'climb',
+    candidate: {
+      sources: [
+        'data/eval/motion-vault/outputs/london_parkour_ledge_landing_35_37/clip.json',
+        'public/assets/motion/run.json',
+      ],
+      preview: '/?demo=captured-vault (climb onto a long ledge, then run along it)',
+      status: 'preview-approved',
+      note: 'Captured ledge climb and pull-up followed by the normal run cycle.',
+    },
+    fallback: 'pose',
+    ticks: null,
+    from: "mode 'climb' (progress = WorldState.climb.i / n): the captured pull-up plays with the hands held on the real edge; the hang-to-stand blend is the fallback",
+  },
   hang: { clip: 'swing', fallback: 'none', ticks: null, from: "mode 'hang' (the rope's swing pose, turned about the hands)" },
   'giant-swing': { clip: null, fallback: 'pose', ticks: null, from: "mode 'hang' with the swing past horizontal (CC-58): the swing clip's hang, legs lagging and tucking over the top" },
   seated: { clip: null, fallback: 'pose', ticks: null, from: "mode 'cart' (CC-61)" },
