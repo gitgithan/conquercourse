@@ -41,9 +41,9 @@ describe('the lane through a stack is its stepped outline', () => {
       const { length } = stackCups(p), k = piece.scale;
       let checked = 0;
       pr.cells.forEach((cell, i) => {
-        const x0 = ((pr.origin ?? 0) + i * CELL) / k + length / 2, x1 = x0 + CELL / k, margin = 0.02 / k;
-        const lo = stackHeightAt(p, x0 + margin), hi = stackHeightAt(p, x1 - margin), mid = stackHeightAt(p, (x0 + x1) / 2);
-        if (lo !== hi || lo !== mid || cell === null) return; // an edge falls inside this cell: skip it
+        const x0 = ((pr.origin ?? 0) + i * CELL) / k + length / 2, x1 = x0 + CELL / k, margin = 0.011 / k;
+        const probes = [x0 - margin, x0 + margin, (x0 + x1) / 2, x1 - margin, x1 + margin].map((x) => stackHeightAt(p, x)), mid = probes[2];
+        if (probes.some((h) => h !== mid) || cell === null) return; // an edge falls in or right next to this cell (samples on a wall can land either side): skip it
         expect(cell, `cell ${i}`).toBeCloseTo(mid * k, 2);
         checked++;
       });
