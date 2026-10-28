@@ -24,7 +24,7 @@ def rolling(turn_deg, n=60, fps=30.0, travel=1.5):
         j[:, 1], j[:, 2] = c * y - s * z, s * y + c * z
         frames.append(j + hip)
     f = np.array(frames)
-    f[:, :, 1] -= f[:, :, 1].min()
+    f[:, :, 1] -= f[:, :, 1].min(axis=1, keepdims=True)  # a rolling body always touches the ground
     return Clip(f, fps)
 
 
@@ -32,6 +32,15 @@ def test_a_full_forward_turn_is_a_roll():
     ok, nums, win = movecheck.roll_check(rolling(360))
     assert ok, nums
     assert nums["turn_in_window_deg"] > 280 and nums["upside_down"]
+
+
+def test_a_front_flip_in_the_air_is_not_a_roll():
+    c = rolling(360)
+    f = c.frames.copy()
+    k = np.sin(np.linspace(0, np.pi, len(f))) * 1.2  # the same turn, but thrown 1.2 m up
+    f[:, :, 1] += k[:, None]
+    ok, nums, _ = movecheck.roll_check(Clip(f, c.fps))
+    assert not ok and (nums["peak_hips_vs_standing"] > 1.05 or nums["longest_air_s"] > 0.25)
 
 
 def test_a_half_turn_is_not_a_roll():
