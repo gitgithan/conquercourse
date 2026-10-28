@@ -246,3 +246,23 @@ The set of obstacle shapes is fixed, and each shape offers a fixed set of moves.
 - **Tests:** `tests/census.test.ts` breaks a cube on purpose (scale x100 and x0.001, a hole, a flipped face) and every object in the library must pass.
 - **Idea source:** a thread on why model-written Blender scripts break (2026-10-28): units, and defects a render hides.
 - **Known gap:** it does not check self-intersection, which is slow on big meshes.
+## PartLLM spike: can it find the part a hand holds? (CC-49)
+- **So what:** not yet; the editor should not trust it to place holds.
+  - It found the top tube of a handrail well (2 of 9 "this part exists" checks hit, and both were handrail "rail").
+  - It also invented parts that are not there: 11 of 13 "this part is absent" prompts got a part anyway.
+  - Keep holds as pieces placed by the human or by the proved bar tools (`src/slice/holds-world.ts`), and re-test when a newer release or a point prompt is tried.
+- **What we ran:** PartLLM (Apache-2.0, weights `Czvvd/PartLLM`) on a Modal L4, text-guided with "bar", "rail", "ledge", "step", plus full-shape once, on our six object GLBs.
+  - Code: `pipelines/partllm/modal_app.py` (run) and `pipelines/partllm/score.py` (score).
+  - Answer key, hand-labelled from side and top views: `data/eval/partllm/answer-key.json`; scores and one picture per object: `data/eval/partllm/`.
+  - Raw outputs (62 MB) live in `../conquercourse-assets/partllm/` with `SHA256SUMS`.
+- **Per object (precision = share of the part inside the real hold, recall = share of the hold covered):**
+  - `rail-skate-01`: "rail" hit (precision 1.00, recall 0.95); "bar" took a post (miss); "ledge" and "step" invented.
+  - `rail-skate-02`: "rail" hit (0.98 / 0.52); "step" took the lower end of the sloped rail (0.79 / 0.47, a false claim).
+  - `railing-iron`: "rail" nearly (0.47 / 0.62, just under our 0.5 bar), "bar" spread over the pickets (0.14 / 0.35).
+  - `bench-concrete`: "ledge" missed (0.11 / 0.06); "bar" took the whole back and seat.
+  - `box-skate-03`: "ledge" took the whole box (0.11 precision, 0.85 recall), so it cannot say which edge.
+  - `stairs-park-07`: "ledge" missed (0 / 0); "step" gave a part (0.34 / 0.15) but the steps are soft in this mesh, so it is not scored.
+- **Why it fails:** it must return a part for every name it is given (all four names always came back), and it was trained on furniture-like parts, not skate-park edges.
+- **Not tested:** the point prompt ("what is the part under this point?"); that is the form the editor would use, so it is the next thing to try.
+- **Cost and time:** about 25 GPU minutes on an L4, an estimate of about $1 (exact figure on the Modal dashboard); the model needs about 70 to 125 s per mesh including load.
+- **Known gap:** six objects, one answer key by one labeller, so a small sample.
