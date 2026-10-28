@@ -292,3 +292,26 @@ The set of obstacle shapes is fixed, and each shape offers a fixed set of moves.
 - **Census of the SAM 3D results:** eight of nine pass; park06 is refused for being 33 m long.
 - **Tripo:** it only made the two Rookies, so there is no earlier Tripo object result, and no new paid step was taken.
 - **Details:** `data/eval/object-bakeoff/` (README, probe table, census, `run.json`); cost under $0.01, no GPU.
+## Real hills (CC-51)
+- **So what:** a place on the map now keeps its real hills, so Montmartre or a San Francisco block is a climb and not a flat plate.
+  - It costs the player a smaller place: a hill uses up the height a lane can see, so hilly places must be shrunk much harder.
+  - The map mode's "Real hills" box (on by default, `?hills=0` turns it off) builds with them.
+- **Where the heights come from:** AWS Terrain Tiles (Terrarium PNGs, no key), read in the browser; code in `src/world/terrain.ts`, pure apart from `fetchGround`.
+  - Each building stands on the ground under its middle, shrunk like the rest; the lowest ground of the place is y = 0.
+  - A hill becomes steps from roof to roof, which the simulator already handles (decks at different heights).
+- **Do the tiles tell the truth?** `scripts/terrain-check.ts`, numbers in `data/eval/cc-51-terrain/elevations.json`:
+  - Against two known heights: the Butte Montmartre (130 m) reads 129.8 m, and the Denver State Capitol (1,609 m) reads 1,608.3 m.
+  - Against Open-Meteo at the other five places: within 7 m, except the steep Lombard Street block, 11 m low (66.7 m against 78 m; the 90 m model smooths a steep street).
+  - Open-Meteo is a surface model with buildings and trees in it, so this is a sanity check, not an exact one.
+- **What hills do to a course** (`data/eval/cc-51-terrain/lanes.json`, all four lanes cleared by the ideal-run search):
+  - Barcelona Eixample (9 m of slope): the shrink must go from 0.24 to 0.09.
+  - Sydney quay (37 m): 0.20 to 0.12.
+  - Montmartre (39 m) 0.07 and San Francisco Lombard (62 m) 0.10; neither works at the flat shrink.
+  - **Why:** a lane cuts one level plane and sees only 4.3 m above the lowest ground (`BAND`); on a hill, the roofs uphill poke above that and drop out unless everything is smaller.
+- **Gaps, said plainly:**
+  - The simulator has no slope physics (no slower uphill, no sliding); a slope is only the steps between roofs.
+  - Streets between buildings are still water, so the hill shows only on rooftops.
+  - A tilted cut (a plane that follows the hill) would keep bigger buildings; not built.
+  - Tiles are about 3 to 5 m per pixel and the grid is 20 m, so small steps still come from OSM.
+- **Tests:** `tests/terrain.test.ts` (height decoding, tile maths, blending, a fake-network grid, a roof lifted by its hill, a gentle slope that a lane clears).
+- **Try it:** `/?mode=map`, search "Lombard Street San Francisco", build; or the Course menu "Place: San Francisco hill".
