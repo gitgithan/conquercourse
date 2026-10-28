@@ -60,6 +60,8 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
     .ed .panel{background:#fff;border:1px solid #cfd6d0;border-radius:10px;padding:8px;display:grid;gap:5px;align-content:start}
     .ed label{display:grid;gap:1px;font-size:13px}.ed .muted{color:#58635d;font-size:12px}.ed .ok{border-left:4px solid #0f6b5c;padding:3px 6px;background:#f3f7f4;font-weight:600;font-size:13px}.ed .bad{border-left:4px solid #c0392b;padding:3px 6px;background:#fbeeee;font-weight:600;font-size:13px}
     .ed .pvrow{display:flex;gap:6px;align-items:flex-start;font-size:13px;margin:2px 0}.ed .pvrow input{margin-top:2px}
+    .ed .piecebar{position:absolute;z-index:6;display:none;gap:4px;align-items:center;padding:4px;background:#fff;border:1px solid #17201d;border-radius:10px;box-shadow:0 2px 8px #0003;white-space:nowrap}
+    .ed .piecebar button{white-space:nowrap;min-width:0;padding:4px 9px;font:600 12px system-ui,sans-serif}.ed .piecebar .sep{width:1px;align-self:stretch;background:#cfd6d0}
     .ed .row{display:flex;flex-wrap:wrap;gap:5px;align-items:center}.ed input[type=range]{width:100%;margin:0}.ed input[type=number]{width:100%;box-sizing:border-box}
     @media(max-height:700px){.ed .muted.help{display:none}.ed .panel{gap:2px;padding:4px 7px}.ed .aside{gap:4px;padding-bottom:40px}}
     @media(max-width:800px){.ed{grid-template-columns:minmax(0,1fr) 220px}}`;  document.head.appendChild(style);
@@ -289,6 +291,7 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
     ghosts: () => ghostData(),
   });
   if (mapCamera) view3d.look(mapCamera.heading, mapCamera.pitch, { x: 0, z: 0 }, mapCamera.distance); // the 3D view starts where the map flight ended
+  const bar = el('div', planWrap, { className: 'piecebar', id: 'piecebar' }); // the selected piece's tools, on the picture next to the piece (CC-94)
   let topPlan = false;
   const setView = (plan2d: boolean) => { topPlan = plan2d; plan.style.display = plan2d ? 'block' : 'none'; view3d.show(!plan2d); viewBtn.textContent = plan2d ? '3D view' : 'Top plan'; viewBtn.setAttribute('aria-pressed', String(plan2d)); if (plan2d) fit(); };
   const viewBtn = el('button', top, { text: 'Top plan', id: 'viewmode', title: 'Switch between the 3D view and the flat plan (the plan is for cropping)' });
@@ -721,19 +724,52 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
     el('div', side, { id: 'plankinfo', className: w.ratio >= 1 ? 'bad' : 'muted', text: w.ratio >= 1 ? `Over ${span.toFixed(1)} m it would snap (${(w.sag * 100).toFixed(0)} cm of sag at the worst place).` : `Over ${span.toFixed(1)} m it holds: ${(w.sag * 100).toFixed(0)} cm of sag at the worst place, ${(w.ratio * 100).toFixed(0)}% of what it can take.` });
   }
 
+  // ---- the selected piece's tools, on the picture (CC-94): turn, scale, copy, crop, delete
+  function pieceBar(p: P | null) {
+    bar.replaceChildren();
+    if (!p || isSizeReference(p)) { bar.style.display = 'none'; return; }
+    const b = (text: string, id: string | undefined, title: string, fn: () => void) => { const x = el('button', bar, { text, ...(id ? { id } : {}), title }); x.onclick = fn; return x; };
+    if (!isDevice(p)) {
+      b('↺ 15°', 'turnleft', 'Turn the piece 15 degrees to the left', () => { p.yaw -= Math.PI / 12; changed(); });
+      b('↻ 15°', 'turnright', 'Turn the piece 15 degrees to the right', () => { p.yaw += Math.PI / 12; changed(); });
+      el('span', bar, { className: 'sep' });
+      for (const [t, k] of [['× 0.5', 0.5], ['× 2', 2], ['× 10', 10]] as const) b(t, undefined, `Make the piece ${k} times its size`, () => { Object.assign(p, scaleBy(p, k)); changed(); });
+      el('span', bar, { className: 'sep' });
+      b('Copy', 'dup', 'Copy and paste the piece next to itself', () => { const q = duplicate(p, size(p.mesh).w * p.scale + 0.5, 0) as P; q.src = p.src; pieces.push(q); selected = q.id; changed(); });
+      const cb = b(cropMode ? 'Drag a box on the plan' : 'Crop', 'crop', 'Cut away what you do not need: drag a box on the flat plan', () => { cropMode = !cropMode; if (cropMode && !topPlan) setView(true); drawPanel(); });
+      cb.setAttribute('aria-pressed', String(cropMode));
+      el('span', bar, { className: 'sep' });
+    }
+    b('Delete', 'del', 'Delete the piece (Delete key)', () => { pieces = pieces.filter((q) => q !== p); selected = null; changed(); });
+    bar.style.display = 'flex'; placeBar();
+  }
+  // next to the selected piece: above its top on the 3D picture (below it when there is no room), clamped inside the picture
+  function placeBar() {
+    const p = pieces.find((q) => q.id === selected && !isSizeReference(q));
+    if (!p || bar.style.display === 'none') return;
+    const W = planWrap.clientWidth, H = planWrap.clientHeight, bw = bar.offsetWidth, bh = bar.offsetHeight;
+    const r = realSize(p);
+    let cx: number, top: number, bottom: number;
+    if (topPlan) { const k = plan.clientWidth / plan.width, half = (Math.max(r.w, r.d) / 2) * view.ppm * k; cx = sx(p.x) * k; top = sz(p.z) * k - half - bh - 8; bottom = sz(p.z) * k + half + 8; }
+    else { const a = view3d.project(p.x, p.y + r.h, p.z), g = view3d.project(p.x, p.y, p.z); if (!a || !g) { bar.style.visibility = 'hidden'; return; } cx = a.x; top = a.y - bh - 10; bottom = g.y + 10; }
+    bar.style.visibility = 'visible';
+    bar.style.left = `${Math.round(Math.min(Math.max(cx - bw / 2, 4), Math.max(4, W - bw - 4)))}px`;
+    bar.style.top = `${Math.round(Math.min(Math.max(top >= 4 ? top : bottom, 4), Math.max(4, H - bh - 4)))}px`;
+  }
+  view3d.onCamera(placeBar);
+
   // ---- the selected piece
   function drawPanel() {
     side.replaceChildren();
     const p = pieces.find((q) => q.id === selected && !isSizeReference(q));
     el('strong', side, { text: p ? p.name : 'No piece chosen' });
-    if (!p) { el('div', side, { className: 'muted', text: 'Click a piece on the picture to choose it. Drag it to move it. Scroll to zoom, drag the background to pan.' }); return; }
+    if (!p) { pieceBar(null); el('div', side, { className: 'muted', text: 'Click a piece on the picture to choose it. Drag it to move it. Scroll to zoom, drag the background to pan.' }); return; }
     if (isDevice(p)) {
       const u = p.x * Math.cos(angle) + p.z * Math.sin(angle);
       const sameKind = pieces.filter((q) => p.src?.startsWith('device:trebuchet:') ? q.src?.startsWith('device:trebuchet:') : p.src?.startsWith('device:drone:') ? q.src?.startsWith('device:drone:') : q.src?.startsWith('device:cannon:') || q.src?.startsWith('device:crate:'));
       const active = sameKind[0]?.id === p.id;
       el('div', side, { className: 'muted', text: `${active ? 'Active in the course simulation' : 'Extra movable copy; the course currently simulates the first device of this type'} at ${u.toFixed(1)} m along the lane. Drag it in the 3D view or top plan. Size and orientation stay fixed.` });
-      const row = el('div', side, { className: 'row' });
-      el('button', row, { text: 'Delete', id: 'del' }).onclick = () => { pieces = pieces.filter((q) => q !== p); selected = null; changed(); };
+      pieceBar(p);
       return;
     }
     if (isPlankPiece(p as P)) plankKnobs(p as P);
@@ -742,21 +778,11 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
     const lab = el('label', side, { text: 'Real height (m): make it this tall' });
     const h = el('input', lab, { type: 'number', min: '0.02', max: '60', step: '0.05', value: r.h.toFixed(2), id: 'realheight' });
     h.onchange = () => { const v = Number(h.value); if (v > 0) { Object.assign(p, scaleToHeight(p, v)); changed(); } };
-    const row = el('div', side, { className: 'row' });
-    for (const [t, k] of [['× 0.5', 0.5], ['× 2', 2], ['× 10', 10]] as const) el('button', row, { text: t }).onclick = () => { Object.assign(p, scaleBy(p, k)); changed(); };
-    const row2 = el('div', side, { className: 'row' });
-    el('button', row2, { text: 'Turn −15°' }).onclick = () => { p.yaw -= Math.PI / 12; changed(); };
-    el('button', row2, { text: 'Turn +15°' }).onclick = () => { p.yaw += Math.PI / 12; changed(); };
     const lift = el('label', side, { text: `Height off the ground: ${p.y.toFixed(2)} m` });
     const ly = el('input', lift, { type: 'range', min: '0', max: '4', step: '0.05', value: String(p.y), id: 'lift' });
     ly.oninput = () => { p.y = Number(ly.value); lift.firstChild!.textContent = `Height off the ground: ${p.y.toFixed(2)} m`; drawProfile(); };
     ly.onchange = () => changed();
-    const row3 = el('div', side, { className: 'row' });
-    el('button', row3, { text: 'Copy and paste', id: 'dup' }).onclick = () => { const q = duplicate(p, size(p.mesh).w * p.scale + 0.5, 0) as P; q.src = p.src; pieces.push(q); selected = q.id; changed(); };
-    el('button', row3, { text: 'Delete', id: 'del' }).onclick = () => { pieces = pieces.filter((q) => q !== p); selected = null; changed(); };
-    const cb = el('button', side, { text: cropMode ? 'Cropping: drag a box on the picture' : 'Crop…', id: 'crop' });
-    cb.setAttribute('aria-pressed', String(cropMode));
-    cb.onclick = () => { cropMode = !cropMode; drawPanel(); };
+    pieceBar(p);
   }
 
   // ---- the lane
@@ -1003,6 +1029,7 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
   const COLORS = ['#c9893b', '#6fa3c9', '#8bb36b', '#b779b0', '#d96a5b', '#7b8f9c'];
   function draw() {
     view3d.sync();
+    placeBar();
     const c = plan.getContext('2d')!;
     c.clearRect(0, 0, plan.width, plan.height);
     c.strokeStyle = '#e3e8e4'; c.lineWidth = 1; c.fillStyle = '#58635d'; c.font = '11px system-ui';
