@@ -73,17 +73,17 @@ try {
     }
     // the command palette runs an action by name, and both shortcuts open it
     try {
-      await page.keyboard.press(Escape);
+      await page.keyboard.press('Escape');
       const before = Number(await page.evaluate(() => document.documentElement.dataset.pieces));
-      await page.keyboard.press(Control+k); await page.waitForSelector(#palette.open, { timeout: 3000 });
-      await page.keyboard.type(low wall); await page.keyboard.press(Enter); await page.waitForTimeout(600);
+      await page.keyboard.press('Control+k'); await page.waitForSelector('#palette.open', { timeout: 3000 });
+      await page.keyboard.type('low wall'); await page.keyboard.press('Enter'); await page.waitForTimeout(600);
       const after = Number(await page.evaluate(() => document.documentElement.dataset.pieces));
-      await page.keyboard.press(/); const slashOpens = await page.waitForSelector(#palette.open, { timeout: 3000 }).then(() => true, () => false);
-      await page.keyboard.press(Escape);
+      await page.keyboard.press('/'); const slashOpens = await page.waitForSelector('#palette.open', { timeout: 3000 }).then(() => true, () => false);
+      await page.keyboard.press('Escape');
       const ok = after === before + 1 && slashOpens;
       result[`${w}x${h} palette runs an action`] = { ok, before, after, slashOpens, controls: 0, buttons: 0, topControls: 0, bad: [], overlaps: [], offscreen: [], pageFits: true };
       if (!ok) failed = true;
-    } catch (e) { result[`${w}x${h} palette runs an action`] = { skipped: String(e.message).slice(0, 60) }; }
+    } catch (e) { result[`${w}x${h} palette runs an action`] = { ok: false, bad: [String(e.message).slice(0, 80)], overlaps: [], offscreen: [], pageFits: true, controls: 0, buttons: 0, topControls: 0 }; failed = true; }
     result[`${w}x${h} pageerrors`] = errors.slice(0, 3);
     if (errors.length) failed = true;
     await page.close();
