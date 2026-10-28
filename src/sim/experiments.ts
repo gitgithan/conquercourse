@@ -8,6 +8,7 @@ import { DEFAULT_TRAMPOLINE, bounce } from './trampoline';
 import { minSpeedToCross } from './needs';
 import { DEFAULT_TREBUCHET, deg, launchStep, startLaunch, type TrebuchetParams } from './trebuchet';
 import { DEFAULT_CART, cartStep, makeRails } from './cart';
+import { DEFAULT_RECOIL, ballSpeedFromRest, standingPush } from './recoil';
 
 // The Dojo's experiments: one obstacle each, a few knobs, one question. Every answer comes from running the
 // simulator, never from a formula typed in here, so the lesson is always true to the game's physics.
@@ -27,7 +28,7 @@ export interface Trial {
   note?: string; // plain-words outcome
 }
 export interface Experiment {
-  id: 'gap' | 'wall' | 'rope' | 'trampoline' | 'landing' | 'bars' | 'coaster' | 'lever';
+  id: 'gap' | 'wall' | 'rope' | 'trampoline' | 'landing' | 'bars' | 'coaster' | 'lever' | 'recoil';
   name: string;
   question: string;
   answerUnit: string;
@@ -276,7 +277,29 @@ const coaster: Experiment = {
   },
 };
 
-export const EXPERIMENTS: Experiment[] = [gap, wall, rope, trampoline, landingExp, bars, coaster, leverExp];
+// Recoil (CC-66): momentum is conserved. The launcher throws a ball back; the ball carries away some momentum, and you carry the same away forward.
+const recoilExp: Experiment = {
+  id: 'recoil', name: 'Recoil: push back, go forward', question: 'How fast do you fly forward after the shot?', answerUnit: 'm/s', answerMax: 15, axis: 'meter', primary: 'muzzle',
+  knobs: [
+    { id: 'mass', label: 'Mass of the ball', unit: 'kg', min: 2, max: 40, def: 12, step: 1, why: 'A heavier ball carries more push away with it, so it pushes you harder.' },
+    { id: 'muzzle', label: 'Speed of the ball leaving the launcher', unit: 'm/s', min: 5, max: 40, def: 30, step: 1, why: 'A faster ball carries more push away with it. Twice as fast, twice the push.' },
+  ],
+  sayings: ['The heavy thing goes slow and the light thing goes fast, and what they carry is the same.'],
+  run(v) {
+    const p = { ...DEFAULT_RECOIL, ballMass: v.mass, muzzle: v.muzzle };
+    const push = standingPush(p), ball = ballSpeedFromRest(p);
+    const t = 0.5, back = ball * t, fwd = push * t, x0 = back + 1; // half a second after the shot; the picture stays to the right of zero
+    return {
+      answer: push,
+      path: [{ x: x0, y: 0 }, { x: x0 + fwd, y: 0 }],
+      overlays: [{ pts: [{ x: x0, y: 0.7 }, { x: x0 - back, y: 0.7 }], color: '#e8622c', label: `ball: ${ball.toFixed(1)} m/s backward, ${v.mass.toFixed(0)} kg` }, { pts: [{ x: x0, y: 0 }, { x: x0 + fwd, y: 0 }], color: '#16a34a', label: `you: ${push.toFixed(1)} m/s forward, ${DEFAULT_RECOIL.charMass} kg` }],
+      people: [{ x: x0, y: 0, pose: 'stand', label: 'the shot' }, { x: x0 + fwd, y: 0, pose: 'stand', label: 'half a second later' }],
+      note: `The ${v.mass.toFixed(0)} kg ball leaves at ${v.muzzle.toFixed(0)} m/s from you, which is ${ball.toFixed(1)} m/s against the ground. You go forward at ${push.toFixed(1)} m/s. The heavy ball is slow and you are fast: ${(v.mass * ball).toFixed(0)} kg·m/s of push goes back, and ${(DEFAULT_RECOIL.charMass * push).toFixed(0)} kg·m/s of push goes forward.`,
+    };
+  },
+};
+
+export const EXPERIMENTS: Experiment[] = [gap, wall, rope, trampoline, landingExp, bars, coaster, leverExp, recoilExp];
 export const defaults = (e: Experiment, ctx: Context = {}): Record<string, number> => {
   const d = Object.fromEntries(e.knobs.map((k) => [k.id, k.def]));
   if (e.id === 'gap' && ctx.speed) d.speed = Math.min(10, Math.max(2, ctx.speed));
