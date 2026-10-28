@@ -1449,3 +1449,53 @@ The set of obstacle shapes is fixed, and each shape offers a fixed set of moves.
 - **Tests:** `tests/lane-consistency.test.ts` (18): all 12 places read identical cells, no false wall, the lane has ground along it and is the length the map reported; picked buildings handed over one by one read the same lane as the whole mesh; the lane clears again from the editor reading.
 - **Browser check:** `scripts/lane-handover-check.mjs` (Build a ready place, open the editor, the editor lane equals the map lane, the proof clears).
 - **Known gap:** the stored ready-place lanes keep the sideways step to 0.1 m and the level to 1 cm, so a lane read from them can differ from the original search by a few millimetres.
+
+## Why the Slicer finds no path, and which heights help (CC-92)
+- **Plain words in the Slicer:**
+  - When a height has no lane the simulator can clear, the panel says why (`src/slice/why.ts`): the widest gap against what a run and jump crosses (about 8 m), the hardest jump when the far side is higher, the tallest wall against a climb (about 2.8 m), the longest fall against a roll.
+  - A gap too wide for a jump also says what could cross it: a band or a swing between bars up to about 14 m, a cannon or a drone beyond that (the band demo throws across 10 m, the cannon demo crosses 32 m, the drone ferry 40 m).
+  - A button offers the nearest height where a lane looks crossable.
+- **The strip of heights:**
+  - Ten heights across the slider, shape only (no simulator proof, so it is fast): green looks crossable, amber has a gap or wall in the way, red has no lane.
+  - A height is green when any of the eight best-looking lanes there has gaps within a run and jump, walls within a climb, falls within a roll and a run-up the runner can reach.
+  - Click a cell to go to that height; hover for the numbers.
+- **Measured on the 12 ready places** (`scripts/cut-height-table.ts`, `data/eval/cc-92-why/cut-heights.json`; heights are in the shrunk game metres the lanes use):
+  - **Did lowering the cut help?** No.
+    - A cut at 3 game metres or lower had no crossable-looking lane in any of the 12 places.
+    - The lowest crossable height was 4 game metres in one place (Montmartre), 6 in six places, 8 in two, 12 in one and 16 in one.
+    - Circular Quay has no crossable height at its shrink.
+    - A low cut leaves every building standing taller than a climb across the lane, so the lane meets walls; a cut near the roofs turns the same buildings into steps and gaps.
+    - What does help is a smaller shrink (the ladder in the explain strip), see the next point.
+  - **Are the gaps too wide?** Often, and the shrink sets them more than the height does.
+    - The widest gap on the best lane takes only two to four different values over the nine heights in every place, and it does not fall steadily as the cut goes down; it comes from the street between two buildings.
+    - The widest street gaps are up to 113 m in real metres (the Shibuya crossing).
+      - The game scales it by the shrink (0.12 to 0.56), but caps building height, so a smaller shrink narrows the gaps without shortening the walls.
+    - Widest gap on the lanes that look crossable: 0 to 8.1 m, all within a run and jump.
+    - Circular Quay: 10.1 to 11.3 m at every height.
+      - A band (up to about 14 m) crosses it; a smaller shrink would too.
+    - Without a crossable height the gaps are 10 to 34 m: a band, a cannon or a drone, or shrink the place more.
+- **Why the Slicer used to say "clear" and then the editor said no:** see CC-91 above; the proof and the editor now read the lane the same way.
+- **Cache fix found on the way:** the Slicer remembered a proof by cut height and shrink only, so picking or leaving out a building could show the proof of the old set.
+  - The key now includes the picked buildings.
+- **Tests and checks:** `tests/why.test.ts` (7), `scripts/why-check.mjs` (strip, reason, button, dragging).
+- **Known gaps:**
+  - The strip is a first look; only the proof for the chosen height is the simulator.
+  - The suggestion to lower or raise the cut moves the slider (the lane it draws is the preview) and does not use the editor preview outlines of CC-63.
+  - Suggestions to "try this heading" and "add a band here" are not built yet; the reason names the move in words.
+
+## The green line: how it is chosen and how to move it (CC-93)
+- **How the Slicer picks the line:**
+  - It turns a rod through the pin in 18 steps of 10 degrees (half a turn; the other half is the same lane backwards).
+  - For each turn it tries up to 15 sideways steps about a metre apart across the place.
+  - Each line is read as a strip 2 m wide (the top of whatever is under it, per 10 cm); lines with a wall taller than a climb or a fall longer than a roll are dropped.
+  - Lines are scored by variety (a gap, a step, a curve, a wall) and length (12 to 70 m is best); the simulator tries to clear the best-scoring ones first and the first it clears is the green line.
+- **Drag and rotate:**
+  - Two white dots sit on the ends of the green line and a square dot in the middle.
+  - Drag an end to turn the line about the other end, drag the middle to move it; on release the simulator reads the new line at the same height and proves it.
+  - "Back to the suggested line" restores the search choice.
+  - A line the player draws goes to the editor as the lane, like the suggested one (CC-91).
+- **Checks:** `scripts/why-check.mjs` drags a dot with the mouse, moves the middle dot, resets.
+- **Known gaps:**
+  - The line is a whole line through the place: the lane runs over everything solid on it, so the two end dots set its direction and sideways step, not where it starts and stops.
+  - The strip does not follow a dragged line; it always shows the best lane per height.
+  - Dragging works with a mouse; touch dragging is not checked.

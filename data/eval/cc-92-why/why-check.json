@@ -1,0 +1,21 @@
+{
+  "checks": {
+    "stripHasTenHeights": true,
+    "stripButtonsShown": true,
+    "reasonInWords": true,
+    "dotsShown": true,
+    "dragMakesAnOwnLine": true,
+    "resetShown": true,
+    "theDotMoved": true,
+    "middleDotMovesBothEnds": true,
+    "resetClearsIt": true,
+    "resetHidesButton": true
+  },
+  "notes": [
+    "strip: [[6,\"blocked\"],[17.5,\"blocked\"],[29,\"blocked\"],[40.5,\"ok\"],[52,\"ok\"],[64,\"ok\"],[75.5,\"ok\"],[87,\"ok\"],[98.5,\"ok\"],[110,\"ok\"]]",
+    "first height that did not clear: 6",
+    "reason: The hardest jump is a gap of 3 m with the far side 5.3 m higher. A runner would need to be faster than the top speed (about 9 m/s) to clear it. Narrow that gap, lower its far side, or look for a band, a swing between bars or a climb.Try the cut at 40.5 m",
+    "dots at [[2.3429710757207456,48.88781734320461],[2.3415639427322503,48.88621474499064],[2.342267509226501,48.88701604409762]]; lane before 21",
+    "own line [[10,-105],[-112,54]]; result not-clearable 21"
+  ]
+}
