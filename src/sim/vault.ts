@@ -88,10 +88,10 @@ export function vaultAt(v: Vault, i: number): { x: number; y: number; vx: number
   return { x, vx, y: apex - VAULT_LIFT * S(u), vy: (-VAULT_LIFT * dS(u)) / ((1 - tp) * T) };
 }
 
-// The hand: on top of the obstacle just behind its front edge, at about 40% of the vault (before the feet pass the edge).
-export const VAULT_HAND_AT = 0.4;
-export function vaultHand(v: Vault): { x: number; y: number; at: number } {
-  return { x: v.edge + 0.15, y: v.top, at: VAULT_HAND_AT };
+// The contact point: where the hands stay on top of the obstacle, just behind its front edge (the actor pins the hands here and the debug view draws it).
+export const VAULT_HAND_BEHIND = 0.15; // m past the front edge, onto the top
+export function vaultHand(v: Vault): { x: number; y: number } {
+  return { x: v.edge + VAULT_HAND_BEHIND, y: v.top };
 }
 
 // The speed the runner has during and after the vault: the kept share of the speed, but a late plant (a short run-up to the edge for the whole

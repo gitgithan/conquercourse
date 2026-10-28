@@ -946,7 +946,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
       renderer.setScissorTest(false); renderer.setViewport(0, 0, W, H); renderer.autoClear = true;
     }
     document.documentElement.dataset.tick = String(r.tick);
-    document.documentElement.dataset.x = r.x.toFixed(2); document.documentElement.dataset.omega = (world.hang?.omega ?? 0).toFixed(3); document.documentElement.dataset.grounded = world.runner.grounded ? '1' : '0'; // for the keyboard check
+    document.documentElement.dataset.vault = world.mode === 'vault' && world.vault ? (world.vault.i / world.vault.n).toFixed(3) : ''; document.documentElement.dataset.x = r.x.toFixed(2); document.documentElement.dataset.omega = (world.hang?.omega ?? 0).toFixed(3); document.documentElement.dataset.grounded = world.runner.grounded ? '1' : '0'; // for the keyboard check
     document.documentElement.dataset.outcome = world.outcome;
     if (playedSounds().length !== soundCount) { soundCount = playedSounds().length; document.documentElement.dataset.sounds = playedSounds().join(','); } // for the bot check: headless cannot be heard
     document.documentElement.dataset.mode = world.mode;

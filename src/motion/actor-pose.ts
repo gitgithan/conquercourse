@@ -14,6 +14,7 @@ export interface ActorState {
   mode: 'run' | 'wall' | 'swing' | 'bounce' | 'cart';
   squat: boolean;
   landedTicksAgo: number | null;
+  vaultContact?: { x: number; y: number }; // where the hands stay on the obstacle (the simulator's contact point, world metres)
   vaultProgress?: number; // 0 to 1 through the vault (WorldState.vault.i / n); only while the runner is over an obstacle
   rolledAt?: number; // tick of the last roll landing (WorldState.rolledAt): the roll plays for the simulator's roll time from here
   wallProgress?: number; // 0..1 along the wall climb
