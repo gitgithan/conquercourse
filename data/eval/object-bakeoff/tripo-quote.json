@@ -1,0 +1,18 @@
+{
+  "checked": "2026-10-28",
+  "how": "read-only: GET /v3/account/balance with the key from the private env file; no task was created",
+  "balance_credits": 60,
+  "frozen_credits": 0,
+  "credit_value_usd": 0.01,
+  "price_per_object_credits": {
+    "known_from_rookies": "about 110 (P2, quad, 5000 faces, textured, standard)",
+    "listed_minimum": "3D generation from 10 credits per task; texturing and quad are extra"
+  },
+  "total_for_six_objects_credits": {
+    "same_settings_as_rookies": 660,
+    "cheapest_listed_untextured": 60
+  },
+  "rule": "proceed only if total <= 300 credits and <= 25% of balance (15 credits)",
+  "decision": "stopped: even the cheapest listed run for six objects is 100% of the balance, and a textured one costs more than the whole balance",
+  "sam3d_side": "all six objects already have SAM 3D Objects results (cc-38 rounds r2 and r3), so no Modal run was needed (cost $0)"
+}
