@@ -1,0 +1,113 @@
+{
+  "hang": {
+    "found_front": true,
+    "found_side": false
+  },
+  "swing_front": {
+    "found_front": true,
+    "found_side": false
+  },
+  "swing_back": {
+    "found_front": true,
+    "found_side": false
+  },
+  "vault": {
+    "found_front": true,
+    "found_side": true,
+    "landmark_error_m": {
+      "LeftArm": 0.072,
+      "RightArm": 0.05,
+      "LeftForeArm": 0.054,
+      "RightForeArm": 0.134,
+      "LeftHand": 0.044,
+      "RightHand": 0.157,
+      "LeftLeg": 0.022,
+      "RightLeg": 0.068,
+      "LeftShin": 0.04,
+      "RightShin": 0.027,
+      "LeftFoot": 0.04,
+      "RightFoot": 0.064,
+      "LeftToeBase": 0.032,
+      "RightToeBase": 0.057,
+      "Head": 0.037
+    },
+    "mean_error_m": 0.06,
+    "recovered": {
+      "LeftArm": [
+        0.3171,
+        1.3772,
+        -0.2127
+      ],
+      "RightArm": [
+        0.0531,
+        1.3967,
+        -0.3035
+      ],
+      "LeftForeArm": [
+        0.5251,
+        1.2637,
+        -0.0273
+      ],
+      "RightForeArm": [
+        -0.021,
+        1.2371,
+        -0.2116
+      ],
+      "LeftHand": [
+        0.4531,
+        1.2728,
+        0.151
+      ],
+      "RightHand": [
+        0.0018,
+        1.1484,
+        -0.0817
+      ],
+      "LeftLeg": [
+        0.2791,
+        0.9989,
+        -0.4481
+      ],
+      "RightLeg": [
+        0.159,
+        1.0035,
+        -0.4281
+      ],
+      "LeftShin": [
+        0.6242,
+        0.866,
+        -0.349
+      ],
+      "RightShin": [
+        0.4317,
+        0.8278,
+        -0.3513
+      ],
+      "LeftFoot": [
+        0.838,
+        0.5525,
+        -0.4063
+      ],
+      "RightFoot": [
+        0.6029,
+        0.5422,
+        -0.3901
+      ],
+      "LeftToeBase": [
+        0.9428,
+        0.5048,
+        -0.2588
+      ],
+      "RightToeBase": [
+        0.6974,
+        0.5003,
+        -0.2724
+      ],
+      "Head": [
+        0.2565,
+        1.5113,
+        -0.148
+      ]
+    }
+  }
+}
