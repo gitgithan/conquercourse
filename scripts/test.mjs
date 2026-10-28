@@ -8,7 +8,8 @@ import { join } from 'node:path';
 
 const [mode = 'fast', ...extra] = process.argv.slice(2);
 const out = join(mkdtempSync(join(tmpdir(), 'cc-test-')), 'result.json');
-const args = ['node_modules/vitest/vitest.mjs', 'run', '--reporter=default', '--reporter=json', `--outputFile.json=${out}`];
+const flags = ['--reporter=default', '--reporter=json', `--outputFile.json=${out}`];
+let args = ['node_modules/vitest/vitest.mjs', 'run', ...flags];
 const env = { ...process.env };
 if (mode === 'fast' || mode === 'slow') env.CC_TESTS = mode;
 if (mode === 'changed') {
@@ -22,8 +23,8 @@ if (mode === 'changed') {
   for (const f of files) for (const [where, which] of rules) if (where.test(f)) all.filter((t) => which.test(t)).forEach((t) => tests.add(t));
   const src = files.filter((f) => /^(src|scripts|functions)\//.test(f));
   console.log(`test:changed: ${files.length} changed files, ${src.length} in src/scripts/functions, ${tests.size} test files named directly`);
-  if (src.length) args.push('related', ...src); else if (tests.size) args.push(...tests); else { console.log('test:changed: no tests relate to these files'); process.exit(0); }
-  if (src.length) args.push(...tests);
+  // `vitest related` runs the tests that import any of the given files (a test file given to it counts for itself)
+  if (src.length || tests.size) args = ['node_modules/vitest/vitest.mjs', 'related', ...src, ...tests, '--run', ...flags]; else { console.log('test:changed: no tests relate to these files'); process.exit(0); }
 }
 const t0 = Date.now();
 const r = spawnSync('node', [...args, ...extra], { stdio: 'inherit', env });
