@@ -289,5 +289,14 @@
       }
     ]
   },
-  "hazard": "spikes"
+  "hazard": "spikes",
+  "plan": {
+    "jumpXs": [
+      6,
+      10.8,
+      15.5
+    ],
+    "releaseAfter": 60,
+    "bouncePress": 8
+  }
 }

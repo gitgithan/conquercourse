@@ -146,5 +146,14 @@
         "top": 0
       }
     ]
+  },
+  "plan": {
+    "jumpXs": [
+      4.74,
+      10.04,
+      15.38
+    ],
+    "releaseAfter": 60,
+    "bouncePress": 8
   }
 }
