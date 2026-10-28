@@ -9,6 +9,8 @@ import { createView3d, type Ghosts } from '../slice/view3d';
 import { sceneFor } from '../slice/scene';
 import { barMesh, holdsOf, isHold, REACH_JUMPING, REACH_STANDING } from '../slice/holds-world';
 import { withTrebuchet } from '../slice/launch-lane';
+import { withRecoil, type RecoilCfg } from '../slice/recoil-lane';
+import { fixRecoil } from '../slice/fixrecoil';
 import { CUP, PATTERNS, patternOf, stackPiece, stackSrc } from '../slice/stack';
 import { fixLayout } from '../slice/fixit';
 import { layoutToPieces, parseLayout, pieceFromSrc } from '../slice/photo-course';
@@ -135,6 +137,16 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
   const trebLabel = el('label', addBar, { text: 'Counterweight (kg) ' }); trebLabel.style.display = 'none';
   const trebInput = el('input', trebLabel, { type: 'number', min: '300', max: '4000', step: '50', value: '1200', id: 'trebkg' });
   trebInput.onchange = () => { const v = Number(trebInput.value); if (v >= 300 && v <= 4000) { trebuchetKg = v; changed(); } };
+  // a launcher on the start deck (recoil): the ball goes back, the runner goes forward; the ball's mass and speed are the knobs (the proof says whether it reaches)
+  const recoilKnobs = el('span', addBar, {}); recoilKnobs.style.display = 'none';
+  const recoilKg = el('input', el('label', recoilKnobs, { text: 'Ball (kg) ' }), { type: 'number', min: '2', max: '60', step: '1', value: '12', id: 'recoilkg' });
+  const recoilSpeed = el('input', el('label', recoilKnobs, { text: 'Speed (m/s) ' }), { type: 'number', min: '3', max: '40', step: '1', value: '30', id: 'recoilspeed' });
+  const syncRecoil = () => { recoilKnobs.style.display = recoilCfg ? '' : 'none'; if (recoilCfg) { recoilKg.value = String(recoilCfg.ballMass); recoilSpeed.value = String(recoilCfg.muzzle); } };
+  for (const [kind, text, id, mass, speed, title] of [['cannon', 'Launcher', 'addrecoil', 12, 30, 'A pad on the start deck clips on an air launcher: the ball goes back, you go forward (momentum is conserved)'], ['crate', 'Heavy crate', 'addcrate', 25, 6, 'A pad on the start deck with a heavy crate to throw backward: the same law, a slower throw']] as const) {
+    el('button', addBar, { text, id, title }).onclick = () => { recoilCfg = recoilCfg?.kind === kind ? null : { kind, ballMass: mass, muzzle: speed }; syncRecoil(); changed(); };
+  }
+  const recoilEdit = () => { const m = Number(recoilKg.value), u = Number(recoilSpeed.value); if (recoilCfg && m >= 2 && m <= 60 && u >= 3 && u <= 40) { recoilCfg = { ...recoilCfg, ballMass: m, muzzle: u }; changed(); } };
+  recoilKg.onchange = recoilEdit; recoilSpeed.onchange = recoilEdit;
   // stacks: sport-stacking cups (mouth down, pyramids) as obstacle shapes; the piece scale makes a 9 cm cup runner-sized
   el('strong', addBar, { text: 'Stacks:' });
   for (const pt of PATTERNS) {
@@ -347,6 +359,14 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
     helper.classList.remove('closed'); helperBtn.setAttribute('aria-pressed', 'true');
     reply.className = 'reply'; reply.textContent = 'Working it out…' + (pieces.some(isHold) ? ' (bars take a while: up to 40 seconds)' : '');
     setTimeout(() => {
+      if (recoilCfg && !trebuchetKg && !verdict.startsWith('The simulator can')) { // the launcher is the first thing to change: a heavier or faster ball
+        const fr = fixRecoil(courseNow(), recoilCfg);
+        reply.className = fr.ok ? 'reply ok' : 'reply bad';
+        reply.textContent = fr.ok ? (fr.steps[0] ?? 'It already works.') : fr.steps.join(' ');
+        document.documentElement.dataset.fixed = fr.ok ? '1' : '0';
+        if (fr.ok && fr.steps.length) el('button', reply, { text: 'Use it', className: 'go', id: 'userecoil' }).onclick = () => { recoilCfg = fr.cfg; syncRecoil(); changed(); };
+        return;
+      }
       const now = { angle, offset, level }, start = from ?? { pieces, lane: now };
       const r = computeFix(start.pieces, start.lane);
       document.documentElement.dataset.fixed = r.ok ? '1' : '0';
@@ -555,7 +575,8 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
   const barsNow = () => holdsOf(pieces, { angle, offset, level });
   let floorChoice: Hazard = 'water'; // the floor you must not touch (saved in the course)
   let trebuchetKg: number | null = null; // the lane starts in a trebuchet (the counterweight in kg), or on a plain deck
-  const laneCourse = (_p?: ReturnType<typeof currentProfile>) => { const c = roleCourse(pieces, { angle, offset, level }, 'My world').course; return trebuchetKg ? withTrebuchet(c, trebuchetKg) : c; };
+  let recoilCfg: RecoilCfg | null = null; // the start deck carries a launcher pad (CC-66), or not
+  const laneCourse = (_p?: ReturnType<typeof currentProfile>) => { const c = roleCourse(pieces, { angle, offset, level }, 'My world').course; if (trebuchetKg) return withTrebuchet(c, trebuchetKg); return recoilCfg ? withRecoil(c, recoilCfg) : c; };
   const courseNow = () => { const c = laneCourse(currentProfile()); if (floorChoice !== 'water') c.hazard = floorChoice; return c; };
   let verifyTimer = 0, adviceRun = 0;
   function verify() {
