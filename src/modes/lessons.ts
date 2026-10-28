@@ -2,6 +2,7 @@ import type { Context, Experiment, Shape } from '../sim/experiments';
 import type { CourseFacts } from '../course/facts';
 import { GRAVITY } from '../sim/units';
 import { DEFAULT_WALL } from '../sim/wall';
+import { DEFAULT_RECOIL } from '../sim/recoil';
 
 // The guided lesson for each obstacle: why it matters, what to try, what shape the relationship has, a rule of
 // thumb, the exact formula (earned, last), and what it means on the Course. Plain words; formulas only here.
@@ -90,6 +91,17 @@ export const LESSONS: Record<Experiment['id'], Lesson> = {
     inputs: ['near', 'far'],
     calc: (v) => { const m = (RIDER_KG * v.far) / v.near; return { label: 'weight that balances you', value: m, unit: 'kg', working: `${RIDER_KG} × ${v.far.toFixed(1)} ÷ ${v.near.toFixed(2)} = ${m.toFixed(0)} kg`, note: `Your moment is ${RIDER_KG} × ${v.far.toFixed(1)} = ${(RIDER_KG * v.far).toFixed(0)} kg·m. The weight must match it.` }; },
     apply: () => 'On the Launch course, the weight is 1200 kg at 1.3 m, which is a moment of 1560 kg·m against your 80 kg at 5.5 m, 440 kg·m. The weight wins by a lot, so the arm turns hard. Pull the pin with →, then press Space at the moment the hint says LET GO NOW.',
+  },
+  recoil: {
+    why: 'When the launcher throws a ball backward, the ball does not just leave: it pushes you the other way. The push each side carries is its mass times its speed, and the two are equal and opposite. A heavy ball moves slowly and a lighter runner moves fast, but what they carry is the same.',
+    tries: ['Drag the ball speed from 10 to 40 m/s and watch your speed grow.', 'Keep the speed and make the ball twice as heavy: how much more push do you get?', 'Find two settings, one with a heavy slow ball and one with a light fast ball, that push you about the same.'],
+    shapeWords: { direct: 'a straight line: a ball twice as fast gives you twice the push (a direct proportion).' },
+    rule: 'Whatever push the ball carries away backward, you carry forward. A heavier or a faster ball carries more, so it pushes you harder. The heavy side moves slowly, the light side moves fast.',
+    formula: 'ball mass × ball speed = your mass × your speed (momentum = mass × velocity, both measured against the ground)',
+    formulaWords: 'This is exact when you and the ball start together and nothing else pushes along the lane (in the air nothing does; on the ground the ground only takes the upward part). The launcher\'s rating is the ball\'s speed against you, so against the ground the ball is a little slower. In the Course you also keep the speed you already had.',
+    inputs: ['mass', 'muzzle'],
+    calc: (v) => { const m = DEFAULT_RECOIL.charMass, push = (v.mass * v.muzzle) / (m + v.mass); return { label: 'your speed after the shot', value: push, unit: 'm/s', working: `${v.mass.toFixed(0)} × ${v.muzzle.toFixed(0)} ÷ (${m} + ${v.mass.toFixed(0)}) = ${push.toFixed(2)} m/s`, note: `Against the ground the ball goes backward at ${(m * push / v.mass).toFixed(1)} m/s: ${v.mass.toFixed(0)} × ${(m * push / v.mass).toFixed(1)} = ${m} × ${push.toFixed(2)}.` }; },
+    apply: () => { const p = DEFAULT_RECOIL, push = (p.ballMass * p.muzzle) / (p.charMass + p.ballMass); return `On the Recoil course the ball is ${p.ballMass} kg and leaves at ${p.muzzle} m/s, so one shot gives you ${push.toFixed(1)} m/s on top of your running speed.\nRun onto the teal pad to clip the launcher on, jump at the edge and press K just after you leave the ground: in the air nothing slows the push, so it carries you through the whole flight.`; },
   },
   coaster: {
     why: 'A coaster has no engine. The only energy it has is the height it starts from. Going down, height turns into speed; going up the next hill, speed turns back into height. So the first hill decides how high any later hill can be.',

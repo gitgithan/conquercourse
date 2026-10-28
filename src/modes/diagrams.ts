@@ -1,8 +1,8 @@
 // Labelled Dojo diagrams (CC-31): one "real" drawing and one "principle" picture per obstacle, as inline SVG strings.
 // Original art, drawn in code; words only, no formulas.
-export type DiagramId = 'gap' | 'wall' | 'rope' | 'trampoline' | 'landing' | 'coaster' | 'lever';
+export type DiagramId = 'gap' | 'wall' | 'rope' | 'trampoline' | 'landing' | 'coaster' | 'lever' | 'recoil';
 export type DiagramKind = 'real' | 'principle';
-export const DIAGRAM_IDS: DiagramId[] = ['gap', 'wall', 'rope', 'trampoline', 'landing', 'coaster', 'lever'];
+export const DIAGRAM_IDS: DiagramId[] = ['gap', 'wall', 'rope', 'trampoline', 'landing', 'coaster', 'lever', 'recoil'];
 
 const INK = '#1f2937', SPEED = '#2563eb', FORCE = '#dc2626', GRAV = '#d97706', ENERGY = '#16a34a', GROUND = '#9ca3af', SOFT = '#e5e7eb';
 type P = [number, number];
@@ -256,7 +256,33 @@ function coasterPrinciple(): string {
   return wrap('Coaster: height and speed trade places', body);
 }
 
+function recoilReal(): string {
+  const body =
+    `<rect x="0" y="380" width="760" height="60" fill="${SOFT}"/>` + line([0, 380], [760, 380], GROUND, 5) +
+    fig({ head: [430, 262], neck: [430, 278], hip: [430, 322], arms: [[[452, 296], [466, 304]], [[410, 296], [396, 304]]], legs: [[[444, 346], [450, 378]], [[418, 346], [410, 378]]] }) +
+    `<rect x="388" y="296" width="34" height="46" rx="6" fill="#4a4f55"/>` + `<rect x="352" y="306" width="40" height="12" rx="4" fill="#4a4f55"/>` +
+    `<circle cx="250" cy="312" r="22" fill="#e8622c"/>` +
+    arrow([226, 312], [96, 312], '#e8622c', 6) + txt(150, 284, 'The ball goes back', { color: '#e8622c', bold: true, size: 15 }) +
+    arrow([470, 250], [610, 250], ENERGY, 6) + txt(560, 226, 'You are pushed forward', { color: ENERGY, bold: true, size: 15 }) +
+    txt(380, 72, 'Whatever push the ball carries away,', { bold: true, size: 17 }) + txt(380, 98, 'you carry the same push the other way', { bold: true, size: 17 }) +
+    txt(380, 420, 'The launcher pushes the ball and the ball pushes the launcher', { size: 14 });
+  return wrap('Recoil: push one way, move the other', body);
+}
+
+function recoilPrinciple(): string {
+  const row = (y: number, ballR: number, ballLen: number, name: string) =>
+    `<circle cx="${300 - ballLen - 40}" cy="${y}" r="${ballR}" fill="#e8622c"/>` + arrow([290, y], [300 - ballLen - 30 + ballR + 4, y], '#e8622c', 6) +
+    fig({ head: [330, y - 38], neck: [330, y - 24], hip: [330, y + 8], arms: [[[346, y - 12], [356, y - 6]], [[314, y - 12], [304, y - 6]]], legs: [[[340, y + 28], [344, y + 46]], [[320, y + 28], [316, y + 46]]] }) +
+    arrow([372, y - 6], [472, y - 6], ENERGY, 6) + txt(560, y + 4, name, { size: 14, anchor: 'start', bold: true });
+  const body =
+    row(150, 30, 60, 'A heavy ball, slow') + row(290, 12, 170, 'A light ball, fast') +
+    txt(380, 392, 'Both throw the same amount of push, so you are pushed the same.', { bold: true, size: 15 }) +
+    txt(380, 416, 'Heavy and slow, or light and fast: what the ball carries is what you carry.', { size: 14 });
+  return wrap('Recoil: heavy and slow, or light and fast', body);
+}
+
 const table: Record<DiagramId, Record<DiagramKind, () => string>> = {
+  recoil: { real: recoilReal, principle: recoilPrinciple },
   gap: { real: gapReal, principle: gapPrinciple },
   wall: { real: wallReal, principle: wallPrinciple },
   rope: { real: ropeReal, principle: ropePrinciple },
