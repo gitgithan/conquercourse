@@ -1,6 +1,7 @@
 import type { Context, Experiment, Shape } from '../sim/experiments';
 import type { CourseFacts } from '../course/facts';
 import { GRAVITY } from '../sim/units';
+import { MATERIALS, RIDER_MASS, secondMoment, worstCase, type PlankData } from '../sim/beam';
 import { DEFAULT_WALL } from '../sim/wall';
 import { DEFAULT_RECOIL } from '../sim/recoil';
 
@@ -113,6 +114,17 @@ export const LESSONS: Record<Experiment['id'], Lesson> = {
     inputs: ['height', 'push'],
     calc: (v) => { const h = v.height + (v.push * v.push) / (2 * GRAVITY); return { label: 'highest hill the cart can climb', value: h, unit: 'm', working: `${v.height.toFixed(1)} + ${v.push.toFixed(1)}² ÷ (2 × ${GRAVITY}) = ${h.toFixed(2)} m` }; },
     apply: () => 'On a coaster course, keep every later hill lower than the first hill plus a little for the push.\nIf the cart stalls, raise the first hill or lower the hill it stopped on.\nIf it leaves the rails on a hilltop, make that top broader, or hold ↓ to brake before it.',
+  },
+  bridge: {
+    why: 'A plank laid across a gap bends under your weight, most in the middle. How much it bends decides how much the run slows, and past a point the plank snaps. Planks are not strong because they are long, they are strong because they are thick.',
+    tries: ['Make the gap 2 m, then 4 m, then 8 m and watch the sag.', 'Keep the gap at 4 m and make the plank twice as thick: what happens to the sag?', 'Put a post under the middle: what does it do to the sag at 8 m?'],
+    shapeWords: { cube: 'a curve that bends sharply upward: twice the gap makes the plank sag eight times as much (the sag grows with the length multiplied by itself three times).', 'inverse-cube': 'a curve that falls steeply: a plank twice as thick sags eight times less (the sag falls with the thickness multiplied by itself three times).' },
+    rule: 'Twice as long means eight times the sag. Twice as thick means one eighth of the sag. A post in the middle makes two planks of half the length, so each sags eight times less.',
+    formula: 'sag = load × length³ ÷ (48 × stiffness × I), with I = width × thickness³ ÷ 12',
+    formulaWords: "This is exact for a plank resting on its two ends with the load in the middle, ignoring the plank's own weight (load = your weight in newtons, stiffness = 9 000 000 000 N/m² for pine, width 0.6 m). I measures how well the thickness resists bending. A real plank also has knots, and wood creeps with time.",
+    inputs: ['span', 'thickness'],
+    calc: (v) => { const pk: PlankData = { x0: 0, x1: v.span, y: 0, thickness: v.thickness / 100, width: 0.6, material: 'wood' }; const F = RIDER_MASS * GRAVITY, E = MATERIALS.wood.E, I = secondMoment(pk); const d = (F * v.span ** 3) / (48 * E * I); return { label: 'extra sag with you in the middle', value: d * 100, unit: 'cm', working: `${F.toFixed(0)} × ${v.span.toFixed(2)}³ ÷ (48 × ${E / 1e9} GPa × ${I.toExponential(2)}) = ${(d * 100).toFixed(1)} cm` }; },
+    apply: () => { const pk: PlankData = { x0: 0, x1: 9, y: 0, thickness: 0.035, width: 0.6, material: 'wood' }; const thin = { ...pk, thickness: 0.02 }; return `The Plank bridge course has a 9 m pine plank, 3.5 cm thick. It dips about ${(worstCase(pk).sag * 100).toFixed(0)} cm and holds (${(worstCase(pk).ratio * 100).toFixed(0)}% of what pine can take).\nThe same plank at 2 cm thick is ${worstCase(thin).ratio >= 1 ? 'past what pine can take: it snaps' : 'still holding'}.\nIf your plank breaks: make it thicker, shorten the gap, or put a post under the middle.`; },
   },
   trampoline: {
     why: 'A trampoline is a spring: it stores the energy of your landing and gives it back. The harder you land, the higher it throws you. And you can add to it: pressing Space at the bottom of the bounce adds speed on top of what the spring returns.',

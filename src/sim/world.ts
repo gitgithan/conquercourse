@@ -11,17 +11,18 @@ import { GROUND_ROLL_COST, GROUND_ROLL_RECOVERY, startGroundRoll, stepGroundRoll
 import { bodyVelocity, feetOf, gripSlips, hangStep, releaseHang, tryGrab, type Hang } from './holds';
 import { enterCart, railsOf, stepCartWorld, trackParams, trackSegments, type Cart } from './cart';
 import { DEFAULT_RECOIL, NO_RECOIL, padHas, shot, stepBall, type RecoilParams, type RecoilState } from './recoil';
+import { maybeEnterPlank, stepPlankWorld, type PlankState } from './beam';
 import { DEFAULT_TREBUCHET, deg, feetAt, isDud, launchStep, startLaunch, type Launch, type TrebuchetParams } from './trebuchet';
 
 // One world for the Course: the runner plus whichever obstacle has hold of the runner right now.
 // The simulator is the truth: everything the screen shows comes from this state, one tick at a time.
 export const ROLL_BUFFER = 30; // ticks (a quarter of a second): an X press this long before touchdown still rolls
-export type Mode = 'run' | 'wall' | 'swing' | 'bounce' | 'hang' | 'vault' | 'cart' | 'launch';
+export type Mode = 'run' | 'wall' | 'swing' | 'bounce' | 'hang' | 'vault' | 'cart' | 'launch' | 'plank';
 export type Outcome = 'running' | 'cleared' | 'splash' | 'hurt' | 'stalled'; // hurt: a landing harder than the body can take; stalled: the cart ran out of speed on a hill
 
 export interface GameEvent {
   tick: number;
-  type: 'jump' | 'roll' | 'land' | 'stumble' | 'hard-landing' | 'splash' | 'wall-grab' | 'wall-slide' | 'rope-catch' | 'rope-release' | 'hang-catch' | 'hang-release' | 'vault' | 'bounce' | 'cleared' | 'cart-start' | 'cart-stall' | 'cart-off' | 'cart-catch' | 'launch-fire' | 'launch-release' | 'launch-dud' | 'recoil';
+  type: 'jump' | 'roll' | 'land' | 'stumble' | 'hard-landing' | 'splash' | 'wall-grab' | 'wall-slide' | 'rope-catch' | 'rope-release' | 'hang-catch' | 'hang-release' | 'vault' | 'bounce' | 'cleared' | 'cart-start' | 'cart-stall' | 'cart-off' | 'cart-catch' | 'launch-fire' | 'launch-release' | 'launch-dud' | 'recoil' | 'plank-sag' | 'plank-break' | 'plank-off';
   detail?: Record<string, number | boolean>;
 }
 
@@ -36,6 +37,8 @@ export interface WorldState {
   launch: Launch | null; // sitting in the trebuchet's sling (before the pin and while it swings)
   recoil?: RecoilState; // the launcher clipped on at a recoil pad: loads left, shots fired, balls in flight (src/sim/recoil.ts)
   cart: Cart | null; // riding the rails of a track (src/sim/cart.ts)
+  plank?: PlankState | null; // walking on a plank bridge (src/sim/beam.ts)
+  broken?: number[]; // planks that have broken (they are gone)
   energy: number; // 1 = fresh; each move spends some (src/sim/energy.ts)
   bed: { base: Bounce; vIn: number; start: number; press: number | null; vx: number; top: number } | null;
   noCatchUntil: number;
@@ -84,6 +87,8 @@ export function stepWorld(w: WorldState, input: RunnerInput, course: CourseData,
   if (w.mode === 'cart') return stepCartWorld(w, input, course);
   if (w.mode === 'vault') return stepVault(w);
   if (w.mode === 'launch') return stepLaunchMode(w, input, course);
+  if (w.mode === 'plank') return stepPlankWorld(w, input, course);
+  if (course.planks) { const onPlank = maybeEnterPlank(w, input, course); if (onPlank) return onPlank; }
 
   // the vault: a hand on top of the obstacle just ahead, the body goes over it and keeps most of the speed
   if (n.lastVault >= 0 && w.runner.tick + 1 - n.lastVault <= VAULT_BUFFER && w.runner.grounded) { // a V pressed up to a fifth of a second early still counts

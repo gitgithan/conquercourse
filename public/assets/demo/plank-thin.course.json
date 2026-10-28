@@ -1,0 +1,46 @@
+{
+  "version": 1,
+  "name": "Plank bridge: too thin, it breaks",
+  "startX": 0,
+  "finishX": 40,
+  "jumpSpeed": 4.5,
+  "terrain": {
+    "waterY": -3,
+    "platforms": [
+      {
+        "x0": -10,
+        "x1": 14,
+        "top": 0
+      },
+      {
+        "x0": 23,
+        "x1": 50,
+        "top": 0
+      }
+    ]
+  },
+  "planks": [
+    {
+      "x0": 14,
+      "x1": 23,
+      "y": 0,
+      "thickness": 0.02,
+      "width": 0.6,
+      "material": "wood"
+    }
+  ],
+  "zones": [
+    {
+      "id": "plank",
+      "name": "Plank bridge",
+      "x0": 12,
+      "x1": 25
+    }
+  ],
+  "checkpoints": [
+    {
+      "id": "plank",
+      "x": 6
+    }
+  ]
+}
