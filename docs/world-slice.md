@@ -871,3 +871,54 @@ The set of obstacle shapes is fixed, and each shape offers a fixed set of moves.
   - Fix it for the launcher shows the new ball in words and a button, not outlines like the pieces' preview (CC-63).
   - One dimension only along the lane for the ground shot; the throw in the air also moves the runner up or down by the ball's upward part.
   - A second shot per visit (`shots` above 1) works in the simulator and has no editor knob.
+
+## Plank bridge (CC-82)
+- **So what:** a plank is the first obstacle the player can break by building it wrong.
+  - It teaches architecture through one number you can feel: a longer plank sags far more, a thicker one far less, and a post in the middle helps a lot.
+- **The physics** (`src/sim/beam.ts`, Earth gravity only):
+  - A plank rests on two decks (and on a post in the middle if asked).
+    - The rider is a load that walks along it.
+  - Sag under a load in the middle is `load × length³ ÷ (48 × stiffness × I)`, with `I = width × thickness³ ÷ 12`.
+    - The plank's own weight is spread evenly and adds its own sag.
+  - It breaks when the bending stress in its outer face reaches the material's strength.
+    - The stress is `moment × (thickness ÷ 2) ÷ I`.
+  - Numbers (sources: the Wood Handbook of the US Forest Products Laboratory for pine, mild structural steel):
+    - **Pine:** stiffness 9 GPa, bending strength 40 MPa, density 500 kg/m³.
+    - **Steel:** stiffness 200 GPa, yield 250 MPa, density 7850 kg/m³.
+    - **Rider:** 70 kg.
+- **Simplifications, stated:**
+  - The load is the rider's weight applied slowly: no extra push from running or jumping.
+  - A post in the middle makes two planks that meet on the post.
+    - The gain from a continuous beam is ignored, so a post helps slightly less than in a real plank.
+  - No knots, no creep, no damage from earlier crossings.
+- **In the game:**
+  - **Mode:** running onto a plank hands the runner to it (`mode 'plank'`).
+    - The feet follow the bent plank, a dip costs speed (climbing out of it, and the plank shaking some away), and Space jumps off.
+  - **Break:** a plank that bends past its strength snaps under the feet (event `plank-break`) and the runner falls into the floor below or onto a lower deck.
+    - The fall words say how much it bent and what would have helped, never how well you did.
+  - **Search:** a gap with a plank over it is not a jump edge, so the ideal run just runs across.
+    - The proof says a course is clearable only if the plank holds.
+- **Demos** (`scripts/make-plank-demo.ts`):
+  - **Plank bridge: it sags but holds:** a 9 m gap, wider than any running jump (about 8 m at top speed), with a 3.5 cm pine plank.
+    - The worst place is the middle: it dips 100 cm and uses 53% of what pine can take.
+    - Without the plank the course cannot be cleared (a test).
+  - **Plank bridge: too thin, it breaks:** the same gap with a 2 cm plank.
+    - It would use 134% of what pine can take, so it snaps at the middle.
+    - Fix it says: use a plank 2.8 cm thick.
+- **Editor:**
+  - A "Plank" button adds a plank piece.
+    - Its knobs (material, thickness, width, a post in the middle, drawing length) are in the piece panel, with a line saying whether it holds over its length.
+  - Where the piece lies across a gap between two pieces of ground, the lane keeps the real gap (up to 14 m) and the course gets a plank over it.
+    - The real span is the gap, not the piece's drawn length.
+  - Fix it for a plank that would snap says the smallest change in words (a thicker plank, or a post) and applies it on "Make it so".
+- **Dojo:** "Plank bridge: how far it sags" (knobs: length of the gap, thickness, a post).
+  - The learner finds that doubling the length gives eight times the sag and doubling the thickness gives one eighth.
+  - The formula is the last step, never on the Course.
+  - The shape classifier gained two shapes for this: a cube curve and an inverse cube curve.
+- **Saying:** "A plank that is twice as long sags eight times as much."
+- **Evidence:** `data/eval/cc-82-plank/` (the plank dipping under the runner, the thin plank's fall panel, the Dojo lesson and its diagram); `scripts/plank-check.mjs`; 19 beam and Dojo tests, 10 plank-in-the-world tests, 5 editor tests.
+- **Gaps:**
+  - A single beam: no trusses, no continuous-beam gain from a post, no dynamic load from a running rider.
+  - A broken plank just disappears (no falling pieces).
+  - A plank piece must be laid roughly along the lane and across a gap whose two sides are at the same height.
+  - The runner's feet follow the bent plank but the Rookie keeps its running pose.

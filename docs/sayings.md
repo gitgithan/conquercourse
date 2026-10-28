@@ -31,6 +31,7 @@
 | Coaster | *"Over a sharp hilltop, speed lets go of the rails."* | A crest that bends away faster than gravity can follow lets the cart leave the track |
 | The roll | *"Turn your fall into a roll and the ground forgives you."* | Downward speed turned into rotation |
 | The trebuchet | *"A long arm gets you far; letting go late gets you thrown into the ground."* | The moment (weight times distance from the pivot) turns the arm, a longer arm moves its tip faster, and the release moment decides the flight |
+| Plank bridge | *"A plank that is twice as long sags eight times as much."* | A longer plank bends far more, and a thicker one bends far less; a post in the middle makes two short planks |
 | Cup stacks | *"Speed climbs the cups, and speed carries you off the top."* | A step up needs speed, but the narrow flat top is crossed in a blink at that speed |
 | Recoil | *"The heavy thing goes slow, the light thing fast, and both carry the same."* | Momentum is conserved: the ball carries a push away backward and the runner carries the same push forward |
 

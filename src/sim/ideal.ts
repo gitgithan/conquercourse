@@ -104,7 +104,8 @@ export function edges(course: CourseData): { x: number; name: string }[] {
   const out: { x: number; name: string }[] = [];
   ps.forEach((p, i) => {
     const nxt = ps[i + 1];
-    if (nxt && nxt.x0 - p.x1 > 0.01 && p.x1 >= course.startX && !p.bouncy) out.push({ x: p.x1, name: `edge at ${p.x1} m` }); // edges behind the start are not part of this run; a bed is left by its bounce, not by a jump
+    const planked = !!course.planks?.some((pk) => Math.abs(pk.x0 - p.x1) < 0.05 && pk.x1 <= nxt?.x0 + 0.05); // a plank is laid across this gap: nobody needs to jump it
+    if (nxt && !planked && nxt.x0 - p.x1 > 0.01 && p.x1 >= course.startX && !p.bouncy) out.push({ x: p.x1, name: `edge at ${p.x1} m` }); // edges behind the start are not part of this run; a bed is left by its bounce, not by a jump
   });
   return out;
 }

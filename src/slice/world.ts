@@ -13,6 +13,7 @@ export interface Piece {
   yaw: number; // radians about the vertical rod
   scale: number; // metres per mesh unit
   role?: Role;
+  noGround?: boolean; // an overhead or laid-across piece (a bar, a plank): it is not ground, the slice ignores it
 }
 
 export interface Box2 { x0: number; z0: number; x1: number; z1: number } // in the piece's own units, before scale and turn
@@ -114,7 +115,7 @@ export function pieceSamples(p: Piece, perM2 = 600, cap = 40000): Float32Array {
 }
 
 export function worldSamples(pieces: Piece[]): Float32Array {
-  const parts = pieces.map((p) => pieceSamples(p));
+  const parts = pieces.filter((p) => !p.noGround).map((p) => pieceSamples(p));
   const out = new Float32Array(parts.reduce((n, a) => n + a.length, 0));
   let at = 0;
   for (const a of parts) { out.set(a, at); at += a.length; }

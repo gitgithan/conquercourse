@@ -2,6 +2,7 @@
 export const DEMO_COURSE_FILES = [
   'public/assets/demo/lache.course.json',
   'public/assets/demo/drop.course.json',
+  'public/assets/demo/plank.course.json',
   'public/assets/demo/launch.course.json',
   'public/assets/demo/launch-bar.course.json',
   'public/assets/demo/lache-wide.course.json',

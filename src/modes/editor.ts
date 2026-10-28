@@ -8,6 +8,8 @@ import type { CourseData } from '../course/course';
 import { createView3d, type Ghosts } from '../slice/view3d';
 import { sceneFor } from '../slice/scene';
 import { barMesh, holdsOf, isHold, REACH_JUMPING, REACH_STANDING } from '../slice/holds-world';
+import { DEFAULT_PLANK, isPlankPiece, plankPiece, plankSpecOf, planksOf, setPlank, type PlankSpec } from '../slice/plank-world';
+import { fixPlank, plankHolds, worstCase } from '../sim/beam';
 import { withTrebuchet } from '../slice/launch-lane';
 import { withRecoil, type RecoilCfg } from '../slice/recoil-lane';
 import { fixRecoil } from '../slice/fixrecoil';
@@ -70,7 +72,7 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
     try {
       const s = JSON.parse(localStorage.getItem(KEY) ?? '') as Saved;
       pendingObjects.push(...s.pieces.filter((q) => q.src.startsWith('obj:')));
-      pieces = s.pieces.filter((q) => !q.src.startsWith('obj:')).map((q) => (q.src.startsWith('device:') ? { ...newPiece(q.src, deviceMesh(q.src), { x: q.x, z: q.z }), src: q.src, y: q.y, yaw: q.yaw, scale: q.scale } : patternOf(q.src) ? { ...stackPiece(q.src, { x: q.x, z: q.z })!, y: q.y, yaw: q.yaw, scale: q.scale } : q.src.startsWith('box:') ? { ...pieceFromSrc(q.src, { x: q.x, z: q.z })!, y: q.y, yaw: q.yaw, scale: q.scale } : q.src === 'hold:bar' ? { ...newPiece('Bar', barMesh(), { x: q.x, z: q.z }), src: q.src, y: q.y, yaw: q.yaw, scale: q.scale } : { ...newPiece(lib(q.src).label, lib(q.src).mesh(), { x: q.x, z: q.z }), src: q.src, y: q.y, yaw: q.yaw, scale: q.scale }));
+      pieces = s.pieces.filter((q) => !q.src.startsWith('obj:')).map((q) => (q.src.startsWith('device:') ? { ...newPiece(q.src, deviceMesh(q.src), { x: q.x, z: q.z }), src: q.src, y: q.y, yaw: q.yaw, scale: q.scale } : patternOf(q.src) ? { ...stackPiece(q.src, { x: q.x, z: q.z })!, y: q.y, yaw: q.yaw, scale: q.scale } : q.src.startsWith('box:') ? { ...pieceFromSrc(q.src, { x: q.x, z: q.z })!, y: q.y, yaw: q.yaw, scale: q.scale } : plankSpecOf(q.src) ? { ...plankPiece(plankSpecOf(q.src)!, { x: q.x, z: q.z }), y: q.y, yaw: q.yaw, scale: q.scale } : q.src === 'hold:bar' ? { ...newPiece('Bar', barMesh(), { x: q.x, z: q.z }), src: q.src, y: q.y, yaw: q.yaw, scale: q.scale } : { ...newPiece(lib(q.src).label, lib(q.src).mesh(), { x: q.x, z: q.z }), src: q.src, y: q.y, yaw: q.yaw, scale: q.scale }));
       s.pieces.filter((q) => !q.src.startsWith('obj:')).forEach((q, i) => { if (q.role && pieces[i]) pieces[i].role = q.role; });
       angle = s.angle; offset = s.offset; level = s.level;
     } catch {
@@ -194,6 +196,8 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
       const q = stackPiece(stackSrc(pt.id), { x: nextX() + 1, z: 0 })!; pieces.push(q); selected = q.id; changed();
     };
   }
+  // a plank bridge: lay it across a gap between two pieces of ground; it sags and can break (the knobs are in the piece panel)
+  el('button', addBar, { text: 'Plank', id: 'addplank', title: 'A plank bridge laid across a gap: it sags under the runner and breaks if it is too thin or too long' }).onclick = () => { const q = plankPiece(DEFAULT_PLANK, { x: nextX() + 1, z: 0 }); pieces.push(q); selected = q.id; changed(); };
   // size references: a Rookie (1.75 m, T-pose) and the demo scene, so a piece can be judged against a person
   el('strong', addBar, { text: 'Size references:' });
   for (const r of [{ id: 'person', label: 'Person reference (toggle)', url: '', src: '' }, { id: 'demo-scene', label: 'Demo scene', url: '/assets/demo/demo-scene.glb', src: 'obj:../demo/demo-scene.glb' }]) {
@@ -415,6 +419,14 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
     helper.classList.remove('closed'); helperBtn.setAttribute('aria-pressed', 'true');
     reply.className = 'reply'; reply.textContent = 'Working it out…' + (pieces.some(isHold) ? ' (bars take a while: up to 40 seconds)' : '');
     setTimeout(() => {
+      const pf = plankFixNow(); // a plank that would snap: the smallest change is a thicker plank or a post, said in words first
+      if (pf) {
+        reply.className = 'reply bad'; reply.textContent = 'The plank would snap. ' + pf.steps.join(' ') + ' ';
+        const mk = el('button', reply, { text: 'Make it so', className: 'go', id: 'plankfix' });
+        mk.onclick = () => { pf.apply(); changed(); reply.className = 'reply ok'; reply.textContent = 'Done: the plank is stronger now.'; };
+        document.documentElement.dataset.fixed = '0';
+        return;
+      }
       if (recoilCfg && !trebuchetKg && !verdict.startsWith('The simulator can')) { // the launcher is the first thing to change: a heavier or faster ball
         const fr = fixRecoil(courseNow(), recoilCfg);
         reply.className = fr.ok ? 'reply ok' : 'reply bad';
@@ -547,6 +559,34 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
   new ResizeObserver(fit).observe(profileWrap);
   setView(false);
 
+  function plankFixNow(): { steps: string[]; apply: () => void } | null {
+    const c = courseNow(), laid = planksOf(pieces as P[], { angle, offset, level });
+    const fixes: { piece: P; spec: PlankSpec; fix: ReturnType<typeof fixPlank> }[] = [];
+    (c.planks ?? []).forEach((pk, i) => { const pc = laid[i] ? (pieces.find((q) => q.id === laid[i].id) as P | undefined) : undefined; if (pc && !plankHolds(pk)) fixes.push({ piece: pc, spec: plankSpecOf(pc.src)!, fix: fixPlank(pk) }); });
+    if (!fixes.length) return null;
+    return { steps: fixes.flatMap((f) => f.fix.steps), apply: () => fixes.forEach((f) => { if (f.fix.ok) setPlank(f.piece, { ...f.spec, thickness: f.fix.plank.thickness, support: !!f.fix.plank.support }); }) };
+  }
+
+  // ---- a plank bridge's knobs: material, thickness, width, a post in the middle (the length is the gap it lies across)
+  function plankKnobs(p: P) {
+    const spec = plankSpecOf(p.src)!;
+    const set = (patch: Partial<PlankSpec>) => { setPlank(p, { ...spec, ...patch }); changed(); };
+    const mat = el('label', side, { text: 'Material ' });
+    const sel = el('select', mat, { id: 'plankmat' }) as HTMLSelectElement;
+    for (const [v, t] of [['wood', 'Pine plank'], ['steel', 'Steel plate']] as const) { const o = el('option', sel, { text: t }); o.value = v; if (v === spec.material) o.selected = true; }
+    sel.onchange = () => set({ material: sel.value === 'steel' ? 'steel' : 'wood' });
+    const num = (label: string, id: string, v: number, min: number, max: number, step: number, apply: (n: number) => Partial<PlankSpec>) => {
+      const l = el('label', side, { text: label }); const i = el('input', l, { type: 'number', id, min: String(min), max: String(max), step: String(step), value: String(v) });
+      i.onchange = () => { const n = Number(i.value); if (n >= min && n <= max) set(apply(n)); };
+    };
+    num('Thickness (cm) ', 'plankthick', Math.round(spec.thickness * 1000) / 10, 0.5, 20, 0.5, (n) => ({ thickness: n / 100 }));
+    num('Width (cm) ', 'plankwidth', Math.round(spec.width * 100), 20, 200, 5, (n) => ({ width: n / 100 }));
+    num('Length (m, drawing only: the gap decides) ', 'plankspan', spec.span, 1, 20, 0.5, (n) => ({ span: n }));
+    const post = el('label', side, { text: 'Post under the middle ' }); const cb = el('input', post, { type: 'checkbox', id: 'plankpost' }) as HTMLInputElement; cb.checked = spec.support; cb.onchange = () => set({ support: cb.checked });
+    const span = spec.span * p.scale, w = worstCase({ x0: 0, x1: span, y: 0, thickness: spec.thickness, width: spec.width, material: spec.material, ...(spec.support ? { support: true } : {}) });
+    el('div', side, { id: 'plankinfo', className: w.ratio >= 1 ? 'bad' : 'muted', text: w.ratio >= 1 ? `Over ${span.toFixed(1)} m it would snap (${(w.sag * 100).toFixed(0)} cm of sag at the worst place).` : `Over ${span.toFixed(1)} m it holds: ${(w.sag * 100).toFixed(0)} cm of sag at the worst place, ${(w.ratio * 100).toFixed(0)}% of what it can take.` });
+  }
+
   // ---- the selected piece
   function drawPanel() {
     side.replaceChildren();
@@ -562,6 +602,7 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
       el('button', row, { text: 'Delete', id: 'del' }).onclick = () => { pieces = pieces.filter((q) => q !== p); selected = null; changed(); };
       return;
     }
+    if (isPlankPiece(p as P)) plankKnobs(p as P);
     const r = realSize(p);
     el('div', side, { id: 'realsize', className: 'muted', text: `Real size: ${r.w.toFixed(2)} × ${r.d.toFixed(2)} m, ${r.h.toFixed(2)} m high (scale ×${p.scale.toPrecision(3)})` });
     const lab = el('label', side, { text: 'Real height (m): make it this tall' });
@@ -657,7 +698,7 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
     const p = pieces.find((q) => q.src?.startsWith(prefix));
     if (p) { p.src = src; p.mesh = centred(deviceMesh(src)); }
   };
-  const ground = () => coursePieces().filter((q) => !isHold(q) && q.role !== 'rope'); // references, bars and rope anchors are not ground
+  const ground = () => coursePieces().filter((q) => !isHold(q) && q.role !== 'rope' && !isPlankPiece(q)); // references, bars, rope anchors and planks are not ground
   const currentProfile = () => sliceProfile(worldSamples(ground()), { x: 0, z: 0 }, { angle, offset, level });
   const barsNow = () => holdsOf(pieces, { angle, offset, level });
   let floorChoice: Hazard = 'water'; // the floor you must not touch (saved in the course)

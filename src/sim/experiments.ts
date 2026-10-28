@@ -9,6 +9,7 @@ import { minSpeedToCross } from './needs';
 import { DEFAULT_TREBUCHET, deg, launchStep, startLaunch, type TrebuchetParams } from './trebuchet';
 import { DEFAULT_CART, cartStep, makeRails } from './cart';
 import { DEFAULT_RECOIL, ballSpeedFromRest, standingPush } from './recoil';
+import { RIDER_MASS, sagAt, worstCase, type PlankData } from './beam';
 
 // The Dojo's experiments: one obstacle each, a few knobs, one question. Every answer comes from running the
 // simulator, never from a formula typed in here, so the lesson is always true to the game's physics.
@@ -28,7 +29,7 @@ export interface Trial {
   note?: string; // plain-words outcome
 }
 export interface Experiment {
-  id: 'gap' | 'wall' | 'rope' | 'trampoline' | 'landing' | 'bars' | 'coaster' | 'lever' | 'recoil';
+  id: 'gap' | 'wall' | 'rope' | 'trampoline' | 'landing' | 'bars' | 'coaster' | 'lever' | 'recoil' | 'bridge';
   name: string;
   question: string;
   answerUnit: string;
@@ -299,7 +300,34 @@ const recoilExp: Experiment = {
   },
 };
 
-export const EXPERIMENTS: Experiment[] = [gap, wall, rope, trampoline, landingExp, bars, coaster, leverExp, recoilExp];
+// A plank bridge: how far a plank sags with you in the middle. Sag grows with the cube of the span and falls with the cube of the thickness; a post in the middle halves the span.
+const bridge: Experiment = {
+  id: 'bridge', name: 'Plank bridge: how far it sags', question: 'How much further does the plank sag with you standing on it?', answerUnit: 'cm', answerMax: 150, axis: 'meter', primary: 'span',
+  knobs: [
+    { id: 'span', label: 'Length of the gap', unit: 'm', min: 1.5, max: 10, def: 4, step: 0.25, why: 'A longer plank has more of itself to bend between its two ends, and it bends far more than you would guess.' },
+    { id: 'thickness', label: 'Thickness of the plank', unit: 'cm', min: 1, max: 6, def: 2, step: 0.25, why: 'A thicker plank is much stiffer: the stiffness grows with the thickness multiplied by itself three times.' },
+    { id: 'post', label: 'Post under the middle (0 = none, 1 = one)', unit: '', min: 0, max: 1, def: 0, step: 1, why: 'A post makes two short planks out of one long one, and a short plank sags far less.' },
+  ],
+  sayings: ['A plank that is twice as long sags eight times as much.'],
+  run(v) {
+    const pk: PlankData = { x0: 0, x1: v.span, y: 0, thickness: v.thickness / 100, width: 0.6, material: 'wood', support: v.post >= 0.5 };
+    // you stand where the plank bends most: the middle of the plank, or the middle of one half if there is a post
+    const a = pk.support ? v.span / 4 : v.span / 2;
+    const extra = sagAt(pk, a, a) - sagAt(pk, -1, a); // how much more it sags because you stand on it
+    const path: Point[] = [];
+    for (let i = 0; i <= 40; i++) { const x = (v.span * i) / 40; path.push({ x, y: -sagAt(pk, a, x) }); }
+    const wc = worstCase(pk);
+    return {
+      answer: extra * 100,
+      path,
+      overlays: [{ pts: [{ x: 0, y: 0 }, { x: v.span, y: 0 }], color: '#9aa3ab', label: 'level' }],
+      people: [{ x: a, y: -sagAt(pk, a, a), pose: 'stand', label: `you, ${RIDER_MASS} kg` }],
+      note: `A ${v.span.toFixed(2)} m pine plank ${v.thickness.toFixed(2)} cm thick${pk.support ? ', with a post under the middle,' : ''} sags ${(extra * 100).toFixed(1)} cm more with you on it. ${wc.ratio >= 1 ? 'It would snap: the bending is more than pine can take.' : `It holds, using ${(wc.ratio * 100).toFixed(0)}% of what pine can take before snapping.`}`,
+    };
+  },
+};
+
+export const EXPERIMENTS: Experiment[] = [gap, wall, rope, trampoline, landingExp, bars, coaster, leverExp, recoilExp, bridge];
 export const defaults = (e: Experiment, ctx: Context = {}): Record<string, number> => {
   const d = Object.fromEntries(e.knobs.map((k) => [k.id, k.def]));
   if (e.id === 'gap' && ctx.speed) d.speed = Math.min(10, Math.max(2, ctx.speed));
@@ -319,7 +347,7 @@ export function sweep(e: Experiment, values: Record<string, number>, knobId: str
   return out;
 }
 
-export type Shape = 'direct' | 'inverse' | 'square' | 'root' | 'hump' | 'exponential' | 'flat' | 'other';
+export type Shape = 'direct' | 'inverse' | 'square' | 'cube' | 'inverse-cube' | 'root' | 'hump' | 'exponential' | 'flat' | 'other';
 // Classify the curve by its log-log slope (a power law shows as a straight line there) and a few simple checks.
 export function classify(pts: Point[]): { shape: Shape; slope: number } {
   const ok = pts.filter((p) => p.x > 0 && p.y > 0.02);
@@ -342,6 +370,8 @@ export function classify(pts: Point[]): { shape: Shape; slope: number } {
     const s = pw.slope;
     if (Math.abs(s - 1) < 0.2) return { shape: 'direct', slope: s };
     if (Math.abs(s - 2) < 0.35) return { shape: 'square', slope: s };
+    if (Math.abs(s - 3) < 0.4) return { shape: 'cube', slope: s };
+    if (Math.abs(s + 3) < 0.4) return { shape: 'inverse-cube', slope: s };
     if (Math.abs(s + 1) < 0.25) return { shape: 'inverse', slope: s };
     if (Math.abs(s - 0.5) < 0.15) return { shape: 'root', slope: s };
     return { shape: 'other', slope: s };

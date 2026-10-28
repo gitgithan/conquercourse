@@ -1,8 +1,8 @@
 // Labelled Dojo diagrams (CC-31): one "real" drawing and one "principle" picture per obstacle, as inline SVG strings.
 // Original art, drawn in code; words only, no formulas.
-export type DiagramId = 'gap' | 'wall' | 'rope' | 'trampoline' | 'landing' | 'coaster' | 'lever' | 'recoil';
+export type DiagramId = 'gap' | 'wall' | 'rope' | 'trampoline' | 'landing' | 'coaster' | 'lever' | 'recoil' | 'bridge';
 export type DiagramKind = 'real' | 'principle';
-export const DIAGRAM_IDS: DiagramId[] = ['gap', 'wall', 'rope', 'trampoline', 'landing', 'coaster', 'lever', 'recoil'];
+export const DIAGRAM_IDS: DiagramId[] = ['gap', 'wall', 'rope', 'trampoline', 'landing', 'coaster', 'lever', 'recoil', 'bridge'];
 
 const INK = '#1f2937', SPEED = '#2563eb', FORCE = '#dc2626', GRAV = '#d97706', ENERGY = '#16a34a', GROUND = '#9ca3af', SOFT = '#e5e7eb';
 type P = [number, number];
@@ -281,6 +281,38 @@ function recoilPrinciple(): string {
   return wrap('Recoil: heavy and slow, or light and fast', body);
 }
 
+function bridgeReal(): string {
+  // two decks, a plank that dips under a stick figure standing in the middle, the level line it started on
+  const sag = (x: number) => 4 * 70 * ((x - 150) / 460) * (1 - (x - 150) / 460); // a parabola-like dip, 70 px at the middle
+  const pts: P[] = [];
+  for (let i = 0; i <= 24; i++) { const x = 150 + (460 * i) / 24; pts.push([x, 230 + sag(x)]); }
+  const body =
+    `<rect x="40" y="226" width="110" height="170" fill="${SOFT}"/><rect x="610" y="226" width="110" height="170" fill="${SOFT}"/>` +
+    `<line x1="150" y1="230" x2="610" y2="230" stroke="${GROUND}" stroke-width="3" stroke-dasharray="8 8"/>` + txt(250, 216, 'where the plank started (level)', { color: GROUND, size: 13, bold: true }) +
+    poly(pts, GRAV, 9) +
+    fig({ head: [380, 222], neck: [380, 236], hip: [380, 268], arms: [[[368, 246], [360, 258]], [[392, 246], [400, 258]]], legs: [[[388, 284], [392, 298]], [[372, 284], [368, 298]]] }) +
+    arrow([380, 150], [380, 196], FORCE, 5) + txt(400, 170, 'your weight pushes down', { color: FORCE, bold: true, size: 14, anchor: 'start' }) +
+    txt(380, 350, 'The plank dips most in the middle, and not at all at the ends', { bold: true });
+  return wrap('Plank bridge: sag', body);
+}
+
+function bridgePrinciple(): string {
+  // three planks: the long one sags a lot, the thick one sags less, the one with a post sags least
+  const plank = (x0: number, w: number, y: number, dip: number, th: number, post: boolean, label: string): string => {
+    const pts: P[] = [];
+    for (let i = 0; i <= 20; i++) { const x = x0 + (w * i) / 20, t = i / 20; pts.push([x, y + 4 * dip * t * (1 - t)]); }
+    return poly(pts, GRAV, th) + (post ? `<rect x="${x0 + w / 2 - 6}" y="${y + dip}" width="12" height="${150 - dip}" fill="${GROUND}"/>` : '') +
+      `<line x1="${x0}" y1="${y}" x2="${x0 + w}" y2="${y}" stroke="${GROUND}" stroke-width="2" stroke-dasharray="6 6"/>` + txt(x0 + w / 2, y + 150, label, { size: 14, bold: true });
+  };
+  const body =
+    plank(30, 210, 150, 14, 8, false, 'A plank') +
+    plank(270, 210, 150, 14 * 8, 8, false, 'Twice as long:\neight times the sag') +
+    plank(510, 210, 150, 14 / 8, 8, false, 'Twice as thick:\none eighth the sag') +
+    txt(380, 52, 'Sag grows with the cube of the length and falls with the cube of the thickness', { bold: true, size: 15 }) +
+    txt(380, 420, 'A post in the middle turns one long plank into two short ones.', { size: 15 });
+  return wrap('Plank bridge: what changes the sag', body);
+}
+
 const table: Record<DiagramId, Record<DiagramKind, () => string>> = {
   recoil: { real: recoilReal, principle: recoilPrinciple },
   gap: { real: gapReal, principle: gapPrinciple },
@@ -290,6 +322,7 @@ const table: Record<DiagramId, Record<DiagramKind, () => string>> = {
   landing: { real: landingReal, principle: landingPrinciple },
   lever: { real: leverReal, principle: leverPrinciple },
   coaster: { real: coasterReal, principle: coasterPrinciple },
+  bridge: { real: bridgeReal, principle: bridgePrinciple },
 };
 
 export function diagram(id: DiagramId, kind: DiagramKind): string {
