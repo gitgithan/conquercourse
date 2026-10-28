@@ -64,9 +64,11 @@ def roll_window(frames, margin_deg=20):
     if len(start) == 0:
         return None
     a = int(start[0])
+    if a >= len(p) - 1:
+        return None
     end = np.where(p[a:] >= p[hi] - margin_deg)[0]
     b = a + int(end[0]) if len(end) else hi
-    return (a, max(b, a + 1))
+    return (a, min(max(b, a + 1), len(p) - 1))
 
 
 def roll_check(clip):

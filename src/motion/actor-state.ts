@@ -14,6 +14,7 @@ export function actorStateFor(w: WorldState, squat: boolean, facing: 1 | -1 = 1)
     mode: w.mode === 'hang' ? 'swing' : w.mode === 'vault' ? 'run' : w.mode, // hanging from a bar uses the rope's swing pose, turned about the hands
     squat,
     landedTicksAgo: r.landedAtTick === null ? null : r.tick - r.landedAtTick,
+    rolledAt: w.rolledAt,
     wallProgress: w.wall ? w.wall.index / Math.max(1, w.wall.path.length - 1) : undefined,
     swingTheta: w.swing?.theta ?? w.hang?.theta,
     facing,
