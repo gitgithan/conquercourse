@@ -146,8 +146,10 @@ export function searchIdealRun(course: CourseData): { plan: Plan; windows: Windo
       };
       const hangVals = (from: number, to: number, step: number) => Array.from({ length: Math.floor((to - from) / step) + 1 }, (_, i) => from + i * step);
       let done = grid(candidates(e.x - 3, e.x, 0.3), Array.from({ length: nh }, () => hangVals(0, 480, 30)));
+      // a narrow basin can fall between the coarse hang times: shift the grid by half a step before refining
+      if (!done) done = grid(candidates(e.x - 3, e.x, 0.3), Array.from({ length: nh }, () => hangVals(15, 465, 30)));
       if (!done) {
-        const tops = [...found].sort((a, b) => b.sc - a.sc).slice(0, 3);
+        const tops = [...found].sort((a, b) => b.sc - a.sc).slice(0, 8); // the coarse grid misses a narrow basin, so the finer search tries more of the best starts
         for (const t of tops) {
           const jx = t.plan.jumpXs[t.plan.jumpXs.length - 1];
           done = grid(candidates(jx - 0.25, jx + 0.25, 0.05), t.plan.hangTicks!.slice(0, nh).map((h) => hangVals(Math.max(0, h - 24), h + 24, 6)));
@@ -172,7 +174,9 @@ export function searchIdealRun(course: CourseData): { plan: Plan; windows: Windo
       const good = tries.filter((t) => t.s >= top - (top >= 1e6 ? 1e-9 : 0.3)); // before the rest of the course is planned the score is how far the run gets: near ties count as ties
       // the centre of the window of presses that work (a vault wins a tie with a jump: it is faster), not its edge
       const kind = good.some((t) => t.vault);
-      const mine = good.filter((t) => t.vault === kind).map((t) => t.x);
+      let mine = good.filter((t) => t.vault === kind).map((t) => t.x);
+      // a vault pressed further out than its reach is held by the 0.2 s buffer until the step is in reach: for a plan, take the middle of the presses made at a real plant distance (up to 2.7 m before the face)
+      if (kind) { const near = mine.filter((x) => x >= e.x - 2.7); if (near.length) mine = near; }
       const best = mine.length ? { x: mine[Math.floor(mine.length / 2)], vault: kind } : null;
       if (best) { if (best.vault) plan.vaultXs = [...(plan.vaultXs ?? []), best.x]; else plan.jumpXs.push(best.x); windows.push({ obstacle: `${best.vault ? 'vault' : 'jump'} at ${e.name}`, best: best.x, lo: Math.min(...mine), hi: Math.max(...mine), widthMs: ((Math.max(...mine) - Math.min(...mine) + 0.02) / 7.4) * 1000 }); }
       continue;
@@ -227,7 +231,7 @@ function searchLaunch(course: CourseData, plan: Plan, windows: Window[], score: 
   const hangs = bars ? Array.from({ length: 17 }, (_, i) => i * 30) : [0];
   let found: { sc: number; rel: number; hang: number }[] = [];
   for (let rel = 20; rel <= 360; rel += 6) for (const h of hangs) { found.push(trial(rel, h)); }
-  const tops = [...found].sort((a, b) => b.sc - a.sc).slice(0, 3);
+  const tops = [...found].sort((a, b) => b.sc - a.sc).slice(0, 8); // the coarse grid misses a narrow basin, so the finer search tries more of the best starts
   for (const t of tops) for (let rel = t.rel - 6; rel <= t.rel + 6; rel += 1) for (let h = Math.max(0, t.hang - 24); h <= t.hang + 24; h += bars ? 6 : 100) found.push(trial(rel, h));
   const best = Math.max(...found.map((f) => f.sc));
   const good = found.filter((f) => f.sc >= best - 1e-9);

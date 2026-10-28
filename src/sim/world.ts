@@ -220,7 +220,7 @@ function stepVault(w: WorldState): WorldState {
     return { ...w, mode: 'run', vault: null, plantUntil: tick + VAULT_PLANT_TICKS, events: [], runner: { ...w.runner, tick, x: end.x, y: end.y, vx: vaultExitSpeed(v), vy: 0, grounded: true } };
   }
   const q = vaultAt(v, i);
-  return { ...w, vault: { ...v, i }, events: [], runner: { ...w.runner, tick, x: q.x, y: q.y, vx: vaultExitSpeed(v), vy: 0, grounded: false } };
+  return { ...w, vault: { ...v, i }, events: [], runner: { ...w.runner, tick, x: q.x, y: q.y, vx: q.vx, vy: q.vy, grounded: false } };
 }
 
 function stepHang(w: WorldState, input: RunnerInput, course: CourseData): WorldState {
