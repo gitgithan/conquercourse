@@ -1,7 +1,7 @@
 {
-  "step_m": 10.0,
-  "near_m": 60.0,
-  "facing_within_deg": 60.0,
+  "step_m": 10,
+  "near_m": 60,
+  "facing_within_deg": 60,
   "places": {
     "montmartre-paris": {
       "lane": {
@@ -20,8 +20,8 @@
         "images_in_box": 515,
         "photos_within_60m_of_lane": 301,
         "per_100m_of_lane": 177.1,
-        "share_of_lane_with_any_photo": 1.0,
-        "share_of_lane_with_facing_photo": 1.0,
+        "share_of_lane_with_any_photo": 1,
+        "share_of_lane_with_facing_photo": 1,
         "median_distance_m": 21.3,
         "capture_years_of_near_photos": {
           "2002": 2,
@@ -40,8 +40,8 @@
         "files_near_lane": 1079,
         "photos_within_60m_of_lane": 1079,
         "per_100m_of_lane": 634.7,
-        "share_of_lane_with_any_photo": 1.0,
-        "share_of_lane_with_facing_photo": 0.0,
+        "share_of_lane_with_any_photo": 1,
+        "share_of_lane_with_facing_photo": 0,
         "median_distance_m": 5.5,
         "note": "Commons files carry no viewing direction in geosearch, so facing is not measured"
       }
@@ -74,15 +74,15 @@
           "2021": 25,
           "2025": 20
         },
-        "pano_share_of_near_photos": 0.0,
+        "pano_share_of_near_photos": 0,
         "distinct_creators_near": 7
       },
       "commons": {
         "files_near_lane": 240,
         "photos_within_60m_of_lane": 240,
-        "per_100m_of_lane": 160.0,
-        "share_of_lane_with_any_photo": 1.0,
-        "share_of_lane_with_facing_photo": 0.0,
+        "per_100m_of_lane": 160,
+        "share_of_lane_with_any_photo": 1,
+        "share_of_lane_with_facing_photo": 0,
         "median_distance_m": 8.1,
         "note": "Commons files carry no viewing direction in geosearch, so facing is not measured"
       }
@@ -95,7 +95,7 @@
           54.8,
           120.3
         ],
-        "length_m": 167.0,
+        "length_m": 167,
         "samples": 17,
         "lat": 55.9496,
         "lon": -3.1904
@@ -104,8 +104,8 @@
         "images_in_box": 1067,
         "photos_within_60m_of_lane": 621,
         "per_100m_of_lane": 388.1,
-        "share_of_lane_with_any_photo": 1.0,
-        "share_of_lane_with_facing_photo": 1.0,
+        "share_of_lane_with_any_photo": 1,
+        "share_of_lane_with_facing_photo": 1,
         "median_distance_m": 6.3,
         "capture_years_of_near_photos": {
           "2014": 1,
@@ -121,15 +121,15 @@
           "2025": 49,
           "2026": 9
         },
-        "pano_share_of_near_photos": 0.0,
+        "pano_share_of_near_photos": 0,
         "distinct_creators_near": 15
       },
       "commons": {
         "files_near_lane": 366,
         "photos_within_60m_of_lane": 364,
         "per_100m_of_lane": 227.5,
-        "share_of_lane_with_any_photo": 1.0,
-        "share_of_lane_with_facing_photo": 0.0,
+        "share_of_lane_with_any_photo": 1,
+        "share_of_lane_with_facing_photo": 0,
         "median_distance_m": 9.4,
         "note": "Commons files carry no viewing direction in geosearch, so facing is not measured"
       }
