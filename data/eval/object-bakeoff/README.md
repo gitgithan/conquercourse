@@ -37,3 +37,16 @@
 ## Cost
 - Modal: three CPU-only probe runs, a few seconds each, under $0.01.
 - GPU: none.
+
+## Update 2026-10-28: SAM 3D vs Tripo, stopped at the Tripo quote
+- **So what:** the Tripo side needs credits we do not have; the product owner decides whether to top up.
+- **Balance:** 60 credits (read-only check, no task created); one credit is $0.01.
+- **Price:** one textured object costs about 110 credits (what the Rookies cost), so six objects are about 660 credits.
+  - The cheapest listed run (a plain model, 10 credits) for six objects is 60 credits, all of the balance.
+- **Rule we set:** go ahead only when the total is at most 300 credits and at most 25% of the balance, so the run did not start.
+- **SAM 3D side:** all six objects already have results (CC-38), so it needed no new Modal run ($0).
+- **Terms, as far as public pages show (the Tripo pricing and terms pages refused my fetch, 403):**
+  - Tripo's help page says paid users have full rights to use and sell what they generate.
+  - It says free-user outputs stay with Tripo (stricter than its blog, which reads CC BY 4.0 as allowing commercial use with credit).
+  - Nothing found about whether API outputs follow the same plan rules, or about the collaboration program; the product owner should check both in the program's paperwork.
+- **To unblock:** top up about 660 credits ($6.60) or run three objects (about 330 credits, just over our own 300 cap, so the cap needs a new decision).
