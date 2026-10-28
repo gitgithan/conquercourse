@@ -11,6 +11,14 @@ export interface SceneItem {
   x: number; y: number; z: number; rotY: number; scale: number;
 }
 
+// What the editor made the course from, so the Course can open the same pieces again (CC-80). 'copy': rebuilt from a course that had no source.
+export interface CourseSource {
+  kind: 'editor' | 'copy';
+  pieces: { src: string; x: number; z: number; y: number; yaw: number; scale: number; role?: string }[]; // machines (trebuchet, launcher) are pieces too: their src carries the numbers
+  angle: number; offset: number; level: number; // the lane: turn about the rod (radians), sideways (m), level (m)
+  floor?: string; // the floor you must not touch
+}
+
 export interface CourseData {
   version: 1;
   name: string;
@@ -36,5 +44,6 @@ export interface CourseData {
   shortcuts?: import('../sim/shortcuts').Shortcut[]; // routes the designer did not plan, found by the shortcut search and stored like `plan` (npm run plans)
   designedShortcuts?: string[]; // ids of shortcuts the designer keeps on purpose (src/sim/shortcuts.ts)
   band?: Partial<import('../sim/band').BandParams> & { x: number }; // an elastic band tied to a post at x: the course starts clipped on, one rest length behind it
+  source?: CourseSource; // editor lanes: the pieces and lane this course was cut from (CC-80)
   hazard?: import('./hazard').Hazard; // the floor you must not touch: water (default), lava, mud, spikes or void; paint, words and sound only
 }

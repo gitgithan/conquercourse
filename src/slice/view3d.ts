@@ -24,7 +24,7 @@ export interface Host {
 }
 export interface GhostState { x: number; y: number; z: number; yaw: number; scale: number }
 export interface Ghosts { items: { id: number; from: GhostState; to: GhostState }[]; lane: { angle: number; offset: number } | null }
-export interface View3d { look(heading: number, pitch: number, target?: { x: number; z: number }, distance?: number): void; sync(): void; show(on: boolean): void; readonly el: HTMLCanvasElement; resize(): void }
+export interface View3d { look(heading: number, pitch: number, target?: { x: number; z: number }, distance?: number): void; sync(): void; show(on: boolean): void; readonly el: HTMLCanvasElement; resize(): void; focus(x: number, z: number): void }
 
 const loader = new GLTFLoader();
 const cache = new Map<string, Promise<THREE.Object3D>>();
@@ -226,5 +226,7 @@ export function createView3d(wrap: HTMLElement, host: Host): View3d {
     camera.position.set(t.x - Math.sin(b) * d * Math.sin(p), t.y + d * Math.cos(p), t.z + Math.cos(b) * d * Math.sin(p));
     controls.update(); redraw();
   }
-  return { look, sync, resize, el: renderer.domElement, show(v) { on = v; renderer.domElement.style.display = v ? 'block' : 'none'; if (v) { resize(); redraw(); } } };
+  // centre the view on a place in the world, keeping the same distance and angle (the editor does this when it opens at an obstacle)
+  const focus = (x: number, z: number) => { const d = camera.position.clone().sub(controls.target); controls.target.set(x, 0.5, z); camera.position.copy(controls.target).add(d); controls.update(); redraw(); };
+  return { look, sync, resize, focus, el: renderer.domElement, show(v) { on = v; renderer.domElement.style.display = v ? 'block' : 'none'; if (v) { resize(); redraw(); } } };
 }

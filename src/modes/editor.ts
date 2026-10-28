@@ -17,7 +17,7 @@ import { withBand } from '../slice/band-lane';
 import { fixBand } from '../slice/fixband';
 import { CUP, PATTERNS, patternOf, stackPiece, stackSrc } from '../slice/stack';
 import { fixLayout } from '../slice/fixit';
-import { layoutToPieces, parseLayout, pieceFromSrc } from '../slice/photo-course';
+import { layoutToPieces, parseLayout } from '../slice/photo-course';
 import { proves } from '../slice/photo-proof';
 import { fixBars } from '../slice/fixbars';
 import { adviseLane, type Advice } from '../slice/advice';
@@ -27,11 +27,14 @@ import { ROLE_NAME, applySuggestion, movesInWorld, roleCourse, suggestRoles, typ
 import { deviceMesh, RECOIL_PAD_LENGTH, TREBUCHET_PIVOT_FROM_CENTRE } from '../slice/device';
 import { shortcutLine, type Shortcut } from '../sim/shortcuts';
 import { closeShortcut } from '../slice/shortcut-close';
+import { makeItEasier } from '../slice/easier';
+import { EDIT_KEY, HIST_KEY, checkpointFor, piecesFromSource, readHandoff } from '../slice/roundtrip';
+import type { CourseSource } from '../course/course';
 
 // The World editor (beta): build a world from pieces on a plan view, scale them (a toy brick becomes a block), turn, copy, crop and move them,
 // choose the lane the runner takes (turn about the rod, sideways, level), and play it. Everything is in metres.
 const KEY = 'cc.world.v1';
-interface Saved { pieces: { src: string; x: number; z: number; y: number; yaw: number; scale: number; role?: Role }[]; angle: number; offset: number; level: number }
+interface Saved { pieces: { src: string; x: number; z: number; y: number; yaw: number; scale: number; role?: Role }[]; angle: number; offset: number; level: number; floor?: string }
 type P = Piece & { src?: string };
 const isSizeReference = (p: P) => p.src === 'obj:../characters/rookie-a.glb' || p.src === 'obj:../characters/rookie-b.glb';
 const isDevice = (p: P) => p.src?.startsWith('device:') ?? false;
@@ -72,20 +75,25 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
   const freeSpot = (id: string) => { const m = lib(id).mesh(); const w = size(m).w * (id === 'brick' ? 15 : 1); const right = pieces.reduce((r, p) => Math.max(r, p.x + (size(p.mesh).w * p.scale) / 2), 0); return { x: right + 1.5 + w / 2, z: 0 }; };
   const lib = (id: string) => LIBRARY.find((l) => l.id === id)!;
   const add = (id: string, at = { x: 0, z: 0 }): P => { const p: P = { ...newPiece(lib(id).label, lib(id).mesh(), at), src: id }; if (id === 'brick') p.scale = 15; pieces.push(p); selected = p.id; return p; };
+  // the pieces of a saved world, built again from their sources (the photo objects come later, once their list is in)
+  const buildPieces = (list: Saved['pieces']): P[] => piecesFromSource(list);
+  let startFloor: Hazard = 'water'; // the floor of a restored world (applied where it is declared)
+  function restore(s: Saved) {
+    pendingObjects.push(...s.pieces.filter((q) => q.src.startsWith('obj:')));
+    pieces = buildPieces(s.pieces);
+    angle = s.angle; offset = s.offset; level = s.level;
+    startFloor = (HAZARDS as readonly string[]).includes(s.floor ?? '') ? (s.floor as Hazard) : 'water';
+  }
   function load() {
     try {
-      const s = JSON.parse(localStorage.getItem(KEY) ?? '') as Saved;
-      pendingObjects.push(...s.pieces.filter((q) => q.src.startsWith('obj:')));
-      pieces = s.pieces.filter((q) => !q.src.startsWith('obj:')).map((q) => (q.src.startsWith('device:') ? { ...newPiece(q.src, deviceMesh(q.src), { x: q.x, z: q.z }), src: q.src, y: q.y, yaw: q.yaw, scale: q.scale } : patternOf(q.src) ? { ...stackPiece(q.src, { x: q.x, z: q.z })!, y: q.y, yaw: q.yaw, scale: q.scale } : q.src.startsWith('box:') ? { ...pieceFromSrc(q.src, { x: q.x, z: q.z })!, y: q.y, yaw: q.yaw, scale: q.scale } : plankSpecOf(q.src) ? { ...plankPiece(plankSpecOf(q.src)!, { x: q.x, z: q.z }), y: q.y, yaw: q.yaw, scale: q.scale } : q.src === 'hold:bar' ? { ...newPiece('Bar', barMesh(), { x: q.x, z: q.z }), src: q.src, y: q.y, yaw: q.yaw, scale: q.scale } : { ...newPiece(lib(q.src).label, lib(q.src).mesh(), { x: q.x, z: q.z }), src: q.src, y: q.y, yaw: q.yaw, scale: q.scale }));
-      s.pieces.filter((q) => !q.src.startsWith('obj:')).forEach((q, i) => { if (q.role && pieces[i]) pieces[i].role = q.role; });
-      angle = s.angle; offset = s.offset; level = s.level;
+      restore(JSON.parse(localStorage.getItem(KEY) ?? '') as Saved);
     } catch {
       // a first world made of real objects (no blocks): a bench, a long low box and a rail, loaded once the object list is in
       pendingObjects.push({ src: 'obj:bench-concrete.glb', x: 3, z: 0, y: 0, yaw: 0, scale: 1 }, { src: 'obj:box-skate-03.glb', x: 9, z: 0, y: 0, yaw: 0, scale: 1 }, { src: 'obj:rail-skate-01.glb', x: 16, z: 0, y: 0, yaw: 0, scale: 1 });
       selected = null;
     }
   }
-  const save = () => { try { localStorage.setItem(KEY, JSON.stringify({ pieces: pieces.filter((p) => p.src && !p.src.startsWith('map:')).map((p) => ({ src: p.src as string, x: p.x, z: p.z, y: p.y, yaw: p.yaw, scale: p.scale, ...(p.role ? { role: p.role } : {}) })), angle, offset, level } satisfies Saved)); } catch { /* private window */ } };
+  const save = () => { try { localStorage.setItem(KEY, JSON.stringify({ pieces: pieces.filter((p) => p.src && !p.src.startsWith('map:')).map((p) => ({ src: p.src as string, x: p.x, z: p.z, y: p.y, yaw: p.yaw, scale: p.scale, ...(p.role ? { role: p.role } : {}) })), angle, offset, level, floor: floorChoice } satisfies Saved)); } catch { /* private window */ } };
   load();
   let mapCamera: { heading: number; pitch: number; distance?: number } | null = null;
   try { // a place built in ?mode=map arrives once, as the whole world or as the buildings the player picked; it is not saved
@@ -97,12 +105,20 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
       selected = pieces[0].id; mapCamera = m.camera ?? null;
     } else if (m) { pendingObjects.length = 0; pieces = [{ ...newPiece(m.name, { positions: m.positions, indices: m.indices }), src: `map:${m.name}` }]; selected = pieces[0].id; }
   } catch { /* no place waiting */ }
+  // CC-80: coming from the Course ("Edit this course", "Make it easier"): the course's own pieces replace the saved world, and "Back to the Course" returns to it
+  const handoff = readHandoff();
+  if (handoff && !pieces.some((q) => q.src?.startsWith('map:'))) {
+    pendingObjects.length = 0;
+    restore({ pieces: handoff.course.source!.pieces, angle: handoff.course.source!.angle, offset: handoff.course.source!.offset, level: handoff.course.source!.level, floor: handoff.course.source!.floor });
+    selected = null;
+  }
+  let focusId: number | null = null; // the piece nearest the place the player was at (chosen once the lane exists)
 
   const el = <K extends keyof HTMLElementTagNameMap>(tag: K, parent: HTMLElement, props: Partial<HTMLElementTagNameMap[K]> & { text?: string } = {}) => { const { text, ...rest } = props as Record<string, unknown> & { text?: string }; const e = Object.assign(document.createElement(tag), rest); if (text) e.textContent = text; parent.appendChild(e); return e as HTMLElementTagNameMap[K]; };
 
   const top = el('div', root, { className: 'top' });
   el('h1', top, { text: 'World editor (beta)' });
-  el('a', top, { text: 'Back to the Course', href: '?', className: 'btn go' });
+  const backLink = el('a', top, { text: 'Back to the Course', href: '?', className: 'btn go', id: 'backcourse' }); // from the Course it returns to that very course (CC-80)
   el('button', top, { text: 'Reset to starter scene', id: 'resetworld', title: 'Discard this saved world and restore the starter bench, box and rail' }).onclick = () => {
     if (!window.confirm('Discard this saved world and restore the starter scene?')) return;
     localStorage.removeItem(KEY);
@@ -152,7 +168,7 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
           pieces.push(p);
         } catch { /* a missing object is skipped */ }
       }
-      if (pendingObjects.length) { pendingObjects.length = 0; changed(false); hist.length = 0; hi = -1; remember(); } // the saved or first world is the starting point of the undo list
+      if (pendingObjects.length) { pendingObjects.length = 0; changed(false); hist.length = 0; hi = -1; remember(); onWorld(); } // the saved or first world is the starting point of the undo list
     } catch { /* no objects on this site */ }
   })();
   // overhead: bars hanging in the air (a game, not real: they need no frame); the side view is where they are dragged
@@ -266,6 +282,7 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
   const head = el('div', helper, { className: 'row' });
   el('strong', head, { text: 'Design partner' });
   el('button', head, { text: 'Fix it', id: 'fixit', className: 'go', title: 'Show a layout the simulator can clear, before anything changes' }).onclick = () => runFix();
+  el('button', head, { text: 'Make it easier', id: 'easier', title: 'Show the smallest change that makes the hardest press easier to land' }).onclick = () => runEasier();
   el('button', head, { text: '✕', id: 'closehelper', title: 'Hide' }).onclick = () => { helper.classList.add('closed'); helperBtn.setAttribute('aria-pressed', 'false'); };
   const adviceBox = el('div', helper, { id: 'advice' });
   // ---- routes you did not plan (CC-71): the simulator looks for lines that skip an obstacle; Close it previews a change that shuts one, Keep it marks it as meant
@@ -501,6 +518,33 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
       showProposal(prop);
     }, 30);
   }
+  // Make it easier: the simulator knows the lane clears, but the hardest press is narrow; try the smallest changes near the obstacle and show the first that widens it
+  function runEasier() {
+    helper.classList.remove('closed'); helperBtn.setAttribute('aria-pressed', 'true');
+    reply.className = 'reply'; reply.textContent = 'Looking for the smallest change that makes the hardest press easier… (up to ' + (pieces.some(isHold) ? '2 minutes' : '40 seconds') + ')';
+    setTimeout(async () => {
+      const c0 = courseNow(), lane = { angle, offset, level };
+      const at = pieces.find((q) => q.id === selected);
+      const x = at ? xOfPiece(at, c0) : handoff?.x ?? c0.startX;
+      const r = await makeItEasier(pieces, lane, x, { courseOf: courseFor, xOf: (q) => xOfPiece(q, c0) }, undefined, (n, total) => { reply.textContent = `Trying change ${n} of ${total}…`; });
+      document.documentElement.dataset.easier = r.proposal ? '1' : '0';
+      if (!r.proposal) { reply.className = 'reply muted'; reply.textContent = r.note; return; }
+      leadText = '';
+      showProposal(r.proposal);
+    }, 30);
+  }
+  // when the world is complete (its photo objects are in): open at the obstacle the player was at, and look for an easier way if that was asked
+  let worldDone = false;
+  function onWorld() {
+    if (worldDone || !handoff) return;
+    worldDone = true;
+    const c0 = courseNow();
+    const solid = pieces.filter((q) => isHold(q) || realSize(q).h > 0.05);
+    const near = [...(solid.length ? solid : pieces)].sort((a, b) => Math.abs(xOfPiece(a, c0) - handoff.x) - Math.abs(xOfPiece(b, c0) - handoff.x))[0];
+    if (near) { focusId = near.id; selected = near.id; view3d.focus(near.x, near.z); drawPanel(); draw(); drawProfile(); }
+    document.documentElement.dataset.fromcourse = handoff.intent;
+    if (handoff.intent === 'easier') runEasier();
+  }
   function showProposal(pr: Proposal) {
     helper.classList.remove('closed'); helperBtn.setAttribute('aria-pressed', 'true');
     proposal = pr; proofs.clear();
@@ -521,6 +565,7 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
     if (leadText) el('div', reply, { text: leadText });
     el('strong', reply, { text: pr.title });
     el('div', reply, { className: 'muted', text: 'The outlines show where things would go (grey: now, teal: after). Nothing changes until you press Apply.' });
+    if (pr.source === 'easier') for (const st of pr.steps) el('div', reply, { className: 'ok', text: st });
     for (const it of pr.items) {
       const row = el('label', reply, { className: 'pvrow' });
       const cb = el('input', row, { type: 'checkbox', checked: it.on });
@@ -530,6 +575,7 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
     el('div', reply, { id: 'previewverdict', className: 'muted' });
     const row = el('div', reply, { className: 'row', id: 'previewbuttons' });
     el('button', row, { text: 'Apply', id: 'applypreview', className: 'go' }).onclick = applyProposal;
+    if (handoff) el('button', row, { text: 'Apply and try it', id: 'applytry', className: 'go', title: 'Apply the changes and play again from the last checkpoint' }).onclick = () => { applyProposal(); void goToCourse(); };
     el('button', row, { text: 'Cancel', id: 'cancelpreview' }).onclick = () => closePreview('Cancelled: nothing changed.');
   }
   function paintVerdict(state: 'checking' | 'clears' | 'blocked' | 'none') {
@@ -539,6 +585,7 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
     v.className = state === 'clears' ? 'ok' : state === 'blocked' ? 'bad' : 'muted';
     v.textContent = state === 'checking' ? 'Checking with the simulator…' : state === 'clears' ? 'After this change the lane clears.' : state === 'blocked' ? 'After this change the lane does not clear.' : 'Nothing is switched on.';
     apply.disabled = state === 'none';
+    const tryBtn = document.getElementById('applytry') as HTMLButtonElement | null; if (tryBtn) tryBtn.disabled = state === 'none';
     rowEl.querySelector('#fixfromhere')?.remove();
     if (state === 'blocked' && proposal && proposal.source !== 'fixit' && preview) {
       const from = { pieces: preview.pieces, lane: preview.lane };
@@ -711,13 +758,14 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
       if (!clear) { verdict = 'The simulator cannot find a way to clear this lane: widen a gap or lower a step.'; drawLanePanel(); return; }
       // the real objects are drawn in the game instead of blocks (a cropped photo object is drawn whole; its collision is still the cropped lane)
       course.scene = sceneFor(ground(), { angle, offset, level }, course.uMap ?? []);
+      persistHist();
       root.remove(); style.remove();
       void startCourse(document.body, course);
     };
     const floorRow = el('label', lanePanel, { className: 'muted', text: 'Floor you must not touch: ' }); floorRow.style.cssText = 'display:flex;align-items:center;gap:6px'; // one line, not two (the panel must fit at 1024 x 640)
     const floorSel = el('select', floorRow, { id: 'floor', title: 'What is painted under the gaps (the run ends the same way on every floor)' });
     for (const h of HAZARDS) floorSel.add(new Option(HAZARD_INFO[h].label, h, false, h === floorChoice));
-    floorSel.onchange = () => { floorChoice = floorSel.value as Hazard; document.documentElement.dataset.floor = floorChoice; };
+    floorSel.onchange = () => { floorChoice = floorSel.value as Hazard; document.documentElement.dataset.floor = floorChoice; save(); };
     const testBtn = el('button', lanePanel, { text: 'Test from the selected piece', id: 'testhere', title: 'Start the runner a few metres before the selected piece and play from there' });
     testBtn.onclick = () => {
       const q = pieces.find((x) => x.id === selected);
@@ -730,6 +778,7 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
       const ps = [...course.terrain.platforms].sort((a, b) => a.x0 - b.x0);
       const on = ps.find((r) => want >= r.x0 && want <= r.x1);
       course.startX = on ? want : Math.max(course.startX, (ps.filter((r) => r.x1 <= want).pop()?.x1 ?? course.startX) - 1);
+      persistHist();
       root.remove(); style.remove();
       void startCourse(document.body, course);
     };
@@ -754,7 +803,7 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
   const ground = () => coursePieces().filter((q) => !isHold(q) && q.role !== 'rope' && !isPlankPiece(q)); // references, bars, rope anchors and planks are not ground
   const currentProfile = () => sliceProfile(worldSamples(ground()), { x: 0, z: 0 }, { angle, offset, level });
   const barsNow = () => holdsOf(pieces, { angle, offset, level });
-  let floorChoice: Hazard = 'water'; // the floor you must not touch (saved in the course)
+  let floorChoice: Hazard = startFloor; // the floor you must not touch (saved in the course)
   let bandK: number | null = null; // the lane starts at an elastic band (its stiffness in N/m)
   let trebuchetKg: number | null = null; // the lane starts in a trebuchet (the counterweight in kg), or on a plain deck
   let recoilCfg: RecoilCfg | null = null; // the start deck carries a launcher pad (CC-66), or not
@@ -773,7 +822,54 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
     if (trebuchetKg) { const p = pieces.find((q) => q.src?.startsWith('device:trebuchet:')); const u = p ? p.x * Math.cos(angle) + p.z * Math.sin(angle) + TREBUCHET_PIVOT_FROM_CENTRE * p.scale : 0; return withTrebuchet(c, trebuchetKg, u); }
     return recoilCfg ? withRecoil(c, recoilCfg, recoilRange()) : bandK ? withBand(c, bandK) : c;
   };
-  const courseNow = () => { const c = laneCourse(currentProfile()); if (floorChoice !== 'water') c.hazard = floorChoice; if (designed.size) c.designedShortcuts = [...designed]; return c; };
+  // what this course was cut from, so the Course can open the same pieces again (CC-80); a world with a map piece cannot be kept: its mesh is too big
+  const sourceNow = (): CourseSource | undefined => pieces.some((p) => p.src?.startsWith('map:')) ? undefined : { kind: 'editor', pieces: pieces.filter((p) => p.src).map((p) => ({ src: p.src as string, x: p.x, z: p.z, y: p.y, yaw: p.yaw, scale: p.scale, ...(p.role ? { role: p.role } : {}) })), angle, offset, level, floor: floorChoice };
+  const courseNow = () => { const c = laneCourse(currentProfile()); if (floorChoice !== 'water') c.hazard = floorChoice; if (designed.size) c.designedShortcuts = [...designed]; const src = sourceNow(); if (src) c.source = src; return c; };
+  // the same lane for other pieces (Make it easier tries many small changes): ground, roles, bars, a trebuchet or a launcher if the world has one
+  const courseFor = (ps: P[], ln: { angle: number; offset: number; level: number }) => {
+    let c = roleCourse(ps.filter((q) => !isSizeReference(q) && !isDevice(q)), ln, 'My world').course;
+    const tre = ps.find((q) => q.src?.startsWith('device:trebuchet:')), rec = ps.find((q) => q.src?.startsWith('device:cannon:') || q.src?.startsWith('device:crate:'));
+    if (tre) c = withTrebuchet(c, Number(tre.src!.split(':')[2]) || 1200, tre.x * Math.cos(ln.angle) + tre.z * Math.sin(ln.angle) + TREBUCHET_PIVOT_FROM_CENTRE * tre.scale);
+    else if (rec) {
+      const parts = rec.src!.split(':'), u = rec.x * Math.cos(ln.angle) + rec.z * Math.sin(ln.angle), length = Number(parts[4]) || RECOIL_PAD_LENGTH;
+      c = withRecoil(c, { kind: parts[1] as 'cannon' | 'crate', ballMass: Number(parts[2]) || 12, muzzle: Number(parts[3]) || 30 }, { x0: u - length / 2, x1: u + length / 2 });
+    }
+    if (floorChoice !== 'water') c.hazard = floorChoice;
+    return c;
+  };
+  // where along the run a piece is in the game (a bar by its place among the bars)
+  const xOfPiece = (q: P, c: ReturnType<typeof courseNow>) => (isHold(q) ? c.holds?.[barsNow().findIndex((b) => b.id === q.id)]?.x : sceneFor([q], { angle, offset, level }, c.uMap ?? [])[0]?.x) ?? 0;
+  // the runner starts on the ground about 8 m before a place (the nearest ground at or before that spot)
+  const startBefore = (c: ReturnType<typeof courseNow>, gx: number) => {
+    const want = Math.max(c.startX, gx - 8);
+    const ps = [...c.terrain.platforms].sort((a, b) => a.x0 - b.x0);
+    const on = ps.find((r) => want >= r.x0 && want <= r.x1);
+    return on ? want : Math.max(c.startX, (ps.filter((r) => r.x1 <= want).pop()?.x1 ?? c.startX) - 1);
+  };
+  // the undo list goes into the session so it survives a trip to the Course (pieces made from photos or maps are not kept: their meshes are too big)
+  function persistHist() {
+    try {
+      const heavy = (q: P) => q.src?.startsWith('obj:') || q.src?.startsWith('map:');
+      if (pieces.some(heavy) || hist.some((h) => h.pieces.some(heavy))) { sessionStorage.removeItem(HIST_KEY); return; }
+      const start = Math.max(0, hist.length - 25);
+      const keep = (h: Snap): Saved => ({ pieces: h.pieces.filter((q) => q.src).map((q) => ({ src: q.src as string, x: q.x, z: q.z, y: q.y, yaw: q.yaw, scale: q.scale, ...(q.role ? { role: q.role } : {}) })), angle: h.angle, offset: h.offset, level: h.level });
+      sessionStorage.setItem(HIST_KEY, JSON.stringify({ snaps: hist.slice(start).map(keep), hi: Math.max(0, hi - start) }));
+    } catch { /* the undo list starts again */ }
+  }
+  // back to the Course: the same course, rebuilt from the pieces now, at the same obstacle (the Course reads this the way it reads a return from the Dojo)
+  async function goToCourse() {
+    if (!handoff) return;
+    const course = courseNow();
+    const clear = await searchClearable(course);
+    if (!clear) { verdict = clear === null ? 'The lane check could not finish. Try again.' : 'The simulator cannot find a way to clear this lane: widen a gap or lower a step.'; drawLanePanel(); reply.className = 'reply bad'; reply.textContent = verdict; return; }
+    course.scene = sceneFor(ground(), { angle, offset, level }, course.uMap ?? []);
+    const focus = pieces.find((q) => q.id === selected) ?? pieces.find((q) => q.id === focusId);
+    const retryX = focus ? startBefore(course, xOfPiece(focus, course)) : checkpointFor(course, handoff.zone);
+    persistHist();
+    try { sessionStorage.setItem('cc.resume', JSON.stringify({ course, world: null, retryX, facing: handoff.facing, falls: handoff.falls })); sessionStorage.removeItem(EDIT_KEY); } catch { /* the Course starts again */ }
+    location.href = location.pathname; // no ?mode: the Course puts itself back from the resume
+  }
+  backLink.onclick = (e) => { if (handoff) { e.preventDefault(); void goToCourse(); } };
   let verifyTimer = 0, adviceRun = 0, verifyVersion = 0, searchVersion = 0;
   let searchWorker: Worker | null = null, finishSearch: ((cleared: boolean | null) => void) | null = null;
   let activeSearch: { key: string; promise: Promise<boolean | null> } | null = null;
@@ -1046,7 +1142,7 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
     if ((e.ctrlKey || e.metaKey) && e.code === 'KeyZ') { e.preventDefault(); goto(e.shiftKey ? hi + 1 : hi - 1); return; }
     if ((e.ctrlKey || e.metaKey) && e.code === 'KeyY') { e.preventDefault(); goto(hi + 1); return; }
     if (e.code === 'Escape' && proposal) { closePreview('Cancelled: nothing changed.'); return; }
-    if (e.code === 'KeyT') location.href = '?';
+    if (e.code === 'KeyT') { if (handoff) void goToCourse(); else location.href = '?'; }
     const p = pieces.find((q) => q.id === selected);
     if (!p) return;
     if (e.code === 'Delete' || e.code === 'Backspace') { pieces = pieces.filter((q) => q !== p); selected = null; changed(); }
@@ -1057,6 +1153,23 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
   syncDeviceState();
   drawPanel(); drawLanePanel(); draw(); drawProfile(); verify();
   remember();
+  // the undo list from before the trip to the Course comes back when the world is the one it ended with (otherwise it starts again)
+  if (handoff && !pendingObjects.length) {
+    try {
+      const h = JSON.parse(sessionStorage.getItem(HIST_KEY) ?? 'null') as { snaps: Saved[]; hi: number } | null;
+      const last = h?.snaps[h.hi];
+      const key = (x: { pieces: Saved['pieces']; angle: number; offset: number; level: number }) => JSON.stringify([x.pieces.map((q) => [q.src, q.x, q.z, q.y, q.yaw, q.scale]), x.angle, x.offset, x.level]);
+      const mine: Saved = { pieces: pieces.filter((q) => q.src).map((q) => ({ src: q.src as string, x: q.x, z: q.z, y: q.y, yaw: q.yaw, scale: q.scale })), angle, offset, level };
+      if (h && last && key(last) === key(mine)) {
+        const snaps: Snap[] = h.snaps.map((sn) => ({ pieces: buildPieces(sn.pieces), angle: sn.angle, offset: sn.offset, level: sn.level }));
+        hist.length = 0; hist.push(...snaps); hi = h.hi;
+        pieces = hist[hi].pieces.map((q) => ({ ...q })); selected = null;
+        undoBtn.disabled = hi < 1; redoBtn.disabled = hi >= hist.length - 1;
+        drawPanel(); drawLanePanel(); draw(); drawProfile(); verify();
+      }
+    } catch { /* no history to bring back */ }
+  }
+  if (!pendingObjects.length) onWorld(); // else onWorld runs when the saved photo objects are in
   document.documentElement.dataset.pieces = String(pieces.length);
   return { backend: 'webgl2' };
 }
