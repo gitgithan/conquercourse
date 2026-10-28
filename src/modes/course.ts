@@ -224,7 +224,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
   // the controls, always visible top-left as a card of key caps (collapse with H)
   const help = document.createElement('div');
   help.id = 'keys';
-  const KEYS: [string, string][] = [['← →', 'Run (hold)'], ['Space', 'Jump · let go of the rope · press on the trampoline'], ['↓', 'Bend your knees (hold, on big drops)'], ['X', 'Roll out of a big drop (tap just before you land)'], ...(course !== defaultCourse ? ([['Q / E', 'Hold a bar with the left or right hand (in the air)'], ['← → on a bar', 'Pump the swing: push the way you swing'], ['V', 'Vault over a step with a hand on top (fast, saves energy)'], ['F', 'Front view window (it shows by itself on a bar)']] as [string, string][]) : []), ['I', 'Ideal run of this obstacle (Shift+I: the whole course, any key stops it)'], ['G', 'Drums: where the ideal run presses Space'], ['B', 'Debug view: see the collision boxes and where a jump goes'], ['Mouse', 'Drag to turn the view, wheel to zoom, double-click to reset']]; // retry, ideal run and Dojo are on the fall panel and the buttons
+  const KEYS: [string, string][] = [['← →', 'Run (hold)'], ['Space', 'Jump · let go of the rope · press on the trampoline'], ['↓', 'Bend your knees (hold, on big drops)'], ['X', 'Roll out of a big drop (tap just before you land)'], ...(course !== defaultCourse ? ([['E', 'Hold a bar with the hands (in the air; let go to fly on)'], ['← → on a bar', 'Pump the swing: push the way you swing'], ['V', 'Vault over a step with a hand on top (fast, saves energy)'], ['F', 'Front view window (it shows by itself on a bar)']] as [string, string][]) : []), ['I', 'Ideal run of this obstacle (Shift+I: the whole course, any key stops it)'], ['G', 'Drums: where the ideal run presses Space'], ['B', 'Debug view: see the collision boxes and where a jump goes'], ['Mouse', 'Drag to turn the view, wheel to zoom, double-click to reset']]; // retry, ideal run and Dojo are on the fall panel and the buttons
   help.style.cssText = 'position:fixed;left:16px;top:48px;width:290px;background:#fffffff0;border:1px solid #cfd6d0;border-radius:12px;padding:8px 10px;font:500 14px system-ui,sans-serif;color:#17201d;box-shadow:0 2px 10px #0002;pointer-events:none;display:grid;gap:5px';
   const paintKeys = (open: boolean) => {
     help.innerHTML = `<div style="font-weight:700;display:flex;justify-content:space-between">Controls <span style="font-weight:400;color:#58635d">H ${open ? 'hides' : 'shows'}</span></div>` + (open ? KEYS.map(([k, d]) => `<div style="display:grid;grid-template-columns:78px 1fr;gap:8px;align-items:center"><kbd style="font:700 13px ui-monospace,monospace;background:#eef1ec;border:1px solid #b9c2bb;border-bottom-width:3px;border-radius:6px;padding:1px 6px;text-align:center">${k}</kbd><span>${d}</span></div>`).join('') : '');
@@ -697,9 +697,9 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
     if (w.mode === 'hang') {
       // a push cue (the way the body is swinging) and a let-go cue from the simulator's own look ahead
       const fwd = (w.hang?.omega ?? 0) >= 0, rel = predictRelease(w, course);
-      return `${fwd ? 'Push →' : 'Push ←'} with the swing (hold Q or E)  ·  ${rel.result === 'lands' && /next bar|ground/.test(rel.why) ? 'LET GO NOW: ' + rel.why : 'keep swinging: ' + rel.why}`;
+      return `${fwd ? 'Push →' : 'Push ←'} with the swing (hold E)  ·  ${rel.result === 'lands' && /next bar|ground/.test(rel.why) ? 'LET GO NOW: ' + rel.why : 'keep swinging: ' + rel.why}`;
     }
-    if (course.holds?.length && w.mode === 'run' && !r.grounded) { const next = course.holds.find((h) => h.x > r.x - 0.5); if (next && Math.abs(next.x - r.x) < 2.5) return 'Hold Q or E to grab the bar'; }
+    if (course.holds?.length && w.mode === 'run' && !r.grounded) { const next = course.holds.find((h) => h.x > r.x - 0.5); if (next && Math.abs(next.x - r.x) < 2.5) return 'Hold E to grab the bar'; }
     if (everCleared || falls > 0) return '';
     if (r.tick < 60 || (r.x < 4 && r.tick < 600)) return 'Hold → to run';
     const g = specs.find((q2) => q2.x + 0.2 >= r.x && q2.x - r.x < 9);
@@ -740,7 +740,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
       let input: RunnerInput = NO_INPUT;
       if (plan) input = inputFor(plan, world, botState, course);
       else {
-        input = { run: keys.has('ArrowRight') || keys.has('KeyD'), left: keys.has('ArrowLeft') || keys.has('KeyA'), jump: jumpQueued, jumpSpeed: 0, squat: keys.has('ArrowDown') || keys.has('KeyS'), handL: keys.has('KeyQ'), handR: keys.has('KeyE'), vault: vaultQueued, roll: rollQueued };
+        input = { run: keys.has('ArrowRight') || keys.has('KeyD'), left: keys.has('ArrowLeft') || keys.has('KeyA'), jump: jumpQueued, jumpSpeed: 0, squat: keys.has('ArrowDown') || keys.has('KeyS'), handL: keys.has('KeyE'), handR: keys.has('KeyE'), vault: vaultQueued, roll: rollQueued };
         jumpQueued = false; vaultQueued = false; rollQueued = false;
       }
       const prev = world.outcome;

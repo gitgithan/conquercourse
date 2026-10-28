@@ -2,7 +2,7 @@
 
 ## Marathon log (2026-10-28)
 - **What is new and where to try it** (run `npm run dev`, then open `http://localhost:5173`):
-  - `/?course=/assets/demo/lache.course.json`: run, vault over a box, swing across two bars (add `&bot=ideal` to watch the proven line); keys Q/E (hands), arrows (pump), V (vault), G (drums), B (debug view), F (front view).
+  - `/?course=/assets/demo/lache.course.json`: run, vault over a box, swing across two bars (add `&bot=ideal` to watch the proven line); keys E (hold), arrows (pump), V (vault), G (drums), B (debug view), F (front view).
   - The menu at the right of the Course opens every demo course, including three places from the OpenStreetMap spike.
   - `/?mode=editor`: 3D editor with real objects, bars (Overhead row), side-view dragging, undo and redo, Fix it, the design partner, Test from the selected piece.
 - **In CC-44:** holds, hang, vault, energy, the proof for them, the front view window, push and let-go cues.
