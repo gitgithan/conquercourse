@@ -8,7 +8,6 @@ import { DEFAULT_TRAMPOLINE, bounce, type Bounce } from './trampoline';
 import { JUMP_COST, VAULT_COST } from './energy';
 import { VAULT_BUFFER, VAULT_KEEP, findVault, vaultAt, type Vault } from './vault';
 import { comDistance, DEFAULT_HANG, feetOf, gripSlips, hangStep, releaseHang, tryGrab, type Hang } from './holds';
-
 import { enterCart, stepCartWorld, type Cart } from './cart';
 
 // One world for the Course: the runner plus whichever obstacle has hold of the runner right now.
