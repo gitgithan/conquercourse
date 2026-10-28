@@ -234,3 +234,15 @@ The set of obstacle shapes is fixed, and each shape offers a fixed set of moves.
 - **Checked with real key presses** (`scripts/keys-check.ts`, the game at 0.15 speed): V vaults the box, Space jumps, E grabs the first bar, the arrows pump, letting go and E again grab the second bar.
 - **What the check found and fixed:** a V pressed even slightly late hit the box (the window was 0.9 m, about 0.1 s), so a V pressed up to 0.2 s early now counts, the reach is 1.2 m, and the ideal press is the centre of the window; bars grab within 0.6 m.
 - **Not a pass/fail test:** its let-go timing is crude, so it ends in a splash; the proved line is checked by the bot (`scripts/lache-check.mjs`).
+
+## Mesh census (CC-50)
+- **So what:** an object with a wrong size or holes can make a jump "work" on something that is not there, because collision comes from the same mesh as the picture.
+- **What it checks:** size in metres, open edges (holes), flipped edges, edges shared by three triangles, empty triangles and loose points (`src/slice/census.ts`, `npx tsx scripts/mesh-census.ts`).
+- **When it refuses:** a side longer than 12 m or shorter than 5 cm (scale bug), or more than 1% of triangles affected by one of the defects.
+- **Our six objects:** all pass.
+  - rail-skate-01 has 19 open edges and 8 empty triangles (about 0.3% of the mesh), the most of the six.
+  - railing-iron has 5 edges shared by three triangles.
+  - The others are clean or nearly clean.
+- **Tests:** `tests/census.test.ts` breaks a cube on purpose (scale x100 and x0.001, a hole, a flipped face) and every object in the library must pass.
+- **Idea source:** a thread on why model-written Blender scripts break (2026-10-28): units, and defects a render hides.
+- **Known gap:** it does not check self-intersection, which is slow on big meshes.
