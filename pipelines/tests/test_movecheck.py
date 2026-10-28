@@ -64,3 +64,24 @@ def test_search_cmu_finds_terms_and_skips_phrases():
              {"id": "02_01", "subject": 2, "subjectDesc": "walk", "desc": "walk", "fps": 120}]
     hits = movecheck.search_cmu(index, ["roll", "summersult"], ["wide leg roll"])
     assert [h["id"] for h in hits] == ["90_01"]
+
+
+def test_a_backward_somersault_is_not_a_forward_roll_even_after_orient():
+    """orient() turns a clip so the hips travel along +z; a backward somersault must still read as backward."""
+    from ccpipe import cmu
+    c = rolling(-360)
+    f = c.frames.copy()
+    f[:, :, 2] *= -1  # a body facing -z that travels -z and turns backward over its back
+    for k in range(len(f)):
+        f[k, :, 0] *= -1  # keep it a proper (not mirrored) body
+    oriented = Clip(cmu.orient(f), c.fps)
+    assert not movecheck.roll_check(oriented)[0]
+
+
+def test_a_roll_facing_the_other_way_still_passes():
+    from ccpipe import cmu
+    c = rolling(360)
+    f = c.frames.copy()
+    f[:, :, 2] *= -1
+    f[:, :, 0] *= -1
+    assert movecheck.roll_check(Clip(cmu.orient(f), c.fps))[0]
