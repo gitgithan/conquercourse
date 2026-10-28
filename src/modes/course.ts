@@ -32,7 +32,8 @@ import { drumsFor } from '../sim/drums';
 import { createDrumLane } from '../ui/drum-lane';
 import { BUTTON_PLACE, buildGallery, currentWorld, DEMOS, GALLERY_EVENT, modalAttrs, mountWorldGallery, worldHref } from '../ui/world-picker';
 import { createDebugView } from '../ui/debug-view';
-import { loadPlacePhotos, mountPlacePhotos, slugOfCourse } from '../ui/place-photos';
+import { slugOfCourse } from '../ui/place-photos';
+import { mountLivePhotos } from '../ui/live-photos';
 import { barName, predictBand, predictLaunch, predictRelease, predictShot, type Prediction } from '../sim/predict';
 import { createTrebuchetView } from '../ui/trebuchet-view';
 import { createRecoilView } from '../ui/recoil-view';
@@ -517,7 +518,8 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
   document.body.append(hud, msg, help, panel, hint, gauge, dojoBtn, idealBtn, rowBtns, pick, camBtn, dbgBtn);
   // CC-85: a real place shows its real photos (credit under each, a large view on click); ?photos=0 or the Hide switch turns them off
   const placeSlug = slugOfCourse(course.name);
-  if (placeSlug && new URLSearchParams(location.search).get('photos') !== '0') void loadPlacePhotos(placeSlug).then((d) => { if (d) mountPlacePhotos(document.body, d); });
+  let livePhotos: { update(x: number): void } | null = null; // CC-90: street photos from the allow-list change as the runner moves; the CC-85 strip is the fallback
+  if (placeSlug && new URLSearchParams(location.search).get('photos') !== '0') void mountLivePhotos(document.body, course).then((h) => { livePhotos = h; });
   const toast = document.createElement('div');
   toast.style.cssText = 'position:fixed;left:50%;top:44%;transform:translateX(-50%);font:700 22px system-ui,sans-serif;color:#10141c;background:#fffffff0;border-radius:10px;padding:6px 14px;pointer-events:none;display:none';
   document.body.append(toast);
@@ -1339,6 +1341,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
     gFill.style.background = need && spd < need ? '#c4572a' : '#0f6b5c';
     gNext.textContent = msgNext;
     hud.textContent = `Time ${(r.tick / 120).toFixed(1)} s   ·   ${Math.max(0, Math.round(r.x))} m of ${course.finishX} m`;
+    livePhotos?.update(r.x);
     // the head: the body's turn about the bar (swing angle theta, a rotation so it passes the top smoothly) and where the eyes are; the first-person camera and the corner window both use it.
     // After a release the head settles level over about 0.3 s (the body has no spin in flight); on the ground it is level.
     const nowS = performance.now() / 1000, dtHead = Math.min(0.05, Math.max(0, nowS - pipClock)); pipClock = nowS;

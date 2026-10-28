@@ -1,0 +1,32 @@
+{
+  "place": "eixample-barcelona",
+  "name": "Eixample, Barcelona",
+  "generated": "2026-10-28",
+  "source": "Mapillary contributors, CC BY-SA 4.0; photos with a person detected (Faster R-CNN, of any size) are left out",
+  "photos": [
+    {
+      "id": "1086247472109794",
+      "creator": "ccossio",
+      "capturedAt": 1489508388847,
+      "lat": 41.392766,
+      "lon": 2.164301,
+      "compass": 318.8
+    },
+    {
+      "id": "188280269782817",
+      "creator": "ccossio",
+      "capturedAt": 1489508390833,
+      "lat": 41.39277,
+      "lon": 2.164296,
+      "compass": 318.9
+    },
+    {
+      "id": "461169311846271",
+      "creator": "ccossio",
+      "capturedAt": 1489508389840,
+      "lat": 41.392768,
+      "lon": 2.164299,
+      "compass": 318.9
+    }
+  ]
+}

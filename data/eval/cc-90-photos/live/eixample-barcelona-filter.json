@@ -1,0 +1,384 @@
+{
+  "place": "eixample-barcelona",
+  "lane_steps_10m": 16,
+  "photos_in_box_not_pano_with_direction": 613,
+  "facing_candidates_found": 53,
+  "candidates_checked": 53,
+  "kept": 3,
+  "rejected": 50,
+  "rejected_by_reason": {
+    "person under 2 percent (a small or far figure, could be a child)": 39,
+    "person 2 percent or larger": 11
+  },
+  "detector": "torchvision fasterrcnn_resnet50_fpn COCO, person score >= 0.4",
+  "rows": [
+    {
+      "id": "456922988749324",
+      "persons": 10,
+      "person_max_area_share": 0.0136,
+      "kept": false,
+      "reason": "person under 2 percent (a small or far figure, could be a child)"
+    },
+    {
+      "id": "340433254105012",
+      "persons": 10,
+      "person_max_area_share": 0.0035,
+      "kept": false,
+      "reason": "person under 2 percent (a small or far figure, could be a child)"
+    },
+    {
+      "id": "370579940990891",
+      "persons": 14,
+      "person_max_area_share": 0.0037,
+      "kept": false,
+      "reason": "person under 2 percent (a small or far figure, could be a child)"
+    },
+    {
+      "id": "291546499127472",
+      "persons": 2,
+      "person_max_area_share": 0.0495,
+      "kept": false,
+      "reason": "person 2 percent or larger"
+    },
+    {
+      "id": "569635607345264",
+      "persons": 13,
+      "person_max_area_share": 0.0048,
+      "kept": false,
+      "reason": "person under 2 percent (a small or far figure, could be a child)"
+    },
+    {
+      "id": "145230331160845",
+      "persons": 4,
+      "person_max_area_share": 0.0036,
+      "kept": false,
+      "reason": "person under 2 percent (a small or far figure, could be a child)"
+    },
+    {
+      "id": "777895596247452",
+      "persons": 15,
+      "person_max_area_share": 0.0082,
+      "kept": false,
+      "reason": "person under 2 percent (a small or far figure, could be a child)"
+    },
+    {
+      "id": "602580917562314",
+      "persons": 6,
+      "person_max_area_share": 0.0029,
+      "kept": false,
+      "reason": "person under 2 percent (a small or far figure, could be a child)"
+    },
+    {
+      "id": "887096561837605",
+      "persons": 6,
+      "person_max_area_share": 0.0039,
+      "kept": false,
+      "reason": "person under 2 percent (a small or far figure, could be a child)"
+    },
+    {
+      "id": "287253569663479",
+      "persons": 2,
+      "person_max_area_share": 0.0005,
+      "kept": false,
+      "reason": "person under 2 percent (a small or far figure, could be a child)"
+    },
+    {
+      "id": "265240672005745",
+      "persons": 1,
+      "person_max_area_share": 0.0004,
+      "kept": false,
+      "reason": "person under 2 percent (a small or far figure, could be a child)"
+    },
+    {
+      "id": "1340394236391613",
+      "persons": 5,
+      "person_max_area_share": 0.002,
+      "kept": false,
+      "reason": "person under 2 percent (a small or far figure, could be a child)"
+    },
+    {
+      "id": "154324996629792",
+      "persons": 4,
+      "person_max_area_share": 0.0016,
+      "kept": false,
+      "reason": "person under 2 percent (a small or far figure, could be a child)"
+    },
+    {
+      "id": "307533654086047",
+      "persons": 16,
+      "person_max_area_share": 0.0044,
+      "kept": false,
+      "reason": "person under 2 percent (a small or far figure, could be a child)"
+    },
+    {
+      "id": "144391594324343",
+      "persons": 4,
+      "person_max_area_share": 0.0007,
+      "kept": false,
+      "reason": "person under 2 percent (a small or far figure, could be a child)"
+    },
+    {
+      "id": "2262593447210536",
+      "persons": 7,
+      "person_max_area_share": 0.0009,
+      "kept": false,
+      "reason": "person under 2 percent (a small or far figure, could be a child)"
+    },
+    {
+      "id": "238848214345186",
+      "persons": 3,
+      "person_max_area_share": 0.0022,
+      "kept": false,
+      "reason": "person under 2 percent (a small or far figure, could be a child)"
+    },
+    {
+      "id": "485335642707099",
+      "persons": 2,
+      "person_max_area_share": 0.0021,
+      "kept": false,
+      "reason": "person under 2 percent (a small or far figure, could be a child)"
+    },
+    {
+      "id": "188280269782817",
+      "persons": 0,
+      "person_max_area_share": 0.0,
+      "kept": true
+    },
+    {
+      "id": "461169311846271",
+      "persons": 0,
+      "person_max_area_share": 0.0,
+      "kept": true
+    },
+    {
+      "id": "1086247472109794",
+      "persons": 0,
+      "person_max_area_share": 0.0,
+      "kept": true
+    },
+    {
+      "id": "538098423852693",
+      "persons": 20,
+      "person_max_area_share": 0.0052,
+      "kept": false,
+      "reason": "person under 2 percent (a small or far figure, could be a child)"
+    },
+    {
+      "id": "176048938053848",
+      "persons": 5,
+      "person_max_area_share": 0.0025,
+      "kept": false,
+      "reason": "person under 2 percent (a small or far figure, could be a child)"
+    },
+    {
+      "id": "465527921199549",
+      "persons": 6,
+      "person_max_area_share": 0.0005,
+      "kept": false,
+      "reason": "person under 2 percent (a small or far figure, could be a child)"
+    },
+    {
+      "id": "494736788377327",
+      "persons": 1,
+      "person_max_area_share": 0.0002,
+      "kept": false,
+      "reason": "person under 2 percent (a small or far figure, could be a child)"
+    },
+    {
+      "id": "1238420806575260",
+      "persons": 4,
+      "person_max_area_share": 0.0007,
+      "kept": false,
+      "reason": "person under 2 percent (a small or far figure, could be a child)"
+    },
+    {
+      "id": "476505986950916",
+      "persons": 1,
+      "person_max_area_share": 0.001,
+      "kept": false,
+      "reason": "person under 2 percent (a small or far figure, could be a child)"
+    },
+    {
+      "id": "468576091142205",
+      "persons": 2,
+      "person_max_area_share": 0.0008,
+      "kept": false,
+      "reason": "person under 2 percent (a small or far figure, could be a child)"
+    },
+    {
+      "id": "450635996038422",
+      "persons": 1,
+      "person_max_area_share": 0.0022,
+      "kept": false,
+      "reason": "person under 2 percent (a small or far figure, could be a child)"
+    },
+    {
+      "id": "3010369825865522",
+      "persons": 16,
+      "person_max_area_share": 0.0344,
+      "kept": false,
+      "reason": "person 2 percent or larger"
+    },
+    {
+      "id": "460060085081499",
+      "persons": 9,
+      "person_max_area_share": 0.067,
+      "kept": false,
+      "reason": "person 2 percent or larger"
+    },
+    {
+      "id": "299950178406756",
+      "persons": 18,
+      "person_max_area_share": 0.0301,
+      "kept": false,
+      "reason": "person 2 percent or larger"
+    },
+    {
+      "id": "857546868447299",
+      "persons": 13,
+      "person_max_area_share": 0.0185,
+      "kept": false,
+      "reason": "person under 2 percent (a small or far figure, could be a child)"
+    },
+    {
+      "id": "3825046710882480",
+      "persons": 20,
+      "person_max_area_share": 0.0092,
+      "kept": false,
+      "reason": "person under 2 percent (a small or far figure, could be a child)"
+    },
+    {
+      "id": "1457133421286100",
+      "persons": 21,
+      "person_max_area_share": 0.0096,
+      "kept": false,
+      "reason": "person under 2 percent (a small or far figure, could be a child)"
+    },
+    {
+      "id": "776583632881116",
+      "persons": 13,
+      "person_max_area_share": 0.0676,
+      "kept": false,
+      "reason": "person 2 percent or larger"
+    },
+    {
+      "id": "2981143658834260",
+      "persons": 19,
+      "person_max_area_share": 0.0088,
+      "kept": false,
+      "reason": "person under 2 percent (a small or far figure, could be a child)"
+    },
+    {
+      "id": "937503227002233",
+      "persons": 19,
+      "person_max_area_share": 0.0097,
+      "kept": false,
+      "reason": "person under 2 percent (a small or far figure, could be a child)"
+    },
+    {
+      "id": "2994506474208030",
+      "persons": 21,
+      "person_max_area_share": 0.0096,
+      "kept": false,
+      "reason": "person under 2 percent (a small or far figure, could be a child)"
+    },
+    {
+      "id": "358620565708103",
+      "persons": 23,
+      "person_max_area_share": 0.0127,
+      "kept": false,
+      "reason": "person under 2 percent (a small or far figure, could be a child)"
+    },
+    {
+      "id": "517958342679079",
+      "persons": 22,
+      "person_max_area_share": 0.0182,
+      "kept": false,
+      "reason": "person under 2 percent (a small or far figure, could be a child)"
+    },
+    {
+      "id": "290297372767133",
+      "persons": 10,
+      "person_max_area_share": 0.0199,
+      "kept": false,
+      "reason": "person under 2 percent (a small or far figure, could be a child)"
+    },
+    {
+      "id": "314255736791364",
+      "persons": 8,
+      "person_max_area_share": 0.0065,
+      "kept": false,
+      "reason": "person under 2 percent (a small or far figure, could be a child)"
+    },
+    {
+      "id": "1231691653953730",
+      "persons": 19,
+      "person_max_area_share": 0.0154,
+      "kept": false,
+      "reason": "person under 2 percent (a small or far figure, could be a child)"
+    },
+    {
+      "id": "499540497735148",
+      "persons": 15,
+      "person_max_area_share": 0.0839,
+      "kept": false,
+      "reason": "person 2 percent or larger"
+    },
+    {
+      "id": "2882979211970529",
+      "persons": 2,
+      "person_max_area_share": 0.055,
+      "kept": false,
+      "reason": "person 2 percent or larger"
+    },
+    {
+      "id": "2853206271563406",
+      "persons": 19,
+      "person_max_area_share": 0.034,
+      "kept": false,
+      "reason": "person 2 percent or larger"
+    },
+    {
+      "id": "792675144976026",
+      "persons": 19,
+      "person_max_area_share": 0.0195,
+      "kept": false,
+      "reason": "person under 2 percent (a small or far figure, could be a child)"
+    },
+    {
+      "id": "472694437286192",
+      "persons": 3,
+      "person_max_area_share": 0.0657,
+      "kept": false,
+      "reason": "person 2 percent or larger"
+    },
+    {
+      "id": "145424997479958",
+      "persons": 2,
+      "person_max_area_share": 0.042,
+      "kept": false,
+      "reason": "person 2 percent or larger"
+    },
+    {
+      "id": "1092269486109850",
+      "persons": 5,
+      "person_max_area_share": 0.0466,
+      "kept": false,
+      "reason": "person 2 percent or larger"
+    },
+    {
+      "id": "1874977706651610",
+      "persons": 7,
+      "person_max_area_share": 0.015,
+      "kept": false,
+      "reason": "person under 2 percent (a small or far figure, could be a child)"
+    },
+    {
+      "id": "1202564958136143",
+      "persons": 5,
+      "person_max_area_share": 0.007,
+      "kept": false,
+      "reason": "person under 2 percent (a small or far figure, could be a child)"
+    }
+  ]
+}

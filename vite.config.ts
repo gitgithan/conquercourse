@@ -5,6 +5,7 @@ import { defineConfig, type Plugin } from 'vite';
 import { askSpark, limited, MAX_BODY } from './functions/api/designer';
 import { askPhoto, MAX_PHOTO_BODY } from './functions/api/photo-course';
 import { lookup } from './functions/api/places';
+import { lookup as lookupPhotos } from './functions/api/photos';
 
 const build = (() => { try { return execSync('git rev-parse --short HEAD').toString().trim(); } catch { return 'dev'; } })();
 
@@ -64,12 +65,29 @@ const placesDev = (): Plugin => ({
   },
 });
 
+// Dev only: /api/photos on this machine (the same lookup as the Pages Function), with the token read from a private file (never sent to the page); 503 if the file is absent.
+const photosDev = (): Plugin => ({
+  name: 'photos-dev',
+  configureServer(server) {
+    let token = '';
+    try { token = /^MAPILLARY_TOKEN=(.+)$/m.exec(readFileSync(`${homedir()}/.config/ninja/mapillary.env`, 'utf8'))?.[1].trim().replace(/^["']|["']$/g, '') ?? ''; } catch { /* no token here */ }
+    const kept = new Map<string, string>();
+    const store = { async get(k: string) { return kept.get(k) ?? null; }, async put(k: string, v: string) { kept.set(k, v); } };
+    server.middlewares.use('/api/photos', async (req, res) => {
+      const u = new URL(req.url ?? '/', 'http://localhost');
+      const r = await lookupPhotos(u.searchParams, 'dev', token, store, (url, init) => fetch(url, init));
+      res.statusCode = r.status; res.setHeader('content-type', 'application/json');
+      res.end(JSON.stringify(r.body));
+    });
+  },
+});
+
 // CC_TESTS=fast skips the files in tests/slow.json; CC_TESTS=slow runs only them with a longer timeout (docs/testing.md)
 const slowFiles: string[] = JSON.parse(readFileSync('tests/slow.json', 'utf8'));
 const tier = process.env.CC_TESTS;
 
 export default defineConfig({
-  plugins: [designerDev(), placesDev()],
+  plugins: [designerDev(), placesDev(), photosDev()],
   define: { __BUILD__: JSON.stringify(build + ' ' + new Date().toISOString().slice(0, 10)) },
   server: { host: 'localhost', port: Number(process.env.PORT ?? 5173) },
   test: tier === 'slow'

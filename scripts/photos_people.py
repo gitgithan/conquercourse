@@ -1,0 +1,191 @@
+"""CC-90: the allow-list of street photos with no people in them, per real place.
+
+usage: photos_people.py SLUG [SLUG ...] [--max 120]   (run from the repo root with /root/venv-det/bin/python; token in ~/.config/ninja/mapillary.env, never printed)
+For each place: take the lane line, walk it every 10 m, pick up to four nearby photos that face the lane at each step (not panoramas),
+run a person detector over them (torchvision Faster R-CNN ResNet-50 FPN, COCO weights; code BSD-3-Clause, COCO labels CC BY 4.0),
+and keep only the photos where no person is found at any size (stricter than the 2 percent in the brief, so small
+and far figures, which include children, are left out too). Writes:
+  public/assets/photos-live/<slug>.json        the allow-list the game reads (ids, creator, position, camera direction; no picture bytes, no addresses)
+  data/eval/cc-90-photos/live/<slug>-filter.json   counts and the reason for every rejection
+  data/eval/cc-90-photos/live/<slug>-kept-sheet.jpg  up to eight kept photos at 256 px, to look at by eye (small; the pictures themselves are not stored)
+The detector is the only thing that decides: a person it misses gets through, so the sheet is looked at by eye and the list is re-made when the detector or the places change.
+"""
+import io, json, math, os, sys, time, urllib.request
+
+import torch
+import torchvision
+from PIL import Image
+
+STEP, NEAR, FACE_DEG, MARGIN, PER_STEP = 10.0, 60.0, 60.0, 70.0, 4
+SEEN_SCORE = 0.4
+M_LAT = 111320.0
+UA = {"User-Agent": "conquercourse-research/0.1 (educational game; contact via repo)"}
+FIELDS = "id,captured_at,is_pano,compass_angle,computed_compass_angle,geometry,computed_geometry,thumb_1024_url,creator"
+CACHE = os.path.expanduser("~/photos-cache")
+
+
+def token():
+    for l in open(os.path.expanduser("~/.config/ninja/mapillary.env")):
+        if l.startswith("MAPILLARY_TOKEN="):
+            return l.split("=", 1)[1].strip().strip("\"'")
+    raise SystemExit("no token")
+
+
+TOK = token()
+
+
+def get(url, headers=None, raw=False, tries=3):
+    err = None
+    for n in range(tries):
+        try:
+            with urllib.request.urlopen(urllib.request.Request(url, headers=headers or UA), timeout=60) as r:
+                return r.read() if raw else json.load(r)
+        except Exception as e:
+            err = e
+            time.sleep(2 * (n + 1))
+    raise RuntimeError(type(err).__name__)  # never echo the address (it may hold the token)
+
+
+def to_ll(lat0, lon0, x, y):
+    return lat0 - y / M_LAT, lon0 + x / (M_LAT * math.cos(math.radians(lat0)))
+
+
+def to_xy(lat0, lon0, lat, lon):
+    return (lon - lon0) * M_LAT * math.cos(math.radians(lat0)), -(lat - lat0) * M_LAT
+
+
+def bearing(x0, y0, x1, y1):
+    return math.degrees(math.atan2(x1 - x0, -(y1 - y0))) % 360
+
+
+def angdiff(a, b):
+    d = abs(a - b) % 360
+    return min(d, 360 - d)
+
+
+def mapillary(lat0, lon0, xmin, xmax, ymin, ymax):
+    out, todo = {}, [(xmin, xmax, ymin, ymax)]
+    while todo:
+        a, b, c, d = todo.pop()
+        la1, lo1 = to_ll(lat0, lon0, a, d)
+        la2, lo2 = to_ll(lat0, lon0, b, c)
+        url = f"https://graph.mapillary.com/images?bbox={lo1:.6f},{la1:.6f},{lo2:.6f},{la2:.6f}&limit=2000&fields={FIELDS}"
+        data = get(url, {"Authorization": "OAuth " + TOK, **UA})["data"]
+        if len(data) >= 2000 and (b - a) > 40:
+            mx, my = (a + b) / 2, (c + d) / 2
+            todo += [(a, mx, c, my), (mx, b, c, my), (a, mx, my, d), (mx, b, my, d)]
+        else:
+            for im in data:
+                out[im["id"]] = im
+        time.sleep(0.2)
+    return list(out.values())
+
+
+def candidates(pl, cap):
+    lat0, lon0 = pl["lat"], pl["lon"]
+    x0, y0, x1, y1 = pl["lane"]["line"]
+    n = int(math.hypot(x1 - x0, y1 - y0) // STEP) + 1
+    samples = [(x0 + (x1 - x0) * i / (n - 1), y0 + (y1 - y0) * i / (n - 1)) for i in range(n)]
+    box = (min(x0, x1) - MARGIN, max(x0, x1) + MARGIN, min(y0, y1) - MARGIN, max(y0, y1) + MARGIN)
+    photos = []
+    for im in mapillary(lat0, lon0, *box):
+        g = im.get("computed_geometry") or im.get("geometry")
+        ang = im.get("computed_compass_angle", im.get("compass_angle"))
+        if not g or ang is None or im.get("is_pano") or not im.get("thumb_1024_url"):
+            continue
+        x, y = to_xy(lat0, lon0, g["coordinates"][1], g["coordinates"][0])
+        photos.append({"im": im, "x": x, "y": y, "ang": ang, "lat": g["coordinates"][1], "lon": g["coordinates"][0]})
+    chosen = {}
+    for sx, sy in samples:
+        near = sorted((math.hypot(p["x"] - sx, p["y"] - sy), p["im"]["id"], p) for p in photos)
+        got = 0
+        for d, pid, p in near:
+            if d > NEAR:
+                break
+            if angdiff(p["ang"], bearing(p["x"], p["y"], sx, sy)) <= FACE_DEG and pid not in chosen:
+                chosen[pid] = p
+                got += 1
+                if got >= PER_STEP:
+                    break
+    out = list(chosen.values())
+    return out[:cap], len(photos), len(chosen), n
+
+
+def load_image(p):
+    os.makedirs(CACHE, exist_ok=True)
+    f = f"{CACHE}/{p['im']['id']}.jpg"
+    if not os.path.exists(f):
+        open(f, "wb").write(get(p["im"]["thumb_1024_url"], raw=True))
+    return Image.open(f).convert("RGB")
+
+
+def main(slugs, cap):
+    torch.set_num_threads(int(os.environ.get("THREADS", os.cpu_count() or 4)))
+    model = torchvision.models.detection.fasterrcnn_resnet50_fpn(weights=torchvision.models.detection.FasterRCNN_ResNet50_FPN_Weights.DEFAULT).eval()
+    to_t = torchvision.transforms.functional.to_tensor
+    os.makedirs("data/eval/cc-90-photos/live", exist_ok=True)
+    os.makedirs("public/assets/photos-live", exist_ok=True)
+    for slug in slugs:
+        pl = json.load(open(f"public/assets/places/{slug}.json"))
+        cands, in_box, facing, steps = candidates(pl, cap)
+        kept, rows, sheet = [], [], []
+        for i, p in enumerate(cands):
+            pid = p["im"]["id"]
+            row = {"id": pid}
+            try:
+                img = load_image(p)
+            except Exception:
+                row.update(kept=False, reason="download failed")
+                rows.append(row)
+                continue
+            with torch.no_grad():
+                r = model([to_t(img)])[0]
+            w, h = img.size
+            persons = [(float(s), (float(b[2] - b[0]) * float(b[3] - b[1])) / (w * h)) for l, s, b in zip(r["labels"], r["scores"], r["boxes"]) if int(l) == 1 and float(s) >= SEEN_SCORE]
+            big = max((a for _, a in persons), default=0.0)
+            row.update(persons=len(persons), person_max_area_share=round(big, 4))
+            if big >= 0.02:
+                row.update(kept=False, reason="person 2 percent or larger")
+            elif persons:
+                row.update(kept=False, reason="person under 2 percent (a small or far figure, could be a child)")
+            else:
+                row.update(kept=True)
+                im = p["im"]
+                kept.append({"id": pid, "creator": (im.get("creator") or {}).get("username", ""), "capturedAt": im.get("captured_at"), "lat": round(p["lat"], 6), "lon": round(p["lon"], 6), "compass": round(p["ang"], 1)})
+                if len(sheet) < 8:
+                    sheet.append(img.copy())
+            rows.append(row)
+            if i % 10 == 0:
+                print(slug, i, "of", len(cands), "kept", len(kept), flush=True)
+        reasons = {}
+        for r_ in rows:
+            if not r_["kept"]:
+                reasons[r_["reason"]] = reasons.get(r_["reason"], 0) + 1
+        json.dump({
+            "place": slug, "name": pl["name"], "generated": time.strftime("%Y-%m-%d", time.gmtime()),
+            "source": "Mapillary contributors, CC BY-SA 4.0; photos with a person detected (Faster R-CNN, of any size) are left out",
+            "photos": sorted(kept, key=lambda k: k["id"]),
+        }, open(f"public/assets/photos-live/{slug}.json", "w"), indent=2)
+        open(f"public/assets/photos-live/{slug}.json", "a").write("\n")
+        stats = {"place": slug, "lane_steps_10m": steps, "photos_in_box_not_pano_with_direction": in_box, "facing_candidates_found": facing, "candidates_checked": len(cands),
+                 "kept": len(kept), "rejected": len(cands) - len(kept), "rejected_by_reason": reasons, "detector": "torchvision fasterrcnn_resnet50_fpn COCO, person score >= 0.4", "rows": rows}
+        json.dump(stats, open(f"data/eval/cc-90-photos/live/{slug}-filter.json", "w"), indent=2)
+        open(f"data/eval/cc-90-photos/live/{slug}-filter.json", "a").write("\n")
+        if sheet:
+            W = 256
+            tiles = [im.resize((W, int(W * im.height / im.width))) for im in sheet]
+            cols, rows_n = 4, (len(tiles) + 3) // 4
+            th = max(t.height for t in tiles)
+            canvas = Image.new("RGB", (cols * W, rows_n * th), "white")
+            for k, t in enumerate(tiles):
+                canvas.paste(t, ((k % cols) * W, (k // cols) * th))
+            canvas.save(f"data/eval/cc-90-photos/live/{slug}-kept-sheet.jpg", quality=70)
+        print(slug, json.dumps({k: v for k, v in stats.items() if k != "rows"}), flush=True)
+
+
+if __name__ == "__main__":
+    args = [a for a in sys.argv[1:] if not a.startswith("--")]
+    cap = int(sys.argv[sys.argv.index("--max") + 1]) if "--max" in sys.argv else 120
+    if "--max" in sys.argv:
+        args.remove(str(cap))
+    main(args, cap)
