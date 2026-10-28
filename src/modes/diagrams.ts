@@ -1,8 +1,8 @@
 // Labelled Dojo diagrams (CC-31): one "real" drawing and one "principle" picture per obstacle, as inline SVG strings.
 // Original art, drawn in code; words only, no formulas.
-export type DiagramId = 'gap' | 'wall' | 'rope' | 'trampoline' | 'landing' | 'coaster' | 'lever' | 'recoil' | 'bridge' | 'cannon';
+export type DiagramId = 'gap' | 'wall' | 'rope' | 'trampoline' | 'landing' | 'coaster' | 'lever' | 'recoil' | 'bridge' | 'cannon' | 'stored';
 export type DiagramKind = 'real' | 'principle';
-export const DIAGRAM_IDS: DiagramId[] = ['gap', 'wall', 'rope', 'trampoline', 'landing', 'coaster', 'lever', 'recoil', 'bridge', 'cannon'];
+export const DIAGRAM_IDS: DiagramId[] = ['gap', 'wall', 'rope', 'trampoline', 'landing', 'coaster', 'lever', 'recoil', 'bridge', 'cannon', 'stored'];
 
 const INK = '#1f2937', SPEED = '#2563eb', FORCE = '#dc2626', GRAV = '#d97706', ENERGY = '#16a34a', GROUND = '#9ca3af', SOFT = '#e5e7eb';
 type P = [number, number];
@@ -312,6 +312,31 @@ function bridgePrinciple(): string {
     txt(380, 420, 'A post in the middle turns one long plank into two short ones.', { size: 15 });
   return wrap('Plank bridge: what changes the sag', body);
 }
+function storedReal(): string {
+  const body =
+    `<rect x="0" y="400" width="760" height="40" fill="${SOFT}"/>` +
+    `<rect x="650" y="300" width="18" height="100" fill="#f2efe6" stroke="${INK}" stroke-width="3"/>` + `<rect x="650" y="330" width="18" height="12" fill="${FORCE}"/><rect x="650" y="360" width="18" height="12" fill="${FORCE}"/>` +
+    `<line x1="659" y1="304" x2="150" y2="330" stroke="${ENERGY}" stroke-width="5"/>` +
+    fig({ head: [124, 258], neck: [124, 276], hip: [140, 330], arms: [[[148, 300], [152, 326]], [[110, 300], [100, 326]]], legs: [[[130, 360], [112, 398]], [[152, 362], [166, 398]]] }) +
+    arrow([260, 300], [100, 300], FORCE, 5) + txt(200, 280, 'You run away\nfrom the post', { color: FORCE, bold: true }) +
+    arrow([560, 372], [420, 372], SPEED, 5) + txt(490, 360, 'The band pulls you back', { color: SPEED, bold: true, size: 14 }) +
+    txt(380, 40, 'The longer you stretch it, the more it stores', { bold: true });
+  return wrap('Band: stretching stores energy', body);
+}
+
+function storedPrinciple(): string {
+  const stages: [string, number, number][] = [['Fully stretched', 1, 0], ['Half way back', 0.25, 0.87], ['Back at the start', 0, 1]];
+  let body = '';
+  stages.forEach(([name, e, v], i) => {
+    const cx = 130 + i * 250;
+    body += txt(cx + 20, 85, name, { bold: true, size: 17 }) + bar(cx - 40, 330, 200, e, ENERGY, 50) + bar(cx + 30, 330, 200, v, SPEED, 50) +
+      txt(cx - 15, 354, 'Stored', { size: 13, color: ENERGY, bold: true }) + txt(cx + 55, 354, 'Speed', { size: 13, color: SPEED, bold: true });
+    if (i < 2) body += arrow([cx + 105, 220], [cx + 150, 220], INK, 4);
+  });
+  body += txt(380, 392, 'The energy in the band turns into your speed as it shortens.', { bold: true }) +
+    txt(380, 416, 'Half the way back, the band has given up three quarters of what it stored.', { size: 15 });
+  return wrap('Band: stored energy becomes speed', body);
+}
 
 function cannonReal(): string {
   const arc = (deg: number, color: string, w = 4) => {
@@ -351,6 +376,7 @@ const table: Record<DiagramId, Record<DiagramKind, () => string>> = {
   lever: { real: leverReal, principle: leverPrinciple },
   coaster: { real: coasterReal, principle: coasterPrinciple },
   bridge: { real: bridgeReal, principle: bridgePrinciple },
+  stored: { real: storedReal, principle: storedPrinciple },
 };
 
 export function diagram(id: DiagramId, kind: DiagramKind): string {

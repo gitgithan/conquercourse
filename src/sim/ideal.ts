@@ -8,6 +8,7 @@ import { CLIMB_MIN_RISE, climbMaxRise } from './climb';
 import { VAULT_MAX_RISE } from './vault';
 import { groundAt, heightAt } from './terrain';
 import { AIM_MAX, AIM_RATE, isAimable, type RecoilParams } from './recoil';
+import { bandParams, reachableStretch, slackX, stretchAt } from './band';
 
 // The ideal run: where to press Space at each obstacle, found by trying the simulator, and how wide the
 // window of good presses is. It is the difficulty of each obstacle as a number.
@@ -27,6 +28,7 @@ export interface Plan {
   fireXs?: number[]; // a launcher (recoil pad): press K at the first moment the runner is at or past this x
   fireAfterJump?: number; // or press K this many ticks after the take-off, so the shot adds to a jump
   cartBrake?: [number, number][]; // a coaster: hold the brake between these x values (the first push is always given at the start)
+  bandStretch?: number; // the elastic band: run away from the post until the band is stretched this many metres, then turn round and run toward it
 }
 
 export interface Window {
@@ -37,7 +39,7 @@ export interface Window {
   widthMs: number; // how long the clearing window lasts, in milliseconds of game time
 }
 
-type PlanState = { next: number; caught: number | null; bedAt: number | null; hangAt?: number | null; hangs?: number; vnext?: number; cnext?: number; inClimb?: boolean; fnext?: number; airSince?: number | null };
+type PlanState = { next: number; caught: number | null; bedAt: number | null; hangAt?: number | null; hangs?: number; vnext?: number; cnext?: number; inClimb?: boolean; fnext?: number; airSince?: number | null; bandTurned?: boolean };
 // The launcher (recoil): fire at a place along the run, or a number of ticks after the take-off (a shot in the air adds to a jump)
 export function inputFor(plan: Plan, w: WorldState, state: PlanState, course?: CourseData): RunnerInput {
   const inp = inputForBase(plan, w, state, course);
@@ -55,6 +57,10 @@ function inputForBase(plan: Plan, w: WorldState, state: PlanState, course?: Cour
   if (w.mode === 'cart') { // the cart: push at the start, brake where the plan says
     const x = w.runner.x;
     return { ...NO_INPUT, run: !w.cart?.started, squat: !!plan.cartBrake?.some(([a, b]) => x >= a && x <= b) };
+  }
+  if (w.mode === 'band' && course) { // the band: pull it to the planned stretch (running away from the post), then run toward the post and let it throw you
+    if (!state.bandTurned && stretchAt(bandParams(course), w.runner.x) >= (plan.bandStretch ?? 8)) state.bandTurned = true;
+    return state.bandTurned ? { ...NO_INPUT, run: true, squat: true } : { ...NO_INPUT, left: true };
   }
   const base: RunnerInput = { ...NO_INPUT, run: true, squat: true, ...(course && rollNeeded(w, course) ? { roll: true } : {}) }; // a drop a squat cannot take cleanly: roll just before the ground
   if (w.mode === 'launch') return { ...NO_INPUT, run: true, squat: true, ...(w.launch?.fired && w.launch.t >= (plan.launchRelease ?? 120) ? { jump: true } : {}) }; // pull the pin, then let go at the planned moment
@@ -107,7 +113,7 @@ export interface RunResult { world: WorldState; events: GameEvent[]; maxX: numbe
 
 export function playPlan(course: CourseData, plan: Plan, maxTicks = 120 * 80): RunResult {
   let w = newWorld(course);
-  const st = { next: 0, caught: null as number | null, bedAt: null as number | null, hangAt: null as number | null, hangs: 0, vnext: 0, cnext: 0, inClimb: false, fnext: 0, airSince: null as number | null };
+  const st = { next: 0, caught: null as number | null, bedAt: null as number | null, hangAt: null as number | null, hangs: 0, vnext: 0, cnext: 0, inClimb: false, fnext: 0, airSince: null as number | null, bandTurned: false };
   const events: GameEvent[] = [];
   let maxX = 0;
   let still = 0;
@@ -174,9 +180,11 @@ export function searchIdealRun(course: CourseData, opts: { routes?: boolean } = 
   void progress;
   if (tre) searchLaunch(course, plan, windows, score);
   const handled = course.recoil ? searchRecoil(course, plan, windows, score) : null; // the first gap after the pad is planned together with the shot
+  const bandEdge = course.band ? searchBand(course, plan, windows, score) : null; // the band and the jump at the edge after it are found together
   for (let k = 0; k < es.length; k++) {
     const e = es[k];
     if (handled !== null && Math.abs(e.x - handled) < 0.01) continue;
+    if (bandEdge !== null && Math.abs(e.x - bandEdge) < 0.01) continue;
     // bars within a swing of this edge: a joint search over the press and the hang times on the first two bars (a swing and the next catch depend on each other,
     // so tuning one at a time misses lines that clear), coarse first, then finer around the best few
     if (!e.riser && holds.some((h) => h.x > e.x - 1 && h.x < e.x + 9) && plan.hangTicks) {
@@ -387,6 +395,30 @@ function searchCannon(course: CourseData, plan: Plan, windows: Window[], score: 
   const aims = good.filter((g) => g.fx === mid.fx).map((g) => g.aim);
   windows.push({ obstacle: `cannon aim at ${name}`, best: mid.aim, lo: Math.min(...aims), hi: Math.max(...aims), widthMs: ((Math.max(...aims) - Math.min(...aims) + 0.01) / AIM_RATE) * 1000 }); // the time it takes to tilt across the window
   return edgeX;
+}
+
+
+// The elastic band: how far to stretch it before turning round, found together with the press at the edge after it (a stronger throw changes where the press is best).
+function searchBand(course: CourseData, plan: Plan, windows: Window[], score: (r: RunResult) => number): number | null {
+  const bp = bandParams(course);
+  const e = edges(course).find((q) => q.x >= slackX(bp) - 0.01);
+  if (!e) return null;
+  const top = Math.max(1, Math.min(bp.snap - 0.6, reachableStretch(bp) * 1.2));
+  const trial = (st: number, jx: number) => { const pl: Plan = { ...plan, bandStretch: st, jumpXs: [...plan.jumpXs, jx] }; return { sc: score(playPlan(course, pl, 120 * 40)), st, jx }; };
+  const found: { sc: number; st: number; jx: number }[] = [];
+  for (let st = Math.min(1, top); st <= top + 1e-9; st += top > 8 ? 1 : 0.5) for (const jx of candidates(e.x - 2.5, e.x, 0.25)) found.push(trial(st, jx));
+  const tops = [...found].sort((a, b) => b.sc - a.sc).slice(0, 6);
+  for (const t of tops) for (let st = Math.max(0.3, t.st - 0.6); st <= Math.min(top, t.st + 0.6) + 1e-9; st += 0.1) for (const jx of candidates(t.jx - 0.25, Math.min(e.x, t.jx + 0.25), 0.05)) found.push(trial(Math.round(st * 10) / 10, jx));
+  const best = Math.max(...found.map((f) => f.sc));
+  const good = found.filter((f) => f.sc >= best - 1e-9);
+  const sts = [...new Set(good.map((g) => g.st))].sort((a, b) => a - b);
+  const st = sts[Math.floor(sts.length / 2)]; // the middle of the stretches that work
+  const jxs = good.filter((g) => g.st === st).map((g) => g.jx).sort((a, b) => a - b);
+  const jx = jxs[Math.floor(jxs.length / 2)];
+  plan.bandStretch = st; plan.jumpXs.push(jx);
+  windows.push({ obstacle: 'band stretch', best: st, lo: sts[0], hi: sts[sts.length - 1], widthMs: ((sts[sts.length - 1] - sts[0] + 0.1) / 6) * 1000 });
+  windows.push({ obstacle: `${e.name} (take-off)`, best: jx, lo: jxs[0], hi: jxs[jxs.length - 1], widthMs: ((jxs[jxs.length - 1] - jxs[0] + 0.05) / 11) * 1000 });
+  return e.x;
 }
 const median = (xs: number[]): number => { const s = [...xs].sort((a, b) => a - b); return s[Math.floor(s.length / 2)]; };
 

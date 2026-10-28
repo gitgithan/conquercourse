@@ -30,9 +30,11 @@ import { drumsFor } from '../sim/drums';
 import { createDrumLane } from '../ui/drum-lane';
 import { createDebugView } from '../ui/debug-view';
 import { loadPlacePhotos, mountPlacePhotos, slugOfCourse } from '../ui/place-photos';
-import { barName, predictLaunch, predictRelease, predictShot, type Prediction } from '../sim/predict';
+import { barName, predictBand, predictLaunch, predictRelease, predictShot, type Prediction } from '../sim/predict';
 import { createTrebuchetView } from '../ui/trebuchet-view';
 import { createRecoilView } from '../ui/recoil-view';
+import { createBandView } from '../ui/band-view';
+import { bandParams, stretchAt } from '../sim/band';
 import { cupsGroup } from '../slice/cups';
 import { buildTrack, type TrackView } from '../render/track';
 import { buildPlanks } from '../render/plank';
@@ -127,6 +129,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
     if (shotCache?.key !== key) shotCache = { key, pr: predictShot(w, course) };
     return shotCache.pr;
   };
+  const bandView = course.band ? createBandView(scene, course) : null;
   // a course from the editor draws its real objects instead of blocks: only the start and finish decks stay as ground
   const realObjects = !!course.scene?.length;
   const lastPlatform = course.terrain.platforms.length - 1;
@@ -287,7 +290,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
   // the controls, always visible top-left as a card of key caps (collapse with H)
   const help = document.createElement('div');
   help.id = 'keys';
-  const KEYS: [string, string][] = [['← →', 'Run (hold)'], ['Space / ↑ / W', 'Jump · let go of the rope · press on the trampoline'], ['↓ / S', 'Bend your knees (hold, on big drops)'], ['X', 'Hold as you land to roll; you can also tap shortly before contact'], ...(course.recoil ? ([['K', 'Fire the launcher (clip it on at the teal pad): the ball goes back, you go forward'], ...(isAimable(recoilParams(course)) ? [['↑ ↓ (or W)', 'Tilt the cannon barrel while it is loaded (Up does not jump then): it points backward and down, so the push goes forward and up; dots show where you would land']] : [])] as [string, string][]) : []), ...(course.trebuchet ? ([['→ (hold), then Space, ↑ or W', 'Trebuchet: pull the pin, then let the rider go when the hint says LET GO NOW']] as [string, string][]) : []), ...(course !== defaultCourse ? ([['E', 'Hold a bar in the air (let go to fly on), or at a tall wall: grab its edge and climb'], ['← → on a bar', 'Pump the swing: push the way you swing'], ['V', 'Vault over a step with a hand on top (fast, saves energy)']] as [string, string][]) : []), ['F', 'Toggle the Looking ahead inset'], ...(course.track ? ([['→, Space, ↑ or W', 'Push off at the top of the first hill'], ['↓ / S (hold)', 'Brake']] as [string, string][]) : []), ['I', 'Ideal run of this obstacle (Shift+I: the whole course, any key stops it)'], ['G', 'Drums: where the ideal run presses Space'], ['B', 'Debug view: see the collision boxes and where a jump goes'], ['Mouse', 'Drag to turn the view, wheel to zoom, double-click to reset']]; // retry, ideal run and Dojo are on the fall panel and the buttons
+  const KEYS: [string, string][] = [['← →', 'Run (hold)'], ['Space / ↑ / W', 'Jump · let go of the rope · press on the trampoline'], ['↓ / S', 'Bend your knees (hold, on big drops)'], ['X', 'Hold as you land to roll; you can also tap shortly before contact'], ...(course.recoil ? ([['K', 'Fire the launcher (clip it on at the teal pad): the ball goes back, you go forward'], ...(isAimable(recoilParams(course)) ? [['↑ ↓ (or W)', 'Tilt the cannon barrel while it is loaded (Up does not jump then): it points backward and down, so the push goes forward and up; dots show where you would land']] : [])] as [string, string][]) : []), ...(course.trebuchet ? ([['→ (hold), then Space, ↑ or W', 'Trebuchet: pull the pin, then let the rider go when the hint says LET GO NOW']] as [string, string][]) : []), ...(course !== defaultCourse ? ([['E', 'Hold a bar in the air (let go to fly on), or at a tall wall: grab its edge and climb'], ['← → on a bar', 'Pump the swing: push the way you swing'], ['V', 'Vault over a step with a hand on top (fast, saves energy)']] as [string, string][]) : []), ['F', 'Toggle the Looking ahead inset'], ...(course.track ? ([['→, Space, ↑ or W', 'Push off at the top of the first hill'], ['↓ / S (hold)', 'Brake']] as [string, string][]) : []), ['I', 'Ideal run of this obstacle (Shift+I: the whole course, any key stops it)'], ...(course.band ? ([['←, then →', 'Elastic band: hold ← to stretch it, then turn round (hold →) and it throws you']] as [string, string][]) : []), ['G', 'Drums: where the ideal run presses Space'], ['B', 'Debug view: see the collision boxes and where a jump goes'], ['Mouse', 'Drag to turn the view, wheel to zoom, double-click to reset']]; // retry, ideal run and Dojo are on the fall panel and the buttons
   help.style.cssText = 'position:fixed;left:16px;top:48px;width:290px;background:#fffffff0;border:1px solid #cfd6d0;border-radius:12px;padding:8px 10px;font:500 14px system-ui,sans-serif;color:#17201d;box-shadow:0 2px 10px #0002;pointer-events:none;display:grid;gap:5px';
   const paintKeys = (open: boolean) => {
     help.innerHTML = `<div style="font-weight:700;display:flex;justify-content:space-between">Controls <span style="font-weight:400;color:#58635d">H ${open ? 'hides' : 'shows'}</span></div>` + (open ? KEYS.map(([k, d]) => `<div style="display:grid;grid-template-columns:78px 1fr;gap:8px;align-items:center"><kbd style="font:700 13px ui-monospace,monospace;background:#eef1ec;border:1px solid #b9c2bb;border-bottom-width:3px;border-radius:6px;padding:1px 6px;text-align:center">${k}</kbd><span>${d}</span></div>`).join('') : '');
@@ -405,7 +408,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
   document.body.append(comm);
   document.body.append(sstyle, strip);
   // demo courses: every course we have made, one choice away (the stock course, the lache demo, lanes from real objects, places from the map)
-  const demos: [string, string][] = [['', 'Stock course'], ['/assets/demo/lache.course.json', 'Lache demo: run, vault, swing'], ['/assets/demo/lache-wide.course.json', 'Wide lache: a 6 m swing'], ['/assets/demo/stack.course.json', 'Stack demo: climb the cup pyramids'], ['/assets/demo/climb.course.json', 'Climb: over a 2 m wall, then a big drop'], ['/assets/demo/drop.course.json', 'Big drop: run off a ledge and roll'], ['/assets/demo/plank.course.json', 'Plank bridge: it sags but holds'], ['/assets/demo/plank-thin.course.json', 'Plank bridge: too thin, it breaks'], ['/assets/demo/launch.course.json', 'Launch: the trebuchet throws you onto the tower'], ['/assets/demo/launch-bar.course.json', 'Launch and catch: grab the bar in the air'], ['/assets/demo/recoil.course.json', 'Recoil: throw a ball back, fly forward'], ['/assets/demo/cannon.course.json', 'Cannon: aim it, fire it, roll out of the landing'], ['/assets/demo/coaster.course.json', 'Coaster: ride the hills'], ['/assets/demo/coaster-sharp.course.json', 'Coaster: a sharp hilltop (brake)'], ['/assets/demo/coaster-low.course.json', 'Coaster: first hill too low'], ['coaster-builder', 'Build your own coaster'], ['generate', 'Make me a new course (random)'], ['/assets/demo/lane-1.course.json', 'Demo scene, lane 1'], ['/assets/demo/lane-2.course.json', 'Demo scene, lane 2'], ['/assets/experiments/osm/eixample-barcelona.course.json', 'Place: Barcelona block'], ['/assets/experiments/osm/montmartre-paris.course.json', 'Place: Montmartre, Paris'], ['/assets/experiments/osm/circular-quay-sydney.course.json', 'Place: Sydney quay'], ['/assets/experiments/osm/san-francisco-lombard.course.json', 'Place: San Francisco hill (62 m of hill)'], ['editor', 'Build your own (editor)']];
+  const demos: [string, string][] = [['', 'Stock course'], ['/assets/demo/lache.course.json', 'Lache demo: run, vault, swing'], ['/assets/demo/lache-wide.course.json', 'Wide lache: a 6 m swing'], ['/assets/demo/stack.course.json', 'Stack demo: climb the cup pyramids'], ['/assets/demo/climb.course.json', 'Climb: over a 2 m wall, then a big drop'], ['/assets/demo/drop.course.json', 'Big drop: run off a ledge and roll'], ['/assets/demo/plank.course.json', 'Plank bridge: it sags but holds'], ['/assets/demo/plank-thin.course.json', 'Plank bridge: too thin, it breaks'], ['/assets/demo/launch.course.json', 'Launch: the trebuchet throws you onto the tower'], ['/assets/demo/band.course.json', 'Band: stretch it, turn round, be thrown'], ['/assets/demo/launch-bar.course.json', 'Launch and catch: grab the bar in the air'], ['/assets/demo/recoil.course.json', 'Recoil: throw a ball back, fly forward'], ['/assets/demo/cannon.course.json', 'Cannon: aim it, fire it, roll out of the landing'], ['/assets/demo/coaster.course.json', 'Coaster: ride the hills'], ['/assets/demo/coaster-sharp.course.json', 'Coaster: a sharp hilltop (brake)'], ['/assets/demo/coaster-low.course.json', 'Coaster: first hill too low'], ['coaster-builder', 'Build your own coaster'], ['generate', 'Make me a new course (random)'], ['/assets/demo/lane-1.course.json', 'Demo scene, lane 1'], ['/assets/demo/lane-2.course.json', 'Demo scene, lane 2'], ['/assets/experiments/osm/eixample-barcelona.course.json', 'Place: Barcelona block'], ['/assets/experiments/osm/montmartre-paris.course.json', 'Place: Montmartre, Paris'], ['/assets/experiments/osm/circular-quay-sydney.course.json', 'Place: Sydney quay'], ['/assets/experiments/osm/san-francisco-lombard.course.json', 'Place: San Francisco hill (62 m of hill)'], ['editor', 'Build your own (editor)']];
   const welcome = document.createElement('section');
   welcome.id = 'choose-world';
   welcome.setAttribute('role', 'dialog'); welcome.setAttribute('aria-labelledby', 'choose-world-title');
@@ -752,7 +755,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
 
   // The Dojo opens on the very obstacle the player fell at, with its real numbers (R1-L1, R1-L3).
   function trainLink(zoneId: string, x: number): string {
-    const q = new URLSearchParams({ mode: 'dojo', ex: zoneId === 'lache' ? 'bars' : zoneId === 'launch' ? 'lever' : zoneId === 'plank' ? 'bridge' : zoneId === 'recoil' && course.recoil && isAimable(recoilParams(course)) ? 'cannon' : zoneId, from: 'course' }); // the lache pair trains on the bar swing
+    const q = new URLSearchParams({ mode: 'dojo', ex: zoneId === 'lache' ? 'bars' : zoneId === 'launch' ? 'lever' : zoneId === 'band' ? 'stored' : zoneId === 'plank' ? 'bridge' : zoneId === 'recoil' && course.recoil && isAimable(recoilParams(course)) ? 'cannon' : zoneId, from: 'course' }); // the lache pair trains on the bar swing
     const jump = [...log].reverse().find((e) => e.type === 'jump');
     if (jump?.detail?.vx) q.set('speed', (jump.detail.vx as number).toFixed(1));
     if (zoneId === 'gap' || zoneId === 'landing') {
@@ -886,6 +889,15 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
     if (st) L.push(`It turned round on a hill ${(st.detail!.height as number).toFixed(1)} m up: the highest it could reach was about the height it started from.`);
     return L;
   }
+  // The elastic band: what the throw was, and what would have gone farther (never how well you did)
+  function bandTip(): string {
+    const rel = [...log].reverse().find((e) => e.type === 'band-release');
+    const snap = [...log].reverse().find((e) => e.type === 'band-snap');
+    const bp = bandParams(course);
+    if (snap) return `The band snapped at ${(snap.detail!.stretch as number).toFixed(0)} m: it takes ${bp.snap.toFixed(0)} m at most. Turn round (hold \u2192) a little sooner.`;
+    if (!rel) return 'Hold \u2190 to run away from the post and stretch the band first. Then turn round (hold \u2192).';
+    return `You left the band at ${(rel.detail!.vx as number).toFixed(1)} m/s after stretching it ${(rel.detail!.stretch as number).toFixed(0)} m. A longer stretch throws faster: hold \u2190 a little longer before you turn round (it snaps at ${bp.snap.toFixed(0)} m).`;
+  }
   function buildDiag(zoneId: string, what: 'splash' | 'slide'): string[] {
     const L: string[] = [];
     const jump = [...log].reverse().find((e) => e.type === 'jump');
@@ -973,6 +985,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
     else if (what === 'splash' && course.recoil && isAimable(recoilParams(course)) && zone?.id === 'recoil') tip = 'Tilt the barrel with the arrow keys until the dotted path ends on the far deck, then press K. A steeper shot flies higher and lands harder: tap X just before the ground.';
     else if (course.recoil && zone?.id === 'recoil') tip = world.recoil && world.recoil.fired > 0 ? 'The push was not enough. A heavier ball, or a faster one, pushes harder. Fire as you leave the edge so the push carries through the whole flight.' : 'Run onto the teal pad, then press K to fire the launcher as you jump.';
     else if (log.some((e) => e.type === 'plank-break')) tip = plankTip();
+    else if (course.band) tip = bandTip();
     else if (zone?.id === 'trampoline') tip = 'Press Space at the bottom of the bounce for extra height.';
     else if (zone?.id === 'rope') tip = 'Grab the rope on the way up, then press Space to let go when you are rising.';
     else if (!jump) tip = 'Press Space just before the edge.';
@@ -1047,6 +1060,12 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
        (bed.x0 - r.x < 14 || (cueSince !== null && r.tick - cueSince < 480))) {
       cueSince ??= r.tick;
       return 'Trampoline ahead: press Space the moment you land on it for extra height';
+    }
+    if (w.mode === 'band') { // the elastic band: stretch it by running away from the post, then turn round
+      const s = stretchAt(bandParams(course), w.runner.x);
+      if (s < 0.5 && w.band!.maxStretch < 0.5) return 'Hold ← to run away from the post and stretch the band. Then turn round (hold →): it throws you forward.';
+      const pb = predictBand(w, course);
+      return pb.result === 'lands' ? `TURN NOW (hold →): ${pb.why}` : `Stretched ${s.toFixed(0)} m: ${pb.why}`;
     }
     if (course.recoil && w.mode === 'run') { // the launcher: clip it on at the pad, then fire it (on the ground, or in the air to add to a jump)
       if (w.recoil && w.recoil.armed > 0 && isAimable(recoilParams(course))) {
@@ -1131,6 +1150,9 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
       if (world.events !== soundedEvents) { soundedEvents = world.events; if (!replay) soundsFor(world.events, hazard); } // after the end the same events array stays: it sounds once
       for (const e of world.events) {
         if (e.type === 'recoil') { toast.textContent = `Shot! The ball flies back and you are pushed forward by ${(e.detail?.dvx as number).toFixed(1)} m/s${(e.detail?.dvy as number) > 0.5 ? ` and up by ${(e.detail?.dvy as number).toFixed(1)} m/s` : ''}.`; toast.style.display = 'block'; toastUntil = world.runner.tick + 180; }
+        if (e.type === 'recoil') { toast.textContent = `Shot! The ball flies back and you are pushed forward by ${(e.detail?.dvx as number).toFixed(1)} m/s.`; toast.style.display = 'block'; toastUntil = world.runner.tick + 180; }
+        if (e.type === 'band-snap') { toast.textContent = `The band snapped at ${(e.detail?.stretch as number).toFixed(0)} m: it can only stretch so far. Press R and turn round sooner.`; toast.style.display = 'block'; toastUntil = world.runner.tick + 360; }
+        if (e.type === 'band-release') { toast.textContent = `The band lets go: you leave it at ${(e.detail?.vx as number).toFixed(1)} m/s.`; toast.style.display = 'block'; toastUntil = world.runner.tick + 180; }
         if (e.type === 'launch-dud') { toast.textContent = 'The counterweight is too light: the arm hardly moves. Try a heavier weight.'; toast.style.display = 'block'; toastUntil = world.runner.tick + 240; }
         if (e.type === 'hang-release') { releasedAtX = world.runner.x; caughtSince.clear(); }
         if (e.type === 'hang-catch') caughtSince.add(e.detail?.hold as number);
@@ -1213,6 +1235,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
     }
     trebView?.update(world);
     recoilView?.update(world, facing, shotPreview(world)?.path);
+    bandView?.update(world);
     hint.textContent = hintFor(world);
     hint.style.display = hint.textContent ? 'block' : 'none';
     if (ropeMesh && course.rope) {

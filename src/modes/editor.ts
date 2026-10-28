@@ -13,6 +13,8 @@ import { fixPlank, plankHolds, worstCase } from '../sim/beam';
 import { withTrebuchet } from '../slice/launch-lane';
 import { withRecoil, type RecoilCfg } from '../slice/recoil-lane';
 import { fixRecoil } from '../slice/fixrecoil';
+import { withBand } from '../slice/band-lane';
+import { fixBand } from '../slice/fixband';
 import { CUP, PATTERNS, patternOf, stackPiece, stackSrc } from '../slice/stack';
 import { fixLayout } from '../slice/fixit';
 import { layoutToPieces, parseLayout, pieceFromSrc } from '../slice/photo-course';
@@ -191,6 +193,11 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
   }
   const recoilEdit = () => { const m = Number(recoilKg.value), u = Number(recoilSpeed.value); if (recoilCfg && m >= 2 && m <= 150 && u >= 3 && u <= 60) { const p = recoilPiece(), len = p?.src?.split(':')[4] ?? String(RECOIL_PAD_LENGTH); updateDeviceSource(`device:${recoilCfg.kind}`, `device:${recoilCfg.kind}:${m}:${u}:${len}`); changed(); } };
   recoilKg.onchange = recoilEdit; recoilSpeed.onchange = recoilEdit;
+  // an elastic band at the start: stretch it by running away from the post, turn round, and be thrown to the lane; the stiffness is the knob (the proof says whether it reaches)
+  el('button', addBar, { text: 'Band', id: 'addband', title: 'Start the lane at an elastic band: stretch it, turn round, and it throws you onto the lane' }).onclick = () => { bandK = bandK ? null : 35; bandLabel.style.display = bandK ? '' : 'none'; bandInput.value = String(bandK ?? 35); changed(); };
+  const bandLabel = el('label', addBar, { text: 'Stiffness (N/m) ' }); bandLabel.style.display = 'none';
+  const bandInput = el('input', bandLabel, { type: 'number', min: '20', max: '300', step: '5', value: '35', id: 'bandk' });
+  bandInput.onchange = () => { const v = Number(bandInput.value); if (v >= 20 && v <= 300) { bandK = v; changed(); } };
   // stacks: sport-stacking cups (mouth down, pyramids) as obstacle shapes; the piece scale makes a 9 cm cup runner-sized
   el('strong', addBar, { text: 'Stacks:' });
   for (const pt of PATTERNS) {
@@ -473,6 +480,14 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
         if (fr.ok && fr.steps.length) el('button', reply, { text: 'Use it', className: 'go', id: 'userecoil' }).onclick = () => { const len = recoilPiece()?.src?.split(':')[4] ?? String(RECOIL_PAD_LENGTH); updateDeviceSource(`device:${fr.cfg.kind}`, `device:${fr.cfg.kind}:${fr.cfg.ballMass}:${fr.cfg.muzzle}:${len}`); syncRecoil(); changed(); };
         return;
       }
+      if (bandK) { // the band: the only thing Fix it can change is its stiffness; it says so and waits for Apply
+        const bf = fixBand(laneCourse(currentProfile()));
+        document.documentElement.dataset.fixed = bf.ok ? '1' : '0';
+        reply.className = bf.ok ? 'reply ok' : 'reply bad';
+        reply.textContent = bf.ok ? (bf.steps.length ? bf.steps.join(' ') : 'It already works.') : bf.steps.join(' ');
+        if (bf.ok && bf.steps.length) el('button', reply, { text: 'Apply', id: 'applyband', className: 'go' }).onclick = () => { bandK = bf.k; bandInput.value = String(bf.k); changed(); reply.textContent = 'Applied.'; };
+        return;
+      }
       const now = { angle, offset, level }, start = from ?? { pieces, lane: now };
       const r = computeFix(start.pieces, start.lane);
       document.documentElement.dataset.fixed = r.ok ? '1' : '0';
@@ -740,6 +755,7 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
   const currentProfile = () => sliceProfile(worldSamples(ground()), { x: 0, z: 0 }, { angle, offset, level });
   const barsNow = () => holdsOf(pieces, { angle, offset, level });
   let floorChoice: Hazard = 'water'; // the floor you must not touch (saved in the course)
+  let bandK: number | null = null; // the lane starts at an elastic band (its stiffness in N/m)
   let trebuchetKg: number | null = null; // the lane starts in a trebuchet (the counterweight in kg), or on a plain deck
   let recoilCfg: RecoilCfg | null = null; // the start deck carries a launcher pad (CC-66), or not
   const recoilPiece = () => pieces.find((p) => p.src?.startsWith('device:cannon:') || p.src?.startsWith('device:bigcannon:') || p.src?.startsWith('device:crate:'));
@@ -755,7 +771,7 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
   const laneCourse = (_p?: ReturnType<typeof currentProfile>) => {
     const c = roleCourse(coursePieces(), { angle, offset, level }, 'My world').course;
     if (trebuchetKg) { const p = pieces.find((q) => q.src?.startsWith('device:trebuchet:')); const u = p ? p.x * Math.cos(angle) + p.z * Math.sin(angle) + TREBUCHET_PIVOT_FROM_CENTRE * p.scale : 0; return withTrebuchet(c, trebuchetKg, u); }
-    return recoilCfg ? withRecoil(c, recoilCfg, recoilRange()) : c;
+    return recoilCfg ? withRecoil(c, recoilCfg, recoilRange()) : bandK ? withBand(c, bandK) : c;
   };
   const courseNow = () => { const c = laneCourse(currentProfile()); if (floorChoice !== 'water') c.hazard = floorChoice; if (designed.size) c.designedShortcuts = [...designed]; return c; };
   let verifyTimer = 0, adviceRun = 0, verifyVersion = 0, searchVersion = 0;
@@ -1037,7 +1053,7 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
     if (e.code === 'KeyD') { const q = duplicate(p, size(p.mesh).w * p.scale + 0.5, 0) as P; q.src = p.src; pieces.push(q); selected = q.id; changed(); }
   });
 
-  function changed(record = true) { if (proposal) closePreview('The layout changed, so the preview was closed.'); if (record) remember(); syncDeviceState(); document.documentElement.dataset.pieces = String(pieces.length); save(); drawPanel(); drawLanePanel(); draw(); drawProfile(); verify(); renderMoves(); }
+  function changed(record = true) { if (proposal) closePreview('The layout changed, so the preview was closed.'); if (record) remember(); syncDeviceState(); document.documentElement.dataset.pieces = String(pieces.length); document.documentElement.dataset.band = bandK ? String(bandK) : ''; save(); drawPanel(); drawLanePanel(); draw(); drawProfile(); verify(); renderMoves(); }
   syncDeviceState();
   drawPanel(); drawLanePanel(); draw(); drawProfile(); verify();
   remember();
