@@ -355,6 +355,16 @@ export async function createRookieActor(scene: Scene, opts: { rookie: RookieId; 
         return slinging.map((q) => q.clone());
       case 'hurt':
         return hurtPose(s.tick - (hurtStart ?? s.tick));
+      case 'climb': {
+        // hanging by the hands from the edge (the swing clip straightened: arms up, body hanging), then the body folds up and stands on the top;
+        // the hands are held on the real edge afterwards by reachLedge, so only the body has to change from hanging to standing
+        const p = s.climbProgress ?? 0, hangEnd = 30 / 132, t = Math.min(1, Math.max(0, (p - hangEnd) / (1 - hangEnd)));
+        const w = Math.min(1, Math.max(0, (t - 0.25) / 0.6)), e = w * w * (3 - 2 * w);
+        const hang = hanging(sample(swing, 0, false).rel);
+        if (e <= 0) return hang;
+        const stand = standPose().joints;
+        return hang.map((q, i) => q.clone().lerp(stand[i], e));
+      }
       case 'vault': {
         // the hands on the obstacle: the pose is built from the simulator's contact point (the base is the running pose it starts and ends in)
         const base = build(s, 'run');
@@ -468,7 +478,7 @@ export async function createRookieActor(scene: Scene, opts: { rookie: RookieId; 
     if (s.mode === 'cart') rotateZ(joints, new Vector3(0, 0, 0), localAngle(s.tilt ?? 0, s.facing)); // the cart pitches with the rails
 
     // composing: the arms reach for the real ledge, and the body gets ready for the next obstacle before it arrives
-    if (s.mode === 'wall' && s.ledge) reachLedge(joints, s);
+    if ((s.mode === 'wall' || k === 'climb') && s.ledge && !(k === 'climb' && (s.climbProgress ?? 0) > 0.9)) reachLedge(joints, s);
     else if (s.next && s.mode === 'run') getReady(joints, ix, s.next.kind, anticipation(s.next.distance / Math.max(Math.abs(s.vx), 2)));
 
     // pose the bones in the unturned frame at the surface, then move the group to the feet
@@ -490,8 +500,8 @@ export async function createRookieActor(scene: Scene, opts: { rookie: RookieId; 
         if (out) { p.x += s.facing * out.dx; p.y += out.dy; }
       });
     }
-    rookie.apply(lifted, { floor: k !== 'vault' }); // in a vault the feet are over the step, not near the floor of the pose's frame: no lift, so the hands stay on the contact point
-    if (s.mode !== 'swing' && k !== 'leap' && k !== 'roll' && k !== 'vault' && k !== 'hurt') {
+    rookie.apply(lifted, { floor: k !== 'vault' && k !== 'climb' }); // in a vault the feet are over the step, not near the floor of the pose's frame: no lift, so the hands stay on the contact point
+    if (s.mode !== 'swing' && k !== 'leap' && k !== 'roll' && k !== 'vault' && k !== 'hurt' && k !== 'climb') {
       const low = Math.min(...footBones.map((i) => rookie.bones[i].getWorldPosition(new Vector3()).y));
       if (low < footClear) {
         const hips = rookie.bones[0].getWorldPosition(new Vector3());

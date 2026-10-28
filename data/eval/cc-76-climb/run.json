@@ -1,0 +1,46 @@
+{
+  "experiment": "cc-76-climb",
+  "date": "2026-10-28",
+  "question": "Does a climb move (hold E at a wall, pull up) give steep real places longer lanes?",
+  "inputs": {
+    "places": [
+      "montmartre-hills",
+      "montmartre-flat",
+      "sf-hills",
+      "sf-flat"
+    ],
+    "overpass_and_terrain": "caches from data/eval/cc-46-osm-world (not copied here)",
+    "command": "OSM_EVAL_DIR=data/eval/cc-76-climb/after npx tsx scripts/osm-lane.ts <place> <lat> <lon> 120 auto [--terrain]"
+  },
+  "before": "data/eval/cc-56-reassess/after (lane cap gone, steps above 0.9 m rule a lane out)",
+  "after": "this branch (steps up to 2.83 m are climbable)",
+  "results": {
+    "sf-hills": {
+      "before_m": 8.2,
+      "after_m": 27.2,
+      "lanes": 3
+    },
+    "sf-flat": {
+      "before_m": 41.2,
+      "after_m": 27.2,
+      "note": "the score prefers a lane with a climb; length is not capability"
+    },
+    "montmartre-hills": {
+      "before_m": 8.7,
+      "after_m": 8.7,
+      "note": "the first piece is a curved top steeper than 45 degrees, not a wall"
+    },
+    "montmartre-flat": {
+      "before_m": 63,
+      "after_m": 65.7
+    }
+  },
+  "real_keys": "scripts/climb-check.mjs: climb starts 0.6 m from the wall, ends on the top, outcome running",
+  "pictures": [
+    "1-hanging.png",
+    "2-pulling.png",
+    "3-over-the-edge.png",
+    "4-on-top.png"
+  ],
+  "machine": "Vultr VM 3, 8 cores"
+}

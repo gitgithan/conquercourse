@@ -2,6 +2,7 @@ import { LANE_DROP } from '../sim/drop';
 import type { CourseData } from '../course/course';
 import type { Platform } from '../sim/terrain';
 import { searchIdealRun } from '../sim/ideal';
+import { climbMaxRise } from '../sim/climb';
 import { gapSpecs } from '../sim/needs';
 
 // Cutting a 2 m lane out of a 3D scene to make a course (docs/world-slice.md).
@@ -61,6 +62,7 @@ export function sliceProfile(samples: Float32Array, centre: { x: number; z: numb
 // What a lane contains, and how interesting it is for a runner.
 export interface SliceReport { gaps: number; steps: number; curves: number; faces: number; length: number; variety: number; maxRise: number; maxDrop: number; score: number }
 
+export const CLIMBABLE = climbMaxRise(4.5); // m: the tallest step up the hands and a pull-up can make (2.8 m); a vault does up to 1.3 m, a jump 0.9 m
 export const JUMPABLE = 0.9; // m: the highest step up a jump from a run can make (the take-off speed 4.5 m/s lifts about 1 m)
 
 const MIN_GAP_M = 1.2; // a crack narrower than this is bridged: nobody jumps a crack
@@ -197,7 +199,7 @@ export function bestSlices(mesh: Mesh, opts: { angles?: number; offsets?: number
     const profile = sliceProfile(samples, centre, o);
     if (profile.length < 8) continue;
     const report = describe(profile);
-    if (report.maxRise > JUMPABLE) continue; // a step no jump can make: not a course
+    if (report.maxRise > CLIMBABLE) continue; // a wall no jump, vault or climb can make: not a course
     if (report.maxDrop > LANE_DROP) continue; // a fall no roll survives: not a course
     all.push({ ...o, profile, report });
   }
