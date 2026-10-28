@@ -24,6 +24,7 @@ export interface RunnerInput {
   handL?: boolean; // E: the hands hold on (a bar); both fields come from the one hold key
   handR?: boolean; // E: the right hand holds on (a bar)
   vault?: boolean; // V: go over the obstacle just ahead with a hand on top (keeps the speed)
+  fire?: boolean; // K: fire the launcher clipped on at a recoil pad (the ball goes back, the runner goes forward)
 }
 
 export const NO_INPUT: RunnerInput = { run: false, jump: false, jumpSpeed: 0, squat: false };

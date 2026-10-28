@@ -10,6 +10,7 @@ import { VAULT_BUFFER, VAULT_PLANT_GRIP, VAULT_PLANT_TICKS, findVault, vaultAt, 
 import { GROUND_ROLL_COST, GROUND_ROLL_RECOVERY, startGroundRoll, stepGroundRoll, type GroundRoll } from './roll';
 import { bodyVelocity, feetOf, gripSlips, hangStep, releaseHang, tryGrab, type Hang } from './holds';
 import { enterCart, stepCartWorld, type Cart } from './cart';
+import { DEFAULT_RECOIL, NO_RECOIL, padHas, shot, stepBall, type RecoilParams, type RecoilState } from './recoil';
 import { DEFAULT_TREBUCHET, deg, feetAt, isDud, launchStep, startLaunch, type Launch, type TrebuchetParams } from './trebuchet';
 
 // One world for the Course: the runner plus whichever obstacle has hold of the runner right now.
@@ -20,7 +21,7 @@ export type Outcome = 'running' | 'cleared' | 'splash' | 'hurt' | 'stalled'; // 
 
 export interface GameEvent {
   tick: number;
-  type: 'jump' | 'roll' | 'land' | 'stumble' | 'hard-landing' | 'splash' | 'wall-grab' | 'wall-slide' | 'rope-catch' | 'rope-release' | 'hang-catch' | 'hang-release' | 'vault' | 'bounce' | 'cleared' | 'cart-start' | 'cart-stall' | 'cart-off' | 'launch-fire' | 'launch-release' | 'launch-dud';
+  type: 'jump' | 'roll' | 'land' | 'stumble' | 'hard-landing' | 'splash' | 'wall-grab' | 'wall-slide' | 'rope-catch' | 'rope-release' | 'hang-catch' | 'hang-release' | 'vault' | 'bounce' | 'cleared' | 'cart-start' | 'cart-stall' | 'cart-off' | 'launch-fire' | 'launch-release' | 'launch-dud' | 'recoil';
   detail?: Record<string, number | boolean>;
 }
 
@@ -33,6 +34,7 @@ export interface WorldState {
   hang: Hang | null; // hanging from a bar in the air
   vault: Vault | null; // going over an obstacle with a hand on top
   launch: Launch | null; // sitting in the trebuchet's sling (before the pin and while it swings)
+  recoil?: RecoilState; // the launcher clipped on at a recoil pad: loads left, shots fired, balls in flight (src/sim/recoil.ts)
   cart: Cart | null; // riding the rails of a track (src/sim/cart.ts)
   energy: number; // 1 = fresh; each move spends some (src/sim/energy.ts)
   bed: { base: Bounce; vIn: number; start: number; press: number | null; vx: number; top: number } | null;
@@ -61,6 +63,7 @@ export function newWorld(course: CourseData, x: number = course.startX): WorldSt
   return course.track ? enterCart(w, course) : w;
 }
 
+export const recoilParams = (c: CourseData): RecoilParams => ({ ...DEFAULT_RECOIL, ...(c.recoil ?? {}) } as RecoilParams);
 export const trebuchetParams = (c: CourseData): TrebuchetParams => ({ ...DEFAULT_TREBUCHET, ...(c.trebuchet ?? {}) } as TrebuchetParams);
 const wallParams = (c: CourseData): WallParams => ({ ...DEFAULT_WALL, ...(c.wall ?? {}) });
 const ropeParams = (c: CourseData): RopeParams => ({ ...DEFAULT_ROPE, ...(c.rope ?? {}) });
@@ -122,6 +125,23 @@ export function stepWorld(w: WorldState, input: RunnerInput, course: CourseData,
     }
   }
   if (r.splashed) { n.outcome = 'splash'; ev('splash', { x: r.x }); }
+
+  // recoil: the pad clips the launcher on (one load per visit); the fire key throws the ball back and pushes the runner forward by the momentum the ball carries away
+  if (course.recoil && n.outcome === 'running') {
+    const rp = recoilParams(course);
+    const prev = w.recoil ?? NO_RECOIL;
+    const onPad = n.runner.grounded && padHas(rp, n.runner.x);
+    let armed = onPad && !prev.onPad ? rp.shots : prev.armed, fired = prev.fired;
+    const balls = prev.balls.map((b) => stepBall(b, course.terrain)).slice(-6);
+    if (input.fire && armed > 0) {
+      const sh = shot(rp, n.runner.vx, n.runner.vy, !n.runner.grounded);
+      n.runner = { ...n.runner, vx: n.runner.vx + sh.dvx, vy: n.runner.vy + sh.dvy };
+      armed--; fired++;
+      balls.push({ x: n.runner.x - 0.3, y: n.runner.y + 1.0, vx: sh.ballVx, vy: sh.ballVy, landed: false });
+      ev('recoil', { dvx: sh.dvx, dvy: sh.dvy, muzzle: sh.muzzle, ball: Math.hypot(sh.ballVx, sh.ballVy) });
+    }
+    n.recoil = { armed, fired, onPad, balls };
+  }
 
   // the wall: running onto the curve with the feet on the ground
   if (course.wall && n.mode === 'run' && r.grounded && r.vx > 0.5 && r.x >= course.wall.x0 && r.y === groundAt(course.terrain, course.wall.x0)) {

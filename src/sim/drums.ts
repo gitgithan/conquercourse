@@ -8,7 +8,7 @@ import { newWorld, stepWorld } from './world';
 // including one built in the editor. It shows the line; it never grades the player's own presses.
 export interface Drum {
   x: number; // m along the course at the moment of the press
-  what: 'jump' | 'let go' | 'bounce' | 'vault' | 'grab' | 'release' | 'roll';
+  what: 'jump' | 'let go' | 'bounce' | 'vault' | 'grab' | 'release' | 'roll' | 'fire';
 }
 
 // The roll drum's place: this many ticks (0.3 s at 120 Hz) before touchdown.
@@ -18,7 +18,7 @@ export function drumsFor(course: CourseData, plan: Plan = course.plan ?? searchI
   let w = newWorld(course);
   const st = { next: 0, caught: null as number | null, bedAt: null as number | null };
   const drums: Drum[] = [];
-  let was = false, wasVault = false, prevMode = w.mode;
+  let was = false, wasVault = false, wasFire = false, prevMode = w.mode;
   const xs: number[] = []; // the runner's x at the start of every tick, so the roll drum can sit on the path point a fixed time before the landing
   let airStart = 0; // the tick the runner last left the ground
   let still = 0;
@@ -31,6 +31,8 @@ export function drumsFor(course: CourseData, plan: Plan = course.plan ?? searchI
     wasVault = !!input.vault;
     xs.push(w.runner.x);
     if (w.runner.grounded) airStart = i;
+    if (input.fire && !wasFire) drums.push({ x: w.runner.x, what: 'fire' }); // K fires the launcher on a recoil pad
+    wasFire = !!input.fire;
     w = stepWorld(w, input, course);
     // one X drum per landing that the roll is for: a fall that would stumble or hurt with straight legs and no roll, or one the line rolls out of.
     // The drum sits where the runner is ROLL_DRUM_TICKS before touchdown (the key buffer is a quarter of a second, so 0.3 s before is early enough and not too early).
