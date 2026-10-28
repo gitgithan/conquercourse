@@ -1,0 +1,56 @@
+{
+  "version": 1,
+  "name": "Cannon: aim it, fire it, roll out of the landing",
+  "startX": 0,
+  "finishX": 64,
+  "jumpSpeed": 4.5,
+  "terrain": {
+    "waterY": -10,
+    "platforms": [
+      {
+        "x0": -10,
+        "x1": 18,
+        "top": 0
+      },
+      {
+        "x0": 50,
+        "x1": 90,
+        "top": -4
+      }
+    ]
+  },
+  "recoil": {
+    "x0": 2.5,
+    "x1": 5.5,
+    "kind": "bigcannon",
+    "ballMass": 80,
+    "muzzle": 45,
+    "angle": 0.7,
+    "charMass": 70,
+    "energy": 40000,
+    "shots": 1
+  },
+  "zones": [
+    {
+      "id": "recoil",
+      "name": "Cannon gap",
+      "x0": 2,
+      "x1": 52
+    }
+  ],
+  "checkpoints": [
+    {
+      "id": "recoil",
+      "x": 0
+    }
+  ],
+  "plan": {
+    "jumpXs": [],
+    "releaseAfter": 60,
+    "bouncePress": 8,
+    "aim": 0.25,
+    "fireXs": [
+      11.05
+    ]
+  }
+}

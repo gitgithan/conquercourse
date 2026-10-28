@@ -5,7 +5,7 @@ import type { Drum } from '../sim/drums';
 const PX_PER_M = 46;
 const HIT_AT = 0.2; // the hit line sits this far across the lane
 
-const LABEL: Record<Drum['what'], string> = { jump: 'Space', 'let go': 'Let go', bounce: 'Press', vault: 'V', grab: 'E', release: 'Release', roll: 'X', fire: 'K' };
+const LABEL: Record<Drum['what'], string> = { jump: 'Space', 'let go': 'Let go', bounce: 'Press', vault: 'V', grab: 'E', release: 'Release', roll: 'X', fire: 'K', aim: '↑↓' };
 
 export interface DrumLane {
   set(drums: Drum[]): void;
@@ -36,7 +36,7 @@ export function createDrumLane(parent: HTMLElement, on: boolean): DrumLane {
   const make = (d: Drum): HTMLDivElement => {
     const e = document.createElement('div');
     e.style.cssText = 'position:absolute;top:50%;width:54px;height:54px;margin:-27px 0 0 -27px;border-radius:50%;background:radial-gradient(circle at 50% 45%,#fff3d6 0 52%,#c8382a 54% 100%);border:3px solid #7d1f16;display:grid;place-items:center;color:#5a1a10;font:800 11px system-ui,sans-serif;text-align:center;line-height:1';
-    e.innerHTML = `<span>${LABEL[d.what]}</span>`;
+    e.innerHTML = `<span>${LABEL[d.what]}${d.note ? `<br><small>${d.note}</small>` : ''}</span>`;
     root.appendChild(e);
     return e;
   };
