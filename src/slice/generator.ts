@@ -1,3 +1,4 @@
+import { HAZARDS } from '../course/hazard';
 import type { CourseData } from '../course/course';
 import { playPlan, searchIdealRun, type Plan } from '../sim/ideal';
 
@@ -119,6 +120,8 @@ export function generateDetailed(seed: number, opts: GenOptions = {}): Generated
     const a = assemble(ks, sizes, idx.map((i) => styles[i]), keep);
     a.moves.forEach((m, j) => (m.level = lv[j]));
     a.course.name = `Generated course ${seed}`;
+    const floor = HAZARDS[seed % HAZARDS.length]; // the floor follows the seed (water on every fifth), without touching the random draws
+    if (floor !== 'water') a.course.hazard = floor;
     const plan: Plan = { jumpXs: [], releaseAfter: 60, bouncePress: 8, vaultXs: [], hangTicks: [] };
     parts.forEach((pr, j) => {
       const p = pr!.plan;
