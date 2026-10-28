@@ -21,12 +21,14 @@ async function courseFromUrl(): Promise<CourseData | undefined> {
   // ?generate=7 makes a course from seed 7 (a seed always gives the same course), every move proved clearable by the simulator
   const seed = new URLSearchParams(location.search).get('generate');
   if (seed !== null && /^\d{1,9}$/.test(seed)) { const { generateCourse } = await import('./slice/generator'); return generateCourse(Number(seed)); }
+  const track = new URLSearchParams(location.search).get('coaster'); // ?coaster=0,9;7,5;14,1;... a track from the coaster builder
+  if (track !== null) { const { coasterCourse, parseTrack } = await import('./slice/coaster'); const pts = parseTrack(track); if (pts) return coasterCourse('My coaster', pts, Number(new URLSearchParams(location.search).get('push') ?? 1.5) || 1.5); }
   const url = new URLSearchParams(location.search).get('course');
   if (!url || !/^\/assets\/[\w./-]+\.json$/.test(url)) return undefined;
   try { return (await (await fetch(url)).json()) as CourseData; } catch { return undefined; }
 }
 const mode = new URLSearchParams(location.search).get('mode') ?? 'course';
-const game = mode === 'diagrams' ? (await import('./modes/diagrams-page')).startDiagrams(document.body) : mode === 'rookie' ? await createStage(document.body) : mode === 'dojo' ? startDojo(document.body) : mode === 'park' ? startPark(document.body) : mode === 'editor' ? (await import('./modes/editor')).startEditor(document.body) : mode === 'map' ? (await import('./modes/map')).startMap(document.body) : mode === 'gallery' ? (await import('./modes/gallery')).startGallery(document.body) : await startCourse(document.body, await courseFromUrl());
+const game = mode === 'diagrams' ? (await import('./modes/diagrams-page')).startDiagrams(document.body) : mode === 'rookie' ? await createStage(document.body) : mode === 'dojo' ? startDojo(document.body) : mode === 'park' ? startPark(document.body) : mode === 'editor' ? (await import('./modes/editor')).startEditor(document.body) : mode === 'map' ? (await import('./modes/map')).startMap(document.body) : mode === 'coaster' ? (await import('./modes/coaster')).startCoaster(document.body) : mode === 'gallery' ? (await import('./modes/gallery')).startGallery(document.body) : await startCourse(document.body, await courseFromUrl());
 document.documentElement.dataset.backend = game.backend;
 document.documentElement.dataset.ready = 'true';
 }

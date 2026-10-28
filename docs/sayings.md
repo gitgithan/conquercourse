@@ -27,6 +27,8 @@
 | Hang obstacles | *"Swing your legs to move your hands."* | Moving the centre of mass and transferring momentum |
 | Lache pair (bars) | *"Push with the swing and it grows; push against it and it fades."* | A pendulum gains energy when the push is in step with its motion, and loses it when out of step |
 | Vault | *"A jump buys height with speed; a vault keeps the speed but needs a hand on the obstacle."* | A jump loses speed at take-off; a vault moves on with a hand as the pivot |
+| Coaster | *"A coaster has no engine: it climbs no higher than where it started."* | Energy is conserved: height is stored speed |
+| Coaster | *"Over a sharp hilltop, speed lets go of the rails."* | A crest that bends away faster than gravity can follow lets the cart leave the track |
 | The roll | *"Turn your fall into a roll and the ground forgives you."* | Downward speed turned into rotation |
 | Cup stacks | *"Speed climbs the cups, and speed carries you off the top."* | A step up needs speed, but the narrow flat top is crossed in a blink at that speed |
 

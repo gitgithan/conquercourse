@@ -1,8 +1,8 @@
 // Labelled Dojo diagrams (CC-31): one "real" drawing and one "principle" picture per obstacle, as inline SVG strings.
 // Original art, drawn in code; words only, no formulas.
-export type DiagramId = 'gap' | 'wall' | 'rope' | 'trampoline' | 'landing';
+export type DiagramId = 'gap' | 'wall' | 'rope' | 'trampoline' | 'landing' | 'coaster';
 export type DiagramKind = 'real' | 'principle';
-export const DIAGRAM_IDS: DiagramId[] = ['gap', 'wall', 'rope', 'trampoline', 'landing'];
+export const DIAGRAM_IDS: DiagramId[] = ['gap', 'wall', 'rope', 'trampoline', 'landing', 'coaster'];
 
 const INK = '#1f2937', SPEED = '#2563eb', FORCE = '#dc2626', GRAV = '#d97706', ENERGY = '#16a34a', GROUND = '#9ca3af', SOFT = '#e5e7eb';
 type P = [number, number];
@@ -198,12 +198,40 @@ function landingPrinciple(): string {
   return wrap('Landing: the same stop, spread out', body);
 }
 
+function coasterReal(): string {
+  const body =
+    `<rect x="0" y="400" width="760" height="40" fill="${SOFT}"/>` +
+    `<path d="M70,120 C190,120 220,350 360,350 S560,150 700,150" fill="none" stroke="${GROUND}" stroke-width="8"/>` +
+    `<rect x="78" y="96" width="52" height="20" rx="4" fill="${FORCE}"/>` + fig({ head: [104, 62], neck: [104, 76], hip: [104, 94], arms: [[[90, 70], [84, 56]], [[118, 70], [124, 56]]], legs: [[[112, 100], [124, 98]], [[96, 100], [108, 98]]] }) +
+    `<line x1="70" y1="120" x2="730" y2="120" stroke="${ENERGY}" stroke-width="3" stroke-dasharray="8 8"/>` +
+    txt(430, 108, 'The most it can reach: the height it started from', { color: ENERGY, bold: true, size: 14 }) +
+    `<rect x="334" y="326" width="52" height="20" rx="4" fill="${FORCE}"/>` + arrow([300, 300], [430, 300], SPEED, 6) + txt(365, 282, 'Fastest at the bottom', { color: SPEED, bold: true }) +
+    arrow([150, 150], [150, 215], GRAV, 5) + txt(164, 185, 'Gravity pulls it\ndown the slope', { color: GRAV, bold: true, anchor: 'start' }) +
+    txt(380, 40, 'A coaster has no engine: only the height it starts from', { bold: true });
+  return wrap('Coaster: height is stored speed', body);
+}
+
+function coasterPrinciple(): string {
+  const stages: [string, number, number][] = [['At the top', 1, 0], ['Halfway down', 0.5, 0.5], ['At the bottom', 0, 1]];
+  let body = '';
+  stages.forEach(([name, h, v], i) => {
+    const cx = 130 + i * 250;
+    body += txt(cx + 20, 85, name, { bold: true, size: 17 }) + bar(cx - 40, 330, 200, h, ENERGY, 50) + bar(cx + 30, 330, 200, v, SPEED, 50) +
+      txt(cx - 15, 354, 'Height', { size: 13, color: ENERGY, bold: true }) + txt(cx + 55, 354, 'Speed', { size: 13, color: SPEED, bold: true });
+    if (i < 2) body += arrow([cx + 105, 220], [cx + 150, 220], INK, 4);
+  });
+  body += txt(380, 392, 'Height turns into speed on the way down, and back into height on the way up.', { bold: true }) +
+    txt(380, 416, 'A little is lost to friction and air, so it never climbs quite as high as it started.', { size: 15 });
+  return wrap('Coaster: height and speed trade places', body);
+}
+
 const table: Record<DiagramId, Record<DiagramKind, () => string>> = {
   gap: { real: gapReal, principle: gapPrinciple },
   wall: { real: wallReal, principle: wallPrinciple },
   rope: { real: ropeReal, principle: ropePrinciple },
   trampoline: { real: trampolineReal, principle: trampolinePrinciple },
   landing: { real: landingReal, principle: landingPrinciple },
+  coaster: { real: coasterReal, principle: coasterPrinciple },
 };
 
 export function diagram(id: DiagramId, kind: DiagramKind): string {

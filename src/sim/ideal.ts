@@ -13,6 +13,7 @@ export interface Plan {
   vaultXs?: number[]; // press V at the first moment the feet are on the ground at or past this x
   hands?: boolean; // hold the hand key while airborne (so a bar in reach is grabbed)
   hangTicks?: number[]; // per bar: ticks to hang (pumping with the swing) before letting go
+  cartBrake?: [number, number][]; // a coaster: hold the brake between these x values (the first push is always given at the start)
 }
 
 export interface Window {
@@ -24,6 +25,10 @@ export interface Window {
 }
 
 export function inputFor(plan: Plan, w: WorldState, state: { next: number; caught: number | null; bedAt: number | null; hangAt?: number | null; hangs?: number; vnext?: number }, course?: CourseData): RunnerInput {
+  if (w.mode === 'cart') { // the cart: push at the start, brake where the plan says
+    const x = w.runner.x;
+    return { ...NO_INPUT, run: !w.cart?.started, squat: !!plan.cartBrake?.some(([a, b]) => x >= a && x <= b) };
+  }
   const base: RunnerInput = { ...NO_INPUT, run: true, squat: true, ...(course && rollNeeded(w, course) ? { roll: true } : {}) }; // a drop a squat cannot take cleanly: roll just before the ground
   if (w.mode === 'hang') {
     if (state.hangAt == null) state.hangAt = w.runner.tick;
@@ -108,6 +113,7 @@ const candidates = (from: number, to: number, step = 0.02) => {
 // Greedy search: for each obstacle in order, try presses and keep the ones that reach farthest; the centre of the
 // best group is the ideal press and the group's width is the clearing window.
 export function searchIdealRun(course: CourseData): { plan: Plan; windows: Window[]; cleared: boolean } {
+  if (course.track) return searchCartRun(course);
   const holds = course.holds ?? [];
   const plan: Plan = { jumpXs: [], releaseAfter: 60, bouncePress: 8, ...(holds.length ? { hands: true, hangTicks: holds.map(() => 90) } : {}) };
   const windows: Window[] = [];
@@ -250,4 +256,35 @@ export function playImperfect(course: CourseData, plan: Plan, seed: number, sigm
     if (r.world.outcome === 'cleared') return total;
   }
   return null;
+}
+
+// A coaster: the push is given at the start; the only thing to find is where to brake. Every time the cart leaves the track on a crest, try braking
+// through that crest from a point earlier on (the nearest start that makes the whole course clear), then look at the next crest.
+export function searchCartRun(course: CourseData): { plan: Plan; windows: Window[]; cleared: boolean } {
+  const plan: Plan = { jumpXs: [], releaseAfter: 60, bouncePress: 8, cartBrake: [] };
+  const windows: Window[] = [];
+  const cap = 120 * 90;
+  for (let round = 0; round < 5; round++) {
+    const r = playPlan(course, plan, cap);
+    if (r.world.outcome === 'cleared') return { plan, windows, cleared: true };
+    const off = r.events.find((e) => e.type === 'cart-off');
+    if (!off) return { plan, windows, cleared: false }; // stalled or something else: braking cannot help
+    const xOff = off.detail!.x as number;
+    const x0 = course.track!.pts.reduce((m, q) => Math.min(m, q[0]), Infinity);
+    const best: { a: number; ok: boolean; cleared: boolean }[] = [];
+    for (let a = xOff - 1; a >= x0; a -= 1) {
+      const trial: Plan = { ...plan, cartBrake: [...plan.cartBrake!, [a, xOff + 1]] };
+      const rr = playPlan(course, trial, cap);
+      const cleared = rr.world.outcome === 'cleared';
+      const left = rr.events.find((e) => e.type === 'cart-off');
+      best.push({ a, cleared, ok: cleared || !left || (left.detail!.x as number) > xOff + 1 });
+    }
+    const good = best.some((b) => b.cleared) ? best.filter((b) => b.cleared) : best.filter((b) => b.ok); // starts that clear the whole course first; else any that gets over this crest
+    if (!good.length) return { plan, windows, cleared: false };
+    const lo = Math.min(...good.map((g) => g.a)), hi = Math.max(...good.map((g) => g.a));
+    const pick = good[Math.floor(good.length / 2)].a; // the middle of the starts that work
+    plan.cartBrake!.push([pick, xOff + 1]);
+    windows.push({ obstacle: `crest at ${xOff.toFixed(0)} m`, best: pick, lo, hi, widthMs: ((hi - lo + 1) / 8) * 1000 });
+  }
+  return { plan, windows, cleared: playPlan(course, plan, cap).world.outcome === 'cleared' };
 }

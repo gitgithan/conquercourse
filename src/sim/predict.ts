@@ -4,6 +4,7 @@ import { landing } from './landing';
 import { platformAt } from './terrain';
 import { stepWorld, type WorldState } from './world';
 import { JUMPABLE_STEP } from './needs-limits';
+import { crestSpeedLimit, railsOf } from './cart';
 
 // "If I jump now, what happens?": the simulator's own physics run forward from the current state with Space pressed
 // and the run key held. The debug view draws the path and says why the jump works or does not. Nothing here is a second model.
@@ -69,4 +70,35 @@ export function predictRelease(w: WorldState, course: CourseData, maxTicks = 360
     }
   }
   return { path, result: 'lands', why: 'Still in the air at the end of the preview.' };
+}
+
+// "If I let the cart roll from here, what happens?": the same cart physics run forward with no brake. Used by the debug view on a coaster.
+export function predictCart(w: WorldState, course: CourseData, maxTicks = 120 * 60): Prediction {
+  if (w.outcome !== 'running') return { path: [], result: 'other-move', why: 'The run is over: press R to try again.' };
+  const rails = railsOf(course.track!);
+  const path = [{ x: w.runner.x, y: w.runner.y }];
+  let s = w;
+  for (let i = 0; i < maxTicks; i++) {
+    s = stepWorld(s, { ...NO_INPUT, run: !s.cart?.started }, course);
+    if (i % 4 === 0 || s.outcome !== 'running') path.push({ x: s.runner.x, y: s.runner.y });
+    const off = s.events.find((e) => e.type === 'cart-off');
+    if (off) {
+      const x = off.detail!.x as number, v = off.detail!.v as number, limit = crestSpeedLimit(rails, x);
+      return { path: [...path, ...flyOn(s, course)], result: 'splash', landX: x, why: `Leaves the track at ${x.toFixed(0)} m: ${v.toFixed(1)} m/s over a hilltop that lets go above ${limit.toFixed(1)} m/s. Brake (hold ↓) before it, or make the crest broader.` };
+    }
+    if (s.events.some((e) => e.type === 'cart-stall')) {
+      const st = s.events.find((e) => e.type === 'cart-stall')!;
+      return { path, result: 'blocked', landX: st.detail!.x as number, why: `Runs out of speed on the hill at ${(st.detail!.x as number).toFixed(0)} m (${(st.detail!.height as number).toFixed(1)} m high). Make the first hill higher or that hill lower.` };
+    }
+    if (s.outcome === 'cleared') return { path, result: 'lands', landX: s.runner.x, why: 'Rolls all the way to the finish.' };
+    if (s.outcome !== 'running') break;
+  }
+  return { path, result: 'other-move', why: s.cart?.started ? 'Rolling.' : 'Press → to push off.' };
+}
+
+function flyOn(w: WorldState, course: CourseData): { x: number; y: number }[] {
+  const out: { x: number; y: number }[] = [];
+  let s = w;
+  for (let i = 0; i < 240 && s.outcome === 'running'; i++) { s = stepWorld(s, NO_INPUT, course); if (i % 3 === 0) out.push({ x: s.runner.x, y: s.runner.y }); }
+  return out;
 }
