@@ -112,7 +112,7 @@ The set of obstacle shapes is fixed, and each shape offers a fixed set of moves.
 - **Drum lane (`src/sim/drums.ts`, `src/ui/drum-lane.ts`):**
   - plays the ideal run once and records where it presses Space (jump, rope let-go, trampoline press);
   - shows those places as taiko drums that slide toward a hit line as the runner closes in;
-  - on by default for a course someone built (editor or `?course=`), off for the stock course until G (or `?drums=1`);
+  - on by default for every course that has a planned route (built, generated or the stock course), G toggles it (`?drums=1` forces it on); a coaster has none;
   - shows the line only; it never scores the player's own presses.
 - **Editor objects:** every object we have is placed from the editor: the photo objects (including park02 rail and park07 stairs, test-only), plus size references (a 1.75 m person from the Rookie model, and the demo scene).
 - **Not in the editor:** the two mural walls (the artist's rights) and the park06 slab (33 m, wrong size).
