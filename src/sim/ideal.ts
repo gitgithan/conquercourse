@@ -13,6 +13,7 @@ export interface Plan {
   vaultXs?: number[]; // press V at the first moment the feet are on the ground at or past this x
   hands?: boolean; // hold the hand key while airborne (so a bar in reach is grabbed)
   hangTicks?: number[]; // per bar: ticks to hang (pumping with the swing) before letting go
+  launchRelease?: number; // trebuchet: ticks after the pin is pulled at which Space lets the rider go
   cartBrake?: [number, number][]; // a coaster: hold the brake between these x values (the first push is always given at the start)
 }
 
@@ -30,6 +31,7 @@ export function inputFor(plan: Plan, w: WorldState, state: { next: number; caugh
     return { ...NO_INPUT, run: !w.cart?.started, squat: !!plan.cartBrake?.some(([a, b]) => x >= a && x <= b) };
   }
   const base: RunnerInput = { ...NO_INPUT, run: true, squat: true, ...(course && rollNeeded(w, course) ? { roll: true } : {}) }; // a drop a squat cannot take cleanly: roll just before the ground
+  if (w.mode === 'launch') return { ...NO_INPUT, run: true, squat: true, ...(w.launch?.fired && w.launch.t >= (plan.launchRelease ?? 120) ? { jump: true } : {}) }; // pull the pin, then let go at the planned moment
   if (w.mode === 'hang') {
     if (state.hangAt == null) state.hangAt = w.runner.tick;
     const idx = state.hangs ?? 0;
@@ -117,12 +119,15 @@ export function searchIdealRun(course: CourseData): { plan: Plan; windows: Windo
   const holds = course.holds ?? [];
   const plan: Plan = { jumpXs: [], releaseAfter: 60, bouncePress: 8, ...(holds.length ? { hands: true, hangTicks: holds.map(() => 90) } : {}) };
   const windows: Window[] = [];
-  const es: { x: number; name: string; riser?: boolean }[] = [...edges(course), ...risers(course)].sort((a, b) => a.x - b.x);
+  const tre = course.trebuchet;
+  const onMachine = (x: number) => !!tre && course.terrain.platforms.some((p) => p.x0 <= tre.x && tre.x <= p.x1 && x >= p.x0 && x <= p.x1 + 0.01); // the machine's own deck: nobody runs off it, the rider is thrown
+  const es: { x: number; name: string; riser?: boolean }[] = [...edges(course), ...risers(course)].filter((e) => !onMachine(e.x)).sort((a, b) => a.x - b.x);
   const hasRope = !!course.rope;
   // rope: the jump at the deck edge before the rope's gap is one of the edges; tune the release after it
   const score = (r: RunResult) => (r.world.outcome === 'cleared' ? 1e6 : r.maxX);
   const progress = (): void => {};
   void progress;
+  if (tre) searchLaunch(course, plan, windows, score);
   for (let k = 0; k < es.length; k++) {
     const e = es[k];
     // bars within a swing of this edge: a joint search over the press and the hang times on the first two bars (a swing and the next catch depend on each other,
@@ -210,6 +215,28 @@ export function searchIdealRun(course: CourseData): { plan: Plan; windows: Windo
   const final = playPlan(course, plan);
   return { plan, windows, cleared: final.world.outcome === 'cleared' };
 }
+
+// The trebuchet: when to let the rider go (ticks after the pin), found together with the hang time on the first bar when there is one.
+function searchLaunch(course: CourseData, plan: Plan, windows: Window[], score: (r: RunResult) => number) {
+  const bars = (course.holds ?? []).length > 0;
+  const trial = (rel: number, hang: number): { sc: number; rel: number; hang: number } => {
+    const pl: Plan = { ...plan, launchRelease: rel, ...(bars ? { hangTicks: plan.hangTicks!.map((t, i) => (i === 0 ? hang : t)) } : {}) };
+    return { sc: score(playPlan(course, pl, 120 * 30)), rel, hang };
+  };
+  const hangs = bars ? Array.from({ length: 17 }, (_, i) => i * 30) : [0];
+  let found: { sc: number; rel: number; hang: number }[] = [];
+  for (let rel = 20; rel <= 360; rel += 6) for (const h of hangs) { found.push(trial(rel, h)); }
+  const tops = [...found].sort((a, b) => b.sc - a.sc).slice(0, 3);
+  for (const t of tops) for (let rel = t.rel - 6; rel <= t.rel + 6; rel += 1) for (let h = Math.max(0, t.hang - 24); h <= t.hang + 24; h += bars ? 6 : 100) found.push(trial(rel, h));
+  const best = Math.max(...found.map((f) => f.sc));
+  const good = found.filter((f) => f.sc >= best - 1e-9);
+  const centre = good.reduce((a, b) => (Math.abs(b.rel - median(good.map((g) => g.rel))) < Math.abs(a.rel - median(good.map((g) => g.rel))) ? b : a));
+  plan.launchRelease = centre.rel;
+  if (bars) plan.hangTicks = plan.hangTicks!.map((t, i) => (i === 0 ? centre.hang : t));
+  const rels = good.filter((g) => g.hang === centre.hang).map((g) => g.rel);
+  windows.push({ obstacle: 'trebuchet release', best: centre.rel, lo: Math.min(...rels), hi: Math.max(...rels), widthMs: (Math.max(...rels) - Math.min(...rels) + 1) * DT * 1000 });
+}
+const median = (xs: number[]): number => { const s = [...xs].sort((a, b) => a - b); return s[Math.floor(s.length / 2)]; };
 
 // Every combination of one value from each list.
 function cross(lists: number[][]): number[][] {

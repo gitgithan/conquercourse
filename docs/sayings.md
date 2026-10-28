@@ -30,6 +30,7 @@
 | Coaster | *"A coaster has no engine: it climbs no higher than where it started."* | Energy is conserved: height is stored speed |
 | Coaster | *"Over a sharp hilltop, speed lets go of the rails."* | A crest that bends away faster than gravity can follow lets the cart leave the track |
 | The roll | *"Turn your fall into a roll and the ground forgives you."* | Downward speed turned into rotation |
+| The trebuchet | *"A long arm gets you far; letting go late gets you thrown into the ground."* | The moment (weight times distance from the pivot) turns the arm, a longer arm moves its tip faster, and the release moment decides the flight |
 | Cup stacks | *"Speed climbs the cups, and speed carries you off the top."* | A step up needs speed, but the narrow flat top is crossed in a blink at that speed |
 
 ## Where they appear

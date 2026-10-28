@@ -1,8 +1,8 @@
 // Labelled Dojo diagrams (CC-31): one "real" drawing and one "principle" picture per obstacle, as inline SVG strings.
 // Original art, drawn in code; words only, no formulas.
-export type DiagramId = 'gap' | 'wall' | 'rope' | 'trampoline' | 'landing' | 'coaster';
+export type DiagramId = 'gap' | 'wall' | 'rope' | 'trampoline' | 'landing' | 'coaster' | 'lever';
 export type DiagramKind = 'real' | 'principle';
-export const DIAGRAM_IDS: DiagramId[] = ['gap', 'wall', 'rope', 'trampoline', 'landing', 'coaster'];
+export const DIAGRAM_IDS: DiagramId[] = ['gap', 'wall', 'rope', 'trampoline', 'landing', 'coaster', 'lever'];
 
 const INK = '#1f2937', SPEED = '#2563eb', FORCE = '#dc2626', GRAV = '#d97706', ENERGY = '#16a34a', GROUND = '#9ca3af', SOFT = '#e5e7eb';
 type P = [number, number];
@@ -198,6 +198,37 @@ function landingPrinciple(): string {
   return wrap('Landing: the same stop, spread out', body);
 }
 
+function leverReal(): string {
+  const body =
+    `<rect x="0" y="380" width="760" height="60" fill="${SOFT}"/>` + line([0, 380], [760, 380], GROUND, 5) +
+    line([300, 380], [370, 150], INK, 8) + line([440, 380], [370, 150], INK, 8) +
+    line([232, 262], [560, 98], '#8a5a2b', 12) + `<circle cx="370" cy="150" r="9" fill="${INK}"/>` +
+    `<rect x="190" y="262" width="62" height="62" fill="#4a4f55"/>` + txt(221, 350, 'Heavy weight', { bold: true, size: 14 }) +
+    line([560, 98], [640, 330], '#e8dcc0', 3, '6 5') + fig({ head: [650, 296], neck: [650, 312], hip: [650, 346], arms: [[[634, 322], [620, 312]], [[664, 322], [676, 312]]], legs: [[[660, 362], [666, 380]], [[640, 362], [634, 380]]] }) +
+    arrow([232, 215], [232, 300], GRAV, 5) + txt(210, 196, 'The weight falls', { color: GRAV, bold: true, size: 14 }) +
+    arrow([575, 170], [625, 80], SPEED, 5) + txt(600, 60, 'You swing up and over', { color: SPEED, bold: true, size: 14 }) +
+    line([370, 405], [232, 405], FORCE, 4) + txt(300, 424, 'Short side', { color: FORCE, bold: true, size: 14 }) +
+    line([370, 405], [560, 405], ENERGY, 4) + txt(465, 424, 'Long side', { color: ENERGY, bold: true, size: 14 });
+  return wrap('Trebuchet: a lever with a weight', body);
+}
+
+function leverPrinciple(): string {
+  const beam = (y: number, tilt: number, name: string, note: string) => {
+    const ly = y - tilt, ry = y + tilt;
+    return line([60, ly], [700, ry], '#8a5a2b', 10) + `<polygon points="380,${y + 4} 350,${y + 60} 410,${y + 60}" fill="${INK}"/>` +
+      txt(380, y - 62, name, { bold: true, size: 17 }) + txt(380, y + 82, note, { size: 14 });
+  };
+  const body =
+    beam(120, 0, 'Balanced: the arm does not swing', 'Heavy weight close in, light weight far out') +
+    `<rect x="260" y="68" width="60" height="44" fill="#4a4f55"/>` + txt(290, 62, 'Heavy', { size: 13, bold: true }) + arrow([290, 32], [290, 66], GRAV, 4) +
+    `<rect x="640" y="94" width="26" height="22" fill="#4a4f55"/>` + txt(653, 90, 'Light', { size: 13, bold: true }) + arrow([653, 62], [653, 92], GRAV, 4) +
+    line([380, 140], [290, 140], FORCE, 3) + txt(335, 158, 'Short', { size: 13, color: FORCE, bold: true }) + line([380, 140], [653, 140], ENERGY, 3) + txt(520, 158, 'Long', { size: 13, color: ENERGY, bold: true }) +
+    beam(320, 36, 'Weight wins: the arm turns', 'The farther from the pivot, the harder it turns') +
+    `<rect x="80" y="324" width="54" height="40" fill="#4a4f55"/>` + arrow([107, 300], [107, 322], GRAV, 4) +
+    fig({ head: [676, 238], neck: [676, 254], hip: [676, 288], arms: [[[660, 262], [648, 254]], [[692, 262], [704, 254]]], legs: [[[686, 304], [690, 322]], [[666, 304], [662, 322]]], ghost: true });
+  return wrap('Lever: weight and distance trade', body);
+}
+
 function coasterReal(): string {
   const body =
     `<rect x="0" y="400" width="760" height="40" fill="${SOFT}"/>` +
@@ -231,6 +262,7 @@ const table: Record<DiagramId, Record<DiagramKind, () => string>> = {
   rope: { real: ropeReal, principle: ropePrinciple },
   trampoline: { real: trampolineReal, principle: trampolinePrinciple },
   landing: { real: landingReal, principle: landingPrinciple },
+  lever: { real: leverReal, principle: leverPrinciple },
   coaster: { real: coasterReal, principle: coasterPrinciple },
 };
 

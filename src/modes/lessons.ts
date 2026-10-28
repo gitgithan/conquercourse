@@ -17,6 +17,7 @@ export interface Lesson {
   apply: (f: CourseFacts, ctx: Context, v: Record<string, number>) => string; // lines separated by \n; numbers come from the course in play
 }
 
+const RIDER_KG = 80; // the rider's weight in the lever lesson (the same as the experiment's)
 export const LESSONS: Record<Experiment['id'], Lesson> = {
   gap: {
     why: 'A gap is a promise you make at the edge: once your feet leave the ground, nothing you do in the air changes how far you fly. So the jump is won or lost by how fast you run and how hard you push up.',
@@ -78,6 +79,17 @@ export const LESSONS: Record<Experiment['id'], Lesson> = {
     inputs: ['length'],
     calc: (v) => { const T = 2 * Math.PI * Math.sqrt(v.length / GRAVITY); return { label: 'time of one swing', value: T, unit: 's', working: `2π × √(${v.length.toFixed(2)} ÷ ${GRAVITY}) = ${T.toFixed(2)} s` }; },
     apply: () => 'On the lache pair, hold E on the bar and push the arrow the way you swing: the swing grows each time. Let go when the hint says LET GO NOW.',
+  },
+  lever: {
+    why: 'A lever turns about its pivot, and what turns it is not only the weight but how far from the pivot the weight hangs. That turning effect is called a moment. A trebuchet is a lever with a heavy weight on the short side and you on the long side: while the weight wins, the arm turns, your end swings up and over, and you are thrown.',
+    tries: ['Keep the weight\'s distance and drag yours from 2 to 8 m: watch how much weight it takes to balance you.', 'Now drag the weight\'s distance from 0.5 to 3 m: the same balance needs a lighter and lighter weight.', 'Find two settings with a heavy weight close in and a light weight far out that balance you equally.'],
+    shapeWords: { inverse: 'a falling curve: put the weight twice as far from the pivot and half the weight balances you (an inverse proportion).', direct: 'a straight line: sit twice as far out and you need twice the weight to balance you (a direct proportion).' },
+    rule: 'Each side turns the arm by its weight times its distance from the pivot. When the two are equal the arm is balanced and does not swing; when the weight side is bigger it wins. Weight and distance trade: double one and halve the other for the same turn.',
+    formula: 'weight × its distance from the pivot = your weight × your distance from the pivot (moment = force × distance)',
+    formulaWords: 'This is exact for a light arm that does not bend: the arm is balanced when the moments are equal. A real trebuchet\'s arm has weight too, which moves the balance a little. Once the weight wins, a longer throwing arm moves its tip faster for the same turn, because the tip travels a bigger circle in the same time.',
+    inputs: ['near', 'far'],
+    calc: (v) => { const m = (RIDER_KG * v.far) / v.near; return { label: 'weight that balances you', value: m, unit: 'kg', working: `${RIDER_KG} × ${v.far.toFixed(1)} ÷ ${v.near.toFixed(2)} = ${m.toFixed(0)} kg`, note: `Your moment is ${RIDER_KG} × ${v.far.toFixed(1)} = ${(RIDER_KG * v.far).toFixed(0)} kg·m. The weight must match it.` }; },
+    apply: () => 'On the Launch course, the weight is 1200 kg at 1.3 m, which is a moment of 1560 kg·m against your 80 kg at 5.5 m, 440 kg·m. The weight wins by a lot, so the arm turns hard. Pull the pin with →, then press Space at the moment the hint says LET GO NOW.',
   },
   coaster: {
     why: 'A coaster has no engine. The only energy it has is the height it starts from. Going down, height turns into speed; going up the next hill, speed turns back into height. So the first hill decides how high any later hill can be.',
