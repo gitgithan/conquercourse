@@ -28,7 +28,7 @@ try {
   await page.waitForFunction(() => document.documentElement.dataset.fixed !== undefined && /band|works/i.test(document.getElementById("reply")?.textContent ?? ""), null, { timeout: 240000 }).catch(() => {});
   const reply = await page.textContent("#reply");
   checks.bandFixItSpeaks = /softer band|already works|No band/.test(reply);
-  checks.bandOffAgain = await page.click('#addpiece'); await page.click("#addband").then(() => page.waitForFunction(() => document.documentElement.dataset.band === "", null, { timeout: 10000 })).then(() => true, () => false);
+  await page.click('#addpiece'); checks.bandOffAgain = await page.click("#addband").then(() => page.waitForFunction(() => document.documentElement.dataset.band === "", null, { timeout: 10000 })).then(() => true, () => false);
   console.log("Fix it says:", reply.slice(0, 160));
   console.log(checks, "errors:", errors);
   await browser.close();
