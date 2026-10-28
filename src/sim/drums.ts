@@ -9,7 +9,7 @@ import { newWorld, stepWorld } from './world';
 export interface Drum {
   x: number; // m along the course at the moment of the press
   note?: string; // a few words on the drum (the aim of a cannon)
-  what: 'jump' | 'let go' | 'bounce' | 'vault' | 'grab' | 'release' | 'roll' | 'fire' | 'aim';
+  what: 'jump' | 'let go' | 'bounce' | 'vault' | 'grab' | 'release' | 'roll' | 'fire' | 'aim' | 'turn';
 }
 
 // The roll drum's place: this many ticks (0.3 s at 120 Hz) before touchdown.
@@ -19,7 +19,7 @@ export function drumsFor(course: CourseData, plan: Plan = course.plan ?? searchI
   let w = newWorld(course);
   const st = { next: 0, caught: null as number | null, bedAt: null as number | null };
   const drums: Drum[] = [];
-  let was = false, wasVault = false, wasFire = false, wasAim = false, prevMode = w.mode;
+  let was = false, wasVault = false, wasFire = false, wasAim = false, wasTurn = false, prevMode = w.mode;
   const xs: number[] = []; // the runner's x at the start of every tick, so the roll drum can sit on the path point a fixed time before the landing
   let airStart = 0; // the tick the runner last left the ground
   let still = 0;
@@ -36,6 +36,10 @@ export function drumsFor(course: CourseData, plan: Plan = course.plan ?? searchI
     wasFire = !!input.fire;
     if (input.aim !== undefined && !wasAim) drums.push({ x: w.runner.x, what: 'aim', note: `${Math.round((input.aim * 180) / Math.PI)}°` }); // tilt the barrel (Up and Down), then K
     wasAim = input.aim !== undefined;
+    // the elastic band: the moment the line stops pulling away from the post and turns round toward it (the band then throws the runner)
+    const turning = w.mode === 'band' && !!input.run && !input.left;
+    if (turning && !wasTurn) drums.push({ x: w.runner.x, what: 'turn' });
+    wasTurn = turning;
     w = stepWorld(w, input, course);
     // one X drum per landing that the roll is for: a fall that would stumble or hurt with straight legs and no roll, or one the line rolls out of.
     // The drum sits where the runner is ROLL_DRUM_TICKS before touchdown (the key buffer is a quarter of a second, so 0.3 s before is early enough and not too early).

@@ -28,7 +28,9 @@
 | Lache pair (bars) | *"Push with the swing and it grows; push against it and it fades."* | A pendulum gains energy when the push is in step with its motion, and loses it when out of step |
 | Vault | *"A jump buys height with speed; a vault keeps the speed but needs a hand on the obstacle."* | A jump loses speed at take-off; a vault moves on with a hand as the pivot |
 | Coaster | *"A coaster has no engine: it climbs no higher than where it started."* | Energy is conserved: height is stored speed |
+| Elastic band | *"A soft band pulled far outthrows a stiff one pulled little."* | The legs can only pull so hard, so a softer band stretches farther and stores more energy, which it gives back as speed |
 | Coaster | *"Over a sharp hilltop, speed lets go of the rails."* | A crest that bends away faster than gravity can follow lets the cart leave the track |
+| Elastic band | *"A soft band pulled far outthrows a stiff one pulled little."* | The legs can only pull so hard, so a softer band stretches farther and stores more energy, which it gives back as speed |
 | The roll | *"Turn your fall into a roll and the ground forgives you."* | Downward speed turned into rotation |
 | The trebuchet | *"A long arm gets you far; letting go late gets you thrown into the ground."* | The moment (weight times distance from the pivot) turns the arm, a longer arm moves its tip faster, and the release moment decides the flight |
 | Plank bridge | *"A plank that is twice as long sags eight times as much."* | A longer plank bends far more, and a thicker one bends far less; a post in the middle makes two short planks |

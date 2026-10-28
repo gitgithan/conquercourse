@@ -5,7 +5,7 @@ import type { Drum } from '../sim/drums';
 const PX_PER_M = 46;
 const HIT_AT = 0.2; // the hit line sits this far across the lane
 
-const LABEL: Record<Drum['what'], string> = { jump: 'Space', 'let go': 'Let go', bounce: 'Press', vault: 'V', grab: 'E', release: 'Release', roll: 'X', fire: 'K', aim: '↑↓' };
+const LABEL: Record<Drum['what'], string> = { jump: 'Space', 'let go': 'Let go', bounce: 'Press', vault: 'V', grab: 'E', release: 'Release', roll: 'X', fire: 'K', aim: '↑↓', turn: 'Turn →' };
 
 export interface DrumLane {
   set(drums: Drum[]): void;
@@ -60,7 +60,7 @@ export function createDrumLane(parent: HTMLElement, on: boolean): DrumLane {
         e.style.display = visible ? 'grid' : 'none';
         if (!visible) return;
         e.style.left = `${px}px`;
-        const passed = d.x < runnerX - 0.05;
+        const passed = d.what === 'turn' ? runnerX < d.x - 0.05 : d.x < runnerX - 0.05; // the turn drum is met running left: it is passed once the runner is beyond it
         e.style.opacity = passed ? '0.25' : '1';
         e.style.transform = i === nextUp ? 'scale(1.18)' : 'scale(1)';
       });

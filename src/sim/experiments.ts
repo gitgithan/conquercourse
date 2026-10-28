@@ -1,3 +1,4 @@
+import { DEFAULT_BAND, bandOnlySpeed } from './band';
 import { DT, GRAVITY } from './units';
 import { DEFAULT_PARAMS, NO_INPUT, startState, step } from './runner';
 import { DEFAULT_LANDING, landing } from './landing';
@@ -29,7 +30,7 @@ export interface Trial {
   note?: string; // plain-words outcome
 }
 export interface Experiment {
-  id: 'gap' | 'wall' | 'rope' | 'trampoline' | 'landing' | 'bars' | 'coaster' | 'lever' | 'recoil' | 'bridge' | 'cannon';
+  id: 'gap' | 'wall' | 'rope' | 'trampoline' | 'landing' | 'bars' | 'coaster' | 'lever' | 'recoil' | 'bridge' | 'cannon' | 'stored';
   name: string;
   question: string;
   answerUnit: string;
@@ -247,6 +248,32 @@ const leverExp: Experiment = {
 };
 void leverTurn;
 
+// The elastic band (stored energy): you stretch a band by some distance and let go; it gives back what it stored, so the speed grows with the stretch
+// and with the square root of how stiff the band is. The answer is the speed the band alone gives (no legs, no friction): all the stored energy becomes motion.
+const BAND_KG = DEFAULT_BAND.mass;
+const storedExp: Experiment = {
+  id: 'stored', name: 'Stored energy', question: 'How fast will the band throw you when it lets go?', answerUnit: 'm/s', answerMax: 20, axis: 'meter', primary: 'stretch',
+  knobs: [
+    { id: 'stretch', label: 'How far you stretch the band', unit: 'm', min: 1, max: 20, def: 8, step: 0.5, why: 'Stretching it farther stores more energy, and the energy grows faster than the distance: twice the stretch stores four times as much.' },
+    { id: 'stiffness', label: 'How stiff the band is', unit: 'N/m', min: 20, max: 300, def: 60, step: 5, why: 'A stiffer band pulls harder for the same stretch, so it stores more. But your legs can only pull so hard, so a stiff band cannot be stretched far.' },
+  ],
+  sayings: ['A soft band pulled far outthrows a stiff one pulled little.'],
+  run(v) {
+    const p = { ...DEFAULT_BAND, k: v.stiffness };
+    const speed = bandOnlySpeed(p, v.stretch);
+    const reach = (DEFAULT_PARAMS.acceleration * BAND_KG) / v.stiffness; // the farthest your legs can pull it
+    const path: Point[] = Array.from({ length: 25 }, (_, i) => ({ x: -v.stretch * (1 - i / 24), y: 0 }));
+    const stiffer = bandOnlySpeed({ ...p, k: v.stiffness * 4 }, v.stretch);
+    return {
+      answer: speed,
+      path,
+      overlays: [{ pts: [{ x: 0, y: 0 }, { x: 0, y: 1.2 }], color: '#d33a2c', label: 'post' }, { pts: [{ x: -v.stretch, y: 1 }, { x: 0, y: 1.15 }], color: '#2ca66f', label: `band stretched ${v.stretch.toFixed(1)} m` }],
+      people: [{ x: -v.stretch, y: 0, pose: 'crouch', label: `you, ${BAND_KG} kg` }],
+      note: `Stretched ${v.stretch.toFixed(1)} m, a ${v.stiffness.toFixed(0)} N/m band throws you at ${speed.toFixed(1)} m/s. A band four times as stiff, stretched the same, would throw you ${stiffer.toFixed(1)} m/s: twice as fast. Your legs can only stretch this band about ${reach.toFixed(0)} m.`,
+    };
+  },
+};
+
 // A coaster (the cart on rails): how high a hill the cart can climb depends on the height it starts from, plus a little from the push.
 const coaster: Experiment = {
   id: 'coaster', name: 'Coaster: hills and speed', question: 'How high a hill can the cart climb?', answerUnit: 'm', answerMax: 14, axis: 'y', primary: 'height',
@@ -357,7 +384,7 @@ const cannonExp: Experiment = {
   },
 };
 
-export const EXPERIMENTS: Experiment[] = [gap, wall, rope, trampoline, landingExp, bars, coaster, leverExp, recoilExp, bridge, cannonExp];
+export const EXPERIMENTS: Experiment[] = [gap, wall, rope, trampoline, landingExp, bars, coaster, leverExp, recoilExp, bridge, cannonExp, storedExp];
 export const defaults = (e: Experiment, ctx: Context = {}): Record<string, number> => {
   const d = Object.fromEntries(e.knobs.map((k) => [k.id, k.def]));
   if (e.id === 'gap' && ctx.speed) d.speed = Math.min(10, Math.max(2, ctx.speed));

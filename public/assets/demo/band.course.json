@@ -1,0 +1,50 @@
+{
+  "version": 1,
+  "name": "Band: stretch it, turn round, and be thrown over a gap no run-up can jump",
+  "startX": -1,
+  "finishX": 22,
+  "jumpSpeed": 4.5,
+  "terrain": {
+    "waterY": -1.5,
+    "platforms": [
+      {
+        "x0": -40,
+        "x1": 1.5,
+        "top": 0
+      },
+      {
+        "x0": 11.5,
+        "x1": 26,
+        "top": 0
+      }
+    ]
+  },
+  "zones": [
+    {
+      "id": "band",
+      "name": "Elastic band",
+      "x0": -30,
+      "x1": 24
+    }
+  ],
+  "checkpoints": [
+    {
+      "id": "band",
+      "x": -1
+    }
+  ],
+  "band": {
+    "x": 0,
+    "rest": 1,
+    "k": 35,
+    "snap": 22
+  },
+  "plan": {
+    "jumpXs": [
+      0.9
+    ],
+    "releaseAfter": 60,
+    "bouncePress": 8,
+    "bandStretch": 16.2
+  }
+}

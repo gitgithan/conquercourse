@@ -1,4 +1,5 @@
 import type { CourseData } from '../course/course';
+import { edges } from './ideal';
 import { NO_INPUT } from './runner';
 import { landing } from './landing';
 import { platformAt } from './terrain';
@@ -138,6 +139,29 @@ export function predictShot(w: WorldState, course: CourseData, maxTicks = 900): 
   if (!needsRoll) return plain; // a clean landing (or a splash): nothing more to say
   const rolled = fly(true);
   return rolled.result === 'lands' ? { ...rolled, why: `You land at ${rolled.landX!.toFixed(1)} m, ${plain.result === 'hurt' ? 'a hard landing unless you tap X just before the ground to roll it out' : 'a stumble unless you tap X just before the ground to roll it out'}.` } : { ...plain, why: 'You come down too hard: tilt the barrel flatter, or a slower ball.' };
+}
+
+// "If I turn round now, what happens?": the same band physics run on with the run key held toward the post, a jump pressed half a metre before the next edge,
+// and the right hand held in the air. Used by the hint and the debug view while clipped to the band.
+export function predictBand(w: WorldState, course: CourseData, maxTicks = 120 * 25): Prediction {
+  if (w.mode !== 'band' || w.outcome !== 'running') return { path: [], result: 'other-move', why: 'Not on the band.' };
+  const edge = edges(course).find((q) => q.x >= w.runner.x);
+  const path = [{ x: w.runner.x, y: w.runner.y }];
+  let s = w, left = false, leave: number | null = null;
+  for (let i = 0; i < maxTicks; i++) {
+    const jump = s.mode === 'run' && s.runner.grounded && !!edge && s.runner.x >= edge.x - 0.5;
+    s = stepWorld(s, { ...NO_INPUT, run: true, squat: true, jump, handR: true }, course);
+    if (i % 3 === 0 || s.outcome !== 'running') path.push({ x: s.runner.x, y: s.runner.y });
+    const rel = s.events.find((e) => e.type === 'band-release');
+    if (rel) leave = rel.detail!.vx as number;
+    if (s.events.some((e) => e.type === 'band-snap')) return { path, result: 'blocked', landX: s.runner.x, why: 'The band snaps: it cannot stretch that far. Turn round sooner.' };
+    const speed = leave === null ? '' : `You leave the band at ${leave.toFixed(1)} m/s. `;
+    if (s.outcome === 'splash') return { path, result: 'splash', landX: s.runner.x, why: `${speed}You come down in the water: stretch it farther first.` };
+    if (s.outcome === 'hurt') return { path, result: 'hurt', landX: s.runner.x, why: `${speed}You come down too hard: tap X just before you land.` };
+    if (!s.runner.grounded) left = true;
+    if (left && s.runner.grounded) return { path, result: 'lands', landX: s.runner.x, why: `${speed}You land at ${s.runner.x.toFixed(1)} m.` };
+  }
+  return { path, result: 'other-move', why: 'Not far enough yet: keep running.' };
 }
 
 // "If I let the cart roll from here, what happens?": the same cart physics run forward with no brake. Used by the debug view on a coaster.

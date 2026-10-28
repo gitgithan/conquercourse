@@ -21,7 +21,7 @@ const SOUNDS: Record<Sfx, { tones: Tone[]; noise?: { len: number; gain: number; 
 // The game events (src/sim/world.ts) that make a sound. A bounce on the trampoline sounds like a jump; a wall grab like a grab.
 const EVENT: Record<string, Sfx | undefined> = {
   jump: 'jump', bounce: 'jump', land: 'land', roll: 'land', vault: 'vault', 'hang-catch': 'grab', 'rope-catch': 'grab', 'wall-grab': 'grab',
-  'hang-release': 'letgo', 'rope-release': 'letgo', 'launch-fire': 'clang', recoil: 'clang', 'launch-release': 'letgo', splash: 'splash', cleared: 'finish',
+  'hang-release': 'letgo', 'rope-release': 'letgo', 'launch-fire': 'clang', recoil: 'clang', 'band-release': 'letgo', 'band-snap': 'clang', 'launch-release': 'letgo', splash: 'splash', cleared: 'finish',
 };
 
 export interface AudioLike { // the little part of AudioContext we use, so a test can fake it

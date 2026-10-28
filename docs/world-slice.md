@@ -1118,3 +1118,56 @@ The set of obstacle shapes is fixed, and each shape offers a fixed set of moves.
   - The ball is drawn as a big rubber ball; there is no muzzle blast or sound of its own (the shot uses the existing clang).
   - Fix it for a cannon takes 10 to 60 seconds (each test runs the full search, CC-69).
   - The aim cannot be changed in the air, only while loaded.
+## Elastic band (CC-65)
+- **So what:** the band is the first move that throws the runner faster than the legs can run, and it teaches stored energy: what you spend stretching it comes back as speed.
+- **A correction to the first idea ("run into it"):** a band can only pull toward its post, so a forward throw needs the band stretched backward.
+  - The player runs away from the post, which stretches it, then turns round and runs toward the post.
+  - Running forward into a band that is tied behind would only drag the runner back.
+- **How it plays** (`/?course=/assets/demo/band.course.json`):
+  - The runner starts clipped on, one rest length (1 m) behind a striped post.
+  - Hold ← to run away from the post and stretch the band.
+    - The hint says how far it is stretched.
+  - Hold → to turn round.
+    - The band pulls toward the post while it is stretched, on top of the legs.
+  - At the rest length it goes slack and unclips (no drag back).
+    - Then it is an ordinary run: press Space at the edge.
+  - Stretched past its limit (22 m on the demo) it snaps, lets go, and nobody is hurt.
+  - Debug view (B): "If you turn round now" draws where the throw lands.
+  - The drum lane shows a "Turn →" drum at the stretch the ideal run turns at, then the jump drum at the edge.
+- **Physics** (`src/sim/band.ts`, all metres, seconds and kilograms; the runner weighs 70 kg):
+  - The pull is the stiffness times the stretch (a spring that only pulls); the stored energy is half the stiffness times the stretch squared.
+  - The legs can push away from the post with at most the standstill acceleration (10 m/s²), so the stretch where pull equals push is acceleration × mass ÷ stiffness: a softer band stretches farther and stores more (the energy at that stretch is proportional to one over the stiffness).
+  - Momentum carries the runner a little past that point (up to about a quarter farther).
+  - Above top speed the legs only stop pushing: they do not brake the extra speed, so an assisted sprint can pass 9 m/s.
+    - A little drag is kept.
+  - Energy law, tested: the work the band does pushing forward never exceeds what it stored (within 3 %), and most of it is given back (over 60 %).
+- **What a stiffness does** (`scripts/band-explore.ts`; pull to 85 % of the reachable stretch, take-off 2.5 m past the clip):
+
+| Stiffness (N/m) | Stretch (m) | Speed leaving the clip (m/s) | Speed at the edge (m/s) | Range of a jump there (m) |
+|---|---|---|---|---|
+| 1500 | 0.5 | 3.6 | 5.8 | 5.3 |
+| 150 | 4.3 | 8.1 | 8.3 | 7.6 |
+| 90 | 6.9 | 9.2 | 9.2 | 8.4 |
+| 60 | 10.2 | 10.5 | 10.2 | 9.3 |
+| 45 | 13.5 | 11.7 | 11.1 | 10.2 |
+| 35 | 17.2 | 12.9 | 12.2 | 11.2 |
+| 28 | 21.4 | 14.1 | 13.3 | 12.2 |
+
+  - A plain run-up jumps about 8.3 m at best; a soft band and a long stretch clear 11 to 12 m.
+  - A stiff band hardly stretches and gives no boost (the 1500 N/m row is slower than a plain run, because the runner has not had room to speed up).
+- **The demo course:** a 10 m gap (1.5 to 11.5 m), a 35 N/m band that snaps at 22 m, a runway of 40 m behind the post.
+  - The ideal run stretches it about 16 m and turns; stretches from 14.4 to 20 m all clear.
+    - A stretch of 14 m or less lands in the water.
+  - No plain run-up clears it (tested over every take-off point).
+- **Proof and Fix it:** the ideal-run search finds the stretch and the take-off press together (`searchBand` in `src/sim/ideal.ts`).
+  - Fix it for a band tries softer bands (15 % steps down to 20 N/m) and says which one clears (`src/slice/fixband.ts`); it takes about ten seconds when nothing clears.
+- **Editor:** a "Band" button in the Overhead row starts the lane at a band, with a stiffness box (`src/slice/band-lane.ts`).
+  - The Trebuchet and Band buttons switch each other off.
+- **Dojo lesson "Stored energy":** knobs are the stretch and the stiffness; the answer is the speed the band alone gives.
+  - The formula (speed = stretch × √(stiffness ÷ mass)) is the last, earned step.
+  - Saying: "A soft band pulled far outthrows a stiff one pulled little."
+- **Known gaps:**
+  - A straight band in the side view only; the clip pulls at belt height and the post is a plain striped pole.
+  - The runner is drawn in the running pose, also while pulling (facing left); there is no leaning or braced pose.
+  - The jump while clipped on is not allowed (the clip unclips only when the runner is back at the rest length).
+  - A real band also pulls sideways and in the air; ours is along the run only.

@@ -6,6 +6,7 @@ export const DEMO_COURSE_FILES = [
   'public/assets/demo/climb.course.json',
   'public/assets/demo/launch.course.json',
   'public/assets/demo/launch-bar.course.json',
+  'public/assets/demo/band.course.json',
   'public/assets/demo/lache-wide.course.json',
   'public/assets/demo/recoil.course.json',
   'public/assets/demo/cannon.course.json',
