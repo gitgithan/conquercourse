@@ -173,3 +173,10 @@
 ## Cup stacks (CC-60)
 - `public/assets/demo/stack.course.json`: our own course, made by `scripts/make-stack-demo.ts`; no third-party content.
 - The cups are drawn from code (instanced cones, standard colours, no logos); there are no image or model files.
+
+## Object bake-off inputs and outputs (made during the event, CC-55)
+| File | What | Photo and author | Licence | Made with |
+|---|---|---|---|---|
+| `data/eval/object-bakeoff/inputs/*.png` | six RGBA cut-outs (the box of each shipped object plus 12% margin, background transparent) | the six photos behind `public/assets/objects/` (rows above for park01, park02, park03, park07, bench01, rail01) | as each photo: CC0, CC BY 4.0 (park03, Alexis Jazz) or CC BY 2.0 (bench01, Rick Obst: credit shown wherever the photo or an object from it appears) | SAM 3 masks from CC-38 |
+| `../conquercourse-assets/objbake/*.glb` (outside git, `SHA256SUMS`) | twelve meshes: TRELLIS.2 and Pixal3D on each cut-out, 100,000 faces, 1,024 texture | same | same as the photo; the models are MIT, both load the DINOv3 encoder (DINOv3 License) | Modal L40S, `pipelines/objbake/modal_app.py` |
+| `data/eval/object-bakeoff/sheet-3q.png`, `sheet-side.png` | grey-shaded shape comparison of SAM 3D, TRELLIS.2 and Pixal3D | same | same | `scripts/bakeoff_sheet.py` |

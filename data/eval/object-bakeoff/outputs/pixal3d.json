@@ -1,0 +1,32 @@
+{
+  "model": "pixal3d",
+  "load_seconds": null,
+  "container_seconds": 635.6,
+  "usd_estimate": 0.344,
+  "objects": {
+    "rail-skate-01": {
+      "seconds": 226.6,
+      "bytes": 3725908
+    },
+    "box-skate-03": {
+      "seconds": 103.8,
+      "bytes": 3053156
+    },
+    "bench-concrete": {
+      "seconds": 64.5,
+      "bytes": 3676700
+    },
+    "railing-iron": {
+      "seconds": 77.8,
+      "bytes": 4060880
+    },
+    "rail-skate-02": {
+      "seconds": 53.8,
+      "bytes": 3628524
+    },
+    "stairs-park-07": {
+      "seconds": 101.8,
+      "bytes": 3860112
+    }
+  }
+}
