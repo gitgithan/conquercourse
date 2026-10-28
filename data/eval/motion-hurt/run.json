@@ -1,0 +1,255 @@
+{
+  "move": "hurt",
+  "serves": "a hard landing that ends the run (outcome hurt, CC-56)",
+  "started": "2026-10-28T09:51:02+0000",
+  "steps": [],
+  "cmu": {
+    "terms": [
+      "fall on face",
+      "BannanaPeelSlip",
+      "RugPullFall",
+      "stumble"
+    ],
+    "skip": [],
+    "hits": [
+      {
+        "id": "22_12",
+        "desc": "A stumbles into B (2 subjects - subject A)",
+        "subject": 22,
+        "fps": 120
+      },
+      {
+        "id": "23_12",
+        "desc": "A stumbles into B (2 subjects - subject B)",
+        "subject": 23,
+        "fps": 120
+      },
+      {
+        "id": "90_16",
+        "desc": "fall on face",
+        "subject": 90,
+        "fps": 120
+      },
+      {
+        "id": "90_17",
+        "desc": "BannanaPeelSlip",
+        "subject": 90,
+        "fps": 120
+      },
+      {
+        "id": "90_18",
+        "desc": "RugPullFall",
+        "subject": 90,
+        "fps": 120
+      },
+      {
+        "id": "104_13",
+        "desc": "StumbleWalk",
+        "subject": 104,
+        "fps": 120
+      }
+    ],
+    "skipped_not_on_disk": [],
+    "candidates": [
+      {
+        "id": "22_12",
+        "gate_pass": true,
+        "move_check_pass": false,
+        "move_check": {
+          "ok": false,
+          "standing_hips_m": 0.73,
+          "down_s": 0.0,
+          "forward_turn_deg": 24.3,
+          "max_trunk_turn_deg": 24.3,
+          "starts_upright": false
+        }
+      },
+      {
+        "id": "23_12",
+        "gate_pass": true,
+        "move_check_pass": false,
+        "move_check": {
+          "ok": false,
+          "standing_hips_m": 0.96,
+          "down_s": 0.0,
+          "forward_turn_deg": 9.9,
+          "max_trunk_turn_deg": 9.9,
+          "starts_upright": true
+        }
+      },
+      {
+        "id": "90_16",
+        "gate_pass": true,
+        "move_check_pass": true,
+        "move_check": {
+          "ok": true,
+          "standing_hips_m": 0.97,
+          "down_s": 0.73,
+          "forward_turn_deg": 52.7,
+          "max_trunk_turn_deg": 99.7,
+          "starts_upright": true
+        }
+      },
+      {
+        "id": "90_17",
+        "gate_pass": true,
+        "move_check_pass": false,
+        "move_check": {
+          "ok": false,
+          "standing_hips_m": 0.97,
+          "down_s": 1.57,
+          "forward_turn_deg": 17.6,
+          "max_trunk_turn_deg": 122.9,
+          "starts_upright": true
+        }
+      },
+      {
+        "id": "90_18",
+        "gate_pass": true,
+        "move_check_pass": false,
+        "move_check": {
+          "ok": false,
+          "standing_hips_m": 1.01,
+          "down_s": 2.33,
+          "forward_turn_deg": 6.3,
+          "max_trunk_turn_deg": 88.5,
+          "starts_upright": true
+        }
+      },
+      {
+        "id": "104_13",
+        "gate_pass": true,
+        "move_check_pass": false,
+        "move_check": {
+          "ok": false,
+          "standing_hips_m": 0.94,
+          "down_s": 0.0,
+          "forward_turn_deg": 66.4,
+          "max_trunk_turn_deg": 66.4,
+          "starts_upright": true
+        }
+      }
+    ]
+  },
+  "candidates": [
+    {
+      "id": "22_12",
+      "source": "CMU 22_12 (A stumbles into B (2 subjects - subject A))",
+      "gate_pass": true,
+      "move_check_pass": false,
+      "failed_gate": [],
+      "soft_failed": [
+        "feet_dont_slide"
+      ],
+      "move_check": {
+        "ok": false,
+        "standing_hips_m": 0.73,
+        "down_s": 0.0,
+        "forward_turn_deg": 24.3,
+        "max_trunk_turn_deg": 24.3,
+        "starts_upright": false
+      }
+    },
+    {
+      "id": "23_12",
+      "source": "CMU 23_12 (A stumbles into B (2 subjects - subject B))",
+      "gate_pass": true,
+      "move_check_pass": false,
+      "failed_gate": [],
+      "soft_failed": [
+        "feet_dont_slide"
+      ],
+      "move_check": {
+        "ok": false,
+        "standing_hips_m": 0.96,
+        "down_s": 0.0,
+        "forward_turn_deg": 9.9,
+        "max_trunk_turn_deg": 9.9,
+        "starts_upright": true
+      }
+    },
+    {
+      "id": "90_16",
+      "source": "CMU 90_16 (fall on face)",
+      "gate_pass": true,
+      "move_check_pass": true,
+      "failed_gate": [],
+      "soft_failed": [
+        "feet_dont_slide",
+        "no_jitter"
+      ],
+      "move_check": {
+        "ok": true,
+        "standing_hips_m": 0.97,
+        "down_s": 0.73,
+        "forward_turn_deg": 52.7,
+        "max_trunk_turn_deg": 99.7,
+        "starts_upright": true
+      }
+    },
+    {
+      "id": "90_17",
+      "source": "CMU 90_17 (BannanaPeelSlip)",
+      "gate_pass": true,
+      "move_check_pass": false,
+      "failed_gate": [],
+      "soft_failed": [
+        "feet_dont_slide",
+        "no_jitter"
+      ],
+      "move_check": {
+        "ok": false,
+        "standing_hips_m": 0.97,
+        "down_s": 1.57,
+        "forward_turn_deg": 17.6,
+        "max_trunk_turn_deg": 122.9,
+        "starts_upright": true
+      }
+    },
+    {
+      "id": "90_18",
+      "source": "CMU 90_18 (RugPullFall)",
+      "gate_pass": true,
+      "move_check_pass": false,
+      "failed_gate": [],
+      "soft_failed": [
+        "feet_dont_slide"
+      ],
+      "move_check": {
+        "ok": false,
+        "standing_hips_m": 1.01,
+        "down_s": 2.33,
+        "forward_turn_deg": 6.3,
+        "max_trunk_turn_deg": 88.5,
+        "starts_upright": true
+      }
+    },
+    {
+      "id": "104_13",
+      "source": "CMU 104_13 (StumbleWalk)",
+      "gate_pass": true,
+      "move_check_pass": false,
+      "failed_gate": [],
+      "soft_failed": [
+        "feet_dont_slide",
+        "no_jitter"
+      ],
+      "move_check": {
+        "ok": false,
+        "standing_hips_m": 0.94,
+        "down_s": 0.0,
+        "forward_turn_deg": 66.4,
+        "max_trunk_turn_deg": 66.4,
+        "starts_upright": true
+      }
+    }
+  ],
+  "summary": {
+    "candidates": 6,
+    "pass_gate": 6,
+    "pass_move_check": 1,
+    "pass_both": 1
+  },
+  "best": "90_16",
+  "shipped_to": "public/assets/motion/hurt.json"
+}

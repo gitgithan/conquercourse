@@ -33,8 +33,9 @@ describe('motion table (CC-64)', () => {
     expect(rollLookFrom('?roll=clip')).toBe('clip');
     expect(rollLookFrom('?roll=banana')).toBe('auto');
   });
-  it('the moves that still have no motion are listed, never hidden', () => {
-    expect(motionGaps()).toEqual(expect.arrayContaining(['hurt', 'giant-swing']));
+  it('every move has a clip or a built pose, and a move with neither would be listed', () => {
+    expect(motionGaps()).toEqual([]); // CC-77: seated, sling, hurt and the giant swing have built poses
+    for (const m of Object.values(MOTION_TABLE)) expect(m.clip !== null || m.fallback !== 'none').toBe(true);
     expect(motionGaps()).not.toContain('vault'); // the vault has a clip (CC-68)
     expect(motionGaps()).not.toContain('roll'); // the roll always has its tuck
   });

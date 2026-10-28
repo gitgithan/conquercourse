@@ -145,3 +145,56 @@ def test_a_front_flip_is_not_a_vault():
 def test_standing_still_is_not_a_vault():
     ok, nums, _ = movecheck.vault_check(vaulting(airborne=(100, 101)))
     assert not ok
+
+
+def falling(turn_deg, down_to, n=90, fps=30.0):
+    """A stick body that stands, turns `turn_deg` forward while its hips come down to `down_to` metres, and stays there."""
+    frames = []
+    for i in range(n):
+        p = i / (n - 1)
+        k = min(max((p - 0.1) / 0.3, 0.0), 1.0)  # the fall takes the first part, then it lies still
+        ang = np.radians(turn_deg) * k
+        hip = np.array([0.0, 0.9 + (down_to - 0.9) * k, 0.4 * k])
+        j = body((0, 0, 0))
+        j -= j[IDX["Hips"]]
+        c, s = np.cos(ang), np.sin(ang)
+        y, z = j[:, 1].copy(), j[:, 2].copy()
+        j[:, 1], j[:, 2] = c * y - s * z, s * y + c * z
+        frames.append(j + hip)
+    f = np.array(frames)
+    f[:, :, 1] -= np.minimum(f[:, :, 1].min(axis=1, keepdims=True), 0)  # nothing under the floor
+    return Clip(f, fps)
+
+
+def test_a_body_that_goes_down_and_stays_is_a_hard_fall():
+    ok, nums, _ = movecheck.hurt_check(falling(85, 0.25))
+    assert ok, nums
+    assert nums["down_s"] >= 0.5 and nums["max_trunk_turn_deg"] >= 50
+
+
+def test_a_stumble_that_recovers_is_not_a_hard_fall():
+    ok, nums, _ = movecheck.hurt_check(falling(20, 0.8))
+    assert not ok and nums["max_trunk_turn_deg"] < 50
+
+
+def test_a_dip_that_comes_straight_back_up_is_not_a_hard_fall():
+    c = falling(85, 0.25)
+    f = c.frames.copy()
+    f[20:] = f[0]  # back on its feet after the dip
+    ok, nums, _ = movecheck.hurt_check(Clip(f, c.fps))
+    assert not ok and nums["down_s"] < 0.5
+
+
+def test_a_fall_onto_the_back_is_not_a_hard_landing():
+    c = falling(85, 0.25)
+    f = c.frames.copy()
+    f[:, :, 2] = -f[:, :, 2] + 2 * f[:, IDX["Hips"], 2][:, None]  # the same fall, mirrored front to back
+    ok, nums, _ = movecheck.hurt_check(Clip(f, c.fps))
+    assert not ok and nums["forward_turn_deg"] < 50
+
+
+def test_the_window_cuts_the_standing_lead_in():
+    c = falling(85, 0.25, n=150)
+    lead = np.repeat(c.frames[:1], 60, axis=0)  # two seconds of standing before the fall
+    ok, nums, win = movecheck.hurt_check(Clip(np.concatenate([lead, c.frames]), c.fps))
+    assert ok and win is not None and win[0] >= 55

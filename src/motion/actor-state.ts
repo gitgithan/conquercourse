@@ -12,7 +12,7 @@ export function actorStateFor(w: WorldState, squat: boolean, facing: 1 | -1 = 1)
     vx: r.vx,
     vy: r.vy,
     grounded: r.grounded,
-    mode: w.mode === 'hang' ? 'swing' : w.mode === 'vault' || w.mode === 'launch' || w.mode === 'plank' ? 'run' : w.mode, // a cart seats the rider (clip 'sit'); a launch is flown in the running pose
+    mode: w.mode === 'hang' ? 'swing' : w.mode === 'vault' || w.mode === 'plank' ? 'run' : w.mode, // a cart seats the rider (pose 'sit'); the trebuchet's sling holds the rider (pose 'sling'); a plank is crossed in the running pose
     tilt: w.cart?.tilt,
     // hanging from a bar uses the rope's swing pose, turned about the hands
     squat,
@@ -22,6 +22,8 @@ export function actorStateFor(w: WorldState, squat: boolean, facing: 1 | -1 = 1)
     vaultContact: w.mode === 'vault' && w.vault ? vaultHand(w.vault) : undefined,
     wallProgress: w.wall ? w.wall.index / Math.max(1, w.wall.path.length - 1) : undefined,
     swingTheta: w.swing?.theta ?? w.hang?.theta,
+    swingOmega: w.hang?.omega,
+    hurt: w.outcome === 'hurt',
     facing,
   };
 }

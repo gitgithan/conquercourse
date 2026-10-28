@@ -922,3 +922,28 @@ The set of obstacle shapes is fixed, and each shape offers a fixed set of moves.
   - A broken plank just disappears (no falling pieces).
   - A plank piece must be laid roughly along the lane and across a gap whose two sides are at the same height.
   - The runner's feet follow the bent plank but the Rookie keeps its running pose.
+
+## Poses for the cart, the sling, a hard landing and the giant swing (CC-77)
+- **So what:** the Rookie's body now matches the simulator in the four places the owner saw a wrong or missing motion; every move in the motion table has a clip or a built pose, and `motionGaps()` is empty.
+- **Seated rider (coaster):**
+  - Hips on the seat (0.34 m up), knees bent with the thigh nearly level, back leaning a little, both hands on a grab bar in front.
+  - The thigh pitch is solved from the bone lengths so the feet land on the cart floor (`seatThighPitch`, `src/motion/poses.ts`); the hands reach the bar by two-bone reach (`ik2`).
+  - The cart now has the grab bar (`src/render/track.ts`), 0.5 m ahead of the hips and 0.72 m up.
+  - It replaces the swing clip's folded body, which had the hands up.
+- **Sling rider (trebuchet):** tucked, leaning back, knees up and forward, both hands up and forward on the sling lines.
+  - The sling lines are not drawn by the Course yet, so the hands reach a point where the lines would be (a known gap).
+- **Hard landing:**
+  - Clip: CMU 90_16 ("fall on face") passed the gate and the new hurt check; it plays at its own speed (2.1 s), the body lies still for 1.2 s and gets up slowly over 2.5 s.
+  - Fallback: without the clip the same three parts are built from bones (stand, the tuck, lying flat on the front).
+  - The check was needed: without it the pipeline chose a stumble into a second person.
+  - `?hurt=bones` forces the built fall; `?demo=hurt-ab` is a blind A/B of clip against built fall, with the answer saved in the browser.
+- **Giant swing:** the body is the swing clip's hang, turned about the bar by theta (as before), plus two things from the simulator:
+  - the legs lag behind a fast swing (up to 0.45 rad, from omega), and
+  - over the top the knees come up and the legs tuck, then open again on the way down.
+  - The bones keep their lengths (a test), and the hands stay on the bar.
+- **Gallery:** `?demo=poses` draws each pose for pictures; `scripts/poses-check.mjs` writes them to `test-results/poses/` (contact sheets in `data/eval/cc-77-poses/`).
+- **Tests:** `tests/poses.test.ts` (seat geometry, hurt phases, giant-swing legs, which pose a state asks for), `tests/motion-table.test.ts` (no gaps), `pipelines/tests/test_movecheck.py` (the hurt check: a fall passes; a stumble, a dip that comes back up and a fall onto the back do not).
+- **Gaps:**
+  - The sling lines and the trebuchet's seat are not drawn, so the sling pose floats on the arm's end.
+  - The hurt clip is acted (a stage fall with arms thrown up first); the blind A/B will say if the built crumple reads better.
+  - No tuck animation is drawn for the roll over the top of the giant swing, only the legs.

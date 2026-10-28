@@ -24,6 +24,10 @@ VAULT_MAX_HIPS = 1.6         # the hips rise at most this share of their standin
 VAULT_MAX_PITCH_DEG = 120    # the trunk never turns over
 VAULT_HAND_LOW = 0.9         # a hand comes down to this share of the standing hips height ...
 VAULT_HAND_AHEAD_M = 0.2     # ... and ahead of the hips: the hand on top of the obstacle
+HURT_LOW_HIPS = 0.45         # the hips come down to this share of their standing height (a body on the ground) ...
+HURT_STAND_MIN_M = 0.8       # it starts on its feet: the hips are at least this high (a person's hips stand about 0.9 to 1.1 m up)
+HURT_MIN_DOWN_S = 0.5        # ... and stay there at least this long (it does not bounce straight back up)
+HURT_MIN_TURN_DEG = 50       # the trunk goes well off the vertical (a stumble keeps the trunk near upright)
 UPRIGHT_HIPS = 0.55          # the hips at the ends of the window are above this share of the standing hips height
 
 
@@ -141,12 +145,41 @@ def vault_check(clip):
     return bool(ok), nums, (a, b)
 
 
+def hurt_check(clip):
+    """(ok, numbers, window) for a clip that should be a hard fall onto the front: it starts upright, the trunk goes forward well off the
+    vertical, the hips come down to the ground and stay there for half a second. A stumble that recovers, a dip that comes straight back up
+    and a fall onto the back are not it. The window runs from just before the fall starts to 0.6 s after the body is down (the standing
+    lead-in is cut away; the game holds the last frame while the runner lies there)."""
+    f, fps = clip.frames, clip.fps
+    hips_y = f[:, IDX["Hips"], 1]
+    standing = float(hips_y[: max(3, len(f) // 10)].mean())  # how high the hips are at the start (a dive may rise later: not the standing height)
+    low = hips_y <= HURT_LOW_HIPS * standing
+    runs = sorted(_runs(low), key=lambda r: r[1] - r[0], reverse=True)
+    down_s = (runs[0][1] - runs[0][0]) / fps if runs else 0.0
+    pitch = trunk_pitch_deg(f)
+    forward = float(pitch.max())
+    starts_up = bool(standing >= HURT_STAND_MIN_M)
+    nums = {"standing_hips_m": round(standing, 2), "down_s": round(down_s, 2), "forward_turn_deg": round(forward, 1),
+            "max_trunk_turn_deg": round(float(np.abs(pitch).max()), 1), "starts_upright": starts_up}
+    ok = bool(down_s >= HURT_MIN_DOWN_S and forward >= HURT_MIN_TURN_DEG and starts_up)
+    window = None
+    if ok:
+        start = int(runs[0][0])
+        drop = np.where(hips_y[:start + 1] < 0.97 * standing)[0]
+        begin = int(drop[0]) if len(drop) else 0
+        # the last frame before the hips start to come down for good
+        while begin > 0 and hips_y[begin - 1] < hips_y[begin] + 1e-6:
+            begin -= 1
+        window = (max(0, begin - 1), min(len(f) - 1, start + int(0.6 * fps)))
+    return ok, nums, window
+
+
 def generic_check(clip):
     """Moves without a special check are judged by the gate alone (and say so in the report)."""
     return True, {"note": "no move check for this move: the gate alone judged it"}, None
 
 
-CHECKS = {"roll": roll_check, "vault": vault_check, "generic": generic_check}
+CHECKS = {"roll": roll_check, "vault": vault_check, "hurt": hurt_check, "generic": generic_check}
 
 
 def trim(clip, window, pad_s=0.1):
