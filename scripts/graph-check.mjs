@@ -11,6 +11,7 @@ try {
   await new Promise((r) => setTimeout(r, 9000));
   const browser = await chromium.launch({ args: flags });
   const page = await browser.newPage({ viewport: { width: 1280, height: 720 } });
+  await page.addInitScript(() => { try { localStorage.setItem('cc.worldWelcome.seen', '1'); } catch { /* the chooser stays */ } }); // no first-visit chooser in the way
   const errors = []; page.on('pageerror', (e) => { errors.push(e.message); console.log('PAGEERROR', e.message.slice(0, 200)); });
 
   await page.goto(`http://localhost:${port}/${query}${query === '?' ? '' : '&'}edit=1`);
