@@ -82,7 +82,7 @@ export function roleCourse(pieces: P[], lane: LaneSetting, name = 'My world'): R
   if (!uMap.length) return { course, notes, length: pr.length };
   const wall = walls[0];
   if (wall) {
-    const f = footprint(wall, lane), xFace = toX(uMap, f.u - f.alongHalf), before = groundAt(course.terrain, xFace - 0.3);
+    const f = footprint(wall, lane), x1 = toX(uMap, f.u - f.alongHalf), face = plats.find((q) => Math.abs(q.x0 - x1) < 0.16), xFace = face ? face.x0 : x1, before = groundAt(course.terrain, xFace - 0.3);
     if (!Number.isFinite(before)) notes.push('The wall has no ground in front of it to run up from.');
     else if (f.top - before < 1) notes.push('The wall is too low to be a wall: a jump or a vault does it.');
     else { const height = f.top - before; course.wall = { x0: r2(xFace - height), height: r2(height) }; extendTop(course, xFace, WALL_TOP_RUN); }

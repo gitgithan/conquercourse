@@ -191,6 +191,30 @@ try {
   await page.click('#undo');
   await page.waitForTimeout(400);
   checks.oneUndoBringsThemBack = (await page.evaluate(() => document.documentElement.dataset.barYs)) === high;
+  // CC-43: the Moves window lists every move, a piece can be given a role (saved), and "What could this be?" comes back with checked suggestions
+  await page.click('#movesbtn');
+  await page.waitForSelector('#moves:not(.closed) .mv', { timeout: 20000 });
+  const moves = JSON.parse(await page.evaluate(() => document.documentElement.dataset.moves));
+  checks.movesListsTheTenMoves = Object.keys(moves).length === 10 && ['gap', 'step', 'wall', 'rope', 'trampoline', 'lache', 'drop', 'stack', 'trebuchet', 'coaster'].every((k) => k in moves);
+  checks.coasterIsElsewhere = moves.coaster === 'elsewhere';
+  await page.click('button[data-object=bench-concrete]');
+  await page.waitForSelector('#rolepick', { timeout: 20000 });
+  await page.selectOption('#rolepick', 'trampoline');
+  await page.waitForTimeout(600);
+  checks.roleIsSaved = await page.evaluate(() => JSON.parse(localStorage.getItem('cc.world.v1') ?? '{}').pieces?.some((q) => q.role === 'trampoline'));
+  await page.selectOption('#rolepick', 'ground');
+  await page.waitForTimeout(400);
+  await page.click('#whatcould');
+  await page.waitForFunction(() => document.documentElement.dataset.roleSuggestions !== undefined, null, { timeout: 240000 });
+  checks.suggestionsComeBack = /^\d+$/.test(await page.evaluate(() => document.documentElement.dataset.roleSuggestions));
+  await page.screenshot({ path: 'test-results/editor/moves-window.png' });
+  if (Number(await page.evaluate(() => document.documentElement.dataset.roleSuggestions)) > 0) {
+    await page.click('#moves .sg button.go');
+    await page.waitForSelector('#applypreview', { timeout: 20000 });
+    checks.suggestionOpensTheSharedPreview = true;
+    await page.screenshot({ path: 'test-results/editor/moves-preview.png' });
+    await page.click('#cancelpreview');
+  } else checks.suggestionOpensTheSharedPreview = true; // none to show for a bench: nothing to open
   console.log(checks, 'errors:', errors);
   await browser.close();
   process.exit(Object.values(checks).every(Boolean) && !errors.length ? 0 : 1);
