@@ -32,7 +32,7 @@
       "stumble"
     ],
     "cmu_skip": [],
-    "check": "generic",
+    "check": "hurt",
     "seconds": 3,
     "prompts": {
       "hurt_a": "A person lands hard from a high drop, crumples to the ground and lies there.",
