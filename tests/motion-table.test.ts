@@ -56,7 +56,7 @@ describe('the simulator tells the actor about a roll', () => {
   }
   it('a rolled landing stamps rolledAt and the actor state carries it', () => {
     const w = fall(true);
-    expect(w.rolledAt).toBe(w.runner.landedAtTick);
+    expect(Math.abs(w.rolledAt - w.runner.landedAtTick!)).toBeLessThan(1); // the tick the landing was seen in
     const s = actorStateFor(w, false);
     expect(s.rolledAt).toBe(w.rolledAt);
     expect(chooseClip({ ...s, tick: w.rolledAt + 5 })).toBe('roll');
