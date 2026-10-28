@@ -492,6 +492,48 @@ The set of obstacle shapes is fixed, and each shape offers a fixed set of moves.
 - **Screenshots:** `data/eval/cc-58-swing/` (`rookie-pivot.png`: the Rookie at 0, 60, 120 and 180 degrees about the bar; `custom-pivot.png`: the custom body at 60 and 120 degrees; the other custom pictures came out blank in the software renderer); `?hangtest=1.05` (radians) hangs the runner still on the first bar for pictures.
 - **Gaps:** the arms are a pose (up, straight) and not a grip animation; the body does not tuck when it goes over the top; the 180 degree picture has the bar behind the hint banner.
 
+## The trebuchet (CC-62)
+- **So what:** the character can now be thrown across a gap by a falling counterweight, and a bar hanging in the air can catch them on the way down.
+  - The throw is the first obstacle where the player chooses how big the push is (the counterweight) and when to let go (Space), so the demo has a launch beat with a grab at the end.
+  - Try `/?course=/assets/demo/launch.course.json` (throw onto the tower) and `/?course=/assets/demo/launch-bar.course.json` (the throw reaches a bar, the bar reaches the tower).
+  - Keys: hold → to pull the pin, Space to let the rider go (the hint says LET GO NOW), E to hold the bar in the air, X to roll out of the landing.
+- **The machine:** a stiff arm turning about a pivot, a counterweight on the short side, a stiff sling to the rider (`src/sim/trebuchet.ts`).
+  - Two angles (the arm and the sling) make a double pendulum with a heavy short end; it is integrated with RK4 at the fixed step like the rope.
+  - Defaults: pivot 5.5 m up, arm 5.5 m long side and 1.3 m short side, sling 3 m, counterweight 1200 kg, rider 80 kg.
+  - The rider starts standing on the deck at the end of the sling.
+    - A counterweight that is too light cannot lift the rider: the arm barely moves (a dud, with a message).
+- **Laws the tests check** (`tests/trebuchet.test.ts`):
+  - Energy is conserved by the swing (drift under 0.3 percent).
+  - The throw never holds more energy than the counterweight gave up.
+    - With the default machine the rider takes about 58 percent at best, the range of a well-tuned real trebuchet (half to two thirds).
+    - The stiff, frictionless model tops out near 80 percent for a very heavy weight.
+  - A balanced arm (weight times distance equal on both sides) does not turn; a lighter weight lets the rider drag the arm the wrong way.
+  - A heavier counterweight throws farther: about 18 m of best range at 1000 kg, 27 m at 1200 kg and 35 m at 1400 kg on the first geometry we tried; the shipped default was retuned for a 20 m throw.
+  - The flight after the release is the ordinary flight: the most range for the same speed is at 45 degrees, exactly v squared over g.
+- **Release timing is the skill:**
+  - The arm stops against the frame at 140 degrees and the rider keeps swinging round the stopped tip, so waiting for the stop is not the best moment.
+  - On the Launch course the good releases last about half a second; far decks make the window shorter (a deck at 18 m has about a fifth of a second).
+  - The look-ahead cue (`predictLaunch`, same code as the debug view, B) says where the rider would come down if they let go this instant.
+- **Why the landing deck is up in the air:** the best throw peaks near 10 m and comes down from there.
+  - On flat ground that is a hard landing even with a roll (the limit is 9.8 m), so the demo lands on a tower 4 m up, a fall the roll takes.
+- **The bar variant:** the bar hangs where the throw's hands pass it, the tower is beyond the throw's reach on its own, and the bar's swing carries the rider the rest of the way.
+  - A test shows the course is not clearable without the bar (`tests/demo-launch.test.ts`).
+  - The window is narrow (about a tenth of a second when it was tuned); its numbers depend on the swing model of CC-58, and the stored plan was checked after that change.
+- **The ideal run:** `searchIdealRun` searches the release moment (and the hang time on the first bar if there is one); stored plans for both demos are in the files (`npm run plans`).
+- **In the editor:** a Trebuchet button in the Overhead row starts the lane in a machine and shows a counterweight box (kg).
+  - The simulator's proof includes the machine, so the verdict says whether that weight reaches the lane (`src/slice/launch-lane.ts`).
+  - Gap: Fix it and the advice do not know about the machine yet; they work on the lane alone.
+- **The Dojo lesson (turning moments):** the experiment `lever` is "Balance the arm".
+  - The question is how heavy the weight must be to just balance a rider.
+    - The answer comes from the simulator (bisection on whether the arm turns), not from a formula.
+  - Discoveries: the balance weight falls as the weight moves out from the pivot (inverse), grows as the rider sits farther out (direct), and a heavy weight close in matches a light weight far out.
+    - The note also reports how fast the tip moves for twice the balancing weight on a longer arm.
+  - The formula (moment is force times distance) is the last step of the lesson and never on the Course.
+    - The momentum lesson is separate (CC-66).
+  - The saying: "A long arm gets you far; letting go late gets you thrown into the ground."
+- **Gaps:** the sling is a stiff link (a real sling is a rope that can go slack); the counterweight is fixed to the arm, not hinged; the rider is drawn in the running pose, with no seated or tucked pose; the machine is a plain frame of boxes.
+- **Evidence:** bot runs of both demos clear in the browser (`scripts/launch-check.mjs`); screenshots in `data/eval/cc-62-trebuchet/`.
+
 ## Roller coaster (CC-61)
 - **So what:** the game now has a contraption with no legs and no arms: a cart on rails.
   - Nothing drives it but gravity, so the lesson is the shape of the track: height is stored speed.

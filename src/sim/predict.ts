@@ -72,6 +72,28 @@ export function predictRelease(w: WorldState, course: CourseData, maxTicks = 360
   return { path, result: 'lands', why: 'Still in the air at the end of the preview.' };
 }
 
+
+// "If I let the rider go now, what happens?": in the trebuchet, the same physics run on with Space pressed this tick, then the right hand held so a bar in reach is grabbed.
+export function predictLaunch(w: WorldState, course: CourseData, maxTicks = 600): Prediction {
+  if (w.mode !== 'launch' || w.outcome !== 'running') return { path: [], result: 'other-move', why: 'Not in the trebuchet.' };
+  if (!w.launch!.fired) return { path: [], result: 'other-move', why: 'Hold → to pull the pin. Then press Space to let the rider go.' };
+  const path = [{ x: w.runner.x, y: w.runner.y }];
+  let s = stepWorld(w, { ...NO_INPUT, run: true, jump: true }, course);
+  path.push({ x: s.runner.x, y: s.runner.y });
+  if (s.mode === 'launch') return { path, result: 'other-move', why: 'The arm has not turned far enough to let go yet.' };
+  let left = false;
+  for (let i = 0; i < maxTicks; i++) {
+    s = stepWorld(s, { ...NO_INPUT, run: true, squat: true, handR: true }, course);
+    path.push({ x: s.runner.x, y: s.runner.y });
+    if (s.mode === 'hang') return { path, result: 'lands', landX: s.runner.x, why: 'You reach the bar: hold E in the air to grab it.' };
+    if (s.outcome === 'splash') return { path, result: 'splash', landX: s.runner.x, why: 'You come down in the water, short of the ground.' };
+    if (s.outcome === 'hurt') return { path, result: 'hurt', landX: s.runner.x, why: 'You come down too hard: tap X just before you land to roll it out.' };
+    if (!s.runner.grounded) left = true;
+    if (left && s.runner.grounded) return { path, result: 'lands', landX: s.runner.x, why: `You land at ${s.runner.x.toFixed(1)} m.` };
+  }
+  return { path, result: 'lands', why: 'Still in the air at the end of the preview.' };
+}
+
 // "If I let the cart roll from here, what happens?": the same cart physics run forward with no brake. Used by the debug view on a coaster.
 export function predictCart(w: WorldState, course: CourseData, maxTicks = 120 * 60): Prediction {
   if (w.outcome !== 'running') return { path: [], result: 'other-move', why: 'The run is over: press R to try again.' };

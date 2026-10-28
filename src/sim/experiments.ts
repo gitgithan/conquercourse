@@ -6,6 +6,7 @@ import { swingStep, type Swing } from './rope';
 import { DEFAULT_HANG, hangStep, measureHangPeriod, type Hang } from './holds';
 import { DEFAULT_TRAMPOLINE, bounce } from './trampoline';
 import { minSpeedToCross } from './needs';
+import { DEFAULT_TREBUCHET, deg, launchStep, startLaunch, type TrebuchetParams } from './trebuchet';
 import { DEFAULT_CART, cartStep, makeRails } from './cart';
 
 // The Dojo's experiments: one obstacle each, a few knobs, one question. Every answer comes from running the
@@ -26,7 +27,7 @@ export interface Trial {
   note?: string; // plain-words outcome
 }
 export interface Experiment {
-  id: 'gap' | 'wall' | 'rope' | 'trampoline' | 'landing' | 'bars' | 'coaster';
+  id: 'gap' | 'wall' | 'rope' | 'trampoline' | 'landing' | 'bars' | 'coaster' | 'lever';
   name: string;
   question: string;
   answerUnit: string;
@@ -200,6 +201,50 @@ const bars: Experiment = {
   },
 };
 
+// The trebuchet's lever (turning moments): a light arm turns about its pivot, a weight hangs on the short side at distance `near`, you sit on the long side at distance `far`.
+// The balance is found by trying the simulator: the heaviest weight that does not turn the arm the wrong way, by bisection on the arm's first quarter second.
+const RIDER_KG = 80;
+const lever = (near: number, far: number, weight: number): TrebuchetParams => ({ ...DEFAULT_TREBUCHET, x: 0, armMass: 0, riderMass: RIDER_KG, long: far, short: near, sling: 0.01, counterweight: weight, startAngle: 0, stopAngle: 170 });
+// How far the arm has turned after `seconds` (degrees, positive: the weight wins and your side goes up).
+function leverTurn(near: number, far: number, weight: number, seconds: number): { turn: number; tip: number } {
+  const p = lever(near, far, weight);
+  let s = { ...startLaunch(p, 0), beta: -Math.PI / 2, fired: true };
+  for (let i = 0; i < Math.round(seconds * 120); i++) s = launchStep(s, p);
+  return { turn: deg(s.alpha), tip: Math.abs(s.dalpha) * far };
+}
+// The turn of the arm after exactly `turn` degrees: the speed of the tip (m/s) at that moment.
+function tipSpeedAt(near: number, far: number, weight: number, turnDeg: number): number {
+  const p = lever(near, far, weight);
+  let s = { ...startLaunch(p, 0), beta: -Math.PI / 2, fired: true };
+  for (let i = 0; i < 120 * 6 && deg(s.alpha) < turnDeg; i++) s = launchStep(s, p);
+  return Math.abs(s.dalpha) * far;
+}
+const leverExp: Experiment = {
+  id: 'lever', name: 'Balance the arm', question: 'How heavy must the weight be to just balance you?', answerUnit: 'kg', answerMax: 2000, axis: 'meter', primary: 'near',
+  knobs: [
+    { id: 'near', label: 'Distance of the weight from the pivot', unit: 'm', min: 0.4, max: 3, def: 1.3, step: 0.05, why: 'A weight far from the pivot turns the arm harder than the same weight close to it. The turning effect is the weight times its distance.' },
+    { id: 'far', label: 'Distance of you from the pivot (the length of the throwing arm)', unit: 'm', min: 1, max: 8, def: 5.5, step: 0.1, why: 'You turn the arm the other way, and the farther out you sit the harder you turn it. A longer arm needs a heavier weight to balance it.' },
+  ],
+  sayings: ['A heavy weight close in turns the arm like a light one far out.'],
+  run(v) {
+    let lo = 0, hi = 8000;
+    for (let i = 0; i < 40; i++) { const mid = (lo + hi) / 2; if (leverTurn(v.near, v.far, mid, 0.25).turn > 0) hi = mid; else lo = mid; }
+    const balance = (lo + hi) / 2;
+    const twice = tipSpeedAt(v.near, v.far, balance * 2, 30);
+    const longer = tipSpeedAt(v.near, v.far * 1.5, balance * 2 * 1.5, 30); // the longer arm needs 1.5 times the weight to balance, so twice that weight is the same push
+    const same = tipSpeedAt(v.near, v.far * 1.5, balance * 2, 30);
+    const arm = (a: number): Point[] => [{ x: v.near - v.near * Math.cos(a), y: v.near * Math.sin(a) }, { x: v.near, y: 0 }, { x: v.near + v.far * Math.cos(a), y: -v.far * Math.sin(a) }]; // the pivot at x = near, so the whole picture is to the right of zero
+    return {
+      answer: balance,
+      path: arm(0),
+      overlays: [{ pts: [{ x: v.near, y: 0 }, { x: v.near, y: -0.9 }], color: '#8a5a2b', label: 'pivot' }, { pts: [{ x: 0, y: 0 }, { x: 0, y: -0.6 }], color: '#4a4f55', label: `weight, ${balance.toFixed(0)} kg` }],
+      people: [{ x: v.near + v.far, y: 0, pose: 'stand', label: `you, ${RIDER_KG} kg` }],
+      note: `The weight at ${v.near.toFixed(2)} m has to be ${balance.toFixed(0)} kg to balance you at ${v.far.toFixed(1)} m: ${balance.toFixed(0)} × ${v.near.toFixed(2)} = ${(balance * v.near).toFixed(0)} and ${RIDER_KG} × ${v.far.toFixed(1)} = ${(RIDER_KG * v.far).toFixed(0)}. Add weight and the arm turns your side up; with twice that weight the tip moves at ${twice.toFixed(1)} m/s after a third of a quarter turn. The same twice-the-balance push on an arm 1.5 times as long moves the tip at ${longer.toFixed(1)} m/s; the same weight on that longer arm gives ${same.toFixed(1)} m/s.`,
+    };
+  },
+};
+void leverTurn;
+
 // A coaster (the cart on rails): how high a hill the cart can climb depends on the height it starts from, plus a little from the push.
 const coaster: Experiment = {
   id: 'coaster', name: 'Coaster: hills and speed', question: 'How high a hill can the cart climb?', answerUnit: 'm', answerMax: 14, axis: 'y', primary: 'height',
@@ -231,7 +276,7 @@ const coaster: Experiment = {
   },
 };
 
-export const EXPERIMENTS: Experiment[] = [gap, wall, rope, trampoline, landingExp, bars, coaster];
+export const EXPERIMENTS: Experiment[] = [gap, wall, rope, trampoline, landingExp, bars, coaster, leverExp];
 export const defaults = (e: Experiment, ctx: Context = {}): Record<string, number> => {
   const d = Object.fromEntries(e.knobs.map((k) => [k.id, k.def]));
   if (e.id === 'gap' && ctx.speed) d.speed = Math.min(10, Math.max(2, ctx.speed));

@@ -9,16 +9,17 @@ import { JUMP_COST, VAULT_COST } from './energy';
 import { VAULT_BUFFER, VAULT_KEEP, findVault, vaultAt, type Vault } from './vault';
 import { comDistance, DEFAULT_HANG, feetOf, gripSlips, hangStep, releaseHang, tryGrab, type Hang } from './holds';
 import { enterCart, stepCartWorld, type Cart } from './cart';
+import { DEFAULT_TREBUCHET, deg, feetAt, isDud, launchStep, startLaunch, type Launch, type TrebuchetParams } from './trebuchet';
 
 // One world for the Course: the runner plus whichever obstacle has hold of the runner right now.
 // The simulator is the truth: everything the screen shows comes from this state, one tick at a time.
 export const ROLL_BUFFER = 30; // ticks (a quarter of a second): an X press this long before touchdown still rolls
-export type Mode = 'run' | 'wall' | 'swing' | 'bounce' | 'hang' | 'vault' | 'cart';
+export type Mode = 'run' | 'wall' | 'swing' | 'bounce' | 'hang' | 'vault' | 'cart' | 'launch';
 export type Outcome = 'running' | 'cleared' | 'splash' | 'hurt' | 'stalled'; // hurt: a landing harder than the body can take; stalled: the cart ran out of speed on a hill
 
 export interface GameEvent {
   tick: number;
-  type: 'jump' | 'land' | 'stumble' | 'hard-landing' | 'splash' | 'wall-grab' | 'wall-slide' | 'rope-catch' | 'rope-release' | 'hang-catch' | 'hang-release' | 'vault' | 'bounce' | 'cleared' | 'cart-start' | 'cart-stall' | 'cart-off';
+  type: 'jump' | 'land' | 'stumble' | 'hard-landing' | 'splash' | 'wall-grab' | 'wall-slide' | 'rope-catch' | 'rope-release' | 'hang-catch' | 'hang-release' | 'vault' | 'bounce' | 'cleared' | 'cart-start' | 'cart-stall' | 'cart-off' | 'launch-fire' | 'launch-release' | 'launch-dud';
   detail?: Record<string, number | boolean>;
 }
 
@@ -30,6 +31,7 @@ export interface WorldState {
   swing: Swing | null;
   hang: Hang | null; // hanging from a bar in the air
   vault: Vault | null; // going over an obstacle with a hand on top
+  launch: Launch | null; // sitting in the trebuchet's sling (before the pin and while it swings)
   cart: Cart | null; // riding the rails of a track (src/sim/cart.ts)
   energy: number; // 1 = fresh; each move spends some (src/sim/energy.ts)
   bed: { base: Bounce; vIn: number; start: number; press: number | null; vx: number; top: number } | null;
@@ -45,10 +47,17 @@ export interface WorldState {
 export function newWorld(course: CourseData, x: number = course.startX): WorldState {
   const r = startState(x);
   r.y = groundAt(course.terrain, x);
-  const w: WorldState = { runner: r, mode: 'run', outcome: 'running', wall: null, swing: null, hang: null, vault: null, cart: null, energy: 1, bed: null, noCatchUntil: 0, lastPress: -1000, lastVault: -1000, lastRoll: -1000, rolledAt: -1000, events: [] };
+  const tp = course.trebuchet ? trebuchetParams(course) : null;
+  if (tp && x <= tp.x + 0.5) { // the course starts in the sling: the rider lies at the end of the sling behind the machine
+    const ln = startLaunch(tp, groundAt(course.terrain, tp.x));
+    const f = feetAt(tp, ln);
+    return { runner: { ...r, x: f.x, y: f.y }, mode: 'launch', outcome: 'running', wall: null, swing: null, hang: null, vault: null, cart: null, launch: ln, energy: 1, bed: null, noCatchUntil: 0, lastPress: -1000, lastVault: -1000, lastRoll: -1000, rolledAt: -1000, events: [] };
+  }
+  const w: WorldState = { runner: r, mode: 'run', outcome: 'running', wall: null, swing: null, hang: null, vault: null, cart: null, launch: null, energy: 1, bed: null, noCatchUntil: 0, lastPress: -1000, lastVault: -1000, lastRoll: -1000, rolledAt: -1000, events: [] };
   return course.track ? enterCart(w, course) : w;
 }
 
+export const trebuchetParams = (c: CourseData): TrebuchetParams => ({ ...DEFAULT_TREBUCHET, ...(c.trebuchet ?? {}) } as TrebuchetParams);
 const wallParams = (c: CourseData): WallParams => ({ ...DEFAULT_WALL, ...(c.wall ?? {}) });
 const ropeParams = (c: CourseData): RopeParams => ({ ...DEFAULT_ROPE, ...(c.rope ?? {}) });
 
@@ -67,6 +76,7 @@ export function stepWorld(w: WorldState, input: RunnerInput, course: CourseData,
   if (w.mode === 'hang') return stepHang(w, input, course);
   if (w.mode === 'cart') return stepCartWorld(w, input, course);
   if (w.mode === 'vault') return stepVault(w);
+  if (w.mode === 'launch') return stepLaunchMode(w, input, course);
 
   // the vault: a hand on top of the obstacle just ahead, the body goes over it and keeps most of the speed
   if (n.lastVault >= 0 && w.runner.tick + 1 - n.lastVault <= VAULT_BUFFER && w.runner.grounded) { // a V pressed up to a fifth of a second early still counts
@@ -215,6 +225,31 @@ function stepHang(w: WorldState, input: RunnerInput, course: CourseData): WorldS
   }
   const f = feetOf(h, s), d = comDistance(DEFAULT_HANG);
   return { ...w, hang: s, events: [], runner: { ...w.runner, tick, x: f.x, y: f.y, vx: s.omega * d * Math.cos(s.theta), vy: s.omega * d * Math.sin(s.theta), grounded: false } };
+}
+
+// The trebuchet: Space-free until the pin is pulled (the run key), then the arm swings; Space (or the pin angle, or the frame) lets the rider go.
+function stepLaunchMode(w: WorldState, input: RunnerInput, course: CourseData): WorldState {
+  const tp = trebuchetParams(course);
+  const tick = w.runner.tick + 1;
+  let ln = w.launch!;
+  const events: GameEvent[] = [];
+  if (!ln.fired) {
+    if (!input.run) return { ...w, events, runner: { ...w.runner, tick } };
+    ln = { ...ln, fired: true };
+    events.push({ tick, type: 'launch-fire' });
+  } else ln = launchStep(ln, tp);
+  const f = feetAt(tp, ln);
+  if (isDud(tp, ln)) { // too light a counterweight: nothing lifts the rider, who ends up standing where the sling dragged them
+    const x = Math.min(Math.max(f.x, course.startX), tp.x);
+    events.push({ tick, type: 'launch-dud' });
+    return { ...w, mode: 'run', launch: null, events, runner: { ...w.runner, tick, x, y: groundAt(course.terrain, x), vx: 0, vy: 0, grounded: true } };
+  }
+  const letGo = ln.t > 0 && (input.jump || (tp.pin !== undefined && deg(ln.alpha) >= tp.pin));
+  if (letGo) {
+    events.push({ tick, type: 'launch-release', detail: { vx: f.vx, vy: f.vy, speed: Math.hypot(f.vx, f.vy), t: ln.t } });
+    return { ...w, mode: 'run', launch: null, noCatchUntil: tick, events, runner: { ...w.runner, tick, x: f.x, y: f.y, vx: f.vx, vy: f.vy, grounded: false } };
+  }
+  return { ...w, launch: ln, events, runner: { ...w.runner, tick, x: f.x, y: f.y, vx: f.vx, vy: f.vy, grounded: !ln.fired } };
 }
 
 function stepBounce(w: WorldState, input: RunnerInput): WorldState {

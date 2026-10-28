@@ -8,6 +8,7 @@ import { searchIdealRun } from '../sim/ideal';
 import { createView3d, type Ghosts } from '../slice/view3d';
 import { sceneFor } from '../slice/scene';
 import { barMesh, holdsOf, isHold, REACH_JUMPING, REACH_STANDING } from '../slice/holds-world';
+import { withTrebuchet } from '../slice/launch-lane';
 import { CUP, PATTERNS, patternOf, stackPiece, stackSrc } from '../slice/stack';
 import { fixLayout } from '../slice/fixit';
 import { layoutToPieces, parseLayout, pieceFromSrc } from '../slice/photo-course';
@@ -126,6 +127,11 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
   const addBarPiece = (x: number, y: number): P => { const q: P = { ...newPiece('Bar', barMesh(), { x, z: 0 }), src: 'hold:bar', y }; pieces.push(q); selected = q.id; return q; };
   el('button', addBar, { text: 'Bar', id: 'addbar' }).onclick = () => { addBarPiece(nextX(), 2.86); changed(); };
   el('button', addBar, { text: 'Lache pair', id: 'addlache', title: 'Two bars to swing between' }).onclick = () => { const x = nextX(); addBarPiece(x, 2.86); addBarPiece(x + 3.5, 2.86); changed(); };
+  // a trebuchet at the start: the rider is thrown to the lane; the counterweight is the knob (the proof says whether it reaches)
+  el('button', addBar, { text: 'Trebuchet', id: 'addtreb', title: 'Start the lane in a trebuchet: the character is thrown onto it' }).onclick = () => { trebuchetKg = trebuchetKg ? null : 1200; trebLabel.style.display = trebuchetKg ? '' : 'none'; trebInput.value = String(trebuchetKg ?? 1200); changed(); };
+  const trebLabel = el('label', addBar, { text: 'Counterweight (kg) ' }); trebLabel.style.display = 'none';
+  const trebInput = el('input', trebLabel, { type: 'number', min: '300', max: '4000', step: '50', value: '1200', id: 'trebkg' });
+  trebInput.onchange = () => { const v = Number(trebInput.value); if (v >= 300 && v <= 4000) { trebuchetKg = v; changed(); } };
   // stacks: sport-stacking cups (mouth down, pyramids) as obstacle shapes; the piece scale makes a 9 cm cup runner-sized
   el('strong', addBar, { text: 'Stacks:' });
   for (const pt of PATTERNS) {
@@ -483,14 +489,16 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
   const currentProfile = () => sliceProfile(worldSamples(ground()), { x: 0, z: 0 }, { angle, offset, level });
   const barsNow = () => holdsOf(pieces, { angle, offset, level });
   let floorChoice: Hazard = 'water'; // the floor you must not touch (saved in the course)
-  const courseNow = () => { const c = laneToCourse(currentProfile(), 'My world', barsNow()); if (floorChoice !== 'water') c.hazard = floorChoice; return c; };
+  let trebuchetKg: number | null = null; // the lane starts in a trebuchet (the counterweight in kg), or on a plain deck
+  const laneCourse = (p: ReturnType<typeof currentProfile>) => { const c = laneToCourse(p, 'My world', barsNow()); return trebuchetKg ? withTrebuchet(c, trebuchetKg) : c; };
+  const courseNow = () => { const c = laneCourse(currentProfile()); if (floorChoice !== 'water') c.hazard = floorChoice; return c; };
   let verifyTimer = 0, adviceRun = 0;
   function verify() {
     clearTimeout(verifyTimer);
     verifyTimer = window.setTimeout(() => {
       const p = currentProfile();
       if (p.length < 8) { verdict = 'Nothing is in the lane: move the lane or the pieces.'; }
-      else { const r = describeLane(p); verdict = searchIdealRun(laneToCourse(p, 'My world', barsNow())).cleared ? `The simulator can clear this lane (${r.gaps} gaps, ${r.steps} steps, ${r.curves} curves, ${r.faces} faces, ${r.length.toFixed(0)} m).` : 'The simulator cannot find a way to clear this lane: widen a gap or lower a step.'; }
+      else { const r = describeLane(p); verdict = searchIdealRun(laneCourse(p)).cleared ? `The simulator can clear this lane (${r.gaps} gaps, ${r.steps} steps, ${r.curves} curves, ${r.faces} faces, ${r.length.toFixed(0)} m).` : 'The simulator cannot find a way to clear this lane: widen a gap or lower a step.'; }
       const v = lanePanel.querySelector('#verdict') as HTMLElement | null;
       if (v) { v.textContent = verdict; v.className = verdict.startsWith('The simulator can') ? 'ok' : 'bad'; }
       document.documentElement.dataset.verdict = verdict;
