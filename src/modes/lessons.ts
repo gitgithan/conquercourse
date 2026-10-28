@@ -77,7 +77,7 @@ export const LESSONS: Record<Experiment['id'], Lesson> = {
     formulaWords: 'This is exact for a small swing of a point on a stiff arm and no air resistance (g = 9.81 m/s²). A big swing takes a little longer. The body is a rod, so the length is two thirds of the way from hands to feet. The size of the swing does not appear: that is why you can grow it without changing its beat.',
     inputs: ['length'],
     calc: (v) => { const T = 2 * Math.PI * Math.sqrt(v.length / GRAVITY); return { label: 'time of one swing', value: T, unit: 's', working: `2π × √(${v.length.toFixed(2)} ÷ ${GRAVITY}) = ${T.toFixed(2)} s` }; },
-    apply: () => 'On the lache pair, hold Q or E on the bar and push the arrow the way you swing: the swing grows each time. Let go when the hint says LET GO NOW.',
+    apply: () => 'On the lache pair, hold E on the bar and push the arrow the way you swing: the swing grows each time. Let go when the hint says LET GO NOW.',
   },
   trampoline: {
     why: 'A trampoline is a spring: it stores the energy of your landing and gives it back. The harder you land, the higher it throws you. And you can add to it: pressing Space at the bottom of the bounce adds speed on top of what the spring returns.',
