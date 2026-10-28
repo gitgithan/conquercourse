@@ -25,6 +25,7 @@ import { drumsFor } from '../sim/drums';
 import { createDrumLane } from '../ui/drum-lane';
 import { createDebugView } from '../ui/debug-view';
 import { predictRelease } from '../sim/predict';
+import { cupsGroup } from '../slice/cups';
 
 // The Course: the five obstacles in a row. The simulator decides everything; this file only draws it
 // and turns keys into inputs. Time comes from the simulator's tick count, never from the browser's clock.
@@ -133,6 +134,8 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
           obj.position.set(-c.x, -box.min.y, -c.z);
           g.add(obj);
         }).catch(() => { /* no picture for this one; its collision still works */ });
+      } else if (it.stack) {
+        g.add(cupsGroup(it.stack));
       } else if (it.mesh) {
         const geo = new THREE.BufferGeometry();
         geo.setAttribute('position', new THREE.Float32BufferAttribute(it.mesh.positions, 3));

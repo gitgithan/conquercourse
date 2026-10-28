@@ -8,6 +8,7 @@ import { searchIdealRun } from '../sim/ideal';
 import { createView3d } from '../slice/view3d';
 import { sceneFor } from '../slice/scene';
 import { barMesh, holdsOf, isHold, REACH_JUMPING, REACH_STANDING } from '../slice/holds-world';
+import { CUP, PATTERNS, patternOf, stackPiece, stackSrc } from '../slice/stack';
 import { fixLayout } from '../slice/fixit';
 import { layoutToPieces, parseLayout, pieceFromSrc } from '../slice/photo-course';
 import { proves } from '../slice/photo-proof';
@@ -58,7 +59,7 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
     try {
       const s = JSON.parse(localStorage.getItem(KEY) ?? '') as Saved;
       pendingObjects.push(...s.pieces.filter((q) => q.src.startsWith('obj:')));
-      pieces = s.pieces.filter((q) => !q.src.startsWith('obj:')).map((q) => (q.src.startsWith('box:') ? { ...pieceFromSrc(q.src, { x: q.x, z: q.z })!, y: q.y, yaw: q.yaw, scale: q.scale } : q.src === 'hold:bar' ? { ...newPiece('Bar', barMesh(), { x: q.x, z: q.z }), src: q.src, y: q.y, yaw: q.yaw, scale: q.scale } : { ...newPiece(lib(q.src).label, lib(q.src).mesh(), { x: q.x, z: q.z }), src: q.src, y: q.y, yaw: q.yaw, scale: q.scale }));
+      pieces = s.pieces.filter((q) => !q.src.startsWith('obj:')).map((q) => (patternOf(q.src) ? { ...stackPiece(q.src, { x: q.x, z: q.z })!, y: q.y, yaw: q.yaw, scale: q.scale } : q.src.startsWith('box:') ? { ...pieceFromSrc(q.src, { x: q.x, z: q.z })!, y: q.y, yaw: q.yaw, scale: q.scale } : q.src === 'hold:bar' ? { ...newPiece('Bar', barMesh(), { x: q.x, z: q.z }), src: q.src, y: q.y, yaw: q.yaw, scale: q.scale } : { ...newPiece(lib(q.src).label, lib(q.src).mesh(), { x: q.x, z: q.z }), src: q.src, y: q.y, yaw: q.yaw, scale: q.scale }));
       angle = s.angle; offset = s.offset; level = s.level;
     } catch {
       // a first world made of real objects (no blocks): a bench, a long low box and a rail, loaded once the object list is in
@@ -123,6 +124,13 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
   const addBarPiece = (x: number, y: number): P => { const q: P = { ...newPiece('Bar', barMesh(), { x, z: 0 }), src: 'hold:bar', y }; pieces.push(q); selected = q.id; return q; };
   el('button', addBar, { text: 'Bar', id: 'addbar' }).onclick = () => { addBarPiece(nextX(), 2.86); changed(); };
   el('button', addBar, { text: 'Lache pair', id: 'addlache', title: 'Two bars to swing between' }).onclick = () => { const x = nextX(); addBarPiece(x, 2.86); addBarPiece(x + 3.5, 2.86); changed(); };
+  // stacks: sport-stacking cups (mouth down, pyramids) as obstacle shapes; the piece scale makes a 9 cm cup runner-sized
+  el('strong', addBar, { text: 'Stacks:' });
+  for (const pt of PATTERNS) {
+    el('button', addBar, { text: pt.label, id: `addstack-${pt.id}`, title: `Cups piled ${pt.label}; a cup is ${Math.round(CUP.h * 100)} cm, here ${Math.round(CUP.h * pt.scale * 100)} cm (change the size with the scale buttons)` }).onclick = () => {
+      const q = stackPiece(stackSrc(pt.id), { x: nextX() + 1, z: 0 })!; pieces.push(q); selected = q.id; changed();
+    };
+  }
   // size references: a Rookie (1.75 m, T-pose) and the demo scene, so a piece can be judged against a person
   el('strong', addBar, { text: 'Size references:' });
   for (const r of [{ id: 'rookie-a', label: 'Person (1.75 m)', url: '/assets/characters/rookie-a.glb', src: 'obj:../characters/rookie-a.glb' }, { id: 'demo-scene', label: 'Demo scene', url: '/assets/demo/demo-scene.glb', src: 'obj:../demo/demo-scene.glb' }]) {
