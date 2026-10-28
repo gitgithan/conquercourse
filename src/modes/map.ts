@@ -10,7 +10,8 @@ import { fetchGround, lowest, relief, TERRAIN_ATTRIBUTION, type Ground, type Til
 import { buildingTops, contourSegments, cutBuildings, cutRange, ladderLevels, ladderStep, laneLine, piecesFrom, resample, slopeCells, toLonLat, type Seg } from '../slice/slicer';
 import { reducedMotion, runFlight, scaleWords } from './map-flight';
 import { loadPhotoIndex, loadPlacePhotos, mountPlacePhotos, nearestPlace, type PhotosHandle } from '../ui/place-photos';
-import type { LaneSummary, SliceAnswer, SliceAsk } from '../slice/slicer-worker';
+import type { LaneSummary, SliceAnswer, SliceAsk, StripRow } from '../slice/slicer-worker';
+import { whyNot } from '../slice/why';
 import { createPerf } from '../ui/perf';
 
 export const PIECE_KEY = 'cc.map.piece';
@@ -69,6 +70,11 @@ export function startMap(host: HTMLElement): { backend: 'webgl2' } {
         <div style="display:grid;gap:6px"><div>Cut height: <b id="cutv">0</b> m</div><div class="muted">metres above the lowest ground, real size</div><button id="ladder" type="button">Contour ladder</button></div>
       </div>
       <div id="sliceread" class="say">Pick a place, press Slice.</div>
+      <div id="slicewhy" class="muted" style="white-space:pre-line"></div>
+      <div class="muted" id="tourhelp">The green line is the best of 18 turns and up to 15 sideways steps at this height: the simulator tries the ones with the most different things on them first (a gap, a step, a curve, a wall) and keeps the first it can clear. Drag the white dots to turn it or move it: the dot in the middle moves the whole line.</div>
+      <button id="tourreset" type="button" hidden>Back to the suggested line</button>
+      <div class="muted" id="stripcap" hidden>Heights to try: green looks crossable, amber has a gap or wall in the way, red has no lane. Click one.</div>
+      <div id="cutstrip" style="display:flex;gap:2px;flex-wrap:wrap"></div>
       <div id="scalewords" class="say"></div>
       <b>Pick the buildings</b>
       <div class="muted">Click a building to leave it out or put it back. Hold Shift and drag to pick a box (Alt takes buildings out).</div>
@@ -254,6 +260,8 @@ export function startMap(host: HTMLElement): { backend: 'webgl2' } {
     if (has) src('sl-lane').setData({ type: 'Feature', properties: {}, geometry: { type: 'LineString', coordinates: laneLine(l!, S!.k).map(([x, z]) => ll(x, z)) } } as never);
     map.setLayoutProperty('sl-lane-dash', 'visibility', has && !proved ? 'visible' : 'none');
     map.setLayoutProperty('sl-lane', 'visibility', has && proved ? 'visible' : 'none');
+    if (!tour) placeHandles(has ? (laneLine(l!, S!.k) as [[number, number], [number, number]]) : null);
+    else placeHandles(tour);
   }
 
   let shownLane: { c: number; l: LaneSummary; proved: boolean } | null = null; // the lane on the screen: this is the one the editor gets
@@ -265,22 +273,128 @@ export function startMap(host: HTMLElement): { backend: 'webgl2' } {
     else if (proved === null) { drawLane(null, false); read.textContent = `${head}no lane here (too short, too steep, or nothing to run on).`; dset('sliceLane', 'none'); }
     else if (quick) { drawLane(quick, false); read.textContent = `${head}a lane of ${Math.round(quick.length)} m; checking that it can be cleared…`; dset('sliceLane', 'checking'); }
     else { drawLane(null, false); read.textContent = `${head}looking for a lane…`; dset('sliceLane', 'working'); }
+    lastLane = { c, quick, proved };
+    showWhy(c, quick, proved);
+    if (proved !== undefined) askStrip();
   }
+
+  // ---- CC-92: why a height fails, and a strip of heights to try
+  type StripCell = StripRow & { real: number };
+  let lastLane: { c: number; quick: LaneSummary | null; proved: LaneSummary | null | undefined } | null = null, strip: { key: string; cells: StripCell[] } | null = null, stripWorker: Worker | null = null, stripToken = 0;
+  const stripEl = $('cutstrip'), whyEl = $('slicewhy'), stripCap = $('stripcap');
+  const nearestCrossable = (c: number): number | null => {
+    const ok = (strip?.cells ?? []).filter((x) => x.crossable && x.real !== c);
+    if (!ok.length) return null;
+    return ok.reduce((b, x) => (Math.abs(x.real - c) < Math.abs(b.real - c) ? x : b)).real;
+  };
+  function drawStrip() {
+    stripEl.replaceChildren(); stripCap.hidden = !strip;
+    if (!strip) return;
+    for (const x of strip.cells) {
+      const b = document.createElement('button'); b.type = 'button'; b.textContent = String(x.real);
+      const f = x.facts;
+      b.title = x.lane && f ? `Cut at ${x.real} m: lane ${Math.round(f.lengthM)} m, widest gap ${f.widestGapM.toFixed(1)} m, tallest step ${f.tallestStepM.toFixed(1)} m, ${Math.round(f.solidShare * 100)}% of it has ground under it.` : `Cut at ${x.real} m: no lane a runner could use.`;
+      b.style.cssText = `padding:2px 6px;font:600 12px system-ui,sans-serif;border:1px solid #17201d33;border-radius:6px;cursor:pointer;background:${x.crossable ? '#cfe8d8' : x.lane ? '#f3d9a8' : '#e6c4c0'}`;
+      b.onclick = () => { cut.value = String(x.real); cut.dispatchEvent(new Event('input')); cut.dispatchEvent(new Event('change')); };
+      stripEl.append(b);
+    }
+    dset('sliceStrip', JSON.stringify(strip.cells.map((x) => [x.real, x.lane ? (x.crossable ? 'ok' : 'blocked') : 'none'])));
+  }
+  function askStrip() {
+    if (!S) return;
+    const key = `${S.k}|${[...S.picked].sort((a, b) => a - b).join('.')}|${S.r}`;
+    if (strip?.key === key) return;
+    const my = ++stripToken; stripWorker?.terminate(); stripWorker = null;
+    const reals = Array.from({ length: 10 }, (_, i) => Math.max(0.5, Math.round((S!.range * (i + 0.5)) / 10 * 2) / 2));
+    try { stripWorker = new Worker(new URL('../slice/slicer-worker.ts', import.meta.url), { type: 'module' }); } catch { return; }
+    stripWorker.onmessage = (e: MessageEvent<SliceAnswer>) => {
+      const a = e.data; if (a.id !== my || a.phase !== 'strip') return;
+      strip = { key, cells: a.rows.map((r, i) => ({ ...r, real: reals[i] })) }; stripWorker?.terminate(); stripWorker = null;
+      drawStrip(); if (lastLane) showWhy(lastLane.c, lastLane.quick, lastLane.proved);
+    };
+    stripWorker.postMessage({ id: my, positions: S.mesh.positions, indices: S.mesh.indices, level: 0, strip: reals.map((c) => c * S!.k) } satisfies SliceAsk);
+  }
+  function showWhy(c: number, quick: LaneSummary | null, proved: LaneSummary | null | undefined) {
+    whyEl.replaceChildren();
+    if (proved !== null) return; // cleared, or still working
+    const lines = quick?.facts ? whyNot(quick.facts).lines : ['No lane here: every line across this cut meets a wall taller than a climb, a fall longer than a roll survives, or too little to run on.'];
+    whyEl.append(document.createTextNode(lines.join('\n')));
+    const best = nearestCrossable(c);
+    if (best !== null) {
+      const b = document.createElement('button'); b.type = 'button'; b.textContent = `Try the cut at ${best} m`; b.style.marginTop = '4px'; b.style.display = 'block';
+      b.onclick = () => { cut.value = String(best); cut.dispatchEvent(new Event('input')); cut.dispatchEvent(new Event('change')); };
+      whyEl.append(b);
+    }
+    dset('sliceWhy', lines[0] ?? '');
+  }
+
+  // ---- CC-93: drag and rotate the tour line
+  let tour: [[number, number], [number, number]] | null = null; // the player's own line, in real metres east (x) and south (z) of the pin
+  const handles: maplibregl.Marker[] = [];
+  const fromLL = (lng: number, lat: number): [number, number] => [(lng - S!.lon) * 111320 * Math.cos((S!.lat * Math.PI) / 180), -(lat - S!.lat) * 111320];
+  const handleAt = (i: number) => { const p = handles[i].getLngLat(); return fromLL(p.lng, p.lat); };
+  const customOf = (t: [[number, number], [number, number]]) => {
+    let angle = Math.atan2(t[1][1] - t[0][1], t[1][0] - t[0][0]);
+    if (angle < 0) angle += Math.PI;
+    if (angle >= Math.PI) angle -= Math.PI;
+    return { angle, offset: (t[0][0] * -Math.sin(angle) + t[0][1] * Math.cos(angle)) * S!.k }; // the lane lives in the shrunk place: real metres times the shrink
+  };
+  const tourReset = $<HTMLButtonElement>('tourreset');
+  function previewLine(a: [number, number], b: [number, number]) {
+    src('sl-lane').setData({ type: 'Feature', properties: {}, geometry: { type: 'LineString', coordinates: [ll(a[0], a[1]), ll(b[0], b[1])] } } as never);
+    map.setLayoutProperty('sl-lane-dash', 'visibility', 'visible'); map.setLayoutProperty('sl-lane', 'visibility', 'none');
+  }
+  function commitTour() {
+    if (!S || handles.length < 3) return;
+    const a = handleAt(0), b = handleAt(1);
+    if (Math.hypot(b[0] - a[0], b[1] - a[1]) < 4) { tell('Drag the dots further apart: the line needs at least 4 m.', true); return; }
+    tour = [a, b]; tourReset.hidden = false;
+    dset('tourLine', JSON.stringify(tour.map((p) => p.map((v) => Math.round(v)))));
+    askLane(Number(cut.value));
+  }
+  function placeHandles(line: [[number, number], [number, number]] | null) {
+    if (!S) return;
+    if (!line) { for (const h of handles) h.remove(); return; }
+    if (!handles.length) {
+      const names = ['Drag to turn the line (this end)', 'Drag to turn the line (the other end)', 'Drag to move the whole line'];
+      names.forEach((title, i) => {
+        const el = document.createElement('div'); el.title = title; el.id = ['tour-a', 'tour-b', 'tour-m'][i];
+        el.style.cssText = `width:${i === 2 ? 14 : 18}px;height:${i === 2 ? 14 : 18}px;border-radius:${i === 2 ? 3 : 50}%;background:#fff;border:3px solid #0f6b5c;cursor:grab;box-shadow:0 1px 4px #0006`;
+        const h = new maplibregl.Marker({ element: el, draggable: true });
+        h.on('drag', () => {
+          if (i === 2) { // the middle dot moves both ends by the same step
+            const m = handleAt(2), a = handleAt(0), b = handleAt(1), cx = (a[0] + b[0]) / 2, cz = (a[1] + b[1]) / 2, dx = m[0] - cx, dz = m[1] - cz;
+            const na: [number, number] = [a[0] + dx, a[1] + dz], nb: [number, number] = [b[0] + dx, b[1] + dz];
+            handles[0].setLngLat(ll(na[0], na[1])); handles[1].setLngLat(ll(nb[0], nb[1])); previewLine(na, nb);
+          } else {
+            const a = handleAt(0), b = handleAt(1);
+            handles[2].setLngLat(ll((a[0] + b[0]) / 2, (a[1] + b[1]) / 2)); previewLine(a, b);
+          }
+        });
+        h.on('dragend', commitTour);
+        handles.push(h);
+      });
+    }
+    const [a, b] = line;
+    [a, b, [(a[0] + b[0]) / 2, (a[1] + b[1]) / 2] as [number, number]].forEach((p, i) => handles[i].setLngLat(ll(p[0], p[1])).addTo(map));
+  }
+  tourReset.onclick = () => { tour = null; tourReset.hidden = true; dset('tourLine', ''); askLane(Number(cut.value)); };
 
   function askLane(c: number) {
     if (!S) return;
-    const key = `${c}|${S.k}|${S.r}`, hit = laneCache.get(key);
+    const custom = tour ? customOf(tour) : undefined;
+    const key = `${c}|${S.k}|${S.r}|${[...S.picked].sort((a, b) => a - b).join('.')}${custom ? `|${custom.angle.toFixed(3)},${custom.offset.toFixed(2)}` : ''}`, hit = laneCache.get(key);
     const my = ++laneToken; sliceWorker?.terminate(); sliceWorker = null;
     if (hit && hit.proved !== undefined) { showLane(c, hit.quick, hit.proved); return; }
     showLane(c, null, undefined); dset('sliceLane', 'working');
     try { sliceWorker = new Worker(new URL('../slice/slicer-worker.ts', import.meta.url), { type: 'module' }); } catch { read.textContent = 'This browser cannot run the lane search in the background.'; return; }
     let quick: LaneSummary | null = null;
     sliceWorker.onmessage = (e: MessageEvent<SliceAnswer>) => {
-      const a = e.data; if (a.id !== my) return;
+      const a = e.data; if (a.id !== my || a.phase === 'strip') return;
       if (a.phase === 'quick') { quick = a.lane; laneCache.set(key, { quick, proved: undefined }); showLane(c, quick, undefined); }
       else { laneCache.set(key, { quick, proved: a.lane }); showLane(c, quick, a.lane); }
     };
-    sliceWorker.postMessage({ id: my, positions: S.mesh.positions, indices: S.mesh.indices, level: c * S.k } satisfies SliceAsk);
+    sliceWorker.postMessage({ id: my, positions: S.mesh.positions, indices: S.mesh.indices, level: c * S.k, ...(custom ? { custom } : {}) } satisfies SliceAsk);
   }
 
   const cutChanged = (instant: boolean) => {
@@ -392,7 +506,7 @@ export function startMap(host: HTMLElement): { backend: 'webgl2' } {
     mapEl.style.transition = 'opacity .4s'; mapEl.style.opacity = '0.2';
     setTimeout(() => { location.search = '?mode=editor'; }, 450);
   };
-  if (q.get('hooks') === '1') (window as unknown as Record<string, unknown>).__ccMap = { map, tops: () => S?.tops ?? [], picked: () => [...(S?.picked ?? [])] };
+  if (q.get('hooks') === '1') (window as unknown as Record<string, unknown>).__ccMap = { map, tops: () => S?.tops ?? [], picked: () => [...(S?.picked ?? [])], tourHandles: () => handles.map((h) => h.getLngLat()), tourDrag: (i: number, x: number, z: number) => { handles[i].setLngLat(ll(x, z)); handles[i].fire('drag'); handles[i].fire('dragend'); } };
 
   sliceBtn.onclick = async () => {
     if (!pin || !places) return;
