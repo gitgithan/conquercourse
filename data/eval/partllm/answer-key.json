@@ -2,28 +2,112 @@
   "note": "Hand-labelled by looking at side and top views of each GLB (metres, y up). 'present' means a hand could hold that kind of part there; 'absent' means the object has no such part; 'unclear' is not scored.",
   "objects": {
     "rail-skate-01": {
-      "hold": {"band": "top", "slice_m": 0.2, "depth_m": 0.1},
-      "prompts": {"bar": "present", "rail": "present", "ledge": "absent", "step": "absent"}
+      "hold": {
+        "band": "top",
+        "slice_m": 0.2,
+        "depth_m": 0.1
+      },
+      "prompts": {
+        "bar": "present",
+        "rail": "present",
+        "ledge": "absent",
+        "step": "absent"
+      }
     },
     "rail-skate-02": {
-      "hold": {"band": "top", "slice_m": 0.2, "depth_m": 0.1},
-      "prompts": {"bar": "present", "rail": "present", "ledge": "absent", "step": "absent"}
+      "hold": {
+        "band": "top",
+        "slice_m": 0.2,
+        "depth_m": 0.1
+      },
+      "prompts": {
+        "bar": "present",
+        "rail": "present",
+        "ledge": "absent",
+        "step": "absent"
+      }
     },
     "railing-iron": {
-      "hold": {"box": [-1.3, 0.74, -0.1, 1.3, 0.9, 0.1]},
-      "prompts": {"bar": "present", "rail": "present", "ledge": "absent", "step": "absent"}
+      "hold": {
+        "box": [
+          -1.3,
+          0.74,
+          -0.1,
+          1.3,
+          0.9,
+          0.1
+        ]
+      },
+      "prompts": {
+        "bar": "present",
+        "rail": "present",
+        "ledge": "absent",
+        "step": "absent"
+      }
     },
     "bench-concrete": {
-      "hold": {"boxes": [[-1, 0.7, -0.4, 1, 0.8, 0.4], [-1, 0.38, -0.4, 1, 0.48, 0.4]]},
-      "prompts": {"bar": "absent", "rail": "absent", "ledge": "present", "step": "absent"}
+      "hold": {
+        "boxes": [
+          [
+            -1,
+            0.7,
+            -0.4,
+            1,
+            0.8,
+            0.4
+          ],
+          [
+            -1,
+            0.38,
+            -0.4,
+            1,
+            0.48,
+            0.4
+          ]
+        ]
+      },
+      "prompts": {
+        "bar": "absent",
+        "rail": "absent",
+        "ledge": "present",
+        "step": "absent"
+      }
     },
     "box-skate-03": {
-      "hold": {"box": [-2.3, 0.42, -1.5, 2.3, 0.5, 1.5]},
-      "prompts": {"bar": "absent", "rail": "absent", "ledge": "present", "step": "unclear"}
+      "hold": {
+        "box": [
+          -2.3,
+          0.42,
+          -1.5,
+          2.3,
+          0.5,
+          1.5
+        ]
+      },
+      "prompts": {
+        "bar": "absent",
+        "rail": "absent",
+        "ledge": "present",
+        "step": "unclear"
+      }
     },
     "stairs-park-07": {
-      "hold": {"box": [-2.5, 0.6, -0.8, 2.5, 0.7, 0.8]},
-      "prompts": {"bar": "absent", "rail": "absent", "ledge": "present", "step": "unclear"}
+      "hold": {
+        "box": [
+          -2.5,
+          0.6,
+          -0.8,
+          2.5,
+          0.7,
+          0.8
+        ]
+      },
+      "prompts": {
+        "bar": "absent",
+        "rail": "absent",
+        "ledge": "present",
+        "step": "unclear"
+      }
     }
   }
 }

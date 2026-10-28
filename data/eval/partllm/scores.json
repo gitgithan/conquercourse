@@ -19,7 +19,7 @@
         "rail": {
           "expected": "present",
           "area_share": 0.521,
-          "precision": 1.0,
+          "precision": 1,
           "recall": 0.95,
           "verdict": "hit"
         },
@@ -99,8 +99,8 @@
         "step": {
           "expected": "absent",
           "area_share": 0.004,
-          "precision": 0.0,
-          "recall": 0.0,
+          "precision": 0,
+          "recall": 0,
           "verdict": "correctly empty"
         }
       }
@@ -132,8 +132,8 @@
         "step": {
           "expected": "absent",
           "area_share": 0.001,
-          "precision": 0.0,
-          "recall": 0.0,
+          "precision": 0,
+          "recall": 0,
           "verdict": "correctly empty"
         }
       }
@@ -165,8 +165,8 @@
         "step": {
           "expected": "unclear",
           "area_share": 0.057,
-          "precision": 0.0,
-          "recall": 0.0,
+          "precision": 0,
+          "recall": 0,
           "verdict": "not scored"
         }
       }
@@ -191,8 +191,8 @@
         "ledge": {
           "expected": "present",
           "area_share": 0.112,
-          "precision": 0.0,
-          "recall": 0.0,
+          "precision": 0,
+          "recall": 0,
           "verdict": "miss"
         },
         "step": {
