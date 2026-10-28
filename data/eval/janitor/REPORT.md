@@ -81,3 +81,20 @@
   2. The drum lane (dark strip, bottom) is already showing with drums sliding in.
   3. Press G: the lane hides; press G again: it shows.
   - Screenshot: `data/eval/janitor/drums/stock.png`.
+
+## 8. Search second-best branch (CC-69, Part of)
+- **Problem:** the search picks, at each edge, the middle of the presses that reach farthest, which can strand a later edge (why the Park rail run as first built could not be cleared).
+- **Fix:** when the run reaches the last edges and still does not clear, the search tries presses spread over the whole range at the last two take-off edges and keeps the first plan that clears (`src/sim/ideal.ts`, `alt` option; about 16 lines).
+- **Golden hashes:** none changed.
+  - Every golden course either cleared on the first try (the branch does not run) or does not reach the branch.
+- **Tests run on VM3:** `tests/search-second-best.test.ts` (new: the old Park rail run layout now clears with a 4th jump under 21 m); `test:changed` on `ideal.ts` selects every test (95 files, 848 tests, all passed, 144 s); a sweep of 5 old layouts went from 0 of 5 clearing to 5 of 5.
+- **Not covered:** the cost on a lane that cannot clear near its end (up to about 10 times a search); Fix it and the advice tests passed in the same time as before, but a long impossible lane was not timed.
+- **How to test it by eye:** nothing new to see; courses that already worked are unchanged.
+  - In the editor (`/?mode=editor`), build the first Park rail run layout (rails at 3, 8.5, 13.5 m and the skate box at 19 m) and press Play: the lane is now green (clears).
+
+## 9. test:changed ran no tests for source changes (CC-95, Part of)
+- **Problem:** `npm run test:changed` printed "0 total" when only `src/` files changed.
+- **Cause:** it passed `related` after `run`, which vitest treats as a name filter.
+- **Fix:** it now runs `vitest related <files> --run`.
+- **Tests run on VM3:** a change to `src/sim/ideal.ts` now selects 95 files, 848 tests.
+- **How to test it by eye:** edit any file under `src/`, run `npm run test:changed` on a VM: it lists the tests that import it and runs them.

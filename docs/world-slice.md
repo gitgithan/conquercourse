@@ -1557,3 +1557,10 @@ The set of obstacle shapes is fixed, and each shape offers a fixed set of moves.
 - **To switch it on**
   - Set the secret once: `npx wrangler pages secret put MAPILLARY_TOKEN` (paste the client token), then `npm run deploy`.
   - Without the secret the proxy answers 503 and the stored strip stays.
+
+## Search: a second-best branch (2026-10-29, CC-69)
+- The search takes, at each take-off edge, the middle of the presses that reach farthest; that can strand a later edge (the Park rail run as first built: the 4th jump landed so the last jump had no room).
+- When the run reaches the last edges and still does not clear, the search now tries other presses at the last two take-off edges (5 spread over the whole range each, so at most 10 extra searches) and keeps the first plan that clears.
+- Courses the greedy search already clears give the same plan (all golden hashes unchanged).
+- The old Park rail run layouts (5 of 5 variants) now clear.
+- Cost: only a run that got to the last edges and did not clear pays it (up to about 10 times that search).
