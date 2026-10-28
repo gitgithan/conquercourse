@@ -1,0 +1,98 @@
+[
+  {
+    "name": "rail-skate-01",
+    "photo": "park01",
+    "mask_round": "r1",
+    "crop": [
+      251,
+      140,
+      701,
+      497
+    ],
+    "size": [
+      450,
+      357
+    ],
+    "mask_share": 0.039
+  },
+  {
+    "name": "box-skate-03",
+    "photo": "park03",
+    "mask_round": "r1",
+    "crop": [
+      0,
+      163,
+      733,
+      468
+    ],
+    "size": [
+      733,
+      305
+    ],
+    "mask_share": 0.268
+  },
+  {
+    "name": "bench-concrete",
+    "photo": "bench01",
+    "mask_round": "r3",
+    "crop": [
+      99,
+      279,
+      786,
+      726
+    ],
+    "size": [
+      687,
+      447
+    ],
+    "mask_share": 0.297
+  },
+  {
+    "name": "railing-iron",
+    "photo": "rail01",
+    "mask_round": "none: the SAM 3 mask of this photo covers 1% (thin lattice), so a plain box crop is used",
+    "crop": [
+      130,
+      150,
+      900,
+      480
+    ],
+    "size": [
+      770,
+      330
+    ],
+    "mask_share": 1.0
+  },
+  {
+    "name": "rail-skate-02",
+    "photo": "park02",
+    "mask_round": "r1",
+    "crop": [
+      205,
+      136,
+      833,
+      455
+    ],
+    "size": [
+      628,
+      319
+    ],
+    "mask_share": 0.032
+  },
+  {
+    "name": "stairs-park-07",
+    "photo": "park07",
+    "mask_round": "r1",
+    "crop": [
+      91,
+      209,
+      888,
+      471
+    ],
+    "size": [
+      797,
+      262
+    ],
+    "mask_share": 0.252
+  }
+]
