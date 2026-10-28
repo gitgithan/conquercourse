@@ -48,6 +48,9 @@ const measure = () => {
     controls: controls.length, buttons: controls.filter((c) => c.matches('button, a.btn')).length,
     topControls: top ? controls.filter((c) => top.contains(c)).length : 0,
     bad, overlaps, offscreen,
+    // CC-94: the chosen piece's tools sit on the picture, inside it, and are not repeated in the right column
+    pieceBar: (() => { const bar = document.getElementById('piecebar'), wrap = document.querySelector('.planwrap'); if (!bar || bar.style.display === 'none') return null; const r = bar.getBoundingClientRect(), w = wrap.getBoundingClientRect();
+      return { inside: r.left >= w.left - 1 && r.right <= w.right + 1 && r.top >= w.top - 1 && r.bottom <= w.bottom + 1, ids: ['turnleft', 'turnright', 'dup', 'crop', 'del'].filter((id) => !bar.querySelector('#' + id)), copies: document.querySelectorAll('#del').length }; })(),
     pageFits: ed.scrollHeight <= ed.clientHeight + 1 && document.scrollingElement.scrollHeight <= innerHeight + 1,
   };
 };
@@ -66,7 +69,7 @@ try {
       try { await page.keyboard.press('Escape'); await page.evaluate(() => { for (const [id, btn] of [['moves', 'movesbtn'], ['helper', 'helperbtn']]) { const e = document.getElementById(id); if (e && !e.classList.contains('closed')) document.getElementById(btn).click(); } }); await page.waitForTimeout(150); await open(page); }
       catch (e) { result[`${w}x${h} ${name}`] = { skipped: String(e.message).slice(0, 60) }; continue; }
       const m = await page.evaluate(measure);
-      const ok = m.bad.length === 0 && m.overlaps.length === 0 && m.offscreen.length === 0 && m.pageFits && (name !== 'closed' || true);
+      const ok = m.bad.length === 0 && m.overlaps.length === 0 && m.offscreen.length === 0 && m.pageFits && (name !== 'closed' || true) && (name !== 'piece' || (m.pieceBar && m.pieceBar.inside && m.pieceBar.ids.length === 0 && m.pieceBar.copies === 1));
       result[`${w}x${h} ${name}`] = { ...m, ok };
       if (!ok) failed = true;
       await page.screenshot({ path: `${out}/${w}x${h}-${name}.png` });
