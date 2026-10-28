@@ -18,7 +18,7 @@ try {
     await page.waitForSelector('#debugbtn', { timeout: 60000 });
     await page.waitForTimeout(1500);
     await page.screenshot({ path: `test-results/coaster/${id}-start.png` });
-    if (mode === 'push') { await page.keyboard.down('ArrowRight'); await page.waitForTimeout(300); await page.keyboard.up('ArrowRight'); }
+    if (mode === 'push') { await page.keyboard.down('ArrowRight'); await page.waitForTimeout(1200); await page.keyboard.up('ArrowRight'); }
     let outcome = 'running', shot = 0;
     for (let i = 0; i < Number(process.env.SECONDS ?? 90) && outcome === 'running'; i++) {
       await page.waitForTimeout(1000);
