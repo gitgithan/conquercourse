@@ -1213,3 +1213,34 @@ The set of obstacle shapes is fixed, and each shape offers a fixed set of moves.
 - **Predictions:** the jump, release and launch predictions let the 3-tick wait run out (`settled` in `src/sim/predict.ts`), so a fall with no roll is reported as a hard landing, not as a clean one.
 - **Real keys:** on the drop demo (`scripts/roll-check.mjs`, slow motion), X pressed 0.1 s before the ground rolls and the run goes on; with no roll the outcome is a hard landing.
   - Picture of the orange ring and the drum: `data/eval/cc-67-fixes/roll-ring-fall-0.png`.
+
+## The drone ferry (CC-87)
+- **So what:** the game has its first flying machine: a cargo drone carries the character across a 40 m gap no jump can make, and teaches thrust against weight, leaning, battery and the limits of lift.
+- **The design:** `docs/drone.md` (what a drone teaches, three ways to play, what stays out, the honest numbers).
+- **How it plays:**
+  - Run onto the teal pad and hold E: the drone lifts a little way off the ground.
+  - The left and right arrows lean it, the up and down arrows climb and descend, and E keeps the rider on.
+  - Coming down slowly and level on a deck sets the rider down; letting go of E low steps off, letting go high is a drop (X rolls out of a big one).
+- **The physics** (`src/sim/drone.ts`, Earth gravity, a point mass):
+  - Push (thrust) along the lean, weight, linear drag, and a stabiliser that holds the height, so leaning costs push (the push needed is the weight divided by the cosine of the lean).
+  - The battery pays for the push with the standard rotor law: power is the thrust to the power 1.5, divided by the square root of 2 × air density × rotor disc area, divided by how good a real rotor is (0.65), plus 300 W of electronics.
+  - The cargo drone weighs 85 kg and carries 70 kg (1,520 N), the rotors can push 3,100 N, the discs add up to 12.3 m², so hovering takes about 17 kW.
+  - The demo pack is 50 Wh (180 kJ), about 10 seconds of hovering; real person-carrying drones carry roughly 10 kWh.
+  - A rider above about 220 kg cannot lift off, and a lean beyond 60° cannot hold the height at the drone's weight.
+- **Outcomes:**
+  - A soft touchdown (slow, level, not racing along the ground) sets the rider down.
+  - A hard one, or flying into the side of a deck, is a crash and ends the run (outcome hurt).
+  - A flat battery stops the rotors and the drone falls; water ends the run as usual.
+- **The proof:** the ideal run (`searchDroneRun` in `src/sim/ideal.ts`) finds where to lean back and where to start coming down so the drone lands softly on the far deck; on the demo the braking point has a window of about 0.3 s.
+- **Where it shows:**
+  - Course: `/?course=/assets/demo/drone.course.json` (the Course menu has "Drone ferry"); Shift+I plays the proved line.
+  - Debug view (B): the path if you stop leaning and come down now, and where it sets you down.
+  - Drum lane: an E drum where the ideal run boards.
+  - Editor: a Drone button next to Launcher, with rider (kg) and battery (Wh) knobs; Fix it tries a bigger battery first, then a lighter rider.
+  - Dojo: "Hover: push against weight" (rider weight and lean; the formula is the last, earned step) and the saying "Lean to go, but a leaning drone must push harder to stay up."
+- **Tests:** `tests/drone.test.ts` (hover, lean, payload limit, battery, drag, wind, touchdown), `tests/demo-drone.test.ts` (the course, the crash cases, the preview), `tests/drone-editor.test.ts` (the editor piece, Fix it, the lesson); `scripts/drone-check.mjs` is the browser check.
+- **Gaps:**
+  - 2D side-view flight only.
+  - The stabiliser is always on in the Course; raw thrust (no stabiliser) is in the physics (`stabiliser: false`) but only shown through the Hover lesson numbers.
+  - The rider uses the seated cart pose, not a harness pose.
+  - Wind is in the physics (`wind` gusts) but the demo is calm.

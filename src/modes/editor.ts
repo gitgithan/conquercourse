@@ -16,6 +16,9 @@ import { fixRecoil } from '../slice/fixrecoil';
 import { withBand } from '../slice/band-lane';
 import { fixBand } from '../slice/fixband';
 import { CUP, PATTERNS, stackPiece, stackSrc } from '../slice/stack';
+import { DRONE_PAD_LENGTH, withDrone, type DroneCfg } from '../slice/drone-lane';
+import { fixDrone } from '../slice/fixdrone';
+import { CUP, PATTERNS, patternOf, stackPiece, stackSrc } from '../slice/stack';
 import { fixLayout } from '../slice/fixit';
 import { layoutToPieces, parseLayout } from '../slice/photo-course';
 import { proves } from '../slice/photo-proof';
@@ -214,6 +217,20 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
   const bandLabel = el('label', addBar, { text: 'Stiffness (N/m) ' }); bandLabel.style.display = 'none';
   const bandInput = el('input', bandLabel, { type: 'number', min: '20', max: '300', step: '5', value: '35', id: 'bandk' });
   bandInput.onchange = () => { const v = Number(bandInput.value); if (v >= 20 && v <= 300) { bandK = v; changed(); } };
+  // a drone pad (CC-87): hold E on it to board a cargo drone; the rider's weight and the battery are the knobs (the proof says whether it reaches)
+  const droneKnobs = el('span', addBar, {}); droneKnobs.style.display = 'none';
+  const droneKg = el('input', el('label', droneKnobs, { text: 'Rider (kg) ' }), { type: 'number', min: '30', max: '250', step: '5', value: '70', id: 'dronekg' });
+  const droneWh = el('input', el('label', droneKnobs, { text: 'Battery (Wh) ' }), { type: 'number', min: '10', max: '1000', step: '10', value: '50', id: 'dronewh' });
+  const syncDrone = () => { droneKnobs.style.display = droneCfg ? '' : 'none'; if (droneCfg) { droneKg.value = String(droneCfg.payload); droneWh.value = String(droneCfg.battery); } };
+  el('button', addBar, { text: 'Drone', id: 'adddrone', title: 'A pad with a cargo drone: hold E on it to board and fly across (thrust against weight, battery, lean)' }).onclick = () => {
+    if (dronePiece()) return;
+    const device = makeDroneDevice(70, 50);
+    pieces.push(device); selected = device.id;
+    changed(); syncDrone();
+    view.cx = device.x; view.cz = device.z; view3d.look(0, 65, { x: device.x, z: device.z }, 13);
+  };
+  const droneEdit = () => { const m = Number(droneKg.value), b = Number(droneWh.value); if (droneCfg && m >= 30 && m <= 250 && b >= 10 && b <= 1000) { const len = dronePiece()?.src?.split(':')[4] ?? String(DRONE_PAD_LENGTH); updateDeviceSource('device:drone', `device:drone:${m}:${b}:${len}`); changed(); } };
+  droneKg.onchange = droneEdit; droneWh.onchange = droneEdit;
   // stacks: sport-stacking cups (mouth down, pyramids) as obstacle shapes; the piece scale makes a 9 cm cup runner-sized
   el('strong', addBar, { text: 'Stacks:' });
   for (const pt of PATTERNS) {
@@ -489,6 +506,14 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
         document.documentElement.dataset.fixed = '0';
         return;
       }
+      if (droneCfg && !trebuchetKg && !verdict.startsWith('The simulator can')) { // the drone is the first thing to change: a bigger battery or a lighter rider
+        const fd = fixDrone(courseNow(), droneCfg, droneRange());
+        reply.className = fd.ok ? 'reply ok' : 'reply bad';
+        reply.textContent = fd.ok ? (fd.steps[0] ?? 'It already works.') : fd.steps.join(' ');
+        document.documentElement.dataset.fixed = fd.ok ? '1' : '0';
+        if (fd.ok && fd.steps.length) el('button', reply, { text: 'Use it', className: 'go', id: 'usedrone' }).onclick = () => { const len = dronePiece()?.src?.split(':')[4] ?? String(DRONE_PAD_LENGTH); updateDeviceSource('device:drone', `device:drone:${fd.cfg.payload}:${fd.cfg.battery}:${len}`); changed(); };
+        return;
+      }
       if (recoilCfg && !trebuchetKg && !verdict.startsWith('The simulator can')) { // the launcher is the first thing to change: a heavier or faster ball
         const fr = fixRecoil(courseNow(), recoilCfg);
         reply.className = fr.ok ? 'reply ok' : 'reply bad';
@@ -695,7 +720,7 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
     if (!p) { el('div', side, { className: 'muted', text: 'Click a piece on the picture to choose it. Drag it to move it. Scroll to zoom, drag the background to pan.' }); return; }
     if (isDevice(p)) {
       const u = p.x * Math.cos(angle) + p.z * Math.sin(angle);
-      const sameKind = pieces.filter((q) => p.src?.startsWith('device:trebuchet:') ? q.src?.startsWith('device:trebuchet:') : q.src?.startsWith('device:cannon:') || q.src?.startsWith('device:crate:'));
+      const sameKind = pieces.filter((q) => p.src?.startsWith('device:trebuchet:') ? q.src?.startsWith('device:trebuchet:') : p.src?.startsWith('device:drone:') ? q.src?.startsWith('device:drone:') : q.src?.startsWith('device:cannon:') || q.src?.startsWith('device:crate:'));
       const active = sameKind[0]?.id === p.id;
       el('div', side, { className: 'muted', text: `${active ? 'Active in the course simulation' : 'Extra movable copy; the course currently simulates the first device of this type'} at ${u.toFixed(1)} m along the lane. Drag it in the 3D view or top plan. Size and orientation stay fixed.` });
       const row = el('div', side, { className: 'row' });
@@ -796,6 +821,11 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
     const len = Math.max(0.8, x1 - x0), src = `device:${kind}:${mass}:${muzzle}:${len}`;
     return makeDevice(src, kind === 'crate' ? 'Heavy crate' : kind === 'bigcannon' ? 'Cannon' : 'Launcher', (x0 + x1) / 2);
   };
+  const makeDroneDevice = (payload: number, battery: number): P => {
+    const base = roleCourse(coursePieces(), { angle, offset, level }, 'My world').course, withPad = withDrone(base, { payload, battery });
+    const pad = withPad.drone, x0 = pad?.x0 ?? base.startX + 1.5, x1 = pad?.x1 ?? base.startX + 1.5 + DRONE_PAD_LENGTH;
+    return makeDevice(`device:drone:${payload}:${battery}:${Math.max(2, x1 - x0)}`, 'Drone', (x0 + x1) / 2);
+  };
   const updateDeviceSource = (prefix: string, src: string) => {
     const p = pieces.find((q) => q.src?.startsWith(prefix));
     if (p) { p.src = src; p.mesh = centred(deviceMesh(src)); }
@@ -807,6 +837,9 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
   let bandK: number | null = null; // the lane starts at an elastic band (its stiffness in N/m)
   let trebuchetKg: number | null = null; // the lane starts in a trebuchet (the counterweight in kg), or on a plain deck
   let recoilCfg: RecoilCfg | null = null; // the start deck carries a launcher pad (CC-66), or not
+  let droneCfg: DroneCfg | null = null; // the lane has a drone pad (CC-87), or not
+  const dronePiece = () => pieces.find((p) => p.src?.startsWith('device:drone:'));
+  const droneRange = () => { const p = dronePiece(); if (!p) return undefined; const u = p.x * Math.cos(angle) + p.z * Math.sin(angle), length = Number(p.src?.split(':')[4]) || DRONE_PAD_LENGTH; return { x0: u - length / 2, x1: u + length / 2 }; };
   const recoilPiece = () => pieces.find((p) => p.src?.startsWith('device:cannon:') || p.src?.startsWith('device:bigcannon:') || p.src?.startsWith('device:crate:'));
   const recoilRange = () => { const p = recoilPiece(); if (!p) return undefined; const u = p.x * Math.cos(angle) + p.z * Math.sin(angle), length = Number(p.src?.split(':')[4]) || RECOIL_PAD_LENGTH; return { x0: u - length / 2, x1: u + length / 2 }; };
   function syncDeviceState() {
@@ -814,12 +847,15 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
     trebuchetKg = tre ? Number(tre.src!.split(':')[2]) || 1200 : null;
     const recoil = recoilPiece(), parts = recoil?.src?.split(':');
     recoilCfg = recoil && parts ? { kind: parts[1] as 'cannon' | 'crate' | 'bigcannon', ballMass: Number(parts[2]) || 12, muzzle: Number(parts[3]) || 30 } : null;
+    const dr = dronePiece(), dparts = dr?.src?.split(':');
+    droneCfg = dr && dparts ? { payload: Number(dparts[2]) || 70, battery: Number(dparts[3]) || 50 } : null;
     trebLabel.style.display = trebuchetKg ? '' : 'none'; trebInput.value = String(trebuchetKg ?? 1200);
-    syncRecoil();
+    syncRecoil(); syncDrone();
   }
   const laneCourse = (_p?: ReturnType<typeof currentProfile>) => {
     const c = roleCourse(coursePieces(), { angle, offset, level }, 'My world').course;
     if (trebuchetKg) { const p = pieces.find((q) => q.src?.startsWith('device:trebuchet:')); const u = p ? p.x * Math.cos(angle) + p.z * Math.sin(angle) + TREBUCHET_PIVOT_FROM_CENTRE * p.scale : 0; return withTrebuchet(c, trebuchetKg, u); }
+    if (droneCfg) return withDrone(c, droneCfg, droneRange());
     return recoilCfg ? withRecoil(c, recoilCfg, recoilRange()) : bandK ? withBand(c, bandK) : c;
   };
   // what this course was cut from, so the Course can open the same pieces again (CC-80); a world with a map piece cannot be kept: its mesh is too big

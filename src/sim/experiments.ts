@@ -11,6 +11,7 @@ import { DEFAULT_TREBUCHET, deg, launchStep, startLaunch, type TrebuchetParams }
 import { DEFAULT_CART, cartStep, makeRails } from './cart';
 import { DEFAULT_CANNON, DEFAULT_RECOIL, ballSpeedFromRest, levelRange, shot, standingPush } from './recoil';
 import { RIDER_MASS, sagAt, worstCase, type PlankData } from './beam';
+import { DEFAULT_DRONE, boardDrone, droneStep, rotorPower, weight, type DroneParams } from './drone';
 
 // The Dojo's experiments: one obstacle each, a few knobs, one question. Every answer comes from running the
 // simulator, never from a formula typed in here, so the lesson is always true to the game's physics.
@@ -30,7 +31,7 @@ export interface Trial {
   note?: string; // plain-words outcome
 }
 export interface Experiment {
-  id: 'gap' | 'wall' | 'rope' | 'trampoline' | 'landing' | 'bars' | 'coaster' | 'lever' | 'recoil' | 'bridge' | 'cannon' | 'stored';
+  id: 'gap' | 'wall' | 'rope' | 'trampoline' | 'landing' | 'bars' | 'coaster' | 'lever' | 'recoil' | 'bridge' | 'cannon' | 'stored' | 'drone';
   name: string;
   question: string;
   answerUnit: string;
@@ -384,7 +385,40 @@ const cannonExp: Experiment = {
   },
 };
 
-export const EXPERIMENTS: Experiment[] = [gap, wall, rope, trampoline, landingExp, bars, coaster, leverExp, recoilExp, bridge, cannonExp, storedExp];
+// The thrust a drone needs to hold its height at a lean, measured by flying the drone: the stabiliser settles on the push that keeps it level.
+export function holdThrust(payload: number, leanDeg: number): { thrust: number; weight: number; power: number } {
+  const p: DroneParams = { ...DEFAULT_DRONE, payload, drag: 0, leanLag: 0.01, maxLean: (leanDeg * Math.PI) / 180, maxThrust: 1e6 };
+  let s = { ...boardDrone(p, 0, 0), y: 50, hold: 50 };
+  for (let i = 0; i < 360; i++) s = droneStep(s, { lean: leanDeg > 0 ? 1 : 0, climb: 0 }, p);
+  return { thrust: s.thrust, weight: weight(p), power: rotorPower(s.thrust, p) };
+}
+
+const droneExp: Experiment = {
+  id: 'drone', name: 'Hover: push against weight', question: 'How hard must the rotors push to just hold the drone up?', answerUnit: 'N', answerMax: 6000, axis: 'meter', primary: 'payload',
+  knobs: [
+    { id: 'payload', label: 'Weight of the rider', unit: 'kg', min: 0, max: 200, def: 70, step: 5, why: 'Everything the drone carries has to be held up by the rotors, so a heavier rider needs a harder push.' },
+    { id: 'lean', label: 'How far the drone leans', unit: '°', min: 0, max: 60, def: 0, step: 1, why: 'A leaning drone pushes partly sideways, which is how it moves. Only the upward part holds it up, so it has to push harder in total.' },
+  ],
+  sayings: ['Lean to go, but a leaning drone must push harder to stay up.'],
+  run(v) {
+    const h = holdThrust(v.payload, v.lean), a = (v.lean * Math.PI) / 180, W = h.weight;
+    const cx = 2.2, cy = 1.6, k = 1 / 1300; // metres of arrow per newton
+    const up = (len: number, ang: number): Point[] => [{ x: cx, y: cy }, { x: cx + len * Math.sin(ang), y: cy + len * Math.cos(ang) }];
+    return {
+      answer: h.thrust,
+      path: [{ x: cx - 0.9, y: cy }, { x: cx - 0.3, y: cy }, { x: cx + 0.3, y: cy }, { x: cx + 0.9, y: cy }], // the frame of the drone
+      overlays: [
+        { pts: up(h.thrust * k, a), color: '#16a34a', label: `push, ${h.thrust.toFixed(0)} N` },
+        { pts: [{ x: cx, y: cy }, { x: cx, y: cy - W * k }], color: '#e8622c', label: `weight, ${W.toFixed(0)} N` },
+        { pts: [{ x: cx, y: cy }, { x: cx, y: cy + W * k }], color: '#16a34a88', label: 'the upward part equals the weight' },
+      ],
+      people: [{ x: cx, y: 0, pose: 'stand', label: `rider, ${v.payload.toFixed(0)} kg` }],
+      note: `The drone and a ${v.payload.toFixed(0)} kg rider weigh ${W.toFixed(0)} N. Leaning ${v.lean.toFixed(0)}° the rotors must push ${h.thrust.toFixed(0)} N to hold the height, ${(h.thrust / W).toFixed(2)} times the weight, and that costs ${(h.power / 1000).toFixed(1)} kW from the battery. Push less and it sinks; push more and it climbs.`,
+    };
+  },
+};
+
+export const EXPERIMENTS: Experiment[] = [gap, wall, rope, trampoline, landingExp, bars, coaster, leverExp, recoilExp, bridge, cannonExp, storedExp, droneExp];
 export const defaults = (e: Experiment, ctx: Context = {}): Record<string, number> => {
   const d = Object.fromEntries(e.knobs.map((k) => [k.id, k.def]));
   if (e.id === 'gap' && ctx.speed) d.speed = Math.min(10, Math.max(2, ctx.speed));

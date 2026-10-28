@@ -193,3 +193,20 @@ export function predictCart(w: WorldState, course: CourseData, maxTicks = 120 * 
   }
   return { path, result: 'other-move', why: s.cart?.started ? 'Rolling.' : 'Press → to push off.' };
 }
+
+// "If I stop leaning and come down now, what happens?": the same drone physics run on with the arrows released and the down arrow held, E held all the way (used by the debug view).
+export function predictDrone(w: WorldState, course: CourseData, maxTicks = 120 * 40): Prediction {
+  if (w.mode !== 'drone' || w.outcome !== 'running') return { path: [], result: 'other-move', why: 'Run onto the pad and hold E to board the drone.' };
+  const path = [{ x: w.runner.x, y: w.runner.y }];
+  let s = w, before = w;
+  for (let i = 0; i < maxTicks; i++) {
+    before = s;
+    s = stepWorld(s, { ...NO_INPUT, handL: true, handR: true, squat: true }, course);
+    if (s.mode !== 'drone' || s.outcome !== 'running') path.push({ x: before.runner.x, y: before.runner.y }); // the last two points are one tick apart, so the debug view reads the real speed into the ground
+    if (i % 4 === 0 || s.mode !== 'drone') path.push({ x: s.runner.x, y: s.runner.y });
+    if (s.outcome === 'splash') return { path, result: 'splash', landX: s.runner.x, why: s.events.some((e) => e.type === 'drone-empty') ? 'The battery runs out first and the drone falls into the water.' : 'You come down over the water, short of the deck.' };
+    if (s.outcome === 'hurt') return { path, result: 'hurt', landX: s.runner.x, why: 'The drone touches down too fast or tilted, or flies into the side of a deck.' };
+    if (s.mode !== 'drone') return { path, result: 'lands', landX: s.runner.x, why: `The drone sets you down at ${s.runner.x.toFixed(1)} m.` };
+  }
+  return { path, result: 'lands', why: 'Still flying at the end of the preview.' };
+}

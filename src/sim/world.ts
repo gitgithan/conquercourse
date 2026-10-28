@@ -15,16 +15,17 @@ import { AIM_RATE, DEFAULT_RECOIL, NO_RECOIL, clampAim, isAimable, padHas, shot,
 import { maybeEnterPlank, stepPlankWorld, type PlankState } from './beam';
 import { CLIMB_CATCH_TICKS, CLIMB_COST, CLIMB_EXIT_SPEED, CLIMB_HOLD_TICKS, findClimb, type Climb } from './climb';
 import { enterBand, stepBandWorld, type Band } from './band';
+import { DEFAULT_DRONE, boardDrone, droneStep, feetOfDrone, softTouchdown, type DroneParams, type DroneState } from './drone';
 import { DEFAULT_TREBUCHET, deg, feetAt, isDud, launchStep, startLaunch, type Launch, type TrebuchetParams } from './trebuchet';
 
 // One world for the Course: the runner plus whichever obstacle has hold of the runner right now.
 // The simulator is the truth: everything the screen shows comes from this state, one tick at a time.
-export type Mode = 'run' | 'wall' | 'swing' | 'bounce' | 'hang' | 'vault' | 'cart' | 'launch' | 'plank' | 'climb' | 'band';
+export type Mode = 'run' | 'wall' | 'swing' | 'bounce' | 'hang' | 'vault' | 'cart' | 'launch' | 'plank' | 'climb' | 'band' | 'drone';
 export type Outcome = 'running' | 'cleared' | 'splash' | 'hurt' | 'stalled'; // hurt: a landing harder than the body can take; stalled: the cart ran out of speed on a hill
 
 export interface GameEvent {
   tick: number;
-  type: 'jump' | 'roll' | 'land' | 'stumble' | 'hard-landing' | 'splash' | 'wall-grab' | 'wall-slide' | 'rope-catch' | 'rope-release' | 'hang-catch' | 'hang-release' | 'vault' | 'climb' | 'climb-drop' | 'bounce' | 'cleared' | 'cart-start' | 'cart-stall' | 'cart-off' | 'cart-catch' | 'launch-fire' | 'launch-release' | 'launch-dud' | 'recoil' | 'plank-sag' | 'plank-break' | 'plank-off' | 'band-release' | 'band-snap';
+  type: 'jump' | 'roll' | 'land' | 'stumble' | 'hard-landing' | 'splash' | 'wall-grab' | 'wall-slide' | 'rope-catch' | 'rope-release' | 'hang-catch' | 'hang-release' | 'vault' | 'climb' | 'climb-drop' | 'bounce' | 'cleared' | 'cart-start' | 'cart-stall' | 'cart-off' | 'cart-catch' | 'launch-fire' | 'launch-release' | 'launch-dud' | 'recoil' | 'plank-sag' | 'plank-break' | 'plank-off' | 'band-release' | 'band-snap' | 'drone-board' | 'drone-land' | 'drone-drop' | 'drone-crash' | 'drone-empty';
   detail?: Record<string, number | boolean>;
 }
 
@@ -41,6 +42,7 @@ export interface WorldState {
   vault: Vault | null; // going over an obstacle with a hand on top
   climb: Climb | null; // hanging from a wall's top edge and pulling up (src/sim/climb.ts)
   launch: Launch | null; // sitting in the trebuchet's sling (before the pin and while it swings)
+  drone?: DroneState | null; // riding the cargo drone (src/sim/drone.ts)
   recoil?: RecoilState; // the launcher clipped on at a recoil pad: loads left, shots fired, balls in flight (src/sim/recoil.ts)
   cart: Cart | null; // riding the rails of a track (src/sim/cart.ts)
   plank?: PlankState | null; // walking on a plank bridge (src/sim/beam.ts)
@@ -78,6 +80,7 @@ export function newWorld(course: CourseData, x: number = course.startX): WorldSt
 
 export const recoilParams = (c: CourseData): RecoilParams => ({ ...DEFAULT_RECOIL, ...(c.recoil ?? {}) } as RecoilParams);
 export const trebuchetParams = (c: CourseData): TrebuchetParams => ({ ...DEFAULT_TREBUCHET, ...(c.trebuchet ?? {}) } as TrebuchetParams);
+export const droneParams = (c: CourseData): DroneParams => ({ ...DEFAULT_DRONE, ...(c.drone ?? {}) } as DroneParams);
 const wallParams = (c: CourseData): WallParams => ({ ...DEFAULT_WALL, ...(c.wall ?? {}) });
 const ropeParams = (c: CourseData): RopeParams => ({ ...DEFAULT_ROPE, ...(c.rope ?? {}) });
 
@@ -110,6 +113,14 @@ export function stepWorld(w: WorldState, input: RunnerInput, course: CourseData,
   if (w.mode === 'launch') return stepLaunchMode(w, input, course);
   if (w.mode === 'plank') return stepPlankWorld(w, input, course);
   if (course.planks) { const onPlank = maybeEnterPlank(w, input, course); if (onPlank) return onPlank; }
+  if (w.mode === 'drone') return stepDroneMode(w, input, course);
+
+  // the drone pad: standing on it with E held boards the cargo drone, which lifts a little way off the ground
+  if (course.drone && w.runner.grounded && (input.handL || input.handR) && w.runner.x >= course.drone.x0 && w.runner.x <= course.drone.x1) {
+    const dp = droneParams(course);
+    ev('drone-board');
+    return { ...w, mode: 'drone', drone: boardDrone(dp, w.runner.x, w.runner.y), lastPress: n.lastPress, events, runner: { ...w.runner, tick, vx: 0, vy: 0, grounded: false } };
+  }
 
   // the vault: a hand on top of the obstacle just ahead, the body goes over it and keeps most of the speed
   if (n.lastVault >= 0 && !course.off?.includes('vault') && w.runner.tick + 1 - n.lastVault <= VAULT_BUFFER && w.runner.grounded) { // a V pressed up to a fifth of a second early still counts
@@ -379,6 +390,50 @@ function stepLaunchMode(w: WorldState, input: RunnerInput, course: CourseData): 
     return { ...w, mode: 'run', launch: null, noCatchUntil: tick, events, runner: { ...w.runner, tick, x: f.x, y: f.y, vx: f.vx, vy: f.vy, grounded: false } };
   }
   return { ...w, launch: ln, events, runner: { ...w.runner, tick, x: f.x, y: f.y, vx: f.vx, vy: f.vy, grounded: !ln.fired } };
+}
+
+// The cargo drone: the arrows lean it and climb it, E keeps the rider holding on. Letting go low steps off; letting go high is a drop. A soft touchdown sets the rider down; a hard one ends the run.
+function stepDroneMode(w: WorldState, input: RunnerInput, course: CourseData): WorldState {
+  const dp = droneParams(course);
+  const tick = w.runner.tick + 1;
+  const d = w.drone!;
+  const events: GameEvent[] = [];
+  const ground = (x: number) => groundAt(course.terrain, x);
+  const f0 = feetOfDrone(d, dp);
+  if (!(input.handL || input.handR)) { // the rider lets go
+    const gy = ground(f0.x);
+    if (Number.isFinite(gy) && f0.y - gy <= 0.6) {
+      events.push({ tick, type: 'drone-land', detail: { vy: d.vy, vx: d.vx, stepped: true } });
+      return { ...w, mode: 'run', drone: null, noCatchUntil: tick, events, runner: { ...w.runner, tick, x: f0.x, y: gy, vx: d.vx * 0.6, vy: 0, grounded: true } };
+    }
+    events.push({ tick, type: 'drone-drop', detail: { height: f0.y - (Number.isFinite(gy) ? gy : course.terrain.waterY), vx: d.vx, vy: d.vy } });
+    return { ...w, mode: 'run', drone: null, noCatchUntil: tick, events, runner: { ...w.runner, tick, x: f0.x, y: f0.y, vx: d.vx, vy: d.vy, grounded: false } };
+  }
+  const lean = input.run && !input.left ? 1 : input.left && !input.run ? -1 : 0;
+  const climb = input.up && !input.squat ? 1 : input.squat && !input.up ? -1 : 0;
+  let d2 = droneStep(d, { lean: lean as -1 | 0 | 1, climb: climb as -1 | 0 | 1 }, dp);
+  if (d2.y > 60) d2 = { ...d2, y: 60, vy: Math.min(0, d2.vy) }; // the ceiling
+  if (d2.empty && !d.empty) events.push({ tick, type: 'drone-empty' });
+  const f = feetOfDrone(d2, dp);
+  if (f.y < course.terrain.waterY) {
+    events.push({ tick, type: 'splash', detail: { x: f.x } });
+    return { ...w, drone: d2, outcome: 'splash', events, runner: { ...w.runner, tick, x: f.x, y: f.y, vx: d2.vx, vy: d2.vy, grounded: false, splashed: true } };
+  }
+  const gy = ground(f.x);
+  if (d2.vy <= 0 && Number.isFinite(gy) && f.y <= gy) { // the skids meet the ground
+    const fromAbove = f0.y >= gy - 0.05; // a drone that was above this ground a moment ago lands; one that was below it has flown into the side of the deck
+    if (!fromAbove) {
+      events.push({ tick, type: 'drone-crash', detail: { vy: d2.vy, vx: d2.vx, lean: d2.lean, side: true } });
+      return { ...w, drone: d2, outcome: 'hurt', events, runner: { ...w.runner, tick, x: f0.x, y: f0.y, vx: 0, vy: 0, grounded: false } };
+    }
+    if (softTouchdown(d2)) {
+      events.push({ tick, type: 'drone-land', detail: { vy: d2.vy, vx: d2.vx } });
+      return { ...w, mode: 'run', drone: null, noCatchUntil: tick, events, runner: { ...w.runner, tick, x: f.x, y: gy, vx: d2.vx * 0.6, vy: 0, grounded: true } };
+    }
+    events.push({ tick, type: 'drone-crash', detail: { vy: d2.vy, vx: d2.vx, lean: d2.lean } });
+    return { ...w, drone: d2, outcome: 'hurt', events, runner: { ...w.runner, tick, x: f.x, y: gy, vx: 0, vy: 0, grounded: true } };
+  }
+  return { ...w, drone: d2, events, runner: { ...w.runner, tick, x: f.x, y: f.y, vx: d2.vx, vy: d2.vy, grounded: false } };
 }
 
 function stepBounce(w: WorldState, input: RunnerInput): WorldState {

@@ -30,6 +30,14 @@ export function deviceMesh(src: string): Mesh {
     beam(-4.3, 2.1, 1.3, 6.3, 0.42, 0.5), beam(-4.3, 2.1, -7.05, 0.9, 0.07, 0.07),
     block(0.8, 0.85, 0.75, -7.05, 0), block(1.05, 1.2, 1.05, 1.3, 5.65),
   ]);
+  if (src.startsWith('device:drone:')) { // a pad with a cargo drone resting on it: body, battery, four arms with rotor discs, skids
+    const len = Math.max(2, Number(src.split(':')[4]) || 4);
+    return join([
+      block(len, 0.12, 1.5, 0, 0), block(1.5, 0.28, 0.9, 0, 1.25), block(0.9, 0.18, 0.6, 0, 1.5),
+      block(0.05, 1.1, 0.05, -0.6, 0.15), block(0.05, 1.1, 0.05, 0.6, 0.15), block(1.7, 0.05, 0.07, 0, 0.14),
+      block(1.3, 0.04, 0.5, -1.1, 1.4), block(1.3, 0.04, 0.5, 1.1, 1.4),
+    ]);
+  }
   const [, kind = 'cannon', , , rawLength] = src.split(':');
   const padLength = Math.max(0.8, Number(rawLength) || RECOIL_PAD_LENGTH);
   const pad = block(padLength, 0.12, 1.3, 0, 0);

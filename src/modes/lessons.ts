@@ -5,6 +5,7 @@ import { GRAVITY } from '../sim/units';
 import { MATERIALS, RIDER_MASS, secondMoment, worstCase, type PlankData } from '../sim/beam';
 import { DEFAULT_WALL } from '../sim/wall';
 import { DEFAULT_RECOIL } from '../sim/recoil';
+import { DEFAULT_DRONE, hoverPower } from '../sim/drone';
 
 // The guided lesson for each obstacle: why it matters, what to try, what shape the relationship has, a rule of
 // thumb, the exact formula (earned, last), and what it means on the Course. Plain words; formulas only here.
@@ -93,6 +94,17 @@ export const LESSONS: Record<Experiment['id'], Lesson> = {
     inputs: ['near', 'far'],
     calc: (v) => { const m = (RIDER_KG * v.far) / v.near; return { label: 'weight that balances you', value: m, unit: 'kg', working: `${RIDER_KG} × ${v.far.toFixed(1)} ÷ ${v.near.toFixed(2)} = ${m.toFixed(0)} kg`, note: `Your moment is ${RIDER_KG} × ${v.far.toFixed(1)} = ${(RIDER_KG * v.far).toFixed(0)} kg·m. The weight must match it.` }; },
     apply: () => 'On the Launch course, the weight is 1200 kg at 1.3 m, which is a moment of 1560 kg·m against your 80 kg at 5.5 m, 440 kg·m. The weight wins by a lot, so the arm turns hard. Pull the pin with →, then press Space at the moment the hint says LET GO NOW.',
+  },
+  drone: {
+    why: 'A drone hangs in the air only while its rotors push up as hard as gravity pulls down. Push less and it sinks; push more and it climbs; push exactly the weight and it hovers. Everything it carries counts, and so does leaning: to move sideways a drone leans, and then part of its push goes sideways, so it must push harder to stay up.',
+    tries: ['Keep the lean at 0 and drag the rider from 0 to 200 kg: watch the push needed.', 'Put the rider back to 70 kg and drag the lean from 0° to 50°.', 'Find the lean where the push needed is 20% more than the weight.'],
+    shapeWords: { direct: 'a straight line: every extra kilogram of rider needs the same extra push (a direct proportion with a starting value, because the drone itself weighs something).', other: 'a curve that bends upward: a little lean costs almost nothing, a lot of lean costs a lot.' },
+    rule: 'To hold its height the drone pushes up with exactly its weight. Leaning tilts the push, so only part of it is upward, and the rotors have to push harder in total. The more it leans, the more extra push, and the more battery it burns.',
+    formula: 'push needed = (drone mass + rider mass) × g ÷ cos(lean angle)',
+    formulaWords: 'This is exact for a drone that holds its height (g = 9.81 m/s², mass in kilograms, push in newtons). cos(lean) is 1 when it is level and gets smaller as it leans, so dividing by it makes the push bigger. The battery pays for push to the power one and a half, so extra push costs even more battery than it looks.',
+    inputs: ['payload', 'lean'],
+    calc: (v) => { const m = DEFAULT_DRONE.droneMass + v.payload, T = (m * GRAVITY) / Math.cos((v.lean * Math.PI) / 180); return { label: 'push needed to hold the height', value: T, unit: 'N', working: `(${DEFAULT_DRONE.droneMass} + ${v.payload.toFixed(0)}) × ${GRAVITY} ÷ cos(${v.lean.toFixed(0)}°) = ${T.toFixed(0)} N` }; },
+    apply: () => { const p = DEFAULT_DRONE, W = (p.droneMass + p.payload) * GRAVITY, T = W / Math.cos(p.maxLean); return `On the Drone course the drone and your ${p.payload} kg weigh ${W.toFixed(0)} N, so hovering takes ${(hoverPower(p) / 1000).toFixed(1)} kW. Leaning to the arrows' full lean (${((p.maxLean * 180) / Math.PI).toFixed(0)}°) needs ${T.toFixed(0)} N, ${(100 * (T / W - 1)).toFixed(0)}% more.\nThe pack holds ${p.battery} Wh, which is about ${(p.battery * 3600 / hoverPower(p)).toFixed(0)} seconds of hovering, so do not waste time: lean forward, then lean back, then come down over the far deck.`; },
   },
   recoil: {
     why: 'When the launcher throws a ball backward, the ball does not just leave: it pushes you the other way. The push each side carries is its mass times its speed, and the two are equal and opposite. A heavy ball moves slowly and a lighter runner moves fast, but what they carry is the same.',

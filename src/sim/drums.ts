@@ -10,7 +10,7 @@ import { newWorld, stepWorld } from './world';
 export interface Drum {
   x: number; // m along the course at the moment of the press
   note?: string; // a few words on the drum (the aim of a cannon)
-  what: 'jump' | 'let go' | 'bounce' | 'vault' | 'grab' | 'release' | 'roll' | 'fire' | 'aim' | 'turn';
+  what: 'jump' | 'let go' | 'bounce' | 'vault' | 'grab' | 'release' | 'roll' | 'fire' | 'aim' | 'turn' | 'board';
 }
 
 export function drumsFor(course: CourseData, plan: Plan = course.plan ?? searchIdealRun(course).plan, maxTicks = 120 * 80): Drum[] {
@@ -47,6 +47,7 @@ export function drumsFor(course: CourseData, plan: Plan = course.plan ?? searchI
     if (prevMode !== 'hang' && w.mode === 'hang') drums.push({ x: w.runner.x, what: 'grab' }); // E closes on the bar
     if (prevMode !== 'climb' && w.mode === 'climb') drums.push({ x: w.runner.x, what: 'grab' }); // E closes on a wall's edge
     if (prevMode === 'hang' && w.mode !== 'hang') drums.push({ x: w.runner.x, what: 'release' }); // both hands let go
+    if (prevMode !== 'drone' && w.mode === 'drone') drums.push({ x: w.runner.x, what: 'board' }); // hold E on the pad
     prevMode = w.mode;
     still = w.mode === 'run' && w.runner.grounded && Math.abs(w.runner.vx) < 0.01 ? still + 1 : 0;
     if (still > 180) break;
