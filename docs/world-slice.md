@@ -444,3 +444,50 @@ The set of obstacle shapes is fixed, and each shape offers a fixed set of moves.
   - Cups are shapes, not rigid bodies: they do not fall over.
   - At scale 3 or less the steps are about as narrow as a 10 cm cell, so the outline is blurred.
   - The stack is one row of pyramids across the lane (four cups wide), not a free 3D pile.
+
+
+## The lache swing: pivot at the bar, full circles, a real release (CC-58)
+- **So what:** the swing now pivots exactly at the bar, can go over the top and round in full circles, and a bigger pump throws the body further.
+  - The widest lache a full pump clears is about 6.8 m between the bars; 7 m is just out of reach.
+  - A gap of 3 m or less needs only the first swing; 4 m and wider need the swing built up, which takes about 2.4 s of pumping.
+- **What was wrong (the product owner, playing the lache demo):**
+  - The character swung above the bar: the body was drawn turned about its hands, but placed with its feet where the feet are, so the hands drifted off the bar by about 2 m at 90 degrees.
+    - Now the body is placed with the hands on the bar before it is turned, as the rope already did; the screenshots below show the hands on the bar at 0, 60, 120 and 180 degrees.
+    - The body also keeps facing one way on a bar (it used to turn round when the swing went backwards).
+  - The swing stopped at 100 degrees (`MAX_SWING`); that clamp is gone, and the angle wraps once round.
+  - The release was weak, but not because of the release speed: the middle of the body is half the body length (1.05 m) from the bar, and the code used 1.1 m, so the speed was already right.
+    - The real causes were the 100 degree clamp, which capped the speed at the bottom near 4.5 m/s, and a slow pump.
+    - Now the code uses one consistent rod (hands at the bar, feet at the far end): the middle is half a rod from the bar and the swing behaves like a simple pendulum two thirds of a rod long (1.4 m, a 2.4 s period, unchanged).
+- **The limit is the grip, not a wall:**
+  - The faster the body swings, the harder the bar pulls on the hands: its weight along the arms plus the pull of the circle.
+  - Hanging still the bar carries one body weight; at the bottom of a fast swing it carries much more.
+  - A body gets over the top only if it starts the bottom of the swing at about 5.3 rad/s, where the bar pulls about 4 body weights.
+  - Pumping stops adding energy when the bar would pull 97% of what the hands can hold at the bottom of the swing; that is the top speed of the swing.
+  - If the pull ever goes past the hands' limit (a hard catch), the hands open and the body flies on with its own speed (the message says "Your grip gave out").
+- **Numbers (all tunable in `DEFAULT_HANG`, `src/sim/holds.ts`):**
+  - **Grip: 5.5 body weights.**
+    - Strain-gauge bars measured about 3.5 to 3.7 body weights in ordinary forward and backward giant swings (Kopp and Reid, 1980).
+    - An old estimate puts the peak at about 4.9 (Cureton, 1939).
+    - An elite gymnast in strapped grips peaked at 5.1 body weights in a basic swing and 5.9 to 6.6 before a dismount (Cagran, Huber and Müller, ISB 2009).
+    - These are forces on the whole bar, not the hands alone, and the studies are small.
+    - 5.5 is the lower middle of the elite range: a trained ninja, not an ordinary person.
+    - Hands that hold under about 4 body weights cannot pump a full circle (a test checks this); 7 m between bars would need about 5.7.
+  - **Pump: 6 rad/s^2**, with the swing the full swing is reached in about 2.3 s; against the swing it takes energy out.
+  - **Top release speed:** about 6.8 m/s at the bottom of a full-pump swing, in the direction of the swing.
+- **Shortest pump that crosses each gap** (bars at the same height, pumping with the swing, then letting go and holding a hand up; `npx tsx scripts/swing-explore.ts`):
+
+| Gap between the bars | Shortest pump | What it means |
+|---|---|---|
+| 2 m | 0.4 s | the first swing |
+| 3 m | 0.6 s | the first swing |
+| 4 m | 2.4 s | the swing built up first |
+| 5 m | 2.4 s | the swing built up first |
+| 6 m | 2.5 s | nearly a full pump |
+| 6.5 m | 2.5 s | nearly a full pump |
+| 6.8 m | 2.5 s | the edge of what the grip allows |
+| 7 m | never | beyond the grip |
+
+- **Tests:** `tests/holds.test.ts` (energy kept over many full circles, a start just too slow does not get over the top, fastest straight down and slowest at the top, the bar's pull, a pumped swing reaches the grip and no further, weaker hands cannot circle, the release speed is omega times the middle of the body) and `tests/lache.test.ts` (wider gaps need a longer pump, 7.5 m is never crossed, without pumping not even 3 m).
+- **New demo:** the Course menu has "Wide lache: a 6 m swing" (bars 6.3 m apart), and every stored plan was regenerated.
+- **Screenshots:** `data/eval/cc-58-swing/` (`rookie-pivot.png`: the Rookie at 0, 60, 120 and 180 degrees about the bar; `custom-pivot.png`: the custom body at 60 and 120 degrees; the other custom pictures came out blank in the software renderer); `?hangtest=1.05` (radians) hangs the runner still on the first bar for pictures.
+- **Gaps:** the arms are a pose (up, straight) and not a grip animation; the body does not tuck when it goes over the top; the 180 degree picture has the bar behind the hint banner.

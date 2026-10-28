@@ -73,8 +73,8 @@
     "bouncePress": 8,
     "hands": true,
     "hangTicks": [
-      354,
-      360
+      216,
+      240
     ],
     "vaultXs": [
       21.38

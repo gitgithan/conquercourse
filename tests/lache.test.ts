@@ -3,6 +3,7 @@ import type { CourseData } from '../src/course/course';
 import { playPlan, searchIdealRun } from '../src/sim/ideal';
 import { newWorld, stepWorld } from '../src/sim/world';
 import { NO_INPUT } from '../src/sim/runner';
+import { feetOf } from '../src/sim/holds';
 
 // The lache pair: two bars in the air over water; grab the first, pump to build the swing, let go, catch the second, let go onto the far deck.
 const course = (gap: number, y = 2.9, spacing = 3.5): CourseData => ({
@@ -36,5 +37,50 @@ describe('the lache pair', () => {
     let w = newWorld(course(9), 0);
     for (let i = 0; i < 240; i++) w = stepWorld(w, { ...NO_INPUT, run: true, handL: true, handR: true }, course(9));
     expect(w.mode).toBe('run');
+  });
+});
+
+// Bars at the same height, `spacing` apart: hang from the first, pump the swing for `ticks` (with the swing, or not at all), let go, hold a hand up in the air.
+// Returns whether the second bar is caught.
+const throwBetween = (spacing: number, ticks: number, pump: boolean): boolean => {
+  const c: CourseData = {
+    version: 1, name: 'x', startX: 0, finishX: 80, jumpSpeed: 4.5,
+    terrain: { waterY: -8, platforms: [{ x0: -10, x1: 6, top: 0 }, { x0: 9 + spacing + 3, x1: 80, top: 0 }] },
+    holds: [{ x: 9, y: 2.9 }, { x: 9 + spacing, y: 2.9 }],
+  };
+  let w = newWorld(c, 0);
+  const f = feetOf(c.holds![0], { hold: 0, theta: 0, omega: 0 });
+  w = { ...w, mode: 'hang', hang: { hold: 0, theta: 0.05, omega: 0 }, runner: { ...w.runner, x: f.x, y: f.y, grounded: false } };
+  for (let i = 0; i < ticks && w.mode === 'hang'; i++) {
+    const fwd = w.hang!.omega >= 0;
+    w = stepWorld(w, { ...NO_INPUT, handL: true, handR: true, run: pump && fwd, left: pump && !fwd }, c);
+  }
+  if (w.mode !== 'hang') return false; // the grip gave out
+  w = stepWorld(w, { ...NO_INPUT }, c);
+  for (let i = 0; i < 400 && w.outcome === 'running'; i++) {
+    w = stepWorld(w, { ...NO_INPUT, run: true, handR: true }, c);
+    if (w.mode === 'hang' && w.hang!.hold === 1) return true;
+  }
+  return false;
+};
+const shortestPump = (spacing: number): number | null => { for (let t = 0; t <= 900; t += 6) if (throwBetween(spacing, t, true)) return t; return null; };
+
+describe('a bigger pump throws the body further between the bars', () => {
+  it('wider gaps between the bars need a longer pump, up to the limit of the grip', () => {
+    const need = [3, 4.5, 6].map(shortestPump);
+    expect(need.every((n) => n !== null)).toBe(true);
+    const [a, b, c] = need as number[];
+    expect(a).toBeLessThan(120); // a short gap: a first swing is enough
+    expect(b).toBeGreaterThan(a); // a wider one needs the swing built up
+    expect(c).toBeGreaterThanOrEqual(b);
+    expect(c).toBeGreaterThan(200); // two or more swings
+  });
+  it('a gap beyond what the grip allows cannot be crossed, however long the swing is pumped', () => {
+    expect(shortestPump(7.5)).toBeNull();
+  });
+  it('without any pumping even a short gap is not crossed (the catch gives almost no swing)', () => {
+    const ok: number[] = [];
+    for (let t = 0; t <= 900; t += 6) if (throwBetween(3, t, false)) ok.push(t);
+    expect(ok).toEqual([]);
   });
 });

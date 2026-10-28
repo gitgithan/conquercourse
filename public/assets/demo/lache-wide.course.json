@@ -1,0 +1,83 @@
+{
+  "version": 1,
+  "name": "Wide lache: a 6 m swing between bars",
+  "startX": 0,
+  "finishX": 62,
+  "jumpSpeed": 4.5,
+  "jumpKeep": 0.88,
+  "terrain": {
+    "waterY": -1.5,
+    "platforms": [
+      {
+        "x0": -10,
+        "x1": 22,
+        "top": 0
+      },
+      {
+        "x0": 22,
+        "x1": 30,
+        "top": 1
+      },
+      {
+        "x0": 30,
+        "x1": 36,
+        "top": 0
+      },
+      {
+        "x0": 50,
+        "x1": 70,
+        "top": 0
+      }
+    ]
+  },
+  "holds": [
+    {
+      "x": 39,
+      "y": 2.9
+    },
+    {
+      "x": 45.3,
+      "y": 2.9
+    }
+  ],
+  "zones": [
+    {
+      "id": "vault",
+      "name": "Vault",
+      "x0": 19,
+      "x1": 31
+    },
+    {
+      "id": "lache",
+      "name": "Wide lache",
+      "x0": 31,
+      "x1": 52
+    }
+  ],
+  "checkpoints": [
+    {
+      "id": "vault",
+      "x": 10
+    },
+    {
+      "id": "lache",
+      "x": 28
+    }
+  ],
+  "hazard": "spikes",
+  "plan": {
+    "jumpXs": [
+      33
+    ],
+    "releaseAfter": 60,
+    "bouncePress": 8,
+    "hands": true,
+    "hangTicks": [
+      366,
+      390
+    ],
+    "vaultXs": [
+      21.38
+    ]
+  }
+}
