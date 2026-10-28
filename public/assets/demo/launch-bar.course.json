@@ -49,8 +49,8 @@
     "bouncePress": 8,
     "hands": true,
     "hangTicks": [
-      24
+      18
     ],
-    "launchRelease": 237
+    "launchRelease": 241
   }
 }
