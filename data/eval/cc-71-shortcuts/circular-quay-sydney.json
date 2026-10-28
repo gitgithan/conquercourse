@@ -1,0 +1,16 @@
+{
+  "course": "circular-quay-sydney",
+  "title": "OSM circular-quay-sydney",
+  "intendedSeconds": 5.99,
+  "searches": 1,
+  "searchSeconds": 7,
+  "complete": true,
+  "shortcuts": [],
+  "moveChoices": [
+    {
+      "move": "roll",
+      "withSeconds": 5.99,
+      "withoutSeconds": 5.85
+    }
+  ]
+}

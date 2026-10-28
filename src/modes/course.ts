@@ -748,7 +748,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
     const s = shortcuts?.[0];
     if (!s) return null;
     const box = document.createElement('div'); box.style.cssText = 'display:grid;gap:6px;margin-top:6px;padding-top:6px;border-top:1px solid #d6dcd9';
-    const t = document.createElement('span'); t.textContent = `A shortcut exists: ${s.how}. It saves ${s.secondsSaved.toFixed(1)} s.`; t.id = 'shortcutnote';
+    const t = document.createElement('span'); t.textContent = `${s.designed ? 'The course keeps a shortcut on purpose' : 'A shortcut exists'}: ${s.how}. It saves ${s.secondsSaved.toFixed(1)} s.`; t.id = 'shortcutnote';
     const b = document.createElement('button'); b.textContent = 'Watch the shortcut'; b.id = 'watchshortcut';
     b.style.cssText = 'font:inherit;border:1px solid #17201d;background:#fff;color:#17201d;border-radius:8px;padding:6px 12px;cursor:pointer;font-weight:700;justify-self:start';
     b.onclick = () => startShortcut(s);

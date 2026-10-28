@@ -62,7 +62,9 @@ describe('the course generator', () => {
   }, 60_000);
   it('the sample course in the demo folder is the generator\'s output for seed 2 and is cleared', () => {
     const file = JSON.parse(readFileSync('public/assets/demo/generated-1.course.json', 'utf8')) as CourseData;
-    expect({ ...file, name: '' }).toEqual({ ...generateCourse(2), name: '' });
+    const { shortcuts: _kept, ...sample } = file; // the stored shortcuts (CC-71) are an addition of `npm run plans`, not part of the generator's output
+    void _kept;
+    expect({ ...sample, name: '' }).toEqual({ ...generateCourse(2), name: '' });
     expect(searchIdealRun(file).cleared).toBe(true);
   }, 120_000);
 });

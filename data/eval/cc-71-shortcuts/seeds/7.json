@@ -7,8 +7,8 @@
     "Lache pair",
     "Step up"
   ],
-  "intendedSeconds": 28.1,
-  "searchSeconds": 660,
+  "intendedSeconds": 25.34,
+  "searchSeconds": 597,
   "shortcuts": [
     {
       "id": "skip-bars-1-2",
@@ -17,22 +17,10 @@
         "Bar 2"
       ],
       "how": "jump past bar 1 and bar 2",
-      "secondsSaved": 4.73,
+      "secondsSaved": 1.97,
       "seconds": 23.37,
       "pumpSeconds": null,
       "windowMs": 162,
-      "designed": false
-    },
-    {
-      "id": "skip-bar-2",
-      "skipped": [
-        "Bar 2"
-      ],
-      "how": "pump 3.01 s on the bar you hold, let go, and fly past bar 2",
-      "secondsSaved": 1.72,
-      "seconds": 26.38,
-      "pumpSeconds": 3.01,
-      "windowMs": 224,
       "designed": false
     }
   ]

@@ -981,3 +981,54 @@ The set of obstacle shapes is fixed, and each shape offers a fixed set of moves.
 - **A lane's length is not what it can do:** the search keeps the lanes with the best score (variety of obstacles), not the longest, so a flat place can show a shorter best lane when a lane with a climb scores higher.
 - **Why Montmartre did not change:** its lane (found at shrink 0.556) starts with a curved top that rises 2.6 m in 1.4 m, a slope steeper than 45 degrees, and the climb only takes vertical faces.
 - **Next:** treat a steep curved top like a wall (the edge is where the slope eases below 45 degrees).
+
+## Shortcut discovery (CC-71)
+- **So what:** the simulator now finds routes the designer did not plan, so the ideal run can show a player a shortcut they did not think was possible, and the editor and the generator can use it.
+- **How it works** (`src/sim/shortcuts.ts`):
+  - It looks at the ideal line first: does it already skip a bar?
+  - Then it switches off each bar, each pair of neighbouring bars, the wall and the rope in turn (`variantsOf`), and runs the ideal-run search on the course without it.
+  - A line counts only when it clears the real course with everything in place (bars not held are flown past: `plan.noGrab`) and is faster than the line that holds every bar.
+  - The baseline is the stored bar-to-bar route from CC-67 (`course.routes`), so nothing is searched twice.
+  - It also reports move choices: the best line with the vault or the roll switched off (`course.off`, used only by this search).
+- **Where it shows:**
+  - The Course: I and Shift+I say "Shortcut: ..." next to the ideal run.
+  - The end panel of the ideal run and of a normal clear says a shortcut exists, with a "Watch the shortcut" button (a fact, never a grade).
+  - `?bot=shortcut` plays the best one.
+  - Demo courses store their shortcuts beside the plan (`npm run plans`); any other course works them out in a worker the first time.
+  - The editor: "Look for routes you did not plan" lists them.
+  - "Close it" previews a change with the CC-63 outlines: everything after the skipped bar moves on, the smallest push that the simulator proves.
+  - "Keep it" marks the route as meant (`designedShortcuts`) and draws a dashed purple arrow in the side view.
+  - The design partner's brief carries the list (`routes_the_simulator_found_that_the_designer_did_not_plan`).
+  - The generator: `generateChecked(seed, { shortcuts: 'label' | 'refuse' })` stores the shortcuts or tries the next seeds.
+- **Shortcuts on every demo course** (planned line, shortcuts found, move choices; `data/eval/cc-71-shortcuts/`):
+
+| Course | Planned line | Shortcuts found | Move choices |
+|---|---|---|---|
+| circular-quay-sydney | 5.99 s | none | roll: 5.85 s without |
+| drop | 6.85 s | none | roll: cannot be cleared without it |
+| eixample-barcelona | 6.78 s | none | - |
+| generated-1 | 25.03 s | Bar 1 + Bar 2: jump past bar 1 and bar 2; saves 1.93 s | vault: 32.76 s without |
+| lache-wide | 14.55 s | none | vault: cannot be cleared without it |
+| lache | 10.5 s | Bar 2: pump 1.74 s on the bar you hold, let go, and fly past bar 2; saves 1.14 s (kept by the designer) | vault: cannot be cleared without it; roll: 11.39 s without |
+| lane-1 | 3.73 s | none | - |
+| lane-2 | 3.98 s | none | - |
+| launch-bar | 5.59 s | none | - |
+| launch | 3.91 s | none | roll: cannot be cleared without it |
+| montmartre-paris | 4.67 s | none | - |
+| san-francisco-lombard | 5.18 s | none | - |
+| stack | 3.03 s | none | - |
+
+- **The ones nobody planned:**
+  - **Every generated course with a lache can skip the lache by a plain jump** (11 of 11 seeds scanned, seeds 1 to 12; the one course without a lache had none).
+  - The generator's lache gap is 5.5 to 6.8 m; a plain run-and-jump clears a flat gap up to 8 m at full speed (7 m when a jump costs speed, as on bar courses).
+  - The jump saves about 2 s against swinging, so the bars are optional in all of them.
+  - **The lache demo:** a full pump on bar 1 flies over bar 2 and saves 1.14 s; CC-67 made this on purpose, so the demo keeps it (`designedShortcuts`).
+  - **Roll pays in the lache demo:** without the roll the best line takes 11.39 s against 9.36 s, because the last landing is a 3 m fall.
+  - **Required moves:** the vault in both lache demos, the roll in the drop and launch demos (they cannot be cleared without them).
+  - **No shortcut** in the lane, stack, launch, wide-lache and place courses (the OSM places have no bars, wall or rope to skip).
+- **Fallback and next steps:**
+  - The generator's lache is still skippable: its gap needs to be at least 8.5 m (and at most what two bars reach) to need the bars; `generateChecked` with `refuse` finds no course until that changes.
+  - Only single bars, neighbouring pairs, the wall and the rope are switched off (not every combination), and only the vault and the roll are compared.
+  - The band, the trebuchet and the recoil are not switched off yet.
+  - "Close it" works for bars only; for the wall and the rope it says so and leaves the change to the designer.
+  - A first look for a course without stored shortcuts takes about a minute in the worker (the table shows the search seconds per course).

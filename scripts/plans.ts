@@ -34,8 +34,7 @@ for (const f of files) {
     // routes nobody planned (src/sim/shortcuts.ts), stored beside the plan so the Course can say so at once
     const sc = findShortcuts(course, { moveChoices: false }).shortcuts;
     if (sc.length) course.shortcuts = sc;
-    writeFileSync(f, JSON.stringify(course, null, 2) + '
-');
+    writeFileSync(f, JSON.stringify(course, null, 2) + '\n');
   } else bad++;
   console.log(`${f}: ${r.cleared ? 'plan stored' : 'NOT CLEARED, no plan stored'} (${((Date.now() - t0) / 1000).toFixed(1)} s)`);
 }

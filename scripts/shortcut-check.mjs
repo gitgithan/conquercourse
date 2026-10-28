@@ -30,7 +30,7 @@ try {
   await b.keyboard.press('Shift+KeyI');
   checks.idealNoteHasShortcut = await until(b, /Shortcut: /, 60);
   await b.screenshot({ path: 'test-results/shortcut/ideal-note.png' });
-  checks.endPanelShortcut = await until(b, /A shortcut exists/, Number(process.env.SECONDS ?? 150));
+  checks.endPanelShortcut = await until(b, /(A shortcut exists|keeps a shortcut)/, Number(process.env.SECONDS ?? 150));
   await b.screenshot({ path: 'test-results/shortcut/end-panel.png' });
   if (checks.endPanelShortcut) {
     await b.click('#watchshortcut');

@@ -117,5 +117,40 @@
       90
     ],
     "hands": true
-  }
+  },
+  "shortcuts": [
+    {
+      "id": "skip-bars-1-2",
+      "skipped": [
+        "Bar 1",
+        "Bar 2"
+      ],
+      "how": "jump past bar 1 and bar 2",
+      "secondsSaved": 1.93,
+      "seconds": 23.1,
+      "pumpSeconds": null,
+      "windowMs": 11,
+      "designed": false,
+      "plan": {
+        "jumpXs": [
+          81.92,
+          126.8
+        ],
+        "releaseAfter": 60,
+        "bouncePress": 8,
+        "vaultXs": [
+          34.16
+        ],
+        "hangTicks": [
+          0,
+          0
+        ],
+        "noGrab": [
+          0,
+          1
+        ],
+        "hands": true
+      }
+    }
+  ]
 }

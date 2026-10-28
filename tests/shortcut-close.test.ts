@@ -18,7 +18,7 @@ const lane = { angle: 0, offset: 0, level: 0 };
 
 describe('Close it for a shortcut', () => {
   it('pushes the far side on until the skip over bar 2 is gone and the planned line still clears', () => {
-    const ps: P[] = [deck(0, 8), deck(14, 8), bar(6.5, 2.86), bar(10, 2.86)];
+    const ps: P[] = [deck(0, 8), deck(17, 8), bar(6.5, 2.86), bar(10, 2.86)];
     const before = findShortcuts(courseFor(ps, lane)!, { onlyIds: ['skip-bar-2'], moveChoices: false });
     expect(before.shortcuts.map((s) => s.id)).toContain('skip-bar-2');
     const r = closeShortcut(ps, lane, { id: 'skip-bar-2', skipped: ['Bar 2'] });
