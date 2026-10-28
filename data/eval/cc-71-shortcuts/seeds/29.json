@@ -1,0 +1,39 @@
+{
+  "seed": 29,
+  "name": "Generated course 29",
+  "zones": [
+    "Gap jump",
+    "Step up",
+    "Gap jump",
+    "Lache pair"
+  ],
+  "intendedSeconds": 32.08,
+  "searchSeconds": 85,
+  "shortcuts": [
+    {
+      "id": "skip-bars-1-2",
+      "skipped": [
+        "Bar 1",
+        "Bar 2"
+      ],
+      "how": "jump past bar 1 and bar 2",
+      "secondsSaved": 9.57,
+      "seconds": 22.51,
+      "pumpSeconds": null,
+      "windowMs": 11,
+      "designed": false
+    },
+    {
+      "id": "skip-bar-2",
+      "skipped": [
+        "Bar 2"
+      ],
+      "how": "pump 3.01 s on the bar you hold, let go, and fly past bar 2",
+      "secondsSaved": 6.58,
+      "seconds": 25.49,
+      "pumpSeconds": 3.01,
+      "windowMs": 11,
+      "designed": false
+    }
+  ]
+}
