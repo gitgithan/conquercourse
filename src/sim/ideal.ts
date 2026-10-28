@@ -7,6 +7,7 @@ import { rollNeeded } from './drop';
 import { CLIMB_MIN_RISE, climbMaxRise } from './climb';
 import { VAULT_MAX_RISE } from './vault';
 import { groundAt, heightAt } from './terrain';
+import { AIM_MAX, AIM_RATE, isAimable, type RecoilParams } from './recoil';
 
 // The ideal run: where to press Space at each obstacle, found by trying the simulator, and how wide the
 // window of good presses is. It is the difficulty of each obstacle as a number.
@@ -22,6 +23,7 @@ export interface Plan {
   airHands?: boolean[]; // per release: hold the hand key in the air afterwards (default true); false flies past the next bar (a skip)
   noGrab?: number[]; // bars (indexes into course.holds) the run flies past without holding (a shortcut that skips them)
   launchRelease?: number; // trebuchet: ticks after the pin is pulled at which Space lets the rider go
+  aim?: number; // a big cannon: the barrel angle (rad) the line aims at before it fires
   fireXs?: number[]; // a launcher (recoil pad): press K at the first moment the runner is at or past this x
   fireAfterJump?: number; // or press K this many ticks after the take-off, so the shot adds to a jump
   cartBrake?: [number, number][]; // a coaster: hold the brake between these x values (the first push is always given at the start)
@@ -42,11 +44,12 @@ export function inputFor(plan: Plan, w: WorldState, state: PlanState, course?: C
   if (w.mode !== 'run') return inp;
   if (w.runner.grounded) state.airSince = null; else if (state.airSince == null) state.airSince = w.runner.tick;
   if (!w.recoil || w.recoil.armed <= 0) return inp;
+  const aimed = plan.aim !== undefined ? { ...inp, aim: plan.aim } : inp; // a big cannon: tilt the barrel to the planned angle
   const byX = plan.fireXs && (state.fnext ?? 0) < plan.fireXs.length && w.runner.x >= plan.fireXs[state.fnext ?? 0];
   const byAir = plan.fireAfterJump !== undefined && state.airSince != null && w.runner.tick - state.airSince >= plan.fireAfterJump;
-  if (!byX && !byAir) return inp;
+  if (!byX && !byAir) return aimed;
   state.fnext = (state.fnext ?? 0) + 1;
-  return { ...inp, fire: true };
+  return { ...aimed, fire: true };
 }
 function inputForBase(plan: Plan, w: WorldState, state: PlanState, course?: CourseData): RunnerInput {
   if (w.mode === 'cart') { // the cart: push at the start, brake where the plan says
@@ -346,6 +349,7 @@ function searchRecoil(course: CourseData, plan: Plan, windows: Window[], score: 
   const rp = recoilParams(course);
   const e = edges(course).find((q) => q.x > rp.x1);
   if (!e) return null;
+  if (isAimable(rp)) return searchCannon(course, plan, windows, score, rp, e.x, e.name);
   type T = { sc: number; jx: number; fire: { x?: number; air?: number } };
   const mk = (jx: number, fire: { x?: number; air?: number }): Plan => ({ ...plan, jumpXs: [...plan.jumpXs, jx], ...(fire.x !== undefined ? { fireXs: [fire.x] } : {}), ...(fire.air !== undefined ? { fireAfterJump: fire.air } : {}) });
   const trial = (jx: number, fire: { x?: number; air?: number }): T => ({ sc: score(playPlan(course, mk(jx, fire), 120 * 30)), jx, fire });
@@ -365,6 +369,24 @@ function searchRecoil(course: CourseData, plan: Plan, windows: Window[], score: 
   if (mid.fire.x !== undefined) plan.fireXs = [mid.fire.x]; else plan.fireAfterJump = mid.fire.air;
   windows.push({ obstacle: `jump at ${e.name}`, best: mid.jx, lo: Math.min(...jxsGood), hi: Math.max(...jxsGood), widthMs: ((Math.max(...jxsGood) - Math.min(...jxsGood) + 0.02) / 7.4) * 1000 });
   return e.x;
+}
+// A big cannon: the barrel angle and where to fire, found together (the push goes forward and up by the angle, so the angle sets how far and how high).
+// No jump is needed: the shot lifts the runner off the deck. A landing too hard for a straight-legged landing is rolled out by the base line.
+function searchCannon(course: CourseData, plan: Plan, windows: Window[], score: (r: RunResult) => number, rp: RecoilParams, edgeX: number, name: string): number {
+  type T = { sc: number; aim: number; fx: number };
+  const trial = (aim: number, fx: number): T => ({ sc: score(playPlan(course, { ...plan, aim, fireXs: [fx] }, 120 * 30)), aim, fx });
+  const found: T[] = [];
+  const fxs = candidates(rp.x0 + 0.3, Math.max(rp.x0 + 0.3, edgeX - 0.5), 0.75);
+  for (let a = 0.05; a <= AIM_MAX - 0.04; a += 0.05) for (const fx of fxs) found.push(trial(Math.round(a * 100) / 100, fx));
+  const tops = [...found].sort((a, b) => b.sc - a.sc).slice(0, 6);
+  for (const t of tops) for (let a = t.aim - 0.04; a <= t.aim + 0.04; a += 0.01) if (a >= 0) found.push(trial(Math.round(a * 1000) / 1000, t.fx));
+  const best = Math.max(...found.map((f) => f.sc));
+  const good = found.filter((f) => f.sc >= best - 1e-9);
+  const mid = [...good].sort((a, b) => a.aim - b.aim)[Math.floor(good.length / 2)];
+  plan.aim = mid.aim; plan.fireXs = [mid.fx];
+  const aims = good.filter((g) => g.fx === mid.fx).map((g) => g.aim);
+  windows.push({ obstacle: `cannon aim at ${name}`, best: mid.aim, lo: Math.min(...aims), hi: Math.max(...aims), widthMs: ((Math.max(...aims) - Math.min(...aims) + 0.01) / AIM_RATE) * 1000 }); // the time it takes to tilt across the window
+  return edgeX;
 }
 const median = (xs: number[]): number => { const s = [...xs].sort((a, b) => a - b); return s[Math.floor(s.length / 2)]; };
 

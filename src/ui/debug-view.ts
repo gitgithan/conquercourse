@@ -1,7 +1,9 @@
 import * as THREE from 'three/webgpu';
 import type { CourseData } from '../course/course';
 import { heightAt } from '../sim/terrain';
-import { predictCart, predictJump, predictLaunch, predictRelease } from '../sim/predict';
+import { predictCart, predictJump, predictLaunch, predictRelease, predictShot } from '../sim/predict';
+import { isAimable } from '../sim/recoil';
+import { recoilParams } from '../sim/world';
 import type { WorldState } from '../sim/world';
 import { DEFAULT_WALL } from '../sim/wall';
 import { planVault, vaultAt, vaultHand, type Vault } from '../sim/vault';
@@ -76,7 +78,7 @@ export function createDebugView(scene: THREE.Scene, course: CourseData, parent: 
       box.position.set(r.x, r.y, 0); feet.position.set(r.x, r.y, 0);
       if (w.runner.tick === tick) return; // the preview only changes when the world does
       tick = w.runner.tick;
-      const pr = w.mode === 'hang' ? predictRelease(w, course) : w.mode === 'cart' ? predictCart(w, course) : w.mode === 'launch' ? predictLaunch(w, course) : predictJump(w, course);
+      const pr = w.mode === 'hang' ? predictRelease(w, course) : w.mode === 'cart' ? predictCart(w, course) : w.mode === 'launch' ? predictLaunch(w, course) : course.recoil && isAimable(recoilParams(course)) && (w.recoil?.armed ?? 0) > 0 ? predictShot(w, course) : predictJump(w, course);
       const n = pr.path.length;
       arc.geometry.dispose();
       arc.geometry = new THREE.BufferGeometry().setFromPoints(pr.path.length > 1 ? pr.path.map((q) => new THREE.Vector3(q.x, q.y, Z)) : [new THREE.Vector3(), new THREE.Vector3()]);
