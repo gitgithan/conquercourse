@@ -1,6 +1,6 @@
 import type { CourseData } from '../course/course';
 import { NO_INPUT, type RunnerInput } from './runner';
-import { newWorld, stepWorld, type GameEvent, type WorldState } from './world';
+import { newWorld, recoilParams, stepWorld, type GameEvent, type WorldState } from './world';
 import { DT } from './units';
 import { rollNeeded } from './drop';
 
@@ -15,6 +15,8 @@ export interface Plan {
   hangTicks?: number[]; // per bar: ticks to hang (pumping with the swing) before letting go
   airHands?: boolean[]; // per release: hold the hand key in the air afterwards (default true); false flies past the next bar (a skip)
   launchRelease?: number; // trebuchet: ticks after the pin is pulled at which Space lets the rider go
+  fireXs?: number[]; // a launcher (recoil pad): press K at the first moment the runner is at or past this x
+  fireAfterJump?: number; // or press K this many ticks after the take-off, so the shot adds to a jump
   cartBrake?: [number, number][]; // a coaster: hold the brake between these x values (the first push is always given at the start)
 }
 
@@ -26,7 +28,20 @@ export interface Window {
   widthMs: number; // how long the clearing window lasts, in milliseconds of game time
 }
 
-export function inputFor(plan: Plan, w: WorldState, state: { next: number; caught: number | null; bedAt: number | null; hangAt?: number | null; hangs?: number; vnext?: number }, course?: CourseData): RunnerInput {
+type PlanState = { next: number; caught: number | null; bedAt: number | null; hangAt?: number | null; hangs?: number; vnext?: number; fnext?: number; airSince?: number | null };
+// The launcher (recoil): fire at a place along the run, or a number of ticks after the take-off (a shot in the air adds to a jump)
+export function inputFor(plan: Plan, w: WorldState, state: PlanState, course?: CourseData): RunnerInput {
+  const inp = inputForBase(plan, w, state, course);
+  if (w.mode !== 'run') return inp;
+  if (w.runner.grounded) state.airSince = null; else if (state.airSince == null) state.airSince = w.runner.tick;
+  if (!w.recoil || w.recoil.armed <= 0) return inp;
+  const byX = plan.fireXs && (state.fnext ?? 0) < plan.fireXs.length && w.runner.x >= plan.fireXs[state.fnext ?? 0];
+  const byAir = plan.fireAfterJump !== undefined && state.airSince != null && w.runner.tick - state.airSince >= plan.fireAfterJump;
+  if (!byX && !byAir) return inp;
+  state.fnext = (state.fnext ?? 0) + 1;
+  return { ...inp, fire: true };
+}
+function inputForBase(plan: Plan, w: WorldState, state: PlanState, course?: CourseData): RunnerInput {
   if (w.mode === 'cart') { // the cart: push at the start, brake where the plan says
     const x = w.runner.x;
     return { ...NO_INPUT, run: !w.cart?.started, squat: !!plan.cartBrake?.some(([a, b]) => x >= a && x <= b) };
@@ -67,7 +82,7 @@ export interface RunResult { world: WorldState; events: GameEvent[]; maxX: numbe
 
 export function playPlan(course: CourseData, plan: Plan, maxTicks = 120 * 80): RunResult {
   let w = newWorld(course);
-  const st = { next: 0, caught: null as number | null, bedAt: null as number | null, hangAt: null as number | null, hangs: 0, vnext: 0 };
+  const st = { next: 0, caught: null as number | null, bedAt: null as number | null, hangAt: null as number | null, hangs: 0, vnext: 0, fnext: 0, airSince: null as number | null };
   const events: GameEvent[] = [];
   let maxX = 0;
   let still = 0;
@@ -132,8 +147,10 @@ export function searchIdealRun(course: CourseData, opts: { routes?: boolean } = 
   const progress = (): void => {};
   void progress;
   if (tre) searchLaunch(course, plan, windows, score);
+  const handled = course.recoil ? searchRecoil(course, plan, windows, score) : null; // the first gap after the pad is planned together with the shot
   for (let k = 0; k < es.length; k++) {
     const e = es[k];
+    if (handled !== null && Math.abs(e.x - handled) < 0.01) continue;
     // bars within a swing of this edge: a joint search over the press and the hang times on the first two bars (a swing and the next catch depend on each other,
     // so tuning one at a time misses lines that clear), coarse first, then finer around the best few
     if (!e.riser && holds.some((h) => h.x > e.x - 1 && h.x < e.x + 9) && plan.hangTicks) {
@@ -281,6 +298,31 @@ function searchLaunch(course: CourseData, plan: Plan, windows: Window[], score: 
   if (bars) plan.hangTicks = plan.hangTicks!.map((t, i) => (i === 0 ? centre.hang : t));
   const rels = good.filter((g) => g.hang === centre.hang).map((g) => g.rel);
   windows.push({ obstacle: 'trebuchet release', best: centre.rel, lo: Math.min(...rels), hi: Math.max(...rels), widthMs: (Math.max(...rels) - Math.min(...rels) + 1) * DT * 1000 });
+}
+// The launcher: when to fire (at a place on the ground, or some ticks after the take-off) and when to jump, found together because they depend on each other.
+function searchRecoil(course: CourseData, plan: Plan, windows: Window[], score: (r: RunResult) => number): number | null {
+  const rp = recoilParams(course);
+  const e = edges(course).find((q) => q.x > rp.x1);
+  if (!e) return null;
+  type T = { sc: number; jx: number; fire: { x?: number; air?: number } };
+  const mk = (jx: number, fire: { x?: number; air?: number }): Plan => ({ ...plan, jumpXs: [...plan.jumpXs, jx], ...(fire.x !== undefined ? { fireXs: [fire.x] } : {}), ...(fire.air !== undefined ? { fireAfterJump: fire.air } : {}) });
+  const trial = (jx: number, fire: { x?: number; air?: number }): T => ({ sc: score(playPlan(course, mk(jx, fire), 120 * 30)), jx, fire });
+  const found: T[] = [];
+  const jxs = candidates(e.x - 3, e.x, 0.1);
+  for (const jx of jxs) for (let a = 0; a <= 60; a += 6) found.push(trial(jx, { air: a })); // a shot in the air, a moment after the take-off
+  for (const jx of jxs) for (let d = 0; d <= 2; d += 0.25) found.push(trial(jx, { x: Math.max(rp.x0, jx - d) })); // or a shot on the ground just before it
+  const tops = [...found].sort((a, b) => b.sc - a.sc).slice(0, 8);
+  for (const t of tops) for (let jx = t.jx - 0.1; jx <= t.jx + 0.1; jx += 0.02) found.push(trial(Math.round(jx * 1000) / 1000, t.fire));
+  const best = Math.max(...found.map((f) => f.sc));
+  const good = found.filter((f) => f.sc >= best - 1e-9);
+  const air = good.filter((g) => g.fire.air !== undefined), ground = good.filter((g) => g.fire.x !== undefined);
+  const family = air.length >= ground.length ? air : ground; // the family with the wider window of good presses
+  const mid = [...family].sort((a, b) => a.jx - b.jx)[Math.floor(family.length / 2)];
+  const jxsGood = family.map((g) => g.jx);
+  plan.jumpXs.push(mid.jx);
+  if (mid.fire.x !== undefined) plan.fireXs = [mid.fire.x]; else plan.fireAfterJump = mid.fire.air;
+  windows.push({ obstacle: `jump at ${e.name}`, best: mid.jx, lo: Math.min(...jxsGood), hi: Math.max(...jxsGood), widthMs: ((Math.max(...jxsGood) - Math.min(...jxsGood) + 0.02) / 7.4) * 1000 });
+  return e.x;
 }
 const median = (xs: number[]): number => { const s = [...xs].sort((a, b) => a - b); return s[Math.floor(s.length / 2)]; };
 
