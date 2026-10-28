@@ -76,10 +76,14 @@ def generate(prompts: dict, samples: int):
 
 
 @app.local_entrypoint()
-def main(out: str = "data/eval/starter-clips/outputs/kimodo", samples: int = 6, only: str = ""):
+def main(out: str = "data/eval/starter-clips/outputs/kimodo", samples: int = 6, only: str = "", prompts_file: str = ""):
     os.makedirs(out, exist_ok=True)
     t = time.time()
-    chosen = {k: v for k, v in PROMPTS.items() if not only or k in only.split(",")}
+    table = PROMPTS
+    if prompts_file:  # {name: [prompt, seconds]}, written by pipelines/motion_on_demand.py for a new move
+        with open(prompts_file) as f:
+            table = {k: (v[0], float(v[1])) for k, v in json.load(f).items()}
+    chosen = {k: v for k, v in table.items() if not only or k in only.split(",")}
     res = generate.remote(chosen, samples)
     for name, c in res["clips"].items():
         with open(os.path.join(out, f"{name}.json"), "w") as f:
