@@ -45,10 +45,11 @@
       "vault",
       "jump over",
       "hurdle",
-      "step over"
+      "step over",
+      "box jump"
     ],
     "cmu_skip": [],
-    "check": "generic",
+    "check": "vault",
     "seconds": 3,
     "prompts": {
       "vault_a": "A person runs at a waist-high box, plants one hand on top and swings both legs over it, then lands and keeps running.",

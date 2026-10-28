@@ -18,6 +18,12 @@ ROLL_MAX_S = 1.4             # the rolling part, not the run-in and get-up
 ROLL_MAX_HIPS = 1.05         # the hips never rise above this share of their standing height (a front flip goes up; a roll stays low)
 ROLL_MAX_AIR_S = 0.25        # and nothing is airborne longer than this inside the window (a roll keeps touching the ground)
 ROLL_MIN_S = 0.3
+VAULT_AIR_MIN_S, VAULT_AIR_MAX_S = 0.2, 1.0   # both feet off the floor for this long
+VAULT_MIN_TRAVEL_M = 1.0     # and the body travels on over the obstacle
+VAULT_MAX_HIPS = 1.6         # the hips rise at most this share of their standing height: they clear a waist-high box and the hand pushes (a flip goes far higher and is also stopped by the trunk-turn limit)
+VAULT_MAX_PITCH_DEG = 120    # the trunk never turns over
+VAULT_HAND_LOW = 0.9         # a hand comes down to this share of the standing hips height ...
+VAULT_HAND_AHEAD_M = 0.2     # ... and ahead of the hips: the hand on top of the obstacle
 UPRIGHT_HIPS = 0.55          # the hips at the ends of the window are above this share of the standing hips height
 
 
@@ -96,12 +102,51 @@ def roll_check(clip):
     return bool(ok), nums, win
 
 
+def vault_check(clip):
+    """(ok, numbers, window) for a clip that should be a speed vault: both feet leave the floor for 0.2 to 1 s while the body travels on,
+    a hand comes down low and ahead of the hips (on the obstacle), the trunk does not turn over, and the runner ends upright."""
+    f, fps = clip.frames, clip.fps
+    hips = f[:, IDX["Hips"]]
+    standing = float(hips[0, 1])
+    floor = float(min(f[:, IDX["LeftFoot"], 1].min(), f[:, IDX["RightFoot"], 1].min()))
+    feet = np.minimum(f[:, IDX["LeftFoot"], 1], f[:, IDX["RightFoot"], 1]) - floor
+    air = feet > 0.10
+    runs = sorted(_runs(air), key=lambda r: r[1] - r[0], reverse=True)
+    nums = {"standing_hips_m": round(standing, 2)}
+    if not runs:
+        nums["why"] = "the feet never leave the floor"
+        return False, nums, None
+    a, b = runs[0]
+    b = max(b - 1, a)
+    air_s = (b - a + 1) / fps
+    face = facing(f)
+    travel = float((hips[b] - hips[a]) @ face)
+    lo = max(0, a - int(0.15 * fps)); hi = min(len(f) - 1, b + int(0.15 * fps))
+    best_hand = None
+    for name in ("LeftHand", "RightHand"):
+        h = f[lo:hi + 1, IDX[name]]
+        ahead = (h - hips[lo:hi + 1]) @ face
+        low = h[:, 1] <= VAULT_HAND_LOW * standing
+        ok_idx = np.where(low & (ahead >= VAULT_HAND_AHEAD_M))[0]
+        if len(ok_idx):
+            best_hand = name
+            break
+    pitch = trunk_pitch_deg(f) - trunk_pitch_deg(f)[0]
+    peak = float(hips[:, 1].max() / standing)
+    ends_up = bool(hips[-1, 1] > 0.8 * standing)
+    nums.update(air_s=round(air_s, 2), window_frames=[a, b], travel_m=round(travel, 2), hand_plant=best_hand, peak_hips_vs_standing=round(peak, 2),
+                max_trunk_turn_deg=round(float(np.abs(pitch).max()), 1), ends_upright=ends_up)
+    ok = (VAULT_AIR_MIN_S <= air_s <= VAULT_AIR_MAX_S and travel >= VAULT_MIN_TRAVEL_M and best_hand is not None
+          and peak <= VAULT_MAX_HIPS and np.abs(pitch).max() <= VAULT_MAX_PITCH_DEG and ends_up)
+    return bool(ok), nums, (a, b)
+
+
 def generic_check(clip):
     """Moves without a special check are judged by the gate alone (and say so in the report)."""
     return True, {"note": "no move check for this move: the gate alone judged it"}, None
 
 
-CHECKS = {"roll": roll_check, "generic": generic_check}
+CHECKS = {"roll": roll_check, "vault": vault_check, "generic": generic_check}
 
 
 def trim(clip, window, pad_s=0.1):

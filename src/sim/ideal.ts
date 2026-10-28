@@ -163,7 +163,8 @@ export function searchIdealRun(course: CourseData): { plan: Plan; windows: Windo
     if (e.riser) {
       // a step up too tall for a casual walk-up: try a vault and a jump at every press, keep the one that gets farthest (a vault wins a tie: it is faster)
       const tries: { x: number; vault: boolean; s: number }[] = [];
-      for (const x of candidates(e.x - 1.2, e.x - 0.05)) for (const vault of [false, true]) {
+      // a vault plants further back (a speed vault: 1 to 3 m before the face, plus the 0.2 s a press is held), so its presses are searched on a wider, coarser grid
+      for (const vault of [false, true]) for (const x of vault ? candidates(e.x - 5, e.x - 0.05, 0.04) : candidates(e.x - 1.2, e.x - 0.05)) {
         const trial: Plan = vault ? { ...plan, vaultXs: [...(plan.vaultXs ?? []), x] } : { ...plan, jumpXs: [...plan.jumpXs, x] };
         tries.push({ x, vault, s: score(playPlan(course, trial)) });
       }

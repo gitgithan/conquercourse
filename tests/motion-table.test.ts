@@ -34,7 +34,8 @@ describe('motion table (CC-64)', () => {
     expect(rollLookFrom('?roll=banana')).toBe('auto');
   });
   it('the moves that still have no motion are listed, never hidden', () => {
-    expect(motionGaps()).toEqual(expect.arrayContaining(['hurt', 'vault', 'giant-swing', 'seated', 'launch']));
+    expect(motionGaps()).toEqual(expect.arrayContaining(['hurt', 'giant-swing']));
+    expect(motionGaps()).not.toContain('vault'); // the vault has a clip (CC-68)
     expect(motionGaps()).not.toContain('roll'); // the roll always has its tuck
   });
 });

@@ -51,6 +51,12 @@ export async function createRookieActor(scene: Scene, opts: { rookie: RookieId; 
     const r = await fetch('/assets/motion/roll.json');
     if (r.ok) rollClip = parseClip(await r.json());
   } catch { /* no roll clip yet */ }
+  // the vault clip is optional too: without it the run pose is drawn over the obstacle (a listed gap in src/motion/motion-table.ts)
+  let vaultClip: Clip | null = null;
+  try {
+    const r = await fetch('/assets/motion/vault.json');
+    if (r.ok) vaultClip = parseClip(await r.json());
+  } catch { /* no vault clip yet */ }
   let rollLook: RollLook = typeof location === 'undefined' ? 'auto' : rollLookFrom(location.search);
   const rookie = await loadRookie(opts.rookie, run.names, run.parents, undefined, opts.url);
   const group = new Group();
@@ -233,6 +239,13 @@ export async function createRookieActor(scene: Scene, opts: { rookie: RookieId; 
       }
       case 'swing':
         return hanging(sample(swing, s.tick / 120, true).rel);
+      case 'vault': {
+        if (!vaultClip) return build(s, 'run'); // no clip: the run pose, as before
+        // the clip gives the limbs; the simulator carries the body (its feet arc over the obstacle), so the hips sit as far above the lowest foot as in the clip
+        const a = sample(vaultClip, (s.vaultProgress ?? 1) * clipDuration(vaultClip), false);
+        const lowest = Math.min(...footBones.map((i) => a.rel[i].y));
+        return place(a.rel, -lowest).joints;
+      }
       case 'roll': {
         const p = moveProgress(MOTION_TABLE.roll, s.rolledAt!, s.tick) ?? 1;
         if (rollClip && rollLook !== 'crouch') {
@@ -364,7 +377,7 @@ export async function createRookieActor(scene: Scene, opts: { rookie: RookieId; 
       });
     }
     rookie.apply(lifted);
-    if (s.mode !== 'swing' && k !== 'leap' && k !== 'roll') {
+    if (s.mode !== 'swing' && k !== 'leap' && k !== 'roll' && k !== 'vault') {
       const low = Math.min(...footBones.map((i) => rookie.bones[i].getWorldPosition(new Vector3()).y));
       if (low < footClear) {
         const hips = rookie.bones[0].getWorldPosition(new Vector3());
