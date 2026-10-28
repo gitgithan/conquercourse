@@ -8,7 +8,7 @@ import { DEFAULT_TRAMPOLINE, bounce } from './trampoline';
 import { minSpeedToCross } from './needs';
 import { DEFAULT_TREBUCHET, deg, launchStep, startLaunch, type TrebuchetParams } from './trebuchet';
 import { DEFAULT_CART, cartStep, makeRails } from './cart';
-import { DEFAULT_RECOIL, ballSpeedFromRest, standingPush } from './recoil';
+import { DEFAULT_CANNON, DEFAULT_RECOIL, ballSpeedFromRest, levelRange, shot, standingPush } from './recoil';
 import { RIDER_MASS, sagAt, worstCase, type PlankData } from './beam';
 
 // The Dojo's experiments: one obstacle each, a few knobs, one question. Every answer comes from running the
@@ -29,7 +29,7 @@ export interface Trial {
   note?: string; // plain-words outcome
 }
 export interface Experiment {
-  id: 'gap' | 'wall' | 'rope' | 'trampoline' | 'landing' | 'bars' | 'coaster' | 'lever' | 'recoil' | 'bridge';
+  id: 'gap' | 'wall' | 'rope' | 'trampoline' | 'landing' | 'bars' | 'coaster' | 'lever' | 'recoil' | 'bridge' | 'cannon';
   name: string;
   question: string;
   answerUnit: string;
@@ -327,7 +327,37 @@ const bridge: Experiment = {
   },
 };
 
-export const EXPERIMENTS: Experiment[] = [gap, wall, rope, trampoline, landingExp, bars, coaster, leverExp, recoilExp, bridge];
+// The cannon (CC-66): the same push, aimed. The runner is pushed forward and up by the angle of the barrel, so the angle sets both speeds; on level ground the range peaks near 45 degrees.
+const cannonExp: Experiment = {
+  id: 'cannon', name: 'Cannon: the best angle', question: 'How far from the cannon do you land, on level ground?', answerUnit: 'm', answerMax: 90, axis: 'x', primary: 'angle',
+  knobs: [
+    { id: 'angle', label: 'Angle of the push above level', unit: '°', min: 5, max: 85, def: 25, step: 1, why: 'The barrel points backward and down, so you are pushed forward and up. A steeper barrel puts more of the push into going up and less into going forward.' },
+    { id: 'mass', label: 'Mass of the ball', unit: 'kg', min: 20, max: 120, def: DEFAULT_CANNON.ballMass, step: 5, why: 'A heavier ball carries more push away with it, so the whole push is bigger.' },
+    { id: 'muzzle', label: 'Speed of the ball leaving the cannon', unit: 'm/s', min: 20, max: 60, def: DEFAULT_CANNON.muzzle, step: 1, why: 'A faster ball carries more push away with it.' },
+  ],
+  sayings: ['Aim between high and flat: the middle angle flies farthest.'],
+  run(v) {
+    const p = { ...DEFAULT_RECOIL, kind: 'bigcannon' as const, ballMass: v.mass, muzzle: v.muzzle };
+    const a = (v.angle * Math.PI) / 180, s = shot(p, 0, 0, false, a);
+    let x = 0, y = 0, vy = s.dvy, top = 0;
+    const path: Point[] = [{ x: 0, y: 0 }];
+    for (let i = 0; i < 120 * 40; i++) {
+      const ny = y + vy * DT - 0.5 * GRAVITY * DT * DT;
+      vy -= GRAVITY * DT; x += s.dvx * DT; y = ny; top = Math.max(top, y);
+      if (y <= 0) { y = 0; path.push({ x, y }); break; }
+      if (i % 6 === 0) path.push({ x, y });
+    }
+    const flat = Array.from({ length: 5 }, (_, i) => 15 + i * 15).map((d) => { const q = shot(p, 0, 0, false, (d * Math.PI) / 180); return { d, r: levelRange(q.dvx, q.dvy) }; });
+    return {
+      answer: x, path,
+      overlays: [{ pts: [{ x: 0, y: top }, { x, y: top }], color: '#16a34a', label: `highest point: ${top.toFixed(0)} m` }],
+      people: [{ x: 0, y: 0, pose: 'stand', label: 'the shot' }, { x: x / 2, y: top, pose: 'fly' }, { x, y: 0, pose: 'stand', label: 'landing' }],
+      note: `The push is ${(Math.hypot(s.dvx, s.dvy)).toFixed(1)} m/s at ${v.angle.toFixed(0)}° above level: ${s.dvx.toFixed(1)} m/s forward and ${s.dvy.toFixed(1)} m/s up. You fly ${x.toFixed(0)} m and rise ${top.toFixed(0)} m. The same push at 15°, 30°, 45°, 60° and 75° flies ${flat.map((f) => f.r.toFixed(0)).join(', ')} m.`,
+    };
+  },
+};
+
+export const EXPERIMENTS: Experiment[] = [gap, wall, rope, trampoline, landingExp, bars, coaster, leverExp, recoilExp, bridge, cannonExp];
 export const defaults = (e: Experiment, ctx: Context = {}): Record<string, number> => {
   const d = Object.fromEntries(e.knobs.map((k) => [k.id, k.def]));
   if (e.id === 'gap' && ctx.speed) d.speed = Math.min(10, Math.max(2, ctx.speed));

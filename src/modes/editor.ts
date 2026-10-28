@@ -175,21 +175,21 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
   trebInput.onchange = () => { const v = Number(trebInput.value); if (v >= 300 && v <= 4000) { updateDeviceSource('device:trebuchet', `device:trebuchet:${v}`); changed(); } };
   // a launcher on the start deck (recoil): the ball goes back, the runner goes forward; the ball's mass and speed are the knobs (the proof says whether it reaches)
   const recoilKnobs = el('span', addBar, {}); recoilKnobs.style.display = 'none';
-  const recoilKg = el('input', el('label', recoilKnobs, { text: 'Ball (kg) ' }), { type: 'number', min: '2', max: '60', step: '1', value: '12', id: 'recoilkg' });
-  const recoilSpeed = el('input', el('label', recoilKnobs, { text: 'Speed (m/s) ' }), { type: 'number', min: '3', max: '40', step: '1', value: '30', id: 'recoilspeed' });
+  const recoilKg = el('input', el('label', recoilKnobs, { text: 'Ball (kg) ' }), { type: 'number', min: '2', max: '150', step: '1', value: '12', id: 'recoilkg' });
+  const recoilSpeed = el('input', el('label', recoilKnobs, { text: 'Speed (m/s) ' }), { type: 'number', min: '3', max: '60', step: '1', value: '30', id: 'recoilspeed' });
   const syncRecoil = () => { recoilKnobs.style.display = recoilCfg ? '' : 'none'; if (recoilCfg) { recoilKg.value = String(recoilCfg.ballMass); recoilSpeed.value = String(recoilCfg.muzzle); } };
-  for (const [kind, text, id, mass, speed, title] of [['cannon', 'Launcher', 'addrecoil', 12, 30, 'A pad on the start deck clips on an air launcher: the ball goes back, you go forward (momentum is conserved)'], ['crate', 'Heavy crate', 'addcrate', 25, 6, 'A pad on the start deck with a heavy crate to throw backward: the same law, a slower throw']] as const) {
+  for (const [kind, text, id, mass, speed, title] of [['bigcannon', 'Cannon', 'addcannon', 80, 45, 'A pad on the start deck with a big wheeled air cannon: aim it with Up and Down, fire it with K; the ball goes back, you fly forward and up (the proof searches the angle)'], ['cannon', 'Launcher', 'addrecoil', 12, 30, 'A pad on the start deck clips on an air launcher: the ball goes back, you go forward (momentum is conserved)'], ['crate', 'Heavy crate', 'addcrate', 25, 6, 'A pad on the start deck with a heavy crate to throw backward: the same law, a slower throw']] as const) {
     el('button', addBar, { text, id, title }).onclick = () => {
       const first = !recoilPiece();
       const device = first
         ? makeRecoilDevice(kind, mass, speed)
-        : makeDevice(`device:${kind}:${mass}:${speed}:${RECOIL_PAD_LENGTH}`, kind === 'crate' ? 'Heavy crate' : 'Launcher', nextLaneU() + RECOIL_PAD_LENGTH / 2);
+        : makeDevice(`device:${kind}:${mass}:${speed}:${RECOIL_PAD_LENGTH}`, kind === 'crate' ? 'Heavy crate' : kind === 'bigcannon' ? 'Cannon' : 'Launcher', nextLaneU() + RECOIL_PAD_LENGTH / 2);
       pieces.push(device); selected = device.id;
       changed(); syncRecoil();
       view.cx = device.x; view.cz = device.z; view3d.look(0, 65, { x: device.x, z: device.z }, 13);
     };
   }
-  const recoilEdit = () => { const m = Number(recoilKg.value), u = Number(recoilSpeed.value); if (recoilCfg && m >= 2 && m <= 60 && u >= 3 && u <= 40) { const p = recoilPiece(), len = p?.src?.split(':')[4] ?? String(RECOIL_PAD_LENGTH); updateDeviceSource(`device:${recoilCfg.kind}`, `device:${recoilCfg.kind}:${m}:${u}:${len}`); changed(); } };
+  const recoilEdit = () => { const m = Number(recoilKg.value), u = Number(recoilSpeed.value); if (recoilCfg && m >= 2 && m <= 150 && u >= 3 && u <= 60) { const p = recoilPiece(), len = p?.src?.split(':')[4] ?? String(RECOIL_PAD_LENGTH); updateDeviceSource(`device:${recoilCfg.kind}`, `device:${recoilCfg.kind}:${m}:${u}:${len}`); changed(); } };
   recoilKg.onchange = recoilEdit; recoilSpeed.onchange = recoilEdit;
   // stacks: sport-stacking cups (mouth down, pyramids) as obstacle shapes; the piece scale makes a 9 cm cup runner-sized
   el('strong', addBar, { text: 'Stacks:' });
@@ -726,11 +726,11 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
     const c = Math.cos(angle), s = Math.sin(angle), x = u * c - offset * s, z = u * s + offset * c;
     return { ...newPiece(name, deviceMesh(src), { x, z }), src, yaw: angle };
   };
-  const makeRecoilDevice = (kind: 'cannon' | 'crate', mass: number, muzzle: number): P => {
+  const makeRecoilDevice = (kind: 'cannon' | 'crate' | 'bigcannon', mass: number, muzzle: number): P => {
     const cfg = { kind, ballMass: mass, muzzle }, base = roleCourse(coursePieces(), { angle, offset, level }, 'My world').course, withPad = withRecoil(base, cfg);
     const pad = withPad.recoil, x0 = pad?.x0 ?? base.startX + 1.5, x1 = pad?.x1 ?? base.startX + 4;
     const len = Math.max(0.8, x1 - x0), src = `device:${kind}:${mass}:${muzzle}:${len}`;
-    return makeDevice(src, kind === 'crate' ? 'Heavy crate' : 'Launcher', (x0 + x1) / 2);
+    return makeDevice(src, kind === 'crate' ? 'Heavy crate' : kind === 'bigcannon' ? 'Cannon' : 'Launcher', (x0 + x1) / 2);
   };
   const updateDeviceSource = (prefix: string, src: string) => {
     const p = pieces.find((q) => q.src?.startsWith(prefix));
@@ -742,13 +742,13 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
   let floorChoice: Hazard = 'water'; // the floor you must not touch (saved in the course)
   let trebuchetKg: number | null = null; // the lane starts in a trebuchet (the counterweight in kg), or on a plain deck
   let recoilCfg: RecoilCfg | null = null; // the start deck carries a launcher pad (CC-66), or not
-  const recoilPiece = () => pieces.find((p) => p.src?.startsWith('device:cannon:') || p.src?.startsWith('device:crate:'));
+  const recoilPiece = () => pieces.find((p) => p.src?.startsWith('device:cannon:') || p.src?.startsWith('device:bigcannon:') || p.src?.startsWith('device:crate:'));
   const recoilRange = () => { const p = recoilPiece(); if (!p) return undefined; const u = p.x * Math.cos(angle) + p.z * Math.sin(angle), length = Number(p.src?.split(':')[4]) || RECOIL_PAD_LENGTH; return { x0: u - length / 2, x1: u + length / 2 }; };
   function syncDeviceState() {
     const tre = pieces.find((p) => p.src?.startsWith('device:trebuchet:'));
     trebuchetKg = tre ? Number(tre.src!.split(':')[2]) || 1200 : null;
     const recoil = recoilPiece(), parts = recoil?.src?.split(':');
-    recoilCfg = recoil && parts ? { kind: parts[1] as 'cannon' | 'crate', ballMass: Number(parts[2]) || 12, muzzle: Number(parts[3]) || 30 } : null;
+    recoilCfg = recoil && parts ? { kind: parts[1] as 'cannon' | 'crate' | 'bigcannon', ballMass: Number(parts[2]) || 12, muzzle: Number(parts[3]) || 30 } : null;
     trebLabel.style.display = trebuchetKg ? '' : 'none'; trebInput.value = String(trebuchetKg ?? 1200);
     syncRecoil();
   }
