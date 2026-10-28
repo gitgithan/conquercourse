@@ -25,6 +25,7 @@ export function startDojo(host: HTMLElement): { backend: 'webgl2' } {
     wallHeight: num('wallh') ?? facts.wall?.height, ropeLength: num('length') ?? facts.rope?.length,
   };
   const fromCourse = q.get('from') === 'course';
+  const returnToCourse = fromCourse ? '?welcome=0' : '?';
   const style = document.createElement('style');
   style.textContent = `
     .dojo{font:16px/1.45 system-ui,sans-serif;color:#17201d;background:#eef1ec;min-height:100%;padding:16px;display:grid;gap:12px;max-width:1200px;margin:0 auto}
@@ -78,7 +79,7 @@ export function startDojo(host: HTMLElement): { backend: 'webgl2' } {
     refresh = () => {};
     const head = el('div', root, { className: 'head' });
     el('h1', head, { text: 'The Dojo' });
-    const back = el<HTMLAnchorElement>('a', head, { text: 'Back to the Course (T)', href: '?', className: 'btn go' });
+    const back = el<HTMLAnchorElement>('a', head, { text: 'Back to the Course (T)', href: returnToCourse, className: 'btn go' });
     back.id = 'back';
     back.style.cssText = 'position:fixed;top:12px;right:16px;z-index:30;font-size:18px;padding:10px 18px;box-shadow:0 2px 10px #0003'; // always in the same corner, easy to find
     if (fromCourse && (ctx.width || ctx.wallHeight || ctx.ropeLength)) {
@@ -181,7 +182,7 @@ export function startDojo(host: HTMLElement): { backend: 'webgl2' } {
       el('strong', panel, { text: 'On the Course' });
       const ap = el('div', panel, { id: 'apply' });
       L.apply(facts, ctx, values).split('\n').forEach((line) => el('p', ap, { text: line }));
-      el<HTMLAnchorElement>('a', panel, { text: 'Back to the Course', href: '?', className: 'btn go' });
+      el<HTMLAnchorElement>('a', panel, { text: 'Back to the Course', href: returnToCourse, className: 'btn go' });
       const next = EXPERIMENTS[(EXPERIMENTS.indexOf(exp) + 1) % EXPERIMENTS.length];
       el<HTMLButtonElement>('button', panel, { text: `Learn the ${next.name} next` }).onclick = () => choose(next);
     }
@@ -327,7 +328,7 @@ export function startDojo(host: HTMLElement): { backend: 'webgl2' } {
   addEventListener('keydown', (e) => {
     const t = e.target as HTMLElement | null;
     if (e.code !== 'KeyT' || e.repeat || e.ctrlKey || e.metaKey || e.altKey || document.getElementById('cc-feedback') || (t && /^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName) && (t as HTMLInputElement).type !== 'range')) return;
-    location.href = '?';
+    location.href = returnToCourse;
   });
   startAudio(); document.body.append(soundButton()); // the Dojo shares the mute switch with the Course
   render();
