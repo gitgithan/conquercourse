@@ -1,7 +1,7 @@
 // A place becomes a lane, and the lane says which building footprints became which obstacle (CC-78, "explain" strip in the map mode).
 // The same search as scripts/osm-lane.ts and the editor: shrink the place until the simulator can clear a lane cut through it.
 // Pure maths (no page, no network), so a Web Worker, the build script and the tests all run it.
-import { bestSlices, HALF_LANE, surfaceSamples } from '../slice/slice';
+import { bestSlices, HALF_LANE, laneSamples, sliceProfile, surfaceSamples } from '../slice/slice';
 import { centred } from '../slice/world';
 import { buildingsFrom, extrude, MAX_SHRUNK_HEIGHT, medianHeight, type Building, type OverpassAnswer } from './osm';
 import { groundAt, lowest, type Ground } from './terrain';
@@ -103,7 +103,7 @@ export function laneForPlace(answer: OverpassAnswer, lat: number, lon: number, g
     const piece = centred({ positions: m.positions, indices: m.indices });
     const [ox, oz] = middle(m.positions);
     const samples = surfaceSamples(piece, 80);
-    const cands = bestSlices({ positions: samples }, { top: 3, centre: { x: 0, z: 0 } });
+    const cands = bestSlices({ positions: samples }, { top: 3, centre: { x: 0, z: 0 }, reprofile: (c) => sliceProfile(laneSamples(piece, c), { x: 0, z: 0 }, c) }); // the proof reads the lane the way the editor will (CC-91)
     if (!cands.length) continue;
     const best = cands[0], rep = best.report, a = best.angle;
     const u0 = best.profile.origin ?? 0, uEnd = u0 + best.profile.length;

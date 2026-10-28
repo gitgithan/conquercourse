@@ -1,6 +1,6 @@
 import { adviseLane, type Change, type LaneSetting } from './advice';
-import { bestSlices, laneToCourse, sliceProfile } from './slice';
-import { realSize, worldSamples, type Piece } from './world';
+import { bestSlices, laneToCourse } from './slice';
+import { realSize, laneProfile, worldSamples, type Piece } from './world';
 import { clearedCached, meter, workSeconds } from '../sim/ideal';
 import type { CourseData } from '../course/course';
 
@@ -9,7 +9,7 @@ import type { CourseData } from '../course/course';
 export interface Fixed { ok: boolean; pieces: Piece[]; lane: LaneSetting; steps: string[] }
 
 export const clears = (ps: Piece[], l: LaneSetting, wrap?: (c: CourseData) => CourseData): boolean => {
-  const pr = sliceProfile(worldSamples(ps), { x: 0, z: 0 }, l);
+  const pr = laneProfile(ps, l);
   if (pr.length < 8) return false;
   const course = laneToCourse({ cells: [...pr.cells], length: pr.length, origin: pr.origin });
   return clearedCached(wrap ? wrap(course) : course);
@@ -39,7 +39,7 @@ export function fixLayout(pieces: Piece[], lane: LaneSetting, budget = workSecon
   }
   if (clears(ps, l, wrap)) return { ok: true, pieces: ps, lane: l, steps };
   // last resort: the best lane through the world as it is now
-  const found = bestSlices({ positions: Array.from(worldSamples(ps)) }, { top: 1, levels: [l.level], centre: { x: 0, z: 0 } });
+  const found = bestSlices({ positions: Array.from(worldSamples(ps)) }, { top: 1, levels: [l.level], centre: { x: 0, z: 0 }, reprofile: (c) => laneProfile(ps, c) });
   if (found.length) { l = { angle: found[0].angle, offset: found[0].offset, level: found[0].level }; steps.push('Turned the lane to the best line through the pieces.'); }
   return { ok: clears(ps, l, wrap), pieces: ps, lane: l, steps };
 }

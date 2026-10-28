@@ -226,13 +226,13 @@ export function installPlaces(ctx: PlaceCtx) {
 
   // Called by map.ts when the mesh is built and stored: show the strip now, then fill in the lane (instantly for a ready place, in a worker otherwise).
   type MeshInfo = Parameters<typeof render>[1];
-  function finish(o: Obtained, m0: MeshInfo, k0: number, remesh: (k: number) => MeshInfo) {
+  function finish(o: Obtained, m0: MeshInfo, k0: number, remesh: (k: number) => MeshInfo, setLane: (l: PlaceLane | null) => void = () => {}) {
     let m = m0;
     stopTicker();
     setStep('mesh', 'done', `Built the place (${m.buildings} buildings)`);
     openBtn.hidden = false;
     if (new URLSearchParams(location.search).get('auto') === '1') openBtn.click();
-    if (o.lane) { setStep('lane', o.lane.cleared ? 'done' : 'failed', o.lane.cleared ? `Lane found: ${o.lane.lengthM} m (precomputed)` : 'No lane found'); render(o, m, o.lane, ''); void paint(o, o.lane); dset('lanePhase', 'done'); return; }
+    if (o.lane) { setLane(o.lane); setStep('lane', o.lane.cleared ? 'done' : 'failed', o.lane.cleared ? `Lane found: ${o.lane.lengthM} m (precomputed)` : 'No lane found'); render(o, m, o.lane, ''); void paint(o, o.lane); dset('lanePhase', 'done'); return; }
     render(o, m, null, 'Looking for a lane the simulator can clear (this runs in the background)...');
     void paint(o, null);
     setStep('lane', 'doing', 'Finding a lane the simulator can clear (in the background)'); dset('lanePhase', 'working');
@@ -245,6 +245,7 @@ export function installPlaces(ctx: PlaceCtx) {
       stopTicker(); laneWorker?.terminate(); laneWorker = null;
       setStep('lane', a.lane?.cleared ? 'done' : 'failed', a.lane?.cleared ? `Lane found: ${a.lane.lengthM} m` : 'No lane found');
       if (a.lane?.cleared && a.lane.shrink !== k0) m = remesh(a.lane.shrink); // the editor gets the place at the size the lane was cut from
+      setLane(a.lane);
       render(o, m, a.lane, ''); void paint(o, a.lane); dset('lanePhase', 'done'); dset('laneLength', a.lane?.lengthM ?? 0);
     };
     laneWorker.postMessage({ id: my, answer: o.answer, lat: o.lat, lon: o.lon, ground: o.ground, ladder: Array.from({ length: 5 }, (_, i) => Math.round(k0 * 0.6 ** i * 1000) / 1000) } satisfies PlaceLaneAsk);

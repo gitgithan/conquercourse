@@ -1427,3 +1427,25 @@ The set of obstacle shapes is fixed, and each shape offers a fixed set of moves.
   - Only three lanes, each about 100 m, so nothing is known about longer routes.
   - Camera heading in Mapillary is sometimes the phone's, not the lens's; "faces the lane" is a good guess, not a proof.
   - Photos from one drive can all be the same few minutes of one day, so a live view will repeat itself.
+## The map says "clear", the editor says it is not even on the lane (CC-91)
+- **What the product owner saw:**
+  - The Slicer or the explain strip said the simulator had cleared a lane.
+  - The editor then showed pieces that were not along that lane, and the proof failed.
+- **Two causes, both found by reading the same lane both ways (`scripts/lane-consistency.ts`):**
+  - **The lane never travelled.**
+    - The map handed the editor the buildings only.
+    - The editor started on its own lane (turn 0, sideways 0, level 0) or on the last one it had saved.
+    - Fix: the lane (turn, sideways, level) now goes in the same hand-over (`lane` in `cc.map.piece`), for the whole place, for the Slicer cut and for a lane found by the background search.
+  - **The editor read a big scene from too few points.**
+    - The editor sampled each piece at 600 points per square metre, but at most 40,000 points per piece.
+    - A shrunk district is far bigger than that, so the lane strip (2 m wide) got a handful of points per 10 cm.
+    - Empty cells count as gaps, and a gap hides which side of a wall the next sample is on, so false steps and walls appeared on a lane the map had read cleanly.
+    - Fix: `laneProfile` (`src/slice/world.ts`) reads a thinned piece again along the lane at full density (`laneSamples` in `src/slice/slice.ts`); every place that read a lane from the world now uses it (editor, Fix it, advice, roles, bars).
+    - The map proof reads the lane the same way (`reprofile` in `bestSlices`), so both ends see the same cells.
+- **Measured on the 12 ready places, same lane, cells that differ between the map and the editor:**
+  - Before: 40 to 450 cells per lane, tallest false step 2.4 to 6.3 m (a lane the map read at 0 to 2 m).
+  - After: 0 cells in all 12.
+  - The editor default lane (0, 0, 0) was no lane at all on Ciutadella and a different, much rougher one elsewhere.
+- **Tests:** `tests/lane-consistency.test.ts` (18): all 12 places read identical cells, no false wall, the lane has ground along it and is the length the map reported; picked buildings handed over one by one read the same lane as the whole mesh; the lane clears again from the editor reading.
+- **Browser check:** `scripts/lane-handover-check.mjs` (Build a ready place, open the editor, the editor lane equals the map lane, the proof clears).
+- **Known gap:** the stored ready-place lanes keep the sideways step to 0.1 m and the level to 1 cm, so a lane read from them can differ from the original search by a few millimetres.

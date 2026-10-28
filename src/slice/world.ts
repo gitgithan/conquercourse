@@ -1,4 +1,4 @@
-import { surfaceSamples, type Mesh } from './slice';
+import { laneSamples, sliceProfile, surfaceSamples, type Mesh, type Profile, type SliceOptions } from './slice';
 
 // A world made of pieces. A piece is a mesh with a place (x, z on the ground, a height off the ground), a turn about the vertical,
 // and a scale: the same toy brick can be a 3 cm model or a half-metre block. The course is a lane cut from the whole world.
@@ -127,4 +127,38 @@ export function hits(p: Piece, x: number, z: number): boolean {
   const s = size(p.mesh), c = Math.cos(-p.yaw), sn = Math.sin(-p.yaw);
   const lx = ((x - p.x) * c - (z - p.z) * sn) / p.scale, lz = ((x - p.x) * sn + (z - p.z) * c) / p.scale;
   return Math.abs(lx) <= s.w / 2 && Math.abs(lz) <= s.d / 2;
+}
+
+// Every read of a lane from the world goes through here (CC-91): a piece whose whole-surface sample was thinned by the cap is read again along the lane at full density,
+// so the map, the editor and Fix it all see the same steps and walls on the same lane.
+const areaOf = new WeakMap<Mesh, number>();
+function meshArea(m: Mesh): number {
+  let a = areaOf.get(m);
+  if (a === undefined) {
+    a = 0;
+    const p = m.positions, idx = m.indices;
+    if (idx) for (let t = 0; t + 2 < idx.length; t += 3) {
+      const i = idx[t] * 3, j = idx[t + 1] * 3, k = idx[t + 2] * 3;
+      const ux = p[j] - p[i], uy = p[j + 1] - p[i + 1], uz = p[j + 2] - p[i + 2], vx = p[k] - p[i], vy = p[k + 1] - p[i + 1], vz = p[k + 2] - p[i + 2];
+      a += 0.5 * Math.hypot(uy * vz - uz * vy, uz * vx - ux * vz, ux * vy - uy * vx);
+    }
+    areaOf.set(m, a);
+  }
+  return a;
+}
+const thinned = (p: Piece, perM2 = 600, cap = 40000) => !!p.mesh.indices && meshArea(p.mesh) * p.scale * p.scale * perM2 > cap;
+function worldMeshOf(p: Piece): Mesh { // the piece in world coordinates (scale, turn, place)
+  const src = p.mesh.positions, out = new Array<number>(src.length), c = Math.cos(p.yaw), s = Math.sin(p.yaw);
+  for (let i = 0; i < src.length; i += 3) {
+    const x = src[i] * p.scale, z = src[i + 2] * p.scale;
+    out[i] = p.x + x * c - z * s; out[i + 1] = p.y + src[i + 1] * p.scale; out[i + 2] = p.z + x * s + z * c;
+  }
+  return { positions: out, indices: p.mesh.indices };
+}
+export function laneProfile(pieces: Piece[], lane: SliceOptions, centre: { x: number; z: number } = { x: 0, z: 0 }): Profile {
+  const parts = pieces.filter((p) => !p.noGround).map((p) => (thinned(p) ? laneSamples(worldMeshOf(p), lane, centre) : pieceSamples(p)));
+  const all = new Float32Array(parts.reduce((n, a) => n + a.length, 0));
+  let at = 0;
+  for (const a of parts) { all.set(a, at); at += a.length; }
+  return sliceProfile(all, centre, lane);
 }
