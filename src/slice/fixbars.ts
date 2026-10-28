@@ -1,6 +1,6 @@
 import { holdsOf, isHold, type P } from './holds-world';
-import { laneToCourse, sliceProfile } from './slice';
-import { worldSamples } from './world';
+import { laneToCourse } from './slice';
+import { laneProfile } from './world';
 import { clearedCached, meter, workSeconds } from '../sim/ideal';
 import type { CourseData } from '../course/course';
 
@@ -12,14 +12,14 @@ export interface FixedBars { ok: boolean; pieces: P[]; steps: string[] }
 // the course a layout makes (the shortcut search and its Close it use this)
 export function courseFor(ps: P[], lane: Lane): import('../course/course').CourseData | null {
   const ground = ps.filter((p) => !isHold(p));
-  const pr = sliceProfile(worldSamples(ground), { x: 0, z: 0 }, lane);
+  const pr = laneProfile(ground, lane);
   return pr.length >= 8 ? laneToCourse({ cells: [...pr.cells], length: pr.length, origin: pr.origin }, 'shortcuts', holdsOf(ps, lane)) : null;
 }
 
 type Wrap = (c: CourseData) => CourseData;
 const proof = (ps: P[], lane: Lane, wrap?: Wrap): boolean => {
   const ground = ps.filter((p) => !isHold(p));
-  const pr = sliceProfile(worldSamples(ground), { x: 0, z: 0 }, lane);
+  const pr = laneProfile(ground, lane);
   if (pr.length < 8) return false;
   const course = laneToCourse({ cells: [...pr.cells], length: pr.length, origin: pr.origin }, 'fix', holdsOf(ps, lane));
   return clearedCached(wrap ? wrap(course) : course);

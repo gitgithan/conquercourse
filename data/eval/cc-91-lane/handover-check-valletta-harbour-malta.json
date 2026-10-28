@@ -1,0 +1,12 @@
+{
+  "checks": {
+    "laneStoredWithThePiece": true,
+    "editorStartsOnTheMapLane": true,
+    "editorSaysWhereTheLaneCameFrom": true,
+    "editorProofClears": true
+  },
+  "notes": [
+    "lane in the editor {\"angle\":0,\"offset\":-72.3,\"level\":6}, the map's {\"angle\":0,\"offset\":-72.3,\"level\":6}",
+    "editor verdict: The simulator can clear this lane (1 gaps, 0 steps, 0 curves, 0 faces, 24 m)."
+  ]
+}

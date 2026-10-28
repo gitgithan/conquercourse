@@ -3,7 +3,7 @@ import { startCourse } from './course';
 import { readGlbMesh } from '../slice/glb';
 import { LIBRARY } from '../slice/shapes';
 import { bestSlices, describe as describeLane, sliceProfile, CELL, HALF_LANE } from '../slice/slice';
-import { crop, centred, duplicate, hits, newPiece, realSize, scaleBy, scaleToHeight, size, worldSamples, type Piece } from '../slice/world';
+import { crop, centred, duplicate, hits, newPiece, realSize, scaleBy, scaleToHeight, size, worldSamples, laneProfile, type Piece } from '../slice/world';
 import type { CourseData } from '../course/course';
 import { workSeconds } from '../sim/ideal';
 import { createView3d, type Ghosts } from '../slice/view3d';
@@ -102,8 +102,9 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
   load();
   let mapCamera: { heading: number; pitch: number; distance?: number } | null = null;
   try { // a place built in ?mode=map arrives once, as the whole world or as the buildings the player picked; it is not saved
-    const m = JSON.parse(sessionStorage.getItem('cc.map.piece') ?? 'null') as { name: string; positions: number[]; indices: number[]; pieces?: { name: string; positions: number[]; indices: number[]; x: number; z: number }[]; camera?: { heading: number; pitch: number; distance?: number } } | null;
+    const m = JSON.parse(sessionStorage.getItem('cc.map.piece') ?? 'null') as { name: string; positions: number[]; indices: number[]; pieces?: { name: string; positions: number[]; indices: number[]; x: number; z: number }[]; camera?: { heading: number; pitch: number; distance?: number }; lane?: { angle: number; offset: number; level: number; from: string } } | null;
     sessionStorage.removeItem('cc.map.piece');
+    if (m?.lane && [m.lane.angle, m.lane.offset, m.lane.level].every(Number.isFinite)) { angle = m.lane.angle; offset = m.lane.offset; level = m.lane.level; document.documentElement.dataset.laneFrom = m.lane.from; } // CC-91: the lane the map proved, not the editor's own start
     if (m?.pieces?.length) { // picked buildings from the map flight (CC-79): separate pieces, each where it stood
       pendingObjects.length = 0;
       pieces = m.pieces.map((q) => ({ ...newPiece(q.name, { positions: q.positions, indices: q.indices }), x: q.x, z: q.z, src: `map:${q.name}` }));
@@ -626,7 +627,7 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
   function updatePreview() {
     if (!proposal) { preview = null; previewProfile = null; previewBars = []; return; }
     preview = resultOf(pieces, { angle, offset, level }, proposal, machineNow());
-    previewProfile = sliceProfile(worldSamples(preview.pieces.filter((q) => !isHold(q) && q.role !== 'rope')), { x: 0, z: 0 }, preview.lane);
+    previewProfile = laneProfile(preview.pieces.filter((q) => !isHold(q) && q.role !== 'rope'), preview.lane);
     previewBars = holdsOf(preview.pieces, preview.lane);
     draw(); drawProfile();
     const key = keyOf(proposal), mine = ++proofRun;
@@ -772,7 +773,7 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
     slider('Where the water starts (level)', 'level', 0, 4, 0.05, () => level, (v) => (level = v), (v) => `${v.toFixed(2)} m`);
     el('button', lanePanel, { text: 'Find the best lane for me', id: 'best' }).onclick = () => {
       const s = worldSamples(ground());
-      const found = bestSlices({ positions: Array.from(s) }, { top: 1, levels: [level], centre: { x: 0, z: 0 } }); // the editor's rod is the origin, so the lane it finds is the lane it shows
+      const found = bestSlices({ positions: Array.from(s) }, { top: 1, levels: [level], centre: { x: 0, z: 0 }, reprofile: (c) => laneProfile(ground(), c) }); // the editor's rod is the origin, so the lane it finds is the lane it shows
       if (!found.length) { verdict = 'No lane the runner can clear was found: try other pieces or levels.'; drawLanePanel(); return; }
       angle = found[0].angle; offset = found[0].offset; level = found[0].level; verdict = '';
       save(); drawLanePanel(); draw(); drawProfile(); verify();
@@ -838,7 +839,7 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
     if (p) { p.src = src; p.mesh = centred(deviceMesh(src)); }
   };
   const ground = () => coursePieces().filter((q) => !isHold(q) && q.role !== 'rope' && !isPlankPiece(q)); // references, bars, rope anchors and planks are not ground
-  const currentProfile = () => sliceProfile(worldSamples(ground()), { x: 0, z: 0 }, { angle, offset, level });
+  const currentProfile = () => laneProfile(ground(), { angle, offset, level });
   const barsNow = () => holdsOf(pieces, { angle, offset, level });
   let floorChoice: Hazard = startFloor; // the floor you must not touch (saved in the course)
   let bandK: number | null = null; // the lane starts at an elastic band (its stiffness in N/m)
@@ -959,6 +960,7 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
   function verify() {
     interruptSearch();
     const version = verifyVersion;
+    document.documentElement.dataset.lane = JSON.stringify({ angle, offset, level }); // for the checks: the lane being verified
     verifyTimer = window.setTimeout(async () => {
       const p = currentProfile();
       if (p.length < 8) { verdict = 'Nothing is in the lane: move the lane or the pieces.'; }

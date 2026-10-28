@@ -1,0 +1,674 @@
+[
+  {
+    "slug": "alfama-lisbon",
+    "shrink": 0.333,
+    "lane": {
+      "angle": 2.6179938779914944,
+      "offset": -26.2,
+      "level": 6
+    },
+    "before": {
+      "mapReads": {
+        "length": 26.2,
+        "gaps": 1,
+        "steps": 7,
+        "faces": 0,
+        "maxRise": 0.5,
+        "maxDrop": 0.8
+      },
+      "editorReadsSameLane": {
+        "length": 26,
+        "gaps": 3,
+        "steps": 22,
+        "faces": 31,
+        "maxRise": 5.7,
+        "maxDrop": 5.7
+      },
+      "cellsDifferent": 209
+    },
+    "after": {
+      "mapReads": {
+        "length": 26.2,
+        "gaps": 1,
+        "steps": 1,
+        "faces": 0,
+        "maxRise": 0.1,
+        "maxDrop": 0.6
+      },
+      "editorReadsSameLane": {
+        "length": 26.2,
+        "gaps": 1,
+        "steps": 1,
+        "faces": 0,
+        "maxRise": 0.1,
+        "maxDrop": 0.6
+      },
+      "cellsDifferent": 0
+    },
+    "cellsTotal": 262,
+    "editorStartsOn": {
+      "length": 77.3,
+      "gaps": 6,
+      "steps": 71,
+      "faces": 257,
+      "maxRise": 17,
+      "maxDrop": 17.8
+    }
+  },
+  {
+    "slug": "circular-quay-sydney",
+    "shrink": 0.333,
+    "lane": {
+      "angle": 0.3490658503988659,
+      "offset": -37.7,
+      "level": 6
+    },
+    "before": {
+      "mapReads": {
+        "length": 38.1,
+        "gaps": 2,
+        "steps": 1,
+        "faces": 0,
+        "maxRise": 0.1,
+        "maxDrop": 0.3
+      },
+      "editorReadsSameLane": {
+        "length": 38,
+        "gaps": 2,
+        "steps": 23,
+        "faces": 24,
+        "maxRise": 4.7,
+        "maxDrop": 4
+      },
+      "cellsDifferent": 143
+    },
+    "after": {
+      "mapReads": {
+        "length": 38.1,
+        "gaps": 2,
+        "steps": 0,
+        "faces": 0,
+        "maxRise": 0.1,
+        "maxDrop": 0.1
+      },
+      "editorReadsSameLane": {
+        "length": 38.1,
+        "gaps": 2,
+        "steps": 0,
+        "faces": 0,
+        "maxRise": 0.1,
+        "maxDrop": 0.1
+      },
+      "cellsDifferent": 0
+    },
+    "cellsTotal": 381,
+    "editorStartsOn": {
+      "length": 50.4,
+      "gaps": 2,
+      "steps": 96,
+      "faces": 158,
+      "maxRise": 8.6,
+      "maxDrop": 8.6
+    }
+  },
+  {
+    "slug": "ciutadella-barcelona",
+    "shrink": 0.556,
+    "lane": {
+      "angle": 0.6981317007977318,
+      "offset": -26.1,
+      "level": 6
+    },
+    "before": {
+      "mapReads": {
+        "length": 42,
+        "gaps": 2,
+        "steps": 4,
+        "faces": 0,
+        "maxRise": 0.6,
+        "maxDrop": 0.7
+      },
+      "editorReadsSameLane": {
+        "length": 42,
+        "gaps": 2,
+        "steps": 17,
+        "faces": 12,
+        "maxRise": 2.4,
+        "maxDrop": 3.7
+      },
+      "cellsDifferent": 40
+    },
+    "after": {
+      "mapReads": {
+        "length": 42,
+        "gaps": 2,
+        "steps": 0,
+        "faces": 0,
+        "maxRise": 0.2,
+        "maxDrop": 0.2
+      },
+      "editorReadsSameLane": {
+        "length": 42,
+        "gaps": 2,
+        "steps": 0,
+        "faces": 0,
+        "maxRise": 0.2,
+        "maxDrop": 0.2
+      },
+      "cellsDifferent": 0
+    },
+    "cellsTotal": 420,
+    "editorStartsOn": {
+      "length": 0,
+      "gaps": 0,
+      "steps": 0,
+      "faces": 0,
+      "maxRise": 0,
+      "maxDrop": 0
+    }
+  },
+  {
+    "slug": "edinburgh-old-town",
+    "shrink": 0.2,
+    "lane": {
+      "angle": 2.0943951023931953,
+      "offset": -22.2,
+      "level": 6
+    },
+    "before": {
+      "mapReads": {
+        "length": 33.4,
+        "gaps": 2,
+        "steps": 7,
+        "faces": 1,
+        "maxRise": 0.5,
+        "maxDrop": 1.3
+      },
+      "editorReadsSameLane": {
+        "length": 33.4,
+        "gaps": 2,
+        "steps": 62,
+        "faces": 52,
+        "maxRise": 3.6,
+        "maxDrop": 3.9
+      },
+      "cellsDifferent": 135
+    },
+    "after": {
+      "mapReads": {
+        "length": 33.4,
+        "gaps": 2,
+        "steps": 5,
+        "faces": 1,
+        "maxRise": 0.4,
+        "maxDrop": 1.2
+      },
+      "editorReadsSameLane": {
+        "length": 33.4,
+        "gaps": 2,
+        "steps": 5,
+        "faces": 1,
+        "maxRise": 0.4,
+        "maxDrop": 1.2
+      },
+      "cellsDifferent": 0
+    },
+    "cellsTotal": 334,
+    "editorStartsOn": {
+      "length": 52.8,
+      "gaps": 3,
+      "steps": 72,
+      "faces": 68,
+      "maxRise": 4.8,
+      "maxDrop": 4.6
+    }
+  },
+  {
+    "slug": "eixample-barcelona",
+    "shrink": 0.238,
+    "lane": {
+      "angle": 2.6179938779914944,
+      "offset": 31.7,
+      "level": 6
+    },
+    "before": {
+      "mapReads": {
+        "length": 37.5,
+        "gaps": 1,
+        "steps": 3,
+        "faces": 1,
+        "maxRise": 0.5,
+        "maxDrop": 2.2
+      },
+      "editorReadsSameLane": {
+        "length": 37.4,
+        "gaps": 1,
+        "steps": 29,
+        "faces": 67,
+        "maxRise": 4.6,
+        "maxDrop": 5.2
+      },
+      "cellsDifferent": 117
+    },
+    "after": {
+      "mapReads": {
+        "length": 37.5,
+        "gaps": 1,
+        "steps": 0,
+        "faces": 1,
+        "maxRise": 0,
+        "maxDrop": 2.2
+      },
+      "editorReadsSameLane": {
+        "length": 37.5,
+        "gaps": 1,
+        "steps": 0,
+        "faces": 1,
+        "maxRise": 0,
+        "maxDrop": 2.2
+      },
+      "cellsDifferent": 0
+    },
+    "cellsTotal": 375,
+    "editorStartsOn": {
+      "length": 61.5,
+      "gaps": 1,
+      "steps": 68,
+      "faces": 98,
+      "maxRise": 5.6,
+      "maxDrop": 7.4
+    }
+  },
+  {
+    "slug": "lombard-street-san-francisco",
+    "shrink": 0.273,
+    "lane": {
+      "angle": 1.2217304763960306,
+      "offset": -34.9,
+      "level": 6
+    },
+    "before": {
+      "mapReads": {
+        "length": 23.1,
+        "gaps": 1,
+        "steps": 5,
+        "faces": 0,
+        "maxRise": 0.5,
+        "maxDrop": 0.8
+      },
+      "editorReadsSameLane": {
+        "length": 23,
+        "gaps": 1,
+        "steps": 32,
+        "faces": 44,
+        "maxRise": 4.9,
+        "maxDrop": 4.2
+      },
+      "cellsDifferent": 151
+    },
+    "after": {
+      "mapReads": {
+        "length": 23.1,
+        "gaps": 1,
+        "steps": 1,
+        "faces": 0,
+        "maxRise": 0,
+        "maxDrop": 1
+      },
+      "editorReadsSameLane": {
+        "length": 23.1,
+        "gaps": 1,
+        "steps": 1,
+        "faces": 0,
+        "maxRise": 0,
+        "maxDrop": 1
+      },
+      "cellsDifferent": 0
+    },
+    "cellsTotal": 231,
+    "editorStartsOn": {
+      "length": 51.3,
+      "gaps": 2,
+      "steps": 53,
+      "faces": 163,
+      "maxRise": 11.7,
+      "maxDrop": 13.2
+    }
+  },
+  {
+    "slug": "montmartre-paris",
+    "shrink": 0.12,
+    "lane": {
+      "angle": 1.0471975511965976,
+      "offset": 12.8,
+      "level": 6
+    },
+    "before": {
+      "mapReads": {
+        "length": 21.3,
+        "gaps": 2,
+        "steps": 5,
+        "faces": 1,
+        "maxRise": 0.3,
+        "maxDrop": 2.4
+      },
+      "editorReadsSameLane": {
+        "length": 21.3,
+        "gaps": 2,
+        "steps": 40,
+        "faces": 14,
+        "maxRise": 4.8,
+        "maxDrop": 4.8
+      },
+      "cellsDifferent": 56
+    },
+    "after": {
+      "mapReads": {
+        "length": 21.3,
+        "gaps": 2,
+        "steps": 4,
+        "faces": 1,
+        "maxRise": 0.3,
+        "maxDrop": 2.3
+      },
+      "editorReadsSameLane": {
+        "length": 21.3,
+        "gaps": 2,
+        "steps": 4,
+        "faces": 1,
+        "maxRise": 0.3,
+        "maxDrop": 2.3
+      },
+      "cellsDifferent": 0
+    },
+    "cellsTotal": 213,
+    "editorStartsOn": {
+      "length": 29.9,
+      "gaps": 2,
+      "steps": 32,
+      "faces": 14,
+      "maxRise": 6.8,
+      "maxDrop": 7.6
+    }
+  },
+  {
+    "slug": "positano-italy",
+    "shrink": 0.12,
+    "lane": {
+      "angle": 2.9670597283903604,
+      "offset": -10.1,
+      "level": 6
+    },
+    "before": {
+      "mapReads": {
+        "length": 36,
+        "gaps": 2,
+        "steps": 3,
+        "faces": 0,
+        "maxRise": 0.4,
+        "maxDrop": 0.9
+      },
+      "editorReadsSameLane": {
+        "length": 36,
+        "gaps": 2,
+        "steps": 34,
+        "faces": 17,
+        "maxRise": 2.4,
+        "maxDrop": 2.6
+      },
+      "cellsDifferent": 46
+    },
+    "after": {
+      "mapReads": {
+        "length": 36,
+        "gaps": 2,
+        "steps": 1,
+        "faces": 0,
+        "maxRise": 0.1,
+        "maxDrop": 0.6
+      },
+      "editorReadsSameLane": {
+        "length": 36,
+        "gaps": 2,
+        "steps": 1,
+        "faces": 0,
+        "maxRise": 0.1,
+        "maxDrop": 0.6
+      },
+      "cellsDifferent": 0
+    },
+    "cellsTotal": 360,
+    "editorStartsOn": {
+      "length": 29.8,
+      "gaps": 2,
+      "steps": 65,
+      "faces": 13,
+      "maxRise": 4.2,
+      "maxDrop": 2
+    }
+  },
+  {
+    "slug": "shibuya-tokyo",
+    "shrink": 0.283,
+    "lane": {
+      "angle": 0.17453292519943295,
+      "offset": -2.9,
+      "level": 6
+    },
+    "before": {
+      "mapReads": {
+        "length": 14.6,
+        "gaps": 1,
+        "steps": 3,
+        "faces": 1,
+        "maxRise": 0.4,
+        "maxDrop": 1.4
+      },
+      "editorReadsSameLane": {
+        "length": 14.3,
+        "gaps": 1,
+        "steps": 18,
+        "faces": 41,
+        "maxRise": 5.4,
+        "maxDrop": 5.2
+      },
+      "cellsDifferent": 67
+    },
+    "after": {
+      "mapReads": {
+        "length": 14.6,
+        "gaps": 1,
+        "steps": 0,
+        "faces": 1,
+        "maxRise": 0,
+        "maxDrop": 1.6
+      },
+      "editorReadsSameLane": {
+        "length": 14.6,
+        "gaps": 1,
+        "steps": 0,
+        "faces": 1,
+        "maxRise": 0,
+        "maxDrop": 1.6
+      },
+      "cellsDifferent": 0
+    },
+    "cellsTotal": 146,
+    "editorStartsOn": {
+      "length": 5.2,
+      "gaps": 0,
+      "steps": 14,
+      "faces": 27,
+      "maxRise": 8.1,
+      "maxDrop": 7.6
+    }
+  },
+  {
+    "slug": "spanish-steps-rome",
+    "shrink": 0.556,
+    "lane": {
+      "angle": 0.6981317007977318,
+      "offset": 60.3,
+      "level": 6
+    },
+    "before": {
+      "mapReads": {
+        "length": 69.8,
+        "gaps": 3,
+        "steps": 7,
+        "faces": 2,
+        "maxRise": 2.1,
+        "maxDrop": 1.3
+      },
+      "editorReadsSameLane": {
+        "length": 69.8,
+        "gaps": 6,
+        "steps": 30,
+        "faces": 62,
+        "maxRise": 6.2,
+        "maxDrop": 5.5
+      },
+      "cellsDifferent": 450
+    },
+    "after": {
+      "mapReads": {
+        "length": 69.8,
+        "gaps": 3,
+        "steps": 3,
+        "faces": 2,
+        "maxRise": 1.9,
+        "maxDrop": 1.3
+      },
+      "editorReadsSameLane": {
+        "length": 69.8,
+        "gaps": 3,
+        "steps": 3,
+        "faces": 2,
+        "maxRise": 1.9,
+        "maxDrop": 1.3
+      },
+      "cellsDifferent": 0
+    },
+    "cellsTotal": 698,
+    "editorStartsOn": {
+      "length": 132.5,
+      "gaps": 6,
+      "steps": 44,
+      "faces": 175,
+      "maxRise": 13.2,
+      "maxDrop": 14.9
+    }
+  },
+  {
+    "slug": "speicherstadt-hamburg",
+    "shrink": 0.417,
+    "lane": {
+      "angle": 2.792526803190927,
+      "offset": -34,
+      "level": 6
+    },
+    "before": {
+      "mapReads": {
+        "length": 103.3,
+        "gaps": 2,
+        "steps": 3,
+        "faces": 1,
+        "maxRise": 0.5,
+        "maxDrop": 2.2
+      },
+      "editorReadsSameLane": {
+        "length": 103.3,
+        "gaps": 3,
+        "steps": 39,
+        "faces": 77,
+        "maxRise": 6.3,
+        "maxDrop": 6.3
+      },
+      "cellsDifferent": 339
+    },
+    "after": {
+      "mapReads": {
+        "length": 103.3,
+        "gaps": 2,
+        "steps": 2,
+        "faces": 1,
+        "maxRise": 0.3,
+        "maxDrop": 2.4
+      },
+      "editorReadsSameLane": {
+        "length": 103.3,
+        "gaps": 2,
+        "steps": 2,
+        "faces": 1,
+        "maxRise": 0.3,
+        "maxDrop": 2.4
+      },
+      "cellsDifferent": 0
+    },
+    "cellsTotal": 1033,
+    "editorStartsOn": {
+      "length": 198.8,
+      "gaps": 2,
+      "steps": 80,
+      "faces": 228,
+      "maxRise": 9.4,
+      "maxDrop": 10.4
+    }
+  },
+  {
+    "slug": "valletta-harbour-malta",
+    "shrink": 0.556,
+    "lane": {
+      "angle": 0,
+      "offset": -72.3,
+      "level": 6
+    },
+    "before": {
+      "mapReads": {
+        "length": 23.8,
+        "gaps": 1,
+        "steps": 2,
+        "faces": 0,
+        "maxRise": 0.3,
+        "maxDrop": 0.3
+      },
+      "editorReadsSameLane": {
+        "length": 23.6,
+        "gaps": 3,
+        "steps": 10,
+        "faces": 32,
+        "maxRise": 4.7,
+        "maxDrop": 4.5
+      },
+      "cellsDifferent": 168
+    },
+    "after": {
+      "mapReads": {
+        "length": 23.8,
+        "gaps": 1,
+        "steps": 0,
+        "faces": 0,
+        "maxRise": 0.1,
+        "maxDrop": 0.1
+      },
+      "editorReadsSameLane": {
+        "length": 23.8,
+        "gaps": 1,
+        "steps": 0,
+        "faces": 0,
+        "maxRise": 0.1,
+        "maxDrop": 0.1
+      },
+      "cellsDifferent": 0
+    },
+    "cellsTotal": 238,
+    "editorStartsOn": {
+      "length": 168.7,
+      "gaps": 5,
+      "steps": 10,
+      "faces": 65,
+      "maxRise": 13.6,
+      "maxDrop": 15.6
+    }
+  }
+]

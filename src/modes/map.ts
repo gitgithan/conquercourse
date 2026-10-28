@@ -5,6 +5,7 @@ import 'maplibre-gl/dist/maplibre-gl.css';
 import workerUrl from 'maplibre-gl/dist/maplibre-gl-worker.mjs?url';
 import { buildingsFrom, extrude, osmToMesh, type OverpassAnswer } from '../world/osm';
 import { installPlaces } from './map-place';
+import type { PlaceLane } from '../world/places';
 import { fetchGround, lowest, relief, TERRAIN_ATTRIBUTION, type Ground, type Tile } from '../world/terrain';
 import { buildingTops, contourSegments, cutBuildings, cutRange, ladderLevels, ladderStep, laneLine, piecesFrom, resample, slopeCells, toLonLat, type Seg } from '../slice/slicer';
 import { reducedMotion, runFlight, scaleWords } from './map-flight';
@@ -144,6 +145,16 @@ export function startMap(host: HTMLElement): { backend: 'webgl2' } {
     const rd = (a: number[]) => a.map((v) => Math.round(v * 100) / 100);
     sessionStorage.setItem(PIECE_KEY, JSON.stringify({ name, positions: rd(m.positions), indices: m.indices }));
   };
+  // CC-91: the lane the map proved goes to the editor with the pieces; the editor used to start on its own lane (turn 0, sideways 0, level 0)
+  const setLane = (l: PlaceLane | null) => {
+    if (!l?.cleared) return;
+    try {
+      const j = JSON.parse(sessionStorage.getItem(PIECE_KEY) ?? 'null');
+      if (!j) return;
+      j.lane = { angle: (l.turnDeg * Math.PI) / 180, offset: l.sidewaysM, level: l.levelM, from: 'place' };
+      sessionStorage.setItem(PIECE_KEY, JSON.stringify(j));
+    } catch { /* the editor then finds a lane of its own */ }
+  };
   build.onclick = async () => {
     if (!pin || !places) return;
     build.disabled = true;
@@ -160,7 +171,7 @@ export function startMap(host: HTMLElement): { backend: 'webgl2' } {
       storePiece(m, name);
       tell(`Built ${m.buildings} buildings${o.ground ? `, on a hill of ${Math.round(relief(o.ground))} m (${m.relief.toFixed(1)} m once shrunk)` : ''}. Open it in the editor, or look at how the pin became a course below.`);
       document.documentElement.dataset.hill = o.ground ? String(Math.round(relief(o.ground))) : '0';
-      places.finish(o, m, k0, (k) => { setShrink(k); const m2 = osmToMesh(o.answer, o.lat, o.lon, k, o.ground); storePiece(m2, name); return m2; });
+      places.finish(o, m, k0, (k) => { setShrink(k); const m2 = osmToMesh(o.answer, o.lat, o.lon, k, o.ground); storePiece(m2, name); return m2; }, setLane);
     } catch (e) { tell((e as Error).message, true); }
     build.disabled = false;
   };
@@ -245,7 +256,9 @@ export function startMap(host: HTMLElement): { backend: 'webgl2' } {
     map.setLayoutProperty('sl-lane', 'visibility', has && proved ? 'visible' : 'none');
   }
 
+  let shownLane: { c: number; l: LaneSummary; proved: boolean } | null = null; // the lane on the screen: this is the one the editor gets
   function showLane(c: number, quick: LaneSummary | null, proved: LaneSummary | null | undefined) {
+    shownLane = proved ? { c, l: proved, proved: true } : quick ? { c, l: quick, proved: false } : null;
     const head = `Cut at ${num1(c)} m: `;
     if (proved) { drawLane(proved, true); read.textContent = `${head}the lane is ${Math.round(proved.length)} m long in the game, clearable.`; dset('sliceLane', 'clearable'); dset('sliceLaneLength', Math.round(proved.length)); }
     else if (proved === null && quick) { drawLane(quick, false); read.textContent = `${head}a lane of ${Math.round(quick.length)} m, but the simulator could not clear it.`; dset('sliceLane', 'not-clearable'); }
@@ -373,7 +386,8 @@ export function startMap(host: HTMLElement): { backend: 'webgl2' } {
     if (!S) return;
     const pieces = piecesFrom(S.tops, S.picked, S.k, S.ground);
     if (!pieces.length) { tell('Pick at least one building first.', true); return; }
-    try { sessionStorage.setItem(PIECE_KEY, JSON.stringify({ name: 'Place', pieces, camera: { heading: map.getBearing(), pitch: map.getPitch(), distance: Math.max(12, S.r * S.k * 1.8) } })); } catch { tell('That is too many buildings to hand over at once. Pick fewer.', true); return; }
+    const lane = shownLane && shownLane.c === Number(cut.value) ? { angle: shownLane.l.angle, offset: shownLane.l.offset, level: shownLane.c, from: shownLane.proved ? 'slicer' : 'slicer-unproved' } : undefined;
+    try { sessionStorage.setItem(PIECE_KEY, JSON.stringify({ name: 'Place', pieces, ...(lane ? { lane } : {}), camera: { heading: map.getBearing(), pitch: map.getPitch(), distance: Math.max(12, S.r * S.k * 1.8) } })); } catch { tell('That is too many buildings to hand over at once. Pick fewer.', true); return; }
     dset('handover', pieces.length);
     mapEl.style.transition = 'opacity .4s'; mapEl.style.opacity = '0.2';
     setTimeout(() => { location.search = '?mode=editor'; }, 450);
