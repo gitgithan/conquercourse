@@ -18,7 +18,7 @@ const load = (glb: string, x: number, z = 0): P => {
 
 interface Demo { file: string; name: string; about: string; pieces: [string, number][]; lane?: { angle: number; offset: number; level: number } }
 export const DEMOS: Demo[] = [
-  { file: "park-rail-run", name: "Park rail run", about: "Three real handrails and a skate box in a row: vault, jump, repeat.", pieces: [["rail-skate-01.glb", 3], ["rail-skate-02.glb", 8.5], ["railing-iron.glb", 13.5], ["box-skate-03.glb", 19]] },
+  { file: "park-rail-run", name: "Park rail run", about: "Three real handrails and a skate box in a row: vault, jump, repeat.", pieces: [["rail-skate-01.glb", 3], ["rail-skate-02.glb", 8.5], ["railing-iron.glb", 14], ["box-skate-03.glb", 19]] },
   { file: "bench-and-stairs", name: "Bench and stairs", about: "A skate box, a concrete bench and park stairs: small steps up and down.", pieces: [["box-skate-03.glb", 3], ["bench-concrete.glb", 7.7], ["stairs-park-07.glb", 12.2], ["box-skate-03.glb", 18]] },
   { file: "skate-box-and-rail", name: "Skate box and rail", about: "Stairs, a long box, a handrail and a bench: a plaza line.", pieces: [["stairs-park-07.glb", 3], ["box-skate-03.glb", 9.5], ["rail-skate-01.glb", 15.5], ["bench-concrete.glb", 21]] },
 ];
