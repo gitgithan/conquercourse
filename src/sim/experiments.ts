@@ -284,14 +284,14 @@ const recoilExp: Experiment = {
     { id: 'mass', label: 'Mass of the ball', unit: 'kg', min: 2, max: 40, def: 12, step: 1, why: 'A heavier ball carries more push away with it, so it pushes you harder.' },
     { id: 'muzzle', label: 'Speed of the ball leaving the launcher', unit: 'm/s', min: 5, max: 40, def: 30, step: 1, why: 'A faster ball carries more push away with it. Twice as fast, twice the push.' },
   ],
-  sayings: ['The heavy thing goes slow and the light thing goes fast, and what they carry is the same.'],
+  sayings: ['The heavy thing goes slow, the light thing fast, and both carry the same.'],
   run(v) {
     const p = { ...DEFAULT_RECOIL, ballMass: v.mass, muzzle: v.muzzle };
     const push = standingPush(p), ball = ballSpeedFromRest(p);
     const t = 0.5, back = ball * t, fwd = push * t, x0 = back + 1; // half a second after the shot; the picture stays to the right of zero
     return {
       answer: push,
-      path: [{ x: x0, y: 0 }, { x: x0 + fwd, y: 0 }],
+      path: Array.from({ length: 6 }, (_, i) => ({ x: x0 + (fwd * i) / 5, y: 0 })), // where you are each tenth of a second after the shot
       overlays: [{ pts: [{ x: x0, y: 0.7 }, { x: x0 - back, y: 0.7 }], color: '#e8622c', label: `ball: ${ball.toFixed(1)} m/s backward, ${v.mass.toFixed(0)} kg` }, { pts: [{ x: x0, y: 0 }, { x: x0 + fwd, y: 0 }], color: '#16a34a', label: `you: ${push.toFixed(1)} m/s forward, ${DEFAULT_RECOIL.charMass} kg` }],
       people: [{ x: x0, y: 0, pose: 'stand', label: 'the shot' }, { x: x0 + fwd, y: 0, pose: 'stand', label: 'half a second later' }],
       note: `The ${v.mass.toFixed(0)} kg ball leaves at ${v.muzzle.toFixed(0)} m/s from you, which is ${ball.toFixed(1)} m/s against the ground. You go forward at ${push.toFixed(1)} m/s. The heavy ball is slow and you are fast: ${(v.mass * ball).toFixed(0)} kg·m/s of push goes back, and ${(DEFAULT_RECOIL.charMass * push).toFixed(0)} kg·m/s of push goes forward.`,

@@ -32,7 +32,7 @@
 | The roll | *"Turn your fall into a roll and the ground forgives you."* | Downward speed turned into rotation |
 | The trebuchet | *"A long arm gets you far; letting go late gets you thrown into the ground."* | The moment (weight times distance from the pivot) turns the arm, a longer arm moves its tip faster, and the release moment decides the flight |
 | Cup stacks | *"Speed climbs the cups, and speed carries you off the top."* | A step up needs speed, but the narrow flat top is crossed in a blink at that speed |
-| Recoil | *"The heavy thing goes slow and the light thing goes fast, and what they carry is the same."* | Momentum is conserved: the ball carries a push away backward and the runner carries the same push forward |
+| Recoil | *"The heavy thing goes slow, the light thing fast, and both carry the same."* | Momentum is conserved: the ball carries a push away backward and the runner carries the same push forward |
 
 ## Where they appear
 - **A law the player earns:** shown only after the player has discovered that principle in the Dojo (for example, their rope predictions get close); collected sayings fill the trophy cabinet.
