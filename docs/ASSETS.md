@@ -201,3 +201,10 @@
 | `public/assets/places/san-francisco-lombard/photo-1.jpg` | The crooked block of Lombard Street seen from above. (Lombard Street, San Francisco) | Christopher Michel | https://commons.wikimedia.org/wiki/File:Lombard_Street_in_2020_01.jpg | CC BY-SA 4.0 (https://creativecommons.org/licenses/by-sa/4.0) |
 | `public/assets/places/san-francisco-lombard/photo-2.jpg` | Looking down Lombard Street from the top of the hill. (Lombard Street, San Francisco) | Miscellaneous contributor | https://commons.wikimedia.org/wiki/File:Lombard_Street_from_the_top_of_the_street.jpg | CC0 (http://creativecommons.org/publicdomain/zero/1.0/deed.en) |
 | `public/assets/places/san-francisco-lombard/photo-3.jpg` | The crooked section of Lombard Street, looking towards Telegraph Hill. (Lombard Street, San Francisco) | Edocarli | https://commons.wikimedia.org/wiki/File:Lombard_Street,_crooked,_looking_towards_Telegraph_Hill,_San_Francisco,_CA_(August_2009).jpg | CC BY-SA 4.0 (https://creativecommons.org/licenses/by-sa/4.0) |
+
+## Real-object demo courses (CC-84)
+| File | What | Made from | Licence | Made with |
+|---|---|---|---|---|
+| `public/assets/demo/park-rail-run.course.json` | demo course: three handrails and a skate box in a row | the CC0 objects rail-skate-01, rail-skate-02, railing-iron, box-skate-03 (`public/assets/objects/`) | CC0 (objects), our code | `scripts/make-real-demos.ts` |
+| `public/assets/demo/bench-and-stairs.course.json` | demo course: a skate box, a bench and park stairs | the CC0 objects box-skate-03, bench-concrete, stairs-park-07 | CC0 (objects), our code | `scripts/make-real-demos.ts` |
+| `public/assets/demo/skate-box-and-rail.course.json` | demo course: stairs, a long box, a handrail and a bench | the CC0 objects stairs-park-07, box-skate-03, rail-skate-01, bench-concrete | CC0 (objects), our code | `scripts/make-real-demos.ts` |

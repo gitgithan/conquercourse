@@ -1244,3 +1244,21 @@ The set of obstacle shapes is fixed, and each shape offers a fixed set of moves.
   - The stabiliser is always on in the Course; raw thrust (no stabiliser) is in the physics (`stabiliser: false`) but only shown through the Hover lesson numbers.
   - The rider uses the seated cart pose, not a harness pose.
   - Wind is in the physics (`wind` gusts) but the demo is calm.
+## Course experience pass (CC-84)
+- **So what:** the first minute of the demo now shows real places and real objects, the corner camera is always there, and the camera can come right up to the character's face.
+- **Demo menu:**
+  - The two plain-shape lane demos ("Demo scene, lane 1 and 2") are gone from the menu; their files stay for tests.
+  - The menu is grouped: Real places, Real objects (built in the editor), Contraptions, Moves, Make your own, Basics.
+  - Each entry has a one-line note (shown under the menu and as a tooltip).
+- **Courses made from real objects** (`npx tsx scripts/make-real-demos.ts`, the same steps as the editor: place the library objects, cut the lane, make the course, put the real meshes in as the scene, prove it, store the plan):
+  - **Park rail run:** three real handrails and a skate box.
+  - **Bench and stairs:** a skate box, a concrete bench and park stairs.
+  - **Skate box and rail:** stairs, a long box, a handrail and a bench.
+- **Front view:** the corner window is on for every course (F toggles it, `?front=0` starts it off).
+  - It used to show only on a bar or after F.
+- **Face zoom:**
+  - The mouse wheel goes on past the closest normal view; the target glides to the head and the camera swings round to the front of the face, about 0.7 m away.
+  - Dragging still turns the view around the head, and a double-click resets it.
+  - The C key keeps its order: side, 45 degrees, first person.
+- **Checks:** `scripts/experience-check.mjs` (menu groups, front view on every menu course, F off and on, face zoom and reset) and `scripts/demos-check.mjs` (every menu course loads and shows the front view).
+- **Known gap:** the face is the Rookie's simple face.
