@@ -1,0 +1,48 @@
+{
+  "place": "montmartre-paris",
+  "name": "Montmartre, Paris",
+  "photos": [
+    {
+      "file": "photo-1.jpg",
+      "title": "Paris - c.1987 - The Rooftops of Paris from the Sacre Coeur.jpg",
+      "author": "Gareth Williams",
+      "licence": "CC BY 2.0",
+      "licenceUrl": "https://creativecommons.org/licenses/by/2.0",
+      "source": "https://commons.wikimedia.org/wiki/File:Paris_-_c.1987_-_The_Rooftops_of_Paris_from_the_Sacre_Coeur.jpg",
+      "date": "с. 1987",
+      "hint": "The dome of the Sacré-Cœur on the Montmartre hill, with the Paris rooftops beyond.",
+      "changes": "Scaled to 1200 px wide and recompressed as JPEG.",
+      "width": 1200,
+      "height": 856,
+      "bytes": 229712
+    },
+    {
+      "file": "photo-2.jpg",
+      "title": "Église Saint-Vincent-de-Paul - Elevated view from Montmartre with Paris rooftops.jpg",
+      "author": "iMahesh",
+      "licence": "CC BY-SA 4.0",
+      "licenceUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+      "source": "https://commons.wikimedia.org/wiki/File:%C3%89glise_Saint-Vincent-de-Paul_-_Elevated_view_from_Montmartre_with_Paris_rooftops.jpg",
+      "date": "2026-07-22 00:22:14",
+      "hint": "The church of Saint-Vincent-de-Paul among the Paris rooftops, seen from Montmartre.",
+      "changes": "Scaled to 1200 px wide and recompressed as JPEG.",
+      "width": 1200,
+      "height": 800,
+      "bytes": 227956
+    },
+    {
+      "file": "photo-3.jpg",
+      "title": "Eternal skyline-View of Paris from Basilique de Sacre Coeur - panoramio.jpg",
+      "author": "cherisam",
+      "licence": "CC BY-SA 3.0",
+      "licenceUrl": "https://creativecommons.org/licenses/by-sa/3.0",
+      "source": "https://commons.wikimedia.org/wiki/File:Eternal_skyline-View_of_Paris_from_Basilique_de_Sacre_Coeur_-_panoramio.jpg",
+      "date": "5 November 2011",
+      "hint": "The view from the Sacré-Cœur steps over the gardens to the Paris skyline.",
+      "changes": "Scaled to 1200 px wide and recompressed as JPEG.",
+      "width": 1200,
+      "height": 469,
+      "bytes": 89834
+    }
+  ]
+}

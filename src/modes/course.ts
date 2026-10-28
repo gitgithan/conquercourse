@@ -28,6 +28,7 @@ import { groundAt } from '../sim/terrain';
 import { drumsFor } from '../sim/drums';
 import { createDrumLane } from '../ui/drum-lane';
 import { createDebugView } from '../ui/debug-view';
+import { loadPlacePhotos, mountPlacePhotos, slugOfCourse } from '../ui/place-photos';
 import { barName, predictLaunch, predictRelease } from '../sim/predict';
 import { createTrebuchetView } from '../ui/trebuchet-view';
 import { createRecoilView } from '../ui/recoil-view';
@@ -441,6 +442,9 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
   dbgBtn.id = 'debugbtn'; dbgBtn.textContent = 'Debug (B)'; dbgBtn.title = 'Show the collision boxes and where a jump right now would go';
   dbgBtn.style.cssText = 'position:fixed;right:16px;top:166px;border:2px solid #17201d;background:#fff;color:#17201d;border-radius:10px;padding:3px 10px;cursor:pointer;font:600 12px system-ui,sans-serif';
   document.body.append(hud, msg, help, panel, hint, gauge, dojoBtn, idealBtn, wholeBtn, pick, camBtn, dbgBtn);
+  // CC-85: a real place shows its real photos (credit under each, a large view on click); ?photos=0 or the Hide switch turns them off
+  const placeSlug = slugOfCourse(course.name);
+  if (placeSlug && new URLSearchParams(location.search).get('photos') !== '0') void loadPlacePhotos(placeSlug).then((d) => { if (d) mountPlacePhotos(document.body, d); });
   const toast = document.createElement('div');
   toast.style.cssText = 'position:fixed;left:50%;top:44%;transform:translateX(-50%);font:700 22px system-ui,sans-serif;color:#10141c;background:#fffffff0;border-radius:10px;padding:6px 14px;pointer-events:none;display:none';
   document.body.append(toast);
