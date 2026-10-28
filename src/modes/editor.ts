@@ -5,6 +5,7 @@ import { LIBRARY } from '../slice/shapes';
 import { bestSlices, describe as describeLane, sliceProfile, CELL, HALF_LANE } from '../slice/slice';
 import { crop, centred, duplicate, hits, newPiece, realSize, scaleBy, scaleToHeight, size, worldSamples, type Piece } from '../slice/world';
 import type { CourseData } from '../course/course';
+import { workSeconds } from '../sim/ideal';
 import { createView3d, type Ghosts } from '../slice/view3d';
 import { sceneFor } from '../slice/scene';
 import { barMesh, holdsOf, isHold, REACH_JUMPING, REACH_STANDING } from '../slice/holds-world';
@@ -18,12 +19,13 @@ import { fixBand } from '../slice/fixband';
 import { DRONE_PAD_LENGTH, withDrone, type DroneCfg } from '../slice/drone-lane';
 import { fixDrone } from '../slice/fixdrone';
 import { CUP, PATTERNS, stackPiece, stackSrc } from '../slice/stack';
-import { fixLayout } from '../slice/fixit';
 import { layoutToPieces, parseLayout } from '../slice/photo-course';
 import { proves } from '../slice/photo-proof';
 import { adviseMachine, fixMachine } from '../slice/fix-launch';
 import { fixBars } from '../slice/fixbars';
+import { fixLayout } from '../slice/fixit';
 import { adviseLane, type Advice } from '../slice/advice';
+import { adviceInWorker, barsInWorker, fixInWorker, provesInWorker } from '../slice/proof-client';
 import { parseReply, worldBrief, type Edit } from '../slice/designer';
 import { diffProposal, enabledCount, fromAdvice, fromEdits, resultOf, type Proposal } from '../slice/preview';
 import { ROLE_NAME, applySuggestion, movesInWorld, roleCourse, suggestRoles, type Role, type RoleSuggestion } from '../slice/roles';
@@ -455,9 +457,9 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
   // the photo draft changes the layout at once (it is a first draft, not the player's own layout)
   function runFixDirect() {
     reply.className = 'reply'; reply.textContent = 'Working it out…';
-    setTimeout(() => {
+    setTimeout(async () => {
       if (barsNow().length) {
-        const rb = fixBars(pieces, { angle, offset, level });
+        const rb = await barsInWorker(pieces as P[], { angle, offset, level }, workSeconds(6));
         for (const q of rb.pieces) { const mine = pieces.find((x) => x.id === q.id); if (mine) { mine.x = q.x; mine.z = q.z; mine.y = q.y; } }
         changed();
         reply.className = rb.ok ? 'reply ok' : 'reply bad';
@@ -465,7 +467,7 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
         document.documentElement.dataset.fixed = rb.ok ? '1' : '0';
         return;
       }
-      const r = fixLayout(pieces, { angle, offset, level });
+      const r = await fixInWorker(pieces as P[], { angle, offset, level });
       for (const q of r.pieces) { const mine = pieces.find((x) => x.id === q.id); if (mine) { mine.x = q.x; mine.z = q.z; mine.y = q.y; mine.yaw = q.yaw; mine.scale = q.scale; } }
       angle = r.lane.angle; offset = r.lane.offset; level = r.lane.level;
       changed();
@@ -489,18 +491,18 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
     const laneMoved = proposal.items.some((i) => i.kind === 'lane' && i.on && i.key !== 'level');
     return { items, lane: laneMoved ? { angle: preview.lane.angle, offset: preview.lane.offset } : null };
   };
-  function computeFix(ps: P[], lane: { angle: number; offset: number; level: number }): { ok: boolean; pieces: P[]; lane: { angle: number; offset: number; level: number }; steps: string[]; machine: Machine | null } {
-    const m = machineNow(), wrap = machineWrap(m);
+  async function computeFix(ps: P[], lane: { angle: number; offset: number; level: number }): Promise<{ ok: boolean; pieces: P[]; lane: { angle: number; offset: number; level: number }; steps: string[]; machine: Machine | null }> {
+    const m = machineNow(), wrap = machineWrap(m); // a machine's wrap is a function, which a worker cannot be sent: with a machine the proofs run here, without one they run in a worker
     ps = ps.filter((q) => !isSizeReference(q) && !isDevice(q)); // the machine and the size references are not ground
     if (m) { const mf = fixMachine(ps, lane, m, 40000, trebuchetPivot()); if (mf.ok) return { ok: true, pieces: ps, lane, steps: mf.steps, machine: mf.machine }; } // the machine first: a counterweight or an arm is a smaller change than moving pieces
-    if (ps.some(isHold)) { const rb = fixBars(ps, lane, 40000, wrap); return { ok: rb.ok, pieces: rb.pieces, lane, steps: rb.steps, machine: m }; }
-    const r = fixLayout(ps, lane, 12000, wrap);
+    if (ps.some(isHold)) { const rb = m ? fixBars(ps, lane, workSeconds(40), wrap) : await barsInWorker(ps, lane, workSeconds(40)); return { ok: rb.ok, pieces: rb.pieces, lane, steps: rb.steps, machine: m }; }
+    const r = m ? fixLayout(ps, lane, workSeconds(12), wrap) : await fixInWorker(ps, lane);
     return { ok: r.ok, pieces: r.pieces as P[], lane: r.lane, steps: r.steps, machine: m };
   }
   function runFix(from?: { pieces: P[]; lane: { angle: number; offset: number; level: number } }) {
     helper.classList.remove('closed'); helperBtn.setAttribute('aria-pressed', 'true');
     reply.className = 'reply'; reply.textContent = 'Working it out…' + (pieces.some(isHold) ? ' (bars take a while: up to 40 seconds)' : '');
-    setTimeout(() => {
+    setTimeout(async () => {
       const pf = plankFixNow(); // a plank that would snap: the smallest change is a thicker plank or a post, said in words first
       if (pf) {
         reply.className = 'reply bad'; reply.textContent = 'The plank would snap. ' + pf.steps.join(' ') + ' ';
@@ -509,7 +511,7 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
         document.documentElement.dataset.fixed = '0';
         return;
       }
-      if (droneCfg && !trebuchetKg && !verdict.startsWith('The simulator can')) { // the drone is the first thing to change: a bigger battery or a lighter rider
+      if (droneCfg && !trebuchetKg && !verdict.startsWith('The simulator can clear')) { // the drone is the first thing to change: a bigger battery or a lighter rider
         const fd = fixDrone(courseNow(), droneCfg, droneRange());
         reply.className = fd.ok ? 'reply ok' : 'reply bad';
         reply.textContent = fd.ok ? (fd.steps[0] ?? 'It already works.') : fd.steps.join(' ');
@@ -517,7 +519,7 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
         if (fd.ok && fd.steps.length) el('button', reply, { text: 'Use it', className: 'go', id: 'usedrone' }).onclick = () => { const len = dronePiece()?.src?.split(':')[4] ?? String(DRONE_PAD_LENGTH); updateDeviceSource('device:drone', `device:drone:${fd.cfg.payload}:${fd.cfg.battery}:${len}`); changed(); };
         return;
       }
-      if (recoilCfg && !trebuchetKg && !verdict.startsWith('The simulator can')) { // the launcher is the first thing to change: a heavier or faster ball
+      if (recoilCfg && !trebuchetKg && !verdict.startsWith('The simulator can clear')) { // the launcher is the first thing to change: a heavier or faster ball
         const fr = fixRecoil(courseNow(), recoilCfg);
         reply.className = fr.ok ? 'reply ok' : 'reply bad';
         reply.textContent = fr.ok ? (fr.steps[0] ?? 'It already works.') : fr.steps.join(' ');
@@ -534,7 +536,8 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
         return;
       }
       const now = { angle, offset, level }, start = from ?? { pieces, lane: now };
-      const r = computeFix(start.pieces, start.lane);
+      const r = await computeFix(start.pieces, start.lane).catch(() => null);
+      if (!r) { reply.className = 'reply bad'; reply.textContent = 'Fix it was stopped. Try again.'; return; }
       document.documentElement.dataset.fixed = r.ok ? '1' : '0';
       const prop = diffProposal('fixit', from ? 'Fix it, starting from your partner’s changes' : 'Fix it', pieces, now, r.pieces, r.lane, r.steps, r.ok, machineNow(), r.machine);
       if (!prop.items.length) {
@@ -632,7 +635,7 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
     if (known !== undefined) return paintVerdict(known ? 'clears' : 'blocked');
     paintVerdict('checking');
     const snapshot = preview;
-    setTimeout(() => { if (mine !== proofRun || !proposal) return; const ok = proves(snapshot.pieces.filter((q) => !isSizeReference(q) && !isDevice(q)), snapshot.lane, machineWrap(snapshot.machine)); proofs.set(key, ok); paintVerdict(ok ? 'clears' : 'blocked'); }, 30);
+    setTimeout(async () => { if (mine !== proofRun || !proposal) return; const mp = snapshot.pieces.filter((q) => !isSizeReference(q) && !isDevice(q)); const ok = snapshot.machine ? proves(mp, snapshot.lane, machineWrap(snapshot.machine)) : await provesInWorker(mp, snapshot.lane).catch(() => null); if (ok === null || mine !== proofRun || !proposal) return; proofs.set(key, ok); paintVerdict(ok ? 'clears' : 'blocked'); }, 30);
   }
   function applyProposal() {
     if (!proposal || !preview) return;
@@ -676,7 +679,7 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
     finally { sendBtn.disabled = whatBtn.disabled = false; }
   }
   sendBtn.onclick = () => { const t = ask.value.trim(); if (t) { ask.value = ''; void askPartner(t); } };
-  whatBtn.onclick = () => void askPartner(verdict.startsWith('The simulator can') ? 'The lane clears. Suggest one change that makes it more interesting to run.' : 'The lane does not clear. What should I change?');
+  whatBtn.onclick = () => void askPartner(verdict.startsWith('The simulator can clear') ? 'The lane clears. Suggest one change that makes it more interesting to run.' : 'The lane does not clear. What should I change?');
 
   // the two pictures fill their boxes exactly, so nothing ever scrolls
   const fit = () => {
@@ -811,7 +814,7 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
       root.remove(); style.remove();
       void startCourse(document.body, course);
     };
-    el('div', lanePanel, { id: 'verdict', className: verdict.startsWith('The simulator can') ? 'ok' : verdict ? 'bad' : 'muted', text: verdict });
+    el('div', lanePanel, { id: 'verdict', className: verdict.startsWith('The simulator can clear') ? 'ok' : verdict ? 'bad' : 'muted', text: verdict });
   }
 
   const coursePieces = () => pieces.filter((q) => !isSizeReference(q) && !isDevice(q));
@@ -970,20 +973,21 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
         verdict = clear ? `The simulator can clear this lane (${r.gaps} gaps, ${r.steps} steps, ${r.curves} curves, ${r.faces} faces, ${r.length.toFixed(0)} m).` : 'The simulator cannot find a way to clear this lane: widen a gap or lower a step.';
       }
       const v = lanePanel.querySelector('#verdict') as HTMLElement | null;
-      if (v) { v.textContent = verdict; v.className = verdict.startsWith('The simulator can') ? 'ok' : 'bad'; }
+      if (v) { v.textContent = verdict; v.className = verdict.startsWith('The simulator can clear') ? 'ok' : 'bad'; }
       document.documentElement.dataset.verdict = verdict;
       // when it cannot be cleared, say what to shift (each suggestion was proved by the simulator)
       adviceList = []; showAdvice();
       if (machineNow() && p.length >= 8) { // a trebuchet at the start: its counterweight and arm come first, and a narrow release window gets a pin
-        const mine = ++adviceRun, m = machineNow()!, lane = { angle, offset, level }, clear = verdict.startsWith('The simulator can');
+        const mine = ++adviceRun, m = machineNow()!, lane = { angle, offset, level }, clear = verdict.startsWith('The simulator can clear');
         setTimeout(() => { if (mine !== adviceRun) return; adviceList = adviseMachine(coursePieces(), lane, m, { budgetMs: 8000, max: 1 }, trebuchetPivot()); if (!clear && !barsNow().length) adviceList.push(...adviseLane(coursePieces(), lane, { wrap: machineWrap(m) })); showAdvice(); if (!adviceList.length) adviceBox.textContent = clear ? '' : 'No single change to the machine or a piece clears it. Press Fix it to look further.'; document.documentElement.dataset.advice = String(adviceList.length); }, 30);
-      } else if (!verdict.startsWith('The simulator can') && p.length >= 8 && barsNow().length) {
+      } else if (!verdict.startsWith('The simulator can clear') && p.length >= 8 && barsNow().length) {
         adviceBox.textContent = 'This lane has bars. Drag them in the side view (position and height), or press Fix it to try small moves of the bars.';
-      } else if (!verdict.startsWith('The simulator can') && p.length >= 8 && pieces.some((q) => q.role && q.role !== 'ground')) {
+      } else if (!verdict.startsWith('The simulator can clear') && p.length >= 8 && pieces.some((q) => q.role && q.role !== 'ground')) {
         adviceBox.textContent = 'This lane uses roles (wall, rope anchor or trampoline bed). Open Moves to see what each needs, or press Fix it.';
-      } else if (!verdict.startsWith('The simulator can') && p.length >= 8) {
+      } else if (!verdict.startsWith('The simulator can clear') && p.length >= 8) {
         const mine = ++adviceRun;
-        setTimeout(() => { if (mine !== adviceRun) return; adviceList = adviseLane(coursePieces(), { angle, offset, level }); showAdvice(); if (!adviceList.length) adviceBox.textContent = 'No single small shift clears it. Press "What should I change?" to think it through together.'; document.documentElement.dataset.advice = String(adviceList.length); }, 30);
+        adviceBox.textContent = 'Working out what to shift…';
+        setTimeout(async () => { if (mine !== adviceRun) return; const got = await adviceInWorker(coursePieces() as P[], { angle, offset, level }).catch(() => null); if (!got || mine !== adviceRun) return; adviceList = got; showAdvice(); if (!adviceList.length) adviceBox.textContent = 'No single small shift clears it. Press "What should I change?" to think it through together.'; document.documentElement.dataset.advice = String(adviceList.length); }, 30);
       } else document.documentElement.dataset.advice = '0';
     }, 800);
   }

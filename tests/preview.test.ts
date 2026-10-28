@@ -1,3 +1,4 @@
+import { workSeconds } from '../src/sim/ideal';
 import { beforeAll, describe, expect, it } from 'vitest';
 import { adviseLane } from '../src/slice/advice';
 import { fixBars } from '../src/slice/fixbars';
@@ -22,7 +23,7 @@ describe('preview before apply', () => {
   let pieces: P[], fixed: ReturnType<typeof fixBars>, barsProposal: ReturnType<typeof diffProposal>;
   beforeAll(() => {
     pieces = [deck(0, 8), deck(17, 8), bar(6.5, 4.4), bar(10, 4.4)]; // bars too high to reach
-    fixed = fixBars(pieces, lane, 50000);
+    fixed = fixBars(pieces, lane, workSeconds(50));
     barsProposal = diffProposal('fixit', 'Fix it', pieces, lane, fixed.pieces, lane, fixed.steps, fixed.ok);
   }, 240000);
 

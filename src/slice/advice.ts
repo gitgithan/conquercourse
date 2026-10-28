@@ -1,5 +1,5 @@
 import { LANE_DROP } from '../sim/drop';
-import { searchIdealRun } from '../sim/ideal';
+import { clearedCached, meter, workSeconds } from '../sim/ideal';
 import type { CourseData } from '../course/course';
 import type { Machine } from './launch-lane';
 import { CLIMBABLE, describe, laneToCourse, sliceProfile } from './slice';
@@ -11,7 +11,7 @@ import { realSize, worldSamples, type Piece } from './world';
 export interface LaneSetting { angle: number; offset: number; level: number }
 export interface Change { dx?: number; dz?: number; dy?: number; scale?: number; yaw?: number; angle?: number; offset?: number; level?: number }
 export interface Advice { text: string; piece?: number; change: Change; verified: boolean; machine?: Machine } // machine: the trebuchet's settings after this advice, when it changes them
-export interface AdviceOptions { budgetMs?: number; max?: number; wrap?: (c: CourseData) => CourseData }
+export interface AdviceOptions { budget?: number; max?: number; wrap?: (c: CourseData) => CourseData } // budget in simulated ticks (workSeconds(n)), not milliseconds
 
 interface Verdict { ok: boolean; why: string }
 
@@ -25,7 +25,7 @@ function check(pieces: Piece[], lane: LaneSetting, proof: boolean, wrap?: (c: Co
   if (!wrap && report.maxRise > CLIMBABLE) return { ok: false, why: `a step is ${report.maxRise.toFixed(1)} m high; a climb reaches about ${CLIMBABLE.toFixed(1)} m (a jump 0.9 m, a vault 1.3 m)` };
   const base = laneToCourse({ cells: [...profile.cells], length: profile.length }), course = wrap ? wrap(base) : base;
   if (!proof) return { ok: true, why: '' };
-  return searchIdealRun(course).cleared ? { ok: true, why: '' } : { ok: false, why: 'the runner cannot find a way through' };
+  return clearedCached(course) ? { ok: true, why: '' } : { ok: false, why: 'the runner cannot find a way through' };
 }
 
 interface Candidate { cost: number; text: string; piece?: number; change: Change; apply: (ps: Piece[], l: LaneSetting) => { ps: Piece[]; lane: LaneSetting } }
@@ -33,9 +33,10 @@ interface Candidate { cost: number; text: string; piece?: number; change: Change
 const metres = (v: number) => `${Math.abs(v).toFixed(v % 1 === 0 ? 0 : 1)} m`;
 
 export function adviseLane(pieces: Piece[], lane: LaneSetting, opts: AdviceOptions = {}): Advice[] {
-  const t0 = performance.now(), budget = opts.budgetMs ?? 1500, max = opts.max ?? 3;
+  const budget = opts.budget ?? workSeconds(1.5), max = opts.max ?? 3;
   const first = check(pieces, lane, true, opts.wrap);
   if (first.ok) return []; // nothing to fix
+  const t0 = meter.ticks; // the budget is for the tries; the first proof (a slow one on a big lane) does not eat it
   const ca = Math.cos(lane.angle), sa = Math.sin(lane.angle);
   const cands: Candidate[] = [];
   const bits = (p: Piece, patch: Partial<Piece>) => (ps: Piece[], l: LaneSetting) => ({ ps: ps.map((q) => (q.id === p.id ? { ...q, ...patch } : q)), lane: l });
@@ -64,7 +65,7 @@ export function adviseLane(pieces: Piece[], lane: LaneSetting, opts: AdviceOptio
   cands.sort((a, b) => a.cost - b.cost);
   const out: Advice[] = [];
   for (const c of cands) {
-    if (performance.now() - t0 > budget || out.length >= max) break;
+    if (meter.ticks - t0 > budget || out.length >= max) break;
     const next = c.apply(pieces, lane);
     if (!check(next.ps, next.lane, false).ok) continue; // cheap checks first
     if (!check(next.ps, next.lane, true, opts.wrap).ok) continue;

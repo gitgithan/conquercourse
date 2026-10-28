@@ -50,5 +50,14 @@
     "releaseAfter": 60,
     "bouncePress": 8,
     "fireAfterJump": 0
-  }
+  },
+  "windows": [
+    {
+      "obstacle": "jump at edge at 16 m",
+      "best": 15.04,
+      "lo": 14.64,
+      "hi": 15.9,
+      "widthMs": 172.97297297297294
+    }
+  ]
 }

@@ -197,5 +197,28 @@
     ],
     "releaseAfter": 60,
     "bouncePress": 8
-  }
+  },
+  "windows": [
+    {
+      "obstacle": "edge at 6 m",
+      "best": 5,
+      "lo": 4.04,
+      "hi": 5.96,
+      "widthMs": 262.16216216216213
+    },
+    {
+      "obstacle": "edge at 13.5 m",
+      "best": 12,
+      "lo": 10.5,
+      "hi": 13.5,
+      "widthMs": 408.1081081081081
+    },
+    {
+      "obstacle": "edge at 28.4 m",
+      "best": 26.86,
+      "lo": 25.4,
+      "hi": 28.32,
+      "widthMs": 397.2972972972975
+    }
+  ]
 }

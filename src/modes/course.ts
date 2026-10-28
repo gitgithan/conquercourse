@@ -13,7 +13,8 @@ import { energyWords, isAimable, shotEnergy } from '../sim/recoil';
 import { weight } from '../sim/drone';
 import { DEFAULT_WALL } from '../sim/wall';
 import { DEFAULT_ROPE } from '../sim/rope';
-import { inputFor, searchIdealRun, type Plan } from '../sim/ideal';
+import { inputFor, searchIdealRun, workSeconds, xWindows, type Plan, type SearchResult, type Window } from '../sim/ideal';
+import { IdealPool } from '../sim/ideal-pool';
 import { findShortcuts, shortcutLine, type Shortcut } from '../sim/shortcuts';
 const findShortcutsNow = (c: CourseData): Shortcut[] => findShortcuts(c, { moveChoices: false }).shortcuts; // ?bot=shortcut only: blocks the page while it searches
 import { flightPath, gapSpecs, minSpeedForWall, pressBand } from '../sim/needs';
@@ -668,7 +669,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
   let retryX = resume ? resume.retryX : course.startX; // "try this obstacle again" starts standing still just before it
   let demo: { x1: number } | null = null;
   const idealCache = new Map<number, Plan>();
-  let idealWhole = false, idealToken = 0, idealPending = 0, idealWorker: Worker | null = null, idealNote = ''; // idealNote: the line shown while an ideal run is working or playing
+  let idealWhole = false, idealToken = 0, idealPending = 0, idealPool: IdealPool | null = null, idealSignal = { cancelled: false }, idealNote = ''; // idealNote: the line shown while an ideal run is working or playing
   const cpFor = (zoneId: string) => course.checkpoints?.find((c) => c.id === zoneId)?.x ?? course.startX;
   const guides = new THREE.Group();
   scene.add(guides);
@@ -917,16 +918,35 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
     box.append(t, b);
     return box;
   }
+  // The search runs in a pool of workers (src/sim/ideal-pool.ts): the page keeps drawing, the line says which obstacle it is on, and any key cancels.
+  // One search at a time (the workers hold one course); each waits for the one before. Nothing here runs a search on the page's thread unless there are no workers at all.
+  let poolQueue: Promise<unknown> = Promise.resolve();
+  function runSearch(c: CourseData, sig: { cancelled: boolean }, onNote?: (label: string, step: number, of: number) => void, budget?: number): Promise<SearchResult> {
+    try {
+      idealPool ??= new IdealPool(() => {
+        const w = new Worker(new URL('../sim/ideal-eval-worker.ts', import.meta.url), { type: 'module' });
+        return { post: (m) => w.postMessage(m), listen: (cb) => w.addEventListener('message', (e) => cb((e as MessageEvent).data)), stop: () => w.terminate() };
+      }, Math.max(1, Math.min(6, (navigator.hardwareConcurrency || 4) - 1)));
+      const pool = idealPool;
+      const run = poolQueue.catch(() => undefined).then(() => (sig.cancelled ? Promise.reject(new Error('cancelled')) : pool.search(c, (b) => onNote?.(b.label, Math.min(b.step + 1, b.of), b.of), sig, { budget })));
+      poolQueue = run;
+      return run;
+    } catch { return Promise.resolve(searchIdealRun(c)); } // no worker here: search on the page's thread
+  }
   function findPlan(c: CourseData): Promise<Plan> {
-    return new Promise((resolve) => {
-      try {
-        idealWorker ??= new Worker(new URL('../sim/ideal-worker.ts', import.meta.url), { type: 'module' });
-        const w = idealWorker, id = ++idealToken;
-        const on = (e: MessageEvent) => { if (e.data.id !== id) return; w.removeEventListener('message', on); resolve(e.data.plan as Plan); };
-        w.addEventListener('message', on);
-        w.postMessage({ id, course: c });
-      } catch { resolve(searchIdealRun(c).plan); } // no worker here: search on the page's thread
-    });
+    const sig = idealSignal = { cancelled: false };
+    return runSearch(c, sig, (label, step, of) => { idealNote = `Working out the ideal run… ${label} (${step} of ${of}) · any key cancels`; }).then((r) => r.plan);
+  }
+  // The fall tip needs how wide the window of good presses is. A course stores it with its plan; when it does not, the workers work it out within a budget (and the tip
+  // says the generic thing until then): a whole-course search on the page's thread froze the page for up to half a minute after a fall.
+  const windowTip = (ws: Window[], x: number): string | undefined => {
+    const w = ws.find((q) => q.obstacle.startsWith('edge') && Math.abs(q.best - x) < 9);
+    return w ? (x < w.best ? 'You jumped a bit late. Try pressing Space a little earlier.' : 'You jumped a bit early. Try pressing Space a little later.') : undefined;
+  };
+  let windowsAsk: Promise<Window[] | null> | null = null;
+  function ensureWindows(): Promise<Window[] | null> {
+    windowsAsk ??= runSearch(course, { cancelled: false }, undefined, workSeconds(60)).then((r) => (windows = xWindows(r.windows))).catch(() => null);
+    return windowsAsk;
   }
   async function startIdeal(x0: number, zoneId: string | null) {
     let p = idealCache.get(x0) ?? (x0 === course.startX ? course.plan : undefined);
@@ -934,8 +954,8 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
     if (!p) {
       idealNote = 'Working out the ideal run… (any key cancels)';
       idealPending = token;
-      p = await findPlan({ ...course, startX: x0 });
-      if (idealPending !== token) return; // cancelled while the search ran
+      p = await findPlan({ ...course, startX: x0 }).catch(() => undefined);
+      if (idealPending !== token || !p) return; // cancelled while the search ran
       idealPending = 0;
       idealCache.set(x0, p);
     }
@@ -952,7 +972,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
   // Shift+I: from the start, or from where retry would start (the checkpoint before the obstacle you fell at), to the finish
   function showWholeIdeal() { void startIdeal(retryX, null); }
   function stopWholeIdeal() {
-    idealWhole = false; idealPending = 0; idealToken++;
+    idealWhole = false; idealPending = 0; idealToken++; idealSignal.cancelled = true;
     if (!botMode) plan = null;
     idealNote = 'Your turn.'; setTimeout(() => { if (idealNote === 'Your turn.') idealNote = ''; }, 2500);
   }
@@ -1093,7 +1113,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
     }
     retryX = cpFor(lastZone);
     const jump = [...log].reverse().find((e) => e.type === 'jump');
-    let tip = 'Try again.';
+    let tip = 'Try again.', lateTip = false;
     if (what === 'slide') tip = 'You ran out of speed on the curve. Start the run-up earlier and keep running.';
     else if (what === 'hurt' && log.some((e) => e.type === 'drone-crash')) tip = 'The drone touched down too fast or leaning, or flew into the side of a deck. Come down slowly with ↓ over the deck, let go of ← → before the ground so it levels out, and keep E held until it sets you down.';
     else if (what === 'hurt') tip = 'The ground stopped you too fast. Hold X as you land to roll (it counts in the last 0.15 s, about a metre up; a tap earlier does nothing): the same fall is spread over more time, and a roll keeps most of your speed.';
@@ -1111,9 +1131,9 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
       const v = jump.detail!.vx as number;
       tip = g && v < g.needed ? `You left the edge at ${v.toFixed(1)} m/s, but this ${g.width.toFixed(1)} m gap needs at least ${g.needed.toFixed(1)} m/s. Run longer before you jump.` : 'Your speed was enough. Try pressing Space a little closer to the edge.';
     } else {
-      windows ??= searchIdealRun(course).windows;
-      const w = windows.find((q) => q.obstacle.startsWith('edge') && Math.abs(q.best - r.x) < 9);
-      if (w) tip = r.x < w.best ? 'You jumped a bit late. Try pressing Space a little earlier.' : 'You jumped a bit early. Try pressing Space a little later.';
+      const ws = course.windows ?? windows; // stored with the plan; otherwise asked of the workers below, never worked out on this thread
+      const hit = ws && windowTip(ws, r.x);
+      if (hit) tip = hit; else if (!ws) lateTip = true;
     }
     const train = everCleared || falls >= 3;
     panel.innerHTML = '';
@@ -1121,6 +1141,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
     const h = document.createElement('strong');
     h.textContent = what === 'slide' ? 'You slid back down the wall.' : what === 'hurt' ? `Hard landing at the ${zone?.name ?? 'course'}.` : what === 'stall' ? 'The cart ran out of speed on a hill.' : log.some((e) => e.type === 'plank-break') ? 'The plank broke under you.' : log.some((e) => e.type === 'cart-off') ? 'The cart left the track at a hilltop.' : HAZARD_INFO[hazard].headline(zone?.name ?? 'course');
     const t = document.createElement('div'); t.textContent = tip;
+    if (lateTip) void ensureWindows().then((ws) => { const hit = ws && windowTip(ws, r.x); if (hit && t.isConnected) t.textContent = hit; });
     const floorNote = document.createElement('div'); floorNote.style.cssText = 'color:#58635d;font-size:13px'; floorNote.textContent = what === 'slide' || what === 'hurt' ? '' : HAZARD_INFO[hazard].hint;
     const row = document.createElement('div'); row.style.cssText = 'display:flex;flex-wrap:wrap;gap:8px';
     const mk = (label: string, fn: () => void, primary = false) => {
