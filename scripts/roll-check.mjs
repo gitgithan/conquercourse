@@ -20,9 +20,9 @@ try {
     if (roll) {
       await page.waitForFunction(() => Number(document.documentElement.dataset.tick) >= 0 && document.documentElement.dataset.grounded === '0', null, { timeout: 60000, polling: 20 });
       const t0 = Number(await page.evaluate(() => document.documentElement.dataset.tick));
-      // 5 m takes about 1 s (120 ticks); tap C at about 0.85 s, a fifth of a second before the ground
+      // 5 m takes about 1 s (120 ticks); tap X at about 0.85 s, a fifth of a second before the ground
       await page.waitForFunction((t) => Number(document.documentElement.dataset.tick) >= t + 100, t0, { timeout: 300000, polling: 20 });
-      await page.keyboard.press('KeyC');
+      await page.keyboard.press('KeyX');
     }
     await page.waitForFunction(() => ['running', 'cleared'].every(() => true) && (document.documentElement.dataset.grounded === '1' || document.documentElement.dataset.outcome !== 'running'), null, { timeout: 300000, polling: 50 }).catch(() => {});
     await page.waitForTimeout(roll ? 4000 : 1500);
