@@ -1,0 +1,13 @@
+{
+  "photo": "new01",
+  "run": 1,
+  "status": 200,
+  "ms": 10681,
+  "imageBytes": 243041,
+  "usage": {
+    "prompt_tokens": 1537,
+    "completion_tokens": 1390,
+    "total_tokens": 2927
+  },
+  "reply": "A long low concrete ledge runs along the flat ground as a vault obstacle.\n```json\n{\"items\": [{\"kind\": \"ground\", \"length\": 3}, {\"kind\": \"block\", \"length\": 5, \"height\": 0.4}, {\"kind\": \"ground\", \"length\": 4}]}\n```"
+}

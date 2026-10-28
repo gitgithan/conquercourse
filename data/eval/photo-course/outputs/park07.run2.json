@@ -1,0 +1,13 @@
+{
+  "photo": "park07",
+  "run": 2,
+  "status": 200,
+  "ms": 7312,
+  "imageBytes": 157057,
+  "usage": {
+    "prompt_tokens": 1018,
+    "completion_tokens": 895,
+    "total_tokens": 1913
+  },
+  "reply": "The lane crosses grass to climb three low steps onto the upper hilltop.\n```json\n{\"items\": [{\"kind\": \"ground\", \"length\": 6}, {\"kind\": \"block\", \"length\": 1.2, \"height\": 0.48}, {\"kind\": \"ground\", \"length\": 5}]}\n```"
+}

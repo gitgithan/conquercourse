@@ -1,0 +1,13 @@
+{
+  "photo": "park08",
+  "run": 2,
+  "status": 200,
+  "ms": 11497,
+  "imageBytes": 51805,
+  "usage": {
+    "prompt_tokens": 1018,
+    "completion_tokens": 2080,
+    "total_tokens": 3098
+  },
+  "reply": "The lane runs on flat ground and over the central bench obstacle.\n```json\n{\"items\": [{\"kind\": \"ground\", \"length\": 5}, {\"kind\": \"block\", \"length\": 2, \"height\": 0.45}, {\"kind\": \"ground\", \"length\": 5}]}\n```"
+}

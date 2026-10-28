@@ -1,0 +1,13 @@
+{
+  "photo": "new02",
+  "run": 1,
+  "status": 200,
+  "ms": 12056,
+  "imageBytes": 114481,
+  "usage": {
+    "prompt_tokens": 1018,
+    "completion_tokens": 2254,
+    "total_tokens": 3272
+  },
+  "reply": "Skatepark line from raised deck down through low banks to a tall end ramp.\n\n```json\n{\n  \"items\": [\n    {\"kind\": \"ground\", \"length\": 4},\n    {\"kind\": \"block\", \"length\": 1.5, \"height\": 2.4},\n    {\"kind\": \"ground\", \"length\": 5},\n    {\"kind\": \"block\", \"length\": 2, \"height\": 0.6},\n    {\"kind\": \"gap\", \"width\": 1.2},\n    {\"kind\": \"block\", \"length\": 2.5, \"height\": 1.0},\n    {\"kind\": \"block\", \"length\": 1.8, \"height\": 0.4},\n    {\"kind\": \"block\", \"length\": 2.5, \"height\": 1.7},\n    {\"kind\": \"bar\", \"height\": 2.6},\n    {\"kind\": \"ground\", \"length\": 5}\n  ]\n}\n```"
+}
