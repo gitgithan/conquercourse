@@ -79,6 +79,19 @@
     "pageFits": true,
     "ok": true
   },
+  "1280x720 palette runs an action": {
+    "ok": true,
+    "before": 4,
+    "after": 5,
+    "slashOpens": true,
+    "controls": 0,
+    "buttons": 0,
+    "topControls": 0,
+    "bad": [],
+    "overlaps": [],
+    "offscreen": [],
+    "pageFits": true
+  },
   "1280x720 pageerrors": [],
   "1024x640 closed": {
     "controls": 15,
@@ -160,6 +173,19 @@
     "pageFits": true,
     "ok": true
   },
+  "1024x640 palette runs an action": {
+    "ok": true,
+    "before": 4,
+    "after": 5,
+    "slashOpens": true,
+    "controls": 0,
+    "buttons": 0,
+    "topControls": 0,
+    "bad": [],
+    "overlaps": [],
+    "offscreen": [],
+    "pageFits": true
+  },
   "1024x640 pageerrors": [],
   "1920x1080 closed": {
     "controls": 15,
@@ -240,6 +266,19 @@
     "offscreen": [],
     "pageFits": true,
     "ok": true
+  },
+  "1920x1080 palette runs an action": {
+    "ok": true,
+    "before": 4,
+    "after": 5,
+    "slashOpens": true,
+    "controls": 0,
+    "buttons": 0,
+    "topControls": 0,
+    "bad": [],
+    "overlaps": [],
+    "offscreen": [],
+    "pageFits": true
   },
   "1920x1080 pageerrors": []
 }
