@@ -103,7 +103,7 @@
         "move_check": {
           "ok": false,
           "standing_hips_m": 1.02,
-          "air_s": 5.0,
+          "air_s": 5,
           "window_frames": [
             5,
             154
@@ -304,7 +304,7 @@
     "wall_s": 257.8,
     "estimated_usd": 0.057,
     "usd_per_hour_assumed": 0.8,
-    "cap_usd": 15.0
+    "cap_usd": 15
   },
   "candidates": [
     {
@@ -319,7 +319,7 @@
       "move_check": {
         "ok": false,
         "standing_hips_m": 1.02,
-        "air_s": 5.0,
+        "air_s": 5,
         "window_frames": [
           5,
           154
@@ -579,7 +579,7 @@
         "travel_m": 0.89,
         "hand_plant": null,
         "peak_hips_vs_standing": 2.82,
-        "max_trunk_turn_deg": 48.0,
+        "max_trunk_turn_deg": 48,
         "ends_upright": true
       }
     },

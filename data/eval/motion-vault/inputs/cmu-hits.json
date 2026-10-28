@@ -1,80 +1,80 @@
 [
- {
-  "id": "15_02",
-  "desc": "climb, step over, sit on, stand on stepstool",
-  "subject": 15,
-  "fps": 120
- },
- {
-  "id": "40_06",
-  "desc": "climb, step over, sit on, jump over stepstool",
-  "subject": 40,
-  "fps": 120
- },
- {
-  "id": "40_07",
-  "desc": "climb, step over, jump over stepstool",
-  "subject": 40,
-  "fps": 120
- },
- {
-  "id": "40_08",
-  "desc": "climb, step over, jump over stepstool",
-  "subject": 40,
-  "fps": 120
- },
- {
-  "id": "40_09",
-  "desc": "climb, step over, jump over stepstool",
-  "subject": 40,
-  "fps": 120
- },
- {
-  "id": "41_07",
-  "desc": "climb, step over, jump over, navigate around stepstool",
-  "subject": 41,
-  "fps": 120
- },
- {
-  "id": "41_08",
-  "desc": "climb, step over, jump over, navigate around stepstool",
-  "subject": 41,
-  "fps": 120
- },
- {
-  "id": "41_09",
-  "desc": "climb, step over, jump over, navigate around stepstool",
-  "subject": 41,
-  "fps": 120
- },
- {
-  "id": "75_12",
-  "desc": "box jump",
-  "subject": 75,
-  "fps": 60
- },
- {
-  "id": "141_09",
-  "desc": "Step Over",
-  "subject": 141,
-  "fps": 120
- },
- {
-  "id": "143_14",
-  "desc": "Walk And Step Over",
-  "subject": 143,
-  "fps": 120
- },
- {
-  "id": "143_15",
-  "desc": "Walk And Step Over",
-  "subject": 143,
-  "fps": 120
- },
- {
-  "id": "143_16",
-  "desc": "Walk And Step Over",
-  "subject": 143,
-  "fps": 120
- }
+  {
+    "id": "15_02",
+    "desc": "climb, step over, sit on, stand on stepstool",
+    "subject": 15,
+    "fps": 120
+  },
+  {
+    "id": "40_06",
+    "desc": "climb, step over, sit on, jump over stepstool",
+    "subject": 40,
+    "fps": 120
+  },
+  {
+    "id": "40_07",
+    "desc": "climb, step over, jump over stepstool",
+    "subject": 40,
+    "fps": 120
+  },
+  {
+    "id": "40_08",
+    "desc": "climb, step over, jump over stepstool",
+    "subject": 40,
+    "fps": 120
+  },
+  {
+    "id": "40_09",
+    "desc": "climb, step over, jump over stepstool",
+    "subject": 40,
+    "fps": 120
+  },
+  {
+    "id": "41_07",
+    "desc": "climb, step over, jump over, navigate around stepstool",
+    "subject": 41,
+    "fps": 120
+  },
+  {
+    "id": "41_08",
+    "desc": "climb, step over, jump over, navigate around stepstool",
+    "subject": 41,
+    "fps": 120
+  },
+  {
+    "id": "41_09",
+    "desc": "climb, step over, jump over, navigate around stepstool",
+    "subject": 41,
+    "fps": 120
+  },
+  {
+    "id": "75_12",
+    "desc": "box jump",
+    "subject": 75,
+    "fps": 60
+  },
+  {
+    "id": "141_09",
+    "desc": "Step Over",
+    "subject": 141,
+    "fps": 120
+  },
+  {
+    "id": "143_14",
+    "desc": "Walk And Step Over",
+    "subject": 143,
+    "fps": 120
+  },
+  {
+    "id": "143_15",
+    "desc": "Walk And Step Over",
+    "subject": 143,
+    "fps": 120
+  },
+  {
+    "id": "143_16",
+    "desc": "Walk And Step Over",
+    "subject": 143,
+    "fps": 120
+  }
 ]

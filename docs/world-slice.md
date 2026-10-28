@@ -730,21 +730,29 @@ The set of obstacle shapes is fixed, and each shape offers a fixed set of moves.
 - **So what:** the vault now looks and feels like a vault: the runner plants a foot well before the obstacle, arcs over it with a hand on top, comes down just past the edge and stops, instead of reaching late and sliding across the deck.
 - **Why it changed (owner playtest, 2026-10-28):** the vault started within 1.2 m of the box and the feet landed up to 3.6 m past its edge, then the runner coasted 3 to 4 m more.
 - **Measured before** (`data/eval/cc-68-vault/before.json`, speeds 4 to 8 m/s, steps 0.4 to 1.2 m):
-  - Takeoff distance: 0.45 to 1.2 m before the face.
+  - Takeoff distance: 0.45 to 1.2 m before the face (and the 0.2 s buffer meant the V was pressed about 1 m earlier at most).
   - Feet landed 1.3 to 3.6 m past the edge.
   - No arc: the feet rose to the top and no higher.
   - Sliding with no key held: 3.1 to 4.0 m, 106 to 121 ticks (0.9 to 1.0 s).
-- **Measured after** (`data/eval/cc-68-vault/after.json`):
-  - Takeoff distance 1.9 to 3.0 m for a well-timed press, growing with speed and with the step.
+- **Measured after** (`data/eval/cc-68-vault/after.json`, `scripts/vault-measure.ts`):
+  - Takeoff distance 1.96 to 2.45 m for a well-timed press (the plant is inside 1.2 to 2.6 m, growing with speed and with the step).
   - Feet land 0.5 m past the edge every time, after an arc that peaks 0.25 m above the top.
-  - Sliding with no key held: 0.3 to 1.0 m, 17 to 26 ticks (0.15 to 0.2 s) after a well-timed vault.
+  - Sliding with no key held: 0.7 to 1.0 m, 25 to 30 ticks (0.2 to 0.25 s).
+  - A plant closer than 1 m before the face is too late: the vault does not start and the runner meets the step.
+- **Owner follow-up (2026-10-28): no teleport.** The first version moved the body at one steady pace and jumped to the exit speed at the end.
+  - Now the feet path is continuous in position and in velocity every tick: along the run it is a cubic that starts at the speed the runner had and ends at the exit speed, and up it eases from rest to 0.25 m above the top and back down onto it.
+  - **Tests** (`tests/vault.test.ts`) over 36 cases (steps 0.4, 0.8, 1.2 m; speeds 4, 6, 8 m/s; plants from 1.05 m to the ideal distance):
+    - No tick moves the runner further than its own speed times dt plus 2 cm.
+    - Velocity changes by under 0.7 m/s (along) and 1 m/s (up) per tick, and never runs backward.
+    - The whole vault covers the plant distance plus 0.5 m, never more than 3.4 m in all.
+  - **Debug view (B):** a magenta line shows the vault path from the ideal plant point to just past the edge, a tick marks the plant, and the panel says how many metres before the step to plant and the window for pressing V.
 - **The numbers:**
-  - **Takeoff distance** = kept speed x vault time - 0.5 m, with vault time = 0.34 + 0.18 x rise seconds (a 0.8 m step takes 0.48 s), clamped to 0.9 to 3.2 m.
-  - **Window:** a plant from 0.3 m before the face up to the ideal distance plus 0.15 m works; the 0.2 s buffer holds an early V until the step is in range.
-  - **Arc:** the feet follow a parabola that peaks 0.25 m above the top at 60 to 70% of the vault (the hand's push lifts the legs, so it is tighter than a free fall).
-  - **Speed:** a well-timed vault keeps 92% of the speed; a late plant (a short run to the edge for the whole vault) is a slow vault, never below 60% of that.
+  - **Plant distance** = 0.9 + 0.12 x speed + 0.45 x rise metres, clamped to 1.2 to 2.6 m (a speed vault plants 1.5 to 2.5 m before the face at running speed).
+  - **Vault time** = the plant distance plus the 0.5 m landing at the kept speed, and never less than 0.3 + 0.15 x rise seconds (a very tall step at top speed costs some speed).
+  - **Window:** a plant from 1 m before the face up to the ideal distance plus 0.15 m works; the 0.2 s buffer holds an early V until the step is in range.
+  - **Speed:** a well-timed vault keeps 92% of the speed; a short run to the edge for the whole vault is slower, never below 60% of that.
   - **Plant:** for 0.3 s after landing, with no key held, the feet grip 4 times as hard, so the runner stops within about a metre; holding run keeps the speed.
-- **Ideal run and drums:** the search looks for the V press up to 5 m before the face (a wider, coarser grid), so the V drum is now about 3 m before the step, not at its edge; stored plans were regenerated (`npm run plans`).
+- **Ideal run and drums:** the search looks for the V press up to 5 m before the face (a wider, coarser grid), so the V drum is now about 2 m before the step (the middle of the presses made at a real plant distance), not at its edge; stored plans were regenerated (`npm run plans`).
 - **The Rookie's vault:** `public/assets/motion/vault.json`, a Kimodo clip (CMU has only step-overs: 12 takes, 12 pass the gate, none shows a hand on the obstacle).
   - Of 12 Kimodo samples, all pass the gate and 3 pass the new vault check; the best is shipped.
   - **Quality, honestly:** the contact sheet shows a plausible leap with one hand forward and the legs tucked, not a clean hand on a box; it has not been judged side by side.
