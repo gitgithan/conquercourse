@@ -1,0 +1,15 @@
+import { type P } from '../src/slice/holds-world';
+import { roleCourse } from '../src/slice/roles';
+import { box } from '../src/slice/shapes';
+import { newPiece } from '../src/slice/world';
+import { searchIdealRun, playPlan } from '../src/sim/ideal';
+const mk = (name: string, w: number, h: number, d: number, x: number, y = 0, role?: P['role']): P => ({ ...newPiece(name, box(w, h, d), { x, z: 0 }), y, ...(role ? { role } : {}) });
+const lane = { angle: 0, offset: 0, level: 3 };
+const A = mk('A', 12, 3, 1.8, -6), B = mk("B", 12, 3, 1.8, 21.4), bed = mk("Bed", 8, 0.3, 1.8, 10, 0, "trampoline");
+const b = roleCourse([A, bed, B], lane);
+const r = searchIdealRun(b.course);
+const res: any = playPlan(b.course, r.plan);
+console.log(JSON.stringify(r.plan).slice(0, 300));
+const w = res.world ?? res;
+console.log('outcome', w.outcome, 'x', w.runner?.x?.toFixed(1), 'y', w.runner?.y?.toFixed(2), 'finish', b.course.finishX);
+console.log((res.events ?? []).map((e: any) => `${e.type}@${e.tick}`).join(' ').slice(0, 400));

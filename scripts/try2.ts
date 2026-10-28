@@ -1,0 +1,15 @@
+import { type P } from '../src/slice/holds-world';
+import { roleCourse } from '../src/slice/roles';
+import { box } from '../src/slice/shapes';
+import { newPiece } from '../src/slice/world';
+import { searchIdealRun, playPlan } from '../src/sim/ideal';
+const mk = (name: string, w: number, h: number, d: number, x: number, y = 0, role?: P['role']): P => ({ ...newPiece(name, box(w, h, d), { x, z: 0 }), y, ...(role ? { role } : {}) });
+const lane = { angle: 0, offset: 0, level: 0 };
+const deck = mk('Deck', 30, 0.5, 1.8, 15);
+const b = roleCourse([deck, mk('Wall', 2, 4.0, 1.8, 31, 0, 'wall')], lane);
+const r = searchIdealRun(b.course);
+console.log(Object.keys(r), r.cleared);
+const w = (r as any).world ?? playPlan(b.course, r.plan);
+const world = w.world ?? w;
+console.log('outcome', world.outcome, 'x', world.runner?.x?.toFixed(1), 'y', world.runner?.y?.toFixed(2), 'mode', world.mode, 'finishX', b.course.finishX);
+console.log(JSON.stringify(b.course.zones), JSON.stringify(b.course.checkpoints));

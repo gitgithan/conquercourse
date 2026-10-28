@@ -2,6 +2,9 @@ import { surfaceSamples, type Mesh } from './slice';
 
 // A world made of pieces. A piece is a mesh with a place (x, z on the ground, a height off the ground), a turn about the vertical,
 // and a scale: the same toy brick can be a 3 cm model or a half-metre block. The course is a lane cut from the whole world.
+// What a piece does in the course (src/slice/roles.ts): plain ground (or nothing set), the Warped Wall, a rope anchor, or a trampoline bed.
+export type Role = 'ground' | 'wall' | 'rope' | 'trampoline';
+
 export interface Piece {
   id: number;
   name: string;
@@ -9,6 +12,7 @@ export interface Piece {
   x: number; z: number; y: number; // metres
   yaw: number; // radians about the vertical rod
   scale: number; // metres per mesh unit
+  role?: Role;
 }
 
 export interface Box2 { x0: number; z0: number; x1: number; z1: number } // in the piece's own units, before scale and turn
