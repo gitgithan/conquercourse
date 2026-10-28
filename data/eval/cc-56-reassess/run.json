@@ -10,8 +10,21 @@
     "noclamp": "main, and the script own rule that no building is taller than 8 m once shrunk is lifted",
     "scan": "main with no clamp at a fixed shrink of 0.6 (0.8 and 1.0 were started and stopped: too slow, Eixample flat found no lane at either)"
   },
-  "places": ["eixample-flat", "eixample-hills", "sydney-flat", "sydney-hills", "montmartre-flat", "montmartre-hills", "sf-flat", "sf-hills"],
+  "places": [
+    "eixample-flat",
+    "eixample-hills",
+    "sydney-flat",
+    "sydney-hills",
+    "montmartre-flat",
+    "montmartre-hills",
+    "sf-flat",
+    "sf-hills"
+  ],
   "machine": "Vultr VM, 8 cores, load average 8 to 20 from other agents while this ran, so seconds are noisy",
   "inputs": "Overpass and terrain caches from data/eval/cc-46-osm-world (not copied here)",
-  "outputs": ["summary.json", "table.md", "<variant>/<place>/{result.json,course.json}"]
+  "outputs": [
+    "summary.json",
+    "table.md",
+    "<variant>/<place>/{result.json,course.json}"
+  ]
 }
