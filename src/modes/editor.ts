@@ -861,7 +861,8 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
     if (!handoff) return;
     const course = courseNow();
     const clear = await searchClearable(course);
-    if (!clear) { verdict = clear === null ? 'The lane check could not finish. Try again.' : 'The simulator cannot find a way to clear this lane: widen a gap or lower a step.'; drawLanePanel(); reply.className = 'reply bad'; reply.textContent = verdict; return; }
+    // null: the check was cut short (a change in the editor starts a newer one); that is no reason to stay, only a proof that the lane does not clear is
+    if (clear === false) { verdict = 'The simulator cannot find a way to clear this lane: widen a gap or lower a step.'; drawLanePanel(); reply.className = 'reply bad'; reply.textContent = verdict; return; }
     course.scene = sceneFor(ground(), { angle, offset, level }, course.uMap ?? []);
     const focus = pieces.find((q) => q.id === selected) ?? pieces.find((q) => q.id === focusId);
     const retryX = focus ? startBefore(course, xOfPiece(focus, course)) : checkpointFor(course, handoff.zone);
