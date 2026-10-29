@@ -36,6 +36,13 @@ try {
     checks['Fix it from the menu opens the design partner'] = await page.isVisible('#helper');
     await page.screenshot({ path: `${out}/new-fix-it-pressed.png` });
     await page.keyboard.press('Escape');
+    for (const id of ['easier', 'findroutes', 'what']) {
+      const before = errors.length;
+      await page.click('#fixmenubtn'); await page.waitForTimeout(200);
+      await page.click(`#fixmenu-${id}`); await page.waitForTimeout(1500);
+      checks[`Fix menu: ${id} runs without page errors`] = errors.length === before && await page.isVisible('#helper');
+      await page.keyboard.press('Escape');
+    }
   }
   const box = await page.locator('#view3d').boundingBox();
   const cx = box.x + box.width * Number(process.env.CURX ?? 0.3), cy = box.y + box.height * 0.5;

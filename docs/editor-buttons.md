@@ -11,14 +11,17 @@ Levels: primary is filled green, secondary is outlined, quiet is plain text.
 - It now has a green frame, a title tag "SIDE-VIEW DESIGNER · drag a bar" and about 45% of the height (was 33%).
 
 ## Top bar, left to right
-- Back to the Course (quiet): leaves the editor, back to the course you came from. Click when you are done.
+- Back to the Course (quiet): leaves the editor, back to the course you came from.
+  - Click when you are done.
 - Fix (primary, with a red dot when the check says "cannot clear", a tick when it clears): opens the Fix menu, see below.
-- Fit (secondary, key F): moves the camera so every piece is in view. Click when you are lost or zoomed too far.
+- Fit (secondary, key F): moves the camera so every piece is in view.
+  - Click when you are lost or zoomed too far.
 - Top plan / 3D view (secondary): flat map for exact placing and cropping, or back to 3D.
 - Moves (secondary): which moves the world has and which are missing.
 - Design partner (secondary): the helper card, answers in words.
 - Undo, Redo (quiet, joined): step back or forward (Ctrl+Z, Ctrl+Y).
-- Add pieces (quiet, small): opens the picture browser. Basic shapes, real objects, bars, machines, cup stacks, size references, import a .glb.
+- Add pieces (quiet, small): opens the picture browser.
+  - Basic shapes, real objects, bars, machines, cup stacks, size references, import a .glb.
 - ? (quiet): shows or hides the "What these buttons do" card.
 - ... (quiet): Search actions (`/` or Ctrl+K), Reset to the starter scene, labs buttons.
 
