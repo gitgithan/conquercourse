@@ -1,0 +1,20 @@
+{
+  "experiment": "cc-143-hook",
+  "date": "2026-10-29",
+  "inputs": {
+    "music": "public/assets/music/course.ogg",
+    "hook_data": [
+      "demo/data/hook/hook20.json",
+      "demo/data/hook/hook20.916.json"
+    ],
+    "takes_script": "scripts/film-hook.sh"
+  },
+  "outputs": {
+    "music_measured": "music-measured.json"
+  },
+  "capture": {
+    "fps": 30,
+    "clock": "stepped",
+    "hash": "sha1 of every frame, re-wait on repeat"
+  }
+}
