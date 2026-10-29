@@ -29,11 +29,14 @@ export const DEMO_GROUPS: [string, Demo[]][] = [
     ['map', 'Map: search a place', 'Search any place and cut a course from its real streets and roofs.'],
     ['coaster-builder', 'Build your own coaster', 'Drag the dots of the track and ride it.'],
   ]],
+  ['Labs (university level)', [
+    ['lab-search', 'Lab 1: Search', 'Choose how the game looks for a clear run: greedy, beam, A* or everything. Mix a heuristic, set a budget, read the numbers.'],
+  ]],
 ];
 
 import { labsOn } from './labs';
 
-export const WORD_VALUES = ['generate', 'editor', 'coaster-builder', 'map'];
+export const WORD_VALUES = ['generate', 'editor', 'coaster-builder', 'map', 'lab-search'];
 export const DEMOS: [string, string][] = DEMO_GROUPS.flatMap(([, ds]) => ds.map((d) => [d[0], d[1]] as [string, string]));
 export const DEMO_ABOUT = new Map<string, string>(DEMO_GROUPS.flatMap(([, ds]) => ds.map((d) => [d[0], d[2]] as [string, string])));
 
@@ -48,6 +51,7 @@ export function worldHref(value: string, loc?: { pathname: string; search: strin
   if (value === 'editor') return `?mode=editor${suffix}`;
   if (value === 'coaster-builder') return `?mode=coaster${suffix}`;
   if (value === 'map') return `?mode=map${suffix}`;
+  if (value === 'lab-search') return `?mode=lab-search&labs=1${suffix}`;
   if (value === 'generate') return `?generate=${seed}${suffix}`;
   if (value === 'generate-same') { const at = loc ?? location; return `${at.pathname}${at.search}${at.search.includes('?') ? '&' : '?'}welcome=0`; }
   return value ? `?course=${value}${suffix}` : `?welcome=0`;
@@ -59,6 +63,7 @@ export function currentWorld(params: URLSearchParams, courseName?: string): { va
   if (mode === 'editor') return { value: 'editor' };
   if (mode === 'coaster') return { value: 'coaster-builder' };
   if (mode === 'map') return { value: 'map' };
+  if (mode === 'lab-search') return { value: 'lab-search' };
   if (mode !== 'course') return { value: null };
   const seed = params.get('generate');
   if (seed !== null) return { value: 'generate-same', label: `Generated course (seed ${seed})` };
@@ -72,6 +77,7 @@ const ICONS: Record<string, string> = {
   generate: '<rect x="14" y="14" width="36" height="36" rx="7"/><circle cx="25" cy="25" r="3"/><circle cx="39" cy="25" r="3"/><circle cx="32" cy="32" r="3"/><circle cx="25" cy="39" r="3"/><circle cx="39" cy="39" r="3"/>',
   editor: '<rect x="10" y="38" width="16" height="14" rx="2"/><rect x="26" y="26" width="16" height="26" rx="2"/><rect x="42" y="14" width="14" height="38" rx="2"/><path d="M8 54h50"/>',
   'coaster-builder': '<path d="M6 46C16 14 26 14 32 36s14 22 26-18"/><circle cx="6" cy="46" r="3"/><circle cx="32" cy="36" r="3"/><circle cx="58" cy="18" r="3"/>',
+  'lab-search': '<circle cx="32" cy="12" r="4"/><circle cx="16" cy="34" r="4"/><circle cx="48" cy="34" r="4"/><circle cx="8" cy="54" r="3"/><circle cx="24" cy="54" r="3"/><circle cx="40" cy="54" r="3"/><circle cx="56" cy="54" r="3"/><path d="M30 16L18 30M34 16l12 14M14 38L9 51M18 38l5 13M46 38l-5 13M50 38l5 13"/>',
   map: '<path d="M32 56S14 38 14 26a18 18 0 0 1 36 0c0 12-18 30-18 30z"/><circle cx="32" cy="26" r="6"/>',
   stay: '<path d="M10 50h12V36h14V22h18"/><circle cx="54" cy="22" r="3"/>',
   'generate-same': '<rect x="14" y="14" width="36" height="36" rx="7"/><circle cx="25" cy="25" r="3"/><circle cx="39" cy="39" r="3"/><circle cx="32" cy="32" r="3"/>',
@@ -158,9 +164,10 @@ export function buildGallery(o: GalleryOptions): { el: HTMLElement; focusStart()
     cards.push({ card: grid.lastElementChild as HTMLButtonElement, sec: grid.parentElement!, text: `${cur.label ?? ''} this course`.toLowerCase() });
   }
   for (const [group, ds] of DEMO_GROUPS) {
+    if (ds.every(([v]) => (v === 'map' || v === 'lab-search') && cur.value !== v && !labsOn())) continue; // a group whose items are all switched off shows no heading
     const grid = section(group);
     for (const [v, label, about] of ds) {
-      if (v === 'map' && cur.value !== 'map' && !labsOn()) continue; // CC-78: the map is behind the labs switch (?labs=1)
+      if ((v === 'map' || v === 'lab-search') && cur.value !== v && !labsOn()) continue; // CC-78: the map and the Labs are behind the labs switch (?labs=1)
       cards.push({ card: addCard(grid, v, label, about, cur.value === v), sec: grid.parentElement!, text: `${label} ${about} ${group}`.toLowerCase() });
     }
   }
