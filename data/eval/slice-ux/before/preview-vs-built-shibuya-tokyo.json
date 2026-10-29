@@ -1,0 +1,53 @@
+[
+  {
+    "slug": "shibuya-tokyo",
+    "k": 0.2,
+    "range": 56,
+    "rows": [
+      {
+        "realCut": 4.5,
+        "level": 0.9,
+        "previewCleared": false,
+        "ms": 22240
+      },
+      {
+        "realCut": 14,
+        "level": 2.8000000000000003,
+        "previewCleared": false,
+        "ms": 27631
+      },
+      {
+        "realCut": 23.5,
+        "level": 4.7,
+        "previewCleared": true,
+        "ms": 36223,
+        "builtSameLevel": true,
+        "builtOldHandover": false
+      },
+      {
+        "realCut": 32.5,
+        "level": 6.5,
+        "previewCleared": true,
+        "ms": 21110,
+        "builtSameLevel": true,
+        "builtOldHandover": false
+      },
+      {
+        "realCut": 42,
+        "level": 8.4,
+        "previewCleared": true,
+        "ms": 8212,
+        "builtSameLevel": true,
+        "builtOldHandover": false
+      },
+      {
+        "realCut": 51.5,
+        "level": 10.3,
+        "previewCleared": true,
+        "ms": 6820,
+        "builtSameLevel": false,
+        "builtOldHandover": false
+      }
+    ]
+  }
+]

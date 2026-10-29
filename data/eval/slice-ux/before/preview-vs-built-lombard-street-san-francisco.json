@@ -1,0 +1,51 @@
+[
+  {
+    "slug": "lombard-street-san-francisco",
+    "k": 0.2,
+    "range": 89,
+    "rows": [
+      {
+        "realCut": 7.5,
+        "level": 1.5,
+        "previewCleared": false,
+        "ms": 26244
+      },
+      {
+        "realCut": 22.5,
+        "level": 4.5,
+        "previewCleared": false,
+        "ms": 31952
+      },
+      {
+        "realCut": 37,
+        "level": 7.4,
+        "previewCleared": false,
+        "ms": 63159
+      },
+      {
+        "realCut": 52,
+        "level": 10.4,
+        "previewCleared": true,
+        "ms": 8036,
+        "builtSameLevel": true,
+        "builtOldHandover": false
+      },
+      {
+        "realCut": 67,
+        "level": 13.4,
+        "previewCleared": true,
+        "ms": 31307,
+        "builtSameLevel": true,
+        "builtOldHandover": false
+      },
+      {
+        "realCut": 81.5,
+        "level": 16.3,
+        "previewCleared": true,
+        "ms": 24620,
+        "builtSameLevel": true,
+        "builtOldHandover": false
+      }
+    ]
+  }
+]
