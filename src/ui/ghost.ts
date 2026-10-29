@@ -25,7 +25,7 @@ export interface Ghost {
   input(i: RunnerInput): void; // the keys of this tick (kept for the next parts)
   frame(f: GhostFrame): void;
   cycle(): void;
-  setFriend(track: GhostTrack): void; // chase a friend's run from a challenge link
+  setFriend(track: GhostTrack, nick?: string): void; // chase a friend's run from a challenge link
   myRun(): InputLog | null; // the keys of this run, when it began at the start and can be replayed (CC-128)
   readonly mode: GhostMode;
   reportLine(ticks: number): HTMLElement | null; // one plain line for the end report
@@ -40,6 +40,7 @@ export function createGhost(o: GhostOpts): Ghost {
   const recorder = new InputRecorder();
   let full = true; // this run began at the start of the course
   let friend: GhostTrack | null = null;
+  let friendNick = '';
   let ideal: GhostTrack | null = null, idealState: 'idle' | 'working' | 'none' | 'ready' = 'idle';
 
   const body = new THREE.Mesh(new THREE.CapsuleGeometry(0.28, 1.1, 6, 12), new THREE.MeshBasicMaterial({ color: 0x5ec8ff, transparent: true, opacity: 0.4, depthWrite: false }));
@@ -62,7 +63,7 @@ export function createGhost(o: GhostOpts): Ghost {
   hud.append(chip, gap); o.parent.append(hud);
 
   const paintChip = () => {
-    const word = mode === 'off' ? 'Off' : mode === 'friend' ? 'Friend\x27s run' : idealState === 'working' ? 'working out the ideal run…' : idealState === 'none' ? 'no ideal run here' : 'Ideal run';
+    const word = mode === 'off' ? 'Off' : mode === 'friend' ? (friendNick ? `${friendNick}\x27s run` : 'Friend\x27s run') : idealState === 'working' ? 'working out the ideal run…' : idealState === 'none' ? 'no ideal run here' : 'Ideal run';
     chip.innerHTML = `${ICON}<span>Ghost: ${word}</span><span style="font-weight:500;color:#58635d">N</span>`;
     chip.setAttribute('aria-pressed', String(mode !== 'off'));
     chip.title = 'A see-through runner that replays the ideal run. Chase it. Press N to switch it on or off.';
@@ -103,7 +104,7 @@ export function createGhost(o: GhostOpts): Ghost {
     begin(fullAttempt) { full = fullAttempt; recorder.reset(); lastMarked = -2; },
     input(i) { if (full) recorder.push(i); },
     cycle() { setMode(next()); },
-    setFriend(t) { friend = t; setMode('friend'); },
+    setFriend(t, nick = '') { friend = t; friendNick = nick; setMode('friend'); },
     myRun() { return full && recorder.valid ? recorder.snapshot() : null; },
     frame(f) {
       const track = shown();
@@ -119,7 +120,7 @@ export function createGhost(o: GhostOpts): Ghost {
     reportLine(ticks) {
       const t = shown();
       if (!t || !full) return null;
-      const who = mode === 'friend' ? 'the friend\x27s run' : 'the ideal run';
+      const who = mode === 'friend' ? (friendNick ? `${friendNick}\x27s run` : 'the friend\x27s run') : 'the ideal run';
       const mine = ticks / 120, theirs = t.ticks / 120, d = mine - theirs;
       const p = document.createElement('div');
       p.style.cssText = 'font:600 15px system-ui,sans-serif;color:#17201d';

@@ -1180,8 +1180,8 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
   if (challengeParam) {
     void openChallenge(course, challengeParam).then((c) => {
       if (!c.ok) { showBanner(challengeWords(c.why), [], 20000); return; }
-      ghostCtl?.setFriend(c.track);
-      showBanner(`Beat this time: ${secondsWords(c.ticks)}`, [{ label: 'Make a clip of this run', go: () => void makeClip(c.log, c.ticks) }]);
+      ghostCtl?.setFriend(c.track, c.nick);
+      showBanner(c.nick ? `Beat ${c.nick}: ${secondsWords(c.ticks)}` : `Beat this time: ${secondsWords(c.ticks)}`, [{ label: 'Make a clip of this run', go: () => void makeClip(c.log, c.ticks) }]);
       if (params.get('autoplay') === '1') feed = { log: c.log, i: 0, left: 0 }; // for the browser check: play the friend's keys as if by hand
       if (params.get('clip') === 'auto') void makeClip(c.log, c.ticks);
     });
@@ -1302,7 +1302,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
         if (ghostCtl && !botMode && !demo && !idealWhole) body.querySelector('#report-actions')?.prepend(...ghostCtl.reportActions(() => { panel.style.display = 'none'; retryX = course.startX; restart(course.startX); }));
         if (shareOn(params) && !botMode && !demo && !idealWhole && !params.get('mode')) {
           const mine = ghostCtl?.myRun() ?? null, ticks = world.runner.tick;
-          if (mine) body.querySelector('#report-actions')?.append(...shareButtons({ link: () => makeChallengeUrl(location.origin, location.search, course, mine), clip: clipFits(ticks) ? () => void makeClip(mine, ticks) : undefined }));
+          if (mine) body.querySelector('#report-actions')?.append(...shareButtons({ link: (nick) => makeChallengeUrl(location.origin, location.search, course, mine, nick), clip: clipFits(ticks) ? () => void makeClip(mine, ticks) : undefined }));
         }
         panel.append(body); (body.querySelector('#report-again') as HTMLElement | null)?.focus({ preventScroll: true });
         if (!botMode && !demo && !idealWhole || params.get('next') === '1') onboarding.onCleared(panel); // CC-100: the one-time What next card, at the top of the report
