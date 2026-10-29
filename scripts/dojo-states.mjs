@@ -13,7 +13,7 @@ try {
   mkdirSync(out, { recursive: true });
   const sizes = { desktop: { width: 1280, height: 860 }, phone: { width: 390, height: 844 } };
   const states = flavour === 'old' ? [['gap', 0, 'why'], ['gap', 1, 'try'], ['wall', 2, 'shape'], ['rope', 3, 'rule'], ['landing', 4, 'formula'], ['gap', 5, 'course']]
-    : [['gap', 0, 'why'], ['gap', 1, 'try'], ['wall', 2, 'shape'], ['landing', 1, 'try'], ['landing', 3, 'formula'], ['gap', 3, 'formula']]; // CC-148: four steps
+    : [['gap', 0, 'why'], ['gap', 1, 'try'], ['wall', 2, 'shape'], ['landing', 1, 'try'], ['landing', 3, 'formula'], ['gap', 3, 'formula']]; // CC-154: four steps
   for (const [name, viewport] of Object.entries(sizes)) {
     const page = await browser.newPage({ viewport });
     for (const [ex, step, label] of states) {

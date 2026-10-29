@@ -13,7 +13,7 @@ import { GRAVITY } from '../sim/units';
 // The Dojo: a guided lesson per obstacle. Why it matters, what to try, the shape of the relationship, a rule of
 // thumb, the exact formula (earned, last), and what it means on the Course. Formulas appear only here.
 const STEPS = ['Why it matters', 'Try it', 'The shape', 'A rule of thumb', 'The exact formula', 'On the Course']; // ?dojo=old
-const STEPS_V3 = ['Why it matters', 'Try it', 'The shape', 'The exact formula']; // CC-148: one graph, the rule of thumb is a caption on it, the formula is drawn over it last
+const STEPS_V3 = ['Why it matters', 'Try it', 'The shape', 'The exact formula']; // CC-154: one graph, the rule of thumb is a caption on it, the formula is drawn over it last
 
 export function startDojo(host: HTMLElement): { backend: 'webgl2' } {
   const q = new URLSearchParams(location.search);
@@ -273,7 +273,7 @@ export function startDojo(host: HTMLElement): { backend: 'webgl2' } {
     c.restore();
   }
 
-  // the graph is drawn once; on the last step the formula is drawn over it in a strip on top (CC-148)
+  // the graph is drawn once; on the last step the formula is drawn over it in a strip on top (CC-154)
   function draw(canvas: HTMLCanvasElement) {
     const c = canvas.getContext('2d');
     if (!c) return;
@@ -411,7 +411,7 @@ export function startDojo(host: HTMLElement): { backend: 'webgl2' } {
     if (e.code !== 'KeyT' || e.repeat || e.ctrlKey || e.metaKey || e.altKey || document.getElementById('cc-feedback') || (t && /^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName) && (t as HTMLInputElement).type !== 'range')) return;
     if (!picker) { location.href = returnToCourse; return; } // the old layout keeps its old route
     if (document.getElementById('world-gallery')) return; // already open: the picker has its own keys
-    picker.open(); // T takes the player to the course picker, where they choose a course (CC-148)
+    picker.open(); // T takes the player to the course picker, where they choose a course (CC-154)
   });
   // the Courses pill is not shown in the new Dojo: T opens the same picker (main.ts skips the pill here)
   const picker = legacy ? null : mountWorldGallery(document.body, { current: currentWorld(q), place: 'display:none' });
