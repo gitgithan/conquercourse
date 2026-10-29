@@ -8,7 +8,10 @@
     "hill_m": 39,
     "buildings": 42,
     "bytes": 86412,
-    "blurb": "A hill of stairs and narrow streets."
+    "blurb": "A hill of stairs and narrow streets.",
+    "path": true,
+    "photos": 109,
+    "listed": true
   },
   {
     "slug": "eixample-barcelona",
@@ -19,7 +22,10 @@
     "hill_m": 9,
     "buildings": 47,
     "bytes": 90879,
-    "blurb": "A grid of tall blocks with cut corners."
+    "blurb": "A grid of tall blocks with cut corners.",
+    "path": true,
+    "photos": 116,
+    "listed": true
   },
   {
     "slug": "circular-quay-sydney",
@@ -30,7 +36,10 @@
     "hill_m": 37,
     "buildings": 44,
     "bytes": 43678,
-    "blurb": "A harbour edge that climbs to the Rocks."
+    "blurb": "A harbour edge that climbs to the Rocks.",
+    "path": true,
+    "photos": 4,
+    "listed": false
   },
   {
     "slug": "lombard-street-san-francisco",
@@ -41,7 +50,10 @@
     "hill_m": 62,
     "buildings": 95,
     "bytes": 111448,
-    "blurb": "The steepest block of the crooked street."
+    "blurb": "The steepest block of the crooked street.",
+    "path": true,
+    "photos": 30,
+    "listed": true
   },
   {
     "slug": "shibuya-tokyo",
@@ -52,7 +64,10 @@
     "hill_m": 34,
     "buildings": 69,
     "bytes": 67660,
-    "blurb": "Tall, packed blocks around the big crossing."
+    "blurb": "Tall, packed blocks around the big crossing.",
+    "path": true,
+    "photos": 443,
+    "listed": true
   },
   {
     "slug": "ciutadella-barcelona",
@@ -63,7 +78,10 @@
     "hill_m": 13,
     "buildings": 6,
     "bytes": 11049,
-    "blurb": "A flat park with a few low halls."
+    "blurb": "A flat park with a few low halls.",
+    "path": true,
+    "photos": 169,
+    "listed": true
   },
   {
     "slug": "edinburgh-old-town",
@@ -74,7 +92,10 @@
     "hill_m": 23,
     "buildings": 77,
     "bytes": 123439,
-    "blurb": "A ridge of stone houses falling away on both sides."
+    "blurb": "A ridge of stone houses falling away on both sides.",
+    "path": true,
+    "photos": 204,
+    "listed": true
   },
   {
     "slug": "positano-italy",
@@ -85,7 +106,10 @@
     "hill_m": 100,
     "buildings": 86,
     "bytes": 92251,
-    "blurb": "A hill town stacked down to the sea."
+    "blurb": "A hill town stacked down to the sea.",
+    "path": true,
+    "photos": 214,
+    "listed": true
   },
   {
     "slug": "valletta-harbour-malta",
@@ -96,7 +120,10 @@
     "hill_m": 22,
     "buildings": 18,
     "bytes": 17707,
-    "blurb": "Fort walls and harbour steps."
+    "blurb": "Fort walls and harbour steps.",
+    "path": true,
+    "photos": 47,
+    "listed": true
   },
   {
     "slug": "speicherstadt-hamburg",
@@ -107,7 +134,10 @@
     "hill_m": 12,
     "buildings": 21,
     "bytes": 18930,
-    "blurb": "Brick warehouses along the canals."
+    "blurb": "Brick warehouses along the canals.",
+    "path": true,
+    "photos": 59,
+    "listed": true
   },
   {
     "slug": "alfama-lisbon",
@@ -118,7 +148,10 @@
     "hill_m": 49,
     "buildings": 278,
     "bytes": 213960,
-    "blurb": "A steep old quarter of narrow lanes."
+    "blurb": "A steep old quarter of narrow lanes.",
+    "path": true,
+    "photos": 298,
+    "listed": true
   },
   {
     "slug": "spanish-steps-rome",
@@ -129,7 +162,10 @@
     "hill_m": 26,
     "buildings": 35,
     "bytes": 46361,
-    "blurb": "A wide staircase between old palaces."
+    "blurb": "A wide staircase between old palaces.",
+    "path": true,
+    "photos": 82,
+    "listed": true
   },
   {
     "slug": "parc-guell-barcelona",
@@ -139,8 +175,11 @@
     "radius": 150,
     "hill_m": 67,
     "buildings": 14,
-    "bytes": 30194,
-    "blurb": "A hill park of curved walls, stairs and the long bench."
+    "bytes": 30195,
+    "blurb": "A hill park of curved walls, stairs and the long bench.",
+    "path": true,
+    "photos": 118,
+    "listed": true
   },
   {
     "slug": "tuileries-paris",
@@ -151,7 +190,10 @@
     "hill_m": 17,
     "buildings": 5,
     "bytes": 11571,
-    "blurb": "Gravel paths, terrace walls and rows of chairs."
+    "blurb": "Gravel paths, terrace walls and rows of chairs.",
+    "path": true,
+    "photos": 39,
+    "listed": true
   },
   {
     "slug": "retiro-park-madrid",
@@ -162,7 +204,10 @@
     "hill_m": 10,
     "buildings": 9,
     "bytes": 11782,
-    "blurb": "A glass palace by a lake, with railings and steps."
+    "blurb": "A glass palace by a lake, with railings and steps.",
+    "path": true,
+    "photos": 46,
+    "listed": true
   },
   {
     "slug": "bryant-park-new-york",
@@ -173,7 +218,10 @@
     "hill_m": 3,
     "buildings": 21,
     "bytes": 28123,
-    "blurb": "A lawn and benches boxed in by tall blocks."
+    "blurb": "A lawn and benches boxed in by tall blocks.",
+    "path": true,
+    "photos": 18,
+    "listed": false
   },
   {
     "slug": "gas-works-park-seattle",
@@ -184,7 +232,10 @@
     "hill_m": 16,
     "buildings": 27,
     "bytes": 42701,
-    "blurb": "A grassy hill with old iron towers and rails."
+    "blurb": "A grassy hill with old iron towers and rails.",
+    "path": true,
+    "photos": 46,
+    "listed": true
   },
   {
     "slug": "dolores-park-san-francisco",
@@ -195,6 +246,163 @@
     "hill_m": 37,
     "buildings": 40,
     "bytes": 43643,
-    "blurb": "A steep lawn with palm-lined paths and walls."
+    "blurb": "A steep lawn with palm-lined paths and walls.",
+    "path": true,
+    "photos": 181,
+    "listed": true
+  },
+  {
+    "slug": "piazza-san-marco-venice",
+    "name": "Piazza San Marco, Venice",
+    "lat": 45.434,
+    "lon": 12.3386,
+    "radius": 120,
+    "hill_m": 13,
+    "buildings": 35,
+    "bytes": 104157,
+    "blurb": "A huge square of arcades and a bell tower beside the lagoon.",
+    "path": true,
+    "photos": 101,
+    "listed": true
+  },
+  {
+    "slug": "plaza-mayor-madrid",
+    "name": "Plaza Mayor, Madrid",
+    "lat": 40.4155,
+    "lon": -3.7074,
+    "radius": 120,
+    "hill_m": 7,
+    "buildings": 118,
+    "bytes": 155533,
+    "blurb": "A closed square of red arcades with arched gates.",
+    "path": true,
+    "photos": 58,
+    "listed": true
+  },
+  {
+    "slug": "place-des-vosges-paris",
+    "name": "Place des Vosges, Paris",
+    "lat": 48.8556,
+    "lon": 2.3659,
+    "radius": 120,
+    "hill_m": 8,
+    "buildings": 77,
+    "bytes": 108025,
+    "blurb": "A square park ringed by brick houses and arcades.",
+    "path": true,
+    "photos": 10,
+    "listed": false
+  },
+  {
+    "slug": "trafalgar-square-london",
+    "name": "Trafalgar Square, London",
+    "lat": 51.5081,
+    "lon": -0.1281,
+    "radius": 120,
+    "hill_m": 12,
+    "buildings": 16,
+    "bytes": 32648,
+    "blurb": "Steps, fountains and a column in front of the gallery.",
+    "path": true,
+    "photos": 229,
+    "listed": true
+  },
+  {
+    "slug": "covent-garden-london",
+    "name": "Covent Garden, London",
+    "lat": 51.5118,
+    "lon": -0.1226,
+    "radius": 120,
+    "hill_m": 10,
+    "buildings": 65,
+    "bytes": 76214,
+    "blurb": "A covered market hall and the streets around it.",
+    "path": true,
+    "photos": 270,
+    "listed": true
+  },
+  {
+    "slug": "washington-square-new-york",
+    "name": "Washington Square, New York",
+    "lat": 40.7308,
+    "lon": -73.9976,
+    "radius": 120,
+    "hill_m": 4,
+    "buildings": 16,
+    "bytes": 23256,
+    "blurb": "A park with a fountain and an arch, walled in by townhouses.",
+    "path": true,
+    "photos": 665,
+    "listed": true
+  },
+  {
+    "slug": "union-square-san-francisco",
+    "name": "Union Square, San Francisco",
+    "lat": 37.7879,
+    "lon": -122.4075,
+    "radius": 120,
+    "hill_m": 16,
+    "buildings": 44,
+    "bytes": 47282,
+    "blurb": "A plaza with stairs, ringed by tall shops.",
+    "path": true,
+    "photos": 973,
+    "listed": true
+  },
+  {
+    "slug": "old-town-square-prague",
+    "name": "Old Town Square, Prague",
+    "lat": 50.0875,
+    "lon": 14.4213,
+    "radius": 120,
+    "hill_m": 4,
+    "buildings": 56,
+    "bytes": 109077,
+    "blurb": "A cobbled square of towers and painted houses.",
+    "path": true,
+    "photos": 90,
+    "listed": true
+  },
+  {
+    "slug": "piazza-navona-rome",
+    "name": "Piazza Navona, Rome",
+    "lat": 41.8992,
+    "lon": 12.4731,
+    "radius": 120,
+    "hill_m": 11,
+    "buildings": 47,
+    "bytes": 58758,
+    "blurb": "A long oval square of fountains and palaces.",
+    "path": true,
+    "photos": 139,
+    "listed": true
+  },
+  {
+    "slug": "nyhavn-copenhagen",
+    "name": "Nyhavn, Copenhagen",
+    "lat": 55.6803,
+    "lon": 12.5906,
+    "radius": 120,
+    "hill_m": 6,
+    "buildings": 123,
+    "bytes": 120427,
+    "blurb": "A canal lined with narrow coloured houses.",
+    "path": true,
+    "photos": 257,
+    "listed": true
+  },
+  {
+    "slug": "boston-common-beacon-hill",
+    "name": "Beacon Hill, Boston",
+    "lat": 42.356,
+    "lon": -71.063,
+    "radius": 120,
+    "hill_m": 10,
+    "buildings": 41,
+    "bytes": 36557,
+    "blurb": "Brick rows climbing from the oldest park in the country.",
+    "path": true,
+    "photos": 107,
+    "listed": true
   }
 ]

@@ -4,7 +4,7 @@
 //   - The explain strip: what was found, how it was shrunk, which lane the simulator cleared, and on the map which footprints became which obstacle.
 // map.ts calls `installPlaces`; the pure parts are in src/world/places.ts and src/world/place-lane.ts.
 import type { GeoJSONSource, Map as MapLibreMap } from 'maplibre-gl';
-import { askMirrors, nearestReady, placeKey, type PlaceLane, type ReadyIndexEntry, type ReadyPlace } from '../world/places';
+import { askMirrors, nearestReady, shownReady, placeKey, type PlaceLane, type ReadyIndexEntry, type ReadyPlace } from '../world/places';
 import { buildingsFrom, type OverpassAnswer } from '../world/osm';
 import { relief, type Ground } from '../world/terrain';
 import { toLonLat } from '../slice/slicer';
@@ -70,16 +70,17 @@ export function installPlaces(ctx: PlaceCtx) {
   const loadIndex = (async () => {
     try { index = (await (await fetch('/assets/places/index.json')).json()) as ReadyIndexEntry[]; } catch { index = []; }
     if (!index.length) return;
-    const head = document.createElement('summary'); head.textContent = `Ready places (${index.length}, they load at once)`;
+    const showAll = new URLSearchParams(location.search).get('places') === 'all', shown = shownReady(index, showAll);
+    const head = document.createElement('summary'); head.textContent = `Ready places (${shown.length}, they load at once)`;
     const list = document.createElement('div'); list.className = 'ready-list';
-    list.replaceChildren(...index.map((p) => {
+    list.replaceChildren(...shown.map((p) => {
       const b = document.createElement('button'); b.type = 'button'; b.dataset.slug = p.slug;
-      b.innerHTML = `${p.name} <small>${p.hill_m >= 3 ? `hill ${p.hill_m} m` : 'flat'}</small>`;
+      b.innerHTML = `${p.name} <small>${p.hill_m >= 3 ? `hill ${p.hill_m} m` : 'flat'}${showAll && p.listed === false ? ', no photos or no lane' : ''}</small>`;
       b.onclick = () => { map.flyTo({ center: [p.lon, p.lat], zoom: 16, duration: 700 }); ctx.setRadius(p.radius); ctx.setPin(p.lat, p.lon); ctx.tell(`${p.name}: ready. Press Build.`); };
       return b;
     }));
     readyEl.replaceChildren(head, list);
-    dset('readyPlaces', index.length);
+    dset('readyPlaces', shown.length); dset('readyPlacesAll', index.length);
   })();
 
   // ---- steps
