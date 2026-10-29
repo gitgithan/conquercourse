@@ -1,6 +1,8 @@
 // Character gauges (CC-148): everything that says something about the runner (speed, drone battery, later energy, grip, stamina, rope tension)
 // lives in one stack at the bottom left. Register a gauge, set its value each frame; hidden gauges take no room.
 
+import { HUD, panelCss } from './hud-style';
+
 export interface GaugeSpec { id: string; label: string; colour: string; max: number }
 export interface GaugeUpdate { value?: number; max?: number; text?: string; note?: string; mark?: number | null; colour?: string; visible?: boolean }
 export interface Gauge { set: (u: GaugeUpdate) => void; el: HTMLElement }
@@ -21,14 +23,15 @@ export function createGaugeStack(where: 'bottom-left' | 'old' = 'bottom-left'): 
   const old = where === 'old';
   el.style.cssText = old
     ? 'position:fixed;left:50%;top:10px;transform:translateX(-50%);width:min(420px,60vw);display:flex;flex-direction:column;gap:8px;text-align:center;font:600 15px system-ui,sans-serif;color:#10141c;text-shadow:0 1px 0 #fff8;pointer-events:none'
-    : `position:fixed;left:12px;bottom:calc(${BASE_BOTTOM}px + var(--gl,0px));width:min(230px,30vw);min-width:150px;display:flex;flex-direction:column-reverse;gap:10px;font:600 14px system-ui,sans-serif;color:#10141c;text-shadow:0 1px 0 #fff8;pointer-events:none;z-index:6`;
+    : `position:fixed;left:12px;bottom:calc(${BASE_BOTTOM}px + var(--gl,0px));width:min(230px,30vw);min-width:150px;display:flex;flex-direction:column-reverse;gap:10px;font:600 14px system-ui,sans-serif;color:${HUD.text};pointer-events:none;z-index:6`;
   if (!old) { const st = document.createElement('style'); st.textContent = '@media (max-width:1100px){#gauge-stack{--gd:54px}}#gauge-stack{margin-bottom:var(--gd,0px)}'; el.append(st); } // narrow screens: step over the drum lane (G)
   const register = (spec: GaugeSpec): Gauge => {
     const g = document.createElement('div');
     g.dataset.gauge = spec.id;
     const p = 'g'; // the speed gauge keeps the old ids gtext/gfill/gneed/gnext; others add their id
     const key = spec.id === 'speed' ? '' : spec.id;
-    g.innerHTML = `<div id="${p}text${key}">${spec.label}</div><div style="position:relative;height:14px;background:#10141c33;border-radius:7px;margin-top:3px"><div id="${p}fill${key}" style="height:100%;width:0;background:${spec.colour};border-radius:7px"></div><div id="${p}need${key}" style="position:absolute;top:-4px;width:3px;height:22px;background:#c4572a;display:none"></div></div><div id="${p}next${key}" style="margin-top:4px;font-weight:500"></div>`;
+    if (!old) g.style.cssText = panelCss('7px 10px 8px'); // CC-156: each gauge is its own bright-on-dark panel, so a hidden gauge leaves no empty box
+    g.innerHTML = `<div id="${p}text${key}">${spec.label}</div><div style="position:relative;height:14px;background:${old ? '#10141c33' : HUD.track};border-radius:7px;margin-top:3px"><div id="${p}fill${key}" style="height:100%;width:0;background:${spec.colour};border-radius:7px"></div><div id="${p}need${key}" style="position:absolute;top:-4px;width:3px;height:22px;background:${old ? '#c4572a' : HUD.mark};display:none"></div></div><div id="${p}next${key}" style="margin-top:4px;font-weight:500"></div>`;
     el.append(g);
     const q = (n: string) => g.querySelector(`#${p}${n}${key}`) as HTMLElement;
     const [text, fill, need, next] = [q('text'), q('fill'), q('need'), q('next')];
