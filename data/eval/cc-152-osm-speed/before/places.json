@@ -1,0 +1,420 @@
+[
+  {
+    "slug": "midtown-new-york",
+    "lat": 40.758,
+    "lon": -73.9855,
+    "radius": 120,
+    "mirrors": [
+      {
+        "host": "overpass-api.de",
+        "ok": false,
+        "ms": 582,
+        "note": "fetch failed"
+      },
+      {
+        "host": "lz4.overpass-api.de",
+        "ok": false,
+        "ms": 257,
+        "note": "fetch failed"
+      },
+      {
+        "host": "z.overpass-api.de",
+        "ok": false,
+        "ms": 30007,
+        "note": "The operation was aborted due to timeout"
+      },
+      {
+        "host": "overpass.kumi.systems",
+        "ok": false,
+        "ms": 30001,
+        "note": "The operation was aborted due to timeout"
+      },
+      {
+        "host": "overpass.private.coffee",
+        "ok": false,
+        "ms": 30002,
+        "note": "The operation was aborted due to timeout"
+      },
+      {
+        "host": "maps.mail.ru",
+        "ok": false,
+        "ms": 1440,
+        "note": "HTTP 504"
+      }
+    ],
+    "askFirst": {
+      "ms": 26405,
+      "mirror": "maps.mail.ru"
+    },
+    "askSecond": {
+      "ms": 38607,
+      "mirror": "z.overpass-api.de"
+    },
+    "elements": 31,
+    "answerBytes": 14070,
+    "buildings": 31,
+    "terrain": {
+      "tiles": 1,
+      "bytes": 40797,
+      "fetchMs": 1055,
+      "decodeMs": 11
+    },
+    "groundTotalMs": 300,
+    "reliefM": 3,
+    "meshMs": 11,
+    "meshTriangles": 880,
+    "laneMs": 25019,
+    "laneCleared": true,
+    "laneShrink": 0.316
+  },
+  {
+    "slug": "midtown-new-york-300",
+    "lat": 40.758,
+    "lon": -73.9855,
+    "radius": 300,
+    "mirrors": [
+      {
+        "host": "overpass-api.de",
+        "ok": false,
+        "ms": 510,
+        "note": "fetch failed"
+      },
+      {
+        "host": "lz4.overpass-api.de",
+        "ok": false,
+        "ms": 255,
+        "note": "fetch failed"
+      },
+      {
+        "host": "z.overpass-api.de",
+        "ok": false,
+        "ms": 461,
+        "note": "fetch failed"
+      },
+      {
+        "host": "overpass.kumi.systems",
+        "ok": false,
+        "ms": 30001,
+        "note": "The operation was aborted due to timeout"
+      },
+      {
+        "host": "overpass.private.coffee",
+        "ok": false,
+        "ms": 30002,
+        "note": "The operation was aborted due to timeout"
+      },
+      {
+        "host": "maps.mail.ru",
+        "ok": true,
+        "ms": 12104,
+        "headersMs": 11889,
+        "bytes": 211207,
+        "elements": 199
+      }
+    ],
+    "askFirst": {
+      "ms": 40006,
+      "error": "no map server answered (fetch failed; fetch failed; z.overpass-api.de: HTTP 502; This operation was aborted; This operat"
+    },
+    "askSecond": {
+      "ms": 40005
+    }
+  },
+  {
+    "slug": "copacabana-rio",
+    "lat": -22.9711,
+    "lon": -43.1822,
+    "radius": 120,
+    "mirrors": [
+      {
+        "host": "overpass-api.de",
+        "ok": false,
+        "ms": 508,
+        "note": "fetch failed"
+      },
+      {
+        "host": "lz4.overpass-api.de",
+        "ok": false,
+        "ms": 425,
+        "note": "fetch failed"
+      },
+      {
+        "host": "z.overpass-api.de",
+        "ok": false,
+        "ms": 255,
+        "note": "fetch failed"
+      },
+      {
+        "host": "overpass.kumi.systems",
+        "ok": false,
+        "ms": 30001,
+        "note": "The operation was aborted due to timeout"
+      },
+      {
+        "host": "overpass.private.coffee",
+        "ok": false,
+        "ms": 30002,
+        "note": "The operation was aborted due to timeout"
+      },
+      {
+        "host": "maps.mail.ru",
+        "ok": false,
+        "ms": 1326,
+        "note": "HTTP 504"
+      }
+    ],
+    "askFirst": {
+      "ms": 25969,
+      "mirror": "overpass-api.de"
+    },
+    "askSecond": {
+      "ms": 31612,
+      "mirror": "overpass-api.de"
+    },
+    "elements": 10,
+    "answerBytes": 3922,
+    "buildings": 10,
+    "terrain": {
+      "tiles": 1,
+      "bytes": 30731,
+      "fetchMs": 1022,
+      "decodeMs": 5
+    },
+    "groundTotalMs": 292,
+    "reliefM": 33,
+    "meshMs": 2,
+    "meshTriangles": 232,
+    "laneMs": 37430,
+    "laneCleared": true,
+    "laneShrink": 0.333
+  },
+  {
+    "slug": "khan-el-khalili-cairo",
+    "lat": 30.0478,
+    "lon": 31.2625,
+    "radius": 120,
+    "mirrors": [
+      {
+        "host": "overpass-api.de",
+        "ok": false,
+        "ms": 252,
+        "note": "HTTP 502"
+      },
+      {
+        "host": "lz4.overpass-api.de",
+        "ok": false,
+        "ms": 255,
+        "note": "fetch failed"
+      },
+      {
+        "host": "z.overpass-api.de",
+        "ok": false,
+        "ms": 255,
+        "note": "fetch failed"
+      },
+      {
+        "host": "overpass.kumi.systems",
+        "ok": false,
+        "ms": 30002,
+        "note": "The operation was aborted due to timeout"
+      },
+      {
+        "host": "overpass.private.coffee",
+        "ok": false,
+        "ms": 30002,
+        "note": "The operation was aborted due to timeout"
+      },
+      {
+        "host": "maps.mail.ru",
+        "ok": true,
+        "ms": 21128,
+        "headersMs": 21123,
+        "bytes": 10366,
+        "elements": 14
+      }
+    ],
+    "askFirst": {
+      "ms": 40004,
+      "error": "no map server answered (fetch failed; fetch failed; fetch failed; This operation was aborted; This operation was aborted"
+    },
+    "askSecond": {
+      "ms": 13792,
+      "mirror": "maps.mail.ru"
+    }
+  },
+  {
+    "slug": "chinatown-singapore",
+    "lat": 1.2833,
+    "lon": 103.8443,
+    "radius": 120,
+    "mirrors": [
+      {
+        "host": "overpass-api.de",
+        "ok": false,
+        "ms": 30002,
+        "note": "The operation was aborted due to timeout"
+      },
+      {
+        "host": "lz4.overpass-api.de",
+        "ok": false,
+        "ms": 255,
+        "note": "fetch failed"
+      },
+      {
+        "host": "z.overpass-api.de",
+        "ok": false,
+        "ms": 256,
+        "note": "fetch failed"
+      },
+      {
+        "host": "overpass.kumi.systems",
+        "ok": false,
+        "ms": 30001,
+        "note": "The operation was aborted due to timeout"
+      },
+      {
+        "host": "overpass.private.coffee",
+        "ok": false,
+        "ms": 30008,
+        "note": "The operation was aborted due to timeout"
+      },
+      {
+        "host": "maps.mail.ru",
+        "ok": true,
+        "ms": 15933,
+        "headersMs": 15927,
+        "bytes": 172618,
+        "elements": 224
+      }
+    ],
+    "askFirst": {
+      "ms": 19707,
+      "mirror": "maps.mail.ru"
+    },
+    "askSecond": {
+      "ms": 40007
+    },
+    "elements": 224,
+    "answerBytes": 67484,
+    "buildings": 224,
+    "terrain": {
+      "tiles": 1,
+      "bytes": 93310,
+      "fetchMs": 1251,
+      "decodeMs": 9
+    },
+    "groundTotalMs": 289,
+    "reliefM": 24,
+    "meshMs": 14,
+    "meshTriangles": 3116,
+    "laneMs": 125729,
+    "laneCleared": true,
+    "laneShrink": 0.5
+  },
+  {
+    "slug": "soho-london",
+    "lat": 51.5136,
+    "lon": -0.1318,
+    "radius": 120,
+    "mirrors": [
+      {
+        "host": "overpass-api.de",
+        "ok": false,
+        "ms": 4,
+        "note": "fetch failed"
+      },
+      {
+        "host": "lz4.overpass-api.de",
+        "ok": false,
+        "ms": 255,
+        "note": "fetch failed"
+      },
+      {
+        "host": "z.overpass-api.de",
+        "ok": false,
+        "ms": 256,
+        "note": "fetch failed"
+      },
+      {
+        "host": "overpass.kumi.systems",
+        "ok": false,
+        "ms": 30002,
+        "note": "The operation was aborted due to timeout"
+      },
+      {
+        "host": "overpass.private.coffee",
+        "ok": false,
+        "ms": 30001,
+        "note": "The operation was aborted due to timeout"
+      },
+      {
+        "host": "maps.mail.ru",
+        "ok": true,
+        "ms": 16517,
+        "headersMs": 16509,
+        "bytes": 203769,
+        "elements": 223
+      }
+    ],
+    "askFirst": {
+      "ms": 40006,
+      "error": "no map server answered (fetch failed; fetch failed; fetch failed; This operation was aborted; This operation was aborted"
+    },
+    "askSecond": {
+      "ms": 21285,
+      "mirror": "maps.mail.ru"
+    }
+  },
+  {
+    "slug": "zocalo-mexico-city",
+    "lat": 19.4326,
+    "lon": -99.1332,
+    "radius": 120,
+    "mirrors": [
+      {
+        "host": "overpass-api.de",
+        "ok": false,
+        "ms": 30002,
+        "note": "The operation was aborted due to timeout"
+      },
+      {
+        "host": "lz4.overpass-api.de",
+        "ok": false,
+        "ms": 539,
+        "note": "fetch failed"
+      },
+      {
+        "host": "z.overpass-api.de",
+        "ok": false,
+        "ms": 255,
+        "note": "fetch failed"
+      },
+      {
+        "host": "overpass.kumi.systems",
+        "ok": false,
+        "ms": 29999,
+        "note": "The operation was aborted due to timeout"
+      },
+      {
+        "host": "overpass.private.coffee",
+        "ok": false,
+        "ms": 30005,
+        "note": "The operation was aborted due to timeout"
+      },
+      {
+        "host": "maps.mail.ru",
+        "ok": false,
+        "ms": 1727,
+        "note": "HTTP 504"
+      }
+    ],
+    "askFirst": {
+      "ms": 40013,
+      "error": "no map server answered (fetch failed; fetch failed; fetch failed; This operation was aborted; This operation was aborted"
+    },
+    "askSecond": {
+      "ms": 39292,
+      "mirror": "overpass-api.de"
+    }
+  }
+]

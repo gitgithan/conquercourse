@@ -1,0 +1,19 @@
+{
+  "ok": true,
+  "checks": {
+    "fastUsesEarlyAnswer": true,
+    "fastBuildAtOnce": true,
+    "fastAskedOnce": true,
+    "laneArrives": true,
+    "laneKept": true,
+    "keptLaneAtOnce": true,
+    "offWaitsForTheServers": true
+  },
+  "numbers": {
+    "fastBuildMs": 322,
+    "laneKeptKey": 1,
+    "slowBuildMs": 6578
+  },
+  "delayMs": 6000,
+  "waitMs": 8000
+}
