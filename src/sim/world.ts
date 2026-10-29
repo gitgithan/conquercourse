@@ -9,7 +9,7 @@ import { JUMP_COST, VAULT_COST } from './energy';
 import { VAULT_BUFFER, VAULT_PLANT_GRIP, VAULT_PLANT_TICKS, findVault, vaultAt, vaultExitSpeed, type Vault } from './vault';
 import { ROLL_FORGIVE_TICKS, rollWindowOpen } from './drop';
 import { GROUND_ROLL_COST, GROUND_ROLL_RECOVERY, startGroundRoll, stepGroundRoll, type GroundRoll } from './roll';
-import { bodyVelocity, feetOf, gripSlips, hangStep, releaseHang, tryGrab, type Hang } from './holds';
+import { DEFAULT_HANG, bodyVelocity, feetOf, gripSlips, hangStep, releaseHang, tryGrab, type Hang } from './holds';
 import { enterCart, railsOf, stepCartWorld, trackParams, trackSegments, type Cart } from './cart';
 import { AIM_RATE, DEFAULT_RECOIL, NO_RECOIL, clampAim, isAimable, padHas, shot, stepBall, type RecoilParams, type RecoilState } from './recoil';
 import { maybeEnterPlank, stepPlankWorld, type PlankState } from './beam';
@@ -240,7 +240,7 @@ export function stepWorld(w: WorldState, input: RunnerInput, course: CourseData,
 
   // a bar: airborne with a hand on the key and the hands within reach of it
   if (course.holds?.length && n.mode === 'run' && !r.grounded && r.tick >= w.noCatchUntil && (input.handL || input.handR)) {
-    const g = tryGrab(course.holds, r.x, r.y, r.vx, r.vy, undefined, w.noCatchUntil > 0);
+    const g = tryGrab(course.holds, r.x, r.y, r.vx, r.vy, course.grabReach === undefined ? undefined : { ...DEFAULT_HANG, reach: course.grabReach }, w.noCatchUntil > 0);
     if (g) {
       n.mode = 'hang';
       n.hang = g;
