@@ -269,3 +269,10 @@
 - The raw lifts and masked photos are kept outside git in `../conquercourse-assets/cc-110-real-objects/` with `SHA256SUMS`.
 - The planter is CC BY 2.0 (credit only); the hydrant, the concrete pipe and the canal railing are CC BY-SA, so those three objects carry the same licence.
 - The icons in `public/assets/pieces/real-*.webp` are drawn by the editor from the objects above.
+
+## Film media (made during the event, CC-130)
+| File | What | Source | Licence | Made with |
+|---|---|---|---|---|
+| `../conquercourse-assets/music/ruskerdax_-_scaling_up.flac` and `scaling_up.mp3` | music bed for the demo film, 273 s | "Scaling Up" by Ruskerdax, https://opengameart.org/content/scaling-up | CC0 1.0; the author asks for a credit, so the end card thanks Ruskerdax | downloaded by hand; the mp3 is made with ffmpeg; hashes in `../conquercourse-assets/SHA256SUMS.music` |
+| `../conquercourse-assets/demo-media/clips/hero.mp4`, `flyover.mp4` | captures of the running game for the proof clip | this repo, `scripts/film-proof.sh` | same as the game assets shown (park01 CC0; box-skate-03 CC BY 4.0 if shown) | stepped-clock capture, frame-blended to 30 fps |
+| `public/film/park-run.hero.labels.json`, `park-run.flyover.labels.json` | label anchors for the Park run intro, one file per shot | this repo | ours | written by hand |
