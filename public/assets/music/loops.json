@@ -1,16 +1,16 @@
 [
   {
     "screen": "course",
-    "candidate": "course-d_8",
-    "bpm": 100,
-    "bars": 6,
-    "seconds": 14.4,
-    "seam_ratio": 0.01038,
+    "candidate": "course-b_8",
+    "bpm": 140.0,
+    "bars": 5,
+    "seconds": 8.571,
+    "seam_ratio": 0.36557,
     "rms": 0.1,
-    "match_err": 0.7605,
-    "centroid_hz": 2121.23214,
-    "onsets_per_s": 6.73611,
-    "hf_share_5k": 0.00139
+    "match_err": 0.0827,
+    "centroid_hz": 4439.53312,
+    "onsets_per_s": 8.16666,
+    "hf_share_5k": 0.02537
   },
   {
     "screen": "map",
@@ -36,7 +36,7 @@
     "match_err": 0.2429,
     "centroid_hz": 939.29371,
     "onsets_per_s": 7.33334,
-    "hf_share_5k": 0.00006
+    "hf_share_5k": 6e-05
   },
   {
     "screen": "dojo",
