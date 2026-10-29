@@ -11,7 +11,7 @@
 ## Rules that stay in force
 - No chat tutor: a Lab never talks; it shows numbers and pictures.
 - No grading of a person's technique: a Lab reports facts about an algorithm (steps tried, seconds, seconds saved), never a mark for the player.
-- No formulas on screen until the owner decides; names of methods (greedy, A*, beam) are allowed, equations are not.
+- Equations are allowed inside Labs (product owner, 2026-10-29: "They are university level"); they stay out of the Course and the Dojo rule is unchanged.
 - Earth-only physics; game framing, never robotics framing (inverse kinematics is shown as posing a character).
 
 ## Lab format
@@ -53,6 +53,5 @@
 - Target-setting: the player sets a budget, and the Lab shows which methods fit inside it.
 
 ## Not decided
-- Whether Labs may show equations (the product owner's rule today says no outside Dojo lessons).
 - Whether finished Labs unlock anything.
 - Whether Labs count as "AI for education" for the hackathon; the answer is no while there is no tutor and no chatbot, and they stay game design workbenches.
