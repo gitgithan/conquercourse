@@ -23,6 +23,13 @@ export const PLACES: Spec[] = [
   { slug: 'speicherstadt-hamburg', name: 'Speicherstadt, Hamburg', lat: 53.5436, lon: 9.9886, radius: 120, blurb: 'Brick warehouses along the canals.' },
   { slug: 'alfama-lisbon', name: 'Alfama, Lisbon', lat: 38.711, lon: -9.1286, radius: 120, blurb: 'A steep old quarter of narrow lanes.' },
   { slug: 'spanish-steps-rome', name: 'Spanish Steps, Rome', lat: 41.906, lon: 12.4828, radius: 120, blurb: 'A wide staircase between old palaces.' },
+  // CC-152: parks for the demo, where rails, benches and low walls are the obstacles
+  { slug: 'parc-guell-barcelona', name: 'Park Güell, Barcelona', lat: 41.4145, lon: 2.1527, radius: 150, blurb: 'A hill park of curved walls, stairs and the long bench.' },
+  { slug: 'tuileries-paris', name: 'Tuileries Garden, Paris', lat: 48.8635, lon: 2.3275, radius: 150, blurb: 'Gravel paths, terrace walls and rows of chairs.' },
+  { slug: 'retiro-park-madrid', name: 'Retiro Park, Madrid', lat: 40.4152, lon: -3.6819, radius: 150, blurb: 'A glass palace by a lake, with railings and steps.' },
+  { slug: 'bryant-park-new-york', name: 'Bryant Park, New York', lat: 40.7536, lon: -73.9832, radius: 120, blurb: 'A lawn and benches boxed in by tall blocks.' },
+  { slug: 'gas-works-park-seattle', name: 'Gas Works Park, Seattle', lat: 47.6456, lon: -122.3344, radius: 150, blurb: 'A grassy hill with old iron towers and rails.' },
+  { slug: 'dolores-park-san-francisco', name: 'Dolores Park, San Francisco', lat: 37.7596, lon: -122.4269, radius: 150, blurb: 'A steep lawn with palm-lined paths and walls.' },
 ];
 
 const out = 'public/assets/places';

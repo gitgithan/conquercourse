@@ -130,5 +130,71 @@
     "buildings": 35,
     "bytes": 46361,
     "blurb": "A wide staircase between old palaces."
+  },
+  {
+    "slug": "parc-guell-barcelona",
+    "name": "Park Güell, Barcelona",
+    "lat": 41.4145,
+    "lon": 2.1527,
+    "radius": 150,
+    "hill_m": 67,
+    "buildings": 14,
+    "bytes": 30194,
+    "blurb": "A hill park of curved walls, stairs and the long bench."
+  },
+  {
+    "slug": "tuileries-paris",
+    "name": "Tuileries Garden, Paris",
+    "lat": 48.8635,
+    "lon": 2.3275,
+    "radius": 150,
+    "hill_m": 17,
+    "buildings": 5,
+    "bytes": 11571,
+    "blurb": "Gravel paths, terrace walls and rows of chairs."
+  },
+  {
+    "slug": "retiro-park-madrid",
+    "name": "Retiro Park, Madrid",
+    "lat": 40.4152,
+    "lon": -3.6819,
+    "radius": 150,
+    "hill_m": 10,
+    "buildings": 9,
+    "bytes": 11782,
+    "blurb": "A glass palace by a lake, with railings and steps."
+  },
+  {
+    "slug": "bryant-park-new-york",
+    "name": "Bryant Park, New York",
+    "lat": 40.7536,
+    "lon": -73.9832,
+    "radius": 120,
+    "hill_m": 3,
+    "buildings": 21,
+    "bytes": 28123,
+    "blurb": "A lawn and benches boxed in by tall blocks."
+  },
+  {
+    "slug": "gas-works-park-seattle",
+    "name": "Gas Works Park, Seattle",
+    "lat": 47.6456,
+    "lon": -122.3344,
+    "radius": 150,
+    "hill_m": 16,
+    "buildings": 27,
+    "bytes": 42701,
+    "blurb": "A grassy hill with old iron towers and rails."
+  },
+  {
+    "slug": "dolores-park-san-francisco",
+    "name": "Dolores Park, San Francisco",
+    "lat": 37.7596,
+    "lon": -122.4269,
+    "radius": 150,
+    "hill_m": 37,
+    "buildings": 40,
+    "bytes": 43643,
+    "blurb": "A steep lawn with palm-lined paths and walls."
   }
 ]

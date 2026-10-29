@@ -1,0 +1,443 @@
+[
+  {
+    "place": "midtown-new-york",
+    "variant": "baseline",
+    "ms": 40063,
+    "mirror": null,
+    "elements": 0,
+    "baselineElements": 0,
+    "sharedWithBaseline": null
+  },
+  {
+    "place": "midtown-new-york",
+    "variant": "no-relations",
+    "ms": 18523,
+    "mirror": "maps.mail.ru",
+    "elements": 31,
+    "baselineElements": 0,
+    "sharedWithBaseline": null
+  },
+  {
+    "place": "midtown-new-york",
+    "variant": "bbox",
+    "ms": 40008,
+    "mirror": null,
+    "elements": 0,
+    "baselineElements": 0,
+    "sharedWithBaseline": null
+  },
+  {
+    "place": "midtown-new-york",
+    "variant": "bbox-no-relations",
+    "ms": 40005,
+    "mirror": null,
+    "elements": 0,
+    "baselineElements": 0,
+    "sharedWithBaseline": null
+  },
+  {
+    "place": "midtown-new-york",
+    "variant": "qt",
+    "ms": 40004,
+    "mirror": null,
+    "elements": 0,
+    "baselineElements": 0,
+    "sharedWithBaseline": null
+  },
+  {
+    "place": "midtown-new-york",
+    "variant": "bbox-qt-no-relations",
+    "ms": 40004,
+    "mirror": null,
+    "elements": 0,
+    "baselineElements": 0,
+    "sharedWithBaseline": null
+  },
+  {
+    "place": "midtown-new-york",
+    "variant": "bbox-no-meta",
+    "ms": 40004,
+    "mirror": null,
+    "elements": 0,
+    "baselineElements": 0,
+    "sharedWithBaseline": null
+  },
+  {
+    "place": "midtown-new-york-300",
+    "variant": "baseline",
+    "ms": 27115,
+    "mirror": "maps.mail.ru",
+    "elements": 199,
+    "baselineElements": 199,
+    "sharedWithBaseline": 199
+  },
+  {
+    "place": "midtown-new-york-300",
+    "variant": "no-relations",
+    "ms": 40011,
+    "mirror": null,
+    "elements": 0,
+    "baselineElements": 199,
+    "sharedWithBaseline": 0
+  },
+  {
+    "place": "midtown-new-york-300",
+    "variant": "bbox",
+    "ms": 30434,
+    "mirror": "overpass-api.de",
+    "elements": 263,
+    "baselineElements": 199,
+    "sharedWithBaseline": 199
+  },
+  {
+    "place": "midtown-new-york-300",
+    "variant": "bbox-no-relations",
+    "ms": 34528,
+    "mirror": "overpass-api.de",
+    "elements": 258,
+    "baselineElements": 199,
+    "sharedWithBaseline": 196
+  },
+  {
+    "place": "midtown-new-york-300",
+    "variant": "qt",
+    "ms": 40004,
+    "mirror": null,
+    "elements": 0,
+    "baselineElements": 199,
+    "sharedWithBaseline": 0
+  },
+  {
+    "place": "midtown-new-york-300",
+    "variant": "bbox-qt-no-relations",
+    "ms": 16476,
+    "mirror": "maps.mail.ru",
+    "elements": 258,
+    "baselineElements": 199,
+    "sharedWithBaseline": 196
+  },
+  {
+    "place": "midtown-new-york-300",
+    "variant": "bbox-no-meta",
+    "ms": 20804,
+    "mirror": "maps.mail.ru",
+    "elements": 258,
+    "baselineElements": 199,
+    "sharedWithBaseline": 196
+  },
+  {
+    "place": "copacabana-rio",
+    "variant": "baseline",
+    "ms": 37595,
+    "mirror": "z.overpass-api.de",
+    "elements": 10,
+    "baselineElements": 10,
+    "sharedWithBaseline": 10
+  },
+  {
+    "place": "copacabana-rio",
+    "variant": "no-relations",
+    "ms": 16914,
+    "mirror": "maps.mail.ru",
+    "elements": 10,
+    "baselineElements": 10,
+    "sharedWithBaseline": 10
+  },
+  {
+    "place": "copacabana-rio",
+    "variant": "bbox",
+    "ms": 16029,
+    "mirror": "maps.mail.ru",
+    "elements": 13,
+    "baselineElements": 10,
+    "sharedWithBaseline": 10
+  },
+  {
+    "place": "copacabana-rio",
+    "variant": "bbox-no-relations",
+    "ms": 21175,
+    "mirror": "maps.mail.ru",
+    "elements": 13,
+    "baselineElements": 10,
+    "sharedWithBaseline": 10
+  },
+  {
+    "place": "copacabana-rio",
+    "variant": "qt",
+    "ms": 40005,
+    "mirror": null,
+    "elements": 0,
+    "baselineElements": 10,
+    "sharedWithBaseline": 0
+  },
+  {
+    "place": "copacabana-rio",
+    "variant": "bbox-qt-no-relations",
+    "ms": 40004,
+    "mirror": null,
+    "elements": 0,
+    "baselineElements": 10,
+    "sharedWithBaseline": 0
+  },
+  {
+    "place": "copacabana-rio",
+    "variant": "bbox-no-meta",
+    "ms": 37762,
+    "mirror": "overpass-api.de",
+    "elements": 13,
+    "baselineElements": 10,
+    "sharedWithBaseline": 10
+  },
+  {
+    "place": "khan-el-khalili-cairo",
+    "variant": "baseline",
+    "ms": 40009,
+    "mirror": null,
+    "elements": 0,
+    "baselineElements": 0,
+    "sharedWithBaseline": null
+  },
+  {
+    "place": "khan-el-khalili-cairo",
+    "variant": "no-relations",
+    "ms": 38124,
+    "mirror": "z.overpass-api.de",
+    "elements": 14,
+    "baselineElements": 0,
+    "sharedWithBaseline": null
+  },
+  {
+    "place": "khan-el-khalili-cairo",
+    "variant": "bbox",
+    "ms": 40005,
+    "mirror": null,
+    "elements": 0,
+    "baselineElements": 0,
+    "sharedWithBaseline": null
+  },
+  {
+    "place": "khan-el-khalili-cairo",
+    "variant": "bbox-no-relations",
+    "ms": 28933,
+    "mirror": "overpass-api.de",
+    "elements": 21,
+    "baselineElements": 0,
+    "sharedWithBaseline": null
+  },
+  {
+    "place": "khan-el-khalili-cairo",
+    "variant": "qt",
+    "ms": 11734,
+    "mirror": "maps.mail.ru",
+    "elements": 14,
+    "baselineElements": 0,
+    "sharedWithBaseline": null
+  },
+  {
+    "place": "khan-el-khalili-cairo",
+    "variant": "bbox-qt-no-relations",
+    "ms": 40006,
+    "mirror": null,
+    "elements": 0,
+    "baselineElements": 0,
+    "sharedWithBaseline": null
+  },
+  {
+    "place": "khan-el-khalili-cairo",
+    "variant": "bbox-no-meta",
+    "ms": 40006,
+    "mirror": null,
+    "elements": 0,
+    "baselineElements": 0,
+    "sharedWithBaseline": null
+  },
+  {
+    "place": "chinatown-singapore",
+    "variant": "baseline",
+    "ms": 25482,
+    "mirror": "z.overpass-api.de",
+    "elements": 224,
+    "baselineElements": 224,
+    "sharedWithBaseline": 224
+  },
+  {
+    "place": "chinatown-singapore",
+    "variant": "no-relations",
+    "ms": 29702,
+    "mirror": "z.overpass-api.de",
+    "elements": 224,
+    "baselineElements": 224,
+    "sharedWithBaseline": 224
+  },
+  {
+    "place": "chinatown-singapore",
+    "variant": "bbox",
+    "ms": 14933,
+    "mirror": "maps.mail.ru",
+    "elements": 240,
+    "baselineElements": 224,
+    "sharedWithBaseline": 224
+  },
+  {
+    "place": "chinatown-singapore",
+    "variant": "bbox-no-relations",
+    "ms": 14543,
+    "mirror": "maps.mail.ru",
+    "elements": 239,
+    "baselineElements": 224,
+    "sharedWithBaseline": 224
+  },
+  {
+    "place": "chinatown-singapore",
+    "variant": "qt",
+    "ms": 13268,
+    "mirror": "maps.mail.ru",
+    "elements": 224,
+    "baselineElements": 224,
+    "sharedWithBaseline": 224
+  },
+  {
+    "place": "chinatown-singapore",
+    "variant": "bbox-qt-no-relations",
+    "ms": 35811,
+    "mirror": "z.overpass-api.de",
+    "elements": 239,
+    "baselineElements": 224,
+    "sharedWithBaseline": 224
+  },
+  {
+    "place": "chinatown-singapore",
+    "variant": "bbox-no-meta",
+    "ms": 14144,
+    "mirror": "maps.mail.ru",
+    "elements": 239,
+    "baselineElements": 224,
+    "sharedWithBaseline": 224
+  },
+  {
+    "place": "soho-london",
+    "variant": "baseline",
+    "ms": 40005,
+    "mirror": null,
+    "elements": 0,
+    "baselineElements": 0,
+    "sharedWithBaseline": null
+  },
+  {
+    "place": "soho-london",
+    "variant": "no-relations",
+    "ms": 20169,
+    "mirror": "maps.mail.ru",
+    "elements": 222,
+    "baselineElements": 0,
+    "sharedWithBaseline": null
+  },
+  {
+    "place": "soho-london",
+    "variant": "bbox",
+    "ms": 14162,
+    "mirror": "maps.mail.ru",
+    "elements": 252,
+    "baselineElements": 0,
+    "sharedWithBaseline": null
+  },
+  {
+    "place": "soho-london",
+    "variant": "bbox-no-relations",
+    "ms": 40007,
+    "mirror": null,
+    "elements": 0,
+    "baselineElements": 0,
+    "sharedWithBaseline": null
+  },
+  {
+    "place": "soho-london",
+    "variant": "qt",
+    "ms": 40010,
+    "mirror": null,
+    "elements": 0,
+    "baselineElements": 0,
+    "sharedWithBaseline": null
+  },
+  {
+    "place": "soho-london",
+    "variant": "bbox-qt-no-relations",
+    "ms": 40005,
+    "mirror": null,
+    "elements": 0,
+    "baselineElements": 0,
+    "sharedWithBaseline": null
+  },
+  {
+    "place": "soho-london",
+    "variant": "bbox-no-meta",
+    "ms": 40003,
+    "mirror": null,
+    "elements": 0,
+    "baselineElements": 0,
+    "sharedWithBaseline": null
+  },
+  {
+    "place": "zocalo-mexico-city",
+    "variant": "baseline",
+    "ms": 40002,
+    "mirror": null,
+    "elements": 0,
+    "baselineElements": 0,
+    "sharedWithBaseline": null
+  },
+  {
+    "place": "zocalo-mexico-city",
+    "variant": "no-relations",
+    "ms": 16295,
+    "mirror": "maps.mail.ru",
+    "elements": 5,
+    "baselineElements": 0,
+    "sharedWithBaseline": null
+  },
+  {
+    "place": "zocalo-mexico-city",
+    "variant": "bbox",
+    "ms": 13991,
+    "mirror": "maps.mail.ru",
+    "elements": 14,
+    "baselineElements": 0,
+    "sharedWithBaseline": null
+  },
+  {
+    "place": "zocalo-mexico-city",
+    "variant": "bbox-no-relations",
+    "ms": 17104,
+    "mirror": "maps.mail.ru",
+    "elements": 10,
+    "baselineElements": 0,
+    "sharedWithBaseline": null
+  },
+  {
+    "place": "zocalo-mexico-city",
+    "variant": "qt",
+    "ms": 14452,
+    "mirror": "maps.mail.ru",
+    "elements": 7,
+    "baselineElements": 0,
+    "sharedWithBaseline": null
+  },
+  {
+    "place": "zocalo-mexico-city",
+    "variant": "bbox-qt-no-relations",
+    "ms": 27973,
+    "mirror": "z.overpass-api.de",
+    "elements": 10,
+    "baselineElements": 0,
+    "sharedWithBaseline": null
+  },
+  {
+    "place": "zocalo-mexico-city",
+    "variant": "bbox-no-meta",
+    "ms": 18320,
+    "mirror": "maps.mail.ru",
+    "elements": 10,
+    "baselineElements": 0,
+    "sharedWithBaseline": null
+  }
+]
