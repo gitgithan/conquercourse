@@ -20,13 +20,13 @@ export type MoveId = 'gap' | 'step' | 'wall' | 'rope' | 'trampoline' | 'lache' |
 export interface MoveInfo { id: MoveId; name: string; need: string }
 export const WALL_SPEED = (height: number, p = DEFAULT_WALL): number => Math.sqrt(2 * p.gravity * (1 + p.loss) * Math.max(0, height - p.hipHeight - p.reach)); // m/s the runner needs at the foot of the curve
 export const MOVES: MoveInfo[] = [
-  { id: 'gap', name: 'Gap jump', need: 'Two pieces of ground with a gap of 2.5 to 5 m between them. Run, then press Space at the edge.' },
-  { id: 'step', name: 'Step up', need: 'A block 0.3 to 0.9 m high to jump on, or up to 1.3 m to vault (press V about 2 m before it).' },
-  { id: 'wall', name: 'Warped Wall', need: `A tall face, 3.4 to 4.3 m high, at the end of a flat run-up as long as it is tall. Needs about ${WALL_SPEED(3.4).toFixed(1)} to ${WALL_SPEED(4.3).toFixed(1)} m/s.` },
-  { id: 'rope', name: 'Rope swing', need: 'A rope anchor about 6.6 m above the ground, over a gap of 6 to 9 m. Catch the rope in the air and swing across.' },
-  { id: 'trampoline', name: 'Trampoline', need: 'A low flat bed, 2 to 6 m long, in front of ground 2 to 4 m higher. Press Space at the bottom of the bounce for extra push.' },
-  { id: 'lache', name: 'Lache pair', need: 'Two bars 2 to 7 m apart, 2.8 to 3.2 m up, over a gap. Hold E, pump with the arrows, let go.' },
-  { id: 'drop', name: 'Drop with a roll', need: 'A fall of 1.8 to 9.8 m. Hold X as you land (it counts in the last 0.15 s, about a metre up; a tap earlier does nothing) (it is safe up to about 9.8 m).' },
+  { id: 'gap', name: 'Gap jump', need: 'Two pieces of ground with a gap between them. Run, then press Space at the edge.' },
+  { id: 'step', name: 'Step up', need: 'A block to jump on, or a taller one to vault (press V a little before it).' },
+  { id: 'wall', name: 'Warped Wall', need: 'A tall curved face at the end of a long flat run-up. Run fast and grab the top.' },
+  { id: 'rope', name: 'Rope swing', need: 'A rope anchor high above a gap between two pieces of ground. Catch the rope in the air and swing across.' },
+  { id: 'trampoline', name: 'Trampoline', need: 'A low flat bed in front of higher ground. Press Space at the bottom of the bounce for extra push.' },
+  { id: 'lache', name: 'Lache pair', need: 'Two bars over a gap. Hold E, pump with the arrows, let go.' },
+  { id: 'drop', name: 'Drop with a roll', need: 'A long fall. Hold X as you land to roll out of it: it counts only in the last moment, a tap earlier does nothing.' },
   { id: 'stack', name: 'Cup stack', need: 'A Stack piece from the Stacks row: pyramids of cups to climb and cross.' },
   { id: 'trebuchet', name: 'Trebuchet', need: 'Start the lane in a trebuchet: set its counterweight and let go at the right moment.' },
   { id: 'coaster', name: 'Roller coaster', need: 'Built on its own page (?mode=coaster): shape the track, then ride it.' },

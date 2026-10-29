@@ -83,7 +83,7 @@ The set of obstacle shapes is fixed, and each shape offers a fixed set of moves.
 
 ## Try it yourself
 - **The editor:** with `npm run dev` running, open `http://localhost:5173/?mode=editor` (also linked from the Park and the gallery).
-  - Add "Toy brick (3 cm)": it arrives enlarged ×15; type 0.5 in "Real height" and it is a half-metre block.
+  - Add "Toy brick": it arrives enlarged ×15; type 0.5 in "Real height" and it is a half-metre block.
   - "Copy and paste" it, drag the copy along the orange band, "Find the best lane for me", then "Play this lane".
   - Check it: `node scripts/editor-check.mjs`.
 - **Tests:** `npx vitest run tests/slice.test.ts tests/terrain-profile.test.ts` (the slice search, the .glb reader, curved ground).
