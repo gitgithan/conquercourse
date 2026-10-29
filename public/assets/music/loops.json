@@ -1,16 +1,16 @@
 [
   {
     "screen": "course",
-    "candidate": "course-f_8",
-    "bpm": 110,
-    "bars": 7,
-    "seconds": 15.273,
-    "seam_ratio": 0.03448,
+    "candidate": "course-d_8",
+    "bpm": 100,
+    "bars": 6,
+    "seconds": 14.4,
+    "seam_ratio": 0.01038,
     "rms": 0.1,
-    "match_err": 0.2429,
-    "centroid_hz": 939.29371,
-    "onsets_per_s": 7.33334,
-    "hf_share_5k": 0.00006
+    "match_err": 0.7605,
+    "centroid_hz": 2121.23214,
+    "onsets_per_s": 6.73611,
+    "hf_share_5k": 0.00139
   },
   {
     "screen": "map",
@@ -27,16 +27,16 @@
   },
   {
     "screen": "editor",
-    "candidate": "editor_33_v2",
-    "bpm": 159.75,
-    "bars": 10,
-    "seconds": 15.023,
-    "seam_ratio": 0.00952,
+    "candidate": "course-f_8",
+    "bpm": 110,
+    "bars": 7,
+    "seconds": 15.273,
+    "seam_ratio": 0.03448,
     "rms": 0.1,
-    "match_err": 0.7332,
-    "centroid_hz": 4369.38364,
-    "onsets_per_s": 8.65313,
-    "hf_share_5k": 0.03006
+    "match_err": 0.2429,
+    "centroid_hz": 939.29371,
+    "onsets_per_s": 7.33334,
+    "hf_share_5k": 0.00006
   },
   {
     "screen": "dojo",
@@ -52,17 +52,28 @@
   },
   {
     "screen": "report",
-    "candidate": "report_44_soft",
-    "bpm": 147,
-    "bars": 9,
-    "seconds": 14.694,
-    "seam_ratio": 0.00065,
+    "candidate": "course-f_7",
+    "bpm": 110,
+    "bars": 7,
+    "seconds": 15.273,
+    "seam_ratio": 0,
     "rms": 0.1,
-    "match_err": 0.9907,
-    "centroid_hz": 1770.81751,
-    "onsets_per_s": 10.95695,
-    "hf_share_5k": 0.00031,
-    "hf_share_5k_before": 0.00618,
-    "filter": "highshelf=f=4500:g=-10"
+    "match_err": 1.0887,
+    "centroid_hz": 1593.80409,
+    "onsets_per_s": 7.39881,
+    "hf_share_5k": 0.00059
+  },
+  {
+    "screen": "library",
+    "candidate": "course-f_7",
+    "bpm": 110,
+    "bars": 7,
+    "seconds": 15.273,
+    "seam_ratio": 0,
+    "rms": 0.1,
+    "match_err": 1.0887,
+    "centroid_hz": 1593.80409,
+    "onsets_per_s": 7.39881,
+    "hf_share_5k": 0.00059
   }
 ]
