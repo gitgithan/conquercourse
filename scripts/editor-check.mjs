@@ -10,7 +10,7 @@ try {
   const browser = await chromium.launch({ args: flags });
   const page = await browser.newPage({ viewport: { width: 1300, height: 900 } });
   const errors = []; page.on('pageerror', (e) => { errors.push(e.message); console.log('PAGEERROR', e.message.slice(0, 200)); });
-  await page.goto(`http://localhost:${port}/?mode=editor`);
+  await page.goto(`http://localhost:${port}/?mode=editor&editorui=old`);
   await page.waitForSelector('#view3d', { timeout: 60000 });
   mkdirSync('test-results/editor', { recursive: true });
   const checks = {};
@@ -118,7 +118,7 @@ try {
   checks.playsTheLane = (await page.$('.ed')) === null && /m of/.test(await page.textContent('body'));
   await page.screenshot({ path: 'test-results/editor/3-play.png' });
   // bars in the air: add the lache pair, drag one in the side view (position and height), undo, then test from it
-  await page.goto(`http://localhost:${port}/?mode=editor`);
+  await page.goto(`http://localhost:${port}/?mode=editor&editorui=old`);
   await page.evaluate(() => localStorage.removeItem('cc.world.v1'));
   await page.reload();
   await page.waitForSelector('#view3d', { timeout: 60000 });
@@ -148,7 +148,7 @@ try {
   checks.testFromHereStarts = (await page.$('.ed')) === null && /m of/.test(await page.textContent('body'));
   await page.screenshot({ path: 'test-results/editor/test-from-here.png' });
   // stacks: a cup pyramid piece is added, shown as cups, kept across a reload, and the lane through it is a course
-  await page.goto(`http://localhost:${port}/?mode=editor`);
+  await page.goto(`http://localhost:${port}/?mode=editor&editorui=old`);
   await page.evaluate(() => localStorage.removeItem('cc.world.v1'));
   await page.reload();
   await page.waitForSelector('#view3d', { timeout: 60000 });
@@ -170,7 +170,7 @@ try {
   await page.waitForFunction(() => /snap/.test(document.querySelector('#plankinfo')?.textContent ?? ''), null, { timeout: 10000 }).catch(() => {});
   checks.plankKnobsAndInfo = /snap/.test(await page.textContent('#plankinfo').catch(() => ''));
   // bars out of reach: Fix it previews the bars' moves (outlines in the side view, 3D and plan), then Apply moves them, and one Undo brings them back
-  await page.goto(`http://localhost:${port}/?mode=editor`);
+  await page.goto(`http://localhost:${port}/?mode=editor&editorui=old`);
   await page.evaluate(() => localStorage.setItem('cc.world.v1', JSON.stringify({ pieces: [{ src: 'box:8:0.5:1.8', x: 0, z: 0, y: 0, yaw: 0, scale: 1 }, { src: 'box:8:0.5:1.8', x: 17, z: 0, y: 0, yaw: 0, scale: 1 }, { src: 'hold:bar', x: 6.5, z: 0, y: 4.4, yaw: 0, scale: 1 }, { src: 'hold:bar', x: 10, z: 0, y: 4.4, yaw: 0, scale: 1 }], angle: 0, offset: 0, level: 0 })));
   await page.reload();
   await page.waitForSelector('#view3d', { timeout: 60000 });
@@ -227,7 +227,7 @@ try {
   checks.routesSearchAnswers = await page.waitForFunction(() => document.documentElement.dataset.routes !== undefined, null, { timeout: 420000 }).then(() => true, () => false);
   await page.screenshot({ path: 'test-results/editor/routes.png' });
   // the elastic band: a Band button starts the lane at a band with a stiffness box; Fix it offers a softer band when the lane does not clear
-  await page.goto(`http://localhost:${port}/?mode=editor`);
+  await page.goto(`http://localhost:${port}/?mode=editor&editorui=old`);
   await page.evaluate(() => localStorage.removeItem('cc.world.v1'));
   await page.reload();
   await page.waitForSelector('#view3d', { timeout: 60000 });
