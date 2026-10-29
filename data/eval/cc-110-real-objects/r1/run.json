@@ -7,7 +7,7 @@
   "settings": {
     "mask_grow_px": 0,
     "colour_k": 4,
-    "pad_fraction": 0.0,
+    "pad_fraction": 0,
     "texture": true
   },
   "photos": [

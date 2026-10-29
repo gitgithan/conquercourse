@@ -8,7 +8,7 @@
   "mask": {
     "how": "box-prompt",
     "score": 0.984375,
-    "iou_with_box": 0.0,
+    "iou_with_box": 0,
     "candidates": 0,
     "pixels": 336387
   }
