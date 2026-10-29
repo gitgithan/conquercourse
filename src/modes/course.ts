@@ -15,6 +15,10 @@ import { DEFAULT_ROPE } from '../sim/rope';
 import { inputFor, searchIdealRun, workSeconds, xWindows, type Plan, type SearchResult, type Window } from '../sim/ideal';
 import { IdealPool } from '../sim/ideal-pool';
 import { createGhost } from '../ui/ghost';
+import { challengeWords, makeChallengeUrl, openChallenge, secondsWords, shareOn } from '../share/challenge';
+import { CLIP_H, CLIP_W, TICKS_PER_FRAME, clipFits, clipFrames, createClipEncoder, drawClipFrame } from '../share/clip';
+import { clipCard, shareButtons, showBanner } from '../share/share-ui';
+import { inputOfMask, type InputLog } from '../sim/replay';
 import { findShortcuts, shortcutLine, type Shortcut } from '../sim/shortcuts';
 const findShortcutsNow = (c: CourseData): Shortcut[] => findShortcuts(c, { moveChoices: false }).shortcuts; // ?bot=shortcut only: blocks the page while it searches
 import { flightPath, gapSpecs, minSpeedForWall, pressBand } from '../sim/needs';
@@ -704,6 +708,16 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
     while (guides.children.length) { const c = guides.children[0] as THREE.Mesh; guides.remove(c); c.geometry?.dispose(); }
     diagBox.style.display = 'none';
   }
+  // Share (CC-128, CC-129): keys fed from a link play the run again; while a clip is made the game is stepped by hand and nothing is counted or heard.
+  let feed: { log: InputLog; i: number; left: number } | null = null;
+  let clipping = false;
+  let clipHook: (() => void) | null = null;
+  const fedInput = (): RunnerInput => {
+    while (feed && feed.left === 0 && feed.i < feed.log.length) { feed.left = feed.log[feed.i][1]; feed.i++; }
+    if (!feed || feed.left === 0) return NO_INPUT;
+    feed.left--;
+    return inputOfMask(feed.log[feed.i - 1][0]);
+  };
   function restart(x: number = retryX) {
     clearGuides();
     if (!botMode) plan = null;
@@ -712,7 +726,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
     ghostCtl?.begin(x === course.startX && (!botMode || ghostBot)); // a ghost chases a run from the start only
     resetRunStats(x);
     analyticsRunId = crypto.randomUUID(); failedThisAttempt = false;
-    trackCourseEvent('start', analyticsCourseKey, course.name, analyticsRunId, analyticsMode);
+    if (!clipping) trackCourseEvent('start', analyticsCourseKey, course.name, analyticsRunId, analyticsMode);
     cartFlying = false;
     log.length = 0;
     botState.next = 0; botState.caught = null; botState.bedAt = null;
@@ -1127,6 +1141,51 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
     strip: () => strip,
   });
   ghostCtl.begin(!resume && startAt === undefined && (!botMode || ghostBot));
+  // A run played again to make a clip (CC-129). The pictures come from the real game on a stepped clock: four ticks for each, whatever the speed of this computer.
+  async function makeClip(log: InputLog, ticks: number): Promise<void> {
+    const card = clipCard();
+    card.say('Making your clip…');
+    const enc = await createClipEncoder();
+    if (!enc) { card.fail('This browser cannot make a video clip. Copy the challenge link instead.'); return; }
+    const cv = document.createElement('canvas'); cv.width = CLIP_W; cv.height = CLIP_H;
+    const ctx = cv.getContext('2d')!, dom = renderer.domElement, total = clipFrames(ticks);
+    const text = { course: course.name, time: secondsWords(ticks), address: 'conquercourse.pages.dev' };
+    let n = 0, pending: Promise<void> = Promise.resolve();
+    try {
+      clipping = true; paused = false; keys.clear();
+      restart(course.startX);
+      feed = { log, i: 0, left: 0 };
+      clipHook = () => { drawClipFrame(ctx, dom, dom.width, dom.height, text); pending = enc.add(cv, n++); };
+      const step = (TICKS_PER_FRAME * DT * 1000 + 0.001) / timeScale;
+      let t = last;
+      for (let k = 0; k < total; k++) {
+        t += step; frame(t, true); await pending;
+        if (k % 8 === 0) { card.say(`Making your clip… ${Math.round((100 * k) / total)}%`); await new Promise((r) => setTimeout(r, 0)); }
+      }
+      const blob = await enc.finish();
+      card.done(blob, 'conquercourse-run.mp4', `Your clip is ready (${(blob.size / 1e6).toFixed(1)} MB).`);
+      document.documentElement.dataset.clip = String(blob.size);
+      (window as unknown as { __clip?: Blob }).__clip = blob;
+    } catch (e) {
+      card.fail('The clip could not be made on this computer. Copy the challenge link instead.');
+      console.warn('clip failed', e);
+    } finally {
+      clipping = false; clipHook = null; feed = null; acc = 0;
+      restart(course.startX); last = performance.now();
+      requestAnimationFrame(frame);
+    }
+  }
+  // A challenge link (CC-128): the sender's keys are played in the simulator, and that run becomes the ghost to beat.
+  const challengeParam = shareOn(params) && !botMode ? params.get('challenge') : null;
+  if (challengeParam) {
+    void openChallenge(course, challengeParam).then((c) => {
+      if (!c.ok) { showBanner(challengeWords(c.why), [], 20000); return; }
+      ghostCtl?.setFriend(c.track);
+      showBanner(`Beat this time: ${secondsWords(c.ticks)}`, [{ label: 'Make a clip of this run', go: () => void makeClip(c.log, c.ticks) }]);
+      if (params.get('autoplay') === '1') feed = { log: c.log, i: 0, left: 0 }; // for the browser check: play the friend's keys as if by hand
+      if (params.get('clip') === 'auto') void makeClip(c.log, c.ticks);
+    });
+  }
   let last = performance.now();
   let acc = 0;
   let studioHold = false; // the Graph Studio has the clock stopped (not the Dojo's "press any key" pause)
@@ -1159,14 +1218,16 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
   dom.addEventListener('contextmenu', (e) => e.preventDefault());
   dom.style.cursor = 'grab';
   const timeScale = Number(params.get('timescale') ?? 1); // ?timescale=0.1 runs the game at a tenth of its speed (for stills)
-  function frame(now: number) {
+  function frame(now: number, stepped = false) {
+    if (clipping && !stepped) return; // the clip drives the game by hand; the loop starts again when it ends
     perf.frame(now);
     acc = paused ? 0 : Math.min(acc + ((now - last) / 1000) * timeScale, 0.25);
     last = now;
     while (acc >= DT) {
       acc -= DT;
       let input: RunnerInput = NO_INPUT;
-      if (plan) input = inputFor(plan, world, botState, course);
+      if (feed) { input = fedInput(); if (!clipping && world.outcome === 'running') ghostCtl?.input(input); }
+      else if (plan) input = inputFor(plan, world, botState, course);
       else {
         input = { run: keys.has('ArrowRight') || keys.has('KeyD'), left: keys.has('ArrowLeft') || keys.has('KeyA'), jump: jumpQueued, jumpSpeed: 0, squat: keys.has('ArrowDown') || keys.has('KeyS'), handL: keys.has('KeyE'), handR: keys.has('KeyE'), vault: vaultQueued, roll: rollQueued || keys.has('KeyX'), fire: fireQueued, aimUp: keys.has('ArrowUp') || keys.has('KeyW'), aimDown: keys.has('ArrowDown'), up: keys.has('ArrowUp') || keys.has('KeyW') };
         if (world.outcome === 'running') ghostCtl?.input(input);
@@ -1184,7 +1245,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
       if (demo && (world.outcome !== 'running' || world.runner.x > demo.x1)) demoEnd();
       else if (idealWhole && world.outcome !== 'running') demoEnd();
       log.push(...world.events);
-      if (world.events !== soundedEvents) { soundedEvents = world.events; if (!replay) soundsFor(world.events, hazard); } // after the end the same events array stays: it sounds once
+      if (world.events !== soundedEvents) { soundedEvents = world.events; if (!replay && !clipping) soundsFor(world.events, hazard); } // after the end the same events array stays: it sounds once
       for (const e of world.events) {
         if (e.type === 'drone-board') { toast.textContent = 'The drone lifts you. Lean with ← →, climb with ↑ and come down with ↓.'; toast.style.display = 'block'; toastUntil = world.runner.tick + 240; }
         if (e.type === 'drone-empty') { toast.textContent = 'The battery ran out: the rotors stopped and the drone is falling.'; toast.style.display = 'block'; toastUntil = world.runner.tick + 240; }
@@ -1224,7 +1285,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
       if (prev === 'running' && world.outcome === 'hurt') onFall('hurt');
       if (prev === 'running' && world.outcome === 'stalled') onFall('stall');
       if (world.events.some((e) => e.type === 'wall-slide')) onFall('slide');
-      if (prev === 'running' && world.outcome === 'cleared') {
+      if (prev === 'running' && world.outcome === 'cleared' && !clipping) {
         clearFinishZone(world.runner.x); everCleared = true; track('clears'); finishRun(true); trackCourseEvent('success', analyticsCourseKey, course.name, analyticsRunId, analyticsMode);
         try { localStorage.setItem('cc.course.cleared', '1'); } catch { /* ok */ }
         panel.innerHTML = ''; panel.style.display = 'grid';
@@ -1239,6 +1300,10 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
         });
         if (ghostLine) body.querySelector('#report-ghost-slot')?.append(ghostLine);
         if (ghostCtl && !botMode && !demo && !idealWhole) body.querySelector('#report-actions')?.prepend(...ghostCtl.reportActions(() => { panel.style.display = 'none'; retryX = course.startX; restart(course.startX); }));
+        if (shareOn(params) && !botMode && !demo && !idealWhole && !params.get('mode')) {
+          const mine = ghostCtl?.myRun() ?? null, ticks = world.runner.tick;
+          if (mine) body.querySelector('#report-actions')?.append(...shareButtons({ link: () => makeChallengeUrl(location.origin, location.search, course, mine), clip: clipFits(ticks) ? () => void makeClip(mine, ticks) : undefined }));
+        }
         panel.append(body); (body.querySelector('#report-again') as HTMLElement | null)?.focus({ preventScroll: true });
         if (!botMode && !demo && !idealWhole || params.get('next') === '1') onboarding.onCleared(panel); // CC-100: the one-time What next card, at the top of the report
         if (!botMode && !demo && !idealWhole && !rep.saving) clearedNote(); // a shortcut, if the simulator knows one (a fact, never a grade)
@@ -1257,7 +1322,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
     const sq = world.runner.tick < squashUntil ? squashDepth : 1;
     body.scale.set(1 / Math.sqrt(sq), sq, 1 / Math.sqrt(sq));
     body.position.set(r.x, r.y + 0.85 * sq, 0);
-    ghostCtl?.frame({ tick: world.runner.tick, x: world.runner.x, active: (!plan || ghostBot) && !demo && !idealWhole && !replay, firstPerson: camMode === 'first' });
+    ghostCtl?.frame({ tick: world.runner.tick, x: world.runner.x, active: (!plan || ghostBot) && !demo && !idealWhole && !replay && !clipping, firstPerson: camMode === 'first' });
     const facingSpeed = world.mode === 'cart' && world.cart ? world.cart.v : world.runner.vx;
     if (Math.abs(facingSpeed) > 0.3 && world.mode !== 'hang') facing = facingSpeed < 0 ? -1 : 1; // on a bar the body keeps facing one way, whichever way it swings
     // on a bar the actor is turned about its hands, so it is placed with the hands on the bar (feet straight below it before the turn), like the rope
@@ -1360,6 +1425,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
     if (chunks.length > 8) cullFar(chunks, camera.position, 260); // far chunks of a big place are not drawn
     perf.renderStart();
     renderer.render(scene, camera);
+    clipHook?.(); // the clip takes this picture before the front inset is drawn over it
     perf.renderEnd();
     // The front inset accompanies the default side view; F toggles it in every camera mode.
     const showFront = frontOverride ?? true;
@@ -1394,7 +1460,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
     document.documentElement.dataset.outcome = world.outcome;
     if (playedSounds().length !== soundCount) { soundCount = playedSounds().length; document.documentElement.dataset.sounds = playedSounds().join(','); } // for the bot check: headless cannot be heard
     document.documentElement.dataset.mode = world.mode;
-    requestAnimationFrame(frame);
+    if (!clipping) requestAnimationFrame(frame);
   }
   const perf = createPerf({ label: 'Course', backend: (renderer.backend as { isWebGPUBackend?: boolean }).isWebGPUBackend ? 'webgpu' : 'webgl2', renderer: renderer as unknown as PerfSource['renderer'], scene });
   camPos.set(5, 3.5, 17);
