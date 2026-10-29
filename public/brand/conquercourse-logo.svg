@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 200" width="640" height="200" role="img" aria-label="ConquerCourse">
+  <rect width="640" height="200" fill="#14181f"/>
+  <g fill="none" stroke="#ff9a3c" stroke-width="10" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M30 150 H78 V112 H120 V74 H162"/>
+    <path d="M162 74 C 190 30, 232 30, 250 74" stroke-dasharray="2 18"/>
+  </g>
+  <circle cx="262" cy="86" r="9" fill="#ffd27a"/>
+  <text x="288" y="98" font-family="Helvetica, Arial, sans-serif" font-weight="800" font-size="46" fill="#f4f1ea">Conquer</text>
+  <text x="288" y="148" font-family="Helvetica, Arial, sans-serif" font-weight="800" font-size="46" fill="#ff9a3c">Course</text>
+</svg>

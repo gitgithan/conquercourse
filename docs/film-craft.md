@@ -155,3 +155,44 @@
 - The 3-second "adjust to a shot change" claim turned up in a slideshow and could not be traced, so it is not used.
 - We did not view the reference video or our hook for this note; the mistakes list uses the product owner's words and the shot table in [storyboard](storyboard.md).
 - Remotion and ffmpeg practicalities were out of scope here; see [film-toolchain](film-toolchain.md).
+
+## The 80 second film (owner direction, 2026-10-30; replaces the storyboard)
+
+### So what
+- The film is one true story told in eight beats: a real place on Earth becomes a course, a real photo becomes an object in it, and the runner then really runs it.
+- The hero is the IOR Skatepark in Bucharest, because its course ("Park run") already has photo-lifted objects and a simulator-proven run; the leap to the bar is the one piece still to build and prove.
+- Real means the game drew it from real inputs on the stepped clock; concept means a faithful stand-in that the game could draw but does not yet.
+- Silent first; the music pick below sets the beat grid.
+
+### Music and mood: three options (nothing new is bought or generated)
+- A, "Rising drums": `course.ogg` (soft taiko and low strings, rising, 70 bpm measured, the owner liked its high notes); calm start, build, a drum lift for the leap.
+- B, "Wonder to action": `map.ogg` (100 bpm, calm) for beats 1 and 2, crossfading into `editor.ogg` (110 bpm, gentle, forward) for the rest; two tempos, so the cuts follow two grids.
+- C, "Bright pulse": `report.ogg` (110 bpm, lively); the most upbeat, and the closest to the eurobeat the owner rejected.
+- Pick: A, because one steady grid makes every cut land, and the taiko lift can carry the slow-motion leap.
+- Problem with A: the loop is short (about 9 to 15 s), so 80 s repeats it five or more times.
+  - Fix, ranked: a longer MusicGen track on a Modal GPU (about $1; the owner is told the cost first), or two loops stitched with a crossfade.
+- Beat grid at 70 bpm: a beat is 0.857 s, a bar is 3.43 s, and 24 bars are 82.3 s.
+
+### Beats with time codes (bars of 3.43 s)
+| # | Time | Beat | What is on screen | Real or concept |
+|---|---|---|---|---|
+| 1 | 0.0 to 6.9 | Earth to street | Globe, zoom into Bucharest until the map becomes a street map; data credit "OpenStreetMap contributors" | Concept now; the map mode (MapLibre) can capture it for real |
+| 2 | 6.9 to 13.7 | The slice | A plane sweeps through the map and the building footprints rise as blocks | Real: the world slicer already extrudes OSM footprints |
+| 3 | 13.7 to 27.4 | Photo becomes object | The IOR park photo, pieces SAM 3D lifts float in the air, settle in the editor, get moved, become the course | Real objects (park01, CC0); the float is concept |
+| 4 | 27.4 to 34.3 | Fly-by | Fast camera flight along the whole course, one direction | Real: `?film=flyover` |
+| 5 | 34.3 to 48.0 | Entrance and run | The runner does entrance moves, then runs the first obstacles | Real replay; the entrance clip waits for CC-131 |
+| 6 | 48.0 to 61.7 | The run | Stairs, box, rails, side-on, runner going right, no foot zoom | Real replay |
+| 7 | 61.7 to 72.0 | The leap | Leap toward the bar, slow motion, a slow 360 degree look around the runner, cut just before the catch | Real run; the cut hides the catch |
+| 8 | 72.0 to 82.3 | End card | Logo and "Train slow. Run fast." | Designed SVG |
+
+- The audience must not know if he made it: the run clears in the simulator, and only the film cuts away.
+- Craft risks from the rules above:
+  - A 360 degree orbit around a swinging runner is "two moves fighting each other"; keep it at a constant speed in slow motion and short.
+  - One idea per shot: beat 3 has several ideas, so it is cut into four shots of about 3.4 s.
+  - The runner goes left to right in every shot.
+
+### What is missing before the hero is real
+- The hero course (Park run plus a bar to leap to) with a proven ideal run: see CC-210.
+- The OSM view and the slice for the Bucharest park, captured from the map mode.
+- The entrance clip (CC-131).
+- The logo is designed (`public/brand/conquercourse-logo.svg`); the Earth globe is not captured.
