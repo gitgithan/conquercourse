@@ -45,7 +45,7 @@
 | Measure | MoGe 2 for the lens, SAM 3D Body for the body, on one Modal L4 | 832 s wall, about 579 container seconds, about $0.129 | a depth that wobbles; a flipped body when the person is upside down |
 | Skeleton | SOMA-X MHR to SOMA | inside the measure run, 38 s | a body far from the model's training poses |
 | Clean | `post.py`, CPU | 0.7 s | a person smaller than a third of their usual size is dropped; `--min-size` lowers that for one person in frame |
-| Find the move | the roll check in `ccpipe/movecheck.py` | under 1 s | the turn is measured in the plane of the start direction, so a roll along a different line looks short |
+| Find the move | the roll check in `ccpipe/movecheck.py` | under 1 s | since CC-227 the turn is measured along the line the hips travel (the start facing only gives the sign), so a head-on roll reads in full; a sideways move still fails |
 | Repair and gate | `repairs.py` and the plausibility gate | under 1 s | feet that slide on a clip with no foot lock |
 | Save | `my_move.py` writes the motion JSON | under 1 s | none seen |
 | Play | `?mymove=<id>` in `src/render/actor.ts` | no cost | a clip that did not pass both checks is not loaded |
@@ -66,9 +66,13 @@
 ### The run, and why it failed
 - Input: "Learn Parkour: Basic Jump Roll" by London Parkour (CC BY), 45.5 to 50.5 s, one adult, a still camera, a head-on view.
 - The gate passed on the trimmed clip: the flight is ballistic, the knees bend forward, nothing sinks, nothing jumps.
-- The roll check failed: the largest turn read 98 degrees, not the 300 needed.
-- What the numbers say: the head-to-hips line goes through a full turn, but mostly sideways (x) and not toward the camera (z).
-  - A camera looking along the roll cannot see how far the body goes in depth, so the check, which measures the turn in the forward plane, sees a short turn.
+- The roll check first failed: the largest turn read 98 degrees, not the 300 needed.
+- What the numbers said: the head-to-hips line goes through a full turn, but with a steady sideways lean, so it did not circle the forward plane of the start facing.
+  - The start facing of a head-on body is read from the hip line and sits about 24 degrees off the line the roll travels.
+- The fix (CC-227): the turn is measured in the plane of "up" and the line the hips travel.
+  - The facing still gives the sign, so a backward somersault stays negative.
+  - If the hips travel under 0.3 m, or more than 45 degrees off the facing, the facing is used as before: a cartwheel or side flip is never read as a roll.
+  - No limit was changed; the travel, window, hip-height and air-time limits are the same.
 - The 150 frames were also cut short at first: the first 2 s were dropped because the runner was small; `--min-size 0.2` keeps them.
 - We did not loosen the check: a clip that fails is "not playable", and the game says so by not loading it.
   - The strip below shows the same clip forced through in a test only (the page patches the answer, the game code does not).
@@ -85,7 +89,7 @@
 - Fallback: the player picks a library roll (the shipped CMU/Kimodo roll, or a London Parkour roll through this same pipeline).
   - Quality: it passes both checks, but it is not their body.
 - Ranked next steps:
-  1. Measure the turn along the direction the hips travel, not the start direction, and check that the shipped roll still passes (a change to a shared check, so its own issue).
+  1. Done in CC-227: the turn is measured along the direction the hips travel.
   2. Ask for a side or three-quarter view in the capture step, with a floor mark so the player knows where to stand.
   3. Run one warm Modal container for the whole clip.
   4. Film a side-view roll (an adult, with a signed release) and run the same command.
