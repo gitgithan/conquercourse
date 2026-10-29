@@ -1,0 +1,149 @@
+[
+  {
+    "f": "public/assets/demo/training.course.json",
+    "stored": "cleared",
+    "ticks": 3228
+  },
+  {
+    "f": "public/assets/demo/lache.course.json",
+    "stored": "cleared",
+    "ticks": 1123
+  },
+  {
+    "f": "public/assets/demo/drop.course.json",
+    "stored": "cleared",
+    "ticks": 822
+  },
+  {
+    "f": "public/assets/demo/plank.course.json",
+    "stored": "cleared",
+    "ticks": 708
+  },
+  {
+    "f": "public/assets/demo/plank-two.course.json",
+    "stored": "cleared",
+    "ticks": 1031
+  },
+  {
+    "f": "public/assets/demo/park-run.course.json",
+    "stored": "cleared",
+    "ticks": 879
+  },
+  {
+    "f": "public/assets/demo/climb.course.json",
+    "stored": "cleared",
+    "ticks": 1018
+  },
+  {
+    "f": "public/assets/demo/launch.course.json",
+    "stored": "cleared",
+    "ticks": 469
+  },
+  {
+    "f": "public/assets/demo/launch-bar.course.json",
+    "stored": "cleared",
+    "ticks": 805
+  },
+  {
+    "f": "public/assets/demo/band.course.json",
+    "stored": "cleared",
+    "ticks": 908
+  },
+  {
+    "f": "public/assets/demo/launch-bar-hard.course.json",
+    "stored": "cleared",
+    "ticks": 671
+  },
+  {
+    "f": "public/assets/demo/lache-wide.course.json",
+    "stored": "cleared",
+    "ticks": 1746
+  },
+  {
+    "f": "public/assets/demo/recoil.course.json",
+    "stored": "cleared",
+    "ticks": 539
+  },
+  {
+    "f": "public/assets/demo/cannon.course.json",
+    "stored": "cleared",
+    "ticks": 450
+  },
+  {
+    "f": "public/assets/demo/drone.course.json",
+    "stored": "cleared",
+    "ticks": 1044
+  },
+  {
+    "f": "public/assets/demo/lane-1.course.json",
+    "stored": "cleared",
+    "ticks": 448
+  },
+  {
+    "f": "public/assets/demo/lane-2.course.json",
+    "stored": "cleared",
+    "ticks": 478
+  },
+  {
+    "f": "public/assets/demo/park-rail-run.course.json",
+    "stored": "cleared",
+    "ticks": 725
+  },
+  {
+    "f": "public/assets/demo/bench-and-stairs.course.json",
+    "stored": "cleared",
+    "ticks": 632
+  },
+  {
+    "f": "public/assets/demo/skate-box-and-rail.course.json",
+    "stored": "cleared",
+    "ticks": 661
+  },
+  {
+    "f": "public/assets/demo/generated-1.course.json",
+    "stored": "cleared",
+    "ticks": 3284
+  },
+  {
+    "f": "public/assets/experiments/osm/eixample-barcelona.course.json",
+    "stored": "cleared",
+    "ticks": 817
+  },
+  {
+    "f": "public/assets/experiments/osm/montmartre-paris.course.json",
+    "stored": "cleared",
+    "ticks": 560
+  },
+  {
+    "f": "public/assets/experiments/osm/circular-quay-sydney.course.json",
+    "stored": "cleared",
+    "ticks": 702
+  },
+  {
+    "f": "public/assets/experiments/osm/san-francisco-lombard.course.json",
+    "stored": "cleared",
+    "ticks": 621
+  },
+  {
+    "f": "public/assets/demo/generated-1.course.json",
+    "searched": true,
+    "ticks": 3243,
+    "plan": {
+      "jumpXs": [
+        81.92,
+        127.1
+      ],
+      "releaseAfter": 60,
+      "bouncePress": 8,
+      "hands": true,
+      "hangTicks": [
+        372,
+        240
+      ],
+      "vaultXs": [
+        34.16
+      ]
+    },
+    "seconds": 180
+  }
+]
