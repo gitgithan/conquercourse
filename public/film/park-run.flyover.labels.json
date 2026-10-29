@@ -1,0 +1,8 @@
+{
+  "course": "/assets/demo/park-run.course.json",
+  "labels": [
+    { "id": "stairs", "text": "Stairs", "idea": "Height costs speed", "at": [11.5, 1.2, 0], "from": 0.8, "to": 3.8, "dx": 70, "dy": -110 },
+    { "id": "box", "text": "Ledge", "idea": "Vault: cheaper than a jump", "at": [17.9, 0.8, 0], "from": 3.8, "to": 6.8, "dx": 70, "dy": -110 },
+    { "id": "rail", "text": "Rail", "idea": "A thin bar needs a clean jump", "at": [23.8, 1.0, 0], "from": 6.8, "to": 9.5, "dx": 70, "dy": -110 }
+  ]
+}

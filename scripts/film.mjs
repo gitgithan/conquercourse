@@ -1,8 +1,8 @@
 // True-speed film: a stepped clock replaces performance.now, one frame per screenshot, ffmpeg encodes at the game's rate.
-// Usage: node scripts/film.mjs [--query "demo=rookie"] [--frames 90] [--fps 30] [--out test-results/film.mp4] [--width 960] [--height 540]
+// Usage: node scripts/film.mjs [--track] [--query "demo=rookie"] [--frames 90] [--fps 30] [--out test-results/film.mp4] [--width 960] [--height 540]
 import { chromium } from 'playwright';
 import { spawn, execFileSync } from 'node:child_process';
-import { mkdirSync, mkdtempSync, rmSync } from 'node:fs';
+import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
@@ -17,6 +17,8 @@ const out = arg('out', 'test-results/film.mp4');
 const width = Number(arg('width', 960));
 const height = Number(arg('height', 540));
 const port = arg('port', '5173');
+const track = process.argv.includes('--track'); // also write <out>.track.json: where each film label sits on the screen, per frame (for the Remotion callouts)
+const tracks = [];
 
 const flags = ['--enable-unsafe-webgpu', '--enable-features=Vulkan', '--use-vulkan=swiftshader',
   '--use-angle=swiftshader', '--disable-vulkan-surface', '--ignore-gpu-blocklist'];
@@ -39,13 +41,15 @@ try {
   const twoFrames = () => page.evaluate(() => new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r))));
   for (let i = 0; i < frames; i++) {
     await twoFrames();
-    await page.screenshot({ path: join(dir, `f${String(i).padStart(5, '0')}.png`) });
+    await page.screenshot({ path: join(dir, `f${String(i).padStart(5, '0')}.png`), timeout: 180000 }); // the software GPU can be slow on a busy machine
+    if (track) tracks.push(await page.evaluate(() => window.__filmTrack?.points ?? {}));
     await page.evaluate((ms) => window.__stepClock(ms), 1000 / fps);
   }
   await browser.close();
   mkdirSync(join(out, '..'), { recursive: true });
   execFileSync('ffmpeg', ['-y', '-loglevel', 'error', '-framerate', String(fps), '-i', join(dir, 'f%05d.png'),
     '-c:v', 'libx264', '-pix_fmt', 'yuv420p', '-crf', '23', '-movflags', '+faststart', out]);
+  if (track) writeFileSync(`${out}.track.json`, JSON.stringify(tracks, null, 2) + '\n');
   console.log(`wrote ${out}: ${frames} frames, ${(frames / fps).toFixed(2)} s of game time`);
 } finally {
   rmSync(dir, { recursive: true, force: true });
