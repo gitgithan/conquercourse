@@ -36,4 +36,10 @@ describe('music', () => {
       expect(row!.rms).toBeCloseTo(0.1, 2); // the same loudness on every screen
     }
   });
+  it("keeps the Report loop soft: little energy above 5 kHz, well below what it had before the high-shelf", () => {
+    const m = JSON.parse(readFileSync('public/assets/music/loops.json', 'utf8')) as { screen: string; hf_share_5k: number; hf_share_5k_before: number }[];
+    const r = m.find((x) => x.screen === 'report')!;
+    expect(r.hf_share_5k).toBeLessThan(0.001);
+    expect(r.hf_share_5k).toBeLessThan(r.hf_share_5k_before / 5);
+  });
 });

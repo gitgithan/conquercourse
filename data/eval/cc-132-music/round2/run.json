@@ -1,0 +1,78 @@
+{
+  "model": "facebook/musicgen-medium",
+  "seconds": 30,
+  "jobs": [
+    {
+      "screen": "course-a",
+      "seed": 7,
+      "prompt": "motivational cinematic pulse, 110 bpm, steady driving warm bass, light percussion, soft strings swelling, rising feel, no lead synth, instrumental loop",
+      "rate": 32000
+    },
+    {
+      "screen": "course-a",
+      "seed": 8,
+      "prompt": "motivational cinematic pulse, 110 bpm, steady driving warm bass, light percussion, soft strings swelling, rising feel, no lead synth, instrumental loop",
+      "rate": 32000
+    },
+    {
+      "screen": "course-b",
+      "seed": 7,
+      "prompt": "uplifting underscore, 105 bpm, soft steady kick, warm bassline, gentle plucks, building and hopeful, determined, no harsh synths, instrumental loop",
+      "rate": 32000
+    },
+    {
+      "screen": "course-b",
+      "seed": 8,
+      "prompt": "uplifting underscore, 105 bpm, soft steady kick, warm bassline, gentle plucks, building and hopeful, determined, no harsh synths, instrumental loop",
+      "rate": 32000
+    },
+    {
+      "screen": "course-c",
+      "seed": 7,
+      "prompt": "training montage, 115 bpm, warm electric bass, light shuffled hi-hats, rising piano chords and strings, confident forward momentum, instrumental loop",
+      "rate": 32000
+    },
+    {
+      "screen": "course-c",
+      "seed": 8,
+      "prompt": "training montage, 115 bpm, warm electric bass, light shuffled hi-hats, rising piano chords and strings, confident forward momentum, instrumental loop",
+      "rate": 32000
+    },
+    {
+      "screen": "course-d",
+      "seed": 7,
+      "prompt": "gentle epic motivational pulse, 100 bpm, low ostinato strings, soft taiko drums, warm, rising, no brass, no synth lead, instrumental loop",
+      "rate": 32000
+    },
+    {
+      "screen": "course-d",
+      "seed": 8,
+      "prompt": "gentle epic motivational pulse, 100 bpm, low ostinato strings, soft taiko drums, warm, rising, no brass, no synth lead, instrumental loop",
+      "rate": 32000
+    },
+    {
+      "screen": "course-e",
+      "seed": 7,
+      "prompt": "cinematic electronic, 120 bpm, steady pulsing warm bass, light percussion, airy pads rising, focused and determined, no lead, instrumental loop",
+      "rate": 32000
+    },
+    {
+      "screen": "course-e",
+      "seed": 8,
+      "prompt": "cinematic electronic, 120 bpm, steady pulsing warm bass, light percussion, airy pads rising, focused and determined, no lead, instrumental loop",
+      "rate": 32000
+    },
+    {
+      "screen": "course-f",
+      "seed": 7,
+      "prompt": "inspiring acoustic and electronic mix, 110 bpm, muted guitar pulse, warm bass, soft claps, swelling pads, optimistic, instrumental loop",
+      "rate": 32000
+    },
+    {
+      "screen": "course-f",
+      "seed": 8,
+      "prompt": "inspiring acoustic and electronic mix, 110 bpm, muted guitar pulse, warm bass, soft claps, swelling pads, optimistic, instrumental loop",
+      "rate": 32000
+    }
+  ]
+}

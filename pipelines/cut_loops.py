@@ -1,6 +1,6 @@
 """CC-132: cut each generated 30 s clip into a loop of whole bars and measure it (numbers only, no listening).
 
-Run: python3 pipelines/cut_loops.py data/eval/cc-132-music/outputs ../conquercourse-assets/music
+Run: python3 pipelines/cut_loops.py RUN_JSON RAW_DIR OUT_DIR [only] [ffmpeg-filter] [suffix]
 Steps per clip:
 - estimate the tempo from the onset envelope;
 - take a whole number of 4-beat bars near 15 s;
@@ -47,13 +47,16 @@ def cut(x, rate):
     bars = max(2, round(15 / bar))
     L = int(round(bars * bar * rate))
     pre = int(FADE * rate)
-    best = None
-    for s in range(pre, min(int(4 * rate), len(x) - L - 1), int(0.01 * rate)):
+    cands = []
+    for s in range(pre, min(int(4 * rate), len(x) - L - 1), int(0.002 * rate)):
         e = s + L
         a, b = x[s - pre:s], x[e - pre:e]
         err = float(np.mean((a - b) ** 2) / (np.mean(a ** 2) + 1e-9))
-        if best is None or err < best[0]:
-            best = (err, s)
+        cands.append((err, s))
+    cands.sort()
+    # among starts that match nearly as well as the best, take the one where the wave steps least between sample s-1 and s (that step is the wrap)
+    good = [c for c in cands if c[0] <= cands[0][0] * 1.5 + 0.02]
+    best = min(good, key=lambda c: abs(float(x[c[1]] - x[c[1] - 1])))
     s = best[1]
     e = s + L
     loop = x[s:e].copy()
@@ -69,36 +72,50 @@ def stats(loop, rate):
     spec = np.abs(np.fft.rfft(loop * np.hanning(len(loop))))
     freqs = np.fft.rfftfreq(len(loop), 1 / rate)
     env, _ = onset_env(loop, rate)
-    return {"seam_jump": seam, "median_step": float(np.median(step)), "seam_ratio": seam / (float(np.median(step)) + 1e-9),
+    hf = float((spec[freqs >= 5000] ** 2).sum() / (spec ** 2).sum())
+    return {"hf_share_5k": hf, "seam_jump": seam, "median_step": float(np.median(step)), "seam_ratio": seam / (float(np.median(step)) + 1e-9),
             "rms": rms, "peak": float(np.abs(loop).max()), "centroid_hz": float((spec * freqs).sum() / spec.sum()),
             "onsets_per_s": float((env > env.std() * 1.5).sum() / (len(loop) / rate))}
 
 
-def main(src, dst):
-    src, dst = pathlib.Path(src), pathlib.Path(dst)
+def soften(x, rate, af):
+    """Run the raw clip through an ffmpeg audio filter (before cutting, so the loop seam is made from the filtered wave)."""
+    r = subprocess.run(["ffmpeg", "-loglevel", "error", "-f", "f32le", "-ar", str(rate), "-ac", "1", "-i", "-", "-af", af, "-f", "f32le", "-"],
+                       input=x.tobytes(), capture_output=True, check=True)
+    return np.frombuffer(r.stdout, dtype="float32").copy()
+
+
+def main(run_json, raw, dst, only="", af="", suffix=""):
+    """only: comma list of names (screen_seed) to cut; af: optional ffmpeg filter; suffix: appended to the output name."""
+    run_json, raw, dst = pathlib.Path(run_json), pathlib.Path(raw), pathlib.Path(dst)
     dst.mkdir(parents=True, exist_ok=True)
-    run = json.load(open(src / "run.json"))
+    run = json.load(open(run_json))
     rows = []
     for j in run["jobs"]:
-        x = np.fromfile(src / f"{j['screen']}_{j['seed']}.f32", dtype="float32")
+        if only and f"{j['screen']}_{j['seed']}" not in only.split(","):
+            continue
+        x = np.fromfile(raw / f"{j['screen']}_{j['seed']}.f32", dtype="float32")
         rate = j["rate"]
+        before = stats(x, rate)["hf_share_5k"] if af else None
+        if af:
+            x = soften(x, rate, af)
         loop, bpm, bars, err = cut(x, rate)
         loop = loop * (0.1 / (np.sqrt(np.mean(loop ** 2)) + 1e-9))  # the same loudness for every loop (rms 0.1)
         loop = np.clip(loop, -0.98, 0.98)
         st = stats(loop, rate)
-        name = f"{j['screen']}_{j['seed']}"
-        raw = dst / f"{name}.wav"
-        with wave.open(str(raw), "wb") as w:
+        name = f"{j['screen']}_{j['seed']}{suffix}"
+        raw_wav = dst / f"{name}.wav"
+        with wave.open(str(raw_wav), "wb") as w:
             w.setnchannels(1)
             w.setsampwidth(2)
             w.setframerate(rate)
             w.writeframes((loop * 32767).astype("<i2").tobytes())
-        subprocess.run(["ffmpeg", "-y", "-loglevel", "error", "-i", str(raw), "-c:a", "libvorbis", "-q:a", "3", str(dst / f"{name}.ogg")], check=True)
+        subprocess.run(["ffmpeg", "-y", "-loglevel", "error", "-i", str(raw_wav), "-c:a", "libvorbis", "-q:a", "3", str(dst / f"{name}.ogg")], check=True)
         rows.append({"name": name, "screen": j["screen"], "seed": j["seed"], "bpm": round(bpm, 2), "bars": bars, "seconds": round(len(loop) / rate, 3),
-                     "match_err": round(err, 4), **{k: round(v, 5) for k, v in st.items()}})
+                     "match_err": round(err, 4), **{k: round(v, 5) for k, v in st.items()}, **({"hf_share_5k_before": round(before, 5), "filter": af} if af else {})})
         print(rows[-1], flush=True)
-    (src / "loops.json").write_text(json.dumps(rows, indent=2) + "\n")
+    (run_json.parent / f"loops{suffix or ''}.json").write_text(json.dumps(rows, indent=2) + "\n")
 
 
 if __name__ == "__main__":
-    main(*sys.argv[1:3])
+    main(*sys.argv[1:])

@@ -21,6 +21,7 @@ flowchart LR
     KIM["Kimodo<br/>(Llama 3 text encoder)"] --> GATE["Plausibility gate"]
     SOMA --> GATE
     MI["Muse Image<br/>character concept"] --> CH["Rookie characters"]
+    MG["MusicGen (AudioCraft)<br/>a loop per screen"] --> MUS["Music loops"]
   end
   subgraph Game["In the game (browser + Cloudflare)"]
     SIM["Deterministic simulator<br/>120 Hz, our code"]
@@ -32,6 +33,7 @@ flowchart LR
   SAM3DO --> ED
   GATE --> SIM
   CH --> SIM
+  MUS --> SIM
   ED --> SIM
   DES --> ED
   AGT --> ED
@@ -39,7 +41,7 @@ flowchart LR
   MAP --> ED
   SIM --> IDEAL["Ideal-run search<br/>proves a course can be cleared"]
   classDef meta fill:#dbeafe,stroke:#1d4ed8,color:#0f172a;
-  class SAM3,SAM3DO,SAM3DB,MI,DES,AGT,MAP,KIM meta;
+  class SAM3,SAM3DO,SAM3DB,MI,DES,AGT,MAP,KIM,MG meta;
 ```
 
 ## 1. Photo to obstacle (SAM 3 and SAM 3D Objects)
@@ -169,6 +171,25 @@ flowchart LR
 - **Model:** Muse Image (`muse-image-1.0`, `/images/edits`) draws the second Rookie in the first one's style.
 - **Our code and tools:** Tripo makes the 3D mesh, Blender rigs it on the Kimodo skeleton, and a check catches bad rigs.
 - **Result:** Rookie A and Rookie B.
+
+## 5b. Music (MusicGen from Meta AudioCraft)
+- **Data in:** a written prompt per screen and a seed; no melody, no recording and no existing song goes in.
+- **Model:** MusicGen medium (`facebook/musicgen-medium`) on a Modal GPU, 30 s per clip.
+- **How it is loaded:** AudioCraft's own pip package failed to build on its `av` dependency, so the same Meta weights are loaded through the transformers library.
+- **Our code:** it finds the tempo, keeps whole bars, picks the start that makes the wrap continuous, checks the seam, and for the Report loop cuts the loud highs with a gentle high-shelf.
+- **In the game:** one loop per screen, off until `?music=1`, quiet, crossfaded between screens, M mutes.
+- **Licence, said plainly:** the weights are CC BY-NC 4.0 (non-commercial) and the code is MIT; the entry is non-commercial, and a commercial release would need the loops remade.
+- **Measured, not heard:** wrap jump, bar length, tempo and the share of energy above 5 kHz (`docs/music.md`).
+
+```mermaid
+flowchart LR
+  PR["Text prompt + seed"] --> MG["MusicGen medium<br/>(via transformers, Modal GPU)"]
+  MG --> CUT["Bar cut and loop seam check<br/>our code"]
+  CUT --> HS["High-shelf cut<br/>(Report loop)"]
+  HS --> XF["Screen crossfade<br/>in the game, M mutes"]
+  classDef meta fill:#dbeafe,stroke:#1d4ed8,color:#0f172a;
+  class MG meta;
+```
 
 ## 6. Real places and photos (Mapillary, masking)
 - **Data in:** OpenStreetMap for the place, and Mapillary street photos (Mapillary is owned by Meta).
