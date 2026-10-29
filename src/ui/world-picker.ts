@@ -35,6 +35,7 @@ export const DEMO_GROUPS: [string, Demo[]][] = [
 ];
 
 import { labsOn } from './labs';
+import { applyStats, loadStats, statsOn } from './course-stats';
 
 export const WORD_VALUES = ['generate', 'editor', 'coaster-builder', 'map', 'lab-search'];
 export const DEMOS: [string, string][] = DEMO_GROUPS.flatMap(([, ds]) => ds.map((d) => [d[0], d[1]] as [string, string]));
@@ -103,6 +104,9 @@ const STYLE = `
 .wg-txt{padding:6px 9px 8px}
 .wg-txt b{display:block;font:700 14px/1.25 system-ui,sans-serif}
 .wg-txt span{display:block;margin-top:2px;font:12px/1.3 system-ui,sans-serif;color:#58635d}
+.wg-stats{display:flex;flex-wrap:wrap;gap:2px 8px;align-items:baseline;margin-top:3px;font:12px/1.3 system-ui,sans-serif;color:#17201d}
+.wg-stats i{font-style:normal;letter-spacing:1px;color:#0f6b5c}
+.wg-stats em{font-style:normal;color:#58635d}
 .wg-here{display:inline-block;margin-left:6px;font:700 10px system-ui,sans-serif;color:#fff;background:#0f6b5c;border-radius:6px;padding:1px 5px;vertical-align:1px}
 .wg-none{padding:20px;color:#58635d}
 #world-gallery{position:fixed;inset:0;z-index:900;display:grid;place-items:center;padding:12px;background:#10182099;backdrop-filter:blur(3px)}
@@ -206,6 +210,8 @@ export function buildGallery(o: GalleryOptions): { el: HTMLElement; focusStart()
     if (next) { e.preventDefault(); next.focus(); next.scrollIntoView({ block: 'nearest' }); }
     else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') e.preventDefault();
   });
+  // CC-149: the play numbers and the difficulty order arrive a moment later, so the cards never wait for the server; ?stats=0 leaves them out
+  if (statsOn(new URLSearchParams(location.search))) void loadStats().then((d) => { if (d && el.isConnected !== false) applyStats(el, d); });
   return { el, focusStart: () => { const here = el.querySelector<HTMLElement>('.wg-card[aria-current=true]'); (here ?? search).focus({ preventScroll: false }); here?.scrollIntoView({ block: 'center' }); } };
 }
 
