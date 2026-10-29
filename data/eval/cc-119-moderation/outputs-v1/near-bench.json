@@ -1,0 +1,12 @@
+{
+  "id": "near-bench",
+  "kind": "near miss (text)",
+  "accept": [
+    "ok"
+  ],
+  "status": 200,
+  "verdict": "ok",
+  "reason": "none",
+  "pass": true,
+  "ms": 3129
+}

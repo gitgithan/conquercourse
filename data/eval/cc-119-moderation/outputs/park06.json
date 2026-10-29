@@ -1,0 +1,13 @@
+{
+  "id": "park06",
+  "kind": "safe photo",
+  "accept": [
+    "ok",
+    "review"
+  ],
+  "status": 200,
+  "verdict": "ok",
+  "reason": "none",
+  "pass": true,
+  "ms": 5396
+}

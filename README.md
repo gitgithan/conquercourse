@@ -23,6 +23,7 @@ Blue-box diagrams for every pipeline are in [docs/meta-ai-pipelines.md](docs/met
 | **DINOv3** | Image encoder inside SAM 3D Body | Build time (inside SAM 3D Body) |
 | **Meta-Llama-3-8B-Instruct** | Text encoder inside Kimodo (NVIDIA), which generates the run, leap and hang motion | Build time (Modal GPU) |
 | **Muse Spark Open** (`meta-models/muse-spark-open-1026`, on Baseten) | The in-editor course-design partner and "Fix it", and the photo-to-course draft; the simulator checks everything it suggests | Live, through a server function (needs the `BASETEN_API_KEY` secret) |
+| **Muse Spark Open**, upload check (`/api/moderate`) | Looks at an uploaded photo or object preview and answers ok, review or block with one reason; errors become review (CC-120) | Live, through a server function (needs `BASETEN_API_KEY`); called by the moderation queue (CC-112) |
 | **Muse Spark** (Meta Model API) | Turns written descriptions into contact targets and character descriptions | Build time |
 | **Muse Image** (Meta Model API) | Draws the second Rookie in the first one's style (concept reference) | Build time |
 | **Mapillary** (owned by Meta) | Street photos along a built place, masked for people before they are shown | Live, through a server proxy (token never in the browser) |
