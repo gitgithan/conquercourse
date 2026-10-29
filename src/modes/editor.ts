@@ -27,6 +27,7 @@ import { adviseMachine, fixMachine } from '../slice/fix-launch';
 import { fixBars } from '../slice/fixbars';
 import { fixLayout } from '../slice/fixit';
 import { adviseLane, type Advice } from '../slice/advice';
+import { agentOn, runCourseAgent } from '../ui/course-agent-trace';
 import { adviceInWorker, barsInWorker, fixInWorker, provesInWorker } from '../slice/proof-client';
 import { parseReply, worldBrief, type Edit } from '../slice/designer';
 import { diffProposal, enabledCount, fromAdvice, fromEdits, resultOf, type Proposal } from '../slice/preview';
@@ -460,6 +461,21 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
     el('button', top, { text: 'Photo to course (labs)', id: 'photobtn', title: 'Pick a park photo: the design partner drafts a course from it, then the simulator checks it' }).onclick = () => fileIn.click();
     const url = new URLSearchParams(location.search).get('photo');
     if (url) void fetch(url).then((r) => r.blob()).then(draftFrom).catch(() => { reply.className = 'reply bad'; reply.textContent = 'I could not read that photo.'; });
+  }
+  // the Course Agent (labs, ?agent=1): propose from a photo, test with the simulator, repair from its report, stop when proven; the steps show as a list
+  if (agentOn()) {
+    const agentIn = el('input', top, { type: 'file', accept: 'image/jpeg,image/png', id: 'agentfile' }) as HTMLInputElement;
+    agentIn.style.display = 'none';
+    const trace = Object.assign(document.createElement('ol'), { id: 'agenttrace', className: 'agent-trace' });
+    trace.style.cssText = 'margin:0;padding-left:18px;display:grid;gap:4px;font-size:13px';
+    agentIn.onchange = () => {
+      const f = agentIn.files?.[0]; agentIn.value = '';
+      if (!f) return;
+      helper.classList.remove('closed'); helperBtn.setAttribute('aria-pressed', 'true');
+      reply.className = 'reply'; reply.replaceChildren(trace);
+      void runCourseAgent(f, { trace, apply: (layout) => { pieces = layoutToPieces(layout); angle = 0; offset = 0; level = 0; selected = null; changed(); } });
+    };
+    el('button', top, { text: 'Course Agent (labs)', id: 'agentbtn', title: 'Pick a park photo: the agent proposes a course, tests it with the simulator, repairs it, and stops when it is proven' }).onclick = () => agentIn.click();
   }
   async function draftFrom(file: Blob) {
     helper.classList.remove('closed'); helperBtn.setAttribute('aria-pressed', 'true');
