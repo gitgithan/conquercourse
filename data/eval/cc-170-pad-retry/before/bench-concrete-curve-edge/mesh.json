@@ -1,0 +1,31 @@
+{
+  "label": "concrete bench",
+  "extents_m": {
+    "x": 1.109,
+    "y": 0.499,
+    "z": 0.492
+  },
+  "height_m": 0.499,
+  "target_height_m": 0.5,
+  "scale_source": "typed",
+  "scale_factor": 1.1094,
+  "raw_height": 0.4507,
+  "yaw_deg": 0.0,
+  "tilt_deg": 1.68,
+  "faces": 5820,
+  "vertices": 2924,
+  "width_to_height": 2.22,
+  "photo": "bench-concrete-curve-edge",
+  "box": [
+    0,
+    17,
+    830,
+    437
+  ],
+  "bytes": 115092,
+  "model": "SAM 3D Objects (seed 42)",
+  "bake_seconds": 1.89,
+  "raw_faces": 400112,
+  "splat_points": 339424,
+  "lift_round": "before"
+}

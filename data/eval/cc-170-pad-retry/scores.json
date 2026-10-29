@@ -1,0 +1,140 @@
+{
+  "summary": {
+    "photos": 5,
+    "touch_border": 1,
+    "usable_before": 4,
+    "usable_after": 4,
+    "rescued": [],
+    "made_worse": [],
+    "still_bad": [
+      "barrel-oak-edge"
+    ]
+  },
+  "rows": [
+    {
+      "photo": "bollard-iron-edge",
+      "reference_w2h": 0.211,
+      "reference_tilt": 1.18,
+      "before": {
+        "w2h": 0.185,
+        "ratio_to_reference": 0.88,
+        "tilt_deg": 1.24,
+        "padded": false,
+        "touches_border": true,
+        "max_border_share": 0.38,
+        "usable": true,
+        "tool_check_bad": false
+      },
+      "after": {
+        "w2h": 0.186,
+        "ratio_to_reference": 0.88,
+        "tilt_deg": 2.17,
+        "padded": true,
+        "touches_border": true,
+        "max_border_share": 0.38,
+        "usable": true,
+        "tool_check_bad": false
+      }
+    },
+    {
+      "photo": "barrel-oak-edge",
+      "reference_w2h": 0.721,
+      "reference_tilt": 0.41,
+      "before": {
+        "w2h": 1.451,
+        "ratio_to_reference": 2.01,
+        "tilt_deg": 0.53,
+        "padded": false,
+        "touches_border": false,
+        "max_border_share": 0.0,
+        "usable": false,
+        "tool_check_bad": false
+      },
+      "after": {
+        "w2h": 1.452,
+        "ratio_to_reference": 2.01,
+        "tilt_deg": 0.21,
+        "padded": false,
+        "touches_border": false,
+        "max_border_share": 0.0,
+        "usable": false,
+        "tool_check_bad": false
+      }
+    },
+    {
+      "photo": "planter-concrete-edge",
+      "reference_w2h": 3.768,
+      "reference_tilt": 0.15,
+      "before": {
+        "w2h": 4.143,
+        "ratio_to_reference": 1.1,
+        "tilt_deg": 0.1,
+        "padded": false,
+        "touches_border": false,
+        "max_border_share": 0.0,
+        "usable": true,
+        "tool_check_bad": false
+      },
+      "after": {
+        "w2h": 4.129,
+        "ratio_to_reference": 1.1,
+        "tilt_deg": 0.17,
+        "padded": false,
+        "touches_border": false,
+        "max_border_share": 0.0,
+        "usable": true,
+        "tool_check_bad": false
+      }
+    },
+    {
+      "photo": "pipe-ring-edge",
+      "reference_w2h": 1.414,
+      "reference_tilt": 0.09,
+      "before": {
+        "w2h": 1.361,
+        "ratio_to_reference": 0.96,
+        "tilt_deg": 0.62,
+        "padded": false,
+        "touches_border": false,
+        "max_border_share": 0.0,
+        "usable": true,
+        "tool_check_bad": false
+      },
+      "after": {
+        "w2h": 1.362,
+        "ratio_to_reference": 0.96,
+        "tilt_deg": 0.61,
+        "padded": false,
+        "touches_border": false,
+        "max_border_share": 0.0,
+        "usable": true,
+        "tool_check_bad": false
+      }
+    },
+    {
+      "photo": "bench-concrete-curve-edge",
+      "reference_w2h": 2.232,
+      "reference_tilt": 1.6,
+      "before": {
+        "w2h": 2.22,
+        "ratio_to_reference": 0.99,
+        "tilt_deg": 1.68,
+        "padded": false,
+        "touches_border": false,
+        "max_border_share": 0.0,
+        "usable": true,
+        "tool_check_bad": false
+      },
+      "after": {
+        "w2h": 2.221,
+        "ratio_to_reference": 1.0,
+        "tilt_deg": 1.62,
+        "padded": false,
+        "touches_border": false,
+        "max_border_share": 0.0,
+        "usable": true,
+        "tool_check_bad": false
+      }
+    }
+  ]
+}
