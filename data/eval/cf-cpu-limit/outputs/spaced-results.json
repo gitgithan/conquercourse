@@ -1,0 +1,186 @@
+{
+  "base": "https://422f24e4.conquercourse.pages.dev",
+  "when": "2026-10-29T13:02:08.072Z",
+  "rows": [
+    {
+      "rep": 1,
+      "heavy": {
+        "repeat": 32,
+        "status": 200,
+        "roundTripMs": 1497,
+        "body": "{\"ticks\":3233,\"totalTicks\":103456,\"ok\":true,\"wallMs\":80,\"perfMs\":80}"
+      },
+      "afterNormal": {
+        "repeat": 1,
+        "status": 200,
+        "roundTripMs": 73,
+        "body": "{\"ticks\":3233,\"totalTicks\":3233,\"ok\":true,\"wallMs\":6,\"perfMs\":6}"
+      }
+    },
+    {
+      "rep": 2,
+      "heavy": {
+        "repeat": 32,
+        "status": 200,
+        "roundTripMs": 608,
+        "body": "{\"ticks\":3233,\"totalTicks\":103456,\"ok\":true,\"wallMs\":14,\"perfMs\":14}"
+      },
+      "afterNormal": {
+        "repeat": 1,
+        "status": 200,
+        "roundTripMs": 67,
+        "body": "{\"ticks\":3233,\"totalTicks\":3233,\"ok\":true,\"wallMs\":8,\"perfMs\":8}"
+      }
+    },
+    {
+      "rep": 3,
+      "heavy": {
+        "repeat": 32,
+        "status": 200,
+        "roundTripMs": 685,
+        "body": "{\"ticks\":3233,\"totalTicks\":103456,\"ok\":true,\"wallMs\":21,\"perfMs\":21}"
+      },
+      "afterNormal": {
+        "repeat": 1,
+        "status": 200,
+        "roundTripMs": 85,
+        "body": "{\"ticks\":3233,\"totalTicks\":3233,\"ok\":true,\"wallMs\":9,\"perfMs\":9}"
+      }
+    },
+    {
+      "rep": 1,
+      "heavy": {
+        "repeat": 64,
+        "status": 503,
+        "roundTripMs": 337,
+        "body": " Worker exceeded resource limits | 422f24e4.conquercourse.pages.dev | Cloudflare"
+      },
+      "afterNormal": {
+        "repeat": 1,
+        "status": 200,
+        "roundTripMs": 458,
+        "body": "{\"ticks\":3233,\"totalTicks\":3233,\"ok\":true,\"wallMs\":23,\"perfMs\":23}"
+      }
+    },
+    {
+      "rep": 2,
+      "heavy": {
+        "repeat": 64,
+        "status": 200,
+        "roundTripMs": 715,
+        "body": "{\"ticks\":3233,\"totalTicks\":206912,\"ok\":true,\"wallMs\":10,\"perfMs\":10}"
+      },
+      "afterNormal": {
+        "repeat": 1,
+        "status": 200,
+        "roundTripMs": 45,
+        "body": "{\"ticks\":3233,\"totalTicks\":3233,\"ok\":true,\"wallMs\":3,\"perfMs\":3}"
+      }
+    },
+    {
+      "rep": 3,
+      "heavy": {
+        "repeat": 64,
+        "status": 503,
+        "roundTripMs": 533,
+        "body": " Worker exceeded resource limits | 422f24e4.conquercourse.pages.dev | Cloudflare"
+      },
+      "afterNormal": {
+        "repeat": 1,
+        "status": 200,
+        "roundTripMs": 448,
+        "body": "{\"ticks\":3233,\"totalTicks\":3233,\"ok\":true,\"wallMs\":16,\"perfMs\":16}"
+      }
+    },
+    {
+      "rep": 1,
+      "heavy": {
+        "repeat": 128,
+        "status": 200,
+        "roundTripMs": 1186,
+        "body": "{\"ticks\":3233,\"totalTicks\":413824,\"ok\":true,\"wallMs\":23,\"perfMs\":23}"
+      },
+      "afterNormal": {
+        "repeat": 1,
+        "status": 200,
+        "roundTripMs": 58,
+        "body": "{\"ticks\":3233,\"totalTicks\":3233,\"ok\":true,\"wallMs\":3,\"perfMs\":3}"
+      }
+    },
+    {
+      "rep": 2,
+      "heavy": {
+        "repeat": 128,
+        "status": 200,
+        "roundTripMs": 1264,
+        "body": "{\"ticks\":3233,\"totalTicks\":413824,\"ok\":true,\"wallMs\":23,\"perfMs\":23}"
+      },
+      "afterNormal": {
+        "repeat": 1,
+        "status": 200,
+        "roundTripMs": 52,
+        "body": "{\"ticks\":3233,\"totalTicks\":3233,\"ok\":true,\"wallMs\":3,\"perfMs\":3}"
+      }
+    },
+    {
+      "rep": 3,
+      "heavy": {
+        "repeat": 128,
+        "status": 200,
+        "roundTripMs": 1030,
+        "body": "{\"ticks\":3233,\"totalTicks\":413824,\"ok\":true,\"wallMs\":12,\"perfMs\":12}"
+      },
+      "afterNormal": {
+        "repeat": 1,
+        "status": 200,
+        "roundTripMs": 59,
+        "body": "{\"ticks\":3233,\"totalTicks\":3233,\"ok\":true,\"wallMs\":5,\"perfMs\":5}"
+      }
+    },
+    {
+      "rep": 1,
+      "heavy": {
+        "repeat": 256,
+        "status": 503,
+        "roundTripMs": 2485,
+        "body": " Worker exceeded resource limits | 422f24e4.conquercourse.pages.dev | Cloudflare"
+      },
+      "afterNormal": {
+        "repeat": 1,
+        "status": 200,
+        "roundTripMs": 321,
+        "body": "{\"ticks\":3233,\"totalTicks\":3233,\"ok\":true,\"wallMs\":6,\"perfMs\":6}"
+      }
+    },
+    {
+      "rep": 2,
+      "heavy": {
+        "repeat": 256,
+        "status": 503,
+        "roundTripMs": 1467,
+        "body": " Worker exceeded resource limits | 422f24e4.conquercourse.pages.dev | Cloudflare"
+      },
+      "afterNormal": {
+        "repeat": 1,
+        "status": 200,
+        "roundTripMs": 329,
+        "body": "{\"ticks\":3233,\"totalTicks\":3233,\"ok\":true,\"wallMs\":4,\"perfMs\":4}"
+      }
+    },
+    {
+      "rep": 3,
+      "heavy": {
+        "repeat": 256,
+        "status": 503,
+        "roundTripMs": 2565,
+        "body": " Worker exceeded resource limits | 422f24e4.conquercourse.pages.dev | Cloudflare"
+      },
+      "afterNormal": {
+        "repeat": 1,
+        "status": 200,
+        "roundTripMs": 372,
+        "body": "{\"ticks\":3233,\"totalTicks\":3233,\"ok\":true,\"wallMs\":7,\"perfMs\":7}"
+      }
+    }
+  ]
+}
