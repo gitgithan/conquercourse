@@ -12,23 +12,23 @@
     "bbox_share": 0.13296719390743994,
     "bbox_fill": 0.8543100837096597,
     "bbox_aspect": 0.17270624518118735,
-    "border_max": 0.0,
+    "border_max": 0,
     "border_sides": 0,
-    "border_touch": 0.0,
+    "border_touch": 0,
     "components": 1,
-    "largest_share": 1.0,
+    "largest_share": 1,
     "holes": 0,
-    "hole_share": 0.0,
+    "hole_share": 0,
     "solidity": 0.9172196015173604,
     "thin_max_width_share": 0.1668876084843138,
     "mean_width_share": 0.12311957673144007,
     "edge_sharpness": 2.6189213223265946,
     "in_box_share": 0.9870830496251022,
     "sides": {
-      "top": 0.0,
-      "bottom": 0.0,
-      "left": 0.0,
-      "right": 0.0
+      "top": 0,
+      "bottom": 0,
+      "left": 0,
+      "right": 0
     }
   },
   "hydrant-red": {
@@ -44,23 +44,23 @@
     "bbox_share": 0.7326106770833334,
     "bbox_fill": 0.4144875987523216,
     "bbox_aspect": 0.610011641443539,
-    "border_max": 0.0,
+    "border_max": 0,
     "border_sides": 0,
-    "border_touch": 0.0,
+    "border_touch": 0,
     "components": 1,
-    "largest_share": 1.0,
+    "largest_share": 1,
     "holes": 0,
-    "hole_share": 0.0,
+    "hole_share": 0,
     "solidity": 0.6782459960701412,
     "thin_max_width_share": 0.28716871672977906,
     "mean_width_share": 0.15294245685214117,
     "edge_sharpness": 10.159553114266089,
     "in_box_share": 0.999372881128814,
     "sides": {
-      "top": 0.0,
-      "bottom": 0.0,
-      "left": 0.0,
-      "right": 0.0
+      "top": 0,
+      "bottom": 0,
+      "left": 0,
+      "right": 0
     }
   },
   "barrel-oak": {
@@ -76,23 +76,23 @@
     "bbox_share": 0.4003355323020928,
     "bbox_fill": 0.907614177143263,
     "bbox_aspect": 1.7333333333333334,
-    "border_max": 0.0,
+    "border_max": 0,
     "border_sides": 0,
-    "border_touch": 0.0,
+    "border_touch": 0,
     "components": 1,
-    "largest_share": 1.0,
+    "largest_share": 1,
     "holes": 0,
-    "hole_share": 0.0,
+    "hole_share": 0,
     "solidity": 0.9917652354785632,
     "thin_max_width_share": 0.5717682915019057,
     "mean_width_share": 0.35362374508525884,
     "edge_sharpness": 1.702550201761,
-    "in_box_share": 1.0,
+    "in_box_share": 1,
     "sides": {
-      "top": 0.0,
-      "bottom": 0.0,
-      "left": 0.0,
-      "right": 0.0
+      "top": 0,
+      "bottom": 0,
+      "left": 0,
+      "right": 0
     }
   },
   "planter-concrete": {
@@ -108,23 +108,23 @@
     "bbox_share": 0.11998795503211991,
     "bbox_fill": 0.48630165634933914,
     "bbox_aspect": 2.1550387596899223,
-    "border_max": 0.0,
+    "border_max": 0,
     "border_sides": 0,
-    "border_touch": 0.0,
+    "border_touch": 0,
     "components": 1,
-    "largest_share": 1.0,
+    "largest_share": 1,
     "holes": 0,
-    "hole_share": 0.0,
+    "hole_share": 0,
     "solidity": 0.5965009790759916,
     "thin_max_width_share": 0.2446043165467626,
     "mean_width_share": 0.13886915672154426,
     "edge_sharpness": 1.4789750827750623,
-    "in_box_share": 1.0,
+    "in_box_share": 1,
     "sides": {
-      "top": 0.0,
-      "bottom": 0.0,
-      "left": 0.0,
-      "right": 0.0
+      "top": 0,
+      "bottom": 0,
+      "left": 0,
+      "right": 0
     }
   },
   "gabion-wall": {
@@ -142,21 +142,21 @@
     "bbox_aspect": 1.341278439869989,
     "border_max": 0.1625,
     "border_sides": 1,
-    "border_touch": 1.0,
+    "border_touch": 1,
     "components": 1,
     "largest_share": 0.9945607107601184,
     "holes": 0,
-    "hole_share": 0.0,
+    "hole_share": 0,
     "solidity": 0.8242895138191422,
     "thin_max_width_share": 0.46956871590550897,
     "mean_width_share": 0.10621953720292068,
     "edge_sharpness": 1.2599464002725291,
     "in_box_share": 0.9894500070511917,
     "sides": {
-      "top": 0.0,
-      "bottom": 0.0,
+      "top": 0,
+      "bottom": 0,
       "left": 0.163,
-      "right": 0.0
+      "right": 0
     }
   },
   "pipe-ring": {
@@ -172,23 +172,23 @@
     "bbox_share": 0.11516438802083333,
     "bbox_fill": 0.8058001328490467,
     "bbox_aspect": 1.1820809248554913,
-    "border_max": 0.0,
+    "border_max": 0,
     "border_sides": 0,
-    "border_touch": 0.0,
+    "border_touch": 0,
     "components": 1,
-    "largest_share": 1.0,
+    "largest_share": 1,
     "holes": 0,
-    "hole_share": 0.0,
+    "hole_share": 0,
     "solidity": 0.9530304549861265,
     "thin_max_width_share": 0.7253665189550575,
     "mean_width_share": 0.3792027810272485,
     "edge_sharpness": 1.2041761015616828,
-    "in_box_share": 1.0,
+    "in_box_share": 1,
     "sides": {
-      "top": 0.0,
-      "bottom": 0.0,
-      "left": 0.0,
-      "right": 0.0
+      "top": 0,
+      "bottom": 0,
+      "left": 0,
+      "right": 0
     }
   },
   "picnic-table": {
@@ -204,9 +204,9 @@
     "bbox_share": 0.49536376953125,
     "bbox_fill": 0.27172200564150334,
     "bbox_aspect": 2.0644567219152856,
-    "border_max": 0.0,
+    "border_max": 0,
     "border_sides": 0,
-    "border_touch": 0.0,
+    "border_touch": 0,
     "components": 6,
     "largest_share": 0.8870965791605703,
     "holes": 1,
@@ -215,12 +215,12 @@
     "thin_max_width_share": 0.21581969247410301,
     "mean_width_share": 0.031412828712539406,
     "edge_sharpness": 1.15358448076069,
-    "in_box_share": 1.0,
+    "in_box_share": 1,
     "sides": {
-      "top": 0.0,
-      "bottom": 0.0,
-      "left": 0.0,
-      "right": 0.0
+      "top": 0,
+      "bottom": 0,
+      "left": 0,
+      "right": 0
     }
   },
   "bench-concrete-curve": {
@@ -236,23 +236,23 @@
     "bbox_share": 0.25098795572916666,
     "bbox_fill": 0.55369730297587,
     "bbox_aspect": 2.069948186528497,
-    "border_max": 0.0,
+    "border_max": 0,
     "border_sides": 0,
-    "border_touch": 0.0,
+    "border_touch": 0,
     "components": 1,
-    "largest_share": 1.0,
+    "largest_share": 1,
     "holes": 1,
     "hole_share": 0.13729738592710578,
     "solidity": 0.8256781814269794,
     "thin_max_width_share": 0.29847122723688696,
     "mean_width_share": 0.209983358786916,
     "edge_sharpness": 2.2415073417930085,
-    "in_box_share": 1.0,
+    "in_box_share": 1,
     "sides": {
-      "top": 0.0,
-      "bottom": 0.0,
-      "left": 0.0,
-      "right": 0.0
+      "top": 0,
+      "bottom": 0,
+      "left": 0,
+      "right": 0
     }
   },
   "railing-red": {
@@ -265,14 +265,14 @@
       960
     ],
     "area_share": 0.34586018880208336,
-    "bbox_share": 1.0,
+    "bbox_share": 1,
     "bbox_fill": 0.34586018880208336,
     "bbox_aspect": 1.3333333333333333,
     "border_max": 0.65,
     "border_sides": 4,
-    "border_touch": 1.0,
+    "border_touch": 1,
     "components": 1,
-    "largest_share": 1.0,
+    "largest_share": 1,
     "holes": 12,
     "hole_share": 0.6806276809265094,
     "solidity": 0.46950228623761187,
@@ -302,7 +302,7 @@
     "bbox_aspect": 2.1122994652406417,
     "border_max": 0.2925969447708578,
     "border_sides": 1,
-    "border_touch": 1.0,
+    "border_touch": 1,
     "components": 1,
     "largest_share": 0.999675968453002,
     "holes": 2,
@@ -311,12 +311,12 @@
     "thin_max_width_share": 0.22609105305630162,
     "mean_width_share": 0.07702012737743175,
     "edge_sharpness": 3.4653648581745555,
-    "in_box_share": 1.0,
+    "in_box_share": 1,
     "sides": {
-      "top": 0.0,
-      "bottom": 0.0,
+      "top": 0,
+      "bottom": 0,
       "left": 0.293,
-      "right": 0.0
+      "right": 0
     }
   },
   "bar-green": {
@@ -332,23 +332,23 @@
     "bbox_share": 0.3107160358866104,
     "bbox_fill": 0.12771946000539874,
     "bbox_aspect": 0.6671408250355618,
-    "border_max": 0.0,
+    "border_max": 0,
     "border_sides": 0,
-    "border_touch": 0.0,
+    "border_touch": 0,
     "components": 1,
-    "largest_share": 1.0,
+    "largest_share": 1,
     "holes": 0,
-    "hole_share": 0.0,
+    "hole_share": 0,
     "solidity": 0.16231269573596724,
     "thin_max_width_share": 0.06297565752824653,
     "mean_width_share": 0.0372144782910725,
     "edge_sharpness": 0.9987781167664379,
-    "in_box_share": 1.0,
+    "in_box_share": 1,
     "sides": {
-      "top": 0.0,
-      "bottom": 0.0,
-      "left": 0.0,
-      "right": 0.0
+      "top": 0,
+      "bottom": 0,
+      "left": 0,
+      "right": 0
     }
   },
   "bar-black": {
@@ -364,23 +364,23 @@
     "bbox_share": 0.37493408203125,
     "bbox_fill": 0.19662636010236173,
     "bbox_aspect": 0.4431345353675451,
-    "border_max": 0.0,
+    "border_max": 0,
     "border_sides": 0,
-    "border_touch": 0.0,
+    "border_touch": 0,
     "components": 1,
-    "largest_share": 1.0,
+    "largest_share": 1,
     "holes": 0,
-    "hole_share": 0.0,
+    "hole_share": 0,
     "solidity": 0.2343880075680396,
     "thin_max_width_share": 0.0638153512916912,
     "mean_width_share": 0.03968604355725845,
     "edge_sharpness": 1.7200824221484607,
     "in_box_share": 0.6097340199471241,
     "sides": {
-      "top": 0.0,
-      "bottom": 0.0,
-      "left": 0.0,
-      "right": 0.0
+      "top": 0,
+      "bottom": 0,
+      "left": 0,
+      "right": 0
     }
   },
   "log-driftwood": {
@@ -396,23 +396,23 @@
     "bbox_share": 0.4657861957796014,
     "bbox_fill": 0.424361535617936,
     "bbox_aspect": 2.5914221218961626,
-    "border_max": 0.0,
+    "border_max": 0,
     "border_sides": 0,
-    "border_touch": 0.0,
+    "border_touch": 0,
     "components": 3,
     "largest_share": 0.9881796909389987,
     "holes": 0,
-    "hole_share": 0.0,
+    "hole_share": 0,
     "solidity": 0.6356885754849808,
     "thin_max_width_share": 0.2759441097313356,
     "mean_width_share": 0.08852199521614564,
     "edge_sharpness": 2.294897507008399,
-    "in_box_share": 1.0,
+    "in_box_share": 1,
     "sides": {
-      "top": 0.0,
-      "bottom": 0.0,
-      "left": 0.0,
-      "right": 0.0
+      "top": 0,
+      "bottom": 0,
+      "left": 0,
+      "right": 0
     }
   },
   "stump-spruce": {
@@ -428,23 +428,23 @@
     "bbox_share": 0.27475429975429977,
     "bbox_fill": 0.6027798736865638,
     "bbox_aspect": 0.350547730829421,
-    "border_max": 0.0,
+    "border_max": 0,
     "border_sides": 0,
-    "border_touch": 0.0,
+    "border_touch": 0,
     "components": 1,
-    "largest_share": 1.0,
+    "largest_share": 1,
     "holes": 0,
-    "hole_share": 0.0,
+    "hole_share": 0,
     "solidity": 0.8531817743574277,
     "thin_max_width_share": 0.30672926447574334,
     "mean_width_share": 0.1630634745836639,
     "edge_sharpness": 2.2331887558801577,
     "in_box_share": 0.9942309586865942,
     "sides": {
-      "top": 0.0,
-      "bottom": 0.0,
-      "left": 0.0,
-      "right": 0.0
+      "top": 0,
+      "bottom": 0,
+      "left": 0,
+      "right": 0
     }
   },
   "park01": {
@@ -460,23 +460,23 @@
     "bbox_share": 0.12744911595394737,
     "bbox_fill": 0.0630532534833545,
     "bbox_aspect": 1.3505535055350553,
-    "border_max": 0.0,
+    "border_max": 0,
     "border_sides": 0,
-    "border_touch": 0.0,
+    "border_touch": 0,
     "components": 1,
-    "largest_share": 1.0,
+    "largest_share": 1,
     "holes": 0,
-    "hole_share": 0.0,
+    "hole_share": 0,
     "solidity": 0.1555489230463115,
     "thin_max_width_share": 0.03456041158653967,
     "mean_width_share": 0.023526453161788658,
     "edge_sharpness": 4.5472477720780216,
     "in_box_share": 0.9958426606971538,
     "sides": {
-      "top": 0.0,
-      "bottom": 0.0,
-      "left": 0.0,
-      "right": 0.0
+      "top": 0,
+      "bottom": 0,
+      "left": 0,
+      "right": 0
     }
   },
   "park02": {
@@ -492,23 +492,23 @@
     "bbox_share": 0.14069120762711865,
     "bbox_fill": 0.0625392156862745,
     "bbox_aspect": 2.55,
-    "border_max": 0.0,
+    "border_max": 0,
     "border_sides": 0,
-    "border_touch": 0.0,
+    "border_touch": 0,
     "components": 1,
-    "largest_share": 1.0,
+    "largest_share": 1,
     "holes": 0,
-    "hole_share": 0.0,
+    "hole_share": 0,
     "solidity": 0.1897862338782857,
     "thin_max_width_share": 0.03062843010159472,
     "mean_width_share": 0.017601590475107013,
     "edge_sharpness": 4.565612676160684,
     "in_box_share": 0.9974917698698855,
     "sides": {
-      "top": 0.0,
-      "bottom": 0.0,
-      "left": 0.0,
-      "right": 0.0
+      "top": 0,
+      "bottom": 0,
+      "left": 0,
+      "right": 0
     }
   },
   "park03": {
@@ -524,23 +524,23 @@
     "bbox_share": 0.21712239583333334,
     "bbox_fill": 0.5750490139545612,
     "bbox_aspect": 3.4367816091954024,
-    "border_max": 0.0,
+    "border_max": 0,
     "border_sides": 0,
-    "border_touch": 0.0,
+    "border_touch": 0,
     "components": 1,
-    "largest_share": 1.0,
+    "largest_share": 1,
     "holes": 0,
-    "hole_share": 0.0,
+    "hole_share": 0,
     "solidity": 0.9774804577421647,
     "thin_max_width_share": 0.25287908288583183,
     "mean_width_share": 0.14418476919222742,
     "edge_sharpness": 1.5596765775952481,
     "in_box_share": 0.9995153338347121,
     "sides": {
-      "top": 0.0,
-      "bottom": 0.0,
-      "left": 0.0,
-      "right": 0.0
+      "top": 0,
+      "bottom": 0,
+      "left": 0,
+      "right": 0
     }
   },
   "park06": {
@@ -556,23 +556,23 @@
     "bbox_share": 0.03082710113960114,
     "bbox_fill": 0.694268953068592,
     "bbox_aspect": 13.85,
-    "border_max": 0.0,
+    "border_max": 0,
     "border_sides": 0,
-    "border_touch": 0.0,
+    "border_touch": 0,
     "components": 1,
-    "largest_share": 1.0,
+    "largest_share": 1,
     "holes": 0,
-    "hole_share": 0.0,
+    "hole_share": 0,
     "solidity": 0.9460705940228754,
     "thin_max_width_share": 0.054630851806576015,
     "mean_width_share": 0.04806372641595075,
     "edge_sharpness": 2.0309750641759488,
     "in_box_share": 0.9987000324991875,
     "sides": {
-      "top": 0.0,
-      "bottom": 0.0,
-      "left": 0.0,
-      "right": 0.0
+      "top": 0,
+      "bottom": 0,
+      "left": 0,
+      "right": 0
     }
   },
   "park07": {
@@ -588,23 +588,23 @@
     "bbox_share": 0.08993784586588542,
     "bbox_fill": 0.7453555775484236,
     "bbox_aspect": 5.845454545454546,
-    "border_max": 0.0,
+    "border_max": 0,
     "border_sides": 0,
-    "border_touch": 0.0,
+    "border_touch": 0,
     "components": 1,
-    "largest_share": 1.0,
+    "largest_share": 1,
     "holes": 0,
-    "hole_share": 0.0,
+    "hole_share": 0,
     "solidity": 0.9602644784655877,
     "thin_max_width_share": 0.16414649831363934,
     "mean_width_share": 0.1123268936857476,
     "edge_sharpness": 1.230126466599293,
     "in_box_share": 0.998349741080066,
     "sides": {
-      "top": 0.0,
-      "bottom": 0.0,
-      "left": 0.0,
-      "right": 0.0
+      "top": 0,
+      "bottom": 0,
+      "left": 0,
+      "right": 0
     }
   },
   "rail01": {
@@ -620,9 +620,9 @@
     "bbox_share": 0.2432154605263158,
     "bbox_fill": 0.043339673147365455,
     "bbox_aspect": 3.111111111111111,
-    "border_max": 0.0,
+    "border_max": 0,
     "border_sides": 0,
-    "border_touch": 0.0,
+    "border_touch": 0,
     "components": 54,
     "largest_share": 0.41460111065962346,
     "holes": 3,
@@ -631,12 +631,12 @@
     "thin_max_width_share": 0.03571428571428571,
     "mean_width_share": 0.006875860588574235,
     "edge_sharpness": 2.412172235632735,
-    "in_box_share": 1.0,
+    "in_box_share": 1,
     "sides": {
-      "top": 0.0,
-      "bottom": 0.0,
-      "left": 0.0,
-      "right": 0.0
+      "top": 0,
+      "bottom": 0,
+      "left": 0,
+      "right": 0
     }
   },
   "mural01": {
@@ -654,7 +654,7 @@
     "bbox_aspect": 1.5886402753872633,
     "border_max": 0.08357771260997067,
     "border_sides": 1,
-    "border_touch": 1.0,
+    "border_touch": 1,
     "components": 2,
     "largest_share": 0.9573057108407322,
     "holes": 1,
@@ -665,9 +665,9 @@
     "edge_sharpness": 2.536739260863111,
     "in_box_share": 0.9462832738893245,
     "sides": {
-      "top": 0.0,
-      "bottom": 0.0,
-      "left": 0.0,
+      "top": 0,
+      "bottom": 0,
+      "left": 0,
       "right": 0.084
     }
   },
@@ -686,7 +686,7 @@
     "bbox_aspect": 1.5368421052631578,
     "border_max": 0.20087976539589442,
     "border_sides": 1,
-    "border_touch": 1.0,
+    "border_touch": 1,
     "components": 7,
     "largest_share": 0.575314893148617,
     "holes": 2,
@@ -697,10 +697,10 @@
     "edge_sharpness": 3.7104691433556574,
     "in_box_share": 0.9483024861226864,
     "sides": {
-      "top": 0.0,
-      "bottom": 0.0,
+      "top": 0,
+      "bottom": 0,
       "left": 0.201,
-      "right": 0.0
+      "right": 0
     }
   },
   "bench01": {
@@ -716,23 +716,23 @@
     "bbox_share": 0.205841064453125,
     "bbox_fill": 0.5897084259945639,
     "bbox_aspect": 1.9929824561403509,
-    "border_max": 0.0,
+    "border_max": 0,
     "border_sides": 0,
-    "border_touch": 0.0,
+    "border_touch": 0,
     "components": 1,
-    "largest_share": 1.0,
+    "largest_share": 1,
     "holes": 0,
-    "hole_share": 0.0,
+    "hole_share": 0,
     "solidity": 0.6978318396467784,
     "thin_max_width_share": 0.28169014084507044,
     "mean_width_share": 0.19079306038550267,
     "edge_sharpness": 1.8679326572334733,
     "in_box_share": 0.9548930464478013,
     "sides": {
-      "top": 0.0,
-      "bottom": 0.0,
-      "left": 0.0,
-      "right": 0.0
+      "top": 0,
+      "bottom": 0,
+      "left": 0,
+      "right": 0
     }
   }
 }

@@ -3,7 +3,7 @@
   "model": "wonder",
   "kind": "outline",
   "status": 200,
-  "seconds": 6.0,
+  "seconds": 6,
   "prompt_tokens": 669,
   "completion_tokens": 206,
   "raw": "{\"whole_object_in_frame\":\"yes\",\"reason\":\"The outlined stone steps are fully visible in the center of the frame with clear margins on all sides.\"}",

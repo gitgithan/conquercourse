@@ -3,7 +3,7 @@
   "model": "wonder",
   "kind": "plain",
   "status": 200,
-  "seconds": 4.0,
+  "seconds": 4,
   "prompt_tokens": 394,
   "completion_tokens": 212,
   "raw": "{\"verdict\":\"ok\",\"reason\":\"Single solid compact object is fully visible against plain background.\"}",
