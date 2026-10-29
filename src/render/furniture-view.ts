@@ -8,12 +8,12 @@ import { slugOfCourse } from '../ui/place-photos';
 // Each kind is a few boxes and cylinders, sizes in real metres (multiplied by the draw scale). off: where the part's base sits relative to the object's foot.
 interface Part { shape: 'cyl' | 'box'; colour: string; size: [number, number, number]; off: [number, number, number] }
 const PARTS: Record<Exclude<Kind, 'crosswalk'>, Part[]> = {
-  light: [{ shape: 'cyl', colour: '#4a5058', size: [0.18, 5.6, 0.18], off: [0, 0, 0] }, { shape: 'box', colour: '#f4dc7a', size: [0.9, 0.22, 0.4], off: [0.35, 5.5, 0] }],
-  bench: [{ shape: 'box', colour: '#8a5a33', size: [1.7, 0.1, 0.5], off: [0, 0.42, 0] }, { shape: 'box', colour: '#8a5a33', size: [1.7, 0.45, 0.08], off: [0, 0.55, -0.24] }, { shape: 'box', colour: '#3c4046', size: [1.5, 0.42, 0.4], off: [0, 0, 0] }],
-  bin: [{ shape: 'cyl', colour: '#3f6b57', size: [0.45, 0.9, 0.45], off: [0, 0, 0] }],
-  sign: [{ shape: 'cyl', colour: '#7b8087', size: [0.08, 2.4, 0.08], off: [0, 0, 0] }, { shape: 'box', colour: '#d8352a', size: [0.7, 0.7, 0.06], off: [0, 2.0, 0.06] }],
-  signal: [{ shape: 'cyl', colour: '#3b3f45', size: [0.14, 3.2, 0.14], off: [0, 0, 0] }, { shape: 'box', colour: '#1f2328', size: [0.35, 0.95, 0.3], off: [0, 2.7, 0.05] }],
-  pole: [{ shape: 'cyl', colour: '#6b5a48', size: [0.22, 7, 0.22], off: [0, 0, 0] }],
+  light: [{ shape: 'cyl', colour: '#4a5058', size: [0.45, 7.5, 0.45], off: [0, 0, 0] }, { shape: 'box', colour: '#ffcf1f', size: [2.2, 0.7, 1.0], off: [0.8, 7.3, 0] }],
+  bench: [{ shape: 'box', colour: '#8a5a33', size: [2.4, 0.2, 0.8], off: [0, 0.8, 0] }, { shape: 'box', colour: '#8a5a33', size: [2.4, 0.8, 0.15], off: [0, 1.0, -0.4] }, { shape: 'box', colour: '#3c4046', size: [2.2, 0.8, 0.6], off: [0, 0, 0] }],
+  bin: [{ shape: 'cyl', colour: '#3f6b57', size: [1.0, 1.6, 1.0], off: [0, 0, 0] }],
+  sign: [{ shape: 'cyl', colour: '#7b8087', size: [0.25, 4.4, 0.25], off: [0, 0, 0] }, { shape: 'box', colour: '#d8352a', size: [1.1, 1.1, 0.1], off: [0, 3.7, 0.12] }],
+  signal: [{ shape: 'cyl', colour: '#3b3f45', size: [0.35, 5, 0.35], off: [0, 0, 0] }, { shape: 'box', colour: '#1f2328', size: [0.9, 2.2, 0.7], off: [0, 4.2, 0.1] }],
+  pole: [{ shape: 'cyl', colour: '#6b5a48', size: [0.45, 9, 0.45], off: [0, 0, 0] }],
 };
 
 export interface FurnitureHandle { group: THREE.Group; counts: Record<string, number>; placed: number; moved: number; destroy(): void }
@@ -26,7 +26,7 @@ export function buildFurniture(file: FurnitureFile, laneTop: (x: number) => numb
     const items = placed.filter((p) => p.kind === kind);
     if (!items.length) continue;
     for (const part of PARTS[kind]) {
-      const mesh = new THREE.InstancedMesh(part.shape === 'cyl' ? unitCyl : unitBox, new THREE.MeshStandardMaterial({ color: part.colour, roughness: 0.8, flatShading: true }), items.length);
+      const mesh = new THREE.InstancedMesh(part.shape === 'cyl' ? unitCyl : unitBox, new THREE.MeshStandardMaterial({ color: part.colour, roughness: 0.8, flatShading: true, emissive: part.colour, emissiveIntensity: 0.25 }), items.length);
       items.forEach((p, i) => {
         pos.set(p.x + part.off[0] * s, p.y + part.off[1] * s, p.z + part.off[2] * s); sc.set(part.size[0] * s, part.size[1] * s, part.size[2] * s);
         m.compose(pos, q.identity(), sc); mesh.setMatrixAt(i, m);
@@ -39,7 +39,7 @@ export function buildFurniture(file: FurnitureFile, laneTop: (x: number) => numb
   const paint = new THREE.MeshStandardMaterial({ color: '#f4f1e8', roughness: 0.9, polygonOffset: true, polygonOffsetFactor: -4, polygonOffsetUnits: -4 });
   if (zebras.length) {
     const stripes = new THREE.InstancedMesh(unitBox, paint, zebras.length * 5);
-    zebras.forEach((p, j) => { for (let i = 0; i < 5; i++) { pos.set(p.x, p.y + 0.01, p.z + (i - 2) * 0.9 * s); sc.set(3 * s, 0.03, 0.45 * s); m.compose(pos, q.identity(), sc); stripes.setMatrixAt(j * 5 + i, m); } });
+    zebras.forEach((p, j) => { for (let i = 0; i < 5; i++) { pos.set(p.x, p.y + 0.01, p.z + (i - 2) * 1.2 * s); sc.set(3.5 * s, 0.03, 0.6 * s); m.compose(pos, q.identity(), sc); stripes.setMatrixAt(j * 5 + i, m); } });
     stripes.instanceMatrix.needsUpdate = true; stripes.frustumCulled = false; group.add(stripes);
   }
   // the start line: a painted crossing across the first deck (a design touch, not a detection; it stays flat, 2 cm thick, and is not in the physics)
