@@ -74,7 +74,7 @@ export function startPark(host: HTMLElement): { backend: 'webgl2' } {
     if (!f) return;
     try { await loadOwn(f); } catch { credit.textContent = 'That file could not be read as a photo.'; }
   };
-  picker.append(own, file, el('a', { href: '?mode=editor', textContent: 'World editor (beta) →', style: 'margin-left:auto' }), el('a', { href: '?mode=gallery', textContent: 'Community courses →' }));
+  picker.append(own, file, el('a', { href: '?mode=editor', textContent: 'World editor →', style: 'margin-left:auto' }), el('a', { href: '?mode=gallery', textContent: 'Community courses →' }));
 
   PHOTOS.forEach((p) => {
     const b = el('button', { textContent: p.label, id: `pick-${p.id}` });
