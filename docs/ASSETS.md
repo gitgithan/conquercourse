@@ -426,3 +426,4 @@
   - They stay in the experiment folder and are not shipped in the game.
 - `data/eval/cc-170-pad-retry/inputs/gabion-wall.jpg`: the CC-110 gabion wall as it is (CC0, Encik Tekateki); a real photo that already touches the edge.
 - `test-results/cc170-edge-note.png` is a screenshot of the Park with the edge note (ours; photo park01, see its row above).
+| `data/eval/cc-spectacle/outputs/*.png` and `inputs/training.glb` | Blender look-test stills and the course exported to glTF (prototype, not shown in the game) | 2026-10-29 | `scripts/export-gltf.ts` and `pipelines/spectacle/render_stills.py` in headless Blender 5.0.1 (`bpy` from PyPI), Cycles on the CPU, on a Vultr VM | None | Blender is GPL; the pictures we render are ours; the Rookie in them is `rookie-a.glb` (see its row); no third-party textures or sky images (the sky is Blender's own physical sky) |
