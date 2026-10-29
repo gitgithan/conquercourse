@@ -31,5 +31,5 @@
 | Second opinion on failed experiments | Maybe | Reads logs and video |
 
 ## Not done
-- No code review run yet.
-- Wonder is not added to the README table: nothing in the game uses it.
+- Code review: done on `src/sim` (CC-133, $2.38, 13 real of 21 claims); see `data/eval/cc-wonder-review/README.md`.
+- Wonder is not in the README Meta table: nothing in the game uses it; it is listed under "Meta tools in development".

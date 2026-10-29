@@ -1,0 +1,88 @@
+{
+  "date": "2026-10-29",
+  "model": "muse-wonder-1.0",
+  "reasoning_effort": "high",
+  "price_usd_per_1m": {
+    "in": 4,
+    "out": 20
+  },
+  "cap_usd": 5,
+  "total_usd": 2.3798,
+  "runs": [
+    {
+      "chunk": "a-body",
+      "files": [
+        "world",
+        "runner",
+        "terrain",
+        "units",
+        "landing",
+        "wall",
+        "roll",
+        "drop"
+      ],
+      "prompt_tokens": 19495,
+      "completion_tokens": 15634,
+      "seconds": 173.5,
+      "usd": 0.3907
+    },
+    {
+      "chunk": "b-moves",
+      "files": [
+        "rope",
+        "holds",
+        "vault",
+        "climb",
+        "trampoline",
+        "needs",
+        "needs-limits",
+        "energy",
+        "band"
+      ],
+      "prompt_tokens": 13624,
+      "completion_tokens": 32057,
+      "seconds": 345.2,
+      "usd": 0.6956
+    },
+    {
+      "chunk": "c-search",
+      "files": [
+        "ideal",
+        "shortcuts",
+        "replay",
+        "predict",
+        "launch-window"
+      ],
+      "prompt_tokens": 28795,
+      "completion_tokens": 21085,
+      "seconds": 240.3,
+      "usd": 0.5369
+    },
+    {
+      "chunk": "d-contraptions",
+      "files": [
+        "cart",
+        "beam",
+        "drone",
+        "recoil",
+        "trebuchet",
+        "drums"
+      ],
+      "prompt_tokens": 17602,
+      "completion_tokens": 34308,
+      "seconds": 368.5,
+      "usd": 0.7566
+    }
+  ],
+  "claims": {
+    "claims": 21,
+    "real": 13,
+    "unclear": 1,
+    "false_alarm": 7,
+    "fixed": 2,
+    "checked_by_failing_test": 11,
+    "checked_by_reading": 10
+  },
+  "usd_per_real_bug": 0.183,
+  "usd_per_fixed_bug": 1.19
+}

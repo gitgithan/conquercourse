@@ -1,0 +1,958 @@
+You are reviewing the physics simulator of a browser game (TypeScript, deterministic, fixed 120 Hz step, pure functions, Earth gravity only). Below are source files with line numbers.
+Find real bugs: wrong physics, unit mix-ups, off-by-one, division by zero or NaN, state that is not reset, results that depend on iteration order or wall-clock time (the simulator must replay the same keys to the same result), and edge cases that break a promise the comments make.
+Rules:
+- Report only bugs you can argue from the code shown. Do not report style, naming or missing features.
+- For each, give the file, the line number printed in the listing, one sentence of summary, a concrete failing input (numbers a test could use), and why it fails.
+- Give a confidence of low, medium or high. If you find nothing, return an empty list.
+
+=== src/sim/world.ts ===
+1: import type { CourseData } from '../course/course';
+2: import { DT } from './units';
+3: import { DEFAULT_PARAMS, NO_INPUT, startState, step, type RunnerInput, type RunnerParams, type RunnerState } from './runner';
+4: import { groundAt, heightAt, standingOn } from './terrain';
+5: import { DEFAULT_WALL, runWall, type WallParams, type WallResult } from './wall';
+6: import { DEFAULT_ROPE, ropePoint, release, swingStep, tryCatch, type RopeParams, type Swing } from './rope';
+7: import { DEFAULT_TRAMPOLINE, bounce, type Bounce } from './trampoline';
+8: import { JUMP_COST, VAULT_COST } from './energy';
+9: import { VAULT_BUFFER, VAULT_PLANT_GRIP, VAULT_PLANT_TICKS, findVault, vaultAt, vaultExitSpeed, type Vault } from './vault';
+10: import { ROLL_FORGIVE_TICKS, rollWindowOpen } from './drop';
+11: import { GROUND_ROLL_COST, GROUND_ROLL_RECOVERY, startGroundRoll, stepGroundRoll, type GroundRoll } from './roll';
+12: import { bodyVelocity, feetOf, gripSlips, hangStep, releaseHang, tryGrab, type Hang } from './holds';
+13: import { enterCart, railsOf, stepCartWorld, trackParams, trackSegments, type Cart } from './cart';
+14: import { AIM_RATE, DEFAULT_RECOIL, NO_RECOIL, clampAim, isAimable, padHas, shot, stepBall, type RecoilParams, type RecoilState } from './recoil';
+15: import { maybeEnterPlank, stepPlankWorld, type PlankState } from './beam';
+16: import { CLIMB_CATCH_TICKS, CLIMB_COST, CLIMB_EXIT_SPEED, CLIMB_HOLD_TICKS, findClimb, type Climb } from './climb';
+17: import { enterBand, stepBandWorld, type Band } from './band';
+18: import { DEFAULT_DRONE, boardDrone, droneStep, feetOfDrone, softTouchdown, type DroneParams, type DroneState } from './drone';
+19: import { DEFAULT_TREBUCHET, deg, feetAt, isDud, launchStep, startLaunch, type Launch, type TrebuchetParams } from './trebuchet';
+20: 
+21: // One world for the Course: the runner plus whichever obstacle has hold of the runner right now.
+22: // The simulator is the truth: everything the screen shows comes from this state, one tick at a time.
+23: export type Mode = 'run' | 'wall' | 'swing' | 'bounce' | 'hang' | 'vault' | 'cart' | 'launch' | 'plank' | 'climb' | 'band' | 'drone';
+24: export type Outcome = 'running' | 'cleared' | 'splash' | 'hurt' | 'stalled'; // hurt: a landing harder than the body can take; stalled: the cart ran out of speed on a hill
+25: 
+26: export interface GameEvent {
+27:   tick: number;
+28:   type: 'jump' | 'roll' | 'land' | 'stumble' | 'hard-landing' | 'splash' | 'wall-grab' | 'wall-slide' | 'rope-catch' | 'rope-release' | 'hang-catch' | 'hang-release' | 'vault' | 'climb' | 'climb-drop' | 'bounce' | 'cleared' | 'cart-start' | 'cart-stall' | 'cart-off' | 'cart-catch' | 'launch-fire' | 'launch-release' | 'launch-dud' | 'recoil' | 'plank-sag' | 'plank-break' | 'plank-off' | 'band-release' | 'band-snap' | 'drone-board' | 'drone-land' | 'drone-drop' | 'drone-crash' | 'drone-empty';
+29:   detail?: Record<string, number | boolean>;
+30: }
+31: 
+32: // A landing that would stumble or hurt waits ROLL_FORGIVE_TICKS before it counts, so an X pressed just after touchdown is forgiven.
+33: export interface LandGrace { until: number; landTick: number; before: RunnerState; input: RunnerInput; impact: number; peakDecel: number; squat: boolean; hurt: boolean; stumbled: boolean }
+34: 
+35: export interface WorldState {
+36:   runner: RunnerState;
+37:   mode: Mode;
+38:   outcome: Outcome;
+39:   wall: { result: WallResult; path: { x: number; y: number }[]; index: number; x0: number } | null;
+40:   swing: Swing | null;
+41:   hang: Hang | null; // hanging from a bar in the air
+42:   vault: Vault | null; // going over an obstacle with a hand on top
+43:   climb: Climb | null; // hanging from a wall's top edge and pulling up (src/sim/climb.ts)
+44:   launch: Launch | null; // sitting in the trebuchet's sling (before the pin and while it swings)
+45:   drone?: DroneState | null; // riding the cargo drone (src/sim/drone.ts)
+46:   recoil?: RecoilState; // the launcher clipped on at a recoil pad: loads left, shots fired, balls in flight (src/sim/recoil.ts)
+47:   cart: Cart | null; // riding the rails of a track (src/sim/cart.ts)
+48:   plank?: PlankState | null; // walking on a plank bridge (src/sim/beam.ts)
+49:   broken?: number[]; // planks that have broken (they are gone)
+50:   band: Band | null; // clipped on to the elastic band (src/sim/band.ts)
+51:   energy: number; // 1 = fresh; each move spends some (src/sim/energy.ts)
+52:   bed: { base: Bounce; vIn: number; start: number; press: number | null; vx: number; top: number } | null;
+53:   noCatchUntil: number;
+54:   lastPress: number; // tick of the last Space press, so a press just before landing counts
+55:   lastVault: number; // tick of the last V press, so a press a moment before the obstacle still vaults it
+56:   lastRoll: number; // tick of the last X press (a press on the ground right after a landing roll is not a new ground roll)
+57:   rollArmed: boolean; // an X press came inside the roll window (the last 0.15 s and 1.2 m before touchdown): the landing is a roll
+58:   landGrace: LandGrace | null; // a stumble or hard landing waiting 3 ticks: an X press in that time turns it into the roll
+59:   plantUntil: number; // tick until which the feet plant after a vault (no key held: brake hard)
+60:   rolledAt: number; // tick of the last roll, on landing or on the ground (the actor plays the roll clip from here); -1000 = none
+61:   groundRoll: GroundRoll | null; // a roll along the ground in progress (X on the ground)
+62:   rollReadyAt: number; // tick from which the next ground roll may start (a short recovery)
+63:   events: GameEvent[];
+64: }
+65: 
+66: // A start standing still on the ground at x: the whole course, or the start of one obstacle (a checkpoint).
+67: export function newWorld(course: CourseData, x: number = course.startX): WorldState {
+68:   const r = startState(x);
+69:   r.y = groundAt(course.terrain, x);
+70:   const tp = course.trebuchet ? trebuchetParams(course) : null;
+71:   if (tp && x <= tp.x + 0.5) { // the course starts in the sling: the rider lies at the end of the sling behind the machine
+72:     const ln = startLaunch(tp, groundAt(course.terrain, tp.x));
+73:     const f = feetAt(tp, ln);
+74:     return { runner: { ...r, x: f.x, y: f.y }, mode: 'launch', outcome: 'running', wall: null, swing: null, hang: null, vault: null, climb: null, cart: null, band: null, launch: ln, energy: 1, bed: null, noCatchUntil: 0, lastPress: -1000, lastVault: -1000, lastRoll: -1000, rolledAt: -1000, plantUntil: -1000, groundRoll: null, rollReadyAt: 0, rollArmed: false, landGrace: null, events: [] };
+75:   }
+76:   const w: WorldState = { runner: r, mode: 'run', outcome: 'running', wall: null, swing: null, hang: null, vault: null, climb: null, cart: null, band: null, launch: null, energy: 1, bed: null, noCatchUntil: 0, lastPress: -1000, lastVault: -1000, lastRoll: -1000, rolledAt: -1000, plantUntil: -1000, groundRoll: null, rollReadyAt: 0, rollArmed: false, landGrace: null, events: [] };
+77:   if (course.band && x <= course.band.x) return enterBand(w, course);
+78:   return course.track ? enterCart(w, course) : w;
+79: }
+80: 
+81: export const recoilParams = (c: CourseData): RecoilParams => ({ ...DEFAULT_RECOIL, ...(c.recoil ?? {}) } as RecoilParams);
+82: export const trebuchetParams = (c: CourseData): TrebuchetParams => ({ ...DEFAULT_TREBUCHET, ...(c.trebuchet ?? {}) } as TrebuchetParams);
+83: export const droneParams = (c: CourseData): DroneParams => ({ ...DEFAULT_DRONE, ...(c.drone ?? {}) } as DroneParams);
+84: const wallParams = (c: CourseData): WallParams => ({ ...DEFAULT_WALL, ...(c.wall ?? {}) });
+85: const ropeParams = (c: CourseData): RopeParams => ({ ...DEFAULT_ROPE, ...(c.rope ?? {}) });
+86: 
+87: export function stepWorld(w: WorldState, input: RunnerInput, course: CourseData, p: RunnerParams = DEFAULT_PARAMS): WorldState {
+88:   if (w.outcome !== 'running') return { ...w, runner: { ...w.runner, tick: w.runner.tick + 1 } };
+89:   // the roll counts only if X was pressed inside the window before touchdown (an earlier press is ignored: no buffer); a course can switch the roll off
+90:   const armed = !course.off?.includes('roll') && (w.rollArmed || (!!input.roll && !w.runner.grounded && w.mode === 'run' && rollWindowOpen(w, course)));
+91:   const input2: RunnerInput = { ...(input.jump && w.runner.grounded && w.mode === 'run' ? { ...input, jumpSpeed: course.jumpSpeed } : input), roll: armed };
+92:   const events: GameEvent[] = [];
+93:   const tick = w.runner.tick + 1;
+94:   const ev = (type: GameEvent['type'], detail?: GameEvent['detail']) => events.push({ tick, type, detail });
+95:   let n: WorldState = { ...w, lastPress: input.jump ? w.runner.tick + 1 : w.lastPress, lastVault: input.vault ? w.runner.tick + 1 : w.lastVault, lastRoll: input.roll ? w.runner.tick + 1 : w.lastRoll };
+96: 
+97:   // the wait is over: the stumble or hard landing counts now, whatever the runner is doing (the cart and other modes included)
+98:   if (w.landGrace && tick > w.landGrace.until) { // (a press on the third tick after touchdown still counts)
+99:     const g = w.landGrace;
+100:     n.landGrace = null;
+101:     if (g.stumbled) ev('stumble', { peakDecel: g.peakDecel });
+102:     if (g.hurt) { n.outcome = 'hurt'; ev('hard-landing', { impact: g.impact, peakDecel: g.peakDecel, rolled: false, squat: g.squat }); return { ...n, events }; }
+103:   }
+104: 
+105:   if (w.mode === 'wall') return stepWall(w, course);
+106:   if (w.mode === 'swing') return stepSwing(w, input, course);
+107:   if (w.mode === 'bounce') return stepBounce(w, input);
+108:   if (w.mode === 'hang') return stepHang(w, input, course);
+109:   if (w.mode === 'cart') return stepCartWorld(w, input, course);
+110:   if (w.mode === 'band') return stepBandWorld(w, input, course);
+111:   if (w.mode === 'vault') return stepVault(w);
+112:   if (w.mode === 'climb') return stepClimb(w, input);
+113:   if (w.mode === 'launch') return stepLaunchMode(w, input, course);
+114:   if (w.mode === 'plank') return stepPlankWorld(w, input, course);
+115:   if (course.planks) { const onPlank = maybeEnterPlank(w, input, course); if (onPlank) return onPlank; }
+116:   if (w.mode === 'drone') return stepDroneMode(w, input, course);
+117: 
+118:   // the drone pad: standing on it with E held boards the cargo drone, which lifts a little way off the ground
+119:   if (course.drone && w.runner.grounded && (input.handL || input.handR) && w.runner.x >= course.drone.x0 && w.runner.x <= course.drone.x1) {
+120:     const dp = droneParams(course);
+121:     ev('drone-board');
+122:     return { ...w, mode: 'drone', drone: boardDrone(dp, w.runner.x, w.runner.y), lastPress: n.lastPress, events, runner: { ...w.runner, tick, vx: 0, vy: 0, grounded: false } };
+123:   }
+124: 
+125:   // the vault: a hand on top of the obstacle just ahead, the body goes over it and keeps most of the speed
+126:   if (n.lastVault >= 0 && !course.off?.includes('vault') && w.runner.tick + 1 - n.lastVault <= VAULT_BUFFER && w.runner.grounded) { // a V pressed up to a fifth of a second early still counts
+127:     const v = findVault(course.terrain, w.runner.x, w.runner.y, w.runner.vx);
+128:     if (v) {
+129:       ev('vault', { rise: v.y1 - v.y0, vx: w.runner.vx });
+130:       return { ...w, mode: 'vault', vault: v, energy: Math.max(0, w.energy - VAULT_COST), lastPress: n.lastPress, lastVault: -1000, events, runner: { ...w.runner, tick, grounded: false } };
+131:     }
+132:   }
+133: 
+134:   // a stumble or hard landing waits ROLL_FORGIVE_TICKS: an X pressed in that time is forgiven and the landing becomes the roll
+135:   if (w.landGrace && input.roll && w.mode === 'run') {
+136:     const g = w.landGrace;
+137:     const redone = step(g.before, { ...g.input, roll: true }, p, course.terrain); // the same touchdown, rolled
+138:     const since = tick - g.landTick;
+139:     ev('roll', { vx: redone.vx, late: true });
+140:     return { ...n, runner: { ...redone, tick, x: redone.x + redone.vx * DT * since }, rolledAt: tick, landGrace: null, rollArmed: false, events };
+141:   }
+142: 
+143:   // the ground roll (X on the ground, standing or running; a fresh press, not the one still held from a landing roll)
+144:   if (!w.groundRoll && w.runner.grounded && input.roll && w.lastRoll < w.runner.tick && w.runner.tick + 1 >= w.rollReadyAt && !input.jump && !input.vault) {
+145:     const g = startGroundRoll(w.runner, input.run && !input.left ? 1 : input.left && !input.run ? -1 : 0);
+146:     ev('roll', { vx: g.dir * g.v0 });
+147:     n.groundRoll = g; n.rolledAt = tick; n.energy = Math.max(0, w.energy - GROUND_ROLL_COST);
+148:   }
+149:   const before = w.runner;
+150:   const planting = w.plantUntil > tick && !input2.run && !input2.left; // just off a vault with no key held: the feet plant and the runner stops
+151:   let flightTerrain = course.terrain;
+152:   if (course.track && !before.grounded) {
+153:     const nextX = before.x + before.vx * DT;
+154:     const underRail = course.terrain.platforms.some((platform) => platform.coasterRail && nextX >= platform.x0 && nextX <= platform.x1 && before.y < heightAt(platform, nextX) - 0.02);
+155:     if (underRail) flightTerrain = { ...course.terrain, platforms: course.terrain.platforms.filter((platform) => !platform.coasterRail) };
+156:   }
+157:   let r: RunnerState;
+158:   if (n.groundRoll) {
+159:     const g = stepGroundRoll(before, n.groundRoll, flightTerrain);
+160:     r = g.runner;
+161:     if (g.ended) { n.rollReadyAt = tick + Math.round(GROUND_ROLL_RECOVERY * 120); n.groundRoll = null; }
+162:   } else r = step(before, input2, planting ? { ...p, grip: p.grip * VAULT_PLANT_GRIP } : p, flightTerrain);
+163:   n.runner = r;
+164:   n.rollArmed = armed && !r.grounded;
+165:   let caughtTrack = false;
+166:   if (course.track && !before.grounded && r.grounded && r.landing) {
+167:     const params = trackParams(course), x = r.landedAtX ?? r.x;
+168:     const segment = trackSegments(course.track).findIndex((pts) => x >= pts[0][0] && x <= pts[pts.length - 1][0]);
+169:     if (segment >= 0) {
+170:       const rails = railsOf(course.track, segment), slope = rails.slope(x), cos = 1 / Math.sqrt(1 + slope * slope);
+171:       const previousHeight = rails.y(before.x) + params.seat;
+172:       const normalVelocity = before.vy - slope * before.vx;
+173:       if (Math.abs(r.y - (rails.y(x) + params.seat)) <= 0.12 && before.y >= previousHeight - 0.02 && normalVelocity < -0.05) {
+174:         const v = before.vx * cos - r.landing.impactSpeed * slope * cos;
+175:         if (v > 0.5) {
+176:           n.mode = 'cart'; n.outcome = 'running'; caughtTrack = true;
+177:           n.cart = { segment, x, v, started: true, stalledAt: null, tilt: Math.atan(slope) };
+178:           n.runner = { ...r, x, y: rails.y(x) + params.seat, vx: v * cos, vy: v * slope * cos, grounded: true, landing: null, landedAtTick: null, landedAtX: null, splashed: false };
+179:           ev('cart-catch', { segment, x, v });
+180:         }
+181:       }
+182:     }
+183:   }
+184:   if (before.grounded && !r.grounded && input2.jump) { ev('jump', { vy: r.vy, vx: r.vx, x: r.x }); n.energy = Math.max(0, w.energy - JUMP_COST); if (course.jumpKeep !== undefined && course.jumpKeep !== 1) n.runner = { ...r, vx: r.vx * course.jumpKeep }; }
+185:   if (!caughtTrack && !before.grounded && r.grounded && r.landing) {
+186:     const plat = standingOn(course.terrain, r.x);
+187:     ev('land', { impact: r.landing.impactSpeed, peakDecel: r.landing.peakDecel, squat: r.landing.squatted, rolled: r.landing.rolled, bouncy: !!plat?.bouncy });
+188:     if (r.landing.rolled) n.rolledAt = r.tick;
+189:     if ((r.landing.stumbled || r.landing.hurt) && !r.landing.rolled && !plat?.bouncy) { // the landing waits 3 ticks for a forgiven X press (above)
+190:       n.landGrace = { until: tick + ROLL_FORGIVE_TICKS, landTick: tick, before, input: input2, impact: r.landing.impactSpeed, peakDecel: r.landing.peakDecel, squat: r.landing.squatted, hurt: r.landing.hurt, stumbled: r.landing.stumbled };
+191:     } else if (r.landing.hurt && !plat?.bouncy) { n.outcome = 'hurt'; ev('hard-landing', { impact: r.landing.impactSpeed, peakDecel: r.landing.peakDecel, rolled: r.landing.rolled, squat: r.landing.squatted }); }
+192:     if (plat?.bouncy) {
+193:       const base = bounce(r.landing.impactSpeed, DEFAULT_TRAMPOLINE);
+194:       n.mode = 'bounce';
+195:       const early = r.tick - w.lastPress <= 8; // a press just before landing counts as a press at the start of the bounce
+196:       n.bed = { base, vIn: r.landing.impactSpeed, start: r.tick, press: early ? 0 : null, vx: r.vx, top: r.y };
+197:       ev('bounce', { vIn: r.landing.impactSpeed });
+198:     }
+199:   }
+200:   if (r.splashed) { n.outcome = 'splash'; ev('splash', { x: r.x }); }
+201: 
+202:   // recoil: the pad clips the launcher on (one load per visit); the fire key throws the ball back and pushes the runner by the momentum the ball carries away.
+203:   // A big cannon is aimed first: up and down tilt the barrel while it is loaded (the barrel points backward and down, so the push goes forward and up).
+204:   if (course.recoil && n.outcome === 'running') {
+205:     const rp = recoilParams(course);
+206:     const prev = w.recoil ?? NO_RECOIL;
+207:     const onPad = n.runner.grounded && padHas(rp, n.runner.x);
+208:     let armed = onPad && !prev.onPad ? rp.shots : prev.armed, fired = prev.fired;
+209:     let aim = prev.aim ?? clampAim(rp.angle);
+210:     if (isAimable(rp) && armed > 0) aim = input.aim !== undefined ? clampAim(input.aim) : clampAim(aim + ((input.aimUp ? 1 : 0) - (input.aimDown ? 1 : 0)) * AIM_RATE * DT);
+211:     const balls = prev.balls.map((b) => stepBall(b, course.terrain)).slice(-6);
+212:     if (input.fire && armed > 0) {
+213:       const airborne = !n.runner.grounded;
+214:       const sh = shot(rp, n.runner.vx, n.runner.vy, airborne, isAimable(rp) ? aim : rp.angle);
+215:       n.runner = { ...n.runner, vx: n.runner.vx + sh.dvx, vy: n.runner.vy + sh.dvy, ...(sh.dvy > 0 ? { grounded: false } : {}) }; // pushed up: off the ground
+216:       armed--; fired++;
+217:       balls.push({ x: n.runner.x - 0.3 - 1.2 * Math.cos(sh.angle), y: n.runner.y + 1.0 - 1.2 * Math.sin(sh.angle), vx: sh.ballVx, vy: sh.ballVy, landed: false });
+218:       ev('recoil', { dvx: sh.dvx, dvy: sh.dvy, muzzle: sh.muzzle, ball: Math.hypot(sh.ballVx, sh.ballVy), angle: sh.angle });
+219:     }
+220:     n.recoil = { armed, fired, onPad, aim, balls };
+221:   }
+222: 
+223:   // the wall: running onto the curve with the feet on the ground
+224:   if (course.wall && !course.off?.includes('wall') && n.mode === 'run' && r.grounded && r.vx > 0.5 && r.x >= course.wall.x0 && r.y === groundAt(course.terrain, course.wall.x0)) {
+225:     const wp = wallParams(course);
+226:     const result = runWall(r.vx, wp);
+227:     n.mode = 'wall';
+228:     n.wall = { result, path: wallPath(result, course.wall.x0, wp.height), index: 0, x0: course.wall.x0 };
+229:   }
+230: 
+231:   // the rope: airborne hands meet it
+232:   if (course.rope && !course.off?.includes('rope') && n.mode === 'run' && !r.grounded && r.tick >= w.noCatchUntil) {
+233:     const sw = tryCatch(ropeParams(course), r.x, r.y, r.vx, r.vy, 0);
+234:     if (sw) {
+235:       n.mode = 'swing';
+236:       n.swing = sw;
+237:       ev('rope-catch', { grip: sw.grip, omega: sw.omega });
+238:     }
+239:   }
+240: 
+241:   // a bar: airborne with a hand on the key and the hands within reach of it
+242:   if (course.holds?.length && n.mode === 'run' && !r.grounded && r.tick >= w.noCatchUntil && (input.handL || input.handR)) {
+243:     const g = tryGrab(course.holds, r.x, r.y, r.vx, r.vy, undefined, w.noCatchUntil > 0);
+244:     if (g) {
+245:       n.mode = 'hang';
+246:       n.hang = g;
+247:       ev('hang-catch', { hold: g.hold, omega: g.omega });
+248:     }
+249:   }
+250: 
+251:   // a wall's top edge: the hands (hold key) meet it, from the ground or in the air (src/sim/climb.ts); the run speed is lost
+252:   if (n.mode === 'run' && n.outcome === 'running' && (input.handL || input.handR) && r.tick >= w.noCatchUntil) {
+253:     const c = findClimb(course.terrain, r.x, r.y, r.vx, r.vy, course.jumpSpeed);
+254:     if (c) {
+255:       n.mode = 'climb'; n.climb = c; n.energy = Math.max(0, w.energy - CLIMB_COST);
+256:       n.runner = { ...r, vx: 0, vy: 0, grounded: false };
+257:       ev('climb', { rise: c.top - r.y, vx: r.vx });
+258:     }
+259:   }
+260: 
+261:   // finish: standing on the finish platform past the line
+262:   if (n.outcome === 'running' && r.grounded && r.x >= course.finishX && n.mode === 'run' && !n.landGrace) { n.outcome = 'cleared'; ev('cleared'); }
+263:   n.events = events;
+264:   return n;
+265: }
+266: 
+267: // After the hands reach the top the runner pulls up and over: a smooth hand-over from the grab point to the deck,
+268: // so nothing ever jumps (no teleport). Positions are feet positions.
+269: export const MANTLE_RUN = 0.4;
+270: const MANTLE_TICKS = 72;
+271: export function wallPath(result: WallResult, x0: number, height: number): { x: number; y: number }[] {
+272:   if (!result.grabbed) return result.path;
+273:   const up = result.path.slice(0, result.grabTick! + 1);
+274:   const from = up[up.length - 1];
+275:   const to = { x: height + MANTLE_RUN, y: height };
+276:   const out = [...up];
+277:   for (let i = 1; i <= MANTLE_TICKS; i++) {
+278:     const t = i / MANTLE_TICKS;
+279:     const e = t * t * (3 - 2 * t); // smoothstep: slow start and end
+280:     out.push({ x: from.x + (to.x - from.x) * e, y: from.y + (to.y - from.y) * e });
+281:   }
+282:   void x0;
+283:   return out;
+284: }
+285: 
+286: function stepWall(w: WorldState, course: CourseData): WorldState {
+287:   const wl = w.wall!;
+288:   const path = wl.path;
+289:   const i = wl.index;
+290:   const tick = w.runner.tick + 1;
+291:   const events: GameEvent[] = [];
+292:   if (i >= path.length - 1) {
+293:     const wp = wallParams(course);
+294:     if (wl.result.grabbed) {
+295:       events.push({ tick, type: 'wall-grab', detail: { margin: wl.result.margin } });
+296:       const x = wl.x0 + wp.height + MANTLE_RUN;
+297:       return { ...w, mode: 'run', wall: null, events, runner: { ...w.runner, tick, x, y: groundAt(course.terrain, wl.x0) + wp.height, vx: 0, vy: 0, grounded: true } }; // the wall stands on the ground at its foot, not only on level 0
+298:     }
+299:     events.push({ tick, type: 'wall-slide', detail: { margin: wl.result.margin, exit: wl.result.exitSpeed } });
+300:     return { ...w, mode: 'run', wall: null, events, runner: { ...w.runner, tick, x: wl.x0 - 0.5, y: groundAt(course.terrain, wl.x0 - 1), vx: 0, vy: 0, grounded: true } };
+301:   }
+302:   const q = path[i];
+303:   return { ...w, wall: { ...wl, index: i + 1 }, events, runner: { ...w.runner, tick, x: wl.x0 + q.x, y: groundAt(course.terrain, wl.x0) + q.y, vx: 0, vy: 0, grounded: true } };
+304: }
+305: 
+306: function stepSwing(w: WorldState, input: RunnerInput, course: CourseData): WorldState {
+307:   const rp = ropeParams(course);
+308:   const tick = w.runner.tick + 1;
+309:   const events: GameEvent[] = [];
+310:   if (input.jump) {
+311:     const rel = release(rp, w.swing!);
+312:     events.push({ tick, type: 'rope-release', detail: { vx: rel.vx, vy: rel.vy } });
+313:     return { ...w, mode: 'run', swing: null, noCatchUntil: tick + 60, events, runner: { ...w.runner, tick, x: rel.x, y: rel.y, vx: rel.vx, vy: rel.vy, grounded: false } };
+314:   }
+315:   const sw = swingStep(w.swing!);
+316:   const hand = ropePoint(rp, sw.grip, sw.theta);
+317:   const speed = sw.omega * sw.grip;
+318:   return { ...w, swing: sw, events, runner: { ...w.runner, tick, x: hand.x, y: hand.y - rp.handHeight, vx: speed * Math.cos(sw.theta), vy: speed * Math.sin(sw.theta), grounded: false } };
+319: }
+320: 
+321: function stepVault(w: WorldState): WorldState {
+322:   const v = w.vault!;
+323:   const tick = w.runner.tick + 1;
+324:   const i = v.i + 1;
+325:   if (i >= v.n) {
+326:     const end = vaultAt(v, v.n);
+327:     return { ...w, mode: 'run', vault: null, plantUntil: tick + VAULT_PLANT_TICKS, events: [], runner: { ...w.runner, tick, x: end.x, y: end.y, vx: vaultExitSpeed(v), vy: 0, grounded: true } };
+328:   }
+329:   const q = vaultAt(v, i);
+330:   return { ...w, vault: { ...v, i }, events: [], runner: { ...w.runner, tick, x: q.x, y: q.y, vx: q.vx, vy: q.vy, grounded: false } };
+331: }
+332: 
+333: const CLIMB_HANG_END = CLIMB_CATCH_TICKS + CLIMB_HOLD_TICKS; // the pull-up is committed after this tick
+334: function stepClimb(w: WorldState, input: RunnerInput): WorldState {
+335:   const c = w.climb!;
+336:   const tick = w.runner.tick + 1;
+337:   const i = c.i + 1;
+338:   // letting go of the hold key while still hanging (before the pull-up starts): the body drops from where it hangs
+339:   if (!input.handL && !input.handR && i < CLIMB_HANG_END) {
+340:     const q = c.path[c.i];
+341:     return { ...w, mode: 'run', climb: null, noCatchUntil: tick + 60, events: [{ tick, type: 'climb-drop' }], runner: { ...w.runner, tick, x: q.x, y: q.y, vx: 0, vy: 0, grounded: false } };
+342:   }
+343:   if (i >= c.n) {
+344:     return { ...w, mode: 'run', climb: null, events: [], runner: { ...w.runner, tick, x: c.exit.x, y: c.exit.y, vx: CLIMB_EXIT_SPEED, vy: 0, grounded: true } };
+345:   }
+346:   const q = c.path[i], prev = c.path[c.i];
+347:   return { ...w, climb: { ...c, i }, events: [], runner: { ...w.runner, tick, x: q.x, y: q.y, vx: (q.x - prev.x) * 120, vy: (q.y - prev.y) * 120, grounded: false } };
+348: }
+349: 
+350: function stepHang(w: WorldState, input: RunnerInput, course: CourseData): WorldState {
+351:   const holds = course.holds ?? [];
+352:   const h = holds[w.hang!.hold];
+353:   const tick = w.runner.tick + 1;
+354:   // both hands off the bar: let go and fly on
+355:   if (!input.handL && !input.handR) {
+356:     const rel = releaseHang(h, w.hang!);
+357:     return { ...w, mode: 'run', hang: null, noCatchUntil: tick + 24, events: [{ tick, type: 'hang-release', detail: { vx: rel.vx, vy: rel.vy } }], runner: { ...w.runner, tick, x: rel.x, y: rel.y, vx: rel.vx, vy: rel.vy, grounded: false } };
+358:   }
+359:   const pump = ((input.run ? 1 : 0) - (input.left ? 1 : 0)) as -1 | 0 | 1;
+360:   const s = hangStep(w.hang!, pump);
+361:   // the bar pulls harder than the hands can hold: they open and the body flies on with the speed it has
+362:   if (gripSlips(s)) {
+363:     const rel = releaseHang(h, s);
+364:     return { ...w, mode: 'run', hang: null, noCatchUntil: tick + 24, events: [{ tick, type: 'hang-release', detail: { vx: rel.vx, vy: rel.vy, slipped: true } }], runner: { ...w.runner, tick, x: rel.x, y: rel.y, vx: rel.vx, vy: rel.vy, grounded: false } };
+365:   }
+366:   const f = feetOf(h, s), v = bodyVelocity(s);
+367:   return { ...w, hang: s, events: [], runner: { ...w.runner, tick, x: f.x, y: f.y, vx: v.vx, vy: v.vy, grounded: false } };
+368: }
+369: 
+370: // The trebuchet: Space-free until the pin is pulled (the run key), then the arm swings; Space (or the pin angle, or the frame) lets the rider go.
+371: function stepLaunchMode(w: WorldState, input: RunnerInput, course: CourseData): WorldState {
+372:   const tp = trebuchetParams(course);
+373:   const tick = w.runner.tick + 1;
+374:   let ln = w.launch!;
+375:   const events: GameEvent[] = [];
+376:   if (!ln.fired) {
+377:     if (!input.run) return { ...w, events, runner: { ...w.runner, tick } };
+378:     ln = { ...ln, fired: true };
+379:     events.push({ tick, type: 'launch-fire' });
+380:   } else ln = launchStep(ln, tp);
+381:   const f = feetAt(tp, ln);
+382:   if (isDud(tp, ln)) { // too light a counterweight: nothing lifts the rider, who ends up standing where the sling dragged them
+383:     const x = Math.min(Math.max(f.x, course.startX), tp.x);
+384:     events.push({ tick, type: 'launch-dud' });
+385:     return { ...w, mode: 'run', launch: null, events, runner: { ...w.runner, tick, x, y: groundAt(course.terrain, x), vx: 0, vy: 0, grounded: true } };
+386:   }
+387:   const letGo = ln.t > 0 && (input.jump || (tp.pin !== undefined && deg(ln.alpha) >= tp.pin));
+388:   if (letGo) {
+389:     events.push({ tick, type: 'launch-release', detail: { vx: f.vx, vy: f.vy, speed: Math.hypot(f.vx, f.vy), t: ln.t } });
+390:     return { ...w, mode: 'run', launch: null, noCatchUntil: tick, events, runner: { ...w.runner, tick, x: f.x, y: f.y, vx: f.vx, vy: f.vy, grounded: false } };
+391:   }
+392:   return { ...w, launch: ln, events, runner: { ...w.runner, tick, x: f.x, y: f.y, vx: f.vx, vy: f.vy, grounded: !ln.fired } };
+393: }
+394: 
+395: // The cargo drone: the arrows lean it and climb it, E keeps the rider holding on. Letting go low steps off; letting go high is a drop. A soft touchdown sets the rider down; a hard one ends the run.
+396: function stepDroneMode(w: WorldState, input: RunnerInput, course: CourseData): WorldState {
+397:   const dp = droneParams(course);
+398:   const tick = w.runner.tick + 1;
+399:   const d = w.drone!;
+400:   const events: GameEvent[] = [];
+401:   const ground = (x: number) => groundAt(course.terrain, x);
+402:   const f0 = feetOfDrone(d, dp);
+403:   if (!(input.handL || input.handR)) { // the rider lets go
+404:     const gy = ground(f0.x);
+405:     if (Number.isFinite(gy) && f0.y - gy <= 0.6) {
+406:       events.push({ tick, type: 'drone-land', detail: { vy: d.vy, vx: d.vx, stepped: true } });
+407:       return { ...w, mode: 'run', drone: null, noCatchUntil: tick, events, runner: { ...w.runner, tick, x: f0.x, y: gy, vx: d.vx * 0.6, vy: 0, grounded: true } };
+408:     }
+409:     events.push({ tick, type: 'drone-drop', detail: { height: f0.y - (Number.isFinite(gy) ? gy : course.terrain.waterY), vx: d.vx, vy: d.vy } });
+410:     return { ...w, mode: 'run', drone: null, noCatchUntil: tick, events, runner: { ...w.runner, tick, x: f0.x, y: f0.y, vx: d.vx, vy: d.vy, grounded: false } };
+411:   }
+412:   const lean = input.run && !input.left ? 1 : input.left && !input.run ? -1 : 0;
+413:   const climb = input.up && !input.squat ? 1 : input.squat && !input.up ? -1 : 0;
+414:   let d2 = droneStep(d, { lean: lean as -1 | 0 | 1, climb: climb as -1 | 0 | 1 }, dp);
+415:   if (d2.y > 60) d2 = { ...d2, y: 60, vy: Math.min(0, d2.vy) }; // the ceiling
+416:   if (d2.empty && !d.empty) events.push({ tick, type: 'drone-empty' });
+417:   const f = feetOfDrone(d2, dp);
+418:   if (f.y < course.terrain.waterY) {
+419:     events.push({ tick, type: 'splash', detail: { x: f.x } });
+420:     return { ...w, drone: d2, outcome: 'splash', events, runner: { ...w.runner, tick, x: f.x, y: f.y, vx: d2.vx, vy: d2.vy, grounded: false, splashed: true } };
+421:   }
+422:   const gy = ground(f.x);
+423:   if (d2.vy <= 0 && Number.isFinite(gy) && f.y <= gy) { // the skids meet the ground
+424:     const fromAbove = f0.y >= gy - 0.05; // a drone that was above this ground a moment ago lands; one that was below it has flown into the side of the deck
+425:     if (!fromAbove) {
+426:       events.push({ tick, type: 'drone-crash', detail: { vy: d2.vy, vx: d2.vx, lean: d2.lean, side: true } });
+427:       return { ...w, drone: d2, outcome: 'hurt', events, runner: { ...w.runner, tick, x: f0.x, y: f0.y, vx: 0, vy: 0, grounded: false } };
+428:     }
+429:     if (softTouchdown(d2)) {
+430:       events.push({ tick, type: 'drone-land', detail: { vy: d2.vy, vx: d2.vx } });
+431:       return { ...w, mode: 'run', drone: null, noCatchUntil: tick, events, runner: { ...w.runner, tick, x: f.x, y: gy, vx: d2.vx * 0.6, vy: 0, grounded: true } };
+432:     }
+433:     events.push({ tick, type: 'drone-crash', detail: { vy: d2.vy, vx: d2.vx, lean: d2.lean } });
+434:     return { ...w, drone: d2, outcome: 'hurt', events, runner: { ...w.runner, tick, x: f.x, y: gy, vx: 0, vy: 0, grounded: true } };
+435:   }
+436:   return { ...w, drone: d2, events, runner: { ...w.runner, tick, x: f.x, y: f.y, vx: d2.vx, vy: d2.vy, grounded: false } };
+437: }
+438: 
+439: function stepBounce(w: WorldState, input: RunnerInput): WorldState {
+440:   const bed = w.bed!;
+441:   const tick = w.runner.tick + 1;
+442:   const k = tick - bed.start;
+443:   const press = input.jump && bed.press === null ? k : bed.press;
+444:   const x = w.runner.x + bed.vx * DT;
+445:   if (k >= bed.base.ticksOnBed) {
+446:     const out = bounce(bed.vIn, DEFAULT_TRAMPOLINE, press);
+447:     const events: GameEvent[] = [{ tick, type: 'bounce', detail: { vyOut: out.vyOut, pumped: out.pumped, gain: out.gain } }];
+448:     return { ...w, mode: 'run', bed: null, events, runner: { ...w.runner, tick, x, y: bed.top, vx: bed.vx, vy: out.vyOut, grounded: false } };
+449:   }
+450:   return { ...w, bed: { ...bed, press }, events: [], runner: { ...w.runner, tick, x, y: bed.top + bed.base.path[k], vy: 0 } };
+451: }
+452: 
+453: export { NO_INPUT, DT };
+454: 
+
+=== src/sim/runner.ts ===
+1: import { DT, GRAVITY } from './units';
+2: import { DEFAULT_LANDING, landing, type LandingParams, type LandingReport } from './landing';
+3: import { FLAT, groundAt, platformAt, type Terrain } from './terrain';
+4: 
+5: // Starting values from the spec (section 4); playtests re-tune them.
+6: export interface RunnerParams {
+7:   topSpeed: number; // m/s, the speed a held sprint approaches
+8:   acceleration: number; // m/s², the push at standstill; time constant tau = topSpeed / acceleration
+9:   grip: number; // friction coefficient between feet and ground (braking = grip * g)
+10:   gravity: number; // m/s²
+11:   landing: LandingParams;
+12:   stepUp: number; // m, the tallest curb the runner steps onto without jumping
+13: }
+14: 
+15: export const DEFAULT_PARAMS: RunnerParams = { topSpeed: 9, acceleration: 10, grip: 0.8, gravity: GRAVITY, landing: DEFAULT_LANDING, stepUp: 0.3 };
+16: 
+17: export interface RunnerInput {
+18:   run: boolean; // sprint to the right toward top speed
+19:   left?: boolean; // sprint to the left (if both are held the runner just brakes)
+20:   jump: boolean; // leave the ground this tick if standing on it
+21:   jumpSpeed: number; // upward speed at take-off, m/s
+22:   squat: boolean; // bend the knees (read at touchdown)
+23:   roll?: boolean; // X: roll out of the fall (read at touchdown; the world keeps a press for a quarter of a second)
+24:   handL?: boolean; // E: the hands hold on (a bar); both fields come from the one hold key
+25:   handR?: boolean; // E: the right hand holds on (a bar)
+26:   vault?: boolean; // V: go over the obstacle just ahead with a hand on top (keeps the speed)
+27:   aim?: number; // a big cannon: set the barrel angle (rad), for the bot and tests; the player tilts it with aimUp and aimDown
+28:   aimUp?: boolean; // Up arrow or W: tilt the barrel so the push goes higher
+29:   aimDown?: boolean; // Down arrow: tilt it flatter
+30:   up?: boolean; // ArrowUp: climb (in a drone); ArrowDown (squat) descends
+31:   fire?: boolean; // K: fire the launcher clipped on at a recoil pad (the ball goes back, the runner goes forward)
+32: }
+33: 
+34: export const NO_INPUT: RunnerInput = { run: false, jump: false, jumpSpeed: 0, squat: false };
+35: 
+36: // The runner as a point mass: x along the track, y up from the ground (y = 0).
+37: export interface RunnerState {
+38:   tick: number; // the only clock
+39:   x: number;
+40:   y: number;
+41:   vx: number;
+42:   vy: number;
+43:   grounded: boolean;
+44:   landedAtTick: number | null; // fractional tick of the last touchdown
+45:   landedAtX: number | null;
+46:   landing: LandingReport | null; // report of the last touchdown
+47:   splashed: boolean; // fell in the water: the run is over
+48: }
+49: 
+50: export function startState(x = 0): RunnerState {
+51:   return { tick: 0, x, y: 0, vx: 0, vy: 0, grounded: true, landedAtTick: null, landedAtX: null, landing: null, splashed: false };
+52: }
+53: 
+54: // One fixed step of 1/120 s. Every update below is the exact solution of its law over one step,
+55: // so the closed forms in the tests hold at any step size, not just in the limit.
+56: export function step(s: RunnerState, input: RunnerInput, p: RunnerParams, terrain: Terrain = FLAT): RunnerState {
+57:   if (s.splashed) return { ...s, tick: s.tick + 1, vx: 0, vy: 0 };
+58:   const next: RunnerState = { ...s, tick: s.tick + 1 };
+59:   if (s.grounded) {
+60:     if (input.jump) return takeOff(next, input.jumpSpeed);
+61:     // Without a push the feet skid: braking is the same grip-limited law.
+62:     const dir = input.left && !input.run ? -1 : input.run && !input.left ? 1 : 0;
+63:     return onGround(dir !== 0 ? sprint(next, p, dir) : skid(next, p), s, p, terrain);
+64:   }
+65:   return fly(next, input, p, terrain);
+66: }
+67: 
+68: function takeOff(s: RunnerState, jumpSpeed: number): RunnerState {
+69:   // Flight is decided here: after this tick only gravity acts.
+70:   return { ...s, grounded: false, vy: jumpSpeed };
+71: }
+72: 
+73: // dv/dt = (top - v) / tau, so v(t) = top - (top - v0) e^(-t/tau).
+74: function sprint(s: RunnerState, p: RunnerParams, dir: 1 | -1 = 1): RunnerState {
+75:   const tau = p.topSpeed / p.acceleration;
+76:   const decay = Math.exp(-DT / tau);
+77:   const target = dir * p.topSpeed;
+78:   const vx = target - (target - s.vx) * decay;
+79:   const x = s.x + target * DT - (target - s.vx) * tau * (1 - decay);
+80:   return { ...s, vx, x };
+81: }
+82: 
+83: // Coulomb friction: constant deceleration grip * g until the feet stop.
+84: function skid(s: RunnerState, p: RunnerParams): RunnerState {
+85:   const decel = p.grip * p.gravity;
+86:   const sign = s.vx < 0 ? -1 : 1;
+87:   const speed = Math.abs(s.vx);
+88:   const stopTime = speed / decel;
+89:   if (stopTime >= DT) return { ...s, vx: sign * (speed - decel * DT), x: s.x + sign * (speed * DT - 0.5 * decel * DT * DT) };
+90:   return { ...s, vx: 0, x: s.x + sign * 0.5 * speed * stopTime };
+91: }
+92: 
+93: // After moving on the ground: step up a small curb, stop at a tall block, or walk off an edge.
+94: const MAX_SLOPE = 1; // rise over run: a curved top steeper than 45 degrees cannot be run up
+95: 
+96: function onGround(moved: RunnerState, before: RunnerState, p: RunnerParams, t: Terrain): RunnerState {
+97:   const here = groundAt(t, moved.x);
+98:   const nowOn = platformAt(t, moved.x), wasOn = platformAt(t, before.x);
+99:   if (nowOn?.profile || wasOn?.profile) {
+100:     // on a curved top: too steep to run up means stopping where it becomes that steep (found by halving the step)
+101:     const climbs = (x: number) => groundAt(t, x) - before.y > MAX_SLOPE * Math.abs(x - before.x) + 1e-9;
+102:     if (climbs(moved.x)) {
+103:       let lo = before.x, hi = moved.x;
+104:       for (let i = 0; i < 30; i++) { const mid = (lo + hi) / 2; if (climbs(mid)) hi = mid; else lo = mid; }
+105:       return { ...moved, x: lo, y: before.y, vx: 0 };
+106:     }
+107:   }
+108:   if (here > before.y + p.stepUp) {
+109:     const block = nowOn;
+110:     if (!block) return { ...moved, x: before.x, vx: 0 };
+111:     return { ...moved, x: moved.x < before.x ? block.x1 + 1e-6 : block.x0 - 1e-6, vx: 0 };
+112:   }
+113:   if (here < before.y - 1e-9) {
+114:     // down a curved top the feet stay on the ground as long as the slope is gentler than 45 degrees: running over a dome is not
+115:     // leaving the ground (so Space still works on the way down); a real drop (an edge) still lets go
+116:     const onCurve = nowOn?.profile !== undefined && wasOn?.profile !== undefined;
+117:     if (onCurve && before.y - here <= MAX_SLOPE * Math.abs(moved.x - before.x) + 1e-9) return { ...moved, y: here };
+118:     return { ...moved, grounded: false, vy: 0 }; // off the edge: fall
+119:   }
+120:   return { ...moved, y: here };
+121: }
+122: 
+123: // Gravity only. Constant acceleration, so x += v dt and y += v dt - g dt²/2 are exact.
+124: function fly(s: RunnerState, input: RunnerInput, p: RunnerParams, t: Terrain): RunnerState {
+125:   const vy = s.vy - p.gravity * DT;
+126:   const y = s.y + s.vy * DT - 0.5 * p.gravity * DT * DT;
+127:   let x = s.x + s.vx * DT;
+128:   let vx = s.vx;
+129:   const ground = groundAt(t, x);
+130:   // Flew into the side of a block that stands higher than the feet: stop against it and drop.
+131:   if (ground > s.y + 1e-9 && groundAt(t, s.x) < ground) {
+132:     const block = platformAt(t, x);
+133:     if (block && !block.profile) { x = s.vx < 0 ? block.x1 + 1e-6 : block.x0 - 1e-6; vx = 0; } // a curved top has no side to hit: rising ground is met by landing on it
+134:   }
+135:   const floor = groundAt(t, x);
+136:   if (y > floor) {
+137:     if (y < t.waterY) return { ...s, x, vx, y, vy, splashed: true };
+138:     return { ...s, x, vx, y, vy };
+139:   }
+140:   // Touchdown inside this step: find the exact moment so range doesn't depend on the step size.
+141:   const curved = platformAt(t, x)?.profile !== undefined || platformAt(t, s.x)?.profile !== undefined;
+142:   if (curved) {
+143:     // over a curved top the floor changes during the step: find the moment the path meets it by halving the time
+144:     let lo = 0, hi = DT;
+145:     for (let i = 0; i < 30; i++) {
+146:       const tm = (lo + hi) / 2;
+147:       const ym = s.y + s.vy * tm - 0.5 * p.gravity * tm * tm;
+148:       if (ym > groundAt(t, s.x + s.vx * tm)) lo = tm; else hi = tm;
+149:     }
+150:     const tHit = hi, landedAtX = s.x + s.vx * tHit, landY = groundAt(t, landedAtX);
+151:     const vyHit = s.vy - p.gravity * tHit;
+152:     const report = landing(Math.max(0, -vyHit), input.squat, p.landing, !!input.roll);
+153:     return {
+154:       ...s, x: landedAtX, y: landY,
+155:       vx: afterLanding(report, vx, p, !!platformAt(t, landedAtX)?.bouncy),
+156:       vy: 0, grounded: true, landedAtTick: s.tick - 1 + tHit / DT, landedAtX, landing: report,
+157:     };
+158:   }
+159:   const disc = Math.sqrt(s.vy * s.vy + 2 * p.gravity * (s.y - floor));
+160:   const tHit = (s.vy + disc) / p.gravity;
+161:   const landedAtX = s.x + s.vx * tHit;
+162:   const report = landing(-(s.vy - p.gravity * tHit), input.squat, p.landing, !!input.roll);
+163:   return {
+164:     ...s,
+165:     x: landedAtX,
+166:     y: floor,
+167:     vx: afterLanding(report, vx, p, !!platformAt(t, landedAtX)?.bouncy), // a trampoline catches the fall
+168:     vy: 0,
+169:     grounded: true,
+170:     landedAtTick: s.tick - 1 + tHit / DT, // s.tick already counts this step
+171:     landedAtX,
+172:     landing: report,
+173:   };
+174: }
+175: 
+176: // Forward speed after touchdown: a stumble loses most of it, a roll keeps most, a hurt landing stops the runner dead.
+177: function afterLanding(report: LandingReport, vx: number, p: RunnerParams, bouncy: boolean): number {
+178:   if (bouncy) return vx;
+179:   if (report.hurt) return 0;
+180:   if (report.rolled) return vx * p.landing.rollKeep;
+181:   return report.stumbled ? vx * p.landing.stumbleKeep : vx;
+182: }
+183: 
+184: export function run(
+185:   start: RunnerState,
+186:   inputAt: (tick: number) => RunnerInput,
+187:   ticks: number,
+188:   p: RunnerParams = DEFAULT_PARAMS,
+189:   terrain: Terrain = FLAT,
+190: ): RunnerState {
+191:   let s = start;
+192:   for (let i = 0; i < ticks; i++) s = step(s, inputAt(s.tick), p, terrain);
+193:   return s;
+194: }
+195: 
+
+=== src/sim/terrain.ts ===
+1: // The ground the runner stands on: platforms with gaps between them; below a gap lies water.
+2: export interface Platform {
+3:   x0: number;
+4:   x1: number;
+5:   top: number; // height of the standing surface, m
+6:   bouncy?: boolean; // a trampoline bed: landing here starts a bounce
+7:   profile?: [number, number][]; // a curved top: [x, height] points from x0 to x1 (x rising), joined by straight pieces; `top` is then its highest point
+8:   coasterRail?: boolean; // collision surface for landing on a coaster rail; the visible rail is drawn by src/render/track.ts
+9:   skin?: { image: string; crop: [number, number, number, number] }; // a picture painted on the front face: the image's address and the part of it (in pixels) to use; looks only, never collision
+10: }
+11: 
+12: export interface Terrain {
+13:   platforms: Platform[];
+14:   waterY: number; // water surface height; touching it ends the run
+15: }
+16: 
+17: export const FLAT: Terrain = { platforms: [{ x0: -1e9, x1: 1e9, top: 0 }], waterY: -1 };
+18: 
+19: // Height of one platform's standing surface at x (flat unless it has a profile).
+20: export function heightAt(p: Platform, x: number): number {
+21:   const pr = p.profile;
+22:   if (!pr || pr.length < 2) return p.top;
+23:   if (x <= pr[0][0]) return pr[0][1];
+24:   for (let i = 1; i < pr.length; i++) {
+25:     if (x <= pr[i][0]) { const [xa, ya] = pr[i - 1], [xb, yb] = pr[i]; return xb === xa ? yb : ya + ((yb - ya) * (x - xa)) / (xb - xa); }
+26:   }
+27:   return pr[pr.length - 1][1];
+28: }
+29: 
+30: // Highest standing surface at x, or -Infinity over a gap.
+31: export function groundAt(t: Terrain, x: number): number {
+32:   let top = -Infinity;
+33:   for (const p of t.platforms) if (x >= p.x0 && x <= p.x1) top = Math.max(top, heightAt(p, x));
+34:   return top;
+35: }
+36: 
+37: // The platform whose left edge is the next one at or after x (used when the runner hits a block's side).
+38: export function platformAt(t: Terrain, x: number): Platform | undefined {
+39:   let best: Platform | undefined, bestH = -Infinity;
+40:   for (const p of t.platforms) {
+41:     if (x < p.x0 || x > p.x1) continue;
+42:     const h = p.profile ? heightAt(p, x) : p.top;
+43:     if (h > bestH) { best = p; bestH = h; }
+44:   }
+45:   return best;
+46: }
+47: 
+48: // The platform the feet stand on at x (the highest one there).
+49: export function standingOn(t: Terrain, x: number): Platform | undefined {
+50:   return platformAt(t, x);
+51: }
+52: 
+
+=== src/sim/units.ts ===
+1: // Real constants. Everything in the simulator is metres, seconds and kilograms-free (per unit mass).
+2: export const GRAVITY = 9.81;
+3: 
+4: // The simulator's only clock: whole ticks of 1/120 s.
+5: export const TICKS_PER_SECOND = 120;
+6: export const DT = 1 / TICKS_PER_SECOND;
+7: 
+8: export const ticksToSeconds = (ticks: number): number => ticks / TICKS_PER_SECOND;
+9: 
+10: // How far something falls from rest in `seconds`.
+11: export function fallDistance(seconds: number): number {
+12:   return 0.5 * GRAVITY * seconds * seconds;
+13: }
+14: 
+
+=== src/sim/landing.ts ===
+1: // Landing: the same speed change spread over more time is a gentler force (impulse = force x time).
+2: export interface LandingParams {
+3:   stiffStopTime: number; // s, stopping with straight legs
+4:   squatStopTime: number; // s, stopping while bending the knees
+5:   stumbleDecel: number; // m/s², a stop harder than this makes the runner stumble
+6:   stumbleKeep: number; // share of forward speed kept after a stumble
+7:   // Past a few metres of drop the legs run out of room: the stop can last no longer than the body can travel.
+8:   stiffTravel?: number; // m the body can move while stopping with straight legs
+9:   squatTravel?: number; // m the body can move while bending the knees
+10:   rollTravel?: number; // m the body travels along the ground while rolling out of the fall
+11:   rollStopTime: number; // s, a roll spreads a soft landing over this long
+12:   rollKeep: number; // share of forward speed a roll keeps (a roll is never a stumble)
+13:   hurtDecel: number; // m/s², a stop harder than this ends the run (the "broken bone" end of the ouch scale)
+14: }
+15: 
+16: export const DEFAULT_LANDING: LandingParams = {
+17:   stiffStopTime: 0.1, squatStopTime: 0.3, stumbleDecel: 60, stumbleKeep: 0.3,
+18:   stiffTravel: 0.3, squatTravel: 0.6, rollTravel: 1.2, rollStopTime: 0.5, rollKeep: 0.85, hurtDecel: 80,
+19: };
+20: 
+21: export interface LandingReport {
+22:   impactSpeed: number; // m/s, downward speed at touchdown
+23:   squatted: boolean;
+24:   stopTime: number;
+25:   peakDecel: number; // m/s², impactSpeed / stopTime (force per unit mass)
+26:   stumbled: boolean;
+27:   rolled: boolean; // the landing was a roll
+28:   hurt: boolean; // too hard a stop: the run is over
+29: }
+30: 
+31: export type LandStyle = 'stiff' | 'squat' | 'roll';
+32: 
+33: // The time a stop takes: the usual time for a soft landing, but never longer than the body can travel at constant push (distance = speed x time / 2).
+34: function stopTimeFor(style: LandStyle, v: number, p: LandingParams): number {
+35:   const time = style === 'roll' ? p.rollStopTime : style === 'squat' ? p.squatStopTime : p.stiffStopTime;
+36:   const travel = style === 'roll' ? p.rollTravel : style === 'squat' ? p.squatTravel : p.stiffTravel;
+37:   return travel === undefined || v <= 0 ? time : Math.min(time, (2 * travel) / v);
+38: }
+39: 
+40: export function landing(impactSpeed: number, squatted: boolean, p: LandingParams = DEFAULT_LANDING, rolled = false): LandingReport {
+41:   const style: LandStyle = rolled ? 'roll' : squatted ? 'squat' : 'stiff';
+42:   const stopTime = stopTimeFor(style, impactSpeed, p);
+43:   const peakDecel = impactSpeed / stopTime;
+44:   const hurt = peakDecel > p.hurtDecel;
+45:   return { impactSpeed, squatted: squatted && !rolled, stopTime, peakDecel, stumbled: !rolled && !hurt && peakDecel > p.stumbleDecel, rolled, hurt };
+46: }
+47: 
+48: // The biggest fall each landing style survives, in metres (impact speed v = sqrt(2 g h)): worked out from the same stop times, not a table.
+49: // `clean` is the biggest fall with no stumble (a roll never stumbles); `survive` is the biggest fall that does not end the run.
+50: export function safeDrop(style: LandStyle, p: LandingParams = DEFAULT_LANDING, g = 9.81): { clean: number; survive: number } {
+51:   const time = style === 'roll' ? p.rollStopTime : style === 'squat' ? p.squatStopTime : p.stiffStopTime;
+52:   const travel = style === 'roll' ? p.rollTravel : style === 'squat' ? p.squatTravel : p.stiffTravel;
+53:   const speedFor = (decel: number) => Math.min(time * decel, travel === undefined ? Infinity : Math.sqrt(2 * travel * decel));
+54:   const h = (v: number) => (v * v) / (2 * g);
+55:   const survive = h(speedFor(p.hurtDecel));
+56:   return { clean: style === 'roll' ? survive : h(speedFor(p.stumbleDecel)), survive };
+57: }
+58: 
+59: // How it feels, not a physics number: 0 is a feather, 3 is a firm landing, 6 is a stumble, 10 is a broken bone.
+60: export const ouch = (peakDecel: number): number => Math.min(10, Math.max(0, peakDecel / 10));
+61: export const ouchWord = (o: number): string => (o < 3 ? 'soft' : o < 6 ? 'firm' : o < 8 ? 'hard' : 'dangerous');
+62: 
+
+=== src/sim/wall.ts ===
+1: import { DT, GRAVITY } from './units';
+2: 
+3: // The warped wall: a quarter-circle of radius = wall height H, flat at the bottom, vertical at the top.
+4: // Speed turns into height; the wall cannot add any. Friction is a share `loss` of the energy spent climbing.
+5: export interface WallParams {
+6:   height: number; // m, wall top above the run-up ground
+7:   radius?: number; // m, curve radius (default: the wall height); the Dojo keeps it constant so height does not change the curve
+8:   stopAtGrab?: boolean; // default true: the run ends when the hands reach the top; false follows the climb to its peak
+9:   hipHeight: number; // m, hips above the feet while running
+10:   reach: number; // m, hands above the hips when stretched up (1.3: about what a body can stretch; was 2.1 in the spec)
+11:   loss: number; // friction loss as a share of the climb energy (starting value)
+12:   gravity: number;
+13: }
+14: 
+15: export const DEFAULT_WALL: WallParams = { height: 4.3, hipHeight: 1.0, reach: 1.3, loss: 0.1, gravity: GRAVITY };
+16: 
+17: export interface WallResult {
+18:   grabbed: boolean;
+19:   heightGained: number; // m, highest the feet got up the curve
+20:   needed: number; // m the feet must rise so the hands reach the top: height - hip - reach
+21:   margin: number; // heightGained - needed: positive = hands over the edge, negative = short by this much
+22:   grabTick: number | null; // tick (from entering the curve) when the hands reached the top
+23:   path: { x: number; y: number }[]; // feet position each tick: up the curve, then the slide back if it failed
+24:   exitSpeed: number; // m/s on returning to the base (0 if grabbed)
+25: }
+26: 
+27: // Height the feet reach on the curve from entry speed v: v² / (2 g (1 + loss)).
+28: export const climbHeight = (v: number, p: WallParams = DEFAULT_WALL): number => (v * v) / (2 * p.gravity * (1 + p.loss));
+29: 
+30: export function runWall(entrySpeed: number, p: WallParams = DEFAULT_WALL): WallResult {
+31:   const R = p.radius ?? p.height;
+32:   const arcLen = (Math.PI / 2) * R;
+33:   const stopAtGrab = p.stopAtGrab ?? true;
+34:   const needed = p.height - p.hipHeight - p.reach;
+35:   // Along the arc: s'' = -g sin(s / R) (1 + loss * sign(v)); friction always opposes the motion,
+36:   // so going up costs (1 + loss) and sliding down gives back only (1 - loss).
+37:   const acc = (pos: number, vel: number) => -p.gravity * Math.sin(Math.min(pos / R, Math.PI / 2)) * (1 + p.loss * Math.sign(vel));
+38:   let s = 0;
+39:   let v = entrySpeed;
+40:   let peak = 0;
+41:   let grabTick: number | null = null;
+42:   const path: { x: number; y: number }[] = [];
+43:   for (let tick = 0; tick < 120 * 30; tick++) {
+44:     const th = Math.min(s / R, Math.PI / 2);
+45:     const y = R * (1 - Math.cos(th)) + Math.max(0, s - arcLen); // past the arc the wall is vertical
+46:     path.push({ x: R * Math.sin(th), y });
+47:     peak = Math.max(peak, y);
+48:     if (y >= needed && grabTick === null) { grabTick = tick; if (stopAtGrab) break; }
+49:     // RK2 (midpoint) on (s, v)
+50:     const a1 = acc(s, v);
+51:     const sm = s + v * DT / 2;
+52:     const vm = v + a1 * DT / 2;
+53:     const a2 = acc(sm, vm);
+54:     s += vm * DT;
+55:     v += a2 * DT;
+56:     if (s <= 0) { s = 0; if (v < 0) break; }
+57:   }
+58:   const grabbed = grabTick !== null;
+59:   return { grabbed, heightGained: peak, needed, margin: peak - needed, grabTick, path, exitSpeed: grabbed ? 0 : Math.max(0, -v) };
+60: }
+61: 
+
+=== src/sim/roll.ts ===
+1: import { DEFAULT_LANDING } from './landing';
+2: import type { RunnerState } from './runner';
+3: import type { Terrain } from './terrain';
+4: import { groundAt } from './terrain';
+5: import { DT } from './units';
+6: 
+7: // The ground roll (X on the ground, standing or running): the body tucks, rolls forward along the ground and comes up on its feet.
+8: // It is the same move as the landing roll, so it takes the same time (0.5 s to roll out, 0.2 s to get up) and keeps the same share of the speed.
+9: export const GROUND_ROLL_TIME = DEFAULT_LANDING.rollStopTime + 0.2; // s
+10: export const GROUND_ROLL_KEEP = DEFAULT_LANDING.rollKeep; // 85 % of the speed is still there when the roll ends
+11: // From a stand the legs push for about 0.4 s at the sprint's grip-limited pull (about 0.6 g): 0.6 x 9.81 x 0.4 = 2.4 m/s, so a roll from standing
+12: // starts at 2.5 m/s, ends at 85 % of it and covers about 1.6 m. A runner already faster than that keeps its own speed.
+13: export const GROUND_ROLL_PUSH = 2.5; // m/s
+14: // A roll is effort like a vault, and the body needs a moment to be ready again: it cannot be spammed.
+15: export const GROUND_ROLL_COST = 0.02; // share of a full energy store (a vault is 0.025, a jump 0.06)
+16: export const GROUND_ROLL_RECOVERY = 0.3; // s after getting up before the next roll can start
+17: export const ROLL_BODY_HEIGHT = 0.55; // m, how tall the body is while rolled (a later 'duck under' obstacle can use it; nothing does yet)
+18: 
+19: export interface GroundRoll {
+20:   start: number; // tick the roll began
+21:   end: number; // tick the roll ends (start + GROUND_ROLL_TIME)
+22:   v0: number; // m/s along the roll's direction at the start
+23:   vEnd: number; // m/s at the end
+24:   dir: 1 | -1;
+25: }
+26: 
+27: // Starts from the runner's speed and the way it faces (the way it runs, or the key held, or forward from a stand).
+28: export function startGroundRoll(s: RunnerState, dir: 1 | -1 | 0): GroundRoll {
+29:   const d: 1 | -1 = Math.abs(s.vx) > 0.3 ? (s.vx < 0 ? -1 : 1) : dir !== 0 ? dir : 1;
+30:   const v0 = Math.max(Math.abs(s.vx), GROUND_ROLL_PUSH);
+31:   return { start: s.tick + 1, end: s.tick + 1 + Math.round(GROUND_ROLL_TIME / DT), v0, vEnd: v0 * GROUND_ROLL_KEEP, dir: d };
+32: }
+33: 
+34: // One tick of the roll: the speed falls evenly from v0 to vEnd. A roll that comes to an edge, or to the face of something it cannot roll over, ends there.
+35: export function stepGroundRoll(s: RunnerState, g: GroundRoll, t: Terrain): { runner: RunnerState; ended: boolean } {
+36:   const tick = s.tick + 1;
+37:   const k = Math.min(1, (tick - g.start) / Math.max(1, g.end - g.start));
+38:   const v = g.v0 + (g.vEnd - g.v0) * k;
+39:   const x = s.x + g.dir * v * DT, floor = groundAt(t, x);
+40:   if (floor < s.y - 1e-6 || floor > s.y + 0.05) return { runner: { ...s, tick, vx: 0, vy: 0 }, ended: true }; // an edge or a wall: the roll ends where it is
+41:   const done = tick >= g.end;
+42:   return { runner: { ...s, tick, x, y: floor, vx: done ? g.dir * g.vEnd : g.dir * v, vy: 0, grounded: true }, ended: done };
+43: }
+44: 
+
+=== src/sim/drop.ts ===
+1: import type { CourseData } from '../course/course';
+2: import { DEFAULT_LANDING, safeDrop } from './landing';
+3: import { groundAt } from './terrain';
+4: import { GRAVITY } from './units';
+5: import type { WorldState } from './world';
+6: 
+7: // How far a drop can be and still be survived, from the landing physics (src/sim/landing.ts): the lane builders and the generator use these.
+8: export const SQUAT_CLEAN_DROP = safeDrop('squat').clean; // m: a squat lands this far down with no stumble
+9: export const ROLL_SURVIVE_DROP = safeDrop('roll').survive; // m: a roll survives this far down
+10: export const LANE_DROP = Math.floor(ROLL_SURVIVE_DROP * 0.8 * 10) / 10; // m: lanes allow this much drop, so the ideal run has room to spare
+11: 
+12: // Where the runner is about to land and how hard: the fall in the next quarter of a second (null when not falling toward the ground).
+13: // The roll is pressed inside a tight window: the last 0.15 s before touchdown AND the last 1.2 m above the ground (both at once, so whichever is shorter).
+14: // An earlier press does nothing (there is no hidden buffer: the landing is then a normal one); a press up to 3 ticks after touchdown is forgiven.
+15: export const ROLL_WINDOW_S = 0.15;
+16: export const ROLL_WINDOW_M = 1.2;
+17: export const ROLL_FORGIVE_TICKS = 3;
+18: 
+19: function comingFall(w: WorldState, course: CourseData): { v: number; tau: number; h: number } | null {
+20:   const r = w.runner;
+21:   if (r.grounded || w.mode !== 'run' || r.vy >= 0) return null;
+22:   const under = (x: number) => Math.max(course.terrain.waterY, groundAt(course.terrain, x)); // over a gap there is no ground: the water is the floor
+23:   let floor = under(r.x), tau = 0;
+24:   for (let i = 0; i < 8; i++) { // the landing spot and the fall time depend on each other (an edge or a gap below): iterate until they agree
+25:     const d = r.y - floor;
+26:     tau = d <= 0 ? 0 : (r.vy + Math.sqrt(r.vy * r.vy + 2 * GRAVITY * d)) / GRAVITY; // time to fall d metres from the speed vy (negative is down)
+27:     const next = under(r.x + r.vx * tau);
+28:     if (next === floor) break;
+29:     floor = next;
+30:   }
+31:   return { v: Math.sqrt(r.vy * r.vy + 2 * GRAVITY * Math.max(0, r.y - floor)), tau, h: Math.max(0, r.y - floor) };
+32: }
+33: 
+34: // Is the runner inside the roll window right now?
+35: export function rollWindowOpen(w: WorldState, course: CourseData): boolean {
+36:   const f = comingFall(w, course);
+37:   return !!f && f.tau <= ROLL_WINDOW_S + 1e-9 && f.h <= ROLL_WINDOW_M + 1e-9;
+38: }
+39: 
+40: // The same window on a predicted path (one point per tick, the last point is the landing): the index of the point where the window opens.
+41: export function rollWindowStart(path: { x: number; y: number }[]): number {
+42:   const n = path.length, end = path[n - 1];
+43:   let k = n - 1;
+44:   while (k > 0 && n - 1 - (k - 1) <= Math.round(ROLL_WINDOW_S * 120) && path[k - 1].y - end.y <= ROLL_WINDOW_M + 1e-9) k--;
+45:   return k;
+46: }
+47: 
+48: // Is the runner about to land from a fall a squat would not take cleanly, and inside the roll window? Then the roll is pressed now (the ideal run does this at the first tick of the window).
+49: const ROLL_NEEDED_ABOVE = safeDrop('squat', DEFAULT_LANDING).clean * 0.9; // worked out once: the search asks this in every simulated step
+50: export function rollNeeded(w: WorldState, course: CourseData): boolean {
+51:   const f = comingFall(w, course);
+52:   return !!f && f.tau <= ROLL_WINDOW_S + 1e-9 && f.h <= ROLL_WINDOW_M + 1e-9 && f.v * f.v / (2 * GRAVITY) > ROLL_NEEDED_ABOVE;
+53: }
+54: 
