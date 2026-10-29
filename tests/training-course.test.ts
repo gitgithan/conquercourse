@@ -1,7 +1,7 @@
 import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 import type { CourseData } from '../src/course/course';
-import { inputFor } from '../src/sim/ideal';
+import { inputFor, playPlan } from '../src/sim/ideal';
 import { newWorld, stepWorld } from '../src/sim/world';
 import { logTick, newLog } from '../src/ui/run-report';
 
@@ -15,6 +15,7 @@ function play() {
 }
 describe('the Training course', () => {
   const { w, log } = play();
+  const best = playPlan(c, c.plan!, 120 * 90);
   it('clears with its stored plan, on the ground, after the last obstacle', () => {
     expect(w.outcome).toBe('cleared');
     expect(w.runner.grounded).toBe(true);
@@ -32,15 +33,27 @@ describe('the Training course', () => {
     const p = c.terrain.platforms, gaps = p.slice(1).map((q, i) => q.x0 - p[i].x1);
     expect(Math.max(...gaps.filter((g) => g > 9))).toBeGreaterThan(8.5);
   });
-  it('the best line holds both lache bars (the far deck is out of reach of a skip), with no shortcut that skips one', () => {
-    expect(c.routes?.find((r) => r.chosen)?.bars).toBe(2);
-    expect(c.shortcuts ?? []).toEqual([]);
+  it('the best line is the shortcut: skipping the second bar saves time, and the search finds it', () => {
+    expect(c.shortcuts?.some((s) => s.id === 'skip-bar-2' && s.secondsSaved >= 0.5)).toBe(true);
+    expect(c.routes?.find((r) => r.chosen)?.bars).toBe(1);
+    expect(c.shortcuts?.some((s) => s.skipped.length === 2)).toBe(false); // no jump clears the gap without the bars
+    expect(best.events.filter((e) => e.type === 'hang-catch')).toHaveLength(1);
   });
-  it('rolls after the second bar and at the end, and not after the rope', () => {
+  it('the drop after the shortcut needs a roll, and so does the one at the end; the rope landing does not', () => {
+    const big = best.events.filter((e) => e.type === 'land').map((e) => e.detail as { impact: number; rolled: boolean }).filter((l) => l.impact > 8);
+    expect(big.map((l) => l.rolled)).toEqual([true, true]);
     const rolls = log.moves.filter((m) => m.kind === 'roll').map((m) => m.x);
     expect(rolls).toHaveLength(2);
     expect(rolls[0]).toBeGreaterThan(74); expect(rolls[0]).toBeLessThan(86);
     expect(rolls[1]).toBeGreaterThan(160);
+  });
+  it('the slower bar-to-bar line still clears, and its drop after bar 2 also needs a roll', () => {
+    const r = playPlan(c, { ...c.plan!, hangTicks: [210, 210], airHands: undefined }, 120 * 90);
+    expect(r.world.outcome).toBe('cleared');
+    expect(r.events.filter((e) => e.type === 'hang-catch').length).toBeGreaterThanOrEqual(2);
+    expect(r.world.runner.tick).toBeGreaterThan(c.routes!.find((q) => q.chosen)!.ticks + 120);
+    const drop = r.events.filter((e) => e.type === 'land').map((e) => e.detail as { impact: number; rolled: boolean }).find((l) => l.impact > 8);
+    expect(drop?.rolled).toBe(true);
   });
   it('the decks touch where a wall or a drop begins (no sliver to fall through)', () => {
     const p = c.terrain.platforms;
