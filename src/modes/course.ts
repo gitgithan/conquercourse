@@ -44,7 +44,8 @@ import { climbAhead } from '../sim/climb';
 import { DEFAULT_HANG, feetOf, handOffset } from '../sim/holds';
 import { actorStateFor } from '../motion/actor-state';
 import { groundAt } from '../sim/terrain';
-import { drumsFor } from '../sim/drums';
+import { drumsFor, type Drum } from '../sim/drums';
+import { approachToast } from '../ui/approach-toast';
 import { createDrumLane } from '../ui/drum-lane';
 import { GOLD_LEGEND, goldOld, hardestBlock, hardestLabel, hardestOf } from '../ui/hardest';
 import { bestLine, buildReport, clearLog, logTick, newLog, renderReport } from '../ui/run-report';
@@ -539,12 +540,14 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
   // The drum lane is on by default wherever the course has a planned player route; a coaster is mostly passive cart motion.
   const forceDrums = params.get('drums') === '1';
   const drumLane = createDrumLane(document.body, !course.track);
+  let toastDrums: Drum[] = []; // the same drums as the key strip: each obstacle's toast starts a fixed lead before its key (CC-195)
   setTimeout(() => {
     try {
       if (course.track) { drumLane.set([]); if (drumLane.shown) drumLane.toggle(); return; }
       const result = course.plan ? { plan: course.plan, cleared: true } : searchIdealRun(course);
       const drums = result.cleared ? drumsFor(course, result.plan) : [];
       drumLane.set(drums);
+      toastDrums = drums;
       const show = forceDrums || drums.length > 0;
       if (drumLane.shown !== show) drumLane.toggle();
     } catch {
@@ -1207,6 +1210,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
     if (course.holds?.length && w.mode === 'run' && !r.grounded) { const next = course.holds.find((h) => h.x > r.x - 0.5); if (next && Math.abs(next.x - r.x) < 2.5) return 'Hold E to grab the bar'; }
     if (w.mode === 'climb') return 'Keep holding E: the arms pull you up';
     { const ca = w.mode === 'run' ? climbAhead(course.terrain, r.x, r.y, 2.5, course.jumpSpeed) : null; if (ca) return ca.standing ? 'A tall wall: hold E at the wall to grab the edge and climb' : 'A very tall wall: jump and hold E at the top of the jump'; }
+    { const at = w.mode === 'run' && r.tick >= 60 && toastDrums.length ? approachToast(course, toastDrums, r.x) : null; if (at && at.kind !== 'bounce' && !(at.kind === 'jump' && (everCleared || falls > 0))) return at.text; }
     if (everCleared || falls > 0) return '';
     if (r.tick < 60 || (r.x < 4 && r.tick < 600)) return 'Hold → to run';
     const g = specs.find((q2) => q2.x + 0.2 >= r.x && q2.x - r.x < 6);
