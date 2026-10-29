@@ -12,17 +12,16 @@ export const DEMO_GROUPS: [string, Demo[]][] = [
     ['/assets/experiments/osm/san-francisco-lombard.course.json', 'San Francisco hill (62 m of hill)', 'Lombard Street: the hill is real and so are the roofs.'],
   ]],
   ['Real objects, built in the editor', [
-    ['/assets/demo/park-rail-run.course.json', 'Park rail run', 'Three real handrails and a skate box in a row: vault, jump, repeat.'],
+    ['/assets/demo/park-run.course.json', 'Park run', 'Stairs, a skate box, two rails, a bench and a handrail in one line: vault, jump, repeat.'],
   ]],
   ['Contraptions', [
-    ['/assets/demo/coaster.course.json', 'Coaster: ride the hills', 'Height turns into speed: a cart on a track.'],
-    ['/assets/demo/coaster-sharp.course.json', 'Coaster: a sharp hilltop (brake)', 'A hilltop that bends away too fast: brake before it.'],
+    ['/assets/demo/coaster-two-hills.course.json', 'Coaster: two hills (brake on the sharp one)', 'Height turns into speed: ride a gentle hill, then brake before a hilltop that bends away too fast.'],
     ['/assets/demo/launch-bar.course.json', 'Trebuchet: throw, then catch the bar', 'Sit in the sling and let go at the right moment; the throw falls short, so catch the bar and swing the rest.'],
     ['/assets/demo/band.course.json', 'Band: stretch it, turn round, be thrown', 'Run away to stretch the band, turn round and it throws you.'],
     ['/assets/demo/drone.course.json', 'Drone ferry: carried across a gap', 'A drone carries you over a gap you cannot jump.'],
     ['/assets/demo/cannon.course.json', 'Cannon: aim it, fire it, roll out of the landing', 'Aim the barrel up or down: the recoil pushes you forward and up.'],
     ['/assets/demo/stack.course.json', 'Stack demo: climb the cup pyramids', 'Sport-stacking cups as obstacles.'],
-    ['/assets/demo/plank.course.json', 'Plank bridge: it sags but holds', 'A wooden plank bends under you and holds.'],
+    ['/assets/demo/plank-two.course.json', 'Plank bridge: thick, then thin', 'A thick plank bends and holds; a thin one needs a post in the middle.'],
   ]],
   ['Make your own', [
     ['generate', 'Make me a new course (random)', 'A random course the simulator has proved clearable.'],
