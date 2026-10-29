@@ -1,0 +1,79 @@
+{
+  "course": "two-ways.course.json",
+  "date": "2026-10-30",
+  "method": "noisy presses, 300 seeds per sigma, clear share per attempt; seconds to clear = mean attempt time (+1 s per fall) / clear share",
+  "rows": [
+    {
+      "line": "high (fastest line)",
+      "idealSeconds": 9.15,
+      "sigma15": {
+        "clearShare": 0.59,
+        "wrongWayOfClears": 0,
+        "secondsToClear": 15.4
+      },
+      "sigma30": {
+        "clearShare": 0.27,
+        "wrongWayOfClears": 0,
+        "secondsToClear": 31.8
+      },
+      "sigma60": {
+        "clearShare": 0.13,
+        "wrongWayOfClears": 0,
+        "secondsToClear": 61.9
+      },
+      "sigma100": {
+        "clearShare": 0.05,
+        "wrongWayOfClears": 0,
+        "secondsToClear": 146.9
+      }
+    },
+    {
+      "line": "high (bar to bar)",
+      "idealSeconds": 10.81,
+      "sigma15": {
+        "clearShare": 0.57,
+        "wrongWayOfClears": 0,
+        "secondsToClear": 19.8
+      },
+      "sigma30": {
+        "clearShare": 0.29,
+        "wrongWayOfClears": 0,
+        "secondsToClear": 38.7
+      },
+      "sigma60": {
+        "clearShare": 0.18,
+        "wrongWayOfClears": 0,
+        "secondsToClear": 55.4
+      },
+      "sigma100": {
+        "clearShare": 0.1,
+        "wrongWayOfClears": 0,
+        "secondsToClear": 88.7
+      }
+    },
+    {
+      "line": "low (fastest line)",
+      "idealSeconds": 9.42,
+      "sigma15": {
+        "clearShare": 1,
+        "wrongWayOfClears": 0,
+        "secondsToClear": 9.4
+      },
+      "sigma30": {
+        "clearShare": 1,
+        "wrongWayOfClears": 0,
+        "secondsToClear": 9.4
+      },
+      "sigma60": {
+        "clearShare": 0.94,
+        "wrongWayOfClears": 0,
+        "secondsToClear": 9.7
+      },
+      "sigma100": {
+        "clearShare": 0.71,
+        "wrongWayOfClears": 0,
+        "secondsToClear": 11.5
+      }
+    }
+  ]
+}
