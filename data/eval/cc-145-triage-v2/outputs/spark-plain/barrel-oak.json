@@ -1,0 +1,15 @@
+{
+  "id": "barrel-oak",
+  "model": "spark",
+  "kind": "plain",
+  "status": 200,
+  "seconds": 5.5,
+  "prompt_tokens": 766,
+  "completion_tokens": 495,
+  "raw": "{\"verdict\":\"ok\",\"reason\":\"Single solid barrel fully visible with complete compact shape.\"}",
+  "answer": {
+    "verdict": "ok",
+    "reason": "Single solid barrel fully visible with complete compact shape."
+  },
+  "error": null
+}

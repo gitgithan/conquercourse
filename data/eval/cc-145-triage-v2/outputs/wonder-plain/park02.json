@@ -1,0 +1,15 @@
+{
+  "id": "park02",
+  "model": "wonder",
+  "kind": "plain",
+  "status": 200,
+  "seconds": 4.3,
+  "prompt_tokens": 380,
+  "completion_tokens": 258,
+  "raw": "{\"verdict\":\"block\",\"reason\":\"The object is an extremely long, thin metal rail that will not lift into a solid usable 3D model.\"}",
+  "answer": {
+    "verdict": "block",
+    "reason": "The object is an extremely long, thin metal rail that will not lift into a solid usable 3D model."
+  },
+  "error": null
+}

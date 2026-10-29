@@ -1,0 +1,15 @@
+{
+  "id": "log-driftwood",
+  "model": "wonder",
+  "kind": "plain",
+  "status": 200,
+  "seconds": 6.2,
+  "prompt_tokens": 562,
+  "completion_tokens": 327,
+  "raw": "{\"verdict\":\"review\",\"reason\":\"Main log is intact but its thin tapered end, central gap, and small detached fragments may produce a flawed lift.\"}",
+  "answer": {
+    "verdict": "review",
+    "reason": "Main log is intact but its thin tapered end, central gap, and small detached fragments may produce a flawed lift."
+  },
+  "error": null
+}

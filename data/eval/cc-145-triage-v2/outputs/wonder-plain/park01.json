@@ -1,0 +1,15 @@
+{
+  "id": "park01",
+  "model": "wonder",
+  "kind": "plain",
+  "status": 200,
+  "seconds": 5.3,
+  "prompt_tokens": 350,
+  "completion_tokens": 408,
+  "raw": "{\"verdict\":\"block\",\"reason\":\"The object is an extremely thin, elongated railing that will not reconstruct as a solid usable 3D model.\"}",
+  "answer": {
+    "verdict": "block",
+    "reason": "The object is an extremely thin, elongated railing that will not reconstruct as a solid usable 3D model."
+  },
+  "error": null
+}

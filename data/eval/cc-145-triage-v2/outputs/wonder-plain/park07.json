@@ -1,0 +1,15 @@
+{
+  "id": "park07",
+  "model": "wonder",
+  "kind": "plain",
+  "status": 200,
+  "seconds": 6.8,
+  "prompt_tokens": 386,
+  "completion_tokens": 476,
+  "raw": "{\"verdict\":\"review\",\"reason\":\"Long, low, wide steps are thin and viewed obliquely, so depth and underside may lift poorly.\"}",
+  "answer": {
+    "verdict": "review",
+    "reason": "Long, low, wide steps are thin and viewed obliquely, so depth and underside may lift poorly."
+  },
+  "error": null
+}

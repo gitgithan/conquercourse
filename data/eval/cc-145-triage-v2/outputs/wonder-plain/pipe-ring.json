@@ -1,0 +1,15 @@
+{
+  "id": "pipe-ring",
+  "model": "wonder",
+  "kind": "plain",
+  "status": 200,
+  "seconds": 7.1,
+  "prompt_tokens": 394,
+  "completion_tokens": 422,
+  "raw": "{\"verdict\":\"review\",\"reason\":\"Bottom edge is incomplete and ragged with grass attached, so the lifted shape will be flawed.\"}",
+  "answer": {
+    "verdict": "review",
+    "reason": "Bottom edge is incomplete and ragged with grass attached, so the lifted shape will be flawed."
+  },
+  "error": null
+}

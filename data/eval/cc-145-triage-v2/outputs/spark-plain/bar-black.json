@@ -1,0 +1,15 @@
+{
+  "id": "bar-black",
+  "model": "spark",
+  "kind": "plain",
+  "status": 200,
+  "seconds": 6.2,
+  "prompt_tokens": 685,
+  "completion_tokens": 1047,
+  "raw": "{\"verdict\":\"review\",\"reason\":\"Open U-shaped frame with thin crossbar is not solid/compact and may reconstruct with missing or distorted geometry.\"}",
+  "answer": {
+    "verdict": "review",
+    "reason": "Open U-shaped frame with thin crossbar is not solid/compact and may reconstruct with missing or distorted geometry."
+  },
+  "error": null
+}

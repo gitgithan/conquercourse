@@ -1,0 +1,15 @@
+{
+  "id": "hydrant-red",
+  "model": "spark",
+  "kind": "outline",
+  "status": 200,
+  "seconds": 5.9,
+  "prompt_tokens": 704,
+  "completion_tokens": 447,
+  "raw": "{\"whole_object_in_frame\":\"yes\",\"reason\":\"The entire fire hydrant is fully visible with all edges inside the photo frame.\"}",
+  "answer": {
+    "whole_object_in_frame": "yes",
+    "reason": "The entire fire hydrant is fully visible with all edges inside the photo frame."
+  },
+  "error": null
+}

@@ -1,0 +1,15 @@
+{
+  "id": "park07",
+  "model": "spark",
+  "kind": "outline",
+  "status": 200,
+  "seconds": 6.0,
+  "prompt_tokens": 806,
+  "completion_tokens": 305,
+  "raw": "{\"whole_object_in_frame\":\"yes\",\"reason\":\"The magenta-outlined steps are completely visible and do not touch or get cut off by the photo edges.\"}",
+  "answer": {
+    "whole_object_in_frame": "yes",
+    "reason": "The magenta-outlined steps are completely visible and do not touch or get cut off by the photo edges."
+  },
+  "error": null
+}

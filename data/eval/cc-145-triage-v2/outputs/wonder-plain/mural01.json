@@ -1,0 +1,15 @@
+{
+  "id": "mural01",
+  "model": "wonder",
+  "kind": "plain",
+  "status": 200,
+  "seconds": 4.8,
+  "prompt_tokens": 702,
+  "completion_tokens": 283,
+  "raw": "{\"verdict\":\"block\",\"reason\":\"It is a flat mural painting in separate fragments, not one solid compact object.\"}",
+  "answer": {
+    "verdict": "block",
+    "reason": "It is a flat mural painting in separate fragments, not one solid compact object."
+  },
+  "error": null
+}

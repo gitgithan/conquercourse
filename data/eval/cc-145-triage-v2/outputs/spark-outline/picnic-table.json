@@ -1,0 +1,15 @@
+{
+  "id": "picnic-table",
+  "model": "spark",
+  "kind": "outline",
+  "status": 200,
+  "seconds": 5.4,
+  "prompt_tokens": 806,
+  "completion_tokens": 310,
+  "raw": "{\"whole_object_in_frame\":\"yes\",\"reason\":\"The entire picnic table with benches is fully visible and not cropped by the photo edges.\"}",
+  "answer": {
+    "whole_object_in_frame": "yes",
+    "reason": "The entire picnic table with benches is fully visible and not cropped by the photo edges."
+  },
+  "error": null
+}

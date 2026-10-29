@@ -1,0 +1,15 @@
+{
+  "id": "log-driftwood",
+  "model": "spark",
+  "kind": "plain",
+  "status": 200,
+  "seconds": 7.1,
+  "prompt_tokens": 699,
+  "completion_tokens": 919,
+  "raw": "{\"verdict\":\"block\",\"reason\":\"Single log is accompanied by multiple small detached fragments floating below it.\"}",
+  "answer": {
+    "verdict": "block",
+    "reason": "Single log is accompanied by multiple small detached fragments floating below it."
+  },
+  "error": null
+}

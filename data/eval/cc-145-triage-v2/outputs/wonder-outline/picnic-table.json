@@ -1,0 +1,15 @@
+{
+  "id": "picnic-table",
+  "model": "wonder",
+  "kind": "outline",
+  "status": 200,
+  "seconds": 4.2,
+  "prompt_tokens": 669,
+  "completion_tokens": 264,
+  "raw": "{\"whole_object_in_frame\":\"yes\",\"reason\":\"The entire picnic table, including top, benches, and legs, is fully visible within the image borders.\"}",
+  "answer": {
+    "whole_object_in_frame": "yes",
+    "reason": "The entire picnic table, including top, benches, and legs, is fully visible within the image borders."
+  },
+  "error": null
+}

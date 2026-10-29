@@ -1,0 +1,15 @@
+{
+  "id": "hydrant-red",
+  "model": "wonder",
+  "kind": "plain",
+  "status": 200,
+  "seconds": 5.1,
+  "prompt_tokens": 656,
+  "completion_tokens": 337,
+  "raw": "{\"verdict\":\"ok\",\"reason\":\"Single solid compact fire hydrant is fully visible and isolated.\"}",
+  "answer": {
+    "verdict": "ok",
+    "reason": "Single solid compact fire hydrant is fully visible and isolated."
+  },
+  "error": null
+}

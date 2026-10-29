@@ -1,0 +1,15 @@
+{
+  "id": "fence-split-rail",
+  "model": "wonder",
+  "kind": "outline",
+  "status": 200,
+  "seconds": 6.8,
+  "prompt_tokens": 567,
+  "completion_tokens": 364,
+  "raw": "{\"whole_object_in_frame\":\"no\",\"reason\":\"The outlined fence extends beyond the left edge of the photo, where its rails are cut off.\"}",
+  "answer": {
+    "whole_object_in_frame": "no",
+    "reason": "The outlined fence extends beyond the left edge of the photo, where its rails are cut off."
+  },
+  "error": null
+}

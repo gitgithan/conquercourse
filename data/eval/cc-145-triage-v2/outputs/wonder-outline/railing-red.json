@@ -1,0 +1,15 @@
+{
+  "id": "railing-red",
+  "model": "wonder",
+  "kind": "outline",
+  "status": 200,
+  "seconds": 8.6,
+  "prompt_tokens": 669,
+  "completion_tokens": 319,
+  "raw": "{\"whole_object_in_frame\":\"no\",\"reason\":\"The railing is cut off at the left edge, with the foreground post and top rail extending out of frame.\"}",
+  "answer": {
+    "whole_object_in_frame": "no",
+    "reason": "The railing is cut off at the left edge, with the foreground post and top rail extending out of frame."
+  },
+  "error": null
+}

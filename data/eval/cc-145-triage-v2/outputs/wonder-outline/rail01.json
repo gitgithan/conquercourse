@@ -1,0 +1,15 @@
+{
+  "id": "rail01",
+  "model": "wonder",
+  "kind": "outline",
+  "status": 200,
+  "seconds": 24.6,
+  "prompt_tokens": 567,
+  "completion_tokens": 1466,
+  "raw": "{\"whole_object_in_frame\":\"no\",\"reason\":\"The iron fence railing extends to both sides of the photo and is cut off at the frame edges.\"}",
+  "answer": {
+    "whole_object_in_frame": "no",
+    "reason": "The iron fence railing extends to both sides of the photo and is cut off at the frame edges."
+  },
+  "error": null
+}

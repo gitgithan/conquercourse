@@ -1,0 +1,15 @@
+{
+  "id": "bar-black",
+  "model": "spark",
+  "kind": "outline",
+  "status": 200,
+  "seconds": 4.9,
+  "prompt_tokens": 704,
+  "completion_tokens": 298,
+  "raw": "{\"whole_object_in_frame\":\"yes\",\"reason\":\"The two vertical posts and horizontal bar are fully visible with no cropping at the image edges.\"}",
+  "answer": {
+    "whole_object_in_frame": "yes",
+    "reason": "The two vertical posts and horizontal bar are fully visible with no cropping at the image edges."
+  },
+  "error": null
+}

@@ -1,0 +1,15 @@
+{
+  "id": "bollard-iron",
+  "model": "spark",
+  "kind": "plain",
+  "status": 200,
+  "seconds": 4.3,
+  "prompt_tokens": 531,
+  "completion_tokens": 485,
+  "raw": "{\"verdict\":\"ok\",\"reason\":\"Single solid compact bollard with complete outline visible.\"}",
+  "answer": {
+    "verdict": "ok",
+    "reason": "Single solid compact bollard with complete outline visible."
+  },
+  "error": null
+}

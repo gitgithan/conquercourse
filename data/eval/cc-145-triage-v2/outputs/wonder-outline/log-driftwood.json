@@ -1,0 +1,15 @@
+{
+  "id": "log-driftwood",
+  "model": "wonder",
+  "kind": "outline",
+  "status": 200,
+  "seconds": 5.4,
+  "prompt_tokens": 567,
+  "completion_tokens": 251,
+  "raw": "{\"whole_object_in_frame\":\"yes\",\"reason\":\"The entire outlined fallen log is fully visible with margins on all sides and nothing cut off by the photo edges.\"}",
+  "answer": {
+    "whole_object_in_frame": "yes",
+    "reason": "The entire outlined fallen log is fully visible with margins on all sides and nothing cut off by the photo edges."
+  },
+  "error": null
+}

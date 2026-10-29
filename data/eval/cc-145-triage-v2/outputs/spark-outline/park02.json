@@ -1,0 +1,15 @@
+{
+  "id": "park02",
+  "model": "spark",
+  "kind": "outline",
+  "status": 200,
+  "seconds": 8.1,
+  "prompt_tokens": 731,
+  "completion_tokens": 306,
+  "raw": "{\"whole_object_in_frame\":\"yes\",\"reason\":\"The entire magenta-outlined handrail including both ends is visible inside the photo.\"}",
+  "answer": {
+    "whole_object_in_frame": "yes",
+    "reason": "The entire magenta-outlined handrail including both ends is visible inside the photo."
+  },
+  "error": null
+}

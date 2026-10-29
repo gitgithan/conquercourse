@@ -1,0 +1,15 @@
+{
+  "id": "stump-spruce",
+  "model": "wonder",
+  "kind": "plain",
+  "status": 200,
+  "seconds": 4.8,
+  "prompt_tokens": 494,
+  "completion_tokens": 341,
+  "raw": "{\"verdict\":\"ok\",\"reason\":\"Single solid wood piece fully visible and compact enough for a usable lift.\"}",
+  "answer": {
+    "verdict": "ok",
+    "reason": "Single solid wood piece fully visible and compact enough for a usable lift."
+  },
+  "error": null
+}

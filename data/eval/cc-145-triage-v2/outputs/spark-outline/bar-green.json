@@ -1,0 +1,15 @@
+{
+  "id": "bar-green",
+  "model": "spark",
+  "kind": "outline",
+  "status": 200,
+  "seconds": 5.8,
+  "prompt_tokens": 722,
+  "completion_tokens": 428,
+  "raw": "{\"whole_object_in_frame\":\"yes\",\"reason\":\"The magenta-outlined green frame is fully visible and not cropped by any photo edge.\"}",
+  "answer": {
+    "whole_object_in_frame": "yes",
+    "reason": "The magenta-outlined green frame is fully visible and not cropped by any photo edge."
+  },
+  "error": null
+}
