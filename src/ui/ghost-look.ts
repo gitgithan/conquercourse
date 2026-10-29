@@ -9,8 +9,8 @@ import type { GhostTrack } from '../sim/replay';
 export type RookieLook = 'a' | 'b';
 export const lookOfParam = (v: string | null): RookieLook => (v === 'b' ? 'b' : 'a');
 
-const FILL = 0xffa31a, RIM = 0x7a3a00, RIM_SCALE = 1.05;
-export const PLAYER_OPACITY = 0.85, GHOST_OPACITY = 0.5; // CC-180: both always shown; when they overlap exactly, the amber ghost (drawn first) shows through the player and its dark rim shows round the edge
+const FILL = 0xffa31a, RIM = 0x7a3a00, RIM_SCALE = 1.08;
+export const PLAYER_OPACITY = 0.85, GHOST_OPACITY = 0.5; // CC-180: both always shown; when they overlap exactly, the amber ghost is laid over the player, whose own colours still show through, and its dark rim shows round the edge
 
 /** Make the player's own figure a little see-through, so the ghost behind it never disappears. */
 export function softenPlayer(root: THREE.Object3D, opacity = PLAYER_OPACITY): void {
@@ -45,7 +45,7 @@ export function createGhostFigure(scene: THREE.Scene, first: RookieLook): GhostF
   async function load(want: RookieLook): Promise<void> {
     try {
       const [f, r] = await Promise.all([createRookieActor(scene, { rookie: want }), createRookieActor(scene, { rookie: want })]);
-      paint(f, fillMat, -3); paint(r, rimMat, -4); // drawn before the player
+      paint(f, fillMat, 5); paint(r, rimMat, 4); // drawn over the player: 0.5 amber over 0.85 player keeps both readable
       r.object.scale.setScalar(RIM_SCALE); // a little larger than the fill: the dark back faces show round its edge
       f.object.visible = false; r.object.visible = false;
       fill?.dispose(); rim?.dispose(); fill = f; rim = r; look = want;

@@ -66,7 +66,7 @@
 - It has no time, so it never feeds stats, a leaderboard or "course cleared"; opening it makes no server call.
 - Same size limit as every link: at most 2000 characters.
 - The Ghost chip (N) cycles Off, Ideal, Friend; the ghost is on by default (CC-180).
-- Both figures are see-through: the player at 0.85, the ghost at 0.5 in amber with a dark rim, drawn behind the player so both read when they overlap.
+- Both figures are see-through: the player at 0.85, the ghost at 0.5 in amber with a dark rim, drawn over the player so both read when they overlap.
 
 ## Part 4: a leaderboard (design only, for the owner to approve)
 - **What:** a best-time list for each course, and a daily challenge course made from a seed by the generator.
