@@ -42,7 +42,6 @@ export function deviceMesh(src: string): Mesh {
   const padLength = Math.max(0.8, Number(rawLength) || RECOIL_PAD_LENGTH);
   const pad = block(padLength, 0.12, 1.3, 0, 0);
   if (kind === 'bigcannon') return join([pad, block(2.4, 0.3, 1.3, -0.4, 0.55), block(1.5, 0.9, 0.9, 0.5, 1.1), beam(0.3, 0.95, -2.3, 0.35, 0.85, 0.85), block(0.5, 0.7, 0.2, -0.9, 0.35)]); // a wheeled cannon: carriage, pressure tank, a wide barrel pointing backward and down, a wheel
-  if (kind === 'crate') return join([pad, block(0.95, 0.8, 0.9, 0, 0.12), beam(-0.38, 0.22, 0.38, 0.82, 0.05, 0.05), beam(-0.38, 0.82, 0.38, 0.22, 0.05, 0.05)]);
   return join([pad, block(1.65, 0.48, 0.5, 0, 0.45), block(0.85, 0.2, 1.0, 0, 0.12)]);
 }
 

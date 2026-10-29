@@ -5,7 +5,7 @@ import { isAimable } from '../sim/recoil';
 import { recoilParams, type WorldState } from '../sim/world';
 
 // The launcher drawn from the simulator's own numbers: a pad on the deck with the launcher standing on it, the launcher on the runner's back once clipped on,
-// and the balls (or crates) flying back. A heavier ball is drawn bigger. A big cannon is a wheeled air cannon with a wide barrel, a pressure tank and a muzzle:
+// and the balls flying back. A heavier ball is drawn bigger. A big cannon is a wheeled air cannon with a wide barrel, a pressure tank and a muzzle:
 // the barrel tilts with the aim (it points backward and down, so the push goes forward and up), and dots show where the shot would land.
 // Nothing here decides anything: it reads `world.recoil` and the preview path the Course hands in.
 export interface RecoilView { update(w: WorldState, facing: 1 | -1, preview?: { x: number; y: number }[]): void }
@@ -17,7 +17,7 @@ export function createRecoilView(scene: THREE.Scene, course: CourseData): Recoil
   const iron = new THREE.MeshStandardMaterial({ color: 0x4a4f55, metalness: 0.5, roughness: 0.5 });
   const steel = new THREE.MeshStandardMaterial({ color: 0x8c949c, metalness: 0.6, roughness: 0.4 });
   const teal = new THREE.MeshStandardMaterial({ color: 0x0f8a7a, emissive: 0x063d36 });
-  const rubber = new THREE.MeshStandardMaterial({ color: p.kind === 'crate' ? 0x8a5a2b : 0xe8622c, roughness: 0.8 });
+  const rubber = new THREE.MeshStandardMaterial({ color: 0xe8622c, roughness: 0.8 });
   const dotMat = new THREE.MeshBasicMaterial({ color: 0x14b8a6 });
   const group = new THREE.Group();
   scene.add(group);
@@ -26,15 +26,9 @@ export function createRecoilView(scene: THREE.Scene, course: CourseData): Recoil
   pad.position.set((p.x0 + p.x1) / 2, deck + 0.03, 0); group.add(pad);
 
   type Launcher = { root: THREE.Group; barrel?: THREE.Group };
-  // a launcher: a tank with a barrel for the small cannon, a crate for the crate piece, a wheeled cannon with a tilting barrel for the big one
+  // a launcher: a tank with a barrel for the small cannon, a wheeled cannon with a tilting barrel for the big one
   const launcher = (): Launcher => {
     const g = new THREE.Group();
-    if (p.kind === 'crate') {
-      const side = Math.cbrt(p.ballMass / 600) * 1.2 + 0.2;
-      const crate = new THREE.Mesh(new THREE.BoxGeometry(side, side, side), rubber);
-      crate.position.set(0, side / 2, 0); g.add(crate);
-      return { root: g };
-    }
     if (big) {
       // wheels, carriage, pressure tank in front (next to the runner), and the barrel behind, pivoting at the breech
       for (const z of [-0.75, 0.75]) {
@@ -67,8 +61,8 @@ export function createRecoilView(scene: THREE.Scene, course: CourseData): Recoil
   const tilt = (l: Launcher, aim: number) => { if (l.barrel) l.barrel.rotation.z = Math.PI / 2 + aim; };
   tilt(station, p.angle);
 
-  const r = p.kind === 'crate' ? 0.35 : big ? 0.2 + Math.cbrt(p.ballMass) * 0.07 : Math.cbrt(p.ballMass / 12) * 0.22 + 0.06;
-  const geo = p.kind === 'crate' ? new THREE.BoxGeometry(r * 1.6, r * 1.6, r * 1.6) : new THREE.SphereGeometry(r, 18, 12);
+  const r = big ? 0.2 + Math.cbrt(p.ballMass) * 0.07 : Math.cbrt(p.ballMass / 12) * 0.22 + 0.06;
+  const geo = new THREE.SphereGeometry(r, 18, 12);
   const balls = Array.from({ length: 6 }, () => { const m = new THREE.Mesh(geo, rubber); m.visible = false; group.add(m); return m; });
 
   // where the shot would land: dots along the predicted path and a ring at the landing
