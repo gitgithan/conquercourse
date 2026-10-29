@@ -1,0 +1,8 @@
+{
+  "issue": "CC-168",
+  "branch": "hanqi91/cc-168-grab-tolerance",
+  "base": "847f55b",
+  "machine": "VM2",
+  "scripts": ["scripts/grab-ideal-check.ts", "scripts/grab-sweep.ts", "scripts/grab-hint-shot.mjs"],
+  "date": "2026-10-29"
+}
