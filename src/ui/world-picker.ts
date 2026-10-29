@@ -2,6 +2,9 @@
 // A value is a course path, or one of the words in WORD_VALUES, or empty for the stock course.
 export type Demo = [string, string, string];
 export const DEMO_GROUPS: [string, Demo[]][] = [
+  ['Start here', [
+    ['/assets/demo/training.course.json', 'Training course: every move', 'A gap jump, a vault, the lache bars, a rope, a climb, a trampoline and a rolled drop in one run. The best line is faster than the obvious one.'],
+  ]],
   ['Real places', [
     ['/assets/experiments/osm/montmartre-paris.course.json', 'Montmartre, Paris', 'Real streets and roofs on a hill, cut at one level and shrunk to run on.'],
     ['/assets/experiments/osm/eixample-barcelona.course.json', 'Barcelona block', 'The Eixample grid: rooftops of a flat city block.'],
@@ -10,29 +13,16 @@ export const DEMO_GROUPS: [string, Demo[]][] = [
   ]],
   ['Real objects, built in the editor', [
     ['/assets/demo/park-rail-run.course.json', 'Park rail run', 'Three real handrails and a skate box in a row: vault, jump, repeat.'],
-    ['/assets/demo/bench-and-stairs.course.json', 'Bench and stairs', 'A skate box, a concrete bench and park stairs: small steps up and down.'],
-    ['/assets/demo/skate-box-and-rail.course.json', 'Skate box and rail', 'Stairs, a long box, a handrail and a bench: a plaza line.'],
   ]],
   ['Contraptions', [
     ['/assets/demo/coaster.course.json', 'Coaster: ride the hills', 'Height turns into speed: a cart on a track.'],
     ['/assets/demo/coaster-sharp.course.json', 'Coaster: a sharp hilltop (brake)', 'A hilltop that bends away too fast: brake before it.'],
-    ['/assets/demo/coaster-low.course.json', 'Coaster: first hill too low', 'The cart stalls: it cannot climb above where it started.'],
-    ['/assets/demo/launch.course.json', 'Launch: the trebuchet throws you onto the tower', 'Sit in the sling and let go at the right moment.'],
+    ['/assets/demo/launch-bar.course.json', 'Trebuchet: throw, then catch the bar', 'Sit in the sling and let go at the right moment; the throw falls short, so catch the bar and swing the rest.'],
     ['/assets/demo/band.course.json', 'Band: stretch it, turn round, be thrown', 'Run away to stretch the band, turn round and it throws you.'],
     ['/assets/demo/drone.course.json', 'Drone ferry: carried across a gap', 'A drone carries you over a gap you cannot jump.'],
-    ['/assets/demo/launch-bar.course.json', 'Launch and catch: grab the bar in the air', 'The throw falls short: catch the bar and swing the rest.'],
-    ['/assets/demo/launch-bar-hard.course.json', 'Launch and catch: hard', 'The same throw with a bar higher up: the window to let go is under a quarter of a second.'],
-    ['/assets/demo/recoil.course.json', 'Recoil: throw a ball back, fly forward', 'The heavy ball goes back slowly, you go forward fast.'],
     ['/assets/demo/cannon.course.json', 'Cannon: aim it, fire it, roll out of the landing', 'Aim the barrel up or down: the recoil pushes you forward and up.'],
     ['/assets/demo/stack.course.json', 'Stack demo: climb the cup pyramids', 'Sport-stacking cups as obstacles.'],
     ['/assets/demo/plank.course.json', 'Plank bridge: it sags but holds', 'A wooden plank bends under you and holds.'],
-    ['/assets/demo/plank-thin.course.json', 'Plank bridge: too thin, it breaks', 'A thinner plank breaks: find what makes it hold.'],
-  ]],
-  ['Moves', [
-    ['/assets/demo/lache.course.json', 'Lache demo: run, vault, swing', 'Vault a box, pump the swing, and let go for the far deck.'],
-    ['/assets/demo/lache-wide.course.json', 'Wide lache: a 6 m swing', 'Pump hard for a long swing between far bars.'],
-    ['/assets/demo/climb.course.json', 'Climb: over a 2 m wall, then a big drop', 'Pull yourself up a tall wall, then roll out of the drop.'],
-    ['/assets/demo/drop.course.json', 'Big drop: run off a ledge and roll', 'Tap X just before you land to roll out of a 5 m fall.'],
   ]],
   ['Make your own', [
     ['generate', 'Make me a new course (random)', 'A random course the simulator has proved clearable.'],
@@ -40,7 +30,6 @@ export const DEMO_GROUPS: [string, Demo[]][] = [
     ['map', 'Map: search a place', 'Search any place and cut a course from its real streets and roofs.'],
     ['coaster-builder', 'Build your own coaster', 'Drag the dots of the track and ride it.'],
   ]],
-  ['Basics', [['', 'Stock course', 'The plain training course: a gap, a wall, a rope and a trampoline.']]],
 ];
 
 import { labsOn } from './labs';
