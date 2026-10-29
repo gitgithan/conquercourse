@@ -82,7 +82,7 @@ function sideView(settle) {
     const top = p.profile ? p.profile : [[p.x0, p.top], [p.x1, p.top]], pts = [[p.x0, p.top - 9], ...top, [p.x1, p.top - 9]];
     s += `<polygon points="${pts.map(([x, y]) => `${X(x)},${Y(y)}`).join(' ')}" fill="#6a9a52"/><polyline points="${top.map(([x, y]) => `${X(x)},${Y(y)}`).join(' ')}" fill="none" stroke="#86b56b" stroke-width="5"/>`;
   }
-  for (const o of course.scene ?? []) s += `<image href="${icon}" x="${X(o.x) - 60}" y="${Y(o.y + 0.5) - 55}" width="120" height="68"/>`;
+  for (const o of course.scene ?? []) s += `<image href="${icon}" x="${X(o.x) - 60}" y="${Y(o.y) - 56}" width="120" height="68"/>`;
   const r = course.rope; if (r) s += `<line x1="${X(r.anchorX)}" y1="${Y(r.anchorY)}" x2="${X(r.anchorX)}" y2="${Y(r.anchorY - r.length)}" stroke="#4a3b2c" stroke-width="5"/><circle cx="${X(r.anchorX)}" cy="${Y(r.anchorY)}" r="6" fill="#4a3b2c"/>`;
   return s;
 }
