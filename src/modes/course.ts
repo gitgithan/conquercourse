@@ -52,6 +52,8 @@ import { installGraphStudio } from './graph-studio';
 import { createPerf, type PerfSource } from '../ui/perf';
 import { chunked, cullFar, mergeStatic, type Part } from '../render/static-merge';
 import { EDIT_KEY, handoffCourse, type EditHandoff } from '../slice/roundtrip';
+import { startOnboarding, type Onboarding } from '../ui/onboarding';
+import { browserStore, rememberCourse, tourDecision } from '../ui/onboarding-flags';
 
 // The Course: the five obstacles in a row. The simulator decides everything; this file only draws it
 // and turns keys into inputs. Time comes from the simulator's tick count, never from the browser's clock.
@@ -475,7 +477,10 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
   let worldWelcomeSeen = false;
   try { worldWelcomeSeen = localStorage.getItem('cc.worldWelcome.seen') === '1'; } catch { /* use the one-time URL option when storage is unavailable */ }
   const mode = params.get('mode');
-  const showWorldWelcome = !resume && !worldWelcomeSeen && params.get('welcome') !== '0' && (!mode || mode === 'course') && !params.has('course') && !params.has('generate') && !params.has('coaster');
+  rememberCourse(browserStore, params); // CC-100: a returning player comes back to their last course
+  const tour = tourDecision({ params, store: browserStore, automated: navigator.webdriver, mode, resume: !!resume }); // CC-100: a first visit gets the short tour instead of the big chooser
+  let onboarding: Pick<Onboarding, 'onCleared' | 'onFall'> = { onCleared() {}, onFall() {} };
+  const showWorldWelcome = !resume && !worldWelcomeSeen && params.get('welcome') !== '0' && (!mode || mode === 'course') && !params.has('course') && !params.has('generate') && !params.has('coaster') && tour !== 'tour';
   if (showWorldWelcome) { document.body.append(welcome); welcomeGallery.focusStart(); }
   if (!showWorldWelcome) rememberWorldWelcome(); // direct course starts (including Community Play) count as the first play
   if (course.track) {
@@ -972,6 +977,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
   let lastFall: 'splash' | 'slide' | 'hurt' | 'stall' = 'splash';
   function onFall(what: 'splash' | 'slide' | 'hurt' | 'stall') {
     falls++; track('falls');
+    if (falls === 1 && !idealWhole) onboarding.onFall(); // CC-100: the first fall gets one calm hint
     lastFall = what;
     const r = world.runner;
     const zone = zoneAt(what === 'slide' && course.wall ? course.wall.x0 + 1 : r.x);
@@ -1127,6 +1133,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
   // Graph Studio (CC-86): Tab pauses the Course and opens the ground as a graph to drag; "Play from here" carries on with the edited course
   if (!botMode) installGraphStudio({ env: () => ({ course, retryX, facing, falls, runnerX: world.runner.x }), pause: () => { studioHold = true; paused = true; }, resume: () => { studioHold = false; paused = false; last = performance.now(); keys.clear(); }, chipWhen: () => falls > 0 || params.get('edit') === '1' });
   { let heldBefore = false; window.addEventListener(GALLERY_EVENT, (ev) => { if ((ev as CustomEvent).detail.open) { heldBefore = paused; paused = true; keys.clear(); } else { paused = heldBefore; last = performance.now(); } }); } // the Courses gallery stops the game while it is open
+  if (!botMode || params.get('next') === '1') onboarding = startOnboarding({ params, store: browserStore, course, tour: tour === 'tour', resetRun: () => { if (world.outcome === 'running' && Math.abs(world.runner.x - course.startX) < 0.01) restart(course.startX); }, openCourses: () => courseButton.open(), toggleKeys: () => { keysTouched = true; keysOpen = !keysOpen; paintKeys(keysOpen); } }); // CC-100: the Help chip, and the tour on a first visit
   const camPos = new THREE.Vector3();
   // Mouse: drag turns the view around the runner, the wheel zooms, a double-click (or C) goes back to the preset.
   // The numbers are changes on top of the preset view, so zero means the preset exactly.
@@ -1233,6 +1240,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
         if (ghostLine) body.querySelector('#report-ghost-slot')?.append(ghostLine);
         if (ghostCtl && !botMode && !demo && !idealWhole) body.querySelector('#report-actions')?.prepend(...ghostCtl.reportActions(() => { panel.style.display = 'none'; retryX = course.startX; restart(course.startX); }));
         panel.append(body); (body.querySelector('#report-again') as HTMLElement | null)?.focus({ preventScroll: true });
+        if (!botMode && !demo && !idealWhole || params.get('next') === '1') onboarding.onCleared(panel); // CC-100: the one-time What next card, at the top of the report
         if (!botMode && !demo && !idealWhole && !rep.saving) clearedNote(); // a shortcut, if the simulator knows one (a fact, never a grade)
       }
     }
