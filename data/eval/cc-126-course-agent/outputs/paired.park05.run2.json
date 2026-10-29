@@ -1,0 +1,273 @@
+{
+  "id": "paired.park05.run2",
+  "part": "paired",
+  "photo": "park05",
+  "run": 2,
+  "startedFrom": "saved one-shot draft",
+  "status": "cleared",
+  "steps": 3,
+  "clearedAtStep": 3,
+  "tokensIn": 1405,
+  "tokensOut": 4448,
+  "dollars": 0.021,
+  "calls": 2,
+  "seconds": 42.7,
+  "obstaclesKept": 5,
+  "keyObstacles": 1,
+  "drift": {
+    "keyCount": 1,
+    "modelCount": 5,
+    "matched": 1,
+    "extra": 4,
+    "meanRelError": 0.61,
+    "meanAbsError": 0.75
+  },
+  "problems": [],
+  "stepsDetail": [
+    {
+      "n": 1,
+      "kind": "proposed",
+      "say": "Path runs from left woods across the ivy edge, past the large tree and low branch, then over the stone wall and bench.",
+      "layout": {
+        "items": [
+          {
+            "kind": "ground",
+            "length": 3
+          },
+          {
+            "kind": "block",
+            "length": 1,
+            "height": 0.3
+          },
+          {
+            "kind": "ground",
+            "length": 2
+          },
+          {
+            "kind": "block",
+            "length": 0.8,
+            "height": 0.9
+          },
+          {
+            "kind": "ground",
+            "length": 1.5
+          },
+          {
+            "kind": "bar",
+            "height": 2.2
+          },
+          {
+            "kind": "ground",
+            "length": 1
+          },
+          {
+            "kind": "block",
+            "length": 0.5,
+            "height": 0.7
+          },
+          {
+            "kind": "block",
+            "length": 0.6,
+            "height": 0.45
+          },
+          {
+            "kind": "ground",
+            "length": 3
+          }
+        ]
+      },
+      "report": {
+        "cleared": false,
+        "seconds": null,
+        "jumps": 1,
+        "stoppedAtItem": 3,
+        "reachedMetres": 5.55,
+        "laneMetres": 13.4,
+        "probes": []
+      },
+      "words": "Not cleared: the best attempt stopped at item 4, block 0.8 m long, 0.9 m high (5.6 m in). No single easing of one obstacle clears it."
+    },
+    {
+      "n": 2,
+      "kind": "repaired",
+      "say": "Eased the wall, steps and bar to clearable heights and added run-up space.",
+      "layout": {
+        "items": [
+          {
+            "kind": "ground",
+            "length": 3
+          },
+          {
+            "kind": "block",
+            "length": 1,
+            "height": 0.2
+          },
+          {
+            "kind": "ground",
+            "length": 2.5
+          },
+          {
+            "kind": "block",
+            "length": 0.8,
+            "height": 0.6
+          },
+          {
+            "kind": "ground",
+            "length": 1.5
+          },
+          {
+            "kind": "bar",
+            "height": 1.95
+          },
+          {
+            "kind": "ground",
+            "length": 1.5
+          },
+          {
+            "kind": "block",
+            "length": 0.5,
+            "height": 0.4
+          },
+          {
+            "kind": "block",
+            "length": 0.6,
+            "height": 0.45
+          },
+          {
+            "kind": "ground",
+            "length": 3
+          }
+        ]
+      },
+      "report": {
+        "cleared": false,
+        "seconds": null,
+        "jumps": 1,
+        "stoppedAtItem": 3,
+        "reachedMetres": 6.05,
+        "laneMetres": 14.4,
+        "probes": [
+          {
+            "item": 3,
+            "text": "item 4 (block) 0.6 m high lowered to 0.49 m",
+            "clears": true,
+            "seconds": 4.63
+          }
+        ]
+      },
+      "words": "Not cleared: the best attempt stopped at item 4, block 0.8 m long, 0.6 m high (6.1 m in). The simulator proved these single changes would clear it: item 4 (block) 0.6 m high lowered to 0.49 m."
+    },
+    {
+      "n": 3,
+      "kind": "repaired",
+      "say": "Lowered the large wall block to the suggested height to allow clearance.",
+      "layout": {
+        "items": [
+          {
+            "kind": "ground",
+            "length": 3
+          },
+          {
+            "kind": "block",
+            "length": 1,
+            "height": 0.2
+          },
+          {
+            "kind": "ground",
+            "length": 2.5
+          },
+          {
+            "kind": "block",
+            "length": 0.8,
+            "height": 0.49
+          },
+          {
+            "kind": "ground",
+            "length": 1.5
+          },
+          {
+            "kind": "bar",
+            "height": 1.95
+          },
+          {
+            "kind": "ground",
+            "length": 1.5
+          },
+          {
+            "kind": "block",
+            "length": 0.5,
+            "height": 0.4
+          },
+          {
+            "kind": "block",
+            "length": 0.6,
+            "height": 0.45
+          },
+          {
+            "kind": "ground",
+            "length": 3
+          }
+        ]
+      },
+      "report": {
+        "cleared": true,
+        "seconds": 4.63,
+        "jumps": 2,
+        "stoppedAtItem": null,
+        "reachedMetres": 14.4,
+        "laneMetres": 14.4,
+        "probes": []
+      },
+      "words": "Cleared in 4.6 s on the best line, with 2 jumps."
+    }
+  ],
+  "baselineClearedAsDrawn": false,
+  "finalLayout": {
+    "items": [
+      {
+        "kind": "ground",
+        "length": 3
+      },
+      {
+        "kind": "block",
+        "length": 1,
+        "height": 0.2
+      },
+      {
+        "kind": "ground",
+        "length": 2.5
+      },
+      {
+        "kind": "block",
+        "length": 0.8,
+        "height": 0.49
+      },
+      {
+        "kind": "ground",
+        "length": 1.5
+      },
+      {
+        "kind": "bar",
+        "height": 1.95
+      },
+      {
+        "kind": "ground",
+        "length": 1.5
+      },
+      {
+        "kind": "block",
+        "length": 0.5,
+        "height": 0.4
+      },
+      {
+        "kind": "block",
+        "length": 0.6,
+        "height": 0.45
+      },
+      {
+        "kind": "ground",
+        "length": 3
+      }
+    ]
+  }
+}

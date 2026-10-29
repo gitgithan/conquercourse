@@ -97,9 +97,9 @@ try {
   proc.stdin.end();
   const sum = (p: string) => { const rs = rows.filter((r) => r.part === p); return { runs: rs.length, cleared: rs.filter((r) => r.status === 'cleared').length, clearedAtStep1: rs.filter((r) => r.clearedAtStep === 1).length, clearedAfterRepair: rs.filter((r) => (r.clearedAtStep ?? 0) > 1).length, noLayout: rs.filter((r) => r.status === 'no-layout').length, meanSteps: Math.round((rs.reduce((s, r) => s + r.steps, 0) / Math.max(1, rs.length)) * 10) / 10, tokensIn: rs.reduce((s, r) => s + r.tokensIn, 0), tokensOut: rs.reduce((s, r) => s + r.tokensOut, 0), dollars: Math.round(rs.reduce((s, r) => s + r.dollars, 0) * 1000) / 1000, keptAllObstaclesOfKey: rs.filter((r) => r.status === 'cleared' && r.obstaclesKept !== null && r.obstaclesKept >= r.keyObstacles).length, clearedWithFewerObstaclesThanKey: rs.filter((r) => r.status === 'cleared' && r.obstaclesKept !== null && r.obstaclesKept < r.keyObstacles).length }; };
   const summary = { paired: sum('paired'), fresh: sum('fresh') };
-  writeFileSync(`${out}/results.json`, JSON.stringify({ summary, rows: rows.map(({ stepsDetail: _s, ...r }) => r) }, null, 2) + '\n');
-  writeFileSync(`${out}/run.json`, JSON.stringify({ experiment: 'cc-126-course-agent', issue: 'CC-127', model: MODEL, stepCap: STEP_CAP, part, toolsRunOn: toolsCmd === 'local' ? 'this machine' : 'a Vultr VM over ssh', price: PRICE, tokens, totalDollars: dollars(tokens), startedFrom: 'data/eval/photo-course (CC-52) outputs and answer key', date: new Date().toISOString().slice(0, 10), baseline: { runs: 20, clearsAsDrawn: 13, afterFixIt: 13, afterDroppingBars: 15 } }, null, 2) + '\n');
+  writeFileSync(`${out}/results.${part}.json`, JSON.stringify({ summary, rows: rows.map(({ stepsDetail: _s, ...r }) => r) }, null, 2) + '\n');
+  writeFileSync(`${out}/run.${part}.json`, JSON.stringify({ experiment: 'cc-126-course-agent', issue: 'CC-127', model: MODEL, stepCap: STEP_CAP, part, toolsRunOn: toolsCmd === 'local' ? 'this machine' : 'a Vultr VM over ssh', price: PRICE, tokens, totalDollars: dollars(tokens), startedFrom: 'data/eval/photo-course (CC-52) outputs and answer key', date: new Date().toISOString().slice(0, 10), baseline: { runs: 20, clearsAsDrawn: 13, afterFixIt: 13, afterDroppingBars: 15 } }, null, 2) + '\n');
   console.log(JSON.stringify(summary, null, 2), 'total $', dollars(tokens));
-  if (!existsSync(`${out}/results.json`)) process.exitCode = 1;
+  if (!existsSync(`${out}/results.${part}.json`)) process.exitCode = 1;
 }
 process.exit(process.exitCode ?? 0);

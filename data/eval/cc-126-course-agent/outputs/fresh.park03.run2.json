@@ -1,0 +1,171 @@
+{
+  "id": "fresh.park03.run2",
+  "part": "fresh",
+  "photo": "park03",
+  "run": 2,
+  "startedFrom": "the photo",
+  "status": "cleared",
+  "steps": 2,
+  "clearedAtStep": 2,
+  "tokensIn": 1500,
+  "tokensOut": 2155,
+  "dollars": 0.011,
+  "calls": 2,
+  "seconds": 22.2,
+  "obstaclesKept": 3,
+  "keyObstacles": 2,
+  "drift": {
+    "keyCount": 2,
+    "modelCount": 3,
+    "matched": 2,
+    "extra": 1,
+    "meanRelError": 0.38,
+    "meanAbsError": 0.61
+  },
+  "problems": [],
+  "stepsDetail": [
+    {
+      "n": 1,
+      "kind": "proposed",
+      "say": "Initial course estimated from park layout.",
+      "layout": {
+        "items": [
+          {
+            "kind": "ground",
+            "length": 3
+          },
+          {
+            "kind": "block",
+            "length": 5,
+            "height": 0.45
+          },
+          {
+            "kind": "ground",
+            "length": 4
+          },
+          {
+            "kind": "block",
+            "length": 2,
+            "height": 1.1
+          },
+          {
+            "kind": "ground",
+            "length": 5
+          },
+          {
+            "kind": "block",
+            "length": 1.8,
+            "height": 0.4
+          },
+          {
+            "kind": "ground",
+            "length": 2
+          }
+        ]
+      },
+      "report": {
+        "cleared": false,
+        "seconds": null,
+        "jumps": 1,
+        "stoppedAtItem": 3,
+        "reachedMetres": 11.76,
+        "laneMetres": 22.8,
+        "probes": [
+          {
+            "item": 3,
+            "text": "item 4 (block) 1.1 m high lowered to 0.89 m",
+            "clears": true,
+            "seconds": 5.48
+          }
+        ]
+      },
+      "words": "Not cleared: the best attempt stopped at item 4, block 2 m long, 1.1 m high (11.8 m in). The simulator proved these single changes would clear it: item 4 (block) 1.1 m high lowered to 0.89 m."
+    },
+    {
+      "n": 2,
+      "kind": "repaired",
+      "say": "Lowered the high block to the height the simulator proved would clear.",
+      "layout": {
+        "items": [
+          {
+            "kind": "ground",
+            "length": 3
+          },
+          {
+            "kind": "block",
+            "length": 5,
+            "height": 0.45
+          },
+          {
+            "kind": "ground",
+            "length": 4
+          },
+          {
+            "kind": "block",
+            "length": 2,
+            "height": 0.89
+          },
+          {
+            "kind": "ground",
+            "length": 5
+          },
+          {
+            "kind": "block",
+            "length": 1.8,
+            "height": 0.4
+          },
+          {
+            "kind": "ground",
+            "length": 2
+          }
+        ]
+      },
+      "report": {
+        "cleared": true,
+        "seconds": 5.48,
+        "jumps": 2,
+        "stoppedAtItem": null,
+        "reachedMetres": 22.8,
+        "laneMetres": 22.8,
+        "probes": []
+      },
+      "words": "Cleared in 5.5 s on the best line, with 2 jumps."
+    }
+  ],
+  "baselineClearedAsDrawn": null,
+  "finalLayout": {
+    "items": [
+      {
+        "kind": "ground",
+        "length": 3
+      },
+      {
+        "kind": "block",
+        "length": 5,
+        "height": 0.45
+      },
+      {
+        "kind": "ground",
+        "length": 4
+      },
+      {
+        "kind": "block",
+        "length": 2,
+        "height": 0.89
+      },
+      {
+        "kind": "ground",
+        "length": 5
+      },
+      {
+        "kind": "block",
+        "length": 1.8,
+        "height": 0.4
+      },
+      {
+        "kind": "ground",
+        "length": 2
+      }
+    ]
+  }
+}

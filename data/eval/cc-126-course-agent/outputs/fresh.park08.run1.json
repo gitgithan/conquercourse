@@ -1,0 +1,78 @@
+{
+  "id": "fresh.park08.run1",
+  "part": "fresh",
+  "photo": "park08",
+  "run": 1,
+  "startedFrom": "the photo",
+  "status": "cleared",
+  "steps": 1,
+  "clearedAtStep": 1,
+  "tokensIn": 1073,
+  "tokensOut": 598,
+  "dollars": 0.004,
+  "calls": 1,
+  "seconds": 5,
+  "obstaclesKept": 1,
+  "keyObstacles": 1,
+  "drift": {
+    "keyCount": 1,
+    "modelCount": 1,
+    "matched": 1,
+    "extra": 0,
+    "meanRelError": 0.58,
+    "meanAbsError": 0.83
+  },
+  "problems": [],
+  "stepsDetail": [
+    {
+      "n": 1,
+      "kind": "proposed",
+      "say": "Initial course approximating the bench as the main obstacle.",
+      "layout": {
+        "items": [
+          {
+            "kind": "ground",
+            "length": 5
+          },
+          {
+            "kind": "block",
+            "length": 0.6,
+            "height": 0.45
+          },
+          {
+            "kind": "ground",
+            "length": 5
+          }
+        ]
+      },
+      "report": {
+        "cleared": true,
+        "seconds": 4.04,
+        "jumps": 2,
+        "stoppedAtItem": null,
+        "reachedMetres": 10.7,
+        "laneMetres": 10.8,
+        "probes": []
+      },
+      "words": "Cleared in 4 s on the best line, with 2 jumps."
+    }
+  ],
+  "baselineClearedAsDrawn": null,
+  "finalLayout": {
+    "items": [
+      {
+        "kind": "ground",
+        "length": 5
+      },
+      {
+        "kind": "block",
+        "length": 0.6,
+        "height": 0.45
+      },
+      {
+        "kind": "ground",
+        "length": 5
+      }
+    ]
+  }
+}

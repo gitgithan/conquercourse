@@ -1,0 +1,98 @@
+{
+  "id": "paired.park07.run1",
+  "part": "paired",
+  "photo": "park07",
+  "run": 1,
+  "startedFrom": "saved one-shot draft",
+  "status": "cleared",
+  "steps": 1,
+  "clearedAtStep": 1,
+  "tokensIn": 0,
+  "tokensOut": 0,
+  "dollars": 0,
+  "calls": 0,
+  "seconds": 0.4,
+  "obstaclesKept": 3,
+  "keyObstacles": 1,
+  "drift": {
+    "keyCount": 1,
+    "modelCount": 3,
+    "matched": 1,
+    "extra": 2,
+    "meanRelError": 0.66,
+    "meanAbsError": 0.54
+  },
+  "problems": [],
+  "stepsDetail": [
+    {
+      "n": 1,
+      "kind": "proposed",
+      "say": "The lane crosses flat grass then climbs three concrete steps to the upper terrace.",
+      "layout": {
+        "items": [
+          {
+            "kind": "ground",
+            "length": 5
+          },
+          {
+            "kind": "block",
+            "length": 0.4,
+            "height": 0.16
+          },
+          {
+            "kind": "block",
+            "length": 0.4,
+            "height": 0.32
+          },
+          {
+            "kind": "block",
+            "length": 0.5,
+            "height": 0.48
+          },
+          {
+            "kind": "ground",
+            "length": 6
+          }
+        ]
+      },
+      "report": {
+        "cleared": true,
+        "seconds": 4.23,
+        "jumps": 2,
+        "stoppedAtItem": null,
+        "reachedMetres": 12.35,
+        "laneMetres": 12.4,
+        "probes": []
+      },
+      "words": "Cleared in 4.2 s on the best line, with 2 jumps."
+    }
+  ],
+  "baselineClearedAsDrawn": true,
+  "finalLayout": {
+    "items": [
+      {
+        "kind": "ground",
+        "length": 5
+      },
+      {
+        "kind": "block",
+        "length": 0.4,
+        "height": 0.16
+      },
+      {
+        "kind": "block",
+        "length": 0.4,
+        "height": 0.32
+      },
+      {
+        "kind": "block",
+        "length": 0.5,
+        "height": 0.48
+      },
+      {
+        "kind": "ground",
+        "length": 6
+      }
+    ]
+  }
+}

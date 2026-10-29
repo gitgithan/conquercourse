@@ -1,0 +1,78 @@
+{
+  "id": "fresh.park08.run2",
+  "part": "fresh",
+  "photo": "park08",
+  "run": 2,
+  "startedFrom": "the photo",
+  "status": "cleared",
+  "steps": 1,
+  "clearedAtStep": 1,
+  "tokensIn": 1073,
+  "tokensOut": 1486,
+  "dollars": 0.008,
+  "calls": 1,
+  "seconds": 10.3,
+  "obstaclesKept": 1,
+  "keyObstacles": 1,
+  "drift": {
+    "keyCount": 1,
+    "modelCount": 1,
+    "matched": 1,
+    "extra": 0,
+    "meanRelError": 0.36,
+    "meanAbsError": 0.43
+  },
+  "problems": [],
+  "stepsDetail": [
+    {
+      "n": 1,
+      "kind": "proposed",
+      "say": "Starting layout estimates the bench as a low vault on flat ground.",
+      "layout": {
+        "items": [
+          {
+            "kind": "ground",
+            "length": 6
+          },
+          {
+            "kind": "block",
+            "length": 2.2,
+            "height": 0.45
+          },
+          {
+            "kind": "ground",
+            "length": 6
+          }
+        ]
+      },
+      "report": {
+        "cleared": true,
+        "seconds": 4.45,
+        "jumps": 2,
+        "stoppedAtItem": null,
+        "reachedMetres": 14.2,
+        "laneMetres": 14.2,
+        "probes": []
+      },
+      "words": "Cleared in 4.5 s on the best line, with 2 jumps."
+    }
+  ],
+  "baselineClearedAsDrawn": null,
+  "finalLayout": {
+    "items": [
+      {
+        "kind": "ground",
+        "length": 6
+      },
+      {
+        "kind": "block",
+        "length": 2.2,
+        "height": 0.45
+      },
+      {
+        "kind": "ground",
+        "length": 6
+      }
+    ]
+  }
+}
