@@ -30,9 +30,9 @@
 ## Fallback and next steps
 - Fallback: the hand-made courses and the simulator-proved random generator behind "Make me a new course"; they already cover every move.
 - Ranked next steps:
-  - 1. Ask per move with each move's rules in the prompt (vault, climb, bars), then score again.
-  - 2. Check why vault and climb layouts never clear (rules in the prompt or in Fix it).
-  - 3. Add the pool to "Make me a new course" behind a feature switch once it holds all moves.
+  - Step 1: Ask per move with each move's rules in the prompt (vault, climb, bars), then score again.
+  - Step 2: Check why vault and climb layouts never clear (rules in the prompt or in Fix it).
+  - Step 3: Add the pool to "Make me a new course" behind a feature switch once it holds all moves.
 
 ## Files
 - `outputs/NNN.json`: raw replies; `kept/NNN.json`: the 33 cleared layouts with their ideal-run plan; `results.json`: every row; `run.json`: summary.
