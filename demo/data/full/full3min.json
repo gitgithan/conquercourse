@@ -4,15 +4,78 @@
   "height": 1080,
   "note": "Skeleton that follows docs/demo-script-v2.md. A beat with no clip shows a marked placeholder; fill the clip name in as footage is captured.",
   "beats": [
-    { "at": 0, "seconds": 15, "name": "Hook: a gap in a park", "tag": "REAL", "clip": null },
-    { "at": 15, "seconds": 15, "name": "The owner's story", "tag": "REAL", "clip": null },
-    { "at": 30, "seconds": 25, "name": "Hero 1: a pin becomes a world", "tag": "REAL", "clip": null, "note": "map data processed earlier" },
-    { "at": 55, "seconds": 15, "name": "A photo becomes an object (SAM 3, SAM 3D Objects)", "tag": "REAL", "clip": "clips/hero.mp4", "note": "SAM 3D job processed earlier" },
-    { "at": 70, "seconds": 20, "name": "Design partner and Fix it (Muse Spark Open)", "tag": "REAL", "clip": null },
-    { "at": 90, "seconds": 30, "name": "Hero 2: the lache pair", "tag": "REAL", "clip": null },
-    { "at": 120, "seconds": 15, "name": "Why it worked: the debug view", "tag": "REAL", "clip": null },
-    { "at": 135, "seconds": 20, "name": "The Dojo", "tag": "REAL", "clip": null },
-    { "at": 155, "seconds": 15, "name": "Character intro (slot)", "tag": "REAL", "clip": null, "slot": "characterIntro" },
-    { "at": 170, "seconds": 10, "name": "What's next: Train slow. Run fast.", "tag": "GFX", "clip": null }
+    {
+      "at": 0,
+      "seconds": 15,
+      "name": "Hook: a gap in a park",
+      "tag": "REAL",
+      "clip": null
+    },
+    {
+      "at": 15,
+      "seconds": 15,
+      "name": "The owner's story",
+      "tag": "REAL",
+      "clip": null
+    },
+    {
+      "at": 30,
+      "seconds": 25,
+      "name": "Hero 1: a pin becomes a world",
+      "tag": "REAL",
+      "clip": null,
+      "note": "map data processed earlier"
+    },
+    {
+      "at": 55,
+      "seconds": 15,
+      "name": "A photo becomes an object (SAM 3, SAM 3D Objects)",
+      "tag": "REAL",
+      "clip": "clips/hero.mp4",
+      "note": "SAM 3D job processed earlier"
+    },
+    {
+      "at": 70,
+      "seconds": 20,
+      "name": "Design partner and Fix it (Muse Spark Open)",
+      "tag": "REAL",
+      "clip": null
+    },
+    {
+      "at": 90,
+      "seconds": 30,
+      "name": "Hero 2: the lache pair",
+      "tag": "REAL",
+      "clip": null
+    },
+    {
+      "at": 120,
+      "seconds": 15,
+      "name": "Why it worked: the debug view",
+      "tag": "REAL",
+      "clip": null
+    },
+    {
+      "at": 135,
+      "seconds": 20,
+      "name": "The Dojo",
+      "tag": "REAL",
+      "clip": null
+    },
+    {
+      "at": 155,
+      "seconds": 15,
+      "name": "Character intro (slot)",
+      "tag": "REAL",
+      "clip": null,
+      "slot": "characterIntro"
+    },
+    {
+      "at": 170,
+      "seconds": 10,
+      "name": "What's next: Train slow. Run fast.",
+      "tag": "GFX",
+      "clip": null
+    }
   ]
 }
