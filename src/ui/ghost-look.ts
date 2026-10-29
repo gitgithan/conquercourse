@@ -10,6 +10,17 @@ export type RookieLook = 'a' | 'b';
 export const lookOfParam = (v: string | null): RookieLook => (v === 'b' ? 'b' : 'a');
 
 const FILL = 0xffa31a, RIM = 0x7a3a00, RIM_SCALE = 1.05;
+export const PLAYER_OPACITY = 0.85, GHOST_OPACITY = 0.5; // CC-180: both always shown; when they overlap exactly, the amber ghost (drawn first) shows through the player and its dark rim shows round the edge
+
+/** Make the player's own figure a little see-through, so the ghost behind it never disappears. */
+export function softenPlayer(root: THREE.Object3D, opacity = PLAYER_OPACITY): void {
+  root.traverse((o) => {
+    const m = o as THREE.Mesh;
+    if (!m.isMesh) return;
+    const soft = (x: THREE.Material): THREE.Material => { const c = x.clone(); c.transparent = true; c.opacity = opacity; c.depthWrite = true; return c; };
+    m.material = Array.isArray(m.material) ? m.material.map(soft) : soft(m.material);
+  });
+}
 
 function paint(a: RookieActor, material: THREE.Material, order: number): void {
   a.object.traverse((o) => {
@@ -29,12 +40,12 @@ export interface GhostFigure {
 /** One amber fill actor and one slightly larger dark-amber back-face actor behind it for the outline. */
 export function createGhostFigure(scene: THREE.Scene, first: RookieLook): GhostFigure {
   let fill: RookieActor | null = null, rim: RookieActor | null = null, look: RookieLook | null = null, loading: Promise<void> | null = null;
-  const fillMat = new THREE.MeshBasicMaterial({ color: FILL, transparent: true, opacity: 0.85, depthWrite: false });
-  const rimMat = new THREE.MeshBasicMaterial({ color: RIM, transparent: true, opacity: 0.9, depthWrite: false, side: THREE.BackSide });
+  const fillMat = new THREE.MeshBasicMaterial({ color: FILL, transparent: true, opacity: GHOST_OPACITY, depthWrite: false });
+  const rimMat = new THREE.MeshBasicMaterial({ color: RIM, transparent: true, opacity: 0.8, depthWrite: false, side: THREE.BackSide });
   async function load(want: RookieLook): Promise<void> {
     try {
       const [f, r] = await Promise.all([createRookieActor(scene, { rookie: want }), createRookieActor(scene, { rookie: want })]);
-      paint(f, fillMat, 5); paint(r, rimMat, 4);
+      paint(f, fillMat, -3); paint(r, rimMat, -4); // drawn before the player
       r.object.scale.setScalar(RIM_SCALE); // a little larger than the fill: the dark back faces show round its edge
       f.object.visible = false; r.object.visible = false;
       fill?.dispose(); rim?.dispose(); fill = f; rim = r; look = want;
