@@ -31,3 +31,18 @@
 - `rough-cut-v2.mp4`: 67.2 s, the real fly-by (`beat4-flyby.mp4`, 216 frames) and the wide real run (`beat5-run.mp4`) are now in.
 - The close run take was never rendered on the VM, so beat 5 is still the far take.
 - Long MusicGen try: rejected for two silent gaps (see `../music/film-track.run.json`); `film-bed.ogg` stays.
+
+## Rough cut v3 (2026-10-30), clean (no captions)
+- `rough-cut-v3.mp4`: 67.2 s, music `../music/film-bed.ogg`, every cut on the 100 bpm bar grid (2.4 s).
+- Captions are off in this cut; the table below says what is real and what is concept.
+| Time | Beat | File | Status |
+| --- | --- | --- | --- |
+| 0.0-7.2 | Earth to street map | `beat1-concept.mp4` | CONCEPT: a drawn globe and the stored OpenStreetMap buildings (`scripts/film-concept.mjs`) |
+| 7.2-14.4 | the slicing sweep | `beat2-concept.mp4` | CONCEPT: same drawing; the real slicer screen is not filmed |
+| 14.4-28.8 | blocks rise, photo-lifted box drops in, lane becomes the course | `beat3-concept.mp4` | CONCEPT: the photo and the box are real files (credit on screen); the motion is drawn |
+| 28.8-36.0 | fly-by of the course | `beat4-flyby.mp4` | REAL: game replay, stepped clock |
+| 36.0-50.4 | the run | `beat5-run-close.mp4` when present, else `beat5-run.mp4` (far take) | REAL: `?bot=ideal` replay of the proven plan |
+| 50.4-55.2 | leap to the rope, cut before the catch | `beat5-leap.mp4` | REAL: same replay, slow motion 0.25, thin trail, last frame 122 of the render (hands at the rope) |
+| 55.2-67.2 | end card | `beat8-endcard.mp4` | DESIGNED: logo, tagline, credits |
+- Leap fix: the trail is now thin, dim, short and fades to nothing at the runner (`src/render/trail.ts`), so the hips stay visible.
+- Skin and street furniture on the hero course: not done, because both are placed with the frame of the stored place mesh, and the hero lane is a different slice of it; it needs its own frame (next step).
