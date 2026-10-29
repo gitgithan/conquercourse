@@ -340,8 +340,9 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
     help.innerHTML = head + main.map(row).join('') + (rest.length ? `<div style="color:${HUD.soft};font-size:13px;line-height:1.9;margin-top:2px">Also: ${rest.map(([k]) => `<kbd style="${keycapCss}">${k}</kbd> ${MINOR[k]}`).join(' &nbsp; ')}</div>` : '');
   };
   let keysOpen = true, keysTouched = false; paintKeys(true);
+  let reportWas = false;
   const panel = document.createElement('div');
-  panel.style.cssText = 'position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);width:min(760px,94vw);max-height:88vh;overflow:auto;z-index:40;box-sizing:border-box;background:#fffffff5;border:1px solid #cfd6d0;border-radius:12px;padding:16px;font:15px/1.4 system-ui,sans-serif;color:#17201d;display:none;gap:10px;box-shadow:0 8px 30px #0003';
+  panel.style.cssText = 'position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);width:min(760px,94vw);max-height:88vh;overflow:auto;z-index:40;box-sizing:border-box;background:#fff;border:1px solid #cfd6d0;border-radius:12px;padding:16px;font:15px/1.4 system-ui,sans-serif;color:#17201d;display:none;gap:10px;box-shadow:0 8px 30px #0003';
   const hint = document.createElement('div');
   hint.style.cssText = `position:fixed;left:50%;bottom:${params.get('gauges') === 'old' ? 124 : 190}px;transform:translateX(-50%);font:600 20px system-ui,sans-serif;pointer-events:none;${hudOn(params) ? panelCss('8px 16px') : 'color:#10141c;background:#fffc;border-radius:10px;padding:8px 16px'}`;
   const dojoBtn = document.createElement('button');
@@ -1057,7 +1058,6 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
   let lastFall: 'splash' | 'slide' | 'hurt' | 'stall' = 'splash';
   function onFall(what: 'splash' | 'slide' | 'hurt' | 'stall') {
     falls++; track('falls');
-    if (falls === 1 && !idealWhole) onboarding.onFall(); // CC-100: the first fall gets one calm hint
     lastFall = what;
     const r = world.runner;
     const zone = zoneAt(what === 'slide' && course.wall ? course.wall.x0 + 1 : r.x);
@@ -1128,7 +1128,8 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
     const failBody = renderReport(course, runLog, buildReport(course, runLog, world, false, null), {}, true, ghostCtl?.reportPath() ?? null, !reportSectionsOn(params));
     addHardest(failBody);
     panel.append(h, t, floorNote, failBody, row);
-    retry.focus();
+    if (falls === 1 && !idealWhole) onboarding.onFall(panel); // CC-100: the first fall gets one calm hint (CC-191: inside the report, not over it)
+    retry.focus({ preventScroll: true }); panel.scrollTop = 0;
   }
 
   function showAgain() { falls--; onFall(lastFall); }
@@ -1481,8 +1482,10 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
     recoilView?.update(world, facing, shotPreview(world)?.path);
     bandView?.update(world);
     droneView?.update(world, facing);
-    hint.textContent = hintFor(world);
+    const reportOpen = panel.style.display !== 'none'; // CC-191: while a report is open the hint, the controls card, the ghost chip and the second Edit button step aside
+    hint.textContent = reportOpen ? '' : hintFor(world);
     hint.style.display = hint.textContent ? 'block' : 'none';
+    if (reportOpen !== reportWas) { reportWas = reportOpen; if (reportOpen) help.style.visibility = 'hidden'; else if (!document.getElementById('helpmenu')) help.style.visibility = ''; rowBtns.style.visibility = reportOpen ? 'hidden' : ''; const gh = document.getElementById('ghost-hud'); if (gh) gh.style.visibility = reportOpen ? 'hidden' : ''; }
     if (ropeMesh && course.rope) {
       // the rope swings about its anchor with the runner: its middle is half a rope length along the swing
       const th = world.swing ? world.swing.theta : 0;
