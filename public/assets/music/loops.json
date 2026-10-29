@@ -2,7 +2,7 @@
   {
     "screen": "course",
     "candidate": "course-b_8",
-    "bpm": 140.0,
+    "bpm": 140,
     "bars": 5,
     "seconds": 8.571,
     "seam_ratio": 0.36557,
@@ -36,7 +36,7 @@
     "match_err": 0.2429,
     "centroid_hz": 939.29371,
     "onsets_per_s": 7.33334,
-    "hf_share_5k": 6e-05
+    "hf_share_5k": 0.00006
   },
   {
     "screen": "dojo",

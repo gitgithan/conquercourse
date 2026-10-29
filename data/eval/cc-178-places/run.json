@@ -2,10 +2,24 @@
   "issue": "CC-178",
   "date": "2026-10-29",
   "machine": "Vultr VM3 (8 cores) for sweeps, audit, builds, screenshots; laptop for code and tests",
-  "inputs": ["public/assets/places/*.json", "Mapillary Graph API bbox search (token kept outside the repo)", "Overpass API (skin extras, new places)"],
-  "outputs": ["audit-stored.json", "sweep-<place>.json (6)", "skin/<place>-osm.json (4)", "skin-shots/*.png (12)", "public/assets/places/index.json (listed, path, photos)"],
+  "inputs": [
+    "public/assets/places/*.json",
+    "Mapillary Graph API bbox search (token kept outside the repo)",
+    "Overpass API (skin extras, new places)"
+  ],
+  "outputs": [
+    "audit-stored.json",
+    "sweep-<place>.json (6)",
+    "skin/<place>-osm.json (4)",
+    "skin-shots/*.png (12)",
+    "public/assets/places/index.json (listed, path, photos)"
+  ],
   "rule": "listed = lane cleared AND at least 30 Mapillary photos within 60 m whose camera faces the lane",
   "places_total": 29,
   "places_listed": 26,
-  "not_built": ["gamla-stan-stockholm", "st-james-park-london", "(Overpass servers did not answer in time)"]
+  "not_built": [
+    "gamla-stan-stockholm",
+    "st-james-park-london",
+    "(Overpass servers did not answer in time)"
+  ]
 }

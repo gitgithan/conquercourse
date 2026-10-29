@@ -1313,6 +1313,9 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
   { let heldBefore = false; window.addEventListener(GALLERY_EVENT, (ev) => { if ((ev as CustomEvent).detail.open) { heldBefore = paused; paused = true; keys.clear(); } else { paused = heldBefore; last = performance.now(); } }); } // the Courses gallery stops the game while it is open
   if (!botMode || params.get('next') === '1') onboarding = startOnboarding({ params, store: browserStore, course, tour: tour === 'tour', resetRun: () => { if (world.outcome === 'running' && Math.abs(world.runner.x - course.startX) < 0.01) restart(course.startX); }, openCourses: () => courseButton.open(), toggleKeys: () => { keysTouched = true; keysOpen = !keysOpen; paintKeys(keysOpen); } }); // CC-100: the Help chip, and the tour on a first visit
   const camPos = new THREE.Vector3();
+  // ?fx=bloom,vignette,dof (or all): picture polish for stills (CC-188); off unless asked, loaded only then
+  let fxPipe: { render(): void } | null = null;
+  if (new URLSearchParams(location.search).get('fx')) void import('../render/fx').then((m) => { const on = m.fxOf(location.search); if (on.size) fxPipe = m.createFx(renderer as any, scene, camera, on, () => camera.position.distanceTo(body.position)); });
   const filmShot = filmShotOf(location.search); // the film camera (CC-130): only with ?film=<shot>
   const film = filmShot ? (await import('../film/overlay')).startFilm(filmShot, params, renderer.domElement as HTMLCanvasElement, course.finishX) : null;
   let filmAir = 0;
@@ -1582,7 +1585,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
     floor.update(now / 1000);
     if (chunks.length > 8) cullFar(chunks, camera.position, 260); // far chunks of a big place are not drawn
     perf.renderStart();
-    renderer.render(scene, camera);
+    if (fxPipe) fxPipe.render(); else renderer.render(scene, camera);
     clipHook?.(); // the clip takes this picture before the front inset is drawn over it
     perf.renderEnd();
     // The front inset accompanies the default side view; F toggles it in every camera mode.

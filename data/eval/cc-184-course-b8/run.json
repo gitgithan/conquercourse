@@ -2,7 +2,7 @@
   "source": "../conquercourse-assets/music/course-b_8.ogg",
   "start_s": 1.386,
   "end_s": 9.957,
-  "bpm": 140.0,
+  "bpm": 140,
   "bars": 5,
   "why": "high notes grow after 10 s (energy above 3 kHz: 0.24 at 10.0 s, 0.62 at 13.5 s); five bars end at 9.96 s, best seam of 3-6 bars",
   "hf3k_before": "see README"

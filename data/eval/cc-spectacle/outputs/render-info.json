@@ -1,0 +1,12 @@
+{
+  "rookie_objects": 3,
+  "blender": "5.0.1",
+  "engine": "CYCLES-CPU",
+  "samples": 48,
+  "seconds_per_shot": {
+    "1-wall-golden": 49.7,
+    "2-rope-wide": 49.8,
+    "3-lache-closeup": 32.3
+  },
+  "total_seconds": 131.8
+}
