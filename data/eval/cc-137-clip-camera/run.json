@@ -1,0 +1,10 @@
+{
+  "experiment": "cc-137-clip-camera",
+  "date": "2026-10-29",
+  "script": "scripts/share-cam-check.mjs",
+  "viewport": "1280x720",
+  "clip": "720x1280, 30 fps, 4 ticks per picture",
+  "threshold": 0.3333,
+  "results": { "lache": 0.34, "climb": 0.34, "drop": 0.34 },
+  "pass": true
+}
