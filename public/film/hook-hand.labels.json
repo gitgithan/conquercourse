@@ -1,0 +1,18 @@
+{
+  "course": "/assets/demo/lache.course.json",
+  "labels": [
+    {
+      "id": "hand",
+      "text": "Hand on the bar",
+      "at": [
+        39,
+        2.9,
+        0
+      ],
+      "from": 0.4,
+      "to": 1.8,
+      "dx": 70,
+      "dy": -80
+    }
+  ]
+}

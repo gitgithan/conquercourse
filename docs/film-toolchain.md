@@ -13,12 +13,16 @@ Every shot is a capture of the running game on the stepped clock, so it is frame
 - **Cards** (`demo/src/components/Cards.tsx`): title and end card; a Muse Image still can go behind the title and is tagged META.
 - **Course intro template** (`demo/data/course-intro/<course>.json`): one data file per course gives a flyover with labelled obstacles.
 - **Music bed** (`demo/src/lib/music.ts`): fade, ducking under a voice, and cuts snapped to the beat.
+- **Beat-cut hook** (`demo/src/Hook20.tsx`, data in `demo/data/hook/`): every shot is a whole number of beats, so every cut lands on the music; cuts, whips and flashes.
+- **Tempo measurer** (`scripts/measure-bpm.py`): finds the tempo and first beat of a music file; the hook data must match its output (a test checks it).
 - **Character intro slot** (`demo/src/components/CharacterIntro.tsx`): a marked placeholder until the ninja-warrior entry clip exists.
 
 ## Turn on the film camera
 - Add `?film=<shot>` to a course URL; without it nothing changes.
 - `filmx` and `filmy` set the object the orbit, push and hero shots look at.
 - `labels=/film/<name>.labels.json` adds callouts.
+- `?film=macro` stays on one part of the runner: `filmx` and `filmy` are its offset from the runner (m) and `md` the distance.
+- `dur=2.2` plays a whole move in 2.2 s (a fast drone dash).
 - `photo`, `size`, `box`, `label` and `credit` set the real photo for the hero shot.
 - Film time is `performance.now()`, so the stepped clock makes it deterministic.
 - The page hides its own panels while a film shot is on.
@@ -42,7 +46,15 @@ Every shot is a capture of the running game on the stepped clock, so it is frame
 - Check by eye: the photo, the box and its label, the dissolve, the flight, the callouts sticking to the stairs, ledge and rail.
 
 ## Other renders
-- `npm run render:hook`: the 20 second 9:16 cut.
+- `npm run render:hook`: the 20 second hook in 16:9, cut on the beat; `npm run render:hook916` is the 9:16 one.
+- `node scripts/film.mjs --ramp 3,5,0.25` makes slow motion: between seconds 3 and 5 of the film the game runs at a quarter speed, and every frame is still captured.
+- `node scripts/film.mjs --from-x 37` steps the game without pictures until the runner reaches x = 37, then starts the film there.
+- `--skip 5` does the same for a number of game seconds.
+- `scripts/film-hook.sh <dir> <width> <height> <take...>` records the takes of the 20 second hook (hero, foot, dash, hand, swing, landing) one browser at a time.
+- `npx tsx scripts/film-timeline.ts <course.json>` prints where the runner is, second by second, so a take can start at the right place.
+- Film mode now runs the game on the stepped clock too:
+  - Before CC-143 the camera was stepped but the runner ran on the real clock, about ten times too fast per frame.
+  - The earlier hero and flyover clips show that fast runner; the camera in them was right.
 - `npm run render:intro`: a course intro from its data file.
 - `npm run render:full`: the three-minute skeleton; beats with no clip show a "TO FILM" card, so nothing is faked.
 - `npm run studio`: Remotion Studio, to scrub and tune.
