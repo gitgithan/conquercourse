@@ -24,6 +24,7 @@ import { createGaugeStack } from '../ui/gauges';
 import { HUD, hudOn, keycapCss, panelCss } from '../ui/hud-style';
 import { PHONE_WORDS, browserPointing, phoneMode } from '../share/phone';
 import { clipCard, shareButtons, showBanner } from '../share/share-ui';
+import { organiseReport, reportSectionsOn } from '../ui/report-sections';
 import { courseHash, encodeLog, inputOfMask, type InputLog } from '../sim/replay';
 import { findShortcuts, shortcutLine, type Shortcut } from '../sim/shortcuts';
 const findShortcutsNow = (c: CourseData): Shortcut[] => findShortcuts(c, { moveChoices: false }).shortcuts; // ?bot=shortcut only: blocks the page while it searches
@@ -1369,6 +1370,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
           const mine = ghostCtl?.myRun() ?? null, mineClip = ghostCtl?.myClip() ?? null, ticks = world.runner.tick; // a link needs a run from the start; a clip can be made of any try (CC-157)
           if (mine || mineClip) body.querySelector('#report-actions')?.append(...shareButtons({ link: mine ? (nick) => makeChallengeUrl(location.origin, location.search, course, mine, nick) : undefined, courseTooBig: () => courseTooBig(location.search, course), clip: mineClip && clipFits(ticks) ? () => void makeClip(mineClip.log, ticks, mineClip.from) : undefined }));
         }
+        if (reportSectionsOn(params)) organiseReport(body, !botMode && !demo && !idealWhole ? { dojo: () => openDojo() } : {}); // CC-158
         setMusicScreen('report');
         panel.append(body); (body.querySelector('#report-again') as HTMLElement | null)?.focus({ preventScroll: true });
         if (!botMode && !demo && !idealWhole || params.get('next') === '1') onboarding.onCleared(panel); // CC-100: the one-time What next card, at the top of the report

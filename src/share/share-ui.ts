@@ -64,7 +64,10 @@ export function clipCard(): { say(text: string): void; done(blob: Blob, name: st
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url; a.download = name; a.id = 'clip-download'; a.textContent = 'Download clip'; a.style.cssText = BTN + ';text-decoration:none';
-      say(note); el.append(a, button('Close', () => { el.remove(); URL.revokeObjectURL(url); }));
+      const file = new File([blob], name, { type: blob.type || 'video/mp4' });
+      const post = navigator.canShare?.({ files: [file] }) ? button('Share…', () => { void navigator.share({ files: [file], text: 'My run on ConquerCourse. Train slow. Run fast.' }).catch(() => { /* closed the share sheet */ }); }) : null; // phones: straight to the apps (CC-158)
+      if (post) post.id = 'clip-share';
+      say(note); el.append(a, ...(post ? [post] : []), button('Close', () => { el.remove(); URL.revokeObjectURL(url); }));
     },
   };
 }
