@@ -44,8 +44,10 @@ import { climbAhead } from '../sim/climb';
 import { DEFAULT_HANG, feetOf, handOffset } from '../sim/holds';
 import { actorStateFor } from '../motion/actor-state';
 import { groundAt } from '../sim/terrain';
-import { drumsFor, type Drum } from '../sim/drums';
+import { drumsFor, drumsForPaths, type Drum } from '../sim/drums';
 import { approachToast } from '../ui/approach-toast';
+import { forkCell, pathsOn, waysOf } from '../ui/paths';
+import { branchesOf } from '../sim/branches';
 import { createDrumLane } from '../ui/drum-lane';
 import { GOLD_LEGEND, goldOld, hardestBlock, hardestLabel, hardestOf } from '../ui/hardest';
 import { bestLine, buildReport, clearLog, logTick, newLog, renderReport } from '../ui/run-report';
@@ -488,6 +490,8 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
       d.className = 'ob ' + (st === 'd' ? 'done' : st === 'n' ? 'todo next' : 'todo') + (hard?.id === z.id ? ' hard' : '');
       d.style.animationDelay = `${i * 0.35}s`;
       d.title = `${z.name}${st === 'd' ? ' (cleared)' : ''}${hard?.id === z.id ? ` - ${hardestLabel(z.name, hard.falls)}` : ''}`;
+      const fork = pathsOn(params) ? branchesOf(course).find((q) => q.id === z.id) : undefined; // CC-225: a fork shows both ways side by side
+      if (fork) { d.innerHTML = forkCell(fork); strip.appendChild(d); return; }
       d.innerHTML = `<svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="animation-delay:${(i * 0.35).toFixed(2)}s">${ICONS[z.id.replace(/-\d+$/, '')] ?? '<circle cx="16" cy="16" r="6"/>'}</svg><span>${st === 'n' ? z.name : ''}</span>`;
       strip.appendChild(d);
     });
@@ -545,8 +549,10 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
     try {
       if (course.track) { drumLane.set([]); if (drumLane.shown) drumLane.toggle(); return; }
       const result = course.plan ? { plan: course.plan, cleared: true } : searchIdealRun(course);
-      const drums = result.cleared ? drumsFor(course, result.plan) : [];
-      drumLane.set(drums);
+      const forkDrums = pathsOn(params) ? drumsForPaths(course) : null; // CC-225: both ways of a fork, each in its own row
+      const fb = branchesOf(course)[0];
+      const drums = forkDrums ?? (result.cleared ? drumsFor(course, result.plan) : []);
+      drumLane.set(drums, forkDrums && fb ? [{ x: fb.forkX, label: `Fork: top ${fb.routes[0].name.split(':')[0]}, bottom ${fb.routes[1].name.split(':')[0]}` }, { x: fb.joinX, label: 'Join' }] : []);
       toastDrums = drums;
       const show = forceDrums || drums.length > 0;
       if (drumLane.shown !== show) drumLane.toggle();
@@ -1427,7 +1433,9 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
         try { localStorage.setItem('cc.course.cleared', '1'); } catch { /* ok */ }
         panel.innerHTML = ''; panel.style.display = 'grid';
         const ghostLine = ghostCtl?.reportLine(world.runner.tick) ?? null;
-        const rep = buildReport(course, runLog, world, runKind === 'attempt', bestLine(course));
+        const ways = pathsOn(params) && runKind === 'attempt' ? waysOf(course, runLog.path) : null; // CC-225: the way taken, and the best line of that way
+        const rep = buildReport(course, runLog, world, runKind === 'attempt', bestLine(course, ways?.takenPlan ?? undefined));
+        if (ways) rep.ways = ways;
         const courses = DEMOS.filter((d) => !WORD_VALUES.includes(d[0])), here = courses.findIndex((d) => (d[0] || null) === currentWorld(params, course.name).value), nxt = courses[here + 1];
         const body = renderReport(course, runLog, rep, {
           again: () => restart(course.startX),
