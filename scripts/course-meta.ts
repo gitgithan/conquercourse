@@ -6,14 +6,16 @@ import { statKey } from '../src/ui/course-stats';
 import { trackFromPlan } from '../src/sim/replay';
 import type { CourseData } from '../src/course/course';
 
-export type CourseMeta = { obstacles: number; idealTicks: number | null };
+export type CourseMeta = { obstacles: number; idealTicks: number | null; routeTicks?: Record<string, number> };
 export function metaFor(path: string): CourseMeta {
   const course = JSON.parse(readFileSync(`public${path}`, 'utf8')) as CourseData & { zones?: unknown[] };
   const idealTicks = course.plan ? trackFromPlan(course, course.plan).ticks : null;
   // an obstacle is a press of the best line (a jump, a vault or a climb); a course with no best line counts its marked zones
   const p = course.plan;
   const pressed = p ? p.jumpXs.length + (p.vaultXs?.length ?? 0) + (p.climbXs?.length ?? 0) : 0;
-  return { obstacles: Math.max(1, pressed || (course.zones?.length ?? 1)), idealTicks };
+  const routes = (course as CourseData).branches?.flatMap((b) => b.routes) ?? [];
+  const routeTicks = routes.length ? Object.fromEntries(routes.filter((r) => r.ticks !== undefined).map((r) => [r.id, r.ticks as number])) : undefined;
+  return { obstacles: Math.max(1, pressed || (course.zones?.length ?? 1)), idealTicks, ...(routeTicks ? { routeTicks } : {}) };
 }
 export const cardPaths = (): string[] => DEMO_GROUPS.flatMap(([, ds]) => ds.map((d) => d[0])).filter((v) => v.startsWith('/assets/'));
 
