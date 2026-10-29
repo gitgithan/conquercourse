@@ -4,7 +4,7 @@ import * as THREE from 'three';
 import type { CourseData } from '../course/course';
 import type { Plan } from '../sim/ideal';
 import type { RunnerInput } from '../sim/runner';
-import { createGhostFigure, type GhostFigure, type RookieLook } from './ghost-look';
+import { GHOST_OPACITY, createGhostFigure, type GhostFigure, type RookieLook } from './ghost-look';
 import { InputRecorder, gapSeconds, gapWords, trackFromPlan, type GhostTrack, type InputLog } from '../sim/replay';
 
 export type GhostMode = 'off' | 'ideal' | 'friend'; // a friend's run comes from a challenge link (CC-128) and is never remembered
@@ -41,8 +41,8 @@ export interface Ghost {
 const ICON = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 21 V11 a7 7 0 0 1 14 0 V21 l-3.5 -2.5 L12 21 l-3.5 -2.5 Z"/><circle cx="9.5" cy="11" r="1" fill="currentColor"/><circle cx="14.5" cy="11" r="1" fill="currentColor"/></svg>`;
 
 export function createGhost(o: GhostOpts): Ghost {
-  let mode: GhostMode = 'off';
-  try { if (localStorage.getItem(MODE_KEY) === 'ideal') mode = 'ideal'; } catch { /* the chip still works for this visit */ }
+  let mode: GhostMode = 'ideal'; // CC-180: the ghost and the player are both shown unless the player turned the ghost off (N)
+  try { if (localStorage.getItem(MODE_KEY) === 'off') mode = 'off'; } catch { /* the chip still works for this visit */ }
   const recorder = new InputRecorder();
   let full = true; // this run began at the start of the course
   let from: number | null = null; // where this run began, when its keys are being kept
@@ -52,7 +52,7 @@ export function createGhost(o: GhostOpts): Ghost {
 
   const figure: GhostFigure | null = o.oldLook ? null : createGhostFigure(o.scene, o.look?.() ?? 'a');
   let friendLook: RookieLook | null = null;
-  const body = new THREE.Mesh(new THREE.CapsuleGeometry(0.28, 1.1, 6, 12), new THREE.MeshBasicMaterial({ color: 0x5ec8ff, transparent: true, opacity: 0.4, depthWrite: false }));
+  const body = new THREE.Mesh(new THREE.CapsuleGeometry(0.28, 1.1, 6, 12), new THREE.MeshBasicMaterial({ color: 0x5ec8ff, transparent: true, opacity: GHOST_OPACITY, depthWrite: false }));
   body.raycast = () => undefined; // nothing can pick it
   body.renderOrder = 5; body.visible = false;
   o.scene.add(body);
@@ -146,6 +146,7 @@ export function createGhost(o: GhostOpts): Ghost {
     reportLine(ticks) {
       const t = shown();
       if (!t || !full) return null;
+      if (mode === 'friend' && !t.cleared) { const q = document.createElement('div'); q.style.cssText = 'font:600 15px system-ui,sans-serif;color:#17201d'; q.textContent = `${friendNick ? `${friendNick}\x27s` : 'The friend\x27s'} try ended in a fall, ${t.xs[t.ticks].toFixed(0)} m along the course.`; return q; }
       const who = mode === 'friend' ? (friendNick ? `${friendNick}\x27s run` : 'the friend\x27s run') : 'the ideal run';
       const mine = ticks / 120, theirs = t.ticks / 120, d = mine - theirs;
       const p = document.createElement('div');

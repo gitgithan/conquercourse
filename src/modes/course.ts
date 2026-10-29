@@ -17,7 +17,7 @@ import { DEFAULT_ROPE } from '../sim/rope';
 import { inputFor, searchIdealRun, workSeconds, xWindows, type Plan, type SearchResult, type Window } from '../sim/ideal';
 import { IdealPool } from '../sim/ideal-pool';
 import { createGhost } from '../ui/ghost';
-import { lookOfParam } from '../ui/ghost-look';
+import { lookOfParam, softenPlayer } from '../ui/ghost-look';
 import { challengeWords, courseTooBig, makeChallengeUrl, offersIdeal, openChallenge, secondsWords, shareOn } from '../share/challenge';
 import { MARKER_BELOW, RUNNER_M, TICKS_PER_FRAME, clipCameraDistance, clipCrop, clipFits, clipFrames, clipLayoutFor, createClipEncoder, drawClipFrame, clipViewMetres, type ClipLayout } from '../share/clip';
 import { mountTouch, touchOn } from '../share/touch';
@@ -304,6 +304,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
     try {
       const next = await createRookieActor(scene, { rookie: which, url: wear ? lookUrl(look ?? 'custom') : undefined });
       actor?.dispose();
+      softenPlayer(next.object); // CC-180
       actor = next; body.visible = false; choice = which; custom = wear;
       if (params.get('nopush') !== '1') actor.setObstacle(makeObstacle(course));
       if (!wear) try { localStorage.setItem('cc.rookie', which); } catch { /* ok */ }
