@@ -19,7 +19,7 @@ import { inputFor, searchIdealRun, workSeconds, xWindows, type Plan, type Search
 import { IdealPool } from '../sim/ideal-pool';
 import { createGhost } from '../ui/ghost';
 import { lookOfParam, softenPlayer } from '../ui/ghost-look';
-import { challengeWords, courseTooBig, makeChallengeUrl, offersIdeal, openChallenge, secondsWords, shareOn } from '../share/challenge';
+import { challengeWords, courseTooBig, makeLink, offersIdeal, openChallenge, secondsWords, shareOn } from '../share/challenge';
 import { MARKER_BELOW, RUNNER_M, TICKS_PER_FRAME, clipCameraDistance, clipCrop, clipFits, clipFrames, clipLayoutFor, createClipEncoder, drawClipFrame, clipViewMetres, type ClipLayout } from '../share/clip';
 import { mountTouch, touchOn } from '../share/touch';
 import { createGaugeStack } from '../ui/gauges';
@@ -1128,7 +1128,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
     });
     const tryClip = shareOn(params) && !botMode && !demo && !idealWhole && !params.get('mode') ? ghostCtl?.myClip() ?? null : null, tryTicks = world.runner.tick;
     const tryRun = shareOn(params) && !botMode && !demo && !idealWhole && !params.get('mode') ? ghostCtl?.myRun() ?? null : null; // CC-181: a try that fell can be sent as a link too; it never counts for a time
-    if (tryRun) row.append(...copyLinkButton({ link: (nick) => makeChallengeUrl(location.origin, location.search, course, tryRun, nick, choice, 'fell'), courseTooBig: () => courseTooBig(location.search, course), label: 'Copy link to this try', id: 'share-copy-fall' }));
+    if (tryRun) row.append(...copyLinkButton({ link: (nick) => makeLink(location.origin, location.search, course, tryRun, nick, choice, 'fell'), courseTooBig: () => courseTooBig(location.search, course), label: 'Copy link to this try', id: 'share-copy-fall' }));
     if (tryClip && clipFits(tryTicks)) mk('Download a video of this try', () => void makeClip(tryClip.log, tryTicks, tryClip.from)).id = 'share-clip-fall'; // CC-157: a try that ended in a fall is worth a clip too
     mk('Show me the ideal run (I)', () => showIdeal(lastZone));
     if (!course.track) mk('Make it easier', () => openEditor('easier')).id = 'makeeasier';
@@ -1440,7 +1440,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
         if (ghostCtl && !botMode && !demo && !idealWhole) body.querySelector('#report-actions')?.prepend(...ghostCtl.reportActions(() => { panel.style.display = 'none'; retryX = course.startX; restart(course.startX); }));
         if (shareOn(params) && !botMode && !demo && !idealWhole && !params.get('mode')) {
           const mine = ghostCtl?.myRun() ?? null, mineClip = ghostCtl?.myClip() ?? null, ticks = world.runner.tick; // a link needs a run from the start; a clip can be made of any try (CC-157)
-          if (mine || mineClip) body.querySelector('#report-actions')?.append(...shareButtons({ link: mine ? (nick) => makeChallengeUrl(location.origin, location.search, course, mine, nick, choice) : undefined, courseTooBig: () => courseTooBig(location.search, course), clip: mineClip && clipFits(ticks) ? () => void makeClip(mineClip.log, ticks, mineClip.from) : undefined }));
+          if (mine || mineClip) body.querySelector('#report-actions')?.append(...shareButtons({ link: mine ? (nick) => makeLink(location.origin, location.search, course, mine, nick, choice) : undefined, courseTooBig: () => courseTooBig(location.search, course), clip: mineClip && clipFits(ticks) ? () => void makeClip(mineClip.log, ticks, mineClip.from) : undefined }));
         }
         if (reportSectionsOn(params)) organiseReport(body, !botMode && !demo && !idealWhole ? { dojo: () => openDojo() } : {}); // CC-158
         setMusicScreen('report');

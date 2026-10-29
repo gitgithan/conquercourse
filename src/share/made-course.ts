@@ -4,6 +4,7 @@ import type { CourseData } from '../course/course';
 import { b64url, pipe, unb64url } from '../sim/replay';
 
 export const MAX_MADE_CHARS = 1700; // the packed course; with the keys the whole address stays under MAX_PARAM_CHARS (2000)
+export const SHARE_MAX_MADE_CHARS = 20_000; // with a short link (CC-219) the course lives on the server, so the 2000-character limit does not apply; the unpacked size cap below still does
 const MAX_RAW_CHARS = 60_000; // an unpacked course bigger than this is a bomb, not a course
 
 // Looks only, or worked out again from the platforms: none of these change where a runner can stand, so they stay home.
@@ -71,9 +72,9 @@ export async function packCourse(course: CourseData): Promise<string> {
 }
 
 /** Open a packed course, or null when it is too big, damaged or not a course. */
-export async function unpackCourse(packed: string): Promise<CourseData | null> {
+export async function unpackCourse(packed: string, maxChars = MAX_MADE_CHARS): Promise<CourseData | null> {
   try {
-    if (packed.length < 2 || packed.length > MAX_MADE_CHARS) return null;
+    if (packed.length < 2 || packed.length > maxChars) return null;
     const body = unb64url(packed.slice(1));
     let raw: Uint8Array;
     if (packed[0] === 'r') raw = body;
