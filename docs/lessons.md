@@ -114,3 +114,13 @@
 - Phone behaviour that was already built stays: a challenge link opened on a phone says to play on a computer (CC-138, `35c0572`).
 - Rule for agents: no 390 px screenshots, no narrow-screen fixes, no touch buttons in any issue.
 
+
+## The ideal-run search: trial time caps and the route pair (CC-164, CC-176)
+- The bar trials were cut at 25 s from the start of the run and the route trials at 40 s.
+  - Once other obstacles came before the bars (Training: bars at 28 s), no trial reached them and the search did not clear at all.
+  - The cap is now 25 s (40 s) after the time the runner needs to reach the obstacle (`lead` in `src/sim/ideal.ts`); a falling run stops at once, so this costs nothing for failures.
+- The skip route changed the last press of the plan, whatever it belonged to.
+  - It now changes the press that takes the runner to the first bar, and keeps the presses planned after the pair.
+- Still true: the greedy search is behind a person's line on Training (4960 ticks against 4814 by hand).
+  - A seed from the hand line, polished, gives 4784 (`scripts/seed-plan.ts`).
+- A search result is not a limit; a seed that beats it is a finding.
