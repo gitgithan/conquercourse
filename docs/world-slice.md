@@ -1352,6 +1352,12 @@ The set of obstacle shapes is fixed, and each shape offers a fixed set of moves.
 | Speicherstadt, Hamburg | 12 m | 21 | 103.3 m (5 steps, 1 walls, 2 gaps; footprints: 3 gap-edge) | 0.417 |
 | Alfama, Lisbon | 49 m | 278 | 26.2 m (8 steps, 0 walls, 1 gaps; footprints: 2 gap-edge) | 0.333 |
 | Spanish Steps, Rome | 26 m | 35 | 69.8 m (8 steps, 0 walls, 3 gaps; footprints: 1 deck, 3 gap-edge) | 0.556 |
+| Park Güell, Barcelona | 67 m | 14 | 22.1 m | 0.2 |
+| Tuileries Garden, Paris | 17 m | 5 | 62.4 m | 0.36 |
+| Retiro Park, Madrid | 10 m | 9 | 22.8 m | 0.556 |
+| Bryant Park, New York | 3 m | 21 | 27 m | 0.556 |
+| Gas Works Park, Seattle | 16 m | 27 | 96.9 m | 0.556 |
+| Dolores Park, San Francisco | 37 m | 40 | 38.2 m | 0.455 |
 - **Where to find it:** the Course's "Open another course" menu has "Pick a real place on the map (labs)" with `?labs=1` (the browser remembers it); `?mode=map` works without it.
 - **Checks:** `tests/places.test.ts` (14 tests) and `scripts/map-places-check.mjs` (14 checks, a test proxy refuses the map servers: ready place in about 1.4 s, a pin far from any place with the saved answer, the error with ready places offered, Cancel in under a second); `scripts/map-check.mjs` follows the new flow.
 - **Known gaps**
@@ -1650,4 +1656,20 @@ The set of obstacle shapes is fixed, and each shape offers a fixed set of moves.
   - `?speed=0` turns it off.
   - `scripts/warm-places.mjs` asks the site for a list of places so its cache answers them; run it from the demo network.
 - **Numbers and the check:** `data/eval/cc-152-osm-speed/README.md`, `scripts/osm-speed.ts`, `scripts/map-speed-check.mjs`.
+- **Which calls go direct and which go through a Pages Function (asked by the product owner):**
+
+| Call | Goes | Why | Could it go direct? | What would be lost |
+|---|---|---|---|---|
+| Map tiles (OpenFreeMap) | Browser direct | No key, built for browsers | Already direct | Nothing |
+| Search by name (Nominatim) | Browser direct | No key, one call per search | Already direct | Nothing |
+| Terrain tiles (AWS Terrarium) | Browser direct | No key, public, allows browsers | Already direct | Nothing |
+| Buildings (Overpass) | Function first (`/api/places`), then the six servers straight from the browser if the function fails | Shared cache: a place one player pinned is instant for the next, kept 30 days; the function also limits one address to 20 new places in ten minutes so we are polite to free servers | Yes, and it already does as the fallback | The shared cache (every first pin by every player waits 20 to 40 s) and the politeness limit; the cache is per Cloudflare data centre, so it is only a partial shield |
+| Place photos (Mapillary `/api/photos`) | Function only | Secret: Mapillary needs a token, and a token in the page is public; also picture addresses expire, so the function asks fresh ones and caches them 30 minutes | No | We would have to ship the token (anyone could use it up) or drop live photos and keep only the saved ones |
+| Ready places and saved photos | Our own files | Built in advance, no network to a third party | Already direct | Nothing |
+| Muse Spark Open helpers (`/api/designer`, `/api/photo-course`, `/api/course-agent`, `/api/move-tips`) | Function only | Secret: the Baseten key; also tight rate limits and a short reply | No | The key would be public |
+| Clears, stats, community (`/api/course-clear`, `/api/course-stats`, `/api/community`) | Function only | Trust: only the server can replay a run and keep one shared database | No | Honest leaderboards and the shared gallery |
+
+- **So what for the question "why server functions at all":** only the Overpass call is a choice; the rest need a secret or a shared, trusted store.
+  - Moving Overpass fully to the browser would cost the shared cache and the politeness limit, and would not make a first pin faster.
+  - No code was moved; that needs the product owner's yes.
 
