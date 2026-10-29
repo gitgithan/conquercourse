@@ -4,6 +4,8 @@ import type { Advice, LaneSetting } from './advice';
 import type { FixedBars } from './fixbars';
 import type { Fixed } from './fixit';
 import type { P } from './holds-world';
+import type { AgentReport } from './course-agent';
+import type { Layout } from './photo-course';
 import { answer, type ProofRequest } from './proof-answer';
 
 // The page side of the proof worker. One worker per kind of question, so a new "does this lane clear?" while the player drags can cancel the old one
@@ -42,3 +44,4 @@ export const barsInWorker = (pieces: P[], lane: LaneSetting, budget = workSecond
 export const adviceInWorker = (pieces: P[], lane: LaneSetting, budget = workSeconds(10)): Promise<Advice[]> => ask('advice', { kind: 'advice', pieces, lane, budget }, true); // in a worker the page does not freeze, so the tries get more work than the old 1.5 s
 export const clearedInWorker = (course: CourseData): Promise<boolean> => ask('cleared', { kind: 'cleared', course }, true);
 export const provesInWorker = (pieces: P[], lane: LaneSetting): Promise<boolean> => ask('proves', { kind: 'proves', pieces, lane }, true);
+export const agentTestInWorker = (layout: Layout): Promise<AgentReport> => ask('agent', { kind: 'agentTest', layout });

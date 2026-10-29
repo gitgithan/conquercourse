@@ -3,6 +3,7 @@ import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { homedir } from 'node:os';
 import { defineConfig, type Plugin } from 'vite';
 import { askSpark, limited, MAX_BODY } from './functions/api/designer';
+import { askAgent } from './functions/api/course-agent';
 import { askPhoto, MAX_PHOTO_BODY } from './functions/api/photo-course';
 import { lookup } from './functions/api/places';
 import { lookup as lookupPhotos } from './functions/api/photos';
@@ -27,6 +28,19 @@ const designerDev = (): Plugin => ({
           const r = await askPhoto(key, JSON.parse(raw));
           send(r.status, r.body);
         } catch { send(502, { error: 'the photo helper is unavailable' }); }
+      });
+    });
+    server.middlewares.use('/api/course-agent', (req, res) => {
+      const send = (status: number, body: unknown) => { res.statusCode = status; res.setHeader('content-type', 'application/json'); res.end(JSON.stringify(body)); };
+      if (req.method !== 'POST') return send(405, { error: 'POST only' });
+      let raw = '';
+      req.on('data', (c) => { raw += c; if (raw.length > MAX_PHOTO_BODY + 20_000) req.destroy(); });
+      req.on('end', async () => {
+        try {
+          if (limited('agent:dev', Date.now(), 60)) return send(429, { error: 'slow down a little' });
+          const r = await askAgent(key, JSON.parse(raw));
+          send(r.status, r.body);
+        } catch { send(502, { error: 'the course agent is unavailable' }); }
       });
     });
     server.middlewares.use('/api/designer', (req, res) => {
