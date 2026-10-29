@@ -10,7 +10,7 @@ export interface HeroStart {
   name: string; positions: number[]; indices: number[];
   lane: { angle: number; offset: number; level: number; from: string };
   camera: { heading: number; pitch: number; distance: number; target: { x: number; z: number } };
-  objects: { src: string; x: number; z: number; y: number; yaw: number; scale: number }[];
+  objects: { src: string; x: number; z: number; y: number; yaw: number; scale: number; decor: boolean }[];
 }
 
 // The editor's world point of a lane point: the inverse of place2game for a point on the lane (v = 0), at course height y.
@@ -28,6 +28,6 @@ export async function heroStart(slug: string, f: typeof fetch = fetch, withBox =
   const bs = buildingsFrom(place.answer, place.lat, place.lon).filter((q) => q.ring.length >= 3 && Math.abs(q.ring.reduce((s, a, i) => { const p = q.ring[(i + 1) % q.ring.length]; return s + a[0] * p[1] - p[0] * a[1]; }, 0)) >= 4);
   const m = extrude(bs, b.k, (place.ground ? { radius: place.radius, ...place.ground } : null) as Ground | null);
   const piece = centred({ positions: m.positions, indices: m.indices });
-  const objects = (withBox ? course.scene ?? [] : []).map((o) => { const p = laneToEditor(b, o.x, o.y, boxAcross); return { src: `obj:${(o.url ?? '').split('/').pop()}`, x: +p.x.toFixed(3), z: +p.z.toFixed(3), y: +p.y.toFixed(3), yaw: 0, scale: (o.scale ?? 1) * boxScale }; });
+  const objects = (withBox ? course.scene ?? [] : []).map((o) => { const p = laneToEditor(b, o.x, o.y, boxAcross); return { src: `obj:${(o.url ?? '').split('/').pop()}`, x: +p.x.toFixed(3), z: +p.z.toFixed(3), y: +p.y.toFixed(3), yaw: 0, scale: (o.scale ?? 1) * boxScale, decor: true }; });
   return { name: place.name, positions: Array.from(piece.positions as ArrayLike<number>), indices: Array.from(piece.indices as ArrayLike<number>), lane: { angle: b.angle, offset: b.offset, level: b.level, from: 'hero' }, camera: { heading: (b.angle * 180) / Math.PI, pitch: 60, distance: 18, target: (({ x, z }) => ({ x, z }))(laneToEditor(b, 22, 0)) }, objects };
 }
