@@ -1,6 +1,6 @@
 import { existsSync, readFileSync, readdirSync } from 'node:fs';
-import { describe, expect, it } from 'vitest';
-import { DEMOS, DEMO_GROUPS, WORD_VALUES, currentWorld, hasThumb, thumbSlug, thumbUrl, worldHref } from '../src/ui/world-picker';
+import { afterEach, describe, expect, it } from 'vitest';
+import { DEMOS, DEMO_GROUPS, LEAVE_MESSAGE, WORD_VALUES, currentWorld, hasThumb, mayLeaveCourse, thumbSlug, thumbUrl, worldHref } from '../src/ui/world-picker';
 
 describe('the world picker list (CC-89)', () => {
   it('every course in the list is a file on disk', () => {
@@ -52,5 +52,37 @@ describe('the world picker list (CC-89)', () => {
     expect(readFileSync('src/main.ts', 'utf8')).toMatch(/mountWorldGallery/);
     expect(readFileSync('src/main.ts', 'utf8')).toMatch(/installGalleryKeyGuard\(\)/);
     expect(readFileSync('src/modes/course.ts', 'utf8')).toMatch(/mountWorldGallery\(document\.body/);
+  });
+});
+
+describe('leaving with unsaved editor work', () => {
+  const g = globalThis as unknown as Record<string, unknown>;
+  const realWindow = g.window;
+  afterEach(() => { g.window = realWindow; });
+  const stubWindow = (unsaved: (() => boolean) | undefined, answer: boolean): string[] => {
+    const asked: string[] = [];
+    g.window = { ccHasUnsavedChanges: unsaved, confirm: (msg: string) => { asked.push(msg); return answer; } };
+    return asked;
+  };
+  it('other modes never ask: no hook, no question, just go', () => {
+    const asked = stubWindow(undefined, true);
+    expect(mayLeaveCourse()).toBe(true);
+    expect(asked).toEqual([]);
+  });
+  it('a saved editor never asks', () => {
+    const asked = stubWindow(() => false, true);
+    expect(mayLeaveCourse()).toBe(true);
+    expect(asked).toEqual([]);
+  });
+  it('an unsaved editor asks in plain words, and Cancel stays', () => {
+    const asked = stubWindow(() => true, false);
+    expect(mayLeaveCourse()).toBe(false);
+    expect(asked).toEqual([LEAVE_MESSAGE]);
+    expect(LEAVE_MESSAGE).toBe('You have changes you have not saved. Leave and lose them?');
+  });
+  it('an unsaved editor leaves when the player agrees', () => {
+    const asked = stubWindow(() => true, true);
+    expect(mayLeaveCourse()).toBe(true);
+    expect(asked).toEqual([LEAVE_MESSAGE]);
   });
 });
