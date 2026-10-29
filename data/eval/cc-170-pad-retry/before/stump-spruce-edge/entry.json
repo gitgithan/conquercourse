@@ -1,0 +1,36 @@
+{
+  "photo": "stump-spruce-edge",
+  "mask_seconds": 1.3,
+  "lift_seconds": 14.6,
+  "wall_seconds": 250.8,
+  "mask": {
+    "how": "text",
+    "score": 0.5703125,
+    "iou_with_box": 0.874,
+    "candidates": 1,
+    "pixels": 342614
+  },
+  "privacy": {
+    "people": 0,
+    "faces": 0,
+    "plates": 0,
+    "changed": false
+  },
+  "n_faces_raw": 495452,
+  "n_gaussians": 359616,
+  "padretry": {
+    "enabled": false,
+    "border": {
+      "top": 0.0,
+      "bottom": 0.23846153846153847,
+      "left": 0.0,
+      "right": 0.0
+    },
+    "padded": false,
+    "touches": true,
+    "extent_aspect": 0.669,
+    "mask_aspect": 0.365,
+    "bad": false,
+    "note": "pad"
+  }
+}

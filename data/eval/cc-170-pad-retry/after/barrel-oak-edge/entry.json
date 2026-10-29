@@ -1,0 +1,36 @@
+{
+  "photo": "barrel-oak-edge",
+  "mask_seconds": 0.3,
+  "lift_seconds": 11.6,
+  "wall_seconds": 127.7,
+  "mask": {
+    "how": "text",
+    "score": 0.96875,
+    "iou_with_box": 0.911,
+    "candidates": 2,
+    "pixels": 511430
+  },
+  "privacy": {
+    "people": 0,
+    "faces": 0,
+    "plates": 0,
+    "changed": false
+  },
+  "n_faces_raw": 911092,
+  "n_gaussians": 510016,
+  "padretry": {
+    "enabled": true,
+    "border": {
+      "top": 0.0,
+      "bottom": 0.0,
+      "left": 0.0,
+      "right": 0.0
+    },
+    "padded": false,
+    "touches": false,
+    "extent_aspect": 1.454,
+    "mask_aspect": 1.733,
+    "bad": false,
+    "note": ""
+  }
+}
