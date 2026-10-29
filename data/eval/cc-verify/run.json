@@ -1,0 +1,282 @@
+{
+  "issue": "CC-186",
+  "where": "Vultr VM2, vite dev server, Chromium swiftshader, 1280x720, stepped clock",
+  "results": {
+    "final": [
+      {
+        "area": "4 share",
+        "name": "finished link opens in a fresh page with a challenge banner",
+        "pass": false,
+        "note": " "
+      },
+      {
+        "area": "1 training",
+        "name": "run without E at the wall ends (slide or fall) and shows a panel",
+        "pass": false,
+        "note": "{\"m\":\"run\",\"o\":\"running\",\"x\":\"79.57\",\"panel\":false,\"text\":\"\"}"
+      },
+      {
+        "area": "1 training",
+        "name": "no separate fail toast over the panel",
+        "pass": true,
+        "note": "[]"
+      },
+      {
+        "area": "1 training",
+        "name": "lache grab frames captured at 1/60 s (judge by eye)",
+        "pass": true,
+        "note": "6 shots"
+      }
+    ],
+    "flow": [
+      {
+        "area": "2 ghost",
+        "name": "ghost chip shown by default in a normal run",
+        "pass": true,
+        "note": "{\"chip\":\"Ghost: working out the ideal run\u2026N\",\"gap\":\"\",\"hud\":true}"
+      },
+      {
+        "area": "2 ghost",
+        "name": "N cycles the ghost mode and returns to the start",
+        "pass": true,
+        "note": "Ghost: working out the ideal run\u2026N -> Ghost: OffN -> Ghost: working out the ideal run\u2026N -> Ghost: OffN -> Ghost: working out the ideal run\u2026N"
+      },
+      {
+        "area": "3 report",
+        "name": "fall panel report: gold label \"Hardest for you\" and legend",
+        "pass": true,
+        "note": "Hardest for you: Gap (1 fall)\nGold marks the obstacle you fell at most this session."
+      },
+      {
+        "area": "3 report",
+        "name": "strip gold on exactly one obstacle and legend line shown",
+        "pass": true,
+        "note": "gold=1 legend=block"
+      },
+      {
+        "area": "3 report",
+        "name": "report legend names You and Ghost",
+        "pass": true,
+        "note": "You got 18 m of 110 m. | \u2501 You | \u2501 Ghost"
+      },
+      {
+        "area": "3 report",
+        "name": "two line colours in the picture",
+        "pass": true,
+        "note": "#e08a00,#0f6b5c"
+      },
+      {
+        "area": "4 share",
+        "name": "fall panel has \"Copy link to this try\"",
+        "pass": true,
+        "note": "Try this gap again (R) | Watch what happened, with the numbers | Copy link to this try | Download a video of this try | Show me the ideal run (I) | Make it easier | Edit this course | Edit this course | Whole course (Shift+I) |  |  | Ghost: Ideal runN | Got it"
+      },
+      {
+        "area": "4 share",
+        "name": "no \"Share\u2026\" button on the fall panel",
+        "pass": true,
+        "note": ""
+      },
+      {
+        "area": "4 share",
+        "name": "fall link copied to the clipboard",
+        "pass": true,
+        "note": "59 chars"
+      },
+      {
+        "area": "4 share",
+        "name": "a friend opening a challenge link is not covered by the Choose Your World chooser",
+        "pass": true,
+        "note": ""
+      },
+      {
+        "area": "4 share",
+        "name": "fall link opens in a fresh page with a banner and plays",
+        "pass": true,
+        "note": "A friend fell 18 m along the course. Can you get further?Download video of this tryClose {\"tick\":\"456\",\"mode\":\"run\",\"ghost\":\"Ghost: Friend's runN\"} errs="
+      },
+      {
+        "area": "3 report",
+        "name": "finished report appears (friend line played)",
+        "pass": true,
+        "note": ""
+      },
+      {
+        "area": "3 report",
+        "name": "finished report legend: You and Ghost, two colours",
+        "pass": true,
+        "note": "#e08a00,#0f6b5c,#d9a521,#6b4a00"
+      },
+      {
+        "area": "4 share",
+        "name": "finished report has \"Copy link to challenge a friend\"",
+        "pass": true,
+        "note": "Open the editor | Explore a place | Build a coaster | Community courses | Send feedback | Got it | Download your clip | Copy link to challenge a friend | Watch the best line | Dojo (T) | Close | Try again (R) | Chase the ghost again | Watch the shortcut | Edit this course | Whole course (Shift+I) |  |  | Ghost: Friend's runN"
+      },
+      {
+        "area": "4 share",
+        "name": "no \"Share\u2026\" button on the finished report",
+        "pass": true,
+        "note": ""
+      },
+      {
+        "area": "4 share",
+        "name": "finished link copied",
+        "pass": true,
+        "note": "116 chars"
+      },
+      {
+        "area": "4 share",
+        "name": "finished link: no chooser over the challenge",
+        "pass": true,
+        "note": ""
+      },
+      {
+        "area": "4 share",
+        "name": "finished link opens in a fresh page with a \"Beat this time\" banner",
+        "pass": false,
+        "note": ""
+      },
+      {
+        "area": "all",
+        "name": "no page errors in the first page",
+        "pass": true,
+        "note": ""
+      }
+    ],
+    "ghost": [
+      {
+        "area": "2 ghost",
+        "name": "bot on the ideal line: chip says Ideal run and gap is level",
+        "pass": true,
+        "note": "{\"chip\":\"Ghost: Ideal runN\",\"gap\":\"Level with the ghost\",\"look\":\"a\",\"x\":\"38.40\",\"tick\":\"637\"}"
+      },
+      {
+        "area": "2 ghost",
+        "name": "ghost look (amber Rookie) loaded",
+        "pass": true,
+        "note": "a"
+      },
+      {
+        "area": "2 ghost",
+        "name": "no 404 on the default course",
+        "pass": false,
+        "note": "404 /api/course-event"
+      },
+      {
+        "area": "2 ghost",
+        "name": "N cycles modes",
+        "pass": true,
+        "note": "Ghost: OffN -> Ghost: Ideal runN -> Ghost: OffN -> Ghost: Ideal runN -> Ghost: OffN"
+      },
+      {
+        "area": "1 training",
+        "name": "no 404 when the Training course loads",
+        "pass": false,
+        "note": "404 /api/course-event"
+      }
+    ],
+    "music": [
+      {
+        "area": "6 music",
+        "name": "Course screen fetched course.ogg (200)",
+        "pass": true,
+        "note": "course.ogg:200"
+      },
+      {
+        "area": "6 music",
+        "name": "html[data-music] = course",
+        "pass": true,
+        "note": "course"
+      },
+      {
+        "area": "6 music",
+        "name": "buffer source loops",
+        "pass": true,
+        "note": "[true]"
+      },
+      {
+        "area": "6 music",
+        "name": "audio clock ran past one loop length and the source never ended",
+        "pass": true,
+        "note": "ctx 4.2 -> 18.9 s, loop 8.57 s, ended 0, sources 1, state running"
+      },
+      {
+        "area": "6 music",
+        "name": "no console errors or page errors",
+        "pass": false,
+        "note": "warning: No available adapters. | warning: THREE.WebGPURenderer: WebGPU is not available, running under WebGL2 backend. | warning: [.WebGL-0x3994001c6a00]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels"
+      }
+    ],
+    "slicer": [
+      {
+        "area": "5 slicer",
+        "name": "Slice works on a ready place",
+        "pass": true,
+        "note": ""
+      },
+      {
+        "area": "5 slicer",
+        "name": "colour legend is on the slice panel",
+        "pass": true,
+        "note": "lane (dashed: checking) | ground at this height | cut buildings | above the cut | can jump this | gap or wall in the way | no lane | ground: flat to steep"
+      },
+      {
+        "area": "5 slicer",
+        "name": "\"More\" details are folded by default (fewer words)",
+        "pass": true,
+        "note": ""
+      },
+      {
+        "area": "5 slicer",
+        "name": "a failing height exists in the strip to test the fixes",
+        "pass": false,
+        "note": "every height crossable; cannot test why/fixes here"
+      },
+      {
+        "area": "5 slicer",
+        "name": "no page errors",
+        "pass": true,
+        "note": ""
+      }
+    ],
+    "training": [
+      {
+        "area": "1 training",
+        "name": "strip shows 10 obstacles (gap, vault, step, wall, climb, plank, lache, rope, trampoline, drop)",
+        "pass": true,
+        "note": "Gap jump,,,,,,,,,"
+      },
+      {
+        "area": "1 training",
+        "name": "drum lane lists E, V, X and Space",
+        "pass": true,
+        "note": "Drums (G) Space V V E E Space E Release X Space E Let go Space X Press X"
+      },
+      {
+        "area": "1 training",
+        "name": "stored ideal line clears from start to finish",
+        "pass": true,
+        "note": "{\"outcome\":\"cleared\",\"report\":true,\"x\":\"233.05\"}"
+      },
+      {
+        "area": "1 training",
+        "name": "every strip icon is done at the end",
+        "pass": true,
+        "note": ":done :done :done :done :done :done :done :done :done :done"
+      },
+      {
+        "area": "1 training",
+        "name": "\"Hold E to grab\" tip shown at the warped wall",
+        "pass": true,
+        "note": ""
+      },
+      {
+        "area": "1 training",
+        "name": "no page errors",
+        "pass": false,
+        "note": "Failed to load resource: the server responded with a status of 404 (Not Found) | Failed to load resource: the server responded with a status of 404 (Not Found)"
+      }
+    ]
+  }
+}
