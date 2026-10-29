@@ -1,0 +1,18 @@
+{
+  "experiment": "cc-212-covers",
+  "date": "2026-10-30",
+  "places_covered": 23,
+  "spanish_steps_extra_query": true,
+  "listed_places": 26,
+  "listed_with_photo": 26,
+  "max_thumb_bytes": 24323,
+  "source": "Wikimedia Commons API",
+  "licences": [
+    "CC0",
+    "CC BY 2.0",
+    "CC BY 4.0",
+    "CC BY-SA 2.0",
+    "CC BY-SA 3.0",
+    "CC BY-SA 4.0"
+  ]
+}
