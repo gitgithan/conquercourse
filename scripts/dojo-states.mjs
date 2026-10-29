@@ -21,7 +21,10 @@ try {
       for (let i = 0; i < step; i++) await page.click('#next');
       if (step === 1) await page.$eval('#knob-speed', (el) => { el.value = '8.5'; el.dispatchEvent(new Event('input', { bubbles: true })); });
       await page.waitForTimeout(400);
-      await page.screenshot({ path: `${out}/${flavour}-${name}-${ex}-${label}.png`, fullPage: true });
+      const h = await page.evaluate(() => Math.min(2600, Math.max(innerHeight, (document.querySelector('.dojo.v2') ?? document.documentElement).scrollHeight)));
+      await page.setViewportSize({ width: viewport.width, height: h });
+      await page.waitForTimeout(200);
+      await page.screenshot({ path: `${out}/${flavour}-${name}-${ex}-${label}.png`, fullPage: false });
     }
     await page.close();
   }
