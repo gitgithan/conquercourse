@@ -8,7 +8,7 @@ import type { WorldState } from '../sim/world';
 // It shows while the hold key is down, or while the runner is in the air within reach (the key is about to be needed). ?grabhint=0 hides it.
 export function createGrabHint(scene: THREE.Scene, course: CourseData, enabled = true) {
   const rim = new THREE.Mesh(
-    new THREE.BoxGeometry(0.7, 0.09, 1.6),
+    new THREE.BoxGeometry(1.1, 0.16, 1.6),
     new THREE.MeshBasicMaterial({ color: 0xfff1b0, transparent: true, opacity: 0.9, depthTest: false }),
   );
   rim.renderOrder = 20;
