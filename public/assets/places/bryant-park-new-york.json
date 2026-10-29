@@ -1418,31 +1418,31 @@
   },
   "lane": {
     "shrink": 0.556,
-    "lengthM": 27,
+    "lengthM": 38.6,
     "levelM": 6,
-    "turnDeg": 60,
-    "sidewaysM": 23.2,
+    "turnDeg": 150,
+    "sidewaysM": 65,
     "steps": 2,
     "faces": 0,
     "gaps": 1,
     "curves": 0,
-    "maxDropM": 0.4,
+    "maxDropM": 0.5,
     "cleared": true,
-    "secondsTaken": 48.5,
+    "secondsTaken": 41.8,
     "line": [
-      13,
-      79.8,
-      37.3,
-      121.9
+      34.4,
+      -160.6,
+      -25.7,
+      -125.9
     ],
     "widthM": 3.6,
     "roles": [
       {
-        "footprint": 16,
+        "footprint": 10,
         "role": "gap-edge"
       },
       {
-        "footprint": 13,
+        "footprint": 0,
         "role": "gap-edge"
       }
     ]

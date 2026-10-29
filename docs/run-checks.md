@@ -18,7 +18,8 @@
 - **Same run or same keys sent again:** answer `duplicate` without replaying, unless the first copy is still unverified; then it is replayed and updated in place.
 - **Too many submissions from one address** (more than 20 in 10 minutes): 429.
   - It lives in one Worker's memory, so it slows a flood and does not stop one; the per-browser limit of 500 events an hour in the database stays.
-- **Course changed** (hash differs): 409, as before. **Unknown course:** 404.
+- **Course changed** (hash differs): 409, as before.
+- **Unknown course:** 404.
 
 ## The checks and their constants
 - All constants are exported from `src/sim/run-checks.ts`, which is pure TypeScript and also usable in the browser and in scripts.
