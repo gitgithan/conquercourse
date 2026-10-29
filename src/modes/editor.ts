@@ -47,7 +47,7 @@ import type { CourseSource } from '../course/course';
 // The World editor: build a world from pieces on a plan view, scale them (a toy brick becomes a block), turn, copy, crop and move them,
 // choose the lane the runner takes (turn about the rod, sideways, level), and play it. Everything is in metres.
 const KEY = 'cc.world.v1';
-interface Saved { pieces: { src: string; x: number; z: number; y: number; yaw: number; scale: number; role?: Role }[]; angle: number; offset: number; level: number; floor?: string }
+interface Saved { pieces: { src: string; x: number; z: number; y: number; yaw: number; scale: number; role?: Role; decor?: boolean }[]; angle: number; offset: number; level: number; floor?: string }
 type P = Piece & { src?: string };
 const isSizeReference = (p: P) => p.src === 'obj:../characters/rookie-a.glb' || p.src === 'obj:../characters/rookie-b.glb';
 const isDevice = (p: P) => p.src?.startsWith('device:') ?? false;
@@ -212,9 +212,18 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
           const mesh = readGlbMesh(mine ? mine.glb : await (await fetch(url)).arrayBuffer());
           const p: P = { ...newPiece(reference ? 'Person' : mine ? mine.prov.name : q.src, mesh, { x: q.x, z: q.z }), src: q.src, y: q.y, yaw: q.yaw, scale: reference ? 1 : q.scale, ...(q.role ? { role: q.role } : {}) };
           if (reference) Object.assign(p, scaleToHeight(p, 1.75));
+          if (q.decor) p.noGround = true; // scenery: seen, but the lane check ignores it (the film's photo box, CC-238)
           if (hangOf.has(q.src)) p.noGround = true; // its crossbar is a saved hold of its own
           pieces.push(p);
         } catch { /* a missing object is skipped */ }
+      }
+      for (const d of pieces.filter((q) => q.noGround && q.src?.startsWith('obj:') && !hangOf.has(q.src))) { // scenery sits on the roof under it, not in the air (CC-238)
+        const pr = laneProfile(pieces.filter((q) => !q.noGround), { angle, offset, level }), u = d.x * Math.cos(angle) + d.z * Math.sin(angle), i0 = Math.floor(u / CELL) - Math.round((pr.origin ?? 0) / CELL);
+        const w = Math.min(6, Math.ceil((size(d.mesh).w * d.scale) / 2 / CELL)), nm = pr.cells.length; // the nearest stretch of real roof wide enough to hold it (a street gap has none)
+        let best = -1;
+
+        for (let k = 0; k <= 80 && best < 0; k++) for (const j of k ? [i0 - k, i0 + k] : [i0]) { if (best >= 0 || j - w < 0 || j + w >= nm) continue; let ok = true; for (let i = j - w; i <= j + w; i++) if (pr.cells[i] == null) { ok = false; break; } if (ok) best = j; }
+        if (best >= 0) { const du = (best - i0) * CELL; d.x += du * Math.cos(angle); d.z += du * Math.sin(angle); d.y = level + Math.max(...pr.cells.slice(best - w, best + w + 1).map((h) => h as number)); }
       }
       if (pendingObjects.length) { pendingObjects.length = 0; changed(false); hist.length = 0; hi = -1; remember(); onWorld(); } // the saved or first world is the starting point of the undo list
       await firstVisitPerson(); // a first visit: the person for scale stands at the start of the lane
@@ -1197,7 +1206,8 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
     if (rubber) { c.strokeStyle = '#0f6b5c'; c.setLineDash([5, 4]); c.strokeRect(sx(rubber.x0), sz(rubber.z0), (rubber.x1 - rubber.x0) * view.ppm, (rubber.z1 - rubber.z0) * view.ppm); c.setLineDash([]); }
   }
   // the side view: the lane's ground, the bars (drag them here), and where a person can reach
-  let sideMap = { uMin: 0, ppm: 20, ph: 20, base: 100 };
+  let sideMap = { uMin: 0, ppm: 20, ph: 20, base: 100, vmin: 0 };
+  const vzoom = new URLSearchParams(location.search).get('vzoom') === '1'; // film: stretch the height so a few metres of real drops are readable
   function drawProfile() {
     const c = profileCanvas.getContext('2d')!;
     const W = profileCanvas.width, H = profileCanvas.height;
@@ -1211,24 +1221,27 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
     const uHi = Math.max(prof.length ? o + prof.length : -Infinity, ...bars.map((b) => b.u), ...(pv ? [pv.prof.length ? po + pv.prof.length : -Infinity, ...pv.bars.map((b) => b.u)] : []), uLo + 10);
     c.fillStyle = '#58635d'; c.font = '12px system-ui';
     c.fillText('What the runner sees: the lane from the side (water at the bottom, grid every metre). Drag a bar to move it.', 8, 14);
-    const base = H - 14, ppm = Math.min(30, (W - 40) / Math.max(10, uHi - uLo + 1)), ph = Math.max(14, (base - 24) / 4.3);
-    sideMap = { uMin: uLo, ppm, ph, base };
+    const base = H - 14, ppm = Math.min(30, (W - 40) / Math.max(10, uHi - uLo + 1)), ph0 = Math.max(14, (base - 24) / 4.3);
+    const hs = prof.cells.filter((h): h is number => h !== null);
+    const vmin = vzoom && hs.length ? Math.floor((Math.min(...hs) - 0.3) * 2) / 2 : 0;
+    const ph = vzoom && hs.length ? Math.max(ph0, (base - 24) / Math.max(2, Math.max(...hs, ...bars.map((b) => b.y)) - vmin + 0.6)) : ph0;
+    sideMap = { uMin: uLo, ppm, ph, base, vmin };
     c.fillStyle = '#cfe3f5'; c.fillRect(0, base, W, 14);
     c.strokeStyle = '#e3e8e4';
-    for (let m = 0; m < 5; m++) { c.beginPath(); c.moveTo(0, base - m * ph); c.lineTo(W, base - m * ph); c.stroke(); }
+    for (let m = 0; base - m * ph > 20; m++) { c.beginPath(); c.moveTo(0, base - m * ph); c.lineTo(W, base - m * ph); c.stroke(); }
     // reach guide: what hands can grab standing and with a jump (the simulator's own numbers)
     c.setLineDash([6, 4]); c.lineWidth = 1.5; c.font = '11px system-ui';
     for (const [h, col, label] of [[REACH_STANDING, '#2f9e5b', 'hands reach standing'], [REACH_JUMPING, '#c9951b', 'hands reach with a jump']] as [number, string, string][]) {
-      c.strokeStyle = col; c.fillStyle = col; c.beginPath(); c.moveTo(0, base - h * ph); c.lineTo(W, base - h * ph); c.stroke(); c.fillText(`${label} (${h} m)`, W - 190, base - h * ph - 3);
+      c.strokeStyle = col; c.fillStyle = col; c.beginPath(); c.moveTo(0, base - (h - vmin) * ph); c.lineTo(W, base - (h - vmin) * ph); c.stroke(); c.fillText(`${label} (${h} m)`, W - 190, base - (h - vmin) * ph - 3);
     }
     c.setLineDash([]);
     c.fillStyle = '#17201d'; c.strokeStyle = '#17201d'; c.lineWidth = 2;
     c.beginPath();
     let pen = false;
-    prof.cells.forEach((h, i) => { if (h === null) { pen = false; return; } const x = 10 + (o - uLo + i * CELL) * ppm, y = base - h * ph; if (!pen) { c.moveTo(x, y); pen = true; } else c.lineTo(x, y); });
+    prof.cells.forEach((h, i) => { if (h === null) { pen = false; return; } const x = 10 + (o - uLo + i * CELL) * ppm, y = base - (h - vmin) * ph; if (!pen) { c.moveTo(x, y); pen = true; } else c.lineTo(x, y); });
     c.stroke();
     for (const b of bars) {
-      const x = 10 + (b.u - uLo) * ppm, y = base - b.y * ph, sel = b.id === selected;
+      const x = 10 + (b.u - uLo) * ppm, y = base - (b.y - vmin) * ph, sel = b.id === selected;
       c.strokeStyle = '#c9ced4'; c.lineWidth = 4; c.beginPath(); c.moveTo(x - 12, y); c.lineTo(x + 12, y); c.stroke();
       c.strokeStyle = sel ? '#0f6b5c' : '#f0a020'; c.lineWidth = 3; c.beginPath(); c.arc(x, y, 9, 0, 7); c.stroke();
       c.fillStyle = '#17201d'; c.fillText(`${b.y.toFixed(2)} m`, x + 12, y - 8);
@@ -1239,20 +1252,20 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
       if (!ix.length) continue;
       const sorted = [...bars].sort((a, b) => a.u - b.u), a0 = sorted[Math.min(...ix) - 1], a1 = sorted[Math.max(...ix) + 1];
       if (!a0) continue;
-      const x0 = 10 + (a0.u - uLo) * ppm, y0 = base - a0.y * ph, x1 = a1 ? 10 + (a1.u - uLo) * ppm : 10 + (o + prof.length - uLo) * ppm, y1 = a1 ? base - a1.y * ph : base;
+      const x0 = 10 + (a0.u - uLo) * ppm, y0 = base - (a0.y - vmin) * ph, x1 = a1 ? 10 + (a1.u - uLo) * ppm : 10 + (o + prof.length - uLo) * ppm, y1 = a1 ? base - (a1.y - vmin) * ph : base;
       c.save(); c.strokeStyle = '#7a4fd1'; c.fillStyle = '#7a4fd1'; c.lineWidth = 2; c.setLineDash([5, 5]); c.beginPath(); c.moveTo(x0, y0); c.quadraticCurveTo((x0 + x1) / 2, Math.min(y0, y1) - 40, x1, y1); c.stroke(); c.setLineDash([]);
       const a = Math.atan2(y1 - (Math.min(y0, y1) - 20), x1 - (x0 + x1) / 2); c.beginPath(); c.moveTo(x1, y1); c.lineTo(x1 - 9 * Math.cos(a - 0.45), y1 - 9 * Math.sin(a - 0.45)); c.lineTo(x1 - 9 * Math.cos(a + 0.45), y1 - 9 * Math.sin(a + 0.45)); c.closePath(); c.fill(); c.restore();
     }
     if (pv) { // the preview: the ground after the change (dashed teal) and the bars where they would hang, with an arrow from where they are now
       c.save(); c.strokeStyle = '#0f9d84'; c.lineWidth = 2; c.setLineDash([6, 4]); c.beginPath();
       let pen2 = false;
-      pv.prof.cells.forEach((h, i) => { if (h === null) { pen2 = false; return; } const x = 10 + (po - uLo + i * CELL) * ppm, y = base - h * ph; if (!pen2) { c.moveTo(x, y); pen2 = true; } else c.lineTo(x, y); });
+      pv.prof.cells.forEach((h, i) => { if (h === null) { pen2 = false; return; } const x = 10 + (po - uLo + i * CELL) * ppm, y = base - (h - vmin) * ph; if (!pen2) { c.moveTo(x, y); pen2 = true; } else c.lineTo(x, y); });
       c.stroke(); c.setLineDash([]);
       for (const nb of pv.bars) {
-        const x = 10 + (nb.u - uLo) * ppm, y = base - nb.y * ph, was = bars.find((b) => b.id === nb.id);
+        const x = 10 + (nb.u - uLo) * ppm, y = base - (nb.y - vmin) * ph, was = bars.find((b) => b.id === nb.id);
         c.strokeStyle = '#0f9d84'; c.fillStyle = '#0f9d8433'; c.lineWidth = 3; c.beginPath(); c.arc(x, y, 9, 0, 7); c.fill(); c.stroke();
         if (was) {
-          const x0 = 10 + (was.u - uLo) * ppm, y0 = base - was.y * ph;
+          const x0 = 10 + (was.u - uLo) * ppm, y0 = base - (was.y - vmin) * ph;
           if (Math.hypot(x - x0, y - y0) > 4) {
             const a = Math.atan2(y - y0, x - x0), x1 = x - 11 * Math.cos(a), y1 = y - 11 * Math.sin(a);
             c.lineWidth = 2; c.beginPath(); c.moveTo(x0 + 11 * Math.cos(a), y0 + 11 * Math.sin(a)); c.lineTo(x1, y1); c.stroke();
@@ -1264,10 +1277,10 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
     }
     document.documentElement.dataset.laneLength = String(prof.length.toFixed(1));
     document.documentElement.dataset.bars = String(bars.length);
-    document.documentElement.dataset.barPx = JSON.stringify(bars.map((b) => [10 + (b.u - uLo) * ppm, base - b.y * ph]));
+    document.documentElement.dataset.barPx = JSON.stringify(bars.map((b) => [10 + (b.u - uLo) * ppm, base - (b.y - vmin) * ph]));
     document.documentElement.dataset.barYs = JSON.stringify(bars.map((b) => Number(b.y.toFixed(2))));
   }
-  const barAtPx = (px: number, py: number) => barsNow().find((b) => Math.hypot(10 + (b.u - sideMap.uMin) * sideMap.ppm - px, sideMap.base - b.y * sideMap.ph - py) < 16);
+  const barAtPx = (px: number, py: number) => barsNow().find((b) => Math.hypot(10 + (b.u - sideMap.uMin) * sideMap.ppm - px, sideMap.base - (b.y - sideMap.vmin) * sideMap.ph - py) < 16);
   let barDrag: { p: P } | null = null;
   profileCanvas.addEventListener('pointerdown', (e) => {
     const r = profileCanvas.getBoundingClientRect();
@@ -1281,7 +1294,7 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
     if (!barDrag) { profileCanvas.style.cursor = barAtPx(e.clientX - r.left, e.clientY - r.top) ? 'grab' : 'default'; return; }
     const p = barDrag.p, c = Math.cos(angle), s = Math.sin(angle);
     const u = Math.round((sideMap.uMin + (e.clientX - r.left - 10) / sideMap.ppm) * 20) / 20;
-    const y = Math.min(4.3, Math.max(0.35, Math.round(((sideMap.base - (e.clientY - r.top)) / sideMap.ph - 0.04) * 20) / 20));
+    const y = Math.min(4.3, Math.max(0.35, Math.round(((sideMap.base - (e.clientY - r.top)) / sideMap.ph + sideMap.vmin - 0.04) * 20) / 20));
     const v = -p.x * s + p.z * c; // keep the sideways place, move along the run
     p.x = u * c - v * s; p.z = u * s + v * c; p.y = y;
     draw(); drawProfile();
