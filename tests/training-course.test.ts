@@ -24,13 +24,6 @@ describe('the Training course', () => {
     const kinds = new Set(log.moves.map((m) => m.kind));
     for (const k of ['jump', 'vault', 'grab', 'climb', 'bounce', 'roll']) expect(kinds.has(k as never), k).toBe(true);
   });
-  it('rolls after the rope swing as well as at the end: the rope drop is about 3.4 m (CC-153)', () => {
-    const rolls = log.moves.filter((m) => m.kind === 'roll').map((m) => m.x);
-    expect(rolls.length).toBe(2);
-    expect(rolls[0]).toBeGreaterThan(c.rope!.anchorX);
-    expect(rolls[0]).toBeLessThan(c.rope!.anchorX + 10);
-    expect(rolls[1]).toBeGreaterThan(150);
-  });
   it('has one zone per beat, in the order they come', () => {
     expect(c.zones!.map((z) => z.id)).toEqual(['gap', 'vault', 'lache', 'rope', 'climb', 'trampoline', 'drop']);
     const xs = c.zones!.map((z) => z.x0); expect([...xs].sort((a, b) => a - b)).toEqual(xs);

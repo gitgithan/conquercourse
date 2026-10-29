@@ -63,7 +63,7 @@
   },
   "rope": {
     "anchorX": 90,
-    "anchorY": 7.8,
+    "anchorY": 6.6,
     "length": 9
   },
   "holds": [
@@ -158,7 +158,7 @@
       84.5,
       126.48
     ],
-    "releaseAfter": 86,
+    "releaseAfter": 58,
     "bouncePress": 8,
     "hands": true,
     "hangTicks": [
@@ -214,13 +214,13 @@
   "routes": [
     {
       "name": "bar to bar",
-      "ticks": 3446,
+      "ticks": 3410,
       "bars": 2,
       "chosen": false
     },
     {
       "name": "skip the second bar",
-      "ticks": 3323,
+      "ticks": 3283,
       "bars": 1,
       "chosen": true
     }
@@ -232,8 +232,8 @@
         "Bar 2"
       ],
       "how": "pump 1.8 s on the bar you hold, let go, and fly past bar 2",
-      "secondsSaved": 1.02,
-      "seconds": 27.69,
+      "secondsSaved": 1.06,
+      "seconds": 27.36,
       "pumpSeconds": 1.8,
       "windowMs": null,
       "designed": false,
@@ -244,7 +244,7 @@
           84.5,
           126.48
         ],
-        "releaseAfter": 86,
+        "releaseAfter": 58,
         "bouncePress": 8,
         "hands": true,
         "hangTicks": [
