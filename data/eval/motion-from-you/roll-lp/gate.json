@@ -1,153 +1,153 @@
 {
- "raw": {
-  "version": 1,
-  "pass": false,
-  "hard": {
-   "knees_bend_forward": {
-    "ok": true,
-    "value": 43.1241,
-    "limit": "< 120 deg off the side axis",
-    "note": ""
-   },
-   "legs_not_twisted": {
-    "ok": true,
-    "value": 43.1241,
-    "limit": "<= 60 deg off the side axis",
-    "note": ""
-   },
-   "knees_within_range": {
-    "ok": true,
-    "value": 146.426,
-    "limit": "<= 165 deg",
-    "note": ""
-   },
-   "flight_is_ballistic": {
+  "raw": {
+    "version": 1,
+    "pass": false,
+    "hard": {
+      "knees_bend_forward": {
+        "ok": true,
+        "value": 43.1241,
+        "limit": "< 120 deg off the side axis",
+        "note": ""
+      },
+      "legs_not_twisted": {
+        "ok": true,
+        "value": 43.1241,
+        "limit": "<= 60 deg off the side axis",
+        "note": ""
+      },
+      "knees_within_range": {
+        "ok": true,
+        "value": 146.426,
+        "limit": "<= 165 deg",
+        "note": ""
+      },
+      "flight_is_ballistic": {
+        "ok": false,
+        "value": -1.7736,
+        "limit": "within 15% of 9.81",
+        "note": "frames 59-67, off by 118.1%"
+      },
+      "feet_dont_sink": {
+        "ok": false,
+        "value": 0.0537,
+        "limit": "<= 0.03 m under the floor",
+        "note": ""
+      },
+      "no_teleport": {
+        "ok": true,
+        "value": 3.9073,
+        "limit": "<= 12.0 m/s",
+        "note": ""
+      }
+    },
+    "soft": {
+      "bones_keep_length": {
+        "ok": true,
+        "value": 0,
+        "limit": "<= 2% off the median",
+        "note": ""
+      },
+      "feet_dont_slide": {
+        "ok": false,
+        "value": 0.1632,
+        "limit": "<= 0.03 m",
+        "note": ""
+      },
+      "no_jitter": {
+        "ok": true,
+        "value": 177.9225,
+        "limit": "<= 200.0 m/s^2",
+        "note": ""
+      }
+    }
+  },
+  "repaired": {
+    "version": 1,
+    "pass": false,
+    "hard": {
+      "knees_bend_forward": {
+        "ok": true,
+        "value": 43.1241,
+        "limit": "< 120 deg off the side axis",
+        "note": ""
+      },
+      "legs_not_twisted": {
+        "ok": true,
+        "value": 43.1241,
+        "limit": "<= 60 deg off the side axis",
+        "note": ""
+      },
+      "knees_within_range": {
+        "ok": true,
+        "value": 146.426,
+        "limit": "<= 165 deg",
+        "note": ""
+      },
+      "flight_is_ballistic": {
+        "ok": false,
+        "value": -1.7736,
+        "limit": "within 15% of 9.81",
+        "note": "frames 59-67, off by 118.1%"
+      },
+      "feet_dont_sink": {
+        "ok": true,
+        "value": 0,
+        "limit": "<= 0.03 m under the floor",
+        "note": ""
+      },
+      "no_teleport": {
+        "ok": true,
+        "value": 3.9073,
+        "limit": "<= 12.0 m/s",
+        "note": ""
+      }
+    },
+    "soft": {
+      "bones_keep_length": {
+        "ok": true,
+        "value": 0,
+        "limit": "<= 2% off the median",
+        "note": ""
+      },
+      "feet_dont_slide": {
+        "ok": false,
+        "value": 0.1738,
+        "limit": "<= 0.03 m",
+        "note": ""
+      },
+      "no_jitter": {
+        "ok": true,
+        "value": 177.9225,
+        "limit": "<= 200.0 m/s^2",
+        "note": ""
+      }
+    }
+  },
+  "shown_version": "repaired",
+  "supportedBy": null,
+  "free_flight_rule_without_supportedBy": {
     "ok": false,
     "value": -1.7736,
     "limit": "within 15% of 9.81",
     "note": "frames 59-67, off by 118.1%"
-   },
-   "feet_dont_sink": {
-    "ok": false,
-    "value": 0.0537,
-    "limit": "<= 0.03 m under the floor",
-    "note": ""
-   },
-   "no_teleport": {
-    "ok": true,
-    "value": 3.9073,
-    "limit": "<= 12.0 m/s",
-    "note": ""
-   }
   },
-  "soft": {
-   "bones_keep_length": {
-    "ok": true,
-    "value": 0.0,
-    "limit": "<= 2% off the median",
-    "note": ""
-   },
-   "feet_dont_slide": {
-    "ok": false,
-    "value": 0.1632,
-    "limit": "<= 0.03 m",
-    "note": ""
-   },
-   "no_jitter": {
-    "ok": true,
-    "value": 177.9225,
-    "limit": "<= 200.0 m/s^2",
-    "note": ""
-   }
-  }
- },
- "repaired": {
-  "version": 1,
-  "pass": false,
-  "hard": {
-   "knees_bend_forward": {
-    "ok": true,
-    "value": 43.1241,
-    "limit": "< 120 deg off the side axis",
-    "note": ""
-   },
-   "legs_not_twisted": {
-    "ok": true,
-    "value": 43.1241,
-    "limit": "<= 60 deg off the side axis",
-    "note": ""
-   },
-   "knees_within_range": {
-    "ok": true,
-    "value": 146.426,
-    "limit": "<= 165 deg",
-    "note": ""
-   },
-   "flight_is_ballistic": {
-    "ok": false,
-    "value": -1.7736,
-    "limit": "within 15% of 9.81",
-    "note": "frames 59-67, off by 118.1%"
-   },
-   "feet_dont_sink": {
-    "ok": true,
-    "value": -0.0,
-    "limit": "<= 0.03 m under the floor",
-    "note": ""
-   },
-   "no_teleport": {
-    "ok": true,
-    "value": 3.9073,
-    "limit": "<= 12.0 m/s",
-    "note": ""
-   }
-  },
-  "soft": {
-   "bones_keep_length": {
-    "ok": true,
-    "value": 0.0,
-    "limit": "<= 2% off the median",
-    "note": ""
-   },
-   "feet_dont_slide": {
-    "ok": false,
-    "value": 0.1738,
-    "limit": "<= 0.03 m",
-    "note": ""
-   },
-   "no_jitter": {
-    "ok": true,
-    "value": 177.9225,
-    "limit": "<= 200.0 m/s^2",
-    "note": ""
-   }
-  }
- },
- "shown_version": "repaired",
- "supportedBy": null,
- "free_flight_rule_without_supportedBy": {
-  "ok": false,
-  "value": -1.7736,
-  "limit": "within 15% of 9.81",
-  "note": "frames 59-67, off by 118.1%"
- },
- "athlete_frames": [
-  0,
-  150
- ],
- "verdict": "FAIL",
- "world": {
-  "orientation_from": "travel",
-  "floor_fit_terms": [
-   "const",
-   "depth",
-   "x"
+  "athlete_frames": [
+    0,
+    150
   ],
-  "floor_points": 65,
-  "floor_offset_m": -1.1738794264519181,
-  "side_axis_agreement_cos_mean": 0.9992563652770612,
-  "bridged_frames": []
- },
- "frames_in_clip": 150,
- "frames_unmeasured_in_segment": 0
+  "verdict": "FAIL",
+  "world": {
+    "orientation_from": "travel",
+    "floor_fit_terms": [
+      "const",
+      "depth",
+      "x"
+    ],
+    "floor_points": 65,
+    "floor_offset_m": -1.1738794264519181,
+    "side_axis_agreement_cos_mean": 0.9992563652770612,
+    "bridged_frames": []
+  },
+  "frames_in_clip": 150,
+  "frames_unmeasured_in_segment": 0
 }

@@ -30,7 +30,7 @@
       },
       "feet_dont_sink": {
         "ok": true,
-        "value": -0.0,
+        "value": 0,
         "limit": "<= 0.03 m under the floor",
         "note": ""
       },
@@ -65,7 +65,7 @@
   "move_check": {
     "ok": false,
     "max_turn_deg": 112.8,
-    "min_turn_deg": 0.0,
+    "min_turn_deg": 0,
     "peak_hips_vs_standing": 2.03,
     "longest_air_s": 0.17,
     "window_frames": [
@@ -81,7 +81,7 @@
   "raw_move_check": {
     "ok": false,
     "max_turn_deg": 125.2,
-    "min_turn_deg": 0.0,
+    "min_turn_deg": 0,
     "peak_hips_vs_standing": 2.04,
     "longest_air_s": 0.17,
     "window_frames": [
