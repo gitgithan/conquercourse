@@ -1,0 +1,11 @@
+{
+  "issue": "CC-136",
+  "choice": "A: course in the link",
+  "link_chars_lache": 434,
+  "max_packed_course_chars": 1700,
+  "demo_courses_fitting": 23,
+  "demo_courses_too_big": 4,
+  "browser_checks_passed": 5,
+  "unit_tests": 7,
+  "backend": "software GL on VM2"
+}
