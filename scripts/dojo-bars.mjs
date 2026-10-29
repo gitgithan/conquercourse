@@ -18,6 +18,7 @@ try {
   checks.whyShown = await has('hang like a pendulum');
   checks.noFormulaYet = !(await has('time of one swing = 2π'));
   await page.click('#next');
+  await page.$eval('#knob-length', (el) => { el.value = '1.5'; el.dispatchEvent(new Event('input', { bubbles: true })); }); // the saying is earned by moving a slider
   checks.sayingShown = await has('Push with the swing and it grows');
   await set('knob-length', 1.4);
   const T = (L) => (2 * Math.PI * Math.sqrt(L / 9.81)).toFixed(1);
