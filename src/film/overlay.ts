@@ -1,19 +1,22 @@
 // The film side of a shot (CC-130): the clock, the clean screen, and for the hero shot the real photo that fades into the built place.
 // Loaded only with ?film=<shot>, so play never pays for it.
 import { Vector3, type PerspectiveCamera } from 'three';
-import { filmPose, heroPhotoOpacity, type FilmCtx, type FilmShot, type Pose } from './camera';
+import { SHOT_SECONDS, filmPose, heroPhotoOpacity, type FilmCtx, type FilmShot, type Pose } from './camera';
 
 export interface Film {
   t(): number; // seconds since the film started (the stepped clock when filming)
-  pose(c: Omit<FilmCtx, 'finishX' | 'focusX' | 'focusY'>): Pose;
+  pose(c: Omit<FilmCtx, 'finishX' | 'focusX' | 'focusY' | 'macroDist'>): Pose;
   tick(camera: PerspectiveCamera): void; // call once a frame, after the camera is placed: keeps the screen clean, the photo fading and the labels attached
 }
 
 // Params: ?film=hero&photo=/assets/park/park01.jpg&box=294,183,658,454&size=1024,760&label=handrail&credit=Photo+by+...,+CC0&filmx=12&filmy=0.7
 export function startFilm(shot: FilmShot, params: URLSearchParams, canvas: HTMLCanvasElement, finishX: number): Film {
-  const t0 = performance.now();
+  let t0 = performance.now();
+  (window as unknown as { __filmZero: () => void }).__filmZero = () => { t0 = performance.now(); }; // film.mjs --skip: the film starts counting here
   const t = () => (performance.now() - t0) / 1000;
-  const focusX = Number(params.get('filmx') ?? finishX / 2), focusY = Number(params.get('filmy') ?? 0.6);
+  const isMacro = shot === 'macro'; // macro: filmx and filmy are the part's offset from the runner, md is the distance
+  const focusX = Number(params.get('filmx') ?? (isMacro ? 0.2 : finishX / 2)), focusY = Number(params.get('filmy') ?? (isMacro ? 1 : 0.6)), macroDist = Number(params.get('md') ?? 2);
+  const timeScale = params.get('dur') ? SHOT_SECONDS[shot] / Number(params.get('dur')) : 1; // ?dur=2.2 plays the whole move in 2.2 s (a fast drone dash)
   document.documentElement.dataset.film = shot;
 
   let photo: HTMLDivElement | null = null, img: HTMLImageElement | null = null, boxEl: HTMLDivElement | null = null, tag: HTMLDivElement | null = null;
@@ -106,7 +109,7 @@ export function startFilm(shot: FilmShot, params: URLSearchParams, canvas: HTMLC
   };
   return {
     t,
-    pose: (c) => filmPose(shot, t(), { ...c, finishX, focusX, focusY }),
+    pose: (c) => { (window as unknown as { __filmRunner: unknown }).__filmRunner = { x: c.runnerX, y: c.runnerY }; return filmPose(shot, t() * timeScale, { ...c, finishX, focusX, focusY, macroDist }); },
     tick: (camera) => {
       frame++; hideChrome(); track(camera);
       if (photo) { layout(); const o = heroPhotoOpacity(t()); photo.style.opacity = String(o); photo.style.display = o <= 0 ? 'none' : 'block'; if (boxEl) boxEl.style.opacity = String(Math.min(1, o * 2) * (t() > 0.6 ? 1 : t() / 0.6)); }
