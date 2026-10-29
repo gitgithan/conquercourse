@@ -5,74 +5,50 @@
   "rows": [
     {
       "line": "high (fastest line)",
-      "idealSeconds": 9.15,
+      "idealSeconds": 10.76,
       "sigma15": {
         "clearShare": 0.59,
         "wrongWayOfClears": 0,
-        "secondsToClear": 15.4
+        "secondsToClear": 17.7
       },
       "sigma30": {
-        "clearShare": 0.27,
+        "clearShare": 0.31,
         "wrongWayOfClears": 0,
-        "secondsToClear": 31.8
+        "secondsToClear": 31.3
       },
       "sigma60": {
-        "clearShare": 0.13,
+        "clearShare": 0.16,
         "wrongWayOfClears": 0,
-        "secondsToClear": 61.9
+        "secondsToClear": 56.2
       },
       "sigma100": {
-        "clearShare": 0.05,
+        "clearShare": 0.06,
         "wrongWayOfClears": 0,
-        "secondsToClear": 146.9
-      }
-    },
-    {
-      "line": "high (bar to bar)",
-      "idealSeconds": 10.81,
-      "sigma15": {
-        "clearShare": 0.57,
-        "wrongWayOfClears": 0,
-        "secondsToClear": 19.8
-      },
-      "sigma30": {
-        "clearShare": 0.29,
-        "wrongWayOfClears": 0,
-        "secondsToClear": 38.7
-      },
-      "sigma60": {
-        "clearShare": 0.18,
-        "wrongWayOfClears": 0,
-        "secondsToClear": 55.4
-      },
-      "sigma100": {
-        "clearShare": 0.1,
-        "wrongWayOfClears": 0,
-        "secondsToClear": 88.7
+        "secondsToClear": 146
       }
     },
     {
       "line": "low (fastest line)",
-      "idealSeconds": 9.42,
+      "idealSeconds": 11.11,
       "sigma15": {
-        "clearShare": 1,
+        "clearShare": 0.68,
         "wrongWayOfClears": 0,
-        "secondsToClear": 9.4
+        "secondsToClear": 15.1
       },
       "sigma30": {
-        "clearShare": 1,
+        "clearShare": 0.59,
         "wrongWayOfClears": 0,
-        "secondsToClear": 9.4
+        "secondsToClear": 16.9
       },
       "sigma60": {
-        "clearShare": 0.94,
+        "clearShare": 0.55,
         "wrongWayOfClears": 0,
-        "secondsToClear": 9.7
+        "secondsToClear": 17.8
       },
       "sigma100": {
-        "clearShare": 0.71,
+        "clearShare": 0.55,
         "wrongWayOfClears": 0,
-        "secondsToClear": 11.5
+        "secondsToClear": 17.8
       }
     }
   ]

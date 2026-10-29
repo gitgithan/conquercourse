@@ -30,7 +30,7 @@ describe('a course with a fork', () => {
     expect(sub.holds ?? []).toHaveLength(0);
     expect(sub.terrain.platforms).toHaveLength(course.terrain.platforms.length);
     const sub2 = routeCourse(course, b.id, 'high');
-    expect(sub2.terrain.platforms).toHaveLength(course.terrain.platforms.length - 2);
+    expect(sub2.terrain.platforms).toHaveLength(course.terrain.platforms.length - 3);
     expect(JSON.stringify(course)).toBe(before);
   });
   it('the course plan is the faster way', () => {
