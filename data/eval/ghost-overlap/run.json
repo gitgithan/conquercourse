@@ -1,0 +1,14 @@
+{
+  "experiment": "ghost-overlap",
+  "issues": ["CC-180", "CC-181"],
+  "script": "scripts/ghost-overlap-shots.mjs",
+  "where": "Vultr VM3, headless Chromium, software GL, 1280x720",
+  "course": "public/assets/demo/training.course.json",
+  "settings": { "player_opacity": 0.85, "ghost_opacity": 0.5, "ghost_drawn": "behind the player, amber with a dark rim" },
+  "tried": "ghost laid over the player: the amber hid the player (navy trousers, blue headband lost); ghost behind: the player keeps its colours, the ghost shows as amber glow and rim",
+  "files": {
+    "overlap-1..3.png": "a link's own keys played by hand: player and ghost on the same line",
+    "friend-fell-1..3.png": "a link for a try that fell, played by hand: the ghost falls where the player fell",
+    "fall-panel.png": "the fall panel with Copy link to this try (main button) and Download a video of this try"
+  }
+}
