@@ -1,0 +1,8 @@
+{
+  "checks": {
+    "allThreeDotsDrag": false
+  },
+  "notes": [
+    "before (?slice2=old): the dots projected to [[100,210],[-378,798],[-51,396]] on a 1020 px wide map, so two of three were outside the picture; a real-mouse drag moved only dot a (box [88,198]); dots b and m had no element under the pointer and nothing moved (topAtCentre null)."
+  ]
+}

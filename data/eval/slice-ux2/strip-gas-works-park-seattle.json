@@ -1,0 +1,72 @@
+{
+  "slug": "gas-works-park-seattle",
+  "shrink": 0.2,
+  "range": 16,
+  "oldGreen": 4,
+  "oldGreenNoPath": 0,
+  "newGreenNoPath": 0,
+  "pathCount": 5,
+  "seconds": 28.3,
+  "rows": [
+    {
+      "real": 1,
+      "lane": true,
+      "oldGreen": false,
+      "path": false
+    },
+    {
+      "real": 2.5,
+      "lane": true,
+      "oldGreen": false,
+      "path": false
+    },
+    {
+      "real": 4,
+      "lane": true,
+      "oldGreen": false,
+      "path": false
+    },
+    {
+      "real": 5.5,
+      "lane": true,
+      "oldGreen": false,
+      "path": false
+    },
+    {
+      "real": 7,
+      "lane": true,
+      "oldGreen": false,
+      "path": false
+    },
+    {
+      "real": 9,
+      "lane": true,
+      "oldGreen": false,
+      "path": true
+    },
+    {
+      "real": 10.5,
+      "lane": true,
+      "oldGreen": true,
+      "path": true
+    },
+    {
+      "real": 12,
+      "lane": true,
+      "oldGreen": true,
+      "path": true
+    },
+    {
+      "real": 13.5,
+      "lane": true,
+      "oldGreen": true,
+      "path": true
+    },
+    {
+      "real": 15,
+      "lane": true,
+      "oldGreen": true,
+      "path": true
+    }
+  ]
+}
