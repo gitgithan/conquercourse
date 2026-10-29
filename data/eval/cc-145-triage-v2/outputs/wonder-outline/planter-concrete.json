@@ -1,0 +1,15 @@
+{
+  "id": "planter-concrete",
+  "model": "wonder",
+  "kind": "outline",
+  "status": 200,
+  "seconds": 5.2,
+  "prompt_tokens": 621,
+  "completion_tokens": 234,
+  "raw": "{\"whole_object_in_frame\":\"yes\",\"reason\":\"The magenta-outlined planter is fully visible with all its edges inside the photo frame.\"}",
+  "answer": {
+    "whole_object_in_frame": "yes",
+    "reason": "The magenta-outlined planter is fully visible with all its edges inside the photo frame."
+  },
+  "error": null
+}

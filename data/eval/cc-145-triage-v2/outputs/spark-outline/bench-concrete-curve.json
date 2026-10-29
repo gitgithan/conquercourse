@@ -1,0 +1,15 @@
+{
+  "id": "bench-concrete-curve",
+  "model": "spark",
+  "kind": "outline",
+  "status": 200,
+  "seconds": 4.6,
+  "prompt_tokens": 806,
+  "completion_tokens": 211,
+  "raw": "{\"whole_object_in_frame\":\"yes\",\"reason\":\"The entire concrete bench is fully visible with clear space around it and no cropping by the photo edges.\"}",
+  "answer": {
+    "whole_object_in_frame": "yes",
+    "reason": "The entire concrete bench is fully visible with clear space around it and no cropping by the photo edges."
+  },
+  "error": null
+}

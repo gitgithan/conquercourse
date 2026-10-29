@@ -1,0 +1,15 @@
+{
+  "id": "pipe-ring",
+  "model": "spark",
+  "kind": "outline",
+  "status": 200,
+  "seconds": 5.6,
+  "prompt_tokens": 806,
+  "completion_tokens": 380,
+  "raw": "{\"whole_object_in_frame\":\"yes\",\"reason\":\"The outlined concrete cylinder is fully visible and does not intersect any edge of the photo.\"}",
+  "answer": {
+    "whole_object_in_frame": "yes",
+    "reason": "The outlined concrete cylinder is fully visible and does not intersect any edge of the photo."
+  },
+  "error": null
+}

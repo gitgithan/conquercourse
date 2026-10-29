@@ -1,0 +1,15 @@
+{
+  "id": "railing-red",
+  "model": "spark",
+  "kind": "plain",
+  "status": 200,
+  "seconds": 6.9,
+  "prompt_tokens": 895,
+  "completion_tokens": 407,
+  "raw": "{\"verdict\":\"block\",\"reason\":\"Long thin railing with many open gaps and cut-off ends is not a solid compact object.\"}",
+  "answer": {
+    "verdict": "block",
+    "reason": "Long thin railing with many open gaps and cut-off ends is not a solid compact object."
+  },
+  "error": null
+}

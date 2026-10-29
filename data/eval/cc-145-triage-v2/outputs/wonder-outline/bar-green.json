@@ -1,0 +1,15 @@
+{
+  "id": "bar-green",
+  "model": "wonder",
+  "kind": "outline",
+  "status": 200,
+  "seconds": 5.7,
+  "prompt_tokens": 585,
+  "completion_tokens": 260,
+  "raw": "{\"whole_object_in_frame\":\"yes\",\"reason\":\"The entire green frame structure is visible with all posts and top bar fully inside the image borders.\"}",
+  "answer": {
+    "whole_object_in_frame": "yes",
+    "reason": "The entire green frame structure is visible with all posts and top bar fully inside the image borders."
+  },
+  "error": null
+}

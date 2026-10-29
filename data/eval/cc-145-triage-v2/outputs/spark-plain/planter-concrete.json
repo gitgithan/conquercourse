@@ -1,0 +1,15 @@
+{
+  "id": "planter-concrete",
+  "model": "spark",
+  "kind": "plain",
+  "status": 200,
+  "seconds": 6.3,
+  "prompt_tokens": 583,
+  "completion_tokens": 1192,
+  "raw": "{\"verdict\":\"block\",\"reason\":\"Thin-walled C-shaped shell with large broken/missing rim section is not a solid compact whole object.\"}",
+  "answer": {
+    "verdict": "block",
+    "reason": "Thin-walled C-shaped shell with large broken/missing rim section is not a solid compact whole object."
+  },
+  "error": null
+}

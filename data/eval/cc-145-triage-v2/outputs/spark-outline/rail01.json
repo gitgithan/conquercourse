@@ -1,0 +1,15 @@
+{
+  "id": "rail01",
+  "model": "spark",
+  "kind": "outline",
+  "status": 200,
+  "seconds": 8.6,
+  "prompt_tokens": 704,
+  "completion_tokens": 1265,
+  "raw": "{\"whole_object_in_frame\":\"yes\",\"reason\":\"The magenta-outlined iron gate and railings are fully contained between pillars and not cropped by the photo edges.\"}",
+  "answer": {
+    "whole_object_in_frame": "yes",
+    "reason": "The magenta-outlined iron gate and railings are fully contained between pillars and not cropped by the photo edges."
+  },
+  "error": null
+}

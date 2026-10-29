@@ -1,0 +1,15 @@
+{
+  "id": "pipe-ring",
+  "model": "spark",
+  "kind": "plain",
+  "status": 200,
+  "seconds": 7.1,
+  "prompt_tokens": 531,
+  "completion_tokens": 1187,
+  "raw": "{\"verdict\":\"review\",\"reason\":\"Base is occluded by grass and irregularly cut, so bottom geometry will be flawed.\"}",
+  "answer": {
+    "verdict": "review",
+    "reason": "Base is occluded by grass and irregularly cut, so bottom geometry will be flawed."
+  },
+  "error": null
+}

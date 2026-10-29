@@ -1,0 +1,15 @@
+{
+  "id": "park02",
+  "model": "wonder",
+  "kind": "outline",
+  "status": 200,
+  "seconds": 9.1,
+  "prompt_tokens": 594,
+  "completion_tokens": 407,
+  "raw": "{\"whole_object_in_frame\":\"yes\",\"reason\":\"The entire magenta-outlined handrail, including both ends and its support, lies well within the image borders.\"}",
+  "answer": {
+    "whole_object_in_frame": "yes",
+    "reason": "The entire magenta-outlined handrail, including both ends and its support, lies well within the image borders."
+  },
+  "error": null
+}

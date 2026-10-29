@@ -3,8 +3,15 @@
   "date": "2026-10-29",
   "course": "lache",
   "pictures": 326,
-  "before": { "repeated_in_run": 9, "mean_motion": 7.05, "stops_to_zero": "about every 8 pictures" },
-  "after": { "repeated_in_run": 1, "mean_motion": 4.5 },
+  "before": {
+    "repeated_in_run": 9,
+    "mean_motion": 7.05,
+    "stops_to_zero": "about every 8 pictures"
+  },
+  "after": {
+    "repeated_in_run": 1,
+    "mean_motion": 4.5
+  },
   "cause": "pictures drawn outside a real animation frame",
   "fix": "draw each clip picture inside requestAnimationFrame",
   "tested_on": "software graphics (swiftshader)"

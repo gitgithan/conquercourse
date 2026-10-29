@@ -1,0 +1,15 @@
+{
+  "id": "rail01",
+  "model": "spark",
+  "kind": "plain",
+  "status": 200,
+  "seconds": 4.3,
+  "prompt_tokens": 604,
+  "completion_tokens": 591,
+  "raw": "{\"verdict\":\"block\",\"reason\":\"Cut-out is fragmented into many tiny disconnected specks with no solid compact object.\"}",
+  "answer": {
+    "verdict": "block",
+    "reason": "Cut-out is fragmented into many tiny disconnected specks with no solid compact object."
+  },
+  "error": null
+}

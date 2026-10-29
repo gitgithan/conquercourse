@@ -1,0 +1,15 @@
+{
+  "id": "park07",
+  "model": "spark",
+  "kind": "plain",
+  "status": 200,
+  "seconds": 10.3,
+  "prompt_tokens": 523,
+  "completion_tokens": 2101,
+  "raw": "{\"verdict\":\"block\",\"reason\":\"Staircase is cut off at both ends and base, not a complete isolated compact object.\"}",
+  "answer": {
+    "verdict": "block",
+    "reason": "Staircase is cut off at both ends and base, not a complete isolated compact object."
+  },
+  "error": null
+}

@@ -5,6 +5,10 @@
   "viewport": "1280x720",
   "clip": "720x1280, 30 fps, 4 ticks per picture",
   "threshold": 0.3333,
-  "results": { "lache": 0.34, "climb": 0.34, "drop": 0.34 },
+  "results": {
+    "lache": 0.34,
+    "climb": 0.34,
+    "drop": 0.34
+  },
   "pass": true
 }

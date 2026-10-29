@@ -1,0 +1,15 @@
+{
+  "id": "park01",
+  "model": "spark",
+  "kind": "plain",
+  "status": 200,
+  "seconds": 3.3,
+  "prompt_tokens": 487,
+  "completion_tokens": 408,
+  "raw": "{\"verdict\":\"block\",\"reason\":\"Object is extremely thin and elongated with no compact solid volume for 3D lift.\"}",
+  "answer": {
+    "verdict": "block",
+    "reason": "Object is extremely thin and elongated with no compact solid volume for 3D lift."
+  },
+  "error": null
+}

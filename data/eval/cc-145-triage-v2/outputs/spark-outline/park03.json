@@ -1,0 +1,15 @@
+{
+  "id": "park03",
+  "model": "spark",
+  "kind": "outline",
+  "status": 200,
+  "seconds": 4.9,
+  "prompt_tokens": 582,
+  "completion_tokens": 317,
+  "raw": "{\"whole_object_in_frame\":\"yes\",\"reason\":\"The magenta-outlined platform is fully visible with asphalt visible around all sides.\"}",
+  "answer": {
+    "whole_object_in_frame": "yes",
+    "reason": "The magenta-outlined platform is fully visible with asphalt visible around all sides."
+  },
+  "error": null
+}

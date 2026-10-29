@@ -1,0 +1,15 @@
+{
+  "id": "fence-split-rail",
+  "model": "spark",
+  "kind": "outline",
+  "status": 200,
+  "seconds": 5.1,
+  "prompt_tokens": 704,
+  "completion_tokens": 494,
+  "raw": "{\"whole_object_in_frame\":\"no\",\"reason\":\"The magenta-outlined fence is truncated by the left edge of the photo.\"}",
+  "answer": {
+    "whole_object_in_frame": "no",
+    "reason": "The magenta-outlined fence is truncated by the left edge of the photo."
+  },
+  "error": null
+}

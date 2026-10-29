@@ -1,0 +1,15 @@
+{
+  "id": "bar-black",
+  "model": "wonder",
+  "kind": "plain",
+  "status": 200,
+  "seconds": 7.1,
+  "prompt_tokens": 548,
+  "completion_tokens": 437,
+  "raw": "{\"verdict\":\"block\",\"reason\":\"Thin open frame with a slender crossbar is not solid or compact and will likely break or distort.\"}",
+  "answer": {
+    "verdict": "block",
+    "reason": "Thin open frame with a slender crossbar is not solid or compact and will likely break or distort."
+  },
+  "error": null
+}

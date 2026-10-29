@@ -1,0 +1,15 @@
+{
+  "id": "bar-green",
+  "model": "spark",
+  "kind": "plain",
+  "status": 200,
+  "seconds": 4.5,
+  "prompt_tokens": 895,
+  "completion_tokens": 424,
+  "raw": "{\"verdict\":\"block\",\"reason\":\"Object is a thin open frame with no solid volume, not a compact single object.\"}",
+  "answer": {
+    "verdict": "block",
+    "reason": "Object is a thin open frame with no solid volume, not a compact single object."
+  },
+  "error": null
+}

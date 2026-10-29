@@ -1,0 +1,15 @@
+{
+  "id": "bench01",
+  "model": "wonder",
+  "kind": "outline",
+  "status": 200,
+  "seconds": 6.5,
+  "prompt_tokens": 669,
+  "completion_tokens": 227,
+  "raw": "{\"whole_object_in_frame\":\"yes\",\"reason\":\"The entire magenta-outlined bench is fully visible and not cropped by any photo edge.\"}",
+  "answer": {
+    "whole_object_in_frame": "yes",
+    "reason": "The entire magenta-outlined bench is fully visible and not cropped by any photo edge."
+  },
+  "error": null
+}

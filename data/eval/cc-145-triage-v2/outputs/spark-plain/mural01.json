@@ -1,0 +1,15 @@
+{
+  "id": "mural01",
+  "model": "spark",
+  "kind": "plain",
+  "status": 200,
+  "seconds": 13.5,
+  "prompt_tokens": 839,
+  "completion_tokens": 670,
+  "raw": "{\"verdict\":\"block\",\"reason\":\"Flat wall mural is a thin 2D surface fragmented into separate pieces, not a solid compact 3D object.\"}",
+  "answer": {
+    "verdict": "block",
+    "reason": "Flat wall mural is a thin 2D surface fragmented into separate pieces, not a solid compact 3D object."
+  },
+  "error": null
+}

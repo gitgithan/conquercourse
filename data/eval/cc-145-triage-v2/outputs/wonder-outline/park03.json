@@ -1,0 +1,15 @@
+{
+  "id": "park03",
+  "model": "wonder",
+  "kind": "outline",
+  "status": 200,
+  "seconds": 4.5,
+  "prompt_tokens": 445,
+  "completion_tokens": 226,
+  "raw": "{\"whole_object_in_frame\":\"yes\",\"reason\":\"The entire outlined skate platform is fully visible with space around it inside the frame.\"}",
+  "answer": {
+    "whole_object_in_frame": "yes",
+    "reason": "The entire outlined skate platform is fully visible with space around it inside the frame."
+  },
+  "error": null
+}

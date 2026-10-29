@@ -1,0 +1,15 @@
+{
+  "id": "mural02",
+  "model": "wonder",
+  "kind": "outline",
+  "status": 200,
+  "seconds": 10.5,
+  "prompt_tokens": 567,
+  "completion_tokens": 477,
+  "raw": "{\"whole_object_in_frame\":\"no\",\"reason\":\"The outlined mural extends to and is truncated by the left, right, and bottom edges of the photo.\"}",
+  "answer": {
+    "whole_object_in_frame": "no",
+    "reason": "The outlined mural extends to and is truncated by the left, right, and bottom edges of the photo."
+  },
+  "error": null
+}

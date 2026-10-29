@@ -1,0 +1,15 @@
+{
+  "id": "park01",
+  "model": "spark",
+  "kind": "outline",
+  "status": 200,
+  "seconds": 5.4,
+  "prompt_tokens": 758,
+  "completion_tokens": 217,
+  "raw": "{\"whole_object_in_frame\":\"yes\",\"reason\":\"The magenta handrail outline is fully visible with no truncation at the photo edges.\"}",
+  "answer": {
+    "whole_object_in_frame": "yes",
+    "reason": "The magenta handrail outline is fully visible with no truncation at the photo edges."
+  },
+  "error": null
+}

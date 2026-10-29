@@ -1,0 +1,15 @@
+{
+  "id": "bench01",
+  "model": "wonder",
+  "kind": "plain",
+  "status": 200,
+  "seconds": 4.3,
+  "prompt_tokens": 469,
+  "completion_tokens": 197,
+  "raw": "{\"verdict\":\"ok\",\"reason\":\"Single solid bench is fully visible and compact, suitable for 3D lift.\"}",
+  "answer": {
+    "verdict": "ok",
+    "reason": "Single solid bench is fully visible and compact, suitable for 3D lift."
+  },
+  "error": null
+}

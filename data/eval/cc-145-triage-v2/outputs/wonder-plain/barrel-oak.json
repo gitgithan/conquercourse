@@ -1,0 +1,15 @@
+{
+  "id": "barrel-oak",
+  "model": "wonder",
+  "kind": "plain",
+  "status": 200,
+  "seconds": 4.9,
+  "prompt_tokens": 629,
+  "completion_tokens": 160,
+  "raw": "{\"verdict\":\"ok\",\"reason\":\"Single solid barrel is fully visible and compact.\"}",
+  "answer": {
+    "verdict": "ok",
+    "reason": "Single solid barrel is fully visible and compact."
+  },
+  "error": null
+}
