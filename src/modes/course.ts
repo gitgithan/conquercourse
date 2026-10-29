@@ -19,6 +19,7 @@ import { IdealPool } from '../sim/ideal-pool';
 import { createGhost } from '../ui/ghost';
 import { challengeWords, makeChallengeUrl, offersIdeal, openChallenge, secondsWords, shareOn } from '../share/challenge';
 import { CLIP_H, CLIP_W, TICKS_PER_FRAME, clipFits, clipFrames, createClipEncoder, drawClipFrame } from '../share/clip';
+import { PHONE_WORDS, browserPointing, phoneMode } from '../share/phone';
 import { clipCard, shareButtons, showBanner } from '../share/share-ui';
 import { inputOfMask, type InputLog } from '../sim/replay';
 import { findShortcuts, shortcutLine, type Shortcut } from '../sim/shortcuts';
@@ -712,6 +713,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
   }
   // Share (CC-128, CC-129): keys fed from a link play the run again; while a clip is made the game is stepped by hand and nothing is counted or heard.
   let feed: { log: InputLog; i: number; left: number } | null = null;
+  let phoneWatch: InputLog | null = null; // the friend's keys, replayed over and over while a phone watches (CC-138)
   let clipping = false;
   let clipHook: (() => void) | null = null;
   const fedInput = (): RunnerInput => {
@@ -1179,6 +1181,11 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
     }
   }
   // A challenge link (CC-128): the sender's keys are played in the simulator, and that run becomes the ghost to beat.
+  const copyHere = async () => { // the link of this page, so a phone can send it to a computer
+    const btn = [...document.querySelectorAll<HTMLButtonElement>('#challenge-banner button')].find((x) => /Copy link|Link copied|Link ready/.test(x.textContent ?? ''));
+    try { await navigator.clipboard.writeText(location.href); if (btn) btn.textContent = 'Link copied'; }
+    catch { window.prompt('Copy this link', location.href); if (btn) btn.textContent = 'Link ready'; }
+  };
   const challengeParam = shareOn(params) && !botMode ? params.get('challenge') : null;
   if (challengeParam) {
     void openChallenge(course, challengeParam).then((c) => {
@@ -1188,6 +1195,13 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
         return;
       }
       ghostCtl?.setFriend(c.track, c.nick);
+      if (phoneMode(params, browserPointing)) {
+        // A phone has no keys (CC-138): the page plays the friend's run by itself and says how to play it for real.
+        keysOpen = false; keysTouched = true; paintKeys(false); frontOverride = false; // the small corner view would hide the runner on a narrow screen
+        showBanner(PHONE_WORDS(secondsWords(c.ticks)), [{ label: 'Copy link', go: () => void copyHere() }], 0);
+        phoneWatch = c.log; feed = { log: c.log, i: 0, left: 0 };
+        return;
+      }
       showBanner(c.nick ? `Beat ${c.nick}: ${secondsWords(c.ticks)}` : `Beat this time: ${secondsWords(c.ticks)}`, [{ label: 'Make a clip of this run', go: () => void makeClip(c.log, c.ticks) }]);
       if (params.get('autoplay') === '1') feed = { log: c.log, i: 0, left: 0 }; // for the browser check: play the friend's keys as if by hand
       if (params.get('clip') === 'auto') void makeClip(c.log, c.ticks);
@@ -1295,7 +1309,10 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
       if (prev === 'running' && world.outcome === 'hurt') onFall('hurt');
       if (prev === 'running' && world.outcome === 'stalled') onFall('stall');
       if (world.events.some((e) => e.type === 'wall-slide')) onFall('slide');
-      if (prev === 'running' && world.outcome === 'cleared' && !clipping) {
+      if (phoneWatch && prev === 'running' && world.outcome === 'cleared') { // the friend's run, watched on a phone: no report, no What next card; play it again in a moment (CC-138)
+        const again = phoneWatch;
+        setTimeout(() => { if (again) { restart(course.startX); feed = { log: again, i: 0, left: 0 }; } }, 2500);
+      } else if (prev === 'running' && world.outcome === 'cleared' && !clipping) {
         clearFinishZone(world.runner.x); everCleared = true; track('clears'); finishRun(true); trackCourseEvent('success', analyticsCourseKey, course.name, analyticsRunId, analyticsMode);
         try { localStorage.setItem('cc.course.cleared', '1'); } catch { /* ok */ }
         panel.innerHTML = ''; panel.style.display = 'grid';
@@ -1420,7 +1437,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
       const off = camMode === 'side' ? new THREE.Vector3(0, 1.5, 25) : new THREE.Vector3(-12, 3, 11);
       const ft0 = clamp((FACE_START - orbit.zoom) / (FACE_START - FACE_END), 0, 1), ft = ft0 * ft0 * (3 - 2 * ft0); // 0 normal view, 1 face close-up
       const headX = eye.x - nose.x, headY = eye.y - nose.y; // the middle of the head (under the hands while hanging)
-      const tx = (camMode === 'side' ? r.x + 5 : r.x + 4) * (1 - ft) + headX * ft, wantY = camMode === 'side' ? r.y + 2.5 : r.y + 1.5;
+      const tx = (camMode === 'side' ? r.x + (phoneWatch ? 0.5 : 5) : r.x + 4) * (1 - ft) + headX * ft, wantY = camMode === 'side' ? r.y + 2.5 : r.y + 1.5;
       camY = !camYSet || Math.abs(wantY - camY) > 4 ? wantY : camY + (wantY - camY) * (1 - Math.exp(-dtHead / 0.15)); camYSet = true; // a retry or a big drop snaps; a dip eases
       const ty = camY * (1 - ft) + headY * ft;
       const len = off.length() * Math.max(orbit.zoom, FACE_START) * (1 - ft) + FACE_DIST * ft;
