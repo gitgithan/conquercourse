@@ -4,6 +4,9 @@ import { applyMarquee, chosenIds, countText, isMarquee, pickInRect, rectFrom, to
 import { organizeEditor } from '../ui/editor-layout';
 import { startCourse } from './course';
 import { readGlbMesh } from '../slice/glb';
+import { creditLine, type Provenance } from '../slice/provenance';
+import { getUserObject, listUserObjects, saveUserObject, userObjectUrls, userSrc } from '../slice/user-objects';
+import { openPhotoObject, uploadObjOn } from '../ui/photo-object';
 import { LIBRARY, box } from '../slice/shapes';
 import { bestSlices, describe as describeLane, sliceProfile, CELL, HALF_LANE } from '../slice/slice';
 import { crop, centred, duplicate, hits, newPiece, realSize, scaleBy, scaleToHeight, size, worldSamples, laneProfile, type Piece } from '../slice/world';
@@ -98,7 +101,7 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
   const buildPieces = (list: Saved['pieces']): P[] => piecesFromSource(list);
   let startFloor: Hazard = 'water'; // the floor of a restored world (applied where it is declared)
   function restore(s: Saved) {
-    pendingObjects.push(...s.pieces.filter((q) => q.src.startsWith('obj:')));
+    pendingObjects.push(...s.pieces.filter((q) => q.src.startsWith('obj:') || q.src.startsWith('user:')));
     pieces = buildPieces(s.pieces);
     angle = s.angle; offset = s.offset; level = s.level;
     startFloor = (HAZARDS as readonly string[]).includes(s.floor ?? '') ? (s.floor as Hazard) : 'water';
@@ -164,6 +167,20 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
   (window as unknown as { ccHasUnsavedChanges?: () => boolean }).ccHasUnsavedChanges = () => hi > 0;
   // objects lifted from real photos (SAM 3D Objects, CC-38): each is a baked .glb at its real size
   const photoBar = addBar;
+  // which photo made which 3D piece (CC-221): the credit shows under the name of the selected piece
+  const provOf = new Map<string, Provenance>();
+  const rememberUser = (id: string, glb: ArrayBuffer, prov: Provenance) => { userObjectUrls.set(userSrc(id), URL.createObjectURL(new Blob([glb], { type: 'model/gltf-binary' }))); provOf.set(userSrc(id), prov); };
+  const addUserPiece = (id: string, glb: ArrayBuffer, prov: Provenance) => {
+    rememberUser(id, glb, prov);
+    const p: P = { ...newPiece(prov.name, readGlbMesh(glb), freeSpot('bench')), src: userSrc(id) };
+    p.x = freeSpot('bench').x + size(p.mesh).w / 2;
+    pieces.push(p); selected = p.id; changed();
+  };
+  void (async () => { try { const r = (await (await fetch('/assets/objects/provenance.json')).json()) as { objects: Provenance[] }; for (const o of r.objects) provOf.set(`obj:${o.glb}`, o); draw(); } catch { /* no provenance file: no credit line */ } })();
+  if (uploadObjOn()) {
+    el('button', photoBar, { text: 'Make an object from my photo…', id: 'makeobj', title: 'Draw a box round a real thing in your photo and get a 3D piece' }).onclick = () => openPhotoObject(async (r) => { try { await saveUserObject({ id: r.prov.id, glb: r.glb, prov: r.prov }); } catch { /* not kept after this visit */ } addUserPiece(r.prov.id, r.glb, r.prov); });
+    void (async () => { try { for (const u of await listUserObjects()) { const b = el('button', photoBar, { text: `Mine: ${u.prov.name}`, title: u.prov.credit.line }); b.dataset.object = u.id; b.onclick = () => addUserPiece(u.id, u.glb, u.prov); } } catch { /* no saved objects */ } })();
+  }
   void (async () => {
     try {
       const idx = (await (await fetch('/assets/objects/index.json')).json()) as { objects: { name: string; glb: string; label: string; height_m: number; author: string; hang_m?: number }[] };
@@ -187,9 +204,12 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
         if (isSizeReference({ src: q.src } as P) && pieces.some(isSizeReference)) continue;
         try {
           const reference = isSizeReference({ src: q.src } as P);
+          const mine = q.src.startsWith('user:') ? await getUserObject(q.src.slice(5)) : undefined; // the player's own object, kept in this browser (CC-221)
+          if (q.src.startsWith('user:') && !mine) continue;
+          if (mine) rememberUser(mine.id, mine.glb, mine.prov);
           const url = reference ? `/assets/characters/${q.src.slice('obj:../characters/'.length)}` : `/assets/objects/${q.src.slice(4)}`;
-          const mesh = readGlbMesh(await (await fetch(url)).arrayBuffer());
-          const p: P = { ...newPiece(reference ? 'Person' : q.src, mesh, { x: q.x, z: q.z }), src: q.src, y: q.y, yaw: q.yaw, scale: reference ? 1 : q.scale, ...(q.role ? { role: q.role } : {}) };
+          const mesh = readGlbMesh(mine ? mine.glb : await (await fetch(url)).arrayBuffer());
+          const p: P = { ...newPiece(reference ? 'Person' : mine ? mine.prov.name : q.src, mesh, { x: q.x, z: q.z }), src: q.src, y: q.y, yaw: q.yaw, scale: reference ? 1 : q.scale, ...(q.role ? { role: q.role } : {}) };
           if (reference) Object.assign(p, scaleToHeight(p, 1.75));
           if (hangOf.has(q.src)) p.noGround = true; // its crossbar is a saved hold of its own
           pieces.push(p);
@@ -854,6 +874,8 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
       pieceBar(p);
       return;
     }
+    const prov = p.src ? provOf.get(p.src) : undefined;
+    if (prov) { const c = el('div', side, { id: 'credit', className: 'muted', text: prov.credit.line || creditLine(prov.credit, prov.source) }); c.title = `Made from a photo (${prov.photo.width} x ${prov.photo.height}) with ${prov.pipeline.model}; box ${prov.box.join(', ')}; photo fingerprint ${prov.photo.sha256.slice(0, 12)}`; }
     if (isPlankPiece(p as P)) plankKnobs(p as P);
     const r = realSize(p);
     const sizes = el('details', side, { id: 'sizes' }); el('summary', sizes, { text: 'Size and height' }); // the numbers stay here, folded: the simulator says whether the lane clears
@@ -1009,7 +1031,7 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
   // the undo list goes into the session so it survives a trip to the Course (pieces made from photos or maps are not kept: their meshes are too big)
   function persistHist() {
     try {
-      const heavy = (q: P) => q.src?.startsWith('obj:') || q.src?.startsWith('map:');
+      const heavy = (q: P) => q.src?.startsWith('obj:') || q.src?.startsWith('user:') || q.src?.startsWith('map:');
       if (pieces.some(heavy) || hist.some((h) => h.pieces.some(heavy))) { sessionStorage.removeItem(HIST_KEY); return; }
       const start = Math.max(0, hist.length - 25);
       const keep = (h: Snap): Saved => ({ pieces: h.pieces.filter((q) => q.src).map((q) => ({ src: q.src as string, x: q.x, z: q.z, y: q.y, yaw: q.yaw, scale: q.scale, ...(q.role ? { role: q.role } : {}) })), angle: h.angle, offset: h.offset, level: h.level });

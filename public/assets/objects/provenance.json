@@ -1,0 +1,728 @@
+{
+  "schemaVersion": 1,
+  "note": "Which photo made which 3D object. Photos are not stored here, only their fingerprint. Made by scripts/object-provenance.py.",
+  "objects": [
+    {
+      "version": 1,
+      "id": "rail-skate-01",
+      "glb": "rail-skate-01.glb",
+      "name": "rail-skate-01",
+      "source": "library",
+      "photo": {
+        "sha256": "717979477264c7099ddf5031bb39dda9373cbbc824982c3c801b7bd5fd789501",
+        "width": 1024,
+        "height": 760,
+        "id": "park01",
+        "url": "https://commons.wikimedia.org/wiki/File:Ledges,_stairs_with_rail_and_a_bank_of_the_IOR_Skatepark_in_Bucharest_%2801%29.jpg",
+        "stored": false
+      },
+      "box": [
+        294,
+        183,
+        658,
+        454
+      ],
+      "label": "handrail",
+      "height_m": 1,
+      "height_source": "typical",
+      "pipeline": {
+        "name": "photo_to_object",
+        "model": "SAM 3 + SAM 3D Objects",
+        "seed": 42,
+        "texture": 1024,
+        "pad_retry": false
+      },
+      "credit": {
+        "author": "Neoclassicism Enthusiast",
+        "licence": "CC0",
+        "source_url": "https://commons.wikimedia.org/wiki/File:Ledges,_stairs_with_rail_and_a_bank_of_the_IOR_Skatepark_in_Bucharest_%2801%29.jpg",
+        "line": "Photo by Neoclassicism Enthusiast, CC0"
+      },
+      "created": "2026-10-30"
+    },
+    {
+      "version": 1,
+      "id": "box-skate-03",
+      "glb": "box-skate-03.glb",
+      "name": "box-skate-03",
+      "source": "library",
+      "photo": {
+        "sha256": "0daf03b00d95043219bce4dd5eeb5c7f8548bfa0ef7b0151d23a05b84cb7d963",
+        "width": 1024,
+        "height": 468,
+        "id": "park03",
+        "url": "https://commons.wikimedia.org/wiki/File:Krefeld,_Germany_-_Voltaplatz_skatepark,_ledge.jpg",
+        "stored": false
+      },
+      "box": [
+        66,
+        234,
+        662,
+        407
+      ],
+      "label": "platform",
+      "height_m": 0.5,
+      "height_source": "typical",
+      "pipeline": {
+        "name": "photo_to_object",
+        "model": "SAM 3 + SAM 3D Objects",
+        "seed": 42,
+        "texture": 1024,
+        "pad_retry": false
+      },
+      "credit": {
+        "author": "Alexis Jazz",
+        "licence": "CC BY 4.0",
+        "source_url": "https://commons.wikimedia.org/wiki/File:Krefeld,_Germany_-_Voltaplatz_skatepark,_ledge.jpg",
+        "line": "Photo by Alexis Jazz, CC BY 4.0"
+      },
+      "created": "2026-10-30"
+    },
+    {
+      "version": 1,
+      "id": "bench-concrete",
+      "glb": "bench-concrete.glb",
+      "name": "bench-concrete",
+      "source": "library",
+      "photo": {
+        "sha256": "dcdf487edd89c22c41f8e12cb03fff666009c45598609bf942cb3a025d1a02bc",
+        "width": 1024,
+        "height": 768,
+        "id": "bench01",
+        "url": "https://commons.wikimedia.org/wiki/File:Concrete_bench_in_Valley_Wood_Park.jpg",
+        "stored": false
+      },
+      "box": [
+        165,
+        345,
+        720,
+        660
+      ],
+      "label": "bench",
+      "height_m": 0.8,
+      "height_source": "typical",
+      "pipeline": {
+        "name": "photo_to_object",
+        "model": "SAM 3 + SAM 3D Objects",
+        "seed": 42,
+        "texture": 1024,
+        "pad_retry": false
+      },
+      "credit": {
+        "author": "Rick Obst",
+        "licence": "CC BY 2.0",
+        "source_url": "https://commons.wikimedia.org/wiki/File:Concrete_bench_in_Valley_Wood_Park.jpg",
+        "line": "Photo by Rick Obst, CC BY 2.0"
+      },
+      "created": "2026-10-30"
+    },
+    {
+      "version": 1,
+      "id": "railing-iron",
+      "glb": "railing-iron.glb",
+      "name": "railing-iron",
+      "source": "library",
+      "photo": {
+        "sha256": "cb9d54dbab713803db2c6845ad479ebb287d1e02f28cbb98e0498b5ddce6a1d3",
+        "width": 1024,
+        "height": 684,
+        "id": "rail01",
+        "url": "https://commons.wikimedia.org/wiki/File:Churchyard_Gates_%26_Railings_to_St.Mary%27s_Parish_Church,Queen%27s_Square.jpg",
+        "stored": false
+      },
+      "box": [
+        130,
+        150,
+        900,
+        480
+      ],
+      "label": "rail",
+      "height_m": 0.999,
+      "height_source": "typical",
+      "pipeline": {
+        "name": "photo_to_object",
+        "model": "SAM 3 + SAM 3D Objects",
+        "seed": 42,
+        "texture": 1024,
+        "pad_retry": false
+      },
+      "credit": {
+        "author": "Peter Broster",
+        "licence": "CC0",
+        "source_url": "https://commons.wikimedia.org/wiki/File:Churchyard_Gates_%26_Railings_to_St.Mary%27s_Parish_Church,Queen%27s_Square.jpg",
+        "line": "Photo by Peter Broster, CC0"
+      },
+      "created": "2026-10-30"
+    },
+    {
+      "version": 1,
+      "id": "rail-skate-02",
+      "glb": "rail-skate-02.glb",
+      "name": "rail-skate-02",
+      "source": "library",
+      "photo": {
+        "sha256": "fea7c32ef8f072b861b127b730a090a207171a78934a6508151452ad26049f03",
+        "width": 1024,
+        "height": 708,
+        "id": "park02",
+        "url": "https://commons.wikimedia.org/wiki/File:Ledge_of_the_IOR_Skatepark_in_Bucharest_%2801%29.jpg",
+        "stored": false
+      },
+      "box": [
+        265,
+        196,
+        773,
+        395
+      ],
+      "label": "handrail",
+      "height_m": 1,
+      "height_source": "typical",
+      "pipeline": {
+        "name": "photo_to_object",
+        "model": "SAM 3 + SAM 3D Objects",
+        "seed": 42,
+        "texture": 1024,
+        "pad_retry": false
+      },
+      "credit": {
+        "author": "Neoclassicism Enthusiast",
+        "licence": "CC0",
+        "source_url": "https://commons.wikimedia.org/wiki/File:Ledge_of_the_IOR_Skatepark_in_Bucharest_%2801%29.jpg",
+        "line": "Photo by Neoclassicism Enthusiast, CC0"
+      },
+      "created": "2026-10-30"
+    },
+    {
+      "version": 1,
+      "id": "stairs-park-07",
+      "glb": "stairs-park-07.glb",
+      "name": "stairs-park-07",
+      "source": "library",
+      "photo": {
+        "sha256": "d03287ecdac31bed4acef27ba025939ec24d9a7841bce85b42c1f4d51bfc8c6f",
+        "width": 1024,
+        "height": 768,
+        "id": "park07",
+        "url": "https://commons.wikimedia.org/wiki/File:Stairs_in_the_Haasberg_Mansion_park_02.jpg",
+        "stored": false
+      },
+      "box": [
+        168,
+        286,
+        811,
+        394
+      ],
+      "label": "stairs",
+      "height_m": 0.699,
+      "height_source": "typical",
+      "pipeline": {
+        "name": "photo_to_object",
+        "model": "SAM 3 + SAM 3D Objects",
+        "seed": 42,
+        "texture": 1024,
+        "pad_retry": false
+      },
+      "credit": {
+        "author": "Ajznponar",
+        "licence": "CC0",
+        "source_url": "https://commons.wikimedia.org/wiki/File:Stairs_in_the_Haasberg_Mansion_park_02.jpg",
+        "line": "Photo by Ajznponar, CC0"
+      },
+      "created": "2026-10-30"
+    },
+    {
+      "version": 1,
+      "id": "bollard-iron",
+      "glb": "bollard-iron.glb",
+      "name": "bollard-iron",
+      "source": "library",
+      "photo": {
+        "sha256": "f2d99292ec663bbc587b18eaa884e24de9da429514bfc256d719096bce95354b",
+        "width": 1280,
+        "height": 1707,
+        "id": "bollard-iron",
+        "url": "https://commons.wikimedia.org/wiki/File:Bollard_On_Street_Corner.jpg",
+        "stored": false
+      },
+      "box": [
+        600,
+        260,
+        840,
+        1570
+      ],
+      "label": "bollard",
+      "height_m": 0.9,
+      "height_source": "typed",
+      "pipeline": {
+        "name": "photo_to_object",
+        "model": "SAM 3 + SAM 3D Objects",
+        "seed": 42,
+        "texture": 1024,
+        "pad_retry": false
+      },
+      "credit": {
+        "author": "Simon Cobb",
+        "licence": "CC0",
+        "source_url": "https://commons.wikimedia.org/wiki/File:Bollard_On_Street_Corner.jpg",
+        "line": "Photo by Simon Cobb, CC0"
+      },
+      "created": "2026-10-30"
+    },
+    {
+      "version": 1,
+      "id": "hydrant-red",
+      "glb": "hydrant-red.glb",
+      "name": "hydrant-red",
+      "source": "library",
+      "photo": {
+        "sha256": "4dd93d4d4ad2ed4e796be86191dc0ff9292a07857dafcded7c2e579331a6faba",
+        "width": 1280,
+        "height": 1920,
+        "id": "hydrant-red",
+        "url": "https://commons.wikimedia.org/wiki/File:Decorative_fire_hydrant_at_Windsor_Fire_Fighter_Memorial,_Windsor,_Ontario,_2025-05-31.jpg",
+        "stored": false
+      },
+      "box": [
+        100,
+        60,
+        1180,
+        1800
+      ],
+      "label": "fire hydrant",
+      "height_m": 0.8,
+      "height_source": "typed",
+      "pipeline": {
+        "name": "photo_to_object",
+        "model": "SAM 3 + SAM 3D Objects",
+        "seed": 42,
+        "texture": 1024,
+        "pad_retry": false
+      },
+      "credit": {
+        "author": "Crisco 1492",
+        "licence": "CC BY-SA 4.0",
+        "source_url": "https://commons.wikimedia.org/wiki/File:Decorative_fire_hydrant_at_Windsor_Fire_Fighter_Memorial,_Windsor,_Ontario,_2025-05-31.jpg",
+        "line": "Photo by Crisco 1492, CC BY-SA 4.0"
+      },
+      "created": "2026-10-30"
+    },
+    {
+      "version": 1,
+      "id": "barrel-oak",
+      "glb": "barrel-oak.glb",
+      "name": "barrel-oak",
+      "source": "library",
+      "photo": {
+        "sha256": "4431936eb84d7d3d8228fe2ccb920f819eef334b09ed610bad64f455dd0b3b88",
+        "width": 1280,
+        "height": 1099,
+        "id": "barrel-oak",
+        "url": "https://commons.wikimedia.org/wiki/File:Four_wet_wooden_barrels.jpg",
+        "stored": false
+      },
+      "box": [
+        120,
+        450,
+        1150,
+        1050
+      ],
+      "label": "wooden barrel",
+      "height_m": 0.899,
+      "height_source": "typed",
+      "pipeline": {
+        "name": "photo_to_object",
+        "model": "SAM 3 + SAM 3D Objects",
+        "seed": 42,
+        "texture": 1024,
+        "pad_retry": false
+      },
+      "credit": {
+        "author": "W.carter",
+        "licence": "CC0",
+        "source_url": "https://commons.wikimedia.org/wiki/File:Four_wet_wooden_barrels.jpg",
+        "line": "Photo by W.carter, CC0"
+      },
+      "created": "2026-10-30"
+    },
+    {
+      "version": 1,
+      "id": "picnic-table",
+      "glb": "picnic-table.glb",
+      "name": "picnic-table",
+      "source": "library",
+      "photo": {
+        "sha256": "0dbb1502f5a9c7ae5945b53c08e592757797c58caa8fcd92f36227e702bbf0a7",
+        "width": 1280,
+        "height": 960,
+        "id": "picnic-table",
+        "url": "https://commons.wikimedia.org/wiki/File:Picnic_table_curves.jpg",
+        "stored": false
+      },
+      "box": [
+        80,
+        160,
+        1230,
+        730
+      ],
+      "label": "picnic table",
+      "height_m": 0.75,
+      "height_source": "typed",
+      "pipeline": {
+        "name": "photo_to_object",
+        "model": "SAM 3 + SAM 3D Objects",
+        "seed": 42,
+        "texture": 1024,
+        "pad_retry": false
+      },
+      "credit": {
+        "author": "Hu Nhu",
+        "licence": "CC0",
+        "source_url": "https://commons.wikimedia.org/wiki/File:Picnic_table_curves.jpg",
+        "line": "Photo by Hu Nhu, CC0"
+      },
+      "created": "2026-10-30"
+    },
+    {
+      "version": 1,
+      "id": "pullup-green",
+      "glb": "pullup-green.glb",
+      "name": "pullup-green",
+      "source": "library",
+      "photo": {
+        "sha256": "921922ccf2c31c044c6dd3056865cd744ee2575b418c272c43a46b398cee13a4",
+        "width": 1280,
+        "height": 829,
+        "id": "bar-green",
+        "url": "https://commons.wikimedia.org/wiki/File:Outdoor_Gym_in_Berlin-Stralau_(Berlin-Friedrichshain)_01.jpg",
+        "stored": false
+      },
+      "box": [
+        560,
+        90,
+        1080,
+        820
+      ],
+      "label": "pull-up bar",
+      "height_m": 2.3,
+      "height_source": "typed",
+      "pipeline": {
+        "name": "photo_to_object",
+        "model": "SAM 3 + SAM 3D Objects",
+        "seed": 42,
+        "texture": 1024,
+        "pad_retry": false
+      },
+      "credit": {
+        "author": "Singlespeedfahrer",
+        "licence": "CC0",
+        "source_url": "https://commons.wikimedia.org/wiki/File:Outdoor_Gym_in_Berlin-Stralau_(Berlin-Friedrichshain)_01.jpg",
+        "line": "Photo by Singlespeedfahrer, CC0"
+      },
+      "created": "2026-10-30"
+    },
+    {
+      "version": 1,
+      "id": "planter-concrete",
+      "glb": "planter-concrete.glb",
+      "name": "planter-concrete",
+      "source": "library",
+      "photo": {
+        "sha256": "22bb490fa88e9ae1aa16c5ab90e54d9446d017ed699a77bdeb390fca64261bd4",
+        "width": 1280,
+        "height": 934,
+        "id": "planter-concrete",
+        "url": "https://commons.wikimedia.org/wiki/File:Big_Concrete_Planters_(53816879695).jpg",
+        "stored": false
+      },
+      "box": [
+        400,
+        290,
+        970,
+        580
+      ],
+      "label": "planter",
+      "height_m": 0.45,
+      "height_source": "typed",
+      "pipeline": {
+        "name": "photo_to_object",
+        "model": "SAM 3 + SAM 3D Objects",
+        "seed": 42,
+        "texture": 1024,
+        "pad_retry": false
+      },
+      "credit": {
+        "author": "Tony Webster",
+        "licence": "CC BY 2.0",
+        "source_url": "https://commons.wikimedia.org/wiki/File:Big_Concrete_Planters_(53816879695).jpg",
+        "line": "Photo by Tony Webster, CC BY 2.0"
+      },
+      "created": "2026-10-30"
+    },
+    {
+      "version": 1,
+      "id": "pipe-concrete",
+      "glb": "pipe-concrete.glb",
+      "name": "pipe-concrete",
+      "source": "library",
+      "photo": {
+        "sha256": "61636e95092f699d691a29e4291fd31078b032b3c676e07932731174f4e2780d",
+        "width": 1280,
+        "height": 960,
+        "id": "pipe-ring",
+        "url": "https://commons.wikimedia.org/wiki/File:Concrete_pipe_stile_on_Elland_Footpath_25_-_geograph.org.uk_-_4080358.jpg",
+        "stored": false
+      },
+      "box": [
+        520,
+        430,
+        960,
+        820
+      ],
+      "label": "concrete pipe",
+      "height_m": 0.9,
+      "height_source": "typed",
+      "pipeline": {
+        "name": "photo_to_object",
+        "model": "SAM 3 + SAM 3D Objects",
+        "seed": 42,
+        "texture": 1024,
+        "pad_retry": false
+      },
+      "credit": {
+        "author": "Humphrey Bolton",
+        "licence": "CC BY-SA 2.0",
+        "source_url": "https://commons.wikimedia.org/wiki/File:Concrete_pipe_stile_on_Elland_Footpath_25_-_geograph.org.uk_-_4080358.jpg",
+        "line": "Photo by Humphrey Bolton, CC BY-SA 2.0"
+      },
+      "created": "2026-10-30"
+    },
+    {
+      "version": 1,
+      "id": "bench-curved",
+      "glb": "bench-curved.glb",
+      "name": "bench-curved",
+      "source": "library",
+      "photo": {
+        "sha256": "5a3a5ffe271386bcdf24b224e7ea92224237b45e063bdafe98bba8c22b38a3ae",
+        "width": 1280,
+        "height": 960,
+        "id": "bench-concrete-curve",
+        "url": "https://commons.wikimedia.org/wiki/File:Concrete_bench,_Chester_Road,_Newquay,_Cornwall_-_May_2023.jpg",
+        "stored": false
+      },
+      "box": [
+        170,
+        270,
+        1000,
+        690
+      ],
+      "label": "concrete bench",
+      "height_m": 0.5,
+      "height_source": "typed",
+      "pipeline": {
+        "name": "photo_to_object",
+        "model": "SAM 3 + SAM 3D Objects",
+        "seed": 42,
+        "texture": 1024,
+        "pad_retry": false
+      },
+      "credit": {
+        "author": "Mutney",
+        "licence": "CC0",
+        "source_url": "https://commons.wikimedia.org/wiki/File:Concrete_bench,_Chester_Road,_Newquay,_Cornwall_-_May_2023.jpg",
+        "line": "Photo by Mutney, CC0"
+      },
+      "created": "2026-10-30"
+    },
+    {
+      "version": 1,
+      "id": "railing-red",
+      "glb": "railing-red.glb",
+      "name": "railing-red",
+      "source": "library",
+      "photo": {
+        "sha256": "3dbe0def78b810646334d7c61f64017fac472678f683ade16e7c8cda53641156",
+        "width": 1280,
+        "height": 960,
+        "id": "railing-red",
+        "url": "https://commons.wikimedia.org/wiki/File:Jansbrug_-_Haarlem_-_Metal_railing_-_along.jpg",
+        "stored": false
+      },
+      "box": [
+        0,
+        20,
+        1280,
+        800
+      ],
+      "label": "metal railing",
+      "height_m": 0.999,
+      "height_source": "typed",
+      "pipeline": {
+        "name": "photo_to_object",
+        "model": "SAM 3 + SAM 3D Objects",
+        "seed": 42,
+        "texture": 1024,
+        "pad_retry": false
+      },
+      "credit": {
+        "author": "AgainErick",
+        "licence": "CC BY-SA 4.0",
+        "source_url": "https://commons.wikimedia.org/wiki/File:Jansbrug_-_Haarlem_-_Metal_railing_-_along.jpg",
+        "line": "Photo by AgainErick, CC BY-SA 4.0"
+      },
+      "created": "2026-10-30"
+    },
+    {
+      "version": 1,
+      "id": "pullup-black",
+      "glb": "pullup-black.glb",
+      "name": "pullup-black",
+      "source": "library",
+      "photo": {
+        "sha256": "05b466c4d6a1b166641556cc4d2aac9abcbbbaf0ba3b2fa7b138af918228bca5",
+        "width": 1280,
+        "height": 1920,
+        "id": "bar-black",
+        "url": "https://commons.wikimedia.org/wiki/File:Bewegungsparcours_Schmetterlingswiesen_Berlin_2v7.jpg",
+        "stored": false
+      },
+      "box": [
+        440,
+        340,
+        1040,
+        1780
+      ],
+      "label": "pull-up bar",
+      "height_m": 2.3,
+      "height_source": "typed",
+      "pipeline": {
+        "name": "photo_to_object",
+        "model": "SAM 3 + SAM 3D Objects",
+        "seed": 42,
+        "texture": 1024,
+        "pad_retry": false
+      },
+      "credit": {
+        "author": "Singlespeedfahrer",
+        "licence": "CC0",
+        "source_url": "https://commons.wikimedia.org/wiki/File:Bewegungsparcours_Schmetterlingswiesen_Berlin_2v7.jpg",
+        "line": "Photo by Singlespeedfahrer, CC0"
+      },
+      "created": "2026-10-30"
+    },
+    {
+      "version": 1,
+      "id": "log-driftwood",
+      "glb": "log-driftwood.glb",
+      "name": "log-driftwood",
+      "source": "library",
+      "photo": {
+        "sha256": "548c1350cb2667282308b0a8394cda432e1aab1d9050bd5723e2097756132ce1",
+        "width": 1280,
+        "height": 853,
+        "id": "log-driftwood",
+        "url": "https://commons.wikimedia.org/wiki/File:A_fallen_log_of_a_tree.jpg",
+        "stored": false
+      },
+      "box": [
+        0,
+        200,
+        1200,
+        680
+      ],
+      "label": "log",
+      "height_m": 0.798,
+      "height_source": "typed",
+      "pipeline": {
+        "name": "photo_to_object",
+        "model": "SAM 3 + SAM 3D Objects",
+        "seed": 42,
+        "texture": 1024,
+        "pad_retry": false
+      },
+      "credit": {
+        "author": "Awinsongyababa",
+        "licence": "CC BY 4.0",
+        "source_url": "https://commons.wikimedia.org/wiki/File:A_fallen_log_of_a_tree.jpg",
+        "line": "Photo by Awinsongyababa, CC BY 4.0"
+      },
+      "created": "2026-10-30"
+    },
+    {
+      "version": 1,
+      "id": "stump-spruce",
+      "glb": "stump-spruce.glb",
+      "name": "stump-spruce",
+      "source": "library",
+      "photo": {
+        "sha256": "d51862de083b263016ec915fdb5e1eca7411cb919aa6cfb80b17ab82ac3f6831",
+        "width": 1280,
+        "height": 1628,
+        "id": "stump-spruce",
+        "url": "https://commons.wikimedia.org/wiki/File:Spruce_tree_stump_in_Gullmarsskogen_ravine.jpg",
+        "stored": false
+      },
+      "box": [
+        600,
+        170,
+        1120,
+        1450
+      ],
+      "label": "tree stump",
+      "height_m": 1.199,
+      "height_source": "typed",
+      "pipeline": {
+        "name": "photo_to_object",
+        "model": "SAM 3 + SAM 3D Objects",
+        "seed": 42,
+        "texture": 1024,
+        "pad_retry": false
+      },
+      "credit": {
+        "author": "W.carter",
+        "licence": "CC0",
+        "source_url": "https://commons.wikimedia.org/wiki/File:Spruce_tree_stump_in_Gullmarsskogen_ravine.jpg",
+        "line": "Photo by W.carter, CC0"
+      },
+      "created": "2026-10-30"
+    },
+    {
+      "version": 1,
+      "id": "gabion-wall",
+      "glb": "gabion-wall.glb",
+      "name": "gabion-wall",
+      "source": "library",
+      "photo": {
+        "sha256": "12360be5cd95d8291ecc146e7887fda4804e82c32b938611d1301a4b290dbec5",
+        "width": 1280,
+        "height": 960,
+        "id": "gabion-wall",
+        "url": "https://commons.wikimedia.org/wiki/File:Gabion_Wall.jpg",
+        "stored": false
+      },
+      "box": [
+        0,
+        50,
+        1280,
+        940
+      ],
+      "label": "gabion wall",
+      "height_m": 1.199,
+      "height_source": "typed",
+      "pipeline": {
+        "name": "photo_to_object",
+        "model": "SAM 3 + SAM 3D Objects",
+        "seed": 42,
+        "texture": 1024,
+        "pad_retry": false
+      },
+      "credit": {
+        "author": "Encik Tekateki",
+        "licence": "CC0",
+        "source_url": "https://commons.wikimedia.org/wiki/File:Gabion_Wall.jpg",
+        "line": "Photo by Encik Tekateki, CC0"
+      },
+      "created": "2026-10-30"
+    }
+  ]
+}
