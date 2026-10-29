@@ -154,6 +154,8 @@ export function resamplePath(p: { x: number; y: number }[]): { x: number; y: num
 
 export const YOU_COLOUR = '#0f6b5c', GHOST_COLOUR = '#e08a00';
 /** The move icons in the path picture (CC-192): grey like the strip, because gold means only "the obstacle you fell at most" (CC-183); ?gold=old keeps the old gold circles. */
+/** CC-215: the trampoline bed in the path picture was amber on every report, so it looked like the gold obstacle; it is teal now (amber only with ?gold=old). */
+export const bouncyFill = (old = goldOld()) => (old ? '#e7a93a' : '#6fb7a8');
 export const moveIconColours = (old = goldOld()) => (old ? { fill: '#fff8dc', ring: '#d9a521', ink: '#6b4a00' } : { fill: '#ffffff', ring: '#9aa59e', ink: '#58635d' });
 
 /** The course in side view with the player's path (green), the selected ghost's path (amber, both solid) and a small icon where each move happened.
@@ -169,7 +171,7 @@ export function pathPicture(course: CourseData, log: RunLog, best: BestLine | nu
   const svg = sv('svg', { viewBox: `0 0 ${W} ${H}`, role: 'img', 'aria-label': 'The course from the side with the path you ran and where you jumped, vaulted, climbed and rolled', width: '100%' });
   svg.style.cssText = 'display:block;background:#f4f8f5;border-radius:10px;max-height:170px';
   sv('rect', { x: 0, y: Y(course.terrain.waterY), width: W, height: H, fill: '#cfe6f2' }, svg);
-  for (const p of course.terrain.platforms) sv('rect', { x: X(p.x0), y: Y(p.top), width: Math.max(1, X(p.x1) - X(p.x0)), height: Math.max(2, Y(y0) - Y(p.top)), fill: p.bouncy ? '#e7a93a' : '#b9c2bb' }, svg);
+  for (const p of course.terrain.platforms) sv('rect', { x: X(p.x0), y: Y(p.top), width: Math.max(1, X(p.x1) - X(p.x0)), height: Math.max(2, Y(y0) - Y(p.top)), fill: p.bouncy ? bouncyFill() : '#b9c2bb' }, svg);
   for (const h of course.holds ?? []) sv('circle', { cx: X(h.x), cy: Y(h.y), r: 3, fill: '#58635d' }, svg);
   if (course.rope) sv('circle', { cx: X(course.rope.anchorX), cy: Y(course.rope.anchorY), r: 3, fill: '#58635d' }, svg);
   if (old) sv('line', { x1: X(course.finishX), x2: X(course.finishX), y1: pad, y2: H - pad, stroke: '#0f6b5c', 'stroke-dasharray': '3 3' }, svg);
