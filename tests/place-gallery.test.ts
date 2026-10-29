@@ -21,6 +21,12 @@ describe('place gallery pictures', () => {
       expect(statSync(`${DIR}/tiles/${p.slug}.svg`).size, p.slug).toBeLessThanOrEqual(40 * 1024);
     }
   });
+  it('every listed place has a cover photo with a credit (CC-212)', () => {
+    for (const p of shownReady(index, false)) {
+      expect(thumbs[p.slug], p.slug).toBeDefined();
+      expect(existsSync(`${DIR}/thumbs/${p.slug}.jpg`), p.slug).toBe(true);
+    }
+  });
   it('the default gallery shows only listed places', () => {
     expect(shownReady(index, false).every((p) => p.listed !== false)).toBe(true);
   });
