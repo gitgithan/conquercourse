@@ -1749,3 +1749,37 @@ The set of obstacle shapes is fixed, and each shape offers a fixed set of moves.
 - Only four places have a stored photo (Wikimedia, free licences, credit on the card); the others show a plain skyline drawn from their real building heights.
 - The default list is unchanged: a path and at least 30 photos facing the lane; `?places=all` shows the rest, with a note.
 - Asset rows are in `docs/ASSETS.md`.
+
+## No path, no option (CC-211)
+- The product owner (2026-10-30): the point is to cross obstacles from the map, so an option without a path must not be offered, and nothing without a path is saved.
+- Switch: `?slice2=old` keeps everything as it was before.
+- A path means the simulator cleared it: the stored lane of a ready place (`path` in `public/assets/places/index.json`), the slicer proof (`pathAt`), or the stored best line of a course.
+
+### What is no longer offered
+- The ready-place list shows only places with a path; `?places=all` does nothing unless `&debug=places` is added.
+- A pin only snaps to a ready place that has a path.
+- "Build this place" opens the editor button only after the simulator has proved a lane; otherwise the screen gives the reason and the three nearest places that do have a path.
+- The place is handed to the editor (session storage) only after the lane is proved.
+- "Send to the editor" from the slicer is refused unless the cut height on the screen is green.
+- The community gallery shows a card only after the simulator cleared it.
+- A test (`tests/no-path.test.ts`) fails if a listed place has no cleared lane, or a course on a picker card is not cleared by its stored best line.
+
+### What is no longer saved
+- `POST /api/community` runs the simulator on the boxes and answers 422 when there is no path.
+- `POST /api/course-event` keeps a row only for a stored course or a generated seed; other keys (a typed name, `coaster-custom`) are skipped.
+- `POST /api/course-clear` already accepted only stored courses, and it replays the keys.
+- `scripts/make-places.ts` writes no place whose lane is not cleared.
+- The lane kept in the browser (local storage) was already written only when cleared.
+- Still saved: `/api/places` keeps the raw map answer of any pin for 30 days in the edge cache; it is a cache of public map data, not a world.
+
+### The two boxes that were removed
+- "Real hills (ground height from satellite maps)":
+  - On (default), the ground heights for the pin come from terrain tiles and are asked at the same time as the buildings.
+  - The place is built on the real hill, the slope tint is drawn, and the lane search and the heights strip use the hill.
+  - Off (`?hills=0`), the place is built flat and the step says "Flat ground (hills are off)".
+  - For a ready place, off throws away the stored ground but keeps the lane found on the hill, so the proof no longer matches the flat place.
+- "Use a ready place when one is near (loads at once)":
+  - On (default), a pin within 300 m of a ready place loads that place from a file, with its ground and its proved lane, and moves the pin and radius to it.
+  - Off, the site asks the map servers (20 to 40 s for a new pin) and the lane is searched again in the browser.
+  - Nothing breaks when off; it is only slower and the radius is the one on the slider.
+- Now neither box is shown: hills are always on and a ready place with a path is always used; `?hills=0` and `?useready=0` stay as debug switches.

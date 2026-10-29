@@ -3,6 +3,8 @@ interface Env { DB: { prepare(sql: string): { bind(...v: unknown[]): { run(): Pr
 
 const clip = (v: unknown, n: number): string => String(v ?? '').slice(0, n);
 const json = (body: unknown, status = 200) => new Response(JSON.stringify(body), { status, headers: { 'content-type': 'application/json' } });
+// CC-211: only a stored course or a generated seed (both proved clearable) gets a log row; a made-up key or name is not saved.
+export const PROVEN_KEY = /^((demo|experiments\/osm)\/[a-z0-9-]{1,60}|generated-\d{1,9})$/;
 const events = new Set(['start', 'fail', 'success']);
 
 export const onRequestPost = async ({ request, env }: { request: Request; env: Env }): Promise<Response> => {
@@ -12,6 +14,7 @@ export const onRequestPost = async ({ request, env }: { request: Request; env: E
   try { b = JSON.parse(raw); } catch { return json({ error: 'bad json' }, 400); }
   const session = clip(b.session, 64), runId = clip(b.runId, 64), event = clip(b.event, 16);
   if (!/^[a-zA-Z0-9-]{8,64}$/.test(session) || !/^[a-zA-Z0-9-]{8,64}$/.test(runId) || !events.has(event)) return json({ error: 'bad event' }, 400);
+  if (!PROVEN_KEY.test(clip(b.courseKey, 100))) return json({ ok: true, skipped: 'no proven path for this course' });
   const recent = await env.DB.prepare("SELECT COUNT(*) AS n FROM course_events WHERE session = ? AND ts > datetime('now', '-1 hour')").bind(session).first<{ n: number }>();
   if ((recent?.n ?? 0) >= 500) return json({ error: 'slow down' }, 429);
   await env.DB.prepare('INSERT OR IGNORE INTO course_events (ts, session, build, mode, source, course_key, course_name, run_id, event_type) VALUES (datetime(\'now\'), ?, ?, ?, ?, ?, ?, ?, ?)')

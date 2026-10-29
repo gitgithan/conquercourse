@@ -4,7 +4,7 @@
 //   - The explain strip: what was found, how it was shrunk, which lane the simulator cleared, and on the map which footprints became which obstacle.
 // map.ts calls `installPlaces`; the pure parts are in src/world/places.ts and src/world/place-lane.ts.
 import type { GeoJSONSource, Map as MapLibreMap } from 'maplibre-gl';
-import { askMirrors, nearestReady, shownReady, placeKey, type PlaceLane, type ReadyIndexEntry, type ReadyPlace } from '../world/places';
+import { askMirrors, hasPath, nearestReady, shownReady, placeKey, type PlaceLane, type ReadyIndexEntry, type ReadyPlace } from '../world/places';
 import { buildingsFrom, type OverpassAnswer } from '../world/osm';
 import { relief, type Ground } from '../world/terrain';
 import { toLonLat } from '../slice/slicer';
@@ -15,6 +15,8 @@ export interface PlaceCtx {
   tell(s: string, bad?: boolean): void;
   pin(): { lat: number; lon: number } | null;
   radius(): number; hills(): boolean;
+  /** CC-211: only places with a proven path are listed, snapped to or opened in the editor. ?slice2=old turns it off. */
+  strict?: boolean;
   setPin(lat: number, lon: number): void; setRadius(r: number): void;
   groundFor(lat: number, lon: number, r: number): Promise<Ground | null>;
 }
@@ -72,7 +74,8 @@ export function installPlaces(ctx: PlaceCtx) {
   const loadIndex = (async () => {
     try { index = (await (await fetch('/assets/places/index.json')).json()) as ReadyIndexEntry[]; } catch { index = []; }
     if (!index.length) return;
-    const showAll = new URLSearchParams(location.search).get('places') === 'all', shown = shownReady(index, showAll);
+    const qs = new URLSearchParams(location.search), strict = ctx.strict === true;
+    const showAll = qs.get('places') === 'all' && (!strict || qs.get('debug') === 'places'), shown = shownReady(index, showAll, strict); // CC-211: the no-path cards need ?places=all&debug=places
     const gallery = new URLSearchParams(location.search).get('slice2') !== 'old';
     let thumbs: Record<string, { author: string; licence: string; source: string }> = {};
     if (gallery) { try { thumbs = await (await fetch('/assets/places/thumbs/index.json')).json(); } catch { thumbs = {}; } }
@@ -144,7 +147,10 @@ export function installPlaces(ctx: PlaceCtx) {
   }
 
 
-  const readyNear = (lat: number, lon: number) => ((document.getElementById('useready') as HTMLInputElement | null)?.checked !== false ? nearestReady(index, lat, lon, 300) : null);
+  // CC-211: with the new screen there is no box: a ready place with a path is always used when one is near (?useready=0 turns it off for debugging)
+  const proven = (): ReadyIndexEntry[] => (ctx.strict ? index.filter(hasPath) : index);
+  const useReady = (): boolean => (ctx.strict ? new URLSearchParams(location.search).get('useready') !== '0' : (document.getElementById('useready') as HTMLInputElement | null)?.checked !== false);
+  const readyNear = (lat: number, lon: number) => (useReady() ? nearestReady(proven(), lat, lon, 300) : null);
 
   // ---- CC-152: speed. Switch off with ?speed=0.
   // The wait is the map servers (about 20 to 40 s for a new pin), so it starts the moment the pin is dropped, not when Build is pressed,
@@ -180,8 +186,14 @@ export function installPlaces(ctx: PlaceCtx) {
 
   const nearestFew = (lat: number, lon: number) => {
     const mLat = 111320, mLon = 111320 * Math.cos((lat * Math.PI) / 180);
-    return [...index].sort((a, b) => Math.hypot((a.lon - lon) * mLon, (a.lat - lat) * mLat) - Math.hypot((b.lon - lon) * mLon, (b.lat - lat) * mLat)).slice(0, 3);
+    return [...proven()].sort((a, b) => Math.hypot((a.lon - lon) * mLon, (a.lat - lat) * mLat) - Math.hypot((b.lon - lon) * mLon, (b.lat - lat) * mLat)).slice(0, 3);
   };
+  // CC-211: a place the simulator could not cross is not offered: the plain reason and the nearest places that do have a path
+  function refuse(lat: number, lon: number, why: string) {
+    openBtn.hidden = true;
+    showError(new PlaceError(why, nearestFew(lat, lon)));
+    dset('noPath', '1');
+  }
   function showError(e: PlaceError) {
     errEl.hidden = false; errEl.replaceChildren();
     const m = document.createElement('div'); m.className = 'say bad'; m.textContent = e.message; errEl.appendChild(m);
@@ -294,14 +306,16 @@ export function installPlaces(ctx: PlaceCtx) {
     let m = m0;
     stopTicker();
     setStep('mesh', 'done', `Built the place (${m.buildings} buildings)`);
-    openBtn.hidden = false;
-    if (new URLSearchParams(location.search).get('auto') === '1') openBtn.click();
-    if (o.lane) { setLane(o.lane); setStep('lane', o.lane.cleared ? 'done' : 'failed', o.lane.cleared ? `Lane found: ${o.lane.lengthM} m (precomputed)` : 'No lane found'); render(o, m, o.lane, ''); void paint(o, o.lane); dset('lanePhase', 'done'); return; }
+    dset('noPath', '');
+    openBtn.hidden = !!ctx.strict; // CC-211: shown only once a lane is proved
+    const prove = (l: PlaceLane | null) => { if (!ctx.strict) return; if (l?.cleared) { openBtn.hidden = false; errEl.hidden = true; if (new URLSearchParams(location.search).get('auto') === '1') openBtn.click(); } else refuse(o.lat, o.lon, 'The simulator found no path on this place, so it is not offered. Try a smaller radius, or pick one of these places.'); };
+    if (!ctx.strict && new URLSearchParams(location.search).get('auto') === '1') openBtn.click();
+    if (o.lane) { prove(o.lane); setLane(o.lane); setStep('lane', o.lane.cleared ? 'done' : 'failed', o.lane.cleared ? `Lane found: ${o.lane.lengthM} m (precomputed)` : 'No lane found'); render(o, m, o.lane, ''); void paint(o, o.lane); dset('lanePhase', 'done'); return; }
     const laneKey = `cc.lane:${fetchKey(o.lat, o.lon, o.radius)}:${o.ground ? 'h' : 'f'}`;
     if (speedOn) { // a lane found once in this browser is kept: the same pin again is at once
       try {
         const kept = JSON.parse(localStorage.getItem(laneKey) ?? 'null') as PlaceLane | null;
-        if (kept?.cleared) { setLane(kept); setStep('lane', 'done', `Lane found: ${kept.lengthM} m (kept from last time)`); render(o, m, kept, ''); void paint(o, kept); dset('lanePhase', 'done'); dset('laneKept', 'yes'); return; }
+        if (kept?.cleared) { prove(kept); setLane(kept); setStep('lane', 'done', `Lane found: ${kept.lengthM} m (kept from last time)`); render(o, m, kept, ''); void paint(o, kept); dset('lanePhase', 'done'); dset('laneKept', 'yes'); return; }
       } catch { /* no kept lane */ }
     }
     render(o, m, null, 'Looking for a lane the simulator can clear (this runs in the background)...');
@@ -309,14 +323,14 @@ export function installPlaces(ctx: PlaceCtx) {
     setStep('lane', 'doing', 'Finding a lane the simulator can clear (in the background)'); dset('lanePhase', 'working');
     ticker = window.setInterval(() => { (li('lane').querySelector('.tm') as HTMLElement).textContent = `${((Date.now() - (started.lane ?? Date.now())) / 1000).toFixed(0)} s`; }, 1000);
     const my = ++laneToken; laneWorker?.terminate();
-    try { laneWorker = new Worker(new URL('../world/place-lane-worker.ts', import.meta.url), { type: 'module' }); } catch { setStep('lane', 'failed', 'This browser cannot search in the background'); return; }
+    try { laneWorker = new Worker(new URL('../world/place-lane-worker.ts', import.meta.url), { type: 'module' }); } catch { setStep('lane', 'failed', 'This browser cannot search in the background'); prove(null); return; }
     laneWorker.onmessage = (e: MessageEvent<PlaceLaneAnswer>) => {
       const a = e.data; if (a.id !== my) return;
       if (a.phase === 'step') { (li('lane').querySelector('.tx') as HTMLElement).textContent = a.message; return; }
       stopTicker(); laneWorker?.terminate(); laneWorker = null;
       setStep('lane', a.lane?.cleared ? 'done' : 'failed', a.lane?.cleared ? `Lane found: ${a.lane.lengthM} m` : 'No lane found');
       if (a.lane?.cleared && a.lane.shrink !== k0) m = remesh(a.lane.shrink); // the editor gets the place at the size the lane was cut from
-      setLane(a.lane);
+      prove(a.lane); setLane(a.lane);
       if (speedOn && a.lane?.cleared) try { localStorage.setItem(laneKey, JSON.stringify(a.lane)); } catch { /* storage full or off */ }
       render(o, m, a.lane, ''); void paint(o, a.lane); dset('lanePhase', 'done'); dset('laneLength', a.lane?.lengthM ?? 0);
     };
@@ -325,7 +339,7 @@ export function installPlaces(ctx: PlaceCtx) {
 
   // `snap` is called by map.ts when a pin is dropped: tell the player when a ready place is near
   function snapNote(lat: number, lon: number): string {
-    const s = nearestReady(index, lat, lon, 300);
+    const s = readyNear(lat, lon);
     return s ? ` ${s.name} is ready here: Build loads it at once.` : '';
   }
   return { obtain, finish, setStep, snapNote, prefetch, ready: loadIndex };
