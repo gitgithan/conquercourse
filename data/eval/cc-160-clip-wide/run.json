@@ -1,0 +1,81 @@
+{
+  "experiment": "cc-160-clip-wide",
+  "date": "2026-10-29",
+  "script": "scripts/clip-wide-check.mjs",
+  "viewport": "1280x720",
+  "results": [
+    {
+      "course": "training",
+      "view": "close",
+      "made": true,
+      "metresAcross": 2.9,
+      "runnerShareOfPicture": 0.34,
+      "seconds": 497
+    },
+    {
+      "course": "training",
+      "view": "tall",
+      "made": true,
+      "metresAcross": 20,
+      "runnerShareOfPicture": 0.049,
+      "seconds": 511
+    },
+    {
+      "course": "training",
+      "view": "wide",
+      "made": true,
+      "metresAcross": 20,
+      "runnerShareOfPicture": 0.156,
+      "seconds": 503
+    },
+    {
+      "course": "park-run",
+      "view": "close",
+      "made": true,
+      "metresAcross": 2.9,
+      "runnerShareOfPicture": 0.34,
+      "seconds": 185
+    },
+    {
+      "course": "park-run",
+      "view": "tall",
+      "made": true,
+      "metresAcross": 20,
+      "runnerShareOfPicture": 0.049,
+      "seconds": 182
+    },
+    {
+      "course": "park-run",
+      "view": "wide",
+      "made": true,
+      "metresAcross": 20,
+      "runnerShareOfPicture": 0.156,
+      "seconds": 184
+    },
+    {
+      "course": "climb",
+      "view": "close",
+      "made": true,
+      "metresAcross": 2.9,
+      "runnerShareOfPicture": 0.34,
+      "seconds": 188
+    },
+    {
+      "course": "climb",
+      "view": "tall",
+      "made": true,
+      "metresAcross": 20,
+      "runnerShareOfPicture": 0.049,
+      "seconds": 195
+    },
+    {
+      "course": "climb",
+      "view": "wide",
+      "made": true,
+      "metresAcross": 20,
+      "runnerShareOfPicture": 0.156,
+      "seconds": 189
+    }
+  ],
+  "pageErrors": []
+}
