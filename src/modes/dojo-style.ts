@@ -8,7 +8,7 @@ export const DOJO_V2_CSS = `
   .dojo.v2 #back{position:static!important;box-shadow:0 6px 18px #0005!important;font-size:15px!important;padding:10px 18px!important;border-radius:999px;background:#0f6b5c;color:#fff;border:0;font-weight:800;white-space:nowrap}
   .dojo.v2 #back:hover{background:#13826f}
   .dojo.v2 .banner{background:#2a2217;border:1px solid #6b5326;color:#f5e3bd;border-radius:14px;padding:10px 14px}
-  .dojo.v2 .cards{display:flex;gap:10px;overflow-x:auto;padding:4px 2px 10px;scroll-snap-type:x proximity;-webkit-overflow-scrolling:touch;scrollbar-width:thin}
+  .dojo.v2 .cards{display:flex;flex-wrap:nowrap;gap:10px;overflow-x:auto;padding:4px 2px 10px;scroll-snap-type:x proximity;-webkit-overflow-scrolling:touch;scrollbar-width:thin}
   .dojo.v2 .cards button{flex:0 0 auto;scroll-snap-align:start;display:grid;gap:2px;text-align:left;min-width:132px;padding:10px 14px;border-radius:14px;border:1px solid #ffffff22;background:#ffffff0f;color:#e8efe9;font-weight:700;transition:background .15s,border-color .15s}
   .dojo.v2 .cards button small{font-weight:500;font-size:12px;color:#9fb3aa}
   .dojo.v2 .cards button:hover{background:#ffffff1c}
