@@ -28,7 +28,10 @@ const COST_OF: Partial<Record<MoveKind, string>> = {
 /** Adds this tick to the log: the path every few ticks, and every move the simulator reports. */
 export function logTick(l: RunLog, w: WorldState): void {
   if (w.runner.tick % 4 === 0) l.path.push({ x: w.runner.x, y: w.runner.y });
-  for (const e of w.events) { const k = MOVE_OF[e.type]; if (k) l.moves.push({ kind: k, x: w.runner.x, y: w.runner.y }); }
+  for (const e of w.events) {
+    const k = e.type === 'land' && e.detail?.rolled ? 'roll' : MOVE_OF[e.type]; // a landing the runner rolled out of counts as a roll
+    if (k) l.moves.push({ kind: k, x: w.runner.x, y: w.runner.y });
+  }
 }
 
 export interface BestLine { log: RunLog; seconds: number; spent: number }
@@ -198,7 +201,7 @@ export function renderReport(course: CourseData, log: RunLog, r: Report, a: Acti
   if (r.learned) tx('p', `What you learned: ${r.learned}`, 'margin:0;font-weight:600', box);
   if (r.saying && r.saying !== r.learned?.replace('What you learned: ', '')) tx('p', `“${r.saying}”`, 'margin:0;font-style:italic;color:#58635d', box);
   const slot = document.createElement('div'); slot.id = 'report-ghost-slot'; box.appendChild(slot); // the ghost (Chase the ghost) adds its button here
-  const row = document.createElement('div'); row.id = 'report-actions'; row.style.cssText = 'display:flex;gap:8px;flex-wrap:wrap';
+  const row = document.createElement('div'); row.id = 'report-actions'; row.style.cssText = 'display:flex;gap:8px;flex-wrap:wrap;position:sticky;bottom:-16px;background:#fffffff5;padding:8px 0';
   const btn = (label: string, go: () => void, primary = false, id?: string) => {
     const b = document.createElement('button'); b.textContent = label; if (id) b.id = id;
     b.style.cssText = `font:inherit;border:1px solid ${primary ? '#0f6b5c' : '#b9c2bb'};background:${primary ? '#0f6b5c' : '#fff'};color:${primary ? '#fff' : '#17201d'};border-radius:8px;padding:7px 14px;cursor:pointer;white-space:nowrap`;
