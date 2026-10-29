@@ -1,0 +1,10 @@
+{
+  "checks": {
+    "allThreeDotsDrag": true
+  },
+  "notes": [
+    "before: dotsInView=1 lane=clearable zoom=17.473300406618343 pitch=72 canvas={\"x\":0,\"y\":0,\"width\":1020,\"height\":800} projected=[[510,322],[510,531],[510,400]]",
+    "after linefit: dotsInView=1 projected=[[510,322],[510,531],[510,400]]",
+    "drag results: [{\"dot\":\"#tour-a\",\"box\":[498,310],\"topAtCentre\":\"tour-a\",\"dotMoved\":true,\"mapMoved\":false},{\"dot\":\"#tour-b\",\"box\":[498,519],\"topAtCentre\":\"tour-b\",\"dotMoved\":true,\"mapMoved\":false},{\"dot\":\"#tour-m\",\"box\":[540,422],\"topAtCentre\":\"tour-m\",\"dotMoved\":true,\"mapMoved\":false}]"
+  ]
+}

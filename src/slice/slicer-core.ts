@@ -65,3 +65,11 @@ export function stripRows(mesh: Mesh, levels: number[]): StripRow[] {
   }
   return rows;
 }
+
+// CC-202: one honest answer to "does this height give a path?" for the state on the screen (same pieces, same shrink, and the player's own line when there is one).
+// The strip and every offered fix use it, so a green height or a fix button can only be shown when the very check behind the "a path exists" line said yes.
+export type OwnLine = { angle: number; offset: number };
+export function pathAt(place: Place, level: number, own?: OwnLine): boolean {
+  if (own) return !!customLane(place, { angle: own.angle, offset: own.offset, level }).proved;
+  return !!provedLane(place, level);
+}

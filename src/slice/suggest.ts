@@ -18,6 +18,7 @@ export interface WhyInput {
   cut: number; // cut height now, real metres
   strip: StripCell[]; // the heights strip (shape only), may be empty while it is still working
   picked: number; total: number;
+  proven?: boolean; // CC-202: the strip's `crossable` means the simulator found a path there (not just a good shape), so a cut fix is never guessed from a lane's shape alone
 }
 export interface WhyAnswer { reason: string; kind: 'none' | 'short' | 'wall' | 'drop' | 'gap' | 'other'; suggestions: Suggestion[] }
 
@@ -37,7 +38,7 @@ function explainRaw(i: WhyInput): WhyAnswer {
   const f = i.facts;
   const out: Suggestion[] = [];
   const near = i.strip.filter((c) => c.crossable && Math.abs(c.real - i.cut) > 0.01).sort((a, b) => Math.abs(a.real - i.cut) - Math.abs(b.real - i.cut))[0];
-  const withLane = i.strip.filter((c) => c.lane && Math.abs(c.real - i.cut) > 0.01).sort((a, b) => Math.abs(a.real - i.cut) - Math.abs(b.real - i.cut))[0];
+  const withLane = i.proven ? undefined : i.strip.filter((c) => c.lane && Math.abs(c.real - i.cut) > 0.01).sort((a, b) => Math.abs(a.real - i.cut) - Math.abs(b.real - i.cut))[0];
   const cutFix = (c: StripCell | undefined, why: string) => { if (c) out.push({ text: `Cut at ${c.real} m, ${why}.`, button: `Cut at ${c.real} m`, action: { kind: 'cut', value: c.real } }); };
   const shrinkFix = (factor: number, why: string) => {
     const v = round2(Math.max(MIN_SHRINK, i.k * Math.min(0.85, factor)));

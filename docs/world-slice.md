@@ -1693,3 +1693,59 @@ The set of obstacle shapes is fixed, and each shape offers a fixed set of moves.
 ## Ready places audit and skins (CC-178)
 - Where the places come from, why some have no path, the cut and shrink sweep, 3D sources and skins: [data/eval/cc-178-places/README.md](../data/eval/cc-178-places/README.md).
 - `?places=all` shows every Ready place; the default list shows only places with a path and photos facing the lane.
+
+## Slicing screen: the eight questions (CC-201 to CC-207)
+- The product owner tried the slicing screen (`?mode=map`) and asked eight questions; this is what the code and the runs say.
+- Switch: `?slice2=old` keeps the screen as it was before these changes.
+- Runs and numbers: [data/eval/slice-ux2/README.md](../data/eval/slice-ux2/README.md).
+
+### Q1: why did the Courses list not lead to the slicing screen? (CC-201)
+- The card was hidden unless the address had `?labs=1`, and it was called "Map: search a place".
+- It is now "Slice a real place", in the "Real places" group, and shown to everyone.
+- The slicing screen has a "Back to courses" button at the top of the side panel.
+
+### Q2: why did a green height still say no path? (CC-202)
+- The green on the strip came from the shape of a coarse lane, not from the simulator.
+- It also ignored the line the player had dragged.
+- Now a height is green only after the same proof the lane uses (`pathAt` in `src/slice/slicer-core.ts`), on the line that is in use.
+- While the proof runs the box is dashed grey; no path is pale red.
+- A fix (a cut, a shrink, a building to take out) is shown only when it was run through the simulator and gave a path.
+- If none does, the screen says so in plain words and shows no fix.
+- Numbers on six places: the old strip had 1 green with no path and hid 13 heights that do have a path; in the browser, 16 of 16 greens that were clicked on four places gave a path.
+
+### Q3: do the three dots change the result? (CC-203)
+- Yes.
+- The two round dots are the two ends of the line the runner follows; the square one moves the whole line.
+- Until you drag, the game picks the line.
+- After a drag, every check (the lane, the strip, the fixes) uses your line.
+- A short note above the result says which of the two is in use, and a "Reset the line" button gives the game's line back.
+- While you drag, the note says the result is checked again when you let go.
+- A line dragged on one place no longer follows you to the next place.
+
+### Q4: why did only two dots drag? (CC-204)
+- Two of the three dots were outside the picture (one at x = -378 px), so there was nothing to grab; a click there was a click on the map.
+- A real-mouse run reproduced it: one dot moved, the other two had nothing under the pointer.
+- Now the camera pulls back and centres on the line when it is shown, and a "Show the whole line" button does it again; all three drag.
+
+### Q5: what is the curvy red line? (CC-205)
+- It is the ground line: where the ground itself is as high as the cut.
+- It is a debug-style helper, not part of the course.
+- It is now hidden; a tick box "Show the ground line" brings it back.
+
+### Q6: does the course keep everything above the cut? (CC-205)
+- Not quite.
+- Everything is kept, but heights are measured from the cut.
+- The runner starts on the cut height; taller things stand up from it as walls, so a higher cut makes walls shorter.
+- Anything lower than a few metres below the cut is gone and leaves a gap, so a high cut turns low streets into gaps.
+- This sentence, with a small side picture, is on the screen under the cut slider.
+
+### Q7: why would the camera not go flat? (CC-206)
+- The map library stops the tilt at 60 degrees by default.
+- The slicing screen now allows up to 88 degrees, with a Tilt slider and right-drag; the wheel and pan work as before.
+- The hand-over to the editor keeps its old 60 degrees.
+
+### Q8: a gallery instead of a text list (CC-207)
+- Each place is a card: a photo, name, city and a "ready" badge; click to select.
+- Only four places have a stored photo (Wikimedia, free licences, credit on the card); the others show a plain skyline drawn from their real building heights.
+- The default list is unchanged: a path and at least 30 photos facing the lane; `?places=all` shows the rest, with a note.
+- Asset rows are in `docs/ASSETS.md`.

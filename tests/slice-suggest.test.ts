@@ -12,4 +12,11 @@ describe('why no path', () => {
     expect(a.suggestions[0].action).toEqual({ kind: 'cut', value: 20 });
     expect(a.reason).not.toContain('pick another place');
   });
+  it('with a proven strip, a lane that only looks good is never offered as a cut (CC-202)', () => {
+    const strip = [{ real: 20, lane: true, crossable: false }];
+    const guessed = explainNoPath({ facts: null, k: 0.2, cut: 5, strip, picked: 4, total: 4 });
+    const proven = explainNoPath({ facts: null, k: 0.2, cut: 5, strip, picked: 4, total: 4, proven: true });
+    expect(guessed.suggestions.some((x) => x.action.kind === 'cut')).toBe(true);
+    expect(proven.suggestions.some((x) => x.action.kind === 'cut')).toBe(false);
+  });
 });

@@ -1,0 +1,27 @@
+{
+  "experiment": "slice-ux2",
+  "issues": [
+    "CC-201",
+    "CC-202",
+    "CC-203",
+    "CC-204",
+    "CC-205",
+    "CC-206",
+    "CC-207"
+  ],
+  "date": "2026-10-30",
+  "machine": "Vultr VM2 (browser and tests), swiftshader",
+  "viewport": "1280x800",
+  "scripts": [
+    "scripts/slice-strip-eval.ts",
+    "scripts/slice-ux2-dots.mjs",
+    "scripts/slice-ux2-check.mjs"
+  ],
+  "result": {
+    "clickedGreensGivingPath": "16 of 16 on 4 places",
+    "oldGreenNoPath": "1 of 25 on 6 places",
+    "pathHiddenByOldStrip": 13,
+    "dotsDragAfterFix": "3 of 3",
+    "pitchReached": 88
+  }
+}
