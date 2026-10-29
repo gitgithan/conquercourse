@@ -1,0 +1,13 @@
+{
+  "id": "near-axe",
+  "kind": "near miss (text)",
+  "accept": [
+    "ok",
+    "review"
+  ],
+  "status": 200,
+  "verdict": "ok",
+  "reason": "none",
+  "pass": true,
+  "ms": 1754
+}
