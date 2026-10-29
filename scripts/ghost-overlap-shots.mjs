@@ -14,7 +14,7 @@ async function open(url, name, shots) {
   const errs = []; page.on('pageerror', (e) => { if (!/popErrorScope/.test(String(e))) errs.push(String(e)); });
   await page.addInitScript(() => { try { localStorage.setItem('cc.next.seen', '1'); localStorage.setItem('cc.worldWelcome.seen', '1'); } catch { /* shots */ } });
   await page.goto(`http://localhost:${port}${url}&welcome=0&tour=0`);
-  await page.waitForSelector('#keys', { state: 'attached', timeout: 120000 }); await page.waitForTimeout(4000);
+  await page.waitForSelector('#keys', { state: 'attached', timeout: 120000 }); await page.waitForFunction(() => document.body.dataset.ghostLook, null, { timeout: 150000 }).catch(() => console.log('ghost figure not loaded')); // the figure loads after the page
   await page.keyboard.press('KeyH');
   for (const [i, t] of shots.entries()) { await page.waitForTimeout(t); await page.screenshot({ path: `${out}/${name}-${i + 1}.png` }); }
   console.log(name, errs.length ? 'ERR ' + errs[0].slice(0, 150) : 'ok', (await page.textContent('#ghost-chip').catch(() => '')) ?? '', (await page.textContent('#challenge-banner').catch(() => '')) ?? '');
@@ -25,7 +25,7 @@ const p2 = await open(links.fell + '&autoplay=1', 'friend-fell', [1000, 2500, 25
 // the fall panel: run right off the first edge
 const p3 = await b.newPage({ viewport: { width: 1280, height: 720 } });
 await p3.addInitScript(() => { try { localStorage.setItem('cc.next.seen', '1'); localStorage.setItem('cc.worldWelcome.seen', '1'); } catch { /* shots */ } });
-await p3.goto(`http://localhost:${port}/?course=/assets/demo/bench-and-stairs.course.json&welcome=0&tour=0`);
+await p3.goto(`http://localhost:${port}/?course=/assets/demo/training.course.json&welcome=0&tour=0`);
 await p3.waitForSelector('#keys', { state: 'attached', timeout: 120000 }); await p3.waitForTimeout(4000);
 await p3.keyboard.press('KeyR'); await p3.keyboard.down('ArrowRight');
 await p3.waitForSelector('#share-copy-fall', { timeout: 60000 }).catch(() => {});
