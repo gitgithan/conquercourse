@@ -1,0 +1,15 @@
+{
+  "id": "gabion-wall",
+  "model": "spark",
+  "kind": "plain",
+  "status": 200,
+  "seconds": 6.8,
+  "prompt_tokens": 895,
+  "completion_tokens": 562,
+  "raw": "{\"verdict\":\"block\",\"reason\":\"Multiple disconnected fragments with edges cut off, not a single solid compact object.\"}",
+  "answer": {
+    "verdict": "block",
+    "reason": "Multiple disconnected fragments with edges cut off, not a single solid compact object."
+  },
+  "error": null
+}

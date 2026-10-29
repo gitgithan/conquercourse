@@ -1,0 +1,15 @@
+{
+  "id": "mural01",
+  "model": "spark",
+  "kind": "outline",
+  "status": 200,
+  "seconds": 7.4,
+  "prompt_tokens": 704,
+  "completion_tokens": 881,
+  "raw": "{\"whole_object_in_frame\":\"no\",\"reason\":\"The magenta outline is truncated by the right edge of the photo behind the utility pole.\"}",
+  "answer": {
+    "whole_object_in_frame": "no",
+    "reason": "The magenta outline is truncated by the right edge of the photo behind the utility pole."
+  },
+  "error": null
+}

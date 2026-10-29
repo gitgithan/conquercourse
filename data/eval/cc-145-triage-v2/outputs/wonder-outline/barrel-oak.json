@@ -1,0 +1,15 @@
+{
+  "id": "barrel-oak",
+  "model": "wonder",
+  "kind": "outline",
+  "status": 200,
+  "seconds": 5.7,
+  "prompt_tokens": 753,
+  "completion_tokens": 308,
+  "raw": "{\"whole_object_in_frame\":\"yes\",\"reason\":\"The magenta-outlined foreground barrel is fully visible with all of its ends and sides inside the photo edges.\"}",
+  "answer": {
+    "whole_object_in_frame": "yes",
+    "reason": "The magenta-outlined foreground barrel is fully visible with all of its ends and sides inside the photo edges."
+  },
+  "error": null
+}

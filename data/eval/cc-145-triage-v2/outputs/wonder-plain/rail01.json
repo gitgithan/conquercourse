@@ -1,0 +1,15 @@
+{
+  "id": "rail01",
+  "model": "wonder",
+  "kind": "plain",
+  "status": 200,
+  "seconds": 3.5,
+  "prompt_tokens": 467,
+  "completion_tokens": 178,
+  "raw": "{\"verdict\":\"block\",\"reason\":\"The cut-out is many tiny scattered fragments with no single solid object visible.\"}",
+  "answer": {
+    "verdict": "block",
+    "reason": "The cut-out is many tiny scattered fragments with no single solid object visible."
+  },
+  "error": null
+}

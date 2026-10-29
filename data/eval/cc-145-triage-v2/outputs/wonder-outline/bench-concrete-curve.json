@@ -1,0 +1,15 @@
+{
+  "id": "bench-concrete-curve",
+  "model": "wonder",
+  "kind": "outline",
+  "status": 200,
+  "seconds": 5.7,
+  "prompt_tokens": 669,
+  "completion_tokens": 243,
+  "raw": "{\"whole_object_in_frame\":\"yes\",\"reason\":\"The entire outlined stone bench is fully visible with margins on all sides of the frame.\"}",
+  "answer": {
+    "whole_object_in_frame": "yes",
+    "reason": "The entire outlined stone bench is fully visible with margins on all sides of the frame."
+  },
+  "error": null
+}

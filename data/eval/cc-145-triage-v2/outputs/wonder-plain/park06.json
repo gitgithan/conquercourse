@@ -1,0 +1,15 @@
+{
+  "id": "park06",
+  "model": "wonder",
+  "kind": "plain",
+  "status": 200,
+  "seconds": 6.2,
+  "prompt_tokens": 258,
+  "completion_tokens": 396,
+  "raw": "{\"verdict\":\"block\",\"reason\":\"The object is an extremely long, very thin plank, so a 3D lift will almost certainly fail.\"}",
+  "answer": {
+    "verdict": "block",
+    "reason": "The object is an extremely long, very thin plank, so a 3D lift will almost certainly fail."
+  },
+  "error": null
+}

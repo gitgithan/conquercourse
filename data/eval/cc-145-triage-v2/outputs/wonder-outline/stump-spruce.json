@@ -1,0 +1,15 @@
+{
+  "id": "stump-spruce",
+  "model": "wonder",
+  "kind": "outline",
+  "status": 200,
+  "seconds": 7.7,
+  "prompt_tokens": 697,
+  "completion_tokens": 232,
+  "raw": "{\"whole_object_in_frame\":\"yes\",\"reason\":\"The magenta-outlined stump is fully visible inside the frame with margins on all sides and does not touch any photo edge.\"}",
+  "answer": {
+    "whole_object_in_frame": "yes",
+    "reason": "The magenta-outlined stump is fully visible inside the frame with margins on all sides and does not touch any photo edge."
+  },
+  "error": null
+}

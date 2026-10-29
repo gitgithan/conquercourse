@@ -1,0 +1,15 @@
+{
+  "id": "fence-split-rail",
+  "model": "wonder",
+  "kind": "plain",
+  "status": 200,
+  "seconds": 6.1,
+  "prompt_tokens": 548,
+  "completion_tokens": 201,
+  "raw": "{\"verdict\":\"block\",\"reason\":\"The cut-out is a sprawling fence of many thin, separated sticks with gaps, not one solid compact object.\"}",
+  "answer": {
+    "verdict": "block",
+    "reason": "The cut-out is a sprawling fence of many thin, separated sticks with gaps, not one solid compact object."
+  },
+  "error": null
+}

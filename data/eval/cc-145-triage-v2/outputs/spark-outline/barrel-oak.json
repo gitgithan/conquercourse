@@ -1,0 +1,15 @@
+{
+  "id": "barrel-oak",
+  "model": "spark",
+  "kind": "outline",
+  "status": 200,
+  "seconds": 5.9,
+  "prompt_tokens": 890,
+  "completion_tokens": 458,
+  "raw": "{\"whole_object_in_frame\":\"yes\",\"reason\":\"The outlined foreground barrel is fully visible with no edges cropped by the photo border.\"}",
+  "answer": {
+    "whole_object_in_frame": "yes",
+    "reason": "The outlined foreground barrel is fully visible with no edges cropped by the photo border."
+  },
+  "error": null
+}

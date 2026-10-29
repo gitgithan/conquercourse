@@ -1,0 +1,15 @@
+{
+  "id": "pipe-ring",
+  "model": "wonder",
+  "kind": "outline",
+  "status": 200,
+  "seconds": 5.3,
+  "prompt_tokens": 669,
+  "completion_tokens": 278,
+  "raw": "{\"whole_object_in_frame\":\"yes\",\"reason\":\"The outlined concrete cylinder lies fully inside the image borders and is not truncated by any edge.\"}",
+  "answer": {
+    "whole_object_in_frame": "yes",
+    "reason": "The outlined concrete cylinder lies fully inside the image borders and is not truncated by any edge."
+  },
+  "error": null
+}

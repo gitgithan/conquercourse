@@ -1,0 +1,15 @@
+{
+  "id": "mural02",
+  "model": "spark",
+  "kind": "plain",
+  "status": 200,
+  "seconds": 8.0,
+  "prompt_tokens": 793,
+  "completion_tokens": 1336,
+  "raw": "{\"verdict\":\"block\",\"reason\":\"Cut-out is fragmented into multiple disconnected pieces with a large missing white center and no solid compact shape.\"}",
+  "answer": {
+    "verdict": "block",
+    "reason": "Cut-out is fragmented into multiple disconnected pieces with a large missing white center and no solid compact shape."
+  },
+  "error": null
+}

@@ -1,0 +1,15 @@
+{
+  "id": "picnic-table",
+  "model": "wonder",
+  "kind": "plain",
+  "status": 200,
+  "seconds": 4.8,
+  "prompt_tokens": 618,
+  "completion_tokens": 295,
+  "raw": "{\"verdict\":\"block\",\"reason\":\"The picnic table is fragmented with missing bench parts and thin disconnected leg loops, so a solid 3D lift will almost certainly fail.\"}",
+  "answer": {
+    "verdict": "block",
+    "reason": "The picnic table is fragmented with missing bench parts and thin disconnected leg loops, so a solid 3D lift will almost certainly fail."
+  },
+  "error": null
+}

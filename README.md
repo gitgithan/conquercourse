@@ -48,6 +48,8 @@ Blue-box diagrams for every pipeline are in [docs/meta-ai-pipelines.md](docs/met
   - It did well on the physics code and gave nothing useful on the contraptions chunk.
   - Details: [data/eval/cc-wonder-review/README.md](data/eval/cc-wonder-review/README.md).
 - **Muse Spark Open** (on Baseten) also helped as a dev aid: bulk course drafts (CC-122) and photo triage (CC-123); the same model is what the Course Agent uses in the game.
+- **Muse Wonder** and **Muse Spark Open** also judged photo cut-outs for a gate before the 3D lift (CC-145, 2026-10-29): bash.60 for 46 calls each way, and neither earned a place in the game; the free mask-edge check did the useful part.
+  - Details: [data/eval/cc-145-triage-v2/README.md](data/eval/cc-145-triage-v2/README.md).
 
 ## How it answers the judging criteria
 

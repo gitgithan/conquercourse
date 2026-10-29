@@ -1,0 +1,285 @@
+{
+  "lift gave \"no\"": {
+    "A-rule": {
+      "agree": 18,
+      "of": 23,
+      "false_alarms": 5,
+      "misses": 0,
+      "good_rejected": [
+        "gabion-wall"
+      ],
+      "bad_missed": []
+    },
+    "Spark plain=block": {
+      "agree": 13,
+      "of": 23,
+      "false_alarms": 10,
+      "misses": 0,
+      "good_rejected": [
+        "planter-concrete",
+        "gabion-wall",
+        "bar-green",
+        "park01",
+        "mural01"
+      ],
+      "bad_missed": []
+    },
+    "Wonder plain=block": {
+      "agree": 13,
+      "of": 23,
+      "false_alarms": 9,
+      "misses": 1,
+      "good_rejected": [
+        "gabion-wall",
+        "bar-green",
+        "bar-black",
+        "park01",
+        "mural01"
+      ],
+      "bad_missed": [
+        "park07"
+      ]
+    },
+    "Spark frame=no": {
+      "agree": 17,
+      "of": 23,
+      "false_alarms": 3,
+      "misses": 3,
+      "good_rejected": [
+        "gabion-wall",
+        "mural01"
+      ],
+      "bad_missed": [
+        "park06",
+        "park07",
+        "mural02"
+      ]
+    },
+    "Wonder frame=no": {
+      "agree": 17,
+      "of": 23,
+      "false_alarms": 4,
+      "misses": 2,
+      "good_rejected": [
+        "gabion-wall",
+        "mural01"
+      ],
+      "bad_missed": [
+        "park06",
+        "park07"
+      ]
+    },
+    "A or Spark-plain": {
+      "agree": 13,
+      "of": 23,
+      "false_alarms": 10,
+      "misses": 0,
+      "good_rejected": [
+        "planter-concrete",
+        "gabion-wall",
+        "bar-green",
+        "park01",
+        "mural01"
+      ],
+      "bad_missed": []
+    },
+    "A and Spark-plain": {
+      "agree": 18,
+      "of": 23,
+      "false_alarms": 5,
+      "misses": 0,
+      "good_rejected": [
+        "gabion-wall"
+      ],
+      "bad_missed": []
+    },
+    "A or Spark-frame": {
+      "agree": 17,
+      "of": 23,
+      "false_alarms": 6,
+      "misses": 0,
+      "good_rejected": [
+        "gabion-wall",
+        "mural01"
+      ],
+      "bad_missed": []
+    },
+    "2 of 3: A, Spark-plain, Wonder-plain": {
+      "agree": 14,
+      "of": 23,
+      "false_alarms": 9,
+      "misses": 0,
+      "good_rejected": [
+        "gabion-wall",
+        "bar-green",
+        "park01",
+        "mural01"
+      ],
+      "bad_missed": []
+    },
+    "2 of 3: A, Spark-frame, Wonder-frame": {
+      "agree": 17,
+      "of": 23,
+      "false_alarms": 4,
+      "misses": 2,
+      "good_rejected": [
+        "gabion-wall",
+        "mural01"
+      ],
+      "bad_missed": [
+        "park06",
+        "park07"
+      ]
+    }
+  },
+  "lift gave \"partly\" or \"no\"": {
+    "A-rule": {
+      "agree": 21,
+      "of": 23,
+      "false_alarms": 1,
+      "misses": 1,
+      "good_rejected": [
+        "gabion-wall"
+      ],
+      "bad_missed": [
+        "park02"
+      ]
+    },
+    "Spark plain=block": {
+      "agree": 18,
+      "of": 23,
+      "false_alarms": 5,
+      "misses": 0,
+      "good_rejected": [
+        "planter-concrete",
+        "gabion-wall",
+        "bar-green",
+        "park01",
+        "mural01"
+      ],
+      "bad_missed": []
+    },
+    "Wonder plain=block": {
+      "agree": 16,
+      "of": 23,
+      "false_alarms": 5,
+      "misses": 2,
+      "good_rejected": [
+        "gabion-wall",
+        "bar-green",
+        "bar-black",
+        "park01",
+        "mural01"
+      ],
+      "bad_missed": [
+        "log-driftwood",
+        "park07"
+      ]
+    },
+    "Spark frame=no": {
+      "agree": 14,
+      "of": 23,
+      "false_alarms": 2,
+      "misses": 7,
+      "good_rejected": [
+        "gabion-wall",
+        "mural01"
+      ],
+      "bad_missed": [
+        "picnic-table",
+        "log-driftwood",
+        "park02",
+        "park06",
+        "park07",
+        "rail01",
+        "mural02"
+      ]
+    },
+    "Wonder frame=no": {
+      "agree": 16,
+      "of": 23,
+      "false_alarms": 2,
+      "misses": 5,
+      "good_rejected": [
+        "gabion-wall",
+        "mural01"
+      ],
+      "bad_missed": [
+        "picnic-table",
+        "log-driftwood",
+        "park02",
+        "park06",
+        "park07"
+      ]
+    },
+    "A or Spark-plain": {
+      "agree": 18,
+      "of": 23,
+      "false_alarms": 5,
+      "misses": 0,
+      "good_rejected": [
+        "planter-concrete",
+        "gabion-wall",
+        "bar-green",
+        "park01",
+        "mural01"
+      ],
+      "bad_missed": []
+    },
+    "A and Spark-plain": {
+      "agree": 21,
+      "of": 23,
+      "false_alarms": 1,
+      "misses": 1,
+      "good_rejected": [
+        "gabion-wall"
+      ],
+      "bad_missed": [
+        "park02"
+      ]
+    },
+    "A or Spark-frame": {
+      "agree": 20,
+      "of": 23,
+      "false_alarms": 2,
+      "misses": 1,
+      "good_rejected": [
+        "gabion-wall",
+        "mural01"
+      ],
+      "bad_missed": [
+        "park02"
+      ]
+    },
+    "2 of 3: A, Spark-plain, Wonder-plain": {
+      "agree": 19,
+      "of": 23,
+      "false_alarms": 4,
+      "misses": 0,
+      "good_rejected": [
+        "gabion-wall",
+        "bar-green",
+        "park01",
+        "mural01"
+      ],
+      "bad_missed": []
+    },
+    "2 of 3: A, Spark-frame, Wonder-frame": {
+      "agree": 16,
+      "of": 23,
+      "false_alarms": 2,
+      "misses": 5,
+      "good_rejected": [
+        "gabion-wall",
+        "mural01"
+      ],
+      "bad_missed": [
+        "picnic-table",
+        "log-driftwood",
+        "park02",
+        "park06",
+        "park07"
+      ]
+    }
+  }
+}

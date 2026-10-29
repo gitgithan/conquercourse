@@ -1,0 +1,15 @@
+{
+  "id": "mural01",
+  "model": "wonder",
+  "kind": "outline",
+  "status": 200,
+  "seconds": 8.2,
+  "prompt_tokens": 567,
+  "completion_tokens": 447,
+  "raw": "{\"whole_object_in_frame\":\"no\",\"reason\":\"The mural's right edge extends beyond the right edge of the photo and is cut off.\"}",
+  "answer": {
+    "whole_object_in_frame": "no",
+    "reason": "The mural's right edge extends beyond the right edge of the photo and is cut off."
+  },
+  "error": null
+}

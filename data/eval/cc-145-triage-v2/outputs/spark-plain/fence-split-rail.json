@@ -1,0 +1,15 @@
+{
+  "id": "fence-split-rail",
+  "model": "spark",
+  "kind": "plain",
+  "status": 200,
+  "seconds": 9.9,
+  "prompt_tokens": 685,
+  "completion_tokens": 1684,
+  "raw": "{\"verdict\":\"block\",\"reason\":\"Fence is cut off at both edges and consists of multiple thin gapped sections, not one solid compact object.\"}",
+  "answer": {
+    "verdict": "block",
+    "reason": "Fence is cut off at both edges and consists of multiple thin gapped sections, not one solid compact object."
+  },
+  "error": null
+}

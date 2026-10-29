@@ -1,0 +1,15 @@
+{
+  "id": "gabion-wall",
+  "model": "spark",
+  "kind": "outline",
+  "status": 200,
+  "seconds": 7.4,
+  "prompt_tokens": 806,
+  "completion_tokens": 592,
+  "raw": "{\"whole_object_in_frame\":\"no\",\"reason\":\"The magenta outline is cut off by the left and bottom edges of the photo, so the wall extends beyond the frame.\"}",
+  "answer": {
+    "whole_object_in_frame": "no",
+    "reason": "The magenta outline is cut off by the left and bottom edges of the photo, so the wall extends beyond the frame."
+  },
+  "error": null
+}

@@ -1,0 +1,15 @@
+{
+  "id": "stump-spruce",
+  "model": "spark",
+  "kind": "plain",
+  "status": 200,
+  "seconds": 5.4,
+  "prompt_tokens": 631,
+  "completion_tokens": 585,
+  "raw": "{\"verdict\":\"ok\",\"reason\":\"Single solid piece of weathered wood fully visible as one compact object with no cut-off or attachments.\"}",
+  "answer": {
+    "verdict": "ok",
+    "reason": "Single solid piece of weathered wood fully visible as one compact object with no cut-off or attachments."
+  },
+  "error": null
+}

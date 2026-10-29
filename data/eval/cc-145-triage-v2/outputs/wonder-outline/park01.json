@@ -1,0 +1,15 @@
+{
+  "id": "park01",
+  "model": "wonder",
+  "kind": "outline",
+  "status": 200,
+  "seconds": 6.4,
+  "prompt_tokens": 621,
+  "completion_tokens": 317,
+  "raw": "{\"whole_object_in_frame\":\"yes\",\"reason\":\"The entire magenta-outlined handrail is visible within the image and does not extend beyond any edge.\"}",
+  "answer": {
+    "whole_object_in_frame": "yes",
+    "reason": "The entire magenta-outlined handrail is visible within the image and does not extend beyond any edge."
+  },
+  "error": null
+}
