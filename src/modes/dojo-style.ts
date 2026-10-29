@@ -29,7 +29,7 @@ export const DOJO_V2_CSS = `
   .dojo.v2 .path .done .dot{background:#0f6b5c;border-color:#0f6b5c;color:#fff}
   .dojo.v2 .path .on .dot{background:#fff;color:#0f6b5c;border-color:#c9893b;box-shadow:0 0 0 5px #c9893b33}
   .dojo.v2 .path .on{color:#2b2218}
-  .dojo.v2 .row{gap:18px;grid-template-columns:minmax(0,1.45fr) minmax(0,1fr);align-items:stretch}.dojo.v2 .stage{display:flex;flex-direction:column;justify-content:center}
+  .dojo.v2 .row{gap:18px;grid-template-columns:minmax(0,1.45fr) minmax(0,1fr);align-items:start}.dojo.v2 .stage{position:sticky;top:84px}
   .dojo.v2 .stage,.dojo.v2 .panel,.dojo.v2 #diagram>div:last-child{background:#fffdf7;border:0;border-radius:20px;box-shadow:0 12px 34px #6b4e1f2e;padding:14px}
   .dojo.v2 .caption{margin-top:10px;padding:10px 14px;border-left:5px solid #c9893b;background:#fbefd5;border-radius:10px;color:#3b2a0c;font-size:15px;line-height:1.4}.dojo.v2 .caption.locked{background:#f3e6c9;border-left-style:dashed;color:#7a6a52}
   .dojo.v2 canvas{border:0;border-radius:12px;background:#fffdf7;display:block}
@@ -46,5 +46,5 @@ export const DOJO_V2_CSS = `
   .dojo.v2 button:focus-visible,.dojo.v2 a:focus-visible,.dojo.v2 input:focus-visible{outline:3px solid #b8741a;outline-offset:2px}
   @media(prefers-reduced-motion:no-preference){.dojo.v2 .stage,.dojo.v2 .panel,.dojo.v2 .hero{animation:dojoIn .28s ease-out both}}
   @keyframes dojoIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
-  @media(max-width:860px){.dojo.v2 .row{grid-template-columns:1fr}.dojo.v2 .path .node .t{display:none}.dojo.v2 .path .node.on .t{display:block;position:absolute;top:38px;white-space:nowrap}.dojo.v2 .path{padding-bottom:22px}
+  @media(max-width:860px){.dojo.v2 .row{grid-template-columns:1fr}.dojo.v2 .stage{position:static}.dojo.v2 .path .node:last-child.on .t{right:0}.dojo.v2 .path .node:first-child.on .t{left:0}.dojo.v2 .path .node .t{display:none}.dojo.v2 .path .node.on .t{display:block;position:absolute;top:38px;white-space:nowrap}.dojo.v2 .path{padding-bottom:22px}
     .dojo.v2 .nav{position:sticky;bottom:0;margin:0 -16px -16px;padding:10px 16px;background:#fffdf7f2;border-radius:0 0 20px 20px;box-shadow:0 -8px 20px #0001}.dojo.v2 .bar{padding:8px 0}.dojo.v2 .kicker{display:none}.dojo.v2 #back{font-size:13px!important;padding:8px 12px!important}.dojo.v2 .cards button{min-width:112px;padding:8px 12px}}`;
