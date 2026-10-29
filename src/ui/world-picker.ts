@@ -10,6 +10,7 @@ export const DEMO_GROUPS: [string, Demo[]][] = [
     ['/assets/experiments/osm/eixample-barcelona.course.json', 'Barcelona block', 'The Eixample grid: rooftops of a flat city block.'],
     ['/assets/experiments/osm/circular-quay-sydney.course.json', 'Sydney quay', 'Waterfront buildings at Circular Quay.'],
     ['/assets/experiments/osm/san-francisco-lombard.course.json', 'San Francisco hill (62 m of hill)', 'Lombard Street: the hill is real and so are the roofs.'],
+    ['map', 'Slice a real place', 'Pick a real street, cut it at a height and turn its roofs into a course.'],
   ]],
   ['Real objects, built in the editor', [
     ['/assets/demo/park-run.course.json', 'Park run', 'Stairs, a skate box, two rails, a bench and a handrail in one line: vault, jump, repeat.'],
@@ -24,7 +25,6 @@ export const DEMO_GROUPS: [string, Demo[]][] = [
     ['/assets/demo/plank-two.course.json', 'Plank bridge: thick, then thin', 'A thick plank bends and holds; a thin one needs a post in the middle.'],
   ]],
   ['Make your own', [
-    ['map', 'Slice a real place', 'Pick a real street, cut it at a height and turn its roofs into a course.'],
     ['generate', 'Make me a new course (random)', 'A random course the simulator has proved clearable.'],
     ['editor', 'Build your own (editor)', 'Place real objects and bars; the simulator checks the lane.'],
     ['coaster-builder', 'Build your own coaster', 'Drag the dots of the track and ride it.'],
