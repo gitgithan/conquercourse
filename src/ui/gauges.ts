@@ -4,7 +4,7 @@
 export interface GaugeSpec { id: string; label: string; colour: string; max: number }
 export interface GaugeUpdate { value?: number; max?: number; text?: string; note?: string; mark?: number | null; colour?: string; visible?: boolean }
 export interface Gauge { set: (u: GaugeUpdate) => void; el: HTMLElement }
-export interface GaugeStack { el: HTMLElement; register: (spec: GaugeSpec) => Gauge; lift: (px: number) => void }
+export interface GaugeStack { el: HTMLElement; register: (spec: GaugeSpec) => Gauge; lift: (px: number) => void; dock: (cardOpen: boolean) => void }
 
 /** Fill width in percent, kept inside 0..100 (a bad number is an empty bar). */
 export function gaugePercent(value: number, max: number): number {
@@ -21,7 +21,7 @@ export function createGaugeStack(where: 'bottom-left' | 'old' = 'bottom-left'): 
   const old = where === 'old';
   el.style.cssText = old
     ? 'position:fixed;left:50%;top:10px;transform:translateX(-50%);width:min(420px,60vw);display:flex;flex-direction:column;gap:8px;text-align:center;font:600 15px system-ui,sans-serif;color:#10141c;text-shadow:0 1px 0 #fff8;pointer-events:none'
-    : `position:fixed;left:12px;bottom:calc(${BASE_BOTTOM}px + var(--gl,0px));width:min(230px,30vw);min-width:150px;display:flex;flex-direction:column-reverse;gap:8px;font:600 14px system-ui,sans-serif;color:#10141c;text-shadow:0 1px 0 #fff8;pointer-events:none;z-index:6`;
+    : `position:fixed;left:12px;bottom:calc(${BASE_BOTTOM}px + var(--gl,0px));width:min(230px,30vw);min-width:150px;display:flex;flex-direction:column-reverse;gap:10px;font:600 14px system-ui,sans-serif;color:#10141c;text-shadow:0 1px 0 #fff8;pointer-events:none;z-index:6`;
   if (!old) { const st = document.createElement('style'); st.textContent = '@media (max-width:1100px){#gauge-stack{--gd:54px}}#gauge-stack{margin-bottom:var(--gd,0px)}'; el.append(st); } // narrow screens: step over the drum lane (G)
   const register = (spec: GaugeSpec): Gauge => {
     const g = document.createElement('div');
@@ -47,5 +47,6 @@ export function createGaugeStack(where: 'bottom-left' | 'old' = 'bottom-left'): 
     };
   };
   const lift = (px: number) => { if (!old) el.style.setProperty('--gl', `${px}px`); };
-  return { el, register, lift };
+  const dock = (cardOpen: boolean) => { if (!old) el.style.left = cardOpen ? '318px' : '12px'; }; // the keys card (left 16, 290 wide) is tall: step to its right while it is open
+  return { el, register, lift, dock };
 }
