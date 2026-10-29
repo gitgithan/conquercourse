@@ -63,8 +63,8 @@ export function startMap(host: HTMLElement): { backend: 'webgl2' } {
     <div class="muted">Or click the map to drop a pin.</div>
     <label><span>Radius: <b id="radiusv">120</b> m</span><input type="range" id="radius" min="80" max="250" step="10" value="120"></label>
     <label><span>Shrink: <b id="shrinkv">0.2</b> (1 = real size)</span><input type="range" id="shrink" min="0.02" max="1" step="0.01" value="0.2"></label>
-    <label style="grid-auto-flow:column;justify-content:start;gap:6px;align-items:center"><input type="checkbox" id="hills"${q.get('hills') === '0' ? '' : ' checked'}><span>Real hills (ground height from satellite maps)</span></label>
-    <label style="grid-auto-flow:column;justify-content:start;gap:6px;align-items:center"><input type="checkbox" id="useready" checked><span>Use a ready place when one is near (loads at once)</span></label>
+    ${S2 ? '' : `<label style="grid-auto-flow:column;justify-content:start;gap:6px;align-items:center"><input type="checkbox" id="hills"${q.get('hills') === '0' ? '' : ' checked'}><span>Real hills (ground height from satellite maps)</span></label>
+    <label style="grid-auto-flow:column;justify-content:start;gap:6px;align-items:center"><input type="checkbox" id="useready" checked><span>Use a ready place when one is near (loads at once)</span></label>`}
     <div class="muted">Real buildings are 15 to 40 m tall and a runner jumps under 1 m up, so the place is shrunk.</div>
     ${S2 ? `<label title="Tilt the camera from straight down (0) to a side view along the ground (88). Right-drag on the map does the same."><span>Tilt: <b id="tiltv">0</b>° <span class="muted">(0 = from above, 88 = along the ground; right-drag too)</span></span><input type="range" id="tilt" min="0" max="88" step="1" value="0" aria-label="Tilt"></label>` : ''}
     <div id="mapphotos"></div>
@@ -154,7 +154,7 @@ export function startMap(host: HTMLElement): { backend: 'webgl2' } {
   };
   map.on('click', (e) => { if (S) pickClick(e.point); else dropPin(e.lngLat.lat, e.lngLat.lng); });
   places = installPlaces({
-    map, side, tell, pin: () => pin, radius: () => Number(radius.value), hills: () => $<HTMLInputElement>('hills').checked,
+    map, side, tell, pin: () => pin, radius: () => Number(radius.value), hills: () => (S2 ? q.get('hills') !== '0' : $<HTMLInputElement>('hills').checked), strict: S2,
     setPin: (lat, lon) => dropPin(lat, lon), setRadius: (r) => { radius.value = String(r); $('radiusv').textContent = String(r); },
     groundFor: (lat, lon, r) => groundFor(lat, lon, r),
   });
@@ -208,10 +208,12 @@ export function startMap(host: HTMLElement): { backend: 'webgl2' } {
       setShrink(k0);
       const name = (o.name || ($<HTMLInputElement>('search').value.trim().split(',')[0]) || `${o.lat.toFixed(3)},${o.lon.toFixed(3)}`).slice(0, 40);
       const m = osmToMesh(o.answer, o.lat, o.lon, k0, o.ground);
-      storePiece(m, name);
+      if (!S2) storePiece(m, name); // CC-211: the editor gets the place only after the simulator has proved a lane on it
+      const lane0 = setLane;
+      const laneOut = S2 ? (l: PlaceLane | null) => { if (l?.cleared) { storePiece(osmToMesh(o.answer, o.lat, o.lon, l.shrink, o.ground), name); lane0(l); } else sessionStorage.removeItem(PIECE_KEY); } : lane0;
       tell(`Built ${m.buildings} buildings${o.ground ? `, on a hill of ${Math.round(relief(o.ground))} m (${m.relief.toFixed(1)} m once shrunk)` : ''}. Open it in the editor, or look at how the pin became a course below.`);
       document.documentElement.dataset.hill = o.ground ? String(Math.round(relief(o.ground))) : '0';
-      places.finish(o, m, k0, (k) => { setShrink(k); const m2 = osmToMesh(o.answer, o.lat, o.lon, k, o.ground); storePiece(m2, name); return m2; }, setLane);
+      places.finish(o, m, k0, (k) => { setShrink(k); const m2 = osmToMesh(o.answer, o.lat, o.lon, k, o.ground); if (!S2) storePiece(m2, name); return m2; }, laneOut);
     } catch (e) { tell((e as Error).message, true); }
     build.disabled = false;
   };
@@ -653,6 +655,7 @@ export function startMap(host: HTMLElement): { backend: 'webgl2' } {
   $('buildpieces').onclick = () => {
     if (!S) return;
     const pieces = S.pieces;
+    if (S2 && !(shownLane && shownLane.proved && shownLane.c === Number(cut.value))) { tell('The simulator has not found a path at this height. Pick a green height first.', true); return; } // CC-211
     if (!pieces.length) { tell('Pick at least one building first.', true); return; }
     const lane = shownLane && shownLane.c === Number(cut.value) ? { ...handoverLane(shownLane.l, shownLane.c, S.k), from: shownLane.proved ? 'slicer' : 'slicer-unproved' } : undefined;
     try { sessionStorage.setItem(PIECE_KEY, JSON.stringify({ name: 'Place', pieces, ...(lane ? { lane } : {}), camera: { heading: map.getBearing(), pitch: Math.min(map.getPitch(), 60), distance: Math.max(12, S.r * S.k * 1.8) } })); } catch { tell('That is too many buildings to hand over at once. Pick fewer.', true); return; }
