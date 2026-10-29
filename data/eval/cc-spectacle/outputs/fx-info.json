@@ -1,0 +1,38 @@
+[
+  {
+    "file": "a-flyover-none.png",
+    "seconds": 19.192
+  },
+  {
+    "file": "a-flyover-bloom.png",
+    "seconds": 23.332
+  },
+  {
+    "file": "a-flyover-vignette.png",
+    "seconds": 19.349
+  },
+  {
+    "file": "a-flyover-dof.png",
+    "seconds": 42.485
+  },
+  {
+    "file": "a-flyover-all.png",
+    "seconds": 45.439
+  },
+  {
+    "file": "b-orbit-rope-none.png",
+    "seconds": 19.407
+  },
+  {
+    "file": "b-orbit-rope-all.png",
+    "seconds": 42.686
+  },
+  {
+    "file": "c-push-wall-none.png",
+    "seconds": 21.328
+  },
+  {
+    "file": "c-push-wall-all.png",
+    "seconds": 41.597
+  }
+]

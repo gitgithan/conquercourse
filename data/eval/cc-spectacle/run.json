@@ -1,0 +1,21 @@
+{
+  "experiment": "cc-spectacle",
+  "issue": "CC-188",
+  "date": "2026-10-29",
+  "machine": "Vultr VM2 <vm2-address> (8 cores, CPU only)",
+  "blender": "5.0.1 (bpy from PyPI, Python 3.11)",
+  "blender_engine": "Cycles CPU, 48 samples, denoise",
+  "blender_seconds": {
+    "1-wall-golden": 49.7,
+    "2-rope-wide": 49.8,
+    "3-lache-closeup": 32.3
+  },
+  "fx_switch": "?fx=bloom,vignette,dof|all",
+  "fx_seconds_per_still": "19-23 without effects, 42-45 with dof",
+  "commands": [
+    "npx tsx scripts/export-gltf.ts public/assets/demo/training.course.json data/eval/cc-spectacle/inputs/training.glb",
+    "python pipelines/spectacle/render_stills.py training.glb rookie-a.glb out 48",
+    "node scripts/fx-stills.mjs data/eval/cc-spectacle/outputs"
+  ],
+  "cost": "0 (VM credit only; no Modal, no paid tool)"
+}
