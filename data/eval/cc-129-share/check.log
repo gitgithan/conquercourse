@@ -1,0 +1,13 @@
+link chars: 116
+PASS the banner says what to beat Beat this time: 9.36 s | Make a clip of this run | Close
+PASS the friend's keys played as a run end in the report 
+PASS the report names the friend's run You made it in 9.4 s. | ━ your path | ╍ the best line | Icons: where you jumped, vaulted, climbed, grabbed or rolled | 	You	Best line | Time	9.4 s	9.4 s | Effort	1.4 jumps' worth	1.4 jumps' worth | 1 vault: less than half a jump of effort (0.4 of one) | 1 jump
+PASS both share buttons are on the report 
+PASS the copied link is a challenge link with no name or time in it http://localhost:5883/?course=%2Fassets%2Fdemo%2Flache.course.json&challenge=1.oy8gna..rCe8CiQEBCaQBSTcNAUlIadABCf8B
+PASS the copied link opens with the same time to beat Beat this time: 9.36 sMake a clip of this runClose
+PASS a clip is made and offered for download 193 s: Your clip is ready (1.6 MB). | Download clip | Close
+PASS the file is an mp4 of a sensible size 1603218 bytes
+{"programs":[],"streams":[{"codec_name":"h264","width":720,"height":1280,"nb_frames":"326"}],"format":{"duration":"10.833333"}}
+PASS 720 x 1280, 30 pictures a second, about the length of the run plus the tail 10.833333 s, h264
+PASS a cut-short link is refused in plain words This link is damaged, so its run cannot be played. | Close
+PASS no page errors 
