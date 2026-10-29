@@ -20,7 +20,9 @@
 ## Tests (VM2, `scripts/download-every-run-check.mjs`)
 - Each course: play until the try ends, see the clip button; press R (a checkpoint start), play again, see it again.
 - Training also made the clip and saved a 2.3 MB mp4 (`training-fall.mp4` is not committed: it is big; the size check is in the log).
-- The results are in `results.txt`.
+- Courses: the default course, training, band, cannon, drop, launch, recoil, coaster, plank and drone (nine checked in both rounds, drone in the first only).
+- 30 checks passed, none failed (`results.txt`).
+- Pictures: `training-fall.png`, `cannon-fall.png`.
 
 ## Not tested
 - A clear that began at a checkpoint, in the browser: it shares the code path of the fall, but no script plays a clean mid-course clear.
