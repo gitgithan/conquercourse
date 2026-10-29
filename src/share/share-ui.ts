@@ -28,7 +28,7 @@ export function showBanner(text: string, actions: { label: string; go: () => voi
 }
 
 /** Buttons for the end-of-run report. Copy link says what happened in the button itself. */
-export function shareButtons(o: { link: (nick: string) => Promise<string | null>; courseTooBig?: () => Promise<boolean>; clip?: () => void }): HTMLElement[] {
+export function shareButtons(o: { link?: (nick: string) => Promise<string | null>; courseTooBig?: () => Promise<boolean>; clip?: () => void }): HTMLElement[] {
   const nick = document.createElement('input');
   nick.id = 'share-nick'; nick.maxLength = 3; nick.placeholder = 'Tag'; nick.size = 4; nick.autocomplete = 'off'; nick.spellcheck = false;
   nick.title = 'Optional: up to three letters, so your friend sees who to beat. Not your real name.';
@@ -36,7 +36,7 @@ export function shareButtons(o: { link: (nick: string) => Promise<string | null>
   nick.style.cssText = BTN + ';width:4.2em;text-transform:uppercase;text-align:center';
   nick.oninput = () => { nick.value = tidyNick(nick.value); };
   const copy = button('Copy challenge link', () => {
-    void o.link(nick.value).then(async (url) => {
+    void o.link?.(nick.value).then(async (url) => {
       if (!url) {
         const big = nickOk(nick.value) && o.courseTooBig ? await o.courseTooBig() : false;
         copy.textContent = !nickOk(nick.value) ? 'Pick another tag' : big ? 'This course is too big for a link' : 'This run is too long for a link';
@@ -47,7 +47,7 @@ export function shareButtons(o: { link: (nick: string) => Promise<string | null>
     });
   });
   copy.id = 'share-copy';
-  const out: HTMLElement[] = [nick, copy];
+  const out: HTMLElement[] = o.link ? [nick, copy] : []; // a run that did not start at the start of the course has a clip but no link (CC-157)
   if (o.clip) { const c = button('Make a clip', o.clip); c.id = 'share-clip'; out.push(c); }
   return out;
 }

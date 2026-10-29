@@ -746,7 +746,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
     if (!botMode) plan = null;
     demo = null; idealWhole = false; idealPending = 0;
     world = newWorld(course, x);
-    ghostCtl?.begin(x === course.startX && (!botMode || ghostBot)); // a ghost chases a run from the start only
+    ghostCtl?.begin(x === course.startX && (!botMode || ghostBot), !botMode || ghostBot ? x : null); // a ghost chases a run from the start only; every try keeps its keys, so every try can be a clip (CC-157)
     resetRunStats(x);
     analyticsRunId = crypto.randomUUID(); failedThisAttempt = false;
     if (!clipping) trackCourseEvent('start', analyticsCourseKey, course.name, analyticsRunId, analyticsMode);
@@ -1073,6 +1073,8 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
       diagBox.innerHTML = `<strong>Slow-motion replay</strong><ul style="margin:6px 0 0;padding-left:18px">${lines.map((l) => `<li>${l}</li>`).join('')}</ul><div style="color:#58635d;font-size:13px;margin-top:6px">Esc to skip</div>`;
       diagBox.style.display = 'block';
     });
+    const tryClip = shareOn(params) && !botMode && !demo && !idealWhole && !params.get('mode') ? ghostCtl?.myClip() ?? null : null, tryTicks = world.runner.tick;
+    if (tryClip && clipFits(tryTicks)) mk('Make a clip of this try', () => void makeClip(tryClip.log, tryTicks, tryClip.from)).id = 'share-clip-fall'; // CC-157: a try that ended in a fall is worth a clip too
     mk('Show me the ideal run (I)', () => showIdeal(lastZone));
     if (!course.track) mk('Make it easier', () => openEditor('easier')).id = 'makeeasier';
     mk('Edit this course', () => openEditor('edit')).id = 'editfromfall';
@@ -1163,11 +1165,11 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
     zoneIndexAt: (x) => progressZones.findIndex((z) => x >= z.x0 && x < z.x1),
     strip: () => strip,
   });
-  ghostCtl.begin(!resume && startAt === undefined && (!botMode || ghostBot));
+  ghostCtl.begin(!resume && startAt === undefined && (!botMode || ghostBot), (!botMode || ghostBot) && !resume?.world ? (resume ? resume.retryX : startAt ?? course.startX) : null);
   // A run played again to make a clip (CC-129). The pictures come from the real game on a stepped clock: four ticks for each, whatever the speed of this computer.
   let clipCam: { x: number; y: number } | null = null; // where the clip camera is looking, kept between pictures
   let clipLayout: ClipLayout = clipLayoutFor(location.search); // the view of the clip: about 20 m across by default (CC-160), ?clipzoom=close the older close view, ?clipshape=wide a 1280 x 720 picture
-  async function makeClip(log: InputLog, ticks: number): Promise<void> {
+  async function makeClip(log: InputLog, ticks: number, from: number = course.startX): Promise<void> {
     const card = clipCard();
     card.say('Making your clip…');
     clipLayout = clipLayoutFor(location.search);
@@ -1179,7 +1181,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
     let n = 0, pending: Promise<void> = Promise.resolve();
     try {
       clipping = true; clipCam = null; paused = false; keys.clear();
-      restart(course.startX);
+      restart(from);
       feed = { log, i: 0, left: 0 };
       let smallest = 1;
       clipHook = () => {
@@ -1364,8 +1366,8 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
         if (ghostLine) body.querySelector('#report-ghost-slot')?.append(ghostLine);
         if (ghostCtl && !botMode && !demo && !idealWhole) body.querySelector('#report-actions')?.prepend(...ghostCtl.reportActions(() => { panel.style.display = 'none'; retryX = course.startX; restart(course.startX); }));
         if (shareOn(params) && !botMode && !demo && !idealWhole && !params.get('mode')) {
-          const mine = ghostCtl?.myRun() ?? null, ticks = world.runner.tick;
-          if (mine) body.querySelector('#report-actions')?.append(...shareButtons({ link: (nick) => makeChallengeUrl(location.origin, location.search, course, mine, nick), courseTooBig: () => courseTooBig(location.search, course), clip: clipFits(ticks) ? () => void makeClip(mine, ticks) : undefined }));
+          const mine = ghostCtl?.myRun() ?? null, mineClip = ghostCtl?.myClip() ?? null, ticks = world.runner.tick; // a link needs a run from the start; a clip can be made of any try (CC-157)
+          if (mine || mineClip) body.querySelector('#report-actions')?.append(...shareButtons({ link: mine ? (nick) => makeChallengeUrl(location.origin, location.search, course, mine, nick) : undefined, courseTooBig: () => courseTooBig(location.search, course), clip: mineClip && clipFits(ticks) ? () => void makeClip(mineClip.log, ticks, mineClip.from) : undefined }));
         }
         setMusicScreen('report');
         panel.append(body); (body.querySelector('#report-again') as HTMLElement | null)?.focus({ preventScroll: true });
