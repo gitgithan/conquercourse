@@ -52,3 +52,27 @@
 - A link holds the keys of a run and the course, never a name, a time or an account.
 - The time on the banner is what the simulator says when it plays the keys, so a changed link cannot claim a better time.
 - A link that is damaged, cut short, from an older version, or for a changed course is refused in plain words.
+
+## Clip smoothness (CC-141)
+- The owner saw the sample clip pulse and look laggy.
+- The cause we found: the clip drew its pictures outside a real animation frame.
+- The renderer refreshes some camera values once per real frame, so the runner was drawn with a stale camera.
+- The runner slid out of the picture about every 8 pictures, then snapped back.
+- The fix: each picture is now drawn inside `requestAnimationFrame`.
+- Measured on software graphics (lache, 326 pictures): the dips to zero motion are gone and the runner stays in the picture.
+- Ruled out, with a measurement each:
+  - The clock: exactly 4 ticks a picture, and the runner and camera move evenly.
+  - The encoder: even timestamps, same result at 3 and 5 Mbps.
+  - The graphics backend: WebGPU and WebGL2 behave the same.
+  - The keyframe gap: dips do not line up with keyframes.
+  - The runner's animation: the body is always within 0.1 m of the simulated runner.
+- Still open:
+  - A few exact repeat pictures appear at random places on software graphics; they could be the capture timing.
+  - Only software graphics was tested.
+- The real test is a clip made in the owner's own browser with a real graphics card.
+
+## Share check list (before the post goes up)
+- Open a challenge link, beat the ghost, press "Make a clip", and watch the file.
+- Check the tag box: an empty tag, a blocked tag, and a normal tag.
+- Open the link on a phone: the run plays by itself and the notice says to play on a computer.
+- Make one clip on a real graphics card (the owner's own browser) and watch it at full speed; the clip must look smooth there too.
