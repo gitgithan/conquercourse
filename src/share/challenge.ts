@@ -3,7 +3,7 @@ import type { CourseData } from '../course/course';
 import { nickOk, shownNick } from './nick';
 import courseJson from '../course/default-course.json';
 import { madeCourse, MAX_MADE_CHARS, packCourse } from './made-course';
-import { courseHash, makeChallengeParam, readChallengeParam, verifyLog, type GhostTrack, type InputLog } from '../sim/replay';
+import { courseHash, makeChallengeParam, readChallengeParam, verifyLog, type ChallengeKind, type GhostTrack, type InputLog } from '../sim/replay';
 
 export const SHARE_ON = true; // the build switch; ?share=0 turns it off for one visit
 export const shareOn = (params: URLSearchParams, build = SHARE_ON): boolean => build && params.get('share') !== '0';
@@ -12,7 +12,7 @@ export const MAX_PARAM_CHARS = 2000; // a link a chat app or a post will not cut
 // Only these words of the address are kept in a link: the course, and the seed of a made course. No name, no time, no account.
 const KEEP = ['course', 'seed', 'generate'];
 
-export type OpenedChallenge = { ok: true; track: GhostTrack; ticks: number; log: InputLog; nick: string } | { ok: false; why: 'version' | 'changed' | 'broken' | 'not-cleared' | 'too-big' };
+export type OpenedChallenge = { ok: true; kind: ChallengeKind; track: GhostTrack; ticks: number; log: InputLog; nick: string } | { ok: false; why: 'version' | 'changed' | 'broken' | 'not-cleared' | 'too-big' };
 
 /** Play the keys of a link on this course. The ghost and the time come from the simulator. */
 export async function openChallenge(course: CourseData, param: string): Promise<OpenedChallenge> {
@@ -20,25 +20,30 @@ export async function openChallenge(course: CourseData, param: string): Promise<
   if (!read.ok) return { ok: false, why: read.why };
   if (read.challenge.hash !== courseHash(course)) return { ok: false, why: 'changed' };
   const v = verifyLog(course, read.challenge.log);
+  if (read.challenge.kind === 'fell') { // a try that ended in a fall (CC-181): it must really end in a fall here; a run that clears, or never ends, is not what the link says
+    if (v.cleared || v.world.outcome === 'running' || v.ticks < 1) return { ok: false, why: 'broken' };
+    return { ok: true, kind: 'fell', track: v.track, ticks: v.ticks, log: read.challenge.log, nick: shownNick(read.challenge.nick) };
+  }
   if (!v.cleared) return { ok: false, why: 'not-cleared' };
-  return { ok: true, track: v.track, ticks: v.ticks, log: read.challenge.log, nick: shownNick(read.challenge.nick) };
+  return { ok: true, kind: 'done', track: v.track, ticks: v.ticks, log: read.challenge.log, nick: shownNick(read.challenge.nick) };
 }
 
-/** The link for a cleared run, or null when the keys do not clear this course the nickname is not allowed or the link would be too long. */
-export async function makeChallengeUrl(origin: string, search: string, course: CourseData, log: InputLog, nick = '', look: 'a' | 'b' = 'a'): Promise<string | null> {
-  if (!nickOk(nick) || !verifyLog(course, log).cleared) return null;
+/** The link for a cleared run (or, with kind 'fell', for a try that ended in a fall), or null when the keys do not do that on this course, the nickname is not allowed or the link would be too long. */
+export async function makeChallengeUrl(origin: string, search: string, course: CourseData, log: InputLog, nick = '', look: 'a' | 'b' = 'a', kind: ChallengeKind = 'done'): Promise<string | null> {
+  const fits = (c: CourseData): boolean => { const v = verifyLog(c, log); return kind === 'fell' ? !v.cleared && v.world.outcome !== 'running' && v.ticks >= 1 : v.cleared; };
+  if (!nickOk(nick) || !fits(course)) return null;
   const from = new URLSearchParams(search), to = new URLSearchParams();
   for (const k of KEEP) { const v = from.get(k); if (v) to.set(k, v); }
   let played = course, made = '';
   if (carriesCourse(from, course)) { // a course made in the editor: the link carries it (CC-136)
     const c = madeCourse(course);
-    if (!c || !verifyLog(c, log).cleared) return null;
+    if (!c || !fits(c)) return null;
     made = await packCourse(c);
     if (made.length > MAX_MADE_CHARS) return null;
     played = c;
     to.set('made', made);
   }
-  const param = await makeChallengeParam(played, log, nick);
+  const param = await makeChallengeParam(played, log, nick, kind);
   if (param.length + made.length > MAX_PARAM_CHARS) return null;
   to.set('challenge', param);
   if (look === 'b') to.set('rk', 'b'); // CC-167: which Rookie the ghost wears; the first Rookie adds nothing, the second 5 characters
