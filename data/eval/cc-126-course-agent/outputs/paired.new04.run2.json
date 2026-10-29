@@ -1,0 +1,94 @@
+{
+  "id": "paired.new04.run2",
+  "part": "paired",
+  "photo": "new04",
+  "run": 2,
+  "startedFrom": "saved one-shot draft",
+  "status": "cleared",
+  "steps": 1,
+  "clearedAtStep": 1,
+  "tokensIn": 0,
+  "tokensOut": 0,
+  "dollars": 0,
+  "calls": 0,
+  "seconds": 2.1,
+  "obstaclesKept": 2,
+  "keyObstacles": 1,
+  "drift": {
+    "keyCount": 1,
+    "modelCount": 2,
+    "matched": 1,
+    "extra": 1,
+    "meanRelError": 0.25,
+    "meanAbsError": 0.32
+  },
+  "problems": [],
+  "stepsDetail": [
+    {
+      "n": 1,
+      "kind": "proposed",
+      "say": "The course goes from the lower asphalt up the central steps onto the upper platform and past the rails.",
+      "layout": {
+        "items": [
+          {
+            "kind": "ground",
+            "length": 3
+          },
+          {
+            "kind": "block",
+            "length": 0.9,
+            "height": 0.45
+          },
+          {
+            "kind": "ground",
+            "length": 1.5
+          },
+          {
+            "kind": "bar",
+            "height": 1.5
+          },
+          {
+            "kind": "ground",
+            "length": 2.5
+          }
+        ]
+      },
+      "report": {
+        "cleared": true,
+        "seconds": 3.95,
+        "jumps": 2,
+        "stoppedAtItem": null,
+        "reachedMetres": 7.95,
+        "laneMetres": 8,
+        "probes": []
+      },
+      "words": "Cleared in 4 s on the best line, with 2 jumps."
+    }
+  ],
+  "baselineClearedAsDrawn": true,
+  "finalLayout": {
+    "items": [
+      {
+        "kind": "ground",
+        "length": 3
+      },
+      {
+        "kind": "block",
+        "length": 0.9,
+        "height": 0.45
+      },
+      {
+        "kind": "ground",
+        "length": 1.5
+      },
+      {
+        "kind": "bar",
+        "height": 1.5
+      },
+      {
+        "kind": "ground",
+        "length": 2.5
+      }
+    ]
+  }
+}

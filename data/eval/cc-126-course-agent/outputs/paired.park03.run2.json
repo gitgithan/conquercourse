@@ -1,0 +1,171 @@
+{
+  "id": "paired.park03.run2",
+  "part": "paired",
+  "photo": "park03",
+  "run": 2,
+  "startedFrom": "saved one-shot draft",
+  "status": "cleared",
+  "steps": 2,
+  "clearedAtStep": 2,
+  "tokensIn": 660,
+  "tokensOut": 1007,
+  "dollars": 0.005,
+  "calls": 1,
+  "seconds": 13.2,
+  "obstaclesKept": 3,
+  "keyObstacles": 2,
+  "drift": {
+    "keyCount": 2,
+    "modelCount": 3,
+    "matched": 2,
+    "extra": 1,
+    "meanRelError": 0.4,
+    "meanAbsError": 0.62
+  },
+  "problems": [],
+  "stepsDetail": [
+    {
+      "n": 1,
+      "kind": "proposed",
+      "say": "A clear run crosses the flat ledges and the quarter-pipe from left to right.",
+      "layout": {
+        "items": [
+          {
+            "kind": "ground",
+            "length": 4
+          },
+          {
+            "kind": "block",
+            "length": 5,
+            "height": 0.4
+          },
+          {
+            "kind": "ground",
+            "length": 4
+          },
+          {
+            "kind": "block",
+            "length": 2,
+            "height": 1.2
+          },
+          {
+            "kind": "ground",
+            "length": 5
+          },
+          {
+            "kind": "block",
+            "length": 2.5,
+            "height": 0.45
+          },
+          {
+            "kind": "ground",
+            "length": 3
+          }
+        ]
+      },
+      "report": {
+        "cleared": false,
+        "seconds": null,
+        "jumps": 1,
+        "stoppedAtItem": 3,
+        "reachedMetres": 12.01,
+        "laneMetres": 25.6,
+        "probes": [
+          {
+            "item": 3,
+            "text": "item 4 (block) 1.2 m high lowered to 0.98 m",
+            "clears": true,
+            "seconds": 5.76
+          }
+        ]
+      },
+      "words": "Not cleared: the best attempt stopped at item 4, block 2 m long, 1.2 m high (12 m in). The simulator proved these single changes would clear it: item 4 (block) 1.2 m high lowered to 0.98 m."
+    },
+    {
+      "n": 2,
+      "kind": "repaired",
+      "say": "Lowered the high block to the proven clearance height.",
+      "layout": {
+        "items": [
+          {
+            "kind": "ground",
+            "length": 4
+          },
+          {
+            "kind": "block",
+            "length": 5,
+            "height": 0.4
+          },
+          {
+            "kind": "ground",
+            "length": 4
+          },
+          {
+            "kind": "block",
+            "length": 2,
+            "height": 0.98
+          },
+          {
+            "kind": "ground",
+            "length": 5
+          },
+          {
+            "kind": "block",
+            "length": 2.5,
+            "height": 0.45
+          },
+          {
+            "kind": "ground",
+            "length": 3
+          }
+        ]
+      },
+      "report": {
+        "cleared": true,
+        "seconds": 5.76,
+        "jumps": 2,
+        "stoppedAtItem": null,
+        "reachedMetres": 25.55,
+        "laneMetres": 25.6,
+        "probes": []
+      },
+      "words": "Cleared in 5.8 s on the best line, with 2 jumps."
+    }
+  ],
+  "baselineClearedAsDrawn": false,
+  "finalLayout": {
+    "items": [
+      {
+        "kind": "ground",
+        "length": 4
+      },
+      {
+        "kind": "block",
+        "length": 5,
+        "height": 0.4
+      },
+      {
+        "kind": "ground",
+        "length": 4
+      },
+      {
+        "kind": "block",
+        "length": 2,
+        "height": 0.98
+      },
+      {
+        "kind": "ground",
+        "length": 5
+      },
+      {
+        "kind": "block",
+        "length": 2.5,
+        "height": 0.45
+      },
+      {
+        "kind": "ground",
+        "length": 3
+      }
+    ]
+  }
+}

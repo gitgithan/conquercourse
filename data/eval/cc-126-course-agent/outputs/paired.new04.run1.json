@@ -1,0 +1,130 @@
+{
+  "id": "paired.new04.run1",
+  "part": "paired",
+  "photo": "new04",
+  "run": 1,
+  "startedFrom": "saved one-shot draft",
+  "status": "cleared",
+  "steps": 1,
+  "clearedAtStep": 1,
+  "tokensIn": 0,
+  "tokensOut": 0,
+  "dollars": 0,
+  "calls": 0,
+  "seconds": 0.7,
+  "obstaclesKept": 4,
+  "keyObstacles": 1,
+  "drift": {
+    "keyCount": 1,
+    "modelCount": 4,
+    "matched": 1,
+    "extra": 3,
+    "meanRelError": 0.73,
+    "meanAbsError": 0.75
+  },
+  "problems": [],
+  "stepsDetail": [
+    {
+      "n": 1,
+      "kind": "proposed",
+      "say": "The route climbs the three steps onto the raised platform and continues off down the ramp.",
+      "layout": {
+        "items": [
+          {
+            "kind": "ground",
+            "length": 3
+          },
+          {
+            "kind": "block",
+            "length": 0.35,
+            "height": 0.15
+          },
+          {
+            "kind": "ground",
+            "length": 0.5
+          },
+          {
+            "kind": "block",
+            "length": 0.35,
+            "height": 0.3
+          },
+          {
+            "kind": "ground",
+            "length": 0.5
+          },
+          {
+            "kind": "block",
+            "length": 0.35,
+            "height": 0.45
+          },
+          {
+            "kind": "ground",
+            "length": 2
+          },
+          {
+            "kind": "bar",
+            "height": 1.5
+          },
+          {
+            "kind": "ground",
+            "length": 3
+          }
+        ]
+      },
+      "report": {
+        "cleared": true,
+        "seconds": 4.18,
+        "jumps": 2,
+        "stoppedAtItem": null,
+        "reachedMetres": 10.13,
+        "laneMetres": 10.2,
+        "probes": []
+      },
+      "words": "Cleared in 4.2 s on the best line, with 2 jumps."
+    }
+  ],
+  "baselineClearedAsDrawn": true,
+  "finalLayout": {
+    "items": [
+      {
+        "kind": "ground",
+        "length": 3
+      },
+      {
+        "kind": "block",
+        "length": 0.35,
+        "height": 0.15
+      },
+      {
+        "kind": "ground",
+        "length": 0.5
+      },
+      {
+        "kind": "block",
+        "length": 0.35,
+        "height": 0.3
+      },
+      {
+        "kind": "ground",
+        "length": 0.5
+      },
+      {
+        "kind": "block",
+        "length": 0.35,
+        "height": 0.45
+      },
+      {
+        "kind": "ground",
+        "length": 2
+      },
+      {
+        "kind": "bar",
+        "height": 1.5
+      },
+      {
+        "kind": "ground",
+        "length": 3
+      }
+    ]
+  }
+}

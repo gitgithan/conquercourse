@@ -1,0 +1,112 @@
+{
+  "id": "paired.park02.run1",
+  "part": "paired",
+  "photo": "park02",
+  "run": 1,
+  "startedFrom": "saved one-shot draft",
+  "status": "cleared",
+  "steps": 1,
+  "clearedAtStep": 1,
+  "tokensIn": 0,
+  "tokensOut": 0,
+  "dollars": 0,
+  "calls": 0,
+  "seconds": 0.6,
+  "obstaclesKept": 4,
+  "keyObstacles": 1,
+  "drift": {
+    "keyCount": 1,
+    "modelCount": 4,
+    "matched": 1,
+    "extra": 3,
+    "meanRelError": 0.17,
+    "meanAbsError": 0.55
+  },
+  "problems": [],
+  "stepsDetail": [
+    {
+      "n": 1,
+      "kind": "proposed",
+      "say": "A flat skate park with a long angled concrete ledge in front and stairs with a handrail behind.",
+      "layout": {
+        "items": [
+          {
+            "kind": "ground",
+            "length": 5
+          },
+          {
+            "kind": "block",
+            "length": 6,
+            "height": 0.6
+          },
+          {
+            "kind": "ground",
+            "length": 2
+          },
+          {
+            "kind": "gap",
+            "width": 1.2
+          },
+          {
+            "kind": "block",
+            "length": 2.5,
+            "height": 0.6
+          },
+          {
+            "kind": "bar",
+            "height": 1.5
+          },
+          {
+            "kind": "ground",
+            "length": 5
+          }
+        ]
+      },
+      "report": {
+        "cleared": true,
+        "seconds": 5.48,
+        "jumps": 2,
+        "stoppedAtItem": null,
+        "reachedMetres": 21.75,
+        "laneMetres": 21.8,
+        "probes": []
+      },
+      "words": "Cleared in 5.5 s on the best line, with 2 jumps."
+    }
+  ],
+  "baselineClearedAsDrawn": true,
+  "finalLayout": {
+    "items": [
+      {
+        "kind": "ground",
+        "length": 5
+      },
+      {
+        "kind": "block",
+        "length": 6,
+        "height": 0.6
+      },
+      {
+        "kind": "ground",
+        "length": 2
+      },
+      {
+        "kind": "gap",
+        "width": 1.2
+      },
+      {
+        "kind": "block",
+        "length": 2.5,
+        "height": 0.6
+      },
+      {
+        "kind": "bar",
+        "height": 1.5
+      },
+      {
+        "kind": "ground",
+        "length": 5
+      }
+    ]
+  }
+}

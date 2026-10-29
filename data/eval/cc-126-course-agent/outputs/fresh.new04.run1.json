@@ -1,0 +1,94 @@
+{
+  "id": "fresh.new04.run1",
+  "part": "fresh",
+  "photo": "new04",
+  "run": 1,
+  "startedFrom": "the photo",
+  "status": "cleared",
+  "steps": 1,
+  "clearedAtStep": 1,
+  "tokensIn": 971,
+  "tokensOut": 842,
+  "dollars": 0.005,
+  "calls": 1,
+  "seconds": 14.7,
+  "obstaclesKept": 2,
+  "keyObstacles": 1,
+  "drift": {
+    "keyCount": 1,
+    "modelCount": 2,
+    "matched": 1,
+    "extra": 1,
+    "meanRelError": 0.25,
+    "meanAbsError": 0.32
+  },
+  "problems": [],
+  "stepsDetail": [
+    {
+      "n": 1,
+      "kind": "proposed",
+      "say": "First course based on the steps and handrails visible in the photo, estimated to scale.",
+      "layout": {
+        "items": [
+          {
+            "kind": "ground",
+            "length": 4
+          },
+          {
+            "kind": "block",
+            "length": 0.9,
+            "height": 0.45
+          },
+          {
+            "kind": "ground",
+            "length": 2
+          },
+          {
+            "kind": "bar",
+            "height": 1.5
+          },
+          {
+            "kind": "ground",
+            "length": 3
+          }
+        ]
+      },
+      "report": {
+        "cleared": true,
+        "seconds": 4.16,
+        "jumps": 2,
+        "stoppedAtItem": null,
+        "reachedMetres": 9.95,
+        "laneMetres": 10,
+        "probes": []
+      },
+      "words": "Cleared in 4.2 s on the best line, with 2 jumps."
+    }
+  ],
+  "baselineClearedAsDrawn": null,
+  "finalLayout": {
+    "items": [
+      {
+        "kind": "ground",
+        "length": 4
+      },
+      {
+        "kind": "block",
+        "length": 0.9,
+        "height": 0.45
+      },
+      {
+        "kind": "ground",
+        "length": 2
+      },
+      {
+        "kind": "bar",
+        "height": 1.5
+      },
+      {
+        "kind": "ground",
+        "length": 3
+      }
+    ]
+  }
+}
