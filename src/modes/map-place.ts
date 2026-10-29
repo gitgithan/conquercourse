@@ -123,6 +123,8 @@ export function installPlaces(ctx: PlaceCtx) {
   }
 
 
+  const readyNear = (lat: number, lon: number) => ((document.getElementById('useready') as HTMLInputElement | null)?.checked !== false ? nearestReady(index, lat, lon, 300) : null);
+
   // ---- CC-152: speed. Switch off with ?speed=0.
   // The wait is the map servers (about 20 to 40 s for a new pin), so it starts the moment the pin is dropped, not when Build is pressed,
   // and the ground heights are asked in the same breath instead of after the buildings. Build then joins the request that is already running.
@@ -144,7 +146,7 @@ export function installPlaces(ctx: PlaceCtx) {
     const p = ctx.pin(); if (!speedOn || !p) return;
     prefetchTimer = window.setTimeout(() => {
       const radius = ctx.radius();
-      if (nearestReady(index, p.lat, p.lon, 300)) return; // a ready place loads at once
+      if (readyNear(p.lat, p.lon)) return; // a ready place loads at once
       const key = fetchKey(p.lat, p.lon, radius);
       if (fetched.has(key)) return;
       if (fetched.size >= 4) fetched.delete(fetched.keys().next().value as string); // only the last few pins are kept
@@ -175,7 +177,7 @@ export function installPlaces(ctx: PlaceCtx) {
     startSteps(); dset('placeSource', ''); const t0 = Date.now();
     try {
       let { lat, lon } = p, radius = ctx.radius();
-      const snap = (document.getElementById('useready') as HTMLInputElement | null)?.checked !== false ? nearestReady(index, lat, lon, 300) : null;
+      const snap = readyNear(lat, lon);
       if (snap) {
         setStep('ask', 'doing', `Loading the ready place: ${snap.name}`);
         const rp = await loadReady(snap.slug, ctl.signal);
