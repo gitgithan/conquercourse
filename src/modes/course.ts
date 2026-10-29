@@ -45,6 +45,7 @@ import { actorStateFor } from '../motion/actor-state';
 import { groundAt } from '../sim/terrain';
 import { drumsFor } from '../sim/drums';
 import { createDrumLane } from '../ui/drum-lane';
+import { GOLD_LEGEND, goldOld, hardestBlock, hardestLabel, hardestOf } from '../ui/hardest';
 import { bestLine, buildReport, clearLog, logTick, newLog, renderReport } from '../ui/run-report';
 import { ZONE_ICONS } from '../ui/zone-icons';
 import { BUTTON_PLACE, buildGallery, currentWorld, DEMOS, GALLERY_EVENT, modalAttrs, mountWorldGallery, WORD_VALUES, worldHref } from '../ui/world-picker';
@@ -413,17 +414,23 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
     camBtn.blur();
   };
   camBtn.onclick = nextCam;
-  // the obstacle strip: one icon per obstacle; cleared ones dim, the rest glow gold in a wave that runs along the strip, the next one is biggest
+  // the obstacle strip: one icon per obstacle; cleared ones dim, the next one is biggest; gold marks only the obstacle you fell at most (CC-183; ?gold=old: the rest glow gold)
   const strip = document.createElement('div');
   strip.id = 'strip';
   strip.style.cssText = 'position:fixed;left:50%;top:92px;transform:translateX(-50%);display:flex;gap:10px;align-items:flex-end;pointer-events:none';
   const sstyle = document.createElement('style');
-  sstyle.textContent = `@keyframes ccwave{0%,100%{filter:drop-shadow(0 0 2px #e8b43a88);opacity:.72}50%{filter:drop-shadow(0 0 9px #ffd24a);opacity:1}}
+  const oldGold = goldOld(); // ?gold=old: every obstacle still to do glows gold (before CC-183)
+  sstyle.textContent = oldGold ? `@keyframes ccwave{0%,100%{filter:drop-shadow(0 0 2px #e8b43a88);opacity:.72}50%{filter:drop-shadow(0 0 9px #ffd24a);opacity:1}}
     #strip .ob{display:grid;justify-items:center;gap:1px;font:600 11px system-ui,sans-serif;color:#7a5a00;transition:transform .3s,opacity .3s}
     #strip .ob svg{width:34px;height:34px;padding:5px;border-radius:12px;background:#fff8dc;border:2px solid #d9a521;color:#b07d00;box-sizing:content-box}
     #strip .ob.todo svg{animation:ccwave 2.2s ease-in-out infinite}
     #strip .ob.next{transform:scale(1.25);color:#5b4200}#strip .ob.next svg{background:#ffe38a;border-color:#f0b400;color:#6b4a00}
-    #strip .ob.done{opacity:.35;filter:grayscale(1)}#strip .ob.done svg{animation:none;background:#eef1ec;border-color:#9aa59e;color:#58635d}`;
+    #strip .ob.done{opacity:.35;filter:grayscale(1)}#strip .ob.done svg{animation:none;background:#eef1ec;border-color:#9aa59e;color:#58635d}`
+  : `#strip .ob{display:grid;justify-items:center;gap:1px;font:600 11px system-ui,sans-serif;color:#17201d;transition:transform .3s,opacity .3s}
+    #strip .ob svg{width:34px;height:34px;padding:5px;border-radius:12px;background:#fff;border:2px solid #9aa59e;color:#58635d;box-sizing:content-box}
+    #strip .ob.next{transform:scale(1.25)}#strip .ob.next svg{border-color:#0f6b5c;color:#0f6b5c}
+    #strip .ob.done{opacity:.35;filter:grayscale(1)}#strip .ob.done svg{background:#eef1ec}
+    #strip .ob.hard{opacity:1;filter:none}#strip .ob.hard svg{background:#ffe38a;border-color:#d9a521;color:#6b4a00}`; // gold only on the obstacle you fell at most
   const ICONS = ZONE_ICONS;
   const progressZones = course.zones?.length ? course.zones : (() => {
     const found: { id: string; name: string; x0: number; x1: number }[] = [];
@@ -453,20 +460,28 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
     if (!ordered.length) return [{ id: 'course', name: course.name, x0: course.startX, x1: course.finishX }];
     return ordered.map((z, i) => ({ ...z, x1: i + 1 < ordered.length ? (z.center + ordered[i + 1].center) / 2 : course.finishX }));
   })();
+  const fallLog: string[] = []; // CC-183: one zone id per failed try this session; gold marks the zone with the most
+  const hardestNow = () => { const h = hardestOf(fallLog); const z = h && progressZones.find((q) => q.id === h.id); return h && z ? { ...h, name: z.name } : null; };
+  const legend = document.createElement('div'); legend.id = 'gold-legend';
+  legend.style.cssText = 'position:fixed;left:50%;top:150px;transform:translateX(-50%);font:600 12px system-ui,sans-serif;color:#5b4200;background:#fff8dcf0;border:1px solid #d9a521;border-radius:8px;padding:2px 10px;pointer-events:none;display:none;white-space:nowrap';
+  document.body.append(legend);
+  const addHardest = (body: HTMLElement) => { const h = goldOld() ? null : hardestNow(); if (h) (body.querySelector('#report-ghost-slot') ?? body.lastElementChild)?.before(hardestBlock(h.name, h.falls)); };
   const stripKey = { v: '' };
   function paintStrip(x: number) {
     const zs = progressZones;
     const firstTodo = zs.findIndex((z) => x < z.x1);
-    const key = zs.map((_, i) => (firstTodo === -1 || i < firstTodo ? 'd' : i === firstTodo ? 'n' : 't')).join('');
+    const hard = goldOld() ? null : hardestNow();
+    const key = zs.map((_, i) => (firstTodo === -1 || i < firstTodo ? 'd' : i === firstTodo ? 'n' : 't')).join('') + (hard ? `|${hard.id}|${hard.falls}` : '');
+    legend.style.display = hard ? 'block' : 'none'; if (hard) legend.textContent = `${hardestLabel(hard.name, hard.falls)}. ${GOLD_LEGEND}`;
     if (key === stripKey.v) return;
     stripKey.v = key;
     strip.innerHTML = '';
     zs.forEach((z, i) => {
       const st = key[i];
       const d = document.createElement('div');
-      d.className = 'ob ' + (st === 'd' ? 'done' : st === 'n' ? 'todo next' : 'todo');
+      d.className = 'ob ' + (st === 'd' ? 'done' : st === 'n' ? 'todo next' : 'todo') + (hard?.id === z.id ? ' hard' : '');
       d.style.animationDelay = `${i * 0.35}s`;
-      d.title = `${z.name}${st === 'd' ? ' (cleared)' : ''}`;
+      d.title = `${z.name}${st === 'd' ? ' (cleared)' : ''}${hard?.id === z.id ? ` - ${hardestLabel(z.name, hard.falls)}` : ''}`;
       d.innerHTML = `<svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="animation-delay:${(i * 0.35).toFixed(2)}s">${ICONS[z.id.replace(/-\d+$/, '')] ?? '<circle cx="16" cy="16" r="6"/>'}</svg><span>${st === 'n' ? z.name : ''}</span>`;
       strip.appendChild(d);
     });
@@ -1046,6 +1061,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
     if (!failedThisAttempt) {
       failedThisAttempt = true; trackCourseEvent('fail', analyticsCourseKey, course.name, analyticsRunId, analyticsMode);
       const failedZone = zone?.id ?? lastZone;
+      if (zone) fallLog.push(zone.id);
       enterZone(failedZone); countsFor(summaries[runKind], failedZone).failures++; finishRun(false);
     }
     retryX = cpFor(lastZone);
@@ -1103,7 +1119,9 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
     if (!course.track) mk('Make it easier', () => openEditor('easier')).id = 'makeeasier';
     mk('Edit this course', () => openEditor('edit')).id = 'editfromfall';
     if (train) mk(`Train the ${zone?.name ?? 'obstacle'}`, () => { saveResume(); location.search = trainLink(zone?.id ?? 'gap', r.x); });
-    panel.append(h, t, floorNote, renderReport(course, runLog, buildReport(course, runLog, world, false, null), {}, true, ghostCtl?.reportPath() ?? null, !reportSectionsOn(params)), row);
+    const failBody = renderReport(course, runLog, buildReport(course, runLog, world, false, null), {}, true, ghostCtl?.reportPath() ?? null, !reportSectionsOn(params));
+    addHardest(failBody);
+    panel.append(h, t, floorNote, failBody, row);
     retry.focus();
   }
 
@@ -1388,6 +1406,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
           next: here >= 0 && nxt ? { name: nxt[1].split(':')[0], go: () => { location.href = worldHref(nxt[0]); } } : undefined,
           close: () => { panel.style.display = 'none'; },
         }, false, ghostCtl?.reportPath() ?? null, !reportSectionsOn(params));
+        addHardest(body);
         if (ghostLine) body.querySelector('#report-ghost-slot')?.append(ghostLine);
         if (ghostCtl && !botMode && !demo && !idealWhole) body.querySelector('#report-actions')?.prepend(...ghostCtl.reportActions(() => { panel.style.display = 'none'; retryX = course.startX; restart(course.startX); }));
         if (shareOn(params) && !botMode && !demo && !idealWhole && !params.get('mode')) {

@@ -7,6 +7,7 @@ import { inputFor } from '../sim/ideal';
 import { GROUND_ROLL_COST } from '../sim/roll';
 import { newWorld, stepWorld, type WorldState } from '../sim/world';
 import { ZONE_ICONS } from './zone-icons';
+import { goldOld } from './hardest';
 
 export type MoveKind = 'jump' | 'vault' | 'climb' | 'roll' | 'grab' | 'bounce' | 'fire';
 export interface LoggedMove { kind: MoveKind; x: number; y: number }
@@ -209,7 +210,7 @@ export function renderReport(course: CourseData, log: RunLog, r: Report, a: Acti
     const ul = document.createElement('ul'); ul.style.cssText = 'margin:0;padding:0;list-style:none;display:grid;gap:4px;font-size:14px';
     for (const c of r.counts) {
       const li = document.createElement('li'); li.style.cssText = 'display:flex;gap:8px;align-items:center';
-      const ic = document.createElementNS(NS, 'svg'); ic.setAttribute('viewBox', '0 0 32 32'); ic.setAttribute('width', '20'); ic.setAttribute('height', '20'); ic.setAttribute('fill', 'none'); ic.setAttribute('stroke', '#6b4a00'); ic.setAttribute('stroke-width', '2.4'); ic.setAttribute('stroke-linecap', 'round'); ic.setAttribute('aria-hidden', 'true'); ic.innerHTML = ZONE_ICONS[ICON_OF[c.kind]] ?? '';
+      const ic = document.createElementNS(NS, 'svg'); ic.setAttribute('viewBox', '0 0 32 32'); ic.setAttribute('width', '20'); ic.setAttribute('height', '20'); ic.setAttribute('fill', 'none'); ic.setAttribute('stroke', goldOld() ? '#6b4a00' : '#58635d'); ic.setAttribute('stroke-width', '2.4'); ic.setAttribute('stroke-linecap', 'round'); ic.setAttribute('aria-hidden', 'true'); ic.innerHTML = ZONE_ICONS[ICON_OF[c.kind]] ?? '';
       const cost = COST_OF[c.kind];
       const text = document.createElement('span'); text.textContent = `${c.n} ${NAME_OF[c.kind][c.n === 1 ? 0 : 1].toLowerCase()}${cost ? `: ${cost}` : ''}`;
       li.append(ic, text); ul.appendChild(li);
@@ -217,7 +218,7 @@ export function renderReport(course: CourseData, log: RunLog, r: Report, a: Acti
     box.appendChild(ul);
   }
   if (r.matched) tx('p', 'You took the best line the simulator found.', 'margin:0;font-size:15px;background:#e6f4ee;border-left:4px solid #0f6b5c;padding:8px 10px;border-radius:6px', box);
-  if (r.saving) tx('p', r.saving, 'margin:0;font-size:15px;background:#fff8dc;border-left:4px solid #d9a521;padding:8px 10px;border-radius:6px', box);
+  if (r.saving) tx('p', r.saving, `margin:0;font-size:15px;${goldOld() ? 'background:#fff8dc;border-left:4px solid #d9a521' : 'background:#eef1ec;border-left:4px solid #58635d'};padding:8px 10px;border-radius:6px`, box);
   if (r.learned) tx('p', `What you learned: ${r.learned}`, 'margin:0;font-weight:600', box);
   if (r.saying && r.saying !== r.learned?.replace('What you learned: ', '')) tx('p', `“${r.saying}”`, 'margin:0;font-style:italic;color:#58635d', box);
   const slot = document.createElement('div'); slot.id = 'report-ghost-slot'; box.appendChild(slot); // the ghost (Chase the ghost) adds its button here
