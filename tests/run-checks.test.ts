@@ -134,6 +134,19 @@ describe('the server, outcome by outcome', () => {
     expect(ok.body).toMatchObject({ verified: true, beatsIdeal: true });
     expect((await stats(db)).best).toBe(ok.body.ticks);
   });
+  it('a verified run that beats the stored line keeps its keys (migration 0005); without the column nothing breaks', async () => {
+    const fasterMeta = { fetch: async (u: string) => u.endsWith('course-meta.json') ? new Response(JSON.stringify({ 'demo/training': { idealTicks: logTicks(log) * 2 } })) : assets.fetch(u) };
+    const { db, sql } = localD1();
+    const ok = await send(db, await base(7), { ASSETS: fasterMeta }, 'i7');
+    expect(ok.body).toMatchObject({ verified: true, beatsIdeal: true });
+    expect((sql.prepare('SELECT keys FROM course_clears').get() as { keys: string }).keys.length).toBeGreaterThan(0);
+    const plain = localD1();
+    await send(plain.db, await base(8), {}, 'i8'); // not flagged: no keys kept
+    expect(plain.sql.prepare('SELECT keys FROM course_clears').get()).toEqual({ keys: null });
+    const old = localD1('0004');
+    const r = await send(old.db, await base(9), { ASSETS: fasterMeta }, 'i9');
+    expect(r.body).toMatchObject({ verified: true, beatsIdeal: true });
+  });
   it('before migration 0004 the endpoint and the card work as they did: replayed clears kept, unverified ones not', async () => {
     const { db, sql } = localD1('0003');
     expect((await send(db, await base(6), { REPLAY: 'off' }, 'i6')).body).toMatchObject({ verified: false, stored: false });

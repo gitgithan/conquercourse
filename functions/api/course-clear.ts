@@ -80,6 +80,8 @@ export const onRequestPost = async ({ request, env }: { request: Request; env: E
   const beats = beatsIdeal(v.ticks, await idealTicksOf(env, request.url, key));
   if (cols) {
     await env.DB.prepare('UPDATE course_clears SET ticks = ?, verified = 1, beats_ideal = ? WHERE run_id = ?').bind(v.ticks, beats ? 1 : 0, runId).run();
+    // a run that beats the stored line keeps its keys, so the search can learn from it (migration 0005; without the column nothing happens)
+    if (beats) { try { await env.DB.prepare('UPDATE course_clears SET keys = ? WHERE run_id = ?').bind(keys, runId).run(); } catch { /* no keys column yet */ } }
   } else {
     // INSERT OR IGNORE: the same run, or the same keys sent twice, count once
     await env.DB.prepare("INSERT OR IGNORE INTO course_clears (ts, course_key, course_hash, ticks, run_id, log_hash) VALUES (datetime('now'), ?, ?, ?, ?, ?)").bind(key, hash, v.ticks, runId, fh).run();
