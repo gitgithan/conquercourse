@@ -71,7 +71,7 @@ export const checkpointFor = (course: CourseData, zone: string | null): number =
 export function piecesFromSource(list: CourseSource['pieces']): (Piece & { src?: string })[] {
   const out: (Piece & { src?: string })[] = [];
   for (const q of list) {
-    if (q.src.startsWith('obj:')) continue;
+    if (q.src.startsWith('obj:') || q.src.startsWith('user:')) continue;
     const at = { x: q.x, z: q.z };
     let p: (Piece & { src?: string }) | null = null;
     if (q.src.startsWith('device:')) { const src = q.src.replace(/^device:crate:/, 'device:cannon:'); /* the heavy crate piece was removed (CC-96): an old world keeps a launcher with the same numbers */ p = { ...newPiece(src, deviceMesh(src), at), src }; }

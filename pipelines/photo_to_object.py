@@ -191,6 +191,86 @@ if modal is not None:
             return {"npz": b.getvalue(), "seconds": time.time() - t0, "load_seconds": self.load_s,
                     "n_vertices": int(len(arrays["vertices"])), "n_faces": int(len(arrays["faces"])), "n_gaussians": int(len(arrays["splat_xyz"]))}
 
+    # ---------- the player upload path (CC-221): submit a job, poll for the result ----------
+    # A job takes minutes on a cold container, so the web calls never wait for it: `submit` starts the job and returns its id, `status` asks for the result.
+    # Both check a shared token (Modal secret `cc-upload`, key CC_UPLOAD_TOKEN) that only the site's server holds; nothing is stored: the photo lives in memory for the job.
+    web_image = (
+        modal.Image.debian_slim(python_version="3.11")
+        .pip_install("numpy<2", "scipy", "pillow", "xatlas==0.0.9", "fast-simplification", "fastapi[standard]")
+        .add_local_python_source("ccpipe")
+    )
+    upload_secret = modal.Secret.from_name("cc-upload")
+
+    @app.function(image=web_image, timeout=1500, secrets=[upload_secret])
+    def lift_job(jpeg: bytes, label: str, box: list, height_m=None, padretry: bool = True) -> dict:
+        """photo + box + label -> {glb, mesh, privacy, mask, retry, gpu seconds}; the same steps as `main`, for one photo, in memory."""
+        import tempfile
+        import numpy as np
+        from ccpipe import glb as glbmod, objbake, padretry as pr
+        t0 = time.time()
+        m = Mask().run.remote(jpeg, label, box)
+        mask_png = m["mask_png"]
+        retry = {"enabled": padretry, "touches": pr.touches_border(_mask_bool(mask_png)), "padded": False}
+        lift_jpeg, lift_mask = m["masked_jpeg"], mask_png
+        if padretry and retry["touches"]:
+            lift_jpeg, lift_mask = pr.pad_bytes(lift_jpeg, lift_mask)
+            retry["padded"] = True
+        r = Lift().run.remote(lift_jpeg, lift_mask, SEED)
+        retry.update(pr.lift_check(r["npz"], mask_png))
+        retry["note"] = pr.decide(retry["touches"], retry["padded"], retry["bad"])
+        raw = np.load(io.BytesIO(r["npz"]))
+        v, f, uv, tex, info = objbake.bake_textured(raw["vertices"], raw["faces"], raw["splat_xyz"], raw["splat_dc"], raw["splat_opacity"], label, height_m, k=4, texture_size=1024)
+        with tempfile.NamedTemporaryFile(suffix=".glb") as t:
+            nbytes = glbmod.write_glb(t.name, v, f, None, name="user-object", uv=uv, texture=tex)
+            data = open(t.name, "rb").read()
+        info.update(bytes=nbytes, model="SAM 3D Objects (seed 42)", raw_faces=int(len(raw["faces"])))
+        return {"glb": data, "mesh": info, "privacy": m["privacy"], "mask": m["mask"], "retry": retry,
+                "seconds": {"mask": round(m["seconds"], 1), "lift": round(r["seconds"], 1), "wall": round(time.time() - t0, 1)}}
+
+    def _check_token(token):
+        import hmac
+        want = os.environ.get("CC_UPLOAD_TOKEN", "")
+        return bool(want) and hmac.compare_digest(str(token or ""), want)
+
+    @app.function(image=web_image, secrets=[upload_secret])
+    @modal.fastapi_endpoint(method="POST")
+    def submit(item: dict):
+        """{token, image: base64 jpeg, label, box: [x0,y0,x1,y1], height_m?, padretry?} -> {id} to poll, or {error}."""
+        import base64
+        from PIL import Image
+        from ccpipe import upload
+        if not _check_token(item.get("token")):
+            return {"error": "not allowed"}
+        try:
+            jpeg = base64.b64decode(item.get("image") or "", validate=True)
+            Image.open(io.BytesIO(jpeg)).verify()
+        except Exception:  # noqa: BLE001
+            return {"error": "bad photo"}
+        clean, why = upload.check(jpeg, item.get("label"), item.get("box"), item.get("height_m"), Image.open(io.BytesIO(jpeg)).size)
+        if why:
+            return {"error": why}
+        call = lift_job.spawn(jpeg, clean["label"], clean["box"], clean["height_m"], bool(item.get("padretry", True)))
+        return {"id": call.object_id}
+
+    @app.function(image=web_image, secrets=[upload_secret])
+    @modal.fastapi_endpoint(method="POST")
+    def status(item: dict):
+        """{token, id} -> {state: running} | {state: done, glb: base64, mesh, privacy, mask, retry, seconds} | {state: failed, reason}."""
+        import base64
+        from modal.functions import FunctionCall
+        if not _check_token(item.get("token")):
+            return {"state": "failed", "reason": "not allowed"}
+        try:
+            call = FunctionCall.from_id(str(item.get("id") or ""))
+            out = call.get(timeout=0)
+        except TimeoutError:
+            return {"state": "running"}
+        except Exception as e:  # noqa: BLE001
+            return {"state": "failed", "reason": f"the lift stopped ({type(e).__name__})"}
+        out = dict(out)
+        out["glb"] = base64.b64encode(out["glb"]).decode()
+        return {"state": "done", **out}
+
     @app.function(image=lift_image, volumes={CK: ck_vol}, timeout=1200)
     def check_lift_imports():
         """CPU only (no GPU is billed): can the lift's code and its dependencies be imported, and are the weights in place?"""
