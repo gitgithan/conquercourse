@@ -4,7 +4,7 @@
 //   - The explain strip: what was found, how it was shrunk, which lane the simulator cleared, and on the map which footprints became which obstacle.
 // map.ts calls `installPlaces`; the pure parts are in src/world/places.ts and src/world/place-lane.ts.
 import type { GeoJSONSource, Map as MapLibreMap } from 'maplibre-gl';
-import { askMirrors, nearestReady, type PlaceLane, type ReadyIndexEntry, type ReadyPlace } from '../world/places';
+import { askMirrors, nearestReady, placeKey, type PlaceLane, type ReadyIndexEntry, type ReadyPlace } from '../world/places';
 import { buildingsFrom, type OverpassAnswer } from '../world/osm';
 import { relief, type Ground } from '../world/terrain';
 import { toLonLat } from '../slice/slicer';
@@ -109,17 +109,50 @@ export function installPlaces(ctx: PlaceCtx) {
     if (!res.ok) throw new PlaceError('That ready place could not be loaded.');
     return (await res.json()) as ReadyPlace;
   }
-  async function ask(lat: number, lon: number, radius: number, signal: AbortSignal): Promise<{ answer: OverpassAnswer; source: 'site' | 'browser'; ms: number }> {
+  async function ask(lat: number, lon: number, radius: number, signal: AbortSignal, direct: () => void = () => {}): Promise<{ answer: OverpassAnswer; source: 'site' | 'browser'; ms: number }> {
     const t0 = Date.now();
     try {
       const res = await fetch(`/api/places?lat=${lat}&lon=${lon}&r=${radius}`, { signal: linked(signal, 35000) });
       if (res.ok) { const j = (await res.json()) as { elements: OverpassAnswer['elements']; source?: string; cache?: string }; dset('placeSource', 'site'); dset('placeCache', j.cache ?? ''); dset('placeMirror', j.source ?? ''); return { answer: { elements: j.elements }, source: 'site', ms: Date.now() - t0 }; }
       if (res.status === 400) throw new PlaceError(((await res.json()) as { error?: string }).error ?? 'That place cannot be built.');
     } catch (e) { if (signal.aborted || e instanceof PlaceError) throw e; /* no function here, or slow: try the servers directly */ }
-    setStep('ask', 'doing', 'Asking the map servers directly');
+    direct();
     const got = await askMirrors({ lat, lon, radius }, { userAgent: false, timeoutMs: 20000, signal });
     dset('placeSource', 'browser'); dset('placeMirror', got.mirror);
     return { answer: got.answer, source: 'browser', ms: Date.now() - t0 };
+  }
+
+
+  // ---- CC-152: speed. Switch off with ?speed=0.
+  // The wait is the map servers (about 20 to 40 s for a new pin), so it starts the moment the pin is dropped, not when Build is pressed,
+  // and the ground heights are asked in the same breath instead of after the buildings. Build then joins the request that is already running.
+  const speedOn = new URLSearchParams(location.search).get('speed') !== '0';
+  interface Fetched { answer: Promise<{ answer: OverpassAnswer; source: 'site' | 'browser'; ms: number }>; ground: Promise<Ground | null>; hills: boolean; startedAt: number }
+  const fetched = new Map<string, Fetched>();
+  let prefetchTimer = 0;
+  const fetchKey = (lat: number, lon: number, radius: number) => placeKey({ lat: Math.round(lat * 1e4) / 1e4, lon: Math.round(lon * 1e4) / 1e4, radius: Math.round(radius / 10) * 10 });
+  function startFetch(lat: number, lon: number, radius: number, signal: AbortSignal, direct: () => void = () => {}): Fetched {
+    const hills = ctx.hills();
+    const answer = ask(lat, lon, radius, signal, direct);
+    const ground = hills ? ctx.groundFor(lat, lon, radius).catch(() => null) : Promise.resolve(null);
+    answer.catch(() => {}); // a speculative request that fails is not an error until Build joins it
+    return { answer, ground, hills, startedAt: Date.now() };
+  }
+  // Called by map.ts when a pin is dropped or the radius slider is let go: waits a moment (a player clicking around does not fire every click).
+  function prefetch() {
+    clearTimeout(prefetchTimer);
+    const p = ctx.pin(); if (!speedOn || !p) return;
+    prefetchTimer = window.setTimeout(() => {
+      const radius = ctx.radius();
+      if (nearestReady(index, p.lat, p.lon, 300)) return; // a ready place loads at once
+      const key = fetchKey(p.lat, p.lon, radius);
+      if (fetched.has(key)) return;
+      if (fetched.size >= 4) fetched.delete(fetched.keys().next().value as string); // only the last few pins are kept
+      const f = startFetch(p.lat, p.lon, radius, new AbortController().signal);
+      fetched.set(key, f);
+      f.answer.catch(() => { if (fetched.get(key) === f) fetched.delete(key); }); // a failed request is asked again on Build
+      dset('prefetch', key);
+    }, 700);
   }
 
   const nearestFew = (lat: number, lon: number) => {
@@ -154,14 +187,22 @@ export function installPlaces(ctx: PlaceCtx) {
         return { answer: rp.answer, lat, lon, radius, ground, source: 'ready', ms: Date.now() - t0, lane: rp.lane, name: rp.name };
       }
       setStep('ask', 'doing', 'Asking the map for buildings');
-      const got = await ask(lat, lon, radius, ctl.signal);
-      setStep('ask', 'done', `${buildingsFrom(got.answer, lat, lon).length} buildings found (${got.source === 'site' ? 'from the site' : 'from the map servers'})`);
+      const key = fetchKey(lat, lon, radius), early = speedOn ? fetched.get(key) : undefined;
+      let f = early;
+      if (f && f.hills !== ctx.hills()) f = { ...f, ground: ctx.hills() ? ctx.groundFor(lat, lon, radius).catch(() => null) : Promise.resolve(null), hills: ctx.hills() };
+      if (!f) f = startFetch(lat, lon, radius, ctl.signal, () => setStep('ask', 'doing', 'Asking the map servers directly'));
+      dset('prefetchUsed', early ? 'yes' : 'no');
+      if (ctx.hills()) setStep('ground', 'doing');
+      const cancelled = new Promise<never>((_, no) => ctl.signal.addEventListener('abort', () => no(new Error('cancelled')), { once: true }));
+      const got = await Promise.race([f.answer, cancelled]);
+      setStep('ask', 'done', `${buildingsFrom(got.answer, lat, lon).length} buildings found (${got.source === 'site' ? 'from the site' : 'from the map servers'})${early ? ', asked in advance' : ''}`);
+      dset('askMs', Date.now() - (early ? early.startedAt : t0));
       let ground: Ground | null = null;
       if (ctx.hills()) {
-        setStep('ground', 'doing');
-        try { ground = await ctx.groundFor(lat, lon, radius); } catch { ground = null; }
+        ground = await Promise.race([f.ground, cancelled]);
         setStep('ground', ground ? 'done' : 'failed', ground ? `Height of the ground: ${Math.round(relief(ground))} m from lowest to highest` : 'The height maps did not answer: the place is built flat');
       } else setStep('ground', 'skipped', 'Flat ground (hills are off)');
+      dset('obtainMs', Date.now() - t0);
       return { answer: got.answer, lat, lon, radius, ground, source: got.source, ms: Date.now() - t0, lane: null, name: '' };
     } catch (e) {
       stopTicker();
@@ -233,6 +274,13 @@ export function installPlaces(ctx: PlaceCtx) {
     openBtn.hidden = false;
     if (new URLSearchParams(location.search).get('auto') === '1') openBtn.click();
     if (o.lane) { setLane(o.lane); setStep('lane', o.lane.cleared ? 'done' : 'failed', o.lane.cleared ? `Lane found: ${o.lane.lengthM} m (precomputed)` : 'No lane found'); render(o, m, o.lane, ''); void paint(o, o.lane); dset('lanePhase', 'done'); return; }
+    const laneKey = `cc.lane:${fetchKey(o.lat, o.lon, o.radius)}:${o.ground ? 'h' : 'f'}`;
+    if (speedOn) { // a lane found once in this browser is kept: the same pin again is at once
+      try {
+        const kept = JSON.parse(localStorage.getItem(laneKey) ?? 'null') as PlaceLane | null;
+        if (kept?.cleared) { setLane(kept); setStep('lane', 'done', `Lane found: ${kept.lengthM} m (kept from last time)`); render(o, m, kept, ''); void paint(o, kept); dset('lanePhase', 'done'); dset('laneKept', 'yes'); return; }
+      } catch { /* no kept lane */ }
+    }
     render(o, m, null, 'Looking for a lane the simulator can clear (this runs in the background)...');
     void paint(o, null);
     setStep('lane', 'doing', 'Finding a lane the simulator can clear (in the background)'); dset('lanePhase', 'working');
@@ -246,6 +294,7 @@ export function installPlaces(ctx: PlaceCtx) {
       setStep('lane', a.lane?.cleared ? 'done' : 'failed', a.lane?.cleared ? `Lane found: ${a.lane.lengthM} m` : 'No lane found');
       if (a.lane?.cleared && a.lane.shrink !== k0) m = remesh(a.lane.shrink); // the editor gets the place at the size the lane was cut from
       setLane(a.lane);
+      if (speedOn && a.lane?.cleared) try { localStorage.setItem(laneKey, JSON.stringify(a.lane)); } catch { /* storage full or off */ }
       render(o, m, a.lane, ''); void paint(o, a.lane); dset('lanePhase', 'done'); dset('laneLength', a.lane?.lengthM ?? 0);
     };
     laneWorker.postMessage({ id: my, answer: o.answer, lat: o.lat, lon: o.lon, ground: o.ground, ladder: Array.from({ length: 5 }, (_, i) => Math.round(k0 * 0.6 ** i * 1000) / 1000) } satisfies PlaceLaneAsk);
@@ -256,5 +305,5 @@ export function installPlaces(ctx: PlaceCtx) {
     const s = nearestReady(index, lat, lon, 300);
     return s ? ` ${s.name} is ready here: Build loads it at once.` : '';
   }
-  return { obtain, finish, setStep, snapNote, ready: loadIndex };
+  return { obtain, finish, setStep, snapNote, prefetch, ready: loadIndex };
 }
