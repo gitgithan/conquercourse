@@ -5,17 +5,54 @@
   "width": 1280,
   "height": 720,
   "clips": [
-    { "src": "clips/hero.mp4", "seconds": 11, "tag": "REAL", "note": "frame-blended from 15 to 30 frames a second", "label": "A real park, then the built course" },
-    { "src": "clips/flyover.mp4", "seconds": 9.5, "tag": "REAL", "note": "frame-blended from 15 to 30 frames a second", "label": "Flyover of the built course" }
+    {
+      "src": "clips/hero.mp4",
+      "seconds": 11,
+      "tag": "REAL",
+      "note": "frame-blended from 15 to 30 frames a second",
+      "label": "A real park, then the built course"
+    },
+    {
+      "src": "clips/flyover.mp4",
+      "seconds": 9.5,
+      "tag": "REAL",
+      "note": "frame-blended from 15 to 30 frames a second",
+      "label": "Flyover of the built course"
+    }
   ],
   "crossfade": 0.5,
   "captions": [
-    { "from": 0.5, "to": 2.8, "text": "A real park in Bucharest" },
-    { "from": 3.2, "to": 6.5, "text": "SAM 3 finds the rail" },
-    { "from": 6.8, "to": 10.5, "text": "The game builds it, to size" },
-    { "from": 11.5, "to": 16.5, "text": "Stairs, ledge, rail: each one has a move" }
+    {
+      "from": 0.5,
+      "to": 2.8,
+      "text": "A real park in Bucharest"
+    },
+    {
+      "from": 3.2,
+      "to": 6.5,
+      "text": "SAM 3 finds the rail"
+    },
+    {
+      "from": 6.8,
+      "to": 10.5,
+      "text": "The game builds it, to size"
+    },
+    {
+      "from": 11.5,
+      "to": 16.5,
+      "text": "Stairs, ledge, rail: each one has a move"
+    }
   ],
-  "music": { "src": "music/scaling_up.mp3", "bpm": 120, "firstBeat": 0, "level": 0.8, "duckLevel": 0.3, "fadeIn": 1, "fadeOut": 2, "start": 0 },
+  "music": {
+    "src": "music/scaling_up.mp3",
+    "bpm": 120,
+    "firstBeat": 0,
+    "level": 0.8,
+    "duckLevel": 0.3,
+    "fadeIn": 1,
+    "fadeOut": 2,
+    "start": 0
+  },
   "duck": [],
   "endSeconds": 3
 }

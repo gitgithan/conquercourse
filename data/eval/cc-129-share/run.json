@@ -4,6 +4,15 @@
   "course": "public/assets/demo/lache.course.json",
   "link_chars": 116,
   "time_to_beat_s": 9.36,
-  "clip": { "codec": "h264", "width": 720, "height": 1280, "frames": 326, "duration_s": 10.83, "bytes": 1603218, "made_in_s": 193, "backend": "software GL, headless Chromium" },
+  "clip": {
+    "codec": "h264",
+    "width": 720,
+    "height": 1280,
+    "frames": 326,
+    "duration_s": 10.83,
+    "bytes": 1603218,
+    "made_in_s": 193,
+    "backend": "software GL, headless Chromium"
+  },
   "clip_file": "../conquercourse-assets/share/share-sample.mp4"
 }
