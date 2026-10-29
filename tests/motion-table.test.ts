@@ -1,6 +1,6 @@
 import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
-import { MOTION_TABLE, ROLL_GET_UP_S, ROLL_TICKS, capturedClipsFrom, moveProgress, motionGaps, rollLookFrom } from '../src/motion/motion-table';
+import { MOTION_TABLE, ROLL_GET_UP_S, ROLL_TICKS, capturedClipsFrom, moveProgress, motionGaps, myMoveFrom, myMoveIsPlayable, rollLookFrom } from '../src/motion/motion-table';
 import { parseClip } from '../src/motion/clip';
 import { chooseClip, type ActorState } from '../src/motion/actor-pose';
 import { actorStateFor } from '../src/motion/actor-state';
@@ -34,6 +34,20 @@ describe('motion table (CC-64)', () => {
     expect(rollLookFrom('?roll=crouch')).toBe('crouch');
     expect(rollLookFrom('?roll=clip')).toBe('clip');
     expect(rollLookFrom('?roll=banana')).toBe('auto');
+  });
+  it('?mymove= is off by default, takes a safe id, and only a clip that passed both checks is shown (CC-222)', () => {
+    expect(myMoveFrom('')).toBeNull();
+    expect(myMoveFrom('?mymove=roll-lp')).toBe('roll-lp');
+    expect(myMoveFrom('?mymove=../../etc/passwd')).toBeNull();
+    expect(myMoveFrom('?mymove=Roll')).toBeNull();
+    const good = { playable: true, move: 'roll', gate: { pass: true }, move_check: { ok: true } };
+    expect(myMoveIsPlayable(good)).toBe(true);
+    expect(myMoveIsPlayable({ ...good, gate: { pass: false } })).toBe(false);
+    expect(myMoveIsPlayable({ ...good, move_check: { ok: false } })).toBe(false);
+    expect(myMoveIsPlayable({ ...good, playable: false })).toBe(false);
+    expect(myMoveIsPlayable({ ...good, move: 'vault' })).toBe(false);
+    expect(myMoveIsPlayable(null)).toBe(false);
+    expect(readFileSync('src/render/actor.ts', 'utf8')).toMatch(/myMoveIsPlayable\(raw\)/); // the actor asks before it shows a clip
   });
   it('the captured vault and climb clips play by default, and ?clips=0 shows the built poses (CC-144)', () => {
     expect(capturedClipsFrom('')).toBe(true);

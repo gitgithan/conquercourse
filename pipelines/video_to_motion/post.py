@@ -53,7 +53,7 @@ def athlete_segment(measured, frac=0.35, gap=3):
     return best[0], best[1] + 1
 
 
-def build(stem):
+def build(stem, frac=0.35):
     times = json.loads((WORK / stem / "frames/times.json").read_text())
     measured = json.loads((WORK / stem / "measured.json").read_text())
     soma = json.loads((WORK / stem / "soma.json").read_text())
@@ -78,7 +78,7 @@ def build(stem):
         side_model = jj[IDX["LeftLeg"]] - jj[IDX["RightLeg"]]
         side_kp = kp[9] - kp[10]
         check.append(float(side_model @ side_kp / (np.linalg.norm(side_model) * np.linalg.norm(side_kp) + 1e-9)))
-    seg = athlete_segment(measured)
+    seg = athlete_segment(measured, frac=frac)
     a, b = seg
     # frames in the segment whose depth jumps from its neighbours are another person or a bad fit: drop and bridge
     z = pelvis[:, 2].copy()
@@ -261,9 +261,9 @@ def repair_frames(w, t, supported_by=None):
     return clip.frames
 
 
-def main(stem, supported_by=None, eval_dir=None):
+def main(stem, supported_by=None, eval_dir=None, frac=0.35):
     out = Path(eval_dir or EVAL) / stem
-    times, world, ok, (a, b), diag = build(stem)
+    times, world, ok, (a, b), diag = build(stem, frac)
     world = world[a:b]
     t = np.array(times["times"])[a:b]
     times = dict(times, times=list(t), n=b - a, n_total=times["n"])

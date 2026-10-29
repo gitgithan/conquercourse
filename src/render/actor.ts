@@ -4,7 +4,7 @@
 import { Box3, Group, Vector3, type Object3D, type Scene } from 'three/webgpu';
 import { clipDuration, loadClip, parseClip, sampleClip, type Clip, type Phase } from '../motion/clip';
 import { vaultPose, type VaultRig } from '../motion/vault-pose';
-import { MOTION_TABLE, capturedClipsFrom, moveProgress, rollLookFrom, type RollLook } from '../motion/motion-table';
+import { MOTION_TABLE, MY_MOVE_BASE, capturedClipsFrom, moveProgress, myMoveFrom, myMoveIsPlayable, rollLookFrom, type RollLook } from '../motion/motion-table';
 import { clipToWorld } from '../motion/pose';
 import { BAR_AHEAD, BAR_HEIGHT, SEAT_HIPS, giantSwingLegs, hurtPhase, seatThighPitch, smooth } from '../motion/poses';
 import { comAboveHips, legLength } from '../motion/timeline';
@@ -28,6 +28,7 @@ export interface RookieActor {
   joints(): Vector3[]; // where the 30 bones are now, world metres (for the plausibility gate and the tests)
   setRollLook(look: RollLook): void; // 'crouch' always shows the tucked fallback, 'clip' the mocap/Kimodo roll, 'auto' the clip when it loaded (the blind A/B)
   hasRollClip(): boolean;
+  hasMyMove(): boolean; // the roll slot plays a clip made from the player's own film (?mymove=<id>, CC-222)
   setHurtLook(look: 'auto' | 'bones'): void; // 'bones' always shows the built fall, 'auto' the clip when one loaded (the blind A/B)
   hasHurtClip(): boolean;
   hurtSeconds(): number | undefined; // how long the fall takes with the clip (its own length), undefined for the built fall
@@ -58,6 +59,16 @@ export async function createRookieActor(scene: Scene, opts: { rookie: RookieId; 
     const r = await fetch('/assets/motion/roll.json');
     if (r.ok) rollClip = parseClip(await r.json());
   } catch { /* no roll clip yet */ }
+  // "My move" (CC-222): behind ?mymove=<id>, a clip made from the player's film takes the roll slot, but only if it passed the gate and the roll check
+  let myMove = false;
+  const myId = typeof location === 'undefined' ? null : myMoveFrom(location.search);
+  if (myId) {
+    try {
+      const r = await fetch(`${MY_MOVE_BASE}/${myId}.json`);
+      const raw = r.ok ? await r.json() : null;
+      if (myMoveIsPlayable(raw)) { rollClip = parseClip(raw); myMove = true; }
+    } catch { /* the shipped roll stays */ }
+  }
   // the hurt clip is optional too: without it the fall is built from bones (crumple into the tuck, lie flat, get up slowly)
   let hurtClip: Clip | null = null;
   try {
@@ -581,6 +592,7 @@ export async function createRookieActor(scene: Scene, opts: { rookie: RookieId; 
     hasHurtClip: () => hurtClip !== null,
     hurtSeconds: () => (hurtClip !== null && hurtLook !== 'bones' ? clipDuration(hurtClip) : undefined),
     hasRollClip: () => rollClip !== null,
+    hasMyMove: () => myMove,
     dispose() {
       scene.remove(group);
       group.traverse((o) => {

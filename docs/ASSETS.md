@@ -567,3 +567,17 @@
   - Author: Jean-Pol GRANDMONT.
   - Licence: CC BY 4.0 (https://creativecommons.org/licenses/by/4.0).
   - Source: https://commons.wikimedia.org/wiki/File:0_L%27%C3%A9glise_de_la_Trinit%C3%A0_dei_Monti_%C3%A0_Rome_2.JPG
+
+## Motion from you (CC-222)
+- **`../conquercourse-assets/video/hiu_g7ZJgLo.mp4`** (outside git)
+  - What: "Learn Parkour : Basic Jump Roll" by London Parkour, 99 s, one adult, a still camera; the test clip for the slice.
+  - Source: YouTube `hiu_g7ZJgLo`, downloaded 2026-10-30 with the Creative Commons filter; Creative Commons Attribution (CC BY), credited in the clip file.
+  - Used only for 45.5 to 50.5 s.
+- **`public/assets/experiments/mymove/roll-lp.json`** and **`roll-lp-whole.json`**
+  - What: the joints of that roll (42 and 60 frames, 29.97 fps), not game assets; the first fails the roll check and is never loaded, the second is unchecked and is shown in a test only.
+  - Made by `pipelines/my_move.py` on Modal (L4); no frame, face or body shape in the file.
+  - Licence: CC BY, "Learn Parkour : Basic Jump Roll, London Parkour".
+- **`data/eval/motion-from-you/roll-lp/`** and **`roll-lp-size35/`**
+  - What: the run record (gate, move check, timings, cost) and `side-by-side.png`, source frames (faces and people blurred) above and the Rookie below.
+  - Same source and licence.
+- **`pipelines/my_move.py`**, **`scripts/my-move-check.mjs`**: ours; no third-party material.
