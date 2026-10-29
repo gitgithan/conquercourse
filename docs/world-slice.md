@@ -1673,3 +1673,6 @@ The set of obstacle shapes is fixed, and each shape offers a fixed set of moves.
   - Moving Overpass fully to the browser would cost the shared cache and the politeness limit, and would not make a first pin faster.
   - No code was moved; that needs the product owner's yes.
 
+## Ready places audit and skins (CC-178)
+- Where the places come from, why some have no path, the cut and shrink sweep, 3D sources and skins: [data/eval/cc-178-places/README.md](../data/eval/cc-178-places/README.md).
+- `?places=all` shows every Ready place; the default list shows only places with a path and photos facing the lane.
