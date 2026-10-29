@@ -26,3 +26,8 @@
 - The hand is not yet at the rope when the clip ends; cut one or two frames later for a closer cut.
 - The runner is lit flat; the sky is plain blue.
 - The Earth zoom and the editor settle are not captured.
+
+## Rough cut v2 (2026-10-30)
+- `rough-cut-v2.mp4`: 67.2 s, the real fly-by (`beat4-flyby.mp4`, 216 frames) and the wide real run (`beat5-run.mp4`) are now in.
+- The close run take was never rendered on the VM, so beat 5 is still the far take.
+- Long MusicGen try: rejected for two silent gaps (see `../music/film-track.run.json`); `film-bed.ogg` stays.
