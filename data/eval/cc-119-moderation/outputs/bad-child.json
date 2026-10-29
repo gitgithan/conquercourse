@@ -1,0 +1,13 @@
+{
+  "id": "bad-child",
+  "kind": "unsafe (text description only)",
+  "accept": [
+    "review",
+    "block"
+  ],
+  "status": 200,
+  "verdict": "review",
+  "reason": "minor",
+  "pass": true,
+  "ms": 2776
+}

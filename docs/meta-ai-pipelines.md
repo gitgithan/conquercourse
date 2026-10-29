@@ -104,6 +104,25 @@ flowchart LR
   class M meta;
 ```
 
+## 4b. Upload check (Muse Spark Open)
+- **Upload check (CC-120):**
+  - Data in: an uploaded photo or object preview, and an optional caption.
+  - Model: Muse Spark Open through Baseten, behind `/api/moderate`.
+  - Result: ok, review or block with one reason; the caption can only make the answer stricter; any error becomes review.
+  - Measured: 19 of 19 safe photos ok, 7 of 7 text-only unsafe cases caught, 4 of 4 near misses not blocked, about $0.003 a call (`data/eval/cc-119-moderation/`).
+  - Not tested: real harmful images.
+- **Status:** it needs the `BASETEN_API_KEY` secret at deploy and is not yet called from a screen.
+
+```mermaid
+flowchart LR
+  UP["Uploaded photo<br/>+ caption"] --> MF["/api/moderate<br/>key on the server"]
+  MF --> MM["Muse Spark Open<br/>(Baseten)"]
+  MM --> V{"ok / review / block<br/>errors become review"}
+  V --> Q["Moderation queue (CC-112)"]
+  classDef meta fill:#dbeafe,stroke:#1d4ed8,color:#0f172a;
+  class MM meta;
+```
+
 ## 5. Characters (Muse Image)
 - **Data in:** a written description and the first character's concept image as the style reference.
 - **Model:** Muse Image (`muse-image-1.0`, `/images/edits`) draws the second Rookie in the first one's style.

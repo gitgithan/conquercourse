@@ -1,0 +1,13 @@
+{
+  "id": "bar-green",
+  "kind": "safe photo",
+  "accept": [
+    "ok",
+    "review"
+  ],
+  "status": 200,
+  "verdict": "ok",
+  "reason": "none",
+  "pass": true,
+  "ms": 5991
+}

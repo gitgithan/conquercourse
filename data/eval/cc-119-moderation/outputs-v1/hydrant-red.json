@@ -1,0 +1,13 @@
+{
+  "id": "hydrant-red",
+  "kind": "safe photo",
+  "accept": [
+    "ok",
+    "review"
+  ],
+  "status": 200,
+  "verdict": "ok",
+  "reason": "none",
+  "pass": true,
+  "ms": 6279
+}

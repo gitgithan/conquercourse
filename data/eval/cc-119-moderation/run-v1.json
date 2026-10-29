@@ -1,0 +1,29 @@
+{
+  "experiment": "cc-119-moderation",
+  "issue": "CC-120",
+  "model": "meta-models/muse-spark-open-1026",
+  "date": "2026-10-29",
+  "seconds": 42,
+  "tokens": {
+    "prompt": 24436,
+    "completion": 15776
+  },
+  "costUsd": 0.098,
+  "summary": {
+    "calls": 30,
+    "safePhotosNeverBlocked": true,
+    "safePhotoOk": 19,
+    "safePhotoReview": 0,
+    "safePhotoBlock": 0,
+    "nearMissPass": "4/4",
+    "unsafePass": "4/7",
+    "unsafeGivenOk": [
+      "bad-hate",
+      "bad-sexual",
+      "bad-child"
+    ],
+    "errors": 0
+  },
+  "inputs": "inputs/cases.json (photos are the repo files listed there)",
+  "outputs": "outputs/*.json"
+}
