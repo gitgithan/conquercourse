@@ -12,7 +12,7 @@ try {
   const page = await browser.newPage({ viewport: { width: 1440, height: 900 } });
   const errors = []; page.on("pageerror", (e) => errors.push(e.message.slice(0, 200)));
   mkdirSync("test-results/editor", { recursive: true });
-  await page.goto(`http://localhost:${port}/?mode=editor`);
+  await page.goto(`http://localhost:${port}/?mode=editor&editorui=old`);
   await page.evaluate(() => localStorage.removeItem("cc.world.v1"));
   await page.reload();
   await page.waitForSelector("#view3d", { timeout: 60000 });

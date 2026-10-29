@@ -1,4 +1,5 @@
 import { HAZARDS, HAZARD_INFO, type Hazard } from '../course/hazard';
+import { styleEditor } from '../ui/editor-ux';
 import { organizeEditor } from '../ui/editor-layout';
 import { startCourse } from './course';
 import { readGlbMesh } from '../slice/glb';
@@ -331,6 +332,9 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
   const setView = (plan2d: boolean) => { topPlan = plan2d; plan.style.display = plan2d ? 'block' : 'none'; view3d.show(!plan2d); viewBtn.textContent = plan2d ? '3D view' : 'Top plan'; viewBtn.setAttribute('aria-pressed', String(plan2d)); if (plan2d) fit(); };
   const viewBtn = el('button', top, { text: 'Top plan', id: 'viewmode', title: 'Switch between the 3D view and the flat plan (the plan is for cropping)' });
   viewBtn.onclick = () => setView(!topPlan);
+  // CC-177: Fit frames every piece (key F): a short smooth move in the 3D view, an instant zoom in the flat plan
+  const fitBtn = el('button', top, { text: 'Fit', id: 'fitview', title: 'Bring the camera to your pieces so they all fit on the picture (key F)' });
+  fitBtn.onclick = () => fitAll();
   const profileWrap = el('div', main, { className: 'profilewrap' });
   const profileCanvas = el('canvas', profileWrap, { width: 900, height: 128, id: 'profile' });
   const aside = el('div', root, { className: 'aside' });
@@ -1054,6 +1058,7 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
         const clear = await searchClearable(laneCourse(p));
         if (version !== verifyVersion) return;
         if (clear === null) { verdict = 'The lane check could not finish. Try again after editing stops.'; document.documentElement.dataset.verdict = verdict; if (v) { v.textContent = verdict; v.className = 'bad'; } return; }
+        document.documentElement.dataset.laneClear = clear ? '1' : '0';
         verdict = clear ? `The simulator can clear this lane (${r.gaps} gaps, ${r.steps} steps, ${r.curves} curves, ${r.faces} faces, ${r.length.toFixed(0)} m).` : 'The simulator cannot find a way to clear this lane: widen a gap or lower a step.';
       }
       const v = lanePanel.querySelector('#verdict') as HTMLElement | null;
@@ -1274,13 +1279,31 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
     changed();
   };
   plan.addEventListener('pointerup', end); plan.addEventListener('pointercancel', end);
-  plan.addEventListener('wheel', (e) => { e.preventDefault(); view.ppm = Math.min(120, Math.max(2, view.ppm * Math.exp(-e.deltaY * 0.001))); draw(); }, { passive: false });
+  // the flat plan zooms toward the cursor (the point under it stays under it), with room to zoom far out and in
+  plan.addEventListener('wheel', (e) => {
+    e.preventDefault();
+    const r = plan.getBoundingClientRect(), k = plan.width / r.width, px = (e.clientX - r.left) * k, py = (e.clientY - r.top) * k, x = wx(px), z = wz(py);
+    view.ppm = Math.min(400, Math.max(0.5, view.ppm * Math.exp(-Math.sign(e.deltaY) * Math.min(Math.abs(e.deltaY), 240) * 0.002)));
+    view.cx = x - (px - plan.width / 2) / view.ppm; view.cz = z - (py - plan.height / 2) / view.ppm; draw();
+  }, { passive: false });
+  function fitAll() {
+    const ps = pieces.filter((q) => !isSizeReference(q) || pieces.length === 1);
+    const b = ps.length ? { x0: Infinity, x1: -Infinity, z0: Infinity, z1: -Infinity, top: 1 } : { x0: 0, x1: 30, z0: -3, z1: 3, top: 3 };
+    for (const q of ps) { const s = size(q.mesh), h = Math.max(s.w, s.d) * q.scale / 2; b.x0 = Math.min(b.x0, q.x - h); b.x1 = Math.max(b.x1, q.x + h); b.z0 = Math.min(b.z0, q.z - h); b.z1 = Math.max(b.z1, q.z + h); b.top = Math.max(b.top, q.y + s.h * q.scale); }
+    if (topPlan) {
+      view.cx = (b.x0 + b.x1) / 2; view.cz = (b.z0 + b.z1) / 2;
+      view.ppm = Math.min(400, Math.max(0.5, Math.min(plan.width / Math.max(2, b.x1 - b.x0 + 2), plan.height / Math.max(2, b.z1 - b.z0 + 2))));
+      draw();
+    } else view3d.fit(b);
+    document.documentElement.dataset.fitted = String(Date.now());
+  }
   addEventListener('keydown', (e) => {
     const t = e.target as HTMLElement | null;
     if (t && /^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName) && (t as HTMLInputElement).type !== 'range') return;
     if ((e.ctrlKey || e.metaKey) && e.code === 'KeyZ') { e.preventDefault(); goto(e.shiftKey ? hi + 1 : hi - 1); return; }
     if ((e.ctrlKey || e.metaKey) && e.code === 'KeyY') { e.preventDefault(); goto(hi + 1); return; }
     if (e.code === 'Escape' && proposal) { closePreview('Cancelled: nothing changed.'); return; }
+    if (e.code === 'KeyF' && !e.ctrlKey && !e.metaKey && !e.altKey) { fitAll(); return; }
     if (e.code === 'KeyT') { if (handoff) void goToCourse(); else location.href = '?'; }
     const p = pieces.find((q) => q.id === selected);
     if (!p) return;
@@ -1309,6 +1332,7 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
     } catch { /* no history to bring back */ }
   }
   organizeEditor(root); // CC-94: the controls in one bar, one add menu, one dock, a command palette
+  if (new URLSearchParams(location.search).get('editorui') !== 'old') styleEditor(root); // CC-177: button levels, one Fix menu, a glossary (?editorui=old keeps the CC-94 look)
   if (!pendingObjects.length) onWorld(); // else onWorld runs when the saved photo objects are in
   document.documentElement.dataset.pieces = String(pieces.length);
   return { backend: 'webgl2' };
