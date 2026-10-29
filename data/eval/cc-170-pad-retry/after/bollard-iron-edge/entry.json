@@ -1,0 +1,36 @@
+{
+  "photo": "bollard-iron-edge",
+  "mask_seconds": 1.5,
+  "lift_seconds": 10.7,
+  "wall_seconds": 121.3,
+  "mask": {
+    "how": "text",
+    "score": 0.91796875,
+    "iou_with_box": 0.877,
+    "candidates": 1,
+    "pixels": 243416
+  },
+  "privacy": {
+    "people": 0,
+    "faces": 0,
+    "plates": 0,
+    "changed": false
+  },
+  "n_faces_raw": 177856,
+  "n_gaussians": 122432,
+  "padretry": {
+    "enabled": true,
+    "border": {
+      "top": 0.0,
+      "bottom": 0.3333333333333333,
+      "left": 0.0,
+      "right": 0.38053435114503814
+    },
+    "padded": true,
+    "touches": true,
+    "extent_aspect": 0.188,
+    "mask_aspect": 0.168,
+    "bad": false,
+    "note": "pad"
+  }
+}

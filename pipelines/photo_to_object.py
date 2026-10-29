@@ -90,7 +90,7 @@ if modal is not None:
         return b.getvalue()
 
     # ---------- privacy and mask (L4) ----------
-    @app.cls(gpu=["L4", "A10G", "L40S"], image=mask_image, volumes={CK: ck_vol}, timeout=1800, max_containers=1, scaledown_window=30)
+    @app.cls(gpu=["L40S", "A100-80GB"], image=mask_image, volumes={CK: ck_vol}, timeout=1800, max_containers=1, scaledown_window=240)
     class Mask:
         @modal.enter()
         def load(self):
@@ -149,7 +149,7 @@ if modal is not None:
                     "seconds": time.time() - t0, "load_seconds": self.load_s}
 
     # ---------- lift (L40S) ----------
-    @app.cls(gpu=["L40S", "A100-80GB"], image=lift_image, volumes={CK: ck_vol}, timeout=1800, max_containers=1, scaledown_window=30)
+    @app.cls(gpu=["L40S", "A100-80GB"], image=lift_image, volumes={CK: ck_vol}, timeout=1800, max_containers=1, scaledown_window=240)
     class Lift:
         @modal.enter()
         def load(self):
@@ -212,27 +212,40 @@ if modal is not None:
 
     @app.local_entrypoint()
     def main(exp: str = "data/eval/cc-38-photo-to-3d", rnd: str = "r1", only: str = "", grow: int = 0, k: int = 4, budget_usd: float = 4.0,
-             pad: float = 0.0, texture: bool = False):
+             pad: float = 0.0, texture: bool = False, padretry: bool = True):
+        from ccpipe import padretry as padretry_mod  # CC-170 (local side only: the lift image does not carry ccpipe)
         photos = _photos(exp, only)
         out_root = f"{exp}/{rnd}"
         os.makedirs(out_root, exist_ok=True)
         mask_w, lift_w = Mask(), Lift()
         gpu = {"l4_seconds": 0.0, "l40s_seconds": 0.0}
+        m = r = {"load_seconds": 0.0}
         per = []
         for p in photos:
             d = f"{out_root}/{p['photo']}"
             os.makedirs(d, exist_ok=True)
+            if os.path.exists(f"{d}/entry.json"):  # a run cut off by the network resumes here
+                per.append(json.load(open(f"{d}/entry.json")))
+                continue
             jpeg = open(f"{exp}/inputs/{p['photo']}.jpg", "rb").read()
             t0 = time.time()
-            m = mask_w.run.remote(jpeg, p["label"], p["box"])
+            m = _retry(lambda: mask_w.run.remote(jpeg, p["label"], p["box"]))
             mask_png = m["mask_png"]
             if grow:
                 mask_png = _grow_png(mask_png, grow)
             lift_jpeg, lift_mask = m["masked_jpeg"], mask_png
+            retry = {"enabled": padretry, "border": padretry_mod.border_contact(_mask_bool(mask_png)), "padded": False}
+            retry["touches"] = padretry_mod.touches_border(_mask_bool(mask_png))
             if pad:  # context round: the lift sees the photo on a larger canvas
                 lift_jpeg, lift_mask = _pad_inputs(lift_jpeg, lift_mask, pad)
                 open(f"{d}/lift_input.jpg", "wb").write(lift_jpeg)
-            r = lift_w.run.remote(lift_jpeg, lift_mask, SEED)
+            elif padretry and retry["touches"]:  # CC-170: the object runs into the photo edge: never reject, pad and lift (the mask pads with it)
+                lift_jpeg, lift_mask = padretry_mod.pad_bytes(lift_jpeg, lift_mask)
+                open(f"{d}/lift_input.jpg", "wb").write(lift_jpeg)
+                retry["padded"] = True
+            r = _retry(lambda: lift_w.run.remote(lift_jpeg, lift_mask, SEED))
+            retry.update(padretry_mod.lift_check(r["npz"], mask_png))
+            retry["note"] = padretry_mod.decide(retry["touches"], retry["padded"], retry["bad"])
             wall = time.time() - t0
             open(f"{d}/masked.jpg", "wb").write(m["masked_jpeg"])
             open(f"{d}/mask.png", "wb").write(mask_png)
@@ -242,21 +255,40 @@ if modal is not None:
             gpu["l40s_seconds"] += r["seconds"]
             per.append({"photo": p["photo"], "mask_seconds": round(m["seconds"], 1), "lift_seconds": round(r["seconds"], 1),
                         "wall_seconds": round(wall, 1), "mask": m["mask"], "privacy": m["privacy"],
-                        "n_faces_raw": r["n_faces"], "n_gaussians": r["n_gaussians"]})
+                        "n_faces_raw": r["n_faces"], "n_gaussians": r["n_gaussians"], "padretry": retry})
             print(json.dumps(per[-1]))
+            json.dump(per[-1], open(f"{d}/entry.json", "w"), indent=2)
             spent = _usd(gpu, m["load_seconds"], r["load_seconds"])
             if spent > budget_usd:
                 print(f"STOP: estimated ${spent:.2f} passed the budget ${budget_usd}")
                 break
         loads = {"mask_load_seconds": round(m["load_seconds"], 1), "lift_load_seconds": round(r["load_seconds"], 1)}
         run = {"experiment": "cc-38-photo-to-3d", "round": rnd, "issue": "CC-38", "date": time.strftime("%Y-%m-%d"), "seed": SEED,
-               "settings": {"mask_grow_px": grow, "colour_k": k, "pad_fraction": pad, "texture": texture}, "photos": per, **loads,
+               "settings": {"mask_grow_px": grow, "colour_k": k, "pad_fraction": pad, "padretry": padretry, "texture": texture}, "photos": per, **loads,
                "gpu_seconds": {"l4": round(gpu["l4_seconds"] + m["load_seconds"]), "l40s": round(gpu["l40s_seconds"] + r["load_seconds"])},
                "gpu_minutes": round((gpu["l4_seconds"] + gpu["l40s_seconds"] + m["load_seconds"] + r["load_seconds"]) / 60, 1),
                "estimated_usd": round(_usd(gpu, m["load_seconds"], r["load_seconds"]), 3),
                "price_basis": "L40S $1.95/h, L4 $0.80/h, container seconds in methods plus one model load each; idle scale-down time not included"}
         json.dump(run, open(f"{out_root}/run.json", "w"), indent=2)
         bake_round(exp, rnd, only, k=k, texture=texture)
+
+
+def _retry(call, tries=4):
+    """A call that waits for a cold container can lose its connection on a slow link; the container keeps starting, so ask again."""
+    for i in range(tries):
+        try:
+            return call()
+        except Exception as e:  # noqa: BLE001 (any dropped stream)
+            print(f"call failed ({type(e).__name__}); try {i + 1} of {tries}")
+            if i == tries - 1:
+                raise
+            time.sleep(15)
+
+
+def _mask_bool(png):
+    import numpy as np
+    from PIL import Image
+    return np.asarray(Image.open(io.BytesIO(png)).convert("L")) > 127
 
 
 def _usd(gpu, l4_load, l40_load):

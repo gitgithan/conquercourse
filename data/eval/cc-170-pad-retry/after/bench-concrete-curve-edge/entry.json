@@ -1,0 +1,36 @@
+{
+  "photo": "bench-concrete-curve-edge",
+  "mask_seconds": 0.6,
+  "lift_seconds": 9.4,
+  "wall_seconds": 62.9,
+  "mask": {
+    "how": "text",
+    "score": 0.89453125,
+    "iou_with_box": 0.884,
+    "candidates": 2,
+    "pixels": 165455
+  },
+  "privacy": {
+    "people": 0,
+    "faces": 0,
+    "plates": 0,
+    "changed": false
+  },
+  "n_faces_raw": 400148,
+  "n_gaussians": 339424,
+  "padretry": {
+    "enabled": true,
+    "border": {
+      "top": 0.0,
+      "bottom": 0.0,
+      "left": 0.0,
+      "right": 0.0
+    },
+    "padded": false,
+    "touches": false,
+    "extent_aspect": 2.219,
+    "mask_aspect": 2.078,
+    "bad": false,
+    "note": ""
+  }
+}

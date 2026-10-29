@@ -1,3 +1,4 @@
+import { edgeNote } from '../slice/photo-edge';
 import { startCourse } from './course';
 import { session } from '../ui/feedback';
 import { PHRASES, fitPrimitives, proveCourse, type ParkObject, type Proof, type Primitive } from '../park/fit';
@@ -177,6 +178,9 @@ export function startPark(host: HTMLElement): { backend: 'webgl2' } {
     tools.replaceChildren();
     if (!data) return;
     const d = data;
+    // CC-170: an object that runs off the photo edge is never turned away; say what we do (switch: ?padretry=0)
+    const edge = edgeNote(boxes.map((b) => b.box), d.width, d.height, location.search);
+    if (edge) tools.append(el('div', { cls: 'muted', id: 'edge-note', textContent: edge }));
     const add = el('button', { textContent: 'Add a box', id: 'add' });
     add.onclick = () => {
       const w = Math.round(d.width * 0.2), h = Math.round(d.height * 0.15);

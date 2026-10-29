@@ -1,0 +1,31 @@
+{
+  "label": "concrete pipe",
+  "extents_m": {
+    "x": 1.226,
+    "y": 0.9,
+    "z": 1.223
+  },
+  "height_m": 0.9,
+  "target_height_m": 0.9,
+  "scale_source": "typed",
+  "scale_factor": 1.2274,
+  "raw_height": 0.7332,
+  "yaw_deg": 3.0,
+  "tilt_deg": 0.61,
+  "faces": 5820,
+  "vertices": 2914,
+  "width_to_height": 1.362,
+  "photo": "pipe-ring-edge",
+  "box": [
+    0,
+    0,
+    440,
+    390
+  ],
+  "bytes": 114800,
+  "model": "SAM 3D Objects (seed 42)",
+  "bake_seconds": 10.81,
+  "raw_faces": 1746884,
+  "splat_points": 1318880,
+  "lift_round": "after"
+}

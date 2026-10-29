@@ -1,0 +1,36 @@
+{
+  "photo": "pipe-ring-edge",
+  "mask_seconds": 0.3,
+  "lift_seconds": 22.8,
+  "wall_seconds": 79.2,
+  "mask": {
+    "how": "text",
+    "score": 0.703125,
+    "iou_with_box": 0.802,
+    "candidates": 1,
+    "pixels": 108031
+  },
+  "privacy": {
+    "people": 0,
+    "faces": 0,
+    "plates": 0,
+    "changed": false
+  },
+  "n_faces_raw": 1746884,
+  "n_gaussians": 1318880,
+  "padretry": {
+    "enabled": true,
+    "border": {
+      "top": 0.0,
+      "bottom": 0.0,
+      "left": 0.0,
+      "right": 0.0
+    },
+    "padded": false,
+    "touches": false,
+    "extent_aspect": 1.363,
+    "mask_aspect": 1.204,
+    "bad": false,
+    "note": ""
+  }
+}

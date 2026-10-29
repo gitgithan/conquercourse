@@ -391,7 +391,7 @@
 | File | What | Photo and author | Licence | Made with |
 |---|---|---|---|---|
 | `public/assets/objects/bollard-iron.glb` | bollard, 0.9 m high, 5,820 faces, 273 KB | bollard-iron, Simon Cobb | CC0 | SAM 3 mask + SAM 3D Objects, baked by `pipelines/photo_to_object.py` (texture 1024; no padding; round r1) |
-| `public/assets/objects/hydrant-red.glb` | fire hydrant, 0.8 m high, 5,820 faces, 484 KB | hydrant-red, Crisco 1492 | CC BY-SA 4.0: credit shown wherever the photo or an object from it appears; the object made from it is shared under the same licence (ShareAlike) | SAM 3 mask + SAM 3D Objects, baked by `pipelines/photo_to_object.py` (texture 1024; no padding; round r1) |
+| `public/assets/objects/hydrant-red.glb` | fire hydrant, 0.8 m high, 5,820 faces, 484 KB | Crisco 1492 | CC BY-SA 4.0: credit shown wherever the photo or an object from it appears; the object made from it is shared under the same licence (ShareAlike) | SAM 3 mask + SAM 3D Objects, baked by `pipelines/photo_to_object.py` (texture 1024; no padding; round r1) |
 | `public/assets/objects/barrel-oak.glb` | wooden barrel, 0.899 m high, 5,820 faces, 602 KB | barrel-oak, W.carter | CC0 | SAM 3 mask + SAM 3D Objects, baked by `pipelines/photo_to_object.py` (texture 1024; no padding; round r1) |
 | `public/assets/objects/picnic-table.glb` | picnic table, 0.75 m high, 5,820 faces, 410 KB | picnic-table, Hu Nhu | CC0 | SAM 3 mask + SAM 3D Objects, baked by `pipelines/photo_to_object.py` (texture 1024; no padding; round r1) |
 | `public/assets/objects/pullup-green.glb` | pull-up bar, 2.3 m high, 5,820 faces, 405 KB | bar-green, Singlespeedfahrer | CC0 | SAM 3 mask + SAM 3D Objects, baked by `pipelines/photo_to_object.py` (texture 1024; no padding; round r1) |
@@ -418,3 +418,11 @@
 | `../conquercourse-assets/demo-media/clips/hook/*.mp4` and `clips/hook916/*.mp4` | takes of the 20 s hook: hero, foot, dash, hand, swing, landing, 1280x720 and 720x1280 at 30 fps | this repo, `scripts/film-hook.sh` (CC-143) | same as the game assets shown (park01 CC0) | stepped-clock capture, every frame drawn and hashed, no blending; the runner now runs on the stepped clock too |
 | `../conquercourse-assets/demo-media/music/course.ogg` | music bed of the hook (copy of `public/assets/music/course.ogg`, 100 bpm, measured by `scripts/measure-bpm.py`) | see the course.ogg row above | see the course.ogg row above | cut on the beat in `demo/data/hook/*.json` |
 | `public/film/hook-*.labels.json` | label anchors for the hook takes (foot, hand, swing, dash) | this repo | ours | written by hand |
+
+## Edge-touching test photos for pad and retry (own derivatives, made 2026-10-29, CC-170)
+- `data/eval/cc-170-pad-retry/inputs/<name>-edge.jpg` (9 files): tight crops of the CC-110 photos bollard-iron, barrel-oak, planter-concrete, pipe-ring, bench-concrete-curve, stump-spruce, bar-green, bar-black and picnic-table, so the object touches the photo edge.
+  - Made by `data/eval/cc-170-pad-retry/make_inputs.py`; no new third-party photo was downloaded.
+  - Each crop has the licence of its source photo (rows for `data/eval/cc-110-real-objects/inputs/` above); credit and ShareAlike travel with it.
+  - They stay in the experiment folder and are not shipped in the game.
+- `data/eval/cc-170-pad-retry/inputs/gabion-wall.jpg`: the CC-110 gabion wall as it is (CC0, Encik Tekateki); a real photo that already touches the edge.
+- `test-results/cc170-edge-note.png` is a screenshot of the Park with the edge note (ours; photo park01, see its row above).
