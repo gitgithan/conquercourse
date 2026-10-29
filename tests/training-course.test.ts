@@ -10,12 +10,12 @@ const c = JSON.parse(readFileSync('public/assets/demo/training.course.json', 'ut
 function play() {
   let w = newWorld(c); const log = newLog();
   const st = { next: 0, caught: null, bedAt: null, hangAt: null, hangs: 0, vnext: 0, cnext: 0, inClimb: false, fnext: 0, airSince: null } as unknown as Parameters<typeof inputFor>[2];
-  for (let i = 0; i < 120 * 90 && w.outcome === 'running'; i++) { w = stepWorld(w, inputFor(c.plan!, w, st, c), c); logTick(log, w); }
+  for (let i = 0; i < 120 * 120 && w.outcome === 'running'; i++) { w = stepWorld(w, inputFor(c.plan!, w, st, c), c); logTick(log, w); }
   return { w, log };
 }
 describe('the Training course', () => {
   const { w, log } = play();
-  const best = playPlan(c, c.plan!, 120 * 90);
+  const best = playPlan(c, c.plan!, 120 * 120);
   it('clears with its stored plan, on the ground, after the last obstacle', () => {
     expect(w.outcome).toBe('cleared');
     expect(w.runner.grounded).toBe(true);
@@ -26,8 +26,21 @@ describe('the Training course', () => {
     for (const k of ['jump', 'vault', 'grab', 'climb', 'bounce', 'roll']) expect(kinds.has(k as never), k).toBe(true);
   });
   it('has one zone per beat, in the order they come', () => {
-    expect(c.zones!.map((z) => z.id)).toEqual(['gap', 'vault', 'lache', 'rope', 'climb', 'trampoline', 'drop']);
+    expect(c.zones!.map((z) => z.id)).toEqual(['gap', 'vault', 'step', 'wall', 'climb', 'plank', 'lache', 'rope', 'trampoline', 'drop']); // CC-175: the hands key comes early (warped wall before the climb and the bars)
     const xs = c.zones!.map((z) => z.x0); expect([...xs].sort((a, b) => a - b)).toEqual(xs);
+  });
+  it('every basic obstacle is there and cleared: the warped wall (hands on E), the plank bridge and the step (CC-175)', () => {
+    expect(c.wall?.height).toBe(4);
+    expect(c.planks).toHaveLength(1);
+    const ev = best.events.map((e) => e.type);
+    expect(ev).toContain('wall-grab');
+    expect(ev).not.toContain('wall-no-grip');
+    expect(ev).not.toContain('wall-slide');
+    expect(ev).toContain('plank-sag');
+    expect(ev).not.toContain('plank-break');
+    expect(best.events.filter((e) => e.type === 'vault')).toHaveLength(2); // the box and the step
+    expect(ev.indexOf('wall-grab')).toBeLessThan(ev.indexOf('climb')); // E is learnt on the wall before the climb and the bars need it
+    expect(ev.indexOf('climb')).toBeLessThan(ev.indexOf('hang-catch'));
   });
   it('the lache gap is wider than a jump, so the bars are needed', () => {
     const p = c.terrain.platforms, gaps = p.slice(1).map((q, i) => q.x0 - p[i].x1);
@@ -44,11 +57,11 @@ describe('the Training course', () => {
     expect(big.map((l) => l.rolled)).toEqual([true, true]);
     const rolls = log.moves.filter((m) => m.kind === 'roll').map((m) => m.x);
     expect(rolls).toHaveLength(2);
-    expect(rolls[0]).toBeGreaterThan(74); expect(rolls[0]).toBeLessThan(86);
-    expect(rolls[1]).toBeGreaterThan(160);
+    expect(rolls[0]).toBeGreaterThan(74 + 99); expect(rolls[0]).toBeLessThan(86 + 99);
+    expect(rolls[1]).toBeGreaterThan(160 + 99);
   });
   it('the slower bar-to-bar line still clears, and its drop after bar 2 also needs a roll', () => {
-    const r = playPlan(c, { ...c.plan!, hangTicks: [210, 210], airHands: undefined }, 120 * 90);
+    const r = playPlan(c, { ...c.plan!, hangTicks: [210, 210], airHands: undefined }, 120 * 120);
     expect(r.world.outcome).toBe('cleared');
     expect(r.events.filter((e) => e.type === 'hang-catch').length).toBeGreaterThanOrEqual(2);
     expect(r.world.runner.tick).toBeGreaterThan(c.routes!.find((q) => q.chosen)!.ticks + 120);
