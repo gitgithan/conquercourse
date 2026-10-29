@@ -78,7 +78,7 @@ export function piecesFromSource(list: CourseSource['pieces']): (Piece & { src?:
     else if (patternOf(q.src)) p = stackPiece(q.src, at);
     else if (q.src.startsWith('box:')) p = pieceFromSrc(q.src, at);
     else if (q.src === 'hold:bar') p = { ...newPiece('Bar', barMesh(), at), src: q.src };
-    else { const l = LIBRARY.find((x) => x.id === q.src); if (l) p = { ...newPiece(l.label, l.mesh(), at), src: q.src }; }
+    else { const id = q.src === 'dome' ? 'block' : q.src; /* the dome piece was removed (CC-96): an old world keeps a block in its place */ const l = LIBRARY.find((x) => x.id === id); if (l) p = { ...newPiece(l.label, l.mesh(), at), src: id }; }
     if (p) out.push({ ...p, y: q.y, yaw: q.yaw, scale: q.scale, ...(q.role ? { role: q.role as Piece['role'] } : {}) });
   }
   return out;
