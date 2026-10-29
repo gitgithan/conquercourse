@@ -46,3 +46,8 @@
 | 55.2-67.2 | end card | `beat8-endcard.mp4` | DESIGNED: logo, tagline, credits |
 - Leap fix: the trail is now thin, dim, short and fades to nothing at the runner (`src/render/trail.ts`), so the hips stay visible.
 - Skin and street furniture on the hero course: not done, because both are placed with the frame of the stored place mesh, and the hero lane is a different slice of it; it needs its own frame (next step).
+
+## v3 update: close run take
+- `beat5-run-close.mp4` = `v3-run-a` (8 s, macro camera close to the runner, textured photo-lifted box visible on the lane) followed by 6.4 s of the far take (`beat5-run.mp4`, 1.6-8.0 s).
+- A second close take (`from-x 30`, 192 frames) was queued on the VM but is not needed for this cut; replace the far half with it when it exists.
+- Frames: `beat5-run-close-sheet.png`.
