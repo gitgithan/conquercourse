@@ -1,0 +1,21 @@
+{
+  "run": 2,
+  "status": 200,
+  "ms": 23082,
+  "usage": {
+    "prompt_tokens": 1758,
+    "completion_tokens": 9026,
+    "total_tokens": 10784,
+    "prompt_tokens_details": {
+      "audio_tokens": 0,
+      "cached_tokens": 1664
+    },
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": 7047,
+      "audio_tokens": 0,
+      "reasoning_tokens": 8396,
+      "rejected_prediction_tokens": 6806
+    }
+  },
+  "reply": "```json\n{\"themes\":[{\"name\":\"Core positives\",\"about\":\"The basic mechanics and overall scope feel solid.\",\"ids\":[\"R1-OK1\",\"R1-OK2\",\"R1-OK3\"]},{\"name\":\"Speed and movement\",\"about\":\"Running pace, direction and slowdown shape the feel of traversal.\",\"ids\":[\"R1-G1\",\"R1-G2\",\"R1-G3\",\"R2-G1\",\"R2-G3\",\"R2-G5\",\"R3-Q1\",\"R4-G3\",\"P4-confusing\"]},{\"name\":\"Wall and course layout\",\"about\":\"Placement and construction of the wall and surrounding obstacles.\",\"ids\":[\"R1-W1\",\"R1-W2\",\"R2-G2\",\"R5-S1\",\"R5-G10\",\"R5-G11\",\"R5-G12\"]},{\"name\":\"Dojo navigation and lessons\",\"about\":\"Access and organization of the learning steps for each obstacle.\",\"ids\":[\"R1-G4\",\"R1-T1\",\"R1-T2\",\"R1-T3\",\"R2-G4\",\"R2-D2\",\"R2-D3\",\"R2-D4\",\"R2-D5\",\"R4-D3\",\"R4-D4\",\"R5-D1\",\"R5-D2\",\"P5-dojo\"]},{\"name\":\"Physics explanations\",\"about\":\"Wording and accuracy of predictions and lesson content.\",\"ids\":[\"R1-P1\",\"R1-P2\",\"R2-D1\",\"R2-V1\",\"R3-G2\",\"R4-D2\"]},{\"name\":\"Runner visuals and animation\",\"about\":\"Look and motion of the character and attached gear.\",\"ids\":[\"R1-N1\",\"R1-N1'\",\"R2-G6\",\"R2-G7\",\"R2-G8\",\"R4-G2\",\"R5-G1\",\"R5-G1b\",\"R5-G1c\",\"R5-G1d\"]},{\"name\":\"Camera control\",\"about\":\"Options for viewing the action from different angles.\",\"ids\":[\"R4-G1\",\"R5-G3\",\"R5-G4\",\"R5-G6\",\"R5-G9\"]},{\"name\":\"Input and interface\",\"about\":\"Keys, buttons and on-screen information for play.\",\"ids\":[\"R3-G3\",\"R5-G2\",\"R5-G7\",\"R5-G13\",\"P1-confusing\",\"P2-confusing\",\"P3-confusing\"]},{\"name\":\"Trampoline cues\",\"about\":\"Timing prompts and messages for the trampoline.\",\"ids\":[\"R3-G1\",\"R5-G5\",\"R5-G5b\",\"R5-G8\"]},{\"name\":\"Landing display\",\"about\":\"Visualization of impact over time.\",\"ids\":[\"R4-D1\",\"R5-D3\",\"R5-D4\",\"P3-again\"]},{\"name\":\"Run history and scoring\",\"about\":\"Saving past attempts and summarizing performance.\",\"ids\":[\"R1-V1\",\"R3-G4\",\"P4-again\"]},{\"name\":\"Project setup and forms\",\"about\":\"Development workflow and feedback collection.\",\"ids\":[\"R1-X1\",\"R5-F1\"]}]}\n```"
+}

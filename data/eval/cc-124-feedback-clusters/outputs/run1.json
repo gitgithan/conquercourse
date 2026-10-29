@@ -1,0 +1,21 @@
+{
+  "run": 1,
+  "status": 200,
+  "ms": 12992,
+  "usage": {
+    "prompt_tokens": 1758,
+    "completion_tokens": 4866,
+    "total_tokens": 6624,
+    "prompt_tokens_details": {
+      "audio_tokens": 0,
+      "cached_tokens": 1664
+    },
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": 3806,
+      "audio_tokens": 0,
+      "reasoning_tokens": 4006,
+      "rejected_prediction_tokens": 3614
+    }
+  },
+  "reply": "```json\n{\n  \"themes\": [\n    {\n      \"name\": \"General praise\",\n      \"about\": \"Players liked the basic feel and overall structure.\",\n      \"ids\": [\"R1-OK1\", \"R1-OK2\", \"R1-OK3\"]\n    },\n    {\n      \"name\": \"Run and jump pacing\",\n      \"about\": \"Feedback about speed, slow-downs, run-ups and gap distances.\",\n      \"ids\": [\"R1-G2\", \"R2-G3\", \"R2-G5\", \"R2-D1\", \"R2-G1\", \"R2-G2\", \"R4-G3\", \"P4-confusing\"]\n    },\n    {\n      \"name\": \"Trampoline cues\",\n      \"about\": \"How the trampoline works and how its on-screen prompt behaves.\",\n      \"ids\": [\"R3-G1\", \"R3-G2\", \"R5-G4\", \"R5-G5\", \"R5-G5b\", \"R5-G8\"]\n    },\n    {\n      \"name\": \"Wall climb\",\n      \"about\": \"Visual and physical details of the wall obstacle and reach.\",\n      \"ids\": [\"R1-W1\", \"R1-W2\", \"R5-S1\", \"R5-G10\", \"R5-G11\", \"R5-G12\"]\n    },\n    {\n      \"name\": \"Rope swing\",\n      \"about\": \"Rope questions, diagrams and swing animation.\",\n      \"ids\": [\"R1-P1\", \"R1-P2\", \"R2-G8\", \"R2-V1\", \"R2-D3\", \"R2-D4\"]\n    },\n    {\n      \"name\": \"Landing feedback\",\n      \"about\": \"How landings are shown with squash, trails and time graphs.\",\n      \"ids\": [\"R1-N1\", \"R1-N1'\", \"R1-V1\", \"R2-G6\", \"R2-G7\", \"R4-D1\", \"R4-D2\", \"R5-D3\", \"R5-D4\", \"P3-again\"]\n    },\n    {\n      \"name\": \"Dojo lessons\",\n      \"about\": \"Structure, navigation and interactivity of the Dojo.\",\n      \"ids\": [\"R1-T1\", \"R1-T2\", \"R1-T3\", \"R1-G4\", \"R2-G4\", \"R2-D2\", \"R2-D5\", \"R4-D3\", \"R4-D4\", \"R5-D1\", \"R5-D2\", \"P5-dojo\"]\n    },\n    {\n      \"name\": \"Standing pose\",\n      \"about\": \"Iterations on the idle stance and body alignment.\",\n      \"ids\": [\"R4-G2\", \"R5-G1\", \"R5-G1b\", \"R5-G1c\", \"R5-G1d\"]\n    },\n    {\n      \"name\": \"Camera views\",\n      \"about\": \"Camera angles, switching and framing.\",\n      \"ids\": [\"R4-G1\", \"R5-G3\", \"R5-G9\"]\n    },\n    {\n      \"name\": \"Controls and HUD\",\n      \"about\": \"Key bindings, control hints and on-screen meters.\",\n      \"ids\": [\"R1-G3\", \"R5-G2\", \"R5-G6\", \"R5-G7\", \"R5-G13\", \"P1-confusing\", \"P2-confusing\"]\n    },\n    {\n      \"name\": \"Session flow and scoring\",\n      \"about\": \"Restarting, replaying, diagnostics and desired scores.\",\n      \"ids\": [\"R1-G1\", \"R3-Q1\", \"R3-G3\", \"R3-G4\", \"R5-F1\", \"P3-confusing\", \"P4-again\"]\n    },\n    {\n      \"name\": \"Dev setup\",\n      \"about\": \"Note about the agent worktree setup.\",\n      \"ids\": [\"R1-X1\"]\n    }\n  ]\n}\n```"
+}
