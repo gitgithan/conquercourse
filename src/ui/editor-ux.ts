@@ -45,7 +45,18 @@ const CSS = `
   #edglossary .gl{display:grid;grid-template-columns:auto minmax(0,1fr);gap:5px 10px;padding:8px 12px;margin:0}
   #edglossary .gl dt{font-weight:700;white-space:nowrap}#edglossary .gl dd{margin:0;color:#33403a}
   #edglossary .gl dt.sec{grid-column:1/3;margin-top:4px;font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:#58635d}
-  #edglossary .gf{padding:6px 12px 10px;color:#58635d;font-size:12px}`;
+  #edglossary .gf{padding:6px 12px 10px;color:#58635d;font-size:12px}
+  /* CC-198/CC-199: the Design partner card has one fixed anchor (bottom right of the window, above the Feedback button) and its own scroll; nothing pushes it, nothing covers it */
+  .ed.ux .helper{position:fixed;right:8px;left:auto;top:auto;bottom:64px;z-index:60;width:292px;max-height:max(300px,calc(100vh - 420px));display:flex;flex-direction:column;gap:0;padding:0;overflow:hidden;border:1px solid var(--line);border-radius:16px;background:#fff;box-shadow:0 12px 36px #0003,0 2px 6px #0002;font-size:13px;line-height:1.4}
+  .ed.ux .helper.closed{display:none}
+  .ed.ux .helper>*{flex:none;box-sizing:border-box;min-width:0}
+  .ed.ux .helper>.row:first-child{display:grid;grid-template-columns:minmax(0,1fr) auto auto;gap:6px;align-items:center;padding:8px 10px 8px 14px;background:linear-gradient(180deg,#eaf4ef,#f6faf8);border-bottom:1px solid var(--line)}
+  .ed.ux .helper>.row:first-child strong{grid-column:1/-1;grid-row:1;font-size:15px;letter-spacing:.01em;color:#0b4f44}
+  .ed.ux .helper>.row:first-child #closehelper{position:absolute;top:8px;right:8px;min-height:26px;width:26px;padding:0;border-radius:50%;line-height:1}
+  .ed.ux .helper>.row:first-child strong{padding-right:30px;grid-column:1/-1;justify-self:start;max-width:calc(100% - 34px);box-sizing:border-box}
+  .ed.ux .helper>.row:first-child button:not(#closehelper){grid-row:2;min-height:30px;padding:3px 10px;font-size:12.5px;white-space:nowrap}
+  .ed.ux .helper>.row:first-child #fixit{grid-column:1}.ed.ux .helper>.row:first-child #easier{grid-column:2}
+`;
 
 const FIXES: { id: string; label: string; when: string; expect: string; clear: boolean }[] = [
   { id: 'fixit', label: 'Fix it', when: 'When the check says the runner cannot clear the course.', expect: 'You see the smallest changes drawn as outlines first. Nothing moves until you press Apply.', clear: false },

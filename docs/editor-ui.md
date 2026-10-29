@@ -93,6 +93,16 @@ This note says where each control lives now, and the rule for adding a new one.
 - `?editorui=old` keeps the CC-94 look; the older check scripts use it.
 - Check: `node scripts/editor-ux-check.mjs` (wheel, pan, Fit, Fix menu, glossary memory, old layout); pictures in `data/eval/cc-editor-ux/`.
 
+## The Design partner card, one fixed place (CC-198, CC-199)
+- The card is fixed to the bottom right of the window, above the Feedback button.
+- It is 292 px wide, so it sits over the right column and not over the 3D picture.
+- Its height is capped (`max(220px, 100vh - 470px)`), and the reply inside scrolls on its own.
+- Nothing pushes it down, and it sits above the glossary card and the right column.
+- Inside, the title and the two repair buttons sit in a header, the reply has its own scroll, and the question box and Ask sit at the bottom.
+- Preview rows are a checkbox and a wrapping line, so a long place name wraps and never runs under a button.
+- `?editorui=old` brings back the old card.
+- Check: `node scripts/partner-shots.mjs` (stills in `data/eval/cc-198-partner/`).
+
 ## Toasts (CC-197)
 - Every short message in the Course goes through one stack, `src/ui/toast-stack.ts`.
 - A new toast is added below the others, and the older ones stay above.
