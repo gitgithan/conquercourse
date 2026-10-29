@@ -223,6 +223,17 @@ export function installGalleryKeyGuard(): void {
   window.addEventListener('keydown', guard, true); // only keydown: a key released after the gallery opened still lets go
 }
 
+/** What the gallery asks before leaving an editor with work not yet saved (plain words for a young reader). */
+export const LEAVE_MESSAGE = 'You have changes you have not saved. Leave and lose them?';
+
+/** True when the gallery may jump to another course. The editor sets window.ccHasUnsavedChanges when it starts; other modes set nothing and never ask. */
+export function mayLeaveCourse(ask: (msg: string) => boolean = window.confirm.bind(window)): boolean {
+  const unsaved = (window as unknown as { ccHasUnsavedChanges?: () => boolean }).ccHasUnsavedChanges;
+  if (typeof unsaved !== 'function') return true;
+  try { return unsaved() ? ask(LEAVE_MESSAGE) : true; }
+  catch { return true; }
+}
+
 /** Tells the Course to wait while a gallery is open. */
 export const GALLERY_EVENT = 'cc-gallery';
 
@@ -247,7 +258,7 @@ export function mountWorldGallery(parent: HTMLElement, o: { current: { value: st
     overlay = document.createElement('div'); overlay.id = 'world-gallery'; modalAttrs(overlay); overlay.setAttribute('aria-label', 'Courses');
     const g = buildGallery({
       current: o.current, onClose: close,
-      onPick: (v) => { if (v === 'stay' || v === o.current.value) { close(); return; } (o.onPick ?? ((w) => { location.href = worldHref(w); }))(v); },
+      onPick: (v) => { if (v === 'stay' || v === o.current.value) { close(); return; } if (!mayLeaveCourse()) return; (o.onPick ?? ((w) => { location.href = worldHref(w); }))(v); },
     });
     overlay.append(g.el);
     overlay.addEventListener('mousedown', (e) => { if (e.target === overlay) close(); });

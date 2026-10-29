@@ -149,6 +149,8 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
   const redoBtn = el('button', top, { text: 'Redo', id: 'redo', title: 'Redo (Ctrl+Y)' });
   undoBtn.disabled = redoBtn.disabled = true;
   undoBtn.onclick = () => goto(hi - 1); redoBtn.onclick = () => goto(hi + 1);
+  // the Courses gallery asks before leaving when there is work to lose: anything past the starting undo step
+  (window as unknown as { ccHasUnsavedChanges?: () => boolean }).ccHasUnsavedChanges = () => hi > 0;
   // objects lifted from real photos (SAM 3D Objects, CC-38): each is a baked .glb at its real size
   const photoBar = addBar;
   void (async () => {
