@@ -2,7 +2,7 @@
   "model": "facebook/musicgen-medium",
   "prompt": "gentle epic motivational pulse, 100 bpm, low ostinato strings, soft taiko drums, warm, steadily building to a lift, no brass, no synth lead, instrumental, no fade",
   "seed": 7,
-  "guidance_scale": 3.0,
+  "guidance_scale": 3,
   "method": "30 s, then two continuations from the last 10 s",
   "rate": 32000,
   "seconds": 89.82,
