@@ -1,0 +1,15 @@
+{
+  "name": "bench-concrete",
+  "label": "bench",
+  "key": "vault",
+  "status": 200,
+  "moves": [
+    "vault",
+    "jump",
+    "balance"
+  ],
+  "idea": "A park pause point turned into a crossroads where you pick a safe walk or daring shortcut.",
+  "top1": true,
+  "hit": true,
+  "ms": 7497
+}

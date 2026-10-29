@@ -1,0 +1,14 @@
+{
+  "name": "railing-iron",
+  "label": "rail",
+  "key": "vault",
+  "status": 200,
+  "moves": [
+    "vault",
+    "climb"
+  ],
+  "idea": "Long barrier forms lane edge, open gate offers quick through point versus longer way around.",
+  "top1": true,
+  "hit": true,
+  "ms": 33261
+}

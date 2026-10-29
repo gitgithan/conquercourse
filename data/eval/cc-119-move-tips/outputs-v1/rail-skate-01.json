@@ -1,0 +1,14 @@
+{
+  "name": "rail-skate-01",
+  "label": "handrail",
+  "key": "balance",
+  "status": 200,
+  "moves": [
+    "vault",
+    "jump"
+  ],
+  "idea": "Adds a gleaming rail that splits the stairs into a daring shortcut and safe route.",
+  "top1": false,
+  "hit": false,
+  "ms": 13999
+}

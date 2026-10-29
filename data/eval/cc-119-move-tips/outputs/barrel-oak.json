@@ -1,0 +1,14 @@
+{
+  "name": "barrel-oak",
+  "label": "wooden barrel",
+  "key": "jump",
+  "status": 200,
+  "moves": [
+    "jump",
+    "vault"
+  ],
+  "idea": "Barrel sits across the lane, slowing the run and forcing a quick choice between two paths.",
+  "top1": true,
+  "hit": true,
+  "ms": 9409
+}

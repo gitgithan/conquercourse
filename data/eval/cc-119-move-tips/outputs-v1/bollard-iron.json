@@ -1,0 +1,14 @@
+{
+  "name": "bollard-iron",
+  "label": "bollard",
+  "key": "jump",
+  "status": 200,
+  "moves": [
+    "vault",
+    "jump"
+  ],
+  "idea": "Makes a city street theme with a hidden marker that turns the lane into a playful treasure hunt.",
+  "top1": false,
+  "hit": true,
+  "ms": 10583
+}

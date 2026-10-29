@@ -1,0 +1,14 @@
+{
+  "name": "bench-curved",
+  "label": "concrete bench",
+  "key": "vault",
+  "status": 200,
+  "moves": [
+    "vault",
+    "jump"
+  ],
+  "idea": "wide curved block makes runner choose vault over center or run around ends",
+  "top1": true,
+  "hit": true,
+  "ms": 6464
+}

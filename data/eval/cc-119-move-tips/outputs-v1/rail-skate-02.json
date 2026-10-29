@@ -1,0 +1,14 @@
+{
+  "name": "rail-skate-02",
+  "label": "handrail",
+  "key": "balance",
+  "status": 200,
+  "moves": [
+    "vault",
+    "jump"
+  ],
+  "idea": "A silver railing by graffiti walls hides a shortcut with a surprise around the bend",
+  "top1": false,
+  "hit": false,
+  "ms": 7259
+}

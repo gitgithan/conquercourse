@@ -1,0 +1,13 @@
+{
+  "name": "rail-skate-02",
+  "label": "handrail",
+  "key": "balance",
+  "status": 200,
+  "moves": [
+    "vault"
+  ],
+  "idea": "Handrail splits lane into stair route and rail side, fast timing on one, slow on the other.",
+  "top1": false,
+  "hit": false,
+  "ms": 10121
+}

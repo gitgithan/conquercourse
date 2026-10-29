@@ -1,0 +1,13 @@
+{
+  "name": "pullup-green",
+  "label": "pull-up bar",
+  "key": "hang",
+  "status": 200,
+  "moves": [
+    "hang"
+  ],
+  "idea": "Leaves an open gap that slows the run until the swing carries momentum forward again.",
+  "top1": true,
+  "hit": true,
+  "ms": 8605
+}

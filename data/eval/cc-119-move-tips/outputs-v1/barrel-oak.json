@@ -1,0 +1,14 @@
+{
+  "name": "barrel-oak",
+  "label": "wooden barrel",
+  "key": "jump",
+  "status": 200,
+  "moves": [
+    "vault",
+    "jump"
+  ],
+  "idea": "A wobbly barrel makes a fun surprise that hides what comes next around the bend",
+  "top1": false,
+  "hit": true,
+  "ms": 10401
+}

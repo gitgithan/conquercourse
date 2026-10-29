@@ -1,0 +1,13 @@
+{
+  "name": "pullup-black",
+  "label": "pull-up bar",
+  "key": "hang",
+  "status": 200,
+  "moves": [
+    "hang"
+  ],
+  "idea": "Shiny bar makes a cool gateway and meeting point in the open grass.",
+  "top1": true,
+  "hit": true,
+  "ms": 8204
+}

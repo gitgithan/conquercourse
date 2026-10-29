@@ -1,0 +1,13 @@
+{
+  "name": "bollard-iron",
+  "label": "bollard",
+  "key": "jump",
+  "status": 200,
+  "moves": [
+    "jump"
+  ],
+  "idea": "Narrow post in center creates split path requiring quick choice to stay fast",
+  "top1": true,
+  "hit": true,
+  "ms": 4663
+}

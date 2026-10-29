@@ -1,0 +1,13 @@
+{
+  "name": "pullup-black",
+  "label": "pull-up bar",
+  "key": "hang",
+  "status": 200,
+  "moves": [
+    "hang"
+  ],
+  "idea": "Metal bar across the gravel lane forces a pause or a quick way through.",
+  "top1": true,
+  "hit": true,
+  "ms": 9129
+}
