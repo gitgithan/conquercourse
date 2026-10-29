@@ -19,6 +19,7 @@ import { IdealPool } from '../sim/ideal-pool';
 import { createGhost } from '../ui/ghost';
 import { challengeWords, courseTooBig, makeChallengeUrl, offersIdeal, openChallenge, secondsWords, shareOn } from '../share/challenge';
 import { CLIP_BAND, CLIP_H, CLIP_W, RUNNER_M, TICKS_PER_FRAME, clipCameraDistance, clipCrop, clipFits, clipFrames, createClipEncoder, drawClipFrame } from '../share/clip';
+import { mountTouch, touchOn } from '../share/touch';
 import { PHONE_WORDS, browserPointing, phoneMode } from '../share/phone';
 import { clipCard, shareButtons, showBanner } from '../share/share-ui';
 import { inputOfMask, type InputLog } from '../sim/replay';
@@ -582,6 +583,8 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
     if (e.code === 'KeyH') { keysTouched = true; keysOpen = !keysOpen; paintKeys(keysOpen); }
   });
   addEventListener('keyup', (e) => keys.delete(e.code));
+  const touchControls = touchOn(params, browserPointing); // CC-139: on a touch device the buttons press the same keys; ?touch=0 turns them off
+  if (touchControls) { mountTouch(document.body, { cannon: !!course.recoil }); keysOpen = false; keysTouched = true; paintKeys(false); frontOverride = false; } // the keys card is for keyboards; the small corner view would hide the runner on a narrow screen
   addEventListener('resize', () => {
     renderer.setSize(host.clientWidth, host.clientHeight);
     camera.aspect = host.clientWidth / host.clientHeight;
@@ -1206,7 +1209,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
         return;
       }
       ghostCtl?.setFriend(c.track, c.nick);
-      if (phoneMode(params, browserPointing)) {
+      if (phoneMode(params, browserPointing) && !touchControls) {
         // A phone has no keys (CC-138): the page plays the friend's run by itself and says how to play it for real.
         keysOpen = false; keysTouched = true; paintKeys(false); frontOverride = false; // the small corner view would hide the runner on a narrow screen
         showBanner(PHONE_WORDS(secondsWords(c.ticks)), [{ label: 'Copy link', go: () => void copyHere() }], 0);
