@@ -5,7 +5,7 @@ import { spawn } from 'node:child_process';
 import { mkdirSync } from 'node:fs';
 const port = process.env.PORT ?? '5173';
 const server = spawn('node', ['node_modules/vite/bin/vite.js', '--port', port, '--strictPort'], { stdio: 'ignore' });
-const flags = ['--enable-unsafe-webgpu', '--enable-features=Vulkan', '--use-vulkan=swiftshader', '--use-angle=swiftshader', '--disable-vulkan-surface', '--ignore-gpu-blocklist'];
+const flags = ['--enable-unsafe-webgpu', '--use-angle=swiftshader', '--ignore-gpu-blocklist'];
 const course = (n) => `/assets/demo/${n}.course.json`;
 const shots = [
   ['course-new', '/?', 1280, 720], ['course-old', '/?gauges=old&', 1280, 720],
@@ -21,8 +21,8 @@ try {
   for (const [name, path, width, height] of shots) {
     const page = await browser.newPage({ viewport: { width, height } });
     page.on('pageerror', (e) => { errors.push(e.message); console.log('PAGEERROR', e.message.slice(0, 200)); });
-    await page.goto(`http://localhost:${port}${path}ghost=1`);
-    await page.waitForSelector('#gtext', { state: 'attached', timeout: 90000 });
+    await page.goto(`http://localhost:${port}${path}welcome=0&ghost=1`);
+    await page.waitForSelector('#gtext', { state: 'attached', timeout: 120000 });
     await page.waitForTimeout(3000);
     await page.keyboard.down('ArrowRight'); await page.waitForTimeout(1500);
     await page.keyboard.press('KeyG');
