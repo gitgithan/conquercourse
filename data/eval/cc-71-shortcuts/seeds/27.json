@@ -1,0 +1,13 @@
+{
+  "seed": 27,
+  "name": "Generated course 27",
+  "zones": [
+    "Gap jump",
+    "Step up",
+    "Gap jump",
+    "Warped wall"
+  ],
+  "intendedSeconds": 22.88,
+  "searchSeconds": 3,
+  "shortcuts": []
+}
