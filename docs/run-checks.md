@@ -62,7 +62,10 @@
 - Use it:
   - `npx tsx scripts/seed-plan.ts <course.json> <log.json>... [--write]` compares and (with `--write`) stores the faster plan; then run `npm run course-meta`.
   - Logs kept in `data/seeds/<course name>/*.json` are applied by `scripts/plans.ts` after each search.
-- Not built: the export of flagged logs from the table (`beats_ideal = 1`) needs the database (migration 0004 is written, not applied); until then a log is saved by hand.
+- Export of flagged logs: `npx tsx scripts/export-flagged-logs.ts` (read only; it only sends SELECT through `wrangler d1 execute --remote`).
+  - It lists the rows with `beats_ideal = 1` and `verified = 1`, replays each one, and saves the ones that clear to `data/seeds/<course name>/<run id>.json`.
+  - The table stores only a hash of the keys (migration 0003), so the keys themselves need `migrations/0005_clear_keys.sql` (a `keys` column, filled only for flagged runs).
+  - Migration 0005 is written, not applied (needs the owner's yes); the endpoint works without it, and until then the script lists the rows and says the keys are not stored yet.
 - Known gap: a contraption course (cannon, drone, coaster) has non-key inputs and cannot be seeded from keys.
 - Beating the stored line stays a flag, not an error.
 
