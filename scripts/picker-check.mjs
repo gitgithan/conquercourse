@@ -9,7 +9,7 @@ const port = process.env.PORT ?? '5173';
 const server = spawn('node', ['node_modules/vite/bin/vite.js', '--port', port, '--strictPort'], { stdio: 'ignore' });
 const flags = ['--enable-unsafe-webgpu', '--enable-features=Vulkan', '--use-vulkan=swiftshader', '--use-angle=swiftshader', '--disable-vulkan-surface', '--ignore-gpu-blocklist'];
 const MODES = [
-  ['course', '?course=/assets/demo/lache.course.json&welcome=0'],
+  ['course', '?course=/assets/demo/training.course.json&welcome=0'],
   ['generated', '?generate=3&welcome=0'],
   ['unlisted', '?course=/assets/demo/lane-1.course.json&welcome=0'],
   ['editor', '?mode=editor'],
@@ -83,11 +83,11 @@ try {
       await page.waitForSelector('#world-gallery .wg-card', { timeout: 15000 });
       await page.waitForTimeout(500);
       const cards = await page.$$eval('#world-gallery .wg-card', (cs) => cs.map((c) => c.dataset.value));
-      ok(`${tag}: gallery lists the worlds (${cards.length})`, cards.length >= 25);
+      ok(`${tag}: gallery lists the worlds (${cards.length})`, cards.length >= 17);
       const heads = await page.$$eval('#world-gallery h3', (hs) => hs.map((h) => h.textContent));
-      ok(`${tag}: groups ${heads.join(', ')}`, ['Real places', 'Contraptions', 'Moves', 'Make your own'].every((g) => heads.includes(g)));
+      ok(`${tag}: groups ${heads.join(', ')}`, ['Start here', 'Real places', 'Contraptions', 'Make your own'].every((g) => heads.includes(g)));
       const here = await page.$$eval('#world-gallery .wg-card[aria-current=true]', (cs) => cs.map((c) => c.dataset.value));
-      const wantHere = { course: '/assets/demo/lache.course.json', generated: 'generate-same', unlisted: 'stay', editor: 'editor', coaster: 'coaster-builder', map: 'map' }[name];
+      const wantHere = { course: '/assets/demo/training.course.json', generated: 'generate-same', unlisted: 'stay', editor: 'editor', coaster: 'coaster-builder', map: 'map' }[name];
       ok(`${tag}: current course is marked (${here.join()})`, wantHere ? here.length === 1 && here[0] === wantHere : here.length === 0);
       ok(`${tag}: the pictures load`, await page.evaluate(() => { const im = [...document.querySelectorAll('#world-gallery .wg-pic img')]; return im.length > 10 && im.filter((i) => i.complete && i.naturalWidth > 0).length >= Math.min(6, im.length); }));
       await page.screenshot({ path: `test-results/picker/${vw}x${vh}-${name}-gallery.png` });
@@ -117,7 +117,7 @@ try {
       }
       // 3. a click on a card lands on that course (the editor, the map and the Course; the others only once)
       if (vw === 1280 && ['course', 'editor', 'map', 'coaster', 'dojo'].includes(name)) {
-        const target = name === 'course' ? '/assets/demo/drop.course.json' : '/assets/demo/climb.course.json';
+        const target = name === 'course' ? '/assets/demo/cannon.course.json' : '/assets/demo/band.course.json';
         await Promise.all([page.waitForURL((u) => u.search.includes(`course=${target}`), { timeout: 30000 }).catch(() => {}), page.click(`#world-gallery .wg-card[data-value="${target}"]`)]);
         ok(`${tag}: picking a card goes to it (${new URL(page.url()).search.slice(0, 60)})`, page.url().includes(`course=${target}`));
         const landed = await page.waitForFunction(() => document.documentElement.dataset.tick !== undefined, null, { timeout: 150000 }).then(() => true, () => false);

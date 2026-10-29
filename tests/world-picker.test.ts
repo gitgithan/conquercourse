@@ -39,8 +39,9 @@ describe('the world picker list (CC-89)', () => {
   });
   it('the current world is found in every mode', () => {
     const at = (q: string, name?: string) => currentWorld(new URLSearchParams(q), name);
-    expect(at('?course=/assets/demo/lache.course.json').value).toBe('/assets/demo/lache.course.json');
-    expect(at('').value).toBe('');
+    expect(at('?course=/assets/demo/training.course.json').value).toBe('/assets/demo/training.course.json');
+    expect(at('?course=/assets/demo/lache.course.json').value).toBe('stay'); // out of the menu, still playable: it gets a This course card
+    expect(at('').value).toBe('stay'); // the stock course is no longer a card: it opens as This course
     expect(at('?generate=5').value).toBe('generate-same');
     expect(at('?course=/assets/demo/lane-1.course.json', 'Lane').value).toBe('stay');
     expect(at('?mode=editor').value).toBe('editor');
@@ -84,5 +85,29 @@ describe('leaving with unsaved editor work', () => {
     const asked = stubWindow(() => true, true);
     expect(mayLeaveCourse()).toBe(true);
     expect(asked).toEqual([LEAVE_MESSAGE]);
+  });
+});
+
+describe('the menu stays small (CC-97)', () => {
+  const courses = DEMOS.filter(([v]) => !WORD_VALUES.includes(v) && v !== '');
+  it('lists about fourteen courses, the Training course first', () => {
+    expect(courses.length).toBeLessThanOrEqual(15);
+    expect(courses[0][0]).toBe('/assets/demo/training.course.json');
+  });
+  it('every listed course has a stored plan or is a coaster, so it can be cleared and compared', () => {
+    for (const [v, label] of courses) {
+      const c = JSON.parse(readFileSync(`public${v}`, 'utf8')) as { plan?: unknown; track?: unknown };
+      expect(Boolean(c.plan || c.track), label).toBe(true);
+    }
+  });
+  it('every picture belongs to a listed course (no orphan pictures)', () => {
+    const slugs = new Set(DEMOS.filter(([v]) => hasThumb(v)).map(([v]) => `${thumbSlug(v)}.webp`));
+    for (const f of readdirSync('public/assets/thumbs')) expect(slugs.has(f), `${f}: delete it or list its course`).toBe(true);
+  });
+  it('courses taken out of the menu still open by their old links', () => {
+    for (const f of ['lache', 'lache-wide', 'climb', 'drop', 'bench-and-stairs', 'skate-box-and-rail', 'coaster-low', 'launch', 'launch-bar-hard', 'recoil', 'plank-thin']) {
+      expect(existsSync(`public/assets/demo/${f}.course.json`), f).toBe(true);
+      expect(DEMOS.some(([v]) => v.endsWith(`/${f}.course.json`)), `${f} should be out of the menu`).toBe(false);
+    }
   });
 });
