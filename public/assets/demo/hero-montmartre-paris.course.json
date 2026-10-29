@@ -1,6 +1,7 @@
 {
   "version": 1,
   "name": "Montmartre steps, Paris: rooftops to the rope",
+  "keepDecks": true,
   "startX": 0,
   "finishX": 80.8,
   "jumpSpeed": 4.5,

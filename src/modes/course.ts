@@ -58,6 +58,7 @@ import { createGrabHint } from '../ui/grab-hint';
 import { slugOfCourse } from '../ui/place-photos';
 import { mountLivePhotos } from '../ui/live-photos';
 import { mountFurniture } from '../render/furniture-view';
+import { mountBackdrop } from '../render/backdrop-view';
 import { FURNITURE_ON } from '../world/furniture';
 import { barName, predictBand, predictLaunch, predictRelease, predictShot, type Prediction } from '../sim/predict';
 import { createTrebuchetView } from '../ui/trebuchet-view';
@@ -167,7 +168,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
   const bandView = course.band ? createBandView(scene, course) : null;
   const droneView = course.drone ? createDroneView(scene, course) : null;
   // a course from the editor draws its real objects instead of blocks: only the start and finish decks stay as ground
-  const realObjects = !!course.scene?.length;
+  const realObjects = !!course.scene?.length && !course.keepDecks && params.get('decks') !== '1';
   const lastPlatform = course.terrain.platforms.length - 1;
   // the decks are merged into one mesh per material (grass, stone, bed): a course with a dozen decks is three draws, not twelve
   const deckParts: Part[] = [];
@@ -586,6 +587,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
   let livePhotos: { update(x: number): void } | null = null; // CC-90: street photos from the allow-list change as the runner moves; the CC-85 strip is the fallback
   if (placeSlug && new URLSearchParams(location.search).get('photos') !== '0') void mountLivePhotos(document.body, course).then((h) => { livePhotos = h; });
   if (placeSlug && FURNITURE_ON(new URLSearchParams(location.search))) void mountFurniture(scene, course); // CC-187: real street furniture, looks only, off by default
+  { const bd = params.get('backdrop'); if (bd) void mountBackdrop(scene, course, bd); } // CC-234: the place's buildings and street furniture behind the hero lane, looks only, off by default
   // CC-197: every short message goes through one stack (new ones below, old ones leave upward); ?toasts=old keeps the single centred toast
   const toastsOld = params.get('toasts') === 'old';
   const toast = document.createElement('div');

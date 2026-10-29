@@ -33,6 +33,7 @@ base.finishX = +(land.x1 - 6).toFixed(1);
 base.terrain.waterY = Math.min(-6, ...P.map((p) => p.top)) - 4;
 (base as { hazard?: string }).hazard = 'lava';
 base.name = `${place.name}: rooftops to the rope`;
+(base as { keepDecks?: boolean }).keepDecks = true; // one photo object on a lane of decks: draw the decks too (CC-234)
 // one photo-lifted CC0 object on the lane (from the Bucharest skatepark photo)
 const obj = park.scene?.find((s) => /box-skate/.test(s.url));
 const mid = P[Math.min(2, P.length - 1)];
