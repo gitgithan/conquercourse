@@ -165,15 +165,19 @@ export function courseHash(course: CourseData): string {
 }
 export const cleanNick = (s: string): string => s.replace(/[^A-Za-z0-9]/g, '').slice(0, 3).toUpperCase();
 
-export interface Challenge { hash: string; nick: string; log: InputLog }
-export async function makeChallengeParam(course: CourseData, log: InputLog, nick = ''): Promise<string> {
-  return `${REPLAY_VERSION}.${courseHash(course)}.${cleanNick(nick)}.${await encodeLog(log)}`;
+// kind 'done': keys that reach the finish. kind 'fell' (CC-181): keys of a try that ended in a fall; the version field then reads "1f", so a build that does not know about it refuses the link.
+export type ChallengeKind = 'done' | 'fell';
+export interface Challenge { hash: string; nick: string; log: InputLog; kind: ChallengeKind }
+export async function makeChallengeParam(course: CourseData, log: InputLog, nick = '', kind: ChallengeKind = 'done'): Promise<string> {
+  return `${REPLAY_VERSION}${kind === 'fell' ? 'f' : ''}.${courseHash(course)}.${cleanNick(nick)}.${await encodeLog(log)}`;
 }
 export type ChallengeRead = { ok: true; challenge: Challenge } | { ok: false; why: 'version' | 'broken' };
 export async function readChallengeParam(param: string): Promise<ChallengeRead> {
   const [v, hash, nick, data, ...rest] = param.split('.');
   if (rest.length || data === undefined) return { ok: false, why: 'broken' };
-  if (Number(v) !== REPLAY_VERSION) return { ok: false, why: 'version' };
+  const m = /^(\d+)(f?)$/.exec(v ?? '');
+  if (!m) return { ok: false, why: 'broken' };
+  if (Number(m[1]) !== REPLAY_VERSION) return { ok: false, why: 'version' };
   if (!/^[a-z0-9]{1,8}$/.test(hash) || !/^[A-Z0-9]{0,3}$/.test(nick)) return { ok: false, why: 'broken' };
-  try { return { ok: true, challenge: { hash, nick, log: await decodeLog(data) } }; } catch { return { ok: false, why: 'broken' }; }
+  try { return { ok: true, challenge: { hash, nick, log: await decodeLog(data), kind: m[2] ? 'fell' : 'done' } }; } catch { return { ok: false, why: 'broken' }; }
 }

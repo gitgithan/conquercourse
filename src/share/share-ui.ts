@@ -27,28 +27,36 @@ export function showBanner(text: string, actions: { label: string; go: () => voi
   if (keepMs > 0) setTimeout(() => el.remove(), keepMs);
 }
 
-/** Buttons for the end-of-run report. Copy link says what happened in the button itself. */
-export function shareButtons(o: { link?: (nick: string) => Promise<string | null>; courseTooBig?: () => Promise<boolean>; clip?: () => void }): HTMLElement[] {
+/** The link buttons: an optional tag box and the main share button. Its words say what happened. A try that fell gets the same button (CC-181). */
+export function copyLinkButton(o: { link: (nick: string) => Promise<string | null>; courseTooBig?: () => Promise<boolean>; label?: string; id?: string }): HTMLElement[] {
+  const label = o.label ?? 'Copy link to challenge a friend';
   const nick = document.createElement('input');
-  nick.id = 'share-nick'; nick.maxLength = 3; nick.placeholder = 'Tag'; nick.size = 4; nick.autocomplete = 'off'; nick.spellcheck = false;
+  nick.maxLength = 3; nick.placeholder = 'Tag'; nick.size = 4; nick.autocomplete = 'off'; nick.spellcheck = false;
+  nick.id = o.id ? `${o.id}-nick` : 'share-nick';
   nick.title = 'Optional: up to three letters, so your friend sees who to beat. Not your real name.';
   nick.setAttribute('aria-label', 'Optional three-letter tag');
   nick.style.cssText = BTN + ';width:4.2em;text-transform:uppercase;text-align:center';
   nick.oninput = () => { nick.value = tidyNick(nick.value); };
-  const copy = button('Copy challenge link', () => {
-    void o.link?.(nick.value).then(async (url) => {
+  const copy = button(label, () => {
+    void o.link(nick.value).then(async (url) => {
       if (!url) {
         const big = nickOk(nick.value) && o.courseTooBig ? await o.courseTooBig() : false;
         copy.textContent = !nickOk(nick.value) ? 'Pick another tag' : big ? 'This course is too big for a link' : 'This run is too long for a link';
-        setTimeout(() => { copy.textContent = 'Copy challenge link'; }, 2500); return; }
+        setTimeout(() => { copy.textContent = label; }, 2500); return; }
       try { await navigator.clipboard.writeText(url); copy.textContent = 'Link copied'; }
       catch { window.prompt('Copy this link', url); copy.textContent = 'Link ready'; }
-      setTimeout(() => { copy.textContent = 'Copy challenge link'; }, 2500);
+      setTimeout(() => { copy.textContent = label; }, 2500);
     });
   });
-  copy.id = 'share-copy';
-  const out: HTMLElement[] = o.link ? [nick, copy] : []; // a run that did not start at the start of the course has a clip but no link (CC-157)
-  if (o.clip) { const c = button('Make a clip', o.clip); c.id = 'share-clip'; out.push(c); }
+  copy.id = o.id ?? 'share-copy';
+  copy.style.cssText = BTN.replace('background:#fff;color:#17201d', 'background:#0f6b5c;color:#fff;font-weight:700'); // the main share action
+  return [nick, copy];
+}
+
+/** Buttons for the end-of-run report. The link is the way to share (it plays the run in the browser); the video is only a download. */
+export function shareButtons(o: { link?: (nick: string) => Promise<string | null>; courseTooBig?: () => Promise<boolean>; clip?: () => void }): HTMLElement[] {
+  const out: HTMLElement[] = o.link ? copyLinkButton({ link: o.link, courseTooBig: o.courseTooBig }) : []; // a run that did not start at the start of the course has a video but no link (CC-157)
+  if (o.clip) { const c = button('Download a video', o.clip); c.id = 'share-clip'; out.push(c); }
   return out;
 }
 
@@ -63,11 +71,8 @@ export function clipCard(): { say(text: string): void; done(blob: Blob, name: st
     done(blob, name, note) {
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
-      a.href = url; a.download = name; a.id = 'clip-download'; a.textContent = 'Download clip'; a.style.cssText = BTN + ';text-decoration:none';
-      const file = new File([blob], name, { type: blob.type || 'video/mp4' });
-      const post = navigator.canShare?.({ files: [file] }) ? button('Share…', () => { void navigator.share({ files: [file], text: 'My run on ConquerCourse. Train slow. Run fast.' }).catch(() => { /* closed the share sheet */ }); }) : null; // phones: straight to the apps (CC-158)
-      if (post) post.id = 'clip-share';
-      say(note); el.append(a, ...(post ? [post] : []), button('Close', () => { el.remove(); URL.revokeObjectURL(url); }));
+      a.href = url; a.download = name; a.id = 'clip-download'; a.textContent = 'Download video'; a.style.cssText = BTN + ';text-decoration:none';
+      say(note); el.append(a, button('Close', () => { el.remove(); URL.revokeObjectURL(url); }));
     },
   };
 }

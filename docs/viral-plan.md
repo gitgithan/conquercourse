@@ -42,7 +42,7 @@
 | Nov 8, 11:59 PM ET | Most Viral deadline | none |
 
 ## How a clip is made
-- In the game: clear a course, then press "Make a clip" on the report.
+- In the game: clear a course, then press "Download a video" on the report (the link is the way to share).
 - It plays the run again on a stepped clock, four ticks a picture, so every computer makes the same clip.
 - A script does the same without a person: `node scripts/share-clip.mjs <challenge link>`.
 - The file is `conquercourse-run.mp4`, 720 by 1280, 30 pictures a second.
@@ -72,7 +72,7 @@
 - The real test is a clip made in the owner's own browser with a real graphics card.
 
 ## Share check list (before the post goes up)
-- Open a challenge link, beat the ghost, press "Make a clip", and watch the file.
+- Open a challenge link, beat the ghost, press "Download a video", and watch the file.
 - Check the tag box: an empty tag, a blocked tag, and a normal tag.
 - Open the link on a phone: the run plays by itself and the notice says to play on a computer.
 - Make one clip on a real graphics card (the owner's own browser) and watch it at full speed; the clip must look smooth there too.
