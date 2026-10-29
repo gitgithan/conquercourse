@@ -30,7 +30,7 @@ export function createGrabHint(scene: THREE.Scene, course: CourseData, enabled =
     },
     update(w: WorldState, holding: boolean, nowMs: number): void {
       const gt = w.wall?.result.grabTick;
-      tip.style.display = enabled && w.mode === 'wall' && !holding && !w.wall?.held && course.wall?.needE !== false && gt != null && w.wall!.index >= gt - 90 && w.wall!.index < gt ? 'block' : 'none';
+      tip.style.display = enabled && w.mode === 'wall' && !holding && !w.wall?.held && course.wall?.needE !== false && gt != null && w.wall!.index >= gt - 40 && w.wall!.index < gt ? 'block' : 'none';
       const t = this.target(w);
       const show = t !== null;
       rim.visible = show;

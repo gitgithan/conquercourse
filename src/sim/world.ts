@@ -283,8 +283,8 @@ export function wallPath(result: WallResult, x0: number, height: number): { x: n
   return out;
 }
 
-// The hands must be on the key for the last half second of the climb, or they miss the edge and the body slides back (CC-168; the course can switch it off with wall.needE = false).
-export const WALL_HOLD_TICKS = 60;
+// The hands must be on the key for the last fifth of a second of the climb, or they miss the edge and the body slides back (CC-168; the course can switch it off with wall.needE = false).
+export const WALL_HOLD_TICKS = 24;
 function stepWall(w: WorldState, input: RunnerInput, course: CourseData): WorldState {
   let wl = w.wall!;
   let path = wl.path;

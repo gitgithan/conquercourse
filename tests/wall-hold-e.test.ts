@@ -30,3 +30,20 @@ describe('the warped wall needs the hands (E)', () => {
     expect(play({ ...fast, wall: { ...fast.wall!, needE: false } } as CourseData, false)).toContain('wall-grab');
   });
 });
+
+// CC-182: missing the top of the warped wall is not a failure: the body slides back to the foot and may run up again, with no respawn.
+describe('a missed warped wall only slides back', () => {
+  it('the run goes on, and a second run up with E held takes the top', () => {
+    let w = newWorld(base, 0);
+    const ev: string[] = [];
+    let slid = false, back = 0;
+    for (let i = 0; i < 120 * 40 && !ev.includes('wall-grab'); i++) {
+      const walkBack = slid && back++ < 300; // after the slide the runner is at the foot with no speed, so it walks back to get a run-up
+      w = stepWorld(w, { ...NO_INPUT, run: !walkBack, left: walkBack, squat: true, handL: slid && !walkBack, handR: slid && !walkBack }, base);
+      for (const e of w.events) { ev.push(e.type); if (e.type === 'wall-slide') { slid = true; expect(w.outcome).toBe('running'); expect(w.runner.x).toBeLessThan(40); } }
+    }
+    expect(slid).toBe(true);
+    expect(w.outcome).toBe('running');
+    expect(ev).toContain('wall-grab');
+  });
+});
