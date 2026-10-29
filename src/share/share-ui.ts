@@ -28,7 +28,7 @@ export function showBanner(text: string, actions: { label: string; go: () => voi
 }
 
 /** Buttons for the end-of-run report. Copy link says what happened in the button itself. */
-export function shareButtons(o: { link: (nick: string) => Promise<string | null>; clip?: () => void }): HTMLElement[] {
+export function shareButtons(o: { link: (nick: string) => Promise<string | null>; courseTooBig?: () => Promise<boolean>; clip?: () => void }): HTMLElement[] {
   const nick = document.createElement('input');
   nick.id = 'share-nick'; nick.maxLength = 3; nick.placeholder = 'Tag'; nick.size = 4; nick.autocomplete = 'off'; nick.spellcheck = false;
   nick.title = 'Optional: up to three letters, so your friend sees who to beat. Not your real name.';
@@ -37,7 +37,10 @@ export function shareButtons(o: { link: (nick: string) => Promise<string | null>
   nick.oninput = () => { nick.value = tidyNick(nick.value); };
   const copy = button('Copy challenge link', () => {
     void o.link(nick.value).then(async (url) => {
-      if (!url) { copy.textContent = nickOk(nick.value) ? 'This run is too long for a link' : 'Pick another tag'; setTimeout(() => { copy.textContent = 'Copy challenge link'; }, 2500); return; }
+      if (!url) {
+        const big = nickOk(nick.value) && o.courseTooBig ? await o.courseTooBig() : false;
+        copy.textContent = !nickOk(nick.value) ? 'Pick another tag' : big ? 'This course is too big for a link' : 'This run is too long for a link';
+        setTimeout(() => { copy.textContent = 'Copy challenge link'; }, 2500); return; }
       try { await navigator.clipboard.writeText(url); copy.textContent = 'Link copied'; }
       catch { window.prompt('Copy this link', url); copy.textContent = 'Link ready'; }
       setTimeout(() => { copy.textContent = 'Copy challenge link'; }, 2500);
