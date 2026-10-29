@@ -53,10 +53,15 @@ describe('place photos (CC-85)', () => {
       it('every photo is listed in docs/ASSETS.md with its author and licence', () => {
         const assets = readFileSync('docs/ASSETS.md', 'utf8');
         for (const p of d.photos) {
-          const row = assets.split('\n').find((l) => l.includes(`public/assets/places/${place.slug}/${p.file}`));
-          expect(row, `${place.slug}/${p.file}`).toBeTruthy();
-          expect(row!, p.file).toContain(p.licence);
-          expect(row!, p.file).toContain(p.author.split(' ')[0]);
+          // A row is the bullet with the file name plus its indented lines (photo, author, source, licence).
+          const lines = assets.split('\n');
+          const at = lines.findIndex((l) => l.includes(`public/assets/places/${place.slug}/${p.file}`));
+          expect(at, `${place.slug}/${p.file}`).toBeGreaterThanOrEqual(0);
+          let end = at + 1;
+          while (end < lines.length && /^\s+/.test(lines[end])) end++;
+          const row = lines.slice(at, end).join('\n');
+          expect(row, p.file).toContain(p.licence);
+          expect(row, p.file).toContain(p.author.split(' ')[0]);
         }
       });
     });
