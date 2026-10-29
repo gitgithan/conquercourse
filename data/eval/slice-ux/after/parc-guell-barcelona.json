@@ -1,0 +1,35 @@
+{
+  "slug": "parc-guell-barcelona",
+  "k": 0.2,
+  "range": 70,
+  "rows": [
+    {
+      "realCut": 6,
+      "previewCleared": false
+    },
+    {
+      "realCut": 17.5,
+      "previewCleared": false
+    },
+    {
+      "realCut": 29,
+      "previewCleared": true,
+      "builtCleared": true
+    },
+    {
+      "realCut": 41,
+      "previewCleared": true,
+      "builtCleared": true
+    },
+    {
+      "realCut": 52.5,
+      "previewCleared": true,
+      "builtCleared": true
+    },
+    {
+      "realCut": 64,
+      "previewCleared": true,
+      "builtCleared": true
+    }
+  ]
+}

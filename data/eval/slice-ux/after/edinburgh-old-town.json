@@ -1,0 +1,34 @@
+{
+  "slug": "edinburgh-old-town",
+  "k": 0.2,
+  "range": 36,
+  "rows": [
+    {
+      "realCut": 3,
+      "previewCleared": false
+    },
+    {
+      "realCut": 9,
+      "previewCleared": false
+    },
+    {
+      "realCut": 15,
+      "previewCleared": false
+    },
+    {
+      "realCut": 21,
+      "previewCleared": true,
+      "builtCleared": true
+    },
+    {
+      "realCut": 27,
+      "previewCleared": true,
+      "builtCleared": true
+    },
+    {
+      "realCut": 33,
+      "previewCleared": true,
+      "builtCleared": true
+    }
+  ]
+}

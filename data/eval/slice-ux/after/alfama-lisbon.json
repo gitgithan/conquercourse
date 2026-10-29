@@ -1,0 +1,36 @@
+{
+  "slug": "alfama-lisbon",
+  "k": 0.2,
+  "range": 57,
+  "rows": [
+    {
+      "realCut": 5,
+      "previewCleared": false
+    },
+    {
+      "realCut": 14.5,
+      "previewCleared": true,
+      "builtCleared": true
+    },
+    {
+      "realCut": 24,
+      "previewCleared": true,
+      "builtCleared": true
+    },
+    {
+      "realCut": 33.5,
+      "previewCleared": true,
+      "builtCleared": true
+    },
+    {
+      "realCut": 43,
+      "previewCleared": true,
+      "builtCleared": true
+    },
+    {
+      "realCut": 52.5,
+      "previewCleared": true,
+      "builtCleared": true
+    }
+  ]
+}

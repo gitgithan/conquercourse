@@ -114,3 +114,7 @@ export function piecesFrom(tops: Top[], picked: ReadonlySet<number>, k: number, 
   });
   return out;
 }
+
+// The lane the map hands to the editor (CC-179). The editor's levels are in the shrunk place, but the cut height on the panel is in real metres:
+// the hand-over used to send the real metres, so the editor read the lane from a roof k times too high and said "no path" for a lane the map had cleared.
+export const handoverLane = (l: { angle: number; offset: number }, cutRealM: number, k: number) => ({ angle: l.angle, offset: l.offset, level: Math.round(cutRealM * k * 1000) / 1000 });

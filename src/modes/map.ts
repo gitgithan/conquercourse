@@ -7,11 +7,12 @@ import { buildingsFrom, extrude, osmToMesh, type OverpassAnswer } from '../world
 import { installPlaces } from './map-place';
 import type { PlaceLane } from '../world/places';
 import { fetchGround, lowest, relief, TERRAIN_ATTRIBUTION, type Ground, type Tile } from '../world/terrain';
-import { buildingTops, contourSegments, cutBuildings, cutRange, ladderLevels, ladderStep, laneLine, piecesFrom, resample, slopeCells, toLonLat, type Seg } from '../slice/slicer';
+import { buildingTops, contourSegments, cutBuildings, cutRange, handoverLane, ladderLevels, ladderStep, laneLine, piecesFrom, resample, slopeCells, toLonLat, type MapPiece, type Seg } from '../slice/slicer';
 import { reducedMotion, runFlight, scaleWords } from './map-flight';
 import { loadPhotoIndex, loadPlacePhotos, mountPlacePhotos, nearestPlace, type PhotosHandle } from '../ui/place-photos';
 import type { LaneSummary, SliceAnswer, SliceAsk, StripRow } from '../slice/slicer-worker';
 import { whyNot } from '../slice/why';
+import { explainNoPath, type Suggestion } from '../slice/suggest';
 import { createPerf } from '../ui/perf';
 
 export const PIECE_KEY = 'cc.map.piece';
@@ -35,6 +36,8 @@ async function decodePng(png: ArrayBuffer): Promise<Tile> {
 export function startMap(host: HTMLElement): { backend: 'webgl2' } {
   maplibregl.setWorkerUrl(workerUrl); // Vite's dev server cannot find the worker by itself
   const q = new URLSearchParams(location.search);
+  const OLD = q.get('slicewords') === 'old'; // CC-179: ?slicewords=old keeps the long text
+  const W = (short: string, long: string) => (OLD ? long : short);
   const style = document.createElement('style');
   style.textContent = `
     .mp{font:14px/1.35 system-ui,sans-serif;color:#17201d;position:fixed;inset:0;display:grid;grid-template-columns:minmax(0,1fr) 280px}
@@ -45,6 +48,7 @@ export function startMap(host: HTMLElement): { backend: 'webgl2' } {
     .mp [hidden]{display:none!important}
     .mp .map{position:relative}.mp .fcap{position:absolute;left:10px;bottom:34px;max-width:70%;background:rgba(23,32,29,.86);color:#fff;padding:6px 10px;border-radius:8px;font-size:14px;z-index:6}
     .mp .fskip{position:absolute;left:10px;top:84px;z-index:6}
+    .mp .legend{display:flex;flex-wrap:wrap;gap:2px 8px;font-size:11px;color:#58635d}.mp .legend i{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:3px;vertical-align:-1px}.mp .legend span{cursor:help}.mp .fix{display:grid;gap:3px;margin-top:4px}.mp .fix button{text-align:left}.mp details summary{cursor:pointer;font-size:12px;color:#58635d}
     .mp .hits{display:grid;gap:4px}.mp .hits button{text-align:left}.mp .say{border-left:4px solid #0f6b5c;padding:3px 6px;background:#f3f7f4;font-size:13px}.mp .say.bad{border-color:#c0392b;background:#fbeeee}
     @media(max-width:700px){.mp{grid-template-columns:minmax(0,1fr) 220px}}`;
   document.head.appendChild(style);
@@ -64,24 +68,36 @@ export function startMap(host: HTMLElement): { backend: 'webgl2' } {
     <button id="build" class="go" disabled>Build this place</button>
     <button id="slice" disabled>Slice this place</button>
     <div id="slicer" hidden>
-      <b>The Slicer</b>
+      <b>${W('The Slicer', 'Slice')}</b>
       <div style="display:grid;grid-template-columns:auto 1fr;gap:10px;align-items:center;margin:6px 0">
-        <input type="range" id="cut" min="0" max="40" step="0.5" value="10" aria-label="Cut height" style="writing-mode:vertical-lr;direction:rtl;height:170px;width:28px">
-        <div style="display:grid;gap:6px"><div>Cut height: <b id="cutv">0</b> m</div><div class="muted">metres above the lowest ground, real size</div><button id="ladder" type="button">Contour ladder</button></div>
+        <input type="range" id="cut" min="0" max="40" step="0.5" value="10" aria-label="Cut height" title="${W('Drag to cut the place at another height', 'Drag to cut the place at another height. The runner starts the lane at this height.')}" style="writing-mode:vertical-lr;direction:rtl;height:170px;width:28px">
+        <div style="display:grid;gap:6px"><div>${W('Cut height: <b id="cutv">0</b> m', 'Cut height: <b id="cutv">0</b> m')}</div><div class="muted">${W('where the lane starts', 'metres above the lowest ground, real size')}</div><button id="ladder" type="button">${W('Height lines', 'Contour ladder')}</button></div>
       </div>
-      <div id="sliceread" class="say">Pick a place, press Slice.</div>
+      <div id="sliceread" class="say">${W('Press Slice.', 'Pick a place, press Slice.')}</div>
       <div id="slicewhy" class="muted" style="white-space:pre-line"></div>
-      <div class="muted" id="tourhelp">The green line is the best of 18 turns and up to 15 sideways steps at this height: the simulator tries the ones with the most different things on them first (a gap, a step, a curve, a wall) and keeps the first it can clear. Drag the white dots to turn it or move it: the dot in the middle moves the whole line.</div>
-      <button id="tourreset" type="button" hidden>Back to the suggested line</button>
-      <div class="muted" id="stripcap" hidden>Heights to try: green looks crossable, amber has a gap or wall in the way, red has no lane. Click one.</div>
+      <div class="muted" id="stripcap" hidden>${W('Try a height:', 'Heights to try: green looks crossable, amber has a gap or wall in the way, red has no lane. Click one.')}</div>
       <div id="cutstrip" style="display:flex;gap:2px;flex-wrap:wrap"></div>
-      <div id="scalewords" class="say"></div>
-      <b>Pick the buildings</b>
-      <div class="muted">Click a building to leave it out or put it back. Hold Shift and drag to pick a box (Alt takes buildings out).</div>
+      <div id="slicelegend" class="legend" ${OLD ? 'hidden' : ''}>
+        <span title="The lane the runner takes. Dashed: the simulator is still checking it."><i style="background:#0f6b5c"></i>lane (dashed: checking)</span>
+        <span title="Where the ground is exactly this high."><i style="background:#d35400"></i>ground at this height</span>
+        <span title="Buildings the cut goes through: you see their floor plan."><i style="background:#e8622c"></i>cut buildings</span>
+        <span title="The part of a building above the cut."><i style="background:#c9cfcb"></i>above the cut</span>
+        <span title="Heights to try. Shape only, the simulator has not checked them."><i style="background:#cfe8d8"></i>can jump this</span>
+        <span title="A gap too wide or a wall too tall on the best line."><i style="background:#f3d9a8"></i>gap or wall in the way</span>
+        <span title="No line a runner could use."><i style="background:#e6c4c0"></i>no lane</span>
+        <span title="Tint under the map: green is flat, red is steep."><i style="background:linear-gradient(90deg,#7fbf7b,#f1e27a,#e8622c,#a50f15)"></i>ground: flat to steep</span>
+      </div>
+      <b>${W('Buildings', 'Pick the buildings')}</b>
       <div id="pickcount" class="muted"></div>
-      <div style="display:flex;gap:6px;flex-wrap:wrap"><button id="pickall" type="button">Pick all</button><button id="pickclear" type="button">Clear</button></div>
-      <button id="buildpieces" class="go" type="button">Build the picked buildings</button>
-      <div class="muted">Orange line: the ground at this height. Orange blocks: buildings the cut goes through (their floor plan). Faded: above the cut. Green line: the lane the Course would use at this height. Tint under the map: red is steep.</div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap"><button id="pickall" type="button">${W('All', 'Pick all')}</button><button id="pickclear" type="button">Clear</button></div>
+      <button id="buildpieces" class="go" type="button">${W('Send to the editor', 'Build the picked buildings')}</button>
+      <details id="slicemore" ${OLD ? 'open' : ''}><summary>${W('More', 'Details')}</summary>
+        <div class="muted" id="tourhelp">${W('The green line is the best lane at this height. Drag its white dots to turn or move it.', 'The green line is the best of 18 turns and up to 15 sideways steps at this height: the simulator tries the ones with the most different things on them first (a gap, a step, a curve, a wall) and keeps the first it can clear. Drag the white dots to turn it or move it: the dot in the middle moves the whole line.')}</div>
+        <button id="tourreset" type="button" hidden>${W('Back to the suggested line', 'Back to the suggested line')}</button>
+        <div id="scalewords" class="say"></div>
+        <div class="muted">${W('Click a building to leave it out or put it back. Shift and drag picks a box (Alt removes).', 'Click a building to leave it out or put it back. Hold Shift and drag to pick a box (Alt takes buildings out).')}</div>
+        ${OLD ? '<div class="muted">Orange line: the ground at this height. Orange blocks: buildings the cut goes through (their floor plan). Faded: above the cut. Green line: the lane the Course would use at this height. Tint under the map: red is steep.</div>' : ''}
+      </details>
     </div>
     <div id="say" class="say">No pin yet.</div>
     <a class="btn" href="?mode=editor">Back to the editor</a>
@@ -184,7 +200,7 @@ export function startMap(host: HTMLElement): { backend: 'webgl2' } {
     build.disabled = false;
   };
   // ---- the Slicer (CC-73, Atlas CC-72): a cut height slider; contours, floor plans and the lane at that height
-  interface SliceState { picked: Set<number>; answer: OverpassAnswer; lat: number; lon: number; r: number; k: number; ground: Ground | null; fine: Ground | null; tops: ReturnType<typeof buildingTops>; mesh: { positions: number[]; indices: number[] }; range: number }
+  interface SliceState { picked: Set<number>; answer: OverpassAnswer; lat: number; lon: number; r: number; k: number; ground: Ground | null; fine: Ground | null; tops: ReturnType<typeof buildingTops>; mesh: { positions: number[]; indices: number[] }; pieces: MapPiece[]; range: number }
   let S: SliceState | null = null, sliceWorker: Worker | null = null, laneToken = 0, laneTimer = 0, layersReady = false;
   const laneCache = new Map<string, { quick: LaneSummary | null; proved: LaneSummary | null | undefined }>();
   const empty = { type: 'FeatureCollection' as const, features: [] as unknown[] };
@@ -269,12 +285,12 @@ export function startMap(host: HTMLElement): { backend: 'webgl2' } {
   let shownLane: { c: number; l: LaneSummary; proved: boolean } | null = null; // the lane on the screen: this is the one the editor gets
   function showLane(c: number, quick: LaneSummary | null, proved: LaneSummary | null | undefined) {
     shownLane = proved ? { c, l: proved, proved: true } : quick ? { c, l: quick, proved: false } : null;
-    const head = `Cut at ${num1(c)} m: `;
-    if (proved) { drawLane(proved, true); read.textContent = `${head}the lane is ${Math.round(proved.length)} m long in the game, clearable.`; dset('sliceLane', 'clearable'); dset('sliceLaneLength', Math.round(proved.length)); }
-    else if (proved === null && quick) { drawLane(quick, false); read.textContent = `${head}a lane of ${Math.round(quick.length)} m, but the simulator could not clear it.`; dset('sliceLane', 'not-clearable'); }
-    else if (proved === null) { drawLane(null, false); read.textContent = `${head}no lane here (too short, too steep, or nothing to run on).`; dset('sliceLane', 'none'); }
-    else if (quick) { drawLane(quick, false); read.textContent = `${head}a lane of ${Math.round(quick.length)} m; checking that it can be cleared…`; dset('sliceLane', 'checking'); }
-    else { drawLane(null, false); read.textContent = `${head}looking for a lane…`; dset('sliceLane', 'working'); }
+    const head = OLD ? `Cut at ${num1(c)} m: ` : `${num1(c)} m: `;
+    if (proved) { drawLane(proved, true); read.textContent = OLD ? `${head}the lane is ${Math.round(proved.length)} m long in the game, clearable.` : `${head}${Math.round(proved.length)} m lane, a path exists.`; dset('sliceLane', 'clearable'); dset('sliceLaneLength', Math.round(proved.length)); }
+    else if (proved === null && quick) { drawLane(quick, false); read.textContent = OLD ? `${head}a lane of ${Math.round(quick.length)} m, but the simulator could not clear it.` : `${head}${Math.round(quick.length)} m lane, but no path found.`; dset('sliceLane', 'not-clearable'); }
+    else if (proved === null) { drawLane(null, false); read.textContent = OLD ? `${head}no lane here (too short, too steep, or nothing to run on).` : `${head}no lane here.`; dset('sliceLane', 'none'); }
+    else if (quick) { drawLane(quick, false); read.textContent = OLD ? `${head}a lane of ${Math.round(quick.length)} m; checking that it can be cleared…` : `${head}${Math.round(quick.length)} m lane, checking…`; dset('sliceLane', 'checking'); }
+    else { drawLane(null, false); read.textContent = OLD ? `${head}looking for a lane…` : `${head}looking…`; dset('sliceLane', 'working'); }
     lastLane = { c, quick, proved };
     showWhy(c, quick, proved);
     if (proved !== undefined) askStrip();
@@ -295,7 +311,7 @@ export function startMap(host: HTMLElement): { backend: 'webgl2' } {
     for (const x of strip.cells) {
       const b = document.createElement('button'); b.type = 'button'; b.textContent = String(x.real);
       const f = x.facts;
-      b.title = x.lane && f ? `Cut at ${x.real} m: lane ${Math.round(f.lengthM)} m, widest gap ${f.widestGapM.toFixed(1)} m, tallest step ${f.tallestStepM.toFixed(1)} m, ${Math.round(f.solidShare * 100)}% of it has ground under it.` : `Cut at ${x.real} m: no lane a runner could use.`;
+      b.title = OLD ? (x.lane && f ? `Cut at ${x.real} m: lane ${Math.round(f.lengthM)} m, widest gap ${f.widestGapM.toFixed(1)} m, tallest step ${f.tallestStepM.toFixed(1)} m, ${Math.round(f.solidShare * 100)}% of it has ground under it.` : `Cut at ${x.real} m: no lane a runner could use.`) : (x.lane && f ? `Cut at ${x.real} m: ${x.crossable ? 'looks crossable' : 'something is in the way'}. Lane ${Math.round(f.lengthM)} m, widest gap ${f.widestGapM.toFixed(1)} m, tallest wall ${f.tallestStepM.toFixed(1)} m. Click to try it.` : `Cut at ${x.real} m: no lane. Click to try it.`);
       b.style.cssText = `padding:2px 6px;font:600 12px system-ui,sans-serif;border:1px solid #17201d33;border-radius:6px;cursor:pointer;background:${x.crossable ? '#cfe8d8' : x.lane ? '#f3d9a8' : '#e6c4c0'}`;
       b.onclick = () => { cut.value = String(x.real); cut.dispatchEvent(new Event('input')); cut.dispatchEvent(new Event('change')); };
       stripEl.append(b);
@@ -316,9 +332,34 @@ export function startMap(host: HTMLElement): { backend: 'webgl2' } {
     };
     stripWorker.postMessage({ id: my, positions: S.mesh.positions, indices: S.mesh.indices, level: 0, strip: reals.map((c) => c * S!.k) } satisfies SliceAsk);
   }
+  const setCut = (v: number) => { cut.value = String(v); cut.dispatchEvent(new Event('input')); cut.dispatchEvent(new Event('change')); };
+  function runSuggestion(a: Suggestion['action']) {
+    if (a.kind === 'cut') setCut(a.value);
+    else if (a.kind === 'shrink') { shrink.value = String(a.value); $('shrinkv').textContent = String(a.value); shrink.dispatchEvent(new Event('change')); }
+    else if (a.kind === 'pickall') $('pickall').click();
+  }
+  // CC-179: one plain reason and up to three ranked fixes from built-in rules (src/slice/suggest.ts), no language model
+  function showWhyNew(c: number, quick: LaneSummary | null) {
+    if (!S) return;
+    const a = explainNoPath({ facts: quick?.facts ?? null, k: S.k, cut: c, strip: (strip?.cells ?? []).map((x) => ({ real: x.real, lane: x.lane, crossable: x.crossable })), picked: S.picked.size, total: S.tops.length });
+    const reason = document.createElement('div'); reason.className = 'say bad'; reason.textContent = a.reason; whyEl.append(reason);
+    if (a.suggestions.length) {
+      const box = document.createElement('div'); box.className = 'fix';
+      const h = document.createElement('div'); h.textContent = 'Try one of these:'; box.append(h);
+      a.suggestions.forEach((sg, n) => {
+        const row = document.createElement('div');
+        if (sg.action.kind === 'drag') row.textContent = `${n + 1}. ${sg.text}`;
+        else { const b = document.createElement('button'); b.type = 'button'; b.className = 'sugg'; b.textContent = `${n + 1}. ${sg.text}`; b.title = 'Click: change it and check again'; b.onclick = () => runSuggestion(sg.action); row.append(b); }
+        box.append(row);
+      });
+      whyEl.append(box);
+    }
+    dset('sliceWhy', a.reason); dset('sliceWhyKind', a.kind); dset('sliceFixes', JSON.stringify(a.suggestions.map((x) => x.action)));
+  }
   function showWhy(c: number, quick: LaneSummary | null, proved: LaneSummary | null | undefined) {
     whyEl.replaceChildren();
     if (proved !== null) return; // cleared, or still working
+    if (!OLD) { showWhyNew(c, quick); return; }
     const lines = quick?.facts ? whyNot(quick.facts).lines : ['No lane here: every line across this cut meets a wall taller than a climb, a fall longer than a roll survives, or too little to run on.'];
     whyEl.append(document.createTextNode(lines.join('\n')));
     const best = nearestCrossable(c);
@@ -396,7 +437,7 @@ export function startMap(host: HTMLElement): { backend: 'webgl2' } {
       if (a.phase === 'quick') { quick = a.lane; laneCache.set(key, { quick, proved: undefined }); showLane(c, quick, undefined); }
       else { laneCache.set(key, { quick, proved: a.lane }); showLane(c, quick, a.lane); }
     };
-    sliceWorker.postMessage({ id: my, positions: S.mesh.positions, indices: S.mesh.indices, level: c * S.k, ...(custom ? { custom } : {}) } satisfies SliceAsk);
+    sliceWorker.postMessage({ id: my, positions: S.mesh.positions, indices: S.mesh.indices, level: c * S.k, pieces: S.pieces, ...(custom ? { custom } : {}) } satisfies SliceAsk);
   }
 
   const cutChanged = (instant: boolean) => {
@@ -412,6 +453,7 @@ export function startMap(host: HTMLElement): { backend: 'webgl2' } {
     const answer = S.answer, k = Number(shrink.value), bs = buildingsFrom(answer, S.lat, S.lon);
     S.k = k; S.tops = buildingTops(bs, k, S.ground);
     const picked = S.picked, m = extrude(S.tops.filter((_, i) => picked.has(i)).map((t) => t.b), k, S.ground); S.mesh = { positions: m.positions, indices: m.indices };
+    S.pieces = piecesFrom(S.tops, picked, k, S.ground); // the very pieces "Send to the editor" hands over: the check reads the lane from them (CC-179)
     $('scalewords').textContent = scaleWords(S.r, k, bs.length ? bs.map((b) => b.h).sort((a, b2) => a - b2)[Math.floor(bs.length / 2)] : 9);
     S.range = cutRange(S.tops, S.ground);
   }
@@ -500,9 +542,9 @@ export function startMap(host: HTMLElement): { backend: 'webgl2' } {
   // step 4: the picked buildings go to the editor as separate pieces, with the camera heading and tilt the player ended on
   $('buildpieces').onclick = () => {
     if (!S) return;
-    const pieces = piecesFrom(S.tops, S.picked, S.k, S.ground);
+    const pieces = S.pieces;
     if (!pieces.length) { tell('Pick at least one building first.', true); return; }
-    const lane = shownLane && shownLane.c === Number(cut.value) ? { angle: shownLane.l.angle, offset: shownLane.l.offset, level: shownLane.c, from: shownLane.proved ? 'slicer' : 'slicer-unproved' } : undefined;
+    const lane = shownLane && shownLane.c === Number(cut.value) ? { ...handoverLane(shownLane.l, shownLane.c, S.k), from: shownLane.proved ? 'slicer' : 'slicer-unproved' } : undefined;
     try { sessionStorage.setItem(PIECE_KEY, JSON.stringify({ name: 'Place', pieces, ...(lane ? { lane } : {}), camera: { heading: map.getBearing(), pitch: map.getPitch(), distance: Math.max(12, S.r * S.k * 1.8) } })); } catch { tell('That is too many buildings to hand over at once. Pick fewer.', true); return; }
     dset('handover', pieces.length);
     mapEl.style.transition = 'opacity .4s'; mapEl.style.opacity = '0.2';
@@ -518,7 +560,7 @@ export function startMap(host: HTMLElement): { backend: 'webgl2' } {
       if (!o) { sliceBtn.disabled = false; return; }
       const r = o.radius, answer = o.answer, ground = o.ground;
       if (!buildingsFrom(answer, pin.lat, pin.lon).length && !ground) { tell('Nothing to slice here. Move the pin and try again.', true); sliceBtn.disabled = false; return; }
-      S = { picked: new Set(), answer, lat: pin.lat, lon: pin.lon, r, k: Number(shrink.value), ground, fine: ground ? resample(ground, 4) : null, tops: [], mesh: { positions: [], indices: [] }, range: 0 };
+      S = { picked: new Set(), answer, lat: pin.lat, lon: pin.lon, r, k: Number(shrink.value), ground, fine: ground ? resample(ground, 4) : null, tops: [], mesh: { positions: [], indices: [] }, pieces: [], range: 0 };
       rebuild(); S.picked = new Set(S.tops.keys()); rebuild();
       if (!map.isStyleLoaded()) await new Promise<void>((res) => map.once('idle', () => res()));
       ensureLayers();

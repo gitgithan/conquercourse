@@ -1,0 +1,36 @@
+{
+  "slug": "bryant-park-new-york",
+  "k": 0.2,
+  "range": 43,
+  "rows": [
+    {
+      "realCut": 3.5,
+      "previewCleared": false
+    },
+    {
+      "realCut": 11,
+      "previewCleared": true,
+      "builtCleared": true
+    },
+    {
+      "realCut": 18,
+      "previewCleared": true,
+      "builtCleared": true
+    },
+    {
+      "realCut": 25,
+      "previewCleared": true,
+      "builtCleared": true
+    },
+    {
+      "realCut": 32.5,
+      "previewCleared": true,
+      "builtCleared": true
+    },
+    {
+      "realCut": 39.5,
+      "previewCleared": true,
+      "builtCleared": true
+    }
+  ]
+}

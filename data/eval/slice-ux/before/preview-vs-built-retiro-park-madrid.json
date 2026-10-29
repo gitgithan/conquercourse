@@ -1,0 +1,53 @@
+[
+  {
+    "slug": "retiro-park-madrid",
+    "k": 0.2,
+    "range": 16,
+    "rows": [
+      {
+        "realCut": 1.5,
+        "level": 0.30000000000000004,
+        "previewCleared": false,
+        "ms": 4877
+      },
+      {
+        "realCut": 4,
+        "level": 0.8,
+        "previewCleared": false,
+        "ms": 5036
+      },
+      {
+        "realCut": 6.5,
+        "level": 1.3,
+        "previewCleared": true,
+        "ms": 21646,
+        "builtSameLevel": true,
+        "builtOldHandover": true
+      },
+      {
+        "realCut": 9.5,
+        "level": 1.9000000000000001,
+        "previewCleared": true,
+        "ms": 17895,
+        "builtSameLevel": true,
+        "builtOldHandover": true
+      },
+      {
+        "realCut": 12,
+        "level": 2.4000000000000004,
+        "previewCleared": true,
+        "ms": 2606,
+        "builtSameLevel": true,
+        "builtOldHandover": false
+      },
+      {
+        "realCut": 14.5,
+        "level": 2.9000000000000004,
+        "previewCleared": true,
+        "ms": 1486,
+        "builtSameLevel": true,
+        "builtOldHandover": false
+      }
+    ]
+  }
+]

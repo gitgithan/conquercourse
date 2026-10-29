@@ -1,0 +1,51 @@
+[
+  {
+    "slug": "tuileries-paris",
+    "k": 0.2,
+    "range": 18,
+    "rows": [
+      {
+        "realCut": 1.5,
+        "level": 0.30000000000000004,
+        "previewCleared": false,
+        "ms": 1351
+      },
+      {
+        "realCut": 4.5,
+        "level": 0.9,
+        "previewCleared": false,
+        "ms": 936
+      },
+      {
+        "realCut": 7.5,
+        "level": 1.5,
+        "previewCleared": false,
+        "ms": 1017
+      },
+      {
+        "realCut": 10.5,
+        "level": 2.1,
+        "previewCleared": true,
+        "ms": 17084,
+        "builtSameLevel": true,
+        "builtOldHandover": false
+      },
+      {
+        "realCut": 13.5,
+        "level": 2.7,
+        "previewCleared": true,
+        "ms": 13865,
+        "builtSameLevel": true,
+        "builtOldHandover": false
+      },
+      {
+        "realCut": 16.5,
+        "level": 3.3000000000000003,
+        "previewCleared": true,
+        "ms": 27586,
+        "builtSameLevel": false,
+        "builtOldHandover": false
+      }
+    ]
+  }
+]
