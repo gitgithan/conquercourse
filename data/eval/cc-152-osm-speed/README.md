@@ -26,3 +26,17 @@
 - The site's cache is per data centre, so warm it from the machine the demo will use.
 - A cache shared across data centres needs a database table and a deploy, which need the product owner's yes.
 - Faster query shapes (bbox, `qt` ordering) were not tried yet.
+
+## Other query shapes (`variants/variants.json`)
+- Seven shapes asked of the same seven places, all servers at once, 40 s limit, one run each.
+- Answers received out of 7: baseline 3, no relations 6, box 5, box without relations 5, `qt` order 3, box with `qt` 3, box without tags 4.
+- The same place failed under one shape and worked under another, so one run each is mostly noise from the servers, not from the query.
+- A box covers a larger square than the circle, so it returns different buildings (New York 263 against 199), so it is not a drop-in.
+- Dropping relations answered most often, but it loses buildings drawn as several parts, so it was not adopted.
+- Decision: the query is unchanged; no shape is clearly faster.
+- To decide properly, repeat each shape 5 times at different hours.
+
+## Six more ready places (parks)
+- Park Güell, Tuileries, Retiro, Bryant Park, Gas Works Park and Dolores Park were built with `scripts/make-places.ts` on VM2.
+- Each has a lane the simulator cleared (22 to 97 m); `tests/places.test.ts` passes (15) and `scripts/map-places-check.mjs` passes 15 of 15 with 18 places.
+- The data holds building outlines only, so rails, benches and low walls come from the pieces on the lane, not from the map.
