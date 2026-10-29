@@ -1,0 +1,20 @@
+{
+  "photo": "planter-concrete",
+  "status": 200,
+  "usage": {
+    "prompt_tokens": 1742,
+    "completion_tokens": 1041,
+    "total_tokens": 2783,
+    "prompt_tokens_details": {
+      "audio_tokens": 0,
+      "cached_tokens": 128
+    },
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": 691,
+      "audio_tokens": 0,
+      "reasoning_tokens": 966,
+      "rejected_prediction_tokens": 1759
+    }
+  },
+  "reply": "{\"score\": 2, \"problems\": [\"multiple objects in frame - second planter cropped in foreground, central planter not isolated\", \"thin wooden trellis with narrow slats behind planter\", \"angled three-quarter top-down view not flat side-on\", \"background clutter from wall and pavement\"], \"verdict\": \"poor\"}"
+}

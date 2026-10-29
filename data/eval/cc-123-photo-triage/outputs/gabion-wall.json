@@ -1,0 +1,20 @@
+{
+  "photo": "gabion-wall",
+  "status": 200,
+  "usage": {
+    "prompt_tokens": 1788,
+    "completion_tokens": 854,
+    "total_tokens": 2642,
+    "prompt_tokens_details": {
+      "audio_tokens": 0,
+      "cached_tokens": 128
+    },
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": 600,
+      "audio_tokens": 0,
+      "reasoning_tokens": 775,
+      "rejected_prediction_tokens": 1171
+    }
+  },
+  "reply": "{\"score\":2,\"problems\":[\"object cropped - ends extend out of frame, whole wall not visible\",\"clutter and occlusion from vegetation growing on wall, pipe in foreground and railing on top\",\"oblique elevated perspective, not a flat side-on view\",\"thin wire mesh cages are hard to reconstruct cleanly\"],\"verdict\":\"poor\"}"
+}
