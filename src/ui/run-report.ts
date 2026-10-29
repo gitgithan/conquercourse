@@ -1,0 +1,213 @@
+// The end-of-run report (CC-97): what happened, drawn on the course, next to the best line the simulator found. Facts only: no scores, no grades.
+// The path and the moves come from a RunLog filled every tick; the best line is the stored plan played again (the same ideal run as Shift+I).
+import type { CourseData } from '../course/course';
+import { CLIMB_COST } from '../sim/climb';
+import { JUMP_COST, VAULT_COST } from '../sim/energy';
+import { inputFor } from '../sim/ideal';
+import { GROUND_ROLL_COST } from '../sim/roll';
+import { newWorld, stepWorld, type WorldState } from '../sim/world';
+import { ZONE_ICONS } from './zone-icons';
+
+export type MoveKind = 'jump' | 'vault' | 'climb' | 'roll' | 'grab' | 'bounce' | 'fire';
+export interface LoggedMove { kind: MoveKind; x: number; y: number }
+export interface RunLog { path: { x: number; y: number }[]; moves: LoggedMove[] }
+export const newLog = (): RunLog => ({ path: [], moves: [] });
+export const clearLog = (l: RunLog) => { l.path.length = 0; l.moves.length = 0; };
+
+const MOVE_OF: Record<string, MoveKind | undefined> = { jump: 'jump', vault: 'vault', climb: 'climb', roll: 'roll', 'hang-catch': 'grab', 'rope-catch': 'grab', bounce: 'bounce', recoil: 'fire', 'launch-fire': 'fire' };
+const ICON_OF: Record<MoveKind, string> = { jump: 'gap', vault: 'vault', climb: 'climb', roll: 'drop', grab: 'lache', bounce: 'trampoline', fire: 'recoil' };
+const NAME_OF: Record<MoveKind, [string, string]> = { jump: ['Jump', 'Jumps'], vault: ['Vault', 'Vaults'], climb: ['Climb', 'Climbs'], roll: ['Roll', 'Rolls'], grab: ['Bar or rope grab', 'Bar or rope grabs'], bounce: ['Trampoline bounce', 'Trampoline bounces'], fire: ['Launch', 'Launches'] };
+// What a move costs in the energy store, in words (src/sim/energy.ts); moves with no stated cost say nothing about it
+const COST_OF: Partial<Record<MoveKind, string>> = {
+  jump: 'one jump of effort each',
+  vault: `less than half a jump of effort (${(VAULT_COST / JUMP_COST).toFixed(1)} of one)`,
+  climb: `the effort of ${Math.round(CLIMB_COST / JUMP_COST)} jumps`,
+  roll: `a third of a jump of effort on the ground (${(GROUND_ROLL_COST / JUMP_COST).toFixed(1)} of one)`,
+};
+
+/** Adds this tick to the log: the path every few ticks, and every move the simulator reports. */
+export function logTick(l: RunLog, w: WorldState): void {
+  if (w.runner.tick % 4 === 0) l.path.push({ x: w.runner.x, y: w.runner.y });
+  for (const e of w.events) { const k = MOVE_OF[e.type]; if (k) l.moves.push({ kind: k, x: w.runner.x, y: w.runner.y }); }
+}
+
+export interface BestLine { log: RunLog; seconds: number; spent: number }
+/** The stored plan played once more, with its path and moves. Null when the course has no plan or the plan does not clear. */
+export function bestLine(course: CourseData): BestLine | null {
+  const plan = course.plan;
+  if (!plan || course.track) return null;
+  let w = newWorld(course);
+  const st = { next: 0, caught: null, bedAt: null, hangAt: null, hangs: 0, vnext: 0, cnext: 0, inClimb: false, fnext: 0, airSince: null } as unknown as Parameters<typeof inputFor>[2];
+  const log = newLog();
+  for (let i = 0; i < 120 * 120 && w.outcome === 'running'; i++) { w = stepWorld(w, inputFor(plan, w, st, course), course); logTick(log, w); }
+  return w.outcome === 'cleared' ? { log, seconds: w.runner.tick / 120, spent: 1 - w.energy } : null;
+}
+
+// One plain line per course, and the saying of the obstacle (docs/sayings.md); chosen by what the course holds, else by its last obstacle
+export const LEARNED: Record<string, string> = {
+  coaster: 'Energy: a coaster climbs no higher than it started.',
+  gap: 'A jump is decided the moment your feet leave the ground.',
+  step: 'A step up needs speed; a vault keeps more of it than a jump.',
+  vault: 'A vault keeps your speed; a jump spends it.',
+  wall: 'The wall spends the speed you bring; it cannot add any.',
+  climb: 'A wall takes your speed; your arms do the rest.',
+  lache: 'Push with the swing and it grows; push against it and it fades.',
+  rope: 'A swing gives back the height you fall.',
+  trampoline: 'The harder you land, the higher it throws you.',
+  drop: 'Rolling turns a hard fall into forward motion.',
+  launch: 'Letting go late throws you into the ground.',
+  band: 'A soft band pulled far stores more energy than a stiff one pulled little.',
+  recoil: 'Momentum: the light thing goes fast, the heavy thing slow.',
+  cannon: 'Aim between high and flat: the middle angle flies farthest.',
+  plank: 'A longer plank bends much more; a thicker one bends less.',
+  drone: 'A leaning drone has to push harder to stay up.',
+  stack: 'Speed climbs the cups, and speed carries you off the top.',
+};
+export const SAYING: Record<string, string> = {
+  coaster: 'A coaster has no engine: it climbs no higher than where it started.',
+  gap: 'Once your feet leave the ground, the jump is already decided.',
+  wall: "The wall can't lift you. It only spends the speed you bring.",
+  rope: 'Fall to rise: the rope gives back every bit of height you give it.',
+  trampoline: 'The harder you land, the higher it throws you.',
+  lache: 'Push with the swing and it grows; push against it and it fades.',
+  vault: 'A jump buys height with speed; a vault keeps the speed but needs a hand on the obstacle.',
+  climb: 'Speed gets you to the wall; arms get you over it.',
+  drop: 'Turn your fall into a roll and the ground forgives you.',
+  launch: 'A long arm gets you far; letting go late gets you thrown into the ground.',
+  band: 'A soft band pulled far outthrows a stiff one pulled little.',
+  recoil: 'The heavy thing goes slow, the light thing fast, and both carry the same.',
+  cannon: 'Aim between high and flat: the middle angle flies farthest.',
+  plank: 'A plank that is twice as long sags eight times as much.',
+  stack: 'Speed climbs the cups, and speed carries you off the top.',
+};
+const baseId = (id: string) => id.replace(/-\d+$/, '');
+/** The key into LEARNED and SAYING for a course: its machine first, else its last obstacle that has one. */
+export function topicOf(course: CourseData): string | null {
+  const c = course as CourseData & { cannon?: unknown; trebuchet?: unknown; band?: unknown; drone?: unknown; recoil?: unknown };
+  if (course.track) return 'coaster';
+  if (c.band) return 'band';
+  if (c.trebuchet) return 'launch';
+  if (c.drone) return 'drone';
+  if (c.recoil) return 'recoil';
+  if (course.planks?.length) return 'plank';
+  const ids = (course.zones ?? []).map((z) => baseId(z.id)).filter((id) => LEARNED[id]);
+  return ids.length ? ids[ids.length - 1] : null;
+}
+
+export interface Report {
+  cleared: boolean;
+  headline: string;
+  seconds: number;
+  spent: number; // share of the energy store
+  best: BestLine | null; // only for a run from the start
+  counts: { kind: MoveKind; n: number }[];
+  saving: string | null;
+  learned: string | null;
+  saying: string | null;
+  metres: number;
+  finishX: number;
+}
+const f1 = (v: number) => v.toFixed(1);
+const jumps = (share: number) => f1(share / JUMP_COST);
+const HEADLINE: Record<string, string> = { splash: 'You fell in the water.', hurt: 'A hard landing ended the run.', stalled: 'You ran out of speed.' };
+
+export function buildReport(course: CourseData, log: RunLog, w: WorldState, fromStart: boolean, best: BestLine | null): Report {
+  const cleared = w.outcome === 'cleared';
+  const seconds = w.runner.tick / 120, spent = 1 - w.energy;
+  const counts: Report['counts'] = [];
+  for (const m of log.moves) { const c = counts.find((q) => q.kind === m.kind); if (c) c.n++; else counts.push({ kind: m.kind, n: 1 }); }
+  const use = cleared && fromStart ? best : null;
+  let headline = cleared ? `You made it in ${f1(seconds)} s.` : HEADLINE[w.outcome] ?? 'The run ended.';
+  if (cleared && !fromStart) headline = `You made it, starting partway (${f1(seconds)} s).`;
+  const top = cleared && fromStart ? [...(course.shortcuts ?? [])].sort((a, b) => b.secondsSaved - a.secondsSaved)[0] : undefined;
+  const saving = top && top.secondsSaved >= 0.2 ? `The biggest change the simulator found: ${top.how}. It saves ${f1(top.secondsSaved)} s.` : null;
+  const topic = topicOf(course);
+  return { cleared, headline, seconds, spent, best: use, counts, saving, learned: cleared && topic ? LEARNED[topic] ?? null : null, saying: cleared && topic ? SAYING[topic] ?? null : null, metres: Math.max(0, Math.round(w.runner.x)), finishX: course.finishX };
+}
+
+export interface Actions { watch?: () => void; again?: () => void; next?: { name: string; go: () => void }; close?: () => void }
+const NS = 'http://www.w3.org/2000/svg';
+const sv = (tag: string, attrs: Record<string, string | number>, parent?: Element): SVGElement => {
+  const e = document.createElementNS(NS, tag);
+  for (const [k, v] of Object.entries(attrs)) e.setAttribute(k, String(v));
+  parent?.appendChild(e);
+  return e as SVGElement;
+};
+const tx = (tag: string, text: string, css: string, parent: HTMLElement): HTMLElement => { const e = document.createElement(tag); e.textContent = text; e.style.cssText = css; parent.appendChild(e); return e; };
+
+/** The course in side view with the player's path (green) and the best line (gold, dashed), a small icon where each move happened. */
+export function pathPicture(course: CourseData, log: RunLog, best: BestLine | null): SVGElement {
+  const W = 600, H = 150, pad = 8;
+  const pts = [...log.path, ...(best?.log.path ?? [])];
+  const xs = [course.startX, course.finishX, ...pts.map((p) => p.x)], x0 = Math.min(...xs), x1 = Math.max(...xs) + 1;
+  const tops = course.terrain.platforms.map((p) => p.top);
+  const y0 = Math.min(course.terrain.waterY, ...tops, ...pts.map((p) => p.y)) - 0.5, y1 = Math.max(...tops, ...pts.map((p) => p.y)) + 3;
+  const X = (x: number) => pad + ((x - x0) / (x1 - x0)) * (W - 2 * pad), Y = (y: number) => H - pad - ((y - y0) / (y1 - y0)) * (H - 2 * pad);
+  const svg = sv('svg', { viewBox: `0 0 ${W} ${H}`, role: 'img', 'aria-label': 'The course from the side with the path you ran and where you jumped, vaulted, climbed and rolled', width: '100%' });
+  svg.style.cssText = 'display:block;background:#f4f8f5;border-radius:10px;max-height:170px';
+  sv('rect', { x: 0, y: Y(course.terrain.waterY), width: W, height: H, fill: '#cfe6f2' }, svg);
+  for (const p of course.terrain.platforms) sv('rect', { x: X(p.x0), y: Y(p.top), width: Math.max(1, X(p.x1) - X(p.x0)), height: Math.max(2, Y(y0) - Y(p.top)), fill: p.bouncy ? '#e7a93a' : '#b9c2bb' }, svg);
+  for (const h of course.holds ?? []) sv('circle', { cx: X(h.x), cy: Y(h.y), r: 3, fill: '#58635d' }, svg);
+  if (course.rope) sv('circle', { cx: X(course.rope.anchorX), cy: Y(course.rope.anchorY), r: 3, fill: '#58635d' }, svg);
+  sv('line', { x1: X(course.finishX), x2: X(course.finishX), y1: pad, y2: H - pad, stroke: '#0f6b5c', 'stroke-dasharray': '3 3' }, svg);
+  const line = (p: { x: number; y: number }[], stroke: string, dash: string) => p.length > 1 && sv('polyline', { points: p.map((q) => `${X(q.x).toFixed(1)},${Y(q.y).toFixed(1)}`).join(' '), fill: 'none', stroke, 'stroke-width': 2.5, 'stroke-dasharray': dash, 'stroke-linejoin': 'round' }, svg);
+  if (best) line(best.log.path, '#d9a521', '6 4');
+  line(log.path, '#0f6b5c', '');
+  let lastX = -99;
+  for (const m of log.moves) {
+    const cx = X(m.x), cy = Math.max(pad + 9, Y(m.y) - 16);
+    if (cx - lastX < 20) continue; // keep the icons apart
+    lastX = cx;
+    const g = sv('g', {}, svg), title = sv('title', {}, g); title.textContent = NAME_OF[m.kind][0];
+    sv('circle', { cx, cy, r: 10, fill: '#fff8dc', stroke: '#d9a521', 'stroke-width': 1.5 }, g);
+    const icon = sv('svg', { x: cx - 8, y: cy - 8, width: 16, height: 16, viewBox: '0 0 32 32', fill: 'none', stroke: '#6b4a00', 'stroke-width': 3, 'stroke-linecap': 'round', 'stroke-linejoin': 'round' }, g);
+    icon.innerHTML = ZONE_ICONS[ICON_OF[m.kind]] ?? '';
+  }
+  return svg;
+}
+
+/** The report as a panel body. `compact` leaves out the big headline (the fall panel has its own). Buttons are built here; what they do comes from `a`. */
+export function renderReport(course: CourseData, log: RunLog, r: Report, a: Actions, compact = false): HTMLElement {
+  const box = document.createElement('section');
+  box.setAttribute('aria-label', 'Run report');
+  box.style.cssText = 'display:grid;gap:12px';
+  if (!compact) tx('h2', r.headline, 'margin:0;font:800 26px/1.2 system-ui,sans-serif;color:#0f6b5c', box);
+  else tx('div', r.cleared ? r.headline : `You got ${r.metres} m of ${r.finishX} m.`, 'font-weight:700', box);
+  box.appendChild(pathPicture(course, log, r.best));
+  const key = tx('div', '', 'display:flex;gap:14px;flex-wrap:wrap;font-size:13px;color:#58635d', box);
+  key.innerHTML = '<span><b style="color:#0f6b5c">━</b> your path</span>' + (r.best ? '<span><b style="color:#d9a521">╍</b> the best line</span>' : '') + '<span>Icons: where you jumped, vaulted, climbed, grabbed or rolled</span>';
+  if (r.cleared) {
+    const t = document.createElement('table'); t.style.cssText = 'border-collapse:collapse;font-size:15px;width:100%';
+    const row = (a1: string, a2: string, a3: string, head = false) => { const tr = t.insertRow(); [a1, a2, a3].forEach((s, i) => { const c = tr.insertCell(); c.textContent = s; c.style.cssText = `padding:5px 8px;border-bottom:1px solid #e5e9e5;${i ? 'text-align:right;' : ''}${head ? 'color:#58635d;font-weight:600' : ''}`; }); };
+    if (r.best) { row('', 'You', 'Best line', true); row('Time', `${f1(r.seconds)} s`, `${f1(r.best.seconds)} s`); row('Effort', `${jumps(r.spent)} jumps' worth`, `${jumps(r.best.spent)} jumps' worth`); }
+    else { row('', 'You', '', true); row('Time', `${f1(r.seconds)} s`, ''); row('Effort', `${jumps(r.spent)} jumps' worth`, ''); }
+    box.appendChild(t);
+  }
+  if (r.counts.length) {
+    const ul = document.createElement('ul'); ul.style.cssText = 'margin:0;padding:0;list-style:none;display:grid;gap:4px;font-size:14px';
+    for (const c of r.counts) {
+      const li = document.createElement('li'); li.style.cssText = 'display:flex;gap:8px;align-items:center';
+      const ic = document.createElementNS(NS, 'svg'); ic.setAttribute('viewBox', '0 0 32 32'); ic.setAttribute('width', '20'); ic.setAttribute('height', '20'); ic.setAttribute('fill', 'none'); ic.setAttribute('stroke', '#6b4a00'); ic.setAttribute('stroke-width', '2.4'); ic.setAttribute('stroke-linecap', 'round'); ic.setAttribute('aria-hidden', 'true'); ic.innerHTML = ZONE_ICONS[ICON_OF[c.kind]] ?? '';
+      const cost = COST_OF[c.kind];
+      const text = document.createElement('span'); text.textContent = `${c.n} ${NAME_OF[c.kind][c.n === 1 ? 0 : 1].toLowerCase()}${cost ? `: ${cost}` : ''}`;
+      li.append(ic, text); ul.appendChild(li);
+    }
+    box.appendChild(ul);
+  }
+  if (r.saving) tx('p', r.saving, 'margin:0;font-size:15px;background:#fff8dc;border-left:4px solid #d9a521;padding:8px 10px;border-radius:6px', box);
+  if (r.learned) tx('p', `What you learned: ${r.learned}`, 'margin:0;font-weight:600', box);
+  if (r.saying && r.saying !== r.learned?.replace('What you learned: ', '')) tx('p', `“${r.saying}”`, 'margin:0;font-style:italic;color:#58635d', box);
+  const slot = document.createElement('div'); slot.id = 'report-ghost-slot'; box.appendChild(slot); // the ghost (Chase the ghost) adds its button here
+  const row = document.createElement('div'); row.id = 'report-actions'; row.style.cssText = 'display:flex;gap:8px;flex-wrap:wrap';
+  const btn = (label: string, go: () => void, primary = false, id?: string) => {
+    const b = document.createElement('button'); b.textContent = label; if (id) b.id = id;
+    b.style.cssText = `font:inherit;border:1px solid ${primary ? '#0f6b5c' : '#b9c2bb'};background:${primary ? '#0f6b5c' : '#fff'};color:${primary ? '#fff' : '#17201d'};border-radius:8px;padding:7px 14px;cursor:pointer;white-space:nowrap`;
+    b.onclick = go; row.appendChild(b); return b;
+  };
+  if (a.again) btn('Try again (R)', a.again, true, 'report-again');
+  if (a.watch) btn('Watch the best line', a.watch, false, 'report-watch');
+  if (a.next) btn(`Next: ${a.next.name}`, a.next.go, false, 'report-next');
+  if (a.close) btn('Close', a.close, false, 'report-close');
+  box.appendChild(row); // always there: the ghost adds its buttons to it
+  return box;
+}

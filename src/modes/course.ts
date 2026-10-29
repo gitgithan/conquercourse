@@ -31,7 +31,9 @@ import { actorStateFor } from '../motion/actor-state';
 import { groundAt } from '../sim/terrain';
 import { drumsFor } from '../sim/drums';
 import { createDrumLane } from '../ui/drum-lane';
-import { BUTTON_PLACE, buildGallery, currentWorld, DEMOS, GALLERY_EVENT, modalAttrs, mountWorldGallery, worldHref } from '../ui/world-picker';
+import { bestLine, buildReport, clearLog, logTick, newLog, renderReport } from '../ui/run-report';
+import { ZONE_ICONS } from '../ui/zone-icons';
+import { BUTTON_PLACE, buildGallery, currentWorld, DEMOS, GALLERY_EVENT, modalAttrs, mountWorldGallery, WORD_VALUES, worldHref } from '../ui/world-picker';
 import { createDebugView } from '../ui/debug-view';
 import { slugOfCourse } from '../ui/place-photos';
 import { mountLivePhotos } from '../ui/live-photos';
@@ -306,7 +308,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
   };
   let keysOpen = true, keysTouched = false; paintKeys(true);
   const panel = document.createElement('div');
-  panel.style.cssText = 'position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);width:min(760px,94vw);max-height:88vh;overflow:auto;box-sizing:border-box;background:#fffffff5;border:1px solid #cfd6d0;border-radius:12px;padding:16px;font:15px/1.4 system-ui,sans-serif;color:#17201d;display:none;gap:10px;box-shadow:0 8px 30px #0003';
+  panel.style.cssText = 'position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);width:min(760px,94vw);max-height:88vh;overflow:auto;z-index:40;box-sizing:border-box;background:#fffffff5;border:1px solid #cfd6d0;border-radius:12px;padding:16px;font:15px/1.4 system-ui,sans-serif;color:#17201d;display:none;gap:10px;box-shadow:0 8px 30px #0003';
   const hint = document.createElement('div');
   hint.style.cssText = 'position:fixed;left:50%;bottom:124px;transform:translateX(-50%);font:600 20px system-ui,sans-serif;color:#10141c;background:#fffc;border-radius:10px;padding:8px 16px;pointer-events:none';
   const gauge = document.createElement('div');
@@ -396,26 +398,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
     #strip .ob.todo svg{animation:ccwave 2.2s ease-in-out infinite}
     #strip .ob.next{transform:scale(1.25);color:#5b4200}#strip .ob.next svg{background:#ffe38a;border-color:#f0b400;color:#6b4a00}
     #strip .ob.done{opacity:.35;filter:grayscale(1)}#strip .ob.done svg{animation:none;background:#eef1ec;border-color:#9aa59e;color:#58635d}`;
-  const ICONS: Record<string, string> = {
-    gap: '<path d="M3 20 H11 V12 M21 20 H29 V12 M11 12 H3 M21 12 H29 M12 8 Q16 2 20 8" />',
-    landing: '<rect x="9" y="12" width="14" height="8" rx="1"/><path d="M16 4 V9 M13 7 L16 10 L19 7"/>',
-    wall: '<path d="M4 26 Q22 26 26 4 M26 4 H29"/>',
-    rope: '<path d="M5 5 H27 M16 5 V19"/><circle cx="16" cy="23" r="3.5"/>',
-    trampoline: '<path d="M4 20 H28 M7 20 L9 26 M25 20 L23 26 M13 14 Q16 4 19 14"/>',
-    lache: '<path d="M4 5 H28 M8 5 V13 M16 5 V13 M24 5 V13 M5 22 Q16 12 27 22"/>',
-    launch: '<path d="M5 25 L25 7 M19 7 H25 V13 M8 23 L13 28"/><circle cx="10" cy="9" r="3"/>',
-    recoil: '<path d="M5 16 H26 M5 16 L11 10 M5 16 L11 22 M27 7 V25"/>',
-    step: '<path d="M4 24 H12 V18 H20 V12 H28"/>',
-    climb: '<path d="M6 28 V13 H19 V28 M13 10 V3 M10 6 L13 3 L16 6"/>',
-    vault: '<rect x="11" y="19" width="10" height="7"/><path d="M3 26 Q5 8 16 13 Q27 8 29 26"/>',
-    band: '<path d="M5 5 V27 M5 16 H9 L11 9 L15 23 L19 9 L23 23 L25 16 H28"/>',
-    drone: '<circle cx="16" cy="19" r="3"/><path d="M5 11 H12 M20 11 H27 M12 11 L14 16 M20 11 L18 16 M8 7 V11 M24 7 V11"/>',
-    plank: '<path d="M4 12 V26 M28 12 V26 M4 12 Q16 24 28 12"/>',
-    stack: '<rect x="4" y="21" width="7" height="6" rx="1"/><rect x="12.5" y="21" width="7" height="6" rx="1"/><rect x="21" y="21" width="7" height="6" rx="1"/><rect x="8" y="14" width="7" height="6" rx="1"/><rect x="17" y="14" width="7" height="6" rx="1"/><rect x="12.5" y="7" width="7" height="6" rx="1"/>',
-    drop: '<path d="M8 5 V20 M4 16 L8 21 L12 16 M17 23 H28"/>',
-    coaster: '<path d="M3 23 Q9 23 11 9 Q13 2 16 14 Q20 29 24 15 Q26 9 29 9"/>',
-    course: '<path d="M4 25 H10 L14 10 L19 21 L23 13 H28"/><circle cx="7" cy="19" r="2"/>',
-  };
+  const ICONS = ZONE_ICONS;
   const progressZones = course.zones?.length ? course.zones : (() => {
     const found: { id: string; name: string; x0: number; x1: number }[] = [];
     const add = (id: string, name: string, x0: number, x1: number) => {
@@ -630,6 +613,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
   const summary = (): RunSummary => ({ runs: 0, failures: 0, completions: 0, ticks: 0, progressSum: 0, progressCount: 0, landings: 0, landingOuch: 0, bentLandings: 0, obstacles: {} });
   const summaries: Record<RunKind, RunSummary> = { attempt: summary(), practice: summary() };
   let runKind: RunKind = (resume ? resume.retryX : startAt ?? course.startX) > course.startX + 0.01 ? 'practice' : 'attempt';
+  const runLog = newLog(); // the path and the moves of this run, for the report (src/ui/run-report.ts)
   let runStartX = world.runner.x, runFurthestX = world.runner.x, runFailures = 0, runLandingOuch = 0, runLandings = 0, runBentLandings = 0;
   let flowSampleTick = world.runner.tick, flowSampleVx = world.runner.vx, flowSampleVy = world.runner.vy;
   let flowAccelX: number | null = null, flowAccelY: number | null = null, runJerkSum = 0, runJerkSamples = 0;
@@ -681,62 +665,10 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
     runKind = x > course.startX + 0.01 ? 'practice' : 'attempt';
     summaries[runKind].runs++;
     runStartX = x; runFurthestX = x; runFailures = 0; runLandingOuch = 0; runLandings = 0; runBentLandings = 0; previousRunX = x; resetFlowSample();
-    attemptEnded = false; enteredZones.clear(); clearedZones.clear();
+    attemptEnded = false; enteredZones.clear(); clearedZones.clear(); clearLog(runLog);
   };
   summaries[runKind].runs++;
   updateRunProgress(world.runner.x);
-  function reportPanel(outcome: 'cleared' | 'failed') {
-    const bucket = summaries[runKind];
-    const completion = Math.max(0, Math.min(100, (runFurthestX - runStartX) / Math.max(1, course.finishX - runStartX) * 100));
-    const obstacleScore = enteredZones.size ? clearedZones.size / enteredZones.size * 100 : 0;
-    const landingScore = runLandings ? Math.max(0, 100 - runLandingOuch / runLandings * 10) : 50;
-    const meanJerk = runJerkSamples ? runJerkSum / runJerkSamples : 0;
-    const flowScore = 100 * Math.exp(-meanJerk / 150);
-    const scores = [flowScore, landingScore, obstacleScore, completion];
-    const overall = Math.round(scores.reduce((a, b) => a + b, 0) / scores.length);
-    const ns = 'http://www.w3.org/2000/svg';
-    const box = document.createElement('section');
-    box.style.cssText = 'border-top:1px solid #d7ddd8;padding-top:10px;display:grid;gap:10px';
-    const title = document.createElement('div'); title.style.cssText = 'display:flex;justify-content:space-between;gap:8px;align-items:baseline;flex-wrap:wrap';
-    const heading = document.createElement('strong'); heading.textContent = `${runKind === 'practice' ? 'Practice' : 'Attempt'} report · ${overall}/100`;
-    const details = document.createElement('span'); details.style.cssText = 'color:#58635d'; details.textContent = `${outcome === 'cleared' ? 'Course cleared' : 'Run ended'} · ${(world.runner.tick / 120).toFixed(1)} s this run · ${bucket.runs} ${runKind} runs, ${(bucket.ticks / 120).toFixed(1)} s total`;
-    title.append(heading, details); box.appendChild(title);
-    const chart = document.createElementNS(ns, 'svg'); chart.setAttribute('viewBox', '0 0 320 250'); chart.setAttribute('role', 'img'); chart.setAttribute('aria-label', `Radar: flow ${Math.round(flowScore)}, landing care ${Math.round(landingScore)}, obstacle pass rate ${Math.round(obstacleScore)}, completion ${Math.round(completion)}`); chart.style.cssText = 'width:min(100%,360px);height:auto;justify-self:center';
-    const cx = 160, cy = 120, radius = 78, angles = [-Math.PI / 2, 0, Math.PI / 2, Math.PI];
-    for (const fraction of [0.25, 0.5, 0.75, 1]) {
-      const ring = document.createElementNS(ns, 'polygon');
-      ring.setAttribute('points', angles.map((a) => `${cx + Math.cos(a) * radius * fraction},${cy + Math.sin(a) * radius * fraction}`).join(' '));
-      ring.setAttribute('fill', 'none'); ring.setAttribute('stroke', '#d7ddd8'); chart.appendChild(ring);
-    }
-    angles.forEach((a, i) => {
-      const line = document.createElementNS(ns, 'line'); line.setAttribute('x1', String(cx)); line.setAttribute('y1', String(cy)); line.setAttribute('x2', String(cx + Math.cos(a) * radius)); line.setAttribute('y2', String(cy + Math.sin(a) * radius)); line.setAttribute('stroke', '#aeb8b0'); chart.appendChild(line);
-      const label = document.createElementNS(ns, 'text'); label.setAttribute('x', String(cx + Math.cos(a) * (radius + 19))); label.setAttribute('y', String(cy + Math.sin(a) * (radius + 19) + 4)); label.setAttribute('text-anchor', 'middle'); label.setAttribute('font-size', '11'); label.setAttribute('fill', '#17201d'); label.textContent = ['Flow', 'Landing care', 'Obstacle clears', 'Completion'][i]; chart.appendChild(label);
-    });
-    const area = document.createElementNS(ns, 'polygon'); area.setAttribute('points', scores.map((score, i) => `${cx + Math.cos(angles[i]) * radius * score / 100},${cy + Math.sin(angles[i]) * radius * score / 100}`).join(' ')); area.setAttribute('fill', '#0f6b5c44'); area.setAttribute('stroke', '#0f6b5c'); area.setAttribute('stroke-width', '2'); chart.appendChild(area); box.appendChild(chart);
-    const metrics = document.createElement('div'); metrics.style.cssText = 'font-size:13px;color:#58635d;text-align:center'; metrics.textContent = `This run: ${runFailures} failed obstacle${runFailures === 1 ? '' : 's'} · average movement jerk ${runJerkSamples ? `${meanJerk.toFixed(1)} m/s³` : 'not measured'} · ${runLandings ? `${runBentLandings}/${runLandings} landings with knees bent; average impact ${(runLandingOuch / runLandings).toFixed(1)}/10` : 'no measured landings'}. Landing care reflects simulated impact, not injury.`; box.appendChild(metrics);
-    const table = document.createElement('div'); table.style.cssText = 'overflow:auto';
-    const grid = document.createElement('table'); grid.style.cssText = 'width:100%;border-collapse:collapse;font-size:13px;text-align:right';
-    const headRow = document.createElement('tr');
-    for (const label of ['Obstacle', 'Attempt tries / pass / fail', 'Practice tries / pass / fail', 'Attempt score', 'Practice score']) { const th = document.createElement('th'); th.textContent = label; th.style.cssText = 'padding:5px;border-bottom:1px solid #cfd6d0'; headRow.appendChild(th); }
-    const thead = document.createElement('thead'); thead.appendChild(headRow); grid.appendChild(thead);
-    const tbody = document.createElement('tbody');
-    for (const zone of zones) {
-      const tr = document.createElement('tr');
-      const name = document.createElement('th'); name.textContent = zone.name; name.style.cssText = 'padding:5px;text-align:left;border-bottom:1px solid #e5e9e5'; tr.appendChild(name);
-      for (const kind of ['attempt', 'practice'] as const) {
-        const count = summaries[kind].obstacles[zone.id] ?? { attempts: 0, successes: 0, failures: 0 };
-        const td = document.createElement('td'); td.textContent = `${count.attempts} / ${count.successes} / ${count.failures}`; td.style.cssText = 'padding:5px;border-bottom:1px solid #e5e9e5'; tr.appendChild(td);
-      }
-      for (const kind of ['attempt', 'practice'] as const) {
-        const count = summaries[kind].obstacles[zone.id];
-        const td = document.createElement('td'); td.textContent = count?.attempts ? `${Math.round(count.successes / count.attempts * 100)}%` : '—'; td.style.cssText = 'padding:5px;border-bottom:1px solid #e5e9e5'; tr.appendChild(td);
-      }
-      tbody.appendChild(tr);
-    }
-    grid.appendChild(tbody); table.appendChild(grid); box.appendChild(table);
-    const note = document.createElement('div'); note.style.cssText = 'font-size:12px;color:#58635d'; note.textContent = `Run score averages these four axes. Flow measures smoothness: mean change in acceleration (jerk) sampled at 10 Hz, mapped by 100 × e^(−jerk / 150 m/s³). Landing care uses average simulated impact; obstacle clears is zones cleared / zones entered. Unmeasured landing care is neutral (50); landing impact is not an injury estimate. The table below accumulates ${runKind} history for this page.`; box.appendChild(note);
-    return box;
-  }
   // ?hangtest=1.0 (radians) hangs the runner still on the first bar at that angle, for the pivot screenshots
   const hangTest = params.get('hangtest') !== null && course.holds?.length ? Number(params.get('hangtest')) : null;
   // ?planktest=0.5 stands the runner still on the first plank, that share of the way across, for the sag screenshots
@@ -1102,7 +1034,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
     if (!course.track) mk('Make it easier', () => openEditor('easier')).id = 'makeeasier';
     mk('Edit this course', () => openEditor('edit')).id = 'editfromfall';
     if (train) mk(`Train the ${zone?.name ?? 'obstacle'}`, () => { saveResume(); location.search = trainLink(zone?.id ?? 'gap', r.x); });
-    panel.append(h, t, floorNote, reportPanel('failed'), row);
+    panel.append(h, t, floorNote, renderReport(course, runLog, buildReport(course, runLog, world, false, null), {}, true), row);
     retry.focus();
   }
 
@@ -1240,6 +1172,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
       perf.simEnd();
       updateRunProgress(world.runner.x);
       updateFlow(world.runner.tick, world.runner.vx, world.runner.vy);
+      logTick(runLog, world);
       if (prevMode === 'run' && world.mode === 'wall') wallEntry = prevVx;
       if (demo && (world.outcome !== 'running' || world.runner.x > demo.x1)) demoEnd();
       else if (idealWhole && world.outcome !== 'running') demoEnd();
@@ -1288,14 +1221,19 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
         clearFinishZone(world.runner.x); everCleared = true; track('clears'); finishRun(true); trackCourseEvent('success', analyticsCourseKey, course.name, analyticsRunId, analyticsMode);
         try { localStorage.setItem('cc.course.cleared', '1'); } catch { /* ok */ }
         panel.innerHTML = ''; panel.style.display = 'grid';
-        const reportTitle = document.createElement('strong'); reportTitle.textContent = 'Course cleared · run report';
-        const actions = document.createElement('div'); actions.style.cssText = 'display:flex;gap:8px;flex-wrap:wrap';
-        const again = document.createElement('button'); again.textContent = 'Run again (R)'; again.style.cssText = 'font:inherit;border:1px solid #0f6b5c;background:#0f6b5c;color:#fff;border-radius:8px;padding:6px 12px;cursor:pointer;font-weight:700'; again.onclick = () => restart(course.startX);
-        const close = document.createElement('button'); close.textContent = 'Close report'; close.style.cssText = 'font:inherit;border:1px solid #b9c2bb;background:#fff;color:#17201d;border-radius:8px;padding:6px 12px;cursor:pointer'; close.onclick = () => { panel.style.display = 'none'; };
         const ghostLine = ghostCtl?.reportLine(world.runner.tick) ?? null;
-        if (ghostCtl && !botMode && !demo && !idealWhole) actions.prepend(...ghostCtl.reportActions(() => { panel.style.display = 'none'; retryX = course.startX; restart(course.startX); }));
-        actions.append(again, close); panel.append(reportTitle, ...(ghostLine ? [ghostLine] : []), reportPanel('cleared'), actions); again.focus();
-        if (!botMode && !demo && !idealWhole) clearedNote(); // a shortcut, if the simulator knows one (a fact, never a grade)
+        const rep = buildReport(course, runLog, world, runKind === 'attempt', bestLine(course));
+        const courses = DEMOS.filter((d) => !WORD_VALUES.includes(d[0])), here = courses.findIndex((d) => (d[0] || null) === currentWorld(params, course.name).value), nxt = courses[here + 1];
+        const body = renderReport(course, runLog, rep, {
+          again: () => restart(course.startX),
+          watch: course.plan && !course.track ? () => { panel.style.display = 'none'; void startIdeal(course.startX, null); } : undefined,
+          next: here >= 0 && nxt ? { name: nxt[1].split(':')[0], go: () => { location.href = worldHref(nxt[0]); } } : undefined,
+          close: () => { panel.style.display = 'none'; },
+        });
+        if (ghostLine) body.querySelector('#report-ghost-slot')?.append(ghostLine);
+        if (ghostCtl && !botMode && !demo && !idealWhole) body.querySelector('#report-actions')?.prepend(...ghostCtl.reportActions(() => { panel.style.display = 'none'; retryX = course.startX; restart(course.startX); }));
+        panel.append(body); (body.querySelector('#report-again') as HTMLElement | null)?.focus({ preventScroll: true });
+        if (!botMode && !demo && !idealWhole && !rep.saving) clearedNote(); // a shortcut, if the simulator knows one (a fact, never a grade)
       }
     }
     let r = world.runner;
