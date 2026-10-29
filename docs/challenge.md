@@ -68,12 +68,33 @@
 - The Ghost chip (N) cycles Off, Ideal, Friend; the ghost is on by default (CC-180).
 - Both figures are see-through: the player at 0.85, the ghost at 0.5 in amber with a dark rim, drawn behind the player so both read when they overlap.
 
+## Part 3c: the short link (CC-219)
+- The report's "Copy link" button asks the server to keep the run and gives back `https://<site>/?c=<id>`, ten characters whatever the run.
+  - The id uses `a-z` and `2-9` without look-alikes.
+  - The 2000-character limit no longer applies: a busy run or a bigger made course (up to 20 000 characters) fits.
+- If the server does not answer in 4 seconds, says no, or has no table yet, the button gives the long link exactly as before.
+- Old links keep working: `?challenge=` and the half-run links that start with `1f`, and they make no server call.
+- Opening `?c=<id>` asks the server for the run, rebuilds the long form of the address in the browser (`history.replaceState`), and the page goes on as for a long link.
+  - An id that is unknown, hidden or badly shaped says "This link is damaged".
+- The switch: `?short=0` uses the long link for one visit; the build constant is `SHORT_ON`; the Pages variable `SHARE=off` makes the server answer 503.
+- What the server checks before it stores a run:
+  - A body of at most 32 000 characters, keys of at most 8000.
+  - The same version and format rules as a long link, and a course it can find: a listed file, the starting course, or a made course sent with the request.
+  - The course hash equals the one the keys were played on.
+  - The cheap checks of `docs/run-checks.md` (too short, too long, too fast, key rate); a try that fell skips the finish-line speed check.
+  - The same run shared twice keeps one id.
+- It does not replay the keys.
+  - Whoever opens the link replays them and takes the time from the simulator, so a link cannot claim a time.
+- Not supported yet: `?generate=`, `?coaster=` and Park courses; those keep the long link.
+- The tables, limits and plan behind it are in [data-model](data-model.md).
+- The migration `migrations/0006_shares.sql` is written and waits for the owner.
+
 ## Part 4: a leaderboard (design only, for the owner to approve)
 - **What:** a best-time list for each course, and a daily challenge course made from a seed by the generator.
 - **How a time gets in:** the page sends the course id, the hash and the keys.
   - A Cloudflare Pages Function plays the keys with the same simulator (it is plain TypeScript) and stores the time it computes.
   - The client never sends a time.
-- **Storage:** one D1 table, `runs(id, course, hash, nick, ticks, keys, created)`, with an index on (course, ticks).
+- **Storage:** the `runs` table in [data-model](data-model.md), with an index on (course hash, verified, ticks).
   - Migration: one new file in `migrations/`, applied with `npx wrangler d1 migrations apply conquercourse-feedback --remote`.
   - Keys are kept so a run can be replayed as a ghost for everyone.
 - **Abuse limits:** kept in the private notes, not in this repo.
