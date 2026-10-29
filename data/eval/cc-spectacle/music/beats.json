@@ -1,0 +1,58 @@
+{
+  "bpm": 100,
+  "beat_s": 0.6,
+  "bar_s": 2.4,
+  "bars": 28,
+  "parts": [
+    {
+      "from_s": 0,
+      "to_s": 14.4,
+      "loop": "map.ogg"
+    },
+    {
+      "from_s": 14.4,
+      "to_s": 67.2,
+      "loop": "course-d_8 x4 (trimmed)"
+    }
+  ],
+  "bar_starts_s": [
+    0.0,
+    2.4,
+    4.8,
+    7.2,
+    9.6,
+    12.0,
+    14.4,
+    16.8,
+    19.2,
+    21.6,
+    24.0,
+    26.4,
+    28.8,
+    31.2,
+    33.6,
+    36.0,
+    38.4,
+    40.8,
+    43.2,
+    45.6,
+    48.0,
+    50.4,
+    52.8,
+    55.2,
+    57.6,
+    60.0,
+    62.4,
+    64.8,
+    67.2
+  ],
+  "cuts": {
+    "1 earth to street": 0,
+    "2 slice": 7.2,
+    "3 photo to object": 14.4,
+    "4 fly-by": 28.8,
+    "5 entrance and run": 36.0,
+    "7 leap, cut right before the catch at the end": 50.4,
+    "8 end card": 57.6
+  }
+}
