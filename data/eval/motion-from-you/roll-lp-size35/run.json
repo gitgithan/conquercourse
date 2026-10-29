@@ -1,0 +1,20 @@
+{
+  "id": "roll-lp",
+  "move": "roll",
+  "stage_wall_seconds": {
+    "cut": 19.8,
+    "measure": 832.4,
+    "post": 0.7,
+    "fit": 0.0
+  },
+  "modal_l4_usd_per_second": 0.000222,
+  "credit": "Learn Parkour : Basic Jump Roll, London Parkour (CC BY)",
+  "source": "London Parkour, Basic Jump Roll, 46 to 50 s",
+  "modal": {
+    "frames": 150,
+    "frames_measured": 150,
+    "wall_s": 831.7072558403015,
+    "container_gpu_seconds_estimate": 579.4414839744568,
+    "l4_cost_estimate_usd": 0.12863600944232942
+  }
+}

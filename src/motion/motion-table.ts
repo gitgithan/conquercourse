@@ -77,6 +77,18 @@ export const rollLookFrom = (search: string): RollLook => {
 // Whether the captured vault and climb clips play: on by default, ?clips=0 shows the bone-built poses instead (the contact-point vault and the hang-to-stand climb).
 export const capturedClipsFrom = (search: string): boolean => new URLSearchParams(search).get('clips') !== '0';
 
+// "My move" (CC-222): a clip made from the player's own film replaces the roll clip while ?mymove=<id> is in the address.
+// Off by default; the shipped roll is untouched. Only a clip that passed the plausibility gate and the roll check is ever shown.
+export const MY_MOVE_BASE = '/assets/experiments/mymove';
+export const myMoveFrom = (search: string): string | null => {
+  const v = new URLSearchParams(search).get('mymove');
+  return v !== null && /^[a-z0-9][a-z0-9-]{0,30}$/.test(v) ? v : null;
+};
+export const myMoveIsPlayable = (raw: unknown): boolean => {
+  const c = raw as { playable?: boolean; move?: string; gate?: { pass?: boolean }; move_check?: { ok?: boolean } } | null;
+  return !!c && c.playable === true && c.move === 'roll' && c.gate?.pass === true && c.move_check?.ok === true;
+};
+
 // Progress through the move, 0 at touchdown and 1 when the simulator says it is over; null when it is not on.
 export function moveProgress(entry: MoveEntry, startedAt: number, tick: number): number | null {
   if (entry.ticks === null) return null;
