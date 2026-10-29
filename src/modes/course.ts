@@ -1257,6 +1257,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
   dom.style.cursor = 'grab';
   const timeScale = Number(params.get('timescale') ?? 1); // ?timescale=0.1 runs the game at a tenth of its speed (for stills)
   function frame(now: number, stepped = false) {
+    if (filmShot) now = performance.now(); // a film runs the game on the stepped film clock; the real animation-frame time would let the run race ahead at the speed the machine draws
     if (clipping && !stepped) return; // the clip drives the game by hand; the loop starts again when it ends
     perf.frame(now);
     acc = paused ? 0 : Math.min(acc + ((now - last) / 1000) * timeScale, 0.25);

@@ -1,5 +1,5 @@
 // True-speed film: a stepped clock replaces performance.now, one frame per screenshot, ffmpeg encodes at the game's rate.
-// Usage: node scripts/film.mjs [--track] [--query "demo=rookie"] [--frames 90] [--fps 30] [--out test-results/film.mp4] [--width 960] [--height 540]
+// Usage: node scripts/film.mjs [--track] [--query "demo=rookie"] [--frames 90] [--fps 30] [--out test-results/film.mp4] [--width 960] [--height 540] [--ramp 4,6,0.25] [--skip 5] [--from-x 31]
 import { chromium } from 'playwright';
 import { spawn, execFileSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
@@ -19,7 +19,13 @@ const width = Number(arg('width', 960));
 const height = Number(arg('height', 540));
 const port = arg('port', '5173');
 const track = process.argv.includes('--track'); // also write <out>.track.json: where each film label sits on the screen, per frame (for the Remotion callouts)
+const skip = Number(arg('skip', 0)); // --skip 5: run the game for 5 s first (no pictures kept), then start filming there; the film camera and the labels count from that moment
+const fromX = arg('from-x', ''); // --from-x 31: run the game until the runner is at x = 31 m, then start filming (the film camera and labels count from there)
 const tracks = [];
+// --ramp from,to,rate: between those output seconds the game runs at `rate` times real speed (0.25 = slow motion), eased over 0.25 s each way; every frame is still captured, so slow motion stays smooth.
+const [rampFrom, rampTo, rampRate] = (arg('ramp', '') || '0,0,1').split(',').map(Number);
+const smooth = (x) => { const c = Math.min(1, Math.max(0, x)); return c * c * (3 - 2 * c); };
+const rateAt = (sec) => 1 + (rampRate - 1) * smooth((sec - rampFrom) / 0.25) * smooth((rampTo - sec) / 0.25);
 
 const flags = ['--enable-unsafe-webgpu', '--enable-features=Vulkan', '--use-vulkan=swiftshader',
   '--use-angle=swiftshader', '--disable-vulkan-surface', '--ignore-gpu-blocklist'];
@@ -40,6 +46,12 @@ try {
   await page.goto(`http://localhost:${port}/?${query}`);
   await page.waitForSelector('html[data-ready=true]', { timeout: 120000 });
   const twoFrames = () => page.evaluate(() => new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r))));
+  for (let k = 0; k < Math.round(skip * fps); k++) await page.evaluate((ms) => { window.__stepClock(ms); return new Promise((r) => requestAnimationFrame(r)); }, 1000 / fps);
+  if (fromX !== '') for (let k = 0; k < 20 * fps; k++) {
+    if (await page.evaluate((x) => (window.__filmRunner?.x ?? -1e9) >= x, Number(fromX))) break;
+    await page.evaluate((ms) => { window.__stepClock(ms); return new Promise((r) => requestAnimationFrame(r)); }, 1000 / fps);
+  }
+  if (skip > 0 || fromX !== '') await page.evaluate(() => window.__filmZero?.());
   let prev = '', dups = 0, rewaits = 0;
   for (let i = 0; i < frames; i++) {
     const file = join(dir, `f${String(i).padStart(5, '0')}.png`);
@@ -53,8 +65,9 @@ try {
     }
     if (h === prev) dups++;
     prev = h;
+    if (process.argv.includes('--log-runner')) console.log(i, JSON.stringify(await page.evaluate(() => window.__filmRunner)));
     if (track) tracks.push(await page.evaluate(() => window.__filmTrack?.points ?? {}));
-    await page.evaluate((ms) => window.__stepClock(ms), 1000 / fps);
+    await page.evaluate((ms) => window.__stepClock(ms), (1000 / fps) * rateAt(i / fps));
   }
   console.log(`exact duplicate pictures: ${dups} of ${frames} (${rewaits} re-waits)`);
   await browser.close();
