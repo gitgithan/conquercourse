@@ -24,9 +24,9 @@ export const DEMO_GROUPS: [string, Demo[]][] = [
     ['/assets/demo/plank-two.course.json', 'Plank bridge: thick, then thin', 'A thick plank bends and holds; a thin one needs a post in the middle.'],
   ]],
   ['Make your own', [
+    ['map', 'Slice a real place', 'Pick a real street, cut it at a height and turn its roofs into a course.'],
     ['generate', 'Make me a new course (random)', 'A random course the simulator has proved clearable.'],
     ['editor', 'Build your own (editor)', 'Place real objects and bars; the simulator checks the lane.'],
-    ['map', 'Map: search a place', 'Search any place and cut a course from its real streets and roofs.'],
     ['coaster-builder', 'Build your own coaster', 'Drag the dots of the track and ride it.'],
   ]],
   ['Labs (university level)', [
@@ -36,6 +36,9 @@ export const DEMO_GROUPS: [string, Demo[]][] = [
 
 import { labsOn } from './labs';
 import { applyStats, loadStats, statsOn } from './course-stats';
+
+/** CC-201: the slicer card is always shown (it used to hide behind ?labs=1); ?slice2=old brings the old rule back. */
+export const sliceCardOn = (params: URLSearchParams): boolean => params.get('slice2') !== 'old';
 
 export const WORD_VALUES = ['generate', 'editor', 'coaster-builder', 'map', 'lab-search'];
 export const DEMOS: [string, string][] = DEMO_GROUPS.flatMap(([, ds]) => ds.map((d) => [d[0], d[1]] as [string, string]));
@@ -168,10 +171,11 @@ export function buildGallery(o: GalleryOptions): { el: HTMLElement; focusStart()
     cards.push({ card: grid.lastElementChild as HTMLButtonElement, sec: grid.parentElement!, text: `${cur.label ?? ''} this course`.toLowerCase() });
   }
   for (const [group, ds] of DEMO_GROUPS) {
-    if (ds.every(([v]) => (v === 'map' || v === 'lab-search') && cur.value !== v && !labsOn())) continue; // a group whose items are all switched off shows no heading
+    const hiddenItem = (v: string): boolean => (v === 'map' ? !sliceCardOn(new URLSearchParams(location.search)) && cur.value !== v && !labsOn() : v === 'lab-search' && cur.value !== v && !labsOn());
+    if (ds.every(([v]) => hiddenItem(v))) continue; // a group whose items are all switched off shows no heading
     const grid = section(group);
     for (const [v, label, about] of ds) {
-      if ((v === 'map' || v === 'lab-search') && cur.value !== v && !labsOn()) continue; // CC-78: the map and the Labs are behind the labs switch (?labs=1)
+      if (hiddenItem(v)) continue; // CC-78: the map and the Labs are behind the labs switch (?labs=1)
       cards.push({ card: addCard(grid, v, label, about, cur.value === v), sec: grid.parentElement!, text: `${label} ${about} ${group}`.toLowerCase() });
     }
   }
