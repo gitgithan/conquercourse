@@ -5,11 +5,11 @@ import type { CourseData } from '../src/course/course';
 import { makeChallengeParam, readChallengeParam, recordPlan, verifyLog, type InputLog } from '../src/sim/replay';
 import { MAX_PARAM_CHARS, makeChallengeUrl, openChallenge } from '../src/share/challenge';
 
-const course = JSON.parse(readFileSync('public/assets/demo/lache.course.json', 'utf8')) as CourseData;
+const course = JSON.parse(readFileSync('public/assets/demo/bench-and-stairs.course.json', 'utf8')) as CourseData;
 const done = recordPlan(course, course.plan!, 120 * 120).recorder.snapshot();
-const fell: InputLog = [[1, 120 * 60]]; // only run: the first gap ends it
+const fell: InputLog = [[1, 3000]]; // only run: it runs off the first edge and splashes
 const ORIGIN = 'https://conquercourse.pages.dev';
-const SEARCH = '?course=/assets/demo/lache.course.json';
+const SEARCH = '?course=/assets/demo/bench-and-stairs.course.json';
 const param = (u: string) => new URL(u).searchParams.get('challenge')!;
 
 describe('a link for a try that fell (CC-181)', () => {
