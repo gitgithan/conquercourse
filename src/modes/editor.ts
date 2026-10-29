@@ -212,12 +212,12 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
   const recoilKg = el('input', el('label', recoilKnobs, { text: 'Ball (kg) ' }), { type: 'number', min: '2', max: '150', step: '1', value: '12', id: 'recoilkg' });
   const recoilSpeed = el('input', el('label', recoilKnobs, { text: 'Speed (m/s) ' }), { type: 'number', min: '3', max: '60', step: '1', value: '30', id: 'recoilspeed' });
   const syncRecoil = () => { recoilKnobs.style.display = recoilCfg ? '' : 'none'; if (recoilCfg) { recoilKg.value = String(recoilCfg.ballMass); recoilSpeed.value = String(recoilCfg.muzzle); } };
-  for (const [kind, text, id, mass, speed, title] of [['bigcannon', 'Cannon', 'addcannon', 80, 45, 'A pad on the start deck with a big wheeled air cannon: aim it with Up and Down, fire it with K; the ball goes back, you fly forward and up (the proof searches the angle)'], ['cannon', 'Launcher', 'addrecoil', 12, 30, 'A pad on the start deck clips on an air launcher: the ball goes back, you go forward (momentum is conserved)'], ['crate', 'Heavy crate', 'addcrate', 25, 6, 'A pad on the start deck with a heavy crate to throw backward: the same law, a slower throw']] as const) {
+  for (const [kind, text, id, mass, speed, title] of [['bigcannon', 'Cannon', 'addcannon', 80, 45, 'A pad on the start deck with a big wheeled air cannon: aim it with Up and Down, fire it with K; the ball goes back, you fly forward and up (the proof searches the angle)'], ['cannon', 'Launcher', 'addrecoil', 12, 30, 'A pad on the start deck clips on an air launcher: the ball goes back, you go forward (momentum is conserved)']] as const) {
     el('button', addBar, { text, id, title }).onclick = () => {
       const first = !recoilPiece();
       const device = first
         ? makeRecoilDevice(kind, mass, speed)
-        : makeDevice(`device:${kind}:${mass}:${speed}:${RECOIL_PAD_LENGTH}`, kind === 'crate' ? 'Heavy crate' : kind === 'bigcannon' ? 'Cannon' : 'Launcher', nextLaneU() + RECOIL_PAD_LENGTH / 2);
+        : makeDevice(`device:${kind}:${mass}:${speed}:${RECOIL_PAD_LENGTH}`, kind === 'bigcannon' ? 'Cannon' : 'Launcher', nextLaneU() + RECOIL_PAD_LENGTH / 2);
       pieces.push(device); selected = device.id;
       changed(); syncRecoil();
       view.cx = device.x; view.cz = device.z; view3d.look(0, 65, { x: device.x, z: device.z }, 13);
@@ -796,7 +796,7 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
     if (!p) { pieceBar(null); el('div', side, { className: 'muted', text: 'Click a piece on the picture to choose it. Drag it to move it. Scroll to zoom, drag the background to pan.' }); return; }
     if (isDevice(p)) {
       const u = p.x * Math.cos(angle) + p.z * Math.sin(angle);
-      const sameKind = pieces.filter((q) => p.src?.startsWith('device:trebuchet:') ? q.src?.startsWith('device:trebuchet:') : p.src?.startsWith('device:drone:') ? q.src?.startsWith('device:drone:') : q.src?.startsWith('device:cannon:') || q.src?.startsWith('device:crate:'));
+      const sameKind = pieces.filter((q) => p.src?.startsWith('device:trebuchet:') ? q.src?.startsWith('device:trebuchet:') : p.src?.startsWith('device:drone:') ? q.src?.startsWith('device:drone:') : q.src?.startsWith('device:cannon:'));
       const active = sameKind[0]?.id === p.id;
       el('div', side, { className: 'muted', text: `${active ? 'Active in the course simulation' : 'Extra movable copy; the course currently simulates the first device of this type'} at ${u.toFixed(1)} m along the lane. Drag it in the 3D view or top plan. Size and orientation stay fixed.` });
       pieceBar(p);
@@ -881,11 +881,11 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
     const c = Math.cos(angle), s = Math.sin(angle), x = u * c - offset * s, z = u * s + offset * c;
     return { ...newPiece(name, deviceMesh(src), { x, z }), src, yaw: angle };
   };
-  const makeRecoilDevice = (kind: 'cannon' | 'crate' | 'bigcannon', mass: number, muzzle: number): P => {
+  const makeRecoilDevice = (kind: 'cannon' | 'bigcannon', mass: number, muzzle: number): P => {
     const cfg = { kind, ballMass: mass, muzzle }, base = roleCourse(coursePieces(), { angle, offset, level }, 'My world').course, withPad = withRecoil(base, cfg);
     const pad = withPad.recoil, x0 = pad?.x0 ?? base.startX + 1.5, x1 = pad?.x1 ?? base.startX + 4;
     const len = Math.max(0.8, x1 - x0), src = `device:${kind}:${mass}:${muzzle}:${len}`;
-    return makeDevice(src, kind === 'crate' ? 'Heavy crate' : kind === 'bigcannon' ? 'Cannon' : 'Launcher', (x0 + x1) / 2);
+    return makeDevice(src, kind === 'bigcannon' ? 'Cannon' : 'Launcher', (x0 + x1) / 2);
   };
   const makeDroneDevice = (payload: number, battery: number): P => {
     const base = roleCourse(coursePieces(), { angle, offset, level }, 'My world').course, withPad = withDrone(base, { payload, battery });
@@ -906,14 +906,14 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
   let droneCfg: DroneCfg | null = null; // the lane has a drone pad (CC-87), or not
   const dronePiece = () => pieces.find((p) => p.src?.startsWith('device:drone:'));
   const droneRange = () => { const p = dronePiece(); if (!p) return undefined; const u = p.x * Math.cos(angle) + p.z * Math.sin(angle), length = Number(p.src?.split(':')[4]) || DRONE_PAD_LENGTH; return { x0: u - length / 2, x1: u + length / 2 }; };
-  const recoilPiece = () => pieces.find((p) => p.src?.startsWith('device:cannon:') || p.src?.startsWith('device:bigcannon:') || p.src?.startsWith('device:crate:'));
+  const recoilPiece = () => pieces.find((p) => p.src?.startsWith('device:cannon:') || p.src?.startsWith('device:bigcannon:'));
   const recoilRange = () => { const p = recoilPiece(); if (!p) return undefined; const u = p.x * Math.cos(angle) + p.z * Math.sin(angle), length = Number(p.src?.split(':')[4]) || RECOIL_PAD_LENGTH; return { x0: u - length / 2, x1: u + length / 2 }; };
   function syncDeviceState() {
     const tre = pieces.find((p) => p.src?.startsWith('device:trebuchet:'));
     trebuchetKg = tre ? Number(tre.src!.split(':')[2]) || 1200 : null;
     if (!tre) trebuchetExtra = {};
     const recoil = recoilPiece(), parts = recoil?.src?.split(':');
-    recoilCfg = recoil && parts ? { kind: parts[1] as 'cannon' | 'crate' | 'bigcannon', ballMass: Number(parts[2]) || 12, muzzle: Number(parts[3]) || 30 } : null;
+    recoilCfg = recoil && parts ? { kind: parts[1] as 'cannon' | 'bigcannon', ballMass: Number(parts[2]) || 12, muzzle: Number(parts[3]) || 30 } : null;
     const dr = dronePiece(), dparts = dr?.src?.split(':');
     droneCfg = dr && dparts ? { payload: Number(dparts[2]) || 70, battery: Number(dparts[3]) || 50 } : null;
     trebLabel.style.display = trebuchetKg ? '' : 'none'; trebInput.value = String(trebuchetKg ?? 1200);
@@ -936,11 +936,11 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
   // the same lane for other pieces (Make it easier tries many small changes): ground, roles, bars, a trebuchet or a launcher if the world has one
   const courseFor = (ps: P[], ln: { angle: number; offset: number; level: number }) => {
     let c = roleCourse(ps.filter((q) => !isSizeReference(q) && !isDevice(q)), ln, 'My world').course;
-    const tre = ps.find((q) => q.src?.startsWith('device:trebuchet:')), rec = ps.find((q) => q.src?.startsWith('device:cannon:') || q.src?.startsWith('device:crate:'));
+    const tre = ps.find((q) => q.src?.startsWith('device:trebuchet:')), rec = ps.find((q) => q.src?.startsWith('device:cannon:'));
     if (tre) c = withTrebuchet(c, Number(tre.src!.split(':')[2]) || 1200, tre.x * Math.cos(ln.angle) + tre.z * Math.sin(ln.angle) + TREBUCHET_PIVOT_FROM_CENTRE * tre.scale);
     else if (rec) {
       const parts = rec.src!.split(':'), u = rec.x * Math.cos(ln.angle) + rec.z * Math.sin(ln.angle), length = Number(parts[4]) || RECOIL_PAD_LENGTH;
-      c = withRecoil(c, { kind: parts[1] as 'cannon' | 'crate', ballMass: Number(parts[2]) || 12, muzzle: Number(parts[3]) || 30 }, { x0: u - length / 2, x1: u + length / 2 });
+      c = withRecoil(c, { kind: parts[1] as 'cannon', ballMass: Number(parts[2]) || 12, muzzle: Number(parts[3]) || 30 }, { x0: u - length / 2, x1: u + length / 2 });
     }
     if (floorChoice !== 'water') c.hazard = floorChoice;
     return c;

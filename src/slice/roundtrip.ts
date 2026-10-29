@@ -74,7 +74,7 @@ export function piecesFromSource(list: CourseSource['pieces']): (Piece & { src?:
     if (q.src.startsWith('obj:')) continue;
     const at = { x: q.x, z: q.z };
     let p: (Piece & { src?: string }) | null = null;
-    if (q.src.startsWith('device:')) p = { ...newPiece(q.src, deviceMesh(q.src), at), src: q.src };
+    if (q.src.startsWith('device:')) { const src = q.src.replace(/^device:crate:/, 'device:cannon:'); /* the heavy crate piece was removed (CC-96): an old world keeps a launcher with the same numbers */ p = { ...newPiece(src, deviceMesh(src), at), src }; }
     else if (patternOf(q.src)) p = stackPiece(q.src, at);
     else if (q.src.startsWith('box:')) p = pieceFromSrc(q.src, at);
     else if (q.src === 'hold:bar') p = { ...newPiece('Bar', barMesh(), at), src: q.src };

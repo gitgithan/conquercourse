@@ -3,7 +3,7 @@ import { DEFAULT_CANNON, DEFAULT_RECOIL } from '../sim/recoil';
 
 // A lane with a launcher (CC-66): a pad on the start deck clips it on, and K fires it. The editor keeps the lane as it is and calls this on the course it makes,
 // so the proof and the Play button see the launcher too. The knobs are the ball's mass and its speed leaving the launcher.
-export interface RecoilCfg { kind: 'cannon' | 'crate' | 'bigcannon'; ballMass: number; muzzle: number }
+export interface RecoilCfg { kind: 'cannon' | 'bigcannon'; ballMass: number; muzzle: number }
 
 export function withRecoil(c: CourseData, cfg: RecoilCfg, range?: { x0: number; x1: number }): CourseData {
   const p0 = range ? c.terrain.platforms.find((p) => p.x0 <= range.x0 && p.x1 >= range.x1) : c.terrain.platforms.find((p) => p.x0 <= c.startX + 0.01 && p.x1 > c.startX);
