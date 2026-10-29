@@ -1,0 +1,21 @@
+// TEMPORARY, test branch only, never merged (CC-169): replays a run like /api/course-clear but touches no database.
+// POST {key, keys, idle?: ticks of standing still before the keys, repeat?: replay the whole log this many times}
+import type { CourseData } from '../../src/course/course';
+import { decodeLog, verifyLog } from '../../src/sim/replay';
+interface Env { ASSETS: { fetch(url: string): Promise<Response> } }
+const json = (b: unknown, status = 200) => new Response(JSON.stringify(b), { status, headers: { 'content-type': 'application/json' } });
+export const onRequestPost = async ({ request, env }: { request: Request; env: Env }): Promise<Response> => {
+  const b = await request.json() as { key: string; keys: string; idle?: number; repeat?: number };
+  const res = await env.ASSETS.fetch(new URL(`/assets/${b.key}.course.json`, request.url).toString());
+  if (!res.ok) return json({ error: 'no such course' }, 404);
+  const course = await res.json() as CourseData;
+  const log = await decodeLog(b.keys);
+  if (b.idle) log.unshift([0, b.idle]);
+  const t0 = Date.now(), p0 = performance.now();
+  let v = verifyLog(course, log, 120 * 120);
+  let total = v.ticks;
+  for (let i = 1; i < (b.repeat ?? 1); i++) { v = verifyLog(course, log, 120 * 120); total += v.ticks; }
+  // the clock in a Worker only moves after I/O: one small fetch after the work makes Date.now() show the work's time
+  await env.ASSETS.fetch(new URL('/feedback-questions.json', request.url).toString());
+  return json({ ticks: v.ticks, totalTicks: total, ok: v.cleared, wallMs: Date.now() - t0, perfMs: performance.now() - p0 });
+};
