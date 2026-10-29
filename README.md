@@ -76,6 +76,7 @@ Live: https://conquercourse.pages.dev/
 - What did not work: [pipelines, what we tried](docs/meta-ai-pipelines.md#what-we-tried-that-did-not-work).
 - Architecture: [SPEC section 8](docs/spec/SPEC.md).
 - Tests: [docs/testing.md](docs/testing.md).
+- Checks on a submitted clear before and after the server replay: [docs/run-checks.md](docs/run-checks.md).
 - Features with no diagram of their own: tag, ghost, gauges, touch controls, drone, debug view; each links to its doc instead.
 
 ## Input actions by obstacle

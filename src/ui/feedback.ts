@@ -16,11 +16,11 @@ export function trackCourseEvent(event: CourseEvent, courseKey: string, courseNa
   }).catch(() => { /* telemetry must never interrupt a run */ });
 }
 
-/** Offers a cleared run to the server, which plays the keys again with the simulator before it counts (CC-149). Nothing is shown and a failure is ignored. */
-export function sendClear(courseKey: string, runId: string, hash: string, keys: string): void {
+/** Offers a cleared run to the server, which plays the keys again with the simulator before it counts (CC-149). Nothing is shown and a failure is ignored. A 202 (the server kept it unverified) or a 503 (Cloudflare cut the replay) needs nothing from the browser: the server already wrote the clear down (CC-174). */
+export function sendClear(courseKey: string, runId: string, hash: string, keys: string, claimedTicks?: number): void {
   void fetch('/api/course-clear', {
     method: 'POST', headers: { 'content-type': 'application/json' }, keepalive: true,
-    body: JSON.stringify({ session: session(), courseKey, runId, hash, keys }),
+    body: JSON.stringify({ session: session(), courseKey, runId, hash, keys, claimedTicks }),
   }).catch(() => { /* telemetry must never interrupt a run */ });
 }
 

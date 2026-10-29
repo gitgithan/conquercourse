@@ -19,6 +19,8 @@
   - A changed course makes an old time meaningless, so only clears with the newest course hash count.
 - **Failures:** the `fail` events; they are used for the difficulty order and never shown as a number.
 
+- **Unverified clears and the checks before the replay:** see [run-checks](run-checks.md) (CC-174); an unverified clear counts as cleared and never sets the best time.
+
 ## What is not counted, on purpose
 - **People.** A browser id overcounts (another device, a private window, cleared site data) and can be forged.
   - Owner decision, 2026-10-29: no player id is added and no count of people is shown.
@@ -55,5 +57,6 @@
 ## Known gaps
 - The replay costs the server about 11 ms of processor time for a 27 s run; the free Cloudflare plan allows 10 ms.
   - If the live server refuses long runs, the plan or the run-length cap must change.
+  - CC-169 measured it: real clears were never cut; the fallback for a cut is in [run-checks](run-checks.md).
 - Until the migration is applied to the live database, the live site shows no numbers and no order change.
 - Contraption courses with aimed or thrown moves can show plays but not clears.
