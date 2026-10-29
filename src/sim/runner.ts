@@ -83,6 +83,7 @@ function sprint(s: RunnerState, p: RunnerParams, dir: 1 | -1 = 1): RunnerState {
 // Coulomb friction: constant deceleration grip * g until the feet stop.
 function skid(s: RunnerState, p: RunnerParams): RunnerState {
   const decel = p.grip * p.gravity;
+  if (decel <= 0) return { ...s, x: s.x + s.vx * DT }; // no friction: the feet keep sliding at the same speed (and 0 / 0 never happens)
   const sign = s.vx < 0 ? -1 : 1;
   const speed = Math.abs(s.vx);
   const stopTime = speed / decel;

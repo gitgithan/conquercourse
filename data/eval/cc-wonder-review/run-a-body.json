@@ -1,0 +1,30 @@
+{
+  "date": "2026-10-29",
+  "model": "muse-wonder-1.0",
+  "reasoning_effort": "high",
+  "price_usd_per_1m": {
+    "in": 4,
+    "out": 20
+  },
+  "cap_usd": 5,
+  "total_usd": 0.3907,
+  "runs": [
+    {
+      "chunk": "a-body",
+      "files": [
+        "world",
+        "runner",
+        "terrain",
+        "units",
+        "landing",
+        "wall",
+        "roll",
+        "drop"
+      ],
+      "prompt_tokens": 19495,
+      "completion_tokens": 15634,
+      "seconds": 173.5,
+      "usd": 0.3907
+    }
+  ]
+}
