@@ -117,16 +117,17 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
   }
   const save = () => { try { localStorage.setItem(KEY, JSON.stringify({ pieces: pieces.filter((p) => p.src && !p.src.startsWith('map:')).map((p) => ({ src: p.src as string, x: p.x, z: p.z, y: p.y, yaw: p.yaw, scale: p.scale, ...(p.role ? { role: p.role } : {}) })), angle, offset, level, floor: floorChoice } satisfies Saved)); } catch { /* private window */ } };
   load();
-  let mapCamera: { heading: number; pitch: number; distance?: number } | null = null;
+  let mapCamera: { heading: number; pitch: number; distance?: number; target?: { x: number; z: number } } | null = null;
   try { // a place built in ?mode=map arrives once, as the whole world or as the buildings the player picked; it is not saved
-    const m = JSON.parse(sessionStorage.getItem('cc.map.piece') ?? 'null') as { name: string; positions: number[]; indices: number[]; pieces?: { name: string; positions: number[]; indices: number[]; x: number; z: number }[]; camera?: { heading: number; pitch: number; distance?: number }; lane?: { angle: number; offset: number; level: number; from: string } } | null;
+    const m = JSON.parse(sessionStorage.getItem('cc.map.piece') ?? 'null') as { name: string; positions: number[]; indices: number[]; pieces?: { name: string; positions: number[]; indices: number[]; x: number; z: number }[]; camera?: { heading: number; pitch: number; distance?: number; target?: { x: number; z: number } }; lane?: { angle: number; offset: number; level: number; from: string }; objects?: Saved['pieces'] } | null;
     sessionStorage.removeItem('cc.map.piece');
     if (m?.lane && [m.lane.angle, m.lane.offset, m.lane.level].every(Number.isFinite)) { angle = m.lane.angle; offset = m.lane.offset; level = m.lane.level; document.documentElement.dataset.laneFrom = m.lane.from; } // CC-91: the lane the map proved, not the editor's own start
     if (m?.pieces?.length) { // picked buildings from the map flight (CC-79): separate pieces, each where it stood
       pendingObjects.length = 0;
       pieces = m.pieces.map((q) => ({ ...newPiece(q.name, { positions: q.positions, indices: q.indices }), x: q.x, z: q.z, src: `map:${q.name}` }));
       selected = pieces[0].id; mapCamera = m.camera ?? null;
-    } else if (m) { pendingObjects.length = 0; pieces = [{ ...newPiece(m.name, { positions: m.positions, indices: m.indices }), src: `map:${m.name}` }]; selected = pieces[0].id; }
+    } else if (m) { pendingObjects.length = 0; pieces = [{ ...newPiece(m.name, { positions: m.positions, indices: m.indices }), src: `map:${m.name}` }]; selected = pieces[0].id; mapCamera = m.camera ?? null; }
+    if (m?.objects?.length) pendingObjects.push(...m.objects); // CC-238: photo objects that stand on the place (the film's start scene)
   } catch { /* no place waiting */ }
   // CC-80: coming from the Course ("Edit this course", "Make it easier"): the course's own pieces replace the saved world, and "Back to the Course" returns to it
   const handoff = readHandoff();
@@ -334,7 +335,7 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
     interactionEnd: () => verify(),
     ghosts: () => ghostData(),
   });
-  if (mapCamera) view3d.look(mapCamera.heading, mapCamera.pitch, { x: 0, z: 0 }, mapCamera.distance); // the 3D view starts where the map flight ended
+  if (mapCamera) view3d.look(mapCamera.heading, mapCamera.pitch, mapCamera.target ?? { x: 0, z: 0 }, mapCamera.distance); // the 3D view starts where the map flight ended
   // the person for scale: a chip on the picture (bottom left) that shows them, finds them and hides them (CC-96)
   const personChip = el('div', planWrap, { id: 'personchip' });
   const personFind = el('button', personChip, { text: 'Show a person', id: 'personfind', title: 'Show a person for scale, or find them in the picture' });

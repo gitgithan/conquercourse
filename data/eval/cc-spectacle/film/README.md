@@ -75,3 +75,14 @@
 - Its screenshot is kept as `editor-screen-verdict-not-used.png`; beat 3 stays concept.
 - Hero still for CC-210: `data/eval/cc-spectacle/hero-course-still.png` (frame at 3.6 s of the fly-by: runner on the box, backdrop behind).
 - Beat table v5: 1 concept, 2 REAL slicer, 3 concept, 4 REAL fly-by with backdrop, 5 REAL run, 7 REAL leap, 8 designed end card.
+
+## v6 (rough-cut-v6.mp4)
+
+- Beat 4 real: the fly-by is now the new `skyline` shot (`?film=skyline`), low and nearly level, 216 frames from VM3; the old `flyover` shot is unchanged.
+- The backdrop lamps are drawn near true size in the film (`FILM_MIN_SCALE` 0.2 against 0.5), set only in `src/render/backdrop-view.ts`; `?furniture=1` keeps its look.
+- Known look gaps: the second half of the shot is mostly decks and lava, and the backdrop is sparse in it, so the strongest part is the first 4 s.
+- Editor start scene (CC-238): `?mode=editor&start=hero:montmartre-paris` opens the editor on the real place with the proven lane (turn 110 degrees, sideways 8.5 m, level 6 m) and the camera on the lane; the simulator says it can clear it (2 gaps, 4 steps, 24 m).
+- The photo box can be added with `&box=1` and shows on the roof, but it becomes part of the lane and the check then says the lane cannot be cleared, and it looks like it floats above the roofs.
+- Screenshots: `editor-start-scene.png` and `editor-start-scene-with-box.png`.
+- The side strip shows only a thin line near the water because the real roof heights are low (under 2.4 m of drop); it does not read well on screen.
+- Beat 3 stays concept: the editor start scene is not good enough to film yet.

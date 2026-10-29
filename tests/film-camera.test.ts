@@ -19,6 +19,10 @@ describe('film camera', () => {
     expect(filmPose('flyover', 0, ctx).look[0]).toBeLessThan(0);
     expect(filmPose('flyover', SHOT_SECONDS.flyover, ctx).look[0]).toBeGreaterThan(ctx.finishX);
   });
+  it('skyline stays low and level (under 10 degrees) and runs the length of the lane', () => {
+    for (const t of [0, 3, SHOT_SECONDS.skyline]) { const p = filmPose('skyline', t, ctx); expect(Math.asin((p.pos[1] - p.look[1]) / dist(p))).toBeLessThan(0.18); }
+    expect(filmPose('skyline', SHOT_SECONDS.skyline, ctx).look[0]).toBeGreaterThan(ctx.finishX - 8);
+  });
   it('orbit turns round the obstacle and stays about it', () => {
     const a = filmPose('orbit', 0, ctx), b = filmPose('orbit', SHOT_SECONDS.orbit, ctx);
     expect(a.look[0]).toBe(ctx.focusX);
