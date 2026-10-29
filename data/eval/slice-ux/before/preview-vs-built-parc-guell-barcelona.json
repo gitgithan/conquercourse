@@ -1,0 +1,55 @@
+[
+  {
+    "slug": "parc-guell-barcelona",
+    "k": 0.2,
+    "range": 70,
+    "rows": [
+      {
+        "realCut": 6,
+        "level": 1.2000000000000002,
+        "previewCleared": false,
+        "ms": 7362
+      },
+      {
+        "realCut": 17.5,
+        "level": 3.5,
+        "previewCleared": true,
+        "ms": 7073,
+        "builtSameLevel": true,
+        "builtOldHandover": false
+      },
+      {
+        "realCut": 29,
+        "level": 5.800000000000001,
+        "previewCleared": true,
+        "ms": 5689,
+        "builtSameLevel": true,
+        "builtOldHandover": false
+      },
+      {
+        "realCut": 41,
+        "level": 8.200000000000001,
+        "previewCleared": true,
+        "ms": 53294,
+        "builtSameLevel": true,
+        "builtOldHandover": false
+      },
+      {
+        "realCut": 52.5,
+        "level": 10.5,
+        "previewCleared": true,
+        "ms": 21869,
+        "builtSameLevel": false,
+        "builtOldHandover": false
+      },
+      {
+        "realCut": 64,
+        "level": 12.8,
+        "previewCleared": true,
+        "ms": 1902,
+        "builtSameLevel": true,
+        "builtOldHandover": false
+      }
+    ]
+  }
+]

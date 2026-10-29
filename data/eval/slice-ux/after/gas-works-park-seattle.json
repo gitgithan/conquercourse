@@ -1,0 +1,34 @@
+{
+  "slug": "gas-works-park-seattle",
+  "k": 0.2,
+  "range": 16,
+  "rows": [
+    {
+      "realCut": 1.5,
+      "previewCleared": false
+    },
+    {
+      "realCut": 4,
+      "previewCleared": false
+    },
+    {
+      "realCut": 6.5,
+      "previewCleared": false
+    },
+    {
+      "realCut": 9.5,
+      "previewCleared": true,
+      "builtCleared": true
+    },
+    {
+      "realCut": 12,
+      "previewCleared": true,
+      "builtCleared": true
+    },
+    {
+      "realCut": 14.5,
+      "previewCleared": true,
+      "builtCleared": true
+    }
+  ]
+}

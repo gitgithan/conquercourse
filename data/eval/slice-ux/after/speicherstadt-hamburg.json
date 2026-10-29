@@ -1,0 +1,37 @@
+{
+  "slug": "speicherstadt-hamburg",
+  "k": 0.2,
+  "range": 36,
+  "rows": [
+    {
+      "realCut": 3,
+      "previewCleared": true,
+      "builtCleared": true
+    },
+    {
+      "realCut": 9,
+      "previewCleared": true,
+      "builtCleared": true
+    },
+    {
+      "realCut": 15,
+      "previewCleared": true,
+      "builtCleared": true
+    },
+    {
+      "realCut": 21,
+      "previewCleared": true,
+      "builtCleared": true
+    },
+    {
+      "realCut": 27,
+      "previewCleared": true,
+      "builtCleared": true
+    },
+    {
+      "realCut": 33,
+      "previewCleared": true,
+      "builtCleared": true
+    }
+  ]
+}

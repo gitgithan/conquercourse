@@ -1,0 +1,55 @@
+[
+  {
+    "slug": "eixample-barcelona",
+    "k": 0.2,
+    "range": 45,
+    "rows": [
+      {
+        "realCut": 4,
+        "level": 0.8,
+        "previewCleared": false,
+        "ms": 20645
+      },
+      {
+        "realCut": 11.5,
+        "level": 2.3000000000000003,
+        "previewCleared": true,
+        "ms": 18339,
+        "builtSameLevel": true,
+        "builtOldHandover": false
+      },
+      {
+        "realCut": 19,
+        "level": 3.8000000000000003,
+        "previewCleared": true,
+        "ms": 11896,
+        "builtSameLevel": false,
+        "builtOldHandover": false
+      },
+      {
+        "realCut": 26.5,
+        "level": 5.300000000000001,
+        "previewCleared": true,
+        "ms": 10759,
+        "builtSameLevel": false,
+        "builtOldHandover": false
+      },
+      {
+        "realCut": 34,
+        "level": 6.800000000000001,
+        "previewCleared": true,
+        "ms": 4218,
+        "builtSameLevel": true,
+        "builtOldHandover": false
+      },
+      {
+        "realCut": 41.5,
+        "level": 8.3,
+        "previewCleared": true,
+        "ms": 4339,
+        "builtSameLevel": true,
+        "builtOldHandover": false
+      }
+    ]
+  }
+]

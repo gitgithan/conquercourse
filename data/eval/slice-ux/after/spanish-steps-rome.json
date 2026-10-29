@@ -1,0 +1,36 @@
+{
+  "slug": "spanish-steps-rome",
+  "k": 0.2,
+  "range": 30,
+  "rows": [
+    {
+      "realCut": 2.5,
+      "previewCleared": false
+    },
+    {
+      "realCut": 7.5,
+      "previewCleared": true,
+      "builtCleared": true
+    },
+    {
+      "realCut": 12.5,
+      "previewCleared": true,
+      "builtCleared": true
+    },
+    {
+      "realCut": 17.5,
+      "previewCleared": true,
+      "builtCleared": true
+    },
+    {
+      "realCut": 22.5,
+      "previewCleared": true,
+      "builtCleared": true
+    },
+    {
+      "realCut": 27.5,
+      "previewCleared": true,
+      "builtCleared": true
+    }
+  ]
+}

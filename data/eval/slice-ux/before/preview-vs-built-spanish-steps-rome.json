@@ -1,0 +1,55 @@
+[
+  {
+    "slug": "spanish-steps-rome",
+    "k": 0.2,
+    "range": 30,
+    "rows": [
+      {
+        "realCut": 2.5,
+        "level": 0.5,
+        "previewCleared": false,
+        "ms": 31277
+      },
+      {
+        "realCut": 7.5,
+        "level": 1.5,
+        "previewCleared": true,
+        "ms": 6470,
+        "builtSameLevel": true,
+        "builtOldHandover": true
+      },
+      {
+        "realCut": 12.5,
+        "level": 2.5,
+        "previewCleared": true,
+        "ms": 15329,
+        "builtSameLevel": true,
+        "builtOldHandover": false
+      },
+      {
+        "realCut": 17.5,
+        "level": 3.5,
+        "previewCleared": true,
+        "ms": 6291,
+        "builtSameLevel": true,
+        "builtOldHandover": false
+      },
+      {
+        "realCut": 22.5,
+        "level": 4.5,
+        "previewCleared": true,
+        "ms": 6519,
+        "builtSameLevel": true,
+        "builtOldHandover": false
+      },
+      {
+        "realCut": 27.5,
+        "level": 5.5,
+        "previewCleared": true,
+        "ms": 6836,
+        "builtSameLevel": true,
+        "builtOldHandover": false
+      }
+    ]
+  }
+]

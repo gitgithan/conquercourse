@@ -1,0 +1,36 @@
+{
+  "slug": "eixample-barcelona",
+  "k": 0.2,
+  "range": 45,
+  "rows": [
+    {
+      "realCut": 4,
+      "previewCleared": false
+    },
+    {
+      "realCut": 11.5,
+      "previewCleared": true,
+      "builtCleared": true
+    },
+    {
+      "realCut": 19,
+      "previewCleared": true,
+      "builtCleared": true
+    },
+    {
+      "realCut": 26.5,
+      "previewCleared": true,
+      "builtCleared": true
+    },
+    {
+      "realCut": 34,
+      "previewCleared": true,
+      "builtCleared": true
+    },
+    {
+      "realCut": 41.5,
+      "previewCleared": true,
+      "builtCleared": true
+    }
+  ]
+}
