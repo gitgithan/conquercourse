@@ -1,0 +1,282 @@
+[
+  {
+    "id": "R1-OK1",
+    "text": "the basic mechanics feel good."
+  },
+  {
+    "id": "R1-OK2",
+    "text": "the five obstacles are enough to show the physics ideas."
+  },
+  {
+    "id": "R1-OK3",
+    "text": "the replay after a fall is good."
+  },
+  {
+    "id": "R1-G1",
+    "text": "wall teleport"
+  },
+  {
+    "id": "R1-G2",
+    "text": "too slow"
+  },
+  {
+    "id": "R1-G3",
+    "text": "speed visible"
+  },
+  {
+    "id": "R1-G4",
+    "text": "the Dojo has a \"Back to the Course\" button."
+  },
+  {
+    "id": "R1-T1, R1-T2",
+    "text": "every obstacle has a six-step lesson (why, try it, the shape, a rule of thumb, the exact formula, on the Course)."
+  },
+  {
+    "id": "R1-T3",
+    "text": "formulas appear only as step 5 of a Dojo lesson (rule updated in `CLAUDE.md`; to be confirmed by the owner)."
+  },
+  {
+    "id": "R1-W1, R1-W2",
+    "text": "the climb height comes from energy only, and the wall is drawn as an orange curve."
+  },
+  {
+    "id": "R1-P1, R1-P2",
+    "text": "\"Length above the grip\", and the rope question is now \"How far across will you land after you let go?\"."
+  },
+  {
+    "id": "R1-V1",
+    "text": "the last three runs stay on the picture; \"Clear the old lines\" resets them."
+  },
+  {
+    "id": "R1-N1",
+    "text": "landing shows \"Soft landing\" or \"Hard landing\" with the push in times the runner's weight, and the capsule squashes; the full picture needs the Rookie (CC-16)."
+  },
+  {
+    "id": "R1-X1",
+    "text": "the agent works in its own git worktree."
+  },
+  {
+    "id": "R1-N1'",
+    "text": "the Rookie squatting on landing (CC-16)."
+  },
+  {
+    "id": "R2-G3",
+    "text": "is the long run-up by design?"
+  },
+  {
+    "id": "R2-G5",
+    "text": "why the big slow-down after jumps?"
+  },
+  {
+    "id": "R2-D1",
+    "text": "is the gap formula right?"
+  },
+  {
+    "id": "R2-G1",
+    "text": "running left works (mirror of running right, tested)."
+  },
+  {
+    "id": "R2-G2",
+    "text": "the Course has two jumps before the wall (a gap, then a raised block)."
+  },
+  {
+    "id": "R2-G4",
+    "text": "the Dojo is one click (or the T key) away at any time and opens on the nearest obstacle."
+  },
+  {
+    "id": "R2-G7",
+    "text": "the squash effect resets on restart."
+  },
+  {
+    "id": "R2-G8",
+    "text": "the rope drawing now swings with the body."
+  },
+  {
+    "id": "R2-D2",
+    "text": "each obstacle keeps its own place and runs; the steps are free to click; nothing is locked."
+  },
+  {
+    "id": "R2-D3, R2-D4",
+    "text": "a person is in every Dojo scene; the rope scene shows the beam, the rope hanging, the rope at the release angle with an arc and the word \"angle\"."
+  },
+  {
+    "id": "R2-G6",
+    "text": "the real Rookie instead of the pill"
+  },
+  {
+    "id": "R2-D5",
+    "text": "labelled diagrams"
+  },
+  {
+    "id": "R2-V1",
+    "text": "animating the rope swing nicely is parked until the core features are done."
+  },
+  {
+    "id": "R3-Q1",
+    "text": "is there an ideal run?"
+  },
+  {
+    "id": "R3-G2",
+    "text": "how does the trampoline press change the formula?"
+  },
+  {
+    "id": "R3-G1",
+    "text": "the trampoline"
+  },
+  {
+    "id": "R3-G3",
+    "text": "retry from the start"
+  },
+  {
+    "id": "R3-G4",
+    "text": "replay with diagnostics"
+  },
+  {
+    "id": "R4-D1",
+    "text": "why a flat section on the Landing graph?"
+  },
+  {
+    "id": "R4-D2",
+    "text": "are the \"On the course\" values right?"
+  },
+  {
+    "id": "R4-D3",
+    "text": "dynamic Dojo"
+  },
+  {
+    "id": "R4-D4",
+    "text": "interactive objects without making the prediction pointless"
+  },
+  {
+    "id": "R4-G1",
+    "text": "C cycles side, 45 degrees and first person."
+  },
+  {
+    "id": "R4-G2",
+    "text": "the standing pose is now an upright frame (head level, arms down, feet together), picked by scoring every frame of the shipped clips."
+  },
+  {
+    "id": "R4-G3",
+    "text": "the ideal run only plans edges ahead of its start, so no warm-up jumps (tested)."
+  },
+  {
+    "id": "R5-D1",
+    "text": "why guess at all? what is interactive?"
+  },
+  {
+    "id": "R5-D2",
+    "text": "scrubbing belongs on the formula page"
+  },
+  {
+    "id": "R5-D3",
+    "text": "Landing: the graph is the push on you against time."
+  },
+  {
+    "id": "R5-D4",
+    "text": "the Landing picture is my reading of \"areas of impact spread out over time\"; if you meant the older height-against-time picture, say so."
+  },
+  {
+    "id": "R5-G1",
+    "text": "the standing pose is built bone by bone (upright, slight forward lean, soft knees, arms hanging with bent elbows); it was a captured frame before."
+  },
+  {
+    "id": "R5-G2",
+    "text": "the controls are a card of key caps at the top left (H hides it)."
+  },
+  {
+    "id": "R5-G3",
+    "text": "the camera button is a ring with three nodes that turns a third each time C is pressed (or when it is clicked), with the view's name under it."
+  },
+  {
+    "id": "R5-G4",
+    "text": "the side camera is further back, so the whole trampoline is in view."
+  },
+  {
+    "id": "R5-F1",
+    "text": "the feedback form says at the top that every question is optional (the word is not repeated on each question)."
+  },
+  {
+    "id": "R5-G1b",
+    "text": "the forward lean made the Rookie look hunched; the ready stance now stands straight up with no lean."
+  },
+  {
+    "id": "R5-S1",
+    "text": "the wall's hand reach is now 1.3 m above the hips (it was 2.1 m, more than a body can stretch; the CC-17 finding)."
+  },
+  {
+    "id": "R5-G1c",
+    "text": "the stance had shoulders slightly forward and bent elbows; now the shoulders are level with the body and the arms hang straight down with straight elbows."
+  },
+  {
+    "id": "R5-G1d",
+    "text": "the shoulders looked tense and raised; the stance now takes the shoulder and upper-arm directions from the model's own T-pose (kept level, never raised), then lets the arms hang straight down."
+  },
+  {
+    "id": "R5-G5",
+    "text": "the trampoline message flashed too fast to read."
+  },
+  {
+    "id": "R5-G5b",
+    "text": "after a full restart the trampoline cue showed again; the cue now starts over whenever the runner is far from the bed or the attempt is over (checked: no cue after Shift+R)."
+  },
+  {
+    "id": "R5-G6",
+    "text": "an obstacle strip under the speed meter."
+  },
+  {
+    "id": "R5-G7",
+    "text": "the controls card only lists the three keys you hold or press while running (arrows, Space, down arrow)."
+  },
+  {
+    "id": "R5-G8",
+    "text": "the trampoline shows one message only (\"Trampoline ahead: press Space the moment you land on it for extra height\"); the two others are gone."
+  },
+  {
+    "id": "R5-G9",
+    "text": "the mouse turns the camera around the runner."
+  },
+  {
+    "id": "R5-G10",
+    "text": "the Rookie sank into the wall and the deck."
+  },
+  {
+    "id": "R5-G11",
+    "text": "the arm raise on the wall came only after the legs were up."
+  },
+  {
+    "id": "R5-G12",
+    "text": "the body seemed to vanish into the deck at the top of the wall."
+  },
+  {
+    "id": "R5-G13",
+    "text": "typing in the feedback form triggered game keys (a T opened the Dojo)."
+  },
+  {
+    "id": "P1-confusing",
+    "text": "The read back what happened, the \"esc\" key did not work"
+  },
+  {
+    "id": "P2-confusing",
+    "text": "Controls for jump and trampoline (spacebar): an up button might be easier so the user only needs one hand; WASD for left-handed players. The bend function did not have any consequences when you do not use it."
+  },
+  {
+    "id": "P3-confusing",
+    "text": "How to restart the whole course"
+  },
+  {
+    "id": "P3-again",
+    "text": "Trying to not go through all the obstacles in one go and not get warnings for my knees"
+  },
+  {
+    "id": "P4-confusing",
+    "text": "It was hard to get the rope followed by the trampoline at maximum speed"
+  },
+  {
+    "id": "P4-again",
+    "text": "An overall score of the run; a separate practice versus attempt; score per obstacle; time to completion, attempts per obstacle, successes versus failures per obstacle"
+  },
+  {
+    "id": "P5-dojo",
+    "text": "I did not know the Dojo was there (4 of 5 players)"
+  }
+]
