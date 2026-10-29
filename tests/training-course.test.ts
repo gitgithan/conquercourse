@@ -32,9 +32,15 @@ describe('the Training course', () => {
     const p = c.terrain.platforms, gaps = p.slice(1).map((q, i) => q.x0 - p[i].x1);
     expect(Math.max(...gaps.filter((g) => g > 9))).toBeGreaterThan(8.5);
   });
-  it('the best line is not the obvious one: skipping the second bar saves time', () => {
-    expect(c.shortcuts?.some((s) => s.secondsSaved >= 0.5)).toBe(true);
-    expect(c.routes?.find((r) => r.chosen)?.bars).toBeLessThan(2);
+  it('the best line holds both lache bars (the far deck is out of reach of a skip), with no shortcut that skips one', () => {
+    expect(c.routes?.find((r) => r.chosen)?.bars).toBe(2);
+    expect(c.shortcuts ?? []).toEqual([]);
+  });
+  it('rolls after the second bar and at the end, and not after the rope', () => {
+    const rolls = log.moves.filter((m) => m.kind === 'roll').map((m) => m.x);
+    expect(rolls).toHaveLength(2);
+    expect(rolls[0]).toBeGreaterThan(74); expect(rolls[0]).toBeLessThan(86);
+    expect(rolls[1]).toBeGreaterThan(160);
   });
   it('the decks touch where a wall or a drop begins (no sliver to fall through)', () => {
     const p = c.terrain.platforms;
