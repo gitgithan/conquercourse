@@ -6,6 +6,10 @@
 # Linear's GitHub app only reacts to pull requests, not to commits pushed straight to main.
 set -euo pipefail
 issue="${1:?issue id, e.g. CC-12}"; mode="${2:---part}"; remote_branch="${3:-}"
+# The owner's folder stays on main; agents ship from their own worktree (git worktree add ../conquercourse-<name> -b hanqi91/cc-n-name origin/main)
+if [ "$(git rev-parse --git-dir)" = "$(git rev-parse --git-common-dir)" ] && [ "${ALLOW_MAIN_FOLDER:-}" != 1 ]; then
+  echo "This is the owner's folder, which stays on main. Ship from a worktree (see CLAUDE.md), or set ALLOW_MAIN_FOLDER=1." >&2; exit 1
+fi
 # a third argument names a branch a VM agent pushed (e.g. cc-16-rookies): fetch it and ship it
 if [ -n "$remote_branch" ]; then git fetch -q origin "$remote_branch"; git switch -q -C "$remote_branch" "origin/$remote_branch"; fi
 word="Part of"; [ "$mode" = "--fixes" ] && word="Fixes"
