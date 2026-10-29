@@ -1,0 +1,20 @@
+{
+  "photo": "fence-split-rail",
+  "status": 200,
+  "usage": {
+    "prompt_tokens": 1607,
+    "completion_tokens": 737,
+    "total_tokens": 2344,
+    "prompt_tokens_details": {
+      "audio_tokens": 0,
+      "cached_tokens": 128
+    },
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": 509,
+      "audio_tokens": 0,
+      "reasoning_tokens": 636,
+      "rejected_prediction_tokens": 1087
+    }
+  },
+  "reply": "{\"score\": 2, \"problems\": [\"whole fence not in frame - extends beyond edges and recedes into distance\", \"not one isolated object - long continuous zigzag fence with many sections\", \"not a flat side-on view - oblique perspective angle\", \"cluttered background with field, trees and hills\", \"complex interwoven rails with many gaps and thin diagonal supports hard to cut out cleanly\"], \"verdict\": \"poor\"}"
+}

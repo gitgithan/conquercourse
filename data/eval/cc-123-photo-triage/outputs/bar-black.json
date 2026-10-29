@@ -1,0 +1,20 @@
+{
+  "photo": "bar-black",
+  "status": 200,
+  "usage": {
+    "prompt_tokens": 3432,
+    "completion_tokens": 1223,
+    "total_tokens": 4655,
+    "prompt_tokens_details": {
+      "audio_tokens": 0,
+      "cached_tokens": 128
+    },
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": 835,
+      "audio_tokens": 0,
+      "reasoning_tokens": 1153,
+      "rejected_prediction_tokens": 1874
+    }
+  },
+  "reply": "{\"score\": 3, \"problems\": [\"not a flat side-on view - angled 3/4 perspective\", \"additional exercise equipment visible in background on right\", \"cluttered natural background with trees, grass and sky\", \"thin horizontal bar\"], \"verdict\": \"partly\"}"
+}

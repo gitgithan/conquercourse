@@ -1,0 +1,20 @@
+{
+  "photo": "barrel-oak",
+  "status": 200,
+  "usage": {
+    "prompt_tokens": 2013,
+    "completion_tokens": 1392,
+    "total_tokens": 3405,
+    "prompt_tokens_details": {
+      "audio_tokens": 0,
+      "cached_tokens": 128
+    },
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": 942,
+      "audio_tokens": 0,
+      "reasoning_tokens": 1302,
+      "rejected_prediction_tokens": 2208
+    }
+  },
+  "reply": "{\"score\": 2, \"problems\": [\"multiple objects in frame - four barrels in a row instead of one isolated object\", \"front barrel touching/occluded by barrel directly behind it\", \"cluttered background with pallets, planks, rocks and ground debris\", \"not a clean flat side-on isolation - perspective along row and close camera angle\"], \"verdict\": \"poor\"}"
+}

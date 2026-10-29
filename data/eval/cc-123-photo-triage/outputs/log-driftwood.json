@@ -1,0 +1,20 @@
+{
+  "photo": "log-driftwood",
+  "status": 200,
+  "usage": {
+    "prompt_tokens": 1606,
+    "completion_tokens": 1630,
+    "total_tokens": 3236,
+    "prompt_tokens_details": {
+      "audio_tokens": 0,
+      "cached_tokens": 128
+    },
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": 1074,
+      "audio_tokens": 0,
+      "reasoning_tokens": 1559,
+      "rejected_prediction_tokens": 2839
+    }
+  },
+  "reply": "{\"score\": 2, \"problems\": [\"foreground vegetation and grass occluding base and underside\", \"cluttered background with power pylons, wires and terrain\", \"angled perspective view not flat side-on orthographic\", \"thin branching root tips at end\"], \"verdict\": \"poor\"}"
+}

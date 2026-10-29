@@ -1,0 +1,20 @@
+{
+  "photo": "bench-concrete-curve",
+  "status": 200,
+  "usage": {
+    "prompt_tokens": 1788,
+    "completion_tokens": 1375,
+    "total_tokens": 3163,
+    "prompt_tokens_details": {
+      "audio_tokens": 0,
+      "cached_tokens": 128
+    },
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": 949,
+      "audio_tokens": 0,
+      "reasoning_tokens": 1337,
+      "rejected_prediction_tokens": 2033
+    }
+  },
+  "reply": "{\"score\": 3, \"problems\": [\"hard shadows\", \"not flat side-on view\"], \"verdict\": \"partly\"}"
+}

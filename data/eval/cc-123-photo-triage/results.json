@@ -1,0 +1,191 @@
+[
+  {
+    "photo": "bollard-iron",
+    "label": "bollard",
+    "status": 200,
+    "predicted": "partly",
+    "score": 3,
+    "problems": [
+      "hard shadows on ground and wall",
+      "multiple objects - second bollard/pole in background",
+      "angled perspective view not flat side-on",
+      "cluttered background with brick wall, pavement and railings"
+    ],
+    "outcome": "good"
+  },
+  {
+    "photo": "hydrant-red",
+    "label": "fire hydrant",
+    "status": 200,
+    "predicted": "good",
+    "score": 5,
+    "problems": [],
+    "outcome": "good"
+  },
+  {
+    "photo": "barrel-oak",
+    "label": "wooden barrel",
+    "status": 200,
+    "predicted": "poor",
+    "score": 2,
+    "problems": [
+      "multiple objects in frame - four barrels in a row instead of one isolated object",
+      "front barrel touching/occluded by barrel directly behind it",
+      "cluttered background with pallets, planks, rocks and ground debris",
+      "not a clean flat side-on isolation - perspective along row and close camera angle"
+    ],
+    "outcome": "good"
+  },
+  {
+    "photo": "planter-concrete",
+    "label": "planter",
+    "status": 200,
+    "predicted": "poor",
+    "score": 2,
+    "problems": [
+      "multiple objects in frame - second planter cropped in foreground, central planter not isolated",
+      "thin wooden trellis with narrow slats behind planter",
+      "angled three-quarter top-down view not flat side-on",
+      "background clutter from wall and pavement"
+    ],
+    "outcome": "good"
+  },
+  {
+    "photo": "gabion-wall",
+    "label": "gabion wall",
+    "status": 200,
+    "predicted": "poor",
+    "score": 2,
+    "problems": [
+      "object cropped - ends extend out of frame, whole wall not visible",
+      "clutter and occlusion from vegetation growing on wall, pipe in foreground and railing on top",
+      "oblique elevated perspective, not a flat side-on view",
+      "thin wire mesh cages are hard to reconstruct cleanly"
+    ],
+    "outcome": "good"
+  },
+  {
+    "photo": "pipe-ring",
+    "label": "concrete pipe",
+    "status": 200,
+    "predicted": "poor",
+    "score": 2,
+    "problems": [
+      "barbed wire and fence mesh cross directly in front of pipe and cast hard linear shadows on its surface",
+      "base of pipe obscured by tall grass and ground vegetation",
+      "cluttered surroundings with fence posts, dense foliage and debris competing with subject",
+      "angled three-quarter top-down perspective rather than flat side-on view",
+      "harsh direct sunlight creates strong shadows and uneven lighting on concrete"
+    ],
+    "outcome": "good"
+  },
+  {
+    "photo": "picnic-table",
+    "label": "picnic table",
+    "status": 200,
+    "predicted": "partly",
+    "score": 3,
+    "problems": [
+      "not a flat side-on view - low end-on angle with strong perspective foreshortening",
+      "length recedes away showing underside rather than clean side silhouette for extrusion"
+    ],
+    "outcome": "partly"
+  },
+  {
+    "photo": "bench-concrete-curve",
+    "label": "concrete bench",
+    "status": 200,
+    "predicted": "partly",
+    "score": 3,
+    "problems": [
+      "hard shadows",
+      "not flat side-on view"
+    ],
+    "outcome": "good"
+  },
+  {
+    "photo": "railing-red",
+    "label": "metal railing",
+    "status": 200,
+    "predicted": "poor",
+    "score": 2,
+    "problems": [
+      "object cropped at both ends, whole railing not in frame",
+      "strong angled perspective view, not flat side-on",
+      "cluttered background visible through rails (canal, buildings, cars, trees)",
+      "hard shadows cast on pavement"
+    ],
+    "outcome": "partly"
+  },
+  {
+    "photo": "fence-split-rail",
+    "label": "fence",
+    "status": 200,
+    "predicted": "poor",
+    "score": 2,
+    "problems": [
+      "whole fence not in frame - extends beyond edges and recedes into distance",
+      "not one isolated object - long continuous zigzag fence with many sections",
+      "not a flat side-on view - oblique perspective angle",
+      "cluttered background with field, trees and hills",
+      "complex interwoven rails with many gaps and thin diagonal supports hard to cut out cleanly"
+    ],
+    "outcome": "failed"
+  },
+  {
+    "photo": "bar-green",
+    "label": "pull-up bar",
+    "status": 200,
+    "predicted": "partly",
+    "score": 3,
+    "problems": [
+      "not a flat side-on view - diagonal 3/4 perspective",
+      "busy background with buildings, trees, fence and vegetation behind object",
+      "thin horizontal top bars"
+    ],
+    "outcome": "good"
+  },
+  {
+    "photo": "bar-black",
+    "label": "pull-up bar",
+    "status": 200,
+    "predicted": "partly",
+    "score": 3,
+    "problems": [
+      "not a flat side-on view - angled 3/4 perspective",
+      "additional exercise equipment visible in background on right",
+      "cluttered natural background with trees, grass and sky",
+      "thin horizontal bar"
+    ],
+    "outcome": "good"
+  },
+  {
+    "photo": "log-driftwood",
+    "label": "log",
+    "status": 200,
+    "predicted": "poor",
+    "score": 2,
+    "problems": [
+      "foreground vegetation and grass occluding base and underside",
+      "cluttered background with power pylons, wires and terrain",
+      "angled perspective view not flat side-on orthographic",
+      "thin branching root tips at end"
+    ],
+    "outcome": "partly"
+  },
+  {
+    "photo": "stump-spruce",
+    "label": "tree stump",
+    "status": 200,
+    "predicted": "poor",
+    "score": 2,
+    "problems": [
+      "multiple other trees and dense forest clutter in background, not a single isolated object",
+      "hard directional sunlight with strong shadows and high contrast on the stump",
+      "thin splintered wood fibers at the broken top",
+      "base partially occluded by grass, moss and uneven ground in foreground",
+      "not a clean flat side-on view, angled perspective view"
+    ],
+    "outcome": "good"
+  }
+]

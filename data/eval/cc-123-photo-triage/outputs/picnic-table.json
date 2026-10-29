@@ -1,0 +1,20 @@
+{
+  "photo": "picnic-table",
+  "status": 200,
+  "usage": {
+    "prompt_tokens": 1788,
+    "completion_tokens": 1922,
+    "total_tokens": 3710,
+    "prompt_tokens_details": {
+      "audio_tokens": 0,
+      "cached_tokens": 128
+    },
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": 1286,
+      "audio_tokens": 0,
+      "reasoning_tokens": 1859,
+      "rejected_prediction_tokens": 3166
+    }
+  },
+  "reply": "{\"score\": 3, \"problems\": [\"not a flat side-on view - low end-on angle with strong perspective foreshortening\", \"length recedes away showing underside rather than clean side silhouette for extrusion\"], \"verdict\": \"partly\"}"
+}
