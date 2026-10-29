@@ -1,0 +1,672 @@
+You are reviewing the physics simulator of a browser game (TypeScript, deterministic, fixed 120 Hz step, pure functions, Earth gravity only). Below are source files with line numbers.
+Find real bugs: wrong physics, unit mix-ups, off-by-one, division by zero or NaN, state that is not reset, results that depend on iteration order or wall-clock time (the simulator must replay the same keys to the same result), and edge cases that break a promise the comments make.
+Rules:
+- Report only bugs you can argue from the code shown. Do not report style, naming or missing features.
+- For each, give the file, the line number printed in the listing, one sentence of summary, a concrete failing input (numbers a test could use), and why it fails.
+- Give a confidence of low, medium or high. If you find nothing, return an empty list.
+
+=== src/sim/rope.ts ===
+1: import { DT, GRAVITY } from './units';
+2: 
+3: // A rope hanging from an anchor. The runner catches it only where the hands really meet it;
+4: // nothing moves the rope to the hands. After the catch the runner swings as a pendulum of the grip length.
+5: export interface RopeParams {
+6:   anchorX: number;
+7:   anchorY: number;
+8:   length: number; // m (spec: 9)
+9:   handHeight: number; // m, hands above the feet when stretched up
+10:   catchReach: number; // m, how close the hands must be to the rope (spec: 0.35)
+11:   catchReachAtEnd: number; // m, allowed near the rope's end (spec: 0.5)
+12:   gravity: number;
+13: }
+14: 
+15: export const DEFAULT_ROPE: RopeParams = {
+16:   anchorX: 0, anchorY: 10, length: 9, handHeight: 2.1, catchReach: 0.35, catchReachAtEnd: 0.5, gravity: GRAVITY,
+17: };
+18: 
+19: export interface Swing {
+20:   grip: number; // m from the anchor to the hands
+21:   theta: number; // rad from straight down
+22:   omega: number; // rad/s
+23: }
+24: 
+25: // Position of the rope at distance r from the anchor when the rope hangs at angle theta.
+26: export const ropePoint = (p: RopeParams, r: number, theta = 0) => ({
+27:   x: p.anchorX + r * Math.sin(theta),
+28:   y: p.anchorY - r * Math.cos(theta),
+29: });
+30: 
+31: // Where do the hands (at runner position x, y, feet) meet a hanging rope? Returns the grip distance or null.
+32: export function tryCatch(p: RopeParams, x: number, y: number, vx: number, vy: number, theta = 0): Swing | null {
+33:   const handX = x;
+34:   const handY = y + p.handHeight;
+35:   const r = Math.hypot(handX - p.anchorX, handY - p.anchorY);
+36:   if (r > p.length) return null; // below the end of the rope
+37:   // distance from the hands to the rope line at that grip distance
+38:   const point = ropePoint(p, r, theta);
+39:   const reach = r > p.length - 0.5 ? p.catchReachAtEnd : p.catchReach;
+40:   if (Math.hypot(handX - point.x, handY - point.y) > reach) return null;
+41:   if (handY > p.anchorY) return null;
+42:   // Keep the speed along the swing (the tangent); the speed along the rope is absorbed by the rope.
+43:   const tx = Math.cos(theta);
+44:   const ty = Math.sin(theta);
+45:   return { grip: r, theta, omega: (vx * tx + vy * ty) / r };
+46: }
+47: 
+48: // Pendulum theta'' = -(g / r) sin theta, integrated with RK4 at the fixed step.
+49: export function swingStep(sw: Swing, g = GRAVITY): Swing {
+50:   const f = (th: number) => -(g / sw.grip) * Math.sin(th);
+51:   const k1t = sw.omega, k1w = f(sw.theta);
+52:   const k2t = sw.omega + 0.5 * DT * k1w, k2w = f(sw.theta + 0.5 * DT * k1t);
+53:   const k3t = sw.omega + 0.5 * DT * k2w, k3w = f(sw.theta + 0.5 * DT * k2t);
+54:   const k4t = sw.omega + DT * k3w, k4w = f(sw.theta + DT * k3t);
+55:   return {
+56:     grip: sw.grip,
+57:     theta: sw.theta + (DT / 6) * (k1t + 2 * k2t + 2 * k3t + k4t),
+58:     omega: sw.omega + (DT / 6) * (k1w + 2 * k2w + 2 * k3w + k4w),
+59:   };
+60: }
+61: 
+62: // Letting go: the runner flies off along the swing's velocity.
+63: export function release(p: RopeParams, sw: Swing) {
+64:   const hand = ropePoint(p, sw.grip, sw.theta);
+65:   const speed = sw.omega * sw.grip;
+66:   return { x: hand.x, y: hand.y - p.handHeight, vx: speed * Math.cos(sw.theta), vy: speed * Math.sin(sw.theta) };
+67: }
+68: 
+69: // Measured period of a swing started at rest from theta0 (time between two returns to the same side).
+70: export function measurePeriod(grip: number, theta0: number): number {
+71:   let sw: Swing = { grip, theta: theta0, omega: 0 };
+72:   let t = 0;
+73:   let crossings = 0;
+74:   let prev = sw.theta;
+75:   let first = 0;
+76:   while (t < 60) {
+77:     sw = swingStep(sw);
+78:     t += DT;
+79:     if (prev > 0 && sw.theta <= 0) {
+80:       // linear interpolation of the zero crossing
+81:       const tc = t - DT + (DT * prev) / (prev - sw.theta);
+82:       if (crossings === 0) first = tc;
+83:       else return tc - first;
+84:       crossings++;
+85:     }
+86:     prev = sw.theta;
+87:   }
+88:   return NaN;
+89: }
+90: 
+
+=== src/sim/holds.ts ===
+1: import { DT, GRAVITY } from './units';
+2: 
+3: // Holds: bars hanging in the air (a game, not real: they need no frame). The runner grabs one with the hands (Q and/or E)
+4: // when the hands are within reach, hangs from it as a pendulum, pumps the swing with the arrow keys, and lets go to fly.
+5: // Everything is a metre or a second; the pendulum is integrated with RK4 at the fixed step, like the rope.
+6: //
+7: // The body is one stiff rod, hands at the bar and feet at the far end (length handHeight, a uniform rod):
+8: // its middle (the centre of mass) is half a rod from the bar and the swing behaves like a simple pendulum two thirds of a rod long.
+9: // The swing may go over the top and round in full circles; the limit is the grip: the faster the body swings, the harder the bar
+10: // pulls on the hands (weight plus the pull of the circle), and the hands hold only a few body weights.
+11: export interface Hold { x: number; y: number } // the bar, seen from the side: where along the run and how high
+12: 
+13: export interface HangParams {
+14:   handHeight: number; // m, hands above the feet when the arms are stretched up (the rod's length)
+15:   reach: number; // m, how close the hands must be to the bar to grab it (a circle: the first grab from a run and jump)
+16:   regrabX: number; // m, along the run: how far the hands may be from a bar to grab it again after a release (an ellipse, wider than tall)
+17:   regrabY: number; // m, up and down: how far the hands may be above or below the bar (falling past it from above counts)
+18:   catchKeep: number; // share of the speed along the swing that the arms keep when they catch (the rest is absorbed)
+19:   pump: number; // rad/s^2, how hard the body can drive the swing with the arrow keys
+20:   grip: number; // the most the bar may pull on the hands, in body weights; above it the hands open
+21:   drag: number; // 1/s, air and grip losses
+22:   gravity: number;
+23: }
+24: 
+25: // grip 5.5: strain-gauge bars measured about 3.5 to 3.7 body weights in ordinary forward and backward giant swings (Kopp and Reid 1980),
+26: // an estimate of 4.9 at the top of the pull (Cureton 1939), and 5 to 6.6 for an elite gymnast in strapped grips (Cagran et al. 2009).
+27: export const DEFAULT_HANG: HangParams = { handHeight: 2.1, reach: 0.6, regrabX: 1.2, regrabY: 0.6, catchKeep: 0.35, pump: 6, grip: 5.5, drag: 0.04, gravity: GRAVITY };
+28: 
+29: export interface Hang {
+30:   hold: number; // index into the course's holds
+31:   theta: number; // rad from hanging straight down, wrapped to (-pi, pi]; positive swings forward (toward +x)
+32:   omega: number; // rad/s
+33:   ox?: number; // m, where the hands were from the bar when they closed (along the run); they ease onto the bar so nothing jumps
+34:   oy?: number; // m, the same, up
+35:   et?: number; // ticks of easing left (EASE_TICKS at the grab, 0 when the hands are on the bar)
+36: }
+37: export const EASE_TICKS = 8; // the hands slide onto the bar over a fifteenth of a second
+38: 
+39: // How far the hands still are from the bar while they ease onto it.
+40: export function handOffset(s: Hang): { x: number; y: number } {
+41:   const k = (s.et ?? 0) / EASE_TICKS;
+42:   return { x: (s.ox ?? 0) * k, y: (s.oy ?? 0) * k };
+43: }
+44: 
+45: // The effective pendulum length of a stretched body hanging by the hands (a uniform rod of length handHeight: 2/3 of it).
+46: export const pendulumLength = (p: HangParams = DEFAULT_HANG): number => (2 / 3) * p.handHeight;
+47: // How far the body's middle is from the bar.
+48: export const comDistance = (p: HangParams = DEFAULT_HANG): number => p.handHeight / 2;
+49: 
+50: // Where the feet are while hanging.
+51: export function feetOf(h: Hold, s: Hang, p: HangParams = DEFAULT_HANG): { x: number; y: number } {
+52:   const o = handOffset(s);
+53:   return { x: h.x + o.x + p.handHeight * Math.sin(s.theta), y: h.y + o.y - p.handHeight * Math.cos(s.theta) };
+54: }
+55: 
+56: // The radius the body flies away with. The stiff rod swings with kinetic energy 1/2 I w^2 about the bar (I = m L^2 / 3 for a rod of length L),
+57: // and a body that lets go tucked in turns all of it into flight: 1/2 m v^2 = 1/2 I w^2, so v = w L / sqrt(3), a little more than the middle's own
+58: // w L / 2 (the spin the rod had about its middle goes into the throw, not into a tumble). Measured in CC-67: with the middle's speed alone the flight
+59: // had a quarter of the swing's energy missing, and it looked weaker than the whipping body.
+60: export const releaseRadius = (p: HangParams = DEFAULT_HANG): number => p.handHeight / Math.sqrt(3);
+61: 
+62: // The velocity of the body's middle after the hands let go (also what the runner shows while it swings, so one number everywhere).
+63: export function bodyVelocity(s: Hang, p: HangParams = DEFAULT_HANG): { vx: number; vy: number } {
+64:   const v = s.omega * releaseRadius(p);
+65:   return { vx: v * Math.cos(s.theta), vy: v * Math.sin(s.theta) };
+66: }
+67: 
+68: // How hard the bar pulls on the hands, in body weights: the weight's share along the arms plus the pull of the circle. Negative at the top
+69: // of a fast swing means the arms are pushing, not pulling.
+70: export function gripLoad(s: Hang, p: HangParams = DEFAULT_HANG): number {
+71:   return Math.cos(s.theta) + (comDistance(p) * s.omega * s.omega) / p.gravity;
+72: }
+73: 
+74: // How hard the bar would pull at the bottom of the swing with the energy the body has now (the swing's energy never changes by itself,
+75: // so this is the most the hands will ever carry unless the body pumps more in).
+76: export function bottomLoad(s: Hang, p: HangParams = DEFAULT_HANG): number {
+77:   const w2 = s.omega * s.omega + (2 * p.gravity / pendulumLength(p)) * (1 - Math.cos(s.theta)); // omega squared at the bottom
+78:   return 1 + (comDistance(p) * w2) / p.gravity;
+79: }
+80: 
+81: // Grab: the hands (above the feet at x, y) must be within reach of the bar. The arms keep part of the speed along the swing.
+82: // The first grab (from a run and jump) needs the hands within `reach` of the bar; once the hands have let go of a bar (`again`) the zone is an ellipse
+83: // (`regrabX` along the run, `regrabY` up and down), so a body that hops straight up and comes back down can catch the bar it let go of, or fall onto one from above.
+84: export function tryGrab(holds: Hold[], x: number, y: number, vx: number, vy: number, p: HangParams = DEFAULT_HANG, again = false): Hang | null {
+85:   const hx = x, hy = y + p.handHeight;
+86:   let best = -1, bd = Infinity;
+87:   holds.forEach((h, i) => {
+88:     const d = again ? Math.hypot((hx - h.x) / p.regrabX, (hy - h.y) / p.regrabY) : Math.hypot(hx - h.x, hy - h.y) / p.reach;
+89:     if (d <= 1 && d < bd) { bd = d; best = i; }
+90:   });
+91:   if (best < 0) return null;
+92:   // hang from the bar: the body hangs straight down from the hands, moving with the tangent speed at the bottom of the swing;
+93:   // the hands were a little off the bar, so they ease onto it over a few ticks (the path stays continuous)
+94:   const h = holds[best];
+95:   return { hold: best, theta: 0, omega: (vx * p.catchKeep) / releaseRadius(p) + 0 * vy, ox: hx - h.x, oy: hy - h.y, et: EASE_TICKS };
+96: }
+97: 
+98: // One step. pump is +1 (forward key), -1 (back key) or 0: pressing the way the body is already moving adds energy, pressing against it takes energy out.
+99: // When the swing already has so much energy that the bar would pull about as hard as the hands can hold at the bottom, pushing the swing further
+100: // does nothing more: that is the top speed of the swing.
+101: export function hangStep(s: Hang, pump: number, p: HangParams = DEFAULT_HANG): Hang {
+102:   const L = pendulumLength(p);
+103:   let drive = p.pump * pump;
+104:   if (drive * s.omega > 0) drive *= Math.max(0, Math.min(1, (0.97 * p.grip - bottomLoad(s, p)) / (0.1 * p.grip)));
+105:   const f = (th: number, w: number) => -(p.gravity / L) * Math.sin(th) + drive - p.drag * w;
+106:   const k1t = s.omega, k1w = f(s.theta, s.omega);
+107:   const k2t = s.omega + 0.5 * DT * k1w, k2w = f(s.theta + 0.5 * DT * k1t, k2t);
+108:   const k3t = s.omega + 0.5 * DT * k2w, k3w = f(s.theta + 0.5 * DT * k2t, k3t);
+109:   const k4t = s.omega + DT * k3w, k4w = f(s.theta + DT * k3t, k4t);
+110:   let theta = s.theta + (DT / 6) * (k1t + 2 * k2t + 2 * k3t + k4t);
+111:   const omega = s.omega + (DT / 6) * (k1w + 2 * k2w + 2 * k3w + k4w);
+112:   theta -= 2 * Math.PI * Math.round(theta / (2 * Math.PI)); // round and round is the same as turning once
+113:   return { hold: s.hold, theta, omega, ox: s.ox, oy: s.oy, et: Math.max(0, (s.et ?? 0) - 1) };
+114: }
+115: 
+116: // True when the bar pulls harder than the hands can hold: they open.
+117: export const gripSlips = (s: Hang, p: HangParams = DEFAULT_HANG): boolean => Math.abs(gripLoad(s, p)) > p.grip;
+118: 
+119: // Letting go: the body's middle keeps its place and flies on with the velocity above. The body is upright in flight, so the feet are one
+120: // half rod (the middle's height above the feet) under the middle; this keeps the path continuous (no jump of up to 0.75 m at the moment of release).
+121: export function releaseHang(h: Hold, s: Hang, p: HangParams = DEFAULT_HANG) {
+122:   const d = comDistance(p), v = bodyVelocity(s, p);
+123:   return { x: h.x + d * Math.sin(s.theta), y: h.y - d * Math.cos(s.theta) - d, vx: v.vx, vy: v.vy };
+124: }
+125: 
+126: // Measured small-swing period (for the tests and the Dojo): time between two returns to the same side, no pumping, no drag.
+127: export function measureHangPeriod(theta0: number, p: HangParams = { ...DEFAULT_HANG, drag: 0 }): number {
+128:   let s: Hang = { hold: 0, theta: theta0, omega: 0 };
+129:   let t = 0, prev = s.theta, first = 0, crossings = 0;
+130:   while (t < 60) {
+131:     s = hangStep(s, 0, p); t += DT;
+132:     if (prev > 0 && s.theta <= 0) { const tc = t - DT + (DT * prev) / (prev - s.theta); if (crossings === 0) first = tc; else return tc - first; crossings++; }
+133:     prev = s.theta;
+134:   }
+135:   return NaN;
+136: }
+137: 
+
+=== src/sim/vault.ts ===
+1: import type { Platform, Terrain } from './terrain';
+2: import { groundAt, heightAt, platformAt } from './terrain';
+3: 
+4: // The vault (V): a speed vault. The runner plants a foot well before the obstacle, puts one hand on top in the middle of the flight and the body
+5: // arcs up and over it, then comes down a little past the edge on the top and runs on. It needs speed, an obstacle ahead whose top is 0.35 to 1.3 m
+6: // above the feet, and ground to land on. It keeps most of the speed.
+7: export const VAULT_MIN_SPEED = 3; // m/s
+8: export const VAULT_BUFFER = 24; // ticks (0.2 s): a V pressed this early still counts when the obstacle comes in reach
+9: export const VAULT_MIN_RISE = 0.35;
+10: export const VAULT_MAX_RISE = 1.3;
+11: export const VAULT_KEEP = 0.92; // share of the speed kept
+12: export const VAULT_LAND_OFF = 0.5; // m: the feet come down this far past the front edge (0.3 to 0.8 m)
+13: export const VAULT_LIFT = 0.25; // m: the feet pass this far above the top (the hand's push lifts the legs)
+14: export const VAULT_MIN_GAP = 1.0; // m: closer than this to the front face is too late
+15: export const VAULT_SLACK = 0.15; // m: a plant a little further than the ideal distance still works
+16: export const VAULT_PLANT_TICKS = 36; // 0.3 s: after landing, with no key held, the feet plant and the runner stops
+17: export const VAULT_PLANT_GRIP = 4; // times the ground grip while planting
+18: 
+19: // Where the runner plants the foot, in metres before the front face: further for a faster runner and for a taller obstacle (a speed vault:
+20: // about 1.5 to 2.5 m at running speed), always inside 1.2 to 2.6 m.
+21: export const takeoffDistance = (vx: number, rise: number): number => Math.min(2.6, Math.max(1.2, 0.9 + 0.12 * vx + 0.45 * rise));
+22: 
+23: // How long the vault lasts (s): the time to cover the plant distance plus the landing past the edge at the kept speed, and never less than it takes to
+24: // climb over (a taller obstacle needs longer, so a very tall one at top speed costs some speed).
+25: export const vaultTime = (vx: number, rise: number): number => Math.max(0.3 + 0.15 * rise, (takeoffDistance(vx, rise) + VAULT_LAND_OFF) / (Math.max(vx, VAULT_MIN_SPEED) * VAULT_KEEP));
+26: 
+27: export interface Vault {
+28:   x0: number; y0: number; x1: number; y1: number; i: number; n: number; vx: number;
+29:   edge: number; // x of the front face
+30:   top: number; // height of the top at the front face
+31: }
+32: 
+33: // The vault that starts now from feet at (x, y) running at vx, over platform p: null if it is not possible.
+34: function make(t: Terrain, x: number, y: number, vx: number, p: Platform, gapMin: number): Vault | null {
+35:   const top = heightAt(p, p.x0), rise = top - groundAt(t, x);
+36:   if (rise < VAULT_MIN_RISE || rise > VAULT_MAX_RISE) return null;
+37:   const gap = p.x0 - x;
+38:   if (gap < gapMin || gap > takeoffDistance(vx, rise) + VAULT_SLACK) return null;
+39:   const n = Math.max(1, Math.round(vaultTime(vx, rise) * 120));
+40:   // the feet come down just past the edge (or in the middle of a short top)
+41:   const x1 = Math.max(p.x0 + 0.15, Math.min(p.x0 + VAULT_LAND_OFF, p.x1 - 0.1, (p.x0 + p.x1) / 2));
+42:   return { x0: x, y0: y, x1, y1: heightAt(p, x1), i: 0, n, vx, edge: p.x0, top };
+43: }
+44: 
+45: export function findVault(t: Terrain, x: number, y: number, vx: number): Vault | null {
+46:   if (vx < VAULT_MIN_SPEED) return null;
+47:   const here = platformAt(t, x);
+48:   if (!here) return null;
+49:   for (const p of t.platforms) {
+50:     if (p === here || p.x0 < x - 1e-6) continue;
+51:     if (here.x1 < p.x0 - 0.02) continue; // a gap between: that is a jump, not a vault
+52:     const v = make(t, x, y, vx, p, VAULT_MIN_GAP);
+53:     if (v) return v;
+54:   }
+55:   return null;
+56: }
+57: 
+58: // The vault the runner would make from the ideal plant point of the next vaultable step ahead (for the debug view and the tests), or null.
+59: export function planVault(t: Terrain, x: number, y: number, vx: number, within = 10): { vault: Vault; plantX: number; windowFrom: number; windowTo: number } | null {
+60:   if (vx < VAULT_MIN_SPEED) return null;
+61:   const here = platformAt(t, x);
+62:   if (!here) return null;
+63:   for (const p of t.platforms) {
+64:     if (p === here || p.x0 < x || p.x0 - x > within) continue;
+65:     if (here.x1 < p.x0 - 0.02) continue;
+66:     const rise = heightAt(p, p.x0) - groundAt(t, x);
+67:     if (rise < VAULT_MIN_RISE || rise > VAULT_MAX_RISE) continue;
+68:     const d = takeoffDistance(vx, rise), plantX = p.x0 - d;
+69:     const v = make(t, plantX, y, vx, p, VAULT_MIN_GAP);
+70:     if (v) return { vault: v, plantX, windowFrom: p.x0 - d - VAULT_SLACK - vx * (VAULT_BUFFER / 120), windowTo: p.x0 - VAULT_MIN_GAP };
+71:   }
+72:   return null;
+73: }
+74: 
+75: // Where the feet are after tick i of a vault, and how fast they move (so nothing ever jumps: position and velocity are continuous every tick).
+76: //   along: a cubic that starts at the speed the runner had and ends at the exit speed, covering the plant distance plus the landing past the edge;
+77: //   up: a smooth rise (no push-off jump: speed 0 at the start) to VAULT_LIFT above the top at 60 to 70% of the vault, then a smooth drop onto the top (speed 0 at the end).
+78: export function vaultAt(v: Vault, i: number): { x: number; y: number; vx: number; vy: number } {
+79:   const T = v.n / 120, t = Math.min(1, i / v.n), D = v.x1 - v.x0, v0 = v.vx, v1 = vaultExitSpeed(v);
+80:   const h01 = -2 * t ** 3 + 3 * t ** 2, h10 = t ** 3 - 2 * t ** 2 + t, h11 = t ** 3 - t ** 2;
+81:   const dh01 = -6 * t ** 2 + 6 * t, dh10 = 3 * t ** 2 - 4 * t + 1, dh11 = 3 * t ** 2 - 2 * t;
+82:   const x = v.x0 + D * h01 + v0 * T * h10 + v1 * T * h11;
+83:   const vx = (D * dh01 + v0 * T * dh10 + v1 * T * dh11) / T;
+84:   const rise = v.y1 - v.y0, r = Math.sqrt(1 + rise / VAULT_LIFT), tp = r / (1 + r), apex = v.y1 + VAULT_LIFT;
+85:   const S = (u: number) => 3 * u * u - 2 * u ** 3, dS = (u: number) => 6 * u - 6 * u * u;
+86:   if (t < tp) { const u = t / tp; return { x, vx, y: v.y0 + (apex - v.y0) * S(u), vy: ((apex - v.y0) * dS(u)) / (tp * T) }; }
+87:   const u = (t - tp) / (1 - tp);
+88:   return { x, vx, y: apex - VAULT_LIFT * S(u), vy: (-VAULT_LIFT * dS(u)) / ((1 - tp) * T) };
+89: }
+90: 
+91: // The contact point: where the hands stay on top of the obstacle, just behind its front edge (the actor pins the hands here and the debug view draws it).
+92: export const VAULT_HAND_BEHIND = 0.15; // m past the front edge, onto the top
+93: export function vaultHand(v: Vault): { x: number; y: number } {
+94:   return { x: v.edge + VAULT_HAND_BEHIND, y: v.top };
+95: }
+96: 
+97: // The speed the runner has during and after the vault: the kept share of the speed, but a late plant (a short run-up to the edge for the whole
+98: // vault time) is a slow vault: the speed follows how fast the body really crossed, never below 60% of the kept speed.
+99: export function vaultExitSpeed(v: Vault): number {
+100:   const kept = v.vx * VAULT_KEEP, mean = (v.x1 - v.x0) / (v.n / 120);
+101:   return Math.min(kept, Math.max(0.6 * kept, 1.25 * mean));
+102: }
+103: 
+
+=== src/sim/climb.ts ===
+1: import type { Terrain } from './terrain';
+2: import { groundAt, heightAt, platformAt } from './terrain';
+3: import { DEFAULT_HANG } from './holds';
+4: import { JUMP_COST } from './energy';
+5: import { GRAVITY } from './units';
+6: 
+7: // The climb (hold E at a wall): a step too tall to jump or vault. The runner reaches the top edge with both hands (from the ground, or
+8: // at the top of a jump), hangs from it for a moment and pulls up and over, ending on the top at a walking pace. The run speed is lost: the hands
+9: // stop the body at the wall.
+10: //
+11: // Where the limits come from (Earth gravity, the Rookie's reach):
+12: //   the hands are CLIMB_HAND = 2.1 m over the feet with the arms stretched up, and the fingers must get CLIMB_OVER = 0.1 m over the edge,
+13: //   so from the ground a wall up to 2.2 m can be climbed; a jump adds height: the take-off speed v lifts the feet v^2 / (2 g) (1.03 m at 4.5 m/s),
+14: //   but the hands can only close on an edge while the body is slow, so the grab counts only while the upward speed is at most CLIMB_CATCH_VY:
+15: //   the feet are then at most (v^2 - 2^2) / (2 g) = 0.83 m up, the edge at most 2.2 + 0.83 = 3.03 m over the ground; keep a margin of
+16: //   CLIMB_MARGIN = 0.2 m for the arms to start the pull-up: the tallest wall is climbMaxRise(4.5) = 2.83 m.
+17: export const CLIMB_HAND = DEFAULT_HANG.handHeight; // m, hands over the feet, arms up
+18: export const CLIMB_OVER = 0.1; // m, the fingers go this far over the edge
+19: export const CLIMB_STAND_REACH = CLIMB_HAND + CLIMB_OVER; // 2.2 m: the highest edge the hands reach from where the feet are
+20: export const CLIMB_MIN_RISE = 1.0; // m: below this a jump, a vault or a step does it
+21: export const CLIMB_REACH_X = 0.6; // m: the hands reach this far in front of the body
+22: export const CLIMB_CATCH_VY = 2.0; // m/s: the hands can close on an edge only while the body rises no faster than this
+23: export const CLIMB_MARGIN = 0.2; // m
+24: export const CLIMB_COST = 2 * JUMP_COST; // a pull-up spends as much as two jumps
+25: export const CLIMB_EXIT_SPEED = 2; // m/s: the speed on the top (the run speed is gone)
+26: export const CLIMB_HANG_OFF = 0.3; // m: the body hangs this far in front of the wall face, feet clear of it
+27: export const CLIMB_EXIT_OFF = 0.35; // m: the feet come down this far past the edge
+28: export const CLIMB_CATCH_TICKS = 18; // 0.15 s: the hands take the body's weight and stop it
+29: export const CLIMB_HOLD_TICKS = 12; // 0.1 s
+30: export const CLIMB_PULL_TICKS = 102; // 0.85 s: the pull-up and the step onto the top
+31: export const CLIMB_TICKS = CLIMB_CATCH_TICKS + CLIMB_HOLD_TICKS + CLIMB_PULL_TICKS; // 1.1 s
+32: 
+33: const apex = (jumpSpeed: number, vy = CLIMB_CATCH_VY) => Math.max(0, (jumpSpeed * jumpSpeed - vy * vy) / (2 * GRAVITY));
+34: // The tallest wall (m above the ground the runner jumps from) one jump reaches and the arms can still pull up.
+35: export const climbMaxRise = (jumpSpeed = 4.5): number => CLIMB_STAND_REACH + apex(jumpSpeed) - CLIMB_MARGIN;
+36: 
+37: export interface Climb {
+38:   edge: number; // x of the wall face
+39:   top: number; // height of the edge
+40:   i: number; // ticks done
+41:   n: number;
+42:   path: { x: number; y: number }[]; // feet position after tick 0..n (continuous: no tick moves further than the hands pull)
+43:   exit: { x: number; y: number };
+44: }
+45: 
+46: // The ground the runner jumped from, in front of the wall: the ground at x, or the end of the nearest platform behind it over a gap.
+47: function groundRef(t: Terrain, x: number): number {
+48:   const g = groundAt(t, x);
+49:   if (Number.isFinite(g)) return g;
+50:   let best = -Infinity, bx = -Infinity;
+51:   for (const p of t.platforms) if (p.x1 <= x && p.x1 > bx) { bx = p.x1; best = heightAt(p, p.x1); }
+52:   return best;
+53: }
+54: 
+55: // The feet path of a climb that starts now, from feet at (x, y).
+56: function makePath(x: number, y: number, edge: number, top: number, exit: { x: number; y: number }): { x: number; y: number }[] {
+57:   const xh = edge - CLIMB_HANG_OFF; // hang a hand's length in front of the wall face
+58:   const yh = Math.max(y, top - CLIMB_HAND + 0.05);
+59:   const S = (u: number) => { const c = Math.min(1, Math.max(0, u)); return c * c * (3 - 2 * c); };
+60:   const out: { x: number; y: number }[] = [{ x, y }];
+61:   for (let k = 1; k <= CLIMB_TICKS; k++) {
+62:     if (k <= CLIMB_CATCH_TICKS) { const u = S(k / CLIMB_CATCH_TICKS); out.push({ x: x + (xh - x) * u, y: y + (yh - y) * u }); continue; }
+63:     if (k <= CLIMB_CATCH_TICKS + CLIMB_HOLD_TICKS) { out.push({ x: xh, y: yh }); continue; }
+64:     const t = (k - CLIMB_CATCH_TICKS - CLIMB_HOLD_TICKS) / CLIMB_PULL_TICKS;
+65:     out.push({ x: xh + (exit.x - xh) * S((t - 0.35) / 0.65), y: yh + (exit.y - yh) * S(t) }); // up first, then over the edge
+66:   }
+67:   out[out.length - 1] = { x: exit.x, y: exit.y };
+68:   return out;
+69: }
+70: 
+71: // The climb that starts now from feet at (x, y) moving (vx, vy), or null. jumpSpeed is the course's take-off speed (the tallest wall depends on it).
+72: export function findClimb(t: Terrain, x: number, y: number, vx: number, vy: number, jumpSpeed = 4.5): Climb | null {
+73:   if (vy > CLIMB_CATCH_VY || vx < -0.1) return null;
+74:   const here = platformAt(t, x);
+75:   for (const p of t.platforms) {
+76:     if (p === here || p.x0 < x - 0.02 || p.x0 - x > CLIMB_REACH_X) continue;
+77:     const top = heightAt(p, p.x0), below = top - y;
+78:     if (below < CLIMB_MIN_RISE || below > CLIMB_STAND_REACH) continue; // the hands do not meet the edge
+79:     const base = groundRef(t, x);
+80:     if (Number.isFinite(base) && top - base > climbMaxRise(jumpSpeed) + 1e-9) continue; // a wall above the limit
+81:     const xe = Math.min(p.x0 + CLIMB_EXIT_OFF, Math.max(p.x0 + 0.1, (p.x0 + p.x1) / 2));
+82:     const exit = { x: xe, y: heightAt(p, xe) };
+83:     return { edge: p.x0, top, i: 0, n: CLIMB_TICKS, path: makePath(x, y, p.x0, top, exit), exit };
+84:   }
+85:   return null;
+86: }
+87: 
+88: // Can the runner climb this wall at all, from the ground (the lane builder and the tests ask this)?
+89: export const climbable = (rise: number, jumpSpeed = 4.5): boolean => rise >= CLIMB_MIN_RISE && rise <= climbMaxRise(jumpSpeed) + 1e-9;
+90: 
+91: // The next wall ahead that the hands and a pull-up can take (for the debug view and the hint): its edge, its top and whether the hands reach it from the ground.
+92: export function climbAhead(t: Terrain, x: number, y: number, within = 10, jumpSpeed = 4.5): { edge: number; top: number; rise: number; standing: boolean } | null {
+93:   const here = platformAt(t, x);
+94:   let best: { edge: number; top: number; rise: number; standing: boolean } | null = null;
+95:   for (const p of t.platforms) {
+96:     if (p === here || p.x0 < x - 0.02 || p.x0 - x > within) continue;
+97:     const top = heightAt(p, p.x0), rise = top - y;
+98:     if (rise < CLIMB_MIN_RISE || rise > climbMaxRise(jumpSpeed) + 1e-9) continue;
+99:     if (!best || p.x0 < best.edge) best = { edge: p.x0, top, rise, standing: rise <= CLIMB_STAND_REACH };
+100:   }
+101:   return best;
+102: }
+103: 
+
+=== src/sim/trampoline.ts ===
+1: import { DT, GRAVITY } from './units';
+2: 
+3: // A trampoline bed: a spring with damping under the runner. A press at the bottom of the bounce adds speed.
+4: export interface TrampolineParams {
+5:   stiffness: number; // 1/s², spring constant per unit mass
+6:   damping: number; // 1/s, damping per unit mass
+7:   pump: number; // m/s added by a perfectly timed press
+8:   pumpWindow: number; // s either side of the deepest point with the full push
+9:   pumpFade: number; // s over which the push fades to nothing beyond that window
+10:   gravity: number;
+11: }
+12: 
+13: export const DEFAULT_TRAMPOLINE: TrampolineParams = { stiffness: 400, damping: 2, pump: 2, pumpWindow: 0.05, pumpFade: 0.11, gravity: GRAVITY };
+14: 
+15: export interface Bounce {
+16:   vyOut: number; // m/s upward when the feet leave the bed
+17:   maxCompression: number; // m
+18:   ticksOnBed: number;
+19:   pumped: boolean;
+20:   gain: number; // m/s the press added (0 if none)
+21:   path: number[]; // feet height relative to the rest surface, per tick
+22: }
+23: 
+24: // Feet land on the bed at rest height with downward speed `vyIn`; `pressAtTick` is when the press happened (ticks after contact).
+25: export function bounce(vyIn: number, p: TrampolineParams = DEFAULT_TRAMPOLINE, pressAtTick: number | null = null): Bounce {
+26:   let y = 0;
+27:   let v = -Math.abs(vyIn);
+28:   let deepest = 0;
+29:   let deepestTick = 0;
+30:   const path = [0];
+31:   let tick = 0;
+32:   // y'' = -g + k (-y) - c y'   while y < 0 (bed compressed)
+33:   const a = (yy: number, vv: number) => -p.gravity + (yy < 0 ? -p.stiffness * yy - p.damping * vv : 0);
+34:   while (tick < 120 * 5) {
+35:     const yPrev = y, vPrev = v;
+36:     // RK4
+37:     const k1y = v, k1v = a(y, v);
+38:     const k2y = v + 0.5 * DT * k1v, k2v = a(y + 0.5 * DT * k1y, v + 0.5 * DT * k1v);
+39:     const k3y = v + 0.5 * DT * k2v, k3v = a(y + 0.5 * DT * k2y, v + 0.5 * DT * k2v);
+40:     const k4y = v + DT * k3v, k4v = a(y + DT * k3y, v + DT * k3v);
+41:     y += (DT / 6) * (k1y + 2 * k2y + 2 * k3y + k4y);
+42:     v += (DT / 6) * (k1v + 2 * k2v + 2 * k3v + k4v);
+43:     tick++;
+44:     path.push(y);
+45:     if (y < deepest) { deepest = y; deepestTick = tick; }
+46:     if (y >= 0 && v > 0) {
+47:       // left the bed inside this step: take the speed at the moment the feet reach rest height
+48:       const frac = yPrev / (yPrev - y);
+49:       v = vPrev + (v - vPrev) * frac;
+50:       break;
+51:     }
+52:   }
+53:   // The push is full close to the deepest point and fades to nothing further away: any press while on the bed helps a little.
+54:   const off = pressAtTick === null ? Infinity : Math.abs(pressAtTick - deepestTick) * DT;
+55:   const share = off <= p.pumpWindow ? 1 : Math.max(0, 1 - (off - p.pumpWindow) / p.pumpFade);
+56:   const gain = p.pump * share;
+57:   return { vyOut: v + gain, maxCompression: -deepest, ticksOnBed: tick, pumped: gain > 0, gain, path };
+58: }
+59: 
+
+=== src/sim/needs.ts ===
+1: import type { CourseData } from '../course/course';
+2: import { DEFAULT_PARAMS, NO_INPUT, startState, step } from './runner';
+3: import { heightAt, groundAt, type Terrain } from './terrain';
+4: import { DEFAULT_WALL, runWall, type WallParams } from './wall';
+5: 
+6: // What the Course asks of the player at each gap, found by trying the simulator: how wide it is and the least
+7: // speed at the edge that still clears it. The Dojo and the Course use these same numbers.
+8: export interface GapSpec { x: number; width: number; rise: number; needed: number; name: string }
+9: 
+10: // Least speed (m/s) at which a jump from the edge reaches a platform `width` away and `rise` higher.
+11: export function minSpeedToCross(width: number, rise: number, jumpSpeed: number): number {
+12:   const terrain: Terrain = { platforms: [{ x0: -50, x1: 0, top: 0 }, { x0: width, x1: width + 60, top: rise }], waterY: -30 };
+13:   const clears = (v: number): boolean => {
+14:     let s = { ...startState(0), vx: v };
+15:     s = step(s, { ...NO_INPUT, jump: true, jumpSpeed }, DEFAULT_PARAMS, terrain);
+16:     for (let i = 0; i < 120 * 20 && !s.grounded && !s.splashed; i++) s = step(s, NO_INPUT, DEFAULT_PARAMS, terrain);
+17:     return s.grounded && !s.splashed && s.x >= width;
+18:   };
+19:   let lo = 0.5, hi = 20;
+20:   if (!clears(hi)) return Infinity;
+21:   for (let i = 0; i < 40; i++) { const mid = (lo + hi) / 2; if (clears(mid)) hi = mid; else lo = mid; }
+22:   return hi;
+23: }
+24: 
+25: export function gapSpecs(course: CourseData): GapSpec[] {
+26:   const ps = [...course.terrain.platforms].sort((a, b) => a.x0 - b.x0);
+27:   const out: GapSpec[] = [];
+28:   ps.forEach((p, i) => {
+29:     const n = ps[i + 1];
+30:     if (!n || n.x0 - p.x1 < 0.01 || p.bouncy) return;
+31:     const width = n.x0 - p.x1;
+32:     const rise = heightAt(n, n.x0) - heightAt(p, p.x1); // from where the feet leave to where they arrive
+33:     out.push({ x: p.x1, width, rise, needed: minSpeedToCross(width, rise, course.jumpSpeed), name: `gap at ${p.x1} m` });
+34:   });
+35:   return out;
+36: }
+37: export { groundAt };
+38: 
+39: // Least speed (m/s) at the foot of the wall for the hands to reach the top.
+40: export function minSpeedForWall(p: Partial<WallParams> = {}): number {
+41:   const wp = { ...DEFAULT_WALL, ...p };
+42:   let lo = 0.5, hi = 20;
+43:   if (!runWall(hi, wp).grabbed) return Infinity;
+44:   for (let i = 0; i < 40; i++) { const mid = (lo + hi) / 2; if (runWall(mid, wp).grabbed) hi = mid; else lo = mid; }
+45:   return hi;
+46: }
+47: 
+48: // What a jump does from a given place and speed: the flight path and where it ends. Used by the Course's replay
+49: // to draw the player's flight and the flight that would have worked.
+50: export interface Flight { pts: { x: number; y: number }[]; landed: boolean; x: number }
+51: export function flightPath(t: Terrain, x: number, y: number, vx: number, jumpSpeed: number): Flight {
+52:   let s = { ...startState(x), y, vx };
+53:   s = step(s, { ...NO_INPUT, jump: true, jumpSpeed }, DEFAULT_PARAMS, t);
+54:   const pts = [{ x: s.x, y: s.y }];
+55:   for (let i = 0; i < 120 * 20 && !s.grounded && !s.splashed; i++) { s = step(s, NO_INPUT, DEFAULT_PARAMS, t); pts.push({ x: s.x, y: s.y }); }
+56:   return { pts, landed: s.grounded && !s.splashed, x: s.x };
+57: }
+58: 
+59: // The stretch before an edge where pressing jump at this speed still clears the gap (null: no press does).
+60: export function pressBand(t: Terrain, edgeX: number, edgeY: number, width: number, speed: number, jumpSpeed: number): { lo: number; hi: number } | null {
+61:   let lo = Infinity, hi = -Infinity;
+62:   for (let p = edgeX - 6; p <= edgeX + 1e-9; p += 0.05) {
+63:     const f = flightPath(t, p, edgeY, speed, jumpSpeed);
+64:     if (f.landed && f.x >= edgeX + width) { lo = Math.min(lo, p); hi = Math.max(hi, p); }
+65:   }
+66:   return hi < lo ? null : { lo, hi };
+67: }
+68: 
+
+=== src/sim/needs-limits.ts ===
+1: // The highest step one jump from a run can make (the take-off speed of 4.5 m/s lifts about 1 m).
+2: export const JUMPABLE_STEP = 0.9;
+3: 
+
+=== src/sim/energy.ts ===
+1: // The cost of each move as a share of a full energy store (1 = fresh). A vault keeps the speed and spends less than a jump,
+2: // which pays for its height with speed lost on landing and a harder push-off. Tracked for every run; it slows the runner only on courses that ask for it (`course.tiring`).
+3: export const JUMP_COST = 0.06;
+4: export const VAULT_COST = 0.025;
+5: 
+
+=== src/sim/band.ts ===
+1: import type { CourseData } from '../course/course';
+2: import { DT } from './units';
+3: import { DEFAULT_PARAMS, step, type RunnerInput, type RunnerParams } from './runner';
+4: import { groundAt } from './terrain';
+5: import type { GameEvent, WorldState } from './world';
+6: 
+7: // The elastic band: a post stands in front of the runner and a stretchy band runs from it to the runner's belt.
+8: // Running AWAY from the post stretches the band; the band stores the work the legs do against it, and when the runner turns round and runs
+9: // toward the post, the band gives that energy back as extra push (an assisted sprint, as in speed training). It can only pull, and only while it is stretched:
+10: // at its rest length it goes slack and unclips, so nothing drags the runner back. Everything is a metre, a second or a kilogram.
+11: export interface BandParams {
+12:   x: number; // m, the post
+13:   rest: number; // m, the band's length when it hangs loose (it is clipped on at this distance from the post)
+14:   k: number; // N/m, stiffness: how hard it pulls per metre stretched
+15:   snap: number; // m, the longest stretch it takes before it snaps
+16:   mass: number; // kg, the runner's mass
+17: }
+18: 
+19: const COAST_LOSS = 0.2; // m/s of speed lost per tick-second while coasting above top speed (a tiny drag)
+20: 
+21: export const DEFAULT_BAND: BandParams = { x: 0, rest: 1, k: 45, snap: 20, mass: 70 };
+22: 
+23: export interface Band {
+24:   maxStretch: number; // m, the longest stretch so far
+25:   work: number; // J, the work the band has done pushing the runner forward (not counting the pull-back, which the legs paid for)
+26: }
+27: 
+28: export const bandParams = (c: CourseData): BandParams => ({ ...DEFAULT_BAND, ...(c.band ?? {}) });
+29: 
+30: // Where the band goes slack: the runner is clipped on here, with the band hanging loose.
+31: export const slackX = (p: BandParams): number => p.x - p.rest;
+32: export const stretchAt = (p: BandParams, x: number): number => Math.max(0, slackX(p) - x);
+33: // The pull on the runner's mass, in m/s²: the force divided by the mass.
+34: export const bandAccel = (p: BandParams, x: number): number => (p.k * stretchAt(p, x)) / p.mass;
+35: // The energy stored in a band stretched by s metres.
+36: export const storedEnergy = (p: BandParams, s: number): number => 0.5 * p.k * s * s;
+37: // How far a full-strength push away from the post can stretch it: where the band's pull equals what the legs can push with at a standstill.
+38: export function reachableStretch(p: BandParams, rp: RunnerParams = DEFAULT_PARAMS): number {
+39:   return Math.min(p.snap, (rp.acceleration * p.mass) / p.k);
+40: }
+41: // The speed a band-only release would give from a stretch s (no legs, no friction): all the stored energy becomes motion.
+42: export const bandOnlySpeed = (p: BandParams, s: number): number => Math.sqrt((2 * storedEnergy(p, s)) / p.mass);
+43: 
+44: export const newBand = (): Band => ({ maxStretch: 0, work: 0 });
+45: 
+46: // A course with a band starts clipped on at the slack point (or, from a checkpoint behind it, wherever the checkpoint is).
+47: export function enterBand(w: WorldState, course: CourseData): WorldState {
+48:   const p = bandParams(course);
+49:   const x = Math.min(w.runner.x, slackX(p));
+50:   return { ...w, mode: 'band', band: newBand(), runner: { ...w.runner, x, y: groundAt(course.terrain, x) } };
+51: }
+52: 
+53: // One tick clipped on: the legs drive the runner as always; on top of that the band pulls toward the post while it is stretched.
+54: export function stepBandWorld(w: WorldState, input: RunnerInput, course: CourseData, rp: RunnerParams = DEFAULT_PARAMS): WorldState {
+55:   const p = bandParams(course);
+56:   const b = w.band!;
+57:   const tick = w.runner.tick + 1;
+58:   const before = w.runner;
+59:   const a = bandAccel(p, before.x);
+60:   // the legs push toward top speed but do not brake the band's extra speed (they only stop pushing): above top speed the runner coasts, losing a little to air and grip
+61:   const overspeed = input.run && !input.left && before.vx > rp.topSpeed;
+62:   const r0 = step(before, input, overspeed ? { ...rp, topSpeed: before.vx - COAST_LOSS } : rp, course.terrain);
+63:   // the pull acts over this tick: exact for a constant push (semi-implicit; the stretch changes slowly against the step)
+64:   const vx = r0.vx + a * DT;
+65:   const x = r0.x + 0.5 * a * DT * DT;
+66:   const r = { ...r0, x, vx, tick };
+67:   const s = stretchAt(p, x);
+68:   const next: Band = { maxStretch: Math.max(b.maxStretch, s), work: b.work + (vx > 0 ? p.mass * a * vx * DT : 0) };
+69:   const events: GameEvent[] = [];
+70:   if (s > p.snap) { // stretched past what it takes: it snaps and lets go (nobody is hurt)
+71:     events.push({ tick, type: 'band-snap', detail: { stretch: s } });
+72:     return { ...w, mode: 'run', band: null, events, runner: r };
+73:   }
+74:   if (s <= 0 && vx > 0.1) { // back at the slack point and moving toward the post: the clip lets go
+75:     events.push({ tick, type: 'band-release', detail: { vx, stretch: next.maxStretch, work: next.work } });
+76:     return { ...w, mode: 'run', band: null, events, runner: r };
+77:   }
+78:   return { ...w, band: next, events, runner: r };
+79: }
+80: 

@@ -1,0 +1,27 @@
+{
+  "date": "2026-10-29",
+  "model": "muse-wonder-1.0",
+  "reasoning_effort": "high",
+  "price_usd_per_1m": {
+    "in": 4,
+    "out": 20
+  },
+  "cap_usd": 5,
+  "total_usd": 0.5369,
+  "runs": [
+    {
+      "chunk": "c-search",
+      "files": [
+        "ideal",
+        "shortcuts",
+        "replay",
+        "predict",
+        "launch-window"
+      ],
+      "prompt_tokens": 28795,
+      "completion_tokens": 21085,
+      "seconds": 240.3,
+      "usd": 0.5369
+    }
+  ]
+}
