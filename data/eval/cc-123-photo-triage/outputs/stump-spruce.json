@@ -1,0 +1,20 @@
+{
+  "photo": "stump-spruce",
+  "status": 200,
+  "usage": {
+    "prompt_tokens": 2971,
+    "completion_tokens": 1332,
+    "total_tokens": 4303,
+    "prompt_tokens_details": {
+      "audio_tokens": 0,
+      "cached_tokens": 128
+    },
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": 936,
+      "audio_tokens": 0,
+      "reasoning_tokens": 1235,
+      "rejected_prediction_tokens": 1878
+    }
+  },
+  "reply": "{\"score\": 2, \"problems\": [\"multiple other trees and dense forest clutter in background, not a single isolated object\", \"hard directional sunlight with strong shadows and high contrast on the stump\", \"thin splintered wood fibers at the broken top\", \"base partially occluded by grass, moss and uneven ground in foreground\", \"not a clean flat side-on view, angled perspective view\"], \"verdict\": \"poor\"}"
+}

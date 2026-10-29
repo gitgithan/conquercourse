@@ -1,0 +1,20 @@
+{
+  "photo": "pipe-ring",
+  "status": 200,
+  "usage": {
+    "prompt_tokens": 1788,
+    "completion_tokens": 999,
+    "total_tokens": 2787,
+    "prompt_tokens_details": {
+      "audio_tokens": 0,
+      "cached_tokens": 128
+    },
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": 662,
+      "audio_tokens": 0,
+      "reasoning_tokens": 893,
+      "rejected_prediction_tokens": 1725
+    }
+  },
+  "reply": "{\"score\": 2, \"problems\": [\"barbed wire and fence mesh cross directly in front of pipe and cast hard linear shadows on its surface\", \"base of pipe obscured by tall grass and ground vegetation\", \"cluttered surroundings with fence posts, dense foliage and debris competing with subject\", \"angled three-quarter top-down perspective rather than flat side-on view\", \"harsh direct sunlight creates strong shadows and uneven lighting on concrete\"], \"verdict\": \"poor\"}"
+}

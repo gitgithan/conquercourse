@@ -1,0 +1,20 @@
+{
+  "photo": "bollard-iron",
+  "status": 200,
+  "usage": {
+    "prompt_tokens": 2957,
+    "completion_tokens": 1197,
+    "total_tokens": 4154,
+    "prompt_tokens_details": {
+      "audio_tokens": 0,
+      "cached_tokens": 128
+    },
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": 832,
+      "audio_tokens": 0,
+      "reasoning_tokens": 1127,
+      "rejected_prediction_tokens": 1723
+    }
+  },
+  "reply": "{\"score\": 3, \"problems\": [\"hard shadows on ground and wall\", \"multiple objects - second bollard/pole in background\", \"angled perspective view not flat side-on\", \"cluttered background with brick wall, pavement and railings\"], \"verdict\": \"partly\"}"
+}
