@@ -140,10 +140,25 @@ const sv = (tag: string, attrs: Record<string, string | number>, parent?: Elemen
 };
 const tx = (tag: string, text: string, css: string, parent: HTMLElement): HTMLElement => { const e = document.createElement(tag); e.textContent = text; e.style.cssText = css; parent.appendChild(e); return e; };
 
-/** The course in side view with the player's path (green) and the best line (gold, dashed), a small icon where each move happened. */
-export function pathPicture(course: CourseData, log: RunLog, best: BestLine | null): SVGElement {
+/** A path with fewer than MIN_POINTS points is given more along its own segments, so the line follows the motion it came from and never reads as one straight stroke. */
+export const MIN_POINTS = 10;
+export function resamplePath(p: { x: number; y: number }[]): { x: number; y: number }[] {
+  if (p.length < 2 || p.length >= MIN_POINTS) return p;
+  const out: { x: number; y: number }[] = [];
+  const per = Math.ceil((MIN_POINTS - 1) / (p.length - 1));
+  for (let i = 0; i < p.length - 1; i++) for (let k = 0; k < per; k++) { const t = k / per; out.push({ x: p[i].x + (p[i + 1].x - p[i].x) * t, y: p[i].y + (p[i + 1].y - p[i].y) * t }); }
+  out.push(p[p.length - 1]);
+  return out;
+}
+
+export const YOU_COLOUR = '#0f6b5c', GHOST_COLOUR = '#e08a00';
+
+/** The course in side view with the player's path (green), the selected ghost's path (amber, both solid) and a small icon where each move happened.
+ *  `ghost` null: only the player's line. `old` (?report=old): the first picture, with the best line gold and dashed and the dashed finish line. */
+export function pathPicture(course: CourseData, log: RunLog, best: BestLine | null, ghost: { x: number; y: number }[] | null = null, old = false): SVGElement {
   const W = 600, H = 150, pad = 8;
-  const pts = [...log.path, ...(best?.log.path ?? [])];
+  const mine = resamplePath(log.path), theirs = old ? best?.log.path ?? null : ghost ? resamplePath(ghost) : null;
+  const pts = [...mine, ...(theirs ?? [])];
   const xs = [course.startX, course.finishX, ...pts.map((p) => p.x)], x0 = Math.min(...xs), x1 = Math.max(...xs) + 1;
   const tops = course.terrain.platforms.map((p) => p.top);
   const y0 = Math.min(course.terrain.waterY, ...tops, ...pts.map((p) => p.y)) - 0.5, y1 = Math.max(...tops, ...pts.map((p) => p.y)) + 3;
@@ -154,10 +169,10 @@ export function pathPicture(course: CourseData, log: RunLog, best: BestLine | nu
   for (const p of course.terrain.platforms) sv('rect', { x: X(p.x0), y: Y(p.top), width: Math.max(1, X(p.x1) - X(p.x0)), height: Math.max(2, Y(y0) - Y(p.top)), fill: p.bouncy ? '#e7a93a' : '#b9c2bb' }, svg);
   for (const h of course.holds ?? []) sv('circle', { cx: X(h.x), cy: Y(h.y), r: 3, fill: '#58635d' }, svg);
   if (course.rope) sv('circle', { cx: X(course.rope.anchorX), cy: Y(course.rope.anchorY), r: 3, fill: '#58635d' }, svg);
-  sv('line', { x1: X(course.finishX), x2: X(course.finishX), y1: pad, y2: H - pad, stroke: '#0f6b5c', 'stroke-dasharray': '3 3' }, svg);
-  const line = (p: { x: number; y: number }[], stroke: string, dash: string) => p.length > 1 && sv('polyline', { points: p.map((q) => `${X(q.x).toFixed(1)},${Y(q.y).toFixed(1)}`).join(' '), fill: 'none', stroke, 'stroke-width': 2.5, 'stroke-dasharray': dash, 'stroke-linejoin': 'round' }, svg);
-  if (best) line(best.log.path, '#d9a521', '6 4');
-  line(log.path, '#0f6b5c', '');
+  if (old) sv('line', { x1: X(course.finishX), x2: X(course.finishX), y1: pad, y2: H - pad, stroke: '#0f6b5c', 'stroke-dasharray': '3 3' }, svg);
+  const line = (p: { x: number; y: number }[], stroke: string, dash: string, width = 2.5) => p.length > 1 && sv('polyline', { points: p.map((q) => `${X(q.x).toFixed(1)},${Y(q.y).toFixed(1)}`).join(' '), fill: 'none', stroke, 'stroke-width': width, 'stroke-dasharray': dash, 'stroke-linejoin': 'round' }, svg);
+  if (theirs) line(theirs, old ? '#d9a521' : GHOST_COLOUR, old ? '6 4' : '', old ? 2.5 : 5.5); // wider, under the player's line: where the two runs are the same, amber shows at both edges
+  line(mine, YOU_COLOUR, '');
   let lastX = -99;
   for (const m of log.moves) {
     const cx = X(m.x), cy = Math.max(pad + 9, Y(m.y) - 16);
@@ -172,15 +187,16 @@ export function pathPicture(course: CourseData, log: RunLog, best: BestLine | nu
 }
 
 /** The report as a panel body. `compact` leaves out the big headline (the fall panel has its own). Buttons are built here; what they do comes from `a`. */
-export function renderReport(course: CourseData, log: RunLog, r: Report, a: Actions, compact = false): HTMLElement {
+export function renderReport(course: CourseData, log: RunLog, r: Report, a: Actions, compact = false, ghost: { x: number; y: number }[] | null = null, old = false): HTMLElement {
   const box = document.createElement('section');
   box.setAttribute('aria-label', 'Run report');
   box.style.cssText = 'display:grid;gap:12px';
   if (!compact) tx('h2', r.headline, 'margin:0;font:800 26px/1.2 system-ui,sans-serif;color:#0f6b5c', box);
   else tx('div', r.cleared ? r.headline : `You got ${r.metres} m of ${r.finishX} m.`, 'font-weight:700', box);
-  box.appendChild(pathPicture(course, log, r.best));
+  box.appendChild(pathPicture(course, log, r.best, ghost, old));
   const key = tx('div', '', 'display:flex;gap:14px;flex-wrap:wrap;font-size:13px;color:#58635d', box);
-  key.innerHTML = '<span><b style="color:#0f6b5c">━</b> your path</span>' + (r.best ? '<span><b style="color:#d9a521">╍</b> the best line</span>' : '') + '<span>Icons: where you jumped, vaulted, climbed, grabbed or rolled</span>';
+  key.innerHTML = old ? '<span><b style="color:#0f6b5c">━</b> your path</span>' + (r.best ? '<span><b style="color:#d9a521">╍</b> the best line</span>' : '') + '<span>Icons: where you jumped, vaulted, climbed, grabbed or rolled</span>'
+    : `<span><b style="color:${YOU_COLOUR}">━</b> You</span>` + (ghost ? `<span><b style="color:${GHOST_COLOUR}">━</b> Ghost</span>` : '') + '<span>Icons: where you jumped, vaulted, climbed, grabbed or rolled</span>';
   if (r.cleared) {
     const t = document.createElement('table'); t.style.cssText = 'border-collapse:collapse;font-size:15px;width:100%';
     const row = (a1: string, a2: string, a3: string, head = false) => { const tr = t.insertRow(); [a1, a2, a3].forEach((s, i) => { const c = tr.insertCell(); c.textContent = s; c.style.cssText = `padding:5px 8px;border-bottom:1px solid #e5e9e5;${i ? 'text-align:right;' : ''}${head ? 'color:#58635d;font-weight:600' : ''}`; }); };
