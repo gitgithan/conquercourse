@@ -153,6 +153,8 @@ export function resamplePath(p: { x: number; y: number }[]): { x: number; y: num
 }
 
 export const YOU_COLOUR = '#0f6b5c', GHOST_COLOUR = '#e08a00';
+/** The move icons in the path picture (CC-192): grey like the strip, because gold means only "the obstacle you fell at most" (CC-183); ?gold=old keeps the old gold circles. */
+export const moveIconColours = (old = goldOld()) => (old ? { fill: '#fff8dc', ring: '#d9a521', ink: '#6b4a00' } : { fill: '#ffffff', ring: '#9aa59e', ink: '#58635d' });
 
 /** The course in side view with the player's path (green), the selected ghost's path (amber, both solid) and a small icon where each move happened.
  *  `ghost` null: only the player's line. `old` (?report=old): the first picture, with the best line gold and dashed and the dashed finish line. */
@@ -175,13 +177,14 @@ export function pathPicture(course: CourseData, log: RunLog, best: BestLine | nu
   if (theirs) line(theirs, old ? '#d9a521' : GHOST_COLOUR, old ? '6 4' : '', old ? 2.5 : 5.5); // wider, under the player's line: where the two runs are the same, amber shows at both edges
   line(mine, YOU_COLOUR, '');
   let lastX = -99;
+  const MOVE_ICON = moveIconColours();
   for (const m of log.moves) {
     const cx = X(m.x), cy = Math.max(pad + 9, Y(m.y) - 16);
     if (cx - lastX < 20) continue; // keep the icons apart
     lastX = cx;
     const g = sv('g', {}, svg), title = sv('title', {}, g); title.textContent = NAME_OF[m.kind][0];
-    sv('circle', { cx, cy, r: 10, fill: '#fff8dc', stroke: '#d9a521', 'stroke-width': 1.5 }, g);
-    const icon = sv('svg', { x: cx - 8, y: cy - 8, width: 16, height: 16, viewBox: '0 0 32 32', fill: 'none', stroke: '#6b4a00', 'stroke-width': 3, 'stroke-linecap': 'round', 'stroke-linejoin': 'round' }, g);
+    sv('circle', { cx, cy, r: 10, fill: MOVE_ICON.fill, stroke: MOVE_ICON.ring, 'stroke-width': 1.5 }, g);
+    const icon = sv('svg', { x: cx - 8, y: cy - 8, width: 16, height: 16, viewBox: '0 0 32 32', fill: 'none', stroke: MOVE_ICON.ink, 'stroke-width': 3, 'stroke-linecap': 'round', 'stroke-linejoin': 'round' }, g);
     icon.innerHTML = ZONE_ICONS[ICON_OF[m.kind]] ?? '';
   }
   return svg;
