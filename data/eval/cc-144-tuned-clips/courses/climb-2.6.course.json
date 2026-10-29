@@ -1,0 +1,60 @@
+{
+  "version": 1,
+  "name": "Climb 2.6 m wall (CC-144 check)",
+  "startX": 0,
+  "finishX": 52,
+  "jumpSpeed": 4.5,
+  "terrain": {
+    "waterY": -6,
+    "platforms": [
+      {
+        "x0": -10,
+        "x1": 24,
+        "top": 0
+      },
+      {
+        "x0": 24,
+        "x1": 36,
+        "top": 2.6
+      },
+      {
+        "x0": 36,
+        "x1": 70,
+        "top": -3
+      }
+    ]
+  },
+  "zones": [
+    {
+      "id": "climb",
+      "name": "Climb",
+      "x0": 16,
+      "x1": 30
+    },
+    {
+      "id": "drop",
+      "name": "Big drop",
+      "x0": 30,
+      "x1": 46
+    }
+  ],
+  "checkpoints": [
+    {
+      "id": "climb",
+      "x": 10
+    },
+    {
+      "id": "drop",
+      "x": 30
+    }
+  ],
+  "plan": {
+    "jumpXs": [],
+    "releaseAfter": 60,
+    "bouncePress": 8,
+    "climbXs": [
+      22.5
+    ]
+  },
+  "windows": []
+}
