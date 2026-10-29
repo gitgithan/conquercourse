@@ -1,8 +1,13 @@
 import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import { afterEach, describe, expect, it } from 'vitest';
-import { DEMOS, DEMO_GROUPS, LEAVE_MESSAGE, WORD_VALUES, currentWorld, hasThumb, mayLeaveCourse, thumbSlug, thumbUrl, worldHref } from '../src/ui/world-picker';
+import { sliceCardOn, DEMOS, DEMO_GROUPS, LEAVE_MESSAGE, WORD_VALUES, currentWorld, hasThumb, mayLeaveCourse, thumbSlug, thumbUrl, worldHref } from '../src/ui/world-picker';
 
 describe('the world picker list (CC-89)', () => {
+  it('the slicer card is on the list without ?labs=1 and ?slice2=old hides it again (CC-201)', () => {
+    expect(DEMOS.some(([v, t]) => v === 'map' && t === 'Slice a real place')).toBe(true);
+    expect(sliceCardOn(new URLSearchParams(''))).toBe(true);
+    expect(sliceCardOn(new URLSearchParams('slice2=old'))).toBe(false);
+  });
   it('every course in the list is a file on disk', () => {
     for (const [value] of DEMOS) {
       if (WORD_VALUES.includes(value) || value === '') continue;

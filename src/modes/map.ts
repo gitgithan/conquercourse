@@ -55,7 +55,8 @@ export function startMap(host: HTMLElement): { backend: 'webgl2' } {
   const root = document.createElement('div'); root.className = 'mp'; host.appendChild(root);
   const mapEl = document.createElement('div'); mapEl.className = 'map'; mapEl.id = 'map'; root.appendChild(mapEl);
   const side = document.createElement('div'); side.className = 'side'; root.appendChild(side);
-  side.innerHTML = `<h1>Pick a place</h1>
+  const S2 = q.get('slice2') !== 'old'; // CC-201 and the slicer fixes after it: ?slice2=old keeps the screen as it was
+  side.innerHTML = `${S2 ? '<button id="backcourses" type="button" title="Open the list of courses">← Back to courses</button>' : ''}<h1>Pick a place</h1>
     <form id="searchform" class="hits"><input type="search" id="search" placeholder="Search for a place" aria-label="Search for a place"><button id="searchgo" type="submit">Search</button></form>
     <div id="hits" class="hits"></div>
     <div class="muted">Or click the map to drop a pin.</div>
@@ -103,6 +104,7 @@ export function startMap(host: HTMLElement): { backend: 'webgl2' } {
     <a class="btn" href="?mode=editor">Back to the editor</a>
     <div class="muted">Map: OpenFreeMap. Search: Nominatim. Buildings: Overpass. Data © OpenStreetMap contributors (ODbL). ${TERRAIN_ATTRIBUTION}.</div>`;
   const $ = <T extends HTMLElement>(id: string) => side.querySelector('#' + id) as T;
+  side.querySelector<HTMLButtonElement>('#backcourses')?.addEventListener('click', () => document.querySelector<HTMLButtonElement>('#courses-btn')?.click()); // the Courses gallery that main.ts mounts
   const radius = $<HTMLInputElement>('radius'), shrink = $<HTMLInputElement>('shrink'), build = $<HTMLButtonElement>('build'), say = $('say'), hits = $('hits');
   const flightcap = document.createElement('div'); flightcap.className = 'fcap'; flightcap.hidden = true; mapEl.appendChild(flightcap);
   const flightskip = document.createElement('button'); flightskip.className = 'fskip'; flightskip.textContent = 'Skip the flight'; flightskip.hidden = true; mapEl.appendChild(flightskip);
