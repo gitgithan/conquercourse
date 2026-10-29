@@ -29,8 +29,9 @@ describe('feedback form', () => {
   });
   it('asks open questions that point to experiences and ask for more', () => {
     const open = round.questions.filter((q) => q.type === 'text').map((q) => q.text.toLowerCase());
-    expect(open.length).toBeGreaterThanOrEqual(6);
-    expect(open.some((t) => /where were you|point to/.test(t))).toBe(true);
+    expect(open.length).toBeGreaterThanOrEqual(2);
+    expect(round.questions.length).toBeLessThanOrEqual(5); // short on purpose: more questions, fewer answers
+    expect(open.some((t) => /where was it|where were you|point to/.test(t))).toBe(true);
     expect(open.some((t) => /wish|more|bring/.test(t))).toBe(true);
   });
   it('has a round name the summary script can use', () => {
