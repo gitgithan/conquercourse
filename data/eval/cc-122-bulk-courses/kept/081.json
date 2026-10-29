@@ -1,0 +1,49 @@
+{
+  "index": 81,
+  "theme": "a chain of blocks of rising height, like stairs of different sizes",
+  "setting": "a campus",
+  "level": 1,
+  "said": "A gentle campus stair of four low blocks rising step by step.",
+  "layout": [
+    {
+      "kind": "ground",
+      "length": 6
+    },
+    {
+      "kind": "block",
+      "length": 1.2,
+      "height": 0.4
+    },
+    {
+      "kind": "block",
+      "length": 1.4,
+      "height": 0.6
+    },
+    {
+      "kind": "block",
+      "length": 1.6,
+      "height": 0.8
+    },
+    {
+      "kind": "block",
+      "length": 1.8,
+      "height": 0.95
+    },
+    {
+      "kind": "ground",
+      "length": 6
+    }
+  ],
+  "clearsAsDrawn": true,
+  "moves": [
+    "jump"
+  ],
+  "plan": {
+    "jumpXs": [
+      4.5,
+      25.5
+    ],
+    "releaseAfter": 60,
+    "bouncePress": 8
+  }
+}

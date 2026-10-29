@@ -1,0 +1,14 @@
+{
+  "index": 7,
+  "theme": "low blocks close together that set a rhythm",
+  "setting": "a school yard",
+  "level": 4,
+  "status": 200,
+  "ms": 12759,
+  "usage": {
+    "prompt_tokens": 450,
+    "completion_tokens": 2681,
+    "total_tokens": 3131
+  },
+  "reply": "Quick school-yard rhythm of three low walls in tight succession into a gap.\n\n```json\n{\n  \"items\": [\n    {\"kind\": \"ground\", \"length\": 5},\n    {\"kind\": \"block\", \"length\": 0.9, \"height\": 0.9},\n    {\"kind\": \"ground\", \"length\": 1.8},\n    {\"kind\": \"block\", \"length\": 0.9, \"height\": 1.0},\n    {\"kind\": \"ground\", \"length\": 1.8},\n    {\"kind\": \"block\", \"length\": 0.9, \"height\": 1.1},\n    {\"kind\": \"ground\", \"length\": 3},\n    {\"kind\": \"gap\", \"width\": 3},\n    {\"kind\": \"ground\", \"length\": 6}\n  ]\n}\n```"
+}

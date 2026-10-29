@@ -1,0 +1,14 @@
+{
+  "index": 17,
+  "theme": "low blocks close together that set a rhythm",
+  "setting": "a harbour",
+  "level": 4,
+  "status": 200,
+  "ms": 19683,
+  "usage": {
+    "prompt_tokens": 449,
+    "completion_tokens": 4000,
+    "total_tokens": 4449
+  },
+  "reply": "A harbour dock with tight rhythmic crate vault"
+}

@@ -1,0 +1,14 @@
+{
+  "index": 40,
+  "theme": "a wide gap that needs a long run-up and jump",
+  "setting": "a rooftop",
+  "level": 1,
+  "status": 200,
+  "ms": 7241,
+  "usage": {
+    "prompt_tokens": 452,
+    "completion_tokens": 1657,
+    "total_tokens": 2109
+  },
+  "reply": "A breezy rooftop stretch with a long approach leading to a wide open gap.\n\n```json\n{\"items\": [{\"kind\":\"ground\",\"length\":12},{\"kind\":\"gap\",\"width\":3},{\"kind\":\"ground\",\"length\":10}]}\n```"
+}

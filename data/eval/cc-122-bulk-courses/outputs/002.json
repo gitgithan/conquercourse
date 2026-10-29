@@ -1,0 +1,14 @@
+{
+  "index": 2,
+  "theme": "a block to vault, then a gap to jump",
+  "setting": "a school yard",
+  "level": 2,
+  "status": 200,
+  "ms": 9688,
+  "usage": {
+    "prompt_tokens": 452,
+    "completion_tokens": 1997,
+    "total_tokens": 2449
+  },
+  "reply": "A gentle schoolyard lane with a low wall to vault and an easy gap to hop after.\n\n```json\n{\"items\": [{\"kind\": \"ground\", \"length\": 8}, {\"kind\": \"block\", \"length\": 1, \"height\": 0.9}, {\"kind\": \"ground\", \"length\": 5}, {\"kind\": \"gap\", \"width\": 2}, {\"kind\": \"ground\", \"length\": 8}]}\n```"
+}

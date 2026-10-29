@@ -1,0 +1,49 @@
+{
+  "index": 61,
+  "theme": "a chain of blocks of rising height, like stairs of different sizes",
+  "setting": "a beach",
+  "level": 1,
+  "said": "Gentle beach stairs rising gradually from the sand with low wide steps.",
+  "layout": [
+    {
+      "kind": "ground",
+      "length": 6
+    },
+    {
+      "kind": "block",
+      "length": 2,
+      "height": 0.4
+    },
+    {
+      "kind": "block",
+      "length": 2,
+      "height": 0.6
+    },
+    {
+      "kind": "block",
+      "length": 2,
+      "height": 0.8
+    },
+    {
+      "kind": "block",
+      "length": 2,
+      "height": 1
+    },
+    {
+      "kind": "ground",
+      "length": 6
+    }
+  ],
+  "clearsAsDrawn": true,
+  "moves": [
+    "jump"
+  ],
+  "plan": {
+    "jumpXs": [
+      4.5,
+      27.46
+    ],
+    "releaseAfter": 60,
+    "bouncePress": 8
+  }
+}

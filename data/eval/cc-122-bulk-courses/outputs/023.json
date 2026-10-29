@@ -1,0 +1,14 @@
+{
+  "index": 23,
+  "theme": "a tall wall to climb, then a drop to the ground",
+  "setting": "a quarry",
+  "level": 2,
+  "status": 200,
+  "ms": 9666,
+  "usage": {
+    "prompt_tokens": 454,
+    "completion_tokens": 1754,
+    "total_tokens": 2208
+  },
+  "reply": "A quarry lane with a tall wall to climb and a straight drop back to flat ground.\n\n```json\n{\"items\": [{\"kind\":\"ground\",\"length\":8},{\"kind\":\"block\",\"length\":1,\"height\":1.8},{\"kind\":\"ground\",\"length\":8}]}\n```"
+}

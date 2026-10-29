@@ -1,0 +1,35 @@
+{
+  "index": 60,
+  "theme": "a wide gap that needs a long run-up and jump",
+  "setting": "a beach",
+  "level": 1,
+  "said": "A sunny beach stretch with a long sandy run-up to clear a wide water gap.",
+  "layout": [
+    {
+      "kind": "ground",
+      "length": 12
+    },
+    {
+      "kind": "gap",
+      "width": 3
+    },
+    {
+      "kind": "ground",
+      "length": 6
+    }
+  ],
+  "clearsAsDrawn": true,
+  "moves": [
+    "gap jump",
+    "jump"
+  ],
+  "plan": {
+    "jumpXs": [
+      4.72,
+      19.5,
+      28.4
+    ],
+    "releaseAfter": 60,
+    "bouncePress": 8
+  }
+}

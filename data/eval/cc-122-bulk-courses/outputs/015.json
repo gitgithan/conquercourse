@@ -1,0 +1,14 @@
+{
+  "index": 15,
+  "theme": "a gap that a bar could be used to skip across",
+  "setting": "a harbour",
+  "level": 3,
+  "status": 200,
+  "ms": 21219,
+  "usage": {
+    "prompt_tokens": 452,
+    "completion_tokens": 4676,
+    "total_tokens": 5128
+  },
+  "reply": "A short harbour pier with a crate to vault, a cargo bar over a water channel, and a container to climb to the finish.\n```json\n{\n  \"items\": [\n    {\"kind\": \"ground\", \"length\": 6},\n    {\"kind\": \"block\", \"length\": 1.5, \"height\": 0.9},\n    {\"kind\": \"ground\", \"length\": 4},\n    {\"kind\": \"gap\", \"width\": 2.2},\n    {\"kind\": \"bar\", \"height\": 2.4},\n    {\"kind\": \"gap\", \"width\": 2.3},\n    {\"kind\": \"ground\", \"length\": 3},\n    {\"kind\": \"block\", \"length\": 2, \"height\": 1.7},\n    {\"kind\": \"ground\", \"length\": 5}\n  ]\n}\n```"
+}

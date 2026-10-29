@@ -1,0 +1,14 @@
+{
+  "index": 85,
+  "theme": "a gap that a bar could be used to skip across",
+  "setting": "a campus",
+  "level": 3,
+  "status": 200,
+  "ms": 31121,
+  "usage": {
+    "prompt_tokens": 452,
+    "completion_tokens": 6464,
+    "total_tokens": 6916
+  },
+  "reply": "Campus lane vaults a planter, swings over a fountain pool on a high bar, then clears a low wall to the quad.\n\n```json\n{\"items\": [{\"kind\":\"ground\",\"length\":5},{\"kind\":\"block\",\"length\":1,\"height\":0.9},{\"kind\":\"gap\",\"width\":2.2},{\"kind\":\"bar\",\"height\":2.4},{\"kind\":\"gap\",\"width\":2.2},{\"kind\":\"ground\",\"length\":4},{\"kind\":\"block\",\"length\":1.2,\"height\":1.1},{\"kind\":\"ground\",\"length\":6}]}\n```"
+}

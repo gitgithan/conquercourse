@@ -1,0 +1,14 @@
+{
+  "index": 61,
+  "theme": "a chain of blocks of rising height, like stairs of different sizes",
+  "setting": "a beach",
+  "level": 1,
+  "status": 200,
+  "ms": 15230,
+  "usage": {
+    "prompt_tokens": 454,
+    "completion_tokens": 3353,
+    "total_tokens": 3807
+  },
+  "reply": "Gentle beach stairs rising gradually from the sand with low wide steps.\n\n```json\n{\n  \"items\": [\n    {\"kind\": \"ground\", \"length\": 6},\n    {\"kind\": \"block\", \"length\": 2, \"height\": 0.4},\n    {\"kind\": \"block\", \"length\": 2, \"height\": 0.6},\n    {\"kind\": \"block\", \"length\": 2, \"height\": 0.8},\n    {\"kind\": \"block\", \"length\": 2, \"height\": 1.0},\n    {\"kind\": \"ground\", \"length\": 6}\n  ]\n}\n```"
+}

@@ -1,0 +1,14 @@
+{
+  "index": 94,
+  "theme": "two or three bars to swing across wide water",
+  "setting": "a farm",
+  "level": 3,
+  "status": 200,
+  "ms": 20883,
+  "usage": {
+    "prompt_tokens": 450,
+    "completion_tokens": 4225,
+    "total_tokens": 4675
+  },
+  "reply": "A farm crossing with a low hay-bale vault leading to three rails over a wide irrigation channel.\n\n```json\n{\"items\": [{\"kind\": \"ground\", \"length\": 5}, {\"kind\": \"block\", \"length\": 1, \"height\": 0.9}, {\"kind\": \"ground\", \"length\": 3}, {\"kind\": \"gap\", \"width\": 8}, {\"kind\": \"bar\", \"height\": 2.2}, {\"kind\": \"bar\", \"height\": 2.4}, {\"kind\": \"bar\", \"height\": 2.3}, {\"kind\": \"ground\", \"length\": 4}, {\"kind\": \"block\", \"length\": 1.2, \"height\": 1.4}, {\"kind\": \"ground\", \"length\": 5}]}\n```"
+}

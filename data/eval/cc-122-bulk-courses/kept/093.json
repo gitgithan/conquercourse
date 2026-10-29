@@ -1,0 +1,44 @@
+{
+  "index": 93,
+  "theme": "a tall wall to climb, then a drop to the ground",
+  "setting": "a farm",
+  "level": 2,
+  "said": "A gentle farm route over a small ditch to a tall barn wall climb and a drop back to the field.",
+  "layout": [
+    {
+      "kind": "ground",
+      "length": 8
+    },
+    {
+      "kind": "gap",
+      "width": 1.5
+    },
+    {
+      "kind": "ground",
+      "length": 5
+    },
+    {
+      "kind": "block",
+      "length": 4,
+      "height": 1.9
+    },
+    {
+      "kind": "ground",
+      "length": 8
+    }
+  ],
+  "clearsAsDrawn": false,
+  "moves": [
+    "gap jump",
+    "jump"
+  ],
+  "plan": {
+    "jumpXs": [
+      4.72,
+      15.5,
+      33.88
+    ],
+    "releaseAfter": 60,
+    "bouncePress": 8
+  }
+}
