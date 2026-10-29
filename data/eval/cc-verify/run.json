@@ -33,13 +33,13 @@
         "area": "2 ghost",
         "name": "ghost chip shown by default in a normal run",
         "pass": true,
-        "note": "{\"chip\":\"Ghost: working out the ideal run\u2026N\",\"gap\":\"\",\"hud\":true}"
+        "note": "{\"chip\":\"Ghost: working out the ideal run…N\",\"gap\":\"\",\"hud\":true}"
       },
       {
         "area": "2 ghost",
         "name": "N cycles the ghost mode and returns to the start",
         "pass": true,
-        "note": "Ghost: working out the ideal run\u2026N -> Ghost: OffN -> Ghost: working out the ideal run\u2026N -> Ghost: OffN -> Ghost: working out the ideal run\u2026N"
+        "note": "Ghost: working out the ideal run…N -> Ghost: OffN -> Ghost: working out the ideal run…N -> Ghost: OffN -> Ghost: working out the ideal run…N"
       },
       {
         "area": "3 report",
@@ -57,7 +57,7 @@
         "area": "3 report",
         "name": "report legend names You and Ghost",
         "pass": true,
-        "note": "You got 18 m of 110 m. | \u2501 You | \u2501 Ghost"
+        "note": "You got 18 m of 110 m. | ━ You | ━ Ghost"
       },
       {
         "area": "3 report",
@@ -73,7 +73,7 @@
       },
       {
         "area": "4 share",
-        "name": "no \"Share\u2026\" button on the fall panel",
+        "name": "no \"Share…\" button on the fall panel",
         "pass": true,
         "note": ""
       },
@@ -115,7 +115,7 @@
       },
       {
         "area": "4 share",
-        "name": "no \"Share\u2026\" button on the finished report",
+        "name": "no \"Share…\" button on the finished report",
         "pass": true,
         "note": ""
       },
