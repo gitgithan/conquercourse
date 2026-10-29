@@ -1,0 +1,46 @@
+{
+  "runs": [
+    {
+      "slug": "eixample-barcelona",
+      "furniture": false,
+      "placed": null,
+      "credit": null,
+      "errors": []
+    },
+    {
+      "slug": "eixample-barcelona",
+      "furniture": true,
+      "placed": "412",
+      "credit": "Street objects: Mapillary contributors, CC BY-SA 4.0 (positions of lamp posts, benches and signs; drawn simply and never part of the run)",
+      "errors": []
+    },
+    {
+      "slug": "circular-quay-sydney",
+      "furniture": false,
+      "placed": null,
+      "credit": null,
+      "errors": []
+    },
+    {
+      "slug": "circular-quay-sydney",
+      "furniture": true,
+      "placed": "194",
+      "credit": "Street objects: Mapillary contributors, CC BY-SA 4.0 (positions of lamp posts, benches and signs; drawn simply and never part of the run)",
+      "errors": []
+    },
+    {
+      "slug": "san-francisco-lombard",
+      "furniture": false,
+      "placed": null,
+      "credit": null,
+      "errors": []
+    },
+    {
+      "slug": "san-francisco-lombard",
+      "furniture": true,
+      "placed": "356",
+      "credit": "Street objects: Mapillary contributors, CC BY-SA 4.0 (positions of lamp posts, benches and signs; drawn simply and never part of the run)",
+      "errors": []
+    }
+  ]
+}

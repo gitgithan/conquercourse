@@ -1627,6 +1627,23 @@ The set of obstacle shapes is fixed, and each shape offers a fixed set of moves.
   - Set the secret once: `npx wrangler pages secret put MAPILLARY_TOKEN` (paste the client token), then `npm run deploy`.
   - Without the secret the proxy answers 503 and the stored strip stays.
 
+## Street furniture from Mapillary map features (CC-187, `?furniture=1`)
+- **What the player sees**
+  - On the four stored real-place courses (Montmartre, Eixample, Circular Quay, Lombard Street), with `?furniture=1`, real street lights, benches, bins, signs, traffic signals, poles and crosswalk paint stand where Mapillary's detectors saw them.
+  - A white painted crossing marks the start line; it is a design touch, not a detection.
+  - A small credit line names Mapillary and CC BY-SA 4.0 with a link to the licence.
+  - It is off by default until the owner has seen it.
+- **How it works**
+  - `functions/api/features.ts` is the proxy (same pattern as `/api/photos`): the token lives in the Pages secret, only five fields and eleven classes come back, answers are cached 30 minutes.
+  - `scripts/furniture-frame.ts` repeats the steps that placed each stored mesh (shrink, centre, drop to the lowest base, one scene item) and checks them against the mesh file: the footprint matches within 2.4 cm.
+  - `scripts/furniture-fetch.ts` saves `public/assets/places/furniture/<place>.json` (about 184 KB for all four).
+  - `src/world/furniture.ts` moves a point from metres east and south of the pin into the game's frame; `src/render/furniture-view.ts` draws instanced boxes and cylinders.
+- **The lane is not touched**
+  - Furniture is never in the physics and the course file is not read for anything but its ground height.
+  - A thing that would stand inside the 2.6 m lane band at the runner's height is moved to the edge of the band (1.7 m from the run line).
+  - Objects are drawn at least 0.4 of real size, because the places are shrunk to 0.07 to 0.24 and a true-size lamp would be a few centimetres tall.
+- Details, counts and pictures: `data/eval/cc-furniture/README.md`.
+
 ## Search: a second-best branch (2026-10-29, CC-69)
 - The search takes, at each take-off edge, the middle of the presses that reach farthest; that can strand a later edge (the Park rail run as first built: the 4th jump landed so the last jump had no room).
 - When the run reaches the last edges and still does not clear, the search now tries other presses at the last two take-off edges (5 spread over the whole range each, so at most 10 extra searches) and keeps the first plan that clears.
