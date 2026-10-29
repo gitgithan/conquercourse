@@ -1,8 +1,8 @@
 // The film camera: scripted shots for the demo video (CC-130). Each shot is a pure function of the time in seconds, so a film frame is the same every run.
 // It only runs with ?film=<shot> in the address; play never loads it.
 
-export type FilmShot = 'flyover' | 'orbit' | 'follow' | 'push' | 'hero' | 'macro' | 'spin';
-export const FILM_SHOTS: FilmShot[] = ['flyover', 'orbit', 'follow', 'push', 'hero', 'macro', 'spin'];
+export type FilmShot = 'flyover' | 'orbit' | 'follow' | 'push' | 'hero' | 'macro' | 'spin' | 'skyline';
+export const FILM_SHOTS: FilmShot[] = ['flyover', 'orbit', 'follow', 'push', 'hero', 'macro', 'spin', 'skyline'];
 
 export interface Pose { pos: [number, number, number]; look: [number, number, number]; fov: number }
 export interface FilmCtx {
@@ -14,7 +14,7 @@ export interface FilmCtx {
   airborne: number; // 0 on the ground to 1 in the air; the caller eases it, so the follow shot zooms in at take-off and out at landing
 }
 
-export const SHOT_SECONDS: Record<FilmShot, number> = { flyover: 12, orbit: 8, follow: 10, push: 7, hero: 11, macro: 4, spin: 1.1 };
+export const SHOT_SECONDS: Record<FilmShot, number> = { flyover: 12, orbit: 8, follow: 10, push: 7, hero: 11, macro: 4, spin: 1.1, skyline: 7.2 };
 
 const clamp01 = (x: number) => Math.max(0, Math.min(1, x));
 const ease = (x: number) => { const t = clamp01(x); return t * t * (3 - 2 * t); }; // smooth start and end
@@ -32,6 +32,12 @@ function flyover(t: number, c: FilmCtx): Pose {
   const u = ease(t / SHOT_SECONDS.flyover);
   const tx = mix(-4, c.finishX + 4, u);
   return around([tx, 1.5, 0], mix(34, 26, Math.sin(Math.PI * u)), mix(0.55, -0.35, u), mix(rad(24), rad(38), Math.sin(Math.PI * u)), mix(40, 46, Math.sin(Math.PI * u)));
+}
+
+// The skyline: low and nearly level, from the front, drifting along the lane so the buildings behind it stand up (CC-237). The flat cousin of the drone.
+function skyline(t: number, c: FilmCtx): Pose {
+  const u = ease(t / SHOT_SECONDS.skyline);
+  return around([mix(2, c.finishX - 6, u), 2.5, 0], mix(30, 24, u), mix(0.22, -0.12, u), rad(7), 44);
 }
 
 // Around one obstacle, from the front-left to the back-right, closing in a little.
@@ -85,6 +91,7 @@ export function filmPose(shot: FilmShot, t: number, c: FilmCtx): Pose {
     case 'hero': return hero(t, c);
     case 'macro': return macro(t, c);
     case 'spin': return spin(t, c);
+    case 'skyline': return skyline(t, c);
   }
 }
 
