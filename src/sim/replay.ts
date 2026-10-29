@@ -163,6 +163,8 @@ export function courseHash(course: CourseData): string {
   for (let i = 0; i < text.length; i++) { h ^= text.charCodeAt(i); h = Math.imul(h, 0x01000193); }
   return (h >>> 0).toString(36);
 }
+// A cleared run is kept when it is the first on this course or faster than the one kept.
+export const shouldKeepBest = (kept: number | null, ticks: number): boolean => kept === null || ticks < kept;
 export const cleanNick = (s: string): string => s.replace(/[^A-Za-z0-9]/g, '').slice(0, 3).toUpperCase();
 
 export interface Challenge { hash: string; nick: string; log: InputLog }

@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vitest';
 import type { CourseData } from '../src/course/course';
 import { playPlan } from '../src/sim/ideal';
 import {
-  REPLAY_VERSION, courseHash, decodeLog, encodeLog, gapSeconds, gapWords, makeChallengeParam, readChallengeParam, recordPlan, reachTick, trackFromPlan, verifyLog,
+  REPLAY_VERSION, courseHash, decodeLog, encodeLog, gapSeconds, gapWords, shouldKeepBest, makeChallengeParam, readChallengeParam, recordPlan, reachTick, trackFromPlan, verifyLog,
 } from '../src/sim/replay';
 
 const load = (f: string) => JSON.parse(readFileSync(f, 'utf8')) as CourseData;
@@ -64,6 +64,15 @@ describe('the ghost track and the gap', () => {
     expect(gapWords(-0.31)).toBe('You are 0.3 s ahead');
     expect(gapWords(0.01)).toBe('Level with the ghost');
     expect(gapWords(0.5, 'Sam')).toBe('Sam is 0.5 s ahead');
+  });
+});
+
+describe('keeping your best', () => {
+  it('the first cleared run is kept, then only a faster one', () => {
+    expect(shouldKeepBest(null, 1500)).toBe(true);
+    expect(shouldKeepBest(1500, 1400)).toBe(true);
+    expect(shouldKeepBest(1500, 1500)).toBe(false);
+    expect(shouldKeepBest(1500, 1600)).toBe(false);
   });
 });
 

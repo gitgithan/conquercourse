@@ -1,0 +1,49 @@
+{
+  "results": [
+    {
+      "name": "the cleared run is kept as the best (its time is stored)",
+      "pass": true,
+      "note": "1123"
+    },
+    {
+      "name": "the end report says it is the best run",
+      "pass": true,
+      "note": "This is your best run on this course."
+    },
+    {
+      "name": "Copy link puts a challenge link on the clipboard, under 2000 characters",
+      "pass": true,
+      "note": "141 characters"
+    },
+    {
+      "name": "the link holds no personal data (no bot or ghost switches, only the nickname)",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "the link's run is the ghost, named by its nickname",
+      "pass": true,
+      "note": "Ghost: SAM's run (9.4 s)N"
+    },
+    {
+      "name": "the bot on the same line stays level with the friend ghost",
+      "pass": true,
+      "note": "Level with the sam"
+    },
+    {
+      "name": "N cycles Off, Ideal run, Your best",
+      "pass": true,
+      "note": "Ghost: OffN | Ghost: Ideal runN | Ghost: Your best (9.4 s)N | Ghost: OffN"
+    },
+    {
+      "name": "a damaged link is refused in plain words",
+      "pass": true,
+      "note": "That link could not be read. Chasing the ideal run instead."
+    },
+    {
+      "name": "a link from another version says so and offers the ideal ghost",
+      "pass": true,
+      "note": "That link is from another version of the game, so its run cannot play here. Chasing the ideal run instead."
+    }
+  ]
+}

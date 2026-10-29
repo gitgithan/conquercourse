@@ -13,8 +13,8 @@
 
 ## Parts
 - **Part 1, the ideal ghost (built):** replays the line the simulator found (the plan stored with the course, or the workers' search).
-- **Part 2, your best (next):** each cleared run is kept in the browser as its keys, and replayed as a second ghost choice.
-- **Part 3, share without a server (after that):** a link carries the course, the build and the keys.
+- **Part 2, your best (built):** each cleared run is kept in the browser as its keys, and replayed as a second ghost choice.
+- **Part 3, share without a server (built):** a link carries the course, the build and the keys.
 - **Part 4, a leaderboard (design only, below):** needs a server step and the owner's yes.
 
 ## How a run is replayed (`src/sim/replay.ts`)
@@ -38,18 +38,20 @@
 - In the first-person camera it hides while it is within about a metre of the eyes.
 - Key N was free; the controls card lists it.
 
-## Part 2: your best (design)
+## Part 2: your best (built)
 - Record the keys of every run from the start of the course, run-length encoded: one pair of (keys held, ticks) for each change.
 - Only plain key presses are recorded (the bot's take-off speed and the cannon angle are not keys, so a bot run is never "a person's run").
 - When a run clears, replay the recording once to check it gives the same time, then keep it if it is the fastest for that course.
 - Stored in `localStorage` by course (a hash of the course, without its stored plan), with the time and the date.
-- The Ghost chip cycles Off, Ideal, My best.
+- The Ghost chip and N cycle Off, Ideal, Your best, and a friend's run when a link was opened.
+- A kept best is played again when the page loads: a changed course or a changed simulator drops it.
+- Check: scripts/ghost-share-check.mjs.
 
-## Part 3: share without a server (design)
+## Part 3: share without a server (built)
 - "Copy challenge link" on the end report.
 - The link keeps the same address and adds `challenge=<version>.<course hash>.<nickname>.<keys>`.
 - The keys are the run-length pairs as varints, deflated, then base64url.
-- Size: a three-minute run is a few hundred bytes, well under 2 KB (tested on the demo courses).
+- Size: the lache demo run makes a link of 141 characters; a three-minute run is a few hundred bytes, well under 2 KB (tested).
 - The nickname is optional, three letters, letters and digits only.
 - The link holds no name, no time and no account.
 - Opening it plays the keys on the course and takes the time the simulator gives.

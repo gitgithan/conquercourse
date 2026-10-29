@@ -1115,10 +1115,11 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
   }
 
   ghostCtl = createGhost({
-    scene, parent: document.body, course,
+    scene, parent: document.body, course, params,
     idealPlan: async () => idealCache.get(course.startX) ?? course.plan ?? (await runSearch(course, { cancelled: false }).then((r) => r.plan).catch(() => null)),
     zoneIndexAt: (x) => progressZones.findIndex((z) => x >= z.x0 && x < z.x1),
     strip: () => strip,
+    reportOpen: () => panel.style.display !== 'none',
   });
   ghostCtl.begin(!resume && startAt === undefined && (!botMode || ghostBot));
   let last = performance.now();
@@ -1159,7 +1160,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
     while (acc >= DT) {
       acc -= DT;
       let input: RunnerInput = NO_INPUT;
-      if (plan) input = inputFor(plan, world, botState, course);
+      if (plan) { input = inputFor(plan, world, botState, course); if (ghostBot && world.outcome === 'running') ghostCtl?.input(input); } // ?ghost=bot: the bot's run is recorded too (for the check)
       else {
         input = { run: keys.has('ArrowRight') || keys.has('KeyD'), left: keys.has('ArrowLeft') || keys.has('KeyA'), jump: jumpQueued, jumpSpeed: 0, squat: keys.has('ArrowDown') || keys.has('KeyS'), handL: keys.has('KeyE'), handR: keys.has('KeyE'), vault: vaultQueued, roll: rollQueued || keys.has('KeyX'), fire: fireQueued, aimUp: keys.has('ArrowUp') || keys.has('KeyW'), aimDown: keys.has('ArrowDown'), up: keys.has('ArrowUp') || keys.has('KeyW') };
         if (world.outcome === 'running') ghostCtl?.input(input);
@@ -1221,6 +1222,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
         clearFinishZone(world.runner.x); everCleared = true; track('clears'); finishRun(true); trackCourseEvent('success', analyticsCourseKey, course.name, analyticsRunId, analyticsMode);
         try { localStorage.setItem('cc.course.cleared', '1'); } catch { /* ok */ }
         panel.innerHTML = ''; panel.style.display = 'grid';
+        ghostCtl?.cleared(world.runner.tick);
         const ghostLine = ghostCtl?.reportLine(world.runner.tick) ?? null;
         const rep = buildReport(course, runLog, world, runKind === 'attempt', bestLine(course));
         const courses = DEMOS.filter((d) => !WORD_VALUES.includes(d[0])), here = courses.findIndex((d) => (d[0] || null) === currentWorld(params, course.name).value), nxt = courses[here + 1];
@@ -1231,7 +1233,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
           close: () => { panel.style.display = 'none'; },
         });
         if (ghostLine) body.querySelector('#report-ghost-slot')?.append(ghostLine);
-        if (ghostCtl && !botMode && !demo && !idealWhole) body.querySelector('#report-actions')?.prepend(...ghostCtl.reportActions(() => { panel.style.display = 'none'; retryX = course.startX; restart(course.startX); }));
+        if (ghostCtl && (!botMode || ghostBot) && !demo && !idealWhole) body.querySelector('#report-actions')?.prepend(...ghostCtl.reportActions(() => { panel.style.display = 'none'; retryX = course.startX; restart(course.startX); }));
         panel.append(body); (body.querySelector('#report-again') as HTMLElement | null)?.focus({ preventScroll: true });
         if (!botMode && !demo && !idealWhole && !rep.saving) clearedNote(); // a shortcut, if the simulator knows one (a fact, never a grade)
       }
