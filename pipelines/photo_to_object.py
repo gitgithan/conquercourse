@@ -199,9 +199,10 @@ if modal is not None:
         .pip_install("numpy<2", "scipy", "pillow", "xatlas==0.0.9", "fast-simplification", "fastapi[standard]")
         .add_local_python_source("ccpipe")
     )
-    upload_secret = modal.Secret.from_name("cc-upload")
+    # the shared token lives in the Modal secret `cc-upload`; `modal run` of the batch pipeline does not need it, so it is only attached when deploying (CC_DEPLOY_WEB=1 modal deploy ...)
+    upload_secrets = [modal.Secret.from_name("cc-upload")] if os.environ.get("CC_DEPLOY_WEB") else []
 
-    @app.function(image=web_image, timeout=1500, secrets=[upload_secret])
+    @app.function(image=web_image, timeout=1500, secrets=upload_secrets)
     def lift_job(jpeg: bytes, label: str, box: list, height_m=None, padretry: bool = True) -> dict:
         """photo + box + label -> {glb, mesh, privacy, mask, retry, gpu seconds}; the same steps as `main`, for one photo, in memory."""
         import tempfile
@@ -232,7 +233,7 @@ if modal is not None:
         want = os.environ.get("CC_UPLOAD_TOKEN", "")
         return bool(want) and hmac.compare_digest(str(token or ""), want)
 
-    @app.function(image=web_image, secrets=[upload_secret])
+    @app.function(image=web_image, secrets=upload_secrets)
     @modal.fastapi_endpoint(method="POST")
     def submit(item: dict):
         """{token, image: base64 jpeg, label, box: [x0,y0,x1,y1], height_m?, padretry?} -> {id} to poll, or {error}."""
@@ -252,7 +253,7 @@ if modal is not None:
         call = lift_job.spawn(jpeg, clean["label"], clean["box"], clean["height_m"], bool(item.get("padretry", True)))
         return {"id": call.object_id}
 
-    @app.function(image=web_image, secrets=[upload_secret])
+    @app.function(image=web_image, secrets=upload_secrets)
     @modal.fastapi_endpoint(method="POST")
     def status(item: dict):
         """{token, id} -> {state: running} | {state: done, glb: base64, mesh, privacy, mask, retry, seconds} | {state: failed, reason}."""
