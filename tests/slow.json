@@ -3,6 +3,7 @@
   "tests/drone-editor.test.ts",
   "tests/easier.test.ts",
   "tests/editor-holds.test.ts",
+  "tests/finish-after-drums.test.ts",
   "tests/fixbars.test.ts",
   "tests/generator.test.ts",
   "tests/golden-search.test.ts",
