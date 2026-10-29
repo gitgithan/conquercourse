@@ -21,13 +21,14 @@ export interface GhostOpts {
 export interface GhostFrame { tick: number; x: number; active: boolean; firstPerson: boolean }
 
 export interface Ghost {
-  begin(fullAttempt: boolean): void; // a new run starts: a ghost chases only a run from the start of the course
+  begin(fullAttempt: boolean, from?: number | null): void; // a new run starts: a ghost chases only a run from the start of the course; `from` is where it starts, and the keys are kept for a clip (CC-157)
   input(i: RunnerInput): void; // the keys of this tick (kept for the next parts)
   frame(f: GhostFrame): void;
   cycle(): void;
   chaseIdeal(): void; // switch the ideal ghost on (the offer beside a refused challenge link, CC-135)
   setFriend(track: GhostTrack, nick?: string): void; // chase a friend's run from a challenge link
   myRun(): InputLog | null; // the keys of this run, when it began at the start and can be replayed (CC-128)
+  myClip(): { log: InputLog; from: number } | null; // the keys of this run from wherever it began, for a clip of any try (CC-157)
   readonly mode: GhostMode;
   reportLine(ticks: number): HTMLElement | null; // one plain line for the end report
   reportActions(chase: () => void): HTMLElement[]; // buttons for the end report
@@ -40,6 +41,7 @@ export function createGhost(o: GhostOpts): Ghost {
   try { if (localStorage.getItem(MODE_KEY) === 'ideal') mode = 'ideal'; } catch { /* the chip still works for this visit */ }
   const recorder = new InputRecorder();
   let full = true; // this run began at the start of the course
+  let from: number | null = null; // where this run began, when its keys are being kept
   let friend: GhostTrack | null = null;
   let friendNick = '';
   let ideal: GhostTrack | null = null, idealState: 'idle' | 'working' | 'none' | 'ready' = 'idle';
@@ -102,12 +104,13 @@ export function createGhost(o: GhostOpts): Ghost {
 
   return {
     get mode() { return mode; },
-    begin(fullAttempt) { full = fullAttempt; recorder.reset(); lastMarked = -2; },
-    input(i) { if (full) recorder.push(i); },
+    begin(fullAttempt, at = null) { full = fullAttempt; from = at; recorder.reset(); lastMarked = -2; },
+    input(i) { if (full || from !== null) recorder.push(i); },
     cycle() { setMode(next()); },
     chaseIdeal() { setMode('ideal'); },
     setFriend(t, nick = '') { friend = t; friendNick = nick; setMode('friend'); },
     myRun() { return full && recorder.valid ? recorder.snapshot() : null; },
+    myClip() { return from !== null && recorder.valid && recorder.ticks > 0 ? { log: recorder.snapshot(), from } : null; },
     frame(f) {
       const track = shown();
       const show = !!track && full && f.active;
