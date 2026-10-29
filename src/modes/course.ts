@@ -24,7 +24,7 @@ import { mountTouch, touchOn } from '../share/touch';
 import { createGaugeStack } from '../ui/gauges';
 import { HUD, hudOn, keycapCss, panelCss } from '../ui/hud-style';
 import { PHONE_WORDS, browserPointing, phoneMode } from '../share/phone';
-import { clipCard, shareButtons, showBanner } from '../share/share-ui';
+import { clipCard, copyLinkButton, shareButtons, showBanner } from '../share/share-ui';
 import { organiseReport, reportSectionsOn } from '../ui/report-sections';
 import { courseHash, encodeLog, inputOfMask, type InputLog } from '../sim/replay';
 import { findShortcuts, shortcutLine, type Shortcut } from '../sim/shortcuts';
@@ -1114,7 +1114,9 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
       diagBox.style.display = 'block';
     });
     const tryClip = shareOn(params) && !botMode && !demo && !idealWhole && !params.get('mode') ? ghostCtl?.myClip() ?? null : null, tryTicks = world.runner.tick;
-    if (tryClip && clipFits(tryTicks)) mk('Make a clip of this try', () => void makeClip(tryClip.log, tryTicks, tryClip.from)).id = 'share-clip-fall'; // CC-157: a try that ended in a fall is worth a clip too
+    const tryRun = shareOn(params) && !botMode && !demo && !idealWhole && !params.get('mode') ? ghostCtl?.myRun() ?? null : null; // CC-181: a try that fell can be sent as a link too; it never counts for a time
+    if (tryRun) row.append(...copyLinkButton({ link: (nick) => makeChallengeUrl(location.origin, location.search, course, tryRun, nick, choice, 'fell'), courseTooBig: () => courseTooBig(location.search, course), label: 'Copy link to this try', id: 'share-copy-fall' }));
+    if (tryClip && clipFits(tryTicks)) mk('Download a video of this try', () => void makeClip(tryClip.log, tryTicks, tryClip.from)).id = 'share-clip-fall'; // CC-157: a try that ended in a fall is worth a clip too
     mk('Show me the ideal run (I)', () => showIdeal(lastZone));
     if (!course.track) mk('Make it easier', () => openEditor('easier')).id = 'makeeasier';
     mk('Edit this course', () => openEditor('edit')).id = 'editfromfall';
@@ -1281,7 +1283,13 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
         phoneWatch = c.log; feed = { log: c.log, i: 0, left: 0 };
         return;
       }
-      showBanner(c.nick ? `Beat ${c.nick}: ${secondsWords(c.ticks)}` : `Beat this time: ${secondsWords(c.ticks)}`, [{ label: 'Make a clip of this run', go: () => void makeClip(c.log, c.ticks) }]);
+      if (c.kind === 'fell') { // CC-181: a try that did not finish: a ghost that falls where the player fell; nothing is sent anywhere
+        const at = c.track.xs[c.track.ticks].toFixed(0);
+        showBanner(`${c.nick ? `${c.nick} fell` : 'A friend fell'} ${at} m along the course. Can you get further?`, [{ label: 'Download video of this try', go: () => void makeClip(c.log, c.ticks) }]);
+        if (params.get('autoplay') === '1') feed = { log: c.log, i: 0, left: 0 };
+        return;
+      }
+      showBanner(c.nick ? `Beat ${c.nick}: ${secondsWords(c.ticks)}` : `Beat this time: ${secondsWords(c.ticks)}`, [{ label: 'Download video of this run', go: () => void makeClip(c.log, c.ticks) }]);
       if (params.get('autoplay') === '1') feed = { log: c.log, i: 0, left: 0 }; // for the browser check: play the friend's keys as if by hand
       if (params.get('clip') === 'auto') void makeClip(c.log, c.ticks);
     });
