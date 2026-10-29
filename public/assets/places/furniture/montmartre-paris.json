@@ -1,0 +1,243 @@
+{
+  "place": "montmartre-paris",
+  "generated": "2026-10-29",
+  "source": "Mapillary map_features (object detections, not photos)",
+  "licence": "CC BY-SA 4.0",
+  "credit": "Street objects: Mapillary contributors, CC BY-SA 4.0",
+  "pin": {
+    "lat": 48.8867,
+    "lon": 2.3431
+  },
+  "unit": "x, z: metres east and south of the pin; h: ground height there in real metres",
+  "frame": {
+    "k": 0.072,
+    "ox": 0.3847,
+    "oz": -0.3563,
+    "oy": 7.9314,
+    "rot": 2.9670597283903604,
+    "tx": 15.299999999999999,
+    "ty": -1.0012625887757167,
+    "tz": 3.9835428459866633,
+    "scale": 1,
+    "startX": 0,
+    "finishX": 28.7
+  },
+  "features": [
+    {
+      "id": "1113360159155802",
+      "kind": "light",
+      "value": "street-light",
+      "x": 34.3,
+      "z": 89.1,
+      "h": 114.5,
+      "seen": "2015-11-28"
+    },
+    {
+      "id": "1113436845814800",
+      "kind": "light",
+      "value": "street-light",
+      "x": 9.5,
+      "z": 66.8,
+      "h": 121.9,
+      "seen": "2015-11-28"
+    },
+    {
+      "id": "1113500119141806",
+      "kind": "light",
+      "value": "street-light",
+      "x": -9.4,
+      "z": 69.2,
+      "h": 122.5,
+      "seen": "2015-11-28"
+    },
+    {
+      "id": "1113520735806411",
+      "kind": "light",
+      "value": "street-light",
+      "x": 12.8,
+      "z": 91.7,
+      "h": 116,
+      "seen": "2015-11-28"
+    },
+    {
+      "id": "1113612999130518",
+      "kind": "light",
+      "value": "street-light",
+      "x": -2.3,
+      "z": 94.3,
+      "h": 116.6,
+      "seen": "2015-11-28"
+    },
+    {
+      "id": "1190909478243606",
+      "kind": "light",
+      "value": "street-light",
+      "x": -53.9,
+      "z": 112.4,
+      "h": 113.8,
+      "seen": "2023-06-17"
+    },
+    {
+      "id": "272781201246825",
+      "kind": "light",
+      "value": "street-light",
+      "x": -45.9,
+      "z": -3.3,
+      "h": 130.3,
+      "seen": "2015-11-28"
+    },
+    {
+      "id": "278747453958526",
+      "kind": "crosswalk",
+      "value": "crosswalk-zebra",
+      "x": 122.2,
+      "z": -100.6,
+      "h": 110.7,
+      "seen": "2015-11-28"
+    },
+    {
+      "id": "278755627291042",
+      "kind": "light",
+      "value": "street-light",
+      "x": -33.6,
+      "z": -37.3,
+      "h": 129.9,
+      "seen": "2015-11-28"
+    },
+    {
+      "id": "278775447289060",
+      "kind": "light",
+      "value": "street-light",
+      "x": 108.2,
+      "z": -56.4,
+      "h": 116.5,
+      "seen": "2015-11-28"
+    },
+    {
+      "id": "278811293952142",
+      "kind": "light",
+      "value": "street-light",
+      "x": 35.2,
+      "z": -73.8,
+      "h": 123.5,
+      "seen": "2015-11-28"
+    },
+    {
+      "id": "278844823948789",
+      "kind": "light",
+      "value": "street-light",
+      "x": 64.8,
+      "z": -65.3,
+      "h": 120.9,
+      "seen": "2015-11-28"
+    },
+    {
+      "id": "278858817280723",
+      "kind": "light",
+      "value": "street-light",
+      "x": 67.1,
+      "z": -81.9,
+      "h": 118.8,
+      "seen": "2015-11-28"
+    },
+    {
+      "id": "278887180611220",
+      "kind": "light",
+      "value": "street-light",
+      "x": 45.1,
+      "z": -53.1,
+      "h": 124.7,
+      "seen": "2015-11-28"
+    },
+    {
+      "id": "278903880609550",
+      "kind": "light",
+      "value": "street-light",
+      "x": -36.4,
+      "z": -50.9,
+      "h": 129.7,
+      "seen": "2015-11-28"
+    },
+    {
+      "id": "278929517273653",
+      "kind": "light",
+      "value": "street-light",
+      "x": -29.1,
+      "z": -55.7,
+      "h": 129.2,
+      "seen": "2015-11-28"
+    },
+    {
+      "id": "279004687266136",
+      "kind": "light",
+      "value": "street-light",
+      "x": 78.8,
+      "z": -79,
+      "h": 118,
+      "seen": "2015-11-28"
+    },
+    {
+      "id": "2860594474205445",
+      "kind": "light",
+      "value": "street-light",
+      "x": 7.3,
+      "z": 51,
+      "h": 125.1,
+      "seen": "2012-06-07"
+    },
+    {
+      "id": "404453151236720",
+      "kind": "light",
+      "value": "street-light",
+      "x": 112.2,
+      "z": 45.9,
+      "h": 107.8,
+      "seen": "2015-11-28"
+    },
+    {
+      "id": "493520045318620",
+      "kind": "light",
+      "value": "street-light",
+      "x": 124.2,
+      "z": 41.6,
+      "h": 107.1,
+      "seen": "2015-11-28"
+    },
+    {
+      "id": "511094046748070",
+      "kind": "bench",
+      "value": "bench",
+      "x": 30.7,
+      "z": 115.8,
+      "h": 107.7,
+      "seen": "2020-07-23"
+    },
+    {
+      "id": "511203076737167",
+      "kind": "light",
+      "value": "street-light",
+      "x": 27.7,
+      "z": 117.7,
+      "h": 107.5,
+      "seen": "2020-07-23"
+    },
+    {
+      "id": "633230138078618",
+      "kind": "bin",
+      "value": "trash-can",
+      "x": 38.8,
+      "z": 123.2,
+      "h": 105.7,
+      "seen": "2020-07-23"
+    },
+    {
+      "id": "633368601398105",
+      "kind": "light",
+      "value": "street-light",
+      "x": 38,
+      "z": 123.6,
+      "h": 105.8,
+      "seen": "2020-07-23"
+    }
+  ]
+}

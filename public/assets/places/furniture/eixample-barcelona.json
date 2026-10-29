@@ -1,0 +1,3735 @@
+{
+  "place": "eixample-barcelona",
+  "generated": "2026-10-29",
+  "source": "Mapillary map_features (object detections, not photos)",
+  "licence": "CC BY-SA 4.0",
+  "credit": "Street objects: Mapillary contributors, CC BY-SA 4.0",
+  "pin": {
+    "lat": 41.3917,
+    "lon": 2.1649
+  },
+  "unit": "x, z: metres east and south of the pin; h: ground height there in real metres",
+  "frame": {
+    "k": 0.238,
+    "ox": 5.5275,
+    "oz": -5.1028,
+    "oy": 0,
+    "rot": 1.7453292519943295,
+    "tx": 23,
+    "ty": -1.0000060675665736,
+    "tz": -28.117741323088232,
+    "scale": 1,
+    "startX": 0,
+    "finishX": 51
+  },
+  "features": [
+    {
+      "id": "1026374728735006",
+      "kind": "light",
+      "value": "street-light",
+      "x": 70.4,
+      "z": -141.9,
+      "h": 0,
+      "seen": "2025-08-23"
+    },
+    {
+      "id": "1026374768735002",
+      "kind": "light",
+      "value": "street-light",
+      "x": 47.2,
+      "z": -112.2,
+      "h": 0,
+      "seen": "2024-09-22"
+    },
+    {
+      "id": "1026374778735001",
+      "kind": "signal",
+      "value": "traffic-light--pedestrians-side",
+      "x": -27.4,
+      "z": -42.3,
+      "h": 0,
+      "seen": "2024-08-12"
+    },
+    {
+      "id": "1026374782068334",
+      "kind": "signal",
+      "value": "traffic-light--pedestrians-side",
+      "x": -14.7,
+      "z": -28.9,
+      "h": 0,
+      "seen": "2024-08-12"
+    },
+    {
+      "id": "1026374792068333",
+      "kind": "signal",
+      "value": "traffic-light--general-upright-side",
+      "x": 15.3,
+      "z": -57.9,
+      "h": 0,
+      "seen": "2024-08-12"
+    },
+    {
+      "id": "1026374822068330",
+      "kind": "signal",
+      "value": "traffic-light--general-upright-front",
+      "x": -0.7,
+      "z": -72.7,
+      "h": 0,
+      "seen": "2025-08-23"
+    },
+    {
+      "id": "1026374965401649",
+      "kind": "light",
+      "value": "street-light",
+      "x": -7.2,
+      "z": -33.4,
+      "h": 0,
+      "seen": "2024-08-12"
+    },
+    {
+      "id": "1026375002068312",
+      "kind": "light",
+      "value": "street-light",
+      "x": -29.2,
+      "z": -60.8,
+      "h": 0,
+      "seen": "2025-09-19"
+    },
+    {
+      "id": "1026375042068308",
+      "kind": "sign",
+      "value": "traffic-sign--front",
+      "x": 35.6,
+      "z": -106.9,
+      "h": 0,
+      "seen": "2025-08-23"
+    },
+    {
+      "id": "1026375052068307",
+      "kind": "sign",
+      "value": "traffic-sign--front",
+      "x": -14.4,
+      "z": -54.9,
+      "h": 0,
+      "seen": "2024-08-12"
+    },
+    {
+      "id": "1026375065401639",
+      "kind": "sign",
+      "value": "traffic-sign--front",
+      "x": -1,
+      "z": -73.1,
+      "h": 0,
+      "seen": "2025-08-23"
+    },
+    {
+      "id": "1026375072068305",
+      "kind": "bin",
+      "value": "trash-can",
+      "x": 63.6,
+      "z": -112.4,
+      "h": 0,
+      "seen": "2024-08-12"
+    },
+    {
+      "id": "1026375092068303",
+      "kind": "bin",
+      "value": "trash-can",
+      "x": 64.9,
+      "z": -113.9,
+      "h": 0,
+      "seen": "2024-08-12"
+    },
+    {
+      "id": "1026375102068302",
+      "kind": "bin",
+      "value": "trash-can",
+      "x": 62.2,
+      "z": -110.9,
+      "h": 0,
+      "seen": "2024-08-12"
+    },
+    {
+      "id": "1026375115401634",
+      "kind": "sign",
+      "value": "traffic-sign--front",
+      "x": 101.1,
+      "z": -143.2,
+      "h": 0,
+      "seen": "2024-08-12"
+    },
+    {
+      "id": "1026375185401627",
+      "kind": "signal",
+      "value": "traffic-light--pedestrians-side",
+      "x": 4.8,
+      "z": -37.8,
+      "h": 0,
+      "seen": "2024-08-12"
+    },
+    {
+      "id": "1026375215401624",
+      "kind": "sign",
+      "value": "traffic-sign--front",
+      "x": -15.3,
+      "z": -28.2,
+      "h": 0,
+      "seen": "2024-08-12"
+    },
+    {
+      "id": "1026375218734957",
+      "kind": "signal",
+      "value": "traffic-light--general-upright-side",
+      "x": -14.2,
+      "z": -54.9,
+      "h": 0,
+      "seen": "2024-08-12"
+    },
+    {
+      "id": "1026375222068290",
+      "kind": "sign",
+      "value": "traffic-sign--front",
+      "x": 7.1,
+      "z": -82,
+      "h": 0,
+      "seen": "2025-08-23"
+    },
+    {
+      "id": "1026375238734955",
+      "kind": "sign",
+      "value": "traffic-sign--front",
+      "x": -27.3,
+      "z": -42.3,
+      "h": 0,
+      "seen": "2024-08-12"
+    },
+    {
+      "id": "1089473658361853",
+      "kind": "light",
+      "value": "street-light",
+      "x": 167.7,
+      "z": -131.4,
+      "h": 0,
+      "seen": "2022-09-10"
+    },
+    {
+      "id": "1089473665028519",
+      "kind": "light",
+      "value": "street-light",
+      "x": 184.9,
+      "z": -128.8,
+      "h": 0,
+      "seen": "2022-09-10"
+    },
+    {
+      "id": "1089473678361851",
+      "kind": "signal",
+      "value": "traffic-light--general-upright-front",
+      "x": 193.8,
+      "z": -103.5,
+      "h": 0,
+      "seen": "2022-09-10"
+    },
+    {
+      "id": "1089473688361850",
+      "kind": "sign",
+      "value": "traffic-sign--front",
+      "x": 194.3,
+      "z": -99.1,
+      "h": 0,
+      "seen": "2025-08-19"
+    },
+    {
+      "id": "1089473691695183",
+      "kind": "sign",
+      "value": "traffic-sign--front",
+      "x": 187.3,
+      "z": -126.7,
+      "h": 0,
+      "seen": "2022-09-10"
+    },
+    {
+      "id": "1089473695028516",
+      "kind": "sign",
+      "value": "traffic-sign--front",
+      "x": 194.2,
+      "z": -99.1,
+      "h": 0,
+      "seen": "2025-08-19"
+    },
+    {
+      "id": "1126012657932432",
+      "kind": "bench",
+      "value": "bench",
+      "x": 188.5,
+      "z": 126,
+      "h": 0,
+      "seen": "2021-10-27"
+    },
+    {
+      "id": "1126012674599097",
+      "kind": "light",
+      "value": "street-light",
+      "x": 183.6,
+      "z": 126.9,
+      "h": 0,
+      "seen": "2025-05-27"
+    },
+    {
+      "id": "1126012697932428",
+      "kind": "light",
+      "value": "street-light",
+      "x": 135.9,
+      "z": 76.4,
+      "h": 0,
+      "seen": "2025-05-27"
+    },
+    {
+      "id": "1126012704599094",
+      "kind": "light",
+      "value": "street-light",
+      "x": 187.4,
+      "z": 126.9,
+      "h": 0,
+      "seen": "2021-10-27"
+    },
+    {
+      "id": "1126012707932427",
+      "kind": "light",
+      "value": "street-light",
+      "x": 187.3,
+      "z": 127.7,
+      "h": 0,
+      "seen": "2021-10-27"
+    },
+    {
+      "id": "1126012721265759",
+      "kind": "signal",
+      "value": "traffic-light--pedestrians-side",
+      "x": 184.7,
+      "z": 126.5,
+      "h": 0,
+      "seen": "2021-10-27"
+    },
+    {
+      "id": "1126012727932425",
+      "kind": "sign",
+      "value": "traffic-sign--front",
+      "x": 176.2,
+      "z": 114.7,
+      "h": 0,
+      "seen": "2025-05-27"
+    },
+    {
+      "id": "1126012734599091",
+      "kind": "signal",
+      "value": "traffic-light--general-upright-side",
+      "x": 195.1,
+      "z": 136.9,
+      "h": 0,
+      "seen": "2021-10-27"
+    },
+    {
+      "id": "1126012747932423",
+      "kind": "light",
+      "value": "street-light",
+      "x": 192.5,
+      "z": 131.1,
+      "h": 0,
+      "seen": "2021-10-27"
+    },
+    {
+      "id": "1126012751265756",
+      "kind": "sign",
+      "value": "traffic-sign--front",
+      "x": 187.4,
+      "z": 128,
+      "h": 0,
+      "seen": "2021-10-27"
+    },
+    {
+      "id": "1126012754599089",
+      "kind": "light",
+      "value": "street-light",
+      "x": 187,
+      "z": 127.7,
+      "h": 0,
+      "seen": "2021-10-27"
+    },
+    {
+      "id": "1126012757932422",
+      "kind": "bin",
+      "value": "trash-can",
+      "x": 188.2,
+      "z": 112.9,
+      "h": 0,
+      "seen": "2021-10-27"
+    },
+    {
+      "id": "1126012761265755",
+      "kind": "light",
+      "value": "street-light",
+      "x": 186.7,
+      "z": 128,
+      "h": 0,
+      "seen": "2021-10-27"
+    },
+    {
+      "id": "1126012771265754",
+      "kind": "bin",
+      "value": "trash-can",
+      "x": 182,
+      "z": 123.6,
+      "h": 0,
+      "seen": "2021-10-27"
+    },
+    {
+      "id": "1126012784599086",
+      "kind": "sign",
+      "value": "traffic-sign--front",
+      "x": 194.7,
+      "z": 119.7,
+      "h": 0,
+      "seen": "2021-10-27"
+    },
+    {
+      "id": "1126012791265752",
+      "kind": "bin",
+      "value": "trash-can",
+      "x": 183,
+      "z": 121.8,
+      "h": 0,
+      "seen": "2021-10-27"
+    },
+    {
+      "id": "1126012804599084",
+      "kind": "sign",
+      "value": "traffic-sign--front",
+      "x": 192.1,
+      "z": 116.9,
+      "h": 0,
+      "seen": "2021-10-27"
+    },
+    {
+      "id": "1274087604194221",
+      "kind": "signal",
+      "value": "traffic-light--general-upright-side",
+      "x": 74.1,
+      "z": 57.7,
+      "h": 0,
+      "seen": "2025-08-19"
+    },
+    {
+      "id": "1274087607527554",
+      "kind": "signal",
+      "value": "traffic-light--general-upright-side",
+      "x": 82.4,
+      "z": 39.9,
+      "h": 0,
+      "seen": "2025-08-19"
+    },
+    {
+      "id": "1274087617527553",
+      "kind": "signal",
+      "value": "traffic-light--general-upright-side",
+      "x": 97.6,
+      "z": 16.7,
+      "h": 0,
+      "seen": "2025-08-19"
+    },
+    {
+      "id": "1274087634194218",
+      "kind": "light",
+      "value": "street-light",
+      "x": 99.8,
+      "z": 18.6,
+      "h": 0,
+      "seen": "2025-08-19"
+    },
+    {
+      "id": "1274087640860884",
+      "kind": "light",
+      "value": "street-light",
+      "x": 52.7,
+      "z": 23.4,
+      "h": 0,
+      "seen": "2025-08-19"
+    },
+    {
+      "id": "1274087650860883",
+      "kind": "light",
+      "value": "street-light",
+      "x": 106.5,
+      "z": 4.5,
+      "h": 0,
+      "seen": "2025-08-19"
+    },
+    {
+      "id": "1274087660860882",
+      "kind": "bin",
+      "value": "trash-can",
+      "x": 52.3,
+      "z": 42,
+      "h": 0,
+      "seen": "2025-08-19"
+    },
+    {
+      "id": "1274087670860881",
+      "kind": "bin",
+      "value": "trash-can",
+      "x": 60.9,
+      "z": 72.9,
+      "h": 0,
+      "seen": "2025-08-19"
+    },
+    {
+      "id": "1274087674194214",
+      "kind": "bin",
+      "value": "trash-can",
+      "x": 142.6,
+      "z": -21.7,
+      "h": 0,
+      "seen": "2025-08-19"
+    },
+    {
+      "id": "1274087684194213",
+      "kind": "sign",
+      "value": "traffic-sign--front",
+      "x": 85.9,
+      "z": 5.9,
+      "h": 0,
+      "seen": "2025-08-19"
+    },
+    {
+      "id": "1274087690860879",
+      "kind": "light",
+      "value": "street-light",
+      "x": 100.3,
+      "z": 17.4,
+      "h": 0,
+      "seen": "2025-08-19"
+    },
+    {
+      "id": "1274087697527545",
+      "kind": "sign",
+      "value": "traffic-sign--front",
+      "x": 119.7,
+      "z": -1.3,
+      "h": 0,
+      "seen": "2025-08-19"
+    },
+    {
+      "id": "1274087704194211",
+      "kind": "sign",
+      "value": "traffic-sign--front",
+      "x": 70.9,
+      "z": 39.9,
+      "h": 0,
+      "seen": "2025-08-19"
+    },
+    {
+      "id": "1274087710860877",
+      "kind": "sign",
+      "value": "traffic-sign--front",
+      "x": 63.8,
+      "z": 53.4,
+      "h": 0,
+      "seen": "2025-08-19"
+    },
+    {
+      "id": "1274087734194208",
+      "kind": "light",
+      "value": "street-light",
+      "x": 104.7,
+      "z": 16.5,
+      "h": 0,
+      "seen": "2025-09-19"
+    },
+    {
+      "id": "1274087737527541",
+      "kind": "light",
+      "value": "street-light",
+      "x": 125.8,
+      "z": -12,
+      "h": 0,
+      "seen": "2025-08-19"
+    },
+    {
+      "id": "1274087744194207",
+      "kind": "light",
+      "value": "street-light",
+      "x": 118.4,
+      "z": -7.3,
+      "h": 0,
+      "seen": "2025-08-19"
+    },
+    {
+      "id": "1274087747527540",
+      "kind": "light",
+      "value": "street-light",
+      "x": 116.5,
+      "z": -7.3,
+      "h": 0,
+      "seen": "2025-08-19"
+    },
+    {
+      "id": "1274087804194201",
+      "kind": "light",
+      "value": "street-light",
+      "x": 96.3,
+      "z": 48.8,
+      "h": 0,
+      "seen": "2025-08-19"
+    },
+    {
+      "id": "1274087810860867",
+      "kind": "light",
+      "value": "street-light",
+      "x": 96.4,
+      "z": 49,
+      "h": 0,
+      "seen": "2025-08-19"
+    },
+    {
+      "id": "1274087820860866",
+      "kind": "light",
+      "value": "street-light",
+      "x": 113.2,
+      "z": 28.4,
+      "h": 0,
+      "seen": "2025-08-19"
+    },
+    {
+      "id": "1274087824194199",
+      "kind": "light",
+      "value": "street-light",
+      "x": 84.6,
+      "z": 36.1,
+      "h": 0,
+      "seen": "2025-08-19"
+    },
+    {
+      "id": "1274087827527532",
+      "kind": "light",
+      "value": "street-light",
+      "x": 97.4,
+      "z": -1.3,
+      "h": 0,
+      "seen": "2025-08-19"
+    },
+    {
+      "id": "1274087837527531",
+      "kind": "light",
+      "value": "street-light",
+      "x": 100.3,
+      "z": 18.6,
+      "h": 0,
+      "seen": "2025-08-19"
+    },
+    {
+      "id": "1274087847527530",
+      "kind": "light",
+      "value": "street-light",
+      "x": 64.2,
+      "z": 53.9,
+      "h": 0,
+      "seen": "2025-08-19"
+    },
+    {
+      "id": "1274087850860863",
+      "kind": "light",
+      "value": "street-light",
+      "x": 85.5,
+      "z": 35.6,
+      "h": 0,
+      "seen": "2025-08-19"
+    },
+    {
+      "id": "1274087860860862",
+      "kind": "light",
+      "value": "street-light",
+      "x": 89.7,
+      "z": -8.1,
+      "h": 0,
+      "seen": "2025-08-19"
+    },
+    {
+      "id": "128681532861645",
+      "kind": "signal",
+      "value": "traffic-light--general-upright-front",
+      "x": -85.7,
+      "z": -161.9,
+      "h": 0,
+      "seen": "2021-10-27"
+    },
+    {
+      "id": "128681536194978",
+      "kind": "light",
+      "value": "street-light",
+      "x": -65.1,
+      "z": -167,
+      "h": 0,
+      "seen": "2021-10-27"
+    },
+    {
+      "id": "128681539528311",
+      "kind": "sign",
+      "value": "traffic-sign--front",
+      "x": -65.1,
+      "z": -167,
+      "h": 0,
+      "seen": "2021-10-27"
+    },
+    {
+      "id": "128681546194977",
+      "kind": "light",
+      "value": "street-light",
+      "x": -71.9,
+      "z": -175,
+      "h": 0,
+      "seen": "2021-10-27"
+    },
+    {
+      "id": "1329035325282645",
+      "kind": "light",
+      "value": "street-light",
+      "x": 115,
+      "z": 18.6,
+      "h": 0,
+      "seen": "2025-09-19"
+    },
+    {
+      "id": "141593447956787",
+      "kind": "light",
+      "value": "street-light",
+      "x": 82.4,
+      "z": 50.1,
+      "h": 0,
+      "seen": "2017-03-14"
+    },
+    {
+      "id": "141612397954892",
+      "kind": "light",
+      "value": "street-light",
+      "x": 73.4,
+      "z": 54.5,
+      "h": 0,
+      "seen": "2017-03-14"
+    },
+    {
+      "id": "141626211286844",
+      "kind": "light",
+      "value": "street-light",
+      "x": 197.3,
+      "z": 122.2,
+      "h": 0,
+      "seen": "2021-10-27"
+    },
+    {
+      "id": "141646664618132",
+      "kind": "light",
+      "value": "street-light",
+      "x": 106.2,
+      "z": 39.9,
+      "h": 0,
+      "seen": "2017-03-14"
+    },
+    {
+      "id": "141668154615983",
+      "kind": "crosswalk",
+      "value": "crosswalk-zebra",
+      "x": 95.3,
+      "z": 35.2,
+      "h": 0,
+      "seen": "2017-03-14"
+    },
+    {
+      "id": "141668557949276",
+      "kind": "light",
+      "value": "street-light",
+      "x": 80.1,
+      "z": 50.1,
+      "h": 0,
+      "seen": "2017-03-14"
+    },
+    {
+      "id": "141676097948522",
+      "kind": "light",
+      "value": "street-light",
+      "x": 72.4,
+      "z": 37.3,
+      "h": 0,
+      "seen": "2017-03-14"
+    },
+    {
+      "id": "141677871281678",
+      "kind": "crosswalk",
+      "value": "crosswalk-zebra",
+      "x": 88.6,
+      "z": 29.6,
+      "h": 0,
+      "seen": "2017-03-14"
+    },
+    {
+      "id": "141686204614178",
+      "kind": "light",
+      "value": "street-light",
+      "x": 55,
+      "z": 31.2,
+      "h": 0,
+      "seen": "2017-03-14"
+    },
+    {
+      "id": "141703111279154",
+      "kind": "light",
+      "value": "street-light",
+      "x": 93.8,
+      "z": 50.4,
+      "h": 0,
+      "seen": "2025-08-19"
+    },
+    {
+      "id": "141708977945234",
+      "kind": "light",
+      "value": "street-light",
+      "x": 102.2,
+      "z": 38.2,
+      "h": 0,
+      "seen": "2021-10-27"
+    },
+    {
+      "id": "141732357942896",
+      "kind": "light",
+      "value": "street-light",
+      "x": 93.6,
+      "z": 49,
+      "h": 0,
+      "seen": "2025-08-19"
+    },
+    {
+      "id": "141733061276159",
+      "kind": "light",
+      "value": "street-light",
+      "x": 101.8,
+      "z": 58.6,
+      "h": 0,
+      "seen": "2017-03-14"
+    },
+    {
+      "id": "141752074607591",
+      "kind": "light",
+      "value": "street-light",
+      "x": 114.5,
+      "z": 49.6,
+      "h": 0,
+      "seen": "2017-03-14"
+    },
+    {
+      "id": "141764181273047",
+      "kind": "light",
+      "value": "street-light",
+      "x": 121.2,
+      "z": 44.1,
+      "h": 0,
+      "seen": "2017-03-14"
+    },
+    {
+      "id": "141776791271786",
+      "kind": "light",
+      "value": "street-light",
+      "x": 81.4,
+      "z": 37.3,
+      "h": 0,
+      "seen": "2025-08-19"
+    },
+    {
+      "id": "141779344604864",
+      "kind": "bin",
+      "value": "trash-can",
+      "x": 97.1,
+      "z": 56.4,
+      "h": 0,
+      "seen": "2017-03-14"
+    },
+    {
+      "id": "141783324604466",
+      "kind": "light",
+      "value": "street-light",
+      "x": 110.9,
+      "z": 38.5,
+      "h": 0,
+      "seen": "2017-03-14"
+    },
+    {
+      "id": "141789394603859",
+      "kind": "light",
+      "value": "street-light",
+      "x": 105.6,
+      "z": 38.5,
+      "h": 0,
+      "seen": "2017-03-14"
+    },
+    {
+      "id": "141816247934507",
+      "kind": "light",
+      "value": "street-light",
+      "x": 107.5,
+      "z": 42.9,
+      "h": 0,
+      "seen": "2017-03-14"
+    },
+    {
+      "id": "141854374597361",
+      "kind": "crosswalk",
+      "value": "crosswalk-zebra",
+      "x": 111.8,
+      "z": 52.5,
+      "h": 0,
+      "seen": "2017-03-14"
+    },
+    {
+      "id": "141872151262250",
+      "kind": "light",
+      "value": "street-light",
+      "x": 71.6,
+      "z": 39,
+      "h": 0,
+      "seen": "2025-08-19"
+    },
+    {
+      "id": "141922531257212",
+      "kind": "light",
+      "value": "street-light",
+      "x": 92.1,
+      "z": 7.6,
+      "h": 0,
+      "seen": "2025-09-19"
+    },
+    {
+      "id": "142577371191728",
+      "kind": "light",
+      "value": "street-light",
+      "x": 110.6,
+      "z": 48.8,
+      "h": 0,
+      "seen": "2017-03-14"
+    },
+    {
+      "id": "1426466191942708",
+      "kind": "light",
+      "value": "street-light",
+      "x": 188.8,
+      "z": -75.3,
+      "h": 0,
+      "seen": "2025-08-19"
+    },
+    {
+      "id": "1426466201942707",
+      "kind": "sign",
+      "value": "traffic-sign--front",
+      "x": 181.6,
+      "z": -67.1,
+      "h": 0,
+      "seen": "2025-08-19"
+    },
+    {
+      "id": "1426466205276040",
+      "kind": "sign",
+      "value": "traffic-sign--front",
+      "x": 181.6,
+      "z": -67.1,
+      "h": 0,
+      "seen": "2025-08-19"
+    },
+    {
+      "id": "1509441983562651",
+      "kind": "sign",
+      "value": "traffic-sign--front",
+      "x": 41.6,
+      "z": 98,
+      "h": 0,
+      "seen": "2025-08-19"
+    },
+    {
+      "id": "1509441993562650",
+      "kind": "sign",
+      "value": "traffic-sign--front",
+      "x": 41.6,
+      "z": 98,
+      "h": 0,
+      "seen": "2025-08-19"
+    },
+    {
+      "id": "1603014367113413",
+      "kind": "bin",
+      "value": "trash-can",
+      "x": 153.2,
+      "z": -23.4,
+      "h": 0,
+      "seen": "2024-03-29"
+    },
+    {
+      "id": "1603014370446746",
+      "kind": "bin",
+      "value": "trash-can",
+      "x": 154.4,
+      "z": -29.4,
+      "h": 0,
+      "seen": "2024-03-29"
+    },
+    {
+      "id": "1603014373780079",
+      "kind": "bin",
+      "value": "trash-can",
+      "x": 153.2,
+      "z": -23.8,
+      "h": 0,
+      "seen": "2024-03-29"
+    },
+    {
+      "id": "1833519483652106",
+      "kind": "bench",
+      "value": "bench",
+      "x": 145.7,
+      "z": -173.3,
+      "h": 0,
+      "seen": "2022-09-10"
+    },
+    {
+      "id": "1833519736985414",
+      "kind": "signal",
+      "value": "traffic-light--pedestrians-side",
+      "x": 152.3,
+      "z": -162.5,
+      "h": 0,
+      "seen": "2022-09-10"
+    },
+    {
+      "id": "1833519743652080",
+      "kind": "signal",
+      "value": "traffic-light--pedestrians-front",
+      "x": 143.7,
+      "z": -154.7,
+      "h": 0,
+      "seen": "2022-09-10"
+    },
+    {
+      "id": "1833519763652078",
+      "kind": "sign",
+      "value": "traffic-sign--front",
+      "x": 144.8,
+      "z": -179.2,
+      "h": 0,
+      "seen": "2022-09-10"
+    },
+    {
+      "id": "1833519780318743",
+      "kind": "sign",
+      "value": "traffic-sign--front",
+      "x": 104.3,
+      "z": -172.9,
+      "h": 0,
+      "seen": "2025-08-23"
+    },
+    {
+      "id": "1833519790318742",
+      "kind": "bin",
+      "value": "trash-can",
+      "x": 149,
+      "z": -165.9,
+      "h": 0,
+      "seen": "2022-09-10"
+    },
+    {
+      "id": "1833519793652075",
+      "kind": "sign",
+      "value": "traffic-sign--front",
+      "x": 118.7,
+      "z": -157.6,
+      "h": 0,
+      "seen": "2025-08-23"
+    },
+    {
+      "id": "1833519803652074",
+      "kind": "sign",
+      "value": "traffic-sign--front",
+      "x": 152.8,
+      "z": -161.9,
+      "h": 0,
+      "seen": "2022-09-10"
+    },
+    {
+      "id": "1833519816985406",
+      "kind": "sign",
+      "value": "traffic-sign--front",
+      "x": 153.8,
+      "z": -145.3,
+      "h": 0,
+      "seen": "2022-09-10"
+    },
+    {
+      "id": "1833519820318739",
+      "kind": "sign",
+      "value": "traffic-sign--front",
+      "x": 104.2,
+      "z": -145.3,
+      "h": 0,
+      "seen": "2024-08-12"
+    },
+    {
+      "id": "1833519833652071",
+      "kind": "sign",
+      "value": "traffic-sign--front",
+      "x": 152.9,
+      "z": -161.9,
+      "h": 0,
+      "seen": "2022-09-10"
+    },
+    {
+      "id": "1833519846985403",
+      "kind": "sign",
+      "value": "traffic-sign--front",
+      "x": 118.6,
+      "z": -157.6,
+      "h": 0,
+      "seen": "2025-08-23"
+    },
+    {
+      "id": "1833519850318736",
+      "kind": "sign",
+      "value": "traffic-sign--front",
+      "x": 150.7,
+      "z": -164.4,
+      "h": 0,
+      "seen": "2025-08-23"
+    },
+    {
+      "id": "1833519853652069",
+      "kind": "sign",
+      "value": "traffic-sign--front",
+      "x": 104.3,
+      "z": -174.2,
+      "h": 0,
+      "seen": "2025-08-23"
+    },
+    {
+      "id": "1833519856985402",
+      "kind": "sign",
+      "value": "traffic-sign--front",
+      "x": 144.4,
+      "z": -154.2,
+      "h": 0,
+      "seen": "2022-09-10"
+    },
+    {
+      "id": "1833519870318734",
+      "kind": "sign",
+      "value": "traffic-sign--front",
+      "x": 152.4,
+      "z": -162.3,
+      "h": 0,
+      "seen": "2022-09-10"
+    },
+    {
+      "id": "1833519883652066",
+      "kind": "sign",
+      "value": "traffic-sign--front",
+      "x": 144.4,
+      "z": -154.2,
+      "h": 0,
+      "seen": "2022-09-10"
+    },
+    {
+      "id": "1833519890318732",
+      "kind": "sign",
+      "value": "traffic-sign--front",
+      "x": 152.5,
+      "z": -145.8,
+      "h": 0,
+      "seen": "2022-09-10"
+    },
+    {
+      "id": "1833519923652062",
+      "kind": "sign",
+      "value": "traffic-sign--front",
+      "x": 138.9,
+      "z": -177,
+      "h": 0,
+      "seen": "2022-09-10"
+    },
+    {
+      "id": "1833519936985394",
+      "kind": "bin",
+      "value": "trash-can",
+      "x": 166.4,
+      "z": -132.1,
+      "h": 0,
+      "seen": "2022-09-10"
+    },
+    {
+      "id": "1833519943652060",
+      "kind": "sign",
+      "value": "traffic-sign--front",
+      "x": 146.3,
+      "z": -172.1,
+      "h": 0,
+      "seen": "2022-09-10"
+    },
+    {
+      "id": "1833519980318723",
+      "kind": "bin",
+      "value": "trash-can",
+      "x": 166.5,
+      "z": -133,
+      "h": 0,
+      "seen": "2022-09-10"
+    },
+    {
+      "id": "2089858088176478",
+      "kind": "signal",
+      "value": "traffic-light--general-upright-front",
+      "x": 131.4,
+      "z": 63.5,
+      "h": 0,
+      "seen": "2025-05-27"
+    },
+    {
+      "id": "2089858104843143",
+      "kind": "bin",
+      "value": "trash-can",
+      "x": 137,
+      "z": 70.1,
+      "h": 0,
+      "seen": "2025-05-27"
+    },
+    {
+      "id": "2089858108176476",
+      "kind": "bin",
+      "value": "trash-can",
+      "x": 127.1,
+      "z": 57.7,
+      "h": 0,
+      "seen": "2025-05-27"
+    },
+    {
+      "id": "2089858114843142",
+      "kind": "sign",
+      "value": "traffic-sign--front",
+      "x": 117.4,
+      "z": 81.8,
+      "h": 0,
+      "seen": "2025-05-27"
+    },
+    {
+      "id": "2089858124843141",
+      "kind": "signal",
+      "value": "traffic-light--general-upright-front",
+      "x": 115.8,
+      "z": 81.3,
+      "h": 0,
+      "seen": "2025-05-27"
+    },
+    {
+      "id": "2089858131509807",
+      "kind": "signal",
+      "value": "traffic-light--general-upright-front",
+      "x": 129.2,
+      "z": 70.8,
+      "h": 0,
+      "seen": "2025-05-27"
+    },
+    {
+      "id": "2089858144843139",
+      "kind": "light",
+      "value": "street-light",
+      "x": 132.1,
+      "z": 98,
+      "h": 0,
+      "seen": "2025-05-27"
+    },
+    {
+      "id": "214893730219510",
+      "kind": "light",
+      "value": "street-light",
+      "x": -103.1,
+      "z": -178.1,
+      "h": 0,
+      "seen": "2021-10-27"
+    },
+    {
+      "id": "214925856882964",
+      "kind": "bench",
+      "value": "bench",
+      "x": -52.7,
+      "z": -144.5,
+      "h": 0,
+      "seen": "2017-03-14"
+    },
+    {
+      "id": "214958500213033",
+      "kind": "light",
+      "value": "street-light",
+      "x": -74.1,
+      "z": -133,
+      "h": 0,
+      "seen": "2017-03-14"
+    },
+    {
+      "id": "214968613545355",
+      "kind": "light",
+      "value": "street-light",
+      "x": -86.4,
+      "z": -172.1,
+      "h": 0,
+      "seen": "2017-03-14"
+    },
+    {
+      "id": "214971060211777",
+      "kind": "bin",
+      "value": "trash-can",
+      "x": -97.1,
+      "z": -178.1,
+      "h": 0,
+      "seen": "2017-03-14"
+    },
+    {
+      "id": "214982760210607",
+      "kind": "light",
+      "value": "street-light",
+      "x": -90.4,
+      "z": -141.9,
+      "h": 0,
+      "seen": "2017-03-14"
+    },
+    {
+      "id": "214988550210028",
+      "kind": "bench",
+      "value": "bench",
+      "x": -53.8,
+      "z": -157.2,
+      "h": 0,
+      "seen": "2017-03-14"
+    },
+    {
+      "id": "215011906874359",
+      "kind": "light",
+      "value": "street-light",
+      "x": -72.5,
+      "z": -148.3,
+      "h": 0,
+      "seen": "2017-03-14"
+    },
+    {
+      "id": "215016670207216",
+      "kind": "light",
+      "value": "street-light",
+      "x": -59.3,
+      "z": -157,
+      "h": 0,
+      "seen": "2021-10-27"
+    },
+    {
+      "id": "215035183538698",
+      "kind": "light",
+      "value": "street-light",
+      "x": -81.9,
+      "z": -178.9,
+      "h": 0,
+      "seen": "2017-03-14"
+    },
+    {
+      "id": "215125306863019",
+      "kind": "light",
+      "value": "street-light",
+      "x": -91.2,
+      "z": -168.6,
+      "h": 0,
+      "seen": "2021-10-27"
+    },
+    {
+      "id": "215127690196114",
+      "kind": "light",
+      "value": "street-light",
+      "x": -79.1,
+      "z": -161.4,
+      "h": 0,
+      "seen": "2017-03-14"
+    },
+    {
+      "id": "215154820193401",
+      "kind": "light",
+      "value": "street-light",
+      "x": -79,
+      "z": -160.3,
+      "h": 0,
+      "seen": "2017-03-14"
+    },
+    {
+      "id": "2926325194307513",
+      "kind": "light",
+      "value": "street-light",
+      "x": 48.8,
+      "z": 46.2,
+      "h": 0,
+      "seen": "2017-11-18"
+    },
+    {
+      "id": "434427571290575",
+      "kind": "signal",
+      "value": "traffic-light--pedestrians-front",
+      "x": -108.7,
+      "z": 69,
+      "h": 0,
+      "seen": "2024-08-12"
+    },
+    {
+      "id": "434427574623908",
+      "kind": "sign",
+      "value": "traffic-sign--front",
+      "x": -135.8,
+      "z": 96.3,
+      "h": 0,
+      "seen": "2025-05-27"
+    },
+    {
+      "id": "434427594623906",
+      "kind": "bench",
+      "value": "bench",
+      "x": -108,
+      "z": 75,
+      "h": 0,
+      "seen": "2021-05-22"
+    },
+    {
+      "id": "434427684623897",
+      "kind": "signal",
+      "value": "traffic-light--general-upright-front",
+      "x": -114.9,
+      "z": 74.6,
+      "h": 0,
+      "seen": "2025-05-27"
+    },
+    {
+      "id": "434427701290562",
+      "kind": "signal",
+      "value": "traffic-light--pedestrians-front",
+      "x": -130.6,
+      "z": 61.2,
+      "h": 0,
+      "seen": "2021-05-22"
+    },
+    {
+      "id": "434427704623895",
+      "kind": "sign",
+      "value": "traffic-sign--front",
+      "x": -111,
+      "z": 91.6,
+      "h": 0,
+      "seen": "2021-05-22"
+    },
+    {
+      "id": "434427727957226",
+      "kind": "sign",
+      "value": "traffic-sign--front",
+      "x": -138.2,
+      "z": 97.6,
+      "h": 0,
+      "seen": "2024-08-12"
+    },
+    {
+      "id": "434427731290559",
+      "kind": "sign",
+      "value": "traffic-sign--front",
+      "x": -110.9,
+      "z": 91.6,
+      "h": 0,
+      "seen": "2021-05-22"
+    },
+    {
+      "id": "434427831290549",
+      "kind": "light",
+      "value": "street-light",
+      "x": -135.9,
+      "z": 98.4,
+      "h": 0,
+      "seen": "2025-08-23"
+    },
+    {
+      "id": "434427841290548",
+      "kind": "sign",
+      "value": "traffic-sign--front",
+      "x": -118.1,
+      "z": 90.8,
+      "h": 0,
+      "seen": "2025-05-27"
+    },
+    {
+      "id": "434427924623873",
+      "kind": "bench",
+      "value": "bench",
+      "x": -136,
+      "z": 57.2,
+      "h": 0,
+      "seen": "2021-05-22"
+    },
+    {
+      "id": "434427981290534",
+      "kind": "light",
+      "value": "street-light",
+      "x": -139.4,
+      "z": 98.9,
+      "h": 0,
+      "seen": "2024-08-12"
+    },
+    {
+      "id": "434427991290533",
+      "kind": "light",
+      "value": "street-light",
+      "x": -119.4,
+      "z": 89.5,
+      "h": 0,
+      "seen": "2025-05-27"
+    },
+    {
+      "id": "434428011290531",
+      "kind": "light",
+      "value": "street-light",
+      "x": -145.3,
+      "z": 65.7,
+      "h": 0,
+      "seen": "2024-08-12"
+    },
+    {
+      "id": "434428034623862",
+      "kind": "light",
+      "value": "street-light",
+      "x": -119.7,
+      "z": 96.3,
+      "h": 0,
+      "seen": "2021-05-22"
+    },
+    {
+      "id": "434428081290524",
+      "kind": "signal",
+      "value": "traffic-light--pedestrians-side",
+      "x": -115.6,
+      "z": 74.6,
+      "h": 0,
+      "seen": "2021-05-22"
+    },
+    {
+      "id": "434428167957182",
+      "kind": "sign",
+      "value": "traffic-sign--front",
+      "x": -113.3,
+      "z": 74.3,
+      "h": 0,
+      "seen": "2025-05-27"
+    },
+    {
+      "id": "434428177957181",
+      "kind": "sign",
+      "value": "traffic-sign--front",
+      "x": -115.6,
+      "z": 77.3,
+      "h": 0,
+      "seen": "2024-08-12"
+    },
+    {
+      "id": "434428197957179",
+      "kind": "sign",
+      "value": "traffic-sign--front",
+      "x": -114.3,
+      "z": 75.9,
+      "h": 0,
+      "seen": "2025-05-27"
+    },
+    {
+      "id": "434428214623844",
+      "kind": "bin",
+      "value": "trash-can",
+      "x": -135,
+      "z": 95.5,
+      "h": 0,
+      "seen": "2021-05-22"
+    },
+    {
+      "id": "434428217957177",
+      "kind": "sign",
+      "value": "traffic-sign--front",
+      "x": -114.2,
+      "z": 76.4,
+      "h": 0,
+      "seen": "2025-05-27"
+    },
+    {
+      "id": "434428231290509",
+      "kind": "bin",
+      "value": "trash-can",
+      "x": -132.5,
+      "z": 93,
+      "h": 0,
+      "seen": "2021-05-22"
+    },
+    {
+      "id": "434428311290501",
+      "kind": "bin",
+      "value": "trash-can",
+      "x": -131.1,
+      "z": 90.8,
+      "h": 0,
+      "seen": "2021-05-22"
+    },
+    {
+      "id": "440202454160565",
+      "kind": "light",
+      "value": "street-light",
+      "x": 89.5,
+      "z": 27.1,
+      "h": 0,
+      "seen": "2021-10-27"
+    },
+    {
+      "id": "440202467493897",
+      "kind": "sign",
+      "value": "traffic-sign--front",
+      "x": 100.2,
+      "z": 33.8,
+      "h": 0,
+      "seen": "2025-05-27"
+    },
+    {
+      "id": "440202470827230",
+      "kind": "sign",
+      "value": "traffic-sign--front",
+      "x": 95.8,
+      "z": 17.8,
+      "h": 0,
+      "seen": "2021-10-27"
+    },
+    {
+      "id": "440202474160563",
+      "kind": "light",
+      "value": "street-light",
+      "x": 83.2,
+      "z": 1.7,
+      "h": 0,
+      "seen": "2021-10-27"
+    },
+    {
+      "id": "440202480827229",
+      "kind": "light",
+      "value": "street-light",
+      "x": 75,
+      "z": 17.4,
+      "h": 0,
+      "seen": "2021-10-27"
+    },
+    {
+      "id": "440202487493895",
+      "kind": "light",
+      "value": "street-light",
+      "x": 88.8,
+      "z": 27.1,
+      "h": 0,
+      "seen": "2021-10-27"
+    },
+    {
+      "id": "440202490827228",
+      "kind": "signal",
+      "value": "traffic-light--pedestrians-front",
+      "x": 104,
+      "z": 13.1,
+      "h": 0,
+      "seen": "2021-10-27"
+    },
+    {
+      "id": "440202494160561",
+      "kind": "light",
+      "value": "street-light",
+      "x": 81.9,
+      "z": 16.5,
+      "h": 0,
+      "seen": "2021-10-27"
+    },
+    {
+      "id": "579392771451105",
+      "kind": "light",
+      "value": "street-light",
+      "x": 168.7,
+      "z": 113.3,
+      "h": 0,
+      "seen": "2025-05-27"
+    },
+    {
+      "id": "579392841451098",
+      "kind": "sign",
+      "value": "traffic-sign--front",
+      "x": -22,
+      "z": -19.1,
+      "h": 0,
+      "seen": "2025-05-27"
+    },
+    {
+      "id": "579392844784431",
+      "kind": "light",
+      "value": "street-light",
+      "x": 30.6,
+      "z": -16.3,
+      "h": 0,
+      "seen": "2025-05-27"
+    },
+    {
+      "id": "579392848117764",
+      "kind": "signal",
+      "value": "traffic-light--general-upright-front",
+      "x": -9.4,
+      "z": -84.6,
+      "h": 0,
+      "seen": "2025-05-27"
+    },
+    {
+      "id": "579392854784430",
+      "kind": "light",
+      "value": "street-light",
+      "x": 50.8,
+      "z": 1.7,
+      "h": 0,
+      "seen": "2025-05-27"
+    },
+    {
+      "id": "579392858117763",
+      "kind": "signal",
+      "value": "traffic-light--general-upright-front",
+      "x": 16.9,
+      "z": -48.5,
+      "h": 0,
+      "seen": "2025-05-27"
+    },
+    {
+      "id": "579392861451096",
+      "kind": "sign",
+      "value": "traffic-sign--front",
+      "x": 164.1,
+      "z": 134.1,
+      "h": 0,
+      "seen": "2025-05-27"
+    },
+    {
+      "id": "579392864784429",
+      "kind": "signal",
+      "value": "traffic-light--general-upright-front",
+      "x": 100.9,
+      "z": 40.6,
+      "h": 0,
+      "seen": "2025-05-27"
+    },
+    {
+      "id": "579392868117762",
+      "kind": "signal",
+      "value": "traffic-light--general-upright-front",
+      "x": 104.6,
+      "z": 36.4,
+      "h": 0,
+      "seen": "2025-05-27"
+    },
+    {
+      "id": "579392871451095",
+      "kind": "light",
+      "value": "street-light",
+      "x": 165,
+      "z": 132.5,
+      "h": 0,
+      "seen": "2025-05-27"
+    },
+    {
+      "id": "579392874784428",
+      "kind": "signal",
+      "value": "traffic-light--general-upright-side",
+      "x": 163.6,
+      "z": 133.6,
+      "h": 0,
+      "seen": "2025-05-27"
+    },
+    {
+      "id": "579392878117761",
+      "kind": "bin",
+      "value": "trash-can",
+      "x": 156,
+      "z": 135.8,
+      "h": 0,
+      "seen": "2025-05-27"
+    },
+    {
+      "id": "579392904784425",
+      "kind": "sign",
+      "value": "traffic-sign--front",
+      "x": 80.6,
+      "z": 11.8,
+      "h": 0,
+      "seen": "2025-05-27"
+    },
+    {
+      "id": "579392908117758",
+      "kind": "sign",
+      "value": "traffic-sign--front",
+      "x": 165.9,
+      "z": 103.5,
+      "h": 0,
+      "seen": "2025-05-27"
+    },
+    {
+      "id": "579392918117757",
+      "kind": "light",
+      "value": "street-light",
+      "x": 153.8,
+      "z": 115.4,
+      "h": 0,
+      "seen": "2025-05-27"
+    },
+    {
+      "id": "579392928117756",
+      "kind": "light",
+      "value": "street-light",
+      "x": 60.9,
+      "z": 16.5,
+      "h": 0,
+      "seen": "2025-05-27"
+    },
+    {
+      "id": "579392944784421",
+      "kind": "signal",
+      "value": "traffic-light--general-upright-front",
+      "x": 17.3,
+      "z": -49,
+      "h": 0,
+      "seen": "2025-05-27"
+    },
+    {
+      "id": "579392968117752",
+      "kind": "signal",
+      "value": "traffic-light--general-upright-front",
+      "x": 20.5,
+      "z": -51.9,
+      "h": 0,
+      "seen": "2025-05-27"
+    },
+    {
+      "id": "579392984784417",
+      "kind": "light",
+      "value": "street-light",
+      "x": 165,
+      "z": 131.4,
+      "h": 0,
+      "seen": "2025-05-27"
+    },
+    {
+      "id": "579392994784416",
+      "kind": "light",
+      "value": "street-light",
+      "x": 180.5,
+      "z": 101.9,
+      "h": 0,
+      "seen": "2025-05-27"
+    },
+    {
+      "id": "579393004784415",
+      "kind": "sign",
+      "value": "traffic-sign--front",
+      "x": 17.3,
+      "z": -56.8,
+      "h": 0,
+      "seen": "2025-05-27"
+    },
+    {
+      "id": "626399787192299",
+      "kind": "light",
+      "value": "street-light",
+      "x": 79.4,
+      "z": -109.1,
+      "h": 0,
+      "seen": "2025-08-23"
+    },
+    {
+      "id": "626399790525632",
+      "kind": "light",
+      "value": "street-light",
+      "x": 22.2,
+      "z": -94.4,
+      "h": 0,
+      "seen": "2025-08-23"
+    },
+    {
+      "id": "626399797192298",
+      "kind": "light",
+      "value": "street-light",
+      "x": 53.2,
+      "z": -83.7,
+      "h": 0,
+      "seen": "2025-08-23"
+    },
+    {
+      "id": "626399823858962",
+      "kind": "sign",
+      "value": "traffic-sign--front",
+      "x": -102.1,
+      "z": 26.3,
+      "h": 0,
+      "seen": "2025-08-23"
+    },
+    {
+      "id": "626399847192293",
+      "kind": "sign",
+      "value": "traffic-sign--front",
+      "x": 30.1,
+      "z": -59,
+      "h": 0,
+      "seen": "2025-08-23"
+    },
+    {
+      "id": "626399853858959",
+      "kind": "sign",
+      "value": "traffic-sign--front",
+      "x": 29.7,
+      "z": -57.9,
+      "h": 0,
+      "seen": "2025-08-23"
+    },
+    {
+      "id": "626399857192292",
+      "kind": "sign",
+      "value": "traffic-sign--front",
+      "x": -19.5,
+      "z": -95.2,
+      "h": 0,
+      "seen": "2025-08-23"
+    },
+    {
+      "id": "626399867192291",
+      "kind": "light",
+      "value": "street-light",
+      "x": -80.8,
+      "z": 47.5,
+      "h": 0,
+      "seen": "2025-08-23"
+    },
+    {
+      "id": "626399873858957",
+      "kind": "light",
+      "value": "street-light",
+      "x": -30.9,
+      "z": -84.2,
+      "h": 0,
+      "seen": "2025-08-23"
+    },
+    {
+      "id": "626399877192290",
+      "kind": "light",
+      "value": "street-light",
+      "x": 30.1,
+      "z": -54.9,
+      "h": 0,
+      "seen": "2025-08-23"
+    },
+    {
+      "id": "626399880525623",
+      "kind": "light",
+      "value": "street-light",
+      "x": 6.4,
+      "z": -86.8,
+      "h": 0,
+      "seen": "2025-08-23"
+    },
+    {
+      "id": "626399883858956",
+      "kind": "light",
+      "value": "street-light",
+      "x": -23.9,
+      "z": -57,
+      "h": 0,
+      "seen": "2025-08-23"
+    },
+    {
+      "id": "626399887192289",
+      "kind": "light",
+      "value": "street-light",
+      "x": -25.5,
+      "z": -47.6,
+      "h": 0,
+      "seen": "2025-08-23"
+    },
+    {
+      "id": "626399893858955",
+      "kind": "light",
+      "value": "street-light",
+      "x": -96.5,
+      "z": 21.6,
+      "h": 0,
+      "seen": "2025-08-23"
+    },
+    {
+      "id": "626399903858954",
+      "kind": "light",
+      "value": "street-light",
+      "x": -52.7,
+      "z": 18.9,
+      "h": 0,
+      "seen": "2025-08-23"
+    },
+    {
+      "id": "7303094289768249",
+      "kind": "bench",
+      "value": "bench",
+      "x": 154.9,
+      "z": -31.5,
+      "h": 0,
+      "seen": "2024-03-29"
+    },
+    {
+      "id": "7303094299768248",
+      "kind": "bench",
+      "value": "bench",
+      "x": 154.4,
+      "z": -31.5,
+      "h": 0,
+      "seen": "2024-03-29"
+    },
+    {
+      "id": "7303094303101581",
+      "kind": "bench",
+      "value": "bench",
+      "x": 156.8,
+      "z": -34.1,
+      "h": 0,
+      "seen": "2024-03-29"
+    },
+    {
+      "id": "7303094316434913",
+      "kind": "sign",
+      "value": "traffic-sign--front",
+      "x": 161.2,
+      "z": -42.5,
+      "h": 0,
+      "seen": "2024-03-29"
+    },
+    {
+      "id": "7303094323101579",
+      "kind": "sign",
+      "value": "traffic-sign--front",
+      "x": 151.9,
+      "z": -29.4,
+      "h": 0,
+      "seen": "2024-03-29"
+    },
+    {
+      "id": "7303094326434912",
+      "kind": "sign",
+      "value": "traffic-sign--front",
+      "x": 151.9,
+      "z": -29.4,
+      "h": 0,
+      "seen": "2024-03-29"
+    },
+    {
+      "id": "7303094329768245",
+      "kind": "sign",
+      "value": "traffic-sign--front",
+      "x": 151.9,
+      "z": -29.4,
+      "h": 0,
+      "seen": "2024-03-29"
+    },
+    {
+      "id": "7303094333101578",
+      "kind": "light",
+      "value": "street-light",
+      "x": 154.4,
+      "z": -33.6,
+      "h": 0,
+      "seen": "2024-03-29"
+    },
+    {
+      "id": "7303094336434911",
+      "kind": "light",
+      "value": "street-light",
+      "x": 155.2,
+      "z": -33.6,
+      "h": 0,
+      "seen": "2024-03-29"
+    },
+    {
+      "id": "7303094339768244",
+      "kind": "light",
+      "value": "street-light",
+      "x": 155.3,
+      "z": -31.2,
+      "h": 0,
+      "seen": "2024-03-29"
+    },
+    {
+      "id": "7303094346434910",
+      "kind": "light",
+      "value": "street-light",
+      "x": 158.9,
+      "z": -32.3,
+      "h": 0,
+      "seen": "2024-03-29"
+    },
+    {
+      "id": "7303094353101576",
+      "kind": "light",
+      "value": "street-light",
+      "x": 155.1,
+      "z": -33.6,
+      "h": 0,
+      "seen": "2024-03-29"
+    },
+    {
+      "id": "738161442345144",
+      "kind": "light",
+      "value": "street-light",
+      "x": 180.9,
+      "z": -43,
+      "h": 0,
+      "seen": "2025-08-19"
+    },
+    {
+      "id": "738161472345141",
+      "kind": "light",
+      "value": "street-light",
+      "x": 181.5,
+      "z": -42.3,
+      "h": 0,
+      "seen": "2025-08-19"
+    },
+    {
+      "id": "745819721632438",
+      "kind": "bench",
+      "value": "bench",
+      "x": 183.1,
+      "z": -68.5,
+      "h": 0,
+      "seen": "2025-08-19"
+    },
+    {
+      "id": "745819738299103",
+      "kind": "light",
+      "value": "street-light",
+      "x": 181.7,
+      "z": -67.1,
+      "h": 0,
+      "seen": "2025-08-19"
+    },
+    {
+      "id": "750258244480476",
+      "kind": "sign",
+      "value": "traffic-sign--front",
+      "x": 0.2,
+      "z": 132.5,
+      "h": 0,
+      "seen": "2025-08-19"
+    },
+    {
+      "id": "763233536460110",
+      "kind": "bench",
+      "value": "bench",
+      "x": 143.6,
+      "z": -5.2,
+      "h": 0,
+      "seen": "2025-08-19"
+    },
+    {
+      "id": "763233539793443",
+      "kind": "bench",
+      "value": "bench",
+      "x": 144.4,
+      "z": -6.7,
+      "h": 0,
+      "seen": "2025-08-19"
+    },
+    {
+      "id": "763233553126775",
+      "kind": "light",
+      "value": "street-light",
+      "x": 135.8,
+      "z": -4.8,
+      "h": 0,
+      "seen": "2025-08-19"
+    },
+    {
+      "id": "763233556460108",
+      "kind": "light",
+      "value": "street-light",
+      "x": 140.7,
+      "z": -4.5,
+      "h": 0,
+      "seen": "2025-08-19"
+    },
+    {
+      "id": "763233559793441",
+      "kind": "bin",
+      "value": "trash-can",
+      "x": 144.5,
+      "z": -8.6,
+      "h": 0,
+      "seen": "2025-08-19"
+    },
+    {
+      "id": "765705902501874",
+      "kind": "signal",
+      "value": "traffic-light--general-upright-side",
+      "x": 82.6,
+      "z": 33.1,
+      "h": 0,
+      "seen": "2025-08-19"
+    },
+    {
+      "id": "765705905835207",
+      "kind": "signal",
+      "value": "traffic-light--general-upright-side",
+      "x": 98.2,
+      "z": 16.7,
+      "h": 0,
+      "seen": "2025-08-19"
+    },
+    {
+      "id": "765705909168540",
+      "kind": "signal",
+      "value": "traffic-light--general-upright-side",
+      "x": 89,
+      "z": 39,
+      "h": 0,
+      "seen": "2025-08-19"
+    },
+    {
+      "id": "765705925835205",
+      "kind": "sign",
+      "value": "traffic-sign--front",
+      "x": 78.5,
+      "z": 44.5,
+      "h": 0,
+      "seen": "2025-08-19"
+    },
+    {
+      "id": "765705932501871",
+      "kind": "signal",
+      "value": "traffic-light--pedestrians-front",
+      "x": 82.8,
+      "z": 33.1,
+      "h": 0,
+      "seen": "2025-08-19"
+    },
+    {
+      "id": "765705935835204",
+      "kind": "light",
+      "value": "street-light",
+      "x": 117.2,
+      "z": -8.1,
+      "h": 0,
+      "seen": "2025-08-19"
+    },
+    {
+      "id": "765705939168537",
+      "kind": "signal",
+      "value": "traffic-light--general-upright-side",
+      "x": 95.3,
+      "z": 45.6,
+      "h": 0,
+      "seen": "2025-08-19"
+    },
+    {
+      "id": "765705965835201",
+      "kind": "bin",
+      "value": "trash-can",
+      "x": 63.7,
+      "z": 67.9,
+      "h": 0,
+      "seen": "2025-08-19"
+    },
+    {
+      "id": "765705969168534",
+      "kind": "sign",
+      "value": "traffic-sign--front",
+      "x": 116.7,
+      "z": -7.8,
+      "h": 0,
+      "seen": "2025-08-19"
+    },
+    {
+      "id": "765705972501867",
+      "kind": "sign",
+      "value": "traffic-sign--front",
+      "x": 63.9,
+      "z": 53.4,
+      "h": 0,
+      "seen": "2025-08-19"
+    },
+    {
+      "id": "765705992501865",
+      "kind": "sign",
+      "value": "traffic-sign--front",
+      "x": 70.8,
+      "z": 39.9,
+      "h": 0,
+      "seen": "2025-08-19"
+    },
+    {
+      "id": "765706009168530",
+      "kind": "bin",
+      "value": "trash-can",
+      "x": 60.8,
+      "z": 39,
+      "h": 0,
+      "seen": "2025-08-19"
+    },
+    {
+      "id": "765706019168529",
+      "kind": "bin",
+      "value": "trash-can",
+      "x": 139.3,
+      "z": -17.5,
+      "h": 0,
+      "seen": "2025-08-19"
+    },
+    {
+      "id": "765706022501862",
+      "kind": "bin",
+      "value": "trash-can",
+      "x": 134.5,
+      "z": -1.8,
+      "h": 0,
+      "seen": "2025-08-19"
+    },
+    {
+      "id": "765706029168528",
+      "kind": "sign",
+      "value": "traffic-sign--front",
+      "x": 122.2,
+      "z": 0.8,
+      "h": 0,
+      "seen": "2025-08-19"
+    },
+    {
+      "id": "765706032501861",
+      "kind": "sign",
+      "value": "traffic-sign--front",
+      "x": 116.7,
+      "z": -7.8,
+      "h": 0,
+      "seen": "2025-08-19"
+    },
+    {
+      "id": "765706039168527",
+      "kind": "light",
+      "value": "street-light",
+      "x": 101,
+      "z": 13.4,
+      "h": 0,
+      "seen": "2025-09-19"
+    },
+    {
+      "id": "765706075835190",
+      "kind": "light",
+      "value": "street-light",
+      "x": 85,
+      "z": 36.1,
+      "h": 0,
+      "seen": "2025-08-19"
+    },
+    {
+      "id": "765706109168520",
+      "kind": "light",
+      "value": "street-light",
+      "x": 97,
+      "z": 46.8,
+      "h": 0,
+      "seen": "2025-08-19"
+    },
+    {
+      "id": "765706112501853",
+      "kind": "light",
+      "value": "street-light",
+      "x": 127.2,
+      "z": -12,
+      "h": 0,
+      "seen": "2025-08-19"
+    },
+    {
+      "id": "765706115835186",
+      "kind": "light",
+      "value": "street-light",
+      "x": 105,
+      "z": -3.9,
+      "h": 0,
+      "seen": "2025-08-19"
+    },
+    {
+      "id": "765706132501851",
+      "kind": "light",
+      "value": "street-light",
+      "x": 99.9,
+      "z": 18.1,
+      "h": 0,
+      "seen": "2025-08-19"
+    },
+    {
+      "id": "765706155835182",
+      "kind": "light",
+      "value": "street-light",
+      "x": 113.7,
+      "z": 27.1,
+      "h": 0,
+      "seen": "2025-08-19"
+    },
+    {
+      "id": "765706179168513",
+      "kind": "light",
+      "value": "street-light",
+      "x": 113.1,
+      "z": 27.5,
+      "h": 0,
+      "seen": "2025-08-19"
+    },
+    {
+      "id": "767737450594867",
+      "kind": "light",
+      "value": "street-light",
+      "x": 49.7,
+      "z": -38.3,
+      "h": 0,
+      "seen": "2017-03-14"
+    },
+    {
+      "id": "767756223926323",
+      "kind": "light",
+      "value": "street-light",
+      "x": -35.6,
+      "z": -141.4,
+      "h": 0,
+      "seen": "2017-03-14"
+    },
+    {
+      "id": "767772150591397",
+      "kind": "light",
+      "value": "street-light",
+      "x": -7.9,
+      "z": -101.5,
+      "h": 0,
+      "seen": "2017-03-14"
+    },
+    {
+      "id": "767776300590982",
+      "kind": "light",
+      "value": "street-light",
+      "x": -46.2,
+      "z": -143.2,
+      "h": 0,
+      "seen": "2017-03-14"
+    },
+    {
+      "id": "767776823924263",
+      "kind": "light",
+      "value": "street-light",
+      "x": 64.8,
+      "z": 52.5,
+      "h": 0,
+      "seen": "2025-08-19"
+    },
+    {
+      "id": "767780350590577",
+      "kind": "light",
+      "value": "street-light",
+      "x": -93,
+      "z": -130.2,
+      "h": 0,
+      "seen": "2017-03-14"
+    },
+    {
+      "id": "767780550590557",
+      "kind": "light",
+      "value": "street-light",
+      "x": 101.4,
+      "z": 35.2,
+      "h": 0,
+      "seen": "2025-05-27"
+    },
+    {
+      "id": "767789537256325",
+      "kind": "light",
+      "value": "street-light",
+      "x": 61.6,
+      "z": 32.3,
+      "h": 0,
+      "seen": "2025-08-19"
+    },
+    {
+      "id": "767821740586438",
+      "kind": "light",
+      "value": "street-light",
+      "x": 90.8,
+      "z": 23.7,
+      "h": 0,
+      "seen": "2021-10-27"
+    },
+    {
+      "id": "767841643917781",
+      "kind": "light",
+      "value": "street-light",
+      "x": 84.7,
+      "z": 38.2,
+      "h": 0,
+      "seen": "2025-08-19"
+    },
+    {
+      "id": "767847450583867",
+      "kind": "light",
+      "value": "street-light",
+      "x": 80.6,
+      "z": 50.9,
+      "h": 0,
+      "seen": "2017-03-14"
+    },
+    {
+      "id": "767874427247836",
+      "kind": "light",
+      "value": "street-light",
+      "x": -119.2,
+      "z": -136.4,
+      "h": 0,
+      "seen": "2017-03-14"
+    },
+    {
+      "id": "767889697246309",
+      "kind": "light",
+      "value": "street-light",
+      "x": 5.9,
+      "z": -80.8,
+      "h": 0,
+      "seen": "2024-08-12"
+    },
+    {
+      "id": "767908290577783",
+      "kind": "light",
+      "value": "street-light",
+      "x": 79.7,
+      "z": 50.1,
+      "h": 0,
+      "seen": "2017-03-14"
+    },
+    {
+      "id": "767912763910669",
+      "kind": "light",
+      "value": "street-light",
+      "x": 78.4,
+      "z": -3,
+      "h": 0,
+      "seen": "2021-10-27"
+    },
+    {
+      "id": "767914310577181",
+      "kind": "light",
+      "value": "street-light",
+      "x": -51.2,
+      "z": -124.7,
+      "h": 0,
+      "seen": "2017-03-14"
+    },
+    {
+      "id": "767922943909651",
+      "kind": "light",
+      "value": "street-light",
+      "x": 16.8,
+      "z": -87.9,
+      "h": 0,
+      "seen": "2024-08-12"
+    },
+    {
+      "id": "787499737474783",
+      "kind": "bin",
+      "value": "trash-can",
+      "x": 167,
+      "z": -39.6,
+      "h": 0,
+      "seen": "2025-09-19"
+    },
+    {
+      "id": "789853148885024",
+      "kind": "bin",
+      "value": "trash-can",
+      "x": 160.6,
+      "z": -139.1,
+      "h": 0,
+      "seen": "2022-09-10"
+    },
+    {
+      "id": "795773363122104",
+      "kind": "signal",
+      "value": "traffic-light--general-upright-front",
+      "x": 181.4,
+      "z": 133.6,
+      "h": 0,
+      "seen": "2025-08-23"
+    },
+    {
+      "id": "806521167968722",
+      "kind": "light",
+      "value": "street-light",
+      "x": -139.9,
+      "z": 101,
+      "h": 0,
+      "seen": "2024-08-12"
+    },
+    {
+      "id": "806521187968720",
+      "kind": "light",
+      "value": "street-light",
+      "x": -58.4,
+      "z": -12.8,
+      "h": 0,
+      "seen": "2024-08-12"
+    },
+    {
+      "id": "806521197968719",
+      "kind": "light",
+      "value": "street-light",
+      "x": -57.6,
+      "z": 15.3,
+      "h": 0,
+      "seen": "2025-05-27"
+    },
+    {
+      "id": "806521207968718",
+      "kind": "light",
+      "value": "street-light",
+      "x": -134.7,
+      "z": 47.1,
+      "h": 0,
+      "seen": "2024-08-12"
+    },
+    {
+      "id": "806521234635382",
+      "kind": "sign",
+      "value": "traffic-sign--front",
+      "x": -81,
+      "z": 39.4,
+      "h": 0,
+      "seen": "2024-08-12"
+    },
+    {
+      "id": "806521241302048",
+      "kind": "bin",
+      "value": "trash-can",
+      "x": -37,
+      "z": -11.1,
+      "h": 0,
+      "seen": "2024-08-12"
+    },
+    {
+      "id": "806521254635380",
+      "kind": "signal",
+      "value": "traffic-light--pedestrians-side",
+      "x": -107.9,
+      "z": 38.2,
+      "h": 0,
+      "seen": "2024-08-12"
+    },
+    {
+      "id": "806521274635378",
+      "kind": "sign",
+      "value": "traffic-sign--front",
+      "x": -62.6,
+      "z": 20.7,
+      "h": 0,
+      "seen": "2024-08-12"
+    },
+    {
+      "id": "806521411302031",
+      "kind": "light",
+      "value": "street-light",
+      "x": -81.3,
+      "z": 9.7,
+      "h": 0,
+      "seen": "2024-08-12"
+    },
+    {
+      "id": "806521414635364",
+      "kind": "light",
+      "value": "street-light",
+      "x": -98.1,
+      "z": 27.5,
+      "h": 0,
+      "seen": "2024-08-12"
+    },
+    {
+      "id": "806521417968697",
+      "kind": "light",
+      "value": "street-light",
+      "x": -86.9,
+      "z": 45.3,
+      "h": 0,
+      "seen": "2024-08-12"
+    },
+    {
+      "id": "806521484635357",
+      "kind": "bin",
+      "value": "trash-can",
+      "x": -150.1,
+      "z": 81,
+      "h": 0,
+      "seen": "2024-08-12"
+    },
+    {
+      "id": "806521527968686",
+      "kind": "bin",
+      "value": "trash-can",
+      "x": -38,
+      "z": -11.1,
+      "h": 0,
+      "seen": "2024-08-12"
+    },
+    {
+      "id": "806521547968684",
+      "kind": "sign",
+      "value": "traffic-sign--front",
+      "x": -141.2,
+      "z": 54.5,
+      "h": 0,
+      "seen": "2024-08-12"
+    },
+    {
+      "id": "806521561302016",
+      "kind": "sign",
+      "value": "traffic-sign--front",
+      "x": -100.7,
+      "z": 29.2,
+      "h": 0,
+      "seen": "2025-08-23"
+    },
+    {
+      "id": "806521567968682",
+      "kind": "sign",
+      "value": "traffic-sign--front",
+      "x": -102.5,
+      "z": 33.4,
+      "h": 0,
+      "seen": "2025-05-27"
+    },
+    {
+      "id": "835006423875702",
+      "kind": "crosswalk",
+      "value": "crosswalk-zebra",
+      "x": 108.3,
+      "z": -157,
+      "h": 0,
+      "seen": "2024-08-12"
+    },
+    {
+      "id": "835006567209021",
+      "kind": "bench",
+      "value": "bench",
+      "x": -126.8,
+      "z": 50.1,
+      "h": 0,
+      "seen": "2024-08-12"
+    },
+    {
+      "id": "835006607209017",
+      "kind": "light",
+      "value": "street-light",
+      "x": -89.5,
+      "z": 48.8,
+      "h": 0,
+      "seen": "2024-08-12"
+    },
+    {
+      "id": "835006610542350",
+      "kind": "light",
+      "value": "street-light",
+      "x": -124.3,
+      "z": 42,
+      "h": 0,
+      "seen": "2021-05-22"
+    },
+    {
+      "id": "835006617209016",
+      "kind": "light",
+      "value": "street-light",
+      "x": -92.1,
+      "z": 86.5,
+      "h": 0,
+      "seen": "2021-05-22"
+    },
+    {
+      "id": "835006643875680",
+      "kind": "light",
+      "value": "street-light",
+      "x": -78.9,
+      "z": 9.2,
+      "h": 0,
+      "seen": "2025-05-27"
+    },
+    {
+      "id": "835006650542346",
+      "kind": "light",
+      "value": "street-light",
+      "x": -36.5,
+      "z": -68.5,
+      "h": 0,
+      "seen": "2021-05-22"
+    },
+    {
+      "id": "835006687209009",
+      "kind": "light",
+      "value": "street-light",
+      "x": -5.6,
+      "z": -33.4,
+      "h": 0,
+      "seen": "2024-08-12"
+    },
+    {
+      "id": "835006690542342",
+      "kind": "light",
+      "value": "street-light",
+      "x": -24.2,
+      "z": -18.4,
+      "h": 0,
+      "seen": "2024-08-12"
+    },
+    {
+      "id": "835006693875675",
+      "kind": "light",
+      "value": "street-light",
+      "x": -25.3,
+      "z": -41.7,
+      "h": 0,
+      "seen": "2025-05-27"
+    },
+    {
+      "id": "835006697209008",
+      "kind": "light",
+      "value": "street-light",
+      "x": -96.7,
+      "z": 27.8,
+      "h": 0,
+      "seen": "2024-08-12"
+    },
+    {
+      "id": "835006703875674",
+      "kind": "light",
+      "value": "street-light",
+      "x": -57.1,
+      "z": -12,
+      "h": 0,
+      "seen": "2024-08-12"
+    },
+    {
+      "id": "835006707209007",
+      "kind": "light",
+      "value": "street-light",
+      "x": 96.2,
+      "z": -164,
+      "h": 0,
+      "seen": "2024-08-12"
+    },
+    {
+      "id": "835006710542340",
+      "kind": "light",
+      "value": "street-light",
+      "x": -22.7,
+      "z": -51.2,
+      "h": 0,
+      "seen": "2025-05-27"
+    },
+    {
+      "id": "835006717209006",
+      "kind": "light",
+      "value": "street-light",
+      "x": -24.2,
+      "z": -52.8,
+      "h": 0,
+      "seen": "2025-09-19"
+    },
+    {
+      "id": "835006727209005",
+      "kind": "light",
+      "value": "street-light",
+      "x": 129.9,
+      "z": -158.9,
+      "h": 0,
+      "seen": "2024-08-12"
+    },
+    {
+      "id": "835006730542338",
+      "kind": "light",
+      "value": "street-light",
+      "x": -23,
+      "z": -17,
+      "h": 0,
+      "seen": "2024-08-12"
+    },
+    {
+      "id": "835006733875671",
+      "kind": "light",
+      "value": "street-light",
+      "x": 70.6,
+      "z": -112.2,
+      "h": 0,
+      "seen": "2024-08-12"
+    },
+    {
+      "id": "835006737209004",
+      "kind": "light",
+      "value": "street-light",
+      "x": 98.7,
+      "z": -165.3,
+      "h": 0,
+      "seen": "2025-08-23"
+    },
+    {
+      "id": "835006740542337",
+      "kind": "light",
+      "value": "street-light",
+      "x": 98.2,
+      "z": -139.8,
+      "h": 0,
+      "seen": "2024-08-12"
+    },
+    {
+      "id": "835006747209003",
+      "kind": "light",
+      "value": "street-light",
+      "x": 71.6,
+      "z": -111.8,
+      "h": 0,
+      "seen": "2024-08-12"
+    },
+    {
+      "id": "835006753875669",
+      "kind": "light",
+      "value": "street-light",
+      "x": 99,
+      "z": -139.1,
+      "h": 0,
+      "seen": "2024-08-12"
+    },
+    {
+      "id": "835006757209002",
+      "kind": "light",
+      "value": "street-light",
+      "x": -5.6,
+      "z": -33.4,
+      "h": 0,
+      "seen": "2024-08-12"
+    },
+    {
+      "id": "835006767209001",
+      "kind": "light",
+      "value": "street-light",
+      "x": 45.5,
+      "z": -85.7,
+      "h": 0,
+      "seen": "2025-09-19"
+    },
+    {
+      "id": "835006773875667",
+      "kind": "light",
+      "value": "street-light",
+      "x": 143.4,
+      "z": -178.9,
+      "h": 0,
+      "seen": "2024-08-12"
+    },
+    {
+      "id": "835006777209000",
+      "kind": "light",
+      "value": "street-light",
+      "x": 71.6,
+      "z": -140.6,
+      "h": 0,
+      "seen": "2025-08-23"
+    },
+    {
+      "id": "835006780542333",
+      "kind": "light",
+      "value": "street-light",
+      "x": 145.1,
+      "z": -177,
+      "h": 0,
+      "seen": "2025-08-23"
+    },
+    {
+      "id": "835006787208999",
+      "kind": "signal",
+      "value": "traffic-light--general-upright-front",
+      "x": 144.3,
+      "z": -156.4,
+      "h": 0,
+      "seen": "2021-05-22"
+    },
+    {
+      "id": "835006793875665",
+      "kind": "light",
+      "value": "street-light",
+      "x": 0.4,
+      "z": -90.5,
+      "h": 0,
+      "seen": "2024-08-12"
+    },
+    {
+      "id": "835006800542331",
+      "kind": "light",
+      "value": "street-light",
+      "x": 46,
+      "z": -114.7,
+      "h": 0,
+      "seen": "2025-08-23"
+    },
+    {
+      "id": "835006803875664",
+      "kind": "light",
+      "value": "street-light",
+      "x": 25,
+      "z": -61.7,
+      "h": 0,
+      "seen": "2021-05-22"
+    },
+    {
+      "id": "835006807208997",
+      "kind": "signal",
+      "value": "traffic-light--general-upright-front",
+      "x": -101.8,
+      "z": 39.4,
+      "h": 0,
+      "seen": "2025-08-23"
+    },
+    {
+      "id": "835006810542330",
+      "kind": "signal",
+      "value": "traffic-light--general-upright-front",
+      "x": -126.2,
+      "z": 64.6,
+      "h": 0,
+      "seen": "2025-08-23"
+    },
+    {
+      "id": "835006817208996",
+      "kind": "light",
+      "value": "street-light",
+      "x": 25.1,
+      "z": -62.1,
+      "h": 0,
+      "seen": "2021-05-22"
+    },
+    {
+      "id": "835006820542329",
+      "kind": "light",
+      "value": "street-light",
+      "x": 38.6,
+      "z": -50.7,
+      "h": 0,
+      "seen": "2021-05-22"
+    },
+    {
+      "id": "835006823875662",
+      "kind": "signal",
+      "value": "traffic-light--general-upright-front",
+      "x": -13.2,
+      "z": -28.5,
+      "h": 0,
+      "seen": "2024-08-12"
+    },
+    {
+      "id": "835006827208995",
+      "kind": "signal",
+      "value": "traffic-light--general-upright-side",
+      "x": -92.9,
+      "z": 77.3,
+      "h": 0,
+      "seen": "2021-05-22"
+    },
+    {
+      "id": "835006830542328",
+      "kind": "signal",
+      "value": "traffic-light--general-upright-front",
+      "x": -13.6,
+      "z": -55.3,
+      "h": 0,
+      "seen": "2024-08-12"
+    },
+    {
+      "id": "835006833875661",
+      "kind": "signal",
+      "value": "traffic-light--general-upright-front",
+      "x": -130.5,
+      "z": 60.7,
+      "h": 0,
+      "seen": "2025-05-27"
+    },
+    {
+      "id": "835006837208994",
+      "kind": "signal",
+      "value": "traffic-light--general-upright-front",
+      "x": -94.5,
+      "z": 47.5,
+      "h": 0,
+      "seen": "2025-08-23"
+    },
+    {
+      "id": "835006847208993",
+      "kind": "light",
+      "value": "street-light",
+      "x": 20.5,
+      "z": -90.5,
+      "h": 0,
+      "seen": "2025-08-23"
+    },
+    {
+      "id": "835006850542326",
+      "kind": "signal",
+      "value": "traffic-light--general-upright-front",
+      "x": 10.5,
+      "z": -81.3,
+      "h": 0,
+      "seen": "2025-08-23"
+    },
+    {
+      "id": "835006853875659",
+      "kind": "light",
+      "value": "street-light",
+      "x": 6.9,
+      "z": -82,
+      "h": 0,
+      "seen": "2025-08-23"
+    },
+    {
+      "id": "835006860542325",
+      "kind": "light",
+      "value": "street-light",
+      "x": 22.9,
+      "z": -61.2,
+      "h": 0,
+      "seen": "2024-08-12"
+    },
+    {
+      "id": "835006863875658",
+      "kind": "signal",
+      "value": "traffic-light--pedestrians-side",
+      "x": -92.9,
+      "z": 52.3,
+      "h": 0,
+      "seen": "2024-08-12"
+    },
+    {
+      "id": "835006870542324",
+      "kind": "signal",
+      "value": "traffic-light--general-upright-front",
+      "x": 2.7,
+      "z": -40.9,
+      "h": 0,
+      "seen": "2025-05-27"
+    },
+    {
+      "id": "835006873875657",
+      "kind": "signal",
+      "value": "traffic-light--general-upright-front",
+      "x": 15.3,
+      "z": -57.9,
+      "h": 0,
+      "seen": "2024-08-12"
+    },
+    {
+      "id": "835006880542323",
+      "kind": "signal",
+      "value": "traffic-light--general-upright-front",
+      "x": 25,
+      "z": -65.7,
+      "h": 0,
+      "seen": "2024-08-12"
+    },
+    {
+      "id": "835006883875656",
+      "kind": "signal",
+      "value": "traffic-light--pedestrians-side",
+      "x": -93,
+      "z": 75.7,
+      "h": 0,
+      "seen": "2021-05-22"
+    },
+    {
+      "id": "835006887208989",
+      "kind": "signal",
+      "value": "traffic-light--pedestrians-front",
+      "x": 128.4,
+      "z": -169.5,
+      "h": 0,
+      "seen": "2024-08-12"
+    },
+    {
+      "id": "835006900542321",
+      "kind": "signal",
+      "value": "traffic-light--general-upright-front",
+      "x": 15.5,
+      "z": -75.7,
+      "h": 0,
+      "seen": "2025-08-23"
+    },
+    {
+      "id": "835006907208987",
+      "kind": "signal",
+      "value": "traffic-light--general-upright-front",
+      "x": -26.5,
+      "z": -43,
+      "h": 0,
+      "seen": "2024-08-12"
+    },
+    {
+      "id": "835006910542320",
+      "kind": "signal",
+      "value": "traffic-light--pedestrians-front",
+      "x": -92.5,
+      "z": 52.5,
+      "h": 0,
+      "seen": "2021-05-22"
+    },
+    {
+      "id": "835006913875653",
+      "kind": "sign",
+      "value": "traffic-sign--front",
+      "x": 90.2,
+      "z": -130.2,
+      "h": 0,
+      "seen": "2024-08-12"
+    },
+    {
+      "id": "835006917208986",
+      "kind": "sign",
+      "value": "traffic-sign--front",
+      "x": -92.4,
+      "z": 52.5,
+      "h": 0,
+      "seen": "2021-05-22"
+    },
+    {
+      "id": "835006920542319",
+      "kind": "signal",
+      "value": "traffic-light--pedestrians-front",
+      "x": 7.1,
+      "z": -38.3,
+      "h": 0,
+      "seen": "2025-05-27"
+    },
+    {
+      "id": "835006923875652",
+      "kind": "signal",
+      "value": "traffic-light--general-upright-front",
+      "x": -92.5,
+      "z": 52.3,
+      "h": 0,
+      "seen": "2024-08-12"
+    },
+    {
+      "id": "835006927208985",
+      "kind": "signal",
+      "value": "traffic-light--general-upright-front",
+      "x": -107.2,
+      "z": 35.2,
+      "h": 0,
+      "seen": "2025-08-23"
+    },
+    {
+      "id": "835006947208983",
+      "kind": "sign",
+      "value": "traffic-sign--front",
+      "x": 24.2,
+      "z": -64.6,
+      "h": 0,
+      "seen": "2025-05-27"
+    },
+    {
+      "id": "835006950542316",
+      "kind": "signal",
+      "value": "traffic-light--general-upright-front",
+      "x": 21.9,
+      "z": -69,
+      "h": 0,
+      "seen": "2025-08-23"
+    },
+    {
+      "id": "835006953875649",
+      "kind": "sign",
+      "value": "traffic-sign--front",
+      "x": 128.7,
+      "z": -169.2,
+      "h": 0,
+      "seen": "2024-08-12"
+    },
+    {
+      "id": "835006957208982",
+      "kind": "signal",
+      "value": "traffic-light--pedestrians-front",
+      "x": -97.3,
+      "z": 79.7,
+      "h": 0,
+      "seen": "2021-05-22"
+    },
+    {
+      "id": "835006960542315",
+      "kind": "signal",
+      "value": "traffic-light--pedestrians-front",
+      "x": -106.7,
+      "z": 37.8,
+      "h": 0,
+      "seen": "2021-05-22"
+    },
+    {
+      "id": "835006967208981",
+      "kind": "sign",
+      "value": "traffic-sign--front",
+      "x": -107,
+      "z": 37.8,
+      "h": 0,
+      "seen": "2024-08-12"
+    },
+    {
+      "id": "835006970542314",
+      "kind": "sign",
+      "value": "traffic-sign--front",
+      "x": 85.8,
+      "z": -154.7,
+      "h": 0,
+      "seen": "2025-08-23"
+    },
+    {
+      "id": "835006973875647",
+      "kind": "sign",
+      "value": "traffic-sign--front",
+      "x": -134,
+      "z": 36.1,
+      "h": 0,
+      "seen": "2021-05-22"
+    },
+    {
+      "id": "835006977208980",
+      "kind": "sign",
+      "value": "traffic-sign--front",
+      "x": -3.6,
+      "z": -37.8,
+      "h": 0,
+      "seen": "2024-08-12"
+    },
+    {
+      "id": "835006987208979",
+      "kind": "sign",
+      "value": "traffic-sign--front",
+      "x": 1.3,
+      "z": -42.5,
+      "h": 0,
+      "seen": "2025-05-27"
+    },
+    {
+      "id": "835006990542312",
+      "kind": "sign",
+      "value": "traffic-sign--front",
+      "x": 24.2,
+      "z": -65,
+      "h": 0,
+      "seen": "2025-05-27"
+    },
+    {
+      "id": "835006997208978",
+      "kind": "sign",
+      "value": "traffic-sign--front",
+      "x": 77.5,
+      "z": -146.6,
+      "h": 0,
+      "seen": "2024-08-12"
+    },
+    {
+      "id": "835007000542311",
+      "kind": "sign",
+      "value": "traffic-sign--front",
+      "x": 98.4,
+      "z": -167,
+      "h": 0,
+      "seen": "2025-08-23"
+    },
+    {
+      "id": "835007003875644",
+      "kind": "sign",
+      "value": "traffic-sign--front",
+      "x": -108.3,
+      "z": 69.6,
+      "h": 0,
+      "seen": "2024-08-12"
+    },
+    {
+      "id": "835007007208977",
+      "kind": "bin",
+      "value": "trash-can",
+      "x": -38.9,
+      "z": -8.9,
+      "h": 0,
+      "seen": "2024-08-12"
+    },
+    {
+      "id": "835007010542310",
+      "kind": "sign",
+      "value": "traffic-sign--front",
+      "x": 32.4,
+      "z": -72.4,
+      "h": 0,
+      "seen": "2021-05-22"
+    },
+    {
+      "id": "835007013875643",
+      "kind": "sign",
+      "value": "traffic-sign--front",
+      "x": 41.5,
+      "z": -42.3,
+      "h": 0,
+      "seen": "2021-05-22"
+    },
+    {
+      "id": "835007017208976",
+      "kind": "bin",
+      "value": "trash-can",
+      "x": 137.9,
+      "z": -162.5,
+      "h": 0,
+      "seen": "2021-05-22"
+    },
+    {
+      "id": "835007020542309",
+      "kind": "sign",
+      "value": "traffic-sign--front",
+      "x": 3,
+      "z": -23.4,
+      "h": 0,
+      "seen": "2024-08-12"
+    },
+    {
+      "id": "835007023875642",
+      "kind": "bin",
+      "value": "trash-can",
+      "x": 31.8,
+      "z": -71.2,
+      "h": 0,
+      "seen": "2021-05-22"
+    },
+    {
+      "id": "835007030542308",
+      "kind": "sign",
+      "value": "traffic-sign--front",
+      "x": 65.4,
+      "z": -106.9,
+      "h": 0,
+      "seen": "2024-08-12"
+    },
+    {
+      "id": "835007033875641",
+      "kind": "sign",
+      "value": "traffic-sign--front",
+      "x": 13.3,
+      "z": -31.2,
+      "h": 0,
+      "seen": "2021-05-22"
+    },
+    {
+      "id": "835007047208973",
+      "kind": "sign",
+      "value": "traffic-sign--front",
+      "x": -30.6,
+      "z": -40.1,
+      "h": 0,
+      "seen": "2025-08-23"
+    },
+    {
+      "id": "835007050542306",
+      "kind": "bin",
+      "value": "trash-can",
+      "x": -53.2,
+      "z": -15.6,
+      "h": 0,
+      "seen": "2021-05-22"
+    },
+    {
+      "id": "835007053875639",
+      "kind": "sign",
+      "value": "traffic-sign--front",
+      "x": 5,
+      "z": -19.6,
+      "h": 0,
+      "seen": "2024-08-12"
+    },
+    {
+      "id": "835007057208972",
+      "kind": "bin",
+      "value": "trash-can",
+      "x": -40,
+      "z": -7.3,
+      "h": 0,
+      "seen": "2024-08-12"
+    },
+    {
+      "id": "835007063875638",
+      "kind": "sign",
+      "value": "traffic-sign--front",
+      "x": 49.5,
+      "z": -83.7,
+      "h": 0,
+      "seen": "2025-08-23"
+    },
+    {
+      "id": "835007070542304",
+      "kind": "bin",
+      "value": "trash-can",
+      "x": 136.1,
+      "z": -163.2,
+      "h": 0,
+      "seen": "2021-05-22"
+    },
+    {
+      "id": "835007073875637",
+      "kind": "bin",
+      "value": "trash-can",
+      "x": 67.5,
+      "z": -114.3,
+      "h": 0,
+      "seen": "2024-08-12"
+    },
+    {
+      "id": "835007077208970",
+      "kind": "bin",
+      "value": "trash-can",
+      "x": -88,
+      "z": 47.5,
+      "h": 0,
+      "seen": "2021-05-22"
+    },
+    {
+      "id": "835007090542302",
+      "kind": "bin",
+      "value": "trash-can",
+      "x": 96.6,
+      "z": -168.6,
+      "h": 0,
+      "seen": "2024-08-12"
+    },
+    {
+      "id": "835007093875635",
+      "kind": "sign",
+      "value": "traffic-sign--front",
+      "x": -10.7,
+      "z": -84.6,
+      "h": 0,
+      "seen": "2025-05-27"
+    },
+    {
+      "id": "835007100542301",
+      "kind": "bin",
+      "value": "trash-can",
+      "x": 139.5,
+      "z": -161.4,
+      "h": 0,
+      "seen": "2021-05-22"
+    },
+    {
+      "id": "835007117208966",
+      "kind": "sign",
+      "value": "traffic-sign--front",
+      "x": 9.7,
+      "z": -82,
+      "h": 0,
+      "seen": "2025-08-23"
+    },
+    {
+      "id": "835007120542299",
+      "kind": "bin",
+      "value": "trash-can",
+      "x": 118.3,
+      "z": -158.5,
+      "h": 0,
+      "seen": "2021-05-22"
+    },
+    {
+      "id": "835007123875632",
+      "kind": "bin",
+      "value": "trash-can",
+      "x": 112.3,
+      "z": -176.8,
+      "h": 0,
+      "seen": "2024-09-22"
+    },
+    {
+      "id": "879199165994837",
+      "kind": "bin",
+      "value": "trash-can",
+      "x": 105.5,
+      "z": -176.8,
+      "h": 0,
+      "seen": "2021-05-22"
+    },
+    {
+      "id": "966941374069545",
+      "kind": "light",
+      "value": "street-light",
+      "x": 147.2,
+      "z": 133.6,
+      "h": 0,
+      "seen": "2017-11-18"
+    },
+    {
+      "id": "966965187400497",
+      "kind": "bench",
+      "value": "bench",
+      "x": 150.4,
+      "z": 136.3,
+      "h": 0,
+      "seen": "2017-11-18"
+    },
+    {
+      "id": "966972264066456",
+      "kind": "light",
+      "value": "street-light",
+      "x": 84.5,
+      "z": 72.9,
+      "h": 0,
+      "seen": "2025-08-19"
+    },
+    {
+      "id": "966998490730500",
+      "kind": "light",
+      "value": "street-light",
+      "x": 138.5,
+      "z": 127.7,
+      "h": 0,
+      "seen": "2017-11-18"
+    },
+    {
+      "id": "967020240728325",
+      "kind": "light",
+      "value": "street-light",
+      "x": 124.1,
+      "z": 112,
+      "h": 0,
+      "seen": "2017-11-18"
+    },
+    {
+      "id": "967027814060901",
+      "kind": "light",
+      "value": "street-light",
+      "x": 114.6,
+      "z": 103.1,
+      "h": 0,
+      "seen": "2017-11-18"
+    },
+    {
+      "id": "967039394059743",
+      "kind": "bench",
+      "value": "bench",
+      "x": 134.9,
+      "z": 119.7,
+      "h": 0,
+      "seen": "2017-11-18"
+    },
+    {
+      "id": "967044774059205",
+      "kind": "light",
+      "value": "street-light",
+      "x": 145.9,
+      "z": 134.9,
+      "h": 0,
+      "seen": "2017-11-18"
+    },
+    {
+      "id": "967061680724181",
+      "kind": "light",
+      "value": "street-light",
+      "x": 102.2,
+      "z": 89.9,
+      "h": 0,
+      "seen": "2017-11-18"
+    },
+    {
+      "id": "967066027390413",
+      "kind": "light",
+      "value": "street-light",
+      "x": 108.4,
+      "z": 96.8,
+      "h": 0,
+      "seen": "2017-11-18"
+    },
+    {
+      "id": "967068000723549",
+      "kind": "bench",
+      "value": "bench",
+      "x": 94.5,
+      "z": 81.8,
+      "h": 0,
+      "seen": "2017-11-18"
+    },
+    {
+      "id": "967100487386967",
+      "kind": "light",
+      "value": "street-light",
+      "x": 136,
+      "z": 126.5,
+      "h": 0,
+      "seen": "2017-11-18"
+    },
+    {
+      "id": "967115514052131",
+      "kind": "bin",
+      "value": "trash-can",
+      "x": 115.2,
+      "z": 101.9,
+      "h": 0,
+      "seen": "2017-11-18"
+    },
+    {
+      "id": "967117424051940",
+      "kind": "light",
+      "value": "street-light",
+      "x": 96.5,
+      "z": 84.6,
+      "h": 0,
+      "seen": "2017-11-18"
+    },
+    {
+      "id": "967124037384612",
+      "kind": "bench",
+      "value": "bench",
+      "x": 144.3,
+      "z": 131.4,
+      "h": 0,
+      "seen": "2017-11-18"
+    },
+    {
+      "id": "967149144048768",
+      "kind": "bin",
+      "value": "trash-can",
+      "x": 91,
+      "z": 65.7,
+      "h": 0,
+      "seen": "2017-11-18"
+    },
+    {
+      "id": "967173274046355",
+      "kind": "light",
+      "value": "street-light",
+      "x": 136.3,
+      "z": 120.9,
+      "h": 0,
+      "seen": "2025-05-27"
+    },
+    {
+      "id": "967194814044201",
+      "kind": "light",
+      "value": "street-light",
+      "x": 126.8,
+      "z": 115.4,
+      "h": 0,
+      "seen": "2017-11-18"
+    }
+  ]
+}
