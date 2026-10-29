@@ -5,6 +5,7 @@ import { behindLane, rigidFrame, type BackdropFrame } from '../world/backdrop';
 import { buildSkin, type SkinOsm } from '../world/skin';
 import { toGame, type FurnitureFile } from '../world/furniture';
 import { buildFurniture } from './furniture-view';
+import { FILM_MIN_SCALE } from '../world/furniture';
 import type { Ground } from '../world/terrain';
 import { groundAt } from '../sim/terrain';
 
@@ -32,7 +33,7 @@ export async function mountBackdrop(scene: THREE.Scene, course: { terrain: Param
   const fur = await get<FurnitureFile>(f, `/assets/places/furniture/${slug}.json`);
   if (fur) {
     const behind = fur.features.filter((it) => toGame(rf, it.x, it.z, it.h).z < -1.8);
-    const h = buildFurniture({ ...fur, frame: rf, features: behind }, (x) => groundAt(course.terrain, x));
+    const h = buildFurniture({ ...fur, frame: rf, features: behind }, (x) => groundAt(course.terrain, x), FILM_MIN_SCALE);
     root.add(h.group); furniture = h.placed;
   }
   scene.add(root);

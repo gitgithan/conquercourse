@@ -20,7 +20,8 @@ export function toGame(f: Frame, east: number, south: number, ground: number): {
   return { x: f.tx + c * a + s * b, y: f.ty + (ground * f.k - f.oy) * f.scale, z: f.tz - s * a + c * b };
 }
 
-export const drawScale = (f: Frame): number => Math.max(f.k * f.scale, MIN_SCALE);
+export const FILM_MIN_SCALE = 0.2; // the film backdrop draws parts closer to true size than the play view (CC-237); ?furniture=1 keeps MIN_SCALE
+export const drawScale = (f: Frame, min = MIN_SCALE): number => Math.max(f.k * f.scale, min);
 
 // Furniture is only decoration: it is never in the physics. If one would stand in the lane band at the height the runner uses, it is moved sideways to CLEAR_Z.
 // laneTop(x): the standing surface of the course at x, or -Infinity over a gap.
