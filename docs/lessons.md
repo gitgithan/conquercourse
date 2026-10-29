@@ -124,3 +124,7 @@
 - Still true: the greedy search is behind a person's line on Training (4960 ticks against 4814 by hand).
   - A seed from the hand line, polished, gives 4784 (`scripts/seed-plan.ts`).
 - A search result is not a limit; a seed that beats it is a finding.
+- Checked on 2026-10-29: `tests/skip-route-later-edge.test.ts` as first written also passed on the old code, so it did not prove the fix.
+  - It was rewritten so that it fails on the old code (see the test file).
+- The table keeps only a hash of the keys, so a flagged human line could not be fetched back.
+  - `migrations/0005_clear_keys.sql` adds a `keys` column for flagged runs only (not applied; needs the owner's yes).
