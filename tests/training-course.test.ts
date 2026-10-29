@@ -27,10 +27,10 @@ describe('the Training course', () => {
     for (const k of ['jump', 'vault', 'grab', 'climb', 'bounce', 'roll']) expect(kinds.has(k as never), k).toBe(true);
   });
   it('has one zone per beat, in the order they come', () => {
-    expect(c.zones!.map((z) => z.id)).toEqual(['gap', 'vault', 'step', 'wall', 'climb', 'plank', 'lache', 'rope', 'trampoline', 'drop']); // CC-175: the hands key comes early (warped wall before the climb and the bars)
+    expect(c.zones!.map((z) => z.id)).toEqual(['gap', 'vault', 'wall', 'climb', 'plank', 'lache', 'rope', 'trampoline', 'drop']); // CC-175: the hands key comes early (warped wall before the climb and the bars)
     const xs = c.zones!.map((z) => z.x0); expect([...xs].sort((a, b) => a - b)).toEqual(xs);
   });
-  it('every basic obstacle is there and cleared: the warped wall (hands on E), the plank bridge and the step (CC-175)', () => {
+  it('every basic obstacle is there and cleared: the warped wall (hands on E), the plank bridge (CC-175)', () => {
     expect(c.wall?.height).toBe(4);
     expect(c.planks).toHaveLength(1);
     const ev = best.events.map((e) => e.type);
@@ -39,7 +39,7 @@ describe('the Training course', () => {
     expect(ev).not.toContain('wall-slide');
     expect(ev).toContain('plank-sag');
     expect(ev).not.toContain('plank-break');
-    expect(best.events.filter((e) => e.type === 'vault')).toHaveLength(2); // the box and the step
+    expect(best.events.filter((e) => e.type === 'vault')).toHaveLength(1); // the box (CC-196: the 0.5 m step, a second V on a low bump, is gone)
     expect(ev.indexOf('wall-grab')).toBeLessThan(ev.indexOf('climb')); // E is learnt on the wall before the climb and the bars need it
     expect(ev.indexOf('climb')).toBeLessThan(ev.indexOf('hang-catch'));
   });
@@ -58,7 +58,7 @@ describe('the Training course', () => {
     expect(big.map((l) => l.rolled)).toEqual([true, true]);
     const rolls = log.moves.filter((m) => m.kind === 'roll').map((m) => m.x);
     expect(rolls).toHaveLength(2);
-    expect(rolls[0]).toBeGreaterThan(74 + DX); expect(rolls[0]).toBeLessThan(86 + DX);
+    expect(rolls[0]).toBeGreaterThan(73 + DX); expect(rolls[0]).toBeLessThan(86 + DX);
     expect(rolls[1]).toBeGreaterThan(160 + DX - TRAMP_CUT);
   });
   it('the slower bar-to-bar line still clears, and its drop after bar 2 also needs a roll', () => {
@@ -73,8 +73,11 @@ describe('the Training course', () => {
     const box = c.terrain.platforms.find((p) => p.top > 0 && p.top < 2)!;
     expect(box.top).toBe(BOX_H);
     expect(BOX_H).toBeGreaterThanOrEqual(1.2); expect(BOX_H).toBeLessThanOrEqual(1.3);
-    const { DEFAULT_HANG } = await import('../src/sim/holds');
-    expect(DEFAULT_HANG.reach).toBeLessThanOrEqual(0.4); // the hands must be within about a forearm of the bar
+    expect(c.grabReach).toBeLessThanOrEqual(0.2); // CC-193: the hands touch the bar at the grab (it was 0.35: the hands looked a forearm away)
+    const { playPlan } = await import('../src/sim/ideal');
+    let first = 9;
+    playPlan(c, c.plan!, 120 * 60, (w) => { if (first === 9 && w.mode === 'hang' && w.hang && w.hang.et === 8) first = Math.hypot(w.hang.ox!, w.hang.oy!); });
+    expect(first, 'distance from the hands to the first bar at the grab tick, m').toBeLessThanOrEqual(0.15);
   });
   it('no long flat run: every deck before the first bar is short', () => {
     for (const p of c.terrain.platforms.filter((q) => q.x1 < 62 + DX && q.x0 > 0)) expect(p.x1 - p.x0).toBeLessThanOrEqual(24);
