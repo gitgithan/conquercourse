@@ -1,13 +1,15 @@
 // Usage: npx tsx scripts/plans.ts [file.course.json ...]   (default: every demo course; also `npm run plans`)
 // Finds the ideal run for the whole of each demo course and stores it in the file as `plan`, so Shift+I starts at once.
 // Run it again whenever the simulator or the search changes: tests/demo-plans.test.ts fails on a stale plan.
-import { readFileSync, writeFileSync } from 'node:fs';
+import { existsSync, readdirSync, readFileSync, writeFileSync } from 'node:fs';
 import type { CourseData } from '../src/course/course';
 import { DEMO_COURSE_FILES } from '../src/course/demo-list';
 import { xWindows } from '../src/sim/ideal';
 import { nodePool } from '../src/sim/ideal-pool-node';
 import { findShortcuts } from '../src/sim/shortcuts';
 import { generateCourse } from '../src/slice/generator';
+import { chooseWithSeeds } from '../src/sim/seed-plan';
+import type { InputLog } from '../src/sim/replay';
 
 // A generated sample is the generator's own output for its seed (its plan is composed from proved moves, cheap), not a whole-course search.
 const GENERATED: Record<string, number> = { 'generated-1.course.json': 2 };
@@ -33,7 +35,15 @@ for (const f of files) {
   delete course.plan; delete course.routes; delete course.shortcuts; delete course.windows;
   const r = await pool.search(course, undefined, undefined, { routes: true });
   if (r.cleared) {
-    course.plan = r.plan; course.windows = xWindows(r.windows); if (r.routes) course.routes = r.routes;
+    course.plan = r.plan;
+    // verified human lines (data/seeds/<course name>/*.json, each an InputLog): the faster of the search and the people's lines is stored (CC-176)
+    const dir = `data/seeds/${f.split('/').pop()!.replace('.course.json', '')}`;
+    const seeds = existsSync(dir) ? readdirSync(dir).filter((n) => n.endsWith('.json')).sort().map((n) => JSON.parse(readFileSync(`${dir}/${n}`, 'utf8')) as InputLog) : [];
+    if (seeds.length) {
+      const pick = chooseWithSeeds(course, r.plan, seeds);
+      if (pick) { course.plan = pick.plan; console.log(`${f}: search ${pick.searchTicks} ticks, seeds ${pick.seedTicks.join('/')}, kept the ${pick.from}${pick.from === 'seed' ? ' (the search missed a faster line)' : ''}`); }
+    }
+    course.windows = xWindows(r.windows); if (r.routes) course.routes = r.routes;
     // routes nobody planned (src/sim/shortcuts.ts), stored beside the plan so the Course can say so at once
     const sc = findShortcuts(course, { moveChoices: false }).shortcuts;
     if (sc.length) course.shortcuts = sc;
