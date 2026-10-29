@@ -21,6 +21,7 @@
 | 9 | Filming at true speed | Laptop or VM (headless Chromium) | Every clip in the video |
 | 10 | Ideal-run search, par times, size ideals | CPU (Node) | Timing windows, difficulty, the "line that would have made it" |
 | 11 | Blind-test pages | CPU + a static page | Deciding looks by evidence |
+| 12 | Player photo → 3D object | Pages Function + Modal (L40S) + CPU | A player's own photo becomes a piece in the editor |
 
 ## Shared conventions
 - **Skeleton:** NVIDIA SOMA, the 30 joints Kimodo uses as its model skeleton (Hips, Spine1, Spine2, Chest, Neck1, Neck2, Head, Jaw, LeftEye, RightEye, Left/Right Shoulder, Arm, ForeArm, Hand, HandThumbEnd, HandMiddleEnd, Left/Right Leg (hip joint), Shin (knee), Foot (ankle), ToeBase).
@@ -210,3 +211,23 @@
 - **Steps:** physics checks run first (only clips that pass are shown); pairs of clips of the same move on the same character, viewer and camera, at true speed (pipeline 9); the order inside each pair shuffled with a fixed seed and the key kept out of the page; trim clips to the same window (for example from 40 frames before take-off to 30 after landing) so length doesn't give a source away; per pair, "which looks better?" and "which is real?" (or a similar question) plus optional notes; a "copy answers" button produces text to paste back; reveal from the key afterwards.
 - **Results so far:** Kimodo leaps preferred to CMU mocap 3/3 ("mocap jumps look weak"); Unity and Godot judged the same.
 - **Pitfall:** without trimming, the generated clips were noticeably longer than mocap; keep obstacles, if any, drawn in both versions.
+
+## 12. Player photo → 3D object (CC-221)
+- **Purpose:** a player drops a photo in the editor, draws a box round one real thing, and a few minutes later it is a 3D piece with its credit.
+- **Switch:** the editor shows "Make an object from my photo" only with `?uploadobj=1`; the server route answers 503 until its secrets are set.
+- **Steps:**
+  - The page shrinks the photo to 1280 px (this drops the camera's location data) and makes a 640 px copy for the safety check.
+  - `POST /api/object-lift` (`functions/api/object-lift.ts`) checks size, type, box, label and height, and limits one address to 6 jobs in 10 minutes.
+  - Muse Spark Open looks at the small copy (`askModeration`); a person in the photo is allowed (the pipeline blurs people), worries (minor, private info, sexual, violence, hate, weapon) stop the job; a broken checker is recorded as `skipped`.
+  - The server calls the Modal web function `submit` (`pipelines/photo_to_object.py`) with a shared token; it starts `lift_job` and returns a call id.
+  - `lift_job`: privacy blur and SAM 3 mask, pad-and-retry when the mask touches the photo edge (CC-170), SAM 3D Objects lift (seed 42), CPU bake with a 1024 texture, and a .glb back.
+  - The page asks `status` every few seconds; the .glb comes back as base64 with the privacy receipt and the pad note.
+  - The object is kept in this browser (IndexedDB) with its provenance record; a saved world refers to it as `user:<id>`.
+- **Provenance:** one JSON record per object (`src/slice/provenance.ts`): photo fingerprint (sha256) and size, box, label, height and where it came from, pipeline and settings, credit line, date; the photo itself is never stored.
+- **Library objects:** `scripts/object-provenance.py` writes `public/assets/objects/provenance.json` for the 19 shipped objects; the editor shows the credit under the name of the selected piece.
+- **Secrets:** Modal secret `cc-upload` (key `CC_UPLOAD_TOKEN`) and the same token in the Pages secret of the same name, plus `CC_UPLOAD_SUBMIT_URL` and `CC_UPLOAD_STATUS_URL` (the two Modal web urls); keys live in `~/.config/ninja/upload.env`, never in the repo.
+- **Deploy:** `modal deploy pipelines/photo_to_object.py` (the web functions need a deployed app).
+- **Pitfalls:**
+  - Modal asks for the GPU only when a job starts; a cold start (two GPU containers) can take minutes, and a busy workspace can wait longer.
+  - The Modal call id lives for a limited time; the page gives up after about 20 minutes.
+  - Player objects are drawn in the 3D view from a blob url; in the Course (scene export) they fall back to their plain mesh.

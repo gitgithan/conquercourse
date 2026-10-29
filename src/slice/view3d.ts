@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import { userObjectUrls } from './user-objects';
 import { isMarquee, pickInRect, rectFrom } from '../ui/selection';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
@@ -150,9 +151,10 @@ export function createView3d(wrap: HTMLElement, host: Host): View3d {
     else if (patternOf(p.src)) { const cups = cupsGroup(p.src!); cups.userData.cups = true; g.add(cups); }
     else g.add(fallback);
     // Draw imported objects and the real game character model; the original mesh remains as a fallback.
-    if (p.src?.startsWith('obj:')) {
-      const character = p.src.startsWith('obj:../characters/');
-      const url = character ? `/assets/characters/${p.src.slice('obj:../characters/'.length)}` : `/assets/objects/${p.src.slice(4)}`;
+    const userUrl = p.src?.startsWith('user:') ? userObjectUrls.get(p.src) : undefined; // the player's own lifted objects (CC-221), kept as blob urls
+    if (p.src?.startsWith('obj:') || userUrl) {
+      const character = !!p.src?.startsWith('obj:../characters/');
+      const url = userUrl ?? (character ? `/assets/characters/${p.src!.slice('obj:../characters/'.length)}` : `/assets/objects/${p.src!.slice(4)}`);
       const triangles = p.mesh.indices?.length ?? 0;
       void loadObject(url).then((src) => {
         let tri = 0; src.traverse((o) => { const m = o as THREE.Mesh; if (m.isMesh) tri += (m.geometry.index?.count ?? m.geometry.attributes.position.count); });
