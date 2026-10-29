@@ -39,6 +39,7 @@ export const DOJO_V2_CSS = `
   .dojo.v2 input[type=range]{accent-color:#0f6b5c;height:28px;cursor:pointer}
   .dojo.v2 .result{border-left:5px solid #0f6b5c;background:#e8f3ee;border-radius:10px;padding:10px 14px;font-weight:600}
   .dojo.v2 .formula{background:#2b2218;border-radius:14px;padding:16px;font-size:clamp(17px,2.6vw,24px);overflow-x:auto}
+  .dojo.v2 .sr{position:absolute!important;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;padding:0!important;margin:-1px!important}
   .dojo.v2 .nav{display:flex;gap:10px;margin-top:6px}
   .dojo.v2 .nav button{flex:1 1 0;min-height:48px;border-radius:14px;font-size:16px;font-weight:700}
   .dojo.v2 .nav button.go{flex:2 1 0;box-shadow:0 8px 20px #0f6b5c55}

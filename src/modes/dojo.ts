@@ -201,7 +201,7 @@ export function startDojo(host: HTMLElement): { backend: 'webgl2' } {
       el('p', panel, { className: 'muted', text: 'Directionally right is enough: you can use this on the Course without a calculator.' });
     } else if (stepKey === 'The exact formula') {
       el('strong', panel, { text: 'The exact formula' });
-      el('div', panel, { className: 'formula', id: 'formula', text: L.formula });
+      el('div', panel, { className: legacy ? 'formula' : 'formula sr', id: 'formula', text: L.formula }); // the new layout draws the formula once, on the graph; this copy is for screen readers
       el('p', panel, { text: L.formulaWords });
       el('strong', panel, { text: 'Move one slider; the others stay where they are' });
       let upCalc = () => {};
@@ -216,7 +216,7 @@ export function startDojo(host: HTMLElement): { backend: 'webgl2' } {
       upCalc = () => {
         const c = L.calc(values);
         calcBox.innerHTML = '';
-        el('div', calcBox, { className: 'working', id: 'working', text: c.working });
+        el('div', calcBox, { className: legacy ? 'working' : 'working sr', id: 'working', text: c.working });
         el('div', calcBox, { className: 'result', id: 'answer', text: `${c.label}: ${c.value.toFixed(c.unit === 'm/s²' ? 0 : 2)} ${c.unit}` });
         if (c.note) el('div', calcBox, { className: 'muted', text: c.note });
         const simulated = exp.run(values, ctxFor(exp));
@@ -364,7 +364,7 @@ export function startDojo(host: HTMLElement): { backend: 'webgl2' } {
     const stepY = yMax > 120 ? 40 : 20;
     for (let f = 0; f <= yMax; f += stepY) { c.fillText(String(f), left - 8 - 8 * String(f).length, sy(f) + 4); c.strokeStyle = '#e3e8e4'; c.beginPath(); c.moveTo(left, sy(f)); c.lineTo(W - pad, sy(f)); c.stroke(); }
     c.fillStyle = '#17201d'; c.fillText('time spent stopping (seconds) →', W / 2 - 80, H - 10);
-    c.save(); c.translate(16, H / 2 + 60); c.rotate(-Math.PI / 2); c.fillText('push on you (m/s², more up = harder)', 0, 0); c.restore();
+    c.save(); c.translate(16, H / 2 + 60); c.rotate(-Math.PI / 2); c.fillText(W < 500 ? 'push (m/s²)' : 'push on you (m/s², more up = harder)', 0, 0); c.restore();
     const limit = DEFAULT_LANDING.stumbleDecel;
     c.strokeStyle = '#c4572a'; c.setLineDash([6, 5]); c.lineWidth = 2; c.beginPath(); c.moveTo(left, sy(limit)); c.lineTo(W - pad, sy(limit)); c.stroke(); c.setLineDash([]);
     c.fillStyle = '#c4572a'; if (W < 500) c.textAlign = 'right'; c.fillText(W < 500 ? `${limit} m/s²: you stumble above this` : `${limit} m/s²: above this the Course makes you stumble`, W < 500 ? W - pad + 20 : left + 8, sy(limit) - 6); c.textAlign = 'left';
