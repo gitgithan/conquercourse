@@ -1,0 +1,49 @@
+{
+  "index": 51,
+  "theme": "a chain of blocks of rising height, like stairs of different sizes",
+  "setting": "a railway yard",
+  "level": 1,
+  "said": "Gentle stepped crates rising like stairs along the railway yard.",
+  "layout": [
+    {
+      "kind": "ground",
+      "length": 6
+    },
+    {
+      "kind": "block",
+      "length": 2,
+      "height": 0.4
+    },
+    {
+      "kind": "block",
+      "length": 2,
+      "height": 0.75
+    },
+    {
+      "kind": "block",
+      "length": 2,
+      "height": 1
+    },
+    {
+      "kind": "block",
+      "length": 2,
+      "height": 1.25
+    },
+    {
+      "kind": "ground",
+      "length": 6
+    }
+  ],
+  "clearsAsDrawn": true,
+  "moves": [
+    "jump"
+  ],
+  "plan": {
+    "jumpXs": [
+      4.5,
+      27.48
+    ],
+    "releaseAfter": 60,
+    "bouncePress": 8
+  }
+}

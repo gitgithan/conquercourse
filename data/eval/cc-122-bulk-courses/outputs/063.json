@@ -1,0 +1,14 @@
+{
+  "index": 63,
+  "theme": "a tall wall to climb, then a drop to the ground",
+  "setting": "a beach",
+  "level": 2,
+  "status": 200,
+  "ms": 8523,
+  "usage": {
+    "prompt_tokens": 453,
+    "completion_tokens": 2283,
+    "total_tokens": 2736
+  },
+  "reply": "A sunny beach run with a tall dune wall to climb and a soft drop back to flat sand.\n\n```json\n{\"items\": [{\"kind\": \"ground\", \"length\": 6}, {\"kind\": \"block\", \"length\": 2, \"height\": 1.7}, {\"kind\": \"ground\", \"length\": 5}, {\"kind\": \"gap\", \"width\": 1.5}, {\"kind\": \"ground\", \"length\": 4}, {\"kind\": \"block\", \"length\": 1, \"height\": 0.8}, {\"kind\": \"ground\", \"length\": 6}]}\n```"
+}

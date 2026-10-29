@@ -1,0 +1,14 @@
+{
+  "index": 46,
+  "theme": "a high platform, a drop to the ground, then another gap",
+  "setting": "a rooftop",
+  "level": 4,
+  "status": 200,
+  "ms": 10381,
+  "usage": {
+    "prompt_tokens": 454,
+    "completion_tokens": 2795,
+    "total_tokens": 3249
+  },
+  "reply": "A tall rooftop ledge drops to a tight landing before a long precise leap over the gap.\n\n```json\n{\n  \"items\": [\n    {\"kind\": \"ground\", \"length\": 7},\n    {\"kind\": \"block\", \"length\": 3, \"height\": 2.1},\n    {\"kind\": \"ground\", \"length\": 3.2},\n    {\"kind\": \"gap\", \"width\": 3.6},\n    {\"kind\": \"ground\", \"length\": 3.5},\n    {\"kind\": \"gap\", \"width\": 3.3},\n    {\"kind\": \"ground\", \"length\": 7}\n  ]\n}\n```"
+}

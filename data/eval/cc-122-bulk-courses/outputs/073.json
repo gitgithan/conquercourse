@@ -1,0 +1,14 @@
+{
+  "index": 73,
+  "theme": "a tall wall to climb, then a drop to the ground",
+  "setting": "an old fort",
+  "level": 2,
+  "status": 200,
+  "ms": 10607,
+  "usage": {
+    "prompt_tokens": 454,
+    "completion_tokens": 2211,
+    "total_tokens": 2665
+  },
+  "reply": "A simple old fort approach with a low vault, a tall wall climb, and a soft drop back to level ground.\n```json\n{\n  \"items\": [\n    {\"kind\": \"ground\", \"length\": 12},\n    {\"kind\": \"block\", \"length\": 1, \"height\": 0.8},\n    {\"kind\": \"ground\", \"length\": 6},\n    {\"kind\": \"block\", \"length\": 1.5, \"height\": 2.2},\n    {\"kind\": \"ground\", \"length\": 10}\n  ]\n}\n```"
+}

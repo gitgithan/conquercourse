@@ -1,0 +1,14 @@
+{
+  "index": 96,
+  "theme": "a high platform, a drop to the ground, then another gap",
+  "setting": "a farm",
+  "level": 4,
+  "status": 200,
+  "ms": 17817,
+  "usage": {
+    "prompt_tokens": 454,
+    "completion_tokens": 3897,
+    "total_tokens": 4351
+  },
+  "reply": "A farm hayloft climb onto a tall platform, a short drop landing and a long trough jump.\n\n```json\n{\n  \"items\": [\n    {\"kind\": \"ground\", \"length\": 7},\n    {\"kind\": \"block\", \"length\": 3.5, \"height\": 2.1},\n    {\"kind\": \"gap\", \"width\": 2.2},\n    {\"kind\": \"ground\", \"length\": 2},\n    {\"kind\": \"gap\", \"width\": 3.6},\n    {\"kind\": \"ground\", \"length\": 7}\n  ]\n}\n```"
+}

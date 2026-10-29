@@ -1,0 +1,14 @@
+{
+  "index": 24,
+  "theme": "two or three bars to swing across wide water",
+  "setting": "a quarry",
+  "level": 3,
+  "status": 200,
+  "ms": 15846,
+  "usage": {
+    "prompt_tokens": 451,
+    "completion_tokens": 3193,
+    "total_tokens": 3644
+  },
+  "reply": "A quarry ledge leads to a flooded pit crossed by three swing bars.\n\n```json\n{\"items\": [{\"kind\":\"ground\",\"length\":5},{\"kind\":\"gap\",\"width\":2.8},{\"kind\":\"ground\",\"length\":4},{\"kind\":\"block\",\"length\":1,\"height\":1.1},{\"kind\":\"ground\",\"length\":3},{\"kind\":\"gap\",\"width\":8.5},{\"kind\":\"bar\",\"height\":2.3},{\"kind\":\"bar\",\"height\":2.5},{\"kind\":\"bar\",\"height\":2.3},{\"kind\":\"ground\",\"length\":6}]}\n```"
+}

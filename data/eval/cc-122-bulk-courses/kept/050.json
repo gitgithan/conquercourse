@@ -1,0 +1,35 @@
+{
+  "index": 50,
+  "theme": "a wide gap that needs a long run-up and jump",
+  "setting": "a railway yard",
+  "level": 1,
+  "said": "A railway yard straight with a long run-up to clear a wide gap.",
+  "layout": [
+    {
+      "kind": "ground",
+      "length": 12
+    },
+    {
+      "kind": "gap",
+      "width": 2
+    },
+    {
+      "kind": "ground",
+      "length": 6
+    }
+  ],
+  "clearsAsDrawn": true,
+  "moves": [
+    "gap jump",
+    "jump"
+  ],
+  "plan": {
+    "jumpXs": [
+      4.72,
+      19.5,
+      27.36
+    ],
+    "releaseAfter": 60,
+    "bouncePress": 8
+  }
+}

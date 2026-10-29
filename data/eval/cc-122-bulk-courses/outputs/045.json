@@ -1,0 +1,14 @@
+{
+  "index": 45,
+  "theme": "a gap that a bar could be used to skip across",
+  "setting": "a rooftop",
+  "level": 3,
+  "status": 200,
+  "ms": 17617,
+  "usage": {
+    "prompt_tokens": 452,
+    "completion_tokens": 3310,
+    "total_tokens": 3762
+  },
+  "reply": "Rooftop service lane with a wall vault, a wide gap crossed by double swing bars, and a low unit to vault.\n\n```json\n{\"items\": [{\"kind\": \"ground\", \"length\": 5}, {\"kind\": \"block\", \"length\": 1, \"height\": 1.1}, {\"kind\": \"ground\", \"length\": 3}, {\"kind\": \"gap\", \"width\": 6.5}, {\"kind\": \"bar\", \"height\": 2.3}, {\"kind\": \"bar\", \"height\": 2.5}, {\"kind\": \"ground\", \"length\": 4}, {\"kind\": \"block\", \"length\": 2, \"height\": 0.8}, {\"kind\": \"ground\", \"length\": 5}]}\n```"
+}

@@ -1,0 +1,35 @@
+{
+  "index": 90,
+  "theme": "a wide gap that needs a long run-up and jump",
+  "setting": "a farm",
+  "level": 1,
+  "said": "A long flat farm track gives plenty of speed to clear a wide irrigation ditch.",
+  "layout": [
+    {
+      "kind": "ground",
+      "length": 12
+    },
+    {
+      "kind": "gap",
+      "width": 3
+    },
+    {
+      "kind": "ground",
+      "length": 6
+    }
+  ],
+  "clearsAsDrawn": true,
+  "moves": [
+    "gap jump",
+    "jump"
+  ],
+  "plan": {
+    "jumpXs": [
+      4.72,
+      19.5,
+      28.4
+    ],
+    "releaseAfter": 60,
+    "bouncePress": 8
+  }
+}

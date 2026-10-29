@@ -1,0 +1,14 @@
+{
+  "index": 31,
+  "theme": "a chain of blocks of rising height, like stairs of different sizes",
+  "setting": "a market square",
+  "level": 1,
+  "status": 200,
+  "ms": 19393,
+  "usage": {
+    "prompt_tokens": 455,
+    "completion_tokens": 4000,
+    "total_tokens": 4455
+  },
+  "reply": "A gentle market square stair made of rising stalls forms an easy step-up chain.\n\n```json\n{\n  \"items\": [\n    {\"kind\":\"ground\",\"length\":5},\n    {\"kind\":\"block\",\"length\":1.5,\""
+}

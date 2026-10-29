@@ -1,0 +1,14 @@
+{
+  "index": 65,
+  "theme": "a gap that a bar could be used to skip across",
+  "setting": "a beach",
+  "level": 3,
+  "status": 200,
+  "ms": 14145,
+  "usage": {
+    "prompt_tokens": 452,
+    "completion_tokens": 3072,
+    "total_tokens": 3524
+  },
+  "reply": "Sunny beach lane with a wide tidal channel swung over on a bar and little hops.\n\n```json\n{\"items\": [{\"kind\":\"ground\",\"length\":5},{\"kind\":\"block\",\"length\":1,\"height\":0.7},{\"kind\":\"ground\",\"length\":4},{\"kind\":\"gap\",\"width\":3},{\"kind\":\"bar\",\"height\":2.4},{\"kind\":\"gap\",\"width\":3.5},{\"kind\":\"ground\",\"length\":5},{\"kind\":\"gap\",\"width\":2.5},{\"kind\":\"ground\",\"length\":6}]}\n```"
+}

@@ -1,0 +1,14 @@
+{
+  "index": 44,
+  "theme": "two or three bars to swing across wide water",
+  "setting": "a rooftop",
+  "level": 3,
+  "status": 200,
+  "ms": 33038,
+  "usage": {
+    "prompt_tokens": 450,
+    "completion_tokens": 6777,
+    "total_tokens": 7227
+  },
+  "reply": "Rooftop water gap with a low parapet vault leading into three steady swings to the next roof.\n\n```json\n{\"items\": [{\"kind\":\"ground\",\"length\":5},{\"kind\":\"block\",\"length\":1,\"height\":0.9},{\"kind\":\"gap\",\"width\":1.6},{\"kind\":\"bar\",\"height\":2.4},{\"kind\":\"gap\",\"width\":3},{\"kind\":\"bar\",\"height\":2.5},{\"kind\":\"gap\",\"width\":3},{\"kind\":\"bar\",\"height\":2.5},{\"kind\":\"gap\",\"width\":1.6},{\"kind\":\"ground\",\"length\":6}]}\n```"
+}

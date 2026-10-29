@@ -1,0 +1,14 @@
+{
+  "index": 10,
+  "theme": "a wide gap that needs a long run-up and jump",
+  "setting": "a harbour",
+  "level": 1,
+  "status": 200,
+  "ms": 8305,
+  "usage": {
+    "prompt_tokens": 452,
+    "completion_tokens": 1768,
+    "total_tokens": 2220
+  },
+  "reply": "A calm harbour pier gives a long straight run to clear a wide water gap onto the next dock.\n```json\n{\"items\": [{\"kind\":\"ground\",\"length\":14},{\"kind\":\"gap\",\"width\":3.2},{\"kind\":\"ground\",\"length\":8},{\"kind\":\"block\",\"length\":1.5,\"height\":0.6},{\"kind\":\"ground\",\"length\":6}]}\n```"
+}

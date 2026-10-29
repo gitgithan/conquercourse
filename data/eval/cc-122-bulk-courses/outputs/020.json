@@ -1,0 +1,14 @@
+{
+  "index": 20,
+  "theme": "a wide gap that needs a long run-up and jump",
+  "setting": "a quarry",
+  "level": 1,
+  "status": 200,
+  "ms": 11544,
+  "usage": {
+    "prompt_tokens": 453,
+    "completion_tokens": 2381,
+    "total_tokens": 2834
+  },
+  "reply": "A long quarry runway with a single wide gap for a full-speed running jump.\n```json\n{\"items\": [{\"kind\":\"ground\",\"length\":12},{\"kind\":\"gap\",\"width\":3},{\"kind\":\"ground\",\"length\":10}]}\n```"
+}

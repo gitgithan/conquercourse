@@ -1,0 +1,4370 @@
+{
+  "summary": {
+    "asked": 100,
+    "gaveALayout": 95,
+    "clearsAsDrawn": 20,
+    "clearsAfterFixIt": 33,
+    "nearDuplicates": 4,
+    "distinctMoveSets": 3,
+    "moveSets": {
+      "gap jump+jump": 16,
+      "jump": 16,
+      "gap jump+jump+swing": 1
+    },
+    "byTheme": {
+      "a wide gap that needs a long run-up and jump": {
+        "asked": 10,
+        "kept": 9
+      },
+      "a chain of blocks of rising height, like stairs of different sizes": {
+        "asked": 10,
+        "kept": 9
+      },
+      "a block to vault, then a gap to jump": {
+        "asked": 10,
+        "kept": 0
+      },
+      "a tall wall to climb, then a drop to the ground": {
+        "asked": 10,
+        "kept": 7
+      },
+      "two or three bars to swing across wide water": {
+        "asked": 10,
+        "kept": 1
+      },
+      "a gap that a bar could be used to skip across": {
+        "asked": 10,
+        "kept": 0
+      },
+      "a high platform, a drop to the ground, then another gap": {
+        "asked": 10,
+        "kept": 5
+      },
+      "low blocks close together that set a rhythm": {
+        "asked": 10,
+        "kept": 2
+      },
+      "a mix of a vault, a gap and a bar": {
+        "asked": 10,
+        "kept": 0
+      },
+      "something unusual that a designer would not think of": {
+        "asked": 10,
+        "kept": 0
+      }
+    },
+    "totalTokens": 411268
+  },
+  "rows": [
+    {
+      "index": 0,
+      "theme": "a wide gap that needs a long run-up and jump",
+      "setting": "a school yard",
+      "level": 1,
+      "said": "A gentle school yard run with a long approach to clear a wide playground gap.",
+      "problems": [],
+      "layout": [
+        {
+          "kind": "ground",
+          "length": 12
+        },
+        {
+          "kind": "gap",
+          "width": 3.2
+        },
+        {
+          "kind": "ground",
+          "length": 8
+        }
+      ],
+      "clearsAsDrawn": true,
+      "clearsAfterFixIt": true,
+      "moves": [
+        "gap jump",
+        "jump"
+      ],
+      "fixed": false
+    },
+    {
+      "index": 1,
+      "theme": "a chain of blocks of rising height, like stairs of different sizes",
+      "setting": "a school yard",
+      "level": 1,
+      "said": "A small schoolyard staircase of low blocks rises step by step for an easy vaulting warm-up.",
+      "problems": [],
+      "layout": [
+        {
+          "kind": "ground",
+          "length": 8
+        },
+        {
+          "kind": "block",
+          "length": 2,
+          "height": 0.4
+        },
+        {
+          "kind": "block",
+          "length": 2,
+          "height": 0.6
+        },
+        {
+          "kind": "block",
+          "length": 2,
+          "height": 0.8
+        },
+        {
+          "kind": "block",
+          "length": 2.5,
+          "height": 1.05
+        },
+        {
+          "kind": "ground",
+          "length": 6
+        }
+      ],
+      "clearsAsDrawn": true,
+      "clearsAfterFixIt": true,
+      "moves": [
+        "jump"
+      ],
+      "fixed": false
+    },
+    {
+      "index": 2,
+      "theme": "a block to vault, then a gap to jump",
+      "setting": "a school yard",
+      "level": 2,
+      "said": "A gentle schoolyard lane with a low wall to vault and an easy gap to hop after.",
+      "problems": [],
+      "layout": [
+        {
+          "kind": "ground",
+          "length": 8
+        },
+        {
+          "kind": "block",
+          "length": 1,
+          "height": 0.9
+        },
+        {
+          "kind": "ground",
+          "length": 5
+        },
+        {
+          "kind": "gap",
+          "width": 2
+        },
+        {
+          "kind": "ground",
+          "length": 8
+        }
+      ],
+      "clearsAsDrawn": false,
+      "clearsAfterFixIt": false
+    },
+    {
+      "index": 3,
+      "theme": "a tall wall to climb, then a drop to the ground",
+      "setting": "a school yard",
+      "level": 2,
+      "said": "Simple school yard wall climb with a straight drop back to flat ground.",
+      "problems": [],
+      "layout": [
+        {
+          "kind": "ground",
+          "length": 8
+        },
+        {
+          "kind": "block",
+          "length": 1,
+          "height": 1.8
+        },
+        {
+          "kind": "ground",
+          "length": 8
+        }
+      ],
+      "clearsAsDrawn": false,
+      "fixSteps": [
+        "Made \"Block\" smaller (1.8 m down to 0.9 m high), the most one jump can climb.",
+        "Slide “Ground” 0.3 m back toward where the runner starts."
+      ],
+      "clearsAfterFixIt": true,
+      "moves": [
+        "jump"
+      ],
+      "fixed": true
+    },
+    {
+      "index": 4,
+      "theme": "two or three bars to swing across wide water",
+      "setting": "a school yard",
+      "level": 3,
+      "said": "A school yard bench vault leading into a three-bar monkey swing over a wide flooded play zone.",
+      "problems": [],
+      "layout": [
+        {
+          "kind": "ground",
+          "length": 5
+        },
+        {
+          "kind": "block",
+          "length": 1,
+          "height": 0.9
+        },
+        {
+          "kind": "gap",
+          "width": 2.2
+        },
+        {
+          "kind": "bar",
+          "height": 2.4
+        },
+        {
+          "kind": "gap",
+          "width": 2.2
+        },
+        {
+          "kind": "bar",
+          "height": 2.5
+        },
+        {
+          "kind": "gap",
+          "width": 2.2
+        },
+        {
+          "kind": "bar",
+          "height": 2.4
+        },
+        {
+          "kind": "gap",
+          "width": 2.2
+        },
+        {
+          "kind": "ground",
+          "length": 5
+        }
+      ],
+      "clearsAsDrawn": false,
+      "clearsAfterFixIt": false
+    },
+    {
+      "index": 5,
+      "theme": "a gap that a bar could be used to skip across",
+      "setting": "a school yard",
+      "level": 3,
+      "said": "Schoolyard line vaults a low bench wall, swings over the flooded sandpit on one bar, then climbs a shed wall to finish.",
+      "problems": [],
+      "layout": [
+        {
+          "kind": "ground",
+          "length": 6
+        },
+        {
+          "kind": "block",
+          "length": 1,
+          "height": 0.9
+        },
+        {
+          "kind": "ground",
+          "length": 5
+        },
+        {
+          "kind": "gap",
+          "width": 3
+        },
+        {
+          "kind": "bar",
+          "height": 2.4
+        },
+        {
+          "kind": "gap",
+          "width": 3
+        },
+        {
+          "kind": "ground",
+          "length": 4
+        },
+        {
+          "kind": "block",
+          "length": 1,
+          "height": 1.8
+        },
+        {
+          "kind": "ground",
+          "length": 5
+        }
+      ],
+      "clearsAsDrawn": false,
+      "clearsAfterFixIt": false
+    },
+    {
+      "index": 6,
+      "theme": "a high platform, a drop to the ground, then another gap",
+      "setting": "a school yard",
+      "level": 4,
+      "said": "A tight schoolyard run climbs a tall platform then hits a precise drop and long gap.",
+      "problems": [],
+      "layout": [
+        {
+          "kind": "ground",
+          "length": 4
+        },
+        {
+          "kind": "block",
+          "length": 3.5,
+          "height": 2.1
+        },
+        {
+          "kind": "gap",
+          "width": 3
+        },
+        {
+          "kind": "ground",
+          "length": 2
+        },
+        {
+          "kind": "gap",
+          "width": 3.6
+        },
+        {
+          "kind": "ground",
+          "length": 5
+        }
+      ],
+      "clearsAsDrawn": false,
+      "clearsAfterFixIt": false
+    },
+    {
+      "index": 7,
+      "theme": "low blocks close together that set a rhythm",
+      "setting": "a school yard",
+      "level": 4,
+      "said": "Quick school-yard rhythm of three low walls in tight succession into a gap.",
+      "problems": [],
+      "layout": [
+        {
+          "kind": "ground",
+          "length": 5
+        },
+        {
+          "kind": "block",
+          "length": 0.9,
+          "height": 0.9
+        },
+        {
+          "kind": "ground",
+          "length": 1.8
+        },
+        {
+          "kind": "block",
+          "length": 0.9,
+          "height": 1
+        },
+        {
+          "kind": "ground",
+          "length": 1.8
+        },
+        {
+          "kind": "block",
+          "length": 0.9,
+          "height": 1.1
+        },
+        {
+          "kind": "ground",
+          "length": 3
+        },
+        {
+          "kind": "gap",
+          "width": 3
+        },
+        {
+          "kind": "ground",
+          "length": 6
+        }
+      ],
+      "clearsAsDrawn": false,
+      "clearsAfterFixIt": false
+    },
+    {
+      "index": 8,
+      "theme": "a mix of a vault, a gap and a bar",
+      "setting": "a school yard",
+      "level": 5,
+      "said": "A tight school yard chain vaulting into a sharp gap landing and a double bar swing across wide water.",
+      "problems": [],
+      "layout": [
+        {
+          "kind": "ground",
+          "length": 4
+        },
+        {
+          "kind": "block",
+          "length": 0.7,
+          "height": 1.2
+        },
+        {
+          "kind": "gap",
+          "width": 3.5
+        },
+        {
+          "kind": "ground",
+          "length": 1.3
+        },
+        {
+          "kind": "gap",
+          "width": 2
+        },
+        {
+          "kind": "bar",
+          "height": 2.65
+        },
+        {
+          "kind": "gap",
+          "width": 3.2
+        },
+        {
+          "kind": "bar",
+          "height": 2.65
+        },
+        {
+          "kind": "gap",
+          "width": 2.2
+        },
+        {
+          "kind": "ground",
+          "length": 4
+        }
+      ],
+      "clearsAsDrawn": false,
+      "clearsAfterFixIt": false
+    },
+    {
+      "index": 9,
+      "theme": "something unusual that a designer would not think of",
+      "setting": "a school yard",
+      "level": 5,
+      "said": "A school yard lane built around toppled locker towers and a collapsed jungle-gym frame creates a tight vault-climb-swing line.",
+      "problems": [],
+      "layout": [
+        {
+          "kind": "ground",
+          "length": 1.8
+        },
+        {
+          "kind": "gap",
+          "width": 3.9
+        },
+        {
+          "kind": "block",
+          "length": 0.5,
+          "height": 1.3
+        },
+        {
+          "kind": "gap",
+          "width": 3.7
+        },
+        {
+          "kind": "block",
+          "length": 0.4,
+          "height": 0.35
+        },
+        {
+          "kind": "gap",
+          "width": 3.9
+        },
+        {
+          "kind": "block",
+          "length": 0.6,
+          "height": 2
+        },
+        {
+          "kind": "gap",
+          "width": 3.2
+        },
+        {
+          "kind": "bar",
+          "height": 2.7
+        },
+        {
+          "kind": "ground",
+          "length": 2
+        }
+      ],
+      "clearsAsDrawn": false,
+      "clearsAfterFixIt": false
+    },
+    {
+      "index": 10,
+      "theme": "a wide gap that needs a long run-up and jump",
+      "setting": "a harbour",
+      "level": 1,
+      "said": "A calm harbour pier gives a long straight run to clear a wide water gap onto the next dock.",
+      "problems": [],
+      "layout": [
+        {
+          "kind": "ground",
+          "length": 14
+        },
+        {
+          "kind": "gap",
+          "width": 3.2
+        },
+        {
+          "kind": "ground",
+          "length": 8
+        },
+        {
+          "kind": "block",
+          "length": 1.5,
+          "height": 0.6
+        },
+        {
+          "kind": "ground",
+          "length": 6
+        }
+      ],
+      "clearsAsDrawn": true,
+      "clearsAfterFixIt": true,
+      "moves": [
+        "gap jump",
+        "jump"
+      ],
+      "fixed": false
+    },
+    {
+      "index": 11,
+      "theme": "a chain of blocks of rising height, like stairs of different sizes",
+      "setting": "a harbour",
+      "level": 1,
+      "said": "A gentle harbour staircase of four dock blocks rising step by step.",
+      "problems": [],
+      "layout": [
+        {
+          "kind": "ground",
+          "length": 5
+        },
+        {
+          "kind": "block",
+          "length": 2,
+          "height": 0.4
+        },
+        {
+          "kind": "block",
+          "length": 2,
+          "height": 0.7
+        },
+        {
+          "kind": "block",
+          "length": 2.2,
+          "height": 1
+        },
+        {
+          "kind": "block",
+          "length": 2.2,
+          "height": 1.25
+        },
+        {
+          "kind": "ground",
+          "length": 6
+        }
+      ],
+      "clearsAsDrawn": true,
+      "clearsAfterFixIt": true,
+      "moves": [
+        "jump"
+      ],
+      "fixed": false
+    },
+    {
+      "index": 12,
+      "theme": "a block to vault, then a gap to jump",
+      "setting": "a harbour",
+      "level": 2,
+      "said": "Harbour dockside lane with a low vault crate leading to a short hop over water.",
+      "problems": [],
+      "layout": [
+        {
+          "kind": "ground",
+          "length": 6
+        },
+        {
+          "kind": "block",
+          "length": 1,
+          "height": 0.9
+        },
+        {
+          "kind": "ground",
+          "length": 3
+        },
+        {
+          "kind": "gap",
+          "width": 2
+        },
+        {
+          "kind": "ground",
+          "length": 6
+        }
+      ],
+      "clearsAsDrawn": false,
+      "clearsAfterFixIt": false
+    },
+    {
+      "index": 13,
+      "theme": "a tall wall to climb, then a drop to the ground",
+      "setting": "a harbour",
+      "level": 2,
+      "said": "A calm harbour quay with a tall wall climb, a small drop and easy harbour hops.",
+      "problems": [],
+      "layout": [
+        {
+          "kind": "ground",
+          "length": 6
+        },
+        {
+          "kind": "block",
+          "length": 0.8,
+          "height": 1.8
+        },
+        {
+          "kind": "ground",
+          "length": 3
+        },
+        {
+          "kind": "gap",
+          "width": 2
+        },
+        {
+          "kind": "ground",
+          "length": 3
+        },
+        {
+          "kind": "block",
+          "length": 1.5,
+          "height": 0.7
+        },
+        {
+          "kind": "ground",
+          "length": 5
+        }
+      ],
+      "clearsAsDrawn": false,
+      "clearsAfterFixIt": false
+    },
+    {
+      "index": 14,
+      "theme": "two or three bars to swing across wide water",
+      "setting": "a harbour",
+      "level": 3,
+      "said": "Harbour dock run vaults a low crate, swings across open water on three bars, then climbs a high quay wall.",
+      "problems": [],
+      "layout": [
+        {
+          "kind": "ground",
+          "length": 4
+        },
+        {
+          "kind": "block",
+          "length": 0.8,
+          "height": 0.9
+        },
+        {
+          "kind": "ground",
+          "length": 2.5
+        },
+        {
+          "kind": "gap",
+          "width": 7
+        },
+        {
+          "kind": "bar",
+          "height": 2.3
+        },
+        {
+          "kind": "bar",
+          "height": 2.4
+        },
+        {
+          "kind": "bar",
+          "height": 2.3
+        },
+        {
+          "kind": "ground",
+          "length": 2.5
+        },
+        {
+          "kind": "block",
+          "length": 1.2,
+          "height": 1.5
+        },
+        {
+          "kind": "ground",
+          "length": 4
+        }
+      ],
+      "clearsAsDrawn": false,
+      "clearsAfterFixIt": false
+    },
+    {
+      "index": 15,
+      "theme": "a gap that a bar could be used to skip across",
+      "setting": "a harbour",
+      "level": 3,
+      "said": "A short harbour pier with a crate to vault, a cargo bar over a water channel, and a container to climb to the finish.",
+      "problems": [],
+      "layout": [
+        {
+          "kind": "ground",
+          "length": 6
+        },
+        {
+          "kind": "block",
+          "length": 1.5,
+          "height": 0.9
+        },
+        {
+          "kind": "ground",
+          "length": 4
+        },
+        {
+          "kind": "gap",
+          "width": 2.2
+        },
+        {
+          "kind": "bar",
+          "height": 2.4
+        },
+        {
+          "kind": "gap",
+          "width": 2.3
+        },
+        {
+          "kind": "ground",
+          "length": 3
+        },
+        {
+          "kind": "block",
+          "length": 2,
+          "height": 1.7
+        },
+        {
+          "kind": "ground",
+          "length": 5
+        }
+      ],
+      "clearsAsDrawn": false,
+      "clearsAfterFixIt": false
+    },
+    {
+      "index": 16,
+      "theme": "a high platform, a drop to the ground, then another gap",
+      "setting": "a harbour",
+      "level": 4,
+      "said": "A harbour quay with a tall container platform, a sharp drop to a narrow dock, then a wide water gap.",
+      "problems": [],
+      "layout": [
+        {
+          "kind": "ground",
+          "length": 7
+        },
+        {
+          "kind": "block",
+          "length": 3.5,
+          "height": 2.4
+        },
+        {
+          "kind": "ground",
+          "length": 2.5
+        },
+        {
+          "kind": "gap",
+          "width": 3.7
+        },
+        {
+          "kind": "ground",
+          "length": 7
+        }
+      ],
+      "clearsAsDrawn": false,
+      "fixSteps": [
+        "Made \"Block\" smaller (2.4 m down to 0.9 m high), the most one jump can climb."
+      ],
+      "clearsAfterFixIt": true,
+      "moves": [
+        "gap jump",
+        "jump"
+      ],
+      "fixed": true
+    },
+    {
+      "index": 17,
+      "theme": "low blocks close together that set a rhythm",
+      "setting": "a harbour",
+      "level": 4,
+      "said": "A harbour dock with tight rhythmic crate vault",
+      "problems": [
+        "no readable json"
+      ],
+      "layout": null
+    },
+    {
+      "index": 18,
+      "theme": "a mix of a vault, a gap and a bar",
+      "setting": "a harbour",
+      "level": 5,
+      "said": "Tight harbour quay with a high crate vault, a long pier-to-pier leap and twin crane bars over open water.",
+      "problems": [],
+      "layout": [
+        {
+          "kind": "ground",
+          "length": 4
+        },
+        {
+          "kind": "block",
+          "length": 0.6,
+          "height": 1.25
+        },
+        {
+          "kind": "ground",
+          "length": 2.5
+        },
+        {
+          "kind": "gap",
+          "width": 3.6
+        },
+        {
+          "kind": "ground",
+          "length": 1.5
+        },
+        {
+          "kind": "bar",
+          "height": 2.6
+        },
+        {
+          "kind": "gap",
+          "width": 2.1
+        },
+        {
+          "kind": "bar",
+          "height": 2.6
+        },
+        {
+          "kind": "gap",
+          "width": 2.2
+        },
+        {
+          "kind": "ground",
+          "length": 5
+        }
+      ],
+      "clearsAsDrawn": false,
+      "clearsAfterFixIt": false
+    },
+    {
+      "index": 19,
+      "theme": "something unusual that a designer would not think of",
+      "setting": "a harbour",
+      "level": 5,
+      "said": "A tight harbour run weaving across giant abandoned propellers half-buried in mud.",
+      "problems": [],
+      "layout": [
+        {
+          "kind": "ground",
+          "length": 3
+        },
+        {
+          "kind": "block",
+          "length": 1,
+          "height": 1.3
+        },
+        {
+          "kind": "gap",
+          "width": 3.9
+        },
+        {
+          "kind": "ground",
+          "length": 1
+        },
+        {
+          "kind": "block",
+          "length": 0.6,
+          "height": 2.3
+        },
+        {
+          "kind": "bar",
+          "height": 2.7
+        },
+        {
+          "kind": "gap",
+          "width": 3.2
+        },
+        {
+          "kind": "bar",
+          "height": 2.7
+        },
+        {
+          "kind": "gap",
+          "width": 3.9
+        },
+        {
+          "kind": "ground",
+          "length": 3.5
+        }
+      ],
+      "clearsAsDrawn": false,
+      "clearsAfterFixIt": false
+    },
+    {
+      "index": 20,
+      "theme": "a wide gap that needs a long run-up and jump",
+      "setting": "a quarry",
+      "level": 1,
+      "said": "A long quarry runway with a single wide gap for a full-speed running jump.",
+      "problems": [],
+      "layout": [
+        {
+          "kind": "ground",
+          "length": 12
+        },
+        {
+          "kind": "gap",
+          "width": 3
+        },
+        {
+          "kind": "ground",
+          "length": 10
+        }
+      ],
+      "clearsAsDrawn": true,
+      "clearsAfterFixIt": true,
+      "moves": [
+        "gap jump",
+        "jump"
+      ],
+      "fixed": false
+    },
+    {
+      "index": 21,
+      "theme": "a chain of blocks of rising height, like stairs of different sizes",
+      "setting": "a quarry",
+      "level": 1,
+      "said": "Gentle quarry steps rising gradually as low uneven stairs for an easy climb.",
+      "problems": [],
+      "layout": [
+        {
+          "kind": "ground",
+          "length": 5
+        },
+        {
+          "kind": "block",
+          "length": 1.8,
+          "height": 0.4
+        },
+        {
+          "kind": "block",
+          "length": 1.2,
+          "height": 0.6
+        },
+        {
+          "kind": "block",
+          "length": 1.4,
+          "height": 0.85
+        },
+        {
+          "kind": "block",
+          "length": 2,
+          "height": 1.1
+        },
+        {
+          "kind": "ground",
+          "length": 5
+        }
+      ],
+      "clearsAsDrawn": true,
+      "clearsAfterFixIt": true,
+      "moves": [
+        "jump"
+      ],
+      "fixed": false
+    },
+    {
+      "index": 22,
+      "theme": "a block to vault, then a gap to jump",
+      "setting": "a quarry",
+      "level": 2,
+      "said": "A gentle quarry line with a low vault ledge leading into a short water gap.",
+      "problems": [],
+      "layout": [
+        {
+          "kind": "ground",
+          "length": 6
+        },
+        {
+          "kind": "block",
+          "length": 1,
+          "height": 0.8
+        },
+        {
+          "kind": "ground",
+          "length": 4
+        },
+        {
+          "kind": "gap",
+          "width": 2.2
+        },
+        {
+          "kind": "ground",
+          "length": 6
+        }
+      ],
+      "clearsAsDrawn": false,
+      "clearsAfterFixIt": false
+    },
+    {
+      "index": 23,
+      "theme": "a tall wall to climb, then a drop to the ground",
+      "setting": "a quarry",
+      "level": 2,
+      "said": "A quarry lane with a tall wall to climb and a straight drop back to flat ground.",
+      "problems": [],
+      "layout": [
+        {
+          "kind": "ground",
+          "length": 8
+        },
+        {
+          "kind": "block",
+          "length": 1,
+          "height": 1.8
+        },
+        {
+          "kind": "ground",
+          "length": 8
+        }
+      ],
+      "clearsAsDrawn": false,
+      "fixSteps": [
+        "Made \"Block\" smaller (1.8 m down to 0.9 m high), the most one jump can climb.",
+        "Slide “Ground” 0.3 m back toward where the runner starts."
+      ],
+      "clearsAfterFixIt": true,
+      "moves": [
+        "jump"
+      ],
+      "fixed": true
+    },
+    {
+      "index": 24,
+      "theme": "two or three bars to swing across wide water",
+      "setting": "a quarry",
+      "level": 3,
+      "said": "A quarry ledge leads to a flooded pit crossed by three swing bars.",
+      "problems": [],
+      "layout": [
+        {
+          "kind": "ground",
+          "length": 5
+        },
+        {
+          "kind": "gap",
+          "width": 2.8
+        },
+        {
+          "kind": "ground",
+          "length": 4
+        },
+        {
+          "kind": "block",
+          "length": 1,
+          "height": 1.1
+        },
+        {
+          "kind": "ground",
+          "length": 3
+        },
+        {
+          "kind": "gap",
+          "width": 8.5
+        },
+        {
+          "kind": "bar",
+          "height": 2.3
+        },
+        {
+          "kind": "bar",
+          "height": 2.5
+        },
+        {
+          "kind": "bar",
+          "height": 2.3
+        },
+        {
+          "kind": "ground",
+          "length": 6
+        }
+      ],
+      "clearsAsDrawn": false,
+      "clearsAfterFixIt": false
+    },
+    {
+      "index": 25,
+      "theme": "a gap that a bar could be used to skip across",
+      "setting": "a quarry",
+      "level": 3,
+      "said": "Quarry terraces with a vault and climb lead to a flooded cut crossed by a central swing bar.",
+      "problems": [],
+      "layout": [
+        {
+          "kind": "ground",
+          "length": 6
+        },
+        {
+          "kind": "block",
+          "length": 1,
+          "height": 0.9
+        },
+        {
+          "kind": "ground",
+          "length": 4
+        },
+        {
+          "kind": "block",
+          "length": 1.2,
+          "height": 1.6
+        },
+        {
+          "kind": "ground",
+          "length": 3
+        },
+        {
+          "kind": "gap",
+          "width": 3
+        },
+        {
+          "kind": "bar",
+          "height": 2.4
+        },
+        {
+          "kind": "gap",
+          "width": 3
+        },
+        {
+          "kind": "ground",
+          "length": 8
+        }
+      ],
+      "clearsAsDrawn": false,
+      "clearsAfterFixIt": false
+    },
+    {
+      "index": 26,
+      "theme": "a high platform, a drop to the ground, then another gap",
+      "setting": "a quarry",
+      "level": 4,
+      "said": "Quarry ledge holds a tall platform with a sharp drop to a short landing before a wide gap.",
+      "problems": [],
+      "layout": [
+        {
+          "kind": "ground",
+          "length": 6
+        },
+        {
+          "kind": "block",
+          "length": 4,
+          "height": 2.4
+        },
+        {
+          "kind": "ground",
+          "length": 3
+        },
+        {
+          "kind": "gap",
+          "width": 3.8
+        },
+        {
+          "kind": "ground",
+          "length": 6
+        }
+      ],
+      "clearsAsDrawn": false,
+      "clearsAfterFixIt": false
+    },
+    {
+      "index": 27,
+      "theme": "low blocks close together that set a rhythm",
+      "setting": "a quarry",
+      "level": 4,
+      "said": "Tight quarry line of low blocks with shrinking gaps demanding precise vault rhythm.",
+      "problems": [],
+      "layout": [
+        {
+          "kind": "ground",
+          "length": 6
+        },
+        {
+          "kind": "block",
+          "length": 0.9,
+          "height": 0.85
+        },
+        {
+          "kind": "ground",
+          "length": 1.4
+        },
+        {
+          "kind": "block",
+          "length": 0.9,
+          "height": 0.95
+        },
+        {
+          "kind": "ground",
+          "length": 1.2
+        },
+        {
+          "kind": "block",
+          "length": 1,
+          "height": 0.75
+        },
+        {
+          "kind": "ground",
+          "length": 1
+        },
+        {
+          "kind": "block",
+          "length": 1,
+          "height": 1.15
+        },
+        {
+          "kind": "ground",
+          "length": 5
+        }
+      ],
+      "clearsAsDrawn": false,
+      "clearsAfterFixIt": false
+    },
+    {
+      "index": 28,
+      "theme": "a mix of a vault, a gap and a bar",
+      "setting": "a quarry",
+      "level": 5,
+      "said": "Quarry ledge sequence pairs a max vault with twin high bars over flooded cuts.",
+      "problems": [],
+      "layout": [
+        {
+          "kind": "ground",
+          "length": 3
+        },
+        {
+          "kind": "block",
+          "length": 1,
+          "height": 1.3
+        },
+        {
+          "kind": "ground",
+          "length": 1
+        },
+        {
+          "kind": "gap",
+          "width": 3.9
+        },
+        {
+          "kind": "ground",
+          "length": 1
+        },
+        {
+          "kind": "bar",
+          "height": 2.65
+        },
+        {
+          "kind": "bar",
+          "height": 2.7
+        },
+        {
+          "kind": "gap",
+          "width": 3.8
+        },
+        {
+          "kind": "ground",
+          "length": 3
+        }
+      ],
+      "clearsAsDrawn": false,
+      "clearsAfterFixIt": false
+    },
+    {
+      "index": 29,
+      "theme": "something unusual that a designer would not think of",
+      "setting": "a quarry",
+      "level": 5,
+      "said": "A flooded quarry built around a huge exposed fossil ammonite spiral used as walls, ramps and platforms.",
+      "problems": [],
+      "layout": [
+        {
+          "kind": "ground",
+          "length": 3
+        },
+        {
+          "kind": "block",
+          "length": 0.8,
+          "height": 1.3
+        },
+        {
+          "kind": "gap",
+          "width": 3.9
+        },
+        {
+          "kind": "block",
+          "length": 0.6,
+          "height": 1.2
+        },
+        {
+          "kind": "gap",
+          "width": 6.5
+        },
+        {
+          "kind": "bar",
+          "height": 2.5
+        },
+        {
+          "kind": "bar",
+          "height": 2.7
+        },
+        {
+          "kind": "bar",
+          "height": 2.4
+        },
+        {
+          "kind": "block",
+          "length": 0.7,
+          "height": 2.2
+        },
+        {
+          "kind": "ground",
+          "length": 3
+        }
+      ],
+      "clearsAsDrawn": false,
+      "clearsAfterFixIt": false
+    },
+    {
+      "index": 30,
+      "theme": "a wide gap that needs a long run-up and jump",
+      "setting": "a market square",
+      "level": 1,
+      "said": "A gentle market straight with low stalls framing a wide canal jump after a long clear run-up.",
+      "problems": [],
+      "layout": [
+        {
+          "kind": "ground",
+          "length": 6
+        },
+        {
+          "kind": "block",
+          "length": 1,
+          "height": 0.6
+        },
+        {
+          "kind": "ground",
+          "length": 12
+        },
+        {
+          "kind": "gap",
+          "width": 3
+        },
+        {
+          "kind": "ground",
+          "length": 8
+        },
+        {
+          "kind": "block",
+          "length": 1,
+          "height": 0.6
+        },
+        {
+          "kind": "ground",
+          "length": 5
+        }
+      ],
+      "clearsAsDrawn": false,
+      "clearsAfterFixIt": false
+    },
+    {
+      "index": 31,
+      "theme": "a chain of blocks of rising height, like stairs of different sizes",
+      "setting": "a market square",
+      "level": 1,
+      "said": "A gentle market square stair made of rising stalls forms an easy step-up chain. ```json { \"items\": [ {\"kind\":\"ground\",\"length\":5}, {\"kind\":\"block\",\"length\":1.5,",
+      "problems": [
+        "no readable json"
+      ],
+      "layout": null
+    },
+    {
+      "index": 32,
+      "theme": "a block to vault, then a gap to jump",
+      "setting": "a market square",
+      "level": 2,
+      "said": "A gentle market-square lane vaulting a low stall counter and hopping a narrow fountain channel.",
+      "problems": [],
+      "layout": [
+        {
+          "kind": "ground",
+          "length": 6
+        },
+        {
+          "kind": "block",
+          "length": 0.8,
+          "height": 0.9
+        },
+        {
+          "kind": "ground",
+          "length": 4
+        },
+        {
+          "kind": "gap",
+          "width": 2
+        },
+        {
+          "kind": "ground",
+          "length": 6
+        }
+      ],
+      "clearsAsDrawn": false,
+      "clearsAfterFixIt": false
+    },
+    {
+      "index": 33,
+      "theme": "a tall wall to climb, then a drop to the ground",
+      "setting": "a market square",
+      "level": 2,
+      "said": "A gentle market square dash over a low crate to climb a tall wall and drop back to the square.",
+      "problems": [],
+      "layout": [
+        {
+          "kind": "ground",
+          "length": 6
+        },
+        {
+          "kind": "block",
+          "length": 1,
+          "height": 0.6
+        },
+        {
+          "kind": "ground",
+          "length": 3
+        },
+        {
+          "kind": "block",
+          "length": 2,
+          "height": 2
+        },
+        {
+          "kind": "ground",
+          "length": 6
+        }
+      ],
+      "clearsAsDrawn": false,
+      "fixSteps": [
+        "Made \"Block\" smaller (2.0 m down to 0.9 m high), the most one jump can climb.",
+        "Slide “Ground” 0.3 m back toward where the runner starts."
+      ],
+      "clearsAfterFixIt": true,
+      "moves": [
+        "jump"
+      ],
+      "fixed": true
+    },
+    {
+      "index": 34,
+      "theme": "two or three bars to swing across wide water",
+      "setting": "a market square",
+      "level": 3,
+      "said": "A market square where low stalls lead to a wide canal crossed by two swing bars.",
+      "problems": [],
+      "layout": [
+        {
+          "kind": "ground",
+          "length": 5
+        },
+        {
+          "kind": "block",
+          "length": 1,
+          "height": 0.9
+        },
+        {
+          "kind": "ground",
+          "length": 3
+        },
+        {
+          "kind": "gap",
+          "width": 2.4
+        },
+        {
+          "kind": "bar",
+          "height": 2.3
+        },
+        {
+          "kind": "gap",
+          "width": 2.8
+        },
+        {
+          "kind": "bar",
+          "height": 2.4
+        },
+        {
+          "kind": "gap",
+          "width": 2.4
+        },
+        {
+          "kind": "ground",
+          "length": 5
+        }
+      ],
+      "clearsAsDrawn": false,
+      "clearsAfterFixIt": false
+    },
+    {
+      "index": 35,
+      "theme": "a gap that a bar could be used to skip across",
+      "setting": "a market square",
+      "level": 3,
+      "said": "Market stalls frame a fountain gap swung on a hanging sign bar with crates to climb beyond.",
+      "problems": [],
+      "layout": [
+        {
+          "kind": "ground",
+          "length": 7
+        },
+        {
+          "kind": "block",
+          "length": 1,
+          "height": 0.9
+        },
+        {
+          "kind": "ground",
+          "length": 4
+        },
+        {
+          "kind": "gap",
+          "width": 5
+        },
+        {
+          "kind": "bar",
+          "height": 2.4
+        },
+        {
+          "kind": "ground",
+          "length": 5
+        },
+        {
+          "kind": "block",
+          "length": 1,
+          "height": 1.6
+        },
+        {
+          "kind": "ground",
+          "length": 7
+        }
+      ],
+      "clearsAsDrawn": false,
+      "clearsAfterFixIt": false
+    },
+    {
+      "index": 36,
+      "theme": "a high platform, a drop to the ground, then another gap",
+      "setting": "a market square",
+      "level": 4,
+      "said": "A tight market sprint vaulting a stall to a high bandstand then dropping to a short plaza before a long channel jump.",
+      "problems": [],
+      "layout": [
+        {
+          "kind": "ground",
+          "length": 6
+        },
+        {
+          "kind": "block",
+          "length": 0.8,
+          "height": 0.9
+        },
+        {
+          "kind": "ground",
+          "length": 4
+        },
+        {
+          "kind": "block",
+          "length": 3,
+          "height": 2.1
+        },
+        {
+          "kind": "gap",
+          "width": 3.9
+        },
+        {
+          "kind": "ground",
+          "length": 2.5
+        },
+        {
+          "kind": "gap",
+          "width": 3.7
+        },
+        {
+          "kind": "ground",
+          "length": 6
+        }
+      ],
+      "clearsAsDrawn": false,
+      "clearsAfterFixIt": false
+    },
+    {
+      "index": 37,
+      "theme": "low blocks close together that set a rhythm",
+      "setting": "a market square",
+      "level": 4,
+      "said": "Low market crates in tight rhythm build to a clean channel jump.",
+      "problems": [],
+      "layout": [
+        {
+          "kind": "ground",
+          "length": 5
+        },
+        {
+          "kind": "block",
+          "length": 1.2,
+          "height": 0.5
+        },
+        {
+          "kind": "ground",
+          "length": 1.1
+        },
+        {
+          "kind": "block",
+          "length": 1,
+          "height": 0.65
+        },
+        {
+          "kind": "ground",
+          "length": 1
+        },
+        {
+          "kind": "block",
+          "length": 1.1,
+          "height": 0.55
+        },
+        {
+          "kind": "ground",
+          "length": 1
+        },
+        {
+          "kind": "block",
+          "length": 1,
+          "height": 0.7
+        },
+        {
+          "kind": "gap",
+          "width": 3.2
+        },
+        {
+          "kind": "ground",
+          "length": 6
+        }
+      ],
+      "clearsAsDrawn": false,
+      "clearsAfterFixIt": false
+    },
+    {
+      "index": 38,
+      "theme": "a mix of a vault, a gap and a bar",
+      "setting": "a market square",
+      "level": 5,
+      "said": "Market square line links a high stall vault, a near-max fountain gap and a sign-to-sign swing over the basin.",
+      "problems": [],
+      "layout": [
+        {
+          "kind": "ground",
+          "length": 5
+        },
+        {
+          "kind": "block",
+          "length": 0.8,
+          "height": 1.25
+        },
+        {
+          "kind": "ground",
+          "length": 2.5
+        },
+        {
+          "kind": "gap",
+          "width": 3.9
+        },
+        {
+          "kind": "ground",
+          "length": 1.2
+        },
+        {
+          "kind": "bar",
+          "height": 2.5
+        },
+        {
+          "kind": "gap",
+          "width": 5.8
+        },
+        {
+          "kind": "bar",
+          "height": 2.5
+        },
+        {
+          "kind": "block",
+          "length": 0.6,
+          "height": 1.1
+        },
+        {
+          "kind": "ground",
+          "length": 3
+        }
+      ],
+      "clearsAsDrawn": false,
+      "clearsAfterFixIt": false
+    },
+    {
+      "index": 39,
+      "theme": "something unusual that a designer would not think of",
+      "setting": "a market square",
+      "level": 5,
+      "said": "A cramped market circuit that vaults stall crates and climbs the hull of a beached fishing boat turned into the square's central roof.",
+      "problems": [],
+      "layout": [
+        {
+          "kind": "ground",
+          "length": 2.5
+        },
+        {
+          "kind": "block",
+          "length": 0.8,
+          "height": 0.55
+        },
+        {
+          "kind": "gap",
+          "width": 3.85
+        },
+        {
+          "kind": "block",
+          "length": 0.7,
+          "height": 0.95
+        },
+        {
+          "kind": "ground",
+          "length": 1.5
+        },
+        {
+          "kind": "gap",
+          "width": 3.9
+        },
+        {
+          "kind": "block",
+          "length": 1.2,
+          "height": 2.3
+        },
+        {
+          "kind": "bar",
+          "height": 2.7
+        },
+        {
+          "kind": "ground",
+          "length": 3.5
+        }
+      ],
+      "clearsAsDrawn": false,
+      "clearsAfterFixIt": false
+    },
+    {
+      "index": 40,
+      "theme": "a wide gap that needs a long run-up and jump",
+      "setting": "a rooftop",
+      "level": 1,
+      "said": "A breezy rooftop stretch with a long approach leading to a wide open gap.",
+      "problems": [],
+      "layout": [
+        {
+          "kind": "ground",
+          "length": 12
+        },
+        {
+          "kind": "gap",
+          "width": 3
+        },
+        {
+          "kind": "ground",
+          "length": 10
+        }
+      ],
+      "clearsAsDrawn": true,
+      "clearsAfterFixIt": true,
+      "moves": [
+        "gap jump",
+        "jump"
+      ],
+      "fixed": false
+    },
+    {
+      "index": 41,
+      "theme": "a chain of blocks of rising height, like stairs of different sizes",
+      "setting": "a rooftop",
+      "level": 1,
+      "said": "A gentle rooftop stair of four steadily rising blocks forming an easy ascent.",
+      "problems": [],
+      "layout": [
+        {
+          "kind": "ground",
+          "length": 6
+        },
+        {
+          "kind": "block",
+          "length": 1.8,
+          "height": 0.4
+        },
+        {
+          "kind": "block",
+          "length": 2.2,
+          "height": 0.65
+        },
+        {
+          "kind": "block",
+          "length": 2,
+          "height": 0.85
+        },
+        {
+          "kind": "block",
+          "length": 2.8,
+          "height": 1.05
+        },
+        {
+          "kind": "ground",
+          "length": 6
+        }
+      ],
+      "clearsAsDrawn": true,
+      "clearsAfterFixIt": true,
+      "moves": [
+        "jump"
+      ],
+      "fixed": false
+    },
+    {
+      "index": 42,
+      "theme": "a block to vault, then a gap to jump",
+      "setting": "a rooftop",
+      "level": 2,
+      "said": "Low rooftop wall to vault then a short open gap to clear.",
+      "problems": [],
+      "layout": [
+        {
+          "kind": "ground",
+          "length": 7
+        },
+        {
+          "kind": "block",
+          "length": 1,
+          "height": 0.8
+        },
+        {
+          "kind": "ground",
+          "length": 5
+        },
+        {
+          "kind": "gap",
+          "width": 2.2
+        },
+        {
+          "kind": "ground",
+          "length": 7
+        }
+      ],
+      "clearsAsDrawn": false,
+      "clearsAfterFixIt": false
+    },
+    {
+      "index": 43,
+      "theme": "a tall wall to climb, then a drop to the ground",
+      "setting": "a rooftop",
+      "level": 2,
+      "said": "A simple rooftop with a high climb up and a straight drop down to the finish.",
+      "problems": [],
+      "layout": [
+        {
+          "kind": "ground",
+          "length": 8
+        },
+        {
+          "kind": "block",
+          "length": 6,
+          "height": 1.9
+        },
+        {
+          "kind": "ground",
+          "length": 8
+        }
+      ],
+      "clearsAsDrawn": false,
+      "fixSteps": [
+        "Made \"Block\" smaller (1.9 m down to 0.9 m high), the most one jump can climb."
+      ],
+      "clearsAfterFixIt": true,
+      "moves": [
+        "jump"
+      ],
+      "fixed": true
+    },
+    {
+      "index": 44,
+      "theme": "two or three bars to swing across wide water",
+      "setting": "a rooftop",
+      "level": 3,
+      "said": "Rooftop water gap with a low parapet vault leading into three steady swings to the next roof.",
+      "problems": [],
+      "layout": [
+        {
+          "kind": "ground",
+          "length": 5
+        },
+        {
+          "kind": "block",
+          "length": 1,
+          "height": 0.9
+        },
+        {
+          "kind": "gap",
+          "width": 1.6
+        },
+        {
+          "kind": "bar",
+          "height": 2.4
+        },
+        {
+          "kind": "gap",
+          "width": 3
+        },
+        {
+          "kind": "bar",
+          "height": 2.5
+        },
+        {
+          "kind": "gap",
+          "width": 3
+        },
+        {
+          "kind": "bar",
+          "height": 2.5
+        },
+        {
+          "kind": "gap",
+          "width": 1.6
+        },
+        {
+          "kind": "ground",
+          "length": 6
+        }
+      ],
+      "clearsAsDrawn": false,
+      "clearsAfterFixIt": false
+    },
+    {
+      "index": 45,
+      "theme": "a gap that a bar could be used to skip across",
+      "setting": "a rooftop",
+      "level": 3,
+      "said": "Rooftop service lane with a wall vault, a wide gap crossed by double swing bars, and a low unit to vault.",
+      "problems": [],
+      "layout": [
+        {
+          "kind": "ground",
+          "length": 5
+        },
+        {
+          "kind": "block",
+          "length": 1,
+          "height": 1.1
+        },
+        {
+          "kind": "ground",
+          "length": 3
+        },
+        {
+          "kind": "gap",
+          "width": 6.5
+        },
+        {
+          "kind": "bar",
+          "height": 2.3
+        },
+        {
+          "kind": "bar",
+          "height": 2.5
+        },
+        {
+          "kind": "ground",
+          "length": 4
+        },
+        {
+          "kind": "block",
+          "length": 2,
+          "height": 0.8
+        },
+        {
+          "kind": "ground",
+          "length": 5
+        }
+      ],
+      "clearsAsDrawn": false,
+      "clearsAfterFixIt": false
+    },
+    {
+      "index": 46,
+      "theme": "a high platform, a drop to the ground, then another gap",
+      "setting": "a rooftop",
+      "level": 4,
+      "said": "A tall rooftop ledge drops to a tight landing before a long precise leap over the gap.",
+      "problems": [],
+      "layout": [
+        {
+          "kind": "ground",
+          "length": 7
+        },
+        {
+          "kind": "block",
+          "length": 3,
+          "height": 2.1
+        },
+        {
+          "kind": "ground",
+          "length": 3.2
+        },
+        {
+          "kind": "gap",
+          "width": 3.6
+        },
+        {
+          "kind": "ground",
+          "length": 3.5
+        },
+        {
+          "kind": "gap",
+          "width": 3.3
+        },
+        {
+          "kind": "ground",
+          "length": 7
+        }
+      ],
+      "clearsAsDrawn": false,
+      "fixSteps": [
+        "Made \"Block\" smaller (2.1 m down to 0.9 m high), the most one jump can climb."
+      ],
+      "clearsAfterFixIt": true,
+      "moves": [
+        "gap jump",
+        "jump"
+      ],
+      "fixed": true
+    },
+    {
+      "index": 47,
+      "theme": "low blocks close together that set a rhythm",
+      "setting": "a rooftop",
+      "level": 4,
+      "said": "Fast rooftop rhythm over three tight low ledges then a gap and high final vault.",
+      "problems": [],
+      "layout": [
+        {
+          "kind": "ground",
+          "length": 5
+        },
+        {
+          "kind": "block",
+          "length": 0.7,
+          "height": 0.5
+        },
+        {
+          "kind": "ground",
+          "length": 1.4
+        },
+        {
+          "kind": "block",
+          "length": 0.6,
+          "height": 0.85
+        },
+        {
+          "kind": "ground",
+          "length": 1.3
+        },
+        {
+          "kind": "block",
+          "length": 0.7,
+          "height": 0.6
+        },
+        {
+          "kind": "gap",
+          "width": 2.8
+        },
+        {
+          "kind": "ground",
+          "length": 2
+        },
+        {
+          "kind": "block",
+          "length": 1,
+          "height": 1.25
+        },
+        {
+          "kind": "ground",
+          "length": 5
+        }
+      ],
+      "clearsAsDrawn": false,
+      "clearsAfterFixIt": false
+    },
+    {
+      "index": 48,
+      "theme": "a mix of a vault, a gap and a bar",
+      "setting": "a rooftop",
+      "level": 5,
+      "said": "Tight rooftop line linking a high vault into a near-limit gap and a high bar swing to the exit.",
+      "problems": [],
+      "layout": [
+        {
+          "kind": "ground",
+          "length": 5
+        },
+        {
+          "kind": "block",
+          "length": 0.8,
+          "height": 1.25
+        },
+        {
+          "kind": "ground",
+          "length": 3
+        },
+        {
+          "kind": "gap",
+          "width": 3.85
+        },
+        {
+          "kind": "ground",
+          "length": 2
+        },
+        {
+          "kind": "bar",
+          "height": 2.6
+        },
+        {
+          "kind": "ground",
+          "length": 5
+        }
+      ],
+      "clearsAsDrawn": false,
+      "clearsAfterFixIt": false
+    },
+    {
+      "index": 49,
+      "theme": "something unusual that a designer would not think of",
+      "setting": "a rooftop",
+      "level": 5,
+      "said": "A tight rooftop lane weaving over a grounded light aircraft fuselage and its tilted wings.",
+      "problems": [],
+      "layout": [
+        {
+          "kind": "ground",
+          "length": 3
+        },
+        {
+          "kind": "block",
+          "length": 0.6,
+          "height": 1.3
+        },
+        {
+          "kind": "gap",
+          "width": 3.8
+        },
+        {
+          "kind": "block",
+          "length": 1,
+          "height": 2
+        },
+        {
+          "kind": "ground",
+          "length": 1.4
+        },
+        {
+          "kind": "bar",
+          "height": 2.7
+        },
+        {
+          "kind": "gap",
+          "width": 3.9
+        },
+        {
+          "kind": "block",
+          "length": 0.5,
+          "height": 0.35
+        },
+        {
+          "kind": "gap",
+          "width": 3.7
+        },
+        {
+          "kind": "ground",
+          "length": 3.5
+        }
+      ],
+      "clearsAsDrawn": false,
+      "clearsAfterFixIt": false
+    },
+    {
+      "index": 50,
+      "theme": "a wide gap that needs a long run-up and jump",
+      "setting": "a railway yard",
+      "level": 1,
+      "said": "A railway yard straight with a long run-up to clear a wide gap.",
+      "problems": [],
+      "layout": [
+        {
+          "kind": "ground",
+          "length": 12
+        },
+        {
+          "kind": "gap",
+          "width": 2
+        },
+        {
+          "kind": "ground",
+          "length": 6
+        }
+      ],
+      "clearsAsDrawn": true,
+      "clearsAfterFixIt": true,
+      "moves": [
+        "gap jump",
+        "jump"
+      ],
+      "fixed": false
+    },
+    {
+      "index": 51,
+      "theme": "a chain of blocks of rising height, like stairs of different sizes",
+      "setting": "a railway yard",
+      "level": 1,
+      "said": "Gentle stepped crates rising like stairs along the railway yard.",
+      "problems": [],
+      "layout": [
+        {
+          "kind": "ground",
+          "length": 6
+        },
+        {
+          "kind": "block",
+          "length": 2,
+          "height": 0.4
+        },
+        {
+          "kind": "block",
+          "length": 2,
+          "height": 0.75
+        },
+        {
+          "kind": "block",
+          "length": 2,
+          "height": 1
+        },
+        {
+          "kind": "block",
+          "length": 2,
+          "height": 1.25
+        },
+        {
+          "kind": "ground",
+          "length": 6
+        }
+      ],
+      "clearsAsDrawn": true,
+      "clearsAfterFixIt": true,
+      "moves": [
+        "jump"
+      ],
+      "fixed": false
+    },
+    {
+      "index": 52,
+      "theme": "a block to vault, then a gap to jump",
+      "setting": "a railway yard",
+      "level": 2,
+      "said": "A gentle railway yard route vaulting a low cargo crate then hopping a narrow track gap.",
+      "problems": [],
+      "layout": [
+        {
+          "kind": "ground",
+          "length": 6
+        },
+        {
+          "kind": "block",
+          "length": 1,
+          "height": 0.9
+        },
+        {
+          "kind": "ground",
+          "length": 4
+        },
+        {
+          "kind": "gap",
+          "width": 1.8
+        },
+        {
+          "kind": "ground",
+          "length": 6
+        }
+      ],
+      "clearsAsDrawn": false,
+      "clearsAfterFixIt": false
+    },
+    {
+      "index": 53,
+      "theme": "a tall wall to climb, then a drop to the ground",
+      "setting": "a railway yard",
+      "level": 2,
+      "said": "A gentle railway yard line with a low pallet to vault and a tall container wall to climb before dropping to the yard floor.",
+      "problems": [],
+      "layout": [
+        {
+          "kind": "ground",
+          "length": 6
+        },
+        {
+          "kind": "block",
+          "length": 1,
+          "height": 0.7
+        },
+        {
+          "kind": "ground",
+          "length": 4
+        },
+        {
+          "kind": "block",
+          "length": 1.2,
+          "height": 1.9
+        },
+        {
+          "kind": "ground",
+          "length": 9
+        }
+      ],
+      "clearsAsDrawn": false,
+      "fixSteps": [
+        "Made \"Block\" smaller (1.9 m down to 0.9 m high), the most one jump can climb."
+      ],
+      "clearsAfterFixIt": true,
+      "moves": [
+        "jump"
+      ],
+      "fixed": true
+    },
+    {
+      "index": 54,
+      "theme": "two or three bars to swing across wide water",
+      "setting": "a railway yard",
+      "level": 3,
+      "said": "Old signal gantries span a wide flooded channel between low freight platforms in the yard.",
+      "problems": [],
+      "layout": [
+        {
+          "kind": "ground",
+          "length": 5
+        },
+        {
+          "kind": "block",
+          "length": 2,
+          "height": 0.9
+        },
+        {
+          "kind": "gap",
+          "width": 2.5
+        },
+        {
+          "kind": "bar",
+          "height": 2.2
+        },
+        {
+          "kind": "gap",
+          "width": 3
+        },
+        {
+          "kind": "bar",
+          "height": 2.4
+        },
+        {
+          "kind": "gap",
+          "width": 3
+        },
+        {
+          "kind": "bar",
+          "height": 2.4
+        },
+        {
+          "kind": "gap",
+          "width": 2
+        },
+        {
+          "kind": "ground",
+          "length": 6
+        }
+      ],
+      "clearsAsDrawn": false,
+      "clearsAfterFixIt": false
+    },
+    {
+      "index": 55,
+      "theme": "a gap that a bar could be used to skip across",
+      "setting": "a railway yard",
+      "level": 3,
+      "said": "Railway yard line vaulting a sleeper crate, swinging on a gantry bar over flooded tracks, then climbing a freight container.",
+      "problems": [],
+      "layout": [
+        {
+          "kind": "ground",
+          "length": 6
+        },
+        {
+          "kind": "block",
+          "length": 1,
+          "height": 0.9
+        },
+        {
+          "kind": "ground",
+          "length": 4
+        },
+        {
+          "kind": "gap",
+          "width": 2.5
+        },
+        {
+          "kind": "bar",
+          "height": 2.4
+        },
+        {
+          "kind": "gap",
+          "width": 2.7
+        },
+        {
+          "kind": "ground",
+          "length": 3.5
+        },
+        {
+          "kind": "block",
+          "length": 1.2,
+          "height": 1.6
+        },
+        {
+          "kind": "ground",
+          "length": 6
+        }
+      ],
+      "clearsAsDrawn": false,
+      "clearsAfterFixIt": false
+    },
+    {
+      "index": 56,
+      "theme": "a high platform, a drop to the ground, then another gap",
+      "setting": "a railway yard",
+      "level": 4,
+      "said": "A tight railway yard sprint climbs a high cargo platform, drops sharply to the tracks, then hits a long second gap with little room to recover.",
+      "problems": [],
+      "layout": [
+        {
+          "kind": "ground",
+          "length": 4
+        },
+        {
+          "kind": "block",
+          "length": 5,
+          "height": 2
+        },
+        {
+          "kind": "gap",
+          "width": 3
+        },
+        {
+          "kind": "ground",
+          "length": 2.5
+        },
+        {
+          "kind": "gap",
+          "width": 3.4
+        },
+        {
+          "kind": "ground",
+          "length": 5
+        }
+      ],
+      "clearsAsDrawn": false,
+      "fixSteps": [
+        "Made \"Block\" smaller (2.0 m down to 0.9 m high), the most one jump can climb."
+      ],
+      "clearsAfterFixIt": true,
+      "moves": [
+        "gap jump",
+        "jump"
+      ],
+      "fixed": true
+    },
+    {
+      "index": 57,
+      "theme": "low blocks close together that set a rhythm",
+      "setting": "a railway yard",
+      "level": 4,
+      "said": "A railway yard rhythm of three tight sleeper vaults builds speed toward a tall container climb.",
+      "problems": [],
+      "layout": [
+        {
+          "kind": "ground",
+          "length": 6
+        },
+        {
+          "kind": "block",
+          "length": 0.9,
+          "height": 0.6
+        },
+        {
+          "kind": "ground",
+          "length": 1.7
+        },
+        {
+          "kind": "block",
+          "length": 0.9,
+          "height": 0.9
+        },
+        {
+          "kind": "ground",
+          "length": 1.5
+        },
+        {
+          "kind": "block",
+          "length": 0.9,
+          "height": 0.65
+        },
+        {
+          "kind": "ground",
+          "length": 2
+        },
+        {
+          "kind": "block",
+          "length": 1.8,
+          "height": 1.4
+        },
+        {
+          "kind": "ground",
+          "length": 6
+        }
+      ],
+      "clearsAsDrawn": false,
+      "fixSteps": [
+        "Made \"Block\" smaller (1.4 m down to 0.9 m high), the most one jump can climb."
+      ],
+      "clearsAfterFixIt": true,
+      "moves": [
+        "jump"
+      ],
+      "fixed": true
+    },
+    {
+      "index": 58,
+      "theme": "a mix of a vault, a gap and a bar",
+      "setting": "a railway yard",
+      "level": 5,
+      "said": "Tight rail yard line with a high crate vault, a near-max track gap and signal bars swinging over flooded channels.",
+      "problems": [],
+      "layout": [
+        {
+          "kind": "ground",
+          "length": 3
+        },
+        {
+          "kind": "block",
+          "length": 0.7,
+          "height": 1.3
+        },
+        {
+          "kind": "gap",
+          "width": 3.8
+        },
+        {
+          "kind": "ground",
+          "length": 2
+        },
+        {
+          "kind": "bar",
+          "height": 2.5
+        },
+        {
+          "kind": "gap",
+          "width": 3.3
+        },
+        {
+          "kind": "bar",
+          "height": 2.65
+        },
+        {
+          "kind": "gap",
+          "width": 3.3
+        },
+        {
+          "kind": "bar",
+          "height": 2.6
+        },
+        {
+          "kind": "ground",
+          "length": 3.5
+        }
+      ],
+      "clearsAsDrawn": false,
+      "clearsAfterFixIt": false
+    },
+    {
+      "index": 59,
+      "theme": "something unusual that a designer would not think of",
+      "setting": "a railway yard",
+      "level": 5,
+      "said": "Tight railway yard using a flooded turntable pit and upended coal wagon for a precise vault-climb-swing line.",
+      "problems": [],
+      "layout": [
+        {
+          "kind": "ground",
+          "length": 2.5
+        },
+        {
+          "kind": "gap",
+          "width": 3.8
+        },
+        {
+          "kind": "block",
+          "length": 0.7,
+          "height": 0.9
+        },
+        {
+          "kind": "ground",
+          "length": 1.1
+        },
+        {
+          "kind": "gap",
+          "width": 3.9
+        },
+        {
+          "kind": "block",
+          "length": 1,
+          "height": 2.1
+        },
+        {
+          "kind": "gap",
+          "width": 6.8
+        },
+        {
+          "kind": "bar",
+          "height": 2.4
+        },
+        {
+          "kind": "bar",
+          "height": 2.6
+        },
+        {
+          "kind": "ground",
+          "length": 3
+        }
+      ],
+      "clearsAsDrawn": false,
+      "clearsAfterFixIt": false
+    },
+    {
+      "index": 60,
+      "theme": "a wide gap that needs a long run-up and jump",
+      "setting": "a beach",
+      "level": 1,
+      "said": "A sunny beach stretch with a long sandy run-up to clear a wide water gap.",
+      "problems": [],
+      "layout": [
+        {
+          "kind": "ground",
+          "length": 12
+        },
+        {
+          "kind": "gap",
+          "width": 3
+        },
+        {
+          "kind": "ground",
+          "length": 6
+        }
+      ],
+      "clearsAsDrawn": true,
+      "clearsAfterFixIt": true,
+      "moves": [
+        "gap jump",
+        "jump"
+      ],
+      "fixed": false
+    },
+    {
+      "index": 61,
+      "theme": "a chain of blocks of rising height, like stairs of different sizes",
+      "setting": "a beach",
+      "level": 1,
+      "said": "Gentle beach stairs rising gradually from the sand with low wide steps.",
+      "problems": [],
+      "layout": [
+        {
+          "kind": "ground",
+          "length": 6
+        },
+        {
+          "kind": "block",
+          "length": 2,
+          "height": 0.4
+        },
+        {
+          "kind": "block",
+          "length": 2,
+          "height": 0.6
+        },
+        {
+          "kind": "block",
+          "length": 2,
+          "height": 0.8
+        },
+        {
+          "kind": "block",
+          "length": 2,
+          "height": 1
+        },
+        {
+          "kind": "ground",
+          "length": 6
+        }
+      ],
+      "clearsAsDrawn": true,
+      "clearsAfterFixIt": true,
+      "moves": [
+        "jump"
+      ],
+      "fixed": false
+    },
+    {
+      "index": 62,
+      "theme": "a block to vault, then a gap to jump",
+      "setting": "a beach",
+      "level": 2,
+      "said": "A breezy beach run with a low dune wall to vault and a small tidal gap to clear.",
+      "problems": [],
+      "layout": [
+        {
+          "kind": "ground",
+          "length": 6
+        },
+        {
+          "kind": "block",
+          "length": 0.8,
+          "height": 0.8
+        },
+        {
+          "kind": "ground",
+          "length": 4
+        },
+        {
+          "kind": "gap",
+          "width": 2
+        },
+        {
+          "kind": "ground",
+          "length": 6
+        }
+      ],
+      "clearsAsDrawn": false,
+      "clearsAfterFixIt": false
+    },
+    {
+      "index": 63,
+      "theme": "a tall wall to climb, then a drop to the ground",
+      "setting": "a beach",
+      "level": 2,
+      "said": "A sunny beach run with a tall dune wall to climb and a soft drop back to flat sand.",
+      "problems": [],
+      "layout": [
+        {
+          "kind": "ground",
+          "length": 6
+        },
+        {
+          "kind": "block",
+          "length": 2,
+          "height": 1.7
+        },
+        {
+          "kind": "ground",
+          "length": 5
+        },
+        {
+          "kind": "gap",
+          "width": 1.5
+        },
+        {
+          "kind": "ground",
+          "length": 4
+        },
+        {
+          "kind": "block",
+          "length": 1,
+          "height": 0.8
+        },
+        {
+          "kind": "ground",
+          "length": 6
+        }
+      ],
+      "clearsAsDrawn": false,
+      "clearsAfterFixIt": false
+    },
+    {
+      "index": 64,
+      "theme": "two or three bars to swing across wide water",
+      "setting": "a beach",
+      "level": 3,
+      "said": "Beach dune vault into a three-bar swing over a wide tide pool to the pier with a final hop.",
+      "problems": [],
+      "layout": [
+        {
+          "kind": "ground",
+          "length": 6
+        },
+        {
+          "kind": "block",
+          "length": 1,
+          "height": 0.9
+        },
+        {
+          "kind": "ground",
+          "length": 3
+        },
+        {
+          "kind": "gap",
+          "width": 6.5
+        },
+        {
+          "kind": "bar",
+          "height": 2.4
+        },
+        {
+          "kind": "bar",
+          "height": 2.4
+        },
+        {
+          "kind": "bar",
+          "height": 2.3
+        },
+        {
+          "kind": "ground",
+          "length": 5
+        },
+        {
+          "kind": "gap",
+          "width": 2
+        },
+        {
+          "kind": "ground",
+          "length": 5
+        }
+      ],
+      "clearsAsDrawn": false,
+      "clearsAfterFixIt": false
+    },
+    {
+      "index": 65,
+      "theme": "a gap that a bar could be used to skip across",
+      "setting": "a beach",
+      "level": 3,
+      "said": "Sunny beach lane with a wide tidal channel swung over on a bar and little hops.",
+      "problems": [],
+      "layout": [
+        {
+          "kind": "ground",
+          "length": 5
+        },
+        {
+          "kind": "block",
+          "length": 1,
+          "height": 0.7
+        },
+        {
+          "kind": "ground",
+          "length": 4
+        },
+        {
+          "kind": "gap",
+          "width": 3
+        },
+        {
+          "kind": "bar",
+          "height": 2.4
+        },
+        {
+          "kind": "gap",
+          "width": 3.5
+        },
+        {
+          "kind": "ground",
+          "length": 5
+        },
+        {
+          "kind": "gap",
+          "width": 2.5
+        },
+        {
+          "kind": "ground",
+          "length": 6
+        }
+      ],
+      "clearsAsDrawn": false,
+      "clearsAfterFixIt": false
+    },
+    {
+      "index": 66,
+      "theme": "a high platform, a drop to the ground, then another gap",
+      "setting": "a beach",
+      "level": 4,
+      "said": "Beach lifeguard platform drops sharply to sand and then forces a long leap over a tidal channel.",
+      "problems": [],
+      "layout": [
+        {
+          "kind": "ground",
+          "length": 6
+        },
+        {
+          "kind": "block",
+          "length": 3,
+          "height": 2
+        },
+        {
+          "kind": "ground",
+          "length": 4
+        },
+        {
+          "kind": "gap",
+          "width": 3.6
+        },
+        {
+          "kind": "ground",
+          "length": 6
+        }
+      ],
+      "clearsAsDrawn": false,
+      "fixSteps": [
+        "Made \"Block\" smaller (2.0 m down to 0.9 m high), the most one jump can climb."
+      ],
+      "clearsAfterFixIt": true,
+      "moves": [
+        "gap jump",
+        "jump"
+      ],
+      "fixed": true
+    },
+    {
+      "index": 67,
+      "theme": "low blocks close together that set a rhythm",
+      "setting": "a beach",
+      "level": 4,
+      "said": "A beach sand sprint with tight repeating low hurdles leading to a long water skip.",
+      "problems": [],
+      "layout": [
+        {
+          "kind": "ground",
+          "length": 4
+        },
+        {
+          "kind": "block",
+          "length": 0.7,
+          "height": 0.5
+        },
+        {
+          "kind": "ground",
+          "length": 1.7
+        },
+        {
+          "kind": "block",
+          "length": 0.7,
+          "height": 0.6
+        },
+        {
+          "kind": "ground",
+          "length": 1.7
+        },
+        {
+          "kind": "block",
+          "length": 0.7,
+          "height": 0.55
+        },
+        {
+          "kind": "ground",
+          "length": 1.7
+        },
+        {
+          "kind": "block",
+          "length": 0.7,
+          "height": 0.5
+        },
+        {
+          "kind": "gap",
+          "width": 3.4
+        },
+        {
+          "kind": "ground",
+          "length": 5
+        }
+      ],
+      "clearsAsDrawn": false,
+      "clearsAfterFixIt": false
+    },
+    {
+      "index": 68,
+      "theme": "a mix of a vault, a gap and a bar",
+      "setting": "a beach",
+      "level": 5,
+      "said": "Tight beach line vaults a seawall then swings bar-to-bar over surf. ```json {\"items\": [{\"kind\": \"ground\", \"length\": 7}, {\"kind\": \"block\", \"length\": 0.6, \"height",
+      "problems": [
+        "no readable json"
+      ],
+      "layout": null
+    },
+    {
+      "index": 69,
+      "theme": "something unusual that a designer would not think of",
+      "setting": "a beach",
+      "level": 5,
+      "said": "Tidal lane threads beneath upturned rescue hulls and whale-rib bars over tight channels to a tall dune wall.",
+      "problems": [],
+      "layout": [
+        {
+          "kind": "ground",
+          "length": 2.5
+        },
+        {
+          "kind": "block",
+          "length": 0.8,
+          "height": 1.25
+        },
+        {
+          "kind": "gap",
+          "width": 3.9
+        },
+        {
+          "kind": "block",
+          "length": 0.5,
+          "height": 0.35
+        },
+        {
+          "kind": "bar",
+          "height": 2.2
+        },
+        {
+          "kind": "gap",
+          "width": 3.9
+        },
+        {
+          "kind": "bar",
+          "height": 2.4
+        },
+        {
+          "kind": "gap",
+          "width": 3.9
+        },
+        {
+          "kind": "block",
+          "length": 1.5,
+          "height": 1.6
+        },
+        {
+          "kind": "ground",
+          "length": 4
+        }
+      ],
+      "clearsAsDrawn": false,
+      "clearsAfterFixIt": false
+    },
+    {
+      "index": 70,
+      "theme": "a wide gap that needs a long run-up and jump",
+      "setting": "an old fort",
+      "level": 1,
+      "said": "A gentle dash through the old fort courtyard to clear the wide moat with a long easy jump.",
+      "problems": [],
+      "layout": [
+        {
+          "kind": "ground",
+          "length": 15
+        },
+        {
+          "kind": "gap",
+          "width": 3
+        },
+        {
+          "kind": "ground",
+          "length": 12
+        }
+      ],
+      "clearsAsDrawn": true,
+      "clearsAfterFixIt": true,
+      "moves": [
+        "gap jump",
+        "jump"
+      ],
+      "fixed": false
+    },
+    {
+      "index": 71,
+      "theme": "a chain of blocks of rising height, like stairs of different sizes",
+      "setting": "an old fort",
+      "level": 1,
+      "said": "Low stone steps rise gently through the old fort like a broad staircase.",
+      "problems": [],
+      "layout": [
+        {
+          "kind": "ground",
+          "length": 5
+        },
+        {
+          "kind": "block",
+          "length": 2,
+          "height": 0.4
+        },
+        {
+          "kind": "block",
+          "length": 2,
+          "height": 0.65
+        },
+        {
+          "kind": "block",
+          "length": 1.8,
+          "height": 0.85
+        },
+        {
+          "kind": "block",
+          "length": 1.6,
+          "height": 1.05
+        },
+        {
+          "kind": "ground",
+          "length": 5
+        }
+      ],
+      "clearsAsDrawn": true,
+      "clearsAfterFixIt": true,
+      "moves": [
+        "jump"
+      ],
+      "fixed": false
+    },
+    {
+      "index": 72,
+      "theme": "a block to vault, then a gap to jump",
+      "setting": "an old fort",
+      "level": 2,
+      "said": "A short fort entry with a low wall vault and easy moat hop.",
+      "problems": [],
+      "layout": [
+        {
+          "kind": "ground",
+          "length": 6
+        },
+        {
+          "kind": "block",
+          "length": 0.8,
+          "height": 0.9
+        },
+        {
+          "kind": "ground",
+          "length": 4
+        },
+        {
+          "kind": "gap",
+          "width": 2
+        },
+        {
+          "kind": "ground",
+          "length": 6
+        }
+      ],
+      "clearsAsDrawn": false,
+      "clearsAfterFixIt": false
+    },
+    {
+      "index": 73,
+      "theme": "a tall wall to climb, then a drop to the ground",
+      "setting": "an old fort",
+      "level": 2,
+      "said": "A simple old fort approach with a low vault, a tall wall climb, and a soft drop back to level ground.",
+      "problems": [],
+      "layout": [
+        {
+          "kind": "ground",
+          "length": 12
+        },
+        {
+          "kind": "block",
+          "length": 1,
+          "height": 0.8
+        },
+        {
+          "kind": "ground",
+          "length": 6
+        },
+        {
+          "kind": "block",
+          "length": 1.5,
+          "height": 2.2
+        },
+        {
+          "kind": "ground",
+          "length": 10
+        }
+      ],
+      "clearsAsDrawn": false,
+      "fixSteps": [
+        "Made \"Block\" smaller (2.2 m down to 0.9 m high), the most one jump can climb."
+      ],
+      "clearsAfterFixIt": true,
+      "moves": [
+        "jump"
+      ],
+      "fixed": true
+    },
+    {
+      "index": 74,
+      "theme": "two or three bars to swing across wide water",
+      "setting": "an old fort",
+      "level": 3,
+      "said": "Old fort moat with a low wall vault, three-bar swing over wide water, and a high wall climb into the keep.",
+      "problems": [],
+      "layout": [
+        {
+          "kind": "ground",
+          "length": 5
+        },
+        {
+          "kind": "block",
+          "length": 0.8,
+          "height": 1
+        },
+        {
+          "kind": "ground",
+          "length": 4
+        },
+        {
+          "kind": "gap",
+          "width": 9
+        },
+        {
+          "kind": "bar",
+          "height": 2.3
+        },
+        {
+          "kind": "bar",
+          "height": 2.4
+        },
+        {
+          "kind": "bar",
+          "height": 2.4
+        },
+        {
+          "kind": "ground",
+          "length": 2
+        },
+        {
+          "kind": "block",
+          "length": 1,
+          "height": 1.5
+        },
+        {
+          "kind": "ground",
+          "length": 5
+        }
+      ],
+      "clearsAsDrawn": false,
+      "clearsAfterFixIt": false
+    },
+    {
+      "index": 75,
+      "theme": "a gap that a bar could be used to skip across",
+      "setting": "an old fort",
+      "level": 3,
+      "said": "Old fort moat crossed by a single bar swing over water, with a low wall to vault and a high ledge to climb.",
+      "problems": [],
+      "layout": [
+        {
+          "kind": "ground",
+          "length": 6
+        },
+        {
+          "kind": "block",
+          "length": 1,
+          "height": 0.9
+        },
+        {
+          "kind": "ground",
+          "length": 4
+        },
+        {
+          "kind": "gap",
+          "width": 2.7
+        },
+        {
+          "kind": "bar",
+          "height": 2.4
+        },
+        {
+          "kind": "gap",
+          "width": 2.8
+        },
+        {
+          "kind": "ground",
+          "length": 6
+        },
+        {
+          "kind": "block",
+          "length": 2,
+          "height": 1.8
+        },
+        {
+          "kind": "ground",
+          "length": 6
+        }
+      ],
+      "clearsAsDrawn": false,
+      "clearsAfterFixIt": false
+    },
+    {
+      "index": 76,
+      "theme": "a high platform, a drop to the ground, then another gap",
+      "setting": "an old fort",
+      "level": 4,
+      "said": "Fort courtyard with low outer wall, tall tower platform, sharp drop and twin moat jumps.",
+      "problems": [],
+      "layout": [
+        {
+          "kind": "ground",
+          "length": 6
+        },
+        {
+          "kind": "block",
+          "length": 1,
+          "height": 0.9
+        },
+        {
+          "kind": "ground",
+          "length": 3
+        },
+        {
+          "kind": "block",
+          "length": 3,
+          "height": 2
+        },
+        {
+          "kind": "ground",
+          "length": 2
+        },
+        {
+          "kind": "gap",
+          "width": 3.8
+        },
+        {
+          "kind": "ground",
+          "length": 2
+        },
+        {
+          "kind": "gap",
+          "width": 3.2
+        },
+        {
+          "kind": "ground",
+          "length": 5
+        }
+      ],
+      "clearsAsDrawn": false,
+      "clearsAfterFixIt": false
+    },
+    {
+      "index": 77,
+      "theme": "low blocks close together that set a rhythm",
+      "setting": "an old fort",
+      "level": 4,
+      "said": "Quick vault rhythm over three low fort walls with a long gap to a landing ledge.",
+      "problems": [],
+      "layout": [
+        {
+          "kind": "ground",
+          "length": 3.5
+        },
+        {
+          "kind": "block",
+          "length": 0.7,
+          "height": 0.5
+        },
+        {
+          "kind": "ground",
+          "length": 1
+        },
+        {
+          "kind": "block",
+          "length": 0.7,
+          "height": 0.65
+        },
+        {
+          "kind": "ground",
+          "length": 1
+        },
+        {
+          "kind": "block",
+          "length": 0.7,
+          "height": 0.85
+        },
+        {
+          "kind": "gap",
+          "width": 3.4
+        },
+        {
+          "kind": "block",
+          "length": 2,
+          "height": 0.9
+        },
+        {
+          "kind": "ground",
+          "length": 4
+        }
+      ],
+      "clearsAsDrawn": true,
+      "clearsAfterFixIt": true,
+      "moves": [
+        "gap jump",
+        "jump"
+      ],
+      "fixed": false
+    },
+    {
+      "index": 78,
+      "theme": "a mix of a vault, a gap and a bar",
+      "setting": "an old fort",
+      "level": 5,
+      "said": "Old fort wall vault into twin high-bar swing",
+      "problems": [
+        "no readable json"
+      ],
+      "layout": null
+    },
+    {
+      "index": 79,
+      "theme": "something unusual that a designer would not think of",
+      "setting": "an old fort",
+      "level": 5,
+      "said": "An old coastal fort built around a rusted iron steamship that now forms its flooded inner yard.",
+      "problems": [],
+      "layout": [
+        {
+          "kind": "ground",
+          "length": 4
+        },
+        {
+          "kind": "gap",
+          "width": 3.9
+        },
+        {
+          "kind": "ground",
+          "length": 1.2
+        },
+        {
+          "kind": "block",
+          "length": 0.8,
+          "height": 1.3
+        },
+        {
+          "kind": "gap",
+          "width": 3.7
+        },
+        {
+          "kind": "ground",
+          "length": 1.3
+        },
+        {
+          "kind": "block",
+          "length": 1,
+          "height": 2.1
+        },
+        {
+          "kind": "bar",
+          "height": 2.7
+        },
+        {
+          "kind": "gap",
+          "width": 3.9
+        },
+        {
+          "kind": "ground",
+          "length": 5
+        }
+      ],
+      "clearsAsDrawn": false,
+      "clearsAfterFixIt": false
+    },
+    {
+      "index": 80,
+      "theme": "a wide gap that needs a long run-up and jump",
+      "setting": "a campus",
+      "level": 1,
+      "said": "A simple campus lane with a long run-up to clear a wide gap.",
+      "problems": [],
+      "layout": [
+        {
+          "kind": "ground",
+          "length": 15
+        },
+        {
+          "kind": "gap",
+          "width": 3
+        },
+        {
+          "kind": "ground",
+          "length": 10
+        }
+      ],
+      "clearsAsDrawn": true,
+      "clearsAfterFixIt": true,
+      "moves": [
+        "gap jump",
+        "jump"
+      ],
+      "fixed": false
+    },
+    {
+      "index": 81,
+      "theme": "a chain of blocks of rising height, like stairs of different sizes",
+      "setting": "a campus",
+      "level": 1,
+      "said": "A gentle campus stair of four low blocks rising step by step.",
+      "problems": [],
+      "layout": [
+        {
+          "kind": "ground",
+          "length": 6
+        },
+        {
+          "kind": "block",
+          "length": 1.2,
+          "height": 0.4
+        },
+        {
+          "kind": "block",
+          "length": 1.4,
+          "height": 0.6
+        },
+        {
+          "kind": "block",
+          "length": 1.6,
+          "height": 0.8
+        },
+        {
+          "kind": "block",
+          "length": 1.8,
+          "height": 0.95
+        },
+        {
+          "kind": "ground",
+          "length": 6
+        }
+      ],
+      "clearsAsDrawn": true,
+      "clearsAfterFixIt": true,
+      "moves": [
+        "jump"
+      ],
+      "fixed": false
+    },
+    {
+      "index": 82,
+      "theme": "a block to vault, then a gap to jump",
+      "setting": "a campus",
+      "level": 2,
+      "said": "A campus walk links a low vault wall to a short hop over a decorative channel.",
+      "problems": [],
+      "layout": [
+        {
+          "kind": "ground",
+          "length": 6
+        },
+        {
+          "kind": "block",
+          "length": 0.8,
+          "height": 0.9
+        },
+        {
+          "kind": "ground",
+          "length": 4
+        },
+        {
+          "kind": "gap",
+          "width": 1.8
+        },
+        {
+          "kind": "ground",
+          "length": 6
+        }
+      ],
+      "clearsAsDrawn": false,
+      "clearsAfterFixIt": false
+    },
+    {
+      "index": 83,
+      "theme": "a tall wall to climb, then a drop to the ground",
+      "setting": "a campus",
+      "level": 2,
+      "said": "A campus path with a tall wall and a stepped drop to the lower lawn.",
+      "problems": [],
+      "layout": [
+        {
+          "kind": "ground",
+          "length": 7
+        },
+        {
+          "kind": "block",
+          "length": 0.8,
+          "height": 0.9
+        },
+        {
+          "kind": "ground",
+          "length": 4
+        },
+        {
+          "kind": "block",
+          "length": 1.2,
+          "height": 1.6
+        },
+        {
+          "kind": "ground",
+          "length": 8
+        }
+      ],
+      "clearsAsDrawn": false,
+      "clearsAfterFixIt": false
+    },
+    {
+      "index": 84,
+      "theme": "two or three bars to swing across wide water",
+      "setting": "a campus",
+      "level": 3,
+      "said": "A campus quad where a long reflecting pool is crossed by three spaced hang bars.",
+      "problems": [],
+      "layout": [
+        {
+          "kind": "ground",
+          "length": 6
+        },
+        {
+          "kind": "gap",
+          "width": 2.5
+        },
+        {
+          "kind": "bar",
+          "height": 2.4
+        },
+        {
+          "kind": "gap",
+          "width": 2.8
+        },
+        {
+          "kind": "bar",
+          "height": 2.5
+        },
+        {
+          "kind": "gap",
+          "width": 2.8
+        },
+        {
+          "kind": "bar",
+          "height": 2.4
+        },
+        {
+          "kind": "gap",
+          "width": 2.5
+        },
+        {
+          "kind": "ground",
+          "length": 7
+        }
+      ],
+      "clearsAsDrawn": true,
+      "clearsAfterFixIt": true,
+      "moves": [
+        "gap jump",
+        "jump",
+        "swing"
+      ],
+      "fixed": false
+    },
+    {
+      "index": 85,
+      "theme": "a gap that a bar could be used to skip across",
+      "setting": "a campus",
+      "level": 3,
+      "said": "Campus lane vaults a planter, swings over a fountain pool on a high bar, then clears a low wall to the quad.",
+      "problems": [],
+      "layout": [
+        {
+          "kind": "ground",
+          "length": 5
+        },
+        {
+          "kind": "block",
+          "length": 1,
+          "height": 0.9
+        },
+        {
+          "kind": "gap",
+          "width": 2.2
+        },
+        {
+          "kind": "bar",
+          "height": 2.4
+        },
+        {
+          "kind": "gap",
+          "width": 2.2
+        },
+        {
+          "kind": "ground",
+          "length": 4
+        },
+        {
+          "kind": "block",
+          "length": 1.2,
+          "height": 1.1
+        },
+        {
+          "kind": "ground",
+          "length": 6
+        }
+      ],
+      "clearsAsDrawn": false,
+      "clearsAfterFixIt": false
+    },
+    {
+      "index": 86,
+      "theme": "a high platform, a drop to the ground, then another gap",
+      "setting": "a campus",
+      "level": 4,
+      "said": "Tight campus line from high platform to short landing then back-to-back near-limit gaps.",
+      "problems": [],
+      "layout": [
+        {
+          "kind": "ground",
+          "length": 6
+        },
+        {
+          "kind": "block",
+          "length": 5,
+          "height": 2.2
+        },
+        {
+          "kind": "gap",
+          "width": 3.7
+        },
+        {
+          "kind": "ground",
+          "length": 2
+        },
+        {
+          "kind": "gap",
+          "width": 3.8
+        },
+        {
+          "kind": "ground",
+          "length": 6
+        }
+      ],
+      "clearsAsDrawn": false,
+      "fixSteps": [
+        "Made \"Block\" smaller (2.2 m down to 0.9 m high), the most one jump can climb."
+      ],
+      "clearsAfterFixIt": true,
+      "moves": [
+        "gap jump",
+        "jump"
+      ],
+      "fixed": true
+    },
+    {
+      "index": 87,
+      "theme": "low blocks close together that set a rhythm",
+      "setting": "a campus",
+      "level": 4,
+      "said": "A tight campus sprint linking four low vault blocks in quick rhythmic succession.",
+      "problems": [],
+      "layout": [
+        {
+          "kind": "ground",
+          "length": 6
+        },
+        {
+          "kind": "block",
+          "length": 0.7,
+          "height": 0.55
+        },
+        {
+          "kind": "ground",
+          "length": 1.4
+        },
+        {
+          "kind": "block",
+          "length": 0.7,
+          "height": 0.75
+        },
+        {
+          "kind": "ground",
+          "length": 1.3
+        },
+        {
+          "kind": "block",
+          "length": 0.7,
+          "height": 0.9
+        },
+        {
+          "kind": "ground",
+          "length": 1.5
+        },
+        {
+          "kind": "block",
+          "length": 0.9,
+          "height": 1.15
+        },
+        {
+          "kind": "ground",
+          "length": 6
+        }
+      ],
+      "clearsAsDrawn": false,
+      "clearsAfterFixIt": false
+    },
+    {
+      "index": 88,
+      "theme": "a mix of a vault, a gap and a bar",
+      "setting": "a campus",
+      "level": 5,
+      "said": "Tight campus courtyard linking a limit-height vault to a near-max gap and a double high-bar swing over water.",
+      "problems": [],
+      "layout": [
+        {
+          "kind": "ground",
+          "length": 4
+        },
+        {
+          "kind": "block",
+          "length": 0.5,
+          "height": 1.3
+        },
+        {
+          "kind": "ground",
+          "length": 1
+        },
+        {
+          "kind": "gap",
+          "width": 3.9
+        },
+        {
+          "kind": "ground",
+          "length": 1.1
+        },
+        {
+          "kind": "bar",
+          "height": 2.7
+        },
+        {
+          "kind": "gap",
+          "width": 3.4
+        },
+        {
+          "kind": "bar",
+          "height": 2.6
+        },
+        {
+          "kind": "gap",
+          "width": 3.4
+        },
+        {
+          "kind": "ground",
+          "length": 4
+        }
+      ],
+      "clearsAsDrawn": false,
+      "clearsAfterFixIt": false
+    },
+    {
+      "index": 89,
+      "theme": "something unusual that a designer would not think of",
+      "setting": "a campus",
+      "level": 5,
+      "said": "The campus is built inside a drained reservoir where lecture halls occupy the old spillway towers and silos.",
+      "problems": [],
+      "layout": [
+        {
+          "kind": "ground",
+          "length": 2.5
+        },
+        {
+          "kind": "gap",
+          "width": 3.85
+        },
+        {
+          "kind": "ground",
+          "length": 1.8
+        },
+        {
+          "kind": "block",
+          "length": 0.5,
+          "height": 1.3
+        },
+        {
+          "kind": "gap",
+          "width": 3.75
+        },
+        {
+          "kind": "block",
+          "length": 1.1,
+          "height": 2.1
+        },
+        {
+          "kind": "gap",
+          "width": 6.8
+        },
+        {
+          "kind": "bar",
+          "height": 2.7
+        },
+        {
+          "kind": "bar",
+          "height": 2.65
+        },
+        {
+          "kind": "ground",
+          "length": 2.8
+        }
+      ],
+      "clearsAsDrawn": false,
+      "clearsAfterFixIt": false
+    },
+    {
+      "index": 90,
+      "theme": "a wide gap that needs a long run-up and jump",
+      "setting": "a farm",
+      "level": 1,
+      "said": "A long flat farm track gives plenty of speed to clear a wide irrigation ditch.",
+      "problems": [],
+      "layout": [
+        {
+          "kind": "ground",
+          "length": 12
+        },
+        {
+          "kind": "gap",
+          "width": 3
+        },
+        {
+          "kind": "ground",
+          "length": 6
+        }
+      ],
+      "clearsAsDrawn": true,
+      "clearsAfterFixIt": true,
+      "moves": [
+        "gap jump",
+        "jump"
+      ],
+      "fixed": false
+    },
+    {
+      "index": 91,
+      "theme": "a chain of blocks of rising height, like stairs of different sizes",
+      "setting": "a farm",
+      "level": 1,
+      "said": "Hay bales stacked as low uneven stairs rise gently across the farm lane.",
+      "problems": [],
+      "layout": [
+        {
+          "kind": "ground",
+          "length": 6
+        },
+        {
+          "kind": "block",
+          "length": 1.2,
+          "height": 0.35
+        },
+        {
+          "kind": "block",
+          "length": 1.4,
+          "height": 0.6
+        },
+        {
+          "kind": "block",
+          "length": 1.6,
+          "height": 0.85
+        },
+        {
+          "kind": "block",
+          "length": 2,
+          "height": 1
+        },
+        {
+          "kind": "ground",
+          "length": 6
+        }
+      ],
+      "clearsAsDrawn": true,
+      "clearsAfterFixIt": true,
+      "moves": [
+        "jump"
+      ],
+      "fixed": false
+    },
+    {
+      "index": 92,
+      "theme": "a block to vault, then a gap to jump",
+      "setting": "a farm",
+      "level": 2,
+      "said": "A breezy farm lane with a low hay bale vault then a short hop over a creek.",
+      "problems": [],
+      "layout": [
+        {
+          "kind": "ground",
+          "length": 6
+        },
+        {
+          "kind": "block",
+          "length": 1,
+          "height": 0.7
+        },
+        {
+          "kind": "ground",
+          "length": 4
+        },
+        {
+          "kind": "gap",
+          "width": 2.2
+        },
+        {
+          "kind": "ground",
+          "length": 6
+        }
+      ],
+      "clearsAsDrawn": false,
+      "clearsAfterFixIt": false
+    },
+    {
+      "index": 93,
+      "theme": "a tall wall to climb, then a drop to the ground",
+      "setting": "a farm",
+      "level": 2,
+      "said": "A gentle farm route over a small ditch to a tall barn wall climb and a drop back to the field.",
+      "problems": [],
+      "layout": [
+        {
+          "kind": "ground",
+          "length": 8
+        },
+        {
+          "kind": "gap",
+          "width": 1.5
+        },
+        {
+          "kind": "ground",
+          "length": 5
+        },
+        {
+          "kind": "block",
+          "length": 4,
+          "height": 1.9
+        },
+        {
+          "kind": "ground",
+          "length": 8
+        }
+      ],
+      "clearsAsDrawn": false,
+      "fixSteps": [
+        "Made \"Block\" smaller (1.9 m down to 0.9 m high), the most one jump can climb."
+      ],
+      "clearsAfterFixIt": true,
+      "moves": [
+        "gap jump",
+        "jump"
+      ],
+      "fixed": true
+    },
+    {
+      "index": 94,
+      "theme": "two or three bars to swing across wide water",
+      "setting": "a farm",
+      "level": 3,
+      "said": "A farm crossing with a low hay-bale vault leading to three rails over a wide irrigation channel.",
+      "problems": [],
+      "layout": [
+        {
+          "kind": "ground",
+          "length": 5
+        },
+        {
+          "kind": "block",
+          "length": 1,
+          "height": 0.9
+        },
+        {
+          "kind": "ground",
+          "length": 3
+        },
+        {
+          "kind": "gap",
+          "width": 8
+        },
+        {
+          "kind": "bar",
+          "height": 2.2
+        },
+        {
+          "kind": "bar",
+          "height": 2.4
+        },
+        {
+          "kind": "bar",
+          "height": 2.3
+        },
+        {
+          "kind": "ground",
+          "length": 4
+        },
+        {
+          "kind": "block",
+          "length": 1.2,
+          "height": 1.4
+        },
+        {
+          "kind": "ground",
+          "length": 5
+        }
+      ],
+      "clearsAsDrawn": false,
+      "clearsAfterFixIt": false
+    },
+    {
+      "index": 95,
+      "theme": "a gap that a bar could be used to skip across",
+      "setting": "a farm",
+      "level": 3,
+      "said": "Farm lane with low hay bales, a water gap with a swing bar, and a tall stack to climb at the end. ```json { \"items\": [ {\"kind\": \"ground\", \"length\": 6}, {\"kind\":",
+      "problems": [
+        "no readable json"
+      ],
+      "layout": null
+    },
+    {
+      "index": 96,
+      "theme": "a high platform, a drop to the ground, then another gap",
+      "setting": "a farm",
+      "level": 4,
+      "said": "A farm hayloft climb onto a tall platform, a short drop landing and a long trough jump.",
+      "problems": [],
+      "layout": [
+        {
+          "kind": "ground",
+          "length": 7
+        },
+        {
+          "kind": "block",
+          "length": 3.5,
+          "height": 2.1
+        },
+        {
+          "kind": "gap",
+          "width": 2.2
+        },
+        {
+          "kind": "ground",
+          "length": 2
+        },
+        {
+          "kind": "gap",
+          "width": 3.6
+        },
+        {
+          "kind": "ground",
+          "length": 7
+        }
+      ],
+      "clearsAsDrawn": false,
+      "clearsAfterFixIt": false
+    },
+    {
+      "index": 97,
+      "theme": "low blocks close together that set a rhythm",
+      "setting": "a farm",
+      "level": 4,
+      "said": "Quick vaults over low farm bales in tight rhythm then a timed ditch jump.",
+      "problems": [],
+      "layout": [
+        {
+          "kind": "ground",
+          "length": 5
+        },
+        {
+          "kind": "block",
+          "length": 0.8,
+          "height": 0.75
+        },
+        {
+          "kind": "ground",
+          "length": 1.4
+        },
+        {
+          "kind": "block",
+          "length": 0.8,
+          "height": 0.9
+        },
+        {
+          "kind": "ground",
+          "length": 1.4
+        },
+        {
+          "kind": "block",
+          "length": 0.8,
+          "height": 1.1
+        },
+        {
+          "kind": "ground",
+          "length": 2.4
+        },
+        {
+          "kind": "gap",
+          "width": 3.3
+        },
+        {
+          "kind": "ground",
+          "length": 5
+        }
+      ],
+      "clearsAsDrawn": false,
+      "clearsAfterFixIt": false
+    },
+    {
+      "index": 98,
+      "theme": "a mix of a vault, a gap and a bar",
+      "setting": "a farm",
+      "level": 5,
+      "said": "Tight farm lane with a high hay-bale vault, a long slurry ditch, twin barn beams to swing between, and a final drain leap.",
+      "problems": [],
+      "layout": [
+        {
+          "kind": "ground",
+          "length": 2.5
+        },
+        {
+          "kind": "block",
+          "length": 0.6,
+          "height": 1.3
+        },
+        {
+          "kind": "ground",
+          "length": 1
+        },
+        {
+          "kind": "gap",
+          "width": 3.8
+        },
+        {
+          "kind": "ground",
+          "length": 1
+        },
+        {
+          "kind": "bar",
+          "height": 2.7
+        },
+        {
+          "kind": "bar",
+          "height": 2.65
+        },
+        {
+          "kind": "ground",
+          "length": 1
+        },
+        {
+          "kind": "gap",
+          "width": 3.9
+        },
+        {
+          "kind": "ground",
+          "length": 2.5
+        }
+      ],
+      "clearsAsDrawn": false,
+      "clearsAfterFixIt": false
+    },
+    {
+      "index": 99,
+      "theme": "something unusual that a designer would not think of",
+      "setting": "a farm",
+      "level": 5,
+      "said": "A tight farm lane winds around a giant worm-compost tower with close hay-bale vaults, a silo climb wall and beehive bars over slurry.",
+      "problems": [],
+      "layout": [
+        {
+          "kind": "ground",
+          "length": 3
+        },
+        {
+          "kind": "block",
+          "length": 0.6,
+          "height": 1.3
+        },
+        {
+          "kind": "gap",
+          "width": 3.9
+        },
+        {
+          "kind": "block",
+          "length": 0.5,
+          "height": 0.35
+        },
+        {
+          "kind": "gap",
+          "width": 3.8
+        },
+        {
+          "kind": "block",
+          "length": 1.2,
+          "height": 2
+        },
+        {
+          "kind": "bar",
+          "height": 2.7
+        },
+        {
+          "kind": "gap",
+          "width": 5
+        },
+        {
+          "kind": "bar",
+          "height": 2.7
+        },
+        {
+          "kind": "ground",
+          "length": 4
+        }
+      ],
+      "clearsAsDrawn": false,
+      "clearsAfterFixIt": false
+    }
+  ]
+}

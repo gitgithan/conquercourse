@@ -1,0 +1,14 @@
+{
+  "index": 86,
+  "theme": "a high platform, a drop to the ground, then another gap",
+  "setting": "a campus",
+  "level": 4,
+  "status": 200,
+  "ms": 10110,
+  "usage": {
+    "prompt_tokens": 454,
+    "completion_tokens": 2476,
+    "total_tokens": 2930
+  },
+  "reply": "Tight campus line from high platform to short landing then back-to-back near-limit gaps.\n\n```json\n{\"items\": [{\"kind\": \"ground\", \"length\": 6}, {\"kind\": \"block\", \"length\": 5, \"height\": 2.2}, {\"kind\": \"gap\", \"width\": 3.7}, {\"kind\": \"ground\", \"length\": 2}, {\"kind\": \"gap\", \"width\": 3.8}, {\"kind\": \"ground\", \"length\": 6}]}\n```"
+}

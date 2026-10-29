@@ -1,0 +1,14 @@
+{
+  "index": 22,
+  "theme": "a block to vault, then a gap to jump",
+  "setting": "a quarry",
+  "level": 2,
+  "status": 200,
+  "ms": 7145,
+  "usage": {
+    "prompt_tokens": 452,
+    "completion_tokens": 1546,
+    "total_tokens": 1998
+  },
+  "reply": "A gentle quarry line with a low vault ledge leading into a short water gap.\n```json\n{\n  \"items\": [\n    {\n      \"kind\": \"ground\",\n      \"length\": 6\n    },\n    {\n      \"kind\": \"block\",\n      \"length\": 1,\n      \"height\": 0.8\n    },\n    {\n      \"kind\": \"ground\",\n      \"length\": 4\n    },\n    {\n      \"kind\": \"gap\",\n      \"width\": 2.2\n    },\n    {\n      \"kind\": \"ground\",\n      \"length\": 6\n    }\n  ]\n}\n```"
+}

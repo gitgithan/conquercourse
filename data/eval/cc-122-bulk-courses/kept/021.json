@@ -1,0 +1,49 @@
+{
+  "index": 21,
+  "theme": "a chain of blocks of rising height, like stairs of different sizes",
+  "setting": "a quarry",
+  "level": 1,
+  "said": "Gentle quarry steps rising gradually as low uneven stairs for an easy climb.",
+  "layout": [
+    {
+      "kind": "ground",
+      "length": 5
+    },
+    {
+      "kind": "block",
+      "length": 1.8,
+      "height": 0.4
+    },
+    {
+      "kind": "block",
+      "length": 1.2,
+      "height": 0.6
+    },
+    {
+      "kind": "block",
+      "length": 1.4,
+      "height": 0.85
+    },
+    {
+      "kind": "block",
+      "length": 2,
+      "height": 1.1
+    },
+    {
+      "kind": "ground",
+      "length": 5
+    }
+  ],
+  "clearsAsDrawn": true,
+  "moves": [
+    "jump"
+  ],
+  "plan": {
+    "jumpXs": [
+      4.5,
+      23.78
+    ],
+    "releaseAfter": 60,
+    "bouncePress": 8
+  }
+}

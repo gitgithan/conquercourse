@@ -1,0 +1,35 @@
+{
+  "index": 40,
+  "theme": "a wide gap that needs a long run-up and jump",
+  "setting": "a rooftop",
+  "level": 1,
+  "said": "A breezy rooftop stretch with a long approach leading to a wide open gap.",
+  "layout": [
+    {
+      "kind": "ground",
+      "length": 12
+    },
+    {
+      "kind": "gap",
+      "width": 3
+    },
+    {
+      "kind": "ground",
+      "length": 10
+    }
+  ],
+  "clearsAsDrawn": true,
+  "moves": [
+    "gap jump",
+    "jump"
+  ],
+  "plan": {
+    "jumpXs": [
+      4.72,
+      19.5,
+      32.38
+    ],
+    "releaseAfter": 60,
+    "bouncePress": 8
+  }
+}

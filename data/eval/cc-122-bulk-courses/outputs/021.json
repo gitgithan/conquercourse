@@ -1,0 +1,14 @@
+{
+  "index": 21,
+  "theme": "a chain of blocks of rising height, like stairs of different sizes",
+  "setting": "a quarry",
+  "level": 1,
+  "status": 200,
+  "ms": 7208,
+  "usage": {
+    "prompt_tokens": 455,
+    "completion_tokens": 1892,
+    "total_tokens": 2347
+  },
+  "reply": "Gentle quarry steps rising gradually as low uneven stairs for an easy climb.\n\n```json\n{\n  \"items\": [\n    {\n      \"kind\": \"ground\",\n      \"length\": 5\n    },\n    {\n      \"kind\": \"block\",\n      \"length\": 1.8,\n      \"height\": 0.4\n    },\n    {\n      \"kind\": \"block\",\n      \"length\": 1.2,\n      \"height\": 0.6\n    },\n    {\n      \"kind\": \"block\",\n      \"length\": 1.4,\n      \"height\": 0.85\n    },\n    {\n      \"kind\": \"block\",\n      \"length\": 2,\n      \"height\": 1.1\n    },\n    {\n      \"kind\": \"ground\",\n      \"length\": 5\n    }\n  ]\n}\n```"
+}

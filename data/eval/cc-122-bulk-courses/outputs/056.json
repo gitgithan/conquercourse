@@ -1,0 +1,14 @@
+{
+  "index": 56,
+  "theme": "a high platform, a drop to the ground, then another gap",
+  "setting": "a railway yard",
+  "level": 4,
+  "status": 200,
+  "ms": 8661,
+  "usage": {
+    "prompt_tokens": 455,
+    "completion_tokens": 2395,
+    "total_tokens": 2850
+  },
+  "reply": "A tight railway yard sprint climbs a high cargo platform, drops sharply to the tracks, then hits a long second gap with little room to recover.\n```json\n{\n  \"items\": [\n    {\"kind\": \"ground\", \"length\": 4},\n    {\"kind\": \"block\", \"length\": 5, \"height\": 2},\n    {\"kind\": \"gap\", \"width\": 3},\n    {\"kind\": \"ground\", \"length\": 2.5},\n    {\"kind\": \"gap\", \"width\": 3.4},\n    {\"kind\": \"ground\", \"length\": 5}\n  ]\n}\n```"
+}
