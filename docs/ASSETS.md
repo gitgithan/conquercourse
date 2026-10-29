@@ -127,6 +127,7 @@
 | `public/assets/objects/rail-skate-02.glb` | handrail (follows stairs, posts uneven), 1.0 m high, 5,820 faces, 342 KB | park02, Neoclassicism Enthusiast | CC0 | same (round 2); editor-only test object |
 | `public/assets/objects/stairs-park-07.glb` | park stairs as a soft block, 0.7 m high, 5,820 faces, 346 KB | park07, Ajznponar | CC0 | same (round 2); editor-only test object |
 | `public/assets/objects/index.json` | maps each photo and box to its GLB, with height, extents, look and credit (ours) | ConquerCourse | same as each photo | `pipelines/ship_objects.py` |
+| `public/assets/objects/provenance.json` | one record per object: photo fingerprint and size, box, height, pipeline settings, credit line (ours; no photo inside) | ConquerCourse | same as each photo | `scripts/object-provenance.py` (CC-221) |
 - Each GLB is a skin only (no collision), made from one photo with open-weight models (SAM 3 and SAM 3D Objects, Meta; their licences are in `docs/PRIOR-WORK.md`); the sizes come from typical heights, not from the photo.
 - Not shipped: the two mural walls (`data/eval/cc-38-photo-to-3d/r3/mural0*/mesh.glb`), because a mural belongs to its artist even when the photo is CC0; the park06 object (a 33 m slab). park02 and park07 are in the editor for size tests only, judged "partly".
 - Kept outside git: the raw lifts (`raw.npz`, about 100 MB) and the privacy-masked photos in `../conquercourse-assets/cc-38-raw/` with `SHA256SUMS`.
