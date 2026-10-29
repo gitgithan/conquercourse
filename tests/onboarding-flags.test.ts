@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { FALL_SEEN, LAST_COURSE, NEXT_SEEN, TOUR_DONE, isReturning, rememberCourse, startRedirect, tourDecision, type Store } from '../src/ui/onboarding-flags';
+import { existsSync } from 'node:fs';
+import { FIRST_COURSE_ID, FALL_SEEN, LAST_COURSE, NEXT_SEEN, TOUR_DONE, isReturning, rememberCourse, startRedirect, tourDecision, type Store } from '../src/ui/onboarding-flags';
 import { movesFor } from '../src/ui/onboarding';
 import { generateCourse } from '../src/slice/generator';
 const defaultCourse = generateCourse(1);
@@ -37,7 +38,7 @@ describe('where a bare visit goes', () => {
     const s = store({ [TOUR_DONE]: '1', [LAST_COURSE]: '/assets/demo/lache.course.json' });
     expect(startRedirect({ search: '', store: s, automated: false })).toBe('?course=/assets/demo/lache.course.json&welcome=0');
     s.data[LAST_COURSE] = 'https://evil.example/x.course.json';
-    expect(startRedirect({ search: '', store: s, automated: false })).toBeNull();
+    expect(startRedirect({ search: '', store: s, automated: false })).toBe('?course=/assets/demo/training.course.json&welcome=0');
   });
   it('explicit links, automation and the off switch are left alone', () => {
     const s = store({ [TOUR_DONE]: '1', [LAST_COURSE]: '/assets/demo/lache.course.json' });
@@ -46,7 +47,8 @@ describe('where a bare visit goes', () => {
     expect(startRedirect({ search: '?onboarding=0', store: s, automated: false })).toBeNull();
     expect(startRedirect({ search: '?mode=editor', store: s, automated: false })).toBeNull();
   });
-  it('a first visit stays on the stock course while no first course is set', () => { expect(startRedirect({ search: '', store: store(), automated: false })).toBeNull(); });
+  it('a first visit starts on the Training course with the tour', () => { expect(startRedirect({ search: '', store: store(), automated: false })).toBe('?course=/assets/demo/training.course.json&tour=1'); });
+  it('the first course is a real file', () => { expect(existsSync(`public${FIRST_COURSE_ID}`)).toBe(true); });
   it('the last course is remembered only when it is a course file', () => {
     const s = store(); rememberCourse(s, new URLSearchParams('?course=/assets/demo/drop.course.json')); expect(s.data[LAST_COURSE]).toBe('/assets/demo/drop.course.json');
     const t = store(); rememberCourse(t, new URLSearchParams('?course=//evil.example/a.course.json')); expect(t.data[LAST_COURSE]).toBeUndefined();
