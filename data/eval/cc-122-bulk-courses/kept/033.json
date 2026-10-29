@@ -1,0 +1,43 @@
+{
+  "index": 33,
+  "theme": "a tall wall to climb, then a drop to the ground",
+  "setting": "a market square",
+  "level": 2,
+  "said": "A gentle market square dash over a low crate to climb a tall wall and drop back to the square.",
+  "layout": [
+    {
+      "kind": "ground",
+      "length": 6
+    },
+    {
+      "kind": "block",
+      "length": 1,
+      "height": 0.6
+    },
+    {
+      "kind": "ground",
+      "length": 3
+    },
+    {
+      "kind": "block",
+      "length": 2,
+      "height": 2
+    },
+    {
+      "kind": "ground",
+      "length": 6
+    }
+  ],
+  "clearsAsDrawn": false,
+  "moves": [
+    "jump"
+  ],
+  "plan": {
+    "jumpXs": [
+      4.5,
+      25.8
+    ],
+    "releaseAfter": 60,
+    "bouncePress": 8
+  }
+}

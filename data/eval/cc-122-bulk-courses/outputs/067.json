@@ -1,0 +1,14 @@
+{
+  "index": 67,
+  "theme": "low blocks close together that set a rhythm",
+  "setting": "a beach",
+  "level": 4,
+  "status": 200,
+  "ms": 17281,
+  "usage": {
+    "prompt_tokens": 449,
+    "completion_tokens": 3684,
+    "total_tokens": 4133
+  },
+  "reply": "A beach sand sprint with tight repeating low hurdles leading to a long water skip.\n\n```json\n{\n  \"items\": [\n    {\"kind\": \"ground\", \"length\": 4},\n    {\"kind\": \"block\", \"length\": 0.7, \"height\": 0.5},\n    {\"kind\": \"ground\", \"length\": 1.7},\n    {\"kind\": \"block\", \"length\": 0.7, \"height\": 0.6},\n    {\"kind\": \"ground\", \"length\": 1.7},\n    {\"kind\": \"block\", \"length\": 0.7, \"height\": 0.55},\n    {\"kind\": \"ground\", \"length\": 1.7},\n    {\"kind\": \"block\", \"length\": 0.7, \"height\": 0.5},\n    {\"kind\": \"gap\", \"width\": 3.4},\n    {\"kind\": \"ground\", \"length\": 5}\n  ]\n}\n```"
+}

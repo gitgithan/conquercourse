@@ -1,0 +1,14 @@
+{
+  "index": 80,
+  "theme": "a wide gap that needs a long run-up and jump",
+  "setting": "a campus",
+  "level": 1,
+  "status": 200,
+  "ms": 5066,
+  "usage": {
+    "prompt_tokens": 452,
+    "completion_tokens": 1224,
+    "total_tokens": 1676
+  },
+  "reply": "A simple campus lane with a long run-up to clear a wide gap.\n\n```json\n{\"items\": [{\"kind\":\"ground\",\"length\":15},{\"kind\":\"gap\",\"width\":3},{\"kind\":\"ground\",\"length\":10}]}\n```"
+}

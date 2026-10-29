@@ -1,0 +1,44 @@
+{
+  "index": 16,
+  "theme": "a high platform, a drop to the ground, then another gap",
+  "setting": "a harbour",
+  "level": 4,
+  "said": "A harbour quay with a tall container platform, a sharp drop to a narrow dock, then a wide water gap.",
+  "layout": [
+    {
+      "kind": "ground",
+      "length": 7
+    },
+    {
+      "kind": "block",
+      "length": 3.5,
+      "height": 2.4
+    },
+    {
+      "kind": "ground",
+      "length": 2.5
+    },
+    {
+      "kind": "gap",
+      "width": 3.7
+    },
+    {
+      "kind": "ground",
+      "length": 7
+    }
+  ],
+  "clearsAsDrawn": false,
+  "moves": [
+    "gap jump",
+    "jump"
+  ],
+  "plan": {
+    "jumpXs": [
+      4.5,
+      20.48,
+      31.08
+    ],
+    "releaseAfter": 60,
+    "bouncePress": 8
+  }
+}

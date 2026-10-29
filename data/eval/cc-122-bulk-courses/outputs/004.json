@@ -1,0 +1,14 @@
+{
+  "index": 4,
+  "theme": "two or three bars to swing across wide water",
+  "setting": "a school yard",
+  "level": 3,
+  "status": 200,
+  "ms": 25908,
+  "usage": {
+    "prompt_tokens": 451,
+    "completion_tokens": 5484,
+    "total_tokens": 5935
+  },
+  "reply": "A school yard bench vault leading into a three-bar monkey swing over a wide flooded play zone.\n\n```json\n{\n  \"items\": [\n    {\"kind\": \"ground\", \"length\": 5},\n    {\"kind\": \"block\", \"length\": 1, \"height\": 0.9},\n    {\"kind\": \"gap\", \"width\": 2.2},\n    {\"kind\": \"bar\", \"height\": 2.4},\n    {\"kind\": \"gap\", \"width\": 2.2},\n    {\"kind\": \"bar\", \"height\": 2.5},\n    {\"kind\": \"gap\", \"width\": 2.2},\n    {\"kind\": \"bar\", \"height\": 2.4},\n    {\"kind\": \"gap\", \"width\": 2.2},\n    {\"kind\": \"ground\", \"length\": 5}\n  ]\n}\n```"
+}

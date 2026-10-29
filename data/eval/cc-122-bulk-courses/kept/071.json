@@ -1,0 +1,49 @@
+{
+  "index": 71,
+  "theme": "a chain of blocks of rising height, like stairs of different sizes",
+  "setting": "an old fort",
+  "level": 1,
+  "said": "Low stone steps rise gently through the old fort like a broad staircase.",
+  "layout": [
+    {
+      "kind": "ground",
+      "length": 5
+    },
+    {
+      "kind": "block",
+      "length": 2,
+      "height": 0.4
+    },
+    {
+      "kind": "block",
+      "length": 2,
+      "height": 0.65
+    },
+    {
+      "kind": "block",
+      "length": 1.8,
+      "height": 0.85
+    },
+    {
+      "kind": "block",
+      "length": 1.6,
+      "height": 1.05
+    },
+    {
+      "kind": "ground",
+      "length": 5
+    }
+  ],
+  "clearsAsDrawn": true,
+  "moves": [
+    "jump"
+  ],
+  "plan": {
+    "jumpXs": [
+      4.5,
+      24.78
+    ],
+    "releaseAfter": 60,
+    "bouncePress": 8
+  }
+}

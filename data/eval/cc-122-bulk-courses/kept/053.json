@@ -1,0 +1,43 @@
+{
+  "index": 53,
+  "theme": "a tall wall to climb, then a drop to the ground",
+  "setting": "a railway yard",
+  "level": 2,
+  "said": "A gentle railway yard line with a low pallet to vault and a tall container wall to climb before dropping to the yard floor.",
+  "layout": [
+    {
+      "kind": "ground",
+      "length": 6
+    },
+    {
+      "kind": "block",
+      "length": 1,
+      "height": 0.7
+    },
+    {
+      "kind": "ground",
+      "length": 4
+    },
+    {
+      "kind": "block",
+      "length": 1.2,
+      "height": 1.9
+    },
+    {
+      "kind": "ground",
+      "length": 9
+    }
+  ],
+  "clearsAsDrawn": false,
+  "moves": [
+    "jump"
+  ],
+  "plan": {
+    "jumpXs": [
+      4.5,
+      28.76
+    ],
+    "releaseAfter": 60,
+    "bouncePress": 8
+  }
+}

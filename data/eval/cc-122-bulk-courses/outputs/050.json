@@ -1,0 +1,14 @@
+{
+  "index": 50,
+  "theme": "a wide gap that needs a long run-up and jump",
+  "setting": "a railway yard",
+  "level": 1,
+  "status": 200,
+  "ms": 5678,
+  "usage": {
+    "prompt_tokens": 453,
+    "completion_tokens": 1115,
+    "total_tokens": 1568
+  },
+  "reply": "A railway yard straight with a long run-up to clear a wide gap.\n```json\n{\"items\": [{\"kind\":\"ground\",\"length\":12},{\"kind\":\"gap\",\"width\":2},{\"kind\":\"ground\",\"length\":6}]}\n```"
+}

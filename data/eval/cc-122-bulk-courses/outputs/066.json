@@ -1,0 +1,14 @@
+{
+  "index": 66,
+  "theme": "a high platform, a drop to the ground, then another gap",
+  "setting": "a beach",
+  "level": 4,
+  "status": 200,
+  "ms": 18555,
+  "usage": {
+    "prompt_tokens": 454,
+    "completion_tokens": 3416,
+    "total_tokens": 3870
+  },
+  "reply": "Beach lifeguard platform drops sharply to sand and then forces a long leap over a tidal channel.\n\n```json\n{\n  \"items\": [\n    {\"kind\": \"ground\", \"length\": 6},\n    {\"kind\": \"block\", \"length\": 3, \"height\": 2},\n    {\"kind\": \"ground\", \"length\": 4},\n    {\"kind\": \"gap\", \"width\": 3.6},\n    {\"kind\": \"ground\", \"length\": 6}\n  ]\n}\n```"
+}

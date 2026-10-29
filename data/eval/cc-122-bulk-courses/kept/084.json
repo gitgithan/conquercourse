@@ -1,0 +1,66 @@
+{
+  "index": 84,
+  "theme": "two or three bars to swing across wide water",
+  "setting": "a campus",
+  "level": 3,
+  "said": "A campus quad where a long reflecting pool is crossed by three spaced hang bars.",
+  "layout": [
+    {
+      "kind": "ground",
+      "length": 6
+    },
+    {
+      "kind": "gap",
+      "width": 2.5
+    },
+    {
+      "kind": "bar",
+      "height": 2.4
+    },
+    {
+      "kind": "gap",
+      "width": 2.8
+    },
+    {
+      "kind": "bar",
+      "height": 2.5
+    },
+    {
+      "kind": "gap",
+      "width": 2.8
+    },
+    {
+      "kind": "bar",
+      "height": 2.4
+    },
+    {
+      "kind": "gap",
+      "width": 2.5
+    },
+    {
+      "kind": "ground",
+      "length": 7
+    }
+  ],
+  "clearsAsDrawn": true,
+  "moves": [
+    "gap jump",
+    "jump",
+    "swing"
+  ],
+  "plan": {
+    "jumpXs": [
+      4,
+      12,
+      31.1
+    ],
+    "releaseAfter": 60,
+    "bouncePress": 8,
+    "hands": true,
+    "hangTicks": [
+      30,
+      420,
+      240
+    ]
+  }
+}

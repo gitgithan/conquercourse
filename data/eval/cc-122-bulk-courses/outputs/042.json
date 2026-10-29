@@ -1,0 +1,14 @@
+{
+  "index": 42,
+  "theme": "a block to vault, then a gap to jump",
+  "setting": "a rooftop",
+  "level": 2,
+  "status": 200,
+  "ms": 8952,
+  "usage": {
+    "prompt_tokens": 451,
+    "completion_tokens": 2463,
+    "total_tokens": 2914
+  },
+  "reply": "Low rooftop wall to vault then a short open gap to clear.\n\n```json\n{\"items\": [{\"kind\":\"ground\",\"length\":7},{\"kind\":\"block\",\"length\":1,\"height\":0.8},{\"kind\":\"ground\",\"length\":5},{\"kind\":\"gap\",\"width\":2.2},{\"kind\":\"ground\",\"length\":7}]}\n```"
+}

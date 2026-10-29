@@ -1,0 +1,76 @@
+{
+  "experiment": "cc-122-bulk-courses",
+  "model": "meta-models/muse-spark-open-1026",
+  "summary": {
+    "asked": 100,
+    "gaveALayout": 95,
+    "clearsAsDrawn": 20,
+    "clearsAfterFixIt": 33,
+    "nearDuplicates": 4,
+    "distinctMoveSets": 3,
+    "moveSets": {
+      "gap jump+jump": 16,
+      "jump": 16,
+      "gap jump+jump+swing": 1
+    },
+    "byTheme": {
+      "a wide gap that needs a long run-up and jump": {
+        "asked": 10,
+        "kept": 9
+      },
+      "a chain of blocks of rising height, like stairs of different sizes": {
+        "asked": 10,
+        "kept": 9
+      },
+      "a block to vault, then a gap to jump": {
+        "asked": 10,
+        "kept": 0
+      },
+      "a tall wall to climb, then a drop to the ground": {
+        "asked": 10,
+        "kept": 7
+      },
+      "two or three bars to swing across wide water": {
+        "asked": 10,
+        "kept": 1
+      },
+      "a gap that a bar could be used to skip across": {
+        "asked": 10,
+        "kept": 0
+      },
+      "a high platform, a drop to the ground, then another gap": {
+        "asked": 10,
+        "kept": 5
+      },
+      "low blocks close together that set a rhythm": {
+        "asked": 10,
+        "kept": 2
+      },
+      "a mix of a vault, a gap and a bar": {
+        "asked": 10,
+        "kept": 0
+      },
+      "something unusual that a designer would not think of": {
+        "asked": 10,
+        "kept": 0
+      }
+    },
+    "totalTokens": 411268
+  },
+  "inputs": "outputs/*.json (prompt themes in scripts/bulk-courses-ask.ts)",
+  "note": "costs: token counts only; Baseten list price $1.25 in / $4.25 out per 1M",
+  "latency_seconds": {
+    "median": 14.8,
+    "p90": 30.6,
+    "worst": 38.1,
+    "best": 4.2,
+    "note": "4 calls at a time; max_tokens 12000 on the 36 re-asked, 4000 on the rest"
+  },
+  "tokens": {
+    "completion_median": 3239,
+    "completion_max": 10460,
+    "prompt_median": 452,
+    "total": 411268,
+    "cost_usd_at_list_price": 1.61
+  }
+}

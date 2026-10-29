@@ -1,0 +1,14 @@
+{
+  "index": 43,
+  "theme": "a tall wall to climb, then a drop to the ground",
+  "setting": "a rooftop",
+  "level": 2,
+  "status": 200,
+  "ms": 14603,
+  "usage": {
+    "prompt_tokens": 453,
+    "completion_tokens": 2702,
+    "total_tokens": 3155
+  },
+  "reply": "A simple rooftop with a high climb up and a straight drop down to the finish.\n\n```json\n{\n  \"items\": [\n    {\"kind\": \"ground\", \"length\": 8},\n    {\"kind\": \"block\", \"length\": 6, \"height\": 1.9},\n    {\"kind\": \"ground\", \"length\": 8}\n  ]\n}\n```"
+}

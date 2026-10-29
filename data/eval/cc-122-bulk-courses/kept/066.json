@@ -1,0 +1,44 @@
+{
+  "index": 66,
+  "theme": "a high platform, a drop to the ground, then another gap",
+  "setting": "a beach",
+  "level": 4,
+  "said": "Beach lifeguard platform drops sharply to sand and then forces a long leap over a tidal channel.",
+  "layout": [
+    {
+      "kind": "ground",
+      "length": 6
+    },
+    {
+      "kind": "block",
+      "length": 3,
+      "height": 2
+    },
+    {
+      "kind": "ground",
+      "length": 4
+    },
+    {
+      "kind": "gap",
+      "width": 3.6
+    },
+    {
+      "kind": "ground",
+      "length": 6
+    }
+  ],
+  "clearsAsDrawn": false,
+  "moves": [
+    "gap jump",
+    "jump"
+  ],
+  "plan": {
+    "jumpXs": [
+      4.5,
+      20.56,
+      30.08
+    ],
+    "releaseAfter": 60,
+    "bouncePress": 8
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "index": 34,
+  "theme": "two or three bars to swing across wide water",
+  "setting": "a market square",
+  "level": 3,
+  "status": 200,
+  "ms": 28186,
+  "usage": {
+    "prompt_tokens": 451,
+    "completion_tokens": 6302,
+    "total_tokens": 6753
+  },
+  "reply": "A market square where low stalls lead to a wide canal crossed by two swing bars.\n\n```json\n{\n  \"items\": [\n    {\"kind\": \"ground\", \"length\": 5},\n    {\"kind\": \"block\", \"length\": 1, \"height\": 0.9},\n    {\"kind\": \"ground\", \"length\": 3},\n    {\"kind\": \"gap\", \"width\": 2.4},\n    {\"kind\": \"bar\", \"height\": 2.3},\n    {\"kind\": \"gap\", \"width\": 2.8},\n    {\"kind\": \"bar\", \"height\": 2.4},\n    {\"kind\": \"gap\", \"width\": 2.4},\n    {\"kind\": \"ground\", \"length\": 5}\n  ]\n}\n```"
+}

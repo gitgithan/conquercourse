@@ -1,0 +1,14 @@
+{
+  "index": 6,
+  "theme": "a high platform, a drop to the ground, then another gap",
+  "setting": "a school yard",
+  "level": 4,
+  "status": 200,
+  "ms": 22846,
+  "usage": {
+    "prompt_tokens": 455,
+    "completion_tokens": 4679,
+    "total_tokens": 5134
+  },
+  "reply": "A tight schoolyard run climbs a tall platform then hits a precise drop and long gap.\n```json\n{\n  \"items\": [\n    {\"kind\": \"ground\", \"length\": 4},\n    {\"kind\": \"block\", \"length\": 3.5, \"height\": 2.1},\n    {\"kind\": \"gap\", \"width\": 3},\n    {\"kind\": \"ground\", \"length\": 2},\n    {\"kind\": \"gap\", \"width\": 3.6},\n    {\"kind\": \"ground\", \"length\": 5}\n  ]\n}\n```"
+}

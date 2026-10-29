@@ -1,0 +1,50 @@
+{
+  "index": 86,
+  "theme": "a high platform, a drop to the ground, then another gap",
+  "setting": "a campus",
+  "level": 4,
+  "said": "Tight campus line from high platform to short landing then back-to-back near-limit gaps.",
+  "layout": [
+    {
+      "kind": "ground",
+      "length": 6
+    },
+    {
+      "kind": "block",
+      "length": 5,
+      "height": 2.2
+    },
+    {
+      "kind": "gap",
+      "width": 3.7
+    },
+    {
+      "kind": "ground",
+      "length": 2
+    },
+    {
+      "kind": "gap",
+      "width": 3.8
+    },
+    {
+      "kind": "ground",
+      "length": 6
+    }
+  ],
+  "clearsAsDrawn": false,
+  "moves": [
+    "gap jump",
+    "jump"
+  ],
+  "plan": {
+    "jumpXs": [
+      4.72,
+      12.78,
+      16.44,
+      23.88,
+      33.58
+    ],
+    "releaseAfter": 60,
+    "bouncePress": 8
+  }
+}

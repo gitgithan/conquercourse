@@ -1,0 +1,49 @@
+{
+  "index": 1,
+  "theme": "a chain of blocks of rising height, like stairs of different sizes",
+  "setting": "a school yard",
+  "level": 1,
+  "said": "A small schoolyard staircase of low blocks rises step by step for an easy vaulting warm-up.",
+  "layout": [
+    {
+      "kind": "ground",
+      "length": 8
+    },
+    {
+      "kind": "block",
+      "length": 2,
+      "height": 0.4
+    },
+    {
+      "kind": "block",
+      "length": 2,
+      "height": 0.6
+    },
+    {
+      "kind": "block",
+      "length": 2,
+      "height": 0.8
+    },
+    {
+      "kind": "block",
+      "length": 2.5,
+      "height": 1.05
+    },
+    {
+      "kind": "ground",
+      "length": 6
+    }
+  ],
+  "clearsAsDrawn": true,
+  "moves": [
+    "jump"
+  ],
+  "plan": {
+    "jumpXs": [
+      4.5,
+      29.96
+    ],
+    "releaseAfter": 60,
+    "bouncePress": 8
+  }
+}

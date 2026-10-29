@@ -1,0 +1,35 @@
+{
+  "index": 70,
+  "theme": "a wide gap that needs a long run-up and jump",
+  "setting": "an old fort",
+  "level": 1,
+  "said": "A gentle dash through the old fort courtyard to clear the wide moat with a long easy jump.",
+  "layout": [
+    {
+      "kind": "ground",
+      "length": 15
+    },
+    {
+      "kind": "gap",
+      "width": 3
+    },
+    {
+      "kind": "ground",
+      "length": 12
+    }
+  ],
+  "clearsAsDrawn": true,
+  "moves": [
+    "gap jump",
+    "jump"
+  ],
+  "plan": {
+    "jumpXs": [
+      4.72,
+      22.48,
+      37.4
+    ],
+    "releaseAfter": 60,
+    "bouncePress": 8
+  }
+}

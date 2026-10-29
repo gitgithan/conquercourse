@@ -1,0 +1,36 @@
+{
+  "index": 43,
+  "theme": "a tall wall to climb, then a drop to the ground",
+  "setting": "a rooftop",
+  "level": 2,
+  "said": "A simple rooftop with a high climb up and a straight drop down to the finish.",
+  "layout": [
+    {
+      "kind": "ground",
+      "length": 8
+    },
+    {
+      "kind": "block",
+      "length": 6,
+      "height": 1.9
+    },
+    {
+      "kind": "ground",
+      "length": 8
+    }
+  ],
+  "clearsAsDrawn": false,
+  "moves": [
+    "jump"
+  ],
+  "plan": {
+    "jumpXs": [
+      4.72,
+      15.06,
+      19.8,
+      29.3
+    ],
+    "releaseAfter": 60,
+    "bouncePress": 8
+  }
+}

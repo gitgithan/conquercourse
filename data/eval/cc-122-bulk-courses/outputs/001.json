@@ -1,0 +1,14 @@
+{
+  "index": 1,
+  "theme": "a chain of blocks of rising height, like stairs of different sizes",
+  "setting": "a school yard",
+  "level": 1,
+  "status": 200,
+  "ms": 9005,
+  "usage": {
+    "prompt_tokens": 455,
+    "completion_tokens": 2363,
+    "total_tokens": 2818
+  },
+  "reply": "A small schoolyard staircase of low blocks rises step by step for an easy vaulting warm-up.\n```json\n{\"items\": [{\"kind\":\"ground\",\"length\":8}, {\"kind\":\"block\",\"length\":2,\"height\":0.4}, {\"kind\":\"block\",\"length\":2,\"height\":0.6}, {\"kind\":\"block\",\"length\":2,\"height\":0.8}, {\"kind\":\"block\",\"length\":2.5,\"height\":1.05}, {\"kind\":\"ground\",\"length\":6}]}\n```"
+}

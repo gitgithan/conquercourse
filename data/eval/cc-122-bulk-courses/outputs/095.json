@@ -1,0 +1,14 @@
+{
+  "index": 95,
+  "theme": "a gap that a bar could be used to skip across",
+  "setting": "a farm",
+  "level": 3,
+  "status": 200,
+  "ms": 17840,
+  "usage": {
+    "prompt_tokens": 452,
+    "completion_tokens": 4000,
+    "total_tokens": 4452
+  },
+  "reply": "Farm lane with low hay bales, a water gap with a swing bar, and a tall stack to climb at the end.\n\n```json\n{\n  \"items\": [\n    {\"kind\": \"ground\", \"length\": 6},\n    {\"kind\": \"block\", \"length\": 1, \"height\": 0.8},\n    {\""
+}

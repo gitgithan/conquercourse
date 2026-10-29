@@ -1,0 +1,34 @@
+{
+  "index": 23,
+  "theme": "a tall wall to climb, then a drop to the ground",
+  "setting": "a quarry",
+  "level": 2,
+  "said": "A quarry lane with a tall wall to climb and a straight drop back to flat ground.",
+  "layout": [
+    {
+      "kind": "ground",
+      "length": 8
+    },
+    {
+      "kind": "block",
+      "length": 1,
+      "height": 1.8
+    },
+    {
+      "kind": "ground",
+      "length": 8
+    }
+  ],
+  "clearsAsDrawn": false,
+  "moves": [
+    "jump"
+  ],
+  "plan": {
+    "jumpXs": [
+      4.5,
+      24.78
+    ],
+    "releaseAfter": 60,
+    "bouncePress": 8
+  }
+}
