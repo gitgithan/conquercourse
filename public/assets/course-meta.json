@@ -1,0 +1,54 @@
+{
+  "demo/training": {
+    "obstacles": 6,
+    "idealTicks": 3283
+  },
+  "experiments/osm/montmartre-paris": {
+    "obstacles": 3,
+    "idealTicks": 560
+  },
+  "experiments/osm/eixample-barcelona": {
+    "obstacles": 2,
+    "idealTicks": 817
+  },
+  "experiments/osm/circular-quay-sydney": {
+    "obstacles": 4,
+    "idealTicks": 702
+  },
+  "experiments/osm/san-francisco-lombard": {
+    "obstacles": 4,
+    "idealTicks": 621
+  },
+  "demo/park-run": {
+    "obstacles": 7,
+    "idealTicks": 879
+  },
+  "demo/coaster-two-hills": {
+    "obstacles": 1,
+    "idealTicks": 1329
+  },
+  "demo/launch-bar": {
+    "obstacles": 1,
+    "idealTicks": 805
+  },
+  "demo/band": {
+    "obstacles": 1,
+    "idealTicks": 908
+  },
+  "demo/drone": {
+    "obstacles": 1,
+    "idealTicks": 1044
+  },
+  "demo/cannon": {
+    "obstacles": 1,
+    "idealTicks": 450
+  },
+  "demo/stack": {
+    "obstacles": 1,
+    "idealTicks": 363
+  },
+  "demo/plank-two": {
+    "obstacles": 2,
+    "idealTicks": 1031
+  }
+}

@@ -25,6 +25,7 @@
     "motion": "node scripts/motion.mjs",
     "perf": "node scripts/perf-check.mjs --budget",
     "thumbs": "tsx scripts/make-thumbs.ts",
+    "course-meta": "tsx scripts/course-meta.ts",
     "piece-icons": "tsx scripts/make-piece-icons.ts"
   },
   "dependencies": {
