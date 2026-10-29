@@ -23,3 +23,9 @@
 ## Not verified
 - Trackpad and touch gestures; desktop only at 1280 px.
 - The Fix menu proxies were pressed for Fix it only; the other three press the same hidden originals.
+
+## Known gap
+- The 1024 px layout check (`scripts/editor-layout-check.mjs`) fails on the Add pieces click and the top-bar fit, because the bar is now fuller.
+- The owner decided desktop is 1280 px only, so this is not fixed here.
+- 1280 px and 1920 px states pass.
+- `npm run test:quick` on the VM: one failure, the demo-folder sample course test (131 s, slow VM), in code this change does not touch.
