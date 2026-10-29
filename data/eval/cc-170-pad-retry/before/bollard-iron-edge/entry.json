@@ -2,7 +2,7 @@
   "photo": "bollard-iron-edge",
   "mask_seconds": 1.6,
   "lift_seconds": 9.7,
-  "wall_seconds": 183.0,
+  "wall_seconds": 183,
   "mask": {
     "how": "text",
     "score": 0.91796875,
@@ -21,9 +21,9 @@
   "padretry": {
     "enabled": false,
     "border": {
-      "top": 0.0,
+      "top": 0,
       "bottom": 0.32916666666666666,
-      "left": 0.0,
+      "left": 0,
       "right": 0.38129770992366413
     },
     "padded": false,

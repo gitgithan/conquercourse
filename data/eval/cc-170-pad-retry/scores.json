@@ -46,7 +46,7 @@
         "tilt_deg": 0.53,
         "padded": false,
         "touches_border": false,
-        "max_border_share": 0.0,
+        "max_border_share": 0,
         "usable": false,
         "tool_check_bad": false
       },
@@ -56,7 +56,7 @@
         "tilt_deg": 0.21,
         "padded": false,
         "touches_border": false,
-        "max_border_share": 0.0,
+        "max_border_share": 0,
         "usable": false,
         "tool_check_bad": false
       }
@@ -71,7 +71,7 @@
         "tilt_deg": 0.1,
         "padded": false,
         "touches_border": false,
-        "max_border_share": 0.0,
+        "max_border_share": 0,
         "usable": true,
         "tool_check_bad": false
       },
@@ -81,7 +81,7 @@
         "tilt_deg": 0.17,
         "padded": false,
         "touches_border": false,
-        "max_border_share": 0.0,
+        "max_border_share": 0,
         "usable": true,
         "tool_check_bad": false
       }
@@ -96,7 +96,7 @@
         "tilt_deg": 0.62,
         "padded": false,
         "touches_border": false,
-        "max_border_share": 0.0,
+        "max_border_share": 0,
         "usable": true,
         "tool_check_bad": false
       },
@@ -106,7 +106,7 @@
         "tilt_deg": 0.61,
         "padded": false,
         "touches_border": false,
-        "max_border_share": 0.0,
+        "max_border_share": 0,
         "usable": true,
         "tool_check_bad": false
       }
@@ -121,17 +121,17 @@
         "tilt_deg": 1.68,
         "padded": false,
         "touches_border": false,
-        "max_border_share": 0.0,
+        "max_border_share": 0,
         "usable": true,
         "tool_check_bad": false
       },
       "after": {
         "w2h": 2.221,
-        "ratio_to_reference": 1.0,
+        "ratio_to_reference": 1,
         "tilt_deg": 1.62,
         "padded": false,
         "touches_border": false,
-        "max_border_share": 0.0,
+        "max_border_share": 0,
         "usable": true,
         "tool_check_bad": false
       }
