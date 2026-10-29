@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import type { CourseData } from '../src/course/course';
-import { CLIMB_CATCH_VY, CLIMB_COST, CLIMB_EXIT_SPEED, CLIMB_HAND, CLIMB_MIN_RISE, CLIMB_STAND_REACH, CLIMB_TICKS, climbMaxRise, climbable, findClimb } from '../src/sim/climb';
+import { CLIMB_CATCH_VY, CLIMB_REACH_X, CLIMB_TOL_X, CLIMB_TOL_Y, CLIMB_COST, CLIMB_EXIT_SPEED, CLIMB_HAND, CLIMB_MIN_RISE, CLIMB_STAND_REACH, CLIMB_TICKS, climbMaxRise, climbable, findClimb } from '../src/sim/climb';
 import { JUMP_COST } from '../src/sim/energy';
 import { NO_INPUT } from '../src/sim/runner';
 import { newWorld, stepWorld, type WorldState } from '../src/sim/world';
@@ -44,6 +44,30 @@ describe('the climb: where the limits come from', () => {
     expect(findClimb(wall(2.5).terrain, 19.7, 0.6, 1, 0)).not.toBeNull(); // 0.6 m up in a jump, the edge is in reach
     expect(findClimb(wall(2.5).terrain, 19.7, 0.6, 1, 4)).toBeNull(); // rising too fast to close the hands
     expect(findClimb(wall(3.2).terrain, 19.7, 1.0, 1, 0)).toBeNull(); // above the limit even at the top of a jump
+  });
+});
+
+describe('the climb: a near miss still grabs (CC-168)', () => {
+  const t2 = wall(2.0).terrain; // the edge is at x = 20
+  it('a body short of the edge by less than the reach plus the tolerance grabs with the hold key, by more does not', () => {
+    const reach = CLIMB_REACH_X + CLIMB_TOL_X;
+    expect(findClimb(t2, 20 - reach + 0.02, 0.5, 2, -1)).not.toBeNull(); // 2 cm inside
+    expect(findClimb(t2, 20 - reach - 0.02, 0.5, 2, -1)).toBeNull(); // 2 cm outside
+    expect(findClimb(t2, 20 - CLIMB_REACH_X - 0.1, 0.5, 2, -1)).not.toBeNull(); // inside the tolerance band only
+  });
+  it('an edge a little above the standing reach grabs, one far above does not', () => {
+    expect(findClimb(wall(CLIMB_STAND_REACH + CLIMB_TOL_Y - 0.02).terrain, 19.7, 0, 1, 0)).not.toBeNull();
+    expect(findClimb(wall(CLIMB_STAND_REACH + CLIMB_TOL_Y + 0.05).terrain, 19.7, 0, 1, 0)).toBeNull();
+  });
+  it('the hands never reach through a wall or from the wrong side', () => {
+    expect(findClimb(t2, 20.5, 0.5, 2, -1)).toBeNull(); // already past the edge
+    expect(findClimb(t2, 16, 0.5, 2, -1)).toBeNull(); // far away
+    expect(findClimb(t2, 19.5, 0.5, -3, -1)).toBeNull(); // moving away from the wall
+  });
+  it('a body already falling at a tall edge is judged by its hands, not by the one-jump limit (a trampoline lifted it)', () => {
+    const t3 = wall(3.0).terrain; // above climbMaxRise(4.5) from the ground
+    expect(findClimb(t3, 19.7, 1.4, 1, -1)).not.toBeNull();
+    expect(findClimb(t3, 19.7, 1.4, 1, 0.5)).toBeNull(); // still rising: the one-jump limit applies
   });
 });
 
