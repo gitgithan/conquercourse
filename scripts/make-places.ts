@@ -99,6 +99,7 @@ for (const s of PLACES) {
   const g = await groundFor(s);
   const ground = g ? { step: g.step, n: g.n, h: g.h } : null;
   const lane = laneForPlace(answer, s.lat, s.lon, g);
+  if (!lane?.cleared) { console.log('  not saved: the simulator found no lane (CC-211)'); continue; } // a place with no path is not written and not listed
   const place: ReadyPlace = { slug: s.slug, name: s.name, lat: s.lat, lon: s.lon, radius: s.radius, blurb: s.blurb, answer, ground, lane };
   const text = JSON.stringify(place, null, 2) + '\n'; // tracked JSON is committed pretty-printed (npm run format:json)
   writeFileSync(`${out}/${s.slug}.json`, text);
