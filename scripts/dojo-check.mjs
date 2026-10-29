@@ -26,7 +26,7 @@ try {
   checks.noGuessOrLockOrRun = (await page.$$('#guess, #newguess, #scrub, #run')).length === 0;
   await set('knob-speed', 5); // the saying is earned by moving a slider
   checks.sayingShownAtOnce = await has('already decided');
-  checks.ruleIsCaptionOnTheGraph = (await page.textContent('#rule')).includes('Rule of thumb:') && (await page.$$('canvas')).length === 1; // CC-148: one graph, the rule is its caption
+  checks.ruleIsCaptionOnTheGraph = (await page.textContent('#rule')).includes('Rule of thumb:') && (await page.$$('canvas')).length === 1; // CC-154: one graph, the rule is its caption
   checks.noFormulaBeforeTheLastStep = !(await has('2 × speed × push ÷ g'));
   checks.fourSteps = (await page.$$('.path .node')).length === 4;
   for (const [speed, jump] of [[3, 4.5], [6, 4.5], [9, 4.5]]) {
