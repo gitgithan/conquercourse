@@ -2,9 +2,10 @@
 import { DatabaseSync } from 'node:sqlite';
 import { readFileSync, readdirSync } from 'node:fs';
 
-export function localD1() {
+/** upTo: the last migration to apply, e.g. '0003' for the database as it is live before CC-174's migration. */
+export function localD1(upTo = '9999') {
   const sql = new DatabaseSync(':memory:');
-  for (const f of readdirSync('migrations').sort()) sql.exec(readFileSync(`migrations/${f}`, 'utf8'));
+  for (const f of readdirSync('migrations').sort().filter((f) => f.slice(0, 4) <= upTo)) sql.exec(readFileSync(`migrations/${f}`, 'utf8'));
   const db = {
     prepare: (q: string) => {
       const make = (v: unknown[]) => ({

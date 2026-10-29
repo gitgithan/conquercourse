@@ -19,9 +19,21 @@ export const onRequestGet = async ({ env }: { env: Env }): Promise<Response> => 
   const events = await env.DB.prepare("SELECT course_key AS k, event_type AS e, COUNT(*) AS n FROM course_events WHERE event_type IN ('start','fail') GROUP BY course_key, event_type").all();
   for (const r of events.results ?? []) { const c = at(String(r.k)); if (r.e === 'start') c.plays = Number(r.n); else c.fails = Number(r.n); }
   // only clears of the newest version of a course count: a changed course makes an old time meaningless
-  const clears = await env.DB.prepare(`SELECT c.course_key AS k, c.ticks AS t FROM course_clears c WHERE c.course_hash = (SELECT course_hash FROM course_clears d WHERE d.course_key = c.course_key ORDER BY d.id DESC LIMIT 1) ORDER BY c.id DESC LIMIT ${MAX_CLEARS_READ}`).all();
-  const ticks: Record<string, number[]> = {};
-  for (const r of clears.results ?? []) (ticks[String(r.k)] ??= []).push(Number(r.t));
-  for (const [k, ts] of Object.entries(ticks)) { const c = at(k); c.clears = ts.length; c.best = Math.min(...ts); c.median = median(ts); }
+  // CC-174: an unverified clear (replay cut or skipped) counts as cleared but never sets the best or the median; one that beats the stored best line waits for a replay and is not counted yet
+  const newest = "c.course_hash = (SELECT course_hash FROM course_clears d WHERE d.course_key = c.course_key ORDER BY d.id DESC LIMIT 1)";
+  let clears: Rows;
+  try { clears = await env.DB.prepare(`SELECT c.course_key AS k, c.ticks AS t, c.verified AS v FROM course_clears c WHERE ${newest} AND (c.verified = 1 OR c.beats_ideal = 0) ORDER BY c.id DESC LIMIT ${MAX_CLEARS_READ}`).all(); }
+  catch { clears = await env.DB.prepare(`SELECT c.course_key AS k, c.ticks AS t, 1 AS v FROM course_clears c WHERE ${newest} ORDER BY c.id DESC LIMIT ${MAX_CLEARS_READ}`).all(); } // before migration 0004
+  const ticks: Record<string, number[]> = {}, counts: Record<string, number> = {};
+  for (const r of clears.results ?? []) {
+    const k = String(r.k);
+    counts[k] = (counts[k] ?? 0) + 1;
+    if (Number(r.v) === 1) (ticks[k] ??= []).push(Number(r.t));
+  }
+  for (const [k, n] of Object.entries(counts)) {
+    const c = at(k), ts = ticks[k] ?? [];
+    c.clears = n;
+    if (ts.length) { c.best = Math.min(...ts); c.median = median(ts); }
+  }
   return new Response(JSON.stringify({ courses: out }), { headers: { 'content-type': 'application/json', 'cache-control': 'public, max-age=300' } });
 };
