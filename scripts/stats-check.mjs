@@ -17,7 +17,7 @@ const SEEDED = { courses: {
   'experiments/osm/eixample-barcelona': { plays: 520, fails: 40, clears: 300, best: 8100, median: 9000 },
   'experiments/osm/circular-quay-sydney': { plays: 610, fails: 260, clears: 90, best: 7300, median: 11800 },
   'experiments/osm/san-francisco-lombard': { plays: 3, fails: 1, clears: 0, best: null, median: null },
-  'demo/training': { plays: 2210, fails: 900, clears: 700, best: 40100, median: 52000 },
+  'demo/training': { plays: 2210, fails: 900, clears: 700, best: 4300, median: 6200 },
   'demo/coaster-two-hills': { plays: 90, fails: 5, clears: 0, best: null, median: null },
 } };
 const open = async (w, h, query, answer) => {
