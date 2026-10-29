@@ -51,3 +51,15 @@
 - `beat5-run-close.mp4` = `v3-run-a` (8 s, macro camera close to the runner, textured photo-lifted box visible on the lane) followed by 6.4 s of the far take (`beat5-run.mp4`, 1.6-8.0 s).
 - A second close take (`from-x 30`, 192 frames) was queued on the VM but is not needed for this cut; replace the far half with it when it exists.
 - Frames: `beat5-run-close-sheet.png`.
+
+## v4 (rough-cut-v4.mp4)
+
+- Found: the game drew only the first and last deck of any course with a photo object, so the v3 real run showed the runner on thin air and the box over the lava.
+- Fix: `keepDecks` on the hero course (and `?decks=1`); the beat 5 close run and the leap are re-rendered with every deck drawn, and the box now sits on its deck.
+- Beat 5 real: `beat5-run-close.mp4` is 8 s of the close take plus 6.4 s from x 30 (both macro camera, bloom).
+- Beat 5 leap real: `beat5-leap.mp4`, 126 frames, the last frame has the hands at the rope.
+- Beat 3 concept: the box is seated on its deck.
+- Backdrop (CC-234): `?backdrop=montmartre-paris` draws the buildings and street furniture behind the lane; it is off by default and not in v4 (shots under `data/eval/cc-spectacle/backdrop/`).
+- Real slicer recording: `scripts/film-ui.mjs` records the real map page (place, Slice, lane, strip, cut) at 1280 px.
+- Verdict: it works, but the side panel is crowded and the strip takes about 2 minutes, so the concept beats 2 and 3 stay in v4.
+- Beats 1, 2, 3 are concept; beat 4 is a real fly-by; beat 5 is real; beat 8 is a still and clip.
