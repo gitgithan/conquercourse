@@ -1,5 +1,9 @@
 # Storyboard: the reference video, our 20 s hook and the 3 minute film (CC-143)
 
+**Superseded (2026-10-30):** the product owner judged the first 20 s here bad; the film to build is in [film-craft](film-craft.md) under "The 80 second film".
+- Kept only as the study of the reference video and the beat-cut tools.
+
+
 *Serves the demo score and Most Viral (CC-126); built on the film tools in [film-toolchain](film-toolchain.md).*
 *Related: [demo-script-v2](demo-script-v2.md), [viral-plan](viral-plan.md), [music](music.md).*
 
