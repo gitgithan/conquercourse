@@ -3,7 +3,7 @@ import { rollWindowOpen } from './drop';
 import { DEFAULT_LANDING, safeDrop } from './landing';
 import { GRAVITY } from './units';
 import { inputFor, searchIdealRun, type Plan } from './ideal';
-import { newWorld, stepWorld } from './world';
+import { newWorld, stepWorld, WALL_HOLD_TICKS } from './world';
 
 // The drum lane: where along the course the ideal run presses Space, so a player can see where to jump on any course,
 // including one built in the editor. It shows the line; it never grades the player's own presses.
@@ -19,7 +19,7 @@ export function drumsFor(course: CourseData, plan: Plan = course.plan ?? searchI
   const drums: Drum[] = [];
   let was = false, wasVault = false, wasFire = false, wasAim = false, wasTurn = false, prevMode = w.mode;
   let windowX: number | null = null; // where the runner was when the roll window opened in this flight
-  let still = 0;
+  let still = 0, wallDrum = false;
   for (let i = 0; i < maxTicks && w.outcome === 'running'; i++) {
     const input = inputFor(plan, w, st, course);
     // a press is the first tick the jump input is on after being off (holding it is not a new drum)
@@ -44,6 +44,10 @@ export function drumsFor(course: CourseData, plan: Plan = course.plan ?? searchI
     if (land && (land.detail?.rolled || ((land.detail?.impact as number) ** 2) / (2 * GRAVITY) > safeDrop('stiff', DEFAULT_LANDING).clean)) {
       drums.push({ x: windowX ?? w.runner.x, what: 'roll' });
     }
+    // the warped wall: E is due in the last moment of the climb (CC-182), so the drum sits there, near the top, not at the foot
+    if (w.mode !== 'wall') wallDrum = false;
+    else if (!wallDrum && w.wall && w.wall.result.grabTick !== null && w.wall.index >= w.wall.result.grabTick - WALL_HOLD_TICKS) { wallDrum = true; drums.push({ x: w.runner.x, what: 'grab' }); }
+    if (prevMode !== 'swing' && w.mode === 'swing') drums.push({ x: w.runner.x, what: 'grab' }); // E closes on the rope
     if (prevMode !== 'hang' && w.mode === 'hang') drums.push({ x: w.runner.x, what: 'grab' }); // E closes on the bar
     if (prevMode !== 'climb' && w.mode === 'climb') drums.push({ x: w.runner.x, what: 'grab' }); // E closes on a wall's edge
     if (prevMode === 'hang' && w.mode !== 'hang') drums.push({ x: w.runner.x, what: 'release' }); // both hands let go

@@ -1397,7 +1397,10 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
       if (prev === 'running' && world.outcome === 'splash') onFall('splash');
       if (prev === 'running' && world.outcome === 'hurt') onFall('hurt');
       if (prev === 'running' && world.outcome === 'stalled') onFall('stall');
-      if (world.events.some((e) => e.type === 'wall-slide')) onFall('slide');
+      if (world.events.some((e) => e.type === 'wall-slide')) { // CC-182: missing the top is not a fall: the body slides to the foot and the run goes on, run up again as often as you like
+        toast.textContent = [...log].some((e) => e.type === 'wall-no-grip') ? 'Your hands missed the edge. Run up again and hold E near the top.' : 'Not high enough. Run up again with more speed.';
+        toast.style.display = 'block'; toastUntil = world.runner.tick + 240;
+      }
       if (phoneWatch && prev === 'running' && world.outcome === 'cleared') { // the friend's run, watched on a phone: no report, no What next card; play it again in a moment (CC-138)
         const again = phoneWatch;
         setTimeout(() => { if (again) { restart(course.startX); feed = { log: again, i: 0, left: 0 }; } }, 2500);

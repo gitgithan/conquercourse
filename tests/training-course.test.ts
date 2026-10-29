@@ -3,6 +3,7 @@ import { describe, expect, it } from 'vitest';
 import type { CourseData } from '../src/course/course';
 import { inputFor, playPlan } from '../src/sim/ideal';
 import { newWorld, stepWorld } from '../src/sim/world';
+import { BOX_H, DX, TRAMP_CUT } from '../scripts/training-layout';
 import { logTick, newLog } from '../src/ui/run-report';
 
 // The Training course (CC-97) shows every move in one chain, and the efficient line is not the obvious one.
@@ -57,8 +58,8 @@ describe('the Training course', () => {
     expect(big.map((l) => l.rolled)).toEqual([true, true]);
     const rolls = log.moves.filter((m) => m.kind === 'roll').map((m) => m.x);
     expect(rolls).toHaveLength(2);
-    expect(rolls[0]).toBeGreaterThan(74 + 99); expect(rolls[0]).toBeLessThan(86 + 99);
-    expect(rolls[1]).toBeGreaterThan(160 + 99);
+    expect(rolls[0]).toBeGreaterThan(74 + DX); expect(rolls[0]).toBeLessThan(86 + DX);
+    expect(rolls[1]).toBeGreaterThan(160 + DX - TRAMP_CUT);
   });
   it('the slower bar-to-bar line still clears, and its drop after bar 2 also needs a roll', () => {
     const r = playPlan(c, { ...c.plan!, hangTicks: [210, 210], airHands: undefined }, 120 * 120);
@@ -67,6 +68,16 @@ describe('the Training course', () => {
     expect(r.world.runner.tick).toBeGreaterThan(c.routes!.find((q) => q.chosen)!.ticks + 120);
     const drop = r.events.filter((e) => e.type === 'land').map((e) => e.detail as { impact: number; rolled: boolean }).find((l) => l.impact > 8);
     expect(drop?.rolled).toBe(true);
+  });
+  it('the first box is as high as a vault can be (CC-182: doubled is not possible, the limit is 1.3 m), and the bar grab is tight', async () => {
+    const box = c.terrain.platforms.find((p) => p.top > 0 && p.top < 2)!;
+    expect(box.top).toBe(BOX_H);
+    expect(BOX_H).toBeGreaterThanOrEqual(1.2); expect(BOX_H).toBeLessThanOrEqual(1.3);
+    const { DEFAULT_HANG } = await import('../src/sim/holds');
+    expect(DEFAULT_HANG.reach).toBeLessThanOrEqual(0.4); // the hands must be within about a forearm of the bar
+  });
+  it('no long flat run: every deck before the first bar is short', () => {
+    for (const p of c.terrain.platforms.filter((q) => q.x1 < 62 + DX && q.x0 > 0)) expect(p.x1 - p.x0).toBeLessThanOrEqual(24);
   });
   it('the decks touch where a wall or a drop begins (no sliver to fall through)', () => {
     const p = c.terrain.platforms;
