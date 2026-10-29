@@ -1,0 +1,22 @@
+# CC-138: a challenge link on a phone
+
+- Serves the Most Viral prize: most people open an X link on a phone.
+- Finding, before any change (a 390 x 844 touch browser, `today-link.png` and `today-bare.png`):
+  - the page loads and nothing moves, because the only way to run is a key
+  - the long keys card covers most of the course
+  - the "Beat this time" banner is gone after 14 seconds, and it never says a keyboard is needed
+  - a tap does nothing
+  - the runner is a dead end: the ghost runs away and the player cannot follow it
+- Change, behind the share switch (`?share=0` turns it off, `?phone=0` keeps the old look, `?phone=1` pretends to be a phone):
+  - a phone is a device whose main pointer is a finger and that cannot hover (`src/share/phone.ts`)
+  - the run in the link plays by itself, again and again, with no report and no What next card
+  - the keys card and the corner view are closed
+  - a notice stays on screen: "Watch the run to beat: 9.36 s. Play it on a computer to beat it."
+  - a Copy link button copies the page address so it can be sent to a computer
+  - a computer is unaffected (still "Beat this time")
+- Checked by `scripts/share-phone-check.mjs` (10 of 10 PASS) and `tests/share-phone.test.ts` (4 tests); screenshot `after-notice.png`.
+- Known gaps:
+  - the top bar of buttons is crowded on a narrow screen
+  - the notice sits over the top of the course
+  - the drum lane at the bottom is still there
+  - playing on a phone needs the touch controls of CC-139
