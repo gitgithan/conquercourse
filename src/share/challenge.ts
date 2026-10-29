@@ -25,7 +25,7 @@ export async function openChallenge(course: CourseData, param: string): Promise<
 }
 
 /** The link for a cleared run, or null when the keys do not clear this course the nickname is not allowed or the link would be too long. */
-export async function makeChallengeUrl(origin: string, search: string, course: CourseData, log: InputLog, nick = ''): Promise<string | null> {
+export async function makeChallengeUrl(origin: string, search: string, course: CourseData, log: InputLog, nick = '', look: 'a' | 'b' = 'a'): Promise<string | null> {
   if (!nickOk(nick) || !verifyLog(course, log).cleared) return null;
   const from = new URLSearchParams(search), to = new URLSearchParams();
   for (const k of KEEP) { const v = from.get(k); if (v) to.set(k, v); }
@@ -41,6 +41,7 @@ export async function makeChallengeUrl(origin: string, search: string, course: C
   const param = await makeChallengeParam(played, log, nick);
   if (param.length + made.length > MAX_PARAM_CHARS) return null;
   to.set('challenge', param);
+  if (look === 'b') to.set('rk', 'b'); // CC-167: which Rookie the ghost wears; the first Rookie adds nothing, the second 5 characters
   return `${origin}/?${to.toString()}`;
 }
 
