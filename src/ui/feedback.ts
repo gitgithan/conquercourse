@@ -16,6 +16,14 @@ export function trackCourseEvent(event: CourseEvent, courseKey: string, courseNa
   }).catch(() => { /* telemetry must never interrupt a run */ });
 }
 
+/** Offers a cleared run to the server, which plays the keys again with the simulator before it counts (CC-149). Nothing is shown and a failure is ignored. */
+export function sendClear(courseKey: string, runId: string, hash: string, keys: string): void {
+  void fetch('/api/course-clear', {
+    method: 'POST', headers: { 'content-type': 'application/json' }, keepalive: true,
+    body: JSON.stringify({ session: session(), courseKey, runId, hash, keys }),
+  }).catch(() => { /* telemetry must never interrupt a run */ });
+}
+
 function courseSource(): string {
   const p = new URLSearchParams(location.search);
   if (p.has('generate')) return 'generated';

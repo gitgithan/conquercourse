@@ -23,14 +23,15 @@ import { mountTouch, touchOn } from '../share/touch';
 import { createGaugeStack } from '../ui/gauges';
 import { PHONE_WORDS, browserPointing, phoneMode } from '../share/phone';
 import { clipCard, shareButtons, showBanner } from '../share/share-ui';
-import { inputOfMask, type InputLog } from '../sim/replay';
+import { courseHash, encodeLog, inputOfMask, type InputLog } from '../sim/replay';
 import { findShortcuts, shortcutLine, type Shortcut } from '../sim/shortcuts';
 const findShortcutsNow = (c: CourseData): Shortcut[] => findShortcuts(c, { moveChoices: false }).shortcuts; // ?bot=shortcut only: blocks the page while it searches
 import { flightPath, gapSpecs, minSpeedForWall, pressBand } from '../sim/needs';
 import { bounce } from '../sim/trampoline';
 import { DEFAULT_TRAMPOLINE } from '../sim/trampoline';
 import { ouch } from '../sim/landing';
-import { track, trackCourseEvent, courseKey } from '../ui/feedback';
+import { track, trackCourseEvent, courseKey, sendClear } from '../ui/feedback';
+import { statsOn, statKey } from '../ui/course-stats';
 import { createRookieActor } from '../render/actor';
 import { lookSwitchOn, lookUrl } from '../render/look';
 import { makeObstacle } from '../course/collide';
@@ -706,6 +707,13 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
   let analyticsRunId = crypto.randomUUID();
   let failedThisAttempt = false;
   if (!resume) trackCourseEvent('start', analyticsCourseKey, course.name, analyticsRunId, analyticsMode);
+  // CC-149: a cleared run on a listed course is offered to the server, which plays the keys again before it counts (a run with anything but plain keys has no log and is not offered)
+  function offerClear() {
+    const path = params.get('course') ?? '';
+    if (!statsOn(params) || botMode || demo || idealWhole || params.get('mode') || !/^\/assets\/(demo|experiments\/osm)\//.test(path)) return;
+    const mine = ghostCtl?.myRun();
+    if (mine) void encodeLog(mine).then((keys) => sendClear(statKey(path), analyticsRunId, courseHash(course), keys));
+  }
   let everCleared = false;
   try { everCleared = localStorage.getItem('cc.course.cleared') === '1'; } catch { /* keep going */ }
   let windows: ReturnType<typeof searchIdealRun>['windows'] | null = null;
@@ -1329,6 +1337,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
         setTimeout(() => { if (again) { restart(course.startX); feed = { log: again, i: 0, left: 0 }; } }, 2500);
       } else if (prev === 'running' && world.outcome === 'cleared' && !clipping) {
         clearFinishZone(world.runner.x); everCleared = true; track('clears'); finishRun(true); trackCourseEvent('success', analyticsCourseKey, course.name, analyticsRunId, analyticsMode);
+        offerClear();
         try { localStorage.setItem('cc.course.cleared', '1'); } catch { /* ok */ }
         panel.innerHTML = ''; panel.style.display = 'grid';
         const ghostLine = ghostCtl?.reportLine(world.runner.tick) ?? null;
