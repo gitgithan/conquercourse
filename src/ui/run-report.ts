@@ -3,7 +3,9 @@
 import type { CourseData } from '../course/course';
 import { CLIMB_COST } from '../sim/climb';
 import { JUMP_COST, VAULT_COST } from '../sim/energy';
-import { inputFor } from '../sim/ideal';
+import { inputFor, type Plan } from '../sim/ideal';
+import type { Ways } from './paths';
+import { roomText } from './paths';
 import { GROUND_ROLL_COST } from '../sim/roll';
 import { newWorld, stepWorld, type WorldState } from '../sim/world';
 import { ZONE_ICONS } from './zone-icons';
@@ -37,8 +39,8 @@ export function logTick(l: RunLog, w: WorldState): void {
 
 export interface BestLine { log: RunLog; seconds: number; spent: number }
 /** The stored plan played once more, with its path and moves (a coaster's plan is its brake windows). Null when the course has no plan or the plan does not clear. */
-export function bestLine(course: CourseData): BestLine | null {
-  const plan = course.plan;
+export function bestLine(course: CourseData, planOverride?: Plan): BestLine | null {
+  const plan = planOverride ?? course.plan; // a course with a fork passes the line of the way taken (CC-225)
   if (!plan) return null;
   let w = newWorld(course);
   const st = { next: 0, caught: null, bedAt: null, hangAt: null, hangs: 0, vnext: 0, cnext: 0, inClimb: false, fnext: 0, airSince: null } as unknown as Parameters<typeof inputFor>[2];
@@ -111,6 +113,7 @@ export interface Report {
   saying: string | null;
   metres: number;
   finishX: number;
+  ways?: Ways; // a course with a fork, with ?paths=1 (CC-225): the way taken and the best line of each way
 }
 const f1 = (v: number) => v.toFixed(1);
 const jumps = (share: number) => f1(share / JUMP_COST);
@@ -209,6 +212,15 @@ export function renderReport(course: CourseData, log: RunLog, r: Report, a: Acti
     const effort = r.spent > 0.005 || (r.best?.spent ?? 0) > 0.005; // a cart ride spends no body energy: no effort row
     if (r.best) { row('', 'You', 'Best line', true); row('Time', `${f1(r.seconds)} s`, `${f1(r.best.seconds)} s`); if (effort) row('Effort', `${jumps(r.spent)} jumps' worth`, `${jumps(r.best.spent)} jumps' worth`); }
     else { row('', 'You', '', true); row('Time', `${f1(r.seconds)} s`, ''); if (effort) row('Effort', `${jumps(r.spent)} jumps' worth`, ''); }
+    box.appendChild(t);
+  }
+  if (r.cleared && r.ways) {
+    const w = r.ways;
+    tx('div', w.taken ? `You took the ${w.rows.find((q) => q.mine)?.name.toLowerCase() ?? 'way'}.` : 'You started after the fork, so no way is counted.', 'font-weight:700', box).id = 'ways-taken';
+    const t = document.createElement('table'); t.id = 'ways-table'; t.style.cssText = 'border-collapse:collapse;font-size:15px;width:100%';
+    const row = (cells: string[], head = false, mine = false) => { const tr = t.insertRow(); if (mine) tr.style.background = '#e6f4ee'; cells.forEach((s, i) => { const c = tr.insertCell(); c.textContent = s; c.style.cssText = `padding:5px 8px;border-bottom:1px solid #e5e9e5;${i ? 'text-align:right;' : ''}${head ? 'color:#58635d;font-weight:600' : ''}`; }); };
+    row([`Best line on each way`, 'Time', 'Effort', 'Room for error'], true);
+    for (const q of w.rows) row([q.mine ? `${q.name} (you)` : q.name, `${f1(q.seconds)} s`, q.effort === null ? '' : `${f1(q.effort)} jumps' worth`, roomText(q.roomMs)], false, q.mine);
     box.appendChild(t);
   }
   if (r.counts.length) {
