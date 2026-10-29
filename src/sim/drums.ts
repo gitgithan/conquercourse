@@ -2,6 +2,7 @@ import type { CourseData } from '../course/course';
 import { rollWindowOpen } from './drop';
 import { DEFAULT_LANDING, safeDrop } from './landing';
 import { GRAVITY } from './units';
+import { fastestRoute } from './branches';
 import { inputFor, searchIdealRun, type Plan } from './ideal';
 import { newWorld, stepWorld, WALL_HOLD_TICKS } from './world';
 
@@ -10,6 +11,7 @@ import { newWorld, stepWorld, WALL_HOLD_TICKS } from './world';
 export interface Drum {
   x: number; // m along the course at the moment of the press
   note?: string; // a few words on the drum (the aim of a cannon)
+  route?: string; // on a course with a fork: the way this drum belongs to (none: shared by all ways)
   what: 'jump' | 'let go' | 'bounce' | 'vault' | 'grab' | 'release' | 'roll' | 'fire' | 'aim' | 'turn' | 'board';
 }
 
@@ -57,4 +59,18 @@ export function drumsFor(course: CourseData, plan: Plan = course.plan ?? searchI
     if (still > 180) break;
   }
   return drums.sort((a, b) => a.x - b.x); // the roll drum is found at the landing but sits earlier on the path
+}
+
+/** The drums of a course with a fork (CC-225): the drums every way shares have no route; the rest carry the id of their way. Null when the course has no fork with two proved ways. */
+export function drumsForPaths(course: CourseData): Drum[] | null {
+  const b = course.branches?.[0];
+  const ways = b?.routes.filter((r) => r.plan) ?? [];
+  if (!b || ways.length < 2) return null;
+  const fast = fastestRoute(b)!;
+  const per = ways.map((r) => ({ r, ds: drumsFor(course, r.plan!).filter((d) => d.x >= b.forkX && d.x <= b.joinX) }));
+  const shared = (d: Drum) => per.every((q) => q.ds.some((e) => e.what === d.what && Math.abs(e.x - d.x) < 0.3));
+  const out: Drum[] = drumsFor(course, fast.plan!).filter((d) => d.x < b.forkX || d.x > b.joinX);
+  for (const d of per.find((q) => q.r.id === fast.id)!.ds) if (shared(d)) out.push(d);
+  for (const q of per) for (const d of q.ds) if (!shared(d)) out.push({ ...d, route: q.r.id });
+  return out.sort((a, c) => a.x - c.x);
 }
