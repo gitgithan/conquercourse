@@ -1,0 +1,32 @@
+{
+  "label": "fire hydrant",
+  "extents_m": {
+    "x": 0.432,
+    "y": 0.8,
+    "z": 0.344
+  },
+  "height_m": 0.8,
+  "target_height_m": 0.8,
+  "scale_source": "typed",
+  "scale_factor": 0.7995,
+  "raw_height": 1.0007,
+  "yaw_deg": 142.5,
+  "tilt_deg": 0.76,
+  "faces": 5820,
+  "vertices": 5070,
+  "width_to_height": 0.54,
+  "texture": "1024x1024",
+  "photo": "hydrant-red",
+  "box": [
+    100,
+    60,
+    1180,
+    1800
+  ],
+  "bytes": 483640,
+  "model": "SAM 3D Objects (seed 42)",
+  "bake_seconds": 7.16,
+  "raw_faces": 345472,
+  "splat_points": 247936,
+  "lift_round": "r1"
+}

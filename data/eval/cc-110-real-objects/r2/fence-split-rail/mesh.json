@@ -1,0 +1,32 @@
+{
+  "label": "fence",
+  "extents_m": {
+    "x": 3.234,
+    "y": 1.199,
+    "z": 0.767
+  },
+  "height_m": 1.199,
+  "target_height_m": 1.2,
+  "scale_source": "typed",
+  "scale_factor": 3.2342,
+  "raw_height": 0.371,
+  "yaw_deg": 89.5,
+  "tilt_deg": 2.79,
+  "faces": 5820,
+  "vertices": 5425,
+  "width_to_height": 2.697,
+  "texture": "1024x1024",
+  "photo": "fence-split-rail",
+  "box": [
+    0,
+    260,
+    1190,
+    850
+  ],
+  "bytes": 403436,
+  "model": "SAM 3D Objects (seed 42)",
+  "bake_seconds": 4.91,
+  "raw_faces": 187834,
+  "splat_points": 128032,
+  "lift_round": "r2"
+}

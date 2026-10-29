@@ -1,6 +1,6 @@
 // The add browser (CC-96): a featured view of the piece under the mouse (a big picture, what it does, where it came from) above a grid of small picture cards.
 // Mouse over, keyboard focus or a tap on a card changes the featured view; a click adds the piece by pressing the editor's own add button, so nothing else changes.
-import { SECTION_NAME, SECTION_ORDER, STATIC_PIECES, realInfo, type PieceInfo, type Section } from '../slice/piece-info';
+import { MOVE_EMPTY, MOVE_NAME, MOVE_ORDER, SECTION_NAME, SECTION_ORDER, STATIC_PIECES, realInfo, type PieceInfo, type Section } from '../slice/piece-info';
 
 export const PIECE_BROWSER_CSS = `
   .ed .addmenu.open{display:block}
@@ -17,11 +17,14 @@ export const PIECE_BROWSER_CSS = `
   .ed .pb-tab{min-width:0!important;min-height:30px;padding:3px 12px;border-radius:999px}
   .ed .pb-tab[aria-selected=true]{background:var(--teal,#0f6b5c);color:#fff;border-color:transparent}
   .ed .pb-search{margin-left:auto;min-width:150px;max-width:220px;padding:5px 10px;border:1px solid var(--line);border-radius:8px;font:14px system-ui,sans-serif}
-  .ed .pb-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(118px,1fr));gap:8px;padding:12px 14px 14px;overflow:auto;min-height:110px}
+  .ed .pb-grid{display:grid;grid-auto-rows:max-content;align-content:start;grid-template-columns:repeat(auto-fill,minmax(118px,1fr));gap:8px;padding:12px 14px 14px;overflow:auto;min-height:110px}
   .ed .pb-card{display:flex;flex-direction:column;gap:4px;align-items:stretch;padding:4px;border:2px solid transparent;border-radius:10px;background:#fff;cursor:pointer;text-align:center;min-width:0!important;white-space:normal!important}
   .ed .pb-card img{width:100%;aspect-ratio:16/9;object-fit:cover;border-radius:7px;background:#e6ede9;display:block}
   .ed .pb-card span{font:600 12.5px/1.2 system-ui,sans-serif;padding:0 2px 2px}
   .ed .pb-card:hover,.ed .pb-card:focus-visible,.ed .pb-card.on{border-color:var(--teal,#0f6b5c);background:#eaf4f0;outline:none}
+  .ed .pb-group{grid-column:1/-1;margin:6px 2px 0;font:700 13px system-ui,sans-serif;color:var(--teal,#0f6b5c);border-bottom:1px solid var(--line)}
+  .ed .pb-group-none{grid-column:1/-1;margin:0 2px;font:13px system-ui,sans-serif;color:var(--muted)}
+  .ed .pb-view{min-width:0!important;min-height:30px;padding:3px 12px;border-radius:999px}
   .ed .pb-none{padding:18px;color:var(--muted)}
   @media (max-width:760px){.ed .pb-feature{grid-template-columns:1fr}}`;
 
@@ -35,6 +38,11 @@ export function mountPieceBrowser(menu: HTMLElement): void {
   const grid = h('div', { class: 'pb-grid', id: 'piecegrid' });
   bar.append(tabs, search); root.append(feature, bar, grid); menu.prepend(root);
 
+  // one switch for the by-move view: on by default, the button flips it, and ?bymove=0 starts with it off
+  let byMove = (() => { try { return new URLSearchParams(location.search).get('bymove') !== '0' && localStorage.getItem('cc-pb-bymove') !== '0'; } catch { return true; } })();
+  const viewBtn = h('button', { class: 'pb-view', type: 'button', id: 'pbbymove' });
+  viewBtn.onclick = () => { byMove = !byMove; try { localStorage.setItem('cc-pb-bymove', byMove ? '1' : '0'); } catch { /* no storage */ } paint(); };
+  bar.insertBefore(viewBtn, search);
   let pieces: PieceInfo[] = [...STATIC_PIECES], section: Section = 'ground', shown = pieces[0];
   const tabBtn = new Map<Section, HTMLButtonElement>();
   const feat = (p: PieceInfo) => {
@@ -46,14 +54,31 @@ export function mountPieceBrowser(menu: HTMLElement): void {
   const paint = () => {
     const q = search.value.trim().toLowerCase();
     const list = pieces.filter((p) => (q ? `${p.name} ${p.does} ${SECTION_NAME[p.section]}`.toLowerCase().includes(q) : p.section === section));
-    grid.replaceChildren(...list.map((p) => {
+    const card = (p: PieceInfo) => {
       const c = h('button', { class: 'pb-card', type: 'button' }); c.dataset.piece = p.id; c.title = p.name;
       const img = h('img', { src: `/assets/pieces/${p.id}.webp`, alt: '' }); img.loading = 'lazy'; img.onerror = () => { img.style.visibility = 'hidden'; };
       c.append(img, h('span', { textContent: p.name }));
       c.onmouseenter = c.onfocus = () => feat(p);
       c.onclick = () => press(p);
       return c;
-    }));
+    };
+    // the Real objects tab can group its pieces by the move that gets past them (CC-110); the cards stay in the same order for the arrow keys
+    const grouped = !q && section === 'real' && byMove;
+    viewBtn.style.display = !q && section === 'real' ? '' : 'none';
+    viewBtn.textContent = byMove ? 'Show all together' : 'Group by move';
+    if (grouped) {
+      const cards: HTMLElement[] = [], ordered: PieceInfo[] = [];
+      for (const m of MOVE_ORDER) {
+        const mine = list.filter((p) => p.move === m);
+        const head = h('div', { class: 'pb-group', textContent: MOVE_NAME[m] }); head.dataset.move = m;
+        cards.push(head);
+        if (mine.length) { cards.push(...mine.map(card)); ordered.push(...mine); } else cards.push(h('div', { class: 'pb-group-none', textContent: MOVE_EMPTY[m] }));
+      }
+      const rest = list.filter((p) => !p.move);
+      if (rest.length) { cards.push(h('div', { class: 'pb-group', textContent: 'Other' }), ...rest.map(card)); ordered.push(...rest); }
+      grid.replaceChildren(...cards);
+      list.splice(0, list.length, ...ordered);
+    } else grid.replaceChildren(...list.map(card));
     if (!list.length) grid.append(h('div', { class: 'pb-none', textContent: 'Nothing matches. Try another word.' }));
     else if (!list.includes(shown)) feat(list[0]); else feat(shown);
     for (const [s, b] of tabBtn) b.setAttribute('aria-selected', String(!q && s === section));
