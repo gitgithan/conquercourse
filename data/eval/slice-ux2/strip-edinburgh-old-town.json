@@ -1,0 +1,72 @@
+{
+  "slug": "edinburgh-old-town",
+  "shrink": 0.2,
+  "range": 36,
+  "oldGreen": 6,
+  "oldGreenNoPath": 1,
+  "newGreenNoPath": 0,
+  "pathCount": 5,
+  "seconds": 218.3,
+  "rows": [
+    {
+      "real": 2,
+      "lane": true,
+      "oldGreen": false,
+      "path": false
+    },
+    {
+      "real": 5.5,
+      "lane": true,
+      "oldGreen": false,
+      "path": false
+    },
+    {
+      "real": 9,
+      "lane": true,
+      "oldGreen": false,
+      "path": false
+    },
+    {
+      "real": 12.5,
+      "lane": true,
+      "oldGreen": false,
+      "path": false
+    },
+    {
+      "real": 16,
+      "lane": true,
+      "oldGreen": true,
+      "path": false
+    },
+    {
+      "real": 20,
+      "lane": true,
+      "oldGreen": true,
+      "path": true
+    },
+    {
+      "real": 23.5,
+      "lane": true,
+      "oldGreen": true,
+      "path": true
+    },
+    {
+      "real": 27,
+      "lane": true,
+      "oldGreen": true,
+      "path": true
+    },
+    {
+      "real": 30.5,
+      "lane": true,
+      "oldGreen": true,
+      "path": true
+    },
+    {
+      "real": 34,
+      "lane": true,
+      "oldGreen": true,
+      "path": true
+    }
+  ]
+}

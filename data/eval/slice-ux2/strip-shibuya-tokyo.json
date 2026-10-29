@@ -1,0 +1,72 @@
+{
+  "slug": "shibuya-tokyo",
+  "shrink": 0.2,
+  "range": 56,
+  "oldGreen": 2,
+  "oldGreenNoPath": 0,
+  "newGreenNoPath": 0,
+  "pathCount": 6,
+  "seconds": 151.5,
+  "rows": [
+    {
+      "real": 3,
+      "lane": true,
+      "oldGreen": false,
+      "path": false
+    },
+    {
+      "real": 8.5,
+      "lane": true,
+      "oldGreen": false,
+      "path": false
+    },
+    {
+      "real": 14,
+      "lane": true,
+      "oldGreen": false,
+      "path": false
+    },
+    {
+      "real": 19.5,
+      "lane": true,
+      "oldGreen": false,
+      "path": true
+    },
+    {
+      "real": 25,
+      "lane": true,
+      "oldGreen": false,
+      "path": true
+    },
+    {
+      "real": 31,
+      "lane": true,
+      "oldGreen": false,
+      "path": true
+    },
+    {
+      "real": 36.5,
+      "lane": true,
+      "oldGreen": false,
+      "path": false
+    },
+    {
+      "real": 42,
+      "lane": true,
+      "oldGreen": false,
+      "path": true
+    },
+    {
+      "real": 47.5,
+      "lane": true,
+      "oldGreen": true,
+      "path": true
+    },
+    {
+      "real": 53,
+      "lane": true,
+      "oldGreen": true,
+      "path": true
+    }
+  ]
+}
