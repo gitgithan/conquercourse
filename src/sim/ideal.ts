@@ -140,16 +140,18 @@ export function clearedCached(course: CourseData): boolean {
   return cleared;
 }
 
-export function playPlan(course: CourseData, plan: Plan, maxTicks = 120 * 80): RunResult {
+export function playPlan(course: CourseData, plan: Plan, maxTicks = 120 * 80, trace?: (w: WorldState) => void): RunResult { // trace sees the world before the first tick and after every tick (the ghost keeps where the runner was)
   let w = newWorld(course);
   const st = { next: 0, caught: null as number | null, bedAt: null as number | null, hangAt: null as number | null, hangs: 0, vnext: 0, cnext: 0, inClimb: false, fnext: 0, airSince: null as number | null, bandTurned: false };
   const events: GameEvent[] = [];
   let maxX = 0;
   let still = 0;
   let spent = 0;
+  trace?.(w);
   for (let i = 0; i < maxTicks && w.outcome === 'running'; i++) {
     spent++;
     w = stepWorld(w, inputFor(plan, w, st, course), course);
+    trace?.(w);
     events.push(...w.events);
     if (!Number.isFinite(w.runner.x)) break; // a state that went to NaN has nowhere to go
     maxX = Math.max(maxX, w.runner.x);

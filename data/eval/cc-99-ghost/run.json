@@ -1,0 +1,74 @@
+{
+  "results": [
+    {
+      "name": "lache 1280: the bot on the ideal line is level with the ghost",
+      "pass": true,
+      "note": "Level with the ghost"
+    },
+    {
+      "name": "lache 1280: the ghost chip overlaps no other card",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "climb 1280: the bot on the ideal line is level with the ghost",
+      "pass": true,
+      "note": "Level with the ghost"
+    },
+    {
+      "name": "climb 1280: the ghost chip overlaps no other card",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "coaster 1280: the bot on the ideal line is level with the ghost",
+      "pass": true,
+      "note": "Level with the ghost"
+    },
+    {
+      "name": "coaster 1280: the ghost chip overlaps no other card",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "lache 1024: the bot on the ideal line is level with the ghost",
+      "pass": true,
+      "note": "Level with the ghost"
+    },
+    {
+      "name": "lache 1024: the ghost chip overlaps no other card",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "climb 1024: the bot on the ideal line is level with the ghost",
+      "pass": true,
+      "note": "Level with the ghost"
+    },
+    {
+      "name": "climb 1024: the ghost chip overlaps no other card",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "coaster 1024: the bot on the ideal line is level with the ghost",
+      "pass": true,
+      "note": "Level with the ghost"
+    },
+    {
+      "name": "coaster 1024: the ghost chip overlaps no other card",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "a player who only runs sees the ghost ahead",
+      "pass": true,
+      "note": "Ghost is 0.6 s ahead"
+    },
+    {
+      "name": "N switches the ghost off",
+      "pass": true,
+      "note": ""
+    }
+  ]
+}
