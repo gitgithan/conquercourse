@@ -3,7 +3,7 @@ import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 import { lookupFeatures, trimFeature, WANTED } from '../functions/api/features';
 import type { Fetcher, Store } from '../functions/api/photos';
-import { FURNITURE_ON, KINDS, drawScale, keepOffRun, place, toGame, MIN_SCALE, LANE_HALF, CLEAR_Z, type Frame, type FurnitureFile } from '../src/world/furniture';
+import { FURNITURE_ON, KINDS, drawScale, keepOffRun, place, toGame, MIN_SCALE, FILM_MIN_SCALE, LANE_HALF, CLEAR_Z, type Frame, type FurnitureFile } from '../src/world/furniture';
 import { groundAt, type Terrain } from '../src/sim/terrain';
 
 const mem = (): Store => { const m = new Map<string, string>(); return { get: async (k) => m.get(k) ?? null, put: async (k, v) => void m.set(k, v) }; };
@@ -50,6 +50,7 @@ describe('from the real world to the game', () => {
     const east = 33.3, south = -70.2, v = new THREE.Vector3(east * f.k - f.ox, 0, south * f.k - f.oz).applyMatrix4(m), g = toGame(f, east, south, 0);
     expect(g.x).toBeCloseTo(v.x, 6); expect(g.z).toBeCloseTo(v.z, 6);
   });
+  it('the film backdrop draws closer to true size than play, and play is unchanged', () => { expect(drawScale({ ...frame, k: 0.12 })).toBe(MIN_SCALE); expect(drawScale({ ...frame, k: 0.12 }, FILM_MIN_SCALE)).toBe(FILM_MIN_SCALE); expect(FILM_MIN_SCALE).toBeLessThan(MIN_SCALE); });
   it('draws small worlds no smaller than the minimum scale', () => { expect(drawScale({ ...frame, k: 0.07 })).toBe(MIN_SCALE); expect(drawScale({ ...frame, k: 1.5 })).toBeCloseTo(1.5); });
   it('is off unless ?furniture=1', () => { expect(FURNITURE_ON(new URLSearchParams(''))).toBe(false); expect(FURNITURE_ON(new URLSearchParams('furniture=0'))).toBe(false); expect(FURNITURE_ON(new URLSearchParams('furniture=1'))).toBe(true); });
 });

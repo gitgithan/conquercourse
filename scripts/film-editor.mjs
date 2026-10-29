@@ -17,6 +17,15 @@ try {
   const page = await ctx.newPage(); t0 = Date.now();
   page.on('pageerror', (e) => log('PAGEERROR ' + e.message.slice(0, 160)));
   const mark = (n) => { marks.push([n, (Date.now() - t0) / 1000]); log(n); };
+  if (process.env.HERO) { // CC-238: the editor start scene on the real place, straight from the address
+    await page.goto(`http://localhost:${port}/?mode=editor&start=hero:montmartre-paris${process.env.BOX ? '&box=1' : ''}${process.env.ACROSS ? '&boxacross=' + process.env.ACROSS : ''}${process.env.BOXSCALE ? '&boxscale=' + process.env.BOXSCALE : ''}`);
+    await page.waitForSelector('#view3d', { timeout: 120000 }); mark('editor open'); await page.waitForTimeout(6000);
+    await page.screenshot({ path: `${out}.0-start.png` });
+    await page.mouse.click(945, 92); await page.mouse.click(206, 391); mark('help and person hidden'); await page.waitForTimeout(8000);
+    await page.screenshot({ path: `${out}.2-editor.png` }); mark('end');
+    await page.close(); await ctx.close(); await browser.close(); server.kill();
+    writeFileSync(`${out}.marks.json`, JSON.stringify(marks, null, 2) + '\n'); console.log('video in', work); process.exit(0);
+  }
   await page.goto(`http://localhost:${port}/?course=/assets/demo/hero-montmartre-paris.course.json&photos=0`);
   await page.waitForSelector('#editcourse', { timeout: 120000 });
   mark('course shown'); await page.waitForTimeout(2500);

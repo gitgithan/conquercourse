@@ -51,6 +51,8 @@ async function courseFromUrl(): Promise<CourseData | undefined> {
   try { return (await (await fetch(url)).json()) as CourseData; } catch { return undefined; }
 }
 const mode = new URLSearchParams(location.search).get('mode') ?? 'course';
+const heroSlug = /^hero:([\w-]+)$/.exec(new URLSearchParams(location.search).get('start') ?? '')?.[1]; // CC-238: the film's editor start scene
+if (mode === 'editor' && heroSlug) { try { sessionStorage.setItem('cc.map.piece', JSON.stringify(await (await import('./slice/hero-start')).heroStart(heroSlug, fetch, new URLSearchParams(location.search).get('box') === '1', Number(new URLSearchParams(location.search).get('boxscale') ?? 1), Number(new URLSearchParams(location.search).get('boxacross') ?? 0)))); } catch { /* the editor opens on its own world */ } }
 const game = mode === 'diagrams' ? (await import('./modes/diagrams-page')).startDiagrams(document.body) : mode === 'rookie' ? await createStage(document.body) : mode === 'dojo' ? startDojo(document.body) : mode === 'park' ? startPark(document.body) : mode === 'editor' ? (await import('./modes/editor')).startEditor(document.body) : mode === 'map' ? (await import('./modes/map')).startMap(document.body) : mode === 'coaster' ? (await import('./modes/coaster')).startCoaster(document.body) : mode === 'lab-search' ? (await import('./modes/lab-search')).startLabSearch(document.body) : mode === 'gallery' ? (await import('./modes/gallery')).startGallery(document.body) : await startCourse(document.body, await courseFromUrl());
 document.documentElement.dataset.backend = game.backend;
 startMusic(screenFor(mode)); // CC-132: a loop per screen, only with ?music=1
