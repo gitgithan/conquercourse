@@ -17,7 +17,7 @@ const platforms: { x0: number; x1: number; top: number; bouncy?: boolean }[] = [
 const course = {
   version: 1, name: "Training course: every move", startX: 0, finishX: 178, jumpSpeed: 4.5, jumpKeep: 0.88,
   terrain: { waterY: -6, platforms },
-  rope: { anchorX: 90, anchorY: 6.6, length: 9 },
+  rope: { anchorX: 90, anchorY: 7.8, length: 9 },
   holds: [{ x: 65, y: 2.9 }, { x: 68.5, y: 2.9 }],
   zones: [
     { id: "gap", name: "Gap jump", x0: 20, x1: 34 },
