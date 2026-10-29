@@ -176,8 +176,8 @@ flowchart LR
 - **Data in:** a written prompt per screen and a seed; no melody, no recording and no existing song goes in.
 - **Model:** MusicGen medium (`facebook/musicgen-medium`) on a Modal GPU, 30 s per clip.
 - **How it is loaded:** AudioCraft's own pip package failed to build on its `av` dependency, so the same Meta weights are loaded through the transformers library.
-- **Our code:** it finds the tempo, keeps whole bars, picks the start that makes the wrap continuous, checks the seam, and for the Report loop cuts the loud highs with a gentle high-shelf.
-- **In the game:** one loop per screen, off until `?music=1`, quiet, crossfaded between screens, M mutes.
+- **Our code:** it finds the tempo, keeps whole bars, picks the start that makes the wrap continuous, checks the seam, and can cut loud highs with a gentle high-shelf (the chosen Report loop needed none).
+- **In the game:** one loop per screen, on by default (`?music=0` turns it off), quiet, 2 s fade-in, crossfaded between screens, M mutes.
 - **Licence, said plainly:** the weights are CC BY-NC 4.0 (non-commercial) and the code is MIT; the entry is non-commercial, and a commercial release would need the loops remade.
 - **Measured, not heard:** wrap jump, bar length, tempo and the share of energy above 5 kHz (`docs/music.md`).
 
@@ -185,7 +185,7 @@ flowchart LR
 flowchart LR
   PR["Text prompt + seed"] --> MG["MusicGen medium<br/>(via transformers, Modal GPU)"]
   MG --> CUT["Bar cut and loop seam check<br/>our code"]
-  CUT --> HS["High-shelf cut<br/>(Report loop)"]
+  CUT --> HS["High-shelf cut<br/>(only if too bright)"]
   HS --> XF["Screen crossfade<br/>in the game, M mutes"]
   classDef meta fill:#dbeafe,stroke:#1d4ed8,color:#0f172a;
   class MG meta;
