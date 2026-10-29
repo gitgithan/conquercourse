@@ -34,7 +34,7 @@ export interface OnboardingEnv {
   openCourses(): void; toggleKeys(): void;
   resetRun?(): void; // the run clock starts again when the tour closes (the tour's seconds are not the player's time)
 }
-export interface Onboarding { onCleared(panel: HTMLElement | null): void; onFall(): void; replay(): void; destroy(): void }
+export interface Onboarding { onCleared(panel: HTMLElement | null): void; onFall(panel?: HTMLElement | null): void; replay(): void; destroy(): void }
 
 const CSS = `
 #tour,#ccnext,#ccfirstfall,#helpmenu{font:500 15px/1.4 system-ui,sans-serif;color:#17201d;box-sizing:border-box}
@@ -74,6 +74,7 @@ const CSS = `
 #ccnext .item{display:grid;gap:4px;justify-items:start}
 #ccnext .item span{font-size:13.5px;line-height:1.3}
 #ccnext .ccchip{padding:2px 6px 2px 3px;font-size:13px}
+#ccfirstfall.inpanel p{margin:0}#ccfirstfall.inpanel button{width:auto;justify-self:start;padding:4px 14px}#ccfirstfall.inpanel{gap:2px;position:static;width:auto;box-shadow:none;border-radius:10px;background:#f1f6f3;padding:8px 12px;margin-bottom:8px;z-index:auto}
 #ccfirstfall{position:fixed;z-index:900;left:clamp(340px,34vw,440px);top:164px;width:clamp(300px,calc(100vw - 770px),420px);background:#fffffff7;border:1px solid #cfd6d0;border-radius:14px;box-shadow:0 6px 24px #0003;padding:12px 14px;display:grid;gap:6px}
 @media (prefers-reduced-motion:reduce){#tour .bar b{animation-duration:.01s}}
 `;
@@ -213,11 +214,12 @@ export function startOnboarding(env: OnboardingEnv): Onboarding {
       if (panel) panel.prepend(card); else { card.classList.add('modal'); document.body.append(card); }
       if (panel) panel.scrollTop = 0; // the report opens scrolled to its buttons; the card sits at the top, so show the top
     },
-    onFall() {
+    onFall(panel) {
       if (env.store.get(FALL_SEEN) === '1' || env.store.get(NEXT_SEEN) === '1' || tourEl || fallEl) return;
       env.store.set(FALL_SEEN, '1');
       fallEl = h('section', { id: 'ccfirstfall' }, h('b', {}, 'Fell? That is how everyone starts.'), h('p', {}, 'Press R to try again.'), h('p', {}, 'Press I to watch the best line.'), btn('Got it', () => { fallEl?.remove(); fallEl = null; }, true));
-      document.body.append(fallEl); setTimeout(() => { fallEl?.remove(); fallEl = null; }, 12000);
+      if (panel) { fallEl.classList.add('inpanel'); panel.prepend(fallEl); } else document.body.append(fallEl); // CC-191: in the report, not on top of it
+      setTimeout(() => { fallEl?.remove(); fallEl = null; }, 12000);
     },
     replay: start,
     destroy() { finish(); closeMenu(); closeTips(); removeEventListener('keydown', onKey, true); chipEl.remove(); style.remove(); },
