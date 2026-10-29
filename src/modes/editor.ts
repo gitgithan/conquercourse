@@ -1,5 +1,6 @@
 import { HAZARDS, HAZARD_INFO, type Hazard } from '../course/hazard';
 import { styleEditor } from '../ui/editor-ux';
+import { applyMarquee, chosenIds, countText, isMarquee, pickInRect, rectFrom, toggleId, withoutIds } from '../ui/selection';
 import { organizeEditor } from '../ui/editor-layout';
 import { startCourse } from './course';
 import { readGlbMesh } from '../slice/glb';
@@ -74,6 +75,12 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
 
   let pieces: P[] = [];
   let selected: number | null = null;
+  // CC-200: several pieces chosen at once (Shift+click, a box dragged on the picture). `selected` stays the main one; the group counts while it is in it.
+  const multiOn = new URLSearchParams(location.search).get('editorui') !== 'old';
+  let group: number[] = [];
+  const chosen = (): number[] => (multiOn ? chosenIds(group, selected, (id) => pieces.some((q) => q.id === id && !isSizeReference(q))) : selected !== null ? [selected] : []);
+  const chooseMany = (ids: number[]) => { group = ids; selected = ids.length ? ids[ids.length - 1] : null; drawPanel(); draw(); drawProfile(); };
+  const deleteChosen = () => { const ids = chosen(); if (!ids.length) return; pieces = withoutIds(pieces, ids); selected = null; group = []; changed(); };
   let angle = 0, offset = 0, level = 0; // the lane: turn about the rod (radians), sideways (m), level (m)
   let view = { cx: 8, cz: 0, ppm: 36 }; // plan view: the world point in the middle, pixels per metre
   let personChipReady = false; // the chip is built after the 3D view; the world redraws can run before that
@@ -297,7 +304,10 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
   // the 3D view is the main picture; the flat plan is kept for exact dragging and cropping (button "Top plan")
   const view3d = createView3d(planWrap, {
     pieces: () => pieces, selected: () => selected, lane: () => ({ angle, offset, level }),
-    select: (id) => { selected = id; drawPanel(); draw(); },
+    select: (id) => { selected = id; group = []; drawPanel(); draw(); },
+    selectedAll: () => { const c = chosen(); return c.length > 1 ? c : []; },
+    toggle: (id) => chooseMany(toggleId(chosen(), id)),
+    marquee: (ids, additive) => chooseMany(applyMarquee(chosen(), ids, additive)),
     moved: (p, x, z) => { p.x = x; p.z = z; draw(); drawProfile(); },
     dropped: () => changed(),
     interactionStart: () => interruptSearch(),
@@ -780,6 +790,19 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
     el('div', side, { id: 'plankinfo', className: w.ratio >= 1 ? 'bad' : 'muted', text: w.ratio >= 1 ? `Over ${span.toFixed(1)} m it would snap (${(w.sag * 100).toFixed(0)} cm of sag at the worst place).` : `Over ${span.toFixed(1)} m it holds: ${(w.sag * 100).toFixed(0)} cm of sag at the worst place, ${(w.ratio * 100).toFixed(0)}% of what it can take.` });
   }
 
+  // ---- several pieces chosen (CC-200): a chip on the picture with the count, Delete and Clear, and a one-line hint for the box
+  const selChip = el('div', planWrap, { id: 'selchip' });
+  const selCount = el('strong', selChip, { id: 'selcount' });
+  el('button', selChip, { text: 'Delete', id: 'seldelete', title: 'Delete every chosen piece (Delete key). One Undo brings them back.' }).onclick = () => deleteChosen();
+  el('button', selChip, { text: 'Clear', id: 'selclear', title: 'Choose nothing (Esc)' }).onclick = () => { group = []; selected = null; drawPanel(); draw(); drawProfile(); };
+  const selHint = multiOn ? el('div', planWrap, { id: 'selhint', text: 'Shift + drag: choose several. Shift + click: add or drop one.' }) : null;
+  function syncSelChip() {
+    const n = chosen().length;
+    selChip.style.display = n > 1 ? 'flex' : 'none';
+    selCount.textContent = countText(n);
+    document.documentElement.dataset.selected = String(n);
+    if (selHint) selHint.style.display = n > 1 || topPlan ? 'none' : 'block';
+  }
   // ---- the selected piece's tools, on the picture (CC-94): turn, scale, copy, crop, delete
   function pieceBar(p: P | null) {
     bar.replaceChildren();
@@ -818,6 +841,8 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
   function drawPanel() {
     syncPersonChip();
     side.replaceChildren();
+    syncSelChip();
+    if (chosen().length > 1) { el('strong', side, { text: countText(chosen().length) }); el('div', side, { className: 'muted', text: 'Delete removes them all in one step (Undo brings them back). Esc clears the choice. Shift+click adds or drops one.' }); pieceBar(null); return; }
     const p = pieces.find((q) => q.id === selected && !isSizeReference(q));
     el('strong', side, { text: p ? p.name : 'No piece chosen' });
     if (!p) { pieceBar(null); el('div', side, { className: 'muted', text: 'Click a piece on the picture to choose it. Drag it to move it. Scroll to zoom, drag the background to pan.' }); return; }
@@ -1116,8 +1141,8 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
       }
       c.save(); c.translate(sx(p.x), sz(p.z)); c.rotate(p.yaw);
       const w = s.w * p.scale * view.ppm, d = s.d * p.scale * view.ppm;
-      c.fillStyle = COLORS[i % COLORS.length] + (p.id === selected ? 'dd' : '99'); c.fillRect(-w / 2, -d / 2, w, d);
-      c.strokeStyle = p.id === selected ? '#0f6b5c' : '#17201d'; c.lineWidth = p.id === selected ? 3 : 1; c.strokeRect(-w / 2, -d / 2, w, d);
+      c.fillStyle = COLORS[i % COLORS.length] + ((p.id === selected || chosen().includes(p.id)) ? 'dd' : '99'); c.fillRect(-w / 2, -d / 2, w, d);
+      { const on = p.id === selected || chosen().includes(p.id); c.strokeStyle = on ? '#0f6b5c' : '#17201d'; c.lineWidth = on ? 3 : 1; } c.strokeRect(-w / 2, -d / 2, w, d);
       c.restore();
       c.fillStyle = '#17201d'; c.font = '12px system-ui'; c.fillText(p.name, sx(p.x) - 28, sz(p.z) + 4);
     });
@@ -1243,15 +1268,17 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
 
   // ---- the mouse on the picture
   let rubber: { x0: number; z0: number; x1: number; z1: number } | null = null;
-  let drag: { kind: 'move' | 'pan' | 'rubber'; p?: P; ox: number; oz: number; sx0: number; sz0: number; cx: number; cz: number } | null = null;
+  let drag: { kind: 'move' | 'pan' | 'rubber' | 'marq'; p?: P; ox: number; oz: number; sx0: number; sz0: number; cx: number; cz: number } | null = null;
   plan.addEventListener('pointerdown', (e) => {
     const r = plan.getBoundingClientRect(), k = plan.width / r.width;
     const px = (e.clientX - r.left) * k, py = (e.clientY - r.top) * k, x = wx(px), z = wz(py);
     plan.setPointerCapture(e.pointerId);
     if (cropMode && selected !== null) { drag = { kind: 'rubber', ox: x, oz: z, sx0: 0, sz0: 0, cx: 0, cz: 0 }; rubber = { x0: x, z0: z, x1: x, z1: z }; return; }
     const hit = [...pieces].reverse().find((p) => !isSizeReference(p) && hits(p, x, z));
-    if (hit) { selected = hit.id; drag = { kind: 'move', p: hit, ox: x - hit.x, oz: z - hit.z, sx0: 0, sz0: 0, cx: 0, cz: 0 }; }
-    else { selected = null; drag = { kind: 'pan', ox: 0, oz: 0, sx0: px, sz0: py, cx: view.cx, cz: view.cz }; }
+    if (multiOn && e.shiftKey && hit) { chooseMany(toggleId(chosen(), hit.id)); drag = null; return; }
+    if (multiOn && !hit && e.button === 0 && !e.altKey) { drag = { kind: 'marq', ox: x, oz: z, sx0: px, sz0: py, cx: e.shiftKey ? 1 : 0, cz: 0 }; rubber = { x0: x, z0: z, x1: x, z1: z }; return; }
+    if (hit) { group = []; selected = hit.id; drag = { kind: 'move', p: hit, ox: x - hit.x, oz: z - hit.z, sx0: 0, sz0: 0, cx: 0, cz: 0 }; }
+    else { selected = null; group = []; drag = { kind: 'pan', ox: 0, oz: 0, sx0: px, sz0: py, cx: view.cx, cz: view.cz }; }
     drawPanel(); draw();
   });
   plan.addEventListener('pointermove', (e) => {
@@ -1260,11 +1287,20 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
     const px = (e.clientX - r.left) * k, py = (e.clientY - r.top) * k;
     if (drag.kind === 'move' && drag.p) { drag.p.x = Math.round((wx(px) - drag.ox) * 20) / 20; drag.p.z = Math.round((wz(py) - drag.oz) * 20) / 20; draw(); drawProfile(); }
     else if (drag.kind === 'pan') { view.cx = drag.cx - (px - drag.sx0) / view.ppm; view.cz = drag.cz - (py - drag.sz0) / view.ppm; draw(); }
-    else if (drag.kind === 'rubber' && rubber) { rubber = { x0: Math.min(drag.ox, wx(px)), z0: Math.min(drag.oz, wz(py)), x1: Math.max(drag.ox, wx(px)), z1: Math.max(drag.oz, wz(py)) }; draw(); }
+    else if ((drag.kind === 'rubber' || drag.kind === 'marq') && rubber) { rubber = { x0: Math.min(drag.ox, wx(px)), z0: Math.min(drag.oz, wz(py)), x1: Math.max(drag.ox, wx(px)), z1: Math.max(drag.oz, wz(py)) }; draw(); }
   });
   const end = () => {
     if (!drag) return;
     const d = drag; drag = null;
+    if (d.kind === 'marq') {
+      const rb = rubber; rubber = null;
+      const px = rb ? (rb.x1 - rb.x0) * view.ppm : 0, py = rb ? (rb.z1 - rb.z0) * view.ppm : 0;
+      if (rb && isMarquee(rectFrom(0, 0, px, py))) {
+        const items = pieces.filter((q) => !isSizeReference(q)).map((q) => ({ id: q.id, x: q.x, y: q.z, r: Math.max(realSize(q).w, realSize(q).d) / 2 }));
+        chooseMany(applyMarquee(chosen(), pickInRect(items, { x0: rb.x0, y0: rb.z0, x1: rb.x1, y1: rb.z1 }), d.cx === 1));
+      } else if (!d.cx) { selected = null; group = []; drawPanel(); }
+      draw(); return;
+    }
     if (d.kind === 'rubber' && rubber && selected !== null) {
       const p = pieces.find((q) => q.id === selected);
       if (p && rubber.x1 - rubber.x0 > 0.05 && rubber.z1 - rubber.z0 > 0.05) {
@@ -1303,6 +1339,8 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
     if ((e.ctrlKey || e.metaKey) && e.code === 'KeyZ') { e.preventDefault(); goto(e.shiftKey ? hi + 1 : hi - 1); return; }
     if ((e.ctrlKey || e.metaKey) && e.code === 'KeyY') { e.preventDefault(); goto(hi + 1); return; }
     if (e.code === 'Escape' && proposal) { closePreview('Cancelled: nothing changed.'); return; }
+    if (e.code === 'Escape' && chosen().length) { group = []; selected = null; drawPanel(); draw(); drawProfile(); return; }
+    if ((e.code === 'Delete' || e.code === 'Backspace') && chosen().length > 1) { e.preventDefault(); deleteChosen(); return; }
     if (e.code === 'KeyF' && !e.ctrlKey && !e.metaKey && !e.altKey) { fitAll(); return; }
     if (e.code === 'KeyT') { if (handoff) void goToCourse(); else location.href = '?'; }
     const p = pieces.find((q) => q.id === selected);
@@ -1311,6 +1349,14 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
     if (e.code === 'KeyD') { const q = duplicate(p, size(p.mesh).w * p.scale + 0.5, 0) as P; q.src = p.src; pieces.push(q); selected = q.id; changed(); }
   });
 
+  // for the scripted browser checks: where each piece is on the picture, in page pixels (a probe, it changes nothing)
+  (window as unknown as { ccPieceScreen?: () => { id: number; x: number; y: number }[] }).ccPieceScreen = () => {
+    const host = topPlan ? plan : view3d.el, r = host.getBoundingClientRect();
+    return pieces.filter((q) => !isSizeReference(q)).flatMap((q) => {
+      const s = topPlan ? { x: (sx(q.x) * r.width) / plan.width, y: (sz(q.z) * r.height) / plan.height } : view3d.project(q.x, q.y + realSize(q).h / 2, q.z);
+      return s ? [{ id: q.id, x: r.left + s.x, y: r.top + s.y }] : [];
+    });
+  };
   function changed(record = true) { if (proposal) closePreview('The layout changed, so the preview was closed.'); if (record) remember(); syncDeviceState(); document.documentElement.dataset.pieces = String(pieces.length); document.documentElement.dataset.band = bandK ? String(bandK) : ''; save(); drawPanel(); drawLanePanel(); draw(); drawProfile(); verify(); renderMoves(); }
   syncDeviceState();
   drawPanel(); drawLanePanel(); draw(); drawProfile(); verify();

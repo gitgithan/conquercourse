@@ -49,3 +49,14 @@ Levels: primary is filled green, secondary is outlined, quiet is plain text.
 - Panning only worked on the right mouse button, and left-drag on empty ground turns the view; with a plain, same-looking ground texture and fog a slide looks like nothing happened.
 - Fix: the middle button also slides, and Fit puts the view back in one click.
 - The flat plan also zoomed around its middle; it now zooms toward the cursor and allows 0.5 to 400 pixels per metre (was 2 to 120).
+
+## Add pieces and choosing several (CC-200)
+- "+ Add pieces" is now the first button on the bar and is filled green; Fit is a small outlined button.
+- Shift + drag on the 3D picture draws a box and chooses every piece inside it.
+- On the flat plan a plain drag on empty ground draws the box; Alt + drag or a right or middle drag slides the plan.
+- Shift + click adds a piece to the choice, or drops it when it is already chosen.
+- A chip at the bottom of the picture says "3 selected" with Delete and Clear.
+- The Delete or Backspace key does the same as the Delete button, in one undo step.
+- Esc clears the choice.
+- Chosen pieces get a green outline in 3D and a thick green edge on the plan.
+- `?editorui=old` keeps the one-piece choice.
