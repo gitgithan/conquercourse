@@ -33,6 +33,7 @@ export function coasterCourse(name: string, points: [number, number][] | [number
 export const COASTER_DEMOS: Record<string, { name: string; pts: [number, number][]; push?: number }> = {
   coaster: { name: 'Coaster', pts: [[0, 9], [7, 5], [14, 1], [22, 0.6], [34, 3.6], [46, 0.6], [56, 0.2]] },
   'coaster-low': { name: 'Coaster: first hill too low', pts: [[0, 5], [8, 1], [18, 6.5], [30, 1], [42, 0.2]] },
+  'coaster-two-hills': { name: 'Coaster: two hills', pts: [[0, 9], [7, 5], [14, 1], [22, 0.6], [34, 3.6], [44, 0.6], [50, 0.6], [55, 3.6], [60, 0.6], [72, 0.6], [82, 0.2]] },
   'coaster-sharp': { name: 'Coaster: a sharp hilltop', pts: [[0, 9], [7, 5], [14, 1], [22, 0.6], [27, 3.6], [32, 0.6], [46, 0.6], [56, 0.2]] },
 };
 

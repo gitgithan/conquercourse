@@ -641,7 +641,7 @@
       "unmasked_found": [
         {
           "score": 0.58,
-          "cover": 0.0,
+          "cover": 0,
           "box_share": 0.0026
         }
       ],
@@ -684,7 +684,7 @@
       "unmasked_found": [
         {
           "score": 0.77,
-          "cover": 0.0,
+          "cover": 0,
           "box_share": 0.0002
         },
         {
@@ -762,7 +762,7 @@
       "person_box_max_share": 0.0648,
       "unmasked_found": [
         {
-          "score": 1.0,
+          "score": 1,
           "cover": 0.55,
           "box_share": 0.0669
         }
@@ -818,12 +818,12 @@
       "unmasked_found": [
         {
           "score": 0.55,
-          "cover": 0.0,
+          "cover": 0,
           "box_share": 0.0001
         },
         {
           "score": 0.52,
-          "cover": 0.0,
+          "cover": 0,
           "box_share": 0.0003
         }
       ],
@@ -1016,7 +1016,7 @@
       "person_box_max_share": 0.0665,
       "unmasked_found": [
         {
-          "score": 1.0,
+          "score": 1,
           "cover": 0.56,
           "box_share": 0.0659
         },

@@ -29,11 +29,11 @@
 | Barcelona block | Flat city roofs | Edinburgh Old Town, when its course lands | Remove from the menu then; keep until then |
 | Sydney quay | Wide gaps on a waterfront | none | Keep |
 | San Francisco hill | The steepest real hill | Montmartre, partly | Keep (the real hill is the point) |
-| Park rail run | Vault and jump, repeated, on real rails | Skate box and rail, Bench and stairs | Keep as the one real-objects course |
+| Park rail run | Vault and jump, repeated, on real rails | Skate box and rail, Bench and stairs | Out of the menu; its six objects are now in Park run |
 | Bench and stairs | Small steps up and down | Park rail run, Training course | Remove from the menu |
 | Skate box and rail | A plaza line | Park rail run | Remove from the menu |
-| Coaster: ride the hills | Energy: height turns into speed | none | Keep |
-| Coaster: a sharp hilltop | Speed lets go of the rails; brake | none | Keep |
+| Coaster: ride the hills | Energy: height turns into speed | Coaster: two hills (its first section) | Out of the menu |
+| Coaster: a sharp hilltop | Speed lets go of the rails; brake | Coaster: two hills (its second section) | Out of the menu |
 | Coaster: first hill too low | The cart cannot climb above where it started | Coaster: ride the hills (the same law) | Remove from the menu |
 | Launch (trebuchet) | Let go at the right moment | Launch and catch | Remove from the menu |
 | Launch and catch | Throw, then catch a bar in the air | none | Keep; listed as Trebuchet |
@@ -43,7 +43,7 @@
 | Recoil | The light thing goes fast, the heavy thing slow | Cannon (the same push, aimed) | Remove from the menu |
 | Cannon | Aim: the middle angle flies farthest; roll out of the landing | none | Keep |
 | Stack demo | Cup pyramids as obstacles | none | Keep |
-| Plank bridge: sags but holds | A plank bends and holds | none | Keep |
+| Plank bridge: sags but holds | A plank bends and holds | Plank bridge: thick, then thin (its first plank) | Out of the menu |
 | Plank bridge: too thin | A thinner plank breaks | Plank bridge (the same idea) | Remove from the menu |
 | Make me a new course | A random course the simulator proved | none | Keep |
 | Build your own (editor) | Place pieces; the simulator checks | none | Keep |
@@ -53,10 +53,10 @@
 ## What the menu holds after this change
 - Start here: Training course.
 - Real places: Montmartre, Barcelona block (until Edinburgh Old Town lands), Sydney quay, San Francisco hill.
-- Real objects: Park rail run.
-- Contraptions: Coaster (two courses), Trebuchet, Band, Drone ferry, Cannon, Stack demo, Plank bridge.
+- Real objects: Park run (stairs, box, two rails, bench, handrail).
+- Contraptions: Coaster: two hills, Trebuchet, Band, Drone ferry, Cannon, Stack demo, Plank bridge: thick, then thin.
 - Make your own: four entries.
-- Total: 14 courses and 4 ways to make your own, down from 24 and 4 (and the stock course, which was listed apart).
+- Total: 13 courses and 4 ways to make your own, down from 24 and 4 (and the stock course, which was listed apart).
 
 ## Old links
 - No course file was deleted: every removed course is still used by a test or a script.
@@ -72,7 +72,6 @@
 - Each of these shows in the report as time and effort next to the best line, and the biggest change is named.
 
 ## Not done yet
-- A merged Coaster with two sections, a merged Plank bridge with a thick and a thin plank, and a merged Park run built from the three park files are not built; the menu keeps the best of each instead.
-- A bare `/` still opens the old stock course; moving it to the Training course means moving the checks and the first-visit tour that use it first.
+- A bare `/` opens the Training course for people (CC-114); automation keeps the stock course, so the checks and the Dojo are unchanged.
 - Edinburgh Old Town is not a course yet; Barcelona stays until it is.
 - The contraption courses only compare with the best line when a plan is stored for them; the coaster courses have none.
