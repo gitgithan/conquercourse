@@ -1316,6 +1316,9 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
   // ?fx=bloom,vignette,dof (or all): picture polish for stills (CC-188); off unless asked, loaded only then
   let fxPipe: { render(): void } | null = null;
   if (new URLSearchParams(location.search).get('fx')) void import('../render/fx').then((m) => { const on = m.fxOf(location.search); if (on.size) fxPipe = m.createFx(renderer as any, scene, camera, on, () => camera.position.distanceTo(body.position)); });
+  // ?trail=1: a light trail behind the runner for film shots (CC-209); loaded only then
+  let trailPush: ((x: number, y: number) => void) | null = null;
+  if (new URLSearchParams(location.search).get('trail') === '1') void import('../render/trail').then((m) => { trailPush = m.createTrail(scene).push; });
   const filmShot = filmShotOf(location.search); // the film camera (CC-130): only with ?film=<shot>
   const film = filmShot ? (await import('../film/overlay')).startFilm(filmShot, params, renderer.domElement as HTMLCanvasElement, course.finishX) : null;
   let filmAir = 0;
@@ -1455,6 +1458,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
     const sq = world.runner.tick < squashUntil ? squashDepth : 1;
     body.scale.set(1 / Math.sqrt(sq), sq, 1 / Math.sqrt(sq));
     body.position.set(r.x, r.y + 0.85 * sq, 0);
+    trailPush?.(r.x, r.y + 0.95 * sq);
     ghostCtl?.frame({ tick: world.runner.tick, x: world.runner.x, active: (!plan || ghostBot) && !demo && !idealWhole && !replay && !clipping, firstPerson: camMode === 'first' });
     const facingSpeed = world.mode === 'cart' && world.cart ? world.cart.v : world.runner.vx;
     if (Math.abs(facingSpeed) > 0.3 && world.mode !== 'hang') facing = facingSpeed < 0 ? -1 : 1; // on a bar the body keeps facing one way, whichever way it swings
