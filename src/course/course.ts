@@ -49,5 +49,6 @@ export interface CourseData {
   source?: CourseSource; // editor lanes: the pieces and lane this course was cut from (CC-80)
   drone?: Partial<import('../sim/drone').DroneParams> & { x0: number; x1: number }; // a drone pad (src/sim/drone.ts): hold E on it to board the cargo drone and fly across
   branches?: import('../sim/branches').Branch[]; // forks with two or three ways through a stretch (src/sim/branches.ts, CC-224); a course without it has one way
+  keepDecks?: boolean; // a course with photo objects normally draws only the first and last deck (the objects are the ground); true keeps every deck as well (the hero course: one object on a lane of decks)
   hazard?: import('./hazard').Hazard; // the floor you must not touch: water (default), lava, mud, spikes or void; paint, words and sound only
 }
