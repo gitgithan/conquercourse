@@ -183,6 +183,12 @@ The set of obstacle shapes is fixed, and each shape offers a fixed set of moves.
 ## Swing aids: push and let-go cues (CC-44)
 - **On a bar:** the hint says which arrow to push (the way the body is swinging) and, from a look ahead run on the simulator's own physics (`predictRelease`), "LET GO NOW" when letting go reaches the next bar or the far ground, or why to keep swinging ("you would land back on the near side", "you fall in the water").
 - **Debug view:** while hanging it draws the path of letting go now instead of a jump.
+- **Debug card (CC-98):** one card at the top left, shown instead of the controls card while Debug is on.
+- A readout of short label and value rows, then four folded sections (Shapes, Predictions, Contacts and windows, Machines).
+- Each overlay has a swatch and a switch, remembered per browser.
+- Longer explanations sit in tooltips and in a closed "What is this?" row.
+- Esc or B closes it, and Copy state copies the readout as text.
+- `scripts/debug-panel-check.mjs` fails on overlap, off-screen cards, clipped text and lines over 8 words.
 
 ## Demo menu (CC-44)
 - **A menu at the right of the Course** ("Open another course") lists every course we have made: the stock course, the lache demo, two lanes from the demo scene, three places from the map spike (Barcelona, Montmartre, Sydney) and a link to the editor; `scripts/demos-check.mjs` opens each one.
