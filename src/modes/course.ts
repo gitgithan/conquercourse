@@ -1103,7 +1103,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
     if (!course.track) mk('Make it easier', () => openEditor('easier')).id = 'makeeasier';
     mk('Edit this course', () => openEditor('edit')).id = 'editfromfall';
     if (train) mk(`Train the ${zone?.name ?? 'obstacle'}`, () => { saveResume(); location.search = trainLink(zone?.id ?? 'gap', r.x); });
-    panel.append(h, t, floorNote, renderReport(course, runLog, buildReport(course, runLog, world, false, null), {}, true), row);
+    panel.append(h, t, floorNote, renderReport(course, runLog, buildReport(course, runLog, world, false, null), {}, true, ghostCtl?.reportPath() ?? null, !reportSectionsOn(params)), row);
     retry.focus();
   }
 
@@ -1387,7 +1387,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
           watch: course.plan ? () => { panel.style.display = 'none'; void startIdeal(course.startX, null); } : undefined,
           next: here >= 0 && nxt ? { name: nxt[1].split(':')[0], go: () => { location.href = worldHref(nxt[0]); } } : undefined,
           close: () => { panel.style.display = 'none'; },
-        });
+        }, false, ghostCtl?.reportPath() ?? null, !reportSectionsOn(params));
         if (ghostLine) body.querySelector('#report-ghost-slot')?.append(ghostLine);
         if (ghostCtl && !botMode && !demo && !idealWhole) body.querySelector('#report-actions')?.prepend(...ghostCtl.reportActions(() => { panel.style.display = 'none'; retryX = course.startX; restart(course.startX); }));
         if (shareOn(params) && !botMode && !demo && !idealWhole && !params.get('mode')) {
