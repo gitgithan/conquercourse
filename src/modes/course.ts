@@ -14,6 +14,7 @@ import { DEFAULT_WALL } from '../sim/wall';
 import { DEFAULT_ROPE } from '../sim/rope';
 import { inputFor, searchIdealRun, workSeconds, xWindows, type Plan, type SearchResult, type Window } from '../sim/ideal';
 import { IdealPool } from '../sim/ideal-pool';
+import { createGhost } from '../ui/ghost';
 import { findShortcuts, shortcutLine, type Shortcut } from '../sim/shortcuts';
 const findShortcutsNow = (c: CourseData): Shortcut[] => findShortcuts(c, { moveChoices: false }).shortcuts; // ?bot=shortcut only: blocks the page while it searches
 import { flightPath, gapSpecs, minSpeedForWall, pressBand } from '../sim/needs';
@@ -298,7 +299,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
   // the controls, always visible top-left as a card of key caps (collapse with H)
   const help = document.createElement('div');
   help.id = 'keys';
-  const KEYS: [string, string][] = [['← →', 'Run (hold)'], ['Space / ↑ / W', 'Jump · let go of the rope · press on the trampoline'], ['↓ / S', 'Bend your knees (hold, on big drops)'], ['X', 'Roll: hold it as you land (it counts in the last 0.15 s and about a metre up; a tap earlier does nothing); on the ground it rolls along'], ...(course.recoil ? ([['K', 'Fire the launcher (clip it on at the teal pad): the ball goes back, you go forward'], ...(isAimable(recoilParams(course)) ? [['↑ ↓ (or W)', 'Tilt the cannon barrel while it is loaded (Up does not jump then): it points backward and down, so the push goes forward and up; dots show where you would land']] : [])] as [string, string][]) : []), ...(course.trebuchet ? ([['→ (hold), then Space, ↑ or W', 'Trebuchet: pull the pin, then let the rider go when the hint says LET GO NOW']] as [string, string][]) : []), ...(course !== defaultCourse ? ([['E', 'Hold a bar in the air (let go to fly on), or at a tall wall: grab its edge and climb'], ['← → on a bar', 'Pump the swing: push the way you swing'], ['V', 'Vault over a step with a hand on top (fast, saves energy)']] as [string, string][]) : []), ['F', 'Toggle the Looking ahead inset'], ...(course.track ? ([['→, Space, ↑ or W', 'Push off at the top of the first hill'], ['↓ / S (hold)', 'Brake']] as [string, string][]) : []), ['I', 'Ideal run of this obstacle (Shift+I: the whole course, any key stops it)'], ...(course.band ? ([['←, then →', 'Elastic band: hold ← to stretch it, then turn round (hold →) and it throws you']] as [string, string][]) : []), ...(course.drone ? ([['E (on the pad)', 'Board the drone; let go to step off'], ['← → in the drone', 'Lean: the drone flies that way'], ['↑ ↓ in the drone', 'Climb, or come down']] as [string, string][]) : []), ['G', 'Drums: where the ideal run presses Space'], ['B', 'Debug view: see the collision boxes and where a jump goes'], ['Mouse', 'Drag to turn the view, wheel to zoom (all the way in shows the face), double-click to reset']]; // retry, ideal run and Dojo are on the fall panel and the buttons
+  const KEYS: [string, string][] = [['← →', 'Run (hold)'], ['Space / ↑ / W', 'Jump · let go of the rope · press on the trampoline'], ['↓ / S', 'Bend your knees (hold, on big drops)'], ['X', 'Roll: hold it as you land (it counts in the last 0.15 s and about a metre up; a tap earlier does nothing); on the ground it rolls along'], ...(course.recoil ? ([['K', 'Fire the launcher (clip it on at the teal pad): the ball goes back, you go forward'], ...(isAimable(recoilParams(course)) ? [['↑ ↓ (or W)', 'Tilt the cannon barrel while it is loaded (Up does not jump then): it points backward and down, so the push goes forward and up; dots show where you would land']] : [])] as [string, string][]) : []), ...(course.trebuchet ? ([['→ (hold), then Space, ↑ or W', 'Trebuchet: pull the pin, then let the rider go when the hint says LET GO NOW']] as [string, string][]) : []), ...(course !== defaultCourse ? ([['E', 'Hold a bar in the air (let go to fly on), or at a tall wall: grab its edge and climb'], ['← → on a bar', 'Pump the swing: push the way you swing'], ['V', 'Vault over a step with a hand on top (fast, saves energy)']] as [string, string][]) : []), ['F', 'Toggle the Looking ahead inset'], ['N', 'Ghost: a see-through runner that replays the ideal run, to chase (N switches it)'], ...(course.track ? ([['→, Space, ↑ or W', 'Push off at the top of the first hill'], ['↓ / S (hold)', 'Brake']] as [string, string][]) : []), ['I', 'Ideal run of this obstacle (Shift+I: the whole course, any key stops it)'], ...(course.band ? ([['←, then →', 'Elastic band: hold ← to stretch it, then turn round (hold →) and it throws you']] as [string, string][]) : []), ...(course.drone ? ([['E (on the pad)', 'Board the drone; let go to step off'], ['← → in the drone', 'Lean: the drone flies that way'], ['↑ ↓ in the drone', 'Climb, or come down']] as [string, string][]) : []), ['G', 'Drums: where the ideal run presses Space'], ['B', 'Debug view: see the collision boxes and where a jump goes'], ['Mouse', 'Drag to turn the view, wheel to zoom (all the way in shows the face), double-click to reset']]; // retry, ideal run and Dojo are on the fall panel and the buttons
   help.style.cssText = 'position:fixed;left:16px;top:48px;width:290px;background:#fffffff0;border:1px solid #cfd6d0;border-radius:12px;padding:8px 10px;font:500 14px system-ui,sans-serif;color:#17201d;box-shadow:0 2px 10px #0002;pointer-events:none;display:grid;gap:5px';
   const paintKeys = (open: boolean) => {
     help.innerHTML = `<div style="font-weight:700;display:flex;justify-content:space-between">Controls <span style="font-weight:400;color:#58635d">H ${open ? 'hides' : 'shows'}</span></div>` + (open ? KEYS.map(([k, d]) => `<div style="display:grid;grid-template-columns:78px 1fr;gap:8px;align-items:center"><kbd style="font:700 13px ui-monospace,monospace;background:#eef1ec;border:1px solid #b9c2bb;border-bottom-width:3px;border-radius:6px;padding:1px 6px;text-align:center">${k}</kbd><span>${d}</span></div>`).join('') : '');
@@ -582,6 +583,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
       e.preventDefault();
     }
     if (e.code === 'KeyB') toggleDebug();
+    if (e.code === 'KeyN') ghostCtl?.cycle();
     if (e.code === 'KeyH') { keysTouched = true; keysOpen = !keysOpen; paintKeys(keysOpen); }
   });
   addEventListener('keyup', (e) => keys.delete(e.code));
@@ -620,6 +622,8 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
   const toggleDebug = () => { debug.toggle(); dbgBtn.textContent = debug.shown ? 'Debug: on (B)' : 'Debug (B)'; dbgBtn.blur(); };
   dbgBtn.onclick = toggleDebug;
   let world = resume?.world ?? newWorld(course, resume ? resume.retryX : startAt);
+  const ghostBot = params.get('ghost') === 'bot'; // ?ghost=bot shows the ghost beside the bot too (for the check: the bot on the ideal line stays level with it)
+  let ghostCtl: ReturnType<typeof createGhost> | null = null; // the ghost to chase (CC-99), made once the ideal-run search is defined
   type RunKind = 'attempt' | 'practice';
   type ObstacleCounts = { attempts: number; successes: number; failures: number };
   type RunSummary = { runs: number; failures: number; completions: number; ticks: number; progressSum: number; progressCount: number; landings: number; landingOuch: number; bentLandings: number; obstacles: Record<string, ObstacleCounts> };
@@ -768,6 +772,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
     if (!botMode) plan = null;
     demo = null; idealWhole = false; idealPending = 0;
     world = newWorld(course, x);
+    ghostCtl?.begin(x === course.startX && (!botMode || ghostBot)); // a ghost chases a run from the start only
     resetRunStats(x);
     analyticsRunId = crypto.randomUUID(); failedThisAttempt = false;
     trackCourseEvent('start', analyticsCourseKey, course.name, analyticsRunId, analyticsMode);
@@ -1177,6 +1182,13 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
     return '';
   }
 
+  ghostCtl = createGhost({
+    scene, parent: document.body, course,
+    idealPlan: async () => idealCache.get(course.startX) ?? course.plan ?? (await runSearch(course, { cancelled: false }).then((r) => r.plan).catch(() => null)),
+    zoneIndexAt: (x) => progressZones.findIndex((z) => x >= z.x0 && x < z.x1),
+    strip: () => strip,
+  });
+  ghostCtl.begin(!resume && startAt === undefined && (!botMode || ghostBot));
   let last = performance.now();
   let acc = 0;
   let studioHold = false; // the Graph Studio has the clock stopped (not the Dojo's "press any key" pause)
@@ -1218,6 +1230,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
       if (plan) input = inputFor(plan, world, botState, course);
       else {
         input = { run: keys.has('ArrowRight') || keys.has('KeyD'), left: keys.has('ArrowLeft') || keys.has('KeyA'), jump: jumpQueued, jumpSpeed: 0, squat: keys.has('ArrowDown') || keys.has('KeyS'), handL: keys.has('KeyE'), handR: keys.has('KeyE'), vault: vaultQueued, roll: rollQueued || keys.has('KeyX'), fire: fireQueued, aimUp: keys.has('ArrowUp') || keys.has('KeyW'), aimDown: keys.has('ArrowDown'), up: keys.has('ArrowUp') || keys.has('KeyW') };
+        if (world.outcome === 'running') ghostCtl?.input(input);
         jumpQueued = false; vaultQueued = false; rollQueued = false; fireQueued = false;
       }
       const prev = world.outcome;
@@ -1279,7 +1292,9 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
         const actions = document.createElement('div'); actions.style.cssText = 'display:flex;gap:8px;flex-wrap:wrap';
         const again = document.createElement('button'); again.textContent = 'Run again (R)'; again.style.cssText = 'font:inherit;border:1px solid #0f6b5c;background:#0f6b5c;color:#fff;border-radius:8px;padding:6px 12px;cursor:pointer;font-weight:700'; again.onclick = () => restart(course.startX);
         const close = document.createElement('button'); close.textContent = 'Close report'; close.style.cssText = 'font:inherit;border:1px solid #b9c2bb;background:#fff;color:#17201d;border-radius:8px;padding:6px 12px;cursor:pointer'; close.onclick = () => { panel.style.display = 'none'; };
-        actions.append(again, close); panel.append(reportTitle, reportPanel('cleared'), actions); again.focus();
+        const ghostLine = ghostCtl?.reportLine(world.runner.tick) ?? null;
+        if (ghostCtl && !botMode && !demo && !idealWhole) actions.prepend(...ghostCtl.reportActions(() => { panel.style.display = 'none'; retryX = course.startX; restart(course.startX); }));
+        actions.append(again, close); panel.append(reportTitle, ...(ghostLine ? [ghostLine] : []), reportPanel('cleared'), actions); again.focus();
         if (!botMode && !demo && !idealWhole) clearedNote(); // a shortcut, if the simulator knows one (a fact, never a grade)
       }
     }
@@ -1296,6 +1311,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
     const sq = world.runner.tick < squashUntil ? squashDepth : 1;
     body.scale.set(1 / Math.sqrt(sq), sq, 1 / Math.sqrt(sq));
     body.position.set(r.x, r.y + 0.85 * sq, 0);
+    ghostCtl?.frame({ tick: world.runner.tick, x: world.runner.x, active: (!plan || ghostBot) && !demo && !idealWhole && !replay, firstPerson: camMode === 'first' });
     const facingSpeed = world.mode === 'cart' && world.cart ? world.cart.v : world.runner.vx;
     if (Math.abs(facingSpeed) > 0.3 && world.mode !== 'hang') facing = facingSpeed < 0 ? -1 : 1; // on a bar the body keeps facing one way, whichever way it swings
     // on a bar the actor is turned about its hands, so it is placed with the hands on the bar (feet straight below it before the turn), like the rope
