@@ -18,6 +18,8 @@ ROLL_MAX_S = 1.4             # the rolling part, not the run-in and get-up
 ROLL_MAX_HIPS = 1.05         # the hips never rise above this share of their standing height (a front flip goes up; a roll stays low)
 ROLL_MAX_AIR_S = 0.25        # and nothing is airborne longer than this inside the window (a roll keeps touching the ground)
 ROLL_MIN_S = 0.3
+ROLL_AXIS_MAX_OFF_DEG = 45   # the roll's line of travel may differ this much from the way the body faces at the start (a filmed body is not square to the camera); a bigger gap is a sideways move, not a roll
+ROLL_AXIS_MIN_TRAVEL_M = 0.3 # below this the hips have not travelled, so there is no line to take
 VAULT_AIR_MIN_S, VAULT_AIR_MAX_S = 0.2, 1.0   # both feet off the floor for this long
 VAULT_MIN_TRAVEL_M = 1.0     # and the body travels on over the obstacle
 VAULT_MAX_HIPS = 1.6         # the hips rise at most this share of their standing height: they clear a waist-high box and the hand pushes (a flip goes far higher and is also stopped by the trunk-turn limit)
@@ -58,17 +60,39 @@ def facing(frames, t=0):
     return np.cross(left, [0.0, 1.0, 0.0])
 
 
-def trunk_pitch_deg(frames):
-    """Turn of the hips-to-neck line in the plane of 'up' and the way the body faces at the start, degrees, unwrapped:
-    0 upright, +90 leaning toward where it faces, +180 upside down; a backward somersault counts negative."""
+def roll_axis(frames):
+    """The horizontal line the roll is measured along (a unit vector): the line the hips travel, pointing the way the body faces.
+
+    A body filmed head-on is rarely square to the camera, so its start facing can be tens of degrees off the way it rolls
+    and the turn then reads short (CC-222). The line of travel gives the plane the trunk really turns in. The sign still comes
+    from the facing, so a backward somersault stays negative. If the hips barely travel, or travel more than 45 degrees off
+    the facing (a sideways move), the facing is used: a cartwheel is never read as a roll."""
     face = facing(frames)
+    d = frames[-1, IDX["Hips"]] - frames[0, IDX["Hips"]]
+    d[1] = 0
+    n = np.linalg.norm(d)
+    if n < ROLL_AXIS_MIN_TRAVEL_M:
+        return face
+    d = d / n
+    if d @ face < 0:
+        d = -d
+    if np.degrees(np.arccos(np.clip(d @ face, -1, 1))) > ROLL_AXIS_MAX_OFF_DEG:
+        return face
+    return d
+
+
+def trunk_pitch_deg(frames, axis=None):
+    """Turn of the hips-to-neck line in the plane of 'up' and a horizontal axis, degrees, unwrapped (the axis is the way the body
+    faces at the start unless one is given): 0 upright, +90 leaning toward the axis, +180 upside down; a backward somersault counts negative."""
+    face = facing(frames) if axis is None else axis
     v = frames[:, IDX["Neck1"]] - frames[:, IDX["Hips"]]
     return np.degrees(np.unwrap(np.arctan2(v @ face, v[:, 1])))
 
 
 def roll_window(frames, margin_deg=20):
     """(first, last) frame of the turning part: from 20 degrees of forward lean to 20 degrees short of the end of the turn."""
-    p = trunk_pitch_deg(frames) - trunk_pitch_deg(frames)[0]
+    p = trunk_pitch_deg(frames, roll_axis(frames))
+    p = p - p[0]
     hi = int(np.argmax(p))
     start = np.where(p >= margin_deg)[0]
     if len(start) == 0:
@@ -84,7 +108,8 @@ def roll_window(frames, margin_deg=20):
 def roll_check(clip):
     """(ok, numbers, window) for a clip that should be a forward roll. The window is the rolling part, in frames."""
     f, fps = clip.frames, clip.fps
-    pitch = trunk_pitch_deg(f) - trunk_pitch_deg(f)[0]
+    pitch = trunk_pitch_deg(f, roll_axis(f))
+    pitch = pitch - pitch[0]
     win = roll_window(f)
     nums = {"max_turn_deg": round(float(pitch.max()), 1), "min_turn_deg": round(float(pitch.min()), 1)}
     if win is None:
