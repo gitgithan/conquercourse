@@ -27,9 +27,6 @@ describe('a lane with a launcher (editor)', () => {
     expect(searchIdealRun(withRecoil(lane(10.5), { kind: 'cannon', ballMass: 12, muzzle: 30 })).cleared).toBe(true);
     expect(searchIdealRun(lane(10.5)).cleared).toBe(false);
   });
-  it('the heavy crate is the same law with a slower throw: a smaller push, so a narrower gap (9 m, not 10.5)', () => {
-    expect(searchIdealRun(withRecoil(lane(9), { kind: 'crate', ballMass: 25, muzzle: 6 })).cleared).toBe(true);
-  });
 });
 
 describe('Fix it for the launcher', () => {

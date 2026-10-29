@@ -1,8 +1,8 @@
 import { DT, GRAVITY } from './units';
 import { groundAt, type Terrain } from './terrain';
 
-// Recoil: momentum is conserved. A launcher on the runner throws a heavy ball (or a crate) backward; the runner is pushed the other way by exactly
-// the momentum the ball carries away. Heavy and slow, or light and fast: the same push. One law, three pieces (an air launcher, a heavy crate and a big aimed cannon).
+// Recoil: momentum is conserved. A launcher on the runner throws a heavy ball backward; the runner is pushed the other way by exactly
+// the momentum the ball carries away. Heavy and slow, or light and fast: the same push. One law, two pieces (an air launcher and a big aimed cannon).
 //
 // Everything is a metre, a kilogram or a second. The system before the shot is the runner plus the loaded ball moving together; after it, the
 // ball leaves with `muzzle` m/s RELATIVE to the runner (that is how a launcher is rated), backward and DOWN by `angle` (the barrel points backward and down),
@@ -10,8 +10,8 @@ import { groundAt, type Terrain } from './terrain';
 //   (m_c + m_b) v = m_c v2 + m_b (v2 + rel)   =>   v2 = v + m_b u (cos a, sin a) / (m_c + m_b),   rel = -u (cos a, sin a)
 export interface RecoilParams {
   x0: number; x1: number; // the pad: stepping onto it clips the launcher on (one load per visit)
-  kind: 'cannon' | 'crate' | 'bigcannon';
-  ballMass: number; // kg (the crate for the crate piece)
+  kind: 'cannon' | 'bigcannon';
+  ballMass: number; // kg
   muzzle: number; // m/s of the ball relative to the runner at the moment it leaves
   angle: number; // rad: the angle the runner is pushed above the horizontal (the start aim of a big cannon, which the player changes)
   charMass: number; // kg, the runner and the launcher
@@ -19,7 +19,6 @@ export interface RecoilParams {
   shots: number; // loads per visit to the pad
 }
 export const DEFAULT_RECOIL: RecoilParams = { x0: 0, x1: 2, kind: 'cannon', ballMass: 12, muzzle: 30, angle: 0, charMass: 70, shots: 1 };
-export const DEFAULT_CRATE: Pick<RecoilParams, 'kind' | 'ballMass' | 'muzzle'> = { kind: 'crate', ballMass: 25, muzzle: 6 };
 // The big aimed cannon: a wheeled air cannon with a wide barrel and a pressure tank, a heavy ball at 45 m/s against the runner's 70 kg.
 export const DEFAULT_CANNON: Pick<RecoilParams, 'kind' | 'ballMass' | 'muzzle' | 'angle'> = { kind: 'bigcannon', ballMass: 80, muzzle: 45, angle: 0.7 };
 
