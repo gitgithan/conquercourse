@@ -801,7 +801,7 @@
   },
   "coverage": {
     "lane_steps": 16,
-    "steps_with_a_photo_reject_rule": 0.0,
+    "steps_with_a_photo_reject_rule": 0,
     "steps_with_a_photo_after_masking": 0.88
   }
 }
