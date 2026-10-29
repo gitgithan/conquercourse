@@ -1,0 +1,1089 @@
+{
+  "place": "eixample-barcelona",
+  "lane_steps_10m": 16,
+  "candidates_checked": 53,
+  "kept": 41,
+  "kept_untouched_no_person": 0,
+  "kept_masked": 41,
+  "rejected_by_reason": {
+    "second detector found a person the mask does not cover": 12
+  },
+  "rules": "reject if masked share > 0.15, or a person box > 0.25 of the picture, or Faster R-CNN (score >= 0.5, on original and on masked picture) finds a person with < 0.6 of its box inside the grown mask",
+  "allow_list": [
+    {
+      "id": "456922988749324",
+      "creator": "ccossio",
+      "lat": 41.393393,
+      "lon": 2.164266,
+      "persons": 25,
+      "masked_share": 0.0542
+    },
+    {
+      "id": "340433254105012",
+      "creator": "ugz",
+      "lat": 41.392787,
+      "lon": 2.164322,
+      "persons": 29,
+      "masked_share": 0.0336
+    },
+    {
+      "id": "370579940990891",
+      "creator": "ugz",
+      "lat": 41.392745,
+      "lon": 2.164376,
+      "persons": 26,
+      "masked_share": 0.03
+    },
+    {
+      "id": "569635607345264",
+      "creator": "ugz",
+      "lat": 41.392686,
+      "lon": 2.164436,
+      "persons": 27,
+      "masked_share": 0.0355
+    },
+    {
+      "id": "145230331160845",
+      "creator": "rhum",
+      "lat": 41.392726,
+      "lon": 2.164352,
+      "persons": 11,
+      "masked_share": 0.0424
+    },
+    {
+      "id": "777895596247452",
+      "creator": "ugz",
+      "lat": 41.392645,
+      "lon": 2.164493,
+      "persons": 26,
+      "masked_share": 0.0409
+    },
+    {
+      "id": "602580917562314",
+      "creator": "rhum",
+      "lat": 41.392648,
+      "lon": 2.16444,
+      "persons": 9,
+      "masked_share": 0.016
+    },
+    {
+      "id": "887096561837605",
+      "creator": "ugz",
+      "lat": 41.392606,
+      "lon": 2.16455,
+      "persons": 20,
+      "masked_share": 0.0248
+    },
+    {
+      "id": "287253569663479",
+      "creator": "ccossio",
+      "lat": 41.392644,
+      "lon": 2.164455,
+      "persons": 5,
+      "masked_share": 0.0052
+    },
+    {
+      "id": "265240672005745",
+      "creator": "ccossio",
+      "lat": 41.392615,
+      "lon": 2.164492,
+      "persons": 5,
+      "masked_share": 0.0049
+    },
+    {
+      "id": "1340394236391613",
+      "creator": "rhum",
+      "lat": 41.392597,
+      "lon": 2.164527,
+      "persons": 10,
+      "masked_share": 0.0112
+    },
+    {
+      "id": "154324996629792",
+      "creator": "ccossio",
+      "lat": 41.392583,
+      "lon": 2.164533,
+      "persons": 15,
+      "masked_share": 0.0143
+    },
+    {
+      "id": "144391594324343",
+      "creator": "ccossio",
+      "lat": 41.392717,
+      "lon": 2.164364,
+      "persons": 13,
+      "masked_share": 0.0141
+    },
+    {
+      "id": "238848214345186",
+      "creator": "aariassanta",
+      "lat": 41.392708,
+      "lon": 2.164334,
+      "persons": 6,
+      "masked_share": 0.0071
+    },
+    {
+      "id": "485335642707099",
+      "creator": "ccossio",
+      "lat": 41.392773,
+      "lon": 2.164293,
+      "persons": 6,
+      "masked_share": 0.0195
+    },
+    {
+      "id": "188280269782817",
+      "creator": "ccossio",
+      "lat": 41.39277,
+      "lon": 2.164296,
+      "persons": 6,
+      "masked_share": 0.0078
+    },
+    {
+      "id": "461169311846271",
+      "creator": "ccossio",
+      "lat": 41.392768,
+      "lon": 2.164299,
+      "persons": 2,
+      "masked_share": 0.0011
+    },
+    {
+      "id": "1086247472109794",
+      "creator": "ccossio",
+      "lat": 41.392766,
+      "lon": 2.164301,
+      "persons": 6,
+      "masked_share": 0.0236
+    },
+    {
+      "id": "538098423852693",
+      "creator": "ugz",
+      "lat": 41.392856,
+      "lon": 2.164232,
+      "persons": 41,
+      "masked_share": 0.0536
+    },
+    {
+      "id": "465527921199549",
+      "creator": "ccossio",
+      "lat": 41.392811,
+      "lon": 2.164247,
+      "persons": 15,
+      "masked_share": 0.0118
+    },
+    {
+      "id": "494736788377327",
+      "creator": "ccossio",
+      "lat": 41.392793,
+      "lon": 2.164269,
+      "persons": 2,
+      "masked_share": 0.0034
+    },
+    {
+      "id": "476505986950916",
+      "creator": "ccossio",
+      "lat": 41.392781,
+      "lon": 2.164284,
+      "persons": 6,
+      "masked_share": 0.0064
+    },
+    {
+      "id": "468576091142205",
+      "creator": "ccossio",
+      "lat": 41.392775,
+      "lon": 2.164291,
+      "persons": 6,
+      "masked_share": 0.0069
+    },
+    {
+      "id": "450635996038422",
+      "creator": "ccossio",
+      "lat": 41.392774,
+      "lon": 2.164291,
+      "persons": 6,
+      "masked_share": 0.0073
+    },
+    {
+      "id": "857546868447299",
+      "creator": "richlv",
+      "lat": 41.392822,
+      "lon": 2.163821,
+      "persons": 40,
+      "masked_share": 0.0687
+    },
+    {
+      "id": "1457133421286100",
+      "creator": "richlv",
+      "lat": 41.392843,
+      "lon": 2.163802,
+      "persons": 52,
+      "masked_share": 0.059
+    },
+    {
+      "id": "776583632881116",
+      "creator": "richlv",
+      "lat": 41.392858,
+      "lon": 2.163778,
+      "persons": 42,
+      "masked_share": 0.123
+    },
+    {
+      "id": "2981143658834260",
+      "creator": "richlv",
+      "lat": 41.392876,
+      "lon": 2.163753,
+      "persons": 47,
+      "masked_share": 0.0713
+    },
+    {
+      "id": "937503227002233",
+      "creator": "richlv",
+      "lat": 41.392892,
+      "lon": 2.163735,
+      "persons": 47,
+      "masked_share": 0.0581
+    },
+    {
+      "id": "2994506474208030",
+      "creator": "richlv",
+      "lat": 41.392893,
+      "lon": 2.163733,
+      "persons": 49,
+      "masked_share": 0.0586
+    },
+    {
+      "id": "358620565708103",
+      "creator": "richlv",
+      "lat": 41.392914,
+      "lon": 2.163714,
+      "persons": 53,
+      "masked_share": 0.0696
+    },
+    {
+      "id": "517958342679079",
+      "creator": "richlv",
+      "lat": 41.392936,
+      "lon": 2.163699,
+      "persons": 56,
+      "masked_share": 0.0801
+    },
+    {
+      "id": "290297372767133",
+      "creator": "ccossio",
+      "lat": 41.392779,
+      "lon": 2.163474,
+      "persons": 29,
+      "masked_share": 0.0451
+    },
+    {
+      "id": "314255736791364",
+      "creator": "ccossio",
+      "lat": 41.392696,
+      "lon": 2.163341,
+      "persons": 21,
+      "masked_share": 0.0249
+    },
+    {
+      "id": "1231691653953730",
+      "creator": "richlv",
+      "lat": 41.392937,
+      "lon": 2.163697,
+      "persons": 56,
+      "masked_share": 0.0594
+    },
+    {
+      "id": "499540497735148",
+      "creator": "richlv",
+      "lat": 41.392956,
+      "lon": 2.163677,
+      "persons": 36,
+      "masked_share": 0.0972
+    },
+    {
+      "id": "2853206271563406",
+      "creator": "richlv",
+      "lat": 41.392974,
+      "lon": 2.163655,
+      "persons": 55,
+      "masked_share": 0.1076
+    },
+    {
+      "id": "792675144976026",
+      "creator": "richlv",
+      "lat": 41.392977,
+      "lon": 2.163653,
+      "persons": 46,
+      "masked_share": 0.0904
+    },
+    {
+      "id": "145424997479958",
+      "creator": "ccossio",
+      "lat": 41.392517,
+      "lon": 2.162987,
+      "persons": 8,
+      "masked_share": 0.0377
+    },
+    {
+      "id": "1874977706651610",
+      "creator": "miguel_andrade",
+      "lat": 41.392605,
+      "lon": 2.162949,
+      "persons": 16,
+      "masked_share": 0.0552
+    },
+    {
+      "id": "1202564958136143",
+      "creator": "miguel_andrade",
+      "lat": 41.392589,
+      "lon": 2.162917,
+      "persons": 10,
+      "masked_share": 0.028
+    }
+  ],
+  "rows": [
+    {
+      "id": "456922988749324",
+      "creator": "ccossio",
+      "lat": 41.393393,
+      "lon": 2.164266,
+      "persons": 25,
+      "masked_share": 0.0542,
+      "person_box_max_share": 0.0126,
+      "keep": true,
+      "reason": "",
+      "had_person": true
+    },
+    {
+      "id": "340433254105012",
+      "creator": "ugz",
+      "lat": 41.392787,
+      "lon": 2.164322,
+      "persons": 29,
+      "masked_share": 0.0336,
+      "person_box_max_share": 0.0034,
+      "keep": true,
+      "reason": "",
+      "had_person": true
+    },
+    {
+      "id": "370579940990891",
+      "creator": "ugz",
+      "lat": 41.392745,
+      "lon": 2.164376,
+      "persons": 26,
+      "masked_share": 0.03,
+      "person_box_max_share": 0.0032,
+      "keep": true,
+      "reason": "",
+      "had_person": true
+    },
+    {
+      "id": "291546499127472",
+      "creator": "ccossio",
+      "lat": 41.393347,
+      "lon": 2.164216,
+      "persons": 9,
+      "masked_share": 0.0727,
+      "person_box_max_share": 0.0479,
+      "unmasked_found": [
+        {
+          "score": 0.8,
+          "cover": 0.54,
+          "box_share": 0.0663
+        },
+        {
+          "score": 0.65,
+          "cover": 0.32,
+          "box_share": 0.005
+        }
+      ],
+      "keep": false,
+      "reason": "second detector found a person the mask does not cover",
+      "had_person": true
+    },
+    {
+      "id": "569635607345264",
+      "creator": "ugz",
+      "lat": 41.392686,
+      "lon": 2.164436,
+      "persons": 27,
+      "masked_share": 0.0355,
+      "person_box_max_share": 0.0061,
+      "keep": true,
+      "reason": "",
+      "had_person": true
+    },
+    {
+      "id": "145230331160845",
+      "creator": "rhum",
+      "lat": 41.392726,
+      "lon": 2.164352,
+      "persons": 11,
+      "masked_share": 0.0424,
+      "person_box_max_share": 0.0252,
+      "keep": true,
+      "reason": "",
+      "had_person": true
+    },
+    {
+      "id": "777895596247452",
+      "creator": "ugz",
+      "lat": 41.392645,
+      "lon": 2.164493,
+      "persons": 26,
+      "masked_share": 0.0409,
+      "person_box_max_share": 0.0084,
+      "keep": true,
+      "reason": "",
+      "had_person": true
+    },
+    {
+      "id": "602580917562314",
+      "creator": "rhum",
+      "lat": 41.392648,
+      "lon": 2.16444,
+      "persons": 9,
+      "masked_share": 0.016,
+      "person_box_max_share": 0.0035,
+      "keep": true,
+      "reason": "",
+      "had_person": true
+    },
+    {
+      "id": "887096561837605",
+      "creator": "ugz",
+      "lat": 41.392606,
+      "lon": 2.16455,
+      "persons": 20,
+      "masked_share": 0.0248,
+      "person_box_max_share": 0.0044,
+      "keep": true,
+      "reason": "",
+      "had_person": true
+    },
+    {
+      "id": "287253569663479",
+      "creator": "ccossio",
+      "lat": 41.392644,
+      "lon": 2.164455,
+      "persons": 5,
+      "masked_share": 0.0052,
+      "person_box_max_share": 0.0005,
+      "keep": true,
+      "reason": "",
+      "had_person": true
+    },
+    {
+      "id": "265240672005745",
+      "creator": "ccossio",
+      "lat": 41.392615,
+      "lon": 2.164492,
+      "persons": 5,
+      "masked_share": 0.0049,
+      "person_box_max_share": 0.0003,
+      "keep": true,
+      "reason": "",
+      "had_person": true
+    },
+    {
+      "id": "1340394236391613",
+      "creator": "rhum",
+      "lat": 41.392597,
+      "lon": 2.164527,
+      "persons": 10,
+      "masked_share": 0.0112,
+      "person_box_max_share": 0.002,
+      "keep": true,
+      "reason": "",
+      "had_person": true
+    },
+    {
+      "id": "154324996629792",
+      "creator": "ccossio",
+      "lat": 41.392583,
+      "lon": 2.164533,
+      "persons": 15,
+      "masked_share": 0.0143,
+      "person_box_max_share": 0.0023,
+      "keep": true,
+      "reason": "",
+      "had_person": true
+    },
+    {
+      "id": "307533654086047",
+      "creator": "ugz",
+      "lat": 41.392823,
+      "lon": 2.164275,
+      "persons": 45,
+      "masked_share": 0.0521,
+      "person_box_max_share": 0.0037,
+      "unmasked_found": [
+        {
+          "score": 0.53,
+          "cover": 0.05,
+          "box_share": 0.0002
+        }
+      ],
+      "keep": false,
+      "reason": "second detector found a person the mask does not cover",
+      "had_person": true
+    },
+    {
+      "id": "144391594324343",
+      "creator": "ccossio",
+      "lat": 41.392717,
+      "lon": 2.164364,
+      "persons": 13,
+      "masked_share": 0.0141,
+      "person_box_max_share": 0.0027,
+      "keep": true,
+      "reason": "",
+      "had_person": true
+    },
+    {
+      "id": "2262593447210536",
+      "creator": "ccossio",
+      "lat": 41.392695,
+      "lon": 2.164391,
+      "persons": 14,
+      "masked_share": 0.0117,
+      "person_box_max_share": 0.0005,
+      "unmasked_found": [
+        {
+          "score": 0.69,
+          "cover": 0.2,
+          "box_share": 0.0014
+        }
+      ],
+      "keep": false,
+      "reason": "second detector found a person the mask does not cover",
+      "had_person": true
+    },
+    {
+      "id": "238848214345186",
+      "creator": "aariassanta",
+      "lat": 41.392708,
+      "lon": 2.164334,
+      "persons": 6,
+      "masked_share": 0.0071,
+      "person_box_max_share": 0.002,
+      "keep": true,
+      "reason": "",
+      "had_person": true
+    },
+    {
+      "id": "485335642707099",
+      "creator": "ccossio",
+      "lat": 41.392773,
+      "lon": 2.164293,
+      "persons": 6,
+      "masked_share": 0.0195,
+      "person_box_max_share": 0.0151,
+      "keep": true,
+      "reason": "",
+      "had_person": true
+    },
+    {
+      "id": "188280269782817",
+      "creator": "ccossio",
+      "lat": 41.39277,
+      "lon": 2.164296,
+      "persons": 6,
+      "masked_share": 0.0078,
+      "person_box_max_share": 0.0024,
+      "keep": true,
+      "reason": "",
+      "had_person": true
+    },
+    {
+      "id": "461169311846271",
+      "creator": "ccossio",
+      "lat": 41.392768,
+      "lon": 2.164299,
+      "persons": 2,
+      "masked_share": 0.0011,
+      "person_box_max_share": 0.0001,
+      "keep": true,
+      "reason": "",
+      "had_person": true
+    },
+    {
+      "id": "1086247472109794",
+      "creator": "ccossio",
+      "lat": 41.392766,
+      "lon": 2.164301,
+      "persons": 6,
+      "masked_share": 0.0236,
+      "person_box_max_share": 0.0179,
+      "keep": true,
+      "reason": "",
+      "had_person": true
+    },
+    {
+      "id": "538098423852693",
+      "creator": "ugz",
+      "lat": 41.392856,
+      "lon": 2.164232,
+      "persons": 41,
+      "masked_share": 0.0536,
+      "person_box_max_share": 0.0052,
+      "keep": true,
+      "reason": "",
+      "had_person": true
+    },
+    {
+      "id": "176048938053848",
+      "creator": "rhum",
+      "lat": 41.392823,
+      "lon": 2.164245,
+      "persons": 11,
+      "masked_share": 0.0162,
+      "person_box_max_share": 0.0023,
+      "unmasked_found": [
+        {
+          "score": 0.58,
+          "cover": 0.0,
+          "box_share": 0.0026
+        }
+      ],
+      "keep": false,
+      "reason": "second detector found a person the mask does not cover",
+      "had_person": true
+    },
+    {
+      "id": "465527921199549",
+      "creator": "ccossio",
+      "lat": 41.392811,
+      "lon": 2.164247,
+      "persons": 15,
+      "masked_share": 0.0118,
+      "person_box_max_share": 0.001,
+      "keep": true,
+      "reason": "",
+      "had_person": true
+    },
+    {
+      "id": "494736788377327",
+      "creator": "ccossio",
+      "lat": 41.392793,
+      "lon": 2.164269,
+      "persons": 2,
+      "masked_share": 0.0034,
+      "person_box_max_share": 0.0009,
+      "keep": true,
+      "reason": "",
+      "had_person": true
+    },
+    {
+      "id": "1238420806575260",
+      "creator": "ccossio",
+      "lat": 41.392834,
+      "lon": 2.16422,
+      "persons": 6,
+      "masked_share": 0.0062,
+      "person_box_max_share": 0.0007,
+      "unmasked_found": [
+        {
+          "score": 0.77,
+          "cover": 0.0,
+          "box_share": 0.0002
+        },
+        {
+          "score": 0.64,
+          "cover": 0.04,
+          "box_share": 0.0002
+        }
+      ],
+      "keep": false,
+      "reason": "second detector found a person the mask does not cover",
+      "had_person": true
+    },
+    {
+      "id": "476505986950916",
+      "creator": "ccossio",
+      "lat": 41.392781,
+      "lon": 2.164284,
+      "persons": 6,
+      "masked_share": 0.0064,
+      "person_box_max_share": 0.0013,
+      "keep": true,
+      "reason": "",
+      "had_person": true
+    },
+    {
+      "id": "468576091142205",
+      "creator": "ccossio",
+      "lat": 41.392775,
+      "lon": 2.164291,
+      "persons": 6,
+      "masked_share": 0.0069,
+      "person_box_max_share": 0.0008,
+      "keep": true,
+      "reason": "",
+      "had_person": true
+    },
+    {
+      "id": "450635996038422",
+      "creator": "ccossio",
+      "lat": 41.392774,
+      "lon": 2.164291,
+      "persons": 6,
+      "masked_share": 0.0073,
+      "person_box_max_share": 0.0015,
+      "keep": true,
+      "reason": "",
+      "had_person": true
+    },
+    {
+      "id": "3010369825865522",
+      "creator": "richlv",
+      "lat": 41.392767,
+      "lon": 2.163883,
+      "persons": 41,
+      "masked_share": 0.0721,
+      "person_box_max_share": 0.0388,
+      "unmasked_found": [
+        {
+          "score": 0.81,
+          "cover": 0.5,
+          "box_share": 0.0521
+        }
+      ],
+      "keep": false,
+      "reason": "second detector found a person the mask does not cover",
+      "had_person": true
+    },
+    {
+      "id": "460060085081499",
+      "creator": "richlv",
+      "lat": 41.392784,
+      "lon": 2.163861,
+      "persons": 25,
+      "masked_share": 0.1188,
+      "person_box_max_share": 0.0648,
+      "unmasked_found": [
+        {
+          "score": 1.0,
+          "cover": 0.55,
+          "box_share": 0.0669
+        }
+      ],
+      "keep": false,
+      "reason": "second detector found a person the mask does not cover",
+      "had_person": true
+    },
+    {
+      "id": "299950178406756",
+      "creator": "richlv",
+      "lat": 41.392801,
+      "lon": 2.16384,
+      "persons": 28,
+      "masked_share": 0.0813,
+      "person_box_max_share": 0.0322,
+      "unmasked_found": [
+        {
+          "score": 0.98,
+          "cover": 0.55,
+          "box_share": 0.0639
+        },
+        {
+          "score": 0.52,
+          "cover": 0.05,
+          "box_share": 0.0003
+        }
+      ],
+      "keep": false,
+      "reason": "second detector found a person the mask does not cover",
+      "had_person": true
+    },
+    {
+      "id": "857546868447299",
+      "creator": "richlv",
+      "lat": 41.392822,
+      "lon": 2.163821,
+      "persons": 40,
+      "masked_share": 0.0687,
+      "person_box_max_share": 0.0196,
+      "keep": true,
+      "reason": "",
+      "had_person": true
+    },
+    {
+      "id": "3825046710882480",
+      "creator": "richlv",
+      "lat": 41.392747,
+      "lon": 2.163904,
+      "persons": 40,
+      "masked_share": 0.0679,
+      "person_box_max_share": 0.0107,
+      "unmasked_found": [
+        {
+          "score": 0.55,
+          "cover": 0.0,
+          "box_share": 0.0001
+        },
+        {
+          "score": 0.52,
+          "cover": 0.0,
+          "box_share": 0.0003
+        }
+      ],
+      "keep": false,
+      "reason": "second detector found a person the mask does not cover",
+      "had_person": true
+    },
+    {
+      "id": "1457133421286100",
+      "creator": "richlv",
+      "lat": 41.392843,
+      "lon": 2.163802,
+      "persons": 52,
+      "masked_share": 0.059,
+      "person_box_max_share": 0.0106,
+      "keep": true,
+      "reason": "",
+      "had_person": true
+    },
+    {
+      "id": "776583632881116",
+      "creator": "richlv",
+      "lat": 41.392858,
+      "lon": 2.163778,
+      "persons": 42,
+      "masked_share": 0.123,
+      "person_box_max_share": 0.0656,
+      "keep": true,
+      "reason": "",
+      "had_person": true
+    },
+    {
+      "id": "2981143658834260",
+      "creator": "richlv",
+      "lat": 41.392876,
+      "lon": 2.163753,
+      "persons": 47,
+      "masked_share": 0.0713,
+      "person_box_max_share": 0.0105,
+      "keep": true,
+      "reason": "",
+      "had_person": true
+    },
+    {
+      "id": "937503227002233",
+      "creator": "richlv",
+      "lat": 41.392892,
+      "lon": 2.163735,
+      "persons": 47,
+      "masked_share": 0.0581,
+      "person_box_max_share": 0.0096,
+      "keep": true,
+      "reason": "",
+      "had_person": true
+    },
+    {
+      "id": "2994506474208030",
+      "creator": "richlv",
+      "lat": 41.392893,
+      "lon": 2.163733,
+      "persons": 49,
+      "masked_share": 0.0586,
+      "person_box_max_share": 0.0105,
+      "keep": true,
+      "reason": "",
+      "had_person": true
+    },
+    {
+      "id": "358620565708103",
+      "creator": "richlv",
+      "lat": 41.392914,
+      "lon": 2.163714,
+      "persons": 53,
+      "masked_share": 0.0696,
+      "person_box_max_share": 0.0129,
+      "keep": true,
+      "reason": "",
+      "had_person": true
+    },
+    {
+      "id": "517958342679079",
+      "creator": "richlv",
+      "lat": 41.392936,
+      "lon": 2.163699,
+      "persons": 56,
+      "masked_share": 0.0801,
+      "person_box_max_share": 0.0191,
+      "keep": true,
+      "reason": "",
+      "had_person": true
+    },
+    {
+      "id": "290297372767133",
+      "creator": "ccossio",
+      "lat": 41.392779,
+      "lon": 2.163474,
+      "persons": 29,
+      "masked_share": 0.0451,
+      "person_box_max_share": 0.0196,
+      "keep": true,
+      "reason": "",
+      "had_person": true
+    },
+    {
+      "id": "314255736791364",
+      "creator": "ccossio",
+      "lat": 41.392696,
+      "lon": 2.163341,
+      "persons": 21,
+      "masked_share": 0.0249,
+      "person_box_max_share": 0.0065,
+      "keep": true,
+      "reason": "",
+      "had_person": true
+    },
+    {
+      "id": "1231691653953730",
+      "creator": "richlv",
+      "lat": 41.392937,
+      "lon": 2.163697,
+      "persons": 56,
+      "masked_share": 0.0594,
+      "person_box_max_share": 0.0161,
+      "keep": true,
+      "reason": "",
+      "had_person": true
+    },
+    {
+      "id": "499540497735148",
+      "creator": "richlv",
+      "lat": 41.392956,
+      "lon": 2.163677,
+      "persons": 36,
+      "masked_share": 0.0972,
+      "person_box_max_share": 0.0847,
+      "keep": true,
+      "reason": "",
+      "had_person": true
+    },
+    {
+      "id": "2882979211970529",
+      "creator": "ccossio",
+      "lat": 41.392606,
+      "lon": 2.163086,
+      "persons": 6,
+      "masked_share": 0.0406,
+      "person_box_max_share": 0.0655,
+      "unmasked_found": [
+        {
+          "score": 0.99,
+          "cover": 0.5,
+          "box_share": 0.074
+        }
+      ],
+      "keep": false,
+      "reason": "second detector found a person the mask does not cover",
+      "had_person": true
+    },
+    {
+      "id": "2853206271563406",
+      "creator": "richlv",
+      "lat": 41.392974,
+      "lon": 2.163655,
+      "persons": 55,
+      "masked_share": 0.1076,
+      "person_box_max_share": 0.034,
+      "keep": true,
+      "reason": "",
+      "had_person": true
+    },
+    {
+      "id": "792675144976026",
+      "creator": "richlv",
+      "lat": 41.392977,
+      "lon": 2.163653,
+      "persons": 46,
+      "masked_share": 0.0904,
+      "person_box_max_share": 0.0226,
+      "keep": true,
+      "reason": "",
+      "had_person": true
+    },
+    {
+      "id": "472694437286192",
+      "creator": "ccossio",
+      "lat": 41.392584,
+      "lon": 2.16306,
+      "persons": 7,
+      "masked_share": 0.0445,
+      "person_box_max_share": 0.0665,
+      "unmasked_found": [
+        {
+          "score": 1.0,
+          "cover": 0.56,
+          "box_share": 0.0659
+        },
+        {
+          "score": 0.62,
+          "cover": 0.49,
+          "box_share": 0.076
+        }
+      ],
+      "keep": false,
+      "reason": "second detector found a person the mask does not cover",
+      "had_person": true
+    },
+    {
+      "id": "145424997479958",
+      "creator": "ccossio",
+      "lat": 41.392517,
+      "lon": 2.162987,
+      "persons": 8,
+      "masked_share": 0.0377,
+      "person_box_max_share": 0.0421,
+      "keep": true,
+      "reason": "",
+      "had_person": true
+    },
+    {
+      "id": "1092269486109850",
+      "creator": "miguel_andrade",
+      "lat": 41.392619,
+      "lon": 2.162977,
+      "persons": 15,
+      "masked_share": 0.1083,
+      "person_box_max_share": 0.0442,
+      "unmasked_found": [
+        {
+          "score": 0.96,
+          "cover": 0.59,
+          "box_share": 0.0766
+        }
+      ],
+      "keep": false,
+      "reason": "second detector found a person the mask does not cover",
+      "had_person": true
+    },
+    {
+      "id": "1874977706651610",
+      "creator": "miguel_andrade",
+      "lat": 41.392605,
+      "lon": 2.162949,
+      "persons": 16,
+      "masked_share": 0.0552,
+      "person_box_max_share": 0.0147,
+      "keep": true,
+      "reason": "",
+      "had_person": true
+    },
+    {
+      "id": "1202564958136143",
+      "creator": "miguel_andrade",
+      "lat": 41.392589,
+      "lon": 2.162917,
+      "persons": 10,
+      "masked_share": 0.028,
+      "person_box_max_share": 0.0078,
+      "keep": true,
+      "reason": "",
+      "had_person": true
+    }
+  ]
+}

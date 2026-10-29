@@ -1472,6 +1472,24 @@ The set of obstacle shapes is fixed, and each shape offers a fixed set of moves.
   - **Until answered:** the game does not store masked pictures; it can mask on the fly in the browser or in the proxy and show the original link and credit.
 - **Recommendation:** masking unlocks Montmartre and Eixample for a demo, the minors rule is met in the by-eye check but not guaranteed (about 3 percent of photos keep a tiny figure), and the storage terms are open.
 
+
+### Safe allow-list: reject any photo where masking fails (CC-90)
+
+- Owner decision (2026-10-29): this is for the hackathon demo only; show that photos exist and that masking works.
+- A photo is kept only when masking worked, checked twice.
+- Reject when more than 15 percent is masked, or one person box is over 25 percent of the picture.
+- Reject when a second detector (Faster R-CNN, score 0.5 or more), run on the original and on the masked picture, finds a person that the mask does not cover.
+- A found box counts as covered when at least 60 percent of it lies inside the grown mask, so the grey smudge itself is not a miss.
+- Masking runs at build time in `scripts/photos_safe.py`; `mask_photo` in `scripts/photos_mask.py` is the same function a proxy would call on the fly.
+- Masked pictures go to `~/photos-masked`, never into the repo; the repo holds only the allow-list and mask numbers (`data/eval/cc-90-photos/masking/<place>-safe.json`).
+- Kept photos (this run, 2026-10-29):
+  - Edinburgh: 65 of 68 (49 untouched, 16 masked).
+  - Montmartre: 27 of 55 (7 untouched, 20 masked; 19 lost to the 15 percent cut, 4 to the second detector, the rest to a big person box).
+  - Eixample: 41 of 53 (all masked; 12 lost to the second detector).
+- Sheet: `safe-before-after-sheet.jpg` has 6 pairs, before on the left; the before tiles are 160 px wide so no face can be told apart.
+- The pairs are drawn from the middle of the masked range, so the difference is small in some; the hardest cases are in the older `*-masked-sheet.jpg` files.
+- Not handled: reflections, and storing masked copies (the Mapillary terms question is still open).
+
 ## The map says "clear", the editor says it is not even on the lane (CC-91)
 - **What the product owner saw:**
   - The Slicer or the explain strip said the simulator had cleared a lane.

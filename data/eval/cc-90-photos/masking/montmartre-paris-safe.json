@@ -1,0 +1,932 @@
+{
+  "place": "montmartre-paris",
+  "lane_steps_10m": 18,
+  "candidates_checked": 55,
+  "kept": 27,
+  "kept_untouched_no_person": 7,
+  "kept_masked": 20,
+  "rejected_by_reason": {
+    "more than 15 percent masked": 19,
+    "second detector found a person the mask does not cover": 4,
+    "person box over 25 percent of the picture": 5
+  },
+  "rules": "reject if masked share > 0.15, or a person box > 0.25 of the picture, or Faster R-CNN (score >= 0.5, on original and on masked picture) finds a person with < 0.6 of its box inside the grown mask",
+  "allow_list": [
+    {
+      "id": "217947299859235",
+      "creator": "voltadino",
+      "lat": 48.886702,
+      "lon": 2.341461,
+      "persons": 7,
+      "masked_share": 0.0077
+    },
+    {
+      "id": "300825731758372",
+      "creator": "jurkis",
+      "lat": 48.886671,
+      "lon": 2.341376,
+      "persons": 14,
+      "masked_share": 0.0115
+    },
+    {
+      "id": "325229988972432",
+      "creator": "marcuscalabresus",
+      "lat": 48.886641,
+      "lon": 2.341067,
+      "persons": 9,
+      "masked_share": 0.1019
+    },
+    {
+      "id": "1382777112096726",
+      "creator": "nlehuby",
+      "lat": 48.885685,
+      "lon": 2.342573,
+      "persons": 4,
+      "masked_share": 0.0197
+    },
+    {
+      "id": "491335408974093",
+      "creator": "nlehuby",
+      "lat": 48.885684,
+      "lon": 2.342573,
+      "persons": 0,
+      "masked_share": 0.0
+    },
+    {
+      "id": "285237727501900",
+      "creator": "marikocco",
+      "lat": 48.885632,
+      "lon": 2.342564,
+      "persons": 0,
+      "masked_share": 0.0
+    },
+    {
+      "id": "248818591205558",
+      "creator": "marikocco",
+      "lat": 48.88563,
+      "lon": 2.34257,
+      "persons": 0,
+      "masked_share": 0.0
+    },
+    {
+      "id": "223872193344327",
+      "creator": "marikocco",
+      "lat": 48.885624,
+      "lon": 2.342571,
+      "persons": 16,
+      "masked_share": 0.0462
+    },
+    {
+      "id": "270295822253479",
+      "creator": "marikocco",
+      "lat": 48.885595,
+      "lon": 2.342577,
+      "persons": 0,
+      "masked_share": 0.0
+    },
+    {
+      "id": "648849073486661",
+      "creator": "marikocco",
+      "lat": 48.885564,
+      "lon": 2.342581,
+      "persons": 1,
+      "masked_share": 0.0058
+    },
+    {
+      "id": "805387157655564",
+      "creator": "marikocco",
+      "lat": 48.885529,
+      "lon": 2.342586,
+      "persons": 0,
+      "masked_share": 0.0
+    },
+    {
+      "id": "972004340660276",
+      "creator": "marikocco",
+      "lat": 48.88546,
+      "lon": 2.342595,
+      "persons": 0,
+      "masked_share": 0.0
+    },
+    {
+      "id": "191295756161121",
+      "creator": "goobersmash",
+      "lat": 48.885838,
+      "lon": 2.343001,
+      "persons": 9,
+      "masked_share": 0.0309
+    },
+    {
+      "id": "784657160052176",
+      "creator": "marikocco",
+      "lat": 48.885425,
+      "lon": 2.3426,
+      "persons": 9,
+      "masked_share": 0.0087
+    },
+    {
+      "id": "1639806739872194",
+      "creator": "marikocco",
+      "lat": 48.885355,
+      "lon": 2.342609,
+      "persons": 2,
+      "masked_share": 0.0026
+    },
+    {
+      "id": "710274649945487",
+      "creator": "marcuscalabresus",
+      "lat": 48.885408,
+      "lon": 2.341835,
+      "persons": 53,
+      "masked_share": 0.1289
+    },
+    {
+      "id": "819900695603169",
+      "creator": "marcuscalabresus",
+      "lat": 48.885405,
+      "lon": 2.34182,
+      "persons": 44,
+      "masked_share": 0.0821
+    },
+    {
+      "id": "1035044364568429",
+      "creator": "marikocco",
+      "lat": 48.885339,
+      "lon": 2.342612,
+      "persons": 4,
+      "masked_share": 0.0023
+    },
+    {
+      "id": "1421882781481194",
+      "creator": "nlehuby",
+      "lat": 48.885801,
+      "lon": 2.342541,
+      "persons": 0,
+      "masked_share": 0.0
+    },
+    {
+      "id": "825570915573351",
+      "creator": "marikocco",
+      "lat": 48.885303,
+      "lon": 2.342616,
+      "persons": 2,
+      "masked_share": 0.0017
+    },
+    {
+      "id": "194603333243840",
+      "creator": "marikocco",
+      "lat": 48.885269,
+      "lon": 2.342621,
+      "persons": 6,
+      "masked_share": 0.0069
+    },
+    {
+      "id": "794523961194163",
+      "creator": "marcuscalabresus",
+      "lat": 48.885386,
+      "lon": 2.341831,
+      "persons": 21,
+      "masked_share": 0.0836
+    },
+    {
+      "id": "2833990803527586",
+      "creator": "goobersmash",
+      "lat": 48.885838,
+      "lon": 2.343001,
+      "persons": 55,
+      "masked_share": 0.1169
+    },
+    {
+      "id": "1536210676787308",
+      "creator": "marikocco",
+      "lat": 48.885234,
+      "lon": 2.342626,
+      "persons": 11,
+      "masked_share": 0.007
+    },
+    {
+      "id": "804631581197666",
+      "creator": "marikocco",
+      "lat": 48.8852,
+      "lon": 2.34263,
+      "persons": 3,
+      "masked_share": 0.0035
+    },
+    {
+      "id": "213429890371546",
+      "creator": "marcuscalabresus",
+      "lat": 48.885296,
+      "lon": 2.342243,
+      "persons": 2,
+      "masked_share": 0.0036
+    },
+    {
+      "id": "801962137382658",
+      "creator": "marcuscalabresus",
+      "lat": 48.885247,
+      "lon": 2.342242,
+      "persons": 7,
+      "masked_share": 0.0183
+    }
+  ],
+  "rows": [
+    {
+      "id": "516639712670266",
+      "creator": "txllxt",
+      "lat": 48.886686,
+      "lon": 2.341283,
+      "persons": 62,
+      "masked_share": 0.1855,
+      "person_box_max_share": 0.0463,
+      "keep": false,
+      "reason": "more than 15 percent masked",
+      "had_person": true
+    },
+    {
+      "id": "217947299859235",
+      "creator": "voltadino",
+      "lat": 48.886702,
+      "lon": 2.341461,
+      "persons": 7,
+      "masked_share": 0.0077,
+      "person_box_max_share": 0.0017,
+      "keep": true,
+      "reason": "",
+      "had_person": true
+    },
+    {
+      "id": "224498366145905",
+      "creator": "voltadino",
+      "lat": 48.886702,
+      "lon": 2.341461,
+      "persons": 22,
+      "masked_share": 0.091,
+      "person_box_max_share": 0.0556,
+      "unmasked_found": [
+        {
+          "score": 0.7,
+          "cover": 0.0,
+          "box_share": 0.0749
+        },
+        {
+          "score": 0.7,
+          "cover": 0.0,
+          "box_share": 0.0749
+        }
+      ],
+      "keep": false,
+      "reason": "second detector found a person the mask does not cover",
+      "had_person": true
+    },
+    {
+      "id": "224093699154945",
+      "creator": "marcuscalabresus",
+      "lat": 48.886657,
+      "lon": 2.341118,
+      "persons": 63,
+      "masked_share": 0.3448,
+      "person_box_max_share": 0.1322,
+      "keep": false,
+      "reason": "more than 15 percent masked",
+      "had_person": true
+    },
+    {
+      "id": "152794076847898",
+      "creator": "txllxt",
+      "lat": 48.886642,
+      "lon": 2.341172,
+      "persons": 47,
+      "masked_share": 0.3648,
+      "person_box_max_share": 0.0749,
+      "keep": false,
+      "reason": "more than 15 percent masked",
+      "had_person": true
+    },
+    {
+      "id": "1103007496858359",
+      "creator": "marcuscalabresus",
+      "lat": 48.886656,
+      "lon": 2.341115,
+      "persons": 56,
+      "masked_share": 0.3288,
+      "person_box_max_share": 0.1765,
+      "keep": false,
+      "reason": "more than 15 percent masked",
+      "had_person": true
+    },
+    {
+      "id": "523176365398200",
+      "creator": "marcuscalabresus",
+      "lat": 48.886655,
+      "lon": 2.341112,
+      "persons": 50,
+      "masked_share": 0.2491,
+      "person_box_max_share": 0.1034,
+      "keep": false,
+      "reason": "more than 15 percent masked",
+      "had_person": true
+    },
+    {
+      "id": "296852562142796",
+      "creator": "marcuscalabresus",
+      "lat": 48.886653,
+      "lon": 2.34111,
+      "persons": 64,
+      "masked_share": 0.2517,
+      "person_box_max_share": 0.0927,
+      "keep": false,
+      "reason": "more than 15 percent masked",
+      "had_person": true
+    },
+    {
+      "id": "300825731758372",
+      "creator": "jurkis",
+      "lat": 48.886671,
+      "lon": 2.341376,
+      "persons": 14,
+      "masked_share": 0.0115,
+      "person_box_max_share": 0.001,
+      "keep": true,
+      "reason": "",
+      "had_person": true
+    },
+    {
+      "id": "1669941213394629",
+      "creator": "marcuscalabresus",
+      "lat": 48.886651,
+      "lon": 2.341106,
+      "persons": 38,
+      "masked_share": 0.3907,
+      "person_box_max_share": 0.1144,
+      "keep": false,
+      "reason": "more than 15 percent masked",
+      "had_person": true
+    },
+    {
+      "id": "311224553839844",
+      "creator": "marcuscalabresus",
+      "lat": 48.886649,
+      "lon": 2.341101,
+      "persons": 27,
+      "masked_share": 0.1981,
+      "person_box_max_share": 0.0557,
+      "keep": false,
+      "reason": "more than 15 percent masked",
+      "had_person": true
+    },
+    {
+      "id": "844950069431004",
+      "creator": "marcuscalabresus",
+      "lat": 48.886646,
+      "lon": 2.3411,
+      "persons": 45,
+      "masked_share": 0.2719,
+      "person_box_max_share": 0.0707,
+      "keep": false,
+      "reason": "more than 15 percent masked",
+      "had_person": true
+    },
+    {
+      "id": "969811863781843",
+      "creator": "marcuscalabresus",
+      "lat": 48.886642,
+      "lon": 2.341096,
+      "persons": 37,
+      "masked_share": 0.5225,
+      "person_box_max_share": 0.3008,
+      "keep": false,
+      "reason": "person box over 25 percent of the picture",
+      "had_person": true
+    },
+    {
+      "id": "948102342605769",
+      "creator": "marcuscalabresus",
+      "lat": 48.88664,
+      "lon": 2.34109,
+      "persons": 38,
+      "masked_share": 0.6067,
+      "person_box_max_share": 0.3167,
+      "keep": false,
+      "reason": "person box over 25 percent of the picture",
+      "had_person": true
+    },
+    {
+      "id": "1965841006906436",
+      "creator": "marcuscalabresus",
+      "lat": 48.886639,
+      "lon": 2.341086,
+      "persons": 43,
+      "masked_share": 0.5674,
+      "person_box_max_share": 0.19,
+      "keep": false,
+      "reason": "more than 15 percent masked",
+      "had_person": true
+    },
+    {
+      "id": "498986747823945",
+      "creator": "marcuscalabresus",
+      "lat": 48.886639,
+      "lon": 2.341085,
+      "persons": 56,
+      "masked_share": 0.3841,
+      "person_box_max_share": 0.1338,
+      "keep": false,
+      "reason": "more than 15 percent masked",
+      "had_person": true
+    },
+    {
+      "id": "181039560471651",
+      "creator": "marcuscalabresus",
+      "lat": 48.886639,
+      "lon": 2.34108,
+      "persons": 55,
+      "masked_share": 0.2929,
+      "person_box_max_share": 0.1433,
+      "keep": false,
+      "reason": "more than 15 percent masked",
+      "had_person": true
+    },
+    {
+      "id": "373979620699127",
+      "creator": "marcuscalabresus",
+      "lat": 48.88664,
+      "lon": 2.341078,
+      "persons": 40,
+      "masked_share": 0.5476,
+      "person_box_max_share": 0.4388,
+      "keep": false,
+      "reason": "person box over 25 percent of the picture",
+      "had_person": true
+    },
+    {
+      "id": "179174490762285",
+      "creator": "marcuscalabresus",
+      "lat": 48.886641,
+      "lon": 2.341073,
+      "persons": 4,
+      "masked_share": 0.2046,
+      "person_box_max_share": 0.21,
+      "keep": false,
+      "reason": "more than 15 percent masked",
+      "had_person": true
+    },
+    {
+      "id": "325229988972432",
+      "creator": "marcuscalabresus",
+      "lat": 48.886641,
+      "lon": 2.341067,
+      "persons": 9,
+      "masked_share": 0.1019,
+      "person_box_max_share": 0.1408,
+      "keep": true,
+      "reason": "",
+      "had_person": true
+    },
+    {
+      "id": "375764493822082",
+      "creator": "marcuscalabresus",
+      "lat": 48.886609,
+      "lon": 2.341035,
+      "persons": 35,
+      "masked_share": 0.4324,
+      "person_box_max_share": 0.1136,
+      "keep": false,
+      "reason": "more than 15 percent masked",
+      "had_person": true
+    },
+    {
+      "id": "313588733617083",
+      "creator": "marcuscalabresus",
+      "lat": 48.886606,
+      "lon": 2.341033,
+      "persons": 62,
+      "masked_share": 0.4455,
+      "person_box_max_share": 0.0773,
+      "keep": false,
+      "reason": "more than 15 percent masked",
+      "had_person": true
+    },
+    {
+      "id": "2831222617126207",
+      "creator": "marcuscalabresus",
+      "lat": 48.886643,
+      "lon": 2.341041,
+      "persons": 47,
+      "masked_share": 0.6616,
+      "person_box_max_share": 0.183,
+      "keep": false,
+      "reason": "more than 15 percent masked",
+      "had_person": true
+    },
+    {
+      "id": "875491609977633",
+      "creator": "marcuscalabresus",
+      "lat": 48.886636,
+      "lon": 2.341038,
+      "persons": 55,
+      "masked_share": 0.5986,
+      "person_box_max_share": 0.2882,
+      "keep": false,
+      "reason": "person box over 25 percent of the picture",
+      "had_person": true
+    },
+    {
+      "id": "215243586693794",
+      "creator": "goobersmash",
+      "lat": 48.886256,
+      "lon": 2.342308,
+      "persons": 69,
+      "masked_share": 0.1872,
+      "person_box_max_share": 0.013,
+      "keep": false,
+      "reason": "more than 15 percent masked",
+      "had_person": true
+    },
+    {
+      "id": "2837111189936833",
+      "creator": "goobersmash",
+      "lat": 48.886256,
+      "lon": 2.342308,
+      "persons": 69,
+      "masked_share": 0.1873,
+      "person_box_max_share": 0.0131,
+      "keep": false,
+      "reason": "more than 15 percent masked",
+      "had_person": true
+    },
+    {
+      "id": "955205001894692",
+      "creator": "marcuscalabresus",
+      "lat": 48.886618,
+      "lon": 2.341032,
+      "persons": 37,
+      "masked_share": 0.5403,
+      "person_box_max_share": 0.2126,
+      "keep": false,
+      "reason": "more than 15 percent masked",
+      "had_person": true
+    },
+    {
+      "id": "224250366132053",
+      "creator": "marcuscalabresus",
+      "lat": 48.886623,
+      "lon": 2.341033,
+      "persons": 44,
+      "masked_share": 0.5496,
+      "person_box_max_share": 0.4566,
+      "keep": false,
+      "reason": "person box over 25 percent of the picture",
+      "had_person": true
+    },
+    {
+      "id": "1382777112096726",
+      "creator": "nlehuby",
+      "lat": 48.885685,
+      "lon": 2.342573,
+      "persons": 4,
+      "masked_share": 0.0197,
+      "person_box_max_share": 0.0127,
+      "keep": true,
+      "reason": "",
+      "had_person": true
+    },
+    {
+      "id": "491335408974093",
+      "creator": "nlehuby",
+      "lat": 48.885684,
+      "lon": 2.342573,
+      "persons": 0,
+      "masked_share": 0.0,
+      "person_box_max_share": 0.0,
+      "keep": true,
+      "reason": "",
+      "had_person": false
+    },
+    {
+      "id": "285237727501900",
+      "creator": "marikocco",
+      "lat": 48.885632,
+      "lon": 2.342564,
+      "persons": 0,
+      "masked_share": 0.0,
+      "person_box_max_share": 0.0,
+      "keep": true,
+      "reason": "",
+      "had_person": false
+    },
+    {
+      "id": "248818591205558",
+      "creator": "marikocco",
+      "lat": 48.88563,
+      "lon": 2.34257,
+      "persons": 0,
+      "masked_share": 0.0,
+      "person_box_max_share": 0.0,
+      "keep": true,
+      "reason": "",
+      "had_person": false
+    },
+    {
+      "id": "223872193344327",
+      "creator": "marikocco",
+      "lat": 48.885624,
+      "lon": 2.342571,
+      "persons": 16,
+      "masked_share": 0.0462,
+      "person_box_max_share": 0.0207,
+      "keep": true,
+      "reason": "",
+      "had_person": true
+    },
+    {
+      "id": "270295822253479",
+      "creator": "marikocco",
+      "lat": 48.885595,
+      "lon": 2.342577,
+      "persons": 0,
+      "masked_share": 0.0,
+      "person_box_max_share": 0.0,
+      "keep": true,
+      "reason": "",
+      "had_person": false
+    },
+    {
+      "id": "648849073486661",
+      "creator": "marikocco",
+      "lat": 48.885564,
+      "lon": 2.342581,
+      "persons": 1,
+      "masked_share": 0.0058,
+      "person_box_max_share": 0.0036,
+      "keep": true,
+      "reason": "",
+      "had_person": true
+    },
+    {
+      "id": "805387157655564",
+      "creator": "marikocco",
+      "lat": 48.885529,
+      "lon": 2.342586,
+      "persons": 0,
+      "masked_share": 0.0,
+      "person_box_max_share": 0.0,
+      "keep": true,
+      "reason": "",
+      "had_person": false
+    },
+    {
+      "id": "972004340660276",
+      "creator": "marikocco",
+      "lat": 48.88546,
+      "lon": 2.342595,
+      "persons": 0,
+      "masked_share": 0.0,
+      "person_box_max_share": 0.0,
+      "keep": true,
+      "reason": "",
+      "had_person": false
+    },
+    {
+      "id": "191295756161121",
+      "creator": "goobersmash",
+      "lat": 48.885838,
+      "lon": 2.343001,
+      "persons": 9,
+      "masked_share": 0.0309,
+      "person_box_max_share": 0.0092,
+      "keep": true,
+      "reason": "",
+      "had_person": true
+    },
+    {
+      "id": "784657160052176",
+      "creator": "marikocco",
+      "lat": 48.885425,
+      "lon": 2.3426,
+      "persons": 9,
+      "masked_share": 0.0087,
+      "person_box_max_share": 0.0089,
+      "keep": true,
+      "reason": "",
+      "had_person": true
+    },
+    {
+      "id": "1639806739872194",
+      "creator": "marikocco",
+      "lat": 48.885355,
+      "lon": 2.342609,
+      "persons": 2,
+      "masked_share": 0.0026,
+      "person_box_max_share": 0.0011,
+      "keep": true,
+      "reason": "",
+      "had_person": true
+    },
+    {
+      "id": "710274649945487",
+      "creator": "marcuscalabresus",
+      "lat": 48.885408,
+      "lon": 2.341835,
+      "persons": 53,
+      "masked_share": 0.1289,
+      "person_box_max_share": 0.087,
+      "keep": true,
+      "reason": "",
+      "had_person": true
+    },
+    {
+      "id": "819900695603169",
+      "creator": "marcuscalabresus",
+      "lat": 48.885405,
+      "lon": 2.34182,
+      "persons": 44,
+      "masked_share": 0.0821,
+      "person_box_max_share": 0.0407,
+      "keep": true,
+      "reason": "",
+      "had_person": true
+    },
+    {
+      "id": "1035044364568429",
+      "creator": "marikocco",
+      "lat": 48.885339,
+      "lon": 2.342612,
+      "persons": 4,
+      "masked_share": 0.0023,
+      "person_box_max_share": 0.0006,
+      "keep": true,
+      "reason": "",
+      "had_person": true
+    },
+    {
+      "id": "1421882781481194",
+      "creator": "nlehuby",
+      "lat": 48.885801,
+      "lon": 2.342541,
+      "persons": 0,
+      "masked_share": 0.0,
+      "person_box_max_share": 0.0,
+      "keep": true,
+      "reason": "",
+      "had_person": false
+    },
+    {
+      "id": "825570915573351",
+      "creator": "marikocco",
+      "lat": 48.885303,
+      "lon": 2.342616,
+      "persons": 2,
+      "masked_share": 0.0017,
+      "person_box_max_share": 0.0005,
+      "keep": true,
+      "reason": "",
+      "had_person": true
+    },
+    {
+      "id": "194603333243840",
+      "creator": "marikocco",
+      "lat": 48.885269,
+      "lon": 2.342621,
+      "persons": 6,
+      "masked_share": 0.0069,
+      "person_box_max_share": 0.004,
+      "keep": true,
+      "reason": "",
+      "had_person": true
+    },
+    {
+      "id": "794523961194163",
+      "creator": "marcuscalabresus",
+      "lat": 48.885386,
+      "lon": 2.341831,
+      "persons": 21,
+      "masked_share": 0.0836,
+      "person_box_max_share": 0.0135,
+      "keep": true,
+      "reason": "",
+      "had_person": true
+    },
+    {
+      "id": "2833990803527586",
+      "creator": "goobersmash",
+      "lat": 48.885838,
+      "lon": 2.343001,
+      "persons": 55,
+      "masked_share": 0.1169,
+      "person_box_max_share": 0.0127,
+      "keep": true,
+      "reason": "",
+      "had_person": true
+    },
+    {
+      "id": "1536210676787308",
+      "creator": "marikocco",
+      "lat": 48.885234,
+      "lon": 2.342626,
+      "persons": 11,
+      "masked_share": 0.007,
+      "person_box_max_share": 0.0008,
+      "keep": true,
+      "reason": "",
+      "had_person": true
+    },
+    {
+      "id": "804631581197666",
+      "creator": "marikocco",
+      "lat": 48.8852,
+      "lon": 2.34263,
+      "persons": 3,
+      "masked_share": 0.0035,
+      "person_box_max_share": 0.0006,
+      "keep": true,
+      "reason": "",
+      "had_person": true
+    },
+    {
+      "id": "206564191134184",
+      "creator": "marcuscalabresus",
+      "lat": 48.885399,
+      "lon": 2.341803,
+      "persons": 42,
+      "masked_share": 0.0864,
+      "person_box_max_share": 0.0376,
+      "unmasked_found": [
+        {
+          "score": 0.83,
+          "cover": 0.05,
+          "box_share": 0.0018
+        }
+      ],
+      "keep": false,
+      "reason": "second detector found a person the mask does not cover",
+      "had_person": true
+    },
+    {
+      "id": "213429890371546",
+      "creator": "marcuscalabresus",
+      "lat": 48.885296,
+      "lon": 2.342243,
+      "persons": 2,
+      "masked_share": 0.0036,
+      "person_box_max_share": 0.0013,
+      "keep": true,
+      "reason": "",
+      "had_person": true
+    },
+    {
+      "id": "801962137382658",
+      "creator": "marcuscalabresus",
+      "lat": 48.885247,
+      "lon": 2.342242,
+      "persons": 7,
+      "masked_share": 0.0183,
+      "person_box_max_share": 0.0073,
+      "keep": true,
+      "reason": "",
+      "had_person": true
+    },
+    {
+      "id": "851331408926616",
+      "creator": "marcuscalabresus",
+      "lat": 48.885247,
+      "lon": 2.342242,
+      "persons": 3,
+      "masked_share": 0.0105,
+      "person_box_max_share": 0.0033,
+      "unmasked_found": [
+        {
+          "score": 0.86,
+          "cover": 0.11,
+          "box_share": 0.0027
+        }
+      ],
+      "keep": false,
+      "reason": "second detector found a person the mask does not cover",
+      "had_person": true
+    },
+    {
+      "id": "525082528660283",
+      "creator": "goobersmash",
+      "lat": 48.885838,
+      "lon": 2.343001,
+      "persons": 76,
+      "masked_share": 0.1496,
+      "person_box_max_share": 0.0135,
+      "unmasked_found": [
+        {
+          "score": 0.8,
+          "cover": 0.0,
+          "box_share": 0.0015
+        },
+        {
+          "score": 0.52,
+          "cover": 0.0,
+          "box_share": 0.0013
+        }
+      ],
+      "keep": false,
+      "reason": "second detector found a person the mask does not cover",
+      "had_person": true
+    }
+  ]
+}
