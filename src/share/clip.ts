@@ -31,7 +31,7 @@ export async function createClipEncoder(): Promise<ClipEncoder | null> {
   const W = globalThis as unknown as { VideoEncoder?: typeof VideoEncoder; VideoFrame?: typeof VideoFrame };
   if (!W.VideoEncoder || !W.VideoFrame) return null;
   for (const c of CODECS) {
-    const cfg: VideoEncoderConfig = { codec: c.codec, width: CLIP_W, height: CLIP_H, bitrate: 3_000_000, framerate: CLIP_FPS };
+    const cfg: VideoEncoderConfig = { codec: c.codec, width: CLIP_W, height: CLIP_H, bitrate: 5_000_000, framerate: CLIP_FPS, latencyMode: 'quality', bitrateMode: 'variable' };
     let ok = false;
     try { ok = !!(await W.VideoEncoder.isConfigSupported(cfg)).supported; } catch { ok = false; }
     if (!ok) continue;

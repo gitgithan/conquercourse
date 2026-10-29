@@ -1173,7 +1173,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
       const step = (TICKS_PER_FRAME * DT * 1000 + 0.001) / timeScale;
       let t = last;
       for (let k = 0; k < total; k++) {
-        t += step; frame(t, true); await pending;
+        t += step; await new Promise<void>((done) => requestAnimationFrame(() => { frame(t, true); done(); })); await pending; // drawn inside a real animation frame: the renderer refreshes some camera values only once per frame
         if (k % 8 === 0) { card.say(`Making your clip… ${Math.round((100 * k) / total)}%`); await new Promise((r) => setTimeout(r, 0)); }
       }
       const blob = await enc.finish();
