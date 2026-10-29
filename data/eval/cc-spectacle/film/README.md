@@ -63,3 +63,15 @@
 - Real slicer recording: `scripts/film-ui.mjs` records the real map page (place, Slice, lane, strip, cut) at 1280 px.
 - Verdict: it works, but the side panel is crowded and the strip takes about 2 minutes, so the concept beats 2 and 3 stay in v4.
 - Beats 1, 2, 3 are concept; beat 4 is a real fly-by; beat 5 is real; beat 8 is a still and clip.
+
+## v5 (rough-cut-v5.mp4)
+
+- Beat 4 real: the fly-by is re-rendered with `?backdrop=montmartre-paris&film=flyover` (216 frames, VM3), so the Montmartre buildings and street furniture stand behind the lane and all decks are drawn.
+- The backdrop is there from frame 0.
+- Known look problems: the street lamps are over-sized yellow flags (the CC-213 furniture style), and the fly-over angle is steeply tilted.
+- Beat 2 real: `beat2-slicer-real.mp4` is 7.2 s of the real slicer page on Montmartre (`scripts/film-ui.mjs`), with the crowded side panel and map credit line cropped out; the end card credits OpenStreetMap.
+- The concept version `beat2-concept.mp4` stays as the fallback; delete the real file and the cut uses it again.
+- Editor screen: `scripts/film-editor.mjs` records the real editor on the hero course (VM2, 1280 px), but the 3D view is a bare beige ground with a tiny lane, and the side-view strip is a flat line, so it is not used.
+- Its screenshot is kept as `editor-screen-verdict-not-used.png`; beat 3 stays concept.
+- Hero still for CC-210: `data/eval/cc-spectacle/hero-course-still.png` (frame at 3.6 s of the fly-by: runner on the box, backdrop behind).
+- Beat table v5: 1 concept, 2 REAL slicer, 3 concept, 4 REAL fly-by with backdrop, 5 REAL run, 7 REAL leap, 8 designed end card.
