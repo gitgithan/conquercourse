@@ -15,6 +15,7 @@ import {
 import { loadRookie, type RookieId } from './rookie';
 import type { Obstacle } from '../course/collide';
 import { anticipation, getReady, ik2, ledgeReach } from '../motion/compose';
+import { settleNeck } from '../motion/neck';
 
 export type { ActorState } from '../motion/actor-pose';
 
@@ -63,14 +64,18 @@ export async function createRookieActor(scene: Scene, opts: { rookie: RookieId; 
     const r = await fetch('/assets/motion/hurt.json');
     if (r.ok) hurtClip = parseClip(await r.json());
   } catch { /* no hurt clip yet */ }
+  // the captured climb and vault clips are off by default (the contact-point vault and the hang-to-stand climb looked right in play); ?clips=1 plays them
+  const capturedClips = typeof location !== 'undefined' && new URLSearchParams(location.search).get('clips') === '1';
   // the captured climb and vault clips are optional too: without one, the climb is the hang-to-stand blend and the vault the contact-point pose
   let climbClip: Clip | null = null;
   try {
+    if (!capturedClips) throw new Error('off');
     const r = await fetch('/assets/motion/climb.json');
     if (r.ok) climbClip = parseClip(await r.json());
   } catch { /* no climb clip yet */ }
   let vaultClip: Clip | null = null;
   try {
+    if (!capturedClips) throw new Error('off');
     const r = await fetch('/assets/motion/vault.json');
     if (r.ok) vaultClip = parseClip(await r.json());
   } catch { /* no vault clip yet */ }
@@ -512,6 +517,8 @@ export async function createRookieActor(scene: Scene, opts: { rookie: RookieId; 
       const w = (into + 1) / (BLEND_TICKS + 1);
       joints = joints.map((p, i) => blendFrom![i].clone().lerp(p, w));
     }
+    // the grab, the let-go and the grab again blend a folded pose into a hang: keep the neck and the shoulders where the trunk says
+    if (k === 'climb' || k === 'swing' || s.mode === 'wall' || (blendFrom && into < BLEND_TICKS)) settleNeck(joints, standPose().joints, ix);
     last = joints.map((p) => p.clone());
 
     // tilt: the wall leans the body with the slope under it; the rope turns it about the grip
