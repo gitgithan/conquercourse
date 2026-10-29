@@ -38,6 +38,11 @@ async function courseFromUrl(): Promise<CourseData | undefined> {
   if (seed !== null && /^\d{1,9}$/.test(seed)) { const { generateCourse } = await import('./slice/generator'); return generateCourse(Number(seed)); }
   const track = new URLSearchParams(location.search).get('coaster'); // ?coaster=0,9;7,5;14,1;... a track from the coaster builder
   if (track !== null) { const { coasterCourse, parseTrack } = await import('./slice/coaster'); const pts = parseTrack(track); if (pts) return coasterCourse('My coaster', pts, Number(new URLSearchParams(location.search).get('push') ?? 1.5) || 1.5); }
+  const made = new URLSearchParams(location.search).get('made'); // CC-136: a course made in the editor, carried in the link
+  if (made !== null) {
+    const { shareOn } = await import('./share/challenge');
+    if (shareOn(new URLSearchParams(location.search))) { const { unpackCourse } = await import('./share/made-course'); const opened = await unpackCourse(made); if (opened) return opened; document.documentElement.dataset.madeRefused = '1'; return undefined; }
+  }
   const url = new URLSearchParams(location.search).get('course');
   if (!url || !/^\/assets\/[\w./-]+\.json$/.test(url)) return undefined;
   try { return (await (await fetch(url)).json()) as CourseData; } catch { return undefined; }

@@ -8,7 +8,8 @@ const [file, origin = 'https://conquercourse.pages.dev'] = process.argv.slice(2)
 const course = JSON.parse(readFileSync(file, 'utf8')) as CourseData;
 if (!course.plan) throw new Error('this course has no stored plan to record');
 const { recorder } = recordPlan(course, course.plan, 120 * 120);
-const search = `?course=/${file.replace(/^public\//, '')}`;
+const search = process.env.MADE ? '' : `?course=/${file.replace(/^public\//, '')}`; // MADE=1: a course made in the editor, carried in the link (CC-136)
+if (process.env.MADE) course.name = 'Made in the editor';
 const url = await makeChallengeUrl(origin, search, course, recorder.snapshot());
 if (!url) throw new Error('no link: the run does not clear, or it is too long');
 console.log(url);
