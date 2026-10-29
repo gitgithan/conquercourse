@@ -1,0 +1,18 @@
+{
+  "course": "/assets/demo/lache.course.json",
+  "labels": [
+    {
+      "id": "let",
+      "text": "Let go: speed carries on",
+      "at": [
+        38.4,
+        4,
+        0
+      ],
+      "from": 1.55,
+      "to": 2.2,
+      "dx": 80,
+      "dy": -90
+    }
+  ]
+}
