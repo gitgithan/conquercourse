@@ -1,0 +1,195 @@
+{
+  "id": "paired.park05.run1",
+  "part": "paired",
+  "photo": "park05",
+  "run": 1,
+  "startedFrom": "saved one-shot draft",
+  "status": "cleared",
+  "steps": 2,
+  "clearedAtStep": 2,
+  "tokensIn": 686,
+  "tokensOut": 557,
+  "dollars": 0.003,
+  "calls": 1,
+  "seconds": 14.4,
+  "obstaclesKept": 4,
+  "keyObstacles": 1,
+  "drift": {
+    "keyCount": 1,
+    "modelCount": 4,
+    "matched": 1,
+    "extra": 3,
+    "meanRelError": 0.56,
+    "meanAbsError": 0.7
+  },
+  "problems": [],
+  "stepsDetail": [
+    {
+      "n": 1,
+      "kind": "proposed",
+      "say": "A left to right path through the trees past the stone wall and bench under a low branch.",
+      "layout": {
+        "items": [
+          {
+            "kind": "ground",
+            "length": 4
+          },
+          {
+            "kind": "block",
+            "length": 1,
+            "height": 0.3
+          },
+          {
+            "kind": "ground",
+            "length": 2
+          },
+          {
+            "kind": "block",
+            "length": 0.6,
+            "height": 0.8
+          },
+          {
+            "kind": "ground",
+            "length": 1.5
+          },
+          {
+            "kind": "bar",
+            "height": 2.2
+          },
+          {
+            "kind": "ground",
+            "length": 1
+          },
+          {
+            "kind": "block",
+            "length": 0.6,
+            "height": 0.45
+          },
+          {
+            "kind": "ground",
+            "length": 3
+          }
+        ]
+      },
+      "report": {
+        "cleared": false,
+        "seconds": null,
+        "jumps": 1,
+        "stoppedAtItem": 3,
+        "reachedMetres": 6.49,
+        "laneMetres": 13.8,
+        "probes": [
+          {
+            "item": 3,
+            "text": "item 4 (block) 0.8 m high lowered to 0.5 m",
+            "clears": true,
+            "seconds": 4.56
+          }
+        ]
+      },
+      "words": "Not cleared: the best attempt stopped at item 4, block 0.6 m long, 0.8 m high (6.5 m in). The simulator proved these single changes would clear it: item 4 (block) 0.8 m high lowered to 0.5 m."
+    },
+    {
+      "n": 2,
+      "kind": "repaired",
+      "say": "Lowered the wall at item 4 to be clearable while keeping all obstacles.",
+      "layout": {
+        "items": [
+          {
+            "kind": "ground",
+            "length": 4
+          },
+          {
+            "kind": "block",
+            "length": 1,
+            "height": 0.3
+          },
+          {
+            "kind": "ground",
+            "length": 2
+          },
+          {
+            "kind": "block",
+            "length": 0.6,
+            "height": 0.5
+          },
+          {
+            "kind": "ground",
+            "length": 1.5
+          },
+          {
+            "kind": "bar",
+            "height": 2.2
+          },
+          {
+            "kind": "ground",
+            "length": 1
+          },
+          {
+            "kind": "block",
+            "length": 0.6,
+            "height": 0.45
+          },
+          {
+            "kind": "ground",
+            "length": 3
+          }
+        ]
+      },
+      "report": {
+        "cleared": true,
+        "seconds": 4.56,
+        "jumps": 2,
+        "stoppedAtItem": null,
+        "reachedMetres": 13.75,
+        "laneMetres": 13.8,
+        "probes": []
+      },
+      "words": "Cleared in 4.6 s on the best line, with 2 jumps."
+    }
+  ],
+  "baselineClearedAsDrawn": false,
+  "finalLayout": {
+    "items": [
+      {
+        "kind": "ground",
+        "length": 4
+      },
+      {
+        "kind": "block",
+        "length": 1,
+        "height": 0.3
+      },
+      {
+        "kind": "ground",
+        "length": 2
+      },
+      {
+        "kind": "block",
+        "length": 0.6,
+        "height": 0.5
+      },
+      {
+        "kind": "ground",
+        "length": 1.5
+      },
+      {
+        "kind": "bar",
+        "height": 2.2
+      },
+      {
+        "kind": "ground",
+        "length": 1
+      },
+      {
+        "kind": "block",
+        "length": 0.6,
+        "height": 0.45
+      },
+      {
+        "kind": "ground",
+        "length": 3
+      }
+    ]
+  }
+}

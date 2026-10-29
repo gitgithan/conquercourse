@@ -1,0 +1,78 @@
+{
+  "id": "paired.park08.run1",
+  "part": "paired",
+  "photo": "park08",
+  "run": 1,
+  "startedFrom": "saved one-shot draft",
+  "status": "cleared",
+  "steps": 1,
+  "clearedAtStep": 1,
+  "tokensIn": 0,
+  "tokensOut": 0,
+  "dollars": 0,
+  "calls": 0,
+  "seconds": 0.6,
+  "obstaclesKept": 1,
+  "keyObstacles": 1,
+  "drift": {
+    "keyCount": 1,
+    "modelCount": 1,
+    "matched": 1,
+    "extra": 0,
+    "meanRelError": 0.58,
+    "meanAbsError": 0.83
+  },
+  "problems": [],
+  "stepsDetail": [
+    {
+      "n": 1,
+      "kind": "proposed",
+      "say": "A clear line runs from the foreground gravel over the blue bench toward the open field behind.",
+      "layout": {
+        "items": [
+          {
+            "kind": "ground",
+            "length": 4
+          },
+          {
+            "kind": "block",
+            "length": 0.6,
+            "height": 0.45
+          },
+          {
+            "kind": "ground",
+            "length": 6
+          }
+        ]
+      },
+      "report": {
+        "cleared": true,
+        "seconds": 4.04,
+        "jumps": 2,
+        "stoppedAtItem": null,
+        "reachedMetres": 10.7,
+        "laneMetres": 10.8,
+        "probes": []
+      },
+      "words": "Cleared in 4 s on the best line, with 2 jumps."
+    }
+  ],
+  "baselineClearedAsDrawn": true,
+  "finalLayout": {
+    "items": [
+      {
+        "kind": "ground",
+        "length": 4
+      },
+      {
+        "kind": "block",
+        "length": 0.6,
+        "height": 0.45
+      },
+      {
+        "kind": "ground",
+        "length": 6
+      }
+    ]
+  }
+}

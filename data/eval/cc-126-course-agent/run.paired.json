@@ -1,0 +1,26 @@
+{
+  "experiment": "cc-126-course-agent",
+  "issue": "CC-127",
+  "model": "meta-models/muse-spark-open-1026",
+  "stepCap": 6,
+  "part": "paired",
+  "toolsRunOn": "a Vultr VM over ssh",
+  "price": {
+    "in": 1.25,
+    "out": 4.25
+  },
+  "tokens": {
+    "in": 7133,
+    "out": 19641,
+    "calls": 10
+  },
+  "totalDollars": 0.092,
+  "startedFrom": "data/eval/photo-course (CC-52) outputs and answer key",
+  "date": "2026-10-29",
+  "baseline": {
+    "runs": 20,
+    "clearsAsDrawn": 13,
+    "afterFixIt": 13,
+    "afterDroppingBars": 15
+  }
+}

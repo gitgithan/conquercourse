@@ -1,0 +1,106 @@
+{
+  "id": "fresh.park01.run2",
+  "part": "fresh",
+  "photo": "park01",
+  "run": 2,
+  "startedFrom": "the photo",
+  "status": "cleared",
+  "steps": 1,
+  "clearedAtStep": 1,
+  "tokensIn": 1025,
+  "tokensOut": 1112,
+  "dollars": 0.006,
+  "calls": 1,
+  "seconds": 9.8,
+  "obstaclesKept": 4,
+  "keyObstacles": 2,
+  "drift": {
+    "keyCount": 2,
+    "modelCount": 4,
+    "matched": 2,
+    "extra": 2,
+    "meanRelError": 0.39,
+    "meanAbsError": 1.18
+  },
+  "problems": [],
+  "stepsDetail": [
+    {
+      "n": 1,
+      "kind": "proposed",
+      "say": "First course based on the stairs, rail and concrete ledges seen in the photo.",
+      "layout": {
+        "items": [
+          {
+            "kind": "ground",
+            "length": 3
+          },
+          {
+            "kind": "block",
+            "length": 2.5,
+            "height": 0.45
+          },
+          {
+            "kind": "block",
+            "length": 1.8,
+            "height": 0.75
+          },
+          {
+            "kind": "bar",
+            "height": 1.5
+          },
+          {
+            "kind": "block",
+            "length": 3,
+            "height": 0.5
+          },
+          {
+            "kind": "ground",
+            "length": 3
+          }
+        ]
+      },
+      "report": {
+        "cleared": true,
+        "seconds": 4.51,
+        "jumps": 2,
+        "stoppedAtItem": null,
+        "reachedMetres": 13.35,
+        "laneMetres": 13.4,
+        "probes": []
+      },
+      "words": "Cleared in 4.5 s on the best line, with 2 jumps."
+    }
+  ],
+  "baselineClearedAsDrawn": null,
+  "finalLayout": {
+    "items": [
+      {
+        "kind": "ground",
+        "length": 3
+      },
+      {
+        "kind": "block",
+        "length": 2.5,
+        "height": 0.45
+      },
+      {
+        "kind": "block",
+        "length": 1.8,
+        "height": 0.75
+      },
+      {
+        "kind": "bar",
+        "height": 1.5
+      },
+      {
+        "kind": "block",
+        "length": 3,
+        "height": 0.5
+      },
+      {
+        "kind": "ground",
+        "length": 3
+      }
+    ]
+  }
+}

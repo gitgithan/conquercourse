@@ -1,0 +1,78 @@
+{
+  "id": "fresh.new01.run1",
+  "part": "fresh",
+  "photo": "new01",
+  "run": 1,
+  "startedFrom": "the photo",
+  "status": "cleared",
+  "steps": 1,
+  "clearedAtStep": 1,
+  "tokensIn": 1592,
+  "tokensOut": 493,
+  "dollars": 0.004,
+  "calls": 1,
+  "seconds": 17.3,
+  "obstaclesKept": 1,
+  "keyObstacles": 1,
+  "drift": {
+    "keyCount": 1,
+    "modelCount": 1,
+    "matched": 1,
+    "extra": 0,
+    "meanRelError": 0.56,
+    "meanAbsError": 1.53
+  },
+  "problems": [],
+  "stepsDetail": [
+    {
+      "n": 1,
+      "kind": "proposed",
+      "say": "Initial course based on the ledge in the photo.",
+      "layout": {
+        "items": [
+          {
+            "kind": "ground",
+            "length": 5
+          },
+          {
+            "kind": "block",
+            "length": 6,
+            "height": 0.35
+          },
+          {
+            "kind": "ground",
+            "length": 5
+          }
+        ]
+      },
+      "report": {
+        "cleared": true,
+        "seconds": 4.68,
+        "jumps": 2,
+        "stoppedAtItem": null,
+        "reachedMetres": 16.1,
+        "laneMetres": 16.1,
+        "probes": []
+      },
+      "words": "Cleared in 4.7 s on the best line, with 2 jumps."
+    }
+  ],
+  "baselineClearedAsDrawn": null,
+  "finalLayout": {
+    "items": [
+      {
+        "kind": "ground",
+        "length": 5
+      },
+      {
+        "kind": "block",
+        "length": 6,
+        "height": 0.35
+      },
+      {
+        "kind": "ground",
+        "length": 5
+      }
+    ]
+  }
+}

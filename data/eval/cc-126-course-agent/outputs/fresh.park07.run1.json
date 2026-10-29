@@ -1,0 +1,98 @@
+{
+  "id": "fresh.park07.run1",
+  "part": "fresh",
+  "photo": "park07",
+  "run": 1,
+  "startedFrom": "the photo",
+  "status": "cleared",
+  "steps": 1,
+  "clearedAtStep": 1,
+  "tokensIn": 1073,
+  "tokensOut": 833,
+  "dollars": 0.005,
+  "calls": 1,
+  "seconds": 8.6,
+  "obstaclesKept": 3,
+  "keyObstacles": 1,
+  "drift": {
+    "keyCount": 1,
+    "modelCount": 3,
+    "matched": 1,
+    "extra": 2,
+    "meanRelError": 0.67,
+    "meanAbsError": 0.55
+  },
+  "problems": [],
+  "stepsDetail": [
+    {
+      "n": 1,
+      "kind": "proposed",
+      "say": "Initial course estimates the three park steps as successive low blocks.",
+      "layout": {
+        "items": [
+          {
+            "kind": "ground",
+            "length": 6
+          },
+          {
+            "kind": "block",
+            "length": 0.4,
+            "height": 0.15
+          },
+          {
+            "kind": "block",
+            "length": 0.4,
+            "height": 0.3
+          },
+          {
+            "kind": "block",
+            "length": 0.4,
+            "height": 0.45
+          },
+          {
+            "kind": "ground",
+            "length": 8
+          }
+        ]
+      },
+      "report": {
+        "cleared": true,
+        "seconds": 4.57,
+        "jumps": 2,
+        "stoppedAtItem": null,
+        "reachedMetres": 15.2,
+        "laneMetres": 15.2,
+        "probes": []
+      },
+      "words": "Cleared in 4.6 s on the best line, with 2 jumps."
+    }
+  ],
+  "baselineClearedAsDrawn": null,
+  "finalLayout": {
+    "items": [
+      {
+        "kind": "ground",
+        "length": 6
+      },
+      {
+        "kind": "block",
+        "length": 0.4,
+        "height": 0.15
+      },
+      {
+        "kind": "block",
+        "length": 0.4,
+        "height": 0.3
+      },
+      {
+        "kind": "block",
+        "length": 0.4,
+        "height": 0.45
+      },
+      {
+        "kind": "ground",
+        "length": 8
+      }
+    ]
+  }
+}
