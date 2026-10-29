@@ -3,6 +3,7 @@ import { describe, expect, it } from 'vitest';
 import type { CourseData } from '../src/course/course';
 import { inputFor, playPlan } from '../src/sim/ideal';
 import { newWorld, stepWorld } from '../src/sim/world';
+import { NO_INPUT } from '../src/sim/runner';
 import { BOX_H, DX, TRAMP_CUT } from '../scripts/training-layout';
 import { logTick, newLog } from '../src/ui/run-report';
 
@@ -85,5 +86,28 @@ describe('the Training course', () => {
   it('the decks touch where a wall or a drop begins (no sliver to fall through)', () => {
     const p = c.terrain.platforms;
     for (let i = 1; i < p.length; i++) { const gap = p[i].x0 - p[i - 1].x1; if (gap > 0) expect(gap).toBeGreaterThan(0.5); }
+  });
+});
+
+// CC-216: the climb wall (top 6 m, 2 m above the deck before it) is out of reach of a plain jump (the apex is about 1 m): it is climbed with E.
+// A player who holds E from a few metres before the wall and presses Space anywhere in a wide window (or not at all) must get up, as the ideal run does.
+describe('the climb wall is reachable by a human-timed single jump with E held (CC-216)', () => {
+  const wall = c.terrain.platforms.find((p) => p.top === 6)!;
+  const climbs = (jumpAt: number | null, holdE: boolean) => {
+    let w = newWorld(c, 80), got = false;
+    for (let i = 0; i < 1200 && w.runner.x < wall.x0 + 4; i++) {
+      const x = w.runner.x;
+      w = stepWorld(w, { ...NO_INPUT, run: true, squat: true, jump: jumpAt !== null && x >= jumpAt && x < jumpAt + 0.3, handL: holdE && x >= wall.x0 - 7, handR: holdE && x >= wall.x0 - 7 } as never, c);
+      if (w.mode === 'climb') got = true;
+    }
+    return got;
+  };
+  it('it is 2 m high and a plain jump does not reach the top', () => {
+    expect(wall.top - 4).toBe(2);
+    expect(climbs(wall.x0 - 3, false)).toBe(false);
+  });
+  it('E held from 7 m before: standing, or a jump anywhere from 3.5 m to 0.5 m before the wall, climbs', () => {
+    expect(climbs(null, true)).toBe(true);
+    for (let d = 0.5; d <= 3.5; d += 0.5) expect(climbs(wall.x0 - d, true), `jump ${d} m before`).toBe(true);
   });
 });
