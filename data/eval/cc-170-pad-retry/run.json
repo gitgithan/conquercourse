@@ -1,0 +1,19 @@
+{
+  "experiment": "cc-170-pad-retry",
+  "date": "2026-10-30",
+  "pairs_finished": 5,
+  "planned": 12,
+  "summary": {
+    "photos": 5,
+    "touch_border": 1,
+    "usable_before": 4,
+    "usable_after": 4,
+    "rescued": [],
+    "made_worse": [],
+    "still_bad": [
+      "barrel-oak-edge"
+    ]
+  },
+  "modal_cost_note": "about 0.012 USD per lift plus model loads; few USD total",
+  "raw_lifts": "../conquercourse-assets/cc-170-pad-retry/"
+}

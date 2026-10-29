@@ -1,0 +1,31 @@
+{
+  "label": "planter",
+  "extents_m": {
+    "x": 1.86,
+    "y": 0.45,
+    "z": 1.86
+  },
+  "height_m": 0.45,
+  "target_height_m": 0.45,
+  "scale_source": "typed",
+  "scale_factor": 1.8619,
+  "raw_height": 0.2417,
+  "yaw_deg": 49.5,
+  "tilt_deg": 0.17,
+  "faces": 5820,
+  "vertices": 2914,
+  "width_to_height": 4.129,
+  "photo": "planter-concrete-edge",
+  "box": [
+    0,
+    12,
+    570,
+    302
+  ],
+  "bytes": 114816,
+  "model": "SAM 3D Objects (seed 42)",
+  "bake_seconds": 4.58,
+  "raw_faces": 767252,
+  "splat_points": 552192,
+  "lift_round": "after"
+}

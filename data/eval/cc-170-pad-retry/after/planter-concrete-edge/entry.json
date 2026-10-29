@@ -1,0 +1,36 @@
+{
+  "photo": "planter-concrete-edge",
+  "mask_seconds": 0.3,
+  "lift_seconds": 11.2,
+  "wall_seconds": 54.7,
+  "mask": {
+    "how": "text",
+    "score": 0.95703125,
+    "iou_with_box": 0.883,
+    "candidates": 2,
+    "pixels": 69849
+  },
+  "privacy": {
+    "people": 0,
+    "faces": 0,
+    "plates": 0,
+    "changed": false
+  },
+  "n_faces_raw": 767252,
+  "n_gaussians": 552192,
+  "padretry": {
+    "enabled": true,
+    "border": {
+      "top": 0.0,
+      "bottom": 0.0,
+      "left": 0.0,
+      "right": 0.0
+    },
+    "padded": false,
+    "touches": false,
+    "extent_aspect": 4.135,
+    "mask_aspect": 2.126,
+    "bad": false,
+    "note": ""
+  }
+}

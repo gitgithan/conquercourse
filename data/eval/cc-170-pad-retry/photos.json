@@ -1,0 +1,239 @@
+[
+  {
+    "photo": "bollard-iron-edge",
+    "label": "bollard",
+    "box": [
+      0,
+      0,
+      240,
+      1310
+    ],
+    "height_m": 0.9,
+    "from": "bollard-iron",
+    "licence": "CC0",
+    "author": "Simon Cobb",
+    "source": "https://commons.wikimedia.org/wiki/File:Bollard_On_Street_Corner.jpg",
+    "crop": [
+      600,
+      260,
+      840,
+      1570
+    ]
+  },
+  {
+    "photo": "barrel-oak-edge",
+    "label": "wooden barrel",
+    "box": [
+      0,
+      0,
+      1030,
+      600
+    ],
+    "height_m": 0.9,
+    "from": "barrel-oak",
+    "licence": "CC0",
+    "author": "W.carter",
+    "source": "https://commons.wikimedia.org/wiki/File:Four_wet_wooden_barrels.jpg",
+    "crop": [
+      120,
+      450,
+      1150,
+      1050
+    ]
+  },
+  {
+    "photo": "planter-concrete-edge",
+    "label": "planter",
+    "box": [
+      0,
+      12,
+      570,
+      302
+    ],
+    "height_m": 0.45,
+    "from": "planter-concrete",
+    "licence": "CC BY 2.0",
+    "author": "Tony Webster",
+    "source": "https://commons.wikimedia.org/wiki/File:Big_Concrete_Planters_(53816879695).jpg",
+    "crop": [
+      400,
+      278,
+      993,
+      580
+    ]
+  },
+  {
+    "photo": "pipe-ring-edge",
+    "label": "concrete pipe",
+    "box": [
+      0,
+      0,
+      440,
+      390
+    ],
+    "height_m": 0.9,
+    "from": "pipe-ring",
+    "licence": "CC BY-SA 2.0",
+    "author": "Humphrey Bolton",
+    "source": "https://commons.wikimedia.org/wiki/File:Concrete_pipe_stile_on_Elland_Footpath_25_-_geograph.org.uk_-_4080358.jpg",
+    "crop": [
+      520,
+      430,
+      960,
+      820
+    ]
+  },
+  {
+    "photo": "bench-concrete-curve-edge",
+    "label": "concrete bench",
+    "box": [
+      0,
+      17,
+      830,
+      437
+    ],
+    "height_m": 0.5,
+    "from": "bench-concrete-curve",
+    "licence": "CC0",
+    "author": "Mutney",
+    "source": "https://commons.wikimedia.org/wiki/File:Concrete_bench,_Chester_Road,_Newquay,_Cornwall_-_May_2023.jpg",
+    "crop": [
+      170,
+      253,
+      1033,
+      690
+    ]
+  },
+  {
+    "photo": "stump-spruce-edge",
+    "label": "tree stump",
+    "box": [
+      0,
+      0,
+      520,
+      1280
+    ],
+    "height_m": 1.2,
+    "from": "stump-spruce",
+    "licence": "CC0",
+    "author": "W.carter",
+    "source": "https://commons.wikimedia.org/wiki/File:Spruce_tree_stump_in_Gullmarsskogen_ravine.jpg",
+    "crop": [
+      600,
+      170,
+      1120,
+      1450
+    ]
+  },
+  {
+    "photo": "bar-green-edge",
+    "label": "pull-up bar",
+    "box": [
+      0,
+      29,
+      520,
+      759
+    ],
+    "height_m": 2.3,
+    "from": "bar-green",
+    "licence": "CC0",
+    "author": "Singlespeedfahrer",
+    "source": "https://commons.wikimedia.org/wiki/File:Outdoor_Gym_in_Berlin-Stralau_(Berlin-Friedrichshain)_01.jpg",
+    "crop": [
+      560,
+      61,
+      1101,
+      820
+    ]
+  },
+  {
+    "photo": "bar-black-edge",
+    "label": "pull-up bar",
+    "box": [
+      0,
+      0,
+      600,
+      1440
+    ],
+    "height_m": 2.3,
+    "from": "bar-black",
+    "licence": "CC0",
+    "author": "Singlespeedfahrer",
+    "source": "https://commons.wikimedia.org/wiki/File:Bewegungsparcours_Schmetterlingswiesen_Berlin_2v7.jpg",
+    "crop": [
+      440,
+      340,
+      1040,
+      1780
+    ]
+  },
+  {
+    "photo": "picnic-table-edge",
+    "label": "picnic table",
+    "box": [
+      0,
+      23,
+      1150,
+      593
+    ],
+    "height_m": 0.75,
+    "from": "picnic-table",
+    "licence": "CC0",
+    "author": "Hu Nhu",
+    "source": "https://commons.wikimedia.org/wiki/File:Picnic_table_curves.jpg",
+    "crop": [
+      80,
+      137,
+      1276,
+      730
+    ]
+  },
+  {
+    "photo": "gabion-wall",
+    "label": "gabion wall",
+    "box": [
+      0,
+      50,
+      1280,
+      940
+    ],
+    "height_m": 1.2,
+    "from": "gabion-wall",
+    "licence": "CC0",
+    "author": "Encik Tekateki",
+    "source": "https://commons.wikimedia.org/wiki/File:Gabion_Wall.jpg",
+    "crop": null
+  },
+  {
+    "photo": "log-driftwood",
+    "label": "log",
+    "box": [
+      0,
+      200,
+      1200,
+      680
+    ],
+    "height_m": 0.8,
+    "from": "log-driftwood",
+    "licence": "CC BY 4.0",
+    "author": "Awinsongyababa",
+    "source": "https://commons.wikimedia.org/wiki/File:A_fallen_log_of_a_tree.jpg",
+    "crop": null
+  },
+  {
+    "photo": "railing-red",
+    "label": "metal railing",
+    "box": [
+      0,
+      20,
+      1280,
+      800
+    ],
+    "height_m": 1,
+    "from": "railing-red",
+    "licence": "CC BY-SA 4.0",
+    "author": "AgainErick",
+    "source": "https://commons.wikimedia.org/wiki/File:Jansbrug_-_Haarlem_-_Metal_railing_-_along.jpg",
+    "crop": null
+  }
+]
