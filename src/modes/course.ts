@@ -33,6 +33,7 @@ import { flightPath, gapSpecs, minSpeedForWall, pressBand } from '../sim/needs';
 import { bounce } from '../sim/trampoline';
 import { DEFAULT_TRAMPOLINE } from '../sim/trampoline';
 import { ouch } from '../sim/landing';
+import { logTicks } from '../sim/run-checks';
 import { track, trackCourseEvent, courseKey, sendClear } from '../ui/feedback';
 import { statsOn, statKey } from '../ui/course-stats';
 import { createRookieActor } from '../render/actor';
@@ -741,7 +742,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
     const path = params.get('course') ?? '';
     if (!statsOn(params) || botMode || demo || idealWhole || params.get('mode') || !/^\/assets\/(demo|experiments\/osm)\//.test(path)) return;
     const mine = ghostCtl?.myRun();
-    if (mine) void encodeLog(mine).then((keys) => sendClear(statKey(path), analyticsRunId, courseHash(course), keys));
+    if (mine) void encodeLog(mine).then((keys) => sendClear(statKey(path), analyticsRunId, courseHash(course), keys, logTicks(mine)));
   }
   let everCleared = false;
   try { everCleared = localStorage.getItem('cc.course.cleared') === '1'; } catch { /* keep going */ }
