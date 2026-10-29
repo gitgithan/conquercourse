@@ -1,0 +1,13 @@
+{
+  "name": "pullup-green",
+  "label": "pull-up bar",
+  "key": "hang",
+  "status": 200,
+  "moves": [
+    "hang"
+  ],
+  "idea": "A bright green arch that marks a secret gateway into the next wild challenge area.",
+  "top1": true,
+  "hit": true,
+  "ms": 9244
+}

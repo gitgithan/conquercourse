@@ -1,0 +1,14 @@
+{
+  "name": "planter-concrete",
+  "label": "planter",
+  "key": "jump",
+  "status": 200,
+  "moves": [
+    "vault",
+    "jump"
+  ],
+  "idea": "A flowery roundabout that splits the straight lane into playful paths to explore.",
+  "top1": false,
+  "hit": true,
+  "ms": 10153
+}

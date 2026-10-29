@@ -1,0 +1,13 @@
+{
+  "name": "bench-concrete",
+  "label": "bench",
+  "key": "vault",
+  "status": 200,
+  "moves": [
+    "vault"
+  ],
+  "idea": "Bench blocks straight path so runner chooses fast middle line or slower side route",
+  "top1": true,
+  "hit": true,
+  "ms": 9598
+}

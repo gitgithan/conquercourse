@@ -1,0 +1,14 @@
+{
+  "name": "pipe-concrete",
+  "label": "concrete pipe",
+  "key": "climb",
+  "status": 200,
+  "moves": [
+    "vault",
+    "jump"
+  ],
+  "idea": "A round concrete ring makes a secret hideout that splits the lane for a fun peek-a-boo choice.",
+  "top1": false,
+  "hit": false,
+  "ms": 11259
+}

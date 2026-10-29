@@ -1,0 +1,14 @@
+{
+  "name": "log-driftwood",
+  "label": "log",
+  "key": "balance",
+  "status": 200,
+  "moves": [
+    "balance",
+    "vault"
+  ],
+  "idea": "Long trunk blocks lane so runner must pick quick balance or slow walk around",
+  "top1": true,
+  "hit": true,
+  "ms": 9106
+}

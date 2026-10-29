@@ -1,0 +1,13 @@
+{
+  "name": "box-skate-03",
+  "label": "platform",
+  "key": "jump",
+  "status": 200,
+  "moves": [
+    "vault"
+  ],
+  "idea": "Wide low block forces a choice between going over the top or around the end",
+  "top1": false,
+  "hit": false,
+  "ms": 11001
+}

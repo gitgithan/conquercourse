@@ -1,0 +1,14 @@
+{
+  "name": "stairs-park-07",
+  "label": "stairs",
+  "key": "climb",
+  "status": 200,
+  "moves": [
+    "vault",
+    "balance"
+  ],
+  "idea": "Low worn steps interrupt the lane, giving a slower middle path and a faster line over the top",
+  "top1": false,
+  "hit": false,
+  "ms": 44229
+}

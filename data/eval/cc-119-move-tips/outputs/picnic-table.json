@@ -1,0 +1,14 @@
+{
+  "name": "picnic-table",
+  "label": "picnic table",
+  "key": "vault",
+  "status": 200,
+  "moves": [
+    "vault",
+    "balance"
+  ],
+  "idea": "Wide table with side benches splits lane so choosing a side changes speed",
+  "top1": true,
+  "hit": true,
+  "ms": 14168
+}

@@ -1,0 +1,14 @@
+{
+  "name": "bench-curved",
+  "label": "concrete bench",
+  "key": "vault",
+  "status": 200,
+  "moves": [
+    "vault",
+    "jump"
+  ],
+  "idea": "Makes a bold landmark for hiding clues and offering fun path choices nearby.",
+  "top1": true,
+  "hit": true,
+  "ms": 9087
+}

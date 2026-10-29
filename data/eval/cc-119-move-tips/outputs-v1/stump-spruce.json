@@ -1,0 +1,13 @@
+{
+  "name": "stump-spruce",
+  "label": "tree stump",
+  "key": "balance",
+  "status": 200,
+  "moves": [
+    "climb"
+  ],
+  "idea": "A jagged forest stump makes a wild landmark and a fun surprise to discover on the trail.",
+  "top1": false,
+  "hit": false,
+  "ms": 8105
+}
