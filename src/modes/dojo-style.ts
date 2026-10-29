@@ -1,8 +1,8 @@
 // The Dojo's look (CC-146): scoped under .dojo.v2 so ?dojo=old keeps the earlier layout. Same palette and type as the welcome card.
 export const DOJO_V2_CSS = `
-  .dojo.v2{font:16px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif;max-width:none;width:100%;box-sizing:border-box;padding:0 clamp(12px,3vw,32px) 96px;gap:18px;align-content:start;background:radial-gradient(1200px 600px at 20% -10%,#24424a 0%,#14232a 55%,#0d171c 100%)}
-  .dojo.v2>*{max-width:1180px;width:100%;margin-inline:auto;box-sizing:border-box}
-  .dojo.v2 .bar{position:sticky;top:0;z-index:30;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 0;background:linear-gradient(#0d171c 70%,#0d171c00)}
+  .dojo.v2{font:16px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif;max-width:none;width:100%;box-sizing:border-box;padding:0 clamp(12px,3vw,32px) 96px;gap:18px;display:flex;flex-direction:column;position:fixed;inset:0;overflow-y:auto;background:radial-gradient(1200px 600px at 20% -10%,#24424a 0%,#14232a 55%,#0d171c 100%)}
+  .dojo.v2>*{max-width:1180px;width:100%;margin-inline:auto;box-sizing:border-box;flex:none}
+  .dojo.v2 .bar{position:sticky;top:0;z-index:30;display:flex;align-items:center;justify-content:space-between;flex-wrap:nowrap;gap:12px;padding:12px 0;background:linear-gradient(#0d171c 70%,#0d171c00)}
   .dojo.v2 .brand{display:grid;gap:4px}.dojo.v2 .kicker{font:700 12px/1 system-ui;letter-spacing:.18em;text-transform:uppercase;color:#e0b46a}
   .dojo.v2 h1{margin:0;font:800 clamp(26px,4.4vw,38px)/1.05 system-ui,sans-serif;letter-spacing:-.04em;color:#fffdf7}
   .dojo.v2 #back{position:static!important;box-shadow:0 6px 18px #0005!important;font-size:15px!important;padding:10px 18px!important;border-radius:999px;background:#0f6b5c;color:#fff;border:0;font-weight:800;white-space:nowrap}
@@ -45,4 +45,4 @@ export const DOJO_V2_CSS = `
   @media(prefers-reduced-motion:no-preference){.dojo.v2 .stage,.dojo.v2 .panel,.dojo.v2 .hero{animation:dojoIn .28s ease-out both}}
   @keyframes dojoIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
   @media(max-width:860px){.dojo.v2 .row{grid-template-columns:1fr}.dojo.v2 .path .node .t{display:none}.dojo.v2 .path .node.on .t{display:block;position:absolute;top:38px;white-space:nowrap}.dojo.v2 .path{padding-bottom:22px}
-    .dojo.v2 .nav{position:sticky;bottom:0;margin:0 -16px -16px;padding:10px 16px;background:#fffdf7f2;border-radius:0 0 20px 20px;box-shadow:0 -8px 20px #0001}.dojo.v2 .bar{padding:8px 0}}`;
+    .dojo.v2 .nav{position:sticky;bottom:0;margin:0 -16px -16px;padding:10px 16px;background:#fffdf7f2;border-radius:0 0 20px 20px;box-shadow:0 -8px 20px #0001}.dojo.v2 .bar{padding:8px 0}.dojo.v2 .kicker{display:none}.dojo.v2 #back{font-size:13px!important;padding:8px 12px!important}.dojo.v2 .cards button{min-width:112px;padding:8px 12px}}`;
