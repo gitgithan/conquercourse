@@ -6,6 +6,44 @@ A ninja-warrior physics game where real parks, real streets and real objects bec
 Built for the Meta Global AI Developer Hackathon (2026-10-26 to 2026-11-04), indie track.
 Live: https://conquercourse.pages.dev/
 
+## The problem we solve
+Three needs, each with who feels it, why it hurts, and what the game does.
+These are reasoned from how people learn and play; we have not run user research yet (our belief, not a measurement).
+
+### 1. People skip physics because it arrives as symbols
+- **Who:** anyone who met physics as a page of formulas and decided it was not for them.
+- **Why it hurts:** a formula with no felt meaning cannot be remembered or reused, so the person stops trying.
+- **What we do:** the player first feels the idea in their hands.
+  - Every obstacle has one saying that is earned by playing it, for example how speed helps one move and hurts another.
+  - Nothing on the Course shows a formula.
+  - The Dojo adds the exact formula once, as the last step, after the person already knows the shape of the idea.
+  - The Labs show equations for people who ask for them.
+- **Why a game:** the simulator is the same on every run, so the same move always has the same result, and the person can test an idea again and again.
+
+### 2. People know their own city and little beyond it
+- **Who:** anyone who has only seen the parks and streets near home.
+- **Why it hurts:** places stay abstract names on a map, and there is little reason to look closely at them.
+- **What we do:** pick a place on Earth and its real buildings become a course.
+  - The player runs along real streets and rooftops, and sees what is there.
+  - Real street photos from Mapillary (CC BY-SA, credited, people removed) show what the place looks like.
+  - A friend in another country opens the same course from a link.
+
+### 3. Making a course is hard, and sharing an unfair one is worse
+- **Who:** a player who wants to build or share a challenge.
+- **Why it hurts:** a course that cannot be cleared wastes everyone's time.
+- **What we do:** the simulator proves a course can be cleared before it is shared, and tells the maker in plain words what to change when it cannot.
+  - Photos of real objects become obstacles.
+  - A link lets a friend replay the exact run in the browser.
+
+### What we do not do
+- We do not grade or coach a person's technique.
+- We do not use a chat tutor.
+- The physics is Earth only.
+
+### Who it is for
+- Curious players, students who found physics dry, and teachers who want something to hand out.
+- The ninja-warrior look is the hook; the real places and the felt physics are the reason to stay.
+
 ## What it is
 - Pick a place on Earth, or a photo of a park, and the game builds a course there.
 - Run, jump, vault, swing and climb it in a deterministic physics simulator.
