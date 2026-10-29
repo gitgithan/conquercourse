@@ -103,9 +103,12 @@ export function laneForPlace(answer: OverpassAnswer, lat: number, lon: number, g
     const piece = centred({ positions: m.positions, indices: m.indices });
     const [ox, oz] = middle(m.positions);
     const samples = surfaceSamples(piece, 80);
-    const cands = bestSlices({ positions: samples }, { top: 3, centre: { x: 0, z: 0 }, reprofile: (c) => sliceProfile(laneSamples(piece, c), { x: 0, z: 0 }, c) }); // the proof reads the lane the way the editor will (CC-91)
-    if (!cands.length) continue;
-    const best = cands[0], rep = best.report, a = best.angle;
+    const cands = bestSlices({ positions: samples }, { top: 3, centre: { x: 0, z: 0 }, reprofile: (c) => { c.offset = Math.round(c.offset * 10) / 10; c.level = Math.round(c.level * 100) / 100; return sliceProfile(laneSamples(piece, c), { x: 0, z: 0 }, c); } }); // the proof reads the lane the way the editor will (CC-91), at the rounded sideways step and level the place file keeps (a lane shifted by 5 cm can touch a wall the proved one missed)
+    // a lane that is mostly empty air is not a course on this place: the buildings must lie along most of it (the lane test asks the same, CC-91)
+    const built = (c: (typeof cands)[number]) => c.profile.cells.filter((x) => x !== null).length / Math.max(1, c.profile.cells.length);
+    const solid = cands.filter((c) => built(c) > 0.2);
+    if (!solid.length) continue;
+    const best = solid[0], rep = best.report, a = best.angle;
     const u0 = best.profile.origin ?? 0, uEnd = u0 + best.profile.length;
     const roles = footprintRoles(kept, k, ground, ox, oz, { angle: a, offset: best.offset, level: best.level, u0, uEnd });
     // the lane's two ends in real metres east (x) and south (z) of the pin, for drawing it on the map
