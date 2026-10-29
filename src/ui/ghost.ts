@@ -134,7 +134,7 @@ export function createGhost(o: GhostOpts): Ghost {
     },
     reportActions(chase) {
       const b = document.createElement('button');
-      b.type = 'button'; b.textContent = mode !== 'off' ? 'Chase the ghost again' : 'Chase the ideal run (ghost)';
+      b.type = 'button'; b.id = 'report-chase'; b.textContent = mode !== 'off' ? 'Chase the ghost again' : 'Chase the ideal run (ghost)';
       b.style.cssText = 'font:inherit;border:1px solid #2a8fbd;background:#eaf6fc;color:#17201d;border-radius:8px;padding:6px 12px;cursor:pointer';
       b.onclick = () => { if (mode === 'off') setMode('ideal'); chase(); };
       return [b];
