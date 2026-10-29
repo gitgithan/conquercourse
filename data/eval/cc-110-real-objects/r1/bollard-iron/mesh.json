@@ -9,7 +9,7 @@
   "target_height_m": 0.9,
   "scale_source": "typed",
   "scale_factor": 0.9,
-  "raw_height": 1.0,
+  "raw_height": 1,
   "yaw_deg": 34.5,
   "tilt_deg": 1.18,
   "faces": 5820,
