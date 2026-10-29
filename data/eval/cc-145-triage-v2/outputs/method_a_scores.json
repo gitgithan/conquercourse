@@ -65,7 +65,7 @@
       },
       "border_sides": {
         "auc": 0.658,
-        "cut": 1.0,
+        "cut": 1,
         "bad_when": ">=",
         "fit_acc": 0.783,
         "loo": {
@@ -77,7 +77,7 @@
       },
       "border_touch": {
         "auc": 0.671,
-        "cut": 1.0,
+        "cut": 1,
         "bad_when": ">=",
         "fit_acc": 0.783,
         "loo": {
@@ -89,7 +89,7 @@
       },
       "components": {
         "auc": 0.533,
-        "cut": 7.0,
+        "cut": 7,
         "bad_when": ">=",
         "fit_acc": 0.826,
         "loo": {
@@ -113,7 +113,7 @@
       },
       "holes": {
         "auc": 0.632,
-        "cut": 2.0,
+        "cut": 2,
         "bad_when": ">=",
         "fit_acc": 0.826,
         "loo": {
@@ -295,7 +295,7 @@
       },
       "border_sides": {
         "auc": 0.579,
-        "cut": 4.0,
+        "cut": 4,
         "bad_when": ">=",
         "fit_acc": 0.818,
         "loo": {
@@ -307,7 +307,7 @@
       },
       "border_touch": {
         "auc": 0.588,
-        "cut": 1.0,
+        "cut": 1,
         "bad_when": ">=",
         "fit_acc": 0.773,
         "loo": {
@@ -319,7 +319,7 @@
       },
       "components": {
         "auc": 0.395,
-        "cut": 54.0,
+        "cut": 54,
         "bad_when": ">=",
         "fit_acc": 0.818,
         "loo": {
@@ -343,7 +343,7 @@
       },
       "holes": {
         "auc": 0.544,
-        "cut": 2.0,
+        "cut": 2,
         "bad_when": ">=",
         "fit_acc": 0.818,
         "loo": {
@@ -525,7 +525,7 @@
       },
       "border_sides": {
         "auc": 0.603,
-        "cut": 1.0,
+        "cut": 1,
         "bad_when": ">=",
         "fit_acc": 0.652,
         "loo": {
@@ -537,7 +537,7 @@
       },
       "border_touch": {
         "auc": 0.595,
-        "cut": 1.0,
+        "cut": 1,
         "bad_when": ">=",
         "fit_acc": 0.652,
         "loo": {
@@ -549,7 +549,7 @@
       },
       "components": {
         "auc": 0.702,
-        "cut": 3.0,
+        "cut": 3,
         "bad_when": ">=",
         "fit_acc": 0.783,
         "loo": {
@@ -573,7 +573,7 @@
       },
       "holes": {
         "auc": 0.738,
-        "cut": 2.0,
+        "cut": 2,
         "bad_when": ">=",
         "fit_acc": 0.783,
         "loo": {
@@ -755,7 +755,7 @@
       },
       "border_sides": {
         "auc": 0.562,
-        "cut": 4.0,
+        "cut": 4,
         "bad_when": ">=",
         "fit_acc": 0.682,
         "loo": {
@@ -767,7 +767,7 @@
       },
       "border_touch": {
         "auc": 0.554,
-        "cut": 1.0,
+        "cut": 1,
         "bad_when": ">=",
         "fit_acc": 0.636,
         "loo": {
@@ -779,7 +779,7 @@
       },
       "components": {
         "auc": 0.665,
-        "cut": 3.0,
+        "cut": 3,
         "bad_when": ">=",
         "fit_acc": 0.773,
         "loo": {
@@ -803,7 +803,7 @@
       },
       "holes": {
         "auc": 0.705,
-        "cut": 2.0,
+        "cut": 2,
         "bad_when": ">=",
         "fit_acc": 0.773,
         "loo": {
