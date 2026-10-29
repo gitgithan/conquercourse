@@ -25,7 +25,7 @@ export interface Host {
 }
 export interface GhostState { x: number; y: number; z: number; yaw: number; scale: number }
 export interface Ghosts { items: { id: number; from: GhostState; to: GhostState }[]; lane: { angle: number; offset: number } | null }
-export interface View3d { look(heading: number, pitch: number, target?: { x: number; z: number }, distance?: number): void; sync(): void; show(on: boolean): void; readonly el: HTMLCanvasElement; resize(): void; focus(x: number, z: number): void; pulse(x: number, z: number): void; project(x: number, y: number, z: number): { x: number; y: number } | null; onCamera(cb: () => void): void }
+export interface View3d { look(heading: number, pitch: number, target?: { x: number; z: number }, distance?: number): void; sync(): void; show(on: boolean): void; readonly el: HTMLCanvasElement; resize(): void; focus(x: number, z: number): void; pulse(x: number, z: number): void; project(x: number, y: number, z: number): { x: number; y: number } | null; onCamera(cb: () => void): void; fit(box: { x0: number; x1: number; z0: number; z1: number; top: number }): void }
 
 const loader = new GLTFLoader();
 const cache = new Map<string, Promise<THREE.Object3D>>();
@@ -60,7 +60,11 @@ export function createView3d(wrap: HTMLElement, host: Host): View3d {
   const camera = new THREE.PerspectiveCamera(45, 1, 0.1, 600);
   camera.position.set(3, 9, 17);
   const controls = new OrbitControls(camera, renderer.domElement);
-  controls.target.set(9, 0.5, 0); controls.maxPolarAngle = Math.PI / 2 - 0.03; controls.minDistance = 1.5; controls.maxDistance = 120; controls.update();
+  controls.target.set(9, 0.5, 0); controls.maxPolarAngle = Math.PI / 2 - 0.03; controls.minDistance = 0.6; controls.maxDistance = 400; controls.update();
+  // CC-177: the wheel zooms toward the point under the cursor (it used to dive at the fixed look-at point, which could be far from the pieces, so the pieces never came closer),
+  // zooming is quicker, and the middle button or Shift+drag slides the view (left-drag on empty ground turns it)
+  controls.zoomToCursor = true; controls.zoomSpeed = 1.6; controls.panSpeed = 1.4;
+  controls.mouseButtons = { LEFT: THREE.MOUSE.ROTATE, MIDDLE: THREE.MOUSE.PAN, RIGHT: THREE.MOUSE.PAN };
 
   const ground = new THREE.Mesh(new THREE.PlaneGeometry(1000, 1000), new THREE.MeshStandardMaterial({ map: groundTexture(), roughness: 1 }));
   ground.rotation.x = -Math.PI / 2; ground.position.y = -0.002; scene.add(ground);
@@ -115,6 +119,8 @@ export function createView3d(wrap: HTMLElement, host: Host): View3d {
   let dirty = true, on = true;
   const redraw = () => { dirty = true; };
   controls.addEventListener('change', redraw);
+  const publishCamera = () => { const t = controls.target; document.documentElement.dataset.cam = JSON.stringify({ d: +camera.position.distanceTo(t).toFixed(3), t: [+t.x.toFixed(3), +t.y.toFixed(3), +t.z.toFixed(3)], p: [+camera.position.x.toFixed(3), +camera.position.y.toFixed(3), +camera.position.z.toFixed(3)] }); };
+  controls.addEventListener('change', publishCamera); publishCamera();
   const loop = () => { requestAnimationFrame(loop); if (!on || !dirty) return; dirty = false; perf.frame(); perf.renderStart(); renderer.render(scene, camera); perf.renderEnd(); };
   requestAnimationFrame(loop);
 
@@ -251,6 +257,26 @@ export function createView3d(wrap: HTMLElement, host: Host): View3d {
   const focus = (x: number, z: number) => { const d = camera.position.clone().sub(controls.target); controls.target.set(x, 0.5, z); camera.position.copy(controls.target).add(d); controls.update(); redraw(); };
   // where a world point is on the picture, in pixels from its top left corner (null when it is behind the camera); the editor's piece toolbar follows the selected piece with it
   const project = (x: number, y: number, z: number) => { camera.updateMatrixWorld(); const v = new THREE.Vector3(x, y, z).project(camera); return v.z > 1 ? null : { x: ((v.x + 1) / 2) * renderer.domElement.clientWidth, y: ((1 - v.y) / 2) * renderer.domElement.clientHeight }; };
+  // frame a box of the world (metres): keep the viewing direction, slide the look-at point and the distance there over a short time
+  let fitRun = 0;
+  function fit(b: { x0: number; x1: number; z0: number; z1: number; top: number }) {
+    const cx = (b.x0 + b.x1) / 2, cz = (b.z0 + b.z1) / 2, cy = Math.max(0.3, b.top / 2);
+    const radius = Math.max(1.5, Math.hypot(b.x1 - b.x0, b.z1 - b.z0, b.top) / 2);
+    const vf = (camera.fov * Math.PI) / 180, hf = 2 * Math.atan(Math.tan(vf / 2) * camera.aspect);
+    const dist = Math.min(controls.maxDistance, Math.max(controls.minDistance, (radius * 1.15) / Math.sin(Math.min(vf, hf) / 2)));
+    const dir = camera.position.clone().sub(controls.target).normalize();
+    const t0 = controls.target.clone(), d0 = camera.position.distanceTo(controls.target), t1 = new THREE.Vector3(cx, cy, cz);
+    const run = ++fitRun, start = performance.now(), ms = 450;
+    const step = () => {
+      if (run !== fitRun) return;
+      const k = Math.min(1, (performance.now() - start) / ms), e = k * k * (3 - 2 * k);
+      controls.target.lerpVectors(t0, t1, e);
+      camera.position.copy(controls.target).addScaledVector(dir, d0 + (dist - d0) * e);
+      controls.update(); redraw();
+      if (k < 1) requestAnimationFrame(step);
+    };
+    requestAnimationFrame(step);
+  }
   const onCamera = (cb: () => void) => controls.addEventListener('change', cb);
-  return { look, sync, resize, focus, pulse, project, onCamera, el: renderer.domElement, show(v) { on = v; renderer.domElement.style.display = v ? 'block' : 'none'; if (v) { resize(); redraw(); } } };
+  return { look, sync, resize, focus, pulse, project, onCamera, fit, el: renderer.domElement, show(v) { on = v; renderer.domElement.style.display = v ? 'block' : 'none'; if (v) { resize(); redraw(); } } };
 }
