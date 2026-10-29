@@ -305,6 +305,9 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
   let facing: 1 | -1 = course.track ? 1 : resume ? resume.facing : 1;
 
   // HUD
+  const gaugeStack = createGaugeStack(params.get('gauges') === 'old' ? 'old' : 'bottom-left'); // CC-148: one bottom-left stack for everything about the runner
+  const speedGauge = gaugeStack.register({ id: 'speed', label: 'Speed', colour: '#0f6b5c', max: 10 });
+  const batteryGauge = course.drone && params.get('gauges') !== 'old' ? gaugeStack.register({ id: 'battery', label: 'Drone battery', colour: '#2a6fb0', max: 100 }) : null;
   const hud = document.createElement('div');
   hud.style.cssText = 'position:fixed;left:16px;top:12px;font:600 18px system-ui,sans-serif;color:#10141c;text-shadow:0 1px 0 #fff8;pointer-events:none';
   const msg = document.createElement('div');
@@ -315,6 +318,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
   const KEYS: [string, string][] = [['← →', 'Run (hold)'], ['Space / ↑ / W', 'Jump · let go of the rope · press on the trampoline'], ['↓ / S', 'Bend your knees (hold, on big drops)'], ['X', 'Roll: hold it as you land (it counts in the last 0.15 s and about a metre up; a tap earlier does nothing); on the ground it rolls along'], ...(course.recoil ? ([['K', 'Fire the launcher (clip it on at the teal pad): the ball goes back, you go forward'], ...(isAimable(recoilParams(course)) ? [['↑ ↓ (or W)', 'Tilt the cannon barrel while it is loaded (Up does not jump then): it points backward and down, so the push goes forward and up; dots show where you would land']] : [])] as [string, string][]) : []), ...(course.trebuchet ? ([['→ (hold), then Space, ↑ or W', 'Trebuchet: pull the pin, then let the rider go when the hint says LET GO NOW']] as [string, string][]) : []), ...(course !== defaultCourse ? ([['E', 'Hold a bar in the air (let go to fly on), or at a tall wall: grab its edge and climb'], ['← → on a bar', 'Pump the swing: push the way you swing'], ['V', 'Vault over a step with a hand on top (fast, saves energy)']] as [string, string][]) : []), ['F', 'Toggle the Looking ahead inset'], ['N', 'Ghost: a see-through runner that replays the ideal run, to chase (N switches it)'], ...(course.track ? ([['→, Space, ↑ or W', 'Push off at the top of the first hill'], ['↓ / S (hold)', 'Brake']] as [string, string][]) : []), ['I', 'Ideal run of this obstacle (Shift+I: the whole course, any key stops it)'], ...(course.band ? ([['←, then →', 'Elastic band: hold ← to stretch it, then turn round (hold →) and it throws you']] as [string, string][]) : []), ...(course.drone ? ([['E (on the pad)', 'Board the drone; let go to step off'], ['← → in the drone', 'Lean: the drone flies that way'], ['↑ ↓ in the drone', 'Climb, or come down']] as [string, string][]) : []), ['G', 'Drums: where the ideal run presses Space'], ['B', 'Debug view: see the collision boxes and where a jump goes'], ['Mouse', 'Drag to turn the view, wheel to zoom (all the way in shows the face), double-click to reset']]; // retry, ideal run and Dojo are on the fall panel and the buttons
   help.style.cssText = 'position:fixed;left:16px;top:48px;width:290px;background:#fffffff0;border:1px solid #cfd6d0;border-radius:12px;padding:8px 10px;font:500 14px system-ui,sans-serif;color:#17201d;box-shadow:0 2px 10px #0002;pointer-events:none;display:grid;gap:5px';
   const paintKeys = (open: boolean) => {
+    gaugeStack.dock(open);
     help.innerHTML = `<div style="font-weight:700;display:flex;justify-content:space-between">Controls <span style="font-weight:400;color:#58635d">H ${open ? 'hides' : 'shows'}</span></div>` + (open ? KEYS.map(([k, d]) => `<div style="display:grid;grid-template-columns:78px 1fr;gap:8px;align-items:center"><kbd style="font:700 13px ui-monospace,monospace;background:#eef1ec;border:1px solid #b9c2bb;border-bottom-width:3px;border-radius:6px;padding:1px 6px;text-align:center">${k}</kbd><span>${d}</span></div>`).join('') : '');
   };
   let keysOpen = true, keysTouched = false; paintKeys(true);
@@ -322,9 +326,6 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
   panel.style.cssText = 'position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);width:min(760px,94vw);max-height:88vh;overflow:auto;z-index:40;box-sizing:border-box;background:#fffffff5;border:1px solid #cfd6d0;border-radius:12px;padding:16px;font:15px/1.4 system-ui,sans-serif;color:#17201d;display:none;gap:10px;box-shadow:0 8px 30px #0003';
   const hint = document.createElement('div');
   hint.style.cssText = 'position:fixed;left:50%;bottom:124px;transform:translateX(-50%);font:600 20px system-ui,sans-serif;color:#10141c;background:#fffc;border-radius:10px;padding:8px 16px;pointer-events:none';
-  const gaugeStack = createGaugeStack(params.get('gauges') === 'old' ? 'old' : 'bottom-left'); // CC-148: one bottom-left stack for everything about the runner
-  const speedGauge = gaugeStack.register({ id: 'speed', label: 'Speed', colour: '#0f6b5c', max: 10 });
-  const batteryGauge = course.drone && params.get('gauges') !== 'old' ? gaugeStack.register({ id: 'battery', label: 'Drone battery', colour: '#2a6fb0', max: 100 }) : null;
   const dojoBtn = document.createElement('button');
   dojoBtn.textContent = 'Dojo (T)';
   dojoBtn.style.cssText = 'position:fixed;right:16px;top:12px;font:600 15px system-ui,sans-serif;border:1px solid #0f6b5c;background:#0f6b5c;color:#fff;border-radius:8px;padding:6px 14px;cursor:pointer';
@@ -1414,11 +1415,11 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
     if (nextGap && world.mode === 'run') { need = nextGap.needed; msgNext = `Next gap: ${nextGap.width.toFixed(1)} m wide. You need at least ${need.toFixed(1)} m/s at the edge.`; }
     else if (course.wall && world.mode === 'run' && r.x < course.wall.x0 && course.wall.x0 - r.x < 45) { need = wallNeed; msgNext = `Warped wall: ${(course.wall.height ?? DEFAULT_WALL.height).toFixed(1)} m high. You need at least ${need.toFixed(1)} m/s at its foot.`; }
     speedGauge.set({ text: `${onCoaster ? 'Speed along track' : 'Speed'} ${spd.toFixed(1)} m/s`, max: gaugeMax, value: spd, mark: need, colour: need && spd < need ? '#c4572a' : '#0f6b5c', note: msgNext });
-    if (batteryGauge && world.drone) {
+    if (batteryGauge) { // before boarding there is no drone state yet: the battery is full
       const full = droneParams(course).battery * 3600;
-      const left = world.drone.empty ? 0 : Math.max(0, world.drone.energy) / full;
+      const left = world.drone ? (world.drone.empty ? 0 : Math.max(0, Math.min(1, world.drone.energy / full))) : 1;
       const pct = Math.round(100 * left);
-      batteryGauge.set({ text: world.drone.empty ? 'Drone battery empty' : `Drone battery ${pct}%`, max: 1, value: left, colour: pct <= 20 ? '#c4572a' : '#2a6fb0' });
+      batteryGauge.set({ text: world.drone?.empty ? 'Drone battery empty' : `Drone battery ${pct}%`, max: 1, value: left, colour: pct <= 20 ? '#c4572a' : '#2a6fb0' });
     }
     hud.textContent = `Time ${(r.tick / 120).toFixed(1)} s   ·   ${Math.max(0, Math.round(r.x))} m of ${course.finishX} m`;
     livePhotos?.update(r.x);
