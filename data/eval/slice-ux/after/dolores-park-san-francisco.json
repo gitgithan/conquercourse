@@ -1,0 +1,36 @@
+{
+  "slug": "dolores-park-san-francisco",
+  "k": 0.2,
+  "range": 41,
+  "rows": [
+    {
+      "realCut": 3.5,
+      "previewCleared": false
+    },
+    {
+      "realCut": 10.5,
+      "previewCleared": true,
+      "builtCleared": true
+    },
+    {
+      "realCut": 17,
+      "previewCleared": true,
+      "builtCleared": true
+    },
+    {
+      "realCut": 24,
+      "previewCleared": true,
+      "builtCleared": true
+    },
+    {
+      "realCut": 31,
+      "previewCleared": true,
+      "builtCleared": true
+    },
+    {
+      "realCut": 37.5,
+      "previewCleared": true,
+      "builtCleared": true
+    }
+  ]
+}

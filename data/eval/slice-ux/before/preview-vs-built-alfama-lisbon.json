@@ -1,0 +1,55 @@
+[
+  {
+    "slug": "alfama-lisbon",
+    "k": 0.2,
+    "range": 57,
+    "rows": [
+      {
+        "realCut": 5,
+        "level": 1,
+        "previewCleared": false,
+        "ms": 42421
+      },
+      {
+        "realCut": 14.5,
+        "level": 2.9000000000000004,
+        "previewCleared": true,
+        "ms": 44168,
+        "builtSameLevel": true,
+        "builtOldHandover": false
+      },
+      {
+        "realCut": 24,
+        "level": 4.800000000000001,
+        "previewCleared": true,
+        "ms": 20568,
+        "builtSameLevel": true,
+        "builtOldHandover": false
+      },
+      {
+        "realCut": 33.5,
+        "level": 6.7,
+        "previewCleared": true,
+        "ms": 11667,
+        "builtSameLevel": true,
+        "builtOldHandover": false
+      },
+      {
+        "realCut": 43,
+        "level": 8.6,
+        "previewCleared": true,
+        "ms": 23710,
+        "builtSameLevel": true,
+        "builtOldHandover": false
+      },
+      {
+        "realCut": 52.5,
+        "level": 10.5,
+        "previewCleared": true,
+        "ms": 6815,
+        "builtSameLevel": true,
+        "builtOldHandover": false
+      }
+    ]
+  }
+]

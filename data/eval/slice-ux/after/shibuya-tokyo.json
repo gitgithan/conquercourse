@@ -1,0 +1,35 @@
+{
+  "slug": "shibuya-tokyo",
+  "k": 0.2,
+  "range": 56,
+  "rows": [
+    {
+      "realCut": 4.5,
+      "previewCleared": false
+    },
+    {
+      "realCut": 14,
+      "previewCleared": false
+    },
+    {
+      "realCut": 23.5,
+      "previewCleared": true,
+      "builtCleared": true
+    },
+    {
+      "realCut": 32.5,
+      "previewCleared": true,
+      "builtCleared": true
+    },
+    {
+      "realCut": 42,
+      "previewCleared": true,
+      "builtCleared": true
+    },
+    {
+      "realCut": 51.5,
+      "previewCleared": true,
+      "builtCleared": true
+    }
+  ]
+}
