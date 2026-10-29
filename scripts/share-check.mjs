@@ -23,7 +23,7 @@ ok('the friend\'s keys played as a run end in the report', got);
 if (got) {
   const t = await page.evaluate(() => document.querySelector('section[aria-label="Run report"]').innerText);
   ok('the report names the friend\'s run', /friend/.test(t), t.replace(/\n+/g, ' | ').slice(0, 260));
-  ok('both share buttons are on the report', /Copy challenge link/.test(t) && /(Make a|Download your) clip/.test(t));
+  ok('both share buttons are on the report', /Copy link to challenge a friend/.test(t) && /Download a video/.test(t));
   await page.screenshot({ path: `${out}/report.png` });
   await page.click('#share-copy');
   await page.waitForFunction(() => /copied|ready/i.test(document.querySelector('#share-copy').textContent), null, { timeout: 15000 }).catch(() => {});

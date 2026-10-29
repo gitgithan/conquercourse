@@ -46,7 +46,8 @@
 - The Ghost chip cycles Off, Ideal, My best.
 
 ## Part 3: share without a server (design)
-- "Copy challenge link" on the end report.
+- "Copy link to challenge a friend" is the main share button on the end report (CC-181).
+- "Download a video" is only a file the player can post anywhere; there is no phone share sheet any more.
 - The link keeps the same address and adds `challenge=<version>.<course hash>.<nickname>.<keys>`.
 - The keys are the run-length pairs as varints, deflated, then base64url.
 - Size: a three-minute run is a few hundred bytes, well under 2 KB (tested on the demo courses).
@@ -55,6 +56,17 @@
 - Opening it plays the keys on the course and takes the time the simulator gives.
 - So a link cannot claim a time: a log that does not clear, that is cut short, longer than three minutes or damaged is refused with a plain message.
 - A different build (version) or a changed course (hash) says the course has changed and offers the ideal ghost.
+
+## Part 3b: a try that fell (CC-181)
+- A link can also carry a try that did not finish, from the fall panel ("Copy link to this try").
+- Its first field reads `1f` instead of `1`; a build that does not know it reads `Number("1f")` as not a number and refuses the link.
+- Opening it plays the keys in the simulator; the ghost falls where the player fell, and the banner says how far it got.
+- The keys must really end in a fall on that course: keys that finish, or stop before any fall, are refused as damaged.
+- A fell try passed off as a finished run is refused ("does not reach the finish").
+- It has no time, so it never feeds stats, a leaderboard or "course cleared"; opening it makes no server call.
+- Same size limit as every link: at most 2000 characters.
+- The Ghost chip (N) cycles Off, Ideal, Friend; the ghost is on by default (CC-180).
+- Both figures are see-through: the player at 0.85, the ghost at 0.5 in amber with a dark rim, drawn behind the player so both read when they overlap.
 
 ## Part 4: a leaderboard (design only, for the owner to approve)
 - **What:** a best-time list for each course, and a daily challenge course made from a seed by the generator.
