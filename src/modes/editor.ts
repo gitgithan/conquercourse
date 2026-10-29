@@ -157,7 +157,8 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
   const photoBar = addBar;
   void (async () => {
     try {
-      const idx = (await (await fetch('/assets/objects/index.json')).json()) as { objects: { name: string; glb: string; label: string; height_m: number; author: string }[] };
+      const idx = (await (await fetch('/assets/objects/index.json')).json()) as { objects: { name: string; glb: string; label: string; height_m: number; author: string; hang_m?: number }[] };
+      const hangOf = new Map(idx.objects.filter((o) => o.hang_m).map((o) => [`obj:${o.glb}`, o.hang_m as number]));
       el('strong', photoBar, { text: 'From real photos:' });
       for (const o of idx.objects) {
         const b = el('button', photoBar, { text: o.label, title: `Photo by ${o.author}` });
@@ -165,7 +166,10 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
         b.onclick = async () => {
           try {
             const p: P = { ...newPiece(o.name, readGlbMesh(await (await fetch(`/assets/objects/${o.glb}`)).arrayBuffer()), freeSpot('bench')), src: `obj:${o.glb}` };
-            p.x = freeSpot('bench').x + size(p.mesh).w / 2; pieces.push(p); selected = p.id; changed();
+            p.x = freeSpot('bench').x + size(p.mesh).w / 2;
+            // a hang bar (CC-110): the frame is scenery turned across the lane, and its crossbar is a hold at the real height, so collision is a bar and never the frame's mesh
+            if (o.hang_m) { p.noGround = true; p.yaw = Math.PI / 2; p.x = freeSpot('bench').x + 0.5; pieces.push(p); pieces.push(addBarPiece(p.x, o.hang_m - 0.04, p.z)); selected = p.id; changed(); return; }
+            pieces.push(p); selected = p.id; changed();
           } catch { verdict = 'That object could not be loaded.'; draw(); }
         };
       }
@@ -178,6 +182,7 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
           const mesh = readGlbMesh(await (await fetch(url)).arrayBuffer());
           const p: P = { ...newPiece(reference ? 'Person' : q.src, mesh, { x: q.x, z: q.z }), src: q.src, y: q.y, yaw: q.yaw, scale: reference ? 1 : q.scale, ...(q.role ? { role: q.role } : {}) };
           if (reference) Object.assign(p, scaleToHeight(p, 1.75));
+          if (hangOf.has(q.src)) p.noGround = true; // its crossbar is a saved hold of its own
           pieces.push(p);
         } catch { /* a missing object is skipped */ }
       }
@@ -189,7 +194,7 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
   el('strong', addBar, { text: 'Overhead:' });
   const nextX = () => pieces.reduce((r, q) => Math.max(r, q.x + (size(q.mesh).w * q.scale) / 2), 0) + 3;
   const nextLaneU = () => { const c = Math.cos(angle), s = Math.sin(angle); return pieces.reduce((r, p) => Math.max(r, p.x * c + p.z * s + (size(p.mesh).w * p.scale) / 2), 0) + 3; };
-  const addBarPiece = (x: number, y: number): P => { const q: P = { ...newPiece('Bar', barMesh(), { x, z: 0 }), src: 'hold:bar', y }; pieces.push(q); selected = q.id; return q; };
+  const addBarPiece = (x: number, y: number, z = 0): P => { const q: P = { ...newPiece('Bar', barMesh(), { x, z }), src: 'hold:bar', y }; pieces.push(q); selected = q.id; return q; };
   el('button', addBar, { text: 'Bar', id: 'addbar' }).onclick = () => { addBarPiece(nextX(), 2.86); changed(); };
   el('button', addBar, { text: 'Lache pair', id: 'addlache', title: 'Two bars to swing between' }).onclick = () => { const x = nextX(); addBarPiece(x, 2.86); addBarPiece(x + 3.5, 2.86); changed(); };
   // a rope swing: a post whose top is the rope anchor (role rope); put it over a gap and the simulator checks the swing

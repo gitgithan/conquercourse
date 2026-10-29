@@ -1,0 +1,32 @@
+{
+  "label": "metal railing",
+  "extents_m": {
+    "x": 4.057,
+    "y": 0.999,
+    "z": 0.188
+  },
+  "height_m": 0.999,
+  "target_height_m": 1.0,
+  "scale_source": "typed",
+  "scale_factor": 4.0553,
+  "raw_height": 0.2466,
+  "yaw_deg": 0.0,
+  "tilt_deg": 0.89,
+  "faces": 5820,
+  "vertices": 4718,
+  "width_to_height": 4.062,
+  "texture": "1024x1024",
+  "photo": "railing-red",
+  "box": [
+    0,
+    20,
+    1280,
+    800
+  ],
+  "bytes": 467568,
+  "model": "SAM 3D Objects (seed 42)",
+  "bake_seconds": 4.1,
+  "raw_faces": 73750,
+  "splat_points": 58496,
+  "lift_round": "r2"
+}

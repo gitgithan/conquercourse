@@ -1,0 +1,32 @@
+{
+  "label": "tree stump",
+  "extents_m": {
+    "x": 0.514,
+    "y": 1.199,
+    "z": 0.499
+  },
+  "height_m": 1.199,
+  "target_height_m": 1.2,
+  "scale_source": "typed",
+  "scale_factor": 1.1999,
+  "raw_height": 1.0,
+  "yaw_deg": 127.5,
+  "tilt_deg": 2.23,
+  "faces": 5820,
+  "vertices": 6073,
+  "width_to_height": 0.428,
+  "texture": "1024x1024",
+  "photo": "stump-spruce",
+  "box": [
+    600,
+    170,
+    1120,
+    1450
+  ],
+  "bytes": 495352,
+  "model": "SAM 3D Objects (seed 42)",
+  "bake_seconds": 6.56,
+  "raw_faces": 438380,
+  "splat_points": 326976,
+  "lift_round": "r2"
+}
