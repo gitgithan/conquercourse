@@ -325,7 +325,7 @@ export function startDojo(host: HTMLElement): { backend: 'webgl2' } {
     c.save(); c.translate(16, H / 2 + 60); c.rotate(-Math.PI / 2); c.fillText('push on you (m/s², more up = harder)', 0, 0); c.restore();
     const limit = DEFAULT_LANDING.stumbleDecel;
     c.strokeStyle = '#c4572a'; c.setLineDash([6, 5]); c.lineWidth = 2; c.beginPath(); c.moveTo(left, sy(limit)); c.lineTo(W - pad, sy(limit)); c.stroke(); c.setLineDash([]);
-    c.fillStyle = '#c4572a'; c.fillText(`${limit} m/s²: above this the Course makes you stumble`, left + 8, sy(limit) - 6);
+    c.fillStyle = '#c4572a'; c.fillText(W < 500 ? `${limit} m/s²: you stumble above this` : `${limit} m/s²: above this the Course makes you stumble`, left + 8, sy(limit) - 6);
     const block = (t: Trial, fill: string | null, stroke: string, w: number) => {
       const bw = t.path[2].x, bh = t.path[2].y;
       if (fill) { c.fillStyle = fill; c.fillRect(sx(0), sy(bh), sx(bw) - sx(0), sy(0) - sy(bh)); }
@@ -335,9 +335,16 @@ export function startDojo(host: HTMLElement): { backend: 'webgl2' } {
     const speed = Math.sqrt(2 * GRAVITY * values.drop);
     c.fillStyle = '#0f6b5c'; c.font = '600 14px system-ui';
     const bw = now.path[2].x, bh = now.path[2].y;
-    c.fillText(`area = ${speed.toFixed(1)} m/s (the speed you lose)`, Math.min(sx(bw) + 10, W - 280), Math.max(pad + 14, sy(bh) + 18));
-    c.fillText(`${bh.toFixed(0)} m/s² for ${bw.toFixed(2)} s`, Math.min(sx(bw) + 10, W - 280), Math.max(pad + 34, sy(bh) + 38));
-    c.fillStyle = '#58635d'; c.font = '13px system-ui'; c.fillText('Drag the sliders: the block changes shape but not its area (for the same drop).', left, 18);
+    if (W < 500) { // a phone's small drawing: the labels go top right, clear of the block and the limit line
+      c.textAlign = 'right';
+      c.fillText(`area = ${speed.toFixed(1)} m/s lost`, W - pad + 20, pad + 26);
+      c.fillText(`${bh.toFixed(0)} m/s² for ${bw.toFixed(2)} s`, W - pad + 20, pad + 46);
+      c.textAlign = 'left';
+    } else {
+      c.fillText(`area = ${speed.toFixed(1)} m/s (the speed you lose)`, Math.min(sx(bw) + 10, W - 280), Math.max(pad + 14, sy(bh) + 18));
+      c.fillText(`${bh.toFixed(0)} m/s² for ${bw.toFixed(2)} s`, Math.min(sx(bw) + 10, W - 280), Math.max(pad + 34, sy(bh) + 38));
+    }
+    c.fillStyle = '#58635d'; c.font = '13px system-ui'; c.fillText(W < 500 ? 'Drag the sliders: the area stays the same.' : 'Drag the sliders: the block changes shape but not its area (for the same drop).', left, 18);
   }
 
   function drawShape(c: CanvasRenderingContext2D, W: number, H: number, pad: number) {
