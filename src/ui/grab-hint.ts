@@ -2,7 +2,7 @@ import * as THREE from 'three';
 import type { CourseData } from '../course/course';
 import { heightAt } from '../sim/terrain';
 import { findClimb } from '../sim/climb';
-import type { WorldState } from '../sim/world';
+import { WALL_HINT_TICKS, type WorldState } from '../sim/world';
 
 // The grab hint (CC-168): a bright rim on the top edge of a wall the hands would catch right now, so a player can tell which ledges answer to E.
 // It shows while the hold key is down, or while the runner is in the air within reach (the key is about to be needed). ?grabhint=0 hides it.
@@ -30,7 +30,7 @@ export function createGrabHint(scene: THREE.Scene, course: CourseData, enabled =
     },
     update(w: WorldState, holding: boolean, nowMs: number): void {
       const gt = w.wall?.result.grabTick;
-      tip.style.display = enabled && w.mode === 'wall' && !holding && !w.wall?.held && course.wall?.needE !== false && gt != null && w.wall!.index >= gt - 40 && w.wall!.index < gt ? 'block' : 'none';
+      tip.style.display = enabled && w.mode === 'wall' && !holding && !w.wall?.held && course.wall?.needE !== false && gt != null && w.wall!.index >= gt - WALL_HINT_TICKS && w.wall!.index < gt ? 'block' : 'none';
       const t = this.target(w);
       const show = t !== null;
       rim.visible = show;

@@ -283,8 +283,12 @@ export function wallPath(result: WallResult, x0: number, height: number): { x: n
   return out;
 }
 
-// The hands must be on the key for the last fifth of a second of the climb, or they miss the edge and the body slides back (CC-168; the course can switch it off with wall.needE = false).
-export const WALL_HOLD_TICKS = 24;
+// The hands must be on the key for the last 16 ticks (0.13 s) of the climb, when they are about a metre under the lip, or they miss the edge and the body slides back
+// (CC-168; the course can switch it off with wall.needE = false). It was 24 ticks (CC-194: a third of a second of the climb was too far below the top).
+// A key already held when the window opens counts, so a player may press early and hold; a tap that ends before the window does nothing: the body slides back, no fall.
+export const WALL_HOLD_TICKS = 16;
+// The "Hold E to grab" tip shows this many ticks before the end of the climb: the window plus a short time to read it.
+export const WALL_HINT_TICKS = WALL_HOLD_TICKS + 8;
 function stepWall(w: WorldState, input: RunnerInput, course: CourseData): WorldState {
   let wl = w.wall!;
   let path = wl.path;
