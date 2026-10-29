@@ -131,7 +131,7 @@ export function startDojo(host: HTMLElement): { backend: 'webgl2' } {
     const row = el('div', root, { className: 'row' });
     let stage: HTMLElement = row;
     if (!legacy) stage = el('div', row, { className: 'stage' });
-    const canvas = el<HTMLCanvasElement>('canvas', stage, { width: 760, height: 440 });
+    const canvas = el<HTMLCanvasElement>('canvas', stage, innerWidth < 640 && !legacy ? { width: 380, height: 340 } : { width: 760, height: 440 }); // a phone gets a smaller drawing, so the labels stay readable
     const panel = el('div', row, { className: 'panel' });
     if (step === 0) {
       // step 1 uses the plot's space for a picture: the real obstacle with its forces, or the idea behind it
