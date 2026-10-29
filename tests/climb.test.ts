@@ -64,10 +64,10 @@ describe('the climb: a near miss still grabs (CC-168)', () => {
     expect(findClimb(t2, 16, 0.5, 2, -1)).toBeNull(); // far away
     expect(findClimb(t2, 19.5, 0.5, -3, -1)).toBeNull(); // moving away from the wall
   });
-  it('a body already falling at a tall edge is judged by its hands, not by the one-jump limit (a trampoline lifted it)', () => {
+  it('a body higher than any plain jump takes it (a trampoline lifted it) is judged by its hands, not by the one-jump limit', () => {
     const t3 = wall(3.0).terrain; // above climbMaxRise(4.5) from the ground
-    expect(findClimb(t3, 19.7, 1.4, 1, -1)).not.toBeNull();
-    expect(findClimb(t3, 19.7, 1.4, 1, 0.5)).toBeNull(); // still rising: the one-jump limit applies
+    expect(findClimb(t3, 19.7, 1.4, 1, -1)).not.toBeNull(); // 1.4 m up is more than a jump (1.03 m)
+    expect(findClimb(t3, 19.7, 0.6, 1, -1)).toBeNull(); // a jump height: the one-jump limit applies
   });
 });
 
