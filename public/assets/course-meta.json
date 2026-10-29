@@ -1,7 +1,7 @@
 {
   "demo/training": {
     "obstacles": 7,
-    "idealTicks": 4126
+    "idealTicks": 4108
   },
   "experiments/osm/montmartre-paris": {
     "obstacles": 3,
