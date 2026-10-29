@@ -1,0 +1,13 @@
+{
+  "script": "scripts/osm-speed.ts",
+  "date": "2026-10-29T10:18:09.891Z",
+  "host": "cc-worker-2",
+  "cpus": 8,
+  "load": [
+    3.93,
+    2.38,
+    2.57
+  ],
+  "node": "v22.23.4",
+  "note": "timed one stage at a time from this machine; the browser adds its own network distance"
+}
