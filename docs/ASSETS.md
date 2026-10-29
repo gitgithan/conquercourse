@@ -159,17 +159,89 @@
 
 ## The product owner's own clips (to come)
 - Filmed by the product owner, an adult, about themselves, with no bystanders; their written consent is recorded here when added.
-| (runtime, not stored) map tiles and style for `?mode=map` | the street map behind the pin | OpenFreeMap (https://openfreemap.org), style `https://tiles.openfreemap.org/styles/liberty`, no key; map data from OpenMapTiles and OpenStreetMap | free to use, no key, no limits stated; credit "OpenFreeMap © OpenMapTiles Data from OpenStreetMap" (shown by the map's own credit line, plus "© OpenStreetMap contributors") | `src/modes/map.ts` |
-| `maplibre-gl` (npm package) | draws the map | MapLibre GL JS (https://maplibre.org) | BSD-3-Clause; fine for any use | `package.json` |
-| (runtime, not stored) place search for `?mode=map` | name to latitude and longitude | Nominatim at `nominatim.openstreetmap.org`, no key | usage policy (https://operations.osmfoundation.org/policies/nominatim/): at most 1 request a second, no autocomplete, identify the app (the browser sends no Referer, so the app name is the only mark; no bulk use); results are © OpenStreetMap contributors, ODbL; if it fails, a short list of famous places is shown | same |
-| `tests/fixtures/overpass-quay.json` | 10 building outlines near Circular Quay, Sydney, for `tests/osm.test.ts` and `scripts/map-check.mjs` | cut from `data/eval/cc-46-osm-world/circular-quay-sydney/overpass.json` (row above) | ODbL 1.0, credit "© OpenStreetMap contributors" | `tests/osm.test.ts` |
-| (code, no file) event sounds: jump, land, vault, grab, let-go, splash, finish | timing feedback in the Course (CC-53) | `src/ui/audio.ts` | made in code with WebAudio (short sine, triangle and square tones, a burst of noise for the splash and the landing); no recording, no sample, no outside source | free | our own code, so no licence to track; nothing from Freesound or any sound library is used |
-| (runtime, not stored) ground height for `?mode=map` ("Real hills") | height of the ground under a pin, from 7 to 9 map tiles per place | AWS Terrain Tiles, Terrarium format, zoom 15, `https://s3.amazonaws.com/elevation-tiles-prod/terrarium/{z}/{x}/{y}.png`, no key, no account | open data (SRTM, ASTER, USGS 3DEP and others); credit as in https://github.com/tilezen/joerd/blob/master/docs/attribution.md; shown in the map mode's footer | `src/world/terrain.ts` |
-| `data/eval/cc-46-osm-world/{san-francisco-lombard,eixample-barcelona-hills,circular-quay-sydney-hills}/` and `public/assets/experiments/osm/san-francisco-lombard.{glb,course.json}` | Overpass answer, ground heights and the best lane for a steep San Francisco block, plus Barcelona and Sydney re-run with hills | the Overpass and AWS Terrain Tiles rows above, fetched 2026-10-28 | ODbL 1.0 (share alike, credit "© OpenStreetMap contributors") plus the terrain credit above; course JSON is ours | `scripts/osm-lane.ts --terrain` |
-| `data/eval/cc-51-terrain/elevations.json`, `run.json`, `lanes.json` | ground height at seven places against Open-Meteo (https://open-meteo.com, Copernicus GLO-90) and two known heights | Open-Meteo elevation API, no key, fetched 2026-10-28 | one-off check only, nothing from it ships: Open-Meteo's free API is for non-commercial use and its data is CC BY 4.0 (credit Open-Meteo); numbers and report are ours | `scripts/terrain-check.ts` |
-| `public/assets/places/<slug>.json`, `index.json` | twelve ready places: trimmed building outlines (tags `building`, `height`, `building:levels` only), a 20 m grid of ground heights and the lane summary the search found, 120 to 150 m around a point (940 KB on disk) | © OpenStreetMap contributors via the Overpass API (answers fetched 2026-10-28 from `z.overpass-api.de`, `maps.mail.ru` and `overpass.private.coffee`, no key; Montmartre, Eixample, Circular Quay and Lombard Street reuse the CC-46 answers) and AWS Terrain Tiles (Terrarium, zoom 15, no account) | ODbL 1.0 (https://www.openstreetmap.org/copyright): a derived database, keep the credit "© OpenStreetMap contributors" (the map page shows it) and share alike; terrain credit as in https://github.com/tilezen/joerd/blob/master/docs/attribution.md; the lane summaries are ours | `scripts/make-places.ts` |
-| (runtime, not stored) `/api/places` answers | the buildings of a pin, asked of six public Overpass servers at once and kept 30 days in the Cloudflare Cache API | the Overpass servers named in `src/world/places.ts`; one named, polite user agent; 20 new places per address in ten minutes | Overpass usage policy (https://wiki.openstreetmap.org/wiki/Overpass_API#Public_Overpass_API_instances): fair use, no bulk downloads; answers are © OpenStreetMap contributors (ODbL) | `functions/api/places.ts` |
-| `data/eval/cc-78-map/overpass/*.json`, `*.png`, `run.json`, `README.md` | the answers behind the ready places, screenshots and numbers (ours) | same as the first row | ODbL for the answers; the rest is ours | `scripts/make-places.ts`, `scripts/map-places-check.mjs` |
+- No clips have been added yet.
+
+## Map, place and sound sources
+
+### Loaded while the game runs
+- **Map tiles and style for `?mode=map`** (not stored)
+  - What it does: shows the street map behind the pin
+  - Source: [OpenFreeMap](https://openfreemap.org), using the `liberty` style at `https://tiles.openfreemap.org/styles/liberty`, with no key
+  - Map data: OpenMapTiles and OpenStreetMap
+  - Licence and credit: free to use, with no key and no stated limits; credit “OpenFreeMap © OpenMapTiles Data from OpenStreetMap” in the map's own credit line, plus “© OpenStreetMap contributors”
+  - Used by: `src/modes/map.ts`
+- **`maplibre-gl`** (npm package)
+  - What it does: draws the map
+  - Source: [MapLibre GL JS](https://maplibre.org)
+  - Licence: BSD-3-Clause; fine for any use
+  - Used by: `package.json`
+- **Place search for `?mode=map`** (not stored)
+  - What it does: turns a place name into latitude and longitude
+  - Source: Nominatim at `nominatim.openstreetmap.org`, with no key
+  - Use limits: at most one request a second, no autocomplete and no bulk use
+  - Naming the app: the browser sends no Referer, so the app name is the only mark
+  - Licence: results are © OpenStreetMap contributors, under ODbL
+  - Fallback: a short list of famous places is shown if the search fails
+  - Policy: https://operations.osmfoundation.org/policies/nominatim/
+  - Used by: `src/modes/map.ts`
+- **Ground height for `?mode=map`** (not stored)
+  - What it does: gives the height of the ground under a pin for “Real hills”
+  - Source: AWS Terrain Tiles in Terrarium format, zoom 15, from `https://s3.amazonaws.com/elevation-tiles-prod/terrarium/{z}/{x}/{y}.png`, with no key or account
+  - Amount: 7 to 9 map tiles per place
+  - Licence and credit: open data from SRTM, ASTER, USGS 3DEP and others; credit as in https://github.com/tilezen/joerd/blob/master/docs/attribution.md, shown in the map mode's footer
+  - Used by: `src/world/terrain.ts`
+- **`/api/places` answers** (not stored)
+  - What it does: returns the buildings around a pin
+  - Source: six public Overpass servers asked at once; one named, polite user agent
+  - Keeping: answers are kept for 30 days in the Cloudflare Cache API
+  - Use limits: 20 new places per address in ten minutes; fair use and no bulk downloads
+  - Licence: answers are © OpenStreetMap contributors, under ODbL
+  - Policy: https://wiki.openstreetmap.org/wiki/Overpass_API#Public_Overpass_API_instances
+  - Used by: `functions/api/places.ts`
+- **Event sounds** (code only, no file)
+  - Sounds: jump, land, vault, grab, let-go, splash and finish
+  - What they do: give timing feedback in the Course (CC-53)
+  - Source: `src/ui/audio.ts`
+  - Made with: WebAudio, using short sine, triangle and square tones and a burst of noise for the splash and landing
+  - Licence: our own code, so no licence to track; no recording, sample, Freesound file or other sound library is used
+
+### Stored place data and checks
+- **`tests/fixtures/overpass-quay.json`**
+  - What it holds: 10 building outlines near Circular Quay, Sydney
+  - Source: cut from `data/eval/cc-46-osm-world/circular-quay-sydney/overpass.json`
+  - Licence: ODbL 1.0; credit “© OpenStreetMap contributors”
+  - Used by: `tests/osm.test.ts` and `scripts/map-check.mjs`
+- **San Francisco, Barcelona and Sydney with hills**
+  - Files: `data/eval/cc-46-osm-world/{san-francisco-lombard,eixample-barcelona-hills,circular-quay-sydney-hills}/`, plus `public/assets/experiments/osm/san-francisco-lombard.glb` and `public/assets/experiments/osm/san-francisco-lombard.course.json`
+  - What they hold: the Overpass answer, ground heights and the best lane for a steep San Francisco block, plus Barcelona and Sydney re-run with hills
+  - Source: the Overpass and AWS Terrain Tiles sources above, fetched 2026-10-28
+  - Licence: ODbL 1.0, with share alike and credit to “© OpenStreetMap contributors”; the terrain credit above also applies
+  - Ownership: the course JSON is ours
+  - Made with: `scripts/osm-lane.ts --terrain`
+- **`data/eval/cc-51-terrain/`**
+  - Files: `elevations.json`, `run.json` and `lanes.json`
+  - What they hold: ground height at seven places, checked against Open-Meteo and two known heights
+  - Source: [Open-Meteo](https://open-meteo.com), using Copernicus GLO-90 data, fetched 2026-10-28 with no key
+  - Licence and use: a one-off check only, so nothing from it ships; Open-Meteo's free API is for non-commercial use and its data is CC BY 4.0, with credit to Open-Meteo
+  - Ownership: the numbers and report are ours
+  - Made with: `scripts/terrain-check.ts`
+- **Ready places**
+  - Files: `public/assets/places/<slug>.json` and `public/assets/places/index.json`
+  - What they hold: twelve ready places, each with trimmed building outlines, a 20 m grid of ground heights and the lane summary the search found
+  - Building tags kept: `building`, `height` and `building:levels` only
+  - Area and size: 120 to 150 m around a point; 940 KB on disk in total
+  - Source: © OpenStreetMap contributors through the Overpass API, fetched 2026-10-28 from `z.overpass-api.de`, `maps.mail.ru` and `overpass.private.coffee`, with no key; Montmartre, Eixample, Circular Quay and Lombard Street reuse the CC-46 answers
+  - Ground source: AWS Terrain Tiles in Terrarium format, zoom 15, with no account
+  - Licence: ODbL 1.0 for a derived database; keep the credit “© OpenStreetMap contributors”, shown on the map page, and share alike
+  - Terrain credit: as in https://github.com/tilezen/joerd/blob/master/docs/attribution.md
+  - Ownership: the lane summaries are ours
+  - Made with: `scripts/make-places.ts`
+- **`data/eval/cc-78-map/overpass/`**
+  - Files: `*.json`, `*.png`, `run.json` and `README.md`
+  - What they hold: the answers behind the ready places, screenshots and numbers
+  - Source: the ready-places sources above
+  - Licence: ODbL for the answers; the rest is ours
+  - Made with: `scripts/make-places.ts` and `scripts/map-places-check.mjs`
 
 ## Photos for the photo-to-course experiment (third-party, downloaded 2026-10-28, CC-52)
 | File | What | Author | Source | Licence |
@@ -198,19 +270,65 @@
 ## Real photos beside the real worlds (third-party, downloaded 2026-10-28, CC-85)
 - Wikimedia Commons files under a free licence only (CC0, public domain, CC BY or CC BY-SA), each checked on its file page; no identifiable people, no minors.
 - Each photo is scaled to 1200 px wide and recompressed as JPEG (under 250 KB); the credit is shown under every photo in the game and in the large view.
-| File | What | Author | Source | Licence |
-|---|---|---|---|---|
-| `public/assets/places/montmartre-paris/photo-1.jpg` | The dome of the Sacré-Cœur on the Montmartre hill, with the Paris rooftops beyond. (Montmartre, Paris) | Gareth Williams | https://commons.wikimedia.org/wiki/File:Paris_-_c.1987_-_The_Rooftops_of_Paris_from_the_Sacre_Coeur.jpg | CC BY 2.0 (https://creativecommons.org/licenses/by/2.0) |
-| `public/assets/places/montmartre-paris/photo-2.jpg` | The church of Saint-Vincent-de-Paul among the Paris rooftops, seen from Montmartre. (Montmartre, Paris) | iMahesh | https://commons.wikimedia.org/wiki/File:%C3%89glise_Saint-Vincent-de-Paul_-_Elevated_view_from_Montmartre_with_Paris_rooftops.jpg | CC BY-SA 4.0 (https://creativecommons.org/licenses/by-sa/4.0) |
-| `public/assets/places/montmartre-paris/photo-3.jpg` | The view from the Sacré-Cœur steps over the gardens to the Paris skyline. (Montmartre, Paris) | cherisam | https://commons.wikimedia.org/wiki/File:Eternal_skyline-View_of_Paris_from_Basilique_de_Sacre_Coeur_-_panoramio.jpg | CC BY-SA 3.0 (https://creativecommons.org/licenses/by-sa/3.0) |
-| `public/assets/places/eixample-barcelona/photo-1.jpg` | The Eixample and Gràcia districts seen from the Montjuïc hill: blocks as far as you can see. (Eixample, Barcelona) | Ilkka Simomaa | https://commons.wikimedia.org/wiki/File:Barcelona_Eixample_%26_Gr%C3%A0cia_cityscape_from_Montju%C3%AFc_2026-08-14.jpg | CC BY 4.0 (https://creativecommons.org/licenses/by/4.0) |
-| `public/assets/places/eixample-barcelona/photo-2.jpg` | The Dreta de l’Eixample district of Barcelona, seen from above. (Eixample, Barcelona) | Matti Blume | https://commons.wikimedia.org/wiki/File:Dreta_de_l_Eixample,_Barcelona_(P1170596).jpg | CC BY-SA 4.0 (https://creativecommons.org/licenses/by-sa/4.0/deed.en) |
-| `public/assets/places/circular-quay-sydney/photo-1.jpg` | Office towers above Circular Quay, seen from the water’s edge. (Circular Quay, Sydney) | Alan and Flora Botting | https://commons.wikimedia.org/wiki/File:Circular_Quay_skyline,_Sydney.jpg | CC BY-SA 2.0 (https://creativecommons.org/licenses/by-sa/2.0) |
-| `public/assets/places/circular-quay-sydney/photo-2.jpg` | The Sydney skyline from the harbour. (Circular Quay, Sydney) | zombieite | https://commons.wikimedia.org/wiki/File:Sydney_skyline_from_Sydney_Harbour,_May_2021.jpg | CC BY 2.0 (https://creativecommons.org/licenses/by/2.0) |
-| `public/assets/places/circular-quay-sydney/photo-3.jpg` | Circular Quay’s ferry wharfs 4 and 5 seen from the water. (Circular Quay, Sydney) | Ymblanter | https://commons.wikimedia.org/wiki/File:Sydney_Circular_Quay_Wharfs_4_and_5_seen_from_the_water.jpg | CC BY-SA 4.0 (https://creativecommons.org/licenses/by-sa/4.0) |
-| `public/assets/places/san-francisco-lombard/photo-1.jpg` | The crooked block of Lombard Street seen from above. (Lombard Street, San Francisco) | Christopher Michel | https://commons.wikimedia.org/wiki/File:Lombard_Street_in_2020_01.jpg | CC BY-SA 4.0 (https://creativecommons.org/licenses/by-sa/4.0) |
-| `public/assets/places/san-francisco-lombard/photo-2.jpg` | Looking down Lombard Street from the top of the hill. (Lombard Street, San Francisco) | Miscellaneous contributor | https://commons.wikimedia.org/wiki/File:Lombard_Street_from_the_top_of_the_street.jpg | CC0 (http://creativecommons.org/publicdomain/zero/1.0/deed.en) |
-| `public/assets/places/san-francisco-lombard/photo-3.jpg` | The crooked section of Lombard Street, looking towards Telegraph Hill. (Lombard Street, San Francisco) | Edocarli | https://commons.wikimedia.org/wiki/File:Lombard_Street,_crooked,_looking_towards_Telegraph_Hill,_San_Francisco,_CA_(August_2009).jpg | CC BY-SA 4.0 (https://creativecommons.org/licenses/by-sa/4.0) |
+### Montmartre, Paris
+- **`public/assets/places/montmartre-paris/photo-1.jpg`**
+  - Photo: the dome of the Sacré-Cœur on the Montmartre hill, with the Paris rooftops beyond
+  - Author: Gareth Williams
+  - Source: [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Paris_-_c.1987_-_The_Rooftops_of_Paris_from_the_Sacre_Coeur.jpg)
+  - Licence: [CC BY 2.0](https://creativecommons.org/licenses/by/2.0)
+- **`public/assets/places/montmartre-paris/photo-2.jpg`**
+  - Photo: the church of Saint-Vincent-de-Paul among the Paris rooftops, seen from Montmartre
+  - Author: iMahesh
+  - Source: [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:%C3%89glise_Saint-Vincent-de-Paul_-_Elevated_view_from_Montmartre_with_Paris_rooftops.jpg)
+  - Licence: [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0)
+- **`public/assets/places/montmartre-paris/photo-3.jpg`**
+  - Photo: the view from the Sacré-Cœur steps over the gardens to the Paris skyline
+  - Author: cherisam
+  - Source: [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Eternal_skyline-View_of_Paris_from_Basilique_de_Sacre_Coeur_-_panoramio.jpg)
+  - Licence: [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0)
+### Eixample, Barcelona
+- **`public/assets/places/eixample-barcelona/photo-1.jpg`**
+  - Photo: the Eixample and Gràcia districts seen from the Montjuïc hill: blocks as far as you can see
+  - Author: Ilkka Simomaa
+  - Source: [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Barcelona_Eixample_%26_Gr%C3%A0cia_cityscape_from_Montju%C3%AFc_2026-08-14.jpg)
+  - Licence: [CC BY 4.0](https://creativecommons.org/licenses/by/4.0)
+- **`public/assets/places/eixample-barcelona/photo-2.jpg`**
+  - Photo: the Dreta de l’Eixample district of Barcelona, seen from above
+  - Author: Matti Blume
+  - Source: [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Dreta_de_l_Eixample,_Barcelona_(P1170596).jpg)
+  - Licence: [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/deed.en)
+### Circular Quay, Sydney
+- **`public/assets/places/circular-quay-sydney/photo-1.jpg`**
+  - Photo: office towers above Circular Quay, seen from the water’s edge
+  - Author: Alan and Flora Botting
+  - Source: [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Circular_Quay_skyline,_Sydney.jpg)
+  - Licence: [CC BY-SA 2.0](https://creativecommons.org/licenses/by-sa/2.0)
+- **`public/assets/places/circular-quay-sydney/photo-2.jpg`**
+  - Photo: the Sydney skyline from the harbour
+  - Author: zombieite
+  - Source: [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Sydney_skyline_from_Sydney_Harbour,_May_2021.jpg)
+  - Licence: [CC BY 2.0](https://creativecommons.org/licenses/by/2.0)
+- **`public/assets/places/circular-quay-sydney/photo-3.jpg`**
+  - Photo: circular Quay’s ferry wharfs 4 and 5 seen from the water
+  - Author: Ymblanter
+  - Source: [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Sydney_Circular_Quay_Wharfs_4_and_5_seen_from_the_water.jpg)
+  - Licence: [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0)
+### Lombard Street, San Francisco
+- **`public/assets/places/san-francisco-lombard/photo-1.jpg`**
+  - Photo: the crooked block of Lombard Street seen from above
+  - Author: Christopher Michel
+  - Source: [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Lombard_Street_in_2020_01.jpg)
+  - Licence: [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0)
+- **`public/assets/places/san-francisco-lombard/photo-2.jpg`**
+  - Photo: looking down Lombard Street from the top of the hill
+  - Author: Miscellaneous contributor
+  - Source: [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Lombard_Street_from_the_top_of_the_street.jpg)
+  - Licence: [CC0](http://creativecommons.org/publicdomain/zero/1.0/deed.en)
+- **`public/assets/places/san-francisco-lombard/photo-3.jpg`**
+  - Photo: the crooked section of Lombard Street, looking towards Telegraph Hill
+  - Author: Edocarli
+  - Source: [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Lombard_Street,_crooked,_looking_towards_Telegraph_Hill,_San_Francisco,_CA_(August_2009).jpg)
+  - Licence: [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0)
 
 ## Real-object demo courses (CC-84)
 | File | What | Made from | Licence | Made with |
