@@ -1,0 +1,30 @@
+PASS default: clip button on the fall panel (first fall) 
+PASS default: clip button on the fall panel (retry after the fall) 
+PASS default: no page errors 
+PASS training: clip button on the fall panel (first fall) 
+PASS training: the clip is offered for download 
+PASS training: the file is an mp4 of a sensible size 2283940 bytes
+PASS training: clip button on the fall panel (retry after the fall) 
+PASS training: no page errors 
+PASS band: clip button on the fall panel (first fall) 
+PASS band: clip button on the fall panel (retry after the fall) 
+PASS band: no page errors 
+PASS cannon: clip button on the fall panel (first fall) 
+PASS cannon: clip button on the fall panel (retry after the fall) 
+PASS cannon: no page errors 
+PASS drop: clip button on the fall or cleared panel (first fall) 
+PASS drop: clip button on the fall or cleared panel (retry after the fall) 
+PASS drop: no page errors 
+PASS launch: clip button on the fall or cleared panel (first fall) 
+PASS launch: clip button on the fall or cleared panel (retry after the fall) 
+PASS launch: no page errors 
+PASS recoil: clip button on the fall or cleared panel (first fall) 
+PASS recoil: clip button on the fall or cleared panel (retry after the fall) 
+PASS recoil: no page errors 
+PASS coaster: clip button on the fall or cleared panel (first fall) 
+PASS coaster: clip button on the fall or cleared panel (retry after the fall) 
+PASS coaster: no page errors 
+PASS plank: clip button on the fall or cleared panel (first fall) 
+PASS plank: clip button on the fall or cleared panel (retry after the fall) 
+PASS plank: no page errors 
+PASS drone: clip button on the fall or cleared panel (first fall) 
