@@ -7,7 +7,8 @@
 - Next step: fix CC-191, then re-check the report picture by eye.
 
 ## Pass or fail
-- Where: Vultr VM2, vite dev server, Chromium on software GL, 1280 x 720, stepped clock. No new films.
+- Where: Vultr VM2, vite dev server, Chromium on software GL, 1280 x 720, stepped clock.
+- No new films.
 - Everything is also in `run.json`.
 
 | # | Check | Result | Evidence |
