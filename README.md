@@ -12,6 +12,113 @@ Live: https://conquercourse.pages.dev/
 - Learn the physics by trying: every obstacle has one saying, earned by playing it, never a formula on the Course.
 - Share a world; the simulator proves it can be cleared before anyone else plays it.
 
+## Features in the order a player meets them
+- Diagram links point to [docs/meta-ai-pipelines.md](docs/meta-ai-pipelines.md) (called "pipelines" below) unless another file is named.
+- "After pull" marks work that was still landing when this was written; if the switch does nothing, pull first.
+- Keys: arrows or A/D run, Space jump, S squat, E hold, V vault, X roll, R retry, H key card.
+
+### 1. Play the Course
+| Feature | What the player sees | Turn it on | Diagram or doc |
+|---|---|---|---|
+| Deterministic physics | A runner that moves the same way every time | Always on | [pipelines 7](docs/meta-ai-pipelines.md#7-not-ai-but-the-core-of-the-game), [SPEC 8](docs/spec/SPEC.md) |
+| Moves: run, jump, hold, vault, climb, roll | Captured vault and climb clips play by default | Keys above; `?clips=0` shows the built poses | [pipelines 2](docs/meta-ai-pipelines.md#2-video-to-motion-sam-3-sam-3d-body-mhr), [motion pipeline](docs/motion-pipeline.md) |
+| Generated motion | Run, leap and hang motion from text, shown only after the plausibility check | Always on | [pipelines 3](docs/meta-ai-pipelines.md#3-generated-motion-kimodo-with-a-llama-3-encoder) |
+| Obstacles with one saying each | The saying is earned by playing the obstacle; no formula | Always on | [sayings](docs/sayings.md), [stages](docs/stages.md) |
+| Ideal run and shortcuts | A ghost line that shows the best way and any shortcut | `I` for one try, `Shift+I` for the whole course; `?bot=ideal` | [pipelines 7](docs/meta-ai-pipelines.md#7-not-ai-but-the-core-of-the-game), [world-slice](docs/world-slice.md#shortcut-discovery-cc-71) |
+| Gauges and readable HUD | Bright text on dark panels for speed, time and hints | Always on; `?gauges=old` for the old look | [course design](docs/course-design.md) |
+| Touch controls | On-screen buttons on a phone | Automatic; `?touch=1` or `?touch=0` | [onboarding](docs/onboarding.md) |
+| First visit help | A short welcome and the Help chip | `?welcome` or `?onboarding` | [onboarding](docs/onboarding.md) |
+| Welcome screen with a slow pan over a real 3D world and music (after pull) | A dimmed real place behind the start screen | Opens by default once it lands | [pipelines 6](docs/meta-ai-pipelines.md#6-real-places-and-photos-mapillary-masking) |
+
+### 2. Learn
+| Feature | What the player sees | Turn it on | Diagram or doc |
+|---|---|---|---|
+| Dojo lessons | Four steps: why it matters, try it, the shape, then the exact formula once, at the end | `T` or `?mode=dojo`; `?dojo=old` for the earlier layout | [learning design](docs/learning-design.md) |
+| Course picker | Press `T` in the Dojo to pick a course | `T` | [onboarding](docs/onboarding.md) |
+| University Labs | Equations are allowed here, nowhere else | `?labs=1` | [university labs](docs/university-labs.md) |
+| Course cards with stats | Plays, simulator-verified clears, best verified time, difficulty | Always on; `?stats=0` hides them | [course stats](docs/course-stats.md) |
+
+### 3. Make
+| Feature | What the player sees | Turn it on | Diagram or doc |
+|---|---|---|---|
+| Editor with real objects | 19 real objects (bench, low wall, hydrant and more) to place on a lane | `?mode=editor` | [pipelines 1](docs/meta-ai-pipelines.md#1-photo-to-obstacle-sam-3-and-sam-3d-objects), [editor UI](docs/editor-ui.md) |
+| Map and Slicer | Pin a place on Earth; its buildings become a course | `?mode=map` | [pipelines 6](docs/meta-ai-pipelines.md#6-real-places-and-photos-mapillary-masking), [world-slice](docs/world-slice.md#why-a-pin-is-slow-and-the-speed-up-cc-152) |
+| Ready places | 18 parks that load at once | In Map mode | [world-slice](docs/world-slice.md#why-a-pin-is-slow-and-the-speed-up-cc-152) |
+| Design partner and Fix it | A note on why a course cannot be cleared and one proved change | Editor buttons | [pipelines 4](docs/meta-ai-pipelines.md#4-course-design-partner-and-photo-to-course-draft-muse-spark-open) |
+| Photo to course draft | A course drafted from one park photo | Editor, "Photo to course (labs)" | [pipelines 4](docs/meta-ai-pipelines.md#4-course-design-partner-and-photo-to-course-draft-muse-spark-open) |
+| Course Agent | A list of steps: proposed, tested, repaired, done | `?agent=1` or `?labs=1`, then "Course Agent (labs)" | [pipelines 4c](docs/meta-ai-pipelines.md#4c-course-agent-propose-test-repair-stop-when-proven-muse-spark-open) |
+| Upload check and move tips | An ok, review or block answer; moves that could pass a cut-out | On upload | [pipelines 4b](docs/meta-ai-pipelines.md#4b-upload-check-and-move-tips-muse-spark-open) |
+| Generate a course | A course from a seed | `?generate=<seed>` | [world-slice](docs/world-slice.md#course-generator-v1-cc-47) |
+| Characters | The Rookie and a second Rookie in the first one's style | Always on | [pipelines 5](docs/meta-ai-pipelines.md#5-characters-muse-image) |
+
+### 4. Share
+| Feature | What the player sees | Turn it on | Diagram or doc |
+|---|---|---|---|
+| Challenge link | A link whose keys the simulator replays, so the time cannot be faked | End report, "Copy challenge link"; `?share=0` hides it | [challenge](docs/challenge.md), [viral plan](docs/viral-plan.md) |
+| Three-letter tag | An optional tag so a friend sees who to beat; never a real name | The "Tag" box in the end report | [challenge](docs/challenge.md) |
+| Clip of a run | A 15 second vertical clip with about 20 m of course in view | End report, "Make a clip"; `?clipshape=wide` for 16:9 | [viral plan](docs/viral-plan.md) |
+| Every try can be a clip | The fall panel offers a clip too | After a fall | [viral plan](docs/viral-plan.md) |
+| Ghost | Your best run, or a friend's, beside you | `?ghost`; `N` cycles chips | [challenge](docs/challenge.md) |
+| Community gallery | Courses made from real photos | `?mode=gallery` | [world-slice](docs/world-slice.md#the-courses-gallery-cc-89) |
+| End report sections, restart chip (after pull) | Download and Copy first, a restart hint during a run | End of a run | [viral plan](docs/viral-plan.md) |
+
+### 5. Sound and look
+| Feature | What the player sees | Turn it on | Diagram or doc |
+|---|---|---|---|
+| Music | An original loop for each screen | On by default; `M` mutes; `?music=0` | [pipelines 5b](docs/meta-ai-pipelines.md#5b-music-musicgen-from-meta-audiocraft), [music](docs/music.md) |
+| Live street photos | Photos along a built place, people masked | In Map mode | [pipelines 6](docs/meta-ai-pipelines.md#6-real-places-and-photos-mapillary-masking) |
+| Drone and front view | A fly-over and a side view of the course | `C` camera, `F` front view | [drone](docs/drone.md) |
+| Debug view | Why a swing worked | `B` | [world-slice](docs/world-slice.md#debug-view-fix-it-and-the-helper-window-2026-10-28) |
+
+### 6. Under the hood
+- The whole system: [pipelines, the whole system](docs/meta-ai-pipelines.md#the-whole-system).
+- Recipes with exact settings: [docs/pipelines.md](docs/pipelines.md).
+- What did not work: [pipelines, what we tried](docs/meta-ai-pipelines.md#what-we-tried-that-did-not-work).
+- Architecture: [SPEC section 8](docs/spec/SPEC.md).
+- Tests: [docs/testing.md](docs/testing.md).
+- Features with no diagram of their own: tag, ghost, gauges, touch controls, drone, debug view; each links to its doc instead.
+
+## What to playtest
+- Tick these in a browser at http://localhost:5173 after `git pull --ff-only`.
+- Say what looked wrong in one line; a screenshot helps.
+
+### The Course
+- [ ] Run the Training course; the run feels the same twice.
+- [ ] Vault (`V`) over a bar: the hands land on the bar and the clip does not jump.
+- [ ] Climb (`E` near a ledge): the hands reach the ledge.
+- [ ] `?clips=0` still shows the built poses.
+- [ ] Roll (`X`) after the second lache drop in the all-moves course.
+- [ ] `I` shows the ideal run; `Shift+I` shows the whole course, with the shortcut on the all-moves course.
+- [ ] The speed, time and hint text can be read on a bright and on a dark course.
+- [ ] `R` retries; the restart hint is easy to see (after pull).
+
+### Learn
+- [ ] `T` opens the Dojo in a warm, light colour theme.
+- [ ] A lesson has four steps, one graph, and the formula only on the last step.
+- [ ] `T` inside the Dojo opens the course picker; there is no floating Courses pill.
+- [ ] Course cards show plays, clears and difficulty; `?stats=0` hides them.
+
+### Make
+- [ ] Place a bench and a low wall in the editor; Play draws the real objects.
+- [ ] Pin a ready park in Map mode; the course builds in a few seconds.
+- [ ] Pin a street with no ready place and note how long it takes.
+- [ ] "Fix it" on a course that cannot be cleared.
+- [ ] `?agent=1`: run the Course Agent on a park photo and read the step list.
+- [ ] Upload a photo: the check answers ok, review or block.
+
+### Share
+- [ ] Clear a course, type a tag, copy the challenge link, and open it in a private window.
+- [ ] "Make a clip" gives about 20 m of course in view; `?clipshape=wide` gives 16:9.
+- [ ] Download works on a built-in course, not only on an editor course.
+- [ ] Fall, then make a clip from the fall panel.
+- [ ] The end report has Download and Copy where you see them first (after pull).
+- [ ] Open the Community gallery and play one course.
+
+### Sound and the first visit
+- [ ] Music plays on each screen; `M` mutes; `?music=0` is silent.
+- [ ] `?welcome` shows the welcome screen with a slow pan over a real place (after pull).
+- [ ] On a phone, the touch buttons work and the page does not scroll.
+
 ## Meta models: what each one does in the project
 Blue-box diagrams for every pipeline are in [docs/meta-ai-pipelines.md](docs/meta-ai-pipelines.md); recipes with exact settings are in [docs/pipelines.md](docs/pipelines.md).
 
