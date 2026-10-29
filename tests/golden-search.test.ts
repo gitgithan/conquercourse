@@ -11,10 +11,10 @@ import type { Mesh } from "../src/slice/slice";
 import { newPiece, scaleBy, type Piece } from "../src/slice/world";
 
 // The answers of the search and of Fix it and the advice, as they were before they were made faster (CC-69): a faster search must give the same plans,
-// windows, fixes and advice. The two slowest courses are checked by `scripts/bench-pool.ts` instead (a whole-course search of a minute).
+// windows, fixes and advice. The slowest courses (the generated sample, the wide lache and the Training course) are checked by `scripts/bench-pool.ts` instead (a whole-course search of a minute).
 const golden = JSON.parse(readFileSync("tests/golden/search.json", "utf8")) as Record<string, string>;
 const hash = (v: unknown) => createHash("sha256").update(JSON.stringify(v)).digest("hex").slice(0, 16);
-const SLOW = ["generated-1.course.json", "lache-wide.course.json"];
+const SLOW = ["generated-1.course.json", "lache-wide.course.json", "training.course.json"];
 
 const box = (w: number, h: number, d: number): Mesh => {
   const [x0, x1, y0, y1, z0, z1] = [-w / 2, w / 2, 0, h, -d / 2, d / 2];

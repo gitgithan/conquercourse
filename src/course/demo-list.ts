@@ -1,5 +1,6 @@
 // The demo courses that carry a stored whole-course plan (Shift+I plays it at once). `npm run plans` rewrites them.
 export const DEMO_COURSE_FILES = [
+  'public/assets/demo/training.course.json',
   'public/assets/demo/lache.course.json',
   'public/assets/demo/drop.course.json',
   'public/assets/demo/plank.course.json',
