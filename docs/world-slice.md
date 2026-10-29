@@ -1039,6 +1039,13 @@ The set of obstacle shapes is fixed, and each shape offers a fixed set of moves.
   - "Close it" works for bars only; for the wall and the rope it says so and leaves the change to the designer.
   - A first look for a course without stored shortcuts takes about a minute in the worker (the table shows the search seconds per course).
 
+### More seeds (13 to 28)
+- Seeds 13 to 28 hold 13 lache courses, and each has exactly one shortcut (a plain jump over the bars).
+- Seeds 13, 16 and 27 have no lache zone and no shortcut.
+- Together with seeds 1 to 12, all 24 lache courses were skippable by a plain jump.
+- These runs used the generator before the lache gap grew to 8.5 to 10 m (it was 5.5 to 6.8 m), which is why the gap was raised.
+- Search time per course ranged from 43 s to 600 s.
+
 ## Real photos beside the real worlds (CC-85)
 - **So what:** the real-world courses show only extruded blocks; next to them the player now sees the real place, so the skyline is appreciated and the shrinking is understood.
 - **What shows:**
