@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vitest';
 import type { CourseData } from '../src/course/course';
 import { inputFor } from '../src/sim/ideal';
 import { newWorld, stepWorld } from '../src/sim/world';
-import { LEARNED, SAYING, bestLine, moveIconColours, buildReport, logTick, newLog, topicOf } from '../src/ui/run-report';
+import { LEARNED, SAYING, bestLine, moveIconColours, bouncyFill, buildReport, logTick, newLog, topicOf } from '../src/ui/run-report';
 
 // The end-of-run report (CC-97) states facts from the simulator: the run's time and effort, the moves it used, the best line next to it.
 const lache = JSON.parse(readFileSync('public/assets/demo/lache.course.json', 'utf8')) as CourseData;
@@ -59,5 +59,6 @@ describe('no gold on a run with no falls (CC-192)', () => {
   const hue = (hex: string) => { const [r, g, b] = [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16) / 255); const d = Math.max(r, g, b) - Math.min(r, g, b); if (d < 0.1) return null; const m = Math.max(r, g, b); const h = (m === r ? ((g - b) / d) % 6 : m === g ? (b - r) / d + 2 : (r - g) / d + 4) * 60; return h < 0 ? h + 360 : h; };
   const isGold = (hex: string) => { const h = hue(hex); return h !== null && h >= 32 && h <= 55; };
   it('the move icons are not gold', () => { const c = moveIconColours(false); expect([c.fill, c.ring, c.ink].filter(isGold)).toEqual([]); });
+  it('the trampoline bed in the path picture is not gold (CC-215)', () => { expect(isGold(bouncyFill(false))).toBe(false); expect(isGold(bouncyFill(true))).toBe(true); });
   it('?gold=old keeps the old gold icons', () => { const c = moveIconColours(true); expect(isGold(c.ring)).toBe(true); });
 });
