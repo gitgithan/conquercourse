@@ -5,7 +5,7 @@ import { spawn } from 'node:child_process';
 import { mkdirSync } from 'node:fs';
 const port = process.env.PORT ?? '5173';
 const flags = ['--enable-unsafe-webgpu', '--enable-features=Vulkan', '--use-vulkan=swiftshader', '--use-angle=swiftshader', '--disable-vulkan-surface', '--ignore-gpu-blocklist'];
-const stepped = `(() => { let t = 0; performance.now = () => t; window.__stepClock = (ms) => { t += ms; return t; }; })();`;
+const stepped = `(() => { const real = performance.now.bind(performance); let t = null; performance.now = () => (t === null ? real() : t); window.__stepClock = (ms) => { if (t === null) t = real(); t += ms; return t; }; })();`; // real time while loading, stepped from the first step on
 const server = spawn('node', ['node_modules/vite/bin/vite.js', '--port', port, '--strictPort'], { stdio: 'ignore' });
 const out = 'data/eval/two-ways/shots'; mkdirSync(out, { recursive: true });
 const base = `http://localhost:${port}/?course=/assets/demo/two-ways.course.json`;
