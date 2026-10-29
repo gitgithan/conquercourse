@@ -190,6 +190,19 @@
   - Amount: 7 to 9 map tiles per place
   - Licence and credit: open data from SRTM, ASTER, USGS 3DEP and others; credit as in https://github.com/tilezen/joerd/blob/master/docs/attribution.md, shown in the map mode's footer
   - Used by: `src/world/terrain.ts`
+- **Place skin data** (`data/eval/cc-178-places/skin/<place>-osm.json`, 4 files, CC-178)
+  - What it holds: land, water, roads, trees and building colour tags around four places (Montmartre, Bryant Park, Retiro, Circular Quay)
+  - Source: Overpass API (six public servers, one named, polite user agent), fetched 2026-10-29, no key
+  - Licence: © OpenStreetMap contributors, ODbL 1.0 (https://www.openstreetmap.org/copyright); the screenshots under `data/eval/cc-178-places/skin-shots/` are derived from it and carry the same credit
+  - Used by: `src/world/skin.ts`, `place-skin.html` (a dev page behind `?skin=`)
+- **Eleven new Ready places** (`public/assets/places/*.json`, CC-178)
+  - What they hold: the Overpass answer, ground heights and the best lane for Piazza San Marco, Plaza Mayor, Place des Vosges, Trafalgar Square, Covent Garden, Washington Square, Union Square, Old Town Square, Piazza Navona, Nyhavn and Boston Common
+  - Source: the Overpass and AWS Terrain Tiles sources above, fetched 2026-10-29
+  - Licence: © OpenStreetMap contributors, ODbL 1.0; terrain as above
+- **Mapillary counts** (`data/eval/cc-178-places/audit-stored.json`)
+  - What it holds: only counts of photos near each lane, no pictures and no photo ids
+  - Source: Mapillary Graph API, bbox search, fetched 2026-10-29 with the project token (kept outside the repo)
+  - Licence: counts only; the pictures themselves stay CC BY-SA 4.0 and are shown with credit as before
 - **`/api/places` answers** (not stored)
   - What it does: returns the buildings around a pin
   - Source: six public Overpass servers asked at once; one named, polite user agent
