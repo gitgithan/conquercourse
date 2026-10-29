@@ -22,7 +22,7 @@ Blue-box diagrams for every pipeline are in [docs/meta-ai-pipelines.md](docs/met
 | **SAM 3D Body + MHR (Momentum Human Rig)** | Measures a person's body and pose from video; the motion clips and the custom-look body come from it | Build time (Modal GPU) |
 | **DINOv3** | Image encoder inside SAM 3D Body | Build time (inside SAM 3D Body) |
 | **Meta-Llama-3-8B-Instruct** | Text encoder inside Kimodo (NVIDIA), which generates the run, leap and hang motion | Build time (Modal GPU) |
-| **Muse Spark Open** (`meta-models/muse-spark-open-1026`, on Baseten) | The in-editor course-design partner and "Fix it", and the photo-to-course draft; the simulator checks everything it suggests | Live, through a server function (needs the `BASETEN_API_KEY` secret) |
+| **Muse Spark Open** (`meta-models/muse-spark-open-1026`, on Baseten) | The Course Agent: from one photo it proposes a course, the simulator tests it, and it repairs the course from the simulator's report until it is proven clearable or the step cap is reached; also the in-editor design partner and "Fix it", and the one-shot photo-to-course draft | Live, through a server function (needs the `BASETEN_API_KEY` secret) |
 | **Muse Spark Open**, upload check (`/api/moderate`) | Looks at an uploaded photo or object preview and answers ok, review or block with one reason; errors become review (CC-120) | Live, through a server function (needs `BASETEN_API_KEY`); called by the moderation queue (CC-112) |
 | **Muse Spark Open**, move tips (`/api/move-tips`) | Names the moves that could get past a cut-out object and gives one plain idea for the course; checked against our move list (CC-121) | Live, through a server function (needs `BASETEN_API_KEY`); feeds the object cards (CC-108) |
 | **Muse Spark** (Meta Model API) | Turns written descriptions into contact targets and character descriptions | Build time |
@@ -49,6 +49,7 @@ Blue-box diagrams for every pipeline are in [docs/meta-ai-pipelines.md](docs/met
 - Nine Meta models and services are in the table above; each does one job a judge can see in the demo.
 - The two live ones (Muse Spark Open, Mapillary) sit behind server functions, so keys never reach the browser.
 - The models propose and the simulator decides: every layout from Muse Spark Open is run through the ideal-run search before it is offered.
+- The Course Agent closes the loop: the model proposes, the simulator is its tool, and it repairs from the tool's report (see the agentic use-case section below).
 - Cost and speed were measured, not guessed (for example $0.164 for 14 photos through SAM 3 and SAM 3D Objects).
 
 ### Technical depth (20%)
@@ -68,6 +69,15 @@ Blue-box diagrams for every pipeline are in [docs/meta-ai-pipelines.md](docs/met
   - The link carries only the keys of the run; the simulator plays them, so the time cannot be faked.
   - The clip is made in the browser on a stepped clock; the plan is in [docs/viral-plan.md](docs/viral-plan.md).
 - **Best Build on Meta Open Weights:** Muse Spark Open runs the design partner (see the table above).
+
+### Best Agentic Use-Case: the Course Agent
+- **The task:** turn one park photo into a course that the simulator has proved can be cleared.
+- **The loop:** Muse Spark Open proposes a layout; the simulator is its tool (can it be cleared, where does the best attempt stop, which single change is proved to clear it); the model repairs the layout from that report; it stops at the first proof or at 6 steps.
+- **Autonomy:** no person is in the loop between the photo and the result; the player watches each step as a list (proposed, tested, repaired, tested, done).
+- **Effectiveness:** measured on 10 photos, 20 runs each way; numbers and the honest caveats are in [data/eval/cc-126-course-agent/README.md](data/eval/cc-126-course-agent/README.md).
+- **Honest when it fails:** at the cap it says it could not prove the course, and keeps the best attempt the simulator tested; it never offers a layout the simulator has not seen.
+- **Turn it on:** `?agent=1` or `?labs=1` in the editor, then "Course Agent (labs)".
+- **Diagram:** [docs/meta-ai-pipelines.md](docs/meta-ai-pipelines.md), section 4c.
 
 ## What is new, and what is not
 - The repository starts on 2026-10-27; no code from the earlier practice project is used.

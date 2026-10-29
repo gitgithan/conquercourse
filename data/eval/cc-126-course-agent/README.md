@@ -5,7 +5,8 @@
 - One-shot Muse Spark Open cleared 13 of 20 as drawn (CC-52); the agent cleared 20 of 20 starting from those same drafts.
 - Fresh end to end from the photo, it cleared 20 of 20 (15 at the first try, 5 after a repair).
 - For the demo: it is the strongest honest agent story we have, because the tool is the real simulator and every claim is proved.
-- The fallback is built in: at the cap of 6 steps it reports it could not prove the course and keeps the best tested attempt. No run reached the cap, so that path is tested by unit tests only, not by a real photo.
+- The fallback is built in: at the cap of 6 steps it reports it could not prove the course and keeps the best tested attempt.
+- No run reached the cap, so that path is tested by unit tests only, not by a real photo.
 
 ## What was run
 - Model: `meta-models/muse-spark-open-1026` on Baseten, through `functions/api/course-agent.ts` (the same function the site uses).
@@ -13,7 +14,8 @@
 - The Baseten key stayed on the laptop; it is not on the VMs, so the model calls ran there and only layouts went to the VM.
 - Part 1, paired: the 20 saved one-shot drafts of CC-52 (10 photos, 2 runs each) are the starting point, so any gain is the repair loop alone.
 - Part 2, fresh: 10 photos, 2 runs each, the agent proposes from the photo and then repairs.
-- Step cap: 6 (one proposal and up to five repairs). Repair turns are text only: the first sentence, the numbered layout, the simulator's report.
+- Step cap: 6 (one proposal and up to five repairs).
+- Repair turns are text only: the first sentence, the numbered layout, the simulator's report.
 
 ## Results
 | | Paired (from CC-52 drafts) | Fresh (from the photo) |
