@@ -1,0 +1,55 @@
+{
+  "date": "2026-10-29",
+  "experiment": "cc-90 masking people instead of rejecting photos",
+  "detector": "torchvision maskrcnn_resnet50_fpn COCO (score >= 0.3, photo plus mirror), second look: fasterrcnn_resnet50_fpn (score >= 0.5)",
+  "rule": "usable if masked share <= 0.15 and person box <= 0.25",
+  "scripts": [
+    "scripts/photos_mask.py",
+    "scripts/photos_mask_recheck.py",
+    "scripts/photos_mask_sheet.py"
+  ],
+  "results": {
+    "edinburgh-old-town": {
+      "candidates_checked": 57,
+      "usable_no_person_found": 23,
+      "usable_after_masking": 33,
+      "usable_total": 56,
+      "dropped": 1,
+      "masked_share_median_of_masked": 0.0058,
+      "coverage": {
+        "lane_steps": 17,
+        "steps_with_a_photo_reject_rule": 1.0,
+        "steps_with_a_photo_after_masking": 1.0
+      },
+      "recheck_photos_with_a_person_left": 1
+    },
+    "montmartre-paris": {
+      "candidates_checked": 55,
+      "usable_no_person_found": 7,
+      "usable_after_masking": 24,
+      "usable_total": 31,
+      "dropped": 24,
+      "masked_share_median_of_masked": 0.1855,
+      "coverage": {
+        "lane_steps": 18,
+        "steps_with_a_photo_reject_rule": 0.44,
+        "steps_with_a_photo_after_masking": 0.94
+      },
+      "recheck_photos_with_a_person_left": 2
+    },
+    "eixample-barcelona": {
+      "candidates_checked": 53,
+      "usable_no_person_found": 0,
+      "usable_after_masking": 53,
+      "usable_total": 53,
+      "dropped": 0,
+      "masked_share_median_of_masked": 0.0406,
+      "coverage": {
+        "lane_steps": 16,
+        "steps_with_a_photo_reject_rule": 0.0,
+        "steps_with_a_photo_after_masking": 0.88
+      },
+      "recheck_photos_with_a_person_left": 9
+    }
+  }
+}

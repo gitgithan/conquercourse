@@ -1434,6 +1434,38 @@ The set of obstacle shapes is fixed, and each shape offers a fixed set of moves.
   - Only three lanes, each about 100 m, so nothing is known about longer routes.
   - Camera heading in Mapillary is sometimes the phone's, not the lens's; "faces the lane" is a good guess, not a proof.
   - Photos from one drive can all be the same few minutes of one day, so a live view will repeat itself.
+
+### Masking people instead of rejecting photos (CC-90)
+- **Question:** the reject filter leaves Montmartre and Eixample with 9 and 3 usable photos; does covering each person (instead of dropping the photo) give the lanes enough photos?
+- **Method:** `scripts/photos_mask.py` finds every person with torchvision Mask R-CNN (ResNet-50 FPN, COCO weights; code BSD-3-Clause, labels CC BY 4.0) on the photo and on its mirror image.
+- **Cover:** the whole silhouette (not only the face), grown by about 10 px, filled from a heavily blurred copy of the picture.
+- **Usable:** at most 15 percent of the picture masked and no person box over 25 percent of the picture.
+- **Where the pictures live:** masked copies stay in `~/photos-masked` on the VM and are not in the repo; the repo holds numbers (`data/eval/cc-90-photos/masking/*-mask.json`) and three small contact sheets.
+- **SAM 3:** not tried (Mask R-CNN was enough to answer the question; a SAM 3 run on the Modal volume is a possible next step and would need a cost statement first).
+
+| Place | Candidates | Usable with the reject rule | Usable after masking | Lane steps with a photo: reject rule | After masking |
+|---|---|---|---|---|---|
+| Edinburgh Old Town | 57 | 23 | 56 | 100% | 100% |
+| Montmartre | 55 | 7 | 31 | 44% | 94% |
+| Eixample | 53 | 0 | 53 | 0% | 88% |
+
+- **Numbers are on the same candidate set;** the earlier CC-90 counts (52 of 68, 9 of 55, 3 of 53) used Faster R-CNN with a different score cut, so they differ a little.
+- **Masked share:** the median masked photo hides 0.6 percent (Edinburgh), 18.6 percent (Montmartre, before the 15 percent cut) and 4 percent (Eixample) of the picture.
+- **Montmartre:** 24 of 55 photos are dropped for covering more than 15 percent, because crowds fill the steps.
+- **By eye (24 masked photos, three contact sheets):** no face, clothes or child can be told apart; each person becomes a soft grey person-shaped smudge, and a scooter rider loses part of the scooter.
+- **A second detector** (Faster R-CNN, score 0.5) was run over the kept pictures as they would be shown: 1 of 56, 2 of 31 and 9 of 53 still had a "person".
+  - **Most of those are the grey smudges themselves,** which the detector reads as people (scores 0.9 and over, boxes of 2 to 13 percent of the picture).
+  - **About four photos in 140 have a tiny figure** (under 0.7 percent of the picture, under about 60 px tall) that was not covered; this is the real miss rate, about 3 percent.
+  - **Next step for the misses:** reject a photo when the second detector finds something that is not inside a covered area, or run the detector on zoomed tiles.
+- **Terms read on 2026-10-29 (mapillary.com/terms and the CC BY-SA 4.0 legal code):**
+  - Contributed images are CC BY-SA; the Mapillary logo must be shown for images and API data.
+  - The terms do not mention caching or storing API images; they bar scraping outside the API, "make any derivative works based upon the Mapillary Services" and re-identifying or unblurring any content.
+  - The terms ban images of children from the service, and say Mapillary's face and plate blurring is "technology designed to" blur, not a guarantee.
+  - CC BY-SA 4.0 asks anyone sharing a changed copy to say that it was changed and to share the changed copy under the same licence; whether a masked photo counts as a changed copy under copyright is not stated, so treat it as one.
+  - **Question for Mapillary:** may a game store and show masked copies of CC BY-SA images fetched through the API (with credit, the logo, a change note and ShareAlike on those copies)?
+  - **Until answered:** the game does not store masked pictures; it can mask on the fly in the browser or in the proxy and show the original link and credit.
+- **Recommendation:** masking unlocks Montmartre and Eixample for a demo, the minors rule is met in the by-eye check but not guaranteed (about 3 percent of photos keep a tiny figure), and the storage terms are open.
+
 ## The map says "clear", the editor says it is not even on the lane (CC-91)
 - **What the product owner saw:**
   - The Slicer or the explain strip said the simulator had cleared a lane.
