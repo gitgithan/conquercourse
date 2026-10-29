@@ -15,7 +15,7 @@ export const TOUCH_BUTTONS: TouchButton[] = [
   { id: 'roll', label: 'Roll', code: 'KeyX', side: 'top' },
   { id: 'aim', label: 'Aim ▲', code: 'ArrowUp', side: 'top', cannon: true },
   { id: 'fire', label: 'Fire', code: 'KeyK', side: 'top', cannon: true },
-  { id: 'retry', label: 'Retry', code: 'KeyR', side: 'top' },
+  { id: 'retry', label: 'Restart', code: 'KeyR', side: 'top' },
 ];
 
 /** `?touch=1` shows the buttons (for checks), `?touch=0` never does; otherwise they show where the main pointer is a finger. */
