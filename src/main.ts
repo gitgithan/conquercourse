@@ -1,4 +1,5 @@
 import { createStage } from './render/scene';
+import { screenFor, startMusic } from './ui/music';
 import { startCourse } from './modes/course';
 import type { CourseData } from './course/course';
 import { startDojo } from './modes/dojo';
@@ -44,6 +45,7 @@ async function courseFromUrl(): Promise<CourseData | undefined> {
 const mode = new URLSearchParams(location.search).get('mode') ?? 'course';
 const game = mode === 'diagrams' ? (await import('./modes/diagrams-page')).startDiagrams(document.body) : mode === 'rookie' ? await createStage(document.body) : mode === 'dojo' ? startDojo(document.body) : mode === 'park' ? startPark(document.body) : mode === 'editor' ? (await import('./modes/editor')).startEditor(document.body) : mode === 'map' ? (await import('./modes/map')).startMap(document.body) : mode === 'coaster' ? (await import('./modes/coaster')).startCoaster(document.body) : mode === 'lab-search' ? (await import('./modes/lab-search')).startLabSearch(document.body) : mode === 'gallery' ? (await import('./modes/gallery')).startGallery(document.body) : await startCourse(document.body, await courseFromUrl());
 document.documentElement.dataset.backend = game.backend;
+startMusic(screenFor(mode)); // CC-132: a loop per screen, only with ?music=1
 if (mode !== 'course') mountWorldGallery(document.body, { current: currentWorld(new URLSearchParams(location.search)), place: BUTTON_PLACE[mode] ?? DEFAULT_PLACE }); // CC-89: every other mode has the Courses button too (the Course mounts its own)
 document.documentElement.dataset.ready = 'true';
 }
