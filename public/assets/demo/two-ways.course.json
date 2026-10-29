@@ -1,0 +1,160 @@
+{
+  "version": 1,
+  "name": "Two ways",
+  "startX": 8,
+  "finishX": 60,
+  "jumpSpeed": 4.5,
+  "jumpKeep": 0.88,
+  "terrain": {
+    "waterY": -9,
+    "platforms": [
+      {
+        "x0": -10,
+        "x1": 24,
+        "top": 0
+      },
+      {
+        "x0": 36,
+        "x1": 66,
+        "top": -2
+      },
+      {
+        "x0": 26,
+        "x1": 31,
+        "top": -4.45
+      },
+      {
+        "x0": 33.5,
+        "x1": 36,
+        "top": -4.45
+      }
+    ]
+  },
+  "holds": [
+    {
+      "x": 27,
+      "y": 3.4
+    },
+    {
+      "x": 30.5,
+      "y": 3.4
+    }
+  ],
+  "zones": [
+    {
+      "id": "fork",
+      "name": "The fork: two ways",
+      "x0": 18,
+      "x1": 40
+    }
+  ],
+  "checkpoints": [
+    {
+      "id": "fork",
+      "x": 8
+    }
+  ],
+  "branches": [
+    {
+      "id": "fork",
+      "name": "The fork",
+      "forkX": 20,
+      "joinX": 38,
+      "routes": [
+        {
+          "id": "high",
+          "name": "High way: swing on the bars",
+          "band": [
+            -3,
+            99
+          ],
+          "own": {
+            "holds": [
+              0,
+              1
+            ]
+          },
+          "icons": [
+            "lache",
+            "drop"
+          ],
+          "plan": {
+            "jumpXs": [
+              22.8
+            ],
+            "releaseAfter": 60,
+            "bouncePress": 8,
+            "hands": true,
+            "hangTicks": [
+              216
+            ],
+            "airHands": [
+              false
+            ]
+          },
+          "ticks": 1098,
+          "narrowestMs": 8,
+          "lines": [
+            {
+              "name": "bar to bar",
+              "ticks": 1264
+            },
+            {
+              "name": "skip the second bar",
+              "ticks": 1098
+            }
+          ],
+          "effort": 1
+        },
+        {
+          "id": "low",
+          "name": "Low way: drop, roll, jump, climb",
+          "band": [
+            -99,
+            -3
+          ],
+          "own": {
+            "platforms": [
+              2,
+              3
+            ]
+          },
+          "icons": [
+            "drop",
+            "gap",
+            "climb"
+          ],
+          "plan": {
+            "jumpXs": [
+              23.16,
+              29.5
+            ],
+            "releaseAfter": 60,
+            "bouncePress": 8,
+            "climbXs": [
+              34.5
+            ]
+          },
+          "ticks": 1130,
+          "narrowestMs": 219,
+          "effort": 4
+        }
+      ]
+    }
+  ],
+  "hazard": "lava",
+  "plan": {
+    "jumpXs": [
+      22.8
+    ],
+    "releaseAfter": 60,
+    "bouncePress": 8,
+    "hands": true,
+    "hangTicks": [
+      216
+    ],
+    "airHands": [
+      false
+    ]
+  }
+}

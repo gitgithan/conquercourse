@@ -55,3 +55,12 @@ describe('every key on the strip has its toast first', () => {
   }
   it('the lead is long enough to read', () => expect(APPROACH_LEAD).toBeGreaterThanOrEqual(10));
 });
+
+// CC-224: on a course with a fork, each way has its own keys: the high way swings (E, then release), the low way drops (X), jumps and climbs (E).
+describe('the key strip lists the keys of each way through a fork', () => {
+  const c = load('two-ways.course.json');
+  const b = c.branches![0];
+  const keysOf = (id: string) => drumsFor(c, b.routes.find((r) => r.id === id)!.plan!).filter((d) => d.x >= b.forkX - 2 && d.x <= b.joinX + 6).map((d) => d.what);
+  it('high: grab and release', () => { const k = keysOf('high'); expect(k).toContain('grab'); expect(k).toContain('release'); });
+  it('low: jump and climb (E)', () => { const k = keysOf('low'); expect(k).toContain('jump'); expect(k).toContain('grab'); expect(k).not.toContain('release'); });
+});
