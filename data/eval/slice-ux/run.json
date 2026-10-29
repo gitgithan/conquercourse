@@ -4,7 +4,19 @@
   "machine": "Vultr VM3",
   "shrink": 0.2,
   "places": 18,
-  "before": { "previewCleared": 74, "builtClearedShrunkLevel": 63, "builtClearedOldHandover": 5 },
-  "after": { "previewCleared": 74, "builtCleared": 74 },
-  "suggestions": { "failingCases": 59, "places": 8, "caseWithClearingFix": 39 }
+  "before": {
+    "previewCleared": 74,
+    "builtClearedShrunkLevel": 63,
+    "builtClearedOldHandover": 5
+  },
+  "after": {
+    "previewCleared": 74,
+    "builtCleared": 74
+  },
+  "suggestions": {
+    "failingCases": 67,
+    "places": 8,
+    "caseWithClearingFix": 47,
+    "caseWithoutFix": 20
+  }
 }

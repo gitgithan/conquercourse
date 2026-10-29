@@ -10,7 +10,7 @@
     "kind": "gap",
     "tries": [
       {
-        "text": "Cut at 12.5 m (narrower gaps there).",
+        "text": "Cut at 12.5 m, this lane can be crossed.",
         "action": {
           "kind": "cut",
           "value": 12.5
@@ -45,7 +45,7 @@
     "kind": "gap",
     "tries": [
       {
-        "text": "Cut at 13 m (narrower gaps there).",
+        "text": "Cut at 13 m, this lane can be crossed.",
         "action": {
           "kind": "cut",
           "value": 13
@@ -57,6 +57,41 @@
         "action": {
           "kind": "shrink",
           "value": 0.17
+        },
+        "cleared": true
+      },
+      {
+        "text": "Drag the white dots to run along a different street.",
+        "action": {
+          "kind": "drag"
+        },
+        "cleared": null
+      }
+    ]
+  },
+  {
+    "slug": "tuileries-paris",
+    "shrink": 0.2,
+    "halfPicked": false,
+    "cut": 5.5,
+    "widestGapM": 18.3,
+    "tallestStepM": 2.1,
+    "reason": "Widest gap 18.3 m, the runner clears about 8 m.",
+    "kind": "gap",
+    "tries": [
+      {
+        "text": "Cut at 12.5 m, this lane can be crossed.",
+        "action": {
+          "kind": "cut",
+          "value": 12.5
+        },
+        "cleared": true
+      },
+      {
+        "text": "Shrink more, 0.2 to 0.07 (gaps get narrower).",
+        "action": {
+          "kind": "shrink",
+          "value": 0.07
         },
         "cleared": true
       },
@@ -97,41 +132,6 @@
     ]
   },
   {
-    "slug": "tuileries-paris",
-    "shrink": 0.2,
-    "halfPicked": false,
-    "cut": 5.5,
-    "widestGapM": 18.3,
-    "tallestStepM": 2.1,
-    "reason": "Widest gap 18.3 m, the runner clears about 8 m.",
-    "kind": "gap",
-    "tries": [
-      {
-        "text": "Cut at 12.5 m (narrower gaps there).",
-        "action": {
-          "kind": "cut",
-          "value": 12.5
-        },
-        "cleared": true
-      },
-      {
-        "text": "Shrink more, 0.2 to 0.07 (gaps get narrower).",
-        "action": {
-          "kind": "shrink",
-          "value": 0.07
-        },
-        "cleared": true
-      },
-      {
-        "text": "Drag the white dots to run along a different street.",
-        "action": {
-          "kind": "drag"
-        },
-        "cleared": null
-      }
-    ]
-  },
-  {
     "slug": "circular-quay-sydney",
     "shrink": 0.2,
     "halfPicked": false,
@@ -142,7 +142,7 @@
     "kind": "gap",
     "tries": [
       {
-        "text": "Cut at 22.5 m (narrower gaps there).",
+        "text": "Cut at 22.5 m, this lane can be crossed.",
         "action": {
           "kind": "cut",
           "value": 22.5
@@ -177,7 +177,7 @@
     "kind": "gap",
     "tries": [
       {
-        "text": "Cut at 12.5 m (narrower gaps there).",
+        "text": "Cut at 12.5 m, this lane can be crossed.",
         "action": {
           "kind": "cut",
           "value": 12.5
@@ -212,7 +212,7 @@
     "kind": "gap",
     "tries": [
       {
-        "text": "Cut at 12.5 m (narrower gaps there).",
+        "text": "Cut at 12.5 m, this lane can be crossed.",
         "action": {
           "kind": "cut",
           "value": 12.5
@@ -247,7 +247,7 @@
     "kind": "gap",
     "tries": [
       {
-        "text": "Cut at 12.5 m (narrower gaps there).",
+        "text": "Cut at 12.5 m, this lane can be crossed.",
         "action": {
           "kind": "cut",
           "value": 12.5
@@ -282,47 +282,12 @@
     "kind": "gap",
     "tries": [
       {
-        "text": "Cut at 7.5 m (narrower gaps there).",
+        "text": "Cut at 7.5 m, this lane can be crossed.",
         "action": {
           "kind": "cut",
           "value": 7.5
         },
         "cleared": false
-      },
-      {
-        "text": "Shrink more, 0.2 to 0.17 (gaps get narrower).",
-        "action": {
-          "kind": "shrink",
-          "value": 0.17
-        },
-        "cleared": false
-      },
-      {
-        "text": "Drag the white dots to run along a different street.",
-        "action": {
-          "kind": "drag"
-        },
-        "cleared": null
-      }
-    ]
-  },
-  {
-    "slug": "montmartre-paris",
-    "shrink": 0.2,
-    "halfPicked": false,
-    "cut": 7.5,
-    "widestGapM": 6,
-    "tallestStepM": 0.9,
-    "reason": "Hardest jump: 3 m wide, far side 9.4 m higher, more than top speed clears.",
-    "kind": "gap",
-    "tries": [
-      {
-        "text": "Cut at 53 m (narrower gaps there).",
-        "action": {
-          "kind": "cut",
-          "value": 53
-        },
-        "cleared": true
       },
       {
         "text": "Shrink more, 0.2 to 0.17 (gaps get narrower).",
@@ -396,6 +361,41 @@
     ]
   },
   {
+    "slug": "montmartre-paris",
+    "shrink": 0.2,
+    "halfPicked": false,
+    "cut": 7.5,
+    "widestGapM": 6,
+    "tallestStepM": 0.9,
+    "reason": "Hardest jump: 3 m wide, far side 9.4 m higher, more than top speed clears.",
+    "kind": "gap",
+    "tries": [
+      {
+        "text": "Cut at 53 m, this lane can be crossed.",
+        "action": {
+          "kind": "cut",
+          "value": 53
+        },
+        "cleared": true
+      },
+      {
+        "text": "Shrink more, 0.2 to 0.17 (gaps get narrower).",
+        "action": {
+          "kind": "shrink",
+          "value": 0.17
+        },
+        "cleared": false
+      },
+      {
+        "text": "Drag the white dots to run along a different street.",
+        "action": {
+          "kind": "drag"
+        },
+        "cleared": null
+      }
+    ]
+  },
+  {
     "slug": "tuileries-paris",
     "shrink": 0.4,
     "halfPicked": false,
@@ -412,6 +412,108 @@
           "value": 0.15
         },
         "cleared": true
+      },
+      {
+        "text": "Drag the white dots to run along a different street.",
+        "action": {
+          "kind": "drag"
+        },
+        "cleared": null
+      }
+    ]
+  },
+  {
+    "slug": "tuileries-paris",
+    "shrink": 0.4,
+    "halfPicked": true,
+    "cut": 2,
+    "widestGapM": 17.9,
+    "tallestStepM": 0.5,
+    "reason": "Widest gap 17.9 m, the runner clears about 8 m.",
+    "kind": "gap",
+    "tries": [
+      {
+        "text": "Shrink more, 0.4 to 0.14 (gaps get narrower).",
+        "action": {
+          "kind": "shrink",
+          "value": 0.14
+        },
+        "cleared": false
+      },
+      {
+        "text": "Put the 2 left-out buildings back (they may fill the gap).",
+        "action": {
+          "kind": "pickall"
+        },
+        "cleared": false
+      },
+      {
+        "text": "Drag the white dots to run along a different street.",
+        "action": {
+          "kind": "drag"
+        },
+        "cleared": null
+      }
+    ]
+  },
+  {
+    "slug": "tuileries-paris",
+    "shrink": 0.4,
+    "halfPicked": true,
+    "cut": 5.5,
+    "widestGapM": 17.9,
+    "tallestStepM": 0.5,
+    "reason": "Widest gap 17.9 m, the runner clears about 8 m.",
+    "kind": "gap",
+    "tries": [
+      {
+        "text": "Shrink more, 0.4 to 0.14 (gaps get narrower).",
+        "action": {
+          "kind": "shrink",
+          "value": 0.14
+        },
+        "cleared": false
+      },
+      {
+        "text": "Put the 2 left-out buildings back (they may fill the gap).",
+        "action": {
+          "kind": "pickall"
+        },
+        "cleared": false
+      },
+      {
+        "text": "Drag the white dots to run along a different street.",
+        "action": {
+          "kind": "drag"
+        },
+        "cleared": null
+      }
+    ]
+  },
+  {
+    "slug": "tuileries-paris",
+    "shrink": 0.4,
+    "halfPicked": true,
+    "cut": 9,
+    "widestGapM": 17.9,
+    "tallestStepM": 0.5,
+    "reason": "Widest gap 17.9 m, the runner clears about 8 m.",
+    "kind": "gap",
+    "tries": [
+      {
+        "text": "Shrink more, 0.4 to 0.14 (gaps get narrower).",
+        "action": {
+          "kind": "shrink",
+          "value": 0.14
+        },
+        "cleared": false
+      },
+      {
+        "text": "Put the 2 left-out buildings back (they may fill the gap).",
+        "action": {
+          "kind": "pickall"
+        },
+        "cleared": false
       },
       {
         "text": "Drag the white dots to run along a different street.",
@@ -450,74 +552,6 @@
     ]
   },
   {
-    "slug": "tuileries-paris",
-    "shrink": 0.4,
-    "halfPicked": true,
-    "cut": 2,
-    "widestGapM": 17.9,
-    "tallestStepM": 0.5,
-    "reason": "Widest gap 17.9 m, the runner clears about 8 m.",
-    "kind": "gap",
-    "tries": [
-      {
-        "text": "Shrink more, 0.4 to 0.14 (gaps get narrower).",
-        "action": {
-          "kind": "shrink",
-          "value": 0.14
-        },
-        "cleared": false
-      },
-      {
-        "text": "Put the 2 left-out buildings back (they may fill the gap).",
-        "action": {
-          "kind": "pickall"
-        },
-        "cleared": false
-      },
-      {
-        "text": "Drag the white dots to run along a different street.",
-        "action": {
-          "kind": "drag"
-        },
-        "cleared": null
-      }
-    ]
-  },
-  {
-    "slug": "tuileries-paris",
-    "shrink": 0.4,
-    "halfPicked": true,
-    "cut": 5.5,
-    "widestGapM": 17.9,
-    "tallestStepM": 0.5,
-    "reason": "Widest gap 17.9 m, the runner clears about 8 m.",
-    "kind": "gap",
-    "tries": [
-      {
-        "text": "Shrink more, 0.4 to 0.14 (gaps get narrower).",
-        "action": {
-          "kind": "shrink",
-          "value": 0.14
-        },
-        "cleared": false
-      },
-      {
-        "text": "Put the 2 left-out buildings back (they may fill the gap).",
-        "action": {
-          "kind": "pickall"
-        },
-        "cleared": false
-      },
-      {
-        "text": "Drag the white dots to run along a different street.",
-        "action": {
-          "kind": "drag"
-        },
-        "cleared": null
-      }
-    ]
-  },
-  {
     "slug": "shibuya-tokyo",
     "shrink": 0.2,
     "halfPicked": false,
@@ -528,7 +562,7 @@
     "kind": "gap",
     "tries": [
       {
-        "text": "Cut at 50.5 m (narrower gaps there).",
+        "text": "Cut at 50.5 m, this lane can be crossed.",
         "action": {
           "kind": "cut",
           "value": 50.5
@@ -540,40 +574,6 @@
         "action": {
           "kind": "shrink",
           "value": 0.16
-        },
-        "cleared": false
-      },
-      {
-        "text": "Drag the white dots to run along a different street.",
-        "action": {
-          "kind": "drag"
-        },
-        "cleared": null
-      }
-    ]
-  },
-  {
-    "slug": "tuileries-paris",
-    "shrink": 0.4,
-    "halfPicked": true,
-    "cut": 9,
-    "widestGapM": 17.9,
-    "tallestStepM": 0.5,
-    "reason": "Widest gap 17.9 m, the runner clears about 8 m.",
-    "kind": "gap",
-    "tries": [
-      {
-        "text": "Shrink more, 0.4 to 0.14 (gaps get narrower).",
-        "action": {
-          "kind": "shrink",
-          "value": 0.14
-        },
-        "cleared": false
-      },
-      {
-        "text": "Put the 2 left-out buildings back (they may fill the gap).",
-        "action": {
-          "kind": "pickall"
         },
         "cleared": false
       },
@@ -621,76 +621,6 @@
     ]
   },
   {
-    "slug": "edinburgh-old-town",
-    "shrink": 0.2,
-    "halfPicked": false,
-    "cut": 3.5,
-    "widestGapM": 6.5,
-    "tallestStepM": 1.2,
-    "reason": "Hardest jump: 5 m wide, far side 1.2 m higher, more than top speed clears.",
-    "kind": "gap",
-    "tries": [
-      {
-        "text": "Cut at 18 m (narrower gaps there).",
-        "action": {
-          "kind": "cut",
-          "value": 18
-        },
-        "cleared": false
-      },
-      {
-        "text": "Shrink more, 0.2 to 0.17 (gaps get narrower).",
-        "action": {
-          "kind": "shrink",
-          "value": 0.17
-        },
-        "cleared": false
-      },
-      {
-        "text": "Drag the white dots to run along a different street.",
-        "action": {
-          "kind": "drag"
-        },
-        "cleared": null
-      }
-    ]
-  },
-  {
-    "slug": "circular-quay-sydney",
-    "shrink": 0.2,
-    "halfPicked": false,
-    "cut": 37.5,
-    "widestGapM": 5.7,
-    "tallestStepM": 1.5,
-    "reason": "Hardest jump: 4.7 m wide, far side 1.5 m higher, more than top speed clears.",
-    "kind": "gap",
-    "tries": [
-      {
-        "text": "Cut at 22.5 m (narrower gaps there).",
-        "action": {
-          "kind": "cut",
-          "value": 22.5
-        },
-        "cleared": false
-      },
-      {
-        "text": "Shrink more, 0.2 to 0.17 (gaps get narrower).",
-        "action": {
-          "kind": "shrink",
-          "value": 0.17
-        },
-        "cleared": false
-      },
-      {
-        "text": "Drag the white dots to run along a different street.",
-        "action": {
-          "kind": "drag"
-        },
-        "cleared": null
-      }
-    ]
-  },
-  {
     "slug": "tuileries-paris",
     "shrink": 0.4,
     "halfPicked": true,
@@ -725,6 +655,76 @@
     ]
   },
   {
+    "slug": "circular-quay-sydney",
+    "shrink": 0.2,
+    "halfPicked": false,
+    "cut": 37.5,
+    "widestGapM": 5.7,
+    "tallestStepM": 1.5,
+    "reason": "Hardest jump: 4.7 m wide, far side 1.5 m higher, more than top speed clears.",
+    "kind": "gap",
+    "tries": [
+      {
+        "text": "Cut at 22.5 m, this lane can be crossed.",
+        "action": {
+          "kind": "cut",
+          "value": 22.5
+        },
+        "cleared": false
+      },
+      {
+        "text": "Shrink more, 0.2 to 0.17 (gaps get narrower).",
+        "action": {
+          "kind": "shrink",
+          "value": 0.17
+        },
+        "cleared": false
+      },
+      {
+        "text": "Drag the white dots to run along a different street.",
+        "action": {
+          "kind": "drag"
+        },
+        "cleared": null
+      }
+    ]
+  },
+  {
+    "slug": "edinburgh-old-town",
+    "shrink": 0.2,
+    "halfPicked": false,
+    "cut": 3.5,
+    "widestGapM": 6.5,
+    "tallestStepM": 1.2,
+    "reason": "Hardest jump: 5 m wide, far side 1.2 m higher, more than top speed clears.",
+    "kind": "gap",
+    "tries": [
+      {
+        "text": "Cut at 18 m, this lane can be crossed.",
+        "action": {
+          "kind": "cut",
+          "value": 18
+        },
+        "cleared": false
+      },
+      {
+        "text": "Shrink more, 0.2 to 0.17 (gaps get narrower).",
+        "action": {
+          "kind": "shrink",
+          "value": 0.17
+        },
+        "cleared": false
+      },
+      {
+        "text": "Drag the white dots to run along a different street.",
+        "action": {
+          "kind": "drag"
+        },
+        "cleared": null
+      }
+    ]
+  },
+  {
     "slug": "montmartre-paris",
     "shrink": 0.2,
     "halfPicked": false,
@@ -735,7 +735,7 @@
     "kind": "gap",
     "tries": [
       {
-        "text": "Cut at 53 m (narrower gaps there).",
+        "text": "Cut at 53 m, this lane can be crossed.",
         "action": {
           "kind": "cut",
           "value": 53
@@ -770,7 +770,7 @@
     "kind": "gap",
     "tries": [
       {
-        "text": "Cut at 37.5 m (narrower gaps there).",
+        "text": "Cut at 37.5 m, this lane can be crossed.",
         "action": {
           "kind": "cut",
           "value": 37.5
@@ -805,7 +805,7 @@
     "kind": "gap",
     "tries": [
       {
-        "text": "Cut at 40.5 m (narrower gaps there).",
+        "text": "Cut at 40.5 m, this lane can be crossed.",
         "action": {
           "kind": "cut",
           "value": 40.5
@@ -840,7 +840,7 @@
     "kind": "gap",
     "tries": [
       {
-        "text": "Cut at 22.5 m (narrower gaps there).",
+        "text": "Cut at 22.5 m, this lane can be crossed.",
         "action": {
           "kind": "cut",
           "value": 22.5
@@ -875,7 +875,7 @@
     "kind": "gap",
     "tries": [
       {
-        "text": "Cut at 7 m (narrower gaps there).",
+        "text": "Cut at 7 m, this lane can be crossed.",
         "action": {
           "kind": "cut",
           "value": 7
@@ -910,7 +910,7 @@
     "kind": "other",
     "tries": [
       {
-        "text": "Cut at 50.5 m (a different lane).",
+        "text": "Cut at 50.5 m, a different lane.",
         "action": {
           "kind": "cut",
           "value": 50.5
@@ -945,7 +945,7 @@
     "kind": "gap",
     "tries": [
       {
-        "text": "Cut at 18 m (narrower gaps there).",
+        "text": "Cut at 18 m, this lane can be crossed.",
         "action": {
           "kind": "cut",
           "value": 18
@@ -970,41 +970,6 @@
     ]
   },
   {
-    "slug": "bryant-park-new-york",
-    "shrink": 0.4,
-    "halfPicked": false,
-    "cut": 7,
-    "widestGapM": 11,
-    "tallestStepM": 2.3,
-    "reason": "Widest gap 11 m, the runner clears about 8 m.",
-    "kind": "gap",
-    "tries": [
-      {
-        "text": "Cut at 11.5 m (narrower gaps there).",
-        "action": {
-          "kind": "cut",
-          "value": 11.5
-        },
-        "cleared": true
-      },
-      {
-        "text": "Shrink more, 0.4 to 0.23 (gaps get narrower).",
-        "action": {
-          "kind": "shrink",
-          "value": 0.23
-        },
-        "cleared": true
-      },
-      {
-        "text": "Drag the white dots to run along a different street.",
-        "action": {
-          "kind": "drag"
-        },
-        "cleared": null
-      }
-    ]
-  },
-  {
     "slug": "alfama-lisbon",
     "shrink": 0.2,
     "halfPicked": false,
@@ -1015,7 +980,7 @@
     "kind": "gap",
     "tries": [
       {
-        "text": "Cut at 51.5 m (narrower gaps there).",
+        "text": "Cut at 51.5 m, this lane can be crossed.",
         "action": {
           "kind": "cut",
           "value": 51.5
@@ -1029,6 +994,41 @@
           "value": 0.13
         },
         "cleared": false
+      },
+      {
+        "text": "Drag the white dots to run along a different street.",
+        "action": {
+          "kind": "drag"
+        },
+        "cleared": null
+      }
+    ]
+  },
+  {
+    "slug": "bryant-park-new-york",
+    "shrink": 0.4,
+    "halfPicked": false,
+    "cut": 7,
+    "widestGapM": 11,
+    "tallestStepM": 2.3,
+    "reason": "Widest gap 11 m, the runner clears about 8 m.",
+    "kind": "gap",
+    "tries": [
+      {
+        "text": "Cut at 11.5 m, this lane can be crossed.",
+        "action": {
+          "kind": "cut",
+          "value": 11.5
+        },
+        "cleared": true
+      },
+      {
+        "text": "Shrink more, 0.4 to 0.23 (gaps get narrower).",
+        "action": {
+          "kind": "shrink",
+          "value": 0.23
+        },
+        "cleared": true
       },
       {
         "text": "Drag the white dots to run along a different street.",
@@ -1084,7 +1084,7 @@
     "kind": "gap",
     "tries": [
       {
-        "text": "Cut at 49.5 m (narrower gaps there).",
+        "text": "Cut at 49.5 m, this lane can be crossed.",
         "action": {
           "kind": "cut",
           "value": 49.5
@@ -1105,6 +1105,41 @@
           "kind": "drag"
         },
         "cleared": null
+      }
+    ]
+  },
+  {
+    "slug": "eixample-barcelona",
+    "shrink": 0.2,
+    "halfPicked": true,
+    "cut": 22.5,
+    "widestGapM": 5.8,
+    "tallestStepM": 2.7,
+    "reason": "Hardest jump: 5 m wide, far side 2.7 m higher, more than top speed clears.",
+    "kind": "gap",
+    "tries": [
+      {
+        "text": "Cut at 40.5 m, this lane can be crossed.",
+        "action": {
+          "kind": "cut",
+          "value": 40.5
+        },
+        "cleared": false
+      },
+      {
+        "text": "Shrink more, 0.2 to 0.17 (gaps get narrower).",
+        "action": {
+          "kind": "shrink",
+          "value": 0.17
+        },
+        "cleared": true
+      },
+      {
+        "text": "Put the 23 left-out buildings back (they may fill the gap).",
+        "action": {
+          "kind": "pickall"
+        },
+        "cleared": true
       }
     ]
   },
@@ -1143,76 +1178,6 @@
     ]
   },
   {
-    "slug": "eixample-barcelona",
-    "shrink": 0.2,
-    "halfPicked": true,
-    "cut": 22.5,
-    "widestGapM": 5.8,
-    "tallestStepM": 2.7,
-    "reason": "Hardest jump: 5 m wide, far side 2.7 m higher, more than top speed clears.",
-    "kind": "gap",
-    "tries": [
-      {
-        "text": "Cut at 40.5 m (narrower gaps there).",
-        "action": {
-          "kind": "cut",
-          "value": 40.5
-        },
-        "cleared": false
-      },
-      {
-        "text": "Shrink more, 0.2 to 0.17 (gaps get narrower).",
-        "action": {
-          "kind": "shrink",
-          "value": 0.17
-        },
-        "cleared": true
-      },
-      {
-        "text": "Put the 23 left-out buildings back (they may fill the gap).",
-        "action": {
-          "kind": "pickall"
-        },
-        "cleared": true
-      }
-    ]
-  },
-  {
-    "slug": "edinburgh-old-town",
-    "shrink": 0.2,
-    "halfPicked": false,
-    "cut": 18,
-    "widestGapM": 6.5,
-    "tallestStepM": 1.2,
-    "reason": "Hardest jump: 5 m wide, far side 1.2 m higher, more than top speed clears.",
-    "kind": "gap",
-    "tries": [
-      {
-        "text": "Cut at 25 m (narrower gaps there).",
-        "action": {
-          "kind": "cut",
-          "value": 25
-        },
-        "cleared": true
-      },
-      {
-        "text": "Shrink more, 0.2 to 0.17 (gaps get narrower).",
-        "action": {
-          "kind": "shrink",
-          "value": 0.17
-        },
-        "cleared": false
-      },
-      {
-        "text": "Drag the white dots to run along a different street.",
-        "action": {
-          "kind": "drag"
-        },
-        "cleared": null
-      }
-    ]
-  },
-  {
     "slug": "shibuya-tokyo",
     "shrink": 0.2,
     "halfPicked": true,
@@ -1223,7 +1188,7 @@
     "kind": "gap",
     "tries": [
       {
-        "text": "Cut at 50.5 m (narrower gaps there).",
+        "text": "Cut at 50.5 m, this lane can be crossed.",
         "action": {
           "kind": "cut",
           "value": 50.5
@@ -1248,6 +1213,41 @@
     ]
   },
   {
+    "slug": "edinburgh-old-town",
+    "shrink": 0.2,
+    "halfPicked": false,
+    "cut": 18,
+    "widestGapM": 6.5,
+    "tallestStepM": 1.2,
+    "reason": "Hardest jump: 5 m wide, far side 1.2 m higher, more than top speed clears.",
+    "kind": "gap",
+    "tries": [
+      {
+        "text": "Cut at 25 m, this lane can be crossed.",
+        "action": {
+          "kind": "cut",
+          "value": 25
+        },
+        "cleared": true
+      },
+      {
+        "text": "Shrink more, 0.2 to 0.17 (gaps get narrower).",
+        "action": {
+          "kind": "shrink",
+          "value": 0.17
+        },
+        "cleared": false
+      },
+      {
+        "text": "Drag the white dots to run along a different street.",
+        "action": {
+          "kind": "drag"
+        },
+        "cleared": null
+      }
+    ]
+  },
+  {
     "slug": "bryant-park-new-york",
     "shrink": 0.4,
     "halfPicked": true,
@@ -1258,7 +1258,7 @@
     "kind": "gap",
     "tries": [
       {
-        "text": "Cut at 11.5 m (narrower gaps there).",
+        "text": "Cut at 11.5 m, this lane can be crossed.",
         "action": {
           "kind": "cut",
           "value": 11.5
@@ -1327,7 +1327,7 @@
     "kind": "gap",
     "tries": [
       {
-        "text": "Cut at 11.5 m (narrower gaps there).",
+        "text": "Cut at 11.5 m, this lane can be crossed.",
         "action": {
           "kind": "cut",
           "value": 11.5
@@ -1352,76 +1352,6 @@
     ]
   },
   {
-    "slug": "montmartre-paris",
-    "shrink": 0.4,
-    "halfPicked": false,
-    "cut": 6,
-    "widestGapM": 10.7,
-    "tallestStepM": 0.7,
-    "reason": "Widest gap 10.7 m, the runner clears about 8 m.",
-    "kind": "gap",
-    "tries": [
-      {
-        "text": "Cut at 41.5 m (narrower gaps there).",
-        "action": {
-          "kind": "cut",
-          "value": 41.5
-        },
-        "cleared": true
-      },
-      {
-        "text": "Shrink more, 0.4 to 0.24 (gaps get narrower).",
-        "action": {
-          "kind": "shrink",
-          "value": 0.24
-        },
-        "cleared": false
-      },
-      {
-        "text": "Drag the white dots to run along a different street.",
-        "action": {
-          "kind": "drag"
-        },
-        "cleared": null
-      }
-    ]
-  },
-  {
-    "slug": "edinburgh-old-town",
-    "shrink": 0.2,
-    "halfPicked": true,
-    "cut": 3.5,
-    "widestGapM": 29.1,
-    "tallestStepM": 1.9,
-    "reason": "Widest gap 29.1 m, the runner clears about 8 m.",
-    "kind": "gap",
-    "tries": [
-      {
-        "text": "Cut at 25 m (narrower gaps there).",
-        "action": {
-          "kind": "cut",
-          "value": 25
-        },
-        "cleared": false
-      },
-      {
-        "text": "Shrink more, 0.2 to 0.04 (gaps get narrower).",
-        "action": {
-          "kind": "shrink",
-          "value": 0.04
-        },
-        "cleared": true
-      },
-      {
-        "text": "Put the 38 left-out buildings back (they may fill the gap).",
-        "action": {
-          "kind": "pickall"
-        },
-        "cleared": false
-      }
-    ]
-  },
-  {
     "slug": "eixample-barcelona",
     "shrink": 0.4,
     "halfPicked": false,
@@ -1432,7 +1362,7 @@
     "kind": "gap",
     "tries": [
       {
-        "text": "Cut at 20.5 m (narrower gaps there).",
+        "text": "Cut at 20.5 m, this lane can be crossed.",
         "action": {
           "kind": "cut",
           "value": 20.5
@@ -1457,6 +1387,41 @@
     ]
   },
   {
+    "slug": "montmartre-paris",
+    "shrink": 0.4,
+    "halfPicked": false,
+    "cut": 6,
+    "widestGapM": 10.7,
+    "tallestStepM": 0.7,
+    "reason": "Widest gap 10.7 m, the runner clears about 8 m.",
+    "kind": "gap",
+    "tries": [
+      {
+        "text": "Cut at 41.5 m, this lane can be crossed.",
+        "action": {
+          "kind": "cut",
+          "value": 41.5
+        },
+        "cleared": true
+      },
+      {
+        "text": "Shrink more, 0.4 to 0.24 (gaps get narrower).",
+        "action": {
+          "kind": "shrink",
+          "value": 0.24
+        },
+        "cleared": false
+      },
+      {
+        "text": "Drag the white dots to run along a different street.",
+        "action": {
+          "kind": "drag"
+        },
+        "cleared": null
+      }
+    ]
+  },
+  {
     "slug": "shibuya-tokyo",
     "shrink": 0.4,
     "halfPicked": false,
@@ -1467,7 +1432,7 @@
     "kind": "gap",
     "tries": [
       {
-        "text": "Cut at 21.5 m (narrower gaps there).",
+        "text": "Cut at 21.5 m, this lane can be crossed.",
         "action": {
           "kind": "cut",
           "value": 21.5
@@ -1488,6 +1453,41 @@
           "kind": "drag"
         },
         "cleared": null
+      }
+    ]
+  },
+  {
+    "slug": "edinburgh-old-town",
+    "shrink": 0.2,
+    "halfPicked": true,
+    "cut": 3.5,
+    "widestGapM": 29.1,
+    "tallestStepM": 1.9,
+    "reason": "Widest gap 29.1 m, the runner clears about 8 m.",
+    "kind": "gap",
+    "tries": [
+      {
+        "text": "Cut at 25 m, this lane can be crossed.",
+        "action": {
+          "kind": "cut",
+          "value": 25
+        },
+        "cleared": false
+      },
+      {
+        "text": "Shrink more, 0.2 to 0.04 (gaps get narrower).",
+        "action": {
+          "kind": "shrink",
+          "value": 0.04
+        },
+        "cleared": true
+      },
+      {
+        "text": "Put the 38 left-out buildings back (they may fill the gap).",
+        "action": {
+          "kind": "pickall"
+        },
+        "cleared": false
       }
     ]
   },
@@ -1526,41 +1526,6 @@
     ]
   },
   {
-    "slug": "edinburgh-old-town",
-    "shrink": 0.2,
-    "halfPicked": true,
-    "cut": 11,
-    "widestGapM": 29.1,
-    "tallestStepM": 1.9,
-    "reason": "Widest gap 29.1 m, the runner clears about 8 m.",
-    "kind": "gap",
-    "tries": [
-      {
-        "text": "Cut at 25 m (narrower gaps there).",
-        "action": {
-          "kind": "cut",
-          "value": 25
-        },
-        "cleared": false
-      },
-      {
-        "text": "Shrink more, 0.2 to 0.04 (gaps get narrower).",
-        "action": {
-          "kind": "shrink",
-          "value": 0.04
-        },
-        "cleared": true
-      },
-      {
-        "text": "Put the 38 left-out buildings back (they may fill the gap).",
-        "action": {
-          "kind": "pickall"
-        },
-        "cleared": false
-      }
-    ]
-  },
-  {
     "slug": "eixample-barcelona",
     "shrink": 0.4,
     "halfPicked": false,
@@ -1571,7 +1536,7 @@
     "kind": "gap",
     "tries": [
       {
-        "text": "Cut at 20.5 m (narrower gaps there).",
+        "text": "Cut at 20.5 m, this lane can be crossed.",
         "action": {
           "kind": "cut",
           "value": 20.5
@@ -1596,37 +1561,37 @@
     ]
   },
   {
-    "slug": "montmartre-paris",
-    "shrink": 0.4,
-    "halfPicked": false,
-    "cut": 17.5,
-    "widestGapM": 10.7,
-    "tallestStepM": 0.7,
-    "reason": "Widest gap 10.7 m, the runner clears about 8 m.",
+    "slug": "edinburgh-old-town",
+    "shrink": 0.2,
+    "halfPicked": true,
+    "cut": 11,
+    "widestGapM": 29.1,
+    "tallestStepM": 1.9,
+    "reason": "Widest gap 29.1 m, the runner clears about 8 m.",
     "kind": "gap",
     "tries": [
       {
-        "text": "Cut at 41.5 m (narrower gaps there).",
+        "text": "Cut at 25 m, this lane can be crossed.",
         "action": {
           "kind": "cut",
-          "value": 41.5
-        },
-        "cleared": true
-      },
-      {
-        "text": "Shrink more, 0.4 to 0.24 (gaps get narrower).",
-        "action": {
-          "kind": "shrink",
-          "value": 0.24
+          "value": 25
         },
         "cleared": false
       },
       {
-        "text": "Drag the white dots to run along a different street.",
+        "text": "Shrink more, 0.2 to 0.04 (gaps get narrower).",
         "action": {
-          "kind": "drag"
+          "kind": "shrink",
+          "value": 0.04
         },
-        "cleared": null
+        "cleared": true
+      },
+      {
+        "text": "Put the 38 left-out buildings back (they may fill the gap).",
+        "action": {
+          "kind": "pickall"
+        },
+        "cleared": false
       }
     ]
   },
@@ -1641,7 +1606,7 @@
     "kind": "gap",
     "tries": [
       {
-        "text": "Cut at 21.5 m (narrower gaps there).",
+        "text": "Cut at 21.5 m, this lane can be crossed.",
         "action": {
           "kind": "cut",
           "value": 21.5
@@ -1666,6 +1631,41 @@
     ]
   },
   {
+    "slug": "montmartre-paris",
+    "shrink": 0.4,
+    "halfPicked": false,
+    "cut": 17.5,
+    "widestGapM": 10.7,
+    "tallestStepM": 0.7,
+    "reason": "Widest gap 10.7 m, the runner clears about 8 m.",
+    "kind": "gap",
+    "tries": [
+      {
+        "text": "Cut at 41.5 m, this lane can be crossed.",
+        "action": {
+          "kind": "cut",
+          "value": 41.5
+        },
+        "cleared": true
+      },
+      {
+        "text": "Shrink more, 0.4 to 0.24 (gaps get narrower).",
+        "action": {
+          "kind": "shrink",
+          "value": 0.24
+        },
+        "cleared": false
+      },
+      {
+        "text": "Drag the white dots to run along a different street.",
+        "action": {
+          "kind": "drag"
+        },
+        "cleared": null
+      }
+    ]
+  },
+  {
     "slug": "edinburgh-old-town",
     "shrink": 0.2,
     "halfPicked": true,
@@ -1676,7 +1676,7 @@
     "kind": "gap",
     "tries": [
       {
-        "text": "Cut at 32.5 m (narrower gaps there).",
+        "text": "Cut at 32.5 m, this lane can be crossed.",
         "action": {
           "kind": "cut",
           "value": 32.5
@@ -1711,7 +1711,7 @@
     "kind": "gap",
     "tries": [
       {
-        "text": "Cut at 41.5 m (narrower gaps there).",
+        "text": "Cut at 41.5 m, this lane can be crossed.",
         "action": {
           "kind": "cut",
           "value": 41.5
@@ -1780,7 +1780,7 @@
     "kind": "gap",
     "tries": [
       {
-        "text": "Cut at 40 m (narrower gaps there).",
+        "text": "Cut at 40 m, this lane can be crossed.",
         "action": {
           "kind": "cut",
           "value": 40
@@ -1797,6 +1797,41 @@
       },
       {
         "text": "Put the 139 left-out buildings back (they may fill the gap).",
+        "action": {
+          "kind": "pickall"
+        },
+        "cleared": false
+      }
+    ]
+  },
+  {
+    "slug": "shibuya-tokyo",
+    "shrink": 0.4,
+    "halfPicked": true,
+    "cut": 4.5,
+    "widestGapM": 15.1,
+    "tallestStepM": 0.3,
+    "reason": "Widest gap 15.1 m, the runner clears about 8 m.",
+    "kind": "gap",
+    "tries": [
+      {
+        "text": "Cut at 21.5 m, this lane can be crossed.",
+        "action": {
+          "kind": "cut",
+          "value": 21.5
+        },
+        "cleared": true
+      },
+      {
+        "text": "Shrink more, 0.4 to 0.17 (gaps get narrower).",
+        "action": {
+          "kind": "shrink",
+          "value": 0.17
+        },
+        "cleared": false
+      },
+      {
+        "text": "Put the 34 left-out buildings back (they may fill the gap).",
         "action": {
           "kind": "pickall"
         },
@@ -1839,41 +1874,6 @@
     ]
   },
   {
-    "slug": "shibuya-tokyo",
-    "shrink": 0.4,
-    "halfPicked": true,
-    "cut": 4.5,
-    "widestGapM": 15.1,
-    "tallestStepM": 0.3,
-    "reason": "Widest gap 15.1 m, the runner clears about 8 m.",
-    "kind": "gap",
-    "tries": [
-      {
-        "text": "Cut at 21.5 m (narrower gaps there).",
-        "action": {
-          "kind": "cut",
-          "value": 21.5
-        },
-        "cleared": true
-      },
-      {
-        "text": "Shrink more, 0.4 to 0.17 (gaps get narrower).",
-        "action": {
-          "kind": "shrink",
-          "value": 0.17
-        },
-        "cleared": false
-      },
-      {
-        "text": "Put the 34 left-out buildings back (they may fill the gap).",
-        "action": {
-          "kind": "pickall"
-        },
-        "cleared": false
-      }
-    ]
-  },
-  {
     "slug": "edinburgh-old-town",
     "shrink": 0.4,
     "halfPicked": false,
@@ -1884,7 +1884,7 @@
     "kind": "gap",
     "tries": [
       {
-        "text": "Cut at 25 m (narrower gaps there).",
+        "text": "Cut at 25 m, this lane can be crossed.",
         "action": {
           "kind": "cut",
           "value": 25
@@ -1953,7 +1953,7 @@
     "kind": "gap",
     "tries": [
       {
-        "text": "Cut at 21.5 m (narrower gaps there).",
+        "text": "Cut at 21.5 m, this lane can be crossed.",
         "action": {
           "kind": "cut",
           "value": 21.5
@@ -2008,6 +2008,285 @@
           "kind": "drag"
         },
         "cleared": null
+      }
+    ]
+  },
+  {
+    "slug": "montmartre-paris",
+    "shrink": 0.4,
+    "halfPicked": true,
+    "cut": 41.5,
+    "widestGapM": 26.8,
+    "tallestStepM": 0.5,
+    "reason": "Widest gap 26.8 m, the runner clears about 8 m.",
+    "kind": "gap",
+    "tries": [
+      {
+        "text": "Shrink more, 0.4 to 0.1 (gaps get narrower).",
+        "action": {
+          "kind": "shrink",
+          "value": 0.1
+        },
+        "cleared": true
+      },
+      {
+        "text": "Put the 20 left-out buildings back (they may fill the gap).",
+        "action": {
+          "kind": "pickall"
+        },
+        "cleared": true
+      },
+      {
+        "text": "Drag the white dots to run along a different street.",
+        "action": {
+          "kind": "drag"
+        },
+        "cleared": null
+      }
+    ]
+  },
+  {
+    "slug": "edinburgh-old-town",
+    "shrink": 0.4,
+    "halfPicked": false,
+    "cut": 11,
+    "widestGapM": 16.8,
+    "tallestStepM": 2.2,
+    "reason": "Widest gap 16.8 m, the runner clears about 8 m.",
+    "kind": "gap",
+    "tries": [
+      {
+        "text": "Cut at 25 m, this lane can be crossed.",
+        "action": {
+          "kind": "cut",
+          "value": 25
+        },
+        "cleared": true
+      },
+      {
+        "text": "Shrink more, 0.4 to 0.15 (gaps get narrower).",
+        "action": {
+          "kind": "shrink",
+          "value": 0.15
+        },
+        "cleared": false
+      },
+      {
+        "text": "Drag the white dots to run along a different street.",
+        "action": {
+          "kind": "drag"
+        },
+        "cleared": null
+      }
+    ]
+  },
+  {
+    "slug": "edinburgh-old-town",
+    "shrink": 0.4,
+    "halfPicked": false,
+    "cut": 18,
+    "widestGapM": 16.8,
+    "tallestStepM": 2.2,
+    "reason": "Widest gap 16.8 m, the runner clears about 8 m.",
+    "kind": "gap",
+    "tries": [
+      {
+        "text": "Cut at 25 m, this lane can be crossed.",
+        "action": {
+          "kind": "cut",
+          "value": 25
+        },
+        "cleared": true
+      },
+      {
+        "text": "Shrink more, 0.4 to 0.15 (gaps get narrower).",
+        "action": {
+          "kind": "shrink",
+          "value": 0.15
+        },
+        "cleared": true
+      },
+      {
+        "text": "Drag the white dots to run along a different street.",
+        "action": {
+          "kind": "drag"
+        },
+        "cleared": null
+      }
+    ]
+  },
+  {
+    "slug": "alfama-lisbon",
+    "shrink": 0.4,
+    "halfPicked": false,
+    "cut": 5.5,
+    "widestGapM": 2.3,
+    "tallestStepM": 2.8,
+    "reason": "Hardest jump: 3 m wide, far side 15.9 m higher, more than top speed clears.",
+    "kind": "gap",
+    "tries": [
+      {
+        "text": "Cut at 28.5 m, this lane can be crossed.",
+        "action": {
+          "kind": "cut",
+          "value": 28.5
+        },
+        "cleared": true
+      },
+      {
+        "text": "Shrink more, 0.4 to 0.34 (gaps get narrower).",
+        "action": {
+          "kind": "shrink",
+          "value": 0.34
+        },
+        "cleared": false
+      },
+      {
+        "text": "Drag the white dots to run along a different street.",
+        "action": {
+          "kind": "drag"
+        },
+        "cleared": null
+      }
+    ]
+  },
+  {
+    "slug": "edinburgh-old-town",
+    "shrink": 0.4,
+    "halfPicked": true,
+    "cut": 3.5,
+    "widestGapM": 13.4,
+    "tallestStepM": 2.1,
+    "reason": "Widest gap 13.4 m, the runner clears about 8 m.",
+    "kind": "gap",
+    "tries": [
+      {
+        "text": "Cut at 32.5 m, this lane can be crossed.",
+        "action": {
+          "kind": "cut",
+          "value": 32.5
+        },
+        "cleared": true
+      },
+      {
+        "text": "Shrink more, 0.4 to 0.19 (gaps get narrower).",
+        "action": {
+          "kind": "shrink",
+          "value": 0.19
+        },
+        "cleared": false
+      },
+      {
+        "text": "Put the 38 left-out buildings back (they may fill the gap).",
+        "action": {
+          "kind": "pickall"
+        },
+        "cleared": false
+      }
+    ]
+  },
+  {
+    "slug": "edinburgh-old-town",
+    "shrink": 0.4,
+    "halfPicked": true,
+    "cut": 11,
+    "widestGapM": 13.4,
+    "tallestStepM": 2.1,
+    "reason": "Widest gap 13.4 m, the runner clears about 8 m.",
+    "kind": "gap",
+    "tries": [
+      {
+        "text": "Cut at 32.5 m, this lane can be crossed.",
+        "action": {
+          "kind": "cut",
+          "value": 32.5
+        },
+        "cleared": true
+      },
+      {
+        "text": "Shrink more, 0.4 to 0.19 (gaps get narrower).",
+        "action": {
+          "kind": "shrink",
+          "value": 0.19
+        },
+        "cleared": false
+      },
+      {
+        "text": "Put the 38 left-out buildings back (they may fill the gap).",
+        "action": {
+          "kind": "pickall"
+        },
+        "cleared": false
+      }
+    ]
+  },
+  {
+    "slug": "edinburgh-old-town",
+    "shrink": 0.4,
+    "halfPicked": true,
+    "cut": 18,
+    "widestGapM": 13.4,
+    "tallestStepM": 2.1,
+    "reason": "Widest gap 13.4 m, the runner clears about 8 m.",
+    "kind": "gap",
+    "tries": [
+      {
+        "text": "Cut at 32.5 m, this lane can be crossed.",
+        "action": {
+          "kind": "cut",
+          "value": 32.5
+        },
+        "cleared": true
+      },
+      {
+        "text": "Shrink more, 0.4 to 0.19 (gaps get narrower).",
+        "action": {
+          "kind": "shrink",
+          "value": 0.19
+        },
+        "cleared": true
+      },
+      {
+        "text": "Put the 38 left-out buildings back (they may fill the gap).",
+        "action": {
+          "kind": "pickall"
+        },
+        "cleared": false
+      }
+    ]
+  },
+  {
+    "slug": "alfama-lisbon",
+    "shrink": 0.4,
+    "halfPicked": true,
+    "cut": 5.5,
+    "widestGapM": 12.4,
+    "tallestStepM": 0.3,
+    "reason": "Widest gap 12.4 m, the runner clears about 8 m.",
+    "kind": "gap",
+    "tries": [
+      {
+        "text": "Cut at 28.5 m, this lane can be crossed.",
+        "action": {
+          "kind": "cut",
+          "value": 28.5
+        },
+        "cleared": true
+      },
+      {
+        "text": "Shrink more, 0.4 to 0.21 (gaps get narrower).",
+        "action": {
+          "kind": "shrink",
+          "value": 0.21
+        },
+        "cleared": false
+      },
+      {
+        "text": "Put the 139 left-out buildings back (they may fill the gap).",
+        "action": {
+          "kind": "pickall"
+        },
+        "cleared": false
       }
     ]
   }
