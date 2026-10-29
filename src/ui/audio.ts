@@ -39,7 +39,9 @@ const log: Sfx[] = [];
 
 export function setAudioFactory(f: (() => AudioLike) | null) { made = f; ctx = null; log.length = 0; muted = false; }
 export function isMuted() { return muted; }
-export function setMuted(m: boolean) { muted = m; try { localStorage.setItem('cc.muted', m ? '1' : '0'); } catch { /* ok */ } }
+const muteListeners: (() => void)[] = [];
+export function onMuteChange(f: () => void) { muteListeners.push(f); }
+export function setMuted(m: boolean) { muted = m; muteListeners.forEach((f) => f()); try { localStorage.setItem('cc.muted', m ? '1' : '0'); } catch { /* ok */ } }
 export function playedSounds(): readonly Sfx[] { return log; }
 
 function context(): AudioLike | null {

@@ -1,0 +1,62 @@
+[
+  {
+    "screen": "course",
+    "candidate": "course_44",
+    "bpm": 162.25,
+    "bars": 10,
+    "seconds": 14.792,
+    "seam_ratio": 0.86559,
+    "rms": 0.1,
+    "match_err": 0.7822,
+    "centroid_hz": 5510.13483,
+    "onsets_per_s": 11.35749
+  },
+  {
+    "screen": "map",
+    "candidate": "map_33",
+    "bpm": 100.0,
+    "bars": 6,
+    "seconds": 14.4,
+    "seam_ratio": 1.04545,
+    "rms": 0.1,
+    "match_err": 0.2754,
+    "centroid_hz": 1192.12387,
+    "onsets_per_s": 10.48611
+  },
+  {
+    "screen": "editor",
+    "candidate": "editor_11",
+    "bpm": 80.0,
+    "bars": 5,
+    "seconds": 15.0,
+    "seam_ratio": 0.10527,
+    "rms": 0.1,
+    "match_err": 0.0061,
+    "centroid_hz": 2940.50964,
+    "onsets_per_s": 7.53333
+  },
+  {
+    "screen": "dojo",
+    "candidate": "dojo_44",
+    "bpm": 70.0,
+    "bars": 4,
+    "seconds": 13.714,
+    "seam_ratio": 0.57612,
+    "rms": 0.1,
+    "match_err": 0.1281,
+    "centroid_hz": 692.58441,
+    "onsets_per_s": 4.52083
+  },
+  {
+    "screen": "report",
+    "candidate": "report_22",
+    "bpm": 110.0,
+    "bars": 7,
+    "seconds": 15.273,
+    "seam_ratio": 0.51282,
+    "rms": 0.1,
+    "match_err": 0.0303,
+    "centroid_hz": 2765.8451,
+    "onsets_per_s": 9.42858
+  }
+]
