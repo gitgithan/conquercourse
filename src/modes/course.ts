@@ -312,7 +312,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
   const speedGauge = gaugeStack.register({ id: 'speed', label: 'Speed', colour: '#0f6b5c', max: 10 });
   const batteryGauge = course.drone && params.get('gauges') !== 'old' ? gaugeStack.register({ id: 'battery', label: 'Drone battery', colour: '#2a6fb0', max: 100 }) : null;
   const hud = document.createElement('div');
-  hud.style.cssText = hudOn(params) ? `font:600 18px system-ui,sans-serif;pointer-events:none;${panelCss('5px 12px')}` : 'position:fixed;left:16px;top:12px;font:600 18px system-ui,sans-serif;color:#10141c;text-shadow:0 1px 0 #fff8;pointer-events:none';
+  hud.style.cssText = hudOn(params) ? `font:600 18px system-ui,sans-serif;font-variant-numeric:tabular-nums;min-width:31ch;white-space:nowrap;pointer-events:none;${panelCss('5px 12px')}` : 'position:fixed;left:16px;top:12px;font:600 18px system-ui,sans-serif;color:#10141c;text-shadow:0 1px 0 #fff8;pointer-events:none';
   const msg = document.createElement('div');
   msg.id = 'msg';
   msg.style.cssText = hudOn(params) ? `position:fixed;left:50%;top:38%;transform:translateX(-50%);max-width:90vw;text-align:center;font:700 28px system-ui,sans-serif;pointer-events:none;${panelCss('8px 18px')}` : 'position:fixed;left:0;right:0;top:38%;text-align:center;font:700 28px system-ui,sans-serif;color:#10141c;text-shadow:0 1px 0 #fff;pointer-events:none';
@@ -540,7 +540,8 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
   restartChip.onclick = () => { restartChip.blur(); restart(); };
   const hudRow = document.createElement('div');
   hudRow.id = 'hudrow'; hudRow.style.cssText = 'position:fixed;left:16px;top:12px;display:flex;gap:8px;align-items:center;flex-wrap:wrap;max-width:calc(100vw - 32px);pointer-events:none';
-  hudRow.append(hud, restartChip); restartChip.style.pointerEvents = 'auto';
+  hudRow.append(hud); // CC-165: the time has a fixed width so nothing beside it moves; the R Restart chip is only there with ?hud=restart (a fall already shows R, and phones have the touch Restart button)
+  if (params.get('hud') === 'restart') { hudRow.append(restartChip); restartChip.style.pointerEvents = 'auto'; }
   // CC-163: on a phone-width screen the top-right buttons used to sit on the time line and the Restart chip: they move to a second row, and the rarely used ones (runner pick, edit, whole course, debug) step aside (their keys still work; Ideal run is on the fall panel too)
   const narrow = document.createElement('style');
   narrow.textContent = '@media (max-width:700px){#hudrow>div{font-size:14px!important}#pickrunner,#coursebtns,#debugbtn,#idealbtn,#community{display:none!important}#dojobtn{top:52px!important;right:12px!important;font-size:13px!important;padding:5px 10px!important}#ghost-hud{left:12px!important;top:52px!important;transform:none!important}#cam{top:92px!important;right:12px!important}#zonestrip{top:160px!important}#keys{top:225px!important}}';
