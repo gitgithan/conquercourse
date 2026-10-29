@@ -4,6 +4,7 @@ import * as THREE from 'three';
 import type { CourseData } from '../course/course';
 import type { Plan } from '../sim/ideal';
 import type { RunnerInput } from '../sim/runner';
+import { createGhostFigure, type GhostFigure, type RookieLook } from './ghost-look';
 import { InputRecorder, gapSeconds, gapWords, trackFromPlan, type GhostTrack, type InputLog } from '../sim/replay';
 
 export type GhostMode = 'off' | 'ideal' | 'friend'; // a friend's run comes from a challenge link (CC-128) and is never remembered
@@ -17,6 +18,8 @@ export interface GhostOpts {
   idealPlan: () => Promise<Plan | null>; // the plan stored with the course, or the workers' search
   zoneIndexAt: (x: number) => number; // which obstacle on the strip a place belongs to (-1 for none)
   strip: () => HTMLElement | null;
+  look?: () => RookieLook; // CC-167: which Rookie the player runs as; the ghost wears the same shape (?ghost=old keeps the capsule)
+  oldLook?: boolean;
 }
 export interface GhostFrame { tick: number; x: number; active: boolean; firstPerson: boolean }
 
@@ -26,7 +29,7 @@ export interface Ghost {
   frame(f: GhostFrame): void;
   cycle(): void;
   chaseIdeal(): void; // switch the ideal ghost on (the offer beside a refused challenge link, CC-135)
-  setFriend(track: GhostTrack, nick?: string): void; // chase a friend's run from a challenge link
+  setFriend(track: GhostTrack, nick?: string, look?: RookieLook): void; // chase a friend's run from a challenge link
   myRun(): InputLog | null; // the keys of this run, when it began at the start and can be replayed (CC-128)
   myClip(): { log: InputLog; from: number } | null; // the keys of this run from wherever it began, for a clip of any try (CC-157)
   readonly mode: GhostMode;
@@ -46,6 +49,8 @@ export function createGhost(o: GhostOpts): Ghost {
   let friendNick = '';
   let ideal: GhostTrack | null = null, idealState: 'idle' | 'working' | 'none' | 'ready' = 'idle';
 
+  const figure: GhostFigure | null = o.oldLook ? null : createGhostFigure(o.scene, o.look?.() ?? 'a');
+  let friendLook: RookieLook | null = null;
   const body = new THREE.Mesh(new THREE.CapsuleGeometry(0.28, 1.1, 6, 12), new THREE.MeshBasicMaterial({ color: 0x5ec8ff, transparent: true, opacity: 0.4, depthWrite: false }));
   body.raycast = () => undefined; // nothing can pick it
   body.renderOrder = 5; body.visible = false;
@@ -53,7 +58,7 @@ export function createGhost(o: GhostOpts): Ghost {
 
   const style = document.createElement('style');
   style.textContent = `
-    #ghost-hud{position:fixed;left:50%;top:46px;transform:translateX(-50%);z-index:12;display:flex;align-items:center;gap:8px;font:600 13px system-ui,sans-serif;color:#17201d;white-space:nowrap}
+    #ghost-hud{position:fixed;left:50%;top:46px;transform:translateX(-50%);z-index:12;display:flex;flex-direction:column;align-items:center;gap:4px;font:600 13px system-ui,sans-serif;color:#17201d;white-space:nowrap} /* stacked: the gap words sit under the chip, clear of the Edit this course button */
     #ghost-chip{display:inline-flex;align-items:center;gap:6px;border:2px solid #17201d;background:#fff;color:#17201d;border-radius:10px;padding:3px 10px;cursor:pointer;font:inherit}
     #ghost-chip[aria-pressed=true]{border-color:${COLOR};color:${COLOR};background:#eaf6fc}
     #ghost-gap{background:#fffffff0;border-radius:8px;padding:3px 9px;display:none}
@@ -108,17 +113,24 @@ export function createGhost(o: GhostOpts): Ghost {
     input(i) { if (full || from !== null) recorder.push(i); },
     cycle() { setMode(next()); },
     chaseIdeal() { setMode('ideal'); },
-    setFriend(t, nick = '') { friend = t; friendNick = nick; setMode('friend'); },
+    setFriend(t, nick = '', look) { friend = t; friendNick = nick; friendLook = look ?? null; setMode('friend'); },
     myRun() { return full && recorder.valid ? recorder.snapshot() : null; },
     myClip() { return from !== null && recorder.valid && recorder.ticks > 0 ? { log: recorder.snapshot(), from } : null; },
     frame(f) {
       const track = shown();
       const show = !!track && full && f.active;
-      if (!show || !track) { body.visible = false; gap.style.display = 'none'; mark(-1); return; }
+      if (!show || !track) { body.visible = false; figure?.hide(); gap.style.display = 'none'; mark(-1); return; }
       const i = Math.min(f.tick, track.ticks);
       const gx = track.xs[i], gy = track.ys[i];
-      body.position.set(gx, gy + 0.85, 0);
-      body.visible = !(f.firstPerson && Math.abs(gx - f.x) < 1.2); // not in front of the eyes
+      const hidden = f.firstPerson && Math.abs(gx - f.x) < 1.2; // not in front of the eyes
+      if (figure) {
+        void figure.setLook(mode === 'friend' && friendLook ? friendLook : o.look?.() ?? 'a');
+        body.visible = false;
+        if (hidden) figure.hide(); else figure.show(track, i);
+      } else {
+        body.position.set(gx, gy + 0.85, 0);
+        body.visible = !hidden;
+      }
       gap.textContent = gapWords(gapSeconds(track, f.tick, f.x)); gap.style.display = 'inline';
       mark(o.zoneIndexAt(gx));
     },
