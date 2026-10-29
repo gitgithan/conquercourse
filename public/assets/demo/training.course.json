@@ -2,7 +2,7 @@
   "version": 1,
   "name": "Training course: every move",
   "startX": 8,
-  "finishX": 233,
+  "finishX": 223,
   "jumpSpeed": 4.5,
   "jumpKeep": 0.88,
   "terrain": {
@@ -25,84 +25,80 @@
       },
       {
         "x0": 52,
-        "x1": 66,
+        "x1": 74,
         "top": 0
       },
       {
-        "x0": 66,
-        "x1": 84,
-        "top": 0.5
+        "x0": 74,
+        "x1": 92,
+        "top": 4
       },
       {
-        "x0": 84,
-        "x1": 102,
-        "top": 4.5
+        "x0": 92,
+        "x1": 94,
+        "top": 6
       },
       {
-        "x0": 102,
-        "x1": 104,
-        "top": 6.5
+        "x0": 103,
+        "x1": 121,
+        "top": 6
       },
       {
-        "x0": 113,
-        "x1": 131,
-        "top": 6.5
+        "x0": 132,
+        "x1": 145,
+        "top": 4
       },
       {
-        "x0": 143,
-        "x1": 155,
-        "top": 4.5
+        "x0": 153,
+        "x1": 173,
+        "top": 6
       },
       {
-        "x0": 163,
-        "x1": 183,
-        "top": 6.5
-      },
-      {
-        "x0": 188,
-        "x1": 194,
-        "top": 4.5,
+        "x0": 178,
+        "x1": 184,
+        "top": 4,
         "bouncy": true
       },
       {
-        "x0": 198,
-        "x1": 215,
-        "top": 7.5
+        "x0": 188,
+        "x1": 205,
+        "top": 7
       },
       {
-        "x0": 215,
-        "x1": 255,
-        "top": 2.5
+        "x0": 205,
+        "x1": 245,
+        "top": 2
       }
     ]
   },
   "rope": {
-    "anchorX": 159,
-    "anchorY": 13.1,
+    "anchorX": 149,
+    "anchorY": 12.6,
     "length": 9
   },
   "planks": [
     {
-      "x0": 104,
-      "x1": 113,
-      "y": 6.5,
+      "x0": 94,
+      "x1": 103,
+      "y": 6,
       "thickness": 0.035,
       "width": 0.6,
       "material": "wood"
     }
   ],
   "wall": {
-    "x0": 80,
+    "x0": 70,
     "height": 4
   },
+  "grabReach": 0.15,
   "holds": [
     {
-      "x": 134,
-      "y": 9.9
+      "x": 124,
+      "y": 9.2
     },
     {
-      "x": 137.5,
-      "y": 9.9
+      "x": 127.5,
+      "y": 9.2
     }
   ],
   "zones": [
@@ -119,52 +115,46 @@
       "x1": 54
     },
     {
-      "id": "step",
-      "name": "Step up",
-      "x0": 62,
-      "x1": 72
-    },
-    {
       "id": "wall",
       "name": "Warped wall",
-      "x0": 77,
-      "x1": 86
+      "x0": 67,
+      "x1": 76
     },
     {
       "id": "climb",
       "name": "Climb",
-      "x0": 98,
-      "x1": 108
+      "x0": 88,
+      "x1": 98
     },
     {
       "id": "plank",
       "name": "Plank bridge",
-      "x0": 101,
-      "x1": 116
+      "x0": 91,
+      "x1": 106
     },
     {
       "id": "lache",
       "name": "Lache pair",
-      "x0": 128,
-      "x1": 143
+      "x0": 118,
+      "x1": 133
     },
     {
       "id": "rope",
       "name": "Rope swing",
-      "x0": 152,
-      "x1": 165
+      "x0": 142,
+      "x1": 155
     },
     {
       "id": "trampoline",
       "name": "Trampoline",
-      "x0": 181,
-      "x1": 201
+      "x0": 171,
+      "x1": 191
     },
     {
       "id": "drop",
       "name": "Drop and roll",
-      "x0": 209,
-      "x1": 225
+      "x0": 199,
+      "x1": 215
     }
   ],
   "checkpoints": [
@@ -177,73 +167,111 @@
       "x": 34
     },
     {
-      "id": "step",
-      "x": 58
-    },
-    {
       "id": "wall",
-      "x": 72
+      "x": 62
     },
     {
       "id": "climb",
-      "x": 94
+      "x": 84
     },
     {
       "id": "plank",
-      "x": 100
+      "x": 90
     },
     {
       "id": "lache",
-      "x": 123
+      "x": 113
     },
     {
       "id": "rope",
-      "x": 147
+      "x": 137
     },
     {
       "id": "trampoline",
-      "x": 177
+      "x": 167
     },
     {
       "id": "drop",
-      "x": 205
+      "x": 195
     }
   ],
   "hazard": "lava",
   "plan": {
     "jumpXs": [
-      22.552,
-      130.268,
-      153.437,
-      181.505
+      22.5,
+      91.38,
+      120,
+      143.5,
+      171.5
     ],
     "releaseAfter": 58,
     "bouncePress": 8,
-    "vaultXs": [
-      41.335,
-      63.642
-    ],
-    "climbXs": [
-      100.505
-    ],
     "hands": true,
     "hangTicks": [
-      215
+      210
     ],
+    "vaultXs": [
+      42.16
+    ],
+    "climbHands": true,
     "airHands": [
       false
     ]
   },
+  "windows": [
+    {
+      "obstacle": "edge at 24 m",
+      "best": 22.5,
+      "lo": 21,
+      "hi": 24,
+      "widthMs": 408.1081081081081
+    },
+    {
+      "obstacle": "vault at step at 44 m",
+      "best": 42.16,
+      "lo": 41.32,
+      "hi": 42.96,
+      "widthMs": 224.32432432432438
+    },
+    {
+      "obstacle": "jump at step at 92 m",
+      "best": 91.38,
+      "lo": 90.8,
+      "hi": 91.94,
+      "widthMs": 156.75675675675683
+    },
+    {
+      "obstacle": "edge at 121 m (take-off)",
+      "best": 119.5,
+      "lo": 119.5,
+      "hi": 119.5,
+      "widthMs": 0
+    },
+    {
+      "obstacle": "edge at 145 m",
+      "best": 143.5,
+      "lo": 142,
+      "hi": 145,
+      "widthMs": 408.1081081081081
+    },
+    {
+      "obstacle": "edge at 173 m",
+      "best": 171.5,
+      "lo": 170,
+      "hi": 173,
+      "widthMs": 408.1081081081081
+    }
+  ],
   "routes": [
     {
       "name": "bar to bar",
-      "ticks": 4274,
+      "ticks": 4164,
       "bars": 2,
       "chosen": false
     },
     {
       "name": "skip the second bar",
-      "ticks": 4126,
+      "ticks": 4003,
       "bars": 1,
       "chosen": true
     }
@@ -254,87 +282,34 @@
       "skipped": [
         "Bar 2"
       ],
-      "how": "pump 1.81 s on the bar you hold, let go, and fly past bar 2",
-      "secondsSaved": 1.23,
-      "seconds": 34.38,
-      "pumpSeconds": 1.81,
+      "how": "pump 1.76 s on the bar you hold, let go, and fly past bar 2",
+      "secondsSaved": 1.34,
+      "seconds": 33.36,
+      "pumpSeconds": 1.76,
       "windowMs": null,
       "designed": false,
       "plan": {
         "jumpXs": [
           22.5,
-          130.2,
-          153.5,
-          181.48000000000002
+          91.38,
+          120,
+          143.5,
+          171.5
         ],
         "releaseAfter": 58,
         "bouncePress": 8,
         "hands": true,
         "hangTicks": [
-          216
+          210
         ],
         "vaultXs": [
-          41.5,
-          63.8
+          42.16
         ],
-        "climbXs": [
-          100.5
-        ],
+        "climbHands": true,
         "airHands": [
           false
         ]
       }
-    }
-  ],
-  "windows": [
-    {
-      "obstacle": "edge at 24 m",
-      "best": 22.5,
-      "lo": 22.2,
-      "hi": 23.9,
-      "widthMs": 232.43243243243234
-    },
-    {
-      "obstacle": "vault at step at 48 m",
-      "best": 41.5,
-      "lo": 39.6,
-      "hi": 42.9,
-      "widthMs": 448.64864864864825
-    },
-    {
-      "obstacle": "vault at step at 70 m",
-      "best": 63.8,
-      "lo": 61.9,
-      "hi": 64.9,
-      "widthMs": 408.10810810810904
-    },
-    {
-      "obstacle": "climb at step at 106 m",
-      "best": 100.5,
-      "lo": 97.5,
-      "hi": 101.9,
-      "widthMs": 597.297297297298
-    },
-    {
-      "obstacle": "edge at 161 m (take-off)",
-      "best": 130.2,
-      "lo": 129.5,
-      "hi": 130.9,
-      "widthMs": 191.89189189189264
-    },
-    {
-      "obstacle": "edge at 185 m",
-      "best": 153.5,
-      "lo": 153.5,
-      "hi": 154.9,
-      "widthMs": 191.89189189189264
-    },
-    {
-      "obstacle": "edge at 227 m",
-      "best": 181.48000000000002,
-      "lo": 178.68,
-      "hi": 182.88,
-      "widthMs": 570.2702702702686
     }
   ]
 }
