@@ -415,7 +415,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
   // the obstacle strip: one icon per obstacle; cleared ones dim, the rest glow gold in a wave that runs along the strip, the next one is biggest
   const strip = document.createElement('div');
   strip.id = 'strip';
-  strip.id = 'zonestrip'; strip.style.cssText = 'position:fixed;left:50%;top:92px;transform:translateX(-50%);display:flex;gap:10px;align-items:flex-end;pointer-events:none';
+  strip.style.cssText = 'position:fixed;left:50%;top:92px;transform:translateX(-50%);display:flex;gap:10px;align-items:flex-end;pointer-events:none';
   const sstyle = document.createElement('style');
   sstyle.textContent = `@keyframes ccwave{0%,100%{filter:drop-shadow(0 0 2px #e8b43a88);opacity:.72}50%{filter:drop-shadow(0 0 9px #ffd24a);opacity:1}}
     #strip .ob{display:grid;justify-items:center;gap:1px;font:600 11px system-ui,sans-serif;color:#7a5a00;transition:transform .3s,opacity .3s}
@@ -547,7 +547,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
   if (params.get('hud') === 'restart') { hudRow.append(restartChip); restartChip.style.pointerEvents = 'auto'; }
   // CC-163: on a phone-width screen the top-right buttons used to sit on the time line and the Restart chip: they move to a second row, and the rarely used ones (runner pick, edit, whole course, debug) step aside (their keys still work; Ideal run is on the fall panel too)
   const narrow = document.createElement('style');
-  narrow.textContent = '@media (max-width:700px){#hudrow>div{font-size:14px!important}#pickrunner,#coursebtns,#debugbtn,#idealbtn,#community{display:none!important}#dojobtn{top:52px!important;right:12px!important;font-size:13px!important;padding:5px 10px!important}#ghost-hud{left:12px!important;top:52px!important;transform:none!important}#cam{top:92px!important;right:12px!important}#zonestrip{top:160px!important}#keys{top:225px!important}}';
+  narrow.textContent = '@media (max-width:700px){#hudrow>div{font-size:14px!important}#pickrunner,#coursebtns,#debugbtn,#idealbtn,#community{display:none!important}#dojobtn{top:52px!important;right:12px!important;font-size:13px!important;padding:5px 10px!important}#ghost-hud{left:12px!important;top:52px!important;transform:none!important}#cam{top:92px!important;right:12px!important}#strip{top:160px!important}#keys{top:225px!important}}';
   document.head.append(narrow);
   const hudBox = hudOn(params) ? hudRow : hud;
   document.body.append(hudBox, msg, help, panel, hint, gaugeStack.el, dojoBtn, idealBtn, rowBtns, pick, camBtn, dbgBtn);
