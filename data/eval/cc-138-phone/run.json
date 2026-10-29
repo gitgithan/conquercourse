@@ -1,0 +1,8 @@
+{
+  "issue": "CC-138",
+  "check": "scripts/share-phone-check.mjs",
+  "machine": "vm3",
+  "device": "iPhone 13 emulation, 390x844, touch",
+  "result": "10 of 10 PASS",
+  "tests": "tests/share-phone.test.ts 4 of 4"
+}
