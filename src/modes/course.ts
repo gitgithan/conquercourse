@@ -17,7 +17,7 @@ import { DEFAULT_ROPE } from '../sim/rope';
 import { inputFor, searchIdealRun, workSeconds, xWindows, type Plan, type SearchResult, type Window } from '../sim/ideal';
 import { IdealPool } from '../sim/ideal-pool';
 import { createGhost } from '../ui/ghost';
-import { challengeWords, makeChallengeUrl, offersIdeal, openChallenge, secondsWords, shareOn } from '../share/challenge';
+import { challengeWords, courseTooBig, makeChallengeUrl, offersIdeal, openChallenge, secondsWords, shareOn } from '../share/challenge';
 import { CLIP_BAND, CLIP_H, CLIP_W, RUNNER_M, TICKS_PER_FRAME, clipCameraDistance, clipCrop, clipFits, clipFrames, createClipEncoder, drawClipFrame } from '../share/clip';
 import { PHONE_WORDS, browserPointing, phoneMode } from '../share/phone';
 import { clipCard, shareButtons, showBanner } from '../share/share-ui';
@@ -1199,6 +1199,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
   const challengeParam = shareOn(params) && !botMode ? params.get('challenge') : null;
   if (challengeParam) {
     void openChallenge(course, challengeParam).then((c) => {
+      if (document.documentElement.dataset.madeRefused) { showBanner(challengeWords('too-big'), [], 20000); return; } // the course in the link could not be opened (CC-136)
       if (!c.ok) {
         const offer = offersIdeal(c.why) && ghostCtl ? [{ label: 'Chase the ideal run instead', go: () => { ghostCtl?.chaseIdeal(); document.getElementById('challenge-banner')?.remove(); } }] : [];
         showBanner(challengeWords(c.why), offer, 20000);
@@ -1339,7 +1340,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
         if (ghostCtl && !botMode && !demo && !idealWhole) body.querySelector('#report-actions')?.prepend(...ghostCtl.reportActions(() => { panel.style.display = 'none'; retryX = course.startX; restart(course.startX); }));
         if (shareOn(params) && !botMode && !demo && !idealWhole && !params.get('mode')) {
           const mine = ghostCtl?.myRun() ?? null, ticks = world.runner.tick;
-          if (mine) body.querySelector('#report-actions')?.append(...shareButtons({ link: (nick) => makeChallengeUrl(location.origin, location.search, course, mine, nick), clip: clipFits(ticks) ? () => void makeClip(mine, ticks) : undefined }));
+          if (mine) body.querySelector('#report-actions')?.append(...shareButtons({ link: (nick) => makeChallengeUrl(location.origin, location.search, course, mine, nick), courseTooBig: () => courseTooBig(location.search, course), clip: clipFits(ticks) ? () => void makeClip(mine, ticks) : undefined }));
         }
         setMusicScreen('report');
         panel.append(body); (body.querySelector('#report-again') as HTMLElement | null)?.focus({ preventScroll: true });
