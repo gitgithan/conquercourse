@@ -1,6 +1,6 @@
 import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
-import { MOTION_TABLE, ROLL_GET_UP_S, ROLL_TICKS, moveProgress, motionGaps, rollLookFrom } from '../src/motion/motion-table';
+import { MOTION_TABLE, ROLL_GET_UP_S, ROLL_TICKS, capturedClipsFrom, moveProgress, motionGaps, rollLookFrom } from '../src/motion/motion-table';
 import { parseClip } from '../src/motion/clip';
 import { chooseClip, type ActorState } from '../src/motion/actor-pose';
 import { actorStateFor } from '../src/motion/actor-state';
@@ -34,6 +34,13 @@ describe('motion table (CC-64)', () => {
     expect(rollLookFrom('?roll=crouch')).toBe('crouch');
     expect(rollLookFrom('?roll=clip')).toBe('clip');
     expect(rollLookFrom('?roll=banana')).toBe('auto');
+  });
+  it('the captured vault and climb clips play by default, and ?clips=0 shows the built poses (CC-144)', () => {
+    expect(capturedClipsFrom('')).toBe(true);
+    expect(capturedClipsFrom('?course=/assets/demo/training.course.json')).toBe(true);
+    expect(capturedClipsFrom('?clips=1')).toBe(true);
+    expect(capturedClipsFrom('?clips=0')).toBe(false);
+    expect(readFileSync('src/render/actor.ts', 'utf8')).toMatch(/capturedClipsFrom\(location\.search\)/); // the actor reads the switch from the address
   });
   it('every move has a clip or a built pose, and a move with neither would be listed', () => {
     expect(motionGaps()).toEqual([]); // CC-77: seated, sling, hurt and the giant swing have built poses
