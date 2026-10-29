@@ -3,7 +3,7 @@
   "model": "spark",
   "kind": "outline",
   "status": 200,
-  "seconds": 8.0,
+  "seconds": 8,
   "prompt_tokens": 806,
   "completion_tokens": 388,
   "raw": "{\"whole_object_in_frame\":\"no\",\"reason\":\"The railing is cut off by the left and top edges of the photo.\"}",

@@ -3,7 +3,7 @@
   "model": "spark",
   "kind": "plain",
   "status": 200,
-  "seconds": 4.0,
+  "seconds": 4,
   "prompt_tokens": 606,
   "completion_tokens": 379,
   "raw": "{\"verdict\":\"ok\",\"reason\":\"Single solid bench fully visible with intact compact shape.\"}",
