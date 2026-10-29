@@ -7,7 +7,7 @@
   "settings": {
     "mask_grow_px": 0,
     "colour_k": 4,
-    "pad_fraction": 0.0,
+    "pad_fraction": 0,
     "texture": true
   },
   "photos": [
@@ -77,7 +77,7 @@
     {
       "photo": "railing-red",
       "mask_seconds": 0.5,
-      "lift_seconds": 8.0,
+      "lift_seconds": 8,
       "wall_seconds": 14.1,
       "mask": {
         "how": "text",
@@ -103,7 +103,7 @@
       "mask": {
         "how": "box-prompt",
         "score": 0.984375,
-        "iou_with_box": 0.0,
+        "iou_with_box": 0,
         "candidates": 0,
         "pixels": 336387
       },
