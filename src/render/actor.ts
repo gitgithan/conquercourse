@@ -4,7 +4,7 @@
 import { Box3, Group, Vector3, type Object3D, type Scene } from 'three/webgpu';
 import { clipDuration, loadClip, parseClip, sampleClip, type Clip, type Phase } from '../motion/clip';
 import { vaultPose, type VaultRig } from '../motion/vault-pose';
-import { MOTION_TABLE, moveProgress, rollLookFrom, type RollLook } from '../motion/motion-table';
+import { MOTION_TABLE, capturedClipsFrom, moveProgress, rollLookFrom, type RollLook } from '../motion/motion-table';
 import { clipToWorld } from '../motion/pose';
 import { BAR_AHEAD, BAR_HEIGHT, SEAT_HIPS, giantSwingLegs, hurtPhase, seatThighPitch, smooth } from '../motion/poses';
 import { comAboveHips, legLength } from '../motion/timeline';
@@ -64,8 +64,8 @@ export async function createRookieActor(scene: Scene, opts: { rookie: RookieId; 
     const r = await fetch('/assets/motion/hurt.json');
     if (r.ok) hurtClip = parseClip(await r.json());
   } catch { /* no hurt clip yet */ }
-  // the captured climb and vault clips are off by default (the contact-point vault and the hang-to-stand climb looked right in play); ?clips=1 plays them
-  const capturedClips = typeof location !== 'undefined' && new URLSearchParams(location.search).get('clips') === '1';
+  // the captured climb and vault clips play by default; ?clips=0 shows the bone-built poses (the contact-point vault and the hang-to-stand climb)
+  const capturedClips = typeof location === 'undefined' || capturedClipsFrom(location.search);
   // the captured climb and vault clips are optional too: without one, the climb is the hang-to-stand blend and the vault the contact-point pose
   let climbClip: Clip | null = null;
   try {
