@@ -47,3 +47,33 @@ describe('a missed warped wall only slides back', () => {
     expect(ev).toContain('wall-grab');
   });
 });
+
+// CC-194: E counts only in the last moment of the climb, and the hint opens just before it, when the hands are near the lip.
+import { WALL_HINT_TICKS, WALL_HOLD_TICKS } from '../src/sim/world';
+describe('the wall E window is at the lip', () => {
+  const run = (hold: (idx: number, gt: number) => boolean) => {
+    let w = newWorld(base, 0);
+    const ev: string[] = [];
+    for (let i = 0; i < 120 * 20; i++) {
+      const h = w.mode === 'wall' && w.wall!.result.grabTick !== null && hold(w.wall!.index, w.wall!.result.grabTick);
+      w = stepWorld(w, { ...NO_INPUT, run: true, squat: true, handL: h, handR: h }, base);
+      ev.push(...w.events.map((e) => e.type));
+      expect(w.outcome === 'running' || w.outcome === 'cleared').toBe(true); // an early press never ends the run
+      if (ev.includes('wall-grab') || ev.includes('wall-slide')) break;
+    }
+    return ev;
+  };
+  it('the window is a fifth of a second or less and the hint opens a little before it', () => {
+    expect(WALL_HOLD_TICKS).toBeLessThanOrEqual(24);
+    expect(WALL_HINT_TICKS).toBeGreaterThan(WALL_HOLD_TICKS);
+    expect(WALL_HINT_TICKS).toBeLessThanOrEqual(WALL_HOLD_TICKS + 12);
+  });
+  it('pressing E when the window opens grabs the top', () => expect(run((i, gt) => i >= gt - WALL_HOLD_TICKS)).toContain('wall-grab'));
+  it('pressing E at the natural moment, a few ticks into the window, grabs the top', () => expect(run((i, gt) => i >= gt - WALL_HOLD_TICKS + 6)).toContain('wall-grab'));
+  it('a tap that ends before the window does nothing: the body slides back and the run goes on', () => {
+    const ev = run((i, gt) => i < gt - WALL_HOLD_TICKS - 2);
+    expect(ev).toContain('wall-slide');
+    expect(ev).not.toContain('wall-grab');
+  });
+  it('E held from far below the lip still grabs (holding is not a mistake)', () => expect(run(() => true)).toContain('wall-grab'));
+});
