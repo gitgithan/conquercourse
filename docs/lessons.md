@@ -102,3 +102,15 @@
 - **A first-time player should clear a short course within 3 minutes.**
 - **After a miss, one nudge (the one knob that matters, as buttons) beats a table of numbers.**
 - **Hide obstacles too hard for the demo;** keep them documented, not deleted.
+
+## Mobile work stopped (2026-10-29)
+
+- Decision: the product owner stopped all testing and development for phones.
+- Reason: the game needs many keys (E, V, X, C, Space, aim) and touch has too few controls.
+- Reason: the hackathon timeline has no room for a second input design.
+- The decision applies from commit `a6ebcb3` on `main` ("Obstacle strip keeps its id so the gold icons come back", Fixes CC-171), the last commit before the decision was written down.
+- The last phone-width work before it: `3b28471` (CC-163, top-right buttons step below the time line) and `7367907` (CC-139, touch controls).
+- That code stays in the game; nobody removes it and nobody tests it again.
+- Phone behaviour that was already built stays: a challenge link opened on a phone says to play on a computer (CC-138, `35c0572`).
+- Rule for agents: no 390 px screenshots, no narrow-screen fixes, no touch buttons in any issue.
+
