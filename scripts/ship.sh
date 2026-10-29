@@ -20,7 +20,11 @@ if ! gh pr view "$branch" >/dev/null 2>&1; then
   gh pr create --base main --title "$title ($issue)" --body "$word $issue." >/dev/null
 fi
 gh pr merge "$branch" --rebase --delete-branch
-# main may be checked out in another worktree (the owner's folder): then just move to the new origin/main
+# Only the main folder keeps `main` checked out; a ship worktree detaches, so it never blocks `git checkout main` in the owner's folder
 git fetch -q origin main
-git switch -q main 2>/dev/null && git pull -q --ff-only origin main || git switch -q --detach origin/main
+if [ "$(git rev-parse --git-dir)" = "$(git rev-parse --git-common-dir)" ]; then
+  git switch -q main 2>/dev/null && git pull -q --ff-only origin main || git switch -q --detach origin/main
+else
+  git switch -q --detach origin/main
+fi
 echo "shipped $issue ($word) from $branch"
