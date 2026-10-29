@@ -1,7 +1,7 @@
 // Who gets the first-visit tour (CC-100): the rules in one pure place, so a unit test can walk every case.
 // A first visit gets the tour; a returning player gets their last course; automation and explicit links keep today's behaviour.
 export const ONBOARDING_ON = true; // the build switch; ?onboarding=0 turns it off for one visit
-export const FIRST_COURSE_ID = ''; // '' = the stock course; set to the Training course path (for example '/assets/demo/training.course.json') when it lands
+export const FIRST_COURSE_ID = '/assets/demo/training.course.json'; // the Training course (CC-97); '' would mean the stock course
 export const TOUR_STEP_S = 4.5; // each tour step moves on by itself after this long (6 steps: 27 s)
 
 export const TOUR_DONE = 'cc.tour.done';
@@ -48,7 +48,8 @@ export function startRedirect(o: { search: string; store: Store; automated: bool
   for (const k of params.keys()) if (!QUIET.has(k)) return null; // an explicit link stays as it is
   if (isReturning(o.store)) {
     const last = o.store.get(LAST_COURSE);
-    return last && SAFE_COURSE.test(last) ? `?course=${last}&welcome=0` : null;
+    if (last && SAFE_COURSE.test(last)) return `?course=${last}&welcome=0`;
+    return FIRST_COURSE_ID && SAFE_COURSE.test(FIRST_COURSE_ID) ? `?course=${FIRST_COURSE_ID}&welcome=0` : null; // a returning player with no last course starts on the Training course too
   }
   return FIRST_COURSE_ID && SAFE_COURSE.test(FIRST_COURSE_ID) ? `?course=${FIRST_COURSE_ID}&tour=1` : null;
 }
