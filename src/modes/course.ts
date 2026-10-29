@@ -522,7 +522,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
   rememberCourse(browserStore, params); // CC-100: a returning player comes back to their last course
   const tour = tourDecision({ params, store: browserStore, automated: navigator.webdriver, mode, resume: !!resume }); // CC-100: a first visit gets the short tour instead of the big chooser
   let onboarding: Pick<Onboarding, 'onCleared' | 'onFall'> = { onCleared() {}, onFall() {} };
-  const showWorldWelcome = !resume && !worldWelcomeSeen && params.get('welcome') !== '0' && (!mode || mode === 'course') && !params.has('course') && !params.has('generate') && !params.has('coaster') && tour !== 'tour';
+  const showWorldWelcome = !resume && !worldWelcomeSeen && params.get('welcome') !== '0' && (!mode || mode === 'course') && !params.has('course') && !params.has('challenge') && !params.has('generate') && !params.has('coaster') && tour !== 'tour';
   if (showWorldWelcome) { document.body.append(welcome); welcomeGallery.focusStart(); }
   if (!showWorldWelcome) rememberWorldWelcome(); // direct course starts (including Community Play) count as the first play
   if (course.track) {
