@@ -2128,53 +2128,37 @@
     ]
   },
   "lane": {
-    "shrink": 0.556,
-    "lengthM": 96.9,
+    "shrink": 0.333,
+    "lengthM": 21.9,
     "levelM": 6,
-    "turnDeg": 140,
-    "sidewaysM": 1.8,
-    "steps": 8,
+    "turnDeg": 30,
+    "sidewaysM": -27,
+    "steps": 0,
     "faces": 0,
-    "gaps": 4,
+    "gaps": 1,
     "curves": 0,
-    "maxDropM": 0.3,
+    "maxDropM": 0.2,
     "cleared": true,
-    "secondsTaken": 69.7,
+    "secondsTaken": 94.3,
     "line": [
-      98.3,
-      -62.3,
-      -35.2,
-      49.8
+      47.3,
+      -73.6,
+      104.2,
+      -40.7
     ],
-    "widthM": 3.6,
+    "widthM": 6,
     "roles": [
       {
+        "footprint": 0,
+        "role": "gap-edge"
+      },
+      {
         "footprint": 2,
-        "role": "deck"
+        "role": "gap-edge"
       },
       {
         "footprint": 1,
-        "role": "step"
-      },
-      {
-        "footprint": 9,
-        "role": "gap-edge"
-      },
-      {
-        "footprint": 10,
-        "role": "gap-edge"
-      },
-      {
-        "footprint": 26,
-        "role": "gap-edge"
-      },
-      {
-        "footprint": 3,
-        "role": "gap-edge"
-      },
-      {
-        "footprint": 19,
-        "role": "gap-edge"
+        "role": "deck"
       }
     ]
   }
