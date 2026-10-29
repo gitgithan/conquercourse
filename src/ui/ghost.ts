@@ -34,6 +34,7 @@ export interface Ghost {
   myClip(): { log: InputLog; from: number } | null; // the keys of this run from wherever it began, for a clip of any try (CC-157)
   readonly mode: GhostMode;
   reportLine(ticks: number): HTMLElement | null; // one plain line for the end report
+  reportPath(): { x: number; y: number }[] | null; // the selected ghost's path for the end-report picture, every 4 ticks (CC-173); null when no ghost is on or this run began partway
   reportActions(chase: () => void): HTMLElement[]; // buttons for the end report
 }
 
@@ -133,6 +134,14 @@ export function createGhost(o: GhostOpts): Ghost {
       }
       gap.textContent = gapWords(gapSeconds(track, f.tick, f.x)); gap.style.display = 'inline';
       mark(o.zoneIndexAt(gx));
+    },
+    reportPath() {
+      const t = shown();
+      if (!t || !full) return null;
+      const out: { x: number; y: number }[] = [];
+      for (let i = 0; i <= t.ticks; i += 4) out.push({ x: t.xs[i], y: t.ys[i] });
+      out.push({ x: t.xs[t.ticks], y: t.ys[t.ticks] });
+      return out;
     },
     reportLine(ticks) {
       const t = shown();
