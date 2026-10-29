@@ -46,6 +46,7 @@ export interface WorldState {
   recoil?: RecoilState; // the launcher clipped on at a recoil pad: loads left, shots fired, balls in flight (src/sim/recoil.ts)
   cart: Cart | null; // riding the rails of a track (src/sim/cart.ts)
   plank?: PlankState | null; // walking on a plank bridge (src/sim/beam.ts)
+  stood?: number[]; // platforms stood on so far (kept only on a course whose platforms have a lane gate; CC-228)
   broken?: number[]; // planks that have broken (they are gone)
   band: Band | null; // clipped on to the elastic band (src/sim/band.ts)
   energy: number; // 1 = fresh; each move spends some (src/sim/energy.ts)
@@ -84,7 +85,28 @@ export const droneParams = (c: CourseData): DroneParams => ({ ...DEFAULT_DRONE, 
 const wallParams = (c: CourseData): WallParams => ({ ...DEFAULT_WALL, ...(c.wall ?? {}) });
 const ropeParams = (c: CourseData): RopeParams => ({ ...DEFAULT_ROPE, ...(c.rope ?? {}) });
 
+// CC-228: a platform with a `gate` is air until the runner has stood on the gate platform; nothing here runs on a course with no gates (old courses and their hashes are untouched).
+const gatedCache = new WeakMap<CourseData, Map<string, CourseData>>();
+const hasGates = (c: CourseData): boolean => c.terrain.platforms.some((q) => q.gate !== undefined);
+function openCourse(course: CourseData, stood: number[]): CourseData {
+  const key = stood.join(',');
+  let m = gatedCache.get(course); if (!m) gatedCache.set(course, (m = new Map()));
+  let c = m.get(key);
+  if (!c) { c = { ...course, terrain: { ...course.terrain, platforms: course.terrain.platforms.filter((q) => q.gate === undefined || stood.includes(q.gate)) } }; m.set(key, c); }
+  return c;
+}
 export function stepWorld(w: WorldState, input: RunnerInput, course: CourseData, p: RunnerParams = DEFAULT_PARAMS): WorldState {
+  if (!hasGates(course)) return stepWorldPlain(w, input, course, p);
+  const stood = w.stood ?? [];
+  const n = stepWorldPlain(w, input, openCourse(course, stood), p);
+  if (n.runner.grounded) {
+    const on = standingOn(course.terrain, n.runner.x);
+    const i = on ? course.terrain.platforms.indexOf(on) : -1;
+    if (i >= 0 && !stood.includes(i)) return { ...n, stood: [...stood, i].sort((a, b) => a - b) };
+  }
+  return { ...n, stood };
+}
+function stepWorldPlain(w: WorldState, input: RunnerInput, course: CourseData, p: RunnerParams = DEFAULT_PARAMS): WorldState {
   if (w.outcome !== 'running') return { ...w, runner: { ...w.runner, tick: w.runner.tick + 1 } };
   // the roll counts only if X was pressed inside the window before touchdown (an earlier press is ignored: no buffer); a course can switch the roll off
   const armed = !course.off?.includes('roll') && (w.rollArmed || (!!input.roll && !w.runner.grounded && w.mode === 'run' && rollWindowOpen(w, course)));
