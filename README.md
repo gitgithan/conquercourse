@@ -78,6 +78,42 @@ Live: https://conquercourse.pages.dev/
 - Tests: [docs/testing.md](docs/testing.md).
 - Features with no diagram of their own: tag, ghost, gauges, touch controls, drone, debug view; each links to its doc instead.
 
+## Input actions by obstacle
+- Read from `src/modes/course.ts` (key card and key handler), `src/share/touch.ts` (button names) and the constants in `src/sim`.
+- Touch buttons press the same keys: ◀ ▶ run, Jump (Space), Bend (↓), Hold (E), Vault (V), Roll (X), Restart (R); on a course with a cannon also Aim ▲ (↑) and Fire (K).
+- A key pressed in a text box does nothing.
+
+| Obstacle | Keys | Touch buttons | What happens | Explained in |
+|---|---|---|---|---|
+| Flat run | ← → or A D, held | ◀ ▶ | Speed builds up to 9 m/s and drops when you let go | [world-slice](docs/world-slice.md), [SPEC](docs/spec/SPEC.md) |
+| Step or curb | Nothing up to 0.3 m; Space above that | Jump | The runner steps onto a curb up to 0.3 m without jumping | [world-slice](docs/world-slice.md) |
+| Gap (water below) | Space at the edge, → held | Jump, ▶ | A ballistic jump; touching the water ends the run | [pipelines 7](docs/meta-ai-pipelines.md#7-not-ai-but-the-core-of-the-game) |
+| Hard drop | ↓ or S held, or X as you land | Bend, Roll | Bending softens the landing; Roll must be held in the last 0.15 s and about a metre up | [world-slice](docs/world-slice.md#roll-and-survivable-drops-cc-56) |
+| Vault box (top 0.35 to 1.3 m) | V while running at 3 m/s or more | Vault | A hand on top, over and on, keeping 92 % of the speed; a V up to 0.2 s early counts | [world-slice](docs/world-slice.md#the-speed-vault-cc-68) |
+| Wall to climb (edge 1.0 to 2.83 m) | E at the wall | Hold | Grab the edge, hang 0.25 s, pull up, stand at 2 m/s; the run speed is lost and the cost is two jumps of energy | [world-slice](docs/world-slice.md#climb-cc-76) |
+| Bar in the air (hand reach 0.6 m) | Hold E to grab, ← → to pump, let go of E to release | Hold, ◀ ▶ | A pendulum swing; where you let go sets the flight | [world-slice](docs/world-slice.md#the-lache-swing-pivot-at-the-bar-full-circles-a-real-release-cc-58) |
+| Lache bars (a pair) | Hold E, pump, let go, hold E again at the second bar | Hold, ◀ ▶ | Regrab inside an ellipse 1.2 m across and 0.6 m high; the ideal run proves a pair | [world-slice](docs/world-slice.md#holds-and-the-lache-pair-cc-44-2026-10-28) |
+| Rope | Reach it; Space lets go | Jump | The catch is automatic where the hands meet the rope (0.35 m, 0.5 m near the end); a pendulum follows | [pipelines 7](docs/meta-ai-pipelines.md#7-not-ai-but-the-core-of-the-game) |
+| Trampoline | Space at the bottom of the bounce | Jump | A press within about 0.05 s of the deepest point adds 2 m/s; it fades over 0.11 s | [world-slice](docs/world-slice.md) |
+| Ramp or hill | → held; Space at the top | ▶, Jump | Runs on the curved ground; a coaster track adds ↓ or S to brake | [world-slice](docs/world-slice.md#running-and-jumping-on-curved-ground-fixed-2026-10-27) |
+| Cannon (recoil) | K to fire; ↑ ↓ or W to tilt while loaded | Fire, Aim ▲ | The ball goes back and you go forward; dots show the landing | [world-slice](docs/world-slice.md#recoil-momentum-is-conserved-cc-66) |
+| Trebuchet | → held, then Space, ↑ or W at the hint | ▶, Jump | Pull the pin, then let the rider go when the hint says so | [world-slice](docs/world-slice.md#the-trebuchet-cc-62) |
+| Elastic band | ← held, then → held | ◀, ▶ | Stretch it, turn, and it throws you | [world-slice](docs/world-slice.md#elastic-band-cc-65) |
+| Drone | E on the pad to board, ← → lean, ↑ ↓ climb or descend, release E to step off | Hold, ◀ ▶ | The drone flies where it leans; a landing above 2.5 m/s down or leaning over 0.35 rad crashes | [world-slice](docs/world-slice.md#the-drone-ferry-cc-87), [drone](docs/drone.md) |
+
+### Not verified, and rows the code does not have
+- **Hold-E grab distance: tolerance being added.**
+- The rows above are for `origin/main` today: bars grab within 0.6 m and the climb reaches 0.6 m in front of the body, with no extra tolerance.
+- Another agent is adding one; rewrite those two rows when it lands.
+- Keys A, D, S, W are read in the input line (`course.ts`); I did not run each one in a browser.
+- The touch pad has no Up or Down button except Bend (↓) and, on a cannon course, Aim ▲ (↑).
+- Whether the drone's climb (↑) can be done by touch is not shown by the code I read.
+- The vault timing and the rope release (Space) were read from the key card text and constants, not traced in `src/sim/world.ts`.
+- E is read as a held key (`handL` and `handR`), so letting go of E releases a bar.
+- The warped wall (a curved run-up) is in `src/sim/wall.ts` and the Dojo; I found no course key for it, so it has no row.
+- "Low bar or shimmy", "water as a swim" and "ramp keys" were asked for; the code has no shimmy, and water only ends the run, so they are not rows.
+- Trampoline and band numbers are from `src/sim` constants, not measured in a run.
+
 ## What to playtest
 - Tick these in a browser at http://localhost:5173 after `git pull --ff-only`.
 - Say what looked wrong in one line; a screenshot helps.
