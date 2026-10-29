@@ -26,6 +26,9 @@ try {
   checks.noGuessOrLockOrRun = (await page.$$('#guess, #newguess, #scrub, #run')).length === 0;
   await set('knob-speed', 5); // the saying is earned by moving a slider
   checks.sayingShownAtOnce = await has('already decided');
+  checks.ruleIsCaptionOnTheGraph = (await page.textContent('#rule')).includes('Rule of thumb:') && (await page.$$('canvas')).length === 1; // CC-148: one graph, the rule is its caption
+  checks.noFormulaBeforeTheLastStep = !(await has('2 × speed × push ÷ g'));
+  checks.fourSteps = (await page.$$('.path .node')).length === 4;
   for (const [speed, jump] of [[3, 4.5], [6, 4.5], [9, 4.5]]) {
     await set('knob-speed', speed); await set('knob-jump', jump);
     checks.liveResult = (checks.liveResult ?? true) && (await page.textContent('#out')).includes(`${((2 * speed * jump) / 9.81).toFixed(1)} m`);
@@ -38,22 +41,29 @@ try {
   await page.screenshot({ path: 'test-results/dojo/3-shape.png' });
   checks.shapeSaysDirect = (await page.textContent('#shape')).includes('twice the speed flies twice as far');
   await page.click('#next');
-  await page.click('#next');
+  checks.oneGraphAtTheFormula = (await page.$$('canvas')).length === 1 && (await page.$eval('canvas', (c) => c.height)) > 440; // the formula strip is drawn over the same graph
   checks.formulaShown = await has('2 × speed × push ÷ g');
   await set('knob-speed', 5); await set('knob-jump', 4);
   checks.formulaLive = (await page.textContent('#answer')).includes(`${((2 * 5 * 4) / 9.81).toFixed(2)} m`);
   await set('knob-speed', 10);
   checks.formulaLive2 = (await page.textContent('#answer')).includes(`${((2 * 10 * 4) / 9.81).toFixed(2)} m`) && (await page.textContent('#working')).includes('10.0');
   await page.screenshot({ path: 'test-results/dojo/4-formula.png' });
-  await page.click('#next');
   checks.appliedToGap = (await page.textContent('#apply')).includes('Gap 1: 4.5 m wide');
   await page.screenshot({ path: 'test-results/dojo/5-course.png' });
   checks.backLink = (await page.$$('a.btn')).length >= 1;
   const box = await page.$eval('#back', (e) => { const r = e.getBoundingClientRect(); return { right: innerWidth - r.right, top: r.top, w: r.width }; });
   checks.backIsTopRight = box.top < 60 && box.right < 80 && box.w > 150;
+  checks.hintShown = (await page.textContent('#thint')).includes('T: back to courses');
+  checks.noCoursesPill = await page.$eval('#courses-btn', (e) => getComputedStyle(e).display === 'none').catch(() => true);
   await page.keyboard.press('KeyT');
+  await page.waitForSelector('#world-gallery .wg-card', { timeout: 20000 });
+  checks.tOpensThePicker = true;
+  await page.keyboard.press('Escape'); await page.waitForTimeout(300);
+  checks.escClosesIt = (await page.$('#world-gallery')) === null;
+  await page.keyboard.press('KeyT'); await page.waitForSelector('#world-gallery .wg-card');
+  await page.click('#world-gallery .wg-card[data-value="/assets/demo/band.course.json"]');
   await page.waitForFunction(() => !document.querySelector('.dojo'), null, { timeout: 60000 });
-  checks.tClosesDojo = true;
+  checks.pickingACourseLeavesTheDojo = true;
   console.log(checks, 'errors:', errors);
   await browser.close();
   process.exit(Object.values(checks).every(Boolean) && !errors.length ? 0 : 1);

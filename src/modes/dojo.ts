@@ -3,6 +3,7 @@ import { EXPERIMENTS, GAP_WIDTH, classify, defaults, sweep, type Context, type E
 import { LESSONS } from './lessons';
 import { diagram } from './diagrams';
 import { DOJO_V2_CSS } from './dojo-style';
+import { currentWorld, mountWorldGallery } from '../ui/world-picker';
 import defaultCourse from '../course/default-course.json';
 import type { CourseData } from '../course/course';
 import { courseFacts } from '../course/facts';
@@ -11,7 +12,8 @@ import { GRAVITY } from '../sim/units';
 
 // The Dojo: a guided lesson per obstacle. Why it matters, what to try, the shape of the relationship, a rule of
 // thumb, the exact formula (earned, last), and what it means on the Course. Formulas appear only here.
-const STEPS = ['Why it matters', 'Try it', 'The shape', 'A rule of thumb', 'The exact formula', 'On the Course'];
+const STEPS = ['Why it matters', 'Try it', 'The shape', 'A rule of thumb', 'The exact formula', 'On the Course']; // ?dojo=old
+const STEPS_V3 = ['Why it matters', 'Try it', 'The shape', 'The exact formula']; // CC-148: one graph, the rule of thumb is a caption on it, the formula is drawn over it last
 
 export function startDojo(host: HTMLElement): { backend: 'webgl2' } {
   const q = new URLSearchParams(location.search);
@@ -52,14 +54,17 @@ export function startDojo(host: HTMLElement): { backend: 'webgl2' } {
 
   let exp: Experiment = EXPERIMENTS.find((e) => e.id === q.get('ex')) ?? EXPERIMENTS[0];
   let values = defaults(exp, ctx);
+  const steps = legacy ? STEPS : STEPS_V3;
   let step = 0;
+  const key = () => steps[step];
   let diagramKind: 'real' | 'principle' = 'real';
 
   // a saying is earned by trying: it shows once a slider has moved in that lesson, or the lesson has moved past "Try it" (kept in this browser)
   const earned = new Set<string>();
   try { for (const id of JSON.parse(localStorage.getItem('cc.dojo.earned') ?? '[]') as string[]) earned.add(id); } catch { /* none yet */ }
   let paintSaying: () => void = () => {};
-  const earn = () => { if (earned.has(exp.id)) return; earned.add(exp.id); try { localStorage.setItem('cc.dojo.earned', JSON.stringify([...earned])); } catch { /* not saved */ } paintSaying(); };
+  let paintRule: () => void = () => {};
+  const earn = () => { if (earned.has(exp.id)) return; earned.add(exp.id); try { localStorage.setItem('cc.dojo.earned', JSON.stringify([...earned])); } catch { /* not saved */ } paintSaying(); paintRule(); };
   let refresh: () => void = () => {}; // redraws whatever the current step shows when a slider moves
   const el = <T extends HTMLElement>(tag: string, parent: HTMLElement, props: Partial<T> & { text?: string } = {}): T => {
     const e = document.createElement(tag) as T;
@@ -86,8 +91,8 @@ export function startDojo(host: HTMLElement): { backend: 'webgl2' } {
     refresh = () => {};
     const head = el('div', root, { className: legacy ? 'head' : 'head bar' });
     if (legacy) el('h1', head, { text: 'The Dojo' });
-    else { const brand = el('div', head, { className: 'brand' }); el('span', brand, { className: 'kicker', text: 'Train slow. Run fast.' }); el('h1', brand, { text: 'The Dojo' }); }
-    const back = el<HTMLAnchorElement>('a', head, { text: 'Back to the Course (T)', href: returnToCourse, className: 'btn go' });
+    else { const brand = el('div', head, { className: 'brand' }); el('span', brand, { className: 'kicker', text: 'Train slow. Run fast.' }); el('h1', brand, { text: 'The Dojo' }); el('span', brand, { className: 'hint', id: 'thint', text: 'T: back to courses' }); }
+    const back = el<HTMLAnchorElement>('a', head, { text: legacy ? 'Back to the Course (T)' : 'Back to the Course', href: returnToCourse, className: 'btn go' });
     back.id = 'back';
     if (legacy) back.style.cssText = 'position:fixed;top:12px;right:16px;z-index:30;font-size:18px;padding:10px 18px;box-shadow:0 2px 10px #0003'; // always in the same corner, easy to find
     if (fromCourse && (ctx.width || ctx.wallHeight || ctx.ropeLength)) {
@@ -102,7 +107,7 @@ export function startDojo(host: HTMLElement): { backend: 'webgl2' } {
       if (!legacy) {
         const at = e === exp ? step : states[e.id]?.step ?? 0;
         el('span', b, { text: e.name });
-        el('small', b, { text: at === 0 ? 'Start here' : `Step ${at + 1} of ${STEPS.length}` });
+        el('small', b, { text: at === 0 ? 'Start here' : `Step ${at + 1} of ${steps.length}` });
       }
       b.setAttribute('aria-pressed', String(e === exp));
       b.onclick = () => choose(e);
@@ -121,19 +126,29 @@ export function startDojo(host: HTMLElement): { backend: 'webgl2' } {
       paintSaying();
     }
     const stepsEl = el('div', root, { className: legacy ? 'steps' : 'steps path' });
-    STEPS.forEach((s, i) => {
+    steps.forEach((s, i) => {
       const cls = (legacy ? 'step' : 'node') + (i === step ? ' on' : i < step ? ' done' : '');
       const b = el<HTMLButtonElement>('button', stepsEl, legacy ? { className: cls, text: `${i + 1}. ${s}` } : { className: cls });
       if (!legacy) { el('span', b, { className: 'dot', text: String(i + 1) }); el('span', b, { className: 't', text: s }); b.setAttribute('aria-label', `Step ${i + 1}: ${s}`); }
       b.onclick = () => { step = i; render(); };
     });
-    if (!legacy && step >= 2) earn();
+    if (!legacy && step >= 2) earn(); // reaching the shape counts as having tried it
+    const L = LESSONS[exp.id];
+    const stepKey = key();
     const row = el('div', root, { className: 'row' });
     let stage: HTMLElement = row;
     if (!legacy) stage = el('div', row, { className: 'stage' });
-    const canvas = el<HTMLCanvasElement>('canvas', stage, innerWidth < 640 && !legacy ? { width: 380, height: 340 } : { width: 760, height: 440 }); // a phone gets a smaller drawing, so the labels stay readable
+    const phoneSize = innerWidth < 640 && !legacy; // a phone gets a smaller drawing, so the labels stay readable
+    const band = !legacy && stepKey === 'The exact formula' ? 76 : 0; // the strip over the graph that carries the formula
+    const canvas = el<HTMLCanvasElement>('canvas', stage, phoneSize ? { width: 380, height: 340 + band } : { width: 760, height: 440 + band });
+    canvas.dataset.band = String(band);
+    if (!legacy && (stepKey === 'Try it' || stepKey === 'The exact formula')) {
+      const cap = el('div', stage, { className: 'caption', id: 'rule' });
+      paintRule = () => { cap.innerHTML = ''; if (earned.has(exp.id)) { el('b', cap, { text: 'Rule of thumb: ' }); cap.append(L.rule); cap.classList.remove('locked'); } else { cap.textContent = 'Move a slider to find this lesson\'s rule of thumb.'; cap.classList.add('locked'); } };
+      paintRule();
+    } else paintRule = () => {};
     const panel = el('div', row, { className: 'panel' });
-    if (step === 0) {
+    if (stepKey === 'Why it matters') {
       // step 1 uses the plot's space for a picture: the real obstacle with its forces, or the idea behind it
       canvas.style.display = 'none';
       if (stage !== row) stage.style.display = 'none';
@@ -151,14 +166,13 @@ export function startDojo(host: HTMLElement): { backend: 'webgl2' } {
       svgBox.innerHTML = diagram(exp.id === 'bars' ? 'rope' : exp.id, diagramKind); // a bar swing is a pendulum like the rope: it borrows the rope's picture until it has its own
       const svg = svgBox.querySelector('svg'); if (svg) { svg.setAttribute('width', '100%'); svg.removeAttribute('height'); (svg as SVGElement).style.height = 'auto'; }
     }
-    const L = LESSONS[exp.id];
-    if (step === 0) {
+    if (stepKey === 'Why it matters') {
       el('strong', panel, { text: `${exp.name}: why it matters` });
       el('p', panel, { text: L.why });
       el('strong', panel, { text: 'What each setting does' });
       const ul = el('ul', panel);
       exp.knobs.forEach((k) => el('li', ul, { text: `${k.label}: ${k.why}` }));
-    } else if (step === 1) {
+    } else if (stepKey === 'Try it') {
       el('strong', panel, { text: 'Try it' });
       const ol = el('ol', panel);
       L.tries.forEach((t) => el('li', ol, { text: t }));
@@ -174,18 +188,18 @@ export function startDojo(host: HTMLElement): { backend: 'webgl2' } {
       el('span', panel, { className: 'muted', text: 'Drag the sliders: the picture and the answer follow you at once.' });
       showResult(out);
       refresh = () => { draw(canvas); showResult(out); };
-    } else if (step === 2) {
+    } else if (stepKey === 'The shape') {
       const pts = sweep(exp, values, exp.primary, ctxFor(exp));
       const cls = classify(pts);
       const k = exp.knobs.find((kk) => kk.id === exp.primary)!;
       el('strong', panel, { text: `The shape: ${k.label} against the answer` });
       el('p', panel, { text: `The grey curve is the simulator answering for every ${k.label.toLowerCase()} from ${k.min} to ${k.max}. The dot is where your sliders are now.` });
       el('p', panel, { id: 'shape', text: `This curve is ${L.shapeWords[cls.shape] ?? 'a smooth curve; the next step gives a rule of thumb for it.'}` });
-    } else if (step === 3) {
+    } else if (stepKey === 'A rule of thumb') {
       el('strong', panel, { text: 'A rule of thumb' });
       el('p', panel, { text: L.rule });
       el('p', panel, { className: 'muted', text: 'Directionally right is enough: you can use this on the Course without a calculator.' });
-    } else if (step === 4) {
+    } else if (stepKey === 'The exact formula') {
       el('strong', panel, { text: 'The exact formula' });
       el('div', panel, { className: 'formula', id: 'formula', text: L.formula });
       el('p', panel, { text: L.formulaWords });
@@ -210,7 +224,11 @@ export function startDojo(host: HTMLElement): { backend: 'webgl2' } {
       };
       upCalc();
       refresh = () => draw(canvas);
+      if (!legacy) courseBlock();
     } else {
+      courseBlock();
+    }
+    function courseBlock() { // what this means on the Course, and the way back (the last step in both layouts)
       el('strong', panel, { text: 'On the Course' });
       const ap = el('div', panel, { id: 'apply' });
       L.apply(facts, ctx, values).split('\n').forEach((line) => el('p', ap, { text: line }));
@@ -223,7 +241,7 @@ export function startDojo(host: HTMLElement): { backend: 'webgl2' } {
     prev.disabled = step === 0;
     prev.onclick = () => { step--; render(); };
     const nx = el<HTMLButtonElement>('button', nav, { text: 'Next →', className: 'go', id: 'next' });
-    nx.disabled = step === STEPS.length - 1;
+    nx.disabled = step === steps.length - 1;
     nx.onclick = () => { step++; render(); };
     draw(canvas);
   }
@@ -255,12 +273,36 @@ export function startDojo(host: HTMLElement): { backend: 'webgl2' } {
     c.restore();
   }
 
+  // the graph is drawn once; on the last step the formula is drawn over it in a strip on top (CC-148)
   function draw(canvas: HTMLCanvasElement) {
     const c = canvas.getContext('2d');
     if (!c) return;
-    const W = canvas.width, H = canvas.height, pad = 40;
-    c.clearRect(0, 0, W, H);
-    if (step === 2) return drawShape(c, W, H, pad);
+    const band = Number(canvas.dataset.band ?? 0);
+    c.clearRect(0, 0, canvas.width, canvas.height);
+    c.save(); c.translate(0, band);
+    drawGraph(c, canvas.width, canvas.height - band);
+    c.restore();
+    if (band) formulaStrip(c, canvas.width, band);
+  }
+
+  function formulaStrip(c: CanvasRenderingContext2D, W: number, band: number) {
+    const L = LESSONS[exp.id];
+    const calc = L.calc(values);
+    c.save();
+    c.fillStyle = '#2b2218'; c.beginPath(); c.roundRect(8, 6, W - 16, band - 12, 12); c.fill();
+    const fit = (text: string, weight: number, size: number, color: string, y: number) => {
+      let px = size; c.font = `${weight} ${px}px ui-monospace,Menlo,monospace`;
+      while (px > 9 && c.measureText(text).width > W - 40) { px--; c.font = `${weight} ${px}px ui-monospace,Menlo,monospace`; }
+      c.fillStyle = color; c.fillText(text, 20, y);
+    };
+    fit(L.formula, 800, 17, '#fffdf7', 32);
+    fit(`${calc.working.split('\n').pop()}`, 600, 14, '#f0c987', 58);
+    c.restore();
+  }
+
+  function drawGraph(c: CanvasRenderingContext2D, W: number, H: number) {
+    const pad = 40;
+    if (key() === 'The shape') return drawShape(c, W, H, pad);
     const lastTrial = preview(); // the picture follows the sliders; kept runs stay behind it
     if (exp.axis === 'meter' && exp.id === 'landing') return drawForce(c, W, H, pad, lastTrial);
     const paths: Point[][] = [lastTrial.path];
@@ -367,8 +409,12 @@ export function startDojo(host: HTMLElement): { backend: 'webgl2' } {
   addEventListener('keydown', (e) => {
     const t = e.target as HTMLElement | null;
     if (e.code !== 'KeyT' || e.repeat || e.ctrlKey || e.metaKey || e.altKey || document.getElementById('cc-feedback') || (t && /^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName) && (t as HTMLInputElement).type !== 'range')) return;
-    location.href = returnToCourse;
+    if (!picker) { location.href = returnToCourse; return; } // the old layout keeps its old route
+    if (document.getElementById('world-gallery')) return; // already open: the picker has its own keys
+    picker.open(); // T takes the player to the course picker, where they choose a course (CC-148)
   });
+  // the Courses pill is not shown in the new Dojo: T opens the same picker (main.ts skips the pill here)
+  const picker = legacy ? null : mountWorldGallery(document.body, { current: currentWorld(q), place: 'display:none' });
   startAudio(); document.body.append(soundButton()); // the Dojo shares the mute switch with the Course
   render();
   return { backend: 'webgl2' };
