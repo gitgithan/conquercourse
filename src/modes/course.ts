@@ -18,7 +18,7 @@ import { inputFor, searchIdealRun, workSeconds, xWindows, type Plan, type Search
 import { IdealPool } from '../sim/ideal-pool';
 import { createGhost } from '../ui/ghost';
 import { challengeWords, courseTooBig, makeChallengeUrl, offersIdeal, openChallenge, secondsWords, shareOn } from '../share/challenge';
-import { CLIP_BAND, CLIP_H, CLIP_W, RUNNER_M, TICKS_PER_FRAME, clipCameraDistance, clipCrop, clipFits, clipFrames, createClipEncoder, drawClipFrame } from '../share/clip';
+import { MARKER_BELOW, RUNNER_M, TICKS_PER_FRAME, clipCameraDistance, clipCrop, clipFits, clipFrames, clipLayoutFor, createClipEncoder, drawClipFrame, clipViewMetres, type ClipLayout } from '../share/clip';
 import { mountTouch, touchOn } from '../share/touch';
 import { createGaugeStack } from '../ui/gauges';
 import { HUD, hudOn, keycapCss, panelCss } from '../ui/hud-style';
@@ -1166,12 +1166,14 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
   ghostCtl.begin(!resume && startAt === undefined && (!botMode || ghostBot));
   // A run played again to make a clip (CC-129). The pictures come from the real game on a stepped clock: four ticks for each, whatever the speed of this computer.
   let clipCam: { x: number; y: number } | null = null; // where the clip camera is looking, kept between pictures
+  let clipLayout: ClipLayout = clipLayoutFor(location.search); // the view of the clip: about 20 m across by default (CC-160), ?clipzoom=close the older close view, ?clipshape=wide a 1280 x 720 picture
   async function makeClip(log: InputLog, ticks: number): Promise<void> {
     const card = clipCard();
     card.say('Making your clip…');
-    const enc = await createClipEncoder();
+    clipLayout = clipLayoutFor(location.search);
+    const L = clipLayout, enc = await createClipEncoder(L);
     if (!enc) { card.fail('This browser cannot make a video clip. Copy the challenge link instead.'); return; }
-    const cv = document.createElement('canvas'); cv.width = CLIP_W; cv.height = CLIP_H;
+    const cv = document.createElement('canvas'); cv.width = L.w; cv.height = L.h;
     const ctx = cv.getContext('2d')!, dom = renderer.domElement, total = clipFrames(ticks);
     const text = { course: course.name, time: secondsWords(ticks), address: 'conquercourse.pages.dev' };
     let n = 0, pending: Promise<void> = Promise.resolve();
@@ -1181,11 +1183,13 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
       feed = { log, i: 0, left: 0 };
       let smallest = 1;
       clipHook = () => {
-        drawClipFrame(ctx, dom, dom.width, dom.height, text);
-        if (n > 2) { // how tall the standing runner is in this picture, as a share of the 1280-pixel frame (the camera has settled by the third picture)
-          const feet = new THREE.Vector3(world.runner.x, world.runner.y, 0).project(camera), head = new THREE.Vector3(world.runner.x, world.runner.y + RUNNER_M, 0).project(camera);
-          smallest = Math.min(smallest, (Math.abs(head.y - feet.y) / 2) * dom.height * (CLIP_BAND.h / clipCrop(dom.width, dom.height).h) / CLIP_H);
-        }
+        // how tall the standing runner is in this picture, as a share of the picture's height (the camera has settled by the third picture)
+        const feet = new THREE.Vector3(world.runner.x, world.runner.y, 0).project(camera), head = new THREE.Vector3(world.runner.x, world.runner.y + RUNNER_M, 0).project(camera);
+        const share = (Math.abs(head.y - feet.y) / 2) * dom.height * (L.band.h / clipCrop(dom.width, dom.height, L).h) / L.h;
+        const small = L.viewM !== null && share < MARKER_BELOW; // a small runner gets a soft ring
+        const mid = new THREE.Vector3(world.runner.x, world.runner.y + RUNNER_M / 2, 0).project(camera);
+        drawClipFrame(ctx, dom, dom.width, dom.height, text, L, small ? { x: ((mid.x + 1) / 2) * dom.width, y: ((1 - mid.y) / 2) * dom.height, r: 0.9 * ((Math.abs(head.y - feet.y) / 2) * dom.height) + 10 } : undefined);
+        if (n > 2) smallest = Math.min(smallest, share);
         pending = enc.add(cv, n++);
       };
       const step = (TICKS_PER_FRAME * DT * 1000 + 0.001) / timeScale;
@@ -1198,6 +1202,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
       card.done(blob, 'conquercourse-run.mp4', `Your clip is ready (${(blob.size / 1e6).toFixed(1)} MB).`);
       document.documentElement.dataset.clip = String(blob.size);
       document.documentElement.dataset.clipRunner = smallest.toFixed(3);
+      document.documentElement.dataset.clipMetres = clipViewMetres(dom.width, dom.height, clipCameraDistance(dom.width, dom.height, L), L).toFixed(1); // metres of course across the picture
       (window as unknown as { __clip?: Blob }).__clip = blob;
     } catch (e) {
       card.fail('The clip could not be made on this computer. Copy the challenge link instead.');
@@ -1465,12 +1470,14 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
       camPos.copy(camera.position);
     } else if (clipping) {
       // The clip's own camera (CC-137): side-on and close, glued to the runner. It moves once for each picture, so it is the same on every computer.
-      const dom = renderer.domElement, dist = clipCameraDistance(dom.width, dom.height);
-      const wantX = r.x + 0.45 * facing, wantY = r.y + 1.05;
+      const dom = renderer.domElement, L = clipLayout, dist = clipCameraDistance(dom.width, dom.height, L);
+      const bandM = (L.viewM ?? 0) * L.band.h / L.w, ahead = L.viewM !== null ? 0.2 * L.viewM : 0.45, lift = L.viewM !== null ? 0.17 * bandM : 1.05, slack = L.viewM !== null ? 0.1 * bandM : 0.8;
+      // the wide view looks a fifth of the picture ahead of the runner, so the next obstacle is in frame, and keeps the runner low so there is sky for a swing or a jump
+      const wantX = r.x + ahead * facing, wantY = r.y + lift;
       if (!clipCam) clipCam = { x: wantX, y: wantY };
       else { // follow quickly, and never let the runner drift more than a metre from the middle (a long fall must not leave the picture)
         clipCam.x = wantX; clipCam.y += (wantY - clipCam.y) * 0.25; // x is locked to the runner so the body does not slide about the picture; y is eased so a bob or a hop is not copied
-        clipCam.x = clamp(clipCam.x, wantX - 0.6, wantX + 0.6); clipCam.y = clamp(clipCam.y, wantY - 0.8, wantY + 0.8);
+        clipCam.x = clamp(clipCam.x, wantX - 0.6, wantX + 0.6); clipCam.y = clamp(clipCam.y, wantY - slack, wantY + slack);
       }
       camera.up.set(0, 1, 0);
       camera.position.set(clipCam.x, clipCam.y, dist);
