@@ -17,8 +17,8 @@ const states = {
   partner: async (page) => { await page.click('#helperbtn'); await page.waitForTimeout(400); },
   addmenu: async (page) => { if (await page.$('#addpiece')) { await page.click('#addpiece'); await page.waitForTimeout(300); } else throw new Error('no Add piece menu'); },
   overflow: async (page) => { if (await page.$('#overflow')) { await page.click('#overflow'); await page.waitForTimeout(300); } else throw new Error('no overflow menu'); },
-  piece: async (page) => { await page.click('#addpiece'); await page.click('#addpiece ~ #addmenu >> text=Bench'); await page.waitForTimeout(500); }, // a piece is chosen: the piece panel shows its controls
-  machine: async (page) => { await page.click('#addpiece'); await page.click('#addband'); await page.waitForTimeout(500); }, // a machine is in the world: its settings panel shows
+  piece: async (page) => { await page.click('#addpiece'); await page.click('.pb-card[data-piece=bench]'); await page.waitForTimeout(500); }, // a piece is chosen: the piece panel shows its controls
+  machine: async (page) => { await page.click('#addpiece'); await page.click('#pbtab-contraptions'); await page.click('.pb-card[data-piece=band]'); await page.waitForTimeout(500); }, // a machine is in the world: its settings panel shows
   palette: async (page) => { await page.keyboard.press('/'); await page.waitForTimeout(300); if (!(await page.$('#palette'))) throw new Error('no command palette'); },
 };
 const measure = () => {
@@ -26,7 +26,7 @@ const measure = () => {
   const ed = document.querySelector('.ed');
   const controls = [...ed.querySelectorAll('button, a.btn, select, textarea, input:not([type=hidden]):not([type=file])')].filter(vis);
   const bad = [];
-  for (const b of controls.filter((c) => c.matches('button, a.btn'))) {
+  for (const b of controls.filter((c) => c.matches('button, a.btn') && !c.matches('.pb-card'))) { // the picture cards of the add browser are not text buttons
     const r = b.getBoundingClientRect(), lh = parseFloat(getComputedStyle(b).lineHeight) || 18, label = (b.textContent || b.title || b.id).trim().slice(0, 40);
     if (b.scrollWidth > b.clientWidth + 1) bad.push(`clipped: ${label}`);
     else if (r.height > lh * 2.4) bad.push(`wrapped: ${label}`);

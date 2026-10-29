@@ -2,6 +2,8 @@
 // every "add a piece" button in one menu, rare actions in one more-menu, the Moves and Design partner cards docked in one place (one open at a time),
 // and a command palette (/ or Ctrl+K) that finds any action by name. The buttons themselves (and their ids) are the editor's own: this only moves them.
 
+import { PIECE_BROWSER_CSS, mountPieceBrowser } from './piece-browser';
+
 const CSS = `
   .ed{--ink:#17201d;--muted:#58635d;--line:#cfd6d0;--brand:#0f6b5c;--soft:#f3f7f4;--card:#fff;--r:10px;grid-template-rows:auto minmax(0,1fr)}
   .ed .top{flex-wrap:nowrap;gap:8px;min-height:40px;position:relative;z-index:30}
@@ -42,7 +44,7 @@ const CSS = `
   #palette .list{max-height:50vh;overflow:auto;padding:6px}
   #palette .pitem{display:grid;grid-template-columns:minmax(0,1fr) auto auto;gap:12px;align-items:center;padding:8px 10px;border-radius:8px;cursor:pointer}
   #palette .pitem[aria-selected=true]{background:#e6f1ed}#palette .pitem .sec{color:#58635d;font-size:12px}
-  #palette .none{padding:14px;color:#58635d}`;
+  #palette .none{padding:14px;color:#58635d}`+PIECE_BROWSER_CSS;
 
 const SHORTCUTS: Record<string, string> = { undo: 'Ctrl+Z', redo: 'Ctrl+Y', del: 'Del', dup: 'D' };
 
@@ -81,6 +83,7 @@ export function organizeEditor(root: HTMLElement): void {
   };
   filePhotos();
   new MutationObserver(filePhotos).observe(addBar, { childList: true });
+  mountPieceBrowser(addBar); // CC-96: the picture grid and the featured view replace the old list of buttons (the buttons stay, hidden, and are pressed by the cards)
 
   // the machines' knobs (counterweight, ball, band, drone) stay on screen after the menu closes: a small panel above the lane, shown only while a machine is in the world
   const holder = (id: string): HTMLElement | null => { const l = addBar.querySelector(id)?.closest('label'); return l ? ((l.parentElement !== addBar ? l.parentElement : l) as HTMLElement) : null; };
@@ -121,7 +124,7 @@ export function organizeEditor(root: HTMLElement): void {
   for (const [b, m] of menus) b.onclick = (e) => { e.stopPropagation(); const open = !m.classList.contains('open'); closeMenus(); m.classList.toggle('open', open); b.setAttribute('aria-expanded', String(open)); };
   root.addEventListener('click', (e) => {
     const t = e.target as HTMLElement;
-    for (const [, m] of menus) if (m.classList.contains('open') && (!m.contains(t) || (t.closest('button') && !t.closest('label') && t.closest('button') !== search))) closeMenus();
+    for (const [, m] of menus) if (m.classList.contains('open') && (!m.contains(t) || (t.closest('button') && !t.closest('label') && !t.closest('.pb-bar') && t.closest('button') !== search))) closeMenus();
   });
   const isTyping = () => { const a = document.activeElement as HTMLElement | null; return !!a && (a.tagName === 'INPUT' || a.tagName === 'TEXTAREA' || a.tagName === 'SELECT'); };
 

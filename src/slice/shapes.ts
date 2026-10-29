@@ -51,5 +51,5 @@ export const LIBRARY: { id: string; label: string; mesh: () => Mesh }[] = [
   { id: 'block', label: 'Block', mesh: () => box(2, 0.7, 1.4) },
   { id: 'steps', label: 'Steps', mesh: () => stairs(4, 0.17, 0.4, 1.4) },
   { id: 'rail', label: 'Rail', mesh: () => rail(3, 1) },
-  { id: 'brick', label: 'Toy brick (3 cm)', mesh: () => brick() },
+  { id: 'brick', label: 'Toy brick', mesh: () => brick() },
 ];

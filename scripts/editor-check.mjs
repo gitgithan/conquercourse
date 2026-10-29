@@ -31,7 +31,7 @@ try {
   await page.setViewportSize({ width: 1300, height: 900 });
   // an object lifted from a real photo, placed at its real size
   await page.waitForSelector('button[data-object=railing-iron]', { state: 'attached', timeout: 20000 });
-  await page.click('#addpiece'); await page.click('button[data-object=railing-iron]');
+  await page.click('#addpiece'); await page.$eval('button[data-object=railing-iron]', (e) => e.click());
   await page.waitForFunction(() => /railing-iron/.test(document.querySelector('#panel')?.textContent ?? ''), null, { timeout: 20000 });
   checks.photoObjectAtRealSize = /2\.52 × 0\.07 m, 1\.00 m high/.test(await text('#realsize'));
   await page.click('#del');
@@ -39,7 +39,7 @@ try {
   const names = await page.$$eval('button[data-object]', (bs) => bs.map((b) => b.dataset.object));
   checks.allObjectsListed = names.length >= 8 && names.includes('person') && names.includes('stairs-park-07');
   const before = Number(await page.evaluate(() => document.documentElement.dataset.pieces));
-  for (const [i, n] of names.entries()) { await page.click('#addpiece'); await page.click(`button[data-object=${n}]`); await page.waitForFunction((c) => Number(document.documentElement.dataset.pieces) >= c, before + i + 1, { timeout: 8000 }).catch(async () => { console.log('NOT PLACED', n, await page.evaluate(() => document.documentElement.dataset.verdict + ' | ' + document.documentElement.dataset.pieces)); }); }
+  for (const [i, n] of names.entries()) { await page.click('#addpiece'); await page.$eval(`button[data-object=${n}]`, (e) => e.click()); await page.waitForFunction((c) => Number(document.documentElement.dataset.pieces) >= c, before + i + 1, { timeout: 8000 }).catch(async () => { console.log('NOT PLACED', n, await page.evaluate(() => document.documentElement.dataset.verdict + ' | ' + document.documentElement.dataset.pieces)); }); }
   checks.allObjectsPlaced = Number(await page.evaluate(() => document.documentElement.dataset.pieces)) === before + names.length;
   checks.personReferencePlaced = names.includes('person'); // a size reference is not selected, so it has no panel: allObjectsPlaced counted it
   await page.screenshot({ path: 'test-results/editor/all-objects.png' });
@@ -48,7 +48,7 @@ try {
   await page.waitForSelector('#view3d', { timeout: 60000 });
   await page.waitForSelector('button[data-object=person]', { state: 'attached', timeout: 20000 });
   // a lane that cannot be cleared: a block made too tall; the editor says what to shift, and doing it clears the lane
-  await page.click('#addpiece'); await page.click('text=Block');
+  await page.click('#addpiece'); await page.$eval('#add-block', (e) => e.click());
   await page.click('text=× 10');
   await page.waitForFunction(() => /cannot find/.test(document.documentElement.dataset.verdict ?? ''), null, { timeout: 20000 });
   checks.cannotClearSaid = true;
@@ -100,8 +100,9 @@ try {
   await page.waitForSelector('#view3d', { timeout: 60000 });
   await page.waitForSelector('button[data-object=person]', { state: 'attached', timeout: 20000 });
   // a toy brick: 3 cm, enlarged x15 to a half-metre block
-  await page.click('#addpiece'); await page.click('text=Toy brick (3 cm)');
+  await page.click('#addpiece'); await page.$eval('#add-brick', (e) => e.click());
   checks.brickIsBlockSized = /0\.4\d × 0\.2\d m, 0\.1\d m high/.test(await text('#realsize'));
+  await page.$eval('#sizes', (d) => { d.open = true; }); // the size numbers are folded away
   await page.fill('#realheight', '0.5'); await page.dispatchEvent('#realheight', 'change');
   checks.realHeightSet = (await text('#realsize')).includes('0.50 m high');
   await page.click('#dup');
@@ -122,7 +123,7 @@ try {
   await page.reload();
   await page.waitForSelector('#view3d', { timeout: 60000 });
   await page.waitForFunction(() => document.documentElement.dataset.pieces === '3', null, { timeout: 30000 });
-  await page.click('#addpiece'); await page.click('#addlache');
+  await page.click('#addpiece'); await page.$eval('#addlache', (e) => e.click());
   await page.waitForFunction(() => document.documentElement.dataset.bars === '2', null, { timeout: 10000 });
   checks.lachePairAdded = true;
   const ys0 = await page.evaluate(() => document.documentElement.dataset.barYs);
@@ -152,7 +153,7 @@ try {
   await page.reload();
   await page.waitForSelector('#view3d', { timeout: 60000 });
   await page.waitForFunction(() => document.documentElement.dataset.pieces === '3', null, { timeout: 30000 });
-  await page.click('#addpiece'); await page.click('#addstack-3-6-3');
+  await page.click('#addpiece'); await page.$eval('#addstack-3-6-3', (e) => e.click());
   await page.waitForFunction(() => document.documentElement.dataset.pieces === '4', null, { timeout: 10000 });
   checks.stackAdded = true;
   await page.click('#helperbtn'); // hide the design partner so the stack is in view
@@ -162,7 +163,7 @@ try {
   await page.waitForSelector('#view3d', { timeout: 60000 });
   checks.stackKeptAfterReload = await page.waitForFunction(() => document.documentElement.dataset.pieces === '4', null, { timeout: 30000 }).then(() => true, () => false);
   // a plank bridge: add one, its knobs show, and a 1 cm plank is reported as snapping
-  await page.click('#addpiece'); await page.click('#addplank');
+  await page.click('#addpiece'); await page.$eval('#addplank', (e) => e.click());
   await page.waitForSelector('#plankthick', { timeout: 10000 });
   await page.fill('#plankthick', '1');
   await page.dispatchEvent('#plankthick', 'change');
@@ -202,7 +203,7 @@ try {
   const moves = JSON.parse(await page.evaluate(() => document.documentElement.dataset.moves));
   checks.movesListsTheTenMoves = Object.keys(moves).length === 10 && ['gap', 'step', 'wall', 'rope', 'trampoline', 'lache', 'drop', 'stack', 'trebuchet', 'coaster'].every((k) => k in moves);
   checks.coasterIsElsewhere = moves.coaster === 'elsewhere';
-  await page.click('#addpiece'); await page.click('button[data-object=bench-concrete]');
+  await page.click('#addpiece'); await page.$eval('button[data-object=bench-concrete]', (e) => e.click());
   await page.waitForSelector('#rolepick', { timeout: 20000 });
   await page.selectOption('#rolepick', 'trampoline');
   await page.waitForTimeout(600);
@@ -231,7 +232,7 @@ try {
   await page.reload();
   await page.waitForSelector('#view3d', { timeout: 60000 });
   await page.waitForFunction(() => document.documentElement.dataset.pieces === '3', null, { timeout: 30000 });
-  await page.click('#addpiece'); await page.click('#addband');
+  await page.click('#addpiece'); await page.$eval('#addband', (e) => e.click());
   checks.bandOn = await page.waitForFunction(() => document.documentElement.dataset.band === '35', null, { timeout: 10000 }).then(() => true, () => false);
   checks.bandBoxShown = await page.isVisible('#bandk');
   await page.fill('#bandk', '150'); await page.dispatchEvent('#bandk', 'change');
