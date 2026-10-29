@@ -1641,7 +1641,7 @@ The set of obstacle shapes is fixed, and each shape offers a fixed set of moves.
 - **The lane is not touched**
   - Furniture is never in the physics and the course file is not read for anything but its ground height.
   - A thing that would stand inside the 2.6 m lane band at the runner's height is moved to the edge of the band (1.7 m from the run line).
-  - Objects are drawn at least 0.4 of real size, because the places are shrunk to 0.07 to 0.24 and a true-size lamp would be a few centimetres tall.
+  - Objects are drawn at least 0.5 of real size, and the parts are drawn over-sized (lamps about 4.5 m, signs 2.2 m, benches 1.4 m, CC-213), because the places are shrunk to 0.07 to 0.24 and a true-size lamp would be a few centimetres tall.
 - Details, counts and pictures: `data/eval/cc-furniture/README.md`.
 
 ## Search: a second-best branch (2026-10-29, CC-69)
