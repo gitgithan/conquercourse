@@ -9,17 +9,19 @@ import { findShortcuts } from '../src/sim/shortcuts';
 
 const f = 'public/assets/demo/training.course.json';
 const c = JSON.parse(readFileSync(f, 'utf8')) as CourseData;
-const base: Plan = { jumpXs: [22.5, 59, 84.5, 126.48], releaseAfter: 58, bouncePress: 8, hands: true, hangTicks: [215], vaultXs: [45.64], climbXs: [110.5] };
+// CC-175: the lache, rope and trampoline block moved along by DX = 99 (scripts/make-training-course.ts); the step vault and the climb come before it.
+const DX = 99;
+const base: Plan = { jumpXs: [22.5, 59.8 + DX, 84.5 + DX, 126.48 + DX], releaseAfter: 58, bouncePress: 8, hands: true, hangTicks: [215], vaultXs: [45.64, 68], climbXs: [104.5] };
 const catches = (r: ReturnType<typeof playPlan>) => r.events.filter((e) => e.type === 'hang-catch').length;
 let both: { plan: Plan; ticks: number } | null = null, skip: { plan: Plan; ticks: number } | null = null;
 for (let h1 = 0; h1 <= 300; h1 += 30) for (let h2 = 0; h2 <= 480; h2 += 30) {
   const plan: Plan = { ...base, hangTicks: [h1, h2] };
-  const r = playPlan(c, plan, 120 * 40);
+  const r = playPlan(c, plan, 120 * 70);
   if (r.world.outcome === 'cleared' && catches(r) >= 2 && (!both || r.world.runner.tick < both.ticks)) both = { plan, ticks: r.world.runner.tick };
 }
-for (const jx of [58.7, 58.8, 58.9, 59, 59.1, 59.2, 59.3]) for (let h = 0; h <= 540; h += 3) {
-  const plan: Plan = { ...base, jumpXs: [22.5, jx, 84.5, 126.48], hangTicks: [h], airHands: [false] };
-  const r = playPlan(c, plan, 120 * 40);
+for (const jx of [58.7, 58.8, 58.9, 59, 59.1, 59.2, 59.3, 59.4, 59.5, 59.6].map((v) => v + DX)) for (let h = 0; h <= 540; h += 3) {
+  const plan: Plan = { ...base, jumpXs: [22.5, jx, 84.5 + DX, 126.48 + DX], hangTicks: [h], airHands: [false] };
+  const r = playPlan(c, plan, 120 * 70);
   if (r.world.outcome === 'cleared' && catches(r) === 1 && (!skip || r.world.runner.tick < skip.ticks)) skip = { plan, ticks: r.world.runner.tick };
 }
 if (!both || !skip) throw new Error(`a line is missing: bar to bar ${both?.ticks}, skip ${skip?.ticks}`);
