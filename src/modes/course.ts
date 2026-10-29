@@ -53,6 +53,8 @@ import { createDebugView } from '../ui/debug-view';
 import { createGrabHint } from '../ui/grab-hint';
 import { slugOfCourse } from '../ui/place-photos';
 import { mountLivePhotos } from '../ui/live-photos';
+import { mountFurniture } from '../render/furniture-view';
+import { FURNITURE_ON } from '../world/furniture';
 import { barName, predictBand, predictLaunch, predictRelease, predictShot, type Prediction } from '../sim/predict';
 import { createTrebuchetView } from '../ui/trebuchet-view';
 import { createRecoilView } from '../ui/recoil-view';
@@ -572,6 +574,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
   const placeSlug = slugOfCourse(course.name);
   let livePhotos: { update(x: number): void } | null = null; // CC-90: street photos from the allow-list change as the runner moves; the CC-85 strip is the fallback
   if (placeSlug && new URLSearchParams(location.search).get('photos') !== '0') void mountLivePhotos(document.body, course).then((h) => { livePhotos = h; });
+  if (placeSlug && FURNITURE_ON(new URLSearchParams(location.search))) void mountFurniture(scene, course); // CC-187: real street furniture, looks only, off by default
   const toast = document.createElement('div');
   toast.style.cssText = 'position:fixed;left:50%;top:44%;transform:translateX(-50%);font:700 22px system-ui,sans-serif;color:#10141c;background:#fffffff0;border-radius:10px;padding:6px 14px;pointer-events:none;display:none';
   document.body.append(toast);
