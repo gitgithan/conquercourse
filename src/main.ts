@@ -11,6 +11,9 @@ import { installGalleryKeyGuard, mountWorldGallery, currentWorld, DEFAULT_PLACE,
 installGalleryKeyGuard(); // before any mode starts, so it sees every key first
 { const r = startRedirect({ search: location.search, store: browserStore, automated: navigator.webdriver }); if (r) { location.replace(r); await new Promise<void>(() => {}); } } // CC-100: a returning player goes back to their last course
 
+// CC-219: a short link (?c=<id>) is turned into the long form before anything reads the address; the page then works as it does for a long link
+if (new URLSearchParams(location.search).has('c')) { const { expandShortSearch } = await import('./share/challenge'); const long = await expandShortSearch(location.search); if (long) history.replaceState(null, '', location.pathname + long); }
+
 // ?mode=dojo, ?mode=rookie, ?demo=rookie (the Rookie demo), ?demo=captured-vault (captured move review); the default is the Course.
 if (new URLSearchParams(location.search).get('demo') === 'captured-vault') {
   const { startCapturedVaultDemo } = await import('./modes/demo-captured-vault');
