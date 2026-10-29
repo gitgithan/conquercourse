@@ -27,6 +27,7 @@ Blue-box diagrams for every pipeline are in [docs/meta-ai-pipelines.md](docs/met
 | **Muse Spark Open**, move tips (`/api/move-tips`) | Names the moves that could get past a cut-out object and gives one plain idea for the course; checked against our move list (CC-121) | Live, through a server function (needs `BASETEN_API_KEY`); feeds the object cards (CC-108) |
 | **Muse Spark** (Meta Model API) | Turns written descriptions into contact targets and character descriptions | Build time |
 | **Muse Image** (Meta Model API) | Draws the second Rookie in the first one's style (concept reference) | Build time |
+| **MusicGen (Meta AudioCraft)** | Writes the original loop for each screen (Course, Map, Editor, Dojo, Report) from a text prompt; no melody or recording goes in | Build time (Modal GPU); loops stay off until `?music=1` |
 | **Mapillary** (owned by Meta) | Street photos along a built place, masked for people before they are shown | Live, through a server proxy (token never in the browser) |
 
 ### What is not Meta, said plainly
@@ -58,7 +59,8 @@ Blue-box diagrams for every pipeline are in [docs/meta-ai-pipelines.md](docs/met
 - **Not a coach:** the game never grades or coaches a person's technique.
 
 ### Use of Meta AI tooling (25%)
-- Nine Meta models and services are in the table above; each does one job a judge can see in the demo.
+- Ten Meta models and services are in the table above; each does one job a judge can see or hear in the demo.
+- MusicGen composes the music: original loops from text prompts, so the soundtrack has no licensed songs in it.
 - The two live ones (Muse Spark Open, Mapillary) sit behind server functions, so keys never reach the browser.
 - The models propose and the simulator decides: every layout from Muse Spark Open is run through the ideal-run search before it is offered.
 - The Course Agent closes the loop: the model proposes, the simulator is its tool, and it repairs from the tool's report (see the agentic use-case section below).

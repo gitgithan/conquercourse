@@ -1,0 +1,36 @@
+[
+  {
+    "name": "map_11_v2",
+    "screen": "map",
+    "seed": 11,
+    "bpm": 100.0,
+    "bars": 6,
+    "seconds": 14.4,
+    "match_err": 0.1119,
+    "hf_share_5k": 0.00888,
+    "seam_jump": 0.0,
+    "median_step": 0.00268,
+    "seam_ratio": 0.0,
+    "rms": 0.1,
+    "peak": 0.56537,
+    "centroid_hz": 3479.01963,
+    "onsets_per_s": 4.30556
+  },
+  {
+    "name": "editor_33_v2",
+    "screen": "editor",
+    "seed": 33,
+    "bpm": 159.75,
+    "bars": 10,
+    "seconds": 15.023,
+    "match_err": 0.7332,
+    "hf_share_5k": 0.03006,
+    "seam_jump": 0.0001,
+    "median_step": 0.01051,
+    "seam_ratio": 0.00952,
+    "rms": 0.1,
+    "peak": 0.44943,
+    "centroid_hz": 4369.38364,
+    "onsets_per_s": 8.65313
+  }
+]

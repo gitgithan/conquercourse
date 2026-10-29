@@ -40,6 +40,30 @@ def make(job: dict) -> dict:
     return {**job, "rate": m.config.audio_encoder.sampling_rate, "wav": wav.tobytes()}
 
 
+# Round 2 (owner, 2026-10-29: the eurobeat Course loop was too intense): motivational, mid-tempo, warm, no harsh leads.
+PROMPTS2 = {
+    "course-a": "motivational cinematic pulse, 110 bpm, steady driving warm bass, light percussion, soft strings swelling, rising feel, no lead synth, instrumental loop",
+    "course-b": "uplifting underscore, 105 bpm, soft steady kick, warm bassline, gentle plucks, building and hopeful, determined, no harsh synths, instrumental loop",
+    "course-c": "training montage, 115 bpm, warm electric bass, light shuffled hi-hats, rising piano chords and strings, confident forward momentum, instrumental loop",
+    "course-d": "gentle epic motivational pulse, 100 bpm, low ostinato strings, soft taiko drums, warm, rising, no brass, no synth lead, instrumental loop",
+    "course-e": "cinematic electronic, 120 bpm, steady pulsing warm bass, light percussion, airy pads rising, focused and determined, no lead, instrumental loop",
+    "course-f": "inspiring acoustic and electronic mix, 110 bpm, muted guitar pulse, warm bass, soft claps, swelling pads, optimistic, instrumental loop",
+}
+SEEDS2 = [7, 8]
+
+
+@app.local_entrypoint()
+def round2(out: str = "data/eval/cc-132-music/round2"):
+    jobs = [{"screen": s, "seed": sd, "prompt": p} for s, p in PROMPTS2.items() for sd in SEEDS2]
+    o = pathlib.Path(out); o.mkdir(parents=True, exist_ok=True)
+    meta = []
+    for r in make.map(jobs):
+        (o / f"{r['screen']}_{r['seed']}.f32").write_bytes(r.pop("wav"))
+        meta.append(r)
+        print("done", r["screen"], r["seed"], flush=True)
+    (o / "run.json").write_text(json.dumps({"model": MODEL, "seconds": SECONDS, "jobs": meta}, indent=2) + "\n")
+
+
 @app.local_entrypoint()
 def main(out: str = "data/eval/cc-132-music/outputs"):
     jobs = [{"screen": s, "seed": sd, "prompt": p} for s, p in PROMPTS.items() for sd in SEEDS]
