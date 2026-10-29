@@ -4,9 +4,9 @@ import * as THREE from 'three';
 import type { CourseData } from '../course/course';
 import type { Plan } from '../sim/ideal';
 import type { RunnerInput } from '../sim/runner';
-import { InputRecorder, gapSeconds, gapWords, trackFromPlan, type GhostTrack } from '../sim/replay';
+import { InputRecorder, gapSeconds, gapWords, trackFromPlan, type GhostTrack, type InputLog } from '../sim/replay';
 
-export type GhostMode = 'off' | 'ideal';
+export type GhostMode = 'off' | 'ideal' | 'friend'; // a friend's run comes from a challenge link (CC-128) and is never remembered
 const MODE_KEY = 'cc.ghost.mode';
 const COLOR = '#2a8fbd';
 
@@ -25,6 +25,8 @@ export interface Ghost {
   input(i: RunnerInput): void; // the keys of this tick (kept for the next parts)
   frame(f: GhostFrame): void;
   cycle(): void;
+  setFriend(track: GhostTrack): void; // chase a friend's run from a challenge link
+  myRun(): InputLog | null; // the keys of this run, when it began at the start and can be replayed (CC-128)
   readonly mode: GhostMode;
   reportLine(ticks: number): HTMLElement | null; // one plain line for the end report
   reportActions(chase: () => void): HTMLElement[]; // buttons for the end report
@@ -37,6 +39,7 @@ export function createGhost(o: GhostOpts): Ghost {
   try { if (localStorage.getItem(MODE_KEY) === 'ideal') mode = 'ideal'; } catch { /* the chip still works for this visit */ }
   const recorder = new InputRecorder();
   let full = true; // this run began at the start of the course
+  let friend: GhostTrack | null = null;
   let ideal: GhostTrack | null = null, idealState: 'idle' | 'working' | 'none' | 'ready' = 'idle';
 
   const body = new THREE.Mesh(new THREE.CapsuleGeometry(0.28, 1.1, 6, 12), new THREE.MeshBasicMaterial({ color: 0x5ec8ff, transparent: true, opacity: 0.4, depthWrite: false }));
@@ -59,7 +62,7 @@ export function createGhost(o: GhostOpts): Ghost {
   hud.append(chip, gap); o.parent.append(hud);
 
   const paintChip = () => {
-    const word = mode === 'off' ? 'Off' : idealState === 'working' ? 'working out the ideal run…' : idealState === 'none' ? 'no ideal run here' : 'Ideal run';
+    const word = mode === 'off' ? 'Off' : mode === 'friend' ? 'Friend\x27s run' : idealState === 'working' ? 'working out the ideal run…' : idealState === 'none' ? 'no ideal run here' : 'Ideal run';
     chip.innerHTML = `${ICON}<span>Ghost: ${word}</span><span style="font-weight:500;color:#58635d">N</span>`;
     chip.setAttribute('aria-pressed', String(mode !== 'off'));
     chip.title = 'A see-through runner that replays the ideal run. Chase it. Press N to switch it on or off.';
@@ -75,14 +78,16 @@ export function createGhost(o: GhostOpts): Ghost {
   };
   const setMode = (m: GhostMode) => {
     mode = m;
-    try { localStorage.setItem(MODE_KEY, m); } catch { /* ok */ }
+    try { if (m !== 'friend') localStorage.setItem(MODE_KEY, m); } catch { /* ok */ }
     if (m === 'ideal') loadIdeal();
     paintChip();
   };
-  chip.onclick = () => { setMode(mode === 'off' ? 'ideal' : 'off'); chip.blur(); };
+  const next = (): GhostMode => mode === 'off' ? 'ideal' : mode === 'ideal' && friend ? 'friend' : 'off';
+  chip.onclick = () => { setMode(next()); chip.blur(); };
   paintChip();
   if (mode === 'ideal') loadIdeal();
 
+  const shown = (): GhostTrack | null => mode === 'ideal' && idealState === 'ready' ? ideal : mode === 'friend' ? friend : null;
   let lastMarked = -2;
   const mark = (i: number) => {
     const s = o.strip();
@@ -97,9 +102,11 @@ export function createGhost(o: GhostOpts): Ghost {
     get mode() { return mode; },
     begin(fullAttempt) { full = fullAttempt; recorder.reset(); lastMarked = -2; },
     input(i) { if (full) recorder.push(i); },
-    cycle() { setMode(mode === 'off' ? 'ideal' : 'off'); },
+    cycle() { setMode(next()); },
+    setFriend(t) { friend = t; setMode('friend'); },
+    myRun() { return full && recorder.valid ? recorder.snapshot() : null; },
     frame(f) {
-      const track = mode === 'ideal' && idealState === 'ready' ? ideal : null;
+      const track = shown();
       const show = !!track && full && f.active;
       if (!show || !track) { body.visible = false; gap.style.display = 'none'; mark(-1); return; }
       const i = Math.min(f.tick, track.ticks);
@@ -110,16 +117,18 @@ export function createGhost(o: GhostOpts): Ghost {
       mark(o.zoneIndexAt(gx));
     },
     reportLine(ticks) {
-      if (mode !== 'ideal' || idealState !== 'ready' || !ideal || !full) return null;
-      const mine = ticks / 120, theirs = ideal.ticks / 120, d = mine - theirs;
+      const t = shown();
+      if (!t || !full) return null;
+      const who = mode === 'friend' ? 'the friend\x27s run' : 'the ideal run';
+      const mine = ticks / 120, theirs = t.ticks / 120, d = mine - theirs;
       const p = document.createElement('div');
       p.style.cssText = 'font:600 15px system-ui,sans-serif;color:#17201d';
-      p.textContent = Math.abs(d) < 0.05 ? `Your time ${mine.toFixed(1)} s: the same as the ideal run.` : d > 0 ? `Your time ${mine.toFixed(1)} s. The ideal run took ${theirs.toFixed(1)} s, ${d.toFixed(1)} s faster.` : `Your time ${mine.toFixed(1)} s. You were ${(-d).toFixed(1)} s ahead of the ideal run (${theirs.toFixed(1)} s).`;
+      p.textContent = Math.abs(d) < 0.05 ? `Your time ${mine.toFixed(1)} s: the same as ${who}.` : d > 0 ? `Your time ${mine.toFixed(1)} s. The ${who.replace('the ','')} took ${theirs.toFixed(1)} s, ${d.toFixed(1)} s faster.` : `Your time ${mine.toFixed(1)} s. You were ${(-d).toFixed(1)} s ahead of ${who} (${theirs.toFixed(1)} s).`;
       return p;
     },
     reportActions(chase) {
       const b = document.createElement('button');
-      b.type = 'button'; b.textContent = mode === 'ideal' ? 'Chase the ghost again' : 'Chase the ideal run (ghost)';
+      b.type = 'button'; b.textContent = mode !== 'off' ? 'Chase the ghost again' : 'Chase the ideal run (ghost)';
       b.style.cssText = 'font:inherit;border:1px solid #2a8fbd;background:#eaf6fc;color:#17201d;border-radius:8px;padding:6px 12px;cursor:pointer';
       b.onclick = () => { if (mode === 'off') setMode('ideal'); chase(); };
       return [b];
