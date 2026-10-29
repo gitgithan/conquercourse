@@ -325,7 +325,7 @@ export function startDojo(host: HTMLElement): { backend: 'webgl2' } {
     c.save(); c.translate(16, H / 2 + 60); c.rotate(-Math.PI / 2); c.fillText('push on you (m/s², more up = harder)', 0, 0); c.restore();
     const limit = DEFAULT_LANDING.stumbleDecel;
     c.strokeStyle = '#c4572a'; c.setLineDash([6, 5]); c.lineWidth = 2; c.beginPath(); c.moveTo(left, sy(limit)); c.lineTo(W - pad, sy(limit)); c.stroke(); c.setLineDash([]);
-    c.fillStyle = '#c4572a'; c.fillText(W < 500 ? `${limit} m/s²: you stumble above this` : `${limit} m/s²: above this the Course makes you stumble`, left + 8, sy(limit) - 6);
+    c.fillStyle = '#c4572a'; if (W < 500) c.textAlign = 'right'; c.fillText(W < 500 ? `${limit} m/s²: you stumble above this` : `${limit} m/s²: above this the Course makes you stumble`, W < 500 ? W - pad + 20 : left + 8, sy(limit) - 6); c.textAlign = 'left';
     const block = (t: Trial, fill: string | null, stroke: string, w: number) => {
       const bw = t.path[2].x, bh = t.path[2].y;
       if (fill) { c.fillStyle = fill; c.fillRect(sx(0), sy(bh), sx(bw) - sx(0), sy(0) - sy(bh)); }

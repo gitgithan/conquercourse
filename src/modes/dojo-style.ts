@@ -28,7 +28,7 @@ export const DOJO_V2_CSS = `
   .dojo.v2 .path .done .dot{background:#0f6b5c;border-color:#0f6b5c;color:#fff}
   .dojo.v2 .path .on .dot{background:#fffdf7;color:#0f6b5c;border-color:#e0b46a;box-shadow:0 0 0 5px #e0b46a33}
   .dojo.v2 .path .on{color:#fffdf7}
-  .dojo.v2 .row{gap:18px;grid-template-columns:minmax(0,1.45fr) minmax(0,1fr);align-items:start}
+  .dojo.v2 .row{gap:18px;grid-template-columns:minmax(0,1.45fr) minmax(0,1fr);align-items:stretch}.dojo.v2 .stage{display:flex;flex-direction:column;justify-content:center}
   .dojo.v2 .stage,.dojo.v2 .panel,.dojo.v2 #diagram>div:last-child{background:#fffdf7;border:0;border-radius:20px;box-shadow:0 18px 50px #0006;padding:14px}
   .dojo.v2 canvas{border:0;border-radius:12px;background:#fffdf7;display:block}
   .dojo.v2 .panel{padding:clamp(16px,2.4vw,24px);gap:12px}
