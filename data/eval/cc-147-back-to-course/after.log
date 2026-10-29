@@ -1,0 +1,11 @@
+{
+  fromUrl: true,
+  fromCourse: true,
+  sameCourse: true,
+  backWhenUnclearable: true,
+  applyRefusalSeen: 'not tested (no proposal to apply)',
+  fromGallery: true,
+  galleryBack: true,
+  dojoBack: true
+}
+done-after

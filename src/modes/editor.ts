@@ -663,7 +663,7 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
     el('div', reply, { id: 'previewverdict', className: 'muted' });
     const row = el('div', reply, { className: 'row', id: 'previewbuttons' });
     el('button', row, { text: 'Apply', id: 'applypreview', className: 'go' }).onclick = applyProposal;
-    if (handoff) el('button', row, { text: 'Apply and try it', id: 'applytry', className: 'go', title: 'Apply the changes and play again from the last checkpoint' }).onclick = () => { applyProposal(); void goToCourse(); };
+    if (handoff) el('button', row, { text: 'Apply and try it', id: 'applytry', className: 'go', title: 'Apply the changes and play again from the last checkpoint' }).onclick = () => { applyProposal(); void goToCourse(true); };
     el('button', row, { text: 'Cancel', id: 'cancelpreview' }).onclick = () => closePreview('Cancelled: nothing changed.');
   }
   function paintVerdict(state: 'checking' | 'clears' | 'blocked' | 'none') {
@@ -988,12 +988,13 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
     } catch { /* the undo list starts again */ }
   }
   // back to the Course: the same course, rebuilt from the pieces now, at the same obstacle (the Course reads this the way it reads a return from the Dojo)
-  async function goToCourse() {
+  // check: wait for the simulator and stay when it proves the lane cannot be cleared ('Apply and try it'); 'Back to the Course' and T never wait and never refuse (CC-147)
+  async function goToCourse(check = false) {
     if (!handoff) return;
     const course = courseNow();
-    const clear = await searchClearable(course);
-    // null: the check was cut short (a change in the editor starts a newer one); that is no reason to stay, only a proof that the lane does not clear is
-    if (clear === false) { verdict = 'The simulator cannot find a way to clear this lane: widen a gap or lower a step.'; drawLanePanel(); reply.className = 'reply bad'; reply.textContent = verdict; return; }
+    const clear = check ? await searchClearable(course) : null;
+    // null: no check, or it was cut short (a change in the editor starts a newer one); that is no reason to stay, only a proof that the lane does not clear is
+    if (clear === false) { verdict = 'The simulator cannot find a way to clear this lane: widen a gap or lower a step.'; drawLanePanel(); reply.className = 'reply bad'; reply.textContent = verdict; helper.classList.remove('closed'); helperBtn.setAttribute('aria-pressed', 'true'); return; }
     course.scene = sceneFor(ground(), { angle, offset, level }, course.uMap ?? []);
     const focus = pieces.find((q) => q.id === selected) ?? pieces.find((q) => q.id === focusId);
     const retryX = focus ? startBefore(course, xOfPiece(focus, course)) : checkpointFor(course, handoff.zone);
