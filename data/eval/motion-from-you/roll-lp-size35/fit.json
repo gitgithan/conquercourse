@@ -1,0 +1,97 @@
+{
+  "playable": false,
+  "gate": {
+    "version": 1,
+    "pass": true,
+    "hard": {
+      "knees_bend_forward": {
+        "ok": true,
+        "value": 43.1256,
+        "limit": "< 120 deg off the side axis",
+        "note": ""
+      },
+      "legs_not_twisted": {
+        "ok": true,
+        "value": 43.1256,
+        "limit": "<= 60 deg off the side axis",
+        "note": ""
+      },
+      "knees_within_range": {
+        "ok": true,
+        "value": 146.4293,
+        "limit": "<= 165 deg",
+        "note": ""
+      },
+      "flight_is_ballistic": {
+        "ok": true,
+        "value": 9.81,
+        "limit": "within 15% of 9.81",
+        "note": "frames 0-7, off by 0.0%"
+      },
+      "feet_dont_sink": {
+        "ok": true,
+        "value": -0.0,
+        "limit": "<= 0.03 m under the floor",
+        "note": ""
+      },
+      "no_teleport": {
+        "ok": true,
+        "value": 2.4191,
+        "limit": "<= 12.0 m/s",
+        "note": ""
+      }
+    },
+    "soft": {
+      "bones_keep_length": {
+        "ok": true,
+        "value": 0.003,
+        "limit": "<= 2% off the median",
+        "note": ""
+      },
+      "feet_dont_slide": {
+        "ok": false,
+        "value": 0.1713,
+        "limit": "<= 0.03 m",
+        "note": ""
+      },
+      "no_jitter": {
+        "ok": true,
+        "value": 191.2003,
+        "limit": "<= 200.0 m/s^2",
+        "note": ""
+      }
+    }
+  },
+  "move_check": {
+    "ok": false,
+    "max_turn_deg": 112.8,
+    "min_turn_deg": 0.0,
+    "peak_hips_vs_standing": 2.03,
+    "longest_air_s": 0.17,
+    "window_frames": [
+      3,
+      45
+    ],
+    "window_s": 1.4,
+    "turn_in_window_deg": 64.6,
+    "travel_m": 0.73,
+    "upside_down": false,
+    "starts_and_ends_upright": true
+  },
+  "raw_move_check": {
+    "ok": false,
+    "max_turn_deg": 125.2,
+    "min_turn_deg": 0.0,
+    "peak_hips_vs_standing": 2.04,
+    "longest_air_s": 0.17,
+    "window_frames": [
+      3,
+      49
+    ],
+    "window_s": 1.53,
+    "turn_in_window_deg": 76.7,
+    "travel_m": 0.6,
+    "upside_down": false,
+    "starts_and_ends_upright": true
+  }
+}
