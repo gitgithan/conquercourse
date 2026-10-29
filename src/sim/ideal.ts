@@ -189,6 +189,10 @@ export function risers(course: CourseData): { x: number; name: string; riser: tr
   return out;
 }
 
+// Time allowed for the run to reach x before the trial's own time starts (CC-164): the bar trials were cut at 25 s and the route trials at 40 s from the start of the run,
+// so on a course with other obstacles before the bars (Training: the bars are at 28 s and the whole line takes 40 s) no trial ever reached them. A run that falls stops at once, so this costs nothing for failures.
+const lead = (course: CourseData, x: number): number => Math.ceil(Math.max(0, x - course.startX) / 5 * 120);
+
 const candidates = (from: number, to: number, step = 0.02) => {
   const out: number[] = [];
   for (let x = from; x <= to + 1e-9; x += step) out.push(Math.round(x * 1000) / 1000);
@@ -280,7 +284,7 @@ export function* searchGen(course: CourseData, opts: { routes?: boolean; alt?: R
       const grid = function* (jxs: number[], hang: number[][]): Gen<boolean> {
         const plans: Plan[] = [];
         for (const jx of jxs) for (const hs of cross(hang)) plans.push({ ...plan, jumpXs: [...plan.jumpXs, jx], hangTicks: plan.hangTicks!.map((t, i) => (i < nh ? hs[i] : t)) });
-        const sc: number[] = yield at(plans.map((pl) => ({ plan: pl, maxTicks: 120 * 25 })), true);
+        const sc: number[] = yield at(plans.map((pl) => ({ plan: pl, maxTicks: 120 * 25 + lead(course, e.x) })), true);
         sc.forEach((s, i) => found.push({ sc: s, plan: plans[i] }));
         return sc.length > 0 && sc[sc.length - 1] >= CLEARED;
       };
@@ -403,27 +407,33 @@ function compareRoutes(course: CourseData, plan: Plan, base: RunResult, windows:
   const catches = (r: RunResult) => r.events.filter((e) => e.type === 'hang-catch').length;
   const baseBars = catches(base);
   type Opt = { plan: Plan; ticks: number; bars: number };
-  const jx0 = plan.jumpXs[plan.jumpXs.length - 1];
+  // the jump that takes the runner to the first bar: the last press at or before it. It is the last press only when nothing is planned after the pair;
+  // with a vault, rope or roll block behind it (Training, CC-164) the skip has to change this press and keep the later ones (CC-164: it used to change the last press, whatever it belonged to)
+  const firstBarX = Math.min(...(course.holds ?? []).map((h) => h.x));
+  let li = -1;
+  plan.jumpXs.forEach((x, i) => { if (x <= firstBarX + 1e-9) li = i; });
+  if (li < 0) li = plan.jumpXs.length - 1;
+  const jx0 = plan.jumpXs[li];
   // bar to bar: the fastest way that catches both bars (the plan found may fly over the second one by luck, so the two ways are searched on their own)
   let viaBars: Opt | null = baseBars >= 2 ? { plan, ticks: base.world.runner.tick, bars: baseBars } : null;
   for (let h1 = 0; h1 <= 300; h1 += 30) for (let h2 = 0; h2 <= 480; h2 += 30) {
     const pl: Plan = { ...plan, hangTicks: [h1, h2, ...(plan.hangTicks?.slice(2) ?? [])] };
     delete pl.airHands;
-    const r = playPlan(course, pl, 120 * 40);
+    const r = playPlan(course, pl, 120 * 40 + lead(course, firstBarX));
     if (r.world.outcome === 'cleared' && catches(r) >= 2 && (!viaBars || r.world.runner.tick < viaBars.ticks)) viaBars = { plan: pl, ticks: r.world.runner.tick, bars: catches(r) };
   }
   // skip: a full pump on the first bar and the hand kept off in the air, so the second bar is flown over
   let skip: Opt | null = baseBars === 1 ? { plan, ticks: base.world.runner.tick, bars: 1 } : null;
-  const skipPlan = (h: number, jx: number): Plan => ({ ...plan, jumpXs: [...plan.jumpXs.slice(0, -1), jx], hangTicks: [h], airHands: [false] });
+  const skipPlan = (h: number, jx: number): Plan => ({ ...plan, jumpXs: plan.jumpXs.map((x, i) => (i === li ? jx : x)), hangTicks: [h], airHands: [false] });
   const tryHang = (jx: number, hs: number[]) => {
     for (const h of hs) {
-      const r = playPlan(course, skipPlan(h, jx), 120 * 40);
+      const r = playPlan(course, skipPlan(h, jx), 120 * 40 + lead(course, firstBarX));
       if (r.world.outcome === 'cleared' && catches(r) === 1 && (!skip || r.world.runner.tick < skip.ticks)) skip = { plan: skipPlan(h, jx), ticks: r.world.runner.tick, bars: 1 };
     }
   };
   const coarse = Array.from({ length: 91 }, (_, i) => i * 6);
   for (const jx of [jx0, ...[-0.3, -0.2, -0.1, 0.1, 0.2, 0.3].map((d) => Math.round((jx0 + d) * 100) / 100)]) { tryHang(jx, coarse); if (skip && skip.plan.airHands) break; }
-  if (skip && skip.plan.airHands) { const b = skip as Opt; tryHang(b.plan.jumpXs[b.plan.jumpXs.length - 1], Array.from({ length: 13 }, (_, i) => Math.max(0, b.plan.hangTicks![0] - 6 + i))); }
+  if (skip && skip.plan.airHands) { const b = skip as Opt; tryHang(b.plan.jumpXs[li], Array.from({ length: 13 }, (_, i) => Math.max(0, b.plan.hangTicks![0] - 6 + i))); }
   const opts = [viaBars && { name: 'bar to bar', ...viaBars }, skip && { name: 'skip the second bar', ...(skip as Opt) }].filter((o): o is Opt & { name: string } => !!o);
   if (!opts.length) return { plan, cleared: true, routes: [{ name: baseBars >= 2 ? 'bar to bar' : 'one bar', ticks: base.world.runner.tick, bars: baseBars, chosen: true }] };
   const fastest = opts.reduce((a, b) => (b.ticks < a.ticks ? b : a));

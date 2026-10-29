@@ -2,6 +2,8 @@
 // The Training course's whole-course search lands on a slower line than the one that is there once the drop after the lache pair needs a roll
 // (CC-161: 3486 ticks searched against 3194 by hand), so the two lines through the lache pair are searched here on the plan of the other obstacles
 // and the faster one is stored: a full pump on bar 1 and a flight past bar 2 (the shortcut), with bar to bar kept as the slower route.
+// CC-164: the whole-course search now clears Training and finds the skip alone (4960 ticks), but its greedy choices (a jump over the climb step, vault x) leave it 146 ticks behind this line (4814).
+// So this script stays until the search can compare whole lines; a seed (scripts/seed-plan.ts, CC-176) with this line polishes it to 4784.
 import { readFileSync, writeFileSync } from 'node:fs';
 import type { CourseData } from '../src/course/course';
 import { playPlan, type Plan } from '../src/sim/ideal';
