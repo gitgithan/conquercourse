@@ -49,7 +49,6 @@ export const LIBRARY: { id: string; label: string; mesh: () => Mesh }[] = [
   { id: 'bench', label: 'Bench', mesh: () => box(1.8, 0.45, 0.5) },
   { id: 'low-wall', label: 'Low wall', mesh: () => box(3, 0.9, 0.4) },
   { id: 'block', label: 'Block', mesh: () => box(2, 0.7, 1.4) },
-  { id: 'dome', label: 'Dome / mound', mesh: () => dome(1.5, 0.8, 1) },
   { id: 'steps', label: 'Steps', mesh: () => stairs(4, 0.17, 0.4, 1.4) },
   { id: 'rail', label: 'Rail', mesh: () => rail(3, 1) },
   { id: 'brick', label: 'Toy brick (3 cm)', mesh: () => brick() },
