@@ -7,6 +7,7 @@
 // a scene that wants it calls buildSkin(osm, { skin, k }) and adds the returned group (all sizes are multiplied by k, the place's shrink).
 import * as THREE from 'three';
 import { heightOf } from './osm';
+import { groundAt, lowest, type Ground } from './terrain';
 
 export type SkinMode = 'none' | 'tags' | 'full';
 export const skinFromQuery = (q: URLSearchParams, fallback: SkinMode = 'none'): SkinMode => { const s = q.get('skin'); return s === 'none' || s === 'tags' || s === 'full' ? s : fallback; };
@@ -99,7 +100,7 @@ function wallTexture(look: BuildingLook): THREE.CanvasTexture {
 }
 
 export interface SkinStats { buildings: number; land: number; roads: number; trees: number; textures: number }
-export function buildSkin(osm: SkinOsm, opts: { skin: SkinMode; k?: number; seed?: number } = { skin: 'full' }): { group: THREE.Group; stats: SkinStats } {
+export function buildSkin(osm: SkinOsm, opts: { skin: SkinMode; k?: number; seed?: number; ground?: Ground | null; noLand?: boolean } = { skin: 'full' }): { group: THREE.Group; stats: SkinStats } {
   const k = opts.k ?? 1, skin = opts.skin, full = skin === 'full', pr = project(osm), group = new THREE.Group();
   const stats: SkinStats = { buildings: 0, land: 0, roads: 0, trees: 0, textures: 0 };
   const plain = new THREE.MeshStandardMaterial({ color: '#a9a392', roughness: 0.85, flatShading: true });
@@ -107,14 +108,14 @@ export function buildSkin(osm: SkinOsm, opts: { skin: SkinMode; k?: number; seed
   const std = (color: string, extra: Partial<THREE.MeshStandardMaterialParameters> = {}) => new THREE.MeshStandardMaterial({ color, roughness: 0.9, ...extra });
 
   // ground
-  if (skin !== 'none') {
+  if (skin !== 'none' && !opts.noLand) {
     const ground = new THREE.Mesh(new THREE.PlaneGeometry(2000 * k, 2000 * k), std(GROUND_COLOUR)); ground.rotation.x = -Math.PI / 2; ground.position.y = -0.02 * k; ground.receiveShadow = full; group.add(ground);
   }
 
   // land: parks, water, wood, paving, in the order grass, wood, sand, paving, water so water sits on top
   const order: LandKind[] = ['rock', 'paving', 'sand', 'grass', 'wood', 'water'];
   const woods: XY[][] = [];
-  if (skin !== 'none') {
+  if (skin !== 'none' && !opts.noLand) {
     for (const kind of order) {
       let n = 0;
       for (const e of osm.elements) {
@@ -132,7 +133,7 @@ export function buildSkin(osm: SkinOsm, opts: { skin: SkinMode; k?: number; seed
   }
 
   // roads and paths: a flat ribbon along each way
-  if (skin !== 'none') {
+  if (skin !== 'none' && !opts.noLand) {
     const byColour = new Map<string, { pos: number[]; idx: number[] }>();
     for (const e of osm.elements) {
       if (e.type !== 'way' || !e.geometry || e.geometry.length < 2) continue;
@@ -162,8 +163,10 @@ export function buildSkin(osm: SkinOsm, opts: { skin: SkinMode; k?: number; seed
     for (const r of rings(e, pr)) {
       if (r.length < 3 || Math.abs(area(r)) < 4) continue;
       const shape = new THREE.Shape(r.map((p) => new THREE.Vector2(p.x * k, -p.z * k)));
+      // CC-234: with a ground, a building stands on its hill and its walls run down to y = 0, like the lane's own blocks (src/world/osm.ts extrude)
+      const base = opts.ground ? (groundAt(opts.ground, r.reduce((t, p) => t + p.x, 0) / r.length, r.reduce((t, p) => t + p.z, 0) / r.length) - lowest(opts.ground)) * k : 0;
       const height = Math.min(h, 80) * k;
-      const geo = new THREE.ExtrudeGeometry(shape, { depth: height, bevelEnabled: false }); geo.rotateX(-Math.PI / 2);
+      const geo = new THREE.ExtrudeGeometry(shape, { depth: height + base, bevelEnabled: false }); geo.rotateX(-Math.PI / 2);
       let material: THREE.Material | THREE.Material[] = plain;
       if (skin !== 'none') {
         const look = buildingLook(e.tags, h), key = `${look.wall}|${look.roof}|${look.pattern}|${full}`;
