@@ -1,0 +1,15 @@
+{
+  "experiment": "cc-furniture",
+  "issue": "CC-187",
+  "date": "2026-10-30",
+  "source": "Mapillary map_features",
+  "places": {
+    "montmartre-paris": 24,
+    "eixample-barcelona": 412,
+    "circular-quay-sydney": 194,
+    "san-francisco-lombard": 356
+  },
+  "licence": "CC BY-SA 4.0",
+  "viewport": "1280x720",
+  "run_on": "VM2"
+}

@@ -2,7 +2,7 @@
 // Looks only: no physics, no collision, the lane and the course file are not touched. Credit and licence are shown in the corner of the screen.
 import * as THREE from 'three';
 import { groundAt } from '../sim/terrain';
-import { countByKind, drawScale, LICENCE, place, type FurnitureFile, type Kind, type Placed } from '../world/furniture';
+import { countByKind, drawScale, LICENCE, place, type FurnitureFile, type Kind } from '../world/furniture';
 import { slugOfCourse } from '../ui/place-photos';
 
 // Each kind is a few boxes and cylinders, sizes in real metres (multiplied by the draw scale). off: where the part's base sits relative to the object's foot.
