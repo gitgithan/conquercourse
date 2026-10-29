@@ -1,0 +1,20 @@
+{
+  "photo": "bar-green",
+  "status": 200,
+  "usage": {
+    "prompt_tokens": 1563,
+    "completion_tokens": 1773,
+    "total_tokens": 3336,
+    "prompt_tokens_details": {
+      "audio_tokens": 0,
+      "cached_tokens": 128
+    },
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": 1230,
+      "audio_tokens": 0,
+      "reasoning_tokens": 1711,
+      "rejected_prediction_tokens": 2571
+    }
+  },
+  "reply": "{\"score\": 3, \"problems\": [\"not a flat side-on view - diagonal 3/4 perspective\", \"busy background with buildings, trees, fence and vegetation behind object\", \"thin horizontal top bars\"], \"verdict\": \"partly\"}"
+}
