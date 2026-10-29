@@ -1,0 +1,225 @@
+[
+  {
+    "photo": "bollard-street",
+    "label": "bollard",
+    "box": [
+      840,
+      830,
+      1060,
+      1540
+    ],
+    "why_hard": "street scene, small object, a second bollard behind",
+    "author": "Infrogmation of New Orleans",
+    "licence": "CC BY-SA 4.0",
+    "source": "https://commons.wikimedia.org/wiki/File:Canal_Street_Bollard_Mid_City_New_Orleans.jpg",
+    "title": "File:Canal Street Bollard Mid City New Orleans.jpg",
+    "height_m": 0.9
+  },
+  {
+    "photo": "bollard-row-edge",
+    "label": "bollard",
+    "box": [
+      100,
+      300,
+      440,
+      960
+    ],
+    "why_hard": "object cut by the bottom edge, neighbours overlap, bright metal",
+    "author": "Stephen McKay",
+    "licence": "CC BY-SA 2.0",
+    "source": "https://commons.wikimedia.org/wiki/File:City_Road_bollards_-_geograph.org.uk_-_1758261.jpg",
+    "title": "File:City Road bollards - geograph.org.uk - 1758261.jpg",
+    "height_m": 0.9
+  },
+  {
+    "photo": "bike-shelter",
+    "label": "bicycle rack",
+    "box": [
+      200,
+      60,
+      1120,
+      740
+    ],
+    "why_hard": "thin frames behind glass, shelter roof",
+    "author": "Ben Coleman",
+    "licence": "CC0",
+    "source": "https://commons.wikimedia.org/wiki/File:Bicycle_parking_rack_at_Chester_station.jpg",
+    "title": "File:Bicycle parking rack at Chester station.jpg",
+    "height_m": 1.0
+  },
+  {
+    "photo": "bike-rack-tangle",
+    "label": "bicycle rack",
+    "box": [
+      0,
+      40,
+      1100,
+      1400
+    ],
+    "why_hard": "bicycles piled on the rack: heavy occlusion, indoor",
+    "author": "Mia5793",
+    "licence": "CC0",
+    "source": "https://commons.wikimedia.org/wiki/File:Bike_parking_at_19th_Street_Oakland_(3),_March_2012.jpg",
+    "title": "File:Bike parking at 19th Street Oakland (3), March 2012.jpg",
+    "height_m": 1.0
+  },
+  {
+    "photo": "bin-scooters",
+    "label": "trash bin",
+    "box": [
+      510,
+      200,
+      850,
+      800
+    ],
+    "why_hard": "scooters and a tree against the bin, busy street behind",
+    "author": "\u7384\u53f2\u751f",
+    "licence": "CC0",
+    "source": "https://commons.wikimedia.org/wiki/File:Large_Street_Trash_Bin_of_Taipei_City_20121229.JPG",
+    "title": "File:Large Street Trash Bin of Taipei City 20121229.JPG",
+    "height_m": 1.0
+  },
+  {
+    "photo": "bin-snow",
+    "label": "trash bin",
+    "box": [
+      310,
+      640,
+      1020,
+      1610
+    ],
+    "why_hard": "snow, sign text, pole in front",
+    "author": "Andre Carrotflower",
+    "licence": "CC BY-SA 4.0",
+    "source": "https://commons.wikimedia.org/wiki/File:%22Welcome_to_Black_Rock%22_trash_bin,_Amherst_Street,_Buffalo,_New_York_-_20220218.jpg",
+    "title": "File:\"Welcome to Black Rock\" trash bin, Amherst Street, Buffalo, New York - 20220218.jpg",
+    "height_m": 1.0
+  },
+  {
+    "photo": "bench-dusk",
+    "label": "bench",
+    "box": [
+      350,
+      430,
+      680,
+      680
+    ],
+    "why_hard": "dark, street lamps, other benches behind",
+    "author": "Tdorante10",
+    "licence": "CC BY-SA 4.0",
+    "source": "https://commons.wikimedia.org/wiki/File:Pomonok_Playground_td_(2019-02-24)_057.jpg",
+    "title": "File:Pomonok Playground td (2019-02-24) 057.jpg",
+    "height_m": 0.85
+  },
+  {
+    "photo": "bench-backlit",
+    "label": "bench",
+    "box": [
+      60,
+      430,
+      530,
+      810
+    ],
+    "why_hard": "backlit by sunset, reflections, dark side towards the camera",
+    "author": "Roman Eisele",
+    "licence": "CC BY-SA 4.0",
+    "source": "https://commons.wikimedia.org/wiki/File:Leingarten_-_Gro%C3%9Fgartach_-_Eichbott_-_oberer_Eichbott-See_-_Bank_mit_Sonnenuntergang_(1.2).jpg",
+    "title": "File:Leingarten - Gro\u00dfgartach - Eichbott - oberer Eichbott-See - Bank mit Sonnenuntergang (1.2).jpg",
+    "height_m": 0.85
+  },
+  {
+    "photo": "skate-stairs",
+    "label": "stairs",
+    "box": [
+      130,
+      220,
+      1090,
+      710
+    ],
+    "why_hard": "stairs between two ledges with a rail, graffiti, trees behind",
+    "author": "Neoclassicism Enthusiast",
+    "licence": "CC0",
+    "source": "https://commons.wikimedia.org/wiki/File:Ledges,_stairs_with_rail_and_a_bank_of_the_IOR_Skatepark_in_Bucharest_(01).jpg",
+    "title": "File:Ledges, stairs with rail and a bank of the IOR Skatepark in Bucharest (01).jpg"
+  },
+  {
+    "photo": "calisthenics-berlin",
+    "label": "pull-up bar",
+    "box": [
+      890,
+      200,
+      1270,
+      890
+    ],
+    "why_hard": "bar frames overlap, bare trees behind, cut by the right edge",
+    "author": "Singlespeedfahrer",
+    "licence": "CC0",
+    "source": "https://commons.wikimedia.org/wiki/File:Calisthenics_Poststadion_Berlin_3v5.jpg",
+    "title": "File:Calisthenics Poststadion Berlin 3v5.jpg",
+    "height_m": 2.3
+  },
+  {
+    "photo": "fitness-fence",
+    "label": "fitness equipment",
+    "box": [
+      400,
+      60,
+      800,
+      730
+    ],
+    "why_hard": "thin loops, fence and bench behind, harsh shadows",
+    "author": "Tdorante10",
+    "licence": "CC BY-SA 4.0",
+    "source": "https://commons.wikimedia.org/wiki/File:Booker_T._Washington_Playground_td_(2019-07-21)_32_-_Outdoor_Fitness_Equipment.jpg",
+    "title": "File:Booker T. Washington Playground td (2019-07-21) 32 - Outdoor Fitness Equipment.jpg",
+    "height_m": 1.6
+  },
+  {
+    "photo": "fitness-macombs",
+    "label": "pull-up bar",
+    "box": [
+      170,
+      320,
+      1020,
+      1430
+    ],
+    "why_hard": "wet ground reflections, overcast, many bars overlap",
+    "author": "Tdorante10",
+    "licence": "CC BY-SA 4.0",
+    "source": "https://commons.wikimedia.org/wiki/File:Macombs_Dam_Pk_td_(2019-01-24)_129_-_Outdoor_Fitness_Area.jpg",
+    "title": "File:Macombs Dam Pk td (2019-01-24) 129 - Outdoor Fitness Area.jpg",
+    "height_m": 2.3
+  },
+  {
+    "photo": "railing-statue",
+    "label": "railing",
+    "box": [
+      200,
+      230,
+      780,
+      530
+    ],
+    "why_hard": "thin rails, statue base, black railing against checker floor, tiny people far away (blurred by privacy step)",
+    "author": "Tdorante10",
+    "licence": "CC BY-SA 4.0",
+    "source": "https://commons.wikimedia.org/wiki/File:Athens_Square_Park_Qns_td_(2019-08-21)_27.jpg",
+    "title": "File:Athens Square Park Qns td (2019-08-21) 27.jpg",
+    "height_m": 1.0
+  },
+  {
+    "photo": "hydrant-cars",
+    "label": "fire hydrant",
+    "box": [
+      470,
+      960,
+      560,
+      1110
+    ],
+    "why_hard": "tiny object (about 1% of the photo), cars, wires",
+    "author": "Jim.henderson",
+    "licence": "CC0",
+    "source": "https://commons.wikimedia.org/wiki/File:Suburbia_JC_walk_parking_jeh.jpg",
+    "title": "File:Suburbia JC walk parking jeh.jpg",
+    "height_m": 0.7
+  }
+]
