@@ -93,6 +93,7 @@ export function startMap(host: HTMLElement): { backend: 'webgl2' } {
   const sliceBtn = $<HTMLButtonElement>('slice'), slicer = $('slicer'), cut = $<HTMLInputElement>('cut'), read = $('sliceread');
   const tell = (s: string, bad = false) => { say.textContent = s; say.classList.toggle('bad', bad); };
   radius.oninput = () => { $('radiusv').textContent = radius.value; };
+  radius.onchange = () => places?.prefetch();
   shrink.oninput = () => { $('shrinkv').textContent = shrink.value; };
 
   const map = new maplibregl.Map({ container: mapEl, style: STYLE, center: [Number(q.get('lon') ?? 2.1649), Number(q.get('lat') ?? 41.3917)], zoom: Number(q.get('z') ?? 15), attributionControl: false, canvasContextAttributes: { preserveDrawingBuffer: true } });
@@ -117,6 +118,7 @@ export function startMap(host: HTMLElement): { backend: 'webgl2' } {
     document.documentElement.dataset.pin = `${lat.toFixed(5)},${lon.toFixed(5)}`;
     void showPhotos(lat, lon);
     tell(`Pin at ${lat.toFixed(4)}, ${lon.toFixed(4)}.${places?.snapNote(lat, lon) ?? ''}`);
+    places?.prefetch();
   };
   map.on('click', (e) => { if (S) pickClick(e.point); else dropPin(e.lngLat.lat, e.lngLat.lng); });
   places = installPlaces({
