@@ -194,6 +194,17 @@ flowchart LR
 - **Ideal-run search:** finds the best line for any course and proves a course can be cleared; this is what keeps model suggestions honest.
 - **Plausibility gate:** every motion passes it before it is shown.
 
+## Meta tools in development (not game features)
+- These helped us build the game; the game itself does not call them, and they are not counted as game features.
+- **Muse Wonder** (`muse-wonder-1.0`, Meta Model API) reviewed the simulator code (CC-133, 2026-10-29).
+  - It read 4 chunks of `src/sim` and made 21 claims.
+  - We checked each one with a test or by reading the code: 13 real, 7 false alarms, 1 unclear.
+  - None of the real ones breaks a shipped course; 2 were fixed at once, 11 are tracked in CC-140.
+  - Cost: $2.38 for the run, about $0.18 per real bug.
+  - It did well on the physics code and gave nothing useful on the contraptions chunk.
+  - Details: [data/eval/cc-wonder-review/README.md](../data/eval/cc-wonder-review/README.md).
+- **Muse Spark Open** (on Baseten) also helped as a dev aid: bulk course drafts (CC-122) and photo triage (CC-123); the same model is what the Course Agent uses in the game.
+
 ## What we tried that did not work
 - **PartLLM** (find hang points on object meshes): 2 of 9 real parts found and 11 false claims in 13 absent cases; parked (CC-49).
 - **Two-stage wall climb from Kimodo clips:** neither stage passed the gate, so nothing shipped (CC-36).

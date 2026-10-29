@@ -1,0 +1,838 @@
+You are reviewing the physics simulator of a browser game (TypeScript, deterministic, fixed 120 Hz step, pure functions, Earth gravity only). Below are source files with line numbers.
+Find real bugs: wrong physics, unit mix-ups, off-by-one, division by zero or NaN, state that is not reset, results that depend on iteration order or wall-clock time (the simulator must replay the same keys to the same result), and edge cases that break a promise the comments make.
+Rules:
+- Report only bugs you can argue from the code shown. Do not report style, naming or missing features.
+- For each, give the file, the line number printed in the listing, one sentence of summary, a concrete failing input (numbers a test could use), and why it fails.
+- Give a confidence of low, medium or high. If you find nothing, return an empty list.
+
+=== src/sim/cart.ts ===
+1: import type { CourseData } from '../course/course';
+2: import { DT, GRAVITY } from './units';
+3: import type { RunnerInput } from './runner';
+4: import type { GameEvent, WorldState } from './world';
+5: 
+6: // The cart: the runner sits in a cart that rolls along a smooth track (a coaster). Nothing drives it but gravity:
+7: // height is stored speed. It stays on the rails while the track pushes up on it; over a crest that bends away faster than gravity can
+8: // follow, the track stops pushing and the cart flies on as a projectile. On a hill it cannot climb, it stops and rolls back.
+9: // Everything is a metre, a second or a kilogram; the cart is integrated with RK4 at the fixed step like the rope and the bars.
+10: 
+11: export interface TrackData {
+12:   pts: [number, number][]; // where the track passes: [x, height] seen from the side, x rising; a smooth curve goes through them
+13:   segments?: [number, number][][]; // separate rail splines, ordered from the start; the cart may fly between them
+14:   push?: number; // m/s the first push gives (a shove at the top of the first hill)
+15: }
+16: 
+17: export const trackSegments = (t: TrackData): [number, number][][] => t.segments?.length ? t.segments : [t.pts];
+18: 
+19: export interface CartParams {
+20:   rolling: number; // rolling resistance (share of the weight along the track)
+21:   drag: number; // 1/m, air drag on the speed squared
+22:   brake: number; // m/s², what holding the brake takes off the speed
+23:   seat: number; // m, the feet's height above the rails (the rider sits in the cart)
+24:   push: number; // m/s, a push at the start
+25:   gravity: number;
+26: }
+27: 
+28: export const DEFAULT_CART: CartParams = { rolling: 0.012, drag: 0.0015, brake: 4.5, seat: 0.45, push: 1.5, gravity: GRAVITY };
+29: 
+30: export interface Cart {
+31:   segment: number; // which disconnected rail spline the cart is currently riding
+32:   x: number; // m along the run (the rails are a function of x)
+33:   v: number; // m/s along the rails, positive toward +x
+34:   started: boolean; // has the first push been given
+35:   stalledAt: number | null; // tick of the turn-round on a hill the cart could not climb
+36:   tilt: number; // rad, how steeply the rails rise here (the cart and the rider lean with it)
+37: }
+38: 
+39: // A smooth curve through the points: a natural cubic spline, so the slope and the bend are continuous.
+40: export interface Rails {
+41:   x0: number; x1: number;
+42:   y(x: number): number;
+43:   slope(x: number): number; // dy/dx
+44:   bend(x: number): number; // d²y/dx²
+45: }
+46: 
+47: export function makeRails(pts: [number, number][]): Rails {
+48:   const p = [...pts].sort((a, b) => a[0] - b[0]);
+49:   const n = p.length;
+50:   const xs = p.map((q) => q[0]), ys = p.map((q) => q[1]);
+51:   const M = new Array<number>(n).fill(0); // second derivatives at the points; zero at both ends (natural)
+52:   if (n > 2) {
+53:     const h = xs.slice(1).map((x, i) => x - xs[i]);
+54:     const a = new Array<number>(n).fill(0), b = new Array<number>(n).fill(1), c = new Array<number>(n).fill(0), d = new Array<number>(n).fill(0);
+55:     for (let i = 1; i < n - 1; i++) {
+56:       a[i] = h[i - 1]; b[i] = 2 * (h[i - 1] + h[i]); c[i] = h[i];
+57:       d[i] = 6 * ((ys[i + 1] - ys[i]) / h[i] - (ys[i] - ys[i - 1]) / h[i - 1]);
+58:     }
+59:     for (let i = 1; i < n; i++) { const w = a[i] / b[i - 1]; b[i] -= w * c[i - 1]; d[i] -= w * d[i - 1]; } // forward sweep
+60:     M[n - 1] = d[n - 1] / b[n - 1];
+61:     for (let i = n - 2; i >= 0; i--) M[i] = (d[i] - c[i] * M[i + 1]) / b[i];
+62:   }
+63:   const seg = (x: number): number => {
+64:     let i = 0;
+65:     while (i < n - 2 && x > xs[i + 1]) i++;
+66:     return i;
+67:   };
+68:   const clampX = (x: number) => Math.min(Math.max(x, xs[0]), xs[n - 1]);
+69:   return {
+70:     x0: xs[0], x1: xs[n - 1],
+71:     y(x) {
+72:       if (n < 2) return ys[0] ?? 0;
+73:       x = clampX(x); const i = seg(x), h = xs[i + 1] - xs[i], l = xs[i + 1] - x, r = x - xs[i];
+74:       return (M[i] * l ** 3) / (6 * h) + (M[i + 1] * r ** 3) / (6 * h) + (ys[i] / h - (M[i] * h) / 6) * l + (ys[i + 1] / h - (M[i + 1] * h) / 6) * r;
+75:     },
+76:     slope(x) {
+77:       if (n < 2) return 0;
+78:       x = clampX(x); const i = seg(x), h = xs[i + 1] - xs[i], l = xs[i + 1] - x, r = x - xs[i];
+79:       return (-M[i] * l * l) / (2 * h) + (M[i + 1] * r * r) / (2 * h) - (ys[i] / h - (M[i] * h) / 6) + (ys[i + 1] / h - (M[i + 1] * h) / 6);
+80:     },
+81:     bend(x) {
+82:       if (n < 2) return 0;
+83:       x = clampX(x); const i = seg(x), h = xs[i + 1] - xs[i];
+84:       return (M[i] * (xs[i + 1] - x)) / h + (M[i + 1] * (x - xs[i])) / h;
+85:     },
+86:   };
+87: }
+88: 
+89: const railsCache = new WeakMap<object, Rails>();
+90: export function railsOf(t: TrackData, segment = 0): Rails {
+91:   let r = railsCache.get(t);
+92:   if (!r) { r = makeRails(t.pts); railsCache.set(t, r); }
+93:   if (segment === 0 && !t.segments?.length) return r;
+94:   const perTrack = railsSetsCache.get(t) ?? trackSegments(t).map(makeRails);
+95:   railsSetsCache.set(t, perTrack);
+96:   return perTrack[segment] ?? perTrack[0];
+97: }
+98: 
+99: const railsSetsCache = new WeakMap<object, Rails[]>();
+100: 
+101: // How hard the rails push up on the cart, per kilogram: the weight across the slope plus the push of a valley, minus the lift of a crest.
+102: // At zero or below the cart is no longer held on and leaves the track.
+103: export function railPush(rails: Rails, x: number, v: number, g: number = GRAVITY): number {
+104:   const s = rails.slope(x), c = 1 / Math.sqrt(1 + s * s);
+105:   const kappa = rails.bend(x) * c ** 3;
+106:   return g * c + kappa * v * v;
+107: }
+108: 
+109: // The speed along the rails at which a crest of this bend lets go (the cart would leave the track above it).
+110: export function crestSpeedLimit(rails: Rails, x: number, g: number = GRAVITY): number {
+111:   const s = rails.slope(x), c = 1 / Math.sqrt(1 + s * s), kappa = rails.bend(x) * c ** 3;
+112:   return kappa < 0 ? Math.sqrt((g * c) / -kappa) : Infinity;
+113: }
+114: 
+115: // One RK4 step along the rails. `brake` is held. Returns the new x and speed.
+116: export function cartStep(rails: Rails, x: number, v: number, brake: boolean, p: CartParams = DEFAULT_CART): { x: number; v: number } {
+117:   const acc = (xx: number, vv: number): number => {
+118:     const s = rails.slope(xx), c = 1 / Math.sqrt(1 + s * s), sinPhi = s * c;
+119:     const smooth = Math.tanh(vv / 0.05); // resistance opposes the motion, and fades to nothing at rest (no jitter)
+120:     return -p.gravity * sinPhi - p.rolling * p.gravity * c * smooth - p.drag * vv * Math.abs(vv) - (brake ? p.brake * smooth : 0);
+121:   };
+122:   const vel = (xx: number, vv: number): number => vv / Math.sqrt(1 + rails.slope(xx) ** 2);
+123:   const k1x = vel(x, v), k1v = acc(x, v);
+124:   const k2x = vel(x + 0.5 * DT * k1x, v + 0.5 * DT * k1v), k2v = acc(x + 0.5 * DT * k1x, v + 0.5 * DT * k1v);
+125:   const k3x = vel(x + 0.5 * DT * k2x, v + 0.5 * DT * k2v), k3v = acc(x + 0.5 * DT * k2x, v + 0.5 * DT * k2v);
+126:   const k4x = vel(x + DT * k3x, v + DT * k3v), k4v = acc(x + DT * k3x, v + DT * k3v);
+127:   return { x: x + (DT / 6) * (k1x + 2 * k2x + 2 * k3x + k4x), v: v + (DT / 6) * (k1v + 2 * k2v + 2 * k3v + k4v) };
+128: }
+129: 
+130: export const trackParams = (course: CourseData): CartParams => ({ ...DEFAULT_CART, ...(course.track?.push !== undefined ? { push: course.track.push } : {}) });
+131: 
+132: // The world when a course has a track: the cart waits at the start of the rails, at rest, until the first push.
+133: export function enterCart(w: WorldState, course: CourseData): WorldState {
+134:   const rails = railsOf(course.track!, 0);
+135:   const p = trackParams(course);
+136:   const x = rails.x0;
+137:   return { ...w, mode: 'cart', cart: { segment: 0, x, v: 0, started: false, stalledAt: null, tilt: Math.atan(rails.slope(x)) }, runner: { ...w.runner, x, y: rails.y(x) + p.seat, vx: 0, vy: 0, grounded: true } };
+138: }
+139: 
+140: // Did the cart leave the rails on a hilltop? (Flying across the gap between two rail sections is planned and does not count.)
+141: export const flewOff = (events: { type: string; detail?: Record<string, number | boolean> }[]): boolean => events.some((e) => e.type === 'cart-off' && !e.detail?.end);
+142: 
+143: const STALL_ROLL_TICKS = 100; // after the turn-round the cart rolls back this long, then the run is over
+144: 
+145: export function stepCartWorld(w: WorldState, input: RunnerInput, course: CourseData): WorldState {
+146:   const track = course.track!;
+147:   const c = w.cart!;
+148:   const rails = railsOf(track, c.segment), p = trackParams(course);
+149:   const tick = w.runner.tick + 1;
+150:   const events: GameEvent[] = [];
+151:   let { x, v, started, stalledAt } = c;
+152:   if (!started) {
+153:     if (input.run || input.jump) { started = true; v = p.push; events.push({ tick, type: 'cart-start', detail: { v: p.push } }); }
+154:     return { ...w, cart: { ...c, x, v, started, stalledAt }, events, runner: { ...w.runner, tick, x, y: rails.y(x) + p.seat, vx: 0, vy: 0 } };
+155:   }
+156:   const prevV = v;
+157:   const nx = cartStep(rails, x, v, input.squat, p);
+158:   x = nx.x; v = nx.v;
+159:   const s = rails.slope(x), cosPhi = 1 / Math.sqrt(1 + s * s);
+160:   const y = rails.y(x) + p.seat;
+161:   let out: WorldState = { ...w, cart: { segment: c.segment, x, v, started, stalledAt, tilt: Math.atan(s) }, events, runner: { ...w.runner, tick, x, y, vx: v * cosPhi, vy: v * s * cosPhi, grounded: true } };
+162:   // At the end of a segment, fly toward the following section; the last rail end is the finish.
+163:   if (x >= rails.x1 && v > 0) {
+164:     if (c.segment + 1 < trackSegments(track).length) {
+165:       const endX = rails.x1, slope = rails.slope(endX), cos = 1 / Math.sqrt(1 + slope * slope);
+166:       events.push({ tick, type: 'cart-off', detail: { x: endX, v, segment: c.segment, end: true } });
+167:       return { ...out, mode: 'run', cart: null, events, runner: { ...out.runner, x: endX, y: rails.y(endX) + p.seat, vx: v * cos, vy: v * slope * cos, grounded: false, landedAtTick: null, landedAtX: null } };
+168:     }
+169:     return { ...out, outcome: 'cleared', events: [...events, { tick, type: 'cleared' }] };
+170:   }
+171:   // turned round on a hill: stalled; it rolls back a moment, then the run is over
+172:   if (stalledAt === null && prevV > 0 && v <= 0 && s > 0) {
+173:     stalledAt = tick; events.push({ tick, type: 'cart-stall', detail: { x, height: rails.y(x) } });
+174:     out = { ...out, cart: { segment: c.segment, x, v, started, stalledAt, tilt: Math.atan(s) }, events };
+175:   }
+176:   if (stalledAt !== null && (tick - stalledAt >= STALL_ROLL_TICKS || x <= rails.x0)) return { ...out, outcome: 'stalled', events };
+177:   // the rails stop pushing: the cart leaves the track and flies on (the ordinary flight takes over from here)
+178:   if (v > 0 && railPush(rails, x, v, p.gravity) <= 0) {
+179:     events.push({ tick, type: 'cart-off', detail: { x, v, push: railPush(rails, x, v, p.gravity), segment: c.segment } });
+180:     return { ...out, mode: 'run', cart: null, events, runner: { ...out.runner, grounded: false, landedAtTick: null, landedAtX: null } };
+181:   }
+182:   return out;
+183: }
+184: 
+
+=== src/sim/beam.ts ===
+1: import type { CourseData } from '../course/course';
+2: import { DT, GRAVITY } from './units';
+3: import { DEFAULT_PARAMS, type RunnerInput } from './runner';
+4: import { standingOn } from './terrain';
+5: import type { GameEvent, WorldState } from './world';
+6: 
+7: // The plank bridge: a plank laid across a gap, held at its two ends (and, if asked, by a post in the middle).
+8: // The runner is a load that walks along it. The plank bends under the load (it sags) and breaks if the bending is too much.
+9: // Euler-Bernoulli beam, simply supported, Earth gravity only; every number is a metre, a second or a kilogram.
+10: //   sag under a load F in the middle of a span L:   F L^3 / (48 E I)   (E: how stiff the material is, I: how stiff the cross-section is)
+11: //   I of a rectangular plank:                       width x thickness^3 / 12
+12: //   bending stress in the outer face:               M (thickness / 2) / I, with M = F L / 4 in the middle
+13: // Simplifications (stated, not hidden): the load is the rider's weight applied slowly (no extra push from running or jumping);
+14: // a post in the middle turns the plank into two planks that meet on the post (the continuous-beam gain is ignored, so a post helps slightly less than in a real plank);
+15: // the plank's own weight is spread evenly; no creep, no knots, no damage from earlier crossings.
+16: 
+17: export type Material = 'wood' | 'steel';
+18: 
+19: // Plain numbers for two materials. Sources: US Forest Products Laboratory, Wood Handbook (pine: modulus of elasticity about 9 GPa,
+20: // bending strength about 40 MPa, density about 500 kg/m3); mild structural steel (E 200 GPa, yield 250 MPa, density 7850 kg/m3).
+21: export const MATERIALS: Record<Material, { label: string; E: number; strength: number; density: number }> = {
+22:   wood: { label: 'Pine plank', E: 9e9, strength: 40e6, density: 500 },
+23:   steel: { label: 'Steel plate', E: 200e9, strength: 250e6, density: 7850 },
+24: };
+25: 
+26: export const RIDER_MASS = 70; // kg
+27: export const SAG_NOTE = 0.15; // m, from this much sag the plank is reported as sagging
+28: export const DISPLAY_SAG_MAX = 1.5; // m, the drawing never bends further than this (the plank has broken long before)
+29: 
+30: export interface PlankData {
+31:   x0: number; x1: number; // m along the run: where the plank rests on the two decks
+32:   y: number; // m, the height of the top face when unloaded and level (the decks)
+33:   thickness: number; // m
+34:   width: number; // m, across the lane
+35:   material?: Material;
+36:   support?: boolean; // a post in the middle
+37: }
+38: 
+39: export const materialOf = (pk: PlankData) => MATERIALS[pk.material ?? 'wood'];
+40: export const secondMoment = (pk: PlankData): number => (pk.width * pk.thickness ** 3) / 12; // m^4
+41: export const spanOf = (pk: PlankData): number => pk.x1 - pk.x0;
+42: export const weightPerMetre = (pk: PlankData): number => materialOf(pk).density * pk.width * pk.thickness * GRAVITY; // N/m
+43: 
+44: // One segment of the plank: from where it starts (m from the left end) and how long it is.
+45: interface Seg { s0: number; l: number }
+46: function segOf(pk: PlankData, x: number): Seg {
+47:   const L = spanOf(pk);
+48:   if (!pk.support) return { s0: 0, l: L };
+49:   return x < L / 2 ? { s0: 0, l: L / 2 } : { s0: L / 2, l: L / 2 };
+50: }
+51: 
+52: // Sag (m, downward) at x (m from the left end) with the rider standing at a (m from the left end; a < 0: nobody on the plank), self-weight included.
+53: export function sagAt(pk: PlankData, a: number, x: number, mass: number = RIDER_MASS): number {
+54:   const EI = materialOf(pk).E * secondMoment(pk);
+55:   const seg = segOf(pk, x), l = seg.l, xl = x - seg.s0;
+56:   // own weight, spread evenly: q x (l^3 - 2 l x^2 + x^3) / (24 EI)
+57:   const q = weightPerMetre(pk);
+58:   let d = (q * xl * (l ** 3 - 2 * l * xl * xl + xl ** 3)) / (24 * EI);
+59:   // the rider, if on this segment: a point load
+60:   if (a >= 0 && a <= spanOf(pk) && segOf(pk, a).s0 === seg.s0) {
+61:     const F = mass * GRAVITY, al = a - seg.s0, b = l - al;
+62:     d += xl <= al ? (F * b * xl * (l * l - b * b - xl * xl)) / (6 * EI * l) : (F * al * (l - xl) * (l * l - al * al - (l - xl) ** 2)) / (6 * EI * l);
+63:   }
+64:   return d;
+65: }
+66: 
+67: // The largest bending moment (N m) anywhere on the plank with the rider at a.
+68: export function maxMoment(pk: PlankData, a: number, mass: number = RIDER_MASS): number {
+69:   const q = weightPerMetre(pk), F = mass * GRAVITY, L = spanOf(pk);
+70:   let best = 0;
+71:   const N = 40;
+72:   for (let i = 0; i <= N; i++) {
+73:     const x = (L * i) / N;
+74:     const seg = segOf(pk, Math.min(x, L - 1e-9)), l = seg.l, xl = x - seg.s0;
+75:     let M = (q * xl * (l - xl)) / 2;
+76:     if (a >= 0 && segOf(pk, Math.min(a, L - 1e-9)).s0 === seg.s0) {
+77:       const al = a - seg.s0, b = l - al;
+78:       M += xl <= al ? (F * b * xl) / l : (F * al * (l - xl)) / l;
+79:     }
+80:     best = Math.max(best, M);
+81:   }
+82:   return best;
+83: }
+84: 
+85: // Stress in the outer face as a share of the material's bending strength: 1 and over means it breaks.
+86: export function stressRatio(pk: PlankData, a: number, mass: number = RIDER_MASS): number {
+87:   const sigma = (maxMoment(pk, a, mass) * (pk.thickness / 2)) / secondMoment(pk);
+88:   return sigma / materialOf(pk).strength;
+89: }
+90: 
+91: // The worst case over every place the rider can stand.
+92: export function worstCase(pk: PlankData, mass: number = RIDER_MASS): { sag: number; ratio: number; at: number } {
+93:   const L = spanOf(pk);
+94:   let sag = 0, ratio = 0, at = 0;
+95:   for (let i = 0; i <= 40; i++) {
+96:     const a = (L * i) / 40;
+97:     const r = stressRatio(pk, a, mass), s = sagAt(pk, a, a, mass);
+98:     if (r > ratio) { ratio = r; at = a; }
+99:     sag = Math.max(sag, s);
+100:   }
+101:   return { sag, ratio, at };
+102: }
+103: 
+104: export const plankHolds = (pk: PlankData, mass: number = RIDER_MASS): boolean => worstCase(pk, mass).ratio < 1;
+105: 
+106: // Height of the top face at x with the rider at a (for the drawing and for the feet).
+107: export const topAt = (pk: PlankData, a: number, x: number): number => pk.y - Math.min(DISPLAY_SAG_MAX, sagAt(pk, a, x - pk.x0));
+108: 
+109: // The picture of the bend follows the physical bend with a short lag, so a plank that loads suddenly (a landing in the middle) is not drawn jumping down in one frame.
+110: // Looks only: the physics above is not touched, and a plank the runner runs onto at its end already bends slowly enough that the lag is hardly seen.
+111: export const BEND_EASE_S = 0.18; // seconds: the drawn bend closes 63% of the way to the physical bend in this time
+112: export const easeToward = (cur: number, target: number, dt: number, tau: number = BEND_EASE_S): number => target + (cur - target) * Math.exp(-Math.max(0, dt) / tau);
+113: export const BEND_POINTS = 40; // the drawn plank is a strip of this many pieces
+114: export const bendTarget = (pk: PlankData, a: number, i: number): number => Math.min(DISPLAY_SAG_MAX, sagAt(pk, a, (spanOf(pk) * i) / BEND_POINTS));
+115: export const restBend = (pk: PlankData): number[] => Array.from({ length: BEND_POINTS + 1 }, (_, i) => bendTarget(pk, -1, i)); // nobody on it: its own weight
+116: // One frame of easing: the drawn bend (sag at each point along the plank) moves toward the physical bend for a rider at a (a < 0: nobody on it).
+117: export function easeBend(drawn: number[], pk: PlankData, a: number, dt: number): number[] {
+118:   return drawn.map((d, i) => easeToward(d, bendTarget(pk, a, i), dt));
+119: }
+120: // The drawn surface height at x (m from the left end), between the points of the drawn bend.
+121: export function drawnTopAt(pk: PlankData, drawn: number[], x: number): number {
+122:   const u = Math.min(BEND_POINTS, Math.max(0, (x / spanOf(pk)) * BEND_POINTS)), i = Math.min(BEND_POINTS - 1, Math.floor(u)), f = u - i;
+123:   return pk.y - (drawn[i] * (1 - f) + drawn[i + 1] * f);
+124: }
+125: 
+126: // The smallest change that makes a plank hold with a margin (so it is not on the edge): a thicker plank, or a post in the middle.
+127: export function fixPlank(pk: PlankData, margin = 0.8): { plank: PlankData; steps: string[]; ok: boolean } {
+128:   if (worstCase(pk).ratio <= margin) return { plank: pk, steps: [], ok: true };
+129:   let t = pk.thickness;
+130:   for (let i = 0; i < 80 && worstCase({ ...pk, thickness: t }).ratio > margin; i++) t = Math.round((t + 0.002) * 1000) / 1000;
+131:   const thicker = { ...pk, thickness: t };
+132:   const withPost = { ...pk, support: true };
+133:   const postOk = !pk.support && worstCase(withPost).ratio <= margin;
+134:   const mat = pk.material ?? 'wood';
+135:   if (postOk && (t > pk.thickness * 1.5 || t > 0.08)) return { plank: withPost, steps: ['Put a post under the middle of the plank.'], ok: true };
+136:   if (t <= 0.08) return { plank: thicker, steps: [`Use a ${mat === 'wood' ? 'plank' : 'plate'} ${(t * 100).toFixed(1)} cm thick (it is ${(pk.thickness * 100).toFixed(1)} cm now).`], ok: true };
+137:   if (postOk) return { plank: withPost, steps: ['Put a post under the middle of the plank.'], ok: true };
+138:   return { plank: pk, steps: ['No plank this thin and this long can hold: shorten the gap, or add a post and use thicker planks.'], ok: false };
+139: }
+140: 
+141: // ---- the plank in the world ----
+142: 
+143: export interface PlankState { i: number; v: number; sagged: boolean } // which plank, the speed along it
+144: 
+145: const SAG_LOSS = 1.0; // 1/s per metre of sag: a plank that dips takes some of the runner's speed (the plank shakes it away)
+146: 
+147: // Hands the runner over to a plank when the feet reach its start (or land on it): returns the next state, or null.
+148: export function maybeEnterPlank(w: WorldState, input: RunnerInput, course: CourseData): WorldState | null {
+149:   const planks = course.planks;
+150:   if (!planks || w.mode !== 'run') return null;
+151:   const r = w.runner;
+152:   for (let i = 0; i < planks.length; i++) {
+153:     const pk = planks[i];
+154:     if (w.broken?.includes(i)) continue;
+155:     const nx = r.x + r.vx * DT;
+156:     const onTop = r.grounded && Math.abs(r.y - pk.y) < 0.1 && nx >= pk.x0 - 1e-6 && r.x < pk.x1 && r.x > pk.x0 - 0.6;
+157:     const landing = !r.grounded && r.vy <= 0 && r.x > pk.x0 && r.x < pk.x1 && r.y + r.vy * DT <= pk.y && r.y >= pk.y - 0.2;
+158:     if (onTop || landing) {
+159:       const entered: WorldState = { ...w, mode: 'plank', plank: { i, v: r.vx, sagged: false }, runner: { ...r, grounded: true, vy: 0 } };
+160:       return stepPlankWorld(entered, input, course);
+161:     }
+162:   }
+163:   return null;
+164: }
+165: 
+166: export function stepPlankWorld(w: WorldState, input: RunnerInput, course: CourseData): WorldState {
+167:   const st = w.plank!, pk = course.planks![st.i];
+168:   const tick = w.runner.tick + 1;
+169:   const events: GameEvent[] = [];
+170:   const p = DEFAULT_PARAMS;
+171:   const tau = p.topSpeed / p.acceleration;
+172:   // the legs: the same push as on the ground
+173:   let v = st.v;
+174:   const run = input.run && !input.left, back = input.left && !input.run;
+175:   if (run) v += ((p.topSpeed - v) / tau) * DT;
+176:   else if (back) v += ((-p.topSpeed - v) / tau) * DT;
+177:   else v -= v * Math.min(1, 3 * DT);
+178:   // the dip: climbing out of it costs speed, and a plank that is shaking takes some away
+179:   const a0 = w.runner.x - pk.x0;
+180:   const slope = (topAt(pk, a0 + 0.05, pk.x0 + a0 + 0.05) - topAt(pk, a0 - 0.05, pk.x0 + a0 - 0.05)) / 0.1;
+181:   const sag0 = sagAt(pk, a0, a0);
+182:   v += -GRAVITY * Math.sin(Math.atan(slope)) * DT;
+183:   v -= v * SAG_LOSS * sag0 * DT;
+184:   let x = w.runner.x + v * DT;
+185:   const a = x - pk.x0;
+186:   // the jump leaves the plank
+187:   if (input.jump) {
+188:     events.push({ tick, type: 'jump', detail: { vy: course.jumpSpeed, vx: v, x } });
+189:     return { ...w, mode: 'run', plank: null, events, runner: { ...w.runner, tick, x, y: topAt(pk, a, x), vx: v, vy: course.jumpSpeed, grounded: false, landedAtTick: null, landedAtX: null } };
+190:   }
+191:   // the far end: back on a deck
+192:   if (x >= pk.x1 || x <= pk.x0) {
+193:     const side = x >= pk.x1 ? pk.x1 : pk.x0;
+194:     const deck = standingOn(course.terrain, side + (side === pk.x1 ? 0.02 : -0.02));
+195:     events.push({ tick, type: 'plank-off', detail: { x: side } });
+196:     return { ...w, mode: 'run', plank: null, events, runner: { ...w.runner, tick, x, y: deck ? deck.top : pk.y, vx: v, vy: 0, grounded: !!deck, landedAtTick: null, landedAtX: null } };
+197:   }
+198:   // too much bending: it breaks under the feet
+199:   const ratio = stressRatio(pk, a);
+200:   if (ratio >= 1) {
+201:     events.push({ tick, type: 'plank-break', detail: { x, at: a, ratio, sag: sagAt(pk, a, a) } });
+202:     return { ...w, mode: 'run', plank: null, broken: [...(w.broken ?? []), st.i], events, runner: { ...w.runner, tick, x, y: topAt(pk, a, x), vx: v, vy: -1.2, grounded: false, landedAtTick: null, landedAtX: null } };
+203:   }
+204:   const sag = sagAt(pk, a, a);
+205:   let sagged = st.sagged;
+206:   if (!sagged && sag >= SAG_NOTE) { sagged = true; events.push({ tick, type: 'plank-sag', detail: { x, sag, ratio } }); }
+207:   const y = topAt(pk, a, x);
+208:   const vy = (y - w.runner.y) / DT;
+209:   return { ...w, plank: { i: st.i, v, sagged }, events, runner: { ...w.runner, tick, x, y, vx: v, vy, grounded: true } };
+210: }
+211: 
+
+=== src/sim/drone.ts ===
+1: import { DT, GRAVITY } from './units';
+2: 
+3: // The drone ferry (CC-87): a cargo drone carries the runner across a gap. A point mass with a push (thrust) along its lean, Earth gravity,
+4: // air drag, a battery that pays for the push, and a stabiliser that holds the height. Everything is a metre, a kilogram, a newton, a watt or a second.
+5: //
+6: // Forces on the drone (and its rider): thrust T along the lean, weight m g, drag c m v.
+7: //   horizontal:  m ax = T sin(lean) - c m vx + wind
+8: //   vertical:    m ay = T cos(lean) - m g - c m vy
+9: // The rotors' electric power for a thrust T (the standard rotor law, divided by how good a real rotor is):
+10: //   P = T^1.5 / sqrt(2 rho A) / merit + avionics
+11: export interface DroneParams {
+12:   x0: number; x1: number; // the pad: hold E on it to board
+13:   droneMass: number; // kg: frame, rotors and battery
+14:   payload: number; // kg: the rider
+15:   maxThrust: number; // N: the most the rotors can push
+16:   rotorArea: number; // m^2: all the rotor discs together
+17:   merit: number; // 0..1: how close a real rotor gets to the ideal one
+18:   avionics: number; // W: electronics
+19:   battery: number; // Wh
+20:   drag: number; // 1/s: air drag per unit of mass (a = -drag v)
+21:   maxLean: number; // rad: the lean the arrows ask for
+22:   leanLag: number; // s: how fast the lean follows the arrows (the controller's reaction time)
+23:   climb: number; // m/s: the climb or descent rate the up and down arrows ask for
+24:   wind: number; // m/s^2: size of the gusts from the side (0: calm)
+25:   windPeriod: number; // s
+26:   hang: number; // m: the rider's feet are this far below the middle of the drone
+27:   stabiliser: boolean; // true: the drone holds its height by itself; false: the arrows move a thrust lever (the Hover lesson)
+28: }
+29: 
+30: export const AIR_DENSITY = 1.225; // kg/m^3 at sea level
+31: 
+32: export const DEFAULT_DRONE: DroneParams = {
+33:   x0: 0, x1: 4, droneMass: 85, payload: 70, maxThrust: 3100, rotorArea: 12.3, merit: 0.65, avionics: 300, battery: 50,
+34:   drag: 0.35, maxLean: 0.5, leanLag: 0.25, climb: 2, wind: 0, windPeriod: 6, hang: 1.1, stabiliser: true,
+35: };
+36: 
+37: export interface DroneState {
+38:   t: number; // s since boarding
+39:   x: number; y: number; // the middle of the drone
+40:   vx: number; vy: number;
+41:   lean: number; // rad, positive leans forward (+x)
+42:   hold: number; // the height the stabiliser holds
+43:   throttle: number; // 0..1, the thrust lever when the stabiliser is off
+44:   thrust: number; // N now
+45:   power: number; // W now
+46:   energy: number; // J left
+47:   empty: boolean; // the battery has run out
+48: }
+49: 
+50: export interface DroneCmd { lean: -1 | 0 | 1; climb: -1 | 0 | 1 }
+51: 
+52: const clamp = (v: number, lo: number, hi: number) => Math.min(hi, Math.max(lo, v));
+53: 
+54: export const totalMass = (p: DroneParams): number => p.droneMass + p.payload;
+55: export const weight = (p: DroneParams): number => totalMass(p) * GRAVITY;
+56: export const batteryJoules = (p: DroneParams): number => p.battery * 3600;
+57: 
+58: // The electric power for a thrust.
+59: export function rotorPower(T: number, p: DroneParams): number {
+60:   return Math.pow(Math.max(0, T), 1.5) / Math.sqrt(2 * AIR_DENSITY * p.rotorArea) / p.merit + p.avionics;
+61: }
+62: export const hoverPower = (p: DroneParams): number => rotorPower(weight(p), p);
+63: export const hoverSeconds = (p: DroneParams): number => batteryJoules(p) / hoverPower(p);
+64: 
+65: // The drone can lift off only with some push to spare (5%).
+66: export const canLiftOff = (p: DroneParams): boolean => p.maxThrust >= 1.05 * weight(p);
+67: // The heaviest rider that still lifts off.
+68: export const maxPayload = (p: DroneParams): number => p.maxThrust / (1.05 * GRAVITY) - p.droneMass;
+69: // The steepest lean that still holds the height (the push upward must equal the weight).
+70: export const maxLevelLean = (p: DroneParams): number => (p.maxThrust >= weight(p) ? Math.acos(weight(p) / p.maxThrust) : 0);
+71: // The sideways acceleration of a drone that holds its height at a lean.
+72: export const leanAcceleration = (lean: number): number => GRAVITY * Math.tan(lean);
+73: 
+74: export function boardDrone(p: DroneParams, x: number, feetY: number): DroneState {
+75:   const y = feetY + p.hang;
+76:   return { t: 0, x, y, vx: 0, vy: 0, lean: 0, hold: y + 2, throttle: weight(p) / p.maxThrust, thrust: weight(p), power: 0, energy: batteryJoules(p), empty: false };
+77: }
+78: 
+79: export const feetOfDrone = (s: DroneState, p: DroneParams): { x: number; y: number } => ({ x: s.x, y: s.y - p.hang });
+80: 
+81: // One tick. With the stabiliser on, the drone chooses the push that holds its height (or climbs at the asked rate) at whatever lean it has,
+82: // so leaning costs push; without it, the arrows move a thrust lever and nothing corrects the height.
+83: export function droneStep(s: DroneState, cmd: DroneCmd, p: DroneParams): DroneState {
+84:   const m = totalMass(p);
+85:   const lean = s.lean + (cmd.lean * p.maxLean - s.lean) * (1 - Math.exp(-DT / p.leanLag));
+86:   let hold = s.hold, throttle = s.throttle;
+87:   let T: number;
+88:   if (s.empty) T = 0;
+89:   else if (p.stabiliser) {
+90:     let vz: number;
+91:     if (cmd.climb !== 0) { vz = cmd.climb * p.climb; hold = s.y; } else vz = clamp((hold - s.y) * 1.5, -1.5, 1.5);
+92:     const az = clamp(4 * (vz - s.vy), -6, 6);
+93:     T = clamp((m * (GRAVITY + az + p.drag * s.vy)) / Math.cos(lean), 0, p.maxThrust);
+94:   } else {
+95:     throttle = clamp(throttle + cmd.climb * 0.3 * DT, 0, 1);
+96:     T = throttle * p.maxThrust;
+97:   }
+98:   const gust = p.wind * Math.sin((2 * Math.PI * s.t) / p.windPeriod);
+99:   const ax = (T * Math.sin(lean)) / m - p.drag * s.vx + gust;
+100:   const ay = (T * Math.cos(lean)) / m - GRAVITY - p.drag * s.vy;
+101:   const vx = s.vx + ax * DT, vy = s.vy + ay * DT;
+102:   const power = rotorPower(T, p);
+103:   const energy = Math.max(0, s.energy - power * DT);
+104:   return { t: s.t + DT, x: s.x + vx * DT, y: s.y + vy * DT, vx, vy, lean, hold, throttle, thrust: T, power, energy, empty: s.empty || energy <= 0 };
+105: }
+106: 
+107: // A touchdown the drone can take: slow, nearly level, and not racing along the ground.
+108: export const SOFT_VY = 2.5; // m/s
+109: export const SOFT_VX = 8; // m/s
+110: export const SOFT_LEAN = 0.35; // rad
+111: export function softTouchdown(s: DroneState): boolean {
+112:   return Math.abs(s.vy) <= SOFT_VY && Math.abs(s.vx) <= SOFT_VX && Math.abs(s.lean) <= SOFT_LEAN;
+113: }
+114: 
+115: // Where the drone goes if the arrows stay as they are (the debug view's ghost path): a few seconds, until it touches something or the battery ends.
+116: export function previewDrone(s: DroneState, cmd: DroneCmd, p: DroneParams, floor: (x: number) => number, seconds = 8): { x: number; y: number }[] {
+117:   const pts: { x: number; y: number }[] = [];
+118:   let q = s;
+119:   for (let i = 0; i < seconds * 120; i++) {
+120:     q = droneStep(q, cmd, p);
+121:     if (i % 6 === 0) pts.push({ x: q.x, y: q.y });
+122:     if (q.y - p.hang <= floor(q.x)) break;
+123:   }
+124:   return pts;
+125: }
+126: 
+
+=== src/sim/recoil.ts ===
+1: import { DT, GRAVITY } from './units';
+2: import { groundAt, type Terrain } from './terrain';
+3: 
+4: // Recoil: momentum is conserved. A launcher on the runner throws a heavy ball backward; the runner is pushed the other way by exactly
+5: // the momentum the ball carries away. Heavy and slow, or light and fast: the same push. One law, two pieces (an air launcher and a big aimed cannon).
+6: //
+7: // Everything is a metre, a kilogram or a second. The system before the shot is the runner plus the loaded ball moving together; after it, the
+8: // ball leaves with `muzzle` m/s RELATIVE to the runner (that is how a launcher is rated), backward and DOWN by `angle` (the barrel points backward and down),
+9: // so the push on the runner is forward and UP by `angle` above the horizontal. The law is a vector law:
+10: //   (m_c + m_b) v = m_c v2 + m_b (v2 + rel)   =>   v2 = v + m_b u (cos a, sin a) / (m_c + m_b),   rel = -u (cos a, sin a)
+11: export interface RecoilParams {
+12:   x0: number; x1: number; // the pad: stepping onto it clips the launcher on (one load per visit)
+13:   kind: 'cannon' | 'bigcannon';
+14:   ballMass: number; // kg
+15:   muzzle: number; // m/s of the ball relative to the runner at the moment it leaves
+16:   angle: number; // rad: the angle the runner is pushed above the horizontal (the start aim of a big cannon, which the player changes)
+17:   charMass: number; // kg, the runner and the launcher
+18:   energy?: number; // J the launcher can store (compressed air, or the arms); omitted: only the muzzle speed limits it
+19:   shots: number; // loads per visit to the pad
+20: }
+21: export const DEFAULT_RECOIL: RecoilParams = { x0: 0, x1: 2, kind: 'cannon', ballMass: 12, muzzle: 30, angle: 0, charMass: 70, shots: 1 };
+22: // The big aimed cannon: a wheeled air cannon with a wide barrel and a pressure tank, a heavy ball at 45 m/s against the runner's 70 kg.
+23: export const DEFAULT_CANNON: Pick<RecoilParams, 'kind' | 'ballMass' | 'muzzle' | 'angle'> = { kind: 'bigcannon', ballMass: 80, muzzle: 45, angle: 0.7 };
+24: 
+25: export const isAimable = (p: Pick<RecoilParams, 'kind'>): boolean => p.kind === 'bigcannon';
+26: export const AIM_MIN = 0, AIM_MAX = 1.35; // rad: level to 77 degrees
+27: export const AIM_RATE = 0.6; // rad per second while a key is held (34 degrees a second)
+28: export const clampAim = (a: number): number => Math.min(AIM_MAX, Math.max(AIM_MIN, a));
+29: 
+30: export interface Ball { x: number; y: number; vx: number; vy: number; landed: boolean }
+31: // armed: shots left; fired: shots so far; onPad: on the pad last tick; aim: the barrel angle now (rad); balls: in flight
+32: export interface RecoilState { armed: number; fired: number; onPad: boolean; aim?: number; balls: Ball[] }
+33: export const NO_RECOIL: RecoilState = { armed: 0, fired: 0, onPad: false, balls: [] };
+34: 
+35: const reduced = (p: RecoilParams): number => (p.charMass * p.ballMass) / (p.charMass + p.ballMass); // reduced mass
+36: 
+37: // The muzzle speed the launcher can really reach: a stored energy E gives the pair (runner, ball) a kinetic energy of 1/2 mu u^2 at most.
+38: export function effectiveMuzzle(p: RecoilParams): number {
+39:   if (p.energy === undefined) return p.muzzle;
+40:   return Math.min(p.muzzle, Math.sqrt((2 * p.energy) / reduced(p)));
+41: }
+42: 
+43: // The energy the tank must store to throw the ball at its muzzle speed: the energy the shot makes, 1/2 mu u^2 (any running speed, the same).
+44: export const shotEnergy = (p: RecoilParams): number => 0.5 * reduced(p) * p.muzzle * p.muzzle;
+45: 
+46: // The same energy in plain words: a car of 1000 kg rolling at this speed (km/h) has it, and so does a lift of this many kilograms to this height.
+47: export function energyWords(joules: number): string {
+48:   const kmh = Math.sqrt((2 * joules) / 1000) * 3.6;
+49:   return `${(joules / 1000).toFixed(0)} kJ, the energy of a 1000 kg car rolling at ${kmh.toFixed(0)} km/h`;
+50: }
+51: 
+52: export interface Shot { dvx: number; dvy: number; ballVx: number; ballVy: number; muzzle: number; angle: number }
+53: 
+54: // The shot from a runner moving at (vx, vy), aimed at `angle`. A push up always counts (the ground cannot hold you down); a push down only counts in the air.
+55: export function shot(p: RecoilParams, vx: number, vy: number, airborne: boolean, angle: number = p.angle): Shot {
+56:   const u = effectiveMuzzle(p), M = p.charMass + p.ballMass;
+57:   const dvx = (p.ballMass * u * Math.cos(angle)) / M;
+58:   const push = (p.ballMass * u * Math.sin(angle)) / M;
+59:   const dvy = airborne || push > 0 ? push : 0;
+60:   return { dvx, dvy, ballVx: vx + dvx - u * Math.cos(angle), ballVy: vy + dvy - u * Math.sin(angle), muzzle: u, angle };
+61: }
+62: 
+63: // The forward speed a runner standing still gets, aimed level (the Dojo question).
+64: export const standingPush = (p: RecoilParams): number => shot({ ...p, angle: 0 }, 0, 0, false, 0).dvx;
+65: 
+66: // The ball's speed against the ground when the runner stood still (the other half of the lesson: the heavy thing goes slow).
+67: export const ballSpeedFromRest = (p: RecoilParams): number => {
+68:   const s = shot({ ...p, angle: 0 }, 0, 0, false, 0);
+69:   return Math.hypot(s.ballVx, s.ballVy);
+70: };
+71: 
+72: // A ball in flight: gravity only, until it meets the ground or the water.
+73: export function stepBall(b: Ball, t: Terrain): Ball {
+74:   if (b.landed) return b;
+75:   const vy = b.vy - GRAVITY * DT;
+76:   const y = b.y + b.vy * DT - 0.5 * GRAVITY * DT * DT;
+77:   const x = b.x + b.vx * DT;
+78:   const floor = groundAt(t, x);
+79:   if (y <= floor) return { x, y: floor, vx: 0, vy: 0, landed: true };
+80:   if (y < t.waterY) return { x, y: t.waterY, vx: 0, vy: 0, landed: true };
+81:   return { x, y, vx: b.vx, vy, landed: false };
+82: }
+83: 
+84: export const padHas = (p: RecoilParams, x: number): boolean => x >= p.x0 && x <= p.x1;
+85: 
+86: // Where a body launched at speed (vx, vy) from the ground comes back to the same height: the textbook range (the Dojo's check on the simulator).
+87: export const levelRange = (vx: number, vy: number): number => (2 * vx * vy) / GRAVITY;
+88: 
+
+=== src/sim/trebuchet.ts ===
+1: import { DT, GRAVITY } from './units';
+2: 
+3: // The trebuchet: the character sits in the sling and is thrown by a falling counterweight.
+4: // Two angles describe the whole machine, so it is a small rigid-body system (a double pendulum with a heavy short end):
+5: //   alpha: the arm, measured from the forward direction of the model (the long end starts low, pointing back and down in the world)
+6: //   beta:  the sling, a stiff link from the arm tip to the rider (the rider is a point mass at its end)
+7: // The model is built with the throw pointing to -x and mirrored into the world, so every number below is in the model frame
+8: // (x behind the pivot, y up from the deck) until `rider` turns it into world coordinates.
+9: // Everything is metres, seconds and kilograms; the pair of equations is integrated with RK4 at the fixed step, like the rope.
+10: export interface TrebuchetParams {
+11:   x: number; // m, the pivot's place along the course
+12:   axleHeight: number; // m, the pivot above the deck
+13:   long: number; // m, pivot to the sling end of the arm
+14:   short: number; // m, pivot to the counterweight (arm ratio = long / short)
+15:   sling: number; // m, arm tip to the rider
+16:   counterweight: number; // kg
+17:   armMass: number; // kg, a uniform arm
+18:   riderMass: number; // kg, the character and the pouch
+19:   startAngle: number; // degrees, the arm before the pin is pulled (long end low)
+20:   pin?: number; // degrees: the arm angle at which the pin lets go by itself (leave out: only Space lets go)
+21:   stopAngle: number; // degrees: the frame stops the arm here; the rider carries on swinging around the stopped tip, so letting go late is not the best moment
+22:   gravity: number;
+23: }
+24: 
+25: export const DEFAULT_TREBUCHET: TrebuchetParams = {
+26:   x: 0, axleHeight: 5.5, long: 5.5, short: 1.3, sling: 3, counterweight: 1200, armMass: 120, riderMass: 80,
+27:   startAngle: -38, stopAngle: 140, gravity: GRAVITY,
+28: };
+29: 
+30: export const RIDER_COM = 0.9; // m, the character's middle above the feet: the reference point of the runner is the feet
+31: 
+32: export interface Launch {
+33:   alpha: number; // rad
+34:   beta: number; // rad
+35:   dalpha: number; // rad/s
+36:   dbeta: number; // rad/s
+37:   fired: boolean; // the pin has been pulled
+38:   t: number; // ticks since the pin was pulled
+39:   deck: number; // m, the ground the machine stands on
+40: }
+41: 
+42: const rad = (d: number) => (d * Math.PI) / 180;
+43: export const deg = (r: number) => (r * 180) / Math.PI;
+44: 
+45: // Before the pin is pulled: the arm rests with its long end low and the rider lies on the deck at the end of the sling.
+46: export function startLaunch(p: TrebuchetParams, deck: number): Launch {
+47:   const alpha = rad(p.startAngle);
+48:   const sin = (RIDER_COM - p.axleHeight - p.long * Math.sin(alpha)) / p.sling; // the rider's middle starts RIDER_COM above the deck: the feet rest on it
+49:   const beta = Math.asin(Math.max(-1, Math.min(1, sin)));
+50:   return { alpha, beta, dalpha: 0, dbeta: 0, fired: false, t: 0, deck };
+51: }
+52: 
+53: function accel(p: TrebuchetParams, al: number, be: number, dal: number, dbe: number): [number, number] {
+54:   const { long: b, short: a, sling: s, counterweight: M, armMass: ma, riderMass: m, gravity: g } = p;
+55:   const Iarm = (ma / 12) * (a + b) ** 2 + ma * ((b - a) / 2) ** 2;
+56:   const K = -M * a + (ma * (b - a)) / 2 + m * b;
+57:   const M11 = Iarm + M * a * a + m * b * b, M12 = m * b * s * Math.cos(be - al), M22 = m * s * s;
+58:   const r1 = m * b * s * Math.sin(be - al) * dbe * dbe - g * K * Math.cos(al);
+59:   const r2 = -m * b * s * Math.sin(be - al) * dal * dal - m * g * s * Math.cos(be);
+60:   const det = M11 * M22 - M12 * M12;
+61:   return [(r1 * M22 - M12 * r2) / det, (M11 * r2 - M12 * r1) / det];
+62: }
+63: 
+64: // One fixed step of the swing (after the pin is pulled).
+65: export function launchStep(s: Launch, p: TrebuchetParams): Launch {
+66:   if (!s.fired) return s;
+67:   if (s.alpha >= rad(p.stopAngle)) return stoppedStep(s, p); // the arm is against the frame
+68:   const { alpha: al, beta: be, dalpha: dal, dbeta: dbe } = s;
+69:   const k1 = accel(p, al, be, dal, dbe);
+70:   const a2 = al + 0.5 * DT * dal, b2 = be + 0.5 * DT * dbe, da2 = dal + 0.5 * DT * k1[0], db2 = dbe + 0.5 * DT * k1[1];
+71:   const k2 = accel(p, a2, b2, da2, db2);
+72:   const a3 = al + 0.5 * DT * da2, b3 = be + 0.5 * DT * db2, da3 = dal + 0.5 * DT * k2[0], db3 = dbe + 0.5 * DT * k2[1];
+73:   const k3 = accel(p, a3, b3, da3, db3);
+74:   const a4 = al + DT * da3, b4 = be + DT * db3, da4 = dal + DT * k3[0], db4 = dbe + DT * k3[1];
+75:   const k4 = accel(p, a4, b4, da4, db4);
+76:   return {
+77:     ...s, t: s.t + 1,
+78:     alpha: al + (DT / 6) * (dal + 2 * da2 + 2 * da3 + da4), beta: be + (DT / 6) * (dbe + 2 * db2 + 2 * db3 + db4),
+79:     dalpha: dal + (DT / 6) * (k1[0] + 2 * k2[0] + 2 * k3[0] + k4[0]), dbeta: dbe + (DT / 6) * (k1[1] + 2 * k2[1] + 2 * k3[1] + k4[1]),
+80:   };
+81: }
+82: 
+83: // The arm has hit the frame: the tip is fixed and the rider swings round it like a pendulum (beta'' = -(g / sling) cos beta).
+84: function stoppedStep(s: Launch, p: TrebuchetParams): Launch {
+85:   const f = (b: number) => -(p.gravity / p.sling) * Math.cos(b);
+86:   const k1 = f(s.beta), b2 = s.beta + 0.5 * DT * s.dbeta, d2 = s.dbeta + 0.5 * DT * k1;
+87:   const k2 = f(b2), b3 = s.beta + 0.5 * DT * d2, d3 = s.dbeta + 0.5 * DT * k2;
+88:   const k3 = f(b3), b4 = s.beta + DT * d3, d4 = s.dbeta + DT * k3;
+89:   const k4 = f(b4);
+90:   return { ...s, t: s.t + 1, alpha: rad(p.stopAngle), dalpha: 0, beta: s.beta + (DT / 6) * (s.dbeta + 2 * d2 + 2 * d3 + d4), dbeta: s.dbeta + (DT / 6) * (k1 + 2 * k2 + 2 * k3 + k4) };
+91: }
+92: 
+93: // Where everything is, in world coordinates (the throw goes toward +x).
+94: export function pieces(p: TrebuchetParams, s: Launch) {
+95:   const { long: b, short: a, sling: l, axleHeight: H } = p;
+96:   const pivot = { x: p.x, y: s.deck + H };
+97:   const tip = { x: p.x - b * Math.cos(s.alpha), y: s.deck + H + b * Math.sin(s.alpha) };
+98:   const weight = { x: p.x + a * Math.cos(s.alpha), y: s.deck + H - a * Math.sin(s.alpha) };
+99:   const rider = { x: tip.x - l * Math.cos(s.beta), y: tip.y + l * Math.sin(s.beta) };
+100:   return { pivot, tip, weight, rider };
+101: }
+102: 
+103: // The rider's middle: where it is and how fast it moves.
+104: export function rider(p: TrebuchetParams, s: Launch): { x: number; y: number; vx: number; vy: number } {
+105:   const { long: b, sling: l } = p;
+106:   const q = pieces(p, s);
+107:   const vxm = -b * s.dalpha * Math.sin(s.alpha) - l * s.dbeta * Math.sin(s.beta);
+108:   const vym = b * s.dalpha * Math.cos(s.alpha) + l * s.dbeta * Math.cos(s.beta);
+109:   return { x: q.rider.x, y: q.rider.y, vx: -vxm, vy: vym };
+110: }
+111: 
+112: // The runner's reference point is the feet: the middle of the body is RIDER_COM above them.
+113: export function feetAt(p: TrebuchetParams, s: Launch): { x: number; y: number; vx: number; vy: number } {
+114:   const r = rider(p, s);
+115:   return { x: r.x, y: r.y - RIDER_COM, vx: r.vx, vy: r.vy };
+116: }
+117: 
+118: // The energy the falling counterweight has given up so far (J, net of the arm's own rise), and the rider's kinetic energy (J):
+119: // the throw can never exceed the first (a well-tuned real trebuchet turns about half to two thirds of it into the throw).
+120: export function releasedEnergy(p: TrebuchetParams, s: Launch): number {
+121:   const rise = Math.sin(s.alpha) - Math.sin(rad(p.startAngle));
+122:   return p.gravity * rise * (p.counterweight * p.short - p.armMass * ((p.long - p.short) / 2));
+123: }
+124: export const riderEnergy = (p: TrebuchetParams, s: Launch): number => {
+125:   const r = rider(p, s);
+126:   return 0.5 * p.riderMass * (r.vx * r.vx + r.vy * r.vy);
+127: };
+128: 
+129: // Ground under the rider: the pouch cannot go below the deck. If the counterweight is too light the arm sags and the rider is dragged
+130: // into the ground: the throw is a dud (nothing lifts the rider).
+131: export const isDud = (p: TrebuchetParams, s: Launch): boolean => s.fired && s.t > 2 && rider(p, s).y < s.deck + RIDER_COM - 0.3; // the feet would go through the deck
+132: 
+133: // Simple world helper for the proof and the debug view: swing the machine on its own and report the rider's state for every tick until the stop.
+134: export function swingPath(p: TrebuchetParams, deck: number, maxTicks = 120 * 6): { s: Launch; feet: { x: number; y: number; vx: number; vy: number } }[] {
+135:   let s: Launch = { ...startLaunch(p, deck), fired: true };
+136:   const out: { s: Launch; feet: { x: number; y: number; vx: number; vy: number } }[] = [{ s, feet: feetAt(p, s) }];
+137:   for (let i = 0; i < maxTicks; i++) {
+138:     s = launchStep(s, p);
+139:     out.push({ s, feet: feetAt(p, s) });
+140:     if (deg(s.alpha) >= p.stopAngle || isDud(p, s)) break;
+141:   }
+142:   return out;
+143: }
+144: 
+145: // Total mechanical energy of the machine (J): kinetic plus potential of the arm, the counterweight and the rider. With no friction it is constant.
+146: export function mechanicalEnergy(p: TrebuchetParams, s: Launch): number {
+147:   const { long: b, short: a, sling: l, counterweight: M, armMass: ma, riderMass: m, gravity: g, axleHeight: H } = p;
+148:   const Iarm = (ma / 12) * (a + b) ** 2 + ma * ((b - a) / 2) ** 2;
+149:   const M11 = Iarm + M * a * a + m * b * b, M12 = m * b * l * Math.cos(s.beta - s.alpha), M22 = m * l * l;
+150:   const T = 0.5 * M11 * s.dalpha ** 2 + M12 * s.dalpha * s.dbeta + 0.5 * M22 * s.dbeta ** 2;
+151:   const V = g * (M * (H - a * Math.sin(s.alpha)) + ma * (H + ((b - a) / 2) * Math.sin(s.alpha)) + m * (H + b * Math.sin(s.alpha) + l * Math.sin(s.beta)));
+152:   return T + V;
+153: }
+154: 
+
+=== src/sim/drums.ts ===
+1: import type { CourseData } from '../course/course';
+2: import { rollWindowOpen } from './drop';
+3: import { DEFAULT_LANDING, safeDrop } from './landing';
+4: import { GRAVITY } from './units';
+5: import { inputFor, searchIdealRun, type Plan } from './ideal';
+6: import { newWorld, stepWorld } from './world';
+7: 
+8: // The drum lane: where along the course the ideal run presses Space, so a player can see where to jump on any course,
+9: // including one built in the editor. It shows the line; it never grades the player's own presses.
+10: export interface Drum {
+11:   x: number; // m along the course at the moment of the press
+12:   note?: string; // a few words on the drum (the aim of a cannon)
+13:   what: 'jump' | 'let go' | 'bounce' | 'vault' | 'grab' | 'release' | 'roll' | 'fire' | 'aim' | 'turn' | 'board';
+14: }
+15: 
+16: export function drumsFor(course: CourseData, plan: Plan = course.plan ?? searchIdealRun(course).plan, maxTicks = 120 * 80): Drum[] {
+17:   let w = newWorld(course);
+18:   const st = { next: 0, caught: null as number | null, bedAt: null as number | null };
+19:   const drums: Drum[] = [];
+20:   let was = false, wasVault = false, wasFire = false, wasAim = false, wasTurn = false, prevMode = w.mode;
+21:   let windowX: number | null = null; // where the runner was when the roll window opened in this flight
+22:   let still = 0;
+23:   for (let i = 0; i < maxTicks && w.outcome === 'running'; i++) {
+24:     const input = inputFor(plan, w, st, course);
+25:     // a press is the first tick the jump input is on after being off (holding it is not a new drum)
+26:     if (input.jump && !was) drums.push({ x: w.runner.x, what: w.mode === 'swing' ? 'let go' : w.mode === 'bounce' ? 'bounce' : 'jump' });
+27:     was = input.jump;
+28:     if (input.vault && !wasVault) drums.push({ x: w.runner.x, what: 'vault' });
+29:     wasVault = !!input.vault;
+30:     if (w.runner.grounded) windowX = null;
+31:     else if (windowX === null && w.mode === 'run' && rollWindowOpen(w, course)) windowX = w.runner.x; // the same window the simulator uses: the last 0.15 s and 1.2 m
+32:     if (input.fire && !wasFire) drums.push({ x: w.runner.x, what: 'fire' }); // K fires the launcher on a recoil pad
+33:     wasFire = !!input.fire;
+34:     if (input.aim !== undefined && !wasAim) drums.push({ x: w.runner.x, what: 'aim', note: `${Math.round((input.aim * 180) / Math.PI)}°` }); // tilt the barrel (Up and Down), then K
+35:     wasAim = input.aim !== undefined;
+36:     // the elastic band: the moment the line stops pulling away from the post and turns round toward it (the band then throws the runner)
+37:     const turning = w.mode === 'band' && !!input.run && !input.left;
+38:     if (turning && !wasTurn) drums.push({ x: w.runner.x, what: 'turn' });
+39:     wasTurn = turning;
+40:     w = stepWorld(w, input, course);
+41:     // one X drum per landing that the roll is for: a fall that would stumble or hurt with straight legs and no roll, or one the line rolls out of.
+42:     // The drum sits where the roll window opens (the key is due there: a press earlier does nothing), not at the landing.
+43:     const land = w.events.find((e) => e.type === 'land');
+44:     if (land && (land.detail?.rolled || ((land.detail?.impact as number) ** 2) / (2 * GRAVITY) > safeDrop('stiff', DEFAULT_LANDING).clean)) {
+45:       drums.push({ x: windowX ?? w.runner.x, what: 'roll' });
+46:     }
+47:     if (prevMode !== 'hang' && w.mode === 'hang') drums.push({ x: w.runner.x, what: 'grab' }); // E closes on the bar
+48:     if (prevMode !== 'climb' && w.mode === 'climb') drums.push({ x: w.runner.x, what: 'grab' }); // E closes on a wall's edge
+49:     if (prevMode === 'hang' && w.mode !== 'hang') drums.push({ x: w.runner.x, what: 'release' }); // both hands let go
+50:     if (prevMode !== 'drone' && w.mode === 'drone') drums.push({ x: w.runner.x, what: 'board' }); // hold E on the pad
+51:     prevMode = w.mode;
+52:     still = w.mode === 'run' && w.runner.grounded && Math.abs(w.runner.vx) < 0.01 ? still + 1 : 0;
+53:     if (still > 180) break;
+54:   }
+55:   return drums.sort((a, b) => a.x - b.x); // the roll drum is found at the landing but sits earlier on the path
+56: }
+57: 

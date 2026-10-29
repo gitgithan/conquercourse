@@ -36,6 +36,17 @@ Blue-box diagrams for every pipeline are in [docs/meta-ai-pipelines.md](docs/met
 - **PyTorch / torchvision:** Mask R-CNN and Faster R-CNN find people for the photo mask; they are Meta-originated open-source tools but not a hackathon model, and SAM 3 is the possible upgrade.
 - **Motion capture:** CMU Graphics Lab database, used under its licence.
 
+## Meta tools in development (not game features)
+- These helped us build the game; the game itself does not call them, and they are not counted as game features.
+- **Muse Wonder** (`muse-wonder-1.0`, Meta Model API) reviewed the simulator code (CC-133, 2026-10-29).
+  - It read 4 chunks of `src/sim` and made 21 claims.
+  - We checked each one with a test or by reading the code: 13 real, 7 false alarms, 1 unclear.
+  - None of the real ones breaks a shipped course; 2 were fixed at once, 11 are tracked in CC-140.
+  - Cost: $2.38 for the run, about $0.18 per real bug.
+  - It did well on the physics code and gave nothing useful on the contraptions chunk.
+  - Details: [data/eval/cc-wonder-review/README.md](data/eval/cc-wonder-review/README.md).
+- **Muse Spark Open** (on Baseten) also helped as a dev aid: bulk course drafts (CC-122) and photo triage (CC-123); the same model is what the Course Agent uses in the game.
+
 ## How it answers the judging criteria
 
 ### Impact (30%)

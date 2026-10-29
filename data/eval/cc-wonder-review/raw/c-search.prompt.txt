@@ -1,0 +1,1220 @@
+You are reviewing the physics simulator of a browser game (TypeScript, deterministic, fixed 120 Hz step, pure functions, Earth gravity only). Below are source files with line numbers.
+Find real bugs: wrong physics, unit mix-ups, off-by-one, division by zero or NaN, state that is not reset, results that depend on iteration order or wall-clock time (the simulator must replay the same keys to the same result), and edge cases that break a promise the comments make.
+Rules:
+- Report only bugs you can argue from the code shown. Do not report style, naming or missing features.
+- For each, give the file, the line number printed in the listing, one sentence of summary, a concrete failing input (numbers a test could use), and why it fails.
+- Give a confidence of low, medium or high. If you find nothing, return an empty list.
+
+=== src/sim/ideal.ts ===
+1: import type { CourseData } from '../course/course';
+2: import { NO_INPUT, type RunnerInput } from './runner';
+3: import { newWorld, recoilParams, stepWorld, type GameEvent, type WorldState } from './world';
+4: import { DT } from './units';
+5: import { flewOff } from './cart';
+6: import { rollNeeded } from './drop';
+7: import { CLIMB_MIN_RISE, climbMaxRise } from './climb';
+8: import { VAULT_MAX_RISE } from './vault';
+9: import { groundAt, heightAt } from './terrain';
+10: import { AIM_MAX, AIM_RATE, isAimable, type RecoilParams } from './recoil';
+11: import { bandParams, reachableStretch, slackX, stretchAt } from './band';
+12: 
+13: // The ideal run: where to press Space at each obstacle, found by trying the simulator, and how wide the
+14: // window of good presses is. It is the difficulty of each obstacle as a number.
+15: export interface Plan {
+16:   jumpXs: number[]; // press at the first moment the feet are on the ground at or past this x
+17:   releaseAfter: number; // ticks after catching the rope
+18:   bouncePress: number; // ticks after touching the trampoline bed
+19:   vaultXs?: number[]; // press V at the first moment the feet are on the ground at or past this x
+20:   climbXs?: number[]; // hold the hand key from this x on the ground: the hands meet a tall wall's edge and the body pulls up (src/sim/climb.ts)
+21:   hands?: boolean; // hold the hand key while airborne (so a bar in reach is grabbed), until the last bar is behind
+22:   climbHands?: boolean; // hold the hand key while airborne everywhere: a tall wall's edge is to be caught (src/sim/climb.ts)
+23:   hangTicks?: number[]; // per bar: ticks to hang (pumping with the swing) before letting go
+24:   airHands?: boolean[]; // per release: hold the hand key in the air afterwards (default true); false flies past the next bar (a skip)
+25:   noGrab?: number[]; // bars (indexes into course.holds) the run flies past without holding (a shortcut that skips them)
+26:   launchRelease?: number; // trebuchet: ticks after the pin is pulled at which Space lets the rider go
+27:   aim?: number; // a big cannon: the barrel angle (rad) the line aims at before it fires
+28:   fireXs?: number[]; // a launcher (recoil pad): press K at the first moment the runner is at or past this x
+29:   fireAfterJump?: number; // or press K this many ticks after the take-off, so the shot adds to a jump
+30:   droneBrakeX?: number; // a drone ferry: lean back (brake) from this x
+31:   droneDescendX?: number; // and climb down from this x onto the far deck
+32:   cartBrake?: [number, number][]; // a coaster: hold the brake between these x values (the first push is always given at the start)
+33:   bandStretch?: number; // the elastic band: run away from the post until the band is stretched this many metres, then turn round and run toward it
+34: }
+35: 
+36: export interface Window {
+37:   obstacle: string;
+38:   best: number; // ideal value (x in m, or ticks)
+39:   lo: number;
+40:   hi: number;
+41:   widthMs: number; // how long the clearing window lasts, in milliseconds of game time
+42: }
+43: 
+44: type PlanState = { next: number; caught: number | null; bedAt: number | null; hangAt?: number | null; hangs?: number; vnext?: number; cnext?: number; inClimb?: boolean; fnext?: number; airSince?: number | null; bandTurned?: boolean };
+45: // The launcher (recoil): fire at a place along the run, or a number of ticks after the take-off (a shot in the air adds to a jump)
+46: export function inputFor(plan: Plan, w: WorldState, state: PlanState, course?: CourseData): RunnerInput {
+47:   const inp = inputForBase(plan, w, state, course);
+48:   if (w.mode !== 'run') return inp;
+49:   if (w.runner.grounded) state.airSince = null; else if (state.airSince == null) state.airSince = w.runner.tick;
+50:   if (!w.recoil || w.recoil.armed <= 0) return inp;
+51:   const aimed = plan.aim !== undefined ? { ...inp, aim: plan.aim } : inp; // a big cannon: tilt the barrel to the planned angle
+52:   const byX = plan.fireXs && (state.fnext ?? 0) < plan.fireXs.length && w.runner.x >= plan.fireXs[state.fnext ?? 0];
+53:   const byAir = plan.fireAfterJump !== undefined && state.airSince != null && w.runner.tick - state.airSince >= plan.fireAfterJump;
+54:   if (!byX && !byAir) return aimed;
+55:   state.fnext = (state.fnext ?? 0) + 1;
+56:   return { ...aimed, fire: true };
+57: }
+58: function inputForBase(plan: Plan, w: WorldState, state: PlanState, course?: CourseData): RunnerInput {
+59:   if (w.mode === 'cart') { // the cart: push at the start, brake where the plan says
+60:     const x = w.runner.x;
+61:     return { ...NO_INPUT, run: !w.cart?.started, squat: !!plan.cartBrake?.some(([a, b]) => x >= a && x <= b) };
+62:   }
+63:   if (w.mode === 'band' && course) { // the band: pull it to the planned stretch (running away from the post), then run toward the post and let it throw you
+64:     if (!state.bandTurned && stretchAt(bandParams(course), w.runner.x) >= (plan.bandStretch ?? 8)) state.bandTurned = true;
+65:     return state.bandTurned ? { ...NO_INPUT, run: true, squat: true } : { ...NO_INPUT, left: true };
+66:   }
+67:   if (w.mode === 'drone' && w.drone) { // the ferry: lean forward to speed up, lean back to slow down, then climb down onto the far deck
+68:     const x = w.runner.x, braking = x >= (plan.droneBrakeX ?? 1e9);
+69:     return { ...NO_INPUT, handL: true, handR: true, run: !braking, left: braking && w.drone.vx > 1, squat: x >= (plan.droneDescendX ?? 1e9) };
+70:   }
+71:   if (course?.drone && w.mode === 'run' && w.runner.grounded && w.runner.x >= course.drone.x0 && w.runner.x <= course.drone.x1) return { ...NO_INPUT, handL: true, handR: true }; // on the pad: hold E to board
+72:   const base: RunnerInput = { ...NO_INPUT, run: true, squat: true, ...(course && rollNeeded(w, course) ? { roll: true } : {}) }; // a drop a squat cannot take cleanly: roll just before the ground
+73:   if (w.mode === 'launch') return { ...NO_INPUT, run: true, squat: true, ...(w.launch?.fired && w.launch.t >= (plan.launchRelease ?? 120) ? { jump: true } : {}) }; // pull the pin, then let go at the planned moment
+74:   if (w.mode === 'climb') { // hanging from the edge: keep the hold key down through the pull-up
+75:     if (!state.inClimb) { state.inClimb = true; state.cnext = (state.cnext ?? 0) + 1; }
+76:     return { ...NO_INPUT, handL: true, handR: true, squat: true };
+77:   }
+78:   state.inClimb = false;
+79:   if (w.mode === 'hang') {
+80:     if (state.hangAt == null) state.hangAt = w.runner.tick;
+81:     const idx = state.hangs ?? 0;
+82:     if (w.runner.tick - state.hangAt >= (plan.hangTicks?.[idx] ?? 90)) { state.hangAt = null; state.hangs = idx + 1; return base; } // let go
+83:     const forward = (w.hang?.omega ?? 0) >= 0; // pump the way the body is moving: more swing
+84:     return { ...NO_INPUT, squat: true, handL: true, handR: true, run: forward, left: !forward };
+85:   }
+86:   state.hangAt = null;
+87:   const barsAhead = !course?.holds?.length || course.holds.some((h) => h.x + 1.5 > w.runner.x); // past the last bar the hands stay off, so a fall beside a ledge is a fall, not a grab
+88:   if (((plan.hands && barsAhead) || plan.climbHands) && w.mode === 'run' && !w.runner.grounded && plan.airHands?.[(state.hangs ?? 0) - 1] !== false && !skipsNext(plan, w, course)) return { ...base, handR: true };
+89:   if (w.mode === 'swing') {
+90:     if (state.caught === null) state.caught = w.runner.tick;
+91:     return w.runner.tick - state.caught >= plan.releaseAfter ? { ...base, jump: true } : base;
+92:   }
+93:   state.caught = null;
+94:   if (w.mode === 'bounce') {
+95:     if (state.bedAt === null) state.bedAt = w.runner.tick;
+96:     return w.runner.tick - state.bedAt >= plan.bouncePress ? { ...base, jump: true } : base;
+97:   }
+98:   state.bedAt = null;
+99:   if (w.mode === 'run' && w.runner.grounded && plan.climbXs && (state.cnext ?? 0) < plan.climbXs.length && w.runner.x >= plan.climbXs[state.cnext ?? 0]) return { ...base, handL: true, handR: true };
+100:   if (w.mode === 'run' && w.runner.grounded && plan.vaultXs && (state.vnext ?? 0) < plan.vaultXs.length && w.runner.x >= plan.vaultXs[state.vnext ?? 0]) {
+101:     state.vnext = (state.vnext ?? 0) + 1;
+102:     return { ...base, vault: true };
+103:   }
+104:   if (w.runner.grounded && state.next < plan.jumpXs.length && w.runner.x >= plan.jumpXs[state.next]) {
+105:     state.next++;
+106:     return { ...base, jump: true };
+107:   }
+108:   return base;
+109: }
+110: 
+111: // the next bar ahead of the runner is one the plan flies past: do not hold the hand key for it
+112: function skipsNext(plan: Plan, w: WorldState, course?: CourseData): boolean {
+113:   if (!plan.noGrab?.length || !course?.holds) return false;
+114:   let best = -1, bd = Infinity;
+115:   course.holds.forEach((h, i) => { const d = h.x - w.runner.x; if (d > -1.5 && d < bd) { bd = d; best = i; } });
+116:   return best >= 0 && plan.noGrab.includes(best);
+117: }
+118: 
+119: export interface RunResult { world: WorldState; events: GameEvent[]; maxX: number; jumps: number }
+120: 
+121: // The work the searches have done so far, in simulated ticks. A budget counted in ticks gives the same answer on a slow machine as on a fast one
+122: // (a budget counted in milliseconds does not): Fix it and the advice stop after so many ticks, not so many seconds.
+123: export const meter = { ticks: 0 };
+124: // A budget is written in work seconds: how long the work takes on the reference machine (about 330 000 simulated ticks a second).
+125: // It is a count of ticks, so a slow machine takes longer for the same answer instead of giving up early.
+126: export const TICKS_PER_WORK_SECOND = 330_000;
+127: export const workSeconds = (s: number): number => Math.round(s * TICKS_PER_WORK_SECOND);
+128: 
+129: // "Does the ideal run clear this course?" asked again and again by Fix it and the advice (the same lane is proved once to check it, once to start a fix, once to confirm it).
+130: // The answer is remembered; a repeat still adds the ticks the first proof cost, so a budget counts the same work whether or not the answer was remembered.
+131: const proved = new Map<string, { cleared: boolean; ticks: number }>();
+132: export function clearedCached(course: CourseData): boolean {
+133:   const key = JSON.stringify(course);
+134:   const hit = proved.get(key);
+135:   if (hit) { meter.ticks += hit.ticks; return hit.cleared; }
+136:   const m0 = meter.ticks;
+137:   const cleared = searchIdealRun(course).cleared;
+138:   proved.set(key, { cleared, ticks: meter.ticks - m0 });
+139:   if (proved.size > 300) proved.delete(proved.keys().next().value!);
+140:   return cleared;
+141: }
+142: 
+143: export function playPlan(course: CourseData, plan: Plan, maxTicks = 120 * 80, trace?: (w: WorldState) => void): RunResult { // trace sees the world before the first tick and after every tick (the ghost keeps where the runner was)
+144:   let w = newWorld(course);
+145:   const st = { next: 0, caught: null as number | null, bedAt: null as number | null, hangAt: null as number | null, hangs: 0, vnext: 0, cnext: 0, inClimb: false, fnext: 0, airSince: null as number | null, bandTurned: false };
+146:   const events: GameEvent[] = [];
+147:   let maxX = 0;
+148:   let still = 0;
+149:   let spent = 0;
+150:   trace?.(w);
+151:   for (let i = 0; i < maxTicks && w.outcome === 'running'; i++) {
+152:     spent++;
+153:     w = stepWorld(w, inputFor(plan, w, st, course), course);
+154:     trace?.(w);
+155:     events.push(...w.events);
+156:     if (!Number.isFinite(w.runner.x)) break; // a state that went to NaN has nowhere to go
+157:     maxX = Math.max(maxX, w.runner.x);
+158:     // a runner pressed against something it cannot pass will never get anywhere: stop after 1.5 s of standing still (it only costs time to go on)
+159:     still = w.mode === 'run' && w.runner.grounded && Math.abs(w.runner.vx) < 0.01 ? still + 1 : 0;
+160:     if (still > 180) break;
+161:   }
+162:   meter.ticks += spent;
+163:   return { world: w, events, maxX, jumps: st.next };
+164: }
+165: 
+166: // Take-off edges: the right end of every platform that is followed by a gap (water or a lower drop).
+167: export function edges(course: CourseData): { x: number; name: string }[] {
+168:   const ps = [...course.terrain.platforms].sort((a, b) => a.x0 - b.x0);
+169:   const out: { x: number; name: string }[] = [];
+170:   ps.forEach((p, i) => {
+171:     const nxt = ps[i + 1];
+172:     const planked = !!course.planks?.some((pk) => Math.abs(pk.x0 - p.x1) < 0.05 && pk.x1 <= nxt?.x0 + 0.05); // a plank is laid across this gap: nobody needs to jump it
+173:     if (nxt && !planked && nxt.x0 - p.x1 > 0.01 && p.x1 >= course.startX && !p.bouncy) out.push({ x: p.x1, name: `edge at ${p.x1} m` }); // edges behind the start are not part of this run; a bed is left by its bounce, not by a jump
+174:   });
+175:   return out;
+176: }
+177: 
+178: // Steps up that touch the ground before them and are too tall to walk up (0.3 m) but within a vault's or a climb's reach (the Warped Wall is another move).
+179: export function risers(course: CourseData): { x: number; name: string; riser: true; rise: number }[] {
+180:   const ps = [...course.terrain.platforms].sort((a, b) => a.x0 - b.x0);
+181:   const out: { x: number; name: string; riser: true; rise: number }[] = [];
+182:   ps.forEach((p, i) => {
+183:     const nxt = ps[i + 1];
+184:     if (!nxt || nxt.x0 - p.x1 > 0.02 || p.x1 < course.startX) return;
+185:     const rise = nxt.top - p.top;
+186:     if (rise > 0.3 && rise <= climbMaxRise(course.jumpSpeed) && !(course.wall && Math.abs(nxt.x0 - (course.wall.x0 + (course.wall.radius ?? course.wall.height ?? 4.3))) < 0.5)) out.push({ x: p.x1, name: `step at ${p.x1} m`, riser: true, rise });
+187:   });
+188:   return out;
+189: }
+190: 
+191: const candidates = (from: number, to: number, step = 0.02) => {
+192:   const out: number[] = [];
+193:   for (let x = from; x <= to + 1e-9; x += step) out.push(Math.round(x * 1000) / 1000);
+194:   return out;
+195: }
+196: 
+197: // ---- The search, written as a generator ----
+198: // It never plays the simulator itself: it hands over batches of plans to try and gets their scores back. A driver decides where the batches run:
+199: // `driveSync` plays them one by one on this thread, `driveAsync` hands them to a pool of workers (src/sim/ideal-pool.ts). Same plans in the same
+200: // order, so the answer is the same either way.
+201: export interface Job { plan: Plan; maxTicks?: number }
+202: export interface Batch { jobs: Job[]; stopOnClear?: boolean; label: string; step: number; of: number } // stopOnClear: the scores after the first clear are not wanted
+203: export interface SearchResult { plan: Plan; windows: Window[]; cleared: boolean; routes?: Route[] }
+204: type Gen<T> = Generator<Batch, T, number[]>;
+205: 
+206: export const CLEARED = 1e6;
+207: 
+208: // The windows measured in metres along the run (the take-off edges, vaults and steps), the ones a course can store next to its plan; the others are in ticks of one search.
+209: export const xWindows = (ws: Window[]): Window[] => ws.filter((w) => /^(edge at|vault at|jump at)/.test(w.obstacle));
+210: export const shiftWindow = (w: Window, dx: number): Window => ({ ...w, obstacle: w.obstacle.replace(/(-?\d+(?:\.\d+)?) m/, (_m, n: string) => `${Math.round((Number(n) + dx) * 100) / 100} m`), best: Math.round((w.best + dx) * 100) / 100, lo: Math.round((w.lo + dx) * 100) / 100, hi: Math.round((w.hi + dx) * 100) / 100 });
+211: const scoreOf = (r: RunResult): number => (r.world.outcome === 'cleared' ? CLEARED : r.maxX);
+212: export const evalJob = (course: CourseData, j: Job): number => scoreOf(playPlan(course, j.plan, j.maxTicks));
+213: 
+214: export function driveSync<T>(course: CourseData, g: Gen<T>): T {
+215:   let r = g.next();
+216:   while (!r.done) {
+217:     const { jobs, stopOnClear } = r.value;
+218:     const out: number[] = [];
+219:     for (const j of jobs) { const s = evalJob(course, j); out.push(s); if (stopOnClear && s >= CLEARED) break; }
+220:     r = g.next(out);
+221:   }
+222:   return r.value;
+223: }
+224: 
+225: // `evaluate` plays a list of jobs somewhere else and gives back their scores in the same order. A batch that stops at the first clear is asked for in rounds.
+226: export async function driveAsync<T>(g: Gen<T>, evaluate: (jobs: Job[]) => Promise<number[]>, round = 48, onBatch?: (b: Batch) => void): Promise<T> {
+227:   let r = g.next();
+228:   while (!r.done) {
+229:     const b = r.value;
+230:     onBatch?.(b);
+231:     const out: number[] = [];
+232:     if (!b.stopOnClear) out.push(...(await evaluate(b.jobs)));
+233:     else for (let i = 0; i < b.jobs.length; i += round) {
+234:       const got = await evaluate(b.jobs.slice(i, i + round));
+235:       const k = got.findIndex((s) => s >= CLEARED);
+236:       if (k >= 0) { out.push(...got.slice(0, k + 1)); break; }
+237:       out.push(...got);
+238:     }
+239:     r = g.next(out);
+240:   }
+241:   return r.value;
+242: }
+243: 
+244: // Greedy search: for each obstacle in order, try presses and keep the ones that reach farthest; the centre of the
+245: // best group is the ideal press and the group's width is the clearing window.
+246: // One way through a course with bars, with the time it takes (ticks at 120 Hz); `chosen` marks the faster one the plan follows.
+247: export interface Route { name: string; ticks: number; bars: number; chosen: boolean }
+248: 
+249: export function searchIdealRun(course: CourseData, opts: { routes?: boolean } = {}): SearchResult {
+250:   return driveSync(course, searchGen(course, opts));
+251: }
+252: 
+253: // `alt` is the second-best branch (see the end of the search): for an edge index, which share (0 to 1) of the range of presses is taken, instead of the middle of the best ones.
+254: export function* searchGen(course: CourseData, opts: { routes?: boolean; alt?: Record<number, number> } = {}): Gen<SearchResult> {
+255:   if (course.track) return searchCartRun(course);
+256:   if (course.drone) return searchDroneRun(course);
+257:   const holds = course.holds ?? [];
+258:   const plan: Plan = { jumpXs: [], releaseAfter: 60, bouncePress: 8, ...(holds.length ? { hands: true, hangTicks: holds.map(() => 90) } : {}) };
+259:   const windows: Window[] = [];
+260:   const ties: number[] = []; // the plain take-off edges that were planned: where the greedy choice may strand a later edge
+261:   const tre = course.trebuchet;
+262:   const onMachine = (x: number) => !!tre && course.terrain.platforms.some((p) => p.x0 <= tre.x && tre.x <= p.x1 && x >= p.x0 && x <= p.x1 + 0.01); // the machine's own deck: nobody runs off it, the rider is thrown
+263:   const es: { x: number; name: string; riser?: boolean; rise?: number }[] = [...edges(course), ...risers(course)].filter((e) => !onMachine(e.x)).sort((a, b) => a.x - b.x);
+264:   const hasRope = !!course.rope;
+265:   const score = scoreOf; // the searches below that play their trials on this thread (the launcher, the band, climbing) use it
+266:   if (tre) yield* searchLaunchGen(course, plan, windows);
+267:   const handled = course.recoil ? searchRecoil(course, plan, windows, score) : null; // the first gap after the pad is planned together with the shot
+268:   const bandEdge = course.band ? searchBand(course, plan, windows, score) : null; // the band and the jump at the edge after it are found together
+269:   for (let k = 0; k < es.length; k++) {
+270:     const e = es[k];
+271:     if (handled !== null && Math.abs(e.x - handled) < 0.01) continue;
+272:     if (bandEdge !== null && Math.abs(e.x - bandEdge) < 0.01) continue;
+273:     const at = (jobs: Job[], stopOnClear = false): Batch => ({ jobs, stopOnClear, label: e.name, step: k, of: es.length });
+274:     // bars within a swing of this edge: a joint search over the press and the hang times on the first two bars (a swing and the next catch depend on each other,
+275:     // so tuning one at a time misses lines that clear), coarse first, then finer around the best few
+276:     if (!e.riser && holds.some((h) => h.x > e.x - 1 && h.x < e.x + 9) && plan.hangTicks) {
+277:       const nh = Math.min(2, plan.hangTicks.length);
+278:       const found: { sc: number; plan: Plan }[] = [];
+279:       const grid = function* (jxs: number[], hang: number[][]): Gen<boolean> {
+280:         const plans: Plan[] = [];
+281:         for (const jx of jxs) for (const hs of cross(hang)) plans.push({ ...plan, jumpXs: [...plan.jumpXs, jx], hangTicks: plan.hangTicks!.map((t, i) => (i < nh ? hs[i] : t)) });
+282:         const sc: number[] = yield at(plans.map((pl) => ({ plan: pl, maxTicks: 120 * 25 })), true);
+283:         sc.forEach((s, i) => found.push({ sc: s, plan: plans[i] }));
+284:         return sc.length > 0 && sc[sc.length - 1] >= CLEARED;
+285:       };
+286:       const hangVals = (from: number, to: number, step: number) => Array.from({ length: Math.floor((to - from) / step) + 1 }, (_, i) => from + i * step);
+287:       let done = yield* grid(candidates(e.x - 3, e.x, 0.3), Array.from({ length: nh }, () => hangVals(0, 480, 30)));
+288:       // a narrow basin can fall between the coarse hang times: shift the grid by half a step before refining
+289:       if (!done) done = yield* grid(candidates(e.x - 3, e.x, 0.3), Array.from({ length: nh }, () => hangVals(15, 465, 30)));
+290:       if (!done) {
+291:         const tops = [...found].sort((a, b) => b.sc - a.sc).slice(0, 8); // the coarse grid misses a narrow basin, so the finer search tries more of the best starts
+292:         for (const t of tops) {
+293:           const jx = t.plan.jumpXs[t.plan.jumpXs.length - 1];
+294:           done = yield* grid(candidates(jx - 0.25, jx + 0.25, 0.05), t.plan.hangTicks!.slice(0, nh).map((h) => hangVals(Math.max(0, h - 24), h + 24, 6)));
+295:           if (done) break;
+296:         }
+297:       }
+298:       const win = found.reduce((a, b) => (b.sc > a.sc ? b : a));
+299:       plan.jumpXs = win.plan.jumpXs; plan.hangTicks = win.plan.hangTicks;
+300:       windows.push({ obstacle: `${e.name} (take-off)`, best: plan.jumpXs[plan.jumpXs.length - 1], lo: plan.jumpXs[plan.jumpXs.length - 1], hi: plan.jumpXs[plan.jumpXs.length - 1], widthMs: 0 });
+301:       for (let pass = 0; pass < 2; pass++) for (let i = 0; i < plan.hangTicks!.length; i++) yield* tuneHangGen(plan, i, windows, pass === 1, at);
+302:       continue;
+303:     }
+304:     if (e.riser) {
+305:       // a step up too tall for a casual walk-up: try a vault and a jump at every press, keep the one that gets farthest (a vault wins a tie: it is faster)
+306:       // a vault plants further back (a speed vault: 1 to 3 m before the face, plus the 0.2 s a press is held), so its presses are searched on a wider, coarser grid
+307:       const trials: { x: number; vault: boolean; plan: Plan }[] = [];
+308:       for (const vault of [false, true]) for (const x of vault ? candidates(e.x - 5, e.x - 0.05, 0.04) : candidates(e.x - 1.2, e.x - 0.05)) {
+309:         trials.push({ x, vault, plan: vault ? { ...plan, vaultXs: [...(plan.vaultXs ?? []), x] } : { ...plan, jumpXs: [...plan.jumpXs, x] } });
+310:       }
+311:       const sc: number[] = yield at(trials.map((t) => ({ plan: t.plan })));
+312:       const tries = trials.map((t, n) => ({ x: t.x, vault: t.vault, s: sc[n] }));
+313:       const top = Math.max(...tries.map((t) => t.s));
+314:       // a wall no vault or jump gets over: the hands meet its edge and the body pulls up (stand at the foot and hold, or jump and hold in the air)
+315:       if (top < e.x + 1.0 && (e.rise ?? 9) > VAULT_MAX_RISE) { // above a vault's reach only
+316:         const ct: { kind: 'stand' | 'jump'; x: number; s: number }[] = [];
+317:         for (const x of candidates(e.x - 3, e.x - 0.05, 0.5)) ct.push({ kind: 'stand', x, s: score(playPlan(course, { ...plan, climbXs: [...(plan.climbXs ?? []), x] })) });
+318:         if (!ct.some((t) => t.s >= 1e6)) for (const x of candidates(e.x - 4.5, e.x - 0.1, 0.2)) ct.push({ kind: 'jump', x, s: score(playPlan(course, { ...plan, jumpXs: [...plan.jumpXs, x], climbHands: true })) });
+319:         const cbest = Math.max(...ct.map((t) => t.s));
+320:         if (cbest > top + 0.3) {
+321:           const good = ct.filter((t) => t.s >= cbest - (cbest >= 1e6 ? 1e-9 : 0.3));
+322:           const kind = good.some((t) => t.kind === 'stand') ? 'stand' : 'jump'; // standing at the foot of the wall is simpler than a jump
+323:           const xs = good.filter((t) => t.kind === kind).map((t) => t.x);
+324:           const mid = xs[Math.floor(xs.length / 2)];
+325:           if (kind === 'stand') plan.climbXs = [...(plan.climbXs ?? []), mid]; else { plan.jumpXs.push(mid); plan.climbHands = true; }
+326:           windows.push({ obstacle: `climb at ${e.name}`, best: mid, lo: Math.min(...xs), hi: Math.max(...xs), widthMs: ((Math.max(...xs) - Math.min(...xs) + 0.1) / 7.4) * 1000 });
+327:           continue;
+328:         }
+329:       }
+330:       const good = tries.filter((t) => t.s >= top - (top >= CLEARED ? 1e-9 : 0.3)); // before the rest of the course is planned the score is how far the run gets: near ties count as ties
+331:       // the centre of the window of presses that work (a vault wins a tie with a jump: it is faster), not its edge
+332:       const kind = good.some((t) => t.vault);
+333:       let mine = good.filter((t) => t.vault === kind).map((t) => t.x);
+334:       // a vault pressed further out than its reach is held by the 0.2 s buffer until the step is in reach: for a plan, take the middle of the presses made at a real plant distance (up to 2.7 m before the face)
+335:       if (kind) { const near = mine.filter((x) => x >= e.x - 2.7); if (near.length) mine = near; }
+336:       const best = mine.length ? { x: mine[Math.floor(mine.length / 2)], vault: kind } : null;
+337:       if (best) { if (best.vault) plan.vaultXs = [...(plan.vaultXs ?? []), best.x]; else plan.jumpXs.push(best.x); windows.push({ obstacle: `${best.vault ? 'vault' : 'jump'} at ${e.name}`, best: best.x, lo: Math.min(...mine), hi: Math.max(...mine), widthMs: ((Math.max(...mine) - Math.min(...mine) + 0.02) / 7.4) * 1000 }); }
+338:       continue;
+339:     }
+340:     // a tall wall across the gap: the jump has to bring the hands to its edge, so the hold key is down in the air (src/sim/climb.ts)
+341:     { const nextP = [...course.terrain.platforms].filter((q) => q.x0 > e.x - 0.01).sort((q, r) => q.x0 - r.x0)[0]; const here = groundAt(course.terrain, e.x - 0.05);
+342:       if (nextP && Number.isFinite(here) && heightAt(nextP, nextP.x0) - here >= CLIMB_MIN_RISE) plan.climbHands = true; }
+343:     // a bar within a swing of this edge: try presses on a coarser grid and, for each, several hang times on the first bar
+344:     const holdEdge = holds.some((h) => h.x > e.x - 1 && h.x < e.x + 9);
+345:     const cs = candidates(e.x - 3, e.x, holdEdge ? 0.1 : 0.02);
+346:     // the runner jumps from a platform: the press must happen while still on it
+347:     const ropeEdge = hasRope && e.x < course.rope!.anchorX && e.x > course.rope!.anchorX - 8;
+348:     const releases = ropeEdge ? Array.from({ length: 21 }, (_, i) => i * 15) : [plan.releaseAfter];
+349:     const hangOptions = holdEdge ? Array.from({ length: 13 }, (_, i) => i * 30) : [0];
+350:     // at the rope's edge a press is good if SOME release timing then clears, so every press is tried with several
+351:     const jobs: Job[] = [];
+352:     for (const x of cs) for (const rel of releases) for (const hang of hangOptions) {
+353:       const ht = holdEdge && plan.hangTicks ? plan.hangTicks.map((t, i) => (i === 0 ? hang : t)) : plan.hangTicks;
+354:       jobs.push({ plan: { ...plan, jumpXs: [...plan.jumpXs, x], releaseAfter: rel, hangTicks: ht } });
+355:     }
+356:     const sc: number[] = yield at(jobs);
+357:     const per = releases.length * hangOptions.length;
+358:     const results = cs.map((x, n) => ({ x, s: Math.max(...sc.slice(n * per, (n + 1) * per)) }));
+359:     // a press is good if the run then gets farther than any press can do by standing still at the edge
+360:     const best = Math.max(...results.map((r) => r.s));
+361:     const good = results.filter((r) => r.s >= best - 1e-9);
+362:     // group = the longest run of consecutive candidates that all reach `best`
+363:     const xs = good.map((g) => g.x);
+364:     const lo = Math.min(...xs), hi = Math.max(...xs);
+365:     ties.push(k);
+366:     const share = opts.alt?.[k];
+367:     const mid = share === undefined ? good[Math.floor(good.length / 2)].x : results[Math.round(share * (results.length - 1))].x; // the second-best branch spreads over every press
+368:     plan.jumpXs.push(mid);
+369:     const speed = 7.4;
+370:     windows.push({ obstacle: e.name, best: mid, lo, hi, widthMs: ((hi - lo + 0.02) / speed) * 1000 });
+371:     // tune the rope release and the bounce press once the runner can reach them
+372:     if (ropeEdge) yield* tuneTicksGen(plan, 'releaseAfter', 0, 360, windows, 'rope release', at);
+373:     if (holdEdge && plan.hangTicks) for (let pass = 0; pass < 2; pass++) for (let i = 0; i < plan.hangTicks.length; i++) yield* tuneHangGen(plan, i, windows, pass === 1, at);
+374:     if (e.x > 117 && e.x < 119) {
+375:       yield* tuneTicksGen(plan, 'bouncePress', 0, 40, windows, 'trampoline press', at, 1);
+376:     }
+377:   }
+378:   // two ways through a pair of bars, asked for with `{ routes: true }`: it plays about 250 runs of its own on this thread
+379:   if (opts.routes && holds.length >= 2 && plan.hangTicks) {
+380:     const final = playPlan(course, plan);
+381:     if (final.world.outcome === 'cleared') return { ...compareRoutes(course, plan, final, windows), windows };
+382:   }
+383:   const final: number[] = yield { jobs: [{ plan }], label: 'the whole course', step: es.length, of: es.length };
+384:   const found = { plan, windows, cleared: final[0] >= CLEARED };
+385:   // The greedy choice (the middle of the presses that reach farthest) can strand a later edge: a jump that lands well but leaves the next press no room.
+386:   // When the run got to the last edges and still did not clear, try presses spread over the whole range at the last two take-off edges (a press that reaches less far now can leave the next edge room).
+387:   const lastX = es.length ? es[es.length - 1].x : 0;
+388:   if (found.cleared || opts.alt || ties.length === 0 || final[0] < lastX - 3) return found;
+389:   for (const k of ties.slice(-2).reverse()) for (const share of [0, 0.25, 0.5, 0.75, 1]) {
+390:     const r: SearchResult = yield* searchGen(course, { ...opts, alt: { [k]: share } });
+391:     if (r.cleared) return r;
+392:   }
+393:   return found;
+394: }
+395: 
+396: type AtFn = (jobs: Job[], stopOnClear?: boolean) => Batch;
+397: 
+398: // Two ways through a pair of bars (asked for with `{ routes: true }`: it adds about 250 runs, so the stored plans and the tests that need it use it, not every search):
+399: // bar to bar (the plan the search found), or a full pump on the first bar and a flight over the second (a skip).
+400: // Both are tried and the shorter total time is the line the plan follows; both are reported (the hint and the debug view say what is possible, as a fact).
+401: function compareRoutes(course: CourseData, plan: Plan, base: RunResult, windows: Window[]): { plan: Plan; cleared: boolean; routes: Route[] } {
+402:   const catches = (r: RunResult) => r.events.filter((e) => e.type === 'hang-catch').length;
+403:   const baseBars = catches(base);
+404:   type Opt = { plan: Plan; ticks: number; bars: number };
+405:   const jx0 = plan.jumpXs[plan.jumpXs.length - 1];
+406:   // bar to bar: the fastest way that catches both bars (the plan found may fly over the second one by luck, so the two ways are searched on their own)
+407:   let viaBars: Opt | null = baseBars >= 2 ? { plan, ticks: base.world.runner.tick, bars: baseBars } : null;
+408:   for (let h1 = 0; h1 <= 300; h1 += 30) for (let h2 = 0; h2 <= 480; h2 += 30) {
+409:     const pl: Plan = { ...plan, hangTicks: [h1, h2, ...(plan.hangTicks?.slice(2) ?? [])] };
+410:     delete pl.airHands;
+411:     const r = playPlan(course, pl, 120 * 40);
+412:     if (r.world.outcome === 'cleared' && catches(r) >= 2 && (!viaBars || r.world.runner.tick < viaBars.ticks)) viaBars = { plan: pl, ticks: r.world.runner.tick, bars: catches(r) };
+413:   }
+414:   // skip: a full pump on the first bar and the hand kept off in the air, so the second bar is flown over
+415:   let skip: Opt | null = baseBars === 1 ? { plan, ticks: base.world.runner.tick, bars: 1 } : null;
+416:   const skipPlan = (h: number, jx: number): Plan => ({ ...plan, jumpXs: [...plan.jumpXs.slice(0, -1), jx], hangTicks: [h], airHands: [false] });
+417:   const tryHang = (jx: number, hs: number[]) => {
+418:     for (const h of hs) {
+419:       const r = playPlan(course, skipPlan(h, jx), 120 * 40);
+420:       if (r.world.outcome === 'cleared' && catches(r) === 1 && (!skip || r.world.runner.tick < skip.ticks)) skip = { plan: skipPlan(h, jx), ticks: r.world.runner.tick, bars: 1 };
+421:     }
+422:   };
+423:   const coarse = Array.from({ length: 91 }, (_, i) => i * 6);
+424:   for (const jx of [jx0, ...[-0.3, -0.2, -0.1, 0.1, 0.2, 0.3].map((d) => Math.round((jx0 + d) * 100) / 100)]) { tryHang(jx, coarse); if (skip && skip.plan.airHands) break; }
+425:   if (skip && skip.plan.airHands) { const b = skip as Opt; tryHang(b.plan.jumpXs[b.plan.jumpXs.length - 1], Array.from({ length: 13 }, (_, i) => Math.max(0, b.plan.hangTicks![0] - 6 + i))); }
+426:   const opts = [viaBars && { name: 'bar to bar', ...viaBars }, skip && { name: 'skip the second bar', ...(skip as Opt) }].filter((o): o is Opt & { name: string } => !!o);
+427:   if (!opts.length) return { plan, cleared: true, routes: [{ name: baseBars >= 2 ? 'bar to bar' : 'one bar', ticks: base.world.runner.tick, bars: baseBars, chosen: true }] };
+428:   const fastest = opts.reduce((a, b) => (b.ticks < a.ticks ? b : a));
+429:   const routes: Route[] = opts.map((o) => ({ name: o.name, ticks: o.ticks, bars: o.bars, chosen: o === fastest }));
+430:   if (fastest.name.startsWith('skip')) windows.push({ obstacle: 'skip the second bar', best: fastest.plan.hangTicks![0], lo: fastest.plan.hangTicks![0], hi: fastest.plan.hangTicks![0], widthMs: DT * 1000 });
+431:   return { plan: fastest.plan, cleared: true, routes };
+432: }
+433: 
+434: // The trebuchet: when to let the rider go (ticks after the pin), found together with the hang time on the first bar when there is one.
+435: function* searchLaunchGen(course: CourseData, plan: Plan, windows: Window[]): Gen<void> {
+436:   const bars = (course.holds ?? []).length > 0;
+437:   const mk = (rel: number, hang: number): Job => ({ plan: { ...plan, launchRelease: rel, ...(bars ? { hangTicks: plan.hangTicks!.map((t, i) => (i === 0 ? hang : t)) } : {}) }, maxTicks: 120 * 30 });
+438:   const batch = (cells: { rel: number; hang: number }[]): Batch => ({ jobs: cells.map((c) => mk(c.rel, c.hang)), label: 'the trebuchet release', step: 0, of: 1 });
+439:   const hangs = bars ? Array.from({ length: 17 }, (_, i) => i * 30) : [0];
+440:   const cells: { rel: number; hang: number }[] = [];
+441:   for (let rel = 20; rel <= 360; rel += 6) for (const h of hangs) cells.push({ rel, hang: h });
+442:   const sc: number[] = yield batch(cells);
+443:   const found: { sc: number; rel: number; hang: number }[] = cells.map((c, i) => ({ sc: sc[i], ...c }));
+444:   const tops = [...found].sort((a, b) => b.sc - a.sc).slice(0, 8); // the coarse grid misses a narrow basin, so the finer search tries more of the best starts
+445:   const fine: { rel: number; hang: number }[] = [];
+446:   for (const t of tops) for (let rel = t.rel - 6; rel <= t.rel + 6; rel += 1) for (let h = Math.max(0, t.hang - 24); h <= t.hang + 24; h += bars ? 6 : 100) fine.push({ rel, hang: h });
+447:   const sc2: number[] = yield batch(fine);
+448:   fine.forEach((c, i) => found.push({ sc: sc2[i], ...c }));
+449:   const best = Math.max(...found.map((f) => f.sc));
+450:   const good = found.filter((f) => f.sc >= best - 1e-9);
+451:   const centre = good.reduce((a, b) => (Math.abs(b.rel - median(good.map((g) => g.rel))) < Math.abs(a.rel - median(good.map((g) => g.rel))) ? b : a));
+452:   plan.launchRelease = centre.rel;
+453:   if (bars) plan.hangTicks = plan.hangTicks!.map((t, i) => (i === 0 ? centre.hang : t));
+454:   const rels = good.filter((g) => g.hang === centre.hang).map((g) => g.rel);
+455:   windows.push({ obstacle: 'trebuchet release', best: centre.rel, lo: Math.min(...rels), hi: Math.max(...rels), widthMs: (Math.max(...rels) - Math.min(...rels) + 1) * DT * 1000 });
+456: }
+457: // The launcher: when to fire (at a place on the ground, or some ticks after the take-off) and when to jump, found together because they depend on each other.
+458: function searchRecoil(course: CourseData, plan: Plan, windows: Window[], score: (r: RunResult) => number): number | null {
+459:   const rp = recoilParams(course);
+460:   const e = edges(course).find((q) => q.x > rp.x1);
+461:   if (!e) return null;
+462:   if (isAimable(rp)) return searchCannon(course, plan, windows, score, rp, e.x, e.name);
+463:   type T = { sc: number; jx: number; fire: { x?: number; air?: number } };
+464:   const mk = (jx: number, fire: { x?: number; air?: number }): Plan => ({ ...plan, jumpXs: [...plan.jumpXs, jx], ...(fire.x !== undefined ? { fireXs: [fire.x] } : {}), ...(fire.air !== undefined ? { fireAfterJump: fire.air } : {}) });
+465:   const trial = (jx: number, fire: { x?: number; air?: number }): T => ({ sc: score(playPlan(course, mk(jx, fire), 120 * 30)), jx, fire });
+466:   const found: T[] = [];
+467:   const jxs = candidates(e.x - 3, e.x, 0.1);
+468:   for (const jx of jxs) for (let a = 0; a <= 60; a += 6) found.push(trial(jx, { air: a })); // a shot in the air, a moment after the take-off
+469:   for (const jx of jxs) for (let d = 0; d <= 2; d += 0.25) found.push(trial(jx, { x: Math.max(rp.x0, jx - d) })); // or a shot on the ground just before it
+470:   const tops = [...found].sort((a, b) => b.sc - a.sc).slice(0, 8);
+471:   for (const t of tops) for (let jx = t.jx - 0.1; jx <= t.jx + 0.1; jx += 0.02) found.push(trial(Math.round(jx * 1000) / 1000, t.fire));
+472:   const best = Math.max(...found.map((f) => f.sc));
+473:   const good = found.filter((f) => f.sc >= best - 1e-9);
+474:   const air = good.filter((g) => g.fire.air !== undefined), ground = good.filter((g) => g.fire.x !== undefined);
+475:   const family = air.length >= ground.length ? air : ground; // the family with the wider window of good presses
+476:   const mid = [...family].sort((a, b) => a.jx - b.jx)[Math.floor(family.length / 2)];
+477:   const jxsGood = family.map((g) => g.jx);
+478:   plan.jumpXs.push(mid.jx);
+479:   if (mid.fire.x !== undefined) plan.fireXs = [mid.fire.x]; else plan.fireAfterJump = mid.fire.air;
+480:   windows.push({ obstacle: `jump at ${e.name}`, best: mid.jx, lo: Math.min(...jxsGood), hi: Math.max(...jxsGood), widthMs: ((Math.max(...jxsGood) - Math.min(...jxsGood) + 0.02) / 7.4) * 1000 });
+481:   return e.x;
+482: }
+483: // A big cannon: the barrel angle and where to fire, found together (the push goes forward and up by the angle, so the angle sets how far and how high).
+484: // No jump is needed: the shot lifts the runner off the deck. A landing too hard for a straight-legged landing is rolled out by the base line.
+485: function searchCannon(course: CourseData, plan: Plan, windows: Window[], score: (r: RunResult) => number, rp: RecoilParams, edgeX: number, name: string): number {
+486:   type T = { sc: number; aim: number; fx: number };
+487:   const trial = (aim: number, fx: number): T => ({ sc: score(playPlan(course, { ...plan, aim, fireXs: [fx] }, 120 * 30)), aim, fx });
+488:   const found: T[] = [];
+489:   const fxs = candidates(rp.x0 + 0.3, Math.max(rp.x0 + 0.3, edgeX - 0.5), 0.75);
+490:   for (let a = 0.05; a <= AIM_MAX - 0.04; a += 0.05) for (const fx of fxs) found.push(trial(Math.round(a * 100) / 100, fx));
+491:   const tops = [...found].sort((a, b) => b.sc - a.sc).slice(0, 6);
+492:   for (const t of tops) for (let a = t.aim - 0.04; a <= t.aim + 0.04; a += 0.01) if (a >= 0) found.push(trial(Math.round(a * 1000) / 1000, t.fx));
+493:   const best = Math.max(...found.map((f) => f.sc));
+494:   const good = found.filter((f) => f.sc >= best - 1e-9);
+495:   const mid = [...good].sort((a, b) => a.aim - b.aim)[Math.floor(good.length / 2)];
+496:   plan.aim = mid.aim; plan.fireXs = [mid.fx];
+497:   const aims = good.filter((g) => g.fx === mid.fx).map((g) => g.aim);
+498:   windows.push({ obstacle: `cannon aim at ${name}`, best: mid.aim, lo: Math.min(...aims), hi: Math.max(...aims), widthMs: ((Math.max(...aims) - Math.min(...aims) + 0.01) / AIM_RATE) * 1000 }); // the time it takes to tilt across the window
+499:   return edgeX;
+500: }
+501: 
+502: 
+503: // The elastic band: how far to stretch it before turning round, found together with the press at the edge after it (a stronger throw changes where the press is best).
+504: function searchBand(course: CourseData, plan: Plan, windows: Window[], score: (r: RunResult) => number): number | null {
+505:   const bp = bandParams(course);
+506:   const e = edges(course).find((q) => q.x >= slackX(bp) - 0.01);
+507:   if (!e) return null;
+508:   const top = Math.max(1, Math.min(bp.snap - 0.6, reachableStretch(bp) * 1.2));
+509:   const trial = (st: number, jx: number) => { const pl: Plan = { ...plan, bandStretch: st, jumpXs: [...plan.jumpXs, jx] }; return { sc: score(playPlan(course, pl, 120 * 40)), st, jx }; };
+510:   const found: { sc: number; st: number; jx: number }[] = [];
+511:   for (let st = Math.min(1, top); st <= top + 1e-9; st += top > 8 ? 1 : 0.5) for (const jx of candidates(e.x - 2.5, e.x, 0.25)) found.push(trial(st, jx));
+512:   const tops = [...found].sort((a, b) => b.sc - a.sc).slice(0, 6);
+513:   for (const t of tops) for (let st = Math.max(0.3, t.st - 0.6); st <= Math.min(top, t.st + 0.6) + 1e-9; st += 0.1) for (const jx of candidates(t.jx - 0.25, Math.min(e.x, t.jx + 0.25), 0.05)) found.push(trial(Math.round(st * 10) / 10, jx));
+514:   const best = Math.max(...found.map((f) => f.sc));
+515:   const good = found.filter((f) => f.sc >= best - 1e-9);
+516:   const sts = [...new Set(good.map((g) => g.st))].sort((a, b) => a - b);
+517:   const st = sts[Math.floor(sts.length / 2)]; // the middle of the stretches that work
+518:   const jxs = good.filter((g) => g.st === st).map((g) => g.jx).sort((a, b) => a - b);
+519:   const jx = jxs[Math.floor(jxs.length / 2)];
+520:   plan.bandStretch = st; plan.jumpXs.push(jx);
+521:   windows.push({ obstacle: 'band stretch', best: st, lo: sts[0], hi: sts[sts.length - 1], widthMs: ((sts[sts.length - 1] - sts[0] + 0.1) / 6) * 1000 });
+522:   windows.push({ obstacle: `${e.name} (take-off)`, best: jx, lo: jxs[0], hi: jxs[jxs.length - 1], widthMs: ((jxs[jxs.length - 1] - jxs[0] + 0.05) / 11) * 1000 });
+523:   return e.x;
+524: }
+525: const median = (xs: number[]): number => { const s = [...xs].sort((a, b) => a - b); return s[Math.floor(s.length / 2)]; };
+526: 
+527: // Every combination of one value from each list.
+528: function cross(lists: number[][]): number[][] {
+529:   return lists.reduce<number[][]>((acc, l) => acc.flatMap((a) => l.map((v) => [...a, v])), [[]]);
+530: }
+531: 
+532: // Tune how long to hang on bar i (ticks), keeping the others: the centre of the times that do best.
+533: function* tuneHangGen(plan: Plan, i: number, windows: Window[], last: boolean, at: AtFn): Gen<void> {
+534:   const ts: number[] = [];
+535:   for (let t = 0; t <= 480; t += 6) ts.push(t);
+536:   const sc: number[] = yield at(ts.map((t) => ({ plan: { ...plan, hangTicks: plan.hangTicks!.map((q, j) => (j === i ? t : q)) } })));
+537:   const rs = ts.map((t, n) => ({ t, s: sc[n] }));
+538:   const best = Math.max(...rs.map((r) => r.s));
+539:   const good = rs.filter((r) => r.s >= best - 1e-9).map((r) => r.t);
+540:   if (!good.length) return;
+541:   plan.hangTicks![i] = good[Math.floor(good.length / 2)];
+542:   if (last) windows.push({ obstacle: `hang on bar ${i + 1}`, best: plan.hangTicks![i], lo: Math.min(...good), hi: Math.max(...good), widthMs: (Math.max(...good) - Math.min(...good) + 6) * DT * 1000 });
+543: }
+544: 
+545: function* tuneTicksGen(plan: Plan, key: 'releaseAfter' | 'bouncePress', from: number, to: number, windows: Window[], name: string, at: AtFn, stepSize = 2): Gen<void> {
+546:   const ts: number[] = [];
+547:   for (let t = from; t <= to; t += stepSize) ts.push(t);
+548:   const sc: number[] = yield at(ts.map((t) => ({ plan: { ...plan, [key]: t } })));
+549:   const rs = ts.map((t, n) => ({ t, s: sc[n] }));
+550:   const best = Math.max(...rs.map((r) => r.s));
+551:   const good = rs.filter((r) => r.s >= best - 1e-9).map((r) => r.t);
+552:   const lo = Math.min(...good), hi = Math.max(...good);
+553:   plan[key] = good[Math.floor(good.length / 2)];
+554:   windows.push({ obstacle: name, best: plan[key], lo, hi, widthMs: ((hi - lo + stepSize) * DT) * 1000 });
+555: }
+556: 
+557: // A player who is good but not perfect: every press is a little off (sigma in ms of game time), and a fall
+558: // means starting again. Returns the game seconds until the first clear, or null if it never clears in `limitS`.
+559: export function playImperfect(course: CourseData, plan: Plan, seed: number, sigmaMs: number, limitS = 180): number | null {
+560:   let state = seed >>> 0 || 1;
+561:   const rnd = () => { state = (Math.imul(state, 1664525) + 1013904223) >>> 0; return state / 2 ** 32; };
+562:   const gauss = () => Math.sqrt(-2 * Math.log(Math.max(rnd(), 1e-12))) * Math.cos(2 * Math.PI * rnd());
+563:   const sigmaX = (sigmaMs / 1000) * 7.4; // metres of run at about 7.4 m/s
+564:   let total = 0;
+565:   while (total < limitS) {
+566:     const noisy: Plan = {
+567:       jumpXs: plan.jumpXs.map((x) => x + gauss() * sigmaX),
+568:       releaseAfter: Math.max(0, Math.round(plan.releaseAfter + (gauss() * sigmaMs) / (DT * 1000))),
+569:       bouncePress: Math.max(0, Math.round(plan.bouncePress + (gauss() * sigmaMs) / (DT * 1000))),
+570:     };
+571:     const r = playPlan(course, noisy);
+572:     total += r.world.runner.tick * DT + 1; // one second to restart
+573:     if (r.world.outcome === 'cleared') return total;
+574:   }
+575:   return null;
+576: }
+577: 
+578: // A coaster: the push is given at the start; the only thing to find is where to brake. Every time the cart leaves the track on a crest, try braking
+579: // through that crest from a point earlier on (the nearest start that makes the whole course clear), then look at the next crest.
+580: // A coaster is ridden well when the cart rolls home on the rails: finishing by flying off a hilltop, landing on the track and running on is not a ride.
+581: const rode = (r: RunResult): boolean => r.world.outcome === 'cleared' && !flewOff(r.events);
+582: // The drone ferry: where to start leaning back and where to start climbing down so the drone lands softly on the far deck. A bounded grid, then a finer one around the fastest line.
+583: export function searchDroneRun(course: CourseData): { plan: Plan; windows: Window[]; cleared: boolean } {
+584:   const d = course.drone!;
+585:   const plan: Plan = { jumpXs: [], releaseAfter: 60, bouncePress: 8 };
+586:   const windows: Window[] = [];
+587:   const far = [...course.terrain.platforms].sort((a, b) => a.x0 - b.x0).find((p) => p.x0 > d.x1 + 3);
+588:   if (!far) return { plan, windows, cleared: false };
+589:   const cap = 120 * 60;
+590:   type T = { b: number; c: number; ok: boolean; t: number };
+591:   const found: T[] = [];
+592:   const trial = (b: number, c: number) => { const r = playPlan(course, { ...plan, droneBrakeX: b, droneDescendX: c }, cap); found.push({ b, c, ok: r.world.outcome === 'cleared', t: r.world.runner.tick }); };
+593:   for (let b = d.x1 + 3; b <= far.x0 + 1; b += 2) for (let c = far.x0 - 6; c <= Math.min(far.x1 - 2, far.x0 + 12); c += 2) trial(b, c);
+594:   const first = found.filter((f) => f.ok).sort((a, b) => a.t - b.t)[0];
+595:   if (first) for (let b = first.b - 2; b <= first.b + 2; b += 0.5) for (let c = first.c - 2; c <= first.c + 2; c += 0.5) trial(b, c);
+596:   const good = found.filter((f) => f.ok);
+597:   if (!good.length) return { plan, windows, cleared: false };
+598:   const best = good.sort((a, b) => a.t - b.t)[0];
+599:   plan.droneBrakeX = best.b; plan.droneDescendX = best.c;
+600:   const brakes = good.filter((g) => Math.abs(g.c - best.c) < 0.01).map((g) => g.b);
+601:   windows.push({ obstacle: 'braking point', best: best.b, lo: Math.min(...brakes), hi: Math.max(...brakes), widthMs: ((Math.max(...brakes) - Math.min(...brakes) + 0.5) / 8) * 1000 });
+602:   return { plan, windows, cleared: true };
+603: }
+604: 
+605: export function searchCartRun(course: CourseData): { plan: Plan; windows: Window[]; cleared: boolean } {
+606:   const plan: Plan = { jumpXs: [], releaseAfter: 60, bouncePress: 8, cartBrake: [] };
+607:   const windows: Window[] = [];
+608:   const cap = 120 * 90;
+609:   for (let round = 0; round < 5; round++) {
+610:     const r = playPlan(course, plan, cap);
+611:     if (rode(r)) return { plan, windows, cleared: true };
+612:     const off = r.events.find((e) => e.type === 'cart-off' && !e.detail?.end);
+613:     if (!off) return { plan, windows, cleared: false }; // stalled or something else: braking cannot help
+614:     const xOff = off.detail!.x as number;
+615:     const x0 = course.track!.pts.reduce((m, q) => Math.min(m, q[0]), Infinity);
+616:     const best: { a: number; ok: boolean; cleared: boolean }[] = [];
+617:     for (let a = xOff - 1; a >= x0; a -= 1) {
+618:       const trial: Plan = { ...plan, cartBrake: [...plan.cartBrake!, [a, xOff + 1]] };
+619:       const rr = playPlan(course, trial, cap);
+620:       const cleared = rode(rr);
+621:       const left = rr.events.find((e) => e.type === 'cart-off' && !e.detail?.end);
+622:       best.push({ a, cleared, ok: cleared || !left || (left.detail!.x as number) > xOff + 1 });
+623:     }
+624:     const good = best.some((b) => b.cleared) ? best.filter((b) => b.cleared) : best.filter((b) => b.ok); // starts that clear the whole course first; else any that gets over this crest
+625:     if (!good.length) return { plan, windows, cleared: false };
+626:     const lo = Math.min(...good.map((g) => g.a)), hi = Math.max(...good.map((g) => g.a));
+627:     const pick = good[Math.floor(good.length / 2)].a; // the middle of the starts that work
+628:     plan.cartBrake!.push([pick, xOff + 1]);
+629:     windows.push({ obstacle: `crest at ${xOff.toFixed(0)} m`, best: pick, lo, hi, widthMs: ((hi - lo + 1) / 8) * 1000 });
+630:   }
+631:   return { plan, windows, cleared: rode(playPlan(course, plan, cap)) };
+632: }
+633: 
+
+=== src/sim/shortcuts.ts ===
+1: import type { CourseData } from '../course/course';
+2: import { playPlan, risers, searchIdealRun, type Plan, type RunResult, type Window } from './ideal';
+3: import { DT } from './units';
+4: 
+5: // Shortcut discovery. The ideal-run search finds the best line through the course the designer drew. This asks the other question:
+6: // is there a line the designer did not plan? The ideal line is looked at first (does it skip anything?), then every obstacle (and every pair
+7: // of neighbouring bars) is switched off in turn and the search is run again. A line counts only when it clears the REAL course, with every
+8: // bar and obstacle in place, and is faster than the line that uses everything.
+9: export interface Shortcut {
+10:   id: string; // stable name: 'skip-bar-2', 'skip-bars-1-2', 'skip-wall', 'skip-rope'
+11:   skipped: string[]; // what the line does not use, in plain words ('Bar 2')
+12:   how: string; // what the player does, in plain words
+13:   secondsSaved: number; // against the line that uses everything
+14:   seconds: number; // the whole run
+15:   pumpSeconds: number | null; // the longest pump on a bar in this line
+16:   windowMs: number | null; // the narrowest window of good presses (smaller = harder)
+17:   designed: boolean; // the designer marked it as meant (course.designedShortcuts)
+18:   plan: Plan; // plays on the real course
+19: }
+20: export interface MoveChoice { move: 'vault' | 'roll'; withSeconds: number; withoutSeconds: number | null } // the best line against the best line without this move (null: cannot be cleared without it)
+21: export interface ShortcutReport {
+22:   intendedSeconds: number | null; // the line that uses everything; null: the course does not clear
+23:   intended: Plan | null;
+24:   shortcuts: Shortcut[];
+25:   moveChoices: MoveChoice[];
+26:   searches: number;
+27:   complete: boolean; // false when the budget ran out before every variant was tried
+28: }
+29: export interface ShortcutOptions { budgetMs?: number; maxSearches?: number; onlyIds?: string[]; moveChoices?: boolean }
+30: 
+31: const r2 = (v: number) => Math.round(v * 100) / 100;
+32: 
+33: interface Used { seconds: number; caught: number[]; wall: boolean; rope: boolean; pumps: number[] }
+34: // what a played line used: the bars it held, the wall, the rope, and how long each hold lasted
+35: function usedBy(res: RunResult): Used | null {
+36:   if (res.world.outcome !== 'cleared') return null;
+37:   const caught: number[] = [], pumps: number[] = [];
+38:   let at = -1;
+39:   for (const e of res.events) {
+40:     if (e.type === 'hang-catch') { caught.push(Number(e.detail?.hold ?? 0)); at = e.tick; }
+41:     if (e.type === 'hang-release' && at >= 0) { pumps.push((e.tick - at) * DT); at = -1; }
+42:   }
+43:   return { seconds: res.world.runner.tick * DT, caught: [...new Set(caught)], wall: res.events.some((e) => e.type === 'wall-grab'), rope: res.events.some((e) => e.type === 'rope-catch'), pumps };
+44: }
+45: 
+46: interface Variant { id: string; skipped: string[]; course: CourseData; keep: number[] | null; skipIdx: number[] }
+47: 
+48: // every way to take away one move: each bar, each pair of neighbouring bars, the wall, the rope
+49: export function variantsOf(course: CourseData): Variant[] {
+50:   const out: Variant[] = [];
+51:   const holds = course.holds ?? [];
+52:   const base = { ...course, plan: undefined } as CourseData;
+53:   const without = (drop: number[]): Variant => {
+54:     const keep = holds.map((_, i) => i).filter((i) => !drop.includes(i));
+55:     return { id: drop.length === 1 ? `skip-bar-${drop[0] + 1}` : `skip-bars-${drop.map((i) => i + 1).join('-')}`, skipped: drop.map((i) => `Bar ${i + 1}`), course: { ...base, holds: keep.map((i) => holds[i]) }, keep, skipIdx: drop };
+56:   };
+57:   holds.forEach((_, i) => out.push(without([i])));
+58:   for (let i = 0; i + 1 < holds.length; i++) out.push(without([i, i + 1]));
+59:   if (course.wall) out.push({ id: 'skip-wall', skipped: ['the wall'], course: { ...base, off: [...(course.off ?? []), 'wall'] }, keep: null, skipIdx: [] });
+60:   if (course.rope) out.push({ id: 'skip-rope', skipped: ['the rope'], course: { ...base, off: [...(course.off ?? []), 'rope'] }, keep: null, skipIdx: [] });
+61:   return out;
+62: }
+63: 
+64: // the variant's plan, written for the real course: bars it never held are marked noGrab, the others keep their pump times
+65: function mapPlan(plan: Plan, real: CourseData, v: Variant): Plan {
+66:   if (!v.keep) return plan;
+67:   const n = (real.holds ?? []).length;
+68:   const hangTicks = Array.from({ length: n }, (_, i) => { const k = v.keep!.indexOf(i); return k >= 0 ? plan.hangTicks?.[k] ?? 90 : 0; });
+69:   return { ...plan, hangTicks, noGrab: v.skipIdx, hands: n > 0 };
+70: }
+71: 
+72: function say(skipped: string[], u: Used): string {
+73:   const longest = u.pumps.length ? Math.max(...u.pumps) : 0;
+74:   const names = skipped.map((s) => s.toLowerCase()).join(' and ');
+75:   if (skipped.some((s) => s.startsWith('Bar'))) return longest > 0.2 ? `pump ${r2(longest)} s on the bar you hold, let go, and fly past ${names}` : `jump past ${names}`;
+76:   return `get past ${names} without using it`;
+77: }
+78: 
+79: export function findShortcuts(course: CourseData, opts: ShortcutOptions = {}): ShortcutReport {
+80:   const t0 = Date.now();
+81:   const holds = course.holds ?? [];
+82:   // the ideal search with routes (CC-67) already compares bar to bar against a full pump that flies over the second bar, and keeps the faster; reuse its answer
+83:   const idealFound = course.plan && (course.routes || holds.length < 2) ? null : searchIdealRun({ ...course, plan: undefined, routes: undefined } as CourseData, { routes: holds.length >= 2 });
+84:   const idealPlan = course.plan ?? idealFound!.plan;
+85:   const routes = course.routes ?? idealFound?.routes;
+86:   const idealUsed = usedBy(playPlan(course, idealPlan));
+87:   const report: ShortcutReport = { intendedSeconds: idealUsed?.seconds ?? null, intended: idealPlan, shortcuts: [], moveChoices: [], searches: idealFound ? 1 : 0, complete: true };
+88:   if (!idealUsed) return report;
+89:   const over = () => (opts.budgetMs !== undefined && Date.now() - t0 > opts.budgetMs) || (opts.maxSearches !== undefined && report.searches >= opts.maxSearches);
+90:   const designed = new Set(course.designedShortcuts ?? []);
+91: 
+92:   // the line that uses every bar: the designer's route, and the baseline for the saving when the ideal line already skips a bar
+93:   let baseline = idealUsed.seconds;
+94:   const viaBars = routes?.find((r) => holds.length >= 2 && r.bars >= holds.length); // the route that holds every bar, when the ideal line flies over one
+95:   if (viaBars) baseline = viaBars.ticks * DT;
+96:   report.intendedSeconds = r2(baseline);
+97: 
+98:   const found = new Map<string, Shortcut>();
+99:   const consider = (plan: Plan, windows: Window[] | undefined, hint: Variant | null) => {
+100:     const u = usedBy(playPlan(course, plan));
+101:     if (!u || u.seconds >= baseline - 0.05) return;
+102:     const skippedBars = holds.map((_, i) => i).filter((i) => !u.caught.includes(i));
+103:     const skipped = [...skippedBars.map((i) => `Bar ${i + 1}`), ...(course.wall && !u.wall ? ['the wall'] : []), ...(course.rope && !u.rope ? ['the rope'] : [])];
+104:     if (!skipped.length) return;
+105:     const id = skippedBars.length && !(course.wall && !u.wall) && !(course.rope && !u.rope) ? (skippedBars.length === 1 ? `skip-bar-${skippedBars[0] + 1}` : `skip-bars-${skippedBars.map((i) => i + 1).join('-')}`) : hint?.id ?? 'skip-' + skipped.join('-').toLowerCase().replace(/\s+/g, '-');
+106:     const widths = (windows ?? []).map((w) => w.widthMs).filter((m) => m > 0);
+107:     const s: Shortcut = { id, skipped, how: say(skipped, u), secondsSaved: r2(baseline - u.seconds), seconds: r2(u.seconds), pumpSeconds: u.pumps.length ? r2(Math.max(...u.pumps)) : null, windowMs: widths.length ? Math.round(Math.min(...widths)) : null, designed: designed.has(id), plan };
+108:     const old = found.get(id);
+109:     if (!old || s.seconds < old.seconds) found.set(id, s);
+110:   };
+111:   consider(idealPlan, idealFound?.windows, null); // the ideal run may already skip something
+112: 
+113:   for (const v of variantsOf(course)) {
+114:     if (opts.onlyIds && !opts.onlyIds.includes(v.id)) continue;
+115:     if (over()) { report.complete = false; break; }
+116:     report.searches++;
+117:     const f = searchIdealRun(v.course);
+118:     if (f.cleared) consider(mapPlan(f.plan, course, v), f.windows, v);
+119:   }
+120: 
+121:   // move choices: the best line against the best line without the vault or without the roll
+122:   if (opts.moveChoices !== false && !opts.onlyIds) {
+123:     for (const move of ['vault', 'roll'] as const) {
+124:       if (move === 'vault' && !(risers(course).length > 0)) continue;
+125:       if (over()) { report.complete = false; break; }
+126:       report.searches++;
+127:       const variant = { ...course, plan: undefined, off: [...(course.off ?? []), move] } as CourseData;
+128:       const f = searchIdealRun(variant);
+129:       const u = f.cleared ? usedBy(playPlan(variant, f.plan)) : null;
+130:       if (!u || Math.abs(u.seconds - idealUsed.seconds) > 0.05) report.moveChoices.push({ move, withSeconds: r2(idealUsed.seconds), withoutSeconds: u ? r2(u.seconds) : null });
+131:     }
+132:   }
+133:   report.shortcuts = [...found.values()].sort((a, b) => b.secondsSaved - a.secondsSaved);
+134:   return report;
+135: }
+136: 
+137: // one plain line for the hint and the end panel: a fact, never a grade
+138: export function shortcutLine(s: Shortcut): string {
+139:   return `Shortcut: ${s.how}. It saves ${s.secondsSaved.toFixed(1)} s${s.windowMs !== null ? `, and its window of good presses is ${s.windowMs} ms wide` : ''}.`;
+140: }
+141: 
+
+=== src/sim/replay.ts ===
+1: // Replays for the ghost and for shared runs (CC-99). The simulator is deterministic at 120 Hz, so a run is its key presses:
+2: // record the inputs, play them again from the start, and the same run comes out. Nothing here draws anything.
+3: import type { CourseData } from '../course/course';
+4: import { inputFor, playPlan, type Plan } from './ideal';
+5: import { NO_INPUT, type RunnerInput } from './runner';
+6: import { newWorld, stepWorld, type WorldState } from './world';
+7: 
+8: export const REPLAY_VERSION = 1; // bump when a change to the simulator makes old recordings play differently
+9: export const MAX_REPLAY_TICKS = 120 * 180; // three minutes: a longer run is not a ghost
+10: const BITS = ['run', 'left', 'jump', 'squat', 'roll', 'handL', 'handR', 'vault', 'aimUp', 'aimDown', 'up', 'fire'] as const;
+11: export type InputLog = [mask: number, ticks: number][]; // run-length encoded: the same keys held for this many ticks
+12: 
+13: export const maskOf = (i: RunnerInput): number => BITS.reduce((m, k, b) => (i[k] ? m | (1 << b) : m), 0);
+14: export const inputOfMask = (m: number): RunnerInput => {
+15:   const i: RunnerInput = { ...NO_INPUT };
+16:   BITS.forEach((k, b) => { if (m & (1 << b)) (i as unknown as Record<string, boolean>)[k] = true; });
+17:   return i;
+18: };
+19: // A person's keys fit in the mask. A bot's input can also carry a take-off speed or a cannon angle: that is not a person's run, so it is not recorded.
+20: export const isPlainInput = (i: RunnerInput): boolean => (i.jumpSpeed ?? 0) === 0 && i.aim === undefined;
+21: 
+22: export class InputRecorder {
+23:   private log: InputLog = [];
+24:   ticks = 0;
+25:   valid = true; // false when something other than keys was pressed, or the run is too long
+26:   push(i: RunnerInput): void {
+27:     if (!isPlainInput(i) || this.ticks >= MAX_REPLAY_TICKS) { this.valid = false; return; }
+28:     const m = maskOf(i), last = this.log[this.log.length - 1];
+29:     if (last && last[0] === m) last[1]++; else this.log.push([m, 1]);
+30:     this.ticks++;
+31:   }
+32:   reset(): void { this.log = []; this.ticks = 0; this.valid = true; }
+33:   snapshot(): InputLog { return this.log.map(([m, n]) => [m, n]); }
+34: }
+35: 
+36: // Where the runner was at every tick of a run (index = tick since the start): the ghost is drawn from this.
+37: export interface GhostTrack { xs: Float32Array; ys: Float32Array; cleared: boolean; ticks: number; maxX: Float32Array }
+38: function trackOf(xs: number[], ys: number[], cleared: boolean): GhostTrack {
+39:   const maxX = new Float32Array(xs.length);
+40:   let m = -Infinity;
+41:   xs.forEach((x, i) => { m = Math.max(m, x); maxX[i] = m; });
+42:   return { xs: Float32Array.from(xs), ys: Float32Array.from(ys), cleared, ticks: xs.length - 1, maxX };
+43: }
+44: 
+45: // The ideal line: play the plan once and keep every tick's place. A contraption (cart, drone, cannon) is the same: the world states are kept, not the keys.
+46: export function trackFromPlan(course: CourseData, plan: Plan, maxTicks = MAX_REPLAY_TICKS): GhostTrack {
+47:   const xs: number[] = [], ys: number[] = [];
+48:   const r = playPlan(course, plan, maxTicks, (w) => { xs.push(w.runner.x); ys.push(w.runner.y); });
+49:   return trackOf(xs, ys, r.world.outcome === 'cleared');
+50: }
+51: 
+52: export interface Verified { cleared: boolean; ticks: number; track: GhostTrack; world: WorldState }
+53: // Play recorded keys from the start of the course. This is also the check on a shared run: the time is what the simulator says, never what the link says.
+54: export function verifyLog(course: CourseData, log: InputLog, maxTicks = MAX_REPLAY_TICKS): Verified {
+55:   let w = newWorld(course, course.startX);
+56:   const xs = [w.runner.x], ys = [w.runner.y];
+57:   let n = 0;
+58:   outer: for (const [m, count] of log) {
+59:     const input = inputOfMask(m);
+60:     for (let k = 0; k < count; k++) {
+61:       if (w.outcome !== 'running' || n >= maxTicks) break outer;
+62:       w = stepWorld(w, input, course);
+63:       n++;
+64:       xs.push(w.runner.x); ys.push(w.runner.y);
+65:     }
+66:   }
+67:   const cleared = w.outcome === 'cleared';
+68:   return { cleared, ticks: w.runner.tick, track: trackOf(xs, ys, cleared), world: w };
+69: }
+70: 
+71: // How the same plan would be keys: used by the tests to check that recording and replaying agree on the demo courses.
+72: export function recordPlan(course: CourseData, plan: Plan, maxTicks = MAX_REPLAY_TICKS): { recorder: InputRecorder; world: WorldState } {
+73:   const st = { next: 0, caught: null as number | null, bedAt: null as number | null } as Parameters<typeof inputFor>[2];
+74:   const recorder = new InputRecorder();
+75:   let w = newWorld(course);
+76:   for (let i = 0; i < maxTicks && w.outcome === 'running'; i++) {
+77:     const input = inputFor(plan, w, st, course);
+78:     recorder.push(input);
+79:     w = stepWorld(w, input, course);
+80:   }
+81:   return { recorder, world: w };
+82: }
+83: 
+84: // Time at which a track first reached x (null if it never did): the gap to the ghost is how long ago, or how soon, it was where you are now.
+85: export function reachTick(t: GhostTrack, x: number): number | null {
+86:   if (t.maxX.length === 0 || x > t.maxX[t.maxX.length - 1]) return null;
+87:   let lo = 0, hi = t.maxX.length - 1;
+88:   while (lo < hi) { const mid = (lo + hi) >> 1; if (t.maxX[mid] >= x) hi = mid; else lo = mid + 1; }
+89:   return lo;
+90: }
+91: // Where the ghost was at x, as a stretch of ticks: it can stand still there (hanging on a wall, waiting on a bar), so one place can last a while.
+92: // The gap is zero while you are there at the same time as the ghost, and counts from the moment it left (ahead) or from when it arrived (behind).
+93: export function reachSpan(t: GhostTrack, x: number): [first: number, last: number] | null {
+94:   const first = reachTick(t, x - 0.02);
+95:   if (first === null) return null;
+96:   let lo = first, hi = t.maxX.length - 1;
+97:   while (lo < hi) { const mid = (lo + hi + 1) >> 1; if (t.maxX[mid] <= x + 0.02) lo = mid; else hi = mid - 1; }
+98:   return [first, Math.max(first, lo)];
+99: }
+100: // Positive: the ghost left this place earlier (it is ahead). Seconds.
+101: export function gapSeconds(t: GhostTrack, playerTick: number, playerX: number): number | null {
+102:   const span = reachSpan(t, playerX);
+103:   if (!span) return null;
+104:   const [a, b] = span;
+105:   return (playerTick > b ? playerTick - b : playerTick < a ? playerTick - a : 0) / 120;
+106: }
+107: export const gapWords = (gap: number | null, who = 'Ghost'): string => {
+108:   if (gap === null) return `${who} is ahead`;
+109:   if (Math.abs(gap) < 0.05) return `Level with the ${who.toLowerCase()}`;
+110:   return gap > 0 ? `${who} is ${gap.toFixed(1)} s ahead` : `You are ${(-gap).toFixed(1)} s ahead`;
+111: };
+112: 
+113: // ---- a run as text (for a link) ----
+114: const toVarints = (log: InputLog): Uint8Array => {
+115:   const out: number[] = [];
+116:   const put = (n: number) => { while (n >= 128) { out.push((n & 127) | 128); n >>>= 7; } out.push(n); };
+117:   for (const [m, n] of log) { put(m); put(n); }
+118:   return Uint8Array.from(out);
+119: };
+120: const fromVarints = (b: Uint8Array): InputLog => {
+121:   const out: InputLog = [];
+122:   let i = 0;
+123:   const get = (): number => {
+124:     let n = 0, shift = 0;
+125:     for (;;) {
+126:       if (i >= b.length || shift > 28) throw new Error('bad run');
+127:       const c = b[i++]; n |= (c & 127) << shift; shift += 7;
+128:       if (c < 128) return n >>> 0;
+129:     }
+130:   };
+131:   while (i < b.length) {
+132:     const m = get(), n = get();
+133:     if (m >= 1 << BITS.length || n < 1 || n > MAX_REPLAY_TICKS || out.length >= 6000) throw new Error('bad run');
+134:     out.push([m, n]);
+135:   }
+136:   return out;
+137: };
+138: const b64url = (b: Uint8Array): string => btoa(String.fromCharCode(...b)).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+139: const unb64url = (s: string): Uint8Array => Uint8Array.from(atob(s.replace(/-/g, '+').replace(/_/g, '/')), (c) => c.charCodeAt(0));
+140: async function pipe(data: Uint8Array, stream: CompressionStream | DecompressionStream): Promise<Uint8Array> {
+141:   const w = stream.writable.getWriter();
+142:   void w.write(data as BufferSource); void w.close();
+143:   return new Uint8Array(await new Response(stream.readable).arrayBuffer());
+144: }
+145: const canCompress = typeof CompressionStream !== 'undefined' && typeof DecompressionStream !== 'undefined';
+146: export async function encodeLog(log: InputLog): Promise<string> {
+147:   const raw = toVarints(log);
+148:   if (!canCompress) return 'r' + b64url(raw);
+149:   const z = await pipe(raw, new CompressionStream('deflate-raw'));
+150:   return z.length < raw.length ? 'd' + b64url(z) : 'r' + b64url(raw);
+151: }
+152: export async function decodeLog(s: string): Promise<InputLog> {
+153:   if (!/^[dr][A-Za-z0-9_-]+$/.test(s) || s.length > 8000) throw new Error('bad run');
+154:   const bytes = unb64url(s.slice(1));
+155:   return fromVarints(s[0] === 'd' ? await pipe(bytes, new DecompressionStream('deflate-raw')) : bytes);
+156: }
+157: 
+158: // ---- who made the course (a changed course makes an old run meaningless) ----
+159: export function courseHash(course: CourseData): string {
+160:   const { plan: _p, shortcuts: _s, routes: _r, ...rest } = course as CourseData & { plan?: unknown; shortcuts?: unknown; routes?: unknown };
+161:   const text = JSON.stringify(rest);
+162:   let h = 0x811c9dc5;
+163:   for (let i = 0; i < text.length; i++) { h ^= text.charCodeAt(i); h = Math.imul(h, 0x01000193); }
+164:   return (h >>> 0).toString(36);
+165: }
+166: export const cleanNick = (s: string): string => s.replace(/[^A-Za-z0-9]/g, '').slice(0, 3).toUpperCase();
+167: 
+168: export interface Challenge { hash: string; nick: string; log: InputLog }
+169: export async function makeChallengeParam(course: CourseData, log: InputLog, nick = ''): Promise<string> {
+170:   return `${REPLAY_VERSION}.${courseHash(course)}.${cleanNick(nick)}.${await encodeLog(log)}`;
+171: }
+172: export type ChallengeRead = { ok: true; challenge: Challenge } | { ok: false; why: 'version' | 'broken' };
+173: export async function readChallengeParam(param: string): Promise<ChallengeRead> {
+174:   const [v, hash, nick, data, ...rest] = param.split('.');
+175:   if (rest.length || data === undefined) return { ok: false, why: 'broken' };
+176:   if (Number(v) !== REPLAY_VERSION) return { ok: false, why: 'version' };
+177:   if (!/^[a-z0-9]{1,8}$/.test(hash) || !/^[A-Z0-9]{0,3}$/.test(nick)) return { ok: false, why: 'broken' };
+178:   try { return { ok: true, challenge: { hash, nick, log: await decodeLog(data) } }; } catch { return { ok: false, why: 'broken' }; }
+179: }
+180: 
+
+=== src/sim/predict.ts ===
+1: import type { CourseData } from '../course/course';
+2: import { edges } from './ideal';
+3: import { NO_INPUT } from './runner';
+4: import { landing } from './landing';
+5: import { platformAt } from './terrain';
+6: import { ROLL_FORGIVE_TICKS } from './drop';
+7: import { stepWorld, type WorldState } from './world';
+8: import { JUMPABLE_STEP } from './needs-limits';
+9: import { climbMaxRise } from './climb';
+10: import { crestSpeedLimit, railsOf } from './cart';
+11: import { GRAVITY } from './units';
+12: 
+13: // "If I jump now, what happens?": the simulator's own physics run forward from the current state with Space pressed
+14: // and the run key held. The debug view draws the path and says why the jump works or does not. Nothing here is a second model.
+15: export interface Prediction {
+16:   path: { x: number; y: number }[];
+17:   result: 'lands' | 'splash' | 'hurt' | 'blocked' | 'not-grounded' | 'other-move';
+18:   landX?: number;
+19:   why: string; // plain words
+20: }
+21: 
+22: // A stumble or hard landing waits ROLL_FORGIVE_TICKS for a forgiven X press: a prediction without one lets the wait run out, so it says what the landing really is.
+23: const settled = (s: WorldState, course: CourseData): WorldState => { for (let k = 0; k <= ROLL_FORGIVE_TICKS && s.landGrace; k++) s = stepWorld(s, { ...NO_INPUT, squat: true }, course); return s; };
+24: 
+25: export function predictJump(w: WorldState, course: CourseData, maxTicks = 240): Prediction {
+26:   if (w.outcome !== 'running') return { path: [], result: 'other-move', why: 'The run is over: press R to try again.' };
+27:   if (w.mode !== 'run') return { path: [], result: 'other-move', why: w.mode === 'swing' ? 'On the rope: Space lets go.' : w.mode === 'bounce' ? 'On the trampoline: Space pumps the bounce.' : w.mode === 'hang' ? 'On a bar: let go of Q and E to fly; push the arrows to build the swing.' : w.mode === 'vault' ? 'Going over the step with a hand on top.' : 'On the wall: the move plays itself.' };
+28:   const path = [{ x: w.runner.x, y: w.runner.y }];
+29:   let s = w;
+30:   let left = !w.runner.grounded;
+31:   const startGrounded = w.runner.grounded;
+32:   let still = 0;
+33:   for (let i = 0; i < maxTicks; i++) {
+34:     s = settled(stepWorld(s, { ...NO_INPUT, run: true, squat: true, jump: i === 0 && startGrounded }, course), course);
+35:     path.push({ x: s.runner.x, y: s.runner.y });
+36:     if (s.outcome === 'splash') {
+37:       const ahead = course.terrain.platforms.filter((p) => p.x0 > s.runner.x - 0.5).sort((a, b) => a.x0 - b.x0)[0];
+38:       return { path, result: 'splash', landX: s.runner.x, why: ahead && ahead.x0 > s.runner.x ? `Falls in the water ${(ahead.x0 - s.runner.x).toFixed(1)} m before the next ground. Jump later, or run faster.` : 'Falls in the water: there is no ground left to land on.' };
+39:     }
+40:     if (!s.runner.grounded) left = true;
+41:     if (s.outcome === 'hurt') return { path, result: 'hurt', landX: s.runner.x, why: `Hard landing: ${((s.events.find((e) => e.type === 'hard-landing')?.detail?.impact as number) ?? 0).toFixed(1)} m/s into the ground is too much even with bent knees. Hold X as you land to roll it out (it counts in the last 0.15 s, about a metre up; a tap earlier does nothing).` };
+42:     if (left && s.runner.grounded) {
+43:       const p = platformAt(course.terrain, s.runner.x);
+44:       const margin = p ? Math.min(s.runner.x - p.x0, p.x1 - s.runner.x) : 0;
+45:       const impact = s.events.find((e) => e.type === 'land')?.detail?.impact as number | undefined;
+46:       const hit = impact !== undefined && impact > 6 ? ` You hit the ground at ${impact.toFixed(1)} m/s: ${landing(impact, true).stumbled ? 'a stumble that costs speed (hold X as you land to roll (it counts in the last 0.15 s, about a metre up; a tap earlier does nothing))' : 'a clean landing'}.` : '';
+47:       return { path, result: 'lands', landX: s.runner.x, why: `Lands at ${s.runner.x.toFixed(1)} m, ${margin.toFixed(1)} m from the edge of the ground${margin < 0.3 ? ' (close: a little less speed and it would miss)' : ''}.${hit}` };
+48:     }
+49:     still = Math.abs(s.runner.vx) < 0.05 ? still + 1 : 0;
+50:     if (s.runner.grounded && still > 30) {
+51:       const next = course.terrain.platforms.filter((p) => p.x0 >= s.runner.x - 0.3).sort((a, b) => a.x0 - b.x0)[0];
+52:       const ground = platformAt(course.terrain, s.runner.x)?.top ?? 0;
+53:       const rise = next ? next.top - ground : 0;
+54:       return { path, result: 'blocked', why: rise > JUMPABLE_STEP ? `The step ahead is ${rise.toFixed(1)} m high. One jump lifts about ${JUMPABLE_STEP} m, so this one needs a different move: ${rise <= 1.3 ? 'vault it (V)' : rise <= climbMaxRise(course.jumpSpeed) ? 'climb it (hold E at the wall)' : 'it is too high to climb'}.` : 'The runner is stopped against something: it is in the way.' };
+55:     }
+56:   }
+57:   return { path, result: 'lands', why: 'Still running at the end of the preview.' };
+58: }
+59: 
+60: 
+61: // "If I let go of the bar now, what happens?": the same physics run on with both hands off, then the right hand held so the next bar is grabbed if it is in reach.
+62: // When a flight with the hand kept off would clear the next bar and land beyond it, that is said too, as a fact (a skip), never as a grade.
+63: const ORDINAL = ['first', 'second', 'third', 'fourth', 'fifth', 'sixth'];
+64: export const barName = (i: number): string => `${ORDINAL[i] ?? `no. ${i + 1}`} bar`;
+65: 
+66: function releaseFlight(w: WorldState, course: CourseData, hand: boolean, maxTicks: number): Prediction {
+67:   const path = [{ x: w.runner.x, y: w.runner.y }];
+68:   let s = stepWorld(w, { ...NO_INPUT }, course); // both hands off: let go
+69:   path.push({ x: s.runner.x, y: s.runner.y });
+70:   let left = false;
+71:   for (let i = 0; i < maxTicks; i++) {
+72:     s = settled(stepWorld(s, { ...NO_INPUT, run: true, squat: true, handR: hand }, course), course);
+73:     path.push({ x: s.runner.x, y: s.runner.y });
+74:     if (s.mode === 'hang') return { path, result: 'lands', landX: s.runner.x, why: `You reach the ${barName(s.hang!.hold)}: hold E in the air to grab it.` };
+75:     if (s.outcome === 'splash') return { path, result: 'splash', landX: s.runner.x, why: 'You fall in the water: wait for a bigger swing.' };
+76:     if (!s.runner.grounded) left = true;
+77:     if (left && s.runner.grounded) {
+78:       if (s.runner.x < w.runner.x + 0.5) return { path, result: 'blocked', landX: s.runner.x, why: 'You would land back on the near side.' };
+79:       const passed = (course.holds ?? []).map((h, k) => ({ h, k })).filter(({ h, k }) => k !== w.hang!.hold && h.x > w.runner.x + 0.5 && h.x < s.runner.x - 0.3);
+80:       const skip = passed.length ? ` You fly over the ${passed.map(({ k }) => barName(k)).join(' and the ')}: it is skipped.` : '';
+81:       return { path, result: 'lands', landX: s.runner.x, why: `You land on the ground at ${s.runner.x.toFixed(1)} m.${skip}` };
+82:     }
+83:   }
+84:   return { path, result: 'lands', why: 'Still in the air at the end of the preview.' };
+85: }
+86: 
+87: export function predictRelease(w: WorldState, course: CourseData, maxTicks = 360): Prediction {
+88:   if (w.mode !== 'hang' || w.outcome !== 'running') return { path: [], result: 'other-move', why: 'Not on a bar.' };
+89:   const withHand = releaseFlight(w, course, true, maxTicks);
+90:   if (withHand.why.startsWith('You reach the')) { // the next bar is in reach: is there a second way, over it?
+91:     const over = releaseFlight(w, course, false, maxTicks);
+92:     if (over.result === 'lands' && over.why.includes('skipped')) return { ...withHand, why: `${withHand.why} Or keep your hand off it: ${over.why.charAt(0).toLowerCase() + over.why.slice(1)}` };
+93:   }
+94:   return withHand;
+95: }
+96: 
+97: 
+98: // "If I let the rider go now, what happens?": in the trebuchet, the same physics run on with Space pressed this tick, then the right hand held so a bar in reach is grabbed.
+99: export function predictLaunch(w: WorldState, course: CourseData, maxTicks = 600): Prediction {
+100:   if (w.mode !== 'launch' || w.outcome !== 'running') return { path: [], result: 'other-move', why: 'Not in the trebuchet.' };
+101:   if (!w.launch!.fired) return { path: [], result: 'other-move', why: 'Hold → to pull the pin. Then press Space to let the rider go.' };
+102:   const path = [{ x: w.runner.x, y: w.runner.y }];
+103:   let s = stepWorld(w, { ...NO_INPUT, run: true, jump: true }, course);
+104:   path.push({ x: s.runner.x, y: s.runner.y });
+105:   if (s.mode === 'launch') return { path, result: 'other-move', why: 'The arm has not turned far enough to let go yet.' };
+106:   // the same flight twice at most: first as it comes, then (if that hurts) with the roll tapped before the ground, which a player would do
+107:   const machineDeck = course.terrain.platforms.find((p) => course.trebuchet && p.x0 <= course.trebuchet.x && course.trebuchet.x <= p.x1);
+108:   const fly = (roll: boolean): Prediction => {
+109:     let t = s, left = false;
+110:     const out = path.slice();
+111:     for (let i = 0; i < maxTicks; i++) {
+112:       t = settled(stepWorld(t, { ...NO_INPUT, run: true, squat: true, handR: true, roll }, course), course);
+113:       out.push({ x: t.runner.x, y: t.runner.y });
+114:       if (t.mode === 'hang') return { path: out, result: 'lands', landX: t.runner.x, why: 'You reach the bar: hold E in the air to grab it.' };
+115:       if (t.outcome === 'splash') return { path: out, result: 'splash', landX: t.runner.x, why: 'You come down in the water, short of the ground.' };
+116:       if (t.outcome === 'hurt') return { path: out, result: 'hurt', landX: t.runner.x, why: 'You come down too hard: hold X as you land to roll it out (it counts in the last 0.15 s, about a metre up; a tap earlier does nothing).' };
+117:       if (!t.runner.grounded) left = true;
+118:       if (left && t.runner.grounded) {
+119:         if (machineDeck && t.runner.x >= machineDeck.x0 && t.runner.x <= machineDeck.x1) return { path: out, result: 'blocked', landX: t.runner.x, why: `You come back down on the machine's own deck at ${t.runner.x.toFixed(1)} m: wait a little longer.` };
+120:         return { path: out, result: 'lands', landX: t.runner.x, why: `You land at ${t.runner.x.toFixed(1)} m${roll ? ': hold X as you land to roll it out' : ''}.` };
+121:       }
+122:     }
+123:     return { path: out, result: 'lands', why: 'Still in the air at the end of the preview.' };
+124:   };
+125:   const plain = fly(false);
+126:   return plain.result === 'hurt' ? fly(true) : plain;
+127: }
+128: 
+129: // "If I fire the cannon now, where do I come down?": the same physics run forward with K pressed this tick and nothing after it. A roll is added in the air
+130: // to see whether the landing is survivable; the words say whether the roll is needed. The Course draws this path as dots and the debug view says it.
+131: export function predictShot(w: WorldState, course: CourseData, maxTicks = 900): Prediction {
+132:   if (w.mode !== 'run' || w.outcome !== 'running' || !course.recoil) return { path: [], result: 'other-move', why: 'No launcher to fire here.' };
+133:   if (!w.recoil || w.recoil.armed <= 0) return { path: [], result: 'other-move', why: 'Run onto the teal pad to clip the launcher on.' };
+134:   const fly = (roll: boolean): Prediction & { impact?: number } => {
+135:     const path = [{ x: w.runner.x, y: w.runner.y }];
+136:     let s = stepWorld(w, { ...NO_INPUT, fire: true }, course);
+137:     path.push({ x: s.runner.x, y: s.runner.y });
+138:     let left = !s.runner.grounded;
+139:     for (let i = 0; i < maxTicks; i++) {
+140:       s = stepWorld(s, { ...NO_INPUT, roll: roll && !s.runner.grounded }, course);
+141:       path.push({ x: s.runner.x, y: s.runner.y });
+142:       if (!s.runner.grounded) left = true;
+143:       if (s.outcome === 'splash') {
+144:         const past = course.terrain.platforms.every((q) => q.x1 < s.runner.x);
+145:         return { path, result: 'splash', landX: s.runner.x, why: past ? 'You fly past the end of the ground and come down in the water. Tilt the barrel flatter, or use a lighter or slower ball.' : 'You come down in the water, short of the ground. Tilt the barrel, or use a heavier or faster ball.' };
+146:       }
+147:       if (s.outcome === 'hurt') return { path, result: 'hurt', landX: s.runner.x, why: 'You come down too hard even for a roll.' };
+148:       if (left && s.runner.grounded) return { path, result: 'lands', landX: s.runner.x, why: `You land at ${s.runner.x.toFixed(1)} m.`, impact: s.events.find((e) => e.type === 'land')?.detail?.impact as number | undefined };
+149:     }
+150:     return { path, result: 'lands', why: 'Still in the air at the end of the preview.' };
+151:   };
+152:   const plain = fly(false);
+153:   const needsRoll = plain.result === 'hurt' || (plain.result === 'lands' && (plain.impact ?? 0) ** 2 / (2 * GRAVITY) > 1.8);
+154:   if (!needsRoll) return plain; // a clean landing (or a splash): nothing more to say
+155:   const rolled = fly(true);
+156:   return rolled.result === 'lands' ? { ...rolled, why: `You land at ${rolled.landX!.toFixed(1)} m, ${plain.result === 'hurt' ? 'a hard landing unless you tap X just before the ground to roll it out' : 'a stumble unless you tap X just before the ground to roll it out'}.` } : { ...plain, why: 'You come down too hard: tilt the barrel flatter, or a slower ball.' };
+157: }
+158: 
+159: // "If I turn round now, what happens?": the same band physics run on with the run key held toward the post, a jump pressed half a metre before the next edge,
+160: // and the right hand held in the air. Used by the hint and the debug view while clipped to the band.
+161: export function predictBand(w: WorldState, course: CourseData, maxTicks = 120 * 25): Prediction {
+162:   if (w.mode !== 'band' || w.outcome !== 'running') return { path: [], result: 'other-move', why: 'Not on the band.' };
+163:   const edge = edges(course).find((q) => q.x >= w.runner.x);
+164:   const path = [{ x: w.runner.x, y: w.runner.y }];
+165:   let s = w, left = false, leave: number | null = null;
+166:   for (let i = 0; i < maxTicks; i++) {
+167:     const jump = s.mode === 'run' && s.runner.grounded && !!edge && s.runner.x >= edge.x - 0.5;
+168:     s = stepWorld(s, { ...NO_INPUT, run: true, squat: true, jump, handR: true }, course);
+169:     if (i % 3 === 0 || s.outcome !== 'running') path.push({ x: s.runner.x, y: s.runner.y });
+170:     const rel = s.events.find((e) => e.type === 'band-release');
+171:     if (rel) leave = rel.detail!.vx as number;
+172:     if (s.events.some((e) => e.type === 'band-snap')) return { path, result: 'blocked', landX: s.runner.x, why: 'The band snaps: it cannot stretch that far. Turn round sooner.' };
+173:     const speed = leave === null ? '' : `You leave the band at ${leave.toFixed(1)} m/s. `;
+174:     if (s.outcome === 'splash') return { path, result: 'splash', landX: s.runner.x, why: `${speed}You come down in the water: stretch it farther first.` };
+175:     if (s.outcome === 'hurt') return { path, result: 'hurt', landX: s.runner.x, why: `${speed}You come down too hard: tap X just before you land.` };
+176:     if (!s.runner.grounded) left = true;
+177:     if (left && s.runner.grounded) return { path, result: 'lands', landX: s.runner.x, why: `${speed}You land at ${s.runner.x.toFixed(1)} m.` };
+178:   }
+179:   return { path, result: 'other-move', why: 'Not far enough yet: keep running.' };
+180: }
+181: 
+182: // "If I let the cart roll from here, what happens?": the same cart physics run forward with no brake. Used by the debug view on a coaster.
+183: export function predictCart(w: WorldState, course: CourseData, maxTicks = 120 * 60): Prediction {
+184:   if (w.outcome !== 'running') return { path: [], result: 'other-move', why: 'The run is over: press R to try again.' };
+185:   const path = [{ x: w.runner.x, y: w.runner.y }];
+186:   let s = w, firstOff: { x: number; v: number; segment: number } | null = null, caught = false;
+187:   for (let i = 0; i < maxTicks; i++) {
+188:     s = stepWorld(s, { ...NO_INPUT, run: !s.cart?.started }, course);
+189:     if (i % 4 === 0 || s.outcome !== 'running') path.push({ x: s.runner.x, y: s.runner.y });
+190:     const off = s.events.find((e) => e.type === 'cart-off');
+191:     if (off && !firstOff) firstOff = { x: off.detail!.x as number, v: off.detail!.v as number, segment: Number(off.detail!.segment ?? 0) };
+192:     if (s.events.some((e) => e.type === 'cart-catch')) caught = true;
+193:     if (s.events.some((e) => e.type === 'cart-stall')) {
+194:       const st = s.events.find((e) => e.type === 'cart-stall')!;
+195:       return { path, result: 'blocked', landX: st.detail!.x as number, why: `Runs out of speed on the hill at ${(st.detail!.x as number).toFixed(0)} m (${(st.detail!.height as number).toFixed(1)} m high). Make the first hill higher or that hill lower.` };
+196:     }
+197:     if (s.outcome === 'cleared') return { path, result: 'lands', landX: s.runner.x, why: caught ? 'Flies off one section, lands on the next, and reaches the finish.' : 'Rolls all the way to the finish.' };
+198:     if (s.outcome === 'splash' && firstOff) {
+199:       const rails = railsOf(course.track!, firstOff.segment), limit = crestSpeedLimit(rails, firstOff.x);
+200:       return { path, result: 'splash', landX: s.runner.x, why: `Leaves the track at ${firstOff.x.toFixed(0)} m at ${firstOff.v.toFixed(1)} m/s but misses the next section. That crest lets go above ${limit.toFixed(1)} m/s.` };
+201:     }
+202:     if (s.outcome !== 'running') break;
+203:   }
+204:   return { path, result: 'other-move', why: s.cart?.started ? 'Rolling.' : 'Press → to push off.' };
+205: }
+206: 
+207: // "If I stop leaning and come down now, what happens?": the same drone physics run on with the arrows released and the down arrow held, E held all the way (used by the debug view).
+208: export function predictDrone(w: WorldState, course: CourseData, maxTicks = 120 * 40): Prediction {
+209:   if (w.mode !== 'drone' || w.outcome !== 'running') return { path: [], result: 'other-move', why: 'Run onto the pad and hold E to board the drone.' };
+210:   const path = [{ x: w.runner.x, y: w.runner.y }];
+211:   let s = w, before = w;
+212:   for (let i = 0; i < maxTicks; i++) {
+213:     before = s;
+214:     s = stepWorld(s, { ...NO_INPUT, handL: true, handR: true, squat: true }, course);
+215:     if (s.mode !== 'drone' || s.outcome !== 'running') path.push({ x: before.runner.x, y: before.runner.y }); // the last two points are one tick apart, so the debug view reads the real speed into the ground
+216:     if (i % 4 === 0 || s.mode !== 'drone') path.push({ x: s.runner.x, y: s.runner.y });
+217:     if (s.outcome === 'splash') return { path, result: 'splash', landX: s.runner.x, why: s.events.some((e) => e.type === 'drone-empty') ? 'The battery runs out first and the drone falls into the water.' : 'You come down over the water, short of the deck.' };
+218:     if (s.outcome === 'hurt') return { path, result: 'hurt', landX: s.runner.x, why: 'The drone touches down too fast or tilted, or flies into the side of a deck.' };
+219:     if (s.mode !== 'drone') return { path, result: 'lands', landX: s.runner.x, why: `The drone sets you down at ${s.runner.x.toFixed(1)} m.` };
+220:   }
+221:   return { path, result: 'lands', why: 'Still flying at the end of the preview.' };
+222: }
+223: 
+
+=== src/sim/launch-window.ts ===
+1: import type { CourseData } from '../course/course';
+2: import { DT } from './units';
+3: import { playPlan, searchIdealRun, type Plan } from './ideal';
+4: 
+5: // How forgiving is the release of a trebuchet course? The window of release times (ticks after the pin is pulled) that still win,
+6: // measured from the simulator: for every release time near the best one, the player may hold on to the bar for as long as they like
+7: // (the cue tells them when to let go), so a release time counts when any hang time clears. The window is the unbroken run around the best release.
+8: export interface ReleaseWindow { best: number; lo: number; hi: number; ticks: number; widthMs: number }
+9: 
+10: export function releaseWindow(course: CourseData, found?: { plan: Plan; cleared: boolean }): ReleaseWindow | null {
+11:   const r = found ?? searchIdealRun({ ...course, plan: undefined });
+12:   if (!r.cleared || r.plan.launchRelease === undefined) return null;
+13:   const plan = r.plan, best = plan.launchRelease!;
+14:   const bars = (course.holds ?? []).length > 0;
+15:   const hangs = bars ? Array.from({ length: 81 }, (_, i) => i * 6) : [0];
+16:   const wins = (rel: number): boolean => {
+17:     const base: Plan = { ...plan, launchRelease: rel };
+18:     if (playPlan(course, base, 120 * 30).world.outcome === 'cleared') return true; // the stored hang time first: nearly always enough
+19:     if (!bars) return false;
+20:     return hangs.some((h) => playPlan(course, { ...base, hangTicks: plan.hangTicks!.map((t, i) => (i === 0 ? h : t)) }, 120 * 30).world.outcome === 'cleared');
+21:   };
+22:   let lo = best, hi = best;
+23:   while (lo > 20 && wins(lo - 1)) lo--;
+24:   while (hi < 600 && wins(hi + 1)) hi++;
+25:   return { best, lo, hi, ticks: hi - lo + 1, widthMs: (hi - lo + 1) * DT * 1000 };
+26: }
+27: 

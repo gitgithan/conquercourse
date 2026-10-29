@@ -1,0 +1,31 @@
+{
+  "date": "2026-10-29",
+  "model": "muse-wonder-1.0",
+  "reasoning_effort": "high",
+  "price_usd_per_1m": {
+    "in": 4,
+    "out": 20
+  },
+  "cap_usd": 5,
+  "total_usd": 0.6956,
+  "runs": [
+    {
+      "chunk": "b-moves",
+      "files": [
+        "rope",
+        "holds",
+        "vault",
+        "climb",
+        "trampoline",
+        "needs",
+        "needs-limits",
+        "energy",
+        "band"
+      ],
+      "prompt_tokens": 13624,
+      "completion_tokens": 32057,
+      "seconds": 345.2,
+      "usd": 0.6956
+    }
+  ]
+}
