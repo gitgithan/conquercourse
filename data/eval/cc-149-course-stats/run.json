@@ -1,0 +1,109 @@
+{
+  "results": [
+    {
+      "name": "desktop: Real places are ordered by difficulty from the seeded numbers",
+      "pass": true,
+      "note": "Barcelona block | Montmartre, Paris | Sydney quay | San Francisco hill (62 m of hill)"
+    },
+    {
+      "name": "desktop: a card says plays, cleared and best time in plain words",
+      "pass": true,
+      "note": "●●●○ Hard 2,210 plays, 700 cleared, best 35.8 s || ●●○○ Medium 520 plays, 300 cleared, best 67.5 s || ●●●● Very hard 1,204 plays, 311 cleared, best 41.2 s || ●●●● Very hard 610 plays, 90 cleared, best 60.8 s || 3 plays || ●●○○ Medium 90 plays"
+    },
+    {
+      "name": "desktop: a course with only plays says only plays",
+      "pass": true,
+      "note": "●●●○ Hard 2,210 plays, 700 cleared, best 35.8 s || ●●○○ Medium 520 plays, 300 cleared, best 67.5 s || ●●●● Very hard 1,204 plays, 311 cleared, best 41.2 s || ●●●● Very hard 610 plays, 90 cleared, best 60.8 s || 3 plays || ●●○○ Medium 90 plays"
+    },
+    {
+      "name": "desktop: no word about people anywhere",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "desktop: the dots have a word for screen readers",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "desktop: no card text is cut off",
+      "pass": true,
+      "note": "0"
+    },
+    {
+      "name": "phone: Real places are ordered by difficulty from the seeded numbers",
+      "pass": true,
+      "note": "Barcelona block | Montmartre, Paris | Sydney quay | San Francisco hill (62 m of hill)"
+    },
+    {
+      "name": "phone: a card says plays, cleared and best time in plain words",
+      "pass": true,
+      "note": "●●●○ Hard 2,210 plays, 700 cleared, best 35.8 s || ●●○○ Medium 520 plays, 300 cleared, best 67.5 s || ●●●● Very hard 1,204 plays, 311 cleared, best 41.2 s || ●●●● Very hard 610 plays, 90 cleared, best 60.8 s || 3 plays || ●●○○ Medium 90 plays"
+    },
+    {
+      "name": "phone: a course with only plays says only plays",
+      "pass": true,
+      "note": "●●●○ Hard 2,210 plays, 700 cleared, best 35.8 s || ●●○○ Medium 520 plays, 300 cleared, best 67.5 s || ●●●● Very hard 1,204 plays, 311 cleared, best 41.2 s || ●●●● Very hard 610 plays, 90 cleared, best 60.8 s || 3 plays || ●●○○ Medium 90 plays"
+    },
+    {
+      "name": "phone: no word about people anywhere",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "phone: the dots have a word for screen readers",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "phone: no card text is cut off",
+      "pass": true,
+      "note": "0"
+    },
+    {
+      "name": "no data: menu order, no numbers and no dots",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "server error: menu order, no numbers, no crash",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "?stats=0: no request and no numbers",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "a cleared run: the run ended in the report",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "a cleared run: the browser offered the run once",
+      "pass": true,
+      "note": "1"
+    },
+    {
+      "name": "a cleared run: the offer holds keys, the course and its hash, and no name, time or email",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "a cleared run: the real function played the keys again and kept a clear",
+      "pass": true,
+      "note": "{\"status\":200,\"body\":{\"ok\":true,\"ticks\":879},\"row\":{\"course_key\":\"demo/park-run\",\"ticks\":879}}"
+    },
+    {
+      "name": "?stats=0: the run ended in the report",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "?stats=0: nothing was offered",
+      "pass": true,
+      "note": "0"
+    }
+  ]
+}
