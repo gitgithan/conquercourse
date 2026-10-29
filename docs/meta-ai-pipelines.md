@@ -26,6 +26,7 @@ flowchart LR
     SIM["Deterministic simulator<br/>120 Hz, our code"]
     ED["World editor and Slicer"]
     DES["Muse Spark Open<br/>design partner"]
+    AGT["Muse Spark Open<br/>Course Agent loop"]
     MAP["Mapillary photos<br/>Meta-owned"]
   end
   SAM3DO --> ED
@@ -33,10 +34,12 @@ flowchart LR
   CH --> SIM
   ED --> SIM
   DES --> ED
+  AGT --> ED
+  SIM --> AGT
   MAP --> ED
   SIM --> IDEAL["Ideal-run search<br/>proves a course can be cleared"]
   classDef meta fill:#dbeafe,stroke:#1d4ed8,color:#0f172a;
-  class SAM3,SAM3DO,SAM3DB,MI,DES,MAP,KIM meta;
+  class SAM3,SAM3DO,SAM3DB,MI,DES,AGT,MAP,KIM meta;
 ```
 
 ## 1. Photo to obstacle (SAM 3 and SAM 3D Objects)
@@ -132,6 +135,33 @@ flowchart LR
   CK --> CD["Object cards (CC-108)<br/>the simulator decides"]
   classDef meta fill:#dbeafe,stroke:#1d4ed8,color:#0f172a;
   class MM meta;
+```
+
+## 4c. Course Agent: propose, test, repair, stop when proven (Muse Spark Open)
+- **Data in:** one park photo.
+- **Model:** Muse Spark Open (`meta-models/muse-spark-open-1026`) through Baseten, called by the same thin Pages Function pattern (`/api/course-agent`).
+- **Tools the loop calls (our code):** the simulator's ideal-run search answers three questions: can this layout be cleared, where does the best attempt stop, and which single change of one obstacle is proved to clear it.
+- **The loop:** the model proposes a layout; the tool tests it; if it fails, the model gets the report in plain words and writes a repaired layout; this repeats up to 6 steps.
+- **It stops** at the first proof, or at the cap, and then it says so and keeps the best tested attempt.
+- **Honest by construction:** it never hands back a layout the simulator has not seen.
+- **Where it runs:** the loop and the simulator run in the player's browser (the simulator is there); the server function only holds the key and makes the model call.
+- **What the player sees:** each step as a list: proposed, tested (stopped at item N), repaired, tested (cleared in X s).
+- **Not a coach:** it builds and repairs courses from a photo; it never grades or coaches a person's technique.
+- **Status:** behind the labs switch (`?labs=1` or `?agent=1`); needs the `BASETEN_API_KEY` secret at deploy.
+- **Measured results:** [data/eval/cc-126-course-agent/README.md](../data/eval/cc-126-course-agent/README.md).
+
+```mermaid
+flowchart LR
+  P["Park photo"] --> F["Pages Function<br/>key stays on the server"]
+  F --> M["Muse Spark Open<br/>proposes or repairs a layout"]
+  M --> T["Simulator tools (our code)<br/>cleared? where does it stop?<br/>which change clears it?"]
+  T --> D{"Proven?"}
+  D -- no, steps left --> R["Report in plain words"]
+  R --> F
+  D -- yes --> OK["Course, with the proof"]
+  D -- no, cap of 6 --> BP["Best tested attempt,<br/>and why it stopped"]
+  classDef meta fill:#dbeafe,stroke:#1d4ed8,color:#0f172a;
+  class M meta;
 ```
 
 ## 5. Characters (Muse Image)
