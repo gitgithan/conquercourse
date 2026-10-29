@@ -1,0 +1,126 @@
+{
+  "model": "facebook/musicgen-medium",
+  "seconds": 30,
+  "jobs": [
+    {
+      "screen": "course",
+      "seed": 11,
+      "prompt": "fast eurobeat, 160 bpm, driving synth bass, bright saw lead, punchy drums, intense, racing energy, instrumental loop",
+      "rate": 32000
+    },
+    {
+      "screen": "course",
+      "seed": 22,
+      "prompt": "fast eurobeat, 160 bpm, driving synth bass, bright saw lead, punchy drums, intense, racing energy, instrumental loop",
+      "rate": 32000
+    },
+    {
+      "screen": "course",
+      "seed": 33,
+      "prompt": "fast eurobeat, 160 bpm, driving synth bass, bright saw lead, punchy drums, intense, racing energy, instrumental loop",
+      "rate": 32000
+    },
+    {
+      "screen": "course",
+      "seed": 44,
+      "prompt": "fast eurobeat, 160 bpm, driving synth bass, bright saw lead, punchy drums, intense, racing energy, instrumental loop",
+      "rate": 32000
+    },
+    {
+      "screen": "map",
+      "seed": 11,
+      "prompt": "flowing cinematic electronic, 100 bpm, warm arpeggiated synth, soft pulse, wide and curious, exploring a city from above, instrumental loop",
+      "rate": 32000
+    },
+    {
+      "screen": "map",
+      "seed": 22,
+      "prompt": "flowing cinematic electronic, 100 bpm, warm arpeggiated synth, soft pulse, wide and curious, exploring a city from above, instrumental loop",
+      "rate": 32000
+    },
+    {
+      "screen": "map",
+      "seed": 33,
+      "prompt": "flowing cinematic electronic, 100 bpm, warm arpeggiated synth, soft pulse, wide and curious, exploring a city from above, instrumental loop",
+      "rate": 32000
+    },
+    {
+      "screen": "map",
+      "seed": 44,
+      "prompt": "flowing cinematic electronic, 100 bpm, warm arpeggiated synth, soft pulse, wide and curious, exploring a city from above, instrumental loop",
+      "rate": 32000
+    },
+    {
+      "screen": "editor",
+      "seed": 11,
+      "prompt": "calm ambient electronic, 80 bpm, soft pads, gentle bell notes, focused and spacious, light percussion, instrumental loop",
+      "rate": 32000
+    },
+    {
+      "screen": "editor",
+      "seed": 22,
+      "prompt": "calm ambient electronic, 80 bpm, soft pads, gentle bell notes, focused and spacious, light percussion, instrumental loop",
+      "rate": 32000
+    },
+    {
+      "screen": "editor",
+      "seed": 33,
+      "prompt": "calm ambient electronic, 80 bpm, soft pads, gentle bell notes, focused and spacious, light percussion, instrumental loop",
+      "rate": 32000
+    },
+    {
+      "screen": "editor",
+      "seed": 44,
+      "prompt": "calm ambient electronic, 80 bpm, soft pads, gentle bell notes, focused and spacious, light percussion, instrumental loop",
+      "rate": 32000
+    },
+    {
+      "screen": "dojo",
+      "seed": 11,
+      "prompt": "quiet reflective piano and soft strings, 70 bpm, warm, slow, thoughtful, no drums, instrumental loop",
+      "rate": 32000
+    },
+    {
+      "screen": "dojo",
+      "seed": 22,
+      "prompt": "quiet reflective piano and soft strings, 70 bpm, warm, slow, thoughtful, no drums, instrumental loop",
+      "rate": 32000
+    },
+    {
+      "screen": "dojo",
+      "seed": 33,
+      "prompt": "quiet reflective piano and soft strings, 70 bpm, warm, slow, thoughtful, no drums, instrumental loop",
+      "rate": 32000
+    },
+    {
+      "screen": "dojo",
+      "seed": 44,
+      "prompt": "quiet reflective piano and soft strings, 70 bpm, warm, slow, thoughtful, no drums, instrumental loop",
+      "rate": 32000
+    },
+    {
+      "screen": "report",
+      "seed": 11,
+      "prompt": "hopeful uplifting electronic, 110 bpm, bright plucks, gentle beat, a calm sense of finishing a run, instrumental loop",
+      "rate": 32000
+    },
+    {
+      "screen": "report",
+      "seed": 22,
+      "prompt": "hopeful uplifting electronic, 110 bpm, bright plucks, gentle beat, a calm sense of finishing a run, instrumental loop",
+      "rate": 32000
+    },
+    {
+      "screen": "report",
+      "seed": 33,
+      "prompt": "hopeful uplifting electronic, 110 bpm, bright plucks, gentle beat, a calm sense of finishing a run, instrumental loop",
+      "rate": 32000
+    },
+    {
+      "screen": "report",
+      "seed": 44,
+      "prompt": "hopeful uplifting electronic, 110 bpm, bright plucks, gentle beat, a calm sense of finishing a run, instrumental loop",
+      "rate": 32000
+    }
+  ]
+}
