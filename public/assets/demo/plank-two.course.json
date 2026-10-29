@@ -1,0 +1,75 @@
+{
+  "version": 1,
+  "name": "Plank bridge: thick, then thin",
+  "startX": 0,
+  "finishX": 62,
+  "jumpSpeed": 4.5,
+  "terrain": {
+    "waterY": -3,
+    "platforms": [
+      {
+        "x0": -10,
+        "x1": 14,
+        "top": 0
+      },
+      {
+        "x0": 23,
+        "x1": 34,
+        "top": 0
+      },
+      {
+        "x0": 43,
+        "x1": 80,
+        "top": 0
+      }
+    ]
+  },
+  "planks": [
+    {
+      "x0": 14,
+      "x1": 23,
+      "y": 0,
+      "thickness": 0.035,
+      "width": 0.6,
+      "material": "wood"
+    },
+    {
+      "x0": 34,
+      "x1": 43,
+      "y": 0,
+      "thickness": 0.02,
+      "width": 0.6,
+      "material": "wood",
+      "support": true
+    }
+  ],
+  "zones": [
+    {
+      "id": "plank",
+      "name": "Thick plank",
+      "x0": 12,
+      "x1": 25
+    },
+    {
+      "id": "plank",
+      "name": "Thin plank with a post",
+      "x0": 32,
+      "x1": 45
+    }
+  ],
+  "checkpoints": [
+    {
+      "id": "plank",
+      "x": 8
+    },
+    {
+      "id": "plank",
+      "x": 28
+    }
+  ],
+  "plan": {
+    "jumpXs": [],
+    "releaseAfter": 60,
+    "bouncePress": 8
+  }
+}

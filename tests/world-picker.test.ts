@@ -105,7 +105,7 @@ describe('the menu stays small (CC-97)', () => {
     for (const f of readdirSync('public/assets/thumbs')) expect(slugs.has(f), `${f}: delete it or list its course`).toBe(true);
   });
   it('courses taken out of the menu still open by their old links', () => {
-    for (const f of ['lache', 'lache-wide', 'climb', 'drop', 'bench-and-stairs', 'skate-box-and-rail', 'coaster-low', 'launch', 'launch-bar-hard', 'recoil', 'plank-thin']) {
+    for (const f of ['lache', 'lache-wide', 'climb', 'drop', 'bench-and-stairs', 'skate-box-and-rail', 'coaster-low', 'launch', 'launch-bar-hard', 'recoil', 'plank-thin', 'plank', 'coaster', 'coaster-sharp', 'park-rail-run']) {
       expect(existsSync(`public/assets/demo/${f}.course.json`), f).toBe(true);
       expect(DEMOS.some(([v]) => v.endsWith(`/${f}.course.json`)), `${f} should be out of the menu`).toBe(false);
     }

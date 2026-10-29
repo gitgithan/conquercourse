@@ -50,7 +50,7 @@
       "lat": 48.885684,
       "lon": 2.342573,
       "persons": 0,
-      "masked_share": 0.0
+      "masked_share": 0
     },
     {
       "id": "285237727501900",
@@ -58,7 +58,7 @@
       "lat": 48.885632,
       "lon": 2.342564,
       "persons": 0,
-      "masked_share": 0.0
+      "masked_share": 0
     },
     {
       "id": "248818591205558",
@@ -66,7 +66,7 @@
       "lat": 48.88563,
       "lon": 2.34257,
       "persons": 0,
-      "masked_share": 0.0
+      "masked_share": 0
     },
     {
       "id": "223872193344327",
@@ -82,7 +82,7 @@
       "lat": 48.885595,
       "lon": 2.342577,
       "persons": 0,
-      "masked_share": 0.0
+      "masked_share": 0
     },
     {
       "id": "648849073486661",
@@ -98,7 +98,7 @@
       "lat": 48.885529,
       "lon": 2.342586,
       "persons": 0,
-      "masked_share": 0.0
+      "masked_share": 0
     },
     {
       "id": "972004340660276",
@@ -106,7 +106,7 @@
       "lat": 48.88546,
       "lon": 2.342595,
       "persons": 0,
-      "masked_share": 0.0
+      "masked_share": 0
     },
     {
       "id": "191295756161121",
@@ -162,7 +162,7 @@
       "lat": 48.885801,
       "lon": 2.342541,
       "persons": 0,
-      "masked_share": 0.0
+      "masked_share": 0
     },
     {
       "id": "825570915573351",
@@ -265,12 +265,12 @@
       "unmasked_found": [
         {
           "score": 0.7,
-          "cover": 0.0,
+          "cover": 0,
           "box_share": 0.0749
         },
         {
           "score": 0.7,
-          "cover": 0.0,
+          "cover": 0,
           "box_share": 0.0749
         }
       ],
@@ -596,8 +596,8 @@
       "lat": 48.885684,
       "lon": 2.342573,
       "persons": 0,
-      "masked_share": 0.0,
-      "person_box_max_share": 0.0,
+      "masked_share": 0,
+      "person_box_max_share": 0,
       "keep": true,
       "reason": "",
       "had_person": false
@@ -608,8 +608,8 @@
       "lat": 48.885632,
       "lon": 2.342564,
       "persons": 0,
-      "masked_share": 0.0,
-      "person_box_max_share": 0.0,
+      "masked_share": 0,
+      "person_box_max_share": 0,
       "keep": true,
       "reason": "",
       "had_person": false
@@ -620,8 +620,8 @@
       "lat": 48.88563,
       "lon": 2.34257,
       "persons": 0,
-      "masked_share": 0.0,
-      "person_box_max_share": 0.0,
+      "masked_share": 0,
+      "person_box_max_share": 0,
       "keep": true,
       "reason": "",
       "had_person": false
@@ -644,8 +644,8 @@
       "lat": 48.885595,
       "lon": 2.342577,
       "persons": 0,
-      "masked_share": 0.0,
-      "person_box_max_share": 0.0,
+      "masked_share": 0,
+      "person_box_max_share": 0,
       "keep": true,
       "reason": "",
       "had_person": false
@@ -668,8 +668,8 @@
       "lat": 48.885529,
       "lon": 2.342586,
       "persons": 0,
-      "masked_share": 0.0,
-      "person_box_max_share": 0.0,
+      "masked_share": 0,
+      "person_box_max_share": 0,
       "keep": true,
       "reason": "",
       "had_person": false
@@ -680,8 +680,8 @@
       "lat": 48.88546,
       "lon": 2.342595,
       "persons": 0,
-      "masked_share": 0.0,
-      "person_box_max_share": 0.0,
+      "masked_share": 0,
+      "person_box_max_share": 0,
       "keep": true,
       "reason": "",
       "had_person": false
@@ -764,8 +764,8 @@
       "lat": 48.885801,
       "lon": 2.342541,
       "persons": 0,
-      "masked_share": 0.0,
-      "person_box_max_share": 0.0,
+      "masked_share": 0,
+      "person_box_max_share": 0,
       "keep": true,
       "reason": "",
       "had_person": false
@@ -915,12 +915,12 @@
       "unmasked_found": [
         {
           "score": 0.8,
-          "cover": 0.0,
+          "cover": 0,
           "box_share": 0.0015
         },
         {
           "score": 0.52,
-          "cover": 0.0,
+          "cover": 0,
           "box_share": 0.0013
         }
       ],
