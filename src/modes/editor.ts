@@ -19,7 +19,7 @@ import { withBand } from '../slice/band-lane';
 import { fixBand } from '../slice/fixband';
 import { DRONE_PAD_LENGTH, withDrone, type DroneCfg } from '../slice/drone-lane';
 import { fixDrone } from '../slice/fixdrone';
-import { CUP, PATTERNS, stackPiece, stackSrc } from '../slice/stack';
+import { PATTERNS, stackPiece, stackSrc } from '../slice/stack';
 import { layoutToPieces, parseLayout } from '../slice/photo-course';
 import { proves } from '../slice/photo-proof';
 import { adviseMachine, fixMachine } from '../slice/fix-launch';
@@ -158,7 +158,7 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
       const idx = (await (await fetch('/assets/objects/index.json')).json()) as { objects: { name: string; glb: string; label: string; height_m: number; author: string }[] };
       el('strong', photoBar, { text: 'From real photos:' });
       for (const o of idx.objects) {
-        const b = el('button', photoBar, { text: `${o.label} (${o.height_m} m)`, title: `Photo by ${o.author}` });
+        const b = el('button', photoBar, { text: o.label, title: `Photo by ${o.author}` });
         b.dataset.object = o.name;
         b.onclick = async () => {
           try {
@@ -244,7 +244,7 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
   // stacks: sport-stacking cups (mouth down, pyramids) as obstacle shapes; the piece scale makes a 9 cm cup runner-sized
   el('strong', addBar, { text: 'Stacks:' });
   for (const pt of PATTERNS) {
-    el('button', addBar, { text: pt.label, id: `addstack-${pt.id}`, title: `Cups piled ${pt.label}; a cup is ${Math.round(CUP.h * 100)} cm, here ${Math.round(CUP.h * pt.scale * 100)} cm (change the size with the scale buttons)` }).onclick = () => {
+    el('button', addBar, { text: pt.label, id: `addstack-${pt.id}`, title: `Sport-stacking cups piled ${pt.label}: climb the steps they make` }).onclick = () => {
       const q = stackPiece(stackSrc(pt.id), { x: nextX() + 1, z: 0 })!; pieces.push(q); selected = q.id; changed();
     };
   }
@@ -778,11 +778,12 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
     }
     if (isPlankPiece(p as P)) plankKnobs(p as P);
     const r = realSize(p);
-    el('div', side, { id: 'realsize', className: 'muted', text: `Real size: ${r.w.toFixed(2)} × ${r.d.toFixed(2)} m, ${r.h.toFixed(2)} m high (scale ×${p.scale.toPrecision(3)})` });
-    const lab = el('label', side, { text: 'Real height (m): make it this tall' });
+    const sizes = el('details', side, { id: 'sizes' }); el('summary', sizes, { text: 'Size and height' }); // the numbers stay here, folded: the simulator says whether the lane clears
+    el('div', sizes, { id: 'realsize', className: 'muted', text: `Real size: ${r.w.toFixed(2)} × ${r.d.toFixed(2)} m, ${r.h.toFixed(2)} m high (scale ×${p.scale.toPrecision(3)})` });
+    const lab = el('label', sizes, { text: 'Real height (m): make it this tall' });
     const h = el('input', lab, { type: 'number', min: '0.02', max: '60', step: '0.05', value: r.h.toFixed(2), id: 'realheight' });
     h.onchange = () => { const v = Number(h.value); if (v > 0) { Object.assign(p, scaleToHeight(p, v)); changed(); } };
-    const lift = el('label', side, { text: `Height off the ground: ${p.y.toFixed(2)} m` });
+    const lift = el('label', sizes, { text: `Height off the ground: ${p.y.toFixed(2)} m` });
     const ly = el('input', lift, { type: 'range', min: '0', max: '4', step: '0.05', value: String(p.y), id: 'lift' });
     ly.oninput = () => { p.y = Number(ly.value); lift.firstChild!.textContent = `Height off the ground: ${p.y.toFixed(2)} m`; drawProfile(); };
     ly.onchange = () => changed();
@@ -1063,7 +1064,7 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
       c.fillStyle = COLORS[i % COLORS.length] + (p.id === selected ? 'dd' : '99'); c.fillRect(-w / 2, -d / 2, w, d);
       c.strokeStyle = p.id === selected ? '#0f6b5c' : '#17201d'; c.lineWidth = p.id === selected ? 3 : 1; c.strokeRect(-w / 2, -d / 2, w, d);
       c.restore();
-      c.fillStyle = '#17201d'; c.font = '12px system-ui'; c.fillText(`${p.name} ${(s.h * p.scale + p.y).toFixed(2)} m`, sx(p.x) - 28, sz(p.z) + 4);
+      c.fillStyle = '#17201d'; c.font = '12px system-ui'; c.fillText(p.name, sx(p.x) - 28, sz(p.z) + 4);
     });
     if (proposal && preview) { // the preview: grey outline where a piece is now, teal outline where it would be, an arrow between
       const arrow = (x0: number, y0: number, x1: number, y1: number) => {

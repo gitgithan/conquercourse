@@ -12,7 +12,7 @@ This note says where each control lives now, and the rule for adding a new one.
 
 ## Where things live
 - Top bar, left to right: Back to the Course, Add piece, Undo and Redo (one joined control), Top plan or 3D view, Moves, Design partner, More (the three dots).
-- Add piece menu: every button that puts something into the world, under headings (Basic shapes, Real objects, Overhead bars, Machines, Cup stacks, Size references).
+- Add piece menu: the add browser (see below), a featured picture and a grid of picture cards under six sections (Ground, Swing, Contraptions, Real objects, Stacks, Tools).
 - More menu: Search actions, Reset to the starter scene, Photo to course (labs).
 - Docked card on the picture: Moves or Design partner, one at a time (opening one closes the other).
 - Right column, top to bottom: the lane and its Play button, machine settings (only while a machine is in the world), the chosen piece's controls.
@@ -44,3 +44,20 @@ This note says where each control lives now, and the rule for adding a new one.
 ## Known gaps
 - The chosen piece's buttons (delete, scale, crop) stay in the right column; they are not on the 3D picture yet.
 - The Courses gallery button (CC-89) is added to the bar by the picker work; the bar has room for one more control at 1024 pixels.
+
+## The add browser (CC-96)
+- The Add piece menu is a picture browser: a big featured view on top, section tabs and a search box, and a grid of small picture cards below.
+- Pointing at a card, focusing it with the keyboard or tapping it shows that piece in the featured view: its name, what it does and where it came from.
+- Pointing at a section tab shows that section's cards; arrow keys move between tabs and between cards; Esc closes the browser.
+- A click on a card presses the editor's own add button (hidden in the menu, ids unchanged), so adding, undo and the preview work as before.
+- The words for every piece live in `src/slice/piece-info.ts`; the pictures are made by `npm run piece-icons` into `public/assets/pieces/`.
+- A test fails when a piece has no words or no picture, and when the words contain a height or a size.
+- To add a piece: add its button as before, then add its words to `piece-info.ts` and run `npm run piece-icons -- <id>`.
+- The Swing section holds the bar, the lache pair and the rope swing (a post whose top is the rope anchor); only bars hang overhead.
+- The dome piece was removed: it was one more low bump.
+  An old saved world with a dome gets a block in its place.
+
+## Numbers
+- Heights and sizes are gone from buttons, the Moves rows and the plan labels: the simulator says whether a lane clears, not a number on a card.
+- The chosen piece's real size, height and lift sit inside a folded "Size and height" section of its panel.
+

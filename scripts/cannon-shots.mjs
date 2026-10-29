@@ -14,7 +14,7 @@ try {
   mkdirSync('test-results/cannon', { recursive: true });
   await page.goto(`http://localhost:${port}/?mode=editor`);
   await page.waitForSelector('#addcannon', { state: 'attached', timeout: 60000 });
-  await page.click('#addpiece'); await page.click('#addcannon');
+  await page.click('#addpiece'); await page.$eval('#addcannon', (e) => e.click());
   const knobs = await page.$$eval('#recoilkg, #recoilspeed', (els) => els.map((e) => e.value));
   await page.waitForTimeout(3000);
   await page.screenshot({ path: 'test-results/cannon/editor.png' });
