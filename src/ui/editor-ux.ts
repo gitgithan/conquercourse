@@ -2,7 +2,7 @@
 // What it does:
 //  - three levels of button: primary (filled), secondary (outlined), quiet (plain), so the eye finds the important ones first
 //  - the side-view designer (the strip under the picture) gets a strong frame and a title: it is where the run is shaped
-//  - "Add pieces" is smaller and quiet, on the right: adding things is the less important job
+//  - "+ Add pieces" is the first, primary button on the bar (CC-200); Fit is an outlined secondary
 //  - every repair action (Fix it, Make it easier, Look for routes, What should I change?) sits in ONE Fix menu with "when" and "what to expect"
 //  - a glossary card, open on the first visit, hidden from its own button or the ? button, remembered in localStorage
 // The original buttons keep their ids and stay in the page (hidden), so the Fix menu presses them and nothing else changes.
@@ -15,8 +15,12 @@ const CSS = `
   .ed.ux button.quiet,.ed.ux a.btn.quiet{background:transparent;border-color:transparent;box-shadow:none;font-weight:500;color:#33403a}
   .ed.ux button.quiet:hover:not(:disabled),.ed.ux a.btn.quiet:hover{background:#e3e9e4}
   .ed.ux .seg button{border-color:var(--line2);background:#fff;font-weight:500}
-  .ed.ux #addpiece{min-height:28px;font-size:12px;padding:2px 9px}
-  .ed.ux .top .addwrap .addmenu{left:auto;right:0}
+  .ed.ux #addpiece{font-size:15px;min-height:36px;padding:3px 16px}
+  .ed.ux .top .addwrap .addmenu{left:0;right:auto}
+  .ed.ux #fitview{font-weight:500;font-size:13px}
+  .ed.ux #selchip{position:absolute;left:50%;transform:translateX(-50%);bottom:12px;z-index:7;display:none;gap:8px;align-items:center;background:#fff;border:2px solid #0f6b5c;border-radius:12px;padding:6px 10px;box-shadow:0 6px 20px #0003}
+  .ed.ux #selchip #seldelete{background:#c0392b;color:#fff;border-color:#962d22}
+  .ed.ux #selhint{position:absolute;left:10px;top:10px;z-index:5;background:#ffffffd9;border:1px solid #cfd6d0;border-radius:8px;padding:4px 8px;font-size:12px;color:#33403a;pointer-events:none}
   .ed.ux .top{padding:2px 128px 2px 0} /* the Courses button is fixed in the top right corner: keep the bar clear of it */
   .ed.ux .top .grp{display:inline-flex;gap:6px;align-items:center;flex:0 0 auto}
   .ed.ux .top .div{width:1px;align-self:stretch;background:#cfd6d0;margin:3px 2px}
@@ -54,7 +58,8 @@ const GLOSSARY: [string, string][] = [
   ['Side view', 'The green strip is the designer. Drag a bar up, down, left or right to shape the run.'],
   ['Fix', 'Repairs. Open it when the check says the runner cannot clear the course.'],
   ['Fit  (F)', 'Brings the camera to all your pieces. Click it when you are lost.'],
-  ['Add pieces', 'Puts a new shape, object, bar or machine in the world.'],
+  ['Add pieces', 'The green button on the left. Puts a new shape, object, bar or machine in the world.'],
+  ['Choose several', 'Hold Shift and drag a box on the picture, or Shift+click pieces one by one. Delete removes them all; Undo brings them back; Esc clears.'],
   ['Undo / Redo', 'Steps back or forward. Nothing is lost.'],
   ['Top plan', 'A flat map. Use it to crop a piece or place it exactly.'],
   ['Moves', 'Shows which moves your course has and which are missing.'],
@@ -74,8 +79,8 @@ export function styleEditor(root: HTMLElement): void {
   const back = q('#backcourse'), title = q('.top h1'), seg = q('.seg'), view = q('#viewmode'), moves = q('#movesbtn'), partner = q('#helperbtn'), fit = q('#fitview');
   const addWrap = q('.menuwrap'), moreWrap = q('#overflow')?.closest('.menuwrap') as HTMLElement | null, sp = q('.top .sp');
   addWrap?.classList.add('addwrap');
-  const addBtn0 = q('#addpiece'); if (addBtn0) addBtn0.textContent = 'Add pieces ▾';
-  for (const b of [back, seg?.querySelectorAll('button')[0], seg?.querySelectorAll('button')[1], q('#addpiece'), q('#overflow')]) (b as HTMLElement | null)?.classList.add('quiet');
+  const addBtn0 = q('#addpiece'); if (addBtn0) addBtn0.textContent = '+ Add pieces ▾';
+  for (const b of [back, seg?.querySelectorAll('button')[0], seg?.querySelectorAll('button')[1], q('#overflow')]) (b as HTMLElement | null)?.classList.add('quiet');
   back?.classList.remove('go');
 
   // ---- the Fix menu
@@ -146,6 +151,7 @@ export function styleEditor(root: HTMLElement): void {
   const known = new Set<Element | null>([title, back, seg, view, moves, partner, fit, addWrap, moreWrap, sp]);
   const strays = [...top.children].filter((c) => !known.has(c));
   const div = () => mk('span', { className: 'div' });
-  top.replaceChildren(...([title, back, ...strays, div(), fixWrap, fit, view, moves, partner, sp, seg, addWrap, help, moreWrap].filter(Boolean) as HTMLElement[]));
+  top.replaceChildren(...([title, back, ...strays, div(), addWrap, fixWrap, fit, view, moves, partner, sp, seg, help, moreWrap].filter(Boolean) as HTMLElement[]));
   if (fit) fit.classList.remove('quiet');
+  q('#addpiece')?.classList.remove('quiet'); q('#addpiece')?.classList.add('go'); // CC-200: Add pieces is the first, primary button; Fit stays an outlined secondary
 }
