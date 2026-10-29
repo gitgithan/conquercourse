@@ -1,0 +1,27 @@
+# Inputs: what each key does on each obstacle
+
+## Grab and climb
+
+- Hold E is the hands key; it grabs only things the hands can reach.
+- Every distance below is in metres, measured from the hands (2.1 m over the feet) or the feet.
+
+| Thing                 | Keys                               | Reach (hands)                                                                                                                     | Other conditions                                                                                                                                                       | Source             |
+| --------------------- | ---------------------------------- | --------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------ |
+| Wall top edge (ledge) | hold E, then it pulls up by itself | 0.9 m in front of the body (0.6 m reach + 0.3 m tolerance); the edge 1.0 to 2.45 m over the feet (2.2 m reach + 0.25 m tolerance) | the body rises no faster than 2 m/s; not moving back; the wall is no taller than the one-jump limit (2.83 m from the ground), unless the body is already falling at it | `src/sim/climb.ts` |
+| Bar (lache)           | hold E in the air                  | a circle of 0.6 m around the bar on the first grab; an ellipse 1.2 m along and 0.6 m up and down after a let-go                   | in the air; a short pause after a let-go                                                                                                                               | `src/sim/holds.ts` |
+| Rope                  | hold E in the air                  | 0.35 m from the rope (0.5 m near its end)                                                                                         | in the air                                                                                                                                                             | `src/sim/rope.ts`  |
+| Drone pad             | hold E on the pad                  | on the pad                                                                                                                        | on the ground                                                                                                                                                          | `src/sim/drone.ts` |
+
+- The tolerance on the wall top edge is new (CC-168).
+- A jump that falls a little short of a ledge, or reaches it a little low, is still caught while E is held.
+- Nothing is caught through a wall, from the wrong side, or from a long way off.
+- A bright rim shows on the ledge that would answer to E; `?grabhint=0` hides it.
+
+## Other keys
+
+- Arrows or A, D: run.
+- Space: jump (also the trampoline press and the let-go).
+- S or Down: squat.
+- V: vault.
+- X: roll.
+- E: hold (see above).

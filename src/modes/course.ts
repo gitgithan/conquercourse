@@ -47,6 +47,7 @@ import { bestLine, buildReport, clearLog, logTick, newLog, renderReport } from '
 import { ZONE_ICONS } from '../ui/zone-icons';
 import { BUTTON_PLACE, buildGallery, currentWorld, DEMOS, GALLERY_EVENT, modalAttrs, mountWorldGallery, WORD_VALUES, worldHref } from '../ui/world-picker';
 import { createDebugView } from '../ui/debug-view';
+import { createGrabHint } from '../ui/grab-hint';
 import { slugOfCourse } from '../ui/place-photos';
 import { mountLivePhotos } from '../ui/live-photos';
 import { barName, predictBand, predictLaunch, predictRelease, predictShot, type Prediction } from '../sim/predict';
@@ -93,6 +94,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
     if (raw && !params.get('mode')) resume = JSON.parse(raw) as Resume;
   } catch { /* start fresh */ }
   if (resume) course = resume.course;
+  if (course.wall && params.get('warpedE') === '0') course = { ...course, wall: { ...course.wall, needE: false } }; // the old rule: the warped wall is grabbed without E
   // ?wallh=5 makes the wall that high (for tests): the curve stays the same and the deck on top rises with it
   const wallH = Number(params.get('wallh'));
   if (course.wall && wallH >= 3 && wallH <= 6) {
@@ -643,6 +645,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
   let lastZone = 'gap';
 
   const debug = createDebugView(scene, course, document.body, params.get('debug') === '1');
+  const grabHint = createGrabHint(scene, course, params.get('grabhint') !== '0');
   const toggleDebug = () => { debug.toggle(); dbgBtn.textContent = debug.shown ? 'Debug: on (B)' : 'Debug (B)'; dbgBtn.blur(); };
   dbgBtn.onclick = toggleDebug;
   let world = resume?.world ?? newWorld(course, resume ? resume.retryX : startAt);
@@ -972,8 +975,9 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
       const need = wp.height - wp.hipHeight - wp.reach;
       const ev = [...log].reverse().find((e) => e.type === 'wall-slide');
       const margin = (ev?.detail?.margin as number) ?? 0;
-      L.push(`Speed at the foot of the wall: ${wallEntry.toFixed(1)} m/s. This wall needs at least ${wallNeed.toFixed(1)} m/s.`);
-      L.push(`Your feet climbed ${(need + margin).toFixed(1)} m; they had to climb ${need.toFixed(1)} m for your hands to reach the top.`);
+      if ([...log].some((e) => e.type === 'wall-no-grip')) L.push('Your feet climbed high enough, but the hands never held on: hold E near the top to grab the edge.');
+      else L.push(`Speed at the foot of the wall: ${wallEntry.toFixed(1)} m/s. This wall needs at least ${wallNeed.toFixed(1)} m/s.`);
+      if (![...log].some((e) => e.type === 'wall-no-grip')) L.push(`Your feet climbed ${(need + margin).toFixed(1)} m; they had to climb ${need.toFixed(1)} m for your hands to reach the top.`);
       guideBand(course.wall.x0, course.wall.x0 + 3, need, 0x2ca66f); guideBand(course.wall.x0, course.wall.x0 + 3, need + margin, 0xe8622c);
       L.push('Green line: the height you needed. Orange line: the height you reached.');
     } else if ((zoneId === 'gap' || zoneId === 'landing') && jump) {
@@ -1421,6 +1425,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
     paintStrip(r.x);
     drumLane.update(r.x);
     debug.update(world);
+    grabHint.update(world, keys.has('KeyE'), performance.now());
     if (params.get('check') === '1' && actor && ledge && world.mode === 'wall') {
       // how close the nearest hand gets to the wall's top edge while the climb is on
       const j = actor.joints();

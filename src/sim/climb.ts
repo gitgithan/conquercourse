@@ -19,6 +19,10 @@ export const CLIMB_OVER = 0.1; // m, the fingers go this far over the edge
 export const CLIMB_STAND_REACH = CLIMB_HAND + CLIMB_OVER; // 2.2 m: the highest edge the hands reach from where the feet are
 export const CLIMB_MIN_RISE = 1.0; // m: below this a jump, a vault or a step does it
 export const CLIMB_REACH_X = 0.6; // m: the hands reach this far in front of the body
+// A near miss still counts (CC-168): a jump that falls just short of a ledge is caught if the hands are almost there. A tolerance, not a new move:
+// the hands lunge a little further forward and stretch a little higher than the standing reach, and the pull-up closes the rest of the gap.
+export const CLIMB_TOL_X = 0.3; // m: extra forward reach for the hands
+export const CLIMB_TOL_Y = 0.25; // m: extra height for the fingers (an edge up to CLIMB_STAND_REACH + this over the feet)
 export const CLIMB_CATCH_VY = 2.0; // m/s: the hands can close on an edge only while the body rises no faster than this
 export const CLIMB_MARGIN = 0.2; // m
 export const CLIMB_COST = 2 * JUMP_COST; // a pull-up spends as much as two jumps
@@ -73,11 +77,12 @@ export function findClimb(t: Terrain, x: number, y: number, vx: number, vy: numb
   if (vy > CLIMB_CATCH_VY || vx < -0.1) return null;
   const here = platformAt(t, x);
   for (const p of t.platforms) {
-    if (p === here || p.x0 < x - 0.02 || p.x0 - x > CLIMB_REACH_X) continue;
+    if (p === here || p.x0 < x - 0.02 || p.x0 - x > CLIMB_REACH_X + CLIMB_TOL_X) continue;
     const top = heightAt(p, p.x0), below = top - y;
-    if (below < CLIMB_MIN_RISE || below > CLIMB_STAND_REACH) continue; // the hands do not meet the edge
+    if (below < CLIMB_MIN_RISE || below > CLIMB_STAND_REACH + CLIMB_TOL_Y) continue; // the hands do not meet the edge
+    // the limit of one jump from the ground does not bind a body that is already falling at the edge (a trampoline lifted it higher): the hands' reach decides
     const base = groundRef(t, x);
-    if (Number.isFinite(base) && top - base > climbMaxRise(jumpSpeed) + 1e-9) continue; // a wall above the limit
+    if (vy >= 0 && Number.isFinite(base) && top - base > climbMaxRise(jumpSpeed) + 1e-9) continue; // a wall above the limit
     const xe = Math.min(p.x0 + CLIMB_EXIT_OFF, Math.max(p.x0 + 0.1, (p.x0 + p.x1) / 2));
     const exit = { x: xe, y: heightAt(p, xe) };
     return { edge: p.x0, top, i: 0, n: CLIMB_TICKS, path: makePath(x, y, p.x0, top, exit), exit };

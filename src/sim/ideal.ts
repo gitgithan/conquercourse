@@ -71,6 +71,7 @@ function inputForBase(plan: Plan, w: WorldState, state: PlanState, course?: Cour
   if (course?.drone && w.mode === 'run' && w.runner.grounded && w.runner.x >= course.drone.x0 && w.runner.x <= course.drone.x1) return { ...NO_INPUT, handL: true, handR: true }; // on the pad: hold E to board
   const base: RunnerInput = { ...NO_INPUT, run: true, squat: true, ...(course && rollNeeded(w, course) ? { roll: true } : {}) }; // a drop a squat cannot take cleanly: roll just before the ground
   if (w.mode === 'launch') return { ...NO_INPUT, run: true, squat: true, ...(w.launch?.fired && w.launch.t >= (plan.launchRelease ?? 120) ? { jump: true } : {}) }; // pull the pin, then let go at the planned moment
+  if (w.mode === 'wall') return { ...NO_INPUT, run: true, handL: true, handR: true }; // the warped wall: the hands hold on near the top
   if (w.mode === 'climb') { // hanging from the edge: keep the hold key down through the pull-up
     if (!state.inClimb) { state.inClimb = true; state.cnext = (state.cnext ?? 0) + 1; }
     return { ...NO_INPUT, handL: true, handR: true, squat: true };
