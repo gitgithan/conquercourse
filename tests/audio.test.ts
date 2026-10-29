@@ -46,6 +46,11 @@ describe('event sounds', () => {
     sfx('jump'); expect(made.oscillators).toBe(1); expect(made.noises).toBe(0);
     sfx('splash'); expect(made.noises).toBe(1);
   });
+  it('the cannon fires a blast, not a clang', () => {
+    soundsFor(ev('recoil'));
+    expect(playedSounds()).toEqual(['blast']);
+    expect(made.oscillators).toBe(1); expect(made.noises).toBe(1);
+  });
   it('mute stops every sound', () => {
     setMuted(true);
     expect(isMuted()).toBe(true);
