@@ -1,3 +1,4 @@
+import { mountToasts } from '../ui/toast-stack';
 import { filmShotOf } from '../film/camera';
 import { hazardOf, HAZARD_INFO } from '../course/hazard';
 import { buildFloor } from '../course/floor';
@@ -414,7 +415,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
     camMode = next.id; camTurn += 120; resetOrbit();
     (camBtn.querySelector('#ring') as SVGElement).style.transform = `rotate(${camTurn}deg)`;
     camBtn.title = `Camera: ${next.name}`;
-    toast.textContent = `Camera: ${next.name}`; toast.style.display = 'block'; toastUntil = world.runner.tick + 100;
+    say(`Camera: ${next.name}`, 100);
     camBtn.blur();
   };
   camBtn.onclick = nextCam;
@@ -576,10 +577,15 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
   let livePhotos: { update(x: number): void } | null = null; // CC-90: street photos from the allow-list change as the runner moves; the CC-85 strip is the fallback
   if (placeSlug && new URLSearchParams(location.search).get('photos') !== '0') void mountLivePhotos(document.body, course).then((h) => { livePhotos = h; });
   if (placeSlug && FURNITURE_ON(new URLSearchParams(location.search))) void mountFurniture(scene, course); // CC-187: real street furniture, looks only, off by default
+  // CC-197: every short message goes through one stack (new ones below, old ones leave upward); ?toasts=old keeps the single centred toast
+  const toastsOld = params.get('toasts') === 'old';
   const toast = document.createElement('div');
   toast.style.cssText = 'position:fixed;left:50%;top:44%;transform:translateX(-50%);font:700 22px system-ui,sans-serif;color:#10141c;background:#fffffff0;border-radius:10px;padding:6px 14px;pointer-events:none;display:none';
   document.body.append(toast);
+  const toasts = mountToasts();
   let toastUntil = 0, squashUntil = 0, squashDepth = 1;
+  const say = (text: string, ticks: number) => { if (toastsOld) { toast.textContent = text; toast.style.display = 'block'; toastUntil = world.runner.tick + ticks; } else toasts.show(text, ticks, world.runner.tick); };
+  if (params.get('check') === '1') (window as unknown as { __say?: typeof say }).__say = say; // for scripts/toast-shot.mjs: three toasts at once
   let releasedAtX: number | null = null; const caughtSince = new Set<number>(); // the bars passed since the last release: a bar flown over without a grab is said to be skipped
   try { localStorage.setItem('cc.course', JSON.stringify(course)); } catch { /* the Dojo falls back to the default course */ }
   const specs = gapSpecs(course);
@@ -799,7 +805,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
     idealNote = '';
     msg.textContent = '';
     frames.length = 0; replay = null; panel.style.display = 'none';
-    squashUntil = 0; toastUntil = 0; toast.style.display = 'none'; releasedAtX = null; caughtSince.clear();
+    squashUntil = 0; toastUntil = 0; toast.style.display = 'none'; toasts.clear(); releasedAtX = null; caughtSince.clear();
   }
 
   // The Dojo is reachable any time: it opens on the obstacle nearest the runner (R2-G4).
@@ -1364,23 +1370,22 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
       log.push(...world.events);
       if (world.events !== soundedEvents) { soundedEvents = world.events; if (!replay && !clipping) soundsFor(world.events, hazard); } // after the end the same events array stays: it sounds once
       for (const e of world.events) {
-        if (e.type === 'drone-board') { toast.textContent = 'The drone lifts you. Lean with ← →, climb with ↑ and come down with ↓.'; toast.style.display = 'block'; toastUntil = world.runner.tick + 240; }
-        if (e.type === 'drone-empty') { toast.textContent = 'The battery ran out: the rotors stopped and the drone is falling.'; toast.style.display = 'block'; toastUntil = world.runner.tick + 240; }
-        if (e.type === 'drone-land') { toast.textContent = 'The drone sets you down.'; toast.style.display = 'block'; toastUntil = world.runner.tick + 150; }
-        if (e.type === 'recoil') { toast.textContent = `Shot! The ball flies back and you are pushed forward by ${(e.detail?.dvx as number).toFixed(1)} m/s${(e.detail?.dvy as number) > 0.5 ? ` and up by ${(e.detail?.dvy as number).toFixed(1)} m/s` : ''}.`; toast.style.display = 'block'; toastUntil = world.runner.tick + 180; }
-        if (e.type === 'recoil') { toast.textContent = `Shot! The ball flies back and you are pushed forward by ${(e.detail?.dvx as number).toFixed(1)} m/s.`; toast.style.display = 'block'; toastUntil = world.runner.tick + 180; }
-        if (e.type === 'band-snap') { toast.textContent = `The band snapped at ${(e.detail?.stretch as number).toFixed(0)} m: it can only stretch so far. Press R and turn round sooner.`; toast.style.display = 'block'; toastUntil = world.runner.tick + 360; }
-        if (e.type === 'band-release') { toast.textContent = `The band lets go: you leave it at ${(e.detail?.vx as number).toFixed(1)} m/s.`; toast.style.display = 'block'; toastUntil = world.runner.tick + 180; }
-        if (e.type === 'launch-dud') { toast.textContent = 'The counterweight is too light: the arm hardly moves. Try a heavier weight.'; toast.style.display = 'block'; toastUntil = world.runner.tick + 240; }
+        if (e.type === 'drone-board') { say('The drone lifts you. Lean with ← →, climb with ↑ and come down with ↓.', 240); }
+        if (e.type === 'drone-empty') { say('The battery ran out: the rotors stopped and the drone is falling.', 240); }
+        if (e.type === 'drone-land') { say('The drone sets you down.', 150); }
+        if (e.type === 'recoil') { say(`Shot! The ball flies back and you are pushed forward by ${(e.detail?.dvx as number).toFixed(1)} m/s${(e.detail?.dvy as number) > 0.5 ? ` and up by ${(e.detail?.dvy as number).toFixed(1)} m/s` : ''}.`, 180); }
+        if (e.type === 'band-snap') { say(`The band snapped at ${(e.detail?.stretch as number).toFixed(0)} m: it can only stretch so far. Press R and turn round sooner.`, 360); }
+        if (e.type === 'band-release') { say(`The band lets go: you leave it at ${(e.detail?.vx as number).toFixed(1)} m/s.`, 180); }
+        if (e.type === 'launch-dud') { say('The counterweight is too light: the arm hardly moves. Try a heavier weight.', 240); }
         if (e.type === 'hang-release') { releasedAtX = world.runner.x; caughtSince.clear(); }
         if (e.type === 'hang-catch') caughtSince.add(e.detail?.hold as number);
         if (e.type === 'land' && releasedAtX !== null) { // a bar flown over between the release and the landing, never held: a fact, not a grade
           const skipped = (course.holds ?? []).map((h, k) => ({ h, k })).filter(({ h, k }) => !caughtSince.has(k) && h.x > releasedAtX! + 0.5 && h.x < world.runner.x - 0.3);
-          if (skipped.length) { toast.textContent = `You skipped the ${skipped.map(({ k }) => barName(k)).join(' and the ')}.`; toast.style.display = 'block'; toastUntil = world.runner.tick + 150; }
+          if (skipped.length) { say(`You skipped the ${skipped.map(({ k }) => barName(k)).join(' and the ')}.`, 150); }
           releasedAtX = null;
         }
         if (e.type === 'jump' && keysOpen && !keysTouched) { keysOpen = false; paintKeys(false); } // the controls card has done its job once you have jumped
-        if (e.type === 'hang-release' && e.detail?.slipped) { toast.textContent = 'Your grip gave out: the bar pulled harder than your hands could hold.'; toast.style.display = 'block'; toastUntil = world.runner.tick + 120; }
+        if (e.type === 'hang-release' && e.detail?.slipped) { say('Your grip gave out: the bar pulled harder than your hands could hold.', 120); }
         if (e.type === 'land' && !e.detail?.bouncy) {
           const o = ouch(e.detail?.peakDecel as number);
           runLandings++; runLandingOuch += o;
@@ -1390,9 +1395,8 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
         if (e.type === 'land' && (e.detail?.impact as number) > 2 && !e.detail?.bouncy) {
           const o = ouch(e.detail?.peakDecel as number);
           squashUntil = world.runner.tick + 40; squashDepth = e.detail?.squat ? 0.7 : o >= 6 ? 0.6 : 0.88;
-          if (o >= 3 && toastUntil < world.runner.tick + 100) { // (a fresh 'You skipped the bar' stays)
-            toast.textContent = o >= 8 ? 'Ouch! Dangerous landing: bend your knees (↓) on big drops.' : o >= 6 ? 'Hard landing: you stumble. Hold ↓ to bend your knees.' : 'Firm landing.';
-            toast.style.display = 'block'; toastUntil = world.runner.tick + 90;
+          if (o >= 3 && (toastsOld ? toastUntil - world.runner.tick : toasts.remaining(world.runner.tick)) < 100) { // (a fresh 'You skipped the bar' stays)
+            say(o >= 8 ? 'Ouch! Dangerous landing: bend your knees (↓) on big drops.' : o >= 6 ? 'Hard landing: you stumble. Hold ↓ to bend your knees.' : 'Firm landing.', 90);
           }
         }
       }
@@ -1402,8 +1406,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
       if (prev === 'running' && world.outcome === 'hurt') onFall('hurt');
       if (prev === 'running' && world.outcome === 'stalled') onFall('stall');
       if (world.events.some((e) => e.type === 'wall-slide')) { // CC-182: missing the top is not a fall: the body slides to the foot and the run goes on, run up again as often as you like
-        toast.textContent = [...log].some((e) => e.type === 'wall-no-grip') ? 'Your hands missed the edge. Run up again and hold E near the top.' : 'Not high enough. Run up again with more speed.';
-        toast.style.display = 'block'; toastUntil = world.runner.tick + 240;
+        say([...log].some((e) => e.type === 'wall-no-grip') ? 'Your hands missed the edge. Run up again and hold E near the top.' : 'Not high enough. Run up again with more speed.', 240);
       }
       if (phoneWatch && prev === 'running' && world.outcome === 'cleared') { // the friend's run, watched on a phone: no report, no What next card; play it again in a moment (CC-138)
         const again = phoneWatch;
@@ -1460,6 +1463,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
     if (world.events.some((e) => e.type === 'cart-off')) cartFlying = true;
     trackView?.place(world, cartFlying);
     if (world.runner.tick > toastUntil) toast.style.display = 'none';
+    toasts.update(world.runner.tick);
     paintStrip(r.x);
     drumLane.update(r.x);
     debug.update(world);
