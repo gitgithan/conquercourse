@@ -1,0 +1,14 @@
+{
+  "experiment": "cf-cpu-limit",
+  "issue": "CC-169",
+  "date": "2026-10-29",
+  "preview_branch": "cf-limit-test",
+  "deployments": ["4bd686f1 (deleted)", "422f24e4 (deleted)"],
+  "production_index_and_course_stats_md5_before_and_after": "276ac56dc2859ee49cdd00e041e274aa (same; /api/course-stats on production answers with the index page)",
+  "longest_real_clears_ticks": {"demo/generated-1": 3284, "demo/training": 3233},
+  "laptop_us_per_tick": "2.3 (node, training, median of 9)",
+  "error_text": "HTTP 503, Cloudflare Error 1102, Worker exceeded resource limits",
+  "real_clear_cut": false,
+  "first_cut_ticks": 103456,
+  "always_cut_from_ticks": 620736
+}
