@@ -1,5 +1,6 @@
 import { hazardOf, HAZARD_INFO } from '../course/hazard';
 import { buildFloor } from '../course/floor';
+import { setMusicScreen } from '../ui/music';
 import { playedSounds, soundButton, soundsFor, startAudio } from '../ui/audio';
 import * as THREE from 'three/webgpu';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
@@ -719,6 +720,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
     return inputOfMask(feed.log[feed.i - 1][0]);
   };
   function restart(x: number = retryX) {
+    setMusicScreen('course');
     clearGuides();
     if (!botMode) plan = null;
     demo = null; idealWhole = false; idealPending = 0;
@@ -1304,6 +1306,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
           const mine = ghostCtl?.myRun() ?? null, ticks = world.runner.tick;
           if (mine) body.querySelector('#report-actions')?.append(...shareButtons({ link: (nick) => makeChallengeUrl(location.origin, location.search, course, mine, nick), clip: clipFits(ticks) ? () => void makeClip(mine, ticks) : undefined }));
         }
+        setMusicScreen('report');
         panel.append(body); (body.querySelector('#report-again') as HTMLElement | null)?.focus({ preventScroll: true });
         if (!botMode && !demo && !idealWhole || params.get('next') === '1') onboarding.onCleared(panel); // CC-100: the one-time What next card, at the top of the report
         if (!botMode && !demo && !idealWhole && !rep.saving) clearedNote(); // a shortcut, if the simulator knows one (a fact, never a grade)
