@@ -7,9 +7,9 @@
 - Recommendation: keep the check out of the photo-to-object tool; use it only as a hint to the person ("the whole object is not in the photo").
 - Fallback and its quality: today's gate is the lift itself plus a look at the result, which has caught every bad object so far.
 - Ranked next steps:
-  - 1. Ask the model to judge the cut-out mask, not the raw photo (the mask is what the lift sees).
-  - 2. Ask only the narrow question "is the whole object in frame?", which the model answers well.
-  - 3. Do nothing; the lift costs about 1 cent per photo, so a bad photo is cheap to try.
+  - Step 1: Ask the model to judge the cut-out mask, not the raw photo (the mask is what the lift sees).
+  - Step 2: Ask only the narrow question "is the whole object in frame?", which the model answers well.
+  - Step 3: Do nothing; the lift costs about 1 cent per photo, so a bad photo is cheap to try.
 
 ## What was run
 - Inputs: the 14 photos of CC-110 (`../cc-110-real-objects/inputs/`).
