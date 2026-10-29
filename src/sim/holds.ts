@@ -12,7 +12,7 @@ export interface Hold { x: number; y: number } // the bar, seen from the side: w
 
 export interface HangParams {
   handHeight: number; // m, hands above the feet when the arms are stretched up (the rod's length)
-  reach: number; // m, how close the hands must be to the bar to grab it (a circle: the first grab from a run and jump)
+  reach: number; // m, how close the hands must be to the bar to grab it (a circle: the first grab from a run and jump); a course can set a smaller one with `grabReach` (CC-193)
   regrabX: number; // m, along the run: how far the hands may be from a bar to grab it again after a release (an ellipse, wider than tall)
   regrabY: number; // m, up and down: how far the hands may be above or below the bar (falling past it from above counts)
   catchKeep: number; // share of the speed along the swing that the arms keep when they catch (the rest is absorbed)
