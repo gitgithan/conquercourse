@@ -336,11 +336,11 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
   const hint = document.createElement('div');
   hint.style.cssText = `position:fixed;left:50%;bottom:${params.get('gauges') === 'old' ? 124 : 190}px;transform:translateX(-50%);font:600 20px system-ui,sans-serif;pointer-events:none;${hudOn(params) ? panelCss('8px 16px') : 'color:#10141c;background:#fffc;border-radius:10px;padding:8px 16px'}`;
   const dojoBtn = document.createElement('button');
-  dojoBtn.textContent = 'Dojo (T)';
+  dojoBtn.id = 'dojobtn'; dojoBtn.textContent = 'Dojo (T)';
   dojoBtn.style.cssText = 'position:fixed;right:16px;top:12px;font:600 15px system-ui,sans-serif;border:1px solid #0f6b5c;background:#0f6b5c;color:#fff;border-radius:8px;padding:6px 14px;cursor:pointer';
   dojoBtn.onclick = () => openDojo();
   const idealBtn = document.createElement('button');
-  idealBtn.textContent = 'Ideal run (I)';
+  idealBtn.id = 'idealbtn'; idealBtn.textContent = 'Ideal run (I)';
   idealBtn.style.cssText = 'position:fixed;right:120px;top:12px;font:600 15px system-ui,sans-serif;border:1px solid #17201d;background:#fff;color:#17201d;border-radius:8px;padding:6px 14px;cursor:pointer';
   idealBtn.title = 'Watch the ideal run of this obstacle (I)';
   idealBtn.onclick = () => showIdeal(zoneAt(world.runner.x)?.id ?? 'gap');
@@ -361,7 +361,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
   rowBtns.append(editBtn, wholeBtn);
   // choose your runner: the male or the female Rookie (remembered between visits)
   const pick = document.createElement('div');
-  pick.style.cssText = 'position:fixed;right:250px;top:12px;display:flex;gap:6px';
+  pick.id = 'pickrunner'; pick.style.cssText = 'position:fixed;right:262px;top:12px;display:flex;gap:6px';
   const icon = (kind: 'a' | 'b') => `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${kind === 'a'
     ? '<circle cx="10" cy="14" r="5.5"/><path d="M14 10 L20 4 M15 4 H20 V9"/>'
     : '<circle cx="12" cy="9" r="5.5"/><path d="M12 14.5 V21 M9 18 H15"/>'}</svg>`;
@@ -411,7 +411,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
   // the obstacle strip: one icon per obstacle; cleared ones dim, the rest glow gold in a wave that runs along the strip, the next one is biggest
   const strip = document.createElement('div');
   strip.id = 'strip';
-  strip.style.cssText = 'position:fixed;left:50%;top:92px;transform:translateX(-50%);display:flex;gap:10px;align-items:flex-end;pointer-events:none';
+  strip.id = 'zonestrip'; strip.style.cssText = 'position:fixed;left:50%;top:92px;transform:translateX(-50%);display:flex;gap:10px;align-items:flex-end;pointer-events:none';
   const sstyle = document.createElement('style');
   sstyle.textContent = `@keyframes ccwave{0%,100%{filter:drop-shadow(0 0 2px #e8b43a88);opacity:.72}50%{filter:drop-shadow(0 0 9px #ffd24a);opacity:1}}
     #strip .ob{display:grid;justify-items:center;gap:1px;font:600 11px system-ui,sans-serif;color:#7a5a00;transition:transform .3s,opacity .3s}
@@ -538,8 +538,12 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
   restartChip.style.cssText = `font:700 15px system-ui,sans-serif;cursor:pointer;white-space:nowrap;display:flex;gap:7px;align-items:center;${panelCss('4px 10px 4px 6px')}`;
   restartChip.onclick = () => { restartChip.blur(); restart(); };
   const hudRow = document.createElement('div');
-  hudRow.style.cssText = 'position:fixed;left:16px;top:12px;display:flex;gap:8px;align-items:center;flex-wrap:wrap;max-width:calc(100vw - 32px);pointer-events:none';
+  hudRow.id = 'hudrow'; hudRow.style.cssText = 'position:fixed;left:16px;top:12px;display:flex;gap:8px;align-items:center;flex-wrap:wrap;max-width:calc(100vw - 32px);pointer-events:none';
   hudRow.append(hud, restartChip); restartChip.style.pointerEvents = 'auto';
+  // CC-163: on a phone-width screen the top-right buttons used to sit on the time line and the Restart chip: they move to a second row, and the rarely used ones (runner pick, edit, whole course, debug) step aside (their keys still work; Ideal run is on the fall panel too)
+  const narrow = document.createElement('style');
+  narrow.textContent = '@media (max-width:700px){#hudrow>div{font-size:14px!important}#pickrunner,#coursebtns,#debugbtn,#idealbtn,#community{display:none!important}#dojobtn{top:52px!important;right:12px!important;font-size:13px!important;padding:5px 10px!important}#ghost-hud{left:12px!important;top:52px!important;transform:none!important}#cam{top:92px!important;right:12px!important}#zonestrip{top:160px!important}#keys{top:225px!important}}';
+  document.head.append(narrow);
   const hudBox = hudOn(params) ? hudRow : hud;
   document.body.append(hudBox, msg, help, panel, hint, gaugeStack.el, dojoBtn, idealBtn, rowBtns, pick, camBtn, dbgBtn);
   // CC-85: a real place shows its real photos (credit under each, a large view on click); ?photos=0 or the Hide switch turns them off
