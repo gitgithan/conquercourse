@@ -1233,7 +1233,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
         const courses = DEMOS.filter((d) => !WORD_VALUES.includes(d[0])), here = courses.findIndex((d) => (d[0] || null) === currentWorld(params, course.name).value), nxt = courses[here + 1];
         const body = renderReport(course, runLog, rep, {
           again: () => restart(course.startX),
-          watch: course.plan && !course.track ? () => { panel.style.display = 'none'; void startIdeal(course.startX, null); } : undefined,
+          watch: course.plan ? () => { panel.style.display = 'none'; void startIdeal(course.startX, null); } : undefined,
           next: here >= 0 && nxt ? { name: nxt[1].split(':')[0], go: () => { location.href = worldHref(nxt[0]); } } : undefined,
           close: () => { panel.style.display = 'none'; },
         });

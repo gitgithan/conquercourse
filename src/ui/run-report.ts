@@ -35,10 +35,10 @@ export function logTick(l: RunLog, w: WorldState): void {
 }
 
 export interface BestLine { log: RunLog; seconds: number; spent: number }
-/** The stored plan played once more, with its path and moves. Null when the course has no plan or the plan does not clear. */
+/** The stored plan played once more, with its path and moves (a coaster's plan is its brake windows). Null when the course has no plan or the plan does not clear. */
 export function bestLine(course: CourseData): BestLine | null {
   const plan = course.plan;
-  if (!plan || course.track) return null;
+  if (!plan) return null;
   let w = newWorld(course);
   const st = { next: 0, caught: null, bedAt: null, hangAt: null, hangs: 0, vnext: 0, cnext: 0, inClimb: false, fnext: 0, airSince: null } as unknown as Parameters<typeof inputFor>[2];
   const log = newLog();
@@ -184,8 +184,9 @@ export function renderReport(course: CourseData, log: RunLog, r: Report, a: Acti
   if (r.cleared) {
     const t = document.createElement('table'); t.style.cssText = 'border-collapse:collapse;font-size:15px;width:100%';
     const row = (a1: string, a2: string, a3: string, head = false) => { const tr = t.insertRow(); [a1, a2, a3].forEach((s, i) => { const c = tr.insertCell(); c.textContent = s; c.style.cssText = `padding:5px 8px;border-bottom:1px solid #e5e9e5;${i ? 'text-align:right;' : ''}${head ? 'color:#58635d;font-weight:600' : ''}`; }); };
-    if (r.best) { row('', 'You', 'Best line', true); row('Time', `${f1(r.seconds)} s`, `${f1(r.best.seconds)} s`); row('Effort', `${jumps(r.spent)} jumps' worth`, `${jumps(r.best.spent)} jumps' worth`); }
-    else { row('', 'You', '', true); row('Time', `${f1(r.seconds)} s`, ''); row('Effort', `${jumps(r.spent)} jumps' worth`, ''); }
+    const effort = r.spent > 0.005 || (r.best?.spent ?? 0) > 0.005; // a cart ride spends no body energy: no effort row
+    if (r.best) { row('', 'You', 'Best line', true); row('Time', `${f1(r.seconds)} s`, `${f1(r.best.seconds)} s`); if (effort) row('Effort', `${jumps(r.spent)} jumps' worth`, `${jumps(r.best.spent)} jumps' worth`); }
+    else { row('', 'You', '', true); row('Time', `${f1(r.seconds)} s`, ''); if (effort) row('Effort', `${jumps(r.spent)} jumps' worth`, ''); }
     box.appendChild(t);
   }
   if (r.counts.length) {
