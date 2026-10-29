@@ -30,7 +30,7 @@
       },
       "feet_dont_sink": {
         "ok": true,
-        "value": -0.0,
+        "value": 0,
         "limit": "<= 0.03 m under the floor",
         "note": ""
       },
@@ -67,7 +67,7 @@
     "max_turn_deg": 98.3,
     "min_turn_deg": -6.9,
     "peak_hips_vs_standing": 0.78,
-    "longest_air_s": 0.0,
+    "longest_air_s": 0,
     "window_frames": [
       29,
       37
