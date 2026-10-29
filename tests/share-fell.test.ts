@@ -54,7 +54,7 @@ describe('a link for a try that fell (CC-181)', () => {
   it('refuses tampered links: wrong marker, changed course, damaged keys, extra parts', async () => {
     const p = await makeChallengeParam(course, fell, '', 'fell');
     expect(p.startsWith('1f.')).toBe(true);
-    for (const bad of [p.replace(/^1f/, '1x'), p.replace(/^1f/, '2f'), p.replace(/^1f/, 'f'), p + '.x', p.replace(/\.[^.]*$/, '.dZZZ'), p.replace(/^1f\.[a-z0-9]+/, '1f.zzzz')]) {
+    for (const bad of [p.replace(/^1f/, '1x'), p.replace(/^1f/, '2f'), p.replace(/^1f/, 'f'), p + '.x', p.replace(/\.[^.]*$/, '.rAAAA'), p.replace(/^1f\.[a-z0-9]+/, '1f.zzzz')]) {
       const o = await openChallenge(course, bad);
       expect(o.ok, bad).toBe(false);
     }
