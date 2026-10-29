@@ -30,6 +30,18 @@ export const PLACES: Spec[] = [
   { slug: 'bryant-park-new-york', name: 'Bryant Park, New York', lat: 40.7536, lon: -73.9832, radius: 120, blurb: 'A lawn and benches boxed in by tall blocks.' },
   { slug: 'gas-works-park-seattle', name: 'Gas Works Park, Seattle', lat: 47.6456, lon: -122.3344, radius: 150, blurb: 'A grassy hill with old iron towers and rails.' },
   { slug: 'dolores-park-san-francisco', name: 'Dolores Park, San Francisco', lat: 37.7596, lon: -122.4269, radius: 150, blurb: 'A steep lawn with palm-lined paths and walls.' },
+  // CC-178: candidates for more famous places (squares and parks with buildings and street photos); kept in the list only if they pass scripts/places-audit.ts
+  { slug: 'piazza-san-marco-venice', name: 'Piazza San Marco, Venice', lat: 45.434, lon: 12.3386, radius: 120, blurb: 'A huge square of arcades and a bell tower beside the lagoon.' },
+  { slug: 'plaza-mayor-madrid', name: 'Plaza Mayor, Madrid', lat: 40.4155, lon: -3.7074, radius: 120, blurb: 'A closed square of red arcades with arched gates.' },
+  { slug: 'place-des-vosges-paris', name: 'Place des Vosges, Paris', lat: 48.8556, lon: 2.3659, radius: 120, blurb: 'A square park ringed by brick houses and arcades.' },
+  { slug: 'trafalgar-square-london', name: 'Trafalgar Square, London', lat: 51.5081, lon: -0.1281, radius: 120, blurb: 'Steps, fountains and a column in front of the gallery.' },
+  { slug: 'covent-garden-london', name: 'Covent Garden, London', lat: 51.5118, lon: -0.1226, radius: 120, blurb: 'A covered market hall and the streets around it.' },
+  { slug: 'washington-square-new-york', name: 'Washington Square, New York', lat: 40.7308, lon: -73.9976, radius: 120, blurb: 'A park with a fountain and an arch, walled in by townhouses.' },
+  { slug: 'union-square-san-francisco', name: 'Union Square, San Francisco', lat: 37.7879, lon: -122.4075, radius: 120, blurb: 'A plaza with stairs, ringed by tall shops.' },
+  { slug: 'old-town-square-prague', name: 'Old Town Square, Prague', lat: 50.0875, lon: 14.4213, radius: 120, blurb: 'A cobbled square of towers and painted houses.' },
+  { slug: 'piazza-navona-rome', name: 'Piazza Navona, Rome', lat: 41.8992, lon: 12.4731, radius: 120, blurb: 'A long oval square of fountains and palaces.' },
+  { slug: 'nyhavn-copenhagen', name: 'Nyhavn, Copenhagen', lat: 55.6803, lon: 12.5906, radius: 120, blurb: 'A canal lined with narrow coloured houses.' },
+  { slug: 'boston-common-beacon-hill', name: 'Beacon Hill, Boston', lat: 42.356, lon: -71.063, radius: 120, blurb: 'Brick rows climbing from the oldest park in the country.' },
 ];
 
 const out = 'public/assets/places';
@@ -69,6 +81,7 @@ async function groundFor(s: Spec): Promise<Ground | null> {
   return null;
 }
 
+const oldIndex: ReadyIndexEntry[] = (() => { try { return JSON.parse(readFileSync(`${out}/index.json`, 'utf8')); } catch { return []; } })(); // CC-178: keep the list flags scripts/places-list.ts wrote
 const index: ReadyIndexEntry[] = [];
 const have = (slug: string) => { try { return JSON.parse(readFileSync(`${out}/${slug}.json`, 'utf8')) as ReadyPlace; } catch { return null; } };
 for (const s of PLACES) {
@@ -93,7 +106,7 @@ for (const s of PLACES) {
   index.push(entry(place, text.length));
 }
 function entry(p: ReadyPlace, bytes: number): ReadyIndexEntry {
-  return { slug: p.slug, name: p.name, lat: p.lat, lon: p.lon, radius: p.radius, hill_m: Math.round(relief(p.ground ? { radius: p.radius, ...p.ground } : null)), buildings: buildingsFrom(p.answer, p.lat, p.lon).length, bytes, blurb: p.blurb };
+  return { slug: p.slug, name: p.name, lat: p.lat, lon: p.lon, radius: p.radius, hill_m: Math.round(relief(p.ground ? { radius: p.radius, ...p.ground } : null)), buildings: buildingsFrom(p.answer, p.lat, p.lon).length, bytes, blurb: p.blurb, ...Object.fromEntries(Object.entries(oldIndex.find((o) => o.slug === p.slug) ?? {}).filter(([k]) => ['listed', 'path', 'photos'].includes(k))) };
 }
 if (fetchOnly) { console.log('answers fetched'); process.exit(0); }
 index.sort((a, b) => PLACES.findIndex((p) => p.slug === a.slug) - PLACES.findIndex((p) => p.slug === b.slug));
