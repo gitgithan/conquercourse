@@ -1,5 +1,5 @@
 // The Training course (CC-97): every move in one chain, each beat on its own deck so one cue shows at a time. Run this, then `npx tsx scripts/plans.ts public/assets/demo/training.course.json` stores the proved plan.
-// Beats, in order: gap jump, vault a box, lache pair (the second bar can be skipped with a full pump), rope swing, climb a wall, trampoline, a drop with a roll.
+// Beats, in order: gap jump, vault a box, lache pair (both bars are needed to reach the far deck), rope swing, climb a wall, trampoline, a drop with a roll.
 import { writeFileSync } from "node:fs";
 
 const platforms: { x0: number; x1: number; top: number; bouncy?: boolean }[] = [
@@ -7,7 +7,7 @@ const platforms: { x0: number; x1: number; top: number; bouncy?: boolean }[] = [
   { x0: 29, x1: 48, top: 0 }, // after a 5 m gap jump
   { x0: 48, x1: 56, top: 1 }, // the box to vault
   { x0: 56, x1: 62, top: 0 },
-  { x0: 71.8, x1: 86, top: 0 }, // after the lache pair (9.8 m, more than a jump)
+  { x0: 74, x1: 86, top: -0.5 }, // after the lache pair (12 m, more than a jump; half a metre down so the drop off bar 2 needs a roll)
   { x0: 94, x1: 112, top: 0 }, // after the rope (8 m gap)
   { x0: 112, x1: 128, top: 2 }, // the 2 m wall to climb
   { x0: 133, x1: 139, top: 0, bouncy: true }, // a 2 m drop onto the trampoline
