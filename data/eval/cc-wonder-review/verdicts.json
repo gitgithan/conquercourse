@@ -1,28 +1,197 @@
 {
   "date": "2026-10-29",
   "model": "muse-wonder-1.0",
-  "summary": { "claims": 21, "real": 13, "unclear": 1, "false_alarm": 7, "fixed": 2, "checked_by_failing_test": 11, "checked_by_reading": 10 },
+  "summary": {
+    "claims": 21,
+    "real": 13,
+    "unclear": 1,
+    "false_alarm": 7,
+    "fixed": 2,
+    "checked_by_failing_test": 11,
+    "checked_by_reading": 10
+  },
   "claims": [
-    { "id": "a0", "file": "src/sim/world.ts", "line": 224, "verdict": "real", "how": "test", "note": "The wall starts again for any grounded runner past x0 at the foot's height; no shipped course has that ground, so it is latent.", "action": "backlog" },
-    { "id": "a1", "file": "src/sim/world.ts", "line": 275, "verdict": "unclear", "how": "test", "note": "The mantle target uses the wall height, not the radius; no course sets a radius and where the deck stands is the course author's call.", "action": "none (skipped test)" },
-    { "id": "a2", "file": "src/sim/world.ts", "line": 300, "verdict": "real", "how": "test", "note": "After a failed wall the height was read 1 m from the foot, the runner stood 0.5 m from it; wrong by the step between them.", "action": "fixed" },
-    { "id": "a3", "file": "src/sim/world.ts", "line": 105, "verdict": "real", "how": "test", "note": "A stumble that comes due during wall, hang, swing, vault or climb is not sounded or counted on its tick; it waits until the runner is back in run mode.", "action": "backlog" },
-    { "id": "a4", "file": "src/sim/world.ts", "line": 195, "verdict": "real", "how": "test", "note": "A jump pressed on the very tick of trampoline touchdown is lost (the early check reads the previous lastPress).", "action": "backlog" },
-    { "id": "a5", "file": "src/sim/terrain.ts", "line": 44, "verdict": "false alarm", "how": "reading", "note": "Equal-height platforms tie to the first in the list; the list is course data, so a course always plays the same." },
-    { "id": "a6", "file": "src/sim/runner.ts", "line": 88, "verdict": "real", "how": "test", "note": "Zero grip while standing still made x NaN (0 / 0). No shipped setting uses zero grip.", "action": "fixed" },
-    { "id": "a7", "file": "src/sim/world.ts", "line": 88, "verdict": "false alarm", "how": "reading + test", "note": "Kept on purpose: src/modes/course.ts sounds an events array once, so the old array must stay." },
-    { "id": "b0", "file": "src/sim/rope.ts", "line": 45, "verdict": "real", "how": "test", "note": "Hands exactly on the rope anchor give an infinite swing speed; needs an exact point, so it is theory only.", "action": "backlog" },
-    { "id": "b1", "file": "src/sim/holds.ts", "line": 123, "verdict": "real", "how": "test", "note": "Letting go in the first 8 ticks after a bar grab starts the flight without the hand offset the screen showed (up to 0.6 m x 0.48 m jump).", "action": "backlog" },
-    { "id": "b2", "file": "src/sim/trampoline.ts", "line": 57, "verdict": "false alarm", "how": "reading + test", "note": "bounce() would give a late press a pump, but the world records a press only while the feet are on the bed." },
-    { "id": "b3", "file": "src/sim/climb.ts", "line": 73, "verdict": "false alarm", "how": "reading", "note": "The comment states the rule: only the upward speed is limited; hands may close while falling." },
-    { "id": "b4", "file": "src/sim/vault.ts", "line": 41, "verdict": "real", "how": "test", "note": "On a top narrower than 0.15 m the vault lands 5 cm past its far edge.", "action": "backlog" },
-    { "id": "c0", "file": "src/sim/ideal.ts", "line": 566, "verdict": "real", "how": "test", "note": "playImperfect keeps only three plan fields, so with zero noise it cannot clear the Training course (returns null). Used by two tests on the stock course only.", "action": "backlog" },
-    { "id": "c1", "file": "src/sim/ideal.ts", "line": 572, "verdict": "real", "how": "test", "note": "The restart second is added to the attempt that clears, so every time is 1 s long. Test-only function.", "action": "backlog" },
-    { "id": "c2", "file": "src/sim/ideal.ts", "line": 361, "verdict": "real", "how": "reading", "note": "The comment says the longest run of consecutive good presses; the code takes the lowest to the highest good press, so a window with a hole is reported too wide.", "action": "backlog" },
-    { "id": "c3", "file": "src/sim/ideal.ts", "line": 374, "verdict": "real", "how": "test", "note": "The bounce press is tuned only for take-off edges between 117 m and 119 m; the Training course trampoline (133 m) keeps the default 8, and a press of 0 clears 5 ticks (0.04 s) faster.", "action": "backlog" },
-    { "id": "c4", "file": "src/sim/ideal.ts", "line": 160, "verdict": "real", "how": "reading", "note": "181 ticks standing still, not 180: a one-tick slip with no effect.", "action": "backlog (trivial)" },
-    { "id": "c5", "file": "src/sim/predict.ts", "line": 32, "verdict": "false alarm", "how": "reading", "note": "'not-grounded' is a dead member of the result type; an airborne runner is predicted on purpose." },
-    { "id": "d0", "file": "src/sim/cart.ts", "line": 178, "verdict": "false alarm", "how": "reading", "note": "Not a code claim: a generic remark about experiments with no input or line that exists." },
-    { "id": "d1", "file": "src/sim/trebuchet.ts", "line": 4, "verdict": "false alarm", "how": "reading", "note": "Not a code claim: a generic remark about unmeasured conditions." }
+    {
+      "id": "a0",
+      "file": "src/sim/world.ts",
+      "line": 224,
+      "verdict": "real",
+      "how": "test",
+      "note": "The wall starts again for any grounded runner past x0 at the foot's height; no shipped course has that ground, so it is latent.",
+      "action": "backlog"
+    },
+    {
+      "id": "a1",
+      "file": "src/sim/world.ts",
+      "line": 275,
+      "verdict": "unclear",
+      "how": "test",
+      "note": "The mantle target uses the wall height, not the radius; no course sets a radius and where the deck stands is the course author's call.",
+      "action": "none (skipped test)"
+    },
+    {
+      "id": "a2",
+      "file": "src/sim/world.ts",
+      "line": 300,
+      "verdict": "real",
+      "how": "test",
+      "note": "After a failed wall the height was read 1 m from the foot, the runner stood 0.5 m from it; wrong by the step between them.",
+      "action": "fixed"
+    },
+    {
+      "id": "a3",
+      "file": "src/sim/world.ts",
+      "line": 105,
+      "verdict": "real",
+      "how": "test",
+      "note": "A stumble that comes due during wall, hang, swing, vault or climb is not sounded or counted on its tick; it waits until the runner is back in run mode.",
+      "action": "backlog"
+    },
+    {
+      "id": "a4",
+      "file": "src/sim/world.ts",
+      "line": 195,
+      "verdict": "real",
+      "how": "test",
+      "note": "A jump pressed on the very tick of trampoline touchdown is lost (the early check reads the previous lastPress).",
+      "action": "backlog"
+    },
+    {
+      "id": "a5",
+      "file": "src/sim/terrain.ts",
+      "line": 44,
+      "verdict": "false alarm",
+      "how": "reading",
+      "note": "Equal-height platforms tie to the first in the list; the list is course data, so a course always plays the same."
+    },
+    {
+      "id": "a6",
+      "file": "src/sim/runner.ts",
+      "line": 88,
+      "verdict": "real",
+      "how": "test",
+      "note": "Zero grip while standing still made x NaN (0 / 0). No shipped setting uses zero grip.",
+      "action": "fixed"
+    },
+    {
+      "id": "a7",
+      "file": "src/sim/world.ts",
+      "line": 88,
+      "verdict": "false alarm",
+      "how": "reading + test",
+      "note": "Kept on purpose: src/modes/course.ts sounds an events array once, so the old array must stay."
+    },
+    {
+      "id": "b0",
+      "file": "src/sim/rope.ts",
+      "line": 45,
+      "verdict": "real",
+      "how": "test",
+      "note": "Hands exactly on the rope anchor give an infinite swing speed; needs an exact point, so it is theory only.",
+      "action": "backlog"
+    },
+    {
+      "id": "b1",
+      "file": "src/sim/holds.ts",
+      "line": 123,
+      "verdict": "real",
+      "how": "test",
+      "note": "Letting go in the first 8 ticks after a bar grab starts the flight without the hand offset the screen showed (up to 0.6 m x 0.48 m jump).",
+      "action": "backlog"
+    },
+    {
+      "id": "b2",
+      "file": "src/sim/trampoline.ts",
+      "line": 57,
+      "verdict": "false alarm",
+      "how": "reading + test",
+      "note": "bounce() would give a late press a pump, but the world records a press only while the feet are on the bed."
+    },
+    {
+      "id": "b3",
+      "file": "src/sim/climb.ts",
+      "line": 73,
+      "verdict": "false alarm",
+      "how": "reading",
+      "note": "The comment states the rule: only the upward speed is limited; hands may close while falling."
+    },
+    {
+      "id": "b4",
+      "file": "src/sim/vault.ts",
+      "line": 41,
+      "verdict": "real",
+      "how": "test",
+      "note": "On a top narrower than 0.15 m the vault lands 5 cm past its far edge.",
+      "action": "backlog"
+    },
+    {
+      "id": "c0",
+      "file": "src/sim/ideal.ts",
+      "line": 566,
+      "verdict": "real",
+      "how": "test",
+      "note": "playImperfect keeps only three plan fields, so with zero noise it cannot clear the Training course (returns null). Used by two tests on the stock course only.",
+      "action": "backlog"
+    },
+    {
+      "id": "c1",
+      "file": "src/sim/ideal.ts",
+      "line": 572,
+      "verdict": "real",
+      "how": "test",
+      "note": "The restart second is added to the attempt that clears, so every time is 1 s long. Test-only function.",
+      "action": "backlog"
+    },
+    {
+      "id": "c2",
+      "file": "src/sim/ideal.ts",
+      "line": 361,
+      "verdict": "real",
+      "how": "reading",
+      "note": "The comment says the longest run of consecutive good presses; the code takes the lowest to the highest good press, so a window with a hole is reported too wide.",
+      "action": "backlog"
+    },
+    {
+      "id": "c3",
+      "file": "src/sim/ideal.ts",
+      "line": 374,
+      "verdict": "real",
+      "how": "test",
+      "note": "The bounce press is tuned only for take-off edges between 117 m and 119 m; the Training course trampoline (133 m) keeps the default 8, and a press of 0 clears 5 ticks (0.04 s) faster.",
+      "action": "backlog"
+    },
+    {
+      "id": "c4",
+      "file": "src/sim/ideal.ts",
+      "line": 160,
+      "verdict": "real",
+      "how": "reading",
+      "note": "181 ticks standing still, not 180: a one-tick slip with no effect.",
+      "action": "backlog (trivial)"
+    },
+    {
+      "id": "c5",
+      "file": "src/sim/predict.ts",
+      "line": 32,
+      "verdict": "false alarm",
+      "how": "reading",
+      "note": "'not-grounded' is a dead member of the result type; an airborne runner is predicted on purpose."
+    },
+    {
+      "id": "d0",
+      "file": "src/sim/cart.ts",
+      "line": 178,
+      "verdict": "false alarm",
+      "how": "reading",
+      "note": "Not a code claim: a generic remark about experiments with no input or line that exists."
+    },
+    {
+      "id": "d1",
+      "file": "src/sim/trebuchet.ts",
+      "line": 4,
+      "verdict": "false alarm",
+      "how": "reading",
+      "note": "Not a code claim: a generic remark about unmeasured conditions."
+    }
   ]
 }
