@@ -24,7 +24,8 @@
     "community": "node scripts/community-review.mjs",
     "motion": "node scripts/motion.mjs",
     "perf": "node scripts/perf-check.mjs --budget",
-    "thumbs": "tsx scripts/make-thumbs.ts"
+    "thumbs": "tsx scripts/make-thumbs.ts",
+    "piece-icons": "tsx scripts/make-piece-icons.ts"
   },
   "dependencies": {
     "maplibre-gl": "^6.16.0",

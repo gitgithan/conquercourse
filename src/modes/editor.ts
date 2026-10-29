@@ -2,7 +2,7 @@ import { HAZARDS, HAZARD_INFO, type Hazard } from '../course/hazard';
 import { organizeEditor } from '../ui/editor-layout';
 import { startCourse } from './course';
 import { readGlbMesh } from '../slice/glb';
-import { LIBRARY } from '../slice/shapes';
+import { LIBRARY, box } from '../slice/shapes';
 import { bestSlices, describe as describeLane, sliceProfile, CELL, HALF_LANE } from '../slice/slice';
 import { crop, centred, duplicate, hits, newPiece, realSize, scaleBy, scaleToHeight, size, worldSamples, laneProfile, type Piece } from '../slice/world';
 import type { CourseData } from '../course/course';
@@ -136,7 +136,7 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
   };
   const addBar = el('div', root, { className: 'top' });
   el('strong', addBar, { text: 'Basic shapes:' });
-  for (const l of LIBRARY) el('button', addBar, { text: l.label }).onclick = () => { add(l.id, freeSpot(l.id)); changed(); };
+  for (const l of LIBRARY) el('button', addBar, { text: l.label, id: `add-${l.id}` }).onclick = () => { add(l.id, freeSpot(l.id)); changed(); };
   // undo and redo: a snapshot after every change (pieces are copied shallowly; a crop makes a new mesh, so old meshes stay valid)
   interface Snap { pieces: P[]; angle: number; offset: number; level: number }
   const hist: Snap[] = [];
@@ -189,6 +189,8 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
   const addBarPiece = (x: number, y: number): P => { const q: P = { ...newPiece('Bar', barMesh(), { x, z: 0 }), src: 'hold:bar', y }; pieces.push(q); selected = q.id; return q; };
   el('button', addBar, { text: 'Bar', id: 'addbar' }).onclick = () => { addBarPiece(nextX(), 2.86); changed(); };
   el('button', addBar, { text: 'Lache pair', id: 'addlache', title: 'Two bars to swing between' }).onclick = () => { const x = nextX(); addBarPiece(x, 2.86); addBarPiece(x + 3.5, 2.86); changed(); };
+  // a rope swing: a post whose top is the rope anchor (role rope); put it over a gap and the simulator checks the swing
+  el('button', addBar, { text: 'Rope swing', id: 'addrope', title: 'A post with a rope on top: put it over a gap between two pieces of ground and swing across' }).onclick = () => { const q: P = { ...newPiece('Rope anchor', box(0.5, 6.6, 0.5), { x: nextX() + 3, z: 0 }), role: 'rope' }; pieces.push(q); selected = q.id; changed(); };
   // a trebuchet at the start: the rider is thrown to the lane; the counterweight is the knob (the proof says whether it reaches)
   el('button', addBar, { text: 'Trebuchet', id: 'addtreb', title: 'Start the lane in a trebuchet: the character is thrown onto it' }).onclick = () => {
     const treMesh = deviceMesh('device:trebuchet:1200');

@@ -20,6 +20,7 @@ export interface Host {
   dropped(): void; // when the drag ends
   interactionStart?(): void; // cancel background checks while the player uses the 3D view
   interactionEnd?(): void; // resume the debounced check after the interaction
+  icon?: boolean; // a plain picture of the pieces alone (the add browser's icons): no lane, rod, grid or textured ground
   ghosts?(): Ghosts | null; // a preview of a change: hollow outlines where pieces would be, arrows from where they are
 }
 export interface GhostState { x: number; y: number; z: number; yaw: number; scale: number }
@@ -74,6 +75,7 @@ export function createView3d(wrap: HTMLElement, host: Host): View3d {
   laneG.add(band, mid); scene.add(laneG);
   const rod = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.05, 2.5, 12), new THREE.MeshStandardMaterial({ color: 0x17201d })); rod.position.y = 1.25; scene.add(rod);
 
+  if (host.icon) { (ground as THREE.Mesh).material = new THREE.MeshBasicMaterial({ color: 0xe6ede9 }); scene.background = new THREE.Color(0xe6ede9); for (const o of [grid, laneG, rod]) o.visible = false; scene.fog = null; }
   // the preview of a change: a hollow outline at the new place (teal), a faint one where the piece is now (grey), an arrow between, a dashed new lane line
   const ghostG = new THREE.Group(); scene.add(ghostG);
   let ghostSig = '';
