@@ -73,6 +73,11 @@
   - The facing still gives the sign, so a backward somersault stays negative.
   - If the hips travel under 0.3 m, or more than 45 degrees off the facing, the facing is used as before: a cartwheel or side flip is never read as a roll.
   - No limit was changed; the travel, window, hip-height and air-time limits are the same.
+- Re-check of the head-on London Parkour roll after the fix (CC-227): the turn reads 375 to 393 degrees, upside down, travel 1.7 to 2.6 m.
+  - The clip is still not playable, and it should not be: it is a jump roll, so the check finds the body in the air for 0.30 s (limit 0.25 s).
+  - On the untrimmed clip the hips also rise to 1.21 times standing (limit 1.05) and the turning part lasts 1.74 s (limit 1.4 s).
+  - So the head-on view is no longer the blocker; this film shows a different move from the game's low roll.
+  - Tests: `pipelines/tests/test_movecheck.py` covers a body filmed head-on, the shipped roll from five viewing angles, a sideways flip (fails), the shipped vault, climb, hurt, run, leap and land (fail), and this real clip.
 - The 150 frames were also cut short at first: the first 2 s were dropped because the runner was small; `--min-size 0.2` keeps them.
 - We did not loosen the check: a clip that fails is "not playable", and the game says so by not loading it.
   - The strip below shows the same clip forced through in a test only (the page patches the answer, the game code does not).
@@ -80,7 +85,7 @@
 ![source frames above, the Rookie below](../data/eval/motion-from-you/roll-lp/side-by-side.png)
 
 ### Missing
-- A side or three-quarter test clip that passes (none found in the CC BY set; the Drop Roll film is a talking head from afar).
+- A real filmed roll that passes (none yet): the one CC BY head-on roll is a jump roll, and the Drop Roll film is a talking head from afar.
 - A warm Modal container for the whole clip.
 - A phone-or-webcam capture page; this slice takes a video file and a time range.
 - Other moves: only the roll has a "My move" slot.
