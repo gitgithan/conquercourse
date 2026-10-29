@@ -61,7 +61,7 @@ describe('the LET GO NOW cue and the debug preview', () => {
       const pl = predictLaunch(w, c);
       const cue = pl.result === 'lands' && /^You (reach|land)/.test(pl.why);
       if (cue) expect(pl.landX!).toBeGreaterThan(3.5); // the machine's deck ends at 3 m
-      const real = playPlan(c, { ...plan, launchRelease: t }).world.outcome === 'cleared';
+      const real = playPlan(c, { ...plan, launchRelease: t, climbHands: true }).world.outcome === 'cleared'; // the cue's preview holds E at the wall, so the real run does too (CC-168)
       total++; if (cue === real) agree++;
       w = stepWorld(w, { ...NO_INPUT, run: true }, c);
     }

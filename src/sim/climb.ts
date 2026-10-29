@@ -80,9 +80,10 @@ export function findClimb(t: Terrain, x: number, y: number, vx: number, vy: numb
     if (p === here || p.x0 < x - 0.02 || p.x0 - x > CLIMB_REACH_X + CLIMB_TOL_X) continue;
     const top = heightAt(p, p.x0), below = top - y;
     if (below < CLIMB_MIN_RISE || below > CLIMB_STAND_REACH + CLIMB_TOL_Y) continue; // the hands do not meet the edge
-    // the limit of one jump from the ground does not bind a body that is already falling at the edge (a trampoline lifted it higher): the hands' reach decides
+    // the limit of one jump from the ground does not bind a body that is higher than any plain jump takes it (a trampoline lifted it): the hands' reach decides
     const base = groundRef(t, x);
-    if (vy >= 0 && Number.isFinite(base) && top - base > climbMaxRise(jumpSpeed) + 1e-9) continue; // a wall above the limit
+    const lifted = Number.isFinite(base) && y - base > (jumpSpeed * jumpSpeed) / (2 * GRAVITY) + 0.05;
+    if (!lifted && Number.isFinite(base) && top - base > climbMaxRise(jumpSpeed) + 1e-9) continue; // a wall above the limit
     const xe = Math.min(p.x0 + CLIMB_EXIT_OFF, Math.max(p.x0 + 0.1, (p.x0 + p.x1) / 2));
     const exit = { x: xe, y: heightAt(p, xe) };
     return { edge: p.x0, top, i: 0, n: CLIMB_TICKS, path: makePath(x, y, p.x0, top, exit), exit };
