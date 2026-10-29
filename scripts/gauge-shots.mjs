@@ -14,7 +14,7 @@ const shots = [
   ['phone-new', '/?touch=1&', 390, 760], ['phone-drone', `/?touch=1&course=${course('drone')}&`, 390, 760],
 ];
 try {
-  await new Promise((r) => setTimeout(r, 3000));
+  await new Promise((r) => setTimeout(r, 8000));
   const browser = await chromium.launch({ args: flags });
   mkdirSync('test-results/gauges', { recursive: true });
   const errors = [];
