@@ -1,0 +1,8 @@
+{
+  "issue": "CC-139",
+  "viewport": "390x844 touch",
+  "unit_tests": 6,
+  "browser_checks_passed": 8,
+  "not_tested": "timed jumps by touch on lane 1 (software GL polling too slow)",
+  "backend": "software GL on VM2"
+}
