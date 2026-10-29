@@ -1,12 +1,12 @@
 {
-  "round": "public-3",
+  "round": "public-4",
   "title": "Help shape ConquerCourse",
-  "intro": "Tell us about the moments you remember, and what you wish the game could do next. No sign-in or names. Please do not include personal information.",
+  "intro": "Four quick questions. No sign-in or names. Please do not include personal information.",
   "questions": [
     {
       "id": "tried",
       "type": "multi",
-      "text": "Which parts did you try? Tick all that you used.",
+      "text": "Which parts did you try?",
       "options": [
         "Running and jumping on a course",
         "Vault, roll or climb",
@@ -22,44 +22,24 @@
       ]
     },
     {
-      "id": "liked",
-      "type": "text",
-      "text": "Think of one moment that felt great. Where were you (which course, place or tool), what did you do, and how did it feel?"
+      "id": "first",
+      "type": "choice",
+      "text": "In your first 30 seconds, did you know what to do?",
+      "options": [
+        "Yes, right away",
+        "Mostly",
+        "No, I was lost"
+      ]
     },
     {
-      "id": "confusing",
+      "id": "moment",
       "type": "text",
-      "text": "Think of one moment you got stuck, confused or annoyed. Where were you, what did you try, and what did you expect to happen?"
+      "text": "One moment that felt great, or one that confused you. Where was it?"
     },
     {
-      "id": "surprise",
+      "id": "wish",
       "type": "text",
-      "text": "What did the game do that you did not expect, good or bad? Point to where it happened."
-    },
-    {
-      "id": "learned",
-      "type": "text",
-      "text": "Did you notice or learn something about how the world works (movement, energy, maps, buildings, anything)? Point to the moment that showed you. If nothing did, what would have helped?"
-    },
-    {
-      "id": "world",
-      "type": "text",
-      "text": "What do you wish you could do that you cannot yet: a move, an object, a place, a tool, a lesson? Describe it as if it were already in the game."
-    },
-    {
-      "id": "explore",
-      "type": "text",
-      "text": "If you could bring one real thing into the game (a place near you, an object, an experiment, a toy), what would it be, and what would the course look like?"
-    },
-    {
-      "id": "use",
-      "type": "text",
-      "text": "Where would you want to use this (at home, in class, with friends)? What would make it work there?"
-    },
-    {
-      "id": "anything_else",
-      "type": "text",
-      "text": "Anything else you want us to know?"
+      "text": "What do you wish you could do that you cannot yet?"
     }
   ]
 }
