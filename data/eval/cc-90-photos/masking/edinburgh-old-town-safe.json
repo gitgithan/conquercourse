@@ -1,0 +1,1362 @@
+{
+  "place": "edinburgh-old-town",
+  "lane_steps_10m": 17,
+  "candidates_checked": 68,
+  "kept": 65,
+  "kept_untouched_no_person": 49,
+  "kept_masked": 16,
+  "rejected_by_reason": {
+    "more than 15 percent masked": 1,
+    "second detector found a person the mask does not cover": 1,
+    "download failed": 1
+  },
+  "rules": "reject if masked share > 0.15, or a person box > 0.25 of the picture, or Faster R-CNN (score >= 0.5, on original and on masked picture) finds a person with < 0.6 of its box inside the grown mask",
+  "allow_list": [
+    {
+      "id": "501882817525938",
+      "creator": "drnoble",
+      "lat": 55.949757,
+      "lon": -3.188125,
+      "persons": 3,
+      "masked_share": 0.0073
+    },
+    {
+      "id": "1935167543301539",
+      "creator": "drnoble",
+      "lat": 55.949909,
+      "lon": -3.188481,
+      "persons": 0,
+      "masked_share": 0.0
+    },
+    {
+      "id": "138474701645629",
+      "creator": "drnoble",
+      "lat": 55.949947,
+      "lon": -3.188512,
+      "persons": 6,
+      "masked_share": 0.0722
+    },
+    {
+      "id": "382053653073644",
+      "creator": "drnoble",
+      "lat": 55.94982,
+      "lon": -3.188433,
+      "persons": 0,
+      "masked_share": 0.0
+    },
+    {
+      "id": "536134691083634",
+      "creator": "drnoble",
+      "lat": 55.94987,
+      "lon": -3.188455,
+      "persons": 0,
+      "masked_share": 0.0
+    },
+    {
+      "id": "1400314660332725",
+      "creator": "drnoble",
+      "lat": 55.949746,
+      "lon": -3.187788,
+      "persons": 3,
+      "masked_share": 0.006
+    },
+    {
+      "id": "137275235058906",
+      "creator": "drnoble",
+      "lat": 55.949916,
+      "lon": -3.18868,
+      "persons": 0,
+      "masked_share": 0.0
+    },
+    {
+      "id": "368479954863163",
+      "creator": "drnoble",
+      "lat": 55.949685,
+      "lon": -3.188365,
+      "persons": 0,
+      "masked_share": 0.0
+    },
+    {
+      "id": "506084354054485",
+      "creator": "drnoble",
+      "lat": 55.949762,
+      "lon": -3.188405,
+      "persons": 3,
+      "masked_share": 0.0038
+    },
+    {
+      "id": "1150072518831678",
+      "creator": "ccbb7766",
+      "lat": 55.949754,
+      "lon": -3.187869,
+      "persons": 0,
+      "masked_share": 0.0
+    },
+    {
+      "id": "225185289006012",
+      "creator": "drnoble",
+      "lat": 55.949723,
+      "lon": -3.187734,
+      "persons": 3,
+      "masked_share": 0.0047
+    },
+    {
+      "id": "310902500426927",
+      "creator": "drnoble",
+      "lat": 55.949317,
+      "lon": -3.188519,
+      "persons": 0,
+      "masked_share": 0.0
+    },
+    {
+      "id": "162394899160193",
+      "creator": "drnoble",
+      "lat": 55.949257,
+      "lon": -3.188478,
+      "persons": 0,
+      "masked_share": 0.0
+    },
+    {
+      "id": "519099875771627",
+      "creator": "drnoble",
+      "lat": 55.949217,
+      "lon": -3.188447,
+      "persons": 0,
+      "masked_share": 0.0
+    },
+    {
+      "id": "935267647286751",
+      "creator": "drnoble",
+      "lat": 55.94963,
+      "lon": -3.188335,
+      "persons": 0,
+      "masked_share": 0.0
+    },
+    {
+      "id": "376071370432000",
+      "creator": "drnoble",
+      "lat": 55.949202,
+      "lon": -3.188453,
+      "persons": 0,
+      "masked_share": 0.0
+    },
+    {
+      "id": "796280574355425",
+      "creator": "drnoble",
+      "lat": 55.949187,
+      "lon": -3.188395,
+      "persons": 0,
+      "masked_share": 0.0
+    },
+    {
+      "id": "330159651786445",
+      "creator": "drnoble",
+      "lat": 55.949143,
+      "lon": -3.188738,
+      "persons": 0,
+      "masked_share": 0.0
+    },
+    {
+      "id": "1103134143504634",
+      "creator": "drnoble",
+      "lat": 55.949167,
+      "lon": -3.188312,
+      "persons": 0,
+      "masked_share": 0.0
+    },
+    {
+      "id": "160548862681449",
+      "creator": "drnoble",
+      "lat": 55.949099,
+      "lon": -3.188706,
+      "persons": 0,
+      "masked_share": 0.0
+    },
+    {
+      "id": "306303661074221",
+      "creator": "drnoble",
+      "lat": 55.949054,
+      "lon": -3.188668,
+      "persons": 0,
+      "masked_share": 0.0
+    },
+    {
+      "id": "550484862610876",
+      "creator": "drnoble",
+      "lat": 55.949747,
+      "lon": -3.188909,
+      "persons": 0,
+      "masked_share": 0.0
+    },
+    {
+      "id": "470833470644239",
+      "creator": "drnoble",
+      "lat": 55.949306,
+      "lon": -3.188621,
+      "persons": 0,
+      "masked_share": 0.0
+    },
+    {
+      "id": "153156640109107",
+      "creator": "drnoble",
+      "lat": 55.949324,
+      "lon": -3.188537,
+      "persons": 0,
+      "masked_share": 0.0
+    },
+    {
+      "id": "465962531160530",
+      "creator": "drnoble",
+      "lat": 55.949434,
+      "lon": -3.18825,
+      "persons": 0,
+      "masked_share": 0.0
+    },
+    {
+      "id": "178081187549631",
+      "creator": "drnoble",
+      "lat": 55.949559,
+      "lon": -3.1883,
+      "persons": 0,
+      "masked_share": 0.0
+    },
+    {
+      "id": "211930330535336",
+      "creator": "drnoble",
+      "lat": 55.949281,
+      "lon": -3.188737,
+      "persons": 0,
+      "masked_share": 0.0
+    },
+    {
+      "id": "321114299590056",
+      "creator": "drnoble",
+      "lat": 55.949009,
+      "lon": -3.188634,
+      "persons": 0,
+      "masked_share": 0.0
+    },
+    {
+      "id": "1023162498510153",
+      "creator": "drnoble",
+      "lat": 55.949146,
+      "lon": -3.188298,
+      "persons": 0,
+      "masked_share": 0.0
+    },
+    {
+      "id": "313978690169183",
+      "creator": "drnoble",
+      "lat": 55.949262,
+      "lon": -3.188808,
+      "persons": 0,
+      "masked_share": 0.0
+    },
+    {
+      "id": "1078368089322610",
+      "creator": "drnoble",
+      "lat": 55.949025,
+      "lon": -3.189142,
+      "persons": 0,
+      "masked_share": 0.0
+    },
+    {
+      "id": "522167622250715",
+      "creator": "drnoble",
+      "lat": 55.949109,
+      "lon": -3.188454,
+      "persons": 0,
+      "masked_share": 0.0
+    },
+    {
+      "id": "893888081169076",
+      "creator": "drnoble",
+      "lat": 55.948955,
+      "lon": -3.188666,
+      "persons": 0,
+      "masked_share": 0.0
+    },
+    {
+      "id": "301328748158789",
+      "creator": "drnoble",
+      "lat": 55.949055,
+      "lon": -3.188653,
+      "persons": 0,
+      "masked_share": 0.0
+    },
+    {
+      "id": "328338201971849",
+      "creator": "drnoble",
+      "lat": 55.949153,
+      "lon": -3.189215,
+      "persons": 0,
+      "masked_share": 0.0
+    },
+    {
+      "id": "180021974030396",
+      "creator": "drnoble",
+      "lat": 55.949195,
+      "lon": -3.18923,
+      "persons": 0,
+      "masked_share": 0.0
+    },
+    {
+      "id": "2233072873490235",
+      "creator": "drnoble",
+      "lat": 55.949083,
+      "lon": -3.18856,
+      "persons": 0,
+      "masked_share": 0.0
+    },
+    {
+      "id": "826609837973489",
+      "creator": "drnoble",
+      "lat": 55.949016,
+      "lon": -3.189153,
+      "persons": 0,
+      "masked_share": 0.0
+    },
+    {
+      "id": "557470461907873",
+      "creator": "drnoble",
+      "lat": 55.948998,
+      "lon": -3.188845,
+      "persons": 0,
+      "masked_share": 0.0
+    },
+    {
+      "id": "237279081502347",
+      "creator": "drnoble",
+      "lat": 55.949062,
+      "lon": -3.189172,
+      "persons": 0,
+      "masked_share": 0.0
+    },
+    {
+      "id": "299799388407286",
+      "creator": "drnoble",
+      "lat": 55.94912,
+      "lon": -3.189198,
+      "persons": 0,
+      "masked_share": 0.0
+    },
+    {
+      "id": "903941246847459",
+      "creator": "drnoble",
+      "lat": 55.948971,
+      "lon": -3.189025,
+      "persons": 0,
+      "masked_share": 0.0
+    },
+    {
+      "id": "380154626657751",
+      "creator": "drnoble",
+      "lat": 55.948963,
+      "lon": -3.188974,
+      "persons": 0,
+      "masked_share": 0.0
+    },
+    {
+      "id": "163015092493415",
+      "creator": "drnoble",
+      "lat": 55.949003,
+      "lon": -3.189145,
+      "persons": 0,
+      "masked_share": 0.0
+    },
+    {
+      "id": "1470876436593620",
+      "creator": "drnoble",
+      "lat": 55.949004,
+      "lon": -3.189146,
+      "persons": 0,
+      "masked_share": 0.0
+    },
+    {
+      "id": "5020911304609792",
+      "creator": "pbb",
+      "lat": 55.948741,
+      "lon": -3.189347,
+      "persons": 8,
+      "masked_share": 0.0043
+    },
+    {
+      "id": "338844661097512",
+      "creator": "pbb",
+      "lat": 55.94873,
+      "lon": -3.189342,
+      "persons": 8,
+      "masked_share": 0.003
+    },
+    {
+      "id": "496788718401230",
+      "creator": "pbb",
+      "lat": 55.948717,
+      "lon": -3.189334,
+      "persons": 2,
+      "masked_share": 0.0017
+    },
+    {
+      "id": "145481884262053",
+      "creator": "pbb",
+      "lat": 55.948703,
+      "lon": -3.189327,
+      "persons": 0,
+      "masked_share": 0.0
+    },
+    {
+      "id": "300383208395282",
+      "creator": "pbb",
+      "lat": 55.94869,
+      "lon": -3.189319,
+      "persons": 1,
+      "masked_share": 0.0013
+    },
+    {
+      "id": "292415979034112",
+      "creator": "pbb",
+      "lat": 55.948675,
+      "lon": -3.189313,
+      "persons": 1,
+      "masked_share": 0.0013
+    },
+    {
+      "id": "822341015367624",
+      "creator": "pbb",
+      "lat": 55.94866,
+      "lon": -3.189307,
+      "persons": 1,
+      "masked_share": 0.0013
+    },
+    {
+      "id": "1108056603022953",
+      "creator": "drnoble",
+      "lat": 55.948658,
+      "lon": -3.189247,
+      "persons": 0,
+      "masked_share": 0.0
+    },
+    {
+      "id": "3086608401617161",
+      "creator": "pbb",
+      "lat": 55.948646,
+      "lon": -3.189301,
+      "persons": 0,
+      "masked_share": 0.0
+    },
+    {
+      "id": "750408062315175",
+      "creator": "pbb",
+      "lat": 55.948632,
+      "lon": -3.189295,
+      "persons": 0,
+      "masked_share": 0.0
+    },
+    {
+      "id": "1150846752096785",
+      "creator": "pbb",
+      "lat": 55.948615,
+      "lon": -3.189288,
+      "persons": 0,
+      "masked_share": 0.0
+    },
+    {
+      "id": "177806087574082",
+      "creator": "pbb",
+      "lat": 55.948598,
+      "lon": -3.189282,
+      "persons": 0,
+      "masked_share": 0.0
+    },
+    {
+      "id": "838331097794702",
+      "creator": "southglos",
+      "lat": 55.948534,
+      "lon": -3.189374,
+      "persons": 0,
+      "masked_share": 0.0
+    },
+    {
+      "id": "501086089051660",
+      "creator": "southglos",
+      "lat": 55.948559,
+      "lon": -3.189321,
+      "persons": 0,
+      "masked_share": 0.0
+    },
+    {
+      "id": "995520025692600",
+      "creator": "toho",
+      "lat": 55.948527,
+      "lon": -3.189319,
+      "persons": 7,
+      "masked_share": 0.0102
+    },
+    {
+      "id": "518031166049457",
+      "creator": "pbb",
+      "lat": 55.948564,
+      "lon": -3.189269,
+      "persons": 3,
+      "masked_share": 0.0027
+    },
+    {
+      "id": "440031278932918",
+      "creator": "southglos",
+      "lat": 55.94852,
+      "lon": -3.189494,
+      "persons": 0,
+      "masked_share": 0.0
+    },
+    {
+      "id": "1916482335956364",
+      "creator": "Semir_Mapillary",
+      "lat": 55.948499,
+      "lon": -3.189576,
+      "persons": 7,
+      "masked_share": 0.0119
+    },
+    {
+      "id": "856561509671164",
+      "creator": "toho",
+      "lat": 55.948515,
+      "lon": -3.189445,
+      "persons": 6,
+      "masked_share": 0.013
+    },
+    {
+      "id": "2098359613898045",
+      "creator": "southglos",
+      "lat": 55.948545,
+      "lon": -3.189453,
+      "persons": 4,
+      "masked_share": 0.0083
+    }
+  ],
+  "rows": [
+    {
+      "id": "501882817525938",
+      "creator": "drnoble",
+      "lat": 55.949757,
+      "lon": -3.188125,
+      "persons": 3,
+      "masked_share": 0.0073,
+      "person_box_max_share": 0.0045,
+      "keep": true,
+      "reason": "",
+      "had_person": true
+    },
+    {
+      "id": "1935167543301539",
+      "creator": "drnoble",
+      "lat": 55.949909,
+      "lon": -3.188481,
+      "persons": 0,
+      "masked_share": 0.0,
+      "person_box_max_share": 0.0,
+      "keep": true,
+      "reason": "",
+      "had_person": false
+    },
+    {
+      "id": "138474701645629",
+      "creator": "drnoble",
+      "lat": 55.949947,
+      "lon": -3.188512,
+      "persons": 6,
+      "masked_share": 0.0722,
+      "person_box_max_share": 0.0801,
+      "keep": true,
+      "reason": "",
+      "had_person": true
+    },
+    {
+      "id": "792139546143084",
+      "creator": "hobgoblin",
+      "lat": 55.949979,
+      "lon": -3.187894,
+      "persons": 47,
+      "masked_share": 0.2574,
+      "person_box_max_share": 0.0594,
+      "keep": false,
+      "reason": "more than 15 percent masked",
+      "had_person": true
+    },
+    {
+      "id": "382053653073644",
+      "creator": "drnoble",
+      "lat": 55.94982,
+      "lon": -3.188433,
+      "persons": 0,
+      "masked_share": 0.0,
+      "person_box_max_share": 0.0,
+      "keep": true,
+      "reason": "",
+      "had_person": false
+    },
+    {
+      "id": "536134691083634",
+      "creator": "drnoble",
+      "lat": 55.94987,
+      "lon": -3.188455,
+      "persons": 0,
+      "masked_share": 0.0,
+      "person_box_max_share": 0.0,
+      "keep": true,
+      "reason": "",
+      "had_person": false
+    },
+    {
+      "id": "1400314660332725",
+      "creator": "drnoble",
+      "lat": 55.949746,
+      "lon": -3.187788,
+      "persons": 3,
+      "masked_share": 0.006,
+      "person_box_max_share": 0.0015,
+      "keep": true,
+      "reason": "",
+      "had_person": true
+    },
+    {
+      "id": "137275235058906",
+      "creator": "drnoble",
+      "lat": 55.949916,
+      "lon": -3.18868,
+      "persons": 0,
+      "masked_share": 0.0,
+      "person_box_max_share": 0.0,
+      "keep": true,
+      "reason": "",
+      "had_person": false
+    },
+    {
+      "id": "368479954863163",
+      "creator": "drnoble",
+      "lat": 55.949685,
+      "lon": -3.188365,
+      "persons": 0,
+      "masked_share": 0.0,
+      "person_box_max_share": 0.0,
+      "keep": true,
+      "reason": "",
+      "had_person": false
+    },
+    {
+      "id": "506084354054485",
+      "creator": "drnoble",
+      "lat": 55.949762,
+      "lon": -3.188405,
+      "persons": 3,
+      "masked_share": 0.0038,
+      "person_box_max_share": 0.0014,
+      "keep": true,
+      "reason": "",
+      "had_person": true
+    },
+    {
+      "id": "1150072518831678",
+      "creator": "ccbb7766",
+      "lat": 55.949754,
+      "lon": -3.187869,
+      "persons": 0,
+      "masked_share": 0.0,
+      "person_box_max_share": 0.0,
+      "keep": true,
+      "reason": "",
+      "had_person": false
+    },
+    {
+      "id": "225185289006012",
+      "creator": "drnoble",
+      "lat": 55.949723,
+      "lon": -3.187734,
+      "persons": 3,
+      "masked_share": 0.0047,
+      "person_box_max_share": 0.0017,
+      "keep": true,
+      "reason": "",
+      "had_person": true
+    },
+    {
+      "id": "310902500426927",
+      "creator": "drnoble",
+      "lat": 55.949317,
+      "lon": -3.188519,
+      "persons": 0,
+      "masked_share": 0.0,
+      "person_box_max_share": 0.0,
+      "keep": true,
+      "reason": "",
+      "had_person": false
+    },
+    {
+      "id": "162394899160193",
+      "creator": "drnoble",
+      "lat": 55.949257,
+      "lon": -3.188478,
+      "persons": 0,
+      "masked_share": 0.0,
+      "person_box_max_share": 0.0,
+      "keep": true,
+      "reason": "",
+      "had_person": false
+    },
+    {
+      "id": "519099875771627",
+      "creator": "drnoble",
+      "lat": 55.949217,
+      "lon": -3.188447,
+      "persons": 0,
+      "masked_share": 0.0,
+      "person_box_max_share": 0.0,
+      "keep": true,
+      "reason": "",
+      "had_person": false
+    },
+    {
+      "id": "1330319897347071",
+      "creator": "drnoble",
+      "lat": 55.949458,
+      "lon": -3.187801,
+      "persons": 0,
+      "masked_share": 0.0,
+      "person_box_max_share": 0.0,
+      "unmasked_found": [
+        {
+          "score": 0.72,
+          "cover": 0.0,
+          "box_share": 0.0021
+        },
+        {
+          "score": 0.72,
+          "cover": 0.0,
+          "box_share": 0.0021
+        }
+      ],
+      "keep": false,
+      "reason": "second detector found a person the mask does not cover",
+      "had_person": false
+    },
+    {
+      "id": "935267647286751",
+      "creator": "drnoble",
+      "lat": 55.94963,
+      "lon": -3.188335,
+      "persons": 0,
+      "masked_share": 0.0,
+      "person_box_max_share": 0.0,
+      "keep": true,
+      "reason": "",
+      "had_person": false
+    },
+    {
+      "id": "376071370432000",
+      "creator": "drnoble",
+      "lat": 55.949202,
+      "lon": -3.188453,
+      "persons": 0,
+      "masked_share": 0.0,
+      "person_box_max_share": 0.0,
+      "keep": true,
+      "reason": "",
+      "had_person": false
+    },
+    {
+      "id": "796280574355425",
+      "creator": "drnoble",
+      "lat": 55.949187,
+      "lon": -3.188395,
+      "persons": 0,
+      "masked_share": 0.0,
+      "person_box_max_share": 0.0,
+      "keep": true,
+      "reason": "",
+      "had_person": false
+    },
+    {
+      "id": "330159651786445",
+      "creator": "drnoble",
+      "lat": 55.949143,
+      "lon": -3.188738,
+      "persons": 0,
+      "masked_share": 0.0,
+      "person_box_max_share": 0.0,
+      "keep": true,
+      "reason": "",
+      "had_person": false
+    },
+    {
+      "id": "1103134143504634",
+      "creator": "drnoble",
+      "lat": 55.949167,
+      "lon": -3.188312,
+      "persons": 0,
+      "masked_share": 0.0,
+      "person_box_max_share": 0.0,
+      "keep": true,
+      "reason": "",
+      "had_person": false
+    },
+    {
+      "id": "160548862681449",
+      "creator": "drnoble",
+      "lat": 55.949099,
+      "lon": -3.188706,
+      "persons": 0,
+      "masked_share": 0.0,
+      "person_box_max_share": 0.0,
+      "keep": true,
+      "reason": "",
+      "had_person": false
+    },
+    {
+      "id": "306303661074221",
+      "creator": "drnoble",
+      "lat": 55.949054,
+      "lon": -3.188668,
+      "persons": 0,
+      "masked_share": 0.0,
+      "person_box_max_share": 0.0,
+      "keep": true,
+      "reason": "",
+      "had_person": false
+    },
+    {
+      "id": "550484862610876",
+      "creator": "drnoble",
+      "lat": 55.949747,
+      "lon": -3.188909,
+      "persons": 0,
+      "masked_share": 0.0,
+      "person_box_max_share": 0.0,
+      "keep": true,
+      "reason": "",
+      "had_person": false
+    },
+    {
+      "id": "470833470644239",
+      "creator": "drnoble",
+      "lat": 55.949306,
+      "lon": -3.188621,
+      "persons": 0,
+      "masked_share": 0.0,
+      "person_box_max_share": 0.0,
+      "keep": true,
+      "reason": "",
+      "had_person": false
+    },
+    {
+      "id": "153156640109107",
+      "creator": "drnoble",
+      "lat": 55.949324,
+      "lon": -3.188537,
+      "persons": 0,
+      "masked_share": 0.0,
+      "person_box_max_share": 0.0,
+      "keep": true,
+      "reason": "",
+      "had_person": false
+    },
+    {
+      "id": "465962531160530",
+      "creator": "drnoble",
+      "lat": 55.949434,
+      "lon": -3.18825,
+      "persons": 0,
+      "masked_share": 0.0,
+      "person_box_max_share": 0.0,
+      "keep": true,
+      "reason": "",
+      "had_person": false
+    },
+    {
+      "id": "178081187549631",
+      "creator": "drnoble",
+      "lat": 55.949559,
+      "lon": -3.1883,
+      "persons": 0,
+      "masked_share": 0.0,
+      "person_box_max_share": 0.0,
+      "keep": true,
+      "reason": "",
+      "had_person": false
+    },
+    {
+      "id": "211930330535336",
+      "creator": "drnoble",
+      "lat": 55.949281,
+      "lon": -3.188737,
+      "persons": 0,
+      "masked_share": 0.0,
+      "person_box_max_share": 0.0,
+      "keep": true,
+      "reason": "",
+      "had_person": false
+    },
+    {
+      "id": "4190995860957761",
+      "creator": "drnoble",
+      "lat": 55.949303,
+      "lon": -3.188628,
+      "keep": false,
+      "reason": "download failed"
+    },
+    {
+      "id": "321114299590056",
+      "creator": "drnoble",
+      "lat": 55.949009,
+      "lon": -3.188634,
+      "persons": 0,
+      "masked_share": 0.0,
+      "person_box_max_share": 0.0,
+      "keep": true,
+      "reason": "",
+      "had_person": false
+    },
+    {
+      "id": "1023162498510153",
+      "creator": "drnoble",
+      "lat": 55.949146,
+      "lon": -3.188298,
+      "persons": 0,
+      "masked_share": 0.0,
+      "person_box_max_share": 0.0,
+      "keep": true,
+      "reason": "",
+      "had_person": false
+    },
+    {
+      "id": "313978690169183",
+      "creator": "drnoble",
+      "lat": 55.949262,
+      "lon": -3.188808,
+      "persons": 0,
+      "masked_share": 0.0,
+      "person_box_max_share": 0.0,
+      "keep": true,
+      "reason": "",
+      "had_person": false
+    },
+    {
+      "id": "1078368089322610",
+      "creator": "drnoble",
+      "lat": 55.949025,
+      "lon": -3.189142,
+      "persons": 0,
+      "masked_share": 0.0,
+      "person_box_max_share": 0.0,
+      "keep": true,
+      "reason": "",
+      "had_person": false
+    },
+    {
+      "id": "522167622250715",
+      "creator": "drnoble",
+      "lat": 55.949109,
+      "lon": -3.188454,
+      "persons": 0,
+      "masked_share": 0.0,
+      "person_box_max_share": 0.0,
+      "keep": true,
+      "reason": "",
+      "had_person": false
+    },
+    {
+      "id": "893888081169076",
+      "creator": "drnoble",
+      "lat": 55.948955,
+      "lon": -3.188666,
+      "persons": 0,
+      "masked_share": 0.0,
+      "person_box_max_share": 0.0,
+      "keep": true,
+      "reason": "",
+      "had_person": false
+    },
+    {
+      "id": "301328748158789",
+      "creator": "drnoble",
+      "lat": 55.949055,
+      "lon": -3.188653,
+      "persons": 0,
+      "masked_share": 0.0,
+      "person_box_max_share": 0.0,
+      "keep": true,
+      "reason": "",
+      "had_person": false
+    },
+    {
+      "id": "328338201971849",
+      "creator": "drnoble",
+      "lat": 55.949153,
+      "lon": -3.189215,
+      "persons": 0,
+      "masked_share": 0.0,
+      "person_box_max_share": 0.0,
+      "keep": true,
+      "reason": "",
+      "had_person": false
+    },
+    {
+      "id": "180021974030396",
+      "creator": "drnoble",
+      "lat": 55.949195,
+      "lon": -3.18923,
+      "persons": 0,
+      "masked_share": 0.0,
+      "person_box_max_share": 0.0,
+      "keep": true,
+      "reason": "",
+      "had_person": false
+    },
+    {
+      "id": "2233072873490235",
+      "creator": "drnoble",
+      "lat": 55.949083,
+      "lon": -3.18856,
+      "persons": 0,
+      "masked_share": 0.0,
+      "person_box_max_share": 0.0,
+      "keep": true,
+      "reason": "",
+      "had_person": false
+    },
+    {
+      "id": "826609837973489",
+      "creator": "drnoble",
+      "lat": 55.949016,
+      "lon": -3.189153,
+      "persons": 0,
+      "masked_share": 0.0,
+      "person_box_max_share": 0.0,
+      "keep": true,
+      "reason": "",
+      "had_person": false
+    },
+    {
+      "id": "557470461907873",
+      "creator": "drnoble",
+      "lat": 55.948998,
+      "lon": -3.188845,
+      "persons": 0,
+      "masked_share": 0.0,
+      "person_box_max_share": 0.0,
+      "keep": true,
+      "reason": "",
+      "had_person": false
+    },
+    {
+      "id": "237279081502347",
+      "creator": "drnoble",
+      "lat": 55.949062,
+      "lon": -3.189172,
+      "persons": 0,
+      "masked_share": 0.0,
+      "person_box_max_share": 0.0,
+      "keep": true,
+      "reason": "",
+      "had_person": false
+    },
+    {
+      "id": "299799388407286",
+      "creator": "drnoble",
+      "lat": 55.94912,
+      "lon": -3.189198,
+      "persons": 0,
+      "masked_share": 0.0,
+      "person_box_max_share": 0.0,
+      "keep": true,
+      "reason": "",
+      "had_person": false
+    },
+    {
+      "id": "903941246847459",
+      "creator": "drnoble",
+      "lat": 55.948971,
+      "lon": -3.189025,
+      "persons": 0,
+      "masked_share": 0.0,
+      "person_box_max_share": 0.0,
+      "keep": true,
+      "reason": "",
+      "had_person": false
+    },
+    {
+      "id": "380154626657751",
+      "creator": "drnoble",
+      "lat": 55.948963,
+      "lon": -3.188974,
+      "persons": 0,
+      "masked_share": 0.0,
+      "person_box_max_share": 0.0,
+      "keep": true,
+      "reason": "",
+      "had_person": false
+    },
+    {
+      "id": "163015092493415",
+      "creator": "drnoble",
+      "lat": 55.949003,
+      "lon": -3.189145,
+      "persons": 0,
+      "masked_share": 0.0,
+      "person_box_max_share": 0.0,
+      "keep": true,
+      "reason": "",
+      "had_person": false
+    },
+    {
+      "id": "1470876436593620",
+      "creator": "drnoble",
+      "lat": 55.949004,
+      "lon": -3.189146,
+      "persons": 0,
+      "masked_share": 0.0,
+      "person_box_max_share": 0.0,
+      "keep": true,
+      "reason": "",
+      "had_person": false
+    },
+    {
+      "id": "5020911304609792",
+      "creator": "pbb",
+      "lat": 55.948741,
+      "lon": -3.189347,
+      "persons": 8,
+      "masked_share": 0.0043,
+      "person_box_max_share": 0.0004,
+      "keep": true,
+      "reason": "",
+      "had_person": true
+    },
+    {
+      "id": "338844661097512",
+      "creator": "pbb",
+      "lat": 55.94873,
+      "lon": -3.189342,
+      "persons": 8,
+      "masked_share": 0.003,
+      "person_box_max_share": 0.0004,
+      "keep": true,
+      "reason": "",
+      "had_person": true
+    },
+    {
+      "id": "496788718401230",
+      "creator": "pbb",
+      "lat": 55.948717,
+      "lon": -3.189334,
+      "persons": 2,
+      "masked_share": 0.0017,
+      "person_box_max_share": 0.0003,
+      "keep": true,
+      "reason": "",
+      "had_person": true
+    },
+    {
+      "id": "145481884262053",
+      "creator": "pbb",
+      "lat": 55.948703,
+      "lon": -3.189327,
+      "persons": 0,
+      "masked_share": 0.0,
+      "person_box_max_share": 0.0,
+      "keep": true,
+      "reason": "",
+      "had_person": false
+    },
+    {
+      "id": "300383208395282",
+      "creator": "pbb",
+      "lat": 55.94869,
+      "lon": -3.189319,
+      "persons": 1,
+      "masked_share": 0.0013,
+      "person_box_max_share": 0.0002,
+      "keep": true,
+      "reason": "",
+      "had_person": true
+    },
+    {
+      "id": "292415979034112",
+      "creator": "pbb",
+      "lat": 55.948675,
+      "lon": -3.189313,
+      "persons": 1,
+      "masked_share": 0.0013,
+      "person_box_max_share": 0.0002,
+      "keep": true,
+      "reason": "",
+      "had_person": true
+    },
+    {
+      "id": "822341015367624",
+      "creator": "pbb",
+      "lat": 55.94866,
+      "lon": -3.189307,
+      "persons": 1,
+      "masked_share": 0.0013,
+      "person_box_max_share": 0.0002,
+      "keep": true,
+      "reason": "",
+      "had_person": true
+    },
+    {
+      "id": "1108056603022953",
+      "creator": "drnoble",
+      "lat": 55.948658,
+      "lon": -3.189247,
+      "persons": 0,
+      "masked_share": 0.0,
+      "person_box_max_share": 0.0,
+      "keep": true,
+      "reason": "",
+      "had_person": false
+    },
+    {
+      "id": "3086608401617161",
+      "creator": "pbb",
+      "lat": 55.948646,
+      "lon": -3.189301,
+      "persons": 0,
+      "masked_share": 0.0,
+      "person_box_max_share": 0.0,
+      "keep": true,
+      "reason": "",
+      "had_person": false
+    },
+    {
+      "id": "750408062315175",
+      "creator": "pbb",
+      "lat": 55.948632,
+      "lon": -3.189295,
+      "persons": 0,
+      "masked_share": 0.0,
+      "person_box_max_share": 0.0,
+      "keep": true,
+      "reason": "",
+      "had_person": false
+    },
+    {
+      "id": "1150846752096785",
+      "creator": "pbb",
+      "lat": 55.948615,
+      "lon": -3.189288,
+      "persons": 0,
+      "masked_share": 0.0,
+      "person_box_max_share": 0.0,
+      "keep": true,
+      "reason": "",
+      "had_person": false
+    },
+    {
+      "id": "177806087574082",
+      "creator": "pbb",
+      "lat": 55.948598,
+      "lon": -3.189282,
+      "persons": 0,
+      "masked_share": 0.0,
+      "person_box_max_share": 0.0,
+      "keep": true,
+      "reason": "",
+      "had_person": false
+    },
+    {
+      "id": "838331097794702",
+      "creator": "southglos",
+      "lat": 55.948534,
+      "lon": -3.189374,
+      "persons": 0,
+      "masked_share": 0.0,
+      "person_box_max_share": 0.0,
+      "keep": true,
+      "reason": "",
+      "had_person": false
+    },
+    {
+      "id": "501086089051660",
+      "creator": "southglos",
+      "lat": 55.948559,
+      "lon": -3.189321,
+      "persons": 0,
+      "masked_share": 0.0,
+      "person_box_max_share": 0.0,
+      "keep": true,
+      "reason": "",
+      "had_person": false
+    },
+    {
+      "id": "995520025692600",
+      "creator": "toho",
+      "lat": 55.948527,
+      "lon": -3.189319,
+      "persons": 7,
+      "masked_share": 0.0102,
+      "person_box_max_share": 0.0014,
+      "keep": true,
+      "reason": "",
+      "had_person": true
+    },
+    {
+      "id": "518031166049457",
+      "creator": "pbb",
+      "lat": 55.948564,
+      "lon": -3.189269,
+      "persons": 3,
+      "masked_share": 0.0027,
+      "person_box_max_share": 0.0011,
+      "keep": true,
+      "reason": "",
+      "had_person": true
+    },
+    {
+      "id": "440031278932918",
+      "creator": "southglos",
+      "lat": 55.94852,
+      "lon": -3.189494,
+      "persons": 0,
+      "masked_share": 0.0,
+      "person_box_max_share": 0.0,
+      "keep": true,
+      "reason": "",
+      "had_person": false
+    },
+    {
+      "id": "1916482335956364",
+      "creator": "Semir_Mapillary",
+      "lat": 55.948499,
+      "lon": -3.189576,
+      "persons": 7,
+      "masked_share": 0.0119,
+      "person_box_max_share": 0.0024,
+      "keep": true,
+      "reason": "",
+      "had_person": true
+    },
+    {
+      "id": "856561509671164",
+      "creator": "toho",
+      "lat": 55.948515,
+      "lon": -3.189445,
+      "persons": 6,
+      "masked_share": 0.013,
+      "person_box_max_share": 0.0032,
+      "keep": true,
+      "reason": "",
+      "had_person": true
+    },
+    {
+      "id": "2098359613898045",
+      "creator": "southglos",
+      "lat": 55.948545,
+      "lon": -3.189453,
+      "persons": 4,
+      "masked_share": 0.0083,
+      "person_box_max_share": 0.0039,
+      "keep": true,
+      "reason": "",
+      "had_person": true
+    }
+  ]
+}
