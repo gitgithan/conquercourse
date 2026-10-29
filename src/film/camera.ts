@@ -35,9 +35,10 @@ function flyover(t: number, c: FilmCtx): Pose {
 }
 
 // The skyline: low and nearly level, from the front, drifting along the lane so the buildings behind it stand up (CC-237). The flat cousin of the drone.
+// It stops where the stored buildings stop (about x 46) and swings round to face them, so the second half is backdrop and not bare decks (CC-238).
 function skyline(t: number, c: FilmCtx): Pose {
   const u = ease(t / SHOT_SECONDS.skyline);
-  return around([mix(2, c.finishX - 6, u), 2.5, 0], mix(30, 24, u), mix(0.22, -0.12, u), rad(7), 44);
+  return around([mix(2, Math.min(c.finishX - 6, 46), u), mix(2.5, 5, u), 0], mix(30, 21, u), mix(0.22, 0.02, u), rad(mix(7, -22, u)), 44);
 }
 
 // Around one obstacle, from the front-left to the back-right, closing in a little.

@@ -86,3 +86,14 @@
 - Screenshots: `editor-start-scene.png` and `editor-start-scene-with-box.png`.
 - The side strip shows only a thin line near the water because the real roof heights are low (under 2.4 m of drop); it does not read well on screen.
 - Beat 3 stays concept: the editor start scene is not good enough to film yet.
+
+## v7 (rough-cut-v7.mp4)
+
+- Editor box (CC-238): the photo box is now scenery that the lane check ignores (`decor`, handled like a bar's frame), so the verdict stays "can clear" with the box on (2 gaps, 4 steps, 24 m).
+- The box is moved along the lane to the nearest stretch of real roof and lowered onto it, so it no longer floats in a street gap.
+- Side strip: `?vzoom=1` stretches the height to the lane's real range, so the 1 to 2 m deck steps read; the default strip is unchanged.
+- Screenshot: `editor-start-scene-v7.png` (box on, strip stretched).
+- Known look gaps: the box is half sunk into a translucent building and the 3D view is flat blue-grey, so it is not film quality.
+- Beat 3 stays concept.
+- Beat 4 real: the `skyline` shot now stops over the stored buildings (about x 46) and swings round to face them, so the second half shows backdrop and not bare decks.
+- Result: backdrop buildings now stand in most of the shot with the runner in view; the last 2 s are still mostly bare decks (a sheet is in `beat4-flyby-sheet.png`).
