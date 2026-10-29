@@ -314,6 +314,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
   const hud = document.createElement('div');
   hud.style.cssText = hudOn(params) ? `font:600 18px system-ui,sans-serif;pointer-events:none;${panelCss('5px 12px')}` : 'position:fixed;left:16px;top:12px;font:600 18px system-ui,sans-serif;color:#10141c;text-shadow:0 1px 0 #fff8;pointer-events:none';
   const msg = document.createElement('div');
+  msg.id = 'msg';
   msg.style.cssText = hudOn(params) ? `position:fixed;left:50%;top:38%;transform:translateX(-50%);max-width:90vw;text-align:center;font:700 28px system-ui,sans-serif;pointer-events:none;${panelCss('8px 18px')}` : 'position:fixed;left:0;right:0;top:38%;text-align:center;font:700 28px system-ui,sans-serif;color:#10141c;text-shadow:0 1px 0 #fff;pointer-events:none';
   // the controls, always visible top-left as a card of key caps (collapse with H)
   const help = document.createElement('div');
@@ -1447,6 +1448,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
       ropeMesh.updateMatrix(); ropeMesh.updateMatrixWorld(true);
     }
     msg.textContent = paused && !studioHold ? 'Back from the Dojo. Press any key to carry on.' : world.outcome === 'cleared' ? MESSAGES.cleared : idealNote;
+    msg.style.display = msg.textContent ? 'block' : 'none'; // CC-166: an empty message used to leave its dark panel, a black pill, in the middle of the screen
     const onCoaster = world.mode === 'cart' && world.cart !== null;
     const spd = onCoaster ? Math.abs(world.cart!.v) : Math.abs(r.vx);
     const gaugeMax = onCoaster ? 40 : GAUGE_MAX;
