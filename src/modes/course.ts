@@ -1,3 +1,4 @@
+import { filmShotOf } from '../film/camera';
 import { hazardOf, HAZARD_INFO } from '../course/hazard';
 import { buildFloor } from '../course/floor';
 import { setMusicScreen } from '../ui/music';
@@ -1200,6 +1201,9 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
   { let heldBefore = false; window.addEventListener(GALLERY_EVENT, (ev) => { if ((ev as CustomEvent).detail.open) { heldBefore = paused; paused = true; keys.clear(); } else { paused = heldBefore; last = performance.now(); } }); } // the Courses gallery stops the game while it is open
   if (!botMode || params.get('next') === '1') onboarding = startOnboarding({ params, store: browserStore, course, tour: tour === 'tour', resetRun: () => { if (world.outcome === 'running' && Math.abs(world.runner.x - course.startX) < 0.01) restart(course.startX); }, openCourses: () => courseButton.open(), toggleKeys: () => { keysTouched = true; keysOpen = !keysOpen; paintKeys(keysOpen); } }); // CC-100: the Help chip, and the tour on a first visit
   const camPos = new THREE.Vector3();
+  const filmShot = filmShotOf(location.search); // the film camera (CC-130): only with ?film=<shot>
+  const film = filmShot ? (await import('../film/overlay')).startFilm(filmShot, params, renderer.domElement as HTMLCanvasElement, course.finishX) : null;
+  let filmAir = 0;
   // Mouse: drag turns the view around the runner, the wheel zooms, a double-click (or C) goes back to the preset.
   // The numbers are changes on top of the preset view, so zero means the preset exactly.
   // the wheel zooms in to the normal closest view (0.45), and on: the target glides to the head and the camera swings round to the front of the face (about 0.7 m away)
@@ -1427,6 +1431,13 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
       camera.position.copy(camPos);
       camera.lookAt(tx, ty, 0);
       document.documentElement.dataset.camdist = camPos.distanceTo(new THREE.Vector3(tx, ty, 0)).toFixed(2); // for the face-zoom check
+    }
+    if (film) { // ?film=<shot> (CC-130): the film camera takes over the view; play is unchanged without it
+      filmAir += ((r.grounded ? 0 : 1) - filmAir) * (1 - Math.exp(-dtHead / 0.25));
+      const p = film.pose({ runnerX: r.x, runnerY: r.y, airborne: filmAir });
+      if (camera.fov !== p.fov) { camera.fov = p.fov; camera.updateProjectionMatrix(); }
+      camera.up.set(0, 1, 0); camera.position.set(...p.pos); camera.lookAt(...p.look); camPos.copy(camera.position);
+      film.tick(camera);
     }
     floor.update(now / 1000);
     if (chunks.length > 8) cullFar(chunks, camera.position, 260); // far chunks of a big place are not drawn
