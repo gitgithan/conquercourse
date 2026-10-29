@@ -7,12 +7,22 @@ export type Section = 'ground' | 'swing' | 'contraptions' | 'real' | 'stacks' | 
 export const SECTION_NAME: Record<Section, string> = { ground: 'Ground', swing: 'Swing', contraptions: 'Contraptions', real: 'Real objects', stacks: 'Stacks', tools: 'Tools' };
 export const SECTION_ORDER: Section[] = ['ground', 'swing', 'contraptions', 'real', 'stacks', 'tools'];
 
+// The move that gets a player past a real object (CC-110): the by-move view of the Real objects tab groups by these.
+export type Move = 'jump' | 'climb' | 'vault' | 'hang' | 'balance' | 'duck';
+export const MOVE_ORDER: Move[] = ['jump', 'climb', 'vault', 'hang', 'balance', 'duck'];
+export const MOVE_NAME: Record<Move, string> = { jump: 'Jump over', climb: 'Climb up', vault: 'Vault', hang: 'Swing and hang', balance: 'Balance', duck: 'Duck under' };
+export const MOVE_EMPTY: Record<Move, string> = {
+  jump: '', climb: '', vault: '', hang: '', balance: '',
+  duck: 'No real object for this move yet. Use my own photo can bring one.',
+};
+
 export interface PieceInfo {
   id: string; // also the icon file name: public/assets/pieces/<id>.webp and <id>-large.webp
   section: Section;
   name: string;
   does: string; // one or two sentences: the move that crosses it
   from: string; // where it came from
+  move?: Move; // real objects only: the move that gets past it
   button: string; // the editor's own button that adds it (a CSS selector inside the add menu)
 }
 
@@ -54,9 +64,29 @@ export const REAL_INFO: Record<string, { name: string; does: string }> = {
   'stairs-park-07': { name: 'Park stairs', does: 'A flight of real park stairs. Run up, or leap off the top.' },
   'rail-skate-02': { name: 'Stair handrail', does: 'A handrail that follows a flight of stairs. Jump onto it or go past it.' },
   'railing-iron': { name: 'Iron railing', does: 'A long iron railing. Jump onto it or hop over it.' },
+  'bollard-iron': { name: 'Iron bollard', does: 'A cast-iron post with a round top, from a street corner. Jump over it or hop on top.' },
+  'hydrant-red': { name: 'Fire hydrant', does: 'A red street hydrant. Leap over it, or land on its round top.' },
+  'barrel-oak': { name: 'Oak barrel', does: 'A wooden barrel standing on its end, with steel hoops. Jump onto it or over it.' },
+  'planter-concrete': { name: 'Concrete planter', does: 'A wide, low bowl of concrete. Jump onto its rim, or run across and over.' },
+  'gabion-wall': { name: 'Stone-basket wall', does: 'A stepped wall of stones in wire baskets. Climb it one step at a time.' },
+  'pipe-concrete': { name: 'Concrete pipe', does: 'A big concrete pipe standing on its end. Jump up and pull yourself on top.' },
+  'picnic-table': { name: 'Picnic table', does: 'A park picnic table with seats on both sides. Vault the table, or step up from a seat.' },
+  'bench-curved': { name: 'Curved bench', does: 'A curved concrete bench on a stand. Jump on it or vault it.' },
+  'railing-red': { name: 'Canal railing', does: 'A long maroon railing with twisted posts, from a canal path. Vault over it.' },
+  'pullup-green': { name: 'Green hang bar', does: 'A green frame with a bar across the top. Jump, grab the bar and swing on.' },
+  'pullup-black': { name: 'Black hang bar', does: 'Two black posts with a bar between them. Jump, grab it and swing on.' },
+  'log-driftwood': { name: 'Driftwood log', does: 'A bleached tree trunk with its roots. Hop on and keep your balance along it.' },
+  'stump-spruce': { name: 'Spruce stump', does: 'A tall split stump with a flared foot. Hop onto the base and balance.' },
+};
+export const REAL_MOVE: Record<string, Move> = {
+  'bollard-iron': 'jump', 'hydrant-red': 'jump', 'barrel-oak': 'jump', 'planter-concrete': 'jump', 'box-skate-03': 'jump',
+  'gabion-wall': 'climb', 'pipe-concrete': 'climb', 'stairs-park-07': 'climb',
+  'picnic-table': 'vault', 'bench-curved': 'vault', 'railing-red': 'vault', 'bench-concrete': 'vault', 'railing-iron': 'vault',
+  'pullup-green': 'hang', 'pullup-black': 'hang',
+  'log-driftwood': 'balance', 'stump-spruce': 'balance', 'rail-skate-01': 'balance', 'rail-skate-02': 'balance',
 };
 export const realInfo = (o: { name: string; label: string; author: string; licence: string }): PieceInfo => ({
-  id: `real-${o.name}`, section: 'real', name: REAL_INFO[o.name]?.name ?? o.label, does: REAL_INFO[o.name]?.does ?? 'A real object from a photo.',
+  id: `real-${o.name}`, section: 'real', name: REAL_INFO[o.name]?.name ?? o.label, move: REAL_MOVE[o.name], does: REAL_INFO[o.name]?.does ?? 'A real object from a photo.',
   from: `A real photo by ${o.author} (${o.licence}), turned into a 3D object by SAM 3D.`, button: `[data-object="${o.name}"]`,
 });
 

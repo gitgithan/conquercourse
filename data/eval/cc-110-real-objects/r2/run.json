@@ -1,0 +1,192 @@
+{
+  "experiment": "cc-38-photo-to-3d",
+  "round": "r2",
+  "issue": "CC-38",
+  "date": "2026-10-29",
+  "seed": 42,
+  "settings": {
+    "mask_grow_px": 0,
+    "colour_k": 4,
+    "pad_fraction": 0.0,
+    "texture": true
+  },
+  "photos": [
+    {
+      "photo": "planter-concrete",
+      "mask_seconds": 1.8,
+      "lift_seconds": 19.7,
+      "wall_seconds": 103.5,
+      "mask": {
+        "how": "text",
+        "score": 0.9453125,
+        "iou_with_box": 0.868,
+        "candidates": 2,
+        "pixels": 69759
+      },
+      "privacy": {
+        "people": 0,
+        "faces": 0,
+        "plates": 0,
+        "changed": false
+      },
+      "n_faces_raw": 704824,
+      "n_gaussians": 583392
+    },
+    {
+      "photo": "pipe-ring",
+      "mask_seconds": 1.5,
+      "lift_seconds": 9.1,
+      "wall_seconds": 34.9,
+      "mask": {
+        "how": "text",
+        "score": 0.8125,
+        "iou_with_box": 0.825,
+        "candidates": 2,
+        "pixels": 114032
+      },
+      "privacy": {
+        "people": 0,
+        "faces": 0,
+        "plates": 0,
+        "changed": false
+      },
+      "n_faces_raw": 287952,
+      "n_gaussians": 275840
+    },
+    {
+      "photo": "bench-concrete-curve",
+      "mask_seconds": 0.5,
+      "lift_seconds": 9.3,
+      "wall_seconds": 17.5,
+      "mask": {
+        "how": "text",
+        "score": 0.75,
+        "iou_with_box": 0.885,
+        "candidates": 1,
+        "pixels": 170768
+      },
+      "privacy": {
+        "people": 0,
+        "faces": 0,
+        "plates": 0,
+        "changed": false
+      },
+      "n_faces_raw": 347208,
+      "n_gaussians": 286912
+    },
+    {
+      "photo": "railing-red",
+      "mask_seconds": 0.5,
+      "lift_seconds": 8.0,
+      "wall_seconds": 14.1,
+      "mask": {
+        "how": "text",
+        "score": 0.84375,
+        "iou_with_box": 0.812,
+        "candidates": 2,
+        "pixels": 424993
+      },
+      "privacy": {
+        "people": 0,
+        "faces": 0,
+        "plates": 0,
+        "changed": false
+      },
+      "n_faces_raw": 73750,
+      "n_gaussians": 58496
+    },
+    {
+      "photo": "fence-split-rail",
+      "mask_seconds": 0.6,
+      "lift_seconds": 8.6,
+      "wall_seconds": 16.3,
+      "mask": {
+        "how": "box-prompt",
+        "score": 0.984375,
+        "iou_with_box": 0.0,
+        "candidates": 0,
+        "pixels": 336387
+      },
+      "privacy": {
+        "people": 0,
+        "faces": 0,
+        "plates": 0,
+        "changed": false
+      },
+      "n_faces_raw": 187834,
+      "n_gaussians": 128032
+    },
+    {
+      "photo": "bar-black",
+      "mask_seconds": 0.6,
+      "lift_seconds": 8.2,
+      "wall_seconds": 25.1,
+      "mask": {
+        "how": "text",
+        "score": 0.8203125,
+        "iou_with_box": 0.859,
+        "candidates": 3,
+        "pixels": 181179
+      },
+      "privacy": {
+        "people": 0,
+        "faces": 0,
+        "plates": 0,
+        "changed": false
+      },
+      "n_faces_raw": 113786,
+      "n_gaussians": 105728
+    },
+    {
+      "photo": "log-driftwood",
+      "mask_seconds": 0.5,
+      "lift_seconds": 8.8,
+      "wall_seconds": 23.2,
+      "mask": {
+        "how": "text",
+        "score": 0.83984375,
+        "iou_with_box": 0.883,
+        "candidates": 4,
+        "pixels": 215815
+      },
+      "privacy": {
+        "people": 0,
+        "faces": 0,
+        "plates": 0,
+        "changed": false
+      },
+      "n_faces_raw": 257092,
+      "n_gaussians": 199552
+    },
+    {
+      "photo": "stump-spruce",
+      "mask_seconds": 0.6,
+      "lift_seconds": 9.9,
+      "wall_seconds": 33.7,
+      "mask": {
+        "how": "text",
+        "score": 0.68359375,
+        "iou_with_box": 0.798,
+        "candidates": 1,
+        "pixels": 345118
+      },
+      "privacy": {
+        "people": 0,
+        "faces": 0,
+        "plates": 0,
+        "changed": false
+      },
+      "n_faces_raw": 438380,
+      "n_gaussians": 326976
+    }
+  ],
+  "mask_load_seconds": 13.6,
+  "lift_load_seconds": 44.5,
+  "gpu_seconds": {
+    "l4": 20,
+    "l40s": 126
+  },
+  "gpu_minutes": 2.4,
+  "estimated_usd": 0.073,
+  "price_basis": "L40S $1.95/h, L4 $0.80/h, container seconds in methods plus one model load each; idle scale-down time not included"
+}

@@ -1,0 +1,32 @@
+{
+  "label": "wooden barrel",
+  "extents_m": {
+    "x": 0.648,
+    "y": 0.899,
+    "z": 0.61
+  },
+  "height_m": 0.899,
+  "target_height_m": 0.9,
+  "scale_source": "typed",
+  "scale_factor": 0.8991,
+  "raw_height": 1.001,
+  "yaw_deg": 86.5,
+  "tilt_deg": 0.41,
+  "faces": 5820,
+  "vertices": 7218,
+  "width_to_height": 0.721,
+  "texture": "1024x1024",
+  "photo": "barrel-oak",
+  "box": [
+    120,
+    450,
+    1150,
+    1050
+  ],
+  "bytes": 602108,
+  "model": "SAM 3D Objects (seed 42)",
+  "bake_seconds": 11.76,
+  "raw_faces": 1008108,
+  "splat_points": 875232,
+  "lift_round": "r1"
+}

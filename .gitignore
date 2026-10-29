@@ -13,6 +13,7 @@ cookies*.txt
 data/eval/cc-16-rookies/posed-*.json
 .wrangler/
 data/eval/cc-38-photo-to-3d/*/*/raw.npz
+data/eval/cc-110-real-objects/*/*/raw.npz
 data/eval/cc-38-photo-to-3d/*/*/masked.jpg
 data/eval/cc-38-photo-to-3d/*/*/lift_input.jpg
 node_modules

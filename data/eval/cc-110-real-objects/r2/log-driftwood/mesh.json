@@ -1,0 +1,32 @@
+{
+  "label": "log",
+  "extents_m": {
+    "x": 2.125,
+    "y": 0.798,
+    "z": 1.406
+  },
+  "height_m": 0.798,
+  "target_height_m": 0.8,
+  "scale_source": "typed",
+  "scale_factor": 2.0725,
+  "raw_height": 0.386,
+  "yaw_deg": 94.5,
+  "tilt_deg": 0.67,
+  "faces": 5820,
+  "vertices": 4317,
+  "width_to_height": 2.662,
+  "texture": "1024x1024",
+  "photo": "log-driftwood",
+  "box": [
+    0,
+    200,
+    1200,
+    680
+  ],
+  "bytes": 438172,
+  "model": "SAM 3D Objects (seed 42)",
+  "bake_seconds": 5.72,
+  "raw_faces": 257092,
+  "splat_points": 199552,
+  "lift_round": "r2"
+}

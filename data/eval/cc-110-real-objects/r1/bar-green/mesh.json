@@ -1,0 +1,32 @@
+{
+  "label": "pull-up bar",
+  "extents_m": {
+    "x": 3.144,
+    "y": 2.3,
+    "z": 0.328
+  },
+  "height_m": 2.3,
+  "target_height_m": 2.3,
+  "scale_source": "typed",
+  "scale_factor": 3.1437,
+  "raw_height": 0.7316,
+  "yaw_deg": 0.0,
+  "tilt_deg": 0.99,
+  "faces": 5820,
+  "vertices": 4066,
+  "width_to_height": 1.367,
+  "texture": "1024x1024",
+  "photo": "bar-green",
+  "box": [
+    560,
+    90,
+    1080,
+    820
+  ],
+  "bytes": 404576,
+  "model": "SAM 3D Objects (seed 42)",
+  "bake_seconds": 3.7,
+  "raw_faces": 53212,
+  "splat_points": 50112,
+  "lift_round": "r1"
+}

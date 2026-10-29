@@ -1,0 +1,32 @@
+{
+  "label": "bollard",
+  "extents_m": {
+    "x": 0.19,
+    "y": 0.9,
+    "z": 0.183
+  },
+  "height_m": 0.9,
+  "target_height_m": 0.9,
+  "scale_source": "typed",
+  "scale_factor": 0.9,
+  "raw_height": 1.0,
+  "yaw_deg": 34.5,
+  "tilt_deg": 1.18,
+  "faces": 5820,
+  "vertices": 4059,
+  "width_to_height": 0.211,
+  "texture": "1024x1024",
+  "photo": "bollard-iron",
+  "box": [
+    600,
+    260,
+    840,
+    1570
+  ],
+  "bytes": 272748,
+  "model": "SAM 3D Objects (seed 42)",
+  "bake_seconds": 6.04,
+  "raw_faces": 201440,
+  "splat_points": 147424,
+  "lift_round": "r1"
+}
