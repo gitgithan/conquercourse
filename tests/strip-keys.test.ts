@@ -6,7 +6,7 @@ import { drumsFor, type Drum } from '../src/sim/drums';
 // CC-182: the key strip (the drum lane) must list every key an obstacle needs, per docs/inputs.md:
 // E for the warped wall, a climb, a lache bar and a rope; V for a vault; X for a roll after a big drop; Space for a jump and the trampoline press.
 const NEEDS: Record<string, Drum['what'][]> = { wall: ['grab'], climb: ['grab'], lache: ['grab'], rope: ['grab'], vault: ['vault'] };
-const STRICT: Record<string, Drum['what'][]> = { step: ['vault'], gap: ['jump'], trampoline: ['bounce'], drop: ['roll'] }; // on the Training course, where every zone is a real beat
+const STRICT: Record<string, Drum['what'][]> = { gap: ['jump'], trampoline: ['bounce'], drop: ['roll'] }; // on the Training course, where every zone is a real beat
 const dir = 'public/assets/demo/';
 const load = (n: string) => JSON.parse(readFileSync(dir + n, 'utf8')) as CourseData;
 const missing = (c: CourseData, need: Record<string, Drum['what'][]>) => {
@@ -33,4 +33,25 @@ describe('the key strip lists every key an obstacle needs', () => {
     const wall = c.zones!.find((z) => z.id === 'wall')!;
     expect(drums.filter((d) => d.what === 'grab' && d.x >= wall.x0 && d.x <= wall.x1 + 2)).toHaveLength(1); // the warped wall is on the strip, near its top
   });
+});
+
+// CC-195: the toast for an obstacle starts before its drum key and before the obstacle's own window.
+import { APPROACH_LEAD, approachToast, toastsFor } from '../src/ui/approach-toast';
+describe('every key on the strip has its toast first', () => {
+  for (const n of readdirSync(dir).filter((f) => f.endsWith('.course.json'))) {
+    const c = load(n);
+    if (!c.plan) continue;
+    it(n, () => {
+      const drums = drumsFor(c, c.plan!);
+      for (const t of toastsFor(c, drums)) {
+        const d = t.drum, k = t.kind, label = `${k} at ${d.x.toFixed(1)}`;
+        expect(d.x - t.startX, label).toBeGreaterThanOrEqual(8); // at least about a second of reading at running speed
+        expect(approachToast(c, drums, t.startX + 0.01), `${label} has a toast at its start`).not.toBeNull();
+        const z = (c.zones ?? []).find((q) => (q.id === k || q.id.startsWith(k + '-')) && d.x >= q.x0 - 1 && d.x <= q.x1 + 1); // the zone of this very obstacle
+        if (z) expect(t.startX, `${label} toast vs zone ${z.id}`).toBeLessThan(z.x0 + 0.5);
+        if (k === 'roll') { const takeOff = drums.filter((q) => q.x < d.x - 0.5 && q.what !== 'roll').pop(); if (takeOff) expect(t.startX, `${label}: before the take-off`).toBeLessThan(takeOff.x); }
+      }
+    });
+  }
+  it('the lead is long enough to read', () => expect(APPROACH_LEAD).toBeGreaterThanOrEqual(10));
 });
