@@ -1,0 +1,7 @@
+{
+  "issue": "CC-134",
+  "check": "scripts/share-nick-check.mjs",
+  "machine": "vm2",
+  "result": "8 of 8 PASS",
+  "tests": "tests/share-nick.test.ts 6 of 6"
+}

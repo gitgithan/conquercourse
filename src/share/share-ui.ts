@@ -1,5 +1,6 @@
 // The small pieces of page for sharing (CC-128, CC-129): the "Beat this time" banner, the two report buttons and the clip card.
 // Plain words only. Nothing here asks for a name or an account.
+import { nickOk, tidyNick } from './nick';
 const BTN = 'font:inherit;border:1px solid #17201d;background:#fff;color:#17201d;border-radius:8px;padding:6px 12px;cursor:pointer';
 
 function card(id: string): HTMLElement {
@@ -27,17 +28,23 @@ export function showBanner(text: string, actions: { label: string; go: () => voi
 }
 
 /** Buttons for the end-of-run report. Copy link says what happened in the button itself. */
-export function shareButtons(o: { link: () => Promise<string | null>; clip?: () => void }): HTMLElement[] {
+export function shareButtons(o: { link: (nick: string) => Promise<string | null>; clip?: () => void }): HTMLElement[] {
+  const nick = document.createElement('input');
+  nick.id = 'share-nick'; nick.maxLength = 3; nick.placeholder = 'Tag'; nick.size = 4; nick.autocomplete = 'off'; nick.spellcheck = false;
+  nick.title = 'Optional: up to three letters, so your friend sees who to beat. Not your real name.';
+  nick.setAttribute('aria-label', 'Optional three-letter tag');
+  nick.style.cssText = BTN + ';width:4.2em;text-transform:uppercase;text-align:center';
+  nick.oninput = () => { nick.value = tidyNick(nick.value); };
   const copy = button('Copy challenge link', () => {
-    void o.link().then(async (url) => {
-      if (!url) { copy.textContent = 'This run is too long for a link'; return; }
+    void o.link(nick.value).then(async (url) => {
+      if (!url) { copy.textContent = nickOk(nick.value) ? 'This run is too long for a link' : 'Pick another tag'; setTimeout(() => { copy.textContent = 'Copy challenge link'; }, 2500); return; }
       try { await navigator.clipboard.writeText(url); copy.textContent = 'Link copied'; }
       catch { window.prompt('Copy this link', url); copy.textContent = 'Link ready'; }
       setTimeout(() => { copy.textContent = 'Copy challenge link'; }, 2500);
     });
   });
   copy.id = 'share-copy';
-  const out: HTMLElement[] = [copy];
+  const out: HTMLElement[] = [nick, copy];
   if (o.clip) { const c = button('Make a clip', o.clip); c.id = 'share-clip'; out.push(c); }
   return out;
 }
