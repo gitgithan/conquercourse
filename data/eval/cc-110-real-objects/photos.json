@@ -1,0 +1,212 @@
+[
+  {
+    "photo": "bollard-iron",
+    "label": "bollard",
+    "box": [
+      600,
+      260,
+      840,
+      1570
+    ],
+    "height_m": 0.9,
+    "author": "Simon Cobb",
+    "licence": "CC0",
+    "move": "jump",
+    "source": "https://commons.wikimedia.org/wiki/File:Bollard_On_Street_Corner.jpg"
+  },
+  {
+    "photo": "hydrant-red",
+    "label": "fire hydrant",
+    "box": [
+      100,
+      60,
+      1180,
+      1800
+    ],
+    "height_m": 0.8,
+    "author": "Crisco 1492",
+    "licence": "CC BY-SA 4.0",
+    "move": "jump",
+    "source": "https://commons.wikimedia.org/wiki/File:Decorative_fire_hydrant_at_Windsor_Fire_Fighter_Memorial,_Windsor,_Ontario,_2025-05-31.jpg"
+  },
+  {
+    "photo": "barrel-oak",
+    "label": "wooden barrel",
+    "box": [
+      120,
+      450,
+      1150,
+      1050
+    ],
+    "height_m": 0.9,
+    "author": "W.carter",
+    "licence": "CC0",
+    "move": "jump",
+    "source": "https://commons.wikimedia.org/wiki/File:Four_wet_wooden_barrels.jpg"
+  },
+  {
+    "photo": "planter-concrete",
+    "label": "planter",
+    "box": [
+      400,
+      290,
+      970,
+      580
+    ],
+    "height_m": 0.45,
+    "author": "Tony Webster",
+    "licence": "CC BY 2.0",
+    "move": "jump",
+    "source": "https://commons.wikimedia.org/wiki/File:Big_Concrete_Planters_(53816879695).jpg"
+  },
+  {
+    "photo": "gabion-wall",
+    "label": "gabion wall",
+    "box": [
+      0,
+      50,
+      1280,
+      940
+    ],
+    "height_m": 1.2,
+    "author": "Encik Tekateki",
+    "licence": "CC0",
+    "move": "climb",
+    "source": "https://commons.wikimedia.org/wiki/File:Gabion_Wall.jpg"
+  },
+  {
+    "photo": "pipe-ring",
+    "label": "concrete pipe",
+    "box": [
+      520,
+      430,
+      960,
+      820
+    ],
+    "height_m": 0.9,
+    "author": "Humphrey Bolton",
+    "licence": "CC BY-SA 2.0",
+    "move": "climb",
+    "source": "https://commons.wikimedia.org/wiki/File:Concrete_pipe_stile_on_Elland_Footpath_25_-_geograph.org.uk_-_4080358.jpg"
+  },
+  {
+    "photo": "picnic-table",
+    "label": "picnic table",
+    "box": [
+      80,
+      160,
+      1230,
+      730
+    ],
+    "height_m": 0.75,
+    "author": "Hu Nhu",
+    "licence": "CC0",
+    "move": "vault",
+    "source": "https://commons.wikimedia.org/wiki/File:Picnic_table_curves.jpg"
+  },
+  {
+    "photo": "bench-concrete-curve",
+    "label": "concrete bench",
+    "box": [
+      170,
+      270,
+      1000,
+      690
+    ],
+    "height_m": 0.5,
+    "author": "Mutney",
+    "licence": "CC0",
+    "move": "vault",
+    "source": "https://commons.wikimedia.org/wiki/File:Concrete_bench,_Chester_Road,_Newquay,_Cornwall_-_May_2023.jpg"
+  },
+  {
+    "photo": "railing-red",
+    "label": "metal railing",
+    "box": [
+      0,
+      20,
+      1280,
+      800
+    ],
+    "height_m": 1.0,
+    "author": "AgainErick",
+    "licence": "CC BY-SA 4.0",
+    "move": "vault",
+    "source": "https://commons.wikimedia.org/wiki/File:Jansbrug_-_Haarlem_-_Metal_railing_-_along.jpg"
+  },
+  {
+    "photo": "fence-split-rail",
+    "label": "fence",
+    "box": [
+      0,
+      260,
+      1190,
+      850
+    ],
+    "height_m": 1.2,
+    "author": "Galen Parks Smith",
+    "licence": "CC BY-SA 3.0",
+    "move": "vault",
+    "source": "https://commons.wikimedia.org/wiki/File:Split_rail_fence.jpg"
+  },
+  {
+    "photo": "bar-green",
+    "label": "pull-up bar",
+    "box": [
+      560,
+      90,
+      1080,
+      820
+    ],
+    "height_m": 2.3,
+    "author": "Singlespeedfahrer",
+    "licence": "CC0",
+    "move": "hang",
+    "source": "https://commons.wikimedia.org/wiki/File:Outdoor_Gym_in_Berlin-Stralau_(Berlin-Friedrichshain)_01.jpg"
+  },
+  {
+    "photo": "bar-black",
+    "label": "pull-up bar",
+    "box": [
+      440,
+      340,
+      1040,
+      1780
+    ],
+    "height_m": 2.3,
+    "author": "Singlespeedfahrer",
+    "licence": "CC0",
+    "move": "hang",
+    "source": "https://commons.wikimedia.org/wiki/File:Bewegungsparcours_Schmetterlingswiesen_Berlin_2v7.jpg"
+  },
+  {
+    "photo": "log-driftwood",
+    "label": "log",
+    "box": [
+      0,
+      200,
+      1200,
+      680
+    ],
+    "height_m": 0.8,
+    "author": "Awinsongyababa",
+    "licence": "CC BY 4.0",
+    "move": "balance",
+    "source": "https://commons.wikimedia.org/wiki/File:A_fallen_log_of_a_tree.jpg"
+  },
+  {
+    "photo": "stump-spruce",
+    "label": "tree stump",
+    "box": [
+      600,
+      170,
+      1120,
+      1450
+    ],
+    "height_m": 1.2,
+    "author": "W.carter",
+    "licence": "CC0",
+    "move": "balance",
+    "source": "https://commons.wikimedia.org/wiki/File:Spruce_tree_stump_in_Gullmarsskogen_ravine.jpg"
+  }
+]

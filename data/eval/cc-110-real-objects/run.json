@@ -1,0 +1,42 @@
+{
+  "experiment": "cc-110-real-objects",
+  "issue": "CC-110",
+  "date": "2026-10-29",
+  "tool": "pipelines/photo_to_object.py (SAM 3 mask on L4, SAM 3D Objects on L40S, seed 42)",
+  "photos_tried": 14,
+  "objects_shipped": 13,
+  "not_shipped": [
+    "fence-split-rail"
+  ],
+  "rounds": {
+    "r1": "5 objects",
+    "r2": "8 objects",
+    "r3": "gabion-wall with --pad 1.5"
+  },
+  "estimated_usd": {
+    "r1": 0.055,
+    "r2": 0.073,
+    "r3": 0.036
+  },
+  "estimated_usd_total": 0.164,
+  "usd_per_object": 0.0117,
+  "bytes_per_object": {
+    "bollard-iron": 272748,
+    "hydrant-red": 483640,
+    "barrel-oak": 602108,
+    "picnic-table": 410232,
+    "pullup-green": 404576,
+    "planter-concrete": 365024,
+    "pipe-concrete": 336148,
+    "bench-curved": 355888,
+    "railing-red": 467568,
+    "pullup-black": 295596,
+    "log-driftwood": 438172,
+    "stump-spruce": 495352,
+    "gabion-wall": 353996
+  },
+  "bytes_mean": 406234,
+  "bytes_total": 5281048,
+  "faces_each": 5820,
+  "big_files": "../conquercourse-assets/cc-110-real-objects/ (raw.npz and masked.jpg per photo) with SHA256SUMS"
+}
