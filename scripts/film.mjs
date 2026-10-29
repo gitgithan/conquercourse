@@ -2,7 +2,8 @@
 // Usage: node scripts/film.mjs [--track] [--query "demo=rookie"] [--frames 90] [--fps 30] [--out test-results/film.mp4] [--width 960] [--height 540]
 import { chromium } from 'playwright';
 import { spawn, execFileSync } from 'node:child_process';
-import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { createHash } from 'node:crypto';
+import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
@@ -39,12 +40,23 @@ try {
   await page.goto(`http://localhost:${port}/?${query}`);
   await page.waitForSelector('html[data-ready=true]', { timeout: 120000 });
   const twoFrames = () => page.evaluate(() => new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r))));
+  let prev = '', dups = 0, rewaits = 0;
   for (let i = 0; i < frames; i++) {
-    await twoFrames();
-    await page.screenshot({ path: join(dir, `f${String(i).padStart(5, '0')}.png`), timeout: 180000 }); // the software GPU can be slow on a busy machine
+    const file = join(dir, `f${String(i).padStart(5, '0')}.png`);
+    let h = '';
+    for (let tries = 0; tries < 4; tries++) {
+      await twoFrames();
+      await page.screenshot({ path: file, timeout: 180000 }); // the software GPU can be slow on a busy machine
+      h = createHash('sha1').update(readFileSync(file)).digest('hex');
+      if (h !== prev) break;
+      rewaits++; // an exact copy of the last picture although the clock moved: the renderer had not finished drawing, so wait and capture again
+    }
+    if (h === prev) dups++;
+    prev = h;
     if (track) tracks.push(await page.evaluate(() => window.__filmTrack?.points ?? {}));
     await page.evaluate((ms) => window.__stepClock(ms), 1000 / fps);
   }
+  console.log(`exact duplicate pictures: ${dups} of ${frames} (${rewaits} re-waits)`);
   await browser.close();
   mkdirSync(join(out, '..'), { recursive: true });
   execFileSync('ffmpeg', ['-y', '-loglevel', 'error', '-framerate', String(fps), '-i', join(dir, 'f%05d.png'),

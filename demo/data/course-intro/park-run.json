@@ -9,14 +9,14 @@
       "src": "clips/hero.mp4",
       "seconds": 11,
       "tag": "REAL",
-      "note": "frame-blended from 15 to 30 frames a second",
+      "note": "every frame captured at 30 frames a second",
       "label": "A real park, then the built course"
     },
     {
       "src": "clips/flyover.mp4",
-      "seconds": 9.5,
+      "seconds": 10,
       "tag": "REAL",
-      "note": "frame-blended from 15 to 30 frames a second",
+      "note": "every frame captured at 30 frames a second",
       "label": "Flyover of the built course"
     }
   ],

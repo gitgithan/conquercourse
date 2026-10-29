@@ -30,11 +30,15 @@ Every shot is a capture of the running game on the stepped clock, so it is frame
 - Labels name obstacle parts and physics ideas only; they never grade a person's technique and never show a formula.
 
 ## Re-render the proof clip
-- On a Vultr VM, in a worktree with `npm ci` done: `scripts/film-proof.sh 960 540` (software GPU: about 4 s a frame; use a machine with a GPU for 1080p).
-- It records the hero and flyover shots, writes the per-frame label tracks, and blends 15 frames a second up to 30.
+- On a Vultr VM, in a worktree with `npm ci` done: `scripts/film-proof.sh 1280 720 30` (width, height, frames a second; add `hero` or `flyover` to record one shot, so two machines can each take one).
+- Every frame is captured at the real output rate; nothing is captured at a lower rate and nothing is blended or repeated.
+- The stepped clock means a slow software GPU only makes the capture slower, never choppier: about 4 s a frame at 1280x720 on a VM.
+- `scripts/film.mjs` hashes every captured picture and prints the exact duplicates; a picture identical to the one before is captured again after another wait, because the renderer had not finished drawing.
+- It also writes the per-frame label tracks.
 - Clips and music go to `../conquercourse-assets/demo-media/`, which Remotion reads through `--public-dir`.
 - Then `cd demo && npm install && npm run render:proof`; the mp4 lands in `test-results/proof20.mp4`.
 - Copy it out before the next Playwright run, which wipes `test-results/`.
+- Count the unique pictures with `ffmpeg -i clip.mp4 -an -vf mpdecimate,showinfo -f null -` (the static end card is dropped by design).
 - Check by eye: the photo, the box and its label, the dissolve, the flight, the callouts sticking to the stairs, ledge and rail.
 
 ## Other renders
