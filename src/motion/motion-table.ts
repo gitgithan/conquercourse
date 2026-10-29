@@ -74,6 +74,9 @@ export const rollLookFrom = (search: string): RollLook => {
   return v === 'clip' || v === 'crouch' ? v : 'auto';
 };
 
+// Whether the captured vault and climb clips play: on by default, ?clips=0 shows the bone-built poses instead (the contact-point vault and the hang-to-stand climb).
+export const capturedClipsFrom = (search: string): boolean => new URLSearchParams(search).get('clips') !== '0';
+
 // Progress through the move, 0 at touchdown and 1 when the simulator says it is over; null when it is not on.
 export function moveProgress(entry: MoveEntry, startedAt: number, tick: number): number | null {
   if (entry.ticks === null) return null;
