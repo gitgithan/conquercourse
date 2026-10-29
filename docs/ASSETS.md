@@ -363,6 +363,13 @@
 | `data/eval/cc-90-photos/live/<place>-kept-sheet.jpg` | up to eight kept photos at 256 px, to check by eye that no person got through (evidence only; not used by the game) | the same Mapillary images | CC BY-SA 4.0 (Mapillary), credit to the creators; faces and plates blurred by Mapillary | `scripts/photos_people.py` |
 | `public/assets/pieces/<piece>.webp` and `<piece>-large.webp` (one small, 160x90, and one large, 640x360, per piece of the editor's add browser, about 3 to 25 KB each) | the pictures on the add browser's cards and its featured view | made by `scripts/make-piece-icons.ts` (`npm run piece-icons`) from the editor's own 3D view of each piece; flat drawings for the band, bars, rope, photo and import | ours; the real objects keep their photo credit (CC0 or CC BY 4.0, shown on the card) and the person is the Rookie character |
 
+## Street furniture (CC-187)
+| File | What | Made from | Licence | Made with |
+|---|---|---|---|---|
+| `public/assets/places/furniture/<place>.json` (montmartre-paris, eixample-barcelona, circular-quay-sydney, san-francisco-lombard) | where Mapillary's detectors saw street lights, benches, bins, signs, traffic signals, poles and crosswalk paint: id, class, position (metres east and south of the pin), ground height, last-seen date, and the frame that puts the place's mesh into the game | Mapillary `map_features` (object detections, not photos; no person in the data), fetched 2026-10-30 through `functions/api/features.ts` | CC BY-SA 4.0 (Mapillary), credit "Street objects: Mapillary contributors, CC BY-SA 4.0" shown in the game corner with a link to the licence | `scripts/furniture-frame.ts`, `scripts/furniture-fetch.ts` |
+| `data/eval/cc-furniture/frames.json` and `shots/*.png` | the exact move from the real world to the game's frame, and before/after pictures (evidence only; not used by the game) | the stored OSM courses and the files above | ours, with the Mapillary data above | `scripts/furniture-frame.ts`, `scripts/furniture-shots.mjs` |
+| The street furniture meshes (lamp, bench, bin, sign, signal, pole, crosswalk paint) | boxes and cylinders drawn by code, no model files | this repo (`src/render/furniture-view.ts`) | ours | code |
+
 ## More real objects: photos and objects (photos third-party, downloaded 2026-10-29; objects made during the event, CC-110)
 | File | Photo | Creator | Source | Licence |
 |---|---|---|---|---|

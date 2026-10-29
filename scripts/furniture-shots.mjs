@@ -16,10 +16,10 @@ try {
   for (const slug of slugs) for (const on of [false, true]) {
     const page = await browser.newPage({ viewport: { width: 1280, height: 720 } });
     const errors = [];
-    page.on('pageerror', (e) => errors.push(e.message));
+    page.on('pageerror', (e) => errors.push(e.message)); page.on('console', (m) => { if (m.type() === 'error') console.log('console.error', m.text().slice(0, 200)); });
     await page.addInitScript(stepped);
     await page.goto(`http://localhost:${port}/?course=/assets/experiments/osm/${slug}.course.json&photos=0${on ? '&furniture=1' : ''}`);
-    await page.waitForSelector('html[data-ready=true]', { timeout: 120000 });
+    await page.waitForSelector('html[data-ready=true]', { timeout: 400000 });
     const step = (n) => page.evaluate(async (k) => { for (let i = 0; i < k; i++) { window.__stepClock(1000 / 60); await new Promise((r) => requestAnimationFrame(r)); } }, n);
     await step(30);
     if (on) await page.waitForFunction(() => document.documentElement.dataset.furniture !== undefined, null, { timeout: 30000 }).catch(() => {});
