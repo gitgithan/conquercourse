@@ -122,7 +122,7 @@ describe('the server: clears are played again before they count', () => {
     const row = sql.prepare('SELECT * FROM course_clears').get() as Record<string, unknown>;
     expect(row.ticks).toBe(r.body.ticks);
     expect(row.ticks).toBeGreaterThan(1000);
-    expect(Object.keys(row).sort()).toEqual(['course_hash', 'course_key', 'id', 'log_hash', 'run_id', 'ticks', 'ts']);
+    expect(Object.keys(row).sort()).toEqual(['beats_ideal', 'course_hash', 'course_key', 'id', 'log_hash', 'run_id', 'ticks', 'ts', 'verified']);
   });
   it('ignores a time the browser claims: only the keys count', async () => {
     const { db } = setup();
