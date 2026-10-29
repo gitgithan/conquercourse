@@ -7,8 +7,8 @@ import { spawn, execFileSync } from 'node:child_process';
 import { mkdirSync } from 'node:fs';
 const env = process.env;
 const port = env.PORT ?? '5173', move = env.MOVE ?? 'vault', label = env.LABEL ?? 'now';
-const W = Number(env.W ?? 960), H = Number(env.H ?? 540);
-const stages = (env.STAGES ?? '0.02,0.15,0.3,0.45,0.58,0.68,0.78,0.88,0.97').split(',').map(Number);
+const W = Number(env.W ?? 1280), H = Number(env.H ?? 720);
+const stages = (env.STAGES ?? '0.05,0.2,0.35,0.5,0.62,0.75,0.88,0.97').split(',').map(Number);
 const flags = ['--enable-unsafe-webgpu', '--enable-features=Vulkan', '--use-vulkan=swiftshader', '--use-angle=swiftshader', '--disable-vulkan-surface', '--ignore-gpu-blocklist', '--no-sandbox'];
 const server = spawn('node', ['node_modules/vite/bin/vite.js', '--port', port, '--strictPort'], { stdio: 'ignore' });
 try {
@@ -24,7 +24,7 @@ try {
   await page.keyboard.press('g'); // the drum strip away
   for (let i = 0; i < Number(env.CAMS ?? 0); i++) await page.keyboard.press('c');
   await page.mouse.move(W / 2, H / 2);
-  await page.mouse.wheel(0, Number(env.ZOOM ?? -500)); // zoom in on the runner
+  await page.mouse.wheel(0, Number(env.ZOOM ?? -1000)); // zoom in on the runner
   let next = 0, last = '';
   const t0 = Date.now();
   while (next < stages.length && Date.now() - t0 < 1500000) {
@@ -38,6 +38,6 @@ try {
   console.log({ shots: next, of: stages.length }, 'errors:', errors);
   await browser.close();
   try {
-    execFileSync('ffmpeg', ['-y', '-loglevel', 'error', '-pattern_type', 'glob', '-i', `${dir}/f*.png`, '-vf', `scale=480:-1,tile=${Math.min(stages.length, 5)}x${Math.ceil(stages.length / 5)}`, '-frames:v', '1', `test-results/move-sheet/${label}.jpg`]);
+    execFileSync('ffmpeg', ['-y', '-loglevel', 'error', '-pattern_type', 'glob', '-i', `${dir}/f*.png`, '-vf', `crop=iw*0.7:ih*0.55:0:ih*0.42,scale=520:-1,tile=${Math.min(stages.length, 4)}x${Math.ceil(stages.length / 4)}`, '-frames:v', '1', `test-results/move-sheet/${label}.jpg`]);
   } catch { console.log('no contact sheet (ffmpeg missing)'); }
 } finally { server.kill(); }
