@@ -16,7 +16,7 @@ import { DEFAULT_ROPE } from '../sim/rope';
 import { inputFor, searchIdealRun, workSeconds, xWindows, type Plan, type SearchResult, type Window } from '../sim/ideal';
 import { IdealPool } from '../sim/ideal-pool';
 import { createGhost } from '../ui/ghost';
-import { challengeWords, makeChallengeUrl, openChallenge, secondsWords, shareOn } from '../share/challenge';
+import { challengeWords, makeChallengeUrl, offersIdeal, openChallenge, secondsWords, shareOn } from '../share/challenge';
 import { CLIP_H, CLIP_W, TICKS_PER_FRAME, clipFits, clipFrames, createClipEncoder, drawClipFrame } from '../share/clip';
 import { clipCard, shareButtons, showBanner } from '../share/share-ui';
 import { inputOfMask, type InputLog } from '../sim/replay';
@@ -1181,7 +1181,11 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
   const challengeParam = shareOn(params) && !botMode ? params.get('challenge') : null;
   if (challengeParam) {
     void openChallenge(course, challengeParam).then((c) => {
-      if (!c.ok) { showBanner(challengeWords(c.why), [], 20000); return; }
+      if (!c.ok) {
+        const offer = offersIdeal(c.why) && ghostCtl ? [{ label: 'Chase the ideal run instead', go: () => { ghostCtl?.chaseIdeal(); document.getElementById('challenge-banner')?.remove(); } }] : [];
+        showBanner(challengeWords(c.why), offer, 20000);
+        return;
+      }
       ghostCtl?.setFriend(c.track, c.nick);
       showBanner(c.nick ? `Beat ${c.nick}: ${secondsWords(c.ticks)}` : `Beat this time: ${secondsWords(c.ticks)}`, [{ label: 'Make a clip of this run', go: () => void makeClip(c.log, c.ticks) }]);
       if (params.get('autoplay') === '1') feed = { log: c.log, i: 0, left: 0 }; // for the browser check: play the friend's keys as if by hand

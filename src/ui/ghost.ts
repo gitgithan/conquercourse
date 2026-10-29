@@ -25,6 +25,7 @@ export interface Ghost {
   input(i: RunnerInput): void; // the keys of this tick (kept for the next parts)
   frame(f: GhostFrame): void;
   cycle(): void;
+  chaseIdeal(): void; // switch the ideal ghost on (the offer beside a refused challenge link, CC-135)
   setFriend(track: GhostTrack, nick?: string): void; // chase a friend's run from a challenge link
   myRun(): InputLog | null; // the keys of this run, when it began at the start and can be replayed (CC-128)
   readonly mode: GhostMode;
@@ -104,6 +105,7 @@ export function createGhost(o: GhostOpts): Ghost {
     begin(fullAttempt) { full = fullAttempt; recorder.reset(); lastMarked = -2; },
     input(i) { if (full) recorder.push(i); },
     cycle() { setMode(next()); },
+    chaseIdeal() { setMode('ideal'); },
     setFriend(t, nick = '') { friend = t; friendNick = nick; setMode('friend'); },
     myRun() { return full && recorder.valid ? recorder.snapshot() : null; },
     frame(f) {

@@ -39,6 +39,9 @@ const WORDS = {
   broken: 'This link is damaged, so its run cannot be played.',
   'not-cleared': 'The run in this link does not reach the finish on this course.',
 } as const;
+/** Whether to offer the ideal ghost beside a refusal: yes when the course itself can still be played, no when the link is only damaged. */
+export const offersIdeal = (why: keyof typeof WORDS): boolean => why !== 'broken';
+
 export const challengeWords = (why: keyof typeof WORDS): string => WORDS[why];
 
 export const secondsWords = (ticks: number): string => `${(ticks / 120).toFixed(2)} s`;
