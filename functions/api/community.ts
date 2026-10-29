@@ -2,6 +2,8 @@
 //   POST  publish a course (a photo and the boxes on it); it is stored as 'pending' until the owner approves it.
 //   GET   (no id) the list of approved courses without photos; (?id=N) one approved course with its boxes.
 // Defences: small body, whitelisted fields and phrases, a honeypot, a jpeg-only photo of limited size, and at most 3 publishes per session per day.
+import { fitPrimitives, proveCourse, type ParkObject } from '../../src/park/fit';
+
 interface Stmt { bind(...v: unknown[]): { run(): Promise<unknown>; first<T>(): Promise<T | null>; all<T>(): Promise<{ results: T[] }> } }
 interface Env { DB: { prepare(sql: string): Stmt } }
 
@@ -42,6 +44,11 @@ export function cleanCourse(b: Record<string, unknown>): { ok: true; course: { n
   return { ok: true, course: { name, nick: nick || 'anonymous', width, height, boxes, image } };
 }
 
+/** CC-211: the server proves the course again with the simulator; the browser's "cleared" is not trusted. */
+export function hasPath(boxes: unknown[], name: string): boolean {
+  try { const prims = fitPrimitives(boxes as ParkObject[]); return prims.length > 0 && proveCourse(prims, name).cleared; } catch { return false; }
+}
+
 export const onRequestPost = async ({ request, env }: { request: Request; env: Env }): Promise<Response> => {
   const raw = await request.text();
   if (raw.length > MAX_BODY) return json({ error: 'too big' }, 413);
@@ -52,6 +59,7 @@ export const onRequestPost = async ({ request, env }: { request: Request; env: E
   if (!/^[a-zA-Z0-9-]{8,64}$/.test(session)) return json({ error: 'bad session' }, 400);
   const c = cleanCourse(b);
   if (!c.ok) return json({ error: c.error }, 400);
+  if (!hasPath(c.course.boxes, c.course.name)) return json({ error: 'the simulator found no path on this course, so it cannot be shared' }, 422);
   const recent = await env.DB.prepare("SELECT COUNT(*) AS n FROM community WHERE session = ? AND ts > datetime('now', '-1 day')").bind(session).first<{ n: number }>();
   if ((recent?.n ?? 0) >= 3) return json({ error: 'You have shared 3 courses today. Please come back tomorrow.' }, 429);
   const { name, nick, width, height, boxes, image } = c.course;

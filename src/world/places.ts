@@ -86,7 +86,9 @@ export async function askMirrors(
 // ---- ready places: built once, shipped as files, load at once
 export interface ReadyIndexEntry { slug: string; name: string; lat: number; lon: number; radius: number; hill_m: number; buildings: number; bytes: number; blurb: string; listed?: boolean; path?: boolean; photos?: number }
 // CC-178: the list shows only places with a lane found by default AND street photos the game may show (listed is set by scripts/places-list.ts); ?places=all shows every place.
-export const shownReady = (index: ReadyIndexEntry[], all: boolean): ReadyIndexEntry[] => (all ? index : index.filter((p) => p.listed !== false));
+export const shownReady = (index: ReadyIndexEntry[], all: boolean, proven = false): ReadyIndexEntry[] => (proven ? index.filter((p) => p.path === true) : index).filter((p) => all || p.listed !== false);
+/** CC-211: a ready place has a path when the simulator cleared the lane stored with it (`path` in the index, written from the place file by scripts/places-list.ts). */
+export const hasPath = (p: ReadyIndexEntry): boolean => p.path === true;
 export interface PlaceLane {
   shrink: number; lengthM: number; levelM: number; turnDeg: number; sidewaysM: number;
   steps: number; faces: number; gaps: number; curves: number; maxDropM: number; cleared: boolean; secondsTaken: number;

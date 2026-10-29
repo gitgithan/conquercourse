@@ -70,12 +70,23 @@ export function startGallery(host: HTMLElement): { backend: 'webgl2' } {
     return c;
   };
 
+  // CC-211: a card is shown only after the simulator found a way to clear it (?slice2=old shows every card and proves on Play)
+  const proofOn = new URLSearchParams(location.search).get('slice2') !== 'old';
+  let queue: Promise<void> = Promise.resolve();
+  const offer = (e: Entry, front: boolean) => {
+    if (!proofOn) { if (front) grid.prepend(card(e)); else grid.appendChild(card(e)); return; }
+    queue = queue.then(() => new Promise<void>((done) => setTimeout(() => {
+      try { if (proveCourse(fitPrimitives(e.boxes), e.name, e.image).cleared) { if (front) grid.prepend(card(e)); else grid.appendChild(card(e)); } } catch { /* no proof, not offered */ }
+      document.documentElement.dataset.galleryShown = String(grid.children.length);
+      done();
+    }, 0)));
+  };
   void (async () => {
     for (const id of STARTERS) {
       try {
         const d = await (await fetch(`/assets/park/${id}.objects.json`)).json() as { file: string; width: number; height: number; credit: string; objects: ParkObject[] };
         const boxes = d.objects.map((o) => ({ ...o, box: [...o.box] as ParkObject['box'] }));
-        grid.appendChild(card({ key: id, name: `Starter: ${d.credit.split(',')[0].slice(0, 50)}`, by: 'ConquerCourse (openly licensed photo)', image: `/assets/park/${d.file}`, width: d.width, height: d.height, boxes }));
+        offer({ key: id, name: `Starter: ${d.credit.split(',')[0].slice(0, 50)}`, by: 'ConquerCourse (openly licensed photo)', image: `/assets/park/${d.file}`, width: d.width, height: d.height, boxes }, false);
       } catch { /* a missing starter is skipped */ }
     }
     try {
@@ -83,7 +94,8 @@ export function startGallery(host: HTMLElement): { backend: 'webgl2' } {
       if (!r.ok) throw new Error(String(r.status));
       const body = await r.json() as { courses: { id: number; name: string; nick: string; width: number; height: number; boxes: ParkObject[] }[] };
       if (!body.courses.length) status.textContent = 'No community courses yet. Be the first: make one from a photo.';
-      for (const c of body.courses) grid.prepend(card({ key: `c${c.id}`, id: c.id, name: c.name, by: c.nick, image: `/api/community-image?id=${c.id}`, width: c.width, height: c.height, boxes: c.boxes }));
+      for (const c of body.courses) offer({ key: `c${c.id}`, id: c.id, name: c.name, by: c.nick, image: `/api/community-image?id=${c.id}`, width: c.width, height: c.height, boxes: c.boxes }, true);
+      await queue;
     } catch { status.textContent = 'The community courses could not be loaded right now (they need the online site). The starters still work.'; }
     document.documentElement.dataset.galleryReady = 'true';
   })();

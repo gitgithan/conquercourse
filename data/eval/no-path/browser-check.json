@@ -1,0 +1,17 @@
+{
+  "checks": {
+    "noHillsBox": true,
+    "noReadyBox": true,
+    "placesAllIgnored": true,
+    "debugShowsMore": true,
+    "oldScreenKeepsBoxes": true,
+    "editorButtonAfterProof": true,
+    "ground": "39",
+    "pieceStored": true
+  },
+  "notes": [
+    "normal list: 26",
+    "debug list: 29",
+    "pin 40.74921,-73.98677"
+  ]
+}
