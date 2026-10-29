@@ -25,7 +25,15 @@ const m1 = (v: number) => (Math.round(v * 10) / 10).toString();
 const round2 = (v: number) => Math.round(v * 100) / 100;
 const MIN_SHRINK = 0.03;
 
+const GIVE_UP = 'No cut or shrink helps here, pick another place.';
+
 export function explainNoPath(i: WhyInput): WhyAnswer {
+  const r = explainRaw(i);
+  if (!r.suggestions.some((x) => x.action.kind !== 'drag')) r.reason = `${r.reason} ${GIVE_UP}`;
+  return r;
+}
+
+function explainRaw(i: WhyInput): WhyAnswer {
   const f = i.facts;
   const out: Suggestion[] = [];
   const near = i.strip.filter((c) => c.crossable && Math.abs(c.real - i.cut) > 0.01).sort((a, b) => Math.abs(a.real - i.cut) - Math.abs(b.real - i.cut))[0];

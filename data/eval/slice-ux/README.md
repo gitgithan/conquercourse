@@ -10,7 +10,7 @@
 - Fix: both now use the same pieces, the same lane reader and the same search.
   - After the fix 74 of 74 preview-clear cuts also clear when built.
 - Failing screens now say why in one line and offer up to 3 ranked fixes.
-  - 39 of 59 failing cases (66 %) have at least one offered fix that clears.
+  - 47 of 67 failing cases (70 %) have at least one offered fix that clears.
 - Recommendation: ship behind the default; `?slicewords=old` brings the old panel back.
 - Next step: one-click buttons are already in; watch the owner try three places and tune the wording.
 
@@ -53,9 +53,9 @@
 - Test: `tests/slice-preview-built.test.ts`, 6 places, two cuts each, preview result must equal built result.
 
 ## Suggestions: before and after
-- `suggestions.json`: 59 failing cases on 8 places (shrink 0.2 and 0.4, all or half the buildings picked, several cuts).
+- `suggestions.json`: 67 failing cases on 8 places (complete run) (shrink 0.2 and 0.4, all or half the buildings picked, several cuts).
 - Each case runs the rules, applies each suggestion, and re-runs the proof.
-- 39 of 59 have at least one suggestion that clears.
+- 47 of 67 have at least one suggestion that clears.
 - Examples:
 
 | Place | Shrink | Cut | Reason shown | First fix | Clears |
@@ -68,7 +68,9 @@
 | Shibuya, Tokyo | 0.2 | 5.5 | Widest gap | Cut higher | yes |
 | Edinburgh | 0.2 | 3.5 | Hardest jump 5 m wide, far side 1.2 m higher | none of the three | no |
 
-- The failures that remain are places where no cut and no smaller size fixes the gap; the last tip, drag the white dots, is not auto-tested.
+- The 20 cases with no clearing fix now end the reason with "No cut or shrink helps here, pick another place." when the rules offer only the drag tip.
+- Cases where the rules offer a fix that does not clear still show the fixes; the screen cannot know that before trying.
+- The drag tip is not auto-tested.
 
 ## Words and legend
 - Short labels; long help sits behind "More".
@@ -76,7 +78,7 @@
 - Screenshot: `shots/slicer-why.png` (desktop, Montmartre).
 
 ## Unverified
-- The suggestions run was cut off early (59 cases, 8 places), not all 18 places.
+- The suggestions run covers 8 of the 18 places.
 - The drag-the-dots tip is not measured.
 - Only desktop 1280 px; no phone checks by order of the owner.
 - No LLM variant was built or compared.
