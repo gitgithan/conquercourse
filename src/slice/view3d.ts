@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import { isMarquee, pickInRect, rectFrom } from '../ui/selection';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { HALF_LANE } from './slice';
@@ -14,6 +15,9 @@ export type P3 = Piece & { src?: string };
 export interface Host {
   pieces(): P3[];
   selected(): number | null;
+  selectedAll?(): number[]; // CC-200: every chosen piece (the group), for the highlight
+  toggle?(id: number): void; // CC-200: Shift+click on a piece
+  marquee?(ids: number[], additive: boolean): void; // CC-200: Shift+drag on empty ground chose these pieces
   lane(): { angle: number; offset: number; level: number };
   select(id: number | null): void;
   moved(p: P3, x: number, z: number): void; // while dragging
@@ -189,7 +193,7 @@ export function createView3d(wrap: HTMLElement, host: Host): View3d {
   }
 
   function sync() {
-    const ps = host.pieces(), sel = host.selected(), seen = new Set<number>();
+    const ps = host.pieces(), sel = host.selected(), group = new Set(host.selectedAll?.() ?? []), seen = new Set<number>();
     for (const p of ps) {
       seen.add(p.id);
       const sig = meshSig(p);
@@ -197,7 +201,7 @@ export function createView3d(wrap: HTMLElement, host: Host): View3d {
       if (n && n.sig !== sig) { scene.remove(n.g); if (n.box) scene.remove(n.box); nodes.delete(p.id); n = undefined; }
       if (!n) { n = { g: build(p), sig }; nodes.set(p.id, n); }
       n.g.position.set(p.x, p.y, p.z); n.g.rotation.y = -p.yaw; n.g.scale.setScalar(p.scale);
-      if (p.id === sel && !isPersonReference(p)) {
+      if ((p.id === sel || group.has(p.id)) && !isPersonReference(p)) {
         if (!n.box) { n.box = new THREE.BoxHelper(n.g, 0x0f6b5c); scene.add(n.box); }
         n.g.updateMatrixWorld(true); n.box.setFromObject(n.g); n.box.update();
       } else if (n.box) { scene.remove(n.box); n.box = undefined; }
@@ -214,10 +218,21 @@ export function createView3d(wrap: HTMLElement, host: Host): View3d {
   const ray = new THREE.Raycaster(), ndc = new THREE.Vector2(), floor = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0);
   const aim = (e: PointerEvent) => { const r = renderer.domElement.getBoundingClientRect(); ndc.set(((e.clientX - r.left) / r.width) * 2 - 1, -((e.clientY - r.top) / r.height) * 2 + 1); ray.setFromCamera(ndc, camera); };
   let drag: { p: P3; dx: number; dz: number } | null = null;
+  let box: { x: number; y: number; add: boolean; el: HTMLDivElement } | null = null; // the Shift+drag box (CC-200)
   renderer.domElement.addEventListener('pointerdown', (e) => {
     host.interactionStart?.();
     if (e.button !== 0) return;
     aim(e);
+    if (e.shiftKey && host.marquee) { // CC-200: Shift+click chooses or drops one piece; Shift+drag on empty ground draws a box around several
+      const hitS = ray.intersectObjects(host.pieces().filter((p) => !isPersonReference(p)).map((p) => nodes.get(p.id)?.g).filter((g): g is THREE.Group => !!g), true)[0];
+      let sid: number | null = null;
+      for (let o: THREE.Object3D | null = hitS?.object ?? null; o; o = o.parent) if (o.userData.pieceId !== undefined) { sid = o.userData.pieceId as number; break; }
+      if (sid !== null) { host.toggle?.(sid); return; }
+      const r0 = renderer.domElement.getBoundingClientRect();
+      box = { x: e.clientX - r0.left, y: e.clientY - r0.top, add: true, el: document.createElement('div') };
+      box.el.className = 'marquee'; box.el.style.cssText = 'position:absolute;pointer-events:none;border:2px dashed #0f6b5c;background:#0f6b5c22;z-index:6;left:0;top:0;width:0;height:0';
+      wrap.appendChild(box.el); controls.enabled = false; renderer.domElement.setPointerCapture(e.pointerId); return;
+    }
     const selectable = host.pieces().filter((p) => !isPersonReference(p)).map((p) => nodes.get(p.id)?.g).filter((g): g is THREE.Group => !!g);
     const hit = ray.intersectObjects(selectable, true)[0];
     let id: number | null = null;
@@ -229,11 +244,24 @@ export function createView3d(wrap: HTMLElement, host: Host): View3d {
     drag = { p, dx: at.x - p.x, dz: at.z - p.z }; controls.enabled = false; renderer.domElement.setPointerCapture(e.pointerId);
   });
   renderer.domElement.addEventListener('pointermove', (e) => {
+    if (box) {
+      const r0 = renderer.domElement.getBoundingClientRect(), rc = rectFrom(box.x, box.y, e.clientX - r0.left, e.clientY - r0.top);
+      Object.assign(box.el.style, { left: `${rc.x0}px`, top: `${rc.y0}px`, width: `${rc.x1 - rc.x0}px`, height: `${rc.y1 - rc.y0}px` });
+      return;
+    }
     if (!drag) return;
     aim(e); const at = new THREE.Vector3();
     if (ray.ray.intersectPlane(floor, at)) host.moved(drag.p, Math.round((at.x - drag.dx) * 20) / 20, Math.round((at.z - drag.dz) * 20) / 20);
   });
-  const up = () => {
+  const up = (e: PointerEvent) => {
+    if (box) {
+      const r0 = renderer.domElement.getBoundingClientRect(), rc = rectFrom(box.x, box.y, e.clientX - r0.left, e.clientY - r0.top);
+      box.el.remove(); box = null; controls.enabled = true;
+      if (isMarquee(rc)) {
+        const items = host.pieces().filter((p) => !isPersonReference(p)).flatMap((p) => { const g = nodes.get(p.id)?.g; if (!g) return []; g.updateMatrixWorld(true); const c = new THREE.Box3().setFromObject(g).getCenter(new THREE.Vector3()), s = project(c.x, c.y, c.z); return s ? [{ id: p.id, x: s.x, y: s.y }] : []; });
+        host.marquee?.(pickInRect(items, rc), true);
+      }
+    }
     if (drag) { drag = null; controls.enabled = true; host.dropped(); }
     host.interactionEnd?.();
   };
