@@ -19,6 +19,8 @@
 - Stills: `node scripts/osm-concept.mjs montmartre-paris <dir>` and `node scripts/endcard.mjs <dir>`.
 - Data: map data is OpenStreetMap contributors (ODbL); the rope section comes from the Training course.
 
+- Rough cut v1: `rough-cut-v1.mp4` (67.2 s, 100 bpm bed) from `scripts/rough-cut.sh`; each beat carries a REAL or CONCEPT label; the fly-by, editor and Earth beats are placeholders.
+
 ## Known gaps, ranked
 - The light trail is too bright and hides the runner's hips; lower its strength.
 - The hand is not yet at the rope when the clip ends; cut one or two frames later for a closer cut.
