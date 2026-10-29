@@ -63,6 +63,12 @@ Blue-box diagrams for every pipeline are in [docs/meta-ai-pipelines.md](docs/met
 - Three-minute script: [docs/demo-script-v2.md](docs/demo-script-v2.md).
 - Beats: a pin on the map becomes a world; a photo becomes an object; the design partner fixes an unclearable course; the lache pair swing, with the debug view showing why it worked.
 
+## Bonus prizes
+- **Most Viral:** every cleared run can be shared as a challenge link or a 15 second vertical clip (CC-126).
+  - The link carries only the keys of the run; the simulator plays them, so the time cannot be faked.
+  - The clip is made in the browser on a stepped clock; the plan is in [docs/viral-plan.md](docs/viral-plan.md).
+- **Best Build on Meta Open Weights:** Muse Spark Open runs the design partner (see the table above).
+
 ## What is new, and what is not
 - The repository starts on 2026-10-27; no code from the earlier practice project is used.
 - Third-party material and licences: [docs/PRIOR-WORK.md](docs/PRIOR-WORK.md).
