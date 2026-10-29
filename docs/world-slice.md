@@ -1609,3 +1609,9 @@ The set of obstacle shapes is fixed, and each shape offers a fixed set of moves.
 - Courses the greedy search already clears give the same plan (all golden hashes unchanged).
 - The old Park rail run layouts (5 of 5 variants) now clear.
 - Cost: only a run that got to the last edges and did not clear pays it (up to about 10 times that search).
+
+- **The heavy crate piece was removed (CC-96):**
+  - It was the same law as the launcher with other default numbers (25 kg at 6 m/s), and the launcher already has the mass and speed as knobs.
+  - No demo used it.
+  - An old saved world with a crate gets a launcher with the same numbers.
+

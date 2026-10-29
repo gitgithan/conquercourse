@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { DEFAULT_CRATE, DEFAULT_RECOIL, ballSpeedFromRest, effectiveMuzzle, shot, standingPush, stepBall, type RecoilParams } from '../src/sim/recoil';
+import { DEFAULT_RECOIL, ballSpeedFromRest, effectiveMuzzle, shot, standingPush, stepBall, type RecoilParams } from '../src/sim/recoil';
 import { FLAT } from '../src/sim/terrain';
 
 const P = (over: Partial<RecoilParams> = {}): RecoilParams => ({ ...DEFAULT_RECOIL, ...over });
@@ -55,11 +55,6 @@ describe('recoil: heavy and slow, or light and fast', () => {
   });
   it('a heavier runner is pushed less by the same shot', () => {
     expect(standingPush(P({ charMass: 100 }))).toBeLessThan(standingPush(P({ charMass: 60 })));
-  });
-  it('the crate piece is the same law with a slower throw', () => {
-    const p = P({ ...DEFAULT_CRATE }), s = shot(p, 0, 0, false);
-    expect(mom(p, 0, s.dvx, s.ballVx)).toBeCloseTo(0, 9);
-    expect(s.dvx).toBeCloseTo((25 * 6) / 95, 9);
   });
 });
 
