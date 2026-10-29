@@ -212,23 +212,23 @@
   "hazard": "lava",
   "plan": {
     "jumpXs": [
-      22.5,
-      130.2,
-      153.5,
-      181.48000000000002
+      22.552,
+      130.268,
+      153.437,
+      181.505
     ],
     "releaseAfter": 58,
     "bouncePress": 8,
-    "hands": true,
-    "hangTicks": [
-      216
-    ],
     "vaultXs": [
-      41.5,
-      63.8
+      41.335,
+      63.642
     ],
     "climbXs": [
-      100.5
+      100.505
+    ],
+    "hands": true,
+    "hangTicks": [
+      215
     ],
     "airHands": [
       false
