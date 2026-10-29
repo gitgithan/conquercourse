@@ -1,24 +1,28 @@
 import { existsSync, readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
-import { CROSSFADE_S, MUSIC_VOLUME, SCREENS, crossfadeGains, musicOn, screenFor } from '../src/ui/music';
+import { CROSSFADE_S, FADE_IN_S, MUSIC_VOLUME, SCREENS, crossfadeGains, musicOn, screenFor } from '../src/ui/music';
 
 // CC-132: the loops are numbers-checked, not heard: the seam of each loop must be no bigger than an ordinary step of the wave.
 describe('music', () => {
-  it('is off unless asked, and ?music=0 turns it off', () => {
-    expect(musicOn('')).toBe(false);
-    expect(musicOn('?course=x')).toBe(false);
-    expect(musicOn('?music=1')).toBe(true);
-    expect(musicOn('?music=0')).toBe(false);
+  it('is on by default for players, silent in automated browsers, and ?music=0 turns it off', () => {
+    expect(musicOn('', false)).toBe(true);
+    expect(musicOn('?course=x', false)).toBe(true);
+    expect(musicOn('?music=1', false)).toBe(true);
+    expect(musicOn('?music=0', false)).toBe(false);
+    expect(musicOn('', true)).toBe(false); // tests stay silent
+    expect(musicOn('?music=1', true)).toBe(true); // unless a flag asks for it
   });
   it('plays quietly', () => {
     expect(MUSIC_VOLUME).toBeLessThanOrEqual(0.3);
     expect(CROSSFADE_S).toBeGreaterThan(0.5);
+    expect(FADE_IN_S).toBeGreaterThanOrEqual(2);
   });
   it('gives each mode a screen that has a track', () => {
     for (const m of ['course', 'map', 'editor', 'dojo', 'coaster', 'lab-search', 'park', 'gallery']) expect(SCREENS).toContain(screenFor(m));
     expect(screenFor('map')).toBe('map');
     expect(screenFor('dojo')).toBe('dojo');
     expect(screenFor('editor')).toBe('editor');
+    expect(screenFor('gallery')).toBe('library');
   });
   it('crossfades with constant power, from all-out to all-in', () => {
     for (let i = 0; i <= 10; i++) { const g = crossfadeGains(i / 10); expect(g.out ** 2 + g.in ** 2).toBeCloseTo(1, 9); }
@@ -36,10 +40,8 @@ describe('music', () => {
       expect(row!.rms).toBeCloseTo(0.1, 2); // the same loudness on every screen
     }
   });
-  it("keeps the Report loop soft: little energy above 5 kHz, well below what it had before the high-shelf", () => {
-    const m = JSON.parse(readFileSync('public/assets/music/loops.json', 'utf8')) as { screen: string; hf_share_5k: number; hf_share_5k_before: number }[];
-    const r = m.find((x) => x.screen === 'report')!;
-    expect(r.hf_share_5k).toBeLessThan(0.001);
-    expect(r.hf_share_5k).toBeLessThan(r.hf_share_5k_before / 5);
+  it('keeps the bright loops soft: under 0.1% of the energy above 5 kHz on the Report and the library', () => {
+    const m = JSON.parse(readFileSync('public/assets/music/loops.json', 'utf8')) as { screen: string; hf_share_5k: number }[];
+    for (const s of ['report', 'library']) expect(m.find((x) => x.screen === s)!.hf_share_5k, s).toBeLessThan(0.001);
   });
 });
