@@ -23,7 +23,7 @@ try {
   await page.screenshot({ path: 'test-results/debug/early.png' });
   await page.waitForTimeout(1300);
   const txt = await page.textContent('#debugpanel');
-  checks.saysWhy = /(If you jump now|carrying on): /.test(txt) && /(Lands|Falls|step|stopped|rope|trampoline)/i.test(txt);
+  checks.saysWhy = /(Jump now|Carry on|Let go now|Cart rolls on|Turn round now|Come down now)/.test(txt) && /(Lands|Hurts|Splash|Blocked|In the air|Other move)/.test(txt);
   console.log('PANEL:', txt.slice(0, 260));
   await page.screenshot({ path: 'test-results/debug/running.png' });
   await page.keyboard.up('ArrowRight');
