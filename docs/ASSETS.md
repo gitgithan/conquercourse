@@ -227,10 +227,10 @@
   - Made with: `scripts/terrain-check.ts`
 - **Ready places**
   - Files: `public/assets/places/<slug>.json` and `public/assets/places/index.json`
-  - What they hold: twelve ready places, each with trimmed building outlines, a 20 m grid of ground heights and the lane summary the search found
+  - What they hold: eighteen ready places (six parks added in CC-152: Park Güell, Tuileries, Retiro, Bryant Park, Gas Works Park, Dolores Park), each with trimmed building outlines, a 20 m grid of ground heights and the lane summary the search found
   - Building tags kept: `building`, `height` and `building:levels` only
-  - Area and size: 120 to 150 m around a point; 940 KB on disk in total
-  - Source: © OpenStreetMap contributors through the Overpass API, fetched 2026-10-28 from `z.overpass-api.de`, `maps.mail.ru` and `overpass.private.coffee`, with no key; Montmartre, Eixample, Circular Quay and Lombard Street reuse the CC-46 answers
+  - Area and size: 120 to 150 m around a point; about 1.1 MB on disk in total
+  - Source: © OpenStreetMap contributors through the Overpass API, fetched 2026-10-28 (the six parks on 2026-10-29) from `z.overpass-api.de`, `overpass-api.de` and `maps.mail.ru`, with no key; Montmartre, Eixample, Circular Quay and Lombard Street reuse the CC-46 answers
   - Ground source: AWS Terrain Tiles in Terrarium format, zoom 15, with no account
   - Licence: ODbL 1.0 for a derived database; keep the credit “© OpenStreetMap contributors”, shown on the map page, and share alike
   - Terrain credit: as in https://github.com/tilezen/joerd/blob/master/docs/attribution.md
