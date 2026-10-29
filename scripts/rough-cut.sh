@@ -16,7 +16,7 @@ seg() { # name seconds source(kind:file) label
 pick2() { if [ -f "$D/$1.mp4" ]; then echo "clip:$D/$1.mp4"; else echo "still:$D/$2.png"; fi; }
 pick() { if [ -f "$D/$1.mp4" ]; then echo "clip:$D/$1.mp4"; else echo "still:$D/$2.png"; fi; }
 seg 1 7.2  "$(pick2 beat1-concept beat1-street-map)"      "BEAT 1  CONCEPT: street map drawn from the stored OpenStreetMap buildings"
-seg 2 7.2  "$(pick2 beat2-concept beat2-slice)"           "BEAT 2  CONCEPT: the cut sweeping through"
+if [ -f "$D/beat2-slicer-real.mp4" ]; then seg 2 7.2 "clip:$D/beat2-slicer-real.mp4" "BEAT 2  REAL: the slicer on Montmartre (map recorded in the real page, panel cropped out)"; else seg 2 7.2  "$(pick2 beat2-concept beat2-slice)"           "BEAT 2  CONCEPT: the cut sweeping through"; fi
 seg 3 14.4 "$(pick2 beat3-concept beat3-blocks-rise)"     "BEAT 3  CONCEPT: blocks rise; photo and editor beats not yet made"
 seg 4 7.2  "$(pick beat4-flyby beat3-blocks-rise)" "BEAT 4  REAL if a clip, else placeholder: fly-by of the hero course"
 seg 5 14.4 "$(if [ -f "$D/beat5-run-close.mp4" ]; then echo "clip:$D/beat5-run-close.mp4"; else pick2 beat5-run beat3-blocks-rise; fi)" "BEAT 5  REAL (wide, far take; close take not yet made): the ideal-plan replay"
