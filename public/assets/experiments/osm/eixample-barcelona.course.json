@@ -2,7 +2,7 @@
   "version": 1,
   "name": "OSM eixample-barcelona",
   "startX": 0,
-  "finishX": 47.2,
+  "finishX": 51,
   "jumpSpeed": 4.5,
   "terrain": {
     "waterY": -1.5,
