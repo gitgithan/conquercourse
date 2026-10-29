@@ -2,11 +2,11 @@
   "version": 1,
   "name": "Two ways",
   "startX": 8,
-  "finishX": 60,
+  "finishX": 62,
   "jumpSpeed": 4.5,
   "jumpKeep": 0.88,
   "terrain": {
-    "waterY": -9,
+    "waterY": -11.2,
     "platforms": [
       {
         "x0": -10,
@@ -14,19 +14,24 @@
         "top": 0
       },
       {
-        "x0": 36,
-        "x1": 66,
+        "x0": 38,
+        "x1": 68,
         "top": -2
       },
       {
         "x0": 26,
-        "x1": 31,
-        "top": -4.45
+        "x1": 30,
+        "top": -6.7
       },
       {
-        "x0": 33.5,
-        "x1": 36,
-        "top": -4.45
+        "x0": 31.5,
+        "x1": 35.5,
+        "top": -6.7
+      },
+      {
+        "x0": 35.5,
+        "x1": 38,
+        "top": -4.300000000000001
       }
     ]
   },
@@ -45,7 +50,7 @@
       "id": "fork",
       "name": "The fork: two ways",
       "x0": 18,
-      "x1": 40
+      "x1": 42
     }
   ],
   "checkpoints": [
@@ -59,7 +64,7 @@
       "id": "fork",
       "name": "The fork",
       "forkX": 20,
-      "joinX": 38,
+      "joinX": 40,
       "routes": [
         {
           "id": "high",
@@ -78,6 +83,12 @@
             "lache",
             "drop"
           ],
+          "lines": [
+            {
+              "name": "bar to bar",
+              "ticks": 1291
+            }
+          ],
           "plan": {
             "jumpXs": [
               22.8
@@ -86,29 +97,17 @@
             "bouncePress": 8,
             "hands": true,
             "hangTicks": [
-              216
-            ],
-            "airHands": [
-              false
+              210,
+              210
             ]
           },
-          "ticks": 1098,
-          "narrowestMs": 8,
-          "lines": [
-            {
-              "name": "bar to bar",
-              "ticks": 1264
-            },
-            {
-              "name": "skip the second bar",
-              "ticks": 1098
-            }
-          ],
-          "effort": 1
+          "effort": 1,
+          "ticks": 1291,
+          "narrowestMs": 150
         },
         {
           "id": "low",
-          "name": "Low way: drop, roll, jump, climb",
+          "name": "Low way: drop, jump, climb twice",
           "band": [
             -99,
             -3
@@ -116,28 +115,32 @@
           "own": {
             "platforms": [
               2,
-              3
+              3,
+              4
             ]
           },
           "icons": [
             "drop",
             "gap",
+            "climb",
             "climb"
           ],
           "plan": {
             "jumpXs": [
-              23.16,
-              29.5
+              22.5,
+              28.5,
+              33.2
             ],
             "releaseAfter": 60,
             "bouncePress": 8,
-            "climbXs": [
-              34.5
+            "climbHands": true,
+            "vaultXs": [
+              36.64
             ]
           },
-          "ticks": 1130,
-          "narrowestMs": 219,
-          "effort": 4
+          "effort": 7,
+          "ticks": 1333,
+          "narrowestMs": 354
         }
       ]
     }
@@ -151,10 +154,8 @@
     "bouncePress": 8,
     "hands": true,
     "hangTicks": [
-      216
-    ],
-    "airHands": [
-      false
+      210,
+      210
     ]
   }
 }
