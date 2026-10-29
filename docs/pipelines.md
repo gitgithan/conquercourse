@@ -1,5 +1,7 @@
 # Pipelines: recipes to rebuild
 
+*Map with diagrams and the Meta model behind each step: [meta-ai-pipelines.md](meta-ai-pipelines.md).*
+
 *Draft v0.1, 2026-10-27; knowledge from the practice project (`docs/PRIOR-WORK.md`).*
 *These are recipes, not code: each says what goes in and out, the steps, the settings that mattered, what broke and how to check it.*
 *Rebuild them in this repo from these descriptions; the facts (model versions, thresholds, settings) are the parts to keep exactly.*
