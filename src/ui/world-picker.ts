@@ -105,7 +105,7 @@ const STYLE = `
 .wg-txt b{display:block;font:700 14px/1.25 system-ui,sans-serif}
 .wg-txt span{display:block;margin-top:2px;font:12px/1.3 system-ui,sans-serif;color:#58635d}
 .wg-stats{display:flex;flex-wrap:wrap;gap:2px 8px;align-items:baseline;margin-top:3px;font:12px/1.3 system-ui,sans-serif;color:#17201d}
-.wg-stats i{font-style:normal;letter-spacing:1px;color:#0f6b5c}
+.wg-stats i{flex:0 0 100%;font-style:normal;font-weight:600;color:#0f6b5c}
 .wg-stats em{font-style:normal;color:#58635d}
 .wg-here{display:inline-block;margin-left:6px;font:700 10px system-ui,sans-serif;color:#fff;background:#0f6b5c;border-radius:6px;padding:1px 5px;vertical-align:1px}
 .wg-none{padding:20px;color:#58635d}

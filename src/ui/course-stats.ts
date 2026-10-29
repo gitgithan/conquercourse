@@ -95,7 +95,7 @@ export function applyStats(root: HTMLElement, data: StatsData): void {
       const box = document.createElement('span'); box.className = 'wg-stats';
       if (dots) {
         const e = document.createElement('i'); e.className = 'wg-dots'; e.setAttribute('aria-label', `Difficulty: ${DIFFICULTY_WORDS[dots]}`); e.title = DIFFICULTY_WORDS[dots];
-        e.textContent = '●'.repeat(dots) + '○'.repeat(4 - dots); box.append(e);
+        e.textContent = `${'●'.repeat(dots)}${'○'.repeat(4 - dots)} ${DIFFICULTY_WORDS[dots]}`; box.append(e);
       }
       if (line) { const t = document.createElement('em'); t.textContent = line; box.append(t); }
       card.querySelector('.wg-txt')?.append(box);
