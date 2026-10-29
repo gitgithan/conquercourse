@@ -20,7 +20,7 @@ try {
       await page.goto(`http://localhost:${port}/?mode=dojo&ex=${ex}&dojo=${flavour}`);
       await page.waitForSelector('html[data-ready=true]');
       for (let i = 0; i < step; i++) await page.click('#next');
-      if (step === 1 || label === 'formula') await page.$eval('#knob-speed', (el) => { el.value = '8.5'; el.dispatchEvent(new Event('input', { bubbles: true })); });
+      if ((step === 1 || label === 'formula') && (await page.$('#knob-speed'))) await page.$eval('#knob-speed', (el) => { el.value = '8.5'; el.dispatchEvent(new Event('input', { bubbles: true })); });
       await page.waitForTimeout(400);
       const h = await page.evaluate(() => Math.min(2600, Math.max(innerHeight, (document.querySelector('.dojo.v2') ?? document.documentElement).scrollHeight)));
       await page.setViewportSize({ width: viewport.width, height: h });
