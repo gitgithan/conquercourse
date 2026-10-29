@@ -1,6 +1,6 @@
 // Plain event sounds, made in code (WebAudio): no files, no licence. They say what happened, never how well.
 // Audio starts after the first key press (browsers refuse earlier); M or the button mutes.
-export type Sfx = 'jump' | 'land' | 'vault' | 'grab' | 'letgo' | 'splash' | 'sizzle' | 'squelch' | 'clang' | 'plunge' | 'finish';
+export type Sfx = 'jump' | 'land' | 'vault' | 'grab' | 'letgo' | 'splash' | 'sizzle' | 'squelch' | 'clang' | 'blast' | 'plunge' | 'finish';
 
 // One short sound = a few tones (frequency sweep, length, shape) and optional noise.
 interface Tone { f0: number; f1: number; len: number; type: OscillatorType; gain: number; at?: number }
@@ -14,6 +14,7 @@ const SOUNDS: Record<Sfx, { tones: Tone[]; noise?: { len: number; gain: number; 
   sizzle: { tones: [{ f0: 180, f1: 60, len: 0.4, type: 'sawtooth', gain: 0.07 }], noise: { len: 0.5, gain: 0.3 } },
   squelch: { tones: [{ f0: 110, f1: 55, len: 0.25, type: 'sine', gain: 0.25 }, { f0: 160, f1: 70, len: 0.18, type: 'sine', gain: 0.18, at: 0.12 }], noise: { len: 0.2, gain: 0.12 } },
   clang: { tones: [{ f0: 520, f1: 480, len: 0.3, type: 'square', gain: 0.1 }, { f0: 780, f1: 740, len: 0.25, type: 'square', gain: 0.07, at: 0.02 }] },
+  blast: { tones: [{ f0: 150, f1: 40, len: 0.35, type: 'sine', gain: 0.3 }], noise: { len: 0.35, gain: 0.25 } },
   plunge: { tones: [{ f0: 700, f1: 70, len: 0.8, type: 'sine', gain: 0.14 }] },
   finish: { tones: [{ f0: 520, f1: 520, len: 0.12, type: 'triangle', gain: 0.16 }, { f0: 660, f1: 660, len: 0.12, type: 'triangle', gain: 0.16, at: 0.12 }, { f0: 880, f1: 880, len: 0.25, type: 'triangle', gain: 0.18, at: 0.24 }] },
 };
@@ -21,7 +22,7 @@ const SOUNDS: Record<Sfx, { tones: Tone[]; noise?: { len: number; gain: number; 
 // The game events (src/sim/world.ts) that make a sound. A bounce on the trampoline sounds like a jump; a wall grab like a grab.
 const EVENT: Record<string, Sfx | undefined> = {
   jump: 'jump', bounce: 'jump', land: 'land', roll: 'land', vault: 'vault', 'hang-catch': 'grab', 'rope-catch': 'grab', 'wall-grab': 'grab',
-  'hang-release': 'letgo', 'rope-release': 'letgo', 'launch-fire': 'clang', recoil: 'clang', 'band-release': 'letgo', 'band-snap': 'clang', 'launch-release': 'letgo', 'drone-board': 'grab', 'drone-land': 'land', 'drone-drop': 'letgo', 'drone-crash': 'clang', splash: 'splash', cleared: 'finish',
+  'hang-release': 'letgo', 'rope-release': 'letgo', 'launch-fire': 'clang', recoil: 'blast', 'band-release': 'letgo', 'band-snap': 'clang', 'launch-release': 'letgo', 'drone-board': 'grab', 'drone-land': 'land', 'drone-drop': 'letgo', 'drone-crash': 'clang', splash: 'splash', cleared: 'finish',
 };
 
 export interface AudioLike { // the little part of AudioContext we use, so a test can fake it
