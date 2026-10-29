@@ -18,8 +18,8 @@
       "masked_share_median_of_masked": 0.0058,
       "coverage": {
         "lane_steps": 17,
-        "steps_with_a_photo_reject_rule": 1.0,
-        "steps_with_a_photo_after_masking": 1.0
+        "steps_with_a_photo_reject_rule": 1,
+        "steps_with_a_photo_after_masking": 1
       },
       "recheck_photos_with_a_person_left": 1
     },
@@ -46,7 +46,7 @@
       "masked_share_median_of_masked": 0.0406,
       "coverage": {
         "lane_steps": 16,
-        "steps_with_a_photo_reject_rule": 0.0,
+        "steps_with_a_photo_reject_rule": 0,
         "steps_with_a_photo_after_masking": 0.88
       },
       "recheck_photos_with_a_person_left": 9

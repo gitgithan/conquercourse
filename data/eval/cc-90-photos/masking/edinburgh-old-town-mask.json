@@ -76,8 +76,8 @@
     {
       "id": "306137104288260",
       "persons": 0,
-      "masked_share": 0.0,
-      "person_box_max_share": 0.0,
+      "masked_share": 0,
+      "person_box_max_share": 0,
       "usable": true,
       "reason": "",
       "had_person": false,
@@ -115,8 +115,8 @@
     {
       "id": "1150072518831678",
       "persons": 0,
-      "masked_share": 0.0,
-      "person_box_max_share": 0.0,
+      "masked_share": 0,
+      "person_box_max_share": 0,
       "usable": true,
       "reason": "",
       "had_person": false,
@@ -128,8 +128,8 @@
     {
       "id": "1330319897347071",
       "persons": 0,
-      "masked_share": 0.0,
-      "person_box_max_share": 0.0,
+      "masked_share": 0,
+      "person_box_max_share": 0,
       "usable": true,
       "reason": "",
       "had_person": false,
@@ -141,8 +141,8 @@
     {
       "id": "302196738117064",
       "persons": 0,
-      "masked_share": 0.0,
-      "person_box_max_share": 0.0,
+      "masked_share": 0,
+      "person_box_max_share": 0,
       "usable": true,
       "reason": "",
       "had_person": false,
@@ -167,8 +167,8 @@
     {
       "id": "341721844200862",
       "persons": 0,
-      "masked_share": 0.0,
-      "person_box_max_share": 0.0,
+      "masked_share": 0,
+      "person_box_max_share": 0,
       "usable": true,
       "reason": "",
       "had_person": false,
@@ -180,8 +180,8 @@
     {
       "id": "948882072538709",
       "persons": 0,
-      "masked_share": 0.0,
-      "person_box_max_share": 0.0,
+      "masked_share": 0,
+      "person_box_max_share": 0,
       "usable": true,
       "reason": "",
       "had_person": false,
@@ -206,8 +206,8 @@
     {
       "id": "296570168619837",
       "persons": 0,
-      "masked_share": 0.0,
-      "person_box_max_share": 0.0,
+      "masked_share": 0,
+      "person_box_max_share": 0,
       "usable": true,
       "reason": "",
       "had_person": false,
@@ -219,8 +219,8 @@
     {
       "id": "887559088468690",
       "persons": 0,
-      "masked_share": 0.0,
-      "person_box_max_share": 0.0,
+      "masked_share": 0,
+      "person_box_max_share": 0,
       "usable": true,
       "reason": "",
       "had_person": false,
@@ -414,8 +414,8 @@
     {
       "id": "145481884262053",
       "persons": 0,
-      "masked_share": 0.0,
-      "person_box_max_share": 0.0,
+      "masked_share": 0,
+      "person_box_max_share": 0,
       "usable": true,
       "reason": "",
       "had_person": false,
@@ -440,8 +440,8 @@
     {
       "id": "903941246847459",
       "persons": 0,
-      "masked_share": 0.0,
-      "person_box_max_share": 0.0,
+      "masked_share": 0,
+      "person_box_max_share": 0,
       "usable": true,
       "reason": "",
       "had_person": false,
@@ -453,8 +453,8 @@
     {
       "id": "163015092493415",
       "persons": 0,
-      "masked_share": 0.0,
-      "person_box_max_share": 0.0,
+      "masked_share": 0,
+      "person_box_max_share": 0,
       "usable": true,
       "reason": "",
       "had_person": false,
@@ -479,8 +479,8 @@
     {
       "id": "1108056603022953",
       "persons": 0,
-      "masked_share": 0.0,
-      "person_box_max_share": 0.0,
+      "masked_share": 0,
+      "person_box_max_share": 0,
       "usable": true,
       "reason": "",
       "had_person": false,
@@ -505,8 +505,8 @@
     {
       "id": "972543366816764",
       "persons": 0,
-      "masked_share": 0.0,
-      "person_box_max_share": 0.0,
+      "masked_share": 0,
+      "person_box_max_share": 0,
       "usable": true,
       "reason": "",
       "had_person": false,
@@ -531,8 +531,8 @@
     {
       "id": "3086608401617161",
       "persons": 0,
-      "masked_share": 0.0,
-      "person_box_max_share": 0.0,
+      "masked_share": 0,
+      "person_box_max_share": 0,
       "usable": true,
       "reason": "",
       "had_person": false,
@@ -544,8 +544,8 @@
     {
       "id": "750408062315175",
       "persons": 0,
-      "masked_share": 0.0,
-      "person_box_max_share": 0.0,
+      "masked_share": 0,
+      "person_box_max_share": 0,
       "usable": true,
       "reason": "",
       "had_person": false,
@@ -557,8 +557,8 @@
     {
       "id": "765929897437964",
       "persons": 0,
-      "masked_share": 0.0,
-      "person_box_max_share": 0.0,
+      "masked_share": 0,
+      "person_box_max_share": 0,
       "usable": true,
       "reason": "",
       "had_person": false,
@@ -570,8 +570,8 @@
     {
       "id": "1150846752096785",
       "persons": 0,
-      "masked_share": 0.0,
-      "person_box_max_share": 0.0,
+      "masked_share": 0,
+      "person_box_max_share": 0,
       "usable": true,
       "reason": "",
       "had_person": false,
@@ -583,8 +583,8 @@
     {
       "id": "156221839844947",
       "persons": 0,
-      "masked_share": 0.0,
-      "person_box_max_share": 0.0,
+      "masked_share": 0,
+      "person_box_max_share": 0,
       "usable": true,
       "reason": "",
       "had_person": false,
@@ -596,8 +596,8 @@
     {
       "id": "177806087574082",
       "persons": 0,
-      "masked_share": 0.0,
-      "person_box_max_share": 0.0,
+      "masked_share": 0,
+      "person_box_max_share": 0,
       "usable": true,
       "reason": "",
       "had_person": false,
@@ -635,8 +635,8 @@
     {
       "id": "742924759710132",
       "persons": 0,
-      "masked_share": 0.0,
-      "person_box_max_share": 0.0,
+      "masked_share": 0,
+      "person_box_max_share": 0,
       "usable": true,
       "reason": "",
       "had_person": false,
@@ -648,8 +648,8 @@
     {
       "id": "838331097794702",
       "persons": 0,
-      "masked_share": 0.0,
-      "person_box_max_share": 0.0,
+      "masked_share": 0,
+      "person_box_max_share": 0,
       "usable": true,
       "reason": "",
       "had_person": false,
@@ -661,8 +661,8 @@
     {
       "id": "501086089051660",
       "persons": 0,
-      "masked_share": 0.0,
-      "person_box_max_share": 0.0,
+      "masked_share": 0,
+      "person_box_max_share": 0,
       "usable": true,
       "reason": "",
       "had_person": false,
@@ -700,8 +700,8 @@
     {
       "id": "440031278932918",
       "persons": 0,
-      "masked_share": 0.0,
-      "person_box_max_share": 0.0,
+      "masked_share": 0,
+      "person_box_max_share": 0,
       "usable": true,
       "reason": "",
       "had_person": false,
@@ -768,7 +768,7 @@
   },
   "coverage": {
     "lane_steps": 17,
-    "steps_with_a_photo_reject_rule": 1.0,
-    "steps_with_a_photo_after_masking": 1.0
+    "steps_with_a_photo_reject_rule": 1,
+    "steps_with_a_photo_after_masking": 1
   }
 }
