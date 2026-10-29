@@ -1,0 +1,14 @@
+{
+  "model": "facebook/musicgen-medium",
+  "prompt": "gentle epic motivational pulse, 100 bpm, low ostinato strings, soft taiko drums, warm, steadily building to a lift, no brass, no synth lead, instrumental, no fade",
+  "seed": 7,
+  "guidance_scale": 3.0,
+  "method": "30 s, then two continuations from the last 10 s",
+  "rate": 32000,
+  "seconds": 89.82,
+  "cost_usd_estimate": 1,
+  "billing": "Modal pay-as-you-go, not covered by credits; approved by the product owner",
+  "bpm_measured": 100.1,
+  "verdict": "rejected for the film: silent gaps at 23.1-37.0 s and 40.0-50.1 s (the continuations faded out), so only the first 23 s is usable; film-bed.ogg stays the music",
+  "raw_f32": "deleted (11 MB); film-track-full.ogg is the ogg of the full output"
+}
