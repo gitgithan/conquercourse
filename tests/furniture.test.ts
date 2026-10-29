@@ -50,7 +50,7 @@ describe('from the real world to the game', () => {
     const east = 33.3, south = -70.2, v = new THREE.Vector3(east * f.k - f.ox, 0, south * f.k - f.oz).applyMatrix4(m), g = toGame(f, east, south, 0);
     expect(g.x).toBeCloseTo(v.x, 6); expect(g.z).toBeCloseTo(v.z, 6);
   });
-  it('draws small worlds no smaller than the minimum scale', () => { expect(drawScale({ ...frame, k: 0.07 })).toBe(MIN_SCALE); expect(drawScale({ ...frame, k: 0.9 })).toBeCloseTo(0.9); });
+  it('draws small worlds no smaller than the minimum scale', () => { expect(drawScale({ ...frame, k: 0.07 })).toBe(MIN_SCALE); expect(drawScale({ ...frame, k: 1.5 })).toBeCloseTo(1.5); });
   it('is off unless ?furniture=1', () => { expect(FURNITURE_ON(new URLSearchParams(''))).toBe(false); expect(FURNITURE_ON(new URLSearchParams('furniture=0'))).toBe(false); expect(FURNITURE_ON(new URLSearchParams('furniture=1'))).toBe(true); });
 });
 
