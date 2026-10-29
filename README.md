@@ -17,7 +17,7 @@ Blue-box diagrams for every pipeline are in [docs/meta-ai-pipelines.md](docs/met
 
 | Meta model or service | Feature it supports | Runs |
 |---|---|---|
-| **SAM 3 / SAM 3.1** | Cuts a real object out of a photo by name; blurs faces and people in video before any body is measured | Build time (Modal GPU) |
+| **SAM 3 / SAM 3.1** | Cuts a real object out of a photo by name (also the glowing box in the demo film's real-to-course shot); blurs faces and people in video before any body is measured | Build time (Modal GPU) |
 | **SAM 3D Objects** | Turns a photo and its mask into a 3D object: the 19 real objects in the editor (bench, low wall, hydrant, concrete pipe, canal railing and more) | Build time (Modal GPU) |
 | **SAM 3D Body + MHR (Momentum Human Rig)** | Measures a person's body and pose from video; the motion clips and the custom-look body come from it | Build time (Modal GPU) |
 | **DINOv3** | Image encoder inside SAM 3D Body | Build time (inside SAM 3D Body) |
@@ -35,6 +35,7 @@ Blue-box diagrams for every pipeline are in [docs/meta-ai-pipelines.md](docs/met
 - **Third parties:** Tripo (character mesh), TRELLIS.2, Pixal3D.
 - **PyTorch / torchvision:** Mask R-CNN and Faster R-CNN find people for the photo mask; they are Meta-originated open-source tools but not a hackathon model, and SAM 3 is the possible upgrade.
 - **Motion capture:** CMU Graphics Lab database, used under its licence.
+- **Film tools:** Remotion (cuts, captions), Playwright and ffmpeg (capture and encode), and the CC0 track "Scaling Up" by Ruskerdax; see [docs/film-toolchain.md](docs/film-toolchain.md).
 
 ## Meta tools in development (not game features)
 - These helped us build the game; the game itself does not call them, and they are not counted as game features.
@@ -73,6 +74,7 @@ Blue-box diagrams for every pipeline are in [docs/meta-ai-pipelines.md](docs/met
 
 ### Demo (25%)
 - Three-minute script: [docs/demo-script-v2.md](docs/demo-script-v2.md).
+- How the film is made, and how to render it again: [docs/film-toolchain.md](docs/film-toolchain.md) (film camera, labels that stay on their part, Remotion project in `demo/`).
 - Beats: a pin on the map becomes a world; a photo becomes an object; the design partner fixes an unclearable course; the lache pair swing, with the debug view showing why it worked.
 
 ## Bonus prizes

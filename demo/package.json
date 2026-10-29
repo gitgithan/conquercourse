@@ -1,0 +1,24 @@
+{
+  "name": "conquercourse-demo",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Remotion media kit for the ConquerCourse demo video (CC-130). Versions are pinned on purpose: see docs/film-toolchain.md.",
+  "scripts": {
+    "studio": "remotion studio src/index.ts --public-dir=../../conquercourse-assets/demo-media",
+    "render:proof": "remotion render src/index.ts Proof20 ../test-results/proof20.mp4 --public-dir=../../conquercourse-assets/demo-media",
+    "render:hook": "remotion render src/index.ts Hook916 ../test-results/hook916.mp4 --public-dir=../../conquercourse-assets/demo-media",
+    "render:intro": "remotion render src/index.ts CourseIntro ../test-results/course-intro.mp4 --public-dir=../../conquercourse-assets/demo-media",
+    "render:full": "remotion render src/index.ts Full3min ../test-results/full3min.mp4 --public-dir=../../conquercourse-assets/demo-media",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@remotion/cli": "4.0.539",
+    "react": "18.3.1",
+    "react-dom": "18.3.1",
+    "remotion": "4.0.539"
+  },
+  "devDependencies": {
+    "@types/react": "18.3.12",
+    "typescript": "5.6.3"
+  }
+}
