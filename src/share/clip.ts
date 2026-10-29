@@ -60,13 +60,35 @@ export async function createClipEncoder(): Promise<ClipEncoder | null> {
   return null;
 }
 
+// The view for the clip is close and side-on, so the runner is easy to see on a phone (CC-137).
+export const CLIP_BAND = { top: 250, h: 780 }; // the middle band of the 720 x 1280 frame
+export const RUNNER_M = 1.75; // a standing runner, in metres
+export const CLIP_RUNNER_FRAC = 0.34; // the runner's height as a share of the 1280-pixel frame; the clip asks for at least a third
+const FOV_HALF_TAN = Math.tan((40 / 2) * Math.PI / 180); // the course camera looks 40 degrees from top to bottom
+
+/** The part of the view that drawClipFrame cuts out for the middle band. */
+export function clipCrop(vw: number, vh: number): { w: number; h: number } {
+  const w = Math.min(vw, vh * (CLIP_W / CLIP_BAND.h));
+  return { w, h: w * (CLIP_BAND.h / CLIP_W) };
+}
+/** How far the side camera must sit from the runner so that the runner is CLIP_RUNNER_FRAC of the frame tall. */
+export function clipCameraDistance(vw: number, vh: number): number {
+  const bandMetres = (RUNNER_M * CLIP_BAND.h) / (CLIP_RUNNER_FRAC * CLIP_H); // metres the band must show from top to bottom
+  return (bandMetres * (vh / clipCrop(vw, vh).h)) / (2 * FOV_HALF_TAN);
+}
+/** The runner's height in the clip frame, as a share of the frame height, for a camera this far away. */
+export function clipRunnerFraction(vw: number, vh: number, distance: number): number {
+  const bandMetres = (2 * distance * FOV_HALF_TAN * clipCrop(vw, vh).h) / vh;
+  return ((RUNNER_M / bandMetres) * CLIP_BAND.h) / CLIP_H;
+}
+
 export interface ClipText { course: string; time: string; address: string }
 
 /** One picture of the clip: the course name and the time on top, the view of the run in the middle, the tagline and the address below. */
 export function drawClipFrame(ctx: CanvasRenderingContext2D, view: CanvasImageSource, vw: number, vh: number, t: ClipText): void {
-  const TOP = 250, MID = 780; // the middle band is 720 x 780
+  const TOP = CLIP_BAND.top, MID = CLIP_BAND.h; // the middle band is 720 x 780
   ctx.fillStyle = '#101b17'; ctx.fillRect(0, 0, CLIP_W, CLIP_H);
-  const srcW = Math.min(vw, vh * (CLIP_W / MID)), srcH = srcW * (MID / CLIP_W); // crop the middle of the view to fill the band
+  const { w: srcW, h: srcH } = clipCrop(vw, vh); // crop the middle of the view to fill the band
   ctx.drawImage(view, (vw - srcW) / 2, Math.max(0, (vh - srcH) / 2), srcW, srcH, 0, TOP, CLIP_W, MID);
   ctx.textAlign = 'center'; ctx.fillStyle = '#ffffff';
   ctx.font = '700 44px system-ui, sans-serif'; ctx.fillText(t.course, CLIP_W / 2, 98, CLIP_W - 60);
