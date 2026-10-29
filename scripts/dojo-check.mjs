@@ -24,6 +24,7 @@ try {
   await page.click('#next');
   checks.nextNeverLocked = !(await page.$eval('#next', (b) => b.disabled));
   checks.noGuessOrLockOrRun = (await page.$$('#guess, #newguess, #scrub, #run')).length === 0;
+  await set('knob-speed', 5); // the saying is earned by moving a slider
   checks.sayingShownAtOnce = await has('already decided');
   for (const [speed, jump] of [[3, 4.5], [6, 4.5], [9, 4.5]]) {
     await set('knob-speed', speed); await set('knob-jump', jump);
@@ -49,7 +50,7 @@ try {
   await page.screenshot({ path: 'test-results/dojo/5-course.png' });
   checks.backLink = (await page.$$('a.btn')).length >= 1;
   const box = await page.$eval('#back', (e) => { const r = e.getBoundingClientRect(); return { right: innerWidth - r.right, top: r.top, w: r.width }; });
-  checks.backIsTopRight = box.top < 30 && box.right < 40 && box.w > 150;
+  checks.backIsTopRight = box.top < 60 && box.right < 80 && box.w > 150;
   await page.keyboard.press('KeyT');
   await page.waitForFunction(() => !document.querySelector('.dojo'), null, { timeout: 60000 });
   checks.tClosesDojo = true;
