@@ -20,6 +20,7 @@ import { createGhost } from '../ui/ghost';
 import { challengeWords, courseTooBig, makeChallengeUrl, offersIdeal, openChallenge, secondsWords, shareOn } from '../share/challenge';
 import { CLIP_BAND, CLIP_H, CLIP_W, RUNNER_M, TICKS_PER_FRAME, clipCameraDistance, clipCrop, clipFits, clipFrames, createClipEncoder, drawClipFrame } from '../share/clip';
 import { mountTouch, touchOn } from '../share/touch';
+import { createGaugeStack } from '../ui/gauges';
 import { PHONE_WORDS, browserPointing, phoneMode } from '../share/phone';
 import { clipCard, shareButtons, showBanner } from '../share/share-ui';
 import { inputOfMask, type InputLog } from '../sim/replay';
@@ -321,9 +322,9 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
   panel.style.cssText = 'position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);width:min(760px,94vw);max-height:88vh;overflow:auto;z-index:40;box-sizing:border-box;background:#fffffff5;border:1px solid #cfd6d0;border-radius:12px;padding:16px;font:15px/1.4 system-ui,sans-serif;color:#17201d;display:none;gap:10px;box-shadow:0 8px 30px #0003';
   const hint = document.createElement('div');
   hint.style.cssText = 'position:fixed;left:50%;bottom:124px;transform:translateX(-50%);font:600 20px system-ui,sans-serif;color:#10141c;background:#fffc;border-radius:10px;padding:8px 16px;pointer-events:none';
-  const gauge = document.createElement('div');
-  gauge.style.cssText = 'position:fixed;left:50%;top:10px;transform:translateX(-50%);width:min(420px,60vw);font:600 15px system-ui,sans-serif;color:#10141c;text-shadow:0 1px 0 #fff8;pointer-events:none;text-align:center';
-  gauge.innerHTML = '<div id="gtext">Speed</div><div style="position:relative;height:14px;background:#10141c33;border-radius:7px;margin-top:3px"><div id="gfill" style="height:100%;width:0;background:#0f6b5c;border-radius:7px"></div><div id="gneed" style="position:absolute;top:-4px;width:3px;height:22px;background:#c4572a;display:none"></div></div><div id="gnext" style="margin-top:4px;font-weight:500"></div>';
+  const gaugeStack = createGaugeStack(params.get('gauges') === 'old' ? 'old' : 'bottom-left'); // CC-148: one bottom-left stack for everything about the runner
+  const speedGauge = gaugeStack.register({ id: 'speed', label: 'Speed', colour: '#0f6b5c', max: 10 });
+  const batteryGauge = course.drone && params.get('gauges') !== 'old' ? gaugeStack.register({ id: 'battery', label: 'Drone battery', colour: '#2a6fb0', max: 100 }) : null;
   const dojoBtn = document.createElement('button');
   dojoBtn.textContent = 'Dojo (T)';
   dojoBtn.style.cssText = 'position:fixed;right:16px;top:12px;font:600 15px system-ui,sans-serif;border:1px solid #0f6b5c;background:#0f6b5c;color:#fff;border-radius:8px;padding:6px 14px;cursor:pointer';
@@ -519,7 +520,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
   const dbgBtn = document.createElement('button');
   dbgBtn.id = 'debugbtn'; dbgBtn.textContent = 'Debug (B)'; dbgBtn.title = 'Show the collision boxes and where a jump right now would go';
   dbgBtn.style.cssText = 'position:fixed;right:16px;top:166px;border:2px solid #17201d;background:#fff;color:#17201d;border-radius:10px;padding:3px 10px;cursor:pointer;font:600 12px system-ui,sans-serif';
-  document.body.append(hud, msg, help, panel, hint, gauge, dojoBtn, idealBtn, rowBtns, pick, camBtn, dbgBtn);
+  document.body.append(hud, msg, help, panel, hint, gaugeStack.el, dojoBtn, idealBtn, rowBtns, pick, camBtn, dbgBtn);
   // CC-85: a real place shows its real photos (credit under each, a large view on click); ?photos=0 or the Hide switch turns them off
   const placeSlug = slugOfCourse(course.name);
   let livePhotos: { update(x: number): void } | null = null; // CC-90: street photos from the allow-list change as the runner moves; the CC-85 strip is the fallback
@@ -529,8 +530,6 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
   document.body.append(toast);
   let toastUntil = 0, squashUntil = 0, squashDepth = 1;
   let releasedAtX: number | null = null; const caughtSince = new Set<number>(); // the bars passed since the last release: a bar flown over without a grab is said to be skipped
-  const gText = gauge.querySelector('#gtext') as HTMLElement, gFill = gauge.querySelector('#gfill') as HTMLElement;
-  const gNeed = gauge.querySelector('#gneed') as HTMLElement, gNext = gauge.querySelector('#gnext') as HTMLElement;
   try { localStorage.setItem('cc.course', JSON.stringify(course)); } catch { /* the Dojo falls back to the default course */ }
   const specs = gapSpecs(course);
   const zoneOf = (x: number) => course.zones?.find((z) => x >= z.x0 && x < z.x1);
@@ -584,7 +583,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
   });
   addEventListener('keyup', (e) => keys.delete(e.code));
   const touchControls = touchOn(params, browserPointing); // CC-139: on a touch device the buttons press the same keys; ?touch=0 turns them off
-  if (touchControls) { mountTouch(document.body, { cannon: !!course.recoil }); keysOpen = false; keysTouched = true; paintKeys(false); frontOverride = false; } // the keys card is for keyboards; the small corner view would hide the runner on a narrow screen
+  if (touchControls) { mountTouch(document.body, { cannon: !!course.recoil }); gaugeStack.lift(150); keysOpen = false; keysTouched = true; paintKeys(false); frontOverride = false; } // the keys card is for keyboards; the small corner view would hide the runner on a narrow screen
   addEventListener('resize', () => {
     renderer.setSize(host.clientWidth, host.clientHeight);
     camera.aspect = host.clientWidth / host.clientHeight;
@@ -1410,16 +1409,17 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
     const onCoaster = world.mode === 'cart' && world.cart !== null;
     const spd = onCoaster ? Math.abs(world.cart!.v) : Math.abs(r.vx);
     const gaugeMax = onCoaster ? 40 : GAUGE_MAX;
-    gText.textContent = `${onCoaster ? 'Speed along track' : 'Speed'} ${spd.toFixed(1)} m/s`;
-    gFill.style.width = `${Math.min(100, (spd / gaugeMax) * 100)}%`;
     const nextGap = specs.find((g) => g.x + 0.2 >= r.x && g.x - r.x < 40 && ['gap', 'landing'].includes(zoneOf(g.x)?.id ?? ''));
     let need = 0, msgNext = '';
     if (nextGap && world.mode === 'run') { need = nextGap.needed; msgNext = `Next gap: ${nextGap.width.toFixed(1)} m wide. You need at least ${need.toFixed(1)} m/s at the edge.`; }
     else if (course.wall && world.mode === 'run' && r.x < course.wall.x0 && course.wall.x0 - r.x < 45) { need = wallNeed; msgNext = `Warped wall: ${(course.wall.height ?? DEFAULT_WALL.height).toFixed(1)} m high. You need at least ${need.toFixed(1)} m/s at its foot.`; }
-    gNeed.style.display = need ? 'block' : 'none';
-    gNeed.style.left = `${Math.min(100, (need / gaugeMax) * 100)}%`;
-    gFill.style.background = need && spd < need ? '#c4572a' : '#0f6b5c';
-    gNext.textContent = msgNext;
+    speedGauge.set({ text: `${onCoaster ? 'Speed along track' : 'Speed'} ${spd.toFixed(1)} m/s`, max: gaugeMax, value: spd, mark: need, colour: need && spd < need ? '#c4572a' : '#0f6b5c', note: msgNext });
+    if (batteryGauge && world.drone) {
+      const full = droneParams(course).battery * 3600;
+      const left = world.drone.empty ? 0 : Math.max(0, world.drone.energy) / full;
+      const pct = Math.round(100 * left);
+      batteryGauge.set({ text: world.drone.empty ? 'Drone battery empty' : `Drone battery ${pct}%`, max: 1, value: left, colour: pct <= 20 ? '#c4572a' : '#2a6fb0' });
+    }
     hud.textContent = `Time ${(r.tick / 120).toFixed(1)} s   ·   ${Math.max(0, Math.round(r.x))} m of ${course.finishX} m`;
     livePhotos?.update(r.x);
     // the head: the body's turn about the bar (swing angle theta, a rotation so it passes the top smoothly) and where the eyes are; the first-person camera and the corner window both use it.
