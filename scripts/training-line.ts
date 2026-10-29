@@ -9,18 +9,22 @@ import { findShortcuts } from '../src/sim/shortcuts';
 
 const f = 'public/assets/demo/training.course.json';
 const c = JSON.parse(readFileSync(f, 'utf8')) as CourseData;
-// CC-175: the lache, rope and trampoline block moved along by DX = 99 (scripts/make-training-course.ts); the step vault and the climb come before it.
-const DX = 99;
-const base: Plan = { jumpXs: [22.5, 59.8 + DX, 84.5 + DX, 126.48 + DX], releaseAfter: 58, bouncePress: 8, hands: true, hangTicks: [215], vaultXs: [45.64, 68], climbXs: [104.5] };
+// CC-175: the lache, rope and trampoline block moved along by DX = 99 (scripts/training-layout.ts); the step vault and the climb come before it.
+import { DX, GAP_EDGE, TRAMP_CUT } from './training-layout';
+// CC-182: the layout (and DX) now come from scripts/training-layout.ts.
+const T = TRAMP_CUT;
+const JX0 = 62 + DX - 2.2; // the first bar's take-off, 2.2 m before the deck ends (searched below)
+const VX = JSON.parse(process.env.VX ?? '[41.5,63.8]') as number[], CX = Number(process.env.CX ?? 100.5);
+const base: Plan = { jumpXs: [GAP_EDGE - 1.5, JX0, 84.5 + DX, 126.48 + DX - T], releaseAfter: 58, bouncePress: 8, hands: true, hangTicks: [215], vaultXs: VX, climbXs: [CX] };
 const catches = (r: ReturnType<typeof playPlan>) => r.events.filter((e) => e.type === 'hang-catch').length;
 let both: { plan: Plan; ticks: number } | null = null, skip: { plan: Plan; ticks: number } | null = null;
-for (let h1 = 0; h1 <= 300; h1 += 30) for (let h2 = 0; h2 <= 480; h2 += 30) {
-  const plan: Plan = { ...base, hangTicks: [h1, h2] };
+for (const jx of Array.from({ length: 8 }, (_, i) => 62 + DX - 3 + i * 0.4)) for (let h1 = 0; h1 <= 300; h1 += 30) for (let h2 = 0; h2 <= 480; h2 += 30) {
+  const plan: Plan = { ...base, jumpXs: [GAP_EDGE - 1.5, jx, 84.5 + DX, 126.48 + DX - T], hangTicks: [h1, h2] };
   const r = playPlan(c, plan, 120 * 70);
   if (r.world.outcome === 'cleared' && catches(r) >= 2 && (!both || r.world.runner.tick < both.ticks)) both = { plan, ticks: r.world.runner.tick };
 }
-for (const jx of [58.7, 58.8, 58.9, 59, 59.1, 59.2, 59.3, 59.4, 59.5, 59.6].map((v) => v + DX)) for (let h = 0; h <= 540; h += 3) {
-  const plan: Plan = { ...base, jumpXs: [22.5, jx, 84.5 + DX, 126.48 + DX], hangTicks: [h], airHands: [false] };
+for (const jx of Array.from({ length: 15 }, (_, i) => 62 + DX - 3.2 + i * 0.2)) for (let h = 0; h <= 540; h += 3) {
+  const plan: Plan = { ...base, jumpXs: [GAP_EDGE - 1.5, jx, 84.5 + DX, 126.48 + DX - T], hangTicks: [h], airHands: [false] };
   const r = playPlan(c, plan, 120 * 70);
   if (r.world.outcome === 'cleared' && catches(r) === 1 && (!skip || r.world.runner.tick < skip.ticks)) skip = { plan, ticks: r.world.runner.tick };
 }

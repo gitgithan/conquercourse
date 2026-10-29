@@ -16,7 +16,7 @@ describe('the lache pair', () => {
   it('can be cleared over a 9 m gap, and the line has to pump the swing', () => {
     const r = searchIdealRun(course(9));
     expect(r.cleared).toBe(true);
-    expect(r.plan.hangTicks![0]).toBeGreaterThan(120); // more than a second on the first bar: the swing is built, not just ridden
+    expect(r.plan.hangTicks![0]).toBeGreaterThan(30); // the swing is built, not just ridden (CC-182: the tighter grab, 0.35 m, catches the bar later in the swing, so the best line hangs 0.4 s, down from over a second; letting go at once still fails, below)
   });
   it('is not cleared by a plain run and jump (a run of six metres gives a jump that falls short)', () => {
     const r = playPlan(course(9), { jumpXs: [5.9], releaseAfter: 60, bouncePress: 8 });
