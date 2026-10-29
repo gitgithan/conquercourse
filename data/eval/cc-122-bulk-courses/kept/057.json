@@ -1,0 +1,61 @@
+{
+  "index": 57,
+  "theme": "low blocks close together that set a rhythm",
+  "setting": "a railway yard",
+  "level": 4,
+  "said": "A railway yard rhythm of three tight sleeper vaults builds speed toward a tall container climb.",
+  "layout": [
+    {
+      "kind": "ground",
+      "length": 6
+    },
+    {
+      "kind": "block",
+      "length": 0.9,
+      "height": 0.6
+    },
+    {
+      "kind": "ground",
+      "length": 1.7
+    },
+    {
+      "kind": "block",
+      "length": 0.9,
+      "height": 0.9
+    },
+    {
+      "kind": "ground",
+      "length": 1.5
+    },
+    {
+      "kind": "block",
+      "length": 0.9,
+      "height": 0.65
+    },
+    {
+      "kind": "ground",
+      "length": 2
+    },
+    {
+      "kind": "block",
+      "length": 1.8,
+      "height": 1.4
+    },
+    {
+      "kind": "ground",
+      "length": 6
+    }
+  ],
+  "clearsAsDrawn": false,
+  "moves": [
+    "jump"
+  ],
+  "plan": {
+    "jumpXs": [
+      4.5,
+      29.18
+    ],
+    "releaseAfter": 60,
+    "bouncePress": 8
+  }
+}

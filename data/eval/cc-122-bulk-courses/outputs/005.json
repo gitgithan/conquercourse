@@ -1,0 +1,14 @@
+{
+  "index": 5,
+  "theme": "a gap that a bar could be used to skip across",
+  "setting": "a school yard",
+  "level": 3,
+  "status": 200,
+  "ms": 16726,
+  "usage": {
+    "prompt_tokens": 453,
+    "completion_tokens": 3818,
+    "total_tokens": 4271
+  },
+  "reply": "Schoolyard line vaults a low bench wall, swings over the flooded sandpit on one bar, then climbs a shed wall to finish.\n\n```json\n{\n  \"items\": [\n    {\"kind\": \"ground\", \"length\": 6},\n    {\"kind\": \"block\", \"length\": 1, \"height\": 0.9},\n    {\"kind\": \"ground\", \"length\": 5},\n    {\"kind\": \"gap\", \"width\": 3},\n    {\"kind\": \"bar\", \"height\": 2.4},\n    {\"kind\": \"gap\", \"width\": 3},\n    {\"kind\": \"ground\", \"length\": 4},\n    {\"kind\": \"block\", \"length\": 1, \"height\": 1.8},\n    {\"kind\": \"ground\", \"length\": 5}\n  ]\n}\n```"
+}

@@ -1,0 +1,14 @@
+{
+  "index": 35,
+  "theme": "a gap that a bar could be used to skip across",
+  "setting": "a market square",
+  "level": 3,
+  "status": 200,
+  "ms": 23826,
+  "usage": {
+    "prompt_tokens": 453,
+    "completion_tokens": 5103,
+    "total_tokens": 5556
+  },
+  "reply": "Market stalls frame a fountain gap swung on a hanging sign bar with crates to climb beyond.\n\n```json\n{\n  \"items\": [\n    {\"kind\": \"ground\", \"length\": 7},\n    {\"kind\": \"block\", \"length\": 1, \"height\": 0.9},\n    {\"kind\": \"ground\", \"length\": 4},\n    {\"kind\": \"gap\", \"width\": 5},\n    {\"kind\": \"bar\", \"height\": 2.4},\n    {\"kind\": \"ground\", \"length\": 5},\n    {\"kind\": \"block\", \"length\": 1, \"height\": 1.6},\n    {\"kind\": \"ground\", \"length\": 7}\n  ]\n}\n```"
+}

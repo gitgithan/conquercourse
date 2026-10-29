@@ -1,0 +1,14 @@
+{
+  "index": 0,
+  "theme": "a wide gap that needs a long run-up and jump",
+  "setting": "a school yard",
+  "level": 1,
+  "status": 200,
+  "ms": 8220,
+  "usage": {
+    "prompt_tokens": 453,
+    "completion_tokens": 2138,
+    "total_tokens": 2591
+  },
+  "reply": "A gentle school yard run with a long approach to clear a wide playground gap.\n\n```json\n{\"items\": [{\"kind\":\"ground\",\"length\":12},{\"kind\":\"gap\",\"width\":3.2},{\"kind\":\"ground\",\"length\":8}]}\n```"
+}

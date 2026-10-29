@@ -1,0 +1,14 @@
+{
+  "index": 12,
+  "theme": "a block to vault, then a gap to jump",
+  "setting": "a harbour",
+  "level": 2,
+  "status": 200,
+  "ms": 9470,
+  "usage": {
+    "prompt_tokens": 451,
+    "completion_tokens": 1842,
+    "total_tokens": 2293
+  },
+  "reply": "Harbour dockside lane with a low vault crate leading to a short hop over water.\n```json\n{\"items\": [{\"kind\": \"ground\", \"length\": 6}, {\"kind\": \"block\", \"length\": 1, \"height\": 0.9}, {\"kind\": \"ground\", \"length\": 3}, {\"kind\": \"gap\", \"width\": 2}, {\"kind\": \"ground\", \"length\": 6}]}\n```"
+}

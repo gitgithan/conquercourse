@@ -1,0 +1,14 @@
+{
+  "index": 33,
+  "theme": "a tall wall to climb, then a drop to the ground",
+  "setting": "a market square",
+  "level": 2,
+  "status": 200,
+  "ms": 6939,
+  "usage": {
+    "prompt_tokens": 454,
+    "completion_tokens": 1845,
+    "total_tokens": 2299
+  },
+  "reply": "A gentle market square dash over a low crate to climb a tall wall and drop back to the square.\n```json\n{\"items\": [{\"kind\":\"ground\",\"length\":6},{\"kind\":\"block\",\"length\":1,\"height\":0.6},{\"kind\":\"ground\",\"length\":3},{\"kind\":\"block\",\"length\":2,\"height\":2},{\"kind\":\"ground\",\"length\":6}]}\n```"
+}

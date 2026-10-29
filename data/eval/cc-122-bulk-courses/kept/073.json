@@ -1,0 +1,43 @@
+{
+  "index": 73,
+  "theme": "a tall wall to climb, then a drop to the ground",
+  "setting": "an old fort",
+  "level": 2,
+  "said": "A simple old fort approach with a low vault, a tall wall climb, and a soft drop back to level ground.",
+  "layout": [
+    {
+      "kind": "ground",
+      "length": 12
+    },
+    {
+      "kind": "block",
+      "length": 1,
+      "height": 0.8
+    },
+    {
+      "kind": "ground",
+      "length": 6
+    },
+    {
+      "kind": "block",
+      "length": 1.5,
+      "height": 2.2
+    },
+    {
+      "kind": "ground",
+      "length": 10
+    }
+  ],
+  "clearsAsDrawn": false,
+  "moves": [
+    "jump"
+  ],
+  "plan": {
+    "jumpXs": [
+      4.5,
+      38
+    ],
+    "releaseAfter": 60,
+    "bouncePress": 8
+  }
+}

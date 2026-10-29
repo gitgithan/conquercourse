@@ -1,0 +1,14 @@
+{
+  "index": 64,
+  "theme": "two or three bars to swing across wide water",
+  "setting": "a beach",
+  "level": 3,
+  "status": 200,
+  "ms": 12387,
+  "usage": {
+    "prompt_tokens": 450,
+    "completion_tokens": 2763,
+    "total_tokens": 3213
+  },
+  "reply": "Beach dune vault into a three-bar swing over a wide tide pool to the pier with a final hop.\n\n```json\n{\"items\": [{\"kind\":\"ground\",\"length\":6},{\"kind\":\"block\",\"length\":1,\"height\":0.9},{\"kind\":\"ground\",\"length\":3},{\"kind\":\"gap\",\"width\":6.5},{\"kind\":\"bar\",\"height\":2.4},{\"kind\":\"bar\",\"height\":2.4},{\"kind\":\"bar\",\"height\":2.3},{\"kind\":\"ground\",\"length\":5},{\"kind\":\"gap\",\"width\":2},{\"kind\":\"ground\",\"length\":5}]}\n```"
+}

@@ -1,0 +1,14 @@
+{
+  "index": 26,
+  "theme": "a high platform, a drop to the ground, then another gap",
+  "setting": "a quarry",
+  "level": 4,
+  "status": 200,
+  "ms": 11312,
+  "usage": {
+    "prompt_tokens": 455,
+    "completion_tokens": 3065,
+    "total_tokens": 3520
+  },
+  "reply": "Quarry ledge holds a tall platform with a sharp drop to a short landing before a wide gap.\n\n```json\n{\"items\": [{\"kind\": \"ground\", \"length\": 6}, {\"kind\": \"block\", \"length\": 4, \"height\": 2.4}, {\"kind\": \"ground\", \"length\": 3}, {\"kind\": \"gap\", \"width\": 3.8}, {\"kind\": \"ground\", \"length\": 6}]}\n```"
+}

@@ -1,0 +1,14 @@
+{
+  "index": 3,
+  "theme": "a tall wall to climb, then a drop to the ground",
+  "setting": "a school yard",
+  "level": 2,
+  "status": 200,
+  "ms": 14800,
+  "usage": {
+    "prompt_tokens": 454,
+    "completion_tokens": 3036,
+    "total_tokens": 3490
+  },
+  "reply": "Simple school yard wall climb with a straight drop back to flat ground.\n\n```json\n{\"items\": [{\"kind\":\"ground\",\"length\":8},{\"kind\":\"block\",\"length\":1,\"height\":1.8},{\"kind\":\"ground\",\"length\":8}]}\n```"
+}

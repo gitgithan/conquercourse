@@ -1,0 +1,49 @@
+{
+  "index": 11,
+  "theme": "a chain of blocks of rising height, like stairs of different sizes",
+  "setting": "a harbour",
+  "level": 1,
+  "said": "A gentle harbour staircase of four dock blocks rising step by step.",
+  "layout": [
+    {
+      "kind": "ground",
+      "length": 5
+    },
+    {
+      "kind": "block",
+      "length": 2,
+      "height": 0.4
+    },
+    {
+      "kind": "block",
+      "length": 2,
+      "height": 0.7
+    },
+    {
+      "kind": "block",
+      "length": 2.2,
+      "height": 1
+    },
+    {
+      "kind": "block",
+      "length": 2.2,
+      "height": 1.25
+    },
+    {
+      "kind": "ground",
+      "length": 6
+    }
+  ],
+  "clearsAsDrawn": true,
+  "moves": [
+    "jump"
+  ],
+  "plan": {
+    "jumpXs": [
+      4.5,
+      26.78
+    ],
+    "releaseAfter": 60,
+    "bouncePress": 8
+  }
+}

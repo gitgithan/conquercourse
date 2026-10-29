@@ -1,0 +1,63 @@
+{
+  "index": 77,
+  "theme": "low blocks close together that set a rhythm",
+  "setting": "an old fort",
+  "level": 4,
+  "said": "Quick vault rhythm over three low fort walls with a long gap to a landing ledge.",
+  "layout": [
+    {
+      "kind": "ground",
+      "length": 3.5
+    },
+    {
+      "kind": "block",
+      "length": 0.7,
+      "height": 0.5
+    },
+    {
+      "kind": "ground",
+      "length": 1
+    },
+    {
+      "kind": "block",
+      "length": 0.7,
+      "height": 0.65
+    },
+    {
+      "kind": "ground",
+      "length": 1
+    },
+    {
+      "kind": "block",
+      "length": 0.7,
+      "height": 0.85
+    },
+    {
+      "kind": "gap",
+      "width": 3.4
+    },
+    {
+      "kind": "block",
+      "length": 2,
+      "height": 0.9
+    },
+    {
+      "kind": "ground",
+      "length": 4
+    }
+  ],
+  "clearsAsDrawn": true,
+  "moves": [
+    "gap jump",
+    "jump"
+  ],
+  "plan": {
+    "jumpXs": [
+      6,
+      14.52,
+      24.4
+    ],
+    "releaseAfter": 60,
+    "bouncePress": 8
+  }
+}

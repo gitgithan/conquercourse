@@ -1,0 +1,50 @@
+{
+  "index": 56,
+  "theme": "a high platform, a drop to the ground, then another gap",
+  "setting": "a railway yard",
+  "level": 4,
+  "said": "A tight railway yard sprint climbs a high cargo platform, drops sharply to the tracks, then hits a long second gap with little room to recover.",
+  "layout": [
+    {
+      "kind": "ground",
+      "length": 4
+    },
+    {
+      "kind": "block",
+      "length": 5,
+      "height": 2
+    },
+    {
+      "kind": "gap",
+      "width": 3
+    },
+    {
+      "kind": "ground",
+      "length": 2.5
+    },
+    {
+      "kind": "gap",
+      "width": 3.4
+    },
+    {
+      "kind": "ground",
+      "length": 5
+    }
+  ],
+  "clearsAsDrawn": false,
+  "moves": [
+    "gap jump",
+    "jump"
+  ],
+  "plan": {
+    "jumpXs": [
+      4.72,
+      11,
+      14.66,
+      21.78,
+      30.08
+    ],
+    "releaseAfter": 60,
+    "bouncePress": 8
+  }
+}

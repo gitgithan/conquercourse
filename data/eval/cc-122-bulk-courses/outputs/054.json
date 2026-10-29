@@ -1,0 +1,14 @@
+{
+  "index": 54,
+  "theme": "two or three bars to swing across wide water",
+  "setting": "a railway yard",
+  "level": 3,
+  "status": 200,
+  "ms": 19771,
+  "usage": {
+    "prompt_tokens": 451,
+    "completion_tokens": 4529,
+    "total_tokens": 4980
+  },
+  "reply": "Old signal gantries span a wide flooded channel between low freight platforms in the yard.\n```json\n{\"items\": [{\"kind\":\"ground\",\"length\":5},{\"kind\":\"block\",\"length\":2,\"height\":0.9},{\"kind\":\"gap\",\"width\":2.5},{\"kind\":\"bar\",\"height\":2.2},{\"kind\":\"gap\",\"width\":3},{\"kind\":\"bar\",\"height\":2.4},{\"kind\":\"gap\",\"width\":3},{\"kind\":\"bar\",\"height\":2.4},{\"kind\":\"gap\",\"width\":2},{\"kind\":\"ground\",\"length\":6}]}\n```"
+}

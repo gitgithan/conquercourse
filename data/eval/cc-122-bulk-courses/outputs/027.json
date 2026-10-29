@@ -1,0 +1,14 @@
+{
+  "index": 27,
+  "theme": "low blocks close together that set a rhythm",
+  "setting": "a quarry",
+  "level": 4,
+  "status": 200,
+  "ms": 13135,
+  "usage": {
+    "prompt_tokens": 450,
+    "completion_tokens": 2535,
+    "total_tokens": 2985
+  },
+  "reply": "Tight quarry line of low blocks with shrinking gaps demanding precise vault rhythm.\n```json\n{\"items\": [{\"kind\":\"ground\",\"length\":6},{\"kind\":\"block\",\"length\":0.9,\"height\":0.85},{\"kind\":\"ground\",\"length\":1.4},{\"kind\":\"block\",\"length\":0.9,\"height\":0.95},{\"kind\":\"ground\",\"length\":1.2},{\"kind\":\"block\",\"length\":1,\"height\":0.75},{\"kind\":\"ground\",\"length\":1},{\"kind\":\"block\",\"length\":1,\"height\":1.15},{\"kind\":\"ground\",\"length\":5}]}\n```"
+}

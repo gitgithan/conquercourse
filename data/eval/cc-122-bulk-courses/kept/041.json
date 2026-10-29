@@ -1,0 +1,49 @@
+{
+  "index": 41,
+  "theme": "a chain of blocks of rising height, like stairs of different sizes",
+  "setting": "a rooftop",
+  "level": 1,
+  "said": "A gentle rooftop stair of four steadily rising blocks forming an easy ascent.",
+  "layout": [
+    {
+      "kind": "ground",
+      "length": 6
+    },
+    {
+      "kind": "block",
+      "length": 1.8,
+      "height": 0.4
+    },
+    {
+      "kind": "block",
+      "length": 2.2,
+      "height": 0.65
+    },
+    {
+      "kind": "block",
+      "length": 2,
+      "height": 0.85
+    },
+    {
+      "kind": "block",
+      "length": 2.8,
+      "height": 1.05
+    },
+    {
+      "kind": "ground",
+      "length": 6
+    }
+  ],
+  "clearsAsDrawn": true,
+  "moves": [
+    "jump"
+  ],
+  "plan": {
+    "jumpXs": [
+      4.5,
+      28.16
+    ],
+    "releaseAfter": 60,
+    "bouncePress": 8
+  }
+}
