@@ -1,0 +1,18 @@
+{
+  "runs": [
+    {
+      "slug": "montmartre-paris",
+      "furniture": false,
+      "placed": null,
+      "credit": null,
+      "errors": []
+    },
+    {
+      "slug": "montmartre-paris",
+      "furniture": true,
+      "placed": "21b24f",
+      "credit": null,
+      "errors": []
+    }
+  ]
+}
