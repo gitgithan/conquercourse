@@ -55,9 +55,16 @@
 
 ## Learning from a human line
 - A verified run that beats the stored line is worth more than a record: it shows the search missed something.
-- Today the flagged logs can be read from the table (`beats_ideal = 1`) and replayed with `verifyLog`.
-- Turning the keys into a plan seed for `src/sim/ideal.ts` (jump x, vault x, hang ticks) is a search change and not small, so it is not built here.
-- Follow-up: CC-176.
+- Built in CC-176: `src/sim/seed-plan.ts` turns the keys into a plan and keeps the faster of the plan and the stored line.
+  - `planFromLog` reads each press where it happened (jump x, vault x, climb x, hang ticks, rope release, bounce press).
+  - `polish` nudges each number in small steps and keeps a change only when the run still clears and gets faster.
+  - `chooseWithSeeds` keeps the stored plan unless a seed is faster; a seed that does not clear is not used.
+- Use it:
+  - `npx tsx scripts/seed-plan.ts <course.json> <log.json>... [--write]` compares and (with `--write`) stores the faster plan; then run `npm run course-meta`.
+  - Logs kept in `data/seeds/<course name>/*.json` are applied by `scripts/plans.ts` after each search.
+- Not built: the export of flagged logs from the table (`beats_ideal = 1`) needs the database (migration 0004 is written, not applied); until then a log is saved by hand.
+- Known gap: a contraption course (cannon, drone, coaster) has non-key inputs and cannot be seeded from keys.
+- Beating the stored line stays a flag, not an error.
 
 ## The database column (needs the owner's yes)
 - `migrations/0004_clear_verified.sql` adds `verified` (default 1, so every old row stays verified) and `beats_ideal` (default 0).
