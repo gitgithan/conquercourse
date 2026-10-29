@@ -56,6 +56,22 @@ const CSS = `
   .ed.ux .helper>.row:first-child strong{padding-right:30px;grid-column:1/-1;justify-self:start;max-width:calc(100% - 34px);box-sizing:border-box}
   .ed.ux .helper>.row:first-child button:not(#closehelper){grid-row:2;min-height:30px;padding:3px 10px;font-size:12.5px;white-space:nowrap}
   .ed.ux .helper>.row:first-child #fixit{grid-column:1}.ed.ux .helper>.row:first-child #easier{grid-column:2}
+  .ed.ux .helper #advice:empty,.ed.ux .helper #routes:empty{display:none}
+  .ed.ux .helper #advice{padding:8px 14px 0;display:grid;gap:6px}
+  .ed.ux .helper #advice .row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;align-items:center}
+  .ed.ux .helper #advice .row span,.ed.ux .helper #routes .row span{overflow-wrap:anywhere}
+  .ed.ux .helper #routeshead{padding:8px 14px 0}.ed.ux .helper #routeshead button{width:100%;white-space:normal;text-align:left;min-height:30px;line-height:1.25}
+  .ed.ux .helper #routes{padding:6px 14px 0;display:grid;gap:8px}
+  .ed.ux .helper #routes .row{display:grid;grid-template-columns:1fr 1fr;gap:6px}.ed.ux .helper #routes .row span{grid-column:1/-1}
+  .ed.ux .helper #reply{flex:1 1 auto;min-height:0;overflow:auto;overscroll-behavior:contain;padding:10px 14px;margin:0;font-size:13px;line-height:1.45;overflow-wrap:anywhere;display:grid;gap:6px;align-content:start;scrollbar-width:thin}
+  .ed.ux .helper #reply.muted{color:var(--muted)}
+  .ed.ux .helper #reply .pvrow{display:grid;grid-template-columns:18px minmax(0,1fr);gap:8px;align-items:start;font-size:13px}
+  .ed.ux .helper #reply .pvrow input{margin:2px 0 0}
+  .ed.ux .helper #reply .row{display:flex;flex-wrap:wrap;gap:6px}
+  .ed.ux .helper #reply .ok,.ed.ux .helper #reply .bad{padding:5px 8px;border-radius:6px}
+  .ed.ux .helper>.row:last-child{display:grid;grid-template-columns:auto minmax(0,1fr);gap:8px;padding:8px 14px 10px;border-top:1px solid var(--line);background:#fafcfb}
+  .ed.ux .helper #ask{grid-column:1/-1;min-height:44px;width:100%;font-size:13px}
+  .ed.ux .helper #send{min-width:56px}.ed.ux .helper #what{white-space:normal;line-height:1.2;text-align:center}
 `;
 
 const FIXES: { id: string; label: string; when: string; expect: string; clear: boolean }[] = [
