@@ -1,0 +1,13 @@
+{
+  "note": "stepped 60 Hz frames over the plank demo (CC-82 smooth bend)",
+  "crossing": {
+    "maxMidChangePerFrame_raw_m": 0.0253,
+    "maxMidChangePerFrame_eased_m": 0.0177,
+    "maxFeetLagBehindPhysics_m": 0.157,
+    "outcome": "cleared"
+  },
+  "landingInTheMiddle": {
+    "oneFrame_raw_m": 0.541,
+    "oneFrame_eased_m": 0.048
+  }
+}
