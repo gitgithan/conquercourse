@@ -160,39 +160,43 @@
 
 ### So what
 - The film is one true story told in eight beats: a real place on Earth becomes a course, a real photo becomes an object in it, and the runner then really runs it.
-- The hero is the IOR Skatepark in Bucharest, because its course ("Park run") already has photo-lifted objects and a simulator-proven run; the leap to the bar is the one piece still to build and prove.
+- The hero is the Montmartre steps in Paris: a place with a simulator-proven rooftop lane, then the Training course's proven rope section, with one photo-lifted CC0 skate box on the lane (CC-210, test `tests/hero-course.test.ts`).
 - Real means the game drew it from real inputs on the stepped clock; concept means a faithful stand-in that the game could draw but does not yet.
 - Silent first; the music pick below sets the beat grid.
 
 ### Music and mood: three options (nothing new is bought or generated)
-- A, "Rising drums": `course.ogg` (soft taiko and low strings, rising, 70 bpm measured, the owner liked its high notes); calm start, build, a drum lift for the leap.
-- B, "Wonder to action": `map.ogg` (100 bpm, calm) for beats 1 and 2, crossfading into `editor.ogg` (110 bpm, gentle, forward) for the rest; two tempos, so the cuts follow two grids.
+- A, "Calm, then taiko": `map.ogg` (100 bpm, calm) for the map beats, then `course-d_8` (100 bpm, soft taiko and low strings, rising; the Course loop the product owner picked in `docs/music.md`).
+- B, "Wonder to action": `map.ogg` into `editor.ogg` (110 bpm, gentle, forward); two tempos, so the cuts follow two grids.
 - C, "Bright pulse": `report.ogg` (110 bpm, lively); the most upbeat, and the closest to the eurobeat the owner rejected.
-- Pick: A, because one steady grid makes every cut land, and the taiko lift can carry the slow-motion leap.
-- Problem with A: the loop is short (about 9 to 15 s), so 80 s repeats it five or more times.
-  - Fix, ranked: a longer MusicGen track on a Modal GPU (about $1; the owner is told the cost first), or two loops stitched with a crossfade.
-- Beat grid at 70 bpm: a beat is 0.857 s, a bar is 3.43 s, and 24 bars are 82.3 s.
+- Pick: A, because both loops are 100 bpm and exactly 6 bars (14.4 s), so they join on a bar line with no tempo change.
+- Correction to the first draft: the repo's `course.ogg` is not the owner's pick (it is a 140 bpm loop); the pick is `course-d_8`, kept in the assets folder.
+- Built now, free: `data/eval/cc-spectacle/music/film-bed.ogg` (67.2 s, 28 bars) is `map.ogg` once, then `course-d_8` four times, cut at 67.2 s with a 2.4 s fade.
+- `data/eval/cc-spectacle/music/beats.json` lists every bar start and the cut points.
+- A longer, non-repeating track would be a MusicGen run on Modal (about $1; credits do not cover it); not run; the product owner decides.
+- Beat grid at 100 bpm: a beat is 0.6 s, a bar is 2.4 s.
 
-### Beats with time codes (bars of 3.43 s)
-| # | Time | Beat | What is on screen | Real or concept |
-|---|---|---|---|---|
-| 1 | 0.0 to 6.9 | Earth to street | Globe, zoom into Bucharest until the map becomes a street map; data credit "OpenStreetMap contributors" | Concept now; the map mode (MapLibre) can capture it for real |
-| 2 | 6.9 to 13.7 | The slice | A plane sweeps through the map and the building footprints rise as blocks | Real: the world slicer already extrudes OSM footprints |
-| 3 | 13.7 to 27.4 | Photo becomes object | The IOR park photo, pieces SAM 3D lifts float in the air, settle in the editor, get moved, become the course | Real objects (park01, CC0); the float is concept |
-| 4 | 27.4 to 34.3 | Fly-by | Fast camera flight along the whole course, one direction | Real: `?film=flyover` |
-| 5 | 34.3 to 48.0 | Entrance and run | The runner does entrance moves, then runs the first obstacles | Real replay; the entrance clip waits for CC-131 |
-| 6 | 48.0 to 61.7 | The run | Stairs, box, rails, side-on, runner going right, no foot zoom | Real replay |
-| 7 | 61.7 to 72.0 | The leap | Leap toward the bar, slow motion, a slow 360 degree look around the runner, cut just before the catch | Real run; the cut hides the catch |
-| 8 | 72.0 to 82.3 | End card | Logo and "Train slow. Run fast." | Designed SVG |
+### Beats with time codes (bars of 2.4 s; total 67.2 s)
+| # | Time (s) | Bars | Beat | What is on screen | Real or concept |
+|---|---|---|---|---|---|
+| 1 | 0 to 7.2 | 0 to 3 | Earth to street | Globe, zoom into Paris until the map becomes a street map; credit "OpenStreetMap contributors" | Concept; the map mode can capture the street part for real |
+| 2 | 7.2 to 14.4 | 3 to 6 | The slice | A plane sweeps through the map and the footprints rise as blocks | Real: the world slicer extrudes OSM footprints |
+| 3 | 14.4 to 28.8 | 6 to 12 | Photo becomes object | A photo, the lifted skate box floats, settles in the editor, is moved, the course appears | Real object (CC0 photo lift); the float is concept |
+| 4 | 28.8 to 36.0 | 12 to 15 | Fly-by | Fast flight along the whole hero course | Real: `?film=flyover` on the hero course |
+| 5 | 36.0 to 50.4 | 15 to 21 | Entrance and run | The runner does entrance moves, then runs the rooftops side-on, left to right | Real replay (`?bot=ideal`); the entrance clip waits for CC-131 |
+| 7 | 50.4 to 57.6 | 21 to 24 | The leap | Leap toward the rope, slow motion, one slow 360 degree look round the runner, CUT right before the catch | Real run from the stored plan; the cut hides the catch |
+| 8 | 57.6 to 67.2 | 24 to 28 | End card | Logo and "Train slow. Run fast." | Designed SVG |
 
-- The audience must not know if he made it: the run clears in the simulator, and only the film cuts away.
+- The leap in the stored plan: take-off at tick 1231, catch at 1312, so the gap lasts 0.68 s of game time; the film cuts at about tick 1300.
+- Beat 6 of the first draft is folded into beat 5.
+- The audience must not know if he made it: the run clears in the simulator (test `tests/hero-course.test.ts`), and only the film cuts away.
 - Craft risks from the rules above:
-  - A 360 degree orbit around a swinging runner is "two moves fighting each other"; keep it at a constant speed in slow motion and short.
-  - One idea per shot: beat 3 has several ideas, so it is cut into four shots of about 3.4 s.
+  - A 360 degree orbit around a swinging runner is "two moves fighting each other"; the `spin` shot turns at a steady speed in slow motion.
+  - One idea per shot: beat 3 is cut into four shots of about 3.4 s.
   - The runner goes left to right in every shot.
 
-### What is missing before the hero is real
-- The hero course (Park run plus a bar to leap to) with a proven ideal run: see CC-210.
-- The OSM view and the slice for the Bucharest park, captured from the map mode.
+### What is missing before the whole film is real
+- The hero course exists and clears (CC-210); the lifted box comes from a Bucharest skatepark photo, not a Montmartre one.
+- The OSM street view and the slice for Montmartre, captured from the map mode.
 - The entrance clip (CC-131).
-- The logo is designed (`public/brand/conquercourse-logo.svg`); the Earth globe is not captured.
+- The Earth globe is not captured (concept).
+- The logo is drawn (`public/brand/conquercourse-logo.svg`).
