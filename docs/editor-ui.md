@@ -92,3 +92,13 @@ This note says where each control lives now, and the rule for adding a new one.
 - The Design partner card now starts closed; open, it covered the right half of the picture and ate the wheel and the drags there.
 - `?editorui=old` keeps the CC-94 look; the older check scripts use it.
 - Check: `node scripts/editor-ux-check.mjs` (wheel, pan, Fit, Fix menu, glossary memory, old layout); pictures in `data/eval/cc-editor-ux/`.
+
+## Toasts (CC-197)
+- Every short message in the Course goes through one stack, `src/ui/toast-stack.ts`.
+- A new toast is added below the others, and the older ones stay above.
+- A toast leaves by moving up and fading out.
+- The same words are never shown twice at once, and the stack holds at most four.
+- Time is passed in (the Course uses simulation ticks), so a paused game keeps its toasts.
+- `?toasts=old` keeps the single centred toast.
+- The hint under the gauges and the ghost chip stay where they are: they are standing status, not messages.
+- Check: `tests/toast-stack.test.ts` and `node scripts/toast-shot.mjs`.
