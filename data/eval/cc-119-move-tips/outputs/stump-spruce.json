@@ -1,0 +1,13 @@
+{
+  "name": "stump-spruce",
+  "label": "tree stump",
+  "key": "balance",
+  "status": 200,
+  "moves": [
+    "climb"
+  ],
+  "idea": "Tall stump blocks lane and forces a left or right path choice that briefly slows forward progress.",
+  "top1": false,
+  "hit": false,
+  "ms": 9468
+}

@@ -1,0 +1,24 @@
+{
+  "experiment": "cc-119-move-tips",
+  "issue": "CC-121",
+  "model": "meta-models/muse-spark-open-1026",
+  "date": "2026-10-29",
+  "seconds": 63,
+  "tokens": {
+    "prompt": 17108,
+    "completion": 36743
+  },
+  "costUsd": 0.178,
+  "summary": {
+    "objects": 19,
+    "tips": 18,
+    "keyMoveListed": 12,
+    "keyMoveFirst": 7,
+    "withIdea": 18,
+    "errors": 0,
+    "movesPerObject": 1.79
+  },
+  "answerKey": "REAL_MOVE in src/slice/piece-info.ts (CC-110)",
+  "inputs": "inputs/cases.json (photos are the repo files listed there; each is cropped to the object box)",
+  "outputs": "outputs/*.json"
+}

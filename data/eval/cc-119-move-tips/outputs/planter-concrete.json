@@ -1,0 +1,13 @@
+{
+  "name": "planter-concrete",
+  "label": "planter",
+  "key": "jump",
+  "status": 200,
+  "moves": [
+    "jump"
+  ],
+  "idea": "Large round planter blocks the middle, forcing a quick left or right split in the lane.",
+  "top1": true,
+  "hit": true,
+  "ms": 7423
+}

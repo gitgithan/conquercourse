@@ -1,0 +1,13 @@
+{
+  "name": "gabion-wall",
+  "label": "gabion wall",
+  "key": "climb",
+  "status": 200,
+  "moves": [
+    "climb"
+  ],
+  "idea": "Stepped stone tiers block the lane and make a slow climb up then fast run down",
+  "top1": true,
+  "hit": true,
+  "ms": 8318
+}

@@ -1,0 +1,13 @@
+{
+  "name": "railing-red",
+  "label": "metal railing",
+  "key": "vault",
+  "status": 200,
+  "moves": [
+    "jump"
+  ],
+  "idea": "Makes a wobbly bridge edge with canal view, hiding a secret shortcut for brave explorers.",
+  "top1": false,
+  "hit": false,
+  "ms": 13232
+}

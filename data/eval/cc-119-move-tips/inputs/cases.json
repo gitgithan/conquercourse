@@ -1,0 +1,549 @@
+[
+  {
+    "name": "rail-skate-01",
+    "photo": "park01",
+    "round": "r2",
+    "box": [
+      294,
+      183,
+      658,
+      454
+    ],
+    "label": "handrail",
+    "glb": "rail-skate-01.glb",
+    "height_m": 1,
+    "extents_m": {
+      "x": 3.844,
+      "y": 1,
+      "z": 0.2
+    },
+    "scale_source": "typical:handrail",
+    "faces": 5819,
+    "bytes": 330196,
+    "author": "Neoclassicism Enthusiast",
+    "licence": "CC0",
+    "look": "yes: a level handrail with its posts, grey metal; the real one follows stairs, this one is drawn level",
+    "config": "texture 1024; no padding",
+    "file": "public/assets/park/park01.jpg",
+    "key": "balance"
+  },
+  {
+    "name": "box-skate-03",
+    "photo": "park03",
+    "round": "r2",
+    "box": [
+      66,
+      234,
+      662,
+      407
+    ],
+    "label": "platform",
+    "glb": "box-skate-03.glb",
+    "height_m": 0.5,
+    "extents_m": {
+      "x": 4.42,
+      "y": 0.5,
+      "z": 2.91
+    },
+    "scale_source": "typical:platform",
+    "faces": 5820,
+    "bytes": 350652,
+    "author": "Alexis Jazz",
+    "licence": "CC BY 4.0",
+    "look": "yes: a long low box with a step at one end, red sides; graffiti is soft",
+    "config": "texture 1024; no padding",
+    "file": "public/assets/park/park03.jpg",
+    "key": "jump"
+  },
+  {
+    "name": "bench-concrete",
+    "photo": "bench01",
+    "round": "r3",
+    "box": [
+      165,
+      345,
+      720,
+      660
+    ],
+    "label": "bench",
+    "glb": "bench-concrete.glb",
+    "height_m": 0.8,
+    "extents_m": {
+      "x": 1.881,
+      "y": 0.8,
+      "z": 0.627
+    },
+    "scale_source": "typical:bench",
+    "faces": 5820,
+    "bytes": 347856,
+    "author": "Rick Obst",
+    "licence": "CC BY 2.0",
+    "look": "yes: a bench with a back and arms; the colour is a little grey",
+    "config": "texture 1024; photo padded 1.5x",
+    "file": "data/eval/cc-38-photo-to-3d/inputs/bench01.jpg",
+    "key": "vault"
+  },
+  {
+    "name": "railing-iron",
+    "photo": "rail01",
+    "round": "r3",
+    "box": [
+      130,
+      150,
+      900,
+      480
+    ],
+    "label": "rail",
+    "glb": "railing-iron.glb",
+    "height_m": 0.999,
+    "extents_m": {
+      "x": 2.522,
+      "y": 0.999,
+      "z": 0.066
+    },
+    "scale_source": "typical:rail",
+    "faces": 5820,
+    "bytes": 564784,
+    "author": "Peter Broster",
+    "licence": "CC0",
+    "look": "partly: reads as an iron railing panel with spear tops; the gate and the fence merged into one panel",
+    "config": "texture 1024; photo padded 1.5x",
+    "file": "data/eval/cc-38-photo-to-3d/inputs/rail01.jpg",
+    "key": "vault"
+  },
+  {
+    "name": "rail-skate-02",
+    "photo": "park02",
+    "round": "r2",
+    "box": [
+      265,
+      196,
+      773,
+      395
+    ],
+    "label": "handrail",
+    "glb": "rail-skate-02.glb",
+    "height_m": 1,
+    "extents_m": {
+      "x": 3.625,
+      "y": 1,
+      "z": 0.083
+    },
+    "scale_source": "typical:handrail",
+    "faces": 5820,
+    "bytes": 341988,
+    "author": "Neoclassicism Enthusiast",
+    "licence": "CC0",
+    "look": "partly: the rail follows the stairs, so its posts end at different heights",
+    "config": "texture 1024; no padding",
+    "file": "public/assets/park/park02.jpg",
+    "key": "balance"
+  },
+  {
+    "name": "stairs-park-07",
+    "photo": "park07",
+    "round": "r2",
+    "box": [
+      168,
+      286,
+      811,
+      394
+    ],
+    "label": "stairs",
+    "glb": "stairs-park-07.glb",
+    "height_m": 0.699,
+    "extents_m": {
+      "x": 4.836,
+      "y": 0.699,
+      "z": 1.543
+    },
+    "scale_source": "typical:stairs",
+    "faces": 5820,
+    "bytes": 345712,
+    "author": "Ajznponar",
+    "licence": "CC0",
+    "look": "partly: stairs come out as a flat ramp-like block; steps are soft",
+    "config": "texture 1024; no padding",
+    "file": "public/assets/park/park07.jpg",
+    "key": "climb"
+  },
+  {
+    "name": "bollard-iron",
+    "photo": "bollard-iron",
+    "round": "r1",
+    "box": [
+      600,
+      260,
+      840,
+      1570
+    ],
+    "label": "bollard",
+    "glb": "bollard-iron.glb",
+    "height_m": 0.9,
+    "extents_m": {
+      "x": 0.19,
+      "y": 0.9,
+      "z": 0.183
+    },
+    "scale_source": "typed",
+    "faces": 5820,
+    "bytes": 272748,
+    "author": "Simon Cobb",
+    "licence": "CC0",
+    "look": "yes: a cast-iron post with a ball top, dark metal",
+    "config": "texture 1024; no padding",
+    "source": "https://commons.wikimedia.org/wiki/File:Bollard_On_Street_Corner.jpg",
+    "file": "data/eval/cc-110-real-objects/inputs/bollard-iron.jpg",
+    "key": "jump"
+  },
+  {
+    "name": "hydrant-red",
+    "photo": "hydrant-red",
+    "round": "r1",
+    "box": [
+      100,
+      60,
+      1180,
+      1800
+    ],
+    "label": "fire hydrant",
+    "glb": "hydrant-red.glb",
+    "height_m": 0.8,
+    "extents_m": {
+      "x": 0.432,
+      "y": 0.8,
+      "z": 0.344
+    },
+    "scale_source": "typed",
+    "faces": 5820,
+    "bytes": 483640,
+    "author": "Crisco 1492",
+    "licence": "CC BY-SA 4.0",
+    "look": "yes: a red hydrant with caps and bolts, the best of the set",
+    "config": "texture 1024; no padding",
+    "source": "https://commons.wikimedia.org/wiki/File:Decorative_fire_hydrant_at_Windsor_Fire_Fighter_Memorial,_Windsor,_Ontario,_2025-05-31.jpg",
+    "file": "data/eval/cc-110-real-objects/inputs/hydrant-red.jpg",
+    "key": "jump"
+  },
+  {
+    "name": "barrel-oak",
+    "photo": "barrel-oak",
+    "round": "r1",
+    "box": [
+      120,
+      450,
+      1150,
+      1050
+    ],
+    "label": "wooden barrel",
+    "glb": "barrel-oak.glb",
+    "height_m": 0.899,
+    "extents_m": {
+      "x": 0.648,
+      "y": 0.899,
+      "z": 0.61
+    },
+    "scale_source": "typed",
+    "faces": 5820,
+    "bytes": 602108,
+    "author": "W.carter",
+    "licence": "CC0",
+    "look": "yes: an upright oak barrel with two steel hoops; the photo shows it on its side, the bake stands it up",
+    "config": "texture 1024; no padding",
+    "source": "https://commons.wikimedia.org/wiki/File:Four_wet_wooden_barrels.jpg",
+    "file": "data/eval/cc-110-real-objects/inputs/barrel-oak.jpg",
+    "key": "jump"
+  },
+  {
+    "name": "picnic-table",
+    "photo": "picnic-table",
+    "round": "r1",
+    "box": [
+      80,
+      160,
+      1230,
+      730
+    ],
+    "label": "picnic table",
+    "glb": "picnic-table.glb",
+    "height_m": 0.75,
+    "extents_m": {
+      "x": 3.125,
+      "y": 0.75,
+      "z": 1.71
+    },
+    "scale_source": "typed",
+    "faces": 5820,
+    "bytes": 410232,
+    "author": "Hu Nhu",
+    "licence": "CC0",
+    "look": "partly: the table top, both seats and the loop legs are there, the legs are a little thin",
+    "config": "texture 1024; no padding",
+    "source": "https://commons.wikimedia.org/wiki/File:Picnic_table_curves.jpg",
+    "file": "data/eval/cc-110-real-objects/inputs/picnic-table.jpg",
+    "key": "vault"
+  },
+  {
+    "name": "pullup-green",
+    "photo": "bar-green",
+    "round": "r1",
+    "box": [
+      560,
+      90,
+      1080,
+      820
+    ],
+    "label": "pull-up bar",
+    "glb": "pullup-green.glb",
+    "height_m": 2.3,
+    "extents_m": {
+      "x": 3.144,
+      "y": 2.3,
+      "z": 0.328
+    },
+    "scale_source": "typed",
+    "faces": 5820,
+    "bytes": 404576,
+    "author": "Singlespeedfahrer",
+    "licence": "CC0",
+    "look": "yes: a green frame with a top bar",
+    "config": "texture 1024; no padding",
+    "source": "https://commons.wikimedia.org/wiki/File:Outdoor_Gym_in_Berlin-Stralau_(Berlin-Friedrichshain)_01.jpg",
+    "hang_m": 2.2,
+    "file": "data/eval/cc-110-real-objects/inputs/bar-green.jpg",
+    "key": "hang"
+  },
+  {
+    "name": "planter-concrete",
+    "photo": "planter-concrete",
+    "round": "r2",
+    "box": [
+      400,
+      290,
+      970,
+      580
+    ],
+    "label": "planter",
+    "glb": "planter-concrete.glb",
+    "height_m": 0.45,
+    "extents_m": {
+      "x": 1.697,
+      "y": 0.45,
+      "z": 1.697
+    },
+    "scale_source": "typed",
+    "faces": 5820,
+    "bytes": 365024,
+    "author": "Tony Webster",
+    "licence": "CC BY 2.0",
+    "look": "yes: a wide round concrete bowl",
+    "config": "texture 1024; no padding",
+    "source": "https://commons.wikimedia.org/wiki/File:Big_Concrete_Planters_(53816879695).jpg",
+    "file": "data/eval/cc-110-real-objects/inputs/planter-concrete.jpg",
+    "key": "jump"
+  },
+  {
+    "name": "pipe-concrete",
+    "photo": "pipe-ring",
+    "round": "r2",
+    "box": [
+      520,
+      430,
+      960,
+      820
+    ],
+    "label": "concrete pipe",
+    "glb": "pipe-concrete.glb",
+    "height_m": 0.9,
+    "extents_m": {
+      "x": 1.273,
+      "y": 0.9,
+      "z": 1.271
+    },
+    "scale_source": "typed",
+    "faces": 5820,
+    "bytes": 336148,
+    "author": "Humphrey Bolton",
+    "licence": "CC BY-SA 2.0",
+    "look": "yes: a mossy concrete pipe standing on end",
+    "config": "texture 1024; no padding",
+    "source": "https://commons.wikimedia.org/wiki/File:Concrete_pipe_stile_on_Elland_Footpath_25_-_geograph.org.uk_-_4080358.jpg",
+    "file": "data/eval/cc-110-real-objects/inputs/pipe-ring.jpg",
+    "key": "climb"
+  },
+  {
+    "name": "bench-curved",
+    "photo": "bench-concrete-curve",
+    "round": "r2",
+    "box": [
+      170,
+      270,
+      1000,
+      690
+    ],
+    "label": "concrete bench",
+    "glb": "bench-curved.glb",
+    "height_m": 0.5,
+    "extents_m": {
+      "x": 1.117,
+      "y": 0.5,
+      "z": 0.453
+    },
+    "scale_source": "typed",
+    "faces": 5820,
+    "bytes": 355888,
+    "author": "Mutney",
+    "licence": "CC0",
+    "look": "yes: a curved concrete seat with arms on a pedestal",
+    "config": "texture 1024; no padding",
+    "source": "https://commons.wikimedia.org/wiki/File:Concrete_bench,_Chester_Road,_Newquay,_Cornwall_-_May_2023.jpg",
+    "file": "data/eval/cc-110-real-objects/inputs/bench-concrete-curve.jpg",
+    "key": "vault"
+  },
+  {
+    "name": "railing-red",
+    "photo": "railing-red",
+    "round": "r2",
+    "box": [
+      0,
+      20,
+      1280,
+      800
+    ],
+    "label": "metal railing",
+    "glb": "railing-red.glb",
+    "height_m": 0.999,
+    "extents_m": {
+      "x": 4.057,
+      "y": 0.999,
+      "z": 0.188
+    },
+    "scale_source": "typed",
+    "faces": 5820,
+    "bytes": 467568,
+    "author": "AgainErick",
+    "licence": "CC BY-SA 4.0",
+    "look": "partly: a long maroon railing with twisted posts, thin but readable",
+    "config": "texture 1024; no padding",
+    "source": "https://commons.wikimedia.org/wiki/File:Jansbrug_-_Haarlem_-_Metal_railing_-_along.jpg",
+    "file": "data/eval/cc-110-real-objects/inputs/railing-red.jpg",
+    "key": "vault"
+  },
+  {
+    "name": "pullup-black",
+    "photo": "bar-black",
+    "round": "r2",
+    "box": [
+      440,
+      340,
+      1040,
+      1780
+    ],
+    "label": "pull-up bar",
+    "glb": "pullup-black.glb",
+    "height_m": 2.3,
+    "extents_m": {
+      "x": 1.617,
+      "y": 2.3,
+      "z": 0.222
+    },
+    "scale_source": "typed",
+    "faces": 5820,
+    "bytes": 295596,
+    "author": "Singlespeedfahrer",
+    "licence": "CC0",
+    "look": "yes: two black posts and a crossbar",
+    "config": "texture 1024; no padding",
+    "source": "https://commons.wikimedia.org/wiki/File:Bewegungsparcours_Schmetterlingswiesen_Berlin_2v7.jpg",
+    "hang_m": 2.05,
+    "file": "data/eval/cc-110-real-objects/inputs/bar-black.jpg",
+    "key": "hang"
+  },
+  {
+    "name": "log-driftwood",
+    "photo": "log-driftwood",
+    "round": "r2",
+    "box": [
+      0,
+      200,
+      1200,
+      680
+    ],
+    "label": "log",
+    "glb": "log-driftwood.glb",
+    "height_m": 0.798,
+    "extents_m": {
+      "x": 2.125,
+      "y": 0.798,
+      "z": 1.406
+    },
+    "scale_source": "typed",
+    "faces": 5820,
+    "bytes": 438172,
+    "author": "Awinsongyababa",
+    "licence": "CC BY 4.0",
+    "look": "partly: a bleached driftwood trunk with roots, an odd shape but real",
+    "config": "texture 1024; no padding",
+    "source": "https://commons.wikimedia.org/wiki/File:A_fallen_log_of_a_tree.jpg",
+    "file": "data/eval/cc-110-real-objects/inputs/log-driftwood.jpg",
+    "key": "balance"
+  },
+  {
+    "name": "stump-spruce",
+    "photo": "stump-spruce",
+    "round": "r2",
+    "box": [
+      600,
+      170,
+      1120,
+      1450
+    ],
+    "label": "tree stump",
+    "glb": "stump-spruce.glb",
+    "height_m": 1.199,
+    "extents_m": {
+      "x": 0.514,
+      "y": 1.199,
+      "z": 0.499
+    },
+    "scale_source": "typed",
+    "faces": 5820,
+    "bytes": 495352,
+    "author": "W.carter",
+    "licence": "CC0",
+    "look": "yes: a split spruce stump with a flared base",
+    "config": "texture 1024; no padding",
+    "source": "https://commons.wikimedia.org/wiki/File:Spruce_tree_stump_in_Gullmarsskogen_ravine.jpg",
+    "file": "data/eval/cc-110-real-objects/inputs/stump-spruce.jpg",
+    "key": "balance"
+  },
+  {
+    "name": "gabion-wall",
+    "photo": "gabion-wall",
+    "round": "r3",
+    "box": [
+      0,
+      50,
+      1280,
+      940
+    ],
+    "label": "gabion wall",
+    "glb": "gabion-wall.glb",
+    "height_m": 1.199,
+    "extents_m": {
+      "x": 5.964,
+      "y": 1.199,
+      "z": 0.995
+    },
+    "scale_source": "typed",
+    "faces": 5820,
+    "bytes": 353996,
+    "author": "Encik Tekateki",
+    "licence": "CC0",
+    "look": "yes: a stepped stone-filled wall (padded 1.5x so the wall was not read as a table)",
+    "config": "texture 1024; padded 1.5x",
+    "source": "https://commons.wikimedia.org/wiki/File:Gabion_Wall.jpg",
+    "file": "data/eval/cc-110-real-objects/inputs/gabion-wall.jpg",
+    "key": "climb"
+  }
+]

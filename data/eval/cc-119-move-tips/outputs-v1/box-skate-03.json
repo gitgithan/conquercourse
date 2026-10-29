@@ -1,0 +1,14 @@
+{
+  "name": "box-skate-03",
+  "label": "platform",
+  "key": "jump",
+  "status": 200,
+  "moves": [
+    "jump",
+    "vault"
+  ],
+  "idea": "A colorful street stage where you can choose your path and find hidden surprises",
+  "top1": true,
+  "hit": true,
+  "ms": 11205
+}

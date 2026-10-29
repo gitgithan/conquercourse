@@ -1,0 +1,13 @@
+{
+  "name": "hydrant-red",
+  "label": "fire hydrant",
+  "key": "jump",
+  "status": 200,
+  "moves": [
+    "jump"
+  ],
+  "idea": "Small red hydrant blocks the middle of the lane, leaving side paths for the runner to choose.",
+  "top1": true,
+  "hit": true,
+  "ms": 10116
+}
