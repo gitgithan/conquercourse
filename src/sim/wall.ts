@@ -10,6 +10,7 @@ export interface WallParams {
   reach: number; // m, hands above the hips when stretched up (1.3: about what a body can stretch; was 2.1 in the spec)
   loss: number; // friction loss as a share of the climb energy (starting value)
   gravity: number;
+  needE?: boolean; // default true: the hands must hold E near the top or the body slides back (CC-168); false is the old rule
 }
 
 export const DEFAULT_WALL: WallParams = { height: 4.3, hipHeight: 1.0, reach: 1.3, loss: 0.1, gravity: GRAVITY };

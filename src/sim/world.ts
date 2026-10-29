@@ -25,7 +25,7 @@ export type Outcome = 'running' | 'cleared' | 'splash' | 'hurt' | 'stalled'; // 
 
 export interface GameEvent {
   tick: number;
-  type: 'jump' | 'roll' | 'land' | 'stumble' | 'hard-landing' | 'splash' | 'wall-grab' | 'wall-slide' | 'rope-catch' | 'rope-release' | 'hang-catch' | 'hang-release' | 'vault' | 'climb' | 'climb-drop' | 'bounce' | 'cleared' | 'cart-start' | 'cart-stall' | 'cart-off' | 'cart-catch' | 'launch-fire' | 'launch-release' | 'launch-dud' | 'recoil' | 'plank-sag' | 'plank-break' | 'plank-off' | 'band-release' | 'band-snap' | 'drone-board' | 'drone-land' | 'drone-drop' | 'drone-crash' | 'drone-empty';
+  type: 'jump' | 'roll' | 'land' | 'stumble' | 'hard-landing' | 'splash' | 'wall-grab' | 'wall-no-grip' | 'wall-slide' | 'rope-catch' | 'rope-release' | 'hang-catch' | 'hang-release' | 'vault' | 'climb' | 'climb-drop' | 'bounce' | 'cleared' | 'cart-start' | 'cart-stall' | 'cart-off' | 'cart-catch' | 'launch-fire' | 'launch-release' | 'launch-dud' | 'recoil' | 'plank-sag' | 'plank-break' | 'plank-off' | 'band-release' | 'band-snap' | 'drone-board' | 'drone-land' | 'drone-drop' | 'drone-crash' | 'drone-empty';
   detail?: Record<string, number | boolean>;
 }
 
@@ -36,7 +36,7 @@ export interface WorldState {
   runner: RunnerState;
   mode: Mode;
   outcome: Outcome;
-  wall: { result: WallResult; path: { x: number; y: number }[]; index: number; x0: number } | null;
+  wall: { result: WallResult; path: { x: number; y: number }[]; index: number; x0: number; v?: number; held?: boolean } | null; // v: the entry speed; held: E was down in the last WALL_HOLD_TICKS before the hands reach the top (CC-168)
   swing: Swing | null;
   hang: Hang | null; // hanging from a bar in the air
   vault: Vault | null; // going over an obstacle with a hand on top
@@ -102,7 +102,7 @@ export function stepWorld(w: WorldState, input: RunnerInput, course: CourseData,
     if (g.hurt) { n.outcome = 'hurt'; ev('hard-landing', { impact: g.impact, peakDecel: g.peakDecel, rolled: false, squat: g.squat }); return { ...n, events }; }
   }
 
-  if (w.mode === 'wall') return stepWall(w, course);
+  if (w.mode === 'wall') return stepWall(w, input, course);
   if (w.mode === 'swing') return stepSwing(w, input, course);
   if (w.mode === 'bounce') return stepBounce(w, input);
   if (w.mode === 'hang') return stepHang(w, input, course);
@@ -225,7 +225,7 @@ export function stepWorld(w: WorldState, input: RunnerInput, course: CourseData,
     const wp = wallParams(course);
     const result = runWall(r.vx, wp);
     n.mode = 'wall';
-    n.wall = { result, path: wallPath(result, course.wall.x0, wp.height), index: 0, x0: course.wall.x0 };
+    n.wall = { result, path: wallPath(result, course.wall.x0, wp.height), index: 0, x0: course.wall.x0, v: r.vx };
   }
 
   // the rope: airborne hands meet it
@@ -283,12 +283,25 @@ export function wallPath(result: WallResult, x0: number, height: number): { x: n
   return out;
 }
 
-function stepWall(w: WorldState, course: CourseData): WorldState {
-  const wl = w.wall!;
-  const path = wl.path;
+// The hands must be on the key for the last half second of the climb, or they miss the edge and the body slides back (CC-168; the course can switch it off with wall.needE = false).
+export const WALL_HOLD_TICKS = 60;
+function stepWall(w: WorldState, input: RunnerInput, course: CourseData): WorldState {
+  let wl = w.wall!;
+  let path = wl.path;
   const i = wl.index;
   const tick = w.runner.tick + 1;
   const events: GameEvent[] = [];
+  const gt = wl.result.grabTick;
+  if (wl.result.grabbed && gt !== null && wallParams(course).needE !== false) {
+    const held = wl.held || (i >= gt - WALL_HOLD_TICKS && (!!input.handL || !!input.handR));
+    if (i >= gt && !held) { // the hands reach the edge with no grip: the same climb, then the slide back
+      const wp = wallParams(course);
+      const res = runWall(wl.v ?? 0, { ...wp, stopAtGrab: false });
+      wl = { ...wl, result: { ...res, grabbed: false, grabTick: null }, path: res.path, held };
+      path = wl.path;
+      events.push({ tick, type: 'wall-no-grip', detail: { margin: res.margin } });
+    } else if (held !== wl.held) wl = { ...wl, held };
+  }
   if (i >= path.length - 1) {
     const wp = wallParams(course);
     if (wl.result.grabbed) {
