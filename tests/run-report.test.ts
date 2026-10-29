@@ -26,10 +26,14 @@ describe('the run report', () => {
     const kinds = buildReport(lache, log, w, true, best).counts.map((c) => c.kind);
     expect(kinds).toContain('vault'); expect(kinds).toContain('jump'); expect(kinds).toContain('grab');
   });
-  it('says the biggest saving from the stored shortcuts, as a fact', () => {
-    const r = buildReport(lache, log, w, true, best);
+  it('says the biggest saving from the stored shortcuts, as a fact, when the run was slower than the best line', () => {
+    const r = buildReport(lache, log, w, true, { ...best!, seconds: best!.seconds - 3 });
     expect(r.saving).toMatch(/saves \d+\.\d s/);
     expect(r.saving).toMatch(/bar 2/i);
+  });
+  it('a run as fast as the best line says so and has nothing to change', () => {
+    const r = buildReport(lache, log, w, true, best);
+    expect(r.matched).toBe(true); expect(r.saving).toBeNull();
   });
   it('a run that started partway has no comparison and no saving', () => {
     const r = buildReport(lache, log, w, false, best);

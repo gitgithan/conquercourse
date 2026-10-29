@@ -105,6 +105,7 @@ export interface Report {
   best: BestLine | null; // only for a run from the start
   counts: { kind: MoveKind; n: number }[];
   saving: string | null;
+  matched: boolean; // the run was as fast as the best line (within a quarter of a second): there is nothing to change
   learned: string | null;
   saying: string | null;
   metres: number;
@@ -122,10 +123,11 @@ export function buildReport(course: CourseData, log: RunLog, w: WorldState, from
   const use = cleared && fromStart ? best : null;
   let headline = cleared ? `You made it in ${f1(seconds)} s.` : HEADLINE[w.outcome] ?? 'The run ended.';
   if (cleared && !fromStart) headline = `You made it, starting partway (${f1(seconds)} s).`;
-  const top = cleared && fromStart ? [...(course.shortcuts ?? [])].sort((a, b) => b.secondsSaved - a.secondsSaved)[0] : undefined;
+  const matched = !!use && seconds <= use.seconds + 0.25;
+  const top = cleared && fromStart && !matched ? [...(course.shortcuts ?? [])].sort((a, b) => b.secondsSaved - a.secondsSaved)[0] : undefined;
   const saving = top && top.secondsSaved >= 0.2 ? `The biggest change the simulator found: ${top.how}. It saves ${f1(top.secondsSaved)} s.` : null;
   const topic = topicOf(course);
-  return { cleared, headline, seconds, spent, best: use, counts, saving, learned: cleared && topic ? LEARNED[topic] ?? null : null, saying: cleared && topic ? SAYING[topic] ?? null : null, metres: Math.max(0, Math.round(w.runner.x)), finishX: course.finishX };
+  return { cleared, headline, seconds, spent, best: use, counts, saving, matched, learned: cleared && topic ? LEARNED[topic] ?? null : null, saying: cleared && topic ? SAYING[topic] ?? null : null, metres: Math.max(0, Math.round(w.runner.x)), finishX: course.finishX };
 }
 
 export interface Actions { watch?: () => void; again?: () => void; next?: { name: string; go: () => void }; close?: () => void }
@@ -197,6 +199,7 @@ export function renderReport(course: CourseData, log: RunLog, r: Report, a: Acti
     }
     box.appendChild(ul);
   }
+  if (r.matched) tx('p', 'You took the best line the simulator found.', 'margin:0;font-size:15px;background:#e6f4ee;border-left:4px solid #0f6b5c;padding:8px 10px;border-radius:6px', box);
   if (r.saving) tx('p', r.saving, 'margin:0;font-size:15px;background:#fff8dc;border-left:4px solid #d9a521;padding:8px 10px;border-radius:6px', box);
   if (r.learned) tx('p', `What you learned: ${r.learned}`, 'margin:0;font-weight:600', box);
   if (r.saying && r.saying !== r.learned?.replace('What you learned: ', '')) tx('p', `“${r.saying}”`, 'margin:0;font-style:italic;color:#58635d', box);
