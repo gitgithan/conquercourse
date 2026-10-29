@@ -1,8 +1,8 @@
 // The film camera: scripted shots for the demo video (CC-130). Each shot is a pure function of the time in seconds, so a film frame is the same every run.
 // It only runs with ?film=<shot> in the address; play never loads it.
 
-export type FilmShot = 'flyover' | 'orbit' | 'follow' | 'push' | 'hero';
-export const FILM_SHOTS: FilmShot[] = ['flyover', 'orbit', 'follow', 'push', 'hero'];
+export type FilmShot = 'flyover' | 'orbit' | 'follow' | 'push' | 'hero' | 'macro';
+export const FILM_SHOTS: FilmShot[] = ['flyover', 'orbit', 'follow', 'push', 'hero', 'macro'];
 
 export interface Pose { pos: [number, number, number]; look: [number, number, number]; fov: number }
 export interface FilmCtx {
@@ -10,10 +10,11 @@ export interface FilmCtx {
   focusX: number; // the thing a shot is about (an obstacle or a real object), m
   focusY: number; // and its height, m
   runnerX: number; runnerY: number;
+  macroDist?: number; // macro only: how far the camera stands from the part, m
   airborne: number; // 0 on the ground to 1 in the air; the caller eases it, so the follow shot zooms in at take-off and out at landing
 }
 
-export const SHOT_SECONDS: Record<FilmShot, number> = { flyover: 12, orbit: 8, follow: 10, push: 7, hero: 11 };
+export const SHOT_SECONDS: Record<FilmShot, number> = { flyover: 12, orbit: 8, follow: 10, push: 7, hero: 11, macro: 4 };
 
 const clamp01 = (x: number) => Math.max(0, Math.min(1, x));
 const ease = (x: number) => { const t = clamp01(x); return t * t * (3 - 2 * t); }; // smooth start and end
@@ -51,6 +52,12 @@ function push(t: number, c: FilmCtx): Pose {
   return around([c.focusX, c.focusY + 0.5, 0], mix(16, 4.5, u), mix(0.5, 0.25, u), mix(rad(8), rad(4), u), mix(40, 32, u));
 }
 
+// A macro close-up: stays on one part of the runner (a hand, a foot) at arm's length. focusX and focusY are the part's offset from the runner, m.
+function macro(t: number, c: FilmCtx): Pose {
+  const u = ease(t / SHOT_SECONDS.macro);
+  return around([c.runnerX + c.focusX, c.runnerY + c.focusY, 0], (c.macroDist ?? 2) * mix(1.1, 0.9, u), mix(0.35, -0.15, u), rad(6), 28);
+}
+
 // The hero shot: the camera starts close on the object the photo shows, then flies up and out over the whole course.
 export const HERO_PHOTO_HOLD = 2.5; // s the photo is alone on screen
 export const HERO_DISSOLVE = 1.5; // s the photo takes to fade into the built place
@@ -70,6 +77,7 @@ export function filmPose(shot: FilmShot, t: number, c: FilmCtx): Pose {
     case 'follow': return follow(t, c);
     case 'push': return push(t, c);
     case 'hero': return hero(t, c);
+    case 'macro': return macro(t, c);
   }
 }
 
