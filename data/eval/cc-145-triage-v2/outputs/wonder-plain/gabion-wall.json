@@ -1,0 +1,15 @@
+{
+  "id": "gabion-wall",
+  "model": "wonder",
+  "kind": "plain",
+  "status": 200,
+  "seconds": 5.8,
+  "prompt_tokens": 758,
+  "completion_tokens": 308,
+  "raw": "{\"verdict\":\"block\",\"reason\":\"The cut-out is a wall plus several detached thin ground fragments, not one solid compact object.\"}",
+  "answer": {
+    "verdict": "block",
+    "reason": "The cut-out is a wall plus several detached thin ground fragments, not one solid compact object."
+  },
+  "error": null
+}

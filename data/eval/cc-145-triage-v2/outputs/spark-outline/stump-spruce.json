@@ -1,0 +1,15 @@
+{
+  "id": "stump-spruce",
+  "model": "spark",
+  "kind": "outline",
+  "status": 200,
+  "seconds": 5.3,
+  "prompt_tokens": 834,
+  "completion_tokens": 365,
+  "raw": "{\"whole_object_in_frame\":\"yes\",\"reason\":\"The magenta outline is a fully closed loop inside the photo borders showing the entire stump without cropping.\"}",
+  "answer": {
+    "whole_object_in_frame": "yes",
+    "reason": "The magenta outline is a fully closed loop inside the photo borders showing the entire stump without cropping."
+  },
+  "error": null
+}

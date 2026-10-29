@@ -1,0 +1,15 @@
+{
+  "id": "picnic-table",
+  "model": "spark",
+  "kind": "plain",
+  "status": 200,
+  "seconds": 5.3,
+  "prompt_tokens": 755,
+  "completion_tokens": 610,
+  "raw": "{\"verdict\":\"block\",\"reason\":\"Cut-out is fragmented into multiple thin disconnected pieces with large missing sections of the benches.\"}",
+  "answer": {
+    "verdict": "block",
+    "reason": "Cut-out is fragmented into multiple thin disconnected pieces with large missing sections of the benches."
+  },
+  "error": null
+}

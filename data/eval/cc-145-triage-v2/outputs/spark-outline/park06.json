@@ -1,0 +1,15 @@
+{
+  "id": "park06",
+  "model": "spark",
+  "kind": "outline",
+  "status": 200,
+  "seconds": 5.4,
+  "prompt_tokens": 750,
+  "completion_tokens": 463,
+  "raw": "{\"whole_object_in_frame\":\"yes\",\"reason\":\"The magenta-outlined bottom stair tread is fully visible and not cropped by the photo edge.\"}",
+  "answer": {
+    "whole_object_in_frame": "yes",
+    "reason": "The magenta-outlined bottom stair tread is fully visible and not cropped by the photo edge."
+  },
+  "error": null
+}

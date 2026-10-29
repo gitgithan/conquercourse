@@ -1,0 +1,15 @@
+{
+  "id": "bar-green",
+  "model": "wonder",
+  "kind": "plain",
+  "status": 200,
+  "seconds": 6.6,
+  "prompt_tokens": 758,
+  "completion_tokens": 402,
+  "raw": "{\"verdict\":\"block\",\"reason\":\"The very thin inverted-U frame with a large empty center is not a solid compact object and will likely fail the 3D lift.\"}",
+  "answer": {
+    "verdict": "block",
+    "reason": "The very thin inverted-U frame with a large empty center is not a solid compact object and will likely fail the 3D lift."
+  },
+  "error": null
+}

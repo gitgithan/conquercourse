@@ -1,0 +1,15 @@
+{
+  "id": "bollard-iron",
+  "model": "wonder",
+  "kind": "outline",
+  "status": 200,
+  "seconds": 3.9,
+  "prompt_tokens": 669,
+  "completion_tokens": 200,
+  "raw": "{\"whole_object_in_frame\":\"yes\",\"reason\":\"The entire black bollard outlined in magenta is visible with its top and base well within the photo edges.\"}",
+  "answer": {
+    "whole_object_in_frame": "yes",
+    "reason": "The entire black bollard outlined in magenta is visible with its top and base well within the photo edges."
+  },
+  "error": null
+}

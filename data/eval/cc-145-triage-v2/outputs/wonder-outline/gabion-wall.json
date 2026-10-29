@@ -1,0 +1,15 @@
+{
+  "id": "gabion-wall",
+  "model": "wonder",
+  "kind": "outline",
+  "status": 200,
+  "seconds": 8.3,
+  "prompt_tokens": 669,
+  "completion_tokens": 422,
+  "raw": "{\"whole_object_in_frame\":\"no\",\"reason\":\"The outlined stone retaining wall extends to the left and bottom edges of the photo, indicating it is cropped by the frame.\"}",
+  "answer": {
+    "whole_object_in_frame": "no",
+    "reason": "The outlined stone retaining wall extends to the left and bottom edges of the photo, indicating it is cropped by the frame."
+  },
+  "error": null
+}

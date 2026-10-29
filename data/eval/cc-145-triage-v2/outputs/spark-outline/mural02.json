@@ -1,0 +1,15 @@
+{
+  "id": "mural02",
+  "model": "spark",
+  "kind": "outline",
+  "status": 200,
+  "seconds": 13.5,
+  "prompt_tokens": 704,
+  "completion_tokens": 2670,
+  "raw": "{\"whole_object_in_frame\":\"yes\",\"reason\":\"The magenta outline and the mural it encloses are fully visible inside the photo and do not extend beyond the frame edges.\"}",
+  "answer": {
+    "whole_object_in_frame": "yes",
+    "reason": "The magenta outline and the mural it encloses are fully visible inside the photo and do not extend beyond the frame edges."
+  },
+  "error": null
+}

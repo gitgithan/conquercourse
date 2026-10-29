@@ -1,0 +1,282 @@
+{
+  "spark-outline": {
+    "rows": 23,
+    "errors_or_unreadable": [],
+    "tokens_in": 17401,
+    "tokens_out": 12750,
+    "usd": 0.0759,
+    "usd_per_photo": 0.0033,
+    "answers": {
+      "yes": [
+        "bar-black",
+        "bar-green",
+        "barrel-oak",
+        "bench-concrete-curve",
+        "bench01",
+        "bollard-iron",
+        "hydrant-red",
+        "log-driftwood",
+        "mural02",
+        "park01",
+        "park02",
+        "park03",
+        "park06",
+        "park07",
+        "picnic-table",
+        "pipe-ring",
+        "planter-concrete",
+        "rail01",
+        "stump-spruce"
+      ],
+      "no": [
+        "fence-split-rail",
+        "gabion-wall",
+        "mural01",
+        "railing-red"
+      ]
+    },
+    "scores": {
+      "rejects when model says the worst | target lift gave \"no\"": {
+        "agree": 17,
+        "of": 23,
+        "false_alarms": 3,
+        "misses": 3
+      },
+      "rejects when model says anything but ok | target lift gave \"no\"": {
+        "agree": 17,
+        "of": 23,
+        "false_alarms": 3,
+        "misses": 3
+      },
+      "rejects when model says the worst | target lift gave \"partly\" or \"no\"": {
+        "agree": 14,
+        "of": 23,
+        "false_alarms": 2,
+        "misses": 7
+      },
+      "rejects when model says anything but ok | target lift gave \"partly\" or \"no\"": {
+        "agree": 14,
+        "of": 23,
+        "false_alarms": 2,
+        "misses": 7
+      },
+      "strict: against \"mask runs into the photo edge\" (cut-off truth)": {
+        "agree": 22,
+        "of": 23,
+        "false_alarms": 0,
+        "misses": 1
+      },
+      "lenient: against \"mask runs into the photo edge\" (cut-off truth)": {
+        "agree": 22,
+        "of": 23,
+        "false_alarms": 0,
+        "misses": 1
+      }
+    }
+  },
+  "spark-plain": {
+    "rows": 23,
+    "errors_or_unreadable": [],
+    "tokens_in": 15343,
+    "tokens_out": 19574,
+    "usd": 0.1024,
+    "usd_per_photo": 0.00445,
+    "answers": {
+      "review": [
+        "bar-black",
+        "pipe-ring"
+      ],
+      "block": [
+        "bar-green",
+        "fence-split-rail",
+        "gabion-wall",
+        "log-driftwood",
+        "mural01",
+        "mural02",
+        "park01",
+        "park02",
+        "park06",
+        "park07",
+        "picnic-table",
+        "planter-concrete",
+        "rail01",
+        "railing-red"
+      ],
+      "ok": [
+        "barrel-oak",
+        "bench-concrete-curve",
+        "bench01",
+        "bollard-iron",
+        "hydrant-red",
+        "park03",
+        "stump-spruce"
+      ]
+    },
+    "scores": {
+      "rejects when model says the worst | target lift gave \"no\"": {
+        "agree": 13,
+        "of": 23,
+        "false_alarms": 10,
+        "misses": 0
+      },
+      "rejects when model says anything but ok | target lift gave \"no\"": {
+        "agree": 11,
+        "of": 23,
+        "false_alarms": 12,
+        "misses": 0
+      },
+      "rejects when model says the worst | target lift gave \"partly\" or \"no\"": {
+        "agree": 18,
+        "of": 23,
+        "false_alarms": 5,
+        "misses": 0
+      },
+      "rejects when model says anything but ok | target lift gave \"partly\" or \"no\"": {
+        "agree": 16,
+        "of": 23,
+        "false_alarms": 7,
+        "misses": 0
+      }
+    }
+  },
+  "wonder-outline": {
+    "rows": 23,
+    "errors_or_unreadable": [],
+    "tokens_in": 14250,
+    "tokens_out": 7908,
+    "usd": 0.2152,
+    "usd_per_photo": 0.00935,
+    "answers": {
+      "yes": [
+        "bar-black",
+        "bar-green",
+        "barrel-oak",
+        "bench-concrete-curve",
+        "bench01",
+        "bollard-iron",
+        "hydrant-red",
+        "log-driftwood",
+        "park01",
+        "park02",
+        "park03",
+        "park06",
+        "park07",
+        "picnic-table",
+        "pipe-ring",
+        "planter-concrete",
+        "stump-spruce"
+      ],
+      "no": [
+        "fence-split-rail",
+        "gabion-wall",
+        "mural01",
+        "mural02",
+        "rail01",
+        "railing-red"
+      ]
+    },
+    "scores": {
+      "rejects when model says the worst | target lift gave \"no\"": {
+        "agree": 17,
+        "of": 23,
+        "false_alarms": 4,
+        "misses": 2
+      },
+      "rejects when model says anything but ok | target lift gave \"no\"": {
+        "agree": 17,
+        "of": 23,
+        "false_alarms": 4,
+        "misses": 2
+      },
+      "rejects when model says the worst | target lift gave \"partly\" or \"no\"": {
+        "agree": 16,
+        "of": 23,
+        "false_alarms": 2,
+        "misses": 5
+      },
+      "rejects when model says anything but ok | target lift gave \"partly\" or \"no\"": {
+        "agree": 16,
+        "of": 23,
+        "false_alarms": 2,
+        "misses": 5
+      },
+      "strict: against \"mask runs into the photo edge\" (cut-off truth)": {
+        "agree": 22,
+        "of": 23,
+        "false_alarms": 1,
+        "misses": 0
+      },
+      "lenient: against \"mask runs into the photo edge\" (cut-off truth)": {
+        "agree": 22,
+        "of": 23,
+        "false_alarms": 1,
+        "misses": 0
+      }
+    }
+  },
+  "wonder-plain": {
+    "rows": 23,
+    "errors_or_unreadable": [],
+    "tokens_in": 12192,
+    "tokens_out": 8028,
+    "usd": 0.2093,
+    "usd_per_photo": 0.0091,
+    "answers": {
+      "block": [
+        "bar-black",
+        "bar-green",
+        "fence-split-rail",
+        "gabion-wall",
+        "mural01",
+        "mural02",
+        "park01",
+        "park02",
+        "park06",
+        "picnic-table",
+        "rail01",
+        "railing-red"
+      ],
+      "ok": [
+        "barrel-oak",
+        "bench-concrete-curve",
+        "bench01",
+        "bollard-iron",
+        "hydrant-red",
+        "park03",
+        "stump-spruce"
+      ],
+      "review": [
+        "log-driftwood",
+        "park07",
+        "pipe-ring",
+        "planter-concrete"
+      ]
+    },
+    "scores": {
+      "rejects when model says the worst | target lift gave \"no\"": {
+        "agree": 13,
+        "of": 23,
+        "false_alarms": 9,
+        "misses": 1
+      },
+      "rejects when model says anything but ok | target lift gave \"no\"": {
+        "agree": 11,
+        "of": 23,
+        "false_alarms": 12,
+        "misses": 0
+      },
+      "rejects when model says the worst | target lift gave \"partly\" or \"no\"": {
+        "agree": 16,
+        "of": 23,
+        "false_alarms": 5,
+        "misses": 2
+      },
+      "rejects when model says anything but ok | target lift gave \"partly\" or \"no\"": {
+        "agree": 16,
+        "of": 23,
+        "false_alarms": 7,
+        "misses": 0
+      }
+    }
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "id": "hydrant-red",
+  "model": "spark",
+  "kind": "plain",
+  "status": 200,
+  "seconds": 8.8,
+  "prompt_tokens": 793,
+  "completion_tokens": 1295,
+  "raw": "{\"verdict\":\"ok\",\"reason\":\"Single solid compact fire hydrant with whole shape visible and no thin or detached parts.\"}",
+  "answer": {
+    "verdict": "ok",
+    "reason": "Single solid compact fire hydrant with whole shape visible and no thin or detached parts."
+  },
+  "error": null
+}

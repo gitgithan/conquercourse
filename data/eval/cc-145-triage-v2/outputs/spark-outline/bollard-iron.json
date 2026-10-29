@@ -1,0 +1,15 @@
+{
+  "id": "bollard-iron",
+  "model": "spark",
+  "kind": "outline",
+  "status": 200,
+  "seconds": 7.7,
+  "prompt_tokens": 806,
+  "completion_tokens": 322,
+  "raw": "{\"whole_object_in_frame\":\"yes\",\"reason\":\"The bollard is fully visible and not cropped by any edge of the photo.\"}",
+  "answer": {
+    "whole_object_in_frame": "yes",
+    "reason": "The bollard is fully visible and not cropped by any edge of the photo."
+  },
+  "error": null
+}

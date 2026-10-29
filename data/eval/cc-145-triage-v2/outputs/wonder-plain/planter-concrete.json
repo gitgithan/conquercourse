@@ -1,0 +1,15 @@
+{
+  "id": "planter-concrete",
+  "model": "wonder",
+  "kind": "plain",
+  "status": 200,
+  "seconds": 14.3,
+  "prompt_tokens": 446,
+  "completion_tokens": 853,
+  "raw": "{\"verdict\":\"review\",\"reason\":\"Thin hollow curved shell with absent interior makes its depth ambiguous for a 3D lift.\"}",
+  "answer": {
+    "verdict": "review",
+    "reason": "Thin hollow curved shell with absent interior makes its depth ambiguous for a 3D lift."
+  },
+  "error": null
+}

@@ -1,0 +1,15 @@
+{
+  "id": "bench-concrete-curve",
+  "model": "spark",
+  "kind": "plain",
+  "status": 200,
+  "seconds": 8.7,
+  "prompt_tokens": 712,
+  "completion_tokens": 1446,
+  "raw": "{\"verdict\":\"ok\",\"reason\":\"Single solid sculptural bench fully visible with intact shape and no fragmentation.\"}",
+  "answer": {
+    "verdict": "ok",
+    "reason": "Single solid sculptural bench fully visible with intact shape and no fragmentation."
+  },
+  "error": null
+}

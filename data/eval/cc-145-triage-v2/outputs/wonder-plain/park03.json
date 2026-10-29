@@ -1,0 +1,15 @@
+{
+  "id": "park03",
+  "model": "wonder",
+  "kind": "plain",
+  "status": 200,
+  "seconds": 6.8,
+  "prompt_tokens": 386,
+  "completion_tokens": 532,
+  "raw": "{\"verdict\":\"ok\",\"reason\":\"Single solid slab is fully visible with clear thickness and edges.\"}",
+  "answer": {
+    "verdict": "ok",
+    "reason": "Single solid slab is fully visible with clear thickness and edges."
+  },
+  "error": null
+}

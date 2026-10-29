@@ -1,0 +1,15 @@
+{
+  "id": "bench-concrete-curve",
+  "model": "wonder",
+  "kind": "plain",
+  "status": 200,
+  "seconds": 8.1,
+  "prompt_tokens": 575,
+  "completion_tokens": 436,
+  "raw": "{\"verdict\":\"ok\",\"reason\":\"One solid, chunky stone bench is fully visible and isolated against the background.\"}",
+  "answer": {
+    "verdict": "ok",
+    "reason": "One solid, chunky stone bench is fully visible and isolated against the background."
+  },
+  "error": null
+}

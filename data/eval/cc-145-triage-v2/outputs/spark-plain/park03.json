@@ -1,0 +1,15 @@
+{
+  "id": "park03",
+  "model": "spark",
+  "kind": "plain",
+  "status": 200,
+  "seconds": 3.5,
+  "prompt_tokens": 523,
+  "completion_tokens": 482,
+  "raw": "{\"verdict\":\"ok\",\"reason\":\"Single solid rectangular platform fully visible with clear thickness and no occlusion.\"}",
+  "answer": {
+    "verdict": "ok",
+    "reason": "Single solid rectangular platform fully visible with clear thickness and no occlusion."
+  },
+  "error": null
+}

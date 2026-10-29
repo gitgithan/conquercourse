@@ -1,0 +1,39 @@
+{
+  "experiment": "cc-145-triage-v2",
+  "issue": "CC-145",
+  "date": "2026-10-29",
+  "rows": 23,
+  "models": {
+    "spark": "meta-models/muse-spark-open-1026 (Baseten, temperature 0, max_tokens 4000 then 8000)",
+    "wonder": "muse-wonder-1.0 (Meta Model API, reasoning_effort low, max_tokens 4000 then 8000)"
+  },
+  "cost_usd": {
+    "spark-outline": {
+      "tokens_in": 17401,
+      "tokens_out": 12750,
+      "usd": 0.0759,
+      "usd_per_photo": 0.0033
+    },
+    "spark-plain": {
+      "tokens_in": 15343,
+      "tokens_out": 19574,
+      "usd": 0.1024,
+      "usd_per_photo": 0.00445
+    },
+    "wonder-outline": {
+      "tokens_in": 14250,
+      "tokens_out": 7908,
+      "usd": 0.2152,
+      "usd_per_photo": 0.00935
+    },
+    "wonder-plain": {
+      "tokens_in": 12192,
+      "tokens_out": 8028,
+      "usd": 0.2093,
+      "usd_per_photo": 0.0091
+    }
+  },
+  "total_usd": 0.603,
+  "masks": "reused from CC-110 and CC-38 (no SAM 3 run)",
+  "inputs": "photos and masks read from data/eval/cc-110-real-objects and cc-38-photo-to-3d; rendered images in inputs/plain and inputs/outline"
+}

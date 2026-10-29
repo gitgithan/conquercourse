@@ -1,6 +1,7 @@
 # Photo triage with Muse Spark Open (CC-123)
 
 ## So what
+- Retried with other methods in CC-145: [data/eval/cc-145-triage-v2/README.md](../cc-145-triage-v2/README.md).
 - Not useful as a gate: it agreed with what really happened on 3 of 14 photos.
 - It rejected or downgraded 9 of the 10 photos that lifted well, because it judges the photo; our hand-drawn box and SAM 3 cope with crops, clutter and angles.
 - It did name real flaws (a cropped railing, a fence that runs out of frame, a table seen end-on), so its notes are a fair reading of the photo, not a forecast of the lift.

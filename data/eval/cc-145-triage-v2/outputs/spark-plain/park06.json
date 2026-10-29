@@ -1,0 +1,15 @@
+{
+  "id": "park06",
+  "model": "spark",
+  "kind": "plain",
+  "status": 200,
+  "seconds": 3.8,
+  "prompt_tokens": 395,
+  "completion_tokens": 764,
+  "raw": "{\"verdict\":\"block\",\"reason\":\"Object is an extremely long, thin plank that is not compact and will not lift to a usable 3D volume.\"}",
+  "answer": {
+    "verdict": "block",
+    "reason": "Object is an extremely long, thin plank that is not compact and will not lift to a usable 3D volume."
+  },
+  "error": null
+}
