@@ -20,6 +20,7 @@ import { fixBand } from '../slice/fixband';
 import { DRONE_PAD_LENGTH, withDrone, type DroneCfg } from '../slice/drone-lane';
 import { fixDrone } from '../slice/fixdrone';
 import { PATTERNS, stackPiece, stackSrc } from '../slice/stack';
+import { personStart } from '../slice/person-ref';
 import { layoutToPieces, parseLayout } from '../slice/photo-course';
 import { proves } from '../slice/photo-proof';
 import { adviseMachine, fixMachine } from '../slice/fix-launch';
@@ -73,7 +74,8 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
   let selected: number | null = null;
   let angle = 0, offset = 0, level = 0; // the lane: turn about the rod (radians), sideways (m), level (m)
   let view = { cx: 8, cz: 0, ppm: 36 }; // plan view: the world point in the middle, pixels per metre
-  const personReferenceAt = { x: 0, z: 0 };
+  let personChipReady = false; // the chip is built after the 3D view; the world redraws can run before that
+  const personAt = () => personStart(pieces, { angle, offset });
   let cropMode = false;
   let verdict = '';
   let movesReady = false; // the Moves window exists (changed() may run before it is built)
@@ -180,6 +182,7 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
         } catch { /* a missing object is skipped */ }
       }
       if (pendingObjects.length) { pendingObjects.length = 0; changed(false); hist.length = 0; hi = -1; remember(); onWorld(); } // the saved or first world is the starting point of the undo list
+      await firstVisitPerson(); // a first visit: the person for scale stands at the start of the lane
     } catch { /* no objects on this site */ }
   })();
   // overhead: bars hanging in the air (a game, not real: they need no frame); the side view is where they are dragged
@@ -265,7 +268,7 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
         const rookie = localStorage.getItem('cc.rookie') === 'b' ? 'b' : 'a';
         const url = r.id === 'person' ? `/assets/characters/rookie-${rookie}.glb` : r.url;
         const src = r.id === 'person' ? `obj:../characters/rookie-${rookie}.glb` : r.src;
-        const at = r.id === 'person' ? personReferenceAt : { x: view.cx - 3 * Math.sin(angle), z: view.cz + 3 * Math.cos(angle) };
+        const at = r.id === 'person' ? personAt() : { x: view.cx - 3 * Math.sin(angle), z: view.cz + 3 * Math.cos(angle) };
         const p: P = { ...scaleToHeight(newPiece(r.id === 'person' ? 'Person' : r.id, readGlbMesh(await (await fetch(url)).arrayBuffer()), at), 1.75), src };
         pieces.push(p); if (r.id !== 'person') selected = p.id; changed();
       } catch { verdict = 'That reference could not be loaded.'; draw(); }
@@ -295,6 +298,28 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
     ghosts: () => ghostData(),
   });
   if (mapCamera) view3d.look(mapCamera.heading, mapCamera.pitch, { x: 0, z: 0 }, mapCamera.distance); // the 3D view starts where the map flight ended
+  // the person for scale: a chip on the picture (bottom left) that shows them, finds them and hides them (CC-96)
+  const personChip = el('div', planWrap, { id: 'personchip' });
+  const personFind = el('button', personChip, { text: 'Show a person', id: 'personfind', title: 'Show a person for scale, or find them in the picture' });
+  const personHide = el('button', personChip, { text: 'Hide', id: 'personhide', title: 'Hide the person' });
+  const personThere = () => pieces.some(isSizeReference);
+  const rememberPerson = (on: boolean) => { try { localStorage.setItem('cc.person', on ? '1' : '0'); } catch { /* the chip still works */ } };
+  const personButton = () => addBar.querySelector<HTMLElement>('[data-object="person"]');
+  const framePerson = () => { const p = pieces.find(isSizeReference); if (!p) return; view.cx = p.x; view.cz = p.z; view3d.look(25, 58, { x: p.x, z: p.z }, 7); view3d.pulse(p.x, p.z); };
+  const waitForPerson = async (want: boolean) => { for (let i = 0; i < 60 && personThere() !== want; i++) await new Promise((r) => setTimeout(r, 100)); };
+  personFind.onclick = async () => { if (!personThere()) { personButton()?.click(); rememberPerson(true); await waitForPerson(true); } framePerson(); syncPersonChip(); };
+  personHide.onclick = async () => { if (personThere()) personButton()?.click(); rememberPerson(false); await waitForPerson(false); syncPersonChip(); };
+  function syncPersonChip() {
+    if (!personChipReady) return;
+    const on = personThere();
+    personFind.textContent = on ? 'Find the person' : 'Show a person'; personFind.setAttribute('aria-pressed', String(on)); personHide.style.display = on ? '' : 'none';
+  }
+  personChipReady = true; syncPersonChip();
+  // a first visit: the person stands at the start of the lane until the player hides them (the chip remembers the choice)
+  async function firstVisitPerson() {
+    let first = false; try { first = localStorage.getItem('cc.person') === null; } catch { /* no storage */ }
+    if (first && !personThere()) { personButton()?.click(); await waitForPerson(true); rememberPerson(true); hist.length = 0; hi = -1; remember(); onWorld(); }
+  }
   const bar = el('div', planWrap, { className: 'piecebar', id: 'piecebar' }); // the selected piece's tools, on the picture next to the piece (CC-94)
   let topPlan = false;
   const setView = (plan2d: boolean) => { topPlan = plan2d; plan.style.display = plan2d ? 'block' : 'none'; view3d.show(!plan2d); viewBtn.textContent = plan2d ? '3D view' : 'Top plan'; viewBtn.setAttribute('aria-pressed', String(plan2d)); if (plan2d) fit(); };
@@ -764,6 +789,7 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
 
   // ---- the selected piece
   function drawPanel() {
+    syncPersonChip();
     side.replaceChildren();
     const p = pieces.find((q) => q.id === selected && !isSizeReference(q));
     el('strong', side, { text: p ? p.name : 'No piece chosen' });
