@@ -1,0 +1,8 @@
+[
+  { "name": "Midtown, New York", "lat": 40.758, "lon": -73.9855, "radius": 120 },
+  { "name": "Copacabana, Rio", "lat": -22.9711, "lon": -43.1822, "radius": 120 },
+  { "name": "Khan el-Khalili, Cairo", "lat": 30.0478, "lon": 31.2625, "radius": 120 },
+  { "name": "Chinatown, Singapore", "lat": 1.2833, "lon": 103.8443, "radius": 120 },
+  { "name": "Soho, London", "lat": 51.5136, "lon": -0.1318, "radius": 120 },
+  { "name": "Zocalo, Mexico City", "lat": 19.4326, "lon": -99.1332, "radius": 120 }
+]
