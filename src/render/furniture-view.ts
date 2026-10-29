@@ -18,8 +18,8 @@ const PARTS: Record<Exclude<Kind, 'crosswalk'>, Part[]> = {
 
 export interface FurnitureHandle { group: THREE.Group; counts: Record<string, number>; placed: number; moved: number; destroy(): void }
 
-export function buildFurniture(file: FurnitureFile, laneTop: (x: number) => number): FurnitureHandle {
-  const group = new THREE.Group(), s = drawScale(file.frame), { placed, moved } = place(file, laneTop);
+export function buildFurniture(file: FurnitureFile, laneTop: (x: number) => number, minScale?: number): FurnitureHandle {
+  const group = new THREE.Group(), s = drawScale(file.frame, minScale), { placed, moved } = place(file, laneTop);
   const unitCyl = new THREE.CylinderGeometry(0.5, 0.5, 1, 8).translate(0, 0.5, 0), unitBox = new THREE.BoxGeometry(1, 1, 1).translate(0, 0.5, 0);
   const m = new THREE.Matrix4(), q = new THREE.Quaternion(), pos = new THREE.Vector3(), sc = new THREE.Vector3();
   for (const kind of Object.keys(PARTS) as Exclude<Kind, 'crosswalk'>[]) {
