@@ -2,6 +2,7 @@ import { soundButton, startAudio } from '../ui/audio';
 import { EXPERIMENTS, GAP_WIDTH, classify, defaults, sweep, type Context, type Experiment, type Overlay, type Person, type Point, type Pose, type Trial } from '../sim/experiments';
 import { LESSONS } from './lessons';
 import { diagram } from './diagrams';
+import { DOJO_V2_CSS } from './dojo-style';
 import defaultCourse from '../course/default-course.json';
 import type { CourseData } from '../course/course';
 import { courseFacts } from '../course/facts';
@@ -24,6 +25,7 @@ export function startDojo(host: HTMLElement): { backend: 'webgl2' } {
     width: num('width') ?? g0?.width, rise: num('rise') ?? g0?.rise, needed: num('needed') ?? g0?.needed, speed: num('speed'),
     wallHeight: num('wallh') ?? facts.wall?.height, ropeLength: num('length') ?? facts.rope?.length,
   };
+  const legacy = q.get('dojo') === 'old'; // ?dojo=old shows the layout from before CC-146, for comparing
   const fromCourse = q.get('from') === 'course';
   const returnToCourse = fromCourse ? '?welcome=0' : '?';
   const style = document.createElement('style');
@@ -42,10 +44,10 @@ export function startDojo(host: HTMLElement): { backend: 'webgl2' } {
     .dojo .working{font:600 17px ui-monospace,Menlo,monospace;background:#f3f7f4;border-radius:8px;padding:8px 10px}.dojo .banner{background:#fff3e6;border:1px solid #e6b87a;border-radius:10px;padding:8px 12px}
     .dojo .steps{display:flex;flex-wrap:wrap;gap:6px;align-items:flex-start}.dojo .step{font-size:13px;padding:3px 10px;border-radius:999px;border:1px solid #b9c2bb;background:#fff;color:#58635d}
     .dojo .step.on{background:#0f6b5c;color:#fff;border-color:#0f6b5c}.dojo .step.done{color:#0f6b5c;border-color:#0f6b5c}
-    .dojo .muted{color:#58635d;font-size:14px}.dojo ol,.dojo ul{margin:0;padding-left:20px}`;
+    .dojo .muted{color:#58635d;font-size:14px}.dojo ol,.dojo ul{margin:0;padding-left:20px}` + (legacy ? '' : DOJO_V2_CSS);
   document.head.appendChild(style);
   const root = document.createElement('div');
-  root.className = 'dojo';
+  root.className = legacy ? 'dojo' : 'dojo v2';
   host.appendChild(root);
 
   let exp: Experiment = EXPERIMENTS.find((e) => e.id === q.get('ex')) ?? EXPERIMENTS[0];
@@ -53,6 +55,11 @@ export function startDojo(host: HTMLElement): { backend: 'webgl2' } {
   let step = 0;
   let diagramKind: 'real' | 'principle' = 'real';
 
+  // a saying is earned by trying: it shows once a slider has moved in that lesson, or the lesson has moved past "Try it" (kept in this browser)
+  const earned = new Set<string>();
+  try { for (const id of JSON.parse(localStorage.getItem('cc.dojo.earned') ?? '[]') as string[]) earned.add(id); } catch { /* none yet */ }
+  let paintSaying: () => void = () => {};
+  const earn = () => { if (earned.has(exp.id)) return; earned.add(exp.id); try { localStorage.setItem('cc.dojo.earned', JSON.stringify([...earned])); } catch { /* not saved */ } paintSaying(); };
   let refresh: () => void = () => {}; // redraws whatever the current step shows when a slider moves
   const el = <T extends HTMLElement>(tag: string, parent: HTMLElement, props: Partial<T> & { text?: string } = {}): T => {
     const e = document.createElement(tag) as T;
@@ -77,34 +84,59 @@ export function startDojo(host: HTMLElement): { backend: 'webgl2' } {
   function render() {
     root.innerHTML = '';
     refresh = () => {};
-    const head = el('div', root, { className: 'head' });
-    el('h1', head, { text: 'The Dojo' });
+    const head = el('div', root, { className: legacy ? 'head' : 'head bar' });
+    if (legacy) el('h1', head, { text: 'The Dojo' });
+    else { const brand = el('div', head, { className: 'brand' }); el('span', brand, { className: 'kicker', text: 'Train slow. Run fast.' }); el('h1', brand, { text: 'The Dojo' }); }
     const back = el<HTMLAnchorElement>('a', head, { text: 'Back to the Course (T)', href: returnToCourse, className: 'btn go' });
     back.id = 'back';
-    back.style.cssText = 'position:fixed;top:12px;right:16px;z-index:30;font-size:18px;padding:10px 18px;box-shadow:0 2px 10px #0003'; // always in the same corner, easy to find
+    if (legacy) back.style.cssText = 'position:fixed;top:12px;right:16px;z-index:30;font-size:18px;padding:10px 18px;box-shadow:0 2px 10px #0003'; // always in the same corner, easy to find
     if (fromCourse && (ctx.width || ctx.wallHeight || ctx.ropeLength)) {
       const b = el('div', root, { className: 'banner', id: 'banner' });
       b.textContent = ctx.width
         ? `Training for the gap you fell at: ${ctx.width.toFixed(1)} m wide${ctx.rise ? `, ${ctx.rise > 0 ? 'landing ' + ctx.rise.toFixed(1) + ' m higher' : ''}` : ''}. You left the edge at ${ctx.speed?.toFixed(1) ?? '?'} m/s; it needs at least ${ctx.needed?.toFixed(1) ?? '?'} m/s.`
         : ctx.wallHeight ? `Training for the warped wall: ${ctx.wallHeight.toFixed(1)} m high.` : `Training for the rope: ${ctx.ropeLength?.toFixed(0)} m long.`;
     }
-    const tabs = el('div', root, { className: 'tabs' });
+    const tabs = el('div', root, { className: legacy ? 'tabs' : 'tabs cards' });
     for (const e of EXPERIMENTS) {
-      const b = el<HTMLButtonElement>('button', tabs, { text: e.name });
+      const b = el<HTMLButtonElement>('button', tabs, legacy ? { text: e.name } : {});
+      if (!legacy) {
+        const at = e === exp ? step : states[e.id]?.step ?? 0;
+        el('span', b, { text: e.name });
+        el('small', b, { text: at === 0 ? 'Start here' : `Step ${at + 1} of ${STEPS.length}` });
+      }
       b.setAttribute('aria-pressed', String(e === exp));
       b.onclick = () => choose(e);
     }
-    const stepsEl = el('div', root, { className: 'steps' });
+    if (!legacy) {
+      // the lesson's title, its question and its saying (locked until the player has tried it)
+      const hero = el('div', root, { className: 'hero', id: 'hero' });
+      el('h2', hero, { text: exp.name });
+      el('p', hero, { className: 'q', text: exp.question });
+      const sayBox = el('div', hero);
+      paintSaying = () => {
+        sayBox.innerHTML = '';
+        if (earned.has(exp.id)) exp.sayings.forEach((say) => el('div', sayBox, { className: 'saying', text: say }));
+        else el('div', sayBox, { className: 'saying locked', id: 'locked-saying', text: 'Try the sliders to earn this lesson\'s saying.' });
+      };
+      paintSaying();
+    }
+    const stepsEl = el('div', root, { className: legacy ? 'steps' : 'steps path' });
     STEPS.forEach((s, i) => {
-      const b = el<HTMLButtonElement>('button', stepsEl, { className: 'step' + (i === step ? ' on' : i < step ? ' done' : ''), text: `${i + 1}. ${s}` });
+      const cls = (legacy ? 'step' : 'node') + (i === step ? ' on' : i < step ? ' done' : '');
+      const b = el<HTMLButtonElement>('button', stepsEl, legacy ? { className: cls, text: `${i + 1}. ${s}` } : { className: cls });
+      if (!legacy) { el('span', b, { className: 'dot', text: String(i + 1) }); el('span', b, { className: 't', text: s }); b.setAttribute('aria-label', `Step ${i + 1}: ${s}`); }
       b.onclick = () => { step = i; render(); };
     });
+    if (!legacy && step >= 2) earn();
     const row = el('div', root, { className: 'row' });
-    const canvas = el<HTMLCanvasElement>('canvas', row, { width: 760, height: 440 });
+    let stage: HTMLElement = row;
+    if (!legacy) stage = el('div', row, { className: 'stage' });
+    const canvas = el<HTMLCanvasElement>('canvas', stage, { width: 760, height: 440 });
     const panel = el('div', row, { className: 'panel' });
     if (step === 0) {
       // step 1 uses the plot's space for a picture: the real obstacle with its forces, or the idea behind it
       canvas.style.display = 'none';
+      if (stage !== row) stage.style.display = 'none';
       const box = el('div', row, { id: 'diagram' });
       row.insertBefore(box, panel);
       box.style.cssText = 'display:grid;gap:8px;align-content:start';
@@ -115,7 +147,7 @@ export function startDojo(host: HTMLElement): { backend: 'webgl2' } {
         b.onclick = () => { diagramKind = k; render(); };
       });
       const svgBox = el('div', box);
-      svgBox.style.cssText = 'background:#fff;border:1px solid #cfd6d0;border-radius:10px;padding:6px';
+      if (legacy) svgBox.style.cssText = 'background:#fff;border:1px solid #cfd6d0;border-radius:10px;padding:6px';
       svgBox.innerHTML = diagram(exp.id === 'bars' ? 'rope' : exp.id, diagramKind); // a bar swing is a pendulum like the rope: it borrows the rope's picture until it has its own
       const svg = svgBox.querySelector('svg'); if (svg) { svg.setAttribute('width', '100%'); svg.removeAttribute('height'); (svg as SVGElement).style.height = 'auto'; }
     }
@@ -134,7 +166,7 @@ export function startDojo(host: HTMLElement): { backend: 'webgl2' } {
         const l = el<HTMLLabelElement>('label', panel);
         const span = el('span', l, { text: `${k.label}: ${values[k.id].toFixed(k.step < 0.1 ? 2 : 1)} ${k.unit}` });
         const r = el<HTMLInputElement>('input', l, { type: 'range', id: 'knob-' + k.id, min: String(k.min), max: String(k.max), step: String(k.step), value: String(values[k.id]) });
-        r.oninput = () => { values[k.id] = Number(r.value); span.textContent = `${k.label}: ${values[k.id].toFixed(k.step < 0.1 ? 2 : 1)} ${k.unit}`; refresh(); };
+        r.oninput = () => { values[k.id] = Number(r.value); span.textContent = `${k.label}: ${values[k.id].toFixed(k.step < 0.1 ? 2 : 1)} ${k.unit}`; if (!legacy) earn(); refresh(); };
         el('span', l, { className: 'why', text: k.why });
       }
       el('strong', panel, { text: exp.question });
@@ -186,7 +218,7 @@ export function startDojo(host: HTMLElement): { backend: 'webgl2' } {
       const next = EXPERIMENTS[(EXPERIMENTS.indexOf(exp) + 1) % EXPERIMENTS.length];
       el<HTMLButtonElement>('button', panel, { text: `Learn the ${next.name} next` }).onclick = () => choose(next);
     }
-    const nav = el('div', panel, { className: 'tabs' });
+    const nav = el('div', panel, { className: legacy ? 'tabs' : 'tabs nav' });
     const prev = el<HTMLButtonElement>('button', nav, { text: '← Back' });
     prev.disabled = step === 0;
     prev.onclick = () => { step--; render(); };
@@ -201,7 +233,7 @@ export function startDojo(host: HTMLElement): { backend: 'webgl2' } {
     out.innerHTML = '';
     const t = preview();
     el('div', out, { className: 'result', text: `${t.answer.toFixed(1)} ${exp.answerUnit}. ${t.note ?? ''}` });
-    exp.sayings.forEach((say) => el('div', out, { className: 'saying', text: say }));
+    if (legacy) exp.sayings.forEach((say) => el('div', out, { className: 'saying', text: say }));
   }
 
   // a simple stick-figure person, feet at (px, py), `s` pixels per metre
