@@ -1,0 +1,21 @@
+// One small outline picture per obstacle, drawn in a 32 by 32 box: the Course's obstacle strip and the end-of-run report use the same ones.
+export const ZONE_ICONS: Record<string, string> = {
+  gap: '<path d="M3 20 H11 V12 M21 20 H29 V12 M11 12 H3 M21 12 H29 M12 8 Q16 2 20 8" />',
+  landing: '<rect x="9" y="12" width="14" height="8" rx="1"/><path d="M16 4 V9 M13 7 L16 10 L19 7"/>',
+  wall: '<path d="M4 26 Q22 26 26 4 M26 4 H29"/>',
+  rope: '<path d="M5 5 H27 M16 5 V19"/><circle cx="16" cy="23" r="3.5"/>',
+  trampoline: '<path d="M4 20 H28 M7 20 L9 26 M25 20 L23 26 M13 14 Q16 4 19 14"/>',
+  lache: '<path d="M4 5 H28 M8 5 V13 M16 5 V13 M24 5 V13 M5 22 Q16 12 27 22"/>',
+  launch: '<path d="M5 25 L25 7 M19 7 H25 V13 M8 23 L13 28"/><circle cx="10" cy="9" r="3"/>',
+  recoil: '<path d="M5 16 H26 M5 16 L11 10 M5 16 L11 22 M27 7 V25"/>',
+  step: '<path d="M4 24 H12 V18 H20 V12 H28"/>',
+  climb: '<path d="M6 28 V13 H19 V28 M13 10 V3 M10 6 L13 3 L16 6"/>',
+  vault: '<rect x="11" y="19" width="10" height="7"/><path d="M3 26 Q5 8 16 13 Q27 8 29 26"/>',
+  band: '<path d="M5 5 V27 M5 16 H9 L11 9 L15 23 L19 9 L23 23 L25 16 H28"/>',
+  drone: '<circle cx="16" cy="19" r="3"/><path d="M5 11 H12 M20 11 H27 M12 11 L14 16 M20 11 L18 16 M8 7 V11 M24 7 V11"/>',
+  plank: '<path d="M4 12 V26 M28 12 V26 M4 12 Q16 24 28 12"/>',
+  stack: '<rect x="4" y="21" width="7" height="6" rx="1"/><rect x="12.5" y="21" width="7" height="6" rx="1"/><rect x="21" y="21" width="7" height="6" rx="1"/><rect x="8" y="14" width="7" height="6" rx="1"/><rect x="17" y="14" width="7" height="6" rx="1"/><rect x="12.5" y="7" width="7" height="6" rx="1"/>',
+  drop: '<path d="M8 5 V20 M4 16 L8 21 L12 16 M17 23 H28"/>',
+  coaster: '<path d="M3 23 Q9 23 11 9 Q13 2 16 14 Q20 29 24 15 Q26 9 29 9"/>',
+  course: '<path d="M4 25 H10 L14 10 L19 21 L23 13 H28"/><circle cx="7" cy="19" r="2"/>',
+};
