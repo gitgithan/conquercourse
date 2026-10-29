@@ -1,0 +1,7 @@
+{
+  "issue": "CC-135",
+  "check": "scripts/share-offer-check.mjs",
+  "machine": "vm2",
+  "result": "6 of 6 PASS",
+  "tests": "tests/share-offer.test.ts 3 of 3"
+}
