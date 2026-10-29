@@ -39,7 +39,7 @@ import { makeItEasier } from '../slice/easier';
 import { EDIT_KEY, HIST_KEY, checkpointFor, piecesFromSource, readHandoff } from '../slice/roundtrip';
 import type { CourseSource } from '../course/course';
 
-// The World editor (beta): build a world from pieces on a plan view, scale them (a toy brick becomes a block), turn, copy, crop and move them,
+// The World editor: build a world from pieces on a plan view, scale them (a toy brick becomes a block), turn, copy, crop and move them,
 // choose the lane the runner takes (turn about the rod, sideways, level), and play it. Everything is in metres.
 const KEY = 'cc.world.v1';
 interface Saved { pieces: { src: string; x: number; z: number; y: number; yaw: number; scale: number; role?: Role }[]; angle: number; offset: number; level: number; floor?: string }
@@ -129,7 +129,7 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
   const el = <K extends keyof HTMLElementTagNameMap>(tag: K, parent: HTMLElement, props: Partial<HTMLElementTagNameMap[K]> & { text?: string } = {}) => { const { text, ...rest } = props as Record<string, unknown> & { text?: string }; const e = Object.assign(document.createElement(tag), rest); if (text) e.textContent = text; parent.appendChild(e); return e as HTMLElementTagNameMap[K]; };
 
   const top = el('div', root, { className: 'top' });
-  el('h1', top, { text: 'World editor (beta)' });
+  el('h1', top, { text: 'World editor' });
   const backLink = el('a', top, { text: 'Back to the Course', href: '?', className: 'btn go', id: 'backcourse' }); // from the Course it returns to that very course (CC-80)
   el('button', top, { text: 'Reset to starter scene', id: 'resetworld', title: 'Discard this saved world and restore the starter bench, box and rail' }).onclick = () => {
     if (!window.confirm('Discard this saved world and restore the starter scene?')) return;
