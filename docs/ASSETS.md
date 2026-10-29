@@ -433,7 +433,7 @@
 | `data/eval/cc-spectacle/film/*` | film beat stills and clips: street map, slice and blocks (concept stills), the leap clip, the end card | 2026-10-30 | `scripts/osm-concept.mjs`, `scripts/film.mjs`, `scripts/endcard.mjs`; the game on the hero course; buildings from the stored Montmartre file | OpenStreetMap contributors (ODbL) for the map stills | Ours; the runner is `rookie-a.glb` (see its row); the box and objects are CC0 lifts from the Bucharest skatepark photo |
 
 ## Place gallery pictures (CC-207)
-- **`public/assets/places/thumbs/<slug>.jpg`** (4 files: montmartre-paris, eixample-barcelona, circular-quay-sydney, lombard-street-san-francisco)
+- **`public/assets/places/thumbs/<slug>.jpg`** (27 files: 4 from stored photos, 23 picked from Wikimedia Commons in CC-212)
   - What: 320 by 180 crops of the first stored photo of each place, each under 40 KB.
   - Made by `scripts/make-place-thumbs.py`; no new photo was downloaded.
   - Each thumbnail has the licence of its source photo (the rows under "Real photos beside the real worlds" above); the credit is in `public/assets/places/thumbs/index.json` and shows on the card.
@@ -442,3 +442,126 @@
   - What: a plain skyline drawn from the real building heights of the place, for places with no stored photo.
   - Made by `scripts/make-place-tiles.ts` from the stored place files (OpenStreetMap, ODbL 1.0, https://www.openstreetmap.org/copyright).
   - Ours; no third-party picture.
+
+## Place cover photos (CC-212)
+- **`public/assets/places/thumbs/<slug>.jpg`** (23 new files, one per Ready place that had only a skyline tile)
+  - What: a 320 by 180 centre crop of one Wikimedia Commons photo per place, each under 40 KB.
+  - Picked by eye from up to 8 free-licence candidates per place; no people, no crowds, no children.
+  - Made by `data/eval/cc-212-covers/build-covers.py` from `chosen.json` (same folder).
+  - No licence or agreement was accepted; no login or cookie was used (public API only).
+  - The credit is in `public/assets/places/thumbs/index.json` and shows on the card.
+- **`shibuya-tokyo.jpg`**
+  - What: Shibuya skyline from Tokyu Plaza in Omotesando, Harajuku, Tokyo, 2024 May - 2.
+  - Author: Ximonic (Simo Räsänen).
+  - Licence: CC BY-SA 4.0 (https://creativecommons.org/licenses/by-sa/4.0).
+  - Source: https://commons.wikimedia.org/wiki/File:Shibuya_skyline_from_Tokyu_Plaza_in_Omotesando,_Harajuku,_Tokyo,_2024_May_-_2.jpg
+- **`ciutadella-barcelona.jpg`**
+  - What: Barcelona Parc Ciutadella cascada.
+  - Author: Isiwal.
+  - Licence: CC BY-SA 3.0 (https://creativecommons.org/licenses/by-sa/3.0).
+  - Source: https://commons.wikimedia.org/wiki/File:Barcelona_Parc_Ciutadella_cascada.jpg
+- **`edinburgh-old-town.jpg`**
+  - What: Edinburgh Old Town - geograph.org.uk - 7047112.
+  - Author: Lauren.
+  - Licence: CC BY-SA 2.0 (https://creativecommons.org/licenses/by-sa/2.0).
+  - Source: https://commons.wikimedia.org/wiki/File:Edinburgh_Old_Town_-_geograph.org.uk_-_7047112.jpg
+- **`positano-italy.jpg`**
+  - What: Positano (Italy) 03.
+  - Author: Bernard Gagnon.
+  - Licence: CC BY 4.0 (https://creativecommons.org/licenses/by/4.0).
+  - Source: https://commons.wikimedia.org/wiki/File:Positano_(Italy)_03.jpg
+- **`valletta-harbour-malta.jpg`**
+  - What: Grand harbour 2019-04-11-6.
+  - Author: Z thomas.
+  - Licence: CC BY-SA 3.0 (https://creativecommons.org/licenses/by-sa/3.0).
+  - Source: https://commons.wikimedia.org/wiki/File:Grand_harbour_2019-04-11-6.jpg
+- **`speicherstadt-hamburg.jpg`**
+  - What: Hamburg, Speicherstadt, Wasserschloss -- 2016 -- 3223-9.
+  - Author: Dietmar Rabich.
+  - Licence: CC BY-SA 4.0 (https://creativecommons.org/licenses/by-sa/4.0).
+  - Source: https://commons.wikimedia.org/wiki/File:Hamburg,_Speicherstadt,_Wasserschloss_--_2016_--_3223-9.jpg
+- **`alfama-lisbon.jpg`**
+  - What: Alfama Rooftops and Tagus River View, Lisbon (54733698959).
+  - Author: Dale Cruse.
+  - Licence: CC BY 4.0 (https://creativecommons.org/licenses/by/4.0).
+  - Source: https://commons.wikimedia.org/wiki/File:Alfama_Rooftops_and_Tagus_River_View,_Lisbon_(54733698959).jpg
+- **`parc-guell-barcelona.jpg`**
+  - What: Park Güell - 50030738571.
+  - Author: Jorge Franganillo.
+  - Licence: CC BY 2.0 (https://creativecommons.org/licenses/by/2.0).
+  - Source: https://commons.wikimedia.org/wiki/File:Park_G%C3%BCell_-_50030738571.jpg
+- **`tuileries-paris.jpg`**
+  - What: Pavillon de Flore from the Tuileries Garden, Paris 5 November 2019.
+  - Author: Ali Sabbagh.
+  - Licence: CC0 (https://creativecommons.org/publicdomain/zero/1.0).
+  - Source: https://commons.wikimedia.org/wiki/File:Pavillon_de_Flore_from_the_Tuileries_Garden,_Paris_5_November_2019.jpg
+- **`retiro-park-madrid.jpg`**
+  - What: Autumn in Retiro Park - Madrid 12.
+  - Author: Javier Perez Montes.
+  - Licence: CC BY-SA 4.0 (https://creativecommons.org/licenses/by-sa/4.0).
+  - Source: https://commons.wikimedia.org/wiki/File:Autumn_in_Retiro_Park_-_Madrid_12.jpg
+- **`gas-works-park-seattle.jpg`**
+  - What: Gas Works Park, Seattle 2.
+  - Author: Bernie Ongewe.
+  - Licence: CC BY-SA 4.0 (https://creativecommons.org/licenses/by-sa/4.0).
+  - Source: https://commons.wikimedia.org/wiki/File:Gas_Works_Park,_Seattle_2.jpg
+- **`dolores-park-san-francisco.jpg`**
+  - What: Mission Dolores Park.
+  - Author: Artico2.
+  - Licence: CC BY-SA 3.0 (https://creativecommons.org/licenses/by-sa/3.0).
+  - Source: https://commons.wikimedia.org/wiki/File:Mission_Dolores_Park.JPG
+- **`piazza-san-marco-venice.jpg`**
+  - What: Piazza San Marco from Giudecca Canal.
+  - Author: kallerna.
+  - Licence: CC BY-SA 4.0 (https://creativecommons.org/licenses/by-sa/4.0).
+  - Source: https://commons.wikimedia.org/wiki/File:Piazza_San_Marco_from_Giudecca_Canal.jpg
+- **`plaza-mayor-madrid.jpg`**
+  - What: Plaza Mayor, Madrid, España, 2023-01-03, DD 78.
+  - Author: Diego Delso.
+  - Licence: CC BY-SA 4.0 (https://creativecommons.org/licenses/by-sa/4.0).
+  - Source: https://commons.wikimedia.org/wiki/File:Plaza_Mayor,_Madrid,_Espa%C3%B1a,_2023-01-03,_DD_78.jpg
+- **`trafalgar-square-london.jpg`**
+  - What: TrafalgarSquareEvening.
+  - Author: Andreas Tille.
+  - Licence: CC BY-SA 3.0 (https://creativecommons.org/licenses/by-sa/3.0).
+  - Source: https://commons.wikimedia.org/wiki/File:TrafalgarSquareEvening.jpg
+- **`covent-garden-london.jpg`**
+  - What: London, Covent Garden -- 2016 -- 4879.
+  - Author: Dietmar Rabich.
+  - Licence: CC BY-SA 4.0 (https://creativecommons.org/licenses/by-sa/4.0).
+  - Source: https://commons.wikimedia.org/wiki/File:London,_Covent_Garden_--_2016_--_4879.jpg
+- **`washington-square-new-york.jpg`**
+  - What: Washington Square Park & Newberry Library.
+  - Author: TonyTheTiger.
+  - Licence: CC BY-SA 3.0 (https://creativecommons.org/licenses/by-sa/3.0).
+  - Source: https://commons.wikimedia.org/wiki/File:Washington_Square_Park_%26_Newberry_Library.JPG
+- **`union-square-san-francisco.jpg`**
+  - What: San Francisco (CA, USA), Union Square, Dewey Monument -- 2022 -- 2915.
+  - Author: Dietmar Rabich.
+  - Licence: CC BY-SA 4.0 (https://creativecommons.org/licenses/by-sa/4.0).
+  - Source: https://commons.wikimedia.org/wiki/File:San_Francisco_(CA,_USA),_Union_Square,_Dewey_Monument_--_2022_--_2915.jpg
+- **`old-town-square-prague.jpg`**
+  - What: Prague, Old Town Square, COVID.
+  - Author: Tadeáš Gregor.
+  - Licence: CC BY-SA 4.0 (https://creativecommons.org/licenses/by-sa/4.0).
+  - Source: https://commons.wikimedia.org/wiki/File:Prague,_Old_Town_Square,_COVID.jpg
+- **`piazza-navona-rome.jpg`**
+  - What: PiazzaNavona1.
+  - Author: Meshari Alawfi.
+  - Licence: CC BY 4.0 (https://creativecommons.org/licenses/by/4.0).
+  - Source: https://commons.wikimedia.org/wiki/File:PiazzaNavona1.jpg
+- **`nyhavn-copenhagen.jpg`**
+  - What: 2018 - Nyhavn on sunset.
+  - Author: Moahim.
+  - Licence: CC BY-SA 4.0 (https://creativecommons.org/licenses/by-sa/4.0).
+  - Source: https://commons.wikimedia.org/wiki/File:2018_-_Nyhavn_on_sunset.jpg
+- **`boston-common-beacon-hill.jpg`**
+  - What: Storrow Drive Boston November 2016.
+  - Author: King of Hearts.
+  - Licence: CC BY-SA 4.0 (https://creativecommons.org/licenses/by-sa/4.0).
+  - Source: https://commons.wikimedia.org/wiki/File:Storrow_Drive_Boston_November_2016.jpg
+- **`spanish-steps-rome.jpg`**
+  - What: 0 L'église de la Trinità dei Monti à Rome 2.
+  - Author: Jean-Pol GRANDMONT.
+  - Licence: CC BY 4.0 (https://creativecommons.org/licenses/by/4.0).
+  - Source: https://commons.wikimedia.org/wiki/File:0_L%27%C3%A9glise_de_la_Trinit%C3%A0_dei_Monti_%C3%A0_Rome_2.JPG
