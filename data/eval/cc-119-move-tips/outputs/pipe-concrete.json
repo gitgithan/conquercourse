@@ -1,0 +1,14 @@
+{
+  "name": "pipe-concrete",
+  "label": "concrete pipe",
+  "key": "climb",
+  "status": 200,
+  "moves": [
+    "jump",
+    "vault"
+  ],
+  "idea": "Wide concrete ring in grass offers go-around or go-over choice that slows straight running",
+  "top1": false,
+  "hit": false,
+  "ms": 10762
+}

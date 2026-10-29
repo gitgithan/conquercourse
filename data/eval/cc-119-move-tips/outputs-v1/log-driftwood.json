@@ -1,0 +1,15 @@
+{
+  "name": "log-driftwood",
+  "label": "log",
+  "key": "balance",
+  "status": 200,
+  "moves": [
+    "balance",
+    "vault",
+    "jump"
+  ],
+  "idea": "Ancient fallen tree creates winding trail with surprises hidden beneath bark.",
+  "top1": true,
+  "hit": true,
+  "ms": 8148
+}

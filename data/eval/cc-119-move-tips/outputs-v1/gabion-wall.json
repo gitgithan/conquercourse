@@ -1,0 +1,15 @@
+{
+  "name": "gabion-wall",
+  "label": "gabion wall",
+  "key": "climb",
+  "status": 200,
+  "moves": [
+    "climb",
+    "vault",
+    "jump"
+  ],
+  "idea": "Stone steps form a rocky maze hiding secrets and offering a daring or easy path choice",
+  "top1": true,
+  "hit": true,
+  "ms": 16598
+}

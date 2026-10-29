@@ -1,0 +1,14 @@
+{
+  "name": "railing-iron",
+  "label": "rail",
+  "key": "vault",
+  "status": 200,
+  "moves": [
+    "climb",
+    "vault"
+  ],
+  "idea": "An old iron church fence adds a spooky path choice with a hidden shortcut.",
+  "top1": false,
+  "hit": true,
+  "ms": 16138
+}

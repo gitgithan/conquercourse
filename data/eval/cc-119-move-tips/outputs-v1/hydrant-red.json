@@ -1,0 +1,14 @@
+{
+  "name": "hydrant-red",
+  "label": "fire hydrant",
+  "key": "jump",
+  "status": 200,
+  "moves": [
+    "vault",
+    "jump"
+  ],
+  "idea": "Bright red hydrant makes a playful surprise landmark to spot while racing through the city street.",
+  "top1": false,
+  "hit": true,
+  "ms": 10319
+}

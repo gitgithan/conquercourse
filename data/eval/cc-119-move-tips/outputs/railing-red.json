@@ -1,0 +1,13 @@
+{
+  "name": "railing-red",
+  "label": "metal railing",
+  "key": "vault",
+  "status": 200,
+  "moves": [
+    "vault"
+  ],
+  "idea": "Long barrier lines one side, forcing runner to stay clear and choose when to cross",
+  "top1": true,
+  "hit": true,
+  "ms": 6208
+}

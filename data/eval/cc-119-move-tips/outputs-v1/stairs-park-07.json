@@ -1,0 +1,13 @@
+{
+  "name": "stairs-park-07",
+  "label": "stairs",
+  "key": "climb",
+  "status": 200,
+  "moves": [
+    "jump"
+  ],
+  "idea": "Mossy steps create a forgotten garden ruin with hidden surprises around every corner.",
+  "top1": false,
+  "hit": false,
+  "ms": 12758
+}

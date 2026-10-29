@@ -104,14 +104,20 @@ flowchart LR
   class M meta;
 ```
 
-## 4b. Upload check (Muse Spark Open)
+## 4b. Upload check and move tips (Muse Spark Open)
 - **Upload check (CC-120):**
   - Data in: an uploaded photo or object preview, and an optional caption.
   - Model: Muse Spark Open through Baseten, behind `/api/moderate`.
   - Result: ok, review or block with one reason; the caption can only make the answer stricter; any error becomes review.
   - Measured: 19 of 19 safe photos ok, 7 of 7 text-only unsafe cases caught, 4 of 4 near misses not blocked, about $0.003 a call (`data/eval/cc-119-moderation/`).
   - Not tested: real harmful images.
-- **Status:** it needs the `BASETEN_API_KEY` secret at deploy and is not yet called from a screen.
+- **Move tips (CC-121):**
+  - Data in: the object's name and its cropped photo.
+  - Model: Muse Spark Open through Baseten, behind `/api/move-tips`.
+  - Result: up to three moves from our fixed list and one short idea; the code drops anything outside the list.
+  - Measured: 19 of 19 tips, the CC-110 move listed first for 13 of 19, about $0.01 an object (`data/eval/cc-119-move-tips/`).
+  - Caveat: the prompt was tuned on the same 19 objects.
+- **Status:** both need the `BASETEN_API_KEY` secret at deploy and are not yet called from a screen.
 
 ```mermaid
 flowchart LR
@@ -119,6 +125,11 @@ flowchart LR
   MF --> MM["Muse Spark Open<br/>(Baseten)"]
   MM --> V{"ok / review / block<br/>errors become review"}
   V --> Q["Moderation queue (CC-112)"]
+  OB["Cut-out object<br/>name + photo"] --> TF["/api/move-tips<br/>key on the server"]
+  TF --> MM
+  MM --> TP["Moves + one idea"]
+  TP --> CK["Check against our move list"]
+  CK --> CD["Object cards (CC-108)<br/>the simulator decides"]
   classDef meta fill:#dbeafe,stroke:#1d4ed8,color:#0f172a;
   class MM meta;
 ```
