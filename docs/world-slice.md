@@ -1633,3 +1633,21 @@ The set of obstacle shapes is fixed, and each shape offers a fixed set of moves.
   - No demo used it.
   - An old saved world with a crate gets a launcher with the same numbers.
 
+## Why a pin is slow, and the speed-up (CC-152)
+- **Plain words: from the map to the 3D place**
+  - Step 1: the map servers send the building outlines near the pin.
+  - Step 2: the ground heights come from small picture tiles, one pixel per height.
+  - Step 3: each outline is raised into a box at its height, standing on the ground.
+  - Step 4: a worker looks for a lane over the roofs that the simulator can run.
+- **What is slow:** only step 1 and the lane search.
+  - The public map servers took 20 to 40 s, and gave nothing in 40 s for 4 of 7 new places.
+  - The ground took 0.3 s and the mesh 2 to 14 ms.
+  - The lane search took 25 to 126 s, in a worker, so the page does not freeze.
+- **The speed-up:**
+  - The buildings and the ground are asked the moment the pin drops, in parallel, and again when the radius changes.
+  - Build joins that early request; with the servers held back 6 s, Build took 322 ms instead of 6578 ms.
+  - A lane that was found is kept in the browser for that pin and shown at once next time.
+  - `?speed=0` turns it off.
+  - `scripts/warm-places.mjs` asks the site for a list of places so its cache answers them; run it from the demo network.
+- **Numbers and the check:** `data/eval/cc-152-osm-speed/README.md`, `scripts/osm-speed.ts`, `scripts/map-speed-check.mjs`.
+
