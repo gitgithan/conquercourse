@@ -4,9 +4,11 @@ import type { CourseData } from './course/course';
 import { startDojo } from './modes/dojo';
 import { initFeedback } from './ui/feedback';
 import { startPark } from './modes/park';
+import { browserStore, startRedirect } from './ui/onboarding-flags';
 import { installGalleryKeyGuard, mountWorldGallery, currentWorld, DEFAULT_PLACE, BUTTON_PLACE } from './ui/world-picker';
 
 installGalleryKeyGuard(); // before any mode starts, so it sees every key first
+{ const r = startRedirect({ search: location.search, store: browserStore, automated: navigator.webdriver }); if (r) { location.replace(r); await new Promise<void>(() => {}); } } // CC-100: a returning player goes back to their last course
 
 // ?mode=dojo, ?mode=rookie, ?demo=rookie (the Rookie demo), ?demo=captured-vault (captured move review); the default is the Course.
 if (new URLSearchParams(location.search).get('demo') === 'captured-vault') {
