@@ -30,7 +30,7 @@
 - Light poles with a yellow head, benches, bins, sign poles with plates, signals and poles are instanced boxes and cylinders.
 - Zebra paint is drawn where Mapillary saw a crosswalk.
 - The six-stripe crossing at the start line is a design touch, not a detection.
-- Real size would be a few centimetres in worlds shrunk to 0.07 to 0.24, so things are drawn at 0.4 of real size or more.
+- Real size would be a few centimetres in worlds shrunk to 0.07 to 0.24, so things are drawn at 0.5 of the (already over-sized) parts or more (CC-213: the first 0.4 was too small to see from the default camera; parts are now over-sized and lightly glowing).
 - Off-run rule: anything inside the 2.6 m lane band at the runner's height moves to 1.7 m from the run line (about 5, 21, 7 and 15 objects for the four places, estimated on a flat top; the game uses the real lane top).
 - No swing or rope is used: the lights are poles only.
 
@@ -45,3 +45,15 @@
 - The credit text was seen in screenshots; the licence link target was not clicked.
 - The live `/api/features` was exercised in tests with an injected fetcher, and the files by the fetch script; the deployed function is not deployed.
 - Mapillary token handling: kept server-side and in a private env file, never printed.
+
+## How to see it (CC-213)
+- Furniture only exists on the four stored real-place courses; slices made in the map or editor have no street objects yet.
+- Open one of these (desktop, 1280 px), the default camera is the side view from about 25 m:
+  - Montmartre: `http://localhost:5173/?course=/assets/experiments/osm/montmartre-paris.course.json&furniture=1`
+  - Eixample: `http://localhost:5173/?course=/assets/experiments/osm/eixample-barcelona.course.json&furniture=1`
+  - Circular Quay: `http://localhost:5173/?course=/assets/experiments/osm/circular-quay-sydney.course.json&furniture=1`
+  - Lombard Street: `http://localhost:5173/?course=/assets/experiments/osm/san-francisco-lombard.course.json&furniture=1`
+- Add `&cam=first` for the runner's eyes, a street-level view; `C` cycles cameras; `&photos=0` hides the photo strip.
+- The bottom-left credit line shows when furniture is on; `html[data-furniture]` holds the count placed.
+- Why the owner did not see them before: they were drawn at 0.4 of real size in a world shrunk to 0.07 to 0.24, so a lamp was under 1 m tall; now parts are over-sized (lamps about 4 m, yellow heads, lightly glowing) and the floor is 0.5.
+- Pictures from the default camera, on and off: `data/eval/cc-213-furniture-visible/`.
