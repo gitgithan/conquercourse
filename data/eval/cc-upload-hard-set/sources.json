@@ -1,0 +1,128 @@
+[
+  {
+    "photo": "bollard-street",
+    "label": "bollard",
+    "title": "File:Canal Street Bollard Mid City New Orleans.jpg",
+    "author": "Infrogmation of New Orleans",
+    "licence": "CC BY-SA 4.0",
+    "source": "https://commons.wikimedia.org/wiki/File:Canal_Street_Bollard_Mid_City_New_Orleans.jpg",
+    "commons_query": "bollard street city"
+  },
+  {
+    "photo": "bollard-row-edge",
+    "label": "bollard",
+    "title": "File:City Road bollards - geograph.org.uk - 1758261.jpg",
+    "author": "Stephen McKay",
+    "licence": "CC BY-SA 2.0",
+    "source": "https://commons.wikimedia.org/wiki/File:City_Road_bollards_-_geograph.org.uk_-_1758261.jpg",
+    "commons_query": "bollard street city"
+  },
+  {
+    "photo": "bike-shelter",
+    "label": "bicycle rack",
+    "title": "File:Bicycle parking rack at Chester station.jpg",
+    "author": "Ben Coleman",
+    "licence": "CC0",
+    "source": "https://commons.wikimedia.org/wiki/File:Bicycle_parking_rack_at_Chester_station.jpg",
+    "commons_query": "bicycle rack bikes street"
+  },
+  {
+    "photo": "bike-rack-tangle",
+    "label": "bicycle rack",
+    "title": "File:Bike parking at 19th Street Oakland (3), March 2012.jpg",
+    "author": "Mia5793",
+    "licence": "CC0",
+    "source": "https://commons.wikimedia.org/wiki/File:Bike_parking_at_19th_Street_Oakland_(3),_March_2012.jpg",
+    "commons_query": "bicycle rack bikes street"
+  },
+  {
+    "photo": "bin-scooters",
+    "label": "trash bin",
+    "title": "File:Large Street Trash Bin of Taipei City 20121229.JPG",
+    "author": "\u7384\u53f2\u751f",
+    "licence": "CC0",
+    "source": "https://commons.wikimedia.org/wiki/File:Large_Street_Trash_Bin_of_Taipei_City_20121229.JPG",
+    "commons_query": "street trash bin"
+  },
+  {
+    "photo": "bin-snow",
+    "label": "trash bin",
+    "title": "File:\"Welcome to Black Rock\" trash bin, Amherst Street, Buffalo, New York - 20220218.jpg",
+    "author": "Andre Carrotflower",
+    "licence": "CC BY-SA 4.0",
+    "source": "https://commons.wikimedia.org/wiki/File:%22Welcome_to_Black_Rock%22_trash_bin,_Amherst_Street,_Buffalo,_New_York_-_20220218.jpg",
+    "commons_query": "street trash bin"
+  },
+  {
+    "photo": "bench-dusk",
+    "label": "bench",
+    "title": "File:Pomonok Playground td (2019-02-24) 057.jpg",
+    "author": "Tdorante10",
+    "licence": "CC BY-SA 4.0",
+    "source": "https://commons.wikimedia.org/wiki/File:Pomonok_Playground_td_(2019-02-24)_057.jpg",
+    "commons_query": "bench at night street lamp"
+  },
+  {
+    "photo": "bench-backlit",
+    "label": "bench",
+    "title": "File:Leingarten - Gro\u00dfgartach - Eichbott - oberer Eichbott-See - Bank mit Sonnenuntergang (1.2).jpg",
+    "author": "Roman Eisele",
+    "licence": "CC BY-SA 4.0",
+    "source": "https://commons.wikimedia.org/wiki/File:Leingarten_-_Gro%C3%9Fgartach_-_Eichbott_-_oberer_Eichbott-See_-_Bank_mit_Sonnenuntergang_(1.2).jpg",
+    "commons_query": "bench silhouette sunset"
+  },
+  {
+    "photo": "skate-stairs",
+    "label": "handrail",
+    "title": "File:Ledges, stairs with rail and a bank of the IOR Skatepark in Bucharest (01).jpg",
+    "author": "Neoclassicism Enthusiast",
+    "licence": "CC0",
+    "source": "https://commons.wikimedia.org/wiki/File:Ledges,_stairs_with_rail_and_a_bank_of_the_IOR_Skatepark_in_Bucharest_(01).jpg",
+    "commons_query": "skatepark rail ledge"
+  },
+  {
+    "photo": "calisthenics-berlin",
+    "label": "pull-up bar",
+    "title": "File:Calisthenics Poststadion Berlin 3v5.jpg",
+    "author": "Singlespeedfahrer",
+    "licence": "CC0",
+    "source": "https://commons.wikimedia.org/wiki/File:Calisthenics_Poststadion_Berlin_3v5.jpg",
+    "commons_query": "outdoor gym pull-up bar park"
+  },
+  {
+    "photo": "fitness-fence",
+    "label": "fitness equipment",
+    "title": "File:Booker T. Washington Playground td (2019-07-21) 32 - Outdoor Fitness Equipment.jpg",
+    "author": "Tdorante10",
+    "licence": "CC BY-SA 4.0",
+    "source": "https://commons.wikimedia.org/wiki/File:Booker_T._Washington_Playground_td_(2019-07-21)_32_-_Outdoor_Fitness_Equipment.jpg",
+    "commons_query": "outdoor gym pull-up bar park"
+  },
+  {
+    "photo": "fitness-macombs",
+    "label": "pull-up bar",
+    "title": "File:Macombs Dam Pk td (2019-01-24) 129 - Outdoor Fitness Area.jpg",
+    "author": "Tdorante10",
+    "licence": "CC BY-SA 4.0",
+    "source": "https://commons.wikimedia.org/wiki/File:Macombs_Dam_Pk_td_(2019-01-24)_129_-_Outdoor_Fitness_Area.jpg",
+    "commons_query": "outdoor gym pull-up bar park"
+  },
+  {
+    "photo": "railing-statue",
+    "label": "railing",
+    "title": "File:Athens Square Park Qns td (2019-08-21) 27.jpg",
+    "author": "Tdorante10",
+    "licence": "CC BY-SA 4.0",
+    "source": "https://commons.wikimedia.org/wiki/File:Athens_Square_Park_Qns_td_(2019-08-21)_27.jpg",
+    "commons_query": "stairs with handrail outdoor city"
+  },
+  {
+    "photo": "hydrant-cars",
+    "label": "fire hydrant",
+    "title": "File:Suburbia JC walk parking jeh.jpg",
+    "author": "Jim.henderson",
+    "licence": "CC0",
+    "source": "https://commons.wikimedia.org/wiki/File:Suburbia_JC_walk_parking_jeh.jpg",
+    "commons_query": "fire hydrant parked cars sidewalk"
+  }
+]

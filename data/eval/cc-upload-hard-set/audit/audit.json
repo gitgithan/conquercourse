@@ -1,0 +1,211 @@
+[
+  {
+    "name": "rail-skate-01",
+    "photo": "park01",
+    "photo_px": [
+      1024,
+      760
+    ],
+    "box_share": 0.127,
+    "bg_edge_density": 0.166,
+    "bg_share": 0.873
+  },
+  {
+    "name": "box-skate-03",
+    "photo": "park03",
+    "photo_px": [
+      1024,
+      468
+    ],
+    "box_share": 0.215,
+    "bg_edge_density": 0.184,
+    "bg_share": 0.785
+  },
+  {
+    "name": "bench-concrete",
+    "photo": "bench01",
+    "photo_px": [
+      1024,
+      768
+    ],
+    "box_share": 0.222,
+    "bg_edge_density": 0.273,
+    "bg_share": 0.778
+  },
+  {
+    "name": "railing-iron",
+    "photo": "rail01",
+    "photo_px": [
+      1024,
+      684
+    ],
+    "box_share": 0.363,
+    "bg_edge_density": 0.172,
+    "bg_share": 0.637
+  },
+  {
+    "name": "rail-skate-02",
+    "photo": "park02",
+    "photo_px": [
+      1024,
+      708
+    ],
+    "box_share": 0.139,
+    "bg_edge_density": 0.218,
+    "bg_share": 0.861
+  },
+  {
+    "name": "stairs-park-07",
+    "photo": "park07",
+    "photo_px": [
+      1024,
+      768
+    ],
+    "box_share": 0.088,
+    "bg_edge_density": 0.429,
+    "bg_share": 0.912
+  },
+  {
+    "name": "bollard-iron",
+    "photo": "bollard-iron",
+    "photo_px": [
+      1280,
+      1707
+    ],
+    "box_share": 0.144,
+    "bg_edge_density": 0.188,
+    "bg_share": 0.856
+  },
+  {
+    "name": "hydrant-red",
+    "photo": "hydrant-red",
+    "photo_px": [
+      1280,
+      1920
+    ],
+    "box_share": 0.765,
+    "bg_edge_density": 0.214,
+    "bg_share": 0.235
+  },
+  {
+    "name": "barrel-oak",
+    "photo": "barrel-oak",
+    "photo_px": [
+      1280,
+      1099
+    ],
+    "box_share": 0.439,
+    "bg_edge_density": 0.075,
+    "bg_share": 0.561
+  },
+  {
+    "name": "picnic-table",
+    "photo": "picnic-table",
+    "photo_px": [
+      1280,
+      960
+    ],
+    "box_share": 0.533,
+    "bg_edge_density": 0.454,
+    "bg_share": 0.467
+  },
+  {
+    "name": "pullup-green",
+    "photo": "bar-green",
+    "photo_px": [
+      1280,
+      829
+    ],
+    "box_share": 0.358,
+    "bg_edge_density": 0.541,
+    "bg_share": 0.642
+  },
+  {
+    "name": "planter-concrete",
+    "photo": "planter-concrete",
+    "photo_px": [
+      1280,
+      934
+    ],
+    "box_share": 0.138,
+    "bg_edge_density": 0.452,
+    "bg_share": 0.862
+  },
+  {
+    "name": "pipe-concrete",
+    "photo": "pipe-ring",
+    "photo_px": [
+      1280,
+      960
+    ],
+    "box_share": 0.14,
+    "bg_edge_density": 0.587,
+    "bg_share": 0.86
+  },
+  {
+    "name": "bench-curved",
+    "photo": "bench-concrete-curve",
+    "photo_px": [
+      1280,
+      960
+    ],
+    "box_share": 0.284,
+    "bg_edge_density": 0.325,
+    "bg_share": 0.716
+  },
+  {
+    "name": "railing-red",
+    "photo": "railing-red",
+    "photo_px": [
+      1280,
+      960
+    ],
+    "box_share": 0.812,
+    "bg_edge_density": 0.168,
+    "bg_share": 0.188
+  },
+  {
+    "name": "pullup-black",
+    "photo": "bar-black",
+    "photo_px": [
+      1280,
+      1920
+    ],
+    "box_share": 0.352,
+    "bg_edge_density": 0.296,
+    "bg_share": 0.648
+  },
+  {
+    "name": "log-driftwood",
+    "photo": "log-driftwood",
+    "photo_px": [
+      1280,
+      853
+    ],
+    "box_share": 0.528,
+    "bg_edge_density": 0.237,
+    "bg_share": 0.472
+  },
+  {
+    "name": "stump-spruce",
+    "photo": "stump-spruce",
+    "photo_px": [
+      1280,
+      1628
+    ],
+    "box_share": 0.319,
+    "bg_edge_density": 0.304,
+    "bg_share": 0.681
+  },
+  {
+    "name": "gabion-wall",
+    "photo": "gabion-wall",
+    "photo_px": [
+      1280,
+      960
+    ],
+    "box_share": 0.927,
+    "bg_edge_density": 0.336,
+    "bg_share": 0.073
+  }
+]
