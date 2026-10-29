@@ -1,4 +1,4 @@
-// Before/after pictures of the street furniture (CC-187) on a stepped clock: node scripts/furniture-shots.mjs [slug ...]  -> data/eval/cc-furniture/shots/<slug>-<view>-<off|on>.png
+// Before/after pictures of the street furniture (CC-187) on a stepped clock: node scripts/furniture-shots.mjs [slug ...]  -> data/eval/cc-furniture/shots (or $OUT)/<slug>-<view>-<off|on>.png
 // The same frames are taken with and without ?furniture=1: the clock is stepped (no wall time), the ideal-run bot drives, and a shot is taken at fixed game ticks.
 import { chromium } from 'playwright';
 import { spawn } from 'node:child_process';
@@ -9,7 +9,7 @@ const flags = ['--enable-unsafe-webgpu', '--enable-features=Vulkan', '--use-vulk
 const stepped = `(() => { let t = 0; performance.now = () => t; window.__stepClock = (ms) => { t += ms; return t; }; })();`;
 const server = spawn('node', ['node_modules/vite/bin/vite.js', '--port', port, '--strictPort'], { stdio: 'ignore' });
 const report = { runs: [] };
-mkdirSync('data/eval/cc-furniture/shots', { recursive: true });
+mkdirSync((process.env.OUT ?? 'data/eval/cc-furniture/shots'), { recursive: true });
 try {
   await new Promise((r) => setTimeout(r, 3000));
   const browser = await chromium.launch({ args: flags });
@@ -28,12 +28,12 @@ try {
     for (const view of ['side', 'angle']) {
       if (view === 'angle') await page.keyboard.press('KeyC');
       await step(20);
-      await page.screenshot({ path: `data/eval/cc-furniture/shots/${slug}-${view}-${on ? 'on' : 'off'}.png` });
+      await page.screenshot({ path: `${process.env.OUT ?? 'data/eval/cc-furniture/shots'}/${slug}-${view}-${on ? 'on' : 'off'}.png` });
     }
     report.runs.push({ slug, furniture: on, placed, credit, errors });
     console.log(slug, on ? 'on' : 'off', 'placed', placed, 'errors', errors.length);
     await page.close();
   }
   await browser.close();
-  writeFileSync('data/eval/cc-furniture/shots/shots.json', JSON.stringify(report, null, 2) + '\n');
+  writeFileSync(`${process.env.OUT ?? 'data/eval/cc-furniture/shots'}/shots.json`, JSON.stringify(report, null, 2) + '\n');
 } finally { server.kill(); }
