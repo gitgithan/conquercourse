@@ -79,3 +79,16 @@ This note says where each control lives now, and the rule for adding a new one.
 - The card asks people not to use photos with people or children in them.
 - The "Photo to course (labs)" button in the More menu still shows with `?labs=1`.
 
+
+## Button levels, the Fix menu, the glossary and Fit (CC-177)
+- The full list of buttons, grouped, with when to click each: `docs/editor-buttons.md`.
+- Three levels: primary (filled green: Fix, Play this lane), secondary (outlined: Fit, Top plan, Moves, Design partner), quiet (plain: Back, Undo and Redo, Add pieces, ?, more).
+- The side-view designer has a green frame, a title tag and more height; it is the editor's shaping tool.
+- One Fix menu holds Fix it, Make it easier, Look for routes you did not plan and What should I change?, each with "when" and "what to expect".
+- The Fix button shows a red dot when the check says the lane cannot be cleared, and a tick when it can.
+- The "What these buttons do" card is open on the first visit; Hide or the ? button toggles it; the choice is in `localStorage` key `cc.editor.glossary` (read and written inside try/catch).
+- Fit (key F) frames every piece with a short smooth move; the flat plan jumps to the right zoom.
+- Camera: the wheel zooms toward the cursor, right-drag or middle-drag slides the view, left-drag on empty ground turns it.
+- The Design partner card now starts closed; open, it covered the right half of the picture and ate the wheel and the drags there.
+- `?editorui=old` keeps the CC-94 look; the older check scripts use it.
+- Check: `node scripts/editor-ux-check.mjs` (wheel, pan, Fit, Fix menu, glossary memory, old layout); pictures in `data/eval/cc-editor-ux/`.

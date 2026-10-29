@@ -10,7 +10,7 @@ try {
   const browser = await chromium.launch({ args: flags });
   const page = await browser.newPage({ viewport: { width: 1300, height: 900 } });
   const errors = []; page.on('pageerror', (e) => { errors.push(e.message); console.log('PAGEERROR', e.message.slice(0, 200)); });
-  await page.goto(`http://localhost:${port}/?mode=editor`);
+  await page.goto(`http://localhost:${port}/?mode=editor&editorui=old`);
   await page.waitForSelector('#view3d', { timeout: 60000 });
   await page.waitForFunction(() => document.documentElement.dataset.pieces === '3', null, { timeout: 30000 });
   mkdirSync('test-results/treb-fixit', { recursive: true });

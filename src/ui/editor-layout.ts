@@ -153,7 +153,7 @@ export function organizeEditor(root: HTMLElement): void {
   const gather = () => {
     const seen = new Set<string>(); items = [];
     for (const b of root.querySelectorAll<HTMLElement>('button, a.btn')) {
-      if (pal.contains(b) || (b as HTMLButtonElement).disabled || b === moreBtn || b === search) continue;
+      if (pal.contains(b) || b.dataset.proxy || (b as HTMLButtonElement).disabled || b === moreBtn || b === search) continue;
       const text = (b.textContent ?? '').replace(/\s+/g, ' ').trim(), label = text.length > 2 ? text : (b.title || b.getAttribute('aria-label') || '').trim();
       if (!label) continue;
       const section = sectionOf(b), key = `${section}|${label}`;
