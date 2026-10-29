@@ -198,3 +198,95 @@ def test_the_window_cuts_the_standing_lead_in():
     lead = np.repeat(c.frames[:1], 60, axis=0)  # two seconds of standing before the fall
     ok, nums, win = movecheck.hurt_check(Clip(np.concatenate([lead, c.frames]), c.fps))
     assert ok and win is not None and win[0] >= 55
+
+
+# ---- the turn is measured along the line of travel (CC-227) ----
+
+def _repo(*p):
+    import os
+    return os.path.join(os.path.dirname(__file__), "..", "..", *p)
+
+
+def _spin(frames, deg):
+    """Turn every joint about the vertical through the world origin."""
+    a = np.radians(deg)
+    c, s = np.cos(a), np.sin(a)
+    f = frames.copy()
+    x, z = frames[:, :, 0].copy(), frames[:, :, 2].copy()
+    f[:, :, 0], f[:, :, 2] = c * x + s * z, -s * x + c * z
+    return f
+
+
+def _shipped(name):
+    import json
+    return Clip.from_json(json.load(open(_repo("public", "assets", "motion", f"{name}.json"))))
+
+
+def test_the_shipped_roll_still_passes_from_any_side():
+    """A side view, a three-quarter view and a head-on view of the same roll are the same roll."""
+    c = _shipped("roll")
+    for deg in (0, 30, 90, 180, -60):
+        ok, nums, _ = movecheck.roll_check(Clip(_spin(c.frames, deg), c.fps))
+        assert ok, (deg, nums)
+
+
+def test_the_shipped_non_rolls_still_fail():
+    for name in ("vault", "climb", "hurt", "run", "leap", "land"):
+        assert not movecheck.roll_check(_shipped(name))[0], name
+
+
+def _head_on(offset=0.9, off_deg=40):
+    """A roll along +z whose upper body leans sideways by `offset` m the whole way and whose hips start `off_deg` off square:
+    what a body filmed head-on looks like to the check."""
+    c = rolling(360)
+    f = c.frames.copy()
+    for n in ("Spine1", "Spine2", "Chest", "Neck1", "Neck2", "Head"):
+        f[:, IDX[n], 0] += offset
+    a = np.radians(off_deg)
+    for n, sx in (("LeftLeg", 1), ("RightLeg", -1)):  # the start facing is read from the hip line
+        f[:, IDX[n], 0] = f[:, IDX["Hips"], 0] + 0.1 * sx * np.cos(a)
+        f[:, IDX[n], 2] = f[:, IDX["Hips"], 2] - 0.1 * sx * np.sin(a)
+    return Clip(f, c.fps)
+
+
+def test_a_roll_filmed_head_on_reads_a_full_turn_along_its_line_of_travel():
+    c = _head_on()
+    old = movecheck.trunk_pitch_deg(c.frames)               # the plane of the start facing
+    new = movecheck.trunk_pitch_deg(c.frames, movecheck.roll_axis(c.frames))
+    assert (old - old[0]).max() < 250, "the old reading is short on this body"
+    assert (new - new[0]).max() > 330
+    ok, nums, _ = movecheck.roll_check(c)
+    assert ok, nums
+
+
+def test_a_sideways_flip_is_not_a_roll():
+    """Hips travel along +x while the trunk turns over in the x-y plane, the body started facing +z: a cartwheel or a side flip."""
+    c = rolling(360)
+    f = _spin(c.frames, 90)
+    f[:, IDX["LeftLeg"]] = c.frames[:, IDX["LeftLeg"]]
+    f[:, IDX["RightLeg"]] = c.frames[:, IDX["RightLeg"]]
+    ok, nums, _ = movecheck.roll_check(Clip(f, c.fps))
+    assert not ok, nums
+    assert np.allclose(movecheck.roll_axis(f), movecheck.facing(f))
+
+
+def test_a_clip_that_does_not_travel_uses_the_facing():
+    from synth import standing
+    f = standing(30).frames
+    assert np.allclose(movecheck.roll_axis(f), movecheck.facing(f))
+
+
+def test_the_head_on_london_parkour_jump_roll_turns_over_but_is_still_not_the_games_roll():
+    """Real film (CC-222): the turn now reads about 390 degrees; the clip is a jump roll, so the hips rise and it stays in the air too long.
+    The limits were not touched: it still fails, for those reasons."""
+    import json
+    m = json.load(open(_repo("data", "eval", "motion-from-you", "roll-lp", "motion.json")))
+    from ccpipe import gate
+    from ccpipe.skeleton import NAMES
+    f = np.array(m["frames"])[:, [m["names"].index(n) for n in NAMES]]
+    c = gate.clip_from_times(f, np.array(m["times"]))
+    old = movecheck.trunk_pitch_deg(c.frames)
+    assert (old - old[0]).max() < 150
+    ok, nums, _ = movecheck.roll_check(c)
+    assert nums["max_turn_deg"] > 330 and nums["upside_down"]
+    assert not ok and (nums["peak_hips_vs_standing"] > movecheck.ROLL_MAX_HIPS or nums["longest_air_s"] > movecheck.ROLL_MAX_AIR_S)
