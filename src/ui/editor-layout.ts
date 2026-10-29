@@ -44,7 +44,10 @@ const CSS = `
   #palette .list{max-height:50vh;overflow:auto;padding:6px}
   #palette .pitem{display:grid;grid-template-columns:minmax(0,1fr) auto auto;gap:12px;align-items:center;padding:8px 10px;border-radius:8px;cursor:pointer}
   #palette .pitem[aria-selected=true]{background:#e6f1ed}#palette .pitem .sec{color:#58635d;font-size:12px}
-  #palette .none{padding:14px;color:#58635d}`+PIECE_BROWSER_CSS;
+  #palette .none{padding:14px;color:#58635d}`+PIECE_BROWSER_CSS+`
+  .ed #personchip{position:absolute;left:10px;bottom:10px;z-index:6;display:flex;gap:6px}
+  .ed #personchip button{min-height:30px;padding:3px 12px;border-radius:999px;box-shadow:0 2px 8px #0003}
+  .ed #personfind[aria-pressed=true]{background:#fff3c4;border-color:#e0a800;color:#17201d}`;
 
 const SHORTCUTS: Record<string, string> = { undo: 'Ctrl+Z', redo: 'Ctrl+Y', del: 'Del', dup: 'D' };
 

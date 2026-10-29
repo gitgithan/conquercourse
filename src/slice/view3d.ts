@@ -25,7 +25,7 @@ export interface Host {
 }
 export interface GhostState { x: number; y: number; z: number; yaw: number; scale: number }
 export interface Ghosts { items: { id: number; from: GhostState; to: GhostState }[]; lane: { angle: number; offset: number } | null }
-export interface View3d { look(heading: number, pitch: number, target?: { x: number; z: number }, distance?: number): void; sync(): void; show(on: boolean): void; readonly el: HTMLCanvasElement; resize(): void; focus(x: number, z: number): void; project(x: number, y: number, z: number): { x: number; y: number } | null; onCamera(cb: () => void): void }
+export interface View3d { look(heading: number, pitch: number, target?: { x: number; z: number }, distance?: number): void; sync(): void; show(on: boolean): void; readonly el: HTMLCanvasElement; resize(): void; focus(x: number, z: number): void; pulse(x: number, z: number): void; project(x: number, y: number, z: number): { x: number; y: number } | null; onCamera(cb: () => void): void }
 
 const loader = new GLTFLoader();
 const cache = new Map<string, Promise<THREE.Object3D>>();
@@ -159,8 +159,27 @@ export function createView3d(wrap: HTMLElement, host: Host): View3d {
         if (node?.box) { g.updateMatrixWorld(true); node.box.setFromObject(g); node.box.update(); }
       }).catch(() => { /* keep the plain mesh */ });
     }
+    if (isPersonReference(p)) { // the person for scale is easy to lose: a bright ring on the ground and a label that always faces the viewer
+      const beacon = new THREE.Group(); beacon.scale.setScalar(1 / Math.max(0.01, p.scale)); beacon.renderOrder = 20;
+      const ring = new THREE.Mesh(new THREE.RingGeometry(0.55, 0.7, 40), new THREE.MeshBasicMaterial({ color: 0xffc400, side: THREE.DoubleSide, depthTest: false, transparent: true, opacity: 0.95 }));
+      ring.rotation.x = -Math.PI / 2; ring.position.y = 0.04; ring.renderOrder = 20;
+      const cv = document.createElement('canvas'); cv.width = 512; cv.height = 96;
+      const g2 = cv.getContext('2d')!; g2.fillStyle = '#ffc400'; g2.beginPath(); g2.roundRect(2, 2, 508, 92, 20); g2.fill(); g2.fillStyle = '#17201d'; g2.font = '700 38px system-ui,sans-serif'; g2.textAlign = 'center'; g2.textBaseline = 'middle'; g2.fillText('You, a person for scale', 256, 50);
+      const label = new THREE.Sprite(new THREE.SpriteMaterial({ map: new THREE.CanvasTexture(cv), depthTest: false, transparent: true, sizeAttenuation: false }));
+      label.scale.set(0.3, 0.056, 1); label.position.y = 2.2; label.renderOrder = 21;
+      beacon.add(ring, label); g.add(beacon);
+    }
     scene.add(g);
     return g;
+  }
+
+  // a ring that grows and fades where something is, to say "here" (the editor uses it when the player asks to find the person)
+  function pulse(x: number, z: number) {
+    const m = new THREE.MeshBasicMaterial({ color: 0xffc400, side: THREE.DoubleSide, depthTest: false, transparent: true, opacity: 1 });
+    const ring = new THREE.Mesh(new THREE.RingGeometry(0.9, 1, 48), m); ring.rotation.x = -Math.PI / 2; ring.position.set(x, 0.05, z); ring.renderOrder = 22; scene.add(ring);
+    const t0 = performance.now();
+    const tick = () => { const k = (performance.now() - t0) / 1400; if (k >= 1) { scene.remove(ring); ring.geometry.dispose(); m.dispose(); redraw(); return; } ring.scale.setScalar(1 + k * 3); m.opacity = 1 - k; redraw(); requestAnimationFrame(tick); };
+    requestAnimationFrame(tick);
   }
 
   function sync() {
@@ -233,5 +252,5 @@ export function createView3d(wrap: HTMLElement, host: Host): View3d {
   // where a world point is on the picture, in pixels from its top left corner (null when it is behind the camera); the editor's piece toolbar follows the selected piece with it
   const project = (x: number, y: number, z: number) => { camera.updateMatrixWorld(); const v = new THREE.Vector3(x, y, z).project(camera); return v.z > 1 ? null : { x: ((v.x + 1) / 2) * renderer.domElement.clientWidth, y: ((1 - v.y) / 2) * renderer.domElement.clientHeight }; };
   const onCamera = (cb: () => void) => controls.addEventListener('change', cb);
-  return { look, sync, resize, focus, project, onCamera, el: renderer.domElement, show(v) { on = v; renderer.domElement.style.display = v ? 'block' : 'none'; if (v) { resize(); redraw(); } } };
+  return { look, sync, resize, focus, pulse, project, onCamera, el: renderer.domElement, show(v) { on = v; renderer.domElement.style.display = v ? 'block' : 'none'; if (v) { resize(); redraw(); } } };
 }

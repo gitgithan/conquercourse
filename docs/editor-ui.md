@@ -61,3 +61,12 @@ This note says where each control lives now, and the rule for adding a new one.
 - Heights and sizes are gone from buttons, the Moves rows and the plan labels: the simulator says whether a lane clears, not a number on a card.
 - The chosen piece's real size, height and lift sit inside a folded "Size and height" section of its panel.
 
+## The person for scale (CC-96)
+- A chip in the bottom left corner of the 3D picture shows the person, finds them and hides them.
+- The first time someone opens the editor the person is already standing beside the start of the lane.
+- The person has a bright ring on the ground and a label that says "You, a person for scale", so they are easy to see from far away.
+- "Find the person" moves the camera to them and sends out a growing ring.
+- "Hide" removes them; the choice is remembered in the browser (`cc.person`), and a saved world that has the person keeps them.
+- Where they stand is `personStart` in `src/slice/person-ref.ts`: a little before the first piece, beside the lane's middle line.
+- `scripts/person-check.mjs` walks first visit, find, hide, reload and show again.
+
