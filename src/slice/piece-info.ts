@@ -64,7 +64,7 @@ const TOOLS: PieceInfo[] = [
   { id: 'person', section: 'tools', name: 'Person for scale', does: 'A person stands in the world so you can see how big things are. Click again to hide them.', from: 'The Rookie character, made to a normal person size.', button: '[data-object="person"]' },
   { id: 'demo-scene', section: 'tools', name: 'Demo scene', does: 'A whole example scene to look at and build on.', from: 'The demo scene bundled with the game.', button: '[data-object="demo-scene"]' },
   { id: 'import', section: 'tools', name: 'Import a 3D file', does: 'Bring in your own 3D object as a .glb file.', from: 'Your file. It stays in your browser.', button: '#import' },
-  { id: 'photo', section: 'tools', name: 'Use my own photo', does: 'An optional lab: turn a photo of an obstacle course into pieces. Please use photos with no people or children in them.', from: 'The photo-to-course lab.', button: '#photobtn' },
+  { id: 'photo', section: 'tools', name: 'Use my own photo (optional)', does: 'A lab: pick a photo of an obstacle course and the design partner drafts a layout from it, then the simulator checks it. Your photo is shrunk and sent to the design partner (Muse Spark) and is not stored. Please use photos with no people or children in them. It works only where the photo helper is switched on.', from: 'The photo-to-course lab.', button: '#photobtn' },
 ];
 
 export const STATIC_PIECES: PieceInfo[] = [...GROUND, ...SWING, ...CONTRAPTIONS, ...STACKS, ...TOOLS];

@@ -446,11 +446,13 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
   }
   movesReady = true;
   // ---- labs (?labs=1, or ?photo=<url>): a park photo becomes a first draft of a course; the simulator checks it and Fix it repairs it
+  // the photo-to-course lab: the file picker exists everywhere (the add browser's "Use my own photo" opens it); the button in the More menu shows with ?labs=1 or ?photo=<url>
+  const fileIn = el('input', top, { type: 'file', accept: 'image/jpeg,image/png', id: 'photofile' }) as HTMLInputElement;
+  fileIn.style.display = 'none';
+  fileIn.onchange = () => { const f = fileIn.files?.[0]; if (f) void draftFrom(f); fileIn.value = ''; };
+  (window as unknown as { ccPickPhoto?: () => void }).ccPickPhoto = () => fileIn.click();
   if (/[?&](labs|photo)\b/.test(location.search)) {
-    const fileIn = el('input', top, { type: 'file', accept: 'image/jpeg,image/png', id: 'photofile' }) as HTMLInputElement;
-    fileIn.style.display = 'none';
     el('button', top, { text: 'Photo to course (labs)', id: 'photobtn', title: 'Pick a park photo: the design partner drafts a course from it, then the simulator checks it' }).onclick = () => fileIn.click();
-    fileIn.onchange = () => { const f = fileIn.files?.[0]; if (f) void draftFrom(f); };
     const url = new URLSearchParams(location.search).get('photo');
     if (url) void fetch(url).then((r) => r.blob()).then(draftFrom).catch(() => { reply.className = 'reply bad'; reply.textContent = 'I could not read that photo.'; });
   }

@@ -70,3 +70,12 @@ This note says where each control lives now, and the rule for adding a new one.
 - Where they stand is `personStart` in `src/slice/person-ref.ts`: a little before the first piece, beside the lane's middle line.
 - `scripts/person-check.mjs` walks first visit, find, hide, reload and show again.
 
+## Use my own photo (CC-96)
+- The Tools section has an optional "Use my own photo" card; it opens a file picker for a JPEG or PNG.
+- The photo is shrunk to a small picture in the browser and sent to `/api/photo-course`, which asks the design partner (Muse Spark through Baseten) for a first layout; nothing is stored.
+- The simulator then checks the draft and Fix it repairs it, as in the labs flow of CC-52.
+- It needs the `BASETEN_API_KEY` secret on the site; without it the design partner card says "the photo helper is not switched on here".
+- Each call is one paid model request from the owner's Baseten credit, and the function allows 6 a minute per address.
+- The card asks people not to use photos with people or children in them.
+- The "Photo to course (labs)" button in the More menu still shows with `?labs=1`.
+
