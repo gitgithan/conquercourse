@@ -2,7 +2,7 @@
   "version": 1,
   "name": "First Course",
   "startX": 0,
-  "finishX": 105,
+  "finishX": 110,
   "jumpSpeed": 4.5,
   "terrain": {
     "waterY": -1.5,
