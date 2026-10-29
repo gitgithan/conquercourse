@@ -106,6 +106,23 @@ export const plankHolds = (pk: PlankData, mass: number = RIDER_MASS): boolean =>
 // Height of the top face at x with the rider at a (for the drawing and for the feet).
 export const topAt = (pk: PlankData, a: number, x: number): number => pk.y - Math.min(DISPLAY_SAG_MAX, sagAt(pk, a, x - pk.x0));
 
+// The picture of the bend follows the physical bend with a short lag, so a plank that loads suddenly (a landing in the middle) is not drawn jumping down in one frame.
+// Looks only: the physics above is not touched, and a plank the runner runs onto at its end already bends slowly enough that the lag is hardly seen.
+export const BEND_EASE_S = 0.18; // seconds: the drawn bend closes 63% of the way to the physical bend in this time
+export const easeToward = (cur: number, target: number, dt: number, tau: number = BEND_EASE_S): number => target + (cur - target) * Math.exp(-Math.max(0, dt) / tau);
+export const BEND_POINTS = 40; // the drawn plank is a strip of this many pieces
+export const bendTarget = (pk: PlankData, a: number, i: number): number => Math.min(DISPLAY_SAG_MAX, sagAt(pk, a, (spanOf(pk) * i) / BEND_POINTS));
+export const restBend = (pk: PlankData): number[] => Array.from({ length: BEND_POINTS + 1 }, (_, i) => bendTarget(pk, -1, i)); // nobody on it: its own weight
+// One frame of easing: the drawn bend (sag at each point along the plank) moves toward the physical bend for a rider at a (a < 0: nobody on it).
+export function easeBend(drawn: number[], pk: PlankData, a: number, dt: number): number[] {
+  return drawn.map((d, i) => easeToward(d, bendTarget(pk, a, i), dt));
+}
+// The drawn surface height at x (m from the left end), between the points of the drawn bend.
+export function drawnTopAt(pk: PlankData, drawn: number[], x: number): number {
+  const u = Math.min(BEND_POINTS, Math.max(0, (x / spanOf(pk)) * BEND_POINTS)), i = Math.min(BEND_POINTS - 1, Math.floor(u)), f = u - i;
+  return pk.y - (drawn[i] * (1 - f) + drawn[i + 1] * f);
+}
+
 // The smallest change that makes a plank hold with a margin (so it is not on the edge): a thicker plank, or a post in the middle.
 export function fixPlank(pk: PlankData, margin = 0.8): { plank: PlankData; steps: string[]; ok: boolean } {
   if (worstCase(pk).ratio <= margin) return { plank: pk, steps: [], ok: true };

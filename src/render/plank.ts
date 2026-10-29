@@ -1,16 +1,17 @@
 import * as THREE from "three/webgpu";
 import type { CourseData } from "../course/course";
-import { materialOf, spanOf, topAt, type PlankData } from "../sim/beam";
+import { BEND_POINTS, drawnTopAt, easeBend, materialOf, restBend, spanOf, type PlankData } from "../sim/beam";
 import type { WorldState } from "../sim/world";
 
 // The plank bridges the Course draws: a strip along the plank that bends the way the simulator says (src/sim/beam.ts), a post if there is one.
 // Looks only: the feet are on the same curve (topAt), so the picture and the physics agree. A real 2 cm plank is hair-thin on screen, so it is drawn at least 6 cm thick.
-const SEGMENTS = 40;
+const SEGMENTS = BEND_POINTS;
 const DRAW_MIN_THICKNESS = 0.06;
 
 export interface PlankView {
   group: THREE.Group;
-  place(w: WorldState): void; // bends each plank under the runner who stands on it; a broken plank is hidden
+  place(w: WorldState, dt?: number): void; // bends each plank under the runner who stands on it (the picture follows the bend with a short lag; dt is the game time since the last call); a broken plank is hidden
+  surfaceAt(w: WorldState): number | null; // the drawn surface under the runner while on a plank, so the feet and the picture agree
 }
 
 function stripGeometry(): THREE.BufferGeometry {
@@ -47,32 +48,39 @@ export function buildPlanks(course: CourseData): PlankView {
       post.position.set((pk.x0 + pk.x1) / 2, course.terrain.waterY + h / 2 - DRAW_MIN_THICKNESS, 0);
       group.add(post);
     }
-    return { pk, mesh, geo, post, lastA: NaN };
+    return { pk, mesh, geo, post, drawn: restBend(pk), dirty: true };
   });
   void spanOf; void materialOf;
-  function shape(it: (typeof items)[number], a: number) {
-    const { pk, geo } = it;
+  function shape(it: (typeof items)[number]) {
+    const { pk, geo, drawn } = it;
     const th = Math.max(pk.thickness, DRAW_MIN_THICKNESS), hw = pk.width / 2;
     const p = geo.getAttribute("position") as THREE.BufferAttribute;
     for (let i = 0; i <= SEGMENTS; i++) {
-      const x = pk.x0 + ((pk.x1 - pk.x0) * i) / SEGMENTS, top = topAt(pk, a, x), bot = top - th;
+      const x = pk.x0 + ((pk.x1 - pk.x0) * i) / SEGMENTS, top = pk.y - drawn[i], bot = top - th;
       p.setXYZ(i * 4, x, top, -hw); p.setXYZ(i * 4 + 1, x, top, hw); p.setXYZ(i * 4 + 2, x, bot, -hw); p.setXYZ(i * 4 + 3, x, bot, hw);
     }
     p.needsUpdate = true;
     geo.computeVertexNormals();
-    it.lastA = a;
+    it.dirty = false;
   }
-  items.forEach((it) => shape(it, -1));
+  items.forEach((it) => shape(it));
   return {
     group,
-    place(w: WorldState) {
+    surfaceAt(w: WorldState) {
+      const i = w.mode === "plank" ? w.plank?.i : undefined;
+      if (i === undefined || w.broken?.includes(i)) return null;
+      const it = items[i];
+      return it ? drawnTopAt(it.pk, it.drawn, w.runner.x - it.pk.x0) : null;
+    },
+    place(w: WorldState, dt = 1 / 60) {
       items.forEach((it, i) => {
         const broken = !!w.broken?.includes(i);
         it.mesh.visible = !broken;
         if (it.post) it.post.visible = !broken;
         if (broken) return;
         const a = w.mode === "plank" && w.plank?.i === i ? w.runner.x - it.pk.x0 : -1;
-        if (a !== it.lastA) shape(it, a);
+        const next = easeBend(it.drawn, it.pk, a, dt);
+        if (it.dirty || next.some((v, k) => Math.abs(v - it.drawn[k]) > 1e-5)) { it.drawn = next; shape(it); }
       });
     },
   };

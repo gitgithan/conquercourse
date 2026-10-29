@@ -95,6 +95,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
   const PIP_W = 260, PIP_H = 195, PIP_BOTTOM = 118;
   const frontCam = new THREE.PerspectiveCamera(75, PIP_W / PIP_H, 0.1, 200); // first person: wide, from the eyes
   let frontOverride: boolean | null = params.has('front') ? params.get('front') === '1' : null;
+  let camY = 0, camYSet = false, lastPlankNow = 0; // the camera's height target eases, so a fast dip (as on a plank) does not snap the view
   let pipRoll = 0, pipClock = 0; // the head's turn about the bar (rad) and the clock it settles by
   const pipFrame = document.createElement('div');
   pipFrame.id = 'frontview';
@@ -1288,6 +1289,10 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
       replay.i += 0.5;
       if (replay.i >= replay.to || !f) { replay = null; clearGuides(); if (world.outcome !== 'running') showAgain(); } else r = { ...r, x: f.x, y: f.y };
     }
+    const dtPlank = Math.min(0.05, Math.max(0, now - lastPlankNow) / 1000 * (paused ? 0 : timeScale)); lastPlankNow = now;
+    plankView?.place(world, dtPlank);
+    const plankY = replay ? null : plankView?.surfaceAt(world) ?? null; // the picture of the bend lags the physics a little: the feet stand on the drawn surface so they agree
+    if (plankY !== null) r = { ...r, y: plankY };
     const sq = world.runner.tick < squashUntil ? squashDepth : 1;
     body.scale.set(1 / Math.sqrt(sq), sq, 1 / Math.sqrt(sq));
     body.position.set(r.x, r.y + 0.85 * sq, 0);
@@ -1300,7 +1305,6 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
     if (actor) actor.update({ ...actorStateFor(world, keys.has('ArrowDown') || keys.has('KeyS'), facing), x: ax, y: ay, ledge: world.mode === 'climb' && world.climb ? { x: world.climb.edge, y: world.climb.top } : ledge, next: world.mode === 'run' ? nextObstacle(r.x) : undefined });
     if (world.events.some((e) => e.type === 'cart-off')) cartFlying = true;
     trackView?.place(world, cartFlying);
-    plankView?.place(world);
     if (world.runner.tick > toastUntil) toast.style.display = 'none';
     paintStrip(r.x);
     drumLane.update(r.x);
@@ -1378,7 +1382,9 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
       const off = camMode === 'side' ? new THREE.Vector3(0, 1.5, 25) : new THREE.Vector3(-12, 3, 11);
       const ft0 = clamp((FACE_START - orbit.zoom) / (FACE_START - FACE_END), 0, 1), ft = ft0 * ft0 * (3 - 2 * ft0); // 0 normal view, 1 face close-up
       const headX = eye.x - nose.x, headY = eye.y - nose.y; // the middle of the head (under the hands while hanging)
-      const tx = (camMode === 'side' ? r.x + 5 : r.x + 4) * (1 - ft) + headX * ft, ty = (camMode === 'side' ? r.y + 2.5 : r.y + 1.5) * (1 - ft) + headY * ft;
+      const tx = (camMode === 'side' ? r.x + 5 : r.x + 4) * (1 - ft) + headX * ft, wantY = camMode === 'side' ? r.y + 2.5 : r.y + 1.5;
+      camY = !camYSet || Math.abs(wantY - camY) > 4 ? wantY : camY + (wantY - camY) * (1 - Math.exp(-dtHead / 0.15)); camYSet = true; // a retry or a big drop snaps; a dip eases
+      const ty = camY * (1 - ft) + headY * ft;
       const len = off.length() * Math.max(orbit.zoom, FACE_START) * (1 - ft) + FACE_DIST * ft;
       const yaw = Math.atan2(off.x, off.z) + orbit.yaw + facing * 1.05 * ft; // swing round to the front of the face
       const pitch = clamp(Math.asin(off.y / off.length()) + orbit.pitch, 0.03, 1.35) * (1 - ft) + 0.08 * ft;
