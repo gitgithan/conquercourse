@@ -1,0 +1,78 @@
+{
+  "id": "paired.new01.run2",
+  "part": "paired",
+  "photo": "new01",
+  "run": 2,
+  "startedFrom": "saved one-shot draft",
+  "status": "cleared",
+  "steps": 1,
+  "clearedAtStep": 1,
+  "tokensIn": 0,
+  "tokensOut": 0,
+  "dollars": 0,
+  "calls": 0,
+  "seconds": 0.4,
+  "obstaclesKept": 1,
+  "keyObstacles": 1,
+  "drift": {
+    "keyCount": 1,
+    "modelCount": 1,
+    "matched": 1,
+    "extra": 0,
+    "meanRelError": 0.33,
+    "meanAbsError": 1
+  },
+  "problems": [],
+  "stepsDetail": [
+    {
+      "n": 1,
+      "kind": "proposed",
+      "say": "A long low concrete skate ledge sits in the middle of flat pavement.",
+      "layout": {
+        "items": [
+          {
+            "kind": "ground",
+            "length": 3
+          },
+          {
+            "kind": "block",
+            "length": 5,
+            "height": 0.4
+          },
+          {
+            "kind": "ground",
+            "length": 3
+          }
+        ]
+      },
+      "report": {
+        "cleared": true,
+        "seconds": 4.08,
+        "jumps": 2,
+        "stoppedAtItem": null,
+        "reachedMetres": 11.1,
+        "laneMetres": 11.1,
+        "probes": []
+      },
+      "words": "Cleared in 4.1 s on the best line, with 2 jumps."
+    }
+  ],
+  "baselineClearedAsDrawn": true,
+  "finalLayout": {
+    "items": [
+      {
+        "kind": "ground",
+        "length": 3
+      },
+      {
+        "kind": "block",
+        "length": 5,
+        "height": 0.4
+      },
+      {
+        "kind": "ground",
+        "length": 3
+      }
+    ]
+  }
+}

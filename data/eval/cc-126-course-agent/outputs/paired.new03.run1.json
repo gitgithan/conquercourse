@@ -1,0 +1,126 @@
+{
+  "id": "paired.new03.run1",
+  "part": "paired",
+  "photo": "new03",
+  "run": 1,
+  "startedFrom": "saved one-shot draft",
+  "status": "cleared",
+  "steps": 1,
+  "clearedAtStep": 1,
+  "tokensIn": 0,
+  "tokensOut": 0,
+  "dollars": 0,
+  "calls": 0,
+  "seconds": 17.8,
+  "obstaclesKept": 4,
+  "keyObstacles": 3,
+  "drift": {
+    "keyCount": 3,
+    "modelCount": 4,
+    "matched": 3,
+    "extra": 1,
+    "meanRelError": 0.18,
+    "meanAbsError": 0.4
+  },
+  "problems": [],
+  "stepsDetail": [
+    {
+      "n": 1,
+      "kind": "proposed",
+      "say": "Outdoor exercise area with three horizontal bars and a small ground step converted into a traverse course.",
+      "layout": {
+        "items": [
+          {
+            "kind": "ground",
+            "length": 3
+          },
+          {
+            "kind": "bar",
+            "height": 1.8
+          },
+          {
+            "kind": "ground",
+            "length": 2.5
+          },
+          {
+            "kind": "block",
+            "length": 0.6,
+            "height": 0.3
+          },
+          {
+            "kind": "ground",
+            "length": 2
+          },
+          {
+            "kind": "bar",
+            "height": 2.3
+          },
+          {
+            "kind": "ground",
+            "length": 2.5
+          },
+          {
+            "kind": "bar",
+            "height": 1.5
+          },
+          {
+            "kind": "ground",
+            "length": 4
+          }
+        ]
+      },
+      "report": {
+        "cleared": true,
+        "seconds": 6.11,
+        "jumps": 2,
+        "stoppedAtItem": null,
+        "reachedMetres": 14.7,
+        "laneMetres": 14.8,
+        "probes": []
+      },
+      "words": "Cleared in 6.1 s on the best line, with 2 jumps."
+    }
+  ],
+  "baselineClearedAsDrawn": true,
+  "finalLayout": {
+    "items": [
+      {
+        "kind": "ground",
+        "length": 3
+      },
+      {
+        "kind": "bar",
+        "height": 1.8
+      },
+      {
+        "kind": "ground",
+        "length": 2.5
+      },
+      {
+        "kind": "block",
+        "length": 0.6,
+        "height": 0.3
+      },
+      {
+        "kind": "ground",
+        "length": 2
+      },
+      {
+        "kind": "bar",
+        "height": 2.3
+      },
+      {
+        "kind": "ground",
+        "length": 2.5
+      },
+      {
+        "kind": "bar",
+        "height": 1.5
+      },
+      {
+        "kind": "ground",
+        "length": 4
+      }
+    ]
+  }
+}

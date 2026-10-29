@@ -1,0 +1,206 @@
+{
+  "id": "paired.new02.run1",
+  "part": "paired",
+  "photo": "new02",
+  "run": 1,
+  "startedFrom": "saved one-shot draft",
+  "status": "cleared",
+  "steps": 2,
+  "clearedAtStep": 2,
+  "tokensIn": 688,
+  "tokensOut": 2648,
+  "dollars": 0.012,
+  "calls": 1,
+  "seconds": 26.7,
+  "obstaclesKept": 7,
+  "keyObstacles": 3,
+  "drift": {
+    "keyCount": 3,
+    "modelCount": 7,
+    "matched": 3,
+    "extra": 4,
+    "meanRelError": 0.24,
+    "meanAbsError": 0.27
+  },
+  "problems": [],
+  "stepsDetail": [
+    {
+      "n": 1,
+      "kind": "proposed",
+      "say": "Skatepark line from raised deck down through low banks to a tall end ramp.",
+      "layout": {
+        "items": [
+          {
+            "kind": "ground",
+            "length": 4
+          },
+          {
+            "kind": "block",
+            "length": 1.5,
+            "height": 2.4
+          },
+          {
+            "kind": "ground",
+            "length": 5
+          },
+          {
+            "kind": "block",
+            "length": 2,
+            "height": 0.6
+          },
+          {
+            "kind": "gap",
+            "width": 1.2
+          },
+          {
+            "kind": "block",
+            "length": 2.5,
+            "height": 1
+          },
+          {
+            "kind": "block",
+            "length": 1.8,
+            "height": 0.4
+          },
+          {
+            "kind": "block",
+            "length": 2.5,
+            "height": 1.7
+          },
+          {
+            "kind": "bar",
+            "height": 2.6
+          },
+          {
+            "kind": "ground",
+            "length": 5
+          }
+        ]
+      },
+      "report": {
+        "cleared": false,
+        "seconds": null,
+        "jumps": 1,
+        "stoppedAtItem": 1,
+        "reachedMetres": 3.37,
+        "laneMetres": 25.6,
+        "probes": []
+      },
+      "words": "Not cleared: the best attempt stopped at item 2, block 1.5 m long, 2.4 m high (3.4 m in). No single easing of one obstacle clears it."
+    },
+    {
+      "n": 2,
+      "kind": "repaired",
+      "say": "Lowered the raised deck, ramps and bar to reachable heights to make the line clearable.",
+      "layout": {
+        "items": [
+          {
+            "kind": "ground",
+            "length": 4
+          },
+          {
+            "kind": "block",
+            "length": 1.5,
+            "height": 0.9
+          },
+          {
+            "kind": "ground",
+            "length": 5
+          },
+          {
+            "kind": "block",
+            "length": 2,
+            "height": 0.6
+          },
+          {
+            "kind": "gap",
+            "width": 1.2
+          },
+          {
+            "kind": "block",
+            "length": 2.5,
+            "height": 0.8
+          },
+          {
+            "kind": "block",
+            "length": 1.8,
+            "height": 0.4
+          },
+          {
+            "kind": "block",
+            "length": 2.5,
+            "height": 1
+          },
+          {
+            "kind": "bar",
+            "height": 2.1
+          },
+          {
+            "kind": "ground",
+            "length": 5
+          }
+        ]
+      },
+      "report": {
+        "cleared": true,
+        "seconds": 5.91,
+        "jumps": 2,
+        "stoppedAtItem": null,
+        "reachedMetres": 25.55,
+        "laneMetres": 25.6,
+        "probes": []
+      },
+      "words": "Cleared in 5.9 s on the best line, with 2 jumps."
+    }
+  ],
+  "baselineClearedAsDrawn": false,
+  "finalLayout": {
+    "items": [
+      {
+        "kind": "ground",
+        "length": 4
+      },
+      {
+        "kind": "block",
+        "length": 1.5,
+        "height": 0.9
+      },
+      {
+        "kind": "ground",
+        "length": 5
+      },
+      {
+        "kind": "block",
+        "length": 2,
+        "height": 0.6
+      },
+      {
+        "kind": "gap",
+        "width": 1.2
+      },
+      {
+        "kind": "block",
+        "length": 2.5,
+        "height": 0.8
+      },
+      {
+        "kind": "block",
+        "length": 1.8,
+        "height": 0.4
+      },
+      {
+        "kind": "block",
+        "length": 2.5,
+        "height": 1
+      },
+      {
+        "kind": "bar",
+        "height": 2.1
+      },
+      {
+        "kind": "ground",
+        "length": 5
+      }
+    ]
+  }
+}

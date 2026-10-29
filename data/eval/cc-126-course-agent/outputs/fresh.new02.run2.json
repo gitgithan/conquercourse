@@ -1,0 +1,273 @@
+{
+  "id": "fresh.new02.run2",
+  "part": "fresh",
+  "photo": "new02",
+  "run": 2,
+  "startedFrom": "the photo",
+  "status": "cleared",
+  "steps": 3,
+  "clearedAtStep": 3,
+  "tokensIn": 2444,
+  "tokensOut": 5412,
+  "dollars": 0.026,
+  "calls": 3,
+  "seconds": 161.7,
+  "obstaclesKept": 8,
+  "keyObstacles": 3,
+  "drift": {
+    "keyCount": 3,
+    "modelCount": 8,
+    "matched": 3,
+    "extra": 5,
+    "meanRelError": 0.4,
+    "meanAbsError": 0.56
+  },
+  "problems": [],
+  "stepsDetail": [
+    {
+      "n": 1,
+      "kind": "proposed",
+      "say": "Initial course based on the skatepark platforms and ramps left to right.",
+      "layout": {
+        "items": [
+          {
+            "kind": "ground",
+            "length": 4
+          },
+          {
+            "kind": "block",
+            "length": 2.5,
+            "height": 2.2
+          },
+          {
+            "kind": "bar",
+            "height": 3.1
+          },
+          {
+            "kind": "gap",
+            "width": 2.5
+          },
+          {
+            "kind": "block",
+            "length": 3,
+            "height": 0.6
+          },
+          {
+            "kind": "block",
+            "length": 2.5,
+            "height": 0.9
+          },
+          {
+            "kind": "gap",
+            "width": 1
+          },
+          {
+            "kind": "block",
+            "length": 3,
+            "height": 1.5
+          },
+          {
+            "kind": "bar",
+            "height": 2.4
+          },
+          {
+            "kind": "ground",
+            "length": 4
+          }
+        ]
+      },
+      "report": {
+        "cleared": false,
+        "seconds": null,
+        "jumps": 2,
+        "stoppedAtItem": 1,
+        "reachedMetres": 3.83,
+        "laneMetres": 22.6,
+        "probes": []
+      },
+      "words": "Not cleared: the best attempt stopped at item 2, block 2.5 m long, 2.2 m high (3.8 m in). No single easing of one obstacle clears it."
+    },
+    {
+      "n": 2,
+      "kind": "repaired",
+      "say": "Lowered the high platforms and shortened the long gap to make the course clearable.",
+      "layout": {
+        "items": [
+          {
+            "kind": "ground",
+            "length": 4
+          },
+          {
+            "kind": "block",
+            "length": 2.5,
+            "height": 1
+          },
+          {
+            "kind": "bar",
+            "height": 2.2
+          },
+          {
+            "kind": "gap",
+            "width": 1.5
+          },
+          {
+            "kind": "block",
+            "length": 3,
+            "height": 0.6
+          },
+          {
+            "kind": "block",
+            "length": 2.5,
+            "height": 0.9
+          },
+          {
+            "kind": "gap",
+            "width": 1
+          },
+          {
+            "kind": "block",
+            "length": 3,
+            "height": 1
+          },
+          {
+            "kind": "bar",
+            "height": 2.3
+          },
+          {
+            "kind": "ground",
+            "length": 4
+          }
+        ]
+      },
+      "report": {
+        "cleared": false,
+        "seconds": null,
+        "jumps": 2,
+        "stoppedAtItem": 1,
+        "reachedMetres": 3.93,
+        "laneMetres": 21.6,
+        "probes": [
+          {
+            "item": 1,
+            "text": "item 2 (block) 1 m high lowered to 0.75 m",
+            "clears": true,
+            "seconds": 5.98
+          }
+        ]
+      },
+      "words": "Not cleared: the best attempt stopped at item 2, block 2.5 m long, 1 m high (3.9 m in). The simulator proved these single changes would clear it: item 2 (block) 1 m high lowered to 0.75 m."
+    },
+    {
+      "n": 3,
+      "kind": "repaired",
+      "say": "Fixed the second block height to 0.75 m as the simulator indicated to clear it.",
+      "layout": {
+        "items": [
+          {
+            "kind": "ground",
+            "length": 4
+          },
+          {
+            "kind": "block",
+            "length": 2.5,
+            "height": 0.75
+          },
+          {
+            "kind": "bar",
+            "height": 2.2
+          },
+          {
+            "kind": "gap",
+            "width": 1.5
+          },
+          {
+            "kind": "block",
+            "length": 3,
+            "height": 0.6
+          },
+          {
+            "kind": "block",
+            "length": 2.5,
+            "height": 0.9
+          },
+          {
+            "kind": "gap",
+            "width": 1
+          },
+          {
+            "kind": "block",
+            "length": 3,
+            "height": 1
+          },
+          {
+            "kind": "bar",
+            "height": 2.3
+          },
+          {
+            "kind": "ground",
+            "length": 4
+          }
+        ]
+      },
+      "report": {
+        "cleared": true,
+        "seconds": 5.98,
+        "jumps": 3,
+        "stoppedAtItem": null,
+        "reachedMetres": 21.55,
+        "laneMetres": 21.6,
+        "probes": []
+      },
+      "words": "Cleared in 6 s on the best line, with 3 jumps."
+    }
+  ],
+  "baselineClearedAsDrawn": null,
+  "finalLayout": {
+    "items": [
+      {
+        "kind": "ground",
+        "length": 4
+      },
+      {
+        "kind": "block",
+        "length": 2.5,
+        "height": 0.75
+      },
+      {
+        "kind": "bar",
+        "height": 2.2
+      },
+      {
+        "kind": "gap",
+        "width": 1.5
+      },
+      {
+        "kind": "block",
+        "length": 3,
+        "height": 0.6
+      },
+      {
+        "kind": "block",
+        "length": 2.5,
+        "height": 0.9
+      },
+      {
+        "kind": "gap",
+        "width": 1
+      },
+      {
+        "kind": "block",
+        "length": 3,
+        "height": 1
+      },
+      {
+        "kind": "bar",
+        "height": 2.3
+      },
+      {
+        "kind": "ground",
+        "length": 4
+      }
+    ]
+  }
+}

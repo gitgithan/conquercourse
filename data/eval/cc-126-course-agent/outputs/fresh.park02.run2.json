@@ -1,0 +1,104 @@
+{
+  "id": "fresh.park02.run2",
+  "part": "fresh",
+  "photo": "park02",
+  "run": 2,
+  "startedFrom": "the photo",
+  "status": "cleared",
+  "steps": 1,
+  "clearedAtStep": 1,
+  "tokensIn": 998,
+  "tokensOut": 792,
+  "dollars": 0.005,
+  "calls": 1,
+  "seconds": 8,
+  "obstaclesKept": 3,
+  "keyObstacles": 1,
+  "drift": {
+    "keyCount": 1,
+    "modelCount": 3,
+    "matched": 1,
+    "extra": 2,
+    "meanRelError": 0.07,
+    "meanAbsError": 0.05
+  },
+  "problems": [],
+  "stepsDetail": [
+    {
+      "n": 1,
+      "kind": "proposed",
+      "say": "Initial course estimated from the park layout.",
+      "layout": {
+        "items": [
+          {
+            "kind": "ground",
+            "length": 3
+          },
+          {
+            "kind": "block",
+            "length": 5,
+            "height": 0.6
+          },
+          {
+            "kind": "ground",
+            "length": 2
+          },
+          {
+            "kind": "block",
+            "length": 3,
+            "height": 0.6
+          },
+          {
+            "kind": "bar",
+            "height": 1.5
+          },
+          {
+            "kind": "ground",
+            "length": 3
+          }
+        ]
+      },
+      "report": {
+        "cleared": true,
+        "seconds": 4.83,
+        "jumps": 2,
+        "stoppedAtItem": null,
+        "reachedMetres": 16.1,
+        "laneMetres": 16.1,
+        "probes": []
+      },
+      "words": "Cleared in 4.8 s on the best line, with 2 jumps."
+    }
+  ],
+  "baselineClearedAsDrawn": null,
+  "finalLayout": {
+    "items": [
+      {
+        "kind": "ground",
+        "length": 3
+      },
+      {
+        "kind": "block",
+        "length": 5,
+        "height": 0.6
+      },
+      {
+        "kind": "ground",
+        "length": 2
+      },
+      {
+        "kind": "block",
+        "length": 3,
+        "height": 0.6
+      },
+      {
+        "kind": "bar",
+        "height": 1.5
+      },
+      {
+        "kind": "ground",
+        "length": 3
+      }
+    ]
+  }
+}

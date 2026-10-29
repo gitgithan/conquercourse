@@ -1,0 +1,104 @@
+{
+  "id": "fresh.park02.run1",
+  "part": "fresh",
+  "photo": "park02",
+  "run": 1,
+  "startedFrom": "the photo",
+  "status": "cleared",
+  "steps": 1,
+  "clearedAtStep": 1,
+  "tokensIn": 998,
+  "tokensOut": 948,
+  "dollars": 0.005,
+  "calls": 1,
+  "seconds": 8.5,
+  "obstaclesKept": 3,
+  "keyObstacles": 1,
+  "drift": {
+    "keyCount": 1,
+    "modelCount": 3,
+    "matched": 1,
+    "extra": 2,
+    "meanRelError": 0.07,
+    "meanAbsError": 0.05
+  },
+  "problems": [],
+  "stepsDetail": [
+    {
+      "n": 1,
+      "kind": "proposed",
+      "say": "First course estimated from the park structures in the photo.",
+      "layout": {
+        "items": [
+          {
+            "kind": "ground",
+            "length": 4
+          },
+          {
+            "kind": "block",
+            "length": 5,
+            "height": 0.6
+          },
+          {
+            "kind": "ground",
+            "length": 2
+          },
+          {
+            "kind": "block",
+            "length": 1.5,
+            "height": 0.5
+          },
+          {
+            "kind": "bar",
+            "height": 1.5
+          },
+          {
+            "kind": "ground",
+            "length": 4
+          }
+        ]
+      },
+      "report": {
+        "cleared": true,
+        "seconds": 4.88,
+        "jumps": 2,
+        "stoppedAtItem": null,
+        "reachedMetres": 16.55,
+        "laneMetres": 16.6,
+        "probes": []
+      },
+      "words": "Cleared in 4.9 s on the best line, with 2 jumps."
+    }
+  ],
+  "baselineClearedAsDrawn": null,
+  "finalLayout": {
+    "items": [
+      {
+        "kind": "ground",
+        "length": 4
+      },
+      {
+        "kind": "block",
+        "length": 5,
+        "height": 0.6
+      },
+      {
+        "kind": "ground",
+        "length": 2
+      },
+      {
+        "kind": "block",
+        "length": 1.5,
+        "height": 0.5
+      },
+      {
+        "kind": "bar",
+        "height": 1.5
+      },
+      {
+        "kind": "ground",
+        "length": 4
+      }
+    ]
+  }
+}
