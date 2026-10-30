@@ -18,6 +18,10 @@ import { createDebugPanel, type Row } from './debug-panel';
 //   yellow  = the ground and the wall the runner stands on and bumps into (the collision outline, not the pretty picture)
 //   cyan    = the runner's body box and the point at its feet
 //   green / red = where a jump right now goes (green lands, red falls or is blocked), run on the simulator's own physics
+// One place per mode: which modes are machines (the preview arc follows the machine layer) and what the next press is. A new machine adds a line here, not a new branch below.
+const MACHINE_MODES: ReadonlySet<string> = new Set(['cart', 'launch', 'drone', 'band']);
+const NEXT_LABEL: Record<string, string> = { cart: 'Cart rolls on', band: 'Turn round now', drone: 'Come down now', hang: 'Let go now', launch: 'Let go now' };
+
 export interface DebugView { toggle(): boolean; update(w: WorldState): void; readonly shown: boolean }
 
 export function createDebugView(scene: THREE.Scene, course: CourseData, parent: HTMLElement, on = false): DebugView {
@@ -93,7 +97,7 @@ export function createDebugView(scene: THREE.Scene, course: CourseData, parent: 
       const last = pr.path[n - 1];
       if (last) endMark.position.set(last.x, last.y, 0);
       endMark.visible = pr.result !== 'other-move';
-      const isMachine = w.mode === 'cart' || w.mode === 'launch' || w.mode === 'drone' || w.mode === 'band' || !!(course.recoil && isAimable(recoilParams(course)) && (w.recoil?.armed ?? 0) > 0);
+      const isMachine = MACHINE_MODES.has(w.mode) || !!(course.recoil && isAimable(recoilParams(course)) && (w.recoil?.armed ?? 0) > 0);
       const arcOn = isMachine ? L.machine : L.jump;
       arc.visible = arcOn; endMark.visible = endMark.visible && arcOn;
       const now: Row[] = [];
@@ -127,7 +131,7 @@ export function createDebugView(scene: THREE.Scene, course: CourseData, parent: 
       if (course.routes && course.routes.length > 1 && w.mode !== 'cart') now.push({ label: 'Routes', value: '' });
       if (course.routes && course.routes.length > 1 && w.mode !== 'cart') for (const q of course.routes) now.push({ label: q.name, value: `${(q.ticks / 120).toFixed(1)} s${q.chosen ? ' · faster' : ''}`, tip: 'A full pump on the first bar skips the second bar.' });
       const res = { lands: 'Lands', splash: 'Splash', hurt: 'Hurts', blocked: 'Blocked', 'not-grounded': 'In the air', 'other-move': 'Other move' }[pr.result];
-      const next = w.mode === 'cart' ? 'Cart rolls on' : w.mode === 'band' ? 'Turn round now' : w.mode === 'drone' ? 'Come down now' : w.mode === 'hang' || w.mode === 'launch' ? 'Let go now' : r.grounded || pr.result === 'other-move' ? 'Jump now' : 'Carry on';
+      const next = NEXT_LABEL[w.mode] ?? (r.grounded || pr.result === 'other-move' ? 'Jump now' : 'Carry on');
       const MODE: Record<string, string> = { run: 'Running', wall: 'On the wall', swing: 'Swinging', bounce: 'Bouncing', hang: 'Hanging', vault: 'Vaulting', band: 'On the band', drone: 'On the drone', climb: 'Climbing', cart: 'In the cart', launch: 'In the sling' };
       const readout: Row[] = [
         { label: 'State', value: r.grounded ? 'On the ground' : 'In the air' },
