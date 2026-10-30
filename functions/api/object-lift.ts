@@ -6,12 +6,17 @@
 import { cleanRequest, moderationStops, requestProblem } from '../../src/slice/object-lift';
 import { askModeration } from './moderate';
 import { limited } from './designer';
+import { LIMIT_WORDS, memoryLedger, utcDay, DEFAULT_LIMITS, type Ledger, type Limits } from '../../src/slice/upload-gates';
 import { json } from '../_lib/http';
 
 interface Env { CC_UPLOAD_TOKEN?: string; CC_UPLOAD_SUBMIT_URL?: string; CC_UPLOAD_STATUS_URL?: string; BASETEN_API_KEY?: string }
 const MODAL_HOST = /^https:\/\/[a-z0-9-]+--[a-z0-9-]+(\.[a-z0-9-]+)?\.modal\.run\/?$/; // the app host may carry a region: x--y.us-east.modal.run
 
-export async function handle(b: Record<string, unknown>, env: Env, ip: string, fetcher: typeof fetch = fetch, now = Date.now()): Promise<{ status: number; body: unknown }> {
+const sharedLedger = memoryLedger(); // per server instance until the D1 ledger lands (docs/object-catalogue.md, Budgets)
+
+// The gates, in order: request shape -> burst limit -> safety check -> daily slot -> start the job. A slot is taken only after the photo passed
+// the safety check, and given back if the job never started, so a refusal never costs the player a try.
+export async function handle(b: Record<string, unknown>, env: Env, ip: string, fetcher: typeof fetch = fetch, burstMax = 6, ledger: Ledger = sharedLedger, limits: Limits = DEFAULT_LIMITS, now = Date.now()): Promise<{ status: number; body: unknown }> {
   if (!env.CC_UPLOAD_TOKEN || !env.CC_UPLOAD_SUBMIT_URL || !env.CC_UPLOAD_STATUS_URL || !MODAL_HOST.test(env.CC_UPLOAD_SUBMIT_URL) || !MODAL_HOST.test(env.CC_UPLOAD_STATUS_URL)) return { status: 503, body: { error: 'not allowed' } };
   const call = async (url: string, payload: unknown): Promise<unknown> => {
     const res = await fetcher(url, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(payload) });
@@ -26,22 +31,23 @@ export async function handle(b: Record<string, unknown>, env: Env, ip: string, f
   if (b.action !== 'submit') return { status: 400, body: { error: 'bad' } };
   const problem = requestProblem(b);
   if (problem) return { status: 400, body: { error: 'bad', message: problem } };
-  if (limited(`lift:${ip}`, now, 6)) return { status: 429, body: { error: 'busy', message: 'You made a lot of objects just now. Wait a few minutes.' } };
+  if (limited(`lift:${ip}`, now, burstMax)) return { status: 429, body: { error: 'busy', message: 'You made a lot of objects just now. Wait a few minutes.' } };
   const r = cleanRequest(b);
   let moderation = 'skipped';
   if (env.BASETEN_API_KEY) {
     const m = await askModeration(env.BASETEN_API_KEY, { image: r.thumb }, fetcher);
-    if (m.status === 200) {
-      const stop = moderationStops(m.body.verdict, m.body.reason);
-      if (stop) return { status: 403, body: { error: 'moderation', message: stop } };
-      moderation = `${m.body.verdict}:${m.body.reason}`;
-    }
+    const stop = moderationStops(m.body.verdict, m.body.reason);
+    if (stop) return { status: 403, body: { error: 'moderation', message: stop } };
+    moderation = `${m.body.verdict}:${m.body.reason}`;
   }
+  const day = utcDay(now);
+  const slot = await ledger.take(ip, day, limits);
+  if (!slot.ok) return { status: 429, body: { error: slot.limit === 'game' ? 'budget' : 'daily', message: LIMIT_WORDS[slot.limit] } };
   try {
     const out = (await call(env.CC_UPLOAD_SUBMIT_URL, { token: env.CC_UPLOAD_TOKEN, image: r.image.slice(r.image.indexOf(',') + 1), label: r.label, box: r.box, height_m: r.height_m, padretry: r.padretry })) as { id?: string; error?: string };
-    if (!out.id) return { status: 400, body: { error: out.error === 'not allowed' ? 'not allowed' : 'bad', message: out.error ?? '' } };
+    if (!out.id) { await ledger.refund(ip, day); return { status: 400, body: { error: out.error === 'not allowed' ? 'not allowed' : 'bad', message: out.error ?? '' } }; }
     return { status: 200, body: { id: out.id, moderation } };
-  } catch { return { status: 502, body: { error: 'down' } }; }
+  } catch { await ledger.refund(ip, day); return { status: 502, body: { error: 'down' } }; }
 }
 
 export const onRequestPost = async ({ request, env }: { request: Request; env: Env }): Promise<Response> => {
