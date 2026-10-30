@@ -104,13 +104,13 @@
   "routes": [
     {
       "name": "bar to bar",
-      "ticks": 1260,
+      "ticks": 1267,
       "bars": 2,
       "chosen": false
     },
     {
       "name": "skip the second bar",
-      "ticks": 1123,
+      "ticks": 1130,
       "bars": 1,
       "chosen": true
     }
@@ -123,7 +123,7 @@
       ],
       "how": "pump 1.74 s on the bar you hold, let go, and fly past bar 2",
       "secondsSaved": 1.14,
-      "seconds": 9.36,
+      "seconds": 9.42,
       "pumpSeconds": 1.74,
       "windowMs": null,
       "designed": true,

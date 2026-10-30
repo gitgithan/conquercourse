@@ -34,7 +34,7 @@ export interface CourseData {
   windows?: import('../sim/ideal').Window[]; // how wide the window of good presses is at each take-off edge (in metres along the run), stored with the plan: the fall tip uses it, and a search on the page would freeze it
   plan?: import('../sim/ideal').Plan; // a proved line for the whole course from its start (generated courses carry it: a whole-course proof is slow)
   jumpKeep?: number; // share of the forward speed kept when a jump takes off (default 1: none lost); below 1, a jump costs speed and a vault, which keeps more, pays
-  grabReach?: number; // m, how close the hands must be to a bar for the first grab (default 0.35, src/sim/holds.ts); the Training course sets 0.15 so the drawn hands touch the bar (CC-193)
+  grabReach?: number; // m, how close the hands must be to a bar for the first grab (default 0.15, src/sim/holds.ts, so the drawn hands touch the bar; CC-193)
   holds?: { x: number; y: number }[]; // bars hanging in the air: where along the run and how high (side view)
   track?: import('../sim/cart').TrackData; // a coaster: the cart rolls along these rails from the first push (src/sim/cart.ts)
   uMap?: { u0: number; u1: number; x0: number }[]; // editor lanes: where each run of ground came from

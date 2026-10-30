@@ -24,7 +24,7 @@ export interface HangParams {
 
 // grip 5.5: strain-gauge bars measured about 3.5 to 3.7 body weights in ordinary forward and backward giant swings (Kopp and Reid 1980),
 // an estimate of 4.9 at the top of the pull (Cureton 1939), and 5 to 6.6 for an elite gymnast in strapped grips (Cagran et al. 2009).
-export const DEFAULT_HANG: HangParams = { handHeight: 2.1, reach: 0.35, regrabX: 1.2, regrabY: 0.6, catchKeep: 0.35, pump: 6, grip: 5.5, drag: 0.04, gravity: GRAVITY };
+export const DEFAULT_HANG: HangParams = { handHeight: 2.1, reach: 0.15, regrabX: 1.2, regrabY: 0.6, catchKeep: 0.35, pump: 6, grip: 5.5, drag: 0.04, gravity: GRAVITY };
 
 export interface Hang {
   hold: number; // index into the course's holds

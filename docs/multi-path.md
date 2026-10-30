@@ -60,7 +60,7 @@ Built as a thin slice in CC-224 and CC-225.
 
 ## How it works in the slice
 - The course `two-ways` has a fork at x 20 and a join at x 40.
-- The high way uses two bars at x 27 and 30.5, 3.4 m up.
+- The high way uses two bars at x 27 and 30.5, 2.8 m up (the hands now reach 0.15 m, so the bars hang lower).
 - The low way drops 6.7 m to a deep floor, jumps a gap and climbs two walls (a ledge, then the join wall).
 - `routeCourse` makes a copy of the course with the other way's stones and bars removed.
 - The ideal-run search runs on that copy, so each way gets its own proven line.

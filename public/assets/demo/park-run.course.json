@@ -647,5 +647,56 @@
     ],
     "releaseAfter": 60,
     "bouncePress": 8
-  }
+  },
+  "windows": [
+    {
+      "obstacle": "edge at 6 m",
+      "best": 5.14,
+      "lo": 4.3,
+      "hi": 5.96,
+      "widthMs": 227.02702702702703
+    },
+    {
+      "obstacle": "edge at 13.9 m",
+      "best": 12.38,
+      "lo": 10.9,
+      "hi": 13.84,
+      "widthMs": 399.9999999999999
+    },
+    {
+      "obstacle": "edge at 20.1 m",
+      "best": 18.58,
+      "lo": 17.1,
+      "hi": 20.04,
+      "widthMs": 399.9999999999997
+    },
+    {
+      "obstacle": "edge at 25.7 m",
+      "best": 24.2,
+      "lo": 22.7,
+      "hi": 25.7,
+      "widthMs": 408.1081081081081
+    },
+    {
+      "obstacle": "edge at 30.1 m",
+      "best": 28.6,
+      "lo": 27.1,
+      "hi": 30.1,
+      "widthMs": 408.1081081081081
+    },
+    {
+      "obstacle": "edge at 35.8 m",
+      "best": 33.98,
+      "lo": 32.8,
+      "hi": 35.8,
+      "widthMs": 408.1081081081081
+    },
+    {
+      "obstacle": "edge at 41.8 m",
+      "best": 40.26,
+      "lo": 38.8,
+      "hi": 41.72,
+      "widthMs": 397.2972972972975
+    }
+  ]
 }
