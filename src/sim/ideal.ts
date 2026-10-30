@@ -13,6 +13,7 @@ import { bandParams, reachableStretch, slackX, stretchAt } from './band';
 // The ideal run: where to press Space at each obstacle, found by trying the simulator, and how wide the
 // window of good presses is. It is the difficulty of each obstacle as a number.
 export interface Plan {
+  startDelay?: number; // ticks to stand still before the run starts: a course with timed balls (src/sim/shots.ts) is run between two balls
   jumpXs: number[]; // press at the first moment the feet are on the ground at or past this x
   releaseAfter: number; // ticks after catching the rope
   bouncePress: number; // ticks after touching the trampoline bed
@@ -44,6 +45,7 @@ export interface Window {
 type PlanState = { next: number; caught: number | null; bedAt: number | null; hangAt?: number | null; hangs?: number; vnext?: number; cnext?: number; inClimb?: boolean; fnext?: number; airSince?: number | null; bandTurned?: boolean };
 // The launcher (recoil): fire at a place along the run, or a number of ticks after the take-off (a shot in the air adds to a jump)
 export function inputFor(plan: Plan, w: WorldState, state: PlanState, course?: CourseData): RunnerInput {
+  if (plan.startDelay && w.runner.tick < plan.startDelay) return NO_INPUT;
   const inp = inputForBase(plan, w, state, course);
   if (w.mode !== 'run') return inp;
   if (w.runner.grounded) state.airSince = null; else if (state.airSince == null) state.airSince = w.runner.tick;
@@ -141,7 +143,7 @@ export function clearedCached(course: CourseData): boolean {
   return cleared;
 }
 
-export function playPlan(course: CourseData, plan: Plan, maxTicks = 120 * 80, trace?: (w: WorldState) => void): RunResult { // trace sees the world before the first tick and after every tick (the ghost keeps where the runner was)
+export function playPlan(course: CourseData, plan: Plan, maxTicks = 120 * 80 + (plan.startDelay ?? 0), trace?: (w: WorldState) => void): RunResult { // trace sees the world before the first tick and after every tick (the ghost keeps where the runner was)
   let w = newWorld(course);
   const st = { next: 0, caught: null as number | null, bedAt: null as number | null, hangAt: null as number | null, hangs: 0, vnext: 0, cnext: 0, inClimb: false, fnext: 0, airSince: null as number | null, bandTurned: false };
   const events: GameEvent[] = [];
@@ -157,7 +159,7 @@ export function playPlan(course: CourseData, plan: Plan, maxTicks = 120 * 80, tr
     if (!Number.isFinite(w.runner.x)) break; // a state that went to NaN has nowhere to go
     maxX = Math.max(maxX, w.runner.x);
     // a runner pressed against something it cannot pass will never get anywhere: stop after 1.5 s of standing still (it only costs time to go on)
-    still = w.mode === 'run' && w.runner.grounded && Math.abs(w.runner.vx) < 0.01 ? still + 1 : 0;
+    still = w.mode === 'run' && w.runner.grounded && Math.abs(w.runner.vx) < 0.01 && w.runner.tick >= (plan.startDelay ?? 0) ? still + 1 : 0; // waiting at the start on purpose is not stuck
     if (still > 180) break;
   }
   meter.ticks += spent;
@@ -256,11 +258,25 @@ export function searchIdealRun(course: CourseData, opts: { routes?: boolean } = 
 }
 
 // `alt` is the second-best branch (see the end of the search): for an edge index, which share (0 to 1) of the range of presses is taken, instead of the middle of the best ones.
-export function* searchGen(course: CourseData, opts: { routes?: boolean; alt?: Record<number, number> } = {}): Gen<SearchResult> {
+export function* searchGen(course: CourseData, opts: { routes?: boolean; alt?: Record<number, number>; delay?: number } = {}): Gen<SearchResult> {
+  if (!course.shots?.length) return yield* searchGenBase(course, opts);
+  // Timed balls: waiting is a move. The moves are found as if the balls were not there; then the run waits at the start, a twentieth of a second more each time,
+  // until it passes between the balls with a tenth of a second to spare either side (a person is never exactly on time).
+  const plain = yield* searchGenBase({ ...course, shots: undefined }, opts);
+  if (!plain.cleared) return plain;
+  const ok = (d: number): boolean => playPlan(course, { ...plain.plan, startDelay: d }).world.outcome === 'cleared';
+  const SPARE = 12; // ticks (0.1 s)
+  for (let d = 0; d <= 120 * 120; d += 6) {
+    if (ok(d) && (d < SPARE || ok(d - SPARE)) && ok(d + SPARE)) return { ...plain, plan: { ...plain.plan, startDelay: d } };
+  }
+  for (let d = 0; d <= 120 * 120; d += 6) if (ok(d)) return { ...plain, plan: { ...plain.plan, startDelay: d } };
+  return { ...plain, cleared: false };
+}
+export function* searchGenBase(course: CourseData, opts: { routes?: boolean; alt?: Record<number, number>; delay?: number } = {}): Gen<SearchResult> {
   if (course.track) return searchCartRun(course);
   if (course.drone) return searchDroneRun(course);
   const holds = course.holds ?? [];
-  const plan: Plan = { jumpXs: [], releaseAfter: 60, bouncePress: 8, ...(holds.length ? { hands: true, hangTicks: holds.map(() => 90) } : {}) };
+  const plan: Plan = { jumpXs: [], releaseAfter: 60, bouncePress: 8, ...(opts.delay ? { startDelay: opts.delay } : {}), ...(holds.length ? { hands: true, hangTicks: holds.map(() => 90) } : {}) };
   const windows: Window[] = [];
   const ties: number[] = []; // the plain take-off edges that were planned: where the greedy choice may strand a later edge
   const tre = course.trebuchet;

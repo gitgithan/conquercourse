@@ -71,3 +71,21 @@ describe('courses without shots', () => {
     expect(courseHash({ ...plain, shots: [L] } as CourseData)).not.toBe(courseHash(plain));
   });
 });
+
+describe('the ball switch (CC-240)', () => {
+  it('the balls are off unless ?balls=1', async () => {
+    const { ballsOn } = await import('../src/sim/shots');
+    expect(ballsOn(new URLSearchParams(''))).toBe(false);
+    expect(ballsOn(new URLSearchParams('balls=0'))).toBe(false);
+    expect(ballsOn(new URLSearchParams('balls=1'))).toBe(true);
+  });
+  it('the First Course has no balls in its data, so its plans and hashes stay valid', () => {
+    expect((base as unknown as CourseData).shots).toBeUndefined();
+  });
+  it('with the three launchers the ideal run waits at the start and still clears', async () => {
+    const { BALL_LAUNCHERS } = await import('../src/sim/shots');
+    const { searchIdealRun } = await import('../src/sim/ideal');
+    const r = searchIdealRun({ ...(base as unknown as CourseData), shots: BALL_LAUNCHERS });
+    expect(r.cleared).toBe(true);
+  });
+});

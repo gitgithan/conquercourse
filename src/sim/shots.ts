@@ -57,3 +57,13 @@ export function hitsBody(b: { x: number; y: number; r: number }, x: number, y: n
 export function ballHit(shots: ShotLauncher[], tick: number, x: number, y: number, gravity = GRAVITY): FlyingBall | null {
   return ballsAt(shots, tick, gravity).find((b) => hitsBody(b, x, y)) ?? null;
 }
+
+/** The switch: ?balls=1 adds the timed balls to the First Course. They are off by default: no beat was found that keeps every checkpoint start clear (docs/timed-balls.md). */
+export const ballsOn = (params: URLSearchParams): boolean => params.get('balls') === '1';
+
+/** The three launchers of the First Course: a low one before the rope, a low one before the trampoline, and a high one over the last deck. */
+export const BALL_LAUNCHERS: ShotLauncher[] = [
+  { x: 24, y: 1.2, vx: -20, vy: 2, every: 8, phase: 8 },
+  { x: 52, y: 1.5, vx: -25, vy: 2, every: 9, phase: 9 },
+  { x: 76, y: 5.8, vx: -25, vy: 2, every: 10, phase: 2.2 },
+];
