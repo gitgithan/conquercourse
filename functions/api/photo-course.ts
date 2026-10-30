@@ -3,10 +3,10 @@
 // Same key and defences as /api/designer (key only in the BASETEN_API_KEY secret, reasoning text dropped), plus: only a small JPEG or PNG, and a tighter rate limit.
 import { PHOTO_PROMPT } from '../../src/slice/photo-course';
 import { limited, MAX_TOKENS, MODEL, URL_CHAT } from './designer';
+import { json } from '../_lib/http';
 
 interface Env { BASETEN_API_KEY?: string }
 export const MAX_PHOTO_BODY = 600_000; // about a 768 px JPEG as base64
-const json = (body: unknown, status = 200) => new Response(JSON.stringify(body), { status, headers: { 'content-type': 'application/json' } });
 
 export async function askPhoto(key: string, b: Record<string, unknown>, fetcher: typeof fetch = fetch): Promise<{ status: number; body: { reply?: string; error?: string } }> {
   const image = typeof b.image === 'string' ? b.image : '';

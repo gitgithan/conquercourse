@@ -3,12 +3,12 @@
 // A broken or off-list answer gives {tip: null}: the card simply shows no tip. Same key and defences as /api/designer.
 import { MOVE_TIP_PROMPT, parseTip, type Tip } from '../../src/slice/move-tips';
 import { limited, MAX_TOKENS, MODEL, URL_CHAT } from './designer';
+import { json } from '../_lib/http';
 
 const MORE_TOKENS = 8000; // Muse Spark Open thinks before it answers; if it spent all of MAX_TOKENS thinking, ask once more with more room
 
 interface Env { BASETEN_API_KEY?: string }
 export const MAX_IMAGE = 600_000;
-const json = (body: unknown, status = 200) => new Response(JSON.stringify(body), { status, headers: { 'content-type': 'application/json' } });
 
 export async function askTip(key: string, b: Record<string, unknown>, fetcher: typeof fetch = fetch): Promise<{ status: number; body: { tip: Tip | null; error?: string } }> {
   const name = typeof b.name === 'string' ? b.name.replace(/[^\w \-'.,]/g, '').slice(0, 60).trim() : '';

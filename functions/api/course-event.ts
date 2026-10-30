@@ -1,8 +1,8 @@
+import { json } from '../_lib/http';
 // POST /api/course-event: one start, failure, or success event per course attempt.
 interface Env { DB: { prepare(sql: string): { bind(...v: unknown[]): { run(): Promise<unknown>; first<T>(): Promise<T | null> } } } }
 
 const clip = (v: unknown, n: number): string => String(v ?? '').slice(0, n);
-const json = (body: unknown, status = 200) => new Response(JSON.stringify(body), { status, headers: { 'content-type': 'application/json' } });
 // CC-211: only a stored course or a generated seed (both proved clearable) gets a log row; a made-up key or name is not saved.
 export const PROVEN_KEY = /^((demo|experiments\/osm)\/[a-z0-9-]{1,60}|generated-\d{1,9})$/;
 const events = new Set(['start', 'fail', 'success']);

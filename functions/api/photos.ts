@@ -1,3 +1,4 @@
+import { CORS, json as baseJson } from '../_lib/http';
 // /api/photos?id=123,456: a fresh picture address for up to three photos, from Mapillary (CC-90).
 // /api/photos?lat=55.9496&lon=-3.1904&r=60: the photos within r metres (10 to 100), used offline to refresh the allow-lists (scripts/photos_people.py).
 //   -> {photos: [{id, thumb, creator, capturedAt, compass}], cache: "hit" | "miss"}
@@ -13,8 +14,7 @@ export const LIMITS = { id: 120, search: 20 };
 export interface Shown { id: string; thumb: string; creator: string; capturedAt: number | null; compass: number | null }
 interface Raw { id?: string; thumb_1024_url?: string; creator?: { username?: string }; captured_at?: number; compass_angle?: number; computed_compass_angle?: number }
 
-const json = (body: unknown, status = 200, extra: Record<string, string> = {}) =>
-  new Response(JSON.stringify(body), { status, headers: { 'content-type': 'application/json', 'access-control-allow-origin': '*', ...extra } });
+const json = (body: unknown, status = 200, extra: Record<string, string> = {}) => baseJson(body, status, { ...CORS, ...extra });
 
 export const trim = (r: Raw): Shown | null => {
   if (!r.id || !r.thumb_1024_url || !/^\d{5,20}$/.test(r.id) || !/^https:\/\//.test(r.thumb_1024_url)) return null;

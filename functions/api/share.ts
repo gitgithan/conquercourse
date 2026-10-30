@@ -1,6 +1,7 @@
 // POST /api/share: store a run and answer with a short id (CC-219). The logic is in src/share/server.ts; this file is only the D1 side.
 import type { CourseData } from '../../src/course/course';
 import { createShare, type ShareEnv, type ShareRow, type ShareStore } from '../../src/share/server';
+import { json as baseJson } from '../_lib/http';
 
 interface Stmt { bind(...v: unknown[]): { run(): Promise<unknown>; first<T>(): Promise<T | null> } }
 export interface Env { DB: { prepare(sql: string): Stmt }; ASSETS: { fetch(url: string): Promise<Response> }; SHARE?: string }
@@ -36,7 +37,7 @@ export const shareEnv = (env: Env, request: Request): ShareEnv => ({
   },
 });
 
-export const json = (body: unknown, status = 200) => new Response(JSON.stringify(body), { status, headers: { 'content-type': 'application/json', 'cache-control': 'no-store' } });
+export const json = (body: unknown, status = 200) => baseJson(body, status, { 'cache-control': 'no-store' });
 
 export const onRequestPost = async ({ request, env }: { request: Request; env: Env }): Promise<Response> => {
   if (env.SHARE === 'off') return json({ error: 'off' }, 503);
