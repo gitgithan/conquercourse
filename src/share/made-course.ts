@@ -1,14 +1,14 @@
 // Share a course made in the editor (CC-136). The link carries the course itself (option A): no server, nothing stored.
 // A link is only as safe as what it opens, so the course is cleaned on the way out and again on the way in.
 import type { CourseData } from '../course/course';
+import { LOOKS_ONLY, fieldsOk } from '../course/schema';
 import { b64url, pipe, unb64url } from '../sim/replay';
 
 export const MAX_MADE_CHARS = 1700; // the packed course; with the keys the whole address stays under MAX_PARAM_CHARS (2000)
 export const SHARE_MAX_MADE_CHARS = 20_000; // with a short link (CC-219) the course lives on the server, so the 2000-character limit does not apply; the unpacked size cap below still does
 const MAX_RAW_CHARS = 60_000; // an unpacked course bigger than this is a bomb, not a course
 
-// Looks only, or worked out again from the platforms: none of these change where a runner can stand, so they stay home.
-const LOOKS_ONLY = ['scene', 'source', 'uMap', 'plan', 'routes', 'windows', 'shortcuts', 'designedShortcuts', 'off'] as const;
+// Which fields stay home (looks only, or worked out again) and what the others must look like: src/course/schema.ts.
 
 const KEYS = /^[A-Za-z0-9_]{1,24}$/;
 const BAD_KEYS = new Set(['__proto__', 'constructor', 'prototype']);
@@ -56,6 +56,7 @@ export function cleanCourse(raw: unknown): CourseData | null {
     if (c.version !== 1 || typeof c.name !== 'string' || !num(c.startX, -1e4, 1e4) || !num(c.finishX, -1e4, 1e4) || !num(c.jumpSpeed, 1, 30)) return null;
     if (!t || !Array.isArray(t.platforms) || t.platforms.length < 1 || t.platforms.length > 60 || typeof t.waterY !== 'number') return null;
     for (const p of t.platforms as Record<string, unknown>[]) if (!p || !num(p.x0, -1e4, 1e4) || !num(p.x1, -1e4, 1e4) || !num(p.top, -1e3, 1e3)) return null;
+    if (!fieldsOk(c)) return null;
     return c as unknown as CourseData;
   } catch { return null; }
 }
