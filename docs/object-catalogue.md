@@ -65,7 +65,7 @@
   - Both count: a lift is about 2 cents, a triage (mask, check, embedding) about half a cent, so refused photos use the dollars too.
   - At 2 cents a lift, 100 objects is about $2, so with triage the object cap usually comes first.
 - Per player: 3 objects a day (the owner can change it).
-- Per hour: the day is cut into 24 slices of one twenty-fourth (about 4 objects), so one cheater can empty one slice, not the day.
+- Per hour: the day is cut into 24 slices of one twenty-fourth (about 4 objects).
 - When a limit is reached, the dialog says "Today's makers are used up, try tomorrow" and still offers the catalogue search.
 - Every refusal is counted, so the owner sees demand before raising a limit.
 - The knobs live in one D1 row `settings(key, value)`, read with a 60 second cache; defaults are in code.
@@ -73,23 +73,9 @@
   - Changing a live D1 row is the owner's action; agents write the script and never run it.
 - The day counters are one D1 row per day, bumped with a single conditional update, so two requests cannot both take the last slot.
 
-## Who is a player, and how to make cheating a nuisance
-- Today nobody is identified.
-  - The routes count by `cf-connecting-ip` in a memory map inside one Worker instance.
-  - Cloudflare runs many instances in many places, so that count resets and does not add up: it stops a loop, not a cheat.
-- The worst a cheater can do is spend the day's $3.
-  - So the goal is not to be perfect; it is to make the cheater's cost high and the honest player's cost zero.
-- Layers, cheapest first, with no account, email, phone number or name:
-  1. **One address key.** IPv4 as is; IPv6 cut to its /64 prefix (one home gets billions of IPv6 addresses, so the full address would be a loophole).
-  2. **One anonymous id.** The server sets a random id in a cookie on the first visit (one year); clearing it is a visible act.
-  3. **Both count, either blocks.** A cheater must change address and clear the cookie for every extra object.
-  4. **Same photo, same object.** Exact and near duplicates cost nothing and do not count against a player, so honest retries are free and repeats by a cheater add nothing.
-  5. **A human check on Make only.** Cloudflare Turnstile (free, normally invisible) stops scripts; an average player sees nothing.
-     - It needs one widget in the owner's Cloudflare account, a site key in the page and a secret on the server.
-  6. **Hourly slices and the global cap** from the Budgets section decide the rest.
-- Not done on purpose: device fingerprinting (it ranks as tracking and breaks for honest people), accounts, and phone checks.
-- Honest gap: someone with many addresses and patience can still take a slice; the slices and the $3 cap bound the loss.
-- Needs a test: a script that makes 20 requests from one address and one cookie, from one address with new cookies, and from new addresses with one cookie, and records which are stopped.
+## Who is a player
+- Players are anonymous: no account, name, email, age or phone.
+- The limits in Budgets apply per player; how a player is told apart is kept out of the repo.
 
 ## Similarity search: what and where
 - **Embedding:** a small open image model (DINOv2 or SigLIP, to be chosen by a quick test on the 19 objects plus the 14 hard photos), run on the L4 in the mask step.
@@ -114,11 +100,10 @@
 - Indexes: (`role`, `height_m`) for the browse list; (`created_by`, `day`) for the player budget; (`object_id`) on uses.
 
 ## What waits for the owner
-- Turnstile: creating the widget in the owner's Cloudflare account.
-- Nothing about who the player is: the cap uses address and cookie only (the owner never wants real name, email or age asked).
+- Nothing about who the player is (the owner never wants real name, email or age asked).
 - Turning on Publish at all (moderation of what the whole world sees is the owner's).
 
 ## Known gaps
 - No similarity test has run: the embedding model is not chosen and no hit rate exists.
 - The glb size per object is a mean of 19 objects; hard photos may be larger.
-- Per-address caps live in one Worker's memory today; the D1 counters in Budgets replace them.
+- The per-player caps live in one Worker's memory today; the D1 counters in Budgets replace them.
