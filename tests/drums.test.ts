@@ -11,8 +11,8 @@ describe('the drum lane', () => {
     expect(drums.length).toBeGreaterThanOrEqual(5);
     for (let i = 1; i < drums.length; i++) expect(drums[i].x).toBeGreaterThanOrEqual(drums[i - 1].x - 1e-6);
   });
-  it('names the rope let-go and the trampoline press', () => {
-    expect(drums.some((d) => d.what === 'let go')).toBe(true);
+  it('names the rope release (letting go of E) and the trampoline press', () => {
+    expect(drums.some((d) => d.what === 'release')).toBe(true);
     expect(drums.some((d) => d.what === 'bounce')).toBe(true);
   });
   it('puts every jump drum on solid ground at the take-off edge side of its obstacle', () => {

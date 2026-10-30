@@ -5,12 +5,11 @@
   "plan": {
     "jumpXs": [
       12.5,
-      23.48,
+      23.5,
       75.5,
-      90.14,
-      98.5
+      89.14
     ],
-    "releaseAfter": 60,
+    "releaseAfter": 82,
     "bouncePress": 8
   },
   "windows": [
@@ -18,15 +17,15 @@
       "obstacle": "edge at 14 m",
       "best": 12.5,
       "lo": 11,
-      "hi": 13.98,
-      "widthMs": 405
+      "hi": 14,
+      "widthMs": 408
     },
     {
       "obstacle": "edge at 25 m",
-      "best": 23.48,
+      "best": 23.5,
       "lo": 22,
-      "hi": 24.94,
-      "widthMs": 400
+      "hi": 25,
+      "widthMs": 408
     },
     {
       "obstacle": "edge at 77 m",
@@ -37,24 +36,17 @@
     },
     {
       "obstacle": "rope release",
-      "best": 60,
-      "lo": 24,
-      "hi": 96,
-      "widthMs": 617
+      "best": 82,
+      "lo": 0,
+      "hi": 162,
+      "widthMs": 1367
     },
     {
       "obstacle": "edge at 91 m",
-      "best": 90.14,
-      "lo": 89.26,
-      "hi": 91,
-      "widthMs": 238
-    },
-    {
-      "obstacle": "edge at 100 m",
-      "best": 98.5,
-      "lo": 97,
-      "hi": 100,
-      "widthMs": 408
+      "best": 89.14,
+      "lo": 88,
+      "hi": 90.26,
+      "widthMs": 308
     }
   ]
 }

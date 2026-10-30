@@ -258,8 +258,8 @@ function stepWorldPlain(w: WorldState, input: RunnerInput, course: CourseData, p
     n.wall = { result, path: wallPath(result, course.wall.x0, wp.height), index: 0, x0: course.wall.x0, v: r.vx };
   }
 
-  // the rope: airborne hands meet it
-  if (course.rope && !course.off?.includes('rope') && n.mode === 'run' && !r.grounded && r.tick >= w.noCatchUntil) {
+  // the rope: airborne hands meet it, with E held
+  if (course.rope && !course.off?.includes('rope') && n.mode === 'run' && !r.grounded && r.tick >= w.noCatchUntil && (input.handL || input.handR)) { // the rope never catches by itself: hold E
     const sw = tryCatch(ropeParams(course), r.x, r.y, r.vx, r.vy, 0);
     if (sw) {
       n.mode = 'swing';
@@ -354,7 +354,7 @@ function stepSwing(w: WorldState, input: RunnerInput, course: CourseData): World
   const rp = ropeParams(course);
   const tick = w.runner.tick + 1;
   const events: GameEvent[] = [];
-  if (input.jump) {
+  if (input.jump || !(input.handL || input.handR)) { // let go of E (or press jump) to let go of the rope
     const rel = release(rp, w.swing!);
     events.push({ tick, type: 'rope-release', detail: { vx: rel.vx, vy: rel.vy } });
     return { ...w, mode: 'run', swing: null, noCatchUntil: tick + 60, events, runner: { ...w.runner, tick, x: rel.x, y: rel.y, vx: rel.vx, vy: rel.vy, grounded: false } };

@@ -52,7 +52,7 @@ export function drumsFor(course: CourseData, plan: Plan = course.plan ?? searchI
     if (prevMode !== 'swing' && w.mode === 'swing') drums.push({ x: w.runner.x, what: 'grab' }); // E closes on the rope
     if (prevMode !== 'hang' && w.mode === 'hang') drums.push({ x: w.runner.x, what: 'grab' }); // E closes on the bar
     if (prevMode !== 'climb' && w.mode === 'climb') drums.push({ x: w.runner.x, what: 'grab' }); // E closes on a wall's edge
-    if (prevMode === 'hang' && w.mode !== 'hang') drums.push({ x: w.runner.x, what: 'release' }); // both hands let go
+    if ((prevMode === 'hang' && w.mode !== 'hang') || (prevMode === 'swing' && w.mode !== 'swing')) drums.push({ x: w.runner.x, what: 'release' }); // both hands let go (a bar, or the rope: letting go of E, CC-245)
     if (prevMode !== 'drone' && w.mode === 'drone') drums.push({ x: w.runner.x, what: 'board' }); // hold E on the pad
     prevMode = w.mode;
     still = w.mode === 'run' && w.runner.grounded && Math.abs(w.runner.vx) < 0.01 ? still + 1 : 0;
