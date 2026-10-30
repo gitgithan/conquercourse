@@ -612,3 +612,19 @@
 - **`pipelines/my_move.py`**, **`scripts/my-move-check.mjs`**: ours; no third-party material.
 
 - Licence note: replace the MusicGen music (`public/assets/music/*.ogg`, model weights CC BY-NC 4.0) before any commercial release.
+
+## Before a sale: what to swap or keep crediting (checked 2026-10-30, CC-220)
+- This is the to-do list for a paid release (Steam or other); none of it blocks the hackathon demo.
+- Not legal advice: the ShareAlike rows below are the ones to settle with a lawyer or to replace.
+
+| Item | Licence | Why it matters | Swap plan |
+|---|---|---|---|
+| `public/assets/objects/hydrant-red.glb` | CC BY-SA 4.0 | the 3D object is an adaptation of the photo, so ShareAlike may apply to the file | lift the same kind of object from a CC0 or CC BY photo and replace the file; used only as an editor library piece |
+| `public/assets/objects/pipe-concrete.glb` | CC BY-SA 2.0 | same | same |
+| `public/assets/objects/railing-red.glb` | CC BY-SA 4.0 | same | same |
+| `public/assets/objects/box-skate-03.glb`, `log-driftwood.glb`, `planter-concrete.glb`, `bench-concrete.glb` | CC BY 2.0 or 4.0 | credit is required wherever shown | keep: the credit already shows with the object; check it again in any paid build screen |
+| `public/assets/music/*.ogg` | made with MusicGen (weights CC BY-NC 4.0) | non-commercial weights; whether the output may be sold is unsettled | regenerate with a permissive model or buy or commission music; one file swap per track |
+| the other 12 shipped objects | CC0 | none | keep |
+
+- The three ShareAlike objects are in the editor's library only; no shipped course needs them, so removing them from `public/assets/objects/index.json` is the cheapest fix.
+- Photos used in the Park and the place galleries have their own rows above; check any CC BY-SA row there the same way before a sale.
