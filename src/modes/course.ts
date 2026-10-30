@@ -37,6 +37,7 @@ import { ouch } from '../sim/landing';
 import { logTicks } from '../sim/run-checks';
 import { track, trackCourseEvent, courseKey, sendClear } from '../ui/feedback';
 import { statsOn, statKey } from '../ui/course-stats';
+import { boardBox, boardOn, rememberBest } from '../ui/leaderboard';
 import { createRookieActor } from '../render/actor';
 import { lookSwitchOn, lookUrl } from '../render/look';
 import { makeObstacle } from '../course/collide';
@@ -781,7 +782,10 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
     const path = params.get('course') ?? '';
     if (!statsOn(params) || botMode || demo || idealWhole || params.get('mode') || !/^\/assets\/(demo|experiments\/osm)\//.test(path)) return;
     const mine = ghostCtl?.myRun();
-    if (mine) void encodeLog(mine).then((keys) => sendClear(statKey(path), analyticsRunId, courseHash(course), keys, logTicks(mine)));
+    if (mine) {
+      if (boardOn(params)) rememberBest(statKey(path), courseHash(course), logTicks(mine));
+      void encodeLog(mine).then((keys) => sendClear(statKey(path), analyticsRunId, courseHash(course), keys, logTicks(mine)));
+    }
   }
   let everCleared = false;
   try { everCleared = localStorage.getItem('cc.course.cleared') === '1'; } catch { /* keep going */ }
@@ -1448,6 +1452,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
           close: () => { panel.style.display = 'none'; },
         }, false, ghostCtl?.reportPath() ?? null, !reportSectionsOn(params));
         addHardest(body);
+        { const bp = params.get('course') ?? ''; if (boardOn(params) && !botMode && !demo && !idealWhole && !params.get('mode') && /^\/assets\/(demo|experiments\/osm)\//.test(bp)) body.querySelector('#report-actions')?.before(boardBox(statKey(bp), courseHash(course))); } // CC-108
         if (ghostLine) body.querySelector('#report-ghost-slot')?.append(ghostLine);
         if (ghostCtl && !botMode && !demo && !idealWhole) body.querySelector('#report-actions')?.prepend(...ghostCtl.reportActions(() => { panel.style.display = 'none'; retryX = course.startX; restart(course.startX); }));
         if (shareOn(params) && !botMode && !demo && !idealWhole && !params.get('mode')) {

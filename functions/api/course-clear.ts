@@ -4,6 +4,7 @@
 import type { CourseData } from '../../src/course/course';
 import { courseHash, decodeLog, verifyLog } from '../../src/sim/replay';
 import { beatsIdeal, checkRun, MAX_CLEAR_TICKS, physicsFloorTicks, rateLimited } from '../../src/sim/run-checks';
+import { nickOk, tidyNick } from '../../src/share/nick';
 import { json } from '../_lib/http';
 
 interface Stmt { bind(...v: unknown[]): { run(): Promise<unknown>; first<T>(): Promise<T | null> } }
@@ -45,6 +46,7 @@ export const onRequestPost = async ({ request, env }: { request: Request; env: E
   const session = String(b.session ?? ''), runId = String(b.runId ?? ''), key = String(b.courseKey ?? ''), hash = String(b.hash ?? ''), keys = String(b.keys ?? '');
   const claimed = b.claimedTicks === undefined ? undefined : Number(b.claimedTicks);
   if (!ID.test(session) || !ID.test(runId) || !KEY.test(key) || !/^[a-z0-9]{1,8}$/.test(hash) || !keys) return json({ error: 'bad run' }, 400);
+  const nick = nickOk(String(b.nick ?? '')) ? tidyNick(String(b.nick ?? '')) : ''; // the tag the board shows; a blocked word becomes no tag
   if (claimed !== undefined && !Number.isInteger(claimed)) return json({ error: 'bad run' }, 400);
   // the same slow-down as the start and fail events: one browser cannot send a flood
   const recent = await env.DB.prepare("SELECT COUNT(*) AS n FROM course_events WHERE session = ? AND ts > datetime('now', '-1 hour')").bind(session).first<{ n: number }>();
@@ -81,6 +83,8 @@ export const onRequestPost = async ({ request, env }: { request: Request; env: E
   if (cols) {
     await env.DB.prepare('UPDATE course_clears SET ticks = ?, verified = 1, beats_ideal = ? WHERE run_id = ?').bind(v.ticks, beats ? 1 : 0, runId).run();
     // a run that beats the stored line keeps its keys, so the search can learn from it (migration 0005; without the column nothing happens)
+    // CC-108: every verified run keeps its keys and tag, so a board entry can be played as a ghost (migration 0007; without the columns nothing happens)
+    try { await env.DB.prepare('UPDATE course_clears SET keys = ?, nick = ? WHERE run_id = ?').bind(keys, nick, runId).run(); } catch { /* no nick column yet */ }
     if (beats) { try { await env.DB.prepare('UPDATE course_clears SET keys = ? WHERE run_id = ?').bind(keys, runId).run(); } catch { /* no keys column yet */ } }
   } else {
     // INSERT OR IGNORE: the same run, or the same keys sent twice, count once

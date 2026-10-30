@@ -9,7 +9,7 @@ export function localD1(upTo = '9999') {
   const db = {
     prepare: (q: string) => {
       const make = (v: unknown[]) => ({
-        run: async () => { sql.prepare(q).run(...(v as never[])); return {}; },
+        run: async () => ({ meta: { changes: Number(sql.prepare(q).run(...(v as never[])).changes) } }),
         first: async <T>() => (sql.prepare(q).get(...(v as never[])) as T | undefined) ?? null,
         all: async () => ({ results: sql.prepare(q).all(...(v as never[])) as Record<string, unknown>[] }),
       });
