@@ -1,12 +1,10 @@
-import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
-import type { CourseData } from '../src/course/course';
 import { playPlan } from '../src/sim/ideal';
 import {
   REPLAY_VERSION, courseHash, decodeLog, encodeLog, gapSeconds, gapWords, makeChallengeParam, readChallengeParam, recordPlan, reachTick, trackFromPlan, verifyLog,
 } from '../src/sim/replay';
+import { loadCourseFile as load } from './helpers/course';
 
-const load = (f: string) => JSON.parse(readFileSync(f, 'utf8')) as CourseData;
 const byName = (name: string) => `public/assets/demo/${name}`;
 const samples = ['lache.course.json', 'climb.course.json', 'drop.course.json', 'coaster.course.json', 'plank.course.json', 'stack.course.json'];
 
