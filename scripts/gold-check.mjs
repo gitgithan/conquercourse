@@ -34,6 +34,10 @@ try {
     if (mode === 'new') check('one fall: gold on one obstacle, label and legend', g.hard === 1 && g.legend === 'block' && /Hardest for you: .* \(1 fall\)/.test(g.text) && /Gold marks/.test(g.text) && /Hardest for you/.test(g.block ?? ''));
     else check('?gold=old: no hardest label', g.hard === 0 && g.block === null);
     if (mode === 'new') {
+      const m = await page.evaluate(() => ({ band: document.querySelectorAll('[aria-label="Run report"] svg rect[fill="#ffe38a"]').length, trampGreen: document.querySelectorAll('svg rect[fill="#6fb7a8"]').length, legend: /Gold band: the obstacle you fell at most/.test(document.body.innerText) }));
+      check('one fall: a gold band on the report map, a legend, and no trampoline green', m.band === 1 && m.legend && m.trampGreen === 0);
+    }
+    if (mode === 'new') {
       await page.keyboard.press('KeyR'); await page.waitForTimeout(800);
       await fall(page); g = await gold(page);
       await page.screenshot({ path: `${out}/new-3-two-falls.png` });

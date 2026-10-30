@@ -117,6 +117,8 @@ export function resamplePath(p: { x: number; y: number }[]): { x: number; y: num
   return out;
 }
 
+export interface HardBand { x0: number; x1: number; name: string; falls: number }
+export const HARD_BAND = '#ffe38a', HARD_LINE = '#d9a521';
 export const YOU_COLOUR = '#0f6b5c', GHOST_COLOUR = '#e08a00';
 /** The move icons in the path picture (CC-192): grey like the strip, because gold means only "the obstacle you fell at most" (CC-183); ?gold=old keeps the old gold circles. */
 /** CC-215: the trampoline bed in the path picture was amber on every report, so it looked like the gold obstacle; it is teal now (amber only with ?gold=old). */
@@ -125,7 +127,7 @@ export const moveIconColours = (old = goldOld()) => (old ? { fill: '#fff8dc', ri
 
 /** The course in side view with the player's path (green), the selected ghost's path (amber, both solid) and a small icon where each move happened.
  *  `ghost` null: only the player's line. `old` (?report=old): the first picture, with the best line gold and dashed and the dashed finish line. */
-export function pathPicture(course: CourseData, log: RunLog, best: BestLine | null, ghost: { x: number; y: number }[] | null = null, old = false): SVGElement {
+export function pathPicture(course: CourseData, log: RunLog, best: BestLine | null, ghost: { x: number; y: number }[] | null = null, old = false, hard: HardBand | null = null): SVGElement {
   const W = 600, H = 150, pad = 8;
   const mine = resamplePath(log.path), theirs = old ? best?.log.path ?? null : ghost ? resamplePath(ghost) : null;
   const pts = [...mine, ...(theirs ?? [])];
@@ -136,7 +138,12 @@ export function pathPicture(course: CourseData, log: RunLog, best: BestLine | nu
   const svg = sv('svg', { viewBox: `0 0 ${W} ${H}`, role: 'img', 'aria-label': 'The course from the side with the path you ran and where you jumped, vaulted, climbed and rolled', width: '100%' });
   svg.style.cssText = 'display:block;background:#f4f8f5;border-radius:10px;max-height:170px';
   sv('rect', { x: 0, y: Y(course.terrain.waterY), width: W, height: H, fill: '#cfe6f2' }, svg);
-  for (const p of course.terrain.platforms) sv('rect', { x: X(p.x0), y: Y(p.top), width: Math.max(1, X(p.x1) - X(p.x0)), height: Math.max(2, Y(y0) - Y(p.top)), fill: p.bouncy ? bouncyFill() : '#b9c2bb' }, svg);
+  for (const p of course.terrain.platforms) sv('rect', { x: X(p.x0), y: Y(p.top), width: Math.max(1, X(p.x1) - X(p.x0)), height: Math.max(2, Y(y0) - Y(p.top)), fill: p.bouncy && old ? bouncyFill(true) : '#b9c2bb' }, svg);
+  if (hard) { // CC-183: the obstacle you fell at most this session, between two vertical lines on a light gold band (nothing is tinted when there is no fall)
+    const bx0 = X(hard.x0), bx1 = X(hard.x1);
+    sv('rect', { x: bx0, y: 0, width: Math.max(2, bx1 - bx0), height: H, fill: HARD_BAND, 'fill-opacity': 0.55 }, svg);
+    for (const bx of [bx0, bx1]) sv('line', { x1: bx, x2: bx, y1: 0, y2: H, stroke: HARD_LINE, 'stroke-width': 1.5 }, svg);
+  }
   for (const h of course.holds ?? []) sv('circle', { cx: X(h.x), cy: Y(h.y), r: 3, fill: '#58635d' }, svg);
   if (course.rope) sv('circle', { cx: X(course.rope.anchorX), cy: Y(course.rope.anchorY), r: 3, fill: '#58635d' }, svg);
   if (old) sv('line', { x1: X(course.finishX), x2: X(course.finishX), y1: pad, y2: H - pad, stroke: '#0f6b5c', 'stroke-dasharray': '3 3' }, svg);
@@ -158,16 +165,17 @@ export function pathPicture(course: CourseData, log: RunLog, best: BestLine | nu
 }
 
 /** The report as a panel body. `compact` leaves out the big headline (the fall panel has its own). Buttons are built here; what they do comes from `a`. */
-export function renderReport(course: CourseData, log: RunLog, r: Report, a: Actions, compact = false, ghost: { x: number; y: number }[] | null = null, old = false): HTMLElement {
+export function renderReport(course: CourseData, log: RunLog, r: Report, a: Actions, compact = false, ghost: { x: number; y: number }[] | null = null, old = false, hard: HardBand | null = null): HTMLElement {
   const box = document.createElement('section');
   box.setAttribute('aria-label', 'Run report');
   box.style.cssText = 'display:grid;gap:12px';
   if (!compact) tx('h2', r.headline, 'margin:0;font:800 26px/1.2 system-ui,sans-serif;color:#0f6b5c', box);
   else tx('div', r.cleared ? r.headline : `You got ${r.metres} m of ${r.finishX} m.`, 'font-weight:700', box);
-  box.appendChild(pathPicture(course, log, r.best, ghost, old));
+  box.appendChild(pathPicture(course, log, r.best, ghost, old, hard));
   const key = tx('div', '', 'display:flex;gap:14px;flex-wrap:wrap;font-size:13px;color:#58635d', box);
   key.innerHTML = old ? '<span><b style="color:#0f6b5c">━</b> your path</span>' + (r.best ? '<span><b style="color:#d9a521">╍</b> the best line</span>' : '') + '<span>Icons: where you jumped, vaulted, climbed, grabbed or rolled</span>'
-    : `<span><b style="color:${YOU_COLOUR}">━</b> You</span>` + (ghost ? `<span><b style="color:${GHOST_COLOUR}">━</b> Ghost</span>` : '') + '<span>Icons: where you jumped, vaulted, climbed, grabbed or rolled</span>';
+    : `<span><b style="color:${YOU_COLOUR}">━</b> You</span>` + (ghost ? `<span><b style="color:${GHOST_COLOUR}">━</b> Ghost</span>` : '') + '<span>Icons: where you jumped, vaulted, climbed, grabbed or rolled</span>'
+      + (hard ? `<span><b style="color:${HARD_LINE};background:${HARD_BAND};padding:0 5px">┃┃</b> Gold band: the obstacle you fell at most this session (${hard.name}, ${hard.falls} ${hard.falls === 1 ? 'fall' : 'falls'})</span>` : '');
   if (r.cleared) {
     const t = document.createElement('table'); t.style.cssText = 'border-collapse:collapse;font-size:15px;width:100%';
     const row = (a1: string, a2: string, a3: string, head = false) => { const tr = t.insertRow(); [a1, a2, a3].forEach((s, i) => { const c = tr.insertCell(); c.textContent = s; c.style.cssText = `padding:5px 8px;border-bottom:1px solid #e5e9e5;${i ? 'text-align:right;' : ''}${head ? 'color:#58635d;font-weight:600' : ''}`; }); };
