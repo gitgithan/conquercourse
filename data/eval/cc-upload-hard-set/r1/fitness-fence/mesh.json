@@ -1,0 +1,32 @@
+{
+  "label": "fitness equipment",
+  "extents_m": {
+    "x": 0.965,
+    "y": 1.6,
+    "z": 0.83
+  },
+  "height_m": 1.6,
+  "target_height_m": 1.6,
+  "scale_source": "typed",
+  "scale_factor": 1.5994,
+  "raw_height": 1.0004,
+  "yaw_deg": 0.5,
+  "tilt_deg": 5.77,
+  "faces": 5820,
+  "vertices": 4299,
+  "width_to_height": 0.603,
+  "texture": "1024x1024",
+  "photo": "fitness-fence",
+  "box": [
+    400,
+    60,
+    800,
+    730
+  ],
+  "bytes": 378436,
+  "model": "SAM 3D Objects (seed 42)",
+  "bake_seconds": 2.01,
+  "raw_faces": 131616,
+  "splat_points": 114816,
+  "lift_round": "r1"
+}

@@ -1,0 +1,32 @@
+{
+  "label": "pull-up bar",
+  "extents_m": {
+    "x": 0.639,
+    "y": 2.3,
+    "z": 0.109
+  },
+  "height_m": 2.3,
+  "target_height_m": 2.3,
+  "scale_source": "typed",
+  "scale_factor": 2.2988,
+  "raw_height": 1.0005,
+  "yaw_deg": 90.0,
+  "tilt_deg": 4.29,
+  "faces": 5820,
+  "vertices": 3726,
+  "width_to_height": 0.278,
+  "texture": "1024x1024",
+  "photo": "fitness-macombs",
+  "box": [
+    170,
+    320,
+    1020,
+    1430
+  ],
+  "bytes": 289164,
+  "model": "SAM 3D Objects (seed 42)",
+  "bake_seconds": 1.49,
+  "raw_faces": 37918,
+  "splat_points": 30624,
+  "lift_round": "r1"
+}
