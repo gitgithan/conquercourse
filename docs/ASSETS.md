@@ -640,3 +640,4 @@
 
 - The three ShareAlike objects are in the editor's library only; no shipped course needs them, so removing them from `public/assets/objects/index.json` is the cheapest fix.
 - Photos used in the Park and the place galleries have their own rows above; check any CC BY-SA row there the same way before a sale.
+- `public/assets/places/furniture/*.json` (parked, positions of street furniture from Mapillary map features) is CC BY-SA 4.0 data: do not ship it in a paid build without settling ShareAlike or dropping it.
