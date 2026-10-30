@@ -86,3 +86,11 @@ describe('the D1 upload ledger', () => {
     expect(got.filter((g) => g.ok)).toHaveLength(2);
   });
 });
+
+describe('the ledger holds no address', () => {
+  it('the player key is a short code, never the IP', async () => {
+    const { playerCode } = await import('../functions/api/object-lift');
+    const a = await playerCode('203.0.113.7');
+    expect(a).toMatch(/^[0-9a-f]{16}$/); expect(a).not.toContain('203'); expect(await playerCode('203.0.113.7')).toBe(a); expect(await playerCode('203.0.113.8')).not.toBe(a);
+  });
+});
