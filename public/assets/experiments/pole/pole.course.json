@@ -1,0 +1,43 @@
+{
+  "version": 1,
+  "name": "Pole vault: pick up the pole, run, jam it, let go over the bar",
+  "startX": 1,
+  "finishX": 70,
+  "jumpSpeed": 4.5,
+  "terrain": {
+    "waterY": -6,
+    "platforms": [
+      {
+        "x0": -10,
+        "x1": 40.7,
+        "top": 0
+      },
+      {
+        "x0": 40.7,
+        "x1": 80,
+        "top": 0.5
+      }
+    ]
+  },
+  "pole": {
+    "pickX": 5,
+    "x0": 36,
+    "x1": 36.8,
+    "barX": 40.2,
+    "barH": 3.6
+  },
+  "zones": [
+    {
+      "id": "pole",
+      "name": "Pole vault",
+      "x0": 2,
+      "x1": 62
+    }
+  ],
+  "checkpoints": [
+    {
+      "id": "pole",
+      "x": 1
+    }
+  ]
+}

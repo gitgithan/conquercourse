@@ -16,17 +16,18 @@ import { AIM_RATE, DEFAULT_RECOIL, NO_RECOIL, clampAim, isAimable, padHas, shot,
 import { maybeEnterPlank, stepPlankWorld, type PlankState } from './beam';
 import { CLIMB_CATCH_TICKS, CLIMB_COST, CLIMB_EXIT_SPEED, CLIMB_HOLD_TICKS, findClimb, type Climb } from './climb';
 import { enterBand, stepBandWorld, type Band } from './band';
+import { NO_POLE, POLE_MIN_SPEED, POLE_PICKUP_REACH, plant as polePlant, poleFeetAt, release as poleRelease, type PoleWorld } from './pole-ride';
 import { DEFAULT_DRONE, boardDrone, droneStep, feetOfDrone, softTouchdown, type DroneParams, type DroneState } from './drone';
 import { DEFAULT_TREBUCHET, deg, feetAt, isDud, launchStep, startLaunch, type Launch, type TrebuchetParams } from './trebuchet';
 
 // One world for the Course: the runner plus whichever obstacle has hold of the runner right now.
 // The simulator is the truth: everything the screen shows comes from this state, one tick at a time.
-export type Mode = 'run' | 'wall' | 'swing' | 'bounce' | 'hang' | 'vault' | 'cart' | 'launch' | 'plank' | 'climb' | 'band' | 'drone';
+export type Mode = 'run' | 'wall' | 'swing' | 'bounce' | 'hang' | 'vault' | 'cart' | 'launch' | 'plank' | 'climb' | 'band' | 'drone' | 'pole';
 export type Outcome = 'running' | 'cleared' | 'splash' | 'hurt' | 'stalled'; // hurt: a landing harder than the body can take; stalled: the cart ran out of speed on a hill
 
 export interface GameEvent {
   tick: number;
-  type: 'jump' | 'roll' | 'land' | 'stumble' | 'hard-landing' | 'splash' | 'wall-grab' | 'wall-no-grip' | 'wall-slide' | 'rope-catch' | 'rope-release' | 'hang-catch' | 'hang-release' | 'vault' | 'climb' | 'climb-drop' | 'bounce' | 'cleared' | 'cart-start' | 'cart-stall' | 'cart-off' | 'cart-catch' | 'launch-fire' | 'launch-release' | 'launch-dud' | 'recoil' | 'plank-sag' | 'plank-break' | 'plank-off' | 'band-release' | 'band-snap' | 'drone-board' | 'drone-land' | 'drone-drop' | 'drone-crash' | 'drone-empty' | 'ball-hit';
+  type: 'pole-pickup' | 'pole-plant' | 'pole-release' | 'pole-fell-back' | 'bar-down' | 'pole-land' | 'jump' | 'roll' | 'land' | 'stumble' | 'hard-landing' | 'splash' | 'wall-grab' | 'wall-no-grip' | 'wall-slide' | 'rope-catch' | 'rope-release' | 'hang-catch' | 'hang-release' | 'vault' | 'climb' | 'climb-drop' | 'bounce' | 'cleared' | 'cart-start' | 'cart-stall' | 'cart-off' | 'cart-catch' | 'launch-fire' | 'launch-release' | 'launch-dud' | 'recoil' | 'plank-sag' | 'plank-break' | 'plank-off' | 'band-release' | 'band-snap' | 'drone-board' | 'drone-land' | 'drone-drop' | 'drone-crash' | 'drone-empty' | 'ball-hit';
   detail?: Record<string, number | boolean>;
 }
 
@@ -44,6 +45,7 @@ export interface WorldState {
   climb: Climb | null; // hanging from a wall's top edge and pulling up (src/sim/climb.ts)
   launch: Launch | null; // sitting in the trebuchet's sling (before the pin and while it swings)
   drone?: DroneState | null; // riding the cargo drone (src/sim/drone.ts)
+  pole?: PoleWorld; // carrying the pole, and the ride from the plant to the let-go (src/sim/pole-ride.ts)
   recoil?: RecoilState; // the launcher clipped on at a recoil pad: loads left, shots fired, balls in flight (src/sim/recoil.ts)
   cart: Cart | null; // riding the rails of a track (src/sim/cart.ts)
   plank?: PlankState | null; // walking on a plank bridge (src/sim/beam.ts)
@@ -144,6 +146,7 @@ function stepWorldPlain(w: WorldState, input: RunnerInput, course: CourseData, p
   if (w.mode === 'plank') return stepPlankWorld(w, input, course);
   if (course.planks) { const onPlank = maybeEnterPlank(w, input, course); if (onPlank) return onPlank; }
   if (w.mode === 'drone') return stepDroneMode(w, input, course);
+  if (w.mode === 'pole') return stepPoleMode(w, input, course);
 
   // the drone pad: standing on it with E held boards the cargo drone, which lifts a little way off the ground
   if (course.drone && w.runner.grounded && (input.handL || input.handR) && w.runner.x >= course.drone.x0 && w.runner.x <= course.drone.x1) {
@@ -285,6 +288,17 @@ function stepWorldPlain(w: WorldState, input: RunnerInput, course: CourseData, p
       n.mode = 'climb'; n.climb = c; n.energy = Math.max(0, w.energy - CLIMB_COST);
       n.runner = { ...r, vx: 0, vy: 0, grounded: false };
       ev('climb', { rise: c.top - r.y, vx: r.vx });
+    }
+  }
+
+  // the pole: E on the pole lying on the ground picks it up; carrying it, E held in the plant box jams it and the runner rises (src/sim/pole-ride.ts)
+  if (course.pole && n.mode === 'run' && n.outcome === 'running' && r.grounded) {
+    const ps = course.pole, held = !!(input.handL || input.handR), pw = n.pole ?? NO_POLE;
+    if (!pw.carrying && held && Math.abs(r.x - ps.pickX) <= POLE_PICKUP_REACH) { n.pole = { ...pw, carrying: true }; ev('pole-pickup'); }
+    else if (pw.carrying && held && r.x >= ps.x0 && r.x <= ps.x1 && r.vx >= POLE_MIN_SPEED) {
+      n.mode = 'pole'; n.pole = { carrying: true, ride: polePlant(ps, r.x, r.y, r.vx), barDown: false };
+      n.runner = { ...r, vx: 0, vy: 0, grounded: false };
+      ev('pole-plant', { vx: r.vx });
     }
   }
 
@@ -440,6 +454,32 @@ function stepLaunchMode(w: WorldState, input: RunnerInput, course: CourseData): 
 }
 
 // The cargo drone: the arrows lean it and climb it, E keeps the rider holding on. Letting go low steps off; letting go high is a drop. A soft touchdown sets the rider down; a hard one ends the run.
+// The pole ride: the runner follows the path pole.ts worked out; every way it ends hands the body back to the ordinary physics (or the cushion).
+function stepPoleMode(w: WorldState, input: RunnerInput, course: CourseData): WorldState {
+  const ps = course.pole!, pw = w.pole ?? NO_POLE;
+  let ride = pw.ride!;
+  const tick = w.runner.tick + 1, t = ride.t + 1, events: GameEvent[] = [];
+  const ev = (type: GameEvent['type'], detail?: GameEvent['detail']) => events.push({ tick, type, detail });
+  if (!ride.result && !(input.handL || input.handR)) { ride = poleRelease(ride, ps, t); ev('pole-release', { t }); }
+  const f = poleFeetAt(ride, ps, t);
+  const free = (barDown: boolean): WorldState => ({ ...w, mode: 'run', pole: { carrying: false, ride: null, barDown: barDown || pw.barDown }, noCatchUntil: tick, events, runner: { ...w.runner, tick, x: f.x, y: f.y, vx: f.vx, vy: f.vy, grounded: false } });
+  const end = ride.path.length - 1, res = ride.result;
+  if (!res) { // still held: the pole may stand the runner up (fall back) or lean onto the bar
+    if (t >= end) { ev('pole-fell-back'); return free(false); }
+  } else {
+    const leaned = res.outcome === 'hit_bar' && res.barlineTick === null;
+    if (res.outcome === 'fell_back' || res.outcome === 'short' || leaned) { ev(res.outcome === 'short' ? 'pole-release' : 'pole-fell-back'); if (leaned) ev('bar-down', { lean: true }); return free(leaned); }
+    if (res.outcome === 'hit_bar' && res.barlineTick !== null && t >= res.barlineTick) { ev('bar-down', { y: f.y }); return free(true); }
+    const gy = groundAt(course.terrain, f.x);
+    if (res.outcome === 'cleared' && f.vy < 0 && Number.isFinite(gy) && f.y <= gy) { // down on the cushion (a platform at the cushion's height)
+      ev('pole-land', { vy: -f.vy });
+      return { ...w, mode: 'run', pole: { carrying: false, ride: null, barDown: pw.barDown }, noCatchUntil: tick, events, runner: { ...w.runner, tick, x: f.x, y: gy, vx: Math.max(0.5, f.vx * 0.3), vy: 0, grounded: true } };
+    }
+    if (t >= end) return free(false);
+  }
+  return { ...w, pole: { ...pw, ride: { ...ride, t } }, events, runner: { ...w.runner, tick, x: f.x, y: f.y, vx: 0, vy: 0, grounded: false } };
+}
+
 function stepDroneMode(w: WorldState, input: RunnerInput, course: CourseData): WorldState {
   const dp = droneParams(course);
   const tick = w.runner.tick + 1;
