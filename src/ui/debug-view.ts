@@ -4,7 +4,7 @@ import { heightAt } from '../sim/terrain';
 import { predictBand, predictCart, predictJump, predictLaunch, predictRelease, predictShot, predictDrone } from '../sim/predict';
 import { isAimable } from '../sim/recoil';
 import { recoilParams } from '../sim/world';
-import type { WorldState } from '../sim/world';
+import type { Mode, WorldState } from '../sim/world';
 import { DEFAULT_WALL } from '../sim/wall';
 import { planVault, vaultAt, vaultHand, type Vault } from '../sim/vault';
 import { CLIMB_REACH_X, CLIMB_TICKS, climbAhead } from '../sim/climb';
@@ -12,15 +12,15 @@ import { ROLL_WINDOW_M, ROLL_WINDOW_S, rollWindowOpen, rollWindowStart } from '.
 import { DEFAULT_LANDING, safeDrop } from '../sim/landing';
 import { GRAVITY } from '../sim/units';
 import { DEFAULT_HANG, gripLoad } from '../sim/holds';
+import { MODE_INFO } from '../course/modes';
 import { createDebugPanel, type Row } from './debug-panel';
 
 // The debug view (like a fighting game's hitbox mode): draws what the simulator really uses, and says what a jump right now would do.
 //   yellow  = the ground and the wall the runner stands on and bumps into (the collision outline, not the pretty picture)
 //   cyan    = the runner's body box and the point at its feet
 //   green / red = where a jump right now goes (green lands, red falls or is blocked), run on the simulator's own physics
-// One place per mode: which modes are machines (the preview arc follows the machine layer) and what the next press is. A new machine adds a line here, not a new branch below.
-const MACHINE_MODES: ReadonlySet<string> = new Set(['cart', 'launch', 'drone', 'band']);
-const NEXT_LABEL: Record<string, string> = { cart: 'Cart rolls on', band: 'Turn round now', drone: 'Come down now', hang: 'Let go now', launch: 'Let go now' };
+// Which preview a mode runs; a mode not listed previews a plain jump (or the launcher shot).
+const PREDICT_BY_MODE: Partial<Record<Mode, (w: WorldState, c: CourseData) => ReturnType<typeof predictJump>>> = { hang: predictRelease, cart: predictCart, launch: predictLaunch, drone: predictDrone, band: predictBand };
 
 export interface DebugView { toggle(): boolean; update(w: WorldState): void; readonly shown: boolean }
 
@@ -88,7 +88,7 @@ export function createDebugView(scene: THREE.Scene, course: CourseData, parent: 
       box.position.set(r.x, r.y, 0); feet.position.set(r.x, r.y, 0);
       if (w.runner.tick === tick) return; // the preview only changes when the world does
       tick = w.runner.tick;
-      const pr = w.mode === 'hang' ? predictRelease(w, course) : w.mode === 'cart' ? predictCart(w, course) : w.mode === 'launch' ? predictLaunch(w, course) : w.mode === 'drone' ? predictDrone(w, course) : w.mode === 'band' ? predictBand(w, course) : course.recoil && isAimable(recoilParams(course)) && (w.recoil?.armed ?? 0) > 0 ? predictShot(w, course) : predictJump(w, course);
+      const pr = PREDICT_BY_MODE[w.mode]?.(w, course) ?? (course.recoil && isAimable(recoilParams(course)) && (w.recoil?.armed ?? 0) > 0 ? predictShot(w, course) : predictJump(w, course));
       const n = pr.path.length;
       arc.geometry.dispose();
       arc.geometry = new THREE.BufferGeometry().setFromPoints(pr.path.length > 1 ? pr.path.map((q) => new THREE.Vector3(q.x, q.y, Z)) : [new THREE.Vector3(), new THREE.Vector3()]);
@@ -97,7 +97,7 @@ export function createDebugView(scene: THREE.Scene, course: CourseData, parent: 
       const last = pr.path[n - 1];
       if (last) endMark.position.set(last.x, last.y, 0);
       endMark.visible = pr.result !== 'other-move';
-      const isMachine = MACHINE_MODES.has(w.mode) || !!(course.recoil && isAimable(recoilParams(course)) && (w.recoil?.armed ?? 0) > 0);
+      const isMachine = MODE_INFO[w.mode].machine || !!(course.recoil && isAimable(recoilParams(course)) && (w.recoil?.armed ?? 0) > 0);
       const arcOn = isMachine ? L.machine : L.jump;
       arc.visible = arcOn; endMark.visible = endMark.visible && arcOn;
       const now: Row[] = [];
@@ -131,11 +131,10 @@ export function createDebugView(scene: THREE.Scene, course: CourseData, parent: 
       if (course.routes && course.routes.length > 1 && w.mode !== 'cart') now.push({ label: 'Routes', value: '' });
       if (course.routes && course.routes.length > 1 && w.mode !== 'cart') for (const q of course.routes) now.push({ label: q.name, value: `${(q.ticks / 120).toFixed(1)} s${q.chosen ? ' · faster' : ''}`, tip: 'A full pump on the first bar skips the second bar.' });
       const res = { lands: 'Lands', splash: 'Splash', hurt: 'Hurts', blocked: 'Blocked', 'not-grounded': 'In the air', 'other-move': 'Other move' }[pr.result];
-      const next = NEXT_LABEL[w.mode] ?? (r.grounded || pr.result === 'other-move' ? 'Jump now' : 'Carry on');
-      const MODE: Record<string, string> = { run: 'Running', wall: 'On the wall', swing: 'Swinging', bounce: 'Bouncing', hang: 'Hanging', vault: 'Vaulting', band: 'On the band', drone: 'On the drone', climb: 'Climbing', cart: 'In the cart', launch: 'In the sling' };
+      const next = MODE_INFO[w.mode].next ?? (r.grounded || pr.result === 'other-move' ? 'Jump now' : 'Carry on');
       const readout: Row[] = [
         { label: 'State', value: r.grounded ? 'On the ground' : 'In the air' },
-        { label: 'Mode', value: MODE[w.mode] ?? w.mode },
+        { label: 'Mode', value: MODE_INFO[w.mode].name },
         { label: 'Speed', value: `${Math.abs(r.vx).toFixed(1)} m/s` },
         { label: 'Height', value: `${r.y.toFixed(2)} m` },
         { label: 'Energy', value: `${Math.round(w.energy * 100)} %` },
