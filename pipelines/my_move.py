@@ -59,7 +59,13 @@ def stage_cut(video, start, end, stem):
 
 def stage_measure(stem):
     import run_clip
-    run_clip.main(stem, EVAL.parent / "motion-from-you")
+    for attempt in (1, 2, 3):          # a lost connection (seen 2026-10-30 from the laptop) stops the run; the cold start is paid again, so retry at most twice
+        try:
+            return run_clip.main(stem, EVAL.parent / "motion-from-you")
+        except Exception as e:  # noqa: BLE001
+            say(f"measure attempt {attempt} failed: {type(e).__name__}: {e}")
+            if attempt == 3:
+                raise
 
 
 def stage_post(stem, frac):

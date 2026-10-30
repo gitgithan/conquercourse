@@ -609,6 +609,18 @@
 - **`data/eval/motion-from-you/roll-lp/`** and **`roll-lp-size35/`**
   - What: the run record (gate, move check, timings, cost) and `side-by-side.png`, source frames (faces and people blurred) above and the Rookie below.
   - Same source and licence.
+
+### Candidate clips for "My move" (CC-222, screened 2026-10-30)
+- All downloaded with yt-dlp and no cookies, from a YouTube search filtered to Creative Commons, outside git in `../conquercourse-assets/video/mm2/`.
+  - Each file's own metadata says "Creative Commons Attribution license (reuse allowed)" (CC BY).
+- **`QO3D9Wac8Sw`** "Learn Parkour : Basic Standing Roll" by London Parkour, https://www.youtube.com/watch?v=QO3D9Wac8Sw
+  - One adult, still camera, head-on; used only for 39.2 to 43.2 s (a plain low roll, no dive).
+  - Output: `public/assets/experiments/mymove/roll-lp-stand.json` (joints only).
+- **`Jk4cFkcSiHc`** "Learn Parkour : Basic Crouch Roll" by London Parkour, https://www.youtube.com/watch?v=Jk4cFkcSiHc
+  - One adult, still camera, head-on, small in frame; used only for 203.5 to 208.5 s.
+  - Output: `public/assets/experiments/mymove/roll-lp-crouch.json` (joints only).
+- Screened and rejected, kept only as files outside git: `hIoNstOuurw` (vault roll, person small), `8h6AeYEzPBA` (filmed sideways, cuts), `3KJwvpL668s` (ground work), `w7BhdcqlElM` (cuts, two people), `xtU-Py2iDms` (low shaky camera), `HY7vkvjUY-o` (camera moves, ages unclear), `MvVvdL1MF-g` (children), `8Kg3HmJzwso` (a crowd), `u5plKRYphbk` (a pole, no roll).
+
 - **`pipelines/my_move.py`**, **`scripts/my-move-check.mjs`**: ours; no third-party material.
 
 - Licence note: replace the MusicGen music (`public/assets/music/*.ogg`, model weights CC BY-NC 4.0) before any commercial release.

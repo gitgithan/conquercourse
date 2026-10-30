@@ -21,6 +21,22 @@ CHUNK = 30
 L4_PER_SECOND = 0.000222  # USD, Modal list price for an L4 (checked at run time in run.json notes)
 
 
+def wait(call, what, give_up_s=2400):
+    """Wait for a spawned Modal call by short polls: a dropped connection (seen from the laptop on 2026-10-30, it killed
+    three runs that used one long .remote() call) is retried, because the call itself keeps running in detached mode."""
+    t0 = time.time()
+    while True:
+        try:
+            return call.get(timeout=20)
+        except TimeoutError:
+            pass
+        except Exception as e:  # noqa: BLE001  (connection lost, SSL closed)
+            print(f"[run_clip] {what}: {type(e).__name__}, polling again", flush=True)
+            time.sleep(5)
+        if time.time() - t0 > give_up_s:
+            raise RuntimeError(f"{what}: no answer in {give_up_s} s")
+
+
 def main(stem, eval_dir=None):
     """eval_dir: folder that holds one subfolder per clip (default: the CC-26 folder)."""
     t0 = time.time()
@@ -31,13 +47,14 @@ def main(stem, eval_dir=None):
     out_small = Path(eval_dir or EVAL) / stem
     out_small.mkdir(parents=True, exist_ok=True)
     (WORK / stem / "masked").mkdir(exist_ok=True)
-    with modal.enable_output(), M.app.run():
+    with modal.enable_output(), M.app.run(detach=True):
         w = M.Worker()
         spread = [frames[i] for i in range(0, n, max(1, n // 5))][:5]
-        fov = w.estimate_focal.remote(spread)
+        fov = wait(w.estimate_focal.spawn(spread), 'focal')
         focal = fov.get("focal_px")
         chunks = [(frames[s:s + CHUNK], s, focal) for s in range(0, n, CHUNK)]
-        res = list(w.privacy_and_measure.starmap(chunks))
+        calls = [w.privacy_and_measure.spawn(*c) for c in chunks]
+        res = [wait(c, f'chunk {i}') for i, c in enumerate(calls)]
         measured, receipt, secs = [], [], []
         for r, (_, s, _) in zip(res, chunks):
             measured += r["measured"]
@@ -46,7 +63,7 @@ def main(stem, eval_dir=None):
             for k, b in enumerate(r["masked"]):
                 (WORK / stem / "masked" / f"f{s + k:05d}.jpg").write_bytes(b)
         ok = [m for m in measured if m["ok"]]
-        soma = w.mhr_to_soma.remote([m["shape"] for m in ok], [m["model_params"] for m in ok], None)
+        soma = wait(w.mhr_to_soma.spawn([m["shape"] for m in ok], [m["model_params"] for m in ok], None), 'soma')
     (WORK / stem / "measured.json").write_text(json.dumps(measured))
     (WORK / stem / "soma.json").write_text(json.dumps(soma))
     (out_small / "privacy_receipt.json").write_text(json.dumps({

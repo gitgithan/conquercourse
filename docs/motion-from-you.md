@@ -90,6 +90,14 @@
 - A phone-or-webcam capture page; this slice takes a video file and a time range.
 - Other moves: only the roll has a "My move" slot.
 
+## Two more filmed rolls (2026-10-30): both refused, by design
+- Both come from the same London Parkour series (CC BY, head-on, one adult) and passed the plausibility gate; the move check refused them.
+- Standing roll (`roll-lp-stand`, 39.2 to 43.2 s): the body turns 309 degrees and goes upside down, but the clip does not end upright, so the check calls it unfinished.
+- Crouch roll (`roll-lp-crouch`, 203.5 to 208.5 s): turn 308 degrees, starts and ends upright, but the hips read 1.51 times the standing height (limit 1.05) and the longest air time is 0.4 s (limit 0.25).
+  - Both numbers look like measurement noise from a person who starts crouched and is small in frame; they are not a real flip.
+- The limits stay as they are: a weakened check that passes would only mean "not tested".
+- So far only the jump roll (`roll-lp`) has passed both checks; the player-facing story needs a side or three-quarter view (step 2 below).
+
 ## Fallback and next steps
 - Fallback: the player picks a library roll (the shipped CMU/Kimodo roll, or a London Parkour roll through this same pipeline).
   - Quality: it passes both checks, but it is not their body.
