@@ -1,0 +1,38 @@
+// Real server path (CC-221): the editor on a PREVIEW url, a real photo, a real Modal lift. No stubs.
+// Run: BASE=https://preview-upload.conquercourse.pages.dev node scripts/upload-object-live.mjs   (never the production link)
+import { chromium } from 'playwright';
+import { mkdirSync, readFileSync } from 'node:fs';
+const base = process.env.BASE ?? '';
+if (!/^https:\/\/[a-z0-9-]+\.conquercourse\.pages\.dev/.test(base) || /^https:\/\/conquercourse\.pages\.dev/.test(base)) throw new Error('BASE must be a preview url');
+const photo = 'data/eval/cc-upload-hard-set/inputs/bench-dusk.jpg';
+const [x0, y0, x1, y1, W, H] = process.env.BOX.split(',').map(Number);
+mkdirSync('test-results/upload-live', { recursive: true });
+const flags = ['--enable-unsafe-webgpu', '--enable-features=Vulkan', '--use-vulkan=swiftshader', '--use-angle=swiftshader', '--disable-vulkan-surface', '--ignore-gpu-blocklist'];
+const browser = await chromium.launch({ args: flags });
+const page = await browser.newPage({ viewport: { width: 1280, height: 800 } });
+page.on('pageerror', (e) => console.log('PAGEERROR', e.message.slice(0, 200)));
+const checks = {};
+await page.goto(`${base}/?mode=editor&uploadobj=1`);
+await page.waitForSelector('#makeobj', { state: 'attached', timeout: 90000 });
+await page.$eval('#makeobj', (e) => e.click());
+await page.setInputFiles('#pofile', photo);
+const img = page.locator('#photoobj img');
+await img.waitFor({ timeout: 40000 });
+const r = await img.boundingBox();
+await page.mouse.move(r.x + r.width * x0 / W, r.y + r.height * y0 / H); await page.mouse.down();
+await page.mouse.move(r.x + r.width * x1 / W, r.y + r.height * y1 / H, { steps: 8 }); await page.mouse.up();
+await page.fill('#polabel', 'bench');
+await page.fill('#poheight', '0.85');
+await page.screenshot({ path: 'test-results/upload-live/1-dialog.png' });
+const t0 = Date.now();
+await page.click('#pogo');
+await page.waitForFunction(() => /Done in|couldn|not |wrong/i.test(document.querySelector('#pomsg')?.textContent ?? ''), null, { timeout: 600000 });
+checks.message = await page.textContent('#pomsg');
+checks.seconds = Math.round((Date.now() - t0) / 1000);
+await page.screenshot({ path: 'test-results/upload-live/2-done.png' });
+await page.waitForSelector('#photoobj', { state: 'detached', timeout: 15000 }).catch(() => {});
+await page.waitForTimeout(2000);
+checks.credit = await page.textContent('#credit').catch(() => 'none');
+await page.screenshot({ path: 'test-results/upload-live/3-placed-credit.png' });
+console.log(JSON.stringify(checks, null, 2));
+await browser.close();
