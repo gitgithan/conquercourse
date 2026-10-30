@@ -27,7 +27,7 @@ try {
   console.log('PANEL:', txt.slice(0, 260));
   await page.screenshot({ path: 'test-results/debug/running.png' });
   await page.keyboard.up('ArrowRight');
-  await page.click('#debugbtn');
+  await page.keyboard.press('b');
   checks.buttonCloses = (await page.evaluate(() => getComputedStyle(document.getElementById('debugpanel')).display)) === 'none';
   console.log(checks, 'errors:', errors);
   await browser.close();
