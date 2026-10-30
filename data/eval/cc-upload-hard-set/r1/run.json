@@ -7,7 +7,7 @@
   "settings": {
     "mask_grow_px": 0,
     "colour_k": 4,
-    "pad_fraction": 0.0,
+    "pad_fraction": 0,
     "padretry": true,
     "texture": false
   },
@@ -35,10 +35,10 @@
       "padretry": {
         "enabled": true,
         "border": {
-          "top": 0.0,
-          "bottom": 0.0,
-          "left": 0.0,
-          "right": 0.0
+          "top": 0,
+          "bottom": 0,
+          "left": 0,
+          "right": 0
         },
         "padded": false,
         "touches": false,
@@ -71,10 +71,10 @@
       "padretry": {
         "enabled": true,
         "border": {
-          "top": 0.0,
+          "top": 0,
           "bottom": 0.12890625,
-          "left": 0.0,
-          "right": 0.0
+          "left": 0,
+          "right": 0
         },
         "padded": true,
         "touches": true,
@@ -92,7 +92,7 @@
       "mask": {
         "how": "box-prompt",
         "score": 0.97265625,
-        "iou_with_box": 0.0,
+        "iou_with_box": 0,
         "candidates": 22,
         "pixels": 228788
       },
@@ -107,10 +107,10 @@
       "padretry": {
         "enabled": true,
         "border": {
-          "top": 0.0,
-          "bottom": 0.0,
-          "left": 0.0,
-          "right": 0.0
+          "top": 0,
+          "bottom": 0,
+          "left": 0,
+          "right": 0
         },
         "padded": false,
         "touches": false,
@@ -143,10 +143,10 @@
       "padretry": {
         "enabled": true,
         "border": {
-          "top": 0.0,
-          "bottom": 0.0,
+          "top": 0,
+          "bottom": 0,
           "left": 0.24956063268892795,
-          "right": 0.0
+          "right": 0
         },
         "padded": true,
         "touches": true,
@@ -179,10 +179,10 @@
       "padretry": {
         "enabled": true,
         "border": {
-          "top": 0.0,
-          "bottom": 0.0,
-          "left": 0.0,
-          "right": 0.0
+          "top": 0,
+          "bottom": 0,
+          "left": 0,
+          "right": 0
         },
         "padded": false,
         "touches": false,
@@ -215,10 +215,10 @@
       "padretry": {
         "enabled": true,
         "border": {
-          "top": 0.0,
-          "bottom": 0.0,
-          "left": 0.0,
-          "right": 0.0
+          "top": 0,
+          "bottom": 0,
+          "left": 0,
+          "right": 0
         },
         "padded": false,
         "touches": false,
@@ -251,10 +251,10 @@
       "padretry": {
         "enabled": true,
         "border": {
-          "top": 0.0,
-          "bottom": 0.0,
-          "left": 0.0,
-          "right": 0.0
+          "top": 0,
+          "bottom": 0,
+          "left": 0,
+          "right": 0
         },
         "padded": false,
         "touches": false,
@@ -287,10 +287,10 @@
       "padretry": {
         "enabled": true,
         "border": {
-          "top": 0.0,
-          "bottom": 0.0,
-          "left": 0.0,
-          "right": 0.0
+          "top": 0,
+          "bottom": 0,
+          "left": 0,
+          "right": 0
         },
         "padded": false,
         "touches": false,
@@ -308,7 +308,7 @@
       "mask": {
         "how": "box-prompt",
         "score": 0.9609375,
-        "iou_with_box": 0.0,
+        "iou_with_box": 0,
         "candidates": 1,
         "pixels": 120343
       },
@@ -323,10 +323,10 @@
       "padretry": {
         "enabled": true,
         "border": {
-          "top": 0.0,
-          "bottom": 0.0,
-          "left": 0.0,
-          "right": 0.0
+          "top": 0,
+          "bottom": 0,
+          "left": 0,
+          "right": 0
         },
         "padded": false,
         "touches": false,
@@ -359,10 +359,10 @@
       "padretry": {
         "enabled": true,
         "border": {
-          "top": 0.0,
-          "bottom": 0.0,
-          "left": 0.0,
-          "right": 0.0
+          "top": 0,
+          "bottom": 0,
+          "left": 0,
+          "right": 0
         },
         "padded": false,
         "touches": false,
@@ -395,10 +395,10 @@
       "padretry": {
         "enabled": true,
         "border": {
-          "top": 0.0,
-          "bottom": 0.0,
-          "left": 0.0,
-          "right": 0.0
+          "top": 0,
+          "bottom": 0,
+          "left": 0,
+          "right": 0
         },
         "padded": false,
         "touches": false,
@@ -431,10 +431,10 @@
       "padretry": {
         "enabled": true,
         "border": {
-          "top": 0.0,
-          "bottom": 0.0,
-          "left": 0.0,
-          "right": 0.0
+          "top": 0,
+          "bottom": 0,
+          "left": 0,
+          "right": 0
         },
         "padded": false,
         "touches": false,
@@ -446,7 +446,7 @@
     },
     {
       "photo": "railing-statue",
-      "mask_seconds": 2.0,
+      "mask_seconds": 2,
       "lift_seconds": 8.2,
       "wall_seconds": 167.6,
       "mask": {
@@ -467,10 +467,10 @@
       "padretry": {
         "enabled": true,
         "border": {
-          "top": 0.0,
-          "bottom": 0.0,
-          "left": 0.0,
-          "right": 0.0
+          "top": 0,
+          "bottom": 0,
+          "left": 0,
+          "right": 0
         },
         "padded": false,
         "touches": false,
@@ -484,7 +484,7 @@
       "photo": "hydrant-cars",
       "mask_seconds": 0.8,
       "lift_seconds": 9.2,
-      "wall_seconds": 175.0,
+      "wall_seconds": 175,
       "mask": {
         "how": "text",
         "score": 0.94140625,
@@ -503,10 +503,10 @@
       "padretry": {
         "enabled": true,
         "border": {
-          "top": 0.0,
-          "bottom": 0.0,
-          "left": 0.0,
-          "right": 0.0
+          "top": 0,
+          "bottom": 0,
+          "left": 0,
+          "right": 0
         },
         "padded": false,
         "touches": false,
