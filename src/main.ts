@@ -4,6 +4,7 @@ import { startCourse } from './modes/course';
 import type { CourseData } from './course/course';
 import { startDojo } from './modes/dojo';
 import { initFeedback } from './ui/feedback';
+import { mountSiteNav } from './ui/site-nav';
 import { startPark } from './modes/park';
 import { browserStore, startRedirect } from './ui/onboarding-flags';
 import { installGalleryKeyGuard, mountWorldGallery, currentWorld, DEFAULT_PLACE, BUTTON_PLACE } from './ui/world-picker';
@@ -58,6 +59,7 @@ const game = mode === 'diagrams' ? (await import('./modes/diagrams-page')).start
 document.documentElement.dataset.backend = game.backend;
 startMusic(screenFor(mode)); // CC-132: a loop per screen, only with ?music=1
 if (mode !== 'course' && !(mode === 'dojo' && pageQuery().get('dojo') !== 'old')) mountWorldGallery(document.body, { current: currentWorld(pageQuery()), place: BUTTON_PLACE[mode] ?? DEFAULT_PLACE }); // CC-89: every other mode has the Courses button too (the Course mounts its own)
+mountSiteNav(document.body, mode); // CC-246: one top bar with the four features on every page
 document.documentElement.dataset.ready = 'true';
 }
 initFeedback(pageQuery().get('mode') ?? 'course');
