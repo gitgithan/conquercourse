@@ -32,6 +32,7 @@
 | Coaster | *"Over a sharp hilltop, speed lets go of the rails."* | A crest that bends away faster than gravity can follow lets the cart leave the track |
 | Elastic band | *"A soft band pulled far outthrows a stiff one pulled little."* | The legs can only pull so hard, so a softer band stretches farther and stores more energy, which it gives back as speed |
 | Pole vault | *"The pole cannot lift you; it hands your speed back as height."* | Speed bends the pole and the bend returns the energy; the pole adds none, so a slow run falls back (CC-239) |
+| Timed balls | *"A moving danger is only a clock: learn its beat, then cross between two beats."* | Every ball leaves on the simulator's clock, the same for every player, so too fast and too slow both meet the next ball (CC-240) |
 | The roll | *"Turn your fall into a roll and the ground forgives you."* | Downward speed turned into rotation |
 | The trebuchet | *"A long arm gets you far; letting go late gets you thrown into the ground."* | The moment (weight times distance from the pivot) turns the arm, a longer arm moves its tip faster, and the release moment decides the flight |
 | Plank bridge | *"A plank that is twice as long sags eight times as much."* | A longer plank bends far more, and a thicker one bends far less; a post in the middle makes two short planks |

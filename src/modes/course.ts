@@ -67,6 +67,7 @@ import { barName, predictBand, predictLaunch, predictRelease, predictShot, type 
 import { createTrebuchetView } from '../ui/trebuchet-view';
 import { createRecoilView } from '../ui/recoil-view';
 import { createShotsView } from '../ui/shots-view';
+import { ballsOn, BALL_LAUNCHERS } from '../sim/shots';
 import { createBandView } from '../ui/band-view';
 import { bandParams, stretchAt } from '../sim/band';
 import { createDroneView } from '../ui/drone-view';
@@ -109,6 +110,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
     if (raw && !params.get('mode')) resume = JSON.parse(raw) as Resume;
   } catch { /* start fresh */ }
   if (resume) course = resume.course;
+  if (ballsOn(params) && !course.shots && course === defaultCourse) course = { ...course, shots: BALL_LAUNCHERS }; // CC-240: ?balls=1 plays the First Course with the timed balls
   if (course.wall && params.get('warpedE') === '0') course = { ...course, wall: { ...course.wall, needE: false } }; // the old rule: the warped wall is grabbed without E
   // ?wallh=5 makes the wall that high (for tests): the curve stays the same and the deck on top rises with it
   const wallH = Number(params.get('wallh'));
