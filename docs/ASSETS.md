@@ -432,6 +432,10 @@
   - They stay in the experiment folder and are not shipped in the game.
 - `data/eval/cc-170-pad-retry/inputs/gabion-wall.jpg`: the CC-110 gabion wall as it is (CC0, Encik Tekateki); a real photo that already touches the edge.
 - `test-results/cc170-edge-note.png` is a screenshot of the Park with the edge note (ours; photo park01, see its row above).
+
+## Spectacle film and Blender media (CC-209, CC-238)
+| File | What | Made on | Made with | Third-party material | Our licence and notes |
+|---|---|---|---|---|---|
 | `data/eval/cc-spectacle/outputs/*.png` and `inputs/training.glb` | Blender look-test stills and the course exported to glTF (prototype, not shown in the game) | 2026-10-29 | `scripts/export-gltf.ts` and `pipelines/spectacle/render_stills.py` in headless Blender 5.0.1 (`bpy` from PyPI), Cycles on the CPU, on a Vultr VM | None | Blender is GPL; the pictures we render are ours; the Rookie in them is `rookie-a.glb` (see its row); no third-party textures or sky images (the sky is Blender's own physical sky) |
 | `public/brand/conquercourse-logo.svg` | ConquerCourse logo for the film end card: a stepped course line ending in a leap arc, plus the name | 2026-10-30 | Drawn by hand as SVG by an AI agent | None | Ours, no outside fonts embedded (system sans-serif) |
 | `data/eval/cc-spectacle/music/film-bed.ogg`, `beats.json` | the film's music bed: `map.ogg` once, then `course-d_8` four times, 67.2 s, with bar markers | 2026-10-30 | Joined with ffmpeg from the project's own MusicGen loops (`public/assets/music/map.ogg`, `../conquercourse-assets/music/course-d_8.ogg`); no new generation | None | Original MusicGen output (see the music rows); free |
