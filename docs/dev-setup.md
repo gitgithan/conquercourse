@@ -71,3 +71,10 @@
 - `src/render/actor.ts` has `createRookieActor(scene, { rookie })`; give it `actorStateFor(world, squat)` (`src/motion/actor-state.ts`) every tick.
 - `scripts/film-actor.sh a` films the first gap and the wall; `node scripts/actor-check.mjs a` saves contact sheets; `node scripts/actor-gate.mjs a` exports the posed joints for the gate.
 - Details and the list of missing motions: `data/eval/cc-31-actor/README.md`.
+
+## Old experiments (owner only)
+- Raw experiment files are not in git, so a clone stays small.
+- The full trail lives in `../conquercourse-assets/eval-full/`; `node scripts/restore-eval.mjs` copies it into `data/eval/`.
+- `data/eval/FULL-TRAIL.txt` lists every file that was left out, with its size and checksum.
+- Four files named by old scripts were never saved: `cc-16-rookies/posed-a.json`, `cc-31-actor/posed-run-a.json`, `cc-178-places/audit.json` and `slice-ux/preview-vs-built.json`.
+- Each experiment's README says how it was run.
