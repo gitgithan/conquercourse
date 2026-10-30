@@ -89,7 +89,7 @@
 - The tables, limits and plan behind it are in [data-model](data-model.md).
 - The migration `migrations/0006_shares.sql` is written and waits for the owner.
 
-## Part 4: a leaderboard (approved 2026-10-30; built behind `?board=1`, CC-108)
+## Part 4: a leaderboard (approved 2026-10-30; on by default on the Course and in the end report, `?board=0` hides it, CC-108)
 - **Built:** `GET /api/leaderboard?course=<key>&hash=<hash>` returns the ten fastest verified runs with their tags; the end report shows them and your own best.
   - The board reads `course_clears` (migration 0007), not the `runs` table below, so it works before the bigger data model lands.
   - Tags are three letters the player chose, checked again on the server; no account and no name.

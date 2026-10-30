@@ -61,9 +61,9 @@ const CSS = `
 #tour .place svg{grid-row:span 2;width:34px;height:34px;color:#0f6b5c}
 #tour .place b{font:700 14px system-ui,sans-serif}#tour .place span{font-size:12.5px;color:#58635d;line-height:1.25}
 #tour .hop{width:100%;height:42px}
-#chelp{position:fixed;z-index:60;left:16px;bottom:16px;width:36px;height:36px;border-radius:50%;border:2px solid #17201d;background:#fff;color:#17201d;font:800 18px system-ui,sans-serif;cursor:pointer;box-shadow:0 2px 8px #0003}
+#chelp{position:fixed;z-index:60;right:16px;top:236px;width:36px;height:36px;border-radius:50%;border:2px solid #17201d;background:#fff;color:#17201d;font:800 18px system-ui,sans-serif;cursor:pointer;box-shadow:0 2px 8px #0003}
 #chelp:focus-visible{outline:3px solid #f0b400;outline-offset:2px}
-#helpmenu{position:fixed;z-index:61;left:16px;bottom:120px;width:210px;background:#fffffff7;border:1px solid #cfd6d0;border-radius:12px;box-shadow:0 6px 24px #0003;padding:6px;display:grid;gap:4px}
+#helpmenu{position:fixed;z-index:61;right:16px;top:280px;width:210px;background:#fffffff7;border:1px solid #cfd6d0;border-radius:12px;box-shadow:0 6px 24px #0003;padding:6px;display:grid;gap:4px}
 #helpmenu button{text-align:left}
 #ccnext{display:grid;gap:10px;border-top:1px solid #d7ddd8;padding-top:10px;margin-top:10px}
 #ccnext.modal{position:fixed;z-index:950;left:50%;top:50%;transform:translate(-50%,-50%);width:min(720px,94vw);max-height:88vh;overflow:auto;background:#fffffff7;border:1px solid #cfd6d0;border-radius:16px;box-shadow:0 8px 30px #0004;padding:16px;margin:0}
