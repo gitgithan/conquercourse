@@ -51,7 +51,7 @@ import { approachToast } from '../ui/approach-toast';
 import { forkCell, pathsOn, waysOf } from '../ui/paths';
 import { branchesOf } from '../sim/branches';
 import { createDrumLane } from '../ui/drum-lane';
-import { GOLD_LEGEND, goldOld, hardestBlock, hardestLabel, hardestOf } from '../ui/hardest';
+import { goldOld, hardestBlock, hardestLabel, hardestOf } from '../ui/hardest';
 import { bestLine, buildReport, clearLog, logTick, newLog, renderReport } from '../ui/run-report';
 import { ZONE_ICONS } from '../ui/zone-icons';
 import { OBSTACLES } from '../course/obstacles';
@@ -371,7 +371,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
   editBtn.onclick = () => { editBtn.blur(); openEditor('edit'); };
   const wholeBtn = document.createElement('button');
   wholeBtn.id = 'wholeideal'; wholeBtn.textContent = 'Whole course (Shift+I)';
-  wholeBtn.title = 'Watch one ideal run through every obstacle; any key stops it';
+  wholeBtn.title = 'Watch one ideal run through every obstacle; a move key stops it (the camera keys do not)';
   wholeBtn.style.cssText = 'font:600 13px system-ui,sans-serif;border:1px solid #17201d;background:#fff;color:#17201d;border-radius:8px;padding:4px 10px;cursor:pointer;white-space:nowrap';
   wholeBtn.onclick = () => { wholeBtn.blur(); showWholeIdeal(); };
   // the two small buttons share one row, so they cannot overlap whatever their text widths are
@@ -475,18 +475,15 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
   })();
   const fallLog: string[] = []; // CC-183: one zone id per failed try this session; gold marks the zone with the most
   const hardestNow = () => { const h = hardestOf(fallLog); const z = h && progressZones.find((q) => q.id === h.id); return h && z ? { ...h, name: z.name } : null; };
-  const legend = document.createElement('div'); legend.id = 'gold-legend';
-  legend.style.cssText = 'position:fixed;left:50%;top:150px;transform:translateX(-50%);font:600 12px system-ui,sans-serif;color:#5b4200;background:#fff8dcf0;border:1px solid #d9a521;border-radius:8px;padding:2px 10px;pointer-events:none;display:none;white-space:nowrap';
-  document.body.append(legend);
   const hardBand = () => { const h = goldOld() ? null : hardestNow(); const z = h && progressZones.find((q) => q.id === h.id); return h && z ? { x0: z.x0, x1: z.x1, name: h.name, falls: h.falls } : null; }; // CC-183: the band on the report map
   const addHardest = (body: HTMLElement) => { const h = goldOld() ? null : hardestNow(); if (h) (body.querySelector('#report-ghost-slot') ?? body.lastElementChild)?.before(hardestBlock(h.name, h.falls)); };
+  const VIEW_KEYS = ['KeyC', 'KeyF', 'KeyG'];
   const stripKey = { v: '' };
   function paintStrip(x: number) {
     const zs = progressZones;
     const firstTodo = zs.findIndex((z) => x < z.x1);
     const hard = goldOld() ? null : hardestNow();
     const key = zs.map((_, i) => (firstTodo === -1 || i < firstTodo ? 'd' : i === firstTodo ? 'n' : 't')).join('') + (hard ? `|${hard.id}|${hard.falls}` : '');
-    legend.style.display = hard ? 'block' : 'none'; if (hard) legend.textContent = `${hardestLabel(hard.name, hard.falls)}. ${GOLD_LEGEND}`;
     if (key === stripKey.v) return;
     stripKey.v = key;
     strip.innerHTML = '';
@@ -640,7 +637,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
     if (e.code === 'KeyX') rollQueued = true;
     if (e.code === 'KeyK') fireQueued = true;
     if (e.code === 'KeyR') { if (e.shiftKey) { retryX = course.startX; restart(course.startX); } else restart(); }
-    if (idealWhole && !botMode && e.code !== 'KeyI' && !/^(Shift|Control|Alt|Meta)/.test(e.code)) stopWholeIdeal(); // any key takes the run back
+    if (idealWhole && !botMode && e.code !== 'KeyI' && !VIEW_KEYS.includes(e.code) && !/^(Shift|Control|Alt|Meta)/.test(e.code)) stopWholeIdeal(); // a move key takes the run back; the view keys (camera, front view, drum lane) do not
     if (e.code === 'KeyI') { if (e.shiftKey) showWholeIdeal(); else showIdeal(zoneAt(world.runner.x)?.id ?? 'gap'); }
     if (e.code === 'KeyT') openDojo();
     if (e.code === 'Escape' && replay) { replay = null; clearGuides(); showAgain(); }
