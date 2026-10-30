@@ -38,7 +38,7 @@ import { logTicks } from '../sim/run-checks';
 import { track, trackCourseEvent, courseKey, sendClear, session } from '../ui/feedback';
 import { statsOn, statKey } from '../ui/course-stats';
 import { touchStreak } from '../ui/streak';
-import { boardBox, boardOn, rememberBest } from '../ui/leaderboard';
+import { boardBox, boardCorner, boardOn, rememberBest } from '../ui/leaderboard';
 import { createRookieActor } from '../render/actor';
 import { lookSwitchOn, lookUrl } from '../render/look';
 import { makeObstacle } from '../course/collide';
@@ -668,6 +668,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
 
   if (params.get('bot') === 'shortcut') { const list = course.shortcuts?.length ? course.shortcuts : findShortcutsNow(course); if (list[0]) plan = list[0].plan; else plan = course.plan ?? searchIdealRun(course).plan; }
   const botMode = params.get('bot') === 'ideal' || params.get('bot') === 'shortcut';
+  { const bp = params.get('course') ?? ''; if (boardOn(params) && !botMode && !params.get('mode') && /^\/assets\/(demo|experiments\/osm)\//.test(bp)) document.body.append(boardCorner(statKey(bp), courseHash(course), session())); } // CC-108: the board is on the Course, not only in the end report
   let retryX = resume ? resume.retryX : course.startX; // "try this obstacle again" starts standing still just before it
   let demo: { x1: number } | null = null;
   const idealCache = new Map<number, Plan>();

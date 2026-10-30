@@ -4,8 +4,8 @@ import { secondsText } from './course-stats';
 
 export interface BoardRow { nick: string; ticks: number }
 
-/** Build switch for the board: ?board=1 shows it while it is new. */
-export const boardOn = (params: URLSearchParams): boolean => params.get('board') === '1';
+/** Build switch for the board: on by default (the owner expects to see it on the Course); ?board=0 hides it. */
+export const boardOn = (params: URLSearchParams): boolean => params.get('board') !== '0';
 
 /** Your best time on one version of a course, kept only in this browser. Returns the best now and whether this run set a new one. */
 export function rememberBest(key: string, hash: string, ticks: number, store: Pick<Storage, 'getItem' | 'setItem'> = localStorage): { best: number; isNew: boolean } {
@@ -63,7 +63,7 @@ export function boardBox(key: string, hash: string, me = ''): HTMLElement {
     for (const b of tabs.children) (b as HTMLElement).style.fontWeight = (b as HTMLElement).dataset.win === win ? '700' : '400';
     list.textContent = 'Loading…';
     void loadBoard(key, hash, win, me).then((d) => {
-      list.textContent = d.top.length ? boardLines(d.top).join('\n') : 'No time yet. Be the first.';
+      list.textContent = d.top.length ? boardLines(d.top).join('\n') : ''; // the place line below already invites
       place.textContent = placeText(d); clock.textContent = resetText(d.resetAt);
       champ.textContent = d.previous ? `${win === 'day' ? 'Yesterday' : 'Last week'}'s champion: ${d.previous.nick || '···'} ${secondsText(d.previous.ticks)}` : '';
     });
@@ -77,4 +77,17 @@ export function boardBox(key: string, hash: string, me = ''): HTMLElement {
   if (mine) { const m = document.createElement('div'); m.id = 'report-best'; m.textContent = `Your best: ${secondsText(mine)}`; box.appendChild(m); }
   show('day');
   return box;
+}
+
+/** The board on the Course itself: a small card on the right, under the buttons, open from the start, that folds to a pill so it never covers the run. */
+export function boardCorner(key: string, hash: string, me = ''): HTMLElement {
+  const card = document.createElement('div'); card.id = 'board-corner';
+  card.style.cssText = 'position:fixed;right:16px;top:284px;z-index:30;width:250px;background:#fffffff2;border:1px solid #cfd6d0;border-radius:12px;box-shadow:0 4px 16px #0003;font:500 13px system-ui,sans-serif;color:#17201d';
+  const toggle = document.createElement('button'); toggle.type = 'button'; toggle.id = 'board-toggle';
+  toggle.style.cssText = 'width:100%;text-align:left;border:0;background:transparent;font:700 14px system-ui,sans-serif;padding:8px 12px;cursor:pointer';
+  const body = boardBox(key, hash, me); body.style.margin = '0'; body.style.border = '0'; body.style.padding = '0 12px 10px'; (body.firstElementChild as HTMLElement).style.display = 'none'; // the pill is the title
+  const fold = (open: boolean): void => { body.style.display = open ? '' : 'none'; toggle.textContent = `${open ? '▾' : '▸'} Fastest runs`; toggle.setAttribute('aria-expanded', String(open)); };
+  toggle.onclick = () => fold(body.style.display === 'none');
+  card.append(toggle, body); fold(true);
+  return card;
 }
