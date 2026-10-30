@@ -43,6 +43,7 @@ import { closeShortcut } from '../slice/shortcut-close';
 import { makeItEasier } from '../slice/easier';
 import { EDIT_KEY, HIST_KEY, checkpointFor, piecesFromSource, readHandoff } from '../slice/roundtrip';
 import type { CourseSource } from '../course/course';
+import { pageQuery, pageSearch } from '../flags';
 
 // The World editor: build a world from pieces on a plan view, scale them (a toy brick becomes a block), turn, copy, crop and move them,
 // choose the lane the runner takes (turn about the rod, sideways, level), and play it. Everything is in metres.
@@ -79,7 +80,7 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
   let pieces: P[] = [];
   let selected: number | null = null;
   // CC-200: several pieces chosen at once (Shift+click, a box dragged on the picture). `selected` stays the main one; the group counts while it is in it.
-  const multiOn = new URLSearchParams(location.search).get('editorui') !== 'old';
+  const multiOn = pageQuery().get('editorui') !== 'old';
   let group: number[] = [];
   const chosen = (): number[] => (multiOn ? chosenIds(group, selected, (id) => pieces.some((q) => q.id === id && !isSizeReference(q))) : selected !== null ? [selected] : []);
   const chooseMany = (ids: number[]) => { group = ids; selected = ids.length ? ids[ids.length - 1] : null; drawPanel(); draw(); drawProfile(); };
@@ -501,9 +502,9 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
   fileIn.style.display = 'none';
   fileIn.onchange = () => { const f = fileIn.files?.[0]; if (f) void draftFrom(f); fileIn.value = ''; };
   (window as unknown as { ccPickPhoto?: () => void }).ccPickPhoto = () => fileIn.click();
-  if (/[?&](labs|photo)\b/.test(location.search)) {
+  if (/[?&](labs|photo)\b/.test(pageSearch())) {
     el('button', top, { text: 'Photo to course (labs)', id: 'photobtn', title: 'Pick a park photo: the design partner drafts a course from it, then the simulator checks it' }).onclick = () => fileIn.click();
-    const url = new URLSearchParams(location.search).get('photo');
+    const url = pageQuery().get('photo');
     if (url) void fetch(url).then((r) => r.blob()).then(draftFrom).catch(() => { reply.className = 'reply bad'; reply.textContent = 'I could not read that photo.'; });
   }
   // the Course Agent (labs, ?agent=1): propose from a photo, test with the simulator, repair from its report, stop when proven; the steps show as a list
@@ -1207,7 +1208,7 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
   }
   // the side view: the lane's ground, the bars (drag them here), and where a person can reach
   let sideMap = { uMin: 0, ppm: 20, ph: 20, base: 100, vmin: 0 };
-  const vzoom = new URLSearchParams(location.search).get('vzoom') === '1'; // film: stretch the height so a few metres of real drops are readable
+  const vzoom = pageQuery().get('vzoom') === '1'; // film: stretch the height so a few metres of real drops are readable
   function drawProfile() {
     const c = profileCanvas.getContext('2d')!;
     const W = profileCanvas.width, H = profileCanvas.height;
@@ -1414,7 +1415,7 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
     } catch { /* no history to bring back */ }
   }
   organizeEditor(root); // CC-94: the controls in one bar, one add menu, one dock, a command palette
-  if (new URLSearchParams(location.search).get('editorui') !== 'old') styleEditor(root); // CC-177: button levels, one Fix menu, a glossary (?editorui=old keeps the CC-94 look)
+  if (pageQuery().get('editorui') !== 'old') styleEditor(root); // CC-177: button levels, one Fix menu, a glossary (?editorui=old keeps the CC-94 look)
   if (!pendingObjects.length) onWorld(); // else onWorld runs when the saved photo objects are in
   document.documentElement.dataset.pieces = String(pieces.length);
   return { backend: 'webgl2' };

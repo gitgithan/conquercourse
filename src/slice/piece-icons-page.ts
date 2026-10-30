@@ -8,8 +8,9 @@ import { DEFAULT_PLANK, plankPiece } from './plank-world';
 import { stackPiece, stackSrc } from './stack';
 import { newPiece, size } from './world';
 import { readGlbMesh } from './glb';
+import { pageQuery } from '../flags';
 
-const id = new URLSearchParams(location.search).get('id') ?? '';
+const id = pageQuery().get('id') ?? '';
 const wrap = document.getElementById('wrap')!;
 const at = (x = 0, z = 0) => ({ x, z });
 const dev = (name: string, src: string): P3 => ({ ...newPiece(name, deviceMesh(src), at()), src });

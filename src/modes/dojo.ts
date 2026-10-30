@@ -9,6 +9,7 @@ import type { CourseData } from '../course/course';
 import { courseFacts } from '../course/facts';
 import { DEFAULT_LANDING } from '../sim/landing';
 import { GRAVITY } from '../sim/units';
+import { pageQuery } from '../flags';
 
 // The Dojo: a guided lesson per obstacle. Why it matters, what to try, the shape of the relationship, a rule of
 // thumb, the exact formula (earned, last), and what it means on the Course. Formulas appear only here.
@@ -16,7 +17,7 @@ const STEPS = ['Why it matters', 'Try it', 'The shape', 'A rule of thumb', 'The 
 const STEPS_V3 = ['Why it matters', 'Try it', 'The shape', 'The exact formula']; // CC-154: one graph, the rule of thumb is a caption on it, the formula is drawn over it last
 
 export function startDojo(host: HTMLElement): { backend: 'webgl2' } {
-  const q = new URLSearchParams(location.search);
+  const q = pageQuery();
   const num = (k: string) => (q.get(k) === null ? undefined : Number(q.get(k)));
   // the course in play (saved by the Course or the Park), else the default one: the lessons read their numbers from it
   let course = defaultCourse as unknown as CourseData;

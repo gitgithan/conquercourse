@@ -1,5 +1,6 @@
 import * as THREE from 'three/webgpu';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
+import { pageQuery } from '../flags';
 
 export type Backend = 'webgpu' | 'webgl2';
 
@@ -13,7 +14,7 @@ export interface Stage {
 
 // WebGPU where the browser has it; three's renderer falls back to WebGL 2 on its own.
 export async function createStage(host: HTMLElement, withRookie = true): Promise<Stage> {
-  const wantWebGL2 = new URLSearchParams(location.search).get('backend') === 'webgl2';
+  const wantWebGL2 = pageQuery().get('backend') === 'webgl2';
   const renderer = new THREE.WebGPURenderer({ antialias: true, forceWebGL: wantWebGL2 });
   await renderer.init();
   renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
