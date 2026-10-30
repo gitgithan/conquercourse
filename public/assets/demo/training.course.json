@@ -204,11 +204,11 @@
       143.5,
       171.5
     ],
-    "releaseAfter": 98,
+    "releaseAfter": 100,
     "bouncePress": 8,
     "hands": true,
     "hangTicks": [
-      210
+      214
     ],
     "vaultXs": [
       42.16
@@ -265,13 +265,13 @@
   "routes": [
     {
       "name": "bar to bar",
-      "ticks": 4262,
+      "ticks": 4266,
       "bars": 2,
       "chosen": false
     },
     {
       "name": "skip the second bar",
-      "ticks": 4104,
+      "ticks": 4129,
       "bars": 1,
       "chosen": true
     }
@@ -282,10 +282,10 @@
       "skipped": [
         "Bar 2"
       ],
-      "how": "pump 1.76 s on the bar you hold, let go, and fly past bar 2",
-      "secondsSaved": 1.32,
-      "seconds": 34.2,
-      "pumpSeconds": 1.76,
+      "how": "pump 1.79 s on the bar you hold, let go, and fly past bar 2",
+      "secondsSaved": 1.14,
+      "seconds": 34.41,
+      "pumpSeconds": 1.79,
       "windowMs": null,
       "designed": false,
       "plan": {
@@ -296,11 +296,11 @@
           143.5,
           171.5
         ],
-        "releaseAfter": 98,
+        "releaseAfter": 100,
         "bouncePress": 8,
         "hands": true,
         "hangTicks": [
-          210
+          214
         ],
         "vaultXs": [
           42.16
