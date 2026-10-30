@@ -40,8 +40,8 @@ describe('regrabbing a bar', () => {
   it('the first grab keeps the circle; the ellipse is only for a grab again', () => {
     const bar = course.holds!;
     const handsAt = (dx: number, dy: number) => tryGrab(bar, bar[0].x + dx, bar[0].y + dy - DEFAULT_HANG.handHeight, 3, 0);
-    expect(handsAt(0.3, 0)).not.toBeNull(); // CC-182: the circle is 0.35 m, the hands must visibly reach the bar
-    expect(handsAt(0.5, 0)).toBeNull();
+    expect(handsAt(0.1, 0)).not.toBeNull(); // CC-193: the circle is 0.15 m, the hands must visibly reach the bar
+    expect(handsAt(0.3, 0)).toBeNull();
     const again = (dx: number, dy: number) => tryGrab(bar, bar[0].x + dx, bar[0].y + dy - DEFAULT_HANG.handHeight, 3, 0, DEFAULT_HANG, true);
     expect(again(1.0, 0)).not.toBeNull();
     expect(again(0, 0.5)).not.toBeNull();

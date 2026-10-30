@@ -102,7 +102,7 @@
   "plan": {
     "jumpXs": [
       80.48,
-      124.4
+      125
     ],
     "releaseAfter": 60,
     "bouncePress": 8,
@@ -132,9 +132,9 @@
     },
     {
       "obstacle": "edge at 127.4 m (take-off)",
-      "best": 124.4,
-      "lo": 124.4,
-      "hi": 124.4,
+      "best": 125,
+      "lo": 125,
+      "hi": 125,
       "widthMs": 0
     }
   ],
@@ -145,15 +145,15 @@
         "Bar 2"
       ],
       "how": "pump 3.06 s on the bar you hold, let go, and fly past bar 2",
-      "secondsSaved": 0.06,
-      "seconds": 26.61,
+      "secondsSaved": 0.07,
+      "seconds": 26.69,
       "pumpSeconds": 3.06,
       "windowMs": 11,
       "designed": false,
       "plan": {
         "jumpXs": [
           81.92,
-          127.1
+          125
         ],
         "releaseAfter": 60,
         "bouncePress": 8,

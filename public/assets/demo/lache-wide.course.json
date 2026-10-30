@@ -99,7 +99,7 @@
   "routes": [
     {
       "name": "bar to bar",
-      "ticks": 1746,
+      "ticks": 1753,
       "bars": 2,
       "chosen": true
     }
