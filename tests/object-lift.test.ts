@@ -52,6 +52,10 @@ describe('provenance', () => {
 describe('/api/object-lift handle', () => {
   const ok = (body: unknown) => (async () => new Response(JSON.stringify(body), { status: 200 })) as unknown as typeof fetch;
   it('is off without the secret', async () => expect((await handle(good, {}, 'ip')).status).toBe(503));
+  it('accepts the real Modal host with a region', async () => {
+    const e = { ...env, CC_UPLOAD_SUBMIT_URL: 'https://han-qi91--cc-photo-to-object-submit.us-east.modal.run', CC_UPLOAD_STATUS_URL: 'https://han-qi91--cc-photo-to-object-status.us-east.modal.run' };
+    expect((await handle({ action: 'status', id: 'fc-ABCDEFGHIJKL' }, e, 'ipr', ok({ state: 'running' }))).status).toBe(200);
+  });
   it('submits and returns the job id', async () => {
     const r = await handle({ ...good, action: 'submit' }, env, 'ip1', ok({ id: 'fc-ABCDEFGHIJKL' }));
     expect(r).toEqual({ status: 200, body: { id: 'fc-ABCDEFGHIJKL', moderation: 'skipped' } });

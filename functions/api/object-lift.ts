@@ -9,7 +9,7 @@ import { limited } from './designer';
 import { json } from '../_lib/http';
 
 interface Env { CC_UPLOAD_TOKEN?: string; CC_UPLOAD_SUBMIT_URL?: string; CC_UPLOAD_STATUS_URL?: string; BASETEN_API_KEY?: string }
-const MODAL_HOST = /^https:\/\/[a-z0-9-]+--[a-z0-9-]+\.modal\.run\/?$/;
+const MODAL_HOST = /^https:\/\/[a-z0-9-]+--[a-z0-9-]+(\.[a-z0-9-]+)?\.modal\.run\/?$/; // the app host may carry a region: x--y.us-east.modal.run
 
 export async function handle(b: Record<string, unknown>, env: Env, ip: string, fetcher: typeof fetch = fetch, now = Date.now()): Promise<{ status: number; body: unknown }> {
   if (!env.CC_UPLOAD_TOKEN || !env.CC_UPLOAD_SUBMIT_URL || !env.CC_UPLOAD_STATUS_URL || !MODAL_HOST.test(env.CC_UPLOAD_SUBMIT_URL) || !MODAL_HOST.test(env.CC_UPLOAD_STATUS_URL)) return { status: 503, body: { error: 'not allowed' } };
