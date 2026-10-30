@@ -48,6 +48,8 @@
 | Every try can be a clip | The fall panel offers a clip too | After a fall | [viral plan](viral-plan.md) |
 | Ghost | Your best run, or a friend's, beside you | `?ghost`; `N` cycles chips | [challenge](challenge.md) |
 | Community gallery | Courses made from real photos | `?mode=gallery` | [world-slice](world-slice.md#the-courses-gallery-cc-89) |
+| Communities (CC-247) | Make a wallpaper or a 3D object from a photo: Photo, Pick, Choose, Make; Ctrl+C, Ctrl+V, Delete and Ctrl+Z work on the picked boxes | `?mode=communities`, or the Community tab in the top bar | [communities](communities.md) |
+| Top bar (CC-246) | One bar on every page: Courses, World Editor, World Slicer, Community | On by default; `?nav=0` hides it | [communities](communities.md#the-top-bar) |
 | End report sections, restart chip (after pull) | Download and Copy first, a restart hint during a run | End of a run | [viral plan](viral-plan.md) |
 
 ## 5. Sound and look

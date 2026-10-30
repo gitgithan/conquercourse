@@ -1,0 +1,47 @@
+// CC-247/248: the Communities page end to end in a browser: Browse, then Contribute with a photo, boxes, Ctrl+C / Ctrl+V / Delete / Ctrl+Z, Choose, Make a wallpaper.
+import { chromium } from 'playwright';
+import { spawn } from 'node:child_process';
+import { mkdirSync, readdirSync } from 'node:fs';
+const port = process.env.PORT ?? '5301', out = process.argv[2] ?? 'test-results/communities';
+mkdirSync(out, { recursive: true });
+const photo = 'public/assets/park/' + readdirSync('public/assets/park').find((f) => /\.jpe?g$/.test(f));
+const server = spawn('node', ['node_modules/vite/bin/vite.js', '--port', port, '--strictPort'], { stdio: 'ignore' });
+const checks = {};
+try {
+  await new Promise((r) => setTimeout(r, 6000));
+  const browser = await chromium.launch({ args: ['--use-angle=swiftshader', '--ignore-gpu-blocklist'] });
+  const page = await (await browser.newContext({ viewport: { width: 1280, height: 720 } })).newPage();
+  const errors = []; page.on('pageerror', (e) => errors.push(String(e)));
+  await page.goto(`http://localhost:${port}/?mode=communities&welcome=0`, { timeout: 120000, waitUntil: 'domcontentloaded' });
+  await page.waitForFunction(() => document.documentElement.dataset.ready === 'true', null, { timeout: 90000 });
+  await page.screenshot({ path: `${out}/1-browse.png` });
+  checks.navMarked = await page.$eval('#sitenav [data-feature=community]', (e) => e.getAttribute('aria-current') === 'page');
+  await page.click('#tab-make'); await page.waitForTimeout(300);
+  await page.setInputFiles('#cfile', photo);
+  await page.waitForSelector('.stage img', { timeout: 20000 }); await page.waitForTimeout(500);
+  await page.screenshot({ path: `${out}/2-pick-empty.png` });
+  const r = await page.$eval('.stage img', (e) => { const b = e.getBoundingClientRect(); return { x: b.x, y: b.y, w: b.width, h: b.height }; });
+  const draw = async (fx, fy, tx, ty) => { await page.mouse.move(r.x + r.w * fx, r.y + r.h * fy); await page.mouse.down(); await page.mouse.move(r.x + r.w * tx, r.y + r.h * ty, { steps: 6 }); await page.mouse.up(); };
+  await draw(0.1, 0.5, 0.3, 0.8);
+  const count = () => page.$eval('.stage', (e) => Number(e.dataset.count));
+  checks.drewOne = (await count()) === 1;
+  await page.keyboard.press('Control+c'); await page.keyboard.press('Control+v');
+  checks.pasted = (await count()) === 2;
+  await page.keyboard.press('Delete');
+  checks.deleted = (await count()) === 1;
+  await page.keyboard.press('Control+z');
+  checks.undone = (await count()) === 2;
+  await page.screenshot({ path: `${out}/3-pick-boxes.png` });
+  await page.click('#cnext'); await page.waitForSelector('#choose-wallpaper');
+  await page.screenshot({ path: `${out}/4-choose.png` });
+  checks.nextLocked = await page.$eval('#cmake', (e) => e.disabled);
+  await page.click('#choose-wallpaper'); await page.click('#cmake');
+  await page.fill('#cwname', 'my park'); await page.click('#cdo'); await page.waitForTimeout(400);
+  checks.saved = /Saved/.test(await page.textContent('#cmsg'));
+  await page.screenshot({ path: `${out}/5-made.png` });
+  await page.click('#tab-browse'); await page.waitForTimeout(300);
+  checks.inBrowse = (await page.$$('.card img')).length === 1;
+  await page.screenshot({ path: `${out}/6-browse-after.png` });
+  console.log(checks, 'errors:', errors);
+  await browser.close();
+} finally { server.kill(); }
