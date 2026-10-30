@@ -1,0 +1,32 @@
+{
+  "label": "bicycle rack",
+  "extents_m": {
+    "x": 1.583,
+    "y": 1.0,
+    "z": 0.772
+  },
+  "height_m": 1.0,
+  "target_height_m": 1.0,
+  "scale_source": "typed",
+  "scale_factor": 1.5818,
+  "raw_height": 0.6322,
+  "yaw_deg": 0.0,
+  "tilt_deg": 9.74,
+  "faces": 5820,
+  "vertices": 7397,
+  "width_to_height": 1.582,
+  "texture": "1024x1024",
+  "photo": "bike-shelter",
+  "box": [
+    200,
+    60,
+    1120,
+    740
+  ],
+  "bytes": 598076,
+  "model": "SAM 3D Objects (seed 42)",
+  "bake_seconds": 4.34,
+  "raw_faces": 376842,
+  "splat_points": 258784,
+  "lift_round": "r1"
+}

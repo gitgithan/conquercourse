@@ -1,0 +1,36 @@
+{
+  "photo": "bench-backlit",
+  "mask_seconds": 0.3,
+  "lift_seconds": 8.7,
+  "wall_seconds": 138.3,
+  "mask": {
+    "how": "text",
+    "score": 0.96875,
+    "iou_with_box": 0.906,
+    "candidates": 1,
+    "pixels": 76126
+  },
+  "privacy": {
+    "people": 0,
+    "faces": 0,
+    "plates": 0,
+    "changed": false
+  },
+  "n_faces_raw": 211900,
+  "n_gaussians": 171168,
+  "padretry": {
+    "enabled": true,
+    "border": {
+      "top": 0.0,
+      "bottom": 0.0,
+      "left": 0.0,
+      "right": 0.0
+    },
+    "padded": false,
+    "touches": false,
+    "extent_aspect": 2.216,
+    "mask_aspect": 1.234,
+    "bad": false,
+    "note": ""
+  }
+}

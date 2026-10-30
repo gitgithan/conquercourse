@@ -1,0 +1,32 @@
+{
+  "label": "stairs",
+  "extents_m": {
+    "x": 4.372,
+    "y": 0.7,
+    "z": 3.027
+  },
+  "height_m": 0.7,
+  "target_height_m": 0.7,
+  "scale_source": "typical:stairs",
+  "scale_factor": 4.3758,
+  "raw_height": 0.16,
+  "yaw_deg": 1.0,
+  "tilt_deg": 0.09,
+  "faces": 5820,
+  "vertices": 3647,
+  "width_to_height": 6.243,
+  "texture": "1024x1024",
+  "photo": "skate-stairs",
+  "box": [
+    130,
+    220,
+    1090,
+    710
+  ],
+  "bytes": 360612,
+  "model": "SAM 3D Objects (seed 42)",
+  "bake_seconds": 3.0,
+  "raw_faces": 289692,
+  "splat_points": 159008,
+  "lift_round": "r1"
+}

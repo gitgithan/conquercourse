@@ -1,0 +1,530 @@
+{
+  "experiment": "cc-upload-hard-set",
+  "round": "r1",
+  "issue": "CC-220",
+  "date": "2026-10-30",
+  "seed": 42,
+  "settings": {
+    "mask_grow_px": 0,
+    "colour_k": 4,
+    "pad_fraction": 0.0,
+    "padretry": true,
+    "texture": false
+  },
+  "photos": [
+    {
+      "photo": "bollard-street",
+      "mask_seconds": 3.7,
+      "lift_seconds": 11.9,
+      "wall_seconds": 73.9,
+      "mask": {
+        "how": "text",
+        "score": 0.97265625,
+        "iou_with_box": 0.794,
+        "candidates": 4,
+        "pixels": 93550
+      },
+      "privacy": {
+        "people": 1,
+        "faces": 0,
+        "plates": 4,
+        "changed": true
+      },
+      "n_faces_raw": 227206,
+      "n_gaussians": 203168,
+      "padretry": {
+        "enabled": true,
+        "border": {
+          "top": 0.0,
+          "bottom": 0.0,
+          "left": 0.0,
+          "right": 0.0
+        },
+        "padded": false,
+        "touches": false,
+        "extent_aspect": 0.29,
+        "mask_aspect": 0.261,
+        "bad": false,
+        "note": ""
+      }
+    },
+    {
+      "photo": "bollard-row-edge",
+      "mask_seconds": 0.3,
+      "lift_seconds": 10.3,
+      "wall_seconds": 82.6,
+      "mask": {
+        "how": "text",
+        "score": 0.96484375,
+        "iou_with_box": 0.95,
+        "candidates": 8,
+        "pixels": 200960
+      },
+      "privacy": {
+        "people": 0,
+        "faces": 0,
+        "plates": 0,
+        "changed": false
+      },
+      "n_faces_raw": 467464,
+      "n_gaussians": 403232,
+      "padretry": {
+        "enabled": true,
+        "border": {
+          "top": 0.0,
+          "bottom": 0.12890625,
+          "left": 0.0,
+          "right": 0.0
+        },
+        "padded": true,
+        "touches": true,
+        "extent_aspect": 0.424,
+        "mask_aspect": 0.511,
+        "bad": false,
+        "note": "pad"
+      }
+    },
+    {
+      "photo": "bike-shelter",
+      "mask_seconds": 0.4,
+      "lift_seconds": 9.3,
+      "wall_seconds": 88.9,
+      "mask": {
+        "how": "box-prompt",
+        "score": 0.97265625,
+        "iou_with_box": 0.0,
+        "candidates": 22,
+        "pixels": 228788
+      },
+      "privacy": {
+        "people": 0,
+        "faces": 0,
+        "plates": 0,
+        "changed": false
+      },
+      "n_faces_raw": 376842,
+      "n_gaussians": 258784,
+      "padretry": {
+        "enabled": true,
+        "border": {
+          "top": 0.0,
+          "bottom": 0.0,
+          "left": 0.0,
+          "right": 0.0
+        },
+        "padded": false,
+        "touches": false,
+        "extent_aspect": 1.585,
+        "mask_aspect": 1.342,
+        "bad": false,
+        "note": ""
+      }
+    },
+    {
+      "photo": "bike-rack-tangle",
+      "mask_seconds": 0.3,
+      "lift_seconds": 9.4,
+      "wall_seconds": 94.9,
+      "mask": {
+        "how": "text",
+        "score": 0.4765625,
+        "iou_with_box": 0.698,
+        "candidates": 1,
+        "pixels": 163561
+      },
+      "privacy": {
+        "people": 0,
+        "faces": 0,
+        "plates": 0,
+        "changed": false
+      },
+      "n_faces_raw": 299352,
+      "n_gaussians": 232320,
+      "padretry": {
+        "enabled": true,
+        "border": {
+          "top": 0.0,
+          "bottom": 0.0,
+          "left": 0.24956063268892795,
+          "right": 0.0
+        },
+        "padded": true,
+        "touches": true,
+        "extent_aspect": 0.993,
+        "mask_aspect": 0.725,
+        "bad": false,
+        "note": "pad"
+      }
+    },
+    {
+      "photo": "bin-scooters",
+      "mask_seconds": 0.6,
+      "lift_seconds": 12.7,
+      "wall_seconds": 106.7,
+      "mask": {
+        "how": "text",
+        "score": 0.734375,
+        "iou_with_box": 0.906,
+        "candidates": 2,
+        "pixels": 166103
+      },
+      "privacy": {
+        "people": 1,
+        "faces": 0,
+        "plates": 0,
+        "changed": true
+      },
+      "n_faces_raw": 829250,
+      "n_gaussians": 620416,
+      "padretry": {
+        "enabled": true,
+        "border": {
+          "top": 0.0,
+          "bottom": 0.0,
+          "left": 0.0,
+          "right": 0.0
+        },
+        "padded": false,
+        "touches": false,
+        "extent_aspect": 0.581,
+        "mask_aspect": 0.544,
+        "bad": false,
+        "note": ""
+      }
+    },
+    {
+      "photo": "bin-snow",
+      "mask_seconds": 0.3,
+      "lift_seconds": 22.5,
+      "wall_seconds": 128.4,
+      "mask": {
+        "how": "text",
+        "score": 0.7109375,
+        "iou_with_box": 0.858,
+        "candidates": 1,
+        "pixels": 487118
+      },
+      "privacy": {
+        "people": 0,
+        "faces": 0,
+        "plates": 0,
+        "changed": false
+      },
+      "n_faces_raw": 1484312,
+      "n_gaussians": 1306144,
+      "padretry": {
+        "enabled": true,
+        "border": {
+          "top": 0.0,
+          "bottom": 0.0,
+          "left": 0.0,
+          "right": 0.0
+        },
+        "padded": false,
+        "touches": false,
+        "extent_aspect": 0.724,
+        "mask_aspect": 0.806,
+        "bad": false,
+        "note": ""
+      }
+    },
+    {
+      "photo": "bench-dusk",
+      "mask_seconds": 0.3,
+      "lift_seconds": 8.7,
+      "wall_seconds": 131.9,
+      "mask": {
+        "how": "text",
+        "score": 0.89453125,
+        "iou_with_box": 0.461,
+        "candidates": 4,
+        "pixels": 18857
+      },
+      "privacy": {
+        "people": 0,
+        "faces": 0,
+        "plates": 0,
+        "changed": false
+      },
+      "n_faces_raw": 197520,
+      "n_gaussians": 166688,
+      "padretry": {
+        "enabled": true,
+        "border": {
+          "top": 0.0,
+          "bottom": 0.0,
+          "left": 0.0,
+          "right": 0.0
+        },
+        "padded": false,
+        "touches": false,
+        "extent_aspect": 2.24,
+        "mask_aspect": 1.137,
+        "bad": false,
+        "note": ""
+      }
+    },
+    {
+      "photo": "bench-backlit",
+      "mask_seconds": 0.3,
+      "lift_seconds": 8.7,
+      "wall_seconds": 138.3,
+      "mask": {
+        "how": "text",
+        "score": 0.96875,
+        "iou_with_box": 0.906,
+        "candidates": 1,
+        "pixels": 76126
+      },
+      "privacy": {
+        "people": 0,
+        "faces": 0,
+        "plates": 0,
+        "changed": false
+      },
+      "n_faces_raw": 211900,
+      "n_gaussians": 171168,
+      "padretry": {
+        "enabled": true,
+        "border": {
+          "top": 0.0,
+          "bottom": 0.0,
+          "left": 0.0,
+          "right": 0.0
+        },
+        "padded": false,
+        "touches": false,
+        "extent_aspect": 2.216,
+        "mask_aspect": 1.234,
+        "bad": false,
+        "note": ""
+      }
+    },
+    {
+      "photo": "skate-stairs",
+      "mask_seconds": 0.3,
+      "lift_seconds": 8.8,
+      "wall_seconds": 144.5,
+      "mask": {
+        "how": "box-prompt",
+        "score": 0.9609375,
+        "iou_with_box": 0.0,
+        "candidates": 1,
+        "pixels": 120343
+      },
+      "privacy": {
+        "people": 0,
+        "faces": 0,
+        "plates": 0,
+        "changed": false
+      },
+      "n_faces_raw": 289692,
+      "n_gaussians": 159008,
+      "padretry": {
+        "enabled": true,
+        "border": {
+          "top": 0.0,
+          "bottom": 0.0,
+          "left": 0.0,
+          "right": 0.0
+        },
+        "padded": false,
+        "touches": false,
+        "extent_aspect": 6.25,
+        "mask_aspect": 1.977,
+        "bad": true,
+        "note": ""
+      }
+    },
+    {
+      "photo": "calisthenics-berlin",
+      "mask_seconds": 0.3,
+      "lift_seconds": 9.9,
+      "wall_seconds": 151.5,
+      "mask": {
+        "how": "text",
+        "score": 0.384765625,
+        "iou_with_box": 0.909,
+        "candidates": 6,
+        "pixels": 57653
+      },
+      "privacy": {
+        "people": 0,
+        "faces": 0,
+        "plates": 0,
+        "changed": false
+      },
+      "n_faces_raw": 122238,
+      "n_gaussians": 121024,
+      "padretry": {
+        "enabled": true,
+        "border": {
+          "top": 0.0,
+          "bottom": 0.0,
+          "left": 0.0,
+          "right": 0.0
+        },
+        "padded": false,
+        "touches": false,
+        "extent_aspect": 0.546,
+        "mask_aspect": 0.523,
+        "bad": false,
+        "note": ""
+      }
+    },
+    {
+      "photo": "fitness-fence",
+      "mask_seconds": 0.3,
+      "lift_seconds": 8.6,
+      "wall_seconds": 157.4,
+      "mask": {
+        "how": "text",
+        "score": 0.318359375,
+        "iou_with_box": 0.839,
+        "candidates": 5,
+        "pixels": 69781
+      },
+      "privacy": {
+        "people": 0,
+        "faces": 0,
+        "plates": 0,
+        "changed": false
+      },
+      "n_faces_raw": 131616,
+      "n_gaussians": 114816,
+      "padretry": {
+        "enabled": true,
+        "border": {
+          "top": 0.0,
+          "bottom": 0.0,
+          "left": 0.0,
+          "right": 0.0
+        },
+        "padded": false,
+        "touches": false,
+        "extent_aspect": 0.603,
+        "mask_aspect": 0.612,
+        "bad": false,
+        "note": ""
+      }
+    },
+    {
+      "photo": "fitness-macombs",
+      "mask_seconds": 0.3,
+      "lift_seconds": 7.9,
+      "wall_seconds": 161.9,
+      "mask": {
+        "how": "text",
+        "score": 0.3203125,
+        "iou_with_box": 0.346,
+        "candidates": 10,
+        "pixels": 57920
+      },
+      "privacy": {
+        "people": 0,
+        "faces": 0,
+        "plates": 0,
+        "changed": false
+      },
+      "n_faces_raw": 37918,
+      "n_gaussians": 30624,
+      "padretry": {
+        "enabled": true,
+        "border": {
+          "top": 0.0,
+          "bottom": 0.0,
+          "left": 0.0,
+          "right": 0.0
+        },
+        "padded": false,
+        "touches": false,
+        "extent_aspect": 0.278,
+        "mask_aspect": 0.28,
+        "bad": false,
+        "note": ""
+      }
+    },
+    {
+      "photo": "railing-statue",
+      "mask_seconds": 2.0,
+      "lift_seconds": 8.2,
+      "wall_seconds": 167.6,
+      "mask": {
+        "how": "text",
+        "score": 0.87109375,
+        "iou_with_box": 0.42,
+        "candidates": 15,
+        "pixels": 14415
+      },
+      "privacy": {
+        "people": 5,
+        "faces": 4,
+        "plates": 0,
+        "changed": true
+      },
+      "n_faces_raw": 76992,
+      "n_gaussians": 58752,
+      "padretry": {
+        "enabled": true,
+        "border": {
+          "top": 0.0,
+          "bottom": 0.0,
+          "left": 0.0,
+          "right": 0.0
+        },
+        "padded": false,
+        "touches": false,
+        "extent_aspect": 1.56,
+        "mask_aspect": 1.134,
+        "bad": false,
+        "note": ""
+      }
+    },
+    {
+      "photo": "hydrant-cars",
+      "mask_seconds": 0.8,
+      "lift_seconds": 9.2,
+      "wall_seconds": 175.0,
+      "mask": {
+        "how": "text",
+        "score": 0.94140625,
+        "iou_with_box": 0.355,
+        "candidates": 1,
+        "pixels": 3164
+      },
+      "privacy": {
+        "people": 0,
+        "faces": 0,
+        "plates": 4,
+        "changed": true
+      },
+      "n_faces_raw": 308858,
+      "n_gaussians": 238784,
+      "padretry": {
+        "enabled": true,
+        "border": {
+          "top": 0.0,
+          "bottom": 0.0,
+          "left": 0.0,
+          "right": 0.0
+        },
+        "padded": false,
+        "touches": false,
+        "extent_aspect": 0.514,
+        "mask_aspect": 0.35,
+        "bad": false,
+        "note": ""
+      }
+    }
+  ],
+  "mask_load_seconds": 14.2,
+  "lift_load_seconds": 45.8,
+  "gpu_seconds": {
+    "l4": 24,
+    "l40s": 192
+  },
+  "gpu_minutes": 3.6,
+  "estimated_usd": 0.109,
+  "price_basis": "L40S $1.95/h, L4 $0.80/h, container seconds in methods plus one model load each; idle scale-down time not included",
+  "note": "run from VM2 with the resumable entrypoint (CC-221); first GPU container started within about 2 minutes"
+}

@@ -1,0 +1,32 @@
+{
+  "label": "bollard",
+  "extents_m": {
+    "x": 0.26,
+    "y": 0.9,
+    "z": 0.232
+  },
+  "height_m": 0.9,
+  "target_height_m": 0.9,
+  "scale_source": "typed",
+  "scale_factor": 0.8998,
+  "raw_height": 1.0003,
+  "yaw_deg": 83.0,
+  "tilt_deg": 0.45,
+  "faces": 5820,
+  "vertices": 3443,
+  "width_to_height": 0.289,
+  "texture": "1024x1024",
+  "photo": "bollard-street",
+  "box": [
+    840,
+    830,
+    1060,
+    1540
+  ],
+  "bytes": 313084,
+  "model": "SAM 3D Objects (seed 42)",
+  "bake_seconds": 4.26,
+  "raw_faces": 227206,
+  "splat_points": 203168,
+  "lift_round": "r1"
+}

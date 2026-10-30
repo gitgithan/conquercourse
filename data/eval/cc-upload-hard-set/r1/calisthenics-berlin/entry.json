@@ -1,0 +1,36 @@
+{
+  "photo": "calisthenics-berlin",
+  "mask_seconds": 0.3,
+  "lift_seconds": 9.9,
+  "wall_seconds": 151.5,
+  "mask": {
+    "how": "text",
+    "score": 0.384765625,
+    "iou_with_box": 0.909,
+    "candidates": 6,
+    "pixels": 57653
+  },
+  "privacy": {
+    "people": 0,
+    "faces": 0,
+    "plates": 0,
+    "changed": false
+  },
+  "n_faces_raw": 122238,
+  "n_gaussians": 121024,
+  "padretry": {
+    "enabled": true,
+    "border": {
+      "top": 0.0,
+      "bottom": 0.0,
+      "left": 0.0,
+      "right": 0.0
+    },
+    "padded": false,
+    "touches": false,
+    "extent_aspect": 0.546,
+    "mask_aspect": 0.523,
+    "bad": false,
+    "note": ""
+  }
+}

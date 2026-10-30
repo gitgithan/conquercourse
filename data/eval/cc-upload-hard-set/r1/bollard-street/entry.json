@@ -1,0 +1,36 @@
+{
+  "photo": "bollard-street",
+  "mask_seconds": 3.7,
+  "lift_seconds": 11.9,
+  "wall_seconds": 73.9,
+  "mask": {
+    "how": "text",
+    "score": 0.97265625,
+    "iou_with_box": 0.794,
+    "candidates": 4,
+    "pixels": 93550
+  },
+  "privacy": {
+    "people": 1,
+    "faces": 0,
+    "plates": 4,
+    "changed": true
+  },
+  "n_faces_raw": 227206,
+  "n_gaussians": 203168,
+  "padretry": {
+    "enabled": true,
+    "border": {
+      "top": 0.0,
+      "bottom": 0.0,
+      "left": 0.0,
+      "right": 0.0
+    },
+    "padded": false,
+    "touches": false,
+    "extent_aspect": 0.29,
+    "mask_aspect": 0.261,
+    "bad": false,
+    "note": ""
+  }
+}

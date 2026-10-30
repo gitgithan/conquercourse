@@ -1,0 +1,36 @@
+{
+  "photo": "bike-rack-tangle",
+  "mask_seconds": 0.3,
+  "lift_seconds": 9.4,
+  "wall_seconds": 94.9,
+  "mask": {
+    "how": "text",
+    "score": 0.4765625,
+    "iou_with_box": 0.698,
+    "candidates": 1,
+    "pixels": 163561
+  },
+  "privacy": {
+    "people": 0,
+    "faces": 0,
+    "plates": 0,
+    "changed": false
+  },
+  "n_faces_raw": 299352,
+  "n_gaussians": 232320,
+  "padretry": {
+    "enabled": true,
+    "border": {
+      "top": 0.0,
+      "bottom": 0.0,
+      "left": 0.24956063268892795,
+      "right": 0.0
+    },
+    "padded": true,
+    "touches": true,
+    "extent_aspect": 0.993,
+    "mask_aspect": 0.725,
+    "bad": false,
+    "note": "pad"
+  }
+}

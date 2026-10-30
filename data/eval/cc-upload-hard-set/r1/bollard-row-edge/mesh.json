@@ -1,0 +1,32 @@
+{
+  "label": "bollard",
+  "extents_m": {
+    "x": 0.381,
+    "y": 0.9,
+    "z": 0.378
+  },
+  "height_m": 0.9,
+  "target_height_m": 0.9,
+  "scale_source": "typed",
+  "scale_factor": 0.8993,
+  "raw_height": 1.0008,
+  "yaw_deg": 4.5,
+  "tilt_deg": 7.4,
+  "faces": 5819,
+  "vertices": 3361,
+  "width_to_height": 0.423,
+  "texture": "1024x1024",
+  "photo": "bollard-row-edge",
+  "box": [
+    100,
+    300,
+    440,
+    960
+  ],
+  "bytes": 316508,
+  "model": "SAM 3D Objects (seed 42)",
+  "bake_seconds": 4.1,
+  "raw_faces": 467464,
+  "splat_points": 403232,
+  "lift_round": "r1"
+}
