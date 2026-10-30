@@ -1,0 +1,17 @@
+{
+  "id": "roll-lp-stand",
+  "move": "roll",
+  "stage_wall_seconds": {
+    "fit": 0.0
+  },
+  "modal_l4_usd_per_second": 0.000222,
+  "credit": "Learn Parkour : Basic Standing Roll, London Parkour (CC BY)",
+  "source": "a person's own clip",
+  "modal": {
+    "frames": 120,
+    "frames_measured": 120,
+    "wall_s": 1729.8811676502228,
+    "container_gpu_seconds_estimate": 499.68339252471924,
+    "l4_cost_estimate_usd": 0.11092971314048768
+  }
+}

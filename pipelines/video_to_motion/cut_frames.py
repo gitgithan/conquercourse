@@ -35,8 +35,11 @@ def main(clip, out_dir, long_side=1920):
     if r != a:
         raise SystemExit(f"refused: not constant frame rate ({r} vs {a})")
     scale = f"scale='if(gte(iw,ih),{long_side},-2)':'if(gte(iw,ih),-2,{long_side})'"
+    # ffmpeg 5.1 and newer call it -fps_mode; 4.x (the laptop's) only knows -vsync; both keep every frame
+    old = b"fps_mode" not in subprocess.run(["ffmpeg", "-h", "full"], capture_output=True).stdout
+    keep = ["-vsync", "passthrough"] if old else ["-fps_mode", "passthrough"]
     subprocess.run(
-        ["ffmpeg", "-v", "error", "-y", "-i", str(clip), "-vf", scale, "-fps_mode", "passthrough",
+        ["ffmpeg", "-v", "error", "-y", "-i", str(clip), "-vf", scale, *keep,
          "-q:v", "2", "-start_number", "0", str(out_dir / "f%05d.jpg")], check=True)
     times = frame_times(clip)
     n = len(list(out_dir.glob("f*.jpg")))
