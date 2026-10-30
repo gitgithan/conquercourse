@@ -1,0 +1,32 @@
+{
+  "label": "trash bin",
+  "extents_m": {
+    "x": 0.581,
+    "y": 1.0,
+    "z": 0.53
+  },
+  "height_m": 1.0,
+  "target_height_m": 1.0,
+  "scale_source": "typed",
+  "scale_factor": 0.9991,
+  "raw_height": 1.0009,
+  "yaw_deg": 0.0,
+  "tilt_deg": 0.1,
+  "faces": 5820,
+  "vertices": 4192,
+  "width_to_height": 0.581,
+  "texture": "1024x1024",
+  "photo": "bin-scooters",
+  "box": [
+    510,
+    200,
+    850,
+    800
+  ],
+  "bytes": 405120,
+  "model": "SAM 3D Objects (seed 42)",
+  "bake_seconds": 7.95,
+  "raw_faces": 829250,
+  "splat_points": 620416,
+  "lift_round": "r1"
+}

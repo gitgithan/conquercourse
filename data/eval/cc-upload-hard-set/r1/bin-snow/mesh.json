@@ -1,0 +1,32 @@
+{
+  "label": "trash bin",
+  "extents_m": {
+    "x": 0.723,
+    "y": 0.999,
+    "z": 0.721
+  },
+  "height_m": 0.999,
+  "target_height_m": 1.0,
+  "scale_source": "typed",
+  "scale_factor": 0.9992,
+  "raw_height": 1.0008,
+  "yaw_deg": 90.0,
+  "tilt_deg": 0.25,
+  "faces": 5820,
+  "vertices": 6256,
+  "width_to_height": 0.724,
+  "texture": "1024x1024",
+  "photo": "bin-snow",
+  "box": [
+    310,
+    640,
+    1020,
+    1610
+  ],
+  "bytes": 552452,
+  "model": "SAM 3D Objects (seed 42)",
+  "bake_seconds": 12.81,
+  "raw_faces": 1484312,
+  "splat_points": 1306144,
+  "lift_round": "r1"
+}
