@@ -11,6 +11,39 @@
   - The roll is the case the decision of 2026-10-27 allows for: CMU has no forward roll (see below), so composing clips cannot make one.
 - **The blind A/B decides:** open `/?demo=roll-ab`, watch A and B, pick one; the page then says which was the clip and which the tuck.
 
+## How each move in the game is made today (checked 2026-10-30)
+- **So what:** the game uses four sources, tried in this order; a move takes the first one that passes the gate and its move check.
+- **The ladder (best source first):**
+```
+ 1. CMU motion capture        real people, free to use, credit requested
+        | no trial shows the move (CMU has no forward roll)
+        v
+ 2. Kimodo text prompt        a model writes the motion; we keep a sample only if it passes
+        | text cannot put hands or feet in the right place
+        v
+ 3. Captured video clip       London Parkour (CC BY) or our own, adults only, through MHR/SOMA
+        | no clip passes the move check
+        v
+ 4. Built pose from bones     hand-made blend; the fallback, never called mocap
+        |
+        v
+   gate (pipelines/ccpipe/gate.py) -> move check (pipelines/ccpipe/movecheck.py) -> public/assets/motion/<move>.json
+```
+- **Per move, what ships now:**
+| Move | Source that ships | Where it is recorded |
+|---|---|---|
+| Run, leap, land, hang, swing, reach | 1. CMU trials 09_01, 49_04, 49_05, 01_10, 14_09 | `docs/ASSETS.md` motion rows |
+| Hard landing (`hurt`) | 1. CMU trial 90_16, "fall on face" | `docs/ASSETS.md`, `data/eval/motion-hurt/` |
+| Roll | 2. Kimodo text prompt `roll_a`, sample 4 (tuck pose is the fallback) | `docs/ASSETS.md`, `data/eval/motion-roll/` |
+| Vault, climb | 3. Captured from London Parkour "Pop Vault" (CC BY); hands pinned by code | `docs/ASSETS.md`, `data/eval/motion-vault/` |
+| Giant swing, seated, launch | 4. Built from bones | `src/motion/poses.ts`, `src/motion/motion-table.ts` |
+| Ready crouch | none yet; listed by `motionGaps()` | `src/motion/motion-table.ts` |
+- **Filmed jump roll (London Parkour, `roll-lp`) did not pass:**
+  - It passes the plausibility gate after trimming.
+  - It fails the move check: the body is in the air for 0.30 s (limit 0.25 s), because a jump roll leaves the ground first.
+  - So the shipped roll is the Kimodo one; details in `docs/motion-from-you.md`.
+- **The thresholds of the move check are rules of thumb** (CC-64), not measured on real rolls; calibrating them is an open step.
+
 ## The road, in order
 1. **Contract:** a row in `pipelines/moves.json` and in `src/motion/motion-table.ts` says which simulator state starts the move, how long it lasts and what it must show.
 2. **Search CMU first** (free to use, credit requested, no account): the move's terms are searched in the 1,673-trial index, and every hit is imported with the same code as the starter clips.
