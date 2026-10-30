@@ -786,6 +786,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
     if (mine) {
       if (boardOn(params)) rememberBest(statKey(path), courseHash(course), logTicks(mine));
       void encodeLog(mine).then((keys) => sendClear(statKey(path), analyticsRunId, courseHash(course), keys, logTicks(mine)));
+      for (const ms of [0, 3000, 8000]) setTimeout(() => document.getElementById('board-corner')?.dispatchEvent(new Event('board-refresh')), ms); // your own best shows at once; the server time follows once it has replayed the run
     }
   }
   let everCleared = false;

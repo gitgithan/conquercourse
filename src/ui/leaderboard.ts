@@ -25,6 +25,21 @@ export function boardLines(rows: BoardRow[]): string[] {
   return rows.map((r, i) => `${i + 1}  ${r.nick || '···'}  ${secondsText(r.ticks)}`);
 }
 
+const MEDALS = ['🏆', '🥈', '🥉'], TINTS = ['#fff1b8', '#e9edf2', '#f5dcc4'], EDGES = ['#e0b000', '#9aa5b1', '#c27a3a'];
+/** The podium: a trophy and a colour for the first three, a number for the rest, your own row outlined and marked. */
+export function renderRows(list: HTMLElement, rows: BoardRow[], myRank: number | null = null): void {
+  list.replaceChildren(...rows.map((r, i) => {
+    const row = document.createElement('div'), podium = i < 3;
+    row.className = 'board-row'; row.dataset.rank = String(i + 1);
+    row.style.cssText = `display:flex;align-items:center;gap:8px;padding:${podium ? 5 : 3}px 8px;margin:3px 0;border-radius:8px;border:2px solid ${myRank === i + 1 ? '#1a6b3c' : podium ? EDGES[i] : 'transparent'};background:${podium ? TINTS[i] : '#f3f5f4'};font-weight:${podium ? 700 : 500}`;
+    const badge = document.createElement('span'); badge.textContent = podium ? MEDALS[i] : String(i + 1); badge.style.cssText = `width:24px;text-align:center;font-size:${podium ? 20 : 12}px;color:#556`;
+    const name = document.createElement('span'); name.textContent = (r.nick || 'Ninja') + (myRank === i + 1 ? ' (you)' : ''); name.style.cssText = 'flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap';
+    const time = document.createElement('span'); time.textContent = secondsText(r.ticks); time.style.cssText = 'font-variant-numeric:tabular-nums;font-weight:800';
+    row.append(badge, name, time);
+    return row;
+  }));
+}
+
 export interface BoardData { top: BoardRow[]; players: number; mine: { rank: number; ticks: number } | null; resetAt: number | null; previous: BoardRow | null }
 export type Win = 'day' | 'week' | 'all';
 export const WIN_NAMES: Record<Win, string> = { day: 'Today', week: 'This week', all: 'All time' };
@@ -55,15 +70,14 @@ export function boardBox(key: string, hash: string, me = ''): HTMLElement {
   const box = document.createElement('div'); box.id = 'report-board';
   box.style.cssText = 'margin:.6em 0;padding:.5em .8em;border:1px solid #556;border-radius:6px;font-size:.9em';
   const tabs = document.createElement('div'); tabs.style.cssText = 'display:flex;gap:.4em;margin-bottom:.3em';
-  const list = document.createElement('div'); list.style.cssText = 'font-family:monospace;white-space:pre'; list.textContent = 'Loading…';
-  const place = document.createElement('div'); place.id = 'report-place'; place.style.cssText = 'font-weight:600;color:#1a6b3c';
+  const list = document.createElement('div'); list.textContent = 'Loading…';
+  const place = document.createElement('div'); place.id = 'report-place'; place.style.cssText = 'font-weight:800;color:#fff;background:linear-gradient(90deg,#1a6b3c,#2e9a5a);border-radius:999px;padding:3px 10px;margin-top:4px;display:inline-block';
   const clock = document.createElement('div'); clock.id = 'report-reset'; clock.style.cssText = 'color:#8a5a00;font-size:.85em';
   const champ = document.createElement('div'); champ.id = 'report-champ'; champ.style.cssText = 'color:#555;font-size:.85em';
   const show = (win: Win): void => {
     for (const b of tabs.children) (b as HTMLElement).style.fontWeight = (b as HTMLElement).dataset.win === win ? '700' : '400';
-    list.textContent = 'Loading…';
     void loadBoard(key, hash, win, me).then((d) => {
-      list.textContent = d.top.length ? boardLines(d.top).join('\n') : ''; // the place line below already invites
+      if (d.top.length) renderRows(list, d.top, d.mine?.rank ?? null); else list.textContent = ''; // the place line below already invites
       place.textContent = placeText(d); clock.textContent = resetText(d.resetAt);
       champ.textContent = d.previous ? `${win === 'day' ? 'Yesterday' : 'Last week'}'s champion: ${d.previous.nick || '···'} ${secondsText(d.previous.ticks)}` : '';
     });
@@ -74,7 +88,7 @@ export function boardBox(key: string, hash: string, me = ''): HTMLElement {
   const head = document.createElement('div'); head.textContent = 'Fastest runs'; head.style.fontWeight = '600';
   box.append(head, tabs, list, place, clock, champ);
   const mine = readBest(key, hash);
-  if (mine) { const m = document.createElement('div'); m.id = 'report-best'; m.textContent = `Your best: ${secondsText(mine)}`; box.appendChild(m); }
+  if (mine) { const m = document.createElement('div'); m.id = 'report-best'; m.textContent = `⭐ Your best: ${secondsText(mine)}`; m.style.cssText = 'font-weight:800;color:#7a5a00;background:#fff1b8;border-radius:999px;padding:3px 10px;margin-top:4px;display:inline-block'; box.appendChild(m); }
   show('day');
   return box;
 }
@@ -85,9 +99,12 @@ export function boardCorner(key: string, hash: string, me = ''): HTMLElement {
   card.style.cssText = 'position:fixed;right:16px;top:284px;z-index:30;width:250px;background:#fffffff2;border:1px solid #cfd6d0;border-radius:12px;box-shadow:0 4px 16px #0003;font:500 13px system-ui,sans-serif;color:#17201d';
   const toggle = document.createElement('button'); toggle.type = 'button'; toggle.id = 'board-toggle';
   toggle.style.cssText = 'width:100%;text-align:left;border:0;background:transparent;font:700 14px system-ui,sans-serif;padding:8px 12px;cursor:pointer';
-  const body = boardBox(key, hash, me); body.style.margin = '0'; body.style.border = '0'; body.style.padding = '0 12px 10px'; (body.firstElementChild as HTMLElement).style.display = 'none'; // the pill is the title
+  const makeBody = (): HTMLElement => { const b = boardBox(key, hash, me); b.style.margin = '0'; b.style.border = '0'; b.style.padding = '0 12px 10px'; (b.firstElementChild as HTMLElement).style.display = 'none'; return b; }; // the pill is the title
+  let body = makeBody();
   const fold = (open: boolean): void => { body.style.display = open ? '' : 'none'; toggle.textContent = `${open ? '▾' : '▸'} Fastest runs`; toggle.setAttribute('aria-expanded', String(open)); };
   toggle.onclick = () => fold(body.style.display === 'none');
   card.append(toggle, body); fold(true);
+  // after a run is sent the server needs a moment to replay it: the card asks again, keeping its open or folded state
+  card.addEventListener('board-refresh', () => { const open = body.style.display !== 'none'; const next = makeBody(); body.replaceWith(next); body = next; fold(open); });
   return card;
 }

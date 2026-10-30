@@ -22,9 +22,9 @@ const board = async (db: unknown, h = hash) => (await boardGet({ request: new Re
 describe('the leaderboard', () => {
   it('shows a verified run with its tag, and keeps the keys so it can be a ghost', async () => {
     const { db, sql } = localD1();
-    expect((await send(db, 1, 'ace')).status).toBe(200);
+    expect((await send(db, 1, 'Ace_Runner')).status).toBe(200);
     const top = (await board(db)).top;
-    expect(top).toHaveLength(1); expect(top[0].nick).toBe('ACE');
+    expect(top).toHaveLength(1); expect(top[0].nick).toBe('Ace_Runner');
     expect((sql.prepare('SELECT keys FROM course_clears').get() as { keys: string }).keys.length).toBeGreaterThan(10);
   });
   it('a blocked word becomes no tag, and a run kept unverified is not on the board', async () => {
