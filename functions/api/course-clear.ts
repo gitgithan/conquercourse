@@ -5,6 +5,7 @@ import type { CourseData } from '../../src/course/course';
 import { courseHash, decodeLog, verifyLog } from '../../src/sim/replay';
 import { beatsIdeal, checkRun, MAX_CLEAR_TICKS, physicsFloorTicks, rateLimited } from '../../src/sim/run-checks';
 import { nickOk, tidyNick } from '../../src/share/nick';
+import { playerCode } from '../_lib/player';
 import { json } from '../_lib/http';
 
 interface Stmt { bind(...v: unknown[]): { run(): Promise<unknown>; first<T>(): Promise<T | null> } }
@@ -84,7 +85,7 @@ export const onRequestPost = async ({ request, env }: { request: Request; env: E
     await env.DB.prepare('UPDATE course_clears SET ticks = ?, verified = 1, beats_ideal = ? WHERE run_id = ?').bind(v.ticks, beats ? 1 : 0, runId).run();
     // a run that beats the stored line keeps its keys, so the search can learn from it (migration 0005; without the column nothing happens)
     // CC-108: every verified run keeps its keys and tag, so a board entry can be played as a ghost (migration 0007; without the columns nothing happens)
-    try { await env.DB.prepare('UPDATE course_clears SET keys = ?, nick = ? WHERE run_id = ?').bind(keys, nick, runId).run(); } catch { /* no nick column yet */ }
+    try { await env.DB.prepare('UPDATE course_clears SET keys = ?, nick = ?, player = ? WHERE run_id = ?').bind(keys, nick, await playerCode(session, 'cc-board'), runId).run(); } catch { /* no nick or player column yet */ }
     if (beats) { try { await env.DB.prepare('UPDATE course_clears SET keys = ? WHERE run_id = ?').bind(keys, runId).run(); } catch { /* no keys column yet */ } }
   } else {
     // INSERT OR IGNORE: the same run, or the same keys sent twice, count once

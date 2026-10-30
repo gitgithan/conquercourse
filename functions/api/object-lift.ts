@@ -8,6 +8,7 @@ import { askModeration } from './moderate';
 import { limited } from './designer';
 import { d1Ledger } from '../../src/slice/d1-ledger';
 import { LIMIT_WORDS, memoryLedger, utcDay, DEFAULT_LIMITS, type Ledger, type Limits } from '../../src/slice/upload-gates';
+import { playerCode } from '../_lib/player';
 import { json } from '../_lib/http';
 
 interface Env { DB?: Parameters<typeof d1Ledger>[0]; CC_UPLOAD_TOKEN?: string; CC_UPLOAD_SUBMIT_URL?: string; CC_UPLOAD_STATUS_URL?: string; BASETEN_API_KEY?: string }
@@ -17,11 +18,7 @@ const sharedLedger = memoryLedger(); // only for local runs without a database; 
 
 // The gates, in order: request shape -> burst limit -> safety check -> daily slot -> start the job. A slot is taken only after the photo passed
 // the safety check, and given back if the job never started, so a refusal never costs the player a try.
-/** The ledger never sees an address: a short one-way code of it, so the database holds no IP (private design notes stay out of the repo). */
-export async function playerCode(ip: string): Promise<string> {
-  const d = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(`cc-lift|${ip}`));
-  return [...new Uint8Array(d).slice(0, 8)].map((x) => x.toString(16).padStart(2, '0')).join('');
-}
+export { playerCode };
 
 export async function handle(b: Record<string, unknown>, env: Env, ip: string, fetcher: typeof fetch = fetch, burstMax = 6, ledger: Ledger = sharedLedger, limits: Limits = DEFAULT_LIMITS, now = Date.now()): Promise<{ status: number; body: unknown }> {
   if (!env.CC_UPLOAD_TOKEN || !env.CC_UPLOAD_SUBMIT_URL || !env.CC_UPLOAD_STATUS_URL || !MODAL_HOST.test(env.CC_UPLOAD_SUBMIT_URL) || !MODAL_HOST.test(env.CC_UPLOAD_STATUS_URL)) return { status: 503, body: { error: 'not allowed' } };

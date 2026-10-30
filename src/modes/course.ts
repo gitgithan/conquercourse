@@ -35,7 +35,7 @@ import { bounce } from '../sim/trampoline';
 import { DEFAULT_TRAMPOLINE } from '../sim/trampoline';
 import { ouch } from '../sim/landing';
 import { logTicks } from '../sim/run-checks';
-import { track, trackCourseEvent, courseKey, sendClear } from '../ui/feedback';
+import { track, trackCourseEvent, courseKey, sendClear, session } from '../ui/feedback';
 import { statsOn, statKey } from '../ui/course-stats';
 import { touchStreak } from '../ui/streak';
 import { boardBox, boardOn, rememberBest } from '../ui/leaderboard';
@@ -1454,7 +1454,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
           close: () => { panel.style.display = 'none'; },
         }, false, ghostCtl?.reportPath() ?? null, !reportSectionsOn(params));
         addHardest(body);
-        { const bp = params.get('course') ?? ''; if (boardOn(params) && !botMode && !demo && !idealWhole && !params.get('mode') && /^\/assets\/(demo|experiments\/osm)\//.test(bp)) body.querySelector('#report-actions')?.before(boardBox(statKey(bp), courseHash(course))); } // CC-108
+        { const bp = params.get('course') ?? ''; if (boardOn(params) && !botMode && !demo && !idealWhole && !params.get('mode') && /^\/assets\/(demo|experiments\/osm)\//.test(bp)) body.querySelector('#report-actions')?.before(boardBox(statKey(bp), courseHash(course), session())); } // CC-108
         if (ghostLine) body.querySelector('#report-ghost-slot')?.append(ghostLine);
         if (ghostCtl && !botMode && !demo && !idealWhole) body.querySelector('#report-actions')?.prepend(...ghostCtl.reportActions(() => { panel.style.display = 'none'; retryX = course.startX; restart(course.startX); }));
         if (shareOn(params) && !botMode && !demo && !idealWhole && !params.get('mode')) {
