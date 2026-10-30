@@ -478,6 +478,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
   const legend = document.createElement('div'); legend.id = 'gold-legend';
   legend.style.cssText = 'position:fixed;left:50%;top:150px;transform:translateX(-50%);font:600 12px system-ui,sans-serif;color:#5b4200;background:#fff8dcf0;border:1px solid #d9a521;border-radius:8px;padding:2px 10px;pointer-events:none;display:none;white-space:nowrap';
   document.body.append(legend);
+  const hardBand = () => { const h = goldOld() ? null : hardestNow(); const z = h && progressZones.find((q) => q.id === h.id); return h && z ? { x0: z.x0, x1: z.x1, name: h.name, falls: h.falls } : null; }; // CC-183: the band on the report map
   const addHardest = (body: HTMLElement) => { const h = goldOld() ? null : hardestNow(); if (h) (body.querySelector('#report-ghost-slot') ?? body.lastElementChild)?.before(hardestBlock(h.name, h.falls)); };
   const stripKey = { v: '' };
   function paintStrip(x: number) {
@@ -1150,7 +1151,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
     if (!course.track) mk('Make it easier', () => openEditor('easier')).id = 'makeeasier';
     mk('Edit this course', () => openEditor('edit')).id = 'editfromfall';
     if (train) mk(`Train the ${zone?.name ?? 'obstacle'}`, () => { saveResume(); location.search = trainLink(zone?.id ?? 'gap', r.x); });
-    const failBody = renderReport(course, runLog, buildReport(course, runLog, world, false, null), {}, true, ghostCtl?.reportPath() ?? null, !reportSectionsOn(params));
+    const failBody = renderReport(course, runLog, buildReport(course, runLog, world, false, null), {}, true, ghostCtl?.reportPath() ?? null, !reportSectionsOn(params), hardBand());
     addHardest(failBody);
     panel.append(h, t, floorNote, failBody, row);
     if (falls === 1 && !idealWhole) onboarding.onFall(panel); // CC-100: the first fall gets one calm hint (CC-191: inside the report, not over it)
@@ -1452,7 +1453,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
           watch: course.plan ? () => { panel.style.display = 'none'; void startIdeal(course.startX, null); } : undefined,
           next: here >= 0 && nxt ? { name: nxt[1].split(':')[0], go: () => { location.href = worldHref(nxt[0]); } } : undefined,
           close: () => { panel.style.display = 'none'; },
-        }, false, ghostCtl?.reportPath() ?? null, !reportSectionsOn(params));
+        }, false, ghostCtl?.reportPath() ?? null, !reportSectionsOn(params), hardBand());
         addHardest(body);
         { const bp = params.get('course') ?? ''; if (boardOn(params) && !botMode && !demo && !idealWhole && !params.get('mode') && /^\/assets\/(demo|experiments\/osm)\//.test(bp)) body.querySelector('#report-actions')?.before(boardBox(statKey(bp), courseHash(course), session())); } // CC-108
         if (ghostLine) body.querySelector('#report-ghost-slot')?.append(ghostLine);
