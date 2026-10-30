@@ -38,6 +38,7 @@ export function cleanRequest(b: Record<string, unknown>): LiftRequest {
 
 /** What a moderation answer means for the lift. People are fine (the pipeline blurs them); real worries stop it. */
 export function moderationStops(verdict: string, reason: string): string {
+  if (verdict === 'review' && ['error', 'unreadable'].includes(reason)) return 'The safety check could not run just now, so nothing was made. Try again in a few minutes.';
   if (verdict === 'block') return 'This photo cannot be used here.';
   if (verdict === 'review' && ['minor', 'private_info', 'sexual', 'violence', 'hate', 'weapon'].includes(reason)) return 'This photo needs a person to look at it first, so it cannot be turned into an object now.';
   return '';
