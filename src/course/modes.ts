@@ -22,4 +22,5 @@ export const MODE_INFO: Record<Mode, ModeInfo> = {
   climb: { name: 'Climbing' },
   band: { name: 'On the band', machine: true, next: 'Turn round now' },
   drone: { name: 'On the drone', machine: true, next: 'Come down now' },
+  pole: { name: 'On the pole', next: 'Let go now' },
 };
