@@ -36,6 +36,7 @@ export const DEMO_GROUPS: [string, Demo[]][] = [
 
 import { labsOn } from './labs';
 import { applyStats, loadStats, statsOn } from './course-stats';
+import { pageQuery } from '../flags';
 
 /** CC-201: the slicer card is always shown (it used to hide behind ?labs=1); ?slice2=old brings the old rule back. */
 export const sliceCardOn = (params: URLSearchParams): boolean => params.get('slice2') !== 'old';
@@ -171,7 +172,7 @@ export function buildGallery(o: GalleryOptions): { el: HTMLElement; focusStart()
     cards.push({ card: grid.lastElementChild as HTMLButtonElement, sec: grid.parentElement!, text: `${cur.label ?? ''} this course`.toLowerCase() });
   }
   for (const [group, ds] of DEMO_GROUPS) {
-    const hiddenItem = (v: string): boolean => (v === 'map' ? !sliceCardOn(new URLSearchParams(location.search)) && cur.value !== v && !labsOn() : v === 'lab-search' && cur.value !== v && !labsOn());
+    const hiddenItem = (v: string): boolean => (v === 'map' ? !sliceCardOn(pageQuery()) && cur.value !== v && !labsOn() : v === 'lab-search' && cur.value !== v && !labsOn());
     if (ds.every(([v]) => hiddenItem(v))) continue; // a group whose items are all switched off shows no heading
     const grid = section(group);
     for (const [v, label, about] of ds) {
@@ -215,7 +216,7 @@ export function buildGallery(o: GalleryOptions): { el: HTMLElement; focusStart()
     else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') e.preventDefault();
   });
   // CC-149: the play numbers and the difficulty order arrive a moment later, so the cards never wait for the server; ?stats=0 leaves them out
-  if (statsOn(new URLSearchParams(location.search))) void loadStats().then((d) => { if (d && el.isConnected !== false) applyStats(el, d); });
+  if (statsOn(pageQuery())) void loadStats().then((d) => { if (d && el.isConnected !== false) applyStats(el, d); });
   return { el, focusStart: () => { const here = el.querySelector<HTMLElement>('.wg-card[aria-current=true]'); (here ?? search).focus({ preventScroll: false }); here?.scrollIntoView({ block: 'center' }); } };
 }
 

@@ -1,3 +1,4 @@
+import { pageQuery } from '../flags';
 // The performance overlay (CC-75): ?perf=1 shows it, key P toggles it, in the Course, the editor 3D view and the map.
 // It shows the frame time and fps, draw calls, triangles, how many meshes and instances are in the scene, the renderer and the
 // simulator step cost, and writes the same numbers to <html data-perf> as JSON so scripts/perf-check.mjs can read them.
@@ -21,7 +22,7 @@ export interface Perf { frame(now?: number): void; simStart(): void; simEnd(): v
 const heapMB = (): number => { const m = (performance as unknown as { memory?: { usedJSHeapSize: number } }).memory; return m ? Math.round(m.usedJSHeapSize / 1048576) : 0; };
 
 export function createPerf(src: PerfSource): Perf {
-  const wanted = new URLSearchParams(location.search).get('perf');
+  const wanted = pageQuery().get('perf');
   let shown = wanted === '1' || wanted === 'true';
   const box = document.createElement('div');
   box.id = 'perf';
