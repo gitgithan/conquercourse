@@ -148,6 +148,30 @@ if modal is not None:
                     "mask": {"how": how, "score": score, "iou_with_box": o, "candidates": len(cands), "pixels": int(mask.sum())},
                     "seconds": time.time() - t0, "load_seconds": self.load_s}
 
+        @modal.method()
+        def suggest(self, jpeg):
+            import torch
+            with torch.autocast("cuda", dtype=torch.bfloat16):
+                return self._suggest(jpeg)
+
+        def _suggest(self, jpeg):
+            """Things worth picking on the photo (CC-248): one SAM 3 text prompt per common phrase, on the privacy-blurred photo, de-duplicated."""
+            import numpy as np
+            from PIL import Image
+            from ccpipe import privacy, suggest as sg
+            t0 = time.time()
+            img = np.asarray(Image.open(io.BytesIO(jpeg)).convert("RGB"))
+            h, w = img.shape[:2]
+            state = self.p.set_image(Image.fromarray(img))
+            people = [c["mask"] for c in self._find(state, "person", privacy.PERSON_T)]
+            faces = [c["mask"] for c in self._find(state, "face", privacy.FACE_T)]
+            plates = [c["mask"] for c in self._find(state, "license plate", privacy.PLATE_T)]
+            safe, receipt = privacy.apply_privacy(img, people, faces, plates)
+            state = self.p.set_image(Image.fromarray(safe))
+            cands = [{"label": ph, "mask": c["mask"], "score": c["score"]} for ph in sg.PHRASES for c in self._find(state, ph, 0.35)]
+            items = [sg.describe(c) for c in sg.pick(cands, (h, w))]
+            return {"items": items, "privacy": receipt, "seconds": time.time() - t0}
+
     # ---------- lift (L40S) ----------
     @app.cls(gpu=["L40S", "A100-80GB"], image=lift_image, volumes={CK: ck_vol}, timeout=1800, max_containers=1, scaledown_window=240)
     class Lift:
@@ -271,6 +295,46 @@ if modal is not None:
         out = dict(out)
         out["glb"] = base64.b64encode(out["glb"]).decode()
         return {"state": "done", **out}
+
+    @app.function(image=web_image, timeout=600, secrets=upload_secrets)
+    def suggest_job(jpeg: bytes) -> dict:
+        """photo -> {items: [{label, score, box, cutout png}], privacy, seconds}: the clickable suggestions on the Communities page (CC-248)."""
+        return Mask().suggest.remote(jpeg)
+
+    @app.function(image=web_image, secrets=upload_secrets)
+    @modal.fastapi_endpoint(method="POST")
+    def suggest_submit(item: dict):
+        """{token, image: base64 jpeg} -> {id} to poll, or {error}."""
+        import base64
+        from PIL import Image
+        from ccpipe import upload
+        if not _check_token(item.get("token")):
+            return {"error": "not allowed"}
+        try:
+            jpeg = base64.b64decode(item.get("image") or "", validate=True)
+            size = Image.open(io.BytesIO(jpeg)).size
+        except Exception:  # noqa: BLE001
+            return {"error": "bad photo"}
+        if len(jpeg) > upload.MAX_BYTES or jpeg[:3] != b"\xff\xd8\xff" or not (upload.MIN_SIDE <= min(size) and max(size) <= upload.MAX_SIDE):
+            return {"error": "the photo size is not allowed"}
+        return {"id": suggest_job.spawn(jpeg).object_id}
+
+    @app.function(image=web_image, secrets=upload_secrets)
+    @modal.fastapi_endpoint(method="POST")
+    def suggest_status(item: dict):
+        """{token, id} -> {state: running} | {state: done, items: [... cutout base64], privacy, seconds} | {state: failed, reason}."""
+        import base64
+        from modal.functions import FunctionCall
+        if not _check_token(item.get("token")):
+            return {"state": "failed", "reason": "not allowed"}
+        try:
+            out = FunctionCall.from_id(str(item.get("id") or "")).get(timeout=0)
+        except TimeoutError:
+            return {"state": "running"}
+        except Exception as e:  # noqa: BLE001
+            return {"state": "failed", "reason": f"the search stopped ({type(e).__name__})"}
+        items = [{**i, "cutout": base64.b64encode(i["cutout"]).decode()} for i in out["items"]]
+        return {"state": "done", "items": items, "privacy": out["privacy"], "seconds": round(out["seconds"], 1)}
 
     @app.function(image=lift_image, volumes={CK: ck_vol}, timeout=1200)
     def check_lift_imports():
