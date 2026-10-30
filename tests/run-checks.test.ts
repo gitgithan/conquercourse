@@ -141,8 +141,11 @@ describe('the server, outcome by outcome', () => {
     expect(ok.body).toMatchObject({ verified: true, beatsIdeal: true });
     expect((sql.prepare('SELECT keys FROM course_clears').get() as { keys: string }).keys.length).toBeGreaterThan(0);
     const plain = localD1();
-    await send(plain.db, await base(8), {}, 'i8'); // not flagged: no keys kept
-    expect(plain.sql.prepare('SELECT keys FROM course_clears').get()).toEqual({ keys: null });
+    await send(plain.db, await base(8), {}, 'i8'); // CC-108: every verified run keeps its keys now (migration 0007), flagged or not
+    expect((plain.sql.prepare('SELECT keys FROM course_clears').get() as { keys: string }).keys.length).toBeGreaterThan(0);
+    const before = localD1('0006'); // no nick column yet: a flagged run still keeps its keys, a plain one does not
+    await send(before.db, await base(6), { ASSETS: fasterMeta }, 'i6');
+    expect((before.sql.prepare('SELECT keys FROM course_clears').get() as { keys: string }).keys.length).toBeGreaterThan(0);
     const old = localD1('0004');
     const r = await send(old.db, await base(9), { ASSETS: fasterMeta }, 'i9');
     expect(r.body).toMatchObject({ verified: true, beatsIdeal: true });
