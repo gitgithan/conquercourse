@@ -4,6 +4,7 @@
 // Same pattern as /api/photos (CC-90): the token is the Pages secret MAPILLARY_TOKEN, sent in the Authorization header and never in an answer;
 // only the five fields above come back, only the classes in WANTED are kept, answers are cached 30 minutes on the edge, and each address gets 20 searches per ten minutes.
 import { limited, type Fetcher, type Store } from './photos';
+import { CORS, json as baseJson } from '../_lib/http';
 
 const GRAPH = 'https://graph.mapillary.com';
 export const TTL_S = 1800;
@@ -17,7 +18,7 @@ export const WANTED: Record<string, string> = {
 export interface Feature { id: string; value: string; lat: number; lon: number; seen: string }
 interface Raw { id?: string; object_value?: string; geometry?: { type?: string; coordinates?: number[] }; last_seen_at?: string }
 
-const json = (body: unknown, status = 200) => new Response(JSON.stringify(body), { status, headers: { 'content-type': 'application/json', 'access-control-allow-origin': '*' } });
+const json = (body: unknown, status = 200) => baseJson(body, status, CORS);
 
 export const trimFeature = (r: Raw): Feature | null => {
   const c = r.geometry?.type === 'Point' ? r.geometry.coordinates : undefined;

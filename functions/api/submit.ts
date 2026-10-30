@@ -1,9 +1,9 @@
+import { json } from '../_lib/http';
 // POST /api/submit: store one structured feedback submission in D1.
 // Defences: small body, whitelisted fields, a honeypot, and at most 5 submissions per session per hour.
 interface Env { DB: { prepare(sql: string): { bind(...v: unknown[]): { run(): Promise<unknown>; first<T>(): Promise<T | null> } } } }
 
 const clip = (v: unknown, n: number): string => String(v ?? '').slice(0, n);
-const json = (body: unknown, status = 200) => new Response(JSON.stringify(body), { status, headers: { 'content-type': 'application/json' } });
 
 export const onRequestPost = async ({ request, env }: { request: Request; env: Env }): Promise<Response> => {
   const raw = await request.text();

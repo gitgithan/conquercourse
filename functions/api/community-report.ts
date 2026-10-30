@@ -1,7 +1,7 @@
+import { json } from '../_lib/http';
 // POST /api/community-report {id, session}: someone flags a course. A course is hidden once 3 different sessions have flagged it.
 interface Stmt { bind(...v: unknown[]): { run(): Promise<unknown> } }
 interface Env { DB: { prepare(sql: string): Stmt } }
-const json = (body: unknown, status = 200) => new Response(JSON.stringify(body), { status, headers: { 'content-type': 'application/json' } });
 
 export const onRequestPost = async ({ request, env }: { request: Request; env: Env }): Promise<Response> => {
   const raw = await request.text();
