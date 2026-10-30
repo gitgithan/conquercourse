@@ -56,3 +56,14 @@ A ninja-warrior physics game where real parks and real moves become the course, 
 ## Writing style
 - Bullets, one idea each; never start a new sentence in the middle of a line (docs, plans, Linear, commit messages).
 - Plain words a 13-year-old can follow in anything a player sees.
+
+## What to commit (owner, 2026-10-30)
+- The repo goes public for judging and may close again later, so write every tracked file as if anyone reads it.
+- Commit: source, tests, docs, small shipped assets (about 300 KB or less) that have a row in `docs/ASSETS.md`.
+- Commit for each experiment: the README, `run.json`, scores, scripts, and one or two evidence pictures (`git add -f`).
+- Keep out of git: raw outputs (frames, meshes, videos, per-run logs), third-party downloads, anything bigger than about 1 MB.
+- Never in git: private details (see the rules above) and anything about abuse limits or identity.
+- Licence: a shipped file must be CC0, CC BY, ours or from a permissive tool.
+  - CC BY-SA, non-commercial or unclear files may stay only as a demo with a "swap before a sale" note in its `docs/ASSETS.md` row.
+  - Every such row names the replacement plan, so a swap is a file change and not a redesign.
+- Ask before committing a file that fits none of these.
