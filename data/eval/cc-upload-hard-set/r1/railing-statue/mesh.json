@@ -1,0 +1,32 @@
+{
+  "label": "railing",
+  "extents_m": {
+    "x": 1.56,
+    "y": 1.0,
+    "z": 0.169
+  },
+  "height_m": 1.0,
+  "target_height_m": 1.0,
+  "scale_source": "typed",
+  "scale_factor": 1.5602,
+  "raw_height": 0.6409,
+  "yaw_deg": 0.0,
+  "tilt_deg": 1.26,
+  "faces": 5820,
+  "vertices": 4750,
+  "width_to_height": 1.561,
+  "texture": "1024x1024",
+  "photo": "railing-statue",
+  "box": [
+    200,
+    230,
+    780,
+    530
+  ],
+  "bytes": 413236,
+  "model": "SAM 3D Objects (seed 42)",
+  "bake_seconds": 3.53,
+  "raw_faces": 76992,
+  "splat_points": 58752,
+  "lift_round": "r1"
+}

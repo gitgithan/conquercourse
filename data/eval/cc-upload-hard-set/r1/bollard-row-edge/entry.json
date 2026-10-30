@@ -1,0 +1,36 @@
+{
+  "photo": "bollard-row-edge",
+  "mask_seconds": 0.3,
+  "lift_seconds": 10.3,
+  "wall_seconds": 82.6,
+  "mask": {
+    "how": "text",
+    "score": 0.96484375,
+    "iou_with_box": 0.95,
+    "candidates": 8,
+    "pixels": 200960
+  },
+  "privacy": {
+    "people": 0,
+    "faces": 0,
+    "plates": 0,
+    "changed": false
+  },
+  "n_faces_raw": 467464,
+  "n_gaussians": 403232,
+  "padretry": {
+    "enabled": true,
+    "border": {
+      "top": 0.0,
+      "bottom": 0.12890625,
+      "left": 0.0,
+      "right": 0.0
+    },
+    "padded": true,
+    "touches": true,
+    "extent_aspect": 0.424,
+    "mask_aspect": 0.511,
+    "bad": false,
+    "note": "pad"
+  }
+}

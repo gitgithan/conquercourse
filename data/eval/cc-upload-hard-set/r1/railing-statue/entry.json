@@ -1,0 +1,36 @@
+{
+  "photo": "railing-statue",
+  "mask_seconds": 2.0,
+  "lift_seconds": 8.2,
+  "wall_seconds": 167.6,
+  "mask": {
+    "how": "text",
+    "score": 0.87109375,
+    "iou_with_box": 0.42,
+    "candidates": 15,
+    "pixels": 14415
+  },
+  "privacy": {
+    "people": 5,
+    "faces": 4,
+    "plates": 0,
+    "changed": true
+  },
+  "n_faces_raw": 76992,
+  "n_gaussians": 58752,
+  "padretry": {
+    "enabled": true,
+    "border": {
+      "top": 0.0,
+      "bottom": 0.0,
+      "left": 0.0,
+      "right": 0.0
+    },
+    "padded": false,
+    "touches": false,
+    "extent_aspect": 1.56,
+    "mask_aspect": 1.134,
+    "bad": false,
+    "note": ""
+  }
+}

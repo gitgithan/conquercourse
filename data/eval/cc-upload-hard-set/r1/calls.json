@@ -1,0 +1,58 @@
+{
+  "bollard-street": {
+    "mask": "fc-01M65GKKGX6D81V6611TNM55CS",
+    "lift": "fc-01M65GMBDDM8W76HN305FZHH4V"
+  },
+  "bollard-row-edge": {
+    "mask": "fc-01M65GKMBA9XQ2KENHGTHZXAKH",
+    "lift": "fc-01M65GME6212FQZFD5JVYZ3TQX"
+  },
+  "bike-shelter": {
+    "mask": "fc-01M65GKP09S5CYXD4E4JCM3B7W",
+    "lift": "fc-01M65GMHFV0EJ9PBW5EE2V34J6"
+  },
+  "bike-rack-tangle": {
+    "mask": "fc-01M65GKQNSPVC1RRVRC7BJSZHM",
+    "lift": "fc-01M65GMN34BC6QFS54ACFZYY5P"
+  },
+  "bin-scooters": {
+    "mask": "fc-01M65GKRJDA2ANSTDEHQ1QH8PE",
+    "lift": "fc-01M65GMQHVNGBBP4NMPZGKBFJG"
+  },
+  "bin-snow": {
+    "mask": "fc-01M65GKSHBWECEYZ0F2SPV10CV",
+    "lift": "fc-01M65GMTTGYDZDZCDC8JAA2Q26"
+  },
+  "bench-dusk": {
+    "mask": "fc-01M65GKTFE0J8ZPXY4ZKWJB7YH",
+    "lift": "fc-01M65GMXKMGXSK9YYTWY6TH10J"
+  },
+  "bench-backlit": {
+    "mask": "fc-01M65GKVBTNYCNEDRER1ENJ2HX",
+    "lift": "fc-01M65GN0CPMTBW65S4NQQBW4MV"
+  },
+  "skate-stairs": {
+    "mask": "fc-01M65GKWB7JXTR1NZ683XARQPP",
+    "lift": "fc-01M65GN3CVCQCPEFR26BTDJ8DE"
+  },
+  "calisthenics-berlin": {
+    "mask": "fc-01M65GKXZ5FJ202863D3JMKWN8",
+    "lift": "fc-01M65GN6BPP7XT3BHDB7KYK945"
+  },
+  "fitness-fence": {
+    "mask": "fc-01M65GKYX9RDFC9SYZM9DNA57A",
+    "lift": "fc-01M65GN9CXSCFN5X4NW0SD7TZJ"
+  },
+  "fitness-macombs": {
+    "mask": "fc-01M65GKZTS457TMWYRNNNPSKVX",
+    "lift": "fc-01M65GNCJCBMXYWTVK3MW1PZJA"
+  },
+  "railing-statue": {
+    "mask": "fc-01M65GM0NK0RQ9383J33WA1QY1",
+    "lift": "fc-01M65GNFKCVMNC77MYCY00C1D8"
+  },
+  "hydrant-cars": {
+    "mask": "fc-01M65GM289Y4WQW6CZWZ085VMM",
+    "lift": "fc-01M65GNJKRDQD7GPGWVW7F1Z57"
+  }
+}

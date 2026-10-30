@@ -1,0 +1,36 @@
+{
+  "photo": "bike-shelter",
+  "mask_seconds": 0.4,
+  "lift_seconds": 9.3,
+  "wall_seconds": 88.9,
+  "mask": {
+    "how": "box-prompt",
+    "score": 0.97265625,
+    "iou_with_box": 0.0,
+    "candidates": 22,
+    "pixels": 228788
+  },
+  "privacy": {
+    "people": 0,
+    "faces": 0,
+    "plates": 0,
+    "changed": false
+  },
+  "n_faces_raw": 376842,
+  "n_gaussians": 258784,
+  "padretry": {
+    "enabled": true,
+    "border": {
+      "top": 0.0,
+      "bottom": 0.0,
+      "left": 0.0,
+      "right": 0.0
+    },
+    "padded": false,
+    "touches": false,
+    "extent_aspect": 1.585,
+    "mask_aspect": 1.342,
+    "bad": false,
+    "note": ""
+  }
+}

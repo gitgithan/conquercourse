@@ -1,0 +1,15 @@
+{
+  "privacy": {
+    "people": 0,
+    "faces": 0,
+    "plates": 0,
+    "changed": false
+  },
+  "mask": {
+    "how": "text",
+    "score": 0.96875,
+    "iou_with_box": 0.906,
+    "candidates": 1,
+    "pixels": 76126
+  }
+}

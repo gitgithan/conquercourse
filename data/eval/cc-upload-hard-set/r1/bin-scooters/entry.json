@@ -1,0 +1,36 @@
+{
+  "photo": "bin-scooters",
+  "mask_seconds": 0.6,
+  "lift_seconds": 12.7,
+  "wall_seconds": 106.7,
+  "mask": {
+    "how": "text",
+    "score": 0.734375,
+    "iou_with_box": 0.906,
+    "candidates": 2,
+    "pixels": 166103
+  },
+  "privacy": {
+    "people": 1,
+    "faces": 0,
+    "plates": 0,
+    "changed": true
+  },
+  "n_faces_raw": 829250,
+  "n_gaussians": 620416,
+  "padretry": {
+    "enabled": true,
+    "border": {
+      "top": 0.0,
+      "bottom": 0.0,
+      "left": 0.0,
+      "right": 0.0
+    },
+    "padded": false,
+    "touches": false,
+    "extent_aspect": 0.581,
+    "mask_aspect": 0.544,
+    "bad": false,
+    "note": ""
+  }
+}
