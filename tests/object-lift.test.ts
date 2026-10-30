@@ -81,7 +81,7 @@ describe('/api/object-lift gates', () => {
     if (verdict === 'down') return new Response('x', { status: 500 });
     return new Response(JSON.stringify({ choices: [{ message: { content: JSON.stringify(verdict) } }] }), { status: 200 });
   }) as unknown as typeof fetch;
-  const submit = (ip: string, f: typeof fetch, ledger = memoryLedger(), limits = { perPlayer: 3, perGame: 100 }, e = keyed) =>
+  const submit = (ip: string, f: typeof fetch, ledger = memoryLedger(), limits = { perPlayer: 3, perGame: 100 }, e: Record<string, string> = keyed) =>
     handle({ ...good, action: 'submit' }, e, ip, f, 99, ledger, limits, Date.UTC(2026, 9, 30, 12));
   const ok = { verdict: 'ok', reason: 'none' };
 
