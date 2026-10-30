@@ -88,10 +88,11 @@ function inputForBase(plan: Plan, w: WorldState, state: PlanState, course?: Cour
   }
   state.hangAt = null;
   const barsAhead = !course?.holds?.length || course.holds.some((h) => h.x + 1.5 > w.runner.x); // past the last bar the hands stay off, so a fall beside a ledge is a fall, not a grab
+  if (course?.rope && w.mode === 'run' && !w.runner.grounded && !course.off?.includes('rope')) return { ...base, handR: true }; // the rope: hands up in the air, it only catches a held E
   if (((plan.hands && barsAhead) || plan.climbHands) && w.mode === 'run' && !w.runner.grounded && plan.airHands?.[(state.hangs ?? 0) - 1] !== false && !skipsNext(plan, w, course)) return { ...base, handR: true };
   if (w.mode === 'swing') {
     if (state.caught === null) state.caught = w.runner.tick;
-    return w.runner.tick - state.caught >= plan.releaseAfter ? { ...base, jump: true } : base;
+    return w.runner.tick - state.caught >= plan.releaseAfter ? base : { ...base, handL: true, handR: true }; // hold E to hold on; letting go of E is the release
   }
   state.caught = null;
   if (w.mode === 'bounce') {
