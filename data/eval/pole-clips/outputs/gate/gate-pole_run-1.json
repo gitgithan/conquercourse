@@ -1,0 +1,62 @@
+{
+  "version": 1,
+  "pass": true,
+  "hard": {
+    "knees_bend_forward": {
+      "ok": true,
+      "value": 22.5491,
+      "limit": "< 120 deg off the side axis",
+      "note": ""
+    },
+    "legs_not_twisted": {
+      "ok": true,
+      "value": 22.5491,
+      "limit": "<= 60 deg off the side axis",
+      "note": ""
+    },
+    "knees_within_range": {
+      "ok": true,
+      "value": 100.8082,
+      "limit": "<= 165 deg",
+      "note": ""
+    },
+    "flight_is_ballistic": {
+      "ok": true,
+      "value": null,
+      "limit": "no flight",
+      "note": "no unsupported stretch of 0.2 s or more"
+    },
+    "feet_dont_sink": {
+      "ok": true,
+      "value": -0.0,
+      "limit": "<= 0.03 m under the floor",
+      "note": ""
+    },
+    "no_teleport": {
+      "ok": true,
+      "value": 3.7905,
+      "limit": "<= 12.0 m/s",
+      "note": ""
+    }
+  },
+  "soft": {
+    "bones_keep_length": {
+      "ok": true,
+      "value": 0.0033,
+      "limit": "<= 2% off the median",
+      "note": ""
+    },
+    "feet_dont_slide": {
+      "ok": true,
+      "value": 0.0215,
+      "limit": "<= 0.03 m",
+      "note": ""
+    },
+    "no_jitter": {
+      "ok": true,
+      "value": 91.613,
+      "limit": "<= 200.0 m/s^2",
+      "note": ""
+    }
+  }
+}
