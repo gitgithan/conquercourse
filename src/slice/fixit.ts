@@ -20,17 +20,17 @@ const applyChange = (ps: Piece[], l: LaneSetting, id: number | undefined, c: Cha
   lane: { angle: c.angle ?? l.angle, offset: c.offset ?? l.offset, level: c.level ?? l.level },
 });
 
-export function fixLayout(pieces: Piece[], lane: LaneSetting, budget = workSeconds(12), wrap?: (c: CourseData) => CourseData): Fixed { // budget in simulated ticks, so the answer does not depend on the machine's speed
+export function fixLayout(pieces: Piece[], lane: LaneSetting, budget = workSeconds(12), wrap?: (c: CourseData) => CourseData, opts: { movable?: number[] } = {}): Fixed { // budget in simulated ticks, so the answer does not depend on the machine's speed
   const t0 = meter.ticks;
   let ps = pieces.map((p) => ({ ...p }));
   let l = { ...lane };
   const steps: string[] = [];
   for (let round = 0; round < 6 && meter.ticks - t0 < budget; round++) {
     if (clears(ps, l, wrap)) return { ok: true, pieces: ps, lane: l, steps };
-    const adv = adviseLane(ps, l, { budget: workSeconds(0.9), max: 1, wrap });
+    const adv = adviseLane(ps, l, { budget: workSeconds(0.9), max: 1, wrap, movable: opts.movable });
     if (adv.length) { const a = adv[0]; ({ ps, lane: l } = applyChange(ps, l, a.piece, a.change)); steps.push(a.text); continue; }
     // no single small shift works: shrink the tallest thing that no jump could climb
-    const tall = wrap ? undefined : ps.filter((p) => { const r = realSize(p); return r.h + p.y > 1.0; }).sort((a, b) => realSize(b).h - realSize(a).h)[0];
+    const tall = wrap ? undefined : ps.filter((p) => { if (opts.movable && !opts.movable.includes(p.id)) return false; const r = realSize(p); return r.h + p.y > 1.0; }).sort((a, b) => realSize(b).h - realSize(a).h)[0];
     if (!tall) break;
     const r = realSize(tall);
     const k = 0.9 / (r.h + tall.y);
@@ -39,6 +39,7 @@ export function fixLayout(pieces: Piece[], lane: LaneSetting, budget = workSecon
   }
   if (clears(ps, l, wrap)) return { ok: true, pieces: ps, lane: l, steps };
   // last resort: the best lane through the world as it is now
+  if (opts.movable) return { ok: clears(ps, l, wrap), pieces: ps, lane: l, steps }; // the player chose what may move: the lane stays where it is
   const found = bestSlices({ positions: Array.from(worldSamples(ps)) }, { top: 1, levels: [l.level], centre: { x: 0, z: 0 }, reprofile: (c) => laneProfile(ps, c) });
   if (found.length) { l = { angle: found[0].angle, offset: found[0].offset, level: found[0].level }; steps.push('Turned the lane to the best line through the pieces.'); }
   return { ok: clears(ps, l, wrap), pieces: ps, lane: l, steps };
