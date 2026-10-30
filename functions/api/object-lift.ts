@@ -17,6 +17,12 @@ const sharedLedger = memoryLedger(); // only for local runs without a database; 
 
 // The gates, in order: request shape -> burst limit -> safety check -> daily slot -> start the job. A slot is taken only after the photo passed
 // the safety check, and given back if the job never started, so a refusal never costs the player a try.
+/** The ledger never sees an address: a short one-way code of it, so the database holds no IP (private design notes stay out of the repo). */
+export async function playerCode(ip: string): Promise<string> {
+  const d = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(`cc-lift|${ip}`));
+  return [...new Uint8Array(d).slice(0, 8)].map((x) => x.toString(16).padStart(2, '0')).join('');
+}
+
 export async function handle(b: Record<string, unknown>, env: Env, ip: string, fetcher: typeof fetch = fetch, burstMax = 6, ledger: Ledger = sharedLedger, limits: Limits = DEFAULT_LIMITS, now = Date.now()): Promise<{ status: number; body: unknown }> {
   if (!env.CC_UPLOAD_TOKEN || !env.CC_UPLOAD_SUBMIT_URL || !env.CC_UPLOAD_STATUS_URL || !MODAL_HOST.test(env.CC_UPLOAD_SUBMIT_URL) || !MODAL_HOST.test(env.CC_UPLOAD_STATUS_URL)) return { status: 503, body: { error: 'not allowed' } };
   const call = async (url: string, payload: unknown): Promise<unknown> => {
@@ -41,14 +47,14 @@ export async function handle(b: Record<string, unknown>, env: Env, ip: string, f
     if (stop) return { status: 403, body: { error: 'moderation', message: stop } };
     moderation = `${m.body.verdict}:${m.body.reason}`;
   }
-  const day = utcDay(now);
-  const slot = await ledger.take(ip, day, limits);
+  const day = utcDay(now), who = await playerCode(ip);
+  const slot = await ledger.take(who, day, limits);
   if (!slot.ok) return { status: 429, body: { error: slot.limit === 'game' ? 'budget' : 'daily', message: LIMIT_WORDS[slot.limit] } };
   try {
     const out = (await call(env.CC_UPLOAD_SUBMIT_URL, { token: env.CC_UPLOAD_TOKEN, image: r.image.slice(r.image.indexOf(',') + 1), label: r.label, box: r.box, height_m: r.height_m, padretry: r.padretry })) as { id?: string; error?: string };
-    if (!out.id) { await ledger.refund(ip, day); return { status: 400, body: { error: out.error === 'not allowed' ? 'not allowed' : 'bad', message: out.error ?? '' } }; }
+    if (!out.id) { await ledger.refund(who, day); return { status: 400, body: { error: out.error === 'not allowed' ? 'not allowed' : 'bad', message: out.error ?? '' } }; }
     return { status: 200, body: { id: out.id, moderation } };
-  } catch { await ledger.refund(ip, day); return { status: 502, body: { error: 'down' } }; }
+  } catch { await ledger.refund(who, day); return { status: 502, body: { error: 'down' } }; }
 }
 
 export const onRequestPost = async ({ request, env }: { request: Request; env: Env }): Promise<Response> => {
