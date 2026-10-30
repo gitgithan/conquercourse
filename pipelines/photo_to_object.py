@@ -298,51 +298,63 @@ if modal is not None:
         photos = _photos(exp, only)
         out_root = f"{exp}/{rnd}"
         os.makedirs(out_root, exist_ok=True)
+        from ccpipe import calls
         mask_w, lift_w = Mask(), Lift()
         gpu = {"l4_seconds": 0.0, "l40s_seconds": 0.0}
-        m = r = {"load_seconds": 0.0}
-        per = []
+        per, loads_l4, loads_l40 = [], 0.0, 0.0
+        ledger_path = f"{out_root}/calls.json"  # CC-221: call ids on disk; run this command again after a dropped link and it resumes
+        ledger = calls.load_ledger(ledger_path)
+        todo = []
         for p in photos:
             d = f"{out_root}/{p['photo']}"
             os.makedirs(d, exist_ok=True)
-            if os.path.exists(f"{d}/entry.json"):  # a run cut off by the network resumes here
+            if os.path.exists(f"{d}/entry.json"):
                 per.append(json.load(open(f"{d}/entry.json")))
-                continue
+            else:
+                todo.append(p)
+        for p in todo:  # 1. send every mask job
             jpeg = open(f"{exp}/inputs/{p['photo']}.jpg", "rb").read()
-            t0 = time.time()
-            m = _retry(lambda: mask_w.run.remote(jpeg, p["label"], p["box"]))
-            mask_png = m["mask_png"]
-            if grow:
-                mask_png = _grow_png(mask_png, grow)
-            lift_jpeg, lift_mask = m["masked_jpeg"], mask_png
-            retry = {"enabled": padretry, "border": padretry_mod.border_contact(_mask_bool(mask_png)), "padded": False}
-            retry["touches"] = padretry_mod.touches_border(_mask_bool(mask_png))
-            if pad:  # context round: the lift sees the photo on a larger canvas
-                lift_jpeg, lift_mask = _pad_inputs(lift_jpeg, lift_mask, pad)
-                open(f"{d}/lift_input.jpg", "wb").write(lift_jpeg)
-            elif padretry and retry["touches"]:  # CC-170: the object runs into the photo edge: never reject, pad and lift (the mask pads with it)
-                lift_jpeg, lift_mask = padretry_mod.pad_bytes(lift_jpeg, lift_mask)
-                open(f"{d}/lift_input.jpg", "wb").write(lift_jpeg)
-                retry["padded"] = True
-            r = _retry(lambda: lift_w.run.remote(lift_jpeg, lift_mask, SEED))
+            calls.spawn_once(ledger, ledger_path, p["photo"], "mask", lambda: mask_w.run.spawn(jpeg, p["label"], p["box"]))
+        for p in todo:  # 2. as each mask comes back, send its lift job
+            d = f"{out_root}/{p['photo']}"
+            if not os.path.exists(f"{d}/mask_meta.json"):
+                m = calls.wait(lambda: modal.FunctionCall.from_id(ledger[p["photo"]]["mask"]).get(timeout=20), p["photo"] + " mask")
+                mask_png = _grow_png(m["mask_png"], grow) if grow else m["mask_png"]
+                lift_jpeg, lift_mask = m["masked_jpeg"], mask_png
+                retry = {"enabled": padretry, "border": padretry_mod.border_contact(_mask_bool(mask_png)), "padded": False}
+                retry["touches"] = padretry_mod.touches_border(_mask_bool(mask_png))
+                if pad:  # context round: the lift sees the photo on a larger canvas
+                    lift_jpeg, lift_mask = _pad_inputs(lift_jpeg, lift_mask, pad)
+                    open(f"{d}/lift_input.jpg", "wb").write(lift_jpeg)
+                elif padretry and retry["touches"]:  # CC-170: pad and lift, never reject
+                    lift_jpeg, lift_mask = padretry_mod.pad_bytes(lift_jpeg, lift_mask)
+                    open(f"{d}/lift_input.jpg", "wb").write(lift_jpeg)
+                    retry["padded"] = True
+                open(f"{d}/masked.jpg", "wb").write(m["masked_jpeg"])
+                open(f"{d}/mask.png", "wb").write(mask_png)
+                json.dump({"privacy": m["privacy"], "mask": m["mask"]}, open(f"{d}/privacy.json", "w"), indent=2)
+                calls.spawn_once(ledger, ledger_path, p["photo"], "lift", lambda: lift_w.run.spawn(lift_jpeg, lift_mask, SEED))
+                json.dump({"mask_seconds": m["seconds"], "load_seconds": m["load_seconds"], "mask": m["mask"], "privacy": m["privacy"],
+                           "retry": retry, "t0": time.time()}, open(f"{d}/mask_meta.json", "w"), indent=2)
+        for p in todo:  # 3. collect the lifts
+            d = f"{out_root}/{p['photo']}"
+            meta = json.load(open(f"{d}/mask_meta.json"))
+            r = calls.wait(lambda: modal.FunctionCall.from_id(ledger[p["photo"]]["lift"]).get(timeout=20), p["photo"] + " lift")
+            retry = meta["retry"]
+            mask_png = open(f"{d}/mask.png", "rb").read()
             retry.update(padretry_mod.lift_check(r["npz"], mask_png))
             retry["note"] = padretry_mod.decide(retry["touches"], retry["padded"], retry["bad"])
-            wall = time.time() - t0
-            open(f"{d}/masked.jpg", "wb").write(m["masked_jpeg"])
-            open(f"{d}/mask.png", "wb").write(mask_png)
             open(f"{d}/raw.npz", "wb").write(r["npz"])
-            json.dump({"privacy": m["privacy"], "mask": m["mask"]}, open(f"{d}/privacy.json", "w"), indent=2)
-            gpu["l4_seconds"] += m["seconds"]
+            gpu["l4_seconds"] += meta["mask_seconds"]
             gpu["l40s_seconds"] += r["seconds"]
-            per.append({"photo": p["photo"], "mask_seconds": round(m["seconds"], 1), "lift_seconds": round(r["seconds"], 1),
-                        "wall_seconds": round(wall, 1), "mask": m["mask"], "privacy": m["privacy"],
+            loads_l4, loads_l40 = max(loads_l4, meta["load_seconds"]), max(loads_l40, r["load_seconds"])
+            per.append({"photo": p["photo"], "mask_seconds": round(meta["mask_seconds"], 1), "lift_seconds": round(r["seconds"], 1),
+                        "wall_seconds": round(time.time() - meta["t0"], 1), "mask": meta["mask"], "privacy": meta["privacy"],
                         "n_faces_raw": r["n_faces"], "n_gaussians": r["n_gaussians"], "padretry": retry})
             print(json.dumps(per[-1]))
             json.dump(per[-1], open(f"{d}/entry.json", "w"), indent=2)
-            spent = _usd(gpu, m["load_seconds"], r["load_seconds"])
-            if spent > budget_usd:
-                print(f"STOP: estimated ${spent:.2f} passed the budget ${budget_usd}")
-                break
+        m = {"load_seconds": loads_l4}
+        r = {"load_seconds": loads_l40}
         loads = {"mask_load_seconds": round(m["load_seconds"], 1), "lift_load_seconds": round(r["load_seconds"], 1)}
         run = {"experiment": "cc-38-photo-to-3d", "round": rnd, "issue": "CC-38", "date": time.strftime("%Y-%m-%d"), "seed": SEED,
                "settings": {"mask_grow_px": grow, "colour_k": k, "pad_fraction": pad, "padretry": padretry, "texture": texture}, "photos": per, **loads,
