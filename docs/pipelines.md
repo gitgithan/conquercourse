@@ -227,6 +227,8 @@
 - **Library objects:** `scripts/object-provenance.py` writes `public/assets/objects/provenance.json` for the 19 shipped objects; the editor shows the credit under the name of the selected piece.
 - **Secrets:** Modal secret `cc-upload` (key `CC_UPLOAD_TOKEN`) and the same token in the Pages secret of the same name, plus `CC_UPLOAD_SUBMIT_URL` and `CC_UPLOAD_STATUS_URL` (the two Modal web urls); keys live in `~/.config/ninja/upload.env`, never in the repo.
 - **Deploy:** `CC_DEPLOY_WEB=1 modal deploy pipelines/photo_to_object.py` (the web functions need a deployed app).
+- **Batch runs survive a dropped link:** `main` spawns one job per photo and writes the call ids to `<exp>/<round>/calls.json`.
+- **To resume or collect:** run `modal run --detach pipelines/photo_to_object.py::main ...` again; finished photos and spawned calls are reused (`pipelines/ccpipe/calls.py`).
 - **Pitfalls:**
   - Modal asks for the GPU only when a job starts; a cold start (two GPU containers) can take minutes, and a busy workspace can wait longer.
   - The Modal call id lives for a limited time; the page gives up after about 20 minutes.
