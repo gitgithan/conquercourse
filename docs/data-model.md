@@ -226,6 +226,10 @@
 - The 0004 and 0005 columns (`verified`, `beats_ideal`, `keys`) are carried into `runs` as they are.
 - Backfill of `runs` from `course_clears`: `log` stays empty (the old rows never stored keys), `sim_version = 1`, `kind = 'done'`.
 
+## Object catalogue at scale
+- Photos, objects and placements have separate ids, and similar uploads are matched before the expensive lift.
+  - The plan is in `docs/object-catalogue.md`.
+
 ## Three alternatives
 ### A. D1 only, log in the row (recommended now)
 - The log is a text or blob column in the row; the made course sits in the row too.
