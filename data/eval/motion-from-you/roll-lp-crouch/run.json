@@ -3,7 +3,7 @@
   "move": "roll",
   "stage_wall_seconds": {
     "post": 2.1,
-    "fit": 0.0
+    "fit": 0
   },
   "modal_l4_usd_per_second": 0.000222,
   "credit": "Learn Parkour : Basic Crouch Roll, London Parkour (CC BY)",
