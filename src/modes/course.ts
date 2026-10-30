@@ -66,6 +66,7 @@ import { FURNITURE_ON } from '../world/furniture';
 import { barName, predictBand, predictLaunch, predictRelease, predictShot, type Prediction } from '../sim/predict';
 import { createTrebuchetView } from '../ui/trebuchet-view';
 import { createRecoilView } from '../ui/recoil-view';
+import { createShotsView } from '../ui/shots-view';
 import { createBandView } from '../ui/band-view';
 import { bandParams, stretchAt } from '../sim/band';
 import { createDroneView } from '../ui/drone-view';
@@ -161,6 +162,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
   const plankView = course.planks?.length ? buildPlanks(course) : null; // plank bridges: they bend under the runner (src/sim/beam.ts)
   if (plankView) scene.add(plankView.group);
   const trebView = course.trebuchet ? createTrebuchetView(scene, course) : null;
+  const shotsView = course.shots?.length ? createShotsView(scene, course) : null;
   const recoilView = course.recoil ? createRecoilView(scene, course) : null;
   let shotCache: { key: string; pr: Prediction } | null = null; // the dotted preview of a loaded cannon: the same prediction the debug view uses, worked out once per tick
   const shotPreview = (w: WorldState): Prediction | null => {
@@ -1093,6 +1095,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
     const jump = [...log].reverse().find((e) => e.type === 'jump');
     let tip = 'Try again.', lateTip = false;
     if (what === 'slide') tip = OBSTACLES.wall.tips.slide;
+    else if (what === 'hurt' && log.some((e) => e.type === 'ball-hit')) tip = 'The balls come at the same moments every time, for everyone. Wait for a gap between two balls, then go: too fast or too slow both meet the next one.';
     else if (what === 'hurt' && log.some((e) => e.type === 'drone-crash')) tip = OBSTACLES.drone.tips.crash;
     else if (what === 'hurt') tip = OBSTACLES.drop.tips.hurt;
     else if (course.track) tip = cartTip(what);
@@ -1117,7 +1120,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
     panel.innerHTML = '';
     panel.style.display = 'grid';
     const h = document.createElement('strong');
-    h.textContent = what === 'slide' ? 'You slid back down the wall.' : what === 'hurt' ? `Hard landing at the ${zone?.name ?? 'course'}.` : what === 'stall' ? 'The cart ran out of speed on a hill.' : log.some((e) => e.type === 'plank-break') ? 'The plank broke under you.' : log.some((e) => e.type === 'cart-off') ? 'The cart left the track at a hilltop.' : HAZARD_INFO[hazard].headline(zone?.name ?? 'course');
+    h.textContent = what === 'slide' ? 'You slid back down the wall.' : what === 'hurt' ? (log.some((e) => e.type === 'ball-hit') ? `A ball hit you at the ${zone?.name ?? 'course'}.` : `Hard landing at the ${zone?.name ?? 'course'}.`) : what === 'stall' ? 'The cart ran out of speed on a hill.' : log.some((e) => e.type === 'plank-break') ? 'The plank broke under you.' : log.some((e) => e.type === 'cart-off') ? 'The cart left the track at a hilltop.' : HAZARD_INFO[hazard].headline(zone?.name ?? 'course');
     const t = document.createElement('div'); t.textContent = tip;
     if (lateTip) void ensureWindows().then((ws) => { const hit = ws && windowTip(ws, r.x); if (hit && t.isConnected) t.textContent = hit; });
     const floorNote = document.createElement('div'); floorNote.style.cssText = 'color:#58635d;font-size:13px'; floorNote.textContent = what === 'slide' || what === 'hurt' ? '' : HAZARD_INFO[hazard].hint;
@@ -1509,6 +1512,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
       document.documentElement.dataset.maxPen = maxPen.toFixed(3);
     }
     trebView?.update(world);
+    shotsView?.update(world);
     recoilView?.update(world, facing, shotPreview(world)?.path);
     bandView?.update(world);
     droneView?.update(world, facing);

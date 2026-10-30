@@ -1,4 +1,5 @@
 import type { CourseData } from '../course/course';
+import { ballHit } from './shots';
 import { DT } from './units';
 import { DEFAULT_PARAMS, NO_INPUT, startState, step, type RunnerInput, type RunnerParams, type RunnerState } from './runner';
 import { groundAt, heightAt, standingOn } from './terrain';
@@ -25,7 +26,7 @@ export type Outcome = 'running' | 'cleared' | 'splash' | 'hurt' | 'stalled'; // 
 
 export interface GameEvent {
   tick: number;
-  type: 'jump' | 'roll' | 'land' | 'stumble' | 'hard-landing' | 'splash' | 'wall-grab' | 'wall-no-grip' | 'wall-slide' | 'rope-catch' | 'rope-release' | 'hang-catch' | 'hang-release' | 'vault' | 'climb' | 'climb-drop' | 'bounce' | 'cleared' | 'cart-start' | 'cart-stall' | 'cart-off' | 'cart-catch' | 'launch-fire' | 'launch-release' | 'launch-dud' | 'recoil' | 'plank-sag' | 'plank-break' | 'plank-off' | 'band-release' | 'band-snap' | 'drone-board' | 'drone-land' | 'drone-drop' | 'drone-crash' | 'drone-empty';
+  type: 'jump' | 'roll' | 'land' | 'stumble' | 'hard-landing' | 'splash' | 'wall-grab' | 'wall-no-grip' | 'wall-slide' | 'rope-catch' | 'rope-release' | 'hang-catch' | 'hang-release' | 'vault' | 'climb' | 'climb-drop' | 'bounce' | 'cleared' | 'cart-start' | 'cart-stall' | 'cart-off' | 'cart-catch' | 'launch-fire' | 'launch-release' | 'launch-dud' | 'recoil' | 'plank-sag' | 'plank-break' | 'plank-off' | 'band-release' | 'band-snap' | 'drone-board' | 'drone-land' | 'drone-drop' | 'drone-crash' | 'drone-empty' | 'ball-hit';
   detail?: Record<string, number | boolean>;
 }
 
@@ -96,6 +97,13 @@ function openCourse(course: CourseData, stood: number[]): CourseData {
   return c;
 }
 export function stepWorld(w: WorldState, input: RunnerInput, course: CourseData, p: RunnerParams = DEFAULT_PARAMS): WorldState {
+  const n = stepGated(w, input, course, p);
+  if (!course.shots || n.outcome !== 'running') return n;
+  // timed balls: where they are is a formula of the tick, so a hit is the same for every player (src/sim/shots.ts)
+  const b = ballHit(course.shots, n.runner.tick, n.runner.x, n.runner.y, p.gravity);
+  return b ? { ...n, outcome: 'hurt', events: [...n.events, { tick: n.runner.tick, type: 'ball-hit', detail: { x: b.x, y: b.y, launcher: b.launcher } }] } : n;
+}
+function stepGated(w: WorldState, input: RunnerInput, course: CourseData, p: RunnerParams): WorldState {
   if (!hasGates(course)) return stepWorldPlain(w, input, course, p);
   const stood = w.stood ?? [];
   const n = stepWorldPlain(w, input, openCourse(course, stood), p);
