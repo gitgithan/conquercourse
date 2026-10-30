@@ -163,7 +163,9 @@ export function courseHash(course: CourseData): string {
   for (let i = 0; i < text.length; i++) { h ^= text.charCodeAt(i); h = Math.imul(h, 0x01000193); }
   return (h >>> 0).toString(36);
 }
-export const cleanNick = (s: string): string => s.replace(/[^A-Za-z0-9]/g, '').slice(0, 3).toUpperCase();
+export const NICK_MAX = 12;
+/** A tag: letters, digits, _ and -, twelve at most, in the case the player chose (never a real name; a link carries it between dots). */
+export const cleanNick = (s: string): string => s.replace(/[^A-Za-z0-9_-]/g, '').slice(0, NICK_MAX);
 
 // kind 'done': keys that reach the finish. kind 'fell' (CC-181): keys of a try that ended in a fall; the version field then reads "1f", so a build that does not know about it refuses the link.
 export type ChallengeKind = 'done' | 'fell';
@@ -178,6 +180,6 @@ export async function readChallengeParam(param: string): Promise<ChallengeRead> 
   const m = /^(\d+)(f?)$/.exec(v ?? '');
   if (!m) return { ok: false, why: 'broken' };
   if (Number(m[1]) !== REPLAY_VERSION) return { ok: false, why: 'version' };
-  if (!/^[a-z0-9]{1,8}$/.test(hash) || !/^[A-Z0-9]{0,3}$/.test(nick)) return { ok: false, why: 'broken' };
+  if (!/^[a-z0-9]{1,8}$/.test(hash) || !/^[A-Za-z0-9_-]{0,12}$/.test(nick)) return { ok: false, why: 'broken' };
   try { return { ok: true, challenge: { hash, nick, log: await decodeLog(data), kind: m[2] ? 'fell' : 'done' } }; } catch { return { ok: false, why: 'broken' }; }
 }

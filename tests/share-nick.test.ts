@@ -17,17 +17,19 @@ describe('the nickname in a challenge link (CC-134)', () => {
     const o = await openChallenge(course, param(url!));
     expect(o.ok && o.nick).toBe('');
   });
-  it('round trips three capital letters and digits', async () => {
-    const url = await makeChallengeUrl(ORIGIN, '?course=/assets/demo/lache.course.json', course, log, 'amy');
+  it('round trips a name of letters, digits, _ and -, in the case it was typed', async () => {
+    const url = await makeChallengeUrl(ORIGIN, '?course=/assets/demo/lache.course.json', course, log, 'Ninja_Amy-9');
     const o = await openChallenge(course, param(url!));
-    expect(o.ok && o.nick).toBe('AMY');
+    expect(o.ok && o.nick).toBe('Ninja_Amy-9');
   });
-  it('cuts to three and drops spaces and symbols', () => {
-    expect(shownNick(' a-m y!z ')).toBe('AMY');
+  it('cuts to twelve and drops spaces and symbols', () => {
+    expect(shownNick(' a-m y!z ')).toBe('a-myz');
+    expect(shownNick('abcdefghijklmnop')).toBe('abcdefghijkl');
   });
   it('refuses a blocked word, also with digits for letters', () => {
     for (const bad of ['ass', 'ASS', 'a55', 'f4g', 'S3X', 'fuk']) expect(nickOk(bad), bad).toBe(false);
-    for (const good of ['', 'amy', 'bo', 'K9', 'jan', 'x7']) expect(nickOk(good), good).toBe(true);
+    for (const bad of ['Big_Fuck', 'xXs h1tXx'.replace(' ', ''), 'N4zi_Kid', 'p0rn-star']) expect(nickOk(bad), bad).toBe(false);
+    for (const good of ['', 'amy', 'bo', 'K9', 'jan', 'x7', 'Classy', 'Ninja_Amy', 'Hancock']) expect(nickOk(good), good).toBe(true);
   });
   it('makes no link for a blocked nickname', async () => {
     expect(await makeChallengeUrl(ORIGIN, '', course, log, 'ass')).toBeNull();
