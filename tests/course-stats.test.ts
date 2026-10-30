@@ -122,8 +122,8 @@ describe('the server: clears are played again before they count', () => {
     const row = sql.prepare('SELECT * FROM course_clears').get() as Record<string, unknown>;
     expect(row.ticks).toBe(r.body.ticks);
     expect(row.ticks).toBeGreaterThan(1000);
-    // 'keys' is the run log of a verified run and 'nick' the optional three-letter tag (migrations 0005 and 0007); neither is a player id
-    expect(Object.keys(row).sort()).toEqual(['beats_ideal', 'course_hash', 'course_key', 'id', 'keys', 'log_hash', 'nick', 'run_id', 'ticks', 'ts', 'verified']);
+    // 'keys' is the run log of a verified run and 'nick' the optional three-letter tag (migrations 0005 and 0007); 'player' is a one-way code of a random browser id (migration 0010), never an address
+    expect(Object.keys(row).sort()).toEqual(['beats_ideal', 'course_hash', 'course_key', 'id', 'keys', 'log_hash', 'nick', 'player', 'run_id', 'ticks', 'ts', 'verified']);
   });
   it('ignores a time the browser claims: only the keys count', async () => {
     const { db } = setup();

@@ -25,23 +25,56 @@ export function boardLines(rows: BoardRow[]): string[] {
   return rows.map((r, i) => `${i + 1}  ${r.nick || '···'}  ${secondsText(r.ticks)}`);
 }
 
-export async function loadBoard(key: string, hash: string): Promise<BoardRow[]> {
+export interface BoardData { top: BoardRow[]; players: number; mine: { rank: number; ticks: number } | null; resetAt: number | null; previous: BoardRow | null }
+export type Win = 'day' | 'week' | 'all';
+export const WIN_NAMES: Record<Win, string> = { day: 'Today', week: 'This week', all: 'All time' };
+
+export async function loadBoard(key: string, hash: string, win: Win = 'all', me = ''): Promise<BoardData> {
+  const empty: BoardData = { top: [], players: 0, mine: null, resetAt: null, previous: null };
   try {
-    const res = await fetch(`/api/leaderboard?course=${encodeURIComponent(key)}&hash=${encodeURIComponent(hash)}`);
-    if (!res.ok) return [];
-    const d = await res.json() as { top?: BoardRow[] };
-    return Array.isArray(d.top) ? d.top : [];
-  } catch { return []; }
+    const res = await fetch(`/api/leaderboard?course=${encodeURIComponent(key)}&hash=${encodeURIComponent(hash)}&window=${win}&me=${encodeURIComponent(me)}`);
+    if (!res.ok) return empty;
+    const d = await res.json() as Partial<BoardData>;
+    return { ...empty, ...d, top: Array.isArray(d.top) ? d.top : [] };
+  } catch { return empty; }
 }
 
-/** The box shown in the end report: the top times, then your best. Empty board: an invitation, never a made-up number. */
-export function boardBox(key: string, hash: string): HTMLElement {
+/** "You are #4 of 37 players", or an invitation when you have no time in this window. */
+export const placeText = (d: BoardData): string => d.mine ? `You are #${d.mine.rank} of ${d.players} player${d.players === 1 ? '' : 's'}` : d.players ? `${d.players} player${d.players === 1 ? '' : 's'} so far. Run to get a place.` : 'No time yet. Be the first.';
+
+/** "Resets in 5 h 12 m" (UTC midnight; Monday midnight for the week). All time never resets. */
+export function resetText(resetAt: number | null, now = Date.now()): string {
+  if (resetAt == null) return '';
+  const m = Math.max(0, Math.round((resetAt - now) / 60_000));
+  const d = Math.floor(m / 1440), h = Math.floor((m % 1440) / 60);
+  return `Resets in ${d > 0 ? `${d} d ${h} h` : h > 0 ? `${h} h ${m % 60} m` : `${m} m`}`;
+}
+
+/** The box shown in the end report: tabs for the window, the top times, your place, the reset clock, and your best. Empty board: an invitation, never a made-up number. */
+export function boardBox(key: string, hash: string, me = ''): HTMLElement {
   const box = document.createElement('div'); box.id = 'report-board';
   box.style.cssText = 'margin:.6em 0;padding:.5em .8em;border:1px solid #556;border-radius:6px;font-size:.9em';
-  const head = document.createElement('div'); head.textContent = 'Fastest runs'; head.style.fontWeight = '600'; box.appendChild(head);
-  const list = document.createElement('div'); list.style.cssText = 'font-family:monospace;white-space:pre'; list.textContent = 'Loading…'; box.appendChild(list);
+  const tabs = document.createElement('div'); tabs.style.cssText = 'display:flex;gap:.4em;margin-bottom:.3em';
+  const list = document.createElement('div'); list.style.cssText = 'font-family:monospace;white-space:pre'; list.textContent = 'Loading…';
+  const place = document.createElement('div'); place.id = 'report-place'; place.style.cssText = 'font-weight:600;color:#1a6b3c';
+  const clock = document.createElement('div'); clock.id = 'report-reset'; clock.style.cssText = 'color:#8a5a00;font-size:.85em';
+  const champ = document.createElement('div'); champ.id = 'report-champ'; champ.style.cssText = 'color:#555;font-size:.85em';
+  const show = (win: Win): void => {
+    for (const b of tabs.children) (b as HTMLElement).style.fontWeight = (b as HTMLElement).dataset.win === win ? '700' : '400';
+    list.textContent = 'Loading…';
+    void loadBoard(key, hash, win, me).then((d) => {
+      list.textContent = d.top.length ? boardLines(d.top).join('\n') : 'No time yet. Be the first.';
+      place.textContent = placeText(d); clock.textContent = resetText(d.resetAt);
+      champ.textContent = d.previous ? `${win === 'day' ? 'Yesterday' : 'Last week'}'s champion: ${d.previous.nick || '···'} ${secondsText(d.previous.ticks)}` : '';
+    });
+  };
+  for (const w of ['day', 'week', 'all'] as Win[]) {
+    const b = document.createElement('button'); b.type = 'button'; b.dataset.win = w; b.textContent = WIN_NAMES[w]; b.onclick = () => show(w); tabs.appendChild(b);
+  }
+  const head = document.createElement('div'); head.textContent = 'Fastest runs'; head.style.fontWeight = '600';
+  box.append(head, tabs, list, place, clock, champ);
   const mine = readBest(key, hash);
   if (mine) { const m = document.createElement('div'); m.id = 'report-best'; m.textContent = `Your best: ${secondsText(mine)}`; box.appendChild(m); }
-  void loadBoard(key, hash).then((rows) => { list.textContent = rows.length ? boardLines(rows).join('\n') : 'No time yet. Be the first.'; });
+  show('day');
   return box;
 }

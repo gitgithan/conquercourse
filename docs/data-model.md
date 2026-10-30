@@ -22,9 +22,9 @@
 | `course_clears` | 0003, 0004, 0005, 0007 | a cleared run the server replayed: course, hash, ticks, verified, beats_ideal, keys of verified runs, the optional three-letter tag | none (owner decision, 2026-10-29) |
 
 - Neither a clear nor a share stores an address, a name or an email.
-- Migrations 0002 (twice), 0003 and 0004 were applied by hand to the live database, so `wrangler d1 migrations apply` must not be used on it.
-  - Run a new file with `wrangler d1 execute conquercourse-feedback --remote --file migrations/0006_shares.sql`.
-- Migrations 0004 and 0005 are written and still wait for the owner.
+- Every migration is now recorded in the live `d1_migrations` table (2026-10-30), so `wrangler d1 migrations apply conquercourse-feedback --remote` applies only the new files.
+  - History: 0002 to 0004 had been run by hand, which left the table knowing only 0001; the rows were added by hand once, and `apply` was used for 0006 and 0009.
+  - A new file that is not safe to run twice needs no special care: `apply` runs each file once.
 
 ## How big a run is (measured)
 - A run is a list of (keys held, ticks) pairs, written as varints, deflated and encoded in base64url (`encodeLog`).
@@ -212,7 +212,7 @@
 - No personal data is added to a shared run: the checks that mark a run `verified` and `beats_ideal` are unchanged and store no more than before.
 
 ## Migration plan from the current tables
-- Rule: every step is additive, a new file in `migrations/`, applied by hand with `wrangler d1 execute --file`, with the old table kept until the new one has run for a week.
+- Rule: every step is additive, a new file in `migrations/`, applied with `wrangler d1 migrations apply`, with the old table kept until the new one has run for a week.
 
 | Step | Migration | What changes | Undo |
 |---|---|---|---|
