@@ -51,7 +51,7 @@
 - The link keeps the same address and adds `challenge=<version>.<course hash>.<nickname>.<keys>`.
 - The keys are the run-length pairs as varints, deflated, then base64url.
 - Size: a three-minute run is a few hundred bytes, well under 2 KB (tested on the demo courses).
-- The nickname is optional, three letters, letters and digits only.
+- The nickname is optional, up to 12 characters: letters, digits, _ and -.
 - The link holds no name, no time and no account.
 - Opening it plays the keys on the course and takes the time the simulator gives.
 - So a link cannot claim a time: a log that does not clear, that is cut short, longer than three minutes or damaged is refused with a plain message.
@@ -92,7 +92,7 @@
 ## Part 4: a leaderboard (approved 2026-10-30; on by default on the Course and in the end report, `?board=0` hides it, CC-108)
 - **Built:** `GET /api/leaderboard?course=<key>&hash=<hash>` returns the ten fastest verified runs with their tags; the end report shows them and your own best.
   - The board reads `course_clears` (migration 0007), not the `runs` table below, so it works before the bigger data model lands.
-  - Tags are three letters the player chose, checked again on the server; no account and no name.
+  - Tags are up to 12 characters the player chose, checked again on the server; no account and no name.
   - Your best time is kept in this browser only.
   - Tests: `tests/leaderboard.test.ts`.
 - **What:** a best-time list for each course, and a daily challenge course made from a seed by the generator.
@@ -103,7 +103,6 @@
   - Migration: one new file in `migrations/`, applied with `npx wrangler d1 migrations apply conquercourse-feedback --remote`.
   - Keys are kept so a run can be replayed as a ghost for everyone.
 - **Abuse limits:** kept in the private notes, not in this repo.
-  - A nickname of three letters from a short word list filter, no free text.
 - **Cost:** within the free tier of Pages Functions and D1 at hackathon volume (a run is about 1 KB; 10,000 runs is about 10 MB).
   - The compute is a few milliseconds per run.
 - **Privacy:** no names, no accounts, no location; the nickname is optional.

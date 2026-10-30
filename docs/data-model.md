@@ -107,7 +107,7 @@
 - `course_best(course_hash, rank, run_id, ticks)`: the best verified runs for a course version, rebuilt when a better run lands (top 100).
   - Only `verified = 1` rows can enter, as in `docs/run-checks.md`.
   - The `runs` index on (`course_hash`, `verified`, `ticks`) answers "top 10" without this table at hackathon volume; the table is for caching at larger volume.
-- Leaderboard identity (a tag, not a name) stays the three-letter tag from the challenge doc.
+- Leaderboard identity (a tag, not a name) stays the short tag (up to 12 characters) from the challenge doc.
 
 ### Challenge links (next)
 - `challenges(id, share_id, course_hash, created_at, expires_at, kind, seed)`.
