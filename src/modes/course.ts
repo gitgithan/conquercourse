@@ -77,6 +77,7 @@ import { chunked, cullFar, mergeStatic, type Part } from '../render/static-merge
 import { EDIT_KEY, handoffCourse, type EditHandoff } from '../slice/roundtrip';
 import { startOnboarding, type Onboarding } from '../ui/onboarding';
 import { browserStore, rememberCourse, tourDecision } from '../ui/onboarding-flags';
+import { pageQuery, pageSearch } from '../flags';
 
 // The Course: the five obstacles in a row. The simulator decides everything; this file only draws it
 // and turns keys into inputs. Time comes from the simulator's tick count, never from the browser's clock.
@@ -95,7 +96,7 @@ const MESSAGES: Record<string, string> = {
 };
 
 export async function startCourse(host: HTMLElement, course: CourseData = defaultCourse): Promise<CourseGame> {
-  const params = new URLSearchParams(location.search);
+  const params = pageQuery();
   // Coming back from the Dojo: the Course is put back exactly as it was (same course, same place), not started again.
   let resume: Resume | null = null;
   try {
@@ -305,7 +306,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
   try { const saved = localStorage.getItem('cc.rookie'); if (saved === 'a' || saved === 'b') choice = saved; } catch { /* keep going */ }
   if (params.get('rookie') === 'a' || params.get('rookie') === 'b') choice = params.get('rookie') as 'a' | 'b';
   // CC-41: with ?look=custom a third button wears the MHR body (skinned to the Rookie's bones); nothing changes without the switch
-  const look = lookSwitchOn(location.search);
+  const look = lookSwitchOn(pageSearch());
   let custom = false;
   async function loadRookie(which: 'a' | 'b', wear = false) {
     try {
@@ -585,8 +586,8 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
   // CC-85: a real place shows its real photos (credit under each, a large view on click); ?photos=0 or the Hide switch turns them off
   const placeSlug = slugOfCourse(course.name);
   let livePhotos: { update(x: number): void } | null = null; // CC-90: street photos from the allow-list change as the runner moves; the CC-85 strip is the fallback
-  if (placeSlug && new URLSearchParams(location.search).get('photos') !== '0') void mountLivePhotos(document.body, course).then((h) => { livePhotos = h; });
-  if (placeSlug && FURNITURE_ON(new URLSearchParams(location.search))) void mountFurniture(scene, course); // CC-187: real street furniture, looks only, off by default
+  if (placeSlug && pageQuery().get('photos') !== '0') void mountLivePhotos(document.body, course).then((h) => { livePhotos = h; });
+  if (placeSlug && FURNITURE_ON(pageQuery())) void mountFurniture(scene, course); // CC-187: real street furniture, looks only, off by default
   { const bd = params.get('backdrop'); if (bd) void mountBackdrop(scene, course, bd); } // CC-234: the place's buildings and street furniture behind the hero lane, looks only, off by default
   // CC-197: every short message goes through one stack (new ones below, old ones leave upward); ?toasts=old keeps the single centred toast
   const toastsOld = params.get('toasts') === 'old';
@@ -770,7 +771,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
   let replay: { i: number; from: number; to: number } | null = null; // i is a float: the replay runs at half speed
   let falls = resume ? resume.falls : 0;
   const analyticsCourseKey = courseKey(course.name);
-  const analyticsMode = new URLSearchParams(location.search).get('mode') ?? 'course';
+  const analyticsMode = pageQuery().get('mode') ?? 'course';
   let analyticsRunId = crypto.randomUUID();
   let failedThisAttempt = false;
   if (!resume) trackCourseEvent('start', analyticsCourseKey, course.name, analyticsRunId, analyticsMode);
@@ -1136,7 +1137,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
     });
     const tryClip = shareOn(params) && !botMode && !demo && !idealWhole && !params.get('mode') ? ghostCtl?.myClip() ?? null : null, tryTicks = world.runner.tick;
     const tryRun = shareOn(params) && !botMode && !demo && !idealWhole && !params.get('mode') ? ghostCtl?.myRun() ?? null : null; // CC-181: a try that fell can be sent as a link too; it never counts for a time
-    if (tryRun) row.append(...copyLinkButton({ link: (nick) => makeLink(location.origin, location.search, course, tryRun, nick, choice, 'fell'), courseTooBig: () => courseTooBig(location.search, course), label: 'Copy link to this try', id: 'share-copy-fall' }));
+    if (tryRun) row.append(...copyLinkButton({ link: (nick) => makeLink(location.origin, pageSearch(), course, tryRun, nick, choice, 'fell'), courseTooBig: () => courseTooBig(pageSearch(), course), label: 'Copy link to this try', id: 'share-copy-fall' }));
     if (tryClip && clipFits(tryTicks)) mk('Download a video of this try', () => void makeClip(tryClip.log, tryTicks, tryClip.from)).id = 'share-clip-fall'; // CC-157: a try that ended in a fall is worth a clip too
     mk('Show me the ideal run (I)', () => showIdeal(lastZone));
     if (!course.track) mk('Make it easier', () => openEditor('easier')).id = 'makeeasier';
@@ -1236,11 +1237,11 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
   ghostCtl.begin(!resume && startAt === undefined && (!botMode || ghostBot), (!botMode || ghostBot) && !resume?.world ? (resume ? resume.retryX : startAt ?? course.startX) : null);
   // A run played again to make a clip (CC-129). The pictures come from the real game on a stepped clock: four ticks for each, whatever the speed of this computer.
   let clipCam: { x: number; y: number } | null = null; // where the clip camera is looking, kept between pictures
-  let clipLayout: ClipLayout = clipLayoutFor(location.search); // the view of the clip: about 20 m across by default (CC-160), ?clipzoom=close the older close view, ?clipshape=wide a 1280 x 720 picture
+  let clipLayout: ClipLayout = clipLayoutFor(pageSearch()); // the view of the clip: about 20 m across by default (CC-160), ?clipzoom=close the older close view, ?clipshape=wide a 1280 x 720 picture
   async function makeClip(log: InputLog, ticks: number, from: number = course.startX): Promise<void> {
     const card = clipCard();
     card.say('Making your clip…');
-    clipLayout = clipLayoutFor(location.search);
+    clipLayout = clipLayoutFor(pageSearch());
     const L = clipLayout, enc = await createClipEncoder(L);
     if (!enc) { card.fail('This browser cannot make a video clip. Copy the challenge link instead.'); return; }
     const cv = document.createElement('canvas'); cv.width = L.w; cv.height = L.h;
@@ -1327,11 +1328,11 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
   const camPos = new THREE.Vector3();
   // ?fx=bloom,vignette,dof (or all): picture polish for stills (CC-188); off unless asked, loaded only then
   let fxPipe: { render(): void } | null = null;
-  if (new URLSearchParams(location.search).get('fx')) void import('../render/fx').then((m) => { const on = m.fxOf(location.search); if (on.size) fxPipe = m.createFx(renderer as any, scene, camera, on, () => camera.position.distanceTo(body.position)); });
+  if (pageQuery().get('fx')) void import('../render/fx').then((m) => { const on = m.fxOf(pageSearch()); if (on.size) fxPipe = m.createFx(renderer as any, scene, camera, on, () => camera.position.distanceTo(body.position)); });
   // ?trail=1: a light trail behind the runner for film shots (CC-209); loaded only then
   let trailPush: ((x: number, y: number) => void) | null = null;
-  if (new URLSearchParams(location.search).get('trail') === '1') void import('../render/trail').then((m) => { trailPush = m.createTrail(scene).push; });
-  const filmShot = filmShotOf(location.search); // the film camera (CC-130): only with ?film=<shot>
+  if (pageQuery().get('trail') === '1') void import('../render/trail').then((m) => { trailPush = m.createTrail(scene).push; });
+  const filmShot = filmShotOf(pageSearch()); // the film camera (CC-130): only with ?film=<shot>
   const film = filmShot ? (await import('../film/overlay')).startFilm(filmShot, params, renderer.domElement as HTMLCanvasElement, course.finishX) : null;
   let filmAir = 0;
   // Mouse: drag turns the view around the runner, the wheel zooms, a double-click (or C) goes back to the preset.
@@ -1450,7 +1451,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
         if (ghostCtl && !botMode && !demo && !idealWhole) body.querySelector('#report-actions')?.prepend(...ghostCtl.reportActions(() => { panel.style.display = 'none'; retryX = course.startX; restart(course.startX); }));
         if (shareOn(params) && !botMode && !demo && !idealWhole && !params.get('mode')) {
           const mine = ghostCtl?.myRun() ?? null, mineClip = ghostCtl?.myClip() ?? null, ticks = world.runner.tick; // a link needs a run from the start; a clip can be made of any try (CC-157)
-          if (mine || mineClip) body.querySelector('#report-actions')?.append(...shareButtons({ link: mine ? (nick) => makeLink(location.origin, location.search, course, mine, nick, choice) : undefined, courseTooBig: () => courseTooBig(location.search, course), clip: mineClip && clipFits(ticks) ? () => void makeClip(mineClip.log, ticks, mineClip.from) : undefined }));
+          if (mine || mineClip) body.querySelector('#report-actions')?.append(...shareButtons({ link: mine ? (nick) => makeLink(location.origin, pageSearch(), course, mine, nick, choice) : undefined, courseTooBig: () => courseTooBig(pageSearch(), course), clip: mineClip && clipFits(ticks) ? () => void makeClip(mineClip.log, ticks, mineClip.from) : undefined }));
         }
         if (reportSectionsOn(params)) organiseReport(body, !botMode && !demo && !idealWhole ? { dojo: () => openDojo() } : {}); // CC-158
         setMusicScreen('report');

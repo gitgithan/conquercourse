@@ -1,10 +1,11 @@
 import { agentTestInWorker } from '../slice/proof-client';
 import { firstAsk, obstacleCount, runAgent, STEP_CAP, type AgentResult, type Ask, type Message, type Step } from '../slice/course-agent';
 import type { Layout } from '../slice/photo-course';
+import { pageSearch } from '../flags';
 
 // The Course Agent in the editor (labs, ?agent=1): a photo goes in, the player watches each step (proposed, tested, repaired, tested) as it happens,
 // and the editor gets the layout the simulator proved, or the best attempt it tested with the reason it stopped. Nothing here grades a person.
-export const agentOn = (): boolean => /[?&]agent\b/.test(location.search) || /[?&]labs\b/.test(location.search);
+export const agentOn = (): boolean => /[?&]agent\b/.test(pageSearch()) || /[?&]labs\b/.test(pageSearch());
 
 async function photoDataUrl(file: Blob): Promise<string> {
   const bmp = await createImageBitmap(file), k = Math.min(1, 768 / bmp.width);

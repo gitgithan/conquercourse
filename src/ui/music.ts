@@ -2,6 +2,7 @@
 // On by default (?music=0 turns it off and the browser remembers; ?music=1 turns it on again). It tries to start at load, plays quietly, pauses while the tab is hidden,
 // and M or the speaker button mutes it with the sound effects (the mute is remembered). Automated browsers stay silent unless the address has ?music=1.
 import { isMuted, onMuteChange, setMuted } from './audio';
+import { pageSearch } from '../flags';
 
 export type Screen = 'course' | 'map' | 'editor' | 'dojo' | 'report' | 'library';
 export const SCREENS: readonly Screen[] = ['course', 'map', 'editor', 'dojo', 'report', 'library'];
@@ -9,7 +10,7 @@ export const MUSIC_VOLUME = 0.3; // quiet: loops are all at the same loudness, t
 export const FADE_IN_S = 2;
 export const CROSSFADE_S = 1.5;
 
-export function musicOn(search = location.search, automated = typeof navigator !== 'undefined' && navigator.webdriver === true): boolean {
+export function musicOn(search = pageSearch(), automated = typeof navigator !== 'undefined' && navigator.webdriver === true): boolean {
   const m = /[?&]music(?:=(\w+))?(?:&|$)/.exec(search);
   try {
     if (m) { const on = m[1] !== '0'; if (on) localStorage.removeItem('cc.music'); else localStorage.setItem('cc.music', '0'); return on; }

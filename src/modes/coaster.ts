@@ -3,6 +3,7 @@ import { fixCart } from '../slice/fixcart';
 import { crestSpeedLimit, makeRails } from '../sim/cart';
 import { playPlan, searchIdealRun, type Plan } from '../sim/ideal';
 import { GRAVITY } from '../sim/units';
+import { pageQuery } from '../flags';
 
 // ?mode=coaster: build a coaster in the side view. Drag the dots to shape the track, double-click empty space to add a dot, double-click a dot to take it out.
 // The cart is run on the same physics the Course uses, so the verdict under the picture is the simulator's, not a guess.
@@ -16,7 +17,7 @@ export const trackToQuery = (segments: [number, number][][] | [number, number][]
 };
 
 export function startCoaster(host: HTMLElement): { backend: 'webgl2' } {
-  const q = new URLSearchParams(location.search);
+  const q = pageQuery();
   let segments: [number, number][][] = [START.map((p) => [...p] as [number, number])];
   let push = 1.5;
   const fromUrl = q.get('coaster');

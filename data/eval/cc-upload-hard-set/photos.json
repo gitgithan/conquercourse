@@ -45,7 +45,7 @@
     "licence": "CC0",
     "source": "https://commons.wikimedia.org/wiki/File:Bicycle_parking_rack_at_Chester_station.jpg",
     "title": "File:Bicycle parking rack at Chester station.jpg",
-    "height_m": 1.0
+    "height_m": 1
   },
   {
     "photo": "bike-rack-tangle",
@@ -61,7 +61,7 @@
     "licence": "CC0",
     "source": "https://commons.wikimedia.org/wiki/File:Bike_parking_at_19th_Street_Oakland_(3),_March_2012.jpg",
     "title": "File:Bike parking at 19th Street Oakland (3), March 2012.jpg",
-    "height_m": 1.0
+    "height_m": 1
   },
   {
     "photo": "bin-scooters",
@@ -73,11 +73,11 @@
       800
     ],
     "why_hard": "scooters and a tree against the bin, busy street behind",
-    "author": "\u7384\u53f2\u751f",
+    "author": "玄史生",
     "licence": "CC0",
     "source": "https://commons.wikimedia.org/wiki/File:Large_Street_Trash_Bin_of_Taipei_City_20121229.JPG",
     "title": "File:Large Street Trash Bin of Taipei City 20121229.JPG",
-    "height_m": 1.0
+    "height_m": 1
   },
   {
     "photo": "bin-snow",
@@ -93,7 +93,7 @@
     "licence": "CC BY-SA 4.0",
     "source": "https://commons.wikimedia.org/wiki/File:%22Welcome_to_Black_Rock%22_trash_bin,_Amherst_Street,_Buffalo,_New_York_-_20220218.jpg",
     "title": "File:\"Welcome to Black Rock\" trash bin, Amherst Street, Buffalo, New York - 20220218.jpg",
-    "height_m": 1.0
+    "height_m": 1
   },
   {
     "photo": "bench-dusk",
@@ -124,7 +124,7 @@
     "author": "Roman Eisele",
     "licence": "CC BY-SA 4.0",
     "source": "https://commons.wikimedia.org/wiki/File:Leingarten_-_Gro%C3%9Fgartach_-_Eichbott_-_oberer_Eichbott-See_-_Bank_mit_Sonnenuntergang_(1.2).jpg",
-    "title": "File:Leingarten - Gro\u00dfgartach - Eichbott - oberer Eichbott-See - Bank mit Sonnenuntergang (1.2).jpg",
+    "title": "File:Leingarten - Großgartach - Eichbott - oberer Eichbott-See - Bank mit Sonnenuntergang (1.2).jpg",
     "height_m": 0.85
   },
   {
@@ -204,7 +204,7 @@
     "licence": "CC BY-SA 4.0",
     "source": "https://commons.wikimedia.org/wiki/File:Athens_Square_Park_Qns_td_(2019-08-21)_27.jpg",
     "title": "File:Athens Square Park Qns td (2019-08-21) 27.jpg",
-    "height_m": 1.0
+    "height_m": 1
   },
   {
     "photo": "hydrant-cars",

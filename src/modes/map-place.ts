@@ -9,6 +9,7 @@ import { buildingsFrom, type OverpassAnswer } from '../world/osm';
 import { relief, type Ground } from '../world/terrain';
 import { toLonLat } from '../slice/slicer';
 import type { PlaceLaneAnswer, PlaceLaneAsk } from '../world/place-lane-worker';
+import { pageQuery } from '../flags';
 
 export interface PlaceCtx {
   map: MapLibreMap; side: HTMLElement;
@@ -74,9 +75,9 @@ export function installPlaces(ctx: PlaceCtx) {
   const loadIndex = (async () => {
     try { index = (await (await fetch('/assets/places/index.json')).json()) as ReadyIndexEntry[]; } catch { index = []; }
     if (!index.length) return;
-    const qs = new URLSearchParams(location.search), strict = ctx.strict === true;
+    const qs = pageQuery(), strict = ctx.strict === true;
     const showAll = qs.get('places') === 'all' && (!strict || qs.get('debug') === 'places'), shown = shownReady(index, showAll, strict); // CC-211: the no-path cards need ?places=all&debug=places
-    const gallery = new URLSearchParams(location.search).get('slice2') !== 'old';
+    const gallery = pageQuery().get('slice2') !== 'old';
     let thumbs: Record<string, { author: string; licence: string; source: string }> = {};
     if (gallery) { try { thumbs = await (await fetch('/assets/places/thumbs/index.json')).json(); } catch { thumbs = {}; } }
     const pick = (p: ReadyIndexEntry) => { map.flyTo({ center: [p.lon, p.lat], zoom: 16, duration: 700 }); ctx.setRadius(p.radius); ctx.setPin(p.lat, p.lon); ctx.tell(`${p.name}: ready. Press Build.`); };
@@ -149,13 +150,13 @@ export function installPlaces(ctx: PlaceCtx) {
 
   // CC-211: with the new screen there is no box: a ready place with a path is always used when one is near (?useready=0 turns it off for debugging)
   const proven = (): ReadyIndexEntry[] => (ctx.strict ? index.filter(hasPath) : index);
-  const useReady = (): boolean => (ctx.strict ? new URLSearchParams(location.search).get('useready') !== '0' : (document.getElementById('useready') as HTMLInputElement | null)?.checked !== false);
+  const useReady = (): boolean => (ctx.strict ? pageQuery().get('useready') !== '0' : (document.getElementById('useready') as HTMLInputElement | null)?.checked !== false);
   const readyNear = (lat: number, lon: number) => (useReady() ? nearestReady(proven(), lat, lon, 300) : null);
 
   // ---- CC-152: speed. Switch off with ?speed=0.
   // The wait is the map servers (about 20 to 40 s for a new pin), so it starts the moment the pin is dropped, not when Build is pressed,
   // and the ground heights are asked in the same breath instead of after the buildings. Build then joins the request that is already running.
-  const speedOn = new URLSearchParams(location.search).get('speed') !== '0';
+  const speedOn = pageQuery().get('speed') !== '0';
   interface Fetched { answer: Promise<{ answer: OverpassAnswer; source: 'site' | 'browser'; ms: number }>; ground: Promise<Ground | null>; hills: boolean; startedAt: number }
   const fetched = new Map<string, Fetched>();
   let prefetchTimer = 0;
@@ -308,8 +309,8 @@ export function installPlaces(ctx: PlaceCtx) {
     setStep('mesh', 'done', `Built the place (${m.buildings} buildings)`);
     dset('noPath', '');
     openBtn.hidden = !!ctx.strict; // CC-211: shown only once a lane is proved
-    const prove = (l: PlaceLane | null) => { if (!ctx.strict) return; if (l?.cleared) { openBtn.hidden = false; errEl.hidden = true; if (new URLSearchParams(location.search).get('auto') === '1') openBtn.click(); } else refuse(o.lat, o.lon, 'The simulator found no path on this place, so it is not offered. Try a smaller radius, or pick one of these places.'); };
-    if (!ctx.strict && new URLSearchParams(location.search).get('auto') === '1') openBtn.click();
+    const prove = (l: PlaceLane | null) => { if (!ctx.strict) return; if (l?.cleared) { openBtn.hidden = false; errEl.hidden = true; if (pageQuery().get('auto') === '1') openBtn.click(); } else refuse(o.lat, o.lon, 'The simulator found no path on this place, so it is not offered. Try a smaller radius, or pick one of these places.'); };
+    if (!ctx.strict && pageQuery().get('auto') === '1') openBtn.click();
     if (o.lane) { prove(o.lane); setLane(o.lane); setStep('lane', o.lane.cleared ? 'done' : 'failed', o.lane.cleared ? `Lane found: ${o.lane.lengthM} m (precomputed)` : 'No lane found'); render(o, m, o.lane, ''); void paint(o, o.lane); dset('lanePhase', 'done'); return; }
     const laneKey = `cc.lane:${fetchKey(o.lat, o.lon, o.radius)}:${o.ground ? 'h' : 'f'}`;
     if (speedOn) { // a lane found once in this browser is kept: the same pin again is at once

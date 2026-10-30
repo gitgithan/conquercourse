@@ -15,6 +15,7 @@ import { whyNot } from '../slice/why';
 import { explainNoPath, type Suggestion } from '../slice/suggest';
 import { LANE_DROP } from '../sim/drop';
 import { createPerf } from '../ui/perf';
+import { pageQuery } from '../flags';
 
 export const PIECE_KEY = 'cc.map.piece';
 const STYLE = 'https://tiles.openfreemap.org/styles/liberty';
@@ -36,7 +37,7 @@ async function decodePng(png: ArrayBuffer): Promise<Tile> {
 
 export function startMap(host: HTMLElement): { backend: 'webgl2' } {
   maplibregl.setWorkerUrl(workerUrl); // Vite's dev server cannot find the worker by itself
-  const q = new URLSearchParams(location.search);
+  const q = pageQuery();
   const OLD = q.get('slicewords') === 'old'; // CC-179: ?slicewords=old keeps the long text
   const W = (short: string, long: string) => (OLD ? long : short);
   const style = document.createElement('style');
@@ -594,7 +595,7 @@ export function startMap(host: HTMLElement): { backend: 'webgl2' } {
   };
   let skipFlight: (() => void) | null = null;
   function flyIn(fit: number) {
-    const q2 = new URLSearchParams(location.search), at = q2.get('flightat');
+    const q2 = pageQuery(), at = q2.get('flightat');
     const reduced = reducedMotion() || q2.get('flight') === '0';
     const end = () => {
       setWave(null); skipFlight = null; flightcap.hidden = true; flightskip.hidden = true;

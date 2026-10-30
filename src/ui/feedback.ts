@@ -1,3 +1,4 @@
+import { pageQuery } from '../flags';
 // A small "Feedback" button on every page. It asks the questions in public/feedback-questions.json (edit that file to change
 // the round) and posts the answers, a random session id, the build id and a few play counters to /api/submit.
 declare const __BUILD__: string;
@@ -25,7 +26,7 @@ export function sendClear(courseKey: string, runId: string, hash: string, keys: 
 }
 
 function courseSource(): string {
-  const p = new URLSearchParams(location.search);
+  const p = pageQuery();
   if (p.has('generate')) return 'generated';
   if (p.has('coaster')) return 'coaster-builder';
   const path = p.get('course');
@@ -34,7 +35,7 @@ function courseSource(): string {
 }
 
 export function courseKey(name: string): string {
-  const p = new URLSearchParams(location.search);
+  const p = pageQuery();
   if (p.has('generate')) return `generated-${p.get('generate')}`;
   if (p.has('coaster')) return 'coaster-custom';
   const path = p.get('course');
@@ -123,7 +124,7 @@ async function openForm(mode: string): Promise<void> {
 
 // Where the player was when they opened the form (a course file, a generated seed, a place, or the mode), so an answer like "the second bar" can be placed.
 function whereNow(mode: string): string {
-  const p = new URLSearchParams(location.search);
+  const p = pageQuery();
   const c = p.get('course') ?? (p.has('generate') ? `generate-${p.get('generate')}` : p.has('coaster') ? 'coaster' : '');
   return (c ? `${mode}:${c}` : mode).replace(/^\/assets\//, '').slice(0, 60);
 }
