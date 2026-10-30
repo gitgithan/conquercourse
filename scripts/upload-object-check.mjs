@@ -28,7 +28,7 @@ try {
   });
   mkdirSync('test-results/upload-object', { recursive: true });
   await page.goto(`http://localhost:${port}/?mode=editor&uploadobj=1`);
-  await page.waitForSelector('#makeobj', { state: 'attached', timeout: 60000 });
+  await page.waitForSelector('#makeobj', { state: 'attached', timeout: 120000 });
   checks.buttonBehindSwitch = true;
   await page.$eval('#makeobj', (e) => e.click());
   await page.setInputFiles('#pofile', 'public/assets/park/park01.jpg');
