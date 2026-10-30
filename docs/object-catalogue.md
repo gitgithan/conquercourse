@@ -60,6 +60,17 @@
 - Not measured: the real saving of each step; each one is a test on the 19 objects, with a before and after screenshot.
 - A merge is never a deletion: the old id becomes an alias, so no course changes.
 
+## Flat skin or 3D lift (plan, not built)
+- Most photos only need a flat skin (CC-39, the "painted wall"): the crop of the photo is painted on a plain box.
+  - It looks right from the course camera, costs no GPU and no lift, and loads at once.
+- A 3D lift pays off for curved or round things seen from many sides: bench, bollard, rail, bar, hydrant, bin, mound.
+  - A flat skin is enough for a painted wall, mural, flat fence, sign or a cluttered group of parts.
+- Plan: the flat skin is the default; a 3D lift is a reward for helping (playtest or feedback), inside the daily budget.
+- Size of a lift today: at most 6,000 faces and a 1,024 px texture (`MAX_FACES` in `pipelines/ccpipe/objbake.py`); the faces are cut after the lift on the CPU in about a second.
+  - The slow part of a first lift (about 146 s) is the cold start of two GPU machines; a warm lift takes 8 to 10 s.
+  - Fewer faces mostly shrink the download.
+- Proposal, not tested: 1,500 faces and a 512 px texture would roughly halve the download; test the look on the bench and the hydrant before changing the cap.
+
 ## Budgets (the owner changes them in one place)
 - The whole game spends at most **100 objects or $3 a day, whichever is reached first.**
   - Both count: a lift is about 2 cents, a triage (mask, check, embedding) about half a cent, so refused photos use the dollars too.
