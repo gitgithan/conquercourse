@@ -6,13 +6,14 @@
 import { cleanRequest, moderationStops, requestProblem } from '../../src/slice/object-lift';
 import { askModeration } from './moderate';
 import { limited } from './designer';
+import { d1Ledger } from '../../src/slice/d1-ledger';
 import { LIMIT_WORDS, memoryLedger, utcDay, DEFAULT_LIMITS, type Ledger, type Limits } from '../../src/slice/upload-gates';
 import { json } from '../_lib/http';
 
-interface Env { CC_UPLOAD_TOKEN?: string; CC_UPLOAD_SUBMIT_URL?: string; CC_UPLOAD_STATUS_URL?: string; BASETEN_API_KEY?: string }
+interface Env { DB?: Parameters<typeof d1Ledger>[0]; CC_UPLOAD_TOKEN?: string; CC_UPLOAD_SUBMIT_URL?: string; CC_UPLOAD_STATUS_URL?: string; BASETEN_API_KEY?: string }
 const MODAL_HOST = /^https:\/\/[a-z0-9-]+--[a-z0-9-]+(\.[a-z0-9-]+)?\.modal\.run\/?$/; // the app host may carry a region: x--y.us-east.modal.run
 
-const sharedLedger = memoryLedger(); // per server instance until the D1 ledger lands (docs/object-catalogue.md, Budgets)
+const sharedLedger = memoryLedger(); // only for local runs without a database; with DB the count lives in D1 and is the same for every server
 
 // The gates, in order: request shape -> burst limit -> safety check -> daily slot -> start the job. A slot is taken only after the photo passed
 // the safety check, and given back if the job never started, so a refusal never costs the player a try.
@@ -55,6 +56,6 @@ export const onRequestPost = async ({ request, env }: { request: Request; env: E
   if (raw.length > 2_200_000) return json({ error: 'bad', message: 'The photo is too big.' }, 413);
   let b: Record<string, unknown>;
   try { b = JSON.parse(raw); } catch { return json({ error: 'bad' }, 400); }
-  const r = await handle(b, env, request.headers.get('cf-connecting-ip') ?? 'local');
+  const r = await handle(b, env, request.headers.get('cf-connecting-ip') ?? 'local', fetch, 6, env.DB ? d1Ledger(env.DB) : sharedLedger);
   return json(r.body, r.status);
 };
