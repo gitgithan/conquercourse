@@ -18,6 +18,9 @@ branch="$(git branch --show-current)"
 [ "${SKIP_QUICK:-}" = 1 ] || npm run test:quick --silent # SKIP_QUICK=1 when the tests already passed on the VM (the laptop is for playtesting)
 git fetch -q origin main
 git rebase -q origin/main
+# privacy: every commit we push carries the GitHub noreply address, never a real email (the history is public later)
+bad="$(git log origin/main..HEAD --format='%ae %ce' | tr ' ' '\n' | grep -v 'users.noreply.github.com$' | sort -u || true)"
+if [ -n "$bad" ]; then echo "A commit carries a real email address. Set git config user.email to the GitHub noreply address, then amend (git rebase -r origin/main --exec 'git commit --amend --no-edit --reset-author')." >&2; exit 1; fi
 git push -q -u origin HEAD --force-with-lease
 title="$(git log -1 --format=%s | sed -E 's/ \((Part of|Fixes) CC-[0-9]+\)$//')"
 if ! gh pr view "$branch" >/dev/null 2>&1; then
