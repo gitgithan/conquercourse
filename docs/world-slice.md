@@ -133,7 +133,7 @@ The set of obstacle shapes is fixed, and each shape offers a fixed set of moves.
 - **Repair:** a `node_modules` symlink was committed by mistake in `b79be31` and removed in `3b5808a`; `node_modules` is ignored now.
 
 ## Debug view, Fix it, and the helper window (2026-10-28)
-- **Debug view (B, or the "Debug (B)" button; `?debug=1`):** draws what the simulator really uses, like a fighting game's hitboxes:
+- **Debug view (press B, or open with `?debug=1`; the on-screen button was removed in CC-246):** draws what the simulator really uses, like a fighting game's hitboxes:
   - yellow is the collision outline of the ground and the wall;
   - blue is the runner's body box and feet point;
   - green or red is where a jump right now goes, run on the simulator's own physics (`src/sim/predict.ts`), with the reason in words ("lands 0.3 m from the edge", "falls 1.2 m before the next ground", "the step ahead is 1.4 m high").
