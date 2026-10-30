@@ -46,8 +46,11 @@ const CSS = `
   #edglossary .gl dt{font-weight:700;white-space:nowrap}#edglossary .gl dd{margin:0;color:#33403a}
   #edglossary .gl dt.sec{grid-column:1/3;margin-top:4px;font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:#58635d}
   #edglossary .gf{padding:6px 12px 10px;color:#58635d;font-size:12px}
-  /* CC-198/CC-199: the Design partner card has one fixed anchor (bottom right of the window, above the Feedback button) and its own scroll; nothing pushes it, nothing covers it */
-  .ed.ux .helper{position:fixed;right:8px;left:auto;top:auto;bottom:64px;z-index:60;width:292px;max-height:max(300px,calc(100vh - 420px));display:flex;flex-direction:column;gap:0;padding:0;overflow:hidden;border:1px solid var(--line);border-radius:16px;background:#fff;box-shadow:0 12px 36px #0003,0 2px 6px #0002;font-size:13px;line-height:1.4}
+  /* CC-198/CC-199: the Design partner card has a docked row at the bottom of the right column: it takes the room the other panels leave, scrolls inside, and covers nothing */
+  .ed.ux{grid-template-columns:minmax(0,1fr) 340px}
+  .ed.ux .aside{overflow:auto;padding-bottom:58px;grid-template-rows:auto auto minmax(230px,1fr)} /* the bottom gap keeps the partner's Ask row clear of the Feedback button */
+  .ed.ux .aside>.helper{order:9}.ed.ux .aside>.panel:nth-last-child(2){order:-2} /* the lane panel stays first: the partner sits last and takes the rest */
+  .ed.ux .helper{position:static;width:auto;min-height:230px;max-height:none;height:auto;display:flex;flex-direction:column;gap:0;padding:0;overflow:hidden;border:1px solid var(--line);border-radius:16px;background:#fff;box-shadow:0 12px 36px #0003,0 2px 6px #0002;font-size:13px;line-height:1.4}
   .ed.ux .helper.closed{display:none}
   .ed.ux .helper>*{flex:none;box-sizing:border-box;min-width:0}
   .ed.ux .helper>.row:first-child{display:grid;grid-template-columns:minmax(0,1fr) auto auto;gap:6px;align-items:center;padding:8px 10px 8px 14px;background:linear-gradient(180deg,#eaf4ef,#f6faf8);border-bottom:1px solid var(--line)}

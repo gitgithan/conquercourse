@@ -11,7 +11,7 @@ import { realSize, laneProfile, type Piece } from './world';
 export interface LaneSetting { angle: number; offset: number; level: number }
 export interface Change { dx?: number; dz?: number; dy?: number; scale?: number; yaw?: number; angle?: number; offset?: number; level?: number }
 export interface Advice { text: string; piece?: number; change: Change; verified: boolean; machine?: Machine } // machine: the trebuchet's settings after this advice, when it changes them
-export interface AdviceOptions { budget?: number; max?: number; wrap?: (c: CourseData) => CourseData } // budget in simulated ticks (workSeconds(n)), not milliseconds
+export interface AdviceOptions { budget?: number; max?: number; wrap?: (c: CourseData) => CourseData; movable?: number[]; keepJumps?: number } // movable: only these pieces may change (the lane stays); keepJumps: the least gaps and steps a fix may leave, so a fix is never one flat road // budget in simulated ticks (workSeconds(n)), not milliseconds
 
 interface Verdict { ok: boolean; why: string }
 
@@ -36,13 +36,16 @@ export function adviseLane(pieces: Piece[], lane: LaneSetting, opts: AdviceOptio
   const budget = opts.budget ?? workSeconds(1.5), max = opts.max ?? 3;
   const first = check(pieces, lane, true, opts.wrap);
   if (first.ok) return []; // nothing to fix
+  const jumpsOf = (ps: Piece[], l: LaneSetting): number => { const pr = laneProfile(ps, l); if (pr.length < 8) return 0; const d = describe(pr); return d.gaps + d.steps; };
+  const floor = Math.min(opts.keepJumps ?? 2, jumpsOf(pieces, lane));
+  const only = opts.movable ? new Set(opts.movable) : null;
   const t0 = meter.ticks; // the budget is for the tries; the first proof (a slow one on a big lane) does not eat it
   const ca = Math.cos(lane.angle), sa = Math.sin(lane.angle);
   const cands: Candidate[] = [];
   const bits = (p: Piece, patch: Partial<Piece>) => (ps: Piece[], l: LaneSetting) => ({ ps: ps.map((q) => (q.id === p.id ? { ...q, ...patch } : q)), lane: l });
   // only pieces that touch the lane matter
   const near = pieces.filter((p) => { const r = realSize(p); const side = Math.abs(-sa * p.x + ca * p.z - lane.offset); return side <= 1 + Math.hypot(r.w, r.d) / 2; });
-  for (const p of near.length ? near : pieces) {
+  for (const p of (near.length ? near : pieces).filter((q) => !only || only.has(q.id))) {
     for (const d of [0.25, 0.5, 1, 1.5, 2, 3]) for (const sign of [-1, 1]) {
       const dx = sign * d * ca, dz = sign * d * sa;
       cands.push({ cost: d, piece: p.id, change: { dx: round(dx), dz: round(dz) }, text: `Slide “${p.name}” ${metres(d)} ${sign < 0 ? 'back toward where the runner starts' : 'further along, away from the start'}.`, apply: bits(p, { x: p.x + dx, z: p.z + dz }) });
@@ -51,16 +54,16 @@ export function adviseLane(pieces: Piece[], lane: LaneSetting, opts: AdviceOptio
     for (const k of [1.2, 1.5]) cands.push({ cost: (k - 1) * 4, piece: p.id, change: { scale: round(p.scale * k) }, text: `Make “${p.name}” bigger: ${Math.round((k - 1) * 100)}% more (about ${metres(realSize(p).h * k)} high).`, apply: bits(p, { scale: p.scale * k }) });
     if (p.y > 0.01) cands.push({ cost: p.y, piece: p.id, change: { dy: round(-p.y) }, text: `Put “${p.name}” down on the ground (it floats ${metres(p.y)} up).`, apply: bits(p, { y: 0 }) });
   }
-  for (const d of [10, 20, 30, 45, 60, 90]) for (const sign of [-1, 1]) {
+  if (!only) for (const d of [10, 20, 30, 45, 60, 90]) for (const sign of [-1, 1]) {
     const a = lane.angle + (sign * d * Math.PI) / 180;
     cands.push({ cost: d / 20, change: { angle: round(a) }, text: `Turn the lane ${d}° ${sign < 0 ? 'one way' : 'the other way'} about the rod.`, apply: (ps, l) => ({ ps, lane: { ...l, angle: a } }) });
   }
-  for (const d of [0.5, 1, 2, 3]) for (const sign of [-1, 1]) {
+  if (!only) for (const d of [0.5, 1, 2, 3]) for (const sign of [-1, 1]) {
     const o = lane.offset + sign * d;
     cands.push({ cost: d / 2, change: { offset: round(o) }, text: `Move the lane ${metres(d)} sideways.`, apply: (ps, l) => ({ ps, lane: { ...l, offset: o } }) });
   }
-  for (const d of [0.25, 0.5, 1]) cands.push({ cost: d * 2, change: { level: round(lane.level + d) }, text: `Raise the water ${metres(d)} (the lane starts higher up).`, apply: (ps, l) => ({ ps, lane: { ...l, level: l.level + d } }) });
-  if (lane.level > 0.01) cands.push({ cost: lane.level * 2, change: { level: 0 }, text: 'Lower the water back to the ground.', apply: (ps, l) => ({ ps, lane: { ...l, level: 0 } }) });
+  if (!only) for (const d of [0.25, 0.5, 1]) cands.push({ cost: d * 2, change: { level: round(lane.level + d) }, text: `Raise the water ${metres(d)} (the lane starts higher up).`, apply: (ps, l) => ({ ps, lane: { ...l, level: l.level + d } }) });
+  if (!only && lane.level > 0.01) cands.push({ cost: lane.level * 2, change: { level: 0 }, text: 'Lower the water back to the ground.', apply: (ps, l) => ({ ps, lane: { ...l, level: 0 } }) });
 
   cands.sort((a, b) => a.cost - b.cost);
   const out: Advice[] = [];
@@ -68,6 +71,7 @@ export function adviseLane(pieces: Piece[], lane: LaneSetting, opts: AdviceOptio
     if (meter.ticks - t0 > budget || out.length >= max) break;
     const next = c.apply(pieces, lane);
     if (!check(next.ps, next.lane, false).ok) continue; // cheap checks first
+    if (jumpsOf(next.ps, next.lane) < floor) continue; // a fix that flattens the lane into a plain road is not a fix
     if (!check(next.ps, next.lane, true, opts.wrap).ok) continue;
     // not three versions of the same kind of change in a row: skip a candidate that changes the same thing as one already kept, by the same piece
     if (out.some((o) => o.piece === c.piece && Object.keys(o.change).join() === Object.keys(c.change).join())) continue;
