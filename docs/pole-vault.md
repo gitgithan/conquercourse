@@ -1,14 +1,15 @@
 # Pole vault: speed bent into a pole and handed back as height
 
 Serves the player who wants a fun way up (CC-239).
-Status: the physics model and its law tests are built; the controls, the course obstacle and the motion clips are not.
+Status: the physics, the controls, the course, the view (pole, plant box, bar, cushion) and the hints are built behind `?pole=1`; the motion clips are tried but not shown yet.
+Picture: `docs/evidence/cc-239-pole-vault.png`.
 
 ## So what
 - The physics works on paper with no energy added: speed bends the pole, the bend gives height back.
 - The pole has to suit the run: a soft pole at a fast run is too weak, a stiff pole at a slow run stands the runner up and drops them back.
 - That makes picking the pole the first choice of the obstacle (soft, medium or stiff), and it is true to the sport.
 - Release timing is a real window: 217 ms (8 m/s, medium pole, 4.5 m bar), long enough for a person to hit.
-- Next step: wire the keys and a course obstacle behind `?pole=1`, then make the motion clips on the VM.
+- Next step: repair and trim the vault clips until they pass the gate, then show them.
 
 ## The model (one honest simplification)
 - The planted pole is a spring leg; the runner is a point at its top (a spring pendulum around the planted tip).
@@ -44,7 +45,9 @@ Status: the physics model and its law tests are built; the controls, the course 
 - "The pole cannot lift you; it hands your speed back as height."
 - True in the model: no energy is added, and the tests check it.
 
-## Motion plan (not started)
+## Motion plan (tried once, not shown)
+- First Kimodo run (`data/eval/pole-clips/`, about $0.25): carrying passes the gate raw, landing 2 of 3, the vault and the fall back 0 of 3.
+- Until a clip passes, the runner keeps the ordinary run pose and the pole is drawn on its own.
 - Moves needed: pick-up and carry, plant and rise, release and fly over, land on the cushion, fall back, then the existing roll.
 - Order of sources: CMU capture search first, then Kimodo text prompts, then captured video, then bones (see `docs/motion-pipeline.md`).
 - A paid step needs its cost stated first: Kimodo on one L4 was about $0.04 for the roll.
@@ -53,3 +56,5 @@ Status: the physics model and its law tests are built; the controls, the course 
 - The bend is one spring, so the pole's shape is not shown by the physics.
 - The body arch over the bar is a single allowance (0.1 m), not a body model.
 - The ideal-run search has not been run on a pole course yet.
+- The view's pole is a straight line from the tip to the hands, so it does not bend on screen.
+- The step-vault hint can show while the pole is carried, because the course ends on a step.
