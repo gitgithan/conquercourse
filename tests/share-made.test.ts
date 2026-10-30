@@ -1,11 +1,11 @@
-import { readFileSync, readdirSync } from "node:fs";
+import { readdirSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import type { CourseData } from "../src/course/course";
 import { recordPlan, verifyLog, type InputLog } from "../src/sim/replay";
 import { courseTooBig, makeChallengeUrl, openChallenge } from "../src/share/challenge";
 import { cleanCourse, madeCourse, packCourse, unpackCourse } from "../src/share/made-course";
+import { loadDemo as load } from './helpers/course';
 
-const load = (f: string) => JSON.parse(readFileSync(`public/assets/demo/${f}`, "utf8")) as CourseData;
 const ORIGIN = "https://conquercourse.pages.dev";
 const logOf = (course: CourseData): InputLog => {
   const { recorder } = recordPlan(course, course.plan!, 120 * 120);
