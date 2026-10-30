@@ -613,8 +613,23 @@ export function searchDroneRun(course: CourseData): { plan: Plan; windows: Windo
   return { plan, windows, cleared: true };
 }
 
+// A coaster with bars (CC-244): the cart hands the rider to the ordinary flight at the end of a section, so the hands go up there and each bar gets a hang time.
+// The hang times of the first two bars are tried on a grid (a catch and the next catch depend on each other), each with the brake search below.
 export function searchCartRun(course: CourseData): { plan: Plan; windows: Window[]; cleared: boolean } {
-  const plan: Plan = { jumpXs: [], releaseAfter: 60, bouncePress: 8, cartBrake: [] };
+  const holds = course.holds ?? [];
+  if (!holds.length) return searchCartBrakes(course, { jumpXs: [], releaseAfter: 60, bouncePress: 8, cartBrake: [] });
+  const grid = [0, 15, 30, 45, 60, 90, 120, 160, 200];
+  let fallback: { plan: Plan; windows: Window[]; cleared: boolean } | null = null;
+  for (const h1 of grid) for (const h2 of holds.length > 1 ? grid : [0]) {
+    const hangTicks = holds.map((_, i) => (i === 0 ? h1 : i === 1 ? h2 : 90));
+    const found = searchCartBrakes(course, { jumpXs: [], releaseAfter: 60, bouncePress: 8, cartBrake: [], hands: true, hangTicks });
+    if (found.cleared) return found;
+    fallback ??= found;
+  }
+  return fallback!;
+}
+
+function searchCartBrakes(course: CourseData, plan: Plan): { plan: Plan; windows: Window[]; cleared: boolean } {
   const windows: Window[] = [];
   const cap = 120 * 90;
   for (let round = 0; round < 5; round++) {

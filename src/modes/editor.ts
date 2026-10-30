@@ -14,6 +14,7 @@ import type { CourseData } from '../course/course';
 import { workSeconds } from '../sim/ideal';
 import { createView3d, type Ghosts } from '../slice/view3d';
 import { sceneFor } from '../slice/scene';
+import { isTrack, trackPiece, trackStartY, TRACK_SHAPES } from '../slice/track-world';
 import { barMesh, holdsOf, isHold, REACH_JUMPING, REACH_STANDING } from '../slice/holds-world';
 import { DEFAULT_PLANK, isPlankPiece, plankPiece, plankSpecOf, planksOf, setPlank, type PlankSpec } from '../slice/plank-world';
 import { fixPlank, plankHolds, worstCase } from '../sim/beam';
@@ -236,6 +237,22 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
   const nextLaneU = () => { const c = Math.cos(angle), s = Math.sin(angle); return pieces.reduce((r, p) => Math.max(r, p.x * c + p.z * s + (size(p.mesh).w * p.scale) / 2), 0) + 3; };
   const addBarPiece = (x: number, y: number, z = 0): P => { const q: P = { ...newPiece('Bar', barMesh(), { x, z }), src: 'hold:bar', y }; pieces.push(q); selected = q.id; return q; };
   el('button', addBar, { text: 'Bar', id: 'addbar' }).onclick = () => { addBarPiece(nextX(), 2.86); changed(); };
+  // coaster sections (CC-244): rails the rider rides; leave a short gap between two sections and the rider flies across it (bars and ropes can catch them)
+  const coasterOn = new URLSearchParams(location.search).get('coaster') !== '0'; // on by default; ?coaster=0 hides the piece
+  const trackShape = el('select', addBar, { id: 'trackshape', title: 'The shape of the next coaster section' }) as HTMLSelectElement;
+  for (const t of TRACK_SHAPES) el('option', trackShape, { text: t.name, value: t.id });
+  trackShape.style.display = coasterOn ? '' : 'none';
+  const coasterBtn = el('button', addBar, { text: 'Coaster', id: 'addcoaster', title: 'A stretch of rail the character rides in a cart. The ride starts at the first section; a gap of about 3 m between sections is a flight.' });
+  coasterBtn.onclick = () => {
+    const shape = TRACK_SHAPES.find((t) => t.id === trackShape.value) ?? TRACK_SHAPES[0];
+    const q = trackPiece(shape.pts, { x: 0, z: 0 });
+    const w = size(q.mesh).w;
+    const sections = pieces.filter(isTrack);
+    q.y = trackStartY(sections.sort((m, n) => m.x - n.x)[sections.length - 1], shape.pts);
+    q.x = sections.length ? Math.max(...sections.map((o) => o.x + (size(o.mesh).w * o.scale) / 2)) + 3 + w / 2 : w / 2;
+    pieces.push(q); selected = q.id; changed();
+  };
+  coasterBtn.style.display = coasterOn ? '' : 'none';
   el('button', addBar, { text: 'Lache pair', id: 'addlache', title: 'Two bars to swing between' }).onclick = () => { const x = nextX(); addBarPiece(x, 2.86); addBarPiece(x + 3.5, 2.86); changed(); };
   // a rope swing: a post whose top is the rope anchor (role rope); put it over a gap and the simulator checks the swing
   el('button', addBar, { text: 'Rope swing', id: 'addrope', title: 'A post with a rope on top: put it over a gap between two pieces of ground and swing across' }).onclick = () => { const q: P = { ...newPiece('Rope anchor', box(0.5, 6.6, 0.5), { x: nextX() + 3, z: 0 }), role: 'rope' }; pieces.push(q); selected = q.id; changed(); };
