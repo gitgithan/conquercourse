@@ -1,0 +1,32 @@
+# Communities
+- Serves the player who wants to put their own place into the game, and the demo beat "real world to browser".
+- The page is called Communities; the tab in the top bar is called Community.
+- Open it with `?mode=communities`.
+
+## What a person can make
+- **Wallpaper:** the photo hangs behind the lane like scenery.
+  - It is for looks only: the course plays the same.
+- **3D object:** one picked thing becomes a solid piece for the World Editor.
+  - It uses the photo-to-object lift (CC-221) and is saved in the browser as "Mine: name".
+
+## The four steps
+- **Photo:** pick a photo; people in it are blurred and the photo is not kept on our side.
+- **Pick:** click a suggested outline, or draw boxes by hand; a person never has to label anything.
+  - Suggested outlines come from a server job (CC-248); until it is on, the page says so and the boxes are drawn by hand.
+- **Choose:** two cards, each with a picture of what it would look like on a course.
+- **Make:** give it a name and press the button.
+
+## Keys on the picked boxes
+- Ctrl+C copies, Ctrl+V pastes a copy a little to the side, Delete removes, Ctrl+Z undoes, Ctrl+A picks all.
+- Arrow keys nudge a box; Shift makes the nudge bigger.
+- The logic is in `src/ui/regions.ts` and is tested in `tests/regions.test.ts`.
+
+## The top bar
+- Courses, World Editor, World Slicer, Community: the same names on every page, with the current one marked.
+- It is not drawn in films, bot runs, demos or with `?nav=0`.
+- The Debug (B) button is gone from the screen; the B key still works.
+
+## Known gaps
+- Suggested outlines need the server job (CC-248).
+- A saved wallpaper does not show behind a course yet (CC-249).
+- Sharing with other players waits for the safety check and approval flow (CC-249).
