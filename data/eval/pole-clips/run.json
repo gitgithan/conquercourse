@@ -1,0 +1,20 @@
+{
+  "experiment": "pole-clips",
+  "issue": "CC-239",
+  "tool": "Kimodo text-to-motion on Modal (one L4), pipelines/kimodo_clips.py",
+  "kimodo_commit": "e1c219c99b4b94ba48be1fb6a1cbc64ecee4c954",
+  "model": "kimodo-soma-rp",
+  "samples_per_prompt": 3,
+  "prompts": "inputs/prompts.json",
+  "wall_s": 943.0,
+  "model_load_s": 101.7,
+  "generate_s": 155.1,
+  "cost_usd_estimate": 0.25,
+  "gate_raw": {
+    "pole_run": "3 of 3 pass",
+    "pole_land": "2 of 3 pass",
+    "pole_vault": "0 of 3 pass (flight_is_ballistic, feet_dont_slide)",
+    "pole_fall": "0 of 3 pass (legs_not_twisted, feet_dont_slide or flight_is_ballistic)"
+  },
+  "shown_in_game": false
+}

@@ -48,7 +48,7 @@ async function courseFromUrl(): Promise<CourseData | undefined> {
     const { shareOn } = await import('./share/challenge');
     if (shareOn(pageQuery())) { const { unpackCourse } = await import('./share/made-course'); const opened = await unpackCourse(made); if (opened) return opened; document.documentElement.dataset.madeRefused = '1'; return undefined; }
   }
-  const url = pageQuery().get('course');
+  const url = pageQuery().get('course') ?? (pageQuery().get('pole') === '1' ? '/assets/experiments/pole/pole.course.json' : null); // CC-239: ?pole=1 plays the pole vault course
   if (!url || !/^\/assets\/[\w./-]+\.json$/.test(url)) return undefined;
   try { return (await (await fetch(url)).json()) as CourseData; } catch { return undefined; }
 }

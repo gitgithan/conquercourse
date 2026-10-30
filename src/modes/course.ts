@@ -67,6 +67,7 @@ import { barName, predictBand, predictLaunch, predictRelease, predictShot, type 
 import { createTrebuchetView } from '../ui/trebuchet-view';
 import { createRecoilView } from '../ui/recoil-view';
 import { createShotsView } from '../ui/shots-view';
+import { createPoleView } from '../ui/pole-view';
 import { ballsOn, BALL_LAUNCHERS } from '../sim/shots';
 import { createBandView } from '../ui/band-view';
 import { bandParams, stretchAt } from '../sim/band';
@@ -165,6 +166,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
   if (plankView) scene.add(plankView.group);
   const trebView = course.trebuchet ? createTrebuchetView(scene, course) : null;
   const shotsView = course.shots?.length ? createShotsView(scene, course) : null;
+  const poleView = course.pole ? createPoleView(scene, course) : null;
   const recoilView = course.recoil ? createRecoilView(scene, course) : null;
   let shotCache: { key: string; pr: Prediction } | null = null; // the dotted preview of a loaded cannon: the same prediction the debug view uses, worked out once per tick
   const shotPreview = (w: WorldState): Prediction | null => {
@@ -1179,6 +1181,14 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
   let cueSince: number | null = null, cueDone = false;
   function hintFor(w: WorldState): string {
     const r = w.runner;
+    if (course.pole && w.outcome === 'running') { // the pole vault (CC-239): one plain line for each step
+      const pw = w.pole, ps = course.pole;
+      if (w.mode === 'pole') return pw?.ride?.result ? '' : 'Hold E: the pole bends and gives your speed back. Let go at the top.';
+      if (w.mode === 'run' && r.x < ps.barX) {
+        if (!pw?.carrying) return r.x < ps.pickX + 1.5 ? 'Hold E at the pole to pick it up, then run' : '';
+        return r.x < ps.x0 ? 'Run fast. Hold E in the orange box to plant the pole.' : '';
+      }
+    }
     if (w.mode === 'plank') return 'The plank dips under you: it gives most in the middle. Keep running.';
     if (course.planks?.length && w.mode === 'run' && w.outcome === 'running') { const pk = course.planks.find((q, i) => !w.broken?.includes(i) && q.x0 - w.runner.x > 0 && q.x0 - w.runner.x < 8); if (pk) return 'A plank bridge: run across it. A plank bends under your weight, most in the middle.'; }
     if (w.mode === 'cart') return w.cart?.started ? 'Height is speed. Hold ↓ to brake before a sharp hilltop.' : 'Press → to push off';
@@ -1515,6 +1525,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
     }
     trebView?.update(world);
     shotsView?.update(world);
+    poleView?.update(world);
     recoilView?.update(world, facing, shotPreview(world)?.path);
     bandView?.update(world);
     droneView?.update(world, facing);
