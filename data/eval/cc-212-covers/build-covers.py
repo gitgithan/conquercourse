@@ -1,11 +1,11 @@
 import json,io,re,urllib.request
 from PIL import Image
-H={'User-Agent':'ConquerCourseHackathon/1.0 (han.qi91@gmail.com)'}
+H={'User-Agent':'ConquerCourseHackathon/1.0 (contact@example.invalid)'}
 P={'shibuya-tokyo':3,'ciutadella-barcelona':1,'edinburgh-old-town':4,'positano-italy':3,'valletta-harbour-malta':4,'speicherstadt-hamburg':5,'alfama-lisbon':0,'parc-guell-barcelona':3,'tuileries-paris':2,'retiro-park-madrid':7,'gas-works-park-seattle':3,'dolores-park-san-francisco':7,'piazza-san-marco-venice':5,'plaza-mayor-madrid':2,'trafalgar-square-london':5,'covent-garden-london':0,'washington-square-new-york':1,'union-square-san-francisco':1,'old-town-square-prague':1,'piazza-navona-rome':2,'nyhavn-copenhagen':1,'boston-common-beacon-hill':0}
 c=json.load(open('cand.json'));ss=json.load(open('ss.json'))
 chosen={s:c[s][i] for s,i in P.items()}
 chosen['spanish-steps-rome']=ss[4]
-D='/home/hanqi/code/conquercourse-slice2/public/assets/places/thumbs/'
+D='./public/assets/places/thumbs/'
 idx=json.load(open(D+'index.json'))
 for s,x in chosen.items():
     im=Image.open(io.BytesIO(urllib.request.urlopen(urllib.request.Request(x['thumb'],headers=H)).read())).convert('RGB')

@@ -2,7 +2,7 @@
   "experiment": "cc-spectacle",
   "issue": "CC-188",
   "date": "2026-10-29",
-  "machine": "Vultr VM2 45.77.250.142 (8 cores, CPU only)",
+  "machine": "Vultr VM2 <vm2-address> (8 cores, CPU only)",
   "blender": "5.0.1 (bpy from PyPI, Python 3.11)",
   "blender_engine": "Cycles CPU, 48 samples, denoise",
   "blender_seconds": {

@@ -1,6 +1,6 @@
 import json,urllib.request,urllib.parse,re,sys,os,time
 Q={'shibuya-tokyo':'Shibuya Tokyo skyline','ciutadella-barcelona':'Parc de la Ciutadella','edinburgh-old-town':'Edinburgh Old Town rooftops','positano-italy':'Positano','valletta-harbour-malta':'Valletta Grand Harbour','speicherstadt-hamburg':'Speicherstadt Hamburg','alfama-lisbon':'Alfama Lisbon rooftops','spanish-steps-rome':'Spanish Steps Rome','parc-guell-barcelona':'Park Güell','tuileries-paris':'Jardin des Tuileries','retiro-park-madrid':'Retiro Park Madrid','gas-works-park-seattle':'Gas Works Park Seattle','dolores-park-san-francisco':'Dolores Park San Francisco','piazza-san-marco-venice':'Piazza San Marco Venice','plaza-mayor-madrid':'Plaza Mayor Madrid','trafalgar-square-london':'Trafalgar Square','covent-garden-london':'Covent Garden London','washington-square-new-york':'Washington Square Park','union-square-san-francisco':'Union Square San Francisco','old-town-square-prague':'Old Town Square Prague','piazza-navona-rome':'Piazza Navona','nyhavn-copenhagen':'Nyhavn Copenhagen','boston-common-beacon-hill':'Beacon Hill Boston'}
-H={'User-Agent':'ConquerCourseHackathon/1.0 (han.qi91@gmail.com)'}
+H={'User-Agent':'ConquerCourseHackathon/1.0 (contact@example.invalid)'}
 def api(**k):
     k.update(format='json'); u='https://commons.wikimedia.org/w/api.php?'+urllib.parse.urlencode(k)
     return json.load(urllib.request.urlopen(urllib.request.Request(u,headers=H)))
