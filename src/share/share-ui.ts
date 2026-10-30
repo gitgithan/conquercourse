@@ -36,7 +36,8 @@ export function copyLinkButton(o: { link: (nick: string) => Promise<string | nul
   nick.title = 'Optional: up to three letters, so your friend sees who to beat. Not your real name.';
   nick.setAttribute('aria-label', 'Optional three-letter tag');
   nick.style.cssText = BTN + ';width:4.2em;text-transform:uppercase;text-align:center';
-  nick.oninput = () => { nick.value = tidyNick(nick.value); };
+  nick.value = (() => { try { return localStorage.getItem('cc.nick') ?? ''; } catch { return ''; } })();
+  nick.oninput = () => { nick.value = tidyNick(nick.value); try { localStorage.setItem('cc.nick', nick.value); } catch { /* keep going */ } };
   const copy = button(label, () => {
     void o.link(nick.value).then(async (url) => {
       if (!url) {
