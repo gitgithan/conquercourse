@@ -14,7 +14,7 @@ import type { CourseData } from '../course/course';
 import { workSeconds } from '../sim/ideal';
 import { createView3d, type Ghosts } from '../slice/view3d';
 import { sceneFor } from '../slice/scene';
-import { isTrack, trackPiece, trackStartY, TRACK_SHAPES } from '../slice/track-world';
+import { isTrack, parseTrackSrc, sectionPoints, trackPiece, trackSrc, trackStartY, TRACK_SHAPES } from '../slice/track-world';
 import { barMesh, holdsOf, isHold, REACH_JUMPING, REACH_STANDING } from '../slice/holds-world';
 import { DEFAULT_PLANK, isPlankPiece, plankPiece, plankSpecOf, planksOf, setPlank, type PlankSpec } from '../slice/plank-world';
 import { fixPlank, plankHolds, worstCase } from '../sim/beam';
@@ -33,6 +33,7 @@ import { adviseMachine, fixMachine } from '../slice/fix-launch';
 import { fixBars } from '../slice/fixbars';
 import { fixLayout } from '../slice/fixit';
 import { PRESETS } from '../slice/presets';
+import { fixCoaster } from '../slice/fixcoaster';
 import { MAX_PIECES, suggestPrompt } from '../slice/suggest-prompt';
 import { adviseLane, type Advice } from '../slice/advice';
 import { agentOn, runCourseAgent } from '../ui/course-agent-trace';
@@ -653,6 +654,7 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
     const m = machineNow(), wrap = machineWrap(m); // a machine's wrap is a function, which a worker cannot be sent: with a machine the proofs run here, without one they run in a worker
     ps = ps.filter((q) => !isSizeReference(q) && !isDevice(q)); // the machine and the size references are not ground
     if (m) { const mf = fixMachine(ps, lane, m, 40000, trebuchetPivot()); if (mf.ok) return { ok: true, pieces: ps, lane, steps: mf.steps, machine: mf.machine }; } // the machine first: a counterweight or an arm is a smaller change than moving pieces
+    if (ps.some(isTrack)) { const fc = fixCoaster(ps, lane); return { ok: fc.ok, pieces: fc.pieces, lane, steps: fc.steps, machine: m }; } // CC-244: a coaster world moves sections and bars, never the lane
     if (ps.some(isHold)) { const rb = m ? fixBars(ps, lane, workSeconds(40), wrap) : await barsInWorker(ps, lane, workSeconds(40)); return { ok: rb.ok, pieces: rb.pieces, lane, steps: rb.steps, machine: m }; }
     const only = fixSel.checked ? chosen().filter((id) => ps.some((q) => q.id === id)) : []; // CC-243: with pieces chosen, only those may move and the lane stays
     const r = m ? fixLayout(ps, lane, workSeconds(12), wrap, only.length ? { movable: only } : {}) : await fixInWorker(ps, lane, only.length ? only : undefined);
@@ -1278,7 +1280,7 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
     const uLo = Math.min(prof.length ? o : 0, ...bars.map((b) => b.u), ...(pv ? [pv.prof.length ? po : Infinity, ...pv.bars.map((b) => b.u)] : []));
     const uHi = Math.max(prof.length ? o + prof.length : -Infinity, ...bars.map((b) => b.u), ...(pv ? [pv.prof.length ? po + pv.prof.length : -Infinity, ...pv.bars.map((b) => b.u)] : []), uLo + 10);
     c.fillStyle = '#58635d'; c.font = '12px system-ui';
-    c.fillText('What the runner sees: the lane from the side (water at the bottom, grid every metre). Drag a bar to move it.', 8, 14);
+    c.fillText('What the runner sees: the lane from the side (water at the bottom, grid every metre). Drag a bar (or a purple coaster dot) to move it.', 8, 14);
     const base = H - 14, ppm = Math.min(30, (W - 40) / Math.max(10, uHi - uLo + 1)), ph0 = Math.max(14, (base - 24) / Math.max(1.8, Math.max(0, ...prof.cells.filter((h): h is number => h !== null), ...bars.map((b) => b.y)) + 0.4)); // fit the tallest thing, so low steps are not hairlines
     const hs = prof.cells.filter((h): h is number => h !== null);
     const vmin = vzoom && hs.length ? Math.floor((Math.min(...hs) - 0.3) * 2) / 2 : 0;
@@ -1305,6 +1307,10 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
       c.strokeStyle = '#c9ced4'; c.lineWidth = 4; c.beginPath(); c.moveTo(x - 12, y); c.lineTo(x + 12, y); c.stroke();
       c.strokeStyle = sel ? '#0f6b5c' : '#f0a020'; c.lineWidth = 3; c.beginPath(); c.arc(x, y, 9, 0, 7); c.stroke();
       c.fillStyle = '#17201d'; c.fillText(`${b.y.toFixed(2)} m`, x + 12, y - 8);
+    }
+    for (const d of trackDots()) { // the chosen coaster section: a dot at each point of the rail (drag them)
+      const x = 10 + (d.u - uLo) * ppm, y = base - (d.y - vmin) * ph;
+      c.fillStyle = '#7a4fd1'; c.strokeStyle = '#fff'; c.lineWidth = 2; c.beginPath(); c.arc(x, y, 6, 0, 7); c.fill(); c.stroke();
     }
     for (const s of routes) { // kept shortcuts: a dashed arrow from the bar before the skipped ones to the bar after them (or the end of the lane)
       if (!designed.has(s.id)) continue;
@@ -1340,10 +1346,33 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
     document.documentElement.dataset.barPx = JSON.stringify(bars.map((b) => [10 + (b.u - uLo) * ppm, base - (b.y - vmin) * ph]));
     document.documentElement.dataset.barYs = JSON.stringify(bars.map((b) => Number(b.y.toFixed(2))));
   }
+  /** The points of the chosen coaster section in the side view: u along the run, y above the lane's level. */
+  const trackDots = (): { i: number; u: number; y: number }[] => {
+    const p = pieces.find((q) => q.id === selected && isTrack(q)), pts = p && parseTrackSrc(p.src ?? '');
+    if (!p || !pts) return [];
+    return sectionPoints(p, pts, p.x * Math.cos(angle) + p.z * Math.sin(angle), level).map(([u, y], i) => ({ i, u, y }));
+  };
+  const dotAtPx = (px: number, py: number) => trackDots().find((d) => Math.hypot(10 + (d.u - sideMap.uMin) * sideMap.ppm - px, sideMap.base - (d.y - sideMap.vmin) * sideMap.ph - py) < 11);
+  /** Move point i of a section to (u, y) in the side view and keep every other point where it is. */
+  function moveTrackPoint(p: P, i: number, u: number, y: number) {
+    const pts = parseTrackSrc(p.src ?? ''); if (!pts) return;
+    const c = Math.cos(angle), s = Math.sin(angle), uc0 = p.x * c + p.z * s;
+    const mid0 = (pts[0][0] + pts[pts.length - 1][0]) / 2, low0 = Math.min(...pts.map((q) => q[1]));
+    const nx = (u - uc0) / p.scale + mid0, ny = (y - p.y + level) / p.scale + low0;
+    const lo = i > 0 ? pts[i - 1][0] + 0.5 : -Infinity, hi = i < pts.length - 1 ? pts[i + 1][0] - 0.5 : Infinity;
+    pts[i] = [Math.min(hi, Math.max(lo, nx)), Math.min(14, Math.max(0, ny))];
+    const mid1 = (pts[0][0] + pts[pts.length - 1][0]) / 2, low1 = Math.min(...pts.map((q) => q[1]));
+    const du = (mid1 - mid0) * p.scale, v = -p.x * s + p.z * c, uc1 = uc0 + du;
+    p.x = uc1 * c - v * s; p.z = uc1 * s + v * c; p.y += (low1 - low0) * p.scale;
+    p.src = trackSrc(pts); p.mesh = trackPiece(pts, { x: 0, z: 0 }).mesh;
+  }
   const barAtPx = (px: number, py: number) => barsNow().find((b) => Math.hypot(10 + (b.u - sideMap.uMin) * sideMap.ppm - px, sideMap.base - (b.y - sideMap.vmin) * sideMap.ph - py) < 16);
   let barDrag: { p: P } | null = null;
+  let dotDrag: { p: P; i: number } | null = null;
   profileCanvas.addEventListener('pointerdown', (e) => {
     const r = profileCanvas.getBoundingClientRect();
+    const dot = dotAtPx(e.clientX - r.left, e.clientY - r.top), tp = dot && pieces.find((q) => q.id === selected);
+    if (dot && tp) { dotDrag = { p: tp, i: dot.i }; profileCanvas.setPointerCapture(e.pointerId); return; }
     const b = barAtPx(e.clientX - r.left, e.clientY - r.top);
     const p = b && pieces.find((q) => q.id === b.id);
     if (!p) return;
@@ -1351,7 +1380,12 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
   });
   profileCanvas.addEventListener('pointermove', (e) => {
     const r = profileCanvas.getBoundingClientRect();
-    if (!barDrag) { profileCanvas.style.cursor = barAtPx(e.clientX - r.left, e.clientY - r.top) ? 'grab' : 'default'; return; }
+    if (dotDrag) {
+      const u = Math.round((sideMap.uMin + (e.clientX - r.left - 10) / sideMap.ppm) * 10) / 10;
+      moveTrackPoint(dotDrag.p, dotDrag.i, u, Math.round(((sideMap.base - (e.clientY - r.top)) / sideMap.ph + sideMap.vmin) * 10) / 10);
+      draw(); drawProfile(); return;
+    }
+    if (!barDrag) { profileCanvas.style.cursor = dotAtPx(e.clientX - r.left, e.clientY - r.top) ? 'grab' : barAtPx(e.clientX - r.left, e.clientY - r.top) ? 'grab' : 'default'; return; }
     const p = barDrag.p, c = Math.cos(angle), s = Math.sin(angle);
     const u = Math.round((sideMap.uMin + (e.clientX - r.left - 10) / sideMap.ppm) * 20) / 20;
     const y = Math.min(4.3, Math.max(0.35, Math.round(((sideMap.base - (e.clientY - r.top)) / sideMap.ph + sideMap.vmin - 0.04) * 20) / 20));
@@ -1359,7 +1393,7 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
     p.x = u * c - v * s; p.z = u * s + v * c; p.y = y;
     draw(); drawProfile();
   });
-  const endBar = () => { if (!barDrag) return; barDrag = null; changed(); };
+  const endBar = () => { if (dotDrag) { dotDrag = null; changed(); return; } if (!barDrag) return; barDrag = null; changed(); };
   profileCanvas.addEventListener('pointerup', endBar); profileCanvas.addEventListener('pointercancel', endBar);
 
   // ---- the mouse on the picture

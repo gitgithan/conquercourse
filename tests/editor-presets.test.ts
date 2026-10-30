@@ -5,9 +5,12 @@ import { clears, fixLayout } from '../src/slice/fixit';
 import { PRESETS } from '../src/slice/presets';
 import { newPiece, laneProfile, type Piece } from '../src/slice/world';
 import { describe as describeLane } from '../src/slice/slice';
+import { roleCourse } from '../src/slice/roles';
+import { searchIdealRun } from '../src/sim/ideal';
+import { piecesFromSource } from '../src/slice/roundtrip';
 
 const lane = { angle: 0, offset: 0, level: 0 };
-const build = (id: string): Piece[] => PRESETS.find((p) => p.id === id)!.pieces.map((q) => {
+const build = (id: string): Piece[] => PRESETS.find((p) => p.id === id)!.pieces.filter((q) => q.src.startsWith('obj:')).map((q) => {
   const b = readFileSync(`public/assets/objects/${q.src.slice(4)}`);
   const m = readGlbMesh(b.buffer.slice(b.byteOffset, b.byteOffset + b.byteLength) as ArrayBuffer);
   return { ...newPiece(q.src, m, { x: q.x, z: q.z }), y: q.y, yaw: q.yaw, scale: q.scale };
@@ -35,5 +38,19 @@ describe('the editor course list', () => {
     const r = fixLayout(ps, lane, undefined, undefined, { movable: ids });
     for (const p of r.pieces) if (!ids.includes(p.id)) { const o = ps.find((q) => q.id === p.id)!; expect([p.x, p.y, p.scale]).toEqual([o.x, o.y, o.scale]); }
     expect(r.lane).toEqual(lane);
+  });
+  it('the coaster course rebuilds from its saved sources and the simulator clears it', () => {
+    const ps = piecesFromSource(PRESETS.find((p) => p.id === 'coaster')!.pieces);
+    expect(ps.length).toBe(3);
+    expect(searchIdealRun(roleCourse(ps as never[], lane).course).cleared).toBe(true);
+  });
+});
+
+describe('Fix it for a coaster world', () => {
+  it('leaves a ride that already clears alone', async () => {
+    const { fixCoaster } = await import('../src/slice/fixcoaster');
+    const good = piecesFromSource(PRESETS.find((p) => p.id === 'coaster')!.pieces) as never[];
+    expect(fixCoaster(good, lane).steps).toEqual([]);
+    // not tested: a coaster world that fails (every break tried here still cleared, so there is no failing case to repair yet; CC-244 keeps this open)
   });
 });
