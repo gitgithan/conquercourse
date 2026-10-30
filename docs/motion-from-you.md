@@ -96,7 +96,7 @@
 - Crouch roll (`roll-lp-crouch`, 203.5 to 208.5 s): turn 308 degrees, starts and ends upright, but the hips read 1.51 times the standing height (limit 1.05) and the longest air time is 0.4 s (limit 0.25).
   - Both numbers look like measurement noise from a person who starts crouched and is small in frame; they are not a real flip.
 - The limits stay as they are: a weakened check that passes would only mean "not tested".
-- So far only the jump roll (`roll-lp`) has passed both checks; the player-facing story needs a side or three-quarter view (step 2 below).
+- So far no filmed roll has passed both checks: the jump roll (`roll-lp`) passes the gate but not the move check (0.30 s in the air, limit 0.25 s); the player-facing story needs a side or three-quarter view (step 2 below).
 
 ## Fallback and next steps
 - Fallback: the player picks a library roll (the shipped CMU/Kimodo roll, or a London Parkour roll through this same pipeline).
