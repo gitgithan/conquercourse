@@ -6,6 +6,7 @@ import { lanePlanks } from './plank-world';
 import { holdsOf, isHold, type P } from './holds-world';
 import { describe, HALF_LANE, laneToCourse } from './slice';
 import { patternOf } from './stack';
+import { applyTracks, isTrack, parseTrackSrc, sectionPoints } from './track-world';
 import { realSize, laneProfile, type Role } from './world';
 import type { LaneSetting } from './advice';
 
@@ -78,6 +79,7 @@ export function roleCourse(pieces: P[], lane: LaneSetting, name = 'My world'): R
   const splits: number[] = [];
   for (const p of walls) splits.push(footprint(p, lane).u - footprint(p, lane).alongHalf);
   for (const p of beds) { const f = footprint(p, lane); splits.push(f.u - f.alongHalf, f.u + f.alongHalf); }
+  for (const p of pieces) if (isTrack(p) && inLane(p, lane)) { const f = footprint(p, lane); splits.push(f.u - f.alongHalf, f.u + f.alongHalf); }
   const course = laneToCourse({ cells: [...pr.cells], length: pr.length, origin: pr.origin }, name, holdsOf(pieces, lane), { keepGaps: ropes.length > 0, splits }, lanePlanks(pieces, lane));
   const notes: string[] = [], uMap = course.uMap ?? [], plats = course.terrain.platforms;
   if (!uMap.length) return { course, notes, length: pr.length };
@@ -94,6 +96,8 @@ export function roleCourse(pieces: P[], lane: LaneSetting, name = 'My world'): R
     if (plat && !plat.profile) plat.bouncy = true;
     else notes.push('The trampoline bed must be flat ground of its own: lift it level with the ground around it, or leave a clear edge on both ends.');
   }
+  const rails = pieces.filter((p) => isTrack(p) && inLane(p, lane)).flatMap((p) => { const pts = parseTrackSrc(p.src!); if (!pts) return []; const f = footprint(p, lane), x = toX(uMap, f.u); return [sectionPoints(p, pts, f.u, lane.level).map(([u, y]) => [u + (x - f.u), y] as [number, number])]; });
+  if (rails.length) notes.push(...applyTracks(course, rails));
   const rope = ropes[0];
   if (rope) {
     const f = footprint(rope, lane);

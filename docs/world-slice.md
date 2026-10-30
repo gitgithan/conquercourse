@@ -1789,3 +1789,21 @@ The set of obstacle shapes is fixed, and each shape offers a fixed set of moves.
   - Off, the site asks the map servers (20 to 40 s for a new pin) and the lane is searched again in the browser.
   - Nothing breaks when off; it is only slower and the radius is the one on the slider.
 - Now neither box is shown: hills are always on and a ready place with a path is always used; `?hills=0` and `?useready=0` stay as debug switches.
+
+## Coaster sections in the editor (CC-244)
+- **So what:** a person can lay rails in the World Editor, chain sections with short gaps, and the character flies across the gaps and can grab bars and ropes.
+- **The piece:** "Coaster" in the Add pieces menu, with a shape list (High start, Gentle dip, Long glide).
+  - The first section is the start: the ride begins in the cart.
+  - Each later section starts a little lower than the end of the one before it, because the cart only has the height it began with.
+- **The gap:** about 3 m between sections is a short flight; the cart leaves the rails with the speed it has and lands on the next section.
+  - Wider gaps work when there is height to spare (one section and a 5 m gap clears).
+  - The proof is the simulator: if the search cannot clear the lane, the editor says so, as for any piece.
+- **Bars and ropes:** a bar over a gap at any height is grabbed in the air by holding E; the search tries hang times for the first two bars (`searchCartRun`).
+- **How it is built:**
+  - The rail is a thin ribbon piece (`src/slice/track-world.ts`); the slice reads its height as ground.
+  - `roleCourse` turns the platforms under the ribbons into rails and sets the course start at the first section.
+- **Known gaps:**
+  - Ground before the first section is skipped.
+  - The shapes are fixed (no dot dragging yet); size and height can be changed like any piece.
+  - The side view shows only the lowest part of tall sections until the side-view fit lands.
+- **Checks:** `tests/coaster-editor.test.ts` (chains clear, a long flight with little height does not), `tests/coaster-bar.test.ts` (bars at four heights), `scripts/coaster-editor-shot.mjs` (screenshot at 1280 px).
