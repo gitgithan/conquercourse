@@ -89,7 +89,12 @@
 - The tables, limits and plan behind it are in [data-model](data-model.md).
 - The migration `migrations/0006_shares.sql` is written and waits for the owner.
 
-## Part 4: a leaderboard (design only, for the owner to approve)
+## Part 4: a leaderboard (approved 2026-10-30; built behind `?board=1`, CC-108)
+- **Built:** `GET /api/leaderboard?course=<key>&hash=<hash>` returns the ten fastest verified runs with their tags; the end report shows them and your own best.
+  - The board reads `course_clears` (migration 0007), not the `runs` table below, so it works before the bigger data model lands.
+  - Tags are three letters the player chose, checked again on the server; no account and no name.
+  - Your best time is kept in this browser only.
+  - Tests: `tests/leaderboard.test.ts`.
 - **What:** a best-time list for each course, and a daily challenge course made from a seed by the generator.
 - **How a time gets in:** the page sends the course id, the hash and the keys.
   - A Cloudflare Pages Function plays the keys with the same simulator (it is plain TypeScript) and stores the time it computes.

@@ -19,7 +19,7 @@
 | `feedback` | 0001 | one row per feedback form | session id |
 | `community`, `community_reports` | 0002 | a photo, boxes and a status for a shared Park course | session id |
 | `course_events` | 0002 | start, fail, success per attempt | session id |
-| `course_clears` | 0003, 0004, 0005 | a cleared run the server replayed: course, hash, ticks, verified, beats_ideal, keys of flagged runs | none (owner decision, 2026-10-29) |
+| `course_clears` | 0003, 0004, 0005, 0007 | a cleared run the server replayed: course, hash, ticks, verified, beats_ideal, keys of verified runs, the optional three-letter tag | none (owner decision, 2026-10-29) |
 
 - Neither a clear nor a share stores an address, a name or an email.
 - Migrations 0002 (twice), 0003 and 0004 were applied by hand to the live database, so `wrangler d1 migrations apply` must not be used on it.
@@ -217,11 +217,12 @@
 | Step | Migration | What changes | Undo |
 |---|---|---|---|
 | 1 (now) | 0006 | new `shares` | `DROP TABLE shares` |
-| 2 | 0007 | `courses`, `course_versions`, `assets` | drop the three tables |
-| 3 | 0008 | `runs`; the clear function writes to both `course_clears` and `runs` | stop writing; drop `runs` |
+| 1b (CC-108) | 0007, 0008 | `course_clears` gets `nick` and an index for the board and keeps keys of every verified run; new `upload_days` for the daily photo slots | the columns stay; drop `upload_days` |
+| 2 | 0009 | `courses`, `course_versions`, `assets` | drop the three tables |
+| 3 | 0010 | `runs`; the clear function writes to both `course_clears` and `runs` | stop writing; drop `runs` |
 | 4 | after a week | the card stats read `runs`; `course_clears` becomes read-only | switch the read back |
-| 5 | 0009 | `community.course_id`, photos copied to R2 and `assets` | the old `image` column is kept until the copy is checked |
-| 6 | 0010 | `flags`, `daily_stats`, `challenges`, `motion_clips` | drop tables |
+| 5 | 0011 | `community.course_id`, photos copied to R2 and `assets` | the old `image` column is kept until the copy is checked |
+| 6 | 0012 | `flags`, `daily_stats`, `challenges`, `motion_clips` | drop tables |
 
 - The 0004 and 0005 columns (`verified`, `beats_ideal`, `keys`) are carried into `runs` as they are.
 - Backfill of `runs` from `course_clears`: `log` stays empty (the old rows never stored keys), `sim_version = 1`, `kind = 'done'`.

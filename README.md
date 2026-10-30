@@ -29,6 +29,7 @@ Live: https://conquercourse.pages.dev/
 - **Captured and generated motion:** 11 motion clips, all shown only after the plausibility check.
 - **Course Agent:** from one park photo, Muse Spark Open proposes and the simulator repairs; 40 of 40 runs were proven clearable in at most 3 steps (one-shot was 13 of 20).
 - **Verified shares:** a challenge link carries only the keys, the simulator replays them, so a time cannot be faked ([run checks](docs/run-checks.md)).
+- **Race the world:** a board of the fastest verified runs on each course, with a three-letter tag and your own best time; the server replays every run, so a time cannot be faked (try `?board=1`).
 - **Learn:** a four-step Dojo (the formula only on the last step) and university Labs that allow equations.
 - **Sound and clips:** an original MusicGen loop for each of 6 screens, and a 15 second vertical clip of any run.
 - **Tested:** 146 test files; physics-law tests come first.
