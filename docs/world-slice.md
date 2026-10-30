@@ -400,7 +400,7 @@ The set of obstacle shapes is fixed, and each shape offers a fixed set of moves.
 ## Shift+I and hazard floors (CC-57)
 - **So what:** the demo can now show the whole course done right with one key, and a fall no longer always means water.
 - **Shift+I:**
-  - It plays one ideal run from the start (or from where retry would start) to the finish, without handing back after each obstacle.
+  - It plays one ideal run from the standing start (always, CC-241) to the finish, without handing back after each obstacle.
   - Plain I still shows one obstacle.
   - Any other key takes the run back, and R retries as before.
   - A button "Whole course (Shift+I)" sits next to "Ideal run (I)".

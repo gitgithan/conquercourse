@@ -949,8 +949,8 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
     if (zoneId === null) void ensureShortcuts().then((list) => { if (list[0] && plan === p && idealWhole) idealNote += ' ' + shortcutLine(list[0]); });
   }
   function showIdeal(zoneId: string) { idealWhole = false; void startIdeal(cpFor(zoneId), zoneId); }
-  // Shift+I: from the start, or from where retry would start (the checkpoint before the obstacle you fell at), to the finish
-  function showWholeIdeal() { void startIdeal(retryX, null); }
+  // Shift+I: the whole course, always from the standing start (CC-241), so the first obstacle is in the film too
+  function showWholeIdeal() { void startIdeal(course.startX, null); }
   function stopWholeIdeal() {
     idealWhole = false; idealPending = 0; idealToken++; idealSignal.cancelled = true;
     if (!botMode) plan = null;
