@@ -94,3 +94,20 @@ describe('the ledger holds no address', () => {
     expect(a).toMatch(/^[0-9a-f]{16}$/); expect(a).not.toContain('203'); expect(await playerCode('203.0.113.7')).toBe(a); expect(await playerCode('203.0.113.8')).not.toBe(a);
   });
 });
+
+describe('the world line', () => {
+  it('says nothing without runs, and reads plainly with them', async () => {
+    const { worldLine } = await import('../src/ui/world-stats');
+    expect(worldLine(null)).toBeNull();
+    expect(worldLine({ players: 0, runs: 0, clears: 0, busiest: null, busiestRuns: 0 })).toBeNull();
+    expect(worldLine({ players: 1204, runs: 9310, clears: 311, busiest: 'Training', busiestRuns: 400 })).toBe('In the last 24 hours: 1,204 players made 9,310 runs, 311 cleared. Busiest: Training.');
+  });
+  it('counts people, runs and clears from the last day', async () => {
+    const { onRequestGet } = await import('../functions/api/world-stats');
+    const { db, sql } = localD1();
+    const add = (s: string, r: string, e: string, ago: string) => sql.prepare("INSERT INTO course_events (ts, session, build, mode, source, course_key, course_name, run_id, event_type) VALUES (datetime('now', ?), ?, 'b', 'course', 'demo', 'demo/training', 'Training', ?, ?)").run(ago, s, r, e);
+    add('s1', 'r1', 'start', '-1 hour'); add('s1', 'r1', 'success', '-1 hour'); add('s2', 'r2', 'start', '-2 hours'); add('s3', 'r3', 'start', '-3 days');
+    const out = await (await onRequestGet({ env: { DB: db } as never })).json() as { players: number; runs: number; clears: number; busiest: string };
+    expect(out).toMatchObject({ players: 2, runs: 2, clears: 1, busiest: 'Training' });
+  });
+});

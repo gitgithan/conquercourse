@@ -36,6 +36,7 @@ export const DEMO_GROUPS: [string, Demo[]][] = [
 
 import { labsOn } from './labs';
 import { applyStats, loadStats, statsOn } from './course-stats';
+import { showWorldStats } from './world-stats';
 import { pageQuery } from '../flags';
 
 /** CC-201: the slicer card is always shown (it used to hide behind ?labs=1); ?slice2=old brings the old rule back. */
@@ -216,6 +217,7 @@ export function buildGallery(o: GalleryOptions): { el: HTMLElement; focusStart()
     else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') e.preventDefault();
   });
   // CC-149: the play numbers and the difficulty order arrive a moment later, so the cards never wait for the server; ?stats=0 leaves them out
+  if (statsOn(pageQuery())) { const wl = document.createElement('div'); wl.id = 'world-stats'; wl.style.cssText = 'font-size:.85em;opacity:.85;margin:.3em 0'; el.prepend(wl); showWorldStats(wl); } // CC-108
   if (statsOn(pageQuery())) void loadStats().then((d) => { if (d && el.isConnected !== false) applyStats(el, d); });
   return { el, focusStart: () => { const here = el.querySelector<HTMLElement>('.wg-card[aria-current=true]'); (here ?? search).focus({ preventScroll: false }); here?.scrollIntoView({ block: 'center' }); } };
 }
