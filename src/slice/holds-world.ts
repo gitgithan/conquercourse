@@ -1,3 +1,5 @@
+import { DEFAULT_HANG } from '../sim/holds';
+import { GRAVITY } from '../sim/units';
 import { HALF_LANE } from './slice';
 import type { Mesh } from './slice';
 import type { Piece } from './world';
@@ -7,8 +9,8 @@ import type { Piece } from './world';
 export type P = Piece & { src?: string };
 export const isHold = (p: P): boolean => p.src === 'hold:bar';
 export const HOLD_LENGTH = 2.0; // m across the lane
-export const REACH_STANDING = 2.7; // m: hands 2.1 m over the feet plus the 0.6 m reach (src/sim/holds.ts)
-export const REACH_JUMPING = 3.7; // m: a jump lifts the hands about 1 m more
+export const REACH_STANDING = Math.round((DEFAULT_HANG.handHeight + DEFAULT_HANG.reach) * 100) / 100; // m: read from the simulator (src/sim/holds.ts), never typed in
+export const REACH_JUMPING = Math.round((REACH_STANDING + (4.5 * 4.5) / (2 * GRAVITY)) * 100) / 100; // m: a jump (take-off 4.5 m/s) lifts the hands by its apex
 
 export function barMesh(): Mesh {
   const [w, h, d] = [0.08, 0.08, HOLD_LENGTH];

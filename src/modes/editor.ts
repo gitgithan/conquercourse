@@ -85,6 +85,19 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
   let group: number[] = [];
   const chosen = (): number[] => (multiOn ? chosenIds(group, selected, (id) => pieces.some((q) => q.id === id && !isSizeReference(q))) : selected !== null ? [selected] : []);
   const chooseMany = (ids: number[]) => { group = ids; selected = ids.length ? ids[ids.length - 1] : null; drawPanel(); draw(); drawProfile(); };
+  // dragging one piece of a chosen group moves the whole group by the same step
+  const moveWith = (p: P, x: number, z: number) => { const dx = x - p.x, dz = z - p.z, ids = chosen(); if (ids.length > 1 && ids.includes(p.id)) for (const q of pieces) if (q !== p && ids.includes(q.id)) { q.x += dx; q.z += dz; } p.x = x; p.z = z; };
+  // Ctrl+C keeps the chosen pieces, Ctrl+V puts copies beside them (a group stays a group); pasting again goes one step further along
+  let clip: P[] = [], pastes = 0;
+  const copyChosen = () => { const ids = chosen(); if (!ids.length) return false; clip = pieces.filter((q) => ids.includes(q.id)).map((q) => ({ ...q })); pastes = 0; return true; };
+  const pasteClip = () => {
+    if (!clip.length) return;
+    pastes++;
+    const w = Math.max(...clip.map((q) => q.x + (size(q.mesh).w * q.scale) / 2)) - Math.min(...clip.map((q) => q.x - (size(q.mesh).w * q.scale) / 2)), dx = (w + 0.5) * pastes;
+    const made = clip.map((q) => duplicate(q, dx, 0) as P);
+    pieces.push(...made); selected = made[made.length - 1].id; group = made.length > 1 ? made.map((q) => q.id) : [];
+    changed();
+  };
   const deleteChosen = () => { const ids = chosen(); if (!ids.length) return; pieces = withoutIds(pieces, ids); selected = null; group = []; changed(); };
   let angle = 0, offset = 0, level = 0; // the lane: turn about the rod (radians), sideways (m), level (m)
   let view = { cx: 8, cz: 0, ppm: 36 }; // plan view: the world point in the middle, pixels per metre
@@ -162,8 +175,8 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
   const same = (a: Snap, b: Snap) => a.angle === b.angle && a.offset === b.offset && a.level === b.level && a.pieces.length === b.pieces.length && a.pieces.every((q, i) => { const r = b.pieces[i]; return q.id === r.id && q.x === r.x && q.z === r.z && q.y === r.y && q.yaw === r.yaw && q.scale === r.scale && q.mesh === r.mesh && q.role === r.role; });
   const remember = () => { const n = snapNow(); if (hi >= 0 && same(hist[hi], n)) return; hist.splice(hi + 1); hist.push(n); if (hist.length > 80) hist.shift(); hi = hist.length - 1; undoBtn.disabled = hi < 1; redoBtn.disabled = true; };
   const goto = (k: number) => { const t = hist[k]; if (!t) return; hi = k; pieces = t.pieces.map((q) => ({ ...q })); angle = t.angle; offset = t.offset; level = t.level; if (!pieces.some((q) => q.id === selected)) selected = null; undoBtn.disabled = hi < 1; redoBtn.disabled = hi >= hist.length - 1; changed(false); };
-  const undoBtn = el('button', top, { text: 'Undo', id: 'undo', title: 'Undo (Ctrl+Z)' });
-  const redoBtn = el('button', top, { text: 'Redo', id: 'redo', title: 'Redo (Ctrl+Y)' });
+  const undoBtn = el('button', top, { text: 'Ctrl+Z', id: 'undo', title: 'Undo' });
+  const redoBtn = el('button', top, { text: 'Ctrl+Y', id: 'redo', title: 'Redo' });
   undoBtn.disabled = redoBtn.disabled = true;
   undoBtn.onclick = () => goto(hi - 1); redoBtn.onclick = () => goto(hi + 1);
   // the Courses gallery asks before leaving when there is work to lose: anything past the starting undo step
@@ -356,7 +369,7 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
     selectedAll: () => { const c = chosen(); return c.length > 1 ? c : []; },
     toggle: (id) => chooseMany(toggleId(chosen(), id)),
     marquee: (ids, additive) => chooseMany(applyMarquee(chosen(), ids, additive)),
-    moved: (p, x, z) => { p.x = x; p.z = z; draw(); drawProfile(); },
+    moved: (p, x, z) => { moveWith(p, x, z); draw(); drawProfile(); },
     dropped: () => changed(),
     interactionStart: () => interruptSearch(),
     interactionEnd: () => verify(),
@@ -399,7 +412,7 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
   const side = el('div', aside, { className: 'panel', id: 'panel' });
   const lanePanel = el('div', aside, { className: 'panel' });
   // ---- helpers: what to shift when the lane cannot be cleared, and a design partner (Muse Spark Open) to talk it through
-  const helper = el('div', planWrap, { className: 'panel helper', id: 'helper' });
+  const helper = el('div', aside, { className: 'panel helper', id: 'helper' });
   const head = el('div', helper, { className: 'row' });
   el('strong', head, { text: 'Design partner' });
   el('button', head, { text: 'Fix it', id: 'fixit', className: 'go', title: 'Show a layout the simulator can clear, before anything changes' }).onclick = () => runFix();
@@ -764,7 +777,7 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
     if (r.machine && trebuchetKg) { updateDeviceSource('device:trebuchet', `device:trebuchet:${r.machine.counterweight}`); trebuchetExtra = { ...(r.machine.short !== undefined ? { short: r.machine.short } : {}), ...(r.machine.pin !== undefined ? { pin: r.machine.pin } : {}) }; } // the counterweight lives in the machine piece
     proposal = null; preview = null; previewProfile = null; previewBars = []; proofRun++;
     changed(); // one undo step
-    reply.className = 'reply ok'; reply.textContent = `Applied. ${words} (Undo goes back.)`;
+    reply.className = 'reply ok'; reply.textContent = `Applied. ${words}`;
     document.documentElement.dataset.preview = 'applied';
   }
   let adviceList: Advice[] = [];
@@ -841,7 +854,7 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
   // ---- several pieces chosen (CC-200): a chip on the picture with the count, Delete and Clear, and a one-line hint for the box
   const selChip = el('div', planWrap, { id: 'selchip' });
   const selCount = el('strong', selChip, { id: 'selcount' });
-  el('button', selChip, { text: 'Delete', id: 'seldelete', title: 'Delete every chosen piece (Delete key). One Undo brings them back.' }).onclick = () => deleteChosen();
+  el('button', selChip, { text: 'Delete', id: 'seldelete', title: 'Delete every chosen piece (Delete key)' }).onclick = () => deleteChosen();
   el('button', selChip, { text: 'Clear', id: 'selclear', title: 'Choose nothing (Esc)' }).onclick = () => { group = []; selected = null; drawPanel(); draw(); drawProfile(); };
   const selHint = multiOn ? el('div', planWrap, { id: 'selhint', text: 'Shift + drag: choose several. Shift + click: add or drop one.' }) : null;
   function syncSelChip() {
@@ -890,7 +903,7 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
     syncPersonChip();
     side.replaceChildren();
     syncSelChip();
-    if (chosen().length > 1) { el('strong', side, { text: countText(chosen().length) }); el('div', side, { className: 'muted', text: 'Delete removes them all in one step (Undo brings them back). Esc clears the choice. Shift+click adds or drops one.' }); pieceBar(null); return; }
+    if (chosen().length > 1) { el('strong', side, { text: countText(chosen().length) }); el('div', side, { className: 'muted', text: 'Delete removes them all. Ctrl+C then Ctrl+V copies them. Esc clears the choice. Shift+click adds or drops one.' }); pieceBar(null); return; }
     const p = pieces.find((q) => q.id === selected && !isSizeReference(q));
     el('strong', side, { text: p ? p.name : 'No piece chosen' });
     if (!p) { pieceBar(null); el('div', side, { className: 'muted', text: 'Click a piece on the picture to choose it. Drag it to move it. Scroll to zoom, drag the background to pan.' }); return; }
@@ -1239,7 +1252,7 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
     const uHi = Math.max(prof.length ? o + prof.length : -Infinity, ...bars.map((b) => b.u), ...(pv ? [pv.prof.length ? po + pv.prof.length : -Infinity, ...pv.bars.map((b) => b.u)] : []), uLo + 10);
     c.fillStyle = '#58635d'; c.font = '12px system-ui';
     c.fillText('What the runner sees: the lane from the side (water at the bottom, grid every metre). Drag a bar to move it.', 8, 14);
-    const base = H - 14, ppm = Math.min(30, (W - 40) / Math.max(10, uHi - uLo + 1)), ph0 = Math.max(14, (base - 24) / 4.3);
+    const base = H - 14, ppm = Math.min(30, (W - 40) / Math.max(10, uHi - uLo + 1)), ph0 = Math.max(14, (base - 24) / Math.max(1.8, Math.max(0, ...prof.cells.filter((h): h is number => h !== null), ...bars.map((b) => b.y)) + 0.4)); // fit the tallest thing, so low steps are not hairlines
     const hs = prof.cells.filter((h): h is number => h !== null);
     const vmin = vzoom && hs.length ? Math.floor((Math.min(...hs) - 0.3) * 2) / 2 : 0;
     const ph = vzoom && hs.length ? Math.max(ph0, (base - 24) / Math.max(2, Math.max(...hs, ...bars.map((b) => b.y)) - vmin + 0.6)) : ph0;
@@ -1247,9 +1260,11 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
     c.fillStyle = '#cfe3f5'; c.fillRect(0, base, W, 14);
     c.strokeStyle = '#e3e8e4';
     for (let m = 0; base - m * ph > 20; m++) { c.beginPath(); c.moveTo(0, base - m * ph); c.lineTo(W, base - m * ph); c.stroke(); }
+    c.fillStyle = '#58635d'; c.font = '10px system-ui'; c.textAlign = 'left';
+    for (let m = 0; base - (m - vmin) * ph > 20; m++) if (m >= vmin) c.fillText(`${m} m`, 2, base - (m - vmin) * ph - 2);
     // reach guide: what hands can grab standing and with a jump (the simulator's own numbers)
     c.setLineDash([6, 4]); c.lineWidth = 1.5; c.font = '11px system-ui';
-    for (const [h, col, label] of [[REACH_STANDING, '#2f9e5b', 'hands reach standing'], [REACH_JUMPING, '#c9951b', 'hands reach with a jump']] as [number, string, string][]) {
+    for (const [h, col, label] of ([[REACH_STANDING, '#2f9e5b', 'hands reach standing'], [REACH_JUMPING, '#c9951b', 'hands reach with a jump']] as [number, string, string][]).filter(([h]) => base - (h - vmin) * ph > 18)) {
       c.strokeStyle = col; c.fillStyle = col; c.beginPath(); c.moveTo(0, base - (h - vmin) * ph); c.lineTo(W, base - (h - vmin) * ph); c.stroke(); c.fillText(`${label} (${h} m)`, W - 190, base - (h - vmin) * ph - 3);
     }
     c.setLineDash([]);
@@ -1331,7 +1346,7 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
     const hit = [...pieces].reverse().find((p) => !isSizeReference(p) && hits(p, x, z));
     if (multiOn && e.shiftKey && hit) { chooseMany(toggleId(chosen(), hit.id)); drag = null; return; }
     if (multiOn && !hit && e.button === 0 && !e.altKey) { drag = { kind: 'marq', ox: x, oz: z, sx0: px, sz0: py, cx: e.shiftKey ? 1 : 0, cz: 0 }; rubber = { x0: x, z0: z, x1: x, z1: z }; return; }
-    if (hit) { group = []; selected = hit.id; drag = { kind: 'move', p: hit, ox: x - hit.x, oz: z - hit.z, sx0: 0, sz0: 0, cx: 0, cz: 0 }; }
+    if (hit) { if (!(multiOn && chosen().length > 1 && chosen().includes(hit.id))) group = []; selected = hit.id; drag = { kind: 'move', p: hit, ox: x - hit.x, oz: z - hit.z, sx0: 0, sz0: 0, cx: 0, cz: 0 }; }
     else { selected = null; group = []; drag = { kind: 'pan', ox: 0, oz: 0, sx0: px, sz0: py, cx: view.cx, cz: view.cz }; }
     drawPanel(); draw();
   });
@@ -1339,7 +1354,7 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
     if (!drag) return;
     const r = plan.getBoundingClientRect(), k = plan.width / r.width;
     const px = (e.clientX - r.left) * k, py = (e.clientY - r.top) * k;
-    if (drag.kind === 'move' && drag.p) { drag.p.x = Math.round((wx(px) - drag.ox) * 20) / 20; drag.p.z = Math.round((wz(py) - drag.oz) * 20) / 20; draw(); drawProfile(); }
+    if (drag.kind === 'move' && drag.p) { moveWith(drag.p, Math.round((wx(px) - drag.ox) * 20) / 20, Math.round((wz(py) - drag.oz) * 20) / 20); draw(); drawProfile(); }
     else if (drag.kind === 'pan') { view.cx = drag.cx - (px - drag.sx0) / view.ppm; view.cz = drag.cz - (py - drag.sz0) / view.ppm; draw(); }
     else if ((drag.kind === 'rubber' || drag.kind === 'marq') && rubber) { rubber = { x0: Math.min(drag.ox, wx(px)), z0: Math.min(drag.oz, wz(py)), x1: Math.max(drag.ox, wx(px)), z1: Math.max(drag.oz, wz(py)) }; draw(); }
   });
@@ -1392,6 +1407,8 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
     if (t && /^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName) && (t as HTMLInputElement).type !== 'range') return;
     if ((e.ctrlKey || e.metaKey) && e.code === 'KeyZ') { e.preventDefault(); goto(e.shiftKey ? hi + 1 : hi - 1); return; }
     if ((e.ctrlKey || e.metaKey) && e.code === 'KeyY') { e.preventDefault(); goto(hi + 1); return; }
+    if ((e.ctrlKey || e.metaKey) && e.code === 'KeyC') { copyChosen(); return; }
+    if ((e.ctrlKey || e.metaKey) && e.code === 'KeyV') { e.preventDefault(); pasteClip(); return; }
     if (e.code === 'Escape' && proposal) { closePreview('Cancelled: nothing changed.'); return; }
     if (e.code === 'Escape' && chosen().length) { group = []; selected = null; drawPanel(); draw(); drawProfile(); return; }
     if ((e.code === 'Delete' || e.code === 'Backspace') && chosen().length > 1) { e.preventDefault(); deleteChosen(); return; }
