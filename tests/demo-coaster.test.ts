@@ -1,10 +1,8 @@
-import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
-import type { CourseData } from '../src/course/course';
 import { playPlan } from '../src/sim/ideal';
 import { flewOff } from '../src/sim/cart';
+import { loadDemoCourse as load } from './helpers/course';
 
-const load = (n: string) => JSON.parse(readFileSync(`public/assets/demo/${n}.course.json`, 'utf8')) as CourseData;
 
 describe('the coaster demo courses', () => {
   it('"Coaster" carries a proof that still clears (regenerate with npx tsx scripts/coaster-demos.ts if the simulator changed)', () => {

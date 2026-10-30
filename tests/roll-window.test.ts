@@ -1,4 +1,3 @@
-import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 import type { CourseData } from '../src/course/course';
 import { DEMO_COURSE_FILES } from '../src/course/demo-list';
@@ -9,10 +8,10 @@ import { NO_INPUT, type RunnerInput } from '../src/sim/runner';
 import { newWorld, stepWorld, type WorldState } from '../src/sim/world';
 import { generateCourse } from '../src/slice/generator';
 import { predictJump } from '../src/sim/predict';
+import { loadCourseFile as load } from './helpers/course';
 
 // The roll is required just before landing (CC-67): a press counts only inside the window of the last 0.15 s AND the last 1.2 m before touchdown.
 // An earlier press does nothing (no hidden buffer: the landing is a normal one), a press up to 3 ticks after touchdown is forgiven.
-const load = (f: string) => JSON.parse(readFileSync(f, 'utf8')) as CourseData;
 const TICKS = Math.round(ROLL_WINDOW_S * 120);
 
 // Plays a course's stored line; `rollAt(world)` decides the X press of each tick (the plan's own roll is replaced).

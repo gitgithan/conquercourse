@@ -1,12 +1,11 @@
-import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 import type { CourseData } from '../src/course/course';
 import { playPlan, type Plan } from '../src/sim/ideal';
 import { recordPlan, verifyLog } from '../src/sim/replay';
 import { chooseWithSeeds, planFromLog } from '../src/sim/seed-plan';
+import { loadDemoCourse as load } from './helpers/course';
 
 // CC-176: a verified human line seeds the search; the faster of the two is kept, and a human line that beats the stored plan is a finding, not an error.
-const load = (f: string): CourseData => JSON.parse(readFileSync(`public/assets/demo/${f}.course.json`, 'utf8')) as CourseData;
 const humanLog = (c: CourseData, p: Plan) => recordPlan(c, p).recorder.snapshot();
 const ticks = (c: CourseData, p: Plan) => { const r = playPlan(c, p); return r.world.outcome === 'cleared' ? r.world.runner.tick : null; };
 

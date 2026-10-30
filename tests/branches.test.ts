@@ -1,12 +1,10 @@
-import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
-import type { CourseData } from '../src/course/course';
 import { branchesOf, fastestRoute, routeCourse, routeOfPath, routeOfTrack } from '../src/sim/branches';
 import { playPlan } from '../src/sim/ideal';
 import { recordPlan, trackFromPlan, verifyLog } from '../src/sim/replay';
+import { loadDemo as load } from './helpers/course';
 
 // CC-224: a fork with two ways. Each way has its own proved line; the way taken is read from where the runner went.
-const load = (n: string) => JSON.parse(readFileSync(`public/assets/demo/${n}`, 'utf8')) as CourseData;
 const course = load('two-ways.course.json');
 const b = course.branches![0];
 
