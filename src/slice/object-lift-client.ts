@@ -30,11 +30,11 @@ const post = async (body: unknown): Promise<{ ok: boolean; status: number; data:
   return { ok: res.ok, status: res.status, data };
 };
 
-/** Run one lift. `progress` gets a plain sentence now and then. Throws Error with a plain-words message. */
+/** Run one lift. `progress` gets a plain sentence now and then. Throws Error with a plain-words message; `final` is true when trying again cannot help (photo refused, or today's slots used). */
 export async function liftObject(inp: LiftInput, progress: (s: string) => void, signal?: AbortSignal): Promise<LiftDone> {
   progress('Sending your photo. People in it are blurred before anything is looked at.');
   const sub = await post({ action: 'submit', image: inp.photo.image, thumb: inp.photo.thumb, label: inp.label, box: inp.box, width: inp.photo.width, height: inp.photo.height, height_m: inp.height_m, padretry: inp.padretry !== false });
-  if (!sub.ok || typeof sub.data.id !== 'string') throw new Error(typeof sub.data.message === 'string' && sub.data.message ? sub.data.message : failWords(String(sub.data.error ?? (sub.status === 503 ? 'not allowed' : 'down'))));
+  if (!sub.ok || typeof sub.data.id !== 'string') throw Object.assign(new Error(typeof sub.data.message === 'string' && sub.data.message ? sub.data.message : failWords(String(sub.data.error ?? (sub.status === 503 ? 'not allowed' : 'down')))), { final: ['daily', 'budget', 'moderation'].includes(String(sub.data.error)) });
   const t0 = Date.now();
   const lines = ['Cutting the object out of the photo.', 'Building its 3D shape. The first one of the day can take a few minutes.', 'Painting it from your photo.'];
   for (let i = 0; i < 200; i++) {

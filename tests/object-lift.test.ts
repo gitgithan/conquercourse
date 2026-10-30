@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { cleanRequest, moderationStops, requestProblem, retryNote } from '../src/slice/object-lift';
 import { creditLine, problems, PROVENANCE_VERSION } from '../src/slice/provenance';
 import { handle } from '../functions/api/object-lift';
+import { memoryLedger, utcDay } from '../src/slice/upload-gates';
 
 const jpg = 'data:image/jpeg;base64,/9j/4AAQ';
 const good = { image: jpg, thumb: jpg, label: ' Bench ', box: [10, 10, 300, 200], width: 640, height: 480, height_m: 0.8 };
@@ -70,6 +71,69 @@ describe('/api/object-lift handle', () => {
     for (let i = 0; i < 8; i++) last = (await handle({ ...good, action: 'submit' }, env, 'ip3', ok({ id: 'fc-ABCDEFGHIJKL' }), 5)).status;
     expect(last).toBe(429);
   });
+});
+
+// The unhappy paths, in gate order. One fake network: Baseten answers with `verdict`, Modal with `modal`.
+describe('/api/object-lift gates', () => {
+  const keyed = { ...env, BASETEN_API_KEY: 'k' };
+  const net = (verdict: unknown, modal: unknown = { id: 'fc-ABCDEFGHIJKL' }, modalStatus = 200) => (async (url: string) => {
+    if (String(url).includes('modal.run')) return new Response(JSON.stringify(modal), { status: modalStatus });
+    if (verdict === 'down') return new Response('x', { status: 500 });
+    return new Response(JSON.stringify({ choices: [{ message: { content: JSON.stringify(verdict) } }] }), { status: 200 });
+  }) as unknown as typeof fetch;
+  const submit = (ip: string, f: typeof fetch, ledger = memoryLedger(), limits = { perPlayer: 3, perGame: 100 }, e = keyed) =>
+    handle({ ...good, action: 'submit' }, e, ip, f, 99, ledger, limits, Date.UTC(2026, 9, 30, 12));
+  const ok = { verdict: 'ok', reason: 'none' };
+
+  it('a clean photo goes through and says so', async () => expect((await submit('g1', net(ok))).body).toEqual({ id: 'fc-ABCDEFGHIJKL', moderation: 'ok:none' }));
+  it('a blocked photo is refused with plain words and starts no job', async () => {
+    const r = await submit('g2', net({ verdict: 'block', reason: 'sexual' }));
+    expect(r.status).toBe(403); expect(r.body).toMatchObject({ error: 'moderation', message: 'This photo cannot be used here.' });
+  });
+  it('a worry that needs a person is refused', async () => {
+    const r = await submit('g3', net({ verdict: 'review', reason: 'minor' }));
+    expect(r.status).toBe(403); expect((r.body as { message: string }).message).toMatch(/needs a person/);
+  });
+  it('a person in the photo is allowed (the pipeline blurs them)', async () => expect((await submit('g4', net({ verdict: 'review', reason: 'person' }))).status).toBe(200));
+  it('a broken checker fails closed when a key is set', async () => {
+    const r = await submit('g5', net('down'));
+    expect(r.status).toBe(403); expect((r.body as { message: string }).message).toMatch(/safety check could not run/);
+  });
+  it('an unreadable checker answer fails closed too', async () => expect((await submit('g6', net('not json at all'))).status).toBe(403));
+  it('without a key the checker is skipped, as recorded', async () => expect((await submit('g7', net(ok), memoryLedger(), undefined, env)).body).toMatchObject({ moderation: 'skipped' }));
+
+  it('the 4th object of the day is refused for that player only', async () => {
+    const led = memoryLedger();
+    for (let i = 0; i < 3; i++) expect((await submit('p1', net(ok), led)).status).toBe(200);
+    const r = await submit('p1', net(ok), led);
+    expect(r.status).toBe(429); expect(r.body).toMatchObject({ error: 'daily' });
+    expect((r.body as { message: string }).message).toMatch(/tomorrow/);
+    expect((await submit('p2', net(ok), led)).status).toBe(200);
+  });
+  it('the next day the player has slots again', async () => {
+    const led = memoryLedger();
+    for (let i = 0; i < 3; i++) await submit('p3', net(ok), led);
+    expect((await handle({ ...good, action: 'submit' }, keyed, 'p3', net(ok), 99, led, { perPlayer: 3, perGame: 100 }, Date.UTC(2026, 9, 31, 1))).status).toBe(200);
+  });
+  it('the game budget stops everyone and says the makers are used up', async () => {
+    const led = memoryLedger(); const lim = { perPlayer: 3, perGame: 2 };
+    await submit('b1', net(ok), led, lim); await submit('b2', net(ok), led, lim);
+    const r = await submit('b3', net(ok), led, lim);
+    expect(r.status).toBe(429); expect(r.body).toMatchObject({ error: 'budget' }); expect((r.body as { message: string }).message).toMatch(/makers are used up/);
+  });
+  it('a blocked photo does not use up a slot', async () => {
+    const led = memoryLedger();
+    for (let i = 0; i < 5; i++) await submit('s1', net({ verdict: 'block', reason: 'other' }), led);
+    for (let i = 0; i < 3; i++) expect((await submit('s1', net(ok), led)).status).toBe(200);
+  });
+  it('a job that never starts gives the slot back (Modal down, or Modal says no)', async () => {
+    const led = memoryLedger();
+    for (let i = 0; i < 2; i++) expect((await submit('r1', net(ok, {}, 500), led)).status).toBe(502);
+    expect((await submit('r1', net(ok, { error: 'bad photo' }), led)).status).toBe(400);
+    for (let i = 0; i < 3; i++) expect((await submit('r1', net(ok), led)).status).toBe(200);
+    expect((await submit('r1', net(ok), led)).status).toBe(429);
+  });
+  it('the day key is the UTC date', () => expect(utcDay(Date.UTC(2026, 9, 30, 23, 59))).toBe('2026-10-30'));
 });
 
 import { readFileSync } from 'node:fs';

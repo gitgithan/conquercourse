@@ -64,11 +64,11 @@ export function openPhotoObject(onDone: (r: LiftDone) => void): void {
     const h = hgt.value.trim() ? Number(hgt.value) : null;
     try {
       const r = await liftObject({ photo, box, label: lab.value.trim().toLowerCase().replace(/\s+/g, ' '), height_m: h }, (s) => { msg.textContent = s; }, ctl.signal);
-      msg.textContent = `Done in ${r.seconds} s. ${r.privacy.people ? 'People in the photo were blurred. ' : ''}${r.notes.join(' ')} It is in your editor.`;
+      msg.textContent = `Done in ${r.seconds} s. ${r.privacy.people ? 'People in the photo were blurred. ' : ''}${r.notes.join(' ')} It is saved in this browser: look for "Mine: ${r.prov.name}" in the piece list.`;
       onDone(r);
       setTimeout(() => shade.remove(), 1800);
     } catch (e) {
-      msg.textContent = (e as Error).message; retry.hidden = false; go.disabled = false; file.disabled = false;
+      msg.textContent = (e as Error).message; const final = (e as { final?: boolean }).final === true; retry.hidden = final; go.disabled = final; file.disabled = false;
     }
   };
   go.onclick = run; retry.onclick = run;
