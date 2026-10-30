@@ -3,7 +3,7 @@ import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 import { lookupFeatures, trimFeature, WANTED } from '../functions/api/features';
 import type { Fetcher, Store } from '../functions/api/photos';
-import { FURNITURE_ON, KINDS, drawScale, keepOffRun, place, toGame, MIN_SCALE, FILM_MIN_SCALE, LANE_HALF, CLEAR_Z, type Frame, type FurnitureFile } from '../src/world/furniture';
+import { FURNITURE_ENABLED, FURNITURE_ON, KINDS, drawScale, keepOffRun, place, toGame, MIN_SCALE, FILM_MIN_SCALE, LANE_HALF, CLEAR_Z, type Frame, type FurnitureFile } from '../src/world/furniture';
 import { groundAt, type Terrain } from '../src/sim/terrain';
 
 const mem = (): Store => { const m = new Map<string, string>(); return { get: async (k) => m.get(k) ?? null, put: async (k, v) => void m.set(k, v) }; };
@@ -52,7 +52,7 @@ describe('from the real world to the game', () => {
   });
   it('the film backdrop draws closer to true size than play, and play is unchanged', () => { expect(drawScale({ ...frame, k: 0.12 })).toBe(MIN_SCALE); expect(drawScale({ ...frame, k: 0.12 }, FILM_MIN_SCALE)).toBe(FILM_MIN_SCALE); expect(FILM_MIN_SCALE).toBeLessThan(MIN_SCALE); });
   it('draws small worlds no smaller than the minimum scale', () => { expect(drawScale({ ...frame, k: 0.07 })).toBe(MIN_SCALE); expect(drawScale({ ...frame, k: 1.5 })).toBeCloseTo(1.5); });
-  it('is off unless ?furniture=1', () => { expect(FURNITURE_ON(new URLSearchParams(''))).toBe(false); expect(FURNITURE_ON(new URLSearchParams('furniture=0'))).toBe(false); expect(FURNITURE_ON(new URLSearchParams('furniture=1'))).toBe(true); });
+  it('is off unless ?furniture=1 and the feature is switched on (parked 2026-10-30)', () => { expect(FURNITURE_ON(new URLSearchParams(''))).toBe(false); expect(FURNITURE_ON(new URLSearchParams('furniture=0'))).toBe(false); expect(FURNITURE_ON(new URLSearchParams('furniture=1'))).toBe(FURNITURE_ENABLED); });
 });
 
 describe('furniture stays off the run', () => {

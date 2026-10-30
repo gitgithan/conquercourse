@@ -1628,6 +1628,12 @@ The set of obstacle shapes is fixed, and each shape offers a fixed set of moves.
   - Without the secret the proxy answers 503 and the stored strip stays.
 
 ## Street furniture from Mapillary map features (CC-187, `?furniture=1`)
+- **Parked (owner, 2026-10-30):** the pieces look like red and yellow lollipops, not like a street, so no screen draws them now.
+  - To bring them back: set `FURNITURE_ENABLED = true` in `src/world/furniture.ts`; `?furniture=1` and the furniture behind `?backdrop=<slug>` work again.
+  - The data stays: `public/assets/places/furniture/<place>.json` (positions and kinds from Mapillary map features, CC BY-SA 4.0), fetched by `scripts/furniture-fetch.ts`.
+  - There is no photo behind any piece: Mapillary gives a class (lamp, bench, bin, sign) and a position, and the game draws a plain box or cylinder for it (`src/render/furniture-view.ts`).
+  - Why it looks wrong: the shape is generic, the parts are drawn over-sized so they show at the shrunk scale of a place, and the colours are only there to tell the kinds apart.
+  - A better version would lift real objects from photos (the object path of CC-221) for the kinds that matter, with a row in `docs/ASSETS.md` for each photo.
 - **What the player sees**
   - On the four stored real-place courses (Montmartre, Eixample, Circular Quay, Lombard Street), with `?furniture=1`, real street lights, benches, bins, signs, traffic signals, poles and crosswalk paint stand where Mapillary's detectors saw them.
   - A white painted crossing marks the start line; it is a design touch, not a detection.
