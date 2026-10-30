@@ -10,10 +10,10 @@ const counters: Record<string, number> = {};
 export const track = (name: string, by = 1): void => { counters[name] = (counters[name] ?? 0) + by; };
 
 export type CourseEvent = 'start' | 'fail' | 'success';
-export function trackCourseEvent(event: CourseEvent, courseKey: string, courseName: string, runId: string, mode: string): void {
+export function trackCourseEvent(event: CourseEvent, courseKey: string, courseName: string, runId: string, mode: string, at = ''): void {
   void fetch('/api/course-event', {
     method: 'POST', headers: { 'content-type': 'application/json' }, keepalive: true,
-    body: JSON.stringify({ event, session: session(), build: __BUILD__, courseKey, courseName, runId, mode, source: courseSource() }),
+    body: JSON.stringify({ event, session: session(), build: __BUILD__, courseKey, courseName, runId, mode, source: courseSource(), at }),
   }).catch(() => { /* telemetry must never interrupt a run */ });
 }
 
