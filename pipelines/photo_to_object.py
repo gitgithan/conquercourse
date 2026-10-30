@@ -200,7 +200,7 @@ if modal is not None:
         .add_local_python_source("ccpipe")
     )
     # the shared token lives in the Modal secret `cc-upload`; `modal run` of the batch pipeline does not need it, so it is only attached when deploying (CC_DEPLOY_WEB=1 modal deploy ...)
-    upload_secrets = [modal.Secret.from_name("cc-upload")] if os.environ.get("CC_DEPLOY_WEB") else []
+    upload_secrets = [modal.Secret.from_name("cc-upload")]  # always attached: a condition on the deploy shell made the container see a different graph (crash loop)
 
     @app.function(image=web_image, timeout=1500, secrets=upload_secrets)
     def lift_job(jpeg: bytes, label: str, box: list, height_m=None, padretry: bool = True) -> dict:
