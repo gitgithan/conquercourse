@@ -32,6 +32,8 @@ import { proves } from '../slice/photo-proof';
 import { adviseMachine, fixMachine } from '../slice/fix-launch';
 import { fixBars } from '../slice/fixbars';
 import { fixLayout } from '../slice/fixit';
+import { PRESETS } from '../slice/presets';
+import { MAX_PIECES, suggestPrompt } from '../slice/suggest-prompt';
 import { adviseLane, type Advice } from '../slice/advice';
 import { agentOn, runCourseAgent } from '../ui/course-agent-trace';
 import { adviceInWorker, barsInWorker, fixInWorker, provesInWorker } from '../slice/proof-client';
@@ -47,7 +49,7 @@ import type { CourseSource } from '../course/course';
 import { pageQuery, pageSearch } from '../flags';
 
 // The World editor: build a world from pieces on a plan view, scale them (a toy brick becomes a block), turn, copy, crop and move them,
-// choose the lane the runner takes (turn about the rod, sideways, level), and play it. Everything is in metres.
+// choose the lane the runner takes (turn about the start, sideways, level), and play it. Everything is in metres.
 const KEY = 'cc.world.v1';
 interface Saved { pieces: { src: string; x: number; z: number; y: number; yaw: number; scale: number; role?: Role; decor?: boolean }[]; angle: number; offset: number; level: number; floor?: string }
 type P = Piece & { src?: string };
@@ -105,6 +107,7 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
   const personAt = () => personStart(pieces, { angle, offset });
   let cropMode = false;
   let verdict = '';
+  let helperReady = false; // the design partner's reply box exists
   let movesReady = false; // the Moves window exists (changed() may run before it is built)
   const pendingObjects: Saved['pieces'] = []; // saved photo objects, loaded once the list is in
 
@@ -125,8 +128,8 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
     try {
       restore(JSON.parse(localStorage.getItem(KEY) ?? '') as Saved);
     } catch {
-      // a first world made of real objects (no blocks): a bench, a long low box and a rail, loaded once the object list is in
-      pendingObjects.push({ src: 'obj:bench-concrete.glb', x: 3, z: 0, y: 0, yaw: 0, scale: 1 }, { src: 'obj:box-skate-03.glb', x: 9, z: 0, y: 0, yaw: 0, scale: 1 }, { src: 'obj:rail-skate-01.glb', x: 16, z: 0, y: 0, yaw: 0, scale: 1 });
+      // a first world made of real objects (no blocks): a short run with one of each kind, loaded once the object list is in
+      pendingObjects.push(...PRESETS[0].pieces); // CC-243: five real objects, short, and the simulator can clear it
       selected = null;
     }
   }
@@ -406,6 +409,17 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
   // CC-177: Fit frames every piece (key F): a short smooth move in the 3D view, an instant zoom in the flat plan
   const fitBtn = el('button', top, { text: 'Fit', id: 'fitview', title: 'Bring the camera to your pieces so they all fit on the picture (key F)' });
   fitBtn.onclick = () => fitAll();
+  // CC-243: predesigned courses: one that clears and one that is broken, to try Fix it on
+  const presetPick = el('select', top, { id: 'presetpick', title: 'Open a ready-made course in place of the one on the screen' });
+  el('option', presetPick, { text: 'Ready-made courses…', value: '' });
+  for (const pr of PRESETS) el('option', presetPick, { text: pr.label, value: pr.id, title: pr.note });
+  presetPick.onchange = () => {
+    const pr = PRESETS.find((q) => q.id === presetPick.value);
+    if (!pr) return;
+    if (pieces.length > 1 && !confirm('Replace the pieces on the screen with this course? Ctrl+Z will not bring them back.')) { presetPick.value = ''; return; }
+    try { localStorage.setItem(KEY, JSON.stringify({ pieces: pr.pieces, angle: 0, offset: 0, level: 0, floor: floorChoice } satisfies Saved)); } catch { /* private window */ }
+    location.reload();
+  };
   const profileWrap = el('div', main, { className: 'profilewrap' });
   const profileCanvas = el('canvas', profileWrap, { width: 900, height: 128, id: 'profile' });
   const aside = el('div', root, { className: 'aside' });
@@ -418,7 +432,12 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
   el('button', head, { text: 'Fix it', id: 'fixit', className: 'go', title: 'Show a layout the simulator can clear, before anything changes' }).onclick = () => runFix();
   el('button', head, { text: 'Make it easier', id: 'easier', title: 'Show the smallest change that makes the hardest press easier to land' }).onclick = () => runEasier();
   el('button', head, { text: '✕', id: 'closehelper', title: 'Hide' }).onclick = () => { helper.classList.add('closed'); helperBtn.setAttribute('aria-pressed', 'false'); };
+  const selRow = el('label', helper, { className: 'muted', title: 'Fix it moves only the pieces you have chosen, and leaves the lane where it is' });
+  const fixSel = el('input', selRow, { type: 'checkbox', id: 'fixsel' }); selRow.append(' Fix it moves only the chosen pieces');
   const adviceBox = el('div', helper, { id: 'advice' });
+  // CC-243: a ready question for the partner: Suggest Fix when the lane cannot be cleared, Suggest More when it can
+  const suggestBtn = el('button', head, { text: 'Suggest More', id: 'suggest', title: 'Ask the design partner, with the question already written' });
+  const setSuggest = (clear: boolean | null) => { suggestBtn.textContent = clear === false ? 'Suggest Fix' : 'Suggest More'; suggestBtn.classList.toggle('go', clear === false); suggestBtn.dataset.kind = clear === false ? 'fix' : 'more'; };
   // ---- routes you did not plan (CC-71): the simulator looks for lines that skip an obstacle; Close it previews a change that shuts one, Keep it marks it as meant
   const designed = new Set<string>();
   let routes: Shortcut[] = [], routesWorker: Worker | null = null;
@@ -460,6 +479,13 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
   const ask = el('textarea', askRow, { id: 'ask', rows: 2, placeholder: 'e.g. make the gap easier, or a harder second half' });
   const sendBtn = el('button', askRow, { text: 'Ask', id: 'send', className: 'go' });
   const whatBtn = el('button', askRow, { text: 'What should I change?', id: 'what' });
+  helperReady = true;
+  suggestBtn.onclick = () => {
+    const clear = document.documentElement.dataset.laneClear !== '0';
+    ask.value = suggestPrompt(clear, pieces.filter((q) => !isSizeReference(q) && !isDevice(q)).map((q) => ({ name: q.name, x: q.x, heightM: realSize(q).h + q.y })));
+    helper.classList.remove('closed'); helperBtn.setAttribute('aria-pressed', 'true');
+    sendBtn.click();
+  };
   const helperBtn = el('button', top, { text: 'Design partner', id: 'helperbtn', title: 'Show or hide the design partner' });
   helperBtn.setAttribute('aria-pressed', 'true');
   helperBtn.onclick = () => { const closed = helper.classList.toggle('closed'); helperBtn.setAttribute('aria-pressed', String(!closed)); };
@@ -628,7 +654,8 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
     ps = ps.filter((q) => !isSizeReference(q) && !isDevice(q)); // the machine and the size references are not ground
     if (m) { const mf = fixMachine(ps, lane, m, 40000, trebuchetPivot()); if (mf.ok) return { ok: true, pieces: ps, lane, steps: mf.steps, machine: mf.machine }; } // the machine first: a counterweight or an arm is a smaller change than moving pieces
     if (ps.some(isHold)) { const rb = m ? fixBars(ps, lane, workSeconds(40), wrap) : await barsInWorker(ps, lane, workSeconds(40)); return { ok: rb.ok, pieces: rb.pieces, lane, steps: rb.steps, machine: m }; }
-    const r = m ? fixLayout(ps, lane, workSeconds(12), wrap) : await fixInWorker(ps, lane);
+    const only = fixSel.checked ? chosen().filter((id) => ps.some((q) => q.id === id)) : []; // CC-243: with pieces chosen, only those may move and the lane stays
+    const r = m ? fixLayout(ps, lane, workSeconds(12), wrap, only.length ? { movable: only } : {}) : await fixInWorker(ps, lane, only.length ? only : undefined);
     return { ok: r.ok, pieces: r.pieces as P[], lane: r.lane, steps: r.steps, machine: m };
   }
   function runFix(from?: { pieces: P[]; lane: { angle: number; offset: number; level: number } }) {
@@ -941,7 +968,7 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
       i.oninput = () => { set(Number(i.value)); l.firstChild!.textContent = `${label}: ${fmt(get())}`; draw(); drawProfile(); };
       i.onchange = () => { save(); verify(); };
     };
-    slider('Turn about the rod', 'angle', 0, 180, 5, () => Math.round((angle * 180) / Math.PI), (v) => { angle = (v * Math.PI) / 180; pieces.filter(isDevice).forEach((p) => { p.yaw = angle; }); }, (v) => `${v}°`);
+    slider('Turn about the start', 'angle', 0, 180, 5, () => Math.round((angle * 180) / Math.PI), (v) => { angle = (v * Math.PI) / 180; pieces.filter(isDevice).forEach((p) => { p.yaw = angle; }); }, (v) => `${v}°`);
     slider('Sideways', 'offset', -30, 30, 0.5, () => offset, (v) => (offset = v), (v) => `${v.toFixed(1)} m`);
     slider('Where the water starts (level)', 'level', 0, 4, 0.05, () => level, (v) => (level = v), (v) => `${v.toFixed(2)} m`);
     el('button', lanePanel, { text: 'Find the best lane for me', id: 'best' }).onclick = () => {
@@ -1146,7 +1173,7 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
         const clear = await searchClearable(laneCourse(p));
         if (version !== verifyVersion) return;
         if (clear === null) { verdict = 'The lane check could not finish. Try again after editing stops.'; document.documentElement.dataset.verdict = verdict; if (v) { v.textContent = verdict; v.className = 'bad'; } return; }
-        document.documentElement.dataset.laneClear = clear ? '1' : '0';
+        document.documentElement.dataset.laneClear = clear ? '1' : '0'; setSuggest(clear);
         verdict = clear ? `The simulator can clear this lane (${r.gaps} gaps, ${r.steps} steps, ${r.curves} curves, ${r.faces} faces, ${r.length.toFixed(0)} m).` : 'The simulator cannot find a way to clear this lane: widen a gap or lower a step.';
       }
       const v = lanePanel.querySelector('#verdict') as HTMLElement | null;
@@ -1189,7 +1216,7 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
     c.fillStyle = '#f0a02033'; c.fillRect(-400 * view.ppm, (offset - HALF_LANE) * view.ppm, 800 * view.ppm, 2 * HALF_LANE * view.ppm);
     c.strokeStyle = '#f0a020'; c.lineWidth = 2; c.beginPath(); c.moveTo(-400 * view.ppm, offset * view.ppm); c.lineTo(400 * view.ppm, offset * view.ppm); c.stroke();
     c.restore();
-    c.fillStyle = '#17201d'; c.beginPath(); c.arc(sx(0), sz(0), 5, 0, 7); c.fill(); c.fillText('rod', sx(0) + 8, sz(0) - 6);
+    c.fillStyle = '#17201d'; c.beginPath(); c.arc(sx(0), sz(0), 5, 0, 7); c.fill(); c.fillStyle = '#0f6b5c'; c.beginPath(); c.moveTo(sx(0), sz(0)); c.lineTo(sx(0), sz(0) - 22); c.lineTo(sx(0) + 16, sz(0) - 16); c.lineTo(sx(0), sz(0) - 10); c.fill(); c.font = '600 11px system-ui'; c.fillText('START: the runner begins here', sx(0) + 8, sz(0) + 14);
     pieces.forEach((p, i) => {
       const s = size(p.mesh);
       if (isSizeReference(p)) {
@@ -1428,7 +1455,8 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
       return s ? [{ id: q.id, x: r.left + s.x, y: r.top + s.y }] : [];
     });
   };
-  function changed(record = true) { if (proposal) closePreview('The layout changed, so the preview was closed.'); if (record) remember(); syncDeviceState(); document.documentElement.dataset.pieces = String(pieces.length); document.documentElement.dataset.band = bandK ? String(bandK) : ''; save(); drawPanel(); drawLanePanel(); draw(); drawProfile(); verify(); renderMoves(); }
+  function capPieces() { const real = pieces.filter((q) => !isSizeReference(q) && !isDevice(q) && q.src !== 'hold:bar'); if (real.length <= MAX_PIECES) return; const drop = new Set(real.slice(MAX_PIECES).map((q) => q.id)); pieces = pieces.filter((q) => !drop.has(q.id)); if (selected !== null && drop.has(selected)) selected = null; verdict = `The editor keeps up to ${MAX_PIECES} pieces, so the last ones were not added. Delete one to make room.`; document.documentElement.dataset.capped = '1'; }
+  function changed(record = true) { capPieces(); if (helperReady && reply.textContent?.startsWith('The simulator cannot')) { reply.className = 'reply muted'; reply.textContent = 'You changed the course, so the simulator is checking it again.'; }  if (proposal) closePreview('The layout changed, so the preview was closed.'); if (record) remember(); syncDeviceState(); document.documentElement.dataset.pieces = String(pieces.length); document.documentElement.dataset.band = bandK ? String(bandK) : ''; save(); drawPanel(); drawLanePanel(); draw(); drawProfile(); verify(); renderMoves(); }
   syncDeviceState();
   drawPanel(); drawLanePanel(); draw(); drawProfile(); verify();
   remember();
