@@ -1,4 +1,3 @@
-import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 import type { CourseData } from '../src/course/course';
 import { playPlan, searchIdealRun, type Plan } from '../src/sim/ideal';
@@ -12,8 +11,8 @@ import { proves } from '../src/slice/photo-proof';
 import { diffProposal, enabledCount, fromAdvice, machineItems, resultOf } from '../src/slice/preview';
 import type { Mesh } from '../src/slice/slice';
 import { newPiece, type Piece } from '../src/slice/world';
+import { loadDemoCourse as load } from './helpers/course';
 
-const load = (f: string) => JSON.parse(readFileSync(`public/assets/demo/${f}.course.json`, 'utf8')) as CourseData;
 const lane = { angle: 0, offset: 0, level: 0 };
 
 function box(w: number, h: number, d: number): Mesh {

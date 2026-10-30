@@ -1,9 +1,7 @@
-import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
-import type { CourseData } from '../src/course/course';
 import { playPlan, searchIdealRun, type Plan } from '../src/sim/ideal';
+import { loadDemoCourse as load } from './helpers/course';
 
-const load = (f: string) => JSON.parse(readFileSync(`public/assets/demo/${f}.course.json`, 'utf8')) as CourseData;
 const A = load('launch'), B = load('launch-bar');
 
 describe('the launch demo courses', () => {

@@ -1,10 +1,9 @@
-import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 import type { CourseData } from '../src/course/course';
 import { flewOff } from '../src/sim/cart';
 import { playPlan } from '../src/sim/ideal';
+import { loadDemoCourse as load } from './helpers/course';
 
-const load = (n: string) => JSON.parse(readFileSync(`public/assets/demo/${n}.course.json`, 'utf8')) as CourseData;
 
 // The three merged courses (CC-97 / CC-115): each is cleared by its stored proof, and each keeps the thing it teaches.
 describe('the merged courses', () => {

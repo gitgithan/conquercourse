@@ -1,14 +1,13 @@
 import { describe, expect, it } from 'vitest';
-import { readFileSync } from 'node:fs';
 import type { CourseData } from '../src/course/course';
 import { drumsFor, drumsForPaths } from '../src/sim/drums';
 import { waysOf, pathsOn } from '../src/ui/paths';
 import { trackFromPlan } from '../src/sim/replay';
 
-const load = (f: string) => JSON.parse(readFileSync(`public/assets/demo/${f}`, 'utf8')) as CourseData;
 const course = load('two-ways.course.json');
 
 import courseJson from '../src/course/default-course.json';
+import { loadDemo as load } from './helpers/course';
 
 describe('two ways on the drum lane and in the end report', () => {
   it('the switch is off unless paths=1', () => {
