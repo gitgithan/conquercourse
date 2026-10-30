@@ -238,7 +238,7 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
   const addBarPiece = (x: number, y: number, z = 0): P => { const q: P = { ...newPiece('Bar', barMesh(), { x, z }), src: 'hold:bar', y }; pieces.push(q); selected = q.id; return q; };
   el('button', addBar, { text: 'Bar', id: 'addbar' }).onclick = () => { addBarPiece(nextX(), 2.86); changed(); };
   // coaster sections (CC-244): rails the rider rides; leave a short gap between two sections and the rider flies across it (bars and ropes can catch them)
-  const coasterOn = new URLSearchParams(location.search).get('coaster') !== '0'; // on by default; ?coaster=0 hides the piece
+  const coasterOn = pageQuery().get('coaster') !== '0'; // on by default; ?coaster=0 hides the piece
   const trackShape = el('select', addBar, { id: 'trackshape', title: 'The shape of the next coaster section' }) as HTMLSelectElement;
   for (const t of TRACK_SHAPES) el('option', trackShape, { text: t.name, value: t.id });
   trackShape.style.display = coasterOn ? '' : 'none';
