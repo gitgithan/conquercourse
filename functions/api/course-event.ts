@@ -17,7 +17,13 @@ export const onRequestPost = async ({ request, env }: { request: Request; env: E
   if (!PROVEN_KEY.test(clip(b.courseKey, 100))) return json({ ok: true, skipped: 'no proven path for this course' });
   const recent = await env.DB.prepare("SELECT COUNT(*) AS n FROM course_events WHERE session = ? AND ts > datetime('now', '-1 hour')").bind(session).first<{ n: number }>();
   if ((recent?.n ?? 0) >= 500) return json({ error: 'slow down' }, 429);
-  await env.DB.prepare('INSERT OR IGNORE INTO course_events (ts, session, build, mode, source, course_key, course_name, run_id, event_type) VALUES (datetime(\'now\'), ?, ?, ?, ?, ?, ?, ?, ?)')
-    .bind(session, clip(b.build, 40), clip(b.mode, 20), clip(b.source, 30), clip(b.courseKey, 100), clip(b.courseName, 160), runId, event).run();
+  const row = [session, clip(b.build, 40), clip(b.mode, 20), clip(b.source, 30), clip(b.courseKey, 100), clip(b.courseName, 160), runId, event];
+  // CC-108: the country (two letters, from Cloudflare; no address) and the zone of a failure; before migration 0009 the plain insert is used
+  const country = String((request as { cf?: { country?: string } }).cf?.country ?? '').toUpperCase(), failAt = event === 'fail' ? clip(b.at, 40).replace(/[^a-zA-Z0-9 _-]/g, '') : '';
+  try {
+    await env.DB.prepare("INSERT OR IGNORE INTO course_events (ts, session, build, mode, source, course_key, course_name, run_id, event_type, country, fail_at) VALUES (datetime('now'), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)").bind(...row, /^[A-Z]{2}$/.test(country) ? country : '', failAt).run();
+  } catch {
+    await env.DB.prepare('INSERT OR IGNORE INTO course_events (ts, session, build, mode, source, course_key, course_name, run_id, event_type) VALUES (datetime(\'now\'), ?, ?, ?, ?, ?, ?, ?, ?)').bind(...row).run();
+  }
   return json({ ok: true });
 };

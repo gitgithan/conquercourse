@@ -37,6 +37,7 @@ import { ouch } from '../sim/landing';
 import { logTicks } from '../sim/run-checks';
 import { track, trackCourseEvent, courseKey, sendClear } from '../ui/feedback';
 import { statsOn, statKey } from '../ui/course-stats';
+import { touchStreak } from '../ui/streak';
 import { boardBox, boardOn, rememberBest } from '../ui/leaderboard';
 import { createRookieActor } from '../render/actor';
 import { lookSwitchOn, lookUrl } from '../render/look';
@@ -776,6 +777,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
   const analyticsMode = pageQuery().get('mode') ?? 'course';
   let analyticsRunId = crypto.randomUUID();
   let failedThisAttempt = false;
+  touchStreak(); // CC-108
   if (!resume) trackCourseEvent('start', analyticsCourseKey, course.name, analyticsRunId, analyticsMode);
   // CC-149: a cleared run on a listed course is offered to the server, which plays the keys again before it counts (a run with anything but plain keys has no log and is not offered)
   function offerClear() {
@@ -1086,7 +1088,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
     const zone = zoneAt(what === 'slide' && course.wall ? course.wall.x0 + 1 : r.x);
     lastZone = zone?.id ?? 'gap';
     if (!failedThisAttempt) {
-      failedThisAttempt = true; trackCourseEvent('fail', analyticsCourseKey, course.name, analyticsRunId, analyticsMode);
+      failedThisAttempt = true; trackCourseEvent('fail', analyticsCourseKey, course.name, analyticsRunId, analyticsMode, lastZone);
       const failedZone = zone?.id ?? lastZone;
       if (zone) fallLog.push(zone.id);
       enterZone(failedZone); countsFor(summaries[runKind], failedZone).failures++; finishRun(false);
