@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { PHRASES as SERVER_PHRASES, onRequestGet, onRequestPost, cleanCourse } from '../functions/api/community';
+import { PHRASES as SERVER_PHRASES, onRequestGet, onRequestPost, cleanCommunityCourse } from '../functions/api/community';
 import { onRequestPost as report } from '../functions/api/community-report';
 import { onRequestGet as image } from '../functions/api/community-image';
 import { PHRASES, fitPrimitives, proveCourse } from '../src/park/fit';
@@ -50,7 +50,7 @@ describe('publishing a community course', () => {
     expect((await post({ ...good, boxes: [{ phrase: 'person', box: [1, 1, 100, 100] }] })).status).toBe(400);
   });
   it('strips markup from names', () => {
-    const c = cleanCourse({ ...good, name: '<b>Nice</b> steps', nick: '' });
+    const c = cleanCommunityCourse({ ...good, name: '<b>Nice</b> steps', nick: '' });
     expect(c.ok && /[<>]/.test(c.course.name)).toBe(false);
     expect(c.ok && c.course.nick).toBe('anonymous');
   });

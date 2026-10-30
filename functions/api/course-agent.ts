@@ -5,9 +5,9 @@
 import { AGENT_SYSTEM } from '../../src/slice/course-agent';
 import { limited, MAX_TOKENS, MODEL, URL_CHAT } from './designer';
 import { MAX_PHOTO_BODY } from './photo-course';
+import { json } from '../_lib/http';
 
 interface Env { BASETEN_API_KEY?: string }
-const json = (body: unknown, status = 200) => new Response(JSON.stringify(body), { status, headers: { 'content-type': 'application/json' } });
 export const MAX_TURNS = 4, MAX_TURN_CHARS = 4_000;
 
 export async function askAgent(key: string, b: Record<string, unknown>, fetcher: typeof fetch = fetch): Promise<{ status: number; body: { reply?: string; error?: string; usage?: { in: number; out: number } } }> {

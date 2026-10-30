@@ -1,3 +1,4 @@
+import { json } from '../_lib/http';
 // /api/designer: the in-editor course-design partner, powered by Muse Spark Open on Baseten.
 //   POST {messages: [{role, content}], world: <worldBrief JSON string>} -> {reply: <model text, without its reasoning>}
 // The key lives only in the BASETEN_API_KEY secret (never in the page); the hackathon key works only with this one model.
@@ -17,7 +18,6 @@ const SYSTEM = [
   'Reply with at most 3 short sentences. If you suggest changes, add one fenced ```json block with an array of {"piece": id, "dx": m, "dz": m, "dy": m, "scale": factor, "yaw": radians}; use only ids from the world; each move under 10 m.',
 ].join(' ');
 
-const json = (body: unknown, status = 200) => new Response(JSON.stringify(body), { status, headers: { 'content-type': 'application/json' } });
 const hits = new Map<string, number[]>();
 export function limited(ip: string, now = Date.now(), max = 20, windowMs = 600_000): boolean {
   const recent = (hits.get(ip) ?? []).filter((t) => now - t < windowMs);

@@ -6,9 +6,9 @@
 // that are only a cache. Answers are kept 30 days (buildings change slowly; nothing here is private).
 // Defences: radius 60 to 300 m, at most 20 new places per address in ten minutes (cache hits are free), answers capped in size.
 import { askMirrors, parseRequest, placeKey } from '../../src/world/places';
+import { CORS, json as baseJson } from '../_lib/http';
 
-const json = (body: unknown, status = 200, extra: Record<string, string> = {}) =>
-  new Response(JSON.stringify(body), { status, headers: { 'content-type': 'application/json', 'access-control-allow-origin': '*', ...extra } });
+const json = (body: unknown, status = 200, extra: Record<string, string> = {}) => baseJson(body, status, { ...CORS, ...extra });
 
 const hits = new Map<string, number[]>();
 export function limited(ip: string, now = Date.now(), max = 20, windowMs = 600_000): boolean {

@@ -4,11 +4,11 @@
 import type { CourseData } from '../../src/course/course';
 import { courseHash, decodeLog, verifyLog } from '../../src/sim/replay';
 import { beatsIdeal, checkRun, MAX_CLEAR_TICKS, physicsFloorTicks, rateLimited } from '../../src/sim/run-checks';
+import { json } from '../_lib/http';
 
 interface Stmt { bind(...v: unknown[]): { run(): Promise<unknown>; first<T>(): Promise<T | null> } }
 interface Env { DB: { prepare(sql: string): Stmt }; ASSETS: { fetch(url: string): Promise<Response> }; REPLAY?: string }
 
-const json = (body: unknown, status = 200) => new Response(JSON.stringify(body), { status, headers: { 'content-type': 'application/json' } });
 const ID = /^[a-zA-Z0-9-]{8,64}$/;
 /** Only the listed courses count: the demo courses and the real places, named the way the course page names them. */
 export const KEY = /^(demo|experiments\/osm)\/[a-z0-9-]{1,60}$/;
