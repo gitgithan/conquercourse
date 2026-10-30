@@ -65,6 +65,7 @@
   - Both count: a lift is about 2 cents, a triage (mask, check, embedding) about half a cent, so refused photos use the dollars too.
   - At 2 cents a lift, 100 objects is about $2, so with triage the object cap usually comes first.
 - Per player: 3 objects a day (the owner can change it).
+- Per hour: the day is cut into 24 slices of one twenty-fourth (about 4 objects).
 - When a limit is reached, the dialog says "Today's makers are used up, try tomorrow" and still offers the catalogue search.
 - Every refusal is counted, so the owner sees demand before raising a limit.
 - The knobs live in one D1 row `settings(key, value)`, read with a 60 second cache; defaults are in code.
@@ -98,9 +99,10 @@
 - Indexes: (`role`, `height_m`) for the browse list; (`created_by`, `day`) for the player budget; (`object_id`) on uses.
 
 ## What waits for the owner
-- Nothing about who the player is: the cap uses address and cookie only (the owner never wants real name, email or age asked).
+- Nothing about who the player is (the owner never wants real name, email or age asked).
 - Turning on Publish at all (moderation of what the whole world sees is the owner's).
 
 ## Known gaps
 - No similarity test has run: the embedding model is not chosen and no hit rate exists.
 - The glb size per object is a mean of 19 objects; hard photos may be larger.
+- The per-player caps live in one Worker's memory today; the D1 counters in Budgets replace them.
