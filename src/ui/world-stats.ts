@@ -50,7 +50,7 @@ export function showWorldStats(strip: HTMLElement, root: HTMLElement): void {
         b.append(v, l); row.append(b);
       }
       strip.append(row);
-      for (const line of lines) { const p = document.createElement('div'); p.textContent = line; p.style.cssText = 'font-size:.85em;opacity:.85;margin-top:.3em'; strip.append(p); }
+      if (lines.length) { const p = document.createElement('div'); p.textContent = lines.join('  ·  '); p.style.cssText = 'font-size:.8em;opacity:.85;margin-top:.4em;line-height:1.4'; strip.append(p); } // one wrapped line, so the course cards stay in view
       strip.style.display = '';
     }
     if (s) for (const c of root.querySelectorAll<HTMLElement>('.wg-card')) {
