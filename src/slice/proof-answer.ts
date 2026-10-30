@@ -12,7 +12,7 @@ import type { Layout } from './photo-course';
 // The editor's slow questions, asked off the page's thread (CC-70): Fix it, the advice, "does this lane clear?", "does this draft clear?".
 // Their budgets count simulated ticks (src/sim/ideal.ts: workSeconds), so a slow machine gives the same answer a little later.
 export type ProofRequest =
-  | { kind: 'fix'; pieces: P[]; lane: LaneSetting }
+  | { kind: 'fix'; pieces: P[]; lane: LaneSetting; movable?: number[] }
   | { kind: 'bars'; pieces: P[]; lane: LaneSetting; budget?: number }
   | { kind: 'advice'; pieces: P[]; lane: LaneSetting; budget?: number }
   | { kind: 'cleared'; course: CourseData }
@@ -21,7 +21,7 @@ export type ProofRequest =
 
 export function answer(r: ProofRequest): unknown {
   switch (r.kind) {
-    case 'fix': return fixLayout(r.pieces, r.lane);
+    case 'fix': return fixLayout(r.pieces, r.lane, undefined, undefined, r.movable ? { movable: r.movable } : {});
     case 'bars': return fixBars(r.pieces, r.lane, r.budget);
     case 'advice': return adviseLane(r.pieces, r.lane, { budget: r.budget });
     case 'cleared': return clearedCached(r.course);

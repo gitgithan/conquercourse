@@ -39,7 +39,7 @@ export function cancel(group: string): void {
   pending.get(group)?.forEach((c) => c.reject(new Error('cancelled'))); pending.delete(group);
 }
 
-export const fixInWorker = (pieces: P[], lane: LaneSetting): Promise<Fixed> => ask('fix', { kind: 'fix', pieces, lane });
+export const fixInWorker = (pieces: P[], lane: LaneSetting, movable?: number[]): Promise<Fixed> => ask('fix', { kind: 'fix', pieces, lane, ...(movable ? { movable } : {}) });
 export const barsInWorker = (pieces: P[], lane: LaneSetting, budget = workSeconds(40)): Promise<FixedBars> => ask('fix', { kind: 'bars', pieces, lane, budget });
 export const adviceInWorker = (pieces: P[], lane: LaneSetting, budget = workSeconds(10)): Promise<Advice[]> => ask('advice', { kind: 'advice', pieces, lane, budget }, true); // in a worker the page does not freeze, so the tries get more work than the old 1.5 s
 export const clearedInWorker = (course: CourseData): Promise<boolean> => ask('cleared', { kind: 'cleared', course }, true);
