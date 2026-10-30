@@ -21,6 +21,9 @@ git rebase -q origin/main
 # privacy: every commit we push carries the GitHub noreply address, never a real email (the history is public later)
 bad="$(git log origin/main..HEAD --format='%ae %ce' | tr ' ' '\n' | grep -v 'users.noreply.github.com$' | sort -u || true)"
 if [ -n "$bad" ]; then echo "A commit carries a real email address. Set git config user.email to the GitHub noreply address, then amend (git rebase -r origin/main --exec 'git commit --amend --no-edit --reset-author')." >&2; exit 1; fi
+# the same for what the messages say (an address, a home folder)
+msgbad="$(git log origin/main..HEAD --format=%B | grep -Eio '[A-Za-z0-9._%+-]+@([A-Za-z0-9-]+\.)+[A-Za-z]{2,}|/home/[a-z][a-z0-9_-]*/|/Users/[A-Za-z][A-Za-z0-9_-]*/' | grep -Eiv '@users\.noreply\.github\.com$|@anthropic\.com$|@example\.(com|org|invalid)$|/home/(user|runner|node|root|you|name)/' | sort -u || true)"
+if [ -n "$msgbad" ]; then echo "A commit message holds an email or a home path. Reword it (git rebase -r origin/main --exec 'git commit --amend')." >&2; exit 1; fi
 git push -q -u origin HEAD --force-with-lease
 title="$(git log -1 --format=%s | sed -E 's/ \((Part of|Fixes) CC-[0-9]+\)$//')"
 if ! gh pr view "$branch" >/dev/null 2>&1; then
