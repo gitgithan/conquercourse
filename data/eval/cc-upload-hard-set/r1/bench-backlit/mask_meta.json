@@ -1,0 +1,29 @@
+{
+  "mask_seconds": 0.25896382331848145,
+  "load_seconds": 14.193995952606201,
+  "mask": {
+    "how": "text",
+    "score": 0.96875,
+    "iou_with_box": 0.906,
+    "candidates": 1,
+    "pixels": 76126
+  },
+  "privacy": {
+    "people": 0,
+    "faces": 0,
+    "plates": 0,
+    "changed": false
+  },
+  "retry": {
+    "enabled": true,
+    "border": {
+      "top": 0.0,
+      "bottom": 0.0,
+      "left": 0.0,
+      "right": 0.0
+    },
+    "padded": false,
+    "touches": false
+  },
+  "t0": 1793334084.1482637
+}

@@ -1,0 +1,32 @@
+{
+  "label": "pull-up bar",
+  "extents_m": {
+    "x": 1.254,
+    "y": 2.299,
+    "z": 1.167
+  },
+  "height_m": 2.299,
+  "target_height_m": 2.3,
+  "scale_source": "typed",
+  "scale_factor": 2.2993,
+  "raw_height": 1.0003,
+  "yaw_deg": 0.0,
+  "tilt_deg": 0.92,
+  "faces": 5820,
+  "vertices": 4743,
+  "width_to_height": 0.546,
+  "texture": "1024x1024",
+  "photo": "calisthenics-berlin",
+  "box": [
+    890,
+    200,
+    1270,
+    890
+  ],
+  "bytes": 429752,
+  "model": "SAM 3D Objects (seed 42)",
+  "bake_seconds": 2.38,
+  "raw_faces": 122238,
+  "splat_points": 121024,
+  "lift_round": "r1"
+}

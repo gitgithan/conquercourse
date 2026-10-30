@@ -6,17 +6,37 @@
   - 8 of 19 (42%) were moderate: neighbours or overlap, or a small object in a busy scene.
   - 0 of 19 were hard: none dark, backlit, or cut off by the photo edge, and no people.
 - So the success numbers behind the 19 objects say nothing yet about what a player's photo will do.
-- The hard set is ready (14 Commons photos, boxes checked, credits recorded) but NOT run: Modal gave no GPU.
-  - A trivial test function on an L4 also waited more than 20 minutes, so the cause is the workspace, not our code.
-  - Five Mask/Lift attempts over about 80 minutes never started a container; no GPU time was used, so the cost is $0.
-- Recommendation: check the Modal workspace (credit, GPU limit), then run the one command below; about 15 to 20 minutes and under $2 of GPU.
-- No success rate is claimed here; "usable, partly, bad" scores are still empty.
+- The hard set ran on 2026-10-30: 9 usable, 3 partly, 2 bad of 14 (64% usable, 86% at least partly).
+  - Compare the easy 19: the same pipeline, so a hard photo costs about a fifth of the usable rate, not all of it.
+  - GPU time was 3.6 minutes, about $0.11 (pay-as-you-go, credits do not cover it).
+- What breaks: clutter that hides the object (bike-rack-tangle), and objects made of two separate parts (skate-stairs).
+  - Thin frames (fitness-macombs, railing-statue) keep only part of the object but stay placeable.
+- What does not break: dark and backlit light, tiny boxes (a hydrant at 1% of the photo), people and plates in the scene (blurred).
+- For the upload path: keep the plain failure reason and the retry; a lift-check flag (skate-stairs) was right.
+- Why the earlier runs stalled: the laptop link dropped (StreamTerminatedError), not only Modal capacity.
+  - The resumable entrypoint (CC-221) spawned jobs, wrote call ids to `r1/calls.json`, and the run finished from VM2 in minutes.
 
-## Run it (not done yet)
-- `modal run pipelines/photo_to_object.py::main --exp data/eval/cc-upload-hard-set --rnd r1`
-- Then `python pipelines/photo_to_object.py bake --exp data/eval/cc-upload-hard-set --round r1 --texture` (needs xatlas and fast-simplification).
-- Score each photo with the CC-110 rubric: usable (right shape, size, colour), partly (real but thin or odd), bad.
-- Big files (`raw.npz`) go to `../conquercourse-assets/cc-upload-hard-set/` with `SHA256SUMS`.
+## Results (CC-110 rubric, by eye on `r1/<photo>/sheet.png`)
+| photo | score | note |
+| --- | --- | --- |
+| bollard-street | usable | clean, rust and bands kept; a person in the photo was blurred |
+| bollard-row-edge | usable | crisp steel bollard; capped top slightly cut |
+| bike-shelter | partly | roof and racks present but a see-through lattice; fragile to collide with |
+| bike-rack-tangle | bad | bikes lost, only a flat grid of bars |
+| bin-scooters | usable | bin shape right, scooters left out |
+| bin-snow | usable | right shape and size; front grille ragged |
+| bench-dusk | usable | real bench from a dark photo |
+| bench-backlit | usable | real bench against the light |
+| skate-stairs | bad | two disjoint slabs, stairs lost; lift check flagged it |
+| calisthenics-berlin | usable | 4 posts and 3 bars, right height |
+| fitness-fence | usable | frame and wheel recognisable |
+| fitness-macombs | partly | one arm of the frame only, 0.11 m deep, thin |
+| railing-statue | partly | only one rail caught, thin but placeable |
+| hydrant-cars | usable | good hydrant from a tiny box, a car plate blurred |
+
+- `scores.json` holds the same table; `r1/run.json` holds the GPU seconds and cost.
+- `raw.npz` files (163 MB) are in `../conquercourse-assets/cc-upload-hard-set/` with `SHA256SUMS`.
+- Meshes are baked with 1024 textures (`r1/<photo>/mesh.glb`).
 
 ## Audit of the 19 objects
 - `audit/audit.py` measures the box as a share of the photo and the edge density of the background outside the box.
@@ -68,5 +88,5 @@
 | hydrant-cars | fire hydrant | tiny object (about 1% of the photo), cars, wires | Jim.henderson, CC0 |
 
 ## Known gaps
-- Nothing was lifted, so there is no success rate, no per-photo outputs, no `run.json`.
+- One seed (42) and one run; the scores are by eye, not a blind second rater.
 - The audit scale is subjective.

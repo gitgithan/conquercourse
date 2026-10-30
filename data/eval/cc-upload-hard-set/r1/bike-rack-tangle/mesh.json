@@ -1,0 +1,32 @@
+{
+  "label": "bicycle rack",
+  "extents_m": {
+    "x": 0.993,
+    "y": 1.0,
+    "z": 0.555
+  },
+  "height_m": 1.0,
+  "target_height_m": 1.0,
+  "scale_source": "typed",
+  "scale_factor": 0.999,
+  "raw_height": 1.001,
+  "yaw_deg": 0.0,
+  "tilt_deg": 0.11,
+  "faces": 5820,
+  "vertices": 5373,
+  "width_to_height": 0.994,
+  "texture": "1024x1024",
+  "photo": "bike-rack-tangle",
+  "box": [
+    0,
+    40,
+    1100,
+    1400
+  ],
+  "bytes": 519184,
+  "model": "SAM 3D Objects (seed 42)",
+  "bake_seconds": 3.67,
+  "raw_faces": 299352,
+  "splat_points": 232320,
+  "lift_round": "r1"
+}
