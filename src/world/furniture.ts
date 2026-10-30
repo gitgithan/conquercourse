@@ -10,7 +10,9 @@ export interface FurnitureFile { place: string; generated: string; source: strin
 export interface Placed { id: string; kind: Kind; x: number; y: number; z: number; moved: boolean }
 
 export const LICENCE = { name: 'CC BY-SA 4.0', url: 'https://creativecommons.org/licenses/by-sa/4.0/' };
-export const FURNITURE_ON = (q: URLSearchParams): boolean => q.get('furniture') === '1';
+/** Parked (owner, 2026-10-30): the street furniture looks like red and yellow lollipops, so no screen draws it. Set to true to bring back `?furniture=1` and the furniture of `?backdrop=` (see docs/world-slice.md, "Street furniture"). */
+export const FURNITURE_ENABLED = false;
+export const FURNITURE_ON = (q: URLSearchParams): boolean => FURNITURE_ENABLED && q.get('furniture') === '1';
 export const MIN_SCALE = 0.5; // a lamp post of a place shrunk to 0.07 would be 40 cm tall: objects are drawn at least this fraction of real size so they can be seen (CC-213: the owner flies tens of metres up, so parts are also drawn over-sized)
 export const LANE_HALF = 1.3, CLEAR_Z = 1.7; // the lane is blocks 2 m deep (z from -1 to 1): nothing is left closer than LANE_HALF to the run line, it goes to CLEAR_Z instead
 
