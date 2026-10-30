@@ -2,12 +2,20 @@
 export interface PresetPiece { src: string; x: number; z: number; y: number; yaw: number; scale: number }
 export interface Preset { id: string; label: string; note: string; pieces: PresetPiece[] }
 
+// the coaster course: a 22 m rail from a high start, a 5 m flight with a bar over it, then a deck (the sources are the ones the editor saves)
+const COASTER_START = 'track:0,9;7,5;14,1;22,0.6';
+const raw = (src: string, x: number, y = 0): PresetPiece => ({ src, x, z: 0, y, yaw: 0, scale: 1 });
+
 const at = (file: string, x: number, o: Partial<PresetPiece> = {}): PresetPiece => ({ src: `obj:${file}.glb`, x, z: 0, y: 0, yaw: 0, scale: 1, ...o });
 
 export const PRESETS: Preset[] = [
   {
     id: 'passing', label: 'Park run (clears)', note: 'Five real objects in a row: low box, picnic table, stairs, wall, planter. The simulator can clear it.',
     pieces: [at('box-skate-03', 4.2), at('picnic-table', 10), at('stairs-park-07', 16), at('gabion-wall', 23.4), at('planter-concrete', 29.2)],
+  },
+  {
+    id: 'coaster', label: 'Coaster to a bar (clears)', note: 'Ride a rail down from a high start, fly across a gap, catch the bar and land on the deck. Drag the purple dots in the side view to reshape the rail.',
+    pieces: [raw(COASTER_START, 11), raw('hold:bar', 24.5, 2.5), raw('box:10:0.4:2', 32, -0.8)],
   },
   {
     id: 'failing', label: 'Broken park (needs Fix it)', note: 'The same kind of objects, but a gap is too wide and a wall too tall. Press Fix it to see the partner repair it.',
