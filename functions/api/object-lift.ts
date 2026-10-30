@@ -6,9 +6,9 @@
 import { cleanRequest, moderationStops, requestProblem } from '../../src/slice/object-lift';
 import { askModeration } from './moderate';
 import { limited } from './designer';
+import { json } from '../_lib/http';
 
 interface Env { CC_UPLOAD_TOKEN?: string; CC_UPLOAD_SUBMIT_URL?: string; CC_UPLOAD_STATUS_URL?: string; BASETEN_API_KEY?: string }
-const json = (body: unknown, status = 200) => new Response(JSON.stringify(body), { status, headers: { 'content-type': 'application/json' } });
 const MODAL_HOST = /^https:\/\/[a-z0-9-]+--[a-z0-9-]+\.modal\.run\/?$/;
 
 export async function handle(b: Record<string, unknown>, env: Env, ip: string, fetcher: typeof fetch = fetch, now = Date.now()): Promise<{ status: number; body: unknown }> {

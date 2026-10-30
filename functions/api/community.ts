@@ -3,6 +3,7 @@
 //   GET   (no id) the list of approved courses without photos; (?id=N) one approved course with its boxes.
 // Defences: small body, whitelisted fields and phrases, a honeypot, a jpeg-only photo of limited size, and at most 3 publishes per session per day.
 import { fitPrimitives, proveCourse, type ParkObject } from '../../src/park/fit';
+import { json } from '../_lib/http';
 
 interface Stmt { bind(...v: unknown[]): { run(): Promise<unknown>; first<T>(): Promise<T | null>; all<T>(): Promise<{ results: T[] }> } }
 interface Env { DB: { prepare(sql: string): Stmt } }
@@ -11,11 +12,10 @@ export const PHRASES = ['bench', 'wall', 'low wall', 'steps', 'rail', 'ledge', '
 export const MAX_IMAGE_CHARS = 460_000; // about 340 KB of jpeg
 const MAX_BODY = MAX_IMAGE_CHARS + 6000;
 
-const json = (body: unknown, status = 200, extra: Record<string, string> = {}) => new Response(JSON.stringify(body), { status, headers: { 'content-type': 'application/json', ...extra } });
 const text = (v: unknown, n: number) => String(v ?? '').replace(/[\u0000-\u001f<>]/g, ' ').replace(/\s+/g, ' ').trim().slice(0, n);
 
 // What a published course may contain; returns the cleaned course or the reason it is refused.
-export function cleanCourse(b: Record<string, unknown>): { ok: true; course: { name: string; nick: string; width: number; height: number; boxes: unknown[]; image: string } } | { ok: false; error: string } {
+export function cleanCommunityCourse(b: Record<string, unknown>): { ok: true; course: { name: string; nick: string; width: number; height: number; boxes: unknown[]; image: string } } | { ok: false; error: string } {
   const name = text(b.name, 60), nick = text(b.nick, 30);
   if (name.length < 3) return { ok: false, error: 'give the course a name of at least 3 letters' };
   if (b.confirm !== true) return { ok: false, error: 'please confirm the photo rules' };
@@ -57,7 +57,7 @@ export const onRequestPost = async ({ request, env }: { request: Request; env: E
   if (b.website) return json({ ok: true }); // honeypot
   const session = text(b.session, 64);
   if (!/^[a-zA-Z0-9-]{8,64}$/.test(session)) return json({ error: 'bad session' }, 400);
-  const c = cleanCourse(b);
+  const c = cleanCommunityCourse(b);
   if (!c.ok) return json({ error: c.error }, 400);
   if (!hasPath(c.course.boxes, c.course.name)) return json({ error: 'the simulator found no path on this course, so it cannot be shared' }, 422);
   const recent = await env.DB.prepare("SELECT COUNT(*) AS n FROM community WHERE session = ? AND ts > datetime('now', '-1 day')").bind(session).first<{ n: number }>();

@@ -6,12 +6,12 @@
 // Same key and defences as /api/designer: the key lives only in the BASETEN_API_KEY secret, the reasoning text is dropped, and there is a light rate limit.
 import { CAPTION_MAX, FAIL_CLOSED, MODERATION_PROMPT, parseVerdict, type Moderation } from '../../src/slice/moderation';
 import { limited, MAX_TOKENS, MODEL, URL_CHAT } from './designer';
+import { json } from '../_lib/http';
 
 const MORE_TOKENS = 8000; // Muse Spark Open thinks before it answers; if it spent all of MAX_TOKENS thinking, ask once more with more room
 
 interface Env { BASETEN_API_KEY?: string }
 export const MAX_IMAGE = 600_000; // about a 768 px JPEG as base64
-const json = (body: unknown, status = 200) => new Response(JSON.stringify(body), { status, headers: { 'content-type': 'application/json' } });
 type Answer = { status: number; body: Moderation & { error?: string } };
 
 export async function askModeration(key: string, b: Record<string, unknown>, fetcher: typeof fetch = fetch): Promise<Answer> {
