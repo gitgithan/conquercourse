@@ -52,6 +52,7 @@ import { createDrumLane } from '../ui/drum-lane';
 import { GOLD_LEGEND, goldOld, hardestBlock, hardestLabel, hardestOf } from '../ui/hardest';
 import { bestLine, buildReport, clearLog, logTick, newLog, renderReport } from '../ui/run-report';
 import { ZONE_ICONS } from '../ui/zone-icons';
+import { OBSTACLES } from '../course/obstacles';
 import { BUTTON_PLACE, buildGallery, currentWorld, DEMOS, GALLERY_EVENT, modalAttrs, mountWorldGallery, WORD_VALUES, worldHref } from '../ui/world-picker';
 import { createDebugView } from '../ui/debug-view';
 import { createGrabHint } from '../ui/grab-hint';
@@ -1003,7 +1004,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
     const snap = [...log].reverse().find((e) => e.type === 'band-snap');
     const bp = bandParams(course);
     if (snap) return `The band snapped at ${(snap.detail!.stretch as number).toFixed(0)} m: it takes ${bp.snap.toFixed(0)} m at most. Turn round (hold \u2192) a little sooner.`;
-    if (!rel) return 'Hold \u2190 to run away from the post and stretch the band first. Then turn round (hold \u2192).';
+    if (!rel) return OBSTACLES.band.tips.noRelease;
     return `You left the band at ${(rel.detail!.vx as number).toFixed(1)} m/s after stretching it ${(rel.detail!.stretch as number).toFixed(0)} m. A longer stretch throws faster: hold \u2190 a little longer before you turn round (it snaps at ${bp.snap.toFixed(0)} m).`;
   }
   function buildDiag(zoneId: string, what: 'splash' | 'slide'): string[] {
@@ -1059,7 +1060,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
   function plankTip(): string {
     const br = log.find((e) => e.type === 'plank-break');
     const pk = course.planks?.[0];
-    if (!br || !pk) return 'The plank was too weak for the gap. Try again.';
+    if (!br || !pk) return OBSTACLES.plank.tips.weak;
     const cm = ((br.detail?.sag as number) * 100).toFixed(0);
     return `The plank bent ${cm} cm under you, more than it can take, and snapped ${(br.detail?.at as number).toFixed(1)} m from the edge. A thicker plank, a shorter gap, or a post under the middle each make it bend less. Try the Dojo bridge lesson to find out how much.`;
   }
@@ -1089,22 +1090,22 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
     retryX = cpFor(lastZone);
     const jump = [...log].reverse().find((e) => e.type === 'jump');
     let tip = 'Try again.', lateTip = false;
-    if (what === 'slide') tip = 'You ran out of speed on the curve. Start the run-up earlier and keep running.';
-    else if (what === 'hurt' && log.some((e) => e.type === 'drone-crash')) tip = 'The drone touched down too fast or leaning, or flew into the side of a deck. Come down slowly with ↓ over the deck, let go of ← → before the ground so it levels out, and keep E held until it sets you down.';
-    else if (what === 'hurt') tip = 'The ground stopped you too fast. Hold X as you land to roll (it counts in the last 0.15 s, about a metre up; a tap earlier does nothing): the same fall is spread over more time, and a roll keeps most of your speed.';
+    if (what === 'slide') tip = OBSTACLES.wall.tips.slide;
+    else if (what === 'hurt' && log.some((e) => e.type === 'drone-crash')) tip = OBSTACLES.drone.tips.crash;
+    else if (what === 'hurt') tip = OBSTACLES.drop.tips.hurt;
     else if (course.track) tip = cartTip(what);
-    else if (what === 'splash' && course.recoil && isAimable(recoilParams(course)) && zone?.id === 'recoil') tip = 'Tilt the barrel with the arrow keys until the dotted path ends on the far deck, then press K. A steeper shot flies higher and lands harder: tap X just before the ground.';
-    else if (course.drone && zone?.id === 'drone') tip = log.some((e) => e.type === 'drone-empty') ? 'The battery ran out before the far deck. Hovering costs a lot of battery: lean and fly straight across, and start coming down only over the deck. A bigger battery or a lighter rider also helps.' : 'You came down short of the far deck. Keep leaning forward longer before you lean back, and start coming down only when you are over the deck.';
-    else if (course.recoil && zone?.id === 'recoil') tip = world.recoil && world.recoil.fired > 0 ? 'The push was not enough. A heavier ball, or a faster one, pushes harder. Fire as you leave the edge so the push carries through the whole flight.' : 'Run onto the teal pad, then press K to fire the launcher as you jump.';
+    else if (what === 'splash' && course.recoil && isAimable(recoilParams(course)) && zone?.id === 'recoil') tip = OBSTACLES.recoil.tips.aim;
+    else if (course.drone && zone?.id === 'drone') tip = log.some((e) => e.type === 'drone-empty') ? OBSTACLES.drone.tips.empty : OBSTACLES.drone.tips.short;
+    else if (course.recoil && zone?.id === 'recoil') tip = world.recoil && world.recoil.fired > 0 ? OBSTACLES.recoil.tips.push : OBSTACLES.recoil.tips.pad;
     else if (log.some((e) => e.type === 'plank-break')) tip = plankTip();
     else if (course.band) tip = bandTip();
-    else if (zone?.id === 'trampoline') tip = 'Press Space at the bottom of the bounce for extra height.';
-    else if (zone?.id === 'rope') tip = 'Grab the rope on the way up, then press Space to let go when you are rising.';
-    else if (!jump) tip = 'Press Space just before the edge.';
+    else if (zone?.id === 'trampoline') tip = OBSTACLES.trampoline.tips.fall;
+    else if (zone?.id === 'rope') tip = OBSTACLES.rope.tips.fall;
+    else if (!jump) tip = OBSTACLES.gap.tips.noJump;
     else if (jump && (jump.detail?.vx as number) !== undefined && (zone?.id === 'gap' || zone?.id === 'landing')) {
       const g = specs.find((q2) => r.x >= q2.x - 0.5 && r.x <= q2.x + q2.width + 1) ?? specs.find((q2) => q2.x >= r.x - 12);
       const v = jump.detail!.vx as number;
-      tip = g && v < g.needed ? `You left the edge at ${v.toFixed(1)} m/s, but this ${g.width.toFixed(1)} m gap needs at least ${g.needed.toFixed(1)} m/s. Run longer before you jump.` : 'Your speed was enough. Try pressing Space a little closer to the edge.';
+      tip = g && v < g.needed ? `You left the edge at ${v.toFixed(1)} m/s, but this ${g.width.toFixed(1)} m gap needs at least ${g.needed.toFixed(1)} m/s. Run longer before you jump.` : OBSTACLES.gap.tips.fast;
     } else {
       const ws = course.windows ?? windows; // stored with the plan; otherwise asked of the workers below, never worked out on this thread
       const hit = ws && windowTip(ws, r.x);
