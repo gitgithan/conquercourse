@@ -224,13 +224,18 @@
   - The page asks `status` every few seconds; the .glb comes back as base64 with the privacy receipt and the pad note.
   - The object is kept in this browser (IndexedDB) with its provenance record; a saved world refers to it as `user:<id>`.
 - **Gates, in order (CC-221):**
-  - Request shape: size, type, box, label, height. A bad request is refused before any check costs money.
+  - Request shape: size, type, box, label, height.
+    - A bad request is refused before any check costs money.
   - Burst limit: 6 jobs in 10 minutes for one address.
-  - Safety check: a blocked photo or a worry that needs a person stops the job (403, plain words). If the checker cannot run, the job also stops, so a broken checker never lets a photo through. With no checker key set (preview), the check is recorded as `skipped`.
-  - Daily slots: 3 per player and 100 for the whole game per UTC day (429, "try again tomorrow" or "today's makers are used up"). The count sits behind a small `Ledger` interface (`src/slice/upload-gates.ts`): in memory today, D1 later, with the same gate order.
+  - Safety check: a blocked photo or a worry that needs a person stops the job (403, plain words).
+    - If the checker cannot run, the job also stops, so a broken checker never lets a photo through.
+    - With no checker key set (preview), the check is recorded as `skipped`.
+  - Daily slots: 3 per player and 100 for the whole game per UTC day (429, "try again tomorrow" or "today's makers are used up").
+    - The count sits behind a small `Ledger` interface (`src/slice/upload-gates.ts`): in memory today, D1 later, with the same gate order.
   - A slot is taken only after the photo passes the safety check, and given back if the job never starts, so a refusal never costs a try.
   - Refusals that cannot be fixed by trying again (blocked, daily, budget) hide the retry button.
-- **Tests:** `tests/object-lift.test.ts` (every gate, with a fake network) and `scripts/upload-object-gates.mjs` (ten refusal messages on screen, run on a VM). Server answers are stubbed there; the real safety check on a preview waits for the Baseten key in the preview secrets.
+- **Tests:** `tests/object-lift.test.ts` (every gate, with a fake network) and `scripts/upload-object-gates.mjs` (ten refusal messages on screen, run on a VM).
+  - Server answers are stubbed there; the real safety check on a preview waits for the Baseten key in the preview secrets.
 - **Provenance:** one JSON record per object (`src/slice/provenance.ts`): photo fingerprint (sha256) and size, box, label, height and where it came from, pipeline and settings, credit line, date; the photo itself is never stored.
 - **Library objects:** `scripts/object-provenance.py` writes `public/assets/objects/provenance.json` for the 19 shipped objects; the editor shows the credit under the name of the selected piece.
 - **Secrets:** Modal secret `cc-upload` (key `CC_UPLOAD_TOKEN`) and the same token in the Pages secret of the same name, plus `CC_UPLOAD_SUBMIT_URL` and `CC_UPLOAD_STATUS_URL` (the two Modal web urls); keys live in `~/.config/ninja/upload.env`, never in the repo.
