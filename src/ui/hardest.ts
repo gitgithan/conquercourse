@@ -1,3 +1,4 @@
+import { pageSearch } from '../flags';
 // CC-183: gold means one thing: the obstacle where the player fell most in this session (ties: the latest fall; no falls: no gold).
 export interface Hardest { id: string; falls: number }
 
@@ -14,7 +15,7 @@ export const hardestLabel = (name: string, falls: number) => `Hardest for you: $
 export const GOLD_LEGEND = 'Gold marks the obstacle you fell at most this session.';
 
 /** ?gold=old keeps the old look: gold on every obstacle still to do, and on the shortcut line. */
-export const goldOld = (search: string = typeof location === 'undefined' ? '' : location.search) => new URLSearchParams(search).get('gold') === 'old';
+export const goldOld = (search: string = typeof location === 'undefined' ? '' : pageSearch()) => new URLSearchParams(search).get('gold') === 'old';
 
 /** The report block: gold, with the label and the legend line. */
 export function hardestBlock(name: string, falls: number): HTMLElement {

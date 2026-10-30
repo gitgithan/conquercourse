@@ -1,6 +1,7 @@
 // The add browser (CC-96): a featured view of the piece under the mouse (a big picture, what it does, where it came from) above a grid of small picture cards.
 // Mouse over, keyboard focus or a tap on a card changes the featured view; a click adds the piece by pressing the editor's own add button, so nothing else changes.
 import { MOVE_EMPTY, MOVE_NAME, MOVE_ORDER, SECTION_NAME, SECTION_ORDER, STATIC_PIECES, realInfo, type PieceInfo, type Section } from '../slice/piece-info';
+import { pageQuery } from '../flags';
 
 export const PIECE_BROWSER_CSS = `
   .ed .addmenu.open{display:block}
@@ -39,7 +40,7 @@ export function mountPieceBrowser(menu: HTMLElement): void {
   bar.append(tabs, search); root.append(feature, bar, grid); menu.prepend(root);
 
   // one switch for the by-move view: on by default, the button flips it, and ?bymove=0 starts with it off
-  let byMove = (() => { try { return new URLSearchParams(location.search).get('bymove') !== '0' && localStorage.getItem('cc-pb-bymove') !== '0'; } catch { return true; } })();
+  let byMove = (() => { try { return pageQuery().get('bymove') !== '0' && localStorage.getItem('cc-pb-bymove') !== '0'; } catch { return true; } })();
   const viewBtn = h('button', { class: 'pb-view', type: 'button', id: 'pbbymove' });
   viewBtn.onclick = () => { byMove = !byMove; try { localStorage.setItem('cc-pb-bymove', byMove ? '1' : '0'); } catch { /* no storage */ } paint(); };
   bar.insertBefore(viewBtn, search);

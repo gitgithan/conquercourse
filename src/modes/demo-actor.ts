@@ -12,11 +12,12 @@ import { createStage } from '../render/scene';
 import { createRookieActor } from '../render/actor';
 import { actorStateFor } from '../motion/actor-state';
 import { lookUrl } from '../render/look';
+import { pageQuery } from '../flags';
 
 const data = course as unknown as CourseData;
 
 export async function startActorDemo(): Promise<void> {
-  const params = new URLSearchParams(location.search);
+  const params = pageQuery();
   const stage = await createStage(document.body, false);
   const { scene, camera } = stage;
   // the stage's endless green floor would hide the gaps and the water

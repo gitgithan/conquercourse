@@ -2,8 +2,9 @@
 // Reads the OpenStreetMap extras saved by scripts/skin-fetch.ts. Dev-server page only (like piece-icons.html); drag to turn, wheel to zoom.
 import * as THREE from 'three';
 import { buildSkin, skinFromQuery, SKY_COLOUR, type SkinOsm } from './skin';
+import { pageQuery } from '../flags';
 
-const q = new URLSearchParams(location.search), slug = q.get('place') ?? 'montmartre-paris', skin = skinFromQuery(q, 'full');
+const q = pageQuery(), slug = q.get('place') ?? 'montmartre-paris', skin = skinFromQuery(q, 'full');
 let az = Number(q.get('az') ?? 35), el = Number(q.get('el') ?? 32), dist = Number(q.get('dist') ?? 230);
 const renderer = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true });
 renderer.setSize(innerWidth, innerHeight); renderer.setPixelRatio(1); renderer.shadowMap.enabled = skin === 'full'; renderer.shadowMap.type = THREE.PCFSoftShadowMap;

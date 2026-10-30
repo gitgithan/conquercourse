@@ -10,11 +10,12 @@ import { createStage } from '../render/scene';
 import { createRookieActor } from '../render/actor';
 import { actorStateFor } from '../motion/actor-state';
 import { ROLL_TICKS, type RollLook } from '../motion/motion-table';
+import { pageQuery } from '../flags';
 
 const STORE = 'cc.rollab';
 
 export async function startRollAB(): Promise<void> {
-  const params = new URLSearchParams(location.search);
+  const params = pageQuery();
   const course = (await (await fetch('/assets/demo/drop.course.json')).json()) as CourseData;
   const stage = await createStage(document.body, false);
   const { scene, camera } = stage;
