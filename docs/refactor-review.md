@@ -108,6 +108,43 @@
 - Risk to tests: medium; editor browser checks (`scripts/editor-check.mjs` and friends) must be run once on the VM.
 - Risk to the sim: none (editor and slice code build courses, they do not step them).
 
+## How an obstacle flows through the game
+- Read this before adding a kind; the steps are in the order the data travels.
+- The words and pictures of a kind live in one row of `OBSTACLES` in `src/course/obstacles.ts` (icon, learned line, saying, fixed failure tips); the toast cues are in `TOASTS` in the same file.
+- A new kind adds its id to `ObstacleId` and one row there, and the compiler checks the rest of that file.
+- The sim steps (3 to 5) and the editor still need hand-written code per kind; they are the next seams (items 5 and 8).
+
+### The steps
+- Step 1, course JSON: `src/course/course.ts` defines `CourseData`; a kind adds one optional field (for example `drone`).
+  - Key order matters, because `courseHash` hashes `JSON.stringify` of the course.
+- Step 2, schema: `src/course/schema.ts` holds `COURSE_FIELDS` (one row per field: stripped from a shared course or not, and its check); `src/share/made-course.ts` calls it when a course comes in from a link or an upload.
+  - `functions/api/community.ts` has its own `cleanCommunityCourse` for the public list.
+- Step 3, sim world step: `src/sim/world.ts` holds the `Mode` union and the `if` chain that steps the right mode.
+  - `src/course/modes.ts` (`MODE_INFO`) holds the name, whether it is a machine, and the next press.
+  - The physics of the kind is its own file (`src/sim/drone.ts`).
+- Step 4, plans and tools around the sim: `src/sim/predict.ts` (the dotted path), `src/sim/ideal.ts` (the best line search and `inputFor`), `src/sim/drums.ts` (the key lane), `src/sim/runner.ts` (the zone and move bookkeeping) and `src/sim/experiments.ts` (the lesson experiments).
+- Step 5, replay and verify: `src/sim/replay.ts` (logs, `courseHash`, `verifyLog`) and `src/sim/run-checks.ts`; the server route `functions/api/course-clear.ts` replays a claimed clear with them.
+  - Nothing to add unless the kind adds a new input key.
+- Step 6, render: the kind's picture is `src/ui/drone-view.ts`, the rider pose is `src/motion/actor-state.ts`, and the film camera is `src/film/camera.ts` and `src/film/overlay.ts`.
+  - `src/render/actor.ts` clip playback is locked.
+- Step 7, HUD and toasts: `src/ui/gauges.ts` (meters), `src/ui/debug-panel.ts` and `src/ui/debug-view.ts` (the debug view), `src/ui/onboarding.ts`, `src/ui/world-picker.ts`, `src/ui/audio.ts`, and the cue text in `src/ui/approach-toast.ts` (reads `TOASTS`).
+  - The strip icon is `src/ui/zone-icons.ts` (reads the rows).
+- Step 8, report: `src/ui/run-report.ts` (`topicOf` picks the row; `LEARNED` and `SAYING` read the rows) and the failure tips in `onFall` in `src/modes/course.ts` (fixed ones read the rows, tips with numbers stay there).
+- Step 9, share: `src/share/made-course.ts`, `src/share/challenge.ts` and `src/share/server.ts` carry the course and the clear; `functions/api/share.ts` and `functions/api/share/[id].ts` store and serve them.
+- Step 10, the editor and lessons: `src/modes/editor.ts`, `src/ui/editor-layout.ts`, `src/slice/piece-info.ts`, `src/slice/device.ts`, `src/slice/why.ts`, `src/slice/fixdrone.ts`, `src/slice/drone-lane.ts`, `src/slice/piece-icons-page.ts`, `src/course/demo-list.ts`, `src/modes/lessons.ts` and `src/modes/diagrams.ts`.
+
+### The 33 source files the drone touched, by step
+- Step 1 and 2 (course JSON, schema): `src/course/course.ts`, `src/course/demo-list.ts`.
+- Step 3 (world step): `src/sim/world.ts`, `src/sim/drone.ts`.
+- Step 4 (plans and tools): `src/sim/predict.ts`, `src/sim/ideal.ts`, `src/sim/drums.ts`, `src/sim/runner.ts`, `src/sim/experiments.ts`.
+- Step 5 (replay): `src/sim/replay.ts`.
+- Step 6 (render): `src/ui/drone-view.ts`, `src/motion/actor-state.ts`, `src/film/camera.ts`, `src/film/overlay.ts`.
+- Step 7 (HUD and toasts): `src/ui/gauges.ts`, `src/ui/debug-panel.ts`, `src/ui/debug-view.ts`, `src/ui/onboarding.ts`, `src/ui/world-picker.ts`, `src/ui/audio.ts`, `src/ui/zone-icons.ts`.
+- Step 8 (report): `src/ui/run-report.ts`, `src/modes/course.ts`.
+- Step 10 (editor and lessons): `src/modes/editor.ts`, `src/ui/editor-layout.ts`, `src/slice/piece-info.ts`, `src/slice/device.ts`, `src/slice/why.ts`, `src/slice/fixdrone.ts`, `src/slice/drone-lane.ts`, `src/slice/piece-icons-page.ts`, `src/modes/lessons.ts`, `src/modes/diagrams.ts`.
+- Also touched outside `src`: 8 scripts (`toast-shot.mjs`, `make-drone-demo.ts`, `drone-check.mjs`, `debug-panel-check.mjs`, `gauge-shots.mjs`, `debug-shots.mjs`, `wonder-review.mjs`, `ideal-all-check.mjs`), 4 tests plus `tests/slow.json` and `tests/golden/search.json`, and 15 docs.
+- After this change, steps 7 and 8 of a new kind need only its row, plus a `topicOf` entry in `TOPIC_ORDER` if it is a machine.
+
 ## Sim determinism: what to run for any item
 - Before and after, run `tests/replay.test.ts`, `tests/golden-search.test.ts` and everything under `tests/golden/`; these compare stored replays and search results, so any drift shows up as a failing diff.
 - Do not touch `public/assets/motion/{vault,climb}.json` or clip playback in `src/render/actor.ts` (locked by the product owner).
