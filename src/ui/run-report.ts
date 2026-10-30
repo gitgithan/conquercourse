@@ -9,6 +9,7 @@ import { roomText } from './paths';
 import { GROUND_ROLL_COST } from '../sim/roll';
 import { newWorld, stepWorld, type WorldState } from '../sim/world';
 import { ZONE_ICONS } from './zone-icons';
+import { column, TOPIC_ORDER } from '../course/obstacles';
 import { goldOld } from './hardest';
 
 export type MoveKind = 'jump' | 'vault' | 'climb' | 'roll' | 'grab' | 'bounce' | 'fire';
@@ -50,52 +51,13 @@ export function bestLine(course: CourseData, planOverride?: Plan): BestLine | nu
 }
 
 // One plain line per course, and the saying of the obstacle (docs/sayings.md); chosen by what the course holds, else by its last obstacle
-export const LEARNED: Record<string, string> = {
-  coaster: 'Energy: a coaster climbs no higher than it started.',
-  gap: 'A jump is decided the moment your feet leave the ground.',
-  step: 'A step up needs speed; a vault keeps more of it than a jump.',
-  vault: 'A vault keeps your speed; a jump spends it.',
-  wall: 'The wall spends the speed you bring; it cannot add any.',
-  climb: 'A wall takes your speed; your arms do the rest.',
-  lache: 'Push with the swing and it grows; push against it and it fades.',
-  rope: 'A swing gives back the height you fall.',
-  trampoline: 'The harder you land, the higher it throws you.',
-  drop: 'Rolling turns a hard fall into forward motion.',
-  launch: 'Letting go late throws you into the ground.',
-  band: 'A soft band pulled far stores more energy than a stiff one pulled little.',
-  recoil: 'Momentum: the light thing goes fast, the heavy thing slow.',
-  cannon: 'Aim between high and flat: the middle angle flies farthest.',
-  plank: 'A longer plank bends much more; a thicker one bends less.',
-  drone: 'A leaning drone has to push harder to stay up.',
-  stack: 'Speed climbs the cups, and speed carries you off the top.',
-};
-export const SAYING: Record<string, string> = {
-  coaster: 'A coaster has no engine: it climbs no higher than where it started.',
-  gap: 'Once your feet leave the ground, the jump is already decided.',
-  wall: "The wall can't lift you. It only spends the speed you bring.",
-  rope: 'Fall to rise: the rope gives back every bit of height you give it.',
-  trampoline: 'The harder you land, the higher it throws you.',
-  lache: 'Push with the swing and it grows; push against it and it fades.',
-  vault: 'A jump buys height with speed; a vault keeps the speed but needs a hand on the obstacle.',
-  climb: 'Speed gets you to the wall; arms get you over it.',
-  drop: 'Turn your fall into a roll and the ground forgives you.',
-  launch: 'A long arm gets you far; letting go late gets you thrown into the ground.',
-  band: 'A soft band pulled far outthrows a stiff one pulled little.',
-  recoil: 'The heavy thing goes slow, the light thing fast, and both carry the same.',
-  cannon: 'Aim between high and flat: the middle angle flies farthest.',
-  plank: 'A plank that is twice as long sags eight times as much.',
-  stack: 'Speed climbs the cups, and speed carries you off the top.',
-};
+export const LEARNED: Record<string, string> = column('learned');
+export const SAYING: Record<string, string> = column('saying');
 const baseId = (id: string) => id.replace(/-\d+$/, '');
 /** The key into LEARNED and SAYING for a course: its machine first, else its last obstacle that has one. */
 export function topicOf(course: CourseData): string | null {
-  const c = course as CourseData & { cannon?: unknown; trebuchet?: unknown; band?: unknown; drone?: unknown; recoil?: unknown };
-  if (course.track) return 'coaster';
-  if (c.band) return 'band';
-  if (c.trebuchet) return 'launch';
-  if (c.drone) return 'drone';
-  if (c.recoil) return 'recoil';
-  if (course.planks?.length) return 'plank';
+  const c = course;
+  for (const [id, key] of TOPIC_ORDER) { const v = (c as unknown as Record<string, unknown>)[key]; if (Array.isArray(v) ? v.length : v) return id; }
   const ids = (course.zones ?? []).map((z) => baseId(z.id)).filter((id) => LEARNED[id]);
   return ids.length ? ids[ids.length - 1] : null;
 }
