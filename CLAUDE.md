@@ -47,6 +47,10 @@ A ninja-warrior physics game where real parks and real moves become the course, 
 - **Tests:** physics-law tests first; `npm run test:quick` on every change and before every merge; browser smoke tests after UI changes.
 - **Visual evidence:** a UI or motion change is done only with a screenshot or clip under `test-results/` (copied out before the next run) and linked in its issue; films use the stepped clock.
 - **Experiment trail:** every experiment saves its inputs, outputs and a `run.json` in `data/eval/<experiment>/`.
+  - Only the README, `run.json`, scores, summaries, scripts and evidence pictures are tracked (`git add -f` for evidence).
+  - Raw outputs stay out of git; copy them to `../conquercourse-assets/eval-full/<experiment>/`.
+  - `node scripts/restore-eval.mjs` puts the full trail back into `data/eval/`; `data/eval/FULL-TRAIL.txt` lists what was left out.
+  - A link in a public doc must point at a tracked file (`tests/doc-links.test.ts` checks it).
 - **Spending:** state the cost before any paid step and which credits do or don't cover it.
 - **New feature?** Put it behind a feature switch so new players aren't shown everything at once.
 

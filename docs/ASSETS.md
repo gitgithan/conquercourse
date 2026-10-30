@@ -606,3 +606,5 @@
   - What: the run record (gate, move check, timings, cost) and `side-by-side.png`, source frames (faces and people blurred) above and the Rookie below.
   - Same source and licence.
 - **`pipelines/my_move.py`**, **`scripts/my-move-check.mjs`**: ours; no third-party material.
+
+- Licence note: replace the MusicGen music (`public/assets/music/*.ogg`, model weights CC BY-NC 4.0) before any commercial release.

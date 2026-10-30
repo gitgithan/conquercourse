@@ -19,3 +19,16 @@ data/eval/cc-38-photo-to-3d/*/*/lift_input.jpg
 node_modules
 data/eval/pose-kimodo/*/kimodo_samples.json
 local-notes-q7/
+
+# Experiment trail: raw outputs stay out of git (see data/eval/FULL-TRAIL.txt)
+data/eval/**
+!data/eval/**/
+!data/eval/**/*.md
+!data/eval/**/run.json
+!data/eval/**/scores.json
+!data/eval/**/summary*.json
+!data/eval/**/*.py
+!data/eval/**/*.sh
+!data/eval/**/*.mjs
+!data/eval/**/*.txt
+!data/eval/**/*.csv
