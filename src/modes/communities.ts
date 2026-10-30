@@ -1,6 +1,7 @@
 import { Regions, type Region } from '../ui/regions';
 import { liftObject, shrinkPhoto, type Shrunk } from '../slice/object-lift-client';
 import { LABEL_RE, MIN_BOX } from '../slice/object-lift';
+import { suggestRegions } from '../slice/segment-client';
 
 // Communities (CC-247): make a wallpaper or a 3D object from a real photo, and see what people made.
 // Steps: Photo, Pick (click suggested things, or draw boxes by hand), Choose (wallpaper or 3D object), Make.
@@ -21,7 +22,7 @@ const STYLE = `
 .com .stage{position:relative;display:inline-block;user-select:none;touch-action:none;max-width:100%}
 .com .stage img{max-width:100%;max-height:56vh;display:block;cursor:crosshair}
 .com .box{position:absolute;border:2px solid #ff9f1c;background:rgba(255,159,28,.14);cursor:move;box-sizing:border-box}
-.com .box.sug{border-color:#2d9cdb;background:rgba(45,156,219,.14)}.com .box.sel{border-width:3px;background:rgba(15,107,92,.22);border-color:#0f6b5c}
+.com .box.sug{border-color:#2d9cdb;background:rgba(45,156,219,.10)}.com .box.sug::before{content:'';position:absolute;inset:0;background:#2d9cdb;opacity:.5;-webkit-mask:var(--cut) center/100% 100% no-repeat;mask:var(--cut) center/100% 100% no-repeat}.com .box.sug.sel::before{background:#0f6b5c;opacity:.6}.com .box.sel{border-width:3px;background:rgba(15,107,92,.22);border-color:#0f6b5c}
 .com .box b{position:absolute;left:0;top:-20px;font:600 12px system-ui;background:#17201d;color:#fff;border-radius:4px;padding:1px 6px;white-space:nowrap}
 .com .box i{position:absolute;right:-6px;bottom:-6px;width:12px;height:12px;background:#0f6b5c;border-radius:3px;cursor:nwse-resize}
 .com .choices{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px}
@@ -33,6 +34,7 @@ const STYLE = `
 .com .card div{padding:8px 10px}`;
 
 // the two pictures on the Choose step: what each one would look like on a course
+const asked = new WeakSet<object>(); // photos already sent for suggestions, so going back and forth asks once
 const WALL_SVG = '<svg viewBox="0 0 280 150" role="img" aria-label="A wallpaper: a photo hangs behind the lane"><rect width="280" height="150" fill="#cfe3f4"/><rect x="20" y="14" width="240" height="84" rx="4" fill="#c8b79a"/><rect x="40" y="36" width="50" height="62" fill="#a89677"/><rect x="110" y="26" width="70" height="72" fill="#b9a784"/><rect x="200" y="44" width="46" height="54" fill="#a89677"/><rect y="98" width="280" height="52" fill="#6f9c4e"/><rect x="90" y="86" width="100" height="12" fill="#3b5d2a"/><circle cx="60" cy="78" r="7" fill="#ff9f1c"/><rect x="56" y="84" width="8" height="14" fill="#ff9f1c"/></svg>';
 const OBJ_SVG = '<svg viewBox="0 0 280 150" role="img" aria-label="A 3D object: a bench you can place on a course"><rect width="280" height="150" fill="#cfe3f4"/><rect y="104" width="280" height="46" fill="#6f9c4e"/><path d="M70 96 L190 96 L220 80 L100 80Z" fill="#8a6a43"/><path d="M70 96 L190 96 L190 106 L70 106Z" fill="#6b5233"/><path d="M190 96 L220 80 L220 90 L190 106Z" fill="#583f26"/><rect x="78" y="106" width="8" height="18" fill="#444"/><rect x="176" y="106" width="8" height="18" fill="#444"/><path d="M96 78 L214 78 L222 60 L104 60Z" fill="#9a7a50"/><circle cx="40" cy="92" r="7" fill="#ff9f1c"/><rect x="36" y="98" width="8" height="14" fill="#ff9f1c"/></svg>';
 
@@ -112,13 +114,15 @@ export function startCommunities(host: HTMLElement): { backend: 'webgl2' } {
         for (const r of rg.list) {
           const b = el('div', stage); b.className = `box ${r.source === 'suggested' ? 'sug' : ''} ${rg.selected.has(r.id) ? 'sel' : ''}`; b.dataset.id = String(r.id);
           Object.assign(b.style, { left: `${r.box[0] * s}px`, top: `${r.box[1] * s}px`, width: `${(r.box[2] - r.box[0]) * s}px`, height: `${(r.box[3] - r.box[1]) * s}px` });
+          if (r.cutout) b.style.setProperty('--cut', `url(data:image/png;base64,${r.cutout})`);
           if (r.label) el('b', b, r.label);
           if (rg.selected.has(r.id)) el('i', b, '').dataset.grip = '1';
         }
         const one = rg.selected.size === 1 ? rg.list.find((r) => rg.selected.has(r.id)) : undefined;
         nameIn.disabled = !one; nameIn.value = one?.label ?? '';
-        next.disabled = !rg.list.length;
-        info.textContent = rg.list.length ? `${rg.list.length} picked${rg.selected.size ? `, ${rg.selected.size} chosen` : ''}.` : 'Nothing picked yet.';
+        next.disabled = !rg.selected.size && !rg.list.some((r) => r.source === 'manual');
+        const sug = info.dataset.suggest ? `${info.dataset.suggest} ` : '';
+        info.textContent = `${sug}${rg.list.length ? `${rg.list.length} on the photo${rg.selected.size ? `, ${rg.selected.size} chosen` : ''}.` : 'Nothing picked yet.'}`;
         stage.dataset.count = String(rg.list.length);
       };
       nameIn.oninput = () => { const id = [...rg.selected][0]; if (id !== undefined) { rg.rename(id, nameIn.value.trim().toLowerCase()); draw(); } };
@@ -144,6 +148,7 @@ export function startCommunities(host: HTMLElement): { backend: 'webgl2' } {
       };
       document.onkeydown = (e) => { if ((e.target as HTMLElement).tagName === 'INPUT') return; if (rg.key(e)) { e.preventDefault(); draw(); } };
       next.onclick = () => go(2);
+      if (!asked.has(ph)) { asked.add(ph); suggestRegions(ph, (t) => { info.dataset.suggest = t; draw(); }).then((items) => { rg.suggest(items); info.dataset.suggest = items.length ? `${items.length} suggestions: click an outline to pick it.` : 'Nothing to suggest here. Draw boxes by hand.'; draw(); }).catch((e: Error) => { info.dataset.suggest = e.message; draw(); }); }
       if (img.complete) draw(); else img.onload = draw;
       draw();
     }

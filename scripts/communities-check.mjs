@@ -11,6 +11,11 @@ try {
   await new Promise((r) => setTimeout(r, 6000));
   const browser = await chromium.launch({ args: ['--use-angle=swiftshader', '--ignore-gpu-blocklist'] });
   const page = await (await browser.newContext({ viewport: { width: 1280, height: 720 } })).newPage();
+  await page.route('**/api/segment', (route) => {
+    const b = route.request().postDataJSON();
+    const png = 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==';
+    route.fulfill({ json: b.action === 'submit' ? { id: 'fc-ABCDEFGHIJKL' } : { state: 'done', items: [{ label: 'bench', score: 0.9, box: [20, 20, 220, 160], cutout: png }] } });
+  });
   const errors = []; page.on('pageerror', (e) => errors.push(String(e)));
   await page.goto(`http://localhost:${port}/?mode=communities&welcome=0`, { timeout: 120000, waitUntil: 'domcontentloaded' });
   await page.waitForFunction(() => document.documentElement.dataset.ready === 'true', null, { timeout: 90000 });
@@ -20,10 +25,14 @@ try {
   await page.setInputFiles('#cfile', photo);
   await page.waitForSelector('.stage img', { timeout: 20000 }); await page.waitForTimeout(500);
   await page.screenshot({ path: `${out}/2-pick-empty.png` });
+  await page.waitForSelector('.box.sug', { timeout: 20000 });
+  checks.suggested = true;
   const r = await page.$eval('.stage img', (e) => { const b = e.getBoundingClientRect(); return { x: b.x, y: b.y, w: b.width, h: b.height }; });
   const draw = async (fx, fy, tx, ty) => { await page.mouse.move(r.x + r.w * fx, r.y + r.h * fy); await page.mouse.down(); await page.mouse.move(r.x + r.w * tx, r.y + r.h * ty, { steps: 6 }); await page.mouse.up(); };
+  await page.click('.box.sug'); checks.suggestionPicked = await page.$eval('.box.sug', (e) => e.classList.contains('sel'));
+  await page.mouse.click(r.x + r.w - 5, r.y + r.h - 5); // click empty: choose nothing
   await draw(0.1, 0.5, 0.3, 0.8);
-  const count = () => page.$eval('.stage', (e) => Number(e.dataset.count));
+  const count = () => page.$eval('.stage', (e) => Number(e.dataset.count) - 1); // minus the one suggestion
   checks.drewOne = (await count()) === 1;
   await page.keyboard.press('Control+c'); await page.keyboard.press('Control+v');
   checks.pasted = (await count()) === 2;

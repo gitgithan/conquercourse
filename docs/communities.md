@@ -30,3 +30,11 @@
 - Suggested outlines need the server job (CC-248).
 - A saved wallpaper does not show behind a course yet (CC-249).
 - Sharing with other players waits for the safety check and approval flow (CC-249).
+
+## Suggested outlines (CC-248)
+- After a photo is chosen, the page asks `/api/segment` for things worth picking.
+- The server runs SAM 3 on a copy with people blurred, and sends back up to 12 outlines with a name each.
+- Outlines show on the photo in blue; a click picks one, and a click on empty photo picks none.
+- Drawing a box by hand still works at any time, and it is the fallback when suggestions are switched off.
+- The route answers "switched off" until the Modal app and its two web addresses are set on the site.
+- Tests: `tests/segment.test.ts` and `scripts/communities-check.mjs` (the suggestion is faked there).

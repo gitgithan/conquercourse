@@ -1,6 +1,6 @@
 // The picked regions on a photo (CC-248): the list, and what the keys do to it. Pure state, so the keys are tested without a browser.
 // A region is a box in photo pixels with a name; the clipboard keeps copies so Ctrl+V can drop them a little to the side.
-export interface Region { id: number; box: [number, number, number, number]; label: string; source: 'suggested' | 'manual' }
+export interface Region { id: number; box: [number, number, number, number]; label: string; source: 'suggested' | 'manual'; cutout?: string } // cutout: a small PNG (base64) of the shape, for suggested ones
 
 export class Regions {
   list: Region[] = [];
@@ -17,11 +17,15 @@ export class Regions {
     return [Math.round(x0), Math.round(y0), Math.round(x0 + Math.min(w, this.width)), Math.round(y0 + Math.min(h, this.height))];
   }
 
-  add(box: Region['box'], label = '', source: Region['source'] = 'manual'): Region {
+  add(box: Region['box'], label = '', source: Region['source'] = 'manual', cutout?: string): Region {
     this.snap();
-    const r: Region = { id: this.next++, box: this.clamp(box), label, source };
-    this.list.push(r); this.selected = new Set([r.id]);
+    const r: Region = { id: this.next++, box: this.clamp(box), label, source, ...(cutout ? { cutout } : {}) };
+    this.list.push(r); this.selected = source === 'suggested' ? this.selected : new Set([r.id]);
     return r;
+  }
+  /** The server's suggestions: shown as outlines to click, none chosen yet. */
+  suggest(items: { box: Region['box']; label: string; cutout?: string }[]): void {
+    for (const i of items) this.add(i.box, i.label, 'suggested', i.cutout);
   }
   /** Clicking a suggested outline picks it; clicking it again drops it. */
   toggle(id: number, several = false): void {
