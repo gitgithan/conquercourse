@@ -18,7 +18,7 @@ try {
     await page.waitForFunction(() => document.documentElement.dataset.outcome === 'splash', null, { timeout: 200000 });
     await page.keyboard.up('ArrowRight'); await page.waitForTimeout(500);
   };
-  const gold = (page) => page.evaluate(() => ({ hard: document.querySelectorAll('#strip .ob.hard').length, legend: getComputedStyle(document.querySelector('#gold-legend')).display, text: document.querySelector('#gold-legend').textContent, block: document.querySelector('#hardest-block')?.innerText ?? null, anim: [...document.querySelectorAll('#strip .ob svg')].some((e) => getComputedStyle(e).animationName !== 'none') }));
+  const gold = (page) => page.evaluate(() => ({ hard: document.querySelectorAll('#strip .ob.hard').length, legend: document.querySelector('#gold-legend') ? 'block' : 'none', text: document.querySelector('#hardest-block')?.innerText ?? '', block: document.querySelector('#hardest-block')?.innerText ?? null, anim: [...document.querySelectorAll('#strip .ob svg')].some((e) => getComputedStyle(e).animationName !== 'none') }));
   for (const mode of ['new', 'old']) {
     const page = await browser.newPage({ viewport: { width: 1280, height: 720 } });
     await page.goto(`http://localhost:${port}/?welcome=0&tour=0${mode === 'old' ? '&gold=old' : ''}`);
@@ -31,7 +31,7 @@ try {
     await fall(page);
     g = await gold(page);
     await page.screenshot({ path: `${out}/${mode}-2-one-fall.png` });
-    if (mode === 'new') check('one fall: gold on one obstacle, label and legend', g.hard === 1 && g.legend === 'block' && /Hardest for you: .* \(1 fall\)/.test(g.text) && /Gold marks/.test(g.text) && /Hardest for you/.test(g.block ?? ''));
+    if (mode === 'new') check('one fall: gold on one obstacle, label only in the report, none on the main screen', g.hard === 1 && g.legend === 'none' && /Hardest for you/.test(g.block ?? ''));
     else check('?gold=old: no hardest label', g.hard === 0 && g.block === null);
     if (mode === 'new') {
       const m = await page.evaluate(() => ({ band: document.querySelectorAll('[aria-label="Run report"] svg rect[fill="#ffe38a"]').length, trampGreen: document.querySelectorAll('svg rect[fill="#6fb7a8"]').length, legend: /Gold band: the obstacle you fell at most/.test(document.body.innerText) }));
