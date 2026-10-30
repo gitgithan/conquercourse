@@ -41,6 +41,7 @@ export const COURSE_FIELDS: Record<keyof CourseData, FieldRule> = {
   band: { check: placed(['x']) },
   drone: { check: placed(['x0', 'x1']) },
   branches: { check: (v) => arr(v, (b) => isObj(b) && str(b.id) && str(b.name) && num(b.forkX) && num(b.joinX) && arr(b.routes, isObj, 3), 12) },
+  shots: { check: (v) => arr(v, (b) => nums(b, ['x', 'y', 'vx', 'every', 'phase']) && (b as { every: number }).every > 0, 12) },
   keepDecks: { check: (v) => typeof v === 'boolean' },
   hazard: { check: (v) => str(v) && (HAZARDS as readonly string[]).includes(v) },
   // looks only, or worked out again from the platforms
