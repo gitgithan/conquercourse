@@ -32,7 +32,7 @@
     "link": "1gb24pi"
   },
   "public/assets/demo/drone.course.json": {
-    "hash": "nccowd",
+    "hash": "14msha8",
     "link": "nccowd"
   },
   "public/assets/demo/drop.course.json": {
@@ -40,7 +40,7 @@
     "link": "lz8kgh"
   },
   "public/assets/demo/generated-1.course.json": {
-    "hash": "10xims9",
+    "hash": "1f353l0",
     "link": "1s2miji"
   },
   "public/assets/demo/hero-montmartre-paris.course.json": {
@@ -64,7 +64,7 @@
     "link": "yd7s4g"
   },
   "public/assets/demo/launch-bar-hard.course.json": {
-    "hash": "1eycy68",
+    "hash": "10y4jcv",
     "link": "1eycy68"
   },
   "public/assets/demo/launch-bar.course.json": {
@@ -80,7 +80,7 @@
     "link": "1qmb8q8"
   },
   "public/assets/demo/park-run.course.json": {
-    "hash": "1viibmt",
+    "hash": "1pjv87q",
     "link": "1m2s2op"
   },
   "public/assets/demo/plank-thin.course.json": {
@@ -88,7 +88,7 @@
     "link": "1riw7hb"
   },
   "public/assets/demo/plank-two.course.json": {
-    "hash": "xdhn7o",
+    "hash": "qmjkv7",
     "link": "xdhn7o"
   },
   "public/assets/demo/plank.course.json": {
@@ -112,7 +112,7 @@
     "link": "wqlcbp"
   },
   "public/assets/demo/two-ways.course.json": {
-    "hash": "1g92vtp",
+    "hash": "5rt7mi",
     "link": null
   },
   "src/course/default-course.ideal.json": {

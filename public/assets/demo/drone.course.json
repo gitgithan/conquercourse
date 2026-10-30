@@ -44,5 +44,6 @@
     "bouncePress": 8,
     "droneBrakeX": 48,
     "droneDescendX": 57.5
-  }
+  },
+  "windows": []
 }

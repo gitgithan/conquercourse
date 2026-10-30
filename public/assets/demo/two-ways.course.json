@@ -38,11 +38,11 @@
   "holds": [
     {
       "x": 27,
-      "y": 3.4
+      "y": 2.8
     },
     {
       "x": 30.5,
-      "y": 3.4
+      "y": 2.8
     }
   ],
   "zones": [
@@ -86,12 +86,12 @@
           "lines": [
             {
               "name": "bar to bar",
-              "ticks": 1291
+              "ticks": 1284
             }
           ],
           "plan": {
             "jumpXs": [
-              22.8
+              21.3
             ],
             "releaseAfter": 60,
             "bouncePress": 8,
@@ -102,8 +102,8 @@
             ]
           },
           "effort": 1,
-          "ticks": 1291,
-          "narrowestMs": 150
+          "ticks": 1284,
+          "narrowestMs": 100
         },
         {
           "id": "low",
@@ -148,7 +148,7 @@
   "hazard": "lava",
   "plan": {
     "jumpXs": [
-      22.8
+      21.3
     ],
     "releaseAfter": 60,
     "bouncePress": 8,
