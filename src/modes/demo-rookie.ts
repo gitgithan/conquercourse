@@ -6,11 +6,12 @@ import { DemoMotion, legLength, type Clips } from '../motion/timeline';
 import { TICKS_PER_SECOND } from '../sim/units';
 import { loadRookie, type PosedRookie, type RookieId } from '../render/rookie';
 import { createStage } from '../render/scene';
+import { pageQuery } from '../flags';
 
 const PHASES: Phase[] = ['run', 'leap', 'land', 'hang', 'swing'];
 
 export async function startRookieDemo(): Promise<void> {
-  const params = new URLSearchParams(location.search);
+  const params = pageQuery();
   const stage = await createStage(document.body, false);
   const clips = Object.fromEntries(await Promise.all(PHASES.map(async (p) => [p, await loadClip(p)]))) as Record<Phase, Clip>;
   const run = clips.run;

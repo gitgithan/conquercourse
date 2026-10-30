@@ -2,6 +2,7 @@ import { edgeNote } from '../slice/photo-edge';
 import { startCourse } from './course';
 import { session } from '../ui/feedback';
 import { PHRASES, fitPrimitives, proveCourse, type ParkObject, type Proof, type Primitive } from '../park/fit';
+import { pageQuery, pageSearch } from '../flags';
 
 // The Park: a photo with boxes over it (from the saved SAM 3.1 results, or drawn by the player), turned into
 // a course with real sizes that the Course mode plays. Works with no network: the boxes are editable.
@@ -16,7 +17,7 @@ const PHOTOS = [
 interface PhotoData { photo: string; file: string; width: number; height: number; credit: string; objects: ParkObject[] }
 
 export function startPark(host: HTMLElement): { backend: 'webgl2' } {
-  const params = new URLSearchParams(location.search);
+  const params = pageQuery();
   const style = document.createElement('style');
   style.textContent = `
     .park{font:16px/1.4 system-ui,sans-serif;color:#17201d;background:#eef1ec;position:fixed;inset:0;overflow:auto;padding:16px;display:grid;gap:12px;grid-auto-rows:min-content;align-content:start}.park>*{max-width:1100px;width:100%;justify-self:center;box-sizing:border-box}
@@ -179,7 +180,7 @@ export function startPark(host: HTMLElement): { backend: 'webgl2' } {
     if (!data) return;
     const d = data;
     // CC-170: an object that runs off the photo edge is never turned away; say what we do (switch: ?padretry=0)
-    const edge = edgeNote(boxes.map((b) => b.box), d.width, d.height, location.search);
+    const edge = edgeNote(boxes.map((b) => b.box), d.width, d.height, pageSearch());
     if (edge) tools.append(el('div', { cls: 'muted', id: 'edge-note', textContent: edge }));
     const add = el('button', { textContent: 'Add a box', id: 'add' });
     add.onclick = () => {

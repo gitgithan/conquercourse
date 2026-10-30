@@ -12,6 +12,7 @@ import { actorStateFor } from '../motion/actor-state';
 import { DEFAULT_HANG, feetOf } from '../sim/holds';
 import type { ActorState } from '../motion/actor-pose';
 import { HURT_TICKS, hurtTotalTicks } from '../motion/poses';
+import { pageQuery } from '../flags';
 
 const base: ActorState = { tick: 1000, x: 0, y: 0, vx: 0, vy: 0, grounded: true, mode: 'run', squat: false, landedTicksAgo: null, facing: 1 };
 const fetchCourse = async (name: string) => (await (await fetch(`/assets/demo/${name}.course.json`)).json()) as CourseData;
@@ -144,7 +145,7 @@ export async function startHurtAB(): Promise<void> {
   Object.assign(window, { __hurtAB: { play, show, reply, map: () => ({ A: kindOf('A'), B: kindOf('B') }), ticks: () => hurtTotalTicks(actor.hurtSeconds()) } });
   show('A', 0);
   stage.renderer.setAnimationLoop(() => {
-    if (playing && !new URLSearchParams(location.search).has('freeze')) {
+    if (playing && !pageQuery().has('freeze')) {
       const tick = Math.floor(((performance.now() - playing.start) / 1000) * 120);
       show(playing.label, tick);
       if (tick >= hurtTotalTicks(actor.hurtSeconds())) playing = null;

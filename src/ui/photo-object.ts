@@ -2,8 +2,9 @@
 // Behind a feature switch (?uploadobj=1) so new players are not shown everything at once. Desktop mouse and keyboard.
 import { liftObject, shrinkPhoto, type LiftDone, type Shrunk } from '../slice/object-lift-client';
 import { LABEL_RE, MIN_BOX } from '../slice/object-lift';
+import { pageSearch } from '../flags';
 
-export const uploadObjOn = (search = location.search): boolean => /[?&]uploadobj(=1|\b(?!=))/.test(search);
+export const uploadObjOn = (search = pageSearch()): boolean => /[?&]uploadobj(=1|\b(?!=))/.test(search);
 const LABELS = ['bench', 'bollard', 'railing', 'stairs', 'trash bin', 'bicycle rack', 'pull-up bar', 'fire hydrant', 'planter', 'log', 'stump', 'wall'];
 
 export function openPhotoObject(onDone: (r: LiftDone) => void): void {

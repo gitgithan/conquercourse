@@ -1,6 +1,7 @@
 import { startCourse } from './course';
 import { session } from '../ui/feedback';
 import { fitPrimitives, proveCourse, type ParkObject } from '../park/fit';
+import { pageQuery } from '../flags';
 
 // The Community gallery: courses made from real obstacles in photos. The five starter photos are always there;
 // the community's approved courses come from the server. Each course is rebuilt from its boxes in the browser
@@ -71,7 +72,7 @@ export function startGallery(host: HTMLElement): { backend: 'webgl2' } {
   };
 
   // CC-211: a card is shown only after the simulator found a way to clear it (?slice2=old shows every card and proves on Play)
-  const proofOn = new URLSearchParams(location.search).get('slice2') !== 'old';
+  const proofOn = pageQuery().get('slice2') !== 'old';
   let queue: Promise<void> = Promise.resolve();
   const offer = (e: Entry, front: boolean) => {
     if (!proofOn) { if (front) grid.prepend(card(e)); else grid.appendChild(card(e)); return; }
