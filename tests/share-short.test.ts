@@ -1,5 +1,4 @@
 // Short share links (CC-219): the server code with an in-memory store, the D1 store on a real SQLite database with the real migration, and the client side with a fake server.
-import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 import type { CourseData } from '../src/course/course';
 import { d1Store } from '../functions/api/share';
@@ -8,8 +7,8 @@ import { expandShortSearch, makeChallengeUrl, makeLink, makeShortUrl, openChalle
 import { createShare, ID_RE, MAX_SHARE_BODY, newId, readShare, SHARES_PER_ADDRESS, SHARES_PER_HOUR, type ShareEnv, type ShareRow, type ShareStore } from '../src/share/server';
 import { makeChallengeParam, recordPlan, type InputLog } from '../src/sim/replay';
 import { localD1 } from './helpers-d1';
+import { loadDemo as load } from './helpers/course';
 
-const load = (f: string) => JSON.parse(readFileSync(`public/assets/demo/${f}`, 'utf8')) as CourseData;
 const lache = load('lache.course.json');
 const logOf = (c: CourseData): InputLog => recordPlan(c, c.plan!, 120 * 120).recorder.snapshot();
 const ORIGIN = 'https://conquercourse.pages.dev';

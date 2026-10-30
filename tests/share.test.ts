@@ -1,12 +1,11 @@
-import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 import type { CourseData } from '../src/course/course';
 import { playPlan } from '../src/sim/ideal';
 import { makeChallengeParam, recordPlan, verifyLog, type InputLog } from '../src/sim/replay';
 import { MAX_PARAM_CHARS, challengeWords, makeChallengeUrl, openChallenge, shareOn } from '../src/share/challenge';
 import { CLIP_FPS, MAX_CLIP_FRAMES, TAIL_FRAMES, TICKS_PER_FRAME, clipFits, clipFrames } from '../src/share/clip';
+import { loadDemo as load } from './helpers/course';
 
-const load = (f: string) => JSON.parse(readFileSync(`public/assets/demo/${f}`, 'utf8')) as CourseData;
 const samples = ['lache.course.json', 'climb.course.json', 'drop.course.json', 'training.course.json'];
 const ORIGIN = 'https://conquercourse.pages.dev';
 

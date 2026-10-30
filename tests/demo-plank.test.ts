@@ -1,12 +1,11 @@
-import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import type { CourseData } from "../src/course/course";
 import { sagAt } from "../src/sim/beam";
 import { searchIdealRun, playPlan } from "../src/sim/ideal";
 import { NO_INPUT } from "../src/sim/runner";
 import { newWorld, stepWorld, type WorldState } from "../src/sim/world";
+import { loadDemo as load } from './helpers/course';
 
-const load = (f: string) => JSON.parse(readFileSync(`public/assets/demo/${f}`, "utf8")) as CourseData;
 const good = load("plank.course.json"), thin = load("plank-thin.course.json");
 
 function run(course: CourseData, ticks: number, input = { ...NO_INPUT, run: true }, from?: WorldState) {
