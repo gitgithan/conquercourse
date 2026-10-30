@@ -6,11 +6,11 @@
     "z": 0.721
   },
   "height_m": 0.999,
-  "target_height_m": 1.0,
+  "target_height_m": 1,
   "scale_source": "typed",
   "scale_factor": 0.9992,
   "raw_height": 1.0008,
-  "yaw_deg": 90.0,
+  "yaw_deg": 90,
   "tilt_deg": 0.25,
   "faces": 5820,
   "vertices": 6256,
