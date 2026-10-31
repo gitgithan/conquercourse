@@ -17,13 +17,13 @@ describe('the nickname in a challenge link (CC-134)', () => {
     const o = await openChallenge(course, param(url!));
     expect(o.ok && o.nick).toBe('');
   });
-  it('round trips a name of letters, digits, _ and -, in the case it was typed', async () => {
-    const url = await makeChallengeUrl(ORIGIN, '?course=/assets/demo/lache.course.json', course, log, 'Ninja_Amy-9');
+  it('round trips a name with letters, digits and symbols, in the case it was typed', async () => {
+    const url = await makeChallengeUrl(ORIGIN, '?course=/assets/demo/lache.course.json', course, log, 'Ni.a/Amy-9%');
     const o = await openChallenge(course, param(url!));
-    expect(o.ok && o.nick).toBe('Ninja_Amy-9');
+    expect(o.ok && o.nick).toBe('Ni.a/Amy-9%');
   });
-  it('cuts to twelve and drops spaces and symbols', () => {
-    expect(shownNick(' a-m y!z ')).toBe('a-myz');
+  it('cuts to twelve and drops spaces, keeps symbols', () => {
+    expect(shownNick(' a-m y!z ')).toBe('a-my!z');
     expect(shownNick('abcdefghijklmnop')).toBe('abcdefghijkl');
   });
   it('refuses a blocked word, also with digits for letters', () => {

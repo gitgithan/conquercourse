@@ -25,14 +25,29 @@ export function sendClear(courseKey: string, runId: string, hash: string, keys: 
   }).catch(() => { /* telemetry must never interrupt a run */ });
 }
 
+/** One plain sentence for each reason the server gives when it turns a run down (functions/api/course-clear.ts); the status code is the fallback. */
+export function publishErrorText(status: number, reason?: string, code?: string): string {
+  switch (reason) {
+    case 'slow-down': return 'Slow down: try again in a minute.';
+    case 'course-changed': return 'This course changed since your run. Play the new version, then publish.';
+    case 'no-course': return 'Only runs on the listed courses can be published.';
+    case 'not-a-clear': return 'That run did not reach the finish, so it cannot be published.';
+    case 'not-ready': return 'The leaderboard is not ready yet. Try again later.';
+    case 'body-too-big': return 'This run is too long to publish.';
+    case 'not-possible': return code === 'too-long' ? 'This run is too long to publish.' : code === 'too-fast' || code === 'too-short' ? 'This time is not possible on this course, so it cannot be published.' : 'The keys of this run do not look like a run a person could play, so it cannot be published.';
+    case 'bad-run': return 'This run could not be read. Play it again from the start, then publish.';
+  }
+  return status === 503 ? 'The leaderboard is not ready yet. Try again later.' : status === 429 ? 'Slow down: try again in a minute.' : status === 409 ? 'This course changed since your run. Play the new version, then publish.' : status === 404 ? 'Only runs on the listed courses can be published.' : status === 413 ? 'This run is too long to publish.' : status === 422 ? 'That run cannot be published.' : 'The server could not take this run. Try again in a minute.';
+}
+
 export interface PublishReply { published: boolean; rank?: number | null; players?: number; nick?: string; why?: string; error?: string }
 /** The player clicked Publish to Leaderboard: the same run is sent again with the tag, the server plays it again, and the reply says the place. */
 export async function publishClear(courseKey: string, runId: string, hash: string, keys: string, claimedTicks: number, nick: string): Promise<PublishReply> {
   try {
     const res = await fetch('/api/course-clear', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ session: session(), courseKey, runId, hash, keys, claimedTicks, nick, publish: true }) });
-    const d = await res.json().catch(() => ({})) as Partial<PublishReply> & { verified?: boolean };
+    const d = await res.json().catch(() => ({})) as Partial<PublishReply> & { verified?: boolean; reason?: string; code?: string };
     if (res.status === 202) return { published: false, error: 'The server is busy. Try again in a minute.' };
-    if (!res.ok) return { published: false, error: res.status === 503 ? 'The leaderboard is not ready yet.' : res.status === 429 ? 'Too many tries. Wait a little.' : 'The server did not accept this run.' };
+    if (!res.ok) return { published: false, error: publishErrorText(res.status, d.reason, d.code) };
     return { published: !!d.published, rank: d.rank, players: d.players, nick: d.nick, why: d.why };
   } catch { return { published: false, error: 'No connection. Try again.' }; }
 }

@@ -74,30 +74,42 @@ export function resetText(resetAt: number | null, now = Date.now()): string {
 }
 
 const pubKey = (key: string, hash: string): string => `cc.pub.${key}.${hash}`;
-/** The name box and the Publish to Leaderboard button. A run goes on the board only when this button is clicked. */
-function publishRow(spec: NonNullable<BoardHooks['publish']>, key: string, hash: string, refresh: () => void): HTMLElement {
-  const row = document.createElement('div'); row.id = 'report-publish'; row.style.cssText = 'margin-top:.5em;padding-top:.4em;border-top:1px solid #ccd';
-  let prior = 0; try { prior = Number(localStorage.getItem(pubKey(key, hash))) || 0; } catch { /* keep going */ }
-  if (prior > 0 && prior <= spec.ticks) { row.textContent = `Your published time is ${secondsText(prior)}. A faster run can replace it.`; row.style.color = '#555'; return row; }
-  const note = document.createElement('div'); note.style.cssText = 'font-size:.85em;color:#555;margin-bottom:4px'; note.textContent = 'Your name shows on the leaderboard next to this time. Up to 12 letters, digits, _ or -. Not your real name.';
+/** What the board boxes hear when a run was just published: the new row, shown at once; then each box asks the server again. */
+export interface Published { nick: string; ticks: number; rank: number | null; players: number | null }
+export const PUBLISHED_EVENT = 'board-published';
+
+/** The name box and the Publish to Leaderboard button, one strip at the top of the end report next to the result. It is the only place the name is typed. A run goes on the board only when the button is clicked. */
+export function publishStrip(spec: NonNullable<BoardHooks['publish']>, key: string, hash: string, blocked?: string): HTMLElement {
+  const row = document.createElement('div'); row.id = 'report-publish'; row.style.cssText = 'display:flex;gap:8px;flex-wrap:wrap;align-items:center;background:#e9f5f1;border-left:4px solid #0f6b5c;border-radius:8px;padding:8px 10px';
   const nick = document.createElement('input'); nick.id = 'publish-nick'; nick.maxLength = 12; nick.size = 12; nick.placeholder = 'NAME'; nick.autocomplete = 'off'; nick.spellcheck = false; nick.setAttribute('aria-label', 'Name for the leaderboard');
-  nick.style.cssText = 'font:inherit;border:1px solid #17201d;border-radius:8px;padding:5px 8px;width:9em;text-align:center;margin-right:6px';
-  try { nick.value = localStorage.getItem('cc.nick') ?? ''; } catch { /* keep going */ }
+  nick.title = 'Up to 12 letters (any case), digits or symbols, no spaces. It shows on the leaderboard and in your challenge link. Not your real name.';
+  nick.style.cssText = 'font:inherit;font-weight:700;border:1px solid #17201d;border-radius:8px;padding:6px 8px;width:9em;text-align:center';
+  try { nick.value = tidyNick(localStorage.getItem('cc.nick') ?? ''); } catch { /* keep going */ }
   nick.oninput = () => { nick.value = tidyNick(nick.value); try { localStorage.setItem('cc.nick', nick.value); } catch { /* keep going */ } };
   const go = document.createElement('button'); go.type = 'button'; go.id = 'publish-board'; go.textContent = `Publish to Leaderboard (${secondsText(spec.ticks)})`;
-  go.style.cssText = 'font:inherit;font-weight:700;border:1px solid #17201d;border-radius:8px;padding:5px 12px;background:#0f6b5c;color:#fff;cursor:pointer';
-  const out = document.createElement('div'); out.id = 'publish-result'; out.style.cssText = 'font-weight:700;margin-top:4px'; out.setAttribute('role', 'status');
+  go.style.cssText = 'font:inherit;font-weight:800;border:1px solid #17201d;border-radius:8px;padding:6px 14px;background:#0f6b5c;color:#fff;cursor:pointer';
+  const out = document.createElement('div'); out.id = 'publish-result'; out.style.cssText = 'font-weight:700;flex-basis:100%;font-size:.9em'; out.setAttribute('role', 'status');
+  const note = document.createElement('div'); note.style.cssText = 'flex-basis:100%;font-size:.85em;color:#44504a'; note.textContent = 'Your name shows on the leaderboard next to this time. Not your real name.';
+  const done = (as: string, r: { rank?: number | null; players?: number }): void => {
+    go.textContent = `Published ✓ as ${as}${r.rank ? `, #${r.rank}${r.players ? ` of ${r.players}` : ''}` : ''}`; go.disabled = true; go.style.background = '#e6f4ee'; go.style.color = '#0f6b5c'; go.style.cursor = 'default';
+    nick.disabled = true; out.textContent = ''; note.style.display = 'none';
+  };
+  if (blocked) { go.disabled = true; go.style.opacity = '.55'; go.style.cursor = 'not-allowed'; go.title = blocked; out.textContent = blocked; note.style.display = 'none'; row.append(nick, go, out); return row; } // the run cannot qualify: say why next to the button, up front
+  let prior = 0; try { prior = Number(localStorage.getItem(pubKey(key, hash))) || 0; } catch { /* keep going */ }
+  if (prior > 0 && prior <= spec.ticks) { go.style.display = 'none'; note.textContent = `Your published time is ${secondsText(prior)}. A faster run can replace it.`; row.append(nick, note); return row; }
   go.onclick = () => {
     if (!nickOk(nick.value)) { out.textContent = 'Pick another name.'; return; }
     go.disabled = true; out.textContent = 'Sending…';
     void spec.send(nick.value).then((r) => {
       if (r.published) {
         try { localStorage.setItem(pubKey(key, hash), String(spec.ticks)); } catch { /* keep going */ }
-        out.textContent = `Published as ${r.nick || 'Ninja'}${r.rank ? `, #${r.rank}${r.players ? ` of ${r.players}` : ''}` : ''}`; go.style.display = 'none'; nick.disabled = true; refresh();
+        const as = r.nick || 'Ninja';
+        done(as, r);
+        document.dispatchEvent(new CustomEvent<Published>(PUBLISHED_EVENT, { detail: { nick: r.nick ?? '', ticks: spec.ticks, rank: r.rank ?? null, players: r.players ?? null } }));
       } else { go.disabled = false; out.textContent = r.why === 'slower' ? 'You already have a faster time on the board.' : r.error ?? 'Not published.'; }
     });
   };
-  row.append(note, nick, go, out);
+  row.append(nick, go, note, out);
   return row;
 }
 
@@ -110,9 +122,12 @@ export function boardBox(key: string, hash: string, me = '', hooks: BoardHooks =
   const place = document.createElement('div'); place.id = 'report-place'; place.style.cssText = 'font-weight:800;color:#fff;background:linear-gradient(90deg,#1a6b3c,#2e9a5a);border-radius:999px;padding:3px 10px;margin-top:4px;display:inline-block';
   const clock = document.createElement('div'); clock.id = 'report-reset'; clock.style.cssText = 'color:#8a5a00;font-size:.85em';
   const champ = document.createElement('div'); champ.id = 'report-champ'; champ.style.cssText = 'color:#555;font-size:.85em';
+  let shown: Win = 'day', data: BoardData | null = null;
   const show = (win: Win): void => {
+    shown = win;
     for (const b of tabs.children) (b as HTMLElement).style.fontWeight = (b as HTMLElement).dataset.win === win ? '700' : '400';
     void loadBoard(key, hash, win, me).then((d) => {
+      data = d;
       if (d.top.length) renderRows(list, d.top, d.mine?.rank ?? null, hooks.onView); else list.textContent = ''; // the place line below already invites
       place.textContent = placeText(d); clock.textContent = resetText(d.resetAt);
       champ.textContent = d.previous ? `${win === 'day' ? 'Yesterday' : 'Last week'}'s champion: ${d.previous.nick || '···'} ${secondsText(d.previous.ticks)}` : '';
@@ -123,7 +138,16 @@ export function boardBox(key: string, hash: string, me = '', hooks: BoardHooks =
   }
   const head = document.createElement('div'); head.textContent = 'Fastest runs'; head.style.fontWeight = '600';
   box.append(head, tabs, list, place, clock, champ);
-  if (hooks.publish) box.append(publishRow(hooks.publish, key, hash, () => show('all')));
+  // a run was just published: put the new row in the list at once, then ask the server for the real board
+  const onPublished = (e: Event): void => {
+    if (!box.isConnected) { document.removeEventListener(PUBLISHED_EVENT, onPublished); return; }
+    const p = (e as CustomEvent<Published>).detail, d = data ?? { top: [], players: 0, mine: null, resetAt: null, previous: null };
+    const rest = d.top.filter((_, i) => i + 1 !== d.mine?.rank), top = [...rest, { nick: p.nick, ticks: p.ticks }].sort((x, y) => x.ticks - y.ticks).slice(0, 100);
+    const rank = p.rank ?? top.findIndex((r) => r.ticks === p.ticks && r.nick === p.nick) + 1;
+    renderRows(list, top, rank, hooks.onView); place.textContent = placeText({ ...d, mine: { rank, ticks: p.ticks }, players: p.players ?? d.players + (d.mine ? 0 : 1) });
+    show(shown);
+  };
+  document.addEventListener(PUBLISHED_EVENT, onPublished);
   const mine = readBest(key, hash);
   if (mine) { const m = document.createElement('div'); m.id = 'report-best'; m.textContent = `⭐ Your best: ${secondsText(mine)}`; m.style.cssText = 'font-weight:800;color:#7a5a00;background:#fff1b8;border-radius:999px;padding:3px 10px;margin-top:4px;display:inline-block'; box.appendChild(m); }
   show('day');

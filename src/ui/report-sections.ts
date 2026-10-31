@@ -11,7 +11,7 @@ export function organiseReport(body: HTMLElement, o: { dojo?: () => void } = {})
   const row = body.querySelector<HTMLElement>('#report-actions');
   if (!row) return;
   const get = (id: string) => row.querySelector<HTMLElement>(`#${id}`);
-  const [again, watch, next, , , copy, clip, nick] = ['report-again', 'report-watch', 'report-next', 'report-close', 'report-chase', 'share-copy', 'share-clip', 'share-nick'].map(get);
+  const [again, watch, next, , , copy, clip] = ['report-again', 'report-watch', 'report-next', 'report-close', 'report-chase', 'share-copy', 'share-clip'].map(get);
 
   // Share: the card at the top, bright, so nobody misses it
   if (clip || copy) {
@@ -25,13 +25,12 @@ export function organiseReport(body: HTMLElement, o: { dojo?: () => void } = {})
     if (copy) {
       copy.style.cssText = big.replace('background:#ffb347;color:#1b1004', clip ? 'background:#f4f7f1;color:#10141c' : 'background:#ffb347;color:#1b1004');
       buttons.append(copy);
-      if (nick) { nick.style.cssText = 'font:inherit;border:1px solid #ffffff55;background:#232a36;color:#f4f7f1;border-radius:8px;padding:10px 8px;width:8.5em;text-transform:uppercase;text-align:center;font-weight:700;letter-spacing:.06em'; buttons.append(nick); }
     }
     const note = document.createElement('div'); note.style.cssText = `font:500 14px/1.4 system-ui,sans-serif;color:${HUD.soft}`;
     note.textContent = copy ? 'A friend opens your link, plays your exact keys, and tries to beat your time. The clip is a short video to post.' : 'The clip is a short video to post. A link needs a run from the start of the course.';
     card.append(head, buttons, note);
-    body.querySelector('h2')?.after(card);
-    if (!body.querySelector('h2')) body.prepend(card);
+    (body.querySelector('#report-publish') ?? body.querySelector('h2'))?.after(card); // the publish strip, when there is one, sits right under the result
+    if (!card.isConnected) body.prepend(card);
   }
 
   // Play / Learn / More: small labelled groups in the bottom row
