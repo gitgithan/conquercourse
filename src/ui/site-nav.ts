@@ -25,6 +25,11 @@ export function featureOf(mode: string | null): Feature | null {
   }
 }
 
+/** The editor takes its panels away while "Play this lane" runs the course on the same page; the pieces and the undo list are already saved, so a reload puts the editor back. */
+export function editorTrialRunning(doc: Pick<Document, 'querySelector'>): boolean {
+  return !doc.querySelector('.ed');
+}
+
 const BAR_MODES = new Set(['course', 'editor', 'map', 'communities', 'gallery', 'park', 'dojo']);
 
 /** True when the bar is drawn: not for films, bots, demos or ?nav=0, and only on the pages that have the bar. */
@@ -61,7 +66,7 @@ export function mountSiteNav(parent: HTMLElement, mode: string | null = flag('mo
     if (tab instanceof HTMLButtonElement) tab.type = 'button';
     if (f.id === here) tab.setAttribute('aria-current', 'page');
     if (f.href === null) tab.onclick = openGallery;
-    else tab.addEventListener('click', (e) => { if (f.id === here) { e.preventDefault(); return; } if (!mayLeaveCourse()) e.preventDefault(); });
+    else tab.addEventListener('click', (e) => { if (f.id === here) { e.preventDefault(); if (f.id === 'editor' && editorTrialRunning(document)) location.reload(); return; } if (!mayLeaveCourse()) e.preventDefault(); });
     bar.append(tab);
   }
   parent.append(bar);
