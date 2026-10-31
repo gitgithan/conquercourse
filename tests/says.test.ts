@@ -32,7 +32,6 @@ describe('voices', () => {
   });
   it('uses the model the code calls for each job', () => {
     expect(VOICES.partner.poweredBy).toContain('Muse Spark Open');
-    expect(VOICES.agent.poweredBy).toContain('Muse Spark Open');
     expect(VOICES.safety.poweredBy).toContain('Muse Spark Open');
     expect(VOICES.cutter.poweredBy).toContain('SAM 3');
     expect(VOICES.builder.poweredBy).toContain('SAM 3D Objects');

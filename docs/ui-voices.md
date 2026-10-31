@@ -1,6 +1,6 @@
 # Voices: who is speaking in the game (CC-243)
 
-- The product owner asked for the main tech and characters to pop, with titles like "Course Agent says" and "Simulator says".
+- The product owner asked for the main tech and characters to pop, with titles like "Simulator says".
 - One small badge sits above each message the main tech makes: an icon disc, the title, and a "powered by" line.
 - The code is `src/ui/says.ts`; the table of voices is `VOICES` in that file and the test `tests/says.test.ts` checks it.
 - Turn all badges and the crew strip off with `?says=0`; the messages stay as they were (default on).
@@ -17,7 +17,6 @@
 | Title | Colour | Powered by | Speaks when | Where the words live |
 |---|---|---|---|---|
 | Simulator says | green | our own physics, not an AI | the lane verdict in the editor, the end-of-run report and the fall panel, the coaster and graph verdicts | `src/modes/editor.ts`, `src/ui/run-report.ts`, `src/modes/coaster.ts`, `src/modes/graph-studio.ts`, `src/slice/lane-check-ui.ts` |
-| Course Agent says | purple | Muse Spark Open, tested by the Simulator | the propose, test, repair steps (labs, `?agent=1`) | `src/ui/course-agent-trace.ts` |
 | Design partner says | orange | Muse Spark Open | the Design partner panel: notes, Fix it, Suggest | `src/modes/editor.ts` |
 | Safety check says | red | Muse Spark Open | when you press Share in Community | `src/modes/community-flow.ts` |
 | Cutter says | blue | SAM 3 | Make your own, step 3: Segment Region | `src/modes/community-flow.ts` |
@@ -48,8 +47,6 @@
 - [community-crew-after](evidence/cc-243-says-community-crew-after.jpg)
 - [report-before](evidence/cc-243-says-report-before.jpg)
 - [report-after](evidence/cc-243-says-report-after.jpg)
-- [editor-agent-before](evidence/cc-243-says-editor-agent-before.jpg)
-- [editor-agent-after](evidence/cc-243-says-editor-agent-after.jpg)
 - [editor-partner-after](evidence/cc-243-says-editor-partner-after.jpg)
 - [coaster-before](evidence/cc-243-says-coaster-before.jpg)
 - [coaster-after](evidence/cc-243-says-coaster-after.jpg)
@@ -57,3 +54,4 @@
 - [make-segment-after](evidence/cc-243-says-make-segment-after.jpg)
 - [characters-before](evidence/cc-243-says-characters-before.jpg)
 - [characters-after](evidence/cc-243-says-characters-after.jpg)
+- The Course Agent had a badge in the first version; its photo input was cut from the scope (50a9cf7d), so its voice is gone from the table.

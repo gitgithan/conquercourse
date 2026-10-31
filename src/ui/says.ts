@@ -5,7 +5,7 @@ import { pageQuery } from '../flags';
 // The words under a badge stay short facts or hints from the message that was already there; nothing here grades or coaches a person's technique.
 // ?says=0 turns every badge and the crew strip off; the messages stay as they were.
 
-export type VoiceId = 'simulator' | 'agent' | 'partner' | 'safety' | 'cutter' | 'builder' | 'maker' | 'ghost' | 'street' | 'pip' | 'juno';
+export type VoiceId = 'simulator' | 'partner' | 'safety' | 'cutter' | 'builder' | 'maker' | 'ghost' | 'street' | 'pip' | 'juno';
 
 export interface Voice {
   id: VoiceId;
@@ -44,7 +44,6 @@ const I = {
 
 export const VOICES: Record<VoiceId, Voice> = {
   simulator: { id: 'simulator', title: 'Simulator says', name: 'Simulator', accent: '#0f6b5c', tint: '#e6f4ee', poweredBy: 'Our own physics, not an AI. It plays the same way every time.', meta: false, job: 'Plays a course with real physics and tells you if it can be cleared.', where: 'src/ui/run-report.ts, src/slice/lane-check-ui.ts', icon: I.gears },
-  agent: { id: 'agent', title: 'Course Agent says', name: 'Course Agent', accent: '#6a3fc4', tint: '#efe9fb', poweredBy: 'Powered by Muse Spark Open, tested by the Simulator', meta: true, job: 'Drafts a course from a photo, tests it, repairs it, and stops when it is proven.', where: 'src/ui/course-agent-trace.ts', icon: I.flag },
   partner: { id: 'partner', title: 'Design partner says', name: 'Design partner', accent: '#b4510a', tint: '#fdeede', poweredBy: 'Powered by Muse Spark Open', meta: true, job: 'Explains why a course cannot be cleared and offers one change the Simulator proved.', where: 'src/modes/editor.ts', icon: I.pencil },
   safety: { id: 'safety', title: 'Safety check says', name: 'Safety check', accent: '#b3261e', tint: '#fbe9e7', poweredBy: 'Powered by Muse Spark Open', meta: true, job: 'Looks at every upload and every share before anyone else sees it.', where: 'src/modes/community-flow.ts', icon: I.shield },
   cutter: { id: 'cutter', title: 'Cutter says', name: 'Cutter', accent: '#1565c0', tint: '#e5effb', poweredBy: 'Powered by SAM 3', meta: true, job: 'Cuts the things in your photo out, one outline each.', where: 'src/modes/community-flow.ts', icon: I.scissors },
@@ -57,7 +56,7 @@ export const VOICES: Record<VoiceId, Voice> = {
 };
 
 /** The order of the crew strip: tech first, then the characters. */
-export const CREW: VoiceId[] = ['simulator', 'agent', 'partner', 'safety', 'cutter', 'builder', 'maker', 'ghost', 'street', 'pip', 'juno'];
+export const CREW: VoiceId[] = ['simulator', 'partner', 'safety', 'cutter', 'builder', 'maker', 'ghost', 'street', 'pip', 'juno'];
 
 export const saysOn = (params: URLSearchParams = pageQuery()): boolean => params.get('says') !== '0';
 

@@ -17,7 +17,6 @@ try {
     ['welcome-crew', '?welcome=1', 'simulator', async (p, on) => { if (on) { await p.click('#welcome-crew'); await p.waitForSelector('#crew'); } }, null],
     ['editor-verdict', '?mode=editor&welcome=0', 'simulator', async (p) => { await p.waitForFunction(() => (document.getElementById('verdict')?.textContent ?? '').length > 5, null, { timeout: 120000 }); await p.click('#partnertab'); await wait(700); }, null],
     ['editor-partner', '?mode=editor&welcome=0', 'partner', async (p) => { await p.click('#partnertab'); await wait(700); }, null],
-    ['editor-agent', '?mode=editor&welcome=0&agent=1', 'agent', async (p) => { await p.setInputFiles('#agentfile', 'public/assets/park/park01.jpg'); await p.waitForFunction(() => document.querySelector('#agenttrace li'), null, { timeout: 60000 }); await wait(4000); }, null],
     ['report', '?course=/assets/demo/coaster-two-hills.course.json&bot=ideal&welcome=0', 'simulator', async (p) => { await p.waitForSelector('#report-again', { timeout: 240000 }); await wait(600); }, null],
     ['coaster', '?mode=coaster', 'simulator', async (p) => { await p.waitForSelector('#coverdict'); await p.waitForFunction(() => (document.getElementById('coverdict')?.textContent ?? '').length > 5, null, { timeout: 90000 }); }, null],
     ['community-crew', '?mode=communities', 'simulator', async (p, on) => { if (on) { await p.waitForSelector('#ex-crew'); await p.locator('#ex-crew').scrollIntoViewIfNeeded(); await wait(400); } }, null],
