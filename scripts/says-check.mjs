@@ -14,7 +14,7 @@ try {
   const badge = (page, voice) => page.evaluate((v) => { const b = document.querySelector(`.says[data-voice="${v}"]`); if (!b) return null; const r = b.getBoundingClientRect(); return { w: Math.round(r.width), h: Math.round(r.height), text: b.innerText.replace(/\s+/g, ' ') }; }, voice);
   // each screen: name, query, voice, steps(page) that bring the speaker on screen, optional element to picture
   const screens = [
-    ['welcome-crew', '', 'simulator', async (p, on) => { if (on) { await p.click('#welcome-crew'); await p.waitForSelector('#crew'); } }, null],
+    ['welcome-crew', '?welcome=1', 'simulator', async (p, on) => { if (on) { await p.click('#welcome-crew'); await p.waitForSelector('#crew'); } }, null],
     ['editor-verdict', '?mode=editor&welcome=0', 'simulator', async (p) => { await p.waitForFunction(() => (document.getElementById('verdict')?.textContent ?? '').length > 5, null, { timeout: 120000 }); await p.click('#partnertab'); await wait(700); }, null],
     ['editor-partner', '?mode=editor&welcome=0', 'partner', async (p) => { await p.click('#partnertab'); await wait(700); }, null],
     ['editor-agent', '?mode=editor&welcome=0&agent=1', 'agent', async (p) => { await p.setInputFiles('#agentfile', 'public/assets/park/park01.jpg'); await p.waitForFunction(() => document.querySelector('#agenttrace li'), null, { timeout: 60000 }); await wait(4000); }, null],
@@ -25,12 +25,13 @@ try {
     ['characters', '?welcome=0', 'maker', async (p) => { await p.waitForSelector('#characters-btn', { timeout: 120000 }); await p.click('#characters-btn'); await p.waitForSelector('#chars'); await wait(800); }, null],
   ];
   for (const [name, q, voice, steps] of screens) {
+    if (process.env.ONLY && !process.env.ONLY.split(',').includes(name)) continue;
     for (const on of [false, true]) {
       const ctx = await browser.newContext({ viewport: { width: 1280, height: 720 } });
       const page = await ctx.newPage(); page.on('pageerror', (e) => errs.push(`${name}: ${e.message.slice(0, 120)}`));
       const url = `${base}${q}${on ? '' : (q.includes('?') ? '&' : '?') + 'says=0'}`;
       try {
-        await page.goto(url + (q ? '' : (on ? '' : '')), { waitUntil: 'load' });
+        await page.goto(url, { waitUntil: 'load' });
         await steps(page, on);
         const b = await badge(page, voice);
         // the welcome and community crew checks look at the strip instead of one voice
