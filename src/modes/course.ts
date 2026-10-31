@@ -915,9 +915,9 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
       return run;
     } catch { return Promise.resolve(searchIdealRun(c)); } // no worker here: search on the page's thread
   }
-  function findPlan(c: CourseData): Promise<Plan> {
+  function findPlan(c: CourseData): Promise<SearchResult> {
     const sig = idealSignal = { cancelled: false };
-    return runSearch(c, sig, (label, step, of) => { idealNote = `Working out the ideal run… ${label} (${step} of ${of}) · any key cancels`; }).then((r) => r.plan);
+    return runSearch(c, sig, (label, step, of) => { idealNote = `Working out the ideal run… ${label} (${step} of ${of}) · any key cancels`; });
   }
   // The fall tip needs how wide the window of good presses is. A course stores it with its plan; when it does not, the workers work it out within a budget (and the tip
   // says the generic thing until then): a whole-course search on the page's thread froze the page for up to half a minute after a fall.
@@ -930,24 +930,36 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
     windowsAsk ??= runSearch(course, { cancelled: false }, undefined, workSeconds(60)).then((r) => (windows = xWindows(r.windows))).catch(() => null);
     return windowsAsk;
   }
+  // CC-241: a standing start has to clear the rest of the course. When the one just before the obstacle cannot (a pair that needs a run-up),
+  // the start moves back to the nearest earlier checkpoint that can, and the line says so.
   async function startIdeal(x0: number, zoneId: string | null) {
-    let p = idealCache.get(x0) ?? (x0 === course.startX ? course.plan : undefined);
     const token = ++idealToken;
-    if (!p) {
-      idealNote = 'Working out the ideal run… (any key cancels)';
-      idealPending = token;
-      p = await findPlan({ ...course, startX: x0 }).catch(() => undefined);
-      if (idealPending !== token || !p) return; // cancelled while the search ran
-      idealPending = 0;
-      idealCache.set(x0, p);
+    const starts = [x0, ...(course.checkpoints ?? []).map((k) => k.x).filter((x) => x < x0).sort((m, n) => n - m), ...(x0 > course.startX ? [course.startX] : [])].filter((x, i, a) => a.indexOf(x) === i);
+    let p: Plan | undefined, from = x0, first: Plan | undefined;
+    for (const x of starts) {
+      let q = idealCache.get(x) ?? (x === course.startX ? course.plan : undefined);
+      if (!q) {
+        idealNote = 'Working out the ideal run… (any key cancels)';
+        idealPending = token;
+        const r = await findPlan({ ...course, startX: x }).catch(() => undefined);
+        if (idealPending !== token || !r) return; // cancelled while the search ran
+        idealPending = 0;
+        first ??= r.plan;
+        if (!r.cleared) continue;
+        q = r.plan; idealCache.set(x, q);
+      }
+      p = q; from = x; break;
     }
+    if (!p) { p = first; from = x0; } // nothing clears from a standing start: show the closest line from where it was asked
+    if (!p) return;
     clearGuides();
-    world = newWorld(course, x0);
+    world = newWorld(course, from);
     log.length = 0; frames.length = 0; replay = null; panel.style.display = 'none';
     plan = p; botState.next = 0; botState.caught = null; botState.bedAt = null;
     idealWhole = zoneId === null;
     demo = zoneId === null ? null : { x1: (course.zones?.find((z) => z.id === zoneId)?.x1 ?? 1e9) + 3 };
     idealNote = zoneId === null ? 'Ideal run through every obstacle: watch it, press any key to take over.' : 'Ideal run: watch how it is done, then press R to try it yourself.';
+    if (from < x0) { const back = (course.checkpoints ?? []).filter((k) => k.x >= from && k.x < x0).length; idealNote += ` It starts ${back === 1 ? 'one obstacle' : `${back} obstacles`} back, to build up speed.`; }
     if (zoneId === null) void ensureShortcuts().then((list) => { if (list[0] && plan === p && idealWhole) idealNote += ' ' + shortcutLine(list[0]); });
   }
   function showIdeal(zoneId: string) { idealWhole = false; void startIdeal(cpFor(zoneId), zoneId); }
