@@ -1,0 +1,72 @@
+[
+  {
+    "id": "c2-hoodie",
+    "seconds": 10.6,
+    "usage": {
+      "input_tokens": 10221,
+      "output_tokens": 989,
+      "total_tokens": 11210
+    },
+    "ok": true
+  },
+  {
+    "id": "c3-robot",
+    "seconds": 11.1,
+    "usage": {
+      "input_tokens": 10333,
+      "output_tokens": 1106,
+      "total_tokens": 11439
+    },
+    "ok": true
+  },
+  {
+    "id": "c4-cactus",
+    "seconds": 15.2,
+    "usage": {
+      "input_tokens": 18178,
+      "output_tokens": 1794,
+      "total_tokens": 19972
+    },
+    "ok": true
+  },
+  {
+    "id": "c5-banana",
+    "seconds": 11.7,
+    "usage": {
+      "input_tokens": 10248,
+      "output_tokens": 1023,
+      "total_tokens": 11271
+    },
+    "ok": true
+  },
+  {
+    "id": "c6-robocat",
+    "seconds": 12.7,
+    "usage": {
+      "input_tokens": 10394,
+      "output_tokens": 1184,
+      "total_tokens": 11578
+    },
+    "ok": true
+  },
+  {
+    "id": "c7-jelly",
+    "seconds": 22.9,
+    "usage": {
+      "input_tokens": 18187,
+      "output_tokens": 1795,
+      "total_tokens": 19982
+    },
+    "ok": true
+  },
+  {
+    "id": "c8-blob",
+    "seconds": 25.3,
+    "usage": {
+      "input_tokens": 27616,
+      "output_tokens": 2156,
+      "total_tokens": 29772
+    },
+    "ok": true
+  }
+]

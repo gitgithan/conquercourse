@@ -1,0 +1,146 @@
+[
+  {
+    "id": "c1-fox",
+    "bake_rig_seconds": 5.6,
+    "verts": 5034,
+    "faces": 5820,
+    "glb_bytes": 359452,
+    "texture_bytes": 50564,
+    "fit": {
+      "sx": 1.3076045372660694,
+      "sy": 1.0003832731023212,
+      "sz": 1.1539939051841954
+    },
+    "bake": {
+      "height_m": 1.749,
+      "yaw_deg": 9.5,
+      "tilt_deg": 1.09
+    }
+  },
+  {
+    "id": "c2-hoodie",
+    "bake_rig_seconds": 3.8,
+    "verts": 5239,
+    "faces": 5820,
+    "glb_bytes": 373812,
+    "texture_bytes": 54258,
+    "fit": {
+      "sx": 1.3860307758474466,
+      "sy": 1.0003084686808605,
+      "sz": 1.1931696222641537
+    },
+    "bake": {
+      "height_m": 1.749,
+      "yaw_deg": 170.5,
+      "tilt_deg": 4.33
+    }
+  },
+  {
+    "id": "c3-robot",
+    "bake_rig_seconds": 3.5,
+    "verts": 5374,
+    "faces": 5820,
+    "glb_bytes": 391564,
+    "texture_bytes": 64991,
+    "fit": {
+      "sx": 1.2258553192487576,
+      "sy": 0.9992635008691679,
+      "sz": 1.1125594100589629
+    },
+    "bake": {
+      "height_m": 1.751,
+      "yaw_deg": 0.5,
+      "tilt_deg": 0.42
+    }
+  },
+  {
+    "id": "c4-cactus",
+    "bake_rig_seconds": 3.1,
+    "verts": 5677,
+    "faces": 5820,
+    "glb_bytes": 403496,
+    "texture_bytes": 61169,
+    "fit": {
+      "sx": 1.2300234431849804,
+      "sy": 0.9986941099747256,
+      "sz": 1.114358776579853
+    },
+    "bake": {
+      "height_m": 1.752,
+      "yaw_deg": 8.0,
+      "tilt_deg": 1.17
+    }
+  },
+  {
+    "id": "c5-banana",
+    "bake_rig_seconds": 3.4,
+    "verts": 5176,
+    "faces": 5820,
+    "glb_bytes": 376284,
+    "texture_bytes": 60011,
+    "fit": {
+      "sx": 1.468565586926474,
+      "sy": 1.0017793638454904,
+      "sz": 1.235172475385982
+    },
+    "bake": {
+      "height_m": 1.747,
+      "yaw_deg": 174.5,
+      "tilt_deg": 2.06
+    }
+  },
+  {
+    "id": "c6-robocat",
+    "bake_rig_seconds": 3.6,
+    "verts": 5999,
+    "faces": 5820,
+    "glb_bytes": 434916,
+    "texture_bytes": 75848,
+    "fit": {
+      "sx": 1.2599165275444923,
+      "sy": 0.9988079458544262,
+      "sz": 1.1293622366994593
+    },
+    "bake": {
+      "height_m": 1.752,
+      "yaw_deg": 15.0,
+      "tilt_deg": 1.66
+    }
+  },
+  {
+    "id": "c7-jelly",
+    "bake_rig_seconds": 4.9,
+    "verts": 5369,
+    "faces": 5820,
+    "glb_bytes": 379444,
+    "texture_bytes": 53131,
+    "fit": {
+      "sx": 1.0104744948425668,
+      "sy": 1.0001770178246496,
+      "sz": 1.0053257563336082
+    },
+    "bake": {
+      "height_m": 1.75,
+      "yaw_deg": 0.0,
+      "tilt_deg": 0.76
+    }
+  },
+  {
+    "id": "c8-blob",
+    "bake_rig_seconds": 4.6,
+    "verts": 3805,
+    "faces": 5820,
+    "glb_bytes": 287120,
+    "texture_bytes": 42139,
+    "fit": {
+      "sx": 1.5988063198742213,
+      "sy": 0.9998249851949428,
+      "sz": 1.299315652534582
+    },
+    "bake": {
+      "height_m": 1.75,
+      "yaw_deg": 177.5,
+      "tilt_deg": 0.64
+    }
+  }
+]

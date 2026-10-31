@@ -17,7 +17,7 @@ export async function startRookieDemo(): Promise<void> {
   const run = clips.run;
   const rookies = {} as Record<RookieId, PosedRookie>;
   for (const id of ['a', 'b'] as const) {
-    rookies[id] = await loadRookie(id, run.names, run.parents);
+    rookies[id] = await loadRookie(id, run.names, run.parents, '/assets/characters', id === 'a' ? params.get('body') ?? undefined : undefined); // ?body=<glb url> puts another body on the 34 bones in Rookie A's place (CC community characters trial)
     stage.scene.add(rookies[id].object);
   }
   const clipLeg = legLength(run.names, (i) => new Vector3(...run.frames[0][i]));
@@ -68,6 +68,24 @@ export async function startRookieDemo(): Promise<void> {
         joints: bones.map((p) => [-p.z, p.y, p.x]),
         target: pose.joints.map((p) => [-p.z, p.y, p.x]),
       };
+    },
+    // worst stretch of any triangle edge against the bind pose, for the shown body (1 = nothing moved; a body that explodes shows several)
+    __skinStretch: () => {
+      let worst = 1, sum = 0, n = 0; const a = new Vector3(), b = new Vector3();
+      rookies[current].object.traverse((o) => {
+        const m = o as import('three/webgpu').SkinnedMesh;
+        if (!m.isSkinnedMesh) return;
+        const idx = m.geometry.index!, pos = m.geometry.attributes.position;
+        const rest = (i: number) => new Vector3().fromBufferAttribute(pos, i);
+        for (let f = 0; f < idx.count; f += 3 * 3) { // every third triangle
+          const i0 = idx.getX(f), i1 = idx.getX(f + 1);
+          const r = rest(i0).distanceTo(rest(i1));
+          if (r < 1e-4) continue;
+          m.getVertexPosition(i0, a); m.getVertexPosition(i1, b);
+          const k = a.distanceTo(b) / r; worst = Math.max(worst, k, 1 / Math.max(k, 1e-6)); sum += k; n++;
+        }
+      });
+      return { worst, mean: sum / Math.max(1, n) };
     },
     __period: motions.a.period,
   });

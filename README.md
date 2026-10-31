@@ -293,7 +293,7 @@ Diagrams are in [docs/meta-ai-pipelines.md](docs/meta-ai-pipelines.md); the full
 | World Editor: design partner, Fix it, photo-to-course draft | **Muse Spark Open** (Baseten) | Proposes a layout; the simulator checks it | Live, server function |
 | World Editor: Course Agent | **Muse Spark Open** (Baseten) | Propose, test, repair loop; 40 of 40 runs proven clearable in at most 3 steps | Live, server function |
 | Community and uploads | **Muse Spark Open** (Baseten) | Upload check and move tips | Live, server function |
-| Characters | **Muse Spark, Muse Image** | Contact targets, character descriptions, the second Rookie | Build time |
+| Characters | **Muse Spark, Muse Image** | Contact targets, character descriptions, and one style picture for the second Rookie; both Rookie meshes are Tripo output (Muse Image's bigger role is tested in `docs/community-characters.md`) | Build time |
 | Music | **MusicGen (AudioCraft)** | An original loop per screen | Build time |
 | World Slicer | **Mapillary** (owned by Meta) | Street photos along a built place, people masked | Live, server proxy |
 

@@ -1,0 +1,98 @@
+{
+  "c1-fox": {
+    "loaded": true,
+    "worstEdgeStretch": 18.03,
+    "meanEdgeRatio": 1.081,
+    "errors": []
+  },
+  "c2-hoodie": {
+    "loaded": true,
+    "worstEdgeStretch": 5.33,
+    "meanEdgeRatio": 1.054,
+    "errors": []
+  },
+  "c3-robot": {
+    "loaded": true,
+    "worstEdgeStretch": 13.23,
+    "meanEdgeRatio": 1.04,
+    "errors": []
+  },
+  "c4-cactus": {
+    "loaded": true,
+    "worstEdgeStretch": 10.39,
+    "meanEdgeRatio": 1.041,
+    "errors": []
+  },
+  "c5-banana": {
+    "loaded": true,
+    "worstEdgeStretch": 7.78,
+    "meanEdgeRatio": 1.026,
+    "errors": []
+  },
+  "c6-robocat": {
+    "loaded": true,
+    "worstEdgeStretch": 15.94,
+    "meanEdgeRatio": 1.099,
+    "errors": []
+  },
+  "c7-jelly": {
+    "loaded": true,
+    "worstEdgeStretch": 15.83,
+    "meanEdgeRatio": 1.063,
+    "errors": []
+  },
+  "c8-blob": {
+    "loaded": true,
+    "worstEdgeStretch": 25.64,
+    "meanEdgeRatio": 1.236,
+    "errors": []
+  },
+  "p-c1-fox": {
+    "loaded": true,
+    "worstEdgeStretch": 9.35,
+    "meanEdgeRatio": 1.008,
+    "errors": []
+  },
+  "p-c3-robot": {
+    "loaded": true,
+    "worstEdgeStretch": 9.35,
+    "meanEdgeRatio": 1.008,
+    "errors": []
+  },
+  "p-c4-cactus": {
+    "loaded": true,
+    "worstEdgeStretch": 9.35,
+    "meanEdgeRatio": 1.008,
+    "errors": []
+  },
+  "p-c5-banana": {
+    "loaded": true,
+    "worstEdgeStretch": 9.35,
+    "meanEdgeRatio": 1.008,
+    "errors": []
+  },
+  "s-c2-hoodie": {
+    "loaded": true,
+    "worstEdgeStretch": 6.82,
+    "meanEdgeRatio": 1.046,
+    "errors": []
+  },
+  "s-c4-cactus": {
+    "loaded": true,
+    "worstEdgeStretch": 16.56,
+    "meanEdgeRatio": 1.049,
+    "errors": []
+  },
+  "rookie-a": {
+    "loaded": true,
+    "worstEdgeStretch": 9.35,
+    "meanEdgeRatio": 1.006,
+    "errors": []
+  },
+  "rookie-b": {
+    "loaded": true,
+    "worstEdgeStretch": 5.64,
+    "meanEdgeRatio": 1.007,
+    "errors": []
+  }
+}
