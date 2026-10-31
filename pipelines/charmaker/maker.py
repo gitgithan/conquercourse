@@ -24,6 +24,8 @@ class Result:
     cost_usd: float = 0.0
     notes: list = field(default_factory=list)
     stretch: dict = field(default_factory=dict)
+    picture_png: bytes = b""                    # kept so a run can save its inputs (the server drops them)
+    mask_png: bytes = b""
 
 
 class Failed(Exception):
@@ -106,6 +108,7 @@ def run(maker: CharacterMaker, req: Request, progress: Optional[Progress] = None
     except Refused as e:
         raise Failed("package", str(e), refund=True)
     res.package, res.stretch = pkg, rigged.stretch
+    res.picture_png, res.mask_png = pic.png, (cut.mask_png if cut else b"")
     res.seconds["rig_package"] = round(time.time() - t, 2)
     pkg.meta["cost_usd"] = round(res.cost_usd, 4)
     pkg.meta["notes"] = res.notes

@@ -48,6 +48,8 @@ import { announceBest, boardBox, boardCorner, boardOn, newsStrip, publishStrip, 
 import { chaseRun, loadRun, openRunView } from '../ui/run-view';
 import { createRookieActor } from '../render/actor';
 import { lookSwitchOn, lookUrl } from '../render/look';
+import { charactersOn, fetchCharacterUrl, guardOn, saveChoice, savedChoice, tooSlow, watchFrames } from '../characters/runner';
+import { openCharacterPanel } from '../characters/panel';
 import { makeObstacle } from '../course/collide';
 import { climbAhead } from '../sim/climb';
 import { DEFAULT_HANG, feetOf, handOffset } from '../sim/holds';
@@ -326,17 +328,35 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
   // CC-41: with ?look=custom a third button wears the MHR body (skinned to the Rookie's bones); nothing changes without the switch
   const look = lookSwitchOn(pageSearch());
   let custom = false;
-  async function loadRookie(which: 'a' | 'b', wear = false) {
+  let characterId: string | null = null; // CC-108: a community character the player picked (loaded only when picked)
+  async function loadRookie(which: 'a' | 'b', wear = false, url?: string) {
     try {
-      const next = await createRookieActor(scene, { rookie: which, url: wear ? lookUrl(look ?? 'custom') : undefined });
+      const next = await createRookieActor(scene, { rookie: which, url: url ?? (wear ? lookUrl(look ?? 'custom') : undefined) });
       actor?.dispose();
       softenPlayer(next.object); // CC-180
-      actor = next; body.visible = false; choice = which; custom = wear;
+      actor = next; body.visible = false; choice = which; custom = wear || !!url;
       if (params.get('nopush') !== '1') actor.setObstacle(makeObstacle(course));
-      if (!wear) try { localStorage.setItem('cc.rookie', which); } catch { /* ok */ }
-    } catch (e) { console.warn('Rookie not loaded, using the capsule', e); }
+      if (!wear && !url) try { localStorage.setItem('cc.rookie', which); } catch { /* ok */ }
+      return true;
+    } catch (e) { console.warn('Rookie not loaded, using the capsule', e); return false; }
   }
   await loadRookie(choice, look !== null);
+  // CC-108: wear a community character. Any failure, or a slow machine, goes back to the Rookie with a plain line.
+  const charNote = document.createElement('div');
+  charNote.id = 'charnote'; charNote.style.cssText = 'position:fixed;right:262px;top:52px;font:600 13px system-ui,sans-serif;background:#fff;border:1px solid #17201d;border-radius:8px;padding:4px 10px;display:none';
+  document.body.appendChild(charNote);
+  const noteLine = (t: string) => { charNote.textContent = t; charNote.style.display = t ? 'block' : 'none'; if (t) setTimeout(() => { charNote.style.display = 'none'; }, 6000); };
+  async function wearCharacter(id: string | null) {
+    if (!id) { characterId = null; saveChoice(null); await loadRookie(choice); return; }
+    const got = await fetchCharacterUrl(id);
+    if ('error' in got) { noteLine(got.error); characterId = null; saveChoice(null); return; }
+    const ok = await loadRookie('a', false, got.url);
+    if (!ok) { noteLine('That character would not load. You are running as the Rookie.'); await loadRookie(choice); characterId = null; saveChoice(null); return; }
+    characterId = id; saveChoice(id);
+    void fetch('/api/character', { method: 'POST', body: JSON.stringify({ action: 'pick', id }) }).catch(() => undefined);
+    if (guardOn()) watchFrames(90, (ms) => { if (characterId === id && tooSlow(ms)) { noteLine('Your computer is slow with this character, so you are back to the Rookie.'); void wearCharacter(null); } });
+  }
+  if (charactersOn()) { const id = savedChoice(); if (id) void wearCharacter(id); }
   let facing: 1 | -1 = course.track ? 1 : resume ? resume.facing : 1;
 
   // HUD
@@ -404,7 +424,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
     b.innerHTML = icon(k);
     b.title = k === 'a' ? 'Run as the male Rookie' : 'Run as the female Rookie';
     b.setAttribute('aria-label', b.title);
-    b.onclick = async () => { await loadRookie(k); paintPick(); };
+    b.onclick = async () => { characterId = null; saveChoice(null); await loadRookie(k); paintPick(); };
     pick.appendChild(b); return b;
   });
   if (look !== null) {
@@ -413,15 +433,22 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
     b.innerHTML = '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="5" r="2.5"/><path d="M12 8 V16 M5 11 H19 M12 16 L8 21 M12 16 L16 21"/></svg>';
     b.title = 'Run as your own look';
     b.setAttribute('aria-label', b.title);
-    b.onclick = async () => { await loadRookie('a', true); paintPick(); };
+    b.onclick = async () => { characterId = null; saveChoice(null); await loadRookie('a', true); paintPick(); };
     pick.appendChild(b); pickBtns.push(b);
   }
   function paintPick() {
     pickBtns.forEach((b, i) => {
-      const on = i === 2 ? custom : !custom && (i === 0 ? 'a' : 'b') === choice;
+      const on = i === 2 ? custom && !characterId : !custom && (i === 0 ? 'a' : 'b') === choice;
       b.setAttribute('aria-pressed', String(on));
       b.style.cssText = `display:grid;place-items:center;width:38px;height:34px;border-radius:8px;cursor:pointer;border:2px solid ${on ? '#0f6b5c' : '#b9c2bb'};background:${on ? '#0f6b5c' : '#fff'};color:${on ? '#fff' : '#17201d'}`;
     });
+  }
+  if (charactersOn()) {
+    const cb = document.createElement('button');
+    cb.id = 'characters-btn'; cb.textContent = 'Characters'; cb.title = 'Latest creations: pick a runner or make one';
+    cb.style.cssText = 'font:600 13px system-ui,sans-serif;border:2px solid #b9c2bb;background:#fff;color:#17201d;border-radius:8px;padding:4px 10px;cursor:pointer';
+    cb.onclick = () => { cb.blur(); openCharacterPanel({ current: characterId, onPick: (c) => { void wearCharacter(c?.id ?? null).then(paintPick); } }); };
+    pick.appendChild(cb);
   }
   paintPick();
   // the camera switch: a ring with three nodes (side, 45°, first person); the ring turns a third each time
