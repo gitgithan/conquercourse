@@ -11,20 +11,17 @@ import { board } from './leaderboard';
 import { json } from '../_lib/http';
 import { FIRST_COURSE_KEY, isBoardKey } from '../../src/share/board-courses';
 import firstCourse from '../../src/course/default-course.json';
+import { fnv, isChallengeKey, loadChallengeCourse, promotes } from '../../src/share/challenge-course';
+import { d1Challenges } from '../_lib/challenge-db';
 
 interface Stmt { bind(...v: unknown[]): { run(): Promise<unknown>; first<T>(): Promise<T | null> } }
-interface Env { DB: { prepare(sql: string): Stmt }; ASSETS: { fetch(url: string): Promise<Response> }; REPLAY?: string }
+interface Env { DB: { prepare(sql: string): Stmt }; ASSETS: { fetch(url: string): Promise<Response> }; REPLAY?: string; CHALLENGE?: string }
 
 const ID = /^[a-zA-Z0-9-]{8,64}$/;
 /** What a key must look like to be asked about at all (the board and the counters take the real places too); publishing is only for the listed courses (src/share/board-courses.ts). */
-export const KEY = /^(demo|experiments\/osm|default)\/[a-z0-9-]{1,60}$/;
+export const KEY = /^(demo|experiments\/osm|default|challenge)\/[a-z0-9-]{1,60}$/;
 export const MAX_BODY = 8000;
 
-function fnv(text: string): string {
-  let h = 0x811c9dc5;
-  for (let i = 0; i < text.length; i++) { h ^= text.charCodeAt(i); h = Math.imul(h, 0x01000193); }
-  return (h >>> 0).toString(36);
-}
 
 const hits = new Map<string, number[]>();
 // Does the table have the CC-174 columns (migration 0004)? Asked once per database; without them the endpoint works as before and an unverified clear is not kept.
@@ -77,9 +74,17 @@ async function handle({ request, env }: { request: Request; env: Env }): Promise
   // and one address cannot make the server replay without end (it lives in one Worker's memory: it slows a flood, it does not stop one)
   const address = request.headers.get('cf-connecting-ip') ?? 'local';
   if (rateLimited(hits, address, Date.now())) { const r = slowDownReply(rateWaitSeconds(hits, address, Date.now())); return json(r.body, 429, r.headers); }
-  if (publish && !isBoardKey(key)) return json({ error: 'not a listed course', reason: 'not-listed' }, 422);
+  const challenge = isChallengeKey(key);
+  if (challenge && env.CHALLENGE === 'off') return json({ error: 'not ready', reason: 'not-ready' }, 503);
+  if (publish && !isBoardKey(key) && !challenge) return json({ error: 'not a listed course', reason: 'not-listed' }, 422);
+  if (!challenge && key.startsWith('challenge/')) return json({ error: 'no such course', reason: 'no-course' }, 404);
   let course: CourseData;
-  if (key === FIRST_COURSE_KEY) course = firstCourse as unknown as CourseData; // the First Course lives in the source, not in public/
+  let challengeAuthor = '';
+  if (challenge) { // a challenge course lives in the database, never in /assets and never in the request (CC-108)
+    const got = await loadChallengeCourse(d1Challenges(env.DB as never), key, Math.floor(Date.now() / 1000));
+    if (!got.ok) return json({ error: got.gone ? 'gone' : 'no such course', reason: got.gone ? 'challenge-gone' : 'no-course' }, got.gone ? 410 : 404);
+    course = got.course; challengeAuthor = got.row.author;
+  } else if (key === FIRST_COURSE_KEY) course = firstCourse as unknown as CourseData; // the First Course lives in the source, not in public/
   else {
     const res = await env.ASSETS.fetch(new URL(`/assets/${key}.course.json`, request.url).toString());
     if (!res.ok) return json({ error: 'no such course', reason: 'no-course' }, 404);
@@ -100,7 +105,7 @@ async function handle({ request, env }: { request: Request; env: Env }): Promise
     return mine ? json(await publishRun(env, 'log_hash', fh, key, hash, nick, keys, session, mine.ticks)) : json({ ok: true, duplicate: true });
   }
   // 1. cheap pre-filter: reject only what the physics or a person cannot do; flag (never reject) a run that beats the stored best line
-  const pre = checkRun({ log, course, idealTicks: await idealTicksOf(env, request.url, key), claimedTicks: claimed });
+  const pre = checkRun({ log, course, idealTicks: challenge ? null : await idealTicksOf(env, request.url, key), claimedTicks: claimed });
   if (!pre.ok) return json({ error: 'not a possible run', reason: 'not-possible', code: pre.code }, 422);
   // 2. write the clear down as unverified BEFORE the replay: if Cloudflare cuts the Worker (Error 1102) nobody can catch it, and this row is what survives
   if (cols) {
@@ -115,7 +120,8 @@ async function handle({ request, env }: { request: Request; env: Env }): Promise
     if (cols) await env.DB.prepare('DELETE FROM course_clears WHERE run_id = ? AND verified = 0').bind(runId).run();
     return json({ error: 'not a clear', reason: 'not-a-clear' }, 422);
   }
-  const beats = beatsIdeal(v.ticks, await idealTicksOf(env, request.url, key));
+  const beats = beatsIdeal(v.ticks, challenge ? null : await idealTicksOf(env, request.url, key));
+  if (challenge && promotes(challengeAuthor, await playerCode(session, 'cc-board'))) await d1Challenges(env.DB as never).promote(key.slice('challenge/'.length), Math.floor(Date.now() / 1000)); // another player's verified clear promotes the course; the author's never does
   if (cols) {
     await env.DB.prepare('UPDATE course_clears SET ticks = ?, verified = 1, beats_ideal = ? WHERE run_id = ?').bind(v.ticks, beats ? 1 : 0, runId).run();
     // a run that beats the stored line keeps its keys, so the search can learn from it (migration 0005; without the column nothing happens)

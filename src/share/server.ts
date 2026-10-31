@@ -35,6 +35,8 @@ export interface ShareEnv {
   /** The course file of a listed course, or null. */
   loadCourse(key: string): Promise<CourseData | null>;
   idealTicks?(key: string): Promise<number | null>;
+  /** The board hash of a live challenge course (CC-108), or null: a made-course link may name one with `cid=`, and only a real one with the same course is kept. */
+  challengeHash?(id: string): Promise<string | null>;
   hits: Map<string, number[]>;
   now(): number; // ms
   address: string;
@@ -57,10 +59,10 @@ export async function contentHash(parts: string[]): Promise<string> {
 }
 
 /** Read the words of the address a link keeps: only the course file (nothing else can be loaded by the server). */
-function courseWord(query: string): { path: string | null; extra: boolean } {
+function courseWord(query: string): { path: string | null; cid: string | null; extra: boolean } {
   const q = new URLSearchParams(query);
-  const extra = [...q.keys()].some((k) => k !== 'course');
-  return { path: q.get('course'), extra };
+  const extra = [...q.keys()].some((k) => k !== 'course' && k !== 'cid');
+  return { path: q.get('course'), cid: q.get('cid'), extra };
 }
 
 export async function createShare(env: ShareEnv, raw: string): Promise<Reply> {
@@ -74,8 +76,8 @@ export async function createShare(env: ShareEnv, raw: string): Promise<Reply> {
   if (!read.ok) return fail(400, read.why === 'version' ? 'old version' : 'bad keys');
   const { hash, nick, log, kind, start } = read.challenge;
   // which course: a listed file, the course every visitor starts on, or a made course carried with the request
-  const { path, extra } = courseWord(query);
-  if (extra) return fail(422, 'course not supported');
+  const { path, cid, extra } = courseWord(query);
+  if (extra || (cid !== null && (made === null || !ID_RE.test(cid)))) return fail(422, 'course not supported');
   let course: CourseData | null = null, courseKind: ShareRow['course_kind'], key = '';
   if (made !== null) { courseKind = 'made'; if (path) return fail(400, 'bad course'); course = await unpackCourse(made, SHARE_MAX_MADE_CHARS); if (!course) return fail(400, 'bad course'); }
   else if (path) {
@@ -83,12 +85,13 @@ export async function createShare(env: ShareEnv, raw: string): Promise<Reply> {
     courseKind = 'asset'; key = m[1]; course = await env.loadCourse(key); if (!course) return fail(404, 'no such course');
   } else { courseKind = 'default'; course = courseJson as unknown as CourseData; }
   if (courseHash(course) !== hash) return fail(409, 'course changed');
+  if (cid !== null && (await env.challengeHash?.(cid)) !== hash) return fail(422, 'course not supported'); // CC-108: the link names a challenge course only if the server has that very course
   const total = logTicks(log);
   const pre = checkRun({ log, course: kind === 'fell' ? { startX: 0, finishX: 0 } : start > 0 ? { ...course, startX: startXOf(course, start) } : course, // CC-242: a run from a checkpoint is checked from that checkpoint
     idealTicks: kind === 'done' && courseKind === 'asset' ? await env.idealTicks?.(key) : null });
   if (!pre.ok) return fail(422, 'not a possible run', { code: pre.code });
   const keys = (start > 0 ? `s${start}~` : '') + param.slice(param.lastIndexOf('.') + 1); // CC-242: the start rides in front of the keys, so no new column is needed
-  const content = await contentHash([String(REPLAY_VERSION), kind, hash, nick, look, courseKind === 'asset' ? key : '', made ?? '', keys]);
+  const content = await contentHash([String(REPLAY_VERSION), kind, hash, nick, look, courseKind === 'asset' ? key : '', made ?? '', keys, ...(cid ? [cid] : [])]);
   const same = await env.store.byContentHash(content);
   if (same) return { status: 200, body: { id: same, duplicate: true } };
   const nowS = Math.floor(env.now() / 1000);
@@ -96,7 +99,7 @@ export async function createShare(env: ShareEnv, raw: string): Promise<Reply> {
     const oldest = await env.store.oldestSince?.(nowS - 3600) ?? null;
     return slow(oldest === null ? 300 : oldest + 3600 - nowS);
   }
-  const row: ShareRow = { id: '', created_at: nowS, sim_version: REPLAY_VERSION, kind, course_kind: courseKind, course_key: key, course_hash: hash, query: path ? `course=${path}` : '', made, nick, look, ticks: total, keys, content_hash: content, beats_ideal: pre.beatsIdeal ? 1 : 0, status: 'ok' };
+  const row: ShareRow = { id: '', created_at: nowS, sim_version: REPLAY_VERSION, kind, course_kind: courseKind, course_key: key, course_hash: hash, query: path ? `course=${path}` : cid ? `cid=${cid}` : '', made, nick, look, ticks: total, keys, content_hash: content, beats_ideal: pre.beatsIdeal ? 1 : 0, status: 'ok' };
   for (let tries = 0; tries < 5; tries++) { // a taken id is rare (31^10 ids); try another
     row.id = newId(env.randomBytes);
     if (await env.store.insert(row)) return { status: 201, body: { id: row.id } };
