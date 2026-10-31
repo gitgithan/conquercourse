@@ -63,7 +63,7 @@ export const ballsOn = (params: URLSearchParams): boolean => params.get('balls')
 
 /** The three launchers of the First Course: a low one before the rope, a low one before the trampoline, and a high one over the last deck. */
 export const BALL_LAUNCHERS: ShotLauncher[] = [
-  { x: 24, y: 1.2, vx: -20, vy: 2, every: 8, phase: 8 },
-  { x: 52, y: 1.5, vx: -25, vy: 2, every: 9, phase: 9 },
-  { x: 76, y: 5.8, vx: -25, vy: 2, every: 10, phase: 2.2 },
+  { x: 24, y: 1.2, vx: -20, vy: 2, every: 30, phase: 3 },
+  { x: 52, y: 1.5, vx: -25, vy: 2, every: 30, phase: 3 },
+  { x: 76, y: 5.8, vx: -25, vy: 2, every: 30, phase: 3 },
 ];
