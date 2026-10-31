@@ -161,7 +161,9 @@ export function stepCartWorld(w: WorldState, input: RunnerInput, course: CourseD
   let out: WorldState = { ...w, cart: { segment: c.segment, x, v, started, stalledAt, tilt: Math.atan(s) }, events, runner: { ...w.runner, tick, x, y, vx: v * cosPhi, vy: v * s * cosPhi, grounded: true } };
   // At the end of a segment, fly toward the following section; the last rail end is the finish.
   if (x >= rails.x1 && v > 0) {
-    if (c.segment + 1 < trackSegments(track).length) {
+    const more = c.segment + 1 < trackSegments(track).length;
+    const onward = course.finishX > rails.x1 + 1; // CC-244: other obstacles come after the last rail, so the rail's end is not the finish: the rider flies on
+    if (more || onward) {
       const endX = rails.x1, slope = rails.slope(endX), cos = 1 / Math.sqrt(1 + slope * slope);
       events.push({ tick, type: 'cart-off', detail: { x: endX, v, segment: c.segment, end: true } });
       return { ...out, mode: 'run', cart: null, events, runner: { ...out.runner, x: endX, y: rails.y(endX) + p.seat, vx: v * cos, vy: v * slope * cos, grounded: false, landedAtTick: null, landedAtX: null } };

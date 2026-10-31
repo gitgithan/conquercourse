@@ -646,6 +646,29 @@ export function searchCartRun(course: CourseData): { plan: Plan; windows: Window
   return fallback!;
 }
 
+// A coaster that is followed by other ground (CC-244): once the rider has left the last rail, the ordinary jumps take over. Each fall is answered by a jump just before the edge it fell from.
+function finishOnFoot(course: CourseData, plan: Plan, cap: number): boolean {
+  const railEnd = Math.max(...course.track!.pts.map((q) => q[0]));
+  if (course.finishX <= railEnd + 1) return false;
+  const edges = course.terrain.platforms.map((q) => q.x1).filter((x) => x > railEnd).sort((x, y) => x - y);
+  for (let round = 0; round < 8; round++) {
+    const r = playPlan(course, plan, cap);
+    if (r.world.outcome === 'cleared') return true;
+    if (r.world.mode === 'cart' || r.world.outcome === 'stalled') return false;
+    const at = r.world.runner.x, edge = [...edges].reverse().find((x) => x <= at + 0.6);
+    if (edge === undefined) return false;
+    let best: { x: number; reach: number; cleared: boolean } | null = null;
+    for (const back of [0.05, 0.15, 0.3, 0.5, 0.8, 1.2]) {
+      const jumpXs = [...plan.jumpXs.filter((x) => x < edge - 2), edge - back].sort((x, y) => x - y);
+      const rr = playPlan(course, { ...plan, jumpXs }, cap), cleared = rr.world.outcome === 'cleared', reach = rr.world.runner.x;
+      if (!best || (cleared && !best.cleared) || (cleared === best.cleared && reach > best.reach)) best = { x: edge - back, reach, cleared };
+    }
+    if (!best || (!best.cleared && best.reach <= at + 0.01)) return false;
+    plan.jumpXs = [...plan.jumpXs.filter((x) => x < edge - 2), best.x].sort((x, y) => x - y);
+  }
+  return playPlan(course, plan, cap).world.outcome === 'cleared';
+}
+
 function searchCartBrakes(course: CourseData, plan: Plan): { plan: Plan; windows: Window[]; cleared: boolean } {
   const windows: Window[] = [];
   const cap = 120 * 90;
@@ -653,7 +676,7 @@ function searchCartBrakes(course: CourseData, plan: Plan): { plan: Plan; windows
     const r = playPlan(course, plan, cap);
     if (rode(r)) return { plan, windows, cleared: true };
     const off = r.events.find((e) => e.type === 'cart-off' && !e.detail?.end);
-    if (!off) return { plan, windows, cleared: false }; // stalled or something else: braking cannot help
+    if (!off) return { plan, windows, cleared: finishOnFoot(course, plan, cap) }; // stalled or something else: braking cannot help (unless the rider is only waiting for the ground that follows the rails)
     const xOff = off.detail!.x as number;
     const x0 = course.track!.pts.reduce((m, q) => Math.min(m, q[0]), Infinity);
     const best: { a: number; ok: boolean; cleared: boolean }[] = [];
@@ -671,5 +694,5 @@ function searchCartBrakes(course: CourseData, plan: Plan): { plan: Plan; windows
     plan.cartBrake!.push([pick, xOff + 1]);
     windows.push({ obstacle: `crest at ${xOff.toFixed(0)} m`, best: pick, lo, hi, widthMs: ((hi - lo + 1) / 8) * 1000 });
   }
-  return { plan, windows, cleared: rode(playPlan(course, plan, cap)) };
+  return { plan, windows, cleared: rode(playPlan(course, plan, cap)) || finishOnFoot(course, plan, cap) };
 }
