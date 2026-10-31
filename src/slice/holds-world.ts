@@ -2,7 +2,7 @@ import { DEFAULT_HANG } from '../sim/holds';
 import { GRAVITY } from '../sim/units';
 import { HALF_LANE } from './slice';
 import type { Mesh } from './slice';
-import type { Piece } from './world';
+import { realSize, type Piece } from './world';
 
 // Bars in the editor: a piece whose src is "hold:bar" is a thin bar across the lane. It is not ground (the slice ignores it);
 // it becomes a hold in the course. Its height off the ground is the bar's height.
@@ -25,8 +25,9 @@ export function holdsOf(pieces: P[], lane: { angle: number; offset: number; leve
   const c = Math.cos(lane.angle), s = Math.sin(lane.angle);
   const out: { u: number; y: number; id: number }[] = [];
   for (const p of pieces) {
-    if (!isHold(p)) continue;
-    const u = p.x * c + p.z * s, v = -p.x * s + p.z * c - lane.offset, y = p.y + 0.04 - lane.level;
+    if (!isHold(p) && p.role !== 'bar') continue;
+    // a 3D object used as a swing bar (CC-244) hangs the rider from its top; the bar piece itself is a thin bar a hand's width thick
+    const u = p.x * c + p.z * s, v = -p.x * s + p.z * c - lane.offset, y = (isHold(p) ? p.y + 0.04 : p.y + realSize(p).h) - lane.level;
     if (Math.abs(v) <= HALF_LANE + 0.5 && y > 0.3) out.push({ u, y, id: p.id });
   }
   return out.sort((a, b) => a.u - b.u);

@@ -37,3 +37,13 @@
 - The warped wall (a curved run-up) is in `src/sim/wall.ts` and the Dojo; I found no course key for it, so it has no row.
 - "Low bar or shimmy", "water as a swim" and "ramp keys" were asked for; the code has no shimmy, and water only ends the run, so they are not rows.
 - Trampoline and band numbers are from `src/sim` constants, not measured in a run.
+
+## Coaster and swing bars in the editor (CC-244, 2026-10-31)
+- The ride is drawn as a gentle curve through its dots, the same curve the cart follows.
+- The "Gentle wave" shape is a long smooth ride with small hills.
+- Reaching the end of the last rail is not the finish line when more course follows.
+- The rider flies off the end and carries on: grabs the next bar or lands on the next platform.
+- The ideal run for such a course rides first, then plays on from where the rider lands.
+- A 3D object can take the role "Swing bar": it becomes a bar to hang from at its top, not a block to stand on.
+- The "Height off the ground" slider goes up to 8 m for bars.
+- Law tests: `tests/coaster-flow.test.ts`.

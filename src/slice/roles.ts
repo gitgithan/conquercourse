@@ -14,7 +14,7 @@ import type { LaneSetting } from './advice';
 // This module is pure: it knows what each move needs, builds the course a world makes (with the roles), says which moves a world has and lacks,
 // and proposes the smallest scale, turn or lift that gives a piece the size its role needs. Every proposal is proved by the simulator.
 export type { Role } from './world';
-export const ROLE_NAME: Record<Role, string> = { ground: 'Plain ground', wall: 'Warped Wall', rope: 'Rope anchor', trampoline: 'Trampoline bed' };
+export const ROLE_NAME: Record<Role, string> = { ground: 'Plain ground', wall: 'Warped Wall', rope: 'Rope anchor', trampoline: 'Trampoline bed', bar: 'Swing bar' };
 
 // ---- what each move needs, in plain words (the Moves panel) ----
 export type MoveId = 'gap' | 'step' | 'wall' | 'rope' | 'trampoline' | 'lache' | 'drop' | 'stack' | 'trebuchet' | 'coaster';
@@ -73,7 +73,7 @@ function extendTop(course: CourseData, xFace: number, minLen: number): void {
 // ---- the course a world makes, with its roles ----
 export interface RoleBuild { course: CourseData; notes: string[]; length: number } // notes: why a role could not be used; length: metres of ground in the lane
 export function roleCourse(pieces: P[], lane: LaneSetting, name = 'My world'): RoleBuild {
-  const ground = pieces.filter((p) => !isHold(p) && p.role !== 'rope'); // bars and rope anchors are not ground
+  const ground = pieces.filter((p) => !isHold(p) && p.role !== 'rope' && p.role !== 'bar'); // bars and rope anchors are not ground
   const pr = laneProfile(ground, lane);
   const walls = pieces.filter((p) => p.role === 'wall' && inLane(p, lane)), beds = pieces.filter((p) => p.role === 'trampoline' && inLane(p, lane)), ropes = pieces.filter((p) => p.role === 'rope' && inLane(p, lane));
   const splits: number[] = [];
@@ -116,7 +116,7 @@ export const clears = (pieces: P[], lane: LaneSetting, wrap?: (c: CourseData) =>
 export type Have = 'yes' | 'no' | 'elsewhere';
 export interface MoveStatus extends MoveInfo { have: Have; detail: string }
 export function movesInWorld(pieces: P[], lane: LaneSetting, extra: { trebuchet?: boolean } = {}): MoveStatus[] {
-  const ps = pieces.filter((p) => !isHold(p) && p.role !== 'rope');
+  const ps = pieces.filter((p) => !isHold(p) && p.role !== 'rope' && p.role !== 'bar');
   const prof = laneProfile(ps, lane), report = describe(prof);
   const { course, notes } = roleCourse(pieces, lane);
   const bars = course.holds?.length ?? 0, bed = course.terrain.platforms.some((q) => q.bouncy);
