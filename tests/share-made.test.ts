@@ -63,8 +63,10 @@ describe("a course made in the editor travels in the link (CC-136)", () => {
     expect(await unpackCourse("d" + "A".repeat(2000))).toBeNull();
   });
   it("a course that is too big gets no link and is named as the cause", async () => {
-    const course = made(load("coaster.course.json"));
+    const course = made(load("lache.course.json")), last = course.terrain.platforms[course.terrain.platforms.length - 1];
+    for (let i = 0; i < 61; i++) course.terrain.platforms.push({ ...last, x0: last.x1 + 1 + i * 3, x1: last.x1 + 2 + i * 3 }); // more platforms than a share may hold
     expect(await courseTooBig("", course)).toBe(true);
+    expect(await courseTooBig("", made(load("coaster.course.json")))).toBe(false); // the coaster that did not fit a long link fits a saved share (CC-219)
     const plain = made(load("lache.course.json"));
     expect(await courseTooBig("", plain)).toBe(false);
     expect(await packCourse(madeCourse(plain)!)).toMatch(/^d/);
