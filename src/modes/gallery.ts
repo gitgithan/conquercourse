@@ -29,7 +29,7 @@ export function startGallery(host: HTMLElement): { backend: 'webgl2' } {
   host.appendChild(root);
   const head = document.createElement('div');
   head.className = 'bar';
-  head.innerHTML = '<h1>Community courses</h1><a class="btn go" href="?">Back to the Course</a><a class="btn" href="?mode=park" id="make">Make your own from a photo</a><a class="btn" href="?mode=editor">World Editor</a>';
+  head.innerHTML = '<h1>Community courses</h1><a class="btn go" href="?">Back to the Course</a><a class="btn" href="?mode=editor">World Editor</a>';
   const intro = document.createElement('div');
   intro.className = 'muted';
   intro.textContent = 'Real obstacles, photographed and measured by people like you. Pick one to run it with the same physics as the main Course.';
@@ -94,7 +94,7 @@ export function startGallery(host: HTMLElement): { backend: 'webgl2' } {
       const r = await fetch('/api/community', { cache: 'no-cache' });
       if (!r.ok) throw new Error(String(r.status));
       const body = await r.json() as { courses: { id: number; name: string; nick: string; width: number; height: number; boxes: ParkObject[] }[] };
-      if (!body.courses.length) status.textContent = 'No community courses yet. Be the first: make one from a photo.';
+      if (!body.courses.length) status.textContent = 'No community courses yet.';
       for (const c of body.courses) offer({ key: `c${c.id}`, id: c.id, name: c.name, by: c.nick, image: `/api/community-image?id=${c.id}`, width: c.width, height: c.height, boxes: c.boxes }, true);
       await queue;
     } catch { status.textContent = 'The community courses could not be loaded right now (they need the online site). The starters still work.'; }

@@ -40,5 +40,6 @@
 - Tests: `tests/segment.test.ts` and `scripts/communities-check.mjs` (the suggestion is faked there).
 
 ## The new flow
-- `?flow=1` opens one screen with a stepper: Photo, Mark, Segment, Choose, Make.
+- Community is one screen with a stepper: Photo, Mark, Segment, Choose, Make.
+- Old screens are gone (CC-247, 2026-10-31); `?mode=gallery` and `?mode=park` open Explore.
 - See `docs/community-flow-guide.md`.

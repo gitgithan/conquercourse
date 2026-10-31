@@ -1,15 +1,17 @@
 import { Regions } from '../ui/regions';
-import { liftObject, shrinkPhoto, type Shrunk } from '../slice/object-lift-client';
+import { JobError, liftObject, shrinkPhoto, type Shrunk } from '../slice/object-lift-client';
+import { LIFT_STEPS, SEGMENT_STEPS } from '../slice/stages';
+import { jobProgress } from '../ui/job-progress';
 import { LABEL_RE, MIN_BOX } from '../slice/object-lift';
-import { suggestRegions } from '../slice/segment-client';
+import { SegmentOff, suggestRegions } from '../slice/segment-client';
 import { listUserObjects, saveUserObject, type UserObject } from '../slice/user-objects';
 import { DEMOS, worldHref } from '../ui/world-picker';
 import { SAMPLE_WALLPAPERS, cropToThumb, saveWallpaper, savedWallpapers } from '../community/wallpaper';
 import { STEPS, TABS, afterMarksChanged, canEnter, matchSuggestions, nextStep, prevStep, startState, tabFor, wallpaperCrop, whyNot, type Box, type FlowState, type Kind, type Step, type Tab } from '../community/flow';
 import { startGallery } from './gallery';
 
-// Community (CC-247): one screen, three tabs. The Photos tab is a stepper: Photo, Mark, Segment, Choose, Make.
-// The marks are also the crop tool, so a wallpaper needs no second screen. Looks only: nothing here changes how a course is cleared.
+// Community (CC-247): one screen, two tabs: Explore (finished work first) and Make your own, a stepper: Photo, Mark, Segment, Choose, Make.
+// A photo gives objects and wallpapers only; courses come from World Slicing and the Editor. One rectangle at a time. The mark is also the crop tool. Looks only: nothing here changes how a course is cleared.
 const SAMPLES = ['park01', 'park02', 'park03', 'park06'];
 const STYLE = `
 .com{font:16px/1.4 system-ui,sans-serif;color:#17201d;background:#eef1ec;position:fixed;inset:0;overflow:auto;padding:56px 24px 24px}
@@ -23,7 +25,7 @@ const STYLE = `
 .com .steps button{border-radius:999px;border:0;background:#e1e7e2;color:#58635d;font-size:14px;padding:4px 12px}
 .com .steps .on{background:#0f6b5c;color:#fff;font-weight:700}.com .steps .done{background:#cfe6df;color:#0f6b5c}
 .com .panel{background:#fff;border:1px solid #cfd6d0;border-radius:14px;padding:16px;display:grid;gap:12px}
-.com .muted{color:#58635d;font-size:14px}.com .row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.com .muted{color:#58635d;font-size:14px}.com .err{color:#b3261e;font-weight:600}.com .row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
 .com .stage{position:relative;display:inline-block;user-select:none;touch-action:none;max-width:100%}
 .com .stage img{max-width:100%;max-height:52vh;display:block;cursor:crosshair}
 .com .box{position:absolute;border:2px solid #ff9f1c;background:rgba(255,159,28,.14);cursor:move;box-sizing:border-box}
@@ -51,7 +53,6 @@ export function startCommunityFlow(host: HTMLElement, params: URLSearchParams): 
   const tabsEl = el('div', top); tabsEl.className = 'tabs'; tabsEl.setAttribute('role', 'tablist');
   const tabBtn = {} as Record<Tab, HTMLButtonElement>;
   for (const t of TABS) { const b = el('button', tabsEl, t.label, { id: `tab-${t.id}`, title: t.hint }); b.setAttribute('role', 'tab'); tabBtn[t.id] = b; b.onclick = () => showTab(t.id); }
-  el('a', top, 'Make a course from a photo (Park)', { className: 'btn', href: '?mode=park&welcome=0' });
   const body = el('div', root);
 
   // the photo work survives a tab change, so looking at Objects does not lose your marks
@@ -70,7 +71,7 @@ export function startCommunityFlow(host: HTMLElement, params: URLSearchParams): 
     const courses = sec('Courses people made', 'Finished courses made from real places. Press Play on any card to try it.', 'ex-courses');
     const holder = el('div', courses); holder.className = 'places'; startGallery(holder);
 
-    const mk = sec('Now make your own', 'Start with a photo of a place you know. You mark the areas, cut them out, then turn each one into a 3D piece or a wallpaper.', 'ex-make');
+    const mk = sec('Now make your own', 'Start with a photo of a place you know. You mark one area, cut it out, then turn it into a 3D piece or a wallpaper. Courses are made in the World Slicer and the World Editor.', 'ex-make');
     el('button', mk, 'Make your own', { className: 'go', id: 'make-own' }).onclick = () => showTab('make');
 
     const made = sec('Pieces and wallpapers', 'Finished examples first, then yours. Pieces go in the World Editor tray; wallpapers go behind a course.', 'ex-objects');
@@ -161,11 +162,11 @@ export function startCommunityFlow(host: HTMLElement, params: URLSearchParams): 
           if (d.mode === 'new') {
             let b: Box = [Math.min(d.x, p.x), Math.min(d.y, p.y), Math.max(d.x, p.x), Math.max(d.y, p.y)];
             if (b[2] - b[0] < MIN_BOX || b[3] - b[1] < MIN_BOX) { const w = ph.width * 0.2, h = w * 0.75; b = [Math.max(0, Math.min(d.x - w / 2, ph.width - w)), Math.max(0, Math.min(d.y - h / 2, ph.height - h)), 0, 0]; b[2] = b[0] + w; b[3] = b[1] + h; } // a click drops a ready-made box
-            rg.add(b);
+            rg.add(b); rg.limit(1); // one rectangle at a time: a new one replaces the old one
           }
           draw(); onChange();
         };
-        document.onkeydown = (e) => { if ((e.target as HTMLElement).tagName === 'INPUT') return; if (rg.key(e)) { e.preventDefault(); draw(); onChange(); } };
+        document.onkeydown = (e) => { if ((e.target as HTMLElement).tagName === 'INPUT') return; if (rg.key(e)) { e.preventDefault(); rg.limit(1); draw(); onChange(); } };
       }
       if (img.complete) draw(); else img.onload = draw;
       draw();
@@ -175,45 +176,55 @@ export function startCommunityFlow(host: HTMLElement, params: URLSearchParams): 
     function stepMark() {
       if (!work.photo || !work.rg) return go('photo');
       const rg = work.rg, ph = work.photo;
-      el('h2', panel, 'Step 2. Mark the area(s) you want');
-      el('div', panel, 'Click the photo to drop a box, or drag to draw your own. Drag a box to move it, the green corner to resize. Ctrl+C and Ctrl+V copy and paste, Delete removes, Ctrl+Z undoes. The same boxes cut out a wallpaper, so there is only one tool.').className = 'muted';
+      el('h2', panel, 'Step 2. Mark the area you want');
+      el('div', panel, 'Click the photo to drop a box, or drag to draw your own. Only one box is kept: a new box replaces the old one. Drag the box to move it, the green corner to resize. Delete removes it, Ctrl+Z undoes. The same box cuts out a wallpaper, so there is only one tool.').className = 'muted';
       const info = el('div', panel); info.className = 'muted'; info.id = 'cinfo';
       let nav: ReturnType<typeof navRow>;
-      const changed = () => { const was = work.fs.segmented; work.fs = afterMarksChanged(work.fs, rg.list.length); if (was) { work.kinds.clear(); work.found = []; } info.textContent = rg.list.length ? `${rg.list.length} area${rg.list.length === 1 ? '' : 's'} marked.` : 'Nothing marked yet.'; if (nav.next) nav.next.disabled = !canEnter('segment', work.fs); };
+      const changed = () => { const was = work.fs.segmented; work.fs = afterMarksChanged(work.fs, rg.list.length); if (was) { work.kinds.clear(); work.found = []; } info.textContent = rg.list.length ? 'Area marked.' : 'Nothing marked yet.'; if (nav.next) nav.next.disabled = !canEnter('segment', work.fs); };
       stage(rg, ph, true, changed);
       nav = navRow(panel, 'Next: Segment', canEnter('segment', work.fs), 'cnext');
-      info.textContent = rg.list.length ? `${rg.list.length} area${rg.list.length === 1 ? '' : 's'} marked.` : 'Nothing marked yet.';
+      info.textContent = rg.list.length ? 'Area marked.' : 'Nothing marked yet.';
     }
 
     function stepSegment() {
       if (!work.photo || !work.rg) return go('photo');
       const rg = work.rg, ph = work.photo;
-      el('h2', panel, 'Step 3. Segment Region(s)');
-      el('div', panel, 'This finds the exact outline of each thing you marked. It can take up to a minute.').className = 'muted';
+      el('h2', panel, 'Step 3. Segment Region');
+      el('div', panel, 'This finds the exact outline of the area you marked. It usually takes under a minute; the first one after a quiet spell can take longer.').className = 'muted';
       const msg = el('div', panel, work.segMsg); msg.className = 'muted'; msg.id = 'cseginfo';
       const st = stage(rg, ph, false, () => undefined);
+      const prog = el('div', panel); prog.id = 'cprog';
       const chips = el('div', panel); chips.className = 'row'; chips.id = 'chips';
       const showChips = () => {
         chips.replaceChildren();
         for (const r of rg.list) { const c = el('span', chips); c.className = 'chip'; const sw = el('s', c); if (r.cutout) sw.style.setProperty('--cut', `url(data:image/png;base64,${r.cutout})`); else sw.style.background = '#ff9f1c'; el('span', c, r.label || 'your box'); }
-        for (const x of work.found) { const b = el('button', chips, `+ ${x.label}`, { title: 'Also found: add it' }); b.dataset.extra = x.label; b.onclick = () => { rg.add(x.box, x.label, 'suggested', x.cutout); work.found = work.found.filter((y) => y !== x); work.fs = afterMarksChanged(work.fs, rg.list.length); work.fs.segmented = true; st.draw(); showChips(); }; }
+        for (const x of work.found) { const b = el('button', chips, `Use "${x.label}" instead`, { title: 'The finder saw this too: use it as your area instead of the box' }); b.dataset.extra = x.label; b.onclick = () => { const was = rg.list[0]; rg.list = []; rg.add(x.box, x.label, 'manual', x.cutout); work.found = work.found.filter((y) => y !== x); if (was) work.found.push({ label: was.label || 'your box', score: 0, box: was.box, cutout: was.cutout ?? '' }); work.fs = afterMarksChanged(work.fs, rg.list.length); work.fs.segmented = true; st.draw(); showChips(); }; }
       };
       const row = el('div', panel); row.className = 'row';
-      const run = el('button', row, work.fs.segmented ? 'Segment Region(s) again' : 'Segment Region(s)', { className: 'go', id: 'cseg' });
-      const skip = el('button', row, 'Skip: use my boxes as they are', { id: 'cskip', title: 'Use the plain boxes without exact outlines' });
+      const run = el('button', row, work.fs.segmented ? 'Segment Region again' : 'Segment Region', { className: 'go', id: 'cseg' });
+      const skip = el('button', row, 'Use my box as the outline', { id: 'cskip', title: 'Skip the finder: the plain box is the outline' });
       const nav = navRow(panel, 'Next: Choose', work.fs.segmented, 'cnext');
       const done = () => { work.fs.segmented = true; if (nav.next) nav.next.disabled = false; run.disabled = false; skip.disabled = false; st.draw(); showChips(); };
-      skip.onclick = () => { work.segMsg = 'Using your boxes without outlines.'; msg.textContent = work.segMsg; done(); };
+      const say = (t: string, bad = false) => { work.segMsg = t; msg.textContent = t; msg.className = bad ? 'err' : 'muted'; if (bad) msg.setAttribute('role', 'alert'); else msg.removeAttribute('role'); };
+      skip.onclick = () => { for (const r of rg.list) r.cutout = undefined; say('Your box is the outline.'); done(); };
       run.onclick = async () => {
-        run.disabled = true; skip.disabled = true; msg.textContent = 'Starting.';
+        run.disabled = true; skip.disabled = true; prog.replaceChildren(); say('');
+        const ctl = new AbortController(), bar = jobProgress(prog, SEGMENT_STEPS, () => ctl.abort());
         try {
-          const found = await suggestRegions(ph, (t) => { msg.textContent = t; });
+          const found = await suggestRegions(ph, () => undefined, ctl.signal, bar.update);
+          bar.finish();
           const { matched, extras } = matchSuggestions(rg.list.map((r) => ({ id: r.id, box: r.box })), found);
           for (const r of rg.list) { const m = matched.get(r.id); if (m) { r.cutout = m.cutout || undefined; if (!r.label) rg.rename(r.id, m.label); } }
           work.found = extras;
-          work.segMsg = `${matched.size} of ${rg.list.length} marked area${rg.list.length === 1 ? '' : 's'} outlined${extras.length ? `, ${extras.length} more found: click one to add it` : ''}.`;
-          msg.textContent = work.segMsg; done();
-        } catch (e) { msg.textContent = `${(e as Error).message} You can skip this step and use your boxes.`; run.disabled = false; skip.disabled = false; }
+          say(matched.size ? `Outline found${extras.length ? `. ${extras.length} other thing${extras.length === 1 ? '' : 's'} found too: you can use one instead` : ''}.` : `No outline fits your box, so your box is the outline${extras.length ? `. ${extras.length} other thing${extras.length === 1 ? '' : 's'} found: you can use one instead` : ''}.`);
+          done();
+        } catch (e) {
+          bar.fail();
+          const err = e as JobError;
+          if (err instanceof SegmentOff) { say(err.message); done(); } // the job is off here: the box itself is the outline, and the page says so
+          else if (err.stopped) { say('Stopped. You can try again or use your box as the outline.'); run.disabled = false; skip.disabled = false; }
+          else { say(`${err.message} You can try again, or use your box as the outline.`, true); run.disabled = false; skip.disabled = false; }
+        }
       };
       if (work.fs.segmented) showChips();
     }
@@ -265,14 +276,24 @@ export function startCommunityFlow(host: HTMLElement, params: URLSearchParams): 
         if (kind === 'piece') {
           el('strong', side, `3D piece: ${label || '(name it in Step 4)'}`);
           const gen = el('button', side, 'Generate Piece', { className: 'go', id: `gen-${r.id}` });
+          const prog = el('div', side);
           gen.onclick = async () => {
-            if (!LABEL_RE.test(label)) { msg.textContent = 'Name the area with a plain word like bench, railing, stairs or wall (Step 4).'; return; }
-            gen.disabled = true;
+            if (!LABEL_RE.test(label)) { msg.textContent = 'Name the area with a plain word like bench, railing, stairs or wall (Step 4).'; msg.className = 'err'; return; }
+            gen.disabled = true; gen.textContent = 'Making it…'; msg.textContent = ''; msg.className = 'muted'; prog.replaceChildren();
+            const ctl = new AbortController(), bar = jobProgress(prog, LIFT_STEPS, () => ctl.abort());
             try {
-              const res = await liftObject({ photo: ph, box: r.box, label, height_m: null }, (s) => { msg.textContent = s; });
+              const res = await liftObject({ photo: ph, box: r.box, label, height_m: null }, () => undefined, ctl.signal, bar.update);
+              bar.finish();
               try { await saveUserObject({ id: res.prov.id, glb: res.glb, prov: res.prov }); } catch { /* not kept after this visit */ }
-              work.made.pieces.push(res.prov.id); msg.textContent = `Done in ${res.seconds} s. It is in the World Editor tray as "📷 Mine: ${res.prov.name}".`; showNext();
-            } catch (e) { msg.textContent = (e as Error).message; gen.disabled = false; }
+              work.made.pieces.push(res.prov.id); gen.textContent = 'Generate Piece'; msg.textContent = `Done in ${res.seconds} s. It is in the World Editor tray as "📷 Mine: ${res.prov.name}".`; showNext();
+            } catch (e) {
+              bar.fail();
+              const err = e as JobError; gen.textContent = 'Generate Piece';
+              msg.className = err.stopped ? 'muted' : 'err'; msg.setAttribute('role', 'alert');
+              msg.textContent = err.stopped ? 'Stopped. The 3D maker may still finish in the background, and it still counts for today.' : err.message;
+              if (err.final && err.retryAt) setTimeout(() => { gen.disabled = false; }, Math.min(err.retryAt - Date.now(), 2_000_000_000)); // the button comes back when the wait is over
+              else gen.disabled = !!err.final;
+            }
           };
         } else {
           el('strong', side, 'Wallpaper');

@@ -13,7 +13,7 @@ export const TILES: Tile[] = [
   { id: 'courses', line: 'Run, jump, vault and swing.', points: ['Pick a course and race the clock', 'Speed, height and timing all matter', 'New courses to try all the time'] },
   { id: 'editor', line: 'Build a course from real objects.', points: ['Drop benches, rails and walls', 'The game checks the course can be beaten', 'Play it, then share it'] },
   { id: 'slicer', line: 'Cut a lane out of a real place.', points: ['Pick a spot on a real map', 'Slice out one lane of it', 'Run the lane you cut'] },
-  { id: 'community', line: 'See what other players made.', points: ['Wallpapers and 3D objects from real photos', 'Courses built by other players', 'Make your own and share it'] },
+  { id: 'community', line: 'See what other players made.', points: ['Wallpapers and 3D objects from real photos', 'Courses built by other players', 'Make an object or wallpaper from your own photo'] },
 ];
 
 const CSS = `

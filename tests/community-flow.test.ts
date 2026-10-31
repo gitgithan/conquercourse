@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { STEPS, TABS, afterMarksChanged, canEnter, flowOn, iou, matchSuggestions, nextStep, prevStep, startState, tabFor, wallpaperCrop, whyNot, type Box } from '../src/community/flow';
+import { STEPS, TABS, afterMarksChanged, canEnter, iou, matchSuggestions, nextStep, prevStep, startState, tabFor, wallpaperCrop, whyNot, type Box } from '../src/community/flow';
 
 const q = (s: string) => new URLSearchParams(s);
 const sug = (box: Box, label = 'bench') => ({ label, score: 0.9, box, cutout: '' });
@@ -13,7 +13,7 @@ describe('the stepper', () => {
     let s = startState();
     expect(canEnter('photo', s)).toBe(true); expect(canEnter('mark', s)).toBe(false);
     s = { ...s, hasPhoto: true }; expect(canEnter('mark', s)).toBe(true); expect(canEnter('segment', s)).toBe(false);
-    expect(whyNot('segment', s)).toMatch(/Mark at least one/);
+    expect(whyNot('segment', s)).toMatch(/Mark the area/);
     s = { ...s, marks: 2 }; expect(canEnter('segment', s)).toBe(true); expect(canEnter('choose', s)).toBe(false);
     expect(whyNot('choose', s)).toMatch(/Segment Region/);
     s = { ...s, segmented: true }; expect(canEnter('choose', s)).toBe(true); expect(canEnter('make', s)).toBe(false);
@@ -37,13 +37,6 @@ describe('tabs and the feature switch', () => {
     expect(tabFor('communities', q('tab=objects'))).toBe('explore');
     expect(tabFor('communities', q('tab=places'))).toBe('explore');
     expect(tabFor('communities', q('tab=nope'))).toBe('explore');
-  });
-  it('is on with flow=1, off with flow=0, and by default only on the preview address', () => {
-    expect(flowOn(q('flow=1'), 'conquercourse.pages.dev')).toBe(true);
-    expect(flowOn(q('flow=0'), 'preview.conquercourse.pages.dev')).toBe(false);
-    expect(flowOn(q(''), 'preview.conquercourse.pages.dev')).toBe(true);
-    expect(flowOn(q(''), 'conquercourse.pages.dev')).toBe(false);
-    expect(flowOn(q(''), 'localhost')).toBe(false);
   });
 });
 

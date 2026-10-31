@@ -7,7 +7,6 @@ const ROUTES = [
   ["generated course", "generate=7", "course"],
   ["dojo", "mode=dojo", "dojo"],
   ["rookie", "mode=rookie", "course"],
-  ["park", "mode=park", "course"],
   ["editor", "mode=editor", "editor"],
   ["coaster", "mode=coaster", "editor"],
   ["map", "mode=map", "map"],

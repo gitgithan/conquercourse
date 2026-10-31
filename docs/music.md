@@ -77,7 +77,7 @@ Serves the demo mood and play feel; every track is original and made from text o
 
 | Route | Loop |
 |---|---|
-| Course (`/`, `?generate=`, `?course=`, `?mode=rookie`, `?mode=park`, `?mode=diagrams`) | `course.ogg` |
+| Course (`/`, `?generate=`, `?course=`, `?mode=rookie`, `?mode=diagrams`) | `course.ogg` |
 | Report page (a run ends) | `report.ogg` |
 | Retry (back to the run) | `course.ogg` |
 | `?mode=dojo`, `?mode=lab-search` | `dojo.ogg` |

@@ -13,8 +13,9 @@
 - Community opens on Explore: finished courses first, then one **Make your own** button, then pieces and wallpapers (examples, then yours).
 - Owner (2026-10-31): the making flow must not come before a person sees what a finished creation looks like.
 - The tabs are Explore and Make your own; the old Objects and Places tabs are sections of Explore.
-- It is behind a feature switch: `?flow=1` turns it on, `?flow=0` keeps the old screens.
-- Without a switch it is on only on the preview address.
+- Owner (2026-10-31): the old Communities, Park and gallery screens are deleted; the flow is the only Community.
+- Photos give objects and wallpapers only; courses come from World Slicing and the Editor.
+- One rectangle at a time.
 - The click-by-click walkthrough is `docs/community-flow-guide.md`.
 
 ## The one flow (first proposal, kept for the reasons)
@@ -29,7 +30,7 @@
 | --- | --- | --- |
 | Communities home | Community (the front door) | Shows photos from places, newest first |
 | Gallery of objects | A tab inside Community: Objects | Same data, one less screen |
-| Park | A tab inside Community: Places | A place is where the photos were taken |
+| Park (photo in, course out) | Removed | Courses come only from World Slicing and the Editor |
 | Object maker | A step inside Photo -> Pick -> Choose | Making an object is part of adding a photo |
 | Course maker | The World Editor (not Community) | A course is built from pieces, wherever they came from |
 
