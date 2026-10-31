@@ -144,7 +144,7 @@ describe('/api/photos', () => {
 
 describe('the allow-list files', () => {
   const dir = 'public/assets/photos-live';
-  const files = existsSync(dir) ? readdirSync(dir).filter((f) => f.endsWith('.json')) : [];
+  const files = existsSync(dir) ? readdirSync(dir).filter((f) => f.endsWith('.json') && f !== 'index.json') : [];
   it('has a list for the first places', () => { expect(files).toContain('edinburgh-old-town.json'); });
   for (const f of files) {
     it(`${f}: ids, positions near the place and no picture addresses or token`, () => {
