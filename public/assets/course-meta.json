@@ -4,8 +4,8 @@
     "idealTicks": 4081
   },
   "demo/cannonballs": {
-    "obstacles": 4,
-    "idealTicks": 2679
+    "obstacles": 5,
+    "idealTicks": 2401
   },
   "demo/two-ways": {
     "obstacles": 4,

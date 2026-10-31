@@ -89,3 +89,38 @@ describe('the ball switch (CC-240)', () => {
     expect(r.cleared).toBe(true);
   });
 });
+
+describe('the Cannonballs course (CC-240)', () => {
+  it('every launcher fires at least once in 20 s, and the pair at x = 52 fires together', async () => {
+    const { BALL_LAUNCHERS, cannonLaunchers } = await import('../src/sim/shots');
+    const all = cannonLaunchers(BALL_LAUNCHERS);
+    expect(all.length).toBe(4);
+    for (const s of all) expect(s.every).toBeLessThanOrEqual(20);
+    const pair = all.filter((s) => s.x === 52);
+    expect(pair).toHaveLength(2);
+    expect(pair[0].phase).toBe(pair[1].phase);
+    expect(pair[0].every).toBe(pair[1].every);
+  });
+  it('the double volley cannot be jumped or slid, only waited out on the wall', async () => {
+    const { BALL_LAUNCHERS, cannonLaunchers, CANNON_WALL, hitsBody } = await import('../src/sim/shots');
+    const shots = cannonLaunchers(BALL_LAUNCHERS), pair = shots.filter((s) => s.x === 52);
+    const shotAt = Math.round(pair[0].phase / DT);
+    const t = shotAt + Math.round(0.24 / DT); // the balls are 6 m out, at x = 46
+    const balls = ballsAt(shots, t).filter((b) => b.launcher === 1 || b.launcher === 3);
+    expect(balls.length).toBe(2);
+    const touches = (x: number, y: number, sliding: boolean) => balls.some((b) => hitsBody(b, x, y, sliding));
+    expect(touches(46, 0, false)).toBe(true); // standing
+    expect(touches(46, 0, true)).toBe(true); // sliding: the low ball
+    expect(touches(46, 1.03, false)).toBe(true); // at the top of a jump (4.5 m/s): the high ball
+    // on the wall, nothing reaches: the balls are gone at its face
+    const later = shotAt + Math.round(0.5 / DT);
+    expect(ballsAt(shots, later).filter((b) => (b.launcher === 1 || b.launcher === 3) && b.x < CANNON_WALL.x1 + 0.3)).toHaveLength(0);
+  });
+  it('the ideal run clears the Cannonballs course and a start at every checkpoint', async () => {
+    const { BALL_LAUNCHERS, cannonLaunchers, withCannonWall } = await import('../src/sim/shots');
+    const { searchIdealRun } = await import('../src/sim/ideal');
+    const c = { ...withCannonWall(base as unknown as CourseData), shots: cannonLaunchers(BALL_LAUNCHERS) } as CourseData;
+    expect(searchIdealRun(c).cleared).toBe(true);
+    for (const cp of c.checkpoints ?? []) expect(searchIdealRun({ ...c, startX: cp.x }).cleared).toBe(true);
+  }, 400000);
+});

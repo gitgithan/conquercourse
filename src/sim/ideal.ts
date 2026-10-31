@@ -206,7 +206,7 @@ const candidates = (from: number, to: number, step = 0.02) => {
 // It never plays the simulator itself: it hands over batches of plans to try and gets their scores back. A driver decides where the batches run:
 // `driveSync` plays them one by one on this thread, `driveAsync` hands them to a pool of workers (src/sim/ideal-pool.ts). Same plans in the same
 // order, so the answer is the same either way.
-export interface Job { plan: Plan; maxTicks?: number }
+export interface Job { plan: Plan; maxTicks?: number; noShots?: boolean } // noShots: play it as if the course had no timed balls (the moves are found first, the wait is found after)
 export interface Batch { jobs: Job[]; stopOnClear?: boolean; label: string; step: number; of: number } // stopOnClear: the scores after the first clear are not wanted
 export interface SearchResult { plan: Plan; windows: Window[]; cleared: boolean; routes?: Route[] }
 type Gen<T> = Generator<Batch, T, number[]>;
@@ -217,7 +217,7 @@ export const CLEARED = 1e6;
 export const xWindows = (ws: Window[]): Window[] => ws.filter((w) => /^(edge at|vault at|jump at)/.test(w.obstacle));
 export const shiftWindow = (w: Window, dx: number): Window => ({ ...w, obstacle: w.obstacle.replace(/(-?\d+(?:\.\d+)?) m/, (_m, n: string) => `${Math.round((Number(n) + dx) * 100) / 100} m`), best: Math.round((w.best + dx) * 100) / 100, lo: Math.round((w.lo + dx) * 100) / 100, hi: Math.round((w.hi + dx) * 100) / 100 });
 const scoreOf = (r: RunResult): number => (r.world.outcome === 'cleared' ? CLEARED : r.maxX);
-export const evalJob = (course: CourseData, j: Job): number => scoreOf(playPlan(course, j.plan, j.maxTicks));
+export const evalJob = (course: CourseData, j: Job): number => scoreOf(playPlan(j.noShots && course.shots ? { ...course, shots: undefined } : course, j.plan, j.maxTicks));
 
 export function driveSync<T>(course: CourseData, g: Gen<T>): T {
   let r = g.next();
@@ -263,7 +263,10 @@ export function* searchGen(course: CourseData, opts: { routes?: boolean; alt?: R
   if (!course.shots?.length) return yield* searchGenBase(course, opts);
   // Timed balls: waiting is a move. The moves are found as if the balls were not there; then the run waits at the start, a twentieth of a second more each time,
   // until it passes between the balls with a tenth of a second to spare either side (a person is never exactly on time).
-  const plain = yield* searchGenBase({ ...course, shots: undefined }, opts);
+  const inner = searchGenBase({ ...course, shots: undefined }, opts);
+  let step = inner.next();
+  while (!step.done) step = inner.next(yield { ...step.value, jobs: step.value.jobs.map((j) => ({ ...j, noShots: true })) }); // the trials are played without the balls too
+  const plain = step.value;
   if (!plain.cleared) return plain;
   const delayed = startDelayFor(course, plain.plan);
   return delayed ? { ...plain, plan: delayed } : { ...plain, cleared: false };
