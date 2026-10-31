@@ -200,3 +200,32 @@
 - The entrance clip (CC-131).
 - The Earth globe is not captured (concept).
 - The logo is drawn (`public/brand/conquercourse-logo.svg`).
+
+## The owner's cut (2026-10-31; extends CC-209, about 85 s)
+
+### So what
+- The product owner's script, mapped onto footage we can really capture; every cut lands on the 100 bpm bar grid (2.4 s bars).
+- No Google Earth footage: its licence does not allow reuse, and the honesty rules need material we own; our drawn globe plus the real OpenStreetMap capture tells the same beat.
+- New camera work: one `dive` shot (high over the course, one descending arc into the side view at the start line), so the flyover hands over to the run with no dead cut.
+
+### Shot list
+| Time (s) | Bars | Shot | Source | Tag |
+|---|---|---|---|---|
+| 0.0 to 7.2 | 0 to 3 | Earth, zoom to Paris, street map takes over | `beat1-concept.mp4` (drawn globe, stored OSM) | GFX, REAL |
+| 7.2 to 14.4 | 3 to 6 | The slice: sweep passes, footprints rise as blocks | `beat2-concept.mp4` plus the real slicer clip | REAL |
+| 14.4 to 24.0 | 6 to 10 | World Slicer for real: set the radius, deselect buildings, move the cut to a green height, tilt up | new recording of `?mode=map` on Montmartre (`scripts/film-slicer2.mjs`) | REAL |
+| 24.0 to 36.0 | 10 to 15 | World Editor: far view fits the place, add a bar and a box, move a piece, the design partner's Fix menu proposes a change | new recording of the hero start scene (`scripts/film-editor2.mjs`) | REAL |
+| 36.0 to 40.8 | 15 to 17 | Courses picker: the Training course card is chosen | recording of the course list | REAL |
+| 40.8 to 45.6 | 17 to 19 | Flyover of the Training course | `?film=flyover&bot=ideal` | REAL |
+| 45.6 to 50.4 | 19 to 21 | The dive: camera spins down onto the start, side view, the run begins | new `?film=dive`, then the plain side camera | REAL |
+| 50.4 to 55.2 | 21 to 23 | The run, side-on, left to right: the vault, then strides on | `bot=ideal` side take | REAL |
+| 55.2 to 62.4 | 23 to 26 | The lache: run-in, jump towards the bar in slow motion; the lights dim to the logo and "Train slow. Run fast." before the hands reach it | `film.mjs --skip 22 --ramp 1.0,5.6,0.25` with `film=follow`, dimmed in Remotion | REAL, GFX |
+| 62.4 to 69.6 | 26 to 29 | Fast beats, one per bar: coaster ride, the drone course, ghost chasing the runner | coaster, drone and lache courses, `bot=ideal`, ghost on | REAL |
+| 69.6 to 76.8 | 29 to 32 | Rookie A and Rookie B with PLAY NOW in the logo style | two in-game captures (`?rookie=a`, `?rookie=b`), logo card | GFX |
+| 76.8 to 84.0 | 32 to 35 | Credits card: map data, photo, music, tools | end-card style | GFX |
+
+- The lache on the Training course, measured from a probe take (`films/probe-lache.log`): the jump leaves the platform at 23.23 s, the grab is at 23.92 s (x = 148.7 m), the let-go at 24.76 s, and the landing on the next platform at 25.55 s.
+- The film take starts at 22.0 s with slow motion over the jump, and the dim is fully dark just before 23.92 s, so whether the hands make the bar is never shown.
+- An earlier take keyed on `--from-x 140` filmed only the results card (the runner was already finished); `--skip` steps the clock deterministically and is the reliable way in.
+- Music: four MusicGen clips generated as single 30 s takes at a set 100 bpm (no continuations; the CC-209 long track failed exactly there); three measured at exactly 100.0 bpm and were used (the 133 bpm one was dropped), joined on bar lines into the 84.000 s mix; `film-bed.ogg` stays the fallback.
+- Craft check, per the rules above: one idea per shot; the dive and flyover are the only big moves, both reveals; the runner goes left to right with sky above; the cut out of the lache is mid-action; the fast beats come after the dim, as a rhythm change, not inside a shot.

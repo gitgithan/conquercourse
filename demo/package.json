@@ -10,6 +10,7 @@
     "render:hook916": "remotion render src/index.ts Hook916 ../test-results/hook916.mp4 --public-dir=../../conquercourse-assets/demo-media",
     "render:intro": "remotion render src/index.ts CourseIntro ../test-results/course-intro.mp4 --public-dir=../../conquercourse-assets/demo-media",
     "render:full": "remotion render src/index.ts Full3min ../test-results/full3min.mp4 --public-dir=../../conquercourse-assets/demo-media",
+    "render:demo": "remotion render src/index.ts DemoFilm ../test-results/demo-film.mp4 --public-dir=../../conquercourse-assets/demo-media",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
