@@ -40,7 +40,7 @@ import { track, trackCourseEvent, courseKey, publishClear, sendClear, session } 
 import { statsOn } from '../ui/course-stats';
 import { boardKeyOfPage, FIRST_COURSE_KEY } from '../share/board-courses';
 import { touchStreak } from '../ui/streak';
-import { boardBox, boardCorner, boardOn, newsStrip, publishStrip, rememberBest, type BoardHooks } from '../ui/leaderboard';
+import { announceBest, boardBox, boardCorner, boardOn, newsStrip, publishStrip, rememberBest, type BoardHooks } from '../ui/leaderboard';
 import { chaseRun, loadRun, openRunView } from '../ui/run-view';
 import { createRookieActor } from '../render/actor';
 import { lookSwitchOn, lookUrl } from '../render/look';
@@ -807,7 +807,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
     if (!statsOn(params) || botMode || demo || idealWhole || !bk) return;
     const mine = ghostCtl?.myRun();
     if (mine) {
-      if (boardOn(params)) rememberBest(bk, courseHash(course), logTicks(mine));
+      if (boardOn(params)) { rememberBest(bk, courseHash(course), logTicks(mine)); announceBest(); } // every board box redraws Your best now
       const runId = analyticsRunId, ticks = logTicks(mine), keysReady = encodeLog(mine);
       void keysReady.then((keys) => sendClear(bk, runId, courseHash(course), keys, ticks)); // counted only; the board gets it when the player clicks Publish (CC-108)
       lastClear = { ticks, send: (nick) => keysReady.then((keys) => publishClear(bk, runId, courseHash(course), keys, ticks, nick)) };

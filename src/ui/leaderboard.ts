@@ -27,6 +27,11 @@ export function rememberBest(key: string, hash: string, ticks: number, store: Pi
   try { store.setItem(k, String(ticks)); } catch { /* keep going */ }
   return { best: ticks, isNew: true };
 }
+/** Heard by every board box when your best time may have changed (a faster run was cleared or published), so no box keeps an older number. */
+export const BEST_EVENT = 'board-best';
+export const announceBest = (): void => { document.dispatchEvent(new CustomEvent(BEST_EVENT)); };
+/** The best to show: the smaller of what this browser kept and what the server says is yours; null when you have neither. */
+export const bestShown = (local: number | null, server: number | null): number | null => { const all = [local, server].filter((t): t is number => !!t && t > 0); return all.length ? Math.min(...all) : null; };
 export function readBest(key: string, hash: string, store: Pick<Storage, 'getItem'> = localStorage): number | null {
   try { return Number(store.getItem(`cc.best.${key}.${hash}`)) || null; } catch { return null; }
 }
@@ -44,7 +49,7 @@ export function renderRows(list: HTMLElement, rows: BoardRow[], myRank: number |
     row.className = 'board-row'; row.dataset.rank = String(i + 1);
     row.style.cssText = `display:flex;flex-wrap:wrap;align-items:center;gap:8px;padding:${podium ? 5 : 3}px 8px;margin:3px 0;border-radius:8px;border:2px solid ${myRank === i + 1 ? '#1a6b3c' : podium ? EDGES[i] : 'transparent'};background:${podium ? TINTS[i] : '#f3f5f4'};font-weight:${podium ? 700 : 500}`;
     const badge = document.createElement('span'); badge.textContent = podium ? MEDALS[i] : String(i + 1); badge.style.cssText = `width:24px;text-align:center;font-size:${podium ? 20 : 12}px;color:#556`;
-    const name = document.createElement('span'); name.textContent = (r.nick || 'Ninja') + (myRank === i + 1 ? ' (you)' : ''); name.style.cssText = 'flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap';
+    const name = document.createElement('span'); name.textContent = (r.nick || 'Ninja') + (myRank === i + 1 ? ' (you)' : ''); name.title = r.nick || 'Ninja'; name.style.cssText = 'flex:1 1 13ch;min-width:13ch;overflow:hidden;text-overflow:ellipsis;white-space:nowrap';
     const time = document.createElement('span'); time.textContent = secondsText(r.ticks); time.style.cssText = 'font-variant-numeric:tabular-nums;font-weight:800';
     row.append(badge, name, time);
     const btnCss = 'font:600 11px system-ui,sans-serif;border:1px solid #556;border-radius:6px;background:#fff;padding:1px 6px;cursor:pointer';
@@ -100,9 +105,9 @@ export const PUBLISHED_EVENT = 'board-published';
 /** The name box and the Publish to Leaderboard button, one strip at the top of the end report next to the result. It is the only place the name is typed. A run goes on the board only when the button is clicked. */
 export function publishStrip(spec: NonNullable<BoardHooks['publish']>, key: string, hash: string, blocked?: string): HTMLElement {
   const row = document.createElement('div'); row.id = 'report-publish'; row.style.cssText = 'display:flex;gap:8px;flex-wrap:wrap;align-items:center;background:#e9f5f1;border-left:4px solid #0f6b5c;border-radius:8px;padding:8px 10px';
-  const nick = document.createElement('input'); nick.id = 'publish-nick'; nick.maxLength = 12; nick.size = 12; nick.placeholder = 'NAME'; nick.autocomplete = 'off'; nick.spellcheck = false; nick.setAttribute('aria-label', 'Name for the leaderboard');
+  const nick = document.createElement('input'); nick.id = 'publish-nick'; nick.maxLength = 12; nick.size = 14; nick.placeholder = 'NAME'; nick.autocomplete = 'off'; nick.spellcheck = false; nick.setAttribute('aria-label', 'Name for the leaderboard');
   nick.title = 'Up to 12 letters (any case), digits or symbols, no spaces. It shows on the leaderboard and in your challenge link. Not your real name.';
-  nick.style.cssText = 'font:inherit;font-weight:700;border:1px solid #17201d;border-radius:8px;padding:6px 8px;width:9em;text-align:center';
+  nick.style.cssText = 'font:inherit;font-weight:700;border:1px solid #17201d;border-radius:8px;padding:6px 8px;width:14ch;min-width:14ch;box-sizing:content-box;text-align:center';
   try { nick.value = tidyNick(localStorage.getItem('cc.nick') ?? ''); } catch { /* keep going */ }
   nick.oninput = () => { nick.value = tidyNick(nick.value); try { localStorage.setItem('cc.nick', nick.value); } catch { /* keep going */ } };
   const go = document.createElement('button'); go.type = 'button'; go.id = 'publish-board'; go.textContent = `Publish to Leaderboard (${secondsText(spec.ticks)})`;
@@ -144,14 +149,14 @@ export function boardBox(key: string, hash: string, me = '', hooks: BoardHooks =
   const place = document.createElement('div'); place.id = 'report-place'; place.style.cssText = 'font-weight:800;color:#fff;background:linear-gradient(90deg,#1a6b3c,#2e9a5a);border-radius:999px;padding:3px 10px;margin-top:4px;display:inline-block';
   const clock = document.createElement('div'); clock.id = 'report-reset'; clock.style.cssText = 'color:#8a5a00;font-size:.85em';
   const champ = document.createElement('div'); champ.id = 'report-champ'; champ.style.cssText = 'color:#555;font-size:.85em';
-  let shown: Win = 'day', data: BoardData | null = null;
+  let shown: Win = 'day', data: BoardData | null = null, shownAll: BoardData | null = null, publishedBest: number | null = null;
   const show = (win: Win): void => {
     shown = win;
     for (const b of tabs.children) (b as HTMLElement).style.fontWeight = (b as HTMLElement).dataset.win === win ? '700' : '400';
     void loadBoard(key, hash, win, me).then((d) => {
-      data = d;
+      data = d; if (win === 'all') shownAll = d; // the all-time answer holds your true best
       if (d.top.length) renderRows(list, d.top, d.mine?.rank ?? null, hooks.onView, hooks); else list.textContent = ''; // the place line below already invites
-      place.textContent = placeText(d); clock.textContent = resetText(d.resetAt);
+      place.textContent = placeText(d); clock.textContent = resetText(d.resetAt); paintBest();
       champ.textContent = d.previous ? `${win === 'day' ? 'Yesterday' : 'Last week'}'s champion: ${d.previous.nick || '···'} ${secondsText(d.previous.ticks)}` : '';
     });
   };
@@ -163,15 +168,23 @@ export function boardBox(key: string, hash: string, me = '', hooks: BoardHooks =
   // a run was just published: put the new row in the list at once, then ask the server for the real board
   const onPublished = (e: Event): void => {
     if (!box.isConnected) { document.removeEventListener(PUBLISHED_EVENT, onPublished); return; }
-    const p = (e as CustomEvent<Published>).detail, d = data ?? { top: [], players: 0, mine: null, resetAt: null, previous: null };
+    const p = (e as CustomEvent<Published>).detail; publishedBest = bestShown(publishedBest, p.ticks); paintBest();
+    const d = data ?? { top: [], players: 0, mine: null, resetAt: null, previous: null };
     const rest = d.top.filter((_, i) => i + 1 !== d.mine?.rank), top = [...rest, { nick: p.nick, ticks: p.ticks }].sort((x, y) => x.ticks - y.ticks).slice(0, 100);
     const rank = p.rank ?? top.findIndex((r) => r.ticks === p.ticks && r.nick === p.nick) + 1;
     renderRows(list, top, rank, hooks.onView, hooks); place.textContent = placeText({ ...d, mine: { rank, ticks: p.ticks }, players: p.players ?? d.players + (d.mine ? 0 : 1) });
     show(shown);
   };
   document.addEventListener(PUBLISHED_EVENT, onPublished);
-  const mine = readBest(key, hash);
-  if (mine) { const m = document.createElement('div'); m.id = 'report-best'; m.textContent = `⭐ Your best: ${secondsText(mine)}`; m.style.cssText = 'font-weight:800;color:#7a5a00;background:#fff1b8;border-radius:999px;padding:3px 10px;margin-top:4px;display:inline-block'; box.appendChild(m); }
+  // Your best: one line that is redrawn whenever a run is cleared or published, and when the server answers (never kept from the first draw)
+  const bestEl = document.createElement('div'); bestEl.id = 'report-best'; bestEl.style.cssText = 'font-weight:800;color:#7a5a00;background:#fff1b8;border-radius:999px;padding:3px 10px;margin-top:4px;display:none;width:fit-content'; box.appendChild(bestEl);
+  const paintBest = (): void => {
+    const b = bestShown(readBest(key, hash), bestShown(publishedBest, shownAll?.mine?.ticks ?? null));
+    bestEl.textContent = b ? `⭐ Your best: ${secondsText(b)}` : ''; bestEl.style.display = b ? 'inline-block' : 'none';
+  };
+  const onBest = (): void => { if (!box.isConnected) { document.removeEventListener(BEST_EVENT, onBest); return; } paintBest(); };
+  document.addEventListener(BEST_EVENT, onBest);
+  paintBest();
   show('day');
   return box;
 }
@@ -179,7 +192,7 @@ export function boardBox(key: string, hash: string, me = '', hooks: BoardHooks =
 /** The board on the Course itself: a small card on the right, under the buttons, open from the start, that folds to a pill so it never covers the run. */
 export function boardCorner(key: string, hash: string, me = '', hooks: BoardHooks = {}): HTMLElement {
   const card = document.createElement('div'); card.id = 'board-corner';
-  card.style.cssText = 'position:fixed;right:16px;top:284px;z-index:30;width:320px;background:#fffffff2;border:1px solid #cfd6d0;border-radius:12px;box-shadow:0 4px 16px #0003;font:500 13px system-ui,sans-serif;color:#17201d';
+  card.style.cssText = 'position:fixed;left:16px;top:360px;z-index:30;width:290px;max-height:calc(100vh - 360px - 190px);overflow-y:auto;background:#fffffff2;border:1px solid #cfd6d0;border-radius:12px;box-shadow:0 4px 16px #0003;font:500 13px system-ui,sans-serif;color:#17201d';
   const toggle = document.createElement('button'); toggle.type = 'button'; toggle.id = 'board-toggle';
   toggle.style.cssText = 'width:100%;text-align:left;border:0;background:transparent;font:700 14px system-ui,sans-serif;padding:8px 12px;cursor:pointer';
   const makeBody = (): HTMLElement => { const b = boardBox(key, hash, me, hooks); b.style.margin = '0'; b.style.border = '0'; b.style.padding = '0 12px 10px'; (b.firstElementChild as HTMLElement).style.display = 'none'; return b; }; // the pill is the title
@@ -187,6 +200,11 @@ export function boardCorner(key: string, hash: string, me = '', hooks: BoardHook
   const fold = (open: boolean): void => { body.style.display = open ? '' : 'none'; toggle.textContent = `${open ? '▾' : '▸'} Fastest runs`; toggle.setAttribute('aria-expanded', String(open)); };
   toggle.onclick = () => fold(body.style.display === 'none');
   card.append(toggle, body); fold(true);
+  // it sits on the left, just under the Controls card, and follows it when Controls fold (H) or grow; it never reaches the course or the end card
+  const keys = document.getElementById('keys');
+  const place = (): void => { const b = keys?.getBoundingClientRect(); const top = Math.round((b && b.height ? b.bottom : 56) + 10); card.style.top = `${top}px`; card.style.maxHeight = `calc(100vh - ${top}px - 190px)`; };
+  place(); window.addEventListener('resize', place);
+  if (keys && typeof ResizeObserver !== 'undefined') new ResizeObserver(place).observe(keys);
   // after a run is sent the server needs a moment to replay it: the card asks again, keeping its open or folded state
   card.addEventListener('board-refresh', () => { const open = body.style.display !== 'none'; const next = makeBody(); body.replaceWith(next); body = next; fold(open); });
   return card;
