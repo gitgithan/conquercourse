@@ -1,4 +1,5 @@
 import { pageQuery } from '../flags';
+import { shareWaitText, waitFromReply } from '../sim/slow-down';
 // A small "Feedback" button on every page. It asks the questions in public/feedback-questions.json (edit that file to change
 // the round) and posts the answers, a random session id, the build id and a few play counters to /api/submit.
 declare const __BUILD__: string;
@@ -26,9 +27,9 @@ export function sendClear(courseKey: string, runId: string, hash: string, keys: 
 }
 
 /** One plain sentence for each reason the server gives when it turns a run down (functions/api/course-clear.ts); the status code is the fallback. */
-export function publishErrorText(status: number, reason?: string, code?: string): string {
+export function publishErrorText(status: number, reason?: string, code?: string, wait?: number | null): string {
   switch (reason) {
-    case 'slow-down': return 'Slow down: try again in a minute.';
+    case 'slow_down': case 'slow-down': return shareWaitText(wait ?? 60); // CC-219: the reply says how long to wait
     case 'course-changed': return 'This course changed since your run. Play the new version, then publish.';
     case 'no-course': return 'Only runs on the listed courses can be published.';
     case 'not-a-clear': return 'That run did not reach the finish, so it cannot be published.';
@@ -37,17 +38,25 @@ export function publishErrorText(status: number, reason?: string, code?: string)
     case 'not-possible': return code === 'too-long' ? 'This run is too long to publish.' : code === 'too-fast' || code === 'too-short' ? 'This time is not possible on this course, so it cannot be published.' : 'The keys of this run do not look like a run a person could play, so it cannot be published.';
     case 'bad-run': return 'This run could not be read. Play it again from the start, then publish.';
   }
-  return status === 503 ? 'The leaderboard is not ready yet. Try again later.' : status === 429 ? 'Slow down: try again in a minute.' : status === 409 ? 'This course changed since your run. Play the new version, then publish.' : status === 404 ? 'Only runs on the listed courses can be published.' : status === 413 ? 'This run is too long to publish.' : status === 422 ? 'That run cannot be published.' : 'The server could not take this run. Try again in a minute.';
+  return status === 503 ? 'The leaderboard is not ready yet. Try again later.' : status === 429 ? shareWaitText(wait ?? 60) : status === 409 ? 'This course changed since your run. Play the new version, then publish.' : status === 404 ? 'Only runs on the listed courses can be published.' : status === 413 ? 'This run is too long to publish.' : status === 422 ? 'That run cannot be published.' : 'The server could not take this run. Try again in a minute.';
 }
 
-export interface PublishReply { published: boolean; rank?: number | null; players?: number; nick?: string; why?: string; error?: string }
+export interface PublishReply { retryAfter?: number; published: boolean; rank?: number | null; players?: number; nick?: string; why?: string; error?: string }
+/** CC-219: a run waits in this browser until it is shared or published, so a pause from the server never costs the run (the report also keeps it in memory). */
+const HELD = 'cc.unshared';
+export function holdRun(courseKey: string, hash: string, keys: string): void { try { localStorage.setItem(HELD, JSON.stringify({ courseKey, hash, keys, at: Date.now() })); } catch { /* keep going */ } }
+export function releaseRun(courseKey: string, hash: string): void { try { const h = JSON.parse(localStorage.getItem(HELD) ?? 'null') as { courseKey?: string; hash?: string } | null; if (h && h.courseKey === courseKey && h.hash === hash) localStorage.removeItem(HELD); } catch { /* keep going */ } }
+export const heldRun = (): { courseKey: string; hash: string; keys: string; at: number } | null => { try { return JSON.parse(localStorage.getItem(HELD) ?? 'null'); } catch { return null; } };
+
 /** The player clicked Publish to Leaderboard: the same run is sent again with the tag, the server plays it again, and the reply says the place. */
 export async function publishClear(courseKey: string, runId: string, hash: string, keys: string, claimedTicks: number, nick: string): Promise<PublishReply> {
+  holdRun(courseKey, hash, keys);
   try {
     const res = await fetch('/api/course-clear', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ session: session(), courseKey, runId, hash, keys, claimedTicks, nick, publish: true }) });
     const d = await res.json().catch(() => ({})) as Partial<PublishReply> & { verified?: boolean; reason?: string; code?: string };
     if (res.status === 202) return { published: false, error: 'The server is busy. Try again in a minute.' };
-    if (!res.ok) return { published: false, error: publishErrorText(res.status, d.reason, d.code) };
+    if (!res.ok) { const wait = waitFromReply(res.status, d, res.headers.get('retry-after')); return { published: false, error: publishErrorText(res.status, d.reason, d.code, wait), retryAfter: wait ?? undefined }; }
+    releaseRun(courseKey, hash);
     return { published: !!d.published, rank: d.rank, players: d.players, nick: d.nick, why: d.why };
   } catch { return { published: false, error: 'No connection. Try again.' }; }
 }

@@ -2,13 +2,15 @@
 // The server fills the board only from runs it played again with the simulator (functions/api/leaderboard.ts). See docs/challenge.md, Part 4.
 import { secondsText } from './course-stats';
 import { nickOk, tidyNick } from '../share/nick';
+import { countdownLabel } from '../sim/slow-down';
+import { countdownButton } from './countdown';
 
 export interface BoardRow { id?: number; nick: string; ticks: number }
 
 /** What the board card can do beyond showing times: open a row (View Run) and publish the run just finished (CC-108). */
 export interface BoardHooks {
   onView?: (row: BoardRow) => void;
-  publish?: { ticks: number; send: (nick: string) => Promise<{ published: boolean; rank?: number | null; players?: number; nick?: string; why?: string; error?: string }> };
+  publish?: { ticks: number; send: (nick: string) => Promise<{ published: boolean; rank?: number | null; players?: number; nick?: string; why?: string; error?: string; retryAfter?: number }> };
 }
 
 /** Build switch for the board: on by default (the owner expects to see it on the Course); ?board=0 hides it. */
@@ -106,6 +108,9 @@ export function publishStrip(spec: NonNullable<BoardHooks['publish']>, key: stri
         const as = r.nick || 'Ninja';
         done(as, r);
         document.dispatchEvent(new CustomEvent<Published>(PUBLISHED_EVENT, { detail: { nick: r.nick ?? '', ticks: spec.ticks, rank: r.rank ?? null, players: r.players ?? null } }));
+      } else if (r.retryAfter) { // CC-219: the server asked for a pause: say when, count down, and let the button come back by itself
+        out.textContent = r.error ?? 'Try again in a moment.';
+        countdownButton(go, r.retryAfter, `Publish to Leaderboard (${secondsText(spec.ticks)})`, (left) => `Publish in ${countdownLabel(left)}`);
       } else { go.disabled = false; out.textContent = r.why === 'slower' ? 'You already have a faster time on the board.' : r.error ?? 'Not published.'; }
     });
   };

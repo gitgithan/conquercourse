@@ -3,7 +3,8 @@
 // The time stored is the simulator's, never the one the browser says. A clear is only counted; it reaches the board when the player publishes it (CC-108, `publish: true`).
 import type { CourseData } from '../../src/course/course';
 import { courseHash, decodeLog, verifyLog } from '../../src/sim/replay';
-import { beatsIdeal, checkRun, MAX_CLEAR_TICKS, physicsFloorTicks, rateLimited } from '../../src/sim/run-checks';
+import { beatsIdeal, checkRun, MAX_CLEAR_TICKS, physicsFloorTicks, rateLimited, rateWaitSeconds } from '../../src/sim/run-checks';
+import { slowDownReply } from '../../src/sim/slow-down';
 import { nickOk, tidyNick } from '../../src/share/nick';
 import { playerCode } from '../_lib/player';
 import { board } from './leaderboard';
@@ -69,10 +70,11 @@ export const onRequestPost = async ({ request, env }: { request: Request; env: E
   const nick = nickOk(String(b.nick ?? '')) ? tidyNick(String(b.nick ?? '')) : ''; // the tag the board shows; a blocked word becomes no tag
   if (claimed !== undefined && !Number.isInteger(claimed)) return json({ error: 'bad run', reason: 'bad-run' }, 400);
   // the same slow-down as the start and fail events: one browser cannot send a flood
-  const recent = await env.DB.prepare("SELECT COUNT(*) AS n FROM course_events WHERE session = ? AND ts > datetime('now', '-1 hour')").bind(session).first<{ n: number }>();
-  if ((recent?.n ?? 0) >= 500) return json({ error: 'slow down', reason: 'slow-down' }, 429);
+  const recent = await env.DB.prepare("SELECT COUNT(*) AS n, CAST(strftime('%s', MIN(ts)) AS INTEGER) AS first FROM course_events WHERE session = ? AND ts > datetime('now', '-1 hour')").bind(session).first<{ n: number; first: number | null }>();
+  if ((recent?.n ?? 0) >= 500) { const r = slowDownReply(recent?.first ? recent.first + 3600 - Date.now() / 1000 : 300); return json(r.body, 429, r.headers); }
   // and one address cannot make the server replay without end (it lives in one Worker's memory: it slows a flood, it does not stop one)
-  if (rateLimited(hits, request.headers.get('cf-connecting-ip') ?? 'local', Date.now())) return json({ error: 'slow down', reason: 'slow-down' }, 429);
+  const address = request.headers.get('cf-connecting-ip') ?? 'local';
+  if (rateLimited(hits, address, Date.now())) { const r = slowDownReply(rateWaitSeconds(hits, address, Date.now())); return json(r.body, 429, r.headers); }
   const res = await env.ASSETS.fetch(new URL(`/assets/${key}.course.json`, request.url).toString());
   if (!res.ok) return json({ error: 'no such course', reason: 'no-course' }, 404);
   const course = await res.json() as CourseData;

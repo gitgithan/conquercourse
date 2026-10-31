@@ -17,6 +17,7 @@ export function d1Store(db: Env['DB']): ShareStore {
     },
     get: (id) => db.prepare('SELECT * FROM shares WHERE id = ?').bind(id).first<ShareRow>(),
     countSince: async (t) => (await db.prepare('SELECT COUNT(*) AS n FROM shares WHERE created_at > ?').bind(t).first<{ n: number }>())?.n ?? 0,
+    oldestSince: async (t) => (await db.prepare('SELECT MIN(created_at) AS t FROM shares WHERE created_at > ?').bind(t).first<{ t: number | null }>())?.t ?? null,
   };
 }
 
@@ -37,13 +38,13 @@ export const shareEnv = (env: Env, request: Request): ShareEnv => ({
   },
 });
 
-export const json = (body: unknown, status = 200) => baseJson(body, status, { 'cache-control': 'no-store' });
+export const json = (body: unknown, status = 200, extra: Record<string, string> = {}) => baseJson(body, status, { 'cache-control': 'no-store', ...extra });
 
 export const onRequestPost = async ({ request, env }: { request: Request; env: Env }): Promise<Response> => {
   if (env.SHARE === 'off') return json({ error: 'off' }, 503);
   try {
     const r = await createShare(shareEnv(env, request), await request.text());
-    return json(r.body, r.status);
+    return json(r.body, r.status, r.headers);
   } catch (e) {
     // most likely the table does not exist yet (migration 0006 not applied): the game then sends the long link
     return json({ error: 'unavailable' }, 503);

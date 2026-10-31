@@ -95,6 +95,20 @@
 - The tables, limits and plan behind it are in [data-model](data-model.md).
 - The migration `migrations/0006_shares.sql` is written and waits for the owner.
 
+## Part 3e: when the server asks for a pause (CC-219)
+- A refusal for "too many" is always a 429 with a `Retry-After` header and a body `{reason: "slow_down", retryAfterSeconds}`.
+  - The number is the real time until the oldest request leaves the window, never a guess, and never more than an hour.
+  - It covers the short link (`/api/share`), Publish to Leaderboard and the clear count (`/api/course-clear`).
+- The page says it in plain words: "Too many shares just now. Your run is safe: try again in about 40 seconds."
+- Copy link never loses the run:
+  - The long link needs no server, so it is copied at once and the note says the short link is back in a moment.
+  - While the pause lasts, more clicks copy the long link without asking the server again.
+  - If even the long link is not possible, the button counts down ("Short link in 38 s") and comes back by itself, and Download a video stays on offer.
+- Publish counts down on its button ("Publish in 38 s"), keeps the name box, and comes back by itself.
+- The keys of a run being published stay in this browser (`cc.unshared`) until it is published.
+- Code: `src/sim/slow-down.ts` (words and numbers), `src/ui/countdown.ts` (the button); tests: `tests/slow-down.test.ts`.
+- Check: `scripts/ratelimit-check.mjs`; picture: `docs/evidence/cc-219-rate-message.png`.
+
 ## Part 3d: a partial run from a checkpoint (CC-242)
 - A try or a clear that began at a checkpoint can be shared; the link says where it began.
 - The version word carries it: `1s2` is a clear from the second checkpoint, `1fs2` is a fall from there.
