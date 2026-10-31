@@ -47,3 +47,13 @@
 - A 3D object can take the role "Swing bar": it becomes a bar to hang from at its top, not a block to stand on.
 - The "Height off the ground" slider goes up to 8 m for bars.
 - Law tests: `tests/coaster-flow.test.ts`.
+
+## Hang bars: where the rod is (CC-243, 2026-10-31)
+- The green hang bar has its crossbar 2.2 m up; the black one has it 2.05 m up (`hang_m` in `public/assets/objects/index.json`).
+- Adding one in the editor puts down two pieces: the frame (scenery, never ground) and a separate "Bar" piece at the crossbar height.
+- The Bar piece is the rod the runner grabs: it becomes a hold in the course, so E grabs it and the swing works like the Lache.
+- The rod is now amber in the editor and in the Course (it was pale grey and easy to miss); the ring beside it marks the grab spot.
+- Two ready-made courses test it: "Green hang bar (clears)" and "Black hang bar (clears)", a 9 m gap with the rod in the middle.
+- Law tests: `tests/hang-bars.test.ts` (the ideal run clears and goes through swing or hang mode).
+- Picking a ready-made course now fits the camera to its pieces, so the new objects are on the screen.
+- Picture: `docs/evidence/cc-243-hang-bar-rod.png`.

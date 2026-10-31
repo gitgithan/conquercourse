@@ -153,9 +153,9 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
   const bed = new THREE.MeshStandardMaterial({ color: 0xd9453a });
   // bars hanging in the air (holds): a thin metal bar across the lane with a soft glow so they read from far away
   for (const h of course.holds ?? []) {
-    const bar = new THREE.Mesh(new THREE.CylinderGeometry(0.045, 0.045, LANE_DEPTH + 0.6, 12), new THREE.MeshStandardMaterial({ color: 0xc9ced4, metalness: 0.7, roughness: 0.3 }));
+    const bar = new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.06, LANE_DEPTH + 0.6, 12), new THREE.MeshStandardMaterial({ color: 0xffa21a, emissive: 0x6b3a00, metalness: 0.3, roughness: 0.4 })); // an amber rod, so the bar to grab can be found at a glance
     bar.rotation.x = Math.PI / 2; bar.position.set(h.x, h.y, 0);
-    const halo = new THREE.Mesh(new THREE.TorusGeometry(0.28, 0.02, 8, 24), new THREE.MeshBasicMaterial({ color: 0xffd24a, transparent: true, opacity: 0.55 }));
+    const halo = new THREE.Mesh(new THREE.TorusGeometry(0.28, 0.02, 8, 24), new THREE.MeshBasicMaterial({ color: 0xffd24a, transparent: true, opacity: 0.9 }));
     halo.position.set(h.x, h.y, LANE_DEPTH / 2 + 0.32);
     scene.add(bar, halo);
   }

@@ -244,7 +244,7 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
         for (let k = 0; k <= 80 && best < 0; k++) for (const j of k ? [i0 - k, i0 + k] : [i0]) { if (best >= 0 || j - w < 0 || j + w >= nm) continue; let ok = true; for (let i = j - w; i <= j + w; i++) if (pr.cells[i] == null) { ok = false; break; } if (ok) best = j; }
         if (best >= 0) { const du = (best - i0) * CELL; d.x += du * Math.cos(angle); d.z += du * Math.sin(angle); d.y = level + Math.max(...pr.cells.slice(best - w, best + w + 1).map((h) => h as number)); }
       }
-      if (pendingObjects.length) { pendingObjects.length = 0; changed(false); hist.length = 0; hi = -1; remember(); onWorld(); } // the saved or first world is the starting point of the undo list
+      if (pendingObjects.length) { pendingObjects.length = 0; changed(false); hist.length = 0; hi = -1; remember(); onWorld(); fitAll(); } // the saved or first world is the starting point of the undo list
       await firstVisitPerson(); // a first visit: the person for scale stands at the start of the lane
     } catch { /* no objects on this site */ }
   })();
