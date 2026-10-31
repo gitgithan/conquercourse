@@ -6,7 +6,8 @@
 - The same idea covers pieces: every piece is scaled to a person.
 
 ## Does the mesh change what a runner can reach?
-- No. Tested with the real simulator code.
+- No.
+- Tested with the real simulator code.
 - Reach comes from fixed numbers: a hold is grabbed with the hands 2.1 m up and a 0.15 m reach (`DEFAULT_HANG` in `src/sim/holds.ts`).
 - `src/sim` and `src/course` import nothing from the renderer or the characters (a test checks it).
 - The bones are the Rookie's in every character; the game aims them at the clip's joints.
@@ -56,16 +57,35 @@
   - The recorded turns of the eight prove it: Skater 170.5, Banana 174.5 and Potato Blob 177.5 degrees (all close to a half turn); the other five 0 to 15 (`../conquercourse-assets/eval-full/cc-chars-eight/glb/rebuild.json`).
   - It is not the pictures: all eight were drawn facing the viewer in a T-pose.
   - It is not the skeleton: the foot bones of all eight point the same way (dot product 1.0 with the run direction).
-- The fix runs at load, first of all, in `src/characters/fit.ts` (`measureFacing`, `faceForward`).
-- The rule:
-  - Take the skin in the lowest 13.6 percent of the height (the shoes) and the shin skin above it (15 to 30 percent).
-  - Measure along the foot bones' forward: how far the shoe reaches in front of the shin, and how far behind.
-  - Score = (front - back) / (front + back); a shoe pointing forward scores +0.2 to +0.4.
-  - A score of -0.1 or lower means the skin faces back: turn it 180 degrees about the vertical axis through the hips.
-  - Turning also swaps the left and right bone weights, so the character's arm that now lies on the left still follows the left bones.
-  - A score between -0.1 and +0.1 is "unclear" and the skin is left alone.
+- The fix runs at load, first of all, in `src/characters/facing.ts` (`measureFacing`) and `src/characters/fit.ts` (`faceForward`).
+- The story for a reader new to 3D, with the numbers and pictures: [character-facing-bug.md](character-facing-bug.md).
+- The rule (second round, 2026-11-01):
+  - Five cues vote, each with a weight and a dead zone: shoe reach (1.0), shoe middle (0.7), shoe top (0.6), torso (0.3), hands (0.3).
+  - The shoe cues measure along the foot bones' forward: how far the shoe reaches in front of the shin and how far behind.
+  - The report is `{score, confidence, votes, verdict, turned}`.
+  - Confidence is how much the cues agree out of how many could speak.
+  - The skin is turned 180 degrees about the vertical axis through the hips only when confidence is 0.2 or more and the score is clear (0.1 or more away from zero).
+  - Turning also swaps the left and right bone weights, so the arm that now lies on the left still follows the left bones.
+  - When the cues cannot tell, the skin is left as made and the fit notes say "facing unclear"; the fit report says `facing.verdict: unclear`.
+  - A per-character answer wins over the vote: `FACING_OVERRIDE` in `src/characters/facing.ts`, keyed by character id (`forward` or `back`); it is empty because no starter needs it.
   - The fit report says `facing.turned`, and its notes say "turned around".
-- Numbers for the eight (`data/eval/cc-chars-facing/facing.json`):
+- Checked against the real Course (2026-11-01): the first round was tested only in a side-view demo that assumed the run goes along +x, which players never see.
+  - `data/eval/cc-chars-facing/scripts/probe-course.mjs` holds Right then Left in the real Course for the Rookie and all eight and records the heading the renderer gave, the toe bones and the skin lean.
+  - `tests/character-facing-course.test.ts` reads that table; pictures are in `docs/evidence/cc-chars-facing2/`.
+- Votes as made (`tests/character-facing.test.ts` pins them):
+
+| Character | Verdict | Score | Confidence |
+|---|---|---|---|
+| Fox | forward | +0.95 | 0.73 |
+| Skater | back | -0.69 | 0.42 |
+| Toy Robot | forward | +1.00 | 0.65 |
+| Cactus | forward | +0.83 | 0.54 |
+| Banana | back | -1.00 | 0.65 |
+| Robo Cat | forward | +0.64 | 0.56 |
+| Jelly | unclear | -0.26 | 0.03 |
+| Potato Blob | back | -0.64 | 0.64 |
+- The same three are turned; Jelly stays as made.
+- Numbers of the first round (shoe reach alone, `data/eval/cc-chars-facing/facing.json`):
 
 | Character | Score as made | Verdict | Turned | Score after |
 |---|---|---|---|---|
@@ -79,21 +99,8 @@
 | Potato Blob | -0.36 | back | yes | +0.35 |
 - Pictures (side view, 1280 px, before and after): `docs/evidence/cc-chars-facing/`.
 - Limits:
-  - Skater is the thinnest call (0.13 against a line of 0.1): its shoes are small.
+  - Only the shoe cues carry real signal on the eight; the torso cue was wrong once and the hands cue mostly abstains on T-pose characters.
   - Jelly has no shoe, so it cannot be told; a jellyfish has no front, so it is left as made.
-  - A character with no clear shoe (a blob with round feet) will be left unclear and may face back; the fallback is a per-character override, which is not built because detection worked for every character that has feet.
+  - A character with no clear shoe (a blob with round feet) is left unclear and may face back; add its id to `FACING_OVERRIDE`.
   - Not tested: a person-made character from outside the eight, and a character whose feet point sideways.
-  - The maker still writes the made yaw it picked; it was not changed, so a character made later is corrected at load as well.
-
-## Where it stops
-- Banana: the torso wanted a 3.8 stretch; the clamp holds it, so the shoulders sit a little off.
-- Potato Blob: it has almost no arms in the picture, so they were nearly lost in the cutout; the arm wanted 2.0 and is held at 1.7, so a gap stays.
-- Fallbacks for such a character, in order:
-  - Accept it clamped (what the game does now).
-  - Tell the maker in plain words at make time that the arms are very different and may look off (`fitWords`).
-  - Blend the skin towards a stock body (not built).
-- Not tested: a person-made character from outside the eight, fingers and faces under heavy stretch, and a texture's look at 1.7.
-
-## Pieces
-- A piece is scaled by the person-for-scale rule, so its size is set by the game, not by the maker.
-- Courses are proved clearable by the simulator, whatever skin the runner wears.
+  - No make-time check was added to the maker: the maker has no skeleton and no way to tell front from back (a box has no front), so the load-time fit is the only place that can judge.

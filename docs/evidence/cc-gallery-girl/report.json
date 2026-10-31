@@ -1,0 +1,12 @@
+{
+  "before": {
+    "loaded": "?course=%2Fassets%2Fparts%2Frun.course.json&welcome=0&nav=0&music=0&photos=0&hud=old&bot=ideal",
+    "frame": "/?course=/assets/parts/run.course.json&welcome=0&nav=0&music=0&photos=0&hud=old&char=8f72bd8e9c1937ce&nosave=1&bot=ideal",
+    "savedChoice": "7c95df17d131f152"
+  },
+  "after": {
+    "loaded": "?course=/assets/parts/run.course.json&welcome=0&nav=0&music=0&photos=0&hud=old&char=8f72bd8e9c1937ce&nosave=1&bot=ideal",
+    "frame": "/?course=/assets/parts/run.course.json&welcome=0&nav=0&music=0&photos=0&hud=old&char=8f72bd8e9c1937ce&nosave=1&bot=ideal",
+    "savedChoice": "7c95df17d131f152"
+  }
+}

@@ -15,3 +15,12 @@
 - Skater scores -0.13 against a line of -0.1.
 - Jelly is unclear and left as made.
 - Only the eight were tested.
+
+## Round two: the real Course (2026-11-01)
+- The first round looked at a side-view demo that assumed the run goes along +x; players see the Course.
+- `scripts/probe-course.mjs` holds Right then Left in the real Course (`?probe=1`) for the Rookie and all eight: `course-probe.json`.
+- Result: every character moves, and is turned by the renderer, the way the key says (+1 right, -1 left); nothing was flipped by the fix.
+- The skin-against-bones check is only readable standing; mid-stride it is not (see `docs/character-facing-bug.md`).
+- `tests/character-facing-course.test.ts` reads the table; pictures: `docs/evidence/cc-chars-facing2/`.
+- `scripts/gallery-girl.mjs` makes the Parts gallery before and after pictures (`docs/evidence/cc-gallery-girl/`).
+- The make-time check in the maker was not added: the maker has no skeleton, so it cannot tell front from back.

@@ -51,6 +51,7 @@ import { lookSwitchOn, lookUrl } from '../render/look';
 import { charactersOn, fetchCharacterUrl, guardOn, saveChoice, savedChoice, tooSlow, watchFrames } from '../characters/runner';
 import { openCharacterPanel } from '../characters/panel';
 import { castOn, loadCast } from '../characters/cast';
+import { measureFacing } from '../characters/facing';
 import { makeObstacle } from '../course/collide';
 import { climbAhead } from '../sim/climb';
 import { DEFAULT_HANG, feetOf, handOffset } from '../sim/holds';
@@ -349,17 +350,36 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
   charNote.id = 'charnote'; charNote.style.cssText = 'position:fixed;right:262px;top:52px;font:600 13px system-ui,sans-serif;background:#fff;border:1px solid #17201d;border-radius:8px;padding:4px 10px;display:none';
   document.body.appendChild(charNote);
   const noteLine = (t: string) => { charNote.textContent = t; charNote.style.display = t ? 'block' : 'none'; if (t) setTimeout(() => { charNote.style.display = 'none'; }, 6000); };
+  const keepChoice = params.get('nosave') === '1'; // ?nosave=1: a demo frame (the Parts gallery) wears a character without touching the player's saved choice or the pick count
+  const remember = (id: string | null) => { if (!keepChoice) saveChoice(id); };
   async function wearCharacter(id: string | null) {
-    if (!id) { characterId = null; saveChoice(null); await loadRookie(choice); return; }
+    if (!id) { characterId = null; remember(null); await loadRookie(choice); return; }
     const got = await fetchCharacterUrl(id, fetch, castOn() ? await loadCast() : []);
-    if ('error' in got) { noteLine(got.error); characterId = null; saveChoice(null); return; }
+    if ('error' in got) { noteLine(got.error); characterId = null; remember(null); return; }
     const ok = await loadRookie('a', false, got.url);
-    if (!ok) { noteLine('That character would not load. You are running as the Rookie.'); await loadRookie(choice); characterId = null; saveChoice(null); return; }
-    characterId = id; saveChoice(id);
-    void fetch('/api/character', { method: 'POST', body: JSON.stringify({ action: 'pick', id }) }).catch(() => undefined);
+    if (!ok) { noteLine('That character would not load. You are running as the Rookie.'); await loadRookie(choice); characterId = null; remember(null); return; }
+    characterId = id; remember(id);
+    if (!keepChoice) void fetch('/api/character', { method: 'POST', body: JSON.stringify({ action: 'pick', id }) }).catch(() => undefined);
     if (guardOn()) watchFrames(90, (ms) => { if (characterId === id && tooSlow(ms)) { noteLine('Your computer is slow with this character, so you are back to the Rookie.'); void wearCharacter(null); } });
   }
   if (charactersOn()) { const asked = params.get('char'); const id = asked && /^[0-9a-f]{16}$/.test(asked) ? asked : savedChoice(); if (id) void wearCharacter(id); } // ?char=<id> wears one by address (the browser checks use it)
+  // ?probe=1: what the player sees. For the facing check (docs/character-facing-bug.md): where the runner moved, where its toe bone points, and which way its SKIN faces, all on screen.
+  if (params.get('probe') === '1') (window as unknown as { __heading: () => unknown }).__heading = () => {
+    if (!actor) return null;
+    const names = actor.names(), J = actor.joints(), at = (n: string) => J[names.indexOf(n)];
+    const toe = at('LeftToeBase'), foot = at('LeftFoot');
+    const skinned: any[] = []; actor.object.traverse((o: any) => { if (o.isSkinnedMesh) skinned.push(o); }); // eslint-disable-line @typescript-eslint/no-explicit-any
+    const m = skinned.sort((a, b) => b.geometry.attributes.position.count - a.geometry.attributes.position.count)[0];
+    if (!m) return { x: actor.object.position.x, boneToeDx: toe.x - foot.x, skin: null };
+    m.updateMatrixWorld(true); m.skeleton.update();
+    const n = m.geometry.attributes.position.count, P = new Float32Array(n * 3), v = new (actor.joints()[0].constructor as new () => { x: number; y: number; z: number })();
+    for (let i = 0; i < n; i++) { m.getVertexPosition(i, v); (v as any).applyMatrix4(m.matrixWorld); P[i * 3] = v.x; P[i * 3 + 1] = v.y; P[i * 3 + 2] = v.z; } // eslint-disable-line @typescript-eslint/no-explicit-any
+    const bn: string[] = m.skeleton.bones.map((b: any) => b.name), rest = bn.map((nm) => { const j = at(nm); return j ? [j.x, j.y, j.z] as [number, number, number] : [0, 0, 0] as [number, number, number]; }); // eslint-disable-line @typescript-eslint/no-explicit-any
+    const toward = (dir: 1 | -1) => measureFacing(P, bn, rest, [dir, 0]);
+    const f = toward(1);
+    const hips = at('Hips'), sp = (new (hips.constructor as new () => { x: number; y: number; z: number; set(x: number, y: number, z: number): unknown; project(c: unknown): unknown })()); sp.set(hips.x, hips.y, hips.z); sp.project(camera);
+    return { screen: { x: (sp.x * 0.5 + 0.5) * renderer.domElement.clientWidth, y: (-sp.y * 0.5 + 0.5) * renderer.domElement.clientHeight }, heading: Math.cos(actor.object.rotation.y), hipsX: hips.x, x: actor.object.position.x, rotY: actor.object.rotation.y, boneToeDx: toe.x - foot.x, skinScoreRight: f.score, skinConfidenceRight: f.confidence, votes: f.votes.map((q) => [q.name, +q.score.toFixed(3)]) };
+  };
   let facing: 1 | -1 = course.track ? 1 : resume ? resume.facing : 1;
 
   // HUD
