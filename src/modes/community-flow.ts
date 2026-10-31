@@ -4,9 +4,10 @@ import { LIFT_STEPS, SEGMENT_STEPS } from '../slice/stages';
 import { jobProgress } from '../ui/job-progress';
 import { LABEL_RE, MIN_BOX } from '../slice/object-lift';
 import { SegmentOff, suggestRegions } from '../slice/segment-client';
-import { listUserObjects, saveUserObject, type UserObject } from '../slice/user-objects';
+import { deleteUserObject, listUserObjects, saveUserObject, type UserObject } from '../slice/user-objects';
+import { deleteShared, forgetLink, links, listShared, rememberLink, shareItem } from '../community/share-client';
 import { DEMOS, worldHref } from '../ui/world-picker';
-import { SAMPLE_WALLPAPERS, cropToThumb, saveWallpaper, savedWallpapers } from '../community/wallpaper';
+import { SAMPLE_WALLPAPERS, cropToThumb, deleteWallpaper, saveWallpaper, savedWallpapers } from '../community/wallpaper';
 import { STEPS, TABS, afterMarksChanged, canEnter, matchSuggestions, nextStep, prevStep, startState, tabFor, wallpaperCrop, whyNot, type Box, type FlowState, type Kind, type Step, type Tab } from '../community/flow';
 import { startGallery } from './gallery';
 
@@ -87,9 +88,34 @@ export function startCommunityFlow(host: HTMLElement, params: URLSearchParams): 
           void cropToThumb(`/assets/park/${o.photo}.jpg`, o.box).then((u) => { c.prepend(Object.assign(document.createElement('img'), { src: u, alt: o.label })); }).catch(() => undefined);
         }
       } catch { /* the examples are a bonus */ }
-      for (const w of savedWallpapers()) card(w.thumb, `Yours: ${w.name}`, 'Wallpaper', w.course ? ['Play it', `${worldHref(w.course)}&wallpaper=${w.id}`] : undefined);
+      const shared = links(), sharedLocal = new Set(Object.values(shared).map((l) => `${l.kind}:${l.local}`));
+      for (const w of savedWallpapers()) if (!sharedLocal.has(`wallpaper:${w.id}`)) card(w.thumb, `Yours: ${w.name}`, 'Wallpaper, only in this browser', w.course ? ['Play it', `${worldHref(w.course)}&wallpaper=${w.id}`] : undefined);
       let objs: UserObject[] = []; try { objs = await listUserObjects(); } catch { /* none kept */ }
-      for (const o of objs) card('', `Yours: ${o.prov.name}`, '3D piece, in your World Editor tray', ['Open the World Editor', '?mode=editor&uploadobj=1&welcome=0']);
+      for (const o of objs) if (!sharedLocal.has(`piece:${o.id}`)) card('', `Yours: ${o.prov.name}`, '3D piece, only in this browser', ['Open the World Editor', '?mode=editor&uploadobj=1&welcome=0']);
+      // shared in Community: yours (with Delete) and everyone's approved ones
+      let items: Awaited<ReturnType<typeof listShared>> = []; try { items = await listShared(); } catch { /* the list is a bonus */ }
+      for (const it of items) {
+        const l = shared[it.id];
+        const c = card(it.thumb ?? '', it.mine ? `Yours: ${it.name}` : it.name, `${it.kind === 'piece' ? '3D piece' : 'Wallpaper'}${it.mine ? (it.status === 'approved' ? ', shared with everyone' : ', shared: waiting for the safety check, only you see it') : ', shared by a player'}`,
+          it.kind === 'wallpaper' && it.meta.course && l ? ['Play it', `${worldHref(it.meta.course)}&wallpaper=${l.local}`] : it.kind === 'piece' && it.mine ? ['Open the World Editor', '?mode=editor&uploadobj=1&welcome=0'] : undefined);
+        c.dataset.shared = it.id; c.dataset.kind = it.kind;
+        if (it.mine) {
+          const d = c.lastElementChild as HTMLElement; const row = el('div', d); row.className = 'row'; row.style.marginTop = '6px';
+          const del = el('button', row, 'Delete', { id: `del-${it.id}`, title: 'Delete this for good' });
+          del.onclick = () => {
+            row.replaceChildren(); el('span', row, `Delete "${it.name}" for good?`).className = 'muted';
+            const yes = el('button', row, 'Yes, delete', { id: `del-yes-${it.id}`, className: 'go' }), no = el('button', row, 'Keep it', { id: `del-no-${it.id}` });
+            no.onclick = () => { row.replaceChildren(del); };
+            yes.onclick = async () => {
+              yes.disabled = true;
+              if (!(await deleteShared(it.id))) { row.replaceChildren(); el('span', row, 'Could not delete it. Try again.').className = 'err'; return; }
+              const link = links()[it.id]; forgetLink(it.id);
+              if (link?.kind === 'wallpaper') deleteWallpaper(link.local); else if (link) void deleteUserObject(link.local).catch(() => undefined);
+              c.remove();
+            };
+          };
+        }
+      }
     })();
   }
 
@@ -258,13 +284,27 @@ export function startCommunityFlow(host: HTMLElement, params: URLSearchParams): 
       el('h2', panel, 'Step 5. Make them');
       const lastCourse: { id?: string } = {};
       const next = el('div', panel); next.id = 'cnow'; next.className = 'panel'; next.hidden = true;
-      const showNext = () => {
+      const showNext = (shared = false) => {
         next.hidden = false; next.replaceChildren(); el('h2', next, 'What next');
         const r = el('div', next); r.className = 'row';
         if (work.made.pieces.length) el('a', r, 'Open the World Editor', { className: 'btn go', id: 'go-editor', href: '?mode=editor&uploadobj=1&welcome=0' });
         if (work.made.walls.length) el('a', r, 'Play a course with the wallpaper', { className: 'btn go', id: 'go-course', href: `${worldHref(lastCourse.id ? (savedWallpapers().find((w) => w.id === lastCourse.id)?.course ?? '') : '')}&wallpaper=${lastCourse.id}` });
-        el('button', r, 'See them in Explore', { id: 'go-objects' }).onclick = () => showTab('explore');
+        el('button', r, shared ? 'See it in Explore' : 'See them in Explore', { id: 'go-objects' }).onclick = () => showTab('explore');
         el('button', r, 'Start with another photo', { id: 'go-again' }).onclick = () => { work.step = 'photo'; work.photo = null; work.rg = null; work.fs = startState(); paint(); };
+      };
+      // Sharing is its own deliberate press: the piece or wallpaper is kept in this browser either way.
+      const shareButton = (side: HTMLElement, rid: number, make: () => Promise<{ id: string; input: Parameters<typeof shareItem>[0]; local: { kind: 'piece' | 'wallpaper'; local: string } }>) => {
+        const row = el('div', side); row.className = 'row';
+        const b = el('button', row, 'Share in Community', { id: `share-${rid}`, title: 'Show it in the Community gallery. You can delete it there any time.' });
+        const note = el('div', side); note.className = 'muted'; note.id = `share-note-${rid}`;
+        b.onclick = async () => {
+          b.disabled = true; note.textContent = 'Sharing…'; note.className = 'muted';
+          try {
+            const m = await make(); const out = await shareItem(m.input); rememberLink(out.id, m.local);
+            note.textContent = out.status === 'approved' ? 'Shared. Everyone can see it in Explore.' : 'Shared. You can see it in Explore now; everyone sees it after the safety check.';
+            b.textContent = 'Shared'; showNext(true);
+          } catch (e) { note.textContent = (e as Error).message; note.className = 'err'; note.setAttribute('role', 'alert'); b.disabled = false; }
+        };
       };
       for (const r of rg.list) {
         const kind = work.kinds.get(r.id); if (!kind) continue;
@@ -286,6 +326,7 @@ export function startCommunityFlow(host: HTMLElement, params: URLSearchParams): 
               bar.finish();
               try { await saveUserObject({ id: res.prov.id, glb: res.glb, prov: res.prov }); } catch { /* not kept after this visit */ }
               work.made.pieces.push(res.prov.id); gen.textContent = 'Generate Piece'; msg.textContent = `Done in ${res.seconds} s. It is in the World Editor tray as "📷 Mine: ${res.prov.name}".`; showNext();
+              shareButton(side, r.id, async () => ({ id: res.prov.id, input: { kind: 'piece', name: res.prov.name, thumb: await cropToThumb(ph.image, r.box), glb: res.glb, height_m: res.prov.height_m }, local: { kind: 'piece', local: res.prov.id } }));
             } catch (e) {
               bar.fail();
               const err = e as JobError; gen.textContent = 'Generate Piece';
@@ -306,6 +347,7 @@ export function startCommunityFlow(host: HTMLElement, params: URLSearchParams): 
               const id = `w${Date.now().toString(36)}`, thumb = await cropToThumb(ph.image, wallpaperCrop(r.box, ph.width, ph.height));
               if (!saveWallpaper({ id, name: nm.value.trim() || 'my photo', thumb, at: Date.now(), course: sel.value })) throw new Error('Your browser has no room to keep it.');
               work.made.walls.push(id); lastCourse.id = id; msg.textContent = 'Saved in this browser, and attached to that course.'; showNext();
+              shareButton(side, r.id, async () => ({ id, input: { kind: 'wallpaper', name: nm.value.trim() || 'my photo', thumb, course: sel.value }, local: { kind: 'wallpaper', local: id } }));
             } catch (e) { msg.textContent = (e as Error).message; save.disabled = false; }
           };
         }
