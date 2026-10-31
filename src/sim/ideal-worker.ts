@@ -6,5 +6,5 @@ const ctx = self as unknown as { onmessage: ((e: { data: { id: number; course: C
 ctx.onmessage = (e) => {
   const { id, course } = e.data;
   const r = searchIdealRun(course);
-  ctx.postMessage({ id, plan: r.plan, cleared: r.cleared });
+  ctx.postMessage({ id, plan: r.plan, cleared: r.cleared, windows: r.windows, routes: r.routes });
 };

@@ -1,0 +1,170 @@
+{
+  "swing": {
+    "key": "evcjei",
+    "cleared": true,
+    "plan": {
+      "jumpXs": [
+        4.6,
+        14,
+        30.9,
+        49.28
+      ],
+      "releaseAfter": 60,
+      "bouncePress": 8,
+      "hands": true,
+      "hangTicks": [
+        378,
+        390,
+        240
+      ]
+    },
+    "windows": [
+      {
+        "obstacle": "edge at 6 m",
+        "best": 4.6,
+        "lo": 4.58,
+        "hi": 4.6,
+        "widthMs": 5.405405405405348
+      },
+      {
+        "obstacle": "edge at 17 m (take-off)",
+        "best": 14,
+        "lo": 14,
+        "hi": 14,
+        "widthMs": 0
+      },
+      {
+        "obstacle": "edge at 33.9 m (take-off)",
+        "best": 30.9,
+        "lo": 30.9,
+        "hi": 30.9,
+        "widthMs": 0
+      },
+      {
+        "obstacle": "edge at 50.8 m",
+        "best": 49.28,
+        "lo": 47.8,
+        "hi": 50.74,
+        "widthMs": 400.0000000000006
+      }
+    ],
+    "routes": [
+      {
+        "name": "bar to bar",
+        "ticks": 2017,
+        "bars": 2,
+        "chosen": true
+      }
+    ]
+  },
+  "passing": {
+    "key": "xw6h85",
+    "cleared": true,
+    "plan": {
+      "jumpXs": [
+        5,
+        11.98,
+        17,
+        23.8,
+        31.6,
+        35.2
+      ],
+      "releaseAfter": 60,
+      "bouncePress": 8
+    },
+    "windows": [
+      {
+        "obstacle": "edge at 6 m",
+        "best": 5,
+        "lo": 4.04,
+        "hi": 5.96,
+        "widthMs": 262.16216216216213
+      },
+      {
+        "obstacle": "edge at 13.5 m",
+        "best": 11.98,
+        "lo": 10.5,
+        "hi": 13.44,
+        "widthMs": 399.9999999999999
+      },
+      {
+        "obstacle": "edge at 18.5 m",
+        "best": 17,
+        "lo": 15.5,
+        "hi": 18.48,
+        "widthMs": 405.4054054054054
+      },
+      {
+        "obstacle": "edge at 25.3 m",
+        "best": 23.8,
+        "lo": 22.3,
+        "hi": 25.28,
+        "widthMs": 405.4054054054054
+      },
+      {
+        "obstacle": "edge at 33.1 m",
+        "best": 31.6,
+        "lo": 31.32,
+        "hi": 33.1,
+        "widthMs": 243.2432432432434
+      },
+      {
+        "obstacle": "edge at 36.7 m",
+        "best": 35.2,
+        "lo": 33.7,
+        "hi": 36.7,
+        "widthMs": 408.1081081081081
+      }
+    ]
+  },
+  "coaster": {
+    "key": "7z6yxw",
+    "cleared": true,
+    "plan": {
+      "jumpXs": [
+        45.85
+      ],
+      "releaseAfter": 60,
+      "bouncePress": 8,
+      "cartBrake": [],
+      "hands": true,
+      "hangTicks": [
+        15
+      ]
+    },
+    "windows": [],
+    "shortcuts": [
+      {
+        "id": "skip-bar-1",
+        "skipped": [
+          "Bar 1"
+        ],
+        "how": "jump past bar 1",
+        "secondsSaved": 1.08,
+        "seconds": 5.18,
+        "pumpSeconds": null,
+        "windowMs": null,
+        "designed": false,
+        "plan": {
+          "jumpXs": [
+            45.75
+          ],
+          "releaseAfter": 60,
+          "bouncePress": 8,
+          "cartBrake": [],
+          "hangTicks": [
+            0
+          ],
+          "noGrab": [
+            0
+          ],
+          "hands": true
+        }
+      }
+    ]
+  },
+  "failing": {
+    "key": "1jlsb4l",
+    "cleared": false
+  }
+}

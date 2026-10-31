@@ -11,7 +11,8 @@ import { LIBRARY, box } from '../slice/shapes';
 import { bestSlices, describe as describeLane, sliceProfile, CELL, HALF_LANE } from '../slice/slice';
 import { crop, centred, duplicate, hits, newPiece, realSize, scaleBy, scaleToHeight, size, worldSamples, laneProfile, type Piece } from '../slice/world';
 import type { CourseData } from '../course/course';
-import { workSeconds } from '../sim/ideal';
+import { workSeconds, xWindows, type SearchResult } from '../sim/ideal';
+import { searchInput, storedPlanFor, withStoredPlan, type PresetPlan } from '../slice/preset-plans';
 import { createView3d, type Ghosts } from '../slice/view3d';
 import { sceneFor } from '../slice/scene';
 import { isTrack, parseTrackSrc, sectionPoints, trackPiece, trackSrc, trackStartY, TRACK_SHAPES } from '../slice/track-world';
@@ -1000,7 +1001,7 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
       course.scene = sceneFor(ground(), { angle, offset, level }, course.uMap ?? []);
       persistHist();
       root.remove(); style.remove();
-      void startCourse(document.body, course);
+      void startCourse(document.body, withProof(course)); // the plan the check just found goes along: the Course does not search again
     };
     const floorRow = el('label', lanePanel, { className: 'muted', text: 'Floor you must not touch: ' }); floorRow.style.cssText = 'display:flex;align-items:center;gap:6px'; // one line, not two (the panel must fit at 1024 x 640)
     const floorSel = el('select', floorRow, { id: 'floor', title: 'What is painted under the gaps (the run ends the same way on every floor)' });
@@ -1117,8 +1118,9 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
   // check: wait for the simulator and stay when it proves the lane cannot be cleared ('Apply and try it'); 'Back to the Course' and T never wait and never refuse (CC-147)
   async function goToCourse(check = false) {
     if (!handoff) return;
-    const course = courseNow();
-    const clear = check ? await searchClearable(course) : null;
+    const base = courseNow();
+    const clear = check ? await searchClearable(base) : null;
+    const course = withProof(base); // the plan of the lane check (stored, or just found) goes with the course: the Course does not search again
     // null: no check, or it was cut short (a change in the editor starts a newer one); that is no reason to stay, only a proof that the lane does not clear is
     if (clear === false) { verdict = 'The simulator cannot find a way to clear this lane: widen a gap or lower a step.'; drawLanePanel(); reply.className = 'reply bad'; reply.textContent = verdict; helper.classList.remove('closed'); helperBtn.setAttribute('aria-pressed', 'true'); return; }
     course.scene = sceneFor(ground(), { angle, offset, level }, course.uMap ?? []);
@@ -1130,24 +1132,29 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
   }
   backLink.onclick = (e) => { if (handoff) { e.preventDefault(); void goToCourse(); } };
   let verifyTimer = 0, adviceRun = 0, verifyVersion = 0, searchVersion = 0;
-  let searchWorker: Worker | null = null, finishSearch: ((cleared: boolean | null) => void) | null = null;
-  let activeSearch: { key: string; promise: Promise<boolean | null> } | null = null;
-  let cachedSearch: { key: string; cleared: boolean } | null = null;
-  function searchClearable(course: CourseData): Promise<boolean | null> {
-    const key = JSON.stringify(course);
-    if (cachedSearch?.key === key) return Promise.resolve(cachedSearch.cleared);
+  let searchWorker: Worker | null = null, finishSearch: ((cleared: PresetPlan | null) => void) | null = null;
+  let activeSearch: { key: string; promise: Promise<PresetPlan | null> } | null = null;
+  let cachedSearch: { key: string; result: PresetPlan } | null = null;
+  // CC-243: the lane check. A ready-made course is answered at once from its stored proof (scripts/preset-plans.ts); an edited one is searched in a worker, and the plan it finds goes with the hand-off to the Course.
+  function searchResult(course: CourseData): Promise<PresetPlan | null> {
+    const stored = storedPlanFor(course);
+    document.documentElement.dataset.laneProof = stored ? 'stored' : 'search'; // for the timing check
+    if (stored) return Promise.resolve(stored);
+    const key = JSON.stringify(searchInput(course));
+    if (cachedSearch?.key === key) return Promise.resolve(cachedSearch.result);
     if (activeSearch?.key === key) return activeSearch.promise;
     finishSearch?.(null); searchWorker?.terminate();
     const id = ++searchVersion;
     let worker: Worker;
     try { worker = new Worker(new URL('../sim/ideal-worker.ts', import.meta.url), { type: 'module' }); }
     catch { return Promise.resolve(null); }
-    const promise = new Promise<boolean | null>((resolve) => {
+    const promise = new Promise<PresetPlan | null>((resolve) => {
       searchWorker = worker; finishSearch = resolve;
-      worker.onmessage = (e: MessageEvent<{ id: number; cleared: boolean }>) => {
+      worker.onmessage = (e: MessageEvent<{ id: number } & Pick<SearchResult, 'plan' | 'cleared' | 'windows' | 'routes'>>) => {
         if (e.data.id !== id) return;
-        cachedSearch = { key, cleared: e.data.cleared };
-        searchWorker = null; finishSearch = null; activeSearch = null; worker.terminate(); resolve(e.data.cleared);
+        const result: PresetPlan = { key, cleared: e.data.cleared, ...(e.data.cleared ? { plan: e.data.plan, windows: xWindows(e.data.windows ?? []), ...(e.data.routes ? { routes: e.data.routes } : {}) } : {}) };
+        cachedSearch = { key, result };
+        searchWorker = null; finishSearch = null; activeSearch = null; worker.terminate(); resolve(result);
       };
       worker.onerror = () => {
         if (id !== searchVersion) return;
@@ -1158,6 +1165,12 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
     activeSearch = { key, promise };
     return promise;
   }
+  const searchClearable = async (course: CourseData): Promise<boolean | null> => (await searchResult(course))?.cleared ?? null;
+  // the proof the lane check already holds for exactly this course, never a new search: the Course then does not search again
+  const withProof = (course: CourseData): CourseData => {
+    const r = storedPlanFor(course) ?? (cachedSearch?.key === JSON.stringify(searchInput(course)) ? cachedSearch.result : null);
+    return withStoredPlan(course, r);
+  };
   function interruptSearch() {
     clearTimeout(verifyTimer);
     verifyVersion++;
