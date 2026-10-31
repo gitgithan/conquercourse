@@ -1,5 +1,6 @@
 import { pageQuery } from '../flags';
 import { shareWaitText, waitFromReply } from '../sim/slow-down';
+import { initFeedbackCard } from './feedback-card';
 // A small "Feedback" button on every page. It asks the questions in public/feedback-questions.json (edit that file to change
 // the round) and posts the answers, a random session id, the build id and a few play counters to /api/submit.
 declare const __BUILD__: string;
@@ -91,6 +92,7 @@ export function session(): string {
 }
 
 export function initFeedback(mode: string): void {
+  if (pageQuery().get('feedback') !== 'old') { initFeedbackCard(mode); return; } // the new card; ?feedback=old brings the old round form back
   const btn = document.createElement('button');
   btn.textContent = 'Feedback';
   btn.id = 'cc-feedback-btn';

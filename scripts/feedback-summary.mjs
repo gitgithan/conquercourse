@@ -2,6 +2,18 @@
 // Usage: node scripts/feedback-summary.mjs [round]   (needs `npx wrangler login` once)
 import { execFileSync } from 'node:child_process';
 import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
+import { renderQuick } from './feedback-group.mjs';
+
+// The new card: `node scripts/feedback-summary.mjs quick` groups every note by kind and by screen into test-results/feedback-quick.md (not tracked: it holds players' words).
+if (process.argv[2] === 'quick') {
+  const sql = 'SELECT ts, round, session, build, mode, answers, context FROM feedback ORDER BY ts';
+  const out = execFileSync('npx', ['wrangler', 'd1', 'execute', process.env.FEEDBACK_DB ?? 'conquercourse-feedback', ...(process.env.FEEDBACK_LOCAL ? [] : ['--remote']), '--json', '--command', sql], { encoding: 'utf8' });
+  const rows = JSON.parse(out)[0].results.map((r) => ({ ...r, answers: JSON.parse(r.answers), context: JSON.parse(r.context) }));
+  mkdirSync('test-results', { recursive: true });
+  writeFileSync('test-results/feedback-quick.md', renderQuick(rows));
+  console.log('wrote test-results/feedback-quick.md');
+  process.exit(0);
+}
 
 const round = process.argv[2] ?? JSON.parse(readFileSync('public/feedback-questions.json', 'utf8')).round;
 const q = JSON.parse(readFileSync('public/feedback-questions.json', 'utf8'));

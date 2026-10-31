@@ -6,7 +6,7 @@
 - **Hosting:** Cloudflare Pages (free tier, always on, a fixed address like `https://conquercourse.pages.dev`).
 - **Updates (owner rule, 2026-10-31):** deploy to the preview address only (`npm run deploy:preview`); never deploy to production, and never delete previews.
   - `npm run deploy` publishes to production; do not run it unless the product owner says so in that session.
-- **Feedback:** a Feedback button on every page asks the questions in `public/feedback-questions.json` and stores the answers in a Cloudflare D1 database through `functions/api/submit.ts`.
+- **Feedback:** a Feedback button on every page opens the short card ([feedback](feedback.md)); `?feedback=old` brings back the round form, which asks the questions in `public/feedback-questions.json` and stores the answers in a Cloudflare D1 database through `functions/api/submit.ts`.
 - **Privacy:**
   - No names, emails or IP addresses are stored.
   - The form says not to type personal information.
