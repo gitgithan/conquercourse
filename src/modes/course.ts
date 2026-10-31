@@ -20,7 +20,7 @@ import { inputFor, searchIdealRun, workSeconds, xWindows, type Plan, type Search
 import { IdealPool } from '../sim/ideal-pool';
 import { createGhost } from '../ui/ghost';
 import { lookOfParam, softenPlayer } from '../ui/ghost-look';
-import { challengeWords, courseTooBig, makeLinkInfo, offersIdeal, openChallenge, secondsWords, shareOn } from '../share/challenge';
+import { challengeWords, courseTooBig, isOldLongLink, makeLinkInfo, OLD_LINK_WORDS, offersIdeal, openChallenge, secondsWords, shareOn } from '../share/challenge';
 import { MARKER_BELOW, RUNNER_M, TICKS_PER_FRAME, clipCameraDistance, clipCrop, clipFits, clipFrames, clipLayoutFor, createClipEncoder, drawClipFrame, clipViewMetres, type ClipLayout } from '../share/clip';
 import { mountTouch, touchOn } from '../share/touch';
 import { createGaugeStack } from '../ui/gauges';
@@ -1384,7 +1384,8 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
     catch { window.prompt('Copy this link', location.href); if (btn) btn.textContent = 'Link ready'; }
   };
   const challengeParam = shareOn(params) && !botMode && params.get('challenge') !== '0' ? params.get('challenge') : null; // ?challenge=0 is the switch for challenge courses, not a link (CC-108)
-  if (challengeParam) {
+  if (challengeParam && isOldLongLink(params)) showBanner(OLD_LINK_WORDS, [], 20000); // CC-219: only short links are made and opened; an old long address says so in one line
+  else if (challengeParam) {
     void openChallenge(course, challengeParam).then((c) => {
       if (document.documentElement.dataset.madeRefused) { showBanner(challengeWords('too-big'), [], 20000); return; } // the course in the link could not be opened (CC-136)
       if (!c.ok) {

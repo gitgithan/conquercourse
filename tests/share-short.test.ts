@@ -3,7 +3,8 @@ import { describe, expect, it } from 'vitest';
 import type { CourseData } from '../src/course/course';
 import { d1Store } from '../functions/api/share';
 import { onRequestGet } from '../functions/api/share/[id]';
-import { expandShortSearch, makeChallengeUrl, makeLink, makeShortUrl, openChallenge } from '../src/share/challenge';
+import { expandShortSearch, isOldLongLink, makeLink, makeLinkInfo, openChallenge } from '../src/share/challenge';
+import { expandedAddress } from './helpers/share-address';
 import { createShare, ID_RE, MAX_SHARE_BODY, newId, readShare, SHARES_PER_ADDRESS, SHARES_PER_HOUR, type ShareEnv, type ShareRow, type ShareStore } from '../src/share/server';
 import { makeChallengeParam, recordPlan, type InputLog } from '../src/sim/replay';
 import { localD1 } from './helpers-d1';
@@ -150,7 +151,7 @@ describe('the D1 store on the real migration', () => {
     expect(res.status).toBe(200);
     expect(res.headers.get('cache-control')).toContain('max-age');
   });
-  it('answers 503 when the table is missing, so the game falls back to the long link', async () => {
+  it('answers 503 when the table is missing, so the game says links are not working', async () => {
     const { db } = localD1('0005');
     const res = await onRequestGet({ params: { id: 'abcdefghjk' }, env: { DB: db, ASSETS: { fetch: async () => new Response('no') } } as never });
     expect(res.status).toBe(503);
@@ -169,37 +170,76 @@ describe('the client', () => {
     return { f, calls };
   };
   const search = '?course=/assets/demo/lache.course.json';
-  it('makes a short link when the server answers, and it expands back to a link the page reads as before', async () => {
+  const kept = (p: string, k: string): string | null => new URLSearchParams(p).get(k);
+  it('makes a short link when the server answers, and it expands back to an address the page reads', async () => {
     const { f } = server();
-    const url = await makeShortUrl(ORIGIN, search, lache, logOf(lache), 'KIM', 'b', 'done', f);
+    const url = await makeLink(ORIGIN, search, lache, logOf(lache), 'KIM', 'b', 'done', f);
     expect(url).toMatch(/^https:\/\/conquercourse\.pages\.dev\/\?c=[a-z2-9]{10}$/);
     const long = await expandShortSearch(new URL(url!).search, f);
-    const longUrl = await makeChallengeUrl(ORIGIN, search, lache, logOf(lache), 'KIM', 'b');
-    expect(new URLSearchParams(long!).get('challenge')).toBe(new URL(longUrl!).searchParams.get('challenge'));
-    expect(new URLSearchParams(long!).get('course')).toBe('/assets/demo/lache.course.json');
-    expect(new URLSearchParams(long!).get('rk')).toBe('b');
-    expect(new URLSearchParams(long!).has('c')).toBe(false);
+    const want = await expandedAddress(ORIGIN, search, lache, logOf(lache), 'KIM', 'b');
+    expect(kept(long!, 'challenge')).toBe(new URL(want!).searchParams.get('challenge'));
+    expect(kept(long!, 'course')).toBe('/assets/demo/lache.course.json');
+    expect(kept(long!, 'rk')).toBe('b');
+    expect(kept(long!, 'c')).toMatch(ID_RE); // the short id stays: it marks the challenge as one the server vouches for
   });
-  it('falls back to the long link when the server is down, answers 503 or does not exist', async () => {
-    const want = await makeChallengeUrl(ORIGIN, search, lache, logOf(lache));
+  it('says why there is no link: server down, switched off, or bad answer is "down"; never a long link', async () => {
     const down = (async () => { throw new Error('offline'); }) as unknown as typeof fetch;
     const off = (async () => new Response('{}', { status: 503 })) as unknown as typeof fetch;
     const html = (async () => new Response('<html>', { status: 200 })) as unknown as typeof fetch;
-    for (const f of [down, off, html]) expect(await makeLink(ORIGIN, search, lache, logOf(lache), '', 'a', 'done', f)).toBe(want);
+    for (const f of [down, off, html]) {
+      const r = await makeLinkInfo(ORIGIN, search, lache, logOf(lache), '', 'a', 'done', f);
+      expect(r).toEqual({ url: null, wait: null, down: true });
+    }
   });
-  it('?short=0 never calls the server', async () => {
+  it('a pause is reported with its seconds, not as down', async () => {
+    const slow = (async () => new Response(JSON.stringify({ reason: 'slow_down', retryAfterSeconds: 38 }), { status: 429, headers: { 'retry-after': '38' } })) as unknown as typeof fetch;
+    const r = await makeLinkInfo(ORIGIN, search, lache, logOf(lache), '', 'a', 'done', slow);
+    expect(r.url).toBeNull(); expect(r.wait).toBe(38); expect(r.down).toBeFalsy();
+  });
+  it('the build has no long-link switch: ?short=0 changes nothing', async () => {
     const { f, calls } = server();
     const url = await makeLink(ORIGIN, `${search}&short=0`, lache, logOf(lache), '', 'a', 'done', f);
-    expect(url).toContain('challenge=');
-    expect(calls).toEqual([]);
+    expect(url).toMatch(/\?c=/);
+    expect(calls).toEqual(['POST /api/share']);
   });
-  it('old long links and half-run links are not touched', async () => {
+  it('a generated course, a coaster course and a made course all get a short link that opens the same run', async () => {
+    const { generateCourse } = await import('../src/slice/generator');
+    const { coasterCourse, parseTrack } = await import('../src/slice/coaster');
+    const { madeCourse } = await import('../src/share/made-course');
+    const { verifyLog } = await import('../src/sim/replay');
+    const cases: [string, CourseData][] = [['?generate=7', generateCourse(7)], ['?coaster=0,9;7,5;14,1;21,0', coasterCourse('My coaster', parseTrack('0,9;7,5;14,1;21,0')!, 1.5)]];
+    for (const [q, course] of cases) {
+      const log = logOf(course);
+      const { f } = server();
+      const url = await makeLink(ORIGIN, q, course, log, 'ZED', 'a', 'done', f);
+      expect(url, q).toMatch(/\?c=[a-z2-9]{10}$/);
+      const long = (await expandShortSearch(new URL(url!).search, f))!;
+      expect(kept(long, 'generate')).toBeNull(); expect(kept(long, 'coaster')).toBeNull(); // the saved course is read from `made`, not rebuilt from the words
+      const opened = (await import('../src/share/made-course')).unpackCourse;
+      const played = (await opened(kept(long, 'made')!))!;
+      expect(played).toEqual(madeCourse(course));
+      expect(verifyLog(played, log).cleared).toBe(true);
+      expect((await openChallenge(played, kept(long, 'challenge')!)).ok).toBe(true);
+    }
+  });
+  it('a course from the editor or the Park (a file not in the list) is carried too', async () => {
+    const { f } = server();
+    const url = await makeLink(ORIGIN, '?course=/assets/experiments/park/mine.course.json', lache, logOf(lache), '', 'a', 'done', f);
+    expect(url).toMatch(/\?c=/);
+  });
+  it('an old long address is recognised and not opened; a short one is not an old link', () => {
+    expect(isOldLongLink(new URLSearchParams('?challenge=1.abc.def.ghi'))).toBe(true);
+    expect(isOldLongLink(new URLSearchParams('?made=dxx&challenge=1f.abc'))).toBe(true);
+    expect(isOldLongLink(new URLSearchParams('?c=abcdefghjk&challenge=1.abc'))).toBe(false);
+    expect(isOldLongLink(new URLSearchParams('?challenge=0'))).toBe(false);
+    expect(isOldLongLink(new URLSearchParams('?challenge=broken'))).toBe(false);
+    expect(isOldLongLink(new URLSearchParams('?course=/assets/demo/lache.course.json'))).toBe(false);
+  });
+  it('an address with no short id is left alone and makes no server call', async () => {
     const { f, calls } = server();
     expect(await expandShortSearch('?challenge=1.abc..rAAAA', f)).toBeNull();
     expect(await expandShortSearch('?course=/assets/demo/lache.course.json', f)).toBeNull();
     expect(calls).toEqual([]);
-    const fell = await makeChallengeUrl(ORIGIN, search, lache, [[0, 30], [1, 60], [0, 40]], '', 'a', 'fell');
-    if (fell) expect(new URL(fell).searchParams.get('challenge')).toMatch(/^1f\./);
   });
   it('a short id that is unknown or malformed is shown as a damaged link', async () => {
     const { f } = server();
@@ -207,7 +247,7 @@ describe('the client', () => {
   });
   it('the link is the same short length whatever the run is', async () => {
     const { f } = server();
-    const url = await makeShortUrl(ORIGIN, search, lache, logOf(lache), '', 'a', 'done', f);
+    const url = await makeLink(ORIGIN, search, lache, logOf(lache), '', 'a', 'done', f);
     expect(url!.length).toBe(`${ORIGIN}/?c=`.length + 10);
   });
 });

@@ -3,7 +3,8 @@ import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 import type { CourseData } from '../src/course/course';
 import { makeChallengeParam, readChallengeParam, recordPlan, verifyLog, type InputLog } from '../src/sim/replay';
-import { MAX_PARAM_CHARS, makeChallengeUrl, openChallenge } from '../src/share/challenge';
+import { openChallenge } from '../src/share/challenge';
+import { expandedAddress } from './helpers/share-address';
 
 const course = JSON.parse(readFileSync('public/assets/demo/bench-and-stairs.course.json', 'utf8')) as CourseData;
 const done = recordPlan(course, course.plan!, 120 * 120).recorder.snapshot();
@@ -20,9 +21,8 @@ describe('a link for a try that fell (CC-181)', () => {
     expect(verifyLog(course, done).cleared).toBe(true);
   });
   it('round trips: the ghost ends where the player fell, and it is marked as not finished', async () => {
-    const url = await makeChallengeUrl(ORIGIN, SEARCH, course, fell, 'amy', 'a', 'fell');
+    const url = await expandedAddress(ORIGIN, SEARCH, course, fell, 'amy', 'a', 'fell');
     expect(url).not.toBeNull();
-    expect(url!.length).toBeLessThanOrEqual(MAX_PARAM_CHARS);
     const o = await openChallenge(course, param(url!));
     expect(o.ok).toBe(true);
     if (!o.ok) return;
@@ -32,12 +32,12 @@ describe('a link for a try that fell (CC-181)', () => {
     expect(o.track.ticks).toBe(verifyLog(course, fell).ticks);
   });
   it('finished links still verify and are marked done', async () => {
-    const o = await openChallenge(course, param((await makeChallengeUrl(ORIGIN, SEARCH, course, done))!));
+    const o = await openChallenge(course, param((await expandedAddress(ORIGIN, SEARCH, course, done))!));
     expect(o.ok && o.kind).toBe('done');
   });
   it('makes no fell link for keys that finish, and no finished link for keys that fall', async () => {
-    expect(await makeChallengeUrl(ORIGIN, SEARCH, course, done, '', 'a', 'fell')).toBeNull();
-    expect(await makeChallengeUrl(ORIGIN, SEARCH, course, fell)).toBeNull();
+    expect(await expandedAddress(ORIGIN, SEARCH, course, done, '', 'a', 'fell')).toBeNull();
+    expect(await expandedAddress(ORIGIN, SEARCH, course, fell)).toBeNull();
   });
   it('refuses a fell link whose keys actually finish (a finish cannot be claimed or hidden this way)', async () => {
     const o = await openChallenge(course, await makeChallengeParam(course, done, '', 'fell'));

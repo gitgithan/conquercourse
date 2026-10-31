@@ -1,5 +1,5 @@
--- NOT YET APPLIED (CC-219): the product owner must say yes first. The code works without it (the game then sends the long link as before).
--- One row per shared run: a short id stands for the run and the course it was played on, so a link no longer has to carry the keys (CC-218, docs/data-model.md).
+-- Applied on both the production and the preview database (preview checked read-only 2026-10-31: the table exists and holds 0 rows; production per the product owner, same count).
+-- One row per shared run: a short id stands for the run and the course it was played on, so a link never carries the keys (CC-218, CC-219, docs/data-model.md).
 -- No name, no email, no address, no player id: only the run, the course reference and the optional three-letter tag.
 -- Do NOT use `wrangler d1 migrations apply` on the live database (0002 to 0004 were applied by hand); run this file with `wrangler d1 execute --file`.
 -- Undo: DROP TABLE shares.

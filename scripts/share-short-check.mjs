@@ -13,14 +13,14 @@ const server = spawn('npx', ['wrangler', 'pages', 'dev', 'dist', '--port', Strin
 try {
   for (let i = 0; i < 90; i++) { try { if ((await fetch(`http://localhost:${port}/`)).ok) break; } catch { /* not up yet */ } await new Promise((r) => setTimeout(r, 1000)); }
   const origin = `http://localhost:${port}`;
-  const longLink = execFileSync('node_modules/.bin/tsx', ['scripts/share-link.ts', course, origin]).toString().trim();
+  const opened = execFileSync('node_modules/.bin/tsx', ['scripts/share-link.ts', course, origin]).toString().trim();
   const b = await chromium.launch({ args: ['--use-gl=swiftshader', '--enable-unsafe-swiftshader', '--no-sandbox'] });
   const ctx = await b.newContext({ viewport: { width: 1280, height: 720 }, permissions: ['clipboard-read', 'clipboard-write'] });
   const page = await ctx.newPage(); const errs = []; page.on('pageerror', (e) => errs.push(String(e)));
-  await page.goto(`${longLink}&autoplay=1&welcome=0&tour=0`, { waitUntil: 'load' });
+  await page.goto(`${opened}&autoplay=1&welcome=0&tour=0`, { waitUntil: 'load' });
   const banner = await page.waitForSelector('#challenge-banner', { timeout: 120000 }).then((e) => e.innerText()).catch(() => '');
   const seconds = banner.match(/(\d+\.\d\d) s/)?.[1];
-  ok('the old long link still opens', !!seconds, banner.replace(/\n/g, ' | '));
+  ok('the opened form of a link plays', !!seconds, banner.replace(/\n/g, ' | '));
   const got = await page.waitForSelector('#report-again', { timeout: 300000 }).then(() => true).catch(() => false);
   ok('the friend run ends in the report', got);
   await page.click('#share-copy');
@@ -36,21 +36,27 @@ try {
   await again.goto(`${copied}&welcome=0&tour=0`, { waitUntil: 'load' });
   const b2 = await again.waitForSelector('#challenge-banner', { timeout: 120000 }).then((e) => e.innerText()).catch(() => '');
   ok('the short link opens with the same time to beat', b2.includes(`${seconds} s`), b2.replace(/\n/g, ' | '));
-  ok('the address now holds the long form the page reads', /challenge=1\./.test(again.url()) && !/[?&]c=/.test(again.url()));
+  ok('the address now holds the form the page reads', /challenge=1\./.test(again.url()) && /[?&]c=/.test(again.url()));
+  const oldLink = await ctx.newPage();
+  await oldLink.goto(`${opened.replace(/[?&]c=[a-z0-9]+/, '')}&welcome=0&tour=0`, { waitUntil: 'load' });
+  const ob = await oldLink.waitForSelector('#challenge-banner', { timeout: 60000 }).then((e) => e.innerText()).catch(() => '');
+  ok('an old long address shows one friendly line and does not break', /old kind of link/.test(ob), ob.replace(/\n/g, ' | '));
+  await oldLink.screenshot({ path: `${out}/old-link.png` });
   await again.screenshot({ path: `${out}/short-opened.png` });
   const bad = await ctx.newPage();
   await bad.goto(`${origin}/?c=zzzzzzzzzz&welcome=0&tour=0`, { waitUntil: 'load' });
   const tb = await bad.waitForSelector('#challenge-banner', { timeout: 60000 }).then((e) => e.innerText()).catch(() => '');
   ok('an unknown id is refused in plain words', /damaged/.test(tb), tb.replace(/\n/g, ' | '));
   await bad.screenshot({ path: `${out}/unknown.png` });
-  // the server down: the button falls back to the long link
+  // the server down: the button says so in plain words and makes no link
   const down = await ctx.newPage(); await down.route('**/api/share', (r) => r.abort());
-  await down.goto(`${longLink}&autoplay=1&welcome=0&tour=0`, { waitUntil: 'load' });
+  await down.goto(`${opened}&autoplay=1&welcome=0&tour=0`, { waitUntil: 'load' });
   await down.waitForSelector('#report-again', { timeout: 300000 });
   await down.click('#share-copy');
-  await down.waitForFunction(() => /copied|ready/i.test(document.querySelector('#share-copy').textContent), null, { timeout: 20000 }).catch(() => {});
-  const fallback = await down.evaluate(() => navigator.clipboard.readText()).catch(() => '');
-  ok('with the server unreachable the copied link is the long one', /\?course=[^&]+&challenge=1\./.test(fallback), fallback.slice(0, 100));
+  await down.waitForSelector('#share-wait', { state: 'visible', timeout: 20000 }).catch(() => {});
+  const downNote = await down.textContent('#share-wait').catch(() => '');
+  ok('with the server unreachable no link is made and the page says so', /Links are not working just now/.test(downNote ?? ''), downNote ?? '');
+  await down.screenshot({ path: `${out}/server-down.png` });
   ok('no page errors', errs.length + e2.length === 0, [...errs, ...e2].join(' | ').slice(0, 300));
   await b.close();
 } finally { server.kill(); try { execFileSync('npx', ['wrangler', 'd1', 'execute', 'conquercourse-feedback', '--local', '--command', 'DROP TABLE IF EXISTS shares'], { stdio: 'ignore' }); } catch { /* ok */ } }
