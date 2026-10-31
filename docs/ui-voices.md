@@ -33,21 +33,28 @@
 - The piece-info lines are static catalogue text, not a live check, so they carry no Simulator badge.
 
 ## The table
-| Title | Colour | Powered by | Speaks when | Where the words live |
-|---|---|---|---|---|
-| Simulator says (live) | green, blue, red, gold by state | our own physics, not an AI | the World Editor and the World Slicer: a strip at the top of the side panel that follows the lane check as you edit or drag the line | `src/ui/sim-says.ts`, `src/modes/editor.ts`, `src/modes/map.ts` |
-| Simulator says (small) | green | our own physics, not an AI | the end-of-run report and the fall panel, the coaster and graph verdicts | `src/ui/run-report.ts`, `src/modes/coaster.ts`, `src/modes/graph-studio.ts`, `src/slice/lane-check-ui.ts` |
-| Design partner says | orange | Muse Spark Open | the Design partner panel: notes, Fix it, Suggest | `src/modes/editor.ts` |
-| Safety check says | red | Muse Spark Open | when you press Share in Community | `src/modes/community-flow.ts` |
-| Cutter says | blue | SAM 3 | Make your own, step 3: Segment Region | `src/modes/community-flow.ts` |
-| Builder says | gold | SAM 3D Objects | Make your own, step 5: Make them, and the prize screen | `src/modes/community-flow.ts`, `src/ui/prize.ts` |
-| Character maker says | pink | Muse Image and SAM 3.1 | the Characters panel | `src/characters/panel.ts` |
-| Ghost says | amber | a replay of a real run, not an AI | the ghost line in the end report | `src/ui/ghost.ts` |
-| Street photos say | green | Mapillary photos, people masked | the name tag on a live photo strip | `src/ui/place-photos.ts` |
-| Pip | orange | Rookie A | the first card in the Characters panel; the crew strip | `src/characters/panel.ts` |
-| Juno | violet | Rookie B | the crew strip | `src/characters/panel.ts` |
+| Title | Colour | Powered by | Speaks when | Screens | Where the words live |
+|---|---|---|---|---|---|
+| Simulator says (live) | green, blue, red, gold by state | our own physics, not an AI | the World Editor and the World Slicer: a strip at the top of the side panel that follows the lane check as you edit or drag the line | World Editor, World Slicer, Course, Coaster builder, End report | `src/ui/sim-says.ts`, `src/modes/editor.ts`, `src/modes/map.ts` |
+| Simulator says (small) | green | our own physics, not an AI | the end-of-run report and the fall panel, the coaster and graph verdicts | End report, Coaster builder, Course | `src/ui/run-report.ts`, `src/modes/coaster.ts`, `src/modes/graph-studio.ts`, `src/slice/lane-check-ui.ts` |
+| Design partner says | orange | Muse Spark Open | the Design partner panel: notes, Fix it, Suggest | World Editor | `src/modes/editor.ts` |
+| Safety check says | red | Muse Spark Open | when you press Share in Community | Make your own | `src/modes/community-flow.ts` |
+| Cutter says | blue | SAM 3 | Make your own, step 3: Segment Region | Make your own | `src/modes/community-flow.ts` |
+| Builder says | gold | SAM 3D Objects | Make your own, step 5: Make them, and the prize screen | Make your own | `src/modes/community-flow.ts`, `src/ui/prize.ts` |
+| Character maker says | pink | Muse Image and SAM 3.1 | the Characters panel | Characters | `src/characters/panel.ts` |
+| Ghost says | amber | a replay of a real run, not an AI | the ghost line in the end report | End report | `src/ui/ghost.ts` |
+| Street photos say | green | Mapillary photos, people masked | the name tag on a live photo strip | Course, World Slicer | `src/ui/place-photos.ts` |
+| Pip | orange | Rookie A | the first card in the Characters panel; the crew strip | Course, Characters | `src/characters/panel.ts` |
+| Juno | violet | Rookie B | the crew strip | Course | `src/characters/panel.ts` |
 
 ## Meet the crew
+- Each card has a column of small icons down its right side: one per game screen where that guy speaks.
+- A legend at the top (the cards scroll under it in the dialog, so it is always in view) names every icon.
+- The icons differ in shape, carry a tooltip and an aria-label, and never rely on colour alone.
+- The map is `VOICE_SCREENS` in `src/ui/says.ts`; the table above uses the same screen names and the test checks they agree.
+- Screens: World Editor, World Slicer, Course, Coaster builder, End report, Make your own, Characters.
+- Explore and the Dojo are not icons: the crew strip itself lives on Explore, and no voice has a badge in the Dojo.
+- Clicking outside the dialog closes it, like Esc and Close.
 - The welcome page has a "Meet the crew" button (top right) that opens the strip in a dialog.
 - The Community page, Explore tab, has the same strip as its last section.
 - One card per voice: the badge, a one-line job, and the powered-by line.
@@ -81,3 +88,9 @@
 - [characters-before](evidence/cc-243-says-characters-before.jpg)
 - [characters-after](evidence/cc-243-says-characters-after.jpg)
 - The Course Agent had a badge in the first version; its photo input was cut from the scope (50a9cf7d), so its voice is gone from the table.
+
+## Pictures for the crew icons and click-outside (1280 x 720)
+- [crew-icons](evidence/cc-243-crew-icons/crew-icons-1280.png)
+- [characters-open](evidence/cc-243-crew-icons/characters-open-1280.png)
+- [characters-closed-by-click-outside](evidence/cc-243-crew-icons/characters-closed-1280.png)
+- `node scripts/crew-icons-check.mjs` takes them and checks that a click outside closes the dialog and the picker, that a drag from inside does not, and that Esc still works.

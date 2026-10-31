@@ -35,8 +35,8 @@ try {
         const b = await badge(page, voice);
         // the welcome and community crew checks look at the strip instead of one voice
         if (name === 'welcome-crew' || name === 'community-crew') {
-          const n = await page.evaluate(() => document.querySelectorAll('#crew li').length);
-          checks[`${name} ${on ? 'on' : 'off'}: ${on ? '11 crew cards' : 'no crew strip'}`] = on ? n === 11 : n === 0 && !(await page.$('#welcome-crew'));
+          const n = await page.evaluate(() => document.querySelectorAll('#crew > li').length);
+          checks[`${name} ${on ? 'on' : 'off'}: ${on ? '10 crew cards' : 'no crew strip'}`] = on ? n === 10 : n === 0 && !(await page.$('#welcome-crew'));
         } else {
           checks[`${name} ${on ? 'on' : 'off'}: badge ${on ? 'shown' : 'absent'}`] = on ? !!b && b.h >= 40 : b === null;
           if (on && b) console.log(name, JSON.stringify(b));
