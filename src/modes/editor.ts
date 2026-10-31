@@ -130,7 +130,7 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
       restore(JSON.parse(localStorage.getItem(KEY) ?? '') as Saved);
     } catch {
       // a first world made of real objects (no blocks): a short run with one of each kind, loaded once the object list is in
-      pendingObjects.push(...PRESETS[0].pieces); // CC-243: five real objects, short, and the simulator can clear it
+      restore({ pieces: PRESETS[0].pieces, angle: 0, offset: 0, level: 0 }); // CC-243: the default course has a real hang bar and the Lache, and the simulator swings on both
       selected = null;
     }
   }
@@ -418,6 +418,7 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
     const pr = PRESETS.find((q) => q.id === presetPick.value);
     if (!pr) return;
     if (pieces.length > 1 && !confirm('Replace the pieces on the screen with this course? Ctrl+Z will not bring them back.')) { presetPick.value = ''; return; }
+    try { sessionStorage.removeItem(EDIT_KEY); } catch { /* the editor was not opened from a course */ } // a hand-off from the Course would put the old pieces back on reload
     try { localStorage.setItem(KEY, JSON.stringify({ pieces: pr.pieces, angle: 0, offset: 0, level: 0, floor: floorChoice } satisfies Saved)); } catch { /* private window */ }
     location.reload();
   };

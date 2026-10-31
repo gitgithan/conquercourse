@@ -16,7 +16,7 @@ try {
   const state = () => page.evaluate(() => ({ pieces: document.documentElement.dataset.pieces, sel: document.querySelector('#presetpick').value, saved: (JSON.parse(localStorage.getItem('cc.editor.world') ?? localStorage.getItem(Object.keys(localStorage).find((k) => /editor/.test(k)) ?? '') ?? '{}').pieces ?? []).map((p) => p.src).join(',') }));
   console.log('start', JSON.stringify(await state()));
   await page.screenshot({ path: `${out}/0-start.png` });
-  for (const id of ['green-bar', 'black-bar']) {
+  for (const id of ['coaster', 'failing', 'swing']) {
     await Promise.all([page.waitForNavigation({ timeout: 60000 }).catch(() => {}), page.selectOption('#presetpick', id)]);
     await page.waitForSelector('#presetpick', { timeout: 90000 }); await page.waitForTimeout(6000);
     console.log(id, JSON.stringify(await state()));
