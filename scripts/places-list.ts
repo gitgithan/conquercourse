@@ -35,7 +35,7 @@ const CURATED: string[] = [
   'temple-bar-dublin',
   'main-square-krakow',
   'castle-hill-budapest',
-  // restored 2026-11-01 when the person filter was removed (owner decision; Mapillary's own blur is the standard)
+  // restored 2026-11-01 when the person filter was loosened (owner decision; Mapillary's own blur is the base standard)
   'shibuya-tokyo',
   'montmartre-paris',
   'piazza-san-marco-venice',
