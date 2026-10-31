@@ -4,6 +4,7 @@ import { jobProgress } from '../ui/job-progress';
 import { CHARACTER_STEPS, type CharacterCard } from './steps';
 import { promptProblem, cleanPrompt } from './prompt';
 import { refusalWords } from '../slice/stages';
+import { castOn, loadCast } from './cast';
 
 const STYLE = `
 #chars{position:fixed;inset:0;background:rgba(23,32,29,.55);display:grid;place-items:center;z-index:50;font:15px system-ui,sans-serif}
@@ -57,11 +58,13 @@ export function openCharacterPanel(o: PanelOptions): { close(): void; el: HTMLEl
   async function load() {
     tabObj.setAttribute('aria-selected', String(kind === 'object')); tabChr.setAttribute('aria-selected', String(kind === 'character'));
     grid.replaceChildren(); say('');
-    let data: { items: CharacterCard[]; canCreate: boolean };
-    try { const r = await f(`/api/character?kind=${kind}`); data = await r.json(); } catch { say('Could not load the list. Try again in a minute.', true); return; }
+    let data: { items: CharacterCard[]; canCreate: boolean } = { items: [], canCreate: false };
+    const starter = kind === 'character' && castOn() ? await loadCast(f) : [];
+    try { const r = await f(`/api/character?kind=${kind}`); data = await r.json(); } catch { if (!starter.length) { say('Could not load the list. Try again in a minute.', true); return; } say('Could not load the newest creations. The starter characters are here.', true); }
     form.hidden = !(kind === 'character' && data.canCreate);
-    if (!data.items.length) { grid.append(Object.assign(doc.createElement('p'), { textContent: kind === 'character' ? 'No characters yet. Be the first.' : 'No objects yet.' })); }
+    if (!data.items.length && !starter.length) { grid.append(Object.assign(doc.createElement('p'), { textContent: kind === 'character' ? 'No characters yet. Be the first.' : 'No objects yet.' })); }
     if (kind === 'character') grid.append(card(null));
+    for (const c of starter) grid.append(card(c));
     for (const c of data.items) grid.append(card(c));
   }
 

@@ -5,7 +5,8 @@ import { ik2 } from '../motion/compose';
 import { clipToWorld } from '../motion/pose';
 import { legLength } from '../motion/timeline';
 import { createStage } from '../render/scene';
-import { loadRookie, type PosedRookie } from '../render/rookie';
+import { loadRookie, skinStretch, type PosedRookie } from '../render/rookie';
+import { pageQuery } from '../flags';
 
 const CLIMB_URL = '/data/eval/motion-vault/outputs/london_parkour_ledge_landing_35_37/clip.json';
 const VAULT_URL = '/data/eval/motion-vault/outputs/london_parkour_same_level_vault_80_84/clip.json';
@@ -294,7 +295,7 @@ export async function startCapturedVaultDemo(): Promise<void> {
   const vault = parseClip(await vaultRes.json());
   const run = parseClip(await runRes.json());
   const land = parseClip(await landRes.json());
-  const rookie: PosedRookie = await loadRookie('a', climb.names, climb.parents);
+  const rookie: PosedRookie = await loadRookie('a', climb.names, climb.parents, '/assets/characters', pageQuery().get('body') ?? undefined, pageQuery().get('fit') !== '0'); // ?body=<glb> wears a made character (fit=0: as it came)
   scene.add(rookie.object);
   const restLocal = new Map<number, THREE.Vector3>();
   for (const name of ['LeftHand', 'RightHand', 'RightFoot']) {
@@ -533,6 +534,8 @@ export async function startCapturedVaultDemo(): Promise<void> {
     last = now;
     stage.renderer.render(scene, camera);
   });
+  // test hooks: show one frame of the shown move, and read how far the skin stretched
+  Object.assign(window, { __vaultAt: (i: number) => { playing = false; frame = i; showFrame(); return frames.length; }, __skinStretch: () => skinStretch(rookie.object), __fit: () => rookie.fit });
   document.documentElement.dataset.backend = stage.backend;
   document.documentElement.dataset.ready = 'true';
 }

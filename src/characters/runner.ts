@@ -1,6 +1,7 @@
 // Which runner the player chose, and how the game loads it (CC-108).
 // Nothing is fetched until a character is picked (lazy), the choice is kept per browser, and a frame-rate guard sends a slow machine back to the Rookie.
 import { flag } from '../flags';
+import { castUrl } from './cast';
 
 export const CHOICE_KEY = 'cc.character';
 export const MAX_SLOW_FRAME_MS = 60; // a median frame slower than this (under about 17 frames a second) sends the player back to the Rookie
@@ -26,7 +27,8 @@ export function slowMedian(frameMs: number[]): number {
 export const tooSlow = (frameMs: number[], limit = MAX_SLOW_FRAME_MS): boolean => frameMs.length >= 30 && slowMedian(frameMs) > limit;
 
 /** Fetch one character's file when it is picked; returns a blob URL the Rookie loader can read, or null with a plain reason. */
-export async function fetchCharacterUrl(id: string, fetcher: typeof fetch = fetch): Promise<{ url: string } | { error: string }> {
+export async function fetchCharacterUrl(id: string, fetcher: typeof fetch = fetch, cast: { id: string }[] = []): Promise<{ url: string } | { error: string }> {
+  if (cast.some((c) => c.id === id)) return { url: castUrl(id) }; // a starter-cast character is a file of the site, not a row on the server
   try {
     const r = await fetcher(`/api/character?id=${id}`);
     if (!r.ok) return { error: 'That character is not there any more.' };

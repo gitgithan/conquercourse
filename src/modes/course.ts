@@ -50,6 +50,7 @@ import { createRookieActor } from '../render/actor';
 import { lookSwitchOn, lookUrl } from '../render/look';
 import { charactersOn, fetchCharacterUrl, guardOn, saveChoice, savedChoice, tooSlow, watchFrames } from '../characters/runner';
 import { openCharacterPanel } from '../characters/panel';
+import { castOn, loadCast } from '../characters/cast';
 import { makeObstacle } from '../course/collide';
 import { climbAhead } from '../sim/climb';
 import { DEFAULT_HANG, feetOf, handOffset } from '../sim/holds';
@@ -333,7 +334,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
   let characterId: string | null = null; // CC-108: a community character the player picked (loaded only when picked)
   async function loadRookie(which: 'a' | 'b', wear = false, url?: string) {
     try {
-      const next = await createRookieActor(scene, { rookie: which, url: url ?? (wear ? lookUrl(look ?? 'custom') : undefined) });
+      const next = await createRookieActor(scene, { rookie: which, url: url ?? (wear ? lookUrl(look ?? 'custom') : undefined), fit: !!url });
       actor?.dispose();
       softenPlayer(next.object); // CC-180
       actor = next; body.visible = false; choice = which; custom = wear || !!url;
@@ -350,7 +351,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
   const noteLine = (t: string) => { charNote.textContent = t; charNote.style.display = t ? 'block' : 'none'; if (t) setTimeout(() => { charNote.style.display = 'none'; }, 6000); };
   async function wearCharacter(id: string | null) {
     if (!id) { characterId = null; saveChoice(null); await loadRookie(choice); return; }
-    const got = await fetchCharacterUrl(id);
+    const got = await fetchCharacterUrl(id, fetch, castOn() ? await loadCast() : []);
     if ('error' in got) { noteLine(got.error); characterId = null; saveChoice(null); return; }
     const ok = await loadRookie('a', false, got.url);
     if (!ok) { noteLine('That character would not load. You are running as the Rookie.'); await loadRookie(choice); characterId = null; saveChoice(null); return; }
@@ -358,7 +359,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
     void fetch('/api/character', { method: 'POST', body: JSON.stringify({ action: 'pick', id }) }).catch(() => undefined);
     if (guardOn()) watchFrames(90, (ms) => { if (characterId === id && tooSlow(ms)) { noteLine('Your computer is slow with this character, so you are back to the Rookie.'); void wearCharacter(null); } });
   }
-  if (charactersOn()) { const id = savedChoice(); if (id) void wearCharacter(id); }
+  if (charactersOn()) { const asked = params.get('char'); const id = asked && /^[0-9a-f]{16}$/.test(asked) ? asked : savedChoice(); if (id) void wearCharacter(id); } // ?char=<id> wears one by address (the browser checks use it)
   let facing: 1 | -1 = course.track ? 1 : resume ? resume.facing : 1;
 
   // HUD

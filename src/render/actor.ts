@@ -52,7 +52,7 @@ interface Pose {
   hipsAbove: number;
 }
 
-export async function createRookieActor(scene: Scene, opts: { rookie: RookieId; url?: string }): Promise<RookieActor> {
+export async function createRookieActor(scene: Scene, opts: { rookie: RookieId; url?: string; fit?: boolean }): Promise<RookieActor> {
   const phases: Phase[] = ['run', 'leap', 'land', 'swing'];
   const [run, leap, land, swing] = await Promise.all(phases.map((p) => loadClip(p)));
   const reach: Clip = parseClip(await (await fetch('/assets/motion/reach.json')).json());
@@ -101,7 +101,7 @@ export async function createRookieActor(scene: Scene, opts: { rookie: RookieId; 
   } catch { /* no vault clip yet */ }
   let hurtLook: 'auto' | 'bones' = typeof location === 'undefined' ? 'auto' : new URLSearchParams(location.search).get('hurt') === 'bones' ? 'bones' : 'auto';
   let rollLook: RollLook = typeof location === 'undefined' ? 'auto' : rollLookFrom(location.search);
-  const rookie = await loadRookie(opts.rookie, run.names, run.parents, undefined, opts.url);
+  const rookie = await loadRookie(opts.rookie, run.names, run.parents, undefined, opts.url, opts.fit ?? false);
   const group = new Group();
   group.add(rookie.object);
   scene.add(group);
