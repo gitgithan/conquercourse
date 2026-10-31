@@ -52,12 +52,12 @@ export const DIFFICULTY_WORDS = ['', 'Easy', 'Medium', 'Hard', 'Very hard'];
 
 const thousands = (n: number): string => n.toLocaleString('en-US');
 export const secondsText = (ticks: number): string => `${(ticks / TICKS_PER_SECOND).toFixed(1)} s`;
-/** "12 plays today · 1,204 all time, 311 cleared, best 41.2 s" (without today's count: "1,204 plays, 311 cleared, best 41.2 s"). A part with nothing to say is left out, and no data at all gives null (never a made-up number). */
+/** "12 plays today · 1,204 all time, 311 cleared, best 41.2 s" (without today's count from the server: "1,204 plays, 311 cleared, best 41.2 s"). A part with nothing to say is left out, and no data at all gives null (never a made-up number). */
 export function statsLine(n: CourseNumbers | undefined): string | null {
   if (!n || (n.plays <= 0 && n.clears <= 0)) return null;
   const parts: string[] = [];
   const today = n.today ?? 0;
-  if (n.plays > 0 && today > 0) parts.push(`${thousands(today)} ${today === 1 ? 'play' : 'plays'} today \u00b7 ${thousands(n.plays)} all time`);
+  if (n.plays > 0 && n.today !== undefined) parts.push(`${thousands(today)} ${today === 1 ? 'play' : 'plays'} today \u00b7 ${thousands(n.plays)} all time`); // zero today is said too
   else if (n.plays > 0) parts.push(`${thousands(n.plays)} ${n.plays === 1 ? 'play' : 'plays'}`);
   if (n.clears > 0) parts.push(`${thousands(n.clears)} cleared`);
   if (n.best !== null && n.clears > 0) parts.push(`best ${secondsText(n.best)}`);
@@ -92,7 +92,7 @@ export function applyStats(root: HTMLElement, data: StatsData): void {
       const card = cards[it.rank], n = data.stats[it.key];
       const d = difficulty(n, data.meta[it.key], priorScore(it.rank, it.groupSize));
       card.querySelector('.wg-stats')?.remove();
-      const line = statsLine(n), dots = d.fromData ? dotsOf(d.score) : 0;
+      const line = statsLine(n) ?? (data.meta[it.key] ? 'No plays yet' : null), dots = d.fromData ? dotsOf(d.score) : 0;
       if (!line && !dots) continue;
       const box = document.createElement('span'); box.className = 'wg-stats';
       if (dots) {

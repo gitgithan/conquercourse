@@ -65,6 +65,8 @@ describe('the servers save nothing without a path', () => {
     expect((await sent('generated-7')).saved).toBe(1);
     for (const k of ['coaster-custom', 'my-course', 'unnamed-course']) { const r = await sent(k); expect(r.saved, k).toBe(0); expect(r.body.skipped).toBeDefined(); }
     expect(PROVEN_KEY.test('experiments/osm/montmartre-paris')).toBe(true);
+    expect((await sent('demo-lache')).saved).toBe(1); // a page from before the slash fix
+    expect((await sent('experiments-osm-montmartre-paris')).saved).toBe(1);
   });
   it('the place builder writes no place whose lane the simulator did not clear', () => {
     expect(readFileSync('scripts/make-places.ts', 'utf8')).toMatch(/if \(!lane\?\.cleared\)[^\n]*continue/);

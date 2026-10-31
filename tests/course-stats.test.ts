@@ -83,7 +83,7 @@ describe('the words on a card', () => {
   it('says plays today and all time when there are plays today (CC-108)', () => {
     expect(statsLine({ ...none, plays: 1204, today: 12 })).toBe('12 plays today \u00b7 1,204 all time');
     expect(statsLine({ ...none, plays: 1204, clears: 3, today: 1 })).toBe('1 play today \u00b7 1,204 all time, 3 cleared');
-    expect(statsLine({ ...none, plays: 40, today: 0 })).toBe('40 plays');
+    expect(statsLine({ ...none, plays: 40, today: 0 })).toBe('0 plays today \u00b7 40 all time');
   });
   it('never mentions people', () => {
     expect(statsLine({ plays: 5, fails: 1, clears: 2, best: 100, median: 100 })).not.toMatch(/people|players|person/i);
@@ -128,7 +128,7 @@ describe('the server: clears are played again before they count', () => {
     expect(row.ticks).toBe(r.body.ticks);
     expect(row.ticks).toBeGreaterThan(1000);
     // 'keys' is the run log of a verified run and 'nick' the optional three-letter tag (migrations 0005 and 0007); 'player' is a one-way code of a random browser id (migration 0010), never an address
-    expect(Object.keys(row).sort()).toEqual(['beats_ideal', 'course_hash', 'course_key', 'id', 'keys', 'log_hash', 'nick', 'player', 'run_id', 'ticks', 'ts', 'verified']);
+    expect(Object.keys(row).sort()).toEqual(['beats_ideal', 'course_hash', 'course_key', 'id', 'keys', 'log_hash', 'nick', 'player', 'published', 'run_id', 'ticks', 'ts', 'verified']);
   });
   it('ignores a time the browser claims: only the keys count', async () => {
     const { db } = setup();
