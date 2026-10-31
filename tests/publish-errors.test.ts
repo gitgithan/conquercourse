@@ -8,6 +8,7 @@ describe('publish error messages', () => {
     [429, 'slow-down', undefined, /try again in about/],
     [429, 'slow_down', undefined, /Your run is safe/],
     [409, 'course-changed', undefined, /course changed/],
+    [410, 'challenge-gone', undefined, /expired/],
     [404, 'no-course', undefined, /listed courses/],
     [422, 'not-a-clear', undefined, /finish/],
     [422, 'not-possible', 'too-long', /too long/],
