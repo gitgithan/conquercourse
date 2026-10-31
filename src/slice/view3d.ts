@@ -8,6 +8,7 @@ import { size as meshSize, type Piece } from './world';
 import { patternOf } from './stack';
 import { cupsGroup } from './cups';
 import { createPerf } from '../ui/perf';
+import { START_LABEL } from './editor-defaults';
 import { SCALE_BEAM_HEIGHT, SCALE_BEAM_RADIUS, SCALE_RING_INNER, SCALE_RING_OUTER, SCALE_LABEL_HEIGHT } from './person-ref';
 import { clone as cloneSkinned } from 'three/examples/jsm/utils/SkeletonUtils.js';
 
@@ -105,8 +106,17 @@ export function createView3d(wrap: HTMLElement, host: Host): View3d {
   mid.rotation.x = -Math.PI / 2; mid.position.y = 0.025;
   laneG.add(band, mid); scene.add(laneG);
   const rod = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.05, 2.5, 12), new THREE.MeshStandardMaterial({ color: 0x17201d })); rod.position.y = 1.25; scene.add(rod);
+  // CC-200: the rod is where the runner starts: a green flag and a green label say so (the yellow marker is the person for scale)
+  const startMark = new THREE.Group(); startMark.position.set(0, 0, 0);
+  const flagShape = new THREE.Shape(); flagShape.moveTo(0, 0); flagShape.lineTo(1.6, -0.5); flagShape.lineTo(0, -1);
+  const flag = new THREE.Mesh(new THREE.ShapeGeometry(flagShape), new THREE.MeshBasicMaterial({ color: 0x0f6b5c, side: THREE.DoubleSide, depthTest: false, transparent: true })); flag.position.set(0.05, 2.5, 0); flag.renderOrder = 22; flag.raycast = () => { /* no clicks */ };
+  const scv = document.createElement('canvas'); scv.width = 512; scv.height = 96;
+  const sg = scv.getContext('2d')!; sg.fillStyle = '#0f6b5c'; sg.beginPath(); sg.roundRect(2, 2, 508, 92, 20); sg.fill(); sg.fillStyle = '#ffffff'; sg.font = '700 32px system-ui,sans-serif'; sg.textAlign = 'center'; sg.textBaseline = 'middle'; sg.fillText(START_LABEL, 256, 50);
+  const startLabel = new THREE.Sprite(new THREE.SpriteMaterial({ map: new THREE.CanvasTexture(scv), depthTest: false, transparent: true, sizeAttenuation: false }));
+  startLabel.scale.set(0.3, 0.056, 1); startLabel.position.y = 5; startLabel.renderOrder = 23; startLabel.raycast = () => { /* no clicks */ };
+  startMark.add(flag, startLabel); startMark.userData.startMark = true; scene.add(startMark);
 
-  if (host.icon) { (ground as THREE.Mesh).material = new THREE.MeshBasicMaterial({ color: 0xe6ede9 }); scene.background = new THREE.Color(0xe6ede9); for (const o of [grid, laneG, rod]) o.visible = false; scene.fog = null; }
+  if (host.icon) { (ground as THREE.Mesh).material = new THREE.MeshBasicMaterial({ color: 0xe6ede9 }); scene.background = new THREE.Color(0xe6ede9); for (const o of [grid, laneG, rod, startMark]) o.visible = false; scene.fog = null; }
   // the preview of a change: a hollow outline at the new place (teal), a faint one where the piece is now (grey), an arrow between, a dashed new lane line
   const ghostG = new THREE.Group(); scene.add(ghostG);
   let ghostSig = '';
