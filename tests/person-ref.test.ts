@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { box } from '../src/slice/shapes';
-import { PERSON_GAP, PERSON_SIDE, personStart } from '../src/slice/person-ref';
+import { PERSON_GAP, PERSON_SIDE, SCALE_BEAM_HEIGHT, SCALE_LABEL_HEIGHT, markerAt, personStart } from '../src/slice/person-ref';
 import { newPiece } from '../src/slice/world';
 
 describe('where the person for scale stands (CC-96)', () => {
@@ -21,5 +21,26 @@ describe('where the person for scale stands (CC-96)', () => {
     const p = { ...newPiece('Person', box(0.5, 1.75, 0.3), { x: -50, z: 0 }), src: 'obj:../characters/rookie-a.glb' };
     const a = newPiece('A', box(2, 1, 1), { x: 10, z: 0 });
     expect(personStart([p, a], { angle: 0, offset: 0 }).x).toBeCloseTo(10 - 1 - PERSON_GAP, 6);
+  });
+});
+
+describe('the marker over the person stands where the person stands (CC-96)', () => {
+  const tall = { ...newPiece('Person', box(0.5, 1.75, 0.3), { x: 0, z: 0 }), src: 'obj:../characters/rookie-a.glb' };
+  it('is a 30 m cone, with its label just over a head', () => { expect(SCALE_BEAM_HEIGHT).toBe(30); expect(SCALE_LABEL_HEIGHT).toBeGreaterThan(1.75); expect(SCALE_LABEL_HEIGHT).toBeLessThan(2.5); });
+  it('first visit: on the start spot', () => {
+    const a = newPiece('A', box(2, 1, 1), { x: 10, z: 3 });
+    const at = personStart([a], { angle: 0.3, offset: 1 }); const p = { ...tall, x: at.x, z: at.z };
+    expect(markerAt(p)).toEqual({ x: at.x, z: at.z });
+  });
+  it('Fit moves the camera and not the person, so the marker stays', () => {
+    const p = { ...tall, x: 4.2, z: -1.1 };
+    const before = markerAt(p), afterFit = markerAt({ ...p }); // Fit changes only the view
+    expect(afterFit).toEqual(before);
+  });
+  it('follows the person when they are moved', () => {
+    const p = { ...tall, x: 4.2, z: -1.1 };
+    const moved = { ...p, x: -12.5, z: 7.75 };
+    expect(markerAt(moved)).toEqual({ x: -12.5, z: 7.75 });
+    expect(markerAt(p)).toEqual({ x: 4.2, z: -1.1 });
   });
 });

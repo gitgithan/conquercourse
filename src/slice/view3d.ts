@@ -8,6 +8,8 @@ import { size as meshSize, type Piece } from './world';
 import { patternOf } from './stack';
 import { cupsGroup } from './cups';
 import { createPerf } from '../ui/perf';
+import { SCALE_BEAM_HEIGHT, SCALE_BEAM_RADIUS, SCALE_RING_INNER, SCALE_RING_OUTER, SCALE_LABEL_HEIGHT } from './person-ref';
+import { clone as cloneSkinned } from 'three/examples/jsm/utils/SkeletonUtils.js';
 
 // The editor's 3D view: the pieces are drawn as the real baked objects (their own meshes and photo textures), on a textured ground,
 // with the lane drawn as a gold strip. Drag a piece to move it along the ground; drag the empty space to turn the view
@@ -36,6 +38,26 @@ const loader = new GLTFLoader();
 const cache = new Map<string, Promise<THREE.Object3D>>();
 const loadObject = (url: string) => { let p = cache.get(url); if (!p) { p = loader.loadAsync(url).then((g) => g.scene); cache.set(url, p); } return p; };
 const isPersonReference = (p: P3) => p.src === 'obj:../characters/rookie-a.glb' || p.src === 'obj:../characters/rookie-b.glb';
+
+// A see-through yellow cone from the person's feet up to SCALE_BEAM_HEIGHT, a bright line down its middle, a small ring at the feet and the label at head height.
+// It is a child of the person's group, so it stands where they stand (markerAt), and it is drawn over everything: no depth test, no pointer hits.
+function personMarker(pieceScale: number): THREE.Group {
+  const none = () => { /* the marker never takes a click or a drag */ };
+  const marker = new THREE.Group(); marker.scale.setScalar(1 / Math.max(0.01, pieceScale)); marker.renderOrder = 20; marker.raycast = none;
+  const glass = (opacity: number) => new THREE.MeshBasicMaterial({ color: 0xffc400, side: THREE.DoubleSide, depthTest: false, depthWrite: false, transparent: true, opacity });
+  const cone = new THREE.Mesh(new THREE.CylinderGeometry(SCALE_BEAM_RADIUS, 0.02, SCALE_BEAM_HEIGHT, 32, 1, true), glass(0.22));
+  cone.position.y = SCALE_BEAM_HEIGHT / 2; cone.renderOrder = 18; cone.raycast = none;
+  const core = new THREE.Mesh(new THREE.CylinderGeometry(0.03, 0.03, SCALE_BEAM_HEIGHT, 6), glass(0.9));
+  core.position.y = SCALE_BEAM_HEIGHT / 2; core.renderOrder = 19; core.raycast = none;
+  const ring = new THREE.Mesh(new THREE.RingGeometry(SCALE_RING_INNER, SCALE_RING_OUTER, 40), glass(0.95));
+  ring.rotation.x = -Math.PI / 2; ring.position.y = 0.04; ring.renderOrder = 20; ring.raycast = none;
+  const cv = document.createElement('canvas'); cv.width = 512; cv.height = 96;
+  const g2 = cv.getContext('2d')!; g2.fillStyle = '#ffc400'; g2.beginPath(); g2.roundRect(2, 2, 508, 92, 20); g2.fill(); g2.fillStyle = '#17201d'; g2.font = '700 38px system-ui,sans-serif'; g2.textAlign = 'center'; g2.textBaseline = 'middle'; g2.fillText('You, a person for scale', 256, 50);
+  const label = new THREE.Sprite(new THREE.SpriteMaterial({ map: new THREE.CanvasTexture(cv), depthTest: false, transparent: true, sizeAttenuation: false }));
+  label.scale.set(0.3, 0.056, 1); label.position.y = SCALE_LABEL_HEIGHT; label.renderOrder = 21; label.raycast = none;
+  marker.add(cone, core, ring, label);
+  return marker;
+}
 
 function groundTexture(): THREE.CanvasTexture {
   // speckled warm paving with faint slab joints, tiled across the ground
@@ -159,7 +181,7 @@ export function createView3d(wrap: HTMLElement, host: Host): View3d {
       void loadObject(url).then((src) => {
         let tri = 0; src.traverse((o) => { const m = o as THREE.Mesh; if (m.isMesh) tri += (m.geometry.index?.count ?? m.geometry.attributes.position.count); });
         if (tri !== triangles || nodes.get(p.id)?.g !== g) return;
-        const obj = src.clone(true);
+        const obj = cloneSkinned(src); // a plain clone of the skinned person keeps the original bones, so the figure is drawn away from its own place
         const box = new THREE.Box3().setFromObject(obj);
         const c = box.getCenter(new THREE.Vector3());
         const sourceHeight = box.max.y - box.min.y, targetHeight = meshSize(p.mesh).h;
@@ -171,16 +193,7 @@ export function createView3d(wrap: HTMLElement, host: Host): View3d {
         if (node?.box) { g.updateMatrixWorld(true); node.box.setFromObject(g); node.box.update(); }
       }).catch(() => { /* keep the plain mesh */ });
     }
-    if (isPersonReference(p)) { // the person for scale is easy to lose: a bright ring on the ground and a label that always faces the viewer
-      const beacon = new THREE.Group(); beacon.scale.setScalar(1 / Math.max(0.01, p.scale)); beacon.renderOrder = 20;
-      const ring = new THREE.Mesh(new THREE.RingGeometry(0.55, 0.7, 40), new THREE.MeshBasicMaterial({ color: 0xffc400, side: THREE.DoubleSide, depthTest: false, transparent: true, opacity: 0.95 }));
-      ring.rotation.x = -Math.PI / 2; ring.position.y = 0.04; ring.renderOrder = 20;
-      const cv = document.createElement('canvas'); cv.width = 512; cv.height = 96;
-      const g2 = cv.getContext('2d')!; g2.fillStyle = '#ffc400'; g2.beginPath(); g2.roundRect(2, 2, 508, 92, 20); g2.fill(); g2.fillStyle = '#17201d'; g2.font = '700 38px system-ui,sans-serif'; g2.textAlign = 'center'; g2.textBaseline = 'middle'; g2.fillText('You, a person for scale', 256, 50);
-      const label = new THREE.Sprite(new THREE.SpriteMaterial({ map: new THREE.CanvasTexture(cv), depthTest: false, transparent: true, sizeAttenuation: false }));
-      label.scale.set(0.3, 0.056, 1); label.position.y = 2.2; label.renderOrder = 21;
-      beacon.add(ring, label); g.add(beacon);
-    }
+    if (isPersonReference(p)) g.add(personMarker(p.scale)); // the person for scale is easy to lose (CC-96)
     scene.add(g);
     return g;
   }
