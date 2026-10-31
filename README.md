@@ -13,6 +13,15 @@ Live: https://conquercourse.pages.dev/
 - Four features, one top bar on every page: **Courses**, **World Editor**, **World Slicer**, **Community**.
 - We do not grade or coach a person's technique, use a chat tutor, or leave Earth's physics.
 
+## Set it up
+- You do not need an API key to run the game itself.
+- Install the packages with `npm ci`.
+- Start the local site with `npm run dev`, then open http://localhost:5173.
+- For the Meta Model API tools, copy [.env.example](.env.example) to `.env` and put your key in `META_API_KEY`.
+- Load that file in your shell before running those tools: `set -a; . ./.env; set +a`.
+- Keep `.env` private: git ignores it, and keys stay on the server side, never in the browser.
+- Checks and more detail: `npm run test:quick`, [testing](docs/testing.md), [dev setup](docs/dev-setup.md), [deploying](docs/deploy.md) and [trust and safety](docs/trust-and-safety.md).
+
 ## The four experiences
 
 ### How they fit together
@@ -352,14 +361,6 @@ Diagrams are in [docs/meta-ai-pipelines.md](docs/meta-ai-pipelines.md); the full
 - Details and measurements: [docs/ugc-fit.md](docs/ugc-fit.md).
 - The upload check and its own limits: [docs/trust-and-safety.md](docs/trust-and-safety.md).
 - Parts gallery (every move and obstacle, special ones first, played live): [docs/parts-gallery.md](docs/parts-gallery.md), open `?mode=parts`.
-
-## Run it
-- `npm ci`
-- `node node_modules/vite/bin/vite.js` and open http://localhost:5173
-- `npm run test:quick` runs the fast checks; `npm run test:fast` runs the full set ([testing](docs/testing.md)).
-- Deploying: [docs/deploy.md](docs/deploy.md).
-- Trust and safety (the upload check, blur, Baseten data terms, honest limits): [docs/trust-and-safety.md](docs/trust-and-safety.md).
-- Keys live in private files outside the repo; none are committed.
 
 ## What is new, and what is not
 - The repository starts on 2026-10-27; no code from the earlier practice project is used.
