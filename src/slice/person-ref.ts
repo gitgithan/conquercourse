@@ -11,3 +11,13 @@ export function personStart(pieces: (Piece & { src?: string })[], lane: { angle:
   const side = lane.offset + PERSON_SIDE;
   return { x: u0 * c - side * s, z: u0 * s + side * c };
 }
+
+// The marker over the person (CC-96): a see-through yellow cone from their feet up to 30 m, so a tall piece cannot hide them.
+export const SCALE_BEAM_HEIGHT = 30; // m
+export const SCALE_BEAM_RADIUS = 2.5; // m, at the top of the cone (it is a point at the feet)
+export const SCALE_RING_INNER = 0.55; // m, the small ring at the feet
+export const SCALE_RING_OUTER = 0.7;
+export const SCALE_LABEL_HEIGHT = 2.05; // m above the feet: just over a 1.75 m head
+
+// The marker stands exactly where the person stands, whatever moved them (first visit, Fit, a drag, a turn of the lane): it reads their place and keeps none of its own.
+export const markerAt = (person: { x: number; z: number }): { x: number; z: number } => ({ x: person.x, z: person.z });
