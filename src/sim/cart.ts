@@ -44,31 +44,48 @@ export interface Rails {
   bend(x: number): number; // d²y/dx²
 }
 
-export function makeRails(pts: [number, number][]): Rails {
-  const p = [...pts].sort((a, b) => a[0] - b[0]);
-  const n = p.length;
-  const xs = p.map((q) => q[0]), ys = p.map((q) => q[1]);
-  const M = new Array<number>(n).fill(0); // second derivatives at the points; zero at both ends (natural)
-  if (n > 2) {
+// One cubic spline through the dots. Each end is natural (no bend) or clamped (flat, slope 0).
+interface Piece { xs: number[]; M: number[]; ys: number[] }
+function solvePiece(xs: number[], ys: number[], clampStart: boolean, clampEnd: boolean): Piece {
+  const n = xs.length;
+  const M = new Array<number>(n).fill(0); // second derivatives at the points; zero at a natural end
+  if (n > 2 || clampStart || clampEnd) {
     const h = xs.slice(1).map((x, i) => x - xs[i]);
     const a = new Array<number>(n).fill(0), b = new Array<number>(n).fill(1), c = new Array<number>(n).fill(0), d = new Array<number>(n).fill(0);
     for (let i = 1; i < n - 1; i++) {
       a[i] = h[i - 1]; b[i] = 2 * (h[i - 1] + h[i]); c[i] = h[i];
       d[i] = 6 * ((ys[i + 1] - ys[i]) / h[i] - (ys[i] - ys[i - 1]) / h[i - 1]);
     }
+    if (clampStart) { b[0] = 2 * h[0]; c[0] = h[0]; d[0] = 6 * ((ys[1] - ys[0]) / h[0]); }
+    if (clampEnd) { a[n - 1] = h[n - 2]; b[n - 1] = 2 * h[n - 2]; d[n - 1] = -6 * ((ys[n - 1] - ys[n - 2]) / h[n - 2]); }
     for (let i = 1; i < n; i++) { const w = a[i] / b[i - 1]; b[i] -= w * c[i - 1]; d[i] -= w * d[i - 1]; } // forward sweep
     M[n - 1] = d[n - 1] / b[n - 1];
     for (let i = n - 2; i >= 0; i--) M[i] = (d[i] - c[i] * M[i + 1]) / b[i];
   }
-  const seg = (x: number): number => {
-    let i = 0;
-    while (i < n - 2 && x > xs[i + 1]) i++;
-    return i;
-  };
-  const clampX = (x: number) => Math.min(Math.max(x, xs[0]), xs[n - 1]);
-  // after a steep drop the smooth curve swings under its lowest dot: the rail is never lower than that dot (a flat stretch of ground-level rail there), so it is never underground (CC-244)
+  return { xs, ys, M };
+}
+
+export function makeRails(pts: [number, number][]): Rails {
+  const p = [...pts].sort((a, b) => a[0] - b[0]);
+  const n = p.length;
+  const xs = p.map((q) => q[0]), ys = p.map((q) => q[1]);
   const floor = Math.min(...ys);
-  const raw = (x: number): number => { const i = seg(x), h = xs[i + 1] - xs[i], l = xs[i + 1] - x, r = x - xs[i]; return (M[i] * l ** 3) / (6 * h) + (M[i + 1] * r ** 3) / (6 * h) + (ys[i] / h - (M[i] * h) / 6) * l + (ys[i + 1] / h - (M[i + 1] * h) / 6) * r; };
+  // A stretch of rail lying on the lowest level (two dots or more in a row) is dead flat, and the curve into and out of it arrives level (slope 0).
+  // A free natural spline there rings: after a big drop it leaves bumps of tens of centimetres along the flat, and a cart at 50 m/s or more flies off them (CC-244).
+  const flat = (i: number) => i + 1 < n && Math.abs(ys[i] - floor) < 1e-9 && Math.abs(ys[i + 1] - floor) < 1e-9;
+  const cuts: number[] = [0];
+  for (let i = 1; i < n - 1; i++) if (flat(i - 1) || flat(i)) cuts.push(i);
+  if (cuts[cuts.length - 1] !== n - 1) cuts.push(n - 1);
+  const pieces: Piece[] = [];
+  for (let k = 0; k + 1 < cuts.length; k++) {
+    const i0 = cuts[k], i1 = cuts[k + 1];
+    pieces.push(solvePiece(xs.slice(i0, i1 + 1), ys.slice(i0, i1 + 1), k > 0, k + 2 < cuts.length));
+  }
+  const clampX = (x: number) => Math.min(Math.max(x, xs[0]), xs[n - 1]);
+  const pick = (x: number): Piece => { let k = 0; while (k < pieces.length - 1 && x > pieces[k].xs[pieces[k].xs.length - 1]) k++; return pieces[k]; };
+  const cell = (pc: Piece, x: number) => { let i = 0; while (i < pc.xs.length - 2 && x > pc.xs[i + 1]) i++; return i; };
+  // after a steep drop the smooth curve can swing under its lowest dot: the rail is never lower than that dot (a flat stretch of ground-level rail there), so it is never underground (CC-244)
+  const raw = (x: number): number => { const pc = pick(x), i = cell(pc, x), { M, xs: X, ys: Y } = pc, h = X[i + 1] - X[i], l = X[i + 1] - x, r = x - X[i]; return (M[i] * l ** 3) / (6 * h) + (M[i + 1] * r ** 3) / (6 * h) + (Y[i] / h - (M[i] * h) / 6) * l + (Y[i + 1] / h - (M[i + 1] * h) / 6) * r; };
   return {
     x0: xs[0], x1: xs[n - 1],
     y(x) {
@@ -78,14 +95,14 @@ export function makeRails(pts: [number, number][]): Rails {
     slope(x) {
       if (n < 2) return 0;
       x = clampX(x); if (raw(x) < floor) return 0;
-      const i = seg(x), h = xs[i + 1] - xs[i], l = xs[i + 1] - x, r = x - xs[i];
-      return (-M[i] * l * l) / (2 * h) + (M[i + 1] * r * r) / (2 * h) - (ys[i] / h - (M[i] * h) / 6) + (ys[i + 1] / h - (M[i + 1] * h) / 6);
+      const pc = pick(x), i = cell(pc, x), { M, xs: X, ys: Y } = pc, h = X[i + 1] - X[i], l = X[i + 1] - x, r = x - X[i];
+      return (-M[i] * l * l) / (2 * h) + (M[i + 1] * r * r) / (2 * h) - (Y[i] / h - (M[i] * h) / 6) + (Y[i + 1] / h - (M[i + 1] * h) / 6);
     },
     bend(x) {
       if (n < 2) return 0;
       x = clampX(x); if (raw(x) < floor) return 0;
-      const i = seg(x), h = xs[i + 1] - xs[i];
-      return (M[i] * (xs[i + 1] - x)) / h + (M[i + 1] * (x - xs[i])) / h;
+      const pc = pick(x), i = cell(pc, x), { M, xs: X } = pc, h = X[i + 1] - X[i];
+      return (M[i] * (X[i + 1] - x)) / h + (M[i + 1] * (x - X[i])) / h;
     },
   };
 }
