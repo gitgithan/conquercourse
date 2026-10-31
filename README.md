@@ -334,7 +334,6 @@ Diagrams are in [docs/meta-ai-pipelines.md](docs/meta-ai-pipelines.md); the full
 - `node node_modules/vite/bin/vite.js` and open http://localhost:5173
 - `npm run test:quick` runs the fast checks; `npm run test:fast` runs the full set ([testing](docs/testing.md)).
 - Deploying: [docs/deploy.md](docs/deploy.md).
-- Trust and safety (the upload check, blur, Baseten data terms, honest limits): [docs/trust-and-safety.md](docs/trust-and-safety.md).
 - Keys live in private files outside the repo; none are committed.
 
 ## What is new, and what is not

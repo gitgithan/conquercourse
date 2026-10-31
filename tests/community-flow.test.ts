@@ -1,27 +1,21 @@
 import { describe, expect, it } from 'vitest';
-import { STEPS, TABS, afterMarksChanged, canEnter, iou, matchSuggestions, nextStep, prevStep, startState, tabFor, wallpaperCrop, whyNot, type Box } from '../src/community/flow';
+import { STEPS, TABS, canEnter, nextStep, prevStep, startState, tabFor, wallpaperCrop, whyNot, type Box } from '../src/community/flow';
 
 const q = (s: string) => new URLSearchParams(s);
 const sug = (box: Box, label = 'bench') => ({ label, score: 0.9, box, cutout: '' });
 
 describe('the stepper', () => {
-  it('has the five steps in order, with no upfront wallpaper-or-object choice', () => {
-    expect(STEPS.map((s) => s.id)).toEqual(['photo', 'mark', 'segment', 'choose', 'make']);
-    expect(nextStep('photo')).toBe('mark'); expect(nextStep('make')).toBeNull(); expect(prevStep('photo')).toBeNull(); expect(prevStep('segment')).toBe('mark');
+  it('has the four steps in order: no box to draw, no upfront wallpaper-or-object choice', () => {
+    expect(STEPS.map((s) => s.id)).toEqual(['photo', 'segment', 'choose', 'make']);
+    expect(nextStep('photo')).toBe('segment'); expect(nextStep('make')).toBeNull(); expect(prevStep('photo')).toBeNull(); expect(prevStep('choose')).toBe('segment');
   });
   it('walks forward only as each step is earned', () => {
     let s = startState();
-    expect(canEnter('photo', s)).toBe(true); expect(canEnter('mark', s)).toBe(false);
-    s = { ...s, hasPhoto: true }; expect(canEnter('mark', s)).toBe(true); expect(canEnter('segment', s)).toBe(false);
-    expect(whyNot('segment', s)).toMatch(/Mark the area/);
-    s = { ...s, marks: 2 }; expect(canEnter('segment', s)).toBe(true); expect(canEnter('choose', s)).toBe(false);
-    expect(whyNot('choose', s)).toMatch(/Segment Region/);
+    expect(canEnter('photo', s)).toBe(true); expect(canEnter('segment', s)).toBe(false);
+    s = { ...s, hasPhoto: true }; expect(canEnter('segment', s)).toBe(true); expect(canEnter('choose', s)).toBe(false);
+    expect(whyNot('choose', s)).toMatch(/click the thing you want/);
     s = { ...s, segmented: true }; expect(canEnter('choose', s)).toBe(true); expect(canEnter('make', s)).toBe(false);
     s = { ...s, choices: { 1: 'piece' } }; expect(canEnter('make', s)).toBe(true);
-  });
-  it('changing the marks sends you back to segment again and drops the choices', () => {
-    const s = afterMarksChanged({ hasPhoto: true, marks: 2, segmented: true, choices: { 1: 'wallpaper' } }, 3);
-    expect(s.segmented).toBe(false); expect(s.choices).toEqual({}); expect(s.marks).toBe(3); expect(canEnter('choose', s)).toBe(false);
   });
 });
 
@@ -40,28 +34,7 @@ describe('tabs and the feature switch', () => {
   });
 });
 
-describe('marks find their cut-outs', () => {
-  it('overlap is symmetric and zero for apart boxes', () => {
-    expect(iou([0, 0, 10, 10], [0, 0, 10, 10])).toBe(1); expect(iou([0, 0, 10, 10], [20, 20, 30, 30])).toBe(0);
-    expect(iou([0, 0, 10, 10], [5, 0, 15, 10])).toBeCloseTo(1 / 3, 5);
-  });
-  it('gives each mark its best suggestion once, and offers the rest as extras', () => {
-    const a = sug([10, 10, 100, 100], 'bench'), b = sug([300, 10, 400, 100], 'wall'), c = sug([600, 400, 700, 500], 'stairs');
-    const { matched, extras } = matchSuggestions([{ id: 1, box: [20, 20, 110, 110] }, { id: 2, box: [310, 0, 410, 90] }], [a, b, c]);
-    expect(matched.get(1)).toBe(a); expect(matched.get(2)).toBe(b); expect(extras).toEqual([c]);
-  });
-  it('leaves a mark with no near suggestion on its own box', () => {
-    const { matched, extras } = matchSuggestions([{ id: 1, box: [0, 0, 50, 50] }], [sug([500, 500, 600, 600])]);
-    expect(matched.size).toBe(0); expect(extras).toHaveLength(1);
-  });
-  it('two marks never share one suggestion', () => {
-    const a = sug([10, 10, 100, 100]);
-    const { matched } = matchSuggestions([{ id: 1, box: [10, 10, 100, 100] }, { id: 2, box: [20, 20, 90, 90] }], [a]);
-    expect(matched.size).toBe(1); expect(matched.get(1)).toBe(a);
-  });
-});
-
-describe('the wallpaper crop is the mark, widened to 16:9 and kept inside the photo', () => {
+describe('the wallpaper crop is the picked box, widened to 16:9 and kept inside the photo', () => {
   it('widens a tall box and stays inside', () => {
     const c = wallpaperCrop([100, 100, 200, 300], 1000, 600);
     expect((c[2] - c[0]) / (c[3] - c[1])).toBeCloseTo(16 / 9, 1);
@@ -74,7 +47,7 @@ describe('the wallpaper crop is the mark, widened to 16:9 and kept inside the ph
 });
 
 // ---- CC-247: the found things, several at once, the prize, and finding your piece ----
-import { COST_WORDS, LIFT_PARALLEL, MAX_PICKS, PRIZE_TURN_MS, buildFound, editorHref, makeLabel, placeParam, runQueue, stableOrder, toggleTick, turnAngle } from '../src/community/flow';
+import { COST_WORDS, LIFT_PARALLEL, MAX_PICKS, PRIZE_TURN_MS, allowedNow, buildFound, dailyLine, queueWarning, whyOff, editorHref, makeLabel, placeParam, runQueue, stableOrder, toggleTick, turnAngle } from '../src/community/flow';
 import { readFileSync } from 'node:fs';
 
 describe('the found things keep one fixed order', () => {
@@ -88,14 +61,10 @@ describe('the found things keep one fixed order', () => {
     const hot = found.map((f, i) => ({ ...f, score: i / 10 })), cold = found.map((f, i) => ({ ...f, score: 1 - i / 10 }));
     expect(stableOrder(hot).map((f) => f.label)).toEqual(stableOrder(cold).map((f) => f.label));
   });
-  it('puts your own box first and ticks it', () => {
-    const r = buildFound({ box: [10, 10, 60, 60] }, found);
-    expect(r.items[0].yours).toBe(true); expect(r.items[0].label).toBe('bench'); expect(r.ticked).toEqual([0]);
-    expect(r.items.map((i) => i.label).slice(1)).toEqual(['wall', 'box', 'pole']);
-  });
-  it('calls an unmatched box "your box" and keeps every found thing', () => {
-    const r = buildFound({ box: [500, 500, 520, 520] }, found);
-    expect(r.items[0].label).toBe('your box'); expect(r.items.length).toBe(5);
+  it('picks nothing by itself: the player clicks', () => {
+    const items = buildFound(found);
+    expect(items.map((i) => i.label)).toEqual(['wall', 'bench', 'box', 'pole']);
+    expect(items.every((i) => !('yours' in i))).toBe(true);
   });
 });
 
@@ -109,8 +78,45 @@ describe('ticking several after Segment Region', () => {
     expect(toggleTick(t, 19)).toEqual(t);
   });
   it('labels the make button for one or many', () => { expect(makeLabel(1)).toBe('Make 1 piece'); expect(makeLabel(3)).toBe('Make 3 pieces'); expect(COST_WORDS).toMatch(/cents/); });
-  it('before segmentation there is still one box only', () => {
-    expect(afterMarksChanged(startState(), 1).marks).toBe(1);
+});
+
+describe('click to pick', () => {
+  it('a click picks, a second click puts it back, and the queue keeps list order', () => {
+    let t: number[] = [];
+    t = toggleTick(t, 2); expect(t).toEqual([2]);
+    t = toggleTick(t, 0); expect(t).toEqual([0, 2]);
+    t = toggleTick(t, 2); expect(t).toEqual([0]);
+  });
+  it('the page has no box drawing left and every found thing can be reached with the keyboard', () => {
+    const src = readFileSync('src/modes/community-flow.ts', 'utf8');
+    expect(src).not.toMatch(/Skip the finder|pointerdown|setPointerCapture|ui\/regions|stepMark/);
+    expect(src).toMatch(/b\.tabIndex = 0/); expect(src).toMatch(/e\.key === 'Enter'/); expect(src).toMatch(/b\.onclick = \(e\) => \{ e\.stopPropagation\(\); view\.click/);
+    expect(src).toMatch(/Try again/); expect(src).toMatch(/Pick a different photo/);
+  });
+});
+
+describe('the daily count of pieces (the numbers come from the server)', () => {
+  const t = (perDay: number, left: number) => ({ perDay, left });
+  it('the line next to the button says how many a day and how many are left, and that more cost more', () => {
+    const w = dailyLine(t(5, 2));
+    expect(w).toContain('5 pieces a day'); expect(w).toContain('2 left today'); expect(w).toMatch(/more pieces cost more/); expect(w).toContain(COST_WORDS);
+    expect(dailyLine(t(5, 0))).toMatch(/None left today/);
+  });
+  it('a queue longer than what is left warns, and only the left count may start', () => {
+    expect(allowedNow(4, t(5, 2))).toBe(2); expect(allowedNow(2, t(5, 2))).toBe(2); expect(allowedNow(3, t(5, 0))).toBe(0);
+    expect(queueWarning(4, t(5, 2))).toMatch(/queued 4 but only 2 are left today/); expect(queueWarning(4, t(5, 1))).toMatch(/only 1 is left/);
+    expect(queueWarning(2, t(5, 2))).toBe(''); expect(queueWarning(3, t(5, 0))).toMatch(/no pieces left/);
+  });
+  it('the extra ones are switched off with a plain reason, in queue order', () => {
+    expect([0, 1, 2, 3].map((i) => whyOff(i, t(5, 2)) !== '')).toEqual([false, false, true, true]);
+    expect(whyOff(2, t(5, 2))).toMatch(/Try again tomorrow/);
+  });
+  it('with no count from the server nothing is blocked here (the server still decides)', () => {
+    expect(allowedNow(3, null)).toBe(3); expect(queueWarning(3, null)).toBe(''); expect(whyOff(5, null)).toBe('');
+  });
+  it('the page reads the count from the server and never types a number', () => {
+    const src = readFileSync('src/modes/community-flow.ts', 'utf8');
+    expect(src).toMatch(/piecesToday\(\)/); expect(src).toMatch(/id = 'daily-line'/); expect(src).toMatch(/id = 'queue-warning'/);
   });
 });
 

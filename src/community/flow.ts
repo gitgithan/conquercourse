@@ -1,30 +1,28 @@
-// The Community flow as plain logic (CC-247): the five steps, what each one needs before you may enter it, the three tabs, and how a marked area finds its cut-out.
+// The Community flow as plain logic (CC-247): the four steps, what each one needs before you may enter it, the tabs, the found things and the daily piece count.
 // No page code here, so the rules are tested without a browser (tests/community-flow.test.ts).
 import type { Suggestion } from '../slice/segment';
 
-export type Step = 'photo' | 'mark' | 'segment' | 'choose' | 'make';
+export type Step = 'photo' | 'segment' | 'choose' | 'make';
 export const STEPS: { id: Step; label: string }[] = [
-  { id: 'photo', label: 'Photo' }, { id: 'mark', label: 'Mark' }, { id: 'segment', label: 'Segment' }, { id: 'choose', label: 'Choose' }, { id: 'make', label: 'Make' },
+  { id: 'photo', label: 'Photo' }, { id: 'segment', label: 'Segment' }, { id: 'choose', label: 'Choose' }, { id: 'make', label: 'Make' },
 ];
 export type Kind = 'piece' | 'wallpaper';
 export type Box = [number, number, number, number];
 
 export interface FlowState {
   hasPhoto: boolean;
-  marks: number; // 0 or 1: the one rectangle the person marked
-  segmented: boolean; // "Segment Region" has run (or was skipped because the job is off)
+  segmented: boolean; // "Segment Region" has run and at least one found thing is picked
   choices: Record<number, Kind>; // by mark id
 }
-export const startState = (): FlowState => ({ hasPhoto: false, marks: 0, segmented: false, choices: {} });
+export const startState = (): FlowState => ({ hasPhoto: false, segmented: false, choices: {} });
 
 /** The reason a step cannot be entered yet, in plain words, or '' when it can. */
 export function whyNot(step: Step, s: FlowState): string {
   switch (step) {
     case 'photo': return '';
-    case 'mark': return s.hasPhoto ? '' : 'Pick a photo first.';
-    case 'segment': return !s.hasPhoto ? 'Pick a photo first.' : s.marks === 0 ? 'Mark the area you want on the photo.' : '';
-    case 'choose': return !s.hasPhoto ? 'Pick a photo first.' : s.marks === 0 ? 'Mark the area you want on the photo.' : !s.segmented ? 'Press Segment Region first.' : '';
-    case 'make': return whyNot('choose', s) || (Object.keys(s.choices).length === 0 ? 'Choose 3D piece or Wallpaper for your area.' : '');
+    case 'segment': return s.hasPhoto ? '' : 'Pick a photo first.';
+    case 'choose': return !s.hasPhoto ? 'Pick a photo first.' : !s.segmented ? 'Press Segment Region, then click the thing you want in the photo.' : '';
+    case 'make': return whyNot('choose', s) || (Object.keys(s.choices).length === 0 ? 'Choose 3D piece or Wallpaper for your pick.' : '');
   }
 }
 export const canEnter = (step: Step, s: FlowState): boolean => whyNot(step, s) === '';
@@ -32,17 +30,11 @@ export const stepIndex = (step: Step): number => STEPS.findIndex((x) => x.id ===
 export const nextStep = (step: Step): Step | null => STEPS[stepIndex(step) + 1]?.id ?? null;
 export const prevStep = (step: Step): Step | null => STEPS[stepIndex(step) - 1]?.id ?? null;
 
-/** Going back never loses work, but changing the marks means the cut-outs are stale: the segment step must run again. */
-export function afterMarksChanged(s: FlowState, marks: number): FlowState {
-  const choices: Record<number, Kind> = {};
-  return { ...s, marks, segmented: false, choices };
-}
-
 // ---- tabs ----
 export type Tab = 'explore' | 'make';
 export const TABS: { id: Tab; label: string; hint: string }[] = [
   { id: 'explore', label: 'Explore', hint: 'Finished courses, pieces and wallpapers people made' },
-  { id: 'make', label: 'Make your own', hint: 'Photo, Mark, Segment, Choose, Make' },
+  { id: 'make', label: 'Make your own', hint: 'Photo, Segment, Choose, Make' },
 ];
 /** Which tab opens: Explore first, so a person sees finished work before the making flow. `?tab=make` (or the old `photos`) opens the flow; the old objects, places and gallery addresses open Explore. */
 export function tabFor(mode: string | null, params: URLSearchParams): Tab {
@@ -52,33 +44,8 @@ export function tabFor(mode: string | null, params: URLSearchParams): Tab {
   return mode === 'gallery' ? 'explore' : 'explore';
 }
 
-// ---- marks and cut-outs ----
-const area = (b: Box): number => Math.max(0, b[2] - b[0]) * Math.max(0, b[3] - b[1]);
-export function iou(a: Box, b: Box): number {
-  const w = Math.min(a[2], b[2]) - Math.max(a[0], b[0]), h = Math.min(a[3], b[3]) - Math.max(a[1], b[1]);
-  if (w <= 0 || h <= 0) return 0;
-  const i = w * h;
-  return i / (area(a) + area(b) - i);
-}
-const centreIn = (inner: Box, outer: Box): boolean => { const cx = (inner[0] + inner[2]) / 2, cy = (inner[1] + inner[3]) / 2; return cx >= outer[0] && cx <= outer[2] && cy >= outer[1] && cy <= outer[3]; };
-
-/**
- * The server finds things on its own; it does not take a mark as a hint. So each marked area takes the suggestion that overlaps it most
- * (or whose centre sits inside it), and a suggestion nobody took is offered as an extra outline to click.
- */
-export function matchSuggestions(marks: { id: number; box: Box }[], found: Suggestion[]): { matched: Map<number, Suggestion>; extras: Suggestion[] } {
-  const matched = new Map<number, Suggestion>(), used = new Set<Suggestion>();
-  const pairs: { id: number; s: Suggestion; score: number }[] = [];
-  for (const m of marks) for (const s of found) {
-    const o = iou(m.box, s.box), inside = centreIn(s.box, m.box) || centreIn(m.box, s.box);
-    if (o >= 0.2 || inside) pairs.push({ id: m.id, s, score: o + (inside ? 0.05 : 0) });
-  }
-  pairs.sort((a, b) => b.score - a.score);
-  for (const p of pairs) { if (matched.has(p.id) || used.has(p.s)) continue; matched.set(p.id, p.s); used.add(p.s); }
-  return { matched, extras: found.filter((s) => !used.has(s)) };
-}
-
-/** The crop for a wallpaper: the marked box, widened a little to the course's 16:9 look and kept inside the photo. */
+// ---- wallpaper crop ----
+/** The crop for a wallpaper: the picked box, widened a little to the course's 16:9 look and kept inside the photo. */
 export function wallpaperCrop(box: Box, width: number, height: number): Box {
   let [x0, y0, x1, y1] = box;
   const w = x1 - x0, h = y1 - y0, want = 16 / 9;
@@ -93,32 +60,22 @@ export function wallpaperCrop(box: Box, width: number, height: number): Box {
 export const MAX_PICKS = 4;
 /** How many 3D pieces are made at the same time; the 3D maker handles one at a time, so the rest wait in line. */
 export const LIFT_PARALLEL = 1;
-/** A plain-words price for one extra piece (about 2 to 4 cents of GPU time), so nobody is surprised. */
+/** A plain-words price for one piece (about 2 to 4 cents of GPU time): one lift makes one object, so N pieces cost N times. */
 export const COST_WORDS = 'about 2 to 4 cents each';
 
-export interface Found { label: string; box: Box; cutout?: string; score?: number; yours?: boolean }
+const area = (b: Box): number => Math.max(0, b[2] - b[0]) * Math.max(0, b[3] - b[1]);
+export interface Found { label: string; box: Box; cutout?: string; score?: number }
 
 /**
- * One fixed order for the found things: yours first, then biggest first, then top to bottom, left to right, then by name.
+ * One fixed order for the found things: biggest first, then top to bottom, left to right, then by name.
  * Nothing in it changes with the mouse, a click or the score, so the same photo always shows the same list.
  */
 export function stableOrder<T extends Found>(items: T[]): T[] {
-  return [...items].sort((a, b) => Number(!!b.yours) - Number(!!a.yours) || area(b.box) - area(a.box) || a.box[1] - b.box[1] || a.box[0] - b.box[0] || a.label.localeCompare(b.label));
+  return [...items].sort((a, b) => area(b.box) - area(a.box) || a.box[1] - b.box[1] || a.box[0] - b.box[0] || a.label.localeCompare(b.label));
 }
 
-/** The things to choose from after Segment Region: the marked box first (named by the finder when it matched), then everything else the finder saw. */
-export function buildFound(mark: { box: Box; label?: string; cutout?: string } | null, found: Suggestion[]): { items: Found[]; ticked: number[] } {
-  const items: Found[] = [];
-  let rest = found;
-  if (mark) {
-    const { matched, extras } = matchSuggestions([{ id: 0, box: mark.box }], found);
-    const m = matched.get(0);
-    items.push({ label: m?.label ?? (mark.label || 'your box'), box: mark.box, cutout: m?.cutout || mark.cutout || undefined, score: m?.score, yours: true });
-    rest = extras;
-  }
-  items.push(...rest.map((s) => ({ label: s.label, box: s.box, cutout: s.cutout || undefined, score: s.score })));
-  return { items: stableOrder(items), ticked: mark ? [0] : [] };
-}
+/** The things to click after Segment Region: everything the finder saw, in the fixed order. Nothing is picked until the player clicks. */
+export const buildFound = (found: Suggestion[]): Found[] => stableOrder(found.map((s) => ({ label: s.label, box: s.box, cutout: s.cutout || undefined, score: s.score })));
 
 /** Tick or untick one item by its place in the list; a tick past the limit is ignored. Returns the new list of ticks, in list order. */
 export function toggleTick(ticked: number[], index: number, max = MAX_PICKS): number[] {
@@ -129,6 +86,21 @@ export function toggleTick(ticked: number[], index: number, max = MAX_PICKS): nu
 
 /** The words on the button that makes the ticked pieces. */
 export const makeLabel = (n: number): string => (n === 1 ? 'Make 1 piece' : `Make ${n} pieces`);
+
+// ---- the daily count of 3D pieces (CC-247): the page learns both numbers from the server (GET /api/object-lift); none is typed here ----
+export interface PiecesToday { perDay: number; left: number }
+const pieces = (n: number): string => (n === 1 ? '1 piece' : `${n} pieces`);
+/** The line next to every make button, before it is pressed. */
+export const dailyLine = (t: PiecesToday): string => `You can make ${pieces(t.perDay)} a day. ${t.left <= 0 ? 'None left today.' : `${t.left} left today.`} One lift makes one object, so more pieces cost more (${COST_WORDS}).`;
+/** How many of the queued pieces may start now; with no count from the server, all of them (the server still decides). */
+export const allowedNow = (queued: number, t: PiecesToday | null): number => (t ? Math.max(0, Math.min(queued, t.left)) : queued);
+/** The warning when more pieces are queued than are left today, or ''. */
+export function queueWarning(queued: number, t: PiecesToday | null): string {
+  if (!t || queued <= t.left) return '';
+  return t.left <= 0 ? `You have no pieces left today, so none of these ${queued} can be made. Come back tomorrow.` : `You queued ${queued} but only ${t.left} ${t.left === 1 ? 'is' : 'are'} left today. ${queued} pieces cost ${queued} times as much as one. The first ${t.left} can be made; the rest wait for tomorrow.`;
+}
+/** The plain reason a queued piece is switched off, or ''. `index` counts from 0 in queue order. */
+export const whyOff = (index: number, t: PiecesToday | null): string => (t && index >= Math.max(0, t.left) ? 'Not today: there are no pieces left for this one. Try again tomorrow.' : '');
 
 /** Runs `work` for each item, at most `parallel` at once; the rest wait in line. Every item reports its own result or failure. */
 export async function runQueue<T, R>(items: T[], work: (item: T, index: number) => Promise<R>, parallel = LIFT_PARALLEL, onState?: (index: number, state: 'waiting' | 'running' | 'done' | 'failed') => void): Promise<PromiseSettledResult<R>[]> {

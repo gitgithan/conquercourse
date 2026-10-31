@@ -1,5 +1,5 @@
 // CC-247: the one-screen Community flow in a browser, against a stubbed API (no paid job runs).
-// Explore first, then Make your own: Photo -> Mark -> Segment Region -> Choose -> Generate Piece / Save wallpaper -> What next, with one rectangle at a time, a stepped progress bar from the job's stage names, and plain-words refusals with a clock time.
+// Explore first, then Make your own: Photo -> Segment Region -> click a found thing -> Choose -> Generate Piece / Save wallpaper -> What next, with no box to draw, a stepped progress bar from the job's stage names, and plain-words refusals with a clock time.
 // Usage: PORT=5199 node scripts/community-flow-check.mjs test-results/community-flow   (pictures are small JPEGs; copy the ones worth keeping to docs/evidence)
 import { chromium } from 'playwright';
 import { spawn } from 'node:child_process';
@@ -14,15 +14,17 @@ try {
   const browser = await chromium.launch({ args: ['--use-angle=swiftshader', '--ignore-gpu-blocklist'] });
   const page = await (await browser.newContext({ viewport: { width: 1280, height: 720 } })).newPage();
   const png = 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==';
-  let segCalls = 0, liftCalls = 0, segPolls = 0, liftPolls = 0, W = 1000, H = 700, segOff = false, refuse = null;
+  let segCalls = 0, liftCalls = 0, segPolls = 0, liftPolls = 0, W = 1000, H = 700, segOff = false, segEmpty = false, refuse = null;
   const stub = (json, status = 200) => ({ json, status });
   await page.route('**/api/segment', (route) => {
     const b = route.request().postDataJSON();
     if (b.action === 'submit') { segCalls++; segPolls = 0; return route.fulfill(segOff ? stub({ error: 'off', message: 'off' }, 503) : stub({ id: 'fc-ABCDEFGHIJKL' })); }
     segPolls++;
-    route.fulfill(segPolls < 3 ? stub({ state: 'running', stage: segPolls < 2 ? undefined : 'finding' }) : stub({ state: 'done', items: [{ label: 'bench', score: 0.9, box: [0.12 * W, 0.3 * H, 0.28 * W, 0.5 * H], cutout: png }, { label: 'wall', score: 0.8, box: [0.6 * W, 0.2 * H, 0.9 * W, 0.7 * H], cutout: png }], privacy: {}, seconds: 3 }));
+    route.fulfill(segPolls < 3 ? stub({ state: 'running', stage: segPolls < 2 ? undefined : 'finding' }) : segEmpty ? stub({ state: 'done', items: [] }) : stub({ state: 'done', items: [{ label: 'bench', score: 0.9, box: [0.12 * W, 0.3 * H, 0.28 * W, 0.5 * H], cutout: png }, { label: 'wall', score: 0.8, box: [0.6 * W, 0.2 * H, 0.9 * W, 0.7 * H], cutout: png }], privacy: {}, seconds: 3 }));
   });
+  let today = { perDay: 7, left: 2 }; // stub numbers for the page's daily line; the real ones come from the server
   await page.route('**/api/object-lift', (route) => {
+    if (route.request().method() === 'GET') return route.fulfill(stub(today));
     const b = route.request().postDataJSON();
     if (b.action === 'submit') { liftCalls++; liftPolls = 0; return route.fulfill(refuse ? stub(refuse, 429) : stub({ id: 'fc-LIFTLIFTLIFT' })); }
     liftPolls++;
@@ -41,53 +43,64 @@ try {
   checks.exploreFirst = (await page.getAttribute('.com', 'data-tab')) === 'explore' && (await page.$('#cfile')) === null;
   checks.premadeCourses = (await page.$$('#ex-courses .gal button')).length >= 1;
   const order = await page.$$eval('.com > div > .panel', (n) => n.map((x) => x.id));
-  checks.orderCoursesButtonObjects = order.join() === 'ex-courses,ex-make,ex-objects';
+  checks.orderCoursesButtonObjects = order.join().startsWith('ex-courses,ex-make,ex-objects');
   checks.noGalleryMakeLink = (await page.$('#make')) === null;
   await page.waitForSelector('#objgrid .card img', { timeout: 20000 });
   checks.premadeExamples = (await page.$$('#objgrid .card')).length >= 5;
   await shot(page, '0-explore');
   await page.click('#make-own'); await page.waitForSelector('#cfile');
   checks.enteredFlow = (await page.getAttribute('.com', 'data-tab')) === 'make';
-  checks.laterStepsLocked = await page.$eval('#step-mark', (e) => e.disabled);
+  checks.laterStepsLocked = await page.$eval('#step-choose', (e) => e.disabled);
   await shot(page, '1-photo');
-  // step 1: a sample photo
+  // step 1: a sample photo; there is no Mark step and no box tool any more
   await page.click('img[data-sample=park01]'); await page.waitForSelector('.stage img', { timeout: 20000 }); await page.waitForTimeout(500);
-  checks.onMark = (await page.getAttribute('.panel', 'data-step')) === 'mark';
-  checks.segmentLocked = await page.$eval('#cnext', (e) => e.disabled);
-  // step 2: a click drops a box, a drag draws another: only one stays
+  checks.onSegment = (await page.getAttribute('.panel', 'data-step')) === 'segment' && (await page.$('#step-mark')) === null && (await page.$('#cskip')) === null;
+  checks.chooseLocked = await page.$eval('#cnext', (e) => e.disabled);
   const r = await page.$eval('.stage img', (e) => { const b = e.getBoundingClientRect(); return { x: b.x, y: b.y, w: b.width, h: b.height }; });
-  await page.mouse.click(r.x + r.w * 0.2, r.y + r.h * 0.4);
-  checks.oneMark = (await page.$eval('.stage', (e) => Number(e.dataset.count))) === 1;
   await page.mouse.move(r.x + r.w * 0.55, r.y + r.h * 0.3); await page.mouse.down(); await page.mouse.move(r.x + r.w * 0.8, r.y + r.h * 0.7, { steps: 6 }); await page.mouse.up();
-  checks.stillOneMark = (await page.$eval('.stage', (e) => Number(e.dataset.count))) === 1 && /Area marked/.test(await page.textContent('#cinfo'));
+  checks.dragDrawsNothing = (await page.$$('.stage .box')).length === 0;
   checks.noPlural = !/\(s\)/.test(await page.textContent('.com'));
-  checks.segmentOpen = !(await page.$eval('#cnext', (e) => e.disabled));
-  await shot(page, '2-mark');
-  await page.click('#cnext'); await page.waitForSelector('#cseg');
-  checks.chooseLockedBeforeSegment = await page.$eval('#step-choose', (e) => e.disabled);
-  checks.buttonName = (await page.textContent('#cseg')) === 'Segment Region' && /Step 3. Segment Region$/.test(await page.textContent('.panel h2'));
-  // step 3a: the finder is off here: the page says so and the box is the outline (never silence)
+  checks.buttonName = (await page.textContent('#cseg')) === 'Segment Region' && /Step 2. Segment Region$/.test(await page.textContent('.panel h2'));
+  checks.explainsWholePhoto = /looks at the whole photo/.test(await page.textContent('.panel'));
   [W, H] = await page.$eval('.stage img', (e) => [e.naturalWidth, e.naturalHeight]);
+  // step 2a: the finder is off here: the page says so, offers Try again and Pick a different photo, and nothing can be taken
   segOff = true; await page.click('#cseg'); await page.waitForFunction(() => /switched off/.test(document.querySelector('#cseginfo')?.textContent ?? ''), null, { timeout: 15000 });
-  checks.offSaysSo = !(await page.$eval('#cnext', (e) => e.disabled));
+  checks.offSaysSo = (await page.$eval('#cnext', (e) => e.disabled)) && (await page.$('#cretry')) !== null && (await page.$('#cpick')) !== null;
   segOff = false;
-  // step 3b: Segment Region with a stepped bar from the job's stage names
-  await page.click('#cseg'); await page.waitForSelector('#cprog .jp', { timeout: 5000 });
+  // step 2b: Segment Region with a stepped bar from the job's stage names
+  await page.click('#cretry'); await page.waitForSelector('#cprog .jp', { timeout: 5000 });
   checks.segBarShown = (await page.$$('#cprog .jp li')).length === 3 && (await page.$('#cprog .jp [data-job-cancel]')) !== null;
   await page.waitForFunction(() => document.querySelector('#cprog .jp')?.dataset.stage === 'finding', null, { timeout: 15000 });
   await shot(page, '3-segment-progress');
   await page.waitForFunction(() => /Found \d+ thing/.test(document.querySelector('#cseginfo')?.textContent ?? ''), null, { timeout: 30000 });
   checks.segmentedOnce = segCalls === 2;
-  checks.found = (await page.$$('#cfound label')).length >= 2 && (await page.$$('#cfound input:checked')).length === 1;
+  checks.foundNothingPicked = (await page.$$('.stage .box')).length >= 2 && (await page.$$('.stage .box.sel')).length === 0 && (await page.$eval('#cnext', (e) => e.disabled));
   checks.cutouts = (await page.$$('.stage .box.cut')).length >= 1;
   const order1 = await page.$$eval('#cfound label', (n) => n.map((x) => x.textContent));
   await page.hover('#cfound label:nth-child(2)'); await page.waitForTimeout(150); await page.hover('#cfound label:nth-child(1)'); await page.mouse.click(5, 5);
   checks.stableOrder = JSON.stringify(order1) === JSON.stringify(await page.$$eval('#cfound label', (n) => n.map((x) => x.textContent)));
-  await page.hover('#cfound label:nth-child(2)'); await page.waitForTimeout(150);
+  // hover on the photo lights one, a click picks it, a second click puts it back
+  await page.hover('.stage .box:nth-of-type(2)'); await page.waitForTimeout(150);
   checks.hoverHighlights = (await page.$$('.stage .box.hl')).length === 1;
-  await page.check('#found-1'); await page.uncheck('#found-1');
-  checks.tickSeveral = true;
-  await shot(page, '4-segment-result');
+  await shot(page, '4a-hover');
+  await page.click('.stage .box:nth-of-type(2)');
+  checks.clickPicks = (await page.$$('.stage .box.sel')).length === 1 && (await page.$$('#cfound input:checked')).length === 1 && !(await page.$eval('#cnext', (e) => e.disabled));
+  await page.click('.stage .box:nth-of-type(2)');
+  checks.clickAgainUnpicks = (await page.$$('.stage .box.sel')).length === 0 && (await page.$eval('#cnext', (e) => e.disabled));
+  // the keyboard reaches the same things: Tab to a thing, Enter picks it
+  await page.focus('.stage .box:nth-of-type(1)'); await page.keyboard.press('Enter');
+  checks.enterPicks = (await page.$$('.stage .box.sel')).length === 1 && (await page.$eval('.stage .box.sel', (e) => document.activeElement === e));
+  await page.keyboard.press('Enter');
+  checks.enterUnpicks = (await page.$$('.stage .box.sel')).length === 0;
+  await page.click('.stage .box:nth-of-type(2)');
+  await page.check('#found-0'); await page.uncheck('#found-0');
+  await shot(page, '4b-picked');
+  // nothing found: Try again and Pick a different photo, no Skip
+  segEmpty = true; await page.click('#cseg'); await page.waitForFunction(() => /did not find anything/.test(document.querySelector('#cseginfo')?.textContent ?? ''), null, { timeout: 30000 });
+  checks.emptyOffersRetry = (await page.$('#cretry')) !== null && (await page.$('#cpick')) !== null && (await page.$('#cskip')) === null;
+  segEmpty = false; await page.click('#cretry'); await page.waitForFunction(() => /Found \d+ thing/.test(document.querySelector('#cseginfo')?.textContent ?? ''), null, { timeout: 30000 });
+  await page.click('.stage .box:nth-of-type(2)');
+  checks.found = (await page.$$('#cfound label')).length >= 2;
   // step 4: the area becomes a 3D piece
   await page.click('#cnext'); await page.waitForSelector('.item');
   checks.makeLocked = await page.$eval('#cnext', (e) => e.disabled);
@@ -98,6 +111,20 @@ try {
   checks.makeOpen = !(await page.$eval('#cnext', (e) => e.disabled));
   await shot(page, '5-choose');
   await page.click('#cnext'); await page.waitForSelector(`#gen-${ids[0]}`);
+  // the daily line is by the button before it is pressed; a queue longer than what is left warns and switches the extras off
+  await page.waitForFunction(() => /left today/.test(document.querySelector('#daily-line')?.textContent ?? ''), null, { timeout: 10000 });
+  checks.dailyLine = /7 pieces a day/.test(await page.textContent('#daily-line')) && /2 left today/.test(await page.textContent('#daily-line')) && /more pieces cost more/.test(await page.textContent('#daily-line'));
+  await shot(page, '5a-daily-line');
+  today = { perDay: 7, left: 1 };
+  await page.click('#step-segment'); await page.click('.stage .box:nth-of-type(1)'); await page.click('#cnext');
+  await page.waitForSelector('.item'); for (const id of await page.$$eval('.item', (n) => n.map((x) => x.dataset.id))) { await page.fill(`#cname-${id}`, 'bench'); if ((await page.getAttribute(`#choose-piece-${id}`, 'aria-pressed')) !== 'true') await page.click(`#choose-piece-${id}`); }
+  await page.click('#cnext'); await page.waitForSelector('#make-all'); await page.waitForFunction(() => /1 left today/.test(document.querySelector('#daily-line')?.textContent ?? ''), null, { timeout: 10000 });
+  checks.queueWarns = /queued 2 but only 1 is left today/.test(await page.textContent('#queue-warning')) && (await page.textContent('#make-all')) === 'Make 1 piece';
+  const gens = await page.$$eval('[id^=gen-]', (n) => n.map((x) => ({ off: x.disabled, why: x.title })));
+  checks.extraSwitchedOff = gens.length === 2 && gens.filter((g) => g.off).length === 1 && /tomorrow/.test(gens.find((g) => g.off).why);
+  await shot(page, '5b-queue-over-left');
+  today = { perDay: 7, left: 2 };
+  await page.click('#step-segment'); await page.click('.stage .box:nth-of-type(1)'); await page.click('#cnext'); await page.click('#cnext'); await page.waitForSelector(`#gen-${ids[0]}`);
   // step 5a: a refused request says why and when, as a clock time, and the button waits
   refuse = { error: 'daily', message: 'x', retryAfterSeconds: 3 * 3600 };
   await page.click(`#gen-${ids[0]}`); await page.waitForFunction((id) => /Try again/.test(document.querySelector(`#cmsg-${id}`)?.textContent ?? ''), ids[0], { timeout: 15000 });
@@ -109,8 +136,7 @@ try {
   const toMake = async () => {
     await page.goto(`http://localhost:${port}/?mode=communities&welcome=0`, { waitUntil: 'domcontentloaded' }); await page.waitForSelector('#make-own');
     await page.click('#make-own'); await page.click('img[data-sample=park01]'); await page.waitForSelector('.stage img'); await page.waitForTimeout(400);
-    const q = await page.$eval('.stage img', (e) => { const b = e.getBoundingClientRect(); return { x: b.x, y: b.y, w: b.width, h: b.height }; });
-    await page.mouse.click(q.x + q.w * 0.3, q.y + q.h * 0.5); await page.click('#cnext'); await page.click('#cskip'); await page.click('#cnext'); await page.waitForSelector('.item');
+    await page.click('#cseg'); await page.waitForSelector('.stage .box'); await page.click('.stage .box:nth-of-type(2)'); await page.click('#cnext'); await page.waitForSelector('.item');
     const id = await page.$eval('.item', (n) => n.dataset.id);
     await page.fill(`#cname-${id}`, 'bench'); await page.click(`#choose-piece-${id}`); await page.click('#cnext'); await page.waitForSelector(`#gen-${id}`);
     return id;

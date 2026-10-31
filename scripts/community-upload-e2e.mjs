@@ -22,14 +22,10 @@ try {
   await page.waitForSelector('.stage img', { timeout: 30000 }); await page.waitForTimeout(600);
   say('uploaded photo');
   await shot(page, '1-upload');
-  // Mark the railing (photo pixels 294,183 to 658,454 of 1024 x 760)
-  const r = await page.$eval('.stage img', (e) => { const b = e.getBoundingClientRect(); return { x: b.x, y: b.y, w: b.width, h: b.height }; });
-  await page.mouse.move(r.x + r.w * (294 / 1024), r.y + r.h * (183 / 760)); await page.mouse.down();
-  await page.mouse.move(r.x + r.w * (658 / 1024), r.y + r.h * (454 / 760), { steps: 8 }); await page.mouse.up();
-  await page.click('#cnext'); await page.waitForSelector('#cseg');
-  say('marked and on Segment');
+  say('on Segment');
   await page.click('#cseg');
-  await page.waitForFunction(() => document.querySelector('#chips .chip') !== null, null, { timeout: 240000 });
+  await page.waitForSelector('.stage .box', { timeout: 240000 });
+  await page.click('.stage .box'); // a click picks the first found thing
   const segText = await page.$eval('#cseginfo', (e) => e.textContent);
   say('segment region finished', segText);
   await shot(page, '2-segment');

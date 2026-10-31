@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { cleanRequest, moderationStops, requestProblem, retryNote } from '../src/slice/object-lift';
 import { creditLine, problems, PROVENANCE_VERSION } from '../src/slice/provenance';
-import { handle } from '../functions/api/object-lift';
+import { handle, pieceCount } from '../functions/api/object-lift';
 import { memoryLedger, utcDay } from '../src/slice/upload-gates';
 
 const jpg = 'data:image/jpeg;base64,/9j/4AAQ';
@@ -156,5 +156,24 @@ describe('the 19 library objects', () => {
   it('every object has a clean provenance record with an author and a licence', () => {
     expect(doc.objects.length).toBe(idx.objects.length);
     for (const o of doc.objects) expect(problems(o)).toEqual([]);
+  });
+});
+
+describe('the daily piece count the page reads before the make button', () => {
+  const t = Date.UTC(2026, 9, 30, 12);
+  it('says the per-day number and how many are left, and one taken slot lowers it by one', async () => {
+    const led = memoryLedger();
+    const a = await pieceCount('c1', led, undefined, t);
+    expect(a.perDay).toBeGreaterThan(0); expect(a.left).toBe(a.perDay);
+    await led.take(await (await import('../functions/_lib/player')).playerCode('c1'), utcDay(t), { perPlayer: a.perDay, perGame: 1000 });
+    expect((await pieceCount('c1', led, undefined, t)).left).toBe(a.perDay - 1);
+    expect((await pieceCount('c2', led, undefined, t)).left).toBe(a.perDay);
+  });
+  it('is the smaller of the player room and the game room, never below zero, and reading takes nothing', async () => {
+    const led = memoryLedger(), lim = { perPlayer: 3, perGame: 1 };
+    expect((await pieceCount('c3', led, lim, t)).left).toBe(1);
+    expect((await pieceCount('c3', led, lim, t)).left).toBe(1);
+    await led.take('someone', utcDay(t), lim);
+    expect((await pieceCount('c3', led, lim, t)).left).toBe(0);
   });
 });
