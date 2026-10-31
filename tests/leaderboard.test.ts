@@ -145,6 +145,15 @@ describe('the world strip', () => {
     expect(tiles(base).map((t) => `${t.value} ${t.label}`)).toEqual(['1,204 players today', '9,310 runs today', '311 cleared today', '14 countries']);
     expect(tiles({ ...base, countries: 0 })).toHaveLength(3);
   });
+  it('the Countries tile: all time, a plain 0 with a note, nothing when the numbers did not load', async () => {
+    const { countriesTile } = await import('../src/ui/world-stats');
+    expect(countriesTile(null)).toBeNull();
+    expect(countriesTile(base)).toMatchObject({ value: '14', label: 'countries', note: '' });
+    expect(countriesTile({ ...base, countries: 1 })).toMatchObject({ value: '1', label: 'country' });
+    expect(countriesTile({ ...base, countries: 0 })).toMatchObject({ value: '0', note: 'No visits counted yet' });
+    expect(countriesTile({ ...base, runs: 0, countries: 5 })?.value).toBe('5'); // shown even on a day with no runs
+    expect(countriesTile(base)?.title).toMatch(/all time/);
+  });
   it('news: record, hardest zone, busiest course, streak', async () => {
     const { news } = await import('../src/ui/world-stats');
     const s = { ...base, record: { course: 'circular-quay-sydney', nick: 'ACE', ticks: 3240 }, hardest: { course: 'Training', zone: 'lache-2', fails: 41 } };
@@ -166,12 +175,13 @@ describe('the world strip', () => {
     const { onRequestGet } = await import('../functions/api/world-stats');
     const { db, sql } = localD1();
     const add = (s: string, r: string, e: string, ago: string, country = '', at = '') => sql.prepare("INSERT INTO course_events (ts, session, build, mode, source, course_key, course_name, run_id, event_type, country, fail_at) VALUES (datetime('now', ?), ?, 'b', 'course', 'demo', 'demo/training', 'Training', ?, ?, ?, ?)").run(ago, s, r, e, country, at);
+    add('s9', 'r9', 'start', '-40 days', 'JP'); // countries are all time: a visit last month still counts, while players and runs are the last 24 hours
     add('s1', 'r1', 'start', '-1 hour', 'SG'); add('s1', 'r1', 'success', '-1 hour', 'SG'); add('s2', 'r2', 'start', '-2 hours', 'FR'); add('s3', 'r3', 'start', '-3 days', 'US');
     for (let i = 0; i < 3; i++) add(`f${i}`, `rf${i}`, 'fail', '-2 days', '', 'lache-2');
     sql.prepare("INSERT INTO course_clears (ts, course_key, course_hash, ticks, run_id, log_hash, verified, nick) VALUES (datetime('now'), 'demo/training', 'h', 3000, 'ra', 'la', 1, 'ACE')").run();
     sql.prepare("INSERT INTO course_clears (ts, course_key, course_hash, ticks, run_id, log_hash, verified, nick) VALUES (datetime('now'), 'demo/training', 'h', 3500, 'rb', 'lb', 1, 'BOB')").run();
     const out = await (await onRequestGet({ env: { DB: db } as never })).json() as import('../functions/api/world-stats').WorldStats;
-    expect(out).toMatchObject({ players: 2, runs: 2, clears: 1, countries: 2, totalClears: 2, busiest: 'Training' });
+    expect(out).toMatchObject({ players: 2, runs: 2, clears: 1, countries: 4, totalClears: 2, busiest: 'Training' });
     expect(out.courses['demo/training']).toEqual({ runs: 2, clears: 1 });
     expect(out.record).toEqual({ course: 'training', nick: 'ACE', ticks: 3000 });
     expect(out.hardest).toEqual({ course: 'Training', zone: 'lache-2', fails: 3 });

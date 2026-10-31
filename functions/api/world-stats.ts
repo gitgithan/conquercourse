@@ -1,6 +1,6 @@
 // GET /api/world-stats: the numbers for the strip on the course picker (CC-108). Cached for a minute.
-//   last 24 hours: players (random browser codes, no accounts), runs, clears, countries, and each course's runs and clears
-//   all time: verified clears; last 7 days: the newest record and the zone where most runs failed
+//   last 24 hours: players (random browser codes, no accounts), runs, clears, and each course's runs and clears
+//   all time: verified clears and countries (two-letter codes only, never an address); last 7 days: the newest record and the zone where most runs failed
 // Every part is optional: a query that fails (a column from migration 0009 is not there yet) leaves its part out, never the whole reply.
 import { json } from '../_lib/http';
 
@@ -19,7 +19,7 @@ export const onRequestGet = async ({ env }: { env: Env }): Promise<Response> => 
   const q = async (sql: string): Promise<Record<string, unknown>[]> => { try { return (await env.DB.prepare(sql).all()).results ?? []; } catch { return []; } };
   const day = "ts > datetime('now', '-1 day')";
   const [tot] = await q(`SELECT COUNT(DISTINCT session) AS p, SUM(event_type = 'start') AS r, SUM(event_type = 'success') AS c FROM course_events WHERE ${day}`);
-  const [cty] = await q(`SELECT COUNT(DISTINCT country) AS n FROM course_events WHERE ${day} AND country != ''`);
+  const [cty] = await q(`SELECT COUNT(DISTINCT country) AS n FROM course_events WHERE country != ''`);
   const [all] = await q('SELECT COUNT(*) AS n FROM course_clears WHERE verified = 1');
   const per = await q(`SELECT course_key AS k, course_name AS name, SUM(event_type = 'start') AS r, SUM(event_type = 'success') AS c FROM course_events WHERE ${day} GROUP BY course_key`);
   const rec = await q("SELECT c.course_key AS k, c.nick AS nick, c.ticks AS t FROM course_clears c WHERE c.verified = 1 AND c.ts > datetime('now', '-7 days') AND c.ticks = (SELECT MIN(d.ticks) FROM course_clears d WHERE d.course_key = c.course_key AND d.course_hash = c.course_hash AND d.verified = 1) ORDER BY c.id DESC LIMIT 1");
