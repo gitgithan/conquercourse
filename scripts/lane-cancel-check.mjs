@@ -18,6 +18,7 @@ try {
   await page.waitForSelector('#presetpick', { timeout: 90000 }); await page.waitForTimeout(4000);
   const flag = (k) => page.evaluate((key) => document.documentElement.dataset[key] ?? null, k);
   const edit = (id, v) => page.evaluate(([i, val]) => { const e = document.getElementById(i); e.value = String(val); e.dispatchEvent(new Event('input', { bubbles: true })); e.dispatchEvent(new Event('change', { bubbles: true })); }, [id, v]);
+  const settle = async (n, ms = 4000) => { const t = Date.now(); while (Date.now() - t < ms && live > n) await page.waitForTimeout(100); return live <= n; }; // Playwright reports a closed worker a moment late
   const waitState = async (want, ms) => { const t = Date.now(); while (Date.now() - t < ms) { if ((await flag('laneState')) === want) return true; await page.waitForTimeout(150); } return false; };
   ok(`start: the default course is answered from its stored proof (${await flag('laneProof')}), no worker`, (await flag('laneProof')) === 'stored' && made === 0);
 
@@ -43,7 +44,7 @@ try {
     await page.screenshot({ path: `${out}/searching.png` });
     await page.click('#lane-cancel'); await page.waitForTimeout(400);
     ok('after Cancel the state is cancelled', (await flag('laneState')) === 'cancelled');
-    ok(`the worker is gone at once (${live} alive)`, live === 0);
+    ok(`the worker is gone (${live} alive)`, await settle(0));
     const v = (await page.textContent('#verdict')) ?? '';
     ok(`the verdict says not checked ("${v.slice(0, 50)}")`, /not checked/i.test(v) && (await flag('laneClear')) === null);
     ok('Check again is offered', await page.locator('#lane-recheck').isVisible());
@@ -56,7 +57,7 @@ try {
     ok('and does not start a search before the pause', made === before);
     ok('then a fresh search starts after the pause', await waitState('searching', 6000) || (await flag('laneState')) === 'done');
     await edit('level', 0.9); await page.waitForTimeout(1500);
-    ok(`new edits never pile up workers (${live} alive)`, live <= 1);
+    ok(`new edits never pile up workers (${live} alive)`, await settle(1));
   }
   console.log('errors', JSON.stringify(errs)); ok('no page errors', errs.length === 0);
   await browser.close();
