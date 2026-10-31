@@ -247,5 +247,14 @@
     ],
     "releaseAfter": 60,
     "bouncePress": 8
-  }
+  },
+  "windows": [
+    {
+      "obstacle": "jump at step at 9 m",
+      "best": 7.9,
+      "lo": 7.8,
+      "hi": 7.98,
+      "widthMs": 27.027027027027106
+    }
+  ]
 }
