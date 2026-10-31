@@ -26,6 +26,12 @@ export function limited(ip: string, now = Date.now(), max = 20, windowMs = 600_0
   return false;
 }
 
+/** Seconds until `limited` would let this key through again (0 when it already would). */
+export function waitSeconds(ip: string, now = Date.now(), windowMs = 600_000): number {
+  const recent = (hits.get(ip) ?? []).filter((t) => now - t < windowMs);
+  return recent.length ? Math.max(1, Math.ceil((Math.min(...recent) + windowMs - now) / 1000)) : 0;
+}
+
 // The model call, shared by the Pages Function and the local dev middleware. Returns the answer text only.
 export async function askSpark(key: string, b: Record<string, unknown>, fetcher: typeof fetch = fetch): Promise<{ status: number; body: { reply?: string; error?: string } }> {
   const msgs = Array.isArray(b.messages) ? (b.messages as Record<string, unknown>[]).slice(-8) : [];

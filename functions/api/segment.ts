@@ -5,7 +5,8 @@
 import { moderationStops } from '../../src/slice/object-lift';
 import { segmentProblem } from '../../src/slice/segment';
 import { askModeration } from './moderate';
-import { limited } from './designer';
+import { limited, waitSeconds } from './designer';
+import { refusalBody } from '../../src/slice/stages';
 import { json } from '../_lib/http';
 
 interface Env { CC_UPLOAD_TOKEN?: string; CC_SEGMENT_SUBMIT_URL?: string; CC_SEGMENT_STATUS_URL?: string; BASETEN_API_KEY?: string }
@@ -26,7 +27,7 @@ export async function handle(b: Record<string, unknown>, env: Env, ip: string, f
   if (b.action !== 'submit') return { status: 400, body: { error: 'bad' } };
   const problem = segmentProblem(b);
   if (problem) return { status: 400, body: { error: 'bad', message: problem } };
-  if (limited(`seg:${ip}`, now, burstMax)) return { status: 429, body: { error: 'busy', message: 'You asked for a lot of suggestions just now. Wait a few minutes.' } };
+  if (limited(`seg:${ip}`, now, burstMax)) return { status: 429, body: refusalBody('busy', 'You asked for a lot of suggestions just now. Wait a few minutes.', waitSeconds(`seg:${ip}`, now)) };
   let moderation = 'skipped';
   if (env.BASETEN_API_KEY) {
     const m = await askModeration(env.BASETEN_API_KEY, { image: b.thumb as string }, fetcher);
@@ -39,7 +40,7 @@ export async function handle(b: Record<string, unknown>, env: Env, ip: string, f
     const out = await call(env.CC_SEGMENT_SUBMIT_URL, { token: env.CC_UPLOAD_TOKEN, image: img.slice(img.indexOf(',') + 1) });
     if (typeof out.id !== 'string') return { status: 400, body: { error: 'bad', message: String(out.error ?? '') } };
     return { status: 200, body: { id: out.id, moderation } };
-  } catch { return { status: 502, body: { error: 'down' } }; }
+  } catch { return { status: 502, body: refusalBody('down', 'The outline finder is busy. Try again in a minute.', 60) }; }
 }
 
 export const onRequestPost = async ({ request, env }: { request: Request; env: Env }): Promise<Response> => {
@@ -48,5 +49,6 @@ export const onRequestPost = async ({ request, env }: { request: Request; env: E
   let b: Record<string, unknown>;
   try { b = JSON.parse(raw); } catch { return json({ error: 'bad' }, 400); }
   const r = await handle(b, env, request.headers.get('cf-connecting-ip') ?? 'local');
-  return json(r.body, r.status);
+  const wait = (r.body as { retryAfterSeconds?: number }).retryAfterSeconds;
+  return json(r.body, r.status, typeof wait === 'number' ? { 'retry-after': String(wait) } : {});
 };

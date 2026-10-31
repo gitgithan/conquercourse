@@ -1,7 +1,8 @@
-import type { Shrunk } from './object-lift-client';
+import { JobError, submitFailure, type Shrunk } from './object-lift-client';
+import { SEGMENT_STEPS, progressOf, stageIndex, type Progress } from './stages';
 import { cleanSuggestions, type Suggestion } from './segment';
 
-// The page side of /api/segment (CC-248): send the shrunk photo, poll, and get clickable suggestions back. Throws an Error with a plain-words message.
+// The page side of /api/segment (CC-248): send the shrunk photo, poll every 2 s, and get clickable suggestions back. Throws a JobError with a plain-words message.
 const post = async (body: unknown): Promise<{ ok: boolean; status: number; data: Record<string, unknown> }> => {
   const res = await fetch('/api/segment', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(body) });
   let data: Record<string, unknown> = {};
@@ -9,18 +10,31 @@ const post = async (body: unknown): Promise<{ ok: boolean; status: number; data:
   return { ok: res.ok, status: res.status, data };
 };
 
-export async function suggestRegions(photo: Shrunk, progress: (s: string) => void, signal?: AbortSignal): Promise<Suggestion[]> {
-  progress('Looking for things you could pick. People in the photo are blurred first.');
-  const sub = await post({ action: 'submit', image: photo.image, thumb: photo.thumb });
-  if (!sub.ok || typeof sub.data.id !== 'string') throw new Error(typeof sub.data.message === 'string' && sub.data.message ? sub.data.message : 'Suggestions are not available right now. You can draw boxes by hand.');
+/** `off` is true when the job is not switched on here (the page then uses the marked box itself as the outline). */
+export class SegmentOff extends JobError {}
+
+export async function suggestRegions(photo: Shrunk, progress: (s: string) => void, signal?: AbortSignal, onStage?: (p: Progress) => void): Promise<Suggestion[]> {
   const t0 = Date.now();
-  for (let i = 0; i < 60; i++) {
-    if (signal?.aborted) throw new Error('Stopped.');
-    await new Promise((r) => setTimeout(r, i < 3 ? 3000 : 5000));
-    const s = (await post({ action: 'status', id: sub.data.id })).data;
-    if (s.state === 'running') { progress(`Looking for things you could pick (${Math.round((Date.now() - t0) / 1000)} s). You can already draw boxes.`); continue; }
-    if (s.state === 'done') return cleanSuggestions(s.items, photo.width, photo.height);
+  const tell = (i: number) => onStage?.(progressOf(SEGMENT_STEPS, i, t0));
+  progress('Looking for the outline. People in the photo are blurred first.'); tell(0);
+  const sub = await post({ action: 'submit', image: photo.image, thumb: photo.thumb });
+  if (!sub.ok || typeof sub.data.id !== 'string') {
+    if (sub.status === 503) throw new SegmentOff('The outline finder is switched off here, so your box is used as it is.', true);
+    const e = submitFailure(sub.status, sub.data);
+    throw new JobError(e.message || 'The outline finder did not answer. Your box can be used as it is.', e.final, e.retryAt);
+  }
+  let at = 0, lost = 0;
+  for (let i = 0; i < 150; i++) {
+    if (signal?.aborted) throw new JobError('Stopped.', false, null, true);
+    await new Promise((r) => setTimeout(r, 2000));
+    if (signal?.aborted) throw new JobError('Stopped.', false, null, true);
+    const r = await post({ action: 'status', id: sub.data.id });
+    if (!r.ok) { if (++lost > 3) break; continue; }
+    lost = 0;
+    const s = r.data;
+    if (s.state === 'running') { at = stageIndex(SEGMENT_STEPS, s.stage, at); tell(at); progress(`${SEGMENT_STEPS[at].words}. (${Math.round((Date.now() - t0) / 1000)} s)`); continue; }
+    if (s.state === 'done') { tell(SEGMENT_STEPS.length - 1); return cleanSuggestions(s.items, photo.width, photo.height); }
     break;
   }
-  throw new Error('No suggestions this time. You can draw boxes by hand.');
+  throw new JobError('No outline this time. Your box can be used as it is.');
 }

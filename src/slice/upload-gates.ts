@@ -31,7 +31,8 @@ export function memoryLedger(): Ledger {
 
 export const utcDay = (now: number): string => new Date(now).toISOString().slice(0, 10);
 
+// the plain sentences the page shows come from src/slice/stages.ts (refusalWords), which adds the clock time; these are the fallback in the body
 export const LIMIT_WORDS = {
-  player: "You have used today's objects. Try again tomorrow, or pick one from the library.",
-  game: "Today's makers are used up. Try again tomorrow, or pick one from the library.",
+  player: 'You have used all of your 3D pieces for today.',
+  game: "Everyone together has used up today's 3D pieces.",
 } as const;

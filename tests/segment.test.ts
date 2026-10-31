@@ -36,4 +36,11 @@ describe('suggested regions (CC-248)', () => {
     for (let i = 0; i < 4; i++) codes.push((await handle({ action: 'submit', image: JPG, thumb: JPG }, ENV, 'ip-burst', f, 3, 1000)).status);
     expect(codes).toEqual([200, 200, 200, 429]);
   });
+  it('a refused burst says when to come back, in seconds', async () => {
+    const f = reply({ id: 'fc-ABCDEFGHIJKL' });
+    const r = await handle({ action: 'submit', image: JPG, thumb: JPG }, ENV, 'ip-wait', f, 1, 5000);
+    expect(r.status).toBe(200);
+    const again = await handle({ action: 'submit', image: JPG, thumb: JPG }, ENV, 'ip-wait', f, 1, 65_000);
+    expect(again).toMatchObject({ status: 429, body: { error: 'busy', retryAfterSeconds: 540 } });
+  });
 });

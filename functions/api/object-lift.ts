@@ -5,7 +5,8 @@
 // The photo is checked by Muse Spark Open first (askModeration). People are allowed (the pipeline blurs them); real worries stop the job. A broken checker is recorded as "skipped".
 import { cleanRequest, moderationStops, requestProblem } from '../../src/slice/object-lift';
 import { askModeration } from './moderate';
-import { limited } from './designer';
+import { limited, waitSeconds } from './designer';
+import { refusalBody, secondsToNextDay } from '../../src/slice/stages';
 import { d1Ledger } from '../../src/slice/d1-ledger';
 import { LIMIT_WORDS, memoryLedger, utcDay, DEFAULT_LIMITS, type Ledger, type Limits } from '../../src/slice/upload-gates';
 import { playerCode } from '../_lib/player';
@@ -35,7 +36,7 @@ export async function handle(b: Record<string, unknown>, env: Env, ip: string, f
   if (b.action !== 'submit') return { status: 400, body: { error: 'bad' } };
   const problem = requestProblem(b);
   if (problem) return { status: 400, body: { error: 'bad', message: problem } };
-  if (limited(`lift:${ip}`, now, burstMax)) return { status: 429, body: { error: 'busy', message: 'You made a lot of objects just now. Wait a few minutes.' } };
+  if (limited(`lift:${ip}`, now, burstMax)) return { status: 429, body: refusalBody('busy', 'You made a lot of objects just now. Wait a few minutes.', waitSeconds(`lift:${ip}`, now)) };
   const r = cleanRequest(b);
   let moderation = 'skipped';
   if (env.BASETEN_API_KEY) {
@@ -46,12 +47,12 @@ export async function handle(b: Record<string, unknown>, env: Env, ip: string, f
   }
   const day = utcDay(now), who = await playerCode(ip);
   const slot = await ledger.take(who, day, limits);
-  if (!slot.ok) return { status: 429, body: { error: slot.limit === 'game' ? 'budget' : 'daily', message: LIMIT_WORDS[slot.limit] } };
+  if (!slot.ok) return { status: 429, body: refusalBody(slot.limit === 'game' ? 'budget' : 'daily', LIMIT_WORDS[slot.limit], secondsToNextDay(now)) };
   try {
     const out = (await call(env.CC_UPLOAD_SUBMIT_URL, { token: env.CC_UPLOAD_TOKEN, image: r.image.slice(r.image.indexOf(',') + 1), label: r.label, box: r.box, height_m: r.height_m, padretry: r.padretry })) as { id?: string; error?: string };
     if (!out.id) { await ledger.refund(who, day); return { status: 400, body: { error: out.error === 'not allowed' ? 'not allowed' : 'bad', message: out.error ?? '' } }; }
     return { status: 200, body: { id: out.id, moderation } };
-  } catch { await ledger.refund(who, day); return { status: 502, body: { error: 'down' } }; }
+  } catch { await ledger.refund(who, day); return { status: 502, body: refusalBody('down', 'The 3D service is busy. Try again in a minute.', 60) }; }
 }
 
 export const onRequestPost = async ({ request, env }: { request: Request; env: Env }): Promise<Response> => {
@@ -60,5 +61,6 @@ export const onRequestPost = async ({ request, env }: { request: Request; env: E
   let b: Record<string, unknown>;
   try { b = JSON.parse(raw); } catch { return json({ error: 'bad' }, 400); }
   const r = await handle(b, env, request.headers.get('cf-connecting-ip') ?? 'local', fetch, 6, env.DB ? d1Ledger(env.DB) : sharedLedger);
-  return json(r.body, r.status);
+  const wait = (r.body as { retryAfterSeconds?: number }).retryAfterSeconds;
+  return json(r.body, r.status, wait ? { 'retry-after': String(wait) } : {});
 };
