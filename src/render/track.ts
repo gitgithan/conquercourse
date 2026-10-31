@@ -1,6 +1,6 @@
 import * as THREE from 'three/webgpu';
 import type { CourseData } from '../course/course';
-import { railsOf, trackSegments } from '../sim/cart';
+import { cartStep, railsOf, trackParams, trackSegments, type Cart } from '../sim/cart';
 import { BAR_AHEAD, BAR_HEIGHT } from '../motion/poses';
 import type { WorldState } from '../sim/world';
 
@@ -12,7 +12,7 @@ const CART_LENGTH = 1.7, CART_DEPTH = 1.0, CART_HEIGHT = 0.4;
 export interface TrackView {
   group: THREE.Group;
   cart: THREE.Group;
-  place(w: WorldState, flyingCart: boolean): void; // the cart follows the runner; the rails never move
+  place(w: WorldState, flyingCart?: boolean): void; // the cart follows the rider while the rider is in it; once the rider is out the cart rolls on by itself and never joins the body again (CC-244)
 }
 
 export function buildTrack(course: CourseData): TrackView {
@@ -71,16 +71,29 @@ export function buildTrack(course: CourseData): TrackView {
   cart.add(grab);
   for (const z of [-CART_DEPTH * 0.4, CART_DEPTH * 0.4]) { const post = new THREE.Mesh(new THREE.BoxGeometry(0.04, BAR_HEIGHT, 0.04), steel); post.position.set(BAR_AHEAD, BAR_HEIGHT / 2, z); cart.add(post); }
   group.add(cart);
+  const params = trackParams(course);
+  let free: { segment: number; x: number; v: number; tick: number } | null = null, last: { cart: Cart; tick: number } | null = null;
   return {
     group, cart,
-    place(w, flyingCart) {
-      const c = w.cart;
-      const show = !!c || flyingCart;
-      cart.visible = show;
-      if (!show) return;
-      cart.position.set(w.runner.x, w.runner.y, 0);
-      if (c) cart.rotation.z = c.tilt;
-      else cart.rotation.z = Math.atan2(w.runner.vy, Math.max(0.1, Math.abs(w.runner.vx))) * Math.sign(w.runner.vx || 1); // flying on: it points where it goes
+    place(w) {
+      const c = w.cart, tick = w.runner.tick;
+      if (c) { // riding: the cart is under the rider
+        free = null; last = { cart: c, tick };
+        cart.visible = true; cart.position.set(w.runner.x, w.runner.y, 0); cart.rotation.z = c.tilt;
+        return;
+      }
+      if (free && tick < free.tick) free = null; // the run was taken back
+      if (!free && last && tick >= last.tick) free = { segment: last.cart.segment, x: last.cart.x, v: last.cart.v, tick: last.tick }; // the rider just left: the cart goes on from its own speed
+      last = null;
+      if (!free) { cart.visible = false; return; }
+      for (; free.tick < tick; free.tick++) { // the same rails and the same steps as the simulator; it rests at a rail end
+        const rails = railsOf(track, free.segment), n = cartStep(rails, free.x, free.v, false, params);
+        free.x = n.x; free.v = n.v;
+        if (free.x >= rails.x1 && free.v > 0) { free.x = rails.x1; free.v = 0; }
+        if (free.x <= rails.x0 && free.v < 0) { free.x = rails.x0; free.v = 0; }
+      }
+      const rails = railsOf(track, free.segment);
+      cart.visible = true; cart.position.set(free.x, rails.y(free.x) + params.seat, 0); cart.rotation.z = Math.atan(rails.slope(free.x));
     },
   };
 }

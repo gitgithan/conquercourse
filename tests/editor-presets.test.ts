@@ -41,7 +41,7 @@ describe('the editor course list', () => {
   });
   it('the coaster course rebuilds from its saved sources and the simulator clears it', () => {
     const ps = piecesFromSource(PRESETS.find((p) => p.id === 'coaster')!.pieces);
-    expect(ps.length).toBe(3);
+    expect(ps.length).toBe(2);
     expect(searchIdealRun(roleCourse(ps as never[], lane).course).cleared).toBe(true);
   });
 });

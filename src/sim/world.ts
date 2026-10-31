@@ -48,6 +48,7 @@ export interface WorldState {
   pole?: PoleWorld; // carrying the pole, and the ride from the plant to the let-go (src/sim/pole-ride.ts)
   recoil?: RecoilState; // the launcher clipped on at a recoil pad: loads left, shots fired, balls in flight (src/sim/recoil.ts)
   cart: Cart | null; // riding the rails of a track (src/sim/cart.ts)
+  cartLeft?: boolean; // the rider jumped out of the cart: the cart is its own object now and the rails do not catch the body again (CC-244)
   plank?: PlankState | null; // walking on a plank bridge (src/sim/beam.ts)
   stood?: number[]; // platforms stood on so far (kept only on a course whose platforms have a lane gate; CC-228)
   broken?: number[]; // planks that have broken (they are gone)
@@ -196,7 +197,7 @@ function stepWorldPlain(w: WorldState, input: RunnerInput, course: CourseData, p
   n.runner = r;
   n.rollArmed = armed && !r.grounded;
   let caughtTrack = false;
-  if (course.track && !before.grounded && r.grounded && r.landing) {
+  if (course.track && !w.cartLeft && !before.grounded && r.grounded && r.landing) {
     const params = trackParams(course), x = r.landedAtX ?? r.x;
     const segment = trackSegments(course.track).findIndex((pts) => x >= pts[0][0] && x <= pts[pts.length - 1][0]);
     if (segment >= 0) {

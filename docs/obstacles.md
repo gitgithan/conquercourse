@@ -46,7 +46,15 @@
 - The ideal run for such a course rides first, then plays on from where the rider lands.
 - A 3D object can take the role "Swing bar": it becomes a bar to hang from at its top, not a block to stand on.
 - The "Height off the ground" slider goes up to 8 m for bars.
-- Law tests: `tests/coaster-flow.test.ts`.
+- Space (or Up, or W) while riding jumps the rider out of the cart at once, at any moment.
+- The rider leaves with the cart's speed at that moment plus the jump, and the body does not jump in place.
+- The cart stays behind as its own object: it rolls on or rests by itself and never joins the body again.
+- The rails do not catch the rider again after a jump out.
+- The "Coaster to a deck" course in the editor has no bar: the old bar sat 2.5 m past the rail end and nobody used it.
+- The editor opens a coaster with its dots showing; double-click the side view to add a dot, drag a dot to move it.
+- Both coaster screens (the builder and the editor) show the same boxed "how to" card.
+- Pictures: `docs/evidence/cc-244-coaster-howto-builder-1280.png`, `docs/evidence/cc-244-coaster-howto-editor-1280.png`.
+- Law tests: `tests/coaster-flow.test.ts`, `tests/cart-jump-off.test.ts`.
 
 ## Hang bars: where the rod is (CC-243, 2026-10-31)
 - The green hang bar has its crossbar 2.2 m up; the black one has it 2.05 m up (`hang_m` in `public/assets/objects/index.json`).
