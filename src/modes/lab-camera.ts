@@ -1,6 +1,7 @@
 import { mountLabsNav } from "../ui/labs-nav";
 import * as THREE from "three";
 import { labsOn } from "../ui/labs";
+import { labDefaultNote, labPopulated } from "../ui/lab-default";
 import {
   BONES, DEFAULT_CAM, GAME_FIRST_PERSON_FOV, GAME_SIDE, IMG, JOINTS, LIMBS, LIMB_JOINTS, LIMB_LABEL, altPose, camFacts, clampCam, focalPx, foreshortening, makeCamera, maxBoneChange, maxDepthGap,
   maxPixelGap, poseA, rayThroughPixel, segmentPx, toPx, type CamSettings, type Limb,
@@ -48,7 +49,7 @@ export function startLabCamera(host: HTMLElement): { backend: "canvas2d" } {
   const wrap = document.createElement("div"); wrap.className = "wrap"; root.append(wrap);
   wrap.innerHTML = `
     <div><a class="back" href="/?welcome=0">Back to the game</a>
-    <h1>Lab 5: Camera and perspective</h1>
+    <h1 id="lc-h1">Lab 5: Camera and perspective</h1>
     <p class="small" style="margin:4px 0 0">The goal: find out why one photo cannot tell you how far away each part of a body is. Body <b style="color:${TEAL}">A</b> is a vault reach. Body <b style="color:${ORANGE}">B</b> is a different pose with the same bone lengths that makes the very same front photo. You choose the lens, the height and the angle of a second camera, and see when the second view gives B away.</p></div>
     <div class="grid">
       <div class="card" id="lc-controls">
@@ -230,7 +231,9 @@ Foreshortening: a bone of length L at depth Z seen at angle a to the view direct
   };
 
   setSliders();
+  labDefaultNote(wrap, "live", $("lc-h1")); // opens on the front camera where bodies A and B look the same, with the game's cameras beside it
   render();
+  labPopulated("lab-camera");
   document.documentElement.dataset.labReady = "true";
   return { backend: "canvas2d" };
 }

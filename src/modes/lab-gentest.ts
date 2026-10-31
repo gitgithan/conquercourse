@@ -3,6 +3,7 @@ import { DEFAULT_CONFIG, DEFAULT_RULES, REASONS, buildProposals, clampRules, tal
 import type { Layout } from "../slice/layout-draft";
 import { itemLength } from "../slice/course-agent";
 import { labsOn } from "../ui/labs";
+import { labDefaultNote, labPopulated } from "../ui/lab-default";
 
 // Lab 9: Generate and test. A helper proposes courses; the player sets what it may propose; the real simulator throws out the ones that cannot be cleared.
 // The page makes no model call: the "Muse" proposals are recorded replies (public/assets/lab/gentest-proposals.json) and a built-in random proposer.
@@ -58,7 +59,7 @@ export function startLabGentest(host: HTMLElement): { backend: "canvas2d" } {
   const wrap = document.createElement("div"); wrap.className = "wrap"; root.append(wrap);
   wrap.innerHTML = `
     <div><a class="back" href="/?welcome=0">Back to the game</a>
-    <h1>Lab 9: Generate and test</h1>
+    <h1 id="gt-h1">Lab 9: Generate and test</h1>
     <p class="small" style="margin:4px 0 0">The goal: let a helper propose courses, and count how many the simulator throws out. You decide what the helper may propose. The simulator decides what is allowed to stay.</p></div>
     <div class="grid">
       <div class="card" id="gt-controls">
@@ -179,7 +180,7 @@ export function startLabGentest(host: HTMLElement): { backend: "canvas2d" } {
   let worker: Worker | null = null;
   let job = 0;
   const runBtn = $<HTMLButtonElement>("gt-run");
-  const finish = (verdicts: Verdict[], wallMs: number, used: Config) => {
+  const finish = (verdicts: Verdict[], wallMs: number, used: Config, pre = false) => {
     const t = tally(verdicts);
     last = { verdicts, wallMs, cfg: used, tally: t }; history++;
     $("gt-none").hidden = true;
@@ -194,7 +195,7 @@ export function startLabGentest(host: HTMLElement): { backend: "canvas2d" } {
       ["Proposals until the first clear", t.firstIndex ? `${t.firstIndex}${used.repairs && t.firstIndexRepair !== t.firstIndex ? ` (${t.firstIndexRepair} with repairs)` : ""}` : "none cleared"],
       ["Expected tries for one clear", t.triesFirst ? `${t.triesFirst.toFixed(1)} as proposed${used.repairs && t.triesRepair ? `, ${t.triesRepair.toFixed(1)} with repairs` : ""}` : "no clear, so no estimate"],
       ["Cut off by the time limit", t.cut ? `${t.cut} of the ${t.thrown} thrown out: the search had not finished, so more time might clear them` : "none"],
-      ["Simulator work", `${(t.ticks / 1000).toFixed(0)} thousand ticks, ${(wallMs / 1000).toFixed(1)} s on this device`],
+      ["Simulator work", `${(t.ticks / 1000).toFixed(0)} thousand ticks, ${(wallMs / 1000).toFixed(1)} s ${pre ? "on the machine that made this file" : "on this device"}`],
     ];
     facts.innerHTML = rows.map(([k, v]) => `<dt>${k}</dt><dd>${v}</dd>`).join("");
     $("gt-strip-card").hidden = false; $("gt-why-card").hidden = false;
@@ -254,6 +255,16 @@ The rules you set change p. A narrower rule set removes proposals the simulator 
     $<HTMLButtonElement>("gt-eq-btn").hidden = true;
   };
 
-  fetch(URL_POOL).then((r) => r.json()).then((d: { proposals: Pool }) => { pool = d.proposals; document.documentElement.dataset.labReady = "true"; });
+  fetch(URL_POOL).then((r) => r.json()).then((d: { proposals: Pool }) => {
+    pool = d.proposals; document.documentElement.dataset.labReady = "true";
+    // Opens already tested: our setting (recorded ideas, two repairs), run ahead of time by scripts/labs-default-precompute.ts with the same code (seed 7).
+    fetch("/assets/lab/gentest-default.json").then((r) => r.json()).then((o: { cfg: Config; verdicts: Verdict[]; wallMs: number }) => {
+      if (history === 0) {
+        cfg.repairs = o.cfg.repairs; $<HTMLInputElement>("gt-rep").value = String(cfg.repairs); sync();
+        labDefaultNote(wrap, { precomputed: true, seed: o.cfg.seed }, $("gt-h1")); finish(o.verdicts, o.wallMs, o.cfg, true);
+      }
+      labPopulated("lab-gentest");
+    }).catch(() => undefined);
+  });
   return { backend: "canvas2d" };
 }

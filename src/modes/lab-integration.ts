@@ -1,5 +1,6 @@
 import { mountLabsNav } from "../ui/labs-nav";
 import { labsOn } from "../ui/labs";
+import { labDefaultNote, labPopulated } from "../ui/lab-default";
 import { BOWL_START, GAME_STEPS_PER_SECOND, LENGTH_CHOICES, METHOD_INFO, STEP_CHOICES, bowlRails, clampCfg, runLab, type LabConfig, type LabResult, type Method } from "../labs/integration/engine";
 
 // Lab 6: Numerical integration. The player picks the stepping rule and the step size, runs the cart's real equations in a worker, and reads the energy drift and whether a replay still matches.
@@ -46,7 +47,7 @@ export function startLabIntegration(host: HTMLElement): { backend: "canvas2d" } 
   const wrap = document.createElement("div"); wrap.className = "wrap"; root.append(wrap);
   wrap.innerHTML = `
     <div><a class="back" href="/?welcome=0">Back to the game</a>
-    <h1>Lab 6: Numerical integration</h1>
+    <h1 id="li-h1">Lab 6: Numerical integration</h1>
     <p class="small" style="margin:4px 0 0">The goal: a cart rolls in a smooth bowl with nothing to slow it, so its energy must never change. A computer only moves it in small steps. Pick how it steps and how big the steps are, then see how much energy it gains or loses, and whether a replay of the run still comes out exactly the same.</p></div>
     <div class="grid">
       <div class="card" id="li-controls">
@@ -77,7 +78,8 @@ export function startLabIntegration(host: HTMLElement): { backend: "canvas2d" } 
       </div>
     </div>`;
   const $ = <T extends HTMLElement>(id: string): T => wrap.querySelector("#" + id) as T;
-  const cfg: LabConfig = { method: "euler", stepsPerSecond: 60, seconds: 300 };
+  // Our setting (CC-118): the game's own rule, RK4 at 120 steps a second, for 300 s (about half a second to compute): the drift stays tiny and the replay matches to the last bit.
+  const cfg: LabConfig = { method: "rk4", stepsPerSecond: GAME_STEPS_PER_SECOND, seconds: 300 };
   let last: LabResult | null = null;
   let history = 0;
 
@@ -190,6 +192,7 @@ export function startLabIntegration(host: HTMLElement): { backend: "canvas2d" } 
     tSlider.disabled = false; tSlider.max = String(Math.max(r.game.xs.length - 1, m.xs.length - 1)); tSlider.value = "0"; $("li-t-v").textContent = "0 s";
     drawEnergy(); drawDiv(); drawBowl(0);
     document.documentElement.dataset.labDone = String(history);
+    if (history === 1) labPopulated("lab-integration");
     document.documentElement.dataset.labHashEqual = String(mine.equal);
     runBtn.disabled = false; runBtn.textContent = "Run the cart";
   };
@@ -237,6 +240,8 @@ The replay hash:
   Two runs share a hash only if every one of those numbers is the same to the last bit.`;
     $<HTMLButtonElement>("li-eq-btn").hidden = true;
   };
+  labDefaultNote(wrap, "live", $("li-h1"));
+  runBtn.click();
   document.documentElement.dataset.labReady = "true";
   return { backend: "canvas2d" };
 }

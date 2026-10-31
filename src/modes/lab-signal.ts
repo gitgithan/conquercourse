@@ -5,6 +5,7 @@ import { loadRookie, type PosedRookie } from "../render/rookie";
 import { clipToWorld } from "../motion/pose";
 import { legLength } from "../motion/timeline";
 import { labsOn } from "../ui/labs";
+import { labDefaultNote, labPopulated } from "../ui/lab-default";
 import {
   CLIPS, DEFAULT_CHOICE, FILTERS, GATE_LIMITS, MAX_STRENGTH, clampChoice, expAlpha, failures, gainAt, kernel, noiseGain, runGameSetting, runSignalLab,
   type Frames, type GateReport, type LabChoice, type Result, type SignalClip,
@@ -69,7 +70,7 @@ export function startLabSignal(host: HTMLElement): { backend: "canvas2d" } {
   const wrap = document.createElement("div"); wrap.className = "wrap"; root.append(wrap);
   wrap.innerHTML = `
     <div><a class="back" href="/?welcome=0">Back to the game</a>
-    <h1>Lab 8: Signal processing</h1>
+    <h1 id="sg-h1">Lab 8: Signal processing</h1>
     <p class="small" style="margin:4px 0 0">The goal: a captured move wobbles a little in every frame. Smooth it enough to calm the wobble, but not so much that the move comes out late or flattened. The game's plausibility gate decides if the result may be shown. Here the wobble is made on purpose (seeded noise added to a clean shipped clip), so the true move is known and every number below is a fact about the filter.</p></div>
     <div class="grid">
       <div class="card" id="sg-controls">
@@ -315,6 +316,6 @@ ${win ? `\nYour weights (h = ${c.strength}):  ${win}` : ""}`;
   }
   $<HTMLButtonElement>("sg-eq-btn").onclick = () => { $("sg-eq-body").hidden = false; $("sg-eq-btn").hidden = true; if (result) fillEq(result); };
 
-  load(choice.clip).then(async (clip) => { await run(); document.documentElement.dataset.labReady = "true"; await initRookie(clip); frameLoop(); });
+  load(choice.clip).then(async (clip) => { labDefaultNote(wrap, "live", $("sg-h1")); await run(); document.documentElement.dataset.labReady = "true"; document.documentElement.dataset.labNumbersAt = String(Math.round(performance.now())); await initRookie(clip); labPopulated("lab-signal"); frameLoop(); });
   return { backend: "canvas2d" };
 }

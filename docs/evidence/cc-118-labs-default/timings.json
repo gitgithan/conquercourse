@@ -1,0 +1,74 @@
+[
+  {
+    "mode": "lab-search",
+    "firstPopulatedPaintMs": 1481,
+    "wallMs": 1504,
+    "problems": 0
+  },
+  {
+    "mode": "lab-optimization",
+    "firstPopulatedPaintMs": 1178,
+    "wallMs": 1199,
+    "problems": 0
+  },
+  {
+    "mode": "lab-ik",
+    "firstPopulatedPaintMs": 668,
+    "wallMs": 681,
+    "problems": 0
+  },
+  {
+    "mode": "lab-vision",
+    "firstPopulatedPaintMs": 491,
+    "wallMs": 507,
+    "problems": 0
+  },
+  {
+    "mode": "lab-camera",
+    "firstPopulatedPaintMs": 486,
+    "wallMs": 573,
+    "problems": 0
+  },
+  {
+    "mode": "lab-integration",
+    "firstPopulatedPaintMs": 834,
+    "wallMs": 842,
+    "problems": 0
+  },
+  {
+    "mode": "lab-timing",
+    "firstPopulatedPaintMs": 512,
+    "wallMs": 524,
+    "problems": 0
+  },
+  {
+    "mode": "lab-signal",
+    "firstPopulatedPaintMs": 1693,
+    "wallMs": 1704,
+    "problems": 0
+  },
+  {
+    "mode": "lab-gentest",
+    "firstPopulatedPaintMs": 523,
+    "wallMs": 530,
+    "problems": 0
+  },
+  {
+    "mode": "lab-detector",
+    "firstPopulatedPaintMs": 484,
+    "wallMs": 498,
+    "problems": 0
+  },
+  {
+    "mode": "lab-hashing",
+    "firstPopulatedPaintMs": 590,
+    "wallMs": 598,
+    "problems": 0
+  },
+  {
+    "mode": "lab-rl",
+    "firstPopulatedPaintMs": 458,
+    "wallMs": 465,
+    "problems": 0
+  }
+]

@@ -1,5 +1,9 @@
 # Lab 10: Evaluating a detector
 
+## When you open it
+- Live: it opens on the recorded detector data with the scores and the "what the game does" card already shown.
+- A small label at the top says "Showing our setting, already run" (or "Precomputed with the same code (seed N)"); change a control and press Run to try your own.
+
 ## The question
 - A helper program looked at six park objects and was asked to point at the part a hand could hold.
 - Is it good enough to place holds for us?

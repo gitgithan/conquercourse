@@ -1,5 +1,9 @@
 # Lab 2: Optimization
 
+## When you open it
+- Live: it runs the first search over the stored table on open (a fraction of a second); the table of methods, the picture and "what the game picks" are already filled.
+- A small label at the top says "Showing our setting, already run" (or "Precomputed with the same code (seed N)"); change a control and press Run to try your own.
+
 ## The question
 - Which settings make the run fastest, and how many tries does it cost to find them?
 - Behind the labs switch: `?mode=lab-optimization&labs=1`.

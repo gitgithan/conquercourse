@@ -2,6 +2,11 @@
 
 *A workbench on the press window, the number the game uses as difficulty.*
 
+## When you open it
+- Precomputed: the trap chain at 40 ms of shakiness, normal shape, 400 runs, seed 7, played ahead of time with the same code (`scripts/labs-default-precompute.ts`); a test re-runs it and compares.
+- Facts, charts and windows are filled; "time played" is the time on the machine that made the file.
+- A small label at the top says "Showing our setting, already run" (or "Precomputed with the same code (seed N)"); change a control and press Run to try your own.
+
 ## The question
 - How wide must the press window be for a shaky presser to clear a course half the time, and nine times in ten?
 - The Lab answers it for a simulated presser on a real course, never for a person.

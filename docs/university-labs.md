@@ -62,3 +62,9 @@
 ## Not decided
 - Whether finished Labs unlock anything.
 - Whether Labs count as "AI for education" for the hackathon; the answer is no while there is no tutor and no chatbot, and they stay game design workbenches.
+
+## Every Lab opens already run (owner, 2026-11-01)
+- Opening a Lab shows our setting already run, with every output filled, so a demo needs no click on Run.
+- The label "Showing our setting, already run" says so; slow Labs say "Precomputed with the same code (seed N)".
+- Rules for a new Lab: run live on open if it takes well under two seconds; otherwise precompute with the same code and a seed, ship a small file, and add a test that re-runs it.
+- See [docs/labs/README.md](labs/README.md) for the list and `scripts/labs-default-smoke.mjs` for the check.

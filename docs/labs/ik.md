@@ -1,5 +1,9 @@
 # Lab 3: Posing a character (inverse kinematics)
 
+## When you open it
+- Live: it opens on the game's own pose choices for the first preset, already solved; the arm picture, numbers and compare card are filled.
+- A small label at the top says "Showing our setting, already run" (or "Precomputed with the same code (seed N)"); change a control and press Run to try your own.
+
 ## The question
 - When the hand must land on a bar or a ledge, how does the arm bend, where does the pose break, and what does each rule change?
 - Open it at `?mode=lab-ik&labs=1` (it is not in the Courses list yet).

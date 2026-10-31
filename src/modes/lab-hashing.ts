@@ -6,6 +6,7 @@ import {
 } from "../labs/hashing/core";
 import { courseHash, encodeLog, recordPlan } from "../sim/replay";
 import { labsOn } from "../ui/labs";
+import { labDefaultNote, labPopulated } from "../ui/lab-default";
 
 // Lab 11: Verification and hashing. The player chooses which part of a run is hashed and which hash function does it, tampers with one tick of the recorded keys,
 // replays them with the real simulator and reads whether the hash saw it. Nothing here talks or grades: it shows numbers and a picture. Behind the labs switch (?labs=1).
@@ -52,7 +53,7 @@ export function startLabHashing(host: HTMLElement): { backend: "canvas2d" } {
   const wrap = document.createElement("div"); wrap.className = "wrap"; root.append(wrap);
   wrap.innerHTML = `
     <div><a class="back" href="/?welcome=0">Back to the game</a>
-    <h1>Lab 11: Verification and hashing</h1>
+    <h1 id="lh-h1">Lab 11: Verification and hashing</h1>
     <p class="small" style="margin:4px 0 0">The goal: a run is a list of key presses, and the game plays them again to check them. You choose which part of a run gets a hash and which hash function does it. Then you change one tick of the keys and see whether the hash notices.</p></div>
     <div class="grid">
       <div class="card">
@@ -218,7 +219,11 @@ Chaining (hash of every tick):  h(t) = H( h(t-1) || state(t) ),  h(0) = H(state(
       const slider = $<HTMLInputElement>("lh-tick");
       slider.max = String(masks.length - 1); slider.value = String(tick);
       $("lh-ticks").textContent = String(masks.length - 1);
-      buildOptions(); update(); void paintOurs();
+      buildOptions(); update();
+      labDefaultNote(wrap, "live", $("lh-h1"));
+      $<HTMLButtonElement>("lh-aval").click(); // CC-118: the avalanche runs on open (every hash, every bit of the key log)
+      await paintOurs();
+      labPopulated("lab-hashing");
     } catch (e) {
       $("lh-facts").textContent = "The course did not load: " + String(e);
     }

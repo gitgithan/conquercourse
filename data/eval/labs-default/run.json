@@ -1,0 +1,108 @@
+{
+  "experiment": "labs-default",
+  "issue": "CC-118",
+  "seed": 7,
+  "precomputed": {
+    "timing": {
+      "file": "public/assets/lab/timing-default.json",
+      "cfg": {
+        "sigmaMs": 40,
+        "dist": "normal",
+        "runs": 400,
+        "seed": 7
+      },
+      "wallMs": 1198
+    },
+    "gentest": {
+      "file": "public/assets/lab/gentest-default.json",
+      "cfg": {
+        "source": "recorded",
+        "repairs": 2,
+        "randomCount": 30,
+        "seed": 7,
+        "budget": 2,
+        "limit": 25
+      },
+      "wallMs": 127590
+    },
+    "rl": {
+      "file": "public/assets/lab/rl-default.json",
+      "seed": 7,
+      "wallMs": 1972
+    }
+  },
+  "firstPopulatedPaint": [
+    {
+      "mode": "lab-search",
+      "firstPopulatedPaintMs": 1481,
+      "wallMs": 1504,
+      "problems": 0
+    },
+    {
+      "mode": "lab-optimization",
+      "firstPopulatedPaintMs": 1178,
+      "wallMs": 1199,
+      "problems": 0
+    },
+    {
+      "mode": "lab-ik",
+      "firstPopulatedPaintMs": 668,
+      "wallMs": 681,
+      "problems": 0
+    },
+    {
+      "mode": "lab-vision",
+      "firstPopulatedPaintMs": 491,
+      "wallMs": 507,
+      "problems": 0
+    },
+    {
+      "mode": "lab-camera",
+      "firstPopulatedPaintMs": 486,
+      "wallMs": 573,
+      "problems": 0
+    },
+    {
+      "mode": "lab-integration",
+      "firstPopulatedPaintMs": 834,
+      "wallMs": 842,
+      "problems": 0
+    },
+    {
+      "mode": "lab-timing",
+      "firstPopulatedPaintMs": 512,
+      "wallMs": 524,
+      "problems": 0
+    },
+    {
+      "mode": "lab-signal",
+      "firstPopulatedPaintMs": 1693,
+      "wallMs": 1704,
+      "problems": 0
+    },
+    {
+      "mode": "lab-gentest",
+      "firstPopulatedPaintMs": 523,
+      "wallMs": 530,
+      "problems": 0
+    },
+    {
+      "mode": "lab-detector",
+      "firstPopulatedPaintMs": 484,
+      "wallMs": 498,
+      "problems": 0
+    },
+    {
+      "mode": "lab-hashing",
+      "firstPopulatedPaintMs": 590,
+      "wallMs": 598,
+      "problems": 0
+    },
+    {
+      "mode": "lab-rl",
+      "firstPopulatedPaintMs": 458,
+      "wallMs": 465,
+      "problems": 0
+    }
+  ]
+}

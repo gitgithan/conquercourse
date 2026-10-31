@@ -1,6 +1,7 @@
 import { mountLabsNav } from "../ui/labs-nav";
 import { DEFAULT_DETECTOR, bestF1, byPrompt, evaluate, hardness, sweep, type DetectorConfig, type DetectorData, type Outcome } from "../lab/detector-lab";
 import { labsOn } from "../ui/labs";
+import { labDefaultNote, labPopulated } from "../ui/lab-default";
 
 // Lab 10: Evaluating a detector (CC-49 data). The player picks the words to ask for and where the claim line sits, and reads hits, misses and made-up parts on hand-labelled objects.
 // The detector's answers are recorded: no model runs on the page. Nothing talks or grades: it shows counts and a curve. The maths comes last, after a look at the numbers.
@@ -179,6 +180,6 @@ Only ${t.real + t.none} cases: one case moves recall by ${f2(1 / Math.max(1, t.r
   bind("ld-claim", (v) => (cfg.claimMin = v)); bind("ld-in", (v) => (cfg.insideMin = v));
   $<HTMLInputElement>("ld-claim").value = String(cfg.claimMin); $<HTMLInputElement>("ld-in").value = String(cfg.insideMin);
 
-  fetch(DATA_URL).then((r) => r.json()).then((d: DetectorData) => { data = d; render(); });
+  fetch(DATA_URL).then((r) => r.json()).then((d: DetectorData) => { data = d; labDefaultNote(wrap, "live", wrap.querySelector("h1")); render(); labPopulated("lab-detector"); });
   return { backend: "canvas2d" };
 }

@@ -3,6 +3,7 @@ import { Vector3 } from "three";
 import { parseClip, type Clip } from "../motion/clip";
 import { loadRookie } from "../render/rookie";
 import { labsOn } from "../ui/labs";
+import { labDefaultNote, labPopulated } from "../ui/lab-default";
 import { DEFAULT_CHOICES, ELBOW_MAX, GAME_POLE, MATCH, SHOULDER_MAX, SHOULDER_MIN, breakingPoint, deg, makeBody, maxReach, minReach, poseFor, residualMap, type Body, type Choices, type Pose } from "../labs/ik/ik-core";
 import { NECK_LIMIT, SHOULDER_LIMIT } from "../motion/neck";
 
@@ -62,7 +63,7 @@ export async function startLabIk(host: HTMLElement): Promise<{ backend: "canvas2
   const wrap = document.createElement("div"); wrap.className = "wrap"; root.append(wrap);
   wrap.innerHTML = `
     <div><a class="back" href="/?welcome=0">Back to the game</a>
-    <h1>Lab 3: Posing a character</h1>
+    <h1 id="ik-h1">Lab 3: Posing a character</h1>
     <p class="small" style="margin:4px 0 0">The goal: put the Rookie's hand on a bar or a ledge, and find the exact place where the pose breaks. Drag the bar in the picture, or use the arrow keys. The arm is solved by the same code the game uses to put hands on a ledge.</p></div>
     <div class="grid">
       <div class="card" id="ik-controls">
@@ -285,7 +286,9 @@ The neck rule (the game's)
     e.preventDefault(); target.x += d[e.key][0]; target.y += d[e.key][1]; refresh();
   });
 
+  labDefaultNote(wrap, "live", $("ik-h1")); // the game's own solver, limits and neck rule on the first bar: solved at once, no Run in this Lab
   refresh();
+  labPopulated("lab-ik");
   document.documentElement.dataset.labReady = "true";
   return { backend: "canvas2d" };
 }

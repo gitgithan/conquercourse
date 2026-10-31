@@ -3,6 +3,11 @@
 *University Lab 5 (see `docs/university-labs.md`).*
 *Open it at `?mode=lab-camera&labs=1`; without the labs switch it shows "Labs are switched off".*
 
+## When you open it
+- Live: it opens on the front camera of the twin-bodies lesson with the game's cameras compare card already filled.
+- The controls are the Lab's lesson camera, not the game's side camera.
+- A small label at the top says "Showing our setting, already run" (or "Precomputed with the same code (seed N)"); change a control and press Run to try your own.
+
 ## The question
 - Why can one photo of a body not tell you how far away each part is?
 - Where does a second camera help, and where does it not?
