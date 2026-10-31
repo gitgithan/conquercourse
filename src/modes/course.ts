@@ -38,7 +38,11 @@ import { ouch } from '../sim/landing';
 import { logTicks } from '../sim/run-checks';
 import { track, trackCourseEvent, courseKey, publishClear, sendClear, session } from '../ui/feedback';
 import { statsOn } from '../ui/course-stats';
-import { boardKeyOfPage, FIRST_COURSE_KEY } from '../share/board-courses';
+import { boardKeyOfPage, boardPathOf, FIRST_COURSE_KEY } from '../share/board-courses';
+import { challengeKey, challengeOn, cidOf } from '../share/challenge-course';
+import { challengeLink, registerCourse } from '../share/challenge-client';
+import { challengeStrip } from '../ui/challenge-card';
+import { madeCourse } from '../share/made-course';
 import { touchStreak } from '../ui/streak';
 import { announceBest, boardBox, boardCorner, boardOn, newsStrip, publishStrip, rememberBest, type BoardHooks } from '../ui/leaderboard';
 import { chaseRun, loadRun, openRunView } from '../ui/run-view';
@@ -106,6 +110,7 @@ const MESSAGES: Record<string, string> = {
 
 export async function startCourse(host: HTMLElement, course: CourseData = defaultCourse): Promise<CourseGame> {
   const params = pageQuery();
+  const loadedIsDefault = course === defaultCourse, loadedHash = courseHash(course); // CC-108: the course as the page opened it; a ground edit or any other change makes the hash differ, and then the run is no longer on a ranked board
   // Coming back from the Dojo: the Course is put back exactly as it was (same course, same place), not started again.
   let resume: Resume | null = null;
   try {
@@ -688,7 +693,9 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
     onStats: async (row) => { const r = row.id ? await loadRun(course, row.id) : null; return r ? { moves: r.moves } : null; },
   }); // CC-108: View Run, then Race Ghost
   // CC-108: the courses a run can be published on are the listed ones (src/share/board-courses.ts); the First Course with the timed balls is another course, so it is not one of them
-  const listedKey = (): string | null => { const k = boardKeyOfPage(params); return k === FIRST_COURSE_KEY && course !== defaultCourse ? null : k; };
+  const rankedKey = (): string | null => { const k = boardKeyOfPage(params); return (k === FIRST_COURSE_KEY && course !== defaultCourse) || courseHash(course) !== loadedHash ? null : k; }; // CC-108: only the official course, exactly, is on a ranked board
+  const challengeId = challengeOn(params) ? cidOf(params) : null; // CC-108: a challenge course opened by its id
+  const listedKey = (): string | null => rankedKey() ?? (challengeId && courseHash(course) === loadedHash ? challengeKey(challengeId) : null);
   { const bk = listedKey(); if (boardOn(params) && !botMode && bk) { document.body.append(boardCorner(bk, courseHash(course), session(), viewHooks()), newsStrip()); } } // CC-108: the board is on the Course, not only in the end report
   let retryX = resume ? resume.retryX : course.startX; // "try this obstacle again" starts standing still just before it
   let demo: { x1: number } | null = null;
@@ -1349,7 +1356,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
     try { await navigator.clipboard.writeText(location.href); if (btn) btn.textContent = 'Link copied'; }
     catch { window.prompt('Copy this link', location.href); if (btn) btn.textContent = 'Link ready'; }
   };
-  const challengeParam = shareOn(params) && !botMode ? params.get('challenge') : null;
+  const challengeParam = shareOn(params) && !botMode && params.get('challenge') !== '0' ? params.get('challenge') : null; // ?challenge=0 is the switch for challenge courses, not a link (CC-108)
   if (challengeParam) {
     void openChallenge(course, challengeParam).then((c) => {
       if (document.documentElement.dataset.madeRefused) { showBanner(challengeWords('too-big'), [], 20000); return; } // the course in the link could not be opened (CC-136)
@@ -1508,7 +1515,16 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
         }, false, ghostCtl?.reportPath() ?? null, !reportSectionsOn(params), hardBand());
         addHardest(body);
         { const bk = listedKey(); if (boardOn(params) && !botMode && !demo && !idealWhole && bk) { body.querySelector('#report-actions')?.before(boardBox(bk, courseHash(course), session(), viewHooks())); if (lastClear) body.querySelector('h2')?.after(publishStrip(lastClear, bk, courseHash(course))); } } // CC-108: the name and Publish sit at the top, next to the result
-        if (!lastClear && world.outcome === 'cleared' && (ghostCtl?.myRun() || ghostCtl?.myClip()) && !body.querySelector('#report-publish') && !botMode && !demo && !idealWhole) { // a clear that cannot be published: the button is off and the reason sits next to it
+        const myRunNow = ghostCtl?.myRun() ?? null;
+        if (!lastClear && world.outcome === 'cleared' && myRunNow && challengeOn(params) && !botMode && !demo && !idealWhole && !listedKey() && madeCourse(course)) { // CC-108: not a ranked course: say why, and offer a challenge course or the official one
+          const rankedBase = boardKeyOfPage(params), startedRanked = !!rankedBase && (rankedBase !== FIRST_COURSE_KEY || loadedIsDefault) && !['made', 'generate', 'coaster', 'cid'].some((k) => params.has(k)), keysP = encodeLog(myRunNow), runId = analyticsRunId, mineLog = myRunNow, played = course;
+          body.querySelector('h2')?.after(challengeStrip({
+            changed: startedRanked,
+            publish: async () => registerCourse(played, session(), runId, await keysP, logTicks(mineLog)),
+            link: (id) => challengeLink(location.origin, id, played, mineLog, localStorage.getItem('cc.nick') ?? '', choice),
+            official: () => { location.href = worldHref((rankedBase && boardPathOf(rankedBase)) ?? ''); },
+          }));
+        } else if (!lastClear && world.outcome === 'cleared' && (ghostCtl?.myRun() || ghostCtl?.myClip()) && !body.querySelector('#report-publish') && !botMode && !demo && !idealWhole) { // a clear that cannot be published: the button is off and the reason sits next to it
           const listed = !!listedKey();
           const why = !listed ? 'Only runs on the listed courses can be published.' : !ghostCtl?.myRun() ? 'Only full runs from the start of the course can be published.' : !boardOn(params) ? 'The leaderboard is switched off here.' : 'This run cannot be published.';
           body.querySelector('h2')?.after(publishStrip({ ticks: world.runner.tick, send: async () => ({ published: false }) }, listedKey() ?? '', courseHash(course), why));
