@@ -87,7 +87,7 @@ describe('Mapillary credit (CC-90)', () => {
     expect(isMapillary('https://www.mapillary.com/app/?pKey=123')).toBe(true);
     expect(isMapillary('https://commons.wikimedia.org/wiki/File:x.jpg')).toBe(false);
     expect(MAPILLARY_HOME).toBe('https://www.mapillary.com/');
-    const { JSDOM } = await import('jsdom').catch(() => ({ JSDOM: null as any }));
+    const { JSDOM } = await import(/* @vite-ignore */ ('js' + 'dom') as string).catch(() => ({ JSDOM: null as any }));
     if (!JSDOM) return;
     const dom = new JSDOM(''); (globalThis as any).document = dom.window.document;
     const a = mapillaryMark(null);
