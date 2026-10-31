@@ -51,7 +51,7 @@ export function courseKey(name: string): string {
   if (p.has('generate')) return `generated-${p.get('generate')}`;
   if (p.has('coaster')) return 'coaster-custom';
   const path = p.get('course');
-  if (path) return path.replace(/^\/assets\//, '').replace(/\.course\.json$/, '').replace(/[^a-zA-Z0-9_-]/g, '-').slice(0, 100);
+  if (path) return path.replace(/^\/assets\//, '').replace(/\.course\.json$/, '').replace(/[^a-zA-Z0-9_/-]/g, '-').slice(0, 100); // the slash stays: the server and the cards name a course 'demo/training' (a dash here dropped every start event)
   return name.toLowerCase().normalize('NFKD').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 100) || 'unnamed-course';
 }
 
