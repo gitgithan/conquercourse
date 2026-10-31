@@ -38,6 +38,8 @@ if (strip) {
   ok('the old "changed since your run" words are gone', !/changed since your run/.test(await page.textContent('body') ?? ''));
   const names = await page.$$eval('#report-challenge button', (bs) => bs.map((x) => x.textContent));
   ok('the two buttons', names.includes('Publish as challenge course') && names.includes('Play the official course'), names.join(' | '));
+  await page.getByRole('button', { name: 'Got it' }).click({ timeout: 3000 }).catch(() => {});
+  await page.locator('#report-challenge').scrollIntoViewIfNeeded(); await page.waitForTimeout(300);
   await page.screenshot({ path: `${out}/end-card.png` });
   await page.click('#publish-challenge');
   await page.waitForSelector('#copy-challenge', { timeout: 30000 });
@@ -47,6 +49,7 @@ if (strip) {
   await page.waitForFunction(() => /Link copied/.test(document.getElementById('challenge-result')?.textContent ?? ''), null, { timeout: 30000 }).catch(() => {});
   const clip = await page.evaluate(() => navigator.clipboard.readText()).catch(() => '');
   ok('the copied link names the challenge course', clip.includes(`cid=${ID}`), clip.slice(0, 80));
+  await page.locator('#report-challenge').scrollIntoViewIfNeeded(); await page.waitForTimeout(300);
   await page.screenshot({ path: `${out}/published.png` });
 }
 ok('no page errors (run)', page.errs.length === 0, page.errs.join(' | ').slice(0, 300));
@@ -57,6 +60,7 @@ await home.evaluate(() => document.getElementById('courses-btn').click()); await
 const sec = await home.evaluate(() => [...document.querySelectorAll('h2,h3,h4,summary,legend,div')].some((e) => e.children.length === 0 && /^Community$/.test((e.textContent ?? '').trim())));
 const card = await home.evaluate(() => /Tall Wall Remix/.test(document.body.textContent ?? ''));
 ok('the Courses screen has a Community section with the course', sec && card, `section ${sec} card ${card}`);
+await home.getByText('Tall Wall Remix').first().scrollIntoViewIfNeeded().catch(() => {}); await home.waitForTimeout(300);
 await home.screenshot({ path: `${out}/community.png` });
 // the switch
 const offPosts = [];
