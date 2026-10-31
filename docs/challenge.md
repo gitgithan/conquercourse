@@ -175,3 +175,11 @@
 - Pick-up objects (pole, drone) are drawn again on every new try.
 - The pole course only clears after a vault carried the runner past the bar; running under it does not count (`tests/pole-world.test.ts`).
 - Browser check: `scripts/report-check.mjs`; picture: `docs/evidence/cc-158-report-polish.png`.
+
+## Challenge courses (CC-108, 2026-10-31)
+- A run on a changed or non-listed course cannot go on a ranked board.
+  - The end card says so and offers to publish the course as a challenge course.
+- The server replays the author's run before it keeps the course.
+- Another player's verified clear promotes it to the Community list; unpromoted courses expire.
+- Abuse limits: kept in the private notes.
+- Details: `docs/challenge-courses.md`; switch `?challenge=0`.
