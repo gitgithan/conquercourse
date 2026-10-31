@@ -1,5 +1,9 @@
 # Lab 6: Numerical integration
 
+## When you open it
+- Live: it runs RK4 at the game's 120 steps a second for 300 s on open (about half a second); energy drift, the replay hash check and the chart are already filled.
+- A small label at the top says "Showing our setting, already run" (or "Precomputed with the same code (seed N)"); change a control and press Run to try your own.
+
 ## The question
 - When a computer moves a cart in small steps, how much energy does it invent or lose?
 - Does a replay at your step still come out exactly the same as the game's recording?

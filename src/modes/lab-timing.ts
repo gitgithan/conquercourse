@@ -2,6 +2,7 @@ import { mountLabsNav } from "../ui/labs-nav";
 import type { CourseData } from "../course/course";
 import { DEFAULT_TIMING, binEdges, clampTiming, cdf, pInside, predictedRate, prepare, rateForWidth, runTiming, sweepSigma, BIN_MIN, BIN_MAX, BIN_MS, type Dist, type TimingConfig, type TimingResult } from "../labs/timing/core";
 import { labsOn } from "../ui/labs";
+import { labDefaultNote, labPopulated } from "../ui/lab-default";
 
 // Lab 7: Statistics of timing. The player sets how shaky the button presses are, and reads how often a course clears over N runs of the real simulator.
 // It shows facts about a course and a simulated presser, never a mark for a person. Equations come last. Behind the labs switch (?labs=1).
@@ -20,7 +21,7 @@ const RUNS = [100, 400, 1000, 3000];
 const SWEEP = [0, 15, 30, 50, 75, 100, 150, 220];
 const INK = "#17201d", TEAL = "#0f6b5c", GREY = "#9aa5a0", BAD = "#b91c1c", AMBER = "#b45309";
 
-interface Done { result: TimingResult; curve: { sigmaMs: number; rate: number; ci: { lo: number; hi: number }; predicted: number }[]; wallMs: number }
+interface Done { result: TimingResult; curve: { sigmaMs: number; rate: number; ci: { lo: number; hi: number }; predicted: number }[]; wallMs: number; pre?: boolean }
 const pct = (x: number): string => `${(100 * x).toFixed(x > 0 && x < 0.1 ? 1 : 0)}%`;
 
 export function startLabTiming(host: HTMLElement): { backend: "canvas2d" } {
@@ -58,7 +59,7 @@ export function startLabTiming(host: HTMLElement): { backend: "canvas2d" } {
   const wrap = document.createElement("div"); wrap.className = "wrap"; root.append(wrap);
   wrap.innerHTML = `
     <div><a class="back" href="/?welcome=0">Back to the game</a>
-    <h1>Lab 7: Statistics of timing</h1>
+    <h1 id="lt-h1">Lab 7: Statistics of timing</h1>
     <p class="small" style="margin:4px 0 0">The goal: find how wide the press window must be for a shaky presser to clear a course half the time, and nine times in ten. A simulated presser is a little early or late on every jump. The real simulator plays the course again and again, and you read the facts. This is about the course and a simulated presser, never about you.</p></div>
     <div class="grid">
       <div class="card" id="lt-controls">
@@ -199,7 +200,7 @@ export function startLabTiming(host: HTMLElement): { backend: "canvas2d" } {
       ...(r.predicted < r.ci.lo - 0.03 || r.predicted > r.ci.hi + 0.03 ? [["Maths and simulator differ", "the presses are not independent here: where one lands changes the next, so one press can make up for another"] as [string, string]] : []),
       ["Window for 50% clear", `${Math.round(r.w50)} ms per press`],
       ["Window for 90% clear", `${Math.round(r.w90)} ms per press`],
-      ["Game time played", `${r.simSeconds} s in ${(d.wallMs / 1000).toFixed(1)} s on this device`],
+      ["Game time played", `${r.simSeconds} s in ${(d.wallMs / 1000).toFixed(1)} s ${d.pre ? "on the machine that made this file" : "on this device"}`],
     ];
     facts.innerHTML = rows.map(([k, v]) => `<dt>${k}</dt><dd>${v}</dd>`).join("");
     $("lt-wincard").hidden = false;
@@ -278,6 +279,11 @@ Why windows widen with n: asking nine in ten of one press needs q = 0.9; of seve
   };
   void cdf; void pInside; void binEdges; void BIN_MAX;
 
+  // Opens already run: the default setting, played ahead of time by scripts/labs-default-precompute.ts with the same code (seed 7).
+  fetch("/assets/lab/timing-default.json").then((r) => r.json()).then((d: Done & { label: string }) => {
+    if (history === 0) { labDefaultNote(wrap, { precomputed: true, seed: d.cfg.seed }, $("lt-h1")); finish({ ...d, pre: true }, d.label); }
+    labPopulated("lab-timing");
+  }).catch(() => undefined);
   Promise.all(COURSES.map((_, i) => load(i).catch(() => null))).then(() => { document.documentElement.dataset.labReady = "true"; });
   return { backend: "canvas2d" };
 }

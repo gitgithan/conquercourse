@@ -3,6 +3,11 @@
 *University Lab 1 (see `docs/university-labs.md`).*
 *Open it at `?mode=lab-search&labs=1`; without the labs switch it shows "Labs are switched off".*
 
+## When you open it
+- Live: it runs our setting (beam, width 8) on open in the worker, in about a second; the picture, facts and "what the game does" card are already filled.
+- Beam 8 clears the trap in 77 simulator runs; greedy and beam 2 get stranded.
+- A small label at the top says "Showing our setting, already run" (or "Precomputed with the same code (seed N)"); change a control and press Run to try your own.
+
 ## The question
 - How should a program look for a clear run, and what does each way of looking cost?
 - Why can a choice that looks best at each step strand the next one?

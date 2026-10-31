@@ -3,6 +3,7 @@ import type { CourseData } from "../course/course";
 import { playPlan } from "../sim/ideal";
 import { TICKS_PER_SECOND } from "../sim/units";
 import { labsOn } from "../ui/labs";
+import { labDefaultNote, labPopulated } from "../ui/lab-default";
 import { DEFAULTS, FAIL_BASE, PROBLEMS, findPeaks, peakOf, tableScore, valueAt, type Method, type Peak, type Problem, type Settings, type Table, type Trace } from "../labs/optimization/core";
 
 // Lab 2: Optimization (CC-118). The player picks which two settings to tune and how to search, the REAL simulator scores each try (in a worker), and the page shows the whole map of finishing time.
@@ -60,7 +61,7 @@ export function startLabOptimization(host: HTMLElement): { backend: "canvas2d" }
   const wrap = document.createElement("div"); wrap.className = "wrap"; root.append(wrap);
   wrap.innerHTML = `
     <div><a class="back" href="/?welcome=0">Back to the game</a>
-    <h1>Lab 2: Optimization</h1>
+    <h1 id="lo-h1">Lab 2: Optimization</h1>
     <p class="small" style="margin:4px 0 0">The goal: find the settings that finish the course fastest, without trying every one. Pick which settings to tune and how to search. Each try is a real run of the game's simulator.</p></div>
     <div class="grid">
       <div class="card">
@@ -212,6 +213,7 @@ cost of restarts:  runs ≈ k × (steps per climb × 8)</div>
     const rows = $("lo-peak-rows"); rows.innerHTML = "";
     for (const k of cur.peaks) { const tr = document.createElement("tr"); tr.innerHTML = `<td><b>${k.label}</b>${k === cur.peaks[0] ? " (fastest)" : ""}</td><td>${valueAt(p.axes[0], k.i)} ${p.axes[0].unit}, ${valueAt(p.axes[1], k.j)} ${p.axes[1].unit}</td><td>${k.score.toFixed(2)} s</td><td>${k.basin} of ${cur.table.nx * cur.table.ny}</td>`; rows.append(tr); }
     sync(); draw();
+    runBtn.click(); // CC-118: opens already run at our setting: all three searches, from the problem's own start
   };
 
   // ---- running ----
@@ -244,6 +246,7 @@ cost of restarts:  runs ≈ k × (steps per climb × 8)</div>
       ? "Why: the game's search tries every jump press with 21 different release times, keeps the presses that reach farthest, and takes the middle of that run of presses; it then centres the release in its window of working values. It trades a little time for a pick that still clears when a press is a little early or late. The fastest cell sits right against a cliff of failures."
       : "Why: the game's search tries a lattice of brake and climb-down points two metres apart (about 210 runs), then a finer half-metre lattice (81 runs) around the fastest clear, and keeps the fastest. The ridge of working settings is narrow here, so the fastest line runs close to the cliff on purpose: a ferry has no rider timing to forgive.";
     draw();
+    labPopulated("lab-optimization");
   };
   runBtn.onclick = async () => {
     if (!cur) return;
@@ -259,6 +262,7 @@ cost of restarts:  runs ≈ k × (steps per climb × 8)</div>
     };
     worker.postMessage({ id, problem: L.problem.id, course: L.course, methods: METHODS.map(([m]) => m).filter((m) => chosen.has(m)), cfg });
   };
+  labDefaultNote(wrap, "live", $("lo-h1"));
   void open();
   return { backend: "canvas2d" };
 }

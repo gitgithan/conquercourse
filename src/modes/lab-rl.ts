@@ -2,6 +2,7 @@ import { mountLabsNav } from "../ui/labs-nav";
 import type { CourseData } from "../course/course";
 import { BIN_METRES, DEFAULT_RL, GAMMA, REWARD_PRESETS, clampRl, pathOfPlan, policyStrip, trainNoExplore, trainRl, type Block, type RlConfig, type RlResult } from "../lab/rl-lab";
 import { labsOn } from "../ui/labs";
+import { labDefaultNote, labPopulated } from "../ui/lab-default";
 
 // Lab 12: Reinforcement learning. A game character learns the trap course by trial and error on the real simulator.
 // The player writes the points (the reward), the learning rate and the exploration, then reads the curve, the learned run and the facts.
@@ -9,7 +10,7 @@ import { labsOn } from "../ui/labs";
 const COURSE_URL = "/assets/lab/search-trap.course.json";
 const INK = "#17201d", TEAL = "#0f6b5c", AMBER = "#b45309", GHOST = "#9aa5a0", DECK = "#cbd5cd", WATER = "#b7d3ee", BAD = "#b91c1c";
 const EPISODES = [200, 500, 1000, 2000, 3000, 5000];
-interface Done { result: RlResult; found: { x: number; y: number }[]; ours: { x: number; y: number }[]; strip: number[]; wallMs: number }
+interface Done { result: RlResult; found: { x: number; y: number }[]; ours: { x: number; y: number }[]; strip: number[]; wallMs: number; pre?: boolean }
 type SliderDef = { id: string; label: string; min: number; max: number; step: number; get: (c: RlConfig) => number; set: (c: RlConfig, v: number) => void; fmt?: (v: number) => string };
 const SLIDERS: SliderDef[] = [
   { id: "progress", label: "Points for each metre forward", min: 0, max: 3, step: 0.1, get: (c) => c.reward.progress, set: (c, v) => (c.reward.progress = v) },
@@ -56,7 +57,7 @@ export function startLabRl(host: HTMLElement): { backend: "canvas2d" } {
   const wrap = document.createElement("div"); wrap.className = "wrap"; root.append(wrap);
   wrap.innerHTML = `
     <div><a class="back" href="/?welcome=0">Back to the game</a>
-    <h1>Lab 12: Reinforcement learning</h1>
+    <h1 id="rl-h1">Lab 12: Reinforcement learning</h1>
     <p class="small" style="margin:4px 0 0">The goal: a game character learns to clear a course by trial and error. You write the points it earns. It tries the course again and again, keeps a table of which move paid off at each place, and slowly gets better. It plays the game's real simulator. Its only moves are the real inputs: run, jump and wait.</p></div>
     <div class="grid">
       <div class="card" id="rl-controls">
@@ -204,7 +205,7 @@ export function startLabRl(host: HTMLElement): { backend: "canvas2d" } {
       ["Random moves", `${pct(r.random.clearRate)} of ${r.random.episodes} tries cleared; on average ${pct(r.random.meanProgress)} of the course`],
       ["No exploring at all", `${r.greedy.clearRate ? "cleared" : "did not clear"}; ended at ${pct(r.greedy.meanProgress)} of the course`],
       ["Game time played", `${r.simSeconds >= 3600 ? (r.simSeconds / 3600).toFixed(1) + " hours" : r.simSeconds + " s"} of play in the simulator`],
-      ["Time to compute", `${(d.wallMs / 1000).toFixed(2)} s on this device`],
+      ["Time to compute", `${(d.wallMs / 1000).toFixed(2)} s ${d.pre ? "on the machine that made this file" : "on this device"}`],
     ];
     facts.innerHTML = rows.map(([k, v]) => `<dt>${k}</dt><dd>${v}</dd>`).join("");
     const hack = $("rl-hack");
@@ -280,6 +281,12 @@ The seed fixes every random choice, so the same seed and the same numbers give t
     $<HTMLButtonElement>("rl-eq-btn").hidden = true;
   };
 
-  fetch(COURSE_URL).then((r) => r.json()).then((c: CourseData) => { course = c; drawCurve([], cfg.episodes, null); draw(null); document.documentElement.dataset.labReady = "true"; });
+  fetch(COURSE_URL).then((r) => r.json()).then((c: CourseData) => { course = c; drawCurve([], cfg.episodes, null); draw(null); document.documentElement.dataset.labReady = "true";
+    // Opens already trained: the default setting, run ahead of time by scripts/labs-default-precompute.ts with the same code (seed 7).
+    fetch("/assets/lab/rl-default.json").then((r) => r.json()).then((d: Done & { cfg: RlConfig }) => {
+      if (history === 0) { labDefaultNote(wrap, { precomputed: true, seed: d.cfg.seed }, $("rl-h1")); finish({ ...d, pre: true }, d.cfg); }
+      labPopulated("lab-rl");
+    }).catch(() => undefined);
+  });
   return { backend: "canvas2d" };
 }

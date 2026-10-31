@@ -1,5 +1,10 @@
 # Lab 9: Generate and test
 
+## When you open it
+- Precomputed: our setting (the recorded ideas, two repairs, 25 proposals, 2 s budget each) tested ahead of time with the same code (`scripts/labs-default-precompute.ts`, about two minutes); a test re-runs the first proposals and compares.
+- Facts, strip, picture and reasons are filled.
+- A small label at the top says "Showing our setting, already run" (or "Precomputed with the same code (seed N)"); change a control and press Run to try your own.
+
 ## The question
 - A helper proposes a course.
 - Which of its proposals does the simulator throw out, and how does that change when you limit what it may propose?

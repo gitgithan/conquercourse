@@ -20,6 +20,18 @@
 | 11 | [Verification and hashing](hashing.md) | Which part of a run do you hash so a changed tick shows up? | `?mode=lab-hashing&labs=1` | `tests/lab-hashing.test.ts` (14) | One course, one tick per change; the "what the game hashes" card is not checked against the golden files |
 | 12 | [Reinforcement learning](rl.md) | Can a character learn the course from points you write? | `?mode=lab-rl&labs=1` | `tests/lab-rl.test.ts` (11) | One course and one seed per claim; several "What we saw" claims are not pinned |
 
+## When you open a Lab (owner, 2026-11-01)
+- Every Lab opens with our setting already run and every output filled, so a demo needs no click on Run.
+- A small label says so: "Showing our setting, already run", or "Precomputed with the same code (seed N)".
+- Fast runs happen live on open, with the same code in the same worker:
+  - Labs 1, 2, 6 and 11 run on open.
+  - Labs 3, 4, 5, 8 and 10 were already filled at load.
+- Slow runs are precomputed once with the same code and a fixed seed, and shipped as a small file:
+  - Lab 7 (`timing-default.json`), Lab 9 (`gentest-default.json`) and Lab 12 (`rl-default.json`) in `public/assets/lab/`.
+  - `scripts/labs-default-precompute.ts` makes them; `tests/lab-populated.test.ts` re-runs the code and fails if a file drifts.
+- `scripts/labs-default-smoke.mjs` opens all 12 with no click at 1280 px and fails on a page error, a placeholder or an empty output; its first-paint times and shots are in `docs/evidence/cc-118-labs-default/`.
+- The controls sit at our setting; Run stays for trying your own.
+
 ## Moving between Labs
 - Every Lab page has a bar across the top with all 12 Labs by number and name; the current one is highlighted.
 - One click on a name opens that Lab; Previous and Next step along the list (no wrap at the ends).

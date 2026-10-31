@@ -1,5 +1,6 @@
 import { mountLabsNav } from "../ui/labs-nav";
 import { labsOn } from "../ui/labs";
+import { labDefaultNote, labPopulated } from "../ui/lab-default";
 import { KNOBS, OURS, judgePhoto, parseTable, summarize, sweep, type Knob, type Photo, type Rule, type Summary } from "../labs/vision/rule";
 
 // Lab 4: Computer vision (CC-lab-vision). The player moves the thresholds of the photo-masking rule on a labelled street-photo set
@@ -49,7 +50,7 @@ export function startLabVision(host: HTMLElement): { backend: "canvas2d" } {
   const wrap = document.createElement("div"); wrap.className = "wrap"; root.append(wrap);
   wrap.innerHTML = `
     <div><a class="back" href="/?welcome=0">Back to the game</a>
-    <h1>Lab 4: Computer vision</h1>
+    <h1 id="lv-h1">Lab 4: Computer vision</h1>
     <p class="small" style="margin:4px 0 0">The goal: use as many street photos as you can without leaving a person in a photo unmasked. The game finds people with a detector, covers them with a blur, and drops a photo when too much of it is covered. You move the thresholds and watch the trade-off on photos people have already outlined by hand.</p></div>
     <div class="grid">
       <div class="card">
@@ -82,7 +83,7 @@ export function startLabVision(host: HTMLElement): { backend: "canvas2d" } {
   let knob: Knob = "scoreCut";
   let photos: Photo[] = [];
   const marks: { rule: Rule; s: Summary }[] = [];
-  let showOurs = false;
+  let showOurs = true; // CC-118: opens at the game's own setting with its compare card already shown
 
   const sliders: [string, Knob][] = [["lv-score", "scoreCut"], ["lv-size", "minSize"], ["lv-max", "maxMasked"]];
   for (const [id, k] of sliders) {
@@ -199,8 +200,10 @@ keep photo  when  sum(mask share of finds with score >= cut and box >= smallest)
     photos = parseTable(text);
     credits = new Map(cr.map((c) => [c.id, c]));
     $("lv-credits").innerHTML = `Photos from the COCO val2017 set (CC BY 2.0 or no known copyright restrictions; boxes drawn by hand, CC BY 4.0). Shown small. Sources: ${cr.map((c) => `<a href="${c.flickr_url}" rel="noopener" target="_blank">${c.id}</a>`).join(", ")}. The table behind the curve holds ${photos.length} photos.`;
+    labDefaultNote(wrap, "live", $("lv-h1"));
     update();
     root.dataset.ready = "1";
+    labPopulated("lab-vision");
   });
   return { backend: "canvas2d" };
 }

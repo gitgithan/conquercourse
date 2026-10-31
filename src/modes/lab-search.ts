@@ -2,6 +2,7 @@ import { mountLabsNav } from "../ui/labs-nav";
 import type { CourseData } from "../course/course";
 import { DEFAULT_CONFIG, clampCfg, runLabSearch, pathOf, planFor, type LabConfig, type LabResult, type Method } from "../lab/search-lab";
 import { labsOn } from "../ui/labs";
+import { labDefaultNote, labPopulated } from "../ui/lab-default";
 
 // Lab 1: Search (CC-118). The player picks how the game looks for a clear run, mixes a heuristic, sets a budget, runs the real simulator and reads facts.
 // Nothing here talks or grades: it shows numbers and a picture. The equations come last, after a run. Behind the labs switch (?labs=1).
@@ -14,6 +15,8 @@ const METHODS: [Method, string, string][] = [
   ["exhaustive", "Exhaustive", "Try every press at every edge; keep the fastest clear."],
 ];
 const BUDGETS = [20, 50, 100, 300, 1000, 3000];
+// Our setting (CC-118): a beam of 8 clears the trap with the fewest simulator runs (77 against 121 for A* and exhaustive) and as fast as the game's line; greedy is stranded and a beam of 2 too.
+const OUR: Partial<LabConfig> = { method: "beam", beam: 8, wDist: 1, wSpeed: 0, wHeight: 0, budget: 3000 };
 
 interface Done { result: LabResult; found: { x: number; y: number }[]; ours: { x: number; y: number }[]; wallMs: number }
 
@@ -52,7 +55,7 @@ export function startLabSearch(host: HTMLElement): { backend: "canvas2d" } {
   const wrap = document.createElement("div"); wrap.className = "wrap"; root.append(wrap);
   wrap.innerHTML = `
     <div><a class="back" href="/?welcome=0">Back to the game</a>
-    <h1>Lab 1: Search</h1>
+    <h1 id="ls-h1">Lab 1: Search</h1>
     <p class="small" style="margin:4px 0 0">The goal: find a clear run through three gaps. Each gap needs one jump press. The game tries presses in the real simulator, and you decide how it chooses which to try.</p></div>
     <div class="grid">
       <div class="card" id="ls-controls">
@@ -79,7 +82,7 @@ export function startLabSearch(host: HTMLElement): { backend: "canvas2d" } {
       </div>
     </div>`;
   const $ = <T extends HTMLElement>(id: string): T => wrap.querySelector("#" + id) as T;
-  const cfg: LabConfig = { ...DEFAULT_CONFIG };
+  const cfg: LabConfig = { ...DEFAULT_CONFIG, ...OUR };
   let course: CourseData | null = null;
   let last: Done | null = null;
   let history = 0;
@@ -172,6 +175,7 @@ export function startLabSearch(host: HTMLElement): { backend: "canvas2d" } {
     cancelAnimationFrame(animFrame);
     draw(null);
     document.documentElement.dataset.labDone = String(history);
+    if (history === 1) labPopulated("lab-search");
     runBtn.disabled = false; runBtn.textContent = "Run the search";
   };
   runBtn.onclick = () => {
@@ -210,6 +214,6 @@ Exhaustive: all presses at all edges, so  N = n1 · n2 · … · nk  runs withou
     $<HTMLButtonElement>("ls-eq-btn").hidden = true;
   };
 
-  fetch(COURSE_URL).then((r) => r.json()).then((c: CourseData) => { course = c; draw(null); document.documentElement.dataset.labReady = "true"; });
+  fetch(COURSE_URL).then((r) => r.json()).then((c: CourseData) => { course = c; draw(null); document.documentElement.dataset.labReady = "true"; labDefaultNote(wrap, "live", $("ls-h1")); runBtn.click(); });
   return { backend: "canvas2d" };
 }

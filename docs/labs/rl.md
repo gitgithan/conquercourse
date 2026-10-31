@@ -1,5 +1,10 @@
 # Lab 12: Reinforcement learning
 
+## When you open it
+- Precomputed: the honest points, learning rate 0.2, exploring 0.2 and shrinking, 2000 tries, seed 7, trained ahead of time with the same code (`scripts/labs-default-precompute.ts`); a test re-runs it and compares.
+- Curve, learned run and facts are filled; "time to compute" is the time on the machine that made the file.
+- A small label at the top says "Showing our setting, already run" (or "Precomputed with the same code (seed N)"); change a control and press Run to try your own.
+
 ## The question
 - Can a game character learn to clear a course by trial and error, with points the player writes?
 - How many tries does it need, how close does it get to the game's own best line, and how does a badly written reward go wrong?

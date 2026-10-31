@@ -3,6 +3,11 @@
 *Behind `?labs=1`. Open `?mode=lab-signal&labs=1`.*
 *Serves the university Labs (`docs/university-labs.md`, subject 8).*
 
+## When you open it
+- Live: it opens on the game's smoothing (triangle, strength 2) already run on the leap clip; the numbers, the gate table and the 3D character view are filled.
+- The 3D view needs a GPU, and on a software fallback it shows a plain note instead.
+- A small label at the top says "Showing our setting, already run" (or "Precomputed with the same code (seed N)"); change a control and press Run to try your own.
+
 ## The question
 - A captured move wobbles a little in every frame.
 - How much smoothing calms the wobble before it costs the move?

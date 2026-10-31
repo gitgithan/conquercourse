@@ -2,6 +2,10 @@
 
 *A run is its key presses, and the game plays them again to check them.*
 
+## When you open it
+- Live: it opens with the game's choice of what to hash already picked, and the avalanche test already run on the stored run.
+- A small label at the top says "Showing our setting, already run" (or "Precomputed with the same code (seed N)"); change a control and press Run to try your own.
+
 ## The question
 - A recorded run is a list of keys, tick by tick.
 - Which part of it do you hash, with which function, so that one changed tick shows up?
