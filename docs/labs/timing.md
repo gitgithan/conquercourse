@@ -25,8 +25,10 @@
 
 ## What each output means
 - Clear rate with a 95% interval: clears out of N, with the Wilson interval; more runs make it narrower.
-- Window table: for each press, how early and how late it may be, and the width.
+- Window table: for each press, how early and how late it may be, the width, and how far the simulated presser's aim was moved from the game's plan.
+- The simulated presser aims at the middle of each window (the game's own ideal press is the middle of the good presses), looking at most 300 ms either side; the game's stored press is often at one end, because an early press is queued until the feet land.
 - The maths says: the product of the chances that each press lands inside its window, if presses are independent; the Lab shows it beside the simulator's number.
+- When the two differ (the 7-jump Park run at 60 ms: maths 54%, simulator 83%), the Lab says so: the presses are not independent, because one press can make up for another; this is a finding of the Lab, not a bug.
 - Window for 50% and 90%: the width, centred on the ideal press, that gives that clear rate at this jitter and this number of presses.
 - Failure histogram: the first press that left its own window, by how early or late it was.
 - Clear rate against shakiness: simulator dots with intervals, and the maths line from the measured windows.
