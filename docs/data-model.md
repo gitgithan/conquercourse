@@ -205,6 +205,25 @@
 
 - "Opened" needs a last-opened day on the share; written at most once a day per share so a viral link does not become a write storm (not in the first slice).
 
+## What each service keeps
+*Read from the code on 2026-11-01. Baseten's terms and the caveat that we have not read a signed agreement are in [trust-and-safety](trust-and-safety.md).*
+
+| Data | Where | What is kept | Until |
+|---|---|---|---|
+| Full photo for a piece or outline | sent by the browser to our Cloudflare function, then to the Modal job | not written to our D1; Modal's own retention of job inputs and results is not verified | unknown (Modal) |
+| Small copy (thumbnail) for the safety check | sent to Baseten by `askModeration` | Baseten: no storage and no training, per its public terms (see trust-and-safety) | not kept (Baseten) |
+| Caption or character sentence | same | same | not kept (Baseten) |
+| Safety verdict | D1 `community_items.moderation` as `verdict:reason` | the word pair only | with the row |
+| Shared piece or wallpaper | D1 `community_items`: owner code, name, thumbnail, glb, meta | text in the database (not R2) | until the owner deletes it; deleting empties thumb, glb and meta and keeps the row marked `removed` |
+| Older community photos | D1 `community.image` | base64 photo and boxes, session id | no deletion rule written; see Retention above |
+| Characters | D1 `characters`: prompt, thumbnail, glb, owner code | text in the database | no deletion rule written |
+| Character jobs | D1 `character_jobs`: prompt, owner code, day, state | small rows | no deletion rule written |
+| Masks | not stored by the web path; the Modal job returns them with the result | see first row | unknown (Modal) |
+| People, faces, plates | blurred or pixelated in the Modal job before the lift | the privacy receipt holds counts only | with the result |
+| Owner code | one-way code made from the browser's random id (or address for rate limits); never the address itself | | |
+
+- Rows without a deletion rule are a gap; closing it is not part of this change.
+
 ## Privacy
 - Never stored: a real name, an email, an age, an IP address, a location of a person.
 - A share holds keys, a course reference, a tag of up to twelve characters and a look; the tag is optional and filtered (`src/share/nick.ts`).

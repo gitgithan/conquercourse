@@ -95,7 +95,7 @@ Anything marked **assumption** has no written reason in the repo.
 - **What is weak about the current choice, in plain words:**
   - Players' uploaded photos go to a third-party host (Baseten) for the safety check.
     - SPEC section 7 forbids sending private photos to Meta's cheaper contributor models because Meta may train on them.
-    - Baseten's own data terms are **not recorded** in the repo, so whether that matches our privacy promise is unverified.
+    - Baseten's public data terms (no storage, no training for Model APIs) are now recorded in `docs/trust-and-safety.md`; we have not read a signed agreement.
   - One host and one key: if Baseten is down or the credit ends, every live feature answers 503 (`functions/api/*.ts` check for the key), and the SPEC fallback was never built.
   - The credit has a limit; the Baseten balance is not recorded in the repo either.
 
