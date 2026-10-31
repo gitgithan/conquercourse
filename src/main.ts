@@ -9,8 +9,17 @@ import { startPark } from './modes/park';
 import { browserStore, startRedirect } from './ui/onboarding-flags';
 import { installGalleryKeyGuard, mountWorldGallery, currentWorld, DEFAULT_PLACE, BUTTON_PLACE } from './ui/world-picker';
 import { pageQuery, pageSearch } from './flags';
+import { welcomeOn } from './ui/welcome-flags';
 
 installGalleryKeyGuard(); // before any mode starts, so it sees every key first
+// CC-246: a bare visit opens the welcome screen; a key or click there starts the First Course (?welcome=0 skips it)
+if (welcomeOn({ params: pageQuery(), automated: navigator.webdriver })) {
+  const { startWelcome } = await import('./modes/welcome');
+  startWelcome(document.body);
+  initFeedback('welcome');
+  document.documentElement.dataset.ready = 'true';
+  await new Promise<void>(() => {});
+}
 { const r = startRedirect({ search: pageSearch(), store: browserStore, automated: navigator.webdriver }); if (r) { location.replace(r); await new Promise<void>(() => {}); } } // CC-100: a returning player goes back to their last course
 
 // CC-219: a short link (?c=<id>) is turned into the long form before anything reads the address; the page then works as it does for a long link
@@ -20,6 +29,9 @@ if (pageQuery().has('c')) { const { expandShortSearch } = await import('./share/
 if (pageQuery().get('demo') === 'captured-vault') {
   const { startCapturedVaultDemo } = await import('./modes/demo-captured-vault');
   await startCapturedVaultDemo();
+} else if (pageQuery().get('demo') === 'welcome-tile') {
+  const { startWelcomeTile } = await import('./modes/demo-welcome-tile');
+  await startWelcomeTile();
 } else if (pageQuery().get('demo') === 'rookie') {
   const { startRookieDemo } = await import('./modes/demo-rookie');
   await startRookieDemo();

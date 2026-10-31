@@ -2,6 +2,19 @@
 
 *Serves the brand-new player who opens the game and does not know what to do.*
 
+## The welcome screen (CC-246)
+- A bare visit opens a welcome screen before anything else.
+- It shows the logo, "Train slow. Run fast.", the two Rookies running in a small park, and the four features as a 2x2 grid.
+- The four tiles carry the same names as the top bar: Courses, World Editor, World Slicer, Community.
+- Hover or focus a tile and it pops up with three highlights; a click goes straight into that feature.
+- Courses opens the gallery on the welcome screen itself.
+- Any other key or click starts the First Course (the stock course, with its short tour on a first visit), never the Training course.
+- `?welcome=0` skips the screen; any link with `?mode=` or `?course=` is left as it was; test runs and films skip it unless they add `?welcome=1`.
+- With reduced motion the background stands still.
+- The page is plain HTML and paints at once; the 3D park loads afterwards.
+- The four tile pictures are drawn by `scripts/welcome-tiles.mjs` from small staged scenes (`?demo=welcome-tile&tile=courses|editor|slicer|community`), then turned into webp by `scripts/welcome-tiles-webp.py`.
+- Checks: `tests/welcome-flags.test.ts` (routing) and `scripts/welcome-check.mjs` (browser; pictures in `docs/evidence/cc-246-welcome-*.png`).
+
 ## What a first visit sees
 - The stock course opens with a short guided tour before the runner moves.
 - The big world chooser is gone for a first visit; the Courses button is the place to choose.
