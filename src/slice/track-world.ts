@@ -79,7 +79,18 @@ export function applyTracks(course: CourseData, sections: TrackPts[], push = 1.5
 }
 
 /** A coaster section as a piece, standing at (x, z); y lifts it off the ground. */
-export const trackPiece = (pts: TrackPts, at: { x: number; z: number }, y = 0): P => ({ ...newPiece('Coaster', trackMesh(pts), at), src: trackSrc(pts), y });
+export function trackPiece(pts: TrackPts, at: { x: number; z: number }, y = 0): P {
+  const p = newPiece('Coaster', trackMesh(pts), at), pos = p.mesh.positions as number[];
+  // newPiece sets the lowest point of the smoothed curve on the floor, but the curve can dip below its lowest dot (a steep drop swings under it); the dots are what the game rides,
+  // so lift the ribbon until the lowest dot sits on the floor and the black line in the side view runs through every dot (CC-244)
+  const dip = Math.min(...smoothPts(pts).map((q) => q[1])) - Math.min(...pts.map((q) => q[1]));
+  for (let i = 1; i < pos.length; i += 3) pos[i] += dip;
+  return { ...p, src: trackSrc(pts), y };
+}
+
+/** The highest a point of a section may be: 14 m above the lowest point of the same section, before the section's scale (CC-244). */
+export const TRACK_TOP = 14;
+export const clampTrackY = (y: number): number => Math.min(TRACK_TOP, Math.max(0, y));
 
 /** The height of the rail at the end of a section piece (over the lane's level, before the lane is cut). */
 export function trackEndY(p: P): number {
