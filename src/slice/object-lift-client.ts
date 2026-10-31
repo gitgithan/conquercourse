@@ -1,6 +1,7 @@
 // Browser side of the photo -> 3D object path (CC-221): shrink the photo, send it, ask again until the job is done.
 // The photo goes to /api/object-lift only; the server removes people (blur) before the lift, and nothing is stored there.
 import { failWords, retryNote } from './object-lift';
+import { LIFT_STEPS, progressOf, refusalWords, stageIndex, type Progress, type Refusal } from './stages';
 import { creditLine, PIPELINE, PROVENANCE_VERSION, sha256Hex, type Provenance } from './provenance';
 
 export interface Shrunk { image: string; thumb: string; width: number; height: number; sha256: string }
@@ -30,19 +31,36 @@ const post = async (body: unknown): Promise<{ ok: boolean; status: number; data:
   return { ok: res.ok, status: res.status, data };
 };
 
-/** Run one lift. `progress` gets a plain sentence now and then. Throws Error with a plain-words message; `final` is true when trying again cannot help (photo refused, or today's slots used). */
-export async function liftObject(inp: LiftInput, progress: (s: string) => void, signal?: AbortSignal): Promise<LiftDone> {
-  progress('Sending your photo. People in it are blurred before anything is looked at.');
-  const sub = await post({ action: 'submit', image: inp.photo.image, thumb: inp.photo.thumb, label: inp.label, box: inp.box, width: inp.photo.width, height: inp.photo.height, height_m: inp.height_m, padretry: inp.padretry !== false });
-  if (!sub.ok || typeof sub.data.id !== 'string') throw Object.assign(new Error(typeof sub.data.message === 'string' && sub.data.message ? sub.data.message : failWords(String(sub.data.error ?? (sub.status === 503 ? 'not allowed' : 'down')))), { final: ['daily', 'budget', 'moderation'].includes(String(sub.data.error)) });
+/** An Error whose message is already plain words. `final`: trying again cannot help. `retryAt`: the time (ms) it may work again, when the server said. */
+export class JobError extends Error { constructor(message: string, readonly final = false, readonly retryAt: number | null = null, readonly stopped = false) { super(message); } }
+
+/** What a refused submit says in plain words: the daily and busy limits come with a clock time in the player's own time. */
+export function submitFailure(status: number, data: Record<string, unknown>, now = Date.now()): JobError {
+  const err = String(data.error ?? ''), wait = typeof data.retryAfterSeconds === 'number' ? data.retryAfterSeconds : 0;
+  const words = refusalWords({ error: err, message: typeof data.message === 'string' ? data.message : undefined, retryAfterSeconds: wait } as Refusal, now);
+  return new JobError(words || (typeof data.message === 'string' && data.message ? data.message : failWords(String(err || (status === 503 ? 'not allowed' : 'down')))), ['daily', 'budget', 'moderation'].includes(err), wait ? now + wait * 1000 : null);
+}
+
+/**
+ * Run one lift. `progress` gets a plain sentence now and then; `onStage` gets the stepped progress (which step, the words, seconds so far) every time the job is asked about, about every 2 s.
+ * Throws a JobError with a plain-words message.
+ */
+export async function liftObject(inp: LiftInput, progress: (s: string) => void, signal?: AbortSignal, onStage?: (p: Progress) => void): Promise<LiftDone> {
   const t0 = Date.now();
-  const lines = ['Cutting the object out of the photo.', 'Building its 3D shape. The first one of the day can take a few minutes.', 'Painting it from your photo.'];
-  for (let i = 0; i < 200; i++) {
-    if (signal?.aborted) throw new Error('Stopped.');
-    await new Promise((r) => setTimeout(r, i < 3 ? 4000 : 6000));
+  const tell = (i: number) => onStage?.(progressOf(LIFT_STEPS, i, t0));
+  progress('Sending your photo. People in it are blurred before anything is looked at.'); tell(0);
+  const sub = await post({ action: 'submit', image: inp.photo.image, thumb: inp.photo.thumb, label: inp.label, box: inp.box, width: inp.photo.width, height: inp.photo.height, height_m: inp.height_m, padretry: inp.padretry !== false });
+  if (!sub.ok || typeof sub.data.id !== 'string') throw submitFailure(sub.status, sub.data);
+  let at = 0, lost = 0;
+  for (let i = 0; i < 600; i++) {
+    if (signal?.aborted) throw new JobError('Stopped.', false, null, true);
+    await new Promise((r) => setTimeout(r, 2000));
+    if (signal?.aborted) throw new JobError('Stopped.', false, null, true);
     const s = await post({ action: 'status', id: sub.data.id });
     const d = s.data;
-    if (d.state === 'running') { progress(`${lines[Math.min(lines.length - 1, Math.floor((Date.now() - t0) / 45000))]} (${Math.round((Date.now() - t0) / 1000)} s)`); continue; }
+    if (!s.ok) { if (++lost > 3) throw new JobError(failWords('down')); continue; } // one dropped answer is not a failure
+    lost = 0;
+    if (d.state === 'running') { at = stageIndex(LIFT_STEPS, d.stage, at); tell(at); progress(`${LIFT_STEPS[at].words}. (${Math.round((Date.now() - t0) / 1000)} s)`); continue; }
     if (d.state === 'done' && typeof d.glb === 'string') {
       const mesh = d.mesh as { height_m: number; height_source?: string };
       const retry = d.retry as { note?: string; padded?: boolean } | undefined;
@@ -55,9 +73,10 @@ export async function liftObject(inp: LiftInput, progress: (s: string) => void, 
         pipeline: { ...PIPELINE, pad_retry: !!retry?.padded }, credit: { author: '', licence: '', source_url: null, line: creditLine({}, 'user') }, created: new Date().toISOString().slice(0, 10),
       };
       const note = retryNote(retry);
+      tell(LIFT_STEPS.length - 1);
       return { glb, prov, notes: note ? [note] : [], privacy: (d.privacy as LiftDone['privacy']) ?? {}, seconds: Math.round((Date.now() - t0) / 1000) };
     }
-    throw new Error(failWords(String(d.reason ?? '')));
+    throw new JobError(failWords(String(d.reason ?? '')));
   }
-  throw new Error('This is taking too long. Try again.');
+  throw new JobError('This is taking too long. Try again.');
 }

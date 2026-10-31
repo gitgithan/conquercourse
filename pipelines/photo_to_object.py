@@ -233,6 +233,7 @@ if modal is not None:
         import numpy as np
         from ccpipe import glb as glbmod, objbake, padretry as pr
         t0 = time.time()
+        _stage("cutting")
         m = Mask().run.remote(jpeg, label, box)
         mask_png = m["mask_png"]
         retry = {"enabled": padretry, "touches": pr.touches_border(_mask_bool(mask_png)), "padded": False}
@@ -240,7 +241,9 @@ if modal is not None:
         if padretry and retry["touches"]:
             lift_jpeg, lift_mask = pr.pad_bytes(lift_jpeg, lift_mask)
             retry["padded"] = True
+        _stage("shape")
         r = Lift().run.remote(lift_jpeg, lift_mask, SEED)
+        _stage("colour")
         retry.update(pr.lift_check(r["npz"], mask_png))
         retry["note"] = pr.decide(retry["touches"], retry["padded"], retry["bad"])
         raw = np.load(io.BytesIO(r["npz"]))
@@ -249,8 +252,26 @@ if modal is not None:
             nbytes = glbmod.write_glb(t.name, v, f, None, name="user-object", uv=uv, texture=tex)
             data = open(t.name, "rb").read()
         info.update(bytes=nbytes, model="SAM 3D Objects (seed 42)", raw_faces=int(len(raw["faces"])))
+        _stage("done")
         return {"glb": data, "mesh": info, "privacy": m["privacy"], "mask": m["mask"], "retry": retry,
                 "seconds": {"mask": round(m["seconds"], 1), "lift": round(r["seconds"], 1), "wall": round(time.time() - t0, 1)}}
+
+    # Stage names the page shows as plain words (src/slice/stages.ts). A job writes its stage under its own call id; `status` hands it back while the job runs.
+    # Nothing but a stage name and a time is kept, and a failed write never stops a job.
+    stages_dict = modal.Dict.from_name("cc-job-stages", create_if_missing=True)
+
+    def _stage(name):
+        try:
+            stages_dict.put(modal.current_function_call_id(), {"stage": name, "at": round(time.time(), 1)})
+        except Exception:  # noqa: BLE001
+            pass
+
+    def _stage_of(call_id):
+        try:
+            got = stages_dict.get(call_id)
+            return {"stage": got["stage"], "since": got["at"]} if got else {}
+        except Exception:  # noqa: BLE001
+            return {}
 
     def _check_token(token):
         import hmac
@@ -289,7 +310,7 @@ if modal is not None:
             call = FunctionCall.from_id(str(item.get("id") or ""))
             out = call.get(timeout=0)
         except TimeoutError:
-            return {"state": "running"}
+            return {"state": "running", **_stage_of(str(item.get("id") or ""))}
         except Exception as e:  # noqa: BLE001
             return {"state": "failed", "reason": f"the lift stopped ({type(e).__name__})"}
         out = dict(out)
@@ -299,6 +320,7 @@ if modal is not None:
     @app.function(image=web_image, timeout=600, secrets=upload_secrets)
     def suggest_job(jpeg: bytes) -> dict:
         """photo -> {items: [{label, score, box, cutout png}], privacy, seconds}: the clickable suggestions on the Communities page (CC-248)."""
+        _stage("finding")
         return Mask().suggest.remote(jpeg)
 
     @app.function(image=web_image, secrets=upload_secrets)
@@ -330,7 +352,7 @@ if modal is not None:
         try:
             out = FunctionCall.from_id(str(item.get("id") or "")).get(timeout=0)
         except TimeoutError:
-            return {"state": "running"}
+            return {"state": "running", **_stage_of(str(item.get("id") or ""))}
         except Exception as e:  # noqa: BLE001
             return {"state": "failed", "reason": f"the search stopped ({type(e).__name__})"}
         items = [{**i, "cutout": base64.b64encode(i["cutout"]).decode()} for i in out["items"]]

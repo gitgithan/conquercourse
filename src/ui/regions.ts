@@ -23,6 +23,11 @@ export class Regions {
     this.list.push(r); this.selected = source === 'suggested' ? this.selected : new Set([r.id]);
     return r;
   }
+  /** Keep only the newest `n` regions (the Community flow allows one rectangle at a time). */
+  limit(n: number): void {
+    if (this.list.length <= n) return;
+    this.list = this.list.slice(-n); this.selected = new Set([...this.selected].filter((id) => this.list.some((r) => r.id === id)));
+  }
   /** The server's suggestions: shown as outlines to click, none chosen yet. */
   suggest(items: { box: Region['box']; label: string; cutout?: string }[]): void {
     for (const i of items) this.add(i.box, i.label, 'suggested', i.cutout);

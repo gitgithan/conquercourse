@@ -71,6 +71,19 @@ describe('/api/object-lift handle', () => {
     for (let i = 0; i < 8; i++) last = (await handle({ ...good, action: 'submit' }, env, 'ip3', ok({ id: 'fc-ABCDEFGHIJKL' }), 5)).status;
     expect(last).toBe(429);
   });
+  it('a burst refusal says how long to wait, a daily refusal waits for the next UTC day, a down service says a minute', async () => {
+    const t = Date.UTC(2026, 9, 31, 22, 30);
+    let busy = { status: 0, body: {} as Record<string, unknown> };
+    for (let i = 0; i < 3; i++) busy = (await handle({ ...good, action: 'submit' }, env, 'ip-wait', ok({ id: 'fc-ABCDEFGHIJKL' }), 2, memoryLedger(), undefined, t)) as typeof busy;
+    expect(busy.status).toBe(429); expect(busy.body).toMatchObject({ error: 'busy', retryAfterSeconds: 600 });
+    const led = memoryLedger();
+    const lim = { perPlayer: 1, perGame: 100 };
+    await handle({ ...good, action: 'submit' }, env, 'ip-day', ok({ id: 'fc-ABCDEFGHIJKL' }), 99, led, lim, t);
+    const day = await handle({ ...good, action: 'submit' }, env, 'ip-day', ok({ id: 'fc-ABCDEFGHIJKL' }), 99, led, lim, t);
+    expect(day.body).toMatchObject({ error: 'daily', retryAfterSeconds: 90 * 60 });
+    const down = await handle({ ...good, action: 'submit' }, env, 'ip-down', (async () => { throw new Error('x'); }) as unknown as typeof fetch, 99, memoryLedger(), undefined, t);
+    expect(down).toMatchObject({ status: 502, body: { error: 'down', retryAfterSeconds: 60 } });
+  });
 });
 
 // The unhappy paths, in gate order. One fake network: Baseten answers with `verdict`, Modal with `modal`.
@@ -102,12 +115,12 @@ describe('/api/object-lift gates', () => {
   it('an unreadable checker answer fails closed too', async () => expect((await submit('g6', net('not json at all'))).status).toBe(403));
   it('without a key the checker is skipped, as recorded', async () => expect((await submit('g7', net(ok), memoryLedger(), undefined, env)).body).toMatchObject({ moderation: 'skipped' }));
 
-  it('the 4th object of the day is refused for that player only', async () => {
+  it('one more object after the player\'s daily slots is refused for that player only', async () => {
     const led = memoryLedger();
     for (let i = 0; i < 3; i++) expect((await submit('p1', net(ok), led)).status).toBe(200);
     const r = await submit('p1', net(ok), led);
     expect(r.status).toBe(429); expect(r.body).toMatchObject({ error: 'daily' });
-    expect((r.body as { message: string }).message).toMatch(/tomorrow/);
+    expect((r.body as { retryAfterSeconds: number }).retryAfterSeconds).toBeGreaterThan(0); // the page turns it into a clock time
     expect((await submit('p2', net(ok), led)).status).toBe(200);
   });
   it('the next day the player has slots again', async () => {
@@ -119,7 +132,7 @@ describe('/api/object-lift gates', () => {
     const led = memoryLedger(); const lim = { perPlayer: 3, perGame: 2 };
     await submit('b1', net(ok), led, lim); await submit('b2', net(ok), led, lim);
     const r = await submit('b3', net(ok), led, lim);
-    expect(r.status).toBe(429); expect(r.body).toMatchObject({ error: 'budget' }); expect((r.body as { message: string }).message).toMatch(/makers are used up/);
+    expect(r.status).toBe(429); expect(r.body).toMatchObject({ error: 'budget' }); expect((r.body as { message: string }).message).toMatch(/used up/);
   });
   it('a blocked photo does not use up a slot', async () => {
     const led = memoryLedger();
