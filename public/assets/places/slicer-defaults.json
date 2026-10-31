@@ -1,0 +1,442 @@
+{
+  "version": 1,
+  "checkVersion": 1,
+  "places": [
+    {
+      "slug": "montmartre-paris",
+      "clear": false,
+      "shrink": 0.12,
+      "cutM": 50,
+      "line": [
+        -131.7,
+        -28.8,
+        -43,
+        124.9
+      ],
+      "lengthM": 21.3,
+      "clearS": null,
+      "checkVersion": 1,
+      "note": "No line the simulator clears was found at any shrink or height tried. This is the closest attempt: the longest lane that was cut."
+    },
+    {
+      "slug": "eixample-barcelona",
+      "clear": true,
+      "shrink": 0.238,
+      "cutM": 25,
+      "line": [
+        18.5,
+        -172.5,
+        -118,
+        -93.7
+      ],
+      "lengthM": 37.5,
+      "clearS": 7.8,
+      "checkVersion": 1
+    },
+    {
+      "slug": "circular-quay-sydney",
+      "clear": true,
+      "shrink": 0.333,
+      "cutM": 18.5,
+      "line": [
+        -116.8,
+        6.7,
+        43.5,
+        35
+      ],
+      "lengthM": 54.2,
+      "clearS": 12.3,
+      "checkVersion": 1
+    },
+    {
+      "slug": "lombard-street-san-francisco",
+      "clear": true,
+      "shrink": 0.273,
+      "cutM": 22,
+      "line": [
+        103.1,
+        -73,
+        131.8,
+        5.8
+      ],
+      "lengthM": 23,
+      "clearS": 8.2,
+      "checkVersion": 1
+    },
+    {
+      "slug": "shibuya-tokyo",
+      "clear": true,
+      "shrink": 0.283,
+      "cutM": 21,
+      "line": [
+        65.6,
+        13.1,
+        116.8,
+        22.1
+      ],
+      "lengthM": 14.7,
+      "clearS": 7.4,
+      "checkVersion": 1
+    },
+    {
+      "slug": "ciutadella-barcelona",
+      "clear": true,
+      "shrink": 0.556,
+      "cutM": 11,
+      "line": [
+        -62.1,
+        -128.8,
+        -4.3,
+        -80.4
+      ],
+      "lengthM": 41.9,
+      "clearS": 8.9,
+      "checkVersion": 1
+    },
+    {
+      "slug": "edinburgh-old-town",
+      "clear": true,
+      "shrink": 0.2,
+      "cutM": 30,
+      "line": [
+        138.3,
+        -24.3,
+        54.8,
+        120.3
+      ],
+      "lengthM": 33.5,
+      "clearS": 10.5,
+      "checkVersion": 1
+    },
+    {
+      "slug": "positano-italy",
+      "clear": true,
+      "shrink": 0.12,
+      "cutM": 48.5,
+      "line": [
+        -46,
+        -85.2,
+        56.8,
+        1.1
+      ],
+      "lengthM": 16.1,
+      "clearS": 7,
+      "checkVersion": 1
+    },
+    {
+      "slug": "valletta-harbour-malta",
+      "clear": true,
+      "shrink": 0.556,
+      "cutM": 11,
+      "line": [
+        -10.4,
+        -136.5,
+        32.4,
+        -136.5
+      ],
+      "lengthM": 23.9,
+      "clearS": 8.5,
+      "checkVersion": 1
+    },
+    {
+      "slug": "speicherstadt-hamburg",
+      "clear": true,
+      "shrink": 0.417,
+      "cutM": 14.5,
+      "line": [
+        151.3,
+        23,
+        -81.5,
+        107.7
+      ],
+      "lengthM": 103.3,
+      "clearS": 14.8,
+      "checkVersion": 1
+    },
+    {
+      "slug": "alfama-lisbon",
+      "clear": true,
+      "shrink": 0.333,
+      "cutM": 18,
+      "line": [
+        16.4,
+        101.5,
+        -51.7,
+        140.9
+      ],
+      "lengthM": 26.3,
+      "clearS": 8.8,
+      "checkVersion": 1
+    },
+    {
+      "slug": "spanish-steps-rome",
+      "clear": true,
+      "shrink": 0.556,
+      "cutM": 11,
+      "line": [
+        -142.7,
+        13.5,
+        -46.5,
+        94.2
+      ],
+      "lengthM": 69.8,
+      "clearS": 16.5,
+      "checkVersion": 1
+    },
+    {
+      "slug": "parc-guell-barcelona",
+      "clear": true,
+      "shrink": 0.2,
+      "cutM": 30,
+      "line": [
+        81.1,
+        43.1,
+        43.3,
+        147
+      ],
+      "lengthM": 22.2,
+      "clearS": 6.3,
+      "checkVersion": 1
+    },
+    {
+      "slug": "tuileries-paris",
+      "clear": true,
+      "shrink": 0.36,
+      "cutM": 16.5,
+      "line": [
+        -16.6,
+        32.2,
+        21.7,
+        78
+      ],
+      "lengthM": 21.5,
+      "clearS": 7.5,
+      "checkVersion": 1
+    },
+    {
+      "slug": "retiro-park-madrid",
+      "clear": true,
+      "shrink": 0.556,
+      "cutM": 11,
+      "line": [
+        -143,
+        -64.2,
+        -102,
+        -64.2
+      ],
+      "lengthM": 22.8,
+      "clearS": 7.7,
+      "checkVersion": 1
+    },
+    {
+      "slug": "bryant-park-new-york",
+      "clear": true,
+      "shrink": 0.556,
+      "cutM": 11,
+      "line": [
+        34.4,
+        -160.6,
+        -25.7,
+        -125.9
+      ],
+      "lengthM": 38.6,
+      "clearS": 10.3,
+      "checkVersion": 1
+    },
+    {
+      "slug": "gas-works-park-seattle",
+      "clear": true,
+      "shrink": 0.333,
+      "cutM": 18,
+      "line": [
+        47.3,
+        -73.6,
+        104.2,
+        -40.7
+      ],
+      "lengthM": 22,
+      "clearS": 8.7,
+      "checkVersion": 1
+    },
+    {
+      "slug": "dolores-park-san-francisco",
+      "clear": true,
+      "shrink": 0.455,
+      "cutM": 13,
+      "line": [
+        94.3,
+        -110.7,
+        148.3,
+        -46.4
+      ],
+      "lengthM": 38.2,
+      "clearS": 10.6,
+      "checkVersion": 1
+    },
+    {
+      "slug": "piazza-san-marco-venice",
+      "clear": true,
+      "shrink": 0.333,
+      "cutM": 18,
+      "line": [
+        6.2,
+        -124.7,
+        -125.2,
+        32
+      ],
+      "lengthM": 68.1,
+      "clearS": 14.1,
+      "checkVersion": 1
+    },
+    {
+      "slug": "plaza-mayor-madrid",
+      "clear": true,
+      "shrink": 0.417,
+      "cutM": 14.5,
+      "line": [
+        -77.2,
+        -19.3,
+        121.4,
+        15.7
+      ],
+      "lengthM": 84.1,
+      "clearS": 9.8,
+      "checkVersion": 1
+    },
+    {
+      "slug": "place-des-vosges-paris",
+      "clear": true,
+      "shrink": 0.556,
+      "cutM": 11,
+      "line": [
+        -142.2,
+        -28.4,
+        -129.3,
+        44.6
+      ],
+      "lengthM": 41.2,
+      "clearS": 10.7,
+      "checkVersion": 1
+    },
+    {
+      "slug": "trafalgar-square-london",
+      "clear": true,
+      "shrink": 0.556,
+      "cutM": 11,
+      "line": [
+        65.6,
+        93.2,
+        65.6,
+        109.3
+      ],
+      "lengthM": 9,
+      "clearS": 5.7,
+      "checkVersion": 1
+    },
+    {
+      "slug": "covent-garden-london",
+      "clear": true,
+      "shrink": 0.417,
+      "cutM": 14.5,
+      "line": [
+        -74.7,
+        106.7,
+        36.5,
+        126.3
+      ],
+      "lengthM": 47.1,
+      "clearS": 12.3,
+      "checkVersion": 1
+    },
+    {
+      "slug": "washington-square-new-york",
+      "clear": true,
+      "shrink": 0.244,
+      "cutM": 24.5,
+      "line": [
+        116.1,
+        -68.6,
+        -73,
+        0.3
+      ],
+      "lengthM": 49.1,
+      "clearS": 9.5,
+      "checkVersion": 1
+    },
+    {
+      "slug": "union-square-san-francisco",
+      "clear": true,
+      "shrink": 0.333,
+      "cutM": 9,
+      "line": [
+        61,
+        251.7,
+        111.6,
+        260.6
+      ],
+      "lengthM": 17.1,
+      "clearS": 7,
+      "checkVersion": 1
+    },
+    {
+      "slug": "old-town-square-prague",
+      "clear": true,
+      "shrink": 0.417,
+      "cutM": 14.5,
+      "line": [
+        106.3,
+        77.9,
+        37.6,
+        135.5
+      ],
+      "lengthM": 37.4,
+      "clearS": 11.4,
+      "checkVersion": 1
+    },
+    {
+      "slug": "piazza-navona-rome",
+      "clear": true,
+      "shrink": 0.556,
+      "cutM": 11,
+      "line": [
+        6.9,
+        -128.1,
+        18.8,
+        -107.5
+      ],
+      "lengthM": 13.2,
+      "clearS": 6.5,
+      "checkVersion": 1
+    },
+    {
+      "slug": "nyhavn-copenhagen",
+      "clear": true,
+      "shrink": 0.556,
+      "cutM": 11,
+      "line": [
+        127.1,
+        25.8,
+        67.6,
+        128.9
+      ],
+      "lengthM": 66.1,
+      "clearS": 11.7,
+      "checkVersion": 1
+    },
+    {
+      "slug": "boston-common-beacon-hill",
+      "clear": true,
+      "shrink": 0.263,
+      "cutM": 23,
+      "line": [
+        108.9,
+        -62.5,
+        -36.2,
+        59.3
+      ],
+      "lengthM": 49.8,
+      "clearS": 8.5,
+      "checkVersion": 1
+    }
+  ]
+}

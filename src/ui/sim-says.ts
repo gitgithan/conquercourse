@@ -29,11 +29,14 @@ export function editorWords(verdict: string, laneKind = 'idle'): { state: SimSta
   return { state: 'idle', words: v };
 }
 
-/** The slicer's live read (data-slice-lane: clearable, not-clearable, checking, working, none) in the Simulator's words. */
-export function slicerWords(kind: string, lengthM = 0, cutM = ''): { state: SimState; words: string } {
+/** The slicer's live read (data-slice-lane: clearable, not-clearable, checking, working, none) in the Simulator's words.
+ *  more.proven: a ghost already ran this exact line offline; more.closest: no clean line exists here and this is the closest; more.auto: the search is still trying other heights (CC-90). */
+export function slicerWords(kind: string, lengthM = 0, cutM = '', more: { proven?: boolean; closest?: boolean; auto?: string | null } = {}): { state: SimState; words: string } {
   const at = cutM ? ` at ${cutM} m` : '';
+  if (more.closest && (kind === 'not-clearable' || kind === 'none')) return { state: 'blocked', words: `No clean line found here: this is the closest${at}. I cannot clear it yet. Move the line or the height and I will check again.` };
+  if (more.auto && (kind === 'not-clearable' || kind === 'none' || kind === 'working' || kind === 'checking')) return { state: 'checking', words: more.auto };
   switch (kind) {
-    case 'clearable': return { state: 'clear', words: `I can clear this ${lengthM} m lane${at}. A ghost ran it.` };
+    case 'clearable': return { state: 'clear', words: more.proven ? `I can clear this ${lengthM} m lane${at}. A ghost ran this exact line ahead of time on the real physics, and it cleared.` : `I can clear this ${lengthM} m lane${at}. A ghost ran it.` };
     case 'not-clearable': return { state: 'blocked', words: `I cannot clear this lane${at}. Try another height or move the line, and I will check again.` };
     case 'checking': return { state: 'checking', words: `I am checking this lane${at}. A ghost runs it. The dashed line is not proved yet.` };
     case 'working': return { state: 'checking', words: `I am looking for a lane${at}.` };

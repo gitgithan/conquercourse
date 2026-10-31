@@ -128,3 +128,8 @@
   - It was rewritten so that it fails on the old code (see the test file).
 - The table keeps only a hash of the keys, so a flagged human line could not be fetched back.
   - `migrations/0005_clear_keys.sql` adds a `keys` column for flagged runs only (not applied; needs the owner's yes).
+
+## A tool that searches live must not make the player wait for what we already know (CC-90, 2026-11-01)
+- The Slicer ran a live search every time and often said "cannot find a path" on places we had already proved.
+- The proved line was stored with the place, but the Slicer never read it.
+- Rule: if an answer can be found ahead of time, find it ahead of time, replay it in a test, and open on it; run the live check only when the person changes something.

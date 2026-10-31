@@ -81,6 +81,20 @@ The set of obstacle shapes is fixed, and each shape offers a fixed set of moves.
 - **Built (the World editor, `?mode=editor`):** a plan view with seven library pieces and .glb import; all of the above; a side view of the lane; the simulator's verdict; Play.
 - **Not built yet:** a 3D view of the world; photos and drone footage going in directly (they go through the reconstruction pipeline first: CC-38); undo; snapping; saving imported pieces between visits; sharing a built world with the community.
 
+## The Slicer opens on a proved line (CC-90)
+- The owner's finding (2026-11-01): the Slicer made people wait for a search and then said "cannot find a path" on places that are fine.
+- Cause: the Slicer ignored the line stored with each ready place and started from a plain height with every building picked.
+- Fix: every ready place has a small file entry in `public/assets/places/slicer-defaults.json`.
+  - It holds the shrink, the cut height (in real metres), the line, the lane length, the clear time and the check version.
+  - It was made offline by `scripts/slicer-defaults.ts`, which replays the real simulator on that exact line and height.
+- The Slicer opens on that line and height, and the Simulator strip says "Can clear" at once, with no spinner.
+  - A quiet re-check runs in the background and only speaks if it disagrees.
+  - Only a changed line or height runs the live check, and "Snap to the best line" jumps back to the proved default.
+- A place with no clean line says so ("No clean line found here: this is the closest") and shows its best try.
+- A place you cut yourself has no stored file: the search starts by itself and shows the best height found so far.
+- The World Editor gets the same line and height (`handoverLane`), and its own check agrees (`tests/slicer-default.test.ts`).
+- Re-make the file with `npx tsx scripts/slicer-defaults.ts` (about a minute for most places, longer for hills); bump `CHECK_VERSION` when the check changes.
+
 ## Try it yourself
 - **The editor:** with `npm run dev` running, open `http://localhost:5173/?mode=editor` (also linked from the Park and the gallery).
   - Add "Toy brick": it arrives enlarged ×15; type 0.5 in "Real height" and it is a half-metre block.

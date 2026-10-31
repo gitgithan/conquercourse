@@ -1,0 +1,8 @@
+{
+  "note": "Places with street photos (counts of checked photos); made from the allow-lists in this folder",
+  "places": {
+    "edinburgh-old-town": 52,
+    "eixample-barcelona": 3,
+    "montmartre-paris": 9
+  }
+}

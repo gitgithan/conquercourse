@@ -76,6 +76,9 @@ describe('Simulator says, live', () => {
   it('maps every slicer state to words, and says the length and height', () => {
     for (const k of ['clearable', 'not-clearable', 'checking', 'working', 'none', '']) { const w = slicerWords(k, 90, '12'); expect(w.words, k).not.toMatch(BANNED_IN_COPY); }
     expect(slicerWords('clearable', 90, '12')).toEqual({ state: 'clear', words: 'I can clear this 90 m lane at 12 m. A ghost ran it.' });
+    expect(slicerWords('clearable', 90, '12', { proven: true })).toMatchObject({ state: 'clear', words: expect.stringMatching(/ahead of time on the real physics/) }); // CC-90
+    expect(slicerWords('not-clearable', 40, '9', { closest: true })).toMatchObject({ state: 'blocked', words: expect.stringMatching(/^No clean line found here: this is the closest at 9 m/) });
+    expect(slicerWords('working', 0, '', { auto: 'Trying other heights.' })).toEqual({ state: 'checking', words: 'Trying other heights.' });
     expect(slicerWords('not-clearable').state).toBe('blocked');
     expect(slicerWords('checking').state).toBe('checking');
   });

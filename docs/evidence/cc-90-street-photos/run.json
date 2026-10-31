@@ -1,0 +1,15 @@
+{
+  "checks": {
+    "picker chips on": true,
+    "coverage line says whole, part or none": true,
+    "thumbnails show": true,
+    "large view names creator, licence and Mapillary": true,
+    "picker chips off": true,
+    "panel absent with ?streetphotos=0": true
+  },
+  "notes": [
+    "on: chips on montmartre-paris, eixample-barcelona, edinburgh-old-town",
+    "edinburgh-old-town: \"Street photos along your whole lane (28 to choose from).\" with 6 thumbnails",
+    "off: chips on none"
+  ]
+}
