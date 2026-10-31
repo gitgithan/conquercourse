@@ -86,7 +86,7 @@ flowchart LR
 - **Why it is unique:**
   - A photo of something you walk past every day becomes something you can jump over.
   - Nobody has to label, model or measure anything.
-- **Status:** suggested outlines and the 3D lift need their server jobs switched on; a wallpaper does not show behind a course yet; sharing with other players waits for the safety check ([communities](docs/communities.md)).
+- **Status:** suggested outlines and the 3D lift need their server jobs switched on; the full path (photo, outline, piece or wallpaper, Share in Community, Delete) ran for real on the preview site ([click by click](docs/community-flow-guide.md)); other players cannot yet use your shared piece in their own editor.
 
 ## Experiences that are not possible in real life
 - **Race a ghost of a stranger.**

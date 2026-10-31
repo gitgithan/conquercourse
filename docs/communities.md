@@ -29,7 +29,8 @@
 ## Known gaps
 - Suggested outlines need the server job (CC-248).
 - A saved wallpaper shows behind a course when the address has `?wallpaper=<id>` (CC-249, first piece, in the new flow only).
-- Sharing with other players waits for the safety check and approval flow (CC-249).
+- Sharing: **Share in Community** stores a small picture (and the .glb for a piece) in D1; the safety check decides who sees it, and the owner can delete it (CC-247, `docs/community-flow-guide.md`).
+- Using another player's shared piece or wallpaper in your own editor or course is not built yet.
 
 ## Suggested outlines (CC-248)
 - After a photo is chosen, the page asks `/api/segment` for things worth picking.
