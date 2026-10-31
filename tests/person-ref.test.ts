@@ -43,4 +43,10 @@ describe('the marker over the person stands where the person stands (CC-96)', ()
     expect(markerAt(moved)).toEqual({ x: -12.5, z: 7.75 });
     expect(markerAt(p)).toEqual({ x: 4.2, z: -1.1 });
   });
+  it('never stands on a tall thin rod, whatever the rod is (owner, 2026-11-01)', () => {
+    const rod = newPiece('Rod', box(0.1, 6, 0.1), { x: 5, z: 0 });
+    const at = personStart([rod], { angle: 0, offset: 0 });
+    expect(Math.hypot(at.x - rod.x, at.z - rod.z)).toBeGreaterThan(2);
+    expect(at.x).toBeLessThan(rod.x - 0.05 - PERSON_GAP + 1e-9);
+  });
 });
