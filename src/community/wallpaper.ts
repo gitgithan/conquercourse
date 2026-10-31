@@ -6,6 +6,7 @@ export interface Wallpaper { id: string; name: string; thumb: string; at: number
 const KEY = 'cc.wallpapers';
 export const savedWallpapers = (): Wallpaper[] => { try { return JSON.parse(localStorage.getItem(KEY) ?? '[]') as Wallpaper[]; } catch { return []; } };
 export const saveWallpaper = (w: Wallpaper): boolean => { try { localStorage.setItem(KEY, JSON.stringify([w, ...savedWallpapers().filter((x) => x.id !== w.id)].slice(0, 12))); return true; } catch { return false; } };
+export const deleteWallpaper = (id: string): void => { try { localStorage.setItem(KEY, JSON.stringify(savedWallpapers().filter((w) => w.id !== id))); } catch { /* nothing kept */ } };
 /** Premade examples: the sample place photos, as `sample:park01`. They are real assets with rows in docs/ASSETS.md. */
 export const SAMPLE_WALLPAPERS = ['park01', 'park02', 'park03', 'park06'];
 export const wallpaperById = (id: string | null): Wallpaper | undefined => {
