@@ -13,10 +13,30 @@
 - Where there is no model, the line says so: the Simulator is our own physics, the Ghost is a replay.
 - Motion: a short slide-in; it is off when the browser asks for reduced motion.
 
+## Where the Simulator speaks (changed 2026-11-01)
+- The first pass put the Simulator badge on the end report and the verdicts.
+- The product owner said the Simulator shows up most while a person edits, in the World Editor and the World Slicer, not on the report card.
+- Now a "Simulator says" strip sits first in the side panel of both screens, always in view (it sticks to the top while the panel scrolls).
+- It speaks in the first person and follows the lane check as the lane changes.
+- Editor states: waiting, checking (a ghost runs your lane), can clear (with the counts that were already in the verdict), cannot clear, not checked (Stopped, Timed out, could not finish).
+- Slicer states: the same five, driven by the live lane read as the cut height or the line changes.
+- A state is never colour alone: each has its own icon and its own word (Waiting, Checking, Can clear, Cannot clear, Not checked).
+- The strip says "Not an AI: the real game physics, the same every time."
+- The end-report badge stays, now smaller (`says-small`).
+- The strip is never over the track: the Course does not mount it (the test checks that `course.ts` and `main.ts` do not use it).
+- `?says=0` removes it; the older verdict lines stay.
+
+## Not covered yet (honest list)
+- The ideal time ("I can clear this in 4.6 s"): the lane check returns a plan and windows, not a finish time, so the strip does not say one.
+- How far a runner falls short ("0.3 m short"): the check says only clear or not clear, so the strip does not invent a number.
+- Fix it results, the "cannot clear this gap" hint and the squeeze-to-fit result stay under the Design partner or in their own lines; they are partner words backed by a Simulator proof.
+- The piece-info lines are static catalogue text, not a live check, so they carry no Simulator badge.
+
 ## The table
 | Title | Colour | Powered by | Speaks when | Where the words live |
 |---|---|---|---|---|
-| Simulator says | green | our own physics, not an AI | the lane verdict in the editor, the end-of-run report and the fall panel, the coaster and graph verdicts | `src/modes/editor.ts`, `src/ui/run-report.ts`, `src/modes/coaster.ts`, `src/modes/graph-studio.ts`, `src/slice/lane-check-ui.ts` |
+| Simulator says (live) | green, blue, red, gold by state | our own physics, not an AI | the World Editor and the World Slicer: a strip at the top of the side panel that follows the lane check as you edit or drag the line | `src/ui/sim-says.ts`, `src/modes/editor.ts`, `src/modes/map.ts` |
+| Simulator says (small) | green | our own physics, not an AI | the end-of-run report and the fall panel, the coaster and graph verdicts | `src/ui/run-report.ts`, `src/modes/coaster.ts`, `src/modes/graph-studio.ts`, `src/slice/lane-check-ui.ts` |
 | Design partner says | orange | Muse Spark Open | the Design partner panel: notes, Fix it, Suggest | `src/modes/editor.ts` |
 | Safety check says | red | Muse Spark Open | when you press Share in Community | `src/modes/community-flow.ts` |
 | Cutter says | blue | SAM 3 | Make your own, step 3: Segment Region | `src/modes/community-flow.ts` |
@@ -41,6 +61,12 @@
 ## Checks
 - `npx vitest run tests/says.test.ts` checks the table, the model names against the ledger, the copy rules, the files and the doc.
 - `node scripts/says-check.mjs` takes a before (`?says=0`) and an after picture of each screen at 1280 x 720 and checks the badge.
+
+## Pictures for the live strip (1280 x 720)
+- [editor-before](evidence/cc-243-sim-says/editor-before.jpg)
+- [editor-after](evidence/cc-243-sim-says/editor-after.jpg)
+- [slicer-before](evidence/cc-243-sim-says/slicer-before.jpg)
+- [slicer-after](evidence/cc-243-sim-says/slicer-after.jpg)
 
 ## Pictures (1280 x 720; before is `?says=0`)
 - [welcome-crew-after](evidence/cc-243-says-welcome-crew-after.jpg)

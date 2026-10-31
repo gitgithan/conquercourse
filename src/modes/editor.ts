@@ -38,6 +38,7 @@ import { fixCoaster } from '../slice/fixcoaster';
 import { MAX_PIECES, suggestPrompt } from '../slice/suggest-prompt';
 import { adviseLane, type Advice } from '../slice/advice';
 import { addBadge, sayBadge, saysOn } from '../ui/says';
+import { editorWords, simSaysPanel } from '../ui/sim-says';
 import { adviceInWorker, barsInWorker, fixInWorker, provesInWorker } from '../slice/proof-client';
 import { parseReply, worldBrief, type Edit } from '../slice/designer';
 import { diffProposal, enabledCount, fromAdvice, fromEdits, resultOf, type Proposal } from '../slice/preview';
@@ -463,6 +464,14 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
   howto.innerHTML = '<h2>Shape the coaster</h2><ul><li><kbd>Double-click</kbd> the rail in the side view to add a dot.</li><li><kbd>Drag</kbd> a purple dot to move it.</li><li>Press <kbd>Space</kbd> in the game to jump off the cart any time.</li></ul>';
   const side = el('div', aside, { className: 'panel', id: 'panel' });
   const lanePanel = el('div', aside, { className: 'panel' });
+  // CC-243: the Simulator speaks here, first thing in the side panel and always in view; it follows the verdict line and the lane check, whoever sets them
+  const simSays = simSaysPanel('editor');
+  if (simSays) {
+    lanePanel.prepend(simSays.el); // drawLanePanel puts it back first each time it redraws the panel
+    const sync = () => { const w = editorWords(lanePanel.querySelector('#verdict')?.textContent ?? '', document.documentElement.dataset.laneState ?? 'idle'); simSays.set(w.state, w.state === 'checking' && document.documentElement.dataset.laneProgress ? `${w.words} ${document.documentElement.dataset.laneProgress}.` : w.words); };
+    new MutationObserver(sync).observe(lanePanel, { childList: true, subtree: true, characterData: true });
+    sync();
+  }
   // ---- helpers: what to shift when the lane cannot be cleared, and a design partner (Muse Spark Open) to talk it through
   const helper = el('div', aside, { className: 'panel helper', id: 'helper' });
   const head = el('div', helper, { className: 'row' });
@@ -929,6 +938,7 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
   // ---- the lane
   function drawLanePanel() {
     lanePanel.replaceChildren();
+    if (simSays) lanePanel.prepend(simSays.el);
     el('strong', lanePanel, { text: 'The lane the runner takes', title: 'The runner goes left to right along the orange band; the shapes in it are what you see underneath.' }); // the long help line moved here: the panel must fit at 1024 x 640
     const slider = (label: string, id: string, min: number, max: number, step: number, get: () => number, set: (v: number) => void, fmt: (v: number) => string) => {
       const l = el('label', lanePanel, { text: `${label}: ${fmt(get())}` });
@@ -983,7 +993,7 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
       void startCourse(document.body, course);
     };
     const verdictEl = el('div', lanePanel, { id: 'verdict', className: `says-when ${verdict.startsWith('The simulator can clear') ? 'ok' : verdict ? 'bad' : 'muted'}`, text: verdict });
-    addBadge(lanePanel, 'simulator', { before: verdictEl }); // CC-243: whose words these are; hidden while the verdict is empty
+    if (!simSays) addBadge(lanePanel, 'simulator', { before: verdictEl }); // CC-243: whose words these are; the live strip above now says it, so this small badge is only for ?says=0 (where it is off too)
     laneCheck.mount(lanePanel); // CC-243: progress line, Cancel and Play anyway under the verdict
   }
 

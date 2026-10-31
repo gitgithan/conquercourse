@@ -170,7 +170,7 @@ export function renderReport(course: CourseData, log: RunLog, r: Report, a: Acti
   const box = document.createElement('section');
   box.setAttribute('aria-label', 'Run report');
   box.style.cssText = 'display:grid;gap:12px';
-  addBadge(box, 'simulator', { sub: compact ? null : undefined }); // CC-243: the report is the Simulator's word
+  addBadge(box, 'simulator', { sub: compact ? null : undefined })?.classList.add('says-small'); // CC-243: the report is the Simulator's word; the live voice is in the editor and the slicer, so this one is the small one
   if (!compact) tx('h2', r.headline, 'margin:0;font:800 26px/1.2 system-ui,sans-serif;color:#0f6b5c', box);
   else tx('div', r.cleared ? r.headline : `You got ${r.metres} m of ${r.finishX} m.`, 'font-weight:700', box);
   box.appendChild(pathPicture(course, log, r.best, ghost, old, hard));
