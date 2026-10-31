@@ -97,6 +97,12 @@
 - The tables, limits and plan behind it are in [data-model](data-model.md).
 - The migration `migrations/0006_shares.sql` is applied on the production and preview databases.
 
+- Evidence (browser check on the built site with a local database, 2026-10-31):
+  - `docs/evidence/cc-219-report-copied.png`: the end card after "Copy link to challenge a friend".
+  - `docs/evidence/cc-219-short-opened.png`: a short link opened, with the same time to beat.
+  - `docs/evidence/cc-219-old-link.png`: an old long address, with its one friendly line.
+- Not seen in a browser: the "unknown id" line and the "server down" line (the check timed out on the software renderer; unit tests cover both).
+
 ## Part 3e: when the server asks for a pause (CC-219)
 - A refusal for "too many" is always a 429 with a `Retry-After` header and a body `{reason: "slow_down", retryAfterSeconds}`.
   - The number is the real time until the oldest request leaves the window, never a guess, and never more than an hour.
