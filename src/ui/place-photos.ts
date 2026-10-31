@@ -1,5 +1,6 @@
 // Real photos of a real place (CC-85): small thumbnails with the credit under each one; a click opens a large view.
 // The photos come from Wikimedia Commons under a free licence (CC0, public domain, CC BY or CC BY-SA); the credit is always on screen.
+import { nameTag, saysOn, VOICES } from './says';
 export interface PhotoCredit {
   file: string; title: string; author: string; licence: string; licenceUrl: string; source: string; date: string;
   hint: string; changes: string; width: number; height: number; bytes: number;
@@ -95,6 +96,7 @@ export function mountPlacePhotos(host: HTMLElement, d: PlacePhotos, opts: { floa
   let hidden = readHidden();
   const head = el('div', root, { className: 'pp-head' });
   el('b', head, { text: opts.floating === false ? `The real ${d.name}` : d.name, title: `Real photos of ${d.name}` });
+  if (saysOn() && d.photos.some((p) => /^https:\/\//.test(p.file))) { const t = nameTag('street'); t.title = VOICES.street.poweredBy; head.append(t); } // CC-243: live street photos name their source
   const sw = el('button', head, { className: 'pp-sw', type: 'button' });
   const row = el('div', root, { className: 'pp-row' });
   const thumbs: HTMLButtonElement[] = [];

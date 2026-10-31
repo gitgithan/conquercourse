@@ -1,6 +1,7 @@
 import { FEATURES, type Feature } from '../ui/site-nav';
 import { browserStore } from '../ui/onboarding-flags';
 import { startHref } from '../ui/welcome-flags';
+import { openCrewDialog, saysOn } from '../ui/says';
 import { mountWorldGallery } from '../ui/world-picker';
 
 // The welcome screen (CC-246): the logo, the two Rookies, and the four features as a 2x2 grid.
@@ -35,6 +36,8 @@ const CSS = `
 .wpop{position:absolute;left:10px;right:10px;top:calc(100% - 4px);margin:0;padding:10px 14px 10px 30px;list-style:disc;background:#fff6d8;border:3px solid #17201d;border-radius:14px;font:600 14px/1.45 system-ui,sans-serif;opacity:0;visibility:hidden;transform:translateY(-6px);transition:opacity .15s ease,transform .15s ease,visibility .15s}
 .wtile:hover .wpop,.wtile:focus-visible .wpop{opacity:1;visibility:visible;transform:none}
 #welcome-hint{margin-top:auto;margin-bottom:18px;padding:8px 22px;border-radius:999px;background:#14181fd9;color:#fff;font:700 18px system-ui,sans-serif;animation:wpulse 1.8s ease-in-out infinite}
+#welcome-crew{position:absolute;z-index:2;top:18px;right:20px;font:800 16px system-ui,sans-serif;color:#17201d;background:#fffdf7;border:3px solid #17201d;border-radius:999px;padding:7px 18px;box-shadow:0 4px 0 #17201d;cursor:pointer}
+#welcome-crew:hover,#welcome-crew:focus-visible{transform:translateY(-2px)}
 @keyframes wpulse{50%{transform:scale(1.05)}}
 @media (prefers-reduced-motion:reduce){#welcome-hint{animation:none}.wtile{transition:none}}
 `;
@@ -61,12 +64,17 @@ export function startWelcome(host: HTMLElement): void {
   }
   const hint = document.createElement('div'); hint.id = 'welcome-hint'; hint.textContent = 'Press any key or click to start the first course';
   ui.append(grid, hint);
+  if (saysOn()) { // CC-243: who speaks in the game, one card each
+    const crew = Object.assign(document.createElement('button'), { type: 'button', id: 'welcome-crew', textContent: 'Meet the crew' });
+    crew.onclick = () => openCrewDialog();
+    root.append(crew);
+  }
   root.append(scene, ui);
   host.append(root);
 
   let started = false;
   const start = () => { if (started) return; started = true; location.href = startHref(browserStore); };
-  const overlayOpen = () => !!document.getElementById('world-gallery') || !!document.getElementById('cc-feedback');
+  const overlayOpen = () => !!document.getElementById('world-gallery') || !!document.getElementById('crew-dialog') || !!document.getElementById('cc-feedback');
   const interactive = (t: EventTarget | null) => t instanceof Element && !!t.closest('a,button,input,textarea,select,[role=dialog]');
   addEventListener('keydown', (e) => {
     if (e.ctrlKey || e.metaKey || e.altKey || e.key === 'Tab' || e.key === 'Shift' || e.key === 'Escape') return;
