@@ -1,0 +1,49 @@
+{
+  "version": 1,
+  "name": "Rope swing: one gap, two settings",
+  "startX": 0,
+  "finishX": 28.7,
+  "jumpSpeed": 4.5,
+  "terrain": {
+    "waterY": -1.5,
+    "platforms": [
+      {
+        "x0": -10,
+        "x1": 17.7,
+        "top": 4.3
+      },
+      {
+        "x0": 25.7,
+        "x1": 31.7,
+        "top": 4.3
+      }
+    ]
+  },
+  "rope": {
+    "anchorX": 22,
+    "anchorY": 10.9,
+    "length": 9
+  },
+  "zones": [
+    {
+      "id": "rope",
+      "name": "rope swing",
+      "x0": 8,
+      "x1": 28
+    }
+  ],
+  "checkpoints": [
+    {
+      "id": "rope",
+      "x": 0
+    }
+  ],
+  "plan": {
+    "jumpXs": [
+      16.2
+    ],
+    "releaseAfter": 82,
+    "bouncePress": 8
+  },
+  "windows": []
+}
