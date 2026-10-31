@@ -59,6 +59,13 @@
 - **Reports:** the Report button on a card hides the course once 3 different sessions have flagged it.
 - **Limits:** 3 courses per session per day, a jpeg of at most about 340 KB (the browser shrinks the photo and drops its location data), 12 boxes, and only the Park's kinds of obstacle.
 
+## Shared pieces and wallpapers (CC-247)
+- **What it is:** players press Share in Community on a finished piece or wallpaper; it is stored in the D1 table `community_items` (`migrations/0014_community_items.sql`).
+- **One-time setup per database:** run the file with `wrangler d1 execute <database> --remote --file migrations/0014_community_items.sql`; the preview database already has it, the live one does not (needs the product owner's yes).
+- **Who sees it:** if the safety check (the same Baseten key as the upload check) says all clear, everyone; if it is unsure or the key is missing, only the player who shared it, until you approve it.
+- **Review:** `node scripts/community-review.mjs items` lists them; `item-approve ID` shows one to everyone; `item-remove ID` takes it down and empties its files; add `DB=conquercourse-preview` to work on the preview database.
+- **Delete by the player:** only the owner's browser code can; see the picture in `docs/community-flow-guide.md`.
+
 ## Before you share the address
 - **Licences:** the Park photos are CC0 or CC BY (credits are in `docs/ASSETS.md`); the Rookie models come from Tripo, whose commercial rights depend on your plan (still to confirm in `docs/STATUS.md`); add a Credits line if you want the CC BY names visible.
 - **Browsers:** WebGPU where available, WebGL 2 otherwise; very old phones may be slow.

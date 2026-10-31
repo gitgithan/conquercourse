@@ -4,13 +4,18 @@
 //   node scripts/community-review.mjs show 7          save the photo of course 7 to a file you can open, print its boxes
 //   node scripts/community-review.mjs approve 7       show it in the gallery
 //   node scripts/community-review.mjs reject 7        hide it for good
+//   node scripts/community-review.mjs items           shared pieces and wallpapers waiting for a look (CC-247)
+//   node scripts/community-review.mjs item-approve ID  show a held piece or wallpaper to everyone
+//   node scripts/community-review.mjs item-remove ID   take one down and empty its files
+// DB=conquercourse-preview picks the preview database (the default is the live one).
 import { execFileSync } from 'node:child_process';
 import { writeFileSync, mkdirSync } from 'node:fs';
 
 const [cmd = 'list', arg] = process.argv.slice(2);
 const where = process.env.LOCAL ? '--local' : '--remote';
-const run = (sql) => JSON.parse(execFileSync('npx', ['wrangler', 'd1', 'execute', 'conquercourse-feedback', where, '--json', '--command', sql], { encoding: 'utf8' }))[0].results;
+const run = (sql) => JSON.parse(execFileSync('npx', ['wrangler', 'd1', 'execute', process.env.DB ?? 'conquercourse-feedback', where, '--json', '--command', sql], { encoding: 'utf8' }))[0].results;
 const id = Number(arg);
+const itemId = /^[a-z0-9]{10}$/.test(arg ?? '') ? arg : '';
 const needId = () => { if (!Number.isInteger(id) || id < 1) { console.error('Give the course number, e.g. approve 7'); process.exit(1); } };
 
 if (cmd === 'list') {
@@ -29,7 +34,15 @@ if (cmd === 'list') {
   needId();
   run(`UPDATE community SET status = '${cmd === 'approve' ? 'approved' : 'rejected'}' WHERE id = ${id}`);
   console.log(`course ${id}: ${cmd === 'approve' ? 'approved' : 'rejected'}`);
+} else if (cmd === 'items') {
+  const rows = run("SELECT id, kind, name, status, created_at, moderation, length(thumb) + length(glb) AS bytes FROM community_items WHERE status != 'removed' ORDER BY status = 'pending' DESC, created_at DESC LIMIT 30");
+  if (!rows.length) console.log('No shared pieces or wallpapers yet.');
+  for (const r of rows) console.log(`${r.id} [${r.status}] ${r.kind} "${r.name}" ${new Date(r.created_at * 1000).toISOString()} check=${r.moderation} (${Math.round(r.bytes / 1000)} KB)`);
+} else if (cmd === 'item-approve' || cmd === 'item-remove') {
+  if (!itemId) { console.error('Give the item code, e.g. item-approve k3x9a2mnpq'); process.exit(1); }
+  run(cmd === 'item-approve' ? `UPDATE community_items SET status = 'approved' WHERE id = '${itemId}' AND status = 'pending'` : `UPDATE community_items SET status = 'removed', removed_at = unixepoch(), thumb = '', glb = '', meta = '{}' WHERE id = '${itemId}' AND status != 'removed'`);
+  console.log(`item ${itemId}: ${cmd === 'item-approve' ? 'approved' : 'removed'}`);
 } else {
-  console.error('Use: list | show N | approve N | reject N');
+  console.error('Use: list | show N | approve N | reject N | items | item-approve ID | item-remove ID');
   process.exit(1);
 }

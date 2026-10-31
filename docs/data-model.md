@@ -18,6 +18,7 @@
 |---|---|---|---|
 | `feedback` | 0001 | one row per feedback form | session id |
 | `community`, `community_reports` | 0002 | a photo, boxes and a status for a shared Park course | session id |
+| `community_items` | 0014 | a shared piece or wallpaper: small picture, .glb for pieces, status (`pending`, `approved`, `removed`), owner as a one-way code | one-way code of the browser's random id |
 | `course_events` | 0002 | start, fail, success per attempt | session id |
 | `course_clears` | 0003, 0004, 0005, 0007 | a cleared run the server replayed: course, hash, ticks, verified, beats_ideal, keys of verified runs, the optional tag (up to twelve characters) | none (owner decision, 2026-10-29) |
 | `challenge_courses` | 0013 | a challenge course (CC-108): cleaned course JSON by content hash, board hash, author code, created, promoted and expiry dates | drop the table; the clears stay in `course_clears` under `challenge/<id>` |

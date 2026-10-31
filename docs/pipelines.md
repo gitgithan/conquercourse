@@ -223,6 +223,7 @@
   - `lift_job`: privacy blur and SAM 3 mask, pad-and-retry when the mask touches the photo edge (CC-170), SAM 3D Objects lift (seed 42), CPU bake with a 1024 texture, and a .glb back.
   - The page asks `status` every few seconds; the .glb comes back as base64 with the privacy receipt and the pad note.
   - The object is kept in this browser (IndexedDB) with its provenance record; a saved world refers to it as `user:<id>`.
+  - **Share in Community** (CC-247) then sends the .glb and a small picture to `POST /api/community-items`, which stores them in D1; see `docs/community-flow-guide.md`.
 - **Gates, in order (CC-221):**
   - Request shape: size, type, box, label, height.
     - A bad request is refused before any check costs money.
