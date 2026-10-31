@@ -638,6 +638,15 @@
 
 - Licence note: replace the MusicGen music (`public/assets/music/*.ogg`, model weights CC BY-NC 4.0) before any commercial release.
 
+## Lab 4 Computer vision: labelled street photos (third-party thumbnails, downloaded 2026-10-31)
+| File | What | Source | Licence | Swap plan |
+|---|---|---|---|---|
+| `public/assets/lab/vision/t/<id>.jpg` (32 files, 128 px wide) | thumbnails of street photos from the COCO val2017 set, listed with their Flickr page in `credits.json` | [COCO](https://cocodataset.org) images, Flickr photographers; the creator is named on each linked Flickr page | CC BY 2.0, or "no known copyright restrictions" (COCO licence ids 4 and 7); credit shown under the photos in the Lab | none needed (labs only, behind `?labs=1`); drop a thumbnail by deleting its file and its `credits.json` row |
+| `public/assets/lab/vision/scores.txt` | per-photo detector finds plus the hand-drawn person boxes (COCO person labels, CC BY 4.0) for 160 photos; numbers only | ours (`scripts/lab_vision_pick.py`, `scripts/lab_vision_scores.py`, `scripts/lab_vision_ship.py`); Mask R-CNN ResNet-50 FPN COCO weights (code BSD-3-Clause) | ours; labels CC BY 4.0 | rerun the scripts on another labelled set |
+| `public/assets/lab/vision/credits.json` | thumbnail credits | ConquerCourse | same as each photo | none |
+- Thumbnails were looked through by eye; photos with children were left out of the shipped set.
+- The scores cover 160 photos, 32 shown as thumbnails; the rest are counted without a picture.
+
 ## Before a sale: what to swap or keep crediting (checked 2026-10-30, CC-220)
 - This is the to-do list for a paid release (Steam or other); none of it blocks the hackathon demo.
 - Not legal advice: the ShareAlike rows below are the ones to settle with a lawyer or to replace.
