@@ -14,7 +14,12 @@ This note says where each control lives now, and the rule for adding a new one.
 - Top bar, left to right: Back to the Course, Add piece, Undo and Redo (one joined control), Top plan or 3D view, Moves, Design partner, More (the three dots).
 - Add piece menu: the add browser (see below), a featured picture and a grid of picture cards under six sections (Ground, Swing, Contraptions, Real objects, Stacks, Tools).
 - More menu: Search actions, Reset to the starter scene, Photo to course (labs).
-- Docked card on the picture: Moves or Design partner, one at a time (opening one closes the other).
+- Docked card on the picture: Moves (the Design partner no longer shares it).
+- Design partner (CC-243): a panel that slides in from the right edge, 340 px wide, from under the top bars to the bottom of the page.
+- A slim "Design partner" tab on the right edge, the top-bar button, and the ✕ open and close it; Esc closes it while the cursor is inside it.
+- It starts closed; open or closed is remembered in the browser.
+- Inside: Suggest Fix, the "Move only the chosen pieces" checkbox, a tall answer area, and a multi-line ask box with Ask pinned at the bottom.
+- `scripts/design-partner-panel-check.mjs` checks all of it at 1280x720; pictures: `docs/evidence/cc-243-design-partner-open.jpg` and `-closed.jpg`.
 - Right column, top to bottom: the lane and its Play button, machine settings (only while a machine is in the world), the chosen piece's controls.
 - The right column scrolls inside itself; the page never scrolls.
 

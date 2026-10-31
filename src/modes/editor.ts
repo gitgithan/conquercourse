@@ -439,8 +439,8 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
   el('button', head, { text: 'Fix it', id: 'fixit', className: 'go', title: 'Show a layout the simulator can clear, before anything changes' }).onclick = () => runFix();
   el('button', head, { text: 'Make it easier', id: 'easier', title: 'Show the smallest change that makes the hardest press easier to land' }).onclick = () => runEasier();
   el('button', head, { text: '✕', id: 'closehelper', title: 'Hide' }).onclick = () => { helper.classList.add('closed'); helperBtn.setAttribute('aria-pressed', 'false'); };
-  const selRow = el('label', helper, { className: 'muted', title: 'Fix it moves only the pieces you have chosen, and leaves the lane where it is' });
-  const fixSel = el('input', selRow, { type: 'checkbox', id: 'fixsel' }); selRow.append(' Fix it moves only the chosen pieces');
+  const selRow = el('label', helper, { className: 'muted', title: 'Fix it and Suggest Fix move only the pieces you have chosen, and leave the lane where it is' });
+  const fixSel = el('input', selRow, { type: 'checkbox', id: 'fixsel' }); selRow.append('Move only the chosen pieces');
   const adviceBox = el('div', helper, { id: 'advice' });
   // CC-243: a ready question for the partner: Suggest Fix when the lane cannot be cleared, Suggest More when it can
   const suggestBtn = el('button', head, { text: 'Suggest More', id: 'suggest', title: 'Ask the design partner, with the question already written' });
@@ -494,8 +494,19 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
     sendBtn.click();
   };
   const helperBtn = el('button', top, { text: 'Design partner', id: 'helperbtn', title: 'Show or hide the design partner' });
-  helperBtn.setAttribute('aria-pressed', 'true');
-  helperBtn.onclick = () => { const closed = helper.classList.toggle('closed'); helperBtn.setAttribute('aria-pressed', String(!closed)); };
+  // CC-243: the partner slides in from the right edge; a tab rides its edge, Esc closes it, and the last choice is remembered
+  const PARTNER_KEY = 'cc.partner.open';
+  const partnerTab = el('button', root, { id: 'partnertab', text: 'Design partner', title: 'Show or hide the design partner' });
+  const syncPartner = () => {
+    const open = !helper.classList.contains('closed');
+    helperBtn.setAttribute('aria-pressed', String(open)); partnerTab.classList.toggle('open', open); partnerTab.setAttribute('aria-expanded', String(open));
+    try { localStorage.setItem(PARTNER_KEY, open ? '1' : '0'); } catch { /* private window */ }
+  };
+  let wasOpen = false; try { wasOpen = localStorage.getItem(PARTNER_KEY) === '1'; } catch { /* private window */ }
+  helper.classList.toggle('closed', !wasOpen); syncPartner();
+  new MutationObserver(syncPartner).observe(helper, { attributes: true, attributeFilter: ['class'] });
+  helperBtn.onclick = partnerTab.onclick = () => helper.classList.toggle('closed');
+  window.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !helper.classList.contains('closed') && helper.contains(document.activeElement)) { helper.classList.add('closed'); } });
 
   // ---- the Moves window (CC-43): which moves this world has and lacks, and what each piece could be; every suggestion is proved by the simulator and goes through the shared preview
   const movesBox = el('div', planWrap, { className: 'panel moves closed', id: 'moves' });

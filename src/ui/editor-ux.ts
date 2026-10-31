@@ -75,6 +75,23 @@ const CSS = `
   .ed.ux .helper>.row:last-child{display:grid;grid-template-columns:auto minmax(0,1fr);gap:8px;padding:8px 14px 10px;border-top:1px solid var(--line);background:#fafcfb}
   .ed.ux .helper #ask{grid-column:1/-1;min-height:44px;width:100%;font-size:13px}
   .ed.ux .helper #send{min-width:56px}.ed.ux .helper #what{white-space:normal;line-height:1.2;text-align:center}
+  /* CC-243: the Design partner slides in from the right edge and uses the full height under the bar */
+  .ed.ux .helper{position:fixed;top:var(--partner-top,100px);right:0;bottom:0;left:auto;width:340px;max-width:92vw;height:auto;min-height:0;margin:0;border-radius:14px 0 0 0;border-right:0;z-index:40;transform:translateX(0);transition:transform .2s ease,visibility 0s linear 0s;visibility:visible}
+  .ed.ux .helper.closed{display:flex;transform:translateX(105%);visibility:hidden;transition:transform .2s ease,visibility 0s linear .2s;box-shadow:none}
+  .ed.ux .aside{padding-bottom:8px}
+  .ed.ux .helper>.row:first-child{grid-template-columns:repeat(3,auto) minmax(0,1fr);justify-content:start}
+  .ed.ux .helper>.row:first-child #suggest{grid-row:2;grid-column:1/-1;min-height:36px;font-size:14px}
+  .ed.ux .helper>.row:first-child #fixit{grid-row:3;grid-column:1}.ed.ux .helper>.row:first-child #easier{grid-row:3;grid-column:2/-1;justify-self:start}
+  .ed.ux .helper>label{display:flex;align-items:center;gap:8px;padding:8px 14px 0;font-size:13px;color:#33403a}
+  .ed.ux .helper>label input{margin:0;flex:none}
+  .ed.ux .helper #reply{flex:1 1 0;min-height:120px;font-size:14px}
+  .ed.ux .helper>.row:last-child{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:10px 14px 12px;flex:none}
+  .ed.ux .helper #ask{grid-column:1/-1;min-height:84px;resize:vertical;font:inherit;padding:8px 10px;box-sizing:border-box}
+  .ed.ux .helper #send,.ed.ux .helper #what{min-height:36px}
+  #partnertab{position:fixed;right:0;top:50%;z-index:41;transform:translate(0,-50%);transition:right .2s ease;writing-mode:vertical-rl;padding:12px 7px;border-radius:10px 0 0 10px;border:1px solid #0b5a4d;border-right:0;background:#0f6b5c;color:#fff;font:700 13px system-ui,sans-serif;letter-spacing:.04em;cursor:pointer;box-shadow:-2px 2px 8px #0003}
+  #partnertab.open{right:340px;background:#fff;color:#0b4f44}
+  #partnertab:focus-visible{outline:3px solid #f0a020;outline-offset:2px}
+  @media (prefers-reduced-motion:reduce){.ed.ux .helper,.ed.ux .helper.closed,#partnertab{transition:none}}
 `;
 
 const FIXES: { id: string; label: string; when: string; expect: string; clear: boolean }[] = [
@@ -174,8 +191,7 @@ export function styleEditor(root: HTMLElement): void {
   hide.onclick = () => show(false);
   help.onclick = () => show(gloss.hidden);
 
-  // the design partner card starts closed: open, it sat over the right half of the picture and swallowed the wheel and the drags there (CC-177)
-  if (partner && helper && !helper.classList.contains('closed')) partner.click();
+  // the design partner starts closed unless the player left it open (editor.ts remembers the choice, CC-243)
 
   // ---- the bar: [title Back] | [Fix] [Fit] [view] [Moves] [Design partner] ...... [Undo Redo] [Add pieces] [?] [...]
   const known = new Set<Element | null>([title, back, seg, view, moves, partner, fit, addWrap, moreWrap, sp]);
