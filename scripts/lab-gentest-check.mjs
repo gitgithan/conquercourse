@@ -21,11 +21,13 @@ try {
   await page.click('#gt-run');
   await page.waitForSelector('html[data-lab-done="1"]', { timeout: 600000 });
   const facts1 = await page.textContent('#gt-facts');
-  check('tested 100 recorded', facts1.includes('100'));
+  check('tested the default 25', facts1.includes('25'));
   check('some cleared and some thrown out', /Cleared as proposed\D*[1-9]/.test(facts1) && /Thrown out\D*[1-9]/.test(facts1));
   await page.screenshot({ path: 'test-results/lab-gentest/recorded.png', fullPage: true });
   // narrow rules + repairs
-  await page.fill('#gt-rep', '3');
+  const setRange = (sel, v) => page.$eval(sel, (el, val) => { el.value = val; el.dispatchEvent(new Event('input', { bubbles: true })); }, v);
+  await setRange('#gt-rep', '3');
+  await setRange('#gt-lim', '10');
   await page.click('#gt-source button[data-source=both]');
   await page.click('#gt-run');
   await page.waitForSelector('html[data-lab-done="2"]', { timeout: 900000 });

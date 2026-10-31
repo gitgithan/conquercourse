@@ -69,6 +69,7 @@ export function startLabGentest(host: HTMLElement): { backend: "canvas2d" } {
         <label class="chk"><input type="checkbox" id="gt-block"> Blocks (steps and walls)</label>
         <label class="chk"><input type="checkbox" id="gt-bar"> Bars to swing from</label>
         <h2 style="margin-top:10px">Sizes it may use</h2>
+        <div class="small">The lane builder squeezes any gap to 5 m at most (14 m when a bar is over it), so a wider gap is tested as a 5 m gap.</div>
         <label>Gap width, at least <b id="gt-gmin-v"></b> m<input id="gt-gmin" type="range" min="1.2" max="9" step="0.1"></label>
         <label>Gap width, at most <b id="gt-gmax-v"></b> m<input id="gt-gmax" type="range" min="1.2" max="9" step="0.1"></label>
         <label>Block height, at least <b id="gt-bmin-v"></b> m<input id="gt-bmin" type="range" min="0.2" max="2.5" step="0.05"></label>
@@ -76,6 +77,9 @@ export function startLabGentest(host: HTMLElement): { backend: "canvas2d" } {
         <label>Pieces in one proposal, at most <b id="gt-items-v"></b><input id="gt-items" type="range" min="3" max="12" step="1"></label>
         <h2 style="margin-top:10px">Test, then repair</h2>
         <label>Repairs allowed per proposal: <b id="gt-rep-v"></b><input id="gt-rep" type="range" min="0" max="4" step="1"></label>
+        <h2 style="margin-top:10px">How much to test</h2>
+        <label>Test at most <b id="gt-lim-v"></b> proposals<input id="gt-lim" type="range" min="5" max="100" step="5"></label>
+        <label>Search time per test: <b id="gt-bud-v"></b> work seconds<input id="gt-bud" type="range" min="0.5" max="8" step="0.5"></label>
         <button class="go" id="gt-run">Test the proposals</button>
       </div>
       <div style="display:grid;gap:14px;min-width:0">
@@ -111,13 +115,13 @@ export function startLabGentest(host: HTMLElement): { backend: "canvas2d" } {
     const r = cfg.rules;
     $("gt-gmin-v").textContent = r.gapMin.toFixed(1); $("gt-gmax-v").textContent = r.gapMax.toFixed(1);
     $("gt-bmin-v").textContent = r.blockMin.toFixed(2); $("gt-bmax-v").textContent = r.blockMax.toFixed(2);
-    $("gt-items-v").textContent = String(r.maxItems); $("gt-rep-v").textContent = String(cfg.repairs);
+    $("gt-items-v").textContent = String(r.maxItems); $("gt-rep-v").textContent = String(cfg.repairs); $("gt-lim-v").textContent = String(cfg.limit); $("gt-bud-v").textContent = cfg.budget.toFixed(1);
     for (const id of ["gt-gmin", "gt-gmax"]) $<HTMLInputElement>(id).disabled = !r.gap;
     for (const id of ["gt-bmin", "gt-bmax"]) $<HTMLInputElement>(id).disabled = !r.block;
   };
   const read = () => {
     cfg.rules = clampRules({ ...cfg.rules, gap: $<HTMLInputElement>("gt-gap").checked, block: $<HTMLInputElement>("gt-block").checked, bar: $<HTMLInputElement>("gt-bar").checked, gapMin: num("gt-gmin"), gapMax: num("gt-gmax"), blockMin: num("gt-bmin"), blockMax: num("gt-bmax"), maxItems: num("gt-items") });
-    cfg.repairs = num("gt-rep");
+    cfg.repairs = num("gt-rep"); cfg.limit = num("gt-lim"); cfg.budget = num("gt-bud");
     for (const [id, v] of [["gt-gmin", cfg.rules.gapMin], ["gt-gmax", cfg.rules.gapMax], ["gt-bmin", cfg.rules.blockMin], ["gt-bmax", cfg.rules.blockMax]] as [string, number][]) $<HTMLInputElement>(id).value = String(v);
     sync();
   };
@@ -125,8 +129,8 @@ export function startLabGentest(host: HTMLElement): { backend: "canvas2d" } {
   $<HTMLInputElement>("gt-gap").checked = r0.gap; $<HTMLInputElement>("gt-block").checked = r0.block; $<HTMLInputElement>("gt-bar").checked = r0.bar;
   $<HTMLInputElement>("gt-gmin").value = String(r0.gapMin); $<HTMLInputElement>("gt-gmax").value = String(r0.gapMax);
   $<HTMLInputElement>("gt-bmin").value = String(r0.blockMin); $<HTMLInputElement>("gt-bmax").value = String(r0.blockMax);
-  $<HTMLInputElement>("gt-items").value = String(r0.maxItems); $<HTMLInputElement>("gt-rep").value = String(cfg.repairs);
-  for (const id of ["gt-gap", "gt-block", "gt-bar", "gt-gmin", "gt-gmax", "gt-bmin", "gt-bmax", "gt-items", "gt-rep"]) $(id).addEventListener("input", read);
+  $<HTMLInputElement>("gt-items").value = String(r0.maxItems); $<HTMLInputElement>("gt-rep").value = String(cfg.repairs); $<HTMLInputElement>("gt-lim").value = String(cfg.limit); $<HTMLInputElement>("gt-bud").value = String(cfg.budget);
+  for (const id of ["gt-gap", "gt-block", "gt-bar", "gt-gmin", "gt-gmax", "gt-bmin", "gt-bmax", "gt-items", "gt-rep", "gt-lim", "gt-bud"]) $(id).addEventListener("input", read);
   sync();
 
   // ---- the picture: one proposal, side view ----
@@ -178,15 +182,16 @@ export function startLabGentest(host: HTMLElement): { backend: "canvas2d" } {
     last = { verdicts, wallMs, cfg: used, tally: t }; history++;
     $("gt-none").hidden = true;
     const facts = $("gt-facts"); facts.hidden = false;
-    const skipped = used.source === "random" ? 0 : pool.length - verdicts.filter((v) => v.source === "recorded").length;
+    const eligible = buildProposals(pool, { ...used, limit: 1e9 }).length;
     const pct = (x: number) => `${(x * 100).toFixed(0)}%`;
     const rows: [string, string][] = [
-      ["Proposals tested", used.source === "random" ? String(t.tested) : `${t.tested}${skipped ? `, and ${skipped} recorded ones left out because they break your rules` : ""}`],
+      ["Proposals tested", eligible > t.tested ? `${t.tested} of the ${eligible} that fit your rules` : `${t.tested} (all that fit your rules)`],
       ["Cleared as proposed", `${t.first} (${pct(t.pFirst)})`],
       ["Cleared after repairs", used.repairs ? `${t.afterRepair} more, so ${t.first + t.afterRepair} in all (${pct(t.pRepair)})` : "repairs are off"],
       ["Thrown out", `${t.thrown} (${pct(t.tested ? t.thrown / t.tested : 0)})`],
       ["Proposals until the first clear", t.firstIndex ? `${t.firstIndex}${used.repairs && t.firstIndexRepair !== t.firstIndex ? ` (${t.firstIndexRepair} with repairs)` : ""}` : "none cleared"],
       ["Expected tries for one clear", t.triesFirst ? `${t.triesFirst.toFixed(1)} as proposed${used.repairs && t.triesRepair ? `, ${t.triesRepair.toFixed(1)} with repairs` : ""}` : "no clear, so no estimate"],
+      ["Cut off by the time limit", t.cut ? `${t.cut} of the ${t.thrown} thrown out: the search had not finished, so more time might clear them` : "none"],
       ["Simulator work", `${(t.ticks / 1000).toFixed(0)} thousand ticks, ${(wallMs / 1000).toFixed(1)} s on this device`],
     ];
     facts.innerHTML = rows.map(([k, v]) => `<dt>${k}</dt><dd>${v}</dd>`).join("");
@@ -218,7 +223,7 @@ export function startLabGentest(host: HTMLElement): { backend: "canvas2d" } {
     $("gt-strip-card").hidden = false;
     buildStrip([], proposals.length);
     const id = ++job;
-    const inline = () => { const t = Date.now(); finish(proposals.map((p) => testProposal(p, used.rules, used.repairs)), Date.now() - t, used); };
+    const inline = () => { const t = Date.now(); finish(proposals.map((p) => testProposal(p, used.rules, used.repairs, used.budget)), Date.now() - t, used); };
     try { worker ??= new Worker(new URL("../labs/gentest/worker.ts", import.meta.url), { type: "module" }); } catch { inline(); return; }
     worker.onmessage = (e: MessageEvent) => {
       const d = e.data as { id: number; i?: number; n?: number; done?: boolean; verdicts?: Verdict[]; wallMs?: number };
@@ -226,7 +231,7 @@ export function startLabGentest(host: HTMLElement): { backend: "canvas2d" } {
       if (d.done) finish(d.verdicts!, d.wallMs!, used); else runBtn.textContent = `Testing: ${d.i} of ${d.n}`;
     };
     worker.onerror = () => { worker = null; inline(); };
-    worker.postMessage({ id, proposals, rules: used.rules, repairs: used.repairs });
+    worker.postMessage({ id, proposals, rules: used.rules, repairs: used.repairs, budget: used.budget });
   };
   $<HTMLButtonElement>("gt-eq-btn").onclick = () => {
     const b = $("gt-eq-body"); const t = last?.tally;
