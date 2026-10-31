@@ -3,6 +3,8 @@ import { json } from '../_lib/http';
 interface Env { DB: { prepare(sql: string): { bind(...v: unknown[]): { run(): Promise<unknown>; first<T>(): Promise<T | null> } } } }
 
 const clip = (v: unknown, n: number): string => String(v ?? '').slice(0, n);
+/** A page from before the slash fix sent 'demo-training' for 'demo/training'; the two known folders are mapped back. */
+export const legacyKey = (k: string): string => k.replace(/^experiments-osm-/, 'experiments/osm/').replace(/^demo-/, 'demo/');
 // CC-211: only a stored course or a generated seed (both proved clearable) gets a log row; a made-up key or name is not saved.
 export const PROVEN_KEY = /^((demo|experiments\/osm)\/[a-z0-9-]{1,60}|generated-\d{1,9})$/;
 const events = new Set(['start', 'fail', 'success']);
@@ -12,6 +14,7 @@ export const onRequestPost = async ({ request, env }: { request: Request; env: E
   if (raw.length > 2000) return json({ error: 'too long' }, 413);
   let b: Record<string, unknown>;
   try { b = JSON.parse(raw); } catch { return json({ error: 'bad json' }, 400); }
+  b.courseKey = legacyKey(clip(b.courseKey, 100));
   const session = clip(b.session, 64), runId = clip(b.runId, 64), event = clip(b.event, 16);
   if (!/^[a-zA-Z0-9-]{8,64}$/.test(session) || !/^[a-zA-Z0-9-]{8,64}$/.test(runId) || !events.has(event)) return json({ error: 'bad event' }, 400);
   if (!PROVEN_KEY.test(clip(b.courseKey, 100))) return json({ ok: true, skipped: 'no proven path for this course' });
