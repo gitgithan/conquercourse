@@ -2,7 +2,7 @@
 
 ## So what
 - Real street photos of a place are shown where you work on its lane.
-  - Three places have them today: Edinburgh Old Town, Montmartre in Paris, and the Eixample in Barcelona.
+  - 17 places have them today; `public/assets/photos-live/index.json` lists them (Edinburgh Old Town, Montmartre in Paris and the Eixample in Barcelona were the first three).
 - Every photo was checked for people ahead of time, on our side, before it went into the allow-list.
   - A photo with a person in it is left out.
 - A place you cut yourself has no street photos.
@@ -36,6 +36,5 @@
 - The "how much of the lane is covered" line comes from `lanePhotos` in `src/world/street-photos.ts`: every 10 m along the line, it asks which allowed photos face that spot.
 
 ## What is not there yet
-- Only three places have photos.
-  - A branch with more allow-lists (`hanqi91/cc-90-photo-lanes`) is waiting to be reviewed.
+- 12 of the 29 ready places have no street photos yet; they say so in the panel.
 - The Slicer's photo panel only shows photos near the lane; it does not show them on the map itself.
