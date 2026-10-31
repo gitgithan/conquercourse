@@ -27,5 +27,7 @@
 - A ball does not stop at the ground; it flies on.
 - A player cannot duck under a ball yet (the body is one height).
 - The balls are off by default; `?balls=1` plays the First Course with them.
-- Why off: no beat was found that clears the ideal run and also every checkpoint start (CC-240 sweep, 3 launchers, every 6 to 12 s).
+- Rarer beat (owner, 2026-10-31): each launcher fires once every 30 s (first shot at 3 s), about one ball for each 30 m of course.
+- The sweep over three rare launchers found a beat that clears the ideal run and every checkpoint start.
+- Earlier sweep: no beat was found that clears the ideal run and also every checkpoint start (CC-240 sweep, 3 launchers, every 6 to 12 s).
 - Next steps, ranked: wait for the reach and rope changes to land, then sweep again; try a slower ball at the third launcher; give each checkpoint its own wait.
