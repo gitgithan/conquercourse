@@ -31,6 +31,7 @@ export function publishErrorText(status: number, reason?: string, code?: string,
   switch (reason) {
     case 'slow_down': case 'slow-down': return shareWaitText(wait ?? 60); // CC-219: the reply says how long to wait
     case 'course-changed': return 'This course changed since your run. Play the new version, then publish.';
+    case 'challenge-gone': return 'This challenge course has expired, so your run cannot be added to it.';
     case 'not-listed': return 'Only runs on the listed courses can be published.';
     case 'server-error': return code === 'db-error' ? 'The leaderboard database did not answer. Try again in a minute.' : 'The server hit a problem with this run. Try again, and if it repeats, play the run again from the start.';
     case 'no-course': return 'Only runs on the listed courses can be published.';

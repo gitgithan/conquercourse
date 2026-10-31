@@ -105,7 +105,7 @@ describe('shape is checked on the server, never trusted', () => {
     expect(rows(sql as never, 'SELECT * FROM challenge_courses')).toHaveLength(0);
   };
   it('refuses markup in text', () => bad((c) => { c.name = '<script>alert(1)</script>'; }));
-  it('refuses a hostile key', () => bad((c) => { (c as Record<string, unknown>).constructor = { x: 1 }; }));
+  it('refuses a hostile key', () => bad((c) => { Object.defineProperty(c, 'constructor', { value: { x: 1 }, enumerable: true }); }));
   it('refuses too many platforms', () => bad((c) => { const t = c.terrain as { platforms: unknown[] }; t.platforms = Array.from({ length: 61 }, (_, i) => ({ x0: i, x1: i + 1, top: 0 })); }));
   it('refuses numbers out of range', () => bad((c) => { c.finishX = 1e9; }));
   it('refuses something that is not a course', async () => {

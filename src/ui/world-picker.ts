@@ -43,6 +43,8 @@ import { applyStats, loadStats, statsOn } from './course-stats';
 import { growthOn, mountGrowth } from './growth-strip';
 import { showWorldStats } from './world-stats';
 import { pageQuery } from '../flags';
+import { challengeOn } from '../share/challenge-course';
+import { loadCommunity } from '../share/challenge-client';
 
 /** CC-201: the slicer card is always shown (it used to hide behind ?labs=1); ?slice2=old brings the old rule back. */
 export const sliceCardOn = (params: URLSearchParams): boolean => params.get('slice2') !== 'old';
@@ -53,12 +55,13 @@ export const DEMO_ABOUT = new Map<string, string>(DEMO_GROUPS.flatMap(([, ds]) =
 
 /** The picture file of a course card: public/assets/thumbs/<slug>.webp (made by npm run thumbs). */
 export const thumbSlug = (value: string): string => (value === '' ? 'stock' : value.split('/').pop()!.replace(/\.course\.json$/, ''));
-export const hasThumb = (value: string): boolean => value !== 'stay';
+export const hasThumb = (value: string): boolean => value !== 'stay' && !value.startsWith('cid:');
 export const thumbUrl = (value: string): string => `/assets/thumbs/${thumbSlug(value)}.webp`;
 
 /** Where a choice leads. 'generate-same' reloads the current page (a generated course, kept by its seed). */
 export function worldHref(value: string, loc?: { pathname: string; search: string }, seed: number = Math.floor(Math.random() * 1e6)): string {
   const suffix = '&welcome=0';
+  if (value.startsWith('cid:')) return `?cid=${value.slice(4)}${suffix}`; // CC-108: a Community challenge course
   if (value === 'editor') return `?mode=editor${suffix}`;
   if (value === 'coaster-builder') return `?mode=coaster${suffix}`;
   if (value === 'map') return `?mode=map${suffix}`;
@@ -208,6 +211,17 @@ export function buildGallery(o: GalleryOptions): { el: HTMLElement; focusStart()
     }
   }
   const none = document.createElement('div'); none.className = 'wg-none'; none.textContent = 'No course matches that. Try another word.'; none.hidden = true; body.append(none);
+  if (challengeOn(pageQuery())) { // CC-108: the Community: challenge courses another player has cleared (a new course is reachable by its link only)
+    void loadCommunity().then((list) => {
+      if (!list.length || !el.isConnected) return;
+      const grid = section('Community'); none.before(grid.parentElement!);
+      for (const c of list) {
+        const about = `${c.players} ${c.players === 1 ? 'player has' : 'players have'} cleared it${c.bestTicks ? `, best ${(c.bestTicks / 120).toFixed(2)} s` : ''}. Made by a player; times compare only on this course.`;
+        cards.push({ card: addCard(grid, `cid:${c.id}`, c.name, about, false), sec: grid.parentElement!, text: `${c.name} ${about} community`.toLowerCase() });
+      }
+      filter();
+    });
+  }
   const visible = (): HTMLButtonElement[] => cards.filter((c) => !c.card.hidden && !c.sec.hidden).map((c) => c.card);
   const filter = () => {
     const words = search.value.toLowerCase().split(/\s+/).filter(Boolean);
