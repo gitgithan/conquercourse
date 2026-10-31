@@ -336,7 +336,8 @@ Diagrams are in [docs/meta-ai-pipelines.md](docs/meta-ai-pipelines.md); the full
 - So the game fits the person's creation to ONE skeleton and ONE set of physics rules, not the other way round.
 - Characters:
   - The mesh is only a skin; the bones, the grab points and the hit box are always the Rookie's.
-  - At load, each arm is stretched along its bones so the skin hand meets the hand bone, and the legs and torso are fitted to the hip and shoulder heights.
+  - At load, a skin that faces back is first turned around (the shoes tell which way it faces).
+  - Then each arm is stretched along its bones so the skin hand meets the hand bone, and the legs and torso are fitted to the hip and shoulder heights.
   - Stretches are clamped, so a very odd shape is bent only as far as it still looks right.
 - Pieces:
   - Every piece is scaled by the person-for-scale rule, so a bar is the same height for everyone.

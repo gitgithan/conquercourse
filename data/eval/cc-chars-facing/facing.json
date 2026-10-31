@@ -1,0 +1,77 @@
+{
+  "rule": "score = (front - back) / (front + back) of the shoe against the shin along the bones forward; |score| < 0.1 is unclear",
+  "rows": [
+    {
+      "name": "Fox",
+      "boneForwardDotRun": 1,
+      "scoreAsMade": 0.413,
+      "verdictAsMade": "forward",
+      "scoreAfterTurn": 0.413,
+      "verdictAfterTurn": "forward",
+      "turned": false
+    },
+    {
+      "name": "Skater",
+      "boneForwardDotRun": 1,
+      "scoreAsMade": -0.125,
+      "verdictAsMade": "back",
+      "scoreAfterTurn": 0.125,
+      "verdictAfterTurn": "forward",
+      "turned": true
+    },
+    {
+      "name": "Toy Robot",
+      "boneForwardDotRun": 1,
+      "scoreAsMade": 0.32,
+      "verdictAsMade": "forward",
+      "scoreAfterTurn": 0.32,
+      "verdictAfterTurn": "forward",
+      "turned": false
+    },
+    {
+      "name": "Cactus",
+      "boneForwardDotRun": 1,
+      "scoreAsMade": 0.278,
+      "verdictAsMade": "forward",
+      "scoreAfterTurn": 0.278,
+      "verdictAfterTurn": "forward",
+      "turned": false
+    },
+    {
+      "name": "Banana",
+      "boneForwardDotRun": 1,
+      "scoreAsMade": -0.366,
+      "verdictAsMade": "back",
+      "scoreAfterTurn": 0.366,
+      "verdictAfterTurn": "forward",
+      "turned": true
+    },
+    {
+      "name": "Robo Cat",
+      "boneForwardDotRun": 1,
+      "scoreAsMade": 0.212,
+      "verdictAsMade": "forward",
+      "scoreAfterTurn": 0.212,
+      "verdictAfterTurn": "forward",
+      "turned": false
+    },
+    {
+      "name": "Jelly",
+      "boneForwardDotRun": 1,
+      "scoreAsMade": -0.061,
+      "verdictAsMade": "unclear",
+      "scoreAfterTurn": -0.061,
+      "verdictAfterTurn": "unclear",
+      "turned": false
+    },
+    {
+      "name": "Potato Blob",
+      "boneForwardDotRun": 1,
+      "scoreAsMade": -0.356,
+      "verdictAsMade": "back",
+      "scoreAfterTurn": 0.349,
+      "verdictAfterTurn": "forward",
+      "turned": true
+    }
+  ]
+}

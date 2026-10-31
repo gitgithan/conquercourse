@@ -81,7 +81,7 @@ export function fitSkins(root: Object3D): FitReport | null {
     const inv = new Matrix4();
     const rest = m.skeleton.boneInverses.map((b) => { const e = inv.copy(b).invert().elements; return [e[12], e[13], e[14]] as [number, number, number]; });
     const r = fitToSkeleton({ positions: pos.array as Float32Array, joints: si.array, weights: sw.array, names: m.skeleton.bones.map((b) => b.name), rest, index: g.index?.array });
-    pos.needsUpdate = true;
+    pos.needsUpdate = true; si.needsUpdate = true; // the skin may have been turned around: new positions and left/right bone indices
     g.computeVertexNormals();
     g.computeBoundingSphere(); g.computeBoundingBox();
     if (pos.count > most) { most = pos.count; report = r; }

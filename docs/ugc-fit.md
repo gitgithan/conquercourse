@@ -24,7 +24,8 @@
 - Legs and torso: a height remap so the crotch meets the hip bones and the arm line meets the shoulders; the head takes the rest, so total height stays.
 - Arms: each arm is stretched along its own bones so the fingertip lands on the fingertip bone.
 - Clamps: arms 0.7 to 1.7, legs 0.8 to 1.4, torso 0.85 to 1.3, shoulder move at most 0.25 m.
-- Every fit returns a report: the stretches, the hand gap before and after, the edge stretch, and a quality of good, stretched or extreme.
+- Before anything is stretched, the skin is turned to face the way the bones face (see Facing).
+- Every fit returns a report: whether it was turned, the stretches, the hand gap before and after, the edge stretch, and a quality of good, stretched or extreme.
 
 ## Results on the eight
 | Character | Quality | Hand gap before | Hand gap after |
@@ -42,6 +43,47 @@
 - Gap is a share of the arm length.
 - Pictures: `docs/evidence/cc-chars-eight/`.
 - Run data: `data/eval/cc-chars-eight/`.
+
+## Facing
+- Owner report (2026-11-01): Skater, Potato Blob and Banana ran backwards, so their feet and joints looked wrong.
+- The cause in plain words:
+  - The game's skeleton always faces one way, and every character wears it.
+  - A made character's skin has a front of its own, and nobody ever checked that it matched.
+  - The maker straightens the 3D model by fitting a box around it (`widest_side_yaw` in `pipelines/ccpipe/objbake.py`).
+  - A box has no front: it can only say "the body lies along this line", so the turn it picks is right or 180 degrees off.
+  - Which of the two it picks is a coin flip.
+  - It was written for objects, where front and back do not matter.
+  - The recorded turns of the eight prove it: Skater 170.5, Banana 174.5 and Potato Blob 177.5 degrees (all close to a half turn); the other five 0 to 15 (`../conquercourse-assets/eval-full/cc-chars-eight/glb/rebuild.json`).
+  - It is not the pictures: all eight were drawn facing the viewer in a T-pose.
+  - It is not the skeleton: the foot bones of all eight point the same way (dot product 1.0 with the run direction).
+- The fix runs at load, first of all, in `src/characters/fit.ts` (`measureFacing`, `faceForward`).
+- The rule:
+  - Take the skin in the lowest 13.6 percent of the height (the shoes) and the shin skin above it (15 to 30 percent).
+  - Measure along the foot bones' forward: how far the shoe reaches in front of the shin, and how far behind.
+  - Score = (front - back) / (front + back); a shoe pointing forward scores +0.2 to +0.4.
+  - A score of -0.1 or lower means the skin faces back: turn it 180 degrees about the vertical axis through the hips.
+  - Turning also swaps the left and right bone weights, so the character's arm that now lies on the left still follows the left bones.
+  - A score between -0.1 and +0.1 is "unclear" and the skin is left alone.
+  - The fit report says `facing.turned`, and its notes say "turned around".
+- Numbers for the eight (`data/eval/cc-chars-facing/facing.json`):
+
+| Character | Score as made | Verdict | Turned | Score after |
+|---|---|---|---|---|
+| Fox | +0.41 | forward | no | +0.41 |
+| Skater | -0.13 | back | yes | +0.13 |
+| Toy Robot | +0.32 | forward | no | +0.32 |
+| Cactus | +0.28 | forward | no | +0.28 |
+| Banana | -0.37 | back | yes | +0.37 |
+| Robo Cat | +0.21 | forward | no | +0.21 |
+| Jelly | -0.06 | unclear | no | -0.06 |
+| Potato Blob | -0.36 | back | yes | +0.35 |
+- Pictures (side view, 1280 px, before and after): `docs/evidence/cc-chars-facing/`.
+- Limits:
+  - Skater is the thinnest call (0.13 against a line of 0.1): its shoes are small.
+  - Jelly has no shoe, so it cannot be told; a jellyfish has no front, so it is left as made.
+  - A character with no clear shoe (a blob with round feet) will be left unclear and may face back; the fallback is a per-character override, which is not built because detection worked for every character that has feet.
+  - Not tested: a person-made character from outside the eight, and a character whose feet point sideways.
+  - The maker still writes the made yaw it picked; it was not changed, so a character made later is corrected at load as well.
 
 ## Where it stops
 - Banana: the torso wanted a 3.8 stretch; the clamp holds it, so the shoulders sit a little off.

@@ -1,0 +1,106 @@
+{
+  "Fox": {
+    "runDx": 0.36603408306887886,
+    "facing": {
+      "score": 0.4129503464529805,
+      "verdict": "forward",
+      "axis": [
+        2.347388452554323e-8,
+        0.9999999999999998
+      ],
+      "turned": false
+    },
+    "errors": []
+  },
+  "Skater": {
+    "runDx": 0.36603408306887886,
+    "facing": {
+      "score": -0.12503207152174142,
+      "verdict": "back",
+      "axis": [
+        2.347388452554323e-8,
+        0.9999999999999998
+      ],
+      "turned": true
+    },
+    "errors": []
+  },
+  "Toy Robot": {
+    "runDx": 0.36603408306887886,
+    "facing": {
+      "score": 0.3201215040308513,
+      "verdict": "forward",
+      "axis": [
+        2.347388452554323e-8,
+        0.9999999999999998
+      ],
+      "turned": false
+    },
+    "errors": []
+  },
+  "Cactus": {
+    "runDx": 0.36603408306887886,
+    "facing": {
+      "score": 0.27821379914524164,
+      "verdict": "forward",
+      "axis": [
+        2.347388452554323e-8,
+        0.9999999999999998
+      ],
+      "turned": false
+    },
+    "errors": []
+  },
+  "Banana": {
+    "runDx": 0.36603408306887886,
+    "facing": {
+      "score": -0.36641249752814653,
+      "verdict": "back",
+      "axis": [
+        2.347388452554323e-8,
+        0.9999999999999998
+      ],
+      "turned": true
+    },
+    "errors": []
+  },
+  "Robo Cat": {
+    "runDx": 0.36603408306887886,
+    "facing": {
+      "score": 0.2123022829174682,
+      "verdict": "forward",
+      "axis": [
+        2.347388452554323e-8,
+        0.9999999999999998
+      ],
+      "turned": false
+    },
+    "errors": []
+  },
+  "Jelly": {
+    "runDx": 0.36603408306887886,
+    "facing": {
+      "score": -0.061028861928149755,
+      "verdict": "unclear",
+      "axis": [
+        2.347388452554323e-8,
+        0.9999999999999998
+      ],
+      "turned": false
+    },
+    "errors": []
+  },
+  "Potato Blob": {
+    "runDx": 0.36603408306887886,
+    "facing": {
+      "score": -0.35570207442622076,
+      "verdict": "back",
+      "axis": [
+        2.347388452554323e-8,
+        0.9999999999999998
+      ],
+      "turned": true
+    },
+    "errors": []
+  }
+}
