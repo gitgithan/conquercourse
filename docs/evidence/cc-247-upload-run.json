@@ -1,0 +1,83 @@
+{
+  "base": "https://preview.conquercourse.pages.dev",
+  "ok": true,
+  "errors": [],
+  "log": [
+    {
+      "step": "uploaded photo",
+      "ok": true,
+      "at": 11
+    },
+    {
+      "step": "marked and on Segment",
+      "ok": true,
+      "at": 11
+    },
+    {
+      "step": "segment region finished",
+      "ok": "Outline found. 10 other things found too: you can use one instead.",
+      "at": 29
+    },
+    {
+      "step": "generate piece",
+      "ok": "Done in 32 s. It is in the World Editor tray as \"📷 Mine: Railing\".",
+      "at": 67
+    },
+    {
+      "step": "share piece",
+      "ok": "Shared. Everyone can see it in Explore.",
+      "at": 72
+    },
+    {
+      "step": "share wallpaper",
+      "ok": "Shared. Everyone can see it in Explore.",
+      "at": 79
+    },
+    {
+      "step": "gallery shows my items",
+      "ok": [
+        {
+          "id": "nskfmkc7m9",
+          "kind": "wallpaper",
+          "text": "Yours: skate park skyWallpaper, shared with everyoneDelete"
+        },
+        {
+          "id": "fr6mrwegqb",
+          "kind": "piece",
+          "text": "Yours: Railing3D piece, shared with everyoneOpen the World EditorDelete"
+        }
+      ],
+      "at": 86
+    },
+    {
+      "step": "public list (no player code) item count",
+      "ok": 2,
+      "at": 90
+    },
+    {
+      "step": "another player deleting my item gets",
+      "ok": 404,
+      "at": 94
+    },
+    {
+      "step": "deleted with the confirm step",
+      "ok": true,
+      "at": 96
+    },
+    {
+      "step": "after reload: my shared cards",
+      "ok": 0,
+      "at": 105
+    },
+    {
+      "step": "after delete: list still has my ids",
+      "ok": 0,
+      "at": 105
+    },
+    {
+      "step": "the file of a deleted item",
+      "ok": 404,
+      "at": 107
+    }
+  ]
+}
