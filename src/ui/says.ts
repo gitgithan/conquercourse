@@ -43,7 +43,7 @@ const I = {
 };
 
 export const VOICES: Record<VoiceId, Voice> = {
-  simulator: { id: 'simulator', title: 'Simulator says', name: 'Simulator', accent: '#0f6b5c', tint: '#e6f4ee', poweredBy: 'Our own physics, not an AI. It plays the same way every time.', meta: false, job: 'Plays a course with real physics and tells you if it can be cleared.', where: 'src/ui/run-report.ts, src/slice/lane-check-ui.ts', icon: I.gears },
+  simulator: { id: 'simulator', title: 'Simulator says', name: 'Simulator', accent: '#0f6b5c', tint: '#e6f4ee', poweredBy: 'Our own physics, not an AI. It plays the same way every time.', meta: false, job: 'Plays a course with real physics and tells you if it can be cleared.', where: 'src/ui/sim-says.ts, src/modes/editor.ts, src/modes/map.ts, src/ui/run-report.ts, src/slice/lane-check-ui.ts', icon: I.gears },
   partner: { id: 'partner', title: 'Design partner says', name: 'Design partner', accent: '#b4510a', tint: '#fdeede', poweredBy: 'Powered by Muse Spark Open', meta: true, job: 'Explains why a course cannot be cleared and offers one change the Simulator proved.', where: 'src/modes/editor.ts', icon: I.pencil },
   safety: { id: 'safety', title: 'Safety check says', name: 'Safety check', accent: '#b3261e', tint: '#fbe9e7', poweredBy: 'Powered by Muse Spark Open', meta: true, job: 'Looks at every upload and every share before anyone else sees it.', where: 'src/modes/community-flow.ts', icon: I.shield },
   cutter: { id: 'cutter', title: 'Cutter says', name: 'Cutter', accent: '#1565c0', tint: '#e5effb', poweredBy: 'Powered by SAM 3', meta: true, job: 'Cuts the things in your photo out, one outline each.', where: 'src/modes/community-flow.ts', icon: I.scissors },
@@ -71,6 +71,7 @@ const CSS = `
 .says .says-title{font-weight:800;font-size:17px;letter-spacing:.01em}
 .says .says-by{font-weight:600;font-size:12px;color:#44504a}
 .says.says-meta .says-by::before{content:'\\2605\\00a0';color:var(--a)}
+.says.says-small{padding:2px 10px 2px 2px;border-width:1px;gap:6px}.says.says-small .says-ico{width:22px;height:22px}.says.says-small .says-ico svg{width:14px;height:14px}.says.says-small .says-title{font-size:13px}.says.says-small .says-by{font-size:11px}
 .says-line{display:flex;margin:0 0 8px}
 .says-line:has(+ .says-when:empty){display:none}
 .says-dock{border-left:5px solid var(--a);background:var(--t);border-radius:10px;padding:8px 10px;display:grid;gap:6px}

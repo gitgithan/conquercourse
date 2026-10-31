@@ -1,5 +1,6 @@
 // ?mode=map: pick a place on a real map, press "Build this place", and its buildings arrive in the world editor as one piece (CC-48).
 // Map: MapLibre GL with OpenFreeMap tiles (no key). Search: Nominatim (no key, one call per search). Buildings: Overpass (no key).
+import { simSaysPanel, slicerWords } from '../ui/sim-says';
 import * as maplibregl from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
 import workerUrl from 'maplibre-gl/dist/maplibre-gl-worker.mjs?url';
@@ -302,6 +303,9 @@ export function startMap(host: HTMLElement): { backend: 'webgl2' } {
     else placeHandles(tour);
   }
 
+  // CC-243: the Simulator speaks here too, at the top of the slicer panel, and follows the lane as the cut height or the line changes
+  const simSays = simSaysPanel('slicer');
+  if (simSays) { simSays.el.hidden = true; side.prepend(simSays.el); const w = slicerWords('idle'); simSays.set(w.state, w.words); } // first in the side panel, which scrolls: the strip sticks to its top once a lane is read
   let shownLane: { c: number; l: LaneSummary; proved: boolean } | null = null; // the lane on the screen: this is the one the editor gets
   function showLane(c: number, quick: LaneSummary | null, proved: LaneSummary | null | undefined) {
     shownLane = proved ? { c, l: proved, proved: true } : quick ? { c, l: quick, proved: false } : null;
@@ -311,6 +315,7 @@ export function startMap(host: HTMLElement): { backend: 'webgl2' } {
     else if (proved === null) { drawLane(null, false); read.textContent = OLD ? `${head}no lane here (too short, too steep, or nothing to run on).` : `${head}no lane here.`; dset('sliceLane', 'none'); }
     else if (quick) { drawLane(quick, false); read.textContent = OLD ? `${head}a lane of ${Math.round(quick.length)} m; checking that it can be cleared…` : `${head}${Math.round(quick.length)} m lane, checking…`; dset('sliceLane', 'checking'); }
     else { drawLane(null, false); read.textContent = OLD ? `${head}looking for a lane…` : `${head}looking…`; dset('sliceLane', 'working'); }
+    if (simSays) { simSays.el.hidden = false; const w = slicerWords(document.documentElement.dataset.sliceLane ?? '', Math.round((proved ?? quick)?.length ?? 0), num1(c)); simSays.set(w.state, w.words); }
     lastLane = { c, quick, proved };
     showWhy(c, quick, proved);
     if (proved !== undefined) askStrip();
