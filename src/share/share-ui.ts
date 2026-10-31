@@ -30,37 +30,38 @@ export function showBanner(text: string, actions: { label: string; go: () => voi
 }
 
 /** The link button: it uses the name saved from the box at the top of the report (it has no box of its own). Its words say what happened. A try that fell gets the same button (CC-181). */
-export type LinkResult = { url: string | null; wait?: number | null };
+export type LinkResult = { url: string | null; wait?: number | null; down?: boolean };
+export const DOWN_WORDS = 'Links are not working just now, so no link was made. Your run is safe: try again in a minute. You can still download a video.';
 export function copyLinkButton(o: { link: (nick: string) => Promise<string | null | LinkResult>; courseTooBig?: () => Promise<boolean>; label?: string; id?: string }): HTMLElement[] {
   const label = o.label ?? 'Copy link to challenge a friend';
   const nickNow = (): string => { try { return tidyNick(localStorage.getItem('cc.nick') ?? ''); } catch { return ''; } }; // the one name box is at the top of the report (src/ui/leaderboard.ts)
   const note = document.createElement('div'); note.id = 'share-wait'; note.setAttribute('role', 'status');
   note.style.cssText = 'flex-basis:100%;font-size:.85em;font-weight:600;color:#8a5a00;display:none';
-  let pauseUntil = 0, longUrl: string | null = null; // CC-219: while the server asks for a pause, the long link is copied without asking it again
+  let pauseUntil = 0; // CC-219: while the server asks for a pause, the button counts down instead of asking again
   const give = async (url: string): Promise<void> => {
     try { await navigator.clipboard.writeText(url); copy.textContent = 'Link copied'; }
     catch { window.prompt('Copy this link', url); copy.textContent = 'Link ready'; }
   };
+  const back = (ms = 2500): void => { setTimeout(() => { if (!copy.disabled) copy.textContent = label; }, ms); };
   const copy = button(label, () => {
-    if (Date.now() < pauseUntil && longUrl) { void give(longUrl).then(() => setTimeout(() => { if (!copy.disabled) copy.textContent = label; }, 2500)); return; }
+    if (Date.now() < pauseUntil) return;
     void o.link(nickNow()).then(async (got) => {
       const r: LinkResult = got === null || typeof got === 'string' ? { url: got } : got;
       if (r.wait) {
-        pauseUntil = Date.now() + r.wait * 1000; longUrl = r.url;
-        note.style.display = ''; note.textContent = `${shareWaitText(r.wait)}${r.url ? ' The long link is copied and works now.' : ' You can still download a video.'}`;
-        if (r.url) await give(r.url);
-        if (!r.url) { countdownButton(copy, r.wait, label, (left) => `Short link in ${countdownLabel(left)}`, () => { note.style.display = 'none'; longUrl = null; }); return; }
-        setTimeout(() => { copy.textContent = label; }, 2500);
-        setTimeout(() => { note.style.display = 'none'; longUrl = null; pauseUntil = 0; }, r.wait * 1000);
+        pauseUntil = Date.now() + r.wait * 1000;
+        note.style.display = ''; note.textContent = `${shareWaitText(r.wait)} You can still download a video.`;
+        countdownButton(copy, r.wait, label, (left) => `Link ready in ${countdownLabel(left)}`, () => { note.style.display = 'none'; pauseUntil = 0; });
         return;
       }
       const url = r.url;
       if (!url) {
+        if (r.down) { note.style.display = ''; note.textContent = DOWN_WORDS; copy.textContent = 'Link not ready'; back(4000); return; }
         const big = nickOk(nickNow()) && o.courseTooBig ? await o.courseTooBig() : false;
         copy.textContent = !nickOk(nickNow()) ? 'Pick another name in the box at the top' : big ? 'This course is too big for a link' : 'This run is too long for a link';
-        setTimeout(() => { copy.textContent = label; }, 2500); return; }
+        back(); return; }
+      note.style.display = 'none';
       await give(url);
-      setTimeout(() => { copy.textContent = label; }, 2500);
+      back();
     });
   });
   copy.id = o.id ?? 'share-copy';

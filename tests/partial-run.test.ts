@@ -2,7 +2,8 @@ import { describe, expect, it } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { newWorld, stepWorld } from '../src/sim/world';
 import { searchIdealRun } from '../src/sim/ideal';
-import { openChallenge, makeChallengeUrl } from '../src/share/challenge';
+import { openChallenge } from '../src/share/challenge';
+import { expandedAddress } from './helpers/share-address';
 import { recordPlan, inputOfMask, makeChallengeParam, readChallengeParam, startOfX, startXOf, verifyLog } from '../src/sim/replay';
 import type { CourseData } from '../src/course/course';
 
@@ -47,7 +48,7 @@ describe('shared partial runs', () => {
     const plan = searchIdealRun(from).plan;
     const log = recordPlan(from, plan).recorder.snapshot();
     expect(verifyLog(course, log, 20000, cp).cleared).toBe(true);
-    const url = await makeChallengeUrl('https://x.test', '', course, log, 'ann', 'a', 'done', 2);
+    const url = await expandedAddress('https://x.test', '', course, log, 'ann', 'a', 'done', 2);
     expect(url).not.toBeNull();
     const param = new URL(url!).searchParams.get('challenge')!;
     const o = await openChallenge(course, param);

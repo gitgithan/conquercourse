@@ -16,7 +16,7 @@ export const ID_ALPHABET = 'abcdefghjkmnpqrstuvwxyz23456789'; // 31 characters, 
 export const ID_LENGTH = 10;
 export const ID_RE = /^[a-z2-9]{10}$/;
 export const COURSE_KEY = /^(demo|experiments\/osm)\/[a-z0-9-]{1,60}$/; // the same list as /api/course-clear
-const COURSE_PATH = /^\/assets\/((?:demo|experiments\/osm)\/[a-z0-9-]{1,60})\.course\.json$/;
+export const COURSE_PATH = /^\/assets\/((?:demo|experiments\/osm)\/[a-z0-9-]{1,60})\.course\.json$/;
 
 export interface ShareRow {
   id: string; created_at: number; sim_version: number; kind: ChallengeKind; course_kind: 'asset' | 'default' | 'made'; course_key: string; course_hash: string;
@@ -112,7 +112,7 @@ const shareParam = (r: ShareRow): string => {
   return `${r.sim_version}${r.kind === 'fell' ? 'f' : ''}${m ? `s${m[1]}` : ''}.${r.course_hash}.${nickToWire(r.nick)}.${m ? r.keys.slice(m[0].length) : r.keys}`;
 };
 
-/** What a link needs to open: the pieces of the long link, rebuilt. */
+/** What a link needs to open: the pieces the page reads, rebuilt. */
 export async function readShare(env: Pick<ShareEnv, 'store'>, id: string): Promise<Reply> {
   if (!ID_RE.test(id)) return fail(404, 'no such link');
   const r = await env.store.get(id);

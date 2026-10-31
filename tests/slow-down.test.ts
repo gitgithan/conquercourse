@@ -89,13 +89,15 @@ describe('the server refusal', () => {
 describe('the page when the server asks for a pause', () => {
   const search = '?course=/assets/demo/lache.course.json';
   const busy = (async () => new Response(JSON.stringify({ error: 'slow down', reason: 'slow_down', retryAfterSeconds: 38 }), { status: 429, headers: { 'retry-after': '38' } })) as unknown as typeof fetch;
-  it('still hands back the long link (it works with no server) and says how long to wait', async () => {
+  it('hands back no link and says how long to wait', async () => {
     const r = await makeLinkInfo('https://conquercourse.pages.dev', search, lache, logOf(lache), '', 'a', 'done', busy);
     expect(r.wait).toBe(38);
-    expect(r.url).toContain('challenge=');
+    expect(r.url).toBeNull();
+    expect(r.down).toBeFalsy();
   });
-  it('no wait is reported when the server is simply down', async () => {
+  it('no wait is reported when the server is simply down; it says so', async () => {
     const down = (async () => new Response('{}', { status: 503 })) as unknown as typeof fetch;
-    expect((await makeLinkInfo('https://x.test', search, lache, logOf(lache), '', 'a', 'done', down)).wait).toBeNull();
+    const r = await makeLinkInfo('https://x.test', search, lache, logOf(lache), '', 'a', 'done', down);
+    expect(r.wait).toBeNull(); expect(r.down).toBe(true);
   });
 });

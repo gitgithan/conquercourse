@@ -3,7 +3,8 @@ import { describe, expect, it } from 'vitest';
 import type { CourseData } from '../src/course/course';
 import { recordPlan } from '../src/sim/replay';
 import { makeChallengeParam } from '../src/sim/replay';
-import { makeChallengeUrl, openChallenge } from '../src/share/challenge';
+import { openChallenge } from '../src/share/challenge';
+import { expandedAddress } from './helpers/share-address';
 import { nickOk, shownNick } from '../src/share/nick';
 
 const course = JSON.parse(readFileSync('public/assets/demo/lache.course.json', 'utf8')) as CourseData;
@@ -13,12 +14,12 @@ const param = (u: string) => new URL(u).searchParams.get('challenge')!;
 
 describe('the nickname in a challenge link (CC-134)', () => {
   it('is empty by default and the link carries no nickname', async () => {
-    const url = await makeChallengeUrl(ORIGIN, '?course=/assets/demo/lache.course.json', course, log);
+    const url = await expandedAddress(ORIGIN, '?course=/assets/demo/lache.course.json', course, log);
     const o = await openChallenge(course, param(url!));
     expect(o.ok && o.nick).toBe('');
   });
   it('round trips a name with letters, digits and symbols, in the case it was typed', async () => {
-    const url = await makeChallengeUrl(ORIGIN, '?course=/assets/demo/lache.course.json', course, log, 'Ni.a/Amy-9%');
+    const url = await expandedAddress(ORIGIN, '?course=/assets/demo/lache.course.json', course, log, 'Ni.a/Amy-9%');
     const o = await openChallenge(course, param(url!));
     expect(o.ok && o.nick).toBe('Ni.a/Amy-9%');
   });
@@ -32,7 +33,7 @@ describe('the nickname in a challenge link (CC-134)', () => {
     for (const good of ['', 'amy', 'bo', 'K9', 'jan', 'x7', 'Classy', 'Ninja_Amy', 'Hancock']) expect(nickOk(good), good).toBe(true);
   });
   it('makes no link for a blocked nickname', async () => {
-    expect(await makeChallengeUrl(ORIGIN, '', course, log, 'ass')).toBeNull();
+    expect(await expandedAddress(ORIGIN, '', course, log, 'ass')).toBeNull();
   });
   it('shows nothing for a blocked nickname in a link someone else made, but still plays the run', async () => {
     const hand = await makeChallengeParam(course, log, 'ASS');

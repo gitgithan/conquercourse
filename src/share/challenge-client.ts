@@ -35,7 +35,7 @@ export async function registerCourse(course: CourseData, session: string, runId:
   } catch { return { ok: false, error: registerErrorText(0) }; }
 }
 
-/** The link to send a friend: the short link when the server answers (it opens the author's run as a ghost on the course), the long link otherwise. */
+/** The link to send a friend: the short link (it opens the author's run as a ghost on the course), or null with the reason. */
 export async function challengeLink(origin: string, id: string, course: CourseData, log: InputLog, nick = '', look: 'a' | 'b' = 'a'): Promise<string | null> {
   const c = madeCourse(course);
   return c ? (await makeLinkInfo(origin, `?cid=${id}`, c, log, nick, look)).url : null;

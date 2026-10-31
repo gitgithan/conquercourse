@@ -6,12 +6,12 @@ import course from '../src/course/default-course.json';
 import type { CourseData } from '../src/course/course';
 import { searchIdealRun } from '../src/sim/ideal';
 import { recordPlan } from '../src/sim/replay';
-import { makeChallengeUrl } from '../src/share/challenge';
+import { expandedAddress } from '../tests/helpers/share-address';
 
 const c = course as unknown as CourseData, cp = c.checkpoints![1].x, port = process.env.PORT ?? '5199';
 const from = { ...c, startX: cp } as CourseData;
 const log = recordPlan(from, searchIdealRun(from).plan).recorder.snapshot();
-const url = (await makeChallengeUrl(`http://localhost:${port}`, '', c, log, 'ann', 'a', 'done', 2))!;
+const url = (await expandedAddress(`http://localhost:${port}`, '', c, log, 'ann', 'a', 'done', 2))!;
 mkdirSync('test-results/partial', { recursive: true });
 const b = await chromium.launch({ args: ['--use-gl=swiftshader', '--enable-unsafe-swiftshader'] });
 const p = await b.newPage({ viewport: { width: 1280, height: 720 } });

@@ -21,7 +21,7 @@ if (welcomeOn({ params: pageQuery(), automated: navigator.webdriver })) {
 }
 { const r = startRedirect({ search: pageSearch(), store: browserStore, automated: navigator.webdriver }); if (r) { location.replace(r); await new Promise<void>(() => {}); } } // CC-100: a returning player goes back to their last course
 
-// CC-219: a short link (?c=<id>) is turned into the long form before anything reads the address; the page then works as it does for a long link
+// CC-219: a short link (?c=<id>) is turned into the words the page reads (course, challenge, look) before anything reads the address
 if (pageQuery().has('c')) { const { expandShortSearch } = await import('./share/challenge'); const long = await expandShortSearch(pageSearch()); if (long) history.replaceState(null, '', location.pathname + long); }
 
 // ?mode=dojo, ?mode=rookie, ?demo=rookie (the Rookie demo), ?demo=captured-vault (captured move review); the default is the Course.

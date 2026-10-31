@@ -4,13 +4,13 @@
 
 ## So what for the game
 - A shared run needs a short link of ten characters, whatever the run or the course looks like.
-  - Today a link carries the keys and, for a course made in the editor, the whole course, so it must fit in 2000 characters.
+  - Before CC-219 a link carried the keys and, for a course made in the editor, the whole course, so it had to fit in 2000 characters; that kind of link is gone.
   - A frantic minute of keys is about 1.1k characters, two minutes at the hand limit about 3.2k, and a made course is capped at 1.7k, so real runs and real courses already hit the wall.
 - The recommendation: keep Cloudflare D1 as the one database and store the key log in the row; use R2 only for big files (photos, clips, large made courses).
   - A key log is small (see the sizes below), so a separate blob store buys nothing yet.
   - The code reads and writes through a small store interface, so moving the log to R2 later changes one file.
-- Built now (CC-219): the `shares` table, `POST /api/share`, `GET /api/share/:id`, and the link `?c=<id>`; the long links keep working.
-- The owner has to apply one migration (`0006_shares.sql`); no R2 bucket is needed for this step.
+- Built now (CC-219): the `shares` table, `POST /api/share`, `GET /api/share/:id`, and the link `?c=<id>`; it is the only kind of link; the old long links are no longer made or opened (owner, 2026-10-31).
+- Migration `0006_shares.sql` is applied on the production and preview databases (both `shares` tables hold 0 rows); no R2 bucket is needed for this step.
 - Everything else in this document is the plan for later features; none of it is built, and each part says what it waits for.
 
 ## What is stored today
@@ -50,7 +50,7 @@
 | the 6000-pair cap | 6000 | 10 572 |
 
 - So the key log fits in one D1 row with a wide margin: at most about 10.6 KB, against a row limit of about 2 MB.
-- A made course is the other big part: capped at 1.7 KB in a link, and at 20 KB with a short link (the unpacked size cap of 60 000 characters stays).
+- A made course is the other big part: capped at 20 KB packed in a share (the unpacked size cap of 60 000 characters stays).
 
 ## Entities and relations
 - Built now are marked **now**; the rest are **next**, and each says what must happen first.
@@ -183,7 +183,7 @@
 ## Versioning: how an old log still replays
 - Every run and share stores `sim_version` (`REPLAY_VERSION`, now 1) and the `course_hash`.
 - The keys only mean something with the same simulator and the same course, so opening a link checks both.
-  - A different version is refused in plain words and the ideal ghost is offered (already built for long links).
+  - A different version is refused in plain words and the ideal ghost is offered (built).
 - When the simulator changes in a way that changes a run:
   - Bump `REPLAY_VERSION`; old rows stay.
   - Run a script on a VM that replays every `runs` row with the old keys on the new simulator; rows that still clear keep their time and get the new `sim_version`.
@@ -258,7 +258,6 @@
 - Add a Durable Object only for a live race room, if that feature is ever built.
 
 ## What waits for the owner
-- Apply `migrations/0006_shares.sql` to the live database (`wrangler d1 execute conquercourse-feedback --remote --file migrations/0006_shares.sql`); until then the game sends the long link as before.
 - Decide whether to add a player id (it would change the 2026-10-29 decision).
 - Create an R2 bucket only when photos or clips move out of the database (not needed for shares).
 
@@ -266,4 +265,5 @@
 - The D1 limits above are from documentation, not from a load test.
 - The shares table has no last-opened column yet, so the 90-day clean-up of unopened links is written down and not built.
 - A share is stored without a server replay; a leaderboard time must still go through `/api/course-clear`.
-- Generated (`?generate=`), coaster and Park courses cannot be shared by short link yet, because the server cannot load them; those keep the long link.
+- Generated (`?generate=`), coaster, editor and Park courses are stored inside the share as the packed course (up to 20 000 characters), not rebuilt from their words, so a later change to the generator cannot change an old link.
+  - A course that cannot be cleaned or packs bigger than 20 000 characters gets no link; the button says "This course is too big for a link".

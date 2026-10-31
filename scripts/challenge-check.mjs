@@ -22,7 +22,7 @@ async function open(url, posts) {
     if (u.searchParams.get('list')) return route.fulfill({ json: { courses: [{ id: 'bcdfghjkmn', name: 'Tall Wall Remix', players: 2, bestTicks: 1500 }] } });
     return route.fulfill({ status: 404, json: { error: 'no-course' } });
   });
-  await page.route('**/api/share', (route) => route.fulfill({ status: 500, json: {} })); // the long link is used when the short one is not answered
+  await page.route('**/api/share', (route) => route.fulfill({ status: 500, json: {} })); // the share server is not needed here
   await page.route('**/api/leaderboard**', (route) => route.fulfill({ json: { top: [], players: 0, mine: null, resetAt: null, previous: null } }));
   await page.route('**/api/course-clear', (route) => route.fulfill({ json: { ok: true } }));
   await page.goto(url, { waitUntil: 'load' });

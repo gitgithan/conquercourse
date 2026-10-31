@@ -46,11 +46,11 @@ try {
   await page.waitForFunction(() => !document.getElementById('publish-board').disabled && /Publish to Leaderboard/.test(document.getElementById('publish-board').textContent), null, { timeout: 15000 }).catch(() => fail('Publish did not come back by itself'));
   await page.click('#publish-board');
   await page.waitForFunction(() => /Published ✓/.test(document.getElementById('publish-board')?.textContent ?? ''), null, { timeout: 10000 }).catch(() => fail('second try did not publish'));
-  // Copy link: the long link at once, a note with the time, and no second server call while the pause lasts
+  // Copy link: a note with the time, a countdown on the button, and no second server call while the pause lasts
   await page.click('#share-copy');
   await page.waitForSelector('#share-wait', { state: 'visible', timeout: 10000 }).catch(async () => fail(`no wait note; shareCalls ${shareCalls}; button: ${await page.textContent('#share-copy')}; note: ${await page.evaluate(() => document.getElementById('share-wait')?.outerHTML)}`));
   const note = await page.textContent('#share-wait');
-  if (!/Your run is safe: try again in about 40 seconds\. The long link is copied and works now\./.test(note ?? '')) fail(`share note: ${note}`);
+  if (!/Your run is safe: try again in about 40 seconds\. You can still download a video\./.test(note ?? '')) fail(`share note: ${note}`);
   await page.screenshot({ path: `${out}/share-wait.png` });
   await page.click('#share-copy'); await page.click('#share-copy');
   if (shareCalls !== 1) fail(`the server was asked ${shareCalls} times during the pause`);
