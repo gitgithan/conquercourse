@@ -137,3 +137,12 @@
 ## Made characters faced backwards (CC-108)
 - A rule that picks an axis must also pick a direction: the maker's box fit found the line a body lies along but not which end is the face, so 3 of 8 characters ran backwards (see [character-facing-bug.md](character-facing-bug.md)).
 - Measure, do not eyeball, and test in the view the player sees: the first facing fix was checked in a side-view demo that assumed the run goes along +x, not in the Course that players see.
+
+## Street photos and people (CC-90, owner decisions 2026-11-01)
+- A no-person detector rule threw away 90 percent or more of the photos in busy streets, so most famous places had no usable lane.
+  - Reason: in a pedestrian street nine in ten photos have a person somewhere in them, usually small and far.
+- The product owner made Mapillary's own face and plate blur the base standard (see `CLAUDE.md` and `docs/trust-and-safety.md`) and loosened our rule to reject only close-up or large people.
+  - Why it is acceptable: we show pictures live, never store or copy them, never un-blur them, and report unblurred faces to Mapillary.
+  - What stays true: Mapillary's blur is not a guarantee and the detector can miss a person, so say so wherever the photos show.
+- A big Mapillary search box can come back short without any error (a third of the photos, or more), so earlier coverage counts were too low.
+  - Fix: fetch in tiles of about 50 m and split any tile that returns 600 or more (`scripts/photos_pool.py`); a VM's own fetch was also short, so pools are fetched on the laptop.

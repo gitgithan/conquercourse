@@ -1420,6 +1420,7 @@ The set of obstacle shapes is fixed, and each shape offers a fixed set of moves.
   - So Commons is good for "famous thing here" and weak for "what the street looks like from here".
 
 ### People in the pictures (the real risk)
+- **Superseded (owner, 2026-11-01):** the product owner accepted Mapillary's own blur as the standard for street photos shown live, so the no-person rule and the masking trial below are history; see "How street photos follow you".
 - A contact sheet of up to 12 photos per place was viewed by eye; this is a small sample, not a measurement.
   - Montmartre: 7 of 12 show people close up, including a small child in a stroller; faces were blurred but the body, clothes and a child were clearly visible.
     - Only the 6 pictures without people close up are kept in the repo.
@@ -1615,10 +1616,12 @@ The set of obstacle shapes is fixed, and each shape offers a fixed set of moves.
   - `src/ui/live-photos.ts` draws the strip with the CC-85 strip code and falls back to the stored photos.
   - `functions/api/photos.ts` is the proxy: the token lives only in the Pages secret `MAPILLARY_TOKEN` and never reaches the page; it returns five fields, caches 30 minutes, and limits each address.
   - Picture addresses expire, so the allow-list holds only ids; the proxy turns an id into a fresh address when the photo is shown.
-- **The people filter (offline)**
-  - `scripts/photos_people.py` takes up to four photos facing the lane at each 10 m step, runs torchvision Faster R-CNN (ResNet-50 FPN, COCO weights) and keeps a photo only if no person is found at any size.
-  - This is stricter than the 2 percent size rule in the brief on purpose: a far figure can be a child, and the detector cannot tell.
-  - So no unfiltered photo reaches a player: the live service is asked only about ids on the list.
+- **The people filter is loosened (owner, 2026-11-01)**
+  - Before: `scripts/photos_people.py` rejected a photo with a person of any size, which threw away 90 percent or more of busy streets.
+  - Now: Mapillary's own face and plate blur is the base standard, and the same script, with a size setting, rejects only photos where a detected person is taller than 0.2 of the picture height (a close-up or large person).
+  - Small, far figures pass; `--limit 0` brings back the strict rule.
+  - The live service is still asked only about ids on the list, and we never store or copy the pictures.
+  - The table below is the strict trial, kept as the record; the numbers for the loosened rule are in `data/eval/cc-90-no-filter/README.md`.
 
 | Place | Facing candidates checked | Rejected: person 2 percent or larger | Rejected: smaller or far figure | Kept | Lane steps (10 m) with an allowed photo within 60 m |
 |---|---|---|---|---|---|
@@ -1659,16 +1662,24 @@ The set of obstacle shapes is fixed, and each shape offers a fixed set of moves.
   - "along your whole lane": nine in ten of the spots (one every 10 real metres) have a photo that faces them.
   - "along part of it": some spots do, some do not.
   - "none here yet", or "Street photos are only prepared for the places in the list", with a button to the nearest prepared place.
-  - The words come from the offline lists only: people were filtered out of them beforehand, and there is no live lookup.
-- **Custom slices (the World Slicer) have no list of their own**
-  - If a prepared place with a list is within 400 m, its photos are checked against the new lane.
-  - Otherwise the Map result says photos are only prepared for the places in the list and offers the nearest one.
-  - A custom slice runs in the editor and the Course without the live strip (the strip needs the place name of a prepared course).
+  - The words come from the lists in the repo (ids and positions only).
+- **The standard for faces (owner, 2026-11-01)**
+  - Mapillary's own blur of faces and number plates is the base standard.
+  - Mapillary says its blur is "designed to" blur faces and plates, which is not a guarantee, so an unblurred face can get through.
+  - On top of that we reject photos where the detector finds a close-up or large person (taller than 0.2 of the picture); small, far figures pass, and the detector can miss a person, so this is a second net and not a promise.
+  - We show the pictures live from Mapillary, never store or copy them, never un-blur them, and report unblurred faces to Mapillary.
+  - Every large photo has a "Report this photo on Mapillary" link to its Mapillary page.
+  - Why not the strict rule: it kept 90 percent or more of busy streets out; its trial is above and in `data/eval/cc-90-photolanes/README.md`.
+- **Credit**
+  - The strip shows the word "Mapillary" as a link to mapillary.com, and the creator and licence under each photo.
+  - We do not ship the official logo file because its licence is not clear to us (see `docs/ASSETS.md`); swap the word for the logo if Mapillary confirms we may use it.
+- **Custom slices (the World Slicer)**
+  - A custom slice has no list of its own yet.
+  - If a prepared place with a list is within 400 m, its photos are checked against the new lane; otherwise the Map result points to the nearest prepared place.
+  - A custom slice cannot run the detector offline; a live search by area would need a new server route that searches Mapillary by box and a size check on each photo, which is the next step and is not built.
 - **The short list (CC-90)**
-  - The list shows 15 places in 15 countries, chosen because the street photos cover most of the lane after the no-person filter.
-  - Kept: Edinburgh, Dolores Park, La Boca, Bukchon, Park Guell, Alfama, Stephansplatz, Galata, Plaka, Gamla Stan, Bryggen, Speicherstadt, Temple Bar, Krakow and Budapest.
-  - The other places keep their files and old links; they only leave the list.
-  - Numbers and the honest limits: `data/eval/cc-90-photolanes/README.md`.
+  - The list shows 15 places in 15 countries (at most 2 per country); chosen by lane coverage with the loosened rule and the look of the place.
+  - Numbers: `data/eval/cc-90-no-filter/README.md`; the older filtered numbers: `data/eval/cc-90-photolanes/README.md`.
 
 ## Street furniture from Mapillary map features (CC-187, `?furniture=1`)
 - **Parked (owner, 2026-10-30):** the pieces look like red and yellow lollipops, not like a street, so no screen draws them now.

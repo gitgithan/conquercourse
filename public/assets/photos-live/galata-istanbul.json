@@ -2,23 +2,39 @@
   "place": "galata-istanbul",
   "name": "Galata, Istanbul",
   "generated": "2026-10-31",
-  "source": "Mapillary contributors, CC BY-SA 4.0; photos with a person detected (Faster R-CNN, of any size) are left out",
+  "source": "Mapillary contributors, CC BY-SA 4.0; faces and plates are blurred by Mapillary (not a guarantee); photos with a close-up or large person (Faster R-CNN) are left out",
   "photos": [
     {
-      "id": "1646653578877938",
+      "id": "1209046036195364",
       "creator": "elgaard",
-      "capturedAt": 1449326629474,
-      "lat": 41.025597,
-      "lon": 28.97626,
-      "compass": 222.6
+      "capturedAt": 1449326631897,
+      "lat": 41.025583,
+      "lon": 28.976235,
+      "compass": 220.7
     },
     {
-      "id": "311860587001922",
-      "creator": "mapfool",
-      "capturedAt": 1528044853729,
-      "lat": 41.024831,
-      "lon": 28.975722,
-      "compass": 279.3
+      "id": "1732172883657273",
+      "creator": "chrisbeddow",
+      "capturedAt": 1546440094000,
+      "lat": 41.024518,
+      "lon": 28.974984,
+      "compass": 2.9
+    },
+    {
+      "id": "2920483764892866",
+      "creator": "chrisbeddow",
+      "capturedAt": 1546440098000,
+      "lat": 41.02454,
+      "lon": 28.97498,
+      "compass": 2.7
+    },
+    {
+      "id": "304949677904619",
+      "creator": "ferhat6155",
+      "capturedAt": 1582705738558,
+      "lat": 41.025338,
+      "lon": 28.975478,
+      "compass": 83.4
     },
     {
       "id": "320183969695719",
@@ -37,6 +53,30 @@
       "compass": 85.7
     },
     {
+      "id": "4120487641332024",
+      "creator": "passantsharif",
+      "capturedAt": 1546425271374,
+      "lat": 41.02449,
+      "lon": 28.975034,
+      "compass": 285.7
+    },
+    {
+      "id": "459599415113272",
+      "creator": "mapfool",
+      "capturedAt": 1528044850948,
+      "lat": 41.024825,
+      "lon": 28.975783,
+      "compass": 284.3
+    },
+    {
+      "id": "469697777668784",
+      "creator": "chrisbeddow",
+      "capturedAt": 1546440604000,
+      "lat": 41.02489,
+      "lon": 28.975365,
+      "compass": 103.5
+    },
+    {
       "id": "499471014830310",
       "creator": "myusufuyan",
       "capturedAt": 1561883166224,
@@ -45,20 +85,20 @@
       "compass": 41.8
     },
     {
-      "id": "796526277659019",
-      "creator": "mapfool",
-      "capturedAt": 1528044871188,
-      "lat": 41.024862,
-      "lon": 28.975573,
-      "compass": 303.5
+      "id": "779128609468212",
+      "creator": "chrisbeddow",
+      "capturedAt": 1546440090000,
+      "lat": 41.024491,
+      "lon": 28.974981,
+      "compass": 23
     },
     {
-      "id": "938017780328283",
-      "creator": "ferhat6155",
-      "capturedAt": 1582705731659,
-      "lat": 41.025344,
-      "lon": 28.975395,
-      "compass": 83.6
+      "id": "822790961681423",
+      "creator": "chrisbeddow",
+      "capturedAt": 1546440592000,
+      "lat": 41.024879,
+      "lon": 28.975263,
+      "compass": 96
     }
   ]
 }

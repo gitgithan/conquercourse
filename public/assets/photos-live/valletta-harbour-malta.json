@@ -1,0 +1,64 @@
+{
+  "place": "valletta-harbour-malta",
+  "name": "Grand Harbour, Valletta",
+  "generated": "2026-10-31",
+  "source": "Mapillary contributors, CC BY-SA 4.0; faces and plates are blurred by Mapillary (not a guarantee); photos with a close-up or large person (Faster R-CNN) are left out",
+  "photos": [
+    {
+      "id": "1841155582720708",
+      "creator": "richlv",
+      "capturedAt": 1527344076161,
+      "lat": 35.899956,
+      "lon": 14.515194,
+      "compass": 237.7
+    },
+    {
+      "id": "190088056281338",
+      "creator": "richlv",
+      "capturedAt": 1527344089139,
+      "lat": 35.899886,
+      "lon": 14.515086,
+      "compass": 251.4
+    },
+    {
+      "id": "243648557495800",
+      "creator": "richlv",
+      "capturedAt": 1527344074167,
+      "lat": 35.899967,
+      "lon": 14.515213,
+      "compass": 238.8
+    },
+    {
+      "id": "2588438448126698",
+      "creator": "richlv",
+      "capturedAt": 1527344091119,
+      "lat": 35.899878,
+      "lon": 14.51507,
+      "compass": 248.3
+    },
+    {
+      "id": "765037454199998",
+      "creator": "richlv",
+      "capturedAt": 1527344064190,
+      "lat": 35.900026,
+      "lon": 14.515311,
+      "compass": 238.3
+    },
+    {
+      "id": "788315835394658",
+      "creator": "richlv",
+      "capturedAt": 1527344072183,
+      "lat": 35.89998,
+      "lon": 14.515233,
+      "compass": 236.9
+    },
+    {
+      "id": "799481511000559",
+      "creator": "richlv",
+      "capturedAt": 1527344062175,
+      "lat": 35.900038,
+      "lon": 14.51533,
+      "compass": 239.2
+    }
+  ]
+}

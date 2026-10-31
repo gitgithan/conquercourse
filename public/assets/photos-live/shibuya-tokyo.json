@@ -1,0 +1,64 @@
+{
+  "place": "shibuya-tokyo",
+  "name": "Shibuya, Tokyo",
+  "generated": "2026-10-31",
+  "source": "Mapillary contributors, CC BY-SA 4.0; faces and plates are blurred by Mapillary (not a guarantee); photos with a close-up or large person (Faster R-CNN) are left out",
+  "photos": [
+    {
+      "id": "281204146995957",
+      "creator": "drivephotograph",
+      "capturedAt": 1520656544148,
+      "lat": 35.659333,
+      "lon": 139.701358,
+      "compass": 275.4
+    },
+    {
+      "id": "3049093175335093",
+      "creator": "drivephotograph",
+      "capturedAt": 1520656536248,
+      "lat": 35.659328,
+      "lon": 139.701822,
+      "compass": 269.8
+    },
+    {
+      "id": "307375527586608",
+      "creator": "lvl5",
+      "capturedAt": 1531892541010,
+      "lat": 35.65939,
+      "lon": 139.701212,
+      "compass": 89.9
+    },
+    {
+      "id": "311130267082371",
+      "creator": "drivephotograph",
+      "capturedAt": 1591504904468,
+      "lat": 35.659334,
+      "lon": 139.701465,
+      "compass": 273.8
+    },
+    {
+      "id": "471932133925575",
+      "creator": "drivephotograph",
+      "capturedAt": 1520656539648,
+      "lat": 35.659324,
+      "lon": 139.701705,
+      "compass": 269.7
+    },
+    {
+      "id": "586426089385623",
+      "creator": "drivephotograph",
+      "capturedAt": 1591504902635,
+      "lat": 35.659339,
+      "lon": 139.701582,
+      "compass": 271.7
+    },
+    {
+      "id": "649108870144730",
+      "creator": "musashino5",
+      "capturedAt": 1665535614517,
+      "lat": 35.659395,
+      "lon": 139.701255,
+      "compass": 288.6
+    }
+  ]
+}

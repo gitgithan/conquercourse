@@ -1,8 +1,8 @@
 {
   "place": "parc-guell-barcelona",
-  "name": "Park G\u00fcell, Barcelona",
+  "name": "Park Güell, Barcelona",
   "generated": "2026-10-31",
-  "source": "Mapillary contributors, CC BY-SA 4.0; photos with a person detected (Faster R-CNN, of any size) are left out",
+  "source": "Mapillary contributors, CC BY-SA 4.0; faces and plates are blurred by Mapillary (not a guarantee); photos with a close-up or large person (Faster R-CNN) are left out",
   "photos": [
     {
       "id": "1079535559121777",
@@ -13,12 +13,20 @@
       "compass": 110.9
     },
     {
+      "id": "1117939452438770",
+      "creator": "tumblecow",
+      "capturedAt": 1660380060489,
+      "lat": 41.41319,
+      "lon": 2.152942,
+      "compass": 131.2
+    },
+    {
       "id": "1143007539504205",
       "creator": "angoca",
       "capturedAt": 1496177562000,
       "lat": 41.414038,
       "lon": 2.153369,
-      "compass": 111.0
+      "compass": 111
     },
     {
       "id": "1287119125016223",
@@ -29,12 +37,20 @@
       "compass": 79.3
     },
     {
-      "id": "2852835231633661",
+      "id": "157851659623302",
       "creator": "angoca",
-      "capturedAt": 1496177587000,
-      "lat": 41.414082,
-      "lon": 2.153486,
-      "compass": 46.9
+      "capturedAt": 1496177597000,
+      "lat": 41.41412,
+      "lon": 2.153536,
+      "compass": 45.9
+    },
+    {
+      "id": "1784905318701669",
+      "creator": "miguel_andrade",
+      "capturedAt": 1720092212290,
+      "lat": 41.413556,
+      "lon": 2.152914,
+      "compass": 26.8
     },
     {
       "id": "2950068148551214",
@@ -51,14 +67,6 @@
       "lat": 41.413638,
       "lon": 2.152897,
       "compass": 83.9
-    },
-    {
-      "id": "310905393882378",
-      "creator": "angoca",
-      "capturedAt": 1496177587000,
-      "lat": 41.414082,
-      "lon": 2.153486,
-      "compass": 46.7
     },
     {
       "id": "386004809233119",
@@ -83,6 +91,14 @@
       "lat": 41.413645,
       "lon": 2.152901,
       "compass": 101.2
+    },
+    {
+      "id": "519534035742713",
+      "creator": "angoca",
+      "capturedAt": 1496177597000,
+      "lat": 41.41412,
+      "lon": 2.153537,
+      "compass": 45.7
     },
     {
       "id": "937230643733978",

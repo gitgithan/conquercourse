@@ -2,16 +2,8 @@
   "place": "caminito-buenos-aires",
   "name": "La Boca, Buenos Aires",
   "generated": "2026-10-31",
-  "source": "Mapillary contributors, CC BY-SA 4.0; photos with a person detected (Faster R-CNN, of any size) are left out",
+  "source": "Mapillary contributors, CC BY-SA 4.0; faces and plates are blurred by Mapillary (not a guarantee); photos with a close-up or large person (Faster R-CNN) are left out",
   "photos": [
-    {
-      "id": "1185185011907755",
-      "creator": "kaartcam",
-      "capturedAt": 1479041710000,
-      "lat": -34.640054,
-      "lon": -58.363315,
-      "compass": 240.0
-    },
     {
       "id": "1395537370832443",
       "creator": "kaartcam",
@@ -37,20 +29,20 @@
       "compass": 240.1
     },
     {
+      "id": "308746850821921",
+      "creator": "kaartcam",
+      "capturedAt": 1479041746000,
+      "lat": -34.639538,
+      "lon": -58.363499,
+      "compass": 236.4
+    },
+    {
       "id": "3850015601780685",
       "creator": "kaartcam",
       "capturedAt": 1479041743000,
       "lat": -34.639631,
       "lon": -58.363455,
       "compass": 255.3
-    },
-    {
-      "id": "635426824079918",
-      "creator": "kaartcam",
-      "capturedAt": 1479041749000,
-      "lat": -34.639499,
-      "lon": -58.363493,
-      "compass": 224.6
     },
     {
       "id": "753353118694181",
@@ -67,6 +59,14 @@
       "lat": -34.639851,
       "lon": -58.363421,
       "compass": 263.2
+    },
+    {
+      "id": "935281650933847",
+      "creator": "miguel_andrade",
+      "capturedAt": 1678196388939,
+      "lat": -34.639907,
+      "lon": -58.363288,
+      "compass": 242.4
     },
     {
       "id": "939621643502172",

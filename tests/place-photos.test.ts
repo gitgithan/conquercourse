@@ -80,3 +80,17 @@ describe('place photos (CC-85)', () => {
     expect(captionFor(d, d.photos[0])).toBe(`Real photo of Montmartre, Paris, ${d.photos[0].author}, ${d.photos[0].licence}`);
   });
 });
+
+describe('Mapillary credit (CC-90)', () => {
+  it('the mark is a link to mapillary.com that opens safely, and only Mapillary sources count', async () => {
+    const { isMapillary, mapillaryMark, MAPILLARY_HOME } = await import('../src/ui/place-photos');
+    expect(isMapillary('https://www.mapillary.com/app/?pKey=123')).toBe(true);
+    expect(isMapillary('https://commons.wikimedia.org/wiki/File:x.jpg')).toBe(false);
+    expect(MAPILLARY_HOME).toBe('https://www.mapillary.com/');
+    const { JSDOM } = await import('jsdom').catch(() => ({ JSDOM: null as any }));
+    if (!JSDOM) return;
+    const dom = new JSDOM(''); (globalThis as any).document = dom.window.document;
+    const a = mapillaryMark(null);
+    expect(a.href).toBe('https://www.mapillary.com/'); expect(a.rel).toContain('noopener'); expect(a.textContent).toBe('Mapillary');
+  });
+});

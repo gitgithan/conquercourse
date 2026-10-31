@@ -2,8 +2,32 @@
   "place": "main-square-krakow",
   "name": "Main Square, Krakow",
   "generated": "2026-10-31",
-  "source": "Mapillary contributors, CC BY-SA 4.0; photos with a person detected (Faster R-CNN, of any size) are left out",
+  "source": "Mapillary contributors, CC BY-SA 4.0; faces and plates are blurred by Mapillary (not a guarantee); photos with a close-up or large person (Faster R-CNN) are left out",
   "photos": [
+    {
+      "id": "112364887595468",
+      "creator": "ekeshkekesh",
+      "capturedAt": 1574852677000,
+      "lat": 50.061979,
+      "lon": 19.938711,
+      "compass": 323.6
+    },
+    {
+      "id": "1130163310817937",
+      "creator": "ekeshkekesh",
+      "capturedAt": 1574852679000,
+      "lat": 50.062038,
+      "lon": 19.938604,
+      "compass": 303.4
+    },
+    {
+      "id": "132784882663310",
+      "creator": "igorzo",
+      "capturedAt": 1666967677540,
+      "lat": 50.062087,
+      "lon": 19.936994,
+      "compass": 129.3
+    },
     {
       "id": "154816403260523",
       "creator": "richlv",
@@ -13,12 +37,20 @@
       "compass": 29.8
     },
     {
-      "id": "2312125702311757",
-      "creator": "mapfool",
-      "capturedAt": 1717565100206,
-      "lat": 50.061424,
-      "lon": 19.937787,
-      "compass": 296.1
+      "id": "167536771985301",
+      "creator": "ekeshkekesh",
+      "capturedAt": 1574849997000,
+      "lat": 50.061988,
+      "lon": 19.936278,
+      "compass": 206.3
+    },
+    {
+      "id": "168121576228243",
+      "creator": "fantoment",
+      "capturedAt": 1645797157200,
+      "lat": 50.061792,
+      "lon": 19.937703,
+      "compass": 0
     },
     {
       "id": "2834219573507672",
@@ -29,6 +61,22 @@
       "compass": 48.4
     },
     {
+      "id": "285521482977273",
+      "creator": "richlv",
+      "capturedAt": 1500823623655,
+      "lat": 50.062047,
+      "lon": 19.936386,
+      "compass": 168.8
+    },
+    {
+      "id": "2864999887148707",
+      "creator": "richlv",
+      "capturedAt": 1500662256784,
+      "lat": 50.061969,
+      "lon": 19.936302,
+      "compass": 155.7
+    },
+    {
       "id": "287530872911160",
       "creator": "richlv",
       "capturedAt": 1500829483087,
@@ -37,12 +85,12 @@
       "compass": 288.7
     },
     {
-      "id": "3803692329950639",
-      "creator": "mapfool",
-      "capturedAt": 1717565099507,
-      "lat": 50.061423,
-      "lon": 19.93779,
-      "compass": 320.4
+      "id": "292365565715225",
+      "creator": "ekeshkekesh",
+      "capturedAt": 1574849996000,
+      "lat": 50.062038,
+      "lon": 19.936323,
+      "compass": 205.3
     },
     {
       "id": "4206239026077058",
@@ -51,6 +99,38 @@
       "lat": 50.062008,
       "lon": 19.936375,
       "compass": 151.4
+    },
+    {
+      "id": "646876563459659",
+      "creator": "igorzo",
+      "capturedAt": 1666967678200,
+      "lat": 50.062088,
+      "lon": 19.936992,
+      "compass": 143.2
+    },
+    {
+      "id": "796417854593284",
+      "creator": "and987",
+      "capturedAt": 1598782896302,
+      "lat": 50.062058,
+      "lon": 19.938894,
+      "compass": 257.1
+    },
+    {
+      "id": "932358447606766",
+      "creator": "ekeshkekesh",
+      "capturedAt": 1574852667000,
+      "lat": 50.061629,
+      "lon": 19.938565,
+      "compass": 34.3
+    },
+    {
+      "id": "959044645130672",
+      "creator": "fantoment",
+      "capturedAt": 1645797157200,
+      "lat": 50.061792,
+      "lon": 19.937703,
+      "compass": 0
     }
   ]
 }

@@ -54,10 +54,13 @@ try {
     if (live) {
       checks[`${tag}: credit under every live photo`] = await page.$$eval('#placephotos .pp-credit', (xs) => xs.length > 0 && xs.length <= 3 && xs.every((x) => /test-creator, CC BY-SA 4\.0/.test(x.textContent ?? '')));
       checks[`${tag}: the line under the strip names Mapillary and the licence`] = /Mapillary/.test((await page.textContent('#placephotos .pp-hint')) ?? '') && /CC BY-SA 4\.0/.test((await page.textContent('#placephotos .pp-hint')) ?? '');
+      checks[`${tag}: the strip shows the Mapillary mark as a link to mapillary.com`] = await page.$eval('#placephotos .pp-head a.pp-mapillary', (a) => a.href === 'https://www.mapillary.com/' && /Mapillary/.test(a.textContent ?? '')).catch(() => false);
       // the large view opens on a live photo with the Mapillary source link
       await page.locator('#placephotos .pp-thumb').first().click();
       await page.waitForSelector('#placephotos-view');
       checks[`${tag}: large view links to the Mapillary photo`] = await page.$eval('#placephotos-view .pp-licence', (e) => [...e.querySelectorAll('a')].some((a) => /mapillary\.com\/app\/\?pKey=\d+/.test(a.href)));
+      checks[`${tag}: large view has the Mapillary mark, the blur note and a report link`] = await page.$eval('#placephotos-view .pp-licence', (e) => !!e.querySelector('a.pp-mapillary') && /blurred by Mapillary/.test(e.textContent ?? '') && [...e.querySelectorAll('a')].some((a) => /Report this photo/.test(a.textContent ?? '') && /mapillary\.com/.test(a.href)));
+      if (vw === 1280) await page.screenshot({ path: `${out}/${slug}-${vw}x${vh}-large.png` });
       await page.keyboard.press('Escape');
     }
     checks[`${tag}: only our own address was asked, ids only, no token`] = asked.length > 0 && asked.every((u) => new URL(u).pathname === '/api/photos' && /^id=[\d,]+$/.test(new URL(u).search.slice(1)));

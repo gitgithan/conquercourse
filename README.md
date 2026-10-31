@@ -77,7 +77,7 @@ flowchart LR
 - **What it is about:** cutting a playable lane out of a real place, the way a flat cut through a building shows its floor plan.
 - **What you can do:**
   - Pick one of the ready places, or pin any spot on Earth.
-  - See the buildings and the ground become a lane, with real street photos along it (people masked).
+  - See the buildings and the ground become a lane, with real street photos along it (faces and plates blurred by Mapillary, close-up people left out).
   - Pick which buildings to build, then play the lane or open it in the World Editor.
 - **What you can generate:** a course from a real place, with street photos, that the simulator has checked.
 - **Why it is unique:**
@@ -214,10 +214,10 @@ flowchart LR
 ```
 
 ### 3. World Slicer: real place to lane
-- Happy path: pick a place or pin -> buildings fetched -> street photos masked -> a lane cut -> the simulator proves it -> play or open in the editor.
+- Happy path: pick a place or pin -> buildings fetched -> street photos found -> a lane cut -> the simulator proves it -> play or open in the editor.
 - `/api/places` asks several map servers at once and keeps the answer on the edge for 30 days.
 - The Slicer cuts the place with a horizontal plane (`src/slice/slicer.ts`), and a worker checks the lane with the ideal-run search (`src/slice/slicer-core.ts`).
-- `/api/photos` fetches Mapillary photos with the token kept on the server; people are masked before a photo is shown.
+- `/api/photos` fetches Mapillary photos with the token kept on the server; the pictures stay on Mapillary, its own face and plate blur applies, and photos with a close-up person are left out of the lists.
 
 ```mermaid
 flowchart LR
@@ -225,7 +225,7 @@ flowchart LR
   B --> C["Slicer<br/>horizontal cut to a lane"]
   C --> D["Ideal-run search<br/>in a worker"]
   D --> E["Playable lane"]
-  A --> F["/api/photos<br/>Mapillary, people masked"]
+  A --> F["/api/photos<br/>Mapillary, blur by Mapillary"]
   F --> E
   E --> G["Course or World Editor"]
   classDef meta fill:#dbeafe,stroke:#1d4ed8,color:#0f172a;
@@ -304,14 +304,14 @@ Diagrams are in [docs/meta-ai-pipelines.md](docs/meta-ai-pipelines.md); the full
 | Community and uploads | **Muse Spark Open** (Baseten) | Upload check and move tips | Live, server function |
 | Characters | **Muse Image, SAM 3.1** | A player's sentence becomes a picture (Muse Image), a cut-out (SAM 3.1) and a mesh (SAM 3D Objects on Modal); the two Rookies were built earlier with Tripo, with one Muse Image reference for Rookie B | Live: a Modal job calls the Meta Model API (Meta credit); see [docs/model-ledger.md](docs/model-ledger.md) |
 | Music | **MusicGen (AudioCraft)** | An original loop per screen | Build time |
-| World Slicer | **Mapillary** (owned by Meta) | Street photos along a built place, people masked | Live, server proxy |
+| World Slicer | **Mapillary** (owned by Meta) | Street photos along a built place, faces and plates blurred by Mapillary | Live, server proxy |
 
 - Keys never reach the browser; the models propose and the simulator decides.
 - Which credit pays for each call, and what a player can trigger: [docs/model-ledger.md](docs/model-ledger.md).
 - Meta tools used while building, not in the game: Muse Wonder reviewed the simulator code (13 real bugs in 21 claims, each checked by us).
 
 ### How we meet the judging criteria
-- **Impact:** real world in, real world out; physics learned by doing; makers as well as players; no sign-in and no real names; people masked.
+- **Impact:** real world in, real world out; physics learned by doing; makers as well as players; no sign-in and no real names; our own captures are blurred, and Mapillary blurs its street photos.
 - **Use of Meta AI tooling:** ten Meta models and services (SAM 3 and 3.1, SAM 3D Objects, SAM 3D Body with MHR, DINOv3, Llama 3, Muse Spark Open, Muse Spark, Muse Image, MusicGen, Mapillary; Muse Wonder is development only and not counted), each doing one visible job; the models propose and the simulator decides.
 - **Technical depth:** a deterministic simulator, an ideal-run proof, a plausibility gate, failures written up in [lessons](docs/lessons.md).
 - **Demo:** the three-minute script is in [docs/demo-script-v2.md](docs/demo-script-v2.md).
@@ -327,8 +327,8 @@ Diagrams are in [docs/meta-ai-pipelines.md](docs/meta-ai-pipelines.md); the full
 
 ### Safe by design
 - No sign-in and no real names; a short tag of up to 12 characters at most, checked against a block list.
-- People are blurred in every photo and street picture.
-- No footage of minors, no chat tutor, no grading or coaching of technique.
+- People are blurred in every photo we process; street pictures use Mapillary's own face and plate blur (not a guarantee, and we never store them).
+- No footage of minors in our own footage (Mapillary street photos follow Mapillary's terms), no chat tutor, no grading or coaching of technique.
 
 ## Play it
 - Keys: arrows or A/D run, Space jump, S squat, E hold, V vault, X roll, R retry, H key card.

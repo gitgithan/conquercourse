@@ -1,49 +1,9 @@
 {
   "place": "edinburgh-old-town",
   "name": "Old Town, Edinburgh",
-  "generated": "2026-10-28",
-  "source": "Mapillary contributors, CC BY-SA 4.0; photos with a person detected (Faster R-CNN, of any size) are left out",
+  "generated": "2026-10-31",
+  "source": "Mapillary contributors, CC BY-SA 4.0; faces and plates are blurred by Mapillary (not a guarantee); photos with a close-up or large person (Faster R-CNN) are left out",
   "photos": [
-    {
-      "id": "1023162498510153",
-      "creator": "drnoble",
-      "capturedAt": 1588229566083,
-      "lat": 55.949146,
-      "lon": -3.188298,
-      "compass": 235.3
-    },
-    {
-      "id": "1078368089322610",
-      "creator": "drnoble",
-      "capturedAt": 1586420670128,
-      "lat": 55.949025,
-      "lon": -3.189142,
-      "compass": 84.8
-    },
-    {
-      "id": "1103134143504634",
-      "creator": "drnoble",
-      "capturedAt": 1586416801754,
-      "lat": 55.949167,
-      "lon": -3.188312,
-      "compass": 267.7
-    },
-    {
-      "id": "1108056603022953",
-      "creator": "drnoble",
-      "capturedAt": 1580564223139,
-      "lat": 55.948658,
-      "lon": -3.189247,
-      "compass": 329.5
-    },
-    {
-      "id": "1150846752096785",
-      "creator": "pbb",
-      "capturedAt": 1563190466605,
-      "lat": 55.948615,
-      "lon": -3.189288,
-      "compass": 351.9
-    },
     {
       "id": "145481884262053",
       "creator": "pbb",
@@ -53,68 +13,12 @@
       "compass": 343.8
     },
     {
-      "id": "1470876436593620",
+      "id": "1935167543301539",
       "creator": "drnoble",
-      "capturedAt": 1586420672919,
-      "lat": 55.949004,
-      "lon": -3.189146,
-      "compass": 165.8
-    },
-    {
-      "id": "153156640109107",
-      "creator": "drnoble",
-      "capturedAt": 1586416838589,
-      "lat": 55.949324,
-      "lon": -3.188537,
-      "compass": 255.4
-    },
-    {
-      "id": "160548862681449",
-      "creator": "drnoble",
-      "capturedAt": 1590563679502,
-      "lat": 55.949099,
-      "lon": -3.188706,
-      "compass": 332.7
-    },
-    {
-      "id": "162394899160193",
-      "creator": "drnoble",
-      "capturedAt": 1586416827075,
-      "lat": 55.949257,
-      "lon": -3.188478,
-      "compass": 358.8
-    },
-    {
-      "id": "163015092493415",
-      "creator": "drnoble",
-      "capturedAt": 1586420673082,
-      "lat": 55.949003,
-      "lon": -3.189145,
-      "compass": 166.1
-    },
-    {
-      "id": "177806087574082",
-      "creator": "pbb",
-      "capturedAt": 1563190465525,
-      "lat": 55.948598,
-      "lon": -3.189282,
-      "compass": 351.9
-    },
-    {
-      "id": "178081187549631",
-      "creator": "drnoble",
-      "capturedAt": 1586420340071,
-      "lat": 55.949559,
-      "lon": -3.1883,
-      "compass": 164.5
-    },
-    {
-      "id": "180021974030396",
-      "creator": "drnoble",
-      "capturedAt": 1586420621624,
-      "lat": 55.949195,
-      "lon": -3.18923,
-      "compass": 171.5
+      "capturedAt": 1586420305769,
+      "lat": 55.949909,
+      "lon": -3.188481,
+      "compass": 172.4
     },
     {
       "id": "211930330535336",
@@ -125,22 +29,6 @@
       "compass": 242
     },
     {
-      "id": "2233072873490235",
-      "creator": "drnoble",
-      "capturedAt": 1588229579078,
-      "lat": 55.949083,
-      "lon": -3.18856,
-      "compass": 237.2
-    },
-    {
-      "id": "237279081502347",
-      "creator": "drnoble",
-      "capturedAt": 1586420630958,
-      "lat": 55.949062,
-      "lon": -3.189172,
-      "compass": 166.7
-    },
-    {
       "id": "292415979034112",
       "creator": "pbb",
       "capturedAt": 1563190470782,
@@ -149,132 +37,12 @@
       "compass": 346.3
     },
     {
-      "id": "299799388407286",
+      "id": "382053653073644",
       "creator": "drnoble",
-      "capturedAt": 1586420626951,
-      "lat": 55.94912,
-      "lon": -3.189198,
-      "compass": 170.4
-    },
-    {
-      "id": "300383208395282",
-      "creator": "pbb",
-      "capturedAt": 1563190471750,
-      "lat": 55.94869,
-      "lon": -3.189319,
-      "compass": 348.2
-    },
-    {
-      "id": "301328748158789",
-      "creator": "drnoble",
-      "capturedAt": 1588229584053,
-      "lat": 55.949055,
-      "lon": -3.188653,
-      "compass": 229.6
-    },
-    {
-      "id": "302196738117064",
-      "creator": "drnoble",
-      "capturedAt": 1586416513328,
-      "lat": 55.950011,
-      "lon": -3.188194,
-      "compass": 249.7
-    },
-    {
-      "id": "306303661074221",
-      "creator": "drnoble",
-      "capturedAt": 1590563675829,
-      "lat": 55.949054,
-      "lon": -3.188668,
-      "compass": 333.1
-    },
-    {
-      "id": "3079728482263408",
-      "creator": "drnoble",
-      "capturedAt": 1588229554164,
-      "lat": 55.949034,
-      "lon": -3.188139,
-      "compass": 338
-    },
-    {
-      "id": "3086608401617161",
-      "creator": "pbb",
-      "capturedAt": 1563190468731,
-      "lat": 55.948646,
-      "lon": -3.189301,
-      "compass": 349.8
-    },
-    {
-      "id": "310902500426927",
-      "creator": "drnoble",
-      "capturedAt": 1586416835050,
-      "lat": 55.949317,
-      "lon": -3.188519,
-      "compass": 332.6
-    },
-    {
-      "id": "313978690169183",
-      "creator": "drnoble",
-      "capturedAt": 1586416856375,
-      "lat": 55.949262,
-      "lon": -3.188808,
-      "compass": 243.7
-    },
-    {
-      "id": "321114299590056",
-      "creator": "drnoble",
-      "capturedAt": 1590563670830,
-      "lat": 55.949009,
-      "lon": -3.188634,
-      "compass": 335
-    },
-    {
-      "id": "328338201971849",
-      "creator": "drnoble",
-      "capturedAt": 1586420623908,
-      "lat": 55.949153,
-      "lon": -3.189215,
-      "compass": 167.6
-    },
-    {
-      "id": "330159651786445",
-      "creator": "drnoble",
-      "capturedAt": 1590563688120,
-      "lat": 55.949143,
-      "lon": -3.188738,
-      "compass": 344.1
-    },
-    {
-      "id": "376071370432000",
-      "creator": "drnoble",
-      "capturedAt": 1586416810085,
-      "lat": 55.949202,
-      "lon": -3.188453,
-      "compass": 331.6
-    },
-    {
-      "id": "380154626657751",
-      "creator": "drnoble",
-      "capturedAt": 1588229601015,
-      "lat": 55.948963,
-      "lon": -3.188974,
-      "compass": 261.5
-    },
-    {
-      "id": "440031278932918",
-      "creator": "southglos",
-      "capturedAt": 1719550475000,
-      "lat": 55.94852,
-      "lon": -3.189494,
-      "compass": 298.3
-    },
-    {
-      "id": "465962531160530",
-      "creator": "drnoble",
-      "capturedAt": 1586420363038,
-      "lat": 55.949434,
-      "lon": -3.18825,
-      "compass": 192.9
+      "capturedAt": 1586420316436,
+      "lat": 55.94982,
+      "lon": -3.188433,
+      "compass": 171.8
     },
     {
       "id": "470833470644239",
@@ -285,6 +53,14 @@
       "compass": 255.5
     },
     {
+      "id": "496788718401230",
+      "creator": "pbb",
+      "capturedAt": 1563190473621,
+      "lat": 55.948717,
+      "lon": -3.189334,
+      "compass": 342
+    },
+    {
       "id": "501086089051660",
       "creator": "southglos",
       "capturedAt": 1719550476000,
@@ -293,60 +69,20 @@
       "compass": 264.5
     },
     {
-      "id": "518031166049457",
+      "id": "501882817525938",
+      "creator": "drnoble",
+      "capturedAt": 1586416485822,
+      "lat": 55.949757,
+      "lon": -3.188125,
+      "compass": 343.7
+    },
+    {
+      "id": "5020911304609792",
       "creator": "pbb",
-      "capturedAt": 1563190463337,
-      "lat": 55.948564,
-      "lon": -3.189269,
-      "compass": 351.1
-    },
-    {
-      "id": "519099875771627",
-      "creator": "drnoble",
-      "capturedAt": 1586416820962,
-      "lat": 55.949217,
-      "lon": -3.188447,
-      "compass": 337.7
-    },
-    {
-      "id": "522167622250715",
-      "creator": "drnoble",
-      "capturedAt": 1588229574070,
-      "lat": 55.949109,
-      "lon": -3.188454,
-      "compass": 237.7
-    },
-    {
-      "id": "538169670672560",
-      "creator": "drnoble",
-      "capturedAt": 1586420600712,
-      "lat": 55.949454,
-      "lon": -3.189333,
-      "compass": 150.4
-    },
-    {
-      "id": "557470461907873",
-      "creator": "drnoble",
-      "capturedAt": 1588229594056,
-      "lat": 55.948998,
-      "lon": -3.188845,
-      "compass": 245.3
-    },
-    {
-      "id": "750408062315175",
-      "creator": "pbb",
-      "capturedAt": 1563190467703,
-      "lat": 55.948632,
-      "lon": -3.189295,
-      "compass": 349.4
-    },
-    {
-      "id": "796280574355425",
-      "creator": "drnoble",
-      "capturedAt": 1586416806820,
-      "lat": 55.949187,
-      "lon": -3.188395,
-      "compass": 308.6
+      "capturedAt": 1563190475721,
+      "lat": 55.948741,
+      "lon": -3.189347,
+      "compass": 342.7
     },
     {
       "id": "822341015367624",
@@ -357,68 +93,12 @@
       "compass": 348.7
     },
     {
-      "id": "826609837973489",
-      "creator": "drnoble",
-      "capturedAt": 1586420671343,
-      "lat": 55.949016,
-      "lon": -3.189153,
-      "compass": 120.8
-    },
-    {
       "id": "838331097794702",
       "creator": "southglos",
       "capturedAt": 1719550476000,
       "lat": 55.948534,
       "lon": -3.189374,
       "compass": 298.2
-    },
-    {
-      "id": "852777662251534",
-      "creator": "drnoble",
-      "capturedAt": 1586420616118,
-      "lat": 55.949263,
-      "lon": -3.189257,
-      "compass": 170.2
-    },
-    {
-      "id": "893888081169076",
-      "creator": "drnoble",
-      "capturedAt": 1590563667832,
-      "lat": 55.948955,
-      "lon": -3.188666,
-      "compass": 352.4
-    },
-    {
-      "id": "903941246847459",
-      "creator": "drnoble",
-      "capturedAt": 1588229608746,
-      "lat": 55.948971,
-      "lon": -3.189025,
-      "compass": 283.3
-    },
-    {
-      "id": "935267647286751",
-      "creator": "drnoble",
-      "capturedAt": 1586420333853,
-      "lat": 55.94963,
-      "lon": -3.188335,
-      "compass": 164.1
-    },
-    {
-      "id": "937381763687394",
-      "creator": "chris",
-      "capturedAt": 1586542283089,
-      "lat": 55.950047,
-      "lon": -3.188073,
-      "compass": 261.4
-    },
-    {
-      "id": "948882072538709",
-      "creator": "drnoble",
-      "capturedAt": 1586416512187,
-      "lat": 55.950012,
-      "lon": -3.18818,
-      "compass": 255.7
     }
   ]
 }

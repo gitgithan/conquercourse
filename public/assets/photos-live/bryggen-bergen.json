@@ -2,39 +2,63 @@
   "place": "bryggen-bergen",
   "name": "Bryggen, Bergen",
   "generated": "2026-10-31",
-  "source": "Mapillary contributors, CC BY-SA 4.0; photos with a person detected (Faster R-CNN, of any size) are left out",
+  "source": "Mapillary contributors, CC BY-SA 4.0; faces and plates are blurred by Mapillary (not a guarantee); photos with a close-up or large person (Faster R-CNN) are left out",
   "photos": [
     {
-      "id": "305379847885014",
-      "creator": "ankeric",
-      "capturedAt": 1489505909003,
-      "lat": 60.397115,
-      "lon": 5.32396,
-      "compass": 248.3
-    },
-    {
-      "id": "494546215226464",
-      "creator": "km2bp",
-      "capturedAt": 1563231919285,
-      "lat": 60.397637,
-      "lon": 5.322165,
-      "compass": 8.8
-    },
-    {
-      "id": "502023697506371",
+      "id": "1058133494996125",
       "creator": "pbb",
-      "capturedAt": 1560263174716,
-      "lat": 60.39756,
-      "lon": 5.322852,
-      "compass": 12.5
+      "capturedAt": 1560263181577,
+      "lat": 60.397547,
+      "lon": 5.322903,
+      "compass": 29
     },
     {
-      "id": "508527387180158",
-      "creator": "ankeric",
-      "capturedAt": 1489505892947,
-      "lat": 60.397236,
-      "lon": 5.324113,
-      "compass": 231.0
+      "id": "1096830026417864",
+      "creator": "BergenStreetView",
+      "capturedAt": 1791468724550,
+      "lat": 60.397405,
+      "lon": 5.323183,
+      "compass": 213.3
+    },
+    {
+      "id": "1155695302589387",
+      "creator": "southglos",
+      "capturedAt": 1739291722037,
+      "lat": 60.398087,
+      "lon": 5.322183,
+      "compass": 184.3
+    },
+    {
+      "id": "1416193269963161",
+      "creator": "BergenStreetView",
+      "capturedAt": 1791468724500,
+      "lat": 60.397404,
+      "lon": 5.323185,
+      "compass": 215.7
+    },
+    {
+      "id": "156291143044162",
+      "creator": "pbb",
+      "capturedAt": 1560440129709,
+      "lat": 60.398049,
+      "lon": 5.322193,
+      "compass": 40.6
+    },
+    {
+      "id": "2966680346946037",
+      "creator": "pbb",
+      "capturedAt": 1560263176858,
+      "lat": 60.397573,
+      "lon": 5.322861,
+      "compass": 35.1
+    },
+    {
+      "id": "640255185189474",
+      "creator": "southglos",
+      "capturedAt": 1739291724208,
+      "lat": 60.398118,
+      "lon": 5.322204,
+      "compass": 162.5
     }
   ]
 }

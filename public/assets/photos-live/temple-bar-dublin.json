@@ -2,7 +2,7 @@
   "place": "temple-bar-dublin",
   "name": "Temple Bar, Dublin",
   "generated": "2026-10-31",
-  "source": "Mapillary contributors, CC BY-SA 4.0; photos with a person detected (Faster R-CNN, of any size) are left out",
+  "source": "Mapillary contributors, CC BY-SA 4.0; faces and plates are blurred by Mapillary (not a guarantee); photos with a close-up or large person (Faster R-CNN) are left out",
   "photos": [
     {
       "id": "1123168158167800",
@@ -13,12 +13,36 @@
       "compass": 114.6
     },
     {
+      "id": "131873872309345",
+      "creator": "debigc",
+      "capturedAt": 1509369764646,
+      "lat": 53.345897,
+      "lon": -6.263878,
+      "compass": 237.3
+    },
+    {
+      "id": "1431697944691183",
+      "creator": "yannakis",
+      "capturedAt": 1749148413013,
+      "lat": 53.345854,
+      "lon": -6.263105,
+      "compass": 262.2
+    },
+    {
       "id": "1448465992998088",
       "creator": "yannakis",
       "capturedAt": 1749148390011,
       "lat": 53.345892,
       "lon": -6.263904,
       "compass": 253.4
+    },
+    {
+      "id": "1658607158183776",
+      "creator": "yannakis",
+      "capturedAt": 1749148389012,
+      "lat": 53.345933,
+      "lon": -6.26371,
+      "compass": 254
     },
     {
       "id": "2222521604544472",
@@ -29,12 +53,60 @@
       "compass": 343.7
     },
     {
-      "id": "522544145770452",
+      "id": "265217838660439",
       "creator": "pbb",
-      "capturedAt": 1436637203000,
+      "capturedAt": 1436265568000,
+      "lat": 53.345609,
+      "lon": -6.263521,
+      "compass": 111.2
+    },
+    {
+      "id": "597268184584105",
+      "creator": "stefan005",
+      "capturedAt": 1526059621122,
       "lat": 53.345935,
-      "lon": -6.263351,
-      "compass": 268.8
+      "lon": -6.263503,
+      "compass": 264.5
+    },
+    {
+      "id": "719015864212312",
+      "creator": "yannakis",
+      "capturedAt": 1749148411007,
+      "lat": 53.345865,
+      "lon": -6.263,
+      "compass": 258.9
+    },
+    {
+      "id": "741115257476296",
+      "creator": "yannakis",
+      "capturedAt": 1677345168484,
+      "lat": 53.345941,
+      "lon": -6.263668,
+      "compass": 254.3
+    },
+    {
+      "id": "921379935310349",
+      "creator": "debigc",
+      "capturedAt": 1555246343000,
+      "lat": 53.345982,
+      "lon": -6.263378,
+      "compass": 249.4
+    },
+    {
+      "id": "945893323259290",
+      "creator": "yannakis",
+      "capturedAt": 1677345167527,
+      "lat": 53.345959,
+      "lon": -6.26355,
+      "compass": 253.8
+    },
+    {
+      "id": "970684737072417",
+      "creator": "debigc",
+      "capturedAt": 1555246343000,
+      "lat": 53.345982,
+      "lon": -6.263378,
+      "compass": 249.4
     }
   ]
 }

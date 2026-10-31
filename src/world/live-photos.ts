@@ -1,6 +1,6 @@
 // Live nearby photos (CC-90): as the runner moves along a real place, the strip shows street photos taken near that spot.
-// Only photos on a per-place allow-list are ever shown: scripts/photos_people.py made the list offline and left out every photo with a person in it,
-// so a player never meets an unfiltered picture. The network is used only to turn an allowed photo id into a fresh picture address (they expire).
+// Only photos on a per-place allow-list are ever shown (scripts/photos_lanelist.py makes it from Mapillary's own photos). Mapillary blurs faces and plates itself;
+// that blur is our standard (owner, 2026-11-01), it is not a guarantee, and every large photo links to Mapillary's page to report it. The network is used only to turn an allowed photo id into a fresh picture address (they expire).
 import type { PhotoCredit, PlacePhotos } from '../ui/place-photos';
 
 export interface PlaceLine { lat: number; lon: number; lane: { line: [number, number, number, number] } } // line: metres east and south of the pin (src/world/osm.ts)
@@ -93,7 +93,7 @@ export function createLive(o: LiveOpts) {
       shown = sig;
       if (!ready.length) { o.show(null); return; }
       const near = (p: AllowedPhoto) => { const s = toXY(o.place.lat, o.place.lon, p.lat, p.lon); return Math.hypot(s.x - spot.x, s.y - spot.y); };
-      o.show({ place: o.allow.place, name: o.allow.name, photos: ready.map((p) => creditFor(p, thumbs.get(p.id)!, near(p))), note: 'Street photos from Mapillary contributors, CC BY-SA 4.0. Click one to see it large.' });
+      o.show({ place: o.allow.place, name: o.allow.name, photos: ready.map((p) => creditFor(p, thumbs.get(p.id)!, near(p))), note: 'Street photos from Mapillary contributors, CC BY-SA 4.0; faces and plates are blurred by Mapillary. Click one to see it large.' });
     } finally { busy = false; }
   }
   return { update, picksCached: () => picks.size };

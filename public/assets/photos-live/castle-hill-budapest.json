@@ -2,15 +2,159 @@
   "place": "castle-hill-budapest",
   "name": "Castle Hill, Budapest",
   "generated": "2026-10-31",
-  "source": "Mapillary contributors, CC BY-SA 4.0; photos with a person detected (Faster R-CNN, of any size) are left out",
+  "source": "Mapillary contributors, CC BY-SA 4.0; faces and plates are blurred by Mapillary (not a guarantee); photos with a close-up or large person (Faster R-CNN) are left out",
   "photos": [
     {
-      "id": "1089043989385175",
+      "id": "1064833208764869",
       "creator": "grozsa11",
-      "capturedAt": 1732002560507,
-      "lat": 47.501534,
-      "lon": 19.033756,
-      "compass": 260.4
+      "capturedAt": 1728977376780,
+      "lat": 47.501417,
+      "lon": 19.033477,
+      "compass": 198.1
+    },
+    {
+      "id": "1080315217428868",
+      "creator": "grozsa11",
+      "capturedAt": 1729842487405,
+      "lat": 47.501045,
+      "lon": 19.034186,
+      "compass": 157.4
+    },
+    {
+      "id": "1108541899557518",
+      "creator": "kami911",
+      "capturedAt": 1535470599062,
+      "lat": 47.501966,
+      "lon": 19.03254,
+      "compass": 300.8
+    },
+    {
+      "id": "1148242520360540",
+      "creator": "grozsa11",
+      "capturedAt": 1740130423826,
+      "lat": 47.501294,
+      "lon": 19.033853,
+      "compass": 181.3
+    },
+    {
+      "id": "150879933713917",
+      "creator": "kami911",
+      "capturedAt": 1535470601390,
+      "lat": 47.501894,
+      "lon": 19.032681,
+      "compass": 299.5
+    },
+    {
+      "id": "1530365697648435",
+      "creator": "grozsa11",
+      "capturedAt": 1732002584008,
+      "lat": 47.501068,
+      "lon": 19.034124,
+      "compass": 355.7
+    },
+    {
+      "id": "153974309939686",
+      "creator": "kami911",
+      "capturedAt": 1535470603644,
+      "lat": 47.501821,
+      "lon": 19.032821,
+      "compass": 299.9
+    },
+    {
+      "id": "1595935827269348",
+      "creator": "kami911",
+      "capturedAt": 1535470605884,
+      "lat": 47.50175,
+      "lon": 19.032966,
+      "compass": 298.5
+    },
+    {
+      "id": "188665906910024",
+      "creator": "grozsa11",
+      "capturedAt": 1663653163178,
+      "lat": 47.501583,
+      "lon": 19.033207,
+      "compass": 207.2
+    },
+    {
+      "id": "2017912211962650",
+      "creator": "grozsa11",
+      "capturedAt": 1728977377549,
+      "lat": 47.50144,
+      "lon": 19.03349,
+      "compass": 204.8
+    },
+    {
+      "id": "294533368812958",
+      "creator": "kami911",
+      "capturedAt": 1535470603644,
+      "lat": 47.501821,
+      "lon": 19.032821,
+      "compass": 299.9
+    },
+    {
+      "id": "301015521632008",
+      "creator": "kami911",
+      "capturedAt": 1535470599520,
+      "lat": 47.501944,
+      "lon": 19.032583,
+      "compass": 300.6
+    },
+    {
+      "id": "314724823709215",
+      "creator": "kami911",
+      "capturedAt": 1535470599520,
+      "lat": 47.501944,
+      "lon": 19.032582,
+      "compass": 300.5
+    },
+    {
+      "id": "3833555160247202",
+      "creator": "grozsa11",
+      "capturedAt": 1732002570354,
+      "lat": 47.501142,
+      "lon": 19.033994,
+      "compass": 207.1
+    },
+    {
+      "id": "4041768652568899",
+      "creator": "kami911",
+      "capturedAt": 1535470601390,
+      "lat": 47.501893,
+      "lon": 19.032681,
+      "compass": 299.5
+    },
+    {
+      "id": "459175025172059",
+      "creator": "kami911",
+      "capturedAt": 1535470605884,
+      "lat": 47.50175,
+      "lon": 19.032966,
+      "compass": 298.5
+    },
+    {
+      "id": "459564425143302",
+      "creator": "kami911",
+      "capturedAt": 1535470606350,
+      "lat": 47.501726,
+      "lon": 19.033018,
+      "compass": 297.9
+    },
+    {
+      "id": "486621182490402",
+      "creator": "kami911",
+      "capturedAt": 1535470607202,
+      "lat": 47.501682,
+      "lon": 19.033113,
+      "compass": 297.1
+    },
+    {
+      "id": "500035524861731",
+      "creator": "grozsa11",
+      "capturedAt": 1663653164279,
+      "lat": 47.501574,
+      "lon": 19.033179,
+      "compass": 198.2
     },
     {
       "id": "511069691981821",
@@ -21,36 +165,36 @@
       "compass": 131.3
     },
     {
-      "id": "579310624586453",
-      "creator": "grozsa11",
-      "capturedAt": 1732002522756,
-      "lat": 47.501528,
-      "lon": 19.033809,
-      "compass": 249.8
+      "id": "750114398996643",
+      "creator": "kami911",
+      "capturedAt": 1535470599062,
+      "lat": 47.501966,
+      "lon": 19.03254,
+      "compass": 300.8
     },
     {
-      "id": "623579017298240",
-      "creator": "grozsa11",
-      "capturedAt": 1740130422851,
-      "lat": 47.501284,
-      "lon": 19.033907,
-      "compass": 189.1
+      "id": "775837926638683",
+      "creator": "kami911",
+      "capturedAt": 1535470657864,
+      "lat": 47.501147,
+      "lon": 19.033891,
+      "compass": 337.6
     },
     {
-      "id": "624188107011388",
-      "creator": "grozsa11",
-      "capturedAt": 1740130419745,
-      "lat": 47.501351,
-      "lon": 19.03383,
-      "compass": 181.5
+      "id": "856548314926771",
+      "creator": "kami911",
+      "capturedAt": 1535470607202,
+      "lat": 47.501682,
+      "lon": 19.033113,
+      "compass": 297.2
     },
     {
-      "id": "813910976202260",
-      "creator": "osm1012",
-      "capturedAt": 1591082759384,
-      "lat": 47.501579,
-      "lon": 19.031512,
-      "compass": 11.9
+      "id": "899623120598077",
+      "creator": "kami911",
+      "capturedAt": 1535470606350,
+      "lat": 47.501726,
+      "lon": 19.033018,
+      "compass": 297.8
     }
   ]
 }
