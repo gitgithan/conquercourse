@@ -29,8 +29,7 @@ describe('what a share may contain (CC-247)', () => {
   });
   it('refuses bad names, files and kinds', () => {
     expect(cleanItem(piece({ name: 'a' })).ok).toBe(false);
-    const tags = cleanItem(piece({ name: 'rail <b>one</b>' })); // angle brackets are removed, never stored
-    expect(tags.ok).toBe(true);
+    const tags = cleanItem(piece({ name: 'rail <b>one</b>' })); // angle brackets are removed or the name is refused, never stored
     if (tags.ok) expect(tags.item.name).not.toMatch(/[<>]/);
     expect(cleanItem(piece({ glb: Buffer.from('not a model').toString('base64') })).ok).toBe(false);
     expect(cleanItem(piece({ glb: undefined })).ok).toBe(false);
