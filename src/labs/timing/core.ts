@@ -99,7 +99,7 @@ export function pressSpeeds(course: CourseData, plan: Plan): number[] {
   return out;
 }
 
-export interface PressWindow { index: number; edgeX: number; loMs: number; hiMs: number; widthMs: number; capped: boolean }
+export interface PressWindow { index: number; edgeX: number; loMs: number; hiMs: number; widthMs: number; centredMs: number; capped: boolean; aimShiftMs?: number }
 export const SWEEP_MS = 4; // the windows are measured in steps of 4 ms
 /** For each press, how early and how late it may be (all other presses on time) and still clear: measured on the simulator. */
 export function measureWindows(course: CourseData, plan: Plan, speeds: number[], reachMs = 600): PressWindow[] {
@@ -110,7 +110,7 @@ export function measureWindows(course: CourseData, plan: Plan, speeds: number[],
     while (lo > -reachMs && ok(lo - SWEEP_MS)) lo -= SWEEP_MS;
     while (hi < reachMs && ok(hi + SWEEP_MS)) hi += SWEEP_MS;
     const loMs = lo - SWEEP_MS / 2, hiMs = hi + SWEEP_MS / 2;
-    return { index: k, edgeX: es[k]?.x ?? 0, loMs, hiMs, widthMs: hiMs - loMs, capped: lo <= -reachMs || hi >= reachMs };
+    return { index: k, edgeX: es[k]?.x ?? 0, loMs, hiMs, widthMs: hiMs - loMs, centredMs: 2 * Math.min(-loMs, hiMs), capped: lo <= -reachMs || hi >= reachMs };
   });
 }
 
@@ -125,7 +125,7 @@ export interface TimingResult {
   failsNoPress: number; // failures not traced to a press
   predicted: number; // the product of the chances that each press lands in its measured window
   w50: number; w90: number; // window width (ms) per press that gives 50 % and 90 % clear at this jitter
-  minWindowMs: number; meanWindowMs: number;
+  minWindowMs: number; meanWindowMs: number; minCentredMs: number; // the centred window is the same either side of the ideal press: the part of the window a symmetric presser can use
   simSeconds: number;
   cfg: TimingConfig;
 }
@@ -135,12 +135,31 @@ export function binIndex(ms: number): number {
 }
 export const binEdges = (): number[] => { const n = (BIN_MAX - BIN_MIN) / BIN_MS; return [-Infinity, ...Array.from({ length: n }, (_, i) => BIN_MIN + i * BIN_MS), BIN_MAX]; };
 
+/** The presser aims at the middle of each press's window (the game's own "ideal press" is the middle of the good presses), looking at most AIM_REACH_MS either side so a window that runs on and on is not centred on its far end. */
+export const AIM_REACH_MS = 300;
 export function prepare(course: CourseData): { plan: Plan; speeds: number[]; windows: PressWindow[] } | null {
   const plan = course.plan;
   if (!plan || !plan.jumpXs.length) return null;
   const speeds = pressSpeeds(course, plan);
   if (speeds.length !== plan.jumpXs.length || playPlan(course, plan).world.outcome !== "cleared") return null;
-  return { plan, speeds, windows: measureWindows(course, plan, speeds) };
+  const first = measureWindows(course, plan, speeds);
+  const shifts = first.map((w) => { const lo = Math.max(w.loMs, -AIM_REACH_MS), hi = Math.min(w.hiMs, AIM_REACH_MS); return Math.round((lo + hi) / 2 / SWEEP_MS) * SWEEP_MS; });
+  // move the presses one at a time, keeping a move only if the whole plan still clears (the others shift with it); a move that fails is tried at half size
+  const moved = plan.jumpXs.slice();
+  const kept = shifts.map(() => 0);
+  const withMoved = (xs: number[]): Plan => ({ ...plan, jumpXs: xs });
+  shifts.forEach((sh, k) => {
+    for (const f of [1, 0.5]) {
+      const ms = Math.round((sh * f) / SWEEP_MS) * SWEEP_MS;
+      if (ms === 0) break;
+      const xs = moved.slice(); xs[k] = plan.jumpXs[k] + (speeds[k] * ms) / 1000;
+      if (playPlan(course, withMoved(xs)).world.outcome === "cleared") { moved[k] = xs[k]; kept[k] = ms; break; }
+    }
+  });
+  const aimed = withMoved(moved);
+  const aimedSpeeds = pressSpeeds(course, aimed);
+  const windows = measureWindows(course, aimed, aimedSpeeds).map((w, k) => ({ ...w, aimShiftMs: kept[k] }));
+  return { plan: aimed, speeds: aimedSpeeds, windows };
 }
 
 export function runTiming(course: CourseData, input: TimingConfig, onProgress?: (done: number) => void, prep = prepare(course)): TimingResult | null {
@@ -173,7 +192,7 @@ export function runTiming(course: CourseData, input: TimingConfig, onProgress?: 
     failHist, failBins: binEdges(), failsNoPress,
     predicted: predictedRate(cfg.dist, cfg.sigmaMs, wins),
     w50: widthFor(cfg.dist, cfg.sigmaMs, n, 0.5), w90: widthFor(cfg.dist, cfg.sigmaMs, n, 0.9),
-    minWindowMs: Math.min(...widths), meanWindowMs: widths.reduce((a, b) => a + b, 0) / n,
+    minWindowMs: Math.min(...widths), minCentredMs: Math.min(...windows.map((w) => w.centredMs)), meanWindowMs: widths.reduce((a, b) => a + b, 0) / n,
     simSeconds: Math.round(((meter.ticks - t0) / TICK_HZ) * 10) / 10,
     cfg,
   };

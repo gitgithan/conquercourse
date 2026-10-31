@@ -10,12 +10,12 @@ let failed = '';
 try {
   await new Promise((r) => setTimeout(r, 4000));
   const browser = await chromium.launch();
-  const page = await browser.newPage({ viewport: { width: 1280, height: 900 } });
+  const page = await browser.newPage({ viewport: { width: 1280, height: 1500 } });
   const errors = [];
   page.on('pageerror', (e) => errors.push(e.message));
   await page.goto(`http://localhost:${port}/?mode=lab-timing&labs=1&welcome=0`);
   await page.waitForSelector('html[data-lab-ready=true]', { timeout: 60000 });
-  await page.selectOption('#lt-course', '1');
+  await page.selectOption('#lt-course', '3');
   await page.fill('#lt-sigma', '60');
   await page.dispatchEvent('#lt-sigma', 'input');
   await page.click('#lt-shape button[data-shape=normal]');
@@ -26,7 +26,7 @@ try {
   if (!/Clear rate/.test(facts) || !/Window for 90% clear/.test(facts)) failed = 'facts missing';
   await page.click('#lt-eq-btn');
   mkdirSync('test-results', { recursive: true });
-  await page.screenshot({ path: out, fullPage: true });
+  await page.screenshot({ path: out, fullPage: false });
   if (errors.length) failed = failed || `page errors: ${errors.join('; ')}`;
   await browser.close();
 } finally {

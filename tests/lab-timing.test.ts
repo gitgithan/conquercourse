@@ -23,6 +23,13 @@ describe("Lab 7: statistics of timing", () => {
     const sp = pressSpeeds(trap, trap.plan!);
     for (const off of [-500, 500]) expect(playMoved(trap, trap.plan!, sp, sp.map((_, i) => (i === 0 ? off : 0))).cleared).toBe(false);
   });
+  it("the presser aims inside each window and the aimed plan still clears", () => {
+    for (const c of [trap, lane]) {
+      const p = prepare(c)!;
+      expect(playPlan(c, p.plan).world.outcome).toBe("cleared");
+      for (const w of p.windows) { expect(w.centredMs).toBeLessThanOrEqual(w.widthMs); }
+    }
+  });
   it("measured windows contain the ideal press and are a few tens of milliseconds wide", () => {
     const p = prepare(trap)!;
     for (const w of p.windows) { expect(w.loMs).toBeLessThan(0); expect(w.hiMs).toBeGreaterThan(0); expect(w.widthMs).toBeGreaterThan(20); expect(w.widthMs).toBeLessThan(1500); }

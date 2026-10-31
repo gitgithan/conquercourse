@@ -72,7 +72,7 @@ export function startLabTiming(host: HTMLElement): { backend: "canvas2d" } {
       </div>
       <div style="display:grid;gap:14px;min-width:0">
         <div class="card" id="lt-out"><h2>What happened</h2><p class="small" id="lt-none">Play the course to see facts here.</p><dl class="facts" id="lt-facts" hidden></dl></div>
-        <div class="card" id="lt-wincard" hidden><h2>How much each press may be off (measured on the simulator, others on time)</h2><table><thead><tr><th>Press</th><th>Edge at</th><th>Early by up to</th><th>Late by up to</th><th>Window width</th></tr></thead><tbody id="lt-wins"></tbody></table></div>
+        <div class="card" id="lt-wincard" hidden><h2>How much each press may be off (measured on the simulator, others on time, the presser aiming at the middle of each window)</h2><table><thead><tr><th>Press</th><th>Edge at</th><th>Early by up to</th><th>Late by up to</th><th>Window width</th><th>Aim moved by</th></tr></thead><tbody id="lt-wins"></tbody></table></div>
         <div class="card" id="lt-hcard" hidden><h2>How far off the press was when the run failed</h2>
           <canvas id="lt-hist" width="940" height="260"></canvas>
           <p class="small" style="margin:6px 0 0">Each bar counts failed runs by how early (left) or late (right) the press that lost the run was. The teal bars under the axis are the windows the simulator found for each press.</p></div>
@@ -81,7 +81,7 @@ export function startLabTiming(host: HTMLElement): { backend: "canvas2d" } {
           <p class="small" style="margin:6px 0 0">Dots: the simulator, with the 95% interval. Line: the maths from the measured windows. Dashed: 50% and 90%.</p></div>
         <div class="card" id="lt-wcard" hidden><h2>Window width and clear rate</h2>
           <canvas id="lt-width" width="940" height="260"></canvas>
-          <p class="small" style="margin:6px 0 0">For a presser this shaky: the clear rate when every press has a window of this width, centred on the ideal press. The ticks show the windows this course really has.</p></div>
+          <p class="small" style="margin:6px 0 0">For a presser this shaky: the clear rate when every press has a window of this width, centred on the ideal press. The grey ticks mark the window of each press of this course.</p></div>
         <div class="card" id="lt-hist-card" hidden><h2>Your runs so far</h2><table><thead><tr><th>#</th><th>Course</th><th>Shaky (ms)</th><th>Shape</th><th>N</th><th>Clear rate</th><th>50% width</th><th>90% width</th></tr></thead><tbody id="lt-rows"></tbody></table></div>
         <div class="card" id="lt-ours" hidden><h2>What the game does</h2><p id="lt-ours-p" style="margin:0"></p></div>
         <div class="card" id="lt-eq" hidden><h2>The maths</h2><button class="link" id="lt-eq-btn">Show the maths behind your run</button><div class="eq" id="lt-eq-body" hidden></div></div>
@@ -192,15 +192,16 @@ export function startLabTiming(host: HTMLElement): { backend: "canvas2d" } {
       ["Clear rate", `${pct(r.rate)} (${r.clears} of ${r.runs} runs)`],
       ["95% interval", `${pct(r.ci.lo)} to ${pct(r.ci.hi)}`],
       ["Jump presses on the course", String(r.presses)],
-      ["Narrowest window", `${Math.round(r.minWindowMs)} ms${r.windows.some((x) => x.capped) ? " (some are wider than the 600 ms measured)" : ""}`],
+      ["Narrowest window (the game's number)", `${Math.round(r.minWindowMs)} ms${r.windows.some((x) => x.capped) ? " (the early side is cut at 600 ms)" : ""}`],
       ["The maths says", `${pct(r.predicted)} if the presses are independent`],
+      ...(r.predicted < r.ci.lo - 0.03 || r.predicted > r.ci.hi + 0.03 ? [["Maths and simulator differ", "the presses are not independent here: where one lands changes the next, so one press can make up for another"] as [string, string]] : []),
       ["Window for 50% clear", `${Math.round(r.w50)} ms per press`],
       ["Window for 90% clear", `${Math.round(r.w90)} ms per press`],
       ["Game time played", `${r.simSeconds} s in ${(d.wallMs / 1000).toFixed(1)} s on this device`],
     ];
     facts.innerHTML = rows.map(([k, v]) => `<dt>${k}</dt><dd>${v}</dd>`).join("");
     $("lt-wincard").hidden = false;
-    $("lt-wins").innerHTML = r.windows.map((x) => `<tr><td>${x.index + 1}</td><td>${x.edgeX} m</td><td>${x.loMs <= -600 ? "600+" : Math.round(-x.loMs)} ms</td><td>${x.hiMs >= 600 ? "600+" : Math.round(x.hiMs)} ms</td><td><b>${Math.round(x.widthMs)}${x.capped ? "+" : ""} ms</b></td></tr>`).join("");
+    $("lt-wins").innerHTML = r.windows.map((x) => `<tr><td>${x.index + 1}</td><td>${x.edgeX} m</td><td>${x.loMs <= -600 ? "600+" : Math.round(-x.loMs)} ms</td><td>${x.hiMs >= 600 ? "600+" : Math.round(x.hiMs)} ms</td><td><b>${Math.round(x.widthMs)}${x.capped ? "+" : ""} ms</b></td><td>${x.aimShiftMs ?? 0} ms</td></tr>`).join("");
     for (const id of ["lt-hcard", "lt-ccard", "lt-wcard", "lt-hist-card", "lt-ours", "lt-eq"]) $(id).hidden = false;
     drawHist(r); drawCurve(d); drawWidth(r);
     const fails = r.runs - r.clears;
