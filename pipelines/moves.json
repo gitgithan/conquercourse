@@ -55,5 +55,17 @@
       "vault_a": "A person runs at a waist-high box, plants one hand on top and swings both legs over it, then lands and keeps running.",
       "vault_b": "A parkour runner does a speed vault over a low wall with one hand on top, then runs on."
     }
+  },
+  "slide": {
+    "serves": "the slide under a head-high cannonball (key S or Down while running, CC-240)",
+    "cmu_terms": [],
+    "cmu_skip": [],
+    "check": "slide",
+    "seconds": 3,
+    "prompts": {
+      "slide_a": "A person runs, then drops onto the hip and slides forward along the ground with the legs out in front, then stands up and keeps running.",
+      "slide_b": "A parkour runner does a low baseball slide along the floor under an obstacle, leaning back with both legs forward, then springs up running.",
+      "slide_c": "A person ducks low and slides along the ground on one leg while running fast, the body almost touching the floor, then rises and runs on."
+    }
   }
 }
