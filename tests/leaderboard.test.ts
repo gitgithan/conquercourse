@@ -8,7 +8,7 @@ import { onRequestPost as clearPost } from '../functions/api/course-clear';
 import { onRequestGet as boardGet } from '../functions/api/leaderboard';
 import { onRequestGet as runGet } from '../functions/api/leaderboard-run';
 import { d1Ledger } from '../src/slice/d1-ledger';
-import { boardLines, readBest, rememberBest } from '../src/ui/leaderboard';
+import { bestShown, boardLines, readBest, rememberBest } from '../src/ui/leaderboard';
 import { assets, localD1 } from './helpers-d1';
 
 const course = JSON.parse(readFileSync('public/assets/demo/training.course.json', 'utf8')) as CourseData;
@@ -174,5 +174,16 @@ describe('the world strip', () => {
     const { db } = localD1('0008');
     const out = await (await onRequestGet({ env: { DB: db } as never })).json() as { countries: number; hardest: unknown };
     expect(out.countries).toBe(0); expect(out.hardest).toBeNull();
+  });
+});
+
+describe('Your best never goes stale (CC-108)', () => {
+  it('run 1 = 35.2 s, run 2 = 35.0 s: the shown best is the faster one, from this browser or from the server', () => {
+    const store = new Map<string, string>(), s = { getItem: (k: string) => store.get(k) ?? null, setItem: (k: string, v: string) => void store.set(k, v) };
+    rememberBest('demo/training', 'h', 4224, s); expect(bestShown(readBest('demo/training', 'h', s), null)).toBe(4224);
+    rememberBest('demo/training', 'h', 4200, s); expect(bestShown(readBest('demo/training', 'h', s), 4224)).toBe(4200);
+    expect(bestShown(null, 4200)).toBe(4200); // a new browser: the server's answer is the best
+    expect(bestShown(null, null)).toBeNull();
+    expect(bestShown(4224, 4200)).toBe(4200);
   });
 });
