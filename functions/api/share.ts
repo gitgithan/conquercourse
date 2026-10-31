@@ -2,6 +2,7 @@
 import type { CourseData } from '../../src/course/course';
 import { createShare, type ShareEnv, type ShareRow, type ShareStore } from '../../src/share/server';
 import { json as baseJson } from '../_lib/http';
+import { d1Challenges } from '../_lib/challenge-db';
 
 interface Stmt { bind(...v: unknown[]): { run(): Promise<unknown>; first<T>(): Promise<T | null> } }
 export interface Env { DB: { prepare(sql: string): Stmt }; ASSETS: { fetch(url: string): Promise<Response> }; SHARE?: string }
@@ -26,6 +27,7 @@ export const shareEnv = (env: Env, request: Request): ShareEnv => ({
   store: d1Store(env.DB),
   hits, now: () => Date.now(), address: request.headers.get('cf-connecting-ip') ?? 'local',
   randomBytes: (n) => crypto.getRandomValues(new Uint8Array(n)),
+  challengeHash: async (id) => { try { return (await d1Challenges(env.DB).get(id))?.board_hash ?? null; } catch { return null; } },
   loadCourse: async (key) => {
     try { const r = await env.ASSETS.fetch(new URL(`/assets/${key}.course.json`, request.url).toString()); return r.ok ? await r.json() as CourseData : null; } catch { return null; }
   },

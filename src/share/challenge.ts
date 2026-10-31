@@ -11,7 +11,7 @@ export const shareOn = (params: URLSearchParams, build = SHARE_ON): boolean => b
 export const MAX_PARAM_CHARS = 2000; // a link a chat app or a post will not cut
 
 // Only these words of the address are kept in a link: the course, and the seed of a made course. No name, no time, no account.
-const KEEP = ['course', 'seed', 'generate'];
+const KEEP = ['course', 'seed', 'generate', 'cid']; // cid: the challenge course the link belongs to (CC-108)
 
 export type OpenedChallenge = { ok: true; kind: ChallengeKind; track: GhostTrack; ticks: number; log: InputLog; nick: string; start: number } | { ok: false; why: 'version' | 'changed' | 'broken' | 'not-cleared' | 'too-big' };
 
