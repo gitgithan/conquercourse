@@ -24,7 +24,7 @@ export function screenFor(mode: string): Screen {
   if (mode === 'map') return 'map';
   if (mode === 'gallery') return 'library'; // the community gallery, where players browse photo courses
   if (mode === 'editor' || mode === 'coaster') return 'editor';
-  if (mode === 'dojo' || mode === 'lab-search') return 'dojo';
+  if (mode === 'dojo' || mode === 'lab-search' || mode === 'lab-optimization') return 'dojo';
   return 'course';
 }
 
