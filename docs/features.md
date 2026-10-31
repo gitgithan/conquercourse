@@ -24,7 +24,7 @@
 |---|---|---|---|
 | Dojo lessons | Four steps: why it matters, try it, the shape, then the exact formula once, at the end | `T` or `?mode=dojo`; `?dojo=old` for the earlier layout | [learning design](learning-design.md) |
 | Course picker | Press `T` in the Dojo to pick a course | `T` | [onboarding](onboarding.md) |
-| University Labs | Equations are allowed here, nowhere else | `?labs=1` | [university labs](university-labs.md) |
+| University Labs | Equations are allowed here, nowhere else | On by default; `?labs=0` hides them (the browser remembers it), `?labs=1` brings them back | [university labs](university-labs.md) |
 | Course cards with stats | Plays, simulator-verified clears, best verified time, difficulty | Always on; `?stats=0` hides them | [course stats](course-stats.md) |
 
 ## 3. Make

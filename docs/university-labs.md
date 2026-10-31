@@ -10,7 +10,8 @@
 - A Lab is a small workbench on top of something the game already does.
 - The player changes one choice (a heuristic, a threshold, a target), runs it, and reads facts about the result.
 - Every Lab ends by showing what we chose in the game and why.
-- Labs sit behind the existing labs switch (`?labs=1`), so new players never see them.
+- Labs are on by default since 2026-11-01 (product owner's decision).
+- `?labs=0` hides them and the browser remembers it; `?labs=1` brings them back.
 
 ## Rules that stay in force
 - No chat tutor: a Lab never talks; it shows numbers and pictures.
