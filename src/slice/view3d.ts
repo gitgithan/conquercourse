@@ -173,7 +173,7 @@ export function createView3d(wrap: HTMLElement, host: Host): View3d {
     else if (patternOf(p.src)) { const cups = cupsGroup(p.src!); cups.userData.cups = true; g.add(cups); }
     else g.add(fallback);
     // Draw imported objects and the real game character model; the original mesh remains as a fallback.
-    const userUrl = p.src?.startsWith('user:') ? userObjectUrls.get(p.src) : undefined; // the player's own lifted objects (CC-221), kept as blob urls
+    const userUrl = (p.src?.startsWith('user:') || p.src?.startsWith('shared:')) ? userObjectUrls.get(p.src) : undefined; // the player's own lifted objects (CC-221), kept as blob urls
     if (p.src?.startsWith('obj:') || userUrl) {
       const character = !!p.src?.startsWith('obj:../characters/');
       const url = userUrl ?? (character ? `/assets/characters/${p.src!.slice('obj:../characters/'.length)}` : `/assets/objects/${p.src!.slice(4)}`);

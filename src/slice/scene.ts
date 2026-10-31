@@ -1,3 +1,4 @@
+import { isSharedSrc, sharedGlbUrl } from '../community/flow';
 import type { SceneItem } from '../course/course';
 import type { Piece } from './world';
 import { patternOf } from './stack';
@@ -15,7 +16,10 @@ export function sceneFor(pieces: (Piece & { src?: string })[], lane: { angle: nu
     const item: SceneItem = { x: u + (best.x0 - best.u0), y: p.y - lane.level, z: v - lane.offset, rotY: -p.yaw + lane.angle, scale: p.scale };
     if (patternOf(p.src)) item.stack = patternOf(p.src)!.id;
     else if (p.src?.startsWith('obj:')) item.url = `/assets/objects/${p.src.slice(4)}`;
-    else item.mesh = { positions: Array.from(p.mesh.positions as ArrayLike<number>, (n) => Math.round(n * 100) / 100), indices: Array.from((p.mesh.indices ?? []) as ArrayLike<number>) };
+    else {
+      if (isSharedSrc(p.src)) item.url = sharedGlbUrl(p.src!.slice(7)); // another player's shared piece: fetched from the community store when the course loads; the plain shape below shows if it cannot be
+      item.mesh = { positions: Array.from(p.mesh.positions as ArrayLike<number>, (n) => Math.round(n * 100) / 100), indices: Array.from((p.mesh.indices ?? []) as ArrayLike<number>) };
+    }
     out.push(item);
   }
   return out;

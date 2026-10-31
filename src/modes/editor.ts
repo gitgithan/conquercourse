@@ -7,6 +7,7 @@ import { readGlbMesh } from '../slice/glb';
 import { creditLine, type Provenance } from '../slice/provenance';
 import { getUserObject, listUserObjects, saveUserObject, userObjectUrls, userSrc } from '../slice/user-objects';
 import { openPhotoObject, uploadObjOn } from '../ui/photo-object';
+import { isSharedSrc, placeParam, sharedGlbUrl, sharedSrc, usedShared } from '../community/flow';
 import { LIBRARY, box } from '../slice/shapes';
 import { bestSlices, describe as describeLane, sliceProfile, CELL, HALF_LANE } from '../slice/slice';
 import { crop, centred, duplicate, hits, newPiece, realSize, scaleBy, scaleToHeight, size, worldSamples, laneProfile, type Piece } from '../slice/world';
@@ -124,7 +125,7 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
   const buildPieces = (list: Saved['pieces']): P[] => piecesFromSource(list);
   let startFloor: Hazard = 'water'; // the floor of a restored world (applied where it is declared)
   function restore(s: Saved) {
-    pendingObjects.push(...s.pieces.filter((q) => q.src.startsWith('obj:') || q.src.startsWith('user:')));
+    pendingObjects.push(...s.pieces.filter((q) => q.src.startsWith('obj:') || q.src.startsWith('user:') || isSharedSrc(q.src)));
     pieces = buildPieces(s.pieces);
     angle = s.angle; offset = s.offset; level = s.level;
     startFloor = (HAZARDS as readonly string[]).includes(s.floor ?? '') ? (s.floor as Hazard) : 'water';
@@ -204,8 +205,29 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
   void (async () => { try { const r = (await (await fetch('/assets/objects/provenance.json')).json()) as { objects: Provenance[] }; for (const o of r.objects) provOf.set(`obj:${o.glb}`, o); draw(); } catch { /* no provenance file: no credit line */ } })();
   if (uploadObjOn()) {
     el('button', photoBar, { text: 'Make an object from my photo…', id: 'makeobj', title: 'Draw a box round a real thing in your photo and get a 3D piece' }).onclick = () => openPhotoObject(async (r) => { try { await saveUserObject({ id: r.prov.id, glb: r.glb, prov: r.prov }); } catch { /* not kept after this visit */ } addUserPiece(r.prov.id, r.glb, r.prov); });
-    void (async () => { try { for (const u of await listUserObjects()) { const b = el('button', photoBar, { text: `📷 Mine: ${u.prov.name}`, title: `From your photo. ${u.prov.credit.line}` }); b.dataset.object = u.id; b.dataset.fromPhoto = '1'; b.onclick = () => addUserPiece(u.id, u.glb, u.prov); } } catch { /* no saved objects */ } })();
   }
+  // the pieces you made from your own photos are always listed (CC-247), under "My pieces" at the top of Add pieces; this used to need ?uploadobj=1 and had no card in the picture grid
+  void (async () => { try {
+    const mineIds = await listUserObjects();
+    for (const u of mineIds) { const b = el('button', photoBar, { text: `📷 Mine: ${u.prov.name}`, title: `From your photo. ${u.prov.credit.line}` }); b.dataset.object = u.id; b.dataset.fromPhoto = '1'; b.onclick = () => addUserPiece(u.id, u.glb, u.prov); }
+    const want = placeParam(pageSearch()); // ?place=<id>: the prize screen's "Open in the World Editor" has the piece ready to place
+    const hit = want ? mineIds.find((u) => u.id === want) : undefined;
+    if (hit) { addUserPiece(hit.id, hit.glb, hit.prov); try { const u = new URL(location.href); u.searchParams.delete('place'); history.replaceState(null, '', u); } catch { /* the address stays */ } }
+  } catch { /* no saved objects */ } })();
+  // pieces other players shared, which you added with "Use in my course" in the gallery (CC-247): listed under "Shared pieces", placed like any other
+  const addSharedPiece = async (id: string, name: string): Promise<boolean> => {
+    try {
+      const r = await fetch(sharedGlbUrl(id));
+      if (!r.ok) { verdict = 'That shared piece is no longer available.'; draw(); return false; }
+      const glb = await r.arrayBuffer(), src = sharedSrc(id);
+      userObjectUrls.set(src, URL.createObjectURL(new Blob([glb], { type: 'model/gltf-binary' })));
+      const p: P = { ...newPiece(name, readGlbMesh(glb), freeSpot('bench')), src };
+      p.x = freeSpot('bench').x + size(p.mesh).w / 2;
+      pieces.push(p); selected = p.id; changed(); return true;
+    } catch { verdict = 'That shared piece could not be loaded.'; draw(); return false; }
+  };
+  for (const u of usedShared()) { const b = el('button', photoBar, { text: `🌐 Shared: ${u.name}`, title: 'Made by another player' }); b.dataset.sharedPiece = u.id; b.dataset.object = `shared-${u.id}`; b.onclick = () => { void addSharedPiece(u.id, u.name); }; }
+  { const want = placeParam(pageSearch()); if (want.startsWith('shared:')) { const id = want.slice(7), name = usedShared().find((x) => x.id === id)?.name ?? 'Shared piece'; void addSharedPiece(id, name); try { const u = new URL(location.href); u.searchParams.delete('place'); history.replaceState(null, '', u); } catch { /* the address stays */ } } }
   void (async () => {
     try {
       const idx = (await (await fetch('/assets/objects/index.json')).json()) as { objects: { name: string; glb: string; label: string; height_m: number; author: string; hang_m?: number }[] };
@@ -229,6 +251,13 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
         if (isSizeReference({ src: q.src } as P) && pieces.some(isSizeReference)) continue;
         try {
           const reference = isSizeReference({ src: q.src } as P);
+          if (isSharedSrc(q.src)) { // another player's piece, fetched from the community store; skipped if it is gone or not approved
+            const r = await fetch(sharedGlbUrl(q.src.slice(7))); if (!r.ok) continue;
+            const glb = await r.arrayBuffer(); const name = usedShared().find((x) => sharedSrc(x.id) === q.src)?.name ?? 'Shared piece';
+            userObjectUrls.set(q.src, URL.createObjectURL(new Blob([glb], { type: 'model/gltf-binary' })));
+            pieces.push({ ...newPiece(name, readGlbMesh(glb), { x: q.x, z: q.z }), src: q.src, y: q.y, yaw: q.yaw, scale: q.scale, ...(q.role ? { role: q.role } : {}) });
+            continue;
+          }
           const mine = q.src.startsWith('user:') ? await getUserObject(q.src.slice(5)) : undefined; // the player's own object, kept in this browser (CC-221)
           if (q.src.startsWith('user:') && !mine) continue;
           if (mine) rememberUser(mine.id, mine.glb, mine.prov);
@@ -1120,7 +1149,7 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
   // the undo list goes into the session so it survives a trip to the Course (pieces made from photos or maps are not kept: their meshes are too big)
   function persistHist() {
     try {
-      const heavy = (q: P) => q.src?.startsWith('obj:') || q.src?.startsWith('user:') || q.src?.startsWith('map:');
+      const heavy = (q: P) => q.src?.startsWith('obj:') || q.src?.startsWith('user:') || isSharedSrc(q.src) || q.src?.startsWith('map:');
       if (pieces.some(heavy) || hist.some((h) => h.pieces.some(heavy))) { sessionStorage.removeItem(HIST_KEY); return; }
       const start = Math.max(0, hist.length - 25);
       const keep = (h: Snap): Saved => ({ pieces: h.pieces.filter((q) => q.src).map((q) => ({ src: q.src as string, x: q.x, z: q.z, y: q.y, yaw: q.yaw, scale: q.scale, ...(q.role ? { role: q.role } : {}) })), angle: h.angle, offset: h.offset, level: h.level });

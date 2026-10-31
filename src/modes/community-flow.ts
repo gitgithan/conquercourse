@@ -8,7 +8,8 @@ import { deleteUserObject, listUserObjects, saveUserObject, type UserObject } fr
 import { deleteShared, forgetLink, links, listShared, rememberLink, shareItem } from '../community/share-client';
 import { DEMOS, worldHref } from '../ui/world-picker';
 import { SAMPLE_WALLPAPERS, cropToThumb, deleteWallpaper, saveWallpaper, savedWallpapers } from '../community/wallpaper';
-import { STEPS, TABS, afterMarksChanged, canEnter, matchSuggestions, nextStep, prevStep, startState, tabFor, wallpaperCrop, whyNot, type Box, type FlowState, type Kind, type Step, type Tab } from '../community/flow';
+import { placeableShared, sharedSrc, useShared, COST_WORDS, LIFT_PARALLEL, MAX_PICKS, STEPS, TABS, afterMarksChanged, buildFound, canEnter, editorHref, makeLabel, nextStep, prevStep, runQueue, startState, tabFor, toggleTick, wallpaperCrop, whyNot, type Box, type FlowState, type Found, type Kind, type Step, type Tab } from '../community/flow';
+import { openPrize } from '../ui/prize';
 import { startGallery } from './gallery';
 
 // Community (CC-247): one screen, two tabs: Explore (finished work first) and Make your own, a stepper: Photo, Mark, Segment, Choose, Make.
@@ -31,6 +32,9 @@ const STYLE = `
 .com .stage img{max-width:100%;max-height:52vh;display:block;cursor:crosshair}
 .com .box{position:absolute;border:2px solid #ff9f1c;background:rgba(255,159,28,.14);cursor:move;box-sizing:border-box}
 .com .box.cut::before{content:'';position:absolute;inset:0;background:#2d9cdb;opacity:.5;-webkit-mask:var(--cut) center/100% 100% no-repeat;mask:var(--cut) center/100% 100% no-repeat}
+.com .box.pick{cursor:pointer;border-color:#7a8a80;background:rgba(122,138,128,.10)}.com .box.hl{z-index:2;border-color:#ffd166;background:rgba(255,209,102,.30)}
+.com .found{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:8px;margin:8px 0}.com .found label{display:flex;gap:8px;align-items:center;border:1px solid #cfd6d0;border-radius:10px;padding:6px 10px;background:#fff;cursor:pointer}.com .found label.hl{border-color:#ffd166;box-shadow:0 0 0 2px #ffd166}.com .found label.on{border-color:#0f6b5c;background:#e7f3ef}.com .found s{display:inline-block;width:28px;height:28px;border-radius:4px;background:#2d9cdb;flex:none;-webkit-mask:var(--cut) center/100% 100% no-repeat;mask:var(--cut) center/100% 100% no-repeat}
+.com .qrow{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:6px 0}
 .com .box.sel{border-width:3px;border-color:#0f6b5c;background:rgba(15,107,92,.22)}
 .com .box b{position:absolute;left:0;top:-20px;font:600 12px system-ui;background:#17201d;color:#fff;border-radius:4px;padding:1px 6px;white-space:nowrap}
 .com .box i{position:absolute;right:-6px;bottom:-6px;width:12px;height:12px;background:#0f6b5c;border-radius:3px;cursor:nwse-resize}
@@ -57,8 +61,8 @@ export function startCommunityFlow(host: HTMLElement, params: URLSearchParams): 
   const body = el('div', root);
 
   // the photo work survives a tab change, so looking at Objects does not lose your marks
-  const work: { step: Step; photo: Shrunk | null; rg: Regions | null; fs: FlowState; kinds: Map<number, Kind>; names: Map<number, string>; made: { pieces: string[]; walls: string[] }; found: ReturnType<typeof matchSuggestions>['extras']; segMsg: string } =
-    { step: 'photo', photo: null, rg: null, fs: startState(), kinds: new Map(), names: new Map(), made: { pieces: [], walls: [] }, found: [], segMsg: '' };
+  const work: { step: Step; photo: Shrunk | null; rg: Regions | null; fs: FlowState; kinds: Map<number, Kind>; names: Map<number, string>; made: { pieces: string[]; walls: string[] }; cands: Found[]; ticked: number[]; areas: { id: number; box: Box; label: string; cutout?: string }[]; segMsg: string } =
+    { step: 'photo', photo: null, rg: null, fs: startState(), kinds: new Map(), names: new Map(), made: { pieces: [], walls: [] }, cands: [], ticked: [], areas: [], segMsg: '' };
 
   function showTab(t: Tab) {
     for (const id of Object.keys(tabBtn) as Tab[]) tabBtn[id].setAttribute('aria-selected', String(id === t));
@@ -91,14 +95,19 @@ export function startCommunityFlow(host: HTMLElement, params: URLSearchParams): 
       const shared = links(), sharedLocal = new Set(Object.values(shared).map((l) => `${l.kind}:${l.local}`));
       for (const w of savedWallpapers()) if (!sharedLocal.has(`wallpaper:${w.id}`)) card(w.thumb, `Yours: ${w.name}`, 'Wallpaper, only in this browser', w.course ? ['Play it', `${worldHref(w.course)}&wallpaper=${w.id}`] : undefined);
       let objs: UserObject[] = []; try { objs = await listUserObjects(); } catch { /* none kept */ }
-      for (const o of objs) if (!sharedLocal.has(`piece:${o.id}`)) card('', `Yours: ${o.prov.name}`, '3D piece, only in this browser', ['Open the World Editor', '?mode=editor&uploadobj=1&welcome=0']);
+      for (const o of objs) if (!sharedLocal.has(`piece:${o.id}`)) card('', `Yours: ${o.prov.name}`, '3D piece, only in this browser', ['Open the World Editor', editorHref(o.id)]);
       // shared in Community: yours (with Delete) and everyone's approved ones
       let items: Awaited<ReturnType<typeof listShared>> = []; try { items = await listShared(); } catch { /* the list is a bonus */ }
       for (const it of items) {
         const l = shared[it.id];
         const c = card(it.thumb ?? '', it.mine ? `Yours: ${it.name}` : it.name, `${it.kind === 'piece' ? '3D piece' : 'Wallpaper'}${it.mine ? (it.status === 'approved' ? ', shared with everyone' : ', shared: waiting for the safety check, only you see it') : ', shared by a player'}`,
-          it.kind === 'wallpaper' && it.meta.course && l ? ['Play it', `${worldHref(it.meta.course)}&wallpaper=${l.local}`] : it.kind === 'piece' && it.mine ? ['Open the World Editor', '?mode=editor&uploadobj=1&welcome=0'] : undefined);
+          it.kind === 'wallpaper' && it.meta.course && l ? ['Play it', `${worldHref(it.meta.course)}&wallpaper=${l.local}`] : it.kind === 'piece' && it.mine ? ['Open the World Editor', l?.kind === 'piece' ? editorHref(l.local) : '?mode=editor&welcome=0&uploadobj=1'] : undefined);
         c.dataset.shared = it.id; c.dataset.kind = it.kind;
+        if (!it.mine && placeableShared(it)) { // someone else's approved piece: add it to your own list, then place it in the World Editor
+          const d = c.lastElementChild as HTMLElement; const row = el('div', d); row.className = 'row'; row.style.marginTop = '6px';
+          const use = el('button', row, 'Use in my course', { id: `use-${it.id}`, className: 'go', title: 'Adds it to Add pieces in the World Editor' });
+          use.onclick = () => { useShared({ id: it.id, name: it.name }); row.replaceChildren(); el('span', row, 'Added to your pieces. ').className = 'muted'; el('a', row, 'Open the World Editor', { className: 'btn go', id: `use-open-${it.id}`, href: editorHref(sharedSrc(it.id)) }); };
+        }
         if (it.mine) {
           const d = c.lastElementChild as HTMLElement; const row = el('div', d); row.className = 'row'; row.style.marginTop = '6px';
           const del = el('button', row, 'Delete', { id: `del-${it.id}`, title: 'Delete this for good' });
@@ -136,7 +145,7 @@ export function startCommunityFlow(host: HTMLElement, params: URLSearchParams): 
       if (b && nx) b.onclick = () => go(nx);
       return { row, next: b };
     };
-    const useShrunk = (s: Shrunk) => { work.photo = s; work.rg = new Regions(s.width, s.height); work.fs = { ...startState(), hasPhoto: true }; work.kinds.clear(); work.names.clear(); work.found = []; work.segMsg = ''; work.made = { pieces: [], walls: [] }; go('mark'); };
+    const useShrunk = (s: Shrunk) => { work.photo = s; work.rg = new Regions(s.width, s.height); work.fs = { ...startState(), hasPhoto: true }; work.kinds.clear(); work.names.clear(); work.cands = []; work.ticked = []; work.areas = []; work.segMsg = ''; work.made = { pieces: [], walls: [] }; go('mark'); };
 
     function stepPhoto() {
       el('h2', panel, 'Step 1. Pick a photo');
@@ -152,18 +161,21 @@ export function startCommunityFlow(host: HTMLElement, params: URLSearchParams): 
       file.onchange = async () => { const f = file.files?.[0]; if (!f) return; msg.textContent = 'Reading the photo.'; try { useShrunk(await shrinkPhoto(f)); } catch { msg.textContent = 'We could not read that photo. Try a JPEG.'; } };
     }
 
-    function stage(rg: Regions, ph: Shrunk, editable: boolean, onChange: () => void) {
+    interface View { list(): { id: number; box: Box; label: string; cutout?: string; cls: string }[]; hover(id: number | null): void; click(id: number): void }
+    function stage(rg: Regions, ph: Shrunk, editable: boolean, onChange: () => void, view?: View) {
       const st = el('div', panel); st.className = 'stage';
       const img = el('img', st, '', { src: ph.image, alt: 'your photo', draggable: false });
       const k = () => ph.width / img.getBoundingClientRect().width;
       const draw = () => {
         st.querySelectorAll('.box').forEach((n) => n.remove()); const s = 1 / k();
-        for (const r of rg.list) {
-          const b = el('div', st); b.className = `box ${r.cutout ? 'cut' : ''} ${rg.selected.has(r.id) ? 'sel' : ''}`; b.dataset.id = String(r.id);
+        const shown = view ? view.list() : rg.list.map((r) => ({ id: r.id, box: r.box, label: r.label, cutout: r.cutout, cls: rg.selected.has(r.id) ? 'sel' : '' }));
+        for (const r of shown) {
+          const b = el('div', st); b.className = `box ${r.cutout ? 'cut' : ''} ${r.cls}`; b.dataset.id = String(r.id);
+          if (view) { b.onmouseenter = () => view.hover(r.id); b.onmouseleave = () => view.hover(null); b.onclick = () => view.click(r.id); }
           Object.assign(b.style, { left: `${r.box[0] * s}px`, top: `${r.box[1] * s}px`, width: `${(r.box[2] - r.box[0]) * s}px`, height: `${(r.box[3] - r.box[1]) * s}px` });
           if (r.cutout) b.style.setProperty('--cut', `url(data:image/png;base64,${r.cutout})`);
           if (r.label) el('b', b, r.label);
-          if (editable && rg.selected.has(r.id)) el('i', b, '').dataset.grip = '1';
+          if (editable && !view && rg.selected.has(r.id)) el('i', b, '').dataset.grip = '1';
         }
         st.dataset.count = String(rg.list.length);
       };
@@ -196,7 +208,7 @@ export function startCommunityFlow(host: HTMLElement, params: URLSearchParams): 
       }
       if (img.complete) draw(); else img.onload = draw;
       draw();
-      return { draw };
+      return { draw, root: st };
     }
 
     function stepMark() {
@@ -206,7 +218,7 @@ export function startCommunityFlow(host: HTMLElement, params: URLSearchParams): 
       el('div', panel, 'Click the photo to drop a box, or drag to draw your own. Only one box is kept: a new box replaces the old one. Drag the box to move it, the green corner to resize. Delete removes it, Ctrl+Z undoes. The same box cuts out a wallpaper, so there is only one tool.').className = 'muted';
       const info = el('div', panel); info.className = 'muted'; info.id = 'cinfo';
       let nav: ReturnType<typeof navRow>;
-      const changed = () => { const was = work.fs.segmented; work.fs = afterMarksChanged(work.fs, rg.list.length); if (was) { work.kinds.clear(); work.found = []; } info.textContent = rg.list.length ? 'Area marked.' : 'Nothing marked yet.'; if (nav.next) nav.next.disabled = !canEnter('segment', work.fs); };
+      const changed = () => { const was = work.fs.segmented; work.fs = afterMarksChanged(work.fs, rg.list.length); if (was) { work.kinds.clear(); work.cands = []; work.ticked = []; work.areas = []; } info.textContent = rg.list.length ? 'Area marked.' : 'Nothing marked yet.'; if (nav.next) nav.next.disabled = !canEnter('segment', work.fs); };
       stage(rg, ph, true, changed);
       nav = navRow(panel, 'Next: Segment', canEnter('segment', work.fs), 'cnext');
       info.textContent = rg.list.length ? 'Area marked.' : 'Nothing marked yet.';
@@ -216,53 +228,83 @@ export function startCommunityFlow(host: HTMLElement, params: URLSearchParams): 
       if (!work.photo || !work.rg) return go('photo');
       const rg = work.rg, ph = work.photo;
       el('h2', panel, 'Step 3. Segment Region');
-      el('div', panel, 'This finds the exact outline of the area you marked. It usually takes under a minute; the first one after a quiet spell can take longer.').className = 'muted';
+      el('div', panel, 'This looks at the whole photo and finds the separate things in it: a bench, stairs, a railing. Your box is not a crop: nothing outside it is hidden. The box only tells us which found thing is yours. It usually takes under a minute; the first one after a quiet spell can take a bit longer.').className = 'muted';
       const msg = el('div', panel, work.segMsg); msg.className = 'muted'; msg.id = 'cseginfo';
-      const st = stage(rg, ph, false, () => undefined);
-      const prog = el('div', panel); prog.id = 'cprog';
-      const chips = el('div', panel); chips.className = 'row'; chips.id = 'chips';
-      const showChips = () => {
-        chips.replaceChildren();
-        for (const r of rg.list) { const c = el('span', chips); c.className = 'chip'; const sw = el('s', c); if (r.cutout) sw.style.setProperty('--cut', `url(data:image/png;base64,${r.cutout})`); else sw.style.background = '#ff9f1c'; el('span', c, r.label || 'your box'); }
-        for (const x of work.found) { const b = el('button', chips, `Use "${x.label}" instead`, { title: 'The finder saw this too: use it as your area instead of the box' }); b.dataset.extra = x.label; b.onclick = () => { const was = rg.list[0]; rg.list = []; rg.add(x.box, x.label, 'manual', x.cutout); work.found = work.found.filter((y) => y !== x); if (was) work.found.push({ label: was.label || 'your box', score: 0, box: was.box, cutout: was.cutout ?? '' }); work.fs = afterMarksChanged(work.fs, rg.list.length); work.fs.segmented = true; st.draw(); showChips(); }; }
-      };
+      let hovered: number | null = null;
       const row = el('div', panel); row.className = 'row';
-      const run = el('button', row, work.fs.segmented ? 'Segment Region again' : 'Segment Region', { className: 'go', id: 'cseg' });
-      const skip = el('button', row, 'Use my box as the outline', { id: 'cskip', title: 'Skip the finder: the plain box is the outline' });
+      const view: View = {
+        list: () => work.cands.map((c, i) => ({ id: i, box: c.box, label: c.label, cutout: c.cutout, cls: `pick ${work.ticked.includes(i) ? 'sel' : ''} ${hovered === i ? 'hl' : ''}` })),
+        hover: (id) => { hovered = id; paintHover(); },
+        click: (id) => tick(id),
+      };
+      const st = stage(rg, ph, false, () => undefined, work.cands.length ? view : undefined);
+      const prog = el('div', panel); prog.id = 'cprog';
+      const foundEl = el('div', panel); foundEl.id = 'cfound';
       const nav = navRow(panel, 'Next: Choose', work.fs.segmented, 'cnext');
-      const done = () => { work.fs.segmented = true; if (nav.next) nav.next.disabled = false; run.disabled = false; skip.disabled = false; st.draw(); showChips(); };
+      const skip = el('button', row, 'Skip the finder: use my box as it is', { id: 'cskip', title: 'Nothing is searched. Your box is cut out of the photo and made into a piece or a wallpaper. This always works.' });
+      const run = el('button', row, work.fs.segmented ? 'Segment Region again' : 'Segment Region', { className: 'go', id: 'cseg' });
+      row.prepend(run);
+      const paintHover = () => { // only a class changes: nothing is rebuilt, so nothing can move under the mouse
+        st.root.querySelectorAll('.box').forEach((b) => b.classList.toggle('hl', Number((b as HTMLElement).dataset.id) === hovered));
+        foundEl.querySelectorAll('label').forEach((l) => l.classList.toggle('hl', Number((l as HTMLElement).dataset.i) === hovered));
+      };
+      const sync = () => {
+        work.areas = work.ticked.map((i) => ({ id: i, box: work.cands[i].box, label: work.cands[i].label, cutout: work.cands[i].cutout }));
+        work.fs = { ...work.fs, segmented: work.ticked.length > 0, choices: Object.fromEntries([...work.kinds].filter(([id]) => work.ticked.includes(id))) };
+        if (nav.next) nav.next.disabled = !canEnter('choose', work.fs);
+      };
+      function tick(i: number) { work.ticked = toggleTick(work.ticked, i); sync(); showFound(); st.draw(); }
+      function showFound() {
+        foundEl.replaceChildren();
+        if (!work.cands.length) return;
+        el('div', foundEl, `Tick the things you want (up to ${MAX_PICKS}). The list keeps this order. Point at one to see where it is in the photo.`).className = 'muted';
+        const grid = el('div', foundEl); grid.className = 'found';
+        work.cands.forEach((c, i) => {
+          const l = el('label', grid); l.dataset.i = String(i); l.className = work.ticked.includes(i) ? 'on' : '';
+          const cb = el('input', l, '', { type: 'checkbox', checked: work.ticked.includes(i), id: `found-${i}` });
+          const sw = el('s', l); if (c.cutout) sw.style.setProperty('--cut', `url(data:image/png;base64,${c.cutout})`);
+          el('span', l, c.yours ? `${c.label} (your box)` : c.label);
+          l.onmouseenter = () => { hovered = i; paintHover(); }; l.onmouseleave = () => { hovered = null; paintHover(); };
+          cb.onchange = () => tick(i);
+        });
+        const left = MAX_PICKS - work.ticked.length;
+        el('div', foundEl, work.ticked.length ? `${work.ticked.length} ticked${left ? '' : ' (the most you can make at once)'}.` : 'Tick at least one thing to go on.').className = 'muted';
+      }
+      const done = (found: Found[], note: string) => {
+        work.cands = found; work.ticked = found.length ? [0] : []; work.kinds.clear();
+        say(note); run.disabled = false; skip.disabled = false; sync(); showFound(); st.draw();
+      };
       const say = (t: string, bad = false) => { work.segMsg = t; msg.textContent = t; msg.className = bad ? 'err' : 'muted'; if (bad) msg.setAttribute('role', 'alert'); else msg.removeAttribute('role'); };
-      skip.onclick = () => { for (const r of rg.list) r.cutout = undefined; say('Your box is the outline.'); done(); };
+      const mark = () => { const r = rg.list[0]; return r ? { box: r.box, label: r.label } : null; };
+      skip.onclick = () => { const m = mark(); if (!m) return; done(buildFound(m, []).items, 'Nothing was searched. Your box is the area.'); };
       run.onclick = async () => {
         run.disabled = true; skip.disabled = true; prog.replaceChildren(); say('');
         const ctl = new AbortController(), bar = jobProgress(prog, SEGMENT_STEPS, () => ctl.abort());
         try {
           const found = await suggestRegions(ph, () => undefined, ctl.signal, bar.update);
           bar.finish();
-          const { matched, extras } = matchSuggestions(rg.list.map((r) => ({ id: r.id, box: r.box })), found);
-          for (const r of rg.list) { const m = matched.get(r.id); if (m) { r.cutout = m.cutout || undefined; if (!r.label) rg.rename(r.id, m.label); } }
-          work.found = extras;
-          say(matched.size ? `Outline found${extras.length ? `. ${extras.length} other thing${extras.length === 1 ? '' : 's'} found too: you can use one instead` : ''}.` : `No outline fits your box, so your box is the outline${extras.length ? `. ${extras.length} other thing${extras.length === 1 ? '' : 's'} found: you can use one instead` : ''}.`);
-          done();
+          const { items } = buildFound(mark(), found);
+          const n = items.length - 1;
+          done(items, `Found ${found.length} thing${found.length === 1 ? '' : 's'} in the photo. The one on your box is ticked${n > 0 ? '; tick others to make several at once' : ''}.`);
         } catch (e) {
           bar.fail();
           const err = e as JobError;
-          if (err instanceof SegmentOff) { say(err.message); done(); } // the job is off here: the box itself is the outline, and the page says so
-          else if (err.stopped) { say('Stopped. You can try again or use your box as the outline.'); run.disabled = false; skip.disabled = false; }
-          else { say(`${err.message} You can try again, or use your box as the outline.`, true); run.disabled = false; skip.disabled = false; }
+          if (err instanceof SegmentOff) done(buildFound(mark(), []).items, err.message); // the finder is off here: your box is used as it is
+          else if (err.stopped) { say('Stopped. You can try again or skip the finder.'); run.disabled = false; skip.disabled = false; }
+          else { say(`${err.message} You can try again, or skip the finder.`, true); run.disabled = false; skip.disabled = false; }
         }
       };
-      if (work.fs.segmented) showChips();
+      if (work.cands.length) { sync(); showFound(); }
     }
 
     function stepChoose() {
-      if (!work.photo || !work.rg) return go('photo');
-      const rg = work.rg, ph = work.photo;
+      if (!work.photo) return go('photo');
+      const ph = work.photo;
       el('h2', panel, 'Step 4. Choose what each area becomes');
       el('div', panel, '3D piece: a solid thing you place in the World Editor and run over. Wallpaper: the area hangs behind a course as scenery. The course plays the same.').className = 'muted';
       const nav = navRow(panel, 'Next: Make', canEnter('make', work.fs), 'cnext');
       const sync = () => { work.fs = { ...work.fs, choices: Object.fromEntries(work.kinds) }; if (nav.next) nav.next.disabled = !canEnter('make', work.fs); };
-      for (const r of rg.list) {
+      for (const r of work.areas) {
         const it = el('div', panel); it.className = 'item'; it.dataset.id = String(r.id);
         const th = el('img', it, '', { alt: r.label || 'area' }); void cropToThumb(ph.image, r.box).then((u) => { th.src = u; });
         const side = el('div', it); side.style.display = 'grid'; side.style.gap = '8px';
@@ -279,66 +321,95 @@ export function startCommunityFlow(host: HTMLElement, params: URLSearchParams): 
     }
 
     function stepMake() {
-      if (!work.photo || !work.rg) return go('photo');
-      const rg = work.rg, ph = work.photo;
+      if (!work.photo) return go('photo');
+      const ph = work.photo;
       el('h2', panel, 'Step 5. Make them');
       const lastCourse: { id?: string } = {};
       const next = el('div', panel); next.id = 'cnow'; next.className = 'panel'; next.hidden = true;
       const showNext = (shared = false) => {
         next.hidden = false; next.replaceChildren(); el('h2', next, 'What next');
         const r = el('div', next); r.className = 'row';
-        if (work.made.pieces.length) el('a', r, 'Open the World Editor', { className: 'btn go', id: 'go-editor', href: '?mode=editor&uploadobj=1&welcome=0' });
+        const lastPiece = work.made.pieces[work.made.pieces.length - 1];
+        if (lastPiece) el('a', r, 'Open the World Editor', { className: 'btn go', id: 'go-editor', href: editorHref(lastPiece) });
         if (work.made.walls.length) el('a', r, 'Play a course with the wallpaper', { className: 'btn go', id: 'go-course', href: `${worldHref(lastCourse.id ? (savedWallpapers().find((w) => w.id === lastCourse.id)?.course ?? '') : '')}&wallpaper=${lastCourse.id}` });
         el('button', r, shared ? 'See it in Explore' : 'See them in Explore', { id: 'go-objects' }).onclick = () => showTab('explore');
         el('button', r, 'Start with another photo', { id: 'go-again' }).onclick = () => { work.step = 'photo'; work.photo = null; work.rg = null; work.fs = startState(); paint(); };
       };
       // Sharing is its own deliberate press: the piece or wallpaper is kept in this browser either way.
-      const shareButton = (side: HTMLElement, rid: number, make: () => Promise<{ id: string; input: Parameters<typeof shareItem>[0]; local: { kind: 'piece' | 'wallpaper'; local: string } }>) => {
+      const doShare = async (make: () => Promise<{ id: string; input: Parameters<typeof shareItem>[0]; local: { kind: 'piece' | 'wallpaper'; local: string } }>): Promise<string> => {
+        const m = await make(); const out = await shareItem(m.input); rememberLink(out.id, m.local);
+        return out.status === 'approved' ? 'Shared. Everyone can see it in Explore.' : 'Shared. You can see it in Explore now; everyone sees it after the safety check.';
+      };
+      const shareButton = (side: HTMLElement, rid: number, make: Parameters<typeof doShare>[0]) => {
         const row = el('div', side); row.className = 'row';
         const b = el('button', row, 'Share in Community', { id: `share-${rid}`, title: 'Show it in the Community gallery. You can delete it there any time.' });
         const note = el('div', side); note.className = 'muted'; note.id = `share-note-${rid}`;
         b.onclick = async () => {
           b.disabled = true; note.textContent = 'Sharing…'; note.className = 'muted';
-          try {
-            const m = await make(); const out = await shareItem(m.input); rememberLink(out.id, m.local);
-            note.textContent = out.status === 'approved' ? 'Shared. Everyone can see it in Explore.' : 'Shared. You can see it in Explore now; everyone sees it after the safety check.';
-            b.textContent = 'Shared'; showNext(true);
-          } catch (e) { note.textContent = (e as Error).message; note.className = 'err'; note.setAttribute('role', 'alert'); b.disabled = false; }
+          try { note.textContent = await doShare(make); b.textContent = 'Shared'; showNext(true); } catch (e) { note.textContent = (e as Error).message; note.className = 'err'; note.setAttribute('role', 'alert'); b.disabled = false; }
         };
       };
-      for (const r of rg.list) {
+
+      // one lift per ticked piece; the prizes are shown one after another, never on top of each other
+      let prizes: Promise<unknown> = Promise.resolve();
+      const showPrize = (r: { box: Box }, res: { glb: ArrayBuffer; prov: { id: string; name: string; height_m: number } }) => {
+        prizes = prizes.then(async () => {
+          const end = await openPrize({
+            glb: res.glb, name: res.prov.name, editorHref: editorHref(res.prov.id),
+            share: () => doShare(async () => ({ id: res.prov.id, input: { kind: 'piece', name: res.prov.name, thumb: await cropToThumb(ph.image, r.box), glb: res.glb, height_m: res.prov.height_m }, local: { kind: 'piece', local: res.prov.id } })),
+          });
+          if (end === 'again') { work.step = 'segment'; paint(); }
+        });
+      };
+
+      type Slot = { gen: HTMLButtonElement; msg: HTMLElement; prog: HTMLElement; r: (typeof work.areas)[number]; label: () => string; busy: boolean; made: boolean };
+      const slots: Slot[] = [];
+      const makeOne = async (sl: Slot): Promise<void> => {
+        const { gen, msg, prog, r } = sl, label = sl.label();
+        if (!LABEL_RE.test(label)) { msg.textContent = 'Name the area with a plain word like bench, railing, stairs or wall (Step 4).'; msg.className = 'err'; throw new Error('name'); }
+        sl.busy = true; gen.disabled = true; gen.textContent = 'Making it…'; msg.textContent = ''; msg.className = 'muted'; prog.replaceChildren();
+        const ctl = new AbortController(), bar = jobProgress(prog, LIFT_STEPS, () => ctl.abort());
+        try {
+          const res = await liftObject({ photo: ph, box: r.box, label, height_m: null }, () => undefined, ctl.signal, bar.update);
+          bar.finish();
+          try { await saveUserObject({ id: res.prov.id, glb: res.glb, prov: res.prov }); } catch { /* not kept after this visit */ }
+          work.made.pieces.push(res.prov.id); sl.made = true; gen.textContent = 'Made'; msg.textContent = `Done in ${res.seconds} s. It is in the World Editor under "My pieces" as "📷 Mine: ${res.prov.name}".`; showNext();
+          shareButton(msg.parentElement as HTMLElement, r.id, async () => ({ id: res.prov.id, input: { kind: 'piece', name: res.prov.name, thumb: await cropToThumb(ph.image, r.box), glb: res.glb, height_m: res.prov.height_m }, local: { kind: 'piece', local: res.prov.id } }));
+          showPrize(r, res);
+        } catch (e) {
+          bar.fail();
+          const err = e as JobError; gen.textContent = 'Generate Piece';
+          msg.className = err.stopped ? 'muted' : 'err'; msg.setAttribute('role', 'alert');
+          msg.textContent = err.stopped ? 'Stopped. The 3D maker may still finish in the background, and it still counts for today.' : err.message;
+          if (err.final && err.retryAt) setTimeout(() => { gen.disabled = false; }, Math.min(err.retryAt - Date.now(), 2_000_000_000)); // the button comes back when the wait is over
+          else gen.disabled = !!err.final;
+          throw e;
+        } finally { sl.busy = false; }
+      };
+
+      let allBtn: HTMLButtonElement | null = null, allNote: HTMLElement | null = null;
+      const pieces = work.areas.filter((r) => work.kinds.get(r.id) === 'piece');
+      if (pieces.length) {
+        const q = el('div', panel); q.className = 'qrow';
+        el('span', q, `${pieces.length} piece${pieces.length === 1 ? '' : 's'} to make. Each one is made on its own, one after another: ${COST_WORDS}.`).className = 'muted';
+        if (pieces.length > 1) { allBtn = el('button', q, makeLabel(pieces.length), { className: 'go', id: 'make-all' }); allNote = el('span', q); allNote.className = 'muted'; allNote.id = 'make-all-note'; }
+      }
+      for (const r of work.areas) {
         const kind = work.kinds.get(r.id); if (!kind) continue;
         const it = el('div', panel); it.className = 'item'; it.dataset.id = String(r.id);
         const th = el('img', it, '', { alt: r.label || 'area' }); void cropToThumb(ph.image, kind === 'wallpaper' ? wallpaperCrop(r.box, ph.width, ph.height) : r.box).then((u) => { th.src = u; });
         const side = el('div', it); side.style.display = 'grid'; side.style.gap = '8px';
-        const label = (work.names.get(r.id) || r.label || '').toLowerCase();
+        const label = () => (work.names.get(r.id) || r.label || '').toLowerCase();
         const msg = el('div', side); msg.className = 'muted'; msg.id = `cmsg-${r.id}`;
         if (kind === 'piece') {
-          el('strong', side, `3D piece: ${label || '(name it in Step 4)'}`);
+          el('strong', side, `3D piece: ${label() || '(name it in Step 4)'}`);
           const gen = el('button', side, 'Generate Piece', { className: 'go', id: `gen-${r.id}` });
           const prog = el('div', side);
-          gen.onclick = async () => {
-            if (!LABEL_RE.test(label)) { msg.textContent = 'Name the area with a plain word like bench, railing, stairs or wall (Step 4).'; msg.className = 'err'; return; }
-            gen.disabled = true; gen.textContent = 'Making it…'; msg.textContent = ''; msg.className = 'muted'; prog.replaceChildren();
-            const ctl = new AbortController(), bar = jobProgress(prog, LIFT_STEPS, () => ctl.abort());
-            try {
-              const res = await liftObject({ photo: ph, box: r.box, label, height_m: null }, () => undefined, ctl.signal, bar.update);
-              bar.finish();
-              try { await saveUserObject({ id: res.prov.id, glb: res.glb, prov: res.prov }); } catch { /* not kept after this visit */ }
-              work.made.pieces.push(res.prov.id); gen.textContent = 'Generate Piece'; msg.textContent = `Done in ${res.seconds} s. It is in the World Editor tray as "📷 Mine: ${res.prov.name}".`; showNext();
-              shareButton(side, r.id, async () => ({ id: res.prov.id, input: { kind: 'piece', name: res.prov.name, thumb: await cropToThumb(ph.image, r.box), glb: res.glb, height_m: res.prov.height_m }, local: { kind: 'piece', local: res.prov.id } }));
-            } catch (e) {
-              bar.fail();
-              const err = e as JobError; gen.textContent = 'Generate Piece';
-              msg.className = err.stopped ? 'muted' : 'err'; msg.setAttribute('role', 'alert');
-              msg.textContent = err.stopped ? 'Stopped. The 3D maker may still finish in the background, and it still counts for today.' : err.message;
-              if (err.final && err.retryAt) setTimeout(() => { gen.disabled = false; }, Math.min(err.retryAt - Date.now(), 2_000_000_000)); // the button comes back when the wait is over
-              else gen.disabled = !!err.final;
-            }
-          };
+          const sl: Slot = { gen, msg, prog, r, label, busy: false, made: false }; slots.push(sl);
+          gen.onclick = () => { void makeOne(sl).catch(() => undefined); };
         } else {
           el('strong', side, 'Wallpaper');
-          const nm = el('input', side, '', { id: `wname-${r.id}`, placeholder: 'give it a name', maxLength: 40, value: label || 'my photo' });
+          const nm = el('input', side, '', { id: `wname-${r.id}`, placeholder: 'give it a name', maxLength: 40, value: label() || 'my photo' });
           const sel = el('select', side, '', { id: `wcourse-${r.id}` }); for (const [v, l] of DEMOS) el('option', sel, l, { value: v });
           const save = el('button', side, 'Save wallpaper', { className: 'go', id: `wsave-${r.id}` });
           save.onclick = async () => {
@@ -351,6 +422,21 @@ export function startCommunityFlow(host: HTMLElement, params: URLSearchParams): 
             } catch (e) { msg.textContent = (e as Error).message; save.disabled = false; }
           };
         }
+      }
+      if (allBtn) {
+        const btn = allBtn;
+        btn.onclick = async () => {
+          btn.disabled = true; slots.forEach((s) => { s.gen.disabled = true; });
+          const todo = slots.filter((s) => !s.made && !s.busy);
+          const out = await runQueue(todo, (s) => makeOne(s), LIFT_PARALLEL, (i, state) => {
+            const s = todo[i];
+            if (state === 'waiting') { s.msg.textContent = 'Waiting in line.'; s.msg.className = 'muted'; }
+            if (allNote) allNote.textContent = `${todo.filter((_, k) => k <= i && state !== 'waiting').length} of ${todo.length} started.`;
+          });
+          const failed = out.filter((o) => o.status === 'rejected').length;
+          if (allNote) allNote.textContent = failed ? `${todo.length - failed} made, ${failed} did not work. Press its own button to try again.` : `All ${todo.length} made.`;
+          slots.forEach((s) => { if (!s.made) s.gen.disabled = false; });
+        };
       }
       navRow(panel, null);
     }

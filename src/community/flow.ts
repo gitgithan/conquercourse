@@ -87,3 +87,87 @@ export function wallpaperCrop(box: Box, width: number, height: number): Box {
   const cx = Math.min(Math.max(x0, 0), width - cw), cy = Math.min(Math.max(y0, 0), height - ch);
   return [Math.round(cx), Math.round(cy), Math.round(cx + cw), Math.round(cy + ch)];
 }
+
+// ---- the found things: a fixed order, and ticking several (CC-247) ----
+/** The most things that can be ticked at once. */
+export const MAX_PICKS = 4;
+/** How many 3D pieces are made at the same time; the 3D maker handles one at a time, so the rest wait in line. */
+export const LIFT_PARALLEL = 1;
+/** A plain-words price for one extra piece (about 2 to 4 cents of GPU time), so nobody is surprised. */
+export const COST_WORDS = 'about 2 to 4 cents each';
+
+export interface Found { label: string; box: Box; cutout?: string; score?: number; yours?: boolean }
+
+/**
+ * One fixed order for the found things: yours first, then biggest first, then top to bottom, left to right, then by name.
+ * Nothing in it changes with the mouse, a click or the score, so the same photo always shows the same list.
+ */
+export function stableOrder<T extends Found>(items: T[]): T[] {
+  return [...items].sort((a, b) => Number(!!b.yours) - Number(!!a.yours) || area(b.box) - area(a.box) || a.box[1] - b.box[1] || a.box[0] - b.box[0] || a.label.localeCompare(b.label));
+}
+
+/** The things to choose from after Segment Region: the marked box first (named by the finder when it matched), then everything else the finder saw. */
+export function buildFound(mark: { box: Box; label?: string; cutout?: string } | null, found: Suggestion[]): { items: Found[]; ticked: number[] } {
+  const items: Found[] = [];
+  let rest = found;
+  if (mark) {
+    const { matched, extras } = matchSuggestions([{ id: 0, box: mark.box }], found);
+    const m = matched.get(0);
+    items.push({ label: m?.label ?? (mark.label || 'your box'), box: mark.box, cutout: m?.cutout || mark.cutout || undefined, score: m?.score, yours: true });
+    rest = extras;
+  }
+  items.push(...rest.map((s) => ({ label: s.label, box: s.box, cutout: s.cutout || undefined, score: s.score })));
+  return { items: stableOrder(items), ticked: mark ? [0] : [] };
+}
+
+/** Tick or untick one item by its place in the list; a tick past the limit is ignored. Returns the new list of ticks, in list order. */
+export function toggleTick(ticked: number[], index: number, max = MAX_PICKS): number[] {
+  if (ticked.includes(index)) return ticked.filter((i) => i !== index);
+  if (ticked.length >= max) return ticked;
+  return [...ticked, index].sort((a, b) => a - b);
+}
+
+/** The words on the button that makes the ticked pieces. */
+export const makeLabel = (n: number): string => (n === 1 ? 'Make 1 piece' : `Make ${n} pieces`);
+
+/** Runs `work` for each item, at most `parallel` at once; the rest wait in line. Every item reports its own result or failure. */
+export async function runQueue<T, R>(items: T[], work: (item: T, index: number) => Promise<R>, parallel = LIFT_PARALLEL, onState?: (index: number, state: 'waiting' | 'running' | 'done' | 'failed') => void): Promise<PromiseSettledResult<R>[]> {
+  const out: PromiseSettledResult<R>[] = new Array(items.length);
+  let next = 0;
+  items.forEach((_, i) => onState?.(i, 'waiting'));
+  const lane = async () => {
+    while (next < items.length) {
+      const i = next++;
+      onState?.(i, 'running');
+      try { out[i] = { status: 'fulfilled', value: await work(items[i], i) }; onState?.(i, 'done'); } catch (reason) { out[i] = { status: 'rejected', reason }; onState?.(i, 'failed'); }
+    }
+  };
+  await Promise.all(Array.from({ length: Math.max(1, Math.min(parallel, items.length)) }, lane));
+  return out;
+}
+
+// ---- the prize turntable (CC-247) ----
+/** One full turn takes this long. */
+export const PRIZE_TURN_MS = 8000;
+/** The turntable angle in radians after `elapsedMs`: a full 360 degree turn every PRIZE_TURN_MS; for reduced motion a fixed three-quarter view that never moves. */
+export const turnAngle = (elapsedMs: number, reduced = false): number => (reduced ? Math.PI / 4 : ((elapsedMs % PRIZE_TURN_MS) / PRIZE_TURN_MS) * Math.PI * 2);
+
+/** The address that opens the World Editor with one of your pieces ready to place. */
+export const editorHref = (pieceId: string): string => `?mode=editor&welcome=0&uploadobj=1&place=${encodeURIComponent(pieceId)}`;
+/** The piece id from `?place=`, or '' when absent or odd-looking. */
+export const placeParam = (search: string): string => { const v = new URLSearchParams(search).get('place') ?? ''; return /^(shared:)?[A-Za-z0-9_-]{1,80}$/.test(v) ? v : ''; };
+
+// Other players' shared pieces (CC-247): usable like your own once added to your list
+export const sharedSrc = (id: string): string => `shared:${id}`;
+export const isSharedSrc = (src: string | undefined): boolean => !!src && /^shared:[A-Za-z0-9_-]{1,80}$/.test(src);
+export const sharedGlbUrl = (id: string): string => `/api/community-items?id=${encodeURIComponent(id)}&file=glb`;
+/** A piece from the gallery can be placed only when it is a piece and the safety check has passed it (held, blocked and removed ones never). */
+export const placeableShared = (it: { kind?: string; status?: string }): boolean => it.kind === 'piece' && (it.status === undefined || it.status === 'approved');
+const SHARED_KEY = 'cc.shared-pieces';
+export interface SharedPick { id: string; name: string }
+export function usedShared(): SharedPick[] {
+  try { const v = JSON.parse(localStorage.getItem(SHARED_KEY) ?? '[]') as unknown; return Array.isArray(v) ? v.filter((x): x is SharedPick => !!x && typeof (x as SharedPick).id === 'string' && /^[A-Za-z0-9_-]{1,80}$/.test((x as SharedPick).id) && typeof (x as SharedPick).name === 'string').map((x) => ({ id: x.id, name: x.name.slice(0, 40) })) : []; } catch { return []; }
+}
+export function useShared(pick: SharedPick): void {
+  try { const all = usedShared().filter((x) => x.id !== pick.id); all.push({ id: pick.id, name: pick.name.slice(0, 40) }); localStorage.setItem(SHARED_KEY, JSON.stringify(all.slice(-30))); } catch { /* not remembered */ }
+}
