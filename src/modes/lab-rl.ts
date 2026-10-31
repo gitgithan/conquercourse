@@ -201,7 +201,7 @@ export function startLabRl(host: HTMLElement): { backend: "canvas2d" } {
       ["Points: game's own line", r.ideal.ret.toFixed(1)],
       ["Random moves", `${pct(r.random.clearRate)} of ${r.random.episodes} tries cleared; on average ${pct(r.random.meanProgress)} of the course`],
       ["No exploring at all", `${r.greedy.clearRate ? "cleared" : "did not clear"}; ended at ${pct(r.greedy.meanProgress)} of the course`],
-      ["Game time played", `${r.simSeconds} s in the simulator`],
+      ["Game time played", `${r.simSeconds >= 3600 ? (r.simSeconds / 3600).toFixed(1) + " hours" : r.simSeconds + " s"} of play in the simulator`],
       ["Time to compute", `${(d.wallMs / 1000).toFixed(2)} s on this device`],
     ];
     facts.innerHTML = rows.map(([k, v]) => `<dt>${k}</dt><dd>${v}</dd>`).join("");

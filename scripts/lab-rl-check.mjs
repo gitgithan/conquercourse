@@ -39,9 +39,13 @@ try {
   check('our line is shown last', (await page.$eval('#rl-ours', (e) => !e.hidden)) === true);
   await page.click('#rl-play');
   await page.waitForTimeout(600);
-  await page.screenshot({ path: 'test-results/lab-rl/honest-playing.png', fullPage: true });
   await page.waitForTimeout(3000);
-  await page.screenshot({ path: 'test-results/lab-rl/honest.png', fullPage: true });
+  const top = () => page.evaluate(() => document.querySelector('#lab-rl').scrollTo(0, 0));
+  const to = (sel) => page.evaluate((q) => document.querySelector(q).scrollIntoView(), sel);
+  await top();
+  await page.screenshot({ path: 'test-results/lab-rl/honest-top.png' });
+  await to('#rl-out');
+  await page.screenshot({ path: 'test-results/lab-rl/honest-facts.png' });
 
   await page.click('button[data-preset=alive]');
   await page.fill('#rl-seed', '1');
@@ -52,7 +56,10 @@ try {
   check('the hack is stated as a fact', (await page.$eval('#rl-hack', (e) => !e.hidden)) === true);
   await page.click('#rl-eq-btn');
   check('maths after a run', (await page.textContent('#rl-eq-body')).includes('Q(s, a)'));
-  await page.screenshot({ path: 'test-results/lab-rl/alive-hack.png', fullPage: true });
+  await top();
+  await page.screenshot({ path: 'test-results/lab-rl/alive-top.png' });
+  await to('#rl-hack');
+  await page.screenshot({ path: 'test-results/lab-rl/alive-hack.png' });
 
   check('no page errors', errors.length === 0, errors.join(' | '));
   await browser.close();

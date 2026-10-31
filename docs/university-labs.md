@@ -35,12 +35,14 @@
 | 9 | Generate and test | What a design helper may propose | How many proposals the simulator throws out | `functions/api/designer.ts`, make-me-a-course |
 | 10 | Evaluating a detector | A prompt or a threshold | Hits, misses and false claims on labelled parts (PartLLM: 2 of 9 found, 11 false claims) | `data/eval/partllm/` |
 | 11 | Verification and hashing | Which parts of a run are hashed | Whether a tampered input log is caught | replay and golden hashes |
+| 12 | Reinforcement learning | The points (progress, finish bonus, fall penalty, a hint), the learning rate and the exploration | A learning curve, how many tries to the first clear, the learned run played back, the game's own line and random moves beside it, and a reward the character farms instead of finishing | `src/lab/rl-lab.ts` on the real simulator, `src/sim/ideal.ts` for the comparison |
 
 ## Build order
 - **Lab 1, Search:** first, because the simulator and the search already exist, it runs headless in a worker, and it has a real lesson already in the code (the greedy choice can strand a later jump).
 - **Lab 2, Optimization:** next, on the same plans.
 - **Lab 3, Inverse kinematics:** third, using the editor's side view.
 - **Labs 4 to 11:** one issue each, only after Lab 1 is played.
+- **Lab 12, Reinforcement learning:** after Lab 1, because it uses the same trap course and the same stored line (`docs/labs/rl.md`).
 
 ## Lab 1 in detail: Search
 - Course: a small chain where greedy fails on purpose (a jump that lands well but leaves the next press no room).
