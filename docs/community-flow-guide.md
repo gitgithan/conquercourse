@@ -170,5 +170,14 @@ sequenceDiagram
 - The tray badge is a camera sign on the "Mine:" buttons; the place name is not on it yet.
 - Pieces appear in the tray only with `?uploadobj=1` (the "Open the World Editor" button adds it).
 - Generate Piece uses the paid photo-to-3D job; the existing daily limits and safety check apply.
-- The unit tests stub the network; `scripts/community-upload-e2e.mjs` runs the whole path against the preview site with the real jobs (see `docs/evidence/cc-247-upload-*.jpg`).
+- The unit tests stub the network; `scripts/community-upload-e2e.mjs` runs the whole path against the preview site with the real jobs (live run of 2026-10-31).
+- Pictures of that run, in order:
+  - [Photo uploaded](evidence/cc-247-upload-1-upload.jpg)
+  - [Outline found](evidence/cc-247-upload-2-segment.jpg)
+  - [Piece generated](evidence/cc-247-upload-3-generated.jpg)
+  - [Wallpaper shared](evidence/cc-247-upload-4-wallpaper-shared.jpg)
+  - [Gallery shows both as yours](evidence/cc-247-upload-5-gallery.jpg)
+  - [Delete asks first](evidence/cc-247-upload-6-delete-confirm.jpg)
+  - [Gone after a reload](evidence/cc-247-upload-7-gone.jpg)
+  - [Run record](evidence/cc-247-upload-run.json)
 - Desktop at 1280 px only.
