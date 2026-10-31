@@ -49,6 +49,14 @@ describe('film camera', () => {
     let last = 1;
     for (let t = 0; t < 8; t += 0.1) { const o = heroPhotoOpacity(t); expect(o).toBeLessThanOrEqual(last + 1e-9); last = o; }
   });
+  it('dive starts high over the course and settles into the side view at the start', () => {
+    const a = filmPose('dive', 0, ctx), b = filmPose('dive', SHOT_SECONDS.dive, ctx);
+    expect(a.pos[1]).toBeGreaterThan(10);
+    expect(b.pos[1]).toBeLessThan(a.pos[1]);
+    expect(Math.abs(b.look[0] - ctx.runnerX)).toBeLessThan(2);
+    expect(b.pos[2]).toBeGreaterThan(10); // beside the runner, the normal side view, not above or behind
+    expect(b.pos[0] - b.look[0]).toBeLessThan(1);
+  });
   it('only turns on for a known shot name', () => {
     expect(filmShotOf('?film=orbit')).toBe('orbit');
     expect(filmShotOf('?film=nope')).toBeNull();
