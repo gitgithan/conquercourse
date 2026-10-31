@@ -147,3 +147,11 @@ describe('key reuse: the replay stores the two meanings as separate bits', () =>
     expect(JSON.stringify(a.log)).not.toBe(JSON.stringify(b.log));
   });
 });
+
+// The page must treat S exactly like Arrow Down for the cannon tilt (and the squat, slide and drone descent).
+describe('S matches Arrow Down in the page', () => {
+  it('the cannon tilt-down input reads both keys', () => {
+    const src = readFileSync('src/modes/course.ts', 'utf8');
+    expect(src).toContain("aimDown: keys.has('ArrowDown') || keys.has('KeyS')");
+  });
+});

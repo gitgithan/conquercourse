@@ -30,7 +30,7 @@
 | Hanging on a bar, rope or edge | Nothing | Nothing (the hand hold is the E key; Down does not let go) |
 | In a drone | Nothing | Descend (Up climbs; both at once cancel) |
 | Riding the cart | Nothing | Brake |
-| Loaded cannon | Nothing from S | Arrow Down (not S) tilts the barrel flatter |
+| Loaded cannon | Tilts the barrel flatter (same as Arrow Down) | Tilts the barrel flatter |
 - The gates for the slide are in `canSlide` in `src/sim/slide.ts`: on the ground, `|vx| >= 4 m/s`, and the cooldown has passed.
 - The gates are checked inside the simulator, so the page can send the signal every time and be wrong-proof.
 
@@ -65,8 +65,7 @@
   - Not done yet: a single "toggle" option, or a separate slide key.
 - Remapping: the page maps two codes (ArrowDown and KeyS) to the same action.
   - A future key-rebinding screen must keep the two signals apart and remap actions, not raw codes.
-- The cannon uses Arrow Down for tilt, so S and Arrow Down differ only there.
-  - That is a known inconsistency, listed under limits.
+- The cannon tilt reads both S and Arrow Down, so the two keys match everywhere (fixed 2026-11-01; before that the cannon read Arrow Down only).
 
 ## Onboarding hint
 - The keys card says "Bend your knees (hold, on big drops) / tap while running: slide low under a head-high ball".
@@ -76,12 +75,11 @@
 ## Limits
 - Not tested in a real browser here: the key events to the two signals (`slideQueued`, held `squat`) live in the page and are not in the sim tests.
 - The touch "Bend" button presses Arrow Down, so it can slide too; phone work is out of scope.
-- The cannon tilt reads Arrow Down only, not S.
+- The cannon tilt now reads S as well; it is checked by a source guard, not in a real browser.
 - One physical press on the exact tick of a coaster or drone entry is not covered by a test.
 
 ## How to make it better
 - Add a short on-screen cue the first time a fresh press is lost in the air.
 - Show the slide as its own row on the keys card, so the second meaning is named.
-- Let the cannon tilt read S too, so S and Arrow Down match everywhere.
 - Add a rebinding screen that remaps actions (bend, slide) and not raw key codes.
 - If a "slide into the landing" is wanted, make it a new move with its own bit and a replay version bump.

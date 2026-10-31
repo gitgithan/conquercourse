@@ -1469,7 +1469,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
       if (feed) { input = fedInput(); if (!clipping && world.outcome === 'running') ghostCtl?.input(input); }
       else if (plan) input = inputFor(plan, world, botState, course);
       else {
-        input = { run: keys.has('ArrowRight') || keys.has('KeyD'), left: keys.has('ArrowLeft') || keys.has('KeyA'), jump: jumpQueued, jumpSpeed: 0, squat: keys.has('ArrowDown') || keys.has('KeyS'), handL: keys.has('KeyE'), handR: keys.has('KeyE'), vault: vaultQueued, roll: rollQueued || keys.has('KeyX'), slide: slideQueued, fire: fireQueued, aimUp: keys.has('ArrowUp') || keys.has('KeyW'), aimDown: keys.has('ArrowDown'), up: keys.has('ArrowUp') || keys.has('KeyW') };
+        input = { run: keys.has('ArrowRight') || keys.has('KeyD'), left: keys.has('ArrowLeft') || keys.has('KeyA'), jump: jumpQueued, jumpSpeed: 0, squat: keys.has('ArrowDown') || keys.has('KeyS'), handL: keys.has('KeyE'), handR: keys.has('KeyE'), vault: vaultQueued, roll: rollQueued || keys.has('KeyX'), slide: slideQueued, fire: fireQueued, aimUp: keys.has('ArrowUp') || keys.has('KeyW'), aimDown: keys.has('ArrowDown') || keys.has('KeyS'), up: keys.has('ArrowUp') || keys.has('KeyW') };
         if (world.outcome === 'running') ghostCtl?.input(input);
         jumpQueued = false; vaultQueued = false; rollQueued = false; slideQueued = false; fireQueued = false;
       }
