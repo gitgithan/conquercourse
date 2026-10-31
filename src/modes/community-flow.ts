@@ -182,11 +182,12 @@ export function startCommunityFlow(host: HTMLElement, params: URLSearchParams): 
     }
 
     interface View { list(): { id: number; box: Box; label: string; cutout?: string; cls: string }[]; hover(id: number | null): void; click(id: number): void }
-    function stage(rg: Regions, ph: Shrunk, editable: boolean, onChange: () => void, view?: View) {
+    function stage(rg: Regions, ph: Shrunk, editable: boolean, onChange: () => void, viewOf?: () => View | undefined) {
       const st = el('div', panel); st.className = 'stage';
       const img = el('img', st, '', { src: ph.image, alt: 'your photo', draggable: false });
       const k = () => ph.width / img.getBoundingClientRect().width;
       const draw = () => {
+        const view = viewOf?.();
         st.querySelectorAll('.box').forEach((n) => n.remove()); const s = 1 / k();
         const shown = view ? view.list() : rg.list.map((r) => ({ id: r.id, box: r.box, label: r.label, cutout: r.cutout, cls: rg.selected.has(r.id) ? 'sel' : '' }));
         for (const r of shown) {
@@ -257,7 +258,7 @@ export function startCommunityFlow(host: HTMLElement, params: URLSearchParams): 
         hover: (id) => { hovered = id; paintHover(); },
         click: (id) => tick(id),
       };
-      const st = stage(rg, ph, false, () => undefined, work.cands.length ? view : undefined);
+      const st = stage(rg, ph, false, () => undefined, () => (work.cands.length ? view : undefined));
       const prog = el('div', panel); prog.id = 'cprog';
       const foundEl = el('div', panel); foundEl.id = 'cfound';
       const nav = navRow(panel, 'Next: Choose', work.fs.segmented, 'cnext');
