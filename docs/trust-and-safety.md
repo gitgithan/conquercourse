@@ -81,6 +81,9 @@
 - **Compare:** SPEC section 7 forbids sending private photos to Meta's cheaper contributor models because Meta may train on them; the Baseten terms above are what we checked about that host.
 - This answers the open point in `docs/model-ledger.md` section 2a, with the caveat above (no signed agreement read).
 
+## Feedback notes
+- The Feedback card sends no name, email, IP address, photo or raw browser string; the player sees every line first and can untick it ([feedback](feedback.md)).
+
 ## Honest limits
 - The check was measured on 19 safe photos (all `ok`), 7 text-only unsafe cases (all caught) and 4 near misses (none blocked) ([cc-119-moderation](../data/eval/cc-119-moderation/README.md)).
 - It has not been tested on real harmful images.

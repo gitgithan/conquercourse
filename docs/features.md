@@ -62,6 +62,7 @@
 | Live street photos | Photos along a built place, people masked | In Map mode | [pipelines 6](meta-ai-pipelines.md#6-real-places-and-photos-mapillary-masking) |
 | Drone and front view | A fly-over and a side view of the course | `C` camera, `F` front view | [drone](drone.md) |
 | Debug view | Why a swing worked | `B` | [world-slice](world-slice.md#debug-view-fix-it-and-the-helper-window-2026-10-28) |
+| Feedback card | One small button on every screen opens a short card: kind, where (filled in), a question that fits the kind, an optional rating and "Was this clear?", and a "What gets sent" box with tick boxes; hidden during a run | The Feedback button; `?feedback=old` for the old form | [feedback](feedback.md) |
 
 ## 6. Under the hood
 - The whole system: [pipelines, the whole system](meta-ai-pipelines.md#the-whole-system).

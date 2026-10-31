@@ -20,7 +20,7 @@ Live: https://conquercourse.pages.dev/
 - For the Meta Model API tools, copy [.env.example](.env.example) to `.env` and put your key in `META_API_KEY`.
 - Load that file in your shell before running those tools: `set -a; . ./.env; set +a`.
 - Keep `.env` private: git ignores it, and keys stay on the server side, never in the browser.
-- Checks and more detail: `npm run test:quick`, [testing](docs/testing.md), [dev setup](docs/dev-setup.md), [deploying](docs/deploy.md) and [trust and safety](docs/trust-and-safety.md).
+- Checks and more detail: `npm run test:quick`, [testing](docs/testing.md), [dev setup](docs/dev-setup.md), [deploying](docs/deploy.md) and [trust and safety](docs/trust-and-safety.md) and the [feedback card](docs/feedback.md).
 
 ## The four experiences
 

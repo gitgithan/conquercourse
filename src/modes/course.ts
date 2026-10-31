@@ -36,6 +36,7 @@ import { bounce } from '../sim/trampoline';
 import { DEFAULT_TRAMPOLINE } from '../sim/trampoline';
 import { ouch } from '../sim/landing';
 import { logTicks } from '../sim/run-checks';
+import { noteRun, noteRunning } from '../ui/feedback-model';
 import { track, trackCourseEvent, courseKey, publishClear, sendClear, session } from '../ui/feedback';
 import { statsOn } from '../ui/course-stats';
 import { boardKeyOfPage, boardPathOf, FIRST_COURSE_KEY } from '../share/board-courses';
@@ -819,6 +820,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
   function finishRun(success: boolean) {
     if (attemptEnded) return;
     attemptEnded = true;
+    noteRun({ lastRun: `${success ? 'Cleared' : 'Fell'} at ${(world.runner.tick * DT).toFixed(1)} s`, replay: analyticsRunId.slice(0, 8) });
     const bucket = summaries[runKind];
     bucket.ticks += world.runner.tick;
     bucket.progressSum += Math.max(0, Math.min(100, (runFurthestX - runStartX) / Math.max(1, course.finishX - runStartX) * 100)); bucket.progressCount++;
@@ -1494,6 +1496,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
         jumpQueued = false; vaultQueued = false; rollQueued = false; slideQueued = false; fireQueued = false;
       }
       const prev = world.outcome;
+      noteRunning(prev === 'running' && (Math.abs(world.runner.vx) > 0.3 || world.mode !== 'run')); // CC-feedback: the Feedback button hides during a run
       prevMode = world.mode; prevVx = world.runner.vx;
       perf.simStart();
       if (hangTest === null && plankTest === null) world = stepWorld(world, input, course);
