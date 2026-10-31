@@ -49,7 +49,7 @@ export function renderRows(list: HTMLElement, rows: BoardRow[], myRank: number |
     row.className = 'board-row'; row.dataset.rank = String(i + 1);
     row.style.cssText = `display:flex;flex-wrap:wrap;align-items:center;gap:8px;padding:${podium ? 5 : 3}px 8px;margin:3px 0;border-radius:8px;border:2px solid ${myRank === i + 1 ? '#1a6b3c' : podium ? EDGES[i] : 'transparent'};background:${podium ? TINTS[i] : '#f3f5f4'};font-weight:${podium ? 700 : 500}`;
     const badge = document.createElement('span'); badge.textContent = podium ? MEDALS[i] : String(i + 1); badge.style.cssText = `width:24px;text-align:center;font-size:${podium ? 20 : 12}px;color:#556`;
-    const name = document.createElement('span'); name.textContent = (r.nick || 'Ninja') + (myRank === i + 1 ? ' (you)' : ''); name.title = r.nick || 'Ninja'; name.style.cssText = 'flex:1 1 13ch;min-width:13ch;overflow:hidden;text-overflow:ellipsis;white-space:nowrap';
+    const name = document.createElement('span'); name.textContent = (r.nick || 'Ninja') + (myRank === i + 1 ? ' (you)' : ''); name.className = 'board-name'; name.title = r.nick || 'Ninja'; name.style.cssText = 'flex:1 1 13ch;min-width:13ch;overflow:hidden;text-overflow:ellipsis;white-space:nowrap';
     const time = document.createElement('span'); time.textContent = secondsText(r.ticks); time.style.cssText = 'font-variant-numeric:tabular-nums;font-weight:800';
     row.append(badge, name, time);
     const btnCss = 'font:600 11px system-ui,sans-serif;border:1px solid #556;border-radius:6px;background:#fff;padding:1px 6px;cursor:pointer';
@@ -192,21 +192,26 @@ export function boardBox(key: string, hash: string, me = '', hooks: BoardHooks =
 /** The board on the Course itself: a small card on the right, under the buttons, open from the start, that folds to a pill so it never covers the run. */
 export function boardCorner(key: string, hash: string, me = '', hooks: BoardHooks = {}): HTMLElement {
   const card = document.createElement('div'); card.id = 'board-corner';
-  card.style.cssText = 'position:fixed;left:16px;top:360px;z-index:30;width:290px;max-height:calc(100vh - 360px - 190px);overflow-y:auto;background:#fffffff2;border:1px solid #cfd6d0;border-radius:12px;box-shadow:0 4px 16px #0003;font:500 13px system-ui,sans-serif;color:#17201d';
+  card.style.cssText = 'position:fixed;left:16px;top:360px;z-index:30;width:290px;max-height:calc(100vh - 360px - 190px);overflow-y:auto;background:#fff;border:1px solid #cfd6d0;border-radius:12px;box-shadow:0 4px 16px #0003;font:500 13px system-ui,sans-serif;color:#17201d';
   const toggle = document.createElement('button'); toggle.type = 'button'; toggle.id = 'board-toggle';
   toggle.style.cssText = 'width:100%;text-align:left;border:0;background:transparent;font:700 14px system-ui,sans-serif;padding:8px 12px;cursor:pointer';
   const makeBody = (): HTMLElement => { const b = boardBox(key, hash, me, hooks); b.style.margin = '0'; b.style.border = '0'; b.style.padding = '0 12px 10px'; (b.firstElementChild as HTMLElement).style.display = 'none'; return b; }; // the pill is the title
   let body = makeBody();
-  const fold = (open: boolean): void => { body.style.display = open ? '' : 'none'; toggle.textContent = `${open ? '▾' : '▸'} Fastest runs`; toggle.setAttribute('aria-expanded', String(open)); };
+  let fold = (open: boolean): void => { body.style.display = open ? '' : 'none'; toggle.textContent = `${open ? '▾' : '▸'} Fastest runs`; toggle.setAttribute('aria-expanded', String(open)); };
   toggle.onclick = () => fold(body.style.display === 'none');
   card.append(toggle, body); fold(true);
-  // it sits on the left, just under the Controls card, and follows it when Controls fold (H) or grow; it never reaches the course or the end card
+  // it sits on the left, just under the Controls card, and follows it when Controls fold (H) or grow; it never reaches the course or the end card.
+  // When the Controls card leaves too little room under it (a 720 px screen), it waits as a pill there and, when opened, lays over the Controls card (the left strip only) until it is folded again.
   const keys = document.getElementById('keys');
-  const place = (): void => { const b = keys?.getBoundingClientRect(); const top = Math.round((b && b.height ? b.bottom : 56) + 10); card.style.top = `${top}px`; card.style.maxHeight = `calc(100vh - ${top}px - 190px)`; };
+  const place = (): void => {
+    const b = keys?.getBoundingClientRect(), under = Math.round((b && b.height ? b.bottom : 56) + 10), room = window.innerHeight - under - 24, open = body.style.display !== 'none';
+    const over = open && room < 230; // not enough room under Controls for the open card
+    const top = over ? 56 : under; card.style.top = `${top}px`; card.style.maxHeight = `${Math.max(over ? window.innerHeight - 56 - 24 : room, 36)}px`;
+  };
+  const foldHere = fold; fold = (open: boolean): void => { foldHere(open); place(); };
   place(); window.addEventListener('resize', place);
   if (keys && typeof ResizeObserver !== 'undefined') new ResizeObserver(place).observe(keys);
-  // after a run is sent the server needs a moment to replay it: the card asks again, keeping its open or folded state
-  card.addEventListener('board-refresh', () => { const open = body.style.display !== 'none'; const next = makeBody(); body.replaceWith(next); body = next; fold(open); });
+  { const b = keys?.getBoundingClientRect(); if (b && window.innerHeight - b.bottom - 34 < 230) fold(false); } // little room: start as the pill
   return card;
 }
 
