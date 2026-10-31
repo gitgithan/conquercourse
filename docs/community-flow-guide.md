@@ -31,6 +31,59 @@ flowchart LR
   M --> N["Delete (you confirm)"]
 ```
 
+## What your box does
+- The box does **not** crop the photo.
+  - Segment Region sends the whole photo and the finder looks at all of it, in the same way whatever you drew.
+  - The finder reads no box at all (`Mask.suggest` takes the photo only); it tries one plain word at a time (bench, stairs, railing, wall and so on) and keeps the best, non-repeating things.
+  - Your box is only used afterwards, in your browser, to say which found thing is yours: the one that overlaps it most is ticked for you.
+  - So nothing is hidden from the search, and a box drawn in the wrong place cannot make it fail.
+- "Use my box as the outline" used to skip the finder.
+  - It is now called **Skip the finder: use my box as it is**, and the page says what happens: nothing is searched, and your box is the area.
+  - Skipping can never fail, because the finder only chooses boxes for you.
+  - The 3D maker later finds the real outline itself, from the photo, your box and the name you give it.
+    - It looks for that name under your box, then falls back to the box alone, then to the plain box.
+    - So the blue shape you see after Segment Region is a preview, not what is lifted.
+- One 3D run makes one piece.
+  - A lift takes one photo, one box and one name, and returns one .glb.
+  - Several pieces are several runs, one after another, and each costs its own GPU seconds.
+  - The recorded price is about 2 cents for a warm piece and 3 to 4 cents for the first one after a quiet spell (`docs/pipelines.md`, `docs/community-characters.md`).
+  - Segment Region is one run for the whole photo, however many things it finds, so choosing among them is free.
+- Why both jobs are slow sometimes: it is a cold start.
+  - Each of the two GPU programs (finder and 3D maker) is set to keep one machine, `max_containers=1`, and to switch it off after 240 s with nobody asking (`scaledown_window=240`).
+  - After a quiet spell the first call has to start a machine and load the model: a first piece took 90 to 100 s and the model load alone was 45 to 54 s (`data/eval/cc-38-photo-to-3d/README.md`, `docs/community-characters.md`).
+  - A warm run is quick: in the live run of 2026-10-31 (`docs/evidence/cc-247-upload-run.json`) Segment Region took about 18 s and a piece 32 s.
+  - Only one machine each means two people at once wait in line; this page also queues your own pieces one at a time.
+- Money, as a recommendation only (nothing was changed on Modal):
+  - Keeping one machine always on costs about $1.95 an hour for each of the two programs (L40S), about $47 a day each.
+  - The cheaper option is to wake the machines while a person is on the Make tab: one small call when the tab opens, so the model is loaded by the time they press Segment Region, and nothing runs when nobody is on the page.
+  - That call needs a new small Modal function, which is a deploy, so it is left for the product owner to approve.
+
+## The flow after this change
+```mermaid
+flowchart LR
+  A["Photo"] --> B["Mark one box"]
+  B --> C["Segment Region<br/>whole photo, one run"]
+  B --> C2["or: Skip the finder<br/>(box as it is)"]
+  C --> D["Tick the things you want<br/>fixed order, hover shows it on the photo"]
+  C2 --> D
+  D --> E["Choose: piece or wallpaper for each"]
+  E --> F["Make N pieces<br/>one lift each, queued, per-piece bar"]
+  F --> G["Prize: spinning turntable in the middle"]
+  G --> H["Keep / Share / Make another"]
+  G --> I["Open in the World Editor<br/>Add pieces, My pieces, already placed"]
+```
+- Before Segment Region you still mark exactly one box.
+- After it you may tick several things, up to a small limit, and each ticked piece is its own run.
+- The list of found things is in one fixed order: your box first, then biggest first, then top to bottom, then left to right.
+- Pointing at a name lights its box on the photo; nothing is rebuilt, so nothing moves under the mouse.
+
+## Where is my piece?
+- Your finished piece is kept in this browser (IndexedDB) and was always saved.
+- The editor's Add pieces window is a picture grid built from our own list, and the buttons for your pieces were hidden behind it, and only built when the address had `uploadobj=1`.
+- Now they are always read, and the grid shows them as cards under **My pieces** at the very top, on every tab.
+- The prize screen's **Open in the World Editor** opens `?mode=editor&place=<id>` and the piece is placed for you.
+- Wallpapers are not pieces: they hang behind a course, so they are attached to a course ("Play it") and cannot be placed in the editor.
+
 ## Where things are kept
 ```mermaid
 flowchart TB
@@ -105,13 +158,13 @@ sequenceDiagram
    - Press **Segment Region**.
    - A stepped bar shows the job: Checking the photo, Finding the things in it, Done.
    - The bar shows the seconds so far, and **Cancel** stops waiting.
-   - The server finds exact outlines; your box takes the outline that sits on it.
-   - A blue shape shows the outline; a chip below names it.
-   - A button "Use "stairs" instead" appears when it found something else; click it to swap your area for that.
-   - "Use my box as the outline" goes on without an outline.
-   - If the finder is switched off, the page says so and uses your box as the outline.
+   - The finder looks at the whole photo and lists what it found, in one fixed order.
+   - Your box only picks which one is yours; it is ticked for you.
+   - Tick other things to make several at once; point at a name to see it on the photo.
+   - "Skip the finder: use my box as it is" goes on with the plain box.
+   - If the finder is switched off, the page says so and uses your box as it is.
 4. **Choose.**
-   - Your area has a small picture, a name box and two buttons: **3D piece** and **Wallpaper**.
+   - Each ticked area has a small picture, a name box and two buttons: **3D piece** and **Wallpaper**.
    - Name a piece with a plain word (bench, railing, stairs, wall).
    - Press a button again to un-choose it.
    - "Next: Make" opens when the area has a choice.
@@ -181,3 +234,14 @@ sequenceDiagram
   - [Gone after a reload](evidence/cc-247-upload-7-gone.jpg)
   - [Run record](evidence/cc-247-upload-run.json)
 - Desktop at 1280 px only.
+
+## Using other players' pieces
+- In Explore, another player's piece (once it has passed the safety check) has a **Use in my course** button.
+- The button adds it to your own list, then offers **Open the World Editor**.
+- In the editor it sits under **Shared pieces** in Add pieces, and you place it like any other piece.
+- Pieces that are waiting, held or blocked never get the button, and the server will not hand their model to anyone but the maker.
+- A course with a shared piece keeps the piece's id.
+- When a friend opens the short link, the piece is fetched from the community store.
+- If it cannot be fetched, the course still loads and the piece shows as a plain grey shape.
+- If the maker deletes it, the editor says "no longer available" and skips it.
+- Wallpapers are not placeable pieces; they attach behind a whole course.

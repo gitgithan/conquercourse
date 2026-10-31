@@ -76,11 +76,17 @@ try {
   checks.segBarShown = (await page.$$('#cprog .jp li')).length === 3 && (await page.$('#cprog .jp [data-job-cancel]')) !== null;
   await page.waitForFunction(() => document.querySelector('#cprog .jp')?.dataset.stage === 'finding', null, { timeout: 15000 });
   await shot(page, '3-segment-progress');
-  await page.waitForFunction(() => /Outline found|No outline fits/.test(document.querySelector('#cseginfo')?.textContent ?? ''), null, { timeout: 30000 });
+  await page.waitForFunction(() => /Found \d+ thing/.test(document.querySelector('#cseginfo')?.textContent ?? ''), null, { timeout: 30000 });
   checks.segmentedOnce = segCalls === 2;
-  checks.chips = (await page.$$('#chips .chip')).length === 1;
-  checks.cutouts = (await page.$$('.stage .box.cut')).length === 1;
-  checks.useInstead = (await page.$$('#chips button[data-extra]')).length >= 1;
+  checks.found = (await page.$$('#cfound label')).length >= 2 && (await page.$$('#cfound input:checked')).length === 1;
+  checks.cutouts = (await page.$$('.stage .box.cut')).length >= 1;
+  const order1 = await page.$$eval('#cfound label', (n) => n.map((x) => x.textContent));
+  await page.hover('#cfound label:nth-child(2)'); await page.waitForTimeout(150); await page.hover('#cfound label:nth-child(1)'); await page.mouse.click(5, 5);
+  checks.stableOrder = JSON.stringify(order1) === JSON.stringify(await page.$$eval('#cfound label', (n) => n.map((x) => x.textContent)));
+  await page.hover('#cfound label:nth-child(2)'); await page.waitForTimeout(150);
+  checks.hoverHighlights = (await page.$$('.stage .box.hl')).length === 1;
+  await page.check('#found-1'); await page.uncheck('#found-1');
+  checks.tickSeveral = true;
   await shot(page, '4-segment-result');
   // step 4: the area becomes a 3D piece
   await page.click('#cnext'); await page.waitForSelector('.item');
@@ -126,6 +132,7 @@ try {
   checks.stagesFollowJob = ['cutting', 'shape', 'colour'].every((x) => seen.has(x));
   await shot(page, '7-progress');
   await page.waitForFunction((id) => /Done/.test(document.querySelector(`#cmsg-${id}`)?.textContent ?? ''), id2, { timeout: 60000 });
+  await page.waitForSelector('#prize', { timeout: 20000 }); checks.prizeShown = (await page.$('#prize-keep')) !== null && (await page.$('#prize-editor')) !== null; await shot(page, '8-prize'); await page.click('#prize-keep'); await page.waitForSelector('#prize', { state: 'detached' });
   checks.generated = liftCalls >= 2 && (await page.$eval('.jp', (e) => e.dataset.stage)) === 'done';
   checks.whatNext = (await page.$('#go-editor')) !== null;
   checks.pieceKept = await page.evaluate(async () => { const db = await new Promise((ok, no) => { const q = indexedDB.open('cc-user-objects', 1); q.onsuccess = () => ok(q.result); q.onerror = no; }); return await new Promise((ok) => { const t = db.transaction(db.objectStoreNames[0]).objectStore(db.objectStoreNames[0]).count(); t.onsuccess = () => ok(t.result > 0); t.onerror = () => ok(false); }); });

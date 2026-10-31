@@ -27,6 +27,7 @@ export const PIECE_BROWSER_CSS = `
   .ed .pb-group-none{grid-column:1/-1;margin:0 2px;font:13px system-ui,sans-serif;color:var(--muted)}
   .ed .pb-view{min-width:0!important;min-height:30px;padding:3px 12px;border-radius:999px}
   .ed .pb-none{padding:18px;color:var(--muted)}
+  .ed .pb-mine{display:flex;flex-direction:column;align-items:center;justify-content:center;aspect-ratio:16/9;border-radius:7px;background:#e7f3ef;font-size:26px}
   @media (max-width:760px){.ed .pb-feature{grid-template-columns:1fr}}`;
 
 export function mountPieceBrowser(menu: HTMLElement): void {
@@ -47,18 +48,23 @@ export function mountPieceBrowser(menu: HTMLElement): void {
   let pieces: PieceInfo[] = [...STATIC_PIECES], section: Section = 'ground', shown = pieces[0];
   const tabBtn = new Map<Section, HTMLButtonElement>();
   const feat = (p: PieceInfo) => {
-    shown = p; fImg.src = `/assets/pieces/${p.id}-large.webp`; fImg.alt = p.name;
+    shown = p; fImg.style.visibility = isMine(p) ? 'hidden' : ''; fImg.src = isMine(p) ? '' : `/assets/pieces/${p.id}-large.webp`; fImg.alt = p.name;
     fText.replaceChildren(h('h3', { textContent: p.name }), h('p', { textContent: p.does }), h('p', { class: 'from', textContent: p.from }), h('p', { class: 'hint', textContent: 'Click the picture card to add it to the world.' }));
     for (const c of grid.querySelectorAll<HTMLElement>('.pb-card')) c.classList.toggle('on', c.dataset.piece === p.id);
   };
+  // pieces you made from your own photos (CC-247): the editor keeps one hidden button for each; they get cards in a group at the very top, whatever tab is open
+  const mineOf = (): PieceInfo[] => [...menu.querySelectorAll<HTMLElement>('[data-from-photo]')].map((b) => ({ id: `mine-${b.dataset.object}`, section: 'real' as Section, name: (b.textContent ?? '').replace(/^\W*Mine:\s*/, '') || 'My piece', does: 'A 3D piece you made from your own photo. Click the card to add it to the world.', from: 'From your own photo', button: `[data-from-photo][data-object="${b.dataset.object}"]` }));
+  const sharedOf = (): PieceInfo[] => [...menu.querySelectorAll<HTMLElement>('[data-shared-piece]')].map((b) => ({ id: `shared-${b.dataset.sharedPiece}`, section: 'real' as Section, name: (b.textContent ?? '').replace(/^\W*Shared:\s*/, '') || 'Shared piece', does: 'A 3D piece another player shared. Click the card to add it to the world.', from: 'Shared by a player', button: `[data-shared-piece="${b.dataset.sharedPiece}"]` }));
+  const isMine = (p: PieceInfo) => p.id.startsWith('mine-') || p.id.startsWith('shared-');
   const press = (p: PieceInfo) => { const b = menu.querySelector<HTMLElement>(p.button); if (p.id === 'photo') { (window as unknown as { ccPickPhoto?: () => void }).ccPickPhoto?.(); return; } b?.click(); };
   const paint = () => {
     const q = search.value.trim().toLowerCase();
+    const mine = mineOf().filter((p) => !q || p.name.toLowerCase().includes(q) || 'my pieces'.includes(q));
     const list = pieces.filter((p) => (q ? `${p.name} ${p.does} ${SECTION_NAME[p.section]}`.toLowerCase().includes(q) : p.section === section));
     const card = (p: PieceInfo) => {
       const c = h('button', { class: 'pb-card', type: 'button' }); c.dataset.piece = p.id; c.title = p.name;
-      const img = h('img', { src: `/assets/pieces/${p.id}.webp`, alt: '' }); img.loading = 'lazy'; img.onerror = () => { img.style.visibility = 'hidden'; };
-      c.append(img, h('span', { textContent: p.name }));
+      if (isMine(p)) c.append(h('div', { class: 'pb-mine', textContent: p.id.startsWith('shared-') ? '🌐' : '📷' }), h('span', { textContent: p.name }));
+      else { const img = h('img', { src: `/assets/pieces/${p.id}.webp`, alt: '' }); img.loading = 'lazy'; img.onerror = () => { img.style.visibility = 'hidden'; }; c.append(img, h('span', { textContent: p.name })); }
       c.onmouseenter = c.onfocus = () => feat(p);
       c.onclick = () => press(p);
       return c;
@@ -67,6 +73,8 @@ export function mountPieceBrowser(menu: HTMLElement): void {
     const grouped = !q && section === 'real' && byMove;
     viewBtn.style.display = !q && section === 'real' ? '' : 'none';
     viewBtn.textContent = byMove ? 'Show all together' : 'Group by move';
+    const sharedP = sharedOf().filter((p) => !q || p.name.toLowerCase().includes(q) || 'shared pieces'.includes(q));
+    const mineCards: HTMLElement[] = [...(mine.length ? [h('div', { class: 'pb-group', textContent: 'My pieces', id: 'pb-mine' }), ...mine.map(card)] : []), ...(sharedP.length ? [h('div', { class: 'pb-group', textContent: 'Shared pieces', id: 'pb-shared' }), ...sharedP.map(card)] : [])];
     if (grouped) {
       const cards: HTMLElement[] = [], ordered: PieceInfo[] = [];
       for (const m of MOVE_ORDER) {
@@ -77,9 +85,10 @@ export function mountPieceBrowser(menu: HTMLElement): void {
       }
       const rest = list.filter((p) => !p.move);
       if (rest.length) { cards.push(h('div', { class: 'pb-group', textContent: 'Other' }), ...rest.map(card)); ordered.push(...rest); }
-      grid.replaceChildren(...cards);
+      grid.replaceChildren(...mineCards, ...cards);
       list.splice(0, list.length, ...ordered);
-    } else grid.replaceChildren(...list.map(card));
+    } else grid.replaceChildren(...mineCards, ...list.map(card));
+    list.unshift(...mine, ...sharedP);
     if (!list.length) grid.append(h('div', { class: 'pb-none', textContent: 'Nothing matches. Try another word.' }));
     else if (!list.includes(shown)) feat(list[0]); else feat(shown);
     for (const [s, b] of tabBtn) b.setAttribute('aria-selected', String(!q && s === section));
@@ -97,6 +106,8 @@ export function mountPieceBrowser(menu: HTMLElement): void {
     const d = e.key === 'ArrowRight' ? 1 : e.key === 'ArrowLeft' ? -1 : 0;
     if (d && i >= 0) { cards[(i + d + cards.length) % cards.length].focus(); e.preventDefault(); }
   };
+  let mineCount = 0;
+  new MutationObserver(() => { const n = mineOf().length * 1000 + sharedOf().length; if (n !== mineCount) { mineCount = n; paint(); } }).observe(menu, { childList: true });
   paint();
   // the real objects from photos arrive from the object list: their words come from piece-info, the credit from the index
   void fetch('/assets/objects/index.json').then((r) => r.json()).then((idx: { objects: { name: string; label: string; author: string; licence: string }[] }) => {

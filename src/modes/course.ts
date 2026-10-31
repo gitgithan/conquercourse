@@ -228,7 +228,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
     const meshParts: Part[] = [];
     const byUrl = new Map<string, NonNullable<typeof course.scene>>();
     for (const it of course.scene) {
-      if (it.url) { const key = `${it.url}|${Math.floor(it.x / INSTANCE_CELL)}`; const l = byUrl.get(key) ?? []; l.push(it); byUrl.set(key, l); } // the same object, near each other, is one instanced mesh; far apart stays culled apart
+      if (it.url && (it.url.startsWith('/assets/') || it.url.startsWith('/api/community-items?'))) { const key = `${it.url}|${Math.floor(it.x / INSTANCE_CELL)}`; const l = byUrl.get(key) ?? []; l.push(it); byUrl.set(key, l); } // the same object, near each other, is one instanced mesh; far apart stays culled apart
       else if (it.stack) {
         const g = new THREE.Group();
         g.position.set(it.x, it.y, it.z); g.rotation.y = it.rotY; g.scale.setScalar(it.scale);
@@ -244,7 +244,9 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
     for (const m of chunked(mergeStatic(meshParts))) { scene.add(m); chunks.push(m); }
     for (const [key, items] of byUrl) {
       const url = key.slice(0, key.lastIndexOf('|'));
-      void loadOnce(url).then((got) => {
+      const plainShape = () => { for (const it of items) if (it.mesh) { const geo = new THREE.BufferGeometry(); geo.setAttribute('position', new THREE.Float32BufferAttribute(it.mesh.positions, 3)); geo.setIndex(it.mesh.indices); geo.computeVertexNormals(); geo.applyMatrix4(itemMatrix(it)); const m = new THREE.Mesh(geo, matte); scene.add(m); } }; // a shared piece that cannot be fetched still stands there as its plain shape
+      void loadOnce(url).catch(() => { plainShape(); return null; }).then((got) => {
+        if (!got) return;
         const obj = got.scene.clone(true), box = new THREE.Box3().setFromObject(obj), c = box.getCenter(new THREE.Vector3());
         obj.position.set(-c.x, -box.min.y, -c.z);
         if (items.length < 2) { // one use: as before
