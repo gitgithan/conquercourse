@@ -15,7 +15,7 @@ import { workSeconds, xWindows, type SearchResult } from '../sim/ideal';
 import { searchInput, storedPlanFor, withStoredPlan, type PresetPlan } from '../slice/preset-plans';
 import { createView3d, type Ghosts } from '../slice/view3d';
 import { sceneFor } from '../slice/scene';
-import { isTrack, parseTrackSrc, sectionPoints, trackPiece, trackSrc, trackStartY, TRACK_SHAPES } from '../slice/track-world';
+import { clampTrackY, isTrack, parseTrackSrc, TRACK_TOP, sectionPoints, trackPiece, trackSrc, trackStartY, TRACK_SHAPES } from '../slice/track-world';
 import { barMesh, holdsOf, isHold, REACH_JUMPING, REACH_STANDING } from '../slice/holds-world';
 import { DEFAULT_PLANK, isPlankPiece, plankPiece, plankSpecOf, planksOf, setPlank, type PlankSpec } from '../slice/plank-world';
 import { fixPlank, plankHolds, worstCase } from '../sim/beam';
@@ -1342,10 +1342,10 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
     const uHi = Math.max(prof.length ? o + prof.length : -Infinity, ...bars.map((b) => b.u), ...(pv ? [pv.prof.length ? po + pv.prof.length : -Infinity, ...pv.bars.map((b) => b.u)] : []), uLo + 10);
     c.fillStyle = '#58635d'; c.font = '12px system-ui';
     c.fillText('What the runner sees: the lane from the side (water at the bottom, grid every metre). Drag a bar (or a purple coaster dot) to move it; double-click to add a dot.', 8, 14);
-    const base = H - 14, ppm = Math.min(30, (W - 40) / Math.max(10, uHi - uLo + 1)), ph0 = Math.max(14, (base - 24) / Math.max(1.8, Math.max(0, ...prof.cells.filter((h): h is number => h !== null), ...bars.map((b) => b.y)) + 0.4)); // fit the tallest thing, so low steps are not hairlines
+    const base = H - 14, ppm = Math.min(30, (W - 40) / Math.max(10, uHi - uLo + 1)), ph0 = Math.max(14, (base - 24) / Math.max(1.8, Math.max(0, ...prof.cells.filter((h): h is number => h !== null), ...bars.map((b) => b.y), ...trackDots().map((d) => d.y)) + 0.6)); // fit the tallest thing (the coaster dots too), so low steps are not hairlines
     const hs = prof.cells.filter((h): h is number => h !== null);
     const vmin = vzoom && hs.length ? Math.floor((Math.min(...hs) - 0.3) * 2) / 2 : 0;
-    const ph = vzoom && hs.length ? Math.max(ph0, (base - 24) / Math.max(2, Math.max(...hs, ...bars.map((b) => b.y)) - vmin + 0.6)) : ph0;
+    const ph = vzoom && hs.length ? Math.max(ph0, (base - 24) / Math.max(2, Math.max(...hs, ...bars.map((b) => b.y), ...trackDots().map((d) => d.y)) - vmin + 0.6)) : ph0;
     sideMap = { uMin: uLo, ppm, ph, base, vmin };
     c.fillStyle = '#cfe3f5'; c.fillRect(0, base, W, 14);
     c.strokeStyle = '#e3e8e4';
@@ -1369,11 +1369,14 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
       c.strokeStyle = sel ? '#0f6b5c' : '#f0a020'; c.lineWidth = 3; c.beginPath(); c.arc(x, y, 9, 0, 7); c.stroke();
       c.fillStyle = '#17201d'; c.fillText(`${b.y.toFixed(2)} m`, x + 12, y - 8);
     }
+    document.documentElement.dataset.lineGap = JSON.stringify(trackDots().map((d) => { const k = Math.floor((d.u - o) / CELL); return Math.min(99, ...[k - 1, k, k + 1].map((j) => prof.cells[j]).filter((h): h is number => h != null).map((h) => Math.abs(h - d.y))); })); // for the browser check: how far each dot is from the black line
     document.documentElement.dataset.dotPx = JSON.stringify(trackDots().map((d) => [10 + (d.u - uLo) * ppm, base - (d.y - vmin) * ph])); // for the browser check
     for (const d of trackDots()) { // the chosen coaster section: a dot at each point of the rail (drag them)
       const x = 10 + (d.u - uLo) * ppm, y = base - (d.y - vmin) * ph;
       c.fillStyle = '#7a4fd1'; c.strokeStyle = '#fff'; c.lineWidth = 2; c.beginPath(); c.arc(x, y, 6, 0, 7); c.fill(); c.stroke();
+      if (d.top) { c.fillStyle = '#7a4fd1'; c.font = '600 11px system-ui'; c.textAlign = 'left'; c.fillText(`highest point (${d.y.toFixed(1)} m): a coaster point goes no higher`, x + 10, y - 8); }
     }
+    document.documentElement.dataset.topNote = trackDots().some((d) => d.top) ? 'highest point' : '';
     for (const s of routes) { // kept shortcuts: a dashed arrow from the bar before the skipped ones to the bar after them (or the end of the lane)
       if (!designed.has(s.id)) continue;
       const ix = s.skipped.map((n) => /^Bar (\d+)$/.exec(n)).filter((m): m is RegExpExecArray => !!m).map((m) => Number(m[1]) - 1);
@@ -1409,11 +1412,11 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
     document.documentElement.dataset.barYs = JSON.stringify(bars.map((b) => Number(b.y.toFixed(2))));
   }
   /** The points of the chosen coaster section in the side view: u along the run, y above the lane's level. */
-  const trackDots = (): { id: number; i: number; u: number; y: number }[] => {
+  const trackDots = (): { id: number; i: number; u: number; y: number; top: boolean }[] => {
     // every coaster section shows its dots, chosen or not: a click on the 3D picture (to turn the camera) clears the choice and must not hide them
     return pieces.filter((q) => isTrack(q)).flatMap((p) => {
       const pts = parseTrackSrc(p.src ?? '');
-      return pts ? sectionPoints(p, pts, p.x * Math.cos(angle) + p.z * Math.sin(angle), level).map(([u, y], i) => ({ id: p.id, i, u, y })) : [];
+      return pts ? sectionPoints(p, pts, p.x * Math.cos(angle) + p.z * Math.sin(angle), level).map(([u, y], i) => ({ id: p.id, i, u, y, top: pts[i][1] >= TRACK_TOP - 0.005 })) : [];
     });
   };
   const dotAtPx = (px: number, py: number) => trackDots().find((d) => Math.hypot(10 + (d.u - sideMap.uMin) * sideMap.ppm - px, sideMap.base - (d.y - sideMap.vmin) * sideMap.ph - py) < 11);
@@ -1424,7 +1427,7 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
     const mid0 = (pts[0][0] + pts[pts.length - 1][0]) / 2, low0 = Math.min(...pts.map((q) => q[1]));
     const nx = (u - uc0) / p.scale + mid0, ny = (y - p.y + level) / p.scale + low0;
     const lo = i > 0 ? pts[i - 1][0] + 0.5 : -Infinity, hi = i < pts.length - 1 ? pts[i + 1][0] - 0.5 : Infinity;
-    pts[i] = [Math.min(hi, Math.max(lo, nx)), Math.min(14, Math.max(0, ny))];
+    pts[i] = [Math.min(hi, Math.max(lo, nx)), clampTrackY(ny)];
     const mid1 = (pts[0][0] + pts[pts.length - 1][0]) / 2, low1 = Math.min(...pts.map((q) => q[1]));
     const du = (mid1 - mid0) * p.scale, v = -p.x * s + p.z * c, uc1 = uc0 + du;
     p.x = uc1 * c - v * s; p.z = uc1 * s + v * c; p.y += (low1 - low0) * p.scale;
@@ -1435,7 +1438,7 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
     const pts = parseTrackSrc(p.src ?? ''); if (!pts) return;
     const c = Math.cos(angle), uc0 = p.x * c + p.z * Math.sin(angle);
     const mid0 = (pts[0][0] + pts[pts.length - 1][0]) / 2, low0 = Math.min(...pts.map((q) => q[1]));
-    const nx = (u - uc0) / p.scale + mid0, ny = Math.min(14, Math.max(0, (y - p.y + level) / p.scale + low0));
+    const nx = (u - uc0) / p.scale + mid0, ny = clampTrackY((y - p.y + level) / p.scale + low0);
     const k = pts.findIndex((q) => q[0] > nx);
     if (k <= 0 || nx - pts[k - 1][0] < 0.5 || pts[k][0] - nx < 0.5) return;
     pts.splice(k, 0, [nx, ny]);
