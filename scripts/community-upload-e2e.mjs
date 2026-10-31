@@ -79,7 +79,7 @@ try {
     await page.waitForSelector(`[data-shared="${m.id}"]`, { state: 'detached', timeout: 30000 });
   }
   say('deleted with the confirm step');
-  await page.reload({ waitUntil: 'domcontentloaded' }); await page.waitForSelector('#objgrid', { timeout: 60000 }); await page.waitForTimeout(2500);
+  await page.goto(`${base}/?mode=communities&welcome=0`, { waitUntil: 'domcontentloaded' }); await page.waitForSelector('#objgrid', { timeout: 60000 }); await page.waitForTimeout(2500);
   const left = await page.$$eval('[data-shared]', (n) => n.length);
   const after = await api('/api/community-items', { 'x-cc-session': await page.evaluate(() => localStorage.getItem('cc.session')) });
   say('after reload: my shared cards', left); say('after delete: list still has my ids', (after.items ?? []).filter((i) => mine.some((m) => m.id === i.id)).length);
