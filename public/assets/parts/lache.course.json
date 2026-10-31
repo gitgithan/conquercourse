@@ -1,0 +1,55 @@
+{
+  "version": 1,
+  "jumpSpeed": 4.5,
+  "jumpKeep": 0.88,
+  "grabReach": 0.15,
+  "hazard": "lava",
+  "name": "Part: the lache bars",
+  "startX": 113,
+  "finishX": 138,
+  "terrain": {
+    "waterY": -6,
+    "platforms": [
+      {
+        "x0": 103,
+        "x1": 121,
+        "top": 6
+      },
+      {
+        "x0": 132,
+        "x1": 145,
+        "top": 4
+      }
+    ]
+  },
+  "holds": [
+    {
+      "x": 124,
+      "y": 9.2
+    },
+    {
+      "x": 127.5,
+      "y": 9.2
+    }
+  ],
+  "zones": [
+    {
+      "id": "lache",
+      "name": "the lache bars",
+      "x0": 113,
+      "x1": 138
+    }
+  ],
+  "plan": {
+    "jumpXs": [
+      119.2
+    ],
+    "releaseAfter": 60,
+    "bouncePress": 8,
+    "hands": true,
+    "hangTicks": [
+      384,
+      240
+    ]
+  }
+}

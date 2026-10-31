@@ -1,0 +1,46 @@
+{
+  "version": 1,
+  "jumpSpeed": 4.5,
+  "jumpKeep": 0.88,
+  "grabReach": 0.15,
+  "hazard": "lava",
+  "name": "Part: the trampoline",
+  "startX": 167,
+  "finishX": 197,
+  "terrain": {
+    "waterY": -6,
+    "platforms": [
+      {
+        "x0": 153,
+        "x1": 173,
+        "top": 6
+      },
+      {
+        "x0": 178,
+        "x1": 184,
+        "top": 4,
+        "bouncy": true
+      },
+      {
+        "x0": 188,
+        "x1": 205,
+        "top": 7
+      }
+    ]
+  },
+  "zones": [
+    {
+      "id": "trampoline",
+      "name": "the trampoline",
+      "x0": 167,
+      "x1": 197
+    }
+  ],
+  "plan": {
+    "jumpXs": [
+      172.58
+    ],
+    "releaseAfter": 60,
+    "bouncePress": 8
+  }
+}

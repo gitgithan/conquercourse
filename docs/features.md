@@ -38,6 +38,7 @@
 | Generate a course | A course from a seed | `?generate=<seed>` | [world-slice](world-slice.md#course-generator-v1-cc-47) |
 | Characters | The Rookie and a second Rookie in the first one's style | Always on | [pipelines 5](meta-ai-pipelines.md#5-characters-muse-image) |
 | Starter cast (CC-108) | Eight ready-made characters (Fox, Skater, Toy Robot, Cactus, Banana, Robo Cat, Jelly, Potato Blob) in the Characters picker, fitted to the runner's skeleton at load | On by default; `?cast=0` hides them | [ugc fit](ugc-fit.md) |
+| Parts gallery | A page of every move and obstacle, special ones first, each played live in the real game, plus a strip showing how a course is made | On by default (`?mode=parts`, World picker card); `?parts=0` hides the card | [parts gallery](parts-gallery.md) |
 
 ## 4. Share
 | Feature | What the player sees | Turn it on | Diagram or doc |

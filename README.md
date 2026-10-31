@@ -350,6 +350,7 @@ Diagrams are in [docs/meta-ai-pipelines.md](docs/meta-ai-pipelines.md); the full
   - Stretching can thin fingers or smear a pattern; the fit reports how much it stretched.
 - Details and measurements: [docs/ugc-fit.md](docs/ugc-fit.md).
 - The upload check and its own limits: [docs/trust-and-safety.md](docs/trust-and-safety.md).
+- Parts gallery (every move and obstacle, special ones first, played live): [docs/parts-gallery.md](docs/parts-gallery.md), open `?mode=parts`.
 
 ## Run it
 - `npm ci`

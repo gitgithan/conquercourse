@@ -1,0 +1,46 @@
+{
+  "version": 1,
+  "jumpSpeed": 4.5,
+  "jumpKeep": 0.88,
+  "grabReach": 0.15,
+  "hazard": "lava",
+  "name": "Part: a vault box",
+  "startX": 34,
+  "finishX": 60,
+  "terrain": {
+    "waterY": -6,
+    "platforms": [
+      {
+        "x0": 29,
+        "x1": 44,
+        "top": 0
+      },
+      {
+        "x0": 44,
+        "x1": 52,
+        "top": 1.25
+      },
+      {
+        "x0": 52,
+        "x1": 74,
+        "top": 0
+      }
+    ]
+  },
+  "zones": [
+    {
+      "id": "vault",
+      "name": "a vault box",
+      "x0": 34,
+      "x1": 60
+    }
+  ],
+  "plan": {
+    "jumpXs": [],
+    "releaseAfter": 60,
+    "bouncePress": 8,
+    "vaultXs": [
+      42.12
+    ]
+  }
+}
