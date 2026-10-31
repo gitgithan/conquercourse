@@ -70,17 +70,23 @@
 - Picture: `docs/evidence/cc-108-cards-cannon.webp`.
 
 ## Daily growth chart on the course picker (CC-108)
-- A strip under the world numbers shows three chips: players today, runs today and assets made today.
-- Each chip has a tiny line of the last 14 days.
-- Clicking a chip (or "Show the chart") opens one chart; a menu switches between Players, Runs, Assets made and Courses cleared.
-- The scales differ, so the metrics are never drawn on one axis.
-- Buttons cut the time axis to 7 days, 30 days or all time.
+- One card at the top of the picker holds the world numbers and the chart.
+- Four tiles: players, runs, courses cleared and assets made today, each with a big number and a tiny line of the last 14 days.
+- Under the tiles, small chips carry the news: new record, hardest zone, busiest course, your streak.
+- Clicking a tile (or "Show the chart") opens one chart for that number; there is no menu, the tiles choose.
+- The scales differ, so the numbers are never drawn on one axis.
+- A segmented control cuts the time axis to 7 days, 30 days or all time.
+- Every day is a dot with its value; a line joins the dots only when there are two or more days.
+- One day of data shows one centred dot and a sentence such as "5 players on Oct 31", plus a note that the line grows as days pass.
+- Days before the first day are not invented, so a young game shows the same single dot in every range.
+- Hover (or the dot's column) shows the date and the value.
 - Route: `GET /api/daily-stats`, cached for five minutes, built by `functions/api/daily-stats.ts` and `src/slice/daily-stats.ts`.
 - Players are different random browser codes that started a run that day; no account, name or address is read or returned.
 - Runs are run starts; assets made are photo-to-3D object slots taken plus community photos; cleared are replayed clears.
 - Every metric has its own query, so a table that is missing leaves zeros and never breaks the reply.
 - The chart starts on the first day anything happened; days with nothing are 0.
-- A young game shows "Just starting: be one of the first", never a made-up number.
+- A game with only zeros shows "Just starting: be one of the first", never a made-up number.
 - No migration is needed: it reads `course_events`, `course_clears`, `upload_days` and `community` as they are.
-- Switch: `?growth=0` hides it; check it with `node scripts/growth-check.mjs` (1280 px).
-- Picture (stubbed numbers, for the look only): `docs/evidence/cc-108-growth-chart.png`.
+- Switch: `?growth=0` hides the card (the world strip then stands alone); check it with `node scripts/growth-check.mjs` (1280 px).
+- Test: `tests/growth-strip.test.ts` (a dot per day, a line only from two days, a dot at 0).
+- Pictures: `docs/evidence/cc-108-growth-look/` (single day, 7 days, all time, before and after).

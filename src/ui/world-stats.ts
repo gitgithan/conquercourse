@@ -31,6 +31,11 @@ export function news(s: WorldStats | null, streak: number): string[] {
   return out;
 }
 
+/** A small picture-word in front of each news line, so the lines read as chips. */
+export function highlightIcon(line: string): string {
+  return line.startsWith('New record') ? '\u2605' : line.startsWith('Hardest') ? '\u25B2' : line.startsWith('Busiest') ? '\u25CF' : '\u2726';
+}
+
 export async function loadWorldStats(): Promise<WorldStats | null> {
   try { const r = await fetch('/api/world-stats'); return r.ok ? await r.json() as WorldStats : null; } catch { return null; }
 }
@@ -42,7 +47,7 @@ export function showWorldStats(strip: HTMLElement, root: HTMLElement): void {
     const ts = tiles(s), lines = news(s, readStreak());
     if (ts.length) {
       strip.replaceChildren();
-      const row = document.createElement('div'); row.style.cssText = 'display:flex;gap:1.2em;flex-wrap:wrap;align-items:baseline';
+      const row = document.createElement('div'); row.className = 'ws-tiles'; row.style.cssText = 'display:flex;gap:1.2em;flex-wrap:wrap;align-items:baseline';
       for (const t of ts) {
         const b = document.createElement('div'); b.style.cssText = 'min-width:6em';
         const v = document.createElement('div'); v.textContent = t.value; v.style.cssText = 'font-size:1.6em;font-weight:700;line-height:1.1';
@@ -50,7 +55,15 @@ export function showWorldStats(strip: HTMLElement, root: HTMLElement): void {
         b.append(v, l); row.append(b);
       }
       strip.append(row);
-      if (lines.length) { const p = document.createElement('div'); p.textContent = lines.join('  ·  '); p.style.cssText = 'font-size:.8em;opacity:.85;margin-top:.4em;line-height:1.4'; strip.append(p); } // one wrapped line, so the course cards stay in view
+      if (lines.length) { // chips, one per fact; in the growth card they sit under the numbers and the plain tiles are hidden
+        const hl = document.createElement('div'); hl.className = 'ws-hl'; hl.style.cssText = 'display:flex;gap:.5em;flex-wrap:wrap;font-size:.8em;margin-top:.5em';
+        for (const line of lines) {
+          const c = document.createElement('span'); c.className = 'ws-chip'; c.style.cssText = 'display:inline-flex;gap:.45em;align-items:baseline;padding:.2em .7em;border-radius:99px;border:1px solid #5566;background:#ffffff0d;line-height:1.4';
+          const i = document.createElement('span'); i.setAttribute('aria-hidden', 'true'); i.textContent = highlightIcon(line); i.style.cssText = 'color:#f0a020';
+          const t = document.createElement('span'); t.textContent = line.replace(/\.$/, ''); c.append(i, t); hl.append(c);
+        }
+        strip.append(hl);
+      }
       strip.style.display = '';
     }
     if (s) for (const c of root.querySelectorAll<HTMLElement>('.wg-card')) {
