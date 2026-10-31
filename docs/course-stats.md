@@ -60,3 +60,11 @@
   - CC-169 measured it: real clears were never cut; the fallback for a cut is in [run-checks](run-checks.md).
 - Until the migration is applied to the live database, the live site shows no numbers and no order change.
 - Contraption courses with aimed or thrown moves can show plays but not clears.
+
+## Fix: plays were not counted (CC-108)
+- The browser sent `demo-training`; the server only keeps `demo/training`, so every play event was skipped.
+- The browser now keeps the slash, and the server also maps the old dashed form, so cached pages count too.
+- A card says "N plays today · M all time", and "No plays yet" when nothing is recorded.
+- Counts start after the next deploy; earlier plays were never stored.
+- Check: `scripts/event-key-check.mjs` loads the Training course and asserts the key.
+- Picture: `docs/evidence/cc-108-cards-cannon.webp`.

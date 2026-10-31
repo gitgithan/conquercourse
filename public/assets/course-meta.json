@@ -1,7 +1,19 @@
 {
   "demo/training": {
     "obstacles": 6,
-    "idealTicks": 4129
+    "idealTicks": 4081
+  },
+  "demo/cannonballs": {
+    "obstacles": 4,
+    "idealTicks": 2679
+  },
+  "demo/two-ways": {
+    "obstacles": 4,
+    "idealTicks": 1264,
+    "routeTicks": {
+      "high": 1284,
+      "low": 1333
+    }
   },
   "experiments/osm/montmartre-paris": {
     "obstacles": 3,
