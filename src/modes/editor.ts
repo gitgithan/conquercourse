@@ -201,7 +201,7 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
   void (async () => { try { const r = (await (await fetch('/assets/objects/provenance.json')).json()) as { objects: Provenance[] }; for (const o of r.objects) provOf.set(`obj:${o.glb}`, o); draw(); } catch { /* no provenance file: no credit line */ } })();
   if (uploadObjOn()) {
     el('button', photoBar, { text: 'Make an object from my photo…', id: 'makeobj', title: 'Draw a box round a real thing in your photo and get a 3D piece' }).onclick = () => openPhotoObject(async (r) => { try { await saveUserObject({ id: r.prov.id, glb: r.glb, prov: r.prov }); } catch { /* not kept after this visit */ } addUserPiece(r.prov.id, r.glb, r.prov); });
-    void (async () => { try { for (const u of await listUserObjects()) { const b = el('button', photoBar, { text: `Mine: ${u.prov.name}`, title: u.prov.credit.line }); b.dataset.object = u.id; b.onclick = () => addUserPiece(u.id, u.glb, u.prov); } } catch { /* no saved objects */ } })();
+    void (async () => { try { for (const u of await listUserObjects()) { const b = el('button', photoBar, { text: `📷 Mine: ${u.prov.name}`, title: `From your photo. ${u.prov.credit.line}` }); b.dataset.object = u.id; b.dataset.fromPhoto = '1'; b.onclick = () => addUserPiece(u.id, u.glb, u.prov); } } catch { /* no saved objects */ } })();
   }
   void (async () => {
     try {

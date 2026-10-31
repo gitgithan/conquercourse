@@ -28,7 +28,7 @@
 
 ## Known gaps
 - Suggested outlines need the server job (CC-248).
-- A saved wallpaper does not show behind a course yet (CC-249).
+- A saved wallpaper shows behind a course when the address has `?wallpaper=<id>` (CC-249, first piece, in the new flow only).
 - Sharing with other players waits for the safety check and approval flow (CC-249).
 
 ## Suggested outlines (CC-248)
@@ -38,3 +38,7 @@
 - Drawing a box by hand still works at any time, and it is the fallback when suggestions are switched off.
 - The route answers "switched off" until the Modal app and its two web addresses are set on the site.
 - Tests: `tests/segment.test.ts` and `scripts/communities-check.mjs` (the suggestion is faked there).
+
+## The new flow
+- `?flow=1` opens one screen with a stepper: Photo, Mark, Segment, Choose, Make.
+- See `docs/community-flow-guide.md`.
