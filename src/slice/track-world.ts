@@ -88,8 +88,8 @@ export function trackPiece(pts: TrackPts, at: { x: number; z: number }, y = 0): 
   return { ...p, src: trackSrc(pts), y };
 }
 
-/** The highest a point of a section may be: 14 m above the lowest point of the same section, before the section's scale (CC-244). */
-export const TRACK_TOP = 14;
+/** No tall limit worth the name (the Coaster builder has none): a safety ceiling only, so the camera and the ribbon cannot break; the floor is 0 (CC-244). */
+export const TRACK_TOP = 100;
 export const clampTrackY = (y: number): number => Math.min(TRACK_TOP, Math.max(0, y));
 
 /** The height of the rail at the end of a section piece (over the lane's level, before the lane is cut). */

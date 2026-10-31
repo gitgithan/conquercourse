@@ -1342,16 +1342,17 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
     const uHi = Math.max(prof.length ? o + prof.length : -Infinity, ...bars.map((b) => b.u), ...(pv ? [pv.prof.length ? po + pv.prof.length : -Infinity, ...pv.bars.map((b) => b.u)] : []), uLo + 10);
     c.fillStyle = '#58635d'; c.font = '12px system-ui';
     c.fillText('What the runner sees: the lane from the side (water at the bottom, grid every metre). Drag a bar (or a purple coaster dot) to move it; double-click to add a dot.', 8, 14);
-    const base = H - 14, ppm = Math.min(30, (W - 40) / Math.max(10, uHi - uLo + 1)), ph0 = Math.max(14, (base - 24) / Math.max(1.8, Math.max(0, ...prof.cells.filter((h): h is number => h !== null), ...bars.map((b) => b.y), ...trackDots().map((d) => d.y)) + 0.6)); // fit the tallest thing (the coaster dots too), so low steps are not hairlines
+    const base = H - 14, ppm = Math.min(30, (W - 40) / Math.max(10, uHi - uLo + 1)), ph0 = Math.max(1.5, (base - 24) / Math.max(1.8, Math.max(0, ...prof.cells.filter((h): h is number => h !== null), ...bars.map((b) => b.y), ...trackDots().map((d) => d.y)) + 0.6)); // fit the tallest thing (the coaster dots too), so low steps are not hairlines
     const hs = prof.cells.filter((h): h is number => h !== null);
     const vmin = vzoom && hs.length ? Math.floor((Math.min(...hs) - 0.3) * 2) / 2 : 0;
     const ph = vzoom && hs.length ? Math.max(ph0, (base - 24) / Math.max(2, Math.max(...hs, ...bars.map((b) => b.y), ...trackDots().map((d) => d.y)) - vmin + 0.6)) : ph0;
     sideMap = { uMin: uLo, ppm, ph, base, vmin };
     c.fillStyle = '#cfe3f5'; c.fillRect(0, base, W, 14);
     c.strokeStyle = '#e3e8e4';
-    for (let m = 0; base - m * ph > 20; m++) { c.beginPath(); c.moveTo(0, base - m * ph); c.lineTo(W, base - m * ph); c.stroke(); }
+    const gridStep = [1, 2, 5, 10, 20].find((g) => g * ph >= 12) ?? 50; // every metre, or fewer lines when the view is tall (a very high coaster)
+    for (let m = 0; base - m * ph > 20; m += gridStep) { c.beginPath(); c.moveTo(0, base - m * ph); c.lineTo(W, base - m * ph); c.stroke(); }
     c.fillStyle = '#58635d'; c.font = '10px system-ui'; c.textAlign = 'left';
-    for (let m = 0; base - (m - vmin) * ph > 20; m++) if (m >= vmin) c.fillText(`${m} m`, 2, base - (m - vmin) * ph - 2);
+    for (let m = 0; base - (m - vmin) * ph > 20; m += gridStep) if (m >= vmin) c.fillText(`${m} m`, 2, base - (m - vmin) * ph - 2);
     // reach guide: what hands can grab standing and with a jump (the simulator's own numbers)
     c.setLineDash([6, 4]); c.lineWidth = 1.5; c.font = '11px system-ui';
     for (const [h, col, label] of ([[REACH_STANDING, '#2f9e5b', 'hands reach standing'], [REACH_JUMPING, '#c9951b', 'hands reach with a jump']] as [number, string, string][]).filter(([h]) => base - (h - vmin) * ph > 18)) {
@@ -1370,11 +1371,12 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
       c.fillStyle = '#17201d'; c.fillText(`${b.y.toFixed(2)} m`, x + 12, y - 8);
     }
     document.documentElement.dataset.lineGap = JSON.stringify(trackDots().map((d) => { const k = Math.floor((d.u - o) / CELL); return Math.min(99, ...[k - 1, k, k + 1].map((j) => prof.cells[j]).filter((h): h is number => h != null).map((h) => Math.abs(h - d.y))); })); // for the browser check: how far each dot is from the black line
+    document.documentElement.dataset.dotM = JSON.stringify(trackDots().map((d) => d.y)); // for the browser check
     document.documentElement.dataset.dotPx = JSON.stringify(trackDots().map((d) => [10 + (d.u - uLo) * ppm, base - (d.y - vmin) * ph])); // for the browser check
     for (const d of trackDots()) { // the chosen coaster section: a dot at each point of the rail (drag them)
       const x = 10 + (d.u - uLo) * ppm, y = base - (d.y - vmin) * ph;
       c.fillStyle = '#7a4fd1'; c.strokeStyle = '#fff'; c.lineWidth = 2; c.beginPath(); c.arc(x, y, 6, 0, 7); c.fill(); c.stroke();
-      if (d.top) { c.fillStyle = '#7a4fd1'; c.font = '600 11px system-ui'; c.textAlign = 'left'; c.fillText(`highest point (${d.y.toFixed(1)} m): a coaster point goes no higher`, x + 10, y - 8); }
+      if (d.top) { c.fillStyle = '#7a4fd1'; c.font = '600 11px system-ui'; c.textAlign = 'left'; c.fillText(`highest point (${d.y.toFixed(1)} m): the safety ceiling`, x + 10, y - 8); }
     }
     document.documentElement.dataset.topNote = trackDots().some((d) => d.top) ? 'highest point' : '';
     for (const s of routes) { // kept shortcuts: a dashed arrow from the bar before the skipped ones to the bar after them (or the end of the lane)

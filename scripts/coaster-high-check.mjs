@@ -22,15 +22,24 @@ try {
     const d = (await ds('dotPx'))[i]; const x = box.x + d[0], y = box.y + d[1];
     await page.mouse.move(x, y); await page.mouse.down(); await page.mouse.move(x, y + dy / 2, { steps: 5 }); await page.mouse.move(x, y + dy, { steps: 5 }); await page.mouse.up(); await page.waitForTimeout(2000);
   };
-  for (let k = 1; k <= 8; k++) {
-    const g0 = await gap(); await dragTo(1, -120);
-    const g = await gap(); const tops = g.d.map((p) => p[1]);
-    console.log(`drag ${k}: dots y px ${tops.map((t) => Math.round(t)).join(',')}, worst dot-to-line gap ${g.worst.toFixed(3)} m, note ${await page.evaluate(() => document.documentElement.dataset.topNote || '-')}`);
-    ok(`drag ${k}: every dot on the line`, g.worst < 0.3);
-    ok(`drag ${k}: every dot inside the picture`, tops.every((t) => t > 18 && t < 706));
-  }
-  ok('the limit is named once reached', (await page.evaluate(() => document.documentElement.dataset.topNote || '')).includes('highest'));
-  await page.locator('#profile').screenshot({ path: `${out}/high.png` });
+  const state = () => page.evaluate(() => { const w = JSON.parse(localStorage.getItem('cc.world.v1')); return { pieces: w.pieces.map((p) => ({ src: p.src.slice(0, 80), y: p.y })), level: w.level }; });
+  const topM = async () => Math.max(...(await ds('dotM')));
+  const shot = (n) => page.locator('#profile').screenshot({ path: `${out}/${n}.png` });
+  // 1. very high: drag dot 1 up again and again (the side view scales to fit), past the old 14 m top, to 50 m and on to the ceiling
+  let k = 0; while ((await topM()) < 50 && k++ < 45) await dragTo(1, -Math.max(30, (await ds('dotPx'))[1][1] - 24));
+  const m50 = await topM(); console.log('highest dot', m50.toFixed(1), 'm after', k, 'drags');
+  ok('a dot goes past the old 14 m top', m50 > 14); ok('a dot reaches 50 m', m50 >= 50);
+  { const g = await gap(); console.log('worst gap', g.worst.toFixed(2), 'dots px', JSON.stringify(g.d.map((p) => p.map(Math.round)))); ok('at 50 m: every dot on the line (steep slopes: a 0.1 m cell is up to 3% of the height)', g.worst < 0.3 + 0.03 * m50); ok('at 50 m: every dot inside the picture', g.d.every((p) => p[1] > 18 && p[1] < 706)); }
+  ok('no "highest point" note below the safety ceiling', (await page.evaluate(() => document.documentElement.dataset.topNote || '')) === '');
+  await shot('high-50m');
+  // 2. below the ground: drag the lowest dot (3) down, then the whole section down
+  for (let j = 0; j < 3; j++) await dragTo(3, 120);
+  console.log('after dragging the lowest dot down', JSON.stringify(await state()), 'lowest dot m', Math.min(...(await ds('dotM'))).toFixed(2));
+  await shot('lowest-dot-down');
+  await page.evaluate(() => { const w = JSON.parse(localStorage.getItem('cc.world.v1')); w.pieces.forEach((p) => { if (p.src.startsWith('track:')) p.y -= 3; }); localStorage.setItem('cc.world.v1', JSON.stringify(w)); });
+  await page.reload(); await page.waitForSelector('#profile', { timeout: 90000 }); await page.waitForTimeout(6000);
+  console.log('section 3 m down', JSON.stringify(await state()), 'lowest dot m', Math.min(...(await ds('dotM'))).toFixed(2), 'line gap', (await gap()).worst.toFixed(2));
+  await shot('section-3m-down');
   console.log('errors', JSON.stringify(errs)); ok('no page errors', errs.length === 0);
   await browser.close();
 } finally { server.kill(); }
