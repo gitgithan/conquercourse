@@ -57,3 +57,8 @@
 - Law tests: `tests/hang-bars.test.ts` (the ideal run clears and goes through swing or hang mode).
 - Picking a ready-made course now fits the camera to its pieces, so the new objects are on the screen.
 - Picture: `docs/evidence/cc-243-hang-bar-rod.png`.
+- The default course of the World Editor is now "Hang bar and Lache": three decks, a real green hang bar, then the two Lache bars.
+- The game also finds a green or black hang-bar object as a rod on its own, even with no separate bar piece beside it.
+- Picking a course in the list clears every object first, drops any hand-off from the Course and loads the new course.
+- A test shows the simulator's ideal run grabs and swings at least twice on it (`tests/hang-bars.test.ts`).
+- Picture: `docs/evidence/cc-243-default-swing-course.png`.

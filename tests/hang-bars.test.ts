@@ -41,19 +41,29 @@ import { PRESETS } from '../src/slice/presets';
 import { roleCourse } from '../src/slice/roles';
 import { piecesFromSource } from '../src/slice/roundtrip';
 
-describe.each([['green-bar', 2.2], ['black-bar', 2.05]])('ready-made course %s', (id, hang) => {
-  it('is cleared by swinging on the rod, and the rod is a hold at the real height', () => {
-    const pre = PRESETS.find((p) => p.id === id)!;
+describe('the default editor course', () => {
+  it('has a real hang bar and the Lache, and the ideal run swings on both', () => {
+    const pre = PRESETS[0];
+    expect(pre.id).toBe('swing');
     const ps = [...piecesFromSource(pre.pieces.filter((q) => !q.src.startsWith('obj:'))) as P[], ...pre.pieces.filter((q) => q.src.startsWith('obj:')).map((q) => {
       const b = readFileSync(`public/assets/objects/${q.src.slice(4)}`);
-      return { ...newPiece(q.src, readGlbMesh(b.buffer.slice(b.byteOffset, b.byteOffset + b.byteLength) as ArrayBuffer), { x: q.x, z: q.z }), src: q.src, y: q.y, yaw: q.yaw, scale: q.scale, noGround: true } as P;
+      return { ...newPiece(q.src, readGlbMesh(b.buffer.slice(b.byteOffset, b.byteOffset + b.byteLength) as ArrayBuffer), { x: q.x, z: q.z }), src: q.src, y: q.y, yaw: q.yaw, scale: q.scale, noGround: true };
     })];
     const { course } = roleCourse(ps as never[], lane);
-    expect(course.holds?.length).toBe(1);
-    expect(course.holds![0].y).toBeCloseTo(hang, 1);
-    const r = searchIdealRun(course), modes = new Set<string>();
+    expect(course.holds?.length).toBe(3);
+    expect(course.holds![0].y).toBeCloseTo(2.2, 1);
+    const r = searchIdealRun(course);
     expect(r.cleared).toBe(true);
-    playPlan(course, r.plan, undefined, (w) => modes.add(w.mode));
-    expect(modes.has('swing') || modes.has('hang')).toBe(true);
+    let grabs = 0, prev = '';
+    playPlan(course, r.plan, undefined, (w) => { const m = w.mode === 'swing' || w.mode === 'hang' ? 'on' : ''; if (m && !prev) grabs++; prev = m; });
+    expect(grabs).toBeGreaterThanOrEqual(2);
+  }, 240000);
+});
+
+describe('a hang-bar object without a separate bar piece', () => {
+  it('is still a hold at its crossbar height', () => {
+    const o = { ...newPiece('x', box(1, 1, 1), { x: 8.5, z: 0 }), src: 'obj:pullup-black.glb', y: 0 } as P;
+    expect(holdsOf([o], lane)[0].y).toBeCloseTo(2.05, 2);
+    expect(holdsOf([o, bar(8.5, 2.05)], lane).length).toBe(1); // a bar piece beside it is not counted twice
   });
 });
