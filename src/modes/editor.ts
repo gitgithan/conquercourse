@@ -372,7 +372,7 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
   // the 3D view is the main picture; the flat plan is kept for exact dragging and cropping (button "Top plan")
   const view3d = createView3d(planWrap, {
     pieces: () => pieces, selected: () => selected, lane: () => ({ angle, offset, level }),
-    select: (id) => { selected = id; group = []; drawPanel(); draw(); },
+    select: (id) => { selected = id; group = []; drawPanel(); draw(); drawProfile(); },
     selectedAll: () => { const c = chosen(); return c.length > 1 ? c : []; },
     toggle: (id) => chooseMany(toggleId(chosen(), id)),
     marquee: (ids, additive) => chooseMany(applyMarquee(chosen(), ids, additive)),
@@ -1327,6 +1327,7 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
       c.strokeStyle = sel ? '#0f6b5c' : '#f0a020'; c.lineWidth = 3; c.beginPath(); c.arc(x, y, 9, 0, 7); c.stroke();
       c.fillStyle = '#17201d'; c.fillText(`${b.y.toFixed(2)} m`, x + 12, y - 8);
     }
+    document.documentElement.dataset.dotPx = JSON.stringify(trackDots().map((d) => [10 + (d.u - uLo) * ppm, base - (d.y - vmin) * ph])); // for the browser check
     for (const d of trackDots()) { // the chosen coaster section: a dot at each point of the rail (drag them)
       const x = 10 + (d.u - uLo) * ppm, y = base - (d.y - vmin) * ph;
       c.fillStyle = '#7a4fd1'; c.strokeStyle = '#fff'; c.lineWidth = 2; c.beginPath(); c.arc(x, y, 6, 0, 7); c.fill(); c.stroke();
@@ -1366,10 +1367,12 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
     document.documentElement.dataset.barYs = JSON.stringify(bars.map((b) => Number(b.y.toFixed(2))));
   }
   /** The points of the chosen coaster section in the side view: u along the run, y above the lane's level. */
-  const trackDots = (): { i: number; u: number; y: number }[] => {
-    const p = pieces.find((q) => q.id === selected && isTrack(q)), pts = p && parseTrackSrc(p.src ?? '');
-    if (!p || !pts) return [];
-    return sectionPoints(p, pts, p.x * Math.cos(angle) + p.z * Math.sin(angle), level).map(([u, y], i) => ({ i, u, y }));
+  const trackDots = (): { id: number; i: number; u: number; y: number }[] => {
+    // every coaster section shows its dots, chosen or not: a click on the 3D picture (to turn the camera) clears the choice and must not hide them
+    return pieces.filter((q) => isTrack(q)).flatMap((p) => {
+      const pts = parseTrackSrc(p.src ?? '');
+      return pts ? sectionPoints(p, pts, p.x * Math.cos(angle) + p.z * Math.sin(angle), level).map(([u, y], i) => ({ id: p.id, i, u, y })) : [];
+    });
   };
   const dotAtPx = (px: number, py: number) => trackDots().find((d) => Math.hypot(10 + (d.u - sideMap.uMin) * sideMap.ppm - px, sideMap.base - (d.y - sideMap.vmin) * sideMap.ph - py) < 11);
   /** Move point i of a section to (u, y) in the side view and keep every other point where it is. */
@@ -1402,8 +1405,8 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
   let dotDrag: { p: P; i: number } | null = null;
   profileCanvas.addEventListener('pointerdown', (e) => {
     const r = profileCanvas.getBoundingClientRect();
-    const dot = dotAtPx(e.clientX - r.left, e.clientY - r.top), tp = dot && pieces.find((q) => q.id === selected);
-    if (dot && tp) { dotDrag = { p: tp, i: dot.i }; profileCanvas.setPointerCapture(e.pointerId); return; }
+    const dot = dotAtPx(e.clientX - r.left, e.clientY - r.top), tp = dot && pieces.find((q) => q.id === dot.id);
+    if (dot && tp) { if (selected !== tp.id) { selected = tp.id; group = []; drawPanel(); } dotDrag = { p: tp, i: dot.i }; profileCanvas.setPointerCapture(e.pointerId); return; }
     const b = barAtPx(e.clientX - r.left, e.clientY - r.top);
     const p = b && pieces.find((q) => q.id === b.id);
     if (!p) return;
@@ -1425,8 +1428,10 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
     draw(); drawProfile();
   });
   profileCanvas.addEventListener('dblclick', (e) => {
-    const r = profileCanvas.getBoundingClientRect(), tp = pieces.find((q) => q.id === selected && isTrack(q));
-    if (!tp || dotAtPx(e.clientX - r.left, e.clientY - r.top)) return;
+    const r = profileCanvas.getBoundingClientRect(), x = e.clientX - r.left, gapTo = (d: { u: number }) => Math.abs(10 + (d.u - sideMap.uMin) * sideMap.ppm - x);
+    const near = trackDots().reduce<ReturnType<typeof trackDots>[number] | null>((best, d) => (!best || gapTo(d) < gapTo(best) ? d : best), null); // the section whose dots are closest along the run
+    const tp = near && pieces.find((q) => q.id === near.id);
+    if (!tp || dotAtPx(x, e.clientY - r.top)) return;
     addTrackPoint(tp, Math.round((sideMap.uMin + (e.clientX - r.left - 10) / sideMap.ppm) * 10) / 10, Math.round(((sideMap.base - (e.clientY - r.top)) / sideMap.ph + sideMap.vmin) * 10) / 10);
     changed(); drawPanel(); draw(); drawProfile();
   });
