@@ -974,5 +974,6 @@
     "releaseAfter": 60,
     "bouncePress": 8,
     "cartBrake": []
-  }
+  },
+  "windows": []
 }

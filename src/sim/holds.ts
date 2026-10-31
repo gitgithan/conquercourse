@@ -79,13 +79,17 @@ export function bottomLoad(s: Hang, p: HangParams = DEFAULT_HANG): number {
 }
 
 // Grab: the hands (above the feet at x, y) must be within reach of the bar. The arms keep part of the speed along the swing.
-// The first grab (from a run and jump) needs the hands within `reach` of the bar; once the hands have let go of a bar (`again`) the zone is an ellipse
+// The first grab (from a run and jump) needs the hands inside the reach ellipse of the bar; once the hands have let go of a bar (`again`) the zone is an ellipse
 // (`regrabX` along the run, `regrabY` up and down), so a body that hops straight up and comes back down can catch the bar it let go of, or fall onto one from above.
+// The first grab is forgiving (CC-243): the zone is an ellipse a few times wider and taller than `reach`, above and below the bar alike,
+// so holding E early catches the bar as the hands come near, and a jump that overshoots from above still catches it. A course's `grabReach` scales it.
+export const REACH_X = 4.5;
+export const REACH_Y = 3.3;
 export function tryGrab(holds: Hold[], x: number, y: number, vx: number, vy: number, p: HangParams = DEFAULT_HANG, again = false): Hang | null {
   const hx = x, hy = y + p.handHeight;
   let best = -1, bd = Infinity;
   holds.forEach((h, i) => {
-    const d = again ? Math.hypot((hx - h.x) / p.regrabX, (hy - h.y) / p.regrabY) : Math.hypot(hx - h.x, hy - h.y) / p.reach;
+    const d = again ? Math.hypot((hx - h.x) / p.regrabX, (hy - h.y) / p.regrabY) : Math.hypot((hx - h.x) / (p.reach * REACH_X), (hy - h.y) / (p.reach * REACH_Y));
     if (d <= 1 && d < bd) { bd = d; best = i; }
   });
   if (best < 0) return null;

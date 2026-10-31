@@ -15,7 +15,7 @@
 | Timed balls (First Course) | None: choose when to cross, by running, jumping or waiting | None | A launcher fires a ball every few seconds on the simulator's clock; a ball that touches the body ends the try | [timed-balls](timed-balls.md) |
 | Vault box (top 0.35 to 1.3 m) | V while running at 3 m/s or more | Vault | A hand on top, over and on, keeping 92 % of the speed; a V up to 0.2 s early counts | [world-slice](world-slice.md#the-speed-vault-cc-68) |
 | Wall to climb (edge 1.0 to 2.83 m) | Hold E at the wall | Hold | Hands reach 0.9 m in front (0.6 m plus 0.3 m of tolerance) and an edge up to 2.45 m over the feet; a bright rim shows the ledge that answers to E; grab, hang 0.25 s, pull up, stand at 2 m/s; the run speed is lost and the cost is two jumps of energy | [world-slice](world-slice.md#climb-cc-76) |
-| Bar in the air (first grab: hands inside a circle of 0.35 m around the bar) | Hold E to grab, ← → to pump, let go of E to release | Hold, ◀ ▶ | A pendulum swing; where you let go sets the flight | [world-slice](world-slice.md#the-lache-swing-pivot-at-the-bar-full-circles-a-real-release-cc-58) |
+| Bar in the air (first grab: hands inside an ellipse of about 0.68 m along the run and 0.5 m up or down around the bar; hold E early and it catches as the hands come near) | Hold E to grab, ← → to pump, let go of E to release | Hold, ◀ ▶ | A pendulum swing; where you let go sets the flight | [world-slice](world-slice.md#the-lache-swing-pivot-at-the-bar-full-circles-a-real-release-cc-58) |
 | Lache bars (a pair) | Hold E, pump, let go, hold E again at the second bar | Hold, ◀ ▶ | Regrab inside an ellipse of 1.2 m along the run and 0.6 m up or down from the bar; the ideal run proves a pair | [world-slice](world-slice.md#holds-and-the-lache-pair-cc-44-2026-10-28) |
 | Warped wall | Run up the curve, hold E for the last 0.13 s before the hands reach the lip | Hold | The hands must be on the edge when the feet reach the top; without E the body slides back with no fall (`?warpedE=0` brings the old rule back) | [inputs](inputs.md) |
 | Rope | Reach it; Space lets go | Jump | The catch is automatic where the hands are within 0.35 m of the rope (0.5 m near the end); a pendulum follows | [pipelines 7](meta-ai-pipelines.md#7-not-ai-but-the-core-of-the-game) |
@@ -61,4 +61,6 @@
 - The game also finds a green or black hang-bar object as a rod on its own, even with no separate bar piece beside it.
 - Picking a course in the list clears every object first, drops any hand-off from the Course and loads the new course.
 - A test shows the simulator's ideal run grabs and swings at least twice on it (`tests/hang-bars.test.ts`).
+- The first catch is wide on purpose (owner, 2026-10-31): holding E before the hands reach the bar, or just past the bar, still attaches.
+- The ideal run tries a stand-climb (hold E at the foot of a step up to 2.2 m) before it jumps, so the Training course no longer jumps just before the E.
 - Picture: `docs/evidence/cc-243-default-swing-course.png`.

@@ -199,12 +199,11 @@
   "plan": {
     "jumpXs": [
       22.5,
-      91.38,
-      119.5,
+      118.3,
       143.5,
       171.5
     ],
-    "releaseAfter": 100,
+    "releaseAfter": 98,
     "bouncePress": 8,
     "hands": true,
     "hangTicks": [
@@ -212,6 +211,9 @@
     ],
     "vaultXs": [
       42.16
+    ],
+    "climbXs": [
+      90.5
     ],
     "climbHands": true,
     "airHands": [
@@ -234,17 +236,10 @@
       "widthMs": 224.32432432432438
     },
     {
-      "obstacle": "jump at step at 92 m",
-      "best": 91.38,
-      "lo": 90.8,
-      "hi": 91.94,
-      "widthMs": 156.75675675675683
-    },
-    {
       "obstacle": "edge at 121 m (take-off)",
-      "best": 119.5,
-      "lo": 119.5,
-      "hi": 119.5,
+      "best": 118.3,
+      "lo": 118.3,
+      "hi": 118.3,
       "widthMs": 0
     },
     {
@@ -265,13 +260,13 @@
   "routes": [
     {
       "name": "bar to bar",
-      "ticks": 4266,
+      "ticks": 4219,
       "bars": 2,
       "chosen": false
     },
     {
       "name": "skip the second bar",
-      "ticks": 4129,
+      "ticks": 4081,
       "bars": 1,
       "chosen": true
     }
@@ -283,20 +278,19 @@
         "Bar 2"
       ],
       "how": "pump 1.79 s on the bar you hold, let go, and fly past bar 2",
-      "secondsSaved": 1.14,
-      "seconds": 34.41,
+      "secondsSaved": 1.15,
+      "seconds": 34.01,
       "pumpSeconds": 1.79,
       "windowMs": null,
       "designed": false,
       "plan": {
         "jumpXs": [
           22.5,
-          91.38,
-          119.5,
+          118.3,
           143.5,
           171.5
         ],
-        "releaseAfter": 100,
+        "releaseAfter": 98,
         "bouncePress": 8,
         "hands": true,
         "hangTicks": [
@@ -304,6 +298,9 @@
         ],
         "vaultXs": [
           42.16
+        ],
+        "climbXs": [
+          90.5
         ],
         "climbHands": true,
         "airHands": [

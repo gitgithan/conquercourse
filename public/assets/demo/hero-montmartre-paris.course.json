@@ -508,13 +508,57 @@
     "jumpXs": [
       4.5,
       14.4,
-      27.1,
+      25.6,
       31.3,
       42.3,
       57.3
     ],
-    "releaseAfter": 100,
+    "releaseAfter": 104,
     "bouncePress": 8,
     "climbHands": true
-  }
+  },
+  "windows": [
+    {
+      "obstacle": "edge at 6 m",
+      "best": 4.5,
+      "lo": 3,
+      "hi": 6,
+      "widthMs": 408.1081081081081
+    },
+    {
+      "obstacle": "edge at 15.9 m",
+      "best": 14.4,
+      "lo": 12.9,
+      "hi": 15.9,
+      "widthMs": 408.1081081081081
+    },
+    {
+      "obstacle": "edge at 27.1 m",
+      "best": 25.6,
+      "lo": 24.1,
+      "hi": 27.1,
+      "widthMs": 408.1081081081081
+    },
+    {
+      "obstacle": "edge at 32.8 m",
+      "best": 31.3,
+      "lo": 29.8,
+      "hi": 32.8,
+      "widthMs": 408.1081081081076
+    },
+    {
+      "obstacle": "edge at 43.8 m",
+      "best": 42.3,
+      "lo": 40.8,
+      "hi": 43.8,
+      "widthMs": 408.1081081081081
+    },
+    {
+      "obstacle": "edge at 58.8 m",
+      "best": 57.3,
+      "lo": 55.8,
+      "hi": 58.8,
+      "widthMs": 408.1081081081081
+    }
+  ]
 }
