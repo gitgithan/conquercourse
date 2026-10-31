@@ -52,11 +52,13 @@ export function createPoleView(scene: THREE.Scene, course: CourseData): PoleView
 
   let used = false; // the pole has been picked up once, so it no longer lies at the start
   let fall = 0; // 0..1: the bar dropping
+  let lastTick = 0;
   return {
     update(w) {
       const pw = w.pole, r = w.runner, g = gy(r.x);
       if (pw?.carrying || pw?.ride) used = true;
-      if (r.tick === 0) used = false;
+      if (r.tick < lastTick || r.tick === 0) used = false; // a new try: the pole lies at the start again
+      lastTick = r.tick;
       if (pw?.ride) { // planted: from the tip up to the hands
         const rd = pw.ride, top = rd.t < rd.path.length ? rd.path[Math.min(rd.t, rd.path.length - 1)] : rd.path[rd.path.length - 1];
         between(pole, rd.tipX, rd.baseY, rd.tipX + top.x, rd.baseY + top.y);
