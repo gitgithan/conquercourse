@@ -87,7 +87,7 @@
   - The same version and format rules as a long link, and a course it can find: a listed file, the starting course, or a made course sent with the request.
   - The course hash equals the one the keys were played on.
   - The cheap checks of `docs/run-checks.md` (too short, too long, too fast, key rate); a try that fell skips the finish-line speed check.
-  - 20 shares in 10 minutes for one address (in a Worker's memory) and 3000 an hour for the whole site.
+  - Rate limits apply; the numbers are kept in the private notes.
   - The same run shared twice keeps one id.
 - It does not replay the keys.
   - Whoever opens the link replays them and takes the time from the simulator, so a link cannot claim a time.
@@ -128,11 +128,7 @@
 - **Storage:** the `runs` table in [data-model](data-model.md), with an index on (course hash, verified, ticks).
   - Migration: one new file in `migrations/`, applied with `npx wrangler d1 migrations apply conquercourse-feedback --remote`.
   - Keys are kept so a run can be replayed as a ghost for everyone.
-- **Abuse limits:**
-  - A run must clear within three minutes of simulated time and at most 6000 pairs.
-  - One submission per IP per 10 seconds, and 200 a day, using the existing rate-limit pattern.
-  - A nickname of up to 12 characters, checked by a word list (short words whole, strong words anywhere inside).
-  - A run is only stored if it beats the existing best of that nickname and course, or ranks in the top 100.
+- **Abuse limits:** kept in the private notes, not in this repo.
 - **Cost:** within the free tier of Pages Functions and D1 at hackathon volume (a run is about 1 KB; 10,000 runs is about 10 MB).
   - The compute is a few milliseconds per run.
 - **Privacy:** no names, no accounts, no location; the nickname is optional.
