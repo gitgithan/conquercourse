@@ -334,12 +334,14 @@ export function* searchGenBase(course: CourseData, opts: { routes?: boolean; alt
       const tries = trials.map((t, n) => ({ x: t.x, vault: t.vault, s: sc[n] }));
       const top = Math.max(...tries.map((t) => t.s));
       // a wall no vault or jump gets over: the hands meet its edge and the body pulls up (stand at the foot and hold, or jump and hold in the air)
-      if (top < e.x + 1.0 && (e.rise ?? 9) > VAULT_MAX_RISE) { // above a vault's reach only
+      // when a jump gets over too, standing at the foot and holding E is the simpler line (one key, no pointless Space just before it): the stand wins a tie
+      const jumpWorks = top >= e.x + 1.0;
+      if ((e.rise ?? 9) > VAULT_MAX_RISE) { // above a vault's reach only
         const ct: { kind: 'stand' | 'jump'; x: number; s: number }[] = [];
         for (const x of candidates(e.x - 3, e.x - 0.05, 0.5)) ct.push({ kind: 'stand', x, s: score(playPlan(course, { ...plan, climbXs: [...(plan.climbXs ?? []), x] })) });
-        if (!ct.some((t) => t.s >= 1e6)) for (const x of candidates(e.x - 4.5, e.x - 0.1, 0.2)) ct.push({ kind: 'jump', x, s: score(playPlan(course, { ...plan, jumpXs: [...plan.jumpXs, x], climbHands: true })) });
+        if (!jumpWorks && !ct.some((t) => t.s >= 1e6)) for (const x of candidates(e.x - 4.5, e.x - 0.1, 0.2)) ct.push({ kind: 'jump', x, s: score(playPlan(course, { ...plan, jumpXs: [...plan.jumpXs, x], climbHands: true })) });
         const cbest = Math.max(...ct.map((t) => t.s));
-        if (cbest > top + 0.3) {
+        if (jumpWorks ? cbest >= top - 0.3 : cbest > top + 0.3) {
           const good = ct.filter((t) => t.s >= cbest - (cbest >= 1e6 ? 1e-9 : 0.3));
           const kind = good.some((t) => t.kind === 'stand') ? 'stand' : 'jump'; // standing at the foot of the wall is simpler than a jump
           const xs = good.filter((t) => t.kind === kind).map((t) => t.x);
