@@ -21,6 +21,7 @@ export interface RunnerInput {
   jumpSpeed: number; // upward speed at take-off, m/s
   squat: boolean; // bend the knees (read at touchdown)
   roll?: boolean; // X: roll out of the fall (read at touchdown; the world keeps a press for a quarter of a second)
+  slide?: boolean; // Down or S, a fresh press: slide along the ground low (ground and a jog's speed needed; src/sim/slide.ts)
   handL?: boolean; // E: the hands hold on (a bar); both fields come from the one hold key
   handR?: boolean; // E: the right hand holds on (a bar)
   vault?: boolean; // V: go over the obstacle just ahead with a hand on top (keeps the speed)
