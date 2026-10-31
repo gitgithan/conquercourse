@@ -49,8 +49,8 @@ try {
     checks.applyRefusalSeen = hasApply ? await (async () => { await page.$eval("#applytry", (e) => e.click()); return page.waitForFunction(() => !document.querySelector(".helper.closed") && /cannot find a way/.test(document.getElementById("reply")?.textContent ?? ""), null, { timeout: 20000 }).then(() => true, () => false); })() : "not tested (no proposal to apply)"; }
   // (c) from the gallery
   { const { page, errors } = await fresh();
-    await page.goto(base + "?mode=gallery"); await page.waitForSelector("a:has-text('World editor')", { timeout: 300000 });
-    await page.click("a:has-text('World editor')"); await inEditor(page);
+    await page.goto(base + "?mode=gallery"); await page.waitForSelector("a:has-text('World Editor')", { timeout: 300000 });
+    await page.click("a:has-text('World Editor')"); await inEditor(page);
     await page.click("#backcourse"); checks.fromGallery = (await onCourse(page)) && !errors.length; }
   // the gallery's own Back link and the Dojo's
   { const { page } = await fresh();

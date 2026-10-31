@@ -37,7 +37,7 @@ export function startCoaster(host: HTMLElement): { backend: 'webgl2' } {
     <canvas id="cocanvas" width="1100" height="440"></canvas>
     <div class="verdict" id="coverdict"></div>
     <div class="row"><label>Push at the start <input id="copush" type="range" min="0" max="4" step="0.1" value="${push}"> <span id="copushv"></span> m/s</label>
-      <button id="coaddsegment">Add track section</button><button id="coremove">Remove last section</button><button id="cofix">Fix it</button><a class="btn go" id="coplay">Play it</a><a class="btn" id="codojo" href="?mode=dojo&ex=coaster">Dojo: hills and speed</a><a class="btn" href="?mode=editor">World editor</a></div>
+      <button id="coaddsegment">Add track section</button><button id="coremove">Remove last section</button><button id="cofix">Fix it</button><a class="btn go" id="coplay">Play it</a><a class="btn" id="codojo" href="?mode=dojo&ex=coaster">Dojo: hills and speed</a><a class="btn" href="?mode=editor">World Editor</a></div>
     <div class="muted" id="costeps"></div>`;
   host.append(style, root);
   const cv = root.querySelector('#cocanvas') as HTMLCanvasElement, c = cv.getContext('2d')!;

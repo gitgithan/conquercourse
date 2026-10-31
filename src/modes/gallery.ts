@@ -29,7 +29,7 @@ export function startGallery(host: HTMLElement): { backend: 'webgl2' } {
   host.appendChild(root);
   const head = document.createElement('div');
   head.className = 'bar';
-  head.innerHTML = '<h1>Community courses</h1><a class="btn go" href="?">Back to the Course</a><a class="btn" href="?mode=park" id="make">Make your own from a photo</a><a class="btn" href="?mode=editor">World editor</a>';
+  head.innerHTML = '<h1>Community courses</h1><a class="btn go" href="?">Back to the Course</a><a class="btn" href="?mode=park" id="make">Make your own from a photo</a><a class="btn" href="?mode=editor">World Editor</a>';
   const intro = document.createElement('div');
   intro.className = 'muted';
   intro.textContent = 'Real obstacles, photographed and measured by people like you. Pick one to run it with the same physics as the main Course.';

@@ -3,7 +3,7 @@ import { pageQuery } from '../flags';
 // the round) and posts the answers, a random session id, the build id and a few play counters to /api/submit.
 declare const __BUILD__: string;
 
-interface Question { id: string; type: 'scale' | 'choice' | 'multi' | 'text'; text: string; options?: string[] }
+interface Question { id: string; type: 'scale' | 'choice' | 'multi' | 'text' | 'seen'; text: string; options?: string[]; about?: string; href?: string; section?: string; when?: { id: string; values: string[] } }
 interface Round { round: string; title: string; intro: string; questions: Question[] }
 
 const counters: Record<string, number> = {};
@@ -57,7 +57,9 @@ export function session(): string {
 export function initFeedback(mode: string): void {
   const btn = document.createElement('button');
   btn.textContent = 'Feedback';
-  btn.style.cssText = 'position:fixed;right:16px;bottom:16px;z-index:50;font:600 15px system-ui,sans-serif;border:1px solid #17201d;background:#fff;color:#17201d;border-radius:999px;padding:8px 16px;cursor:pointer;box-shadow:0 2px 10px #0003';
+  btn.id = 'cc-feedback-btn';
+  btn.title = 'Tell us what you think. Every field is optional, and you can send at any time.';
+  btn.style.cssText = 'position:fixed;right:16px;bottom:16px;z-index:50;font:700 15px system-ui,sans-serif;border:2px solid #0f6b5c;background:#0f6b5c;color:#fff;border-radius:999px;padding:9px 18px;cursor:pointer;box-shadow:0 4px 16px #0005';
   btn.onclick = () => openForm(mode);
   document.body.appendChild(btn);
 }
@@ -71,18 +73,54 @@ async function openForm(mode: string): Promise<void> {
   wrap.style.cssText = 'position:fixed;inset:0;z-index:60;background:#0008;display:grid;place-items:center;padding:12px';
   const card = document.createElement('form');
   card.style.cssText = 'background:#fff;color:#17201d;border-radius:12px;max-width:640px;width:100%;max-height:92vh;overflow:auto;padding:18px;font:15px/1.45 system-ui,sans-serif;display:grid;gap:14px';
-  card.innerHTML = `<h2 style="margin:0;font-size:20px">${round.title}</h2><p style="margin:0;color:#58635d">${round.intro}</p><p style="margin:0;background:#e6f2ee;border:1px solid #0f6b5c;border-radius:8px;padding:8px 10px;font-weight:600">Every question is optional. Skip any you like; even one answer helps.</p>`;
+  card.innerHTML = `<h2 style="margin:0;font-size:20px">${round.title}</h2><p style="margin:0;color:#58635d">${round.intro}</p><p style="margin:0;background:#e6f2ee;border:1px solid #0f6b5c;border-radius:8px;padding:8px 10px;font-weight:600">Every field is optional. You can press Send at any time, even with nothing filled in, and keep playing.</p>`;
   const answers: Record<string, string | number> = {};
+  // Send sits at the top as well as the bottom, so the form can be sent at any moment without scrolling.
+  const note = document.createElement('div'); note.style.cssText = 'font-size:12px;color:#58635d';
+  const topRow = document.createElement('div'); topRow.style.cssText = 'display:flex;gap:8px;justify-content:flex-end;align-items:center';
+  const topSend = document.createElement('button'); topSend.type = 'submit'; topSend.textContent = 'Send now'; topSend.style.cssText = btnCss(true);
+  topRow.append(note, topSend); card.appendChild(topRow);
+  const conditional: { q: Question; box: HTMLElement }[] = [];
+  const refresh = () => {
+    for (const { q, box } of conditional) {
+      const show = !!q.when && q.when.values.includes(String(answers[q.when.id] ?? ''));
+      box.hidden = !show;
+      box.style.display = show ? 'grid' : 'none'; // the box carries an inline display:grid, which would beat the hidden attribute
+      if (!show) delete answers[q.id];
+    }
+  };
   for (const q of round.questions) {
+    if (q.section) {
+      const h = document.createElement('h3');
+      h.textContent = q.section; h.style.cssText = 'margin:6px 0 0;font-size:16px';
+      card.appendChild(h);
+      if (q.section.startsWith('Part 2')) {
+        const hint = document.createElement('p');
+        hint.textContent = 'More questions appear here for the features you ticked in Part 1.';
+        hint.style.cssText = 'margin:0;color:#58635d;font-size:13px';
+        card.appendChild(hint);
+      }
+    }
     const box = document.createElement('fieldset');
     box.style.cssText = 'border:0;padding:0;margin:0;display:grid;gap:6px';
     const lg = document.createElement('legend'); lg.textContent = q.text; lg.style.cssText = 'font-weight:600;padding:0'; box.appendChild(lg);
-    const row = document.createElement('div'); row.style.cssText = 'display:flex;flex-wrap:wrap;gap:6px'; box.appendChild(row);
+    if (q.about) {
+      const about = document.createElement('div');
+      about.textContent = q.about; about.style.cssText = 'color:#58635d';
+      box.appendChild(about);
+    }
+    const row = document.createElement('div'); row.style.cssText = 'display:flex;flex-wrap:wrap;gap:6px;align-items:center'; box.appendChild(row);
     if (q.type === 'scale') {
-      for (let n = 1; n <= 5; n++) row.appendChild(chip(String(n), () => { answers[q.id] = n; paint(row, String(n)); }));
+      for (let n = 1; n <= 5; n++) row.appendChild(chip(String(n), () => { answers[q.id] = n; paint(row, String(n)); refresh(); }));
       const hint = document.createElement('div'); hint.textContent = '1 = not at all · 5 = completely'; hint.style.cssText = 'font-size:12px;color:#58635d'; box.appendChild(hint);
-    } else if (q.type === 'choice') {
-      for (const o of q.options ?? []) row.appendChild(chip(o, () => { answers[q.id] = o; paint(row, o); }));
+    } else if (q.type === 'choice' || q.type === 'seen') {
+      for (const o of q.options ?? []) row.appendChild(chip(o, () => { answers[q.id] = o; paint(row, o); refresh(); }));
+      if (q.type === 'seen' && q.href) {
+        const open = document.createElement('a');
+        open.textContent = 'Open →'; open.href = q.href; open.target = '_blank'; open.rel = 'noopener';
+        open.style.cssText = 'font:600 14px system-ui,sans-serif;color:#0f6b5c';
+        row.appendChild(open);
+      }
     } else if (q.type === 'multi') {
       // several chips can be on; the answer is the ticked options joined with a comma (the server stores text, so the database does not change)
       const on = new Set<string>();
@@ -96,19 +134,20 @@ async function openForm(mode: string): Promise<void> {
       t.oninput = () => { if (t.value.trim()) answers[q.id] = t.value.trim(); else delete answers[q.id]; };
       box.appendChild(t);
     }
+    if (q.when) conditional.push({ q, box });
     card.appendChild(box);
   }
+  refresh();
   const trap = document.createElement('input'); trap.name = 'website'; trap.tabIndex = -1; trap.autocomplete = 'off'; trap.style.cssText = 'position:absolute;left:-9999px'; card.appendChild(trap);
   const row = document.createElement('div'); row.style.cssText = 'display:flex;gap:8px;justify-content:flex-end';
   const close = () => { wrap.remove(); };
   const cancel = document.createElement('button'); cancel.type = 'button'; cancel.textContent = 'Close'; cancel.style.cssText = btnCss(false); cancel.onclick = close;
   const send = document.createElement('button'); send.type = 'submit'; send.textContent = 'Send'; send.style.cssText = btnCss(true);
   row.append(cancel, send); card.appendChild(row);
-  const note = document.createElement('div'); note.style.cssText = 'font-size:12px;color:#58635d'; card.appendChild(note);
   card.onsubmit = async (e) => {
     e.preventDefault();
-    if (!Object.keys(answers).length) { note.textContent = 'Answer any one question, then press Send. All of them are optional.'; return; }
-    send.disabled = true; note.textContent = 'Sending…';
+    // Every field is optional, so an empty form sends too: it still tells us someone looked.
+    send.disabled = true; topSend.disabled = true; note.textContent = 'Sending…';
     try {
       const res = await fetch('/api/submit', {
         method: 'POST', headers: { 'content-type': 'application/json' },
@@ -117,7 +156,7 @@ async function openForm(mode: string): Promise<void> {
       if (!res.ok) throw new Error(String(res.status));
       card.innerHTML = '<h2 style="margin:0;font-size:20px">Thank you!</h2><p>Your answers were saved. You can keep playing.</p>';
       const ok = document.createElement('button'); ok.type = 'button'; ok.textContent = 'Close'; ok.style.cssText = btnCss(true); ok.onclick = () => wrap.remove(); card.appendChild(ok);
-    } catch { note.textContent = 'Sorry, that did not send. Please try again in a minute.'; send.disabled = false; }
+    } catch { note.textContent = 'Sorry, that did not send. Please try again in a minute.'; send.disabled = false; topSend.disabled = false; }
   };
   wrap.appendChild(card);
   wrap.onclick = (e) => { if (e.target === wrap) close(); };

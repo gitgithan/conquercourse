@@ -58,7 +58,7 @@ export function startMap(host: HTMLElement): { backend: 'webgl2' } {
   const mapEl = document.createElement('div'); mapEl.className = 'map'; mapEl.id = 'map'; root.appendChild(mapEl);
   const side = document.createElement('div'); side.className = 'side'; root.appendChild(side);
   const S2 = q.get('slice2') !== 'old'; // CC-201 and the slicer fixes after it: ?slice2=old keeps the screen as it was
-  side.innerHTML = `${S2 ? '<button id="backcourses" type="button" title="Open the list of courses" style="width:calc(100% - 104px)">← Back to courses</button>' : ''}<h1>Pick a place</h1>
+  side.innerHTML = `${S2 ? '<button id="backcourses" type="button" title="Open the list of courses" style="width:calc(100% - 104px)">← Back to courses</button>' : ''}<h1>World Slicer: pick a place</h1>
     <form id="searchform" class="hits"><input type="search" id="search" placeholder="Search for a place" aria-label="Search for a place"><button id="searchgo" type="submit">Search</button></form>
     <div id="hits" class="hits"></div>
     <div class="muted">Or click the map to drop a pin.</div>
@@ -72,7 +72,7 @@ export function startMap(host: HTMLElement): { backend: 'webgl2' } {
     <button id="build" class="go" disabled>Build this place</button>
     <button id="slice" disabled>Slice this place</button>
     <div id="slicer" hidden>
-      <b>${W('The Slicer', 'Slice')}</b>
+      <b>World Slicer</b>
       <div style="display:grid;grid-template-columns:auto 1fr;gap:10px;align-items:center;margin:6px 0">
         <input type="range" id="cut" min="0" max="40" step="0.5" value="10" aria-label="Cut height" title="${W('Drag to cut the place at another height', 'Drag to cut the place at another height. The runner starts the lane at this height.')}" style="writing-mode:vertical-lr;direction:rtl;height:170px;width:28px">
         <div style="display:grid;gap:6px"><div>${W('Cut height: <b id="cutv">0</b> m', 'Cut height: <b id="cutv">0</b> m')}</div><div class="muted">${W('where the lane starts', 'metres above the lowest ground, real size')}</div><button id="ladder" type="button">${W('Height lines', 'Contour ladder')}</button></div>
@@ -100,7 +100,7 @@ export function startMap(host: HTMLElement): { backend: 'webgl2' } {
       <b>${W('Buildings', 'Pick the buildings')}</b>
       <div id="pickcount" class="muted"></div>
       <div style="display:flex;gap:6px;flex-wrap:wrap"><button id="pickall" type="button">${W('All', 'Pick all')}</button><button id="pickclear" type="button">Clear</button></div>
-      <button id="buildpieces" class="go" type="button">${W('Send to the editor', 'Build the picked buildings')}</button>
+      <button id="buildpieces" class="go" type="button">${W('Send to the World Editor', 'Build the picked buildings')}</button>
       <details id="slicemore" ${OLD ? 'open' : ''}><summary>${W('More', 'Details')}</summary>
         <div class="muted" id="tourhelp">${W('The green line is the best lane at this height. Drag its white dots to turn or move it.', 'The green line is the best of 18 turns and up to 15 sideways steps at this height: the simulator tries the ones with the most different things on them first (a gap, a step, a curve, a wall) and keeps the first it can clear. Drag the white dots to turn it or move it: the dot in the middle moves the whole line.')}</div>
         <button id="tourreset" type="button" hidden>${W('Back to the suggested line', 'Back to the suggested line')}</button>
@@ -110,7 +110,7 @@ export function startMap(host: HTMLElement): { backend: 'webgl2' } {
       </details>
     </div>
     <div id="say" class="say">No pin yet.</div>
-    <a class="btn" href="?mode=editor">Back to the editor</a>
+    <a class="btn" href="?mode=editor">World Editor</a>
     <div class="muted">Map: OpenFreeMap. Search: Nominatim. Buildings: Overpass. Data © OpenStreetMap contributors (ODbL). ${TERRAIN_ATTRIBUTION}.</div>`;
   const $ = <T extends HTMLElement>(id: string) => side.querySelector('#' + id) as T;
   side.querySelector<HTMLButtonElement>('#backcourses')?.addEventListener('click', () => document.querySelector<HTMLButtonElement>('#courses-btn')?.click()); // the Courses gallery that main.ts mounts
@@ -212,7 +212,7 @@ export function startMap(host: HTMLElement): { backend: 'webgl2' } {
       if (!S2) storePiece(m, name); // CC-211: the editor gets the place only after the simulator has proved a lane on it
       const lane0 = setLane;
       const laneOut = S2 ? (l: PlaceLane | null) => { if (l?.cleared) { storePiece(osmToMesh(o.answer, o.lat, o.lon, l.shrink, o.ground), name); lane0(l); } else sessionStorage.removeItem(PIECE_KEY); } : lane0;
-      tell(`Built ${m.buildings} buildings${o.ground ? `, on a hill of ${Math.round(relief(o.ground))} m (${m.relief.toFixed(1)} m once shrunk)` : ''}. Open it in the editor, or look at how the pin became a course below.`);
+      tell(`Built ${m.buildings} buildings${o.ground ? `, on a hill of ${Math.round(relief(o.ground))} m (${m.relief.toFixed(1)} m once shrunk)` : ''}. Open it in the World Editor, or look at how the pin became a course below.`);
       document.documentElement.dataset.hill = o.ground ? String(Math.round(relief(o.ground))) : '0';
       places.finish(o, m, k0, (k) => { setShrink(k); const m2 = osmToMesh(o.answer, o.lat, o.lon, k, o.ground); if (!S2) storePiece(m2, name); return m2; }, laneOut);
     } catch (e) { tell((e as Error).message, true); }
