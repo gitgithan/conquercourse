@@ -37,6 +37,7 @@
 | Upload check and move tips | An ok, review or block answer; moves that could pass a cut-out | On upload | [pipelines 4b](meta-ai-pipelines.md#4b-upload-check-and-move-tips-muse-spark-open) |
 | Generate a course | A course from a seed | `?generate=<seed>` | [world-slice](world-slice.md#course-generator-v1-cc-47) |
 | Characters | The Rookie and a second Rookie in the first one's style | Always on | [pipelines 5](meta-ai-pipelines.md#5-characters-muse-image) |
+| Starter cast (CC-108) | Eight ready-made characters (Fox, Skater, Toy Robot, Cactus, Banana, Robo Cat, Jelly, Potato Blob) in the Characters picker, fitted to the runner's skeleton at load | On by default; `?cast=0` hides them | [ugc fit](ugc-fit.md) |
 
 ## 4. Share
 | Feature | What the player sees | Turn it on | Diagram or doc |

@@ -1,7 +1,8 @@
-import { Object3D, Quaternion, Vector3 } from 'three/webgpu';
+import { Matrix4, Object3D, Quaternion, SkinnedMesh, Vector3 } from 'three/webgpu';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { solveBones, type Rig } from '../motion/pose';
 import { legLength } from '../motion/timeline';
+import { fitToSkeleton, type FitReport } from '../characters/fit';
 
 export type RookieId = 'a' | 'b';
 
@@ -10,15 +11,17 @@ export interface PosedRookie {
   rig: Rig;
   bones: Object3D[]; // clip order
   legLength: number; // metres
+  fit: FitReport | null; // how the skin was fitted to the bones when it was loaded (a made character), else null
   lift: number; // metres the hips were raised above the path to keep the feet on the floor
   apply(joints: Vector3[], opts?: { floor?: boolean }): void; // bones aim at these world joint positions; `floor: false` keeps them exactly there (no lift to keep the feet above the floor: the vault's feet are not near the ground)
   world(): Vector3[]; // where the bones are now
 }
 
 // `url` swaps in another body built on the Rookie's 34 bones (the custom look, CC-41); the default is rookie-<id>.glb
-export async function loadRookie(id: RookieId, names: string[], parents: number[], base = '/assets/characters', url?: string): Promise<PosedRookie> {
+export async function loadRookie(id: RookieId, names: string[], parents: number[], base = '/assets/characters', url?: string, fit = false): Promise<PosedRookie> {
   const gltf = await new GLTFLoader().loadAsync(url ?? `${base}/rookie-${id}.glb`);
   const object = gltf.scene;
+  const fitted = fit && url ? fitSkins(object) : null; // a made character: stretch the skin to the one skeleton before anything reads the rest pose
   object.updateMatrixWorld(true);
   object.traverse((o) => (o.frustumCulled = false)); // skinned meshes keep their bind-pose bounds
   const bones = names.map((n) => {
@@ -45,6 +48,7 @@ export async function loadRookie(id: RookieId, names: string[], parents: number[
     rig,
     bones,
     legLength: length,
+    fit: fitted,
     apply(joints, opts) {
       const q = solveBones(rig, parents, names, joints);
       bones[0].parent!.updateWorldMatrix(true, false);
@@ -64,4 +68,42 @@ export async function loadRookie(id: RookieId, names: string[], parents: number[
     world: () => bones.map((b) => b.getWorldPosition(new Vector3())),
   };
   return rookie;
+}
+
+/** Fits every skinned mesh of a loaded character to its own bones (the bones are the Rookie's), in the bind pose. Returns the report of the biggest mesh. */
+export function fitSkins(root: Object3D): FitReport | null {
+  let report: FitReport | null = null, most = 0;
+  root.traverse((o) => {
+    const m = o as SkinnedMesh;
+    if (!m.isSkinnedMesh) return;
+    const g = m.geometry, pos = g.attributes.position, si = g.attributes.skinIndex, sw = g.attributes.skinWeight;
+    if (!pos || !si || !sw) return;
+    const inv = new Matrix4();
+    const rest = m.skeleton.boneInverses.map((b) => { const e = inv.copy(b).invert().elements; return [e[12], e[13], e[14]] as [number, number, number]; });
+    const r = fitToSkeleton({ positions: pos.array as Float32Array, joints: si.array, weights: sw.array, names: m.skeleton.bones.map((b) => b.name), rest, index: g.index?.array });
+    pos.needsUpdate = true;
+    g.computeVertexNormals();
+    g.computeBoundingSphere(); g.computeBoundingBox();
+    if (pos.count > most) { most = pos.count; report = r; }
+  });
+  return report;
+}
+
+/** The worst and mean stretch of any triangle edge of a posed character against its bind pose (1 = nothing moved; a body that explodes shows several). */
+export function skinStretch(root: Object3D): { worst: number; mean: number } {
+  let worst = 1, sum = 0, n = 0; const a = new Vector3(), b = new Vector3();
+  root.traverse((o) => {
+    const m = o as SkinnedMesh;
+    if (!m.isSkinnedMesh) return;
+    const idx = m.geometry.index!, pos = m.geometry.attributes.position;
+    const rest = (i: number) => new Vector3().fromBufferAttribute(pos, i);
+    for (let f = 0; f < idx.count; f += 3 * 3) { // every third triangle
+      const i0 = idx.getX(f), i1 = idx.getX(f + 1);
+      const r = rest(i0).distanceTo(rest(i1));
+      if (r < 1e-4) continue;
+      m.getVertexPosition(i0, a); m.getVertexPosition(i1, b);
+      const k = a.distanceTo(b) / r; worst = Math.max(worst, k, 1 / Math.max(k, 1e-6)); sum += k; n++;
+    }
+  });
+  return { worst, mean: sum / Math.max(1, n) };
 }

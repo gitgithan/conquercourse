@@ -86,18 +86,17 @@ def nearest_bone_weights(t, V, k=4, power=4):
 
 
 def fit_to_template(t, V, front_flip=False):
-    """Scale the mesh (y up, feet on y=0, centred) into the template's box: same height, same arm span, thickness by the mean scale."""
+    """Scale the mesh (y up, feet on y=0, centred) to the template's height, the same on every axis.
+    The arms and legs are NOT stretched here: the game fits each limb to the skeleton when it loads the character (src/characters/fit.ts),
+    so a wide or thin body keeps its own shape and only its limbs are lengthened or shortened."""
     V = V.copy()
     lo, hi = V.min(0), V.max(0)
     tl, th = t.bbox
     sy = (th[1] - tl[1]) / (hi[1] - lo[1])
-    sx = (th[0] - tl[0]) / (hi[0] - lo[0])
-    sx = min(max(sx, 0.6 * sy), 1.6 * sy)  # a very wide or very thin figure must not stretch without limit
-    sz = (sx + sy) / 2
-    V[:, 0] = (V[:, 0] - (lo[0] + hi[0]) / 2) * sx
+    V[:, 0] = (V[:, 0] - (lo[0] + hi[0]) / 2) * sy
     V[:, 1] = (V[:, 1] - lo[1]) * sy
-    V[:, 2] = (V[:, 2] - (lo[2] + hi[2]) / 2) * sz
-    return V, {"sx": float(sx), "sy": float(sy), "sz": float(sz)}
+    V[:, 2] = (V[:, 2] - (lo[2] + hi[2]) / 2) * sy
+    return V, {"sx": float(sy), "sy": float(sy), "sz": float(sy)}
 
 
 def vertex_normals(v, f):

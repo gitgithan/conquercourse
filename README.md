@@ -331,6 +331,26 @@ Diagrams are in [docs/meta-ai-pipelines.md](docs/meta-ai-pipelines.md); the full
 - Why one key (Down / S) has several meanings, and why replays stay exact: [docs/input-design.md](docs/input-design.md).
 - What to tick when playtesting: [docs/playtest.md](docs/playtest.md).
 
+## User-made characters and pieces (UGC)
+- We cannot design courses around characters or pieces we have never seen.
+- So the game fits the person's creation to ONE skeleton and ONE set of physics rules, not the other way round.
+- Characters:
+  - The mesh is only a skin; the bones, the grab points and the hit box are always the Rookie's.
+  - At load, each arm is stretched along its bones so the skin hand meets the hand bone, and the legs and torso are fitted to the hip and shoulder heights.
+  - Stretches are clamped, so a very odd shape is bent only as far as it still looks right.
+- Pieces:
+  - Every piece is scaled by the person-for-scale rule, so a bar is the same height for everyone.
+- Courses:
+  - The simulator proves a course can be cleared, whatever skin the runner wears.
+- Why this scales:
+  - A new character or piece needs no new course, no new test and no new physics.
+  - One fit rule and one rule set cover all of them.
+- Honest limits:
+  - A skin with arms lost in the picture cannot be rebuilt by stretching; it is clamped and may look a little off.
+  - Stretching can thin fingers or smear a pattern; the fit reports how much it stretched.
+- Details and measurements: [docs/ugc-fit.md](docs/ugc-fit.md).
+- The upload check and its own limits: [docs/trust-and-safety.md](docs/trust-and-safety.md).
+
 ## Run it
 - `npm ci`
 - `node node_modules/vite/bin/vite.js` and open http://localhost:5173

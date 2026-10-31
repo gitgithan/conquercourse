@@ -1,0 +1,218 @@
+{
+  "9976588dfc57e037": {
+    "name": "Fox",
+    "errors": [],
+    "fitted": {
+      "loaded": true,
+      "worstEdgeStretch": 38.82,
+      "meanEdgeRatio": 1.089,
+      "boneDriftM": 0.244
+    },
+    "fitQuality": "stretched",
+    "handGap": {
+      "before": 0.28328053848033713,
+      "after": 0
+    },
+    "as_made": {
+      "loaded": true,
+      "worstEdgeStretch": 27.8,
+      "meanEdgeRatio": 1.065,
+      "boneDriftM": 0.244
+    },
+    "vault": {
+      "loaded": true,
+      "frames": 105,
+      "worstEdgeStretch": 29.29
+    },
+    "pass": false
+  },
+  "8f72bd8e9c1937ce": {
+    "name": "Skater",
+    "errors": [],
+    "fitted": {
+      "loaded": true,
+      "worstEdgeStretch": 14.47,
+      "meanEdgeRatio": 1.062,
+      "boneDriftM": 0.244
+    },
+    "fitQuality": "stretched",
+    "handGap": {
+      "before": 0.3328472845555397,
+      "after": 7.128780485752661e-17
+    },
+    "as_made": {
+      "loaded": true,
+      "worstEdgeStretch": 7.47,
+      "meanEdgeRatio": 1.047,
+      "boneDriftM": 0.244
+    },
+    "vault": {
+      "loaded": true,
+      "frames": 105,
+      "worstEdgeStretch": 10.27
+    },
+    "pass": false
+  },
+  "d4c6caf18fc918d6": {
+    "name": "Toy Robot",
+    "errors": [],
+    "fitted": {
+      "loaded": true,
+      "worstEdgeStretch": 12.25,
+      "meanEdgeRatio": 1.028,
+      "boneDriftM": 0.244
+    },
+    "fitQuality": "good",
+    "handGap": {
+      "before": 0.2239993198007894,
+      "after": 0
+    },
+    "as_made": {
+      "loaded": true,
+      "worstEdgeStretch": 5.73,
+      "meanEdgeRatio": 1.037,
+      "boneDriftM": 0.244
+    },
+    "vault": {
+      "loaded": true,
+      "frames": 105,
+      "worstEdgeStretch": 21.22
+    },
+    "pass": false
+  },
+  "a6a03ad6b108a85c": {
+    "name": "Cactus",
+    "errors": [],
+    "fitted": {
+      "loaded": true,
+      "worstEdgeStretch": 8.78,
+      "meanEdgeRatio": 1.072,
+      "boneDriftM": 0.244
+    },
+    "fitQuality": "stretched",
+    "handGap": {
+      "before": 0.22446762418203633,
+      "after": 7.128780485752661e-17
+    },
+    "as_made": {
+      "loaded": true,
+      "worstEdgeStretch": 6.5,
+      "meanEdgeRatio": 1.052,
+      "boneDriftM": 0.244
+    },
+    "vault": {
+      "loaded": true,
+      "frames": 105,
+      "worstEdgeStretch": 17.32
+    },
+    "pass": false
+  },
+  "7c95df17d131f152": {
+    "name": "Banana",
+    "errors": [],
+    "fitted": {
+      "loaded": true,
+      "worstEdgeStretch": 8.86,
+      "meanEdgeRatio": 1.035,
+      "boneDriftM": 0.244
+    },
+    "fitQuality": "extreme",
+    "handGap": {
+      "before": 0.37615841319179694,
+      "after": 0
+    },
+    "as_made": {
+      "loaded": true,
+      "worstEdgeStretch": 7.5,
+      "meanEdgeRatio": 1.054,
+      "boneDriftM": 0.244
+    },
+    "vault": {
+      "loaded": true,
+      "frames": 105,
+      "worstEdgeStretch": 16.77
+    },
+    "pass": false
+  },
+  "e103cf0737a04d8e": {
+    "name": "Robo Cat",
+    "errors": [],
+    "fitted": {
+      "loaded": true,
+      "worstEdgeStretch": 14.6,
+      "meanEdgeRatio": 1.097,
+      "boneDriftM": 0.244
+    },
+    "fitQuality": "stretched",
+    "handGap": {
+      "before": 0.25371489235333133,
+      "after": 7.133428485928581e-17
+    },
+    "as_made": {
+      "loaded": true,
+      "worstEdgeStretch": 9.84,
+      "meanEdgeRatio": 1.091,
+      "boneDriftM": 0.244
+    },
+    "vault": {
+      "loaded": true,
+      "frames": 105,
+      "worstEdgeStretch": 13.29
+    },
+    "pass": false
+  },
+  "03bceda6975ee7c7": {
+    "name": "Jelly",
+    "errors": [],
+    "fitted": {
+      "loaded": true,
+      "worstEdgeStretch": 8.51,
+      "meanEdgeRatio": 1.092,
+      "boneDriftM": 0.244
+    },
+    "fitQuality": "good",
+    "handGap": {
+      "before": 0.01693017898211431,
+      "after": 7.133428485928581e-17
+    },
+    "as_made": {
+      "loaded": true,
+      "worstEdgeStretch": 6.58,
+      "meanEdgeRatio": 1.072,
+      "boneDriftM": 0.244
+    },
+    "vault": {
+      "loaded": true,
+      "frames": 105,
+      "worstEdgeStretch": 8.78
+    },
+    "pass": false
+  },
+  "9c187602415901db": {
+    "name": "Potato Blob",
+    "errors": [],
+    "fitted": {
+      "loaded": true,
+      "worstEdgeStretch": 5.99,
+      "meanEdgeRatio": 1.062,
+      "boneDriftM": 0.244
+    },
+    "fitQuality": "extreme",
+    "handGap": {
+      "before": 0.508663503860147,
+      "after": 0.16472795656224995
+    },
+    "as_made": {
+      "loaded": true,
+      "worstEdgeStretch": 11.44,
+      "meanEdgeRatio": 1.09,
+      "boneDriftM": 0.244
+    },
+    "vault": {
+      "loaded": true,
+      "frames": 105,
+      "worstEdgeStretch": 22.3
+    },
+    "pass": false
+  }
+}
