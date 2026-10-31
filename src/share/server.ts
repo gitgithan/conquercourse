@@ -5,7 +5,8 @@
 import type { CourseData } from '../course/course';
 import courseJson from '../course/default-course.json';
 import { courseHash, nickToWire, readChallengeParam, REPLAY_VERSION, startXOf, type ChallengeKind } from '../sim/replay';
-import { checkRun, logTicks, rateLimited } from '../sim/run-checks';
+import { checkRun, logTicks, rateLimited, rateWaitSeconds } from '../sim/run-checks';
+import { slowDownReply } from '../sim/slow-down';
 import { SHARE_MAX_MADE_CHARS, unpackCourse } from './made-course';
 
 export const MAX_SHARE_BODY = 32_000; // characters of the request: the made course (20000) plus the keys (8000) plus the words around them
@@ -27,6 +28,7 @@ export interface ShareStore {
   insert(row: ShareRow): Promise<boolean>; // false when the id is already taken
   get(id: string): Promise<ShareRow | null>;
   countSince(unix: number): Promise<number>;
+  oldestSince?(unix: number): Promise<number | null>; // the first row newer than this time, so a refusal can say when the window frees up
 }
 export interface ShareEnv {
   store: ShareStore;
@@ -38,8 +40,9 @@ export interface ShareEnv {
   address: string;
   randomBytes(n: number): Uint8Array;
 }
-export type Reply = { status: number; body: Record<string, unknown> };
+export type Reply = { status: number; body: Record<string, unknown>; headers?: Record<string, string> };
 const fail = (status: number, error: string, extra: Record<string, unknown> = {}): Reply => ({ status, body: { error, ...extra } });
+const slow = (seconds: number): Reply => { const r = slowDownReply(seconds); return { status: 429, body: r.body, headers: r.headers }; }; // CC-219: a refusal always says when to come back
 
 /** A random id from the 31-letter alphabet; bytes above 247 are skipped so every letter is equally likely. */
 export function newId(random: (n: number) => Uint8Array): string {
@@ -66,7 +69,7 @@ export async function createShare(env: ShareEnv, raw: string): Promise<Reply> {
   try { b = JSON.parse(raw); } catch { return fail(400, 'bad json'); }
   const param = String(b.param ?? ''), query = String(b.query ?? ''), made = b.made === undefined || b.made === '' ? null : String(b.made), look = b.look === 'b' ? 'b' : 'a';
   if (query.length > 200 || (made !== null && made.length > SHARE_MAX_MADE_CHARS)) return fail(413, 'too long');
-  if (rateLimited(env.hits, env.address, env.now(), SHARES_PER_ADDRESS)) return fail(429, 'slow down');
+  if (rateLimited(env.hits, env.address, env.now(), SHARES_PER_ADDRESS)) return slow(rateWaitSeconds(env.hits, env.address, env.now()));
   const read = await readChallengeParam(param);
   if (!read.ok) return fail(400, read.why === 'version' ? 'old version' : 'bad keys');
   const { hash, nick, log, kind, start } = read.challenge;
@@ -89,7 +92,10 @@ export async function createShare(env: ShareEnv, raw: string): Promise<Reply> {
   const same = await env.store.byContentHash(content);
   if (same) return { status: 200, body: { id: same, duplicate: true } };
   const nowS = Math.floor(env.now() / 1000);
-  if ((await env.store.countSince(nowS - 3600)) >= SHARES_PER_HOUR) return fail(429, 'slow down');
+  if ((await env.store.countSince(nowS - 3600)) >= SHARES_PER_HOUR) {
+    const oldest = await env.store.oldestSince?.(nowS - 3600) ?? null;
+    return slow(oldest === null ? 300 : oldest + 3600 - nowS);
+  }
   const row: ShareRow = { id: '', created_at: nowS, sim_version: REPLAY_VERSION, kind, course_kind: courseKind, course_key: key, course_hash: hash, query: path ? `course=${path}` : '', made, nick, look, ticks: total, keys, content_hash: content, beats_ideal: pre.beatsIdeal ? 1 : 0, status: 'ok' };
   for (let tries = 0; tries < 5; tries++) { // a taken id is rare (31^10 ids); try another
     row.id = newId(env.randomBytes);

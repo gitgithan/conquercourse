@@ -2,6 +2,7 @@
 // Rule of the file: only what the physics or a human body cannot do is REJECTED. A run faster than the stored ideal line is only FLAGGED:
 // the ideal line is a search result, not a limit, and the replay is the judge. Every constant below is a tuning knob (see docs/run-checks.md).
 import { MAX_REPLAY_TICKS, type InputLog } from './replay';
+import { secondsUntilFree } from './slow-down';
 import { TICKS_PER_SECOND } from './units';
 
 /** Shortest clear we accept (0.5 s): nothing on any course is cleared faster. The shortest best line is 3.0 s. */
@@ -71,4 +72,9 @@ export function rateLimited(hits: Map<string, number[]>, key: string, now: numbe
   if (recent.length >= max) { hits.set(key, recent); return true; }
   recent.push(now); hits.set(key, recent);
   return false;
+}
+
+/** After rateLimited said yes: seconds until the address may try again (the oldest hit in the window leaves). */
+export function rateWaitSeconds(hits: Map<string, number[]>, key: string, now: number, windowMs = REPLAY_WINDOW_MS): number {
+  return secondsUntilFree(hits.get(key) ?? [], now, windowMs);
 }

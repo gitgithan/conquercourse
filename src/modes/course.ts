@@ -20,7 +20,7 @@ import { inputFor, searchIdealRun, workSeconds, xWindows, type Plan, type Search
 import { IdealPool } from '../sim/ideal-pool';
 import { createGhost } from '../ui/ghost';
 import { lookOfParam, softenPlayer } from '../ui/ghost-look';
-import { challengeWords, courseTooBig, makeLink, offersIdeal, openChallenge, secondsWords, shareOn } from '../share/challenge';
+import { challengeWords, courseTooBig, makeLinkInfo, offersIdeal, openChallenge, secondsWords, shareOn } from '../share/challenge';
 import { MARKER_BELOW, RUNNER_M, TICKS_PER_FRAME, clipCameraDistance, clipCrop, clipFits, clipFrames, clipLayoutFor, createClipEncoder, drawClipFrame, clipViewMetres, type ClipLayout } from '../share/clip';
 import { mountTouch, touchOn } from '../share/touch';
 import { createGaugeStack } from '../ui/gauges';
@@ -1181,7 +1181,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
     const tryFrom = tryClip ? startOfX(course, tryClip.from) : null; // CC-242: a try from a checkpoint is shared with its start, so the friend begins at the same place
     const tryStart = tryFrom ?? 0;
     const tryRun = shareOn(params) && !botMode && !demo && !idealWhole && !params.get('mode') ? (ghostCtl?.myRun() ?? (tryFrom ? tryClip?.log ?? null : null)) : null; // CC-181: a try that fell can be sent as a link too; it never counts for a time
-    if (tryRun) row.append(...copyLinkButton({ link: (nick) => makeLink(location.origin, pageSearch(), course, tryRun, nick, choice, 'fell', undefined, tryStart), courseTooBig: () => courseTooBig(pageSearch(), course), label: 'Copy link to this try', id: 'share-copy-fall' }));
+    if (tryRun) row.append(...copyLinkButton({ link: (nick) => makeLinkInfo(location.origin, pageSearch(), course, tryRun, nick, choice, 'fell', undefined, tryStart), courseTooBig: () => courseTooBig(pageSearch(), course), label: 'Copy link to this try', id: 'share-copy-fall' }));
     if (tryClip && clipFits(tryTicks)) mk('Download a video of this try', () => void makeClip(tryClip.log, tryTicks, tryClip.from)).id = 'share-clip-fall'; // CC-157: a try that ended in a fall is worth a clip too
     mk('Show me the ideal run (I)', () => showIdeal(lastZone));
     if (!course.track) mk('Make it easier', () => openEditor('easier')).id = 'makeeasier';
@@ -1510,7 +1510,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
         if (shareOn(params) && !botMode && !demo && !idealWhole && !params.get('mode')) {
           const mine = ghostCtl?.myRun() ?? null, mineClip = ghostCtl?.myClip() ?? null, ticks = world.runner.tick; // a link needs a run from the start; a clip can be made of any try (CC-157)
           const partialStart = !mine && mineClip ? startOfX(course, mineClip.from) : null, partial = partialStart && mineClip ? { log: mineClip.log, start: partialStart } : null; // CC-242: a cleared run from a checkpoint can be shared with its start; it never reaches a board
-          if (mine || mineClip) body.querySelector('#report-actions')?.append(...shareButtons({ link: mine ? (nick) => makeLink(location.origin, pageSearch(), course, mine, nick, choice) : partial ? (nick) => makeLink(location.origin, pageSearch(), course, partial.log, nick, choice, 'done', undefined, partial.start) : undefined, courseTooBig: () => courseTooBig(pageSearch(), course), clip: mineClip && clipFits(ticks) ? () => void makeClip(mineClip.log, ticks, mineClip.from) : undefined }));
+          if (mine || mineClip) body.querySelector('#report-actions')?.append(...shareButtons({ link: mine ? (nick) => makeLinkInfo(location.origin, pageSearch(), course, mine, nick, choice) : partial ? (nick) => makeLinkInfo(location.origin, pageSearch(), course, partial.log, nick, choice, 'done', undefined, partial.start) : undefined, courseTooBig: () => courseTooBig(pageSearch(), course), clip: mineClip && clipFits(ticks) ? () => void makeClip(mineClip.log, ticks, mineClip.from) : undefined }));
         }
         if (reportSectionsOn(params)) organiseReport(body, !botMode && !demo && !idealWhole ? { dojo: () => openDojo() } : {}); // CC-158
         setMusicScreen('report');

@@ -28,7 +28,8 @@ export function organiseReport(body: HTMLElement, o: { dojo?: () => void } = {})
     }
     const note = document.createElement('div'); note.style.cssText = `font:500 14px/1.4 system-ui,sans-serif;color:${HUD.soft}`;
     note.textContent = copy ? 'A friend opens your link, plays your exact keys, and tries to beat your time. The clip is a short video to post.' : 'The clip is a short video to post. A link needs a run from the start of the course.';
-    card.append(head, buttons, note);
+    const wait = get('share-wait'); // CC-219: the pause note travels with the button
+    card.append(head, buttons, ...(wait ? [wait] : []), note);
     (body.querySelector('#report-publish') ?? body.querySelector('h2'))?.after(card); // the publish strip, when there is one, sits right under the result
     if (!card.isConnected) body.prepend(card);
   }

@@ -1,6 +1,7 @@
 // Share a run as a link (CC-128). The link carries the keys of the run, never a time: the time is what the simulator says when it plays them.
 import type { CourseData } from '../course/course';
 import { nickOk, shownNick } from './nick';
+import { waitFromReply } from '../sim/slow-down';
 import courseJson from '../course/default-course.json';
 import { madeCourse, MAX_MADE_CHARS, packCourse, SHARE_MAX_MADE_CHARS } from './made-course';
 import { courseHash, makeChallengeParam, readChallengeParam, startXOf, verifyLog, type ChallengeKind, type GhostTrack, type InputLog } from '../sim/replay';
@@ -66,19 +67,29 @@ const within = async (f: Fetcher, url: string, init: RequestInit | undefined, ms
   try { return await f(url, { ...init, signal: ctl.signal }); } catch { return null; } finally { clearTimeout(t); }
 };
 
-/** The short link for a run, or null when the server cannot keep it now (not reachable, switched off, table missing, course not supported). The caller then falls back to the long link. */
-export async function makeShortUrl(origin: string, search: string, course: CourseData, log: InputLog, nick = '', look: 'a' | 'b' = 'a', kind: ChallengeKind = 'done', f: Fetcher = (u, i) => fetch(u, i), start = 0): Promise<string | null> {
+/** The short link for a run, or null when the server cannot keep it now (not reachable, switched off, table missing, course not supported). The caller then falls back to the long link.
+ *  `wait` is set when the server asked the player to pause (too many shares): the seconds until the short link works again (CC-219). */
+export async function tryShortUrl(origin: string, search: string, course: CourseData, log: InputLog, nick = '', look: 'a' | 'b' = 'a', kind: ChallengeKind = 'done', f: Fetcher = (u, i) => fetch(u, i), start = 0): Promise<{ url: string | null; wait: number | null }> {
   const p = await linkParts(search, course, log, nick, kind, false, start);
-  if (!p) return null;
+  if (!p) return { url: null, wait: null };
   const res = await within(f, '/api/share', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ param: p.param, query: p.keep.toString(), made: p.made || undefined, look }) });
-  if (!res || !res.ok) return null;
-  try { const id = ((await res.json()) as { id?: unknown }).id; return typeof id === 'string' && /^[a-z2-9]{10}$/.test(id) ? `${origin}/?c=${id}` : null; } catch { return null; }
+  if (!res) return { url: null, wait: null };
+  if (res.status === 429) { const body = await res.json().catch(() => null); return { url: null, wait: waitFromReply(429, body, res.headers.get('retry-after')) }; }
+  if (!res.ok) return { url: null, wait: null };
+  try { const id = ((await res.json()) as { id?: unknown }).id; return { url: typeof id === 'string' && /^[a-z2-9]{10}$/.test(id) ? `${origin}/?c=${id}` : null, wait: null }; } catch { return { url: null, wait: null }; }
+}
+export async function makeShortUrl(origin: string, search: string, course: CourseData, log: InputLog, nick = '', look: 'a' | 'b' = 'a', kind: ChallengeKind = 'done', f: Fetcher = (u, i) => fetch(u, i), start = 0): Promise<string | null> {
+  return (await tryShortUrl(origin, search, course, log, nick, look, kind, f, start)).url;
 }
 
-/** The link to copy: short when the server answers, long otherwise. */
+/** The link to copy: short when the server answers, long otherwise. When the server asked for a pause, `wait` says for how long; the long link works at once (no server). */
+export async function makeLinkInfo(origin: string, search: string, course: CourseData, log: InputLog, nick = '', look: 'a' | 'b' = 'a', kind: ChallengeKind = 'done', f?: Fetcher, start = 0): Promise<{ url: string | null; wait: number | null }> {
+  let wait: number | null = null;
+  if (shortOn(new URLSearchParams(search))) { const s = await tryShortUrl(origin, search, course, log, nick, look, kind, f, start); if (s.url) return { url: s.url, wait: null }; wait = s.wait; }
+  return { url: await makeChallengeUrl(origin, search, course, log, nick, look, kind, start), wait };
+}
 export async function makeLink(origin: string, search: string, course: CourseData, log: InputLog, nick = '', look: 'a' | 'b' = 'a', kind: ChallengeKind = 'done', f?: Fetcher, start = 0): Promise<string | null> {
-  if (shortOn(new URLSearchParams(search))) { const s = await makeShortUrl(origin, search, course, log, nick, look, kind, f, start); if (s) return s; }
-  return makeChallengeUrl(origin, search, course, log, nick, look, kind, start);
+  return (await makeLinkInfo(origin, search, course, log, nick, look, kind, f, start)).url;
 }
 
 /** An address with ?c=<id> becomes the long form (course words, made course, challenge, look) so the rest of the page reads it as it always did. Null when the address has no short id; '' + broken when the id cannot be opened. */

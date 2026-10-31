@@ -5,7 +5,8 @@ import { publishErrorText } from '../src/ui/feedback';
 
 describe('publish error messages', () => {
   const cases: [number, string, string | undefined, RegExp][] = [
-    [429, 'slow-down', undefined, /Slow down/],
+    [429, 'slow-down', undefined, /try again in about/],
+    [429, 'slow_down', undefined, /Your run is safe/],
     [409, 'course-changed', undefined, /course changed/],
     [404, 'no-course', undefined, /listed courses/],
     [422, 'not-a-clear', undefined, /finish/],
@@ -18,7 +19,8 @@ describe('publish error messages', () => {
   ];
   for (const [status, reason, code, re] of cases) it(`${reason}${code ? ` (${code})` : ''} says something specific`, () => { expect(publishErrorText(status, reason, code)).toMatch(re); });
   it('falls back on the status when the server sent no reason', () => {
-    expect(publishErrorText(429)).toMatch(/Slow down/);
+    expect(publishErrorText(429)).toMatch(/try again in about 1 minute/);
+    expect(publishErrorText(429, 'slow_down', undefined, 40)).toMatch(/about 40 seconds/);
     expect(publishErrorText(409)).toMatch(/changed/);
     expect(publishErrorText(500)).not.toMatch(/did not accept/);
   });
