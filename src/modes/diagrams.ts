@@ -58,7 +58,7 @@ function gapReal(): string {
     fig({ head: [214, 214], neck: [219, 232], hip: [200, 268], arms: [[[240, 250], [255, 232]], [[205, 252], [188, 232]]], legs: [[[213, 285], [218, 298]], [[180, 285], [160, 298]]] }) +
     arrow([226, 292], [292, 218], FORCE, 5) +
     txt(310, 240, 'The push of the legs\nat take-off', { color: FORCE, anchor: 'start', bold: true }) +
-    arrow([380, 140], [380, 215], GRAV, 5) + txt(392, 190, 'Gravity pulls down', { color: GRAV, anchor: 'start', bold: true }) +
+    arrow([380, 140], [380, 215], GRAV, 5) + txt(400, 190, 'Gravity pulls down', { color: GRAV, anchor: 'start', bold: true }) +
     fig({ head: [380, 112], neck: [380, 128], hip: [380, 160], arms: [[[400, 118], [415, 108]], [[360, 118], [345, 108]]], legs: [[[395, 175], [410, 168]], [[365, 175], [350, 185]]] }) +
     txt(380, 76, 'Flight path: sideways speed stays the same', { color: SPEED, bold: true }) +
     arrow([395, 305], [395, 305], INK, 1) +
@@ -66,7 +66,7 @@ function gapReal(): string {
     `<path d="M252,335 L268,327 M252,335 L268,343 M508,335 L492,327 M508,335 L492,343" stroke="${INK}" stroke-width="2" fill="none"/>` +
     txt(380, 365, 'The gap: nothing to push on in the air', { bold: true }) +
     fig({ head: [606, 224], neck: [610, 242], hip: [606, 278], arms: [[[630, 232], [645, 222]], [[590, 254], [575, 240]]], legs: [[[620, 290], [626, 298]], [[596, 288], [586, 298]]], ghost: true }) +
-    arrow([575, 150], [600, 215], SPEED, 5) + txt(620, 140, 'Landing: feet first,\non the far side', { anchor: 'middle', bold: true }) +
+    arrow([575, 160], [600, 215], SPEED, 5) + txt(640, 120, 'Landing: feet first,\non the far side', { anchor: 'middle', bold: true }) +
     txt(120, 340, 'Take-off edge', { anchor: 'middle' }) + txt(640, 340, 'Far edge', { anchor: 'middle' });
   return wrap('Gap jump: push off, fly, land', body.replace(arrow([395, 305], [395, 305], INK, 1), '').replace(arrow([250, 335], [250, 335], INK, 1), ''));
 }
@@ -237,8 +237,8 @@ function coasterReal(): string {
     `<line x1="70" y1="120" x2="730" y2="120" stroke="${ENERGY}" stroke-width="3" stroke-dasharray="8 8"/>` +
     txt(430, 108, 'The most it can reach: the height it started from', { color: ENERGY, bold: true, size: 14 }) +
     `<rect x="334" y="326" width="52" height="20" rx="4" fill="${FORCE}"/>` + arrow([300, 300], [430, 300], SPEED, 6) + txt(365, 282, 'Fastest at the bottom', { color: SPEED, bold: true }) +
-    arrow([150, 150], [150, 215], GRAV, 5) + txt(164, 185, 'Gravity pulls it\ndown the slope', { color: GRAV, bold: true, anchor: 'start' }) +
-    txt(380, 40, 'A coaster has no engine: only the height it starts from', { bold: true });
+    arrow([150, 150], [150, 215], GRAV, 5) + txt(136, 185, 'Gravity pulls it\ndown the slope', { color: GRAV, bold: true, anchor: 'end' }) +
+    txt(380, 58, 'A coaster has no engine: only the height it starts from', { bold: true, size: 14 });
   return wrap('Coaster: height is stored speed', body);
 }
 
@@ -318,9 +318,9 @@ function storedReal(): string {
     `<rect x="650" y="300" width="18" height="100" fill="#f2efe6" stroke="${INK}" stroke-width="3"/>` + `<rect x="650" y="330" width="18" height="12" fill="${FORCE}"/><rect x="650" y="360" width="18" height="12" fill="${FORCE}"/>` +
     `<line x1="659" y1="304" x2="150" y2="330" stroke="${ENERGY}" stroke-width="5"/>` +
     fig({ head: [124, 258], neck: [124, 276], hip: [140, 330], arms: [[[148, 300], [152, 326]], [[110, 300], [100, 326]]], legs: [[[130, 360], [112, 398]], [[152, 362], [166, 398]]] }) +
-    arrow([260, 300], [100, 300], FORCE, 5) + txt(200, 280, 'You run away\nfrom the post', { color: FORCE, bold: true }) +
+    arrow([260, 300], [100, 300], FORCE, 5) + txt(240, 258, 'You run away\nfrom the post', { color: FORCE, bold: true }) +
     arrow([560, 372], [420, 372], SPEED, 5) + txt(490, 360, 'The band pulls you back', { color: SPEED, bold: true, size: 14 }) +
-    txt(380, 40, 'The longer you stretch it, the more it stores', { bold: true });
+    txt(380, 58, 'The longer you stretch it, the more it stores', { bold: true, size: 14 });
   return wrap('Band: stretching stores energy', body);
 }
 
@@ -347,9 +347,9 @@ function cannonReal(): string {
   const body =
     `<rect x="0" y="372" width="760" height="68" fill="${SOFT}"/>` + line([0, 372], [760, 372], GROUND, 5) +
     arc(75, GRAV) + arc(45, ENERGY, 6) + arc(20, SPEED) +
-    txt(190, 110, 'Steep: high,\nshort', { color: GRAV, bold: true, size: 14 }) + txt(430, 196, 'Middle: farthest', { color: ENERGY, bold: true, size: 15 }) + txt(560, 330, 'Flat: low and\nnot far', { color: SPEED, bold: true, size: 14 }) +
+    txt(110, 130, 'Steep: high,\nshort', { color: GRAV, bold: true, size: 14 }) + txt(430, 196, 'Middle: farthest', { color: ENERGY, bold: true, size: 15 }) + txt(560, 330, 'Flat: low and\nnot far', { color: SPEED, bold: true, size: 14 }) +
     `<rect x="40" y="338" width="62" height="26" rx="6" fill="#4a4f55"/><circle cx="52" cy="368" r="9" fill="#1f2937"/><circle cx="90" cy="368" r="9" fill="#1f2937"/>` +
-    txt(380, 70, 'The same push, three angles', { bold: true, size: 17 });
+    txt(560, 70, 'The same push, three angles', { bold: true, size: 17 });
   return wrap('Cannon: the angle decides the flight', body);
 }
 
@@ -378,9 +378,9 @@ function droneReal(): string {
     `<rect x="0" y="380" width="760" height="60" fill="${SOFT}"/>` + line([0, 380], [760, 380], GROUND, 5) +
     droneShape(380, 160) +
     fig({ head: [380, 224], neck: [380, 240], hip: [380, 290], arms: [[[394, 200], [398, 176]], [[366, 200], [362, 176]]], legs: [[[392, 330], [396, 360]], [[368, 330], [364, 360]]] }) +
-    arrow([380, 120], [380, 40], ENERGY, 7) + txt(480, 70, 'The rotors push up', { color: ENERGY, bold: true, size: 16, anchor: 'start' }) +
+    arrow([380, 120], [380, 62], ENERGY, 7) + txt(480, 70, 'The rotors push up', { color: ENERGY, bold: true, size: 16, anchor: 'start' }) +
     arrow([380, 300], [380, 372], GRAV, 7) + txt(480, 340, 'Weight pulls down', { color: GRAV, bold: true, size: 16, anchor: 'start' }) +
-    txt(190, 150, 'Hovering:\nthe push equals the weight', { bold: true, size: 17 }) +
+    txt(150, 150, 'Hovering:\nthe push equals\nthe weight', { bold: true, size: 17 }) +
     txt(380, 424, 'More push than weight and it climbs. Less and it sinks.', { size: 14 });
   return wrap('Hover: push against weight', body);
 }
