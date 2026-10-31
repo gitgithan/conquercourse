@@ -7,7 +7,7 @@ export interface PublicItem { id: string; kind: ItemKind; name: string; at: numb
 
 export const MAX_THUMB_CHARS = 160_000; // a 640 px JPEG is about 40 KB
 export const MAX_GLB_CHARS = 1_400_000; // base64 of about 1 MB; a finished piece is 300 to 500 KB
-export const GLB_MAGIC = 'Z2xURg'; // "glTF" in base64
+export const GLB_MAGIC = 'Z2xUR'; // "glTF" in base64 (the fifth letter depends on the next byte, so only the first five are compared)
 const NAME_RE = /^[a-z0-9][a-z0-9 '\-]{1,38}[a-z0-9]$/i;
 const COURSE_RE = /^[a-z0-9][a-z0-9/_-]{0,59}$/;
 
