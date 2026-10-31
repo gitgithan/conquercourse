@@ -8,6 +8,8 @@ import { realSize, type Piece } from './world';
 // it becomes a hold in the course. Its height off the ground is the bar's height.
 export type P = Piece & { src?: string };
 export const isHold = (p: P): boolean => p.src === 'hold:bar';
+// the crossbar heights of the hang-bar objects (public/assets/objects/index.json, hang_m)
+const HANG_OBJECTS: Record<string, number> = { 'pullup-green.glb': 2.2, 'pullup-black.glb': 2.05 };
 export const HOLD_LENGTH = 2.0; // m across the lane
 export const REACH_STANDING = Math.round((DEFAULT_HANG.handHeight + DEFAULT_HANG.reach) * 100) / 100; // m: read from the simulator (src/sim/holds.ts), never typed in
 export const REACH_JUMPING = Math.round((REACH_STANDING + (4.5 * 4.5) / (2 * GRAVITY)) * 100) / 100; // m: a jump (take-off 4.5 m/s) lifts the hands by its apex
@@ -29,6 +31,13 @@ export function holdsOf(pieces: P[], lane: { angle: number; offset: number; leve
     // a 3D object used as a swing bar (CC-244) hangs the rider from its top; the bar piece itself is a thin bar a hand's width thick
     const u = p.x * c + p.z * s, v = -p.x * s + p.z * c - lane.offset, y = (isHold(p) ? p.y + 0.04 : p.y + realSize(p).h) - lane.level;
     if (Math.abs(v) <= HALF_LANE + 0.5 && y > 0.3) out.push({ u, y, id: p.id });
+  }
+  // a hang-bar object (the green or black frame) is a rod on its own: the game finds it even when no separate bar piece was placed
+  for (const p of pieces) {
+    const hang = HANG_OBJECTS[(p.src ?? '').replace(/^obj:/, '')];
+    if (!hang) continue;
+    const u = p.x * c + p.z * s, v = -p.x * s + p.z * c - lane.offset, y = p.y + hang * p.scale - lane.level;
+    if (Math.abs(v) <= HALF_LANE + 0.5 && y > 0.3 && !out.some((h) => Math.abs(h.u - u) < 0.5)) out.push({ u, y, id: p.id });
   }
   return out.sort((a, b) => a.u - b.u);
 }
