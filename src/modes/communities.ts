@@ -1,3 +1,6 @@
+import { flowOn } from '../community/flow';
+import { pageQuery } from '../flags';
+import { startCommunityFlow } from './community-flow';
 import { Regions, type Region } from '../ui/regions';
 import { liftObject, shrinkPhoto, type Shrunk } from '../slice/object-lift-client';
 import { LABEL_RE, MIN_BOX } from '../slice/object-lift';
@@ -44,6 +47,7 @@ export const savedWallpapers = (): Wallpaper[] => { try { return JSON.parse(loca
 const saveWallpaper = (w: Wallpaper): boolean => { try { localStorage.setItem(KEY, JSON.stringify([w, ...savedWallpapers()].slice(0, 12))); return true; } catch { return false; } };
 
 export function startCommunities(host: HTMLElement): { backend: 'webgl2' } {
+  if (flowOn(pageQuery())) return startCommunityFlow(host, pageQuery()); // CC-247: the one-screen flow; ?flow=0 keeps these older screens
   const style = Object.assign(document.createElement('style'), { textContent: STYLE });
   document.head.append(style);
   const root = Object.assign(document.createElement('div'), { className: 'com' });
