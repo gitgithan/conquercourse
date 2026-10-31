@@ -1,6 +1,7 @@
 // The growth strip on the course picker (CC-108): three small numbers for today with a tiny line each, and one chart behind a click.
 // One metric at a time (a menu), because players, runs and assets live on different scales; the range buttons cut the time axis.
 // No data, no chart: a young game says so honestly, and nothing here is made up.
+import { countriesTile, loadWorldStats } from './world-stats';
 import { METRIC_WORDS, isEmpty, linePoints, niceMax, sliceRange, type DailyStats, type Metric, type Range } from '../slice/daily-stats';
 
 export const GROWTH_ON = true;
@@ -20,8 +21,11 @@ export const countText = (metric: Metric, x: number): string => `${n(x)} ${THING
 
 const STYLE = `
 .gr{margin:.5em 0 .8em;padding:.8em .9em;border:1px solid #5566;border-radius:12px;background:#ffffff08}
-.gr-tiles{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:.6em}
+.gr-tiles{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:.6em}
 .gr-tile{display:flex;flex-direction:column;gap:.15em;padding:.55em .7em;border-radius:10px;border:1.5px solid #5566;background:#ffffff0d;color:inherit;font:inherit;cursor:pointer;text-align:left;transition:border-color .12s,background .12s}
+.gr-tile.gr-plain{cursor:default}
+.gr-tile.gr-plain:hover{background:#ffffff0d;border-color:#5566}
+.gr-note2{font-size:.7em;opacity:.7;margin-top:.2em}
 .gr-tile:hover{background:#ffffff1a;border-color:var(--c)}
 .gr-tile[aria-pressed=true]{background:#ffffff1f;border-color:var(--c);box-shadow:inset 0 -3px 0 var(--c)}
 .gr-tile:focus-visible,.gr-r button:focus-visible,.gr-more:focus-visible{outline:3px solid #f0a020;outline-offset:1px}
@@ -158,6 +162,14 @@ export function mountGrowth(host: HTMLElement, load: () => Promise<DailyStats | 
       b.onclick = () => { open = !(open && metric === m); metric = m; draw(); };
       tiles.append(b);
     }
+    void loadWorldStats().then((w) => { // the fifth tile: all-time countries; a plain box, as there is no daily line for it
+      const c = countriesTile(w); if (!c) return;
+      const b = document.createElement('div'); b.className = 'gr-tile gr-plain'; b.dataset.metric = 'countries'; b.style.setProperty('--c', '#ff6f91'); b.title = c.title;
+      const v = document.createElement('div'); v.className = 'gr-v'; v.textContent = c.value;
+      const l = document.createElement('div'); l.className = 'gr-l'; l.textContent = `${c.label} (all time)`;
+      b.append(v, l); if (c.note) { const t = document.createElement('div'); t.className = 'gr-note2'; t.textContent = c.note; b.append(t); }
+      tiles.append(b);
+    });
     const foot = document.createElement('div'); foot.className = 'gr-foot'; foot.append(more, rg);
     host.append(tiles);
     const world = document.getElementById('world-stats'); // its facts become chips inside this card

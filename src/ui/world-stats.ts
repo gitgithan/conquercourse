@@ -21,6 +21,13 @@ export function tiles(s: WorldStats | null): Tile[] {
   return t;
 }
 
+/** The Countries tile in the growth card (CC-108): all time, and a plain 0 with a note while no visit has been counted. */
+export function countriesTile(s: WorldStats | null): { value: string; label: string; note: string; title: string } | null {
+  if (!s) return null;
+  const c = Math.max(0, Math.floor(Number(s.countries) || 0));
+  return { value: n(c), label: c === 1 ? 'country' : 'countries', note: c === 0 ? 'No visits counted yet' : '', title: 'Countries people have played from, all time. Only a two-letter country code is kept, never an address.' };
+}
+
 /** The news lines under the tiles: newest record, the hardest zone this week, your streak, the busiest course. */
 export function news(s: WorldStats | null, streak: number): string[] {
   const out: string[] = [];

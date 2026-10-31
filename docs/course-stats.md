@@ -21,6 +21,17 @@
 
 - **Unverified clears and the checks before the replay:** see [run-checks](run-checks.md) (CC-174); an unverified clear counts as cleared and never sets the best time.
 
+## Countries tile (CC-108)
+- The growth card at the top of the course picker (the page that lists the courses) shows a fifth tile: Countries, all time.
+  - It is a plain box, not a button: there is no daily line for it, so there is no chart behind it.
+  - The hover note says only a two-letter country code is kept, never an address.
+  - With no visit counted yet it shows 0 and the note "No visits counted yet"; it is never hidden.
+- Where it comes from: each course event stores the two-letter country Cloudflare reports for the request (migration 0009, column `country`); `/api/world-stats` counts the different codes over all time.
+- Gap found on 2026-11-01: the preview database had no `country` column, so nothing was stored and the count stayed at 0; migration 0009 is now applied to the preview database.
+  - Visits before that day have no country and cannot be filled in later.
+  - The live database has the column but no events yet; production needs the owner's approval for any change.
+- Only the picker shows the card; the switch `?growth=0` hides it.
+
 ## What is not counted, on purpose
 - **People.** A browser id overcounts (another device, a private window, cleared site data) and can be forged.
   - Owner decision, 2026-10-29: no player id is added and no count of people is shown.
