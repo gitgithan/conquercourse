@@ -80,6 +80,11 @@ describe('the words on a card', () => {
     expect(statsLine({ ...none, plays: 1 })).toBe('1 play');
     expect(statsLine({ ...none, plays: 30 })).toBe('30 plays');
   });
+  it('says plays today and all time when there are plays today (CC-108)', () => {
+    expect(statsLine({ ...none, plays: 1204, today: 12 })).toBe('12 plays today \u00b7 1,204 all time');
+    expect(statsLine({ ...none, plays: 1204, clears: 3, today: 1 })).toBe('1 play today \u00b7 1,204 all time, 3 cleared');
+    expect(statsLine({ ...none, plays: 40, today: 0 })).toBe('40 plays');
+  });
   it('never mentions people', () => {
     expect(statsLine({ plays: 5, fails: 1, clears: 2, best: 100, median: 100 })).not.toMatch(/people|players|person/i);
   });
@@ -161,10 +166,17 @@ describe('the server: clears are played again before they count', () => {
     const { db } = setup();
     const ev = (event: string, runId: string) => eventPost({ request: new Request('https://x/api/course-event', { method: 'POST', body: JSON.stringify({ event, session: 'abcdef12-3456', runId, courseKey: 'demo/training', courseName: 'T', build: 'b', mode: 'course' }) }), env: { DB: db } as never });
     await ev('start', 'run-aaaaaaa1'); await ev('start', 'run-aaaaaaa2'); await ev('fail', 'run-aaaaaaa1'); await ev('success', 'run-aaaaaaa2'); // a success event alone is not a clear
-    expect((await stats(db))['demo/training']).toEqual({ plays: 2, fails: 1, clears: 0, best: null, median: null });
+    expect((await stats(db))['demo/training']).toEqual({ plays: 2, fails: 1, clears: 0, best: null, median: null, today: 2 });
     await clear(db, await good());
     const s = (await stats(db))['demo/training'];
     expect(s.plays).toBe(2); expect(s.clears).toBe(1); expect(s.best).toBe(s.median);
+  });
+  it('counts plays today from 00:00 UTC only, and leaves older plays in the all-time count (CC-108)', async () => {
+    const { db, sql } = setup();
+    sql.exec("INSERT INTO course_events (ts, session, build, mode, source, course_key, course_name, run_id, event_type) VALUES (datetime('now', '-3 days'), 'abcdef12-3456', 'b', 'course', '', 'demo/training', 'T', 'run-old00001', 'start')");
+    sql.exec("INSERT INTO course_events (ts, session, build, mode, source, course_key, course_name, run_id, event_type) VALUES (datetime('now'), 'abcdef12-3456', 'b', 'course', '', 'demo/training', 'T', 'run-new00001', 'start')");
+    const s = (await stats(db))['demo/training'];
+    expect(s.plays).toBe(2); expect(s.today).toBe(1);
   });
   it('only the newest version of a course counts for the best time', async () => {
     const { db, sql } = setup();
