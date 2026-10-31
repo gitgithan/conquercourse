@@ -76,14 +76,14 @@ export const ballsOn = (params: URLSearchParams): boolean => params.get('balls')
 
 /** The three launchers of the First Course: a low one before the rope, a mid-height one before the trampoline, and one over the last deck. y is the muzzle height above the sea. */
 export const BALL_LAUNCHERS: ShotLauncher[] = [
-  { x: 24, y: 0.55, vx: -20, vy: 2, every: 20, phase: 3 }, // knee height over the precision block: only a jump clears it
-  { x: 52, y: 1.5, vx: -25, vy: 2, every: 20, phase: 3 }, // head height: a slide or a jump clears it
-  { x: 76, y: 5.8, vx: -25, vy: 2, every: 20, phase: 3 }, // head height over the last deck (4.3 m): a slide or a jump clears it
+  { x: 24, y: 0.55, vx: -20, vy: 2, every: 12, phase: 2 }, // knee height over the precision block: only a jump clears it
+  { x: 52, y: 1.5, vx: -25, vy: 2, every: 12, phase: 5 }, // head height: a slide or a jump clears it
+  { x: 76, y: 5.8, vx: -25, vy: 2, every: 12, phase: 4 }, // head height over the last deck (4.3 m): a slide or a jump clears it
 ];
 
 /** The Cannonballs course: the same launchers plus a low ball fired together with the head-height one at x = 52, and a climbable wall in front of them (the ball is gone at the wall's face). */
 export const CANNON_WALL = { x0: 40, x1: 42, top: 2 }; // m; 2 m is under the standing climb's reach (2.2 m)
-export const CANNON_STACK: ShotLauncher = { x: 52, y: 0.55, vx: -25, vy: 2, every: 20, phase: 3 };
+export const CANNON_STACK: ShotLauncher = { x: 52, y: 0.55, vx: -25, vy: 2, every: 12, phase: 5 };
 
 export function cannonLaunchers(base: ShotLauncher[] = BALL_LAUNCHERS): ShotLauncher[] {
   const withWall = base.map((s) => (s.x === 52 ? { ...s, stopX: CANNON_WALL.x1 } : s));

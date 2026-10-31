@@ -23,14 +23,44 @@
 - `scripts/place-shots.ts` plays the ideal run without balls, then picks each launcher's `phase` so that run has the most room between two balls.
 - The ideal-run search then runs again on the course with balls and clears it.
 
+## Fire meter (CC-240)
+- Each launcher is drawn as a cannon with a charge bar above the barrel.
+- A bright plunger travels from the tail to the muzzle over the gap, and the ball leaves when it arrives.
+- The bar turns red in the last tenth, so a player sees the ball coming.
+- The fill is `charge(shot, tick)`, derived from the tick, so it is the same for every replay.
+- The first charge starts at tick 0.
+- There is no sound cue: the game has no audio hook yet.
+- Picture at 1280 px: `docs/evidence/cc-240-fire-meter-1280.webp` (made by `scripts/cannon-check.mjs`).
+
+## Beat (owner, 2026-10-31: 20 s or less)
+- Every launcher fires every 12 s, the shortest gap tried (12, 14, 16, 18, 20).
+- `scripts/tune-fire-balls.ts` sweeps the gaps and the first shot of each launcher group on the Cannonballs course and on the First Course (`?balls=1`).
+- Result on VM3: the 12 s beat clears the ideal run and every checkpoint start on both courses, so no fallback gap was needed.
+- First shots: launcher at x 24 at 2 s, the pair at x 52 at 5 s, the high launcher at x 76 at 4 s.
+- `searchGen` now plays its plain trial moves without the balls (`Job.noShots`), so the moves are found as if no ball were there and then the start delay is chosen.
+- Without that, a checkpoint at x 19 failed in the test.
+
+## Slide (CC-240)
+- Tap Down or S while running to slide low under a head-high ball.
+- Research (web, 2026-10-31): indie platformers give slides a short cooldown so they cannot be chained, and a lower hitbox; friction slowing the slide is the usual way to make it feel real.
+- The slide here is plain physics in `src/sim/slide.ts`: a floor friction slows the body, it never speeds it up, and it ends at an edge, a wall, 0.9 s or when it has worn down.
+- There is no slide in the air, no slide when slow, a 0.5 s cooldown, and a jump ends it.
+- The body is 0.6 m high at most while sliding.
+- Balls fly at two heights, so the slide and the jump both matter: a low ball is jumped, a head-high ball is slid under.
+- The slide pose is the existing tuck pose; no new captured clip was added.
+
+## Climbable wall (CC-240)
+- A 2 m wall stands at x 40 on the Cannonballs course (a platform block under the 2.2 m stand-climb reach).
+- Balls die at the wall face.
+- At x 52 a low ball and a head-high ball leave together: neither a jump nor a slide gets past both.
+- The only safe plan is to climb the wall and wait for the volley to pass.
+- The ideal run uses one start delay, so it clears without waiting on the wall.
+
 ## Known gaps
 - A ball does not stop at the ground; it flies on.
-- A player cannot duck under a ball yet (the body is one height).
 - The balls are off by default; `?balls=1` plays the First Course with them.
-- Rarer beat (owner, 2026-10-31): each launcher fires once every 30 s (first shot at 3 s), about one ball for each 30 m of course.
-- The sweep over three rare launchers found a beat that clears the ideal run and every checkpoint start.
-- Earlier sweep: no beat was found that clears the ideal run and also every checkpoint start (CC-240 sweep, 3 launchers, every 6 to 12 s).
-- Next steps, ranked: wait for the reach and rope changes to land, then sweep again; try a slower ball at the third launcher; give each checkpoint its own wait.
+- The slide has no captured clip of its own.
+- The ideal run never waits mid-run; only a player can wait on the wall.
 
 ## Cannonballs card (CC-240)
 - The Courses gallery has a "Cannonballs" card under Start here.

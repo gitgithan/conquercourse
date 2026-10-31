@@ -24,6 +24,16 @@
       },
       {
         "x0": 33,
+        "x1": 40,
+        "top": 0
+      },
+      {
+        "x0": 40,
+        "x1": 42,
+        "top": 2
+      },
+      {
+        "x0": 42,
         "x1": 55,
         "top": 0
       },
@@ -120,54 +130,67 @@
   "shots": [
     {
       "x": 24,
-      "y": 1.2,
+      "y": 0.55,
       "vx": -20,
       "vy": 2,
-      "every": 30,
-      "phase": 3
+      "every": 12,
+      "phase": 2
     },
     {
       "x": 52,
       "y": 1.5,
       "vx": -25,
       "vy": 2,
-      "every": 30,
-      "phase": 3
+      "every": 12,
+      "phase": 5,
+      "stopX": 42
     },
     {
       "x": 76,
       "y": 5.8,
       "vx": -25,
       "vy": 2,
-      "every": 30,
-      "phase": 3
+      "every": 12,
+      "phase": 4
+    },
+    {
+      "x": 52,
+      "y": 0.55,
+      "vx": -25,
+      "vy": 2,
+      "every": 12,
+      "phase": 5,
+      "stopX": 42
     }
   ],
   "plan": {
     "jumpXs": [
-      14,
-      23.58,
+      12.5,
+      23.5,
       75.5,
       89.14
     ],
     "releaseAfter": 82,
     "bouncePress": 8,
+    "climbXs": [
+      38.5
+    ],
     "startDelay": 0
   },
   "windows": [
     {
       "obstacle": "edge at 14 m",
-      "best": 14,
-      "lo": 14,
+      "best": 12.5,
+      "lo": 11,
       "hi": 14,
-      "widthMs": 2.7027027027027026
+      "widthMs": 408.1081081081081
     },
     {
       "obstacle": "edge at 25 m",
-      "best": 23.58,
-      "lo": 22.14,
+      "best": 23.5,
+      "lo": 22,
       "hi": 25,
-      "widthMs": 389.1891891891891
+      "widthMs": 408.1081081081081
     },
     {
       "obstacle": "edge at 77 m",
