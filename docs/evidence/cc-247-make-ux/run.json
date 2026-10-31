@@ -1,0 +1,89 @@
+{
+  "base": "http://127.0.0.1:5198",
+  "ok": true,
+  "errors": [],
+  "log": [
+    {
+      "step": "on Segment",
+      "ok": "This looks at the whole photo and finds the separate things in it: a bench, stairs, a railing. Your box is not a crop: n",
+      "at": 2
+    },
+    {
+      "step": "segment finished (seconds)",
+      "ok": 35,
+      "at": 37
+    },
+    {
+      "step": "found things, in list order",
+      "ok": [
+        "railing (your box)",
+        "wall",
+        "wall",
+        "wall",
+        "stairs",
+        "wall",
+        "wall",
+        "wall",
+        "wall",
+        "wall",
+        "pole"
+      ],
+      "at": 37
+    },
+    {
+      "step": "hover keeps the order and lights one box on the photo",
+      "ok": true,
+      "at": 37
+    },
+    {
+      "step": "ticked",
+      "ok": 2,
+      "at": 38
+    },
+    {
+      "step": "make button",
+      "ok": "Make 2 pieces",
+      "at": 38
+    },
+    {
+      "step": "first prize shown after seconds",
+      "ok": 90,
+      "at": 128
+    },
+    {
+      "step": "turntable turning",
+      "ok": {
+        "motion": "turning",
+        "a1": "0.058",
+        "a2": "0.246",
+        "moved": true
+      },
+      "at": 130
+    },
+    {
+      "step": "second prize shown after seconds",
+      "ok": 124,
+      "at": 162
+    },
+    {
+      "step": "editor address",
+      "ok": "/?mode=editor&welcome=0&uploadobj=1&place=u607f9e7d-mvwk87y8",
+      "at": 163
+    },
+    {
+      "step": "pieces of mine placed in the world",
+      "ok": 1,
+      "at": 168
+    },
+    {
+      "step": "cards under My pieces",
+      "ok": 2,
+      "at": 168
+    },
+    {
+      "step": "shared piece",
+      "ok": "no approved piece by another player in the store: not tested live",
+      "at": 169
+    }
+  ]
+}

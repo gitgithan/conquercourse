@@ -13,7 +13,7 @@ const browser = await chromium.launch({ args: ['--use-angle=swiftshader', '--ign
 const page = await (await browser.newContext({ viewport: { width: 1280, height: 720 } })).newPage();
 const errors = []; page.on('pageerror', (e) => errors.push(String(e)));
 // API_BASE: serve the page from BASE (for example a local dev server) but send every /api call to the deployed preview, so the Modal jobs are real
-if (process.env.API_BASE) await page.route('**/api/**', (route) => { const u = new URL(route.request().url()); return route.fetch({ url: process.env.API_BASE + u.pathname + u.search }).then((res) => route.fulfill({ response: res })); });
+if (process.env.API_BASE) await page.route('**/api/**', (route) => { const u = new URL(route.request().url()); return route.fetch({ url: process.env.API_BASE + u.pathname + u.search, timeout: 0 }).then((res) => route.fulfill({ response: res })); });
 let ok = false;
 try {
   await page.goto(`${base}/?mode=communities&welcome=0&tab=make`, { timeout: 120000, waitUntil: 'domcontentloaded' });
