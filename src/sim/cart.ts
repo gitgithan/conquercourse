@@ -66,21 +66,25 @@ export function makeRails(pts: [number, number][]): Rails {
     return i;
   };
   const clampX = (x: number) => Math.min(Math.max(x, xs[0]), xs[n - 1]);
+  // after a steep drop the smooth curve swings under its lowest dot: the rail is never lower than that dot (a flat stretch of ground-level rail there), so it is never underground (CC-244)
+  const floor = Math.min(...ys);
+  const raw = (x: number): number => { const i = seg(x), h = xs[i + 1] - xs[i], l = xs[i + 1] - x, r = x - xs[i]; return (M[i] * l ** 3) / (6 * h) + (M[i + 1] * r ** 3) / (6 * h) + (ys[i] / h - (M[i] * h) / 6) * l + (ys[i + 1] / h - (M[i + 1] * h) / 6) * r; };
   return {
     x0: xs[0], x1: xs[n - 1],
     y(x) {
       if (n < 2) return ys[0] ?? 0;
-      x = clampX(x); const i = seg(x), h = xs[i + 1] - xs[i], l = xs[i + 1] - x, r = x - xs[i];
-      return (M[i] * l ** 3) / (6 * h) + (M[i + 1] * r ** 3) / (6 * h) + (ys[i] / h - (M[i] * h) / 6) * l + (ys[i + 1] / h - (M[i + 1] * h) / 6) * r;
+      return Math.max(floor, raw(clampX(x)));
     },
     slope(x) {
       if (n < 2) return 0;
-      x = clampX(x); const i = seg(x), h = xs[i + 1] - xs[i], l = xs[i + 1] - x, r = x - xs[i];
+      x = clampX(x); if (raw(x) < floor) return 0;
+      const i = seg(x), h = xs[i + 1] - xs[i], l = xs[i + 1] - x, r = x - xs[i];
       return (-M[i] * l * l) / (2 * h) + (M[i + 1] * r * r) / (2 * h) - (ys[i] / h - (M[i] * h) / 6) + (ys[i + 1] / h - (M[i + 1] * h) / 6);
     },
     bend(x) {
       if (n < 2) return 0;
-      x = clampX(x); const i = seg(x), h = xs[i + 1] - xs[i];
+      x = clampX(x); if (raw(x) < floor) return 0;
+      const i = seg(x), h = xs[i + 1] - xs[i];
       return (M[i] * (xs[i + 1] - x)) / h + (M[i + 1] * (x - xs[i])) / h;
     },
   };

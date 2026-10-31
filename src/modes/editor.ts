@@ -15,7 +15,7 @@ import { workSeconds, xWindows, type SearchResult } from '../sim/ideal';
 import { searchInput, storedPlanFor, withStoredPlan, type PresetPlan } from '../slice/preset-plans';
 import { createView3d, type Ghosts } from '../slice/view3d';
 import { sceneFor } from '../slice/scene';
-import { clampTrackY, isTrack, parseTrackSrc, TRACK_TOP, sectionPoints, trackPiece, trackSrc, trackStartY, TRACK_SHAPES } from '../slice/track-world';
+import { isTrack, limitTrackPoint, parseTrackSrc, TRACK_BLOCK_TEXT, TRACK_TOP, type TrackBlock, sectionPoints, trackPiece, trackSrc, trackStartY, TRACK_SHAPES } from '../slice/track-world';
 import { barMesh, holdsOf, isHold, REACH_JUMPING, REACH_STANDING } from '../slice/holds-world';
 import { DEFAULT_PLANK, isPlankPiece, plankPiece, plankSpecOf, planksOf, setPlank, type PlankSpec } from '../slice/plank-world';
 import { fixPlank, plankHolds, worstCase } from '../sim/beam';
@@ -973,7 +973,7 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
     const h = el('input', lab, { type: 'number', min: '0.02', max: '60', step: '0.05', value: r.h.toFixed(2), id: 'realheight' });
     h.onchange = () => { const v = Number(h.value); if (v > 0) { Object.assign(p, scaleToHeight(p, v)); changed(); } };
     const lift = el('label', sizes, { text: `Height off the ground: ${p.y.toFixed(2)} m` });
-    const ly = el('input', lift, { type: 'range', min: '0', max: (isHold(p) || p.role === 'bar') ? '8' : '4', step: '0.05', value: String(p.y), id: 'lift' });
+    const ly = el('input', lift, { type: 'range', min: isTrack(p) ? String(Math.max(0, level)) : '0', max: (isHold(p) || p.role === 'bar') ? '8' : '4', step: '0.05', value: String(p.y), id: 'lift' });
     ly.oninput = () => { p.y = Number(ly.value); lift.firstChild!.textContent = `Height off the ground: ${p.y.toFixed(2)} m`; drawProfile(); };
     ly.onchange = () => changed();
     pieceBar(p);
@@ -1342,7 +1342,7 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
     const uHi = Math.max(prof.length ? o + prof.length : -Infinity, ...bars.map((b) => b.u), ...(pv ? [pv.prof.length ? po + pv.prof.length : -Infinity, ...pv.bars.map((b) => b.u)] : []), uLo + 10);
     c.fillStyle = '#58635d'; c.font = '12px system-ui';
     c.fillText('What the runner sees: the lane from the side (water at the bottom, grid every metre). Drag a bar (or a purple coaster dot) to move it; double-click to add a dot.', 8, 14);
-    const base = H - 14, ppm = Math.min(30, (W - 40) / Math.max(10, uHi - uLo + 1)), ph0 = Math.max(1.5, (base - 24) / Math.max(1.8, Math.max(0, ...prof.cells.filter((h): h is number => h !== null), ...bars.map((b) => b.y), ...trackDots().map((d) => d.y)) + 0.6)); // fit the tallest thing (the coaster dots too), so low steps are not hairlines
+    const base = H - 14, ppm = Math.min(30, (W - 40) / Math.max(10, uHi - uLo + 1)), ph0 = Math.max(0.1, (base - 24) / Math.max(1.8, Math.max(0, ...prof.cells.filter((h): h is number => h !== null), ...bars.map((b) => b.y), ...trackDots().map((d) => d.y)) + 0.6)); // fit the tallest thing (the coaster dots too), so low steps are not hairlines
     const hs = prof.cells.filter((h): h is number => h !== null);
     const vmin = vzoom && hs.length ? Math.floor((Math.min(...hs) - 0.3) * 2) / 2 : 0;
     const ph = vzoom && hs.length ? Math.max(ph0, (base - 24) / Math.max(2, Math.max(...hs, ...bars.map((b) => b.y), ...trackDots().map((d) => d.y)) - vmin + 0.6)) : ph0;
@@ -1376,9 +1376,16 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
     for (const d of trackDots()) { // the chosen coaster section: a dot at each point of the rail (drag them)
       const x = 10 + (d.u - uLo) * ppm, y = base - (d.y - vmin) * ph;
       c.fillStyle = '#7a4fd1'; c.strokeStyle = '#fff'; c.lineWidth = 2; c.beginPath(); c.arc(x, y, 6, 0, 7); c.fill(); c.stroke();
-      if (d.top) { c.fillStyle = '#7a4fd1'; c.font = '600 11px system-ui'; c.textAlign = 'left'; c.fillText(`highest point (${d.y.toFixed(1)} m): the safety ceiling`, x + 10, y - 8); }
+      if (dotBlock && dotBlock.id === d.id && dotBlock.i === d.i) { // blocked: amber dot and the reason beside it
+        const text = TRACK_BLOCK_TEXT[dotBlock.block];
+        c.fillStyle = '#f0a020'; c.strokeStyle = '#fff'; c.lineWidth = 2; c.beginPath(); c.arc(x, y, 8, 0, 7); c.fill(); c.stroke();
+        c.font = '600 12px system-ui'; const w = c.measureText(text).width + 12, lx = Math.min(Math.max(4, x + 12), profileCanvas.width - w - 4), ly = Math.max(26, y - 30);
+        c.fillStyle = '#7a4a00'; c.fillRect(lx, ly, w, 20); c.fillStyle = '#fff'; c.textAlign = 'left'; c.fillText(text, lx + 6, ly + 14);
+        document.documentElement.dataset.dotBlock = dotBlock.block;
+      }
     }
-    document.documentElement.dataset.topNote = trackDots().some((d) => d.top) ? 'highest point' : '';
+    if (!dotBlock) delete document.documentElement.dataset.dotBlock;
+    if (flash) { const x = 10 + (flash.u - uLo) * ppm, y = base - (flash.y - vmin) * ph; c.font = '600 12px system-ui'; const w = c.measureText(flash.text).width + 12, lx = Math.min(Math.max(4, x - w / 2), profileCanvas.width - w - 4), ly = Math.max(26, y - 30); c.fillStyle = '#7a4a00'; c.fillRect(lx, ly, w, 20); c.fillStyle = '#fff'; c.textAlign = 'left'; c.fillText(flash.text, lx + 6, ly + 14); document.documentElement.dataset.dotFlash = flash.text; } else delete document.documentElement.dataset.dotFlash;
     for (const s of routes) { // kept shortcuts: a dashed arrow from the bar before the skipped ones to the bar after them (or the end of the lane)
       if (!designed.has(s.id)) continue;
       const ix = s.skipped.map((n) => /^Bar (\d+)$/.exec(n)).filter((m): m is RegExpExecArray => !!m).map((m) => Number(m[1]) - 1);
@@ -1414,39 +1421,46 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
     document.documentElement.dataset.barYs = JSON.stringify(bars.map((b) => Number(b.y.toFixed(2))));
   }
   /** The points of the chosen coaster section in the side view: u along the run, y above the lane's level. */
-  const trackDots = (): { id: number; i: number; u: number; y: number; top: boolean }[] => {
+  const trackDots = (): { id: number; i: number; u: number; y: number }[] => {
     // every coaster section shows its dots, chosen or not: a click on the 3D picture (to turn the camera) clears the choice and must not hide them
     return pieces.filter((q) => isTrack(q)).flatMap((p) => {
       const pts = parseTrackSrc(p.src ?? '');
-      return pts ? sectionPoints(p, pts, p.x * Math.cos(angle) + p.z * Math.sin(angle), level).map(([u, y], i) => ({ id: p.id, i, u, y, top: pts[i][1] >= TRACK_TOP - 0.005 })) : [];
+      return pts ? sectionPoints(p, pts, p.x * Math.cos(angle) + p.z * Math.sin(angle), level).map(([u, y], i) => ({ id: p.id, i, u, y, })) : [];
     });
   };
   const dotAtPx = (px: number, py: number) => trackDots().find((d) => Math.hypot(10 + (d.u - sideMap.uMin) * sideMap.ppm - px, sideMap.base - (d.y - sideMap.vmin) * sideMap.ph - py) < 11);
   /** Move point i of a section to (u, y) in the side view and keep every other point where it is. */
-  function moveTrackPoint(p: P, i: number, u: number, y: number) {
-    const pts = parseTrackSrc(p.src ?? ''); if (!pts) return;
+  function moveTrackPoint(p: P, i: number, u: number, y: number): TrackBlock {
+    const pts = parseTrackSrc(p.src ?? ''); if (!pts) return '';
     const c = Math.cos(angle), s = Math.sin(angle), uc0 = p.x * c + p.z * s;
     const mid0 = (pts[0][0] + pts[pts.length - 1][0]) / 2, low0 = Math.min(...pts.map((q) => q[1]));
     const nx = (u - uc0) / p.scale + mid0, ny = (y - p.y + level) / p.scale + low0;
-    const lo = i > 0 ? pts[i - 1][0] + 0.5 : -Infinity, hi = i < pts.length - 1 ? pts[i + 1][0] - 0.5 : Infinity;
-    pts[i] = [Math.min(hi, Math.max(lo, nx)), clampTrackY(ny)];
+    const lim = limitTrackPoint(pts, i, nx, ny, p.y - level, p.scale);
+    pts[i] = [lim.x, lim.y];
     const mid1 = (pts[0][0] + pts[pts.length - 1][0]) / 2, low1 = Math.min(...pts.map((q) => q[1]));
     const du = (mid1 - mid0) * p.scale, v = -p.x * s + p.z * c, uc1 = uc0 + du;
     p.x = uc1 * c - v * s; p.z = uc1 * s + v * c; p.y += (low1 - low0) * p.scale;
     p.src = trackSrc(pts); p.mesh = trackPiece(pts, { x: 0, z: 0 }).mesh;
+    return lim.block;
   }
   /** Add a point to a section at (u, y) in the side view; the ends and every other point stay where they are. */
-  function addTrackPoint(p: P, u: number, y: number) {
-    const pts = parseTrackSrc(p.src ?? ''); if (!pts) return;
+  function addTrackPoint(p: P, u: number, y: number): TrackBlock {
+    const pts = parseTrackSrc(p.src ?? ''); if (!pts) return '';
     const c = Math.cos(angle), uc0 = p.x * c + p.z * Math.sin(angle);
     const mid0 = (pts[0][0] + pts[pts.length - 1][0]) / 2, low0 = Math.min(...pts.map((q) => q[1]));
-    const nx = (u - uc0) / p.scale + mid0, ny = clampTrackY((y - p.y + level) / p.scale + low0);
+    const nx = (u - uc0) / p.scale + mid0, wantY = (y - p.y + level) / p.scale + low0;
+    const floorY = Math.max(0, low0 - Math.max(0, p.y - level) / p.scale), ny = Math.min(TRACK_TOP, Math.max(floorY, wantY));
     const k = pts.findIndex((q) => q[0] > nx);
-    if (k <= 0 || nx - pts[k - 1][0] < 0.5 || pts[k][0] - nx < 0.5) return;
+    if (k <= 0 || nx - pts[k - 1][0] < 0.5 || pts[k][0] - nx < 0.5) return 'spacing';
     pts.splice(k, 0, [nx, ny]);
     p.y += (Math.min(...pts.map((q) => q[1])) - low0) * p.scale;
     p.src = trackSrc(pts); p.mesh = trackPiece(pts, { x: 0, z: 0 }).mesh;
+    return wantY < floorY - 0.005 ? 'floor' : wantY > TRACK_TOP + 0.005 ? 'ceiling' : '';
   }
+  /** Plain feedback at a dot while a drag is stopped (CC-244): the dot turns amber, a label says why, the cursor shows not-allowed; it goes away on release. */
+  let dotBlock: { id: number; i: number; block: Exclude<TrackBlock, ''> } | null = null;
+  let flash: { text: string; u: number; y: number } | null = null;
+  let flashTimer = 0;
   const barAtPx = (px: number, py: number) => barsNow().find((b) => Math.hypot(10 + (b.u - sideMap.uMin) * sideMap.ppm - px, sideMap.base - (b.y - sideMap.vmin) * sideMap.ph - py) < 16);
   let barDrag: { p: P } | null = null;
   let dotDrag: { p: P; i: number } | null = null;
@@ -1463,7 +1477,8 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
     const r = profileCanvas.getBoundingClientRect();
     if (dotDrag) {
       const u = Math.round((sideMap.uMin + (e.clientX - r.left - 10) / sideMap.ppm) * 10) / 10;
-      moveTrackPoint(dotDrag.p, dotDrag.i, u, Math.round(((sideMap.base - (e.clientY - r.top)) / sideMap.ph + sideMap.vmin) * 10) / 10);
+      const blk = moveTrackPoint(dotDrag.p, dotDrag.i, u, Math.round(((sideMap.base - (e.clientY - r.top)) / sideMap.ph + sideMap.vmin) * 10) / 10);
+      dotBlock = blk ? { id: dotDrag.p.id, i: dotDrag.i, block: blk } : null; profileCanvas.style.cursor = blk ? 'not-allowed' : 'grabbing';
       draw(); drawProfile(); return;
     }
     if (!barDrag) { profileCanvas.style.cursor = dotAtPx(e.clientX - r.left, e.clientY - r.top) ? 'grab' : barAtPx(e.clientX - r.left, e.clientY - r.top) ? 'grab' : 'default'; return; }
@@ -1479,10 +1494,12 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
     const near = trackDots().reduce<ReturnType<typeof trackDots>[number] | null>((best, d) => (!best || gapTo(d) < gapTo(best) ? d : best), null); // the section whose dots are closest along the run
     const tp = near && pieces.find((q) => q.id === near.id);
     if (!tp || dotAtPx(x, e.clientY - r.top)) return;
-    addTrackPoint(tp, Math.round((sideMap.uMin + (e.clientX - r.left - 10) / sideMap.ppm) * 10) / 10, Math.round(((sideMap.base - (e.clientY - r.top)) / sideMap.ph + sideMap.vmin) * 10) / 10);
+    const au = Math.round((sideMap.uMin + (e.clientX - r.left - 10) / sideMap.ppm) * 10) / 10, ay = Math.round(((sideMap.base - (e.clientY - r.top)) / sideMap.ph + sideMap.vmin) * 10) / 10;
+    const blk = addTrackPoint(tp, au, ay);
+    if (blk) { flash = { text: TRACK_BLOCK_TEXT[blk], u: au, y: ay }; window.clearTimeout(flashTimer); flashTimer = window.setTimeout(() => { flash = null; drawProfile(); }, 2500); }
     changed(); drawPanel(); draw(); drawProfile();
   });
-  const endBar = () => { if (dotDrag) { dotDrag = null; changed(); return; } if (!barDrag) return; barDrag = null; changed(); };
+  const endBar = () => { if (dotDrag) { dotDrag = null; dotBlock = null; profileCanvas.style.cursor = 'grab'; changed(); return; } if (!barDrag) return; barDrag = null; changed(); };
   profileCanvas.addEventListener('pointerup', endBar); profileCanvas.addEventListener('pointercancel', endBar);
 
   // ---- the mouse on the picture
