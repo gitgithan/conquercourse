@@ -74,11 +74,11 @@ describe('a run as a link', () => {
     expect(await decodeLog(s)).toEqual(log);
     expect(s.length).toBeLessThan(2000);
   });
-  it('a challenge parameter round trips with a 3-letter nickname and no personal data', async () => {
+  it('a challenge parameter round trips with a cleaned nickname and no personal data (CC-108: up to 12 characters, case kept)', async () => {
     const p = await makeChallengeParam(course, log, 'sam!!x');
-    expect(p.startsWith(`${REPLAY_VERSION}.${courseHash(course)}.SAM.`)).toBe(true);
+    expect(p.startsWith(`${REPLAY_VERSION}.${courseHash(course)}.samx.`)).toBe(true);
     const r = await readChallengeParam(p);
-    expect(r.ok && r.challenge.nick).toBe('SAM');
+    expect(r.ok && r.challenge.nick).toBe('samx');
     expect(r.ok && r.challenge.log).toEqual(log);
   });
   it('the time comes from playing the keys, so a link cannot claim a time', async () => {
