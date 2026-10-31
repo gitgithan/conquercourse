@@ -290,3 +290,47 @@ def test_the_head_on_london_parkour_jump_roll_turns_over_but_is_still_not_the_ga
     ok, nums, _ = movecheck.roll_check(c)
     assert nums["max_turn_deg"] > 330 and nums["upside_down"]
     assert not ok and (nums["peak_hips_vs_standing"] > movecheck.ROLL_MAX_HIPS or nums["longest_air_s"] > movecheck.ROLL_MAX_AIR_S)
+
+
+def sliding(drop=0.75, travel=2.0, n=60, fps=30.0):
+    """A stick body that runs in upright, drops its hips by `drop` of their height, travels on while low, and stands up again.
+    The legs are flattened onto the floor (no joint below it), so only the hips are judged."""
+    frames = []
+    for i in range(n):
+        p = i / (n - 1)
+        k = float(np.clip(min((p - 0.15) / 0.1, (0.85 - p) / 0.1), 0.0, 1.0))
+        j = body((0, 0, 0))
+        j -= j[IDX["Hips"]]
+        j[:, 1] *= 1 - 0.8 * k  # the body folds down as the hips come down
+        hip = np.array([0.0, 0.9 * (1 - drop * k) + 0.06, travel * p])
+        f = j + hip
+        f[:, 1] = np.maximum(f[:, 1], 0.0)
+        frames.append(f)
+    return Clip(np.array(frames), fps)
+
+
+def test_a_low_run_along_the_ground_is_a_slide():
+    ok, nums, win = movecheck.slide_check(sliding())
+    assert ok, nums
+    assert win is not None and nums["low_s"] >= 0.3
+
+
+def test_dropping_in_place_is_not_a_slide():
+    ok, nums, _ = movecheck.slide_check(sliding(travel=0.2))
+    assert not ok and nums["travel_m"] < 1.0
+
+
+def test_a_small_dip_is_not_a_slide():
+    ok, nums, win = movecheck.slide_check(sliding(drop=0.2))
+    assert not ok and win is None
+
+
+def test_a_roll_is_not_a_slide():
+    ok, nums, _ = movecheck.slide_check(rolling(360, travel=2.5))
+    assert not ok
+
+
+def test_standing_is_not_a_slide():
+    from synth import standing
+    ok, nums, win = movecheck.slide_check(standing(60, speed=2.0))
+    assert not ok and win is None

@@ -104,6 +104,8 @@ def from_kimodo(folder, spec, move, check):
 def score(c):
     """Lower is better among candidates that passed both: a turn close to one full circle, fewer soft-rule failures."""
     mc = c.meta["move_check"]
+    if "low_s" in mc:  # a slide: close to 0.7 s low is best
+        return abs(mc["low_s"] - 0.7) * 100 + 20 * sum(not r["ok"] for r in c.meta["gate"]["soft"].values())
     turn = abs(mc.get("turn_in_window_deg", 360) - 360)
     return turn + 20 * sum(not r["ok"] for r in c.meta["gate"]["soft"].values())
 

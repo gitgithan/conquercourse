@@ -30,6 +30,11 @@ HURT_LOW_HIPS = 0.45         # the hips come down to this share of their standin
 HURT_STAND_MIN_M = 0.8       # it starts on its feet: the hips are at least this high (a person's hips stand about 0.9 to 1.1 m up)
 HURT_MIN_DOWN_S = 0.5        # ... and stay there at least this long (it does not bounce straight back up)
 HURT_MIN_TURN_DEG = 50       # the trunk goes well off the vertical (a stumble keeps the trunk near upright)
+SLIDE_LOW_HIPS = 0.55        # the hips come down to this share of their standing height (a body sitting or lying on the ground) ...
+SLIDE_MIN_LOW_S, SLIDE_MAX_LOW_S = 0.3, 1.6   # ... for at least this long and no longer than this (a slide, not a lie-down)
+SLIDE_MIN_TRAVEL_M = 1.0     # and the hips travel on toward where the body faces while low (a slide goes somewhere; a drop to the floor does not)
+SLIDE_MAX_TURN_DEG = 110     # the trunk may lean back or forward but never turns over (a roll or a flip is not a slide)
+SLIDE_MAX_AIR_S = 0.2        # nothing is airborne longer than this inside the window (a slide keeps touching the ground)
 UPRIGHT_HIPS = 0.55          # the hips at the ends of the window are above this share of the standing hips height
 
 
@@ -199,12 +204,50 @@ def hurt_check(clip):
     return ok, nums, window
 
 
+def slide_check(clip):
+    """(ok, numbers, window) for a clip that should be a slide along the ground: it starts and ends on its feet, the hips come right down
+    and stay low for 0.3 to 1.6 s while they travel on at least a metre, the trunk never turns over, and nothing flies. The window runs from
+    just before the hips drop to just after they come back up (the run-in and the walk-off are cut)."""
+    f, fps = clip.frames, clip.fps
+    hips = f[:, IDX["Hips"]]
+    standing = float(hips[: max(3, len(f) // 10), 1].mean())
+    low = hips[:, 1] <= SLIDE_LOW_HIPS * standing
+    runs = sorted(_runs(low), key=lambda r: r[1] - r[0], reverse=True)
+    nums = {"standing_hips_m": round(standing, 2)}
+    if not runs:
+        nums["why"] = "the hips never come down"
+        return False, nums, None
+    a, b = runs[0][0], runs[0][1] - 1
+    low_s = (b - a + 1) / fps
+    face = facing(f)
+    travel = float((hips[b] - hips[a]) @ face)
+    pitch = trunk_pitch_deg(f)
+    pitch = pitch - pitch[0]
+    begin, end = a, b
+    while begin > 0 and hips[begin - 1, 1] > hips[begin, 1] - 1e-6 and hips[begin - 1, 1] < 0.97 * standing:
+        begin -= 1
+    while end < len(f) - 1 and hips[end + 1, 1] > hips[end, 1] - 1e-6 and hips[end, 1] < 0.9 * standing:
+        end += 1
+    begin = max(0, begin - 1)
+    floor = float(f[:, :, 1].min())
+    air = f[begin:end + 1, :, 1].min(axis=1) > floor + 0.15
+    air_s = max(((y - x) for x, y in _runs(air)), default=0) / fps
+    starts_up = bool(hips[0, 1] > 0.8 * standing and standing >= HURT_STAND_MIN_M)
+    ends_up = bool(hips[-1, 1] > 0.8 * standing)
+    turn = float(np.abs(pitch[begin:end + 1]).max())
+    nums.update(low_s=round(low_s, 2), travel_m=round(travel, 2), max_trunk_turn_deg=round(turn, 1), longest_air_s=round(air_s, 2),
+                window_frames=[begin, end], starts_upright=starts_up, ends_upright=ends_up, min_hips_vs_standing=round(float(hips[:, 1].min() / standing), 2))
+    ok = (SLIDE_MIN_LOW_S <= low_s <= SLIDE_MAX_LOW_S and travel >= SLIDE_MIN_TRAVEL_M and turn <= SLIDE_MAX_TURN_DEG
+          and air_s <= SLIDE_MAX_AIR_S and starts_up and ends_up)
+    return bool(ok), nums, (begin, end)
+
+
 def generic_check(clip):
     """Moves without a special check are judged by the gate alone (and say so in the report)."""
     return True, {"note": "no move check for this move: the gate alone judged it"}, None
 
 
-CHECKS = {"roll": roll_check, "vault": vault_check, "hurt": hurt_check, "generic": generic_check}
+CHECKS = {"roll": roll_check, "vault": vault_check, "hurt": hurt_check, "slide": slide_check, "generic": generic_check}
 
 
 def trim(clip, window, pad_s=0.1):
