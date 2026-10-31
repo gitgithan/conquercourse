@@ -12,6 +12,7 @@ const INK = "#17201d", TEAL = "#0f6b5c", GHOST = "#9aa5a0", BAD = "#b91c1c", AMB
 const W = 900, H = 560, PPM = 280, X0 = -1.3, Y0 = -0.12; // canvas pixels; pixels per metre; the world's left edge and floor line (m)
 const sx = (x: number) => (x - X0) * PPM, sy = (y: number) => H - (y - Y0) * PPM;
 const wx = (px: number) => px / PPM + X0, wy = (py: number) => (H - py) / PPM + Y0;
+const MAP_HALF = 0.95, MAP_STEP = 0.025;
 const cm = (m: number) => (m * 100).toFixed(1);
 
 const SOLVERS: [Choices["solver"], string, string][] = [
@@ -106,13 +107,13 @@ export async function startLabIk(host: HTMLElement): Promise<{ backend: "canvas2
   let warm: { phi: number; bend: number } | undefined;
   let dragging = false, flips = 0, lastFlip: { x: number; y: number } | null = null, lastSide: boolean | null = null;
   let pose: Pose;
-  let mapCells: ReturnType<typeof residualMap> = [];
   let mapKey = "";
+  let mapPic: HTMLCanvasElement | null = null, mapN = 0;
   let solves = 0;
 
   const toggles = (id: string, items: [string, string][], isOn: (v: string) => boolean, set: (v: string) => void) => {
     const el = $(id); el.innerHTML = "";
-    for (const [v, label] of items) { const b = document.createElement("button"); b.type = "button"; b.textContent = label; b.dataset.v = v; b.setAttribute("aria-pressed", String(isOn(v))); b.onclick = () => { set(v); warm = undefined; lastSide = null; refresh(); }; el.append(b); }
+    for (const [v, label] of items) { const b = document.createElement("button"); b.type = "button"; b.textContent = label; b.dataset.v = v; b.setAttribute("aria-pressed", String(isOn(v))); b.onclick = () => { set(v); warm = undefined; lastSide = null; lastFlip = null; flips = 0; refresh(); }; el.append(b); }
   };
 
   // ---- solve, then draw and write ----
@@ -128,7 +129,16 @@ export async function startLabIk(host: HTMLElement): Promise<{ backend: "canvas2
     const key = JSON.stringify([c.solver, c.limits, c.neck, c.fold, c.solver === "dls" ? c.damping : 0]);
     if (key === mapKey || !($<HTMLInputElement>("ik-map").checked)) return;
     mapKey = key;
-    mapCells = residualMap(c, pose.shoulder, pose.l1, pose.l2, 0.95, 0.03);
+    const cells = residualMap(c, pose.shoulder, pose.l1, pose.l2, MAP_HALF, MAP_STEP);
+    mapN = Math.round((2 * MAP_HALF) / MAP_STEP) + 1;
+    mapPic = document.createElement("canvas"); mapPic.width = mapN; mapPic.height = mapN;
+    const mg = mapPic.getContext("2d")!, img = mg.createImageData(mapN, mapN);
+    cells.forEach((m, k) => { // cells run from the bottom row up; the picture's first row is the top
+      const col = k % mapN, row = mapN - 1 - Math.floor(k / mapN), o = (row * mapN + col) * 4;
+      const ok = m.r <= MATCH;
+      img.data.set(ok ? [15, 107, 92, 52] : [185, 28, 28, Math.round(255 * Math.min(0.5, 0.08 + m.r * 1.2))], o);
+    });
+    mg.putImageData(img, 0, 0);
   };
 
   const canvas = $<HTMLCanvasElement>("ik-pic");
@@ -145,10 +155,10 @@ export async function startLabIk(host: HTMLElement): Promise<{ backend: "canvas2
     g.strokeStyle = INK; g.lineWidth = 2; g.beginPath(); g.moveTo(0, sy(0)); g.lineTo(W, sy(0)); g.stroke();
     const sh = pose.shoulder;
     // where the hand can and cannot go
-    if ($<HTMLInputElement>("ik-map").checked) for (const m of mapCells) {
-      const ok = m.r <= MATCH;
-      g.fillStyle = ok ? "rgba(15,107,92,.20)" : `rgba(185,28,28,${Math.min(0.5, 0.08 + m.r * 1.2).toFixed(2)})`;
-      g.fillRect(sx(m.x) - 0.015 * PPM, sy(m.y) - 0.015 * PPM, 0.03 * PPM + 1, 0.03 * PPM + 1);
+    if ($<HTMLInputElement>("ik-map").checked && mapPic) {
+      g.imageSmoothingEnabled = false;
+      const side = mapN * MAP_STEP * PPM;
+      g.drawImage(mapPic, sx(sh.x) - side / 2, sy(sh.y) - side / 2, side, side);
     }
     // the reach: the circle the full arm draws, and the smallest circle the folded arm can make
     g.setLineDash([5, 5]); g.strokeStyle = GHOST; g.lineWidth = 1.5;
@@ -253,7 +263,7 @@ The neck rule (the game's)
   $<HTMLInputElement>("ik-fold").addEventListener("input", (e) => { c.fold = Number((e.target as HTMLInputElement).value); mapKey = ""; refresh(); });
   $<HTMLInputElement>("ik-map").addEventListener("change", () => { mapKey = ""; refresh(); });
   const presets = $("ik-presets");
-  for (const [id, label, x, y] of PRESETS) { const b = document.createElement("button"); b.type = "button"; b.textContent = label; b.dataset.preset = id; b.onclick = () => { target.x = x; target.y = y; warm = undefined; lastSide = null; refresh(); }; presets.append(b); }
+  for (const [id, label, x, y] of PRESETS) { const b = document.createElement("button"); b.type = "button"; b.textContent = label; b.dataset.preset = id; b.onclick = () => { target.x = x; target.y = y; warm = undefined; lastSide = null; lastFlip = null; flips = 0; refresh(); }; presets.append(b); }
   $("ik-slide").onclick = () => {
     const b = brk();
     if (b) { target.x = b.x; target.y = b.y; warm = undefined; refresh(); }
