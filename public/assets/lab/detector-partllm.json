@@ -1,0 +1,225 @@
+{
+  "source": "data/eval/partllm/scores.json",
+  "model": "PartLLM (Apache-2.0), recorded once on 2026-10-28; nothing is run at play time",
+  "claimShareUsed": 0.02,
+  "hitPrecisionUsed": 0.5,
+  "hitRecallUsed": 0.3333,
+  "objects": [
+    "rail-skate-01",
+    "rail-skate-02",
+    "railing-iron",
+    "bench-concrete",
+    "box-skate-03",
+    "stairs-park-07"
+  ],
+  "prompts": [
+    "bar",
+    "rail",
+    "ledge",
+    "step"
+  ],
+  "cases": [
+    {
+      "object": "rail-skate-01",
+      "prompt": "bar",
+      "expected": "present",
+      "areaShare": 0.145,
+      "precision": 0.03,
+      "recall": 0.01,
+      "note": "took a post, not the top tube"
+    },
+    {
+      "object": "rail-skate-01",
+      "prompt": "rail",
+      "expected": "present",
+      "areaShare": 0.521,
+      "precision": 1,
+      "recall": 0.95
+    },
+    {
+      "object": "rail-skate-01",
+      "prompt": "ledge",
+      "expected": "absent",
+      "areaShare": 0.177,
+      "precision": 0.04,
+      "recall": 0.01
+    },
+    {
+      "object": "rail-skate-01",
+      "prompt": "step",
+      "expected": "absent",
+      "areaShare": 0.156,
+      "precision": 0.09,
+      "recall": 0.02
+    },
+    {
+      "object": "rail-skate-02",
+      "prompt": "bar",
+      "expected": "present",
+      "areaShare": 0.139,
+      "precision": 0.03,
+      "recall": 0.01,
+      "note": "took a post, not the top tube"
+    },
+    {
+      "object": "rail-skate-02",
+      "prompt": "rail",
+      "expected": "present",
+      "areaShare": 0.362,
+      "precision": 0.98,
+      "recall": 0.52
+    },
+    {
+      "object": "rail-skate-02",
+      "prompt": "ledge",
+      "expected": "absent",
+      "areaShare": 0.087,
+      "precision": 0.05,
+      "recall": 0.01
+    },
+    {
+      "object": "rail-skate-02",
+      "prompt": "step",
+      "expected": "absent",
+      "areaShare": 0.412,
+      "precision": 0.79,
+      "recall": 0.47,
+      "note": "took the lower end of the sloped rail"
+    },
+    {
+      "object": "railing-iron",
+      "prompt": "bar",
+      "expected": "present",
+      "areaShare": 0.527,
+      "precision": 0.14,
+      "recall": 0.35,
+      "note": "spread over the pickets"
+    },
+    {
+      "object": "railing-iron",
+      "prompt": "rail",
+      "expected": "present",
+      "areaShare": 0.273,
+      "precision": 0.47,
+      "recall": 0.62,
+      "note": "nearly right, just under the 0.5 bar"
+    },
+    {
+      "object": "railing-iron",
+      "prompt": "ledge",
+      "expected": "absent",
+      "areaShare": 0.196,
+      "precision": 0.02,
+      "recall": 0.02
+    },
+    {
+      "object": "railing-iron",
+      "prompt": "step",
+      "expected": "absent",
+      "areaShare": 0.004,
+      "precision": 0,
+      "recall": 0
+    },
+    {
+      "object": "bench-concrete",
+      "prompt": "bar",
+      "expected": "absent",
+      "areaShare": 0.73,
+      "precision": 0.39,
+      "recall": 0.92,
+      "note": "took the whole back and seat"
+    },
+    {
+      "object": "bench-concrete",
+      "prompt": "rail",
+      "expected": "absent",
+      "areaShare": 0.099,
+      "precision": 0.06,
+      "recall": 0.02
+    },
+    {
+      "object": "bench-concrete",
+      "prompt": "ledge",
+      "expected": "present",
+      "areaShare": 0.17,
+      "precision": 0.11,
+      "recall": 0.06,
+      "note": "missed the seat edge"
+    },
+    {
+      "object": "bench-concrete",
+      "prompt": "step",
+      "expected": "absent",
+      "areaShare": 0.001,
+      "precision": 0,
+      "recall": 0
+    },
+    {
+      "object": "box-skate-03",
+      "prompt": "bar",
+      "expected": "absent",
+      "areaShare": 0.311,
+      "precision": 0.03,
+      "recall": 0.13
+    },
+    {
+      "object": "box-skate-03",
+      "prompt": "rail",
+      "expected": "absent",
+      "areaShare": 0.058,
+      "precision": 0.03,
+      "recall": 0.03
+    },
+    {
+      "object": "box-skate-03",
+      "prompt": "ledge",
+      "expected": "present",
+      "areaShare": 0.574,
+      "precision": 0.11,
+      "recall": 0.85,
+      "note": "took the whole box, so it cannot say which edge"
+    },
+    {
+      "object": "box-skate-03",
+      "prompt": "step",
+      "expected": "unclear",
+      "areaShare": 0.057,
+      "precision": 0,
+      "recall": 0
+    },
+    {
+      "object": "stairs-park-07",
+      "prompt": "bar",
+      "expected": "absent",
+      "areaShare": 0.66,
+      "precision": 0.21,
+      "recall": 0.61
+    },
+    {
+      "object": "stairs-park-07",
+      "prompt": "rail",
+      "expected": "absent",
+      "areaShare": 0.128,
+      "precision": 0.45,
+      "recall": 0.25
+    },
+    {
+      "object": "stairs-park-07",
+      "prompt": "ledge",
+      "expected": "present",
+      "areaShare": 0.112,
+      "precision": 0,
+      "recall": 0,
+      "note": "missed it completely"
+    },
+    {
+      "object": "stairs-park-07",
+      "prompt": "step",
+      "expected": "unclear",
+      "areaShare": 0.1,
+      "precision": 0.34,
+      "recall": 0.15,
+      "note": "gave a part, but the steps are soft in this mesh"
+    }
+  ]
+}
