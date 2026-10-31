@@ -49,6 +49,8 @@ import { makeItEasier } from '../slice/easier';
 import { EDIT_KEY, HIST_KEY, checkpointFor, piecesFromSource, readHandoff } from '../slice/roundtrip';
 import type { CourseSource } from '../course/course';
 import { pageQuery, pageSearch } from '../flags';
+import { createLaneCheck } from '../slice/lane-check-ui';
+import { finalText, isStopped, type LaneProgress } from '../slice/lane-check';
 
 // The World editor: build a world from pieces on a plan view, scale them (a toy brick becomes a block), turn, copy, crop and move them,
 // choose the lane the runner takes (turn about the start, sideways, level), and play it. Everything is in metres.
@@ -1003,16 +1005,15 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
       const version = verifyVersion;
       const course = courseNow();
       play.disabled = true; play.textContent = 'Checking this lane…';
+      laneCheck.start();
       const clear = await searchClearable(course);
-      if (version !== verifyVersion) { play.disabled = false; play.textContent = 'Play this lane'; return; }
       play.disabled = false; play.textContent = 'Play this lane';
-      if (clear === null) { verdict = 'The lane check could not finish. Try again after editing stops.'; drawLanePanel(); return; }
+      if (isStopped(laneCheck.state()) || version !== verifyVersion) return; // Cancel, the cap or a newer edit answered for this check
+      if (clear === null) { laneCheck.reset(); verdict = 'The lane check could not finish. Try again after editing stops.'; drawLanePanel(); return; }
+      laneCheck.done(clear);
       if (!clear) { verdict = 'The simulator cannot find a way to clear this lane: widen a gap or lower a step.'; drawLanePanel(); return; }
       // the real objects are drawn in the game instead of blocks (a cropped photo object is drawn whole; its collision is still the cropped lane)
-      course.scene = sceneFor(ground(), { angle, offset, level }, course.uMap ?? []);
-      persistHist();
-      root.remove(); style.remove();
-      void startCourse(document.body, withProof(course)); // the plan the check just found goes along: the Course does not search again
+      launchCourse(course); // the plan the check just found goes along: the Course does not search again
     };
     const floorRow = el('label', lanePanel, { className: 'muted', text: 'Floor you must not touch: ' }); floorRow.style.cssText = 'display:flex;align-items:center;gap:6px'; // one line, not two (the panel must fit at 1024 x 640)
     const floorSel = el('select', floorRow, { id: 'floor', title: 'What is painted under the gaps (the run ends the same way on every floor)' });
@@ -1035,6 +1036,7 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
       void startCourse(document.body, course);
     };
     el('div', lanePanel, { id: 'verdict', className: verdict.startsWith('The simulator can clear') ? 'ok' : verdict ? 'bad' : 'muted', text: verdict });
+    laneCheck.mount(lanePanel); // CC-243: progress line, Cancel and Play anyway under the verdict
   }
 
   const coursePieces = () => pieces.filter((q) => !isSizeReference(q) && !isDevice(q));
@@ -1154,15 +1156,16 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
     const key = JSON.stringify(searchInput(course));
     if (cachedSearch?.key === key) return Promise.resolve(cachedSearch.result);
     if (activeSearch?.key === key) return activeSearch.promise;
-    finishSearch?.(null); searchWorker?.terminate();
+    stopSearch();
     const id = ++searchVersion;
     let worker: Worker;
     try { worker = new Worker(new URL('../sim/ideal-worker.ts', import.meta.url), { type: 'module' }); }
     catch { return Promise.resolve(null); }
     const promise = new Promise<PresetPlan | null>((resolve) => {
       searchWorker = worker; finishSearch = resolve;
-      worker.onmessage = (e: MessageEvent<{ id: number } & Pick<SearchResult, 'plan' | 'cleared' | 'windows' | 'routes'>>) => {
+      worker.onmessage = (e: MessageEvent<{ id: number; progress?: LaneProgress } & Pick<SearchResult, 'plan' | 'cleared' | 'windows' | 'routes'>>) => {
         if (e.data.id !== id) return;
+        if (e.data.progress) { laneCheck.progress(e.data.progress); return; }
         const result: PresetPlan = { key, cleared: e.data.cleared, ...(e.data.cleared ? { plan: e.data.plan, windows: xWindows(e.data.windows ?? []), ...(e.data.routes ? { routes: e.data.routes } : {}) } : {}) };
         cachedSearch = { key, result };
         searchWorker = null; finishSearch = null; activeSearch = null; worker.terminate(); resolve(result);
@@ -1176,6 +1179,31 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
     activeSearch = { key, promise };
     return promise;
   }
+  /** Ends the search that is running, if any, at once: its worker is terminated and whoever waits on it gets null. */
+  function stopSearch() {
+    const done = finishSearch;
+    finishSearch = null; activeSearch = null;
+    searchWorker?.terminate(); searchWorker = null;
+    done?.(null);
+  }
+  const launchCourse = (course: CourseData) => {
+    // the real objects are drawn in the game instead of blocks (a cropped photo object is drawn whole; its collision is still the cropped lane)
+    course.scene = sceneFor(ground(), { angle, offset, level }, course.uMap ?? []);
+    persistHist();
+    root.remove(); style.remove();
+    void startCourse(document.body, withProof(course));
+  };
+  const laneCheck = createLaneCheck({
+    stopWorker: stopSearch,
+    playAnyway: () => { stopSearch(); launchCourse(courseNow()); }, // no plan goes along: the Course searches in its own worker and shows its own progress
+    checkAgain: () => verify(0),
+    stopped: (st) => {
+      const text = finalText(st)?.line ?? ''; verdict = text;
+      delete document.documentElement.dataset.laneClear; document.documentElement.dataset.verdict = text; setSuggest(null);
+      const v = lanePanel.querySelector('#verdict') as HTMLElement | null;
+      if (v) { v.textContent = text; v.className = 'bad'; }
+    },
+  });
   const searchClearable = async (course: CourseData): Promise<boolean | null> => (await searchResult(course))?.cleared ?? null;
   // the proof the lane check already holds for exactly this course, never a new search: the Course then does not search again
   const withProof = (course: CourseData): CourseData => {
@@ -1189,21 +1217,24 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
     // version-checked and discarded if the course changed; verify() restarts
     // for the settled course after the debounce.
   }
-  function verify() {
+  function verify(pause = 800) {
     interruptSearch();
+    laneCheck.reset(); // CC-243: an edit throws the last verdict away; the new search starts only after the pause, and the old worker is ended when the new one starts
     const version = verifyVersion;
     document.documentElement.dataset.lane = JSON.stringify({ angle, offset, level }); // for the checks: the lane being verified
     verifyTimer = window.setTimeout(async () => {
       const p = currentProfile();
-      if (p.length < 8) { verdict = 'Nothing is in the lane: move the lane or the pieces.'; }
+      if (p.length < 8) { stopSearch(); verdict = 'Nothing is in the lane: move the lane or the pieces.'; }
       else {
         const r = describeLane(p);
         verdict = 'Checking this lane…';
         const v = lanePanel.querySelector('#verdict') as HTMLElement | null;
         if (v) { v.textContent = verdict; v.className = 'muted'; }
+        laneCheck.start();
         const clear = await searchClearable(laneCourse(p));
-        if (version !== verifyVersion) return;
-        if (clear === null) { verdict = 'The lane check could not finish. Try again after editing stops.'; document.documentElement.dataset.verdict = verdict; if (v) { v.textContent = verdict; v.className = 'bad'; } return; }
+        if (version !== verifyVersion || isStopped(laneCheck.state())) return; // a newer edit, Cancel or the cap answered for this check
+        if (clear === null) { laneCheck.reset(); verdict = 'The lane check could not finish. Try again after editing stops.'; document.documentElement.dataset.verdict = verdict; if (v) { v.textContent = verdict; v.className = 'bad'; } return; }
+        laneCheck.done(clear);
         document.documentElement.dataset.laneClear = clear ? '1' : '0'; setSuggest(clear);
         verdict = clear ? `The simulator can clear this lane (${r.gaps} gaps, ${r.steps} steps, ${r.curves} curves, ${r.faces} faces, ${r.length.toFixed(0)} m).` : 'The simulator cannot find a way to clear this lane: widen a gap or lower a step.';
       }
@@ -1224,7 +1255,7 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
         adviceBox.textContent = 'Working out what to shift…';
         setTimeout(async () => { if (mine !== adviceRun) return; const got = await adviceInWorker(coursePieces() as P[], { angle, offset, level }).catch(() => null); if (!got || mine !== adviceRun) return; adviceList = got; showAdvice(); if (!adviceList.length) adviceBox.textContent = 'No single small shift clears it. Press "What should I change?" to think it through together.'; document.documentElement.dataset.advice = String(adviceList.length); }, 30);
       } else document.documentElement.dataset.advice = '0';
-    }, 800);
+    }, pause);
   }
 
   // ---- drawing
