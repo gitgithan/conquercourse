@@ -171,3 +171,5 @@ export function usedShared(): SharedPick[] {
 export function useShared(pick: SharedPick): void {
   try { const all = usedShared().filter((x) => x.id !== pick.id); all.push({ id: pick.id, name: pick.name.slice(0, 40) }); localStorage.setItem(SHARED_KEY, JSON.stringify(all.slice(-30))); } catch { /* not remembered */ }
 }
+/** How many cards a group in Add pieces shows before Show more. */
+export const GROUP_SHOWN = 12;

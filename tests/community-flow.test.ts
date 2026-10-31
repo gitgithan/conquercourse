@@ -184,3 +184,15 @@ describe('shared pieces from other players (CC-247)', () => {
     expect(pb).toContain('Shared pieces');
   });
 });
+
+describe('long lists in the editor (CC-247)', () => {
+  it('the groups show a dozen at a time with Show more, and search asks the server', async () => {
+    const { readFileSync } = await import('node:fs');
+    const { GROUP_SHOWN } = await import('../src/community/flow');
+    const pb = readFileSync('src/ui/piece-browser.ts', 'utf8');
+    expect(GROUP_SHOWN).toBe(12);
+    expect(pb).toContain('mine.slice(0, shownMine)');
+    expect(pb).toContain('sharedP.slice(0, shownShared)');
+    expect(pb).toContain("listSharedPage({ q, kind: 'piece', cursor })");
+  });
+});

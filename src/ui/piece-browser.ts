@@ -2,6 +2,8 @@
 // Mouse over, keyboard focus or a tap on a card changes the featured view; a click adds the piece by pressing the editor's own add button, so nothing else changes.
 import { MOVE_EMPTY, MOVE_NAME, MOVE_ORDER, SECTION_NAME, SECTION_ORDER, STATIC_PIECES, realInfo, type PieceInfo, type Section } from '../slice/piece-info';
 import { pageQuery } from '../flags';
+import { listSharedPage } from '../community/share-client';
+import { GROUP_SHOWN } from '../community/flow';
 
 export const PIECE_BROWSER_CSS = `
   .ed .addmenu.open{display:block}
@@ -27,6 +29,7 @@ export const PIECE_BROWSER_CSS = `
   .ed .pb-group-none{grid-column:1/-1;margin:0 2px;font:13px system-ui,sans-serif;color:var(--muted)}
   .ed .pb-view{min-width:0!important;min-height:30px;padding:3px 12px;border-radius:999px}
   .ed .pb-none{padding:18px;color:var(--muted)}
+  .ed .pb-more{grid-column:1/-1;justify-self:start;padding:6px 12px;border-radius:8px;border:1px solid var(--line,#ccc);background:#fff;cursor:pointer}
   .ed .pb-mine{display:flex;flex-direction:column;align-items:center;justify-content:center;aspect-ratio:16/9;border-radius:7px;background:#e7f3ef;font-size:26px}
   @media (max-width:760px){.ed .pb-feature{grid-template-columns:1fr}}`;
 
@@ -56,6 +59,18 @@ export function mountPieceBrowser(menu: HTMLElement): void {
   const mineOf = (): PieceInfo[] => [...menu.querySelectorAll<HTMLElement>('[data-from-photo]')].map((b) => ({ id: `mine-${b.dataset.object}`, section: 'real' as Section, name: (b.textContent ?? '').replace(/^\W*Mine:\s*/, '') || 'My piece', does: 'A 3D piece you made from your own photo. Click the card to add it to the world.', from: 'From your own photo', button: `[data-from-photo][data-object="${b.dataset.object}"]` }));
   const sharedOf = (): PieceInfo[] => [...menu.querySelectorAll<HTMLElement>('[data-shared-piece]')].map((b) => ({ id: `shared-${b.dataset.sharedPiece}`, section: 'real' as Section, name: (b.textContent ?? '').replace(/^\W*Shared:\s*/, '') || 'Shared piece', does: 'A 3D piece another player shared. Click the card to add it to the world.', from: 'Shared by a player', button: `[data-shared-piece="${b.dataset.sharedPiece}"]` }));
   const isMine = (p: PieceInfo) => p.id.startsWith('mine-') || p.id.startsWith('shared-');
+  let shownMine = GROUP_SHOWN, shownShared = GROUP_SHOWN;
+  const communityFound: { q: string; items: PieceInfo[]; next: string | null } = { q: '', items: [], next: null };
+  let findTimer = 0;
+  const fetchFound = async (q: string, cursor?: string) => {
+    try {
+      const pg = await listSharedPage({ q, kind: 'piece', cursor });
+      const have = new Set(cursor ? communityFound.items.map((x) => x.id) : []);
+      const add = pg.items.filter((i) => !i.mine && (!i.status || i.status === 'approved')).map((i) => ({ id: `shared-${i.id}`, section: 'real' as Section, name: i.name, does: 'A 3D piece another player shared. Click the card to add it to the world.', from: 'Shared by a player', button: '' })).filter((x) => !have.has(x.id));
+      communityFound.q = q; communityFound.items = cursor ? [...communityFound.items, ...add] : add; communityFound.next = pg.next;
+      if (search.value.trim().toLowerCase() === q) paint();
+    } catch { /* the search is a bonus */ }
+  };
   const press = (p: PieceInfo) => { const b = menu.querySelector<HTMLElement>(p.button); if (p.id === 'photo') { (window as unknown as { ccPickPhoto?: () => void }).ccPickPhoto?.(); return; } b?.click(); };
   const paint = () => {
     const q = search.value.trim().toLowerCase();
@@ -74,7 +89,16 @@ export function mountPieceBrowser(menu: HTMLElement): void {
     viewBtn.style.display = !q && section === 'real' ? '' : 'none';
     viewBtn.textContent = byMove ? 'Show all together' : 'Group by move';
     const sharedP = sharedOf().filter((p) => !q || p.name.toLowerCase().includes(q) || 'shared pieces'.includes(q));
-    const mineCards: HTMLElement[] = [...(mine.length ? [h('div', { class: 'pb-group', textContent: 'My pieces', id: 'pb-mine' }), ...mine.map(card)] : []), ...(sharedP.length ? [h('div', { class: 'pb-group', textContent: 'Shared pieces', id: 'pb-shared' }), ...sharedP.map(card)] : [])];
+    // each group shows a dozen at a time, never the whole list; search results from the community store come from the server one page at a time
+    const mineShown = mine.slice(0, shownMine), sharedShown = sharedP.slice(0, shownShared);
+    const moreBtn = (id: string, left: number, bump: () => void) => { const b = h('button', { class: 'pb-more', type: 'button', textContent: `Show more (${left} left)`, id }); b.onclick = () => { bump(); paint(); }; return b; };
+    const found: PieceInfo[] = q ? (communityFound.q === q ? communityFound.items : []) : [];
+    const foundCards = found.map((f) => { const c = card(f); c.onclick = () => (window as unknown as { ccAddShared?: (id: string, name: string) => void }).ccAddShared?.(f.id.slice(6), f.name); return c; });
+    const mineCards: HTMLElement[] = [
+      ...(mine.length ? [h('div', { class: 'pb-group', textContent: 'My pieces', id: 'pb-mine' }), ...mineShown.map(card), ...(mine.length > shownMine ? [moreBtn('pb-mine-more', mine.length - shownMine, () => { shownMine += GROUP_SHOWN; })] : [])] : []),
+      ...(sharedP.length ? [h('div', { class: 'pb-group', textContent: 'Shared pieces', id: 'pb-shared' }), ...sharedShown.map(card), ...(sharedP.length > shownShared ? [moreBtn('pb-shared-more', sharedP.length - shownShared, () => { shownShared += GROUP_SHOWN; })] : [])] : []),
+      ...(foundCards.length ? [h('div', { class: 'pb-group', textContent: 'Shared by players (search)', id: 'pb-found' }), ...foundCards, ...(communityFound.next ? [(() => { const b = h('button', { class: 'pb-more', type: 'button', textContent: 'Show more', id: 'pb-found-more' }); b.onclick = () => { void fetchFound(q, communityFound.next ?? undefined); }; return b; })()] : [])] : []),
+    ];
     if (grouped) {
       const cards: HTMLElement[] = [], ordered: PieceInfo[] = [];
       for (const m of MOVE_ORDER) {
@@ -88,7 +112,7 @@ export function mountPieceBrowser(menu: HTMLElement): void {
       grid.replaceChildren(...mineCards, ...cards);
       list.splice(0, list.length, ...ordered);
     } else grid.replaceChildren(...mineCards, ...list.map(card));
-    list.unshift(...mine, ...sharedP);
+    list.unshift(...mineShown, ...sharedShown);
     if (!list.length) grid.append(h('div', { class: 'pb-none', textContent: 'Nothing matches. Try another word.' }));
     else if (!list.includes(shown)) feat(list[0]); else feat(shown);
     for (const [s, b] of tabBtn) b.setAttribute('aria-selected', String(!q && s === section));
@@ -100,7 +124,7 @@ export function mountPieceBrowser(menu: HTMLElement): void {
     b.onkeydown = (e) => { const i = SECTION_ORDER.indexOf(s), k = e.key === 'ArrowRight' ? 1 : e.key === 'ArrowLeft' ? -1 : 0; if (k) { tabBtn.get(SECTION_ORDER[(i + k + SECTION_ORDER.length) % SECTION_ORDER.length])?.focus(); e.preventDefault(); } };
     tabBtn.set(s, b); tabs.append(b);
   }
-  search.oninput = paint;
+  search.oninput = () => { shownMine = shownShared = GROUP_SHOWN; paint(); clearTimeout(findTimer); const q = search.value.trim().toLowerCase(); if (q.length >= 2) findTimer = window.setTimeout(() => { void fetchFound(q); }, 350); };
   grid.onkeydown = (e) => { // arrows move between cards
     const cards = [...grid.querySelectorAll<HTMLElement>('.pb-card')], i = cards.indexOf(document.activeElement as HTMLElement);
     const d = e.key === 'ArrowRight' ? 1 : e.key === 'ArrowLeft' ? -1 : 0;

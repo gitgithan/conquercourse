@@ -2,7 +2,7 @@ import { readFileSync } from 'node:fs';
 import { DatabaseSync } from 'node:sqlite';
 import { describe, expect, it } from 'vitest';
 import { cleanItem, visibilityFor } from '../src/community/items';
-import { file, list, publish, remove, type Db } from '../functions/api/community-items';
+import { PAGE, file, list, publish, remove, type Db } from '../functions/api/community-items';
 
 // A real SQL database (node:sqlite) built from the real migration, wrapped to look like D1.
 function makeDb(): Db {
@@ -112,5 +112,43 @@ describe('sharing, the lists and deleting (CC-247)', () => {
   it('is switched off without a database', async () => {
     expect((await publish(piece(), {}, ip())).status).toBe(503);
     expect((await list({}, null)).body.items).toEqual([]);
+  });
+});
+
+describe('a long list is served in pages (CC-247)', () => {
+  const fill = async (db: Db, total: number) => {
+    for (let i = 0; i < total; i++) {
+      const id = `a${String(i).padStart(9, '0')}`; // ten characters
+      await db.prepare("INSERT INTO community_items (id, owner, kind, name, status, created_at, thumb, glb, meta) VALUES (?, 'o', ?, ?, ?, ?, 'data:image/jpeg;base64,AAAA', 'AAAA', '{}')")
+        .bind(id, i % 5 === 0 ? 'wallpaper' : 'piece', i % 7 === 0 ? `railing ${i}` : `thing ${i}`, i % 11 === 0 ? 'pending' : 'approved', 1_700_000_000 + Math.floor(i / 3)).run();
+    }
+  };
+  it('500 items come as small pages that join up with no repeats and no gaps', async () => {
+    const db = makeDb(); await fill(db, 500);
+    const seen: string[] = []; let cursor: string | undefined, pages = 0;
+    do {
+      const r = await list({ DB: db } as never, null, { cursor });
+      const body = r.body as { items: { id: string }[]; next: string | null };
+      expect(body.items.length).toBeLessThanOrEqual(PAGE);
+      expect(JSON.stringify(body).length).toBeLessThan(40_000);
+      seen.push(...body.items.map((i) => i.id)); cursor = body.next ?? undefined; pages++;
+    } while (cursor && pages < 100);
+    const approved = 500 - Math.ceil(500 / 11);
+    expect(seen.length).toBe(approved);
+    expect(new Set(seen).size).toBe(approved);
+    expect(pages).toBeGreaterThan(5);
+  });
+  it('search by name and the kind filter are done by the server', async () => {
+    const db = makeDb(); await fill(db, 500);
+    const r = (await list({ DB: db } as never, null, { q: 'railing', kind: 'piece' })).body as { items: { name: string; kind: string }[] };
+    expect(r.items.length).toBeGreaterThan(0);
+    expect(r.items.every((i) => i.name.includes('railing') && i.kind === 'piece')).toBe(true);
+    const odd = (await list({ DB: db } as never, null, { q: "%'; DROP TABLE community_items;--" })).body as { items: unknown[] };
+    expect(Array.isArray(odd.items)).toBe(true);
+  });
+  it('a pending item is never in the public pages', async () => {
+    const db = makeDb(); await fill(db, 60);
+    const r = (await list({ DB: db } as never, null)).body as { items: { id: string }[] };
+    expect(r.items.some((i) => i.id === 'a000000000')).toBe(false);
   });
 });

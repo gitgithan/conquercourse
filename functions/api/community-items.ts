@@ -64,17 +64,32 @@ export async function remove(b: Record<string, unknown>, env: Env, now = Date.no
   return { status: 200, body: { ok: true } };
 }
 
-export async function list(env: Env, session: string | null): Promise<{ status: number; body: Record<string, unknown> }> {
+export const PAGE = 24; // items in one page of the list
+export interface ListQuery { q?: string; kind?: string; cursor?: string }
+/** A cursor is the created_at and id of the last item of the page before: "1730000000.abcdefghij". */
+const parseCursor = (c: string | undefined): { at: number; id: string } | null => { const m = /^(\d{1,12})\.([a-z0-9]{10})$/.exec(c ?? ''); return m ? { at: Number(m[1]), id: m[2] } : null; };
+const likeOf = (q: string | undefined): string => `%${String(q ?? '').replace(/[^a-z0-9 '-]/gi, '').trim().slice(0, 40).replace(/[%_]/g, '')}%`;
+
+export async function list(env: Env, session: string | null, opt: ListQuery = {}): Promise<{ status: number; body: Record<string, unknown> }> {
   if (!env.DB) return { status: 200, body: { items: [], off: true } };
-  const pub = await env.DB.prepare("SELECT id, kind, name, status, created_at, '' AS thumb, meta FROM community_items WHERE status = 'approved' ORDER BY created_at DESC LIMIT 60").bind().all<Row>();
-  const items = pub.results.map((r) => shape(r, false));
+  const cur = parseCursor(opt.cursor), kind = opt.kind === 'piece' || opt.kind === 'wallpaper' ? opt.kind : '';
+  const word = likeOf(opt.q);
+  // where-clause and values shared by both lists; the name is searched in SQL, so a page is only ever one page
+  const where = (base: string, vals: unknown[]) => ({ sql: base + (kind ? ' AND kind = ?' : '') + (word !== '%%' ? ' AND name LIKE ?' : '') + (cur ? ' AND (created_at < ? OR (created_at = ? AND id < ?))' : ''), vals: [...vals, ...(kind ? [kind] : []), ...(word !== '%%' ? [word] : []), ...(cur ? [cur.at, cur.at, cur.id] : [])] });
+  const pw = where("status = 'approved'", []);
+  const pub = await env.DB.prepare(`SELECT id, kind, name, status, created_at, '' AS thumb, meta FROM community_items WHERE ${pw.sql} ORDER BY created_at DESC, id DESC LIMIT ${PAGE + 1}`).bind(...pw.vals).all<Row>();
+  const more = pub.results.length > PAGE, rows = pub.results.slice(0, PAGE);
+  const last = rows[rows.length - 1];
+  const next = more && last ? `${last.created_at}.${last.id}` : null;
+  const items = rows.map((r) => shape(r, false));
   const owner = await own(session);
-  if (owner) {
-    const mine = await env.DB.prepare("SELECT id, kind, name, status, created_at, thumb, meta FROM community_items WHERE owner = ? AND status != 'removed' ORDER BY created_at DESC LIMIT 60").bind(owner).all<Row>();
+  if (owner && !cur) { // your own come first, on the first page only
+    const mw = where("owner = ? AND status != 'removed'", [owner]);
+    const mine = await env.DB.prepare(`SELECT id, kind, name, status, created_at, thumb, meta FROM community_items WHERE ${mw.sql} ORDER BY created_at DESC, id DESC LIMIT ${PAGE}`).bind(...mw.vals).all<Row>();
     const ids = new Set(mine.results.map((r) => r.id));
-    return { status: 200, body: { items: [...mine.results.map((r) => shape(r, true)), ...items.filter((i) => !ids.has(i.id))] } };
+    return { status: 200, body: { items: [...mine.results.map((r) => shape(r, true)), ...items.filter((i) => !ids.has(i.id))], next } };
   }
-  return { status: 200, body: { items } };
+  return { status: 200, body: { items, next } };
 }
 
 export async function file(env: Env, id: string, which: string, session: string | null): Promise<Response> {
@@ -92,7 +107,7 @@ export async function file(env: Env, id: string, which: string, session: string 
 export const onRequestGet = async ({ request, env }: { request: Request; env: Env }): Promise<Response> => {
   const q = new URL(request.url).searchParams, session = request.headers.get('x-cc-session');
   if (q.get('id')) return file(env, q.get('id') ?? '', q.get('file') ?? '', session);
-  const r = await list(env, session);
+  const r = await list(env, session, { q: q.get('q') ?? '', kind: q.get('kind') ?? '', cursor: q.get('cursor') ?? '' });
   return json(r.body, r.status, { 'cache-control': session ? 'private, no-store' : 'public, max-age=30' });
 };
 

@@ -245,3 +245,10 @@ sequenceDiagram
 - If it cannot be fetched, the course still loads and the piece shows as a plain grey shape.
 - If the maker deletes it, the editor says "no longer available" and skips it.
 - Wallpapers are not placeable pieces; they attach behind a whole course.
+
+## Long lists
+- The shared list in Explore comes one page at a time, with a **Show more** button.
+- It has a search box (searched by name on the server) and a filter for 3D pieces or wallpapers.
+- In the editor, **My pieces** and **Shared pieces** show a dozen cards at a time, then **Show more**.
+- Typing in the Add pieces search also looks through pieces other players shared, a page at a time.
+- The built-in object list (the 19 photo objects) is a shipped file and does not grow with players' work.
