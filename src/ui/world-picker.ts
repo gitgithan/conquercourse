@@ -1,6 +1,7 @@
 // One list of worlds and one way to jump between them, shared by the Course and every other mode (CC-89).
 // A value is a course path, or one of the words in WORD_VALUES, or empty for the stock course.
 import { BOARD_COURSES } from '../share/board-courses';
+import { loadStreetPlaces, STREET_CHIP, STREET_CHIP_TITLE } from '../world/street-photos';
 export type Demo = [string, string, string];
 export const DEMO_GROUPS: [string, Demo[]][] = [
   ['Start here', [
@@ -165,6 +166,7 @@ const STYLE = `
 .wg-chip-falls{--c:#c8504a;--bg:#ffe9e7;--fg:#8c231e}
 .wg-chip-none{--c:#9aa59f;--bg:#f2f5f3;--fg:#3a4540}
 .wg-here{display:inline-block;margin-left:6px;font:700 10px system-ui,sans-serif;color:#fff;background:#0f6b5c;border-radius:6px;padding:1px 5px;vertical-align:1px}
+.wg-street{display:inline-block;margin-top:3px;font:700 10px system-ui,sans-serif;color:#14498a;background:#e4f0ff;border:1px solid #2f74c0;border-radius:6px;padding:1px 6px}
 .wg-none{padding:20px;color:#58635d}
 #world-gallery{position:fixed;inset:0;z-index:900;display:grid;place-items:center;padding:12px;background:#10182099;backdrop-filter:blur(3px)}
 #world-gallery .wg{width:min(1000px,100%);max-height:100%;overflow:auto;background:#fffdf7;border-radius:18px;padding:14px 16px 18px;box-shadow:0 24px 80px #0006}
@@ -214,6 +216,8 @@ export function buildGallery(o: GalleryOptions): { el: HTMLElement; focusStart()
       lb.onkeydown = (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); e.stopPropagation(); o.onPick(value); } };
       txt.append(lb);
     }
+    const osm = /\/osm\/([a-z0-9-]+)\.course\.json$/.exec(value)?.[1]; // CC-90: a place with street photos says so
+    if (osm) void loadStreetPlaces(pageQuery()).then((set) => { if (set.has(osm)) { const ch = document.createElement('span'); ch.className = 'wg-street'; ch.textContent = STREET_CHIP; ch.title = STREET_CHIP_TITLE; txt.append(ch); } });
     card.onclick = () => o.onPick(value);
     grid.append(card);
     return card;

@@ -1,0 +1,97 @@
+{
+  "checkedAt": "2026-10-31",
+  "results": {
+    "shibuya-tokyo": {
+      "firstLaneState": "clearable",
+      "openedClearAtOnce": true,
+      "defaultKind": "proven",
+      "says": "Simulator saysCan clearI can clear this 15 m lane at 21 m. A ghost ran this exact line ahead of time on the real physics",
+      "msToFirst": 1212,
+      "sequence": [
+        [
+          8750,
+          "undefined|10"
+        ],
+        [
+          9010,
+          "clearable|21"
+        ]
+      ],
+      "noSpinner": true,
+      "stillClearAfterQuietCheck": true,
+      "verified": "agrees",
+      "streetPanel": "No street photos for this place yet. Every photo is checked for people ahead of time, so only some places have them, and a place you cut yourself has none.",
+      "snapShownAfterTweak": true,
+      "snapRestores": true,
+      "editorLane": {
+        "angle": 0.17400360093536774,
+        "offset": 0.437252302515177,
+        "level": 5.943
+      },
+      "editorFrom": "slicer",
+      "threw": "TimeoutError: page.waitForFunction: Timeout 500000ms exceeded."
+    },
+    "ciutadella-barcelona": {
+      "firstLaneState": "clearable",
+      "openedClearAtOnce": true,
+      "defaultKind": "proven",
+      "says": "Simulator saysCan clearI can clear this 42 m lane at 11 m. A ghost ran this exact line ahead of time on the real physics",
+      "msToFirst": 319,
+      "sequence": [
+        [
+          3877,
+          "undefined|10"
+        ],
+        [
+          3951,
+          "clearable|11"
+        ]
+      ],
+      "noSpinner": true,
+      "stillClearAfterQuietCheck": true,
+      "verified": "",
+      "streetPanel": "No street photos for this place yet. Every photo is checked for people ahead of time, so only some places have them, and a place you cut yourself has none.",
+      "snapShownAfterTweak": true,
+      "snapRestores": true,
+      "editorLane": {
+        "angle": 0.6971159891071826,
+        "offset": -32.73827746522967,
+        "level": 6.116
+      },
+      "editorFrom": "slicer",
+      "editorVerdict": "The simulator can clear this lane (2 gaps, 0 steps, 0 curves, 0 faces, 42 m).",
+      "editorClears": true
+    },
+    "eixample-barcelona": {
+      "firstLaneState": "clearable",
+      "openedClearAtOnce": true,
+      "defaultKind": "proven",
+      "says": "Simulator saysCan clearI can clear this 38 m lane at 25 m. A ghost ran this exact line ahead of time on the real physics",
+      "msToFirst": 549,
+      "sequence": [
+        [
+          4137,
+          "undefined|10"
+        ],
+        [
+          4264,
+          "clearable|25"
+        ]
+      ],
+      "noSpinner": true,
+      "stillClearAfterQuietCheck": true,
+      "verified": "agrees",
+      "streetPanel": "Street photos along part of your lane (29% of it, 3 to choose from). The picture service is not answering right now, so the pictures are not shown.",
+      "snapShownAfterTweak": true,
+      "snapRestores": true,
+      "editorLane": {
+        "angle": 2.618039548120832,
+        "offset": 33.35428455638651,
+        "level": 5.95
+      },
+      "editorFrom": "slicer",
+      "editorVerdict": "The simulator can clear this lane (1 gaps, 1 steps, 0 curves, 1 faces, 38 m).",
+      "editorClears": true
+    }
+  }
+}
