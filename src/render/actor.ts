@@ -16,6 +16,9 @@ import { loadRookie, type RookieId } from './rookie';
 import type { Obstacle } from '../course/collide';
 import { anticipation, getReady, ik2, ledgeReach } from '../motion/compose';
 import { settleNeck } from '../motion/neck';
+import { SLIDE_RISE_TICKS } from '../motion/actor-state';
+import { DT } from '../sim/units';
+const SLIDE_DROP_S = 0.2; // the clip's drop is played over this long: the simulator's body is low from the first tick
 
 export type { ActorState } from '../motion/actor-pose';
 
@@ -69,6 +72,12 @@ export async function createRookieActor(scene: Scene, opts: { rookie: RookieId; 
       if (myMoveIsPlayable(raw)) { rollClip = parseClip(raw); myMove = true; }
     } catch { /* the shipped roll stays */ }
   }
+  // the slide clip is optional: without one, the slide is drawn as the bone-built crouch
+  let slideClip: Clip | null = null;
+  try {
+    const r = await fetch('/assets/motion/slide.json');
+    if (r.ok) slideClip = parseClip(await r.json());
+  } catch { /* no slide clip yet */ }
   // the hurt clip is optional too: without it the fall is built from bones (crumple into the tuck, lie flat, get up slowly)
   let hurtClip: Clip | null = null;
   try {
@@ -128,6 +137,14 @@ export async function createRookieActor(scene: Scene, opts: { rookie: RookieId; 
       hipsAbove: scale * (hips[1] - minY),
       com: scale * comAboveHips(names, j),
     };
+  };
+  // when the slide clip is lowest (seconds): the drop is played up to here, the rise from here
+  let slideLow: number | null = null;
+  const slideLowAt = (): number => {
+    if (slideLow !== null) return slideLow;
+    let best = Infinity; slideLow = 0;
+    for (let t = 0; t <= clipDuration(slideClip!); t += 1 / 60) { const y = sampleClip(slideClip!, t, false)[0][1]; if (y < best) { best = y; slideLow = t; } }
+    return slideLow;
   };
   const place = (rel: Vector3[], hipsAbove: number): Pose => ({ joints: rel.map((p) => p.clone().add(new Vector3(0, hipsAbove, 0))), hipsAbove });
   // a stretch of a clip (frame from..to) stretched over a move's progress 0..1: the simulator stays the master clock
@@ -426,8 +443,14 @@ export async function createRookieActor(scene: Scene, opts: { rookie: RookieId; 
         }
         return tuckRoll(p);
       }
-      case 'slide': // the bone-built crouch, low on the hip, carried along the ground by the simulator's slide
-        return crumpled.map((q) => q.clone());
+      case 'slide': { // low on the hip, carried along the ground by the simulator's slide: the Kimodo clip drops fast, holds at its lowest, and rises when the slide ends; without the clip, the bone-built crouch
+        if (!slideClip) return crumpled.map((q) => q.clone());
+        const dur = clipDuration(slideClip), low = slideLowAt();
+        const smoothU = (u: number): number => { const c = Math.min(Math.max(u, 0), 1); return c * c * (3 - 2 * c); };
+        const t = s.slideRisingTicks !== undefined ? low + smoothU(s.slideRisingTicks / SLIDE_RISE_TICKS) * (dur - low) : smoothU((s.slideTicks ?? 0) * DT / SLIDE_DROP_S) * low;
+        const a = sample(slideClip, t, false);
+        return place(a.rel, a.hipsAbove).joints;
+      }
       case 'sit': // seated in a cart, hands on the grab bar
         return seated.map((q) => q.clone());
     }
@@ -569,7 +592,7 @@ export async function createRookieActor(scene: Scene, opts: { rookie: RookieId; 
       });
     }
     rookie.apply(lifted, { floor: k !== 'vault' && k !== 'climb' }); // in a vault the feet are over the step, not near the floor of the pose's frame: no lift, so the hands stay on the contact point
-    if (s.mode !== 'swing' && k !== 'leap' && k !== 'roll' && k !== 'vault' && k !== 'hurt' && k !== 'climb') {
+    if (s.mode !== 'swing' && k !== 'leap' && k !== 'roll' && k !== 'slide' && k !== 'vault' && k !== 'hurt' && k !== 'climb') {
       const low = Math.min(...footBones.map((i) => rookie.bones[i].getWorldPosition(new Vector3()).y));
       if (low < footClear) {
         const hips = rookie.bones[0].getWorldPosition(new Vector3());

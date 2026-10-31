@@ -18,6 +18,8 @@ export interface ActorState {
   climbProgress?: number; // 0 to 1 through a climb (WorldState.climb.i / n): hanging from the edge, then pulling up and over
   vaultProgress?: number; // 0 to 1 through the vault (WorldState.vault.i / n); only while the runner is over an obstacle
   sliding?: boolean; // WorldState.slide is set: the body is low, drawn as the crouch (a bone-built pose, no new captured motion)
+  slideTicks?: number; // ticks since the slide began (WorldState.slide.start): the slide clip plays the drop, then holds low
+  slideRisingTicks?: number; // ticks since the slide ended while the body gets up (the pose is still the slide clip, rising)
   rolledAt?: number; // tick of the last roll landing (WorldState.rolledAt): the roll plays for the simulator's roll time from here
   wallProgress?: number; // 0..1 along the wall climb
   swingTheta?: number; // rad from straight down; positive swings toward +x

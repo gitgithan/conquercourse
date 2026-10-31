@@ -63,9 +63,12 @@
     "check": "slide",
     "seconds": 3,
     "prompts": {
-      "slide_a": "A person runs, then drops onto the hip and slides forward along the ground with the legs out in front, then stands up and keeps running.",
-      "slide_b": "A parkour runner does a low baseball slide along the floor under an obstacle, leaning back with both legs forward, then springs up running.",
-      "slide_c": "A person ducks low and slides along the ground on one leg while running fast, the body almost touching the floor, then rises and runs on."
+      "slide_d": "A soccer player running fast does a sliding tackle: drops onto one hip and slides along the grass with the legs stretched out in front, then gets back up.",
+      "slide_e": "A baseball player sprints and does a feet-first slide into a base, the body low and leaning back with both legs stretched forward, then stands up.",
+      "slide_f": "A person sprinting leans far back and slides along the floor on the back of the thighs, the legs in front, the hands off the ground, then pushes up to stand.",
+      "slide_g": "A person runs, throws themselves down and slides forward on the floor lying on their back, feet first, then jumps up to their feet.",
+      "slide_h": "A skater runs and drops into a very low crouch, sitting on the heels, and glides forward along the ground, then rises back up.",
+      "slide_i": "A person runs to a low barrier, sits down and slides on the floor under it feet first, then gets up and carries on running."
     }
   }
 }
