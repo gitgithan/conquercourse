@@ -31,8 +31,10 @@
 - Pictures were shrunk to 640 px JPEG first, like the page's own "thumb".
 - Sources: `scripts/cc120-safety-sources.py` (Commons, plan in `commons-plan.json`, result in `commons-sources.json`) and `scripts/cc120-safety-synthetic.py` (the invented images).
 - 84 model calls plus 8 more with a caption: 76 returned token counts.
-  - Tokens (last call of each answer): 52,191 in and 79,889 out in total; median 592 reasoning-plus-answer tokens out, because the model thinks before it answers.
-  - Cost: about $0.35 in total (estimate: the CC-119 run measured $0.003 a call; Baseten bills per token and sends no price). Covered by the Baseten hackathon credit.
+  - Tokens (last call of each answer): 52,191 in and 79,889 out in total.
+  - Median 592 reasoning-plus-answer tokens out, because the model thinks before it answers.
+  - Cost: about $0.35 in total (estimate: the CC-119 run measured $0.003 a call; Baseten bills per token and sends no price).
+  - Covered by the Baseten hackathon credit.
 - Results: `rows.json` (one row per call), `scores.json`, `run.json`.
 
 ## Scores
