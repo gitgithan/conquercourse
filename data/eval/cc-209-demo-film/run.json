@@ -1,0 +1,63 @@
+{
+  "issue": "CC-209",
+  "name": "the owner's cut of the demo film",
+  "date": "2026-10-31",
+  "music": {
+    "model": "facebook/musicgen-medium",
+    "script": "pipelines/music_film2.py",
+    "method": "four single 30 s generations, no continuations (the CC-209 long track failed with silent gaps from continuations)",
+    "guidance_scale": 3,
+    "rate": 32000,
+    "cost": "about $1 (Modal pay-as-you-go)",
+    "jobs": [
+      {
+        "name": "act1-wonder",
+        "seed": 11,
+        "prompt": "cinematic wonder, gentle piano arpeggios, soft swelling strings, slow rising awe, 100 bpm, instrumental, no vocals, no drums",
+        "measuredBpm": 100,
+        "used": true
+      },
+      {
+        "name": "act2-pulse",
+        "seed": 22,
+        "prompt": "playful building pulse, marimba and pizzicato strings, soft taiko drum, 100 bpm, curious energy rising, instrumental, no vocals",
+        "measuredBpm": 100,
+        "used": true
+      },
+      {
+        "name": "act3-drive-a",
+        "seed": 33,
+        "prompt": "epic taiko drums, driving string ostinato, heroic adventure chase, 100 bpm, fast and exciting, instrumental, no vocals",
+        "measuredBpm": 100,
+        "used": true
+      },
+      {
+        "name": "act3-drive-b",
+        "seed": 44,
+        "prompt": "epic taiko drums, driving string ostinato, heroic adventure chase, 100 bpm, fast and exciting, instrumental, no vocals",
+        "measuredBpm": 133.2,
+        "used": false
+      }
+    ],
+    "mix": {
+      "file": "../conquercourse-assets/demo-media/music/film-owner-cut.ogg",
+      "seconds": 84,
+      "recipe": "act1 24.6 s x2.2 gain, act2 22.2 s, act3 = act3-drive-a 29.1 s + 9.6 s of itself with a 0.3 s crossfade x1.6 gain; acts joined with 0.6 s crossfades on bar lines at 24.0 and 45.6 s; fade in 0.4 s, fade out from 81.6 s over 2.4 s; limiter 0.89; libvorbis q6",
+      "silenceCheck": "no silent gaps (ffmpeg silencedetect at -45 dB, 1.5 s) in any of the four generations or the mix"
+    }
+  },
+  "picture": {
+    "composition": "DemoFilm in demo/ (data: demo/data/demo/demo-film.json)",
+    "render": "cd demo && npm run render:demo -> test-results/demo-film.mp4",
+    "format": "1280x720, 30 fps, 140 beats at 100 bpm = 84.0 s",
+    "clips": "../conquercourse-assets/demo-media/clips/demo/",
+    "takes": {
+      "flyover": "240 frames, 0 exact duplicate pictures; film window from 1.0 s",
+      "dive": "360 frames (films/take-dive2.mp4), 0 duplicates; window from 1.5 s (the first second can still be the plain camera before the film pose takes over)",
+      "lache": "216 frames (films/take-lache2.mp4), 0 duplicates; --skip 22 --ramp 1.0,5.6,0.25 with film=follow; probe log (films/probe-lache.log) measured jump 23.23 s, grab 23.92 s, let go 24.76 s, landing 25.55 s; in the take the grab lands at output 4.33 s and the Remotion dim is fully dark at 3.96 s, so the grab is never visible",
+      "lacheFirstAttempt": "an earlier --from-x 140 take filmed only the end-of-run results card; --skip is the reliable way in (noted in docs/film-craft.md)",
+      "coasterDroneGhostRookies": "coaster 120, drone 240, ghost 180, rookie-a 270, rookie-b 270 frames; 0 exact duplicate pictures each",
+      "marksFiles": "films/*.marks.json next to each screen recording"
+    }
+  }
+}

@@ -1,0 +1,191 @@
+{
+  "title": "ConquerCourse",
+  "line": "Train slow. Run fast.",
+  "fps": 30,
+  "width": 1280,
+  "height": 720,
+  "music": {
+    "src": "music/film-owner-cut.ogg",
+    "bpm": 100,
+    "firstBeat": 0,
+    "level": 0.85,
+    "duckLevel": 0.3,
+    "fadeIn": 0.4,
+    "fadeOut": 2.4,
+    "start": 0,
+    "measuredFrom": "film-owner-cut.ogg (three MusicGen clips joined on the 100 bpm grid)",
+    "measuredBpm": 100
+  },
+  "credits": [
+    "Street map data: OpenStreetMap contributors (ODbL)",
+    "Photo-lifted box: Alexis Jazz, Voltaplatz skatepark, CC BY 4.0",
+    "Music: generated for this film with MusicGen (Meta), CC BY-NC 4.0",
+    "Every run shown is the real game, replayed by the simulator"
+  ],
+  "shots": [
+    {
+      "name": "globe",
+      "beats": 12,
+      "tag": "GFX",
+      "note": "drawn globe; the map is stored OpenStreetMap data",
+      "src": "clips/demo/beat1.mp4",
+      "from": 0
+    },
+    {
+      "name": "slicer-intro",
+      "beats": 12,
+      "tag": "REAL",
+      "src": "clips/demo/beat2.mp4",
+      "from": 0
+    },
+    {
+      "name": "slicer",
+      "beats": 16,
+      "tag": "REAL",
+      "src": "clips/demo/slicer2.mp4",
+      "parts": [
+        {
+          "from": 13.5,
+          "dur": 2.4
+        },
+        {
+          "from": 19.5,
+          "dur": 2.4
+        },
+        {
+          "from": 27,
+          "dur": 2.4
+        },
+        {
+          "from": 215,
+          "dur": 1.2
+        },
+        {
+          "from": 219.3,
+          "dur": 1.2
+        }
+      ]
+    },
+    {
+      "name": "editor",
+      "beats": 16,
+      "tag": "REAL",
+      "src": "clips/demo/editor2.mp4",
+      "parts": [
+        {
+          "from": 7.6,
+          "dur": 2.4
+        },
+        {
+          "from": 11.6,
+          "dur": 1.8
+        },
+        {
+          "from": 15.5,
+          "dur": 1.8
+        },
+        {
+          "from": 21.7,
+          "dur": 1.8
+        },
+        {
+          "from": 25.2,
+          "dur": 1.8
+        }
+      ]
+    },
+    {
+      "name": "partner",
+      "beats": 6,
+      "tag": "REAL",
+      "src": "clips/demo/editor3.mp4",
+      "parts": [
+        {
+          "from": 14,
+          "dur": 1.2
+        },
+        {
+          "from": 29.9,
+          "dur": 1.2
+        },
+        {
+          "from": 31.9,
+          "dur": 1.2
+        }
+      ]
+    },
+    {
+      "name": "picker",
+      "beats": 6,
+      "tag": "REAL",
+      "src": "clips/demo/picker.mp4",
+      "parts": [
+        {
+          "from": 56.5,
+          "dur": 1.8
+        },
+        {
+          "from": 59.6,
+          "dur": 1.8
+        }
+      ]
+    },
+    {
+      "name": "flyover",
+      "beats": 8,
+      "tag": "REAL",
+      "src": "clips/demo/flyover.mp4",
+      "from": 1
+    },
+    {
+      "name": "dive-run",
+      "beats": 16,
+      "tag": "REAL",
+      "src": "clips/demo/dive.mp4",
+      "from": 1.5
+    },
+    {
+      "name": "lache",
+      "beats": 12,
+      "tag": "REAL",
+      "src": "clips/demo/lache.mp4",
+      "from": 0,
+      "kind": "lache"
+    },
+    {
+      "name": "coaster",
+      "beats": 4,
+      "tag": "REAL",
+      "src": "clips/demo/coaster.mp4",
+      "from": 0.6
+    },
+    {
+      "name": "drone",
+      "beats": 4,
+      "tag": "REAL",
+      "src": "clips/demo/drone.mp4",
+      "from": 1
+    },
+    {
+      "name": "ghost",
+      "beats": 4,
+      "tag": "REAL",
+      "src": "clips/demo/ghost.mp4",
+      "from": 0.6
+    },
+    {
+      "name": "playnow",
+      "beats": 12,
+      "tag": "GFX",
+      "kind": "playnow",
+      "left": "clips/demo/rookie-a.mp4",
+      "right": "clips/demo/rookie-b.mp4"
+    },
+    {
+      "name": "credits",
+      "beats": 12,
+      "tag": "GFX",
+      "kind": "credits"
+    }
+  ]
+}
