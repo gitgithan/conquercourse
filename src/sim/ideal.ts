@@ -219,10 +219,11 @@ export const shiftWindow = (w: Window, dx: number): Window => ({ ...w, obstacle:
 const scoreOf = (r: RunResult): number => (r.world.outcome === 'cleared' ? CLEARED : r.maxX);
 export const evalJob = (course: CourseData, j: Job): number => scoreOf(playPlan(j.noShots && course.shots ? { ...course, shots: undefined } : course, j.plan, j.maxTicks));
 
-export function driveSync<T>(course: CourseData, g: Gen<T>): T {
+export function driveSync<T>(course: CourseData, g: Gen<T>, onBatch?: (b: Batch) => void): T {
   let r = g.next();
   while (!r.done) {
     const { jobs, stopOnClear } = r.value;
+    onBatch?.(r.value); // CC-243: the editor's lane check shows "step N of M" from this
     const out: number[] = [];
     for (const j of jobs) { const s = evalJob(course, j); out.push(s); if (stopOnClear && s >= CLEARED) break; }
     r = g.next(out);
@@ -254,8 +255,8 @@ export async function driveAsync<T>(g: Gen<T>, evaluate: (jobs: Job[]) => Promis
 // One way through a course with bars, with the time it takes (ticks at 120 Hz); `chosen` marks the faster one the plan follows.
 export interface Route { name: string; ticks: number; bars: number; chosen: boolean }
 
-export function searchIdealRun(course: CourseData, opts: { routes?: boolean } = {}): SearchResult {
-  return driveSync(course, searchGen(course, opts));
+export function searchIdealRun(course: CourseData, opts: { routes?: boolean; onBatch?: (b: Batch) => void } = {}): SearchResult {
+  return driveSync(course, searchGen(course, opts), opts.onBatch);
 }
 
 // `alt` is the second-best branch (see the end of the search): for an edge index, which share (0 to 1) of the range of presses is taken, instead of the middle of the best ones.
