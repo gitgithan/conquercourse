@@ -9,6 +9,7 @@ import { DEFAULT_TRAMPOLINE, bounce, type Bounce } from './trampoline';
 import { JUMP_COST, VAULT_COST } from './energy';
 import { VAULT_BUFFER, VAULT_PLANT_GRIP, VAULT_PLANT_TICKS, findVault, vaultAt, vaultExitSpeed, type Vault } from './vault';
 import { ROLL_FORGIVE_TICKS, rollWindowOpen } from './drop';
+import { SLIDE_COST, SLIDE_RECOVERY, canSlide, startSlide, stepSlide, type Slide } from './slide';
 import { GROUND_ROLL_COST, GROUND_ROLL_RECOVERY, startGroundRoll, stepGroundRoll, type GroundRoll } from './roll';
 import { DEFAULT_HANG, bodyVelocity, feetOf, gripSlips, hangStep, releaseHang, tryGrab, type Hang } from './holds';
 import { enterCart, railsOf, stepCartWorld, trackParams, trackSegments, type Cart } from './cart';
@@ -27,7 +28,7 @@ export type Outcome = 'running' | 'cleared' | 'splash' | 'hurt' | 'stalled'; // 
 
 export interface GameEvent {
   tick: number;
-  type: 'pole-pickup' | 'pole-plant' | 'pole-release' | 'pole-fell-back' | 'bar-down' | 'pole-land' | 'jump' | 'roll' | 'land' | 'stumble' | 'hard-landing' | 'splash' | 'wall-grab' | 'wall-no-grip' | 'wall-slide' | 'rope-catch' | 'rope-release' | 'hang-catch' | 'hang-release' | 'vault' | 'climb' | 'climb-drop' | 'bounce' | 'cleared' | 'cart-start' | 'cart-stall' | 'cart-off' | 'cart-catch' | 'launch-fire' | 'launch-release' | 'launch-dud' | 'recoil' | 'plank-sag' | 'plank-break' | 'plank-off' | 'band-release' | 'band-snap' | 'drone-board' | 'drone-land' | 'drone-drop' | 'drone-crash' | 'drone-empty' | 'ball-hit';
+  type: 'pole-pickup' | 'pole-plant' | 'pole-release' | 'pole-fell-back' | 'bar-down' | 'pole-land' | 'jump' | 'roll' | 'slide' | 'land' | 'stumble' | 'hard-landing' | 'splash' | 'wall-grab' | 'wall-no-grip' | 'wall-slide' | 'rope-catch' | 'rope-release' | 'hang-catch' | 'hang-release' | 'vault' | 'climb' | 'climb-drop' | 'bounce' | 'cleared' | 'cart-start' | 'cart-stall' | 'cart-off' | 'cart-catch' | 'launch-fire' | 'launch-release' | 'launch-dud' | 'recoil' | 'plank-sag' | 'plank-break' | 'plank-off' | 'band-release' | 'band-snap' | 'drone-board' | 'drone-land' | 'drone-drop' | 'drone-crash' | 'drone-empty' | 'ball-hit';
   detail?: Record<string, number | boolean>;
 }
 
@@ -64,6 +65,8 @@ export interface WorldState {
   plantUntil: number; // tick until which the feet plant after a vault (no key held: brake hard)
   rolledAt: number; // tick of the last roll, on landing or on the ground (the actor plays the roll clip from here); -1000 = none
   groundRoll: GroundRoll | null; // a roll along the ground in progress (X on the ground)
+  slide?: Slide | null; // a slide along the ground in progress (Down or S while running; src/sim/slide.ts)
+  slideReadyAt?: number; // tick from which the next slide may start (the cooldown)
   rollReadyAt: number; // tick from which the next ground roll may start (a short recovery)
   events: GameEvent[];
 }
@@ -103,7 +106,7 @@ export function stepWorld(w: WorldState, input: RunnerInput, course: CourseData,
   const n = stepGated(w, input, course, p);
   if (!course.shots || n.outcome !== 'running') return n;
   // timed balls: where they are is a formula of the tick, so a hit is the same for every player (src/sim/shots.ts)
-  const b = ballHit(course.shots, n.runner.tick, n.runner.x, n.runner.y, p.gravity);
+  const b = ballHit(course.shots, n.runner.tick, n.runner.x, n.runner.y, p.gravity, !!n.slide);
   return b ? { ...n, outcome: 'hurt', events: [...n.events, { tick: n.runner.tick, type: 'ball-hit', detail: { x: b.x, y: b.y, launcher: b.launcher } }] } : n;
 }
 function stepGated(w: WorldState, input: RunnerInput, course: CourseData, p: RunnerParams): WorldState {
@@ -180,6 +183,13 @@ function stepWorldPlain(w: WorldState, input: RunnerInput, course: CourseData, p
     ev('roll', { vx: g.dir * g.v0 });
     n.groundRoll = g; n.rolledAt = tick; n.energy = Math.max(0, w.energy - GROUND_ROLL_COST);
   }
+  // the slide (a fresh Down or S press while running on the ground): it carries the speed on low, and ends on a jump, the time, or the speed worn down
+  if (!w.slide && w.mode === 'run' && !n.groundRoll && input.slide && !input.jump && !input.vault && canSlide(w.runner, w.runner.tick, w.slideReadyAt ?? 0)) {
+    n.slide = startSlide(w.runner);
+    ev('slide', { vx: n.slide.dir * n.slide.v0 });
+    n.energy = Math.max(0, n.energy - SLIDE_COST);
+  }
+  if (n.slide && input.jump) { n.slide = null; n.slideReadyAt = tick + Math.round(SLIDE_RECOVERY * 120); } // stand up into the jump
   const before = w.runner;
   const planting = w.plantUntil > tick && !input2.run && !input2.left; // just off a vault with no key held: the feet plant and the runner stops
   let flightTerrain = course.terrain;
@@ -193,6 +203,10 @@ function stepWorldPlain(w: WorldState, input: RunnerInput, course: CourseData, p
     const g = stepGroundRoll(before, n.groundRoll, flightTerrain);
     r = g.runner;
     if (g.ended) { n.rollReadyAt = tick + Math.round(GROUND_ROLL_RECOVERY * 120); n.groundRoll = null; }
+  } else if (n.slide) {
+    const g = stepSlide(before, n.slide, flightTerrain);
+    r = g.runner;
+    if (g.ended || !r.grounded) { n.slideReadyAt = tick + Math.round(SLIDE_RECOVERY * 120); n.slide = null; }
   } else r = step(before, input2, planting ? { ...p, grip: p.grip * VAULT_PLANT_GRIP } : p, flightTerrain);
   n.runner = r;
   n.rollArmed = armed && !r.grounded;

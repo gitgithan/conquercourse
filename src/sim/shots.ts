@@ -1,3 +1,4 @@
+import { SLIDE_BODY_HIGH, SLIDE_BODY_LOW } from './slide';
 import { DT, GRAVITY } from './units';
 
 // Timed ball launchers: a launcher fires a ball every `every` seconds, starting at `phase` seconds, the same for every player.
@@ -10,6 +11,7 @@ export interface ShotLauncher {
   phase: number; // s: the first shot
   r?: number; // m: the ball's radius
   life?: number; // s: how long a ball flies before it is gone
+  stopX?: number; // m: a wall's face; the ball is gone once it reaches it (a ball that flies left stops at x <= stopX)
 }
 
 export const BALL_R = 0.25;
@@ -29,7 +31,17 @@ export const flightTime = (s: ShotLauncher, k: number, tick: number): number => 
 export function ballAt(s: ShotLauncher, k: number, tick: number, gravity = GRAVITY): { x: number; y: number } | null {
   const t = flightTime(s, k, tick);
   if (t < 0 || t > life(s)) return null;
-  return { x: s.x + s.vx * t, y: s.y + (s.vy ?? 0) * t - 0.5 * gravity * t * t };
+  const x = s.x + s.vx * t;
+  if (s.stopX !== undefined && (s.vx < 0 ? x <= s.stopX : x >= s.stopX)) return null; // it hit the wall
+  return { x, y: s.y + (s.vy ?? 0) * t - 0.5 * gravity * t * t };
+}
+
+/** How far a launcher has charged at tick t, from 0 (just fired) to 1 (firing now): the plunger of the fire meter, tail to muzzle. The first charge starts at the tick 0. */
+export function charge(s: ShotLauncher, tick: number): number {
+  const now = tick * DT;
+  const k = Math.max(0, Math.ceil((now - s.phase) / s.every - 1e-9)); // the next shot
+  const next = s.phase + k * s.every, from = Math.max(0, next - s.every);
+  return Math.min(1, Math.max(0, (now - from) / Math.max(next - from, 1e-9)));
 }
 
 /** Every ball of every launcher in the air at tick t. */
@@ -48,22 +60,40 @@ export function ballsAt(shots: ShotLauncher[], tick: number, gravity = GRAVITY):
 }
 
 /** True when a ball touches the body of a runner whose feet are at (x, y). */
-export function hitsBody(b: { x: number; y: number; r: number }, x: number, y: number): boolean {
-  const cy = Math.min(y + BODY_HIGH, Math.max(y + BODY_LOW, b.y)); // the nearest point on the body's spine
+export function hitsBody(b: { x: number; y: number; r: number }, x: number, y: number, sliding = false): boolean {
+  const hi = sliding ? SLIDE_BODY_HIGH : BODY_HIGH, lo = sliding ? SLIDE_BODY_LOW : BODY_LOW; // a sliding body is low: a ball flying at head height passes over it
+  const cy = Math.min(y + hi, Math.max(y + lo, b.y)); // the nearest point on the body's spine
   return Math.hypot(b.x - x, b.y - cy) < b.r + BODY_R;
 }
 
 /** The first ball that touches a runner at (x, y) at tick t, or null. */
-export function ballHit(shots: ShotLauncher[], tick: number, x: number, y: number, gravity = GRAVITY): FlyingBall | null {
-  return ballsAt(shots, tick, gravity).find((b) => hitsBody(b, x, y)) ?? null;
+export function ballHit(shots: ShotLauncher[], tick: number, x: number, y: number, gravity = GRAVITY, sliding = false): FlyingBall | null {
+  return ballsAt(shots, tick, gravity).find((b) => hitsBody(b, x, y, sliding)) ?? null;
 }
 
 /** The switch: ?balls=1 adds the timed balls to the First Course. They are off by default: no beat was found that keeps every checkpoint start clear (docs/timed-balls.md). */
 export const ballsOn = (params: URLSearchParams): boolean => params.get('balls') === '1';
 
-/** The three launchers of the First Course: a low one before the rope, a low one before the trampoline, and a high one over the last deck. */
+/** The three launchers of the First Course: a low one before the rope, a mid-height one before the trampoline, and one over the last deck. y is the muzzle height above the sea. */
 export const BALL_LAUNCHERS: ShotLauncher[] = [
-  { x: 24, y: 1.2, vx: -20, vy: 2, every: 30, phase: 3 },
-  { x: 52, y: 1.5, vx: -25, vy: 2, every: 30, phase: 3 },
-  { x: 76, y: 5.8, vx: -25, vy: 2, every: 30, phase: 3 },
+  { x: 24, y: 0.55, vx: -20, vy: 2, every: 20, phase: 3 }, // knee height over the precision block: only a jump clears it
+  { x: 52, y: 1.5, vx: -25, vy: 2, every: 20, phase: 3 }, // head height: a slide or a jump clears it
+  { x: 76, y: 5.8, vx: -25, vy: 2, every: 20, phase: 3 }, // head height over the last deck (4.3 m): a slide or a jump clears it
 ];
+
+/** The Cannonballs course: the same launchers plus a low ball fired together with the head-height one at x = 52, and a climbable wall in front of them (the ball is gone at the wall's face). */
+export const CANNON_WALL = { x0: 40, x1: 42, top: 2 }; // m; 2 m is under the standing climb's reach (2.2 m)
+export const CANNON_STACK: ShotLauncher = { x: 52, y: 0.55, vx: -25, vy: 2, every: 20, phase: 3 };
+
+export function cannonLaunchers(base: ShotLauncher[] = BALL_LAUNCHERS): ShotLauncher[] {
+  const withWall = base.map((s) => (s.x === 52 ? { ...s, stopX: CANNON_WALL.x1 } : s));
+  const pair = withWall.find((s) => s.x === 52)!;
+  return [...withWall, { ...CANNON_STACK, every: pair.every, phase: pair.phase, stopX: CANNON_WALL.x1 }];
+}
+
+/** The First Course's flat stretch 33 to 55 m split to carry the wall. */
+export function withCannonWall<C extends { terrain: { platforms: { x0: number; x1: number; top: number }[] } }>(c: C): C {
+  const w = CANNON_WALL;
+  const platforms = c.terrain.platforms.flatMap((p) => (p.x0 < w.x0 && p.x1 > w.x1 ? [{ ...p, x1: w.x0 }, { ...p, x0: w.x0, x1: w.x1, top: w.top }, { ...p, x0: w.x1 }] : [p]));
+  return { ...c, terrain: { ...c.terrain, platforms } };
+}

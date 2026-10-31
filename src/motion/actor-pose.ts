@@ -17,6 +17,7 @@ export interface ActorState {
   vaultContact?: { x: number; y: number }; // where the hands stay on the obstacle (the simulator's contact point, world metres)
   climbProgress?: number; // 0 to 1 through a climb (WorldState.climb.i / n): hanging from the edge, then pulling up and over
   vaultProgress?: number; // 0 to 1 through the vault (WorldState.vault.i / n); only while the runner is over an obstacle
+  sliding?: boolean; // WorldState.slide is set: the body is low, drawn as the crouch (a bone-built pose, no new captured motion)
   rolledAt?: number; // tick of the last roll landing (WorldState.rolledAt): the roll plays for the simulator's roll time from here
   wallProgress?: number; // 0..1 along the wall climb
   swingTheta?: number; // rad from straight down; positive swings toward +x
@@ -28,7 +29,7 @@ export interface ActorState {
   next?: Next; // the next obstacle ahead and how far: the body gets ready for it before it arrives
 }
 
-export type ClipKind = 'stand' | 'run' | 'leap' | 'land' | 'swing' | 'wall-run' | 'wall-reach' | 'bounce' | 'roll' | 'vault' | 'climb' | 'sit' | 'sling' | 'hurt';
+export type ClipKind = 'stand' | 'run' | 'leap' | 'land' | 'swing' | 'wall-run' | 'wall-reach' | 'bounce' | 'roll' | 'slide' | 'vault' | 'climb' | 'sit' | 'sling' | 'hurt';
 
 export const LAND_TICKS = 60; // how long the landing clip is held after touch-down (matches the Rookie demo)
 export const REACH_FROM = 0.75; // the reach clip plays over the last quarter of the wall climb
@@ -41,6 +42,7 @@ export function chooseClip(s: ActorState): ClipKind {
   if (s.mode === 'cart') return 'sit';
   if (s.mode === 'run' && s.climbProgress !== undefined) return 'climb';
   if (s.mode === 'run' && s.vaultProgress !== undefined) return 'vault';
+  if (s.mode === 'run' && s.sliding && s.grounded) return 'slide';
   if (s.mode === 'run' && s.rolledAt !== undefined && moveProgress(MOTION_TABLE.roll, s.rolledAt, s.tick) !== null) return 'roll';
   if (s.mode === 'swing') return 'swing';
   if (s.mode === 'bounce') return 'bounce';
