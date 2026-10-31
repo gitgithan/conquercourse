@@ -22,7 +22,7 @@ export interface PoleRide {
   t: number; // ticks since the plant
 }
 
-export interface PoleWorld { carrying: boolean; ride: PoleRide | null; barDown: boolean }
+export interface PoleWorld { carrying: boolean; ride: PoleRide | null; barDown: boolean; over?: boolean } // over: a vault carried the runner past the bar; running under it does not count as the course
 
 export const NO_POLE: PoleWorld = { carrying: false, ride: null, barDown: false };
 export const POLE_PICKUP_REACH = 1.2; // m either side of the pole lying on the ground

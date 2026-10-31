@@ -131,3 +131,12 @@
   - Next step: reuse the Rookie actor with a ghost material.
 - No sound for the ghost.
 - No ghost in the Dojo or the editor.
+
+## End report polish (CC-158, 2026-10-31)
+- The name box says NAME and is wider; the share button no longer stretches.
+- There is no Close or More button and no "Chase the ghost" button.
+- A click outside the report does what R does: try again, with the ghost loaded.
+- The ghost comes with every run unless the player turned it off with N.
+- Pick-up objects (pole, drone) are drawn again on every new try.
+- The pole course only clears after a vault carried the runner past the bar; running under it does not count (`tests/pole-world.test.ts`).
+- Browser check: `scripts/report-check.mjs`; picture: `docs/evidence/cc-158-report-polish.png`.

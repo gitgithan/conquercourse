@@ -810,6 +810,12 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
     feed.left--;
     return inputOfMask(feed.log[feed.i - 1][0]);
   };
+  // CC-158: a click outside the end report does what R does (a try again, with the ghost); there is no Close button
+  document.addEventListener('pointerdown', (e) => {
+    if (panel.style.display === 'none' || !panel.querySelector('#report-actions') || panel.contains(e.target as Node)) return;
+    if ((e.target as HTMLElement).closest?.('#sitenav, #courses-btn, #feedback-btn, .gallery')) return; // the top bar and open pop-ups keep their own clicks
+    restart();
+  });
   function restart(x: number = retryX) {
     setMusicScreen('course');
     clearGuides();
@@ -1482,7 +1488,6 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
         addHardest(body);
         { const bp = params.get('course') ?? ''; if (boardOn(params) && !botMode && !demo && !idealWhole && !params.get('mode') && /^\/assets\/(demo|experiments\/osm)\//.test(bp)) body.querySelector('#report-actions')?.before(boardBox(statKey(bp), courseHash(course), session())); } // CC-108
         if (ghostLine) body.querySelector('#report-ghost-slot')?.append(ghostLine);
-        if (ghostCtl && !botMode && !demo && !idealWhole) body.querySelector('#report-actions')?.prepend(...ghostCtl.reportActions(() => { panel.style.display = 'none'; retryX = course.startX; restart(course.startX); }));
         if (shareOn(params) && !botMode && !demo && !idealWhole && !params.get('mode')) {
           const mine = ghostCtl?.myRun() ?? null, mineClip = ghostCtl?.myClip() ?? null, ticks = world.runner.tick; // a link needs a run from the start; a clip can be made of any try (CC-157)
           const partialStart = !mine && mineClip ? startOfX(course, mineClip.from) : null, partial = partialStart && mineClip ? { log: mineClip.log, start: partialStart } : null; // CC-242: a cleared run from a checkpoint can be shared with its start; it never reaches a board

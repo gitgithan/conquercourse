@@ -296,14 +296,14 @@ function stepWorldPlain(w: WorldState, input: RunnerInput, course: CourseData, p
     const ps = course.pole, held = !!(input.handL || input.handR), pw = n.pole ?? NO_POLE;
     if (!pw.carrying && held && Math.abs(r.x - ps.pickX) <= POLE_PICKUP_REACH) { n.pole = { ...pw, carrying: true }; ev('pole-pickup'); }
     else if (pw.carrying && held && r.x >= ps.x0 && r.x <= ps.x1 && r.vx >= POLE_MIN_SPEED) {
-      n.mode = 'pole'; n.pole = { carrying: true, ride: polePlant(ps, r.x, r.y, r.vx), barDown: false };
+      n.mode = 'pole'; n.pole = { carrying: true, ride: polePlant(ps, r.x, r.y, r.vx), barDown: false, over: pw.over };
       n.runner = { ...r, vx: 0, vy: 0, grounded: false };
       ev('pole-plant', { vx: r.vx });
     }
   }
 
   // finish: standing on the finish platform past the line
-  if (n.outcome === 'running' && r.grounded && r.x >= course.finishX && n.mode === 'run' && !n.landGrace) { n.outcome = 'cleared'; ev('cleared'); }
+  if (n.outcome === 'running' && r.grounded && r.x >= course.finishX && n.mode === 'run' && !n.landGrace && (!course.pole || n.pole?.over)) { n.outcome = 'cleared'; ev('cleared'); }
   n.events = events;
   return n;
 }
@@ -462,7 +462,7 @@ function stepPoleMode(w: WorldState, input: RunnerInput, course: CourseData): Wo
   const ev = (type: GameEvent['type'], detail?: GameEvent['detail']) => events.push({ tick, type, detail });
   if (!ride.result && !(input.handL || input.handR)) { ride = poleRelease(ride, ps, t); ev('pole-release', { t }); }
   const f = poleFeetAt(ride, ps, t);
-  const free = (barDown: boolean): WorldState => ({ ...w, mode: 'run', pole: { carrying: false, ride: null, barDown: barDown || pw.barDown }, noCatchUntil: tick, events, runner: { ...w.runner, tick, x: f.x, y: f.y, vx: f.vx, vy: f.vy, grounded: false } });
+  const free = (barDown: boolean): WorldState => ({ ...w, mode: 'run', pole: { carrying: false, ride: null, barDown: barDown || pw.barDown, over: pw.over || f.x >= ps.barX }, noCatchUntil: tick, events, runner: { ...w.runner, tick, x: f.x, y: f.y, vx: f.vx, vy: f.vy, grounded: false } });
   const end = ride.path.length - 1, res = ride.result;
   if (!res) { // still held: the pole may stand the runner up (fall back) or lean onto the bar
     if (t >= end) { ev('pole-fell-back'); return free(false); }
@@ -473,7 +473,7 @@ function stepPoleMode(w: WorldState, input: RunnerInput, course: CourseData): Wo
     const gy = groundAt(course.terrain, f.x);
     if (res.outcome === 'cleared' && f.vy < 0 && Number.isFinite(gy) && f.y <= gy) { // down on the cushion (a platform at the cushion's height)
       ev('pole-land', { vy: -f.vy });
-      return { ...w, mode: 'run', pole: { carrying: false, ride: null, barDown: pw.barDown }, noCatchUntil: tick, events, runner: { ...w.runner, tick, x: f.x, y: gy, vx: Math.max(0.5, f.vx * 0.3), vy: 0, grounded: true } };
+      return { ...w, mode: 'run', pole: { carrying: false, ride: null, barDown: pw.barDown, over: true }, noCatchUntil: tick, events, runner: { ...w.runner, tick, x: f.x, y: gy, vx: Math.max(0.5, f.vx * 0.3), vy: 0, grounded: true } };
     }
     if (t >= end) return free(false);
   }

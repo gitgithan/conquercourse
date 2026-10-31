@@ -47,11 +47,13 @@ export function createDroneView(scene: THREE.Scene, course: CourseData): DroneVi
   group.add(drone);
 
   let parked: { x: number; y: number } | null = null; // where the drone stands after it set the rider down
-  let spin = 0, last = performance.now();
+  let spin = 0, last = performance.now(), lastTick = 0;
   const rest = { x: (p.x0 + p.x1) / 2, y: deck + 0.06 + p.hang };
   return {
     update(w) {
       const now = performance.now(), dt = Math.min(0.05, (now - last) / 1000); last = now;
+      if (w.runner.tick < lastTick) parked = null; // a new try: the drone waits on its pad again
+      lastTick = w.runner.tick;
       const d = w.mode === 'drone' ? w.drone : null;
       let power = 0;
       if (d) {

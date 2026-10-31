@@ -49,4 +49,10 @@ describe('pole vault in the world', () => {
     expect(a.w.runner.x).toBe(b.w.runner.x);
     expect(a.types).toEqual(b.types);
   });
+  it('running under the bar without the vault does not clear the course', () => {
+    let w = newWorld(course);
+    for (let i = 0; i < 120 * 60 && w.outcome === 'running' && w.runner.x < course.finishX + 3; i++) w = stepWorld(w, key(), course);
+    expect(w.outcome).not.toBe('cleared');
+    expect(w.pole?.over).toBeFalsy();
+  });
 });
