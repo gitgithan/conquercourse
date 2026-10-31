@@ -39,6 +39,7 @@ export const DEMO_GROUPS: [string, Demo[]][] = [
 
 import { labsOn } from './labs';
 import { applyStats, loadStats, statsOn } from './course-stats';
+import { growthOn, mountGrowth } from './growth-strip';
 import { showWorldStats } from './world-stats';
 import { pageQuery } from '../flags';
 
@@ -233,7 +234,7 @@ export function buildGallery(o: GalleryOptions): { el: HTMLElement; focusStart()
     else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') e.preventDefault();
   });
   // CC-149: the play numbers and the difficulty order arrive a moment later, so the cards never wait for the server; ?stats=0 leaves them out
-  if (statsOn(pageQuery())) { const wl = document.createElement('div'); wl.id = 'world-stats'; wl.style.cssText = 'margin:.5em 0 .8em;padding:.6em .9em;border:1px solid #556;border-radius:8px'; el.prepend(wl); showWorldStats(wl, el); } // CC-108
+  if (statsOn(pageQuery())) { const wl = document.createElement('div'); wl.id = 'world-stats'; wl.style.cssText = 'margin:.5em 0 .8em;padding:.6em .9em;border:1px solid #556;border-radius:8px'; el.prepend(wl); showWorldStats(wl, el); const gr = document.createElement('div'); gr.id = 'growth'; if (growthOn(pageQuery())) { wl.after(gr); mountGrowth(gr); } } // CC-108
   if (statsOn(pageQuery())) void loadStats().then((d) => { if (d && el.isConnected !== false) applyStats(el, d); });
   return { el, focusStart: () => { const here = el.querySelector<HTMLElement>('.wg-card[aria-current=true]'); (here ?? search).focus({ preventScroll: false }); here?.scrollIntoView({ block: 'center' }); } };
 }
