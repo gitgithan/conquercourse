@@ -138,7 +138,8 @@ export function enterCart(w: WorldState, course: CourseData): WorldState {
 }
 
 // Did the cart leave the rails on a hilltop? (Flying across the gap between two rail sections is planned and does not count.)
-export const flewOff = (events: { type: string; detail?: Record<string, number | boolean> }[]): boolean => events.some((e) => e.type === 'cart-off' && !e.detail?.end);
+// (A rider who jumped out on purpose did not fly off a hilltop either.)
+export const flewOff = (events: { type: string; detail?: Record<string, number | boolean> }[]): boolean => events.some((e) => e.type === 'cart-off' && !e.detail?.end && !e.detail?.jump);
 
 const STALL_ROLL_TICKS = 100; // after the turn-round the cart rolls back this long, then the run is over
 
@@ -152,6 +153,12 @@ export function stepCartWorld(w: WorldState, input: RunnerInput, course: CourseD
   if (!started) {
     if (input.run || input.jump) { started = true; v = p.push; events.push({ tick, type: 'cart-start', detail: { v: p.push } }); }
     return { ...w, cart: { ...c, x, v, started, stalledAt }, events, runner: { ...w.runner, tick, x, y: rails.y(x) + p.seat, vx: 0, vy: 0 } };
+  }
+  // CC-244: the rider may step out at any time. The body keeps the cart's velocity at that moment and takes the ordinary jump on top; the cart is left behind and never joins the body again.
+  if (input.jump) {
+    const s0 = rails.slope(x), cos0 = 1 / Math.sqrt(1 + s0 * s0);
+    events.push({ tick, type: 'cart-off', detail: { x, v, segment: c.segment, jump: true } });
+    return { ...w, mode: 'run', cart: null, cartLeft: true, events, runner: { ...w.runner, tick, x, y: rails.y(x) + p.seat, vx: v * cos0, vy: v * s0 * cos0 + course.jumpSpeed, grounded: false, landedAtTick: null, landedAtX: null } };
   }
   const prevV = v;
   const nx = cartStep(rails, x, v, input.squat, p);

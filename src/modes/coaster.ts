@@ -29,11 +29,15 @@ export function startCoaster(host: HTMLElement): { backend: 'webgl2' } {
     .co h1{margin:0;font-size:19px}.co canvas{background:#fff;border:1px solid #cfd6d0;border-radius:10px;width:100%;max-width:1100px;touch-action:none}
     .co .row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}.co button,.co a.btn{font:600 14px system-ui;border:1px solid #17201d;background:#fff;color:#17201d;border-radius:8px;padding:6px 12px;cursor:pointer;text-decoration:none}
     .co .go{background:#0f6b5c;color:#fff;border-color:#0f6b5c}.co .verdict{font-weight:700;padding:6px 10px;border-left:5px solid #888;background:#fff;border-radius:6px;max-width:1100px}
+    .co .howto{border:2px solid #0f6b5c;border-radius:10px;background:#fff;padding:8px 14px;max-width:1100px}.co .howto h2{margin:0 0 4px;font-size:17px;color:#0f6b5c}.co .howto ul{margin:0;padding-left:20px;font-size:15px}.co .howto li{margin:3px 0}.co .howto kbd{font:700 13px system-ui;background:#17201d;color:#fff;border-radius:5px;padding:1px 7px}
     .co .muted{color:#58635d;font-size:13px}.co label{display:flex;gap:8px;align-items:center}
   `;
   const root = document.createElement('div'); root.className = 'co';
   root.innerHTML = `<h1>Coaster builder</h1>
-    <div class="muted">Drag the dots to shape each track section. Double-click a section to add a dot; double-click a dot to take it out. Add a separate section to make a jump: flying off is fine if the cart lands on the next track.</div>
+    <div class="howto"><h2>How to shape the coaster</h2><ul>
+      <li><kbd>Drag</kbd> a dot to move it.</li>
+      <li><kbd>Double-click</kbd> the track to add a dot; double-click a dot to take it out.</li>
+      <li>Add a separate section to make a jump: in the game, press <kbd>Space</kbd> to leave the cart any time.</li></ul></div>
     <canvas id="cocanvas" width="1100" height="440"></canvas>
     <div class="verdict" id="coverdict"></div>
     <div class="row"><label>Push at the start <input id="copush" type="range" min="0" max="4" step="0.1" value="${push}"> <span id="copushv"></span> m/s</label>
