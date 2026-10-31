@@ -1,3 +1,4 @@
+import { mountLabsNav } from "../ui/labs-nav";
 import type { CourseData } from "../course/course";
 import {
   COLLISION_TABLE, HASHES, KEYS, SCOPES, avalanche, collisionProb, expand, firstDivergence, hashOf, hex, judge, logBytes, maskOfKey, playLog, tamperLog, verdict,
@@ -17,6 +18,7 @@ export function startLabHashing(host: HTMLElement): { backend: "canvas2d" } {
   root.id = "lab-hashing";
   root.style.cssText = `position:fixed;inset:0;overflow:auto;background:#f5f7f4;color:${INK};font:15px/1.4 system-ui,sans-serif`;
   host.append(root);
+  mountLabsNav(host, "lab-hashing");
   if (!labsOn()) {
     root.innerHTML = `<div style="max-width:520px;margin:12vh auto;padding:0 16px"><h1 style="font-size:22px">Lab 11: Verification and hashing</h1><p>Labs are switched off.</p><p><a href="?mode=lab-hashing&labs=1" style="color:${TEAL}">Switch labs on</a></p></div>`;
     return { backend: "canvas2d" };

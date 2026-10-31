@@ -1,3 +1,4 @@
+import { mountLabsNav } from "../ui/labs-nav";
 import { labsOn } from "../ui/labs";
 import { KNOBS, OURS, judgePhoto, parseTable, summarize, sweep, type Knob, type Photo, type Rule, type Summary } from "../labs/vision/rule";
 
@@ -14,6 +15,7 @@ export function startLabVision(host: HTMLElement): { backend: "canvas2d" } {
   root.id = "lab-vision";
   root.style.cssText = `position:fixed;inset:0;overflow:auto;background:#f5f7f4;color:${INK};font:15px/1.4 system-ui,sans-serif`;
   host.append(root);
+  mountLabsNav(host, "lab-vision");
   if (!labsOn()) {
     root.innerHTML = `<div style="max-width:520px;margin:12vh auto;padding:0 16px"><h1 style="font-size:22px">Lab 4: Computer vision</h1><p>Labs are switched off.</p><p><a href="?mode=lab-vision&labs=1" style="color:${TEAL}">Switch labs on</a></p></div>`;
     return { backend: "canvas2d" };

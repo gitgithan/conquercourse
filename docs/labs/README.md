@@ -20,6 +20,13 @@
 | 11 | [Verification and hashing](hashing.md) | Which part of a run do you hash so a changed tick shows up? | `?mode=lab-hashing&labs=1` | `tests/lab-hashing.test.ts` (14) | One course, one tick per change; the "what the game hashes" card is not checked against the golden files |
 | 12 | [Reinforcement learning](rl.md) | Can a character learn the course from points you write? | `?mode=lab-rl&labs=1` | `tests/lab-rl.test.ts` (11) | One course and one seed per claim; several "What we saw" claims are not pinned |
 
+## Moving between Labs
+- Every Lab page has a bar across the top with all 12 Labs by number and name; the current one is highlighted.
+- One click on a name opens that Lab; Previous and Next step along the list (no wrap at the ends).
+- The keys `[` and `]` do the same when you are not typing in a box.
+- Each switch is a link, so the browser closes the old Lab fully (workers, listeners, audio) and the Dojo music rule runs again on the new page.
+- The bar is one file, `src/ui/labs-nav.ts`, mounted by one line in each Lab; it is hidden when the labs switch is off (`?labs=0`).
+
 ## What to read in each doc
 - **How it was designed:** the question, the choices, the real game code that runs, the data that is precomputed, and the order of the screen.
 - **How we prove the lesson is right:** the test files and what each pins, and what would make the Lab's claim false.
