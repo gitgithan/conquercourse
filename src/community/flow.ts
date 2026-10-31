@@ -11,8 +11,8 @@ export type Box = [number, number, number, number];
 
 export interface FlowState {
   hasPhoto: boolean;
-  marks: number; // areas the person marked (or picked from the suggestions)
-  segmented: boolean; // "Segment Region(s)" has run (or was skipped because the job is off)
+  marks: number; // 0 or 1: the one rectangle the person marked
+  segmented: boolean; // "Segment Region" has run (or was skipped because the job is off)
   choices: Record<number, Kind>; // by mark id
 }
 export const startState = (): FlowState => ({ hasPhoto: false, marks: 0, segmented: false, choices: {} });
@@ -22,9 +22,9 @@ export function whyNot(step: Step, s: FlowState): string {
   switch (step) {
     case 'photo': return '';
     case 'mark': return s.hasPhoto ? '' : 'Pick a photo first.';
-    case 'segment': return !s.hasPhoto ? 'Pick a photo first.' : s.marks === 0 ? 'Mark at least one area on the photo.' : '';
-    case 'choose': return !s.hasPhoto ? 'Pick a photo first.' : s.marks === 0 ? 'Mark at least one area on the photo.' : !s.segmented ? 'Press Segment Region(s) first.' : '';
-    case 'make': return whyNot('choose', s) || (Object.keys(s.choices).length === 0 ? 'Choose 3D piece or Wallpaper for at least one area.' : '');
+    case 'segment': return !s.hasPhoto ? 'Pick a photo first.' : s.marks === 0 ? 'Mark the area you want on the photo.' : '';
+    case 'choose': return !s.hasPhoto ? 'Pick a photo first.' : s.marks === 0 ? 'Mark the area you want on the photo.' : !s.segmented ? 'Press Segment Region first.' : '';
+    case 'make': return whyNot('choose', s) || (Object.keys(s.choices).length === 0 ? 'Choose 3D piece or Wallpaper for your area.' : '');
   }
 }
 export const canEnter = (step: Step, s: FlowState): boolean => whyNot(step, s) === '';
@@ -50,14 +50,6 @@ export function tabFor(mode: string | null, params: URLSearchParams): Tab {
   if (t === 'make' || t === 'photos') return 'make';
   if (t === 'explore' || t === 'objects' || t === 'places') return 'explore';
   return mode === 'gallery' ? 'explore' : 'explore';
-}
-
-/** On by `?flow=1`, off by `?flow=0`; with neither, on only on the preview address (the old screens stay until the owner says so). */
-export function flowOn(params: URLSearchParams, host = typeof location === 'undefined' ? '' : location.hostname): boolean {
-  const f = params.get('flow');
-  if (f === '1') return true;
-  if (f === '0') return false;
-  return host === 'preview.conquercourse.pages.dev';
 }
 
 // ---- marks and cut-outs ----

@@ -12,7 +12,6 @@
     "test:slow": "node scripts/test.mjs slow",
     "test:changed": "node scripts/test.mjs changed",
     "test:smoke": "node scripts/smoke.mjs",
-    "test:park": "node scripts/park-test.mjs",
     "film": "node scripts/film.mjs",
     "format:json": "node scripts/format-json.mjs",
     "ideal": "tsx scripts/ideal-run.ts",

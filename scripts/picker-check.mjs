@@ -16,7 +16,6 @@ const MODES = [
   ['coaster', '?mode=coaster'],
   ['map', '?mode=map'],
   ['dojo', '?mode=dojo&dojo=old'], // the new Dojo has no Courses pill: T opens the picker (scripts/dojo-check.mjs checks that)
-  ['park', '?mode=park'],
   ['gallery', '?mode=gallery'],
   ['diagrams', '?mode=diagrams'],
 ];

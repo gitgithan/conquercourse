@@ -46,7 +46,9 @@
 - The "website" field in the form is a trap for bots: it is hidden off the screen, a person never fills it, and a submission that has it filled is dropped silently.
 
 ## Community obstacles (CC-37)
-- **What it is:** anyone can upload a photo in the Park (`?mode=park`), draw boxes round real obstacles, type their real heights, see the simulator's proof, and share the course.
+- **What it is:** the gallery shows approved community courses (Explore, `?mode=communities`).
+  - The Park upload screen is gone (CC-247): photos now give objects and wallpapers only, and courses come from World Slicing and the Editor.
+  - The approval commands below still work on courses already shared.
   - A shared course is stored as `pending` in the same D1 database and shows in the gallery (`?mode=gallery`, or the "Community courses" link on the Course) only after you approve it.
   - The five starter photos are always in the gallery, so it is never empty.
 - **One-time setup (once per database):** `npx wrangler d1 migrations apply conquercourse-feedback --remote`, then `npm run deploy`.
@@ -56,19 +58,16 @@
   - `npm run community approve 7` shows it in the gallery; `npm run community reject 7` hides it for good.
 - **Reports:** the Report button on a card hides the course once 3 different sessions have flagged it.
 - **Limits:** 3 courses per session per day, a jpeg of at most about 340 KB (the browser shrinks the photo and drops its location data), 12 boxes, and only the Park's kinds of obstacle.
-- **Test it locally before deploying:** `npm run build`, then `node scripts/community-check.mjs` (it starts the site with a local database and walks the whole path).
 
 ## Before you share the address
 - **Licences:** the Park photos are CC0 or CC BY (credits are in `docs/ASSETS.md`); the Rookie models come from Tripo, whose commercial rights depend on your plan (still to confirm in `docs/STATUS.md`); add a Credits line if you want the CC BY names visible.
-- **Park mode:** it works offline from saved results; the live photo upload is off, so no key is exposed.
 - **Browsers:** WebGPU where available, WebGL 2 otherwise; very old phones may be slow.
 - **Cost:** $0 on the free tier (the limits are generous for a feedback round).
 
 ## Photo skins (CC-39)
-- **What it does:** a course made in the Park paints each box's part of the photo on the front of its obstacle in the game, so a painted wall shows its painting.
+- **What it does:** a course made from a photo paints each box's part of the photo on the front of its obstacle in the game, so a painted wall shows its painting.
   - It is looks only: the obstacle's collision is still its box, and the bot still clears the course.
-  - The Park has a "Paint the photo on the obstacles" switch (on by default); the gallery always paints.
-- **Check it:** `npm run build`, then `node scripts/community-check.mjs` (it draws a striped "mural", shares it, approves it, plays it and checks the picture was painted).
+  - The gallery always paints.
 - **Not yet:** the 3D lift (CC-38) will replace the flat picture with a real 3D object once it is ready.
 
 ## Course-design partner (Muse Spark Open on Baseten)
