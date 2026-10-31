@@ -106,6 +106,19 @@ Anything marked **assumption** has no written reason in the repo.
 - **Why it was chosen:**
   - It was already wired and paid for, and one prompt handles pictures and captions.
   - **Assumption:** speed to build, not a comparison, was the reason; no file compares it with a classifier.
+- **The product owner's view (2026-10-31):**
+  - Baseten with an over-powered model is the most convenient, because a small guard model would need its own GPU deployment on Modal.
+  - That holds only if the guard model is not already served by someone.
+  - Costed trade-off:
+    - Stay on Spark Open: no new deployment, one key, about $0.003 a call, 2 to 3 s a call on the text cases, but a very large reasoning model for a yes/no job.
+    - Guard model on Workers AI: no GPU of ours, because Cloudflare serves `@cf/meta/llama-guard-3-8b` (`docs/research/infra.md`, with a free daily allowance); it reads text only there.
+    - Guard model on Baseten: **unknown**; one short web search found no Baseten listing of a Llama Guard model, so it may need our own GPU after all.
+    - Picture-reading guard (Llama Guard 4): the search showed it hosted by Together AI, DeepInfra, Groq and OpenRouter, and did not show it on Cloudflare or Baseten; **unverified**.
+    - Own GPU on Modal: the hourly price is not in the repo, so not costed.
+  - So the owner's view is right for pictures today, because no cheaper host is confirmed that reads them.
+  - It is weaker for caption-only checks (the character prompt check), where Workers AI serves a text guard with no GPU of ours.
+  - Next step if wanted: test the Workers AI guard on the text-only cases first.
+  - The full call-by-call list is in [llm-calls.md](llm-calls.md).
 - **The other choice, not tried:**
   - A small guard model built for this job, for example Llama Guard 3 on Cloudflare Workers AI (`@cf/meta/llama-guard-3-8b`, listed with a free daily allowance in `docs/research/infra.md`).
   - Facts: it is a text model in that note; whether a picture version exists on Workers AI is **not researched**.
