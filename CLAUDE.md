@@ -51,6 +51,8 @@ A ninja-warrior physics game where real parks and real moves become the course, 
   - Raw outputs stay out of git; copy them to `../conquercourse-assets/eval-full/<experiment>/`.
   - A link in a public doc must point at a tracked file (`tests/doc-links.test.ts` checks it).
 - **Spending:** state the cost before any paid step and which credits do or don't cover it.
+- **Deploys (owner, 2026-10-31):** deploy only to the preview site (`npm run deploy:preview`, alias `preview.conquercourse.pages.dev`); never deploy to production, never delete a preview.
+  - Production database migrations need the owner's approval each time.
 - **New feature?** Put it behind a feature switch so new players aren't shown everything at once.
 
 ## Writing style
