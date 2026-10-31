@@ -4,7 +4,7 @@
 // The server does not replay the keys: whoever opens the link replays them and takes the time from the simulator; a leaderboard time goes through /api/course-clear.
 import type { CourseData } from '../course/course';
 import courseJson from '../course/default-course.json';
-import { courseHash, readChallengeParam, REPLAY_VERSION, startXOf, type ChallengeKind } from '../sim/replay';
+import { courseHash, nickToWire, readChallengeParam, REPLAY_VERSION, startXOf, type ChallengeKind } from '../sim/replay';
 import { checkRun, logTicks, rateLimited } from '../sim/run-checks';
 import { SHARE_MAX_MADE_CHARS, unpackCourse } from './made-course';
 
@@ -100,7 +100,7 @@ export async function createShare(env: ShareEnv, raw: string): Promise<Reply> {
 
 const shareParam = (r: ShareRow): string => {
   const m = /^s(\d{1,2})~/.exec(r.keys);
-  return `${r.sim_version}${r.kind === 'fell' ? 'f' : ''}${m ? `s${m[1]}` : ''}.${r.course_hash}.${r.nick}.${m ? r.keys.slice(m[0].length) : r.keys}`;
+  return `${r.sim_version}${r.kind === 'fell' ? 'f' : ''}${m ? `s${m[1]}` : ''}.${r.course_hash}.${nickToWire(r.nick)}.${m ? r.keys.slice(m[0].length) : r.keys}`;
 };
 
 /** What a link needs to open: the pieces of the long link, rebuilt. */

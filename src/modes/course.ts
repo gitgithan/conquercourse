@@ -38,7 +38,7 @@ import { logTicks } from '../sim/run-checks';
 import { track, trackCourseEvent, courseKey, publishClear, sendClear, session } from '../ui/feedback';
 import { statsOn, statKey } from '../ui/course-stats';
 import { touchStreak } from '../ui/streak';
-import { boardBox, boardCorner, boardOn, newsStrip, rememberBest, type BoardHooks } from '../ui/leaderboard';
+import { boardBox, boardCorner, boardOn, newsStrip, publishStrip, rememberBest, type BoardHooks } from '../ui/leaderboard';
 import { openRunView } from '../ui/run-view';
 import { createRookieActor } from '../render/actor';
 import { lookSwitchOn, lookUrl } from '../render/look';
@@ -1490,7 +1490,12 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
           close: () => { panel.style.display = 'none'; },
         }, false, ghostCtl?.reportPath() ?? null, !reportSectionsOn(params), hardBand());
         addHardest(body);
-        { const bp = params.get('course') ?? ''; if (boardOn(params) && !botMode && !demo && !idealWhole && !params.get('mode') && /^\/assets\/(demo|experiments\/osm)\//.test(bp)) body.querySelector('#report-actions')?.before(boardBox(statKey(bp), courseHash(course), session(), { ...viewHooks(), publish: lastClear ?? undefined })); } // CC-108
+        { const bp = params.get('course') ?? ''; if (boardOn(params) && !botMode && !demo && !idealWhole && !params.get('mode') && /^\/assets\/(demo|experiments\/osm)\//.test(bp)) { body.querySelector('#report-actions')?.before(boardBox(statKey(bp), courseHash(course), session(), viewHooks())); if (lastClear) body.querySelector('h2')?.after(publishStrip(lastClear, statKey(bp), courseHash(course))); } } // CC-108: the name and Publish sit at the top, next to the result
+        if (!lastClear && world.outcome === 'cleared' && (ghostCtl?.myRun() || ghostCtl?.myClip()) && !body.querySelector('#report-publish') && !botMode && !demo && !idealWhole) { // a clear that cannot be published: the button is off and the reason sits next to it
+          const listed = !params.get('mode') && /^\/assets\/(demo|experiments\/osm)\//.test(params.get('course') ?? '');
+          const why = !listed ? 'Only runs on the listed courses can be published.' : !ghostCtl?.myRun() ? 'Only full runs from the start of the course can be published.' : !boardOn(params) ? 'The leaderboard is switched off here.' : 'This run cannot be published.';
+          body.querySelector('h2')?.after(publishStrip({ ticks: world.runner.tick, send: async () => ({ published: false }) }, statKey(params.get('course') ?? ''), courseHash(course), why));
+        }
         if (ghostLine) body.querySelector('#report-ghost-slot')?.append(ghostLine);
         if (shareOn(params) && !botMode && !demo && !idealWhole && !params.get('mode')) {
           const mine = ghostCtl?.myRun() ?? null, mineClip = ghostCtl?.myClip() ?? null, ticks = world.runner.tick; // a link needs a run from the start; a clip can be made of any try (CC-157)

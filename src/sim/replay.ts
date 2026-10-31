@@ -164,8 +164,15 @@ export function courseHash(course: CourseData): string {
   return (h >>> 0).toString(36);
 }
 export const NICK_MAX = 12;
-/** A tag: letters, digits, _ and -, twelve at most, in the case the player chose (never a real name; a link carries it between dots). */
-export const cleanNick = (s: string): string => s.replace(/[^A-Za-z0-9_-]/g, '').slice(0, NICK_MAX);
+/** A name: printable ASCII with no spaces (letters of both cases, digits, symbols), twelve at most, in the case the player chose. Never a real name. */
+export const cleanNick = (s: string): string => s.replace(/[^\x21-\x7e]/g, '').slice(0, NICK_MAX);
+/** A name between dots in a link: everything but letters, digits, _ and - travels as %XX, so a dot or a quote never breaks the link. */
+export const nickToWire = (nick: string): string => cleanNick(nick).replace(/[^A-Za-z0-9_-]/g, (c) => `%${c.charCodeAt(0).toString(16).toUpperCase().padStart(2, '0')}`);
+export function nickFromWire(wire: string): string | null {
+  if (!/^(?:[A-Za-z0-9_-]|%[0-9A-F]{2}){0,36}$/.test(wire)) return null;
+  const nick = wire.replace(/%([0-9A-F]{2})/g, (_, h: string) => String.fromCharCode(parseInt(h, 16)));
+  return cleanNick(nick) === nick ? nick : null;
+}
 
 // kind 'done': keys that reach the finish. kind 'fell' (CC-181): keys of a try that ended in a fall; the version field then reads "1f", so a build that does not know about it refuses the link.
 export type ChallengeKind = 'done' | 'fell';
@@ -180,7 +187,7 @@ export const startOfX = (course: CourseData, x: number): number | null => {
   return i < 0 ? null : i + 1;
 };
 export async function makeChallengeParam(course: CourseData, log: InputLog, nick = '', kind: ChallengeKind = 'done', start = 0): Promise<string> {
-  return `${REPLAY_VERSION}${kind === 'fell' ? 'f' : ''}${start > 0 ? `s${start}` : ''}.${courseHash(course)}.${cleanNick(nick)}.${await encodeLog(log)}`;
+  return `${REPLAY_VERSION}${kind === 'fell' ? 'f' : ''}${start > 0 ? `s${start}` : ''}.${courseHash(course)}.${nickToWire(nick)}.${await encodeLog(log)}`;
 }
 export type ChallengeRead = { ok: true; challenge: Challenge } | { ok: false; why: 'version' | 'broken' };
 export async function readChallengeParam(param: string): Promise<ChallengeRead> {
@@ -189,6 +196,7 @@ export async function readChallengeParam(param: string): Promise<ChallengeRead> 
   const m = /^(\d+)(f?)(?:s(\d{1,2}))?$/.exec(v ?? '');
   if (!m) return { ok: false, why: 'broken' };
   if (Number(m[1]) !== REPLAY_VERSION) return { ok: false, why: 'version' };
-  if (!/^[a-z0-9]{1,8}$/.test(hash) || !/^[A-Za-z0-9_-]{0,12}$/.test(nick)) return { ok: false, why: 'broken' };
-  try { return { ok: true, challenge: { hash, nick, log: await decodeLog(data), kind: m[2] ? 'fell' : 'done', start: m[3] ? Number(m[3]) : 0 } }; } catch { return { ok: false, why: 'broken' }; }
+  const plain = nickFromWire(nick ?? '');
+  if (!/^[a-z0-9]{1,8}$/.test(hash) || plain === null) return { ok: false, why: 'broken' };
+  try { return { ok: true, challenge: { hash, nick: plain, log: await decodeLog(data), kind: m[2] ? 'fell' : 'done', start: m[3] ? Number(m[3]) : 0 } }; } catch { return { ok: false, why: 'broken' }; }
 }
