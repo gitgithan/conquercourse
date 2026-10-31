@@ -280,7 +280,7 @@ Why windows widen with n: asking nine in ten of one press needs q = 0.9; of seve
   void cdf; void pInside; void binEdges; void BIN_MAX;
 
   // Opens already run: the default setting, played ahead of time by scripts/labs-default-precompute.ts with the same code (seed 7).
-  fetch("/assets/lab/timing-default.json").then((r) => r.json()).then((d: Done & { label: string }) => {
+  fetch("/assets/lab/timing-default.json").then((r) => r.json()).then((d: Done & { label: string; cfg: { seed: number } }) => {
     if (history === 0) { labDefaultNote(wrap, { precomputed: true, seed: d.cfg.seed }, $("lt-h1")); finish({ ...d, pre: true }, d.label); }
     labPopulated("lab-timing");
   }).catch(() => undefined);
