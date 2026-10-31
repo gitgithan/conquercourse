@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { runAgent, STEP_CAP, reportWords, type AgentReport, type Ask, type Test } from '../src/slice/course-agent';
 import { testLayout, itemAt } from '../src/slice/course-agent-tools';
-import type { Layout } from '../src/slice/photo-course';
+import type { Layout } from '../src/slice/layout-draft';
 
 const reply = (l: Layout, say = 'Here is a course.') => `${say}\n\`\`\`json\n${JSON.stringify(l)}\n\`\`\``;
 const flat: Layout = { items: [{ kind: 'ground', length: 6 }, { kind: 'block', length: 2, height: 0.3 }, { kind: 'ground', length: 6 }] };

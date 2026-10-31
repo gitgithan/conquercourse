@@ -12,8 +12,7 @@
   - The only total we have written down is Muse Wonder at $2.38.
   - No file records the Meta credit balance or the total spent, so "what is using my credit" cannot be answered as one number from the repo.
   - The place to read it is the Meta Model API dashboard, not the repo.
-- The live Muse Spark Open features (designer, photo-to-course, Course Agent, move tips, upload check, character prompt check) are paid from the Baseten credit, not the Meta credit.
-- Several docs said otherwise or were out of date; section 4 lists what was wrong and what was fixed.
+- The live Muse Spark Open features (designer, move tips, upload check, character prompt check; the Course Agent has no player entry since 2026-10-31) are paid from the Baseten credit, not the Meta credit.
 - Some of our choices were never compared with the alternatives; section 3 says which, and what a comparison would cost.
 
 ## 1. Every call site
@@ -37,8 +36,7 @@ Legend for "Credit":
 | Character maker, step 3: mesh | SAM 3D Objects | Modal app `cc-photo-to-object`, class `Lift` | Modal | about $0.005 to $0.04 of GPU time depending on cold start (`docs/community-characters.md`) | Player, same request |
 | Character maker, prompt check | Muse Spark Open | Baseten, `/api/character` calls `askModeration` on the text | Baseten | about $0.003 a call for the check (`data/eval/cc-119-moderation/README.md`) | Player |
 | Designer and Fix it | Muse Spark Open | Baseten, `functions/api/designer.ts` | Baseten | "well under 1 cent" estimated from token counts in `docs/deploy.md`; not measured per call | Player: World Editor |
-| Photo to course draft | Muse Spark Open | Baseten, `functions/api/photo-course.ts` | Baseten | tokens only, price "not published to us" in `data/eval/photo-course/run.json`; no dollar figure | Player: World Editor |
-| Course Agent | Muse Spark Open | Baseten, `functions/api/course-agent.ts` | Baseten | $0.26 for 40 runs and 36 model calls (`data/eval/cc-126-course-agent/README.md`) | Player: behind `?agent=1` or `?labs=1` |
+| Course Agent (no player entry since 2026-10-31) | Muse Spark Open | Baseten, `functions/api/course-agent.ts` (text only; the photo input was dropped) | Baseten | $0.26 for 40 photo-in runs and 36 model calls (`data/eval/cc-126-course-agent/README.md`) | Nobody: no button in the editor |
 | Move tips | Muse Spark Open | Baseten, `functions/api/move-tips.ts` | Baseten | about $0.01 an object (`data/eval/cc-119-move-tips/README.md`) | Player: object cards |
 | Upload safety check | Muse Spark Open | Baseten, `askModeration` in `functions/api/moderate.ts`; called by `/api/object-lift`, `/api/segment`, `/api/community-items` and `/api/character` | Baseten | about $0.003 a call (`data/eval/cc-119-moderation/README.md`) | Player: every photo upload and every Share in Community |
 | Photo to object, mask and suggestions | SAM 3 (open weights, our copy) | Modal, `pipelines/photo_to_object.py`, via `/api/object-lift` and `/api/segment` | Modal | about 2 cents an object end to end (`docs/pipelines.md`) | Player: Community photo upload |
@@ -56,13 +54,17 @@ Legend for "Credit":
 | Video ingest: vision calls | Muse Spark 1.3 (`muse-spark-1.3`) | `api.meta.ai`, `pipelines/ccpipe/vision.py` | **Meta** | the code assumes $0.06 a call (`META_CALL_USD`); list price $1.25 in and $4.25 out per million tokens |
 | SAM 3.1 spike on park photos | SAM 3.1 | `pipelines/sam31_park.py` through the proxy | **Meta** | in `data/eval/sam31-park/`; not re-read here |
 | Course drafts in bulk | Muse Spark Open | Baseten, `scripts/bulk-courses-ask.ts` | Baseten | about $1.6 for 100 calls (`data/eval/cc-122-bulk-courses/README.md`) |
-| Photo triage, feedback clustering, evals | Muse Spark Open | Baseten, `scripts/photo-triage.ts`, `scripts/feedback-cluster.ts`, `scripts/course-agent-eval.ts`, `scripts/photo-course-ask.ts` | Baseten | about $0.1 for the photo triage (`data/eval/cc-123-photo-triage/README.md`); the others not read |
+| Photo triage, feedback clustering, evals | Muse Spark Open | Baseten, `scripts/photo-triage.ts`, `scripts/feedback-cluster.ts`, `scripts/course-agent-eval.ts` | Baseten | about $0.1 for the photo triage (`data/eval/cc-123-photo-triage/README.md`); the others not read |
 | Body from video, 3D objects, privacy masks | SAM 3D Body, SAM 3D Objects, SAM 3 (open weights) | Modal apps in `pipelines/` | Modal | per run in each experiment README; not summed |
 | Generated motion | Kimodo with a Llama 3 text encoder | Modal, `pipelines/kimodo_*.py` | Modal | "5-20 s on an L4" (`docs/experiments.md`); not summed |
 | Music loops | MusicGen medium | Modal, `pipelines/music_loops.py`, `music_film*.py` | Modal | not measured in a file I read |
 | Rookie meshes | Tripo | Tripo web service; `TRIPO_API_KEY` slot is a stub in `src/characters/providers.ts` | Tripo credits (60 left per `docs/community-characters.md`) | about 110 credits a character (`docs/lessons.md`) |
 
 ### 1c. Not in the repo's code
+- EgoBlur is **not used** in production.
+  - `docs/pipelines.md` says it could replace or join SAM 3 once its weights are obtained.
+  - What the code does for people in an uploaded photo: SAM 3 finds people, faces and licence plates on Modal, then people are blurred and faces and plates pixelated before the lift model sees the photo (`pipelines/ccpipe/privacy.py`, called from `pipelines/photo_to_object.py`).
+  - Anything SAM 3 does not find stays visible.
 - Fireworks is named in `docs/spec/SPEC.md` for "simulated students", but no code calls it.
 - The fallback "Muse Spark on the Meta API" for the designer is named in SPEC section 7, but no function falls back to it: each function calls Baseten only.
 - Muse Voice Transcribe and Muse Code are named in the film plan; the repo has no call to them.
@@ -75,7 +77,7 @@ Anything marked **assumption** has no written reason in the repo.
 ### 2a. Live Muse Spark Open features: Baseten serverless
 - **Why Spark Open at all:**
   - The "Best Build on Meta Open Weights" prize wants a build on Muse Spark Open or Muse Glimmer through partner inference (`docs/research/meta-rules-api.md`, prize list).
-  - The designer, Course Agent and checks are text and image tasks that a hosted model does well.
+  - The designer and checks are text and image tasks that a hosted model does well.
 - **Why Baseten rather than the Meta API's own Muse Spark:**
   - The per-token price is the same on both: $1.25 in and $4.25 out per million (`docs/research/meta-rules-api.md`, provider table and the Muse Spark 1.3 line in `docs/research/muse-wonder.md`), so price is not a reason.
   - `functions/api/designer.ts` says the hackathon Baseten key works only with this one model; so the key choice and the model choice come together.
@@ -161,27 +163,3 @@ Anything marked **assumption** has no written reason in the repo.
 | A smaller hosted model (Muse Glimmer 30B) for the checks | cheaper and faster, Apache 2.0 licence | Glimmer is dedicated-GPU only on the sponsors (`docs/research/meta-rules-api.md`); the only serverless host listed there is Together AI, which is not a sponsor | not tried |
 | Measuring latency of Baseten Spark Open against Meta API Muse Spark on the same 10 designer prompts | answers "is Baseten faster" with data | an hour, a few cents | not tried |
 | Recording credit balances in a file after each paid run | answers "what is using my credit" from the repo | minutes per run | not done |
-
-## 4. What was wrong in the docs, and what was fixed
-
-| Where | What it said | What is true | Fixed |
-|---|---|---|---|
-| README, Characters row | Muse Spark and Muse Image at build time, one style picture for Rookie B | The Characters panel calls Muse Image and SAM 3.1 live through a Modal job; the Rookie meshes are still Tripo | yes |
-| `docs/hackathon.md`, Muse Image row | "Build time" | live for the character maker, build time for the Rookie B reference | yes |
-| `docs/hackathon.md`, SAM 3 row | "Build time (Modal GPU)" | SAM 3 also runs live on Modal for photo uploads; SAM 3.1 runs on the Meta API | yes |
-| `docs/hackathon.md`, Muse Spark row | "contact targets and character descriptions" | the code that calls Muse Spark is the video-ingest vision step and the contact-target extraction, offline | yes |
-| `docs/hackathon.md` and README, "ten Meta models" | count not reconciled | the hackathon table lists ten rows; the README table has ten rows with a different split (see the audit); both now say what is counted | yes |
-| `docs/spec/SPEC.md` section 7, SAM row | SAM 3.1 on the Meta Model API for photo segmentation | player photos use SAM 3 open weights on Modal; SAM 3.1 on the API is used for video frames and the character cut-out | yes |
-| `docs/spec/SPEC.md` section 7, Wonder and Fireworks rows | agentic pipeline on Wonder; students on Fireworks | Wonder reviewed code once; Fireworks is not called anywhere | yes |
-| `docs/meta-ai-pipelines.md`, 4b | "not yet called from a screen" | the upload check runs on every photo upload, Share in Community and character prompt | yes |
-| `docs/meta-ai-pipelines.md`, section 5 | characters were only the Rookie B reference | the maker is a live five-step pipeline | yes |
-| `docs/deploy.md` | `npm run deploy` is how to publish | the rule since 2026-10-31 is preview only, never production | yes |
-| `docs/deploy.md` | rate and per-day numbers for community uploads and the designer | those belong in the private notes | removed |
-| README, Race Ghost | the button is called Race Ghost | `src/ui/leaderboard.ts` calls it Chase Ghost | yes |
-
-## 5. Older branches (not deleted)
-- `hanqi91/cc-char-muse`: obsolete; its Community characters commit is on `main` (`a93961a2`), and its other three commits are on `main` under other hashes.
-- `hanqi91/cc-208-truth-audit`, `hanqi91/cc-208-truth-audit-2`: obsolete; the audit commit is on `main` (`377daabe`).
-- `hanqi91/cc-208-readme`, `hanqi91/cc-208-readme-board`: obsolete; they are old copies of README work that `main` has since changed, and their remaining unique commits are already on `main`.
-- `hanqi91/cc-208-readme-front-door`, `hanqi91/cc-readme-features`, `hanqi91/cc-readme-short`: obsolete; they come from before the history rewrite of 2026-10-30 (hundreds of commits apart from `main`), and their README is older than the one on `main`.
-- Do not merge any of them; the README on `main` is the reference.

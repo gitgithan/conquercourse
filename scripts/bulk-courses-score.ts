@@ -5,7 +5,7 @@ import { fixBars } from '../src/slice/fixbars';
 import { fixLayout } from '../src/slice/fixit';
 import { holdsOf } from '../src/slice/holds-world';
 import { NO_TURN, proves } from '../src/slice/photo-proof';
-import { layoutToPieces, parseLayout, type Layout } from '../src/slice/photo-course';
+import { layoutToPieces, parseLayout, type Layout } from '../src/slice/layout-draft';
 import { roleCourse } from '../src/slice/roles';
 import { searchIdealRun } from '../src/sim/ideal';
 

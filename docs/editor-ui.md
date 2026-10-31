@@ -13,7 +13,7 @@ This note says where each control lives now, and the rule for adding a new one.
 ## Where things live
 - Top bar, left to right: Back to the Course, Add piece, Undo and Redo (one joined control), Top plan or 3D view, Moves, Design partner, More (the three dots).
 - Add piece menu: the add browser (see below), a featured picture and a grid of picture cards under six sections (Ground, Swing, Contraptions, Real objects, Stacks, Tools).
-- More menu: Search actions, Reset to the starter scene, Photo to course (labs).
+- More menu: Search actions, Reset to the starter scene.
 - Docked card on the picture: Moves (the Design partner no longer shares it).
 - Design partner (CC-243): a panel that slides in from the right edge, 340 px wide, from under the top bars to the bottom of the page.
 - A slim "Design partner" tab on the right edge, the top-bar button, and the ✕ open and close it; Esc closes it while the cursor is inside it.
@@ -75,15 +75,8 @@ This note says where each control lives now, and the rule for adding a new one.
 - Where they stand is `personStart` in `src/slice/person-ref.ts`: a little before the first piece, beside the lane's middle line.
 - `scripts/person-check.mjs` walks first visit, find, hide, reload and show again.
 
-## Use my own photo (CC-96)
-- The Tools section has an optional "Use my own photo" card; it opens a file picker for a JPEG or PNG.
-- The photo is shrunk to a small picture in the browser and sent to `/api/photo-course`, which asks the design partner (Muse Spark through Baseten) for a first layout; nothing is stored.
-- The simulator then checks the draft and Fix it repairs it, as in the labs flow of CC-52.
-- It needs the `BASETEN_API_KEY` secret on the site; without it the design partner card says "the photo helper is not switched on here".
-- Each call is one paid model request from the owner's Baseten credit, and the function allows 6 a minute per address.
-- The card asks people not to use photos with people or children in them.
-- The "Photo to course (labs)" button in the More menu still shows with `?labs=1`.
-
+## Use my own photo (CC-96), dropped 2026-10-31
+- The Tools card "Use my own photo" and the "Photo to course (labs)" button were removed: the scope is photo to object only (Make your own).
 
 ## Button levels, the Fix menu, the glossary and Fit (CC-177)
 - The full list of buttons, grouped, with when to click each: `docs/editor-buttons.md`.

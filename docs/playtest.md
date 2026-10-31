@@ -26,7 +26,6 @@
 - [ ] Pin a ready park in Map mode; the course builds in a few seconds.
 - [ ] Pin a street with no ready place and note how long it takes.
 - [ ] "Fix it" on a course that cannot be cleared.
-- [ ] `?agent=1`: run the Course Agent on a park photo and read the step list.
 - [ ] Upload a photo: the check answers ok, review or block.
 
 ## Share

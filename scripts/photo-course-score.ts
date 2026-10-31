@@ -5,7 +5,7 @@ import { fixLayout } from '../src/slice/fixit';
 import { fixBars } from '../src/slice/fixbars';
 import { holdsOf, isHold } from '../src/slice/holds-world';
 import { NO_TURN, proves } from '../src/slice/photo-proof';
-import { layoutToPieces, parseLayout, scoreLayout, type Layout } from '../src/slice/photo-course';
+import { layoutToPieces, parseLayout, scoreLayout, type Layout } from '../src/slice/layout-draft';
 
 const lane = NO_TURN;
 const dir = 'data/eval/photo-course';

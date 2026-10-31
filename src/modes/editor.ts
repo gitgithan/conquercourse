@@ -29,7 +29,6 @@ import { DRONE_PAD_LENGTH, withDrone, type DroneCfg } from '../slice/drone-lane'
 import { fixDrone } from '../slice/fixdrone';
 import { PATTERNS, stackPiece, stackSrc } from '../slice/stack';
 import { personStart } from '../slice/person-ref';
-import { layoutToPieces, parseLayout } from '../slice/photo-course';
 import { proves } from '../slice/photo-proof';
 import { adviseMachine, fixMachine } from '../slice/fix-launch';
 import { fixBars } from '../slice/fixbars';
@@ -38,7 +37,6 @@ import { PRESETS } from '../slice/presets';
 import { fixCoaster } from '../slice/fixcoaster';
 import { MAX_PIECES, suggestPrompt } from '../slice/suggest-prompt';
 import { adviseLane, type Advice } from '../slice/advice';
-import { agentOn, runCourseAgent } from '../ui/course-agent-trace';
 import { adviceInWorker, barsInWorker, fixInWorker, provesInWorker } from '../slice/proof-client';
 import { parseReply, worldBrief, type Edit } from '../slice/designer';
 import { diffProposal, enabledCount, fromAdvice, fromEdits, resultOf, type Proposal } from '../slice/preview';
@@ -602,89 +600,6 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
     }
   }
   movesReady = true;
-  // ---- labs (?labs=1, or ?photo=<url>): a park photo becomes a first draft of a course; the simulator checks it and Fix it repairs it
-  // the photo-to-course lab: the file picker exists everywhere (the add browser's "Use my own photo" opens it); the button in the More menu shows with ?labs=1 or ?photo=<url>
-  const fileIn = el('input', top, { type: 'file', accept: 'image/jpeg,image/png', id: 'photofile' }) as HTMLInputElement;
-  fileIn.style.display = 'none';
-  fileIn.onchange = () => { const f = fileIn.files?.[0]; if (f) void draftFrom(f); fileIn.value = ''; };
-  (window as unknown as { ccPickPhoto?: () => void }).ccPickPhoto = () => fileIn.click();
-  if (/[?&](labs|photo)\b/.test(pageSearch())) {
-    el('button', top, { text: 'Photo to course (labs)', id: 'photobtn', title: 'Pick a park photo: the design partner drafts a course from it, then the simulator checks it' }).onclick = () => fileIn.click();
-    const url = pageQuery().get('photo');
-    if (url) void fetch(url).then((r) => r.blob()).then(draftFrom).catch(() => { reply.className = 'reply bad'; reply.textContent = 'I could not read that photo.'; });
-  }
-  // the Course Agent (labs, ?agent=1): propose from a photo, test with the simulator, repair from its report, stop when proven; the steps show as a list
-  if (agentOn()) {
-    const agentIn = el('input', top, { type: 'file', accept: 'image/jpeg,image/png', id: 'agentfile' }) as HTMLInputElement;
-    agentIn.style.display = 'none';
-    const trace = Object.assign(document.createElement('ol'), { id: 'agenttrace', className: 'agent-trace' });
-    trace.style.cssText = 'margin:0;padding-left:18px;display:grid;gap:4px;font-size:13px';
-    agentIn.onchange = () => {
-      const f = agentIn.files?.[0]; agentIn.value = '';
-      if (!f) return;
-      helper.classList.remove('closed'); helperBtn.setAttribute('aria-pressed', 'true');
-      reply.className = 'reply'; reply.replaceChildren(trace);
-      void runCourseAgent(f, { trace, apply: (layout) => { pieces = layoutToPieces(layout); angle = 0; offset = 0; level = 0; selected = null; changed(); } });
-    };
-    el('button', top, { text: 'Course Agent (labs)', id: 'agentbtn', title: 'Pick a park photo: the agent proposes a course, tests it with the simulator, repairs it, and stops when it is proven' }).onclick = () => agentIn.click();
-  }
-  async function draftFrom(file: Blob) {
-    helper.classList.remove('closed'); helperBtn.setAttribute('aria-pressed', 'true');
-    const done = (state: string, text: string, ok = false) => { document.documentElement.dataset.photoDraft = state; reply.className = ok ? 'reply ok' : 'reply bad'; reply.textContent = text; };
-    reply.className = 'reply'; reply.textContent = 'Looking at the photo…'; document.documentElement.dataset.photoDraft = 'asking';
-    try {
-      const bmp = await createImageBitmap(file), k = Math.min(1, 768 / bmp.width);
-      const c = document.createElement('canvas'); c.width = Math.round(bmp.width * k); c.height = Math.round(bmp.height * k);
-      c.getContext('2d')!.drawImage(bmp, 0, 0, c.width, c.height);
-      const r = await fetch('/api/photo-course', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ image: c.toDataURL('image/jpeg', 0.8) }) });
-      const d = (await r.json()) as { reply?: string; error?: string };
-      if (!r.ok || !d.reply) return done('error', d.error ?? 'No draft this time.');
-      const parsed = parseLayout(d.reply);
-      if (!parsed.layout) return done('unreadable', `I could not read a layout from the answer (${parsed.problems.join(', ')}). Try again.`);
-      pieces = layoutToPieces(parsed.layout); angle = 0; offset = 0; level = 0; selected = null; changed();
-      reply.className = 'reply'; reply.textContent = `${parsed.text} Checking the draft with the simulator…`;
-      setTimeout(() => {
-        if (proves(pieces as P[], { angle, offset, level })) return done('cleared', `${parsed.text} The simulator can clear this draft as it is.`, true);
-        document.documentElement.dataset.photoDraft = 'fixing'; runFixDirect();
-        const wait = window.setInterval(() => {
-          if (reply.textContent === 'Working it out…') return;
-          clearInterval(wait);
-          if (!proves(pieces as P[], { angle, offset, level }) && pieces.some((q) => isHold(q as P))) { // the photo had nothing to hang from? take the bars out and try the ground alone
-            pieces = pieces.filter((q) => !isHold(q as P)); changed(); reply.className = 'reply'; reply.textContent = 'Took out the bars (the photo may have nothing to hang from). Working it out again…';
-            if (!proves(pieces as P[], { angle, offset, level })) runFixDirect();
-            const again = window.setInterval(() => {
-              if (reply.textContent === 'Working it out…' || reply.textContent?.startsWith('Took out the bars')) return;
-              clearInterval(again); document.documentElement.dataset.photoDraft = proves(pieces as P[], { angle, offset, level }) ? 'fixed' : 'unfixed';
-            }, 300);
-            if (proves(pieces as P[], { angle, offset, level })) { clearInterval(again); done('fixed', 'Took out the bars (the photo may have nothing to hang from): the simulator can clear what is left.', true); }
-          } else document.documentElement.dataset.photoDraft = proves(pieces as P[], { angle, offset, level }) ? 'fixed' : 'unfixed';
-        }, 300);
-      }, 50);
-    } catch { done('error', 'The photo helper is not available here.'); }
-  }
-  // the photo draft changes the layout at once (it is a first draft, not the player's own layout)
-  function runFixDirect() {
-    reply.className = 'reply'; reply.textContent = 'Working it out…';
-    setTimeout(async () => {
-      if (barsNow().length) {
-        const rb = await barsInWorker(pieces as P[], { angle, offset, level }, workSeconds(6));
-        for (const q of rb.pieces) { const mine = pieces.find((x) => x.id === q.id); if (mine) { mine.x = q.x; mine.z = q.z; mine.y = q.y; } }
-        changed();
-        reply.className = rb.ok ? 'reply ok' : 'reply bad';
-        reply.textContent = rb.ok ? (rb.steps.length ? 'Fixed. ' + rb.steps.join(' ') : 'It already works.') : rb.steps.join(' ');
-        document.documentElement.dataset.fixed = rb.ok ? '1' : '0';
-        return;
-      }
-      const r = await fixInWorker(pieces as P[], { angle, offset, level });
-      for (const q of r.pieces) { const mine = pieces.find((x) => x.id === q.id); if (mine) { mine.x = q.x; mine.z = q.z; mine.y = q.y; mine.yaw = q.yaw; mine.scale = q.scale; } }
-      angle = r.lane.angle; offset = r.lane.offset; level = r.lane.level;
-      changed();
-      reply.className = r.ok ? 'reply ok' : 'reply bad';
-      reply.textContent = r.ok ? (r.steps.length ? 'Fixed. ' + r.steps.join(' ') : 'It already works.') : 'I could not find a layout that works. ' + r.steps.join(' ') + ' Try other pieces.';
-      document.documentElement.dataset.fixed = r.ok ? '1' : '0';
-    }, 30);
-  }
-
   // ---- preview before apply: Fix it, the partner's changes and one piece of advice all become a Proposal that is drawn as outlines first
   let proposal: Proposal | null = null;
   let preview: { pieces: P[]; lane: { angle: number; offset: number; level: number }; machine: Machine | null } | null = null;

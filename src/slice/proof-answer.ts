@@ -7,7 +7,7 @@ import type { P } from './holds-world';
 import { proves } from './photo-proof';
 import type { AgentReport } from './course-agent';
 import { testLayout } from './course-agent-tools';
-import type { Layout } from './photo-course';
+import type { Layout } from './layout-draft';
 
 // The editor's slow questions, asked off the page's thread (CC-70): Fix it, the advice, "does this lane clear?", "does this draft clear?".
 // Their budgets count simulated ticks (src/sim/ideal.ts: workSeconds), so a slow machine gives the same answer a little later.

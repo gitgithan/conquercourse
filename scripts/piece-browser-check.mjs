@@ -56,11 +56,6 @@ try {
     // the rope swing adds a rope anchor
     await page.click('#addpiece'); await page.hover('#pbtab-swing'); await page.click('.pb-card[data-piece=rope]'); await page.waitForTimeout(500);
     checks[`${tag} the rope swing is offered and added`] = Number(await page.evaluate(() => document.documentElement.dataset.pieces ?? '0')) > before + 1;
-    // the own-photo entry opens the file picker
-    await page.click('#addpiece'); await page.hover('#pbtab-tools');
-    const chooser = page.waitForEvent('filechooser', { timeout: 5000 }).then(() => true, () => false);
-    await page.click('.pb-card[data-piece=photo]');
-    checks[`${tag} Use my own photo opens the file picker`] = await chooser;
     // keyboard: Tab into the grid, arrows move, Enter adds
     await page.click('#addpiece'); await page.click('#pbtab-ground'); await page.focus('.pb-card >> nth=0'); await page.keyboard.press('ArrowRight');
     checks[`${tag} arrows move between cards`] = await page.evaluate(() => document.activeElement?.classList.contains('pb-card') && document.activeElement !== document.querySelector('.pb-card'));

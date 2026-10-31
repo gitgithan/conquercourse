@@ -1,6 +1,7 @@
 # Demo video research: tools, rules, what wins, recommended toolchain
 
 *Researched 2026-10-27 by web search.*
+*Dropped 2026-10-31: scope is photo to object only; any "photo to course" idea below is history, not the current plan.*
 *Most price and licence figures come from third-party pages; each is marked, and every one should be checked on the vendor's own page before use.*
 *Nothing was signed up for, bought or posted.*
 

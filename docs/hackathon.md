@@ -12,7 +12,7 @@ Blue-box diagrams for every pipeline are in [docs/meta-ai-pipelines.md](meta-ai-
 | **SAM 3D Body + MHR (Momentum Human Rig)** | Measures a person's body and pose from video; the motion clips and the custom-look body come from it | Build time (Modal GPU) |
 | **DINOv3** | Image encoder inside SAM 3D Body | Build time (inside SAM 3D Body) |
 | **Meta-Llama-3-8B-Instruct** | Text encoder inside Kimodo (NVIDIA), which generates the run, leap and hang motion | Build time (Modal GPU) |
-| **Muse Spark Open** (`meta-models/muse-spark-open-1026`, on Baseten) | The Course Agent: from one photo it proposes a course, the simulator tests it, and it repairs the course from the simulator's report until it is proven clearable or the step cap is reached; also the in-editor design partner and "Fix it", and the one-shot photo-to-course draft | Live, through a server function (needs the `BASETEN_API_KEY` secret) |
+| **Muse Spark Open** (`meta-models/muse-spark-open-1026`, on Baseten) | The in-editor design partner and "Fix it" (the Course Agent loop and its photo-to-course draft were dropped from the game on 2026-10-31: scope is photo to object only) | Live, through a server function (needs the `BASETEN_API_KEY` secret) |
 | **Muse Spark Open**, upload check (`/api/moderate`) | Looks at an uploaded photo or object preview and answers ok, review or block with one reason; errors become review (CC-120) | Live, through a server function (needs `BASETEN_API_KEY`); called by the moderation queue (CC-112) |
 | **Muse Spark Open**, move tips (`/api/move-tips`) | Names the moves that could get past a cut-out object and gives one plain idea for the course; checked against our move list (CC-121) | Live, through a server function (needs `BASETEN_API_KEY`); feeds the object cards (CC-108) |
 | **Muse Spark** (Meta Model API, `muse-spark-1.3`) | Vision calls in the video-ingest pipeline and contact targets from move descriptions (`pipelines/ccpipe/vision.py`) | Build time |
@@ -37,7 +37,7 @@ Blue-box diagrams for every pipeline are in [docs/meta-ai-pipelines.md](meta-ai-
   - Cost: $2.38 for the run, about $0.18 per real bug.
   - It did well on the physics code and gave nothing useful on the contraptions chunk.
   - Details: [data/eval/cc-wonder-review/README.md](../data/eval/cc-wonder-review/README.md).
-- **Muse Spark Open** (on Baseten) also helped as a dev aid: bulk course drafts (CC-122) and photo triage (CC-123); the same model is what the Course Agent uses in the game.
+- **Muse Spark Open** (on Baseten) also helped as a dev aid: bulk course drafts (CC-122) and photo triage (CC-123).
 - **Muse Wonder** and **Muse Spark Open** also judged photo cut-outs for a gate before the 3D lift (CC-145, 2026-10-29): bash.60 for 46 calls each way, and neither earned a place in the game; the free mask-edge check did the useful part.
   - Details: [data/eval/cc-145-triage-v2/README.md](../data/eval/cc-145-triage-v2/README.md).
 
@@ -55,7 +55,7 @@ Blue-box diagrams for every pipeline are in [docs/meta-ai-pipelines.md](meta-ai-
 - MusicGen composes the music: original loops from text prompts, so the soundtrack has no licensed songs in it.
 - The two live ones (Muse Spark Open, Mapillary) sit behind server functions, so keys never reach the browser.
 - The models propose and the simulator decides: every layout from Muse Spark Open is run through the ideal-run search before it is offered.
-- The Course Agent closes the loop: the model proposes, the simulator is its tool, and it repairs from the tool's report (see the agentic use-case section below).
+- The design partner and Fix it use the simulator as the judge: the model proposes, the simulator checks.
 - Cost and speed were measured, not guessed (for example $0.164 for 14 photos through SAM 3 and SAM 3D Objects).
 
 ### Technical depth (20%)
@@ -77,14 +77,11 @@ Blue-box diagrams for every pipeline are in [docs/meta-ai-pipelines.md](meta-ai-
   - The clip is made in the browser on a stepped clock; the plan is in [docs/viral-plan.md](viral-plan.md).
 - **Best Build on Meta Open Weights:** Muse Spark Open runs the design partner (see the table above).
 
-### Best Agentic Use-Case: the Course Agent
-- **The task:** turn one park photo into a course that the simulator has proved can be cleared.
-- **The loop:** Muse Spark Open proposes a layout; the simulator is its tool (can it be cleared, where does the best attempt stop, which single change is proved to clear it); the model repairs the layout from that report; it stops at the first proof or at 6 steps.
-- **Autonomy:** no person is in the loop between the photo and the result; the player watches each step as a list (proposed, tested, repaired, tested, done).
-- **Effectiveness:** measured on 10 photos, 20 runs each way; numbers and the honest caveats are in [data/eval/cc-126-course-agent/README.md](../data/eval/cc-126-course-agent/README.md).
-- **Honest when it fails:** at the cap it says it could not prove the course, and keeps the best attempt the simulator tested; it never offers a layout the simulator has not seen.
-- **Turn it on:** `?agent=1` or `?labs=1` in the editor, then "Course Agent (labs)".
-- **Diagram:** [docs/meta-ai-pipelines.md](meta-ai-pipelines.md), section 4c.
+### Best Agentic Use-Case: not claimed now
+- **What happened:** the Course Agent (propose, test with the simulator, repair, stop when proven) was proved 40 of 40 times in at most 3 steps, but every run started from a park photo ([results](../data/eval/cc-126-course-agent/README.md)).
+- **Why it is not claimed:** on 2026-10-31 the scope was cut to photo to object only, so the photo input and the editor button were removed.
+  - The text-only (idea in) loop still exists in the code and has not been measured, so nothing is claimed for it.
+- **History:** [docs/meta-ai-pipelines.md](meta-ai-pipelines.md), section 4c.
 
 ## What is new, and what is not
 - The repository starts on 2026-10-27; no code from the earlier practice project is used.

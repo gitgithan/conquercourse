@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { roleCourse } from '../src/slice/roles';
 import { searchIdealRun } from '../src/sim/ideal';
 import { barMesh } from '../src/slice/holds-world';
-import { pieceFromSrc } from '../src/slice/photo-course';
+import { pieceFromSrc } from '../src/slice/layout-draft';
 import { newPiece, size } from '../src/slice/world';
 import { TRACK_SHAPES, TRACK_STEP_DOWN, trackEndY, trackPiece, trackStartY } from '../src/slice/track-world';
 

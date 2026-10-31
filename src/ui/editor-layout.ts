@@ -60,8 +60,8 @@ export function organizeEditor(root: HTMLElement): void {
   if (!top || !addBar || addBar === top) return;
   const mk = <K extends keyof HTMLElementTagNameMap>(tag: K, props: Partial<HTMLElementTagNameMap[K]> = {}) => Object.assign(document.createElement(tag), props) as HTMLElementTagNameMap[K];
   const title = q<HTMLElement>('.top h1'), back = q<HTMLElement>('#backcourse'), undo = q<HTMLElement>('#undo'), redo = q<HTMLElement>('#redo'), view = q<HTMLElement>('#viewmode');
-  const movesBtn = q<HTMLElement>('#movesbtn'), partnerBtn = q<HTMLElement>('#helperbtn'), reset = q<HTMLElement>('#resetworld'), photo = q<HTMLElement>('#photobtn'), photoFile = q<HTMLElement>('#photofile');
-  const strays = [...top.children].filter((c) => ![title, back, undo, redo, view, partnerBtn, reset, photo, photoFile].includes(c as HTMLElement)); // for example a Courses button added by another module: it stays in the bar, after the course link
+  const movesBtn = q<HTMLElement>('#movesbtn'), partnerBtn = q<HTMLElement>('#helperbtn'), reset = q<HTMLElement>('#resetworld');
+  const strays = [...top.children].filter((c) => ![title, back, undo, redo, view, partnerBtn, reset].includes(c as HTMLElement)); // for example a Courses button added by another module: it stays in the bar, after the course link
 
   // the add menu: the editor's whole row of "add" buttons, as one popover with headings
   const addWrap = mk('div', { className: 'menuwrap' });
@@ -105,8 +105,7 @@ export function organizeEditor(root: HTMLElement): void {
   const more = mk('div', { className: 'overflow', id: 'overflowmenu' });
   const search = mk('button', { id: 'searchactions', title: 'Find any action by name' }); search.innerHTML = '<span>Search actions…</span><kbd>/</kbd>';
   more.append(search);
-  for (const b of [photo, reset]) if (b) { b.removeAttribute('style'); more.append(b); }
-  if (photoFile) more.append(photoFile);
+  for (const b of [reset]) if (b) { b.removeAttribute('style'); more.append(b); }
   moreWrap.append(moreBtn, more);
 
   // undo and redo as one segmented control

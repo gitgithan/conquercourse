@@ -5,7 +5,7 @@ import type { FixedBars } from './fixbars';
 import type { Fixed } from './fixit';
 import type { P } from './holds-world';
 import type { AgentReport } from './course-agent';
-import type { Layout } from './photo-course';
+import type { Layout } from './layout-draft';
 import { answer, type ProofRequest } from './proof-answer';
 
 // The page side of the proof worker. One worker per kind of question, so a new "does this lane clear?" while the player drags can cancel the old one
