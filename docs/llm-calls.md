@@ -52,7 +52,7 @@
 
 ### What is the vision helper (`pipelines/ccpipe/vision.py`)?
 - Two build-time calls to Muse Spark 1.3 on the Meta API for the video-ingest pipeline (`pipelines/ingest_video.py`, lines 349 and 386):
-  - `adult_check`: six face-blurred frames and the video title and description go in; "are all people adults" comes out. Only a confident "yes" lets the video go on.
+  - `adult_check`: six face-blurred frames and the video title and description go in; "are all people adults" comes out, and only a confident "yes" lets the video go on.
   - `scan_sheet`: one contact sheet of frames goes in; a list of obstacle segments with start and end seconds comes out.
 - It is not the place where contact targets are made, although `docs/hackathon.md` line 18 names it for that; the file has no such function.
 
@@ -267,7 +267,7 @@ A friendly orange fox parkour runner in a teal headband and white running shoes.
   - So the rebuilt prompt gave no sample of the real output.
   - The original Muse Spark 1.3 run did give targets (`docs/experiments.md`: sensible targets in 40 s); that output was not saved.
 - **What this means:** the same job on Spark Open may need a prompt that frames it as an animation tool, or may not work; it was not retried (one live call per feature).
-- **Real output to read instead:** none in the repo. The schema is in `docs/pipelines.md` section 6.
+- **Real output to read instead:** none in the repo; the schema is in `docs/pipelines.md` section 6.
 
 ## 12. Photo triage gate (CC-145)
 - **File and line:** `scripts/triage_v2.py` line 216 (`PLAIN`) and line 222 (`OUTLINE`); the call is `post()` in the same file.
