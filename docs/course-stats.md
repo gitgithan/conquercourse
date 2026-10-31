@@ -68,3 +68,19 @@
 - Counts start after the next deploy; earlier plays were never stored.
 - Check: `scripts/event-key-check.mjs` loads the Training course and asserts the key.
 - Picture: `docs/evidence/cc-108-cards-cannon.webp`.
+
+## Daily growth chart on the course picker (CC-108)
+- A strip under the world numbers shows three chips: players today, runs today and assets made today.
+- Each chip has a tiny line of the last 14 days.
+- Clicking a chip (or "Show the chart") opens one chart; a menu switches between Players, Runs, Assets made and Courses cleared.
+- The scales differ, so the metrics are never drawn on one axis.
+- Buttons cut the time axis to 7 days, 30 days or all time.
+- Route: `GET /api/daily-stats`, cached for five minutes, built by `functions/api/daily-stats.ts` and `src/slice/daily-stats.ts`.
+- Players are different random browser codes that started a run that day; no account, name or address is read or returned.
+- Runs are run starts; assets made are photo-to-3D object slots taken plus community photos; cleared are replayed clears.
+- Every metric has its own query, so a table that is missing leaves zeros and never breaks the reply.
+- The chart starts on the first day anything happened; days with nothing are 0.
+- A young game shows "Just starting: be one of the first", never a made-up number.
+- No migration is needed: it reads `course_events`, `course_clears`, `upload_days` and `community` as they are.
+- Switch: `?growth=0` hides it; check it with `node scripts/growth-check.mjs` (1280 px).
+- Picture (stubbed numbers, for the look only): `docs/evidence/cc-108-growth-chart.png`.
