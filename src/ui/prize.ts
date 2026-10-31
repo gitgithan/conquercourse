@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+import { addBadge } from './says';
 import { PRIZE_TURN_MS, turnAngle } from '../community/flow';
 
 // The prize screen (CC-247): a finished 3D piece appears in the middle of the window on a turntable that turns a full 360 degrees,
@@ -42,6 +43,7 @@ export function openPrize(p: PrizeInput): Promise<PrizeEnd> {
     const again = btn('Make another', 'prize-again');
     const open = Object.assign(document.createElement('a'), { textContent: 'Open in the World Editor', href: p.editorHref, className: 'btn', id: 'prize-editor' }); row.append(open);
     card.append(h, canvas, sub, row);
+    addBadge(card, 'builder'); // CC-243
     document.body.append(shade);
 
     const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });

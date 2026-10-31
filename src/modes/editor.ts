@@ -37,6 +37,7 @@ import { PRESETS } from '../slice/presets';
 import { fixCoaster } from '../slice/fixcoaster';
 import { MAX_PIECES, suggestPrompt } from '../slice/suggest-prompt';
 import { adviseLane, type Advice } from '../slice/advice';
+import { addBadge, sayBadge, saysOn } from '../ui/says';
 import { adviceInWorker, barsInWorker, fixInWorker, provesInWorker } from '../slice/proof-client';
 import { parseReply, worldBrief, type Edit } from '../slice/designer';
 import { diffProposal, enabledCount, fromAdvice, fromEdits, resultOf, type Proposal } from '../slice/preview';
@@ -465,7 +466,8 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
   // ---- helpers: what to shift when the lane cannot be cleared, and a design partner (Muse Spark Open) to talk it through
   const helper = el('div', aside, { className: 'panel helper', id: 'helper' });
   const head = el('div', helper, { className: 'row' });
-  el('strong', head, { text: 'Design partner' });
+  const partnerTitle = el('strong', head, { text: 'Design partner' });
+  if (saysOn()) { const line = document.createElement('div'); line.className = 'says-line'; line.style.cssText = 'flex:1 0 100%;margin:0'; line.append(sayBadge('partner')); partnerTitle.replaceWith(line); } // CC-243: the badge names the speaker and its model
   el('button', head, { text: 'Fix it', id: 'fixit', className: 'go', title: 'Show a layout the simulator can clear, before anything changes' }).onclick = () => runFix();
   el('button', head, { text: 'Make it easier', id: 'easier', title: 'Show the smallest change that makes the hardest press easier to land' }).onclick = () => runEasier();
   el('button', head, { text: '✕', id: 'closehelper', title: 'Hide' }).onclick = () => { helper.classList.add('closed'); helperBtn.setAttribute('aria-pressed', 'false'); };
@@ -980,7 +982,8 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
       root.remove(); style.remove();
       void startCourse(document.body, course);
     };
-    el('div', lanePanel, { id: 'verdict', className: verdict.startsWith('The simulator can clear') ? 'ok' : verdict ? 'bad' : 'muted', text: verdict });
+    const verdictEl = el('div', lanePanel, { id: 'verdict', className: `says-when ${verdict.startsWith('The simulator can clear') ? 'ok' : verdict ? 'bad' : 'muted'}`, text: verdict });
+    addBadge(lanePanel, 'simulator', { before: verdictEl }); // CC-243: whose words these are; hidden while the verdict is empty
     laneCheck.mount(lanePanel); // CC-243: progress line, Cancel and Play anyway under the verdict
   }
 
@@ -1146,7 +1149,7 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
       const text = finalText(st)?.line ?? ''; verdict = text;
       delete document.documentElement.dataset.laneClear; document.documentElement.dataset.verdict = text; setSuggest(null);
       const v = lanePanel.querySelector('#verdict') as HTMLElement | null;
-      if (v) { v.textContent = text; v.className = 'bad'; }
+      if (v) { v.textContent = text; v.className = 'says-when bad'; }
     },
   });
   const searchClearable = async (course: CourseData): Promise<boolean | null> => (await searchResult(course))?.cleared ?? null;
@@ -1174,17 +1177,17 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
         const r = describeLane(p);
         verdict = 'Checking this lane…';
         const v = lanePanel.querySelector('#verdict') as HTMLElement | null;
-        if (v) { v.textContent = verdict; v.className = 'muted'; }
+        if (v) { v.textContent = verdict; v.className = 'says-when muted'; }
         laneCheck.start();
         const clear = await searchClearable(laneCourse(p));
         if (version !== verifyVersion || isStopped(laneCheck.state())) return; // a newer edit, Cancel or the cap answered for this check
-        if (clear === null) { laneCheck.reset(); verdict = 'The lane check could not finish. Try again after editing stops.'; document.documentElement.dataset.verdict = verdict; if (v) { v.textContent = verdict; v.className = 'bad'; } return; }
+        if (clear === null) { laneCheck.reset(); verdict = 'The lane check could not finish. Try again after editing stops.'; document.documentElement.dataset.verdict = verdict; if (v) { v.textContent = verdict; v.className = 'says-when bad'; } return; }
         laneCheck.done(clear);
         document.documentElement.dataset.laneClear = clear ? '1' : '0'; setSuggest(clear);
         verdict = clear ? `The simulator can clear this lane (${r.gaps} gaps, ${r.steps} steps, ${r.curves} curves, ${r.faces} faces, ${r.length.toFixed(0)} m).` : 'The simulator cannot find a way to clear this lane: widen a gap or lower a step.';
       }
       const v = lanePanel.querySelector('#verdict') as HTMLElement | null;
-      if (v) { v.textContent = verdict; v.className = verdict.startsWith('The simulator can clear') ? 'ok' : 'bad'; }
+      if (v) { v.textContent = verdict; v.className = verdict.startsWith('The simulator can clear') ? 'says-when ok' : 'says-when bad'; }
       document.documentElement.dataset.verdict = verdict;
       // when it cannot be cleared, say what to shift (each suggestion was proved by the simulator)
       adviceList = []; showAdvice();

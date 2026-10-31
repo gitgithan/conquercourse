@@ -1,4 +1,5 @@
 // "Latest creations": the newest 24 objects and 24 characters, a picker for the runner, and the form that makes a new character (CC-108).
+import { addBadge, saysOn } from '../ui/says';
 import { jobProgress } from '../ui/job-progress';
 import { CHARACTER_STEPS, type CharacterCard } from './steps';
 import { promptProblem, cleanPrompt } from './prompt';
@@ -42,6 +43,7 @@ export function openCharacterPanel(o: PanelOptions): { close(): void; el: HTMLEl
   const done = Object.assign(doc.createElement('button'), { type: 'button', textContent: 'Close' }); done.onclick = close;
   form.append(input, go);
   box.append(head, tabs, grid, form, jobs, msg, done);
+  addBadge(box, 'maker', { after: head }); // CC-243: Muse Image draws, SAM 3.1 cuts out
   (o.parent ?? doc.body).append(root);
 
   let kind: 'character' | 'object' = 'character', current = o.current;
@@ -66,7 +68,7 @@ export function openCharacterPanel(o: PanelOptions): { close(): void; el: HTMLEl
   function card(c: CharacterCard | null): HTMLElement {
     const el = doc.createElement('div'); el.className = 'card'; el.dataset.on = String((c?.id ?? null) === current); el.dataset.id = c?.id ?? 'rookie';
     if (c) el.append(Object.assign(doc.createElement('img'), { src: c.thumb, alt: c.name, width: 96, height: 96 }));
-    el.append(Object.assign(doc.createElement('b'), { textContent: c ? c.name : 'The Rookie', title: c?.prompt ?? '' }));
+    el.append(Object.assign(doc.createElement('b'), { textContent: c ? c.name : saysOn() ? 'Pip, the Rookie' : 'The Rookie', title: c?.prompt ?? '' }));
     const use = Object.assign(doc.createElement('button'), { type: 'button', textContent: (c?.id ?? null) === current ? 'Running as' : kind === 'object' ? 'Look' : 'Play as' });
     use.disabled = !!c && c.kind === 'object';
     use.onclick = () => { current = c?.id ?? null; o.onPick(c); load(); };

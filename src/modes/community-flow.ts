@@ -1,3 +1,4 @@
+import { addBadge, meetTheCrew, saysOn } from '../ui/says';
 import { Regions } from '../ui/regions';
 import { JobError, liftObject, shrinkPhoto, type Shrunk } from '../slice/object-lift-client';
 import { LIFT_STEPS, SEGMENT_STEPS } from '../slice/stages';
@@ -146,6 +147,7 @@ export function startCommunityFlow(host: HTMLElement, params: URLSearchParams): 
       };
       await loadPage(true);
     })();
+    if (saysOn()) { const cr = sec('Meet the crew', 'Every message in the game says who is speaking. These are the guys behind the checks, the cut-outs and the characters.', 'ex-crew'); cr.append(meetTheCrew()); } // CC-243
   }
 
   function photos() {
@@ -248,7 +250,7 @@ export function startCommunityFlow(host: HTMLElement, params: URLSearchParams): 
     function stepSegment() {
       if (!work.photo || !work.rg) return go('photo');
       const rg = work.rg, ph = work.photo;
-      el('h2', panel, 'Step 3. Segment Region');
+      addBadge(panel, 'cutter', { after: el('h2', panel, 'Step 3. Segment Region') }); // CC-243: SAM 3 finds and outlines the things
       el('div', panel, 'This looks at the whole photo and finds the separate things in it: a bench, stairs, a railing. Your box is not a crop: nothing outside it is hidden. The box only tells us which found thing is yours. It usually takes under a minute; the first one after a quiet spell can take a bit longer.').className = 'muted';
       const msg = el('div', panel, work.segMsg); msg.className = 'muted'; msg.id = 'cseginfo';
       let hovered: number | null = null;
@@ -344,7 +346,7 @@ export function startCommunityFlow(host: HTMLElement, params: URLSearchParams): 
     function stepMake() {
       if (!work.photo) return go('photo');
       const ph = work.photo;
-      el('h2', panel, 'Step 5. Make them');
+      addBadge(panel, 'builder', { after: el('h2', panel, 'Step 5. Make them') }); // CC-243: SAM 3D Objects lifts a cut-out into a solid piece
       const lastCourse: { id?: string } = {};
       const next = el('div', panel); next.id = 'cnow'; next.className = 'panel'; next.hidden = true;
       const showNext = (shared = false) => {
@@ -366,7 +368,7 @@ export function startCommunityFlow(host: HTMLElement, params: URLSearchParams): 
         const b = el('button', row, 'Share in Community', { id: `share-${rid}`, title: 'Show it in the Community gallery. You can delete it there any time.' });
         const note = el('div', side); note.className = 'muted'; note.id = `share-note-${rid}`;
         b.onclick = async () => {
-          b.disabled = true; note.textContent = 'Sharing…'; note.className = 'muted';
+          b.disabled = true; note.textContent = 'Sharing…'; note.className = 'muted'; addBadge(side, 'safety', { before: note }); // CC-243: every share is looked at first
           try { note.textContent = await doShare(make); b.textContent = 'Shared'; showNext(true); } catch (e) { note.textContent = (e as Error).message; note.className = 'err'; note.setAttribute('role', 'alert'); b.disabled = false; }
         };
       };

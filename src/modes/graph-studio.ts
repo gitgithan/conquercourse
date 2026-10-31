@@ -1,3 +1,4 @@
+import { addBadge } from '../ui/says';
 import type { CourseData } from '../course/course';
 import { gapSpecs } from '../sim/needs';
 import { playPlan, type Plan } from '../sim/ideal';
@@ -72,10 +73,11 @@ function start(env: StudioEnv, onClose: () => void): { close: () => void } {
       <button id="gsreset" style="font:600 14px system-ui;border:1px solid #17201d;background:#fff;color:#17201d;border-radius:8px;padding:6px 12px;cursor:pointer">Undo my edits</button>
       <button id="gsclose" style="font:600 14px system-ui;border:1px solid #17201d;background:#fff;color:#17201d;border-radius:8px;padding:6px 12px;cursor:pointer">Close (Tab)</button></div>
     <div style="position:relative;min-height:0"><canvas id="gscanvas" style="position:absolute;inset:0;width:100%;height:100%;touch-action:none;display:block"></canvas></div>
-    <div style="padding:6px 12px;display:grid;gap:2px"><div id="gsverdict" style="font-weight:700;border-left:5px solid #888;padding-left:8px"></div><div id="gsgap" style="color:#58635d"></div><div id="gschanges" style="color:#58635d"></div></div>`;
+    <div style="padding:6px 12px;display:grid;gap:2px"><div id="gsverdict" class="says-when" style="font-weight:700;border-left:5px solid #888;padding-left:8px"></div><div id="gsgap" style="color:#58635d"></div><div id="gschanges" style="color:#58635d"></div></div>`;
   document.body.append(root);
   const cv = root.querySelector('#gscanvas') as HTMLCanvasElement, c = cv.getContext('2d')!;
   const verdictEl = root.querySelector('#gsverdict') as HTMLElement, gapEl = root.querySelector('#gsgap') as HTMLElement, changesEl = root.querySelector('#gschanges') as HTMLElement;
+  addBadge(verdictEl.parentElement!, 'simulator', { before: verdictEl }); // CC-243
   const fit = () => { cv.width = Math.max(300, cv.clientWidth); cv.height = Math.max(100, cv.clientHeight); };
 
   const yRange = () => {

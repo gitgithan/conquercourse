@@ -4,8 +4,14 @@ import * as THREE from 'three';
 import type { CourseData } from '../course/course';
 import type { Plan } from '../sim/ideal';
 import type { RunnerInput } from '../sim/runner';
+import { addBadge } from './says';
 import { GHOST_OPACITY, createGhostFigure, type GhostFigure, type RookieLook } from './ghost-look';
 import { InputRecorder, gapSeconds, gapWords, trackFromPlan, type GhostTrack, type InputLog } from '../sim/replay';
+
+/** CC-243: the ghost's line in the end report wears its voice badge (nothing changes with ?says=0). */
+function withBadge(line: HTMLElement): HTMLElement {
+  const w = document.createElement('div'); w.style.cssText = 'display:grid;gap:6px'; addBadge(w, 'ghost'); w.append(line); return w;
+}
 
 export type GhostMode = 'off' | 'ideal' | 'friend'; // a friend's run comes from a challenge link (CC-128) and is never remembered
 const MODE_KEY = 'cc.ghost.mode';
@@ -148,13 +154,13 @@ export function createGhost(o: GhostOpts): Ghost {
     reportLine(ticks) {
       const t = shown();
       if (!t || !chasing()) return null;
-      if (mode === 'friend' && !t.cleared) { const q = document.createElement('div'); q.style.cssText = 'font:600 15px system-ui,sans-serif;color:#17201d'; q.textContent = `${friendNick ? `${friendNick}\x27s` : 'The friend\x27s'} try ended in a fall, ${t.xs[t.ticks].toFixed(0)} m along the course.`; return q; }
+      if (mode === 'friend' && !t.cleared) { const q = document.createElement('div'); q.style.cssText = 'font:600 15px system-ui,sans-serif;color:#17201d'; q.textContent = `${friendNick ? `${friendNick}\x27s` : 'The friend\x27s'} try ended in a fall, ${t.xs[t.ticks].toFixed(0)} m along the course.`; return withBadge(q); }
       const who = mode === 'friend' ? (friendNick ? `${friendNick}\x27s run` : 'the friend\x27s run') : 'the ideal run';
       const mine = ticks / 120, theirs = t.ticks / 120, d = mine - theirs;
       const p = document.createElement('div');
       p.style.cssText = 'font:600 15px system-ui,sans-serif;color:#17201d';
       p.textContent = Math.abs(d) < 0.05 ? `Your time ${mine.toFixed(1)} s: the same as ${who}.` : d > 0 ? `Your time ${mine.toFixed(1)} s. The ${who.replace('the ','')} took ${theirs.toFixed(1)} s, ${d.toFixed(1)} s faster.` : `Your time ${mine.toFixed(1)} s. You were ${(-d).toFixed(1)} s ahead of ${who} (${theirs.toFixed(1)} s).`;
-      return p;
+      return withBadge(p);
     },
     reportActions() { return []; }, // CC-158: the ghost comes with every run, so the report has no button for it
   };

@@ -11,6 +11,7 @@ import { newWorld, stepWorld, type WorldState } from '../sim/world';
 import { ZONE_ICONS } from './zone-icons';
 import { column, TOPIC_ORDER } from '../course/obstacles';
 import { goldOld } from './hardest';
+import { addBadge } from './says';
 
 export type MoveKind = 'jump' | 'vault' | 'climb' | 'roll' | 'grab' | 'bounce' | 'fire';
 export interface LoggedMove { kind: MoveKind; x: number; y: number }
@@ -169,6 +170,7 @@ export function renderReport(course: CourseData, log: RunLog, r: Report, a: Acti
   const box = document.createElement('section');
   box.setAttribute('aria-label', 'Run report');
   box.style.cssText = 'display:grid;gap:12px';
+  addBadge(box, 'simulator', { sub: compact ? null : undefined }); // CC-243: the report is the Simulator's word
   if (!compact) tx('h2', r.headline, 'margin:0;font:800 26px/1.2 system-ui,sans-serif;color:#0f6b5c', box);
   else tx('div', r.cleared ? r.headline : `You got ${r.metres} m of ${r.finishX} m.`, 'font-weight:700', box);
   box.appendChild(pathPicture(course, log, r.best, ghost, old, hard));
