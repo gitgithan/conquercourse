@@ -7,6 +7,8 @@ export const DEFAULT_LIMITS: Limits = { perPlayer: 3, perGame: 100 };
 export interface Ledger {
   /** Take one slot for `player` on `day` ("YYYY-MM-DD"). Reports which limit stopped it, or ok. All-or-nothing. */
   take(player: string, day: string, limits: Limits): Promise<{ ok: true } | { ok: false; limit: 'player' | 'game' }>;
+  /** How many more this player can start on `day` (the smaller of the player's and the game's room). Reads only. */
+  left(player: string, day: string, limits: Limits): Promise<number>;
   /** Give a slot back when the job never started. */
   refund(player: string, day: string): Promise<void>;
 }
@@ -22,6 +24,7 @@ export function memoryLedger(): Ledger {
       players.set(k, (players.get(k) ?? 0) + 1); games.set(day, (games.get(day) ?? 0) + 1);
       return { ok: true };
     },
+    async left(player, day, limits) { return Math.max(0, Math.min(limits.perPlayer - (players.get(`${day}|${player}`) ?? 0), limits.perGame - (games.get(day) ?? 0))); },
     async refund(player, day) {
       const k = `${day}|${player}`;
       players.set(k, Math.max(0, (players.get(k) ?? 0) - 1)); games.set(day, Math.max(0, (games.get(day) ?? 0) - 1));

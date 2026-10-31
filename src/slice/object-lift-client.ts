@@ -80,3 +80,12 @@ export async function liftObject(inp: LiftInput, progress: (s: string) => void, 
   }
   throw new JobError('This is taking too long. Try again.');
 }
+
+/** How many 3D pieces a player can make a day and how many are left today, from the server; null when it cannot be read (the server still decides at the press). */
+export async function piecesToday(): Promise<{ perDay: number; left: number } | null> {
+  try {
+    const res = await fetch('/api/object-lift', { cache: 'no-store' });
+    const d = (await res.json()) as { perDay?: unknown; left?: unknown };
+    return res.ok && Number.isInteger(d.perDay) && Number.isInteger(d.left) ? { perDay: d.perDay as number, left: d.left as number } : null;
+  } catch { return null; }
+}

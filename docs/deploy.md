@@ -10,7 +10,6 @@
 - **Privacy:**
   - No names, emails or IP addresses are stored.
   - The form says not to type personal information.
-  - Where photos go and what each host keeps: [trust and safety](trust-and-safety.md).
   - Each browser gets a random session id.
   - The build id and a few play counters (falls, clears, Dojo opens) travel with the answers.
 

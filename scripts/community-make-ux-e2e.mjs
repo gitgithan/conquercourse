@@ -20,10 +20,6 @@ try {
   await page.waitForSelector('#cfile', { timeout: 90000 });
   await page.setInputFiles('#cfile', photo);
   await page.waitForSelector('.stage img', { timeout: 30000 }); await page.waitForTimeout(600);
-  const r = await page.$eval('.stage img', (e) => { const b = e.getBoundingClientRect(); return { x: b.x, y: b.y, w: b.width, h: b.height }; });
-  await page.mouse.move(r.x + r.w * (294 / 1024), r.y + r.h * (183 / 760)); await page.mouse.down();
-  await page.mouse.move(r.x + r.w * (658 / 1024), r.y + r.h * (454 / 760), { steps: 8 }); await page.mouse.up();
-  await page.click('#cnext'); await page.waitForSelector('#cseg');
   say('on Segment', (await page.textContent('.panel .muted')).slice(0, 120));
   await shot(page, '1-segment-before');
   const tSeg = Date.now();
@@ -39,8 +35,8 @@ try {
   const after = await page.$$eval('#cfound label', (n) => n.map((x) => x.textContent));
   say('hover keeps the order and lights one box on the photo', JSON.stringify(after) === JSON.stringify(again) && hl === 1);
   await shot(page, '2-found-hover');
-  // tick a second thing (first non-yours whose name is a plain word)
-  await page.check('#found-1');
+  // a click picks the first found thing, a click on another picks it too
+  await page.click('.stage .box:nth-of-type(1)'); await page.click('.stage .box:nth-of-type(2)');
   say('ticked', await page.$$eval('#cfound input:checked', (n) => n.length));
   await page.click('#cnext'); await page.waitForSelector('[id^=choose-piece-]');
   const ids = await page.$$eval('.item', (n) => n.map((x) => x.dataset.id));

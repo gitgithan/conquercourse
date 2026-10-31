@@ -19,7 +19,7 @@ export async function suggestRegions(photo: Shrunk, progress: (s: string) => voi
   progress('Looking for the outline. People in the photo are blurred first.'); tell(0);
   const sub = await post({ action: 'submit', image: photo.image, thumb: photo.thumb });
   if (!sub.ok || typeof sub.data.id !== 'string') {
-    if (sub.status === 503) throw new SegmentOff('The outline finder is switched off here, so your box is used as it is.', true);
+    if (sub.status === 503) throw new SegmentOff('The outline finder is switched off here, so nothing can be found right now.', true);
     const e = submitFailure(sub.status, sub.data);
     throw new JobError(e.message || 'The outline finder did not answer. Your box can be used as it is.', e.final, e.retryAt);
   }

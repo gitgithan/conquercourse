@@ -55,6 +55,15 @@ export async function handle(b: Record<string, unknown>, env: Env, ip: string, f
   } catch { await ledger.refund(who, day); return { status: 502, body: refusalBody('down', 'The 3D service is busy. Try again in a minute.', 60) }; }
 }
 
+/** What the page shows before the make button: how many pieces a player can make a day and how many are left today. Reads only; nothing is taken. */
+export async function pieceCount(ip: string, ledger: Ledger = sharedLedger, limits: Limits = DEFAULT_LIMITS, now = Date.now()): Promise<{ perDay: number; left: number }> {
+  return { perDay: limits.perPlayer, left: await ledger.left(await playerCode(ip), utcDay(now), limits) };
+}
+
+export const onRequestGet = async ({ request, env }: { request: Request; env: Env }): Promise<Response> => {
+  try { return json(await pieceCount(request.headers.get('cf-connecting-ip') ?? 'local', env.DB ? d1Ledger(env.DB) : sharedLedger), 200, { 'cache-control': 'no-store' }); } catch { return json({ error: 'down' }, 502); }
+};
+
 export const onRequestPost = async ({ request, env }: { request: Request; env: Env }): Promise<Response> => {
   const raw = await request.text();
   if (raw.length > 2_200_000) return json({ error: 'bad', message: 'The photo is too big.' }, 413);

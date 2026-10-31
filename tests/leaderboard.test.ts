@@ -106,6 +106,13 @@ describe('the D1 upload ledger', () => {
     expect(await l.take('p3', '2026-10-30', lim)).toEqual({ ok: false, limit: 'game' });
     expect(await l.take('p3', '2026-10-31', lim)).toEqual({ ok: true }); // a new day starts again
   });
+  it('reading how many are left takes nothing and follows the smaller of the two rooms', async () => {
+    const { db } = localD1(); const l = d1Ledger(db as never);
+    expect(await l.left('p1', 'd', lim)).toBe(2); expect(await l.left('p1', 'd', lim)).toBe(2);
+    await l.take('p1', 'd', lim); expect(await l.left('p1', 'd', lim)).toBe(1);
+    await l.take('p2', 'd', lim); expect(await l.left('p3', 'd', lim)).toBe(1); // the game has one room left
+    await l.take('p3', 'd', lim); expect(await l.left('p4', 'd', lim)).toBe(0);
+  });
   it('a refused player does not use up a game slot, and a refund gives one back', async () => {
     const { db } = localD1(); const l = d1Ledger(db as never);
     await l.take('p1', 'd', lim); await l.take('p1', 'd', lim);

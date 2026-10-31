@@ -24,7 +24,7 @@ try {
     const page = await browser.newPage({ viewport: { width: 1280, height: 720 } });
     let url = `http://localhost:${port}/?welcome=0&photos=0&bot=ideal`;
     const tool = WORD_VALUES.includes(value);
-    if (tool) url = `http://localhost:${port}/` + ({ editor: '?mode=editor&welcome=0', 'coaster-builder': '?mode=coaster&welcome=0', map: '?mode=map&welcome=0', 'lab-search': '?mode=lab-search&labs=1&welcome=0', 'lab-timing': '?mode=lab-timing&labs=1&welcome=0', generate: '?generate=7&welcome=0&photos=0&bot=ideal' } as Record<string, string>)[value];
+    if (tool) url = `http://localhost:${port}/` + ({ editor: '?mode=editor&welcome=0', 'coaster-builder': '?mode=coaster&welcome=0', map: '?mode=map&welcome=0', 'lab-search': '?mode=lab-search&labs=1&welcome=0', generate: '?generate=7&welcome=0&photos=0&bot=ideal' } as Record<string, string>)[value];
     else if (value) {
       url += `&course=${value}`;
       const file = `public${value}`;

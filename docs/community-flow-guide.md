@@ -3,9 +3,10 @@
 ## So what
 - Community opens on finished work first, so you see what a completed creation looks like before you make one.
 - Then one clear button, **Make your own**, takes you into the making flow.
-- The making flow is one screen: Photo, Mark, Segment, Choose, Make.
+- The making flow is one screen: Photo, Segment, Choose, Make.
 - You never choose "wallpaper or object" up front.
-- You mark one area; it becomes a piece or a wallpaper.
+- You never draw a box: the finder outlines the things in your photo and you click the one you want.
+- Your pick becomes a piece or a wallpaper.
 - A photo gives objects and wallpapers only; courses come from World Slicing and the Editor.
 - It is the only Community now; the old screens are deleted.
 - Your finished piece or wallpaper can be shared: press **Share in Community**, see it in Explore as yours, and delete it any time.
@@ -13,9 +14,9 @@
 ## The whole path in one picture
 ```mermaid
 flowchart LR
-  A["Photo<br/>(shrunk in your browser)"] --> B["Mark one area"]
-  B --> C["Segment Region<br/>/api/segment -> Modal suggest job"]
-  C --> D{"Choose"}
+  A["Photo<br/>(shrunk in your browser)"] --> C["Segment Region<br/>/api/segment -> Modal suggest job"]
+  C --> C1["Click the thing you want<br/>(Tab and Enter work too)"]
+  C1 --> D{"Choose"}
   D -->|3D piece| E["Generate Piece<br/>/api/object-lift -> Modal lift job"]
   D -->|Wallpaper| F["Save wallpaper<br/>(crop in your browser)"]
   E --> G["Kept in this browser<br/>(World Editor tray)"]
@@ -31,18 +32,24 @@ flowchart LR
   M --> N["Delete (you confirm)"]
 ```
 
-## What your box does
-- The box does **not** crop the photo.
-  - Segment Region sends the whole photo and the finder looks at all of it, in the same way whatever you drew.
-  - The finder reads no box at all (`Mask.suggest` takes the photo only); it tries one plain word at a time (bench, stairs, railing, wall and so on) and keeps the best, non-repeating things.
-  - Your box is only used afterwards, in your browser, to say which found thing is yours: the one that overlaps it most is ticked for you.
-  - So nothing is hidden from the search, and a box drawn in the wrong place cannot make it fail.
-- "Use my box as the outline" used to skip the finder.
-  - It is now called **Skip the finder: use my box as it is**, and the page says what happens: nothing is searched, and your box is the area.
-  - Skipping can never fail, because the finder only chooses boxes for you.
-  - The 3D maker later finds the real outline itself, from the photo, your box and the name you give it.
-    - It looks for that name under your box, then falls back to the box alone, then to the plain box.
-    - So the blue shape you see after Segment Region is a preview, not what is lifted.
+## What your click does
+- The finder looks at the whole photo, and you click to choose.
+  - Segment Region sends the whole photo, and the finder looks at all of it.
+  - It reads no box at all (`Mask.suggest` takes the photo only).
+  - It tries one plain word at a time (bench, stairs, railing, wall and so on) and keeps the best, non-repeating things.
+  - Each found thing is outlined on the photo.
+  - Point at one and it lights up; click it and it is picked; click it again and it is put back.
+  - Nothing is picked for you, and nothing is hidden from the search.
+- You can reach the same things without a mouse.
+  - Press Tab to move from one found thing to the next, and Enter (or Space) to pick or put back.
+  - The list under the photo holds the same things in one fixed order, each with a tick box.
+- If the finder finds nothing, or fails, or is switched off:
+  - The page says so in plain words.
+  - It offers **Try again** and **Pick a different photo**.
+  - The old "Skip the finder" button is gone, because without a box there is nothing to skip to.
+- The 3D maker later finds the real outline itself, from the photo, the picked box and the name you give it.
+  - It looks for that name under the picked box, then falls back to the box alone, then to the plain box.
+  - So the blue shape you see after Segment Region is a preview, not what is lifted.
 - One 3D run makes one piece.
   - A lift takes one photo, one box and one name, and returns one .glb.
   - Several pieces are several runs, one after another, and each costs its own GPU seconds.
@@ -61,21 +68,18 @@ flowchart LR
 ## The flow after this change
 ```mermaid
 flowchart LR
-  A["Photo"] --> B["Mark one box"]
-  B --> C["Segment Region<br/>whole photo, one run"]
-  B --> C2["or: Skip the finder<br/>(box as it is)"]
-  C --> D["Tick the things you want<br/>fixed order, hover shows it on the photo"]
-  C2 --> D
+  A["Photo"] --> C["Segment Region<br/>whole photo, one run"]
+  C --> D["Click the things you want<br/>outlined on the photo, hover lights one"]
   D --> E["Choose: piece or wallpaper for each"]
   E --> F["Make N pieces<br/>one lift each, queued, per-piece bar"]
   F --> G["Prize: spinning turntable in the middle"]
   G --> H["Keep / Share / Make another"]
   G --> I["Open in the World Editor<br/>Add pieces, My pieces, already placed"]
 ```
-- Before Segment Region you still mark exactly one box.
-- After it you may tick several things, up to a small limit, and each ticked piece is its own run.
-- The list of found things is in one fixed order: your box first, then biggest first, then top to bottom, then left to right.
-- Pointing at a name lights its box on the photo; nothing is rebuilt, so nothing moves under the mouse.
+- You draw nothing: press Segment Region and the finder outlines the things.
+- After it you may click several things, up to a small limit, and each picked piece is its own run.
+- The list of found things is in one fixed order: biggest first, then top to bottom, then left to right.
+- Pointing at a thing lights it; nothing is rebuilt, so nothing moves under the mouse.
 
 ## Where is my piece?
 - Your finished piece is kept in this browser (IndexedDB) and was always saved.
@@ -146,35 +150,36 @@ sequenceDiagram
 ## Click by click (Make your own tab)
 1. **Photo.**
    - Click "Choose file" and pick a JPEG, or click one of our sample place photos.
-   - You land on Mark by yourself.
-2. **Mark.**
-   - Click the photo: a ready-made box drops where you clicked.
-   - Or drag on the photo to draw your own box.
-   - Only one box is kept: a new box replaces the old one.
-   - Drag the box to move it; drag the green corner to resize it.
-   - Delete removes it, Ctrl+Z undoes.
-   - Press "Next: Segment" when the area is marked.
-3. **Segment.**
+   - You land on Segment by yourself.
+2. **Segment.**
    - Press **Segment Region**.
    - A stepped bar shows the job: Checking the photo, Finding the things in it, Done.
    - The bar shows the seconds so far, and **Cancel** stops waiting.
-   - The finder looks at the whole photo and lists what it found, in one fixed order.
-   - Your box only picks which one is yours; it is ticked for you.
-   - Tick other things to make several at once; point at a name to see it on the photo.
-   - "Skip the finder: use my box as it is" goes on with the plain box.
-   - If the finder is switched off, the page says so and uses your box as it is.
-4. **Choose.**
-   - Each ticked area has a small picture, a name box and two buttons: **3D piece** and **Wallpaper**.
+   - The finder looks at the whole photo and outlines what it found; you draw nothing.
+   - Hover lights one; click picks it; click again puts it back (see "What your click does").
+   - Pick several to make several at once, up to a small limit.
+   - Tab and Enter do the same without a mouse.
+   - If nothing is found, or the finder fails or is off, the page offers **Try again** and **Pick a different photo**.
+3. **Choose.**
+   - Each picked thing has a small picture, a name box and two buttons: **3D piece** and **Wallpaper**.
    - Name a piece with a plain word (bench, railing, stairs, wall).
    - Press a button again to un-choose it.
-   - "Next: Make" opens when the area has a choice.
-5. **Make.**
+   - "Next: Make" opens when the pick has a choice.
+4. **Make.**
    - A 3D piece shows **Generate Piece**; press it and watch the bar (the first one of a day can take minutes).
    - The bar steps through: Checking the photo, Cutting out the object, Building the 3D shape, Adding colour, Done.
    - The bar shows the seconds so far, and **Cancel** stops waiting.
    - The names come from the job itself, so the bar moves when the job moves.
    - The piece is saved in this browser and appears in the World Editor tray as "📷 Mine: name".
-   - A wallpaper shows a name, a course list and **Save wallpaper**; the crop is your box widened to the course's wide look.
+   - Before you press, a line beside the button says how many pieces you can make a day and how many are left today.
+     - Both numbers are read from the server when the Make step opens, so the page never has its own copy.
+     - If the page cannot read them, it says so, and the server still decides when you press.
+   - The line also says that one lift makes one object, so more pieces cost more (about 2 to 4 cents each).
+   - Several pieces are several lifts, so N pieces cost N times as much as one.
+   - If you queued more pieces than are left today, a red warning says so.
+     - **Make N pieces** counts only the ones that can start.
+     - The extra pieces have their own button switched off, with the reason beside it ("try again tomorrow").
+   - A wallpaper shows a name, a course list and **Save wallpaper**; the crop is the picked area widened to the course's wide look.
    - **Share in Community** (a button on each finished piece or wallpaper) sends the small picture, and for a piece the .glb, to the Community list.
      - The server looks at the small picture again with the safety check.
      - If it says all clear, everyone sees it in Explore.
@@ -204,15 +209,15 @@ sequenceDiagram
 - The server sends `retryAfterSeconds` in the body and a `Retry-After` header; the page turns it into the clock time.
 
 ## What the wallpaper path looks like
-- It is the same marks, so there is no second crop tool.
-- At Choose you press **Wallpaper** for that area.
+- It is the same pick, so there is no second crop tool.
+- At Choose you press **Wallpaper** for that pick.
 - At Make you pick the course it hangs behind and press Save wallpaper.
 - "Play a course with the wallpaper" opens that course with `&wallpaper=<id>` and the crop is the sky behind the lane.
 - It is looks only; the course plays the same.
 
 ## Things to know (gaps)
-- Segmentation finds outlines on its own; it does not take a mark as a hint.
-- Your box picks the outline that sits on it.
+- Segmentation finds outlines on its own; a click only chooses among them.
+- If the thing you want is not outlined, press Segment Region again or pick a different photo; there is no way to draw one.
 - Cancel stops the page waiting; the job on the server may still finish, and it still counts for today.
 - Wallpapers and pieces stay in this browser until you press Share in Community.
 - A shared item is held for a person to approve whenever the safety check is unsure (`npm run community items` lists them; see `docs/deploy.md`).
@@ -252,3 +257,9 @@ sequenceDiagram
 - In the editor, **My pieces** and **Shared pieces** show a dozen cards at a time, then **Show more**.
 - Typing in the Add pieces search also looks through pieces other players shared, a page at a time.
 - The built-in object list (the 19 photo objects) is a shipped file and does not grow with players' work.
+
+## Click-to-pick pictures (CC-247)
+- [Hover lights one found thing](evidence/cc-247-click-pick/1-hover.jpg)
+- [Picked](evidence/cc-247-click-pick/2-picked.jpg)
+- [The daily line beside the button](evidence/cc-247-click-pick/3-daily-line.jpg)
+- [More queued than left today](evidence/cc-247-click-pick/4-queue-over-left.jpg)
