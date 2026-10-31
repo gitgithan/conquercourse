@@ -21,14 +21,14 @@ import { memoryLedger, utcDay, type Ledger, type Limits } from '../../src/slice/
 import { playerCode } from '../_lib/player';
 import { json } from '../_lib/http';
 
-interface Stmt { bind(...v: unknown[]): { run(): Promise<{ meta?: { changes?: number } }>; first<T>(): Promise<T | null>; all<T>(): Promise<{ results: T[] }> } }
+interface Stmt { bind(...v: unknown[]): { run(): Promise<{ meta?: { changes?: number } }>; first<T>(): Promise<T | null>; all(): Promise<{ results: Record<string, unknown>[] }> } }
 export interface Db { prepare(sql: string): Stmt }
 type Row = { id: string; ts: string; kind: string; owner: string; name: string; prompt: string; provider: string; route: string; bytes: number; faces: number; thumb: string; picks: number; last_pick: string | null };
 
 const SALT = 'cc-char';
 const sharedLedger = memoryLedger(); // only for local runs without a database
 const dayKey = (day: string): string => `char|${day}`; // its own rows in upload_days, apart from the object slots
-export const b64 = (s: string): Uint8Array => Uint8Array.from(atob(s), (c) => c.charCodeAt(0));
+export const b64 = (s: string): Uint8Array<ArrayBuffer> => Uint8Array.from(atob(s), (c) => c.charCodeAt(0));
 const unb64 = (b: Uint8Array): string => { let s = ''; for (let i = 0; i < b.length; i += 0x8000) s += String.fromCharCode(...b.subarray(i, i + 0x8000)); return btoa(s); };
 
 /** The daily numbers come from a secret (CC_CHAR_LIMITS = "perPlayer,perGame"); with none set the maker is closed to all but one character a day for the whole game. */
@@ -49,8 +49,8 @@ export async function expire(db: Db): Promise<number> {
 export async function list(db: Db, kind: string, who: string): Promise<CharacterCard[]> {
   await expire(db);
   const k = kind === 'object' ? 'object' : 'character';
-  const rows = await db.prepare(`SELECT ${COLS} FROM characters WHERE kind = ? AND status = 'ok' AND reports < 3 ORDER BY ts DESC, rowid DESC LIMIT ?`).bind(k, PANEL_SIZE).all<Row>();
-  return rows.results.map((r) => card(r, who));
+  const rows = await db.prepare(`SELECT ${COLS} FROM characters WHERE kind = ? AND status = 'ok' AND reports < 3 ORDER BY ts DESC, rowid DESC LIMIT ?`).bind(k, PANEL_SIZE).all();
+  return (rows.results as unknown as Row[]).map((r) => card(r, who));
 }
 
 export interface Deps { db: Db; env: Env; ip: string; fetcher?: typeof fetch; ledger?: Ledger; now?: number; burstMax?: number }
@@ -123,7 +123,7 @@ export async function handle(b: Record<string, unknown>, d: Deps): Promise<{ sta
 }
 
 async function store(db: Db, job: { prompt: string; state: string }, st: Extract<JobState, { state: 'done' }>, jobId: string, who: string, provider: string) {
-  let glb: Uint8Array, thumb: Uint8Array;
+  let glb: Uint8Array<ArrayBuffer>, thumb: Uint8Array<ArrayBuffer>;
   try { glb = b64(st.glb); thumb = b64(st.thumb); } catch { return refuse(200, { state: 'failed', reason: 'The maker sent a broken file.' }); }
   const problems = glbProblems(glb);
   if (problems.length || !THUMB_OK(thumb)) {

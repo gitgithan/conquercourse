@@ -9,11 +9,15 @@
 - Details and the design are in `docs/community-characters.md`.
 
 ## Routes tried
-- A: Muse Image, then SAM 3.1 cut-out, then our lift on Modal, then bake and rig to Rookie A's 34 bones. Worked 8 of 8.
-- B: Muse Image, then SAM 3D Body shape numbers. Worked on the human picture only (hoodie); the other runs were still going when this was written and are recorded as not completed.
+- A: Muse Image, then SAM 3.1 cut-out, then our lift on Modal, then bake and rig to Rookie A's 34 bones.
+  - Worked 8 of 8.
+- B: Muse Image, then SAM 3D Body shape numbers.
+  - Worked on the human picture only (hoodie); the other runs were still going when this was written and are recorded as not completed.
 - C: Rookie A's body with a new head from route A. Worked 4 of 4, but reads as a Rookie in a mask (scores 3 to 4).
-- D: Tripo from the picture. Not run: the balance is 60 credits, one character needs about 110.
-- E: Meta 3D AssetGen 2.0 and Meta 3D Gen. Not reachable: no public API or weights found.
+- D: Tripo from the picture.
+  - Not run: the balance is 60 credits, one character needs about 110.
+- E: Meta 3D AssetGen 2.0 and Meta 3D Gen.
+  - Not reachable: no public API or weights found.
 
 ## Numbers
 - Files: `results/*.json` hold every run (times, costs, sizes, stretch).
