@@ -87,6 +87,7 @@
   - The same version and format rules as a long link, and a course it can find: a listed file, the starting course, or a made course sent with the request.
   - The course hash equals the one the keys were played on.
   - The cheap checks of `docs/run-checks.md` (too short, too long, too fast, key rate); a try that fell skips the finish-line speed check.
+  - Rate limits apply; the numbers are kept in the private notes.
   - The same run shared twice keeps one id.
 - It does not replay the keys.
   - Whoever opens the link replays them and takes the time from the simulator, so a link cannot claim a time.
