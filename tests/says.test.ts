@@ -1,7 +1,8 @@
 import { existsSync, readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 import { editorWords, slicerWords, SIM_STATE, simSaysPanel } from '../src/ui/sim-says';
-import { BANNED_IN_COPY, CREW, VOICES, saysOn, type VoiceId } from '../src/ui/says';
+import { BANNED_IN_COPY, CREW, SCREENS, SCREEN_ORDER, VOICES, VOICE_SCREENS, saysOn, type VoiceId } from '../src/ui/says';
+import { backdropGuard } from '../src/ui/backdrop';
 
 // The voice badge table (CC-243): who speaks, in what colour, on which model. The words are checked against the model ledger and the never-list.
 const ledger = readFileSync('docs/model-ledger.md', 'utf8');
@@ -94,3 +95,59 @@ describe('Simulator says, live', () => {
   });
 });
 
+
+// Meet the crew: the side icons and the legend (CC-243, 2026-11-01).
+describe('screens where each voice shows up', () => {
+  const used = new Set(Object.values(VOICE_SCREENS).flat());
+  it('gives every voice at least one screen, and only known screens', () => {
+    for (const i of ids) { expect(VOICE_SCREENS[i].length, i).toBeGreaterThan(0); for (const s of VOICE_SCREENS[i]) expect(SCREENS[s], `${i}: ${s}`).toBeDefined(); expect(new Set(VOICE_SCREENS[i]).size).toBe(VOICE_SCREENS[i].length); }
+  });
+  it('gives every screen a name, a drawing of its own and a legend row, and the legend has no unused screen', () => {
+    for (const s of used) { expect(SCREENS[s].name.length).toBeGreaterThan(2); expect(SCREENS[s].icon).toContain('<'); expect(SCREEN_ORDER, s).toContain(s); }
+    for (const s of SCREEN_ORDER) expect(used.has(s), `${s} is in the legend but no voice uses it`).toBe(true);
+    // shape, not colour: no two screens share a drawing or a name
+    expect(new Set(Object.values(SCREENS).map((s) => s.icon)).size).toBe(Object.keys(SCREENS).length);
+    expect(new Set(Object.values(SCREENS).map((s) => s.name)).size).toBe(Object.keys(SCREENS).length);
+  });
+  it('is true to the code: the files that mount a badge are in the screens it claims', () => {
+    const has = (f: string, t: string) => expect(readFileSync(f, 'utf8'), `${f} ${t}`).toContain(t);
+    has('src/modes/editor.ts', "simSaysPanel('editor')"); has('src/modes/map.ts', "simSaysPanel('slicer')");
+    has('src/modes/graph-studio.ts', "addBadge(verdictEl.parentElement!, 'simulator'"); has('src/modes/coaster.ts', "'simulator'"); has('src/ui/run-report.ts', "'simulator'");
+    has('src/modes/editor.ts', "sayBadge('partner')");
+    has('src/modes/community-flow.ts', "'safety'"); has('src/modes/community-flow.ts', "'cutter'"); has('src/modes/community-flow.ts', "'builder'");
+    has('src/characters/panel.ts', "'maker'"); has('src/ui/ghost.ts', "'ghost'"); has('src/ui/place-photos.ts', "nameTag('street')");
+    has('src/modes/course.ts', "mountLivePhotos"); has('src/modes/map.ts', "mountPlacePhotos"); has('src/modes/course.ts', "createGhost");
+  });
+  it('lists the same screens in docs/ui-voices.md as the map does', () => {
+    const doc = readFileSync('docs/ui-voices.md', 'utf8');
+    for (const i of ids) {
+      const row = doc.split('\n').find((l) => l.startsWith('|') && l.includes(VOICES[i].title) && l.includes('`src/') && !l.includes('(live)') && !l.includes('(small)')) ?? doc.split('\n').find((l) => l.startsWith('|') && l.includes(VOICES[i].title))!;
+      for (const s of VOICE_SCREENS[i]) expect(row, `${i} row names ${SCREENS[s].name}`).toContain(SCREENS[s].name);
+    }
+    for (const s of SCREEN_ORDER) expect(doc).toContain(SCREENS[s].name);
+  });
+});
+
+// Click outside a dialog closes it, but only when the press and the release are both on the backdrop (CC-243).
+describe('backdrop close', () => {
+  const back = {}, inner = {};
+  it('closes on a press and release on the backdrop, not on the panel', () => {
+    let n = 0; const g = backdropGuard(back, () => n++);
+    g.down({ target: inner }); g.click({ target: inner }); expect(n).toBe(0);
+    g.down({ target: back }); g.click({ target: back }); expect(n).toBe(1);
+  });
+  it('does not close when a drag starts inside the panel and ends outside', () => {
+    let n = 0; const g = backdropGuard(back, () => n++);
+    g.down({ target: inner }); g.click({ target: back }); expect(n).toBe(0);
+  });
+  it('does not close when a drag starts outside and ends inside, and needs a fresh press each time', () => {
+    let n = 0; const g = backdropGuard(back, () => n++);
+    g.down({ target: back }); g.click({ target: inner }); expect(n).toBe(0);
+    g.click({ target: back }); expect(n).toBe(0);
+  });
+  it('is wired into the character picker next to Esc, with the one close function', () => {
+    const src = readFileSync('src/characters/panel.ts', 'utf8');
+    expect(src).toContain('closeOnBackdrop(root, close)');
+    expect(src).toContain("e.key === 'Escape') close()");
+  });
+});

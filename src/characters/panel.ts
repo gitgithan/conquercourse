@@ -1,5 +1,6 @@
 // "Latest creations": the newest 24 objects and 24 characters, a picker for the runner, and the form that makes a new character (CC-108).
 import { addBadge, saysOn } from '../ui/says';
+import { closeOnBackdrop } from '../ui/backdrop';
 import { jobProgress } from '../ui/job-progress';
 import { CHARACTER_STEPS, type CharacterCard } from './steps';
 import { promptProblem, cleanPrompt } from './prompt';
@@ -32,6 +33,7 @@ export function openCharacterPanel(o: PanelOptions): { close(): void; el: HTMLEl
   const close = () => { root.remove(); doc.removeEventListener('keydown', onKey); };
   const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') close(); };
   doc.addEventListener('keydown', onKey);
+  closeOnBackdrop(root, close); // click outside the panel = Esc: same close, nothing changes
   const head = Object.assign(doc.createElement('h2'), { textContent: 'Latest creations' });
   const tabs = doc.createElement('div'); tabs.className = 'tabs'; tabs.setAttribute('role', 'tablist');
   const grid = doc.createElement('div'); grid.className = 'grid';
