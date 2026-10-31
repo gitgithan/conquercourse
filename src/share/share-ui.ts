@@ -31,7 +31,7 @@ export function showBanner(text: string, actions: { label: string; go: () => voi
 export function copyLinkButton(o: { link: (nick: string) => Promise<string | null>; courseTooBig?: () => Promise<boolean>; label?: string; id?: string }): HTMLElement[] {
   const label = o.label ?? 'Copy link to challenge a friend';
   const nick = document.createElement('input');
-  nick.maxLength = 12; nick.placeholder = 'Your name'; nick.size = 12; nick.autocomplete = 'off'; nick.spellcheck = false;
+  nick.maxLength = 12; nick.placeholder = 'NAME'; nick.size = 12; nick.autocomplete = 'off'; nick.spellcheck = false;
   nick.id = o.id ? `${o.id}-nick` : 'share-nick';
   nick.title = 'Optional: up to twelve letters, digits, _ or -. It shows on the leaderboard and tells your friend who to beat. Not your real name.';
   nick.setAttribute('aria-label', 'Optional name for the leaderboard');

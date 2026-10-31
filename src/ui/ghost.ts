@@ -35,7 +35,7 @@ export interface Ghost {
   readonly mode: GhostMode;
   reportLine(ticks: number): HTMLElement | null; // one plain line for the end report
   reportPath(): { x: number; y: number }[] | null; // the selected ghost's path for the end-report picture, every 4 ticks (CC-173); null when no ghost is on or this run began partway
-  reportActions(chase: () => void): HTMLElement[]; // buttons for the end report
+  reportActions(): HTMLElement[]; // none now: the ghost is loaded with every run
 }
 
 const ICON = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 21 V11 a7 7 0 0 1 14 0 V21 l-3.5 -2.5 L12 21 l-3.5 -2.5 Z"/><circle cx="9.5" cy="11" r="1" fill="currentColor"/><circle cx="14.5" cy="11" r="1" fill="currentColor"/></svg>`;
@@ -156,12 +156,6 @@ export function createGhost(o: GhostOpts): Ghost {
       p.textContent = Math.abs(d) < 0.05 ? `Your time ${mine.toFixed(1)} s: the same as ${who}.` : d > 0 ? `Your time ${mine.toFixed(1)} s. The ${who.replace('the ','')} took ${theirs.toFixed(1)} s, ${d.toFixed(1)} s faster.` : `Your time ${mine.toFixed(1)} s. You were ${(-d).toFixed(1)} s ahead of ${who} (${theirs.toFixed(1)} s).`;
       return p;
     },
-    reportActions(chase) {
-      const b = document.createElement('button');
-      b.type = 'button'; b.id = 'report-chase'; b.textContent = mode !== 'off' ? 'Chase the ghost again' : 'Chase the ideal run (ghost)';
-      b.style.cssText = 'font:inherit;border:1px solid #2a8fbd;background:#eaf6fc;color:#17201d;border-radius:8px;padding:6px 12px;cursor:pointer';
-      b.onclick = () => { if (mode === 'off') setMode('ideal'); chase(); };
-      return [b];
-    },
+    reportActions() { return []; }, // CC-158: the ghost comes with every run, so the report has no button for it
   };
 }

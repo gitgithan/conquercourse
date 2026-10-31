@@ -218,7 +218,7 @@ export function renderReport(course: CourseData, log: RunLog, r: Report, a: Acti
   if (a.again) btn('Try again (R)', a.again, true, 'report-again');
   if (a.watch) btn('Watch the best line', a.watch, false, 'report-watch');
   if (a.next) btn(`Next: ${a.next.name}`, a.next.go, false, 'report-next');
-  if (a.close) btn('Close', a.close, false, 'report-close');
+  if (a.close && old) btn('Close', a.close, false, 'report-close');
   box.appendChild(row); // always there: the ghost adds its buttons to it
   return box;
 }
