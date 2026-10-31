@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { applyMarquee, chosenIds, countText, isMarquee, pickInRect, rectFrom, toggleId, withoutIds } from '../src/ui/selection';
-
+import { applyMarquee, chosenIds, countText, isMarquee, pickInRect, rectFrom, toggleId, moveGroup, withoutIds } from '../src/ui/selection';
+import { newPiece } from '../src/slice/world';
 describe('choosing several pieces (CC-200)', () => {
   it('a rectangle can be dragged in any direction', () => {
     expect(rectFrom(10, 20, 2, 5)).toEqual({ x0: 2, y0: 5, x1: 10, y1: 20 });
@@ -40,5 +40,21 @@ describe('choosing several pieces (CC-200)', () => {
     const list = [{ id: 1 }, { id: 2 }, { id: 3 }, { id: 4 }];
     expect(withoutIds(list, [2, 4])).toEqual([{ id: 1 }, { id: 3 }]);
     expect(withoutIds(list, [])).toEqual(list);
+  });
+  it('dragging one of 3 chosen pieces moves all 3 by the same step, and one undo snapshot restores them', () => {
+    const box = { positions: [0, 0, 0, 1, 0, 0, 0, 1, 0], indices: [0, 1, 2] };
+    const list = [0, 1, 2, 3].map((i) => newPiece('P' + i, box, { x: i * 3, z: i }));
+    const ids = list.slice(0, 3).map((q) => q.id);
+    const before = list.map((q) => ({ ...q })); // the one undo step the editor records
+    moveGroup(list, ids, list[1], 3 + 1.25, 1 - 0.5);
+    expect(list.slice(0, 3).map((q) => [q.x, q.z])).toEqual([[1.25, -0.5], [4.25, 0.5], [7.25, 1.5]]);
+    expect([list[3].x, list[3].z]).toEqual([9, 3]);
+    list.forEach((q, i) => Object.assign(q, before[i]));
+    expect(list.map((q) => [q.x, q.z])).toEqual([[0, 0], [3, 1], [6, 2], [9, 3]]);
+  });
+  it('a piece outside the choice moves alone', () => {
+    const a = { id: 1, x: 0, z: 0 }, b = { id: 2, x: 5, z: 5 };
+    moveGroup([a, b], [1, 2], { id: 3, x: 0, z: 0 } as typeof a, 1, 1);
+    expect([a.x, b.x]).toEqual([0, 5]);
   });
 });

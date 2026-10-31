@@ -63,6 +63,27 @@ try {
   checks['Delete removes every chosen piece'] = n1 === n0 - m && m >= 3;
   await page.keyboard.press('Control+z'); await page.waitForTimeout(500);
   checks['one Undo brings them all back'] = (await count()) === n0;
+  // CC-200 (owner, 2026-11-01): dragging one chosen piece in the 3D picture moves ALL chosen pieces by the same step; one Undo puts them all back
+  {
+    await page.keyboard.down('Shift'); await page.mouse.move(x0, y0); await page.mouse.down(); await page.mouse.move(x1, y1, { steps: 8 }); await page.mouse.up(); await page.keyboard.up('Shift'); await page.waitForTimeout(300);
+    const k = await sel();
+    const before = await spots(); const inView = (s) => s.x > box.x + 30 && s.x < box.x + box.width - 30 && s.y > box.y + 80 && s.y < box.y + box.height - 30;
+    const grab = before.filter(inView)[0];
+    await page.mouse.move(grab.x, grab.y); await page.mouse.down(); await page.mouse.move(grab.x + 25, grab.y + 10, { steps: 4 }); await page.mouse.move(grab.x + 60, grab.y + 22, { steps: 6 });
+    await page.screenshot({ path: `${out}/group-drag.png` });
+    await page.mouse.up(); await page.waitForTimeout(400);
+    const after = await spots();
+    const moved = before.map((b) => { const a = after.find((q) => q.id === b.id); return a ? [a.x - b.x, a.y - b.y] : [0, 0]; });
+    const big = moved.filter(([dx, dy]) => Math.abs(dx) + Math.abs(dy) > 8);
+    checks['dragging one chosen piece keeps the whole choice'] = (await sel()) === k && k >= 3;
+    checks['every chosen piece moved (not just the grabbed one)'] = big.length >= k;
+    checks['they all moved by about the same step on screen'] = big.length > 0 && Math.abs(Math.max(...big.map((m) => m[0])) - Math.min(...big.map((m) => m[0]))) < 40;
+    await page.keyboard.press('Control+z'); await page.waitForTimeout(500);
+    const back = await spots();
+    checks['one Undo puts every piece back'] = before.every((b) => { const a = back.find((q) => q.id === b.id); return a && Math.abs(a.x - b.x) < 2 && Math.abs(a.y - b.y) < 2; });
+    await page.keyboard.press('Escape'); await page.waitForTimeout(200);
+    await page.keyboard.down('Shift'); await page.mouse.move(x0, y0); await page.mouse.down(); await page.mouse.move(x1, y1, { steps: 8 }); await page.mouse.up(); await page.keyboard.up('Shift'); await page.waitForTimeout(300);
+  }
   // the Delete button on the chip
   await page.keyboard.down('Shift'); await page.mouse.move(x0, y0); await page.mouse.down(); await page.mouse.move(x1, y1, { steps: 8 }); await page.mouse.up(); await page.keyboard.up('Shift'); await page.waitForTimeout(300);
   await page.click('#seldelete'); await page.waitForTimeout(400);

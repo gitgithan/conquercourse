@@ -35,3 +35,10 @@ export function withoutIds<T extends { id: number }>(list: T[], ids: number[]): 
   const gone = new Set(ids);
   return list.filter((p) => !gone.has(p.id));
 }
+
+// dragging one chosen piece to (x, z) moves every chosen piece by the same step; a piece outside the choice moves alone
+export function moveGroup<T extends { id: number; x: number; z: number }>(list: T[], ids: number[], p: T, x: number, z: number): void {
+  const dx = x - p.x, dz = z - p.z;
+  if (ids.length > 1 && ids.includes(p.id)) for (const q of list) if (q !== p && ids.includes(q.id)) { q.x += dx; q.z += dz; }
+  p.x = x; p.z = z;
+}

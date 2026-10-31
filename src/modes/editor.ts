@@ -1,6 +1,6 @@
 import { HAZARDS, HAZARD_INFO, type Hazard } from '../course/hazard';
 import { styleEditor } from '../ui/editor-ux';
-import { applyMarquee, chosenIds, countText, isMarquee, pickInRect, rectFrom, toggleId, withoutIds } from '../ui/selection';
+import { applyMarquee, chosenIds, countText, isMarquee, moveGroup, pickInRect, rectFrom, toggleId, withoutIds } from '../ui/selection';
 import { organizeEditor } from '../ui/editor-layout';
 import { startCourse } from './course';
 import { readGlbMesh } from '../slice/glb';
@@ -93,7 +93,7 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
   const chosen = (): number[] => (multiOn ? chosenIds(group, selected, (id) => pieces.some((q) => q.id === id && !isSizeReference(q))) : selected !== null ? [selected] : []);
   const chooseMany = (ids: number[]) => { group = ids; selected = ids.length ? ids[ids.length - 1] : null; drawPanel(); draw(); drawProfile(); };
   // dragging one piece of a chosen group moves the whole group by the same step
-  const moveWith = (p: P, x: number, z: number) => { const dx = x - p.x, dz = z - p.z, ids = chosen(); if (ids.length > 1 && ids.includes(p.id)) for (const q of pieces) if (q !== p && ids.includes(q.id)) { q.x += dx; q.z += dz; } p.x = x; p.z = z; };
+  const moveWith = (p: P, x: number, z: number) => moveGroup(pieces, chosen(), p, x, z);
   // Ctrl+C keeps the chosen pieces, Ctrl+V puts copies beside them (a group stays a group); pasting again goes one step further along
   let clip: P[] = [], pastes = 0;
   const copyChosen = () => { const ids = chosen(); if (!ids.length) return false; clip = pieces.filter((q) => ids.includes(q.id)).map((q) => ({ ...q })); pastes = 0; return true; };
@@ -403,7 +403,7 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
   // the 3D view is the main picture; the flat plan is kept for exact dragging and cropping (button "Top plan")
   const view3d = createView3d(planWrap, {
     pieces: () => pieces, selected: () => selected, lane: () => ({ angle, offset, level }),
-    select: (id) => { selected = id; group = []; drawPanel(); draw(); drawProfile(); },
+    select: (id) => { if (!(multiOn && id !== null && chosen().length > 1 && chosen().includes(id))) group = []; selected = id; drawPanel(); draw(); drawProfile(); },
     selectedAll: () => { const c = chosen(); return c.length > 1 ? c : []; },
     toggle: (id) => chooseMany(toggleId(chosen(), id)),
     marquee: (ids, additive) => chooseMany(applyMarquee(chosen(), ids, additive)),
@@ -1544,7 +1544,9 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
     });
   };
   function capPieces() { const real = pieces.filter((q) => !isSizeReference(q) && !isDevice(q) && q.src !== 'hold:bar'); if (real.length <= MAX_PIECES) return; const drop = new Set(real.slice(MAX_PIECES).map((q) => q.id)); pieces = pieces.filter((q) => !drop.has(q.id)); if (selected !== null && drop.has(selected)) selected = null; verdict = `The editor keeps up to ${MAX_PIECES} pieces, so the last ones were not added. Delete one to make room.`; document.documentElement.dataset.capped = '1'; }
-  function changed(record = true) { capPieces(); if (helperReady && reply.textContent?.startsWith('The simulator cannot')) { reply.className = 'reply muted'; reply.textContent = 'You changed the course, so the simulator is checking it again.'; }  if (proposal) closePreview('The layout changed, so the preview was closed.'); if (record) remember(); syncDeviceState(); document.documentElement.dataset.pieces = String(pieces.length); document.documentElement.dataset.band = bandK ? String(bandK) : ''; save(); drawPanel(); drawLanePanel(); draw(); drawProfile(); verify(); renderMoves(); }
+  // the person for scale cannot be dragged, so it always stands at the lane start: a world saved with the person on a rod, or far from the pieces, is put right (owner, 2026-11-01)
+  function seatPerson() { const who = pieces.find(isSizeReference); if (!who) return; const at = personAt(); if (Math.abs(at.x - who.x) > 0.005 || Math.abs(at.z - who.z) > 0.005) { who.x = at.x; who.z = at.z; } }
+  function changed(record = true) { seatPerson(); capPieces(); if (helperReady && reply.textContent?.startsWith('The simulator cannot')) { reply.className = 'reply muted'; reply.textContent = 'You changed the course, so the simulator is checking it again.'; }  if (proposal) closePreview('The layout changed, so the preview was closed.'); if (record) remember(); syncDeviceState(); document.documentElement.dataset.pieces = String(pieces.length); document.documentElement.dataset.band = bandK ? String(bandK) : ''; save(); drawPanel(); drawLanePanel(); draw(); drawProfile(); verify(); renderMoves(); }
   syncDeviceState();
   drawPanel(); drawLanePanel(); draw(); drawProfile(); verify();
   remember();

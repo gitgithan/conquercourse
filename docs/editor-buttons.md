@@ -59,4 +59,13 @@ Levels: primary is filled green, secondary is outlined, quiet is plain text.
 - The Delete or Backspace key does the same as the Delete button, in one undo step.
 - Esc clears the choice.
 - Chosen pieces get a green outline in 3D and a thick green edge on the plan.
+- Dragging any chosen piece in the 3D picture moves every chosen piece by the same step, as it already did on the flat plan (the 3D click used to drop the choice).
+- One drag is one undo step: one Ctrl+Z puts all of them back.
+- Evidence: `docs/evidence/cc-multiselect/group-drag-3d-1280.png`.
 - `?editorui=old` keeps the one-piece choice.
+
+## The person for scale stays at the lane start (CC-96)
+- The person cannot be dragged, so the editor now puts them back at the start of the lane after every change and when a world loads.
+- Before, a world saved with the person on a piece (a rail or a rod) showed the figure standing on it, and a person left far away put the ring and the cone off the picture.
+- A fresh scene with a rail, a bar, a rope swing, a hang bar or a bollard already showed the person beside the lane with the cone at their feet.
+- Evidence: `docs/evidence/cc-multiselect/person-on-rail-before-after.png`.
