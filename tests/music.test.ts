@@ -23,6 +23,8 @@ describe('music', () => {
     expect(screenFor('dojo')).toBe('dojo');
     expect(screenFor('editor')).toBe('editor');
     expect(screenFor('gallery')).toBe('library');
+    // CC-118: every Lab mode borrows the Dojo mood
+    for (const m of ['search', 'optimization', 'ik', 'vision', 'camera', 'integration', 'timing', 'signal', 'gentest', 'detector', 'hashing', 'rl']) expect(screenFor(`lab-${m}`)).toBe('dojo');
   });
   it('crossfades with constant power, from all-out to all-in', () => {
     for (let i = 0; i <= 10; i++) { const g = crossfadeGains(i / 10); expect(g.out ** 2 + g.in ** 2).toBeCloseTo(1, 9); }

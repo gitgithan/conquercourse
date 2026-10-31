@@ -10,12 +10,12 @@
 | 1 | [Search](search.md) | Which way of looking finds a clear run, and what does it cost? | `?mode=lab-search&labs=1` | `tests/lab-search.test.ts` (7) | The heuristic sliders are untested, and "what the game does" is a sentence, not a measured run |
 | 2 | [Optimization](optimization.md) | Which settings are fastest, and how many tries to find them? | `?mode=lab-optimization&labs=1` | `tests/lab-optimization.test.ts` (15) | Only 24 cells per map are replayed live, and the rope claim is pinned at 4 peaks, not 6 |
 | 3 | [Inverse kinematics](ik.md) | Where does the arm bend and break when the hand must reach a bar? | `?mode=lab-ik&labs=1` | `tests/lab-ik.test.ts` (12) | Side plane only, and the joint limits are round numbers |
-| 4 | Computer vision (in progress) | Which mask threshold trades photos kept against people missed? | not on `main` yet | none yet | Not merged, so nothing to prove yet |
+| 4 | [Computer vision](vision.md) | Which mask threshold trades photos kept against people missed? | `?mode=lab-vision&labs=1` | `tests/lab-vision.test.ts` (9) | The table counts overlapping masks twice (125 photos against the game's 131) and the photos are COCO, not the game's |
 | 5 | [Camera and perspective](camera.md) | Why can one photo not give depth? | `?mode=lab-camera&labs=1` | `tests/lab-camera.test.ts` (14) | Hand-made bodies and no real photo; the compare card is not checked against the game |
 | 6 | [Numerical integration](integration.md) | How much energy does a step rule invent, and does a replay match? | `?mode=lab-integration&labs=1` | `tests/lab-integration.test.ts` (10) | Several quoted numbers are not pinned, and the "recording" is the Lab's own RK4 run |
-| 7 | Statistics of timing (removed from main) | How does shaky timing change how often a run clears? | not on `main` now | none on `main` | Code and tests were merged, then deleted from `main` by commit `3d6c97b0`; see below |
-| 8 | Signal processing (removed from main) | Jitter against lag when smoothing a clip | not on `main` now | none on `main` | Same: deleted by `3d6c97b0` |
-| 9 | Generate and test (removed from main) | How many proposals does the simulator throw out? | not on `main` now | none on `main` | Same: deleted by `3d6c97b0` |
+| 7 | [Statistics of timing](timing.md) | How does shaky timing change how often a run clears? | `?mode=lab-timing&labs=1` | `tests/lab-timing.test.ts` (15) | Presses are independent errors and only jumps move; the Park run gap between maths and simulator is not pinned |
+| 8 | [Signal processing](signal.md) | Jitter against lag when smoothing a clip | `?mode=lab-signal&labs=1` | `tests/lab-signal.test.ts` (15) | The noise is a stand-in (white, equal on all joints), not real video noise |
+| 9 | [Generate and test](gentest.md) | How many proposals does the simulator throw out? | `?mode=lab-gentest&labs=1` | `tests/lab-gentest.test.ts` (10) | Recorded replies of one model only, and a simple easing instead of the editor's Fix it |
 | 10 | [Evaluating a detector](detector.md) | Is this detector good enough to place holds? | `?mode=lab-detector&labs=1` | `tests/lab-detector.test.ts` (8) | 22 scored cases from one run on six hand-labelled objects |
 | 11 | [Verification and hashing](hashing.md) | Which part of a run do you hash so a changed tick shows up? | `?mode=lab-hashing&labs=1` | `tests/lab-hashing.test.ts` (14) | One course, one tick per change; the "what the game hashes" card is not checked against the golden files |
 | 12 | [Reinforcement learning](rl.md) | Can a character learn the course from points you write? | `?mode=lab-rl&labs=1` | `tests/lab-rl.test.ts` (11) | One course and one seed per claim; several "What we saw" claims are not pinned |
@@ -27,8 +27,8 @@
 - **How to make the lesson better:** ranked next steps.
 
 ## Reading the status of a Lab
-- Lab 4 is in progress: its files are not on `main` and not in history.
-- Labs 7, 8 and 9 were merged (commits `6d030909`, `4a447f68`, `acfa2552`), then deleted from `main` by `3d6c97b0` (an unrelated commit that removed 75 files).
-  - Their code, tests, recorded data and docs are still in history and on the branches `hanqi91/cc-lab-timing`, `-signal` and `-gentest`.
-  - They have no doc here until they are restored and their docs get the four sections.
+- All twelve Labs are on `main` with their code, tests and a doc with the four sections.
+- Labs 7, 8 and 9 were deleted from `main` once by a stale-base ship and restored by PR 420.
+  - `tests/no-conflict-markers.test.ts` and the delete guard in `scripts/ship.sh` exist so that cannot happen quietly again.
+- Every Lab has a card in the world picker, shown only with the labs switch on.
 - Where a claim in a doc has no test behind it, the doc says so in its Limits section.

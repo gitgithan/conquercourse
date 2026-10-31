@@ -52,3 +52,49 @@
 - Courses with vaults, bars, ropes or other moves.
 - Phones and touch (out of scope).
 - A study of real players' timing.
+
+
+## How it was designed
+- **The one question:** how wide must the press window be for a shaky presser to clear a course half the time, and nine times in ten?
+- **The choices and why those:**
+  - Four real courses from 3 to 7 jumps, so the player sees that more jumps make the window matter more.
+  - Three shapes of shakiness with one standard deviation, so only the shape changes (a heavy tail is a few big misses, not a wider spread).
+  - A seeded random stream per run, so the same choices give the same numbers on any machine.
+- **Which real game code runs:** `playPlan` and `edges` from `src/sim/ideal.ts`, and the simulator `stepWorld` under it.
+  - The jitter, the window measuring, the Wilson interval and the maths line are Lab code (`src/labs/timing/core.ts`).
+- **Which data is precomputed:** nothing; the windows are measured on the simulator each time a course is picked, and the runs are played in a worker.
+- **Order of the screen and why compare comes last:** goal, controls, clear rate, window table, then the failure picture and the two curves, and "what the game does" last, so the player has seen what a width means before reading how the game uses it.
+- **Scope:** a simulated presser on a course, never a mark for a person.
+
+## How we prove the lesson is right
+- `tests/lab-timing.test.ts` (15 tests):
+  - Presses on time clear exactly as the plan does, and a press 500 ms early or late loses the run.
+  - The aimed plan still clears, and each measured window holds the ideal press and is between 20 ms and 1.5 s wide.
+  - Zero jitter clears every run, and more jitter never clears more often (0, 30, 80 and 200 ms).
+  - The same seed gives the same numbers and another seed differs.
+  - The simulator's rate sits within 6 points of the interval around the maths (product of window chances) for all three shapes on Lane 1.
+  - Failures are blamed on a press that was off, and almost never on one made on time.
+  - The jitter has the stated standard deviation and the heavy tail has more far values.
+  - The cdf matches sampling, the width for a rate inverts the rate for a width, and the Wilson interval stays in 0 to 1 and narrows with N.
+  - The choices are kept in range, and `measureWindows` equals a direct check.
+- Browser smoke: `scripts/lab-timing-smoke.mjs`, evidence `docs/evidence/lab-timing-park-run-1280.png`.
+- What would make the Lab's claim false:
+  - A window that the simulator accepts but the Lab says is outside, or the reverse.
+  - A simulated rate that leaves the maths line by more than the interval on a course the tests do not use.
+
+## Limits
+- **Independent presses:** a real person is more correlated (a tired run is shaky all through); the Lab says so on the page.
+- **The 7-jump Park run at 60 ms (maths 54%, simulator 83%):** the Lab reports the gap, but no test pins it.
+- **Only jump presses move:** hold times, swings, vaults, bars and ropes are not tested.
+- **Time steps:** the simulator runs at 120 steps a second (8.3 ms) and windows are measured to 4 ms.
+- **Windows above 600 ms** are shown with a plus and not measured.
+- **The Compare card** (how the game uses the narrowest window, the 250 ms launcher flag, "make it easier" by a quarter) is not checked against the game's code by a test.
+- **No study of real players' timing.**
+- Desktop keyboard and mouse at 1280 px only.
+
+## How to make the lesson better
+1. Add a test that pins the Park run gap between the maths and the simulator, so the finding cannot drift.
+2. Add a correlated presser (a tired run is shaky all through) and show how far the rate falls.
+3. Move hold times and vault presses too, and add a course with a bar or a rope.
+4. Add a test that reads the narrowest-window rule and the 250 ms flag from the game and compares them with the Compare card.
+5. Read the goal text with a young reader and fix the words.
