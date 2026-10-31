@@ -1,0 +1,187 @@
+{
+  "version": 1,
+  "name": "Cannonballs",
+  "startX": 0,
+  "finishX": 110,
+  "jumpSpeed": 4.5,
+  "terrain": {
+    "waterY": -1.5,
+    "platforms": [
+      {
+        "x0": -10,
+        "x1": 14,
+        "top": 0
+      },
+      {
+        "x0": 18.5,
+        "x1": 25,
+        "top": 0
+      },
+      {
+        "x0": 28.5,
+        "x1": 33,
+        "top": 0.5
+      },
+      {
+        "x0": 33,
+        "x1": 55,
+        "top": 0
+      },
+      {
+        "x0": 55,
+        "x1": 59.3,
+        "top": 0
+      },
+      {
+        "x0": 59.3,
+        "x1": 77,
+        "top": 4.3
+      },
+      {
+        "x0": 85,
+        "x1": 91,
+        "top": 4.3
+      },
+      {
+        "x0": 94,
+        "x1": 100,
+        "top": 0,
+        "bouncy": true
+      },
+      {
+        "x0": 104,
+        "x1": 113,
+        "top": 4
+      }
+    ]
+  },
+  "wall": {
+    "x0": 55
+  },
+  "rope": {
+    "anchorX": 81,
+    "anchorY": 10.9,
+    "length": 9
+  },
+  "zones": [
+    {
+      "id": "gap",
+      "name": "gap",
+      "x0": -10,
+      "x1": 18.5
+    },
+    {
+      "id": "landing",
+      "name": "precision block",
+      "x0": 18.5,
+      "x1": 38
+    },
+    {
+      "id": "wall",
+      "name": "warped wall",
+      "x0": 38,
+      "x1": 62
+    },
+    {
+      "id": "rope",
+      "name": "rope swing",
+      "x0": 62,
+      "x1": 86
+    },
+    {
+      "id": "trampoline",
+      "name": "trampoline",
+      "x0": 86,
+      "x1": 113
+    }
+  ],
+  "checkpoints": [
+    {
+      "id": "gap",
+      "x": 0
+    },
+    {
+      "id": "landing",
+      "x": 19
+    },
+    {
+      "id": "wall",
+      "x": 34
+    },
+    {
+      "id": "rope",
+      "x": 60
+    },
+    {
+      "id": "trampoline",
+      "x": 86
+    }
+  ],
+  "shots": [
+    {
+      "x": 24,
+      "y": 1.2,
+      "vx": -20,
+      "vy": 2,
+      "every": 30,
+      "phase": 3
+    },
+    {
+      "x": 52,
+      "y": 1.5,
+      "vx": -25,
+      "vy": 2,
+      "every": 30,
+      "phase": 3
+    },
+    {
+      "x": 76,
+      "y": 5.8,
+      "vx": -25,
+      "vy": 2,
+      "every": 30,
+      "phase": 3
+    }
+  ],
+  "plan": {
+    "jumpXs": [
+      14,
+      23.58,
+      75.5,
+      89.14
+    ],
+    "releaseAfter": 82,
+    "bouncePress": 8,
+    "startDelay": 0
+  },
+  "windows": [
+    {
+      "obstacle": "edge at 14 m",
+      "best": 14,
+      "lo": 14,
+      "hi": 14,
+      "widthMs": 2.7027027027027026
+    },
+    {
+      "obstacle": "edge at 25 m",
+      "best": 23.58,
+      "lo": 22.14,
+      "hi": 25,
+      "widthMs": 389.1891891891891
+    },
+    {
+      "obstacle": "edge at 77 m",
+      "best": 75.5,
+      "lo": 74,
+      "hi": 77,
+      "widthMs": 408.1081081081081
+    },
+    {
+      "obstacle": "edge at 91 m",
+      "best": 89.14,
+      "lo": 88,
+      "hi": 90.26,
+      "widthMs": 308.1081081081088
+    }
+  ]
+}
