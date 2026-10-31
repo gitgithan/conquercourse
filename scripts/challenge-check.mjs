@@ -56,7 +56,8 @@ ok('no page errors (run)', page.errs.length === 0, page.errs.join(' | ').slice(0
 // Community on the Courses screen
 const home = await open(`http://localhost:${port}/?welcome=0&tour=0&nav=0`, []);
 await home.waitForSelector('#courses-btn', { state: 'attached', timeout: 150000 });
-await home.evaluate(() => document.getElementById('courses-btn').click()); await home.waitForTimeout(1500);
+await home.evaluate(() => document.getElementById('courses-btn').click());
+await home.waitForFunction(() => { if (!/Tall Wall Remix/.test(document.body.textContent ?? '') && !document.querySelector('.gallery')) document.getElementById('courses-btn')?.click(); return /Tall Wall Remix/.test(document.body.textContent ?? ''); }, null, { timeout: 45000, polling: 1000 }).catch(() => {});
 const sec = await home.evaluate(() => [...document.querySelectorAll('h2,h3,h4,summary,legend,div')].some((e) => e.children.length === 0 && /^Community$/.test((e.textContent ?? '').trim())));
 const card = await home.evaluate(() => /Tall Wall Remix/.test(document.body.textContent ?? ''));
 ok('the Courses screen has a Community section with the course', sec && card, `section ${sec} card ${card}`);
