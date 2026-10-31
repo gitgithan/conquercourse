@@ -1,4 +1,4 @@
-// CC-108: Publish to Leaderboard, the news line, View Run and Race Ghost, with the API answered by the script. Pictures go to the folder given.
+// CC-108: Publish to Leaderboard, the news line, View Run and Chase Ghost, with the API answered by the script. Pictures go to the folder given.
 import { chromium } from 'playwright';
 import { spawn } from 'node:child_process';
 import { mkdirSync } from 'node:fs';
@@ -43,7 +43,7 @@ try {
   await page.waitForSelector('#run-view svg', { timeout: 60000 });
   await page.screenshot({ path: `${out}/view-run.png` });
   await page.click('#run-view-race');
-  if (await page.$('#run-view')) fail('the panel stayed open after Race Ghost');
+  if (await page.$('#run-view')) fail('the panel stayed open after Chase Ghost');
   // 3. a cleared run (the friend's keys played as if by hand) offers Publish, and only a click sends the name
   await page.goto(`${base}/?course=${COURSE}&welcome=0&nav=0&challenge=${made.param}&autoplay=1`);
   await page.waitForSelector('#publish-board', { timeout: 280000 });

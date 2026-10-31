@@ -1,5 +1,6 @@
 // One list of worlds and one way to jump between them, shared by the Course and every other mode (CC-89).
 // A value is a course path, or one of the words in WORD_VALUES, or empty for the stock course.
+import { BOARD_COURSES } from '../share/board-courses';
 export type Demo = [string, string, string];
 export const DEMO_GROUPS: [string, Demo[]][] = [
   ['Start here', [
@@ -105,6 +106,8 @@ const STYLE = `
 .wg-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(168px,1fr));gap:10px}
 .wg-card{display:grid;grid-template-rows:auto 1fr;text-align:left;padding:0;border:2px solid #d5d9d2;border-radius:12px;background:#fff;color:#17201d;cursor:pointer;overflow:hidden;font:inherit}
 .wg-card:hover{border-color:#0f6b5c}
+.wg-board{display:inline-block;margin-top:4px;font:700 12px system-ui,sans-serif;color:#0f6b5c;text-decoration:underline;cursor:pointer}
+.wg-board:focus-visible{outline:3px solid #f0a020;outline-offset:1px}
 .wg-card:focus-visible{outline:3px solid #f0a020;outline-offset:1px}
 .wg-card[aria-current=true]{border-color:#0f6b5c;box-shadow:0 0 0 3px #0f6b5c55}
 .wg-pic{display:grid;place-items:center;aspect-ratio:16/9;background:#e3e9e4;color:#0f6b5c;overflow:hidden}
@@ -173,6 +176,12 @@ export function buildGallery(o: GalleryOptions): { el: HTMLElement; focusStart()
     if (here) { const t = document.createElement('i'); t.className = 'wg-here'; t.textContent = 'You are here'; t.style.fontStyle = 'normal'; b.append(t); }
     const s = document.createElement('span'); s.textContent = about;
     txt.append(b, s); card.append(pic, txt);
+    if (BOARD_COURSES.some((c) => (c.path ?? '') === value)) { // CC-108: a course with a leaderboard says so, and the link opens it on the Course
+      const lb = document.createElement('span'); lb.className = 'wg-board'; lb.setAttribute('role', 'link'); lb.tabIndex = 0; lb.textContent = '🏆 Leaderboard'; lb.title = 'Open this course with its leaderboard';
+      lb.onclick = (e) => { e.stopPropagation(); o.onPick(value); };
+      lb.onkeydown = (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); e.stopPropagation(); o.onPick(value); } };
+      txt.append(lb);
+    }
     card.onclick = () => o.onPick(value);
     grid.append(card);
     return card;
