@@ -17,15 +17,24 @@ export function trackCourseEvent(event: CourseEvent, courseKey: string, courseNa
   }).catch(() => { /* telemetry must never interrupt a run */ });
 }
 
-/** The tag the player typed next to a share button, kept in this browser only. */
-function savedNick(): string { try { return localStorage.getItem('cc.nick') ?? ''; } catch { return ''; } }
-
 /** Offers a cleared run to the server, which plays the keys again with the simulator before it counts (CC-149). Nothing is shown and a failure is ignored. A 202 (the server kept it unverified) or a 503 (Cloudflare cut the replay) needs nothing from the browser: the server already wrote the clear down (CC-174). */
-export function sendClear(courseKey: string, runId: string, hash: string, keys: string, claimedTicks?: number, nick = savedNick()): void {
+export function sendClear(courseKey: string, runId: string, hash: string, keys: string, claimedTicks?: number): void { // counted only: no tag, nothing for the board (CC-108)
   void fetch('/api/course-clear', {
     method: 'POST', headers: { 'content-type': 'application/json' }, keepalive: true,
-    body: JSON.stringify({ session: session(), courseKey, runId, hash, keys, claimedTicks, nick }),
+    body: JSON.stringify({ session: session(), courseKey, runId, hash, keys, claimedTicks }),
   }).catch(() => { /* telemetry must never interrupt a run */ });
+}
+
+export interface PublishReply { published: boolean; rank?: number | null; players?: number; nick?: string; why?: string; error?: string }
+/** The player clicked Publish to Leaderboard: the same run is sent again with the tag, the server plays it again, and the reply says the place. */
+export async function publishClear(courseKey: string, runId: string, hash: string, keys: string, claimedTicks: number, nick: string): Promise<PublishReply> {
+  try {
+    const res = await fetch('/api/course-clear', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ session: session(), courseKey, runId, hash, keys, claimedTicks, nick, publish: true }) });
+    const d = await res.json().catch(() => ({})) as Partial<PublishReply> & { verified?: boolean };
+    if (res.status === 202) return { published: false, error: 'The server is busy. Try again in a minute.' };
+    if (!res.ok) return { published: false, error: res.status === 503 ? 'The leaderboard is not ready yet.' : res.status === 429 ? 'Too many tries. Wait a little.' : 'The server did not accept this run.' };
+    return { published: !!d.published, rank: d.rank, players: d.players, nick: d.nick, why: d.why };
+  } catch { return { published: false, error: 'No connection. Try again.' }; }
 }
 
 function courseSource(): string {

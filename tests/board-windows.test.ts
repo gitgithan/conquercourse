@@ -32,7 +32,7 @@ describe('windows', () => {
 
 describe('boards by window', () => {
   const put = (sql: ReturnType<typeof localD1>['sql'], run: string, player: string, ticks: number, at: number, nick = 'AAA') =>
-    sql.prepare("INSERT INTO course_clears (ts, course_key, course_hash, ticks, verified, run_id, log_hash, nick, player) VALUES (?, 'demo/training', 'h1', ?, 1, ?, ?, ?, ?)").run(sqlTime(at), ticks, run, `log-${run}`, nick, player);
+    sql.prepare("INSERT INTO course_clears (ts, course_key, course_hash, ticks, verified, run_id, log_hash, nick, player, published) VALUES (?, 'demo/training', 'h1', ?, 1, ?, ?, ?, ?, 1)").run(sqlTime(at), ticks, run, `log-${run}`, nick, player);
   it('counts one best time per player, ranks you, and names the last window champion', async () => {
     const { db, sql } = localD1();
     const cols = (sql.prepare('PRAGMA table_info(course_clears)').all() as { name: string }[]).map((c) => c.name);
