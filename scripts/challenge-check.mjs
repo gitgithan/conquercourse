@@ -51,7 +51,7 @@ if (strip) {
 }
 ok('no page errors (run)', page.errs.length === 0, page.errs.join(' | ').slice(0, 300));
 // Community on the Courses screen
-const home = await open(`http://localhost:${port}/?welcome=0&tour=0`, []);
+const home = await open(`http://localhost:${port}/?welcome=0&tour=0&nav=0`, []);
 await home.waitForSelector('#courses-btn', { timeout: 150000 });
 await home.click('#courses-btn'); await home.waitForTimeout(1500);
 const sec = await home.evaluate(() => [...document.querySelectorAll('h2,h3,h4,summary,legend,div')].some((e) => e.children.length === 0 && /^Community$/.test((e.textContent ?? '').trim())));
@@ -60,7 +60,7 @@ ok('the Courses screen has a Community section with the course', sec && card, `s
 await home.screenshot({ path: `${out}/community.png` });
 // the switch
 const offPosts = [];
-const off = await open(`http://localhost:${port}/?welcome=0&tour=0&challenge=0`, offPosts);
+const off = await open(`http://localhost:${port}/?welcome=0&tour=0&nav=0&challenge=0`, offPosts);
 await off.waitForSelector('#courses-btn', { timeout: 150000 });
 await off.click('#courses-btn'); await off.waitForTimeout(1500);
 ok('?challenge=0 hides the Community section', !(await off.evaluate(() => /Tall Wall Remix/.test(document.body.textContent ?? ''))));
