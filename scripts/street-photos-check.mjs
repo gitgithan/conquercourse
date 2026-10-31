@@ -26,7 +26,7 @@ try {
     await page.waitForSelector('.ready-list .card', { timeout: 30000 });
     await page.waitForTimeout(800);
     const chips = await page.$$eval('.ready-list .card .sp', (xs) => xs.map((x) => x.closest('.card').dataset.slug));
-    checks[`picker chips ${tag}`] = off ? chips.length === 0 : chips.length === 3 && ['edinburgh-old-town', 'eixample-barcelona', 'montmartre-paris'].every((s) => chips.includes(s));
+    checks[`picker chips ${tag}`] = off ? chips.length === 0 : chips.length >= 3 && ['edinburgh-old-town', 'eixample-barcelona', 'montmartre-paris'].every((s) => chips.includes(s));
     notes.push(`${tag}: chips on ${chips.join(', ') || 'none'}`);
     if (!off) await page.locator('.ready-list').first().screenshot({ path: `${out}/picker-chips.png` }).catch(() => {});
     const box = await (await page.$('#map canvas.maplibregl-canvas')).boundingBox();

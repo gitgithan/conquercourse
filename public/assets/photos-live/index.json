@@ -1,8 +1,22 @@
 {
   "note": "Places with street photos (counts of checked photos); made from the allow-lists in this folder",
   "places": {
+    "alfama-lisbon": 7,
+    "bryggen-bergen": 4,
+    "bukchon-seoul": 6,
+    "caminito-buenos-aires": 9,
+    "castle-hill-budapest": 6,
+    "dolores-park-san-francisco": 10,
     "edinburgh-old-town": 52,
     "eixample-barcelona": 3,
-    "montmartre-paris": 9
+    "galata-istanbul": 7,
+    "gamla-stan-stockholm": 2,
+    "main-square-krakow": 6,
+    "montmartre-paris": 9,
+    "parc-guell-barcelona": 11,
+    "plaka-athens": 5,
+    "speicherstadt-hamburg": 10,
+    "stephansplatz-vienna": 6,
+    "temple-bar-dublin": 4
   }
 }
