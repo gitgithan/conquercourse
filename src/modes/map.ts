@@ -501,9 +501,11 @@ export function startMap(host: HTMLElement): { backend: 'webgl2' } {
     dset('tourLine', JSON.stringify(tour.map((p) => p.map((v) => Math.round(v)))));
     askLane(Number(cut.value));
   }
+  let handleDrag = false, onMap = false;
   function placeHandles(line: [[number, number], [number, number]] | null) {
     if (!S) return;
-    if (!line) { for (const h of handles) h.remove(); return; }
+    if (!line) { for (const h of handles) h.remove(); onMap = false; return; }
+    if (handleDrag) return; // a lane answer that arrives mid-drag must not move or re-add the dot in the player's hand
     if (!handles.length) {
       const names = ['Drag to turn the line (this end)', 'Drag to turn the line (the other end)', 'Drag to move the whole line'];
       names.forEach((title, i) => {
@@ -520,12 +522,15 @@ export function startMap(host: HTMLElement): { backend: 'webgl2' } {
             handles[2].setLngLat(ll((a[0] + b[0]) / 2, (a[1] + b[1]) / 2)); previewLine(a, b); updateLineNote(true);
           }
         });
-        h.on('dragend', commitTour);
+        h.on('dragstart', () => { handleDrag = true; });
+        h.on('dragend', () => { handleDrag = false; commitTour(); });
         handles.push(h);
       });
     }
     const [a, b] = line;
-    [a, b, [(a[0] + b[0]) / 2, (a[1] + b[1]) / 2] as [number, number]].forEach((p, i) => handles[i].setLngLat(ll(p[0], p[1])).addTo(map));
+    // addTo() on a dot already on the map removes and re-adds it, which drops its drag listeners and ends a drag that has just begun (the owner's "only one end moves, the other pans the map"): add once, then only move
+    [a, b, [(a[0] + b[0]) / 2, (a[1] + b[1]) / 2] as [number, number]].forEach((p, i) => { handles[i].setLngLat(ll(p[0], p[1])); if (!onMap) handles[i].addTo(map); });
+    onMap = true;
     if (S2 && !skipFlight && !tour) showWholeLine();
   }
   tourReset.onclick = () => { tour = null; tourReset.hidden = true; dset('tourLine', ''); updateLineNote(); askLane(Number(cut.value)); };
