@@ -553,10 +553,8 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
   const forceDrums = params.get('drums') === '1';
   const drumLane = createDrumLane(document.body, !course.track);
   let toastDrums: Drum[] = []; // the same drums as the key strip: each obstacle's toast starts a fixed lead before its key (CC-195)
-  setTimeout(() => {
+  const showDrums = (result: { plan: Plan; cleared: boolean }): void => {
     try {
-      if (course.track) { drumLane.set([]); if (drumLane.shown) drumLane.toggle(); return; }
-      const result = course.plan ? { plan: course.plan, cleared: true } : searchIdealRun(course);
       const forkDrums = pathsOn(params) ? drumsForPaths(course) : null; // CC-225: both ways of a fork, each in its own row
       const fb = branchesOf(course)[0];
       const drums = forkDrums ?? (result.cleared ? drumsFor(course, result.plan) : []);
@@ -568,6 +566,15 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
       drumLane.set([]);
       if (drumLane.shown !== forceDrums) drumLane.toggle();
     }
+  };
+  setTimeout(() => {
+    if (course.track) { drumLane.set([]); if (drumLane.shown) drumLane.toggle(); return; }
+    // CC-243: a course that carries its plan (a demo course, a ready-made editor course, or an edited one the lane check already proved) shows its drums at once;
+    // any other is searched in the workers, never on the page's thread (a whole-course search there froze the Course for up to two minutes)
+    if (course.plan) { showDrums({ plan: course.plan, cleared: true }); return; }
+    if (pathsOn(params)) { showDrums({ plan: undefined as unknown as Plan, cleared: false }); return; }
+    drumLane.set([]);
+    void runSearch(course, { cancelled: false }, undefined, workSeconds(60)).then((r) => showDrums(r)).catch(() => showDrums({ plan: undefined as unknown as Plan, cleared: false }));
   }, 0);
   const dbgBtn = document.createElement('button');
   dbgBtn.id = 'debugbtn'; dbgBtn.textContent = 'Debug (B)'; dbgBtn.title = 'Show the collision boxes and where a jump right now would go';
