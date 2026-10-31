@@ -56,7 +56,7 @@ const CSS = `
 #placephotos.floating .pp-thumb{border-width:1px;border-radius:6px}
 #placephotos.floating .pp-credit{font-size:9px;line-height:1.15}
 #placephotos.floating .pp-head{margin-bottom:2px}
-#placephotos .pp-head{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:4px}
+#placephotos .pp-head{display:flex;align-items:center;justify-content:space-between;gap:4px 8px;flex-wrap:wrap;margin-bottom:4px}
 #placephotos .pp-head b{font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
 #placephotos .pp-sw{font:600 11px system-ui,sans-serif;border:1px solid #b9c2bb;background:#fff;color:#17201d;border-radius:6px;padding:1px 7px;cursor:pointer}
 #placephotos .pp-row{display:flex;gap:6px}
@@ -65,6 +65,8 @@ const CSS = `
 #placephotos .pp-thumb:focus-visible{outline:3px solid #0f6b5c;outline-offset:2px}
 #placephotos .pp-thumb img{width:100%;height:100%;object-fit:cover;display:block}
 #placephotos .pp-credit{font-size:10px;line-height:1.2;color:#44504a;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;word-break:break-word}
+#placephotos .pp-mapillary{margin-left:6px;flex-shrink:0;white-space:nowrap;padding:0 6px;border-radius:9px;background:#05cb63;color:#052b14;font-size:11px;font-weight:700;text-decoration:none}
+#placephotos-view .pp-mapillary{margin-left:6px;padding:0 6px;border-radius:9px;background:#05cb63;color:#052b14;font-weight:700;text-decoration:none}
 #placephotos .pp-hint{margin-top:4px;font-size:11px;color:#44504a}
 #placephotos.hidden .pp-row,#placephotos.hidden .pp-hint{display:none}
 #placephotos-view{position:fixed;inset:0;z-index:30;background:#000000d0;display:grid;place-items:center;padding:12px}
@@ -87,6 +89,15 @@ function el<K extends keyof HTMLElementTagNameMap>(tag: K, parent: HTMLElement |
   return e;
 }
 
+// CC-90 (owner, 2026-11-01): Mapillary's terms ask for its logo and a link back. We draw the word "Mapillary" as a link (no logo file; its licence is not clear), see docs/ASSETS.md.
+export const MAPILLARY_HOME = 'https://www.mapillary.com/';
+export function mapillaryMark(parent: HTMLElement | null): HTMLAnchorElement {
+  const a = el('a', parent, { className: 'pp-mapillary', href: MAPILLARY_HOME, target: '_blank', rel: 'noopener noreferrer', text: 'Mapillary' });
+  a.title = 'Street photos by Mapillary contributors'; a.setAttribute('aria-label', 'Mapillary (opens mapillary.com)');
+  return a;
+}
+export const isMapillary = (url: string): boolean => /mapillary\.com/.test(url);
+
 export interface PhotosHandle { el: HTMLElement; destroy(): void; open(i: number): void; close(): void }
 
 export function mountPlacePhotos(host: HTMLElement, d: PlacePhotos, opts: { floating?: boolean } = {}): PhotosHandle {
@@ -97,6 +108,7 @@ export function mountPlacePhotos(host: HTMLElement, d: PlacePhotos, opts: { floa
   const head = el('div', root, { className: 'pp-head' });
   el('b', head, { text: opts.floating === false ? `The real ${d.name}` : d.name, title: `Real photos of ${d.name}` });
   if (saysOn() && d.photos.some((p) => /^https:\/\//.test(p.file))) { const t = nameTag('street'); t.title = VOICES.street.poweredBy; head.append(t); } // CC-243: live street photos name their source
+  if (d.photos.some((p) => isMapillary(p.source))) mapillaryMark(head); // the credit Mapillary's terms ask for, in the strip itself
   const sw = el('button', head, { className: 'pp-sw', type: 'button' });
   const row = el('div', root, { className: 'pp-row' });
   const thumbs: HTMLButtonElement[] = [];
@@ -139,6 +151,7 @@ export function mountPlacePhotos(host: HTMLElement, d: PlacePhotos, opts: { floa
     credit.append(`Photo by ${p.author}, `);
     const l = el('a', null, { href: p.licenceUrl, text: p.licence, target: '_blank', rel: 'noopener noreferrer' }); credit.append(l, ', ');
     const s = el('a', null, { href: p.source, text: /mapillary\.com/.test(p.source) ? 'source on Mapillary' : 'source on Wikimedia Commons', target: '_blank', rel: 'noopener noreferrer' }); credit.append(s, `. ${p.changes}`);
+    if (isMapillary(p.source)) { credit.append(' '); mapillaryMark(credit as HTMLElement); credit.append(' Faces and plates are blurred by Mapillary, which is not a guarantee. '); credit.append(el('a', null, { href: p.source, text: 'Report this photo on Mapillary', target: '_blank', rel: 'noopener noreferrer' })); }
     view.querySelector('.pp-count')!.textContent = `${index + 1} / ${d.photos.length}`;
   }
   function open(i: number) {

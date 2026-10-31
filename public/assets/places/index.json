@@ -11,7 +11,7 @@
     "blurb": "A hill of stairs and narrow streets.",
     "path": true,
     "photos": 122,
-    "listed": false,
+    "listed": true,
     "live": true,
     "country": "France"
   },
@@ -75,8 +75,8 @@
     "blurb": "Tall, packed blocks around the big crossing.",
     "path": true,
     "photos": 443,
-    "listed": false,
-    "live": false,
+    "listed": true,
+    "live": true,
     "country": "Japan"
   },
   {
@@ -139,8 +139,8 @@
     "blurb": "Fort walls and harbour steps.",
     "path": true,
     "photos": 47,
-    "listed": false,
-    "live": false,
+    "listed": true,
+    "live": true,
     "country": "Malta"
   },
   {
@@ -299,8 +299,8 @@
     "blurb": "A huge square of arcades and a bell tower beside the lagoon.",
     "path": true,
     "photos": 338,
-    "listed": false,
-    "live": false,
+    "listed": true,
+    "live": true,
     "country": "Italy"
   },
   {

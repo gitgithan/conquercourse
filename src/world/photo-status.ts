@@ -1,5 +1,5 @@
 // CC-90: does a lane have street photos along the way? A plain-words answer for the Course and for the Map result panel.
-// It only reads the offline allow-lists (public/assets/photos-live), so a person never sees an unfiltered picture; there is no live lookup here.
+// It only reads the allow-lists (public/assets/photos-live: ids and positions); there is no live lookup here.
 import { pickPhotos, type AllowList, type PlaceLine } from './live-photos';
 
 export type PhotoLevel = 'whole' | 'part' | 'none';

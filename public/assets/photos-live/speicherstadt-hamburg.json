@@ -2,55 +2,95 @@
   "place": "speicherstadt-hamburg",
   "name": "Speicherstadt, Hamburg",
   "generated": "2026-10-31",
-  "source": "Mapillary contributors, CC BY-SA 4.0; photos with a person detected (Faster R-CNN, of any size) are left out",
+  "source": "Mapillary contributors, CC BY-SA 4.0; faces and plates are blurred by Mapillary (not a guarantee); photos with a close-up or large person (Faster R-CNN) are left out",
   "photos": [
     {
-      "id": "1136642073503092",
-      "creator": "sashazykov",
-      "capturedAt": 1505476295208,
-      "lat": 53.542748,
-      "lon": 9.987357,
-      "compass": 85.8
-    },
-    {
-      "id": "1250614276119842",
+      "id": "1182199256456275",
       "creator": "2ce5345",
-      "capturedAt": 1719756977000,
-      "lat": 53.543108,
-      "lon": 9.989447,
-      "compass": 263.3
+      "capturedAt": 1719756974000,
+      "lat": 53.543128,
+      "lon": 9.989759,
+      "compass": 265.9
     },
     {
-      "id": "184874636823679",
+      "id": "1211833919276380",
       "creator": "sashazykov",
-      "capturedAt": 1505476300241,
-      "lat": 53.542754,
-      "lon": 9.987476,
-      "compass": 84.3
+      "capturedAt": 1505476319481,
+      "lat": 53.542776,
+      "lon": 9.987924,
+      "compass": 83.6
     },
     {
-      "id": "281357956971511",
-      "creator": "sashazykov",
-      "capturedAt": 1530185180626,
-      "lat": 53.54302,
-      "lon": 9.989296,
-      "compass": 347.6
+      "id": "1370376181205291",
+      "creator": "Hightower-",
+      "capturedAt": 1763743286633,
+      "lat": 53.543006,
+      "lon": 9.989087,
+      "compass": 80.7
     },
     {
-      "id": "294529255544080",
-      "creator": "sashazykov",
-      "capturedAt": 1505476375560,
-      "lat": 53.542888,
-      "lon": 9.989367,
-      "compass": 83.5
+      "id": "1535083820959159",
+      "creator": "Hightower-",
+      "capturedAt": 1763743285733,
+      "lat": 53.542995,
+      "lon": 9.98895,
+      "compass": 81.1
     },
     {
-      "id": "3736691356459058",
+      "id": "192218525964678",
+      "creator": "mjay",
+      "capturedAt": 1504545175000,
+      "lat": 53.542959,
+      "lon": 9.988799,
+      "compass": 80
+    },
+    {
+      "id": "217769029805053",
       "creator": "sashazykov",
-      "capturedAt": 1530185175423,
-      "lat": 53.543018,
-      "lon": 9.989408,
-      "compass": 353.3
+      "capturedAt": 1527161320558,
+      "lat": 53.54295,
+      "lon": 9.988851,
+      "compass": 268
+    },
+    {
+      "id": "233665078516724",
+      "creator": "tian",
+      "capturedAt": 1564725203725,
+      "lat": 53.543294,
+      "lon": 9.990044,
+      "compass": 182.8
+    },
+    {
+      "id": "283069160135215",
+      "creator": "sashazykov",
+      "capturedAt": 1508322615304,
+      "lat": 53.542657,
+      "lon": 9.987269,
+      "compass": 169.7
+    },
+    {
+      "id": "315534310148466",
+      "creator": "sashazykov",
+      "capturedAt": 1505476304259,
+      "lat": 53.542758,
+      "lon": 9.987559,
+      "compass": 80
+    },
+    {
+      "id": "331332655271835",
+      "creator": "sashazykov",
+      "capturedAt": 1505476296215,
+      "lat": 53.542749,
+      "lon": 9.987382,
+      "compass": 86.6
+    },
+    {
+      "id": "4334110043274914",
+      "creator": "maturion",
+      "capturedAt": 1471426710985,
+      "lat": 53.543293,
+      "lon": 9.990017,
+      "compass": 168.5
     },
     {
       "id": "461054761642869",
@@ -61,28 +101,60 @@
       "compass": 85.6
     },
     {
-      "id": "465748168047810",
-      "creator": "maturion",
-      "capturedAt": 1471427109885,
-      "lat": 53.543045,
-      "lon": 9.989157,
-      "compass": 260.8
+      "id": "481368766319039",
+      "creator": "tian",
+      "capturedAt": 1532689291259,
+      "lat": 53.542739,
+      "lon": 9.987724,
+      "compass": 79.3
     },
     {
-      "id": "477735126826254",
+      "id": "495557741865473",
       "creator": "sashazykov",
-      "capturedAt": 1528101191661,
-      "lat": 53.542888,
-      "lon": 9.988489,
+      "capturedAt": 1512133506125,
+      "lat": 53.542587,
+      "lon": 9.98731,
+      "compass": 342.6
+    },
+    {
+      "id": "522925352035548",
+      "creator": "sashazykov",
+      "capturedAt": 1528101183355,
+      "lat": 53.542902,
+      "lon": 9.988714,
+      "compass": 263.9
+    },
+    {
+      "id": "913233342856932",
+      "creator": "veloroute_hamburg",
+      "capturedAt": 1531063114000,
+      "lat": 53.543208,
+      "lon": 9.99114,
       "compass": 266.1
     },
     {
-      "id": "889247015257250",
+      "id": "928077154401583",
       "creator": "sashazykov",
-      "capturedAt": 1528101188551,
-      "lat": 53.542895,
-      "lon": 9.988571,
-      "compass": 265.9
+      "capturedAt": 1505476303248,
+      "lat": 53.542757,
+      "lon": 9.987543,
+      "compass": 82.9
+    },
+    {
+      "id": "946552862779904",
+      "creator": "cm_hamburg",
+      "capturedAt": 1360584000000,
+      "lat": 53.542717,
+      "lon": 9.987817,
+      "compass": 0
+    },
+    {
+      "id": "955221229344688",
+      "creator": "veloroute_hamburg",
+      "capturedAt": 1706357904000,
+      "lat": 53.543221,
+      "lon": 9.991108,
+      "compass": 270.1
     }
   ]
 }

@@ -1,0 +1,229 @@
+{
+  "experiment": "cc-90-no-filter",
+  "date": "2026-11-01",
+  "chosen_limit": 0.2,
+  "rule": "reject a photo when the tallest detected person (score>=0.4) is taller than the limit as a share of picture height; 0 = the old strict rule",
+  "finding": "Mapillary bbox searches silently return short results; tiling in 50 m boxes (split at 600) gives complete pools, so older counts understated coverage",
+  "places": [
+    {
+      "place": "alfama-lisbon",
+      "lane_steps_10m": 8,
+      "photos_in_box": 3746,
+      "raw_share_pct": 100,
+      "strict_before_pct": 100,
+      "pct_at_0_1": 100,
+      "pct_at_0_2": 100,
+      "pct_at_0_35": 100,
+      "kept_at_0_2": 5
+    },
+    {
+      "place": "bryggen-bergen",
+      "lane_steps_10m": 10,
+      "photos_in_box": 4858,
+      "raw_share_pct": 100,
+      "strict_before_pct": 80,
+      "pct_at_0_1": 100,
+      "pct_at_0_2": 90,
+      "pct_at_0_35": 100,
+      "kept_at_0_2": 7
+    },
+    {
+      "place": "bukchon-seoul",
+      "lane_steps_10m": 14,
+      "photos_in_box": 482,
+      "raw_share_pct": 100,
+      "strict_before_pct": 100,
+      "pct_at_0_1": 100,
+      "pct_at_0_2": 100,
+      "pct_at_0_35": 100,
+      "kept_at_0_2": 6
+    },
+    {
+      "place": "caminito-buenos-aires",
+      "lane_steps_10m": 11,
+      "photos_in_box": 397,
+      "raw_share_pct": 100,
+      "strict_before_pct": 100,
+      "pct_at_0_1": 100,
+      "pct_at_0_2": 100,
+      "pct_at_0_35": 100,
+      "kept_at_0_2": 9
+    },
+    {
+      "place": "castle-hill-budapest",
+      "lane_steps_10m": 21,
+      "photos_in_box": 5788,
+      "raw_share_pct": 100,
+      "strict_before_pct": 67,
+      "pct_at_0_1": 100,
+      "pct_at_0_2": 100,
+      "pct_at_0_35": 100,
+      "kept_at_0_2": 24
+    },
+    {
+      "place": "dolores-park-san-francisco",
+      "lane_steps_10m": 9,
+      "photos_in_box": 501,
+      "raw_share_pct": 100,
+      "strict_before_pct": 100,
+      "pct_at_0_1": 100,
+      "pct_at_0_2": 100,
+      "pct_at_0_35": 100,
+      "kept_at_0_2": 9
+    },
+    {
+      "place": "edinburgh-old-town",
+      "lane_steps_10m": 17,
+      "photos_in_box": 1601,
+      "raw_share_pct": 100,
+      "strict_before_pct": 100,
+      "pct_at_0_1": 100,
+      "pct_at_0_2": 100,
+      "pct_at_0_35": 100,
+      "kept_at_0_2": 12
+    },
+    {
+      "place": "eixample-barcelona",
+      "lane_steps_10m": 16,
+      "photos_in_box": 619,
+      "raw_share_pct": 88,
+      "strict_before_pct": 31,
+      "pct_at_0_1": 69,
+      "pct_at_0_2": 88,
+      "pct_at_0_35": 88,
+      "kept_at_0_2": 12
+    },
+    {
+      "place": "galata-istanbul",
+      "lane_steps_10m": 16,
+      "photos_in_box": 2162,
+      "raw_share_pct": 100,
+      "strict_before_pct": 94,
+      "pct_at_0_1": 94,
+      "pct_at_0_2": 100,
+      "pct_at_0_35": 100,
+      "kept_at_0_2": 12
+    },
+    {
+      "place": "gamla-stan-stockholm",
+      "lane_steps_10m": 6,
+      "photos_in_box": 790,
+      "raw_share_pct": 100,
+      "strict_before_pct": 83,
+      "pct_at_0_1": 100,
+      "pct_at_0_2": 100,
+      "pct_at_0_35": 100,
+      "kept_at_0_2": 5
+    },
+    {
+      "place": "main-square-krakow",
+      "lane_steps_10m": 24,
+      "photos_in_box": 849,
+      "raw_share_pct": 100,
+      "strict_before_pct": 67,
+      "pct_at_0_1": 100,
+      "pct_at_0_2": 100,
+      "pct_at_0_35": 100,
+      "kept_at_0_2": 16
+    },
+    {
+      "place": "montmartre-paris",
+      "lane_steps_10m": 18,
+      "photos_in_box": 457,
+      "raw_share_pct": 100,
+      "strict_before_pct": 39,
+      "pct_at_0_1": 72,
+      "pct_at_0_2": 72,
+      "pct_at_0_35": 67,
+      "kept_at_0_2": 7
+    },
+    {
+      "place": "parc-guell-barcelona",
+      "lane_steps_10m": 12,
+      "photos_in_box": 808,
+      "raw_share_pct": 100,
+      "strict_before_pct": 100,
+      "pct_at_0_1": 100,
+      "pct_at_0_2": 100,
+      "pct_at_0_35": 100,
+      "kept_at_0_2": 13
+    },
+    {
+      "place": "piazza-san-marco-venice",
+      "lane_steps_10m": 21,
+      "photos_in_box": 1617,
+      "raw_share_pct": 100,
+      "strict_before_pct": 0,
+      "pct_at_0_1": 71,
+      "pct_at_0_2": 95,
+      "pct_at_0_35": 100,
+      "kept_at_0_2": 9
+    },
+    {
+      "place": "plaka-athens",
+      "lane_steps_10m": 9,
+      "photos_in_box": 1292,
+      "raw_share_pct": 100,
+      "strict_before_pct": 89,
+      "pct_at_0_1": 89,
+      "pct_at_0_2": 100,
+      "pct_at_0_35": 100,
+      "kept_at_0_2": 7
+    },
+    {
+      "place": "shibuya-tokyo",
+      "lane_steps_10m": 6,
+      "photos_in_box": 3110,
+      "raw_share_pct": 100,
+      "strict_before_pct": 17,
+      "pct_at_0_1": 100,
+      "pct_at_0_2": 100,
+      "pct_at_0_35": 100,
+      "kept_at_0_2": 7
+    },
+    {
+      "place": "speicherstadt-hamburg",
+      "lane_steps_10m": 25,
+      "photos_in_box": 5122,
+      "raw_share_pct": 100,
+      "strict_before_pct": 72,
+      "pct_at_0_1": 100,
+      "pct_at_0_2": 100,
+      "pct_at_0_35": 100,
+      "kept_at_0_2": 19
+    },
+    {
+      "place": "stephansplatz-vienna",
+      "lane_steps_10m": 10,
+      "photos_in_box": 3056,
+      "raw_share_pct": 100,
+      "strict_before_pct": 100,
+      "pct_at_0_1": 100,
+      "pct_at_0_2": 100,
+      "pct_at_0_35": 100,
+      "kept_at_0_2": 5
+    },
+    {
+      "place": "temple-bar-dublin",
+      "lane_steps_10m": 10,
+      "photos_in_box": 943,
+      "raw_share_pct": 100,
+      "strict_before_pct": 70,
+      "pct_at_0_1": 80,
+      "pct_at_0_2": 100,
+      "pct_at_0_35": 100,
+      "kept_at_0_2": 13
+    },
+    {
+      "place": "valletta-harbour-malta",
+      "lane_steps_10m": 5,
+      "photos_in_box": 95,
+      "raw_share_pct": 100,
+      "strict_before_pct": 60,
+      "pct_at_0_1": 100,
+      "pct_at_0_2": 100,
+      "pct_at_0_35": 100,
+      "kept_at_0_2": 7
+    }
+  ]
+}

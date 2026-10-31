@@ -1,0 +1,80 @@
+{
+  "place": "piazza-san-marco-venice",
+  "name": "Piazza San Marco, Venice",
+  "generated": "2026-10-31",
+  "source": "Mapillary contributors, CC BY-SA 4.0; faces and plates are blurred by Mapillary (not a guarantee); photos with a close-up or large person (Faster R-CNN) are left out",
+  "photos": [
+    {
+      "id": "1454827954854122",
+      "creator": "klimakas",
+      "capturedAt": 1572192287549,
+      "lat": 45.434338,
+      "lon": 12.338397,
+      "compass": 36.3
+    },
+    {
+      "id": "227775648693113",
+      "creator": "gzin",
+      "capturedAt": 1599048178183,
+      "lat": 45.434166,
+      "lon": 12.338087,
+      "compass": 264.6
+    },
+    {
+      "id": "2425239860955886",
+      "creator": "txllxt",
+      "capturedAt": 1317739290000,
+      "lat": 45.434036,
+      "lon": 12.337431,
+      "compass": 359
+    },
+    {
+      "id": "297091855192352",
+      "creator": "txllxt",
+      "capturedAt": 1317739341000,
+      "lat": 45.434294,
+      "lon": 12.337989,
+      "compass": 13.3
+    },
+    {
+      "id": "3868610296520869",
+      "creator": "asturksever",
+      "capturedAt": 1452011857000,
+      "lat": 45.434423,
+      "lon": 12.338581,
+      "compass": 8.6
+    },
+    {
+      "id": "471527534187919",
+      "creator": "akovt",
+      "capturedAt": 1368194244156,
+      "lat": 45.434573,
+      "lon": 12.338841,
+      "compass": 0
+    },
+    {
+      "id": "477631240229195",
+      "creator": "jopparn",
+      "capturedAt": 1559409338164,
+      "lat": 45.434435,
+      "lon": 12.33843,
+      "compass": 232.7
+    },
+    {
+      "id": "683538800251555",
+      "creator": "jlstanus",
+      "capturedAt": 1686818836152,
+      "lat": 45.434,
+      "lon": 12.337325,
+      "compass": 161.0
+    },
+    {
+      "id": "933983037928223",
+      "creator": "quickness805",
+      "capturedAt": 1709564655891,
+      "lat": 45.433902,
+      "lon": 12.337499,
+      "compass": 250.5
+    }
+  ]
+}

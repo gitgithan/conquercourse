@@ -2,7 +2,7 @@
   "place": "dolores-park-san-francisco",
   "name": "Dolores Park, San Francisco",
   "generated": "2026-10-31",
-  "source": "Mapillary contributors, CC BY-SA 4.0; photos with a person detected (Faster R-CNN, of any size) are left out",
+  "source": "Mapillary contributors, CC BY-SA 4.0; faces and plates are blurred by Mapillary (not a guarantee); photos with a close-up or large person (Faster R-CNN) are left out",
   "photos": [
     {
       "id": "1041872686340188",
@@ -37,20 +37,20 @@
       "compass": 356.4
     },
     {
-      "id": "306590334367059",
-      "creator": "sarawabreus",
-      "capturedAt": 1424123968000,
-      "lat": 37.760144,
-      "lon": -122.425881,
-      "compass": 0.4
+      "id": "235131591701126",
+      "creator": "bhousel",
+      "capturedAt": 1474030998000,
+      "lat": 37.760047,
+      "lon": -122.425764,
+      "compass": 7.1
     },
     {
-      "id": "372481930829201",
-      "creator": "mmarinho",
-      "capturedAt": 1576518225156,
-      "lat": 37.76037,
-      "lon": -122.425883,
-      "compass": 353.2
+      "id": "2564132337213781",
+      "creator": "sarawabreus",
+      "capturedAt": 1424123972000,
+      "lat": 37.760435,
+      "lon": -122.425912,
+      "compass": 359.3
     },
     {
       "id": "534716637520372",
@@ -75,14 +75,6 @@
       "lat": 37.760678,
       "lon": -122.425941,
       "compass": 176.6
-    },
-    {
-      "id": "860997941119254",
-      "creator": "almccon",
-      "capturedAt": 1434677005603,
-      "lat": 37.760006,
-      "lon": -122.425859,
-      "compass": 359.7
     }
   ]
 }

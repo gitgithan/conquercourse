@@ -51,8 +51,21 @@
 - Anything SAM 3 does not find stays visible, so this lowers the risk and does not remove it.
 - EgoBlur is not used.
 
+## 2b. Street photos from Mapillary (owner, 2026-11-01)
+- We rely on Mapillary's own blur of faces and number plates as the base standard.
+  - Mapillary says the blur is "designed to" hide faces and plates; that is not a guarantee, so an unblurred face or a child can still appear.
+- On top of that, we reject photos where our detector finds a close-up or large person (taller than 0.2 of the picture height); small, far figures pass.
+  - The detector can miss a person, so this lowers the risk and does not remove it.
+  - We do not mask photos.
+- We show the pictures live from Mapillary and never store or copy them; our lists hold ids and positions only.
+- We never un-blur a photo, and we report unblurred faces to Mapillary.
+- Every large photo carries a "Report this photo on Mapillary" link to its page there, where Mapillary's own report tool lives.
+- Mapillary's terms ask contributors not to upload images of children; that is Mapillary's rule, and it is not checked by us.
+- There is no hide-this-photo switch of our own yet.
+
 ## 3. What we do not do
-- No footage of minors: the Park and the film rules forbid it, and the upload check sends a child in a photo to a person.
+- No footage of minors in our own footage, captures or uploads: the Park and the film rules forbid it, and the upload check sends a child in a photo to a person.
+  - The one carve-out is Mapillary street photos shown live under Mapillary's terms (section 2b).
 - No chat tutor.
 - No grading or coaching of a person's technique; gaps are plain facts ("Ghost is 0.8 s ahead").
 - No Moon or low-gravity scenarios, no robotics framing.
@@ -90,5 +103,6 @@
   - A harmful-image test (CC-120) is still running; when its result is merged under `data/eval/`, this page will link it.
 - There is no hash-matching child-safety service; a model judging one small picture can miss things.
 - People and faces that SAM 3 misses stay visible in the lifted object's source photo.
+- Street photos rely on Mapillary's blur, which can miss a face or a child (section 2b).
 - A `review` waits for a person; this page does not say who reviews or how fast.
 - Abuse limits: kept in the private notes.

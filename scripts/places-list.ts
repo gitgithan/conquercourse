@@ -5,7 +5,7 @@ import { existsSync, readdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { existsSync, readdirSync, readFileSync, writeFileSync } from 'node:fs';
 
 // CC-90: the list is a short, spread-out set, not every place that passes a count. A place is listed when it has a proven lane AND is in CURATED
-// (chosen from data/eval/cc-90-photolanes/README.md: strong street photos along its whole lane, at most two per country). Other places stay in the files and open by their old links.
+// (chosen from data/eval/cc-90-no-filter/README.md: street photos along its whole lane, at most two per country). Other places stay in the files and open by their old links.
 const COUNTRY: Record<string, string> = {
   'montmartre-paris': 'France', 'tuileries-paris': 'France', 'place-des-vosges-paris': 'France',
   'eixample-barcelona': 'Spain', 'ciutadella-barcelona': 'Spain', 'parc-guell-barcelona': 'Spain', 'plaza-mayor-madrid': 'Spain', 'retiro-park-madrid': 'Spain',
@@ -35,6 +35,11 @@ const CURATED: string[] = [
   'temple-bar-dublin',
   'main-square-krakow',
   'castle-hill-budapest',
+  // restored 2026-11-01 when the person filter was removed (owner decision; Mapillary's own blur is the standard)
+  'shibuya-tokyo',
+  'montmartre-paris',
+  'piazza-san-marco-venice',
+  'valletta-harbour-malta',
 ];
 
 const MIN_FACING = 30; // photos near the lane whose camera points at it

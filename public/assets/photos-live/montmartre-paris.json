@@ -1,48 +1,40 @@
 {
   "place": "montmartre-paris",
   "name": "Montmartre steps, Paris",
-  "generated": "2026-10-28",
-  "source": "Mapillary contributors, CC BY-SA 4.0; photos with a person detected (Faster R-CNN, of any size) are left out",
+  "generated": "2026-10-31",
+  "source": "Mapillary contributors, CC BY-SA 4.0; faces and plates are blurred by Mapillary (not a guarantee); photos with a close-up or large person (Faster R-CNN) are left out",
   "photos": [
     {
-      "id": "1421882781481194",
+      "id": "1382777112096726",
       "creator": "nlehuby",
-      "capturedAt": 1610028739462,
-      "lat": 48.885801,
-      "lon": 2.342541,
-      "compass": 198.3
+      "capturedAt": 1610028727561,
+      "lat": 48.885685,
+      "lon": 2.342573,
+      "compass": 262.6
     },
     {
-      "id": "213429890371546",
-      "creator": "marcuscalabresus",
-      "capturedAt": 1577273889577,
-      "lat": 48.885296,
-      "lon": 2.342243,
-      "compass": 84.6
+      "id": "217947299859235",
+      "creator": "voltadino",
+      "capturedAt": 1027803497000,
+      "lat": 48.886702,
+      "lon": 2.341461,
+      "compass": 359
     },
     {
-      "id": "248818591205558",
-      "creator": "marikocco",
-      "capturedAt": 1687004496116,
-      "lat": 48.88563,
-      "lon": 2.34257,
-      "compass": 348.3
+      "id": "271994747922019",
+      "creator": "nattes",
+      "capturedAt": 1471621893000,
+      "lat": 48.887058,
+      "lon": 2.341431,
+      "compass": 109.5
     },
     {
-      "id": "270295822253479",
-      "creator": "marikocco",
-      "capturedAt": 1687004482816,
-      "lat": 48.885595,
-      "lon": 2.342577,
-      "compass": 353.4
-    },
-    {
-      "id": "285237727501900",
-      "creator": "marikocco",
-      "capturedAt": 1687004496959,
-      "lat": 48.885632,
-      "lon": 2.342564,
-      "compass": 22.5
+      "id": "300825731758372",
+      "creator": "jurkis",
+      "capturedAt": 1572511233350,
+      "lat": 48.886671,
+      "lon": 2.341376,
+      "compass": 60.4
     },
     {
       "id": "491335408974093",
@@ -51,14 +43,6 @@
       "lat": 48.885684,
       "lon": 2.342573,
       "compass": 268.6
-    },
-    {
-      "id": "648849073486661",
-      "creator": "marikocco",
-      "capturedAt": 1687004480793,
-      "lat": 48.885564,
-      "lon": 2.342581,
-      "compass": 355
     },
     {
       "id": "805387157655564",

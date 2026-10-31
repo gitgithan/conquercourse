@@ -2,55 +2,47 @@
   "place": "stephansplatz-vienna",
   "name": "Stephansplatz, Vienna",
   "generated": "2026-10-31",
-  "source": "Mapillary contributors, CC BY-SA 4.0; photos with a person detected (Faster R-CNN, of any size) are left out",
+  "source": "Mapillary contributors, CC BY-SA 4.0; faces and plates are blurred by Mapillary (not a guarantee); photos with a close-up or large person (Faster R-CNN) are left out",
   "photos": [
     {
-      "id": "1056294360653420",
-      "creator": "eliasgander",
-      "capturedAt": 1591513588500,
-      "lat": 48.207698,
-      "lon": 16.371783,
-      "compass": 96.3
+      "id": "1050959309644963",
+      "creator": "istefanos",
+      "capturedAt": 1690023480244,
+      "lat": 48.207472,
+      "lon": 16.372886,
+      "compass": 199.9
     },
     {
-      "id": "1292672516229970",
+      "id": "1053493300767367",
       "creator": "eliasgander",
-      "capturedAt": 1592891099000,
-      "lat": 48.207315,
-      "lon": 16.37289,
-      "compass": 285.2
+      "capturedAt": 1591513589000,
+      "lat": 48.207725,
+      "lon": 16.371788,
+      "compass": 95.5
     },
     {
-      "id": "1679072423196796",
-      "creator": "eliasgander",
-      "capturedAt": 1591513590000,
-      "lat": 48.207752,
-      "lon": 16.371792,
-      "compass": 93.4
-    },
-    {
-      "id": "1838566850365988",
+      "id": "1173373018220698",
       "creator": "eliasgander",
       "capturedAt": 1592891098000,
-      "lat": 48.207342,
-      "lon": 16.372902,
-      "compass": 285.3
+      "lat": 48.207489,
+      "lon": 16.37288,
+      "compass": 192.3
     },
     {
-      "id": "2168032380633951",
+      "id": "1581821590079790",
       "creator": "eliasgander",
-      "capturedAt": 1602400822000,
-      "lat": 48.207255,
-      "lon": 16.372855,
-      "compass": 197.4
+      "capturedAt": 1591513591000,
+      "lat": 48.207775,
+      "lon": 16.371807,
+      "compass": 93.3
     },
     {
-      "id": "910528604889300",
+      "id": "1653305906185125",
       "creator": "eliasgander",
-      "capturedAt": 1602400824000,
-      "lat": 48.207205,
-      "lon": 16.372827,
-      "compass": 16.5
+      "capturedAt": 1591513590000,
+      "lat": 48.207748,
+      "lon": 16.371803,
+      "compass": 6.3
     }
   ]
 }

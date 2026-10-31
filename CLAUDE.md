@@ -11,7 +11,10 @@ A ninja-warrior physics game where real parks and real moves become the course, 
 
 ## Hard rules
 - **New work only:** never copy code from the practice project; write it from the spec.
-- **Never:** formulas on screen, except as the last, earned step of a Dojo lesson (owner, 2026-10-27; never on the Course) and inside the university Labs, which may show equations (owner, 2026-10-29); chat tutors; grading or coaching a person's technique; Moon or low-gravity scenarios; robotics framing; footage of minors.
+- **Never:** formulas on screen, except as the last, earned step of a Dojo lesson (owner, 2026-10-27; never on the Course) and inside the university Labs, which may show equations (owner, 2026-10-29); chat tutors; grading or coaching a person's technique; Moon or low-gravity scenarios; robotics framing; footage of minors in our own footage and captures.
+  - Carve-out (owner, 2026-11-01): Mapillary street photos shown live under Mapillary's terms, with Mapillary's own face and plate blur as the standard, are allowed.
+  - We never store or copy their pictures, never un-blur them, and report unblurred faces to Mapillary.
+  - On top of Mapillary's blur we reject photos with a close-up or large person (`scripts/photos_people.py`, size limit 0.2 of the picture height); small, far figures pass.
 - **Never commit:** secrets (keys live in private env files outside the repo), the product owner's name, home paths or workspace names, big binaries (they go in `../conquercourse-assets/` with `SHA256SUMS`).
 - **No personal details in the repo (owner, 2026-10-30):** no real email address, home folder path or public IP in files, commit messages or Linear text; commits use the GitHub noreply address (`git config user.email 29853829+gitgithan@users.noreply.github.com`); `node scripts/check-personal.mjs` (also a test) finds slips, and `scripts/ship.sh` refuses commits with another email.
 - **Private design notes (owner, 2026-10-30):** anti-cheat, abuse limits, player identity and bypass tactics go only in the gitignored `local-notes-q7/` folder in the owner's folder, never in tracked docs, code comments, issues or commit messages; tracked docs get a neutral stub.

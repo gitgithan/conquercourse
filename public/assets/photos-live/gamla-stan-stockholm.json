@@ -2,23 +2,47 @@
   "place": "gamla-stan-stockholm",
   "name": "Gamla Stan, Stockholm",
   "generated": "2026-10-31",
-  "source": "Mapillary contributors, CC BY-SA 4.0; photos with a person detected (Faster R-CNN, of any size) are left out",
+  "source": "Mapillary contributors, CC BY-SA 4.0; faces and plates are blurred by Mapillary (not a guarantee); photos with a close-up or large person (Faster R-CNN) are left out",
   "photos": [
+    {
+      "id": "1275649323405070",
+      "creator": "quickness805",
+      "capturedAt": 1722951600795,
+      "lat": 59.324273,
+      "lon": 18.06872,
+      "compass": 50.4
+    },
     {
       "id": "291804455816714",
       "creator": "traveller",
       "capturedAt": 1423649682000,
       "lat": 59.323938,
       "lon": 18.069456,
-      "compass": 45.0
+      "compass": 45
     },
     {
-      "id": "2928886217352034",
-      "creator": "traveller",
-      "capturedAt": 1423649667000,
-      "lat": 59.323807,
-      "lon": 18.069245,
-      "compass": 36.1
+      "id": "309262970587075",
+      "creator": "sandrauddback",
+      "capturedAt": 1427817488000,
+      "lat": 59.324377,
+      "lon": 18.069025,
+      "compass": 66
+    },
+    {
+      "id": "806406500260463",
+      "creator": "tomasmalmsten",
+      "capturedAt": 1397906519000,
+      "lat": 59.324359,
+      "lon": 18.068895,
+      "compass": 113.7
+    },
+    {
+      "id": "851648382087699",
+      "creator": "panieravide",
+      "capturedAt": 1545820171636,
+      "lat": 59.323813,
+      "lon": 18.07017,
+      "compass": 349.3
     }
   ]
 }

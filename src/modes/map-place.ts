@@ -306,7 +306,7 @@ export function installPlaces(ctx: PlaceCtx) {
     if (lane?.cleared) void streetPhotoLine(o, lane);
   }
 
-  // CC-90: tell the player, in plain words, whether street photos will follow this lane. Only the offline lists are read (people were filtered out of them);
+  // CC-90: tell the player, in plain words, whether street photos will follow this lane. Only the lists in the repo are read (ids and positions);
   // a custom slice with no list of its own is checked against the lists of the prepared places around it, and otherwise pointed at the nearest prepared place.
   const lists = new Map<string, Promise<AllowList | null>>();
   const listOf = (slug: string) => { if (!lists.has(slug)) lists.set(slug, fetch(`/assets/photos-live/${slug}.json`).then((r) => (r.ok ? (r.json() as Promise<AllowList>) : null)).catch(() => null)); return lists.get(slug)!; };

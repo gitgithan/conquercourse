@@ -1,32 +1,104 @@
 {
   "place": "eixample-barcelona",
   "name": "Eixample, Barcelona",
-  "generated": "2026-10-28",
-  "source": "Mapillary contributors, CC BY-SA 4.0; photos with a person detected (Faster R-CNN, of any size) are left out",
+  "generated": "2026-10-31",
+  "source": "Mapillary contributors, CC BY-SA 4.0; faces and plates are blurred by Mapillary (not a guarantee); photos with a close-up or large person (Faster R-CNN) are left out",
   "photos": [
     {
-      "id": "1086247472109794",
-      "creator": "ccossio",
-      "capturedAt": 1489508388847,
-      "lat": 41.392766,
-      "lon": 2.164301,
-      "compass": 318.8
+      "id": "1202564958136143",
+      "creator": "miguel_andrade",
+      "capturedAt": 1742228962315,
+      "lat": 41.392589,
+      "lon": 2.162917,
+      "compass": 66.4
     },
     {
-      "id": "188280269782817",
+      "id": "1238420806575260",
       "creator": "ccossio",
-      "capturedAt": 1489508390833,
-      "lat": 41.39277,
-      "lon": 2.164296,
-      "compass": 318.9
+      "capturedAt": 1489508412685,
+      "lat": 41.392834,
+      "lon": 2.16422,
+      "compass": 319.4
     },
     {
-      "id": "461169311846271",
+      "id": "2981143658834260",
+      "creator": "richlv",
+      "capturedAt": 1511014481168,
+      "lat": 41.392876,
+      "lon": 2.163753,
+      "compass": 134.6
+    },
+    {
+      "id": "2994506474208030",
+      "creator": "richlv",
+      "capturedAt": 1511014479198,
+      "lat": 41.392893,
+      "lon": 2.163733,
+      "compass": 145.7
+    },
+    {
+      "id": "314255736791364",
       "creator": "ccossio",
-      "capturedAt": 1489508389840,
-      "lat": 41.392768,
-      "lon": 2.164299,
-      "compass": 318.9
+      "capturedAt": 1437644582214,
+      "lat": 41.392696,
+      "lon": 2.163341,
+      "compass": 78
+    },
+    {
+      "id": "340433254105012",
+      "creator": "ugz",
+      "capturedAt": 1552378532188,
+      "lat": 41.392787,
+      "lon": 2.164322,
+      "compass": 348.9
+    },
+    {
+      "id": "358620565708103",
+      "creator": "richlv",
+      "capturedAt": 1511014477174,
+      "lat": 41.392914,
+      "lon": 2.163714,
+      "compass": 158.2
+    },
+    {
+      "id": "370579940990891",
+      "creator": "ugz",
+      "capturedAt": 1552378531196,
+      "lat": 41.392745,
+      "lon": 2.164376,
+      "compass": 348
+    },
+    {
+      "id": "3825046710882480",
+      "creator": "richlv",
+      "capturedAt": 1511014495161,
+      "lat": 41.392747,
+      "lon": 2.163904,
+      "compass": 138.6
+    },
+    {
+      "id": "456922988749324",
+      "creator": "ccossio",
+      "capturedAt": 1457458899367,
+      "lat": 41.393393,
+      "lon": 2.164266,
+      "compass": 59.1
+    },
+    {
+      "id": "476505986950916",
+      "creator": "ccossio",
+      "capturedAt": 1489508409705,
+      "lat": 41.392781,
+      "lon": 2.164284,
+      "compass": 319.2
+    },
+    {
+      "id": "494736788377327",
+      "creator": "ccossio",
+      "capturedAt": 1489508410698,
+      "lat": 41.392793,
+      "lon": 2.164269,
+      "compass": 319.2
     }
   ]
 }
