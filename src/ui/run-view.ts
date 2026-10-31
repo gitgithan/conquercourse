@@ -1,7 +1,7 @@
 // View Run (CC-108): any row of the leaderboard opens a panel with the course, the winner's path and a button to race it.
 // The keys are played at once with the simulator (no waiting for a thirty-second run); nothing here is a grade.
 import type { CourseData } from '../course/course';
-import { decodeLog, verifyLog, type GhostTrack } from '../sim/replay';
+import { decodeLog, verifyLog, type GhostTrack, type InputLog } from '../sim/replay';
 import { newLog, pathPicture } from './run-report';
 import { secondsText } from './course-stats';
 
@@ -14,17 +14,25 @@ export function pathOf(track: GhostTrack): { x: number; y: number }[] {
   return out;
 }
 
-export async function loadRun(course: CourseData, id: number): Promise<{ track: GhostTrack; nick: string; ticks: number } | null> {
+/** How many times a key other than run or left went down: the moves of a run, counted from its keys (a count, never a grade). */
+export function movesOf(log: InputLog): number {
+  let prev = 0, n = 0;
+  for (const [mask] of log) { const m = mask & ~0b11; n += countBits(m & ~prev); prev = m; } // bits 0 and 1 are run and left
+  return n;
+}
+const countBits = (m: number): number => { let c = 0; for (; m; m &= m - 1) c++; return c; };
+
+export async function loadRun(course: CourseData, id: number): Promise<{ track: GhostTrack; nick: string; ticks: number; moves: number } | null> {
   try {
     const res = await fetch(`/api/leaderboard-run?id=${id}`);
     if (!res.ok) return null;
     const d = await res.json() as { keys: string; nick: string; ticks: number };
-    const v = verifyLog(course, await decodeLog(d.keys));
-    return v.cleared ? { track: v.track, nick: d.nick, ticks: v.ticks } : null;
+    const log = await decodeLog(d.keys), v = verifyLog(course, log);
+    return v.cleared ? { track: v.track, nick: d.nick, ticks: v.ticks, moves: movesOf(log) } : null;
   } catch { return null; }
 }
 
-/** Opens the panel for one row. `race` receives the track and the tag when the player picks Race Ghost. */
+/** Opens the panel for one row. `race` receives the track and the tag when the player picks Chase Ghost. */
 export async function openRunView(course: CourseData, row: RunHandle, race: (track: GhostTrack, nick: string) => void): Promise<void> {
   document.getElementById('run-view')?.remove();
   const panel = document.createElement('div'); panel.id = 'run-view'; panel.setAttribute('role', 'dialog'); panel.setAttribute('aria-label', 'Run on the leaderboard');
@@ -46,5 +54,12 @@ export async function openRunView(course: CourseData, row: RunHandle, race: (tra
   if (!run) { body.textContent = 'This run could not be opened.'; return; }
   const log = newLog(); log.path = pathOf(run.track);
   body.replaceChildren(pathPicture(course, log, null, null));
-  bar.prepend(btn('Race Ghost', 'run-view-race', () => { race(run.track, run.nick); panel.remove(); }, true));
+  bar.prepend(btn('Chase Ghost', 'run-view-race', () => { race(run.track, run.nick); panel.remove(); }, true));
+}
+
+/** Chase Ghost straight from a board row: play the run and hand its track to the race, no panel. */
+export async function chaseRun(course: CourseData, row: RunHandle, race: (track: GhostTrack, nick: string) => void): Promise<boolean> {
+  const run = await loadRun(course, row.id);
+  if (run) race(run.track, run.nick);
+  return !!run;
 }

@@ -9,7 +9,7 @@ import { json } from '../_lib/http';
 interface Stmt { bind(...v: unknown[]): { all(): Promise<{ results: unknown[] }>; first<T>(): Promise<T | null> } }
 interface Env { DB: { prepare(sql: string): Stmt } }
 
-export interface Row { id?: number; nick: string; ticks: number }
+export interface Row { id?: number; nick: string; ticks: number; ts?: string }
 export interface Board { course: string; window: Window; top: Row[]; players: number; mine: { rank: number; ticks: number } | null; resetAt: number | null; previous: Row | null }
 export const TOP = 100;
 
@@ -19,7 +19,7 @@ const BASE = 'FROM course_clears WHERE course_key = ? AND course_hash = ? AND ve
 
 export async function board(env: Env, key: string, hash: string, w: Window, now: number, me: string): Promise<Board> {
   const from = sqlTime(windowStart(w, now)), to = sqlTime(now + 1000);
-  const top = (await env.DB.prepare(`SELECT id, nick, MIN(ticks) AS ticks ${BASE} GROUP BY ${WHO} ORDER BY ticks ASC, MIN(id) ASC LIMIT ?`).bind(key, hash, from, to, TOP).all()).results as Row[];
+  const top = (await env.DB.prepare(`SELECT id, nick, ts, MIN(ticks) AS ticks ${BASE} GROUP BY ${WHO} ORDER BY ticks ASC, MIN(id) ASC LIMIT ?`).bind(key, hash, from, to, TOP).all()).results as Row[];
   const n = await env.DB.prepare(`SELECT COUNT(DISTINCT ${WHO}) AS n ${BASE}`).bind(key, hash, from, to).first<{ n: number }>();
   let mine: Board['mine'] = null;
   if (me) {

@@ -37,10 +37,11 @@ import { DEFAULT_TRAMPOLINE } from '../sim/trampoline';
 import { ouch } from '../sim/landing';
 import { logTicks } from '../sim/run-checks';
 import { track, trackCourseEvent, courseKey, publishClear, sendClear, session } from '../ui/feedback';
-import { statsOn, statKey } from '../ui/course-stats';
+import { statsOn } from '../ui/course-stats';
+import { boardKeyOfPage, FIRST_COURSE_KEY } from '../share/board-courses';
 import { touchStreak } from '../ui/streak';
 import { boardBox, boardCorner, boardOn, newsStrip, publishStrip, rememberBest, type BoardHooks } from '../ui/leaderboard';
-import { openRunView } from '../ui/run-view';
+import { chaseRun, loadRun, openRunView } from '../ui/run-view';
 import { createRookieActor } from '../render/actor';
 import { lookSwitchOn, lookUrl } from '../render/look';
 import { makeObstacle } from '../course/collide';
@@ -681,8 +682,14 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
 
   if (params.get('bot') === 'shortcut') { const list = course.shortcuts?.length ? course.shortcuts : findShortcutsNow(course); if (list[0]) plan = list[0].plan; else plan = course.plan ?? searchIdealRun(course).plan; }
   const botMode = params.get('bot') === 'ideal' || params.get('bot') === 'shortcut';
-  const viewHooks = (): BoardHooks => ({ onView: (row) => { if (row.id) void openRunView(course, { id: row.id, nick: row.nick, ticks: row.ticks }, (t, nick) => ghostCtl?.setFriend(t, nick)); } }); // CC-108: View Run, then Race Ghost
-  { const bp = params.get('course') ?? ''; if (boardOn(params) && !botMode && !params.get('mode') && /^\/assets\/(demo|experiments\/osm)\//.test(bp)) { document.body.append(boardCorner(statKey(bp), courseHash(course), session(), viewHooks()), newsStrip()); } } // CC-108: the board is on the Course, not only in the end report
+  const viewHooks = (): BoardHooks => ({
+    onView: (row) => { if (row.id) void openRunView(course, { id: row.id, nick: row.nick, ticks: row.ticks }, (t, nick) => ghostCtl?.setFriend(t, nick)); },
+    onChase: (row) => { if (row.id) void chaseRun(course, { id: row.id, nick: row.nick, ticks: row.ticks }, (t, nick) => ghostCtl?.setFriend(t, nick)); },
+    onStats: async (row) => { const r = row.id ? await loadRun(course, row.id) : null; return r ? { moves: r.moves } : null; },
+  }); // CC-108: View Run, then Race Ghost
+  // CC-108: the courses a run can be published on are the listed ones (src/share/board-courses.ts); the First Course with the timed balls is another course, so it is not one of them
+  const listedKey = (): string | null => { const k = boardKeyOfPage(params); return k === FIRST_COURSE_KEY && course !== defaultCourse ? null : k; };
+  { const bk = listedKey(); if (boardOn(params) && !botMode && bk) { document.body.append(boardCorner(bk, courseHash(course), session(), viewHooks()), newsStrip()); } } // CC-108: the board is on the Course, not only in the end report
   let retryX = resume ? resume.retryX : course.startX; // "try this obstacle again" starts standing still just before it
   let demo: { x1: number } | null = null;
   const idealCache = new Map<number, Plan>();
@@ -796,14 +803,14 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
   let lastClear: BoardHooks['publish'] | null = null;
   function offerClear() {
     lastClear = null;
-    const path = params.get('course') ?? '';
-    if (!statsOn(params) || botMode || demo || idealWhole || params.get('mode') || !/^\/assets\/(demo|experiments\/osm)\//.test(path)) return;
+    const bk = listedKey();
+    if (!statsOn(params) || botMode || demo || idealWhole || !bk) return;
     const mine = ghostCtl?.myRun();
     if (mine) {
-      if (boardOn(params)) rememberBest(statKey(path), courseHash(course), logTicks(mine));
+      if (boardOn(params)) rememberBest(bk, courseHash(course), logTicks(mine));
       const runId = analyticsRunId, ticks = logTicks(mine), keysReady = encodeLog(mine);
-      void keysReady.then((keys) => sendClear(statKey(path), runId, courseHash(course), keys, ticks)); // counted only; the board gets it when the player clicks Publish (CC-108)
-      lastClear = { ticks, send: (nick) => keysReady.then((keys) => publishClear(statKey(path), runId, courseHash(course), keys, ticks, nick)) };
+      void keysReady.then((keys) => sendClear(bk, runId, courseHash(course), keys, ticks)); // counted only; the board gets it when the player clicks Publish (CC-108)
+      lastClear = { ticks, send: (nick) => keysReady.then((keys) => publishClear(bk, runId, courseHash(course), keys, ticks, nick)) };
     }
   }
   let everCleared = false;
@@ -1500,11 +1507,11 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
           close: () => { panel.style.display = 'none'; },
         }, false, ghostCtl?.reportPath() ?? null, !reportSectionsOn(params), hardBand());
         addHardest(body);
-        { const bp = params.get('course') ?? ''; if (boardOn(params) && !botMode && !demo && !idealWhole && !params.get('mode') && /^\/assets\/(demo|experiments\/osm)\//.test(bp)) { body.querySelector('#report-actions')?.before(boardBox(statKey(bp), courseHash(course), session(), viewHooks())); if (lastClear) body.querySelector('h2')?.after(publishStrip(lastClear, statKey(bp), courseHash(course))); } } // CC-108: the name and Publish sit at the top, next to the result
+        { const bk = listedKey(); if (boardOn(params) && !botMode && !demo && !idealWhole && bk) { body.querySelector('#report-actions')?.before(boardBox(bk, courseHash(course), session(), viewHooks())); if (lastClear) body.querySelector('h2')?.after(publishStrip(lastClear, bk, courseHash(course))); } } // CC-108: the name and Publish sit at the top, next to the result
         if (!lastClear && world.outcome === 'cleared' && (ghostCtl?.myRun() || ghostCtl?.myClip()) && !body.querySelector('#report-publish') && !botMode && !demo && !idealWhole) { // a clear that cannot be published: the button is off and the reason sits next to it
-          const listed = !params.get('mode') && /^\/assets\/(demo|experiments\/osm)\//.test(params.get('course') ?? '');
+          const listed = !!listedKey();
           const why = !listed ? 'Only runs on the listed courses can be published.' : !ghostCtl?.myRun() ? 'Only full runs from the start of the course can be published.' : !boardOn(params) ? 'The leaderboard is switched off here.' : 'This run cannot be published.';
-          body.querySelector('h2')?.after(publishStrip({ ticks: world.runner.tick, send: async () => ({ published: false }) }, statKey(params.get('course') ?? ''), courseHash(course), why));
+          body.querySelector('h2')?.after(publishStrip({ ticks: world.runner.tick, send: async () => ({ published: false }) }, listedKey() ?? '', courseHash(course), why));
         }
         if (ghostLine) body.querySelector('#report-ghost-slot')?.append(ghostLine);
         if (shareOn(params) && !botMode && !demo && !idealWhole && !params.get('mode')) {

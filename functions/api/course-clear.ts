@@ -9,13 +9,15 @@ import { nickOk, tidyNick } from '../../src/share/nick';
 import { playerCode } from '../_lib/player';
 import { board } from './leaderboard';
 import { json } from '../_lib/http';
+import { FIRST_COURSE_KEY, isBoardKey } from '../../src/share/board-courses';
+import firstCourse from '../../src/course/default-course.json';
 
 interface Stmt { bind(...v: unknown[]): { run(): Promise<unknown>; first<T>(): Promise<T | null> } }
 interface Env { DB: { prepare(sql: string): Stmt }; ASSETS: { fetch(url: string): Promise<Response> }; REPLAY?: string }
 
 const ID = /^[a-zA-Z0-9-]{8,64}$/;
-/** Only the listed courses count: the demo courses and the real places, named the way the course page names them. */
-export const KEY = /^(demo|experiments\/osm)\/[a-z0-9-]{1,60}$/;
+/** What a key must look like to be asked about at all (the board and the counters take the real places too); publishing is only for the listed courses (src/share/board-courses.ts). */
+export const KEY = /^(demo|experiments\/osm|default)\/[a-z0-9-]{1,60}$/;
 export const MAX_BODY = 8000;
 
 function fnv(text: string): string {
@@ -58,7 +60,7 @@ async function idealTicksOf(env: Env, url: string, key: string): Promise<number 
   } catch { return null; }
 }
 
-export const onRequestPost = async ({ request, env }: { request: Request; env: Env }): Promise<Response> => {
+async function handle({ request, env }: { request: Request; env: Env }): Promise<Response> {
   const raw = await request.text();
   if (raw.length > MAX_BODY) return json({ error: 'too long', reason: 'body-too-big' }, 413);
   let b: Record<string, unknown>;
@@ -75,9 +77,15 @@ export const onRequestPost = async ({ request, env }: { request: Request; env: E
   // and one address cannot make the server replay without end (it lives in one Worker's memory: it slows a flood, it does not stop one)
   const address = request.headers.get('cf-connecting-ip') ?? 'local';
   if (rateLimited(hits, address, Date.now())) { const r = slowDownReply(rateWaitSeconds(hits, address, Date.now())); return json(r.body, 429, r.headers); }
-  const res = await env.ASSETS.fetch(new URL(`/assets/${key}.course.json`, request.url).toString());
-  if (!res.ok) return json({ error: 'no such course', reason: 'no-course' }, 404);
-  const course = await res.json() as CourseData;
+  if (publish && !isBoardKey(key)) return json({ error: 'not a listed course', reason: 'not-listed' }, 422);
+  let course: CourseData;
+  if (key === FIRST_COURSE_KEY) course = firstCourse as unknown as CourseData; // the First Course lives in the source, not in public/
+  else {
+    const res = await env.ASSETS.fetch(new URL(`/assets/${key}.course.json`, request.url).toString());
+    if (!res.ok) return json({ error: 'no such course', reason: 'no-course' }, 404);
+    // Pages answers a file it does not have with the home page and a 200: that is "no such course" too, not a crash (a deployment without the file used to end in a 500 here)
+    try { course = await res.json() as CourseData; } catch { return json({ error: 'no such course', reason: 'no-course' }, 404); }
+  }
   if (courseHash(course) !== hash) return json({ error: 'course changed', reason: 'course-changed' }, 409);
   let log;
   try { log = await decodeLog(keys); } catch { return json({ error: 'bad keys', reason: 'bad-run' }, 400); }
@@ -120,4 +128,13 @@ export const onRequestPost = async ({ request, env }: { request: Request; env: E
   }
   if (publish) return json({ ...(await publishRun(env, 'run_id', runId, key, hash, nick, keys, session, v.ticks)), verified: true, beatsIdeal: beats });
   return json({ ok: true, verified: true, ticks: v.ticks, beatsIdeal: beats });
+}
+
+/** Whatever the handler did not expect becomes a short reason code in the log and in the reply, so the page can say what went wrong (never "try again in a minute" for everything). */
+export const onRequestPost = async (ctx: { request: Request; env: Env }): Promise<Response> => {
+  try { return await handle(ctx); } catch (e) {
+    const code = e instanceof RangeError ? 'run-too-big' : /D1_|SQLITE|database/i.test(String((e as Error)?.message)) ? 'db-error' : 'server-error';
+    console.error('course-clear failed', code);
+    return json({ error: 'server error', reason: 'server-error', code }, 500);
+  }
 };

@@ -5,11 +5,13 @@ import { nickOk, tidyNick } from '../share/nick';
 import { countdownLabel } from '../sim/slow-down';
 import { countdownButton } from './countdown';
 
-export interface BoardRow { id?: number; nick: string; ticks: number }
+export interface BoardRow { id?: number; nick: string; ticks: number; ts?: string }
 
 /** What the board card can do beyond showing times: open a row (View Run) and publish the run just finished (CC-108). */
 export interface BoardHooks {
   onView?: (row: BoardRow) => void;
+  onChase?: (row: BoardRow) => void; // Chase Ghost: race this run at once, no panel
+  onStats?: (row: BoardRow) => Promise<{ moves: number } | null>; // the run summary, played from the keys when a row is opened
   publish?: { ticks: number; send: (nick: string) => Promise<{ published: boolean; rank?: number | null; players?: number; nick?: string; why?: string; error?: string; retryAfter?: number }> };
 }
 
@@ -36,16 +38,31 @@ export function boardLines(rows: BoardRow[]): string[] {
 
 const MEDALS = ['🏆', '🥈', '🥉'], TINTS = ['#fff1b8', '#e9edf2', '#f5dcc4'], EDGES = ['#e0b000', '#9aa5b1', '#c27a3a'];
 /** The podium: a trophy and a colour for the first three, a number for the rest, your own row outlined and marked. */
-export function renderRows(list: HTMLElement, rows: BoardRow[], myRank: number | null = null, onView?: (row: BoardRow) => void): void {
+export function renderRows(list: HTMLElement, rows: BoardRow[], myRank: number | null = null, onView?: (row: BoardRow) => void, more: Pick<BoardHooks, 'onChase' | 'onStats'> = {}): void {
   list.replaceChildren(...rows.map((r, i) => {
     const row = document.createElement('div'), podium = i < 3;
     row.className = 'board-row'; row.dataset.rank = String(i + 1);
-    row.style.cssText = `display:flex;align-items:center;gap:8px;padding:${podium ? 5 : 3}px 8px;margin:3px 0;border-radius:8px;border:2px solid ${myRank === i + 1 ? '#1a6b3c' : podium ? EDGES[i] : 'transparent'};background:${podium ? TINTS[i] : '#f3f5f4'};font-weight:${podium ? 700 : 500}`;
+    row.style.cssText = `display:flex;flex-wrap:wrap;align-items:center;gap:8px;padding:${podium ? 5 : 3}px 8px;margin:3px 0;border-radius:8px;border:2px solid ${myRank === i + 1 ? '#1a6b3c' : podium ? EDGES[i] : 'transparent'};background:${podium ? TINTS[i] : '#f3f5f4'};font-weight:${podium ? 700 : 500}`;
     const badge = document.createElement('span'); badge.textContent = podium ? MEDALS[i] : String(i + 1); badge.style.cssText = `width:24px;text-align:center;font-size:${podium ? 20 : 12}px;color:#556`;
     const name = document.createElement('span'); name.textContent = (r.nick || 'Ninja') + (myRank === i + 1 ? ' (you)' : ''); name.style.cssText = 'flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap';
     const time = document.createElement('span'); time.textContent = secondsText(r.ticks); time.style.cssText = 'font-variant-numeric:tabular-nums;font-weight:800';
     row.append(badge, name, time);
+    const btnCss = 'font:600 11px system-ui,sans-serif;border:1px solid #556;border-radius:6px;background:#fff;padding:1px 6px;cursor:pointer';
+    // CC-108: a row opens to its stats (time, place, date and a summary of the keys); Chase Ghost is on every row that can be replayed
+    const detail = document.createElement('div'); detail.className = 'board-detail'; detail.style.cssText = 'flex-basis:100%;display:none;font-weight:500;font-size:12px;color:#33403a;padding:2px 4px 2px 32px';
+    const open = document.createElement('button'); open.type = 'button'; open.className = 'board-open'; open.textContent = '▸'; open.title = 'Show the stats of this run'; open.setAttribute('aria-expanded', 'false'); open.style.cssText = 'border:0;background:none;cursor:pointer;font-size:12px;padding:0 2px';
+    open.onclick = () => {
+      const on = detail.style.display === 'none'; detail.style.display = on ? 'block' : 'none'; open.textContent = on ? '▾' : '▸'; open.setAttribute('aria-expanded', String(on));
+      if (!on || detail.dataset.done) return;
+      detail.dataset.done = '1';
+      const base = [`Time ${secondsText(r.ticks)}`, `Rank #${i + 1}`, ...(r.ts ? [`Date ${r.ts.slice(0, 10)}`] : []), `Tag ${r.nick || 'Ninja'}`];
+      detail.textContent = base.join(' · ');
+      if (more.onStats && r.id) void more.onStats(r).then((st) => { if (st) detail.textContent = [...base, `${st.moves} moves`].join(' · '); });
+    };
+    badge.after(open);
+    if (more.onChase && r.id) { const c = document.createElement('button'); c.type = 'button'; c.className = 'board-chase'; c.textContent = 'Chase Ghost'; c.title = 'Race a see-through copy of this run'; c.style.cssText = btnCss; c.onclick = () => more.onChase!(r); row.append(c); }
     if (onView && r.id) { const v = document.createElement('button'); v.type = 'button'; v.className = 'board-view'; v.textContent = 'View Run'; v.title = 'See where this run went, and race it'; v.style.cssText = 'font:600 11px system-ui,sans-serif;border:1px solid #556;border-radius:6px;background:#fff;padding:1px 6px;cursor:pointer'; v.onclick = () => onView(r); row.append(v); }
+    row.append(detail);
     return row;
   }));
 }
@@ -123,7 +140,7 @@ export function boardBox(key: string, hash: string, me = '', hooks: BoardHooks =
   const box = document.createElement('div'); box.id = 'report-board';
   box.style.cssText = 'margin:.6em 0;padding:.5em .8em;border:1px solid #556;border-radius:6px;font-size:.9em';
   const tabs = document.createElement('div'); tabs.style.cssText = 'display:flex;gap:.4em;margin-bottom:.3em';
-  const list = document.createElement('div'); list.textContent = 'Loading…'; list.style.cssText = 'max-height:240px;overflow-y:auto'; // the top hundred scroll
+  const list = document.createElement('div'); list.textContent = 'Loading…'; list.style.cssText = 'max-height:320px;overflow-y:auto'; // the top hundred scroll
   const place = document.createElement('div'); place.id = 'report-place'; place.style.cssText = 'font-weight:800;color:#fff;background:linear-gradient(90deg,#1a6b3c,#2e9a5a);border-radius:999px;padding:3px 10px;margin-top:4px;display:inline-block';
   const clock = document.createElement('div'); clock.id = 'report-reset'; clock.style.cssText = 'color:#8a5a00;font-size:.85em';
   const champ = document.createElement('div'); champ.id = 'report-champ'; champ.style.cssText = 'color:#555;font-size:.85em';
@@ -133,7 +150,7 @@ export function boardBox(key: string, hash: string, me = '', hooks: BoardHooks =
     for (const b of tabs.children) (b as HTMLElement).style.fontWeight = (b as HTMLElement).dataset.win === win ? '700' : '400';
     void loadBoard(key, hash, win, me).then((d) => {
       data = d;
-      if (d.top.length) renderRows(list, d.top, d.mine?.rank ?? null, hooks.onView); else list.textContent = ''; // the place line below already invites
+      if (d.top.length) renderRows(list, d.top, d.mine?.rank ?? null, hooks.onView, hooks); else list.textContent = ''; // the place line below already invites
       place.textContent = placeText(d); clock.textContent = resetText(d.resetAt);
       champ.textContent = d.previous ? `${win === 'day' ? 'Yesterday' : 'Last week'}'s champion: ${d.previous.nick || '···'} ${secondsText(d.previous.ticks)}` : '';
     });
@@ -149,7 +166,7 @@ export function boardBox(key: string, hash: string, me = '', hooks: BoardHooks =
     const p = (e as CustomEvent<Published>).detail, d = data ?? { top: [], players: 0, mine: null, resetAt: null, previous: null };
     const rest = d.top.filter((_, i) => i + 1 !== d.mine?.rank), top = [...rest, { nick: p.nick, ticks: p.ticks }].sort((x, y) => x.ticks - y.ticks).slice(0, 100);
     const rank = p.rank ?? top.findIndex((r) => r.ticks === p.ticks && r.nick === p.nick) + 1;
-    renderRows(list, top, rank, hooks.onView); place.textContent = placeText({ ...d, mine: { rank, ticks: p.ticks }, players: p.players ?? d.players + (d.mine ? 0 : 1) });
+    renderRows(list, top, rank, hooks.onView, hooks); place.textContent = placeText({ ...d, mine: { rank, ticks: p.ticks }, players: p.players ?? d.players + (d.mine ? 0 : 1) });
     show(shown);
   };
   document.addEventListener(PUBLISHED_EVENT, onPublished);
@@ -162,7 +179,7 @@ export function boardBox(key: string, hash: string, me = '', hooks: BoardHooks =
 /** The board on the Course itself: a small card on the right, under the buttons, open from the start, that folds to a pill so it never covers the run. */
 export function boardCorner(key: string, hash: string, me = '', hooks: BoardHooks = {}): HTMLElement {
   const card = document.createElement('div'); card.id = 'board-corner';
-  card.style.cssText = 'position:fixed;right:16px;top:284px;z-index:30;width:250px;background:#fffffff2;border:1px solid #cfd6d0;border-radius:12px;box-shadow:0 4px 16px #0003;font:500 13px system-ui,sans-serif;color:#17201d';
+  card.style.cssText = 'position:fixed;right:16px;top:284px;z-index:30;width:320px;background:#fffffff2;border:1px solid #cfd6d0;border-radius:12px;box-shadow:0 4px 16px #0003;font:500 13px system-ui,sans-serif;color:#17201d';
   const toggle = document.createElement('button'); toggle.type = 'button'; toggle.id = 'board-toggle';
   toggle.style.cssText = 'width:100%;text-align:left;border:0;background:transparent;font:700 14px system-ui,sans-serif;padding:8px 12px;cursor:pointer';
   const makeBody = (): HTMLElement => { const b = boardBox(key, hash, me, hooks); b.style.margin = '0'; b.style.border = '0'; b.style.padding = '0 12px 10px'; (b.firstElementChild as HTMLElement).style.display = 'none'; return b; }; // the pill is the title

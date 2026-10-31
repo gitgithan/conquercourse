@@ -132,7 +132,19 @@
   - The server plays the keys again before it publishes; the reply says the place ("Published as ABC, #4 of 37").
   - One published run per player per course version: a faster publish replaces the slower one.
   - The board lists the top hundred and scrolls; the Course page also shows a quiet news line with the newest published run (`GET /api/leaderboard?recent=1`).
-  - View Run on a row (`GET /api/leaderboard-run?id=`) plays that run at once and draws its path like the end report; Race Ghost loads it as the ghost to chase.
+  - View Run on a row (`GET /api/leaderboard-run?id=`) plays that run at once and draws its path like the end report; Chase Ghost loads it as the ghost to chase.
+  - **Listed courses (2026-10-31):** only four courses can be published, from one list in `src/share/board-courses.ts`.
+    - They are the First Course, the Training Course, Cannonballs and Two ways.
+    - The server, the Course page and the Courses cards all read that list.
+    - The First Course lives in the source, so its board key is `default/first` and the server plays it from the bundled file.
+    - The First Course with the timed balls is another course, so it has no board.
+    - Any other course answers "Only runs on the listed courses can be published." (reason `not-listed`).
+  - **Top 100 per course:** each row shows its place, tag and time, and opens to its stats.
+    - The stats are the time, the place, the date, the tag and the number of moves, counted from the keys when the row is opened.
+    - Chase Ghost is on every row; View Run stays next to it.
+    - Each listed card on the Courses screen has a Leaderboard link that opens the course with its board.
+  - **Server errors:** an error the server did not expect now answers with a short reason code (`replay-failed`, `server-error`) and the page shows a specific line, never the vague one.
+  - Tests: `tests/board-courses.test.ts` (one per listed course: publish, rank, replay on a local SQLite stand-in); check: `scripts/board-top100-check.mjs`.
   - Evidence: `docs/evidence/cc-108-view-run.png`, `docs/evidence/cc-108-publish.png`; check: `scripts/board-publish-check.mjs`.
   - Storage: a published run is about a kilobyte of keys, so even 100,000 of them is about 100 MB against the 5 GB of the free D1 tier.
 - **What:** a best-time list for each course, and a daily challenge course made from a seed by the generator.
