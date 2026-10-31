@@ -27,7 +27,7 @@ describe('a link for a try that fell (CC-181)', () => {
     expect(o.ok).toBe(true);
     if (!o.ok) return;
     expect(o.kind).toBe('fell');
-    expect(o.nick).toBe('AMY');
+    expect(o.nick).toBe('amy');
     expect(o.track.cleared).toBe(false);
     expect(o.track.ticks).toBe(verifyLog(course, fell).ticks);
   });
