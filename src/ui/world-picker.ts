@@ -5,7 +5,7 @@ export const DEMO_GROUPS: [string, Demo[]][] = [
   ['Start here', [
     ['', 'First course: the basics', 'Run, jump and land the first few obstacles. The gentlest place to begin.'],
     ['/assets/demo/training.course.json', 'Training course: every move', 'A gap jump, a vault, the lache bars, a rope, a climb, a trampoline and a rolled drop in one run. The best line is faster than the obvious one.'],
-    ['/assets/demo/cannonballs.course.json', 'Cannonballs: slip between the shots', 'Three launchers fire a ball every 30 seconds. Run too early or too late and one finds you, so time your run to slip between them.'],
+    ['/assets/demo/cannonballs.course.json', 'Cannonballs: slip between the shots', 'Cannons fire a ball every 12 seconds and show it filling up. Jump the low ones, slide under the high ones, and climb the wall to wait out a double shot.'],
     ['/assets/demo/two-ways.course.json', 'Two ways: swing high or drop low', 'The course splits once. Swing over a gap on two bars, or drop to a deep floor and climb back up. Both ways are proved to work; the better one depends on how you run.'],
   ]],
   ['Real places', [
