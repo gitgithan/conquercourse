@@ -64,6 +64,20 @@ export function statsLine(n: CourseNumbers | undefined): string | null {
   return parts.join(', ');
 }
 
+export interface StatChip { key: 'today' | 'plays' | 'clears' | 'best' | 'typical' | 'falls' | 'none'; icon: string; value: string; label: string; tip: string }
+/** Every number the server sends for a card, in one fixed order: today, all time, cleared, best, typical, falls. A chip is left out only when its number is missing; a course nobody has played gets the one friendly chip. */
+export function statChips(n: CourseNumbers | undefined): StatChip[] {
+  if (!n || (n.plays <= 0 && n.clears <= 0)) return [{ key: 'none', icon: '\u2728', value: 'No plays yet', label: 'be the first', tip: 'Nobody has run this course yet' }];
+  const chips: StatChip[] = [];
+  if (n.today !== undefined) chips.push({ key: 'today', icon: '\u{1F525}', value: thousands(n.today), label: 'today', tip: 'Runs started today (since midnight UTC)' });
+  chips.push({ key: 'plays', icon: '\u25B6', value: thousands(n.plays), label: 'all time', tip: 'Runs started, ever (a rough count)' });
+  chips.push({ key: 'clears', icon: '\u2705', value: thousands(n.clears), label: 'cleared', tip: 'Runs that reached the end and were played again by the server to check' });
+  if (n.best !== null && n.clears > 0) chips.push({ key: 'best', icon: '\u23F1', value: secondsText(n.best), label: 'best', tip: 'The fastest checked clear' });
+  if (n.median !== null && n.clears > 0) chips.push({ key: 'typical', icon: '\u{1F4CA}', value: secondsText(n.median), label: 'typical', tip: 'The middle clear time: half of the clears were faster' });
+  chips.push({ key: 'falls', icon: '\u{1F4A5}', value: thousands(n.fails), label: 'falls', tip: 'Runs that ended in a fall or a hit' });
+  return chips;
+}
+
 export interface CardStat { value: string; key: string; rank: number; groupSize: number }
 /** Cards of one group, easiest first. Ties keep the menu order, so a group with no data stays as the designer set it. */
 export function orderByDifficulty(cards: CardStat[], stats: Record<string, CourseNumbers>, meta: Record<string, CourseMeta>): CardStat[] {
@@ -92,14 +106,23 @@ export function applyStats(root: HTMLElement, data: StatsData): void {
       const card = cards[it.rank], n = data.stats[it.key];
       const d = difficulty(n, data.meta[it.key], priorScore(it.rank, it.groupSize));
       card.querySelector('.wg-stats')?.remove();
-      const line = statsLine(n) ?? (data.meta[it.key] ? 'No plays yet' : null), dots = d.fromData ? dotsOf(d.score) : 0;
-      if (!line && !dots) continue;
+      const chips = n || data.meta[it.key] ? statChips(n) : [], dots = d.fromData ? dotsOf(d.score) : 0;
+      if (!chips.length && !dots) continue;
       const box = document.createElement('span'); box.className = 'wg-stats';
       if (dots) {
         const e = document.createElement('i'); e.className = 'wg-dots'; e.setAttribute('aria-label', `Difficulty: ${DIFFICULTY_WORDS[dots]}`); e.title = DIFFICULTY_WORDS[dots];
         e.textContent = `${'●'.repeat(dots)}${'○'.repeat(4 - dots)} ${DIFFICULTY_WORDS[dots]}`; box.append(e);
       }
-      if (line) { const t = document.createElement('em'); t.textContent = line; box.append(t); }
+      if (chips.length) {
+        const row = document.createElement('span'); row.className = 'wg-chips';
+        for (const c of chips) {
+          const b = document.createElement('span'); b.className = `wg-chip wg-chip-${c.key}`; b.title = c.tip;
+          const v = document.createElement('strong'); v.textContent = `${c.icon} ${c.value}`;
+          const l = document.createElement('small'); l.textContent = c.label;
+          b.append(v, l); row.append(b);
+        }
+        box.append(row);
+      }
       card.querySelector('.wg-txt')?.append(box);
     }
     if (items.length < 2) continue;

@@ -8,7 +8,7 @@ import { mkdirSync, writeFileSync } from 'node:fs';
 const port = Number(process.env.PORT ?? 5931), out = process.env.OUT ?? 'test-results/stats';
 mkdirSync(out, { recursive: true });
 const vite = spawn('node', ['node_modules/vite/bin/vite.js', '--port', String(port), '--strictPort'], { stdio: 'ignore' });
-await new Promise((r) => setTimeout(r, 6000));
+await new Promise((r) => setTimeout(r, 12000));
 const results = []; const ok = (n, p, note = '') => { results.push({ name: n, pass: !!p, note }); console.log(p ? 'PASS' : 'FAIL', n, note); };
 const flags = ['--use-gl=swiftshader', '--enable-unsafe-swiftshader', '--no-sandbox'];
 const b = await chromium.launch({ args: flags });
@@ -26,7 +26,7 @@ const open = async (w, h, query, answer) => {
   await page.route('**/api/course-stats', (route) => answer === 'error' ? route.fulfill({ status: 500, body: 'no' }) : route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify(answer ?? SEEDED) }));
   await page.addInitScript(() => { try { localStorage.setItem('cc.worldWelcome.seen', '1'); localStorage.setItem('cc.music', '0'); } catch {} });
   await page.goto(`http://localhost:${port}/?course=/assets/demo/training.course.json&welcome=0&tour=0${query}`, { waitUntil: 'load' });
-  await page.click('#courses-btn');
+  await page.click('#sitenav [data-feature="courses"]');
   await page.waitForSelector('#world-gallery .wg-card');
   await page.waitForTimeout(1200);
   return { page, asked };
@@ -37,10 +37,10 @@ const lines = (page) => page.evaluate(() => [...document.querySelectorAll('#worl
 for (const [w, h, tag] of [[1280, 720, 'desktop'], [390, 800, 'phone']]) {
   const { page } = await open(w, h, '');
   const real = await titles(page, 'Real places');
-  ok(`${tag}: Real places are ordered by difficulty from the seeded numbers`, real.join('|') === 'Barcelona block|Montmartre, Paris|Sydney quay|San Francisco hill (62 m of hill)', real.join(' | '));
+  ok(`${tag}: Real places are ordered by difficulty from the seeded numbers`, real.join('|') === 'Barcelona block|Montmartre, Paris|Sydney quay|San Francisco hill (62 m of hill)|World Slicer', real.join(' | '));
   const l = await lines(page);
-  ok(`${tag}: a card says plays, cleared and best time in plain words`, l.some((x) => /1,204 plays, 311 cleared, best 41\.2 s/.test(x)), l.join(' || '));
-  ok(`${tag}: a course with only plays says only plays`, l.some((x) => /^3 plays$/.test(x.replace(/[●○]/g, '').trim())), l.join(' || '));
+  ok(`${tag}: a card shows plays, cleared and best time as chips`, l.some((x) => /1,204\s*all time.*311\s*cleared.*41\.2 s\s*best/is.test(x)), l.join(' || '));
+  ok(`${tag}: a course with only plays has no best-time chip`, l.some((x) => /3\s*all time/i.test(x) && !/best/i.test(x)), l.join(' || '));
   ok(`${tag}: no word about people anywhere`, !/people|players|person/i.test(l.join(' ')));
   ok(`${tag}: the dots have a word for screen readers`, await page.evaluate(() => [...document.querySelectorAll('.wg-dots')].every((e) => /^Difficulty: (Easy|Medium|Hard|Very hard)$/.test(e.getAttribute('aria-label')))));
   const cut = await page.evaluate(() => [...document.querySelectorAll('#world-gallery .wg-card')].filter((c) => c.scrollWidth > c.clientWidth + 1).length);
@@ -51,7 +51,7 @@ for (const [w, h, tag] of [[1280, 720, 'desktop'], [390, 800, 'phone']]) {
 }
 { // nothing known: the menu order and no numbers
   const { page } = await open(1280, 720, '', { courses: {} });
-  ok('no data: menu order, no numbers and no dots', (await titles(page, 'Real places'))[0] === 'Montmartre, Paris' && (await lines(page)).length === 0);
+  ok('no data: menu order, only the friendly No plays yet chip, no dots', (await titles(page, 'Real places'))[0] === 'Montmartre, Paris' && (await lines(page)).every((x) => /no plays yet/i.test(x)) && (await page.locator('.wg-dots').count()) === 0);
   await page.screenshot({ path: `${out}/cards-no-data.png` }); await page.close();
 }
 { const { page } = await open(1280, 720, '', 'error'); ok('server error: menu order, no numbers, no crash', (await titles(page, 'Real places'))[0] === 'Montmartre, Paris' && (await lines(page)).length === 0); await page.close(); }
