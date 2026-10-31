@@ -1,0 +1,64 @@
+{
+  "place": "galata-istanbul",
+  "name": "Galata, Istanbul",
+  "generated": "2026-10-31",
+  "source": "Mapillary contributors, CC BY-SA 4.0; photos with a person detected (Faster R-CNN, of any size) are left out",
+  "photos": [
+    {
+      "id": "1646653578877938",
+      "creator": "elgaard",
+      "capturedAt": 1449326629474,
+      "lat": 41.025597,
+      "lon": 28.97626,
+      "compass": 222.6
+    },
+    {
+      "id": "311860587001922",
+      "creator": "mapfool",
+      "capturedAt": 1528044853729,
+      "lat": 41.024831,
+      "lon": 28.975722,
+      "compass": 279.3
+    },
+    {
+      "id": "320183969695719",
+      "creator": "elgaard",
+      "capturedAt": 1449326638754,
+      "lat": 41.025525,
+      "lon": 28.976144,
+      "compass": 223.9
+    },
+    {
+      "id": "326669115517875",
+      "creator": "chrisbeddow",
+      "capturedAt": 1546440582000,
+      "lat": 41.024867,
+      "lon": 28.97512,
+      "compass": 85.7
+    },
+    {
+      "id": "499471014830310",
+      "creator": "myusufuyan",
+      "capturedAt": 1561883166224,
+      "lat": 41.025583,
+      "lon": 28.976138,
+      "compass": 41.8
+    },
+    {
+      "id": "796526277659019",
+      "creator": "mapfool",
+      "capturedAt": 1528044871188,
+      "lat": 41.024862,
+      "lon": 28.975573,
+      "compass": 303.5
+    },
+    {
+      "id": "938017780328283",
+      "creator": "ferhat6155",
+      "capturedAt": 1582705731659,
+      "lat": 41.025344,
+      "lon": 28.975395,
+      "compass": 83.6
+    }
+  ]
+}

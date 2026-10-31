@@ -229,6 +229,15 @@
   - What they hold: the Overpass answer, ground heights and the best lane for Piazza San Marco, Plaza Mayor, Place des Vosges, Trafalgar Square, Covent Garden, Washington Square, Union Square, Old Town Square, Piazza Navona, Nyhavn and Boston Common
   - Source: the Overpass and AWS Terrain Tiles sources above, fetched 2026-10-29
   - Licence: © OpenStreetMap contributors, ODbL 1.0; terrain as above
+- **Eighteen new Ready places** (`public/assets/places/*.json` and `tiles/*.svg`, CC-90)
+  - What they hold: the Overpass answer, ground heights and the best lane for Jordaan, Stephansplatz, Grand-Place, Krakow Main Square, Castle Hill Budapest, Gamla Stan, Temple Bar, Plaka, Stradun, Galata, Gastown, Zocalo, Caminito, Bukchon, Senate Square, Tallinn Old Town, Bo-Kaap and Bryggen
+  - Source: built with `scripts/make-places.ts` from the Overpass and AWS Terrain Tiles sources above, fetched 2026-11-01
+  - Licence: (c) OpenStreetMap contributors, ODbL 1.0; terrain as above
+  - Only the places named in `index.json` with `listed: true` show in the list; the others stay as files
+- **Lane photo counts** (`data/eval/cc-90-photolanes/`)
+  - What it holds: counts of photos facing each lane before and after the person filter, no pictures
+  - Source: Mapillary Graph API, 2026-11-01, `scripts/photos_lane_audit.py`
+  - Licence: counts only
 - **Mapillary counts** (`data/eval/cc-178-places/audit-stored.json`)
   - What it holds: only counts of photos near each lane, no pictures and no photo ids
   - Source: Mapillary Graph API, bbox search, fetched 2026-10-29 with the project token (kept outside the repo)
@@ -395,7 +404,7 @@
 ## Live street photos (CC-90)
 | File | What | Made from | Licence | Made with |
 |---|---|---|---|---|
-| `public/assets/photos-live/<place>.json` (edinburgh-old-town, montmartre-paris, eixample-barcelona) | the allow-list of street photos with no person detected, one list per place: photo id, creator, position and camera direction only (no picture bytes, no picture addresses) | Mapillary images near the place's lane, found through the Graph API v4 on 2026-10-29, kept only when the person detector found nobody | the pictures stay on Mapillary's servers and are shown by address with the creator's name, "Mapillary" and the licence CC BY-SA 4.0 on screen; the list itself is data we made | `scripts/photos_people.py` (torchvision Faster R-CNN ResNet-50 FPN, COCO weights: code BSD-3-Clause, labels CC BY 4.0) |
+| `public/assets/photos-live/<place>.json` (15 listed places plus montmartre-paris and eixample-barcelona: edinburgh-old-town, dolores-park-san-francisco, caminito-buenos-aires, bukchon-seoul, parc-guell-barcelona, alfama-lisbon, stephansplatz-vienna, galata-istanbul, plaka-athens, bryggen-bergen, gamla-stan-stockholm, speicherstadt-hamburg, temple-bar-dublin, main-square-krakow, castle-hill-budapest) | the allow-list of street photos with no person detected, one list per place: photo id, creator, position and camera direction only (no picture bytes, no picture addresses) | Mapillary images near the place's lane, found through the Graph API v4 on 2026-10-29 and 2026-11-01, kept only when the person detector found nobody | the pictures stay on Mapillary's servers and are shown by address with the creator's name, "Mapillary" and the licence CC BY-SA 4.0 on screen; the list itself is data we made | `scripts/photos_people.py` (torchvision Faster R-CNN ResNet-50 FPN, COCO weights: code BSD-3-Clause, labels CC BY 4.0) |
 | `data/eval/cc-90-photos/live/<place>-kept-sheet.jpg` | up to eight kept photos at 256 px, to check by eye that no person got through (evidence only; not used by the game) | the same Mapillary images | CC BY-SA 4.0 (Mapillary), credit to the creators; faces and plates blurred by Mapillary | `scripts/photos_people.py` |
 | `data/eval/cc-120-safety-real/safe-controls-sheet.jpg` | contact sheet of 10 plainly safe control pictures at 170 px (evidence for CC-120; not used by the game) | our own park photos and app screens from `public/assets/`, 2026-10-31 | ours | `scripts/cc120-safety-synthetic.py` |
 | `data/eval/cc-120-safety-real/art-anatomy-sheet.jpg` | contact sheet of 5 classical art pictures and 4 Gray's Anatomy plates at 170 px, the false-positive checks (evidence for CC-120; not used by the game) | Wikimedia Commons, downloaded 2026-10-31; titles, links and licences are in `data/eval/cc-120-safety-real/commons-sources.json` | public domain and CC BY 2.0 (credit to the creators in that file) | `scripts/cc120-safety-sources.py` |

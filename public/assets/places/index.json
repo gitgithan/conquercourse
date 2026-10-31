@@ -10,8 +10,10 @@
     "bytes": 86412,
     "blurb": "A hill of stairs and narrow streets.",
     "path": true,
-    "photos": 109,
-    "listed": true
+    "photos": 122,
+    "listed": false,
+    "live": true,
+    "country": "France"
   },
   {
     "slug": "eixample-barcelona",
@@ -24,8 +26,10 @@
     "bytes": 90879,
     "blurb": "A grid of tall blocks with cut corners.",
     "path": true,
-    "photos": 116,
-    "listed": true
+    "photos": 131,
+    "listed": false,
+    "live": true,
+    "country": "Spain"
   },
   {
     "slug": "circular-quay-sydney",
@@ -38,8 +42,10 @@
     "bytes": 43678,
     "blurb": "A harbour edge that climbs to the Rocks.",
     "path": true,
-    "photos": 4,
-    "listed": false
+    "photos": 44,
+    "listed": false,
+    "live": false,
+    "country": "Australia"
   },
   {
     "slug": "lombard-street-san-francisco",
@@ -53,7 +59,9 @@
     "blurb": "The steepest block of the crooked street.",
     "path": true,
     "photos": 30,
-    "listed": true
+    "listed": false,
+    "live": false,
+    "country": "United States"
   },
   {
     "slug": "shibuya-tokyo",
@@ -67,7 +75,9 @@
     "blurb": "Tall, packed blocks around the big crossing.",
     "path": true,
     "photos": 443,
-    "listed": true
+    "listed": false,
+    "live": false,
+    "country": "Japan"
   },
   {
     "slug": "ciutadella-barcelona",
@@ -80,8 +90,10 @@
     "bytes": 11049,
     "blurb": "A flat park with a few low halls.",
     "path": true,
-    "photos": 169,
-    "listed": true
+    "photos": 221,
+    "listed": false,
+    "live": false,
+    "country": "Spain"
   },
   {
     "slug": "edinburgh-old-town",
@@ -94,8 +106,10 @@
     "bytes": 123439,
     "blurb": "A ridge of stone houses falling away on both sides.",
     "path": true,
-    "photos": 204,
-    "listed": true
+    "photos": 304,
+    "listed": true,
+    "live": true,
+    "country": "United Kingdom"
   },
   {
     "slug": "positano-italy",
@@ -108,8 +122,10 @@
     "bytes": 92251,
     "blurb": "A hill town stacked down to the sea.",
     "path": true,
-    "photos": 214,
-    "listed": true
+    "photos": 420,
+    "listed": false,
+    "live": false,
+    "country": "Italy"
   },
   {
     "slug": "valletta-harbour-malta",
@@ -123,7 +139,9 @@
     "blurb": "Fort walls and harbour steps.",
     "path": true,
     "photos": 47,
-    "listed": true
+    "listed": false,
+    "live": false,
+    "country": "Malta"
   },
   {
     "slug": "speicherstadt-hamburg",
@@ -136,8 +154,10 @@
     "bytes": 18930,
     "blurb": "Brick warehouses along the canals.",
     "path": true,
-    "photos": 59,
-    "listed": true
+    "photos": 522,
+    "listed": true,
+    "live": true,
+    "country": "Germany"
   },
   {
     "slug": "alfama-lisbon",
@@ -150,8 +170,10 @@
     "bytes": 213960,
     "blurb": "A steep old quarter of narrow lanes.",
     "path": true,
-    "photos": 298,
-    "listed": true
+    "photos": 410,
+    "listed": true,
+    "live": true,
+    "country": "Portugal"
   },
   {
     "slug": "spanish-steps-rome",
@@ -164,8 +186,10 @@
     "bytes": 46361,
     "blurb": "A wide staircase between old palaces.",
     "path": true,
-    "photos": 82,
-    "listed": true
+    "photos": 112,
+    "listed": false,
+    "live": false,
+    "country": "Italy"
   },
   {
     "slug": "parc-guell-barcelona",
@@ -178,8 +202,10 @@
     "bytes": 30195,
     "blurb": "A hill park of curved walls, stairs and the long bench.",
     "path": true,
-    "photos": 118,
-    "listed": true
+    "photos": 198,
+    "listed": true,
+    "live": true,
+    "country": "Spain"
   },
   {
     "slug": "tuileries-paris",
@@ -189,11 +215,13 @@
     "radius": 150,
     "hill_m": 17,
     "buildings": 5,
-    "bytes": 11571,
+    "bytes": 11570,
     "blurb": "Gravel paths, terrace walls and rows of chairs.",
     "path": true,
     "photos": 39,
-    "listed": true
+    "listed": false,
+    "live": false,
+    "country": "France"
   },
   {
     "slug": "retiro-park-madrid",
@@ -206,8 +234,10 @@
     "bytes": 11782,
     "blurb": "A glass palace by a lake, with railings and steps.",
     "path": true,
-    "photos": 46,
-    "listed": true
+    "photos": 51,
+    "listed": false,
+    "live": false,
+    "country": "Spain"
   },
   {
     "slug": "bryant-park-new-york",
@@ -217,11 +247,13 @@
     "radius": 120,
     "hill_m": 3,
     "buildings": 21,
-    "bytes": 28123,
+    "bytes": 28129,
     "blurb": "A lawn and benches boxed in by tall blocks.",
     "path": true,
-    "photos": 18,
-    "listed": false
+    "photos": 73,
+    "listed": false,
+    "live": false,
+    "country": "United States"
   },
   {
     "slug": "gas-works-park-seattle",
@@ -231,11 +263,13 @@
     "radius": 150,
     "hill_m": 16,
     "buildings": 27,
-    "bytes": 42701,
+    "bytes": 42428,
     "blurb": "A grassy hill with old iron towers and rails.",
     "path": true,
     "photos": 46,
-    "listed": true
+    "listed": false,
+    "live": false,
+    "country": "United States"
   },
   {
     "slug": "dolores-park-san-francisco",
@@ -249,7 +283,9 @@
     "blurb": "A steep lawn with palm-lined paths and walls.",
     "path": true,
     "photos": 181,
-    "listed": true
+    "listed": true,
+    "live": true,
+    "country": "United States"
   },
   {
     "slug": "piazza-san-marco-venice",
@@ -262,8 +298,10 @@
     "bytes": 104157,
     "blurb": "A huge square of arcades and a bell tower beside the lagoon.",
     "path": true,
-    "photos": 101,
-    "listed": true
+    "photos": 338,
+    "listed": false,
+    "live": false,
+    "country": "Italy"
   },
   {
     "slug": "plaza-mayor-madrid",
@@ -276,8 +314,10 @@
     "bytes": 155533,
     "blurb": "A closed square of red arcades with arched gates.",
     "path": true,
-    "photos": 58,
-    "listed": true
+    "photos": 75,
+    "listed": false,
+    "live": false,
+    "country": "Spain"
   },
   {
     "slug": "place-des-vosges-paris",
@@ -291,7 +331,9 @@
     "blurb": "A square park ringed by brick houses and arcades.",
     "path": true,
     "photos": 10,
-    "listed": false
+    "listed": false,
+    "live": false,
+    "country": "France"
   },
   {
     "slug": "trafalgar-square-london",
@@ -305,7 +347,9 @@
     "blurb": "Steps, fountains and a column in front of the gallery.",
     "path": true,
     "photos": 229,
-    "listed": true
+    "listed": false,
+    "live": false,
+    "country": "United Kingdom"
   },
   {
     "slug": "covent-garden-london",
@@ -319,7 +363,9 @@
     "blurb": "A covered market hall and the streets around it.",
     "path": true,
     "photos": 270,
-    "listed": true
+    "listed": false,
+    "live": false,
+    "country": "United Kingdom"
   },
   {
     "slug": "washington-square-new-york",
@@ -332,8 +378,10 @@
     "bytes": 23256,
     "blurb": "A park with a fountain and an arch, walled in by townhouses.",
     "path": true,
-    "photos": 665,
-    "listed": true
+    "photos": 1049,
+    "listed": false,
+    "live": false,
+    "country": "United States"
   },
   {
     "slug": "union-square-san-francisco",
@@ -347,7 +395,9 @@
     "blurb": "A plaza with stairs, ringed by tall shops.",
     "path": true,
     "photos": 973,
-    "listed": true
+    "listed": false,
+    "live": false,
+    "country": "United States"
   },
   {
     "slug": "old-town-square-prague",
@@ -361,7 +411,9 @@
     "blurb": "A cobbled square of towers and painted houses.",
     "path": true,
     "photos": 90,
-    "listed": true
+    "listed": false,
+    "live": false,
+    "country": "Czechia"
   },
   {
     "slug": "piazza-navona-rome",
@@ -375,7 +427,9 @@
     "blurb": "A long oval square of fountains and palaces.",
     "path": true,
     "photos": 139,
-    "listed": true
+    "listed": false,
+    "live": false,
+    "country": "Italy"
   },
   {
     "slug": "nyhavn-copenhagen",
@@ -388,8 +442,10 @@
     "bytes": 120427,
     "blurb": "A canal lined with narrow coloured houses.",
     "path": true,
-    "photos": 257,
-    "listed": true
+    "photos": 511,
+    "listed": false,
+    "live": false,
+    "country": "Denmark"
   },
   {
     "slug": "boston-common-beacon-hill",
@@ -402,7 +458,297 @@
     "bytes": 36557,
     "blurb": "Brick rows climbing from the oldest park in the country.",
     "path": true,
-    "photos": 107,
+    "photos": 254,
+    "listed": false,
+    "live": false,
+    "country": "United States"
+  },
+  {
+    "slug": "jordaan-amsterdam",
+    "name": "Jordaan canals, Amsterdam",
+    "lat": 52.3745,
+    "lon": 4.883,
+    "radius": 120,
+    "hill_m": 5,
+    "buildings": 215,
+    "bytes": 215805,
+    "blurb": "Narrow canals with bridges and leaning brick houses.",
+    "path": true,
+    "photos": 74,
+    "live": false,
+    "country": "Netherlands",
+    "listed": false
+  },
+  {
+    "slug": "stephansplatz-vienna",
+    "name": "Stephansplatz, Vienna",
+    "lat": 48.2085,
+    "lon": 16.3731,
+    "radius": 120,
+    "hill_m": 3,
+    "buildings": 27,
+    "bytes": 66566,
+    "blurb": "A cathedral square ringed by old palaces and shops.",
+    "path": true,
+    "photos": 265,
+    "live": true,
+    "country": "Austria",
+    "listed": true
+  },
+  {
+    "slug": "grand-place-brussels",
+    "name": "Grand Place, Brussels",
+    "lat": 50.8467,
+    "lon": 4.3525,
+    "radius": 120,
+    "hill_m": 8,
+    "buildings": 274,
+    "bytes": 283824,
+    "blurb": "A cobbled square of guild houses and a tall town hall.",
+    "path": true,
+    "photos": 156,
+    "live": false,
+    "country": "Belgium",
+    "listed": false
+  },
+  {
+    "slug": "main-square-krakow",
+    "name": "Main Square, Krakow",
+    "lat": 50.0617,
+    "lon": 19.9373,
+    "radius": 120,
+    "hill_m": 5,
+    "buildings": 32,
+    "bytes": 98123,
+    "blurb": "One of the largest old squares in Europe, with a cloth hall.",
+    "path": true,
+    "photos": 367,
+    "live": true,
+    "country": "Poland",
+    "listed": true
+  },
+  {
+    "slug": "castle-hill-budapest",
+    "name": "Castle Hill, Budapest",
+    "lat": 47.5019,
+    "lon": 19.034,
+    "radius": 120,
+    "hill_m": 32,
+    "buildings": 15,
+    "bytes": 23204,
+    "blurb": "A hill of palace walls, terraces and steps above the river.",
+    "path": true,
+    "photos": 245,
+    "live": true,
+    "country": "Hungary",
+    "listed": true
+  },
+  {
+    "slug": "gamla-stan-stockholm",
+    "name": "Gamla Stan, Stockholm",
+    "lat": 59.3251,
+    "lon": 18.0711,
+    "radius": 120,
+    "hill_m": 9,
+    "buildings": 141,
+    "bytes": 142635,
+    "blurb": "A tiny island of narrow lanes and tall painted houses.",
+    "path": true,
+    "photos": 92,
+    "live": true,
+    "country": "Sweden",
+    "listed": true
+  },
+  {
+    "slug": "temple-bar-dublin",
+    "name": "Temple Bar, Dublin",
+    "lat": 53.3454,
+    "lon": -6.2644,
+    "radius": 120,
+    "hill_m": 14,
+    "buildings": 119,
+    "bytes": 99777,
+    "blurb": "Cobbled lanes between brick pubs and shops.",
+    "path": true,
+    "photos": 128,
+    "live": true,
+    "country": "Ireland",
+    "listed": true
+  },
+  {
+    "slug": "plaka-athens",
+    "name": "Plaka, Athens",
+    "lat": 37.9733,
+    "lon": 23.73,
+    "radius": 120,
+    "hill_m": 36,
+    "buildings": 170,
+    "bytes": 160511,
+    "blurb": "Stepped lanes under the rock of the Acropolis.",
+    "path": true,
+    "photos": 69,
+    "live": true,
+    "country": "Greece",
+    "listed": true
+  },
+  {
+    "slug": "stradun-dubrovnik",
+    "name": "Stradun, Dubrovnik",
+    "lat": 42.641,
+    "lon": 18.11,
+    "radius": 120,
+    "hill_m": 31,
+    "buildings": 121,
+    "bytes": 101091,
+    "blurb": "A stone main street inside tall sea walls.",
+    "path": true,
+    "photos": 502,
+    "live": false,
+    "country": "Croatia",
+    "listed": false
+  },
+  {
+    "slug": "galata-istanbul",
+    "name": "Galata, Istanbul",
+    "lat": 41.0256,
+    "lon": 28.9744,
+    "radius": 120,
+    "hill_m": 44,
+    "buildings": 133,
+    "bytes": 98606,
+    "blurb": "A steep hill of narrow streets around an old tower.",
+    "path": true,
+    "photos": 237,
+    "live": true,
+    "country": "Turkey",
+    "listed": true
+  },
+  {
+    "slug": "gastown-vancouver",
+    "name": "Gastown, Vancouver",
+    "lat": 49.2841,
+    "lon": -123.1087,
+    "radius": 120,
+    "hill_m": 13,
+    "buildings": 41,
+    "bytes": 40502,
+    "blurb": "Old brick warehouses along a cobbled street.",
+    "path": true,
+    "photos": 78,
+    "live": false,
+    "country": "Canada",
+    "listed": false
+  },
+  {
+    "slug": "zocalo-mexico-city",
+    "name": "Zocalo, Mexico City",
+    "lat": 19.4326,
+    "lon": -99.1332,
+    "radius": 120,
+    "hill_m": 30,
+    "buildings": 5,
+    "bytes": 9051,
+    "blurb": "A giant square with a cathedral and a palace.",
+    "path": true,
+    "photos": 406,
+    "live": false,
+    "country": "Mexico",
+    "listed": false
+  },
+  {
+    "slug": "caminito-buenos-aires",
+    "name": "La Boca, Buenos Aires",
+    "lat": -34.6392,
+    "lon": -58.3629,
+    "radius": 120,
+    "hill_m": 10,
+    "buildings": 157,
+    "bytes": 110831,
+    "blurb": "Bright tin houses along a short lane.",
+    "path": true,
+    "photos": 132,
+    "live": true,
+    "country": "Argentina",
+    "listed": true
+  },
+  {
+    "slug": "bukchon-seoul",
+    "name": "Bukchon, Seoul",
+    "lat": 37.5826,
+    "lon": 126.9835,
+    "radius": 120,
+    "hill_m": 23,
+    "buildings": 218,
+    "bytes": 187188,
+    "blurb": "A hillside of low tiled houses and steep alleys.",
+    "path": true,
+    "photos": 74,
+    "live": true,
+    "country": "South Korea",
+    "listed": true
+  },
+  {
+    "slug": "senate-square-helsinki",
+    "name": "Senate Square, Helsinki",
+    "lat": 60.1698,
+    "lon": 24.9524,
+    "radius": 120,
+    "hill_m": 28,
+    "buildings": 16,
+    "bytes": 30444,
+    "blurb": "A wide stone square with big steps up to the cathedral.",
+    "path": true,
+    "photos": 380,
+    "live": false,
+    "country": "Finland",
+    "listed": false
+  },
+  {
+    "slug": "old-town-tallinn",
+    "name": "Old Town, Tallinn",
+    "lat": 59.437,
+    "lon": 24.7454,
+    "radius": 120,
+    "hill_m": 15,
+    "buildings": 115,
+    "bytes": 126186,
+    "blurb": "Medieval lanes under towers and town walls.",
+    "path": true,
+    "photos": 22,
+    "live": false,
+    "country": "Estonia",
+    "listed": false
+  },
+  {
+    "slug": "bo-kaap-cape-town",
+    "name": "Bo-Kaap, Cape Town",
+    "lat": -33.9166,
+    "lon": 18.4155,
+    "radius": 120,
+    "hill_m": 77,
+    "buildings": 37,
+    "bytes": 35160,
+    "blurb": "Steep cobbled streets of bright painted houses.",
+    "path": true,
+    "photos": 3,
+    "live": false,
+    "country": "South Africa",
+    "listed": false
+  },
+  {
+    "slug": "bryggen-bergen",
+    "name": "Bryggen, Bergen",
+    "lat": 60.3979,
+    "lon": 5.3243,
+    "radius": 120,
+    "hill_m": 30,
+    "buildings": 164,
+    "bytes": 166159,
+    "blurb": "Wooden harbour houses in a row on the old wharf.",
+    "path": true,
+    "photos": 370,
+    "live": true,
+    "country": "Norway",
     "listed": true
   }
 ]

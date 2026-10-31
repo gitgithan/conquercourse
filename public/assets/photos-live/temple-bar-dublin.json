@@ -1,0 +1,40 @@
+{
+  "place": "temple-bar-dublin",
+  "name": "Temple Bar, Dublin",
+  "generated": "2026-10-31",
+  "source": "Mapillary contributors, CC BY-SA 4.0; photos with a person detected (Faster R-CNN, of any size) are left out",
+  "photos": [
+    {
+      "id": "1123168158167800",
+      "creator": "pbb",
+      "capturedAt": 1436265578000,
+      "lat": 53.34561,
+      "lon": -6.263354,
+      "compass": 114.6
+    },
+    {
+      "id": "1448465992998088",
+      "creator": "yannakis",
+      "capturedAt": 1749148390011,
+      "lat": 53.345892,
+      "lon": -6.263904,
+      "compass": 253.4
+    },
+    {
+      "id": "2222521604544472",
+      "creator": "pbb",
+      "capturedAt": 1436266221000,
+      "lat": 53.345665,
+      "lon": -6.2625,
+      "compass": 343.7
+    },
+    {
+      "id": "522544145770452",
+      "creator": "pbb",
+      "capturedAt": 1436637203000,
+      "lat": 53.345935,
+      "lon": -6.263351,
+      "compass": 268.8
+    }
+  ]
+}

@@ -1,0 +1,15 @@
+{
+  "experiment": "cc-90-photolanes",
+  "date": "2026-11-01",
+  "listed": 15,
+  "countries": 15,
+  "filter": {
+    "mode": "cover",
+    "score": 0.4,
+    "want_per_step": 2,
+    "tries": 12,
+    "max_tests": 150
+  },
+  "near_m": 60,
+  "face_deg": 60
+}

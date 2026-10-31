@@ -1,0 +1,88 @@
+{
+  "place": "speicherstadt-hamburg",
+  "name": "Speicherstadt, Hamburg",
+  "generated": "2026-10-31",
+  "source": "Mapillary contributors, CC BY-SA 4.0; photos with a person detected (Faster R-CNN, of any size) are left out",
+  "photos": [
+    {
+      "id": "1136642073503092",
+      "creator": "sashazykov",
+      "capturedAt": 1505476295208,
+      "lat": 53.542748,
+      "lon": 9.987357,
+      "compass": 85.8
+    },
+    {
+      "id": "1250614276119842",
+      "creator": "2ce5345",
+      "capturedAt": 1719756977000,
+      "lat": 53.543108,
+      "lon": 9.989447,
+      "compass": 263.3
+    },
+    {
+      "id": "184874636823679",
+      "creator": "sashazykov",
+      "capturedAt": 1505476300241,
+      "lat": 53.542754,
+      "lon": 9.987476,
+      "compass": 84.3
+    },
+    {
+      "id": "281357956971511",
+      "creator": "sashazykov",
+      "capturedAt": 1530185180626,
+      "lat": 53.54302,
+      "lon": 9.989296,
+      "compass": 347.6
+    },
+    {
+      "id": "294529255544080",
+      "creator": "sashazykov",
+      "capturedAt": 1505476375560,
+      "lat": 53.542888,
+      "lon": 9.989367,
+      "compass": 83.5
+    },
+    {
+      "id": "3736691356459058",
+      "creator": "sashazykov",
+      "capturedAt": 1530185175423,
+      "lat": 53.543018,
+      "lon": 9.989408,
+      "compass": 353.3
+    },
+    {
+      "id": "461054761642869",
+      "creator": "sashazykov",
+      "capturedAt": 1505476297224,
+      "lat": 53.54275,
+      "lon": 9.987405,
+      "compass": 85.6
+    },
+    {
+      "id": "465748168047810",
+      "creator": "maturion",
+      "capturedAt": 1471427109885,
+      "lat": 53.543045,
+      "lon": 9.989157,
+      "compass": 260.8
+    },
+    {
+      "id": "477735126826254",
+      "creator": "sashazykov",
+      "capturedAt": 1528101191661,
+      "lat": 53.542888,
+      "lon": 9.988489,
+      "compass": 266.1
+    },
+    {
+      "id": "889247015257250",
+      "creator": "sashazykov",
+      "capturedAt": 1528101188551,
+      "lat": 53.542895,
+      "lon": 9.988571,
+      "compass": 265.9
+    }
+  ]
+}

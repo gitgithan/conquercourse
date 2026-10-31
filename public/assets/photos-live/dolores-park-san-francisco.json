@@ -1,0 +1,88 @@
+{
+  "place": "dolores-park-san-francisco",
+  "name": "Dolores Park, San Francisco",
+  "generated": "2026-10-31",
+  "source": "Mapillary contributors, CC BY-SA 4.0; photos with a person detected (Faster R-CNN, of any size) are left out",
+  "photos": [
+    {
+      "id": "1041872686340188",
+      "creator": "sarawabreus",
+      "capturedAt": 1424123770000,
+      "lat": 37.759855,
+      "lon": -122.42553,
+      "compass": 91.4
+    },
+    {
+      "id": "1405881669778888",
+      "creator": "mmarinho",
+      "capturedAt": 1576538849163,
+      "lat": 37.760331,
+      "lon": -122.425894,
+      "compass": 356.8
+    },
+    {
+      "id": "2149929001810896",
+      "creator": "bhousel",
+      "capturedAt": 1474030999000,
+      "lat": 37.760001,
+      "lon": -122.42577,
+      "compass": 6.9
+    },
+    {
+      "id": "2315396865261682",
+      "creator": "mmarinho",
+      "capturedAt": 1576538847160,
+      "lat": 37.760197,
+      "lon": -122.425879,
+      "compass": 356.4
+    },
+    {
+      "id": "306590334367059",
+      "creator": "sarawabreus",
+      "capturedAt": 1424123968000,
+      "lat": 37.760144,
+      "lon": -122.425881,
+      "compass": 0.4
+    },
+    {
+      "id": "372481930829201",
+      "creator": "mmarinho",
+      "capturedAt": 1576518225156,
+      "lat": 37.76037,
+      "lon": -122.425883,
+      "compass": 353.2
+    },
+    {
+      "id": "534716637520372",
+      "creator": "mmarinho",
+      "capturedAt": 1576518226155,
+      "lat": 37.760493,
+      "lon": -122.425898,
+      "compass": 353.7
+    },
+    {
+      "id": "809739582979239",
+      "creator": "mmarinho",
+      "capturedAt": 1576538824162,
+      "lat": 37.759894,
+      "lon": -122.425088,
+      "compass": 264.5
+    },
+    {
+      "id": "8381134098641477",
+      "creator": "marker_geo",
+      "capturedAt": 1725974360000,
+      "lat": 37.760678,
+      "lon": -122.425941,
+      "compass": 176.6
+    },
+    {
+      "id": "860997941119254",
+      "creator": "almccon",
+      "capturedAt": 1434677005603,
+      "lat": 37.760006,
+      "lon": -122.425859,
+      "compass": 359.7
+    }
+  ]
+}

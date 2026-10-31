@@ -1,0 +1,205 @@
+[
+  {
+    "laneRealM": 56.3,
+    "steps10m": 6,
+    "photosInBox": 636,
+    "photosUsable": 477,
+    "facing": 74,
+    "facingPer100m": 131.3,
+    "shareOfLaneCovered": 1.0,
+    "slug": "jordaan-amsterdam",
+    "name": "Jordaan canals, Amsterdam"
+  },
+  {
+    "laneRealM": 95.8,
+    "steps10m": 10,
+    "photosInBox": 1358,
+    "photosUsable": 1358,
+    "facing": 265,
+    "facingPer100m": 276.7,
+    "shareOfLaneCovered": 1.0,
+    "slug": "stephansplatz-vienna",
+    "name": "Stephansplatz, Vienna"
+  },
+  {
+    "error": "RuntimeError",
+    "slug": "union-square-san-francisco",
+    "name": "Union Square, San Francisco"
+  },
+  {
+    "laneRealM": 247.0,
+    "steps10m": 25,
+    "photosInBox": 930,
+    "photosUsable": 724,
+    "facing": 156,
+    "facingPer100m": 63.2,
+    "shareOfLaneCovered": 0.8,
+    "slug": "grand-place-brussels",
+    "name": "Grand Place, Brussels"
+  },
+  {
+    "laneRealM": 233.2,
+    "steps10m": 24,
+    "photosInBox": 869,
+    "photosUsable": 851,
+    "facing": 367,
+    "facingPer100m": 157.4,
+    "shareOfLaneCovered": 1.0,
+    "slug": "main-square-krakow",
+    "name": "Main Square, Krakow"
+  },
+  {
+    "laneRealM": 204.2,
+    "steps10m": 21,
+    "photosInBox": 1405,
+    "photosUsable": 1344,
+    "facing": 245,
+    "facingPer100m": 120.0,
+    "shareOfLaneCovered": 1.0,
+    "slug": "castle-hill-budapest",
+    "name": "Castle Hill, Budapest"
+  },
+  {
+    "laneRealM": 58.2,
+    "steps10m": 6,
+    "photosInBox": 1002,
+    "photosUsable": 735,
+    "facing": 92,
+    "facingPer100m": 158.1,
+    "shareOfLaneCovered": 1.0,
+    "slug": "gamla-stan-stockholm",
+    "name": "Gamla Stan, Stockholm"
+  },
+  {
+    "laneRealM": 95.8,
+    "steps10m": 10,
+    "photosInBox": 498,
+    "photosUsable": 498,
+    "facing": 128,
+    "facingPer100m": 133.5,
+    "shareOfLaneCovered": 1.0,
+    "slug": "temple-bar-dublin",
+    "name": "Temple Bar, Dublin"
+  },
+  {
+    "laneRealM": 80.6,
+    "steps10m": 9,
+    "photosInBox": 990,
+    "photosUsable": 711,
+    "facing": 69,
+    "facingPer100m": 85.6,
+    "shareOfLaneCovered": 1.0,
+    "slug": "plaka-athens",
+    "name": "Plaka, Athens"
+  },
+  {
+    "laneRealM": 194.0,
+    "steps10m": 20,
+    "photosInBox": 1545,
+    "photosUsable": 1545,
+    "facing": 502,
+    "facingPer100m": 258.8,
+    "shareOfLaneCovered": 1.0,
+    "slug": "stradun-dubrovnik",
+    "name": "Stradun, Dubrovnik"
+  },
+  {
+    "laneRealM": 154.5,
+    "steps10m": 16,
+    "photosInBox": 1271,
+    "photosUsable": 1271,
+    "facing": 237,
+    "facingPer100m": 153.4,
+    "shareOfLaneCovered": 1.0,
+    "slug": "galata-istanbul",
+    "name": "Galata, Istanbul"
+  },
+  {
+    "laneRealM": 83.2,
+    "steps10m": 9,
+    "photosInBox": 199,
+    "photosUsable": 199,
+    "facing": 78,
+    "facingPer100m": 93.7,
+    "shareOfLaneCovered": 1.0,
+    "slug": "gastown-vancouver",
+    "name": "Gastown, Vancouver"
+  },
+  {
+    "laneRealM": 195.0,
+    "steps10m": 20,
+    "photosInBox": 1297,
+    "photosUsable": 1297,
+    "facing": 406,
+    "facingPer100m": 208.2,
+    "shareOfLaneCovered": 0.9,
+    "slug": "zocalo-mexico-city",
+    "name": "Zocalo, Mexico City"
+  },
+  {
+    "laneRealM": 104.9,
+    "steps10m": 11,
+    "photosInBox": 397,
+    "photosUsable": 397,
+    "facing": 132,
+    "facingPer100m": 125.8,
+    "shareOfLaneCovered": 1.0,
+    "slug": "caminito-buenos-aires",
+    "name": "La Boca, Buenos Aires"
+  },
+  {
+    "laneRealM": 138.1,
+    "steps10m": 14,
+    "photosInBox": 482,
+    "photosUsable": 482,
+    "facing": 74,
+    "facingPer100m": 53.6,
+    "shareOfLaneCovered": 1.0,
+    "slug": "bukchon-seoul",
+    "name": "Bukchon, Seoul"
+  },
+  {
+    "laneRealM": 166.7,
+    "steps10m": 17,
+    "photosInBox": 864,
+    "photosUsable": 815,
+    "facing": 380,
+    "facingPer100m": 228.0,
+    "shareOfLaneCovered": 1.0,
+    "slug": "senate-square-helsinki",
+    "name": "Senate Square, Helsinki"
+  },
+  {
+    "laneRealM": 74.5,
+    "steps10m": 8,
+    "photosInBox": 724,
+    "photosUsable": 217,
+    "facing": 22,
+    "facingPer100m": 29.5,
+    "shareOfLaneCovered": 1.0,
+    "slug": "old-town-tallinn",
+    "name": "Old Town, Tallinn"
+  },
+  {
+    "laneRealM": 36.5,
+    "steps10m": 4,
+    "photosInBox": 22,
+    "photosUsable": 22,
+    "facing": 3,
+    "facingPer100m": 8.2,
+    "shareOfLaneCovered": 0.75,
+    "slug": "bo-kaap-cape-town",
+    "name": "Bo-Kaap, Cape Town"
+  },
+  {
+    "laneRealM": 95.6,
+    "steps10m": 10,
+    "photosInBox": 1301,
+    "photosUsable": 1289,
+    "facing": 370,
+    "facingPer100m": 387.2,
+    "shareOfLaneCovered": 1.0,
+    "slug": "bryggen-bergen",
+    "name": "Bryggen, Bergen"
+  }
+]

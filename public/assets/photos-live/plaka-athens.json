@@ -1,0 +1,48 @@
+{
+  "place": "plaka-athens",
+  "name": "Plaka, Athens",
+  "generated": "2026-10-31",
+  "source": "Mapillary contributors, CC BY-SA 4.0; photos with a person detected (Faster R-CNN, of any size) are left out",
+  "photos": [
+    {
+      "id": "313354573624573",
+      "creator": "kaartcam",
+      "capturedAt": 1540185437000,
+      "lat": 37.973683,
+      "lon": 23.728568,
+      "compass": 14.1
+    },
+    {
+      "id": "376798260316777",
+      "creator": "kaartcam",
+      "capturedAt": 1540185439000,
+      "lat": 37.97366,
+      "lon": 23.728665,
+      "compass": 20.0
+    },
+    {
+      "id": "393917988393122",
+      "creator": "kaartcam",
+      "capturedAt": 1540185440000,
+      "lat": 37.973645,
+      "lon": 23.728714,
+      "compass": 24.7
+    },
+    {
+      "id": "473397310602517",
+      "creator": "kaartcam",
+      "capturedAt": 1540185439000,
+      "lat": 37.973706,
+      "lon": 23.728632,
+      "compass": 210.7
+    },
+    {
+      "id": "516857452831777",
+      "creator": "kaartcam",
+      "capturedAt": 1540185437000,
+      "lat": 37.973716,
+      "lon": 23.728524,
+      "compass": 200.7
+    }
+  ]
+}

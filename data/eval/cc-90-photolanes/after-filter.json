@@ -1,0 +1,282 @@
+[
+  {
+    "slug": "alfama-lisbon",
+    "laneRealM": 79,
+    "kept": 7,
+    "facingLane": 7,
+    "per100m": 9,
+    "shareOfLane": 1
+  },
+  {
+    "slug": "boston-common-beacon-hill",
+    "laneRealM": 211,
+    "kept": 3,
+    "facingLane": 3,
+    "per100m": 1,
+    "shareOfLane": 0.36
+  },
+  {
+    "slug": "bryggen-bergen",
+    "laneRealM": 96,
+    "kept": 4,
+    "facingLane": 4,
+    "per100m": 4,
+    "shareOfLane": 0.8
+  },
+  {
+    "slug": "bukchon-seoul",
+    "laneRealM": 138,
+    "kept": 6,
+    "facingLane": 6,
+    "per100m": 4,
+    "shareOfLane": 1
+  },
+  {
+    "slug": "caminito-buenos-aires",
+    "laneRealM": 105,
+    "kept": 9,
+    "facingLane": 9,
+    "per100m": 9,
+    "shareOfLane": 1
+  },
+  {
+    "slug": "castle-hill-budapest",
+    "laneRealM": 204,
+    "kept": 6,
+    "facingLane": 6,
+    "per100m": 3,
+    "shareOfLane": 0.67
+  },
+  {
+    "slug": "circular-quay-sydney",
+    "laneRealM": 114,
+    "kept": 3,
+    "facingLane": 3,
+    "per100m": 3,
+    "shareOfLane": 0.25
+  },
+  {
+    "slug": "ciutadella-barcelona",
+    "laneRealM": 75,
+    "kept": 4,
+    "facingLane": 4,
+    "per100m": 5,
+    "shareOfLane": 1
+  },
+  {
+    "slug": "covent-garden-london",
+    "laneRealM": 113,
+    "kept": 1,
+    "facingLane": 1,
+    "per100m": 1,
+    "shareOfLane": 0.5
+  },
+  {
+    "slug": "dolores-park-san-francisco",
+    "laneRealM": 84,
+    "kept": 10,
+    "facingLane": 10,
+    "per100m": 12,
+    "shareOfLane": 1
+  },
+  {
+    "slug": "edinburgh-old-town",
+    "laneRealM": 167,
+    "kept": 52,
+    "facingLane": 52,
+    "per100m": 31,
+    "shareOfLane": 1
+  },
+  {
+    "slug": "eixample-barcelona",
+    "laneRealM": 158,
+    "kept": 3,
+    "facingLane": 3,
+    "per100m": 2,
+    "shareOfLane": 0.31
+  },
+  {
+    "slug": "galata-istanbul",
+    "laneRealM": 154,
+    "kept": 7,
+    "facingLane": 7,
+    "per100m": 5,
+    "shareOfLane": 0.94
+  },
+  {
+    "slug": "gamla-stan-stockholm",
+    "laneRealM": 58,
+    "kept": 2,
+    "facingLane": 2,
+    "per100m": 3,
+    "shareOfLane": 0.83
+  },
+  {
+    "slug": "gastown-vancouver",
+    "laneRealM": 83,
+    "kept": 1,
+    "facingLane": 1,
+    "per100m": 1,
+    "shareOfLane": 0.22
+  },
+  {
+    "slug": "grand-place-brussels",
+    "laneRealM": 247,
+    "kept": 0,
+    "facingLane": 0,
+    "per100m": 0,
+    "shareOfLane": 0
+  },
+  {
+    "slug": "jordaan-amsterdam",
+    "laneRealM": 56,
+    "kept": 0,
+    "facingLane": 0,
+    "per100m": 0,
+    "shareOfLane": 0
+  },
+  {
+    "slug": "main-square-krakow",
+    "laneRealM": 233,
+    "kept": 6,
+    "facingLane": 6,
+    "per100m": 3,
+    "shareOfLane": 0.67
+  },
+  {
+    "slug": "montmartre-paris",
+    "laneRealM": 177,
+    "kept": 9,
+    "facingLane": 9,
+    "per100m": 5,
+    "shareOfLane": 0.39
+  },
+  {
+    "slug": "nyhavn-copenhagen",
+    "laneRealM": 119,
+    "kept": 4,
+    "facingLane": 4,
+    "per100m": 3,
+    "shareOfLane": 0.58
+  },
+  {
+    "slug": "old-town-square-prague",
+    "laneRealM": 90,
+    "kept": 2,
+    "facingLane": 2,
+    "per100m": 2,
+    "shareOfLane": 0.67
+  },
+  {
+    "slug": "parc-guell-barcelona",
+    "laneRealM": 111,
+    "kept": 11,
+    "facingLane": 11,
+    "per100m": 10,
+    "shareOfLane": 1
+  },
+  {
+    "slug": "piazza-san-marco-venice",
+    "laneRealM": 205,
+    "kept": 0,
+    "facingLane": 0,
+    "per100m": 0,
+    "shareOfLane": 0
+  },
+  {
+    "slug": "plaka-athens",
+    "laneRealM": 81,
+    "kept": 5,
+    "facingLane": 5,
+    "per100m": 6,
+    "shareOfLane": 0.89
+  },
+  {
+    "slug": "plaza-mayor-madrid",
+    "laneRealM": 202,
+    "kept": 2,
+    "facingLane": 2,
+    "per100m": 1,
+    "shareOfLane": 0.1
+  },
+  {
+    "slug": "positano-italy",
+    "laneRealM": 300,
+    "kept": 2,
+    "facingLane": 2,
+    "per100m": 1,
+    "shareOfLane": 0.45
+  },
+  {
+    "slug": "senate-square-helsinki",
+    "laneRealM": 167,
+    "kept": 2,
+    "facingLane": 2,
+    "per100m": 1,
+    "shareOfLane": 0.18
+  },
+  {
+    "slug": "shibuya-tokyo",
+    "laneRealM": 52,
+    "kept": 1,
+    "facingLane": 1,
+    "per100m": 2,
+    "shareOfLane": 0.17
+  },
+  {
+    "slug": "spanish-steps-rome",
+    "laneRealM": 126,
+    "kept": 1,
+    "facingLane": 1,
+    "per100m": 1,
+    "shareOfLane": 0.38
+  },
+  {
+    "slug": "speicherstadt-hamburg",
+    "laneRealM": 248,
+    "kept": 10,
+    "facingLane": 10,
+    "per100m": 4,
+    "shareOfLane": 0.72
+  },
+  {
+    "slug": "stephansplatz-vienna",
+    "laneRealM": 96,
+    "kept": 6,
+    "facingLane": 6,
+    "per100m": 6,
+    "shareOfLane": 1
+  },
+  {
+    "slug": "stradun-dubrovnik",
+    "laneRealM": 194,
+    "kept": 6,
+    "facingLane": 6,
+    "per100m": 3,
+    "shareOfLane": 0.55
+  },
+  {
+    "slug": "temple-bar-dublin",
+    "laneRealM": 96,
+    "kept": 4,
+    "facingLane": 4,
+    "per100m": 4,
+    "shareOfLane": 0.7
+  },
+  {
+    "slug": "valletta-harbour-malta",
+    "laneRealM": 43,
+    "kept": 3,
+    "facingLane": 3,
+    "per100m": 7,
+    "shareOfLane": 0.6
+  },
+  {
+    "slug": "washington-square-new-york",
+    "laneRealM": 201,
+    "kept": 5,
+    "facingLane": 5,
+    "per100m": 2,
+    "shareOfLane": 0.52
+  }
+]

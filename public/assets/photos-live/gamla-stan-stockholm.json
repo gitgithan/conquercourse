@@ -1,0 +1,24 @@
+{
+  "place": "gamla-stan-stockholm",
+  "name": "Gamla Stan, Stockholm",
+  "generated": "2026-10-31",
+  "source": "Mapillary contributors, CC BY-SA 4.0; photos with a person detected (Faster R-CNN, of any size) are left out",
+  "photos": [
+    {
+      "id": "291804455816714",
+      "creator": "traveller",
+      "capturedAt": 1423649682000,
+      "lat": 59.323938,
+      "lon": 18.069456,
+      "compass": 45.0
+    },
+    {
+      "id": "2928886217352034",
+      "creator": "traveller",
+      "capturedAt": 1423649667000,
+      "lat": 59.323807,
+      "lon": 18.069245,
+      "compass": 36.1
+    }
+  ]
+}

@@ -1,0 +1,40 @@
+{
+  "place": "bryggen-bergen",
+  "name": "Bryggen, Bergen",
+  "generated": "2026-10-31",
+  "source": "Mapillary contributors, CC BY-SA 4.0; photos with a person detected (Faster R-CNN, of any size) are left out",
+  "photos": [
+    {
+      "id": "305379847885014",
+      "creator": "ankeric",
+      "capturedAt": 1489505909003,
+      "lat": 60.397115,
+      "lon": 5.32396,
+      "compass": 248.3
+    },
+    {
+      "id": "494546215226464",
+      "creator": "km2bp",
+      "capturedAt": 1563231919285,
+      "lat": 60.397637,
+      "lon": 5.322165,
+      "compass": 8.8
+    },
+    {
+      "id": "502023697506371",
+      "creator": "pbb",
+      "capturedAt": 1560263174716,
+      "lat": 60.39756,
+      "lon": 5.322852,
+      "compass": 12.5
+    },
+    {
+      "id": "508527387180158",
+      "creator": "ankeric",
+      "capturedAt": 1489505892947,
+      "lat": 60.397236,
+      "lon": 5.324113,
+      "compass": 231.0
+    }
+  ]
+}

@@ -1,0 +1,56 @@
+{
+  "place": "bukchon-seoul",
+  "name": "Bukchon, Seoul",
+  "generated": "2026-10-31",
+  "source": "Mapillary contributors, CC BY-SA 4.0; photos with a person detected (Faster R-CNN, of any size) are left out",
+  "photos": [
+    {
+      "id": "2882068318729582",
+      "creator": "kilburn",
+      "capturedAt": 1530309121217,
+      "lat": 37.582037,
+      "lon": 126.98435,
+      "compass": 185.6
+    },
+    {
+      "id": "2930551373836294",
+      "creator": "kilburn",
+      "capturedAt": 1532292038198,
+      "lat": 37.58287,
+      "lon": 126.985077,
+      "compass": 258.1
+    },
+    {
+      "id": "380295746577218",
+      "creator": "kilburn",
+      "capturedAt": 1532292022569,
+      "lat": 37.582983,
+      "lon": 126.985089,
+      "compass": 247.4
+    },
+    {
+      "id": "481808963087027",
+      "creator": "kilburn",
+      "capturedAt": 1532292044222,
+      "lat": 37.582433,
+      "lon": 126.985038,
+      "compass": 254.0
+    },
+    {
+      "id": "549301099372076",
+      "creator": "kilburn",
+      "capturedAt": 1530309089772,
+      "lat": 37.582211,
+      "lon": 126.984336,
+      "compass": 158.7
+    },
+    {
+      "id": "857041274877608",
+      "creator": "kilburn",
+      "capturedAt": 1530309086185,
+      "lat": 37.58222,
+      "lon": 126.984309,
+      "compass": 94.3
+    }
+  ]
+}
