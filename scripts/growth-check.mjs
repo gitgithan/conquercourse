@@ -20,23 +20,38 @@ try {
   await page.route('**/api/daily-stats', (r) => r.fulfill({ json: daily }));
   mkdirSync('test-results/growth', { recursive: true });
   await page.goto(`http://localhost:${port}/`);
-  await page.waitForSelector('#growth .gr-chip', { timeout: 90000 });
-  out.chips = await page.$$eval('#growth .gr-chip', (e) => e.map((x) => x.innerText.replace(/\s+/g, ' ')));
+  await page.waitForSelector('#growth .gr-tile', { timeout: 90000 });
+  out.chips = await page.$$eval('#growth .gr-tile', (e) => e.map((x) => x.innerText.replace(/\s+/g, ' ')));
   out.collapsedHeight = await page.$eval('#growth', (e) => Math.round(e.getBoundingClientRect().height));
   await page.screenshot({ path: 'test-results/growth/collapsed.png' });
-  await page.click('#growth .gr-chip[data-metric=runs]');
+  await page.click('#growth .gr-tile[data-metric=runs]');
   await page.waitForSelector('#growth svg.gr-chart');
   const pts = () => page.$eval('#growth svg.gr-chart polyline', (p) => p.getAttribute('points').split(' ').length);
+  out.dots30 = await page.$$eval('#growth svg.gr-chart circle', (e) => e.length);
   out.points.runs30 = await pts();
   await page.click('#growth .gr-r button:nth-child(1)');
   out.points.runs7 = await pts();
   await page.click('#growth .gr-r button:nth-child(3)');
   out.points.runsAll = await pts();
-  await page.selectOption('#growth select', 'assets');
+  await page.click('#growth .gr-tile[data-metric=assets]');
   out.afterChip = await page.$eval('#growth .gr-sum', (e) => e.innerText);
   out.chartHeight = await page.$eval('#growth svg.gr-chart', (e) => Math.round(e.getBoundingClientRect().height));
+  await page.screenshot({ path: 'test-results/growth/all-time.png' });
+  await page.click('#growth .gr-r button:nth-child(1)');
+  await page.screenshot({ path: 'test-results/growth/seven-days.png' });
+  await page.hover('#growth .gr-hit:nth-of-type(3)');
   await page.click('#growth .gr-r button:nth-child(2)');
   await page.screenshot({ path: 'test-results/growth/expanded.png' });
+  // one day of real data: a dot and a plain sentence, in all three ranges
+  const one = { days: ['2026-10-31'], series: { players: [5], runs: [82], assets: [8], clears: [12] } };
+  await page.route('**/api/daily-stats', (r) => r.fulfill({ json: one }));
+  await page.reload();
+  await page.waitForSelector('#growth .gr-tile', { timeout: 90000 });
+  await page.click('#growth .gr-tile[data-metric=players]');
+  out.oneDay = [];
+  for (const k of [1, 2, 3]) { await page.click(`#growth .gr-r button:nth-child(${k})`); out.oneDay.push(await page.$$eval('#growth svg.gr-chart circle', (e) => e.length)); }
+  out.oneDaySum = await page.$eval('#growth .gr-sum', (e) => e.innerText);
+  await page.screenshot({ path: 'test-results/growth/single-day.png' });
   // a young game: the honest empty state
   await page.route('**/api/daily-stats', (r) => r.fulfill({ json: { days: ['2026-10-31'], series: { players: [0], runs: [0], assets: [0], clears: [0] } } }));
   await page.reload();
@@ -45,5 +60,5 @@ try {
   await browser.close();
 } finally { server.kill(); }
 console.log(JSON.stringify(out, null, 1));
-const ok = out.chips.length === 3 && out.points.runs7 === 7 && out.points.runs30 === 30 && out.points.runsAll === 45 && /Assets|day/.test(out.afterChip ?? '') && out.chartHeight <= 150 && /Just starting/.test(out.empty ?? '') && !out.errors.length;
+const ok = out.chips.length === 4 && out.points.runs7 === 7 && out.points.runs30 === 30 && out.points.runsAll === 45 && out.dots30 === 30 && out.oneDay.join() === '1,1,1' && /5 players on Oct 31/.test(out.oneDaySum) && /Assets|day/.test(out.afterChip ?? '') && out.chartHeight <= 150 && /Just starting/.test(out.empty ?? '') && !out.errors.length;
 process.exit(ok ? 0 : 1);

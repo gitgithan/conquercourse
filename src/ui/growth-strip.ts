@@ -1,35 +1,47 @@
 // The growth strip on the course picker (CC-108): three small numbers for today with a tiny line each, and one chart behind a click.
 // One metric at a time (a menu), because players, runs and assets live on different scales; the range buttons cut the time axis.
 // No data, no chart: a young game says so honestly, and nothing here is made up.
-import { METRICS, METRIC_WORDS, isEmpty, linePoints, niceMax, sliceRange, type DailyStats, type Metric, type Range } from '../slice/daily-stats';
+import { METRIC_WORDS, isEmpty, linePoints, niceMax, sliceRange, type DailyStats, type Metric, type Range } from '../slice/daily-stats';
 
 export const GROWTH_ON = true;
 export const growthOn = (params: URLSearchParams, build = GROWTH_ON): boolean => build && params.get('growth') !== '0';
 
 const COLOR: Record<Metric, string> = { players: '#4aa3ff', runs: '#f0a020', assets: '#3ac47d', clears: '#c58bff' };
-const CHIPS: Metric[] = ['players', 'runs', 'assets'];
+const TILES: Metric[] = ['players', 'runs', 'clears', 'assets'];
 const RANGES: [Range, string][] = [['7', '7 days'], ['30', '30 days'], ['all', 'All time']];
 const NS = 'http://www.w3.org/2000/svg';
 const n = (x: number): string => x.toLocaleString('en-US');
+const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+/** "2026-10-31" as "Oct 31". */
+export const dayText = (iso: string): string => `${MONTHS[Number(iso.slice(5, 7)) - 1] ?? ''} ${Number(iso.slice(8, 10))}`.trim();
+const THING: Record<Metric, [string, string]> = { players: ['player', 'players'], runs: ['run', 'runs'], assets: ['asset made', 'assets made'], clears: ['course cleared', 'courses cleared'] };
+/** "5 players", "1 run": the value with its word. */
+export const countText = (metric: Metric, x: number): string => `${n(x)} ${THING[metric][x === 1 ? 0 : 1]}`;
 
 const STYLE = `
-.gr{margin:.5em 0 .8em;padding:.5em .7em;border:1px solid #556;border-radius:8px}
-.gr-row{display:flex;gap:.6em;align-items:stretch;flex-wrap:wrap}
-.gr-chip{flex:1 1 9em;display:flex;align-items:center;gap:.6em;padding:.35em .6em;border-radius:8px;border:1px solid #5566;background:#ffffff0d;color:inherit;font:inherit;cursor:pointer;text-align:left}
-.gr-chip:hover,.gr-chip[aria-pressed=true]{background:#ffffff1f;border-color:var(--c)}
-.gr-chip:focus-visible,.gr select:focus-visible,.gr-r button:focus-visible{outline:3px solid #f0a020;outline-offset:1px}
-.gr-v{font-size:1.7em;font-weight:800;line-height:1;color:var(--c)}
+.gr{margin:.5em 0 .8em;padding:.8em .9em;border:1px solid #5566;border-radius:12px;background:#ffffff08}
+.gr-tiles{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:.6em}
+.gr-tile{display:flex;flex-direction:column;gap:.15em;padding:.55em .7em;border-radius:10px;border:1.5px solid #5566;background:#ffffff0d;color:inherit;font:inherit;cursor:pointer;text-align:left;transition:border-color .12s,background .12s}
+.gr-tile:hover{background:#ffffff1a;border-color:var(--c)}
+.gr-tile[aria-pressed=true]{background:#ffffff1f;border-color:var(--c);box-shadow:inset 0 -3px 0 var(--c)}
+.gr-tile:focus-visible,.gr-r button:focus-visible,.gr-more:focus-visible{outline:3px solid #f0a020;outline-offset:1px}
+.gr-v{font-size:1.9em;font-weight:800;line-height:1.05;color:var(--c)}
 .gr-l{font-size:.72em;opacity:.8;text-transform:uppercase;letter-spacing:.05em}
-.gr-spark{margin-left:auto;flex:none}
-.gr-more{align-self:center;border:0;background:none;color:inherit;font:inherit;font-size:.85em;opacity:.85;cursor:pointer;text-decoration:underline}
-.gr-panel{margin-top:.6em}
-.gr-bar{display:flex;gap:.6em;align-items:center;flex-wrap:wrap;margin-bottom:.3em}
-.gr select{font:inherit;padding:.2em .4em;border-radius:6px}
-.gr-r{display:flex;gap:2px}
-.gr-r button{font:inherit;font-size:.85em;padding:.2em .6em;border-radius:6px;border:1px solid #5566;background:none;color:inherit;cursor:pointer}
-.gr-r button[aria-pressed=true]{background:#ffffff26;border-color:#fff8;font-weight:700}
-.gr-sum{font-size:.85em;opacity:.85;margin-left:auto}
-.gr-chart{display:block;width:100%;height:140px}
+.gr-spark{display:block;margin-top:.2em;width:100%;height:20px}
+.gr .ws-tiles{display:none!important}
+.gr .ws-hl{margin-top:.7em!important}
+.gr-foot{display:flex;gap:.6em;align-items:center;justify-content:space-between;flex-wrap:wrap;margin-top:.7em}
+.gr-more{border:0;background:none;color:inherit;font:inherit;font-size:.85em;opacity:.85;cursor:pointer;text-decoration:underline;padding:.2em 0}
+.gr-r{display:inline-flex;border:1px solid #5566;border-radius:8px;overflow:hidden}
+.gr-r button{font:inherit;font-size:.85em;padding:.25em .8em;border:0;border-left:1px solid #5566;background:none;color:inherit;cursor:pointer}
+.gr-r button:first-child{border-left:0}
+.gr-r button[aria-pressed=true]{background:#ffffff2e;font-weight:700}
+.gr-panel{margin-top:.5em;border-top:1px solid #5564;padding-top:.6em}
+.gr-sum{font-size:.95em;margin:0 0 .3em}
+.gr-note{font-size:.8em;opacity:.75;margin:.3em 0 0}
+.gr-wrap{position:relative}
+.gr-chart{display:block;width:100%;height:150px}
+.gr-tip{position:absolute;pointer-events:none;transform:translate(-50%,-110%);padding:.2em .6em;border-radius:6px;background:#111d;color:#fff;font-size:.8em;white-space:nowrap;border:1px solid #fff4}
 .gr-empty{font-size:.95em;padding:.3em 0}
 `;
 
@@ -39,35 +51,60 @@ function svg<K extends keyof SVGElementTagNameMap>(tag: K, attrs: Record<string,
   return e;
 }
 
-/** The chart for one metric: line, soft area, a top label and the first and last day; each day has a hover note. */
-export function drawChart(d: DailyStats, metric: Metric): SVGSVGElement {
-  const W = 600, H = 140, L = 34, B = 20, T = 8, w = W - L - 8, h = H - B - T;
-  const xs = d.series[metric], top = niceMax(Math.max(...xs, 0)), color = COLOR[metric];
-  const s = svg('svg', { viewBox: `0 0 ${W} ${H}`, preserveAspectRatio: 'none', class: 'gr-chart', role: 'img', 'aria-label': `${METRIC_WORDS[metric].menu} per day` });
+/** Where day `i` of `count` sits across a plot `w` wide: one day alone is centred, so its dot is always inside the box. */
+export const dotX = (i: number, count: number, w: number): number => (count > 1 ? (i * w) / (count - 1) : w / 2);
+
+/**
+ * The chart for one metric.
+ * Every day is a visible dot with a hover note; a line and a soft area join the dots only when there are two or more.
+ * One day alone is a centred dot with its value; no data at all is a dot at 0.
+ */
+export function drawChart(d: DailyStats, metric: Metric, W = 720): SVGSVGElement {
+  const H = 150, L = 34, B = 22, T = 26, R = 14, w = W - L - R, h = H - B - T;
+  const xs = d.series[metric].length ? d.series[metric] : [0], top = niceMax(Math.max(...xs, 0)), color = COLOR[metric];
+  const s = svg('svg', { viewBox: `0 0 ${W} ${H}`, class: 'gr-chart', role: 'img', 'aria-label': `${METRIC_WORDS[metric].menu} per day` });
   const g = svg('g', { transform: `translate(${L},${T})` });
   for (const f of [0, 0.5, 1]) {
     g.append(svg('line', { x1: 0, x2: w, y1: h - f * h, y2: h - f * h, stroke: 'currentColor', 'stroke-opacity': f === 0 ? 0.5 : 0.15 }));
-    const t = svg('text', { x: -4, y: h - f * h + 4, 'text-anchor': 'end', 'font-size': 11, fill: 'currentColor', 'fill-opacity': 0.75 }); t.textContent = n(Math.round(top * f)); g.append(t);
+    const t = svg('text', { x: -6, y: h - f * h + 4, 'text-anchor': 'end', 'font-size': 11, fill: 'currentColor', 'fill-opacity': 0.75 }); t.textContent = n(Math.round(top * f)); g.append(t);
   }
-  const pts = linePoints(xs, w, h, top);
-  g.append(svg('polygon', { points: `0,${h} ${pts} ${xs.length > 1 ? w : 0},${h}`, fill: color, 'fill-opacity': 0.18 }));
-  g.append(svg('polyline', { points: pts, fill: 'none', stroke: color, 'stroke-width': 2.5, 'stroke-linejoin': 'round', 'vector-effect': 'non-scaling-stroke' }));
-  const step = xs.length > 1 ? w / (xs.length - 1) : 0;
+  const X = (i: number) => dotX(i, xs.length, w), Y = (x: number) => h - (x / top) * h;
+  if (xs.length > 1) {
+    const pts = xs.map((x, i) => `${X(i).toFixed(1)},${Y(x).toFixed(1)}`).join(' ');
+    g.append(svg('polygon', { points: `0,${h} ${pts} ${w},${h}`, fill: color, 'fill-opacity': 0.18 }));
+    g.append(svg('polyline', { points: pts, fill: 'none', stroke: color, 'stroke-width': 2.5, 'stroke-linejoin': 'round', 'stroke-linecap': 'round' }));
+  }
+  const labelled = new Set<number>(xs.length <= 8 ? xs.map((_, i) => i) : [xs.indexOf(Math.max(...xs)), xs.length - 1]);
+  const dotR = xs.length <= 14 ? 5 : xs.length <= 31 ? 3.5 : 2.5;
   xs.forEach((x, i) => {
-    const r = svg('rect', { x: i * step - Math.max(step, 6) / 2, y: 0, width: Math.max(step, 6), height: h, fill: 'transparent' });
-    const t = svg('title', {}); t.textContent = `${d.days[i]}: ${n(x)} ${METRIC_WORDS[metric].menu.toLowerCase()}`; r.append(t); g.append(r);
+    g.append(svg('circle', { class: 'gr-dot', cx: X(i).toFixed(1), cy: Y(x).toFixed(1), r: dotR, fill: color, stroke: '#0007', 'stroke-width': 1.5, 'data-i': i }));
+    if (labelled.has(i)) {
+      const t = svg('text', { class: 'gr-val', x: X(i).toFixed(1), y: (Y(x) - dotR - 5).toFixed(1), 'text-anchor': i === 0 && xs.length > 1 ? 'start' : i === xs.length - 1 && xs.length > 1 ? 'end' : 'middle', 'font-size': 12, 'font-weight': 700, fill: 'currentColor' });
+      t.textContent = n(x); g.append(t);
+    }
   });
-  for (const [i, anchor] of [[0, 'start'], [d.days.length - 1, 'end']] as const) {
-    if (i === 0 && d.days.length < 2) continue;
-    const t = svg('text', { x: i === 0 ? 0 : w, y: h + 15, 'text-anchor': anchor, 'font-size': 11, fill: 'currentColor', 'fill-opacity': 0.75 }); t.textContent = d.days[i].slice(5); g.append(t);
-  }
+  const step = xs.length > 1 ? w / (xs.length - 1) : w;
+  xs.forEach((x, i) => { // a wide invisible strip per day, so the hover works on the whole column
+    g.append(svg('rect', { class: 'gr-hit', x: (X(i) - step / 2).toFixed(1), y: 0, width: step.toFixed(1), height: h, fill: 'transparent', 'data-i': i, 'data-tip': `${dayText(d.days[i] ?? '')}: ${countText(metric, x)}` }));
+  });
+  const edge = (i: number, x: number, anchor: string) => { const t = svg('text', { x, y: h + 16, 'text-anchor': anchor, 'font-size': 11, fill: 'currentColor', 'fill-opacity': 0.75 }); t.textContent = dayText(d.days[i] ?? ''); g.append(t); };
+  if (d.days.length > 1) { edge(0, 0, 'start'); edge(d.days.length - 1, w, 'end'); } else if (d.days.length === 1) edge(0, w / 2, 'middle');
   s.append(g);
   return s;
 }
 
+/** The plain sentence above the chart. */
+export function summaryText(cut: DailyStats, metric: Metric): string {
+  const xs = cut.series[metric], total = xs.reduce((a, b) => a + b, 0);
+  if (cut.days.length <= 1) return `${countText(metric, xs[0] ?? 0)} on ${dayText(cut.days[0] ?? '') || 'the first day'}.`;
+  return `${countText(metric, total)} in the last ${cut.days.length} days.`;
+}
+
 function spark(xs: number[], color: string): SVGSVGElement {
-  const last = xs.slice(-14), s = svg('svg', { viewBox: '0 0 56 22', width: 56, height: 22, class: 'gr-spark', 'aria-hidden': 'true' });
-  s.append(svg('polyline', { points: linePoints(last.length > 1 ? last : [0, ...last], 56, 22), fill: 'none', stroke: color, 'stroke-width': 2, 'stroke-linejoin': 'round' }));
+  const last = xs.slice(-14), s = svg('svg', { viewBox: '0 0 100 20', preserveAspectRatio: 'none', class: 'gr-spark', 'aria-hidden': 'true' });
+  const top = niceMax(Math.max(...last, 0));
+  if (last.length > 1) s.append(svg('polyline', { points: linePoints(last, 96, 16, top).split(' ').map((p) => { const [x, y] = p.split(','); return `${Number(x) + 2},${Number(y) + 2}`; }).join(' '), fill: 'none', stroke: color, 'stroke-width': 2, 'stroke-linejoin': 'round', 'vector-effect': 'non-scaling-stroke' }));
+  else s.append(svg('line', { x1: 2, x2: 98, y1: 10, y2: 10, stroke: color, 'stroke-opacity': 0.35, 'stroke-width': 2, 'stroke-dasharray': '3 4', 'vector-effect': 'non-scaling-stroke' }));
   return s;
 }
 
@@ -75,7 +112,7 @@ export async function loadDaily(): Promise<DailyStats | null> {
   try { const r = await fetch('/api/daily-stats'); return r.ok ? await r.json() as DailyStats : null; } catch { return null; }
 }
 
-/** Builds the strip; hidden until the numbers arrive (or fail), so the cards never wait for it. */
+/** Builds the card; hidden until the numbers arrive (or fail), so the cards never wait for it. The world strip, if there, moves in as the highlights. */
 export function mountGrowth(host: HTMLElement, load: () => Promise<DailyStats | null> = loadDaily): void {
   host.style.display = 'none';
   void load().then((d) => {
@@ -84,36 +121,48 @@ export function mountGrowth(host: HTMLElement, load: () => Promise<DailyStats | 
     host.className = 'gr'; host.replaceChildren();
     if (isEmpty(d)) { const p = document.createElement('div'); p.className = 'gr-empty'; p.textContent = 'Just starting: be one of the first. Your runs will start this chart.'; host.append(p); host.style.display = ''; return; }
     let metric: Metric = 'players', range: Range = '30', open = false;
-    const row = document.createElement('div'); row.className = 'gr-row';
+    const tiles = document.createElement('div'); tiles.className = 'gr-tiles';
     const panel = document.createElement('div'); panel.className = 'gr-panel'; panel.hidden = true;
+    const rg = document.createElement('div'); rg.className = 'gr-r'; rg.setAttribute('role', 'group'); rg.setAttribute('aria-label', 'Time range');
+    const more = document.createElement('button'); more.type = 'button'; more.className = 'gr-more'; more.onclick = () => { open = !open; draw(); };
     const draw = () => {
-      for (const b of row.querySelectorAll<HTMLButtonElement>('.gr-chip')) b.setAttribute('aria-pressed', String(open && b.dataset.metric === metric));
-      panel.hidden = !open; more.textContent = open ? 'Hide the chart' : 'Show the chart';
+      for (const b of tiles.querySelectorAll<HTMLButtonElement>('.gr-tile')) b.setAttribute('aria-pressed', String(open && b.dataset.metric === metric));
+      for (const b of rg.querySelectorAll<HTMLButtonElement>('button')) b.setAttribute('aria-pressed', String(b.dataset.range === range));
+      panel.hidden = !open; rg.hidden = !open; more.textContent = open ? 'Hide the chart' : 'Show the chart'; more.setAttribute('aria-expanded', String(open));
       if (!open) return;
-      const cut = sliceRange(d, range), xs = cut.series[metric], total = xs.reduce((a, b) => a + b, 0);
-      const bar = document.createElement('div'); bar.className = 'gr-bar';
-      const sel = document.createElement('select'); sel.setAttribute('aria-label', 'What to show');
-      for (const m of METRICS) { const o = document.createElement('option'); o.value = m; o.textContent = METRIC_WORDS[m].menu; o.selected = m === metric; sel.append(o); }
-      sel.onchange = () => { metric = sel.value as Metric; draw(); sel.focus(); };
-      const rg = document.createElement('div'); rg.className = 'gr-r'; rg.setAttribute('role', 'group'); rg.setAttribute('aria-label', 'Time range');
-      for (const [r, label] of RANGES) { const b = document.createElement('button'); b.type = 'button'; b.textContent = label; b.setAttribute('aria-pressed', String(r === range)); b.onclick = () => { range = r; draw(); }; rg.append(b); }
-      const sum = document.createElement('span'); sum.className = 'gr-sum'; sum.textContent = `${n(total)} in ${cut.days.length === 1 ? '1 day' : `${cut.days.length} days`}`;
-      bar.append(sel, rg, sum);
-      panel.replaceChildren(bar, drawChart(cut, metric));
+      const cut = sliceRange(d, range);
+      const sum = document.createElement('p'); sum.className = 'gr-sum'; sum.textContent = summaryText(cut, metric);
+      const wrap = document.createElement('div'); wrap.className = 'gr-wrap';
+      const chart = drawChart(cut, metric, Math.max(360, Math.round(host.clientWidth - 40) || 720));
+      const tip = document.createElement('div'); tip.className = 'gr-tip'; tip.hidden = true; tip.setAttribute('role', 'status');
+      for (const r of chart.querySelectorAll<SVGRectElement>('.gr-hit')) {
+        const show = () => {
+          const dot = chart.querySelector<SVGCircleElement>(`.gr-dot[data-i="${r.dataset.i}"]`)!;
+          const a = dot.getBoundingClientRect(), b = wrap.getBoundingClientRect();
+          tip.textContent = r.dataset.tip ?? ''; tip.hidden = false; tip.style.left = `${a.left - b.left + a.width / 2}px`; tip.style.top = `${a.top - b.top}px`;
+        };
+        r.addEventListener('pointerenter', show); r.addEventListener('pointerleave', () => { tip.hidden = true; });
+      }
+      wrap.append(chart, tip);
+      panel.replaceChildren(sum, wrap);
+      if (cut.days.length === 1) { const note = document.createElement('p'); note.className = 'gr-note'; note.textContent = 'The line grows as days pass: each new day adds a dot.'; panel.append(note); }
     };
-    for (const m of CHIPS) {
+    for (const [r, label] of RANGES) { const b = document.createElement('button'); b.type = 'button'; b.textContent = label; b.dataset.range = r; b.onclick = () => { range = r; draw(); }; rg.append(b); }
+    for (const m of TILES) {
       const xs = d.series[m], today = xs[xs.length - 1] ?? 0;
-      const b = document.createElement('button'); b.type = 'button'; b.className = 'gr-chip'; b.dataset.metric = m; b.style.setProperty('--c', COLOR[m]); b.setAttribute('aria-pressed', 'false');
-      b.title = `${METRIC_WORDS[m].menu} each day. Click for the chart.`;
-      const t = document.createElement('div');
+      const b = document.createElement('button'); b.type = 'button'; b.className = 'gr-tile'; b.dataset.metric = m; b.style.setProperty('--c', COLOR[m]); b.setAttribute('aria-pressed', 'false');
+      b.title = `${METRIC_WORDS[m].menu} each day. Click to see the chart.`;
       const v = document.createElement('div'); v.className = 'gr-v'; v.textContent = n(today);
       const l = document.createElement('div'); l.className = 'gr-l'; l.textContent = today === 1 ? METRIC_WORDS[m].one : METRIC_WORDS[m].chip;
-      t.append(v, l); b.append(t, spark(xs, COLOR[m]));
+      b.append(v, l, spark(xs, COLOR[m]));
       b.onclick = () => { open = !(open && metric === m); metric = m; draw(); };
-      row.append(b);
+      tiles.append(b);
     }
-    const more = document.createElement('button'); more.type = 'button'; more.className = 'gr-more'; more.onclick = () => { open = !open; draw(); };
-    row.append(more); host.append(row, panel); draw();
+    const foot = document.createElement('div'); foot.className = 'gr-foot'; foot.append(more, rg);
+    host.append(tiles);
+    const world = document.getElementById('world-stats'); // its facts become chips inside this card
+    if (world && world !== host) { world.removeAttribute('style'); world.className = 'ws-in-card'; host.append(world); }
+    host.append(foot, panel); draw();
     host.style.display = '';
   });
 }
