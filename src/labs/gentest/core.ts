@@ -3,7 +3,7 @@ import { NO_TURN } from "../../slice/photo-proof";
 import { roleCourse } from "../../slice/roles";
 import { itemLength } from "../../slice/course-agent";
 import { itemAt } from "../../slice/course-agent-tools";
-import { meter, playPlan, searchIdealRun } from "../../sim/ideal";
+import { CLEARED, evalJob, meter, searchGen, workSeconds } from "../../sim/ideal";
 
 // Lab 9, Generate and test (CC-118 family). A helper PROPOSES a course; the simulator DECIDES. This file holds the pure parts:
 // the rules the player sets, the random proposer, one test through the real ideal-run search, a repair by easing, and the tally.
@@ -16,8 +16,9 @@ export interface Rules {
 }
 export const DEFAULT_RULES: Rules = { gap: true, block: true, bar: true, gapMin: 1.2, gapMax: 9, blockMin: 0.2, blockMax: 2.5, maxItems: 10 };
 export type Source = "recorded" | "random" | "both";
-export interface Config { rules: Rules; source: Source; repairs: number; randomCount: number; seed: number }
-export const DEFAULT_CONFIG: Config = { rules: DEFAULT_RULES, source: "recorded", repairs: 0, randomCount: 30, seed: 7 };
+export interface Config { rules: Rules; source: Source; repairs: number; randomCount: number; seed: number; budget: number; limit: number }
+// budget: work seconds the search may spend on one test (a search that cannot clear can run for a minute); limit: most proposals tested in one run
+export const DEFAULT_CONFIG: Config = { rules: DEFAULT_RULES, source: "recorded", repairs: 0, randomCount: 30, seed: 7, budget: 2, limit: 25 };
 export const BAR_MIN = 2, BAR_MAX = 3.5;
 
 export interface Proposal { id: string; source: "recorded" | "random"; theme: string; layout: Layout | null }
@@ -31,6 +32,7 @@ export interface Verdict {
   why: Why | null; // why the first test threw it out
   stoppedAt: number; // index of the piece the best try stopped at (-1 none)
   layout: Layout | null; fixed: Layout | null;
+  cut: boolean; // the first test was stopped by the budget, so the proposal might still clear with more search
   ticks: number; // simulator ticks spent on this proposal (all tests and repairs)
 }
 
@@ -78,7 +80,7 @@ export function randomLayout(rand: () => number, rules: Rules): Layout {
 }
 
 // ---- one test: the real ideal-run search on the layout's course ----
-interface Tried { cleared: boolean; laneShort: boolean; stoppedAt: number }
+interface Tried { cleared: boolean; laneShort: boolean; stoppedAt: number; cut: boolean }
 function position(layout: Layout, course: ReturnType<typeof roleCourse>["course"], maxX: number): number {
   const total = layout.items.reduce((s, it) => s + itemLength(it), 0);
   let best = 0, d = Infinity;
@@ -88,13 +90,21 @@ function position(layout: Layout, course: ReturnType<typeof roleCourse>["course"
   }
   return best;
 }
-export function testOnce(layout: Layout): Tried {
+/** One test: the real ideal-run search (the game's own generator) driven here so the work can be capped. The farthest any trial got says where the best try stopped. */
+export function testOnce(layout: Layout, budgetSec = 2): Tried {
   const { course, length } = roleCourse(layoutToPieces(layout), NO_TURN, "gentest");
-  if (length < 8) return { cleared: false, laneShort: true, stoppedAt: -1 };
-  const found = searchIdealRun(course);
-  if (found.cleared) return { cleared: true, laneShort: false, stoppedAt: -1 };
-  const p = playPlan(course, found.plan);
-  return { cleared: false, laneShort: false, stoppedAt: itemAt(layout, Math.round(position(layout, course, p.maxX) * 100) / 100) };
+  if (length < 8) return { cleared: false, laneShort: true, stoppedAt: -1, cut: false };
+  const cap = meter.ticks + workSeconds(budgetSec);
+  const g = searchGen(course);
+  let far = 0, r = g.next();
+  while (!r.done) {
+    const out: number[] = [];
+    for (const j of r.value.jobs) { const s = evalJob(course, j); out.push(s); if (s < CLEARED) far = Math.max(far, s); if (r.value.stopOnClear && s >= CLEARED) break; }
+    if (meter.ticks > cap) return { cleared: false, laneShort: false, stoppedAt: itemAt(layout, Math.round(position(layout, course, far) * 100) / 100), cut: true };
+    r = g.next(out);
+  }
+  if (r.value.cleared) return { cleared: true, laneShort: false, stoppedAt: -1, cut: false };
+  return { cleared: false, laneShort: false, stoppedAt: itemAt(layout, Math.round(position(layout, course, far) * 100) / 100), cut: false };
 }
 
 export function whyOf(layout: Layout, t: Tried): Why {
@@ -115,18 +125,18 @@ export function ease(layout: Layout, at: number, rules: Rules): Layout | null {
   return { items };
 }
 
-export function testProposal(p: Proposal, rules: Rules, repairs: number): Verdict {
+export function testProposal(p: Proposal, rules: Rules, repairs: number, budgetSec = 2): Verdict {
   const t0 = meter.ticks;
-  const base: Verdict = { id: p.id, source: p.source, theme: p.theme, firstClear: false, cleared: false, repairsUsed: 0, why: null, stoppedAt: -1, layout: p.layout, fixed: null, ticks: 0 };
+  const base: Verdict = { id: p.id, source: p.source, theme: p.theme, firstClear: false, cleared: false, repairsUsed: 0, why: null, stoppedAt: -1, cut: false, layout: p.layout, fixed: null, ticks: 0 };
   if (!p.layout) return { ...base, why: "The reply was not a course" };
   let cur = p.layout;
-  let t = testOnce(cur);
+  let t = testOnce(cur, budgetSec);
   if (t.cleared) return { ...base, firstClear: true, cleared: true, ticks: meter.ticks - t0 };
-  base.why = whyOf(cur, t); base.stoppedAt = t.stoppedAt;
+  base.why = whyOf(cur, t); base.stoppedAt = t.stoppedAt; base.cut = t.cut;
   for (let i = 1; i <= repairs; i++) {
     const next = ease(cur, t.stoppedAt, rules);
     if (!next) break;
-    cur = next; t = testOnce(cur); base.repairsUsed = i;
+    cur = next; t = testOnce(cur, budgetSec); base.repairsUsed = i;
     if (t.cleared) { base.cleared = true; base.fixed = cur; break; }
   }
   return { ...base, ticks: meter.ticks - t0 };
@@ -137,7 +147,7 @@ export function buildProposals(recorded: { id: string; theme: string; layout: La
   const out: Proposal[] = [];
   if (cfg.source !== "random") for (const r of recorded) if (!r.layout || fits(r.layout, rules)) out.push({ id: r.id, source: "recorded", theme: r.theme, layout: r.layout });
   if (cfg.source !== "recorded") { const rand = rng(cfg.seed); for (let i = 0; i < cfg.randomCount; i++) out.push({ id: `r${i + 1}`, source: "random", theme: "random draw", layout: randomLayout(rand, rules) }); }
-  return out;
+  return out.slice(0, Math.max(1, Math.round(cfg.limit)));
 }
 
 // ---- the tally ----
@@ -147,6 +157,7 @@ export interface Tally {
   triesFirst: number | null; triesRepair: number | null; // expected tries to one clear = 1 / p
   firstIndex: number | null; firstIndexRepair: number | null; // proposals up to and including the first clear (1-based)
   reasons: Record<string, number>;
+  cut: number; // thrown out only because the budget ran out
   ticks: number;
 }
 export function tally(vs: Verdict[]): Tally {
@@ -159,6 +170,6 @@ export function tally(vs: Verdict[]): Tally {
     pFirst: n ? first / n : 0, pRepair: n ? all / n : 0,
     triesFirst: first ? n / first : null, triesRepair: all ? n / all : null,
     firstIndex: idx((v) => v.firstClear), firstIndexRepair: idx((v) => v.cleared),
-    reasons, ticks: vs.reduce((s, v) => s + v.ticks, 0),
+    reasons, cut: vs.filter((v) => !v.cleared && v.cut).length, ticks: vs.reduce((s, v) => s + v.ticks, 0),
   };
 }
