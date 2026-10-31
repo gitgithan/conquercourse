@@ -1,0 +1,96 @@
+{
+  "experiment": "cc-baseten-latency",
+  "date": "2026-10-31",
+  "url": "https://inference.baseten.co/v1/chat/completions",
+  "model": "meta-models/muse-spark-open-1026",
+  "prompt": "Reply with the single word: ready",
+  "max_tokens": 1500,
+  "calls": [
+    {
+      "call": "1 first call now",
+      "idle_before_s": 0,
+      "status": 200,
+      "seconds": 2.31,
+      "seconds_to_headers": 2.26,
+      "tokens": {
+        "in": 152,
+        "out": 201
+      },
+      "reply": "ready",
+      "at": "2026-10-31T15:23:37.272Z"
+    },
+    {
+      "call": "2 right after (back to back)",
+      "idle_before_s": 0,
+      "status": 200,
+      "seconds": 1.35,
+      "seconds_to_headers": 1.35,
+      "tokens": {
+        "in": 152,
+        "out": 21
+      },
+      "reply": "ready",
+      "at": "2026-10-31T15:23:38.626Z"
+    },
+    {
+      "call": "3 after about 1 min idle",
+      "idle_before_s": 60,
+      "status": 200,
+      "seconds": 2.86,
+      "seconds_to_headers": 2.86,
+      "tokens": {
+        "in": 152,
+        "out": 174
+      },
+      "reply": "ready",
+      "at": "2026-10-31T15:24:41.524Z"
+    },
+    {
+      "call": "4 after about 5 min idle",
+      "idle_before_s": 300,
+      "status": 200,
+      "seconds": 2.79,
+      "seconds_to_headers": 2.77,
+      "tokens": {
+        "in": 152,
+        "out": 36
+      },
+      "reply": "ready",
+      "at": "2026-10-31T15:29:44.317Z"
+    },
+    {
+      "call": "5 after about 15 min idle",
+      "idle_before_s": 900,
+      "status": 200,
+      "seconds": 1.57,
+      "seconds_to_headers": 1.57,
+      "tokens": {
+        "in": 152,
+        "out": 28
+      },
+      "reply": "ready",
+      "at": "2026-10-31T15:44:45.941Z"
+    },
+    {
+      "call": "6 right after (back to back)",
+      "idle_before_s": 0,
+      "status": 200,
+      "seconds": 1.16,
+      "seconds_to_headers": 1.16,
+      "tokens": {
+        "in": 152,
+        "out": 24
+      },
+      "reply": "ready",
+      "at": "2026-10-31T15:44:47.102Z"
+    }
+  ],
+  "tokens_in": 912,
+  "tokens_out": 484,
+  "usd_at_list_price": 0.0032,
+  "price_per_million": {
+    "in": 1.25,
+    "out": 4.25
+  },
+  "host": "laptop (home network), one call at a time"
+}
