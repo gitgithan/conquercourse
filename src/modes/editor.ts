@@ -7,7 +7,7 @@ import { readGlbMesh } from '../slice/glb';
 import { creditLine, type Provenance } from '../slice/provenance';
 import { getUserObject, listUserObjects, saveUserObject, userObjectUrls, userSrc } from '../slice/user-objects';
 import { openPhotoObject, uploadObjOn } from '../ui/photo-object';
-import { isSharedSrc, placeParam, sharedGlbUrl, sharedSrc, usedShared } from '../community/flow';
+import { isSharedSrc, placeParam, sharedGlbUrl, sharedSrc, useShared, usedShared } from '../community/flow';
 import { LIBRARY, box } from '../slice/shapes';
 import { bestSlices, describe as describeLane, sliceProfile, CELL, HALF_LANE } from '../slice/slice';
 import { crop, centred, duplicate, hits, newPiece, realSize, scaleBy, scaleToHeight, size, worldSamples, laneProfile, type Piece } from '../slice/world';
@@ -226,6 +226,7 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
       pieces.push(p); selected = p.id; changed(); return true;
     } catch { verdict = 'That shared piece could not be loaded.'; draw(); return false; }
   };
+  (window as unknown as { ccAddShared?: (id: string, name: string) => void }).ccAddShared = (id, name) => { void addSharedPiece(id, name).then((ok) => { if (ok) useShared({ id, name }); }); }; // a card found by searching the community in Add pieces
   for (const u of usedShared()) { const b = el('button', photoBar, { text: `🌐 Shared: ${u.name}`, title: 'Made by another player' }); b.dataset.sharedPiece = u.id; b.dataset.object = `shared-${u.id}`; b.onclick = () => { void addSharedPiece(u.id, u.name); }; }
   { const want = placeParam(pageSearch()); if (want.startsWith('shared:')) { const id = want.slice(7), name = usedShared().find((x) => x.id === id)?.name ?? 'Shared piece'; void addSharedPiece(id, name); try { const u = new URL(location.href); u.searchParams.delete('place'); history.replaceState(null, '', u); } catch { /* the address stays */ } } }
   void (async () => {

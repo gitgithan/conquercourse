@@ -26,11 +26,17 @@ export async function shareItem(inp: ShareInput): Promise<Shared> {
   return { id: d.id, status: d.status === 'approved' ? 'approved' : 'pending' };
 }
 
-export async function listShared(): Promise<PublicItem[]> {
-  const res = await fetch('/api/community-items', { headers: { 'x-cc-session': sessionCode() } });
-  if (!res.ok) return [];
-  return ((await res.json()) as { items?: PublicItem[] }).items ?? [];
+export interface SharedPage { items: PublicItem[]; next: string | null }
+/** One page of the shared list. Search is by name on the server; `cursor` is the `next` of the page before. */
+export async function listSharedPage(opt: { q?: string; kind?: string; cursor?: string } = {}): Promise<SharedPage> {
+  const p = new URLSearchParams();
+  if (opt.q) p.set('q', opt.q); if (opt.kind) p.set('kind', opt.kind); if (opt.cursor) p.set('cursor', opt.cursor);
+  const res = await fetch(`/api/community-items${p.size ? `?${p}` : ''}`, { headers: { 'x-cc-session': sessionCode() } });
+  if (!res.ok) return { items: [], next: null };
+  const d = (await res.json()) as { items?: PublicItem[]; next?: string | null };
+  return { items: d.items ?? [], next: d.next ?? null };
 }
+export async function listShared(): Promise<PublicItem[]> { return (await listSharedPage()).items; }
 
 /** Only the owner's code can delete; the server answers 404 to anyone else. */
 export async function deleteShared(id: string): Promise<boolean> {

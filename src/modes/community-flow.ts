@@ -5,9 +5,11 @@ import { jobProgress } from '../ui/job-progress';
 import { LABEL_RE, MIN_BOX } from '../slice/object-lift';
 import { SegmentOff, suggestRegions } from '../slice/segment-client';
 import { deleteUserObject, listUserObjects, saveUserObject, type UserObject } from '../slice/user-objects';
-import { deleteShared, forgetLink, links, listShared, rememberLink, shareItem } from '../community/share-client';
+import { deleteShared, forgetLink, links, rememberLink, shareItem } from '../community/share-client';
 import { DEMOS, worldHref } from '../ui/world-picker';
 import { SAMPLE_WALLPAPERS, cropToThumb, deleteWallpaper, saveWallpaper, savedWallpapers } from '../community/wallpaper';
+import type { PublicItem } from '../community/items';
+import { listSharedPage } from '../community/share-client';
 import { placeableShared, sharedSrc, useShared, COST_WORDS, LIFT_PARALLEL, MAX_PICKS, STEPS, TABS, afterMarksChanged, buildFound, canEnter, editorHref, makeLabel, nextStep, prevStep, runQueue, startState, tabFor, toggleTick, wallpaperCrop, whyNot, type Box, type FlowState, type Found, type Kind, type Step, type Tab } from '../community/flow';
 import { openPrize } from '../ui/prize';
 import { startGallery } from './gallery';
@@ -97,8 +99,25 @@ export function startCommunityFlow(host: HTMLElement, params: URLSearchParams): 
       let objs: UserObject[] = []; try { objs = await listUserObjects(); } catch { /* none kept */ }
       for (const o of objs) if (!sharedLocal.has(`piece:${o.id}`)) card('', `Yours: ${o.prov.name}`, '3D piece, only in this browser', ['Open the World Editor', editorHref(o.id)]);
       // shared in Community: yours (with Delete) and everyone's approved ones
-      let items: Awaited<ReturnType<typeof listShared>> = []; try { items = await listShared(); } catch { /* the list is a bonus */ }
-      for (const it of items) {
+      // a search box, a kind filter and Show more: the shared list is served one page at a time, searched by name on the server
+      const bar = el('div', made); bar.className = 'row'; bar.id = 'shared-controls'; made.insertBefore(bar, g);
+      const find = el('input', bar, { id: 'shared-q', type: 'search', placeholder: 'Search shared things by name' } as never) as HTMLInputElement;
+      const kindSel = el('select', bar, { id: 'shared-kind' } as never) as HTMLSelectElement;
+      for (const [v, t] of [['', 'Everything'], ['piece', '3D pieces'], ['wallpaper', 'Wallpapers']]) el('option', kindSel, t, { value: v } as never);
+      const more = el('button', made, 'Show more', { id: 'shared-more' }); more.style.display = 'none';
+      let cursor: string | null = null;
+      const loadPage = async (reset: boolean) => {
+        if (reset) { for (const n of [...g.querySelectorAll('[data-shared]')]) n.remove(); cursor = null; }
+        let pg: Awaited<ReturnType<typeof listSharedPage>> = { items: [], next: null };
+        try { pg = await listSharedPage({ q: find.value.trim(), kind: kindSel.value, cursor: cursor ?? undefined }); } catch { /* the list is a bonus */ }
+        cursor = pg.next; more.style.display = pg.next ? '' : 'none';
+        for (const it of pg.items) addItem(it);
+      };
+      let timer = 0;
+      find.oninput = () => { clearTimeout(timer); timer = window.setTimeout(() => { void loadPage(true); }, 300); };
+      kindSel.onchange = () => { void loadPage(true); };
+      more.onclick = () => { void loadPage(false); };
+      const addItem = (it: PublicItem) => {
         const l = shared[it.id];
         const c = card(it.thumb ?? '', it.mine ? `Yours: ${it.name}` : it.name, `${it.kind === 'piece' ? '3D piece' : 'Wallpaper'}${it.mine ? (it.status === 'approved' ? ', shared with everyone' : ', shared: waiting for the safety check, only you see it') : ', shared by a player'}`,
           it.kind === 'wallpaper' && it.meta.course && l ? ['Play it', `${worldHref(it.meta.course)}&wallpaper=${l.local}`] : it.kind === 'piece' && it.mine ? ['Open the World Editor', l?.kind === 'piece' ? editorHref(l.local) : '?mode=editor&welcome=0&uploadobj=1'] : undefined);
@@ -124,7 +143,8 @@ export function startCommunityFlow(host: HTMLElement, params: URLSearchParams): 
             };
           };
         }
-      }
+      };
+      await loadPage(true);
     })();
   }
 
