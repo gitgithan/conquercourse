@@ -51,7 +51,7 @@
 ## The pieces
 - `migrations/0003_course_clears.sql`: one new table, `course_clears` (about 60 bytes a row), no change to the old tables; undone with `DROP TABLE course_clears`.
 - `functions/api/course-clear.ts`: takes a cleared run and replays it.
-- `functions/api/course-stats.ts`: the numbers for every course, cached for five minutes.
+- `functions/api/course-stats.ts`: the numbers for every course, cached for one minute; each course also has "plays today" (run starts since 00:00 UTC, one grouped count, nothing stored per person).
 - Test database: a real SQLite database with the real migrations (`tests/helpers-d1.ts`).
 
 ## Known gaps

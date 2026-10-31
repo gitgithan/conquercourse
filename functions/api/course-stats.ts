@@ -5,7 +5,7 @@ interface Env { DB: { prepare(sql: string): { all(): Promise<Rows> } } }
 
 export const MAX_CLEARS_READ = 3000;
 
-export interface CourseNumbers { plays: number; fails: number; clears: number; best: number | null; median: number | null }
+export interface CourseNumbers { plays: number; fails: number; clears: number; best: number | null; median: number | null; today?: number } // today: run starts since 00:00 UTC
 
 const median = (xs: number[]): number | null => {
   if (!xs.length) return null;
@@ -18,6 +18,11 @@ export const onRequestGet = async ({ env }: { env: Env }): Promise<Response> => 
   const at = (k: string): CourseNumbers => (out[k] ??= { plays: 0, fails: 0, clears: 0, best: null, median: null });
   const events = await env.DB.prepare("SELECT course_key AS k, event_type AS e, COUNT(*) AS n FROM course_events WHERE event_type IN ('start','fail') GROUP BY course_key, event_type").all();
   for (const r of events.results ?? []) { const c = at(String(r.k)); if (r.e === 'start') c.plays = Number(r.n); else c.fails = Number(r.n); }
+  // CC-108: plays today = run starts since 00:00 UTC; one grouped count per call, and the reply is cached, so the cost stays tiny; a failed query just leaves the part out
+  try {
+    const day = await env.DB.prepare("SELECT course_key AS k, COUNT(*) AS n FROM course_events WHERE event_type = 'start' AND ts >= date('now') GROUP BY course_key").all();
+    for (const r of day.results ?? []) at(String(r.k)).today = Number(r.n);
+  } catch { /* no today numbers: the cards show the all-time count only */ }
   // only clears of the newest version of a course count: a changed course makes an old time meaningless
   // CC-174: an unverified clear (replay cut or skipped) counts as cleared but never sets the best or the median; one that beats the stored best line waits for a replay and is not counted yet
   const newest = "c.course_hash = (SELECT course_hash FROM course_clears d WHERE d.course_key = c.course_key ORDER BY d.id DESC LIMIT 1)";
@@ -35,5 +40,5 @@ export const onRequestGet = async ({ env }: { env: Env }): Promise<Response> => 
     c.clears = n;
     if (ts.length) { c.best = Math.min(...ts); c.median = median(ts); }
   }
-  return new Response(JSON.stringify({ courses: out }), { headers: { 'content-type': 'application/json', 'cache-control': 'public, max-age=300' } });
+  return new Response(JSON.stringify({ courses: out }), { headers: { 'content-type': 'application/json', 'cache-control': 'public, max-age=60' } });
 };
