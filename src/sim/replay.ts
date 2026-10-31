@@ -51,8 +51,8 @@ export function trackFromPlan(course: CourseData, plan: Plan, maxTicks = MAX_REP
 
 export interface Verified { cleared: boolean; ticks: number; track: GhostTrack; world: WorldState }
 // Play recorded keys from the start of the course. This is also the check on a shared run: the time is what the simulator says, never what the link says.
-export function verifyLog(course: CourseData, log: InputLog, maxTicks = MAX_REPLAY_TICKS): Verified {
-  let w = newWorld(course, course.startX);
+export function verifyLog(course: CourseData, log: InputLog, maxTicks = MAX_REPLAY_TICKS, startX = course.startX): Verified {
+  let w = newWorld(course, startX);
   const xs = [w.runner.x], ys = [w.runner.y];
   let n = 0;
   outer: for (const [m, count] of log) {
@@ -169,17 +169,26 @@ export const cleanNick = (s: string): string => s.replace(/[^A-Za-z0-9_-]/g, '')
 
 // kind 'done': keys that reach the finish. kind 'fell' (CC-181): keys of a try that ended in a fall; the version field then reads "1f", so a build that does not know about it refuses the link.
 export type ChallengeKind = 'done' | 'fell';
-export interface Challenge { hash: string; nick: string; log: InputLog; kind: ChallengeKind }
-export async function makeChallengeParam(course: CourseData, log: InputLog, nick = '', kind: ChallengeKind = 'done'): Promise<string> {
-  return `${REPLAY_VERSION}${kind === 'fell' ? 'f' : ''}.${courseHash(course)}.${cleanNick(nick)}.${await encodeLog(log)}`;
+// CC-242: a run that began at a checkpoint says so in the version field ("1s2" = began at the second checkpoint), so an older build refuses it and no board ever takes it as a full run.
+export interface Challenge { hash: string; nick: string; log: InputLog; kind: ChallengeKind; start: number } // start 0: the course start; n: checkpoint n (1-based)
+/** Where a run with this start begins, standing still. */
+export const startXOf = (course: CourseData, start: number): number => start > 0 ? (course.checkpoints ?? [])[start - 1]?.x ?? course.startX : course.startX;
+/** The start number of a checkpoint x (0 for the course start, null when x is neither). */
+export const startOfX = (course: CourseData, x: number): number | null => {
+  if (Math.abs(x - course.startX) < 0.01) return 0;
+  const i = (course.checkpoints ?? []).findIndex((c) => Math.abs(c.x - x) < 0.01);
+  return i < 0 ? null : i + 1;
+};
+export async function makeChallengeParam(course: CourseData, log: InputLog, nick = '', kind: ChallengeKind = 'done', start = 0): Promise<string> {
+  return `${REPLAY_VERSION}${kind === 'fell' ? 'f' : ''}${start > 0 ? `s${start}` : ''}.${courseHash(course)}.${cleanNick(nick)}.${await encodeLog(log)}`;
 }
 export type ChallengeRead = { ok: true; challenge: Challenge } | { ok: false; why: 'version' | 'broken' };
 export async function readChallengeParam(param: string): Promise<ChallengeRead> {
   const [v, hash, nick, data, ...rest] = param.split('.');
   if (rest.length || data === undefined) return { ok: false, why: 'broken' };
-  const m = /^(\d+)(f?)$/.exec(v ?? '');
+  const m = /^(\d+)(f?)(?:s(\d{1,2}))?$/.exec(v ?? '');
   if (!m) return { ok: false, why: 'broken' };
   if (Number(m[1]) !== REPLAY_VERSION) return { ok: false, why: 'version' };
   if (!/^[a-z0-9]{1,8}$/.test(hash) || !/^[A-Za-z0-9_-]{0,12}$/.test(nick)) return { ok: false, why: 'broken' };
-  try { return { ok: true, challenge: { hash, nick, log: await decodeLog(data), kind: m[2] ? 'fell' : 'done' } }; } catch { return { ok: false, why: 'broken' }; }
+  try { return { ok: true, challenge: { hash, nick, log: await decodeLog(data), kind: m[2] ? 'fell' : 'done', start: m[3] ? Number(m[3]) : 0 } }; } catch { return { ok: false, why: 'broken' }; }
 }

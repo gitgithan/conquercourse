@@ -3,7 +3,7 @@ import type { CourseData } from '../course/course';
 import { nickOk, shownNick } from './nick';
 import courseJson from '../course/default-course.json';
 import { madeCourse, MAX_MADE_CHARS, packCourse, SHARE_MAX_MADE_CHARS } from './made-course';
-import { courseHash, makeChallengeParam, readChallengeParam, verifyLog, type ChallengeKind, type GhostTrack, type InputLog } from '../sim/replay';
+import { courseHash, makeChallengeParam, readChallengeParam, startXOf, verifyLog, type ChallengeKind, type GhostTrack, type InputLog } from '../sim/replay';
 
 export const SHARE_ON = true; // the build switch; ?share=0 turns it off for one visit
 export const shareOn = (params: URLSearchParams, build = SHARE_ON): boolean => build && params.get('share') !== '0';
@@ -12,25 +12,25 @@ export const MAX_PARAM_CHARS = 2000; // a link a chat app or a post will not cut
 // Only these words of the address are kept in a link: the course, and the seed of a made course. No name, no time, no account.
 const KEEP = ['course', 'seed', 'generate'];
 
-export type OpenedChallenge = { ok: true; kind: ChallengeKind; track: GhostTrack; ticks: number; log: InputLog; nick: string } | { ok: false; why: 'version' | 'changed' | 'broken' | 'not-cleared' | 'too-big' };
+export type OpenedChallenge = { ok: true; kind: ChallengeKind; track: GhostTrack; ticks: number; log: InputLog; nick: string; start: number } | { ok: false; why: 'version' | 'changed' | 'broken' | 'not-cleared' | 'too-big' };
 
 /** Play the keys of a link on this course. The ghost and the time come from the simulator. */
 export async function openChallenge(course: CourseData, param: string): Promise<OpenedChallenge> {
   const read = await readChallengeParam(param);
   if (!read.ok) return { ok: false, why: read.why };
   if (read.challenge.hash !== courseHash(course)) return { ok: false, why: 'changed' };
-  const v = verifyLog(course, read.challenge.log);
+  const start = read.challenge.start, v = verifyLog(course, read.challenge.log, undefined, startXOf(course, start));
   if (read.challenge.kind === 'fell') { // a try that ended in a fall (CC-181): it must really end in a fall here; a run that clears, or never ends, is not what the link says
     if (v.cleared || v.world.outcome === 'running' || v.ticks < 1) return { ok: false, why: 'broken' };
-    return { ok: true, kind: 'fell', track: v.track, ticks: v.ticks, log: read.challenge.log, nick: shownNick(read.challenge.nick) };
+    return { ok: true, kind: 'fell', track: v.track, ticks: v.ticks, log: read.challenge.log, nick: shownNick(read.challenge.nick), start };
   }
   if (!v.cleared) return { ok: false, why: 'not-cleared' };
-  return { ok: true, kind: 'done', track: v.track, ticks: v.ticks, log: read.challenge.log, nick: shownNick(read.challenge.nick) };
+  return { ok: true, kind: 'done', track: v.track, ticks: v.ticks, log: read.challenge.log, nick: shownNick(read.challenge.nick), start };
 }
 
 /** What a link is made of: the kept words of the address, the packed made course (or ''), and the challenge text. Null when the keys do not do what the link says, the tag is not allowed, or (with limits) the course is too big to carry. */
-async function linkParts(search: string, course: CourseData, log: InputLog, nick: string, kind: ChallengeKind, limits: boolean): Promise<{ keep: URLSearchParams; made: string; param: string } | null> {
-  const fits = (c: CourseData): boolean => { const v = verifyLog(c, log); return kind === 'fell' ? !v.cleared && v.world.outcome !== 'running' && v.ticks >= 1 : v.cleared; };
+async function linkParts(search: string, course: CourseData, log: InputLog, nick: string, kind: ChallengeKind, limits: boolean, start = 0): Promise<{ keep: URLSearchParams; made: string; param: string } | null> {
+  const fits = (c: CourseData): boolean => { const v = verifyLog(c, log, undefined, startXOf(c, start)); return kind === 'fell' ? !v.cleared && v.world.outcome !== 'running' && v.ticks >= 1 : v.cleared; };
   if (!nickOk(nick) || !fits(course)) return null;
   const from = new URLSearchParams(search), keep = new URLSearchParams();
   for (const k of KEEP) { const v = from.get(k); if (v) keep.set(k, v); }
@@ -42,12 +42,12 @@ async function linkParts(search: string, course: CourseData, log: InputLog, nick
     if (made.length > (limits ? MAX_MADE_CHARS : SHARE_MAX_MADE_CHARS)) return null;
     played = c;
   }
-  return { keep, made, param: await makeChallengeParam(played, log, nick, kind) };
+  return { keep, made, param: await makeChallengeParam(played, log, nick, kind, start) };
 }
 
 /** The long link for a cleared run (or, with kind 'fell', for a try that ended in a fall), or null when the keys do not do that on this course, the nickname is not allowed or the link would be too long. */
-export async function makeChallengeUrl(origin: string, search: string, course: CourseData, log: InputLog, nick = '', look: 'a' | 'b' = 'a', kind: ChallengeKind = 'done'): Promise<string | null> {
-  const p = await linkParts(search, course, log, nick, kind, true);
+export async function makeChallengeUrl(origin: string, search: string, course: CourseData, log: InputLog, nick = '', look: 'a' | 'b' = 'a', kind: ChallengeKind = 'done', start = 0): Promise<string | null> {
+  const p = await linkParts(search, course, log, nick, kind, true, start);
   if (!p) return null;
   const to = p.keep;
   if (p.made) to.set('made', p.made);
@@ -67,8 +67,8 @@ const within = async (f: Fetcher, url: string, init: RequestInit | undefined, ms
 };
 
 /** The short link for a run, or null when the server cannot keep it now (not reachable, switched off, table missing, course not supported). The caller then falls back to the long link. */
-export async function makeShortUrl(origin: string, search: string, course: CourseData, log: InputLog, nick = '', look: 'a' | 'b' = 'a', kind: ChallengeKind = 'done', f: Fetcher = (u, i) => fetch(u, i)): Promise<string | null> {
-  const p = await linkParts(search, course, log, nick, kind, false);
+export async function makeShortUrl(origin: string, search: string, course: CourseData, log: InputLog, nick = '', look: 'a' | 'b' = 'a', kind: ChallengeKind = 'done', f: Fetcher = (u, i) => fetch(u, i), start = 0): Promise<string | null> {
+  const p = await linkParts(search, course, log, nick, kind, false, start);
   if (!p) return null;
   const res = await within(f, '/api/share', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ param: p.param, query: p.keep.toString(), made: p.made || undefined, look }) });
   if (!res || !res.ok) return null;
@@ -76,9 +76,9 @@ export async function makeShortUrl(origin: string, search: string, course: Cours
 }
 
 /** The link to copy: short when the server answers, long otherwise. */
-export async function makeLink(origin: string, search: string, course: CourseData, log: InputLog, nick = '', look: 'a' | 'b' = 'a', kind: ChallengeKind = 'done', f?: Fetcher): Promise<string | null> {
-  if (shortOn(new URLSearchParams(search))) { const s = await makeShortUrl(origin, search, course, log, nick, look, kind, f); if (s) return s; }
-  return makeChallengeUrl(origin, search, course, log, nick, look, kind);
+export async function makeLink(origin: string, search: string, course: CourseData, log: InputLog, nick = '', look: 'a' | 'b' = 'a', kind: ChallengeKind = 'done', f?: Fetcher, start = 0): Promise<string | null> {
+  if (shortOn(new URLSearchParams(search))) { const s = await makeShortUrl(origin, search, course, log, nick, look, kind, f, start); if (s) return s; }
+  return makeChallengeUrl(origin, search, course, log, nick, look, kind, start);
 }
 
 /** An address with ?c=<id> becomes the long form (course words, made course, challenge, look) so the rest of the page reads it as it always did. Null when the address has no short id; '' + broken when the id cannot be opened. */
