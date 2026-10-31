@@ -1,8 +1,8 @@
 // The film camera: scripted shots for the demo video (CC-130). Each shot is a pure function of the time in seconds, so a film frame is the same every run.
 // It only runs with ?film=<shot> in the address; play never loads it.
 
-export type FilmShot = 'flyover' | 'orbit' | 'follow' | 'push' | 'hero' | 'macro' | 'spin' | 'skyline';
-export const FILM_SHOTS: FilmShot[] = ['flyover', 'orbit', 'follow', 'push', 'hero', 'macro', 'spin', 'skyline'];
+export type FilmShot = 'flyover' | 'orbit' | 'follow' | 'push' | 'hero' | 'macro' | 'spin' | 'skyline' | 'dive';
+export const FILM_SHOTS: FilmShot[] = ['flyover', 'orbit', 'follow', 'push', 'hero', 'macro', 'spin', 'skyline', 'dive'];
 
 export interface Pose { pos: [number, number, number]; look: [number, number, number]; fov: number }
 export interface FilmCtx {
@@ -14,7 +14,7 @@ export interface FilmCtx {
   airborne: number; // 0 on the ground to 1 in the air; the caller eases it, so the follow shot zooms in at take-off and out at landing
 }
 
-export const SHOT_SECONDS: Record<FilmShot, number> = { flyover: 12, orbit: 8, follow: 10, push: 7, hero: 11, macro: 4, spin: 1.1, skyline: 7.2 };
+export const SHOT_SECONDS: Record<FilmShot, number> = { flyover: 12, orbit: 8, follow: 10, push: 7, hero: 11, macro: 4, spin: 1.1, skyline: 7.2, dive: 4.8 };
 
 const clamp01 = (x: number) => Math.max(0, Math.min(1, x));
 const ease = (x: number) => { const t = clamp01(x); return t * t * (3 - 2 * t); }; // smooth start and end
@@ -39,6 +39,13 @@ function flyover(t: number, c: FilmCtx): Pose {
 function skyline(t: number, c: FilmCtx): Pose {
   const u = ease(t / SHOT_SECONDS.skyline);
   return around([mix(2, Math.min(c.finishX - 6, 46), u), mix(2.5, 5, u), 0], mix(30, 21, u), mix(0.22, 0.02, u), rad(mix(7, -22, u)), 44);
+}
+
+// The dive: from high behind the start, looking down the course, one descending arc that settles into the plain side view at the start line (film: flyover into the run).
+// One move, constant direction, caused by the reveal; it ends where the side run begins, so the two takes cut together.
+function dive(t: number, c: FilmCtx): Pose {
+  const u = ease(t / SHOT_SECONDS.dive);
+  return around([mix(c.runnerX + 16, c.runnerX + 1.5, u), c.runnerY + 1.1, 0], mix(30, 12.5, u), mix(1.15, 0.02, u), rad(mix(28, 7, u)), mix(44, 38, u));
 }
 
 // Around one obstacle, from the front-left to the back-right, closing in a little.
@@ -93,6 +100,7 @@ export function filmPose(shot: FilmShot, t: number, c: FilmCtx): Pose {
     case 'macro': return macro(t, c);
     case 'spin': return spin(t, c);
     case 'skyline': return skyline(t, c);
+    case 'dive': return dive(t, c);
   }
 }
 
