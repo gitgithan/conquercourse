@@ -48,7 +48,7 @@
     },
     "feet_dont_slide": {
       "ok": true,
-      "value": 0.0,
+      "value": 0,
       "limit": "<= 0.03 m",
       "note": ""
     },

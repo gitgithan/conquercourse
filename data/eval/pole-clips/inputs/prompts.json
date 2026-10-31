@@ -1,18 +1,18 @@
 {
   "pole_run": [
     "A person sprints forward carrying a long pole in both hands, held low in front of them.",
-    3.0
+    3
   ],
   "pole_vault": [
     "A person sprints with a long pole, plants the pole tip into the ground, swings up and over a high bar, and falls onto a mat.",
-    5.0
+    5
   ],
   "pole_fall": [
     "A person plants a long pole too early, the pole stands up, and they fall backwards onto the ground.",
-    4.0
+    4
   ],
   "pole_land": [
     "A person drops onto a thick mat on their back after jumping over a bar, then lies still.",
-    3.0
+    3
   ]
 }

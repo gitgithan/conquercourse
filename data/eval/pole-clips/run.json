@@ -6,7 +6,7 @@
   "model": "kimodo-soma-rp",
   "samples_per_prompt": 3,
   "prompts": "inputs/prompts.json",
-  "wall_s": 943.0,
+  "wall_s": 943,
   "model_load_s": 101.7,
   "generate_s": 155.1,
   "cost_usd_estimate": 0.25,
