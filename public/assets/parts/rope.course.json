@@ -1,0 +1,46 @@
+{
+  "version": 1,
+  "jumpSpeed": 4.5,
+  "jumpKeep": 0.88,
+  "grabReach": 0.15,
+  "hazard": "lava",
+  "name": "Part: the rope swing",
+  "startX": 137,
+  "finishX": 160,
+  "terrain": {
+    "waterY": -6,
+    "platforms": [
+      {
+        "x0": 132,
+        "x1": 145,
+        "top": 4
+      },
+      {
+        "x0": 153,
+        "x1": 173,
+        "top": 6
+      }
+    ]
+  },
+  "rope": {
+    "anchorX": 149,
+    "anchorY": 12.6,
+    "length": 9
+  },
+  "zones": [
+    {
+      "id": "rope",
+      "name": "the rope swing",
+      "x0": 137,
+      "x1": 160
+    }
+  ],
+  "plan": {
+    "jumpXs": [
+      143.52
+    ],
+    "releaseAfter": 104,
+    "bouncePress": 8,
+    "climbHands": true
+  }
+}

@@ -1,0 +1,41 @@
+{
+  "version": 1,
+  "jumpSpeed": 4.5,
+  "jumpKeep": 0.88,
+  "grabReach": 0.15,
+  "hazard": "lava",
+  "name": "Part: a climb",
+  "startX": 84,
+  "finishX": 93.5,
+  "terrain": {
+    "waterY": -6,
+    "platforms": [
+      {
+        "x0": 74,
+        "x1": 92,
+        "top": 4
+      },
+      {
+        "x0": 92,
+        "x1": 94,
+        "top": 6
+      }
+    ]
+  },
+  "zones": [
+    {
+      "id": "climb",
+      "name": "a climb",
+      "x0": 84,
+      "x1": 93.5
+    }
+  ],
+  "plan": {
+    "jumpXs": [],
+    "releaseAfter": 60,
+    "bouncePress": 8,
+    "climbXs": [
+      90.5
+    ]
+  }
+}

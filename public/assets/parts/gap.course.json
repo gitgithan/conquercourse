@@ -1,0 +1,40 @@
+{
+  "version": 1,
+  "jumpSpeed": 4.5,
+  "jumpKeep": 0.88,
+  "grabReach": 0.15,
+  "hazard": "lava",
+  "name": "Part: a gap jump",
+  "startX": 8,
+  "finishX": 36,
+  "terrain": {
+    "waterY": -6,
+    "platforms": [
+      {
+        "x0": -10,
+        "x1": 24,
+        "top": 0
+      },
+      {
+        "x0": 29,
+        "x1": 44,
+        "top": 0
+      }
+    ]
+  },
+  "zones": [
+    {
+      "id": "gap",
+      "name": "a gap jump",
+      "x0": 8,
+      "x1": 36
+    }
+  ],
+  "plan": {
+    "jumpXs": [
+      23.06
+    ],
+    "releaseAfter": 60,
+    "bouncePress": 8
+  }
+}

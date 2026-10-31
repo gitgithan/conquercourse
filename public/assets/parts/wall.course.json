@@ -1,0 +1,42 @@
+{
+  "version": 1,
+  "jumpSpeed": 4.5,
+  "jumpKeep": 0.88,
+  "grabReach": 0.15,
+  "hazard": "lava",
+  "name": "Part: the warped wall",
+  "startX": 62,
+  "finishX": 80,
+  "terrain": {
+    "waterY": -6,
+    "platforms": [
+      {
+        "x0": 52,
+        "x1": 74,
+        "top": 0
+      },
+      {
+        "x0": 74,
+        "x1": 92,
+        "top": 4
+      }
+    ]
+  },
+  "wall": {
+    "x0": 70,
+    "height": 4
+  },
+  "zones": [
+    {
+      "id": "wall",
+      "name": "the warped wall",
+      "x0": 62,
+      "x1": 80
+    }
+  ],
+  "plan": {
+    "jumpXs": [],
+    "releaseAfter": 60,
+    "bouncePress": 8
+  }
+}

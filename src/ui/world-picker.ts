@@ -8,6 +8,7 @@ export const DEMO_GROUPS: [string, Demo[]][] = [
     ['/assets/demo/training.course.json', 'Training course: every move', 'A gap jump, a vault, the lache bars, a rope, a climb, a trampoline and a rolled drop in one run. The best line is faster than the obvious one.'],
     ['/assets/demo/cannonballs.course.json', 'Cannonballs: slip between the shots', 'Cannons fire a ball every 12 seconds and show it filling up. Jump the low ones, slide under the high ones, and climb the wall to wait out a double shot.'],
     ['/assets/demo/two-ways.course.json', 'Two ways: swing high or drop low', 'The course splits once. Swing over a gap on two bars, or drop to a deep floor and climb back up. Both ways are proved to work; the better one depends on how you run.'],
+    ['parts', 'Parts: moves and obstacles', 'Every move and every obstacle on one page, each playing the real game on its own. See what a course is made of.'],
   ]],
   ['Real places', [
     ['/assets/experiments/osm/montmartre-paris.course.json', 'Montmartre, Paris', 'Real streets and roofs on a hill, cut at one level and shrunk to run on.'],
@@ -57,10 +58,13 @@ import { pageQuery } from '../flags';
 import { challengeOn } from '../share/challenge-course';
 import { loadCommunity } from '../share/challenge-client';
 
+/** The Parts gallery card is always shown; ?parts=0 hides it (the page itself, ?mode=parts, stays reachable). */
+export const partsCardOn = (params: URLSearchParams): boolean => params.get('parts') !== '0';
+
 /** CC-201: the slicer card is always shown (it used to hide behind ?labs=1); ?slice2=old brings the old rule back. */
 export const sliceCardOn = (params: URLSearchParams): boolean => params.get('slice2') !== 'old';
 
-export const WORD_VALUES = ['generate', 'editor', 'coaster-builder', 'map', 'lab-search', 'lab-optimization', 'lab-ik', 'lab-vision', 'lab-camera', 'lab-integration', 'lab-timing', 'lab-signal', 'lab-gentest', 'lab-detector', 'lab-hashing', 'lab-rl'];
+export const WORD_VALUES = ['parts', 'generate', 'editor', 'coaster-builder', 'map', 'lab-search', 'lab-optimization', 'lab-ik', 'lab-vision', 'lab-camera', 'lab-integration', 'lab-timing', 'lab-signal', 'lab-gentest', 'lab-detector', 'lab-hashing', 'lab-rl'];
 export const DEMOS: [string, string][] = DEMO_GROUPS.flatMap(([, ds]) => ds.map((d) => [d[0], d[1]] as [string, string]));
 export const DEMO_ABOUT = new Map<string, string>(DEMO_GROUPS.flatMap(([, ds]) => ds.map((d) => [d[0], d[2]] as [string, string])));
 
@@ -73,6 +77,7 @@ export const thumbUrl = (value: string): string => `/assets/thumbs/${thumbSlug(v
 export function worldHref(value: string, loc?: { pathname: string; search: string }, seed: number = Math.floor(Math.random() * 1e6)): string {
   const suffix = '&welcome=0';
   if (value.startsWith('cid:')) return `?cid=${value.slice(4)}${suffix}`; // CC-108: a Community challenge course
+  if (value === 'parts') return `?mode=parts${suffix}`;
   if (value === 'editor') return `?mode=editor${suffix}`;
   if (value === 'coaster-builder') return `?mode=coaster${suffix}`;
   if (value === 'map') return `?mode=map${suffix}`;
@@ -85,6 +90,7 @@ export function worldHref(value: string, loc?: { pathname: string; search: strin
 /** Which card is the one you are in: a list value, 'generate-same' for a generated seed, 'stay' for a course outside the list, '' (stock), or null for modes that are not a world. */
 export function currentWorld(params: URLSearchParams, courseName?: string): { value: string | null; label?: string } {
   const mode = params.get('mode') ?? 'course';
+  if (mode === 'parts') return { value: 'parts' };
   if (mode === 'editor') return { value: 'editor' };
   if (mode === 'coaster') return { value: 'coaster-builder' };
   if (mode === 'map') return { value: 'map' };
@@ -99,6 +105,7 @@ export function currentWorld(params: URLSearchParams, courseName?: string): { va
 }
 
 const ICONS: Record<string, string> = {
+  parts: '<rect x="8" y="8" width="20" height="20" rx="4"/><rect x="36" y="8" width="20" height="20" rx="4"/><rect x="8" y="36" width="20" height="20" rx="4"/><path d="M36 46h20M46 36v20"/>',
   generate: '<rect x="14" y="14" width="36" height="36" rx="7"/><circle cx="25" cy="25" r="3"/><circle cx="39" cy="25" r="3"/><circle cx="32" cy="32" r="3"/><circle cx="25" cy="39" r="3"/><circle cx="39" cy="39" r="3"/>',
   editor: '<rect x="10" y="38" width="16" height="14" rx="2"/><rect x="26" y="26" width="16" height="26" rx="2"/><rect x="42" y="14" width="14" height="38" rx="2"/><path d="M8 54h50"/>',
   'coaster-builder': '<path d="M6 46C16 14 26 14 32 36s14 22 26-18"/><circle cx="6" cy="46" r="3"/><circle cx="32" cy="36" r="3"/><circle cx="58" cy="18" r="3"/>',
@@ -224,7 +231,7 @@ export function buildGallery(o: GalleryOptions): { el: HTMLElement; focusStart()
     cards.push({ card: grid.lastElementChild as HTMLButtonElement, sec: grid.parentElement!, text: `${cur.label ?? ''} this course`.toLowerCase() });
   }
   for (const [group, ds] of DEMO_GROUPS) {
-    const hiddenItem = (v: string): boolean => (v === 'map' ? !sliceCardOn(pageQuery()) && cur.value !== v && !labsOn() : v.startsWith('lab-') && cur.value !== v && !labsOn());
+    const hiddenItem = (v: string): boolean => (v === 'parts' ? !partsCardOn(pageQuery()) && cur.value !== v : v === 'map' ? !sliceCardOn(pageQuery()) && cur.value !== v && !labsOn() : v.startsWith('lab-') && cur.value !== v && !labsOn());
     if (ds.every(([v]) => hiddenItem(v))) continue; // a group whose items are all switched off shows no heading
     const grid = section(group);
     for (const [v, label, about] of ds) {

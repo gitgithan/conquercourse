@@ -1,0 +1,33 @@
+{
+  "version": 1,
+  "jumpSpeed": 4.5,
+  "jumpKeep": 0.88,
+  "grabReach": 0.15,
+  "hazard": "lava",
+  "name": "Part: running",
+  "startX": 0,
+  "finishX": 40,
+  "terrain": {
+    "waterY": -6,
+    "platforms": [
+      {
+        "x0": -10,
+        "x1": 60,
+        "top": 0
+      }
+    ]
+  },
+  "zones": [
+    {
+      "id": "run",
+      "name": "Running",
+      "x0": 0,
+      "x1": 40
+    }
+  ],
+  "plan": {
+    "jumpXs": [],
+    "releaseAfter": 60,
+    "bouncePress": 8
+  }
+}
