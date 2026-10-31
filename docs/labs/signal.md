@@ -53,3 +53,49 @@
 - Other joints' filters (all joints get the same filter and strength).
 - Phones and touch (not in scope).
 - The Rookie view in a real GPU browser (the check uses a software renderer).
+
+
+## How it was designed
+- **The one question:** how much smoothing calms the wobble of a captured move before it costs the move?
+- **The choices and why those:**
+  - Four filters (window average, triangle, curve fit, live one-pole), because each pays a different price: the window ones keep time, the curve fit keeps a parabola, the live one lags.
+  - Seeded noise added to clean clips, so the true move is known and "wobble left", "late" and "shape lost" are measured and not guessed.
+  - The game's own gate as the judge, because no motion is shown before it passes.
+- **Which real game code runs:** the shipped clips `run`, `leap` and `vault`, and the game's smoothing and bone-length rule as written in `pipelines/video_to_motion/post.py`.
+  - The filters, the noise and the TypeScript gate (`src/lab/signal-lab.ts`) are Lab code; the gate is a port of the Python gate.
+- **Which data is precomputed:** `tests/fixtures/lab-signal-reference.json` holds the Python gate's numbers for the test only; the page itself computes live.
+- **Order of the screen and why compare comes last:** goal, controls, the plotted joint, the numbers, the gate table, and "what the game does" last, so the player has felt the price of each filter first.
+- **Scope:** a teaching model of video noise (white, equal on all joints), not a model of real video.
+
+## How we prove the lesson is right
+- `tests/lab-signal.test.ts` (15 tests):
+  - Window kernels sum to 1 and the game's smoothing is the 1-2-3-2-1 triangle.
+  - Every filter keeps a constant, and strength 0 changes nothing.
+  - Symmetric windows keep a straight line, and the curve fit keeps a parabola too.
+  - The live filter lags a ramp by (1 - a) / a frames and the window filters do not lag.
+  - A stronger filter lets through less noise and has a lower cut-off.
+  - White noise shrinks by the square root of the summed squared weights.
+  - Only the live filter lags in the Lab's own number.
+  - The same choices give the same numbers twice.
+  - The TypeScript gate matches the Python gate on every case of the reference (more than 25 cases; noise, filter, bone lengths, then every gate number).
+  - The game's smoothing keeps every bone one length.
+  - Heavy noise fails the gate and the Lab names the rule; the shipped clips pass the gate unfiltered.
+- Browser check: `scripts/lab-signal-check.mjs`, evidence `docs/evidence/lab-signal-default.png`, `docs/evidence/lab-signal-held-back.png` and `docs/evidence/lab-signal-live-lag.png`.
+- What would make the Lab's claim false:
+  - A gate number that leaves the Python gate's number.
+  - A filter whose measured lag or noise gain differs from its law.
+
+## Limits
+- **Stand-in noise:** real video noise is not white and not equal on all joints; no real noisy clip is used.
+- **One filter for all joints:** a different filter for feet and hands is not tested.
+- **Findings quoted on the page** (the leap near 210 m/s2 against 200, the vault foot sliding about 9.6 cm against 3 cm) are not pinned by a test.
+- **The reference must be rebuilt** by `scripts/lab_signal_reference.py` when the Python gate changes; no test notices a stale file.
+- **The Rookie view** is checked in a software renderer only.
+- Desktop keyboard and mouse at 1280 px only.
+
+## How to make the lesson better
+1. Pin the two quoted findings (leap acceleration, vault foot slide) in the test file.
+2. Add a clip with real video noise and show the stand-in and the real one side by side.
+3. Let the player choose a filter per joint group (feet against hands).
+4. Add a test that fails when the reference file is older than the Python gate.
+5. Read the goal text with a young reader and fix the words.

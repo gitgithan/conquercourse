@@ -53,3 +53,49 @@
 - The repair is a simple easing, not the editor's Fix it, so its gain is lower than Fix it's.
 - Layouts with walls to climb, ropes or trampolines: the proposal grammar has only ground, gap, block and bar.
 - The cut-off is counted in work, so it gives the same answer on a slow device, but the time it takes is not.
+
+
+## How it was designed
+- **The one question:** which of a helper's proposals does the simulator throw out, and how does that change when you limit what the helper may propose?
+- **The choices and why those:**
+  - Recorded replies of a model plus a seeded random proposer, so the page makes no model call and gives the same answer every time.
+  - Rules the player sets (pieces, sizes, most pieces), because a limit on the proposer is the lever a designer really has.
+  - A repair step that only eases the piece where the best try stopped, so the player sees what a cheap repair buys.
+- **Which real game code runs:** the editor's lane builder and the game's ideal-run search (`src/sim/ideal.ts`), in a worker with a work cap.
+  - The proposal grammar, the rules filter, the repair and the tally are Lab code (`src/labs/gentest/core.ts`).
+- **Which data is precomputed:** `public/assets/lab/gentest-proposals.json`, 100 recorded asks (95 readable).
+- **Order of the screen and why compare comes last:** goal, rules, the tested strip, the throw-out reasons, the maths on request, and "what the game does" last, so the player has seen a model's mistakes before reading why the simulator decides last.
+- **Scope:** educational; the Lab cannot show a different model or prompt.
+
+## How we prove the lesson is right
+- `tests/lab-gentest.test.ts` (10 tests):
+  - The pool holds the recorded proposals.
+  - The simulator keeps the last word: an easy gap clears and a 4 m wall is thrown out and named.
+  - A 40 m gap is tested as a 5 m one, a fact the Lab states.
+  - A tiny time limit cuts the search off and says so, without claiming the proposal can never clear.
+  - A reply that is not a course, and a lane under 8 m, are thrown out.
+  - A repair eases only the stopping piece and never past the player's minimum.
+  - Repair never lowers the number cleared, and the same input gives the same answer.
+  - The rules filter recorded proposals and bound the random ones.
+  - Expected tries to one clear is 1 over the clear rate.
+  - The replay of the first 38 readable proposals agrees with the recorded run on whether each clears as drawn.
+- Browser check: `scripts/lab-gentest-check.mjs`, evidence `docs/evidence/lab-gentest-recorded.png` and `docs/evidence/lab-gentest-repairs.png`.
+- What would make the Lab's claim false:
+  - A proposal the search clears but a player cannot, or the other way round.
+  - A replay that stops agreeing with the recorded run.
+
+## Limits
+- **No new model ideas:** nothing is asked of a model, so the Lab cannot compare models or prompts.
+- **The repair is a simple easing,** not the editor's Fix it, so its gain is lower.
+- **The grammar is ground, gap, block and bar;** walls, ropes and trampolines are not tested.
+- **Replay agreement covers the first 38 readable proposals,** not all 95.
+- **The recorded numbers on the card** (95 of 100 gave a course, 20 cleared as drawn, 33 after Fix it) come from CC-122 and no test reads them.
+- **Cut-off counts work, not seconds,** so the answer is the same on a slow device but the waiting time is not.
+- Desktop keyboard and mouse at 1280 px only.
+
+## How to make the lesson better
+1. Replay all 95 readable proposals in a long test run and report any that differ.
+2. Use the editor's real Fix it as the repair, so the gain matches the game.
+3. Add walls, ropes and trampolines to the grammar.
+4. Record a second model's replies and show two proposers side by side.
+5. Add a test that reads the CC-122 numbers from the data and compares them with the card.

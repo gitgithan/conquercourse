@@ -36,7 +36,16 @@ export const DEMO_GROUPS: [string, Demo[]][] = [
   ['Labs (university level)', [
     ['lab-search', 'Lab 1: Search', 'Choose how the game looks for a clear run: greedy, beam, A* or everything. Mix a heuristic, set a budget, read the numbers.'],
     ['lab-optimization', 'Lab 2: Optimization', 'Pick which settings to tune and how to search them; see a map of finishing time with its local peaks.'],
+    ['lab-ik', 'Lab 3: Posing a character', 'Move the hand to a bar and watch where the arm bends and where it breaks.'],
+    ['lab-vision', 'Lab 4: Computer vision', 'Move the cut-offs and see how many street photos you keep and how many people you miss.'],
+    ['lab-camera', 'Lab 5: Camera and perspective', 'See why one photo cannot tell how far away each part of a body is, and what a second camera adds.'],
+    ['lab-integration', 'Lab 6: Numerical integration', 'Change the step rule and the step size and see how much energy the computer invents.'],
     ['lab-timing', 'Lab 7: Statistics of timing', 'Set how shaky the presses are and see how often a course clears, and how wide the press window must be for half and for nine in ten.'],
+    ['lab-signal', 'Lab 8: Signal processing', 'Smooth a wobbly captured move and see what the smoothing costs: lag, flat peaks, sliding feet.'],
+    ['lab-gentest', 'Lab 9: Generate and test', 'Watch a helper propose courses and see which ones the simulator throws out.'],
+    ['lab-detector', 'Lab 10: Evaluating a detector', 'Check whether a helper program points at the right part of an object to hold.'],
+    ['lab-hashing', 'Lab 11: Verification and hashing', 'Change one key press in a recorded run and see which kind of fingerprint notices.'],
+    ['lab-rl', 'Lab 12: Reinforcement learning', 'Write the points a character earns, and watch it learn the course by trial and error.'],
   ]],
 ];
 
@@ -51,7 +60,7 @@ import { loadCommunity } from '../share/challenge-client';
 /** CC-201: the slicer card is always shown (it used to hide behind ?labs=1); ?slice2=old brings the old rule back. */
 export const sliceCardOn = (params: URLSearchParams): boolean => params.get('slice2') !== 'old';
 
-export const WORD_VALUES = ['generate', 'editor', 'coaster-builder', 'map', 'lab-search', 'lab-optimization', 'lab-timing'];
+export const WORD_VALUES = ['generate', 'editor', 'coaster-builder', 'map', 'lab-search', 'lab-optimization', 'lab-ik', 'lab-vision', 'lab-camera', 'lab-integration', 'lab-timing', 'lab-signal', 'lab-gentest', 'lab-detector', 'lab-hashing', 'lab-rl'];
 export const DEMOS: [string, string][] = DEMO_GROUPS.flatMap(([, ds]) => ds.map((d) => [d[0], d[1]] as [string, string]));
 export const DEMO_ABOUT = new Map<string, string>(DEMO_GROUPS.flatMap(([, ds]) => ds.map((d) => [d[0], d[2]] as [string, string])));
 
@@ -67,9 +76,7 @@ export function worldHref(value: string, loc?: { pathname: string; search: strin
   if (value === 'editor') return `?mode=editor${suffix}`;
   if (value === 'coaster-builder') return `?mode=coaster${suffix}`;
   if (value === 'map') return `?mode=map${suffix}`;
-  if (value === 'lab-search') return `?mode=lab-search&labs=1${suffix}`;
-  if (value === 'lab-optimization') return `?mode=lab-optimization&labs=1${suffix}`;
-  if (value === 'lab-timing') return `?mode=lab-timing&labs=1${suffix}`;
+  if (value.startsWith('lab-')) return `?mode=${value}&labs=1${suffix}`; // CC-118: every Lab card opens its mode with the labs switch on
   if (value === 'generate') return `?generate=${seed}${suffix}`;
   if (value === 'generate-same') { const at = loc ?? location; return `${at.pathname}${at.search}${at.search.includes('?') ? '&' : '?'}welcome=0`; }
   return value ? `?course=${value}${suffix}` : `?welcome=0`;
@@ -81,9 +88,7 @@ export function currentWorld(params: URLSearchParams, courseName?: string): { va
   if (mode === 'editor') return { value: 'editor' };
   if (mode === 'coaster') return { value: 'coaster-builder' };
   if (mode === 'map') return { value: 'map' };
-  if (mode === 'lab-search') return { value: 'lab-search' };
-  if (mode === 'lab-optimization') return { value: 'lab-optimization' };
-  if (mode === 'lab-timing') return { value: 'lab-timing' };
+  if (mode.startsWith('lab-')) return { value: mode };
   if (mode !== 'course') return { value: null };
   const seed = params.get('generate');
   if (seed !== null) return { value: 'generate-same', label: `Generated course (seed ${seed})` };
@@ -99,7 +104,16 @@ const ICONS: Record<string, string> = {
   'coaster-builder': '<path d="M6 46C16 14 26 14 32 36s14 22 26-18"/><circle cx="6" cy="46" r="3"/><circle cx="32" cy="36" r="3"/><circle cx="58" cy="18" r="3"/>',
   'lab-search': '<circle cx="32" cy="12" r="4"/><circle cx="16" cy="34" r="4"/><circle cx="48" cy="34" r="4"/><circle cx="8" cy="54" r="3"/><circle cx="24" cy="54" r="3"/><circle cx="40" cy="54" r="3"/><circle cx="56" cy="54" r="3"/><path d="M30 16L18 30M34 16l12 14M14 38L9 51M18 38l5 13M46 38l-5 13M50 38l5 13"/>',
   'lab-optimization': '<path d="M6 50C16 50 18 18 26 18s10 22 16 22 8-14 16-14"/><circle cx="26" cy="18" r="3"/><circle cx="58" cy="26" r="3"/>',
+  'lab-ik': '<path d="M10 54L28 36l16 10 12-26"/><circle cx="10" cy="54" r="3"/><circle cx="28" cy="36" r="3"/><circle cx="44" cy="46" r="3"/><circle cx="56" cy="20" r="3"/>',
+  'lab-vision': '<rect x="8" y="14" width="48" height="36" rx="5"/><circle cx="32" cy="32" r="9"/><circle cx="32" cy="32" r="3"/>',
+  'lab-camera': '<rect x="6" y="22" width="26" height="20" rx="3"/><path d="M32 28l16-8v24l-16-8z"/><path d="M54 14v36"/>',
+  'lab-integration': '<path d="M8 50h48M8 50V10"/><path d="M8 40C20 40 24 22 32 22s14 14 24 14" /><path d="M16 50v-8M24 50v-14M32 50v-28M40 50v-22M48 50v-16"/>',
   'lab-timing': '<path d="M8 54h48M8 54C20 54 22 12 32 12s12 42 24 42"/><path d="M24 54V34M40 54V34"/>',
+  'lab-signal': '<path d="M6 36l6-8 6 10 6-12 6 14 6-10 6 8 6-6 6 4 6-2"/><path d="M6 36C20 36 26 24 36 28s16 6 22 4" opacity=".6"/>',
+  'lab-gentest': '<rect x="8" y="12" width="22" height="16" rx="3"/><rect x="34" y="36" width="22" height="16" rx="3"/><path d="M30 20h8v16M20 28v8h14"/><path d="M42 44l4 4 8-9"/>',
+  'lab-detector': '<rect x="10" y="12" width="44" height="40" rx="4"/><rect x="22" y="22" width="20" height="20" rx="2"/><path d="M10 12l8 6M54 12l-8 6"/>',
+  'lab-hashing': '<path d="M24 8l-4 48M44 8l-4 48M10 22h46M8 42h46"/>',
+  'lab-rl': '<circle cx="14" cy="46" r="4"/><circle cx="32" cy="24" r="4"/><circle cx="50" cy="40" r="4"/><path d="M18 43l11-16M36 26l11 11"/><path d="M8 56h48"/>',
   map: '<path d="M32 56S14 38 14 26a18 18 0 0 1 36 0c0 12-18 30-18 30z"/><circle cx="32" cy="26" r="6"/>',
   stay: '<path d="M10 50h12V36h14V22h18"/><circle cx="54" cy="22" r="3"/>',
   'generate-same': '<rect x="14" y="14" width="36" height="36" rx="7"/><circle cx="25" cy="25" r="3"/><circle cx="39" cy="39" r="3"/><circle cx="32" cy="32" r="3"/>',
@@ -210,7 +224,7 @@ export function buildGallery(o: GalleryOptions): { el: HTMLElement; focusStart()
     cards.push({ card: grid.lastElementChild as HTMLButtonElement, sec: grid.parentElement!, text: `${cur.label ?? ''} this course`.toLowerCase() });
   }
   for (const [group, ds] of DEMO_GROUPS) {
-    const hiddenItem = (v: string): boolean => (v === 'map' ? !sliceCardOn(pageQuery()) && cur.value !== v && !labsOn() : (v === 'lab-search' || v === 'lab-optimization' || v === 'lab-timing') && cur.value !== v && !labsOn());
+    const hiddenItem = (v: string): boolean => (v === 'map' ? !sliceCardOn(pageQuery()) && cur.value !== v && !labsOn() : v.startsWith('lab-') && cur.value !== v && !labsOn());
     if (ds.every(([v]) => hiddenItem(v))) continue; // a group whose items are all switched off shows no heading
     const grid = section(group);
     for (const [v, label, about] of ds) {

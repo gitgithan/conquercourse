@@ -38,3 +38,46 @@
 - The second-detector check of `scripts/photos_safe.py` is not in the Lab.
 - COCO photos are not the Mapillary street photos the game uses; the hand-drawn people are what makes the set labelled.
 - Hand-drawn boxes are not perfect, and people smaller than 0.05 percent of a photo are not counted.
+
+
+## How it was designed
+- **The one question:** how many street photos can the game keep without leaving a person visible in one?
+- **The choices and why those:**
+  - Three controls that the game's own rule has (score cut, smallest person, most of a photo masked), so the player moves the real levers.
+  - A curve drawn along one control at a time, so the trade-off between photos kept and people missed is a line and not a guess.
+  - Hand-drawn people as the answer key, because a detector cannot be judged by itself.
+- **Which real game code runs:** the rule is a port of the photo masking rule in `scripts/photos_mask.py`, written as `src/labs/vision/rule.ts`.
+  - The game's detector (Mask R-CNN) was run once, offline, by `scripts/lab_vision_scores.py`; the page never runs a detector.
+- **Which data is precomputed:** `public/assets/lab/vision/scores.txt` (the detector's finds for 160 photos) and 32 thumbnails with `credits.json`, all within 300 KB.
+- **Order of the screen and why compare comes last:** goal, controls, the three counts, the curve, the maths on request, and "what we chose" last with live numbers, so the player has traded photos for people before reading the game's choice.
+- **Scope:** the Lab judges a detector rule on COCO photos; it does not judge any person.
+
+## How we prove the lesson is right
+- `tests/lab-vision.test.ts` (9 tests):
+  - A photo with no find is kept and one with too much masked is dropped.
+  - A person box over a quarter of the photo drops it whatever the mask share.
+  - Finds under the score cut or under the smallest size are ignored, which leaves those people missed.
+  - A mask on nobody counts as a false mask, and a person nobody found counts as missed.
+  - Moving the score cut up never masks more: photos kept rise and people missed never fall.
+  - The labelled set is big enough to draw a curve.
+  - The files stay within 300 KB, and every thumbnail has a credit row and a table row.
+  - The same setting gives the same counts twice.
+  - The Python rule (`scripts/lab_vision_rule.py`) gives equal counts to the TypeScript rule on 60 settings (run when `python3` is present).
+- Evidence: `docs/evidence/lab-vision-sweep.jpg`; the check script is `scripts/lab-vision-check.mjs`.
+- What would make the Lab's claim false:
+  - A setting where the Lab says a person is covered and the game's code leaves them visible.
+
+## Limits
+- **Overlapping people count twice:** the table adds the mask shares of the finds, while the game masks their union; on the game's setting the real union keeps 131 photos and the table 125.
+- **No second detector:** the game's second check (`scripts/photos_safe.py`) is not in the Lab.
+- **COCO photos are not Mapillary street photos** (the photos the game uses), so the numbers do not carry over exactly.
+- **Hand-drawn boxes are not perfect,** and people under 0.05 percent of a photo are not counted.
+- **The 131 against 125 sentence** and the "game's setting" values are not pinned by a test.
+- Desktop keyboard and mouse at 1280 px only.
+
+## How to make the lesson better
+1. Mask the union of boxes in the Lab, so the 131 against 125 gap closes, and pin it in a test.
+2. Add the second detector and show the photos it saves.
+3. Use a sample of the game's own street photos with hand-drawn people.
+4. Add a test that reads the game's setting from `scripts/photos_mask.py` and compares it with the Lab's default.
+5. Read the goal text with a young reader and fix the words.
