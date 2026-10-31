@@ -57,7 +57,8 @@ async function courseFromUrl(): Promise<CourseData | undefined> {
   const made = pageQuery().get('made'); // CC-136: a course made in the editor, carried in the link
   if (made !== null) {
     const { shareOn } = await import('./share/challenge');
-    if (shareOn(pageQuery())) { const { unpackCourse } = await import('./share/made-course'); const opened = await unpackCourse(made); if (opened) return opened; document.documentElement.dataset.madeRefused = '1'; return undefined; }
+    // a saved share may hold a course up to 20000 characters (CC-219)
+    if (shareOn(pageQuery())) { const { unpackCourse, SHARE_MAX_MADE_CHARS } = await import('./share/made-course'); const opened = await unpackCourse(made, SHARE_MAX_MADE_CHARS); if (opened) return opened; document.documentElement.dataset.madeRefused = '1'; return undefined; }
   }
   const cid = pageQuery().get('cid'); // CC-108: a challenge course by its id; the server holds it, the page cleans it again
   if (cid !== null && !pageQuery().has('course')) {

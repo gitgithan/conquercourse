@@ -215,8 +215,8 @@ describe('the client', () => {
       expect(url, q).toMatch(/\?c=[a-z2-9]{10}$/);
       const long = (await expandShortSearch(new URL(url!).search, f))!;
       expect(kept(long, 'generate')).toBeNull(); expect(kept(long, 'coaster')).toBeNull(); // the saved course is read from `made`, not rebuilt from the words
-      const opened = (await import('../src/share/made-course')).unpackCourse;
-      const played = (await opened(kept(long, 'made')!))!;
+      const { unpackCourse, SHARE_MAX_MADE_CHARS } = await import('../src/share/made-course');
+      const played = (await unpackCourse(kept(long, 'made')!, SHARE_MAX_MADE_CHARS))!;
       expect(played).toEqual(madeCourse(course));
       expect(verifyLog(played, log).cleared).toBe(true);
       expect((await openChallenge(played, kept(long, 'challenge')!)).ok).toBe(true);
