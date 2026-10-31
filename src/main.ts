@@ -43,6 +43,9 @@ if (pageQuery().get('demo') === 'captured-vault') {
 } else if (pageQuery().get('demo') === 'roll-ab') {
   const { startRollAB } = await import('./modes/demo-roll-ab');
   await startRollAB();
+} else if (pageQuery().get('demo') === 'lineup') {
+  const { startLineup } = await import('./modes/demo-lineup');
+  await startLineup();
 } else if (pageQuery().get('demo') === 'actor') {
   const { startActorDemo } = await import('./modes/demo-actor');
   await startActorDemo();
