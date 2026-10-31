@@ -30,3 +30,32 @@
 | Ten Meta models and services | unverified | the table lists about eight distinct tools; count not reconciled |
 | A lane in about a second after the first load | unverified | no timing test found |
 | Which courses can be published | unverified | `KEY` allows any `demo/` or `experiments/osm/` course in the server; the in-page "listed" list is being widened to four courses in a branch not yet merged |
+
+## Re-run, 2026-10-31 (later the same day, `main` at `d37e60a6`)
+- Method: every row marked unverified above was re-checked against `main`, plus every model and credit claim in the README, `docs/hackathon.md`, `docs/meta-ai-pipelines.md` and SPEC section 7.
+- The full call-site list and the credit table are in [docs/model-ledger.md](model-ledger.md).
+
+| Claim | Status | Evidence |
+|---|---|---|
+| Deploy policy is preview only | fixed | the rule is the product owner's instruction of 2026-10-31; it is not in `CLAUDE.md` (the earlier row said it was); `docs/deploy.md` now says preview only |
+| Characters row (README) | fixed | `pipelines/charmaker/providers/route_a.py` calls Muse Image and SAM 3.1 on the Meta API for every character; the row now says so |
+| Community flow wording | true | the Community simplify change is on `main` (CC-247); the README names no Park screens, and "Segment Region" is in `src/` |
+| `docs/deploy.md` Park section (`?mode=park`) | true | the section says the Park upload screen is gone and the old addresses open Explore |
+| Ten Meta models and services | fixed | the hackathon table has ten distinct entries; the README and the hackathon page now list them by name and say Muse Wonder is not counted |
+| A lane in about a second after the first load | unverified | no timing test exists; the README now says a cached place takes a second or two and a new place is not timed |
+| Which courses can be published | true | `src/share/board-courses.ts` lists four courses; the server accepts a wider key pattern (`KEY` in `functions/api/course-clear.ts`), which is deliberate |
+| Race Ghost button | fixed | the button on `main` is "Chase Ghost" (`src/ui/leaderboard.ts`); README corrected |
+| SPEC section 7: SAM 3.1 on the Meta API for photos | fixed | player photos use SAM 3 open weights on Modal; SPEC rows rewritten |
+| SPEC section 7: Wonder agentic, Fireworks students, Baseten fallback | fixed | Wonder is a code reviewer only; Fireworks has no code; the fallback to the Meta API is not built; SPEC says so |
+| `docs/meta-ai-pipelines.md`: checks "not yet called from a screen" | fixed | four server routes call the check; text updated |
+| Upload check on real harmful images | unverified | only safe photos and text-only unsafe cases were tested (`data/eval/cc-119-moderation/README.md`) |
+| Baseten data terms for player photos | unverified | not recorded anywhere in the repo |
+| Whether the character maker is switched on in the preview or live site | unverified | the repo records the code and the secret names, not which secrets are set |
+
+### Older branches
+- All of these are obsolete and were left in place: `hanqi91/cc-char-muse`, `hanqi91/cc-208-truth-audit`, `hanqi91/cc-208-truth-audit-2`, `hanqi91/cc-208-readme`, `hanqi91/cc-208-readme-board`, `hanqi91/cc-208-readme-front-door`, `hanqi91/cc-readme-features`, `hanqi91/cc-readme-short`.
+- Reason and detail: [docs/model-ledger.md](model-ledger.md), section 5.
+
+### Also noticed
+- `docs/deploy.md` carried abuse-limit numbers (community uploads per day, the designer rate); they were replaced by a pointer to the private notes.
+- `CLAUDE.md` does not state the preview-only deploy rule; adding one line there is the product owner's call.

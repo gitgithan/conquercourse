@@ -40,7 +40,7 @@ flowchart LR
   - Read the end-of-run report, give a short name or tag (up to 12 characters, no spaces), copy a challenge link or make a 15 second clip.
   - See the board of the fastest verified runs on a course; it scrolls through the top 100 and `?board=0` hides it.
   - Press Publish to Leaderboard to put your run on the board under a name you chose; nothing is sent to the board before you press it.
-  - Press View Run on any row to see the obstacles and that player's path at once, then Race Ghost to run against it.
+  - Press View Run on any row to see the obstacles and that player's path at once, then Chase Ghost to run against it.
   - Read the card on each course: plays today and plays all time.
   - Try the Cannonballs course: cannons fire a ball every 12 seconds and show a fill meter; jump the low ones, slide under the high ones, climb a wall to wait out a double shot.
   - Try Two ways: swing high on two bars, or drop low and climb back up.
@@ -105,7 +105,7 @@ flowchart LR
 - **Design a course without being a designer.**
   - The design partner and Fix it say what to change; the simulator proves the change.
 - **Run in a place you have never been.**
-  - A pin on Earth, or a friend's neighbourhood, becomes a lane in about a second after the first load.
+  - A pin on Earth, or a friend's neighbourhood, becomes a lane; a place already seen comes from a cache and takes a second or two, and a new place can take longer (not timed).
 - **Share a run that nobody can fake.**
   - The challenge link carries the keys, so the time is what the simulator says.
 
@@ -191,7 +191,7 @@ flowchart LR
 - The link carries keys and a checkpoint, never a time.
 - A different build or a changed course (different hash) offers the ideal ghost instead.
 - A run reaches the board only when the player presses Publish; the server replays the keys first.
-- View Run replays a published run in the browser straight away, and Race Ghost loads it as the ghost.
+- View Run replays a published run in the browser straight away, and Chase Ghost loads it as the ghost.
 - The board keeps one best verified run per player, in non-overlapping UTC day and week windows.
 
 ```mermaid
@@ -286,23 +286,25 @@ Diagrams are in [docs/meta-ai-pipelines.md](docs/meta-ai-pipelines.md); the full
 
 | Feature | Tool | What it does | Runs |
 |---|---|---|---|
-| Community, World Editor objects | **SAM 3 / 3.1** | Cuts a real object out of a photo; blurs people in video | Build time and live job on Modal |
+| Community, World Editor objects | **SAM 3 (open weights)** | Cuts a real object out of a player's photo; blurs people in video | Live job on Modal, and build time |
+| Characters, video ingest | **SAM 3.1 (Meta Model API)** | Cuts the figure out of a Muse Image picture; segments obstacles in filmed video | Live for characters (Meta credit), build time for video |
 | Community, World Editor objects | **SAM 3D Objects** | Photo and mask to a 3D object (the 19 editor objects and "Mine" objects) | Modal GPU |
 | Motion clips | **SAM 3D Body + MHR, DINOv3** | Measures body and pose from video | Build time |
 | Generated motion | **Meta-Llama-3-8B-Instruct** | Text encoder inside Kimodo (NVIDIA) for run, leap and hang motion | Build time |
 | World Editor: design partner, Fix it, photo-to-course draft | **Muse Spark Open** (Baseten) | Proposes a layout; the simulator checks it | Live, server function |
 | World Editor: Course Agent | **Muse Spark Open** (Baseten) | Propose, test, repair loop; 40 of 40 runs proven clearable in at most 3 steps | Live, server function |
 | Community and uploads | **Muse Spark Open** (Baseten) | Upload check and move tips | Live, server function |
-| Characters | **Muse Spark, Muse Image** | Contact targets, character descriptions, and one style picture for the second Rookie; both Rookie meshes are Tripo output (Muse Image's bigger role is tested in `docs/community-characters.md`) | Build time |
+| Characters | **Muse Image, SAM 3.1** | A player's sentence becomes a picture (Muse Image), a cut-out (SAM 3.1) and a mesh (SAM 3D Objects on Modal); the two Rookies were built earlier with Tripo, with one Muse Image reference for Rookie B | Live: a Modal job calls the Meta Model API (Meta credit); see [docs/model-ledger.md](docs/model-ledger.md) |
 | Music | **MusicGen (AudioCraft)** | An original loop per screen | Build time |
 | World Slicer | **Mapillary** (owned by Meta) | Street photos along a built place, people masked | Live, server proxy |
 
 - Keys never reach the browser; the models propose and the simulator decides.
+- Which credit pays for each call, and what a player can trigger: [docs/model-ledger.md](docs/model-ledger.md).
 - Meta tools used while building, not in the game: Muse Wonder reviewed the simulator code (13 real bugs in 21 claims, each checked by us).
 
 ### How we meet the judging criteria
 - **Impact:** real world in, real world out; physics learned by doing; makers as well as players; no sign-in and no real names; people masked.
-- **Use of Meta AI tooling:** ten Meta models and services, each doing one visible job; the models propose and the simulator decides.
+- **Use of Meta AI tooling:** ten Meta models and services (SAM 3 and 3.1, SAM 3D Objects, SAM 3D Body with MHR, DINOv3, Llama 3, Muse Spark Open, Muse Spark, Muse Image, MusicGen, Mapillary; Muse Wonder is development only and not counted), each doing one visible job; the models propose and the simulator decides.
 - **Technical depth:** a deterministic simulator, an ideal-run proof, a plausibility gate, failures written up in [lessons](docs/lessons.md).
 - **Demo:** the three-minute script is in [docs/demo-script-v2.md](docs/demo-script-v2.md).
 - Details for every criterion: [docs/hackathon.md](docs/hackathon.md).
