@@ -89,6 +89,18 @@
 - The tables, limits and plan behind it are in [data-model](data-model.md).
 - The migration `migrations/0006_shares.sql` is written and waits for the owner.
 
+## Part 3d: a partial run from a checkpoint (CC-242)
+- A try or a clear that began at a checkpoint can be shared; the link says where it began.
+- The version word carries it: `1s2` is a clear from the second checkpoint, `1fs2` is a fall from there.
+- An older build does not know the word, so it refuses the link and never shows a wrong run.
+- The friend opens the link, begins at that checkpoint standing still, and the ghost starts on the same tick.
+- Both bodies then start together: same keys, same place on every tick (`tests/partial-run.test.ts`).
+- The ghost shows only for a run that begins at the same x; a run from the course start sees no ghost of this link.
+- A partial run never counts for the board: the board replays every run from the course start, and these keys do not finish from there (tested).
+- A short link keeps the start in front of the stored keys (`s2~`), so no new column is needed.
+- Picture: `docs/evidence/cc-242-partial-overlap.png` (four moments; the label reads "Level with the ghost" at each).
+- Known gap: only checkpoints can be a start; a run from any other x is not shared.
+
 ## Part 4: a leaderboard (approved 2026-10-30; on by default on the Course and in the end report, `?board=0` hides it, CC-108)
 - **Built:** `GET /api/leaderboard?course=<key>&hash=<hash>` returns the ten fastest verified runs with their tags; the end report shows them and your own best.
   - The board reads `course_clears` (migration 0007), not the `runs` table below, so it works before the bigger data model lands.

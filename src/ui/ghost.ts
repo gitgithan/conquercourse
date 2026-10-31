@@ -29,7 +29,7 @@ export interface Ghost {
   frame(f: GhostFrame): void;
   cycle(): void;
   chaseIdeal(): void; // switch the ideal ghost on (the offer beside a refused challenge link, CC-135)
-  setFriend(track: GhostTrack, nick?: string, look?: RookieLook): void; // chase a friend's run from a challenge link
+  setFriend(track: GhostTrack, nick?: string, look?: RookieLook, from?: number | null): void; // chase a friend's run from a challenge link
   myRun(): InputLog | null; // the keys of this run, when it began at the start and can be replayed (CC-128)
   myClip(): { log: InputLog; from: number } | null; // the keys of this run from wherever it began, for a clip of any try (CC-157)
   readonly mode: GhostMode;
@@ -52,6 +52,8 @@ export function createGhost(o: GhostOpts): Ghost {
 
   const figure: GhostFigure | null = o.oldLook ? null : createGhostFigure(o.scene, o.look?.() ?? 'a');
   let friendLook: RookieLook | null = null;
+  let friendFrom: number | null = null; // CC-242: where a friend's partial run began; the ghost shows only for a run that begins at the same x
+  const chasing = (): boolean => full || (mode === 'friend' && friendFrom !== null && from !== null && Math.abs(from - friendFrom) < 0.01);
   const body = new THREE.Mesh(new THREE.CapsuleGeometry(0.28, 1.1, 6, 12), new THREE.MeshBasicMaterial({ color: 0x5ec8ff, transparent: true, opacity: GHOST_OPACITY, depthWrite: false }));
   body.raycast = () => undefined; // nothing can pick it
   body.renderOrder = 5; body.visible = false;
@@ -114,12 +116,12 @@ export function createGhost(o: GhostOpts): Ghost {
     input(i) { if (full || from !== null) recorder.push(i); },
     cycle() { setMode(next()); },
     chaseIdeal() { setMode('ideal'); },
-    setFriend(t, nick = '', look) { friend = t; friendNick = nick; friendLook = look ?? null; setMode('friend'); },
+    setFriend(t, nick = '', look, at = null) { friend = t; friendNick = nick; friendLook = look ?? null; friendFrom = at; setMode('friend'); },
     myRun() { return full && recorder.valid ? recorder.snapshot() : null; },
     myClip() { return from !== null && recorder.valid && recorder.ticks > 0 ? { log: recorder.snapshot(), from } : null; },
     frame(f) {
       const track = shown();
-      const show = !!track && full && f.active;
+      const show = !!track && chasing() && f.active;
       if (!show || !track) { body.visible = false; figure?.hide(); gap.style.display = 'none'; mark(-1); return; }
       const i = Math.min(f.tick, track.ticks);
       const gx = track.xs[i], gy = track.ys[i];
@@ -137,7 +139,7 @@ export function createGhost(o: GhostOpts): Ghost {
     },
     reportPath() {
       const t = shown();
-      if (!t || !full) return null;
+      if (!t || !chasing()) return null;
       const out: { x: number; y: number }[] = [];
       for (let i = 0; i <= t.ticks; i += 4) out.push({ x: t.xs[i], y: t.ys[i] });
       out.push({ x: t.xs[t.ticks], y: t.ys[t.ticks] });
@@ -145,7 +147,7 @@ export function createGhost(o: GhostOpts): Ghost {
     },
     reportLine(ticks) {
       const t = shown();
-      if (!t || !full) return null;
+      if (!t || !chasing()) return null;
       if (mode === 'friend' && !t.cleared) { const q = document.createElement('div'); q.style.cssText = 'font:600 15px system-ui,sans-serif;color:#17201d'; q.textContent = `${friendNick ? `${friendNick}\x27s` : 'The friend\x27s'} try ended in a fall, ${t.xs[t.ticks].toFixed(0)} m along the course.`; return q; }
       const who = mode === 'friend' ? (friendNick ? `${friendNick}\x27s run` : 'the friend\x27s run') : 'the ideal run';
       const mine = ticks / 120, theirs = t.ticks / 120, d = mine - theirs;
