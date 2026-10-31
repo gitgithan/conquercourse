@@ -88,9 +88,30 @@ export function trackPiece(pts: TrackPts, at: { x: number; z: number }, y = 0): 
   return { ...p, src: trackSrc(pts), y };
 }
 
-/** No tall limit worth the name (the Coaster builder has none): a safety ceiling only, so the camera and the ribbon cannot break; the floor is 0 (CC-244). */
-export const TRACK_TOP = 100;
+/** No design limit on height (the Coaster builder has none): 1000 m is only a computer-safety value so the camera and the ribbon cannot break; the floor (the lane level) only blocks going lower (CC-244). */
+export const TRACK_TOP = 1000;
 export const clampTrackY = (y: number): number => Math.min(TRACK_TOP, Math.max(0, y));
+
+export type TrackBlock = '' | 'floor' | 'ceiling' | 'spacing';
+/** What the player is told when a drag is stopped, in plain words. */
+export const TRACK_BLOCK_TEXT: Record<Exclude<TrackBlock, ''>, string> = {
+  floor: 'ground level: a coaster point goes no lower',
+  ceiling: 'highest point: a coaster point goes no higher',
+  spacing: 'too close to the next dot',
+};
+export const TRACK_GAP = 0.5; // m: how close two dots of one section may be
+
+/**
+ * Where a dragged dot may go. `nx`, `ny` are the wanted place in the section's own numbers; `lift` is how high the section's lowest dot stands over the lane's ground (never below 0),
+ * `scale` the section's size. The lowest dot never goes under the ground, no dot passes the ceiling, and dots keep their spacing; `block` says which one stopped the drag (CC-244).
+ */
+export function limitTrackPoint(pts: TrackPts, i: number, nx: number, ny: number, lift: number, scale: number, gap = TRACK_GAP): { x: number; y: number; block: TrackBlock } {
+  const low0 = Math.min(...pts.map((q) => q[1])), floorY = Math.max(0, low0 - Math.max(0, lift) / scale);
+  const lo = i > 0 ? pts[i - 1][0] + gap : -Infinity, hi = i < pts.length - 1 ? pts[i + 1][0] - gap : Infinity;
+  const x = Math.min(hi, Math.max(lo, nx)), y = Math.min(TRACK_TOP, Math.max(floorY, ny)), eps = 0.005;
+  const block: TrackBlock = ny < floorY - eps ? 'floor' : ny > TRACK_TOP + eps ? 'ceiling' : nx < lo - eps || nx > hi + eps ? 'spacing' : '';
+  return { x, y, block };
+}
 
 /** The height of the rail at the end of a section piece (over the lane's level, before the lane is cut). */
 export function trackEndY(p: P): number {

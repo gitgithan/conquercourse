@@ -103,7 +103,15 @@ export function startCoaster(host: HTMLElement): { backend: 'webgl2' } {
     const offSection = off ? Number(off.detail!.segment ?? 0) : 0, offRails = railsList[Math.min(offSection, railsList.length - 1)];
     c.beginPath(); c.arc(v.sx(offX), v.sy(stall ? (stall.detail!.height as number) : offRails.y(offX)), 8, 0, Math.PI * 2); c.fill();
     void py;
-    allPoints().forEach((p, i) => { c.fillStyle = i === drag ? '#0f6b5c' : '#fff'; c.strokeStyle = '#0f6b5c'; c.lineWidth = 3; c.beginPath(); c.arc(v.sx(p[0]), v.sy(p[1]), 7, 0, Math.PI * 2); c.fill(); c.stroke(); });
+    allPoints().forEach((p, i) => {
+      const stopped = i === drag && block !== '';
+      c.fillStyle = stopped ? '#f0a020' : i === drag ? '#0f6b5c' : '#fff'; c.strokeStyle = stopped ? '#7a4a00' : '#0f6b5c'; c.lineWidth = 3; c.beginPath(); c.arc(v.sx(p[0]), v.sy(p[1]), stopped ? 9 : 7, 0, Math.PI * 2); c.fill(); c.stroke();
+      if (stopped) {
+        c.font = '600 13px system-ui'; const w = c.measureText(block).width + 14, lx = Math.min(Math.max(4, v.sx(p[0]) + 14), W - w - 4), ly = Math.max(4, v.sy(p[1]) - 34);
+        c.fillStyle = '#7a4a00'; c.fillRect(lx, ly, w, 22); c.fillStyle = '#fff'; c.textAlign = 'left'; c.fillText(block, lx + 7, ly + 15);
+      }
+    });
+    document.documentElement.dataset.coDots = JSON.stringify(allPoints().map((p) => [v.sx(p[0]), v.sy(p[1])])); // for the browser check
     // the verdict
     const ok = r.world.outcome === 'cleared';
     verdict.style.borderLeftColor = ok ? '#16a34a' : off ? '#dc2626' : '#f59e0b';
@@ -119,6 +127,7 @@ export function startCoaster(host: HTMLElement): { backend: 'webgl2' } {
     document.documentElement.dataset.coaster = JSON.stringify({ outcome: r.world.outcome, points: allPoints().length, segments: segments.length, off: !!off, catch: r.events.some((e) => e.type === 'cart-catch'), stall: !!stall });
   }
 
+  let block = '';
   const hit = (e: PointerEvent): number => {
     const b = cv.getBoundingClientRect(), v = view();
     const mx = ((e.clientX - b.left) / b.width) * W, my = ((e.clientY - b.top) / b.height) * H;
@@ -133,10 +142,15 @@ export function startCoaster(host: HTMLElement): { backend: 'webgl2' } {
     if (drag < 0) { cv.style.cursor = hit(e) >= 0 ? 'grab' : 'default'; return; }
     const [x, y] = toWorld(e);
     const { s, p } = locate(drag), section = segments[s], previousX = p > 0 ? section[p - 1][0] + 1 : s > 0 ? segments[s - 1].at(-1)![0] + 1 : -50, nextX = p < section.length - 1 ? section[p + 1][0] - 1 : s < segments.length - 1 ? segments[s + 1][0][0] - 1 : 400;
-    section[p] = [Math.min(nextX, Math.max(previousX, Math.round(x * 4) / 4)), Math.max(0, Math.round(y * 4) / 4)];
+    const wantX = Math.round(x * 4) / 4, wantY = Math.round(y * 4) / 4;
+    section[p] = [Math.min(nextX, Math.max(previousX, wantX)), Math.max(0, wantY)];
+    // plain feedback at the dot while a drag is stopped (CC-244): amber dot, the reason, a not-allowed cursor; gone on release
+    block = wantY < -0.005 ? 'ground level: a coaster point goes no lower' : wantX < previousX - 0.005 || wantX > nextX + 0.005 ? 'too close to the next dot' : '';
+    cv.style.cursor = block ? 'not-allowed' : 'grabbing';
+    if (block) document.documentElement.dataset.dotBlock = block; else delete document.documentElement.dataset.dotBlock;
     draw();
   });
-  cv.addEventListener('pointerup', () => { drag = -1; draw(); });
+  cv.addEventListener('pointerup', () => { drag = -1; block = ''; cv.style.cursor = 'grab'; delete document.documentElement.dataset.dotBlock; draw(); });
   cv.addEventListener('dblclick', (e) => {
     const b = cv.getBoundingClientRect();
     const i = hit(e as unknown as PointerEvent);
@@ -149,6 +163,7 @@ export function startCoaster(host: HTMLElement): { backend: 'webgl2' } {
       const si = segments.findIndex((section) => x > section[0][0] && x < section.at(-1)![0]);
       if (si >= 0 && allPoints().length < 32) {
         const section = segments[si]; section.push([Math.round(x * 4) / 4, Math.max(0, Math.round(y * 4) / 4)]); section.sort((a, b2) => a[0] - b2[0]);
+        if (y < -0.005) { steps.textContent = 'ground level: a coaster point goes no lower'; draw(); return; }
       }
     }
     steps.textContent = ''; draw();
