@@ -108,7 +108,7 @@
 - Known gap: only checkpoints can be a start; a run from any other x is not shared.
 
 ## Part 4: a leaderboard (approved 2026-10-30; on by default on the Course and in the end report, `?board=0` hides it, CC-108)
-- **Built:** `GET /api/leaderboard?course=<key>&hash=<hash>` returns the ten fastest verified runs with their tags; the end report shows them and your own best.
+- **Built:** `GET /api/leaderboard?course=<key>&hash=<hash>` returns the top hundred verified runs with their tags; the end report shows them and your own best.
   - The board reads `course_clears` (migration 0007), not the `runs` table below, so it works before the bigger data model lands.
   - Tags are up to 12 characters the player chose, checked again on the server; no account and no name.
   - Your best time is kept in this browser only.

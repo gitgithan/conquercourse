@@ -37,11 +37,14 @@ flowchart LR
 - **What you can do:**
   - Run, jump, vault, climb, hang, swing and ride, with the keys on the key card (H).
   - Chase a ghost: the ideal run, your best run, or a friend's run on the same course.
-  - Read the end-of-run report, give a three-letter tag, copy a challenge link or make a 15 second clip.
+  - Read the end-of-run report, give a short name or tag (up to 12 characters, no spaces), copy a challenge link or make a 15 second clip.
   - See the board of the fastest verified runs on a course; it scrolls through the top 100 and `?board=0` hides it.
   - Press Publish to Leaderboard to put your run on the board under a name you chose; nothing is sent to the board before you press it.
   - Press View Run on any row to see the obstacles and that player's path at once, then Race Ghost to run against it.
   - Read the card on each course: plays today and plays all time.
+  - Try the Cannonballs course: cannons fire a ball every 12 seconds and show a fill meter; jump the low ones, slide under the high ones, climb a wall to wait out a double shot.
+  - Try Two ways: swing high on two bars, or drop low and climb back up.
+  - Start from the welcome screen on a bare visit (`?welcome=0` skips it); the course list shows a small growth strip (`?growth=0` hides it).
   - Watch a quiet line at the top for the newest published time on any course.
 - **What you can generate:** a time that the simulator replays and checks, a challenge link, a clip, a tag on the board.
 - **Why it is unique:**
@@ -54,7 +57,7 @@ flowchart LR
 - **What you can do:**
   - Place 19 real objects (bench, low wall, hydrant, pipe, railing, a green and a black pull-up frame and more), boxes, hang bars, coaster rails and devices.
   - Give a piece a role: plain ground, Warped Wall, rope anchor, trampoline bed or swing bar.
-  - Start from a ready-made course: Hang bar and Lache (the default), Park run, Coaster to a bar, or the broken park.
+  - Start from a ready-made course: Hang bar and Lache (the default), Park run, Coaster to a deck, or the broken park.
   - Ask the design partner why a course cannot be cleared, and press Fix it for one change the simulator has proved.
 - **What you can generate:** a saved course, a share link, a drafted course from one park photo, a repaired course.
 - **Why it is unique:**
@@ -136,7 +139,8 @@ flowchart LR
 | Coaster cart | ride, S brakes | `src/sim/cart.ts` | height becomes speed |
 | Pole vault | E picks up, hold E plants | `src/sim/pole.ts`, `src/sim/pole-ride.ts` | a bending pole stores a run |
 | Drone ferry | E boards, lean and climb | `src/sim/drone.ts` | a vehicle that leans where it flies |
-| Timed balls | none, choose when to cross | `src/sim/drums.ts` | timing and relative motion |
+| Timed balls (drums) | none, choose when to cross | `src/sim/drums.ts` | timing and relative motion |
+| Cannon balls | Space jumps, tap S slides, E climbs a wall | `src/sim/shots.ts` | timing, and a low body passes under a high ball |
 
 ### Object primitives
 - The shared set of shapes, with sizes in metres, is in [primitives](docs/primitives.md).
@@ -309,7 +313,7 @@ Diagrams are in [docs/meta-ai-pipelines.md](docs/meta-ai-pipelines.md); the full
 - **Best Agentic Use-Case:** the Course Agent proposes, tests and repairs a course ([results](data/eval/cc-126-course-agent/README.md)).
 
 ### Safe by design
-- No sign-in and no real names; a three-letter tag at most.
+- No sign-in and no real names; a short tag of up to 12 characters at most, checked against a block list.
 - People are blurred in every photo and street picture.
 - No footage of minors, no chat tutor, no grading or coaching of technique.
 

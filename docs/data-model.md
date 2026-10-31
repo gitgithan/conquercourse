@@ -19,7 +19,7 @@
 | `feedback` | 0001 | one row per feedback form | session id |
 | `community`, `community_reports` | 0002 | a photo, boxes and a status for a shared Park course | session id |
 | `course_events` | 0002 | start, fail, success per attempt | session id |
-| `course_clears` | 0003, 0004, 0005, 0007 | a cleared run the server replayed: course, hash, ticks, verified, beats_ideal, keys of verified runs, the optional three-letter tag | none (owner decision, 2026-10-29) |
+| `course_clears` | 0003, 0004, 0005, 0007 | a cleared run the server replayed: course, hash, ticks, verified, beats_ideal, keys of verified runs, the optional tag (up to twelve characters) | none (owner decision, 2026-10-29) |
 
 - Neither a clear nor a share stores an address, a name or an email.
 - Every migration is now recorded in the live `d1_migrations` table (2026-10-30), so `wrangler d1 migrations apply conquercourse-feedback --remote` applies only the new files.
@@ -205,7 +205,7 @@
 
 ## Privacy
 - Never stored: a real name, an email, an age, an IP address, a location of a person.
-- A share holds keys, a course reference, a three-letter tag and a look; the tag is optional and filtered (`src/share/nick.ts`).
+- A share holds keys, a course reference, a tag of up to twelve characters and a look; the tag is optional and filtered (`src/share/nick.ts`).
 - A run carries no time claimed by the browser: the time is what the simulator says on opening.
 - Photos for objects drop their location data in the browser before upload (already true for the Park).
 - Takedown: the owner can set `status = 'hidden'` on a share or an asset by id; the delete token (next) lets the sharer do it.
