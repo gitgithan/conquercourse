@@ -207,9 +207,9 @@ describe('the client', () => {
     const { coasterCourse, parseTrack } = await import('../src/slice/coaster');
     const { madeCourse } = await import('../src/share/made-course');
     const { verifyLog } = await import('../src/sim/replay');
-    const cases: [string, CourseData][] = [['?generate=7', generateCourse(7)], ['?coaster=0,9;7,5;14,1;21,0', coasterCourse('My coaster', parseTrack('0,9;7,5;14,1;21,0')!, 1.5)]];
+    const cases: [string, CourseData][] = [['?generate=7', generateCourse(7)], ['?coaster=0,9;7,5;14,1;22,0.6;34,3.6;46,0.6;56,0.2', coasterCourse('My coaster', parseTrack('0,9;7,5;14,1;22,0.6;34,3.6;46,0.6;56,0.2')!, 1.5)]];
     for (const [q, course] of cases) {
-      const log = logOf(course);
+      const log: InputLog = course.plan ? logOf(course) : [[1, 741]]; // a coaster has no stored plan: holding the push key clears it
       const { f } = server();
       const url = await makeLink(ORIGIN, q, course, log, 'ZED', 'a', 'done', f);
       expect(url, q).toMatch(/\?c=[a-z2-9]{10}$/);
