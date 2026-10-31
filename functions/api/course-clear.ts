@@ -1,11 +1,12 @@
 // POST /api/course-clear: a cleared run counts only after the server plays its keys with the simulator and gets a clear (CC-149).
 // CC-174: cheap checks run first (src/sim/run-checks.ts); a clear whose replay is cut or skipped is kept as 'unverified' and never sets a best time. See docs/run-checks.md.
-// The time stored is the simulator's, never the one the browser says. No player id is stored with it.
+// The time stored is the simulator's, never the one the browser says. A clear is only counted; it reaches the board when the player publishes it (CC-108, `publish: true`).
 import type { CourseData } from '../../src/course/course';
 import { courseHash, decodeLog, verifyLog } from '../../src/sim/replay';
 import { beatsIdeal, checkRun, MAX_CLEAR_TICKS, physicsFloorTicks, rateLimited } from '../../src/sim/run-checks';
 import { nickOk, tidyNick } from '../../src/share/nick';
 import { playerCode } from '../_lib/player';
+import { board } from './leaderboard';
 import { json } from '../_lib/http';
 
 interface Stmt { bind(...v: unknown[]): { run(): Promise<unknown>; first<T>(): Promise<T | null> } }
@@ -30,6 +31,23 @@ function hasColumns(db: Env['DB']): Promise<boolean> {
   if (!p) { p = db.prepare('SELECT verified FROM course_clears LIMIT 1').bind().first().then(() => true, () => false); columns.set(db, p); }
   return p;
 }
+// Does the table have the publish column (migration 0012)? Without it the endpoint works as before and publishing is not offered.
+const pubCols = new WeakMap<object, Promise<boolean>>();
+function hasPublished(db: Env['DB']): Promise<boolean> {
+  let p = pubCols.get(db);
+  if (!p) { p = db.prepare('SELECT published FROM course_clears LIMIT 1').bind().first().then(() => true, () => false); pubCols.set(db, p); }
+  return p;
+}
+/** Marks one verified clear as the player's published run: the tag, the keys and the player code go on it, and the player's slower published runs go (one best run per player). */
+async function publishRun(env: Env, where: 'run_id' | 'log_hash', id: string, key: string, hash: string, nick: string, keys: string, session: string, ticks: number): Promise<Record<string, unknown>> {
+  const me = await playerCode(session, 'cc-board');
+  const old = await env.DB.prepare('SELECT MIN(ticks) AS t FROM course_clears WHERE course_key = ? AND course_hash = ? AND player = ? AND published = 1').bind(key, hash, me).first<{ t: number | null }>();
+  if (old?.t != null && old.t <= ticks) return { ok: true, published: false, why: 'slower', ticks: old.t };
+  await env.DB.prepare(`UPDATE course_clears SET published = 1, nick = ?, keys = ?, player = ? WHERE ${where} = ?`).bind(nick, keys, me, id).run();
+  await env.DB.prepare('DELETE FROM course_clears WHERE course_key = ? AND course_hash = ? AND player = ? AND published = 1 AND ticks > ?').bind(key, hash, me, ticks).run();
+  const b = await board(env as never, key, hash, 'all', Date.now(), me);
+  return { ok: true, published: true, ticks, nick, rank: b.mine?.rank ?? null, players: b.players };
+}
 async function idealTicksOf(env: Env, url: string, key: string): Promise<number | null> {
   try {
     const res = await env.ASSETS.fetch(new URL('/assets/course-meta.json', url).toString());
@@ -47,6 +65,7 @@ export const onRequestPost = async ({ request, env }: { request: Request; env: E
   const session = String(b.session ?? ''), runId = String(b.runId ?? ''), key = String(b.courseKey ?? ''), hash = String(b.hash ?? ''), keys = String(b.keys ?? '');
   const claimed = b.claimedTicks === undefined ? undefined : Number(b.claimedTicks);
   if (!ID.test(session) || !ID.test(runId) || !KEY.test(key) || !/^[a-z0-9]{1,8}$/.test(hash) || !keys) return json({ error: 'bad run' }, 400);
+  const publish = b.publish === true;
   const nick = nickOk(String(b.nick ?? '')) ? tidyNick(String(b.nick ?? '')) : ''; // the tag the board shows; a blocked word becomes no tag
   if (claimed !== undefined && !Number.isInteger(claimed)) return json({ error: 'bad run' }, 400);
   // the same slow-down as the start and fail events: one browser cannot send a flood
@@ -63,7 +82,13 @@ export const onRequestPost = async ({ request, env }: { request: Request; env: E
   const fh = fnv(keys), cols = await hasColumns(env.DB);
   // a run already replayed and kept is not replayed again; one kept unverified gets another try
   const seen = await env.DB.prepare(`SELECT ${cols ? 'verified' : '1 AS verified'} FROM course_clears WHERE run_id = ? OR log_hash = ?`).bind(runId, fh).first<{ verified: number }>();
-  if (seen?.verified === 1) return json({ ok: true, duplicate: true });
+  const pub = await hasPublished(env.DB);
+  if (publish && !pub) return json({ error: 'not ready' }, 503);
+  if (seen?.verified === 1) {
+    if (!publish) return json({ ok: true, duplicate: true });
+    const mine = await env.DB.prepare('SELECT ticks FROM course_clears WHERE log_hash = ? AND course_key = ? AND course_hash = ? AND verified = 1').bind(fh, key, hash).first<{ ticks: number }>();
+    return mine ? json(await publishRun(env, 'log_hash', fh, key, hash, nick, keys, session, mine.ticks)) : json({ ok: true, duplicate: true });
+  }
   // 1. cheap pre-filter: reject only what the physics or a person cannot do; flag (never reject) a run that beats the stored best line
   const pre = checkRun({ log, course, idealTicks: await idealTicksOf(env, request.url, key), claimedTicks: claimed });
   if (!pre.ok) return json({ error: 'not a possible run', code: pre.code }, 422);
@@ -84,12 +109,13 @@ export const onRequestPost = async ({ request, env }: { request: Request; env: E
   if (cols) {
     await env.DB.prepare('UPDATE course_clears SET ticks = ?, verified = 1, beats_ideal = ? WHERE run_id = ?').bind(v.ticks, beats ? 1 : 0, runId).run();
     // a run that beats the stored line keeps its keys, so the search can learn from it (migration 0005; without the column nothing happens)
-    // CC-108: every verified run keeps its keys and tag, so a board entry can be played as a ghost (migration 0007; without the columns nothing happens)
-    try { await env.DB.prepare('UPDATE course_clears SET keys = ?, nick = ?, player = ? WHERE run_id = ?').bind(keys, nick, await playerCode(session, 'cc-board'), runId).run(); } catch { /* no nick or player column yet */ }
+    // before migration 0012 every clear keeps its tag and keys as it used to; after it only a published run does
+    if (!pub) { try { await env.DB.prepare('UPDATE course_clears SET keys = ?, nick = ?, player = ? WHERE run_id = ?').bind(keys, nick, await playerCode(session, 'cc-board'), runId).run(); } catch { /* no nick or player column yet */ } }
     if (beats) { try { await env.DB.prepare('UPDATE course_clears SET keys = ? WHERE run_id = ?').bind(keys, runId).run(); } catch { /* no keys column yet */ } }
   } else {
     // INSERT OR IGNORE: the same run, or the same keys sent twice, count once
     await env.DB.prepare("INSERT OR IGNORE INTO course_clears (ts, course_key, course_hash, ticks, run_id, log_hash) VALUES (datetime('now'), ?, ?, ?, ?, ?)").bind(key, hash, v.ticks, runId, fh).run();
   }
+  if (publish) return json({ ...(await publishRun(env, 'run_id', runId, key, hash, nick, keys, session, v.ticks)), verified: true, beatsIdeal: beats });
   return json({ ok: true, verified: true, ticks: v.ticks, beatsIdeal: beats });
 };
