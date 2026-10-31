@@ -114,7 +114,7 @@ flowchart LR
   - Model: Muse Spark Open through Baseten, behind `/api/moderate`.
   - Result: ok, review or block with one reason; the caption can only make the answer stricter; any error becomes review.
   - Measured: 19 of 19 safe photos ok, 7 of 7 text-only unsafe cases caught, 4 of 4 near misses not blocked, about $0.003 a call (`data/eval/cc-119-moderation/`).
-  - Not tested: real harmful images.
+  - Not tested: real harmful images (see [trust and safety](trust-and-safety.md)).
 - **Move tips (CC-121):**
   - Data in: the object's name and its cropped photo.
   - Model: Muse Spark Open through Baseten, behind `/api/move-tips`.
