@@ -29,6 +29,7 @@ import { DRONE_PAD_LENGTH, withDrone, type DroneCfg } from '../slice/drone-lane'
 import { fixDrone } from '../slice/fixdrone';
 import { PATTERNS, stackPiece, stackSrc } from '../slice/stack';
 import { personStart } from '../slice/person-ref';
+import { DEFAULT_WATER_LEVEL, PARTNER_PREF_KEY, START_LABEL, START_SHORT, levelOfSaved, partnerStartsOpen, startMarkSide } from '../slice/editor-defaults';
 import { proves } from '../slice/photo-proof';
 import { adviseMachine, fixMachine } from '../slice/fix-launch';
 import { fixBars } from '../slice/fixbars';
@@ -107,7 +108,7 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
     changed();
   };
   const deleteChosen = () => { const ids = chosen(); if (!ids.length) return; pieces = withoutIds(pieces, ids); selected = null; group = []; changed(); };
-  let angle = 0, offset = 0, level = 0; // the lane: turn about the rod (radians), sideways (m), level (m)
+  let angle = 0, offset = 0, level = DEFAULT_WATER_LEVEL; // the lane: turn about the rod (radians), sideways (m), level (m)
   let view = { cx: 8, cz: 0, ppm: 36 }; // plan view: the world point in the middle, pixels per metre
   let personChipReady = false; // the chip is built after the 3D view; the world redraws can run before that
   const personAt = () => personStart(pieces, { angle, offset });
@@ -127,7 +128,7 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
   function restore(s: Saved) {
     pendingObjects.push(...s.pieces.filter((q) => q.src.startsWith('obj:') || q.src.startsWith('user:') || isSharedSrc(q.src)));
     pieces = buildPieces(s.pieces);
-    angle = s.angle; offset = s.offset; level = s.level;
+    angle = s.angle; offset = s.offset; level = levelOfSaved(s);
     startFloor = (HAZARDS as readonly string[]).includes(s.floor ?? '') ? (s.floor as Hazard) : 'water';
   }
   function load() {
@@ -135,7 +136,7 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
       restore(JSON.parse(localStorage.getItem(KEY) ?? '') as Saved);
     } catch {
       // a first world made of real objects (no blocks): a short run with one of each kind, loaded once the object list is in
-      restore({ pieces: PRESETS[0].pieces, angle: 0, offset: 0, level: 0 }); // CC-243: the default course has a real hang bar and the Lache, and the simulator swings on both
+      restore({ pieces: PRESETS[0].pieces, angle: 0, offset: 0, level: DEFAULT_WATER_LEVEL }); // CC-243: the default course has a real hang bar and the Lache, and the simulator swings on both
       selected = null;
     }
   }
@@ -479,7 +480,7 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
   if (saysOn()) { const line = document.createElement('div'); line.className = 'says-line'; line.style.cssText = 'flex:1 0 100%;margin:0'; line.append(sayBadge('partner')); partnerTitle.replaceWith(line); } // CC-243: the badge names the speaker and its model
   el('button', head, { text: 'Fix it', id: 'fixit', className: 'go', title: 'Show a layout the simulator can clear, before anything changes' }).onclick = () => runFix();
   el('button', head, { text: 'Make it easier', id: 'easier', title: 'Show the smallest change that makes the hardest press easier to land' }).onclick = () => runEasier();
-  el('button', head, { text: '✕', id: 'closehelper', title: 'Hide' }).onclick = () => { helper.classList.add('closed'); helperBtn.setAttribute('aria-pressed', 'false'); };
+  const closeHelper = el('button', head, { text: '✕', id: 'closehelper', title: 'Hide' });
   const selRow = el('label', helper, { className: 'muted', title: 'Fix it and Suggest Fix move only the pieces you have chosen, and leave the lane where it is' });
   const fixSel = el('input', selRow, { type: 'checkbox', id: 'fixsel' }); selRow.append('Move only the chosen pieces');
   const adviceBox = el('div', helper, { id: 'advice' });
@@ -536,18 +537,19 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
   };
   const helperBtn = el('button', top, { text: 'Design partner', id: 'helperbtn', title: 'Show or hide the design partner' });
   // CC-243: the partner slides in from the right edge; a tab rides its edge, Esc closes it, and the last choice is remembered
-  const PARTNER_KEY = 'cc.partner.open';
   const partnerTab = el('button', root, { id: 'partnertab', text: 'Design partner', title: 'Show or hide the design partner' });
   const syncPartner = () => {
     const open = !helper.classList.contains('closed');
     helperBtn.setAttribute('aria-pressed', String(open)); partnerTab.classList.toggle('open', open); partnerTab.setAttribute('aria-expanded', String(open));
-    try { localStorage.setItem(PARTNER_KEY, open ? '1' : '0'); } catch { /* private window */ }
   };
-  let wasOpen = false; try { wasOpen = localStorage.getItem(PARTNER_KEY) === '1'; } catch { /* private window */ }
+  // CC-200: hidden by default; only a hand choice (tab, bar button, close, Esc) is remembered, so a partner that opened itself to answer does not stay open next time
+  const rememberPartner = () => { try { localStorage.setItem(PARTNER_PREF_KEY, helper.classList.contains('closed') ? '0' : '1'); } catch { /* private window */ } };
+  let wasOpen = false; try { wasOpen = partnerStartsOpen(localStorage.getItem(PARTNER_PREF_KEY)); } catch { /* private window */ }
   helper.classList.toggle('closed', !wasOpen); syncPartner();
   new MutationObserver(syncPartner).observe(helper, { attributes: true, attributeFilter: ['class'] });
-  helperBtn.onclick = partnerTab.onclick = () => helper.classList.toggle('closed');
-  window.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !helper.classList.contains('closed') && helper.contains(document.activeElement)) { helper.classList.add('closed'); } });
+  helperBtn.onclick = partnerTab.onclick = () => { helper.classList.toggle('closed'); rememberPartner(); };
+  closeHelper.onclick = () => { helper.classList.add('closed'); helperBtn.setAttribute('aria-pressed', 'false'); rememberPartner(); };
+  window.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !helper.classList.contains('closed') && helper.contains(document.activeElement)) { helper.classList.add('closed'); rememberPartner(); } });
 
   // ---- the Moves window (CC-43): which moves this world has and lacks, and what each piece could be; every suggestion is proved by the simulator and goes through the shared preview
   const movesBox = el('div', planWrap, { className: 'panel moves closed', id: 'moves' });
@@ -1236,7 +1238,7 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
     c.fillStyle = '#f0a02033'; c.fillRect(-400 * view.ppm, (offset - HALF_LANE) * view.ppm, 800 * view.ppm, 2 * HALF_LANE * view.ppm);
     c.strokeStyle = '#f0a020'; c.lineWidth = 2; c.beginPath(); c.moveTo(-400 * view.ppm, offset * view.ppm); c.lineTo(400 * view.ppm, offset * view.ppm); c.stroke();
     c.restore();
-    c.fillStyle = '#17201d'; c.beginPath(); c.arc(sx(0), sz(0), 5, 0, 7); c.fill(); c.fillStyle = '#0f6b5c'; c.beginPath(); c.moveTo(sx(0), sz(0)); c.lineTo(sx(0), sz(0) - 22); c.lineTo(sx(0) + 16, sz(0) - 16); c.lineTo(sx(0), sz(0) - 10); c.fill(); c.font = '600 11px system-ui'; c.fillText('START: the runner begins here', sx(0) + 8, sz(0) + 14);
+    c.fillStyle = '#17201d'; c.beginPath(); c.arc(sx(0), sz(0), 5, 0, 7); c.fill(); c.fillStyle = '#0f6b5c'; c.beginPath(); c.moveTo(sx(0), sz(0)); c.lineTo(sx(0), sz(0) - 22); c.lineTo(sx(0) + 16, sz(0) - 16); c.lineTo(sx(0), sz(0) - 10); c.fill(); c.font = '600 11px system-ui'; c.fillText(START_LABEL.replace(/^Start/, 'START'), sx(0) + 8, sz(0) + 14);
     pieces.forEach((p, i) => {
       const s = size(p.mesh);
       if (isSizeReference(p)) {
@@ -1322,6 +1324,16 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
     let pen = false;
     prof.cells.forEach((h, i) => { if (h === null) { pen = false; return; } const x = 10 + (o - uLo + i * CELL) * ppm, y = base - (h - vmin) * ph; if (!pen) { c.moveTo(x, y); pen = true; } else c.lineTo(x, y); });
     c.stroke();
+    { // CC-200: a green Start flag where the runner begins (not the yellow person for scale)
+      const st = startMarkSide(prof, CELL);
+      if (st) {
+        const x = 10 + (st.u - uLo) * ppm, y = base - (st.h - vmin) * ph;
+        c.strokeStyle = '#0f6b5c'; c.fillStyle = '#0f6b5c'; c.lineWidth = 2;
+        c.beginPath(); c.moveTo(x, y); c.lineTo(x, y - 30); c.stroke();
+        c.beginPath(); c.moveTo(x, y - 30); c.lineTo(x + 14, y - 25); c.lineTo(x, y - 20); c.fill();
+        c.font = '700 12px system-ui'; c.textAlign = 'left'; c.fillText(START_SHORT, x + 4, y - 34);
+      }
+    }
     for (const b of bars) {
       const x = 10 + (b.u - uLo) * ppm, y = base - (b.y - vmin) * ph, sel = b.id === selected;
       c.strokeStyle = '#c9ced4'; c.lineWidth = 4; c.beginPath(); c.moveTo(x - 12, y); c.lineTo(x + 12, y); c.stroke();

@@ -34,6 +34,7 @@
 | Map and Slicer | Pin a place on Earth; its buildings become a course | `?mode=map` | [pipelines 6](meta-ai-pipelines.md#6-real-places-and-photos-mapillary-masking), [world-slice](world-slice.md#why-a-pin-is-slow-and-the-speed-up-cc-152) |
 | Ready places | 18 parks that load at once | In Map mode | [world-slice](world-slice.md#why-a-pin-is-slow-and-the-speed-up-cc-152) |
 | Design partner and Fix it | A note on why a course cannot be cleared and one proved change | Editor buttons | [pipelines 4](meta-ai-pipelines.md#4-course-design-partner-muse-spark-open) |
+| Editor defaults and Start flag (CC-200) | The Design partner starts hidden (the tab and bar button open it; only a hand choice is remembered), the water level starts at 0 (a saved world keeps its own), and a green Start flag marks where the runner begins in the 3D and side views | On by default | [evidence](evidence/cc-200-editor-defaults/editor-defaults-1280.jpg) |
 | Upload check and move tips | An ok, review or block answer; moves that could pass a cut-out | On upload | [pipelines 4b](meta-ai-pipelines.md#4b-upload-check-and-move-tips-muse-spark-open) |
 | Generate a course | A course from a seed | `?generate=<seed>` | [world-slice](world-slice.md#course-generator-v1-cc-47) |
 | Characters | The Rookie and a second Rookie in the first one's style | Always on | [pipelines 5](meta-ai-pipelines.md#5-characters-muse-image) |
