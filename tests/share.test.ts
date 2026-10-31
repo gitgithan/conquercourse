@@ -37,11 +37,11 @@ describe('the challenge link (CC-128)', () => {
     expect(a.ticks).toBe(b.ticks);
     expect(Array.from(a.track.xs)).toEqual(Array.from(b.track.xs));
   });
-  it('the link keeps the course and the seed only: no name, no time, no account', async () => {
+  it('the link keeps the course only: no name, no time, no account, no seed', async () => {
     const course = load('lache.course.json');
     const url = await expandedAddress(ORIGIN, '?course=/assets/demo/lache.course.json&seed=7&name=Sam&time=3&tour=1&welcome=0', course, logOf(course));
     const q = new URL(url!).searchParams;
-    expect([...q.keys()].sort()).toEqual(['challenge', 'course', 'seed']);
+    expect([...q.keys()].sort()).toEqual(['c', 'challenge', 'course']);
     expect(q.get('challenge')).toMatch(/^1\.[a-z0-9]+\.\.[dr][A-Za-z0-9_-]+$/); // version, course, empty nickname, keys
   });
   it('a run that does not clear is not given a link', async () => {
