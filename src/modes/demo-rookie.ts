@@ -73,11 +73,11 @@ export async function startRookieDemo(): Promise<void> {
     __skinStretch: () => skinStretch(rookies[current].object),
     __fit: () => rookies[current].fit,
     // the bind pose (T-pose) seen from the front, for the before and after pictures
-    __rest: (id?: RookieId) => {
+    __rest: (id?: RookieId, side?: boolean) => {
       if (id) choose(id);
       const r = rookies[current];
       r.apply(r.rig.bones.map((b) => b.restPos.clone()), { floor: false });
-      stage.camera.position.set(0, 1.0, 3.6);
+      stage.camera.position.set(side ? -3.6 : 0, 1.0, side ? 0 : 3.6); // side: seen from the left, so the runner's front is on the right of the picture
       stage.camera.lookAt(0, 0.9, 0);
     },
     __period: motions.a.period,

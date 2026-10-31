@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { readdirSync, readFileSync } from 'node:fs';
-import { fitToSkeleton, GOOD_K, MAX_K, MIN_K } from '../src/characters/fit';
+import { faceForward, FACING_MIN, fitToSkeleton, GOOD_K, MAX_K, measureFacing, MIN_K } from '../src/characters/fit';
 import { readSkin } from '../src/characters/glb-skin';
 import { castUrl, isCast, loadCast } from '../src/characters/cast';
 import { fetchCharacterUrl } from '../src/characters/runner';
@@ -87,6 +87,101 @@ describe('the fit puts the fingertip on the fingertip bone', () => {
     expect(r.arms.Left!.wanted).toBeGreaterThan(MAX_K);
     expect(r.arms.Left!.used).toBe(MAX_K);
     expect(GOOD_K[0]).toBeLessThan(1);
+  });
+});
+
+// CC-108 facing: the bones always face +z (the foot bones point ankle to toe); the made skins came out with an arbitrary front.
+const BACK = ['Skater', 'Banana', 'Potato Blob'], UNCLEAR = ['Jelly'];
+const fileOf = (name: string) => cast.find((c) => c.name === name)!.file;
+/** A skin as a maker could have produced it facing back: turned 180 degrees about the hips' vertical axis, left and right bone weights swapped. */
+function turnedAround(file: string) {
+  const s = skin(file), i = (n: string) => s.names.indexOf(n);
+  const hx = (s.rest[i('LeftLeg')][0] + s.rest[i('RightLeg')][0]) / 2, hz = (s.rest[i('LeftLeg')][2] + s.rest[i('RightLeg')][2]) / 2;
+  const other = s.names.map((n) => { const o = n.startsWith('Left') ? 'Right' + n.slice(4) : n.startsWith('Right') ? 'Left' + n.slice(5) : n; return s.names.indexOf(o); });
+  for (let v = 0; v < s.positions.length / 3; v++) { s.positions[v * 3] = 2 * hx - s.positions[v * 3]; s.positions[v * 3 + 2] = 2 * hz - s.positions[v * 3 + 2]; }
+  const j = Float64Array.from(s.joints as ArrayLike<number>);
+  for (let k = 0; k < j.length; k++) j[k] = other[j[k]];
+  s.joints = j;
+  return s;
+}
+
+describe('the skin faces the way the bones face (CC-108 facing)', () => {
+  it('the bones of all eight face +z: ankle to toe is the same forward, so only the skin can face wrong', () => {
+    for (const c of cast) {
+      const s = skin(c.file), i = (n: string) => s.names.indexOf(n);
+      for (const side of ['Left', 'Right']) {
+        const a = s.rest[i(side + 'Foot')], b = s.rest[i(side + 'ToeBase')];
+        const d = Math.hypot(b[0] - a[0], b[2] - a[2]);
+        expect((b[2] - a[2]) / d, `${c.name} ${side}`).toBeGreaterThan(0.999);
+      }
+    }
+  });
+
+  it('measures the made skins: Skater, Banana and Potato Blob face back, the other five do not', () => {
+    for (const c of cast) {
+      const s = skin(c.file), m = measureFacing(s.positions, s.names, s.rest);
+      if (BACK.includes(c.name)) { expect(m.verdict, c.name).toBe('back'); expect(m.score, c.name).toBeLessThanOrEqual(-FACING_MIN); }
+      else if (UNCLEAR.includes(c.name)) expect(m.verdict, c.name).toBe('unclear'); // a jellyfish has no front shoe: left alone
+      else { expect(m.verdict, c.name).toBe('forward'); expect(m.score, c.name).toBeGreaterThanOrEqual(FACING_MIN); }
+    }
+  });
+
+  it('after the fit none faces back, exactly the three are turned, and the report says so', () => {
+    for (const c of cast) {
+      const s = skin(c.file), r = fitToSkeleton(s), m = measureFacing(s.positions, s.names, s.rest);
+      expect(r.facing.turned, c.name).toBe(BACK.includes(c.name));
+      expect(m.score, c.name).toBeGreaterThan(-FACING_MIN);
+      expect(m.verdict, c.name).not.toBe('back'); // the fit's height remap changes the shoe slab, so a thin score can slip into unclear here
+      expect(r.notes.some((n) => n.startsWith('turned around')), c.name).toBe(BACK.includes(c.name));
+    }
+  });
+
+  it('turning alone makes a back-facing skin read forward, with the same score the other way round', () => {
+    for (const name of BACK) {
+      const s = skin(fileOf(name)), before = measureFacing(s.positions, s.names, s.rest).score;
+      faceForward(s);
+      const after = measureFacing(s.positions, s.names, s.rest);
+      expect(after.verdict, name).toBe('forward');
+      expect(after.score, name).toBeCloseTo(-before, 1);
+    }
+  });
+
+  it('a skin built facing back is turned to exactly the skin that faced forward, left stays left', () => {
+    for (const name of ['Fox', 'Cactus', 'Toy Robot']) {
+      const good = skin(fileOf(name)), back = turnedAround(fileOf(name));
+      expect(measureFacing(back.positions, back.names, back.rest).verdict, name).toBe('back');
+      const f = faceForward(back);
+      expect(f.turned, name).toBe(true);
+      let worst = 0;
+      for (let i = 0; i < good.positions.length; i++) worst = Math.max(worst, Math.abs(good.positions[i] - back.positions[i]));
+      expect(worst, name).toBeLessThan(1e-4);
+      for (let k = 0; k < good.joints.length; k++) expect(back.joints[k]).toBe(good.joints[k]);
+    }
+  });
+
+  it('a skin that faces forward is not touched', () => {
+    for (const name of ['Fox', 'Cactus', 'Toy Robot', 'Robo Cat']) {
+      const s = skin(fileOf(name)), p0 = Float32Array.from(s.positions), j0 = Float64Array.from(s.joints as ArrayLike<number>);
+      const f = faceForward(s);
+      expect(f.turned, name).toBe(false);
+      expect(Array.from(s.positions), name).toEqual(Array.from(p0));
+      expect(Array.from(s.joints as ArrayLike<number>), name).toEqual(Array.from(j0));
+    }
+  });
+
+  it('the turned skins keep their left arm on the left bones (x > 0) and their feet on the ground', () => {
+    for (const name of BACK) {
+      const s = skin(fileOf(name)), i = (n: string) => s.names.indexOf(n);
+      fitToSkeleton(s);
+      const L = new Set(['LeftArm', 'LeftForeArm', 'LeftHand'].map(i));
+      let sx = 0, w = 0, yMin = 1e9;
+      for (let v = 0; v < s.positions.length / 3; v++) {
+        yMin = Math.min(yMin, s.positions[v * 3 + 1]);
+        for (let k = 0; k < 4; k++) if (L.has(s.joints[v * 4 + k])) { sx += s.weights[v * 4 + k] * s.positions[v * 3]; w += s.weights[v * 4 + k]; }
+      }
+      expect(sx / w, name).toBeGreaterThan(0.2);
+      expect(Math.abs(yMin), name).toBeLessThan(0.02);
+    }
   });
 });
 

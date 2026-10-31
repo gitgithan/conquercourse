@@ -1,0 +1,11 @@
+{
+  "experiment": "cc-chars-facing",
+  "date": "2026-11-01",
+  "rule": "shoe slab vs shin, |score|>=0.1",
+  "threshold": 0.1,
+  "runner": "VM2 browser (swiftshader), 1280x720",
+  "outputs": [
+    "facing.json",
+    "shoot-after.json"
+  ]
+}
