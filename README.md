@@ -327,6 +327,7 @@ Diagrams are in [docs/meta-ai-pipelines.md](docs/meta-ai-pipelines.md); the full
 - Modes: `?mode=editor`, `?mode=map`, `?mode=communities`, `?mode=dojo` (learn); `?labs=1` for Labs; `I` shows the ideal run.
 - Every feature, its switch and its doc: [docs/features.md](docs/features.md).
 - Every obstacle, its keys and numbers: [docs/obstacles.md](docs/obstacles.md).
+- The university Labs, one row each with tests and limits: [docs/labs/README.md](docs/labs/README.md).
 - What to tick when playtesting: [docs/playtest.md](docs/playtest.md).
 
 ## Run it
