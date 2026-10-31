@@ -2,6 +2,10 @@
 
 *Product owner, 2026-10-29: "Let's have some advanced courses at university level, where the player supplies heuristics, makes choices, sets targets and sees outputs, as if designing this game themselves."*
 
+## The index
+- One row per Lab with its question, address, tests and biggest limit: [docs/labs/README.md](labs/README.md).
+- Each Lab doc says how it was designed, how we prove it, its limits and how to make it better.
+
 ## The idea
 - A Lab is a small workbench on top of something the game already does.
 - The player changes one choice (a heuristic, a threshold, a target), runs it, and reads facts about the result.

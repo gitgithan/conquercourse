@@ -37,8 +37,47 @@
 - Moving the claim line cannot fix it, because the made-up and the real parts are painted in similar amounts.
 - Holds stay with a person or the bar tools the simulator checks; a newer release is the next test.
 
-## Not tested
-- Only 22 scored cases from one run on six objects: the curve shows a shape, not a stable score.
-- A made-up claim at the wrong place on a real part counts as missed only (the CC-49 rule), not also as made up.
-- Another detector, another prompt wording or a point prompt was not run.
-- Phones and touch: out of scope.
+## How it was designed
+- **The one question:** is this detector good enough to place holds for us, and can a threshold fix it if not?
+- **The choices and why those:**
+  - Words asked for, the claim line and the on-hold share are the three things a person tuning a detector really changes.
+  - Found, missed and made up are the three outcomes that matter for placing a hold, and they feed a 2 by 2 table so precision, recall and F1 are earned from counts.
+  - The sliding curve shows the whole trade-off, not one setting.
+- **Which real game code runs:** none; the game does not use this detector.
+  - The Lab's scoring is `src/lab/detector-lab.ts`, and it runs in the page.
+- **Which data is precomputed:** everything.
+  - `public/assets/lab/detector-partllm.json` (24 rows) is copied from `data/eval/partllm/scores.json` and the answer key of the CC-49 run of 2026-10-28.
+  - The answer key was labelled by hand from side and top views of six objects.
+  - The model is PartLLM (Apache-2.0); it ran once, not on the page.
+- **Order of the screen and why compare comes last:** controls, the counts and table, the sliding curve, then which words and parts are hard; what we chose comes last so the player sees that no threshold rescues the helper before reading that we did not use it.
+
+## How we prove the lesson is right
+- `tests/lab-detector.test.ts` (8 tests):
+  - At the shipped settings the Lab reproduces the recorded numbers from `data/eval/partllm/scores.json`: found equals present hits (2 of 9) and made up equals absent false claims (11 of 13).
+  - Every one of the recorded verdicts is reproduced case by case.
+  - Precision, recall and F1 follow their definitions on a small hand-made list.
+  - Raising the claim line never adds made-up claims or finds, and a claim line of 100% finds and claims nothing.
+  - The best F1 on the curve is under 0.5 and not below the default setting's F1.
+  - Asking for "rail" finds the 2 real rails and "ledge" finds none.
+  - The hard-parts list has the 22 scored cases, lowest first, and the stairs ledge scores 0.
+  - The result is deterministic.
+- There is no browser smoke script for this Lab; evidence pictures are `docs/evidence/lab-detector-start.png` and `docs/evidence/lab-detector-after.png`.
+- What would make the Lab's claim false:
+  - Any claim line giving an F1 of 0.5 or more (the best-F1 test fails).
+  - A re-run of the helper that finds many more of the real parts (the tests would need the new recording).
+
+## Limits
+- **Small data:** 22 scored cases from one run on six objects; the curve shows a shape, not a stable score.
+- **Hand labels:** the answer key is ours and was made by eye.
+- **One scoring rule:** a made-up claim at the wrong place on a real part counts as missed only (the CC-49 rule), not also as made up.
+- **One detector, one prompt style:** another detector, a point prompt or another wording was not run.
+- **Unbacked sentences on the "what we chose" card:** that the model "was trained on furniture-like parts" and "must answer for every word" are explanations, not tested here.
+- **Sliding the claim line re-scores stored numbers;** it does not re-run any model.
+- No phone or touch layout (out of scope).
+
+## How to make the lesson better
+1. Run a newer detector release on the same six objects and add it as a second recording, so the Lab can compare two helpers.
+2. Add objects and labelled parts so the curve is stable (at least 50 scored cases).
+3. Add a second labeller on a subset and show how much the answer key itself disagrees.
+4. Show confidence intervals on precision and recall, so small data is visible.
+5. Add a browser smoke script like the other Labs.

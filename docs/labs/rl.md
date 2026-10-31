@@ -47,23 +47,57 @@
 - Where learning would help: a ghost that gets better with every race, because a ghost needs a plausible run, not a proof.
 - No learned policy is used anywhere in the game, and the Lab calls no outside service.
 
-## Evidence
-- Browser run at 1280 px, honest points: `docs/evidence/lab-rl-honest-top.png` and `docs/evidence/lab-rl-honest-facts.png`.
-- The farmed bonus (staying-alive points, seed 1): `docs/evidence/lab-rl-alive-hack.png`.
-- Script: `scripts/lab-rl-check.mjs`; it ran on the Codespace with ten checks passing.
+## How it was designed
+- **The one question:** can a character learn to clear the course by trial and error with points the player writes, and how does a badly written reward go wrong?
+- **The choices and why those:**
+  - Tabular Q-learning, because the table can be shown on screen and nothing hidden is learned.
+  - Three moves (run, jump, wait) and a place-only state, so the whole policy fits in a strip the player can read.
+  - Five point sliders and four presets, because reward writing is the lesson and the presets show the classic failures.
+  - A seeded generator and no clock, so a result can be reproduced.
+- **Which real game code runs:** the real simulator `src/sim/world.ts`, and `playPlan` from `src/sim/ideal.ts` for the game's own line.
+  - The environment and learner (`src/lab/rl-lab.ts`) are Lab code, run in a worker (`src/lab/rl-lab-worker.ts`).
+- **Which data is precomputed:** only the Lab 1 trap course and its stored plan (`public/assets/lab/search-trap.course.json`).
+- **Order of the screen and why compare comes last:** points and learning choices, the learning curve, the facts, the learned run, the baselines (random, no exploring), the points of the game's line, and the choice we made in the game last, so the player has seen what learning cannot promise before reading why we use a search.
 
-## What is not tested
-- Only one course; the learning speed on other courses is not measured.
-- The state is the place only (not speed or height), so courses where the right move depends on speed are out of reach of this table.
-- Only three moves (no vault, hang, roll or rope); the action set is kept to run, jump and wait on purpose.
-- Function approximation (a small network) is not used.
-- The ten-seed success rate above is not asserted by a test; the tests pin seed 7 (clears) and seed 1 with staying-alive points (does not clear).
+## How we prove the lesson is right
+- `tests/lab-rl.test.ts` (11 tests):
+  - The points follow the written rules (for example, a clear of 0.1 m pays 10.1 under Honest points).
+  - The seeded generator repeats and an episode is deterministic.
+  - Running into the first gap splashes; waiting goes nowhere.
+  - The same choices and seed give identical numbers, and another seed gives different ones.
+  - Honest points, seed 7: the character clears, finds a first clear and a first policy clear, is not faster than the game's search line (within 0.1 s) and is not marked as a hack.
+  - The learning curve improves: the last three blocks collect more than the first three.
+  - Random moves do not clear in 150 tries (clear rate 0, mean progress under 0.6).
+  - A character that never explores (400 tries) has clear rate 0.
+  - Staying-alive points, seed 1: it does not finish, is marked a hack, scores more than the game's line, and gets under half of the course.
+  - The game's own line scores between 30 and 45 under Honest points.
+  - Out-of-range choices are clamped.
+- `scripts/lab-rl-check.mjs`: browser run at 1280 px, ten checks; evidence `docs/evidence/lab-rl-honest-top.png`, `docs/evidence/lab-rl-honest-facts.png` and `docs/evidence/lab-rl-alive-hack.png`.
+- Backed claims: honest learning works on this course, random moves and no exploring fail, a staying-alive reward is farmed.
+- What would make the Lab's claim false:
+  - The staying-alive character clearing the course on seed 1, or Honest points failing on seed 7.
+  - A learned line faster than the stored search line by more than 0.1 s (the search would not be the floor).
+- Claims in "What we saw" that no test pins:
+  - "The first clear comes within a few dozen tries" (the test only requires a first clear exists).
+  - "Pays for nearing a gap" farming on some seeds, and "pays only for the finish" rarely finding the run.
+  - "About a third of the course" for random moves (the test pins under 0.6).
+  - "Stops at 80 % of the course" with no exploring (the test pins only no clear).
+  - The ten-seed 9 in 10 sweep.
+
+## Limits
+- **One course,** and learning speed on others is not measured.
+- **The state is the place only** (not speed or height), so courses where the right move depends on speed are out of reach.
+- **Three moves only:** no vault, hang, roll or rope.
+- **One seed per claim:** the tests pin seeds 7 and 1; other seeds can differ, which the Lab says but does not test.
+- **No function approximation** (no network), so this is not how a modern game agent is trained.
+- **The maths box** is not checked by a test beyond being present.
 - Phones and touch are out of scope (desktop 1280 px only).
 
-## What to build next
-- Add the unvisited-state "optimism" switch: start every move with a high value so the character tries each move once; show how it removes the need for random moves on this course.
-- Add a "potential-based hint" preset next to the farmable one, to show a shaping bonus that cannot change the best policy.
-- Put speed (a few cells of it) into the state, so the character can learn when a run-up matters.
-- Learn on a second course from the menu and print the tries needed for each, with the same seeds.
-- A ghost mode: train a character per course offline, ship the small table (under 300 KB, with a row in `docs/ASSETS.md`), and race it as a ghost that gets faster with each of the player's runs.
-- Compare with Lab 1: the number of simulator runs the search needs against the number of tries the character needs, on the same course.
+## How to make the lesson better
+1. Add tests for the unpinned claims (first-clear tries, the two other presets, the ten-seed rate with a fixed list of seeds).
+2. Add the "optimism" switch (start every move high) and show it removes the need for random moves on this course.
+3. Add a potential-based hint preset next to the farmable one, and test that it cannot change the best policy.
+4. Put speed (a few cells of it) into the state so run-ups can be learned.
+5. Learn on a second course and print the tries needed with the same seeds.
+6. A ghost mode: train a character per course offline, ship the small table (under 300 KB, with a row in `docs/ASSETS.md`), and race it.
+7. Compare with Lab 1: simulator runs the search needs against the tries the character needs, on the same course.
