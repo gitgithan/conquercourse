@@ -1,3 +1,4 @@
+import { mountLabsNav } from "../ui/labs-nav";
 import type { CourseData } from "../course/course";
 import { DEFAULT_TIMING, binEdges, clampTiming, cdf, pInside, predictedRate, prepare, rateForWidth, runTiming, sweepSigma, BIN_MIN, BIN_MAX, BIN_MS, type Dist, type TimingConfig, type TimingResult } from "../labs/timing/core";
 import { labsOn } from "../ui/labs";
@@ -27,6 +28,7 @@ export function startLabTiming(host: HTMLElement): { backend: "canvas2d" } {
   root.id = "lab-timing";
   root.style.cssText = `position:fixed;inset:0;overflow:auto;background:#f5f7f4;color:${INK};font:15px/1.4 system-ui,sans-serif`;
   host.append(root);
+  mountLabsNav(host, "lab-timing");
   if (!labsOn()) {
     root.innerHTML = `<div style="max-width:520px;margin:12vh auto;padding:0 16px"><h1 style="font-size:22px">Lab 7: Statistics of timing</h1><p>Labs are switched off.</p><p><a href="?mode=lab-timing&labs=1" style="color:${TEAL}">Switch labs on</a></p></div>`;
     return { backend: "canvas2d" };

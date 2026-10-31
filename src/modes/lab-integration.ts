@@ -1,3 +1,4 @@
+import { mountLabsNav } from "../ui/labs-nav";
 import { labsOn } from "../ui/labs";
 import { BOWL_START, GAME_STEPS_PER_SECOND, LENGTH_CHOICES, METHOD_INFO, STEP_CHOICES, bowlRails, clampCfg, runLab, type LabConfig, type LabResult, type Method } from "../labs/integration/engine";
 
@@ -14,6 +15,7 @@ export function startLabIntegration(host: HTMLElement): { backend: "canvas2d" } 
   root.id = "lab-integration";
   root.style.cssText = `position:fixed;inset:0;overflow:auto;background:#f5f7f4;color:${INK};font:15px/1.4 system-ui,sans-serif`;
   host.append(root);
+  mountLabsNav(host, "lab-integration");
   if (!labsOn()) {
     root.innerHTML = `<div style="max-width:520px;margin:12vh auto;padding:0 16px"><h1 style="font-size:22px">Lab 6: Numerical integration</h1><p>Labs are switched off.</p><p><a href="?mode=lab-integration&labs=1" style="color:${TEAL}">Switch labs on</a></p></div>`;
     return { backend: "canvas2d" };
