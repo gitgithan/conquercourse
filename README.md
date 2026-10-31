@@ -328,6 +328,7 @@ Diagrams are in [docs/meta-ai-pipelines.md](docs/meta-ai-pipelines.md); the full
 - Every feature, its switch and its doc: [docs/features.md](docs/features.md).
 - Every obstacle, its keys and numbers: [docs/obstacles.md](docs/obstacles.md).
 - The university Labs, one row each with tests and limits: [docs/labs/README.md](docs/labs/README.md).
+- Why one key (Down / S) has several meanings, and why replays stay exact: [docs/input-design.md](docs/input-design.md).
 - What to tick when playtesting: [docs/playtest.md](docs/playtest.md).
 
 ## Run it

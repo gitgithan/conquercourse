@@ -4,6 +4,7 @@
 - Diagram links point to [docs/meta-ai-pipelines.md](meta-ai-pipelines.md) (called "pipelines" below) unless another file is named.
 - "After pull" marks work that was still landing when this was written; if the switch does nothing, pull first.
 - Keys: arrows or A/D run, Space jump, S squat, E hold, V vault, X roll, R retry, H key card.
+- One key can mean several things by state (S bends, slides, descends, brakes): [input design](input-design.md).
 
 ## 1. Play the Course
 | Feature | What the player sees | Turn it on | Diagram or doc |
