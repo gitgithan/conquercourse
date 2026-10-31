@@ -1,4 +1,4 @@
-# World editor layout (CC-94)
+# World Editor layout (CC-94)
 
 The editor had about forty buttons on screen at once.
 The owner called it scattered and found a button in the Moves pane squeezed into an unreadable sliver.

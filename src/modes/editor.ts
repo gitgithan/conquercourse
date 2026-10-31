@@ -160,7 +160,7 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
   const el = <K extends keyof HTMLElementTagNameMap>(tag: K, parent: HTMLElement, props: Partial<HTMLElementTagNameMap[K]> & { text?: string } = {}) => { const { text, ...rest } = props as Record<string, unknown> & { text?: string }; const e = Object.assign(document.createElement(tag), rest); if (text) e.textContent = text; parent.appendChild(e); return e as HTMLElementTagNameMap[K]; };
 
   const top = el('div', root, { className: 'top' });
-  el('h1', top, { text: 'World editor' });
+  el('h1', top, { text: 'World Editor' });
   const backLink = el('a', top, { text: 'Back to the Course', href: '?', className: 'btn go', id: 'backcourse' }); // from the Course it returns to that very course (CC-80)
   el('button', top, { text: 'Reset to starter scene', id: 'resetworld', title: 'Discard this saved world and restore the starter bench, box and rail' }).onclick = () => {
     if (!window.confirm('Discard this saved world and restore the starter scene?')) return;

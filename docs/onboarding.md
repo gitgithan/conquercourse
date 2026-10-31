@@ -10,7 +10,7 @@
   - **Run, jump and more:** the keys this course can use (read from its shape: a step up adds V, a bar adds E, a big drop adds X, a launcher adds K), with a small looping jump.
   - **Fell? Try again:** R, and Shift+R for the whole course.
   - **See the best line:** I for the next obstacle, Shift+I for the whole course.
-  - **More to explore:** four cards (Courses, Course editor, World explorer, Community) that go there.
+  - **More to explore:** four cards (Courses, World Editor, World Slicer, Community) that go there.
   - **Need this again?** H hides or shows the controls; the ? button replays the tour.
 - Every step moves on by Next, by Enter, by its own key, or by itself after 4.5 s; hovering the card holds the clock.
 - Skip and Esc end the tour at any step; the tour is remembered and never repeats on its own.
@@ -25,7 +25,7 @@
 ## After the first run
 - A cleared run shows a one-time "What next" card at the top of the end report:
   - **Your controls:** every key as a small chip.
-  - **Build:** the course editor (with objects, bars, stacks, machines and your own photo), the world explorer, the coaster builder.
+  - **Build:** the World Editor (with objects, bars, stacks, machines and your own photo), the World Slicer, the coaster builder.
   - **Do and share:** community courses, the feedback form.
 - A first fall shows one calm hint instead: press R, press I.
 - "What can I do?" in the Help menu shows the same card again.
