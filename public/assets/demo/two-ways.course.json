@@ -148,14 +148,118 @@
   "hazard": "lava",
   "plan": {
     "jumpXs": [
-      21.3
+      21,
+      27
     ],
     "releaseAfter": 60,
     "bouncePress": 8,
     "hands": true,
     "hangTicks": [
-      210,
       210
+    ],
+    "climbXs": [
+      34,
+      36.5
+    ],
+    "airHands": [
+      false
     ]
-  }
+  },
+  "windows": [
+    {
+      "obstacle": "edge at 24 m (take-off)",
+      "best": 21,
+      "lo": 21,
+      "hi": 21,
+      "widthMs": 0
+    },
+    {
+      "obstacle": "edge at 30 m (take-off)",
+      "best": 27,
+      "lo": 27,
+      "hi": 27,
+      "widthMs": 0
+    }
+  ],
+  "routes": [
+    {
+      "name": "bar to bar",
+      "ticks": 1277,
+      "bars": 2,
+      "chosen": false
+    },
+    {
+      "name": "skip the second bar",
+      "ticks": 1264,
+      "bars": 1,
+      "chosen": true
+    }
+  ],
+  "shortcuts": [
+    {
+      "id": "skip-bars-1-2",
+      "skipped": [
+        "Bar 1",
+        "Bar 2"
+      ],
+      "how": "jump past bar 1 and bar 2",
+      "secondsSaved": 0.13,
+      "seconds": 10.51,
+      "pumpSeconds": null,
+      "windowMs": 351,
+      "designed": false,
+      "plan": {
+        "jumpXs": [
+          21,
+          27,
+          33.2
+        ],
+        "releaseAfter": 60,
+        "bouncePress": 8,
+        "hands": true,
+        "hangTicks": [
+          0,
+          240
+        ],
+        "climbHands": true,
+        "climbXs": [
+          36.5
+        ],
+        "noGrab": [
+          0
+        ]
+      }
+    },
+    {
+      "id": "skip-bar-2",
+      "skipped": [
+        "Bar 2"
+      ],
+      "how": "pump 1.76 s on the bar you hold, let go, and fly past bar 2",
+      "secondsSaved": 0.11,
+      "seconds": 10.53,
+      "pumpSeconds": 1.76,
+      "windowMs": null,
+      "designed": false,
+      "plan": {
+        "jumpXs": [
+          21,
+          27
+        ],
+        "releaseAfter": 60,
+        "bouncePress": 8,
+        "hands": true,
+        "hangTicks": [
+          210
+        ],
+        "climbXs": [
+          34,
+          36.5
+        ],
+        "airHands": [
+          false
+        ]
+      }
+    }
+  ]
 }
