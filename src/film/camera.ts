@@ -1,10 +1,10 @@
 // The film camera: scripted shots for the demo video (CC-130). Each shot is a pure function of the time in seconds, so a film frame is the same every run.
 // It only runs with ?film=<shot> in the address; play never loads it.
 
-export type FilmShot = 'flyover' | 'orbit' | 'follow' | 'push' | 'hero' | 'macro' | 'spin' | 'skyline' | 'dive';
-export const FILM_SHOTS: FilmShot[] = ['flyover', 'orbit', 'follow', 'push', 'hero', 'macro', 'spin', 'skyline', 'dive'];
+export type FilmShot = 'flyover' | 'orbit' | 'follow' | 'push' | 'hero' | 'macro' | 'spin' | 'skyline' | 'dive' | 'eyes' | 'aerial' | 'side' | 'tour' | 'close';
+export const FILM_SHOTS: FilmShot[] = ['flyover', 'orbit', 'follow', 'push', 'hero', 'macro', 'spin', 'skyline', 'dive', 'eyes', 'aerial', 'side', 'tour', 'close'];
 
-export interface Pose { pos: [number, number, number]; look: [number, number, number]; fov: number }
+export interface Pose { pos: [number, number, number]; look: [number, number, number]; fov: number; hideBody?: boolean }
 export interface FilmCtx {
   finishX: number; // the end of the course, m
   focusX: number; // the thing a shot is about (an obstacle or a real object), m
@@ -14,7 +14,7 @@ export interface FilmCtx {
   airborne: number; // 0 on the ground to 1 in the air; the caller eases it, so the follow shot zooms in at take-off and out at landing
 }
 
-export const SHOT_SECONDS: Record<FilmShot, number> = { flyover: 12, orbit: 8, follow: 10, push: 7, hero: 11, macro: 4, spin: 1.1, skyline: 7.2, dive: 4.8 };
+export const SHOT_SECONDS: Record<FilmShot, number> = { flyover: 12, orbit: 8, follow: 10, push: 7, hero: 11, macro: 4, spin: 1.1, skyline: 7.2, dive: 4.8, eyes: 3.6, aerial: 7.2, side: 60, tour: 12, close: 60 };
 
 const clamp01 = (x: number) => Math.max(0, Math.min(1, x));
 const ease = (x: number) => { const t = clamp01(x); return t * t * (3 - 2 * t); }; // smooth start and end
@@ -45,7 +45,39 @@ function skyline(t: number, c: FilmCtx): Pose {
 // One move, constant direction, caused by the reveal; it ends where the side run begins, so the two takes cut together.
 function dive(t: number, c: FilmCtx): Pose {
   const u = ease(t / SHOT_SECONDS.dive);
-  return around([mix(c.runnerX + 16, c.runnerX + 1.5, u), c.runnerY + 1.1, 0], mix(30, 12.5, u), mix(1.15, 0.02, u), rad(mix(28, 7, u)), mix(44, 38, u));
+  // it ends exactly on the plain side view (target 5 m ahead of the runner and 2.5 m up, camera 1.5 m higher and 25 m out, field of view 40), so the run that follows needs no cut in the picture
+  return around([mix(c.runnerX + 16, c.runnerX + 5, u), mix(c.runnerY + 1.1, c.runnerY + 2.5, u), 0], mix(34, Math.hypot(1.5, 25), u), mix(1.15, 0, u), mix(rad(28), Math.asin(1.5 / Math.hypot(1.5, 25)), u), mix(44, 40, u));
+}
+
+// The aerial: high over the whole course from behind the start to above the finish, the lane opening out below (the owner's fly-over). The runner waits at the start (?timescale=0).
+function aerial(t: number, c: FilmCtx): Pose {
+  const u = ease(t / SHOT_SECONDS.aerial);
+  return around([mix(6, c.finishX - 10, u), 4, 0], mix(50, 58, Math.sin(Math.PI * u)), mix(0.62, -0.38, u), mix(rad(52), rad(38), u), 40);
+}
+
+// The plain side view as the Course draws it (the runner 5 m from the middle of the picture, a little above), but a pure function of the runner, so the film has no lag to jitter.
+let sideY = NaN, sideT = -1;
+function side(t: number, c: FilmCtx): Pose {
+  const want = c.runnerY + 2.5;
+  const dt = sideT < 0 ? 1 : Math.max(0, t - sideT);
+  sideY = Number.isNaN(sideY) || Math.abs(want - sideY) > 4 ? want : sideY + (want - sideY) * (1 - Math.exp(-dt / 0.15));
+  sideT = t;
+  return { pos: [c.runnerX + 5, sideY + 1.5, 25], look: [c.runnerX + 5, sideY, 0], fov: 40 };
+}
+
+// The eyes: from the plain side view the camera swings round behind the runner and flies in to the eyes, ending on the same view as the First person camera (C key).
+// One move with one cause (the runner), at a steady rate: the distance closes at a constant ratio and the turn eases, so nothing speeds up or wobbles.
+function eyes(t: number, c: FilmCtx): Pose {
+  const u = clamp01(t / SHOT_SECONDS.eyes), turn = ease(u), reach = clamp01((u - 0.25) / 0.75);
+  const head: [number, number, number] = [c.runnerX + 0.15, c.runnerY + 1.62, 0.1];
+  const dist = 26 * Math.pow(0.12 / 26, reach); // 26 m to 0.12 m at a constant ratio
+  const yaw = (Math.PI / 2) * turn; // 0 = the side view (camera in front of the screen), 90 degrees = straight behind the runner
+  const pitch = rad(mix(8, 1.5, turn));
+  const flat = dist * Math.cos(pitch);
+  const pos: [number, number, number] = [head[0] - flat * Math.sin(yaw), head[1] + dist * Math.sin(pitch), head[2] + flat * Math.cos(yaw)];
+  const ahead = ease(clamp01((u - 0.3) / 0.6)); // the look point moves from the runner to the way ahead
+  const look: [number, number, number] = [mix(head[0] + 4, head[0] + 10, ahead), mix(head[1] - 0.6, head[1] - 0.4, ahead), 0.1];
+  return { pos, look, fov: mix(40, 75, ease(clamp01((u - 0.5) / 0.5))), hideBody: dist < 1.0 };
 }
 
 // Around one obstacle, from the front-left to the back-right, closing in a little.
@@ -58,6 +90,12 @@ function orbit(t: number, c: FilmCtx): Pose {
 function follow(t: number, c: FilmCtx): Pose {
   const a = ease(c.airborne);
   return around([c.runnerX + 3, c.runnerY + 1.2, 0], mix(22, 9, a), 0.35 + 0.1 * Math.sin(t * 0.3), mix(rad(10), rad(5), a), mix(40, 34, a));
+}
+
+// A closer follow for fast cuts: the runner fills a third of the picture, the distance stays the same (no zoom), a little more in the air.
+function close(t: number, c: FilmCtx): Pose {
+  const a = ease(c.airborne);
+  return around([c.runnerX + 2.2, c.runnerY + 1.1, 0], mix(6.5, 5.8, a), 0.3 + 0.08 * Math.sin(t * 0.3), mix(rad(8), rad(5), a), 38);
 }
 
 // A slow push in on one thing (a real object), narrowing the view as it goes.
@@ -100,7 +138,13 @@ export function filmPose(shot: FilmShot, t: number, c: FilmCtx): Pose {
     case 'macro': return macro(t, c);
     case 'spin': return spin(t, c);
     case 'skyline': return skyline(t, c);
-    case 'dive': return dive(t, c);
+    case 'dive': return t >= SHOT_SECONDS.dive ? side(t, c) : dive(t, c);
+    case 'eyes': return eyes(t, c);
+    case 'aerial': return aerial(t, c);
+    case 'side': return side(t, c);
+    // the owner's script in one move: dive onto the start in side view (4.8 s), run in side view (3.6 s), then round behind the runner and into the eyes (3.6 s)
+    case 'close': return close(t, c);
+    case 'tour': return t < 4.8 ? dive(t, c) : t < 8.4 ? side(t, c) : eyes(t - 8.4, c);
   }
 }
 

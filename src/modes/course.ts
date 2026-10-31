@@ -1736,6 +1736,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
       const p = film.pose({ runnerX: r.x, runnerY: r.y, airborne: filmAir });
       if (camera.fov !== p.fov) { camera.fov = p.fov; camera.updateProjectionMatrix(); }
       camera.up.set(0, 1, 0); camera.position.set(...p.pos); camera.lookAt(...p.look); camPos.copy(camera.position);
+      if (p.hideBody) { if (actor) actor.object.visible = false; body.visible = false; } // the eyes shot ends inside the head, as the First person camera does
       film.tick(camera);
     }
     floor.update(now / 1000);
