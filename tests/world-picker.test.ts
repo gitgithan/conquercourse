@@ -4,7 +4,8 @@ import { sliceCardOn, DEMOS, DEMO_GROUPS, LEAVE_MESSAGE, WORD_VALUES, currentWor
 
 describe('the world picker list (CC-89)', () => {
   it('the slicer card is on the list without ?labs=1 and ?slice2=old hides it again (CC-201)', () => {
-    expect(DEMOS.some(([v, t]) => v === 'map' && t === 'Slice a real place')).toBe(true);
+    expect(DEMOS.some(([v, t]) => v === 'map' && t === 'World Slicer')).toBe(true);
+    expect(DEMOS.some(([v, t]) => v === 'editor' && t === 'World Editor')).toBe(true);
     expect(sliceCardOn(new URLSearchParams(''))).toBe(true);
     expect(sliceCardOn(new URLSearchParams('slice2=old'))).toBe(false);
   });

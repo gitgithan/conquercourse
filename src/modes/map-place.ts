@@ -63,7 +63,7 @@ export function installPlaces(ctx: PlaceCtx) {
   const stepsEl = document.createElement('div'); stepsEl.className = 'steps'; stepsEl.id = 'steps'; stepsEl.hidden = true;
   stepsEl.innerHTML = `<ol>${STEPS.map(([id, text]) => `<li data-id="${id}" data-s="todo"><span class="ic">·</span><span class="tx">${text}</span><span class="tm"></span></li>`).join('')}</ol><button type="button" id="cancelbuild">Cancel</button>`;
   const errEl = document.createElement('div'); errEl.className = 'offer'; errEl.id = 'offer'; errEl.hidden = true;
-  const openBtn = document.createElement('button'); openBtn.type = 'button'; openBtn.id = 'openeditor'; openBtn.className = 'go'; openBtn.textContent = 'Open in the editor'; openBtn.hidden = true;
+  const openBtn = document.createElement('button'); openBtn.type = 'button'; openBtn.id = 'openeditor'; openBtn.className = 'go'; openBtn.textContent = 'Open in the World Editor'; openBtn.hidden = true;
   const explainEl = document.createElement('div'); explainEl.className = 'explain'; explainEl.id = 'explain'; explainEl.hidden = true;
   const buildBtn = side.querySelector('#build') as HTMLElement;
   buildBtn.after(stepsEl, errEl, openBtn, explainEl);

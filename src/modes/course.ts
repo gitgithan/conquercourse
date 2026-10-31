@@ -372,7 +372,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
   // CC-80: from here back to the editor (the same pieces), at the obstacle the runner is at
   const editBtn = document.createElement('button');
   editBtn.id = 'editcourse'; editBtn.textContent = 'Edit this course';
-  editBtn.title = 'Open this course in the editor, at this obstacle; "Back to the Course" brings you back here';
+  editBtn.title = 'Open this course in the World Editor, at this obstacle; "Back to the Course" brings you back here';
   editBtn.style.cssText = 'font:600 13px system-ui,sans-serif;border:1px solid #17201d;background:#fff;color:#17201d;border-radius:8px;padding:4px 10px;cursor:pointer;white-space:nowrap';
   editBtn.onclick = () => { editBtn.blur(); openEditor('edit'); };
   const wholeBtn = document.createElement('button');
@@ -846,7 +846,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
     if (course.track) { location.href = `?mode=coaster&coaster=${course.track.pts.map(([x, y]) => `${+x.toFixed(2)},${+y.toFixed(2)}`).join(';')}&push=${+(course.track.push ?? 1.5).toFixed(2)}`; return; }
     const zone = world.outcome === 'running' ? zoneAt(world.runner.x)?.id ?? null : lastZone;
     const h: EditHandoff = { course: handoffCourse(course), retryX, zone, x: world.runner.x, facing, falls, intent };
-    try { sessionStorage.setItem(EDIT_KEY, JSON.stringify(h)); } catch { msg.textContent = 'This course is too big to hand to the editor.'; return; }
+    try { sessionStorage.setItem(EDIT_KEY, JSON.stringify(h)); } catch { msg.textContent = 'This course is too big to hand to the World Editor.'; return; }
     location.search = '?mode=editor';
   }
   function openDojo() {

@@ -102,14 +102,14 @@ export function buildNextCard(env: Pick<OnboardingEnv, 'store' | 'course'>, titl
   const controls = h('div', { cls: 'chips' });
   for (const [k, l] of [['← →', 'Run'], ['Space', 'Jump'], ['E', 'Hold on'], ['V', 'Vault'], ['X', 'Roll'], ['R', 'Retry'], ['I', 'Best line'], ['C', 'Camera'], ['F', 'Corner view'], ['G', 'Drums'], ['H', 'Controls']]) controls.append(chip(k, l));
   const item = (text: string, label: string, go: () => void) => h('div', { cls: 'item' }, h('span', {}, text), btn(label, go));
-  const feedback = () => { [...document.querySelectorAll('button')].find((b) => b.textContent === 'Feedback')?.click(); };
+  const feedback = () => { (document.getElementById('cc-feedback-btn') ?? [...document.querySelectorAll('button')].find((b) => b.textContent === 'Feedback'))?.click(); };
   card.append(
     h('h3', {}, title),
     h('div', { cls: 'cols' },
       h('div', { cls: 'grp' }, h('h4', {}, 'Your controls'), controls),
       h('div', { cls: 'grp' }, h('h4', {}, 'Build'),
-        item('Course editor: place real objects, bars, stacks and machines, or lift an obstacle from your own photo (no people, please).', 'Open the editor', () => goTo(env.store, '?mode=editor')),
-        item('World explorer: turn a real street into a course.', 'Explore a place', () => goTo(env.store, '?mode=map')),
+        item('World Editor: place real objects, bars, stacks and machines, or lift an obstacle from your own photo (no people, please).', 'Open the World Editor', () => goTo(env.store, '?mode=editor')),
+        item('World Slicer: turn a real street into a course.', 'Open the World Slicer', () => goTo(env.store, '?mode=map')),
         item('Coaster builder: draw a track and ride it.', 'Build a coaster', () => goTo(env.store, '?mode=coaster'))),
       h('div', { cls: 'grp' }, h('h4', {}, 'Do and share'),
         item('Community: play courses other players built.', 'Community courses', () => goTo(env.store, '?mode=gallery')),
@@ -153,8 +153,8 @@ export function startOnboarding(env: OnboardingEnv): Onboarding {
       const place = (icon: string, name: string, line: string, go: () => void) => { const b = h('button', { cls: 'place', type: 'button' }, svgIcon(icon), h('b', {}, name), h('span', {}, line)); b.onclick = go; return b; };
       card.append(h('div', { cls: 'places' },
         place(ICON.courses, 'Courses', 'Pick any course by picture.', () => { finish(); env.openCourses(); }),
-        place(ICON.editor, 'Course editor', 'Build your own course.', () => goTo(env.store, '?mode=editor')),
-        place(ICON.explorer, 'World explorer', 'Any real place becomes a course.', () => goTo(env.store, '?mode=map')),
+        place(ICON.editor, 'World Editor', 'Build your own course.', () => goTo(env.store, '?mode=editor')),
+        place(ICON.explorer, 'World Slicer', 'Any real place becomes a course.', () => goTo(env.store, '?mode=map')),
         place(ICON.community, 'Community', 'Play what others built.', () => goTo(env.store, '?mode=gallery'))));
     }
     const bar = h('div', { cls: 'bar' }, h('b', {})); bar.style.setProperty('--s', `${stepS}s`);

@@ -20,7 +20,7 @@ try {
   await page.goto(`http://localhost:${port}/?mode=dojo&dojo=old`);
   await page.waitForSelector('#courses-btn', { timeout: 60000 });
   await page.evaluate(() => document.getElementById('courses-btn').click()); await page.waitForTimeout(1200);
-  const card = page.getByText('Slice a real place').first();
+  const card = page.getByText('World Slicer').first();
   checks.courseListHasSliceCard = (await card.count()) > 0;
   await page.screenshot({ path: `${shots}/q1-courses.png` });
   if (checks.courseListHasSliceCard) { await card.click(); await page.waitForTimeout(1500); }

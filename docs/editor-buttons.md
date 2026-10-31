@@ -1,4 +1,4 @@
-# World editor: every button, what it does, when to click it (CC-177)
+# World Editor: every button, what it does, when to click it (CC-177)
 
 The product owner could not tell when to click what.
 This is the full list, grouped by job, with the level each button has now.

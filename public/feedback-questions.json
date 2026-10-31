@@ -1,39 +1,310 @@
 {
-  "round": "public-4",
+  "round": "public-5",
   "title": "Help shape ConquerCourse",
-  "intro": "Four quick questions. No sign-in or names. Please do not include personal information.",
+  "intro": "No sign-in or names. Please do not include personal information.",
   "questions": [
     {
-      "id": "tried",
-      "type": "multi",
-      "text": "Which parts did you try?",
+      "id": "seen_courses",
+      "type": "seen",
+      "section": "Part 1 of 3: Have you found these?",
+      "text": "Courses",
+      "about": "Play courses: training, real places and contraptions.",
+      "href": "?",
       "options": [
-        "Running and jumping on a course",
-        "Vault, roll or climb",
-        "Swinging on bars",
-        "Roller coaster",
-        "Trebuchet, band, cannon or drone",
-        "Building in the editor",
-        "Fix it or the design partner",
-        "Map mode (a real place)",
-        "Lessons (Dojo) or sayings",
-        "Ideal run, drums or shortcuts",
-        "Cameras or sound"
+        "Tried it",
+        "Saw it, did not try",
+        "Never saw this"
       ]
     },
     {
-      "id": "first",
-      "type": "choice",
-      "text": "In your first 30 seconds, did you know what to do?",
+      "id": "seen_dojo",
+      "type": "seen",
+      "text": "Dojo lessons",
+      "about": "Short lessons that teach one move at a time.",
+      "href": "?mode=dojo",
       "options": [
-        "Yes, right away",
-        "Mostly",
-        "No, I was lost"
+        "Tried it",
+        "Saw it, did not try",
+        "Never saw this"
       ]
+    },
+    {
+      "id": "seen_ghost",
+      "type": "seen",
+      "text": "Ghost, best times and sharing",
+      "about": "Chase the best line, see the best times, and share your run as a link or a clip.",
+      "href": "?",
+      "options": [
+        "Tried it",
+        "Saw it, did not try",
+        "Never saw this"
+      ]
+    },
+    {
+      "id": "seen_slicer",
+      "type": "seen",
+      "text": "World Slicer",
+      "about": "Cut a real street at a height and run on its roofs.",
+      "href": "?mode=map",
+      "options": [
+        "Tried it",
+        "Saw it, did not try",
+        "Never saw this"
+      ]
+    },
+    {
+      "id": "seen_editor",
+      "type": "seen",
+      "text": "World Editor",
+      "about": "Place real objects and bars, and build your own course.",
+      "href": "?mode=editor",
+      "options": [
+        "Tried it",
+        "Saw it, did not try",
+        "Never saw this"
+      ]
+    },
+    {
+      "id": "seen_photo",
+      "type": "seen",
+      "text": "Photo course",
+      "about": "Turn a photo of a bench, a rail or a wall into a course.",
+      "href": "?mode=park",
+      "options": [
+        "Tried it",
+        "Saw it, did not try",
+        "Never saw this"
+      ]
+    },
+    {
+      "id": "seen_community_play",
+      "type": "seen",
+      "text": "Community: playing",
+      "about": "Play courses other players made from photos.",
+      "href": "?mode=gallery",
+      "options": [
+        "Tried it",
+        "Saw it, did not try",
+        "Never saw this"
+      ]
+    },
+    {
+      "id": "seen_community_share",
+      "type": "seen",
+      "text": "Community: sharing",
+      "about": "Share a course you made from a photo, for other players to run.",
+      "href": "?mode=park",
+      "options": [
+        "Tried it",
+        "Saw it, did not try",
+        "Never saw this"
+      ]
+    },
+    {
+      "id": "seen_coaster",
+      "type": "seen",
+      "text": "Coaster builder",
+      "about": "Drag the dots of a track, then ride it.",
+      "href": "?mode=coaster",
+      "options": [
+        "Tried it",
+        "Saw it, did not try",
+        "Never saw this"
+      ]
+    },
+    {
+      "id": "seen_random",
+      "type": "seen",
+      "text": "Random courses",
+      "about": "A new course the simulator has proved you can clear.",
+      "href": "?generate=7",
+      "options": [
+        "Tried it",
+        "Saw it, did not try",
+        "Never saw this"
+      ]
+    },
+    {
+      "id": "seen_labs",
+      "type": "seen",
+      "text": "Labs",
+      "about": "University level: choose how the game searches for a clear run.",
+      "href": "?mode=lab-search&labs=1",
+      "options": [
+        "Tried it",
+        "Saw it, did not try",
+        "Never saw this"
+      ]
+    },
+    {
+      "id": "slicer_feel",
+      "type": "scale",
+      "section": "Part 2 of 3: Four big features",
+      "text": "World Slicer: the course it made felt like the real place.",
+      "when": {
+        "id": "seen_slicer",
+        "values": [
+          "Tried it"
+        ]
+      }
+    },
+    {
+      "id": "slicer_text",
+      "type": "text",
+      "text": "World Slicer: which place did you slice, and what went wrong or surprised you?",
+      "when": {
+        "id": "seen_slicer",
+        "values": [
+          "Tried it"
+        ]
+      }
+    },
+    {
+      "id": "slicer_why",
+      "type": "choice",
+      "text": "World Slicer: why have you not tried it?",
+      "options": [
+        "Did not know it was there",
+        "Could not find it",
+        "Did not understand it",
+        "Not for me",
+        "No time"
+      ],
+      "when": {
+        "id": "seen_slicer",
+        "values": [
+          "Saw it, did not try",
+          "Never saw this"
+        ]
+      }
+    },
+    {
+      "id": "editor_feel",
+      "type": "scale",
+      "text": "World Editor: I could build the course I had in mind.",
+      "when": {
+        "id": "seen_editor",
+        "values": [
+          "Tried it"
+        ]
+      }
+    },
+    {
+      "id": "editor_text",
+      "type": "text",
+      "text": "World Editor: what did you try to build, and where did you get stuck?",
+      "when": {
+        "id": "seen_editor",
+        "values": [
+          "Tried it"
+        ]
+      }
+    },
+    {
+      "id": "editor_why",
+      "type": "choice",
+      "text": "World Editor: why have you not tried it?",
+      "options": [
+        "Did not know it was there",
+        "Could not find it",
+        "Did not understand it",
+        "Not for me",
+        "No time"
+      ],
+      "when": {
+        "id": "seen_editor",
+        "values": [
+          "Saw it, did not try",
+          "Never saw this"
+        ]
+      }
+    },
+    {
+      "id": "courses_feel",
+      "type": "scale",
+      "text": "Courses: I could find a course I wanted to play.",
+      "when": {
+        "id": "seen_courses",
+        "values": [
+          "Tried it"
+        ]
+      }
+    },
+    {
+      "id": "courses_text",
+      "type": "text",
+      "text": "Courses: which course did you like most, and why that one?",
+      "when": {
+        "id": "seen_courses",
+        "values": [
+          "Tried it"
+        ]
+      }
+    },
+    {
+      "id": "courses_why",
+      "type": "choice",
+      "text": "Courses: why have you not tried them?",
+      "options": [
+        "Did not know it was there",
+        "Could not find it",
+        "Did not understand it",
+        "Not for me",
+        "No time"
+      ],
+      "when": {
+        "id": "seen_courses",
+        "values": [
+          "Saw it, did not try",
+          "Never saw this"
+        ]
+      }
+    },
+    {
+      "id": "community_feel",
+      "type": "scale",
+      "text": "Community: other players' courses made me want to make my own.",
+      "when": {
+        "id": "seen_community_play",
+        "values": [
+          "Tried it"
+        ]
+      }
+    },
+    {
+      "id": "community_text",
+      "type": "text",
+      "text": "Community: what would make you trust, play or share a community course?",
+      "when": {
+        "id": "seen_community_play",
+        "values": [
+          "Tried it"
+        ]
+      }
+    },
+    {
+      "id": "community_why",
+      "type": "choice",
+      "text": "Community: why have you not tried it?",
+      "options": [
+        "Did not know it was there",
+        "Could not find it",
+        "Did not understand it",
+        "Not for me",
+        "No time"
+      ],
+      "when": {
+        "id": "seen_community_play",
+        "values": [
+          "Saw it, did not try",
+          "Never saw this"
+        ]
+      }
     },
     {
       "id": "moment",
       "type": "text",
+      "section": "Part 3 of 3: Anything else?",
       "text": "One moment that felt great, or one that confused you. Where was it?"
     },
     {

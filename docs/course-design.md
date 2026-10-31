@@ -46,8 +46,8 @@
 | Plank bridge: sags but holds | A plank bends and holds | Plank bridge: thick, then thin (its first plank) | Out of the menu |
 | Plank bridge: too thin | A thinner plank breaks | Plank bridge (the same idea) | Remove from the menu |
 | Make me a new course | A random course the simulator proved | none | Keep |
-| Build your own (editor) | Place pieces; the simulator checks | none | Keep |
-| Map: search a place | Cut a course from real streets | none | Keep (labs) |
+| World Editor | Place pieces; the simulator checks | none | Keep |
+| World Slicer | Cut a course from real streets | none | Keep (labs) |
 | Build your own coaster | Drag the track | none | Keep |
 
 ## What the menu holds after this change
