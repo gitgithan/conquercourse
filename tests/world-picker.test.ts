@@ -47,7 +47,7 @@ describe('the world picker list (CC-89)', () => {
     const at = (q: string, name?: string) => currentWorld(new URLSearchParams(q), name);
     expect(at('?course=/assets/demo/training.course.json').value).toBe('/assets/demo/training.course.json');
     expect(at('?course=/assets/demo/lache.course.json').value).toBe('stay'); // out of the menu, still playable: it gets a This course card
-    expect(at('').value).toBe('stay'); // the stock course is no longer a card: it opens as This course
+    expect(at('').value).toBe(''); // the stock course is the first card again (First course: the basics)
     expect(at('?generate=5').value).toBe('generate-same');
     expect(at('?course=/assets/demo/lane-1.course.json', 'Lane').value).toBe('stay');
     expect(at('?mode=editor').value).toBe('editor');

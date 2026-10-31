@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { FEATURES, featureOf, navOn } from '../src/ui/site-nav';
+import { FEATURES, editorTrialRunning, featureOf, navOn } from '../src/ui/site-nav';
 
 // CC-246: the four features carry the same names on every page.
 describe('site nav', () => {
@@ -17,5 +17,9 @@ describe('site nav', () => {
     expect(navOn(new URLSearchParams(''))).toBe(true);
     expect(navOn(new URLSearchParams('mode=map'))).toBe(true);
     for (const q of ['nav=0', 'film=1', 'bot=1', 'demo=lache', 'mode=coaster']) expect(navOn(new URLSearchParams(q))).toBe(false);
+  });
+  it('knows the editor is hidden by a trial run (clicking World Editor then returns to editing)', () => {
+    expect(editorTrialRunning({ querySelector: () => null })).toBe(true);
+    expect(editorTrialRunning({ querySelector: () => ({}) as Element })).toBe(false);
   });
 });

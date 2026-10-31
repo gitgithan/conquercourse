@@ -3,6 +3,7 @@
 export type Demo = [string, string, string];
 export const DEMO_GROUPS: [string, Demo[]][] = [
   ['Start here', [
+    ['', 'First course: the basics', 'Run, jump and land the first few obstacles. The gentlest place to begin.'],
     ['/assets/demo/training.course.json', 'Training course: every move', 'A gap jump, a vault, the lache bars, a rope, a climb, a trampoline and a rolled drop in one run. The best line is faster than the obvious one.'],
     ['/assets/demo/cannonballs.course.json', 'Cannonballs: slip between the shots', 'Three launchers fire a ball every 30 seconds. Run too early or too late and one finds you, so time your run to slip between them.'],
     ['/assets/demo/two-ways.course.json', 'Two ways: swing high or drop low', 'The course splits once. Swing over a gap on two bars, or drop to a deep floor and climb back up. Both ways are proved to work; the better one depends on how you run.'],
@@ -50,7 +51,7 @@ export const DEMO_ABOUT = new Map<string, string>(DEMO_GROUPS.flatMap(([, ds]) =
 
 /** The picture file of a course card: public/assets/thumbs/<slug>.webp (made by npm run thumbs). */
 export const thumbSlug = (value: string): string => (value === '' ? 'stock' : value.split('/').pop()!.replace(/\.course\.json$/, ''));
-export const hasThumb = (value: string): boolean => !WORD_VALUES.includes(value);
+export const hasThumb = (value: string): boolean => value !== 'stay';
 export const thumbUrl = (value: string): string => `/assets/thumbs/${thumbSlug(value)}.webp`;
 
 /** Where a choice leads. 'generate-same' reloads the current page (a generated course, kept by its seed). */
@@ -114,6 +115,19 @@ const STYLE = `
 .wg-txt .wg-stats{display:flex;flex-wrap:wrap;gap:2px 8px;align-items:baseline;margin-top:3px;font:12px/1.3 system-ui,sans-serif;color:#17201d}
 .wg-stats i{flex:0 0 100%;font-style:normal;font-weight:600;color:#0f6b5c}
 .wg-stats em{font-style:normal;color:#58635d}
+.wg-txt .wg-chips{flex:0 0 100%;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:4px;margin:3px 0 0}
+.wg-txt .wg-chip{margin:0;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:3px 4px 2px;border-radius:9px;border:1.5px solid var(--c);background:var(--bg);color:#17201d;transition:transform .12s}
+.wg-txt .wg-chip:hover{transform:translateY(-2px) scale(1.06)}
+.wg-txt .wg-chip strong{font:800 16px/1.15 system-ui,sans-serif;color:var(--fg);white-space:nowrap}
+.wg-txt .wg-chip small{display:block;font:700 10px/1.2 system-ui,sans-serif;color:#3a4540;text-transform:uppercase;letter-spacing:.04em}
+.wg-txt .wg-chip-none{grid-column:1/-1}
+.wg-chip-today{--c:#e8741c;--bg:#fff0e0;--fg:#a8420a}
+.wg-chip-plays{--c:#2f74c0;--bg:#e4f0ff;--fg:#14498a}
+.wg-chip-clears{--c:#2e9a5a;--bg:#e2f6e9;--fg:#116b36}
+.wg-chip-best{--c:#d8a208;--bg:#fff6cf;--fg:#7a5a00}
+.wg-chip-typical{--c:#7b6bb8;--bg:#eeeaff;--fg:#4a3c88}
+.wg-chip-falls{--c:#c8504a;--bg:#ffe9e7;--fg:#8c231e}
+.wg-chip-none{--c:#9aa59f;--bg:#f2f5f3;--fg:#3a4540}
 .wg-here{display:inline-block;margin-left:6px;font:700 10px system-ui,sans-serif;color:#fff;background:#0f6b5c;border-radius:6px;padding:1px 5px;vertical-align:1px}
 .wg-none{padding:20px;color:#58635d}
 #world-gallery{position:fixed;inset:0;z-index:900;display:grid;place-items:center;padding:12px;background:#10182099;backdrop-filter:blur(3px)}

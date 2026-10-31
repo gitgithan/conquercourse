@@ -8,7 +8,7 @@ import { onRequestPost as eventPost } from '../functions/api/course-event';
 import { DEMO_GROUPS } from '../src/ui/world-picker';
 import { metaFor, cardPaths } from '../scripts/course-meta';
 import {
-  PRIOR_ATTEMPTS, MIN_ATTEMPTS_SHOWN, difficulty, dotsOf, observedScore, orderByDifficulty, priorScore, statKey, statsLine, statsOn,
+  PRIOR_ATTEMPTS, MIN_ATTEMPTS_SHOWN, difficulty, dotsOf, observedScore, orderByDifficulty, priorScore, statChips, statKey, statsLine, statsOn,
   type CourseMeta, type CourseNumbers,
 } from '../src/ui/course-stats';
 import { assets, localD1 } from './helpers-d1';
@@ -84,6 +84,17 @@ describe('the words on a card', () => {
     expect(statsLine({ ...none, plays: 1204, today: 12 })).toBe('12 plays today \u00b7 1,204 all time');
     expect(statsLine({ ...none, plays: 1204, clears: 3, today: 1 })).toBe('1 play today \u00b7 1,204 all time, 3 cleared');
     expect(statsLine({ ...none, plays: 40, today: 0 })).toBe('0 plays today \u00b7 40 all time');
+  });
+  it('shows every number the server sends as a chip, in a fixed order (CC-108)', () => {
+    const all = statChips({ plays: 1204, fails: 500, clears: 311, best: 4944, median: 6000, today: 12 });
+    expect(all.map((c) => c.key)).toEqual(['today', 'plays', 'clears', 'best', 'typical', 'falls']);
+    expect(all.map((c) => c.value)).toEqual(['12', '1,204', '311', '41.2 s', '50.0 s', '500']);
+    expect(all.every((c) => c.icon && c.label && c.tip)).toBe(true);
+  });
+  it('leaves a chip out only when its number is missing, and says "No plays yet" for an unplayed course', () => {
+    expect(statChips({ ...none, plays: 40 }).map((c) => c.key)).toEqual(['plays', 'clears', 'falls']);
+    expect(statChips(none).map((c) => c.value)).toEqual(['No plays yet']);
+    expect(statChips(undefined).map((c) => c.key)).toEqual(['none']);
   });
   it('never mentions people', () => {
     expect(statsLine({ plays: 5, fails: 1, clears: 2, best: 100, median: 100 })).not.toMatch(/people|players|person/i);
