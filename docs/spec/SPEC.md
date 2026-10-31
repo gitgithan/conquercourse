@@ -109,9 +109,9 @@
 | Player photo to object: mask and suggestions | SAM 3 (open weights, our copy) | Modal |
 | Character cut-out and video-frame segmentation | SAM 3.1 | Meta Model API (video frames at build time; the character maker's cut-out is live) |
 | Community character pictures (live), Rookie B reference and posters (build time) | Muse Image | Meta Model API (Meta credit) |
-| Course-designer agent: idea or photo objects → course → simulator proof → adjust until clearable but hard | Muse Spark Open (open weights, serverless on Baseten, Fireworks and Modal); Muse Glimmer needs a dedicated GPU | Baseten; the fallback to Muse Spark on the Meta API was planned and is not built (see [docs/model-ledger.md](../model-ledger.md)) |
+| Course-designer agent: idea → course → simulator proof (a photo-in version was planned and built, then dropped 2026-10-31: scope is photo to object only) → adjust until clearable but hard | Muse Spark Open (open weights, serverless on Baseten, Fireworks and Modal); Muse Glimmer needs a dedicated GPU | Baseten; the fallback to Muse Spark on the Meta API was planned and is not built (see [docs/model-ledger.md](../model-ledger.md)) |
 | Coaching text → timed contact targets for new moves (offline) | Muse Spark | Meta Model API |
-| Code review of the simulator (development only; the agentic prize entry is the Course Agent on Muse Spark Open) | Muse Wonder | Meta Model API |
+| Code review of the simulator (development only; an agentic prize entry on the Course Agent was planned and is not claimed since 2026-10-31) | Muse Wonder | Meta Model API |
 | Simulated students with misconceptions (evidence) | Meta open weights | Fireworks (planned, P2; no code calls it yet) |
 | Body measurement, motion generation, 3D objects | SAM 3D Body, Kimodo, SAM 3D Objects, MapAnything | Modal |
 - Keys live only on the server side (a Cloudflare Worker proxy); never in the browser or the repo (the API allows browser calls, but its docs say keys must not ship in browser code).

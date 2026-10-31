@@ -1,6 +1,6 @@
-import { parseLayout, scoreLayout, type Item, type Layout, type Score } from './photo-course';
+import { parseLayout, scoreLayout, type Item, type Layout, type Score } from './layout-draft';
 
-// The Course Agent: one photo in, a course the simulator has proved out. Muse Spark Open proposes a layout; the simulator is the tool the loop
+// The Course Agent: one idea in (a few words about the course), a course the simulator has proved out. It has no photo input (dropped 2026-10-31: scope is photo to object only). Muse Spark Open proposes a layout; the simulator is the tool the loop
 // calls (can it be cleared? where does the best attempt stop? which small easing clears it?); the model repairs the layout from that report,
 // and the loop stops at the first proof, or at the step cap with the best attempt it tested. This file is pure: the model call and the tool
 // are handed in, so the same loop runs in the browser, in the worker and in the eval script.
@@ -43,17 +43,17 @@ const r1 = (v: number) => Math.round(v * 10) / 10;
 const describeItem = (it: Item, i: number): string => `${i + 1}. ${it.kind === 'ground' ? `ground ${it.length} m` : it.kind === 'gap' ? `gap ${it.width} m` : it.kind === 'block' ? `block ${it.length} m long, ${it.height} m high` : `bar ${it.height} m up`}`;
 
 export const AGENT_SYSTEM = [
-  'You build a first course for a ninja-warrior physics game from a photo of a real park, then fix it until a simulator proves it can be cleared.',
+  'You build a first course for a ninja-warrior physics game from a short idea, then fix it until a simulator proves it can be cleared.',
   'A runner goes left to right along a 2 m wide lane. Reply with one short plain sentence, then one fenced ```json block holding {"items": [...]}, items in the order the runner meets them.',
   'Item kinds (all sizes in metres): {"kind":"ground","length":m}, {"kind":"gap","width":m} (a drop or water gap to be jumped), {"kind":"block","length":m,"height":m} (anything raised: step, stairs, ledge, box, bench, rail, low wall), {"kind":"bar","height":m} (a bar to hang from, height above the ground).',
-  'Start and end with ground. At most 10 items. Estimate sizes from things you know (a stair step is 0.15 to 0.18 m, a handrail 0.9 m, a bench seat 0.45 m, a door 2 m).',
+  'Start and end with ground. At most 10 items. Choose sizes from things you know (a stair step is 0.15 to 0.18 m, a handrail 0.9 m, a bench seat 0.45 m, a door 2 m).',
   'After each try the simulator tells you the result: whether the best run cleared it, where the best attempt stopped, and any single change it proved would clear the course.',
-  'When a try fails, repair the layout using that report: change sizes or gaps where it points, keep every obstacle the photo shows, and drop at most one obstacle or bar only if nothing else works, saying so in your sentence.',
-  'Reply with the whole new layout each time. Never describe or judge any person in the photo. Never show formulas.',
+  'When a try fails, repair the layout using that report: change sizes or gaps where it points, keep every obstacle the idea asks for, and drop at most one obstacle or bar only if nothing else works, saying so in your sentence.',
+  'Reply with the whole new layout each time. Never describe or judge any person. Never show formulas.',
 ].join(' ');
 
-export function firstAsk(): string {
-  return 'Here is the photo. Propose the first course.';
+export function firstAsk(idea = ''): string {
+  return idea ? `Here is the idea: ${idea}. Propose the first course.` : 'Propose a first course.';
 }
 
 export function reportWords(r: AgentReport, layout: Layout): string {
@@ -81,8 +81,8 @@ export const sameLayout = (a: Layout, b: Layout): boolean => JSON.stringify(a.it
 export type AgentEvent = { type: 'asking'; repair: boolean } | { type: 'testing' } | { type: 'step'; step: Step };
 export interface AgentOptions { cap?: number; onEvent?: (e: AgentEvent) => void } // onEvent: the trace the player watches, live
 
-// The loop. Step 1 asks with the photo (history carries it: the first user message is the photo's, built by `ask`); the next steps are text only.
-export async function runAgent(ask: Ask, test: Test, opts: AgentOptions & { startFrom?: { layout: Layout; say: string } } = {}): Promise<AgentResult> {
+// The loop. Step 1 asks with the idea (the first user message); the next steps are text only.
+export async function runAgent(ask: Ask, test: Test, opts: AgentOptions & { idea?: string; startFrom?: { layout: Layout; say: string } } = {}): Promise<AgentResult> {
   const cap = opts.cap ?? STEP_CAP;
   const steps: Step[] = [];
   const problems: string[] = [];
@@ -94,7 +94,7 @@ export async function runAgent(ask: Ask, test: Test, opts: AgentOptions & { star
   let failedAsks = 0;
   while (n < cap) {
     if (!layout) { // ask for a first proposal (or retry after a bad answer)
-      history = [{ role: 'user', content: firstAsk() }];
+      history = [{ role: 'user', content: firstAsk(opts.idea) }];
     } else if (steps.length) {
       const last = steps[steps.length - 1];
       history = [{ role: 'user', content: repairAsk(last.layout, last.report, steps[0].say) }];

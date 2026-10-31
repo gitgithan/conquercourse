@@ -59,7 +59,7 @@ flowchart LR
   - Give a piece a role: plain ground, Warped Wall, rope anchor, trampoline bed or swing bar.
   - Start from a ready-made course: Hang bar and Lache (the default), Park run, Coaster to a deck, or the broken park.
   - Ask the design partner why a course cannot be cleared, and press Fix it for one change the simulator has proved.
-- **What you can generate:** a saved course, a share link, a drafted course from one park photo, a repaired course.
+- **What you can generate:** a saved course, a share link, a repaired course.
 - **Why it is unique:**
   - You do not need to know level design: the simulator tells you in plain words what to change.
   - A model may propose a layout, but the simulator decides; a course is only offered when it is proved clearable.
@@ -226,7 +226,7 @@ flowchart LR
 ### 4. World Editor: pieces to a proven course
 - Happy path: pick a ready course or place pieces -> give roles -> the simulator reads the lane -> ideal run proves it -> Fix it if not -> save or play.
 - The editor reads the lane from the pieces, so the preview and the built course cannot drift apart.
-- The design partner and the Course Agent call Muse Spark Open through a server function; the simulator is their tool and the judge.
+- The design partner calls Muse Spark Open through a server function; the simulator is its tool and the judge.
 
 ```mermaid
 flowchart LR
@@ -291,8 +291,7 @@ Diagrams are in [docs/meta-ai-pipelines.md](docs/meta-ai-pipelines.md); the full
 | Community, World Editor objects | **SAM 3D Objects** | Photo and mask to a 3D object (the 19 editor objects and "Mine" objects) | Modal GPU |
 | Motion clips | **SAM 3D Body + MHR, DINOv3** | Measures body and pose from video | Build time |
 | Generated motion | **Meta-Llama-3-8B-Instruct** | Text encoder inside Kimodo (NVIDIA) for run, leap and hang motion | Build time |
-| World Editor: design partner, Fix it, photo-to-course draft | **Muse Spark Open** (Baseten) | Proposes a layout; the simulator checks it | Live, server function |
-| World Editor: Course Agent | **Muse Spark Open** (Baseten) | Propose, test, repair loop; 40 of 40 runs proven clearable in at most 3 steps | Live, server function |
+| World Editor: design partner, Fix it | **Muse Spark Open** (Baseten) | Proposes a layout; the simulator checks it | Live, server function |
 | Community and uploads | **Muse Spark Open** (Baseten) | Upload check and move tips | Live, server function |
 | Characters | **Muse Image, SAM 3.1** | A player's sentence becomes a picture (Muse Image), a cut-out (SAM 3.1) and a mesh (SAM 3D Objects on Modal); the two Rookies were built earlier with Tripo, with one Muse Image reference for Rookie B | Live: a Modal job calls the Meta Model API (Meta credit); see [docs/model-ledger.md](docs/model-ledger.md) |
 | Music | **MusicGen (AudioCraft)** | An original loop per screen | Build time |
@@ -311,8 +310,11 @@ Diagrams are in [docs/meta-ai-pipelines.md](docs/meta-ai-pipelines.md); the full
 
 ### Bonus prizes
 - **Most Viral:** challenge link and 15 second clip ([viral plan](docs/viral-plan.md)).
-- **Best Build on Meta Open Weights:** Muse Spark Open runs the design partner and the Course Agent.
-- **Best Agentic Use-Case:** the Course Agent proposes, tests and repairs a course ([results](data/eval/cc-126-course-agent/README.md)).
+- **Best Build on Meta Open Weights:** Muse Spark Open runs the design partner.
+- **Best Agentic Use-Case:** not claimed now.
+  - The Course Agent loop (propose, test, repair) was proved 40 of 40 times, but only starting from a photo ([results](data/eval/cc-126-course-agent/README.md)).
+  - The scope is now photo to object only, so the photo input and the editor entry were removed (2026-10-31).
+  - The text-only version has not been measured.
 
 ### Safe by design
 - No sign-in and no real names; a short tag of up to 12 characters at most, checked against a block list.

@@ -2,8 +2,8 @@ import { barMesh, type P } from './holds-world';
 import type { Mesh } from './slice';
 import { newPiece } from './world';
 
-// Photo to course draft: Muse Spark Open looks at a photo of a real park and says what a runner would meet, in metres.
-// This file is pure (no network): it holds what the model is told, cleans what it says back, builds editor pieces from it and scores it
+// Course layout drafts (the Course Agent's format; the photo-to-course feature was dropped 2026-10-31, scope is photo to object only).
+// This file is pure (no network): it cleans what a model says back, builds editor pieces from it and scores it
 // against a hand-made answer key. The simulator keeps the last word: a draft is only a draft until the proof (and Fix it) has seen it.
 export type Item =
   | { kind: 'ground'; length: number }
@@ -11,19 +11,6 @@ export type Item =
   | { kind: 'block'; length: number; height: number }
   | { kind: 'bar'; height: number };
 export interface Layout { items: Item[] }
-
-export const PHOTO_PROMPT = [
-  'You help turn a photo of a real park into a first draft of a ninja-warrior course for a physics game.',
-  'A runner goes left to right along a 2 m wide lane. Look at the photo and pick the line a runner would take through the things in it.',
-  'Reply with one short plain sentence, then one fenced ```json block holding {"items": [...]}, items in the order the runner meets them.',
-  'Item kinds (all sizes in metres):',
-  '{"kind":"ground","length":m} flat ground to run on;',
-  '{"kind":"gap","width":m} a drop or water gap with no ground, to be jumped;',
-  '{"kind":"block","length":m,"height":m} anything raised the runner has to climb or clear (a step, stairs, a ledge, a box, a bench, a rail, a low wall); height is above the ground;',
-  '{"kind":"bar","height":m} a bar to hang from, in the air; height is above the ground.',
-  'Start and end with ground. At most 10 items. Estimate sizes from things you know (a stair step is 0.15 to 0.18 m, a handrail 0.9 m, a bench seat 0.45 m, a door 2 m).',
-  'Never describe or judge any person in the photo. Never show formulas.',
-].join(' ');
 
 const r2 = (v: number) => Math.round(v * 100) / 100;
 const num = (v: unknown, lo: number, hi: number): number | undefined => { const n = Number(v); return Number.isFinite(n) ? r2(Math.min(hi, Math.max(lo, n))) : undefined; };

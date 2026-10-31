@@ -24,7 +24,7 @@
   - Run `npm run dev`, then open `http://localhost:5173`.
 - **Running on the VM:**
   - CC-16 (Rookie in the game) and CC-3 (true-speed film helper).
-  - CC-25 (photo to course, the hero beat).
+  - CC-25 (photo to course, the hero beat; dropped 2026-10-31, scope is photo to object only).
   - CC-29 (video ingest; the wall clip fails the gate, so it becomes Kimodo targets).
 - **Next, in order:**
   1. Merge the CC-16, CC-3 and CC-25 branches; fix conflicts in `src/main.ts`.

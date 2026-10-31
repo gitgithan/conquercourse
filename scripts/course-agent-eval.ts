@@ -11,7 +11,7 @@ import { createInterface } from 'node:readline';
 import { askAgent } from '../functions/api/course-agent';
 import { MODEL } from '../functions/api/designer';
 import { drift, obstacleCount, runAgent, STEP_CAP, type AgentReport, type Ask, type Message } from '../src/slice/course-agent';
-import { parseLayout, type Layout } from '../src/slice/photo-course';
+import { parseLayout, type Layout } from '../src/slice/layout-draft';
 
 const arg = (n: string, d: string) => { const i = process.argv.indexOf(`--${n}`); return i >= 0 ? process.argv[i + 1] : d; };
 const part = arg('part', 'both'), toolsCmd = arg('tools', 'local'), maxTokens = Number(arg('max-tokens', '300000')), freshRuns = Number(arg('runs-fresh', '1'));

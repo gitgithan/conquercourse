@@ -3,7 +3,7 @@ import { roleCourse } from '../src/slice/roles';
 import { newWorld, stepWorld } from '../src/sim/world';
 import { NO_INPUT } from '../src/sim/runner';
 import { holdsOf } from '../src/slice/holds-world';
-import { pieceFromSrc } from '../src/slice/photo-course';
+import { pieceFromSrc } from '../src/slice/layout-draft';
 import { smoothPts, TRACK_SHAPES, trackPiece, trackEndY, TRACK_STEP_DOWN } from '../src/slice/track-world';
 
 // CC-244: the end of the last rail is not the finish when other obstacles follow; a 3D object can be a swing bar; the ribbon curves like the rail.

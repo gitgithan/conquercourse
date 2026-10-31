@@ -71,7 +71,7 @@ export function mountPieceBrowser(menu: HTMLElement): void {
       if (search.value.trim().toLowerCase() === q) paint();
     } catch { /* the search is a bonus */ }
   };
-  const press = (p: PieceInfo) => { const b = menu.querySelector<HTMLElement>(p.button); if (p.id === 'photo') { (window as unknown as { ccPickPhoto?: () => void }).ccPickPhoto?.(); return; } b?.click(); };
+  const press = (p: PieceInfo) => { const b = menu.querySelector<HTMLElement>(p.button); b?.click(); };
   const paint = () => {
     const q = search.value.trim().toLowerCase();
     const mine = mineOf().filter((p) => !q || p.name.toLowerCase().includes(q) || 'my pieces'.includes(q));

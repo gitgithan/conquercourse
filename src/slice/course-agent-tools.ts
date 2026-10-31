@@ -1,4 +1,4 @@
-import { layoutToPieces, type Layout } from './photo-course';
+import { layoutToPieces, type Layout } from './layout-draft';
 import { NO_TURN } from './photo-proof';
 import { roleCourse } from './roles';
 import { searchIdealRun, playPlan, meter, workSeconds } from '../sim/ideal';

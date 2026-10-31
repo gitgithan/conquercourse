@@ -27,7 +27,6 @@ flowchart LR
     SIM["Deterministic simulator<br/>120 Hz, our code"]
     ED["World editor and Slicer"]
     DES["Muse Spark Open<br/>design partner"]
-    AGT["Muse Spark Open<br/>Course Agent loop"]
     MAP["Mapillary photos<br/>Meta-owned"]
     CHM["Character maker<br/>Muse Image + SAM 3.1<br/>(Meta API, per player)"]
   end
@@ -37,13 +36,11 @@ flowchart LR
   MUS --> SIM
   ED --> SIM
   DES --> ED
-  AGT --> ED
-  SIM --> AGT
   MAP --> ED
   CHM --> SIM
   SIM --> IDEAL["Ideal-run search<br/>proves a course can be cleared"]
   classDef meta fill:#dbeafe,stroke:#1d4ed8,color:#0f172a;
-  class SAM3,SAM3DO,SAM3DB,MI,DES,AGT,MAP,KIM,MG,CHM meta;
+  class SAM3,SAM3DO,SAM3DB,MI,DES,MAP,KIM,MG,CHM meta;
 ```
 
 ## 1. Photo to obstacle (SAM 3 and SAM 3D Objects)
@@ -92,8 +89,8 @@ flowchart LR
 - **Where it runs:** Modal L4, build time.
 - **Result:** the run, leap and hang clips on the Rookies, chosen over real motion capture 3 times out of 3 in a blind test by the product owner.
 
-## 4. Course design partner and photo to course draft (Muse Spark Open)
-- **Data in:** the course as the editor describes it, or one park photo.
+## 4. Course design partner (Muse Spark Open)
+- **Data in:** the course as the editor describes it.
 - **Model:** Muse Spark Open (`meta-models/muse-spark-open-1026`) through Baseten, which the hackathon key allows.
 - **Our code:** a Cloudflare Pages Function keeps the key on the server, drops the model's reasoning text, rate-limits, and returns a layout or advice.
 - **Result:** the simulator checks every layout the model suggests, so the model proposes and the physics decides.
@@ -102,7 +99,7 @@ flowchart LR
 
 ```mermaid
 flowchart LR
-  U["Editor world or park photo"] --> F["Pages Function<br/>key stays on the server"]
+  U["Editor world"] --> F["Pages Function<br/>key stays on the server"]
   F --> M["Muse Spark Open<br/>(Baseten)"]
   M --> L["Layout or advice"]
   L --> S["Simulator proof<br/>can it be cleared?"]
@@ -144,32 +141,13 @@ flowchart LR
   class MM meta;
 ```
 
-## 4c. Course Agent: propose, test, repair, stop when proven (Muse Spark Open)
-- **Data in:** one park photo.
-- **Model:** Muse Spark Open (`meta-models/muse-spark-open-1026`) through Baseten, called by the same thin Pages Function pattern (`/api/course-agent`).
-- **Tools the loop calls (our code):** the simulator's ideal-run search answers three questions: can this layout be cleared, where does the best attempt stop, and which single change of one obstacle is proved to clear it.
-- **The loop:** the model proposes a layout; the tool tests it; if it fails, the model gets the report in plain words and writes a repaired layout; this repeats up to 6 steps.
-- **It stops** at the first proof, or at the cap, and then it says so and keeps the best tested attempt.
-- **Honest by construction:** it never hands back a layout the simulator has not seen.
-- **Where it runs:** the loop and the simulator run in the player's browser (the simulator is there); the server function only holds the key and makes the model call.
-- **What the player sees:** each step as a list: proposed, tested (stopped at item N), repaired, tested (cleared in X s).
-- **Not a coach:** it builds and repairs courses from a photo; it never grades or coaches a person's technique.
-- **Status:** behind the labs switch (`?labs=1` or `?agent=1`); needs the `BASETEN_API_KEY` secret at deploy.
-- **Measured results:** [data/eval/cc-126-course-agent/README.md](../data/eval/cc-126-course-agent/README.md).
-
-```mermaid
-flowchart LR
-  P["Park photo"] --> F["Pages Function<br/>key stays on the server"]
-  F --> M["Muse Spark Open<br/>proposes or repairs a layout"]
-  M --> T["Simulator tools (our code)<br/>cleared? where does it stop?<br/>which change clears it?"]
-  T --> D{"Proven?"}
-  D -- no, steps left --> R["Report in plain words"]
-  R --> F
-  D -- yes --> OK["Course, with the proof"]
-  D -- no, cap of 6 --> BP["Best tested attempt,<br/>and why it stopped"]
-  classDef meta fill:#dbeafe,stroke:#1d4ed8,color:#0f172a;
-  class M meta;
-```
+## 4c. Course Agent (dropped from the game 2026-10-31)
+- **Dropped scope:** the scope is photo to object only.
+  - The Course Agent started from one park photo; that input and its editor button are removed.
+  - The loop (`src/slice/course-agent.ts`) and the text-only function `/api/course-agent` remain in the code, with no player entry.
+  - The text-only (idea in) version has not been measured.
+- **What the loop did:** the model proposed a layout; the simulator told it whether it cleared, where the best attempt stopped and which single change would clear it; the model repaired, up to 6 steps.
+- **Measured results (photo in, historic):** [data/eval/cc-126-course-agent/README.md](../data/eval/cc-126-course-agent/README.md).
 
 ## 5. Characters (Muse Image, SAM 3.1, SAM 3D Objects)
 - **Live character maker (CC-108):**

@@ -58,8 +58,8 @@
 
 ### How do the Course Agent and the simulator work together?
 - The browser holds the loop and the simulator; the function only forwards a message to Baseten.
-- A player starts it: in the editor, with `?agent=1` or `?labs=1`, press "Course Agent (labs)" and pick a photo (`src/modes/editor.ts` line 587 to 600).
-- Feature that uses it: the World Editor, to turn a park photo into a course the simulator has proved clearable.
+- Since 2026-10-31 no player can start it: the scope is photo to object only, so the photo input and the editor button were removed.
+- The text-only loop and function stay in the code; the sequence below shows how it worked.
 
 ```mermaid
 sequenceDiagram
@@ -106,8 +106,8 @@ Legend:
 | # | Feature | Model and host | Prompt defined in | Trigger | In production |
 |---|---|---|---|---|---|
 | 1 | Designer and Fix it | Muse Spark Open, Baseten | `functions/api/designer.ts` line 12 (`SYSTEM`); world text from `src/slice/designer.ts` line 23 | Player: World Editor chat | yes |
-| 2 | Photo to course draft | same | `src/slice/photo-course.ts` line 15 (`PHOTO_PROMPT`); call in `functions/api/photo-course.ts` | Player: World Editor photo button | yes |
-| 3 | Course Agent | same | `src/slice/course-agent.ts` line 45 (`AGENT_SYSTEM`), lines 55 and 67 (user messages); call in `functions/api/course-agent.ts` | Player: `?agent=1` or `?labs=1` | yes, behind the switch |
+| 2 | (dropped 2026-10-31: photo to course draft) | | | | no |
+| 3 | Course Agent | same | `src/slice/course-agent.ts` (`AGENT_SYSTEM`); call in `functions/api/course-agent.ts` (text only) | Nobody: no button in the editor | function deployed, no page uses it |
 | 4 | Move tips | same | `src/slice/move-tips.ts` line 8 (`MOVE_TIP_PROMPT`); call in `functions/api/move-tips.ts` | Nothing in the pages calls it; tests and `scripts/cc121-move-tips-run.ts` do | function deployed, no page uses it |
 | 5 | Upload safety check | same | `src/slice/moderation.ts` line 12 (`MODERATION_PROMPT`); call `askModeration` in `functions/api/moderate.ts` | Player: photo upload and Share, through `/api/object-lift`, `/api/segment`, `/api/community-items` | yes |
 | 6 | Character prompt check | same | same prompt, text only; call in `functions/api/character.ts` line 104 | Player: Characters panel | yes |
@@ -147,22 +147,13 @@ That wall is too high to get over from standing. Lowering it to about 2.1 m lets
 
 - The editor shows the sentence and an Accept button for the move; the simulator re-checks it.
 
-## 2. Photo to course draft
-- **File and line:** `src/slice/photo-course.ts` line 15; call in `functions/api/photo-course.ts`; page code `src/modes/editor.ts` line 609.
-- **Trigger:** a player picks a park photo in the editor.
-- **Prompt (start):** "You help turn a photo of a real park into a first draft of a ninja-warrior course ... Reply with one short plain sentence, then one fenced json block holding {items: [...]} ... Start and end with ground. At most 10 items ... Never describe or judge any person in the photo."
-- **Input:** user message "Here is the photo." plus the photo (a 768 px JPEG).
-  - Sample photo: `park07`, a grass slope with three low concrete steps up to a terrace (`data/eval/photo-course/inputs`, `public/assets/park/park07.jpg`).
-- **Real output** (`data/eval/photo-course/outputs/park07.run2.json`, 7.3 s, 1,018 tokens in, 895 out):
+## 2. Photo to course draft (dropped 2026-10-31)
+- Dropped: the scope is photo to object only.
+- The prompt, the function `/api/photo-course` and the editor button are removed.
+- The old sample answers stay as evidence in `data/eval/photo-course/`.
 
-```text
-The lane crosses grass to climb three low steps onto the upper hilltop.
-{"items": [{"kind": "ground", "length": 6}, {"kind": "block", "length": 1.2, "height": 0.48}, {"kind": "ground", "length": 5}]}
-```
-
-- The parser (`parseLayout`) clamps sizes; a broken answer gives no course, never a wrong one.
-
-## 3. Course Agent
+## 3. Course Agent (no player entry since 2026-10-31)
+- The sample below is from the photo-in version that was measured; the photo input is now removed and the text-only version is not measured.
 - **File and line:** `src/slice/course-agent.ts` line 45 (system), line 55 (first message), line 67 (repair message); call in `functions/api/course-agent.ts`.
 - **Trigger:** see the sequence diagram in "Plain answers".
 - **System prompt (start):** "You build a first course for a ninja-warrior physics game from a photo of a real park, then fix it until a simulator proves it can be cleared ... After each try the simulator tells you the result ... Reply with the whole new layout each time. Never describe or judge any person in the photo."

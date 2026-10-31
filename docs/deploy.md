@@ -72,12 +72,6 @@
 - **Browsers:** WebGPU where available, WebGL 2 otherwise; very old phones may be slow.
 - **Cost:** $0 on the free tier (the limits are generous for a feedback round).
 
-## Photo skins (CC-39)
-- **What it does:** a course made from a photo paints each box's part of the photo on the front of its obstacle in the game, so a painted wall shows its painting.
-  - It is looks only: the obstacle's collision is still its box, and the bot still clears the course.
-  - The gallery always paints.
-- **Not yet:** the 3D lift (CC-38) will replace the flat picture with a real 3D object once it is ready.
-
 ## Course-design partner (Muse Spark Open on Baseten)
 - **What it is:** `functions/api/designer.ts` answers the editor's design helper; the key never reaches the page.
 - **Before deploy (the product owner runs this once):** `npx wrangler pages secret put BASETEN_API_KEY` and paste the hackathon key when asked; without it the function answers 503 and the editor hides the helper.

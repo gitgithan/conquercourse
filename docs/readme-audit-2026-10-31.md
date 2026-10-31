@@ -20,7 +20,7 @@
 | Welcome screen and growth strip | fixed | were missing; `?welcome=0` and `?growth=0` verified in `src/ui/welcome-flags.ts` and `src/ui/growth-strip.ts` |
 | Keys B, H, I, K, X | true | `src/modes/course.ts` key handlers |
 | Places cache of 30 days | true | `TTL` in `functions/api/places.ts` |
-| Course Agent proved 40 of 40 runs in at most 3 steps | true | `data/eval/cc-126-course-agent/README.md` |
+| Course Agent proved 40 of 40 runs in at most 3 steps | true for photo-in runs; the photo input was dropped 2026-10-31 and the claim is no longer made | `data/eval/cc-126-course-agent/README.md` |
 | Muse Wonder found 13 real bugs in 21 claims | true | `docs/hackathon.md` |
 | `npm run test:quick`, `test:fast`, deploy scripts | true | `package.json` |
 | Deploy policy is preview only | unverified | a team rule in `CLAUDE.md`; `docs/deploy.md` still describes `npm run deploy` as the way to publish |
@@ -54,7 +54,7 @@
 
 ### Older branches
 - All of these are obsolete and were left in place: `hanqi91/cc-char-muse`, `hanqi91/cc-208-truth-audit`, `hanqi91/cc-208-truth-audit-2`, `hanqi91/cc-208-readme`, `hanqi91/cc-208-readme-board`, `hanqi91/cc-208-readme-front-door`, `hanqi91/cc-readme-features`, `hanqi91/cc-readme-short`.
-- Reason and detail: [docs/model-ledger.md](model-ledger.md), section 5.
+- Reason: they are old copies; the README on `main` is the reference (the ledger no longer lists them).
 
 ### Also noticed
 - `docs/deploy.md` carried abuse-limit numbers (community uploads per day, the designer rate); they were replaced by a pointer to the private notes.

@@ -1,5 +1,7 @@
 # Course Agent evaluation (CC-127, for CC-126 Best Agentic Use-Case)
 
+*Dropped 2026-10-31: scope is photo to object only. Every run below started from a photo; the photo input and the editor button are removed, and the text-only (idea in) version has not been measured. The 40 of 40 result is NOT a claim about the shipped code.*
+
 ## So what
 - The loop works: given a photo-drawn course, the agent got it proven clearable in 40 of 40 runs, in at most 3 steps.
 - One-shot Muse Spark Open cleared 13 of 20 as drawn (CC-52); the agent cleared 20 of 20 starting from those same drafts.

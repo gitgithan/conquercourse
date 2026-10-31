@@ -32,9 +32,7 @@
 | Editor with real objects | 19 real objects (bench, low wall, hydrant and more) to place on a lane | `?mode=editor` | [pipelines 1](meta-ai-pipelines.md#1-photo-to-obstacle-sam-3-and-sam-3d-objects), [editor UI](editor-ui.md) |
 | Map and Slicer | Pin a place on Earth; its buildings become a course | `?mode=map` | [pipelines 6](meta-ai-pipelines.md#6-real-places-and-photos-mapillary-masking), [world-slice](world-slice.md#why-a-pin-is-slow-and-the-speed-up-cc-152) |
 | Ready places | 18 parks that load at once | In Map mode | [world-slice](world-slice.md#why-a-pin-is-slow-and-the-speed-up-cc-152) |
-| Design partner and Fix it | A note on why a course cannot be cleared and one proved change | Editor buttons | [pipelines 4](meta-ai-pipelines.md#4-course-design-partner-and-photo-to-course-draft-muse-spark-open) |
-| Photo to course draft | A course drafted from one park photo | Editor, "Photo to course (labs)" | [pipelines 4](meta-ai-pipelines.md#4-course-design-partner-and-photo-to-course-draft-muse-spark-open) |
-| Course Agent | A list of steps: proposed, tested, repaired, done | `?agent=1` or `?labs=1`, then "Course Agent (labs)" | [pipelines 4c](meta-ai-pipelines.md#4c-course-agent-propose-test-repair-stop-when-proven-muse-spark-open) |
+| Design partner and Fix it | A note on why a course cannot be cleared and one proved change | Editor buttons | [pipelines 4](meta-ai-pipelines.md#4-course-design-partner-muse-spark-open) |
 | Upload check and move tips | An ok, review or block answer; moves that could pass a cut-out | On upload | [pipelines 4b](meta-ai-pipelines.md#4b-upload-check-and-move-tips-muse-spark-open) |
 | Generate a course | A course from a seed | `?generate=<seed>` | [world-slice](world-slice.md#course-generator-v1-cc-47) |
 | Characters | The Rookie and a second Rookie in the first one's style | Always on | [pipelines 5](meta-ai-pipelines.md#5-characters-muse-image) |

@@ -2,7 +2,7 @@ import { parseTrackSrc, trackPiece } from './track-world';
 import type { CourseData, CourseSource } from '../course/course';
 import { deviceMesh } from './device';
 import { barMesh } from './holds-world';
-import { pieceFromSrc } from './photo-course';
+import { pieceFromSrc } from './layout-draft';
 import { LIBRARY } from './shapes';
 import { patternOf, stackPiece } from './stack';
 import { newPiece, type Piece } from './world';

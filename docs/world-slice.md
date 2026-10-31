@@ -357,6 +357,7 @@ The set of obstacle shapes is fixed, and each shape offers a fixed set of moves.
 - **Tests:** `tests/terrain.test.ts` (height decoding, tile maths, blending, a fake-network grid, a roof lifted by its hill, a gentle slope that a lane clears).
 - **Try it:** `/?mode=map`, search "Lombard Street San Francisco", build; or the Course menu "Place: San Francisco hill".
 ## Photo to course draft (CC-52)
+- *Dropped 2026-10-31: scope is photo to object only. The editor button, `/api/photo-course` and its scripts are removed; this section is history.*
 - **So what:** the model can read a park photo into a rough course, but not reliably enough to trust.
   - It finds the obstacles in the photo, but adds extra ones, and its sizes are off by about 40%.
   - Two thirds of its drafts clear as drawn, and the simulator is what makes the rest safe.
@@ -1689,7 +1690,7 @@ The set of obstacle shapes is fixed, and each shape offers a fixed set of moves.
 | Buildings (Overpass) | Function first (`/api/places`), then the six servers straight from the browser if the function fails | Shared cache: a place one player pinned is instant for the next, kept 30 days; the function also limits one address to 20 new places in ten minutes so we are polite to free servers | Yes, and it already does as the fallback | The shared cache (every first pin by every player waits 20 to 40 s) and the politeness limit; the cache is per Cloudflare data centre, so it is only a partial shield |
 | Place photos (Mapillary `/api/photos`) | Function only | Secret: Mapillary needs a token, and a token in the page is public; also picture addresses expire, so the function asks fresh ones and caches them 30 minutes | No | We would have to ship the token (anyone could use it up) or drop live photos and keep only the saved ones |
 | Ready places and saved photos | Our own files | Built in advance, no network to a third party | Already direct | Nothing |
-| Muse Spark Open helpers (`/api/designer`, `/api/photo-course`, `/api/course-agent`, `/api/move-tips`) | Function only | Secret: the Baseten key; also tight rate limits and a short reply | No | The key would be public |
+| Muse Spark Open helpers (`/api/designer`, `/api/course-agent` (no page calls it since 2026-10-31), `/api/move-tips`) | Function only | Secret: the Baseten key; also tight rate limits and a short reply | No | The key would be public |
 | Clears, stats, community (`/api/course-clear`, `/api/course-stats`, `/api/community`) | Function only | Trust: only the server can replay a run and keep one shared database | No | Honest leaderboards and the shared gallery |
 
 - **So what for the question "why server functions at all":** only the Overpass call is a choice; the rest need a secret or a shared, trusted store.
