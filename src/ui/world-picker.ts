@@ -36,6 +36,7 @@ export const DEMO_GROUPS: [string, Demo[]][] = [
   ['Labs (university level)', [
     ['lab-search', 'Lab 1: Search', 'Choose how the game looks for a clear run: greedy, beam, A* or everything. Mix a heuristic, set a budget, read the numbers.'],
     ['lab-optimization', 'Lab 2: Optimization', 'Pick which settings to tune and how to search them; see a map of finishing time with its local peaks.'],
+    ['lab-timing', 'Lab 7: Statistics of timing', 'Set how shaky the presses are and see how often a course clears, and how wide the press window must be for half and for nine in ten.'],
   ]],
 ];
 
@@ -50,7 +51,7 @@ import { loadCommunity } from '../share/challenge-client';
 /** CC-201: the slicer card is always shown (it used to hide behind ?labs=1); ?slice2=old brings the old rule back. */
 export const sliceCardOn = (params: URLSearchParams): boolean => params.get('slice2') !== 'old';
 
-export const WORD_VALUES = ['generate', 'editor', 'coaster-builder', 'map', 'lab-search', 'lab-optimization'];
+export const WORD_VALUES = ['generate', 'editor', 'coaster-builder', 'map', 'lab-search', 'lab-optimization', 'lab-timing'];
 export const DEMOS: [string, string][] = DEMO_GROUPS.flatMap(([, ds]) => ds.map((d) => [d[0], d[1]] as [string, string]));
 export const DEMO_ABOUT = new Map<string, string>(DEMO_GROUPS.flatMap(([, ds]) => ds.map((d) => [d[0], d[2]] as [string, string])));
 
@@ -68,6 +69,7 @@ export function worldHref(value: string, loc?: { pathname: string; search: strin
   if (value === 'map') return `?mode=map${suffix}`;
   if (value === 'lab-search') return `?mode=lab-search&labs=1${suffix}`;
   if (value === 'lab-optimization') return `?mode=lab-optimization&labs=1${suffix}`;
+  if (value === 'lab-timing') return `?mode=lab-timing&labs=1${suffix}`;
   if (value === 'generate') return `?generate=${seed}${suffix}`;
   if (value === 'generate-same') { const at = loc ?? location; return `${at.pathname}${at.search}${at.search.includes('?') ? '&' : '?'}welcome=0`; }
   return value ? `?course=${value}${suffix}` : `?welcome=0`;
@@ -81,6 +83,7 @@ export function currentWorld(params: URLSearchParams, courseName?: string): { va
   if (mode === 'map') return { value: 'map' };
   if (mode === 'lab-search') return { value: 'lab-search' };
   if (mode === 'lab-optimization') return { value: 'lab-optimization' };
+  if (mode === 'lab-timing') return { value: 'lab-timing' };
   if (mode !== 'course') return { value: null };
   const seed = params.get('generate');
   if (seed !== null) return { value: 'generate-same', label: `Generated course (seed ${seed})` };
@@ -96,6 +99,7 @@ const ICONS: Record<string, string> = {
   'coaster-builder': '<path d="M6 46C16 14 26 14 32 36s14 22 26-18"/><circle cx="6" cy="46" r="3"/><circle cx="32" cy="36" r="3"/><circle cx="58" cy="18" r="3"/>',
   'lab-search': '<circle cx="32" cy="12" r="4"/><circle cx="16" cy="34" r="4"/><circle cx="48" cy="34" r="4"/><circle cx="8" cy="54" r="3"/><circle cx="24" cy="54" r="3"/><circle cx="40" cy="54" r="3"/><circle cx="56" cy="54" r="3"/><path d="M30 16L18 30M34 16l12 14M14 38L9 51M18 38l5 13M46 38l-5 13M50 38l5 13"/>',
   'lab-optimization': '<path d="M6 50C16 50 18 18 26 18s10 22 16 22 8-14 16-14"/><circle cx="26" cy="18" r="3"/><circle cx="58" cy="26" r="3"/>',
+  'lab-timing': '<path d="M8 54h48M8 54C20 54 22 12 32 12s12 42 24 42"/><path d="M24 54V34M40 54V34"/>',
   map: '<path d="M32 56S14 38 14 26a18 18 0 0 1 36 0c0 12-18 30-18 30z"/><circle cx="32" cy="26" r="6"/>',
   stay: '<path d="M10 50h12V36h14V22h18"/><circle cx="54" cy="22" r="3"/>',
   'generate-same': '<rect x="14" y="14" width="36" height="36" rx="7"/><circle cx="25" cy="25" r="3"/><circle cx="39" cy="39" r="3"/><circle cx="32" cy="32" r="3"/>',
@@ -206,7 +210,7 @@ export function buildGallery(o: GalleryOptions): { el: HTMLElement; focusStart()
     cards.push({ card: grid.lastElementChild as HTMLButtonElement, sec: grid.parentElement!, text: `${cur.label ?? ''} this course`.toLowerCase() });
   }
   for (const [group, ds] of DEMO_GROUPS) {
-    const hiddenItem = (v: string): boolean => (v === 'map' ? !sliceCardOn(pageQuery()) && cur.value !== v && !labsOn() : (v === 'lab-search' || v === 'lab-optimization') && cur.value !== v && !labsOn());
+    const hiddenItem = (v: string): boolean => (v === 'map' ? !sliceCardOn(pageQuery()) && cur.value !== v && !labsOn() : (v === 'lab-search' || v === 'lab-optimization' || v === 'lab-timing') && cur.value !== v && !labsOn());
     if (ds.every(([v]) => hiddenItem(v))) continue; // a group whose items are all switched off shows no heading
     const grid = section(group);
     for (const [v, label, about] of ds) {
