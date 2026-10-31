@@ -42,3 +42,18 @@
 ## Checks
 - `npx vitest run tests/says.test.ts` checks the table, the model names against the ledger, the copy rules, the files and the doc.
 - `node scripts/says-check.mjs` takes a before (`?says=0`) and an after picture of each screen at 1280 x 720 and checks the badge.
+
+## Pictures (1280 x 720; before is `?says=0`)
+- [welcome-crew-after](evidence/cc-243-says-welcome-crew-after.jpg)
+- [community-crew-after](evidence/cc-243-says-community-crew-after.jpg)
+- [report-before](evidence/cc-243-says-report-before.jpg)
+- [report-after](evidence/cc-243-says-report-after.jpg)
+- [editor-agent-before](evidence/cc-243-says-editor-agent-before.jpg)
+- [editor-agent-after](evidence/cc-243-says-editor-agent-after.jpg)
+- [editor-partner-after](evidence/cc-243-says-editor-partner-after.jpg)
+- [coaster-before](evidence/cc-243-says-coaster-before.jpg)
+- [coaster-after](evidence/cc-243-says-coaster-after.jpg)
+- [make-segment-before](evidence/cc-243-says-make-segment-before.jpg)
+- [make-segment-after](evidence/cc-243-says-make-segment-after.jpg)
+- [characters-before](evidence/cc-243-says-characters-before.jpg)
+- [characters-after](evidence/cc-243-says-characters-after.jpg)
