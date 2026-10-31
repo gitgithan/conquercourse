@@ -6,6 +6,7 @@ import { courseHash, encodeLog, recordPlan } from '../src/sim/replay';
 import { logTicks } from '../src/sim/run-checks';
 import { onRequestPost as clearPost } from '../functions/api/course-clear';
 import { onRequestGet as boardGet } from '../functions/api/leaderboard';
+import { onRequestGet as runGet } from '../functions/api/leaderboard-run';
 import { d1Ledger } from '../src/slice/d1-ledger';
 import { boardLines, readBest, rememberBest } from '../src/ui/leaderboard';
 import { assets, localD1 } from './helpers-d1';
@@ -13,11 +14,11 @@ import { assets, localD1 } from './helpers-d1';
 const course = JSON.parse(readFileSync('public/assets/demo/training.course.json', 'utf8')) as CourseData;
 const hash = courseHash(course);
 const log = recordPlan(course, course.plan!, 120 * 120).recorder.snapshot();
-const send = async (db: unknown, n: number, nick?: string) => {
-  const body = { session: 'abcdef12-3456', runId: `run-0000000${n}`, courseKey: 'demo/training', hash, keys: await encodeLog(log), claimedTicks: logTicks(log), nick };
+const send = async (db: unknown, n: number, nick?: string, publish = true) => {
+  const body = { session: 'abcdef12-3456', runId: `run-0000000${n}`, courseKey: 'demo/training', hash, keys: await encodeLog(log), claimedTicks: logTicks(log), nick, publish };
   return clearPost({ request: new Request('https://x/api/course-clear', { method: 'POST', headers: { 'cf-connecting-ip': `ip${n}` }, body: JSON.stringify(body) }), env: { DB: db, ASSETS: assets } as never });
 };
-const board = async (db: unknown, h = hash) => (await boardGet({ request: new Request(`https://x/api/leaderboard?course=demo/training&hash=${h}`), env: { DB: db } as never })).json() as Promise<{ top: { nick: string; ticks: number }[] }>;
+const board = async (db: unknown, h = hash) => (await boardGet({ request: new Request(`https://x/api/leaderboard?course=demo/training&hash=${h}`), env: { DB: db } as never })).json() as Promise<{ top: { id: number; nick: string; ticks: number }[] }>;
 
 describe('the leaderboard', () => {
   it('shows a verified run with its tag, and keeps the keys so it can be a ghost', async () => {
@@ -48,6 +49,39 @@ describe('the leaderboard', () => {
     expect((await board(db)).top).toEqual([]);
   });
   it('lines read like a scoreboard', () => expect(boardLines([{ nick: 'ACE', ticks: 3240 }, { nick: '', ticks: 3600 }])).toEqual(['1  ACE  27.0 s', '2  ···  30.0 s']));
+});
+
+describe('publishing (migration 0012)', () => {
+  it('a clear that is not published is counted but never reaches the board, and keeps no tag or keys', async () => {
+    const { db, sql } = localD1();
+    expect((await send(db, 4, 'abc', false)).status).toBe(200);
+    expect((await board(db)).top).toEqual([]);
+    const row = sql.prepare('SELECT nick, keys, published FROM course_clears').get() as { nick: string; keys: string | null; published: number };
+    expect(row).toMatchObject({ nick: '', keys: null, published: 0 });
+  });
+  it('publishing the same run later puts it on the board with its tag, a rank and an id for View Run', async () => {
+    const { db } = localD1();
+    await send(db, 5, 'abc', false);
+    const r = await (await send(db, 5, 'Ace', true)).json() as { published: boolean; rank: number; players: number };
+    expect(r).toMatchObject({ published: true, rank: 1, players: 1 });
+    const top = (await board(db)).top;
+    expect(top[0]).toMatchObject({ nick: 'Ace' });
+    const run = await (await runGet({ request: new Request(`https://x/api/leaderboard-run?id=${top[0].id}`), env: { DB: db } as never })).json() as { keys: string };
+    expect(run.keys.length).toBeGreaterThan(10);
+  });
+  it('an unpublished run cannot be fetched, and a bad id is refused', async () => {
+    const { db } = localD1();
+    await send(db, 6, 'abc', false);
+    expect((await runGet({ request: new Request('https://x/api/leaderboard-run?id=1'), env: { DB: db } as never })).status).toBe(404);
+    expect((await runGet({ request: new Request('https://x/api/leaderboard-run?id=x'), env: { DB: db } as never })).status).toBe(400);
+  });
+  it('the newest published run is the news line', async () => {
+    const { db } = localD1();
+    expect(await (await boardGet({ request: new Request('https://x/api/leaderboard?recent=1'), env: { DB: db } as never })).json()).toEqual({ run: null });
+    await send(db, 7, 'Zed');
+    const d = await (await boardGet({ request: new Request('https://x/api/leaderboard?recent=1'), env: { DB: db } as never })).json() as { run: { nick: string; course: string } };
+    expect(d.run).toMatchObject({ nick: 'Zed', course: 'demo/training' });
+  });
 });
 
 describe('the personal best', () => {

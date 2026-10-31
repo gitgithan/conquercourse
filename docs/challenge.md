@@ -108,6 +108,14 @@
   - Tags are up to 12 characters the player chose, checked again on the server; no account and no name.
   - Your best time is kept in this browser only.
   - Tests: `tests/leaderboard.test.ts`.
+- **Publish (CC-108, migration 0012):** a run reaches the board only when the player clicks "Publish to Leaderboard" in the end report and types a name.
+  - Every other clear is only counted: no name and no keys are kept with it.
+  - The server plays the keys again before it publishes; the reply says the place ("Published as ABC, #4 of 37").
+  - One published run per player per course version: a faster publish replaces the slower one.
+  - The board lists the top hundred and scrolls; the Course page also shows a quiet news line with the newest published run (`GET /api/leaderboard?recent=1`).
+  - View Run on a row (`GET /api/leaderboard-run?id=`) plays that run at once and draws its path like the end report; Race Ghost loads it as the ghost to chase.
+  - Evidence: `docs/evidence/cc-108-view-run.png`, `docs/evidence/cc-108-publish.png`; check: `scripts/board-publish-check.mjs`.
+  - Storage: a published run is about a kilobyte of keys, so even 100,000 of them is about 100 MB against the 5 GB of the free D1 tier.
 - **What:** a best-time list for each course, and a daily challenge course made from a seed by the generator.
 - **How a time gets in:** the page sends the course id, the hash and the keys.
   - A Cloudflare Pages Function plays the keys with the same simulator (it is plain TypeScript) and stores the time it computes.
