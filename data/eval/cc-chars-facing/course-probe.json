@@ -1,0 +1,938 @@
+[
+  {
+    "name": "Rookie",
+    "errors": [],
+    "idleStart": {
+      "x": 0,
+      "hipsX": 0,
+      "heading": 1,
+      "boneToeDx": 0.137,
+      "skinLean": 1,
+      "skinConfidence": 1,
+      "votes": [
+        [
+          "shoe reach",
+          0.491
+        ],
+        [
+          "shoe middle",
+          0.045
+        ],
+        [
+          "shoe top",
+          0.281
+        ],
+        [
+          "torso",
+          0.24
+        ],
+        [
+          "hands",
+          0.588
+        ]
+      ]
+    },
+    "right": {
+      "moved": 12.95,
+      "movedDir": 1,
+      "x": 12.952689045501991,
+      "hipsX": 12.95,
+      "heading": 1,
+      "boneToeDx": 0.132,
+      "skinLean": 0.568,
+      "skinConfidence": 0.568,
+      "votes": [
+        [
+          "shoe reach",
+          0.603
+        ],
+        [
+          "shoe middle",
+          0.244
+        ],
+        [
+          "shoe top",
+          0.129
+        ],
+        [
+          "torso",
+          -0.266
+        ],
+        [
+          "hands",
+          -0.185
+        ]
+      ],
+      "skinFacesMovement": true,
+      "skinFacesHeading": true,
+      "headingFollowsPress": true
+    },
+    "left": {
+      "moved": -13.09,
+      "movedDir": -1,
+      "x": 4.224370402015425,
+      "hipsX": 4.22,
+      "heading": -1,
+      "boneToeDx": -0.079,
+      "skinLean": 0.831,
+      "skinConfidence": 0.659,
+      "votes": [
+        [
+          "shoe reach",
+          0.247
+        ],
+        [
+          "shoe middle",
+          0.081
+        ],
+        [
+          "shoe top",
+          0.075
+        ],
+        [
+          "torso",
+          0.012
+        ],
+        [
+          "hands",
+          -0.041
+        ]
+      ],
+      "skinFacesMovement": false,
+      "skinFacesHeading": false,
+      "headingFollowsPress": true
+    }
+  },
+  {
+    "name": "Fox",
+    "errors": [],
+    "idleStart": {
+      "x": 0,
+      "hipsX": 0,
+      "heading": 1,
+      "boneToeDx": 0,
+      "skinLean": 0.338,
+      "skinConfidence": 0.116,
+      "votes": [
+        [
+          "shoe reach",
+          0.084
+        ],
+        [
+          "shoe middle",
+          0.004
+        ],
+        [
+          "shoe top",
+          -0.002
+        ],
+        [
+          "torso",
+          -0.043
+        ],
+        [
+          "hands",
+          0.044
+        ]
+      ]
+    },
+    "right": {
+      "moved": 13.16,
+      "movedDir": 1,
+      "x": 13.159808287820029,
+      "hipsX": 13.16,
+      "heading": 1,
+      "boneToeDx": 0.136,
+      "skinLean": 0.7,
+      "skinConfidence": 0.483,
+      "votes": [
+        [
+          "shoe reach",
+          0.318
+        ],
+        [
+          "shoe middle",
+          0.218
+        ],
+        [
+          "shoe top",
+          0.023
+        ],
+        [
+          "torso",
+          -0.247
+        ],
+        [
+          "hands",
+          0.054
+        ]
+      ],
+      "skinFacesMovement": true,
+      "skinFacesHeading": true,
+      "headingFollowsPress": true
+    },
+    "left": {
+      "moved": -11.05,
+      "movedDir": -1,
+      "x": 6.497310912866791,
+      "hipsX": 6.5,
+      "heading": -1,
+      "boneToeDx": -0.012,
+      "skinLean": -0.519,
+      "skinConfidence": 0.179,
+      "votes": [
+        [
+          "shoe reach",
+          0.029
+        ],
+        [
+          "shoe middle",
+          -0.018
+        ],
+        [
+          "shoe top",
+          -0.015
+        ],
+        [
+          "torso",
+          0.037
+        ],
+        [
+          "hands",
+          -0.134
+        ]
+      ],
+      "skinFacesMovement": true,
+      "skinFacesHeading": true,
+      "headingFollowsPress": true
+    }
+  },
+  {
+    "name": "Skater",
+    "errors": [],
+    "idleStart": {
+      "x": 0,
+      "hipsX": 0,
+      "heading": 1,
+      "boneToeDx": 0.137,
+      "skinLean": 0.322,
+      "skinConfidence": 0.289,
+      "votes": [
+        [
+          "shoe reach",
+          0.092
+        ],
+        [
+          "shoe middle",
+          0.006
+        ],
+        [
+          "shoe top",
+          0.201
+        ],
+        [
+          "torso",
+          -0.036
+        ],
+        [
+          "hands",
+          -0.352
+        ]
+      ]
+    },
+    "right": {
+      "moved": 12.88,
+      "movedDir": 1,
+      "x": 12.88376052792732,
+      "hipsX": 12.88,
+      "heading": 1,
+      "boneToeDx": 0.124,
+      "skinLean": 0.47,
+      "skinConfidence": 0.422,
+      "votes": [
+        [
+          "shoe reach",
+          0.093
+        ],
+        [
+          "shoe middle",
+          0.062
+        ],
+        [
+          "shoe top",
+          0.127
+        ],
+        [
+          "torso",
+          -0.154
+        ],
+        [
+          "hands",
+          0.063
+        ]
+      ],
+      "skinFacesMovement": true,
+      "skinFacesHeading": true,
+      "headingFollowsPress": true
+    },
+    "left": {
+      "moved": -13.02,
+      "movedDir": -1,
+      "x": 4.217371744109569,
+      "hipsX": 4.22,
+      "heading": -1,
+      "boneToeDx": -0.113,
+      "skinLean": 0.955,
+      "skinConfidence": 0.831,
+      "votes": [
+        [
+          "shoe reach",
+          0.932
+        ],
+        [
+          "shoe middle",
+          0.064
+        ],
+        [
+          "shoe top",
+          0
+        ],
+        [
+          "torso",
+          0.14
+        ],
+        [
+          "hands",
+          0.043
+        ]
+      ],
+      "skinFacesMovement": false,
+      "skinFacesHeading": false,
+      "headingFollowsPress": true
+    }
+  },
+  {
+    "name": "Toy Robot",
+    "errors": [],
+    "idleStart": {
+      "x": 0,
+      "hipsX": 0,
+      "heading": 1,
+      "boneToeDx": 0,
+      "skinLean": -0.344,
+      "skinConfidence": 0.083,
+      "votes": [
+        [
+          "shoe reach",
+          -0.004
+        ],
+        [
+          "shoe middle",
+          -0.01
+        ],
+        [
+          "shoe top",
+          -0.011
+        ],
+        [
+          "torso",
+          0.02
+        ],
+        [
+          "hands",
+          -0.04
+        ]
+      ]
+    },
+    "right": {
+      "moved": 13.09,
+      "movedDir": 1,
+      "x": 13.090713438809638,
+      "hipsX": 13.09,
+      "heading": 1,
+      "boneToeDx": 0.137,
+      "skinLean": 0.778,
+      "skinConfidence": 0.536,
+      "votes": [
+        [
+          "shoe reach",
+          0.187
+        ],
+        [
+          "shoe middle",
+          0.14
+        ],
+        [
+          "shoe top",
+          0.03
+        ],
+        [
+          "torso",
+          -0.04
+        ],
+        [
+          "hands",
+          0.143
+        ]
+      ],
+      "skinFacesMovement": true,
+      "skinFacesHeading": true,
+      "headingFollowsPress": true
+    },
+    "left": {
+      "moved": -13.23,
+      "movedDir": -1,
+      "x": 4.238191801706954,
+      "hipsX": 4.24,
+      "heading": -1,
+      "boneToeDx": -0.013,
+      "skinLean": -0.649,
+      "skinConfidence": 0.515,
+      "votes": [
+        [
+          "shoe reach",
+          -0.186
+        ],
+        [
+          "shoe middle",
+          -0.08
+        ],
+        [
+          "shoe top",
+          -0.017
+        ],
+        [
+          "torso",
+          0.072
+        ],
+        [
+          "hands",
+          -0.211
+        ]
+      ],
+      "skinFacesMovement": true,
+      "skinFacesHeading": true,
+      "headingFollowsPress": true
+    }
+  },
+  {
+    "name": "Cactus",
+    "errors": [],
+    "idleStart": {
+      "x": 0,
+      "hipsX": 0,
+      "heading": 1,
+      "boneToeDx": 0.137,
+      "skinLean": 0.993,
+      "skinConfidence": 0.788,
+      "votes": [
+        [
+          "shoe reach",
+          0.354
+        ],
+        [
+          "shoe middle",
+          0.032
+        ],
+        [
+          "shoe top",
+          -0.037
+        ],
+        [
+          "torso",
+          0.215
+        ],
+        [
+          "hands",
+          0.379
+        ]
+      ]
+    },
+    "right": {
+      "moved": 13.02,
+      "movedDir": 1,
+      "x": 13.02167352104208,
+      "hipsX": 13.02,
+      "heading": 1,
+      "boneToeDx": 0.135,
+      "skinLean": 0.575,
+      "skinConfidence": 0.575,
+      "votes": [
+        [
+          "shoe reach",
+          0.15
+        ],
+        [
+          "shoe middle",
+          0.114
+        ],
+        [
+          "shoe top",
+          0.11
+        ],
+        [
+          "torso",
+          -0.096
+        ],
+        [
+          "hands",
+          0.24
+        ]
+      ],
+      "skinFacesMovement": true,
+      "skinFacesHeading": true,
+      "headingFollowsPress": true
+    },
+    "left": {
+      "moved": -13.23,
+      "movedDir": -1,
+      "x": 4.162161001618206,
+      "hipsX": 4.16,
+      "heading": -1,
+      "boneToeDx": -0.012,
+      "skinLean": -0.44,
+      "skinConfidence": 0.152,
+      "votes": [
+        [
+          "shoe reach",
+          0.035
+        ],
+        [
+          "shoe middle",
+          -0.012
+        ],
+        [
+          "shoe top",
+          -0.039
+        ],
+        [
+          "torso",
+          0.009
+        ],
+        [
+          "hands",
+          -0.226
+        ]
+      ],
+      "skinFacesMovement": true,
+      "skinFacesHeading": true,
+      "headingFollowsPress": true
+    }
+  },
+  {
+    "name": "Banana",
+    "errors": [],
+    "idleStart": {
+      "x": 0,
+      "hipsX": 0,
+      "heading": 1,
+      "boneToeDx": 0.137,
+      "skinLean": 1,
+      "skinConfidence": 1,
+      "votes": [
+        [
+          "shoe reach",
+          0.491
+        ],
+        [
+          "shoe middle",
+          0.045
+        ],
+        [
+          "shoe top",
+          0.281
+        ],
+        [
+          "torso",
+          0.24
+        ],
+        [
+          "hands",
+          0.588
+        ]
+      ]
+    },
+    "right": {
+      "moved": 11.05,
+      "movedDir": 1,
+      "x": 11.045865261369343,
+      "hipsX": 11.05,
+      "heading": 1,
+      "boneToeDx": 0.137,
+      "skinLean": 0.501,
+      "skinConfidence": 0.397,
+      "votes": [
+        [
+          "shoe reach",
+          0.099
+        ],
+        [
+          "shoe middle",
+          0.136
+        ],
+        [
+          "shoe top",
+          0
+        ],
+        [
+          "torso",
+          0.319
+        ],
+        [
+          "hands",
+          -0.325
+        ]
+      ],
+      "skinFacesMovement": true,
+      "skinFacesHeading": true,
+      "headingFollowsPress": true
+    },
+    "left": {
+      "moved": -13.02,
+      "movedDir": -1,
+      "x": 2.1632089001768016,
+      "hipsX": 2.16,
+      "heading": -1,
+      "boneToeDx": -0.115,
+      "skinLean": 0.579,
+      "skinConfidence": 0.459,
+      "votes": [
+        [
+          "shoe reach",
+          0.633
+        ],
+        [
+          "shoe middle",
+          0.035
+        ],
+        [
+          "shoe top",
+          0.011
+        ],
+        [
+          "torso",
+          -0.19
+        ],
+        [
+          "hands",
+          -0.112
+        ]
+      ],
+      "skinFacesMovement": false,
+      "skinFacesHeading": false,
+      "headingFollowsPress": true
+    }
+  },
+  {
+    "name": "Robo Cat",
+    "errors": [],
+    "idleStart": {
+      "x": 0,
+      "hipsX": 0,
+      "heading": 1,
+      "boneToeDx": 0.137,
+      "skinLean": 0.877,
+      "skinConfidence": 0.605,
+      "votes": [
+        [
+          "shoe reach",
+          0.248
+        ],
+        [
+          "shoe middle",
+          0.027
+        ],
+        [
+          "shoe top",
+          0.051
+        ],
+        [
+          "torso",
+          -0.041
+        ],
+        [
+          "hands",
+          0.169
+        ]
+      ]
+    },
+    "right": {
+      "moved": 11.32,
+      "movedDir": 1,
+      "x": 11.315109976284973,
+      "hipsX": 11.32,
+      "heading": 1,
+      "boneToeDx": 0.135,
+      "skinLean": 0.543,
+      "skinConfidence": 0.543,
+      "votes": [
+        [
+          "shoe reach",
+          1.23
+        ],
+        [
+          "shoe middle",
+          0.123
+        ],
+        [
+          "shoe top",
+          0
+        ],
+        [
+          "torso",
+          -0.163
+        ],
+        [
+          "hands",
+          -0.278
+        ]
+      ],
+      "skinFacesMovement": true,
+      "skinFacesHeading": true,
+      "headingFollowsPress": true
+    },
+    "left": {
+      "moved": -13.92,
+      "movedDir": -1,
+      "x": 1.5659622612659985,
+      "hipsX": 1.57,
+      "heading": -1,
+      "boneToeDx": 0.019,
+      "skinLean": -0.936,
+      "skinConfidence": 0.645,
+      "votes": [
+        [
+          "shoe reach",
+          -0.229
+        ],
+        [
+          "shoe middle",
+          -0.083
+        ],
+        [
+          "shoe top",
+          -0.042
+        ],
+        [
+          "torso",
+          0.059
+        ],
+        [
+          "hands",
+          -0.341
+        ]
+      ],
+      "skinFacesMovement": true,
+      "skinFacesHeading": true,
+      "headingFollowsPress": true
+    }
+  },
+  {
+    "name": "Jelly",
+    "errors": [],
+    "idleStart": {
+      "x": 0,
+      "hipsX": 0,
+      "heading": 1,
+      "boneToeDx": 0.137,
+      "skinLean": 1,
+      "skinConfidence": 0.565,
+      "votes": [
+        [
+          "shoe reach",
+          1.142
+        ],
+        [
+          "shoe middle",
+          0.001
+        ],
+        [
+          "shoe top",
+          0
+        ],
+        [
+          "torso",
+          0.662
+        ],
+        [
+          "hands",
+          0
+        ]
+      ]
+    },
+    "right": {
+      "moved": 11.32,
+      "movedDir": 1,
+      "x": 11.315109976284973,
+      "hipsX": 11.32,
+      "heading": 1,
+      "boneToeDx": 0.135,
+      "skinLean": 0.894,
+      "skinConfidence": 0.778,
+      "votes": [
+        [
+          "shoe reach",
+          4.87
+        ],
+        [
+          "shoe middle",
+          0.03
+        ],
+        [
+          "shoe top",
+          0
+        ],
+        [
+          "torso",
+          0.05
+        ],
+        [
+          "hands",
+          0.118
+        ]
+      ],
+      "skinFacesMovement": true,
+      "skinFacesHeading": true,
+      "headingFollowsPress": true
+    },
+    "left": {
+      "moved": -12.95,
+      "movedDir": -1,
+      "x": 2.5366087916222084,
+      "hipsX": 2.54,
+      "heading": -1,
+      "boneToeDx": -0.051,
+      "skinLean": 0.527,
+      "skinConfidence": 0.527,
+      "votes": [
+        [
+          "shoe reach",
+          0.861
+        ],
+        [
+          "shoe middle",
+          0.223
+        ],
+        [
+          "shoe top",
+          0
+        ],
+        [
+          "torso",
+          -0.322
+        ],
+        [
+          "hands",
+          -0.249
+        ]
+      ],
+      "skinFacesMovement": false,
+      "skinFacesHeading": false,
+      "headingFollowsPress": true
+    }
+  },
+  {
+    "name": "Potato Blob",
+    "errors": [],
+    "idleStart": {
+      "x": 0,
+      "hipsX": 0,
+      "heading": 1,
+      "boneToeDx": 0.137,
+      "skinLean": 0.526,
+      "skinConfidence": 0.471,
+      "votes": [
+        [
+          "shoe reach",
+          0.689
+        ],
+        [
+          "shoe middle",
+          0.046
+        ],
+        [
+          "shoe top",
+          -0.322
+        ],
+        [
+          "torso",
+          0.178
+        ],
+        [
+          "hands",
+          -0.099
+        ]
+      ]
+    },
+    "right": {
+      "moved": 13.09,
+      "movedDir": 1,
+      "x": 13.090713438809638,
+      "hipsX": 13.09,
+      "heading": 1,
+      "boneToeDx": 0.137,
+      "skinLean": 0.437,
+      "skinConfidence": 0.287,
+      "votes": [
+        [
+          "shoe reach",
+          0.048
+        ],
+        [
+          "shoe middle",
+          0.078
+        ],
+        [
+          "shoe top",
+          0.117
+        ],
+        [
+          "torso",
+          -0.072
+        ],
+        [
+          "hands",
+          -0.147
+        ]
+      ],
+      "skinFacesMovement": true,
+      "skinFacesHeading": true,
+      "headingFollowsPress": true
+    },
+    "left": {
+      "moved": -11.05,
+      "movedDir": -1,
+      "x": 6.421284102135756,
+      "hipsX": 6.42,
+      "heading": -1,
+      "boneToeDx": -0.025,
+      "skinLean": 0.791,
+      "skinConfidence": 0.546,
+      "votes": [
+        [
+          "shoe reach",
+          0.194
+        ],
+        [
+          "shoe middle",
+          0.062
+        ],
+        [
+          "shoe top",
+          0.055
+        ],
+        [
+          "torso",
+          -0.012
+        ],
+        [
+          "hands",
+          0.142
+        ]
+      ],
+      "skinFacesMovement": false,
+      "skinFacesHeading": false,
+      "headingFollowsPress": true
+    }
+  }
+]

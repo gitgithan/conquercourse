@@ -97,3 +97,11 @@
 
 ## Evidence
 - Screenshots at 1280 px are in `docs/evidence/parts-gallery/`.
+
+## The demo runner (owner request, 2026-11-01)
+- Every card of the page runs "the girl" (the Skater, pink hair puff, yellow hoodie) by default, so a demo always starts from the same face.
+- Before, a frame wore whatever the player had last picked on the Course (`cc.character` in the browser's storage, read by the same-origin frames), so a saved Banana ran in every card.
+- The page has a "Runner" picker in its header, and `?char=<16 hex id>` picks one by address.
+- A frame is opened with `&char=<id>&nosave=1`: `nosave=1` makes the Course wear the character without saving it as the player's own choice or counting a pick.
+- Pictures (old frame address against the new one, with a Banana saved): `docs/evidence/cc-gallery-girl/`.
+- `tests/parts-gallery.test.ts` checks the default, the frame address and that `wearCharacter` never saves under `nosave`.

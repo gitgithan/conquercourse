@@ -5,6 +5,7 @@ import { pageQuery } from '../flags';
 import { DEMO_GROUPS, WORD_VALUES } from '../ui/world-picker';
 import { GROUP_TITLES, PARTS, partById, partsOfCourse, type Part, type PartGroup } from '../ui/parts-data';
 import type { CourseData } from '../course/course';
+import { loadCast } from '../characters/cast';
 
 const STYLE = `
 .pg{box-sizing:border-box;min-height:100vh;background:#f4f1e8;color:#17201d;font:15px/1.4 system-ui,sans-serif;padding:64px 24px 40px}
@@ -37,6 +38,8 @@ const STYLE = `
 .pg-made{margin:0;font:13px/1.35 system-ui,sans-serif;color:#3a4540}
 .pg-saying{margin:0;font:italic 600 14px/1.35 Georgia,serif;color:#5a3b00;background:#fff6cf;border-left:4px solid #d8a208;padding:4px 8px;border-radius:4px}
 .pg-note{margin:0;font:12px/1.3 system-ui,sans-serif;color:#8c231e}
+.pg-char{display:flex;gap:8px;align-items:center;margin:6px 0 0;font:600 14px system-ui,sans-serif}
+.pg-char select{font:600 14px system-ui,sans-serif;padding:4px 8px;border:2px solid #17201d;border-radius:8px;background:#fff}
 .pg-pick{display:flex;gap:10px;align-items:center;margin:10px 0}
 .pg-pick select{font:600 15px system-ui,sans-serif;padding:6px 8px;border:2px solid #17201d;border-radius:8px;background:#fff;max-width:520px}
 .pg-pick a{font:700 13px system-ui,sans-serif;color:#0f6b5c}
@@ -52,9 +55,14 @@ const STYLE = `
 `;
 
 const FRAME_FLAGS = 'welcome=0&nav=0&music=0&photos=0&hud=old';
-export function frameSrc(p: Part): string | null {
+/** The demo runner: the Skater (the girl of the starter cast; her arms and legs show the limb fit well). The gallery never reads the player's saved choice. */
+export const DEMO_CHAR = '8f72bd8e9c1937ce';
+const CHAR_ID = /^[0-9a-f]{16}$/;
+let demoChar = DEMO_CHAR;
+/** The frame address for a part: the demo runner is named in the address (?char=) and ?nosave=1 keeps the player's own saved choice untouched. */
+export function frameSrc(p: Part, char: string = demoChar): string | null {
   if (p.live.how === 'none') return null;
-  return `/?course=${p.live.course}&${FRAME_FLAGS}${p.live.how === 'bot' ? '&bot=ideal' : ''}`;
+  return `/?course=${p.live.course}&${FRAME_FLAGS}&char=${char}&nosave=1${p.live.how === 'bot' ? '&bot=ideal' : ''}`;
 }
 
 let playing: { iframe: HTMLIFrameElement; stop: () => void } | null = null;
@@ -163,7 +171,7 @@ export function startParts(root: HTMLElement): { backend: string } {
   document.body.style.overflow = 'auto';
   const page = document.createElement('div'); page.className = 'pg'; page.dataset.testid = 'parts-gallery';
   const specials = PARTS.filter((p) => p.group === 'special').length;
-  page.innerHTML = `<header><h1>Parts: moves and obstacles</h1><p>${PARTS.length} parts, ${specials} of them special. Click a picture to watch the real game play just that part. Every course is made of these.</p><div class="pg-tabs"><button type="button" id="pg-tab-all" aria-pressed="true">All parts</button><button type="button" id="pg-tab-course" aria-pressed="false">How a course is made</button></div></header><main></main>`;
+  page.innerHTML = `<header><h1>Parts: moves and obstacles</h1><p>${PARTS.length} parts, ${specials} of them special. Click a picture to watch the real game play just that part. Every course is made of these.</p><div class="pg-tabs"><button type="button" id="pg-tab-all" aria-pressed="true">All parts</button><button type="button" id="pg-tab-course" aria-pressed="false">How a course is made</button></div><label class="pg-char">Runner: <select id="pg-char" aria-label="Pick the runner for the demos"></select><span>(only for this page; your own choice is not changed)</span></label></header><main></main>`;
   root.append(page);
   const main = page.querySelector('main') as HTMLElement;
   const all = page.querySelector('#pg-tab-all') as HTMLButtonElement, how = page.querySelector('#pg-tab-course') as HTMLButtonElement;
@@ -174,6 +182,20 @@ export function startParts(root: HTMLElement): { backend: string } {
   };
   all.onclick = () => show('all'); how.onclick = () => show('course');
   const q = pageQuery();
+  const asked = q.get('char');
+  if (asked && CHAR_ID.test(asked)) demoChar = asked;
+  const cs = page.querySelector('#pg-char') as HTMLSelectElement;
+  const fill = (items: { id: string; name: string }[]) => {
+    cs.replaceChildren();
+    for (const c of items) { const o = document.createElement('option'); o.value = c.id; o.textContent = c.name; cs.append(o); }
+    cs.value = demoChar;
+  };
+  fill([{ id: demoChar, name: demoChar === DEMO_CHAR ? 'Skater' : 'Chosen runner' }]);
+  void loadCast().then((cast) => { if (cast.length) fill(cast.map((c) => ({ id: c.id, name: c.name }))); });
+  cs.onchange = () => {
+    demoChar = cs.value; playing?.stop();
+    try { const u = new URL(location.href); u.searchParams.set('char', demoChar); history.replaceState(null, '', u); } catch { /* the pick still works */ }
+  };
   show(q.get('view') === 'course' ? 'course' : 'all', q.get('of') ?? undefined);
   return { backend: 'dom' };
 }

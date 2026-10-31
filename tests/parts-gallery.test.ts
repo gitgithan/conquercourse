@@ -7,7 +7,7 @@ import type { CourseData } from '../src/course/course';
 import { playPlan } from '../src/sim/ideal';
 import { BITS } from '../src/sim/replay';
 import { COVERED_BY_VIEW, GROUP_TITLES, PARTS, PLAIN_FIELDS, partById, partsOfCourse } from '../src/ui/parts-data';
-import { frameSrc } from '../src/modes/parts';
+import { DEMO_CHAR, frameSrc } from '../src/modes/parts';
 import { DEMOS, currentWorld, partsCardOn, worldHref } from '../src/ui/world-picker';
 
 const cov = <K extends 'bits' | 'modes' | 'obstacles' | 'fields'>(k: K): Set<string> => new Set(PARTS.flatMap((p) => (p.covers[k] ?? []) as string[]));
@@ -119,5 +119,27 @@ describe('the Parts card in the World picker', () => {
     expect(currentWorld(new URLSearchParams('mode=parts')).value).toBe('parts');
     expect(partsCardOn(new URLSearchParams(''))).toBe(true);
     expect(partsCardOn(new URLSearchParams('parts=0'))).toBe(false);
+  });
+});
+
+describe('the demo runner of the Parts gallery', () => {
+  const cast = (JSON.parse(readFileSync('public/assets/characters/cast/index.json', 'utf8')) as { items: { id: string; name: string }[] }).items;
+  it('is the Skater (the girl of the starter cast), a real cast file, and never the player\'s saved choice', () => {
+    expect(cast.find((c) => c.id === DEMO_CHAR)?.name).toBe('Skater');
+    expect(existsSync(`public/assets/characters/cast/${DEMO_CHAR}.glb`)).toBe(true);
+    const p = partById('gap')!;
+    expect(frameSrc(p)).toContain(`char=${DEMO_CHAR}`);
+    expect(frameSrc(p)).toContain('nosave=1');
+    expect(frameSrc(p, cast[0].id)).toContain(`char=${cast[0].id}`);
+  });
+  it('is named in the address of every live card, so a saved choice (cc.character) cannot reach a frame', () => {
+    for (const p of PARTS) { const src = frameSrc(p); if (src) expect(src, p.id).toMatch(/[?&]char=[0-9a-f]{16}&nosave=1/); }
+  });
+  it('is kept out of the saved choice by the Course: every saveChoice call in wearCharacter goes through the nosave guard', () => {
+    const src = readFileSync('src/modes/course.ts', 'utf8');
+    const a = src.indexOf('async function wearCharacter'), b = src.indexOf("if (charactersOn()) { const asked");
+    expect(src).toContain("params.get('nosave') === '1'");
+    expect(src.slice(a, b)).not.toMatch(/\bsaveChoice\(/);
+    expect(src.slice(a, b)).toMatch(/if \(!keepChoice\) void fetch\('\/api\/character'/);
   });
 });

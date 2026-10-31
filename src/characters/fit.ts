@@ -5,6 +5,8 @@
 // First of all the skin is turned to face the way the bones face: a made mesh comes out with a front the maker never checked (see docs/ugc-fit.md, Facing).
 
 export type Vec3 = [number, number, number];
+import { FACING_OVERRIDE, hipCentre, measureFacing, type FacingReport } from './facing';
+export { FACING_MIN, CONFIDENCE_MIN, FACING_OVERRIDE, measureFacing, type FacingReport, type FacingVote } from './facing';
 export interface FitInput {
   positions: Float32Array; // x y z per vertex, in the bind pose (T-pose); changed in place
   joints: { length: number; [i: number]: number }; // 4 bone indices per vertex; changed in place when the skin is turned around (left and right bones swap)
@@ -15,16 +17,6 @@ export interface FitInput {
 }
 
 export interface LimbFit { meshLen: number; boneLen: number; wanted: number; used: number; clamped: boolean }
-/** Which way the skin's shoes point, against the way the bones' feet point. */
-export interface FacingReport {
-  /** -1 .. 1: how much more of the shoe sticks out in front of the shin than behind it (positive: the toes point the way the bones face) */
-  score: number;
-  verdict: 'forward' | 'back' | 'unclear';
-  /** the skin was turned 180 degrees about the vertical axis (and its left and right bone weights swapped) */
-  turned: boolean;
-  /** the way the bones face on the ground (x, z), from the foot bones */
-  axis: [number, number];
-}
 export interface FitReport {
   facing: FacingReport;
   arms: { Left: LimbFit | null; Right: LimbFit | null };
@@ -49,9 +41,6 @@ const SIDES = ['Left', 'Right'] as const;
 const ARM = ['Arm', 'ForeArm', 'Hand', 'HandThumbEnd', 'HandMiddleEnd', 'Grip'];
 const LEG = ['Leg', 'Shin', 'Foot', 'ToeBase', 'Sole'];
 
-/** Below this the shoes do not say which way the character faces (a round blob, a jellyfish), so the skin is left as it is. */
-export const FACING_MIN = 0.1;
-
 const sub = (a: Vec3, b: Vec3): Vec3 => [a[0] - b[0], a[1] - b[1], a[2] - b[2]];
 const len = (a: Vec3): number => Math.hypot(a[0], a[1], a[2]);
 const clamp = (v: number, lo: number, hi: number) => Math.min(hi, Math.max(lo, v));
@@ -59,49 +48,15 @@ const clamp = (v: number, lo: number, hi: number) => Math.min(hi, Math.max(lo, v
 function percentile(sorted: number[], q: number): number { return sorted.length ? sorted[Math.min(sorted.length - 1, Math.floor(q * sorted.length))] : 0; }
 
 /**
- * Which way does the skin face? The bones always face the Rookie's way (the foot bones point from the ankle to the toe).
- * The skin's shoes tell the rest: the toe sticks out in front of the shin, the heel only a little behind it.
- * So take the skin just above the ground (the lowest 13.6 percent of the height) and the shin skin above it (15 to 30 percent),
- * and compare how far the shoe reaches in front of the shin with how far it reaches behind (2nd and 98th percentile along the bones' forward).
- * Gives (front - back) / (front + back): about +0.2 to +0.4 for a shoe that points forward, about -0.1 to -0.4 for one that points back.
- */
-export function measureFacing(P: Float32Array, names: string[], rest: Vec3[]): Omit<FacingReport, 'turned'> {
-  const ix = (name: string) => names.indexOf(name);
-  let ax = 0, az = 0;
-  for (const side of SIDES) { const a = ix(side + 'Foot'), b = ix(side + 'ToeBase'); if (a >= 0 && b >= 0) { ax += rest[b][0] - rest[a][0]; az += rest[b][2] - rest[a][2]; } }
-  const l = Math.hypot(ax, az);
-  const axis: [number, number] = l > 1e-6 ? [ax / l, az / l] : [0, 1];
-  const [hx] = hipCentre(names, rest);
-  const n = P.length / 3;
-  let yMin = Infinity, yMax = -Infinity;
-  for (let v = 0; v < n; v++) { yMin = Math.min(yMin, P[v * 3 + 1]); yMax = Math.max(yMax, P[v * 3 + 1]); }
-  const H = yMax - yMin, shoe: number[] = [];
-  let col = 0, colN = 0;
-  for (let v = 0; v < n; v++) {
-    if (Math.abs(P[v * 3] - hx) < 0.03) continue; // the gap between the legs says nothing
-    const y = (P[v * 3 + 1] - yMin) / H, t = P[v * 3] * axis[0] + P[v * 3 + 2] * axis[1];
-    if (y < 0.136) shoe.push(t); else if (y > 0.15 && y < 0.3) { col += t; colN++; }
-  }
-  if (shoe.length < 8 || colN < 8) return { score: 0, verdict: 'unclear', axis };
-  shoe.sort((a, b) => a - b);
-  const c = col / colN, front = shoe[Math.floor(0.98 * (shoe.length - 1))] - c, back = c - shoe[Math.floor(0.02 * (shoe.length - 1))];
-  const score = front + back > 1e-6 ? (front - back) / (front + back) : 0;
-  return { score, verdict: score >= FACING_MIN ? 'forward' : score <= -FACING_MIN ? 'back' : 'unclear', axis };
-}
-
-function hipCentre(names: string[], rest: Vec3[]): [number, number] {
-  const hs = SIDES.map((s) => names.indexOf(s + 'Leg')).filter((i) => i >= 0);
-  return hs.length ? [hs.reduce((a, i) => a + rest[i][0], 0) / hs.length, hs.reduce((a, i) => a + rest[i][2], 0) / hs.length] : [0, 0];
-}
-
-/**
  * Turn a skin that faces back around: 180 degrees about the vertical axis through the hips, and the left and right bone weights swap
  * (what was on the character's side that now lies on the other side must follow the other side's bones).
  * Changes the positions and the bone indices in place. Returns the measurement and whether it turned.
  */
-export function faceForward(inp: Pick<FitInput, 'positions' | 'joints' | 'names' | 'rest'>): FacingReport {
+export function faceForward(inp: Pick<FitInput, 'positions' | 'joints' | 'names' | 'rest'>, opts: FitOptions = {}): FacingReport {
   const m = measureFacing(inp.positions, inp.names, inp.rest);
-  if (m.verdict !== 'back') return { ...m, turned: false };
+  const forced = opts.id ? (opts.overrides ?? FACING_OVERRIDE)[opts.id] : undefined; // a per-character answer beats the cues
+  if (forced) { m.verdict = forced; m.overridden = true; }
+  if (m.verdict !== 'back') return m;
   const { positions: P, joints: J, names } = inp;
   const [cx, cz] = hipCentre(names, inp.rest);
   const other = names.map((nm) => { const o = nm.startsWith('Left') ? 'Right' + nm.slice(4) : nm.startsWith('Right') ? 'Left' + nm.slice(5) : nm; const i = names.indexOf(o); return i >= 0 ? i : names.indexOf(nm); });
@@ -110,14 +65,21 @@ export function faceForward(inp: Pick<FitInput, 'positions' | 'joints' | 'names'
   return { ...m, turned: true };
 }
 
-export function fitToSkeleton(inp: FitInput): FitReport {
+
+export interface FitOptions {
+  /** the character's id (16 hex), to find its row in FACING_OVERRIDE */
+  id?: string;
+  overrides?: Record<string, 'forward' | 'back'>;
+}
+
+export function fitToSkeleton(inp: FitInput, opts: FitOptions = {}): FitReport {
   const { positions: P, joints: J, weights: W, names, rest } = inp;
   const n = P.length / 3;
   const ix = (name: string) => names.indexOf(name);
   const notes: string[] = [];
-  const facing = faceForward(inp);
-  if (facing.turned) notes.push('turned around: the made skin faced back');
-  else if (facing.verdict === 'unclear') notes.push('could not tell which way the skin faces; left as it is');
+  const facing = faceForward(inp, opts);
+  if (facing.turned) notes.push(facing.overridden ? 'turned around: the made skin faced back (a per-character answer)' : 'turned around: the made skin faced back');
+  else if (facing.verdict === 'unclear') notes.push('facing unclear: could not tell which way the skin faces; left as it is (if it runs backwards, add its id to FACING_OVERRIDE in src/characters/facing.ts)');
   const before = inp.index ? Float32Array.from(P) : null;
 
   // share of each vertex's weight that sits on one group of bones

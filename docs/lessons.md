@@ -133,3 +133,7 @@
 - The Slicer ran a live search every time and often said "cannot find a path" on places we had already proved.
 - The proved line was stored with the place, but the Slicer never read it.
 - Rule: if an answer can be found ahead of time, find it ahead of time, replay it in a test, and open on it; run the live check only when the person changes something.
+
+## Made characters faced backwards (CC-108)
+- A rule that picks an axis must also pick a direction: the maker's box fit found the line a body lies along but not which end is the face, so 3 of 8 characters ran backwards (see [character-facing-bug.md](character-facing-bug.md)).
+- Measure, do not eyeball, and test in the view the player sees: the first facing fix was checked in a side-view demo that assumed the run goes along +x, not in the Course that players see.

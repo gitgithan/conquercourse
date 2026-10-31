@@ -21,7 +21,7 @@ export interface PosedRookie {
 export async function loadRookie(id: RookieId, names: string[], parents: number[], base = '/assets/characters', url?: string, fit = false): Promise<PosedRookie> {
   const gltf = await new GLTFLoader().loadAsync(url ?? `${base}/rookie-${id}.glb`);
   const object = gltf.scene;
-  const fitted = fit && url ? fitSkins(object) : null; // a made character: stretch the skin to the one skeleton before anything reads the rest pose
+  const fitted = fit && url ? fitSkins(object, url.match(/\/([0-9a-f]{16})\.glb/)?.[1]) : null; // a made character: stretch the skin to the one skeleton before anything reads the rest pose
   object.updateMatrixWorld(true);
   object.traverse((o) => (o.frustumCulled = false)); // skinned meshes keep their bind-pose bounds
   const bones = names.map((n) => {
@@ -71,7 +71,7 @@ export async function loadRookie(id: RookieId, names: string[], parents: number[
 }
 
 /** Fits every skinned mesh of a loaded character to its own bones (the bones are the Rookie's), in the bind pose. Returns the report of the biggest mesh. */
-export function fitSkins(root: Object3D): FitReport | null {
+export function fitSkins(root: Object3D, id?: string): FitReport | null {
   let report: FitReport | null = null, most = 0;
   root.traverse((o) => {
     const m = o as SkinnedMesh;
@@ -80,7 +80,7 @@ export function fitSkins(root: Object3D): FitReport | null {
     if (!pos || !si || !sw) return;
     const inv = new Matrix4();
     const rest = m.skeleton.boneInverses.map((b) => { const e = inv.copy(b).invert().elements; return [e[12], e[13], e[14]] as [number, number, number]; });
-    const r = fitToSkeleton({ positions: pos.array as Float32Array, joints: si.array, weights: sw.array, names: m.skeleton.bones.map((b) => b.name), rest, index: g.index?.array });
+    const r = fitToSkeleton({ positions: pos.array as Float32Array, joints: si.array, weights: sw.array, names: m.skeleton.bones.map((b) => b.name), rest, index: g.index?.array }, { id });
     pos.needsUpdate = true; si.needsUpdate = true; // the skin may have been turned around: new positions and left/right bone indices
     g.computeVertexNormals();
     g.computeBoundingSphere(); g.computeBoundingBox();

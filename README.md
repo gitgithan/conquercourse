@@ -346,7 +346,7 @@ Diagrams are in [docs/meta-ai-pipelines.md](docs/meta-ai-pipelines.md); the full
 - So the game fits the person's creation to ONE skeleton and ONE set of physics rules, not the other way round.
 - Characters:
   - The mesh is only a skin; the bones, the grab points and the hit box are always the Rookie's.
-  - At load, a skin that faces back is first turned around (the shoes tell which way it faces).
+  - At load, a skin that faces back is first turned around (several cues vote, mostly the shoes; when they cannot tell, the skin is left as made and the fit says "facing unclear"); the story is in [docs/character-facing-bug.md](docs/character-facing-bug.md).
   - Then each arm is stretched along its bones so the skin hand meets the hand bone, and the legs and torso are fitted to the hip and shoulder heights.
   - Stretches are clamped, so a very odd shape is bent only as far as it still looks right.
 - Pieces:
