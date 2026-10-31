@@ -27,22 +27,15 @@ export function showBanner(text: string, actions: { label: string; go: () => voi
   if (keepMs > 0) setTimeout(() => el.remove(), keepMs);
 }
 
-/** The link buttons: an optional tag box and the main share button. Its words say what happened. A try that fell gets the same button (CC-181). */
+/** The link button: it uses the name saved from the box at the top of the report (it has no box of its own). Its words say what happened. A try that fell gets the same button (CC-181). */
 export function copyLinkButton(o: { link: (nick: string) => Promise<string | null>; courseTooBig?: () => Promise<boolean>; label?: string; id?: string }): HTMLElement[] {
   const label = o.label ?? 'Copy link to challenge a friend';
-  const nick = document.createElement('input');
-  nick.maxLength = 12; nick.placeholder = 'NAME'; nick.size = 12; nick.autocomplete = 'off'; nick.spellcheck = false;
-  nick.id = o.id ? `${o.id}-nick` : 'share-nick';
-  nick.title = 'Optional: up to twelve letters, digits, _ or -. It shows on the leaderboard and tells your friend who to beat. Not your real name.';
-  nick.setAttribute('aria-label', 'Optional name for the leaderboard');
-  nick.style.cssText = BTN + ';width:9em;text-align:center';
-  nick.value = (() => { try { return localStorage.getItem('cc.nick') ?? ''; } catch { return ''; } })();
-  nick.oninput = () => { nick.value = tidyNick(nick.value); try { localStorage.setItem('cc.nick', nick.value); } catch { /* keep going */ } };
+  const nickNow = (): string => { try { return tidyNick(localStorage.getItem('cc.nick') ?? ''); } catch { return ''; } }; // the one name box is at the top of the report (src/ui/leaderboard.ts)
   const copy = button(label, () => {
-    void o.link(nick.value).then(async (url) => {
+    void o.link(nickNow()).then(async (url) => {
       if (!url) {
-        const big = nickOk(nick.value) && o.courseTooBig ? await o.courseTooBig() : false;
-        copy.textContent = !nickOk(nick.value) ? 'Pick another tag' : big ? 'This course is too big for a link' : 'This run is too long for a link';
+        const big = nickOk(nickNow()) && o.courseTooBig ? await o.courseTooBig() : false;
+        copy.textContent = !nickOk(nickNow()) ? 'Pick another name in the box at the top' : big ? 'This course is too big for a link' : 'This run is too long for a link';
         setTimeout(() => { copy.textContent = label; }, 2500); return; }
       try { await navigator.clipboard.writeText(url); copy.textContent = 'Link copied'; }
       catch { window.prompt('Copy this link', url); copy.textContent = 'Link ready'; }
@@ -51,7 +44,7 @@ export function copyLinkButton(o: { link: (nick: string) => Promise<string | nul
   });
   copy.id = o.id ?? 'share-copy';
   copy.style.cssText = BTN.replace('background:#fff;color:#17201d', 'background:#0f6b5c;color:#fff;font-weight:700'); // the main share action
-  return [nick, copy];
+  return [copy];
 }
 
 /** Buttons for the end-of-run report. The link is the way to share (it plays the run in the browser); the video is only a download. */

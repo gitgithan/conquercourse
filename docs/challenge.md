@@ -51,7 +51,12 @@
 - The link keeps the same address and adds `challenge=<version>.<course hash>.<nickname>.<keys>`.
 - The keys are the run-length pairs as varints, deflated, then base64url.
 - Size: a three-minute run is a few hundred bytes, well under 2 KB (tested on the demo courses).
-- The nickname is optional, up to 12 characters: letters, digits, _ and -.
+- The nickname is optional, up to 12 characters: upper and lower case letters, digits and symbols, no spaces (CC-108).
+- In the link, every character except letters, digits, _ and - is written as `%` and two capital hex digits, so dots and slashes cannot break the link.
+- The nickname is one box at the top of the end report, next to the result; the Publish button there turns into "Published ✓ as NAME, #rank of N" and the board updates at once.
+- When a run cannot be published, the button is off from the start and the reason sits next to it (not a full run from the start, not a listed course).
+- When the server turns a run down, it sends a `reason` and the player reads one plain sentence for it (`publishErrorText` in `src/ui/feedback.ts`, tested in `tests/publish-errors.test.ts`).
+- Names are only ever bound as query parameters and drawn as text, never joined into SQL or HTML (`tests/nick-safety.test.ts`).
 - The link holds no name, no time and no account.
 - Opening it plays the keys on the course and takes the time the simulator gives.
 - So a link cannot claim a time: a log that does not clear, that is cut short, longer than three minutes or damaged is refused with a plain message.

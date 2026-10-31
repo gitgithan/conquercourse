@@ -59,31 +59,31 @@ async function idealTicksOf(env: Env, url: string, key: string): Promise<number 
 
 export const onRequestPost = async ({ request, env }: { request: Request; env: Env }): Promise<Response> => {
   const raw = await request.text();
-  if (raw.length > MAX_BODY) return json({ error: 'too long' }, 413);
+  if (raw.length > MAX_BODY) return json({ error: 'too long', reason: 'body-too-big' }, 413);
   let b: Record<string, unknown>;
-  try { b = JSON.parse(raw); } catch { return json({ error: 'bad json' }, 400); }
+  try { b = JSON.parse(raw); } catch { return json({ error: 'bad json', reason: 'bad-run' }, 400); }
   const session = String(b.session ?? ''), runId = String(b.runId ?? ''), key = String(b.courseKey ?? ''), hash = String(b.hash ?? ''), keys = String(b.keys ?? '');
   const claimed = b.claimedTicks === undefined ? undefined : Number(b.claimedTicks);
-  if (!ID.test(session) || !ID.test(runId) || !KEY.test(key) || !/^[a-z0-9]{1,8}$/.test(hash) || !keys) return json({ error: 'bad run' }, 400);
+  if (!ID.test(session) || !ID.test(runId) || !KEY.test(key) || !/^[a-z0-9]{1,8}$/.test(hash) || !keys) return json({ error: 'bad run', reason: 'bad-run' }, 400);
   const publish = b.publish === true;
   const nick = nickOk(String(b.nick ?? '')) ? tidyNick(String(b.nick ?? '')) : ''; // the tag the board shows; a blocked word becomes no tag
-  if (claimed !== undefined && !Number.isInteger(claimed)) return json({ error: 'bad run' }, 400);
+  if (claimed !== undefined && !Number.isInteger(claimed)) return json({ error: 'bad run', reason: 'bad-run' }, 400);
   // the same slow-down as the start and fail events: one browser cannot send a flood
   const recent = await env.DB.prepare("SELECT COUNT(*) AS n FROM course_events WHERE session = ? AND ts > datetime('now', '-1 hour')").bind(session).first<{ n: number }>();
-  if ((recent?.n ?? 0) >= 500) return json({ error: 'slow down' }, 429);
+  if ((recent?.n ?? 0) >= 500) return json({ error: 'slow down', reason: 'slow-down' }, 429);
   // and one address cannot make the server replay without end (it lives in one Worker's memory: it slows a flood, it does not stop one)
-  if (rateLimited(hits, request.headers.get('cf-connecting-ip') ?? 'local', Date.now())) return json({ error: 'slow down' }, 429);
+  if (rateLimited(hits, request.headers.get('cf-connecting-ip') ?? 'local', Date.now())) return json({ error: 'slow down', reason: 'slow-down' }, 429);
   const res = await env.ASSETS.fetch(new URL(`/assets/${key}.course.json`, request.url).toString());
-  if (!res.ok) return json({ error: 'no such course' }, 404);
+  if (!res.ok) return json({ error: 'no such course', reason: 'no-course' }, 404);
   const course = await res.json() as CourseData;
-  if (courseHash(course) !== hash) return json({ error: 'course changed' }, 409);
+  if (courseHash(course) !== hash) return json({ error: 'course changed', reason: 'course-changed' }, 409);
   let log;
-  try { log = await decodeLog(keys); } catch { return json({ error: 'bad keys' }, 400); }
+  try { log = await decodeLog(keys); } catch { return json({ error: 'bad keys', reason: 'bad-run' }, 400); }
   const fh = fnv(keys), cols = await hasColumns(env.DB);
   // a run already replayed and kept is not replayed again; one kept unverified gets another try
   const seen = await env.DB.prepare(`SELECT ${cols ? 'verified' : '1 AS verified'} FROM course_clears WHERE run_id = ? OR log_hash = ?`).bind(runId, fh).first<{ verified: number }>();
   const pub = await hasPublished(env.DB);
-  if (publish && !pub) return json({ error: 'not ready' }, 503);
+  if (publish && !pub) return json({ error: 'not ready', reason: 'not-ready' }, 503);
   if (seen?.verified === 1) {
     if (!publish) return json({ ok: true, duplicate: true });
     const mine = await env.DB.prepare('SELECT ticks FROM course_clears WHERE log_hash = ? AND course_key = ? AND course_hash = ? AND verified = 1').bind(fh, key, hash).first<{ ticks: number }>();
@@ -91,7 +91,7 @@ export const onRequestPost = async ({ request, env }: { request: Request; env: E
   }
   // 1. cheap pre-filter: reject only what the physics or a person cannot do; flag (never reject) a run that beats the stored best line
   const pre = checkRun({ log, course, idealTicks: await idealTicksOf(env, request.url, key), claimedTicks: claimed });
-  if (!pre.ok) return json({ error: 'not a possible run', code: pre.code }, 422);
+  if (!pre.ok) return json({ error: 'not a possible run', reason: 'not-possible', code: pre.code }, 422);
   // 2. write the clear down as unverified BEFORE the replay: if Cloudflare cuts the Worker (Error 1102) nobody can catch it, and this row is what survives
   if (cols) {
     await env.DB.prepare("INSERT OR IGNORE INTO course_clears (ts, course_key, course_hash, ticks, run_id, log_hash, verified, beats_ideal) VALUES (datetime('now'), ?, ?, 0, ?, ?, 0, ?)")
@@ -103,7 +103,7 @@ export const onRequestPost = async ({ request, env }: { request: Request; env: E
   if (!v) return json({ ok: true, verified: false, stored: cols }, 202);
   if (!v.cleared || v.ticks < physicsFloorTicks(course)) {
     if (cols) await env.DB.prepare('DELETE FROM course_clears WHERE run_id = ? AND verified = 0').bind(runId).run();
-    return json({ error: 'not a clear' }, 422);
+    return json({ error: 'not a clear', reason: 'not-a-clear' }, 422);
   }
   const beats = beatsIdeal(v.ticks, await idealTicksOf(env, request.url, key));
   if (cols) {

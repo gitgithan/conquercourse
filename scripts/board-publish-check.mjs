@@ -26,7 +26,9 @@ try {
     const u = new URL(route.request().url());
     if (u.pathname.endsWith('leaderboard-run')) return route.fulfill({ json: { nick: 'ACE', ticks: made.ticks, keys: made.keys, course: 'demo/lache', hash: made.hash } });
     if (u.searchParams.get('recent')) return route.fulfill({ json: { run: { course: 'demo/lache', nick: 'ACE', ticks: made.ticks, ts: '2026-10-31 10:00:00' } } });
-    return route.fulfill({ json: { top: [{ id: 1, nick: 'ACE', ticks: made.ticks }, { id: 2, nick: 'BOB', ticks: made.ticks + 60 }], players: 2, mine: null, resetAt: null, previous: null } });
+    const top = [{ id: 1, nick: 'ACE', ticks: made.ticks }, { id: 2, nick: 'BOB', ticks: made.ticks + 60 }];
+    if (posts.some((p) => p.publish)) { top.splice(1, 0, { id: 3, nick: posts.find((p) => p.publish).nick, ticks: made.ticks + 30 }); return route.fulfill({ json: { top, players: 3, mine: { rank: 2, ticks: made.ticks + 30 }, resetAt: null, previous: null } }); }
+    return route.fulfill({ json: { top, players: 2, mine: null, resetAt: null, previous: null } });
   });
   await page.route('**/api/course-clear', async (route) => {
     const b = JSON.parse(route.request().postData() ?? '{}'); posts.push(b);
@@ -47,11 +49,17 @@ try {
   await page.waitForSelector('#publish-board', { timeout: 280000 });
   if (posts.some((p) => p.publish)) fail('published before the click');
   if (posts.some((p) => p.nick)) fail('a name was sent before the click');
-  await page.fill('#publish-nick', 'Zed');
+  if (await page.locator('#share-nick').count()) fail('a second name box is still in the share row');
+  await page.screenshot({ path: `${out}/publish-before.png` });
+  await page.fill('#publish-nick', 'zEd!9');
   await page.click('#publish-board');
-  await page.waitForFunction(() => /Published as Zed, #2 of 3/.test(document.getElementById('publish-result')?.textContent ?? ''), null, { timeout: 20000 }).catch(() => fail(`result: ${errors}`));
+  await page.waitForFunction(() => /Published ✓ as zEd!9, #2 of 3/.test(document.getElementById('publish-board')?.textContent ?? ''), null, { timeout: 20000 }).catch(() => fail(`button: ${errors}`));
+  if (!(await page.$eval('#publish-board', (b) => b.disabled))) fail('the Published button can be clicked again');
+  await page.waitForFunction(() => [...document.querySelectorAll('#report-board .board-row')].some((r) => /zEd!9 \(you\)/.test(r.textContent ?? '')), null, { timeout: 5000 }).catch(() => fail('the board did not show the new row'));
+  const y = await page.evaluate(() => ({ strip: document.getElementById('report-publish').getBoundingClientRect().top, board: document.getElementById('report-board').getBoundingClientRect().top, h2: document.querySelector('section[aria-label="Run report"] h2').getBoundingClientRect().bottom }));
+  if (!(y.strip >= y.h2 - 1 && y.strip < y.board)) fail(`the strip is not between the result and the board ${JSON.stringify(y)}`);
   await page.screenshot({ path: `${out}/publish.png` });
-  if (!posts.some((p) => p.publish && p.nick === 'Zed')) fail('no publish post with the name');
+  if (!posts.some((p) => p.publish && p.nick === 'zEd!9')) fail('no publish post with the name');
   console.log('posts', JSON.stringify(posts.map((p) => ({ publish: !!p.publish, nick: p.nick ?? null }))), JSON.stringify(errors));
   await browser.close();
 } finally { server.kill(); }

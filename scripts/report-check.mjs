@@ -25,7 +25,7 @@ if (got) {
   ok('the report names the friend\'s run', /friend/.test(t), t.replace(/\n+/g, ' | ').slice(0, 260));
   ok('both share buttons are on the report', /Copy link to challenge a friend/.test(t) && /Download/.test(t));
   ok('no Close, More or Chase button', !/Close|More|Chase/.test(t), t.replace(/\n+/g, ' | ').slice(0, 300));
-  ok('the name box says NAME', await page.getAttribute('#share-nick', 'placeholder') === 'NAME');
+  ok('only one name box, at the top', (await page.locator('#share-nick').count()) === 0);
   await page.screenshot({ path: `${out}/report.png` });
   await page.mouse.click(8, 400);
   await page.waitForTimeout(800);
