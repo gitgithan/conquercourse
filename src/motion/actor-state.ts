@@ -17,6 +17,7 @@ export function actorStateFor(w: WorldState, squat: boolean, facing: 1 | -1 = 1)
     // hanging from a bar uses the rope's swing pose, turned about the hands
     squat,
     landedTicksAgo: r.landedAtTick === null ? null : r.tick - r.landedAtTick,
+    sliding: !!w.slide,
     rolledAt: w.rolledAt,
     climbProgress: w.mode === 'climb' && w.climb ? w.climb.i / w.climb.n : undefined,
     vaultProgress: w.mode === 'vault' && w.vault ? w.vault.i / w.vault.n : undefined,

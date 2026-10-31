@@ -265,13 +265,18 @@ export function* searchGen(course: CourseData, opts: { routes?: boolean; alt?: R
   // until it passes between the balls with a tenth of a second to spare either side (a person is never exactly on time).
   const plain = yield* searchGenBase({ ...course, shots: undefined }, opts);
   if (!plain.cleared) return plain;
-  const ok = (d: number): boolean => playPlan(course, { ...plain.plan, startDelay: d }).world.outcome === 'cleared';
+  const delayed = startDelayFor(course, plain.plan);
+  return delayed ? { ...plain, plan: delayed } : { ...plain, cleared: false };
+}
+/** The plan with the start delay that passes between the balls (a tenth of a second to spare either side if there is such a gap), or null when no delay clears. */
+export function startDelayFor(course: CourseData, plan: Plan): Plan | null {
+  const ok = (d: number): boolean => playPlan(course, { ...plan, startDelay: d }).world.outcome === 'cleared';
   const SPARE = 12; // ticks (0.1 s)
   for (let d = 0; d <= 120 * 120; d += 6) {
-    if (ok(d) && (d < SPARE || ok(d - SPARE)) && ok(d + SPARE)) return { ...plain, plan: { ...plain.plan, startDelay: d } };
+    if (ok(d) && (d < SPARE || ok(d - SPARE)) && ok(d + SPARE)) return { ...plan, startDelay: d };
   }
-  for (let d = 0; d <= 120 * 120; d += 6) if (ok(d)) return { ...plain, plan: { ...plain.plan, startDelay: d } };
-  return { ...plain, cleared: false };
+  for (let d = 0; d <= 120 * 120; d += 6) if (ok(d)) return { ...plan, startDelay: d };
+  return null;
 }
 export function* searchGenBase(course: CourseData, opts: { routes?: boolean; alt?: Record<number, number>; delay?: number } = {}): Gen<SearchResult> {
   if (course.track) return searchCartRun(course);

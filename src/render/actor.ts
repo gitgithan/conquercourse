@@ -426,6 +426,8 @@ export async function createRookieActor(scene: Scene, opts: { rookie: RookieId; 
         }
         return tuckRoll(p);
       }
+      case 'slide': // the bone-built crouch, low on the hip, carried along the ground by the simulator's slide
+        return crumpled.map((q) => q.clone());
       case 'sit': // seated in a cart, hands on the grab bar
         return seated.map((q) => q.clone());
     }

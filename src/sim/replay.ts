@@ -7,7 +7,7 @@ import { newWorld, stepWorld, type WorldState } from './world';
 
 export const REPLAY_VERSION = 1; // bump when a change to the simulator makes old recordings play differently
 export const MAX_REPLAY_TICKS = 120 * 180; // three minutes: a longer run is not a ghost
-const BITS = ['run', 'left', 'jump', 'squat', 'roll', 'handL', 'handR', 'vault', 'aimUp', 'aimDown', 'up', 'fire'] as const;
+const BITS = ['run', 'left', 'jump', 'squat', 'roll', 'handL', 'handR', 'vault', 'aimUp', 'aimDown', 'up', 'fire', 'slide'] as const;
 export type InputLog = [mask: number, ticks: number][]; // run-length encoded: the same keys held for this many ticks
 
 export const maskOf = (i: RunnerInput): number => BITS.reduce((m, k, b) => (i[k] ? m | (1 << b) : m), 0);

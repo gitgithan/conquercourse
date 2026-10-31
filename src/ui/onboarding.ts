@@ -25,6 +25,7 @@ export function movesFor(course: CourseData): Move[] {
   if (vault) out.push({ keys: ['V'], label: 'Vault', codes: ['KeyV'] });
   if (drop) out.push({ keys: ['X'], label: 'Roll', codes: ['KeyX'] });
   if (course.recoil) out.push({ keys: ['K'], label: 'Fire', codes: ['KeyK'] });
+  if (course.shots?.length) out.push({ keys: ['S'], label: 'Slide', codes: ['KeyS', 'ArrowDown'] });
   return out;
 }
 

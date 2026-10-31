@@ -123,6 +123,7 @@ flowchart LR
 | Jump | Space | `src/sim/runner.ts` | flight is decided at take-off |
 | Step | none up to 0.3 m | `src/sim/terrain.ts` | small things need no jump |
 | Squat and roll | S, X | `src/sim/drop.ts`, `src/sim/roll.ts` | bending softens a landing |
+| Slide | tap S or ↓ while running | `src/sim/slide.ts` | friction wears speed away; a low body passes under a head-high ball |
 | Vault | V | `src/sim/vault.ts` | speed carries you over a box |
 | Wall climb | hold E | `src/sim/climb.ts` | reach is spent as height |
 | Warped wall | run, hold E | `src/sim/wall.ts` | speed becomes height |
