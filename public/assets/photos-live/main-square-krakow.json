@@ -1,0 +1,56 @@
+{
+  "place": "main-square-krakow",
+  "name": "Main Square, Krakow",
+  "generated": "2026-10-31",
+  "source": "Mapillary contributors, CC BY-SA 4.0; photos with a person detected (Faster R-CNN, of any size) are left out",
+  "photos": [
+    {
+      "id": "154816403260523",
+      "creator": "richlv",
+      "capturedAt": 1500829500113,
+      "lat": 50.061628,
+      "lon": 19.93522,
+      "compass": 29.8
+    },
+    {
+      "id": "2312125702311757",
+      "creator": "mapfool",
+      "capturedAt": 1717565100206,
+      "lat": 50.061424,
+      "lon": 19.937787,
+      "compass": 296.1
+    },
+    {
+      "id": "2834219573507672",
+      "creator": "richlv",
+      "capturedAt": 1500829502083,
+      "lat": 50.061628,
+      "lon": 19.93522,
+      "compass": 48.4
+    },
+    {
+      "id": "287530872911160",
+      "creator": "richlv",
+      "capturedAt": 1500829483087,
+      "lat": 50.061628,
+      "lon": 19.93522,
+      "compass": 288.7
+    },
+    {
+      "id": "3803692329950639",
+      "creator": "mapfool",
+      "capturedAt": 1717565099507,
+      "lat": 50.061423,
+      "lon": 19.93779,
+      "compass": 320.4
+    },
+    {
+      "id": "4206239026077058",
+      "creator": "wangen_anna",
+      "capturedAt": 1472309703099,
+      "lat": 50.062008,
+      "lon": 19.936375,
+      "compass": 151.4
+    }
+  ]
+}

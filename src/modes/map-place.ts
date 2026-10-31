@@ -4,6 +4,8 @@
 //   - The explain strip: what was found, how it was shrunk, which lane the simulator cleared, and on the map which footprints became which obstacle.
 // map.ts calls `installPlaces`; the pure parts are in src/world/places.ts and src/world/place-lane.ts.
 import type { GeoJSONSource, Map as MapLibreMap } from 'maplibre-gl';
+import { photoStatus, type Prepared } from '../world/photo-status';
+import type { AllowList } from '../world/live-photos';
 import { askMirrors, hasPath, nearestReady, shownReady, placeKey, type PlaceLane, type ReadyIndexEntry, type ReadyPlace } from '../world/places';
 import { buildingsFrom, type OverpassAnswer } from '../world/osm';
 import { relief, type Ground } from '../world/terrain';
@@ -295,10 +297,34 @@ export function installPlaces(ctx: PlaceCtx) {
       items.push(`Lane <b>${lane.lengthM} m</b> long: ${parts}; longest drop ${lane.maxDropM} m. The simulator cleared it${lane.secondsTaken ? ` (${lane.secondsTaken} s)` : ''}.`);
     } else if (lane && !lane.cleared) items.push('No lane the simulator could clear at these sizes. Try a smaller radius, or another place.');
     else items.push(working);
+    if (lane?.cleared) items.push('<span id="photostatus">Street photos: checking...</span>'); // CC-90: filled in below from the offline lists
     explainEl.hidden = false; explainEl.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
     explainEl.innerHTML = `<b>How the pin became a course</b><ul>${items.map((t) => `<li>${t}</li>`).join('')}</ul>
       <div class="legend">${(Object.keys(ROLE_COLOR) as (keyof typeof ROLE_COLOR)[]).map((r) => `<span><i style="background:${ROLE_COLOR[r]}"></i>${ROLE_WORDS[r]}</span>`).join('')}</div>
       <div class="muted">Dashed green line: where the lane runs.</div>`;
+    if (lane?.cleared) void streetPhotoLine(o, lane);
+  }
+
+  // CC-90: tell the player, in plain words, whether street photos will follow this lane. Only the offline lists are read (people were filtered out of them);
+  // a custom slice with no list of its own is checked against the lists of the prepared places around it, and otherwise pointed at the nearest prepared place.
+  const lists = new Map<string, Promise<AllowList | null>>();
+  const listOf = (slug: string) => { if (!lists.has(slug)) lists.set(slug, fetch(`/assets/photos-live/${slug}.json`).then((r) => (r.ok ? (r.json() as Promise<AllowList>) : null)).catch(() => null)); return lists.get(slug)!; };
+  async function streetPhotoLine(o: Obtained, lane: PlaceLane) {
+    const el = explainEl.querySelector('#photostatus') as HTMLElement | null; if (!el) return;
+    const mLat = 111320, mLon = mLat * Math.cos((o.lat * Math.PI) / 180), dist = (p: ReadyIndexEntry) => Math.hypot((p.lon - o.lon) * mLon, (p.lat - o.lat) * mLat);
+    const withList = index.filter((p) => p.live === true);
+    const prepared: Prepared[] = await Promise.all(withList.filter((p) => dist(p) < 400).map(async (p) => ({ slug: p.slug, name: p.name, lat: p.lat, lon: p.lon, list: await listOf(p.slug) })));
+    const st = photoStatus({ lat: o.lat, lon: o.lon, lane: { line: lane.line } }, prepared);
+    dset('photoStatus', st.level);
+    if (!document.contains(el)) return;
+    el.textContent = st.text;
+    if (st.level !== 'none') return;
+    const next = [...withList].sort((a, b) => dist(a) - dist(b))[0];
+    if (!next || dist(next) < 1) return;
+    el.append(' ');
+    const b = document.createElement('button'); b.type = 'button'; b.textContent = `Go to ${next.name}`;
+    b.onclick = () => { map.flyTo({ center: [next.lon, next.lat], zoom: 16, duration: 700 }); ctx.setRadius(next.radius); ctx.setPin(next.lat, next.lon); ctx.tell(`${next.name}: ready. Press Build.`); };
+    el.append(b);
   }
 
   // Called by map.ts when the mesh is built and stored: show the strip now, then fill in the lane (instantly for a ready place, in a worker otherwise).

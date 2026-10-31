@@ -1,0 +1,56 @@
+{
+  "place": "stephansplatz-vienna",
+  "name": "Stephansplatz, Vienna",
+  "generated": "2026-10-31",
+  "source": "Mapillary contributors, CC BY-SA 4.0; photos with a person detected (Faster R-CNN, of any size) are left out",
+  "photos": [
+    {
+      "id": "1056294360653420",
+      "creator": "eliasgander",
+      "capturedAt": 1591513588500,
+      "lat": 48.207698,
+      "lon": 16.371783,
+      "compass": 96.3
+    },
+    {
+      "id": "1292672516229970",
+      "creator": "eliasgander",
+      "capturedAt": 1592891099000,
+      "lat": 48.207315,
+      "lon": 16.37289,
+      "compass": 285.2
+    },
+    {
+      "id": "1679072423196796",
+      "creator": "eliasgander",
+      "capturedAt": 1591513590000,
+      "lat": 48.207752,
+      "lon": 16.371792,
+      "compass": 93.4
+    },
+    {
+      "id": "1838566850365988",
+      "creator": "eliasgander",
+      "capturedAt": 1592891098000,
+      "lat": 48.207342,
+      "lon": 16.372902,
+      "compass": 285.3
+    },
+    {
+      "id": "2168032380633951",
+      "creator": "eliasgander",
+      "capturedAt": 1602400822000,
+      "lat": 48.207255,
+      "lon": 16.372855,
+      "compass": 197.4
+    },
+    {
+      "id": "910528604889300",
+      "creator": "eliasgander",
+      "capturedAt": 1602400824000,
+      "lat": 48.207205,
+      "lon": 16.372827,
+      "compass": 16.5
+    }
+  ]
+}

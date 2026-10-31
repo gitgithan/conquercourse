@@ -1,0 +1,64 @@
+{
+  "place": "alfama-lisbon",
+  "name": "Alfama, Lisbon",
+  "generated": "2026-10-31",
+  "source": "Mapillary contributors, CC BY-SA 4.0; photos with a person detected (Faster R-CNN, of any size) are left out",
+  "photos": [
+    {
+      "id": "218812179591777",
+      "creator": "davipt",
+      "capturedAt": 1524766549162,
+      "lat": 38.710072,
+      "lon": -9.128331,
+      "compass": 318.5
+    },
+    {
+      "id": "368292677946690",
+      "creator": "davipt",
+      "capturedAt": 1524766548149,
+      "lat": 38.710076,
+      "lon": -9.128326,
+      "compass": 317.2
+    },
+    {
+      "id": "370491017739294",
+      "creator": "filohipo",
+      "capturedAt": 1587828457000,
+      "lat": 38.710031,
+      "lon": -9.128385,
+      "compass": 229.5
+    },
+    {
+      "id": "477224886873035",
+      "creator": "filohipo",
+      "capturedAt": 1587828457000,
+      "lat": 38.710031,
+      "lon": -9.128385,
+      "compass": 229.5
+    },
+    {
+      "id": "482121803096890",
+      "creator": "filohipo",
+      "capturedAt": 1620307271023,
+      "lat": 38.709474,
+      "lon": -9.129071,
+      "compass": 9.0
+    },
+    {
+      "id": "5748021955240211",
+      "creator": "filohipo",
+      "capturedAt": 1577647004762,
+      "lat": 38.709487,
+      "lon": -9.12911,
+      "compass": 52.1
+    },
+    {
+      "id": "660494096610631",
+      "creator": "lisbonsouvenir",
+      "capturedAt": 1745078112703,
+      "lat": 38.709494,
+      "lon": -9.129081,
+      "compass": 51.2
+    }
+  ]
+}

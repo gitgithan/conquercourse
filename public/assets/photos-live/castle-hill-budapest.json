@@ -1,0 +1,56 @@
+{
+  "place": "castle-hill-budapest",
+  "name": "Castle Hill, Budapest",
+  "generated": "2026-10-31",
+  "source": "Mapillary contributors, CC BY-SA 4.0; photos with a person detected (Faster R-CNN, of any size) are left out",
+  "photos": [
+    {
+      "id": "1089043989385175",
+      "creator": "grozsa11",
+      "capturedAt": 1732002560507,
+      "lat": 47.501534,
+      "lon": 19.033756,
+      "compass": 260.4
+    },
+    {
+      "id": "511069691981821",
+      "creator": "grozsa11",
+      "capturedAt": 1732002597314,
+      "lat": 47.500922,
+      "lon": 19.034255,
+      "compass": 131.3
+    },
+    {
+      "id": "579310624586453",
+      "creator": "grozsa11",
+      "capturedAt": 1732002522756,
+      "lat": 47.501528,
+      "lon": 19.033809,
+      "compass": 249.8
+    },
+    {
+      "id": "623579017298240",
+      "creator": "grozsa11",
+      "capturedAt": 1740130422851,
+      "lat": 47.501284,
+      "lon": 19.033907,
+      "compass": 189.1
+    },
+    {
+      "id": "624188107011388",
+      "creator": "grozsa11",
+      "capturedAt": 1740130419745,
+      "lat": 47.501351,
+      "lon": 19.03383,
+      "compass": 181.5
+    },
+    {
+      "id": "813910976202260",
+      "creator": "osm1012",
+      "capturedAt": 1591082759384,
+      "lat": 47.501579,
+      "lon": 19.031512,
+      "compass": 11.9
+    }
+  ]
+}

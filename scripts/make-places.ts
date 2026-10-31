@@ -42,6 +42,25 @@ export const PLACES: Spec[] = [
   { slug: 'piazza-navona-rome', name: 'Piazza Navona, Rome', lat: 41.8992, lon: 12.4731, radius: 120, blurb: 'A long oval square of fountains and palaces.' },
   { slug: 'nyhavn-copenhagen', name: 'Nyhavn, Copenhagen', lat: 55.6803, lon: 12.5906, radius: 120, blurb: 'A canal lined with narrow coloured houses.' },
   { slug: 'boston-common-beacon-hill', name: 'Beacon Hill, Boston', lat: 42.356, lon: -71.063, radius: 120, blurb: 'Brick rows climbing from the oldest park in the country.' },
+  // CC-90: candidates in countries the list did not have yet, for the spread-out street-photo set (kept in the list only if scripts/photos_lane_audit.py finds photos along the whole lane)
+  { slug: 'jordaan-amsterdam', name: 'Jordaan canals, Amsterdam', lat: 52.3745, lon: 4.8830, radius: 120, blurb: 'Narrow canals with bridges and leaning brick houses.' },
+  { slug: 'stephansplatz-vienna', name: 'Stephansplatz, Vienna', lat: 48.2085, lon: 16.3731, radius: 120, blurb: 'A cathedral square ringed by old palaces and shops.' },
+  { slug: 'grand-place-brussels', name: 'Grand Place, Brussels', lat: 50.8467, lon: 4.3525, radius: 120, blurb: 'A cobbled square of guild houses and a tall town hall.' },
+  { slug: 'main-square-krakow', name: 'Main Square, Krakow', lat: 50.0617, lon: 19.9373, radius: 120, blurb: 'One of the largest old squares in Europe, with a cloth hall.' },
+  { slug: 'castle-hill-budapest', name: 'Castle Hill, Budapest', lat: 47.5019, lon: 19.0340, radius: 120, blurb: 'A hill of palace walls, terraces and steps above the river.' },
+  { slug: 'gamla-stan-stockholm', name: 'Gamla Stan, Stockholm', lat: 59.3251, lon: 18.0711, radius: 120, blurb: 'A tiny island of narrow lanes and tall painted houses.' },
+  { slug: 'temple-bar-dublin', name: 'Temple Bar, Dublin', lat: 53.3454, lon: -6.2644, radius: 120, blurb: 'Cobbled lanes between brick pubs and shops.' },
+  { slug: 'plaka-athens', name: 'Plaka, Athens', lat: 37.9733, lon: 23.7300, radius: 120, blurb: 'Stepped lanes under the rock of the Acropolis.' },
+  { slug: 'stradun-dubrovnik', name: 'Stradun, Dubrovnik', lat: 42.6410, lon: 18.1100, radius: 120, blurb: 'A stone main street inside tall sea walls.' },
+  { slug: 'galata-istanbul', name: 'Galata, Istanbul', lat: 41.0256, lon: 28.9744, radius: 120, blurb: 'A steep hill of narrow streets around an old tower.' },
+  { slug: 'gastown-vancouver', name: 'Gastown, Vancouver', lat: 49.2841, lon: -123.1087, radius: 120, blurb: 'Old brick warehouses along a cobbled street.' },
+  { slug: 'zocalo-mexico-city', name: 'Zocalo, Mexico City', lat: 19.4326, lon: -99.1332, radius: 120, blurb: 'A giant square with a cathedral and a palace.' },
+  { slug: 'caminito-buenos-aires', name: 'La Boca, Buenos Aires', lat: -34.6392, lon: -58.3629, radius: 120, blurb: 'Bright tin houses along a short lane.' },
+  { slug: 'bukchon-seoul', name: 'Bukchon, Seoul', lat: 37.5826, lon: 126.9835, radius: 120, blurb: 'A hillside of low tiled houses and steep alleys.' },
+  { slug: 'senate-square-helsinki', name: 'Senate Square, Helsinki', lat: 60.1698, lon: 24.9524, radius: 120, blurb: 'A wide stone square with big steps up to the cathedral.' },
+  { slug: 'old-town-tallinn', name: 'Old Town, Tallinn', lat: 59.4370, lon: 24.7454, radius: 120, blurb: 'Medieval lanes under towers and town walls.' },
+  { slug: 'bo-kaap-cape-town', name: 'Bo-Kaap, Cape Town', lat: -33.9166, lon: 18.4155, radius: 120, blurb: 'Steep cobbled streets of bright painted houses.' },
+  { slug: 'bryggen-bergen', name: 'Bryggen, Bergen', lat: 60.3979, lon: 5.3243, radius: 120, blurb: 'Wooden harbour houses in a row on the old wharf.' },
 ];
 
 const out = 'public/assets/places';

@@ -5,7 +5,7 @@ export interface PhotoCredit {
   file: string; title: string; author: string; licence: string; licenceUrl: string; source: string; date: string;
   hint: string; changes: string; width: number; height: number; bytes: number;
 }
-export interface PlacePhotos { place: string; name: string; photos: PhotoCredit[]; note?: string } // note: replaces the default line under the strip (live photos name Mapillary there)
+export interface PlacePhotos { place: string; name: string; photos: PhotoCredit[]; note?: string; status?: string } // note: replaces the default line under the strip (live photos name Mapillary there)
 export interface PlaceIndexEntry { slug: string; name: string; lat: number; lon: number; radiusKm: number }
 
 export const PLACES_DIR = '/assets/places';
@@ -112,6 +112,7 @@ export function mountPlacePhotos(host: HTMLElement, d: PlacePhotos, opts: { floa
     el('div', item, { className: 'pp-credit', text: `${p.author}, ${p.licence}`, title: captionFor(d, p) });
   });
   el('div', root, { className: 'pp-hint', text: d.note ?? 'Real photos of this place. Click one to see it large.' });
+  if (d.status) el('div', root, { className: 'pp-hint pp-status', text: d.status }); // CC-90: whether photos follow the whole lane
   const paint = () => { root.classList.toggle('hidden', hidden); sw.textContent = hidden ? 'Show photos' : 'Hide'; sw.setAttribute('aria-pressed', String(hidden)); };
   sw.onclick = () => { hidden = !hidden; writeHidden(hidden); paint(); };
   paint();

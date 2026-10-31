@@ -1628,6 +1628,34 @@ The set of obstacle shapes is fixed, and each shape offers a fixed set of moves.
   - Set the secret once: `npx wrangler pages secret put MAPILLARY_TOKEN` (paste the client token), then `npm run deploy`.
   - Without the secret the proxy answers 503 and the stored strip stays.
 
+## How street photos follow you (CC-90)
+- **So what:** the photos you see are taken near the real spot you are passing, however small the game has made the street.
+- **What the "60 m" is**
+  - It is 60 real metres on the real street, between the photo's camera and the spot on the lane where you are.
+  - It is not game metres.
+  - The game shrinks the buildings (for example to 0.12 of their real size) so a runner can step onto them; the photo match never sees that shrink.
+- **How the match works, in steps**
+  - The game turns your place in the course into a fraction from 0 (start) to 1 (finish): `progressOf` in `src/world/live-photos.ts`.
+  - `spotAt` turns that fraction into a point on the real lane line, whose ends are in real metres east and south of the map pin.
+  - A photo shows when its camera is within 60 real metres of that point and points at it (within 60 degrees).
+- **Squeeze or stretch the course and nothing changes**
+  - A course half as long gives the same fraction at the same bit of street, so the same photos show; `tests/photo-status.test.ts` checks this with a course of half the length and a moved one.
+  - Only the fraction is used, so the length and the position of the game course drop out.
+- **"Street photos: ..." line under the strip and in the Map result**
+  - "along your whole lane": nine in ten of the spots (one every 10 real metres) have a photo that faces them.
+  - "along part of it": some spots do, some do not.
+  - "none here yet", or "Street photos are only prepared for the places in the list", with a button to the nearest prepared place.
+  - The words come from the offline lists only: people were filtered out of them beforehand, and there is no live lookup.
+- **Custom slices (the World Slicer) have no list of their own**
+  - If a prepared place with a list is within 400 m, its photos are checked against the new lane.
+  - Otherwise the Map result says photos are only prepared for the places in the list and offers the nearest one.
+  - A custom slice runs in the editor and the Course without the live strip (the strip needs the place name of a prepared course).
+- **The short list (CC-90)**
+  - The list shows 15 places in 15 countries, chosen because the street photos cover most of the lane after the no-person filter.
+  - Kept: Edinburgh, Dolores Park, La Boca, Bukchon, Park Guell, Alfama, Stephansplatz, Galata, Plaka, Gamla Stan, Bryggen, Speicherstadt, Temple Bar, Krakow and Budapest.
+  - The other places keep their files and old links; they only leave the list.
+  - Numbers and the honest limits: `data/eval/cc-90-photolanes/README.md`.
+
 ## Street furniture from Mapillary map features (CC-187, `?furniture=1`)
 - **Parked (owner, 2026-10-30):** the pieces look like red and yellow lollipops, not like a street, so no screen draws them now.
   - To bring them back: set `FURNITURE_ENABLED = true` in `src/world/furniture.ts`; `?furniture=1` and the furniture behind `?backdrop=<slug>` work again.
