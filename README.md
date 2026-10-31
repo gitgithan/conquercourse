@@ -38,7 +38,11 @@ flowchart LR
   - Run, jump, vault, climb, hang, swing and ride, with the keys on the key card (H).
   - Chase a ghost: the ideal run, your best run, or a friend's run on the same course.
   - Read the end-of-run report, give a three-letter tag, copy a challenge link or make a 15 second clip.
-  - See the board of the fastest verified runs on a course (`?board=1`).
+  - See the board of the fastest verified runs on a course; it scrolls through the top 100 and `?board=0` hides it.
+  - Press Publish to Leaderboard to put your run on the board under a name you chose; nothing is sent to the board before you press it.
+  - Press View Run on any row to see the obstacles and that player's path at once, then Race Ghost to run against it.
+  - Read the card on each course: plays today and plays all time.
+  - Watch a quiet line at the top for the newest published time on any course.
 - **What you can generate:** a time that the simulator replays and checks, a challenge link, a clip, a tag on the board.
 - **Why it is unique:**
   - A time cannot be faked: the link carries only the keys, and the simulator plays them again.
@@ -181,6 +185,8 @@ flowchart LR
 - Happy path: finish a run -> keys packed into a link -> friend opens it -> simulator replays the keys -> ghost beside the friend.
 - The link carries keys and a checkpoint, never a time.
 - A different build or a changed course (different hash) offers the ideal ghost instead.
+- A run reaches the board only when the player presses Publish; the server replays the keys first.
+- View Run replays a published run in the browser straight away, and Race Ghost loads it as the ghost.
 - The board keeps one best verified run per player, in non-overlapping UTC day and week windows.
 
 ```mermaid
