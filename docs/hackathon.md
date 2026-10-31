@@ -16,7 +16,7 @@ Blue-box diagrams for every pipeline are in [docs/meta-ai-pipelines.md](meta-ai-
 | **Muse Spark Open**, upload check (`/api/moderate`) | Looks at an uploaded photo or object preview and answers ok, review or block with one reason; errors become review (CC-120) | Live, through a server function (needs `BASETEN_API_KEY`); called by the moderation queue (CC-112) |
 | **Muse Spark Open**, move tips (`/api/move-tips`) | Names the moves that could get past a cut-out object and gives one plain idea for the course; checked against our move list (CC-121) | Live, through a server function (needs `BASETEN_API_KEY`); feeds the object cards (CC-108) |
 | **Muse Spark** (Meta Model API) | Turns written descriptions into contact targets and character descriptions | Build time |
-| **Muse Image** (Meta Model API) | Draws the second Rookie in the first one's style (concept reference) | Build time |
+| **Muse Image** (Meta Model API) | Drew one style-reference picture for the second Rookie (one `/images/edits` call); Tripo made both Rookie meshes. Tested as a character maker for the community in `docs/community-characters.md` | Build time |
 | **MusicGen (Meta AudioCraft)** | Writes the original loop for each screen (Course, Map, Editor, Dojo, Report, Library) from a text prompt; no melody or recording goes in | Build time (Modal GPU); loops play by default, `?music=0` turns them off |
 | **Mapillary** (owned by Meta) | Street photos along a built place, masked for people before they are shown | Live, through a server proxy (token never in the browser) |
 

@@ -20,7 +20,7 @@ flowchart LR
     SAM3DB --> SOMA["SOMA-X to 30 joints"]
     KIM["Kimodo<br/>(Llama 3 text encoder)"] --> GATE["Plausibility gate"]
     SOMA --> GATE
-    MI["Muse Image<br/>character concept"] --> CH["Rookie characters"]
+    MI["Muse Image<br/>one style picture"] --> CH["Rookie B (Tripo mesh)"]
     MG["MusicGen (AudioCraft)<br/>a loop per screen"] --> MUS["Music loops"]
   end
   subgraph Game["In the game (browser + Cloudflare)"]
@@ -168,7 +168,8 @@ flowchart LR
 
 ## 5. Characters (Muse Image)
 - **Data in:** a written description and the first character's concept image as the style reference.
-- **Model:** Muse Image (`muse-image-1.0`, `/images/edits`) draws the second Rookie in the first one's style.
+- **Model:** Muse Image (`muse-image-1.0`, `/images/edits`) drew one reference picture for the second Rookie in the first one's style.
+- **What it did not do:** it made no 3D mesh; both Rookie meshes are Tripo output (Rookie A from text, Rookie B from that picture).
 - **Our code and tools:** Tripo makes the 3D mesh, Blender rigs it on the Kimodo skeleton, and a check catches bad rigs.
 - **Result:** Rookie A and Rookie B.
 

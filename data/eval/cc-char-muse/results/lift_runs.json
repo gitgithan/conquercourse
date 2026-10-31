@@ -1,0 +1,111 @@
+[
+  {
+    "id": "c1-fox",
+    "ok": true,
+    "padded": false,
+    "gpu_seconds": 12.0,
+    "load_seconds": 45.0,
+    "wall_seconds": 109.1,
+    "raw_faces": 281696,
+    "gaussians": 217792
+  },
+  {
+    "id": "c2-hoodie",
+    "ok": true,
+    "padded": false,
+    "gpu_seconds": 8.7,
+    "load_seconds": 45.0,
+    "wall_seconds": 78.1,
+    "raw_faces": 222576,
+    "gaussians": 172768
+  },
+  {
+    "id": "c3-robot",
+    "ok": true,
+    "padded": false,
+    "gpu_seconds": 9.1,
+    "load_seconds": 45.0,
+    "wall_seconds": 82.5,
+    "raw_faces": 351852,
+    "gaussians": 239872
+  },
+  {
+    "id": "c4-cactus",
+    "ok": true,
+    "padded": false,
+    "gpu_seconds": 8.9,
+    "load_seconds": 45.0,
+    "wall_seconds": 89.8,
+    "raw_faces": 300576,
+    "gaussians": 198400
+  },
+  {
+    "id": "c5-banana",
+    "ok": true,
+    "padded": false,
+    "gpu_seconds": 8.8,
+    "load_seconds": 45.0,
+    "wall_seconds": 84.8,
+    "raw_faces": 255464,
+    "gaussians": 198432
+  },
+  {
+    "id": "c6-robocat",
+    "ok": false,
+    "error": "Connection lost",
+    "wall_seconds": 218.5
+  },
+  {
+    "id": "c7-jelly",
+    "ok": false,
+    "error": "Connection lost",
+    "wall_seconds": 190.7
+  },
+  {
+    "id": "c8-blob",
+    "ok": true,
+    "padded": false,
+    "gpu_seconds": 16.4,
+    "load_seconds": 44.2,
+    "wall_seconds": 109.0,
+    "raw_faces": 584272,
+    "gaussians": 440576
+  },
+  {
+    "id": "c6-robocat",
+    "seed": 7,
+    "ok": false,
+    "error": "Connection lost",
+    "wall_seconds": 236.4
+  },
+  {
+    "id": "c7-jelly",
+    "seed": 7,
+    "ok": true,
+    "padded": false,
+    "gpu_seconds": 11.0,
+    "load_seconds": 53.6,
+    "wall_seconds": 148.4,
+    "raw_faces": 182316,
+    "gaussians": 154432
+  },
+  {
+    "id": "c6-robocat",
+    "seed": 1,
+    "ok": false,
+    "error": "Connection lost",
+    "wall_seconds": 293.1
+  },
+  {
+    "id": "c6-robocat",
+    "seed": 3,
+    "scale": 0.6,
+    "ok": true,
+    "padded": false,
+    "gpu_seconds": 18.0,
+    "load_seconds": 45.4,
+    "wall_seconds": 169.7,
+    "raw_faces": 368128,
+    "gaussians": 284096
+  }
+]

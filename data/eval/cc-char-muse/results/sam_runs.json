@@ -1,0 +1,66 @@
+[
+  {
+    "id": "c1-fox",
+    "ok": true,
+    "score": 0.8160918951034546,
+    "mask_px": 679318,
+    "frac": 0.276,
+    "seconds": 14.1
+  },
+  {
+    "id": "c2-hoodie",
+    "ok": true,
+    "score": 0.8358974456787109,
+    "mask_px": 535896,
+    "frac": 0.218,
+    "seconds": 13.8
+  },
+  {
+    "id": "c3-robot",
+    "ok": true,
+    "score": 0.8947368264198303,
+    "mask_px": 674321,
+    "frac": 0.274,
+    "seconds": 12.6
+  },
+  {
+    "id": "c4-cactus",
+    "ok": true,
+    "score": 0.8128654956817627,
+    "mask_px": 591493,
+    "frac": 0.241,
+    "seconds": 14.1
+  },
+  {
+    "id": "c5-banana",
+    "ok": true,
+    "score": 0.7928802371025085,
+    "mask_px": 642400,
+    "frac": 0.261,
+    "seconds": 12.1
+  },
+  {
+    "id": "c6-robocat",
+    "ok": true,
+    "score": 0.859649121761322,
+    "mask_px": 766559,
+    "frac": 0.312,
+    "seconds": 17.0
+  },
+  {
+    "id": "c7-jelly",
+    "ok": true,
+    "score": 0.859649121761322,
+    "mask_px": 719338,
+    "frac": 0.293,
+    "seconds": 14.1
+  },
+  {
+    "id": "c8-blob",
+    "ok": true,
+    "score": 0.5345454812049866,
+    "mask_px": 773287,
+    "frac": 0.315,
+    "seconds": 13.0
+  }
+]

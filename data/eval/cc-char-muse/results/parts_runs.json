@@ -1,0 +1,34 @@
+[
+  {
+    "id": "p-c1-fox",
+    "merged_glb_bytes": 610072,
+    "part_faces": 733,
+    "part_verts": 763,
+    "approx_part_file_bytes": 46519,
+    "recipe_bytes": 142
+  },
+  {
+    "id": "p-c3-robot",
+    "merged_glb_bytes": 593080,
+    "part_faces": 220,
+    "part_verts": 221,
+    "approx_part_file_bytes": 30742,
+    "recipe_bytes": 144
+  },
+  {
+    "id": "p-c4-cactus",
+    "merged_glb_bytes": 620516,
+    "part_faces": 693,
+    "part_verts": 759,
+    "approx_part_file_bytes": 48357,
+    "recipe_bytes": 145
+  },
+  {
+    "id": "p-c5-banana",
+    "merged_glb_bytes": 591304,
+    "part_faces": 260,
+    "part_verts": 277,
+    "approx_part_file_bytes": 30846,
+    "recipe_bytes": 145
+  }
+]
