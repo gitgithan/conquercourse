@@ -18,8 +18,8 @@ export const PRESETS: Preset[] = [
     pieces: [at('box-skate-03', 4.2), at('picnic-table', 10), at('stairs-park-07', 16), at('gabion-wall', 23.4), at('planter-concrete', 29.2)],
   },
   {
-    id: 'coaster', label: 'Coaster to a bar (clears)', note: 'Ride a rail down from a high start, fly across a gap, catch the bar and land on the deck. Drag the purple dots in the side view to reshape the rail.',
-    pieces: [raw(COASTER_START, 11), raw('hold:bar', 24.5, 2.5), raw('box:10:0.4:2', 32, -0.8)],
+    id: 'coaster', label: 'Coaster to a deck (clears)', note: 'Ride a rail down from a high start, jump off whenever you like, fly across the gap and land on the deck. Click the rail to add a dot, drag a dot to move it.',
+    pieces: [raw(COASTER_START, 11), raw('box:10:0.4:2', 32, -0.8)],
   },
   {
     id: 'failing', label: 'Broken park (needs Fix it)', note: 'The same kind of objects, but a gap is too wide and a wall too tall. Press Fix it to see the partner repair it.',

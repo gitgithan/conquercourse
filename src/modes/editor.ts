@@ -67,6 +67,7 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
     .ed .main{display:grid;grid-template-rows:minmax(0,2fr) minmax(0,1fr);gap:8px;min-height:0;min-width:0}
     .ed .planwrap{min-height:0;min-width:0;position:relative;background:#fff;border:1px solid #cfd6d0;border-radius:10px;overflow:hidden}
     .ed canvas{display:block;touch-action:none}
+    .ed .howto{border:2px solid #0f6b5c;border-radius:10px;background:#fff;padding:7px 10px;display:grid;gap:4px;font-size:13px;color:#17201d}.ed .howto h2{margin:0;font-size:15px;color:#0f6b5c}.ed .howto ul{margin:0;padding-left:18px}.ed .howto li{margin:2px 0}.ed .howto kbd{font:700 12px system-ui;background:#17201d;color:#fff;border-radius:5px;padding:1px 6px;white-space:nowrap}
     .ed .profilewrap{background:#fff;border:1px solid #cfd6d0;border-radius:10px;overflow:hidden;min-width:0}
     .ed .aside{padding-bottom:46px;display:grid;gap:8px;grid-template-rows:auto auto minmax(0,1fr);align-content:start;min-height:0;overflow:hidden}.ed .helper{position:absolute;right:10px;bottom:10px;z-index:5;width:min(400px,calc(100% - 20px));height:min(330px,calc(100% - 20px));box-sizing:border-box;box-shadow:0 6px 24px #0003;grid-template-rows:auto auto minmax(0,1fr) auto;overflow:hidden}.ed .helper.closed{display:none}.ed .moves{position:absolute;left:10px;top:46px;z-index:5;width:min(380px,calc(100% - 20px));max-height:calc(100% - 56px);overflow:auto;box-sizing:border-box;box-shadow:0 6px 24px #0003;display:grid;gap:6px}.ed .moves.closed{display:none}.ed .moves .mv{display:grid;grid-template-columns:20px 1fr;gap:0 6px;font-size:13px}.ed .moves .mv .need{grid-column:2;color:#5b665f;font-size:12px}.ed .moves .yes{color:#0f6b5c;font-weight:700}.ed .moves .no{color:#a33}.ed .moves .sg{border-top:1px solid #dde3dd;padding-top:4px;font-size:13px}.ed .helper textarea{min-height:56px}.ed .reply{overflow:auto;font-size:13px;min-height:0}.ed textarea{font:inherit;width:100%;box-sizing:border-box;border:1px solid #b9c2bb;border-radius:8px;padding:4px 6px;resize:none}
     .ed .panel{background:#fff;border:1px solid #cfd6d0;border-radius:10px;padding:8px;display:grid;gap:5px;align-content:start}
@@ -155,6 +156,7 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
     restore({ pieces: handoff.course.source!.pieces as Saved['pieces'], angle: handoff.course.source!.angle, offset: handoff.course.source!.offset, level: handoff.course.source!.level, floor: handoff.course.source!.floor });
     selected = null;
   }
+  if (selected === null) { const tr = pieces.find((q) => isTrack(q)); if (tr) selected = tr.id; } // a coaster opens with its dots showing (CC-244)
   let focusId: number | null = null; // the piece nearest the place the player was at (chosen once the lane exists)
 
   const el = <K extends keyof HTMLElementTagNameMap>(tag: K, parent: HTMLElement, props: Partial<HTMLElementTagNameMap[K]> & { text?: string } = {}) => { const { text, ...rest } = props as Record<string, unknown> & { text?: string }; const e = Object.assign(document.createElement(tag), rest); if (text) e.textContent = text; parent.appendChild(e); return e as HTMLElementTagNameMap[K]; };
@@ -425,6 +427,8 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
   const profileWrap = el('div', main, { className: 'profilewrap' });
   const profileCanvas = el('canvas', profileWrap, { width: 900, height: 128, id: 'profile' });
   const aside = el('div', root, { className: 'aside' });
+  const howto = el('div', aside, { className: 'howto', id: 'coasterhowto' }); // the coaster's instructions, boxed so they cannot be missed (CC-244)
+  howto.innerHTML = '<h2>Shape the coaster</h2><ul><li><kbd>Double-click</kbd> the rail in the side view to add a dot.</li><li><kbd>Drag</kbd> a purple dot to move it.</li><li>Press <kbd>Space</kbd> in the game to jump off the cart any time.</li></ul>';
   const side = el('div', aside, { className: 'panel', id: 'panel' });
   const lanePanel = el('div', aside, { className: 'panel' });
   // ---- helpers: what to shift when the lane cannot be cleared, and a design partner (Muse Spark Open) to talk it through
@@ -1270,6 +1274,7 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
   let sideMap = { uMin: 0, ppm: 20, ph: 20, base: 100, vmin: 0 };
   const vzoom = pageQuery().get('vzoom') === '1'; // film: stretch the height so a few metres of real drops are readable
   function drawProfile() {
+    howto.style.display = pieces.some((q) => isTrack(q)) ? '' : 'none';
     const c = profileCanvas.getContext('2d')!;
     const W = profileCanvas.width, H = profileCanvas.height;
     c.clearRect(0, 0, W, H);
@@ -1281,7 +1286,7 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
     const uLo = Math.min(prof.length ? o : 0, ...bars.map((b) => b.u), ...(pv ? [pv.prof.length ? po : Infinity, ...pv.bars.map((b) => b.u)] : []));
     const uHi = Math.max(prof.length ? o + prof.length : -Infinity, ...bars.map((b) => b.u), ...(pv ? [pv.prof.length ? po + pv.prof.length : -Infinity, ...pv.bars.map((b) => b.u)] : []), uLo + 10);
     c.fillStyle = '#58635d'; c.font = '12px system-ui';
-    c.fillText('What the runner sees: the lane from the side (water at the bottom, grid every metre). Drag a bar (or a purple coaster dot) to move it.', 8, 14);
+    c.fillText('What the runner sees: the lane from the side (water at the bottom, grid every metre). Drag a bar (or a purple coaster dot) to move it; double-click to add a dot.', 8, 14);
     const base = H - 14, ppm = Math.min(30, (W - 40) / Math.max(10, uHi - uLo + 1)), ph0 = Math.max(14, (base - 24) / Math.max(1.8, Math.max(0, ...prof.cells.filter((h): h is number => h !== null), ...bars.map((b) => b.y)) + 0.4)); // fit the tallest thing, so low steps are not hairlines
     const hs = prof.cells.filter((h): h is number => h !== null);
     const vmin = vzoom && hs.length ? Math.floor((Math.min(...hs) - 0.3) * 2) / 2 : 0;
@@ -1367,6 +1372,18 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
     p.x = uc1 * c - v * s; p.z = uc1 * s + v * c; p.y += (low1 - low0) * p.scale;
     p.src = trackSrc(pts); p.mesh = trackPiece(pts, { x: 0, z: 0 }).mesh;
   }
+  /** Add a point to a section at (u, y) in the side view; the ends and every other point stay where they are. */
+  function addTrackPoint(p: P, u: number, y: number) {
+    const pts = parseTrackSrc(p.src ?? ''); if (!pts) return;
+    const c = Math.cos(angle), uc0 = p.x * c + p.z * Math.sin(angle);
+    const mid0 = (pts[0][0] + pts[pts.length - 1][0]) / 2, low0 = Math.min(...pts.map((q) => q[1]));
+    const nx = (u - uc0) / p.scale + mid0, ny = Math.min(14, Math.max(0, (y - p.y + level) / p.scale + low0));
+    const k = pts.findIndex((q) => q[0] > nx);
+    if (k <= 0 || nx - pts[k - 1][0] < 0.5 || pts[k][0] - nx < 0.5) return;
+    pts.splice(k, 0, [nx, ny]);
+    p.y += (Math.min(...pts.map((q) => q[1])) - low0) * p.scale;
+    p.src = trackSrc(pts); p.mesh = trackPiece(pts, { x: 0, z: 0 }).mesh;
+  }
   const barAtPx = (px: number, py: number) => barsNow().find((b) => Math.hypot(10 + (b.u - sideMap.uMin) * sideMap.ppm - px, sideMap.base - (b.y - sideMap.vmin) * sideMap.ph - py) < 16);
   let barDrag: { p: P } | null = null;
   let dotDrag: { p: P; i: number } | null = null;
@@ -1393,6 +1410,12 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
     const v = -p.x * s + p.z * c; // keep the sideways place, move along the run
     p.x = u * c - v * s; p.z = u * s + v * c; p.y = y;
     draw(); drawProfile();
+  });
+  profileCanvas.addEventListener('dblclick', (e) => {
+    const r = profileCanvas.getBoundingClientRect(), tp = pieces.find((q) => q.id === selected && isTrack(q));
+    if (!tp || dotAtPx(e.clientX - r.left, e.clientY - r.top)) return;
+    addTrackPoint(tp, Math.round((sideMap.uMin + (e.clientX - r.left - 10) / sideMap.ppm) * 10) / 10, Math.round(((sideMap.base - (e.clientY - r.top)) / sideMap.ph + sideMap.vmin) * 10) / 10);
+    changed(); drawPanel(); draw(); drawProfile();
   });
   const endBar = () => { if (dotDrag) { dotDrag = null; changed(); return; } if (!barDrag) return; barDrag = null; changed(); };
   profileCanvas.addEventListener('pointerup', endBar); profileCanvas.addEventListener('pointercancel', endBar);
