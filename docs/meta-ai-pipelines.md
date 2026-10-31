@@ -20,7 +20,7 @@ flowchart LR
     SAM3DB --> SOMA["SOMA-X to 30 joints"]
     KIM["Kimodo<br/>(Llama 3 text encoder)"] --> GATE["Plausibility gate"]
     SOMA --> GATE
-    MI["Muse Image<br/>one style picture"] --> CH["Rookie B (Tripo mesh)"]
+    MI["Muse Image<br/>Rookie B reference"] --> CH["Rookie B (Tripo mesh)"]
     MG["MusicGen (AudioCraft)<br/>a loop per screen"] --> MUS["Music loops"]
   end
   subgraph Game["In the game (browser + Cloudflare)"]
@@ -29,6 +29,7 @@ flowchart LR
     DES["Muse Spark Open<br/>design partner"]
     AGT["Muse Spark Open<br/>Course Agent loop"]
     MAP["Mapillary photos<br/>Meta-owned"]
+    CHM["Character maker<br/>Muse Image + SAM 3.1<br/>(Meta API, per player)"]
   end
   SAM3DO --> ED
   GATE --> SIM
@@ -39,9 +40,10 @@ flowchart LR
   AGT --> ED
   SIM --> AGT
   MAP --> ED
+  CHM --> SIM
   SIM --> IDEAL["Ideal-run search<br/>proves a course can be cleared"]
   classDef meta fill:#dbeafe,stroke:#1d4ed8,color:#0f172a;
-  class SAM3,SAM3DO,SAM3DB,MI,DES,AGT,MAP,KIM,MG meta;
+  class SAM3,SAM3DO,SAM3DB,MI,DES,AGT,MAP,KIM,MG,CHM meta;
 ```
 
 ## 1. Photo to obstacle (SAM 3 and SAM 3D Objects)
@@ -122,7 +124,10 @@ flowchart LR
   - Result: up to three moves from our fixed list and one short idea; the code drops anything outside the list.
   - Measured: 19 of 19 tips, the CC-110 move listed first for 13 of 19, about $0.01 an object (`data/eval/cc-119-move-tips/`).
   - Caveat: the prompt was tuned on the same 19 objects.
-- **Status:** both need the `BASETEN_API_KEY` secret at deploy and are not yet called from a screen.
+- **Status:** both need the `BASETEN_API_KEY` secret at deploy.
+  - The upload check is called live by `/api/object-lift`, `/api/segment`, `/api/community-items` (Share in Community) and `/api/character` (the prompt).
+  - Move tips are called from the object cards.
+  - Which credit pays: [docs/model-ledger.md](model-ledger.md).
 
 ```mermaid
 flowchart LR
@@ -166,12 +171,16 @@ flowchart LR
   class M meta;
 ```
 
-## 5. Characters (Muse Image)
-- **Data in:** a written description and the first character's concept image as the style reference.
-- **Model:** Muse Image (`muse-image-1.0`, `/images/edits`) drew one reference picture for the second Rookie in the first one's style.
-- **What it did not do:** it made no 3D mesh; both Rookie meshes are Tripo output (Rookie A from text, Rookie B from that picture).
-- **Our code and tools:** Tripo makes the 3D mesh, Blender rigs it on the Kimodo skeleton, and a check catches bad rigs.
-- **Result:** Rookie A and Rookie B.
+## 5. Characters (Muse Image, SAM 3.1, SAM 3D Objects)
+- **Live character maker (CC-108):**
+  - Data in: one sentence from the player.
+  - Models: Muse Image draws the picture and SAM 3.1 cuts the figure out, both on the Meta Model API; SAM 3D Objects lifts it on Modal; our rigger fits the Rookie's 34 bones.
+  - It runs as a Modal job (`pipelines/character_maker.py`) that holds the Meta key, started by `/api/character` after a text safety check.
+  - Cost: about $0.0125 of Meta credit per character (`docs/community-characters.md`); the rest is Modal GPU time.
+  - Diagram and measurements: [docs/character-pipeline.md](character-pipeline.md).
+- **The two Rookies (earlier, build time):**
+  - Muse Image drew one reference picture for the second Rookie in the first one's style (`/images/edits`).
+  - Both Rookie meshes are Tripo output; Blender rigs them on the Kimodo skeleton and a check catches bad rigs.
 
 ## 5b. Music (MusicGen from Meta AudioCraft)
 - **Data in:** a written prompt per screen and a seed; no melody, no recording and no existing song goes in.

@@ -4,7 +4,8 @@
 
 ## What it is
 - **Hosting:** Cloudflare Pages (free tier, always on, a fixed address like `https://conquercourse.pages.dev`).
-- **Updates:** `npm run deploy` publishes the current `main` build to that same address; nothing changes until you run it.
+- **Updates (owner rule, 2026-10-31):** deploy to the preview address only (`npm run deploy:preview`); never deploy to production, and never delete previews.
+  - `npm run deploy` publishes to production; do not run it unless the product owner says so in that session.
 - **Feedback:** a Feedback button on every page asks the questions in `public/feedback-questions.json` and stores the answers in a Cloudflare D1 database through `functions/api/submit.ts`.
 - **Privacy:**
   - No names, emails or IP addresses are stored.
@@ -23,8 +24,8 @@
 7. In the Cloudflare dashboard, Pages, `conquercourse`, Settings, Functions, check the D1 binding `DB` points at `conquercourse-feedback` (the `wrangler.toml` already declares it).
 
 ## Every update
-- `git pull`, then `npm run deploy`.
-- Want to try a change privately first: `npm run deploy:preview` gives a separate preview address.
+- `git pull`, then `npm run deploy:preview` (a separate preview address).
+- Production (`npm run deploy`) only on the product owner's explicit word.
 
 ## Collecting and reading feedback
 - Change the questions by editing `public/feedback-questions.json` and bumping its `round` (for example `public-3`); deploy.
@@ -51,13 +52,13 @@
   - The approval commands below still work on courses already shared.
   - A shared course is stored as `pending` in the same D1 database and shows in the gallery (`?mode=gallery`, or the "Community courses" link on the Course) only after you approve it.
   - The five starter photos are always in the gallery, so it is never empty.
-- **One-time setup (once per database):** `npx wrangler d1 migrations apply conquercourse-feedback --remote`, then `npm run deploy`.
+- **One-time setup (once per database):** `npx wrangler d1 migrations apply conquercourse-feedback --remote`, then `npm run deploy:preview`.
 - **Checking what people shared:**
   - `npm run community list` shows pending and recent approved courses.
   - `npm run community show 7` saves the photo of course 7 to `test-results/community/` and prints its boxes; look for faces, people and private places.
   - `npm run community approve 7` shows it in the gallery; `npm run community reject 7` hides it for good.
 - **Reports:** the Report button on a card hides the course once 3 different sessions have flagged it.
-- **Limits:** 3 courses per session per day, a jpeg of at most about 340 KB (the browser shrinks the photo and drops its location data), 12 boxes, and only the Park's kinds of obstacle.
+- **Limits:** the photo is shrunk in the browser and its location data dropped; the numeric limits are in the private notes.
 
 ## Shared pieces and wallpapers (CC-247)
 - **What it is:** players press Share in Community on a finished piece or wallpaper; it is stored in the D1 table `community_items` (`migrations/0014_community_items.sql`).
@@ -81,4 +82,4 @@
 - **What it is:** `functions/api/designer.ts` answers the editor's design helper; the key never reaches the page.
 - **Before deploy (the product owner runs this once):** `npx wrangler pages secret put BASETEN_API_KEY` and paste the hackathon key when asked; without it the function answers 503 and the editor hides the helper.
 - **Locally:** `npm run dev` serves `/api/designer` by reading `BASETEN_API_KEY` from `~/.config/ninja/baseten.env` on the server side only (skipped silently if the file is absent).
-- **Cost:** about $1.25 per million input and $4.25 per million output tokens; one answer is about 1,000 to 1,500 tokens (it reasons first), so well under 1 cent; a light per-address limit (20 per 10 minutes) guards the rest.
+- **Cost (all live Muse Spark Open features, paid from the Baseten credit; the full table is in [docs/model-ledger.md](model-ledger.md)):** about $1.25 per million input and $4.25 per million output tokens; one answer is about 1,000 to 1,500 tokens (it reasons first), so well under 1 cent; a light per-address limit guards the rest (numbers in the private notes).

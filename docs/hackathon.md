@@ -7,7 +7,7 @@ Blue-box diagrams for every pipeline are in [docs/meta-ai-pipelines.md](meta-ai-
 
 | Meta model or service | Feature it supports | Runs |
 |---|---|---|
-| **SAM 3 / SAM 3.1** | Cuts a real object out of a photo by name (also the glowing box in the demo film's real-to-course shot); blurs faces and people in video before any body is measured | Build time (Modal GPU) |
+| **SAM 3 / SAM 3.1** | Cuts a real object out of a photo by name (also the glowing box in the demo film's real-to-course shot); blurs faces and people in video before any body is measured; SAM 3 open weights run on Modal for player photos (live job), SAM 3.1 on the Meta Model API cuts out characters (live) and segments video frames (build time) | Live on Modal (SAM 3), live on the Meta API (SAM 3.1 for characters), build time otherwise |
 | **SAM 3D Objects** | Turns a photo and its mask into a 3D object: the 19 real objects in the editor (bench, low wall, hydrant, concrete pipe, canal railing and more) | Build time (Modal GPU) |
 | **SAM 3D Body + MHR (Momentum Human Rig)** | Measures a person's body and pose from video; the motion clips and the custom-look body come from it | Build time (Modal GPU) |
 | **DINOv3** | Image encoder inside SAM 3D Body | Build time (inside SAM 3D Body) |
@@ -15,8 +15,8 @@ Blue-box diagrams for every pipeline are in [docs/meta-ai-pipelines.md](meta-ai-
 | **Muse Spark Open** (`meta-models/muse-spark-open-1026`, on Baseten) | The Course Agent: from one photo it proposes a course, the simulator tests it, and it repairs the course from the simulator's report until it is proven clearable or the step cap is reached; also the in-editor design partner and "Fix it", and the one-shot photo-to-course draft | Live, through a server function (needs the `BASETEN_API_KEY` secret) |
 | **Muse Spark Open**, upload check (`/api/moderate`) | Looks at an uploaded photo or object preview and answers ok, review or block with one reason; errors become review (CC-120) | Live, through a server function (needs `BASETEN_API_KEY`); called by the moderation queue (CC-112) |
 | **Muse Spark Open**, move tips (`/api/move-tips`) | Names the moves that could get past a cut-out object and gives one plain idea for the course; checked against our move list (CC-121) | Live, through a server function (needs `BASETEN_API_KEY`); feeds the object cards (CC-108) |
-| **Muse Spark** (Meta Model API) | Turns written descriptions into contact targets and character descriptions | Build time |
-| **Muse Image** (Meta Model API) | Drew one style-reference picture for the second Rookie (one `/images/edits` call); Tripo made both Rookie meshes. Tested as a character maker for the community in `docs/community-characters.md` | Build time |
+| **Muse Spark** (Meta Model API, `muse-spark-1.3`) | Vision calls in the video-ingest pipeline and contact targets from move descriptions (`pipelines/ccpipe/vision.py`) | Build time |
+| **Muse Image** (Meta Model API) | Drew one style-reference picture for the second Rookie (build time; Tripo made both Rookie meshes); it is also step 1 of the community character maker, which draws a picture for each player's sentence (`docs/character-pipeline.md`) | Build time for Rookie B; live for the character maker, paid from the Meta credit |
 | **MusicGen (Meta AudioCraft)** | Writes the original loop for each screen (Course, Map, Editor, Dojo, Report, Library) from a text prompt; no melody or recording goes in | Build time (Modal GPU); loops play by default, `?music=0` turns them off |
 | **Mapillary** (owned by Meta) | Street photos along a built place, masked for people before they are shown | Live, through a server proxy (token never in the browser) |
 
@@ -51,7 +51,7 @@ Blue-box diagrams for every pipeline are in [docs/meta-ai-pipelines.md](meta-ai-
 - **Not a coach:** the game never grades or coaches a person's technique.
 
 ### Use of Meta AI tooling (25%)
-- Ten Meta models and services are in the table above; each does one job a judge can see or hear in the demo.
+- Ten Meta models and services are in the table above (Muse Wonder, used only in development, is not counted); which credit pays for each call is in [docs/model-ledger.md](model-ledger.md); each does one job a judge can see or hear in the demo.
 - MusicGen composes the music: original loops from text prompts, so the soundtrack has no licensed songs in it.
 - The two live ones (Muse Spark Open, Mapillary) sit behind server functions, so keys never reach the browser.
 - The models propose and the simulator decides: every layout from Muse Spark Open is run through the ideal-run search before it is offered.
