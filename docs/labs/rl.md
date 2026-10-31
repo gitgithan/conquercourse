@@ -47,6 +47,11 @@
 - Where learning would help: a ghost that gets better with every race, because a ghost needs a plausible run, not a proof.
 - No learned policy is used anywhere in the game, and the Lab calls no outside service.
 
+## Evidence
+- Browser run at 1280 px, honest points: `docs/evidence/lab-rl-honest-top.png` and `docs/evidence/lab-rl-honest-facts.png`.
+- The farmed bonus (staying-alive points, seed 1): `docs/evidence/lab-rl-alive-hack.png`.
+- Script: `scripts/lab-rl-check.mjs`; it ran on the Codespace with ten checks passing.
+
 ## What is not tested
 - Only one course; the learning speed on other courses is not measured.
 - The state is the place only (not speed or height), so courses where the right move depends on speed are out of reach of this table.
