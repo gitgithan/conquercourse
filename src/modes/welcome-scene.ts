@@ -22,20 +22,20 @@ const cyl = (r: number, h: number, color: number, x: number, y: number, z: numbe
   const m = new THREE.Mesh(new THREE.CylinderGeometry(r, r, h, 12), mat(color)); m.position.set(x, y + h / 2, z); return m;
 };
 
-/** One stretch of park: a lane with obstacles, and trees and hills behind it. Built once and repeated. */
+/** One stretch of park: a clear lane with the obstacles on its far side, and trees and hills behind it. Built once and repeated. */
 function stretch(): THREE.Group {
   const g = new THREE.Group();
   g.add(box(WRAP_M, 0.02, 3.2, 0xe8c58a, WRAP_M / 2, 0, 0)); // the running lane
   for (let x = 2; x < WRAP_M; x += 6) g.add(box(0.12, 0.03, 3.2, 0xfff3d6, x, 0, 0)); // lane stripes
   const orange = 0xff9a3c, teal = 0x0f6b5c, cream = 0xf4f1ea;
-  g.add(box(1.6, 0.9, 1.2, orange, 7, 0, -0.2)); // a box to leap
-  g.add(box(2.4, 1.4, 0.4, teal, 15, 0, -1.4)); // a wall to climb
+  g.add(box(1.6, 0.9, 1.2, orange, 7, 0, -2.6)); // a box to leap, beside the lane
+  g.add(box(2.4, 1.4, 0.4, teal, 15, 0, -2.6)); // a wall to climb, beside the lane
   // a pull-up bar frame
-  g.add(cyl(0.05, 2.4, cream, 22, 0, -1.2), cyl(0.05, 2.4, cream, 25, 0, -1.2));
-  const bar = cyl(0.05, 3, cream, 23.5, 2.4, -1.2); bar.rotation.z = Math.PI / 2; g.add(bar);
+  g.add(cyl(0.05, 2.4, cream, 22, 0, -2.6), cyl(0.05, 2.4, cream, 25, 0, -2.6));
+  const bar = cyl(0.05, 3, cream, 23.5, 2.4, -2.6); bar.rotation.z = Math.PI / 2; g.add(bar);
   // a row of poles
-  for (let i = 0; i < 4; i++) g.add(cyl(0.12, 1.1, 0x6b4eff, 29 + i * 1.3, 0, -1.3));
-  g.add(box(2, 0.5, 0.8, orange, 33, 0, -0.5));
+  for (let i = 0; i < 4; i++) g.add(cyl(0.12, 1.1, 0x6b4eff, 29 + i * 1.3, 0, -2.6));
+  g.add(box(2, 0.5, 0.8, orange, 33, 0, -2.6));
   // trees and bushes behind
   for (let x = 1; x < WRAP_M; x += 4.5) {
     const z = -4 - ((x * 7) % 5), h = 1.6 + ((x * 13) % 3) * 0.5;
