@@ -88,6 +88,7 @@ export function startDojo(host: HTMLElement): { backend: 'webgl2' } {
   };
 
   function render() {
+    const keepScroll = root.querySelector('.cards')?.scrollLeft ?? 0; // the lesson cards keep their place: a click must not throw the strip back to the first card
     root.innerHTML = '';
     refresh = () => {};
     const head = el('div', root, { className: legacy ? 'head' : 'head bar' });
@@ -112,6 +113,11 @@ export function startDojo(host: HTMLElement): { backend: 'webgl2' } {
       }
       b.setAttribute('aria-pressed', String(e === exp));
       b.onclick = () => choose(e);
+    }
+    if (!legacy) {
+      tabs.scrollLeft = keepScroll;
+      const on = tabs.querySelector<HTMLElement>('[aria-pressed=true]'); // the chosen card stays in view, at least a card's width from the edge when it can
+      if (on) { const pad = 24; if (on.offsetLeft - pad < tabs.scrollLeft) tabs.scrollLeft = on.offsetLeft - pad; else if (on.offsetLeft + on.offsetWidth + pad > tabs.scrollLeft + tabs.clientWidth) tabs.scrollLeft = on.offsetLeft + on.offsetWidth + pad - tabs.clientWidth; }
     }
     if (!legacy) {
       // the lesson's title, its question and its saying (locked until the player has tried it)
@@ -141,7 +147,7 @@ export function startDojo(host: HTMLElement): { backend: 'webgl2' } {
     if (!legacy) stage = el('div', row, { className: 'stage' });
     const phoneSize = innerWidth < 640 && !legacy; // a phone gets a smaller drawing, so the labels stay readable
     const band = !legacy && stepKey === 'The exact formula' ? 76 : 0; // the strip over the graph that carries the formula
-    const canvas = el<HTMLCanvasElement>('canvas', stage, phoneSize ? { width: 380, height: 340 + band } : { width: 760, height: 440 + band });
+    const canvas = el<HTMLCanvasElement>('canvas', stage, phoneSize ? { width: 380, height: 340 + band } : { width: 760, height: ((exp.id === 'rope' || exp.id === 'bars') && (stepKey === 'Try it' || stepKey === 'The exact formula') ? 640 : 440) + band });
     canvas.dataset.band = String(band);
     if (!legacy && (stepKey === 'Try it' || stepKey === 'The exact formula')) {
       const cap = el('div', stage, { className: 'caption', id: 'rule' });
@@ -317,8 +323,11 @@ export function startDojo(host: HTMLElement): { backend: 'webgl2' } {
     const maxX = Math.max(exp.axis === 'x' ? exp.answerMax : 6, farSide + 1, ...all.map((p) => p.x), 1);
     const maxY = Math.max(exp.axis === 'y' ? exp.answerMax : 4, ...all.map((p) => p.y), 1);
     const minY = Math.min(0, ...all.map((p) => p.y));
-    const sx = (x: number) => pad + (x / maxX) * (W - 2 * pad);
-    const sy = (y: number) => bottom - ((y - minY) / (maxY - minY)) * (bottom - pad);
+    // a swing is a circle: both axes share one scale (metres to pixels), so the arc is drawn round, not stretched sideways
+    const round = exp.id === 'rope' || exp.id === 'bars';
+    const k = round ? Math.min((W - 2 * pad) / maxX, (bottom - pad) / (maxY - minY)) : 0;
+    const sx = (x: number) => round ? pad + x * k : pad + (x / maxX) * (W - 2 * pad);
+    const sy = (y: number) => round ? bottom - (y - minY) * k : bottom - ((y - minY) / (maxY - minY)) * (bottom - pad);
     c.strokeStyle = '#9aa59e'; c.lineWidth = 1;
     c.beginPath(); c.moveTo(pad, sy(0)); c.lineTo(W - pad, sy(0)); c.stroke();
     c.fillStyle = '#58635d'; c.font = '13px system-ui';
@@ -330,7 +339,17 @@ export function startDojo(host: HTMLElement): { backend: 'webgl2' } {
       c.strokeStyle = color; c.lineWidth = w; c.setLineDash(dash);
       c.beginPath(); pts.forEach((p, i) => (i ? c.lineTo(sx(p.x), sy(p.y)) : c.moveTo(sx(p.x), sy(p.y)))); c.stroke(); c.setLineDash([]);
     };
-    for (const o of overlays) { line(o.pts, o.color, 5); c.fillStyle = o.color; c.fillText(o.label, sx(o.pts[o.pts.length - 1].x) + 8, sy(o.pts[o.pts.length - 1].y) + 4); }
+    // labels sit at the end of their line, pulled back inside the picture, and moved up when one would land on another
+    const placed: { x0: number; x1: number; y: number }[] = [];
+    for (const o of overlays) {
+      line(o.pts, o.color, 5); c.fillStyle = o.color;
+      const end = o.pts[o.pts.length - 1], w = c.measureText(o.label).width;
+      let x = sx(end.x) + 8, y = sy(end.y) + 4;
+      if (x + w > W - 8) { x = Math.max(8, sx(end.x) - w - 8); y -= 12; }
+      while (placed.some((p) => x < p.x1 && x + w > p.x0 && Math.abs(y - p.y) < 15)) y -= 16;
+      placed.push({ x0: x, x1: x + w, y });
+      c.fillText(o.label, x, y);
+    }
     line(lastTrial.path, '#0f6b5c', 4);
     if (exp.id === 'rope') {
       const L = values.length, cx = sx(0), cy = sy(L);

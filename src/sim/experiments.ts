@@ -299,7 +299,7 @@ const coaster: Experiment = {
     const best = top;
     return {
       answer: best, path,
-      overlays: [{ pts: [{ x: 0, y: best }, { x: 34, y: best }], color: '#16a34a', label: `highest it reached: ${best.toFixed(1)} m` }],
+      overlays: [{ pts: [{ x: 3, y: best }, { x: 34, y: best }], color: '#16a34a', label: `highest it reached: ${best.toFixed(1)} m` }],
       people: [{ x: 0, y: v.height, pose: 'stand', label: 'start' }],
       note: `The cart starts ${v.height.toFixed(1)} m up with a push of ${v.push.toFixed(1)} m/s. It climbs a hill about ${best.toFixed(1)} m high before it stops, a little lower than start plus push because friction and air take some energy.`,
     };
