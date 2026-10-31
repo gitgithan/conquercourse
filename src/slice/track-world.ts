@@ -25,10 +25,18 @@ export const TRACK_SHAPES: { id: string; name: string; pts: TrackPts }[] = [
   { id: 'start', name: 'High start', pts: [[0, 9], [7, 5], [14, 1], [22, 0.6]] },
   { id: 'dip', name: 'Gentle dip', pts: [[0, 1.2], [5, 0.6], [10, 0.2], [15, 0]] },
   { id: 'glide', name: 'Long glide', pts: [[0, 0.8], [8, 0.4], [16, 0.1], [24, 0]] },
+  { id: 'wave', name: 'Gentle wave', pts: [[0, 1.6], [4, 0.9], [8, 1], [12, 0.4], [16, 0.5], [20, 0]] },
 ];
 
+/** The rail the cart really rides (a smooth curve through the dots), sampled every half metre, so the ribbon curves where the rail does (CC-244). */
+export function smoothPts(pts: TrackPts): TrackPts {
+  const rails = makeRails(pts), count = Math.max(2, Math.ceil((rails.x1 - rails.x0) / 0.5));
+  return Array.from({ length: count + 1 }, (_, i) => { const x = rails.x0 + ((rails.x1 - rails.x0) * i) / count; return [x, rails.y(x)] as [number, number]; });
+}
+
 /** A ribbon along the rail: the top surface is what the slice reads. */
-export function trackMesh(pts: TrackPts): Mesh {
+export function trackMesh(dots: TrackPts): Mesh {
+  const pts = smoothPts(dots);
   const positions: number[] = [], indices: number[] = [];
   const half = TRACK_WIDTH / 2;
   pts.forEach(([x, y]) => positions.push(x, y, -half, x, y, half));

@@ -535,7 +535,7 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
       el('div', row, { text: `Selected piece: ${sel.name}` });
       const lab = el('label', row, { text: 'Use it as ' });
       const pick = el('select', lab, { id: 'rolepick' });
-      for (const r of ['ground', 'wall', 'rope', 'trampoline'] as Role[]) el('option', pick, { value: r, text: ROLE_NAME[r] });
+      for (const r of ['ground', 'wall', 'rope', 'trampoline', 'bar'] as Role[]) el('option', pick, { value: r, text: ROLE_NAME[r] });
       pick.value = sel.role ?? 'ground';
       pick.onchange = () => { sel.role = pick.value === 'ground' ? undefined : (pick.value as Role); changed(); };
       el('button', row, { text: 'What could this be?', id: 'whatcould' }).onclick = () => findWays(sel.id);
@@ -787,7 +787,7 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
   function updatePreview() {
     if (!proposal) { preview = null; previewProfile = null; previewBars = []; return; }
     preview = resultOf(pieces, { angle, offset, level }, proposal, machineNow());
-    previewProfile = laneProfile(preview.pieces.filter((q) => !isHold(q) && q.role !== 'rope'), preview.lane);
+    previewProfile = laneProfile(preview.pieces.filter((q) => !isHold(q) && q.role !== 'rope' && q.role !== 'bar'), preview.lane);
     previewBars = holdsOf(preview.pieces, preview.lane);
     draw(); drawProfile();
     const key = keyOf(proposal), mine = ++proofRun;
@@ -954,7 +954,7 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
     const h = el('input', lab, { type: 'number', min: '0.02', max: '60', step: '0.05', value: r.h.toFixed(2), id: 'realheight' });
     h.onchange = () => { const v = Number(h.value); if (v > 0) { Object.assign(p, scaleToHeight(p, v)); changed(); } };
     const lift = el('label', sizes, { text: `Height off the ground: ${p.y.toFixed(2)} m` });
-    const ly = el('input', lift, { type: 'range', min: '0', max: '4', step: '0.05', value: String(p.y), id: 'lift' });
+    const ly = el('input', lift, { type: 'range', min: '0', max: (isHold(p) || p.role === 'bar') ? '8' : '4', step: '0.05', value: String(p.y), id: 'lift' });
     ly.oninput = () => { p.y = Number(ly.value); lift.firstChild!.textContent = `Height off the ground: ${p.y.toFixed(2)} m`; drawProfile(); };
     ly.onchange = () => changed();
     pieceBar(p);
@@ -1040,7 +1040,7 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
     const p = pieces.find((q) => q.src?.startsWith(prefix));
     if (p) { p.src = src; p.mesh = centred(deviceMesh(src)); }
   };
-  const ground = () => coursePieces().filter((q) => !isHold(q) && q.role !== 'rope' && !isPlankPiece(q)); // references, bars, rope anchors and planks are not ground
+  const ground = () => coursePieces().filter((q) => !isHold(q) && q.role !== 'rope' && q.role !== 'bar' && !isPlankPiece(q)); // references, bars, rope anchors and planks are not ground
   const currentProfile = () => laneProfile(ground(), { angle, offset, level });
   const barsNow = () => holdsOf(pieces, { angle, offset, level });
   let floorChoice: Hazard = startFloor; // the floor you must not touch (saved in the course)

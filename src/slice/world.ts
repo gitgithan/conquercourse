@@ -3,7 +3,7 @@ import { laneSamples, sliceProfile, surfaceSamples, type Mesh, type Profile, typ
 // A world made of pieces. A piece is a mesh with a place (x, z on the ground, a height off the ground), a turn about the vertical,
 // and a scale: the same toy brick can be a 3 cm model or a half-metre block. The course is a lane cut from the whole world.
 // What a piece does in the course (src/slice/roles.ts): plain ground (or nothing set), the Warped Wall, a rope anchor, or a trampoline bed.
-export type Role = 'ground' | 'wall' | 'rope' | 'trampoline';
+export type Role = 'ground' | 'wall' | 'rope' | 'trampoline' | 'bar';
 
 export interface Piece {
   id: number;

@@ -45,7 +45,7 @@ function pieceWords(name: string, lane: LaneSetting, from: PieceState, to: Piece
   return out.join(' ');
 }
 
-export const ROLE_WORDS: Record<Role, string> = { ground: 'plain ground', wall: 'the Warped Wall', rope: 'a rope anchor', trampoline: 'a trampoline bed' };
+export const ROLE_WORDS: Record<Role, string> = { ground: 'plain ground', wall: 'the Warped Wall', rope: 'a rope anchor', trampoline: 'a trampoline bed', bar: 'a swing bar' };
 
 function laneWords(key: keyof LaneSetting, from: number, to: number): string {
   if (key === 'angle') return `Turn the lane ${Math.round(Math.abs(((to - from) * 180) / Math.PI))}° about the rod.`;
