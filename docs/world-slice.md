@@ -1802,6 +1802,11 @@ The set of obstacle shapes is fixed, and each shape offers a fixed set of moves.
 - **How it is built:**
   - The rail is a thin ribbon piece (`src/slice/track-world.ts`); the slice reads its height as ground.
   - `roleCourse` turns the platforms under the ribbons into rails and sets the course start at the first section.
+- **Dots stay grabbable (2026-10-31):**
+  - Every coaster section shows its purple dots in the side view, chosen or not.
+  - Pressing on the 3D picture to turn the camera clears the chosen piece; the dots used to vanish with it and the side view went dead.
+  - Pressing a dot chooses its section; a double-click adds a dot to the section nearest along the run.
+  - Check: `scripts/coaster-drag-twice-check.mjs` drags dots again and again, turns the camera between drags, and expects the hand cursor each time; picture: `docs/evidence/cc-244-drag-twice.jpg`.
 - **Known gaps:**
   - Ground before the first section is skipped.
   - The shapes are fixed (no dot dragging yet); size and height can be changed like any piece.
