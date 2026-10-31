@@ -1,3 +1,4 @@
+import type { RunnerInput } from '../src/sim/runner';
 import { describe, expect, it } from 'vitest';
 import { barMesh, holdsOf, isHold, type P } from '../src/slice/holds-world';
 import { laneToCourse, sliceProfile, type Mesh } from '../src/slice/slice';
@@ -13,6 +14,7 @@ function box(w: number, h: number, d: number): Mesh {
   const q = [0, 1, 2, 0, 2, 3, 4, 6, 5, 4, 7, 6, 0, 4, 5, 0, 5, 1, 3, 2, 6, 3, 6, 7, 0, 3, 7, 0, 7, 4, 1, 5, 6, 1, 6, 2];
   return { positions: p, indices: q };
 }
+const inp = (o: Partial<RunnerInput>): RunnerInput => ({ run: false, jump: false, jumpSpeed: 0, squat: false, ...o }) as RunnerInput;
 const lane = { angle: 0, offset: 0, level: 0 };
 const bar = (x: number, hang: number): P => ({ ...newPiece('Bar', barMesh(), { x, z: 0 }), src: 'hold:bar', y: hang - 0.04 });
 const deck = (x: number, w: number): P => ({ ...newPiece('Deck', box(w, 0.5, 1.8), { x, z: 0 }), src: 'x' });
@@ -21,8 +23,8 @@ const course = laneToCourse(sliceProfile(worldSamples(ps.filter((p) => !isHold(p
 
 describe('a bar grab in the input log', () => {
   it('the E bit survives the log', () => {
-    expect(inputOfMask(maskOf({ handL: true, handR: true })).handL).toBe(true);
-    expect(maskOf({ handL: true })).not.toBe(maskOf({}));
+    expect(inputOfMask(maskOf(inp({ handL: true, handR: true }))).handL).toBe(true);
+    expect(maskOf(inp({ handL: true }))).not.toBe(maskOf(inp({})));
   });
   it('the recorded swing run replays to the same finish, tick for tick, and the log holds E while hanging', () => {
     const plan = searchIdealRun(course).plan;
