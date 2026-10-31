@@ -36,5 +36,5 @@
 - The "how much of the lane is covered" line comes from `lanePhotos` in `src/world/street-photos.ts`: every 10 m along the line, it asks which allowed photos face that spot.
 
 ## What is not there yet
-- 12 of the 29 ready places have no street photos yet; they say so in the panel.
+- 30 of the 47 ready places have no street photos yet; they say so in the panel.
 - The Slicer's photo panel only shows photos near the lane; it does not show them on the map itself.

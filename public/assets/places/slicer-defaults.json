@@ -437,6 +437,276 @@
       "lengthM": 49.8,
       "clearS": 8.5,
       "checkVersion": 1
+    },
+    {
+      "slug": "jordaan-amsterdam",
+      "clear": true,
+      "shrink": 0.36,
+      "cutM": 16.5,
+      "line": [
+        84.8,
+        -95.8,
+        94.5,
+        -40.3
+      ],
+      "lengthM": 20.3,
+      "clearS": 7.9,
+      "checkVersion": 1
+    },
+    {
+      "slug": "stephansplatz-vienna",
+      "clear": true,
+      "shrink": 0.164,
+      "cutM": 36.5,
+      "line": [
+        -94.3,
+        81.8,
+        -20.9,
+        143.3
+      ],
+      "lengthM": 15.7,
+      "clearS": 7.1,
+      "checkVersion": 1
+    },
+    {
+      "slug": "grand-place-brussels",
+      "clear": true,
+      "shrink": 0.556,
+      "cutM": 11,
+      "line": [
+        -125.4,
+        -4.8,
+        117.8,
+        38.1
+      ],
+      "lengthM": 137.3,
+      "clearS": 20.5,
+      "checkVersion": 1
+    },
+    {
+      "slug": "main-square-krakow",
+      "clear": true,
+      "shrink": 0.25,
+      "cutM": 24,
+      "line": [
+        -158.9,
+        -27.7,
+        74.3,
+        -27.7
+      ],
+      "lengthM": 58.3,
+      "clearS": 12.2,
+      "checkVersion": 1
+    },
+    {
+      "slug": "castle-hill-budapest",
+      "clear": true,
+      "shrink": 0.12,
+      "cutM": 50,
+      "line": [
+        -141.3,
+        4.3,
+        35.5,
+        106.4
+      ],
+      "lengthM": 24.5,
+      "clearS": 8.6,
+      "checkVersion": 1
+    },
+    {
+      "slug": "gamla-stan-stockholm",
+      "clear": true,
+      "shrink": 0.417,
+      "cutM": 14.5,
+      "line": [
+        -112.4,
+        82.3,
+        -75,
+        126.9
+      ],
+      "lengthM": 24.2,
+      "clearS": 6.7,
+      "checkVersion": 1
+    },
+    {
+      "slug": "temple-bar-dublin",
+      "clear": true,
+      "shrink": 0.556,
+      "cutM": 11,
+      "line": [
+        30.7,
+        -47.5,
+        125.1,
+        -30.9
+      ],
+      "lengthM": 53.3,
+      "clearS": 13.5,
+      "checkVersion": 1
+    },
+    {
+      "slug": "plaka-athens",
+      "clear": true,
+      "shrink": 0.556,
+      "cutM": 11,
+      "line": [
+        -89.7,
+        -104,
+        -130,
+        -34.2
+      ],
+      "lengthM": 44.7,
+      "clearS": 9.5,
+      "checkVersion": 1
+    },
+    {
+      "slug": "stradun-dubrovnik",
+      "clear": true,
+      "shrink": 0.333,
+      "cutM": 18,
+      "line": [
+        104.5,
+        -21.5,
+        -20.2,
+        127.1
+      ],
+      "lengthM": 64.6,
+      "clearS": 15.1,
+      "checkVersion": 1
+    },
+    {
+      "slug": "galata-istanbul",
+      "clear": true,
+      "shrink": 0.333,
+      "cutM": 18,
+      "line": [
+        151.1,
+        1.5,
+        51.8,
+        119.8
+      ],
+      "lengthM": 51.4,
+      "clearS": 12.3,
+      "checkVersion": 1
+    },
+    {
+      "slug": "gastown-vancouver",
+      "clear": true,
+      "shrink": 0.417,
+      "cutM": 14.5,
+      "line": [
+        17.3,
+        -73.1,
+        89.4,
+        -31.5
+      ],
+      "lengthM": 34.6,
+      "clearS": 10.3,
+      "checkVersion": 1
+    },
+    {
+      "slug": "zocalo-mexico-city",
+      "clear": true,
+      "shrink": 0.1,
+      "cutM": 60,
+      "line": [
+        -169.6,
+        -20,
+        -20.2,
+        105.3
+      ],
+      "lengthM": 19.6,
+      "clearS": 6.7,
+      "checkVersion": 1
+    },
+    {
+      "slug": "caminito-buenos-aires",
+      "clear": true,
+      "shrink": 0.556,
+      "cutM": 11,
+      "line": [
+        -71.1,
+        22,
+        -35.2,
+        120.6
+      ],
+      "lengthM": 58.2,
+      "clearS": 13.8,
+      "checkVersion": 1
+    },
+    {
+      "slug": "bukchon-seoul",
+      "clear": true,
+      "shrink": 0.333,
+      "cutM": 18,
+      "line": [
+        121.9,
+        -48.2,
+        74.6,
+        81.6
+      ],
+      "lengthM": 46,
+      "clearS": 13.2,
+      "checkVersion": 1
+    },
+    {
+      "slug": "senate-square-helsinki",
+      "clear": true,
+      "shrink": 0.333,
+      "cutM": 18,
+      "line": [
+        -63.5,
+        -23.3,
+        -63.5,
+        143.4
+      ],
+      "lengthM": 55.6,
+      "clearS": 9.1,
+      "checkVersion": 1
+    },
+    {
+      "slug": "old-town-tallinn",
+      "clear": true,
+      "shrink": 0.333,
+      "cutM": 18,
+      "line": [
+        -57.7,
+        129.6,
+        15.7,
+        142.5
+      ],
+      "lengthM": 24.8,
+      "clearS": 6.9,
+      "checkVersion": 1
+    },
+    {
+      "slug": "bo-kaap-cape-town",
+      "clear": true,
+      "shrink": 0.556,
+      "cutM": 11,
+      "line": [
+        67.3,
+        69.8,
+        79.8,
+        104.1
+      ],
+      "lengthM": 20.3,
+      "clearS": 8.2,
+      "checkVersion": 1
+    },
+    {
+      "slug": "bryggen-bergen",
+      "clear": true,
+      "shrink": 0.333,
+      "cutM": 18,
+      "line": [
+        -97.1,
+        -14.2,
+        -64.4,
+        75.6
+      ],
+      "lengthM": 31.8,
+      "clearS": 10.1,
+      "checkVersion": 1
     }
   ]
 }
