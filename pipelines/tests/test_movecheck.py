@@ -292,7 +292,7 @@ def test_the_head_on_london_parkour_jump_roll_turns_over_but_is_still_not_the_ga
     assert not ok and (nums["peak_hips_vs_standing"] > movecheck.ROLL_MAX_HIPS or nums["longest_air_s"] > movecheck.ROLL_MAX_AIR_S)
 
 
-def sliding(drop=0.75, travel=2.0, n=60, fps=30.0):
+def sliding(drop=0.75, travel=2.0, n=60, fps=30.0, legs_out=0.7):
     """A stick body that runs in upright, drops its hips by `drop` of their height, travels on while low, and stands up again.
     The legs are flattened onto the floor (no joint below it), so only the hips are judged."""
     frames = []
@@ -302,6 +302,8 @@ def sliding(drop=0.75, travel=2.0, n=60, fps=30.0):
         j = body((0, 0, 0))
         j -= j[IDX["Hips"]]
         j[:, 1] *= 1 - 0.8 * k  # the body folds down as the hips come down
+        for name in ('LeftFoot', 'RightFoot', 'LeftShin', 'RightShin', 'LeftToeBase', 'RightToeBase'):
+            j[IDX[name], 2] += legs_out * k  # the legs reach out in front
         hip = np.array([0.0, 0.9 * (1 - drop * k) + 0.06, travel * p])
         f = j + hip
         f[:, 1] = np.maximum(f[:, 1], 0.0)
@@ -315,9 +317,14 @@ def test_a_low_run_along_the_ground_is_a_slide():
     assert win is not None and nums["low_s"] >= 0.3
 
 
-def test_dropping_in_place_is_not_a_slide():
-    ok, nums, _ = movecheck.slide_check(sliding(travel=0.2))
-    assert not ok and nums["travel_m"] < 1.0
+def test_a_crouch_with_the_feet_under_the_body_is_not_a_slide():
+    ok, nums, _ = movecheck.slide_check(sliding(legs_out=0.0))
+    assert not ok and nums["foot_ahead_m"] < 0.3
+
+
+def test_a_slide_clip_need_not_travel_because_the_game_carries_the_body():
+    ok, nums, _ = movecheck.slide_check(sliding(travel=0.0))
+    assert ok, nums
 
 
 def test_a_small_dip_is_not_a_slide():

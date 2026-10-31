@@ -47,7 +47,10 @@
 - There is no slide in the air, no slide when slow, a 0.5 s cooldown, and a jump ends it.
 - The body is 0.6 m high at most while sliding.
 - Balls fly at two heights, so the slide and the jump both matter: a low ball is jumped, a head-high ball is slid under.
-- The slide pose is the existing tuck pose; no new captured clip was added.
+- The slide clip is a Kimodo-generated sliding tackle (`public/assets/motion/slide.json`, `data/eval/motion-slide/`): the drop plays in 0.2 s, holds low while the slide lasts, and the get-up plays in 0.25 s after it ends.
+- Without the clip file, the slide is drawn as the bone-built crouch.
+- Timing, measured with the real simulator (`tests/slide-timing.test.ts`): a standing runner is hit; a slide started between about 0.18 s and 0.87 s before the ball arrives passes under it; one started 1.7 s early is over before the ball comes, and one started after the ball is a standing body, so both are hit.
+- The slide is in the input log (bit 12 of the mask), so a replay and the server judge play it again exactly.
 
 ## Climbable wall (CC-240)
 - A 2 m wall stands at x 40 on the Cannonballs course (a platform block under the 2.2 m stand-climb reach).
@@ -59,7 +62,7 @@
 ## Known gaps
 - A ball does not stop at the ground; it flies on.
 - The balls are off by default; `?balls=1` plays the First Course with them.
-- The slide has no captured clip of its own.
+- The slide clip rises by a fixed 0.25 s after the slide, though the hit box is standing again at once.
 - The ideal run never waits mid-run; only a player can wait on the wall.
 
 ## Cannonballs card (CC-240)
