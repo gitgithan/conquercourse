@@ -27,7 +27,7 @@ import { HUD, hudOn, keycapCss, panelCss } from '../ui/hud-style';
 import { PHONE_WORDS, browserPointing, phoneMode } from '../share/phone';
 import { clipCard, copyLinkButton, shareButtons, showBanner } from '../share/share-ui';
 import { organiseReport, reportSectionsOn } from '../ui/report-sections';
-import { courseHash, encodeLog, inputOfMask, type InputLog } from '../sim/replay';
+import { courseHash, encodeLog, inputOfMask, startOfX, startXOf, type InputLog } from '../sim/replay';
 import { findShortcuts, shortcutLine, type Shortcut } from '../sim/shortcuts';
 const findShortcutsNow = (c: CourseData): Shortcut[] => findShortcuts(c, { moveChoices: false }).shortcuts; // ?bot=shortcut only: blocks the page while it searches
 import { flightPath, gapSpecs, minSpeedForWall, pressBand } from '../sim/needs';
@@ -1158,8 +1158,10 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
       diagBox.style.display = 'block';
     });
     const tryClip = shareOn(params) && !botMode && !demo && !idealWhole && !params.get('mode') ? ghostCtl?.myClip() ?? null : null, tryTicks = world.runner.tick;
-    const tryRun = shareOn(params) && !botMode && !demo && !idealWhole && !params.get('mode') ? ghostCtl?.myRun() ?? null : null; // CC-181: a try that fell can be sent as a link too; it never counts for a time
-    if (tryRun) row.append(...copyLinkButton({ link: (nick) => makeLink(location.origin, pageSearch(), course, tryRun, nick, choice, 'fell'), courseTooBig: () => courseTooBig(pageSearch(), course), label: 'Copy link to this try', id: 'share-copy-fall' }));
+    const tryFrom = tryClip ? startOfX(course, tryClip.from) : null; // CC-242: a try from a checkpoint is shared with its start, so the friend begins at the same place
+    const tryStart = tryFrom ?? 0;
+    const tryRun = shareOn(params) && !botMode && !demo && !idealWhole && !params.get('mode') ? (ghostCtl?.myRun() ?? (tryFrom ? tryClip?.log ?? null : null)) : null; // CC-181: a try that fell can be sent as a link too; it never counts for a time
+    if (tryRun) row.append(...copyLinkButton({ link: (nick) => makeLink(location.origin, pageSearch(), course, tryRun, nick, choice, 'fell', undefined, tryStart), courseTooBig: () => courseTooBig(pageSearch(), course), label: 'Copy link to this try', id: 'share-copy-fall' }));
     if (tryClip && clipFits(tryTicks)) mk('Download a video of this try', () => void makeClip(tryClip.log, tryTicks, tryClip.from)).id = 'share-clip-fall'; // CC-157: a try that ended in a fall is worth a clip too
     mk('Show me the ideal run (I)', () => showIdeal(lastZone));
     if (!course.track) mk('Make it easier', () => openEditor('easier')).id = 'makeeasier';
@@ -1329,7 +1331,8 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
         showBanner(challengeWords(c.why), offer, 20000);
         return;
       }
-      ghostCtl?.setFriend(c.track, c.nick, lookOfParam(params.get('rk')));
+      ghostCtl?.setFriend(c.track, c.nick, lookOfParam(params.get('rk')), c.start > 0 ? startXOf(course, c.start) : null);
+      if (c.start > 0 && !resume) { retryX = startXOf(course, c.start); restart(retryX); } // CC-242: begin where the friend began, standing still, so both bodies start together
       if (phoneMode(params, browserPointing) && !touchControls) {
         // A phone has no keys (CC-138): the page plays the friend's run by itself and says how to play it for real.
         keysOpen = false; keysTouched = true; paintKeys(false); frontOverride = false; // the small corner view would hide the runner on a narrow screen
@@ -1482,7 +1485,8 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
         if (ghostCtl && !botMode && !demo && !idealWhole) body.querySelector('#report-actions')?.prepend(...ghostCtl.reportActions(() => { panel.style.display = 'none'; retryX = course.startX; restart(course.startX); }));
         if (shareOn(params) && !botMode && !demo && !idealWhole && !params.get('mode')) {
           const mine = ghostCtl?.myRun() ?? null, mineClip = ghostCtl?.myClip() ?? null, ticks = world.runner.tick; // a link needs a run from the start; a clip can be made of any try (CC-157)
-          if (mine || mineClip) body.querySelector('#report-actions')?.append(...shareButtons({ link: mine ? (nick) => makeLink(location.origin, pageSearch(), course, mine, nick, choice) : undefined, courseTooBig: () => courseTooBig(pageSearch(), course), clip: mineClip && clipFits(ticks) ? () => void makeClip(mineClip.log, ticks, mineClip.from) : undefined }));
+          const partialStart = !mine && mineClip ? startOfX(course, mineClip.from) : null, partial = partialStart && mineClip ? { log: mineClip.log, start: partialStart } : null; // CC-242: a cleared run from a checkpoint can be shared with its start; it never reaches a board
+          if (mine || mineClip) body.querySelector('#report-actions')?.append(...shareButtons({ link: mine ? (nick) => makeLink(location.origin, pageSearch(), course, mine, nick, choice) : partial ? (nick) => makeLink(location.origin, pageSearch(), course, partial.log, nick, choice, 'done', undefined, partial.start) : undefined, courseTooBig: () => courseTooBig(pageSearch(), course), clip: mineClip && clipFits(ticks) ? () => void makeClip(mineClip.log, ticks, mineClip.from) : undefined }));
         }
         if (reportSectionsOn(params)) organiseReport(body, !botMode && !demo && !idealWhole ? { dojo: () => openDojo() } : {}); // CC-158
         setMusicScreen('report');

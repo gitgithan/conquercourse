@@ -4,7 +4,7 @@
 // The server does not replay the keys: whoever opens the link replays them and takes the time from the simulator; a leaderboard time goes through /api/course-clear.
 import type { CourseData } from '../course/course';
 import courseJson from '../course/default-course.json';
-import { courseHash, readChallengeParam, REPLAY_VERSION, type ChallengeKind } from '../sim/replay';
+import { courseHash, readChallengeParam, REPLAY_VERSION, startXOf, type ChallengeKind } from '../sim/replay';
 import { checkRun, logTicks, rateLimited } from '../sim/run-checks';
 import { SHARE_MAX_MADE_CHARS, unpackCourse } from './made-course';
 
@@ -69,7 +69,7 @@ export async function createShare(env: ShareEnv, raw: string): Promise<Reply> {
   if (rateLimited(env.hits, env.address, env.now(), SHARES_PER_ADDRESS)) return fail(429, 'slow down');
   const read = await readChallengeParam(param);
   if (!read.ok) return fail(400, read.why === 'version' ? 'old version' : 'bad keys');
-  const { hash, nick, log, kind } = read.challenge;
+  const { hash, nick, log, kind, start } = read.challenge;
   // which course: a listed file, the course every visitor starts on, or a made course carried with the request
   const { path, extra } = courseWord(query);
   if (extra) return fail(422, 'course not supported');
@@ -81,9 +81,10 @@ export async function createShare(env: ShareEnv, raw: string): Promise<Reply> {
   } else { courseKind = 'default'; course = courseJson as unknown as CourseData; }
   if (courseHash(course) !== hash) return fail(409, 'course changed');
   const total = logTicks(log);
-  const pre = checkRun({ log, course: kind === 'fell' ? { startX: 0, finishX: 0 } : course, idealTicks: kind === 'done' && courseKind === 'asset' ? await env.idealTicks?.(key) : null });
+  const pre = checkRun({ log, course: kind === 'fell' ? { startX: 0, finishX: 0 } : start > 0 ? { ...course, startX: startXOf(course, start) } : course, // CC-242: a run from a checkpoint is checked from that checkpoint
+    idealTicks: kind === 'done' && courseKind === 'asset' ? await env.idealTicks?.(key) : null });
   if (!pre.ok) return fail(422, 'not a possible run', { code: pre.code });
-  const keys = param.slice(param.lastIndexOf('.') + 1);
+  const keys = (start > 0 ? `s${start}~` : '') + param.slice(param.lastIndexOf('.') + 1); // CC-242: the start rides in front of the keys, so no new column is needed
   const content = await contentHash([String(REPLAY_VERSION), kind, hash, nick, look, courseKind === 'asset' ? key : '', made ?? '', keys]);
   const same = await env.store.byContentHash(content);
   if (same) return { status: 200, body: { id: same, duplicate: true } };
@@ -97,10 +98,15 @@ export async function createShare(env: ShareEnv, raw: string): Promise<Reply> {
   return fail(503, 'try again');
 }
 
+const shareParam = (r: ShareRow): string => {
+  const m = /^s(\d{1,2})~/.exec(r.keys);
+  return `${r.sim_version}${r.kind === 'fell' ? 'f' : ''}${m ? `s${m[1]}` : ''}.${r.course_hash}.${r.nick}.${m ? r.keys.slice(m[0].length) : r.keys}`;
+};
+
 /** What a link needs to open: the pieces of the long link, rebuilt. */
 export async function readShare(env: Pick<ShareEnv, 'store'>, id: string): Promise<Reply> {
   if (!ID_RE.test(id)) return fail(404, 'no such link');
   const r = await env.store.get(id);
   if (!r || r.status !== 'ok') return fail(404, 'no such link');
-  return { status: 200, body: { id: r.id, param: `${r.sim_version}${r.kind === 'fell' ? 'f' : ''}.${r.course_hash}.${r.nick}.${r.keys}`, query: r.query, made: r.made ?? undefined, look: r.look, kind: r.kind } };
+  return { status: 200, body: { id: r.id, param: shareParam(r), query: r.query, made: r.made ?? undefined, look: r.look, kind: r.kind } };
 }
