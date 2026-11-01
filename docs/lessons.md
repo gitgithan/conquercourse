@@ -156,6 +156,13 @@
 - A pixel check on four pages found the same 3D picture and slightly different text edges, so draw a whole film on one renderer.
 - Numbers, gaps and next steps: `data/eval/film-render-speed/README.md`.
 
+## Film shot 2 v2: record the real Slicer, do not draw over it (CC-143, 2026-11-01)
+- The real flight (top view, buildings rise, low side camera) already is the slicing story; our old overlay only added jumps and pointless lines.
+- Record the real page with a stepped clock (one step per picture): the flight is smooth and at true speed even on a software GPU, and real waits run with no pictures taken.
+- The flight takes about 7 s of stepped time here; the first try timed out because a 60 s real wait was too short at about 0.5 s per picture.
+- Two hard cuts remain in the live page and were handled: the first place click jumps the map (start the clip after it), and the flight starts from a wider view (a short cross-fade over 7 pictures).
+- The editor load shows one blank picture; it is replaced by its neighbour.
+
 ## Film shot 2 waited for a lane that a live pin-drop did not give (CC-143, 2026-11-01)
 - What happened:
   - The first recorder for shot 2 dropped a pin at the Eixample centre, clicked Slice, and polled up to 180 times for the slicer to report a lane the simulator clears.

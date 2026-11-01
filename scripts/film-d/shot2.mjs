@@ -1,64 +1,62 @@
-// Shot 2 "A path is searched and found" (CC-143): the real World Slicer map after Slice, camera at 45 degrees with a slow push.
-// Thin tried lines grow from the lane start (film overlay, GFX), dead ends fade, and the real proved lane (the slicer's own lane layer) glows.
-// usage: node shot2.mjs <playwright> <outdir> <spec.json>
-import { readFileSync } from 'node:fs';
+// CC-143 film shot 2 (v2): a plain screen recording of the real World Slicer. No overlay, no camera jumps, no edits.
+// usage: node shot2.mjs <playwright> <outdir> [spec.json]
+// Stepped clock: performance.now is ours, one step per picture, so the real flight plays smooth and at true speed even on a software GPU.
+// Real waits (network, page load) run with the clock moving in small steps and no pictures taken.
+import { readFileSync, mkdirSync, writeFileSync } from 'node:fs';
 const [pw, out, specFile] = process.argv.slice(2);
-const spec = JSON.parse(readFileSync(specFile, 'utf8')); const T = spec.t;
+const spec = JSON.parse(readFileSync(specFile || new URL('./shot2.spec.json', import.meta.url), 'utf8'));
+const fps = spec.fps ?? 30, dt = 1000 / fps;
 const { chromium } = await import(pw);
 const b = await chromium.launch({ args: ['--ignore-gpu-blocklist', '--use-gl=angle', '--use-angle=gl-egl'] });
-const ctx = await b.newContext({ viewport: { width: 1920, height: 1080 }, recordVideo: { dir: out, size: { width: 1920, height: 1080 } } });
-const p = await ctx.newPage(); const t0 = Date.now();
-p.on('pageerror', (e) => console.error('pageerror', e.message));
+const p = await (await b.newContext({ viewport: { width: 1920, height: 1080 } })).newPage();
+p.on('pageerror', (e) => console.log('pageerror', e.message.slice(0, 200)));
+await p.addInitScript(`(() => { let t = 0; performance.now = () => t; window.__stepClock = (ms) => { t += ms; return t; }; })();`);
+mkdirSync(out, { recursive: true });
+let n = 0; const marks = {};
+const tick = () => p.evaluate((m) => { window.__stepClock(m); return new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r))); }, dt);
+const shot = async () => { await p.screenshot({ path: `${out}/f${String(n++).padStart(5, '0')}.jpg`, type: 'jpeg', quality: 92, timeout: 180000 }); };
+const rec = async (sec, each) => { const k = Math.round(sec * fps); for (let i = 0; i < k; i++) { if (each) await each(i / Math.max(1, k - 1)); await tick(); await shot(); } };
+const until = async (fn, label, ms = 120000, record = false) => { const t0 = Date.now(); for (;;) { if (await p.evaluate(fn).catch(() => false)) return true; if (Date.now() - t0 > ms) { console.log('timeout', label); return false; } await tick(); if (record) await shot(); await p.waitForTimeout(60); } };
+const mark = (k) => { marks[k] = n / fps; console.log('mark', k, marks[k].toFixed(2)); };
+
 await p.goto(spec.url);
-await p.waitForSelector('html[data-mapready=true]', { timeout: 120000 }).catch(() => console.error('map not ready'));
-await p.waitForFunction('window.__ccMap', null, { timeout: 60000 }).catch(() => console.error('no hooks'));
-await p.addStyleTag({ content: '#cc-feedback-btn{display:none!important} .maplibregl-ctrl-top-left,.maplibregl-ctrl-top-right{display:none!important}' });
-await p.evaluate(() => document.querySelectorAll('button').forEach((x) => { if (/^(Feedback|Sound)/.test(x.textContent.trim())) x.style.display = 'none'; }));
-const C = spec.center;
-await p.addStyleTag({ content: '[class*=toast],.stepnote,.maplibregl-marker{display:none!important}' });
-if (spec.place) { await p.locator(`text=${spec.place}`).first().click({ timeout: 8000 }).catch((e) => console.error('place', e.message.split('\n')[0])); await p.waitForTimeout(2500); await p.click('#slice').catch((e) => console.error('slice', e.message.split('\n')[0])); }
-else { await p.evaluate(({ C, z }) => window.__ccMap.map.jumpTo({ center: C, zoom: z, pitch: 0, bearing: 0 }), { C, z: spec.zoom0 }); await p.waitForTimeout(6000);
-  const box = await p.evaluate(() => { const r = document.querySelector('canvas.maplibregl-canvas').getBoundingClientRect(); return [r.x + r.width / 2, r.y + r.height / 2]; });
-  await p.mouse.move(box[0], box[1], { steps: 8 }); await p.mouse.click(box[0], box[1]); await p.waitForTimeout(1500); await p.click('#slice').catch((e) => console.error('slice', e.message.split('\n')[0])); }
-let caught = null, steady = 0, bad = 0; for (let i = 0; i < 180 && !caught; i++) { const r = await p.evaluate(() => { const st = document.documentElement.dataset.sliceLane; if (st !== 'clearable') return { st }; const sd = window.__ccMap.map.getSource('sl-lane')?.serialize?.().data; const c = sd?.geometry?.coordinates ?? sd?.features?.[0]?.geometry?.coordinates; return { st, pts: c ?? null }; }); if (i % 20 === 0) console.error('state', i, r.st); steady = r.st === 'clearable' && r.pts?.length ? steady + 1 : 0; bad = r.st === 'not-clearable' ? bad + 1 : 0; if (steady >= 6) caught = r.pts; else if (bad >= 20) { console.error('no proved lane here: the slicer says not-clearable; pick another place'); process.exit(2); } else await p.waitForTimeout(500); }
-console.error('caught lane', caught?.length);
-await p.click('text=Skip the flight', { timeout: 3000 }).catch(() => {}); await p.click('text=Got it', { timeout: 2000 }).catch(() => {});
-// the real proved lane, from the slicer's own layer
-console.error('hooks', await p.evaluate(() => typeof window.__ccMap), await p.evaluate(() => location.href));
-const lane = caught ? { n: 1, pts: caught, dt: 'caught' } : await p.evaluate(() => { { const sr = window.__ccMap.map.getSource('sl-lane'); const sd = sr?.serialize?.().data; const c = sd?.geometry?.coordinates ?? sd?.features?.[0]?.geometry?.coordinates; if (c?.length) return { n: 1, pts: c, dt: 'serialize' }; } const m = window.__ccMap.map; const f = m.querySourceFeatures('sl-lane'); const g = f.map((x) => x.geometry); const pts = []; for (const x of g) { if (x.type === 'LineString') pts.push(...x.coordinates); else if (x.type === 'MultiLineString') x.coordinates.forEach((c) => pts.push(...c)); } const s = m.getSource('sl-lane'); const d = s?._data ?? s?._options?.data; return { n: f.length, pts: d?.geometry?.coordinates ?? pts, dt: typeof d }; });
-console.error('lane probe', lane.n, lane.pts?.length, lane.dt);
-console.error('lane points', lane?.length);
-await p.evaluate(({ pitch, z }) => { const m = window.__ccMap.map; m.jumpTo({ pitch, zoom: z }); document.querySelector('#slicer')?.scrollIntoView({ block: 'start' }); }, { pitch: 0, z: spec.zoom0 });
-await p.waitForTimeout(1500);
-// prepare overlay: tried lines = wander from the lane start; the proved lane is the real one
-const setup = await p.evaluate(({ lane, seeds }) => {
-  const m = window.__ccMap.map; let L = lane ?? []; if (L.length === 2) { const q = []; for (let i = 0; i <= 40; i++) q.push([L[0][0] + (L[1][0] - L[0][0]) * i / 40, L[0][1] + (L[1][1] - L[0][1]) * i / 40]); L = q; }
-  if (!L.length) return 'nolane';
-  for (const id of ['sl-lane', 'sl-lane-dash']) m.setLayoutProperty(id, 'visibility', 'none');
-  const a = L[0], z = L[L.length - 1]; const dx = z[0] - a[0], dy = z[1] - a[1]; const len = Math.hypot(dx, dy) || 1e-4;
-  let s = 7; const rnd = () => (s = (s * 16807) % 2147483647) / 2147483647;
-  const tries = seeds.map((ang, i) => { const n = 26, pts = [a]; let h = Math.atan2(dy, dx) + ang; const step = len / 22; let [x, y] = a; const stop = 8 + Math.floor(rnd() * 12);
-    for (let k = 0; k < n && k < stop + 4; k++) { h += (rnd() - 0.5) * 0.7; x += Math.cos(h) * step; y += Math.sin(h) * step * 1; pts.push([x, y]); } return { pts, stop }; });
-  window.__tries = tries; window.__laneFull = L; window.__mid = [(a[0] + z[0]) / 2, (a[1] + z[1]) / 2];
-  m.addSource('film-try', { type: 'geojson', data: { type: 'FeatureCollection', features: [] } });
-  m.addSource('film-win', { type: 'geojson', data: { type: 'FeatureCollection', features: [] } });
-  m.addLayer({ id: 'film-try', type: 'line', source: 'film-try', paint: { 'line-color': '#e8622c', 'line-width': 5, 'line-opacity': ['get', 'op'] } });
-  m.addLayer({ id: 'film-glow', type: 'line', source: 'film-win', paint: { 'line-color': '#7ff0d4', 'line-width': 22, 'line-blur': 14, 'line-opacity': ['get', 'g'] } });
-  m.addLayer({ id: 'film-win', type: 'line', source: 'film-win', paint: { 'line-color': '#0f6b5c', 'line-width': 9 } });
-  return 'ok';
-}, { lane: lane.pts, seeds: spec.seeds });
-console.error('setup', setup);
-const start = spec.debug ? 0 : Date.now() - t0; const S = Date.now();
-await p.evaluate(({ T, pitch, z0, z1, C, secs }) => new Promise((res) => {
-  const m = window.__ccMap.map, s0 = performance.now(); const e = (x) => x * x * (3 - 2 * x); const clamp = (v) => Math.max(0, Math.min(1, v));
-  const f = () => { const t = (performance.now() - s0) / 1000, u = clamp(t / secs);
-    m.jumpTo({ center: window.__mid, pitch: pitch * e(clamp(t / 1.2)), zoom: z0 + (z1 - z0) * u });
-    // tried lines grow until each stops, then fade
-    const feats = window.__tries.map((r, i) => { const grow = clamp((t - T.tries - i * 0.12) / T.growSecs); const k = Math.max(2, Math.round(grow * r.pts.length)); const fade = clamp((t - T.fade - i * 0.1) / 0.9); return { type: 'Feature', properties: { op: grow > 0 ? 0.95 * (1 - fade) : 0 }, geometry: { type: 'LineString', coordinates: r.pts.slice(0, k) } }; });
-    m.getSource('film-try').setData({ type: 'FeatureCollection', features: feats });
-    const wg = clamp((t - T.win) / 1.1); const L = window.__laneFull; const k = Math.max(2, Math.round(wg * L.length));
-    const pulse = 0.55 + 0.35 * Math.sin((t - T.win) * 5);
-    m.getSource('film-win').setData({ type: 'FeatureCollection', features: wg > 0 ? [{ type: 'Feature', properties: { g: pulse * wg }, geometry: { type: 'LineString', coordinates: L.slice(0, k) } }] : [] });
-    t < secs ? requestAnimationFrame(f) : res(); }; f(); }), { T, pitch: spec.pitch, z0: spec.zoom0, z1: spec.zoom1, C, secs: spec.seconds });
-const end = Date.now() - t0; console.log(JSON.stringify({ start, end }));
-await ctx.close(); await b.close();
+await until(() => !!window.__ccMap && document.documentElement.dataset.mapready !== undefined || !!document.querySelector('#slice'), 'load');
+await until(() => document.documentElement.dataset.mapready === '1' || !!document.querySelector('.maplibregl-canvas'), 'map');
+await p.addStyleTag({ content: '#cc-feedback-btn{display:none!important}' });
+await rec(spec.holdStart ?? 1.2); mark('top-view');
+// 1. choose the place by clicking its picture card in the open right panel
+await p.locator(`.side >> text=${spec.place}`).first().click();
+await rec(spec.afterPlace ?? 1.8); mark('place-chosen');
+// 2. slice: the real flight (top view -> buildings rise -> low side camera) plays by itself
+await p.click('#slice'); mark('slice');
+await until(() => document.documentElement.dataset.flightDone === '1' || !!document.querySelector('[data-flight-done="1"]'), 'flight', 400000, true);
+await rec(spec.afterFlight ?? 1.5); mark('flight-done');
+const lane = await p.evaluate(() => document.querySelector('[data-slice-lane]')?.getAttribute('data-slice-lane'));
+console.log('lane', lane);
+// 3. the side panel: scroll down smoothly to the cut strip, then the street photos
+const scrollTo = (to, sec) => p.evaluate(() => document.querySelector('.side').scrollTop).then((from) => rec(sec, (u) => p.evaluate(([f, t, k]) => { document.querySelector('.side').scrollTop = f + (t - f) * (k * k * (3 - 2 * k)); }, [from, to, u])));
+await scrollTo(spec.scrollCut ?? 760, 1.5); await rec(spec.holdCut ?? 1.5); mark('cut-strip');
+await until(() => { const e = document.querySelector('#streetpanel'); return !!e && /^[1-9]/.test(e.dataset.thumbs || '') || e?.dataset.thumbs === 'failed'; }, 'street-thumbs', 90000);
+const st = await p.evaluate(() => ({ thumbs: document.querySelector('#streetpanel')?.dataset.thumbs, cov: document.querySelector('#streetpanel')?.dataset.coverage }));
+console.log('street', JSON.stringify(st));
+await p.evaluate(() => document.querySelector('#streetpanel')?.scrollIntoView({ block: 'nearest' }));
+await p.waitForTimeout(1500); await rec(0.3);
+const sMax = await p.evaluate(() => { const s = document.querySelector('.side'); const r = document.querySelector('#streetpanel')?.getBoundingClientRect(); return r ? Math.max(0, s.scrollTop + r.top - 560) : s.scrollHeight; });
+await scrollTo(sMax, 1.2); await rec(spec.holdStreet ?? 2.4); mark('street-photos');
+// 4. tilt a little lower (the real slider), along the ground
+const t1 = spec.tiltTo ?? 76;
+await p.evaluate(() => document.querySelector('.side').scrollTo(0, 0)); await rec(0.2);
+await p.evaluate(() => document.querySelector('#tilt')?.scrollIntoView({ block: 'center' })); await rec(0.2);
+const t0 = await p.evaluate(() => Number(document.querySelector('#tilt').value));
+await rec(spec.tiltSecs ?? 2.4, (u) => p.evaluate(([a, c, k]) => { const e = document.querySelector('#tilt'); e.value = String(Math.round(a + (c - a) * k * k * (3 - 2 * k))); e.dispatchEvent(new Event('input', { bubbles: true })); }, [t0, t1, u]));
+await rec(1.0); mark('tilt-low');
+console.log('pitch', await p.evaluate(() => document.documentElement.dataset.mapPitch));
+// 5. send it to the World Editor (the real button) and let the editor load
+await p.evaluate(() => document.querySelector('#buildpieces')?.scrollIntoView({ block: 'center' })); await rec(0.6);
+await p.click('#buildpieces'); mark('send');
+for (let i = 0; i < 20; i++) { await tick(); await shot(); }
+await until(() => /mode=editor/.test(location.search) && document.documentElement.dataset.ready === 'true', 'editor', 120000);
+await rec(spec.editorHold ?? 3.0); mark('editor');
+writeFileSync(`${out}/marks.json`, JSON.stringify({ fps, frames: n, marks, lane, street: st }, null, 2));
+console.log('frames', n);
+await b.close();
