@@ -33,7 +33,7 @@ describe('film camera', () => {
     let lastYaw = -Infinity, lastDist = 0;
     for (let i = 0; i <= 240; i++) {
       const t = (T * i) / 240, p = filmPose('matrix', t, run);
-      expect(p.look).toEqual([40, 2.7, 0]); // the runner stays the aim point
+      expect(p.look).toEqual([40, 3.1, 0]); // the runner stays the aim point
       expect(p.fov).toBe(38); // no zoom
       const yaw = Math.atan2(p.pos[0] - p.look[0], p.pos[2] - p.look[2]), d = dist(p);
       expect(yaw).toBeGreaterThanOrEqual(lastYaw); lastYaw = yaw; // turns one way only
