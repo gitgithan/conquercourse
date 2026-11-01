@@ -2,6 +2,8 @@
 //   POST {action:"submit", image, thumb} -> {id}
 //   POST {action:"status", id} -> {state:"running"} | {state:"done", items, privacy, seconds} | {state:"failed", reason}
 // The same switch and the same safety check as /api/object-lift: with no secret set the route answers 503, and the photo is checked by Muse Spark Open first.
+import { playerCode } from '../_lib/player';
+import { recordStop } from '../_lib/stops';
 import { moderationStops } from '../../src/slice/object-lift';
 import { segmentProblem } from '../../src/slice/segment';
 import { askModeration } from './moderate';
@@ -34,7 +36,7 @@ export async function handle(b: Record<string, unknown>, env: Env, ip: string, f
   if (env.BASETEN_API_KEY) {
     const m = await askModeration(env.BASETEN_API_KEY, { image: b.thumb as string }, fetcher);
     const stop = moderationStops(m.body.verdict, m.body.reason);
-    if (stop) return { status: 403, body: { error: 'moderation', message: stop } };
+    if (stop) { await recordStop(env.DB as never, 'segment', await playerCode(ip), m.body.verdict, m.body.reason, now); return { status: 403, body: { error: 'moderation', message: stop } }; }
     moderation = `${m.body.verdict}:${m.body.reason}`;
   }
   try {

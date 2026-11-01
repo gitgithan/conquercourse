@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { askModeration } from '../functions/api/moderate';
-import { parseVerdict } from '../src/slice/moderation';
+import { MODERATION_PROMPT, parseVerdict } from '../src/slice/moderation';
 
 const reply = (content: string | null, ok = true, status = 200) => (async () => new Response(JSON.stringify({ choices: [{ message: { content } }] }), { status: ok ? status : 500 })) as unknown as typeof fetch;
 const PIXEL = 'data:image/jpeg;base64,/9j/4AAQSkZJRg==';
@@ -70,5 +70,17 @@ describe('moderation: when the model spends its whole budget thinking', () => {
     let n = 0;
     const f = (async () => new Response(JSON.stringify({ choices: [{ message: { content: n++ ? '{"verdict":"ok","reason":"none"}' : null } }] }))) as unknown as typeof fetch;
     expect((await askModeration('k', { text: 'a bench' }, f)).body.verdict).toBe('ok');
+  });
+});
+
+describe('small, far-away people are fine (CC-103)', () => {
+  it('the prompt lets small far figures through and keeps close-ups for a person to look at', () => {
+    expect(MODERATION_PROMPT).toMatch(/small, far away or partly out of the frame/);
+    expect(MODERATION_PROMPT).toMatch(/about a fifth of the picture height/);
+    expect(MODERATION_PROMPT).toMatch(/close, large/);
+  });
+  it('a worrying verdict still stops the lift', () => {
+    expect(parseVerdict('{"verdict":"review","reason":"minor"}')).toEqual({ verdict: 'review', reason: 'minor' });
+    expect(parseVerdict('{"verdict":"ok","reason":"none"}')).toEqual({ verdict: 'ok', reason: 'none' });
   });
 });
