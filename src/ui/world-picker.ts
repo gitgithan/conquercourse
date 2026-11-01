@@ -76,7 +76,7 @@ export const DEMO_ABOUT = new Map<string, string>(DEMO_GROUPS.flatMap(([, ds]) =
 
 /** The picture file of a course card: public/assets/thumbs/<slug>.webp (made by npm run thumbs). */
 export const thumbSlug = (value: string): string => (value === '' ? 'stock' : value.split('/').pop()!.replace(/\.course\.json$/, ''));
-export const hasThumb = (value: string): boolean => value !== 'stay' && !value.startsWith('cid:') && !value.startsWith('dojo-'); // the Dojo cards have no picture yet
+export const hasThumb = (value: string): boolean => value !== 'stay' && !value.startsWith('cid:');
 export const thumbUrl = (value: string): string => `/assets/thumbs/${thumbSlug(value)}.webp`;
 
 /** Where a choice leads. 'generate-same' reloads the current page (a generated course, kept by its seed). */
