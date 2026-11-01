@@ -1,4 +1,4 @@
-// "Latest creations": the newest 24 objects and 24 characters, a picker for the runner, and the form that makes a new character (CC-108).
+// "Latest creations": the newest 24 characters (objects lifted from photos live in Community, not here), a picker for the runner, and the form that makes a new character (CC-108).
 import { addBadge, saysOn } from '../ui/says';
 import { closeOnBackdrop } from '../ui/backdrop';
 import { jobProgress } from '../ui/job-progress';
@@ -20,7 +20,7 @@ const STYLE = `
 #chars .card img{width:96px;height:96px;object-fit:contain;margin:0 auto;background:#e1e7e2;border-radius:6px}
 #chars .card b{font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 #chars .card button{font:600 13px system-ui;border:1px solid #17201d;background:#fff;border-radius:6px;padding:3px 6px;cursor:pointer}
-#chars form{display:flex;gap:8px;flex-wrap:wrap}#chars input{flex:1;min-width:220px;padding:6px 10px;border:2px solid #b9c2bb;border-radius:8px;font:15px system-ui}
+#chars [hidden]{display:none!important}#chars form{display:flex;gap:8px;flex-wrap:wrap}#chars input{flex:1;min-width:220px;padding:6px 10px;border:2px solid #b9c2bb;border-radius:8px;font:15px system-ui}
 #chars .tools{display:flex;gap:8px;flex-wrap:wrap;align-items:center}#chars .tools input{flex:0 1 200px;min-width:120px}#chars .tools button,#chars .pager button{border:1px solid #17201d;background:#fff;border-radius:6px;padding:3px 10px;cursor:pointer;font:600 13px system-ui}#chars .tools button[aria-pressed=true]{background:#0f6b5c;border-color:#0f6b5c;color:#fff}#chars .pager{display:flex;gap:8px;align-items:center}
 #chars .only{font-size:12px;color:#7a4a00}#chars h3{margin:0;font-size:15px}#chars .left{font-size:13px;color:#4a554f;align-self:center}#chars .ask{font-size:12px;display:grid;gap:3px}
 #chars .msg{min-height:1.2em;font-size:14px}#chars .msg.bad{color:#9b2c1d}`;
@@ -70,10 +70,10 @@ export function openCharacterPanel(o: PanelOptions): { close(): void; el: HTMLEl
     const b = Object.assign(doc.createElement('button'), { type: 'button', textContent: label, id: `chars-tab-${k}` });
     b.setAttribute('role', 'tab'); b.onclick = () => { kind = k; page = 0; load(); }; tabs.append(b); return b;
   };
-  const tabObj = tabBtn('object', 'Objects'), tabChr = tabBtn('character', 'Characters');
+  const tabChr = tabBtn('character', 'Characters');
 
   async function load() {
-    tabObj.setAttribute('aria-selected', String(kind === 'object')); tabChr.setAttribute('aria-selected', String(kind === 'character'));
+    tabChr.setAttribute('aria-selected', String(kind === 'character'));
     grid.replaceChildren(); mineBox.replaceChildren(); say('');
     sNew.setAttribute('aria-pressed', String(sort === 'newest')); sPick.setAttribute('aria-pressed', String(sort === 'picked'));
     let data: { items: CharacterCard[]; mine?: CharacterCard[]; more?: boolean; left?: number; limit?: number; canCreate: boolean } = { items: [], canCreate: false };
