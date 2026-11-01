@@ -9,7 +9,8 @@ For code discovery across files, use the local Graphify trial:
 - Read the returned source locations before editing; graph edges are navigation hints, not proof.
 - If a query misses relevant code, use targeted `rg` and source reads.
 - Keep each worktree's graph separate; do not point a changing branch at another branch's mutable index.
-- Never read the whole graph JSON into model context. Do not enable semantic extraction or paid labeling for this trial.
+- Never read the whole graph JSON into model context.
+- Do not enable semantic extraction or paid labeling for this trial.
 
 Generate local visualizations with `bash tools/codegraph.sh visualize` after refreshing.
 
