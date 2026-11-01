@@ -23,6 +23,7 @@ interface Row { id: string; kind: 'piece'; name: string; status: string; created
 const OWNER_SALT = 'cc-item';
 const LIVE_PER_OWNER = 12;
 const BURST_PER_ADDRESS = 8;
+export const NEW_PER_OWNER_PER_DAY = 3;
 const THUMB_URL = (id: string) => `/api/community-items?id=${id}&file=thumb`;
 const newId = (): string => { const a = 'abcdefghjkmnpqrstuvwxyz23456789', r = crypto.getRandomValues(new Uint8Array(10)); return [...r].map((x) => a[x % a.length]).join(''); };
 const own = (session: string | null) => (session && SESSION_RE.test(session) ? playerCode(session, OWNER_SALT) : Promise.resolve(''));
@@ -38,6 +39,9 @@ export async function publish(b: Record<string, unknown>, env: Env, ip: string, 
   const owner = await own(session);
   const live = await env.DB.prepare("SELECT COUNT(*) AS n FROM community_items WHERE owner = ? AND status != 'removed'").bind(owner).first<{ n: number }>();
   if ((live?.n ?? 0) >= LIVE_PER_OWNER) return { status: 429, body: { error: 'full', message: 'You have shared as many as we keep for one player. Delete one to share another.' } };
+  const dayStart = Math.floor(now / 86_400_000) * 86_400;
+  const today = await env.DB.prepare("SELECT COUNT(*) AS n FROM community_items WHERE owner = ? AND created_at >= ?").bind(owner, dayStart).first<{ n: number }>();
+  if ((today?.n ?? 0) >= NEW_PER_OWNER_PER_DAY) return { status: 429, body: { error: 'full', message: 'You have shared three today. Come back tomorrow for more.' } };
   // the safety check looks at the small picture again here: the page's earlier check is not trusted
   let moderation = 'skipped:none', visible: 'approved' | 'pending' = 'pending';
   if (env.BASETEN_API_KEY) {
