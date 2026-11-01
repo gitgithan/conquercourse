@@ -40,3 +40,10 @@
 
 ## Tests
 - `tests/admin-usage.test.ts`: one 503 per switch, usage counted once per call, a broken counter never breaks a request, a many-player simulation, sign-in checks.
+
+## Bot check (Turnstile)
+- It guards "Make a character" and "Make a piece from a photo".
+- It is off until the two keys are set, so nothing changes by itself.
+- Put `TURNSTILE_SITE_KEY` and `TURNSTILE_SECRET` in `~/.config/ninja/turnstile.env`.
+- Run `scripts/set-turnstile-keys.sh`, then `npm run deploy:preview`.
+- With the keys set, a missing or wrong check is refused before any paid call.
