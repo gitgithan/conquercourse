@@ -24,6 +24,10 @@
   - `block`: clearly sexual content, graphic violence or injury, a hate symbol or hateful text, or a weapon pointed at someone.
   - Reasons: person, minor, private_info, sexual, violence, hate, weapon, other, plus unreadable and error (set by us when the check could not answer).
   - Everyday tools, kitchen knives and statues are not a reason to block.
+- **It is a model:**
+  - The same photo can pass on one try and stop on another.
+  - Every stop is logged with its reason for 14 days and shown on the owner-only admin page.
+  - The player sees a plain-words reason, not the model's raw answer.
 - **Fails closed:**
   - A missing key, a timeout, a broken or empty reply, or two empty answers in a row becomes `review` with reason `error` or `unreadable`.
   - An `ok` that carries a worry is turned into `review`.
