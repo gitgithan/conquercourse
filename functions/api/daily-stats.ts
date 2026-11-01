@@ -31,7 +31,9 @@ export async function dailyStats(db: Env['DB'], now = Date.now()): Promise<Daily
   const firstDay = Object.values(rows).flat().map((r) => String(r.d)).filter((d) => /^\d{4}-\d{2}-\d{2}$/.test(d)).sort()[0] ?? to;
   const days = dayList(firstDay, to);
   const fill = (m: Metric) => zeroFill(days, rows[m] as { d: unknown; n: unknown }[]);
-  return { days, series: { players: fill('players'), runs: fill('runs'), assets: fill('assets'), clears: fill('clears') } };
+  let players: number | undefined; // different players ever (not the sum of the daily counts, which would count a returning player again)
+  try { players = Number(((await db.prepare('SELECT COUNT(DISTINCT session) AS n FROM course_events WHERE ts >= ?').bind(since).all()).results ?? [])[0]?.n) || 0; } catch { /* the tile falls back to the sum */ }
+  return { days, series: { players: fill('players'), runs: fill('runs'), assets: fill('assets'), clears: fill('clears') }, players };
 }
 
 export const onRequestGet = async ({ env }: { env: Env }): Promise<Response> =>

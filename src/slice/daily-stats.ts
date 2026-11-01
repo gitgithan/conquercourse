@@ -4,13 +4,13 @@
 export const METRICS = ['players', 'runs', 'assets', 'clears'] as const;
 export type Metric = (typeof METRICS)[number];
 export const METRIC_WORDS: Record<Metric, { menu: string; chip: string; one: string }> = {
-  players: { menu: 'Players', chip: 'players today', one: 'player today' },
-  runs: { menu: 'Runs', chip: 'runs today', one: 'run today' },
-  assets: { menu: 'Assets made', chip: 'assets made today', one: 'asset made today' },
-  clears: { menu: 'Courses cleared', chip: 'cleared today', one: 'cleared today' },
+  players: { menu: 'Players', chip: 'players so far', one: 'player so far' },
+  runs: { menu: 'Runs', chip: 'runs so far', one: 'run so far' },
+  assets: { menu: 'Assets made', chip: 'assets made so far', one: 'asset made so far' },
+  clears: { menu: 'Courses cleared', chip: 'cleared so far', one: 'cleared so far' },
 };
 
-export interface DailyStats { days: string[]; series: Record<Metric, number[]> } // every series has one number per day, oldest first
+export interface DailyStats { days: string[]; series: Record<Metric, number[]>; players?: number } // players: different browser codes ever, so a returning player counts once // every series has one number per day, oldest first
 export type Range = '7' | '30' | 'all';
 export const MAX_DAYS = 365;
 

@@ -1,4 +1,4 @@
-// The growth strip on the course picker (CC-108): three small numbers for today with a tiny line each, and one chart behind a click.
+// The growth strip on the course picker (CC-108): small numbers for all time with a tiny line each, and one chart behind a click.
 // One metric at a time (a menu), because players, runs and assets live on different scales; the range buttons cut the time axis.
 // No data, no chart: a young game says so honestly, and nothing here is made up.
 import { countriesTile, loadWorldStats } from './world-stats';
@@ -153,9 +153,9 @@ export function mountGrowth(host: HTMLElement, load: () => Promise<DailyStats | 
     };
     for (const [r, label] of RANGES) { const b = document.createElement('button'); b.type = 'button'; b.textContent = label; b.dataset.range = r; b.onclick = () => { range = r; draw(); }; rg.append(b); }
     for (const m of TILES) {
-      const xs = d.series[m], today = xs[xs.length - 1] ?? 0;
+      const xs = d.series[m], today = m === 'players' && d.players !== undefined ? d.players : xs.reduce((a, b) => a + b, 0); // all time, so every visitor sees the total grow
       const b = document.createElement('button'); b.type = 'button'; b.className = 'gr-tile'; b.dataset.metric = m; b.style.setProperty('--c', COLOR[m]); b.setAttribute('aria-pressed', 'false');
-      b.title = `${METRIC_WORDS[m].menu} each day. Click to see the chart.`;
+      b.title = `${METRIC_WORDS[m].menu} each day, and the total so far above. Click to see the chart.`;
       const v = document.createElement('div'); v.className = 'gr-v'; v.textContent = n(today);
       const l = document.createElement('div'); l.className = 'gr-l'; l.textContent = today === 1 ? METRIC_WORDS[m].one : METRIC_WORDS[m].chip;
       b.append(v, l, spark(xs, COLOR[m]));
