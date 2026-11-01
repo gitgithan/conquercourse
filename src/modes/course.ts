@@ -1,4 +1,3 @@
-import { applyWallpaper } from '../community/wallpaper';
 import { mountToasts } from '../ui/toast-stack';
 import { filmShotOf } from '../film/camera';
 import { hazardOf, HAZARD_INFO } from '../course/hazard';
@@ -140,7 +139,6 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
 
   const scene = new THREE.Scene();
   scene.background = new THREE.Color(/^[0-9a-f]{6}$/i.test(params.get('bg') ?? '') ? parseInt(params.get('bg')!, 16) : 0x9fc5e8); // ?bg=rrggbb only for pictures over other backgrounds (CC-167)
-  applyWallpaper(scene, params); // ?wallpaper=<id>: a crop of the person's photo behind the course (CC-249)
   const camera = new THREE.PerspectiveCamera(40, host.clientWidth / host.clientHeight, 0.1, 400);
   // the front view window (bottom right, above the drum lane's row): its frame is a div, its picture a second camera drawn in the same canvas
   const PIP_W = 260, PIP_H = 195, PIP_BOTTOM = 118;

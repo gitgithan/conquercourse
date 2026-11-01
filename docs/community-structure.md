@@ -1,5 +1,8 @@
 # How the Community area is organised (decided 2026-10-31)
 
+- **Wallpapers removed (owner, 2026-11-01):** a photo gives 3D pieces only; pictures are easy to get elsewhere and the app is not a photo store.
+- Where the text below still says wallpaper, it is history and no longer in the app.
+
 ## So what
 - Community should be one place with three steps inside it, not three more screens.
 - Objects and wallpapers are made inside the course-making flow, not beside it.

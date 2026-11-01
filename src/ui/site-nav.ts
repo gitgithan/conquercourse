@@ -11,7 +11,7 @@ export const FEATURES: FeatureTab[] = [
   { id: 'courses', label: 'Courses', hint: 'Pick a course and run it', href: null },
   { id: 'editor', label: 'World Editor', hint: 'Build a course from real objects', href: '?mode=editor&welcome=0' },
   { id: 'slicer', label: 'World Slicer', hint: 'Cut a lane out of a real place', href: '?mode=map&welcome=0' },
-  { id: 'community', label: 'Community', hint: 'Wallpapers and 3D objects made from real photos', href: '?mode=communities&welcome=0' },
+  { id: 'community', label: 'Community', hint: '3D objects made from real photos', href: '?mode=communities&welcome=0' },
 ];
 
 /** Which tab is marked on a page (the Dojo and the rest are not one of the four, so no tab is marked there). */

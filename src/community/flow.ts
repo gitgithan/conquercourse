@@ -6,7 +6,7 @@ export type Step = 'photo' | 'segment' | 'choose' | 'make';
 export const STEPS: { id: Step; label: string }[] = [
   { id: 'photo', label: 'Photo' }, { id: 'segment', label: 'Segment' }, { id: 'choose', label: 'Choose' }, { id: 'make', label: 'Make' },
 ];
-export type Kind = 'piece' | 'wallpaper';
+export type Kind = 'piece';
 export type Box = [number, number, number, number];
 
 export interface FlowState {
@@ -22,7 +22,7 @@ export function whyNot(step: Step, s: FlowState): string {
     case 'photo': return '';
     case 'segment': return s.hasPhoto ? '' : 'Pick a photo first.';
     case 'choose': return !s.hasPhoto ? 'Pick a photo first.' : !s.segmented ? 'Press Segment Region, then click the thing you want in the photo.' : '';
-    case 'make': return whyNot('choose', s) || (Object.keys(s.choices).length === 0 ? 'Choose 3D piece or Wallpaper for your pick.' : '');
+    case 'make': return whyNot('choose', s) || (Object.keys(s.choices).length === 0 ? 'Choose 3D piece for your pick.' : '');
   }
 }
 export const canEnter = (step: Step, s: FlowState): boolean => whyNot(step, s) === '';
@@ -33,7 +33,7 @@ export const prevStep = (step: Step): Step | null => STEPS[stepIndex(step) - 1]?
 // ---- tabs ----
 export type Tab = 'explore' | 'make';
 export const TABS: { id: Tab; label: string; hint: string }[] = [
-  { id: 'explore', label: 'Explore', hint: 'Finished courses, pieces and wallpapers people made' },
+  { id: 'explore', label: 'Explore', hint: 'Finished courses and pieces people made' },
   { id: 'make', label: 'Make your own', hint: 'Photo, Segment, Choose, Make' },
 ];
 /** Which tab opens: Explore first, so a person sees finished work before the making flow. `?tab=make` (or the old `photos`) opens the flow; the old objects, places and gallery addresses open Explore. */
@@ -42,17 +42,6 @@ export function tabFor(mode: string | null, params: URLSearchParams): Tab {
   if (t === 'make' || t === 'photos') return 'make';
   if (t === 'explore' || t === 'objects' || t === 'places') return 'explore';
   return mode === 'gallery' ? 'explore' : 'explore';
-}
-
-// ---- wallpaper crop ----
-/** The crop for a wallpaper: the picked box, widened a little to the course's 16:9 look and kept inside the photo. */
-export function wallpaperCrop(box: Box, width: number, height: number): Box {
-  let [x0, y0, x1, y1] = box;
-  const w = x1 - x0, h = y1 - y0, want = 16 / 9;
-  if (w / h < want) { const nw = h * want, d = (nw - w) / 2; x0 -= d; x1 += d; } else { const nh = w / want, d = (nh - h) / 2; y0 -= d; y1 += d; }
-  const cw = Math.min(x1 - x0, width), ch = Math.min(y1 - y0, height);
-  const cx = Math.min(Math.max(x0, 0), width - cw), cy = Math.min(Math.max(y0, 0), height - ch);
-  return [Math.round(cx), Math.round(cy), Math.round(cx + cw), Math.round(cy + ch)];
 }
 
 // ---- the found things: a fixed order, and ticking several (CC-247) ----

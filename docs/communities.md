@@ -4,7 +4,6 @@
 - Open it with `?mode=communities`.
 
 ## What a person can make
-- **Wallpaper:** the photo hangs behind the lane like scenery.
   - It is for looks only: the course plays the same.
 - **3D object:** one picked thing becomes a solid piece for the World Editor.
   - It uses the photo-to-object lift (CC-221) and is saved in the browser as "Mine: name".
@@ -28,11 +27,10 @@
 
 ## Known gaps
 - Suggested outlines need the server job (CC-248).
-- A saved wallpaper shows behind a course when the address has `?wallpaper=<id>` (CC-249, first piece, in the new flow only).
-- Wallpapers are not shared (owner, 2026-11-01): pictures are easy to get, so a player shares them outside the app and loads them here.
+- Wallpapers were removed (owner, 2026-11-01): pictures are easy to get elsewhere and the app is not a photo store.
 - Only 3D pieces go to the Community gallery; old wallpaper rows stay in the table but are never listed.
 - Sharing: **Share in Community** stores a small picture (and the .glb for a piece) in D1; the safety check decides who sees it, and the owner can delete it (CC-247, `docs/community-flow-guide.md`).
-- Using another player's shared piece or wallpaper in your own editor or course is not built yet.
+- Using another player's shared piece in your own editor or course is not built yet.
 
 ## Suggested outlines (CC-248)
 - After a photo is chosen, the page asks `/api/segment` for things worth picking.
