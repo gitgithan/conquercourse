@@ -1,4 +1,4 @@
-// ?demo=lineup: the Rookie and the eight starter cast characters stand in an arc on a clean stage, all facing the camera (the group photo for the film).
+// ?demo=lineup: the two Rookies (Pip and Juno) and the eight starter cast characters stand in an arc on a clean stage, all facing the camera (the group photo for the film).
 // Film use only: the camera drifts slowly from the left to the right of the group, a pure function of the clock, so a stepped capture is the same every run.
 import * as THREE from 'three/webgpu';
 import { createStage } from '../render/scene';
