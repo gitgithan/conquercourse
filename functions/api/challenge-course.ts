@@ -4,6 +4,7 @@ import { listCommunity, readChallenge, registerChallenge, type ChallengeEnv } fr
 import { d1Challenges, type Db } from '../_lib/challenge-db';
 import { playerCode } from '../_lib/player';
 import { json as base } from '../_lib/http';
+import { featureOn, offWords, recordUsage } from '../_lib/usage';
 
 export interface Env { DB: Db; CHALLENGE?: string; REPLAY?: string }
 const json = (body: unknown, status = 200, extra: Record<string, string> = {}) => base(body, status, { 'cache-control': 'no-store', ...extra });
@@ -16,8 +17,10 @@ export const challengeEnv = (env: Env, request: Request): ChallengeEnv => ({
 
 export const onRequestPost = async ({ request, env }: { request: Request; env: Env }): Promise<Response> => {
   if (env.CHALLENGE === 'off') return json({ error: 'off', reason: 'not-ready' }, 503);
+  if (!(await featureOn(env.DB, 'community_share'))) return json({ error: 'off', reason: 'not-ready', message: offWords('community_share') }, 503);
   try {
     const r = await registerChallenge(challengeEnv(env, request), await request.text(), env.REPLAY === 'off');
+    if (r.status === 201) await recordUsage(env.DB, 'community_share', { created: 1 }); // a new course only; a repeat (200) is not new
     return json(r.body, r.status, r.headers);
   } catch (e) {
     const code = /D1_|SQLITE|database|no such table/i.test(String((e as Error)?.message)) ? 'db-error' : 'server-error';

@@ -8,8 +8,9 @@ import { askModeration } from './moderate';
 import { limited, waitSeconds } from './designer';
 import { refusalBody } from '../../src/slice/stages';
 import { json } from '../_lib/http';
+import { featureOn, offWords, recordUsage, type UsageDb } from '../_lib/usage';
 
-interface Env { CC_UPLOAD_TOKEN?: string; CC_SEGMENT_SUBMIT_URL?: string; CC_SEGMENT_STATUS_URL?: string; BASETEN_API_KEY?: string }
+interface Env { DB?: UsageDb; CC_UPLOAD_TOKEN?: string; CC_SEGMENT_SUBMIT_URL?: string; CC_SEGMENT_STATUS_URL?: string; BASETEN_API_KEY?: string }
 const MODAL_HOST = /^https:\/\/[a-z0-9-]+--[a-z0-9-]+(\.[a-z0-9-]+)?\.modal\.run\/?$/;
 
 export async function handle(b: Record<string, unknown>, env: Env, ip: string, fetcher: typeof fetch = fetch, burstMax = 10, now = Date.now()): Promise<{ status: number; body: Record<string, unknown> }> {
@@ -48,7 +49,10 @@ export const onRequestPost = async ({ request, env }: { request: Request; env: E
   if (raw.length > 2_200_000) return json({ error: 'bad', message: 'The photo is too big.' }, 413);
   let b: Record<string, unknown>;
   try { b = JSON.parse(raw); } catch { return json({ error: 'bad' }, 400); }
+  const submit = b.action === 'submit';
+  if (submit && !(await featureOn(env.DB, 'segment'))) return json({ error: 'off', message: offWords('segment') }, 503);
   const r = await handle(b, env, request.headers.get('cf-connecting-ip') ?? 'local');
+  if (submit && r.status === 200) await recordUsage(env.DB, 'segment');
   const wait = (r.body as { retryAfterSeconds?: number }).retryAfterSeconds;
   return json(r.body, r.status, typeof wait === 'number' ? { 'retry-after': String(wait) } : {});
 };

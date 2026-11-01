@@ -11,6 +11,7 @@ import { d1Ledger } from '../../src/slice/d1-ledger';
 import { LIMIT_WORDS, memoryLedger, utcDay, DEFAULT_LIMITS, type Ledger, type Limits } from '../../src/slice/upload-gates';
 import { playerCode } from '../_lib/player';
 import { json } from '../_lib/http';
+import { featureOn, offWords, recordUsage } from '../_lib/usage';
 
 interface Env { DB?: Parameters<typeof d1Ledger>[0]; CC_UPLOAD_TOKEN?: string; CC_UPLOAD_SUBMIT_URL?: string; CC_UPLOAD_STATUS_URL?: string; BASETEN_API_KEY?: string }
 const MODAL_HOST = /^https:\/\/[a-z0-9-]+--[a-z0-9-]+(\.[a-z0-9-]+)?\.modal\.run\/?$/; // the app host may carry a region: x--y.us-east.modal.run
@@ -69,7 +70,10 @@ export const onRequestPost = async ({ request, env }: { request: Request; env: E
   if (raw.length > 2_200_000) return json({ error: 'bad', message: 'The photo is too big.' }, 413);
   let b: Record<string, unknown>;
   try { b = JSON.parse(raw); } catch { return json({ error: 'bad' }, 400); }
+  const submit = b.action === 'submit';
+  if (submit && !(await featureOn(env.DB, 'photo3d'))) return json({ error: 'off', message: offWords('photo3d') }, 503);
   const r = await handle(b, env, request.headers.get('cf-connecting-ip') ?? 'local', fetch, 6, env.DB ? d1Ledger(env.DB) : sharedLedger);
+  if (submit && r.status === 200) await recordUsage(env.DB, 'photo3d');
   const wait = (r.body as { retryAfterSeconds?: number }).retryAfterSeconds;
   return json(r.body, r.status, wait ? { 'retry-after': String(wait) } : {});
 };

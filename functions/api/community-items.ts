@@ -12,6 +12,7 @@ import { limited, waitSeconds } from './designer';
 import { refusalBody } from '../../src/slice/stages';
 import { playerCode } from '../_lib/player';
 import { json } from '../_lib/http';
+import { featureOn, offWords, recordUsage } from '../_lib/usage';
 
 interface Stmt { bind(...v: unknown[]): { run(): Promise<{ meta?: { changes?: number } }>; first<T>(): Promise<T | null>; all<T>(): Promise<{ results: T[] }> } }
 export interface Db { prepare(sql: string): Stmt }
@@ -117,7 +118,9 @@ export const onRequestPost = async ({ request, env }: { request: Request; env: E
   let b: Record<string, unknown>;
   try { b = JSON.parse(raw); } catch { return json({ error: 'bad' }, 400); }
   const ip = request.headers.get('cf-connecting-ip') ?? 'local';
+  if (b.action === 'publish' && !(await featureOn(env.DB, 'community_share'))) return json({ error: 'off', message: offWords('community_share') }, 503);
   const r = b.action === 'delete' ? await remove(b, env) : b.action === 'publish' ? await publish(b, env, ip) : { status: 400, body: { error: 'bad' } };
+  if (b.action === 'publish' && r.status === 200) await recordUsage(env.DB, 'community_share', { created: 1 });
   const wait = (r.body as { retryAfterSeconds?: number }).retryAfterSeconds;
   return json(r.body, r.status, wait ? { 'retry-after': String(wait) } : {});
 };
