@@ -1,0 +1,32 @@
+{
+  "experiment": "film-render-speed",
+  "date": "2026-11-01",
+  "issue": "CC-209",
+  "question": "Does a Modal GPU container draw the film frames faster than the laptop?",
+  "page": "preview site, ?welcome=0, 1280 x 720, 20 stepped screenshot frames",
+  "results": [
+    {
+      "where": "laptop (WSL)",
+      "flags": "software",
+      "renderer": "SwiftShader",
+      "live_fps": 2.8,
+      "seconds_for_20_frames": 54.8
+    },
+    {
+      "where": "Modal L4",
+      "flags": "software",
+      "renderer": "SwiftShader",
+      "live_fps": 2.2,
+      "seconds_for_20_frames": 120.2
+    },
+    {
+      "where": "Modal L4",
+      "flags": "--use-gl=angle --use-angle=gl-egl",
+      "renderer": "Mesa llvmpipe (LLVM 15.0.7)",
+      "live_fps": 17,
+      "seconds_for_20_frames": 10.5
+    }
+  ],
+  "not_reached": "a real graphics GPU in Chromium (laptop or Modal)",
+  "cost_estimate_usd": 0.5
+}
