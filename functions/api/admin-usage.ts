@@ -96,13 +96,23 @@ export async function setFlag(db: AdminDb, name: string, on: boolean, now = Date
   await db.prepare('INSERT INTO flags (name, on_, note, changed_at) VALUES (?, ?, NULL, ?) ON CONFLICT (name) DO UPDATE SET on_ = excluded.on_, changed_at = excluded.changed_at').bind(name, on ? 1 : 0, Math.floor(now / 1000)).run();
 }
 
+/** Who made what, newest first (the last 200 of each): pieces and wallpapers shared to Community, and characters. "owner" is an anonymous code, never a name or an address. */
+export async function made(db: AdminDb): Promise<{ items: Record<string, unknown>[]; characters: Record<string, unknown>[] }> {
+  const get = async (sql: string): Promise<Record<string, unknown>[]> => { try { return (await db.prepare(sql).all<Record<string, unknown>>()).results; } catch { return []; } };
+  const code = (r: Record<string, unknown>) => ({ ...r, owner: String(r.owner ?? '').slice(0, 8) });
+  return {
+    items: (await get('SELECT id, owner, kind, name, status, created_at AS at, moderation FROM community_items ORDER BY created_at DESC LIMIT 200')).map(code),
+    characters: (await get('SELECT id, owner, name, prompt, provider, status, reports, picks, ts AS at FROM characters ORDER BY ts DESC LIMIT 200')).map(code),
+  };
+}
+
 export async function route(request: Request, env: Env, fetcher: typeof fetch = fetch, now = Date.now()): Promise<Response> {
   const w = await who(request, env, fetcher, now);
   if (w === 'none') return notFound();
   if (w === 'denied') return reply({ error: 'not allowed' }, 401);
   if (!env.DB) return reply({ error: 'no database' }, 503);
   try {
-    if (request.method === 'GET') return reply(await report(env.DB, env, now));
+    if (request.method === 'GET') return reply(new URL(request.url).searchParams.get('view') === 'made' ? await made(env.DB) : await report(env.DB, env, now));
     if (request.method === 'POST') {
       const raw = await request.text();
       if (raw.length > 500) return reply({ error: 'bad' }, 413);

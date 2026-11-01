@@ -226,3 +226,20 @@ describe('/api/admin-usage', () => {
     });
   });
 });
+
+import { made } from '../functions/api/admin-usage';
+describe('who made what', () => {
+  it('lists shared items and characters newest first, with a short anonymous owner code and no files', async () => {
+    const { db, sql } = localD1();
+    sql.prepare("INSERT INTO community_items (id, owner, kind, name, status, created_at, thumb, glb, meta, moderation) VALUES ('a','abcdefghijklmnop','piece','Planter','approved',100,'THUMB','GLB','{}','ok:none')").run();
+    sql.prepare("INSERT INTO community_items (id, owner, kind, name, status, created_at, thumb, glb, meta, moderation) VALUES ('b','zzzzzzzzzzzz','piece','Rail','pending',200,'','','{}','')").run();
+    const r = await made(db as never);
+    expect(r.items.map((i) => i.id)).toEqual(['b', 'a']);
+    expect(r.items[0].owner).toBe('zzzzzzzz');
+    expect(JSON.stringify(r)).not.toContain('THUMB'); expect(JSON.stringify(r)).not.toContain('GLB');
+  });
+  it('answers 401 without the token and needs it for the made view', async () => {
+    const res = await route(new Request('https://x/api/admin-usage?view=made', { headers: { 'x-admin-token': 'wrong' } }), { DB: localD1().db as never, ADMIN_TOKEN: 'right' });
+    expect(res.status).toBe(401);
+  });
+});
