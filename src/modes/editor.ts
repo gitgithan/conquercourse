@@ -154,6 +154,7 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
     } else if (m) { pendingObjects.length = 0; pieces = [{ ...newPiece(m.name, { positions: m.positions, indices: m.indices }), src: `map:${m.name}` }]; selected = pieces[0].id; mapCamera = m.camera ?? null; }
     if (m?.objects?.length) pendingObjects.push(...m.objects); // CC-238: photo objects that stand on the place (the film's start scene)
   } catch { /* no place waiting */ }
+  if (document.documentElement.dataset.laneFrom === 'place' && level !== 0 && pieces.length) { for (const q of pieces) q.y -= level; level = 0; } // owner 2026-11-01: the water always starts at 0; the place sinks by the cut height instead, so the proved lane is the same lane
   // CC-80: coming from the Course ("Edit this course", "Make it easier"): the course's own pieces replace the saved world, and "Back to the Course" returns to it
   const handoff = readHandoff();
   if (handoff && !pieces.some((q) => q.src?.startsWith('map:'))) {
