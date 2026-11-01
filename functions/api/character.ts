@@ -10,6 +10,7 @@
 // A made character starts private (status 'private': only its maker sees it, kept 30 days unused); Publish makes it 'ok'. GET also takes sort=newest|picked, q=<name search>, page=<0 based>.
 // The gates, in order: request shape -> burst limit -> prompt rules -> optional safety check -> same prompt already made -> daily slot -> start the job.
 // A slot is taken only after those pass and given back once if the job fails. Abuse limits: kept in the private notes.
+import { waitTimer } from '../_lib/analytics';
 import { cardName, cleanPrompt, promptKey, promptProblem } from '../../src/characters/prompt';
 import { glbProblems, THUMB_OK } from '../../src/characters/limits';
 import { CHARACTER_STEPS, EXPIRY_DAYS, KEEPER_PICKS, PANEL_SIZE, PRIVATE_DAYS, type CharacterCard } from '../../src/characters/steps';
@@ -189,7 +190,9 @@ export const onRequestPost = async ({ request, env }: { request: Request; env: E
   const create = b.action === 'create';
   if (create && !(await featureOn(env.DB, 'character'))) return json({ error: 'off', message: offWords('character') }, 503);
   if (create) { const c = await checkTurnstile(env, b.turnstile, request.headers.get('cf-connecting-ip') ?? 'local'); if (!c.ok) return json({ error: 'check', message: c.message }, 403); }
-  const r = await handle(b, { db: env.DB, env, ip: request.headers.get('cf-connecting-ip') ?? 'local' });
+  const wt = waitTimer('character');
+  const r = await handle(b, { db: env.DB, env, ip: request.headers.get('cf-connecting-ip') ?? 'local', fetcher: create ? wt.fetcher : undefined });
+  if (create) await wt.flush(env.DB);
   if (create && r.status === 200 && typeof (r.body as { id?: unknown }).id === 'string') await recordUsage(env.DB, 'character'); // only a job that started; a repeat of an old prompt costs nothing
   const wait = (r.body as { retryAfterSeconds?: number }).retryAfterSeconds;
   return json(r.body, r.status, wait ? { 'retry-after': String(wait) } : {});

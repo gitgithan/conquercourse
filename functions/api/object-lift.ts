@@ -3,6 +3,7 @@
 //   POST {action:"status", id} -> {state:"running"} | {state:"done", glb (base64), mesh, privacy, retry, seconds} | {state:"failed", reason}
 // The Modal token lives only in the CC_UPLOAD_TOKEN secret; nothing is stored here. A switch: with no secret set the route answers 503, so it is off by default.
 // The photo is checked by Muse Spark Open first (askModeration). People are allowed (the pipeline blurs them); real worries stop the job. A broken checker is recorded as "skipped".
+import { waitTimer } from '../_lib/analytics';
 import { cleanRequest, moderationStops, requestProblem } from '../../src/slice/object-lift';
 import { askModeration } from './moderate';
 import { limited, waitSeconds } from './designer';
@@ -80,7 +81,9 @@ export const onRequestPost = async ({ request, env }: { request: Request; env: E
   const submit = b.action === 'submit';
   if (submit && !(await featureOn(env.DB, 'photo3d'))) return json({ error: 'off', message: offWords('photo3d') }, 503);
   if (submit) { const c = await checkTurnstile(env, b.turnstile, request.headers.get('cf-connecting-ip') ?? 'local', fetch, b.pass, b.image); if (!c.ok) return json({ error: 'check', message: c.message }, 403); }
-  const r = await handle(b, env, request.headers.get('cf-connecting-ip') ?? 'local', fetch, 6, env.DB ? d1Ledger(env.DB) : sharedLedger);
+  const wt = waitTimer('object-lift');
+  const r = await handle(b, env, request.headers.get('cf-connecting-ip') ?? 'local', submit ? wt.fetcher : fetch, 6, env.DB ? d1Ledger(env.DB) : sharedLedger);
+  if (submit) await wt.flush(env.DB);
   if (submit && r.status === 200) await recordUsage(env.DB, 'photo3d');
   const wait = (r.body as { retryAfterSeconds?: number }).retryAfterSeconds;
   return json(r.body, r.status, wait ? { 'retry-after': String(wait) } : {});
