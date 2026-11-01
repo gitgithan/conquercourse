@@ -1,8 +1,8 @@
 // The film camera: scripted shots for the demo video (CC-130). Each shot is a pure function of the time in seconds, so a film frame is the same every run.
 // It only runs with ?film=<shot> in the address; play never loads it.
 
-export type FilmShot = 'flyover' | 'orbit' | 'follow' | 'push' | 'hero' | 'macro' | 'spin' | 'skyline' | 'dive' | 'eyes' | 'aerial' | 'side' | 'tour' | 'close' | 'rig';
-export const FILM_SHOTS: FilmShot[] = ['flyover', 'orbit', 'follow', 'push', 'hero', 'macro', 'spin', 'skyline', 'dive', 'eyes', 'aerial', 'side', 'tour', 'close', 'rig'];
+export type FilmShot = 'flyover' | 'orbit' | 'follow' | 'push' | 'hero' | 'macro' | 'spin' | 'skyline' | 'dive' | 'eyes' | 'aerial' | 'side' | 'tour' | 'close' | 'rig' | 'clean' | 'eyesC';
+export const FILM_SHOTS: FilmShot[] = ['flyover', 'orbit', 'follow', 'push', 'hero', 'macro', 'spin', 'skyline', 'dive', 'eyes', 'aerial', 'side', 'tour', 'close', 'rig', 'clean', 'eyesC'];
 
 export interface Pose { pos: [number, number, number]; look: [number, number, number]; fov: number; hideBody?: boolean }
 export interface FilmCtx {
@@ -15,7 +15,7 @@ export interface FilmCtx {
   rig?: Record<string, number>; // rig shot only: the numbers from the address (see rig below)
 }
 
-export const SHOT_SECONDS: Record<FilmShot, number> = { flyover: 12, orbit: 8, follow: 10, push: 7, hero: 11, macro: 4, spin: 1.1, skyline: 7.2, dive: 4.8, eyes: 3.6, aerial: 7.2, side: 60, tour: 12, close: 60, rig: 1 };
+export const SHOT_SECONDS: Record<FilmShot, number> = { flyover: 12, orbit: 8, follow: 10, push: 7, hero: 11, macro: 4, spin: 1.1, skyline: 7.2, dive: 4.8, eyes: 3.6, aerial: 7.2, side: 60, tour: 12, close: 60, rig: 1, clean: 1, eyesC: 2.4 };
 
 const clamp01 = (x: number) => Math.max(0, Math.min(1, x));
 const ease = (x: number) => { const t = clamp01(x); return t * t * (3 - 2 * t); }; // smooth start and end
@@ -79,6 +79,23 @@ function eyes(t: number, c: FilmCtx): Pose {
   const ahead = ease(clamp01((u - 0.3) / 0.6)); // the look point moves from the runner to the way ahead
   const look: [number, number, number] = [mix(head[0] + 4, head[0] + 10, ahead), mix(head[1] - 0.6, head[1] - 0.4, ahead), 0.1];
   return { pos, look, fov: mix(40, 75, ease(clamp01((u - 0.5) / 0.5))), hideBody: dist < 1.0 };
+}
+
+// Into the runner's eyes (version C of the film): the camera leaves the side view, swings round behind the runner on a steady arc, closes in and ends at the eyes, looking down the course.
+// One move with one cause (the runner keeps running); the runner's body is hidden once the camera is inside the head, as in the game's own first-person view.
+function eyesC(t: number, c: FilmCtx): Pose {
+  const u = ease(t / SHOT_SECONDS.eyesC);
+  const head: [number, number, number] = [c.runnerX + 0.15, c.runnerY + 1.62, 0.1];
+  const side: [number, number, number] = [c.runnerX + 5, c.runnerY + 2.5, 0]; // where the game's own side camera looks, so the shot starts exactly where the side view was
+  const target: [number, number, number] = [mix(side[0], head[0], u), mix(side[1], head[1], u), mix(side[2], head[2], u)];
+  const yaw = -u * Math.PI * 0.5; // from the side (+z) round behind the runner (running to the right)
+  const dist = 25 * Math.pow(1 - u, 2.2);
+  const pitch = mix(0.06, 0.03, u);
+  const pos: [number, number, number] = [target[0] + dist * Math.cos(pitch) * Math.sin(yaw), target[1] + dist * Math.sin(pitch), target[2] + dist * Math.cos(pitch) * Math.cos(yaw)];
+  const ahead: [number, number, number] = [head[0] + 10, head[1] - 0.4, head[2]];
+  const aim = ease(Math.max(0, (u - 0.35) / 0.65)); // the gaze swings from the runner to the course ahead late in the move
+  const look: [number, number, number] = [mix(target[0], ahead[0], aim), mix(target[1], ahead[1], aim), mix(target[2], ahead[2], aim)];
+  return { pos, look, fov: mix(40, 75, u) };
 }
 
 // Around one obstacle, from the front-left to the back-right, closing in a little.
@@ -169,6 +186,8 @@ export function filmPose(shot: FilmShot, t: number, c: FilmCtx): Pose {
     case 'skyline': return skyline(t, c);
     case 'dive': return t >= SHOT_SECONDS.dive ? side(t, c) : dive(t, c);
     case 'eyes': return eyes(t, c);
+    case 'eyesC': return eyesC(t, c);
+    case 'clean': return dive(0, c); // not used: the Course keeps its own camera for 'clean'
     case 'aerial': return aerial(t, c);
     case 'side': return side(t, c);
     // the owner's script in one move: dive onto the start in side view (4.8 s), run in side view (3.6 s), then round behind the runner and into the eyes (3.6 s)
