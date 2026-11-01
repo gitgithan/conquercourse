@@ -103,7 +103,7 @@ function eyesC(t: number, c: FilmCtx): Pose {
 export const MATRIX_YAW: [number, number] = [-Math.PI / 2, Math.PI / 4]; // behind ... front-45
 function matrix(t: number, c: FilmCtx): Pose {
   const u = ease(t / SHOT_SECONDS.matrix);
-  return around([c.runnerX, c.runnerY + 0.2, 0], mix(6.5, 9.5, u), mix(MATRIX_YAW[0], MATRIX_YAW[1], u), rad(mix(5, 9, u)), 38);
+  return around([c.runnerX, c.runnerY + 0.6, 0], mix(6.5, 9.5, u), mix(MATRIX_YAW[0], MATRIX_YAW[1], u), rad(mix(5, 9, u)), 38);
 }
 
 // Around one obstacle, from the front-left to the back-right, closing in a little.
