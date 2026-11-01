@@ -134,7 +134,7 @@ sequenceDiagram
 - **Explore** (opens first), top to bottom:
   - **Make your own**: the button that opens the Make tab.
   - **Pieces people made**: our examples (only those with a picture), then yours from this browser, then pieces shared by players.
-  - Each card has a small source crop picture, **Look around** (opens the same 3D turntable as a new piece) and **Use in my World Editor**.
+  - Each card has a small source crop picture, **See Object** (opens the same 3D turntable as a new piece) and **Use in my World Editor**.
   - A search box (by name) and **Show more** keep the list short.
   - There is no courses block and no kind filter.
 - **Make**: the three steps below.
@@ -219,7 +219,7 @@ sequenceDiagram
 - Desktop at 1280 px only.
 
 ## Using other players' pieces
-- In Explore, another player's piece (once it has passed the safety check) has **Look around** and **Use in my World Editor**.
+- In Explore, another player's piece (once it has passed the safety check) has **See Object** and **Use in my World Editor**.
 - Use in my World Editor adds it to your own list, then offers **Open the World Editor**.
 - In the editor it sits under **Shared pieces** in Add pieces, and you place it like any other piece.
 - Pieces that are waiting, held or blocked never get the button, and the server will not hand their model to anyone but the maker.
