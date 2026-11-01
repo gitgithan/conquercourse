@@ -1,5 +1,6 @@
 // ?mode=map: pick a place on a real map, press "Build this place", and its buildings arrive in the world editor as one piece (CC-48).
 // Map: MapLibre GL with OpenFreeMap tiles (no key). Search: Nominatim (no key, one call per search). Buildings: Overpass (no key).
+import { nameFor, pinLabel, shortFromAddress, type Address } from '../world/place-name';
 import { simSaysPanel, slicerWords } from '../ui/sim-says';
 import { customOf as customOfK, openingFor, provenSummary, sameLine, tourOf, type DefaultsFile, type SlicerDefault } from '../slice/slicer-default';
 import * as maplibregl from 'maplibre-gl';
@@ -7,7 +8,7 @@ import 'maplibre-gl/dist/maplibre-gl.css';
 import workerUrl from 'maplibre-gl/dist/maplibre-gl-worker.mjs?url';
 import { buildingsFrom, extrude, osmToMesh, type OverpassAnswer } from '../world/osm';
 import { installPlaces } from './map-place';
-import type { PlaceLane } from '../world/places';
+import type { PlaceLane, ReadyIndexEntry } from '../world/places';
 import { fetchGround, lowest, relief, TERRAIN_ATTRIBUTION, type Ground, type Tile } from '../world/terrain';
 import { buildingTops, contourSegments, cutBuildings, cutRange, handoverLane, ladderLevels, ladderStep, laneLine, piecesFrom, resample, slopeCells, toLonLat, type MapPiece, type Seg } from '../slice/slicer';
 import { reducedMotion, runFlight, scaleWords } from './map-flight';
@@ -57,6 +58,7 @@ export function startMap(host: HTMLElement): { backend: 'webgl2' } {
     .mp .legend{display:flex;flex-wrap:wrap;gap:2px 8px;font-size:11px;color:#58635d}.mp .legend i{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:3px;vertical-align:-1px}.mp .legend span{cursor:help}.mp .fix{display:grid;gap:3px;margin-top:4px}.mp .fix button{text-align:left}.mp details summary{cursor:pointer;font-size:12px;color:#58635d}
     .mp .hits{display:grid;gap:4px}.mp .hits button{text-align:left}.mp .say{border-left:4px solid #0f6b5c;padding:3px 6px;background:#f3f7f4;font-size:13px}.mp .say.bad{border-color:#c0392b;background:#fbeeee}
     .mp .hrow{display:flex;justify-content:space-between;align-items:center;gap:8px}.mp .helpbtn{background:#b4510a;color:#fff;border-color:#b4510a;font-weight:700;border-radius:999px;padding:5px 14px;white-space:nowrap;box-shadow:0 2px 0 #7a3607}.mp .flash{animation:ccflash 1.2s ease 2}@keyframes ccflash{50%{box-shadow:0 0 0 4px #b4510a66}}
+    .mp .yp{position:sticky;top:-10px;z-index:5;margin:0 -10px;padding:6px 10px;background:#e7f3ee;border-bottom:1px solid #b9d3c8;display:flex;gap:8px;align-items:baseline;flex-wrap:wrap}.mp .yp[hidden]{display:none}.mp .ypl{font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:#0f6b5c;font-weight:700}.mp .yp b{font-size:15px}.mp .yp button{padding:1px 8px;font-size:12px}
     .mp .how{background:#fff;border:1px solid #cfd8d1;border-radius:12px;padding:10px 12px;display:grid;gap:6px}.mp .how h2{margin:0;font-size:13px;letter-spacing:.04em;text-transform:uppercase;color:#58635d;display:flex;justify-content:space-between;align-items:center}
     .mp .how ol{list-style:none;margin:0;padding:0;display:grid;gap:4px}.mp .how li{display:grid;grid-template-columns:24px 1fr;gap:8px;align-items:start;padding:5px 6px;border-radius:8px;color:#58635d}
     .mp .how li b.n{width:22px;height:22px;border-radius:50%;background:#dfe5e0;color:#58635d;display:grid;place-items:center;font-size:12px}.mp .how li.now{background:#e7f3ee;color:#17201d}.mp .how li.now b.n{background:#0f6b5c;color:#fff}.mp .how li.done b.n{background:#8fd3a8;color:#17201d}
@@ -72,6 +74,7 @@ export function startMap(host: HTMLElement): { backend: 'webgl2' } {
   const HOW = q.get('slicehow') !== '0'; // first-timer steps; ?slicehow=0 hides them
   const S2 = q.get('slice2') !== 'old'; // CC-201 and the slicer fixes after it: ?slice2=old keeps the screen as it was
   side.innerHTML = `${S2 ? '<button id="backcourses" type="button" title="Open the list of courses" style="width:calc(100% - 104px)">← Back to courses</button>' : ''}<div class="hrow"><h1>World Slicer: pick a place</h1>${HOW ? '<button id="help" type="button" class="helpbtn" title="Steps, tips, and what to do when the simulator says no path">? Help</button>' : ''}</div>
+    <div id="yourplace" class="yp" hidden><span class="ypl">Your place</span><b id="ypname"></b><button id="ypback" type="button" hidden title="Fly back to the place you used last time"></button></div>
     ${HOW ? `<div id="how" class="how"><h2><span>How it works</span><button id="howhide" type="button" title="Hide these steps">Got it</button></h2><ol>
       <li data-step="1"><b class="n">1</b><div><span class="t">Slice this place</span><span class="d">Search, or click the map to drop a pin, then press Slice.</span></div></li>
       <li data-step="2"><b class="n">2</b><div><span class="t">Shape it</span><span class="d">Tune what you cut: the radius and the shrink, the cut height (slide the bar or click a height), and which buildings stay (click one to leave it out, Shift and drag picks a box).</span></div></li>
@@ -182,13 +185,31 @@ export function startMap(host: HTMLElement): { backend: 'webgl2' } {
     const box = side.querySelector('#mapphotos') as HTMLElement | null;
     if (d && box) photos = mountPlacePhotos(box, d, { floating: false });
   }
-  const dropPin = (lat: number, lon: number) => {
+  const dropPin = (lat: number, lon: number, hint?: string) => {
     pin = { lat, lon }; marker.setLngLat([lon, lat]).addTo(map); build.disabled = false; sliceBtn.disabled = false;
     document.documentElement.dataset.pin = `${lat.toFixed(5)},${lon.toFixed(5)}`;
-    void showPhotos(lat, lon);
+    void showPhotos(lat, lon); void namePin(lat, lon, hint);
     tell(`Pin at ${lat.toFixed(4)}, ${lon.toFixed(4)}.${places?.snapNote(lat, lon) ?? ''}`);
     places?.prefetch();
   };
+    // CC-90: the picked place is named at the top of the panel (and remembered), so a player who scrolls away or comes back knows where they are
+  const yp = $('yourplace'), ypName = $('ypname'), ypBack = $<HTMLButtonElement>('ypback'); let readyIdx: ReadyIndexEntry[] | null = null, nameToken = 0;
+  const KEYP = 'cc.slicer.place', lastPlace = (): { name: string; lat: number; lon: number } | null => { try { return JSON.parse(localStorage.getItem(KEYP) ?? 'null'); } catch { return null; } };
+  const showName = (name: string, lat: number, lon: number) => { yp.hidden = false; ypBack.hidden = true; ypName.textContent = name; dset('placeName', name); try { localStorage.setItem(KEYP, JSON.stringify({ name, lat, lon })); } catch { /* the name still shows */ } };
+  async function namePin(lat: number, lon: number, hint?: string) {
+    const my = ++nameToken;
+    try { readyIdx ??= (await (await fetch('/assets/places/index.json')).json()) as ReadyIndexEntry[]; } catch { readyIdx = []; }
+    if (my !== nameToken) return;
+    const known = nameFor(lat, lon, readyIdx, hint); if (known) { showName(known, lat, lon); return; }
+    showName(pinLabel(lat, lon), lat, lon); // until the map's address arrives
+    try {
+      const r = await fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&zoom=17&addressdetails=1&lat=${lat}&lon=${lon}`, { referrerPolicy: 'no-referrer', signal: AbortSignal.timeout(8000) });
+      if (!r.ok || my !== nameToken) return;
+      const j = (await r.json()) as { name?: string; address?: Address };
+      const best = shortFromAddress(j.address ?? {}, j.name && j.name.length ? j.name : undefined); if (best && my === nameToken) showName(best, lat, lon);
+    } catch { /* the pin label stays */ }
+  }
+  { const last = lastPlace(); if (last) { yp.hidden = false; ypName.textContent = 'none yet'; ypBack.hidden = false; ypBack.textContent = `Back to ${last.name}`; ypBack.onclick = () => { map.flyTo({ center: [last.lon, last.lat], zoom: 16, duration: 800 }); dropPin(last.lat, last.lon, last.name); }; } }
   map.on('click', (e) => { if (S) pickClick(e.point); else dropPin(e.lngLat.lat, e.lngLat.lng); });
   places = installPlaces({
     map, side, tell, pin: () => pin, radius: () => Number(radius.value), hills: () => (S2 ? q.get('hills') !== '0' : $<HTMLInputElement>('hills').checked), strict: S2,
@@ -201,7 +222,7 @@ export function startMap(host: HTMLElement): { backend: 'webgl2' } {
 
   // search: one Nominatim call per press of Search (their policy: at most one request a second, no autocomplete); the browser sends no Referer
   const showHits = (list: { name: string; lat: number; lon: number }[]) => {
-    hits.replaceChildren(...list.map((h) => { const b = document.createElement('button'); b.type = 'button'; b.textContent = h.name; b.onclick = () => { map.flyTo({ center: [h.lon, h.lat], zoom: 16, duration: 800 }); dropPin(h.lat, h.lon); }; return b; }));
+    hits.replaceChildren(...list.map((h) => { const b = document.createElement('button'); b.type = 'button'; b.textContent = h.name; b.onclick = () => { map.flyTo({ center: [h.lon, h.lat], zoom: 16, duration: 800 }); dropPin(h.lat, h.lon, h.name); }; return b; }));
   };
   const form = $<HTMLFormElement>('searchform');
   form.onsubmit = async (e) => {
