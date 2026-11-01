@@ -48,8 +48,8 @@ function explainRaw(i: WhyInput): WhyAnswer {
   const drag = () => out.push({ text: 'Drag the white dots to run along a different street.', button: '', action: { kind: 'drag' } });
 
   if (!f) {
-    cutFix(near ?? withLane, 'it has a lane');
     shrinkFix(0.6, 'walls and falls shrink with it');
+    cutFix(near ?? withLane, 'it has a lane');
     putBack();
     return { kind: 'none', reason: 'No lane: every line meets a wall too tall to climb, a fall too long, or too little to run on.', suggestions: out.slice(0, 3) };
   }
