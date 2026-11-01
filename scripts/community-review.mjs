@@ -4,8 +4,8 @@
 //   node scripts/community-review.mjs show 7          save the photo of course 7 to a file you can open, print its boxes
 //   node scripts/community-review.mjs approve 7       show it in the gallery
 //   node scripts/community-review.mjs reject 7        hide it for good
-//   node scripts/community-review.mjs items           shared pieces and wallpapers waiting for a look (CC-247)
-//   node scripts/community-review.mjs item-approve ID  show a held piece or wallpaper to everyone
+//   node scripts/community-review.mjs items           shared pieces waiting for a look (CC-247)
+//   node scripts/community-review.mjs item-approve ID  show a held piece to everyone
 //   node scripts/community-review.mjs item-remove ID   take one down and empty its files
 // DB=conquercourse-preview picks the preview database (the default is the live one).
 import { execFileSync } from 'node:child_process';
@@ -36,7 +36,7 @@ if (cmd === 'list') {
   console.log(`course ${id}: ${cmd === 'approve' ? 'approved' : 'rejected'}`);
 } else if (cmd === 'items') {
   const rows = run("SELECT id, kind, name, status, created_at, moderation, length(thumb) + length(glb) AS bytes FROM community_items WHERE status != 'removed' ORDER BY status = 'pending' DESC, created_at DESC LIMIT 30");
-  if (!rows.length) console.log('No shared pieces or wallpapers yet.');
+  if (!rows.length) console.log('No shared pieces yet.');
   for (const r of rows) console.log(`${r.id} [${r.status}] ${r.kind} "${r.name}" ${new Date(r.created_at * 1000).toISOString()} check=${r.moderation} (${Math.round(r.bytes / 1000)} KB)`);
 } else if (cmd === 'item-approve' || cmd === 'item-remove') {
   if (!itemId) { console.error('Give the item code, e.g. item-approve k3x9a2mnpq'); process.exit(1); }

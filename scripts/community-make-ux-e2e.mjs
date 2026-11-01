@@ -1,11 +1,12 @@
-// CC-247: the Make your own flow with the real Modal jobs, against a deployed site (the preview):
-// upload a photo -> Segment Region -> tick two things -> make both -> prize turntable -> open the World Editor -> the piece is listed under "My pieces" and placed.
-// Costs a little real GPU time (one segment job and two lifts). Run: BASE=https://preview.conquercourse.pages.dev node scripts/community-make-ux-e2e.mjs out-dir
+// CC-247/249: the Make your own flow (Photo, Pick, Make) with the real Modal jobs, against a deployed site (the preview):
+// upload a photo -> Pick: Segment Region -> tick two things -> Make: name both and make both -> prize turntable -> open the World Editor -> the piece is listed under "My pieces" and placed.
+// Costs real GPU time (one segment job and two lifts), so it only runs with PAID=1. Run: PAID=1 BASE=https://preview.conquercourse.pages.dev node scripts/community-make-ux-e2e.mjs out-dir
 import { chromium } from 'playwright';
 import { mkdirSync, writeFileSync } from 'node:fs';
 const base = process.env.BASE ?? 'https://preview.conquercourse.pages.dev', out = process.argv[2] ?? 'test-results/make-ux';
 const photo = process.env.PHOTO ?? 'public/assets/park/park01.jpg';
 mkdirSync(out, { recursive: true });
+if (process.env.PAID !== '1') { console.log('This check starts paid GPU jobs. Run it with PAID=1 to go on.'); process.exit(2); }
 const log = []; const t0 = Date.now();
 const say = (k, v = true) => { log.push({ step: k, ok: v, at: Math.round((Date.now() - t0) / 1000) }); console.log(k, v); };
 const shot = (page, n) => page.screenshot({ path: `${out}/${n}.jpg`, type: 'jpeg', quality: 60 });
@@ -20,7 +21,7 @@ try {
   await page.waitForSelector('#cfile', { timeout: 90000 });
   await page.setInputFiles('#cfile', photo);
   await page.waitForSelector('.stage img', { timeout: 30000 }); await page.waitForTimeout(600);
-  say('on Segment', (await page.textContent('.panel .muted')).slice(0, 120));
+  say('on Pick', (await page.textContent('.panel .muted')).slice(0, 120));
   await shot(page, '1-segment-before');
   const tSeg = Date.now();
   await page.click('#cseg');
@@ -38,10 +39,11 @@ try {
   // a click picks the first found thing, a click on another picks it too
   await page.click('.stage .box:nth-of-type(1)'); await page.click('.stage .box:nth-of-type(2)');
   say('ticked', await page.$$eval('#cfound input:checked', (n) => n.length));
-  await page.click('#cnext'); await page.waitForSelector('[id^=choose-piece-]');
+  say('Next button says', await page.textContent('#cnext'));
+  await page.click('#cnext'); await page.waitForSelector('.item');
   const ids = await page.$$eval('.item', (n) => n.map((x) => x.dataset.id));
-  for (const id of ids) { const v = await page.inputValue(`#cname-${id}`); if (!/^[a-z][a-z \-]{1,29}$/.test(v)) await page.fill(`#cname-${id}`, 'railing'); await page.click(`#choose-piece-${id}`); }
-  await page.click('#cnext'); await page.waitForSelector('#make-all');
+  for (const id of ids) { const v = await page.inputValue(`#cname-${id}`); if (!/^[a-z][a-z \-]{1,29}$/.test(v)) await page.fill(`#cname-${id}`, 'railing'); }
+  await page.waitForSelector('#make-all');
   say('make button', await page.textContent('#make-all'));
   await shot(page, '3-make');
   const tMake = Date.now();
