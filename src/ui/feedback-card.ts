@@ -1,6 +1,7 @@
 import { closeOnBackdrop } from './backdrop';
 import { pageQuery } from '../flags';
 import { currentWorld } from './world-picker';
+import { turnstileToken } from './turnstile';
 import {
   KINDS, KIND_INFO, WHY_CHIPS, LIMITS, asksClear, screenLabel, buildContext, buildPayload, canSend, sentLines, emptyState,
   isRunning, onRunningChange, type FormState, type Kind,
@@ -161,7 +162,7 @@ export function openCard(mode: string, opener?: HTMLElement): void {
     if (!canSend(st)) return;
     send.disabled = true; note.textContent = 'Sending…';
     try {
-      const res = await fetch('/api/submit', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(buildPayload(st, sendOpts())) });
+      const res = await fetch('/api/submit', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ ...buildPayload(st, sendOpts()), turnstile: await turnstileToken() }) });
       if (res.status === 429) { note.textContent = 'That is a lot of notes in an hour. Please try again a little later.'; send.disabled = false; return; }
       if (!res.ok) throw new Error(String(res.status));
       card.replaceChildren(el('h2', '', 'Thank you!'), el('p', '', 'We read every one. You can keep playing.'));
