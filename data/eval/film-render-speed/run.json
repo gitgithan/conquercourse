@@ -28,5 +28,53 @@
     }
   ],
   "not_reached": "a real graphics GPU in Chromium (laptop or Modal)",
-  "cost_estimate_usd": 0.5
+  "cost_estimate_usd": 0.5,
+  "pixel_check": {
+    "date": "2026-11-01",
+    "method": "4 pages (Course, Editor, Slicer, Dojo) on a frozen clock, drawn by SwiftShader twice (noise floor) and once by llvmpipe, on Modal; per-pixel max channel difference",
+    "noise_soft_vs_soft": {
+      "course": {
+        "differing_pct": 0.11,
+        "over32_pct": 0.023
+      },
+      "dojo": {
+        "differing_pct": 0.0,
+        "over32_pct": 0.0
+      },
+      "editor": {
+        "differing_pct": 0.02,
+        "over32_pct": 0.015
+      },
+      "slicer": {
+        "differing_pct": 0.01,
+        "over32_pct": 0.006
+      }
+    },
+    "soft_vs_llvmpipe": {
+      "course": {
+        "differing_pct": 5.39,
+        "over8_pct": 1.26,
+        "over32_pct": 0.882,
+        "max": 224
+      },
+      "dojo": {
+        "differing_pct": 10.53,
+        "over8_pct": 0.0,
+        "over32_pct": 0.001,
+        "max": 56
+      },
+      "editor": {
+        "differing_pct": 10.85,
+        "over8_pct": 0.35,
+        "over32_pct": 0.209,
+        "max": 208
+      },
+      "slicer": {
+        "differing_pct": 4.0,
+        "over8_pct": 0.28,
+        "over32_pct": 0.042,
+        "max": 208
+      }
+    }
+  }
 }

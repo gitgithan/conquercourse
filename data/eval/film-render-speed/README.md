@@ -21,18 +21,40 @@
   - The L4 is a compute card; the container had no graphics driver Chromium could use.
   - The faster run is still software drawing, on the container's CPU cores.
 - The core count of the Modal container was not measured, so the speed-up may depend on it.
-- Frames per second is a sample of one run per row; the stepped-clock output was not compared pixel by pixel between renderers.
+- Frames per second is a sample of one run per row.
 - The laptop's own GPU is still unreached from Playwright inside WSL.
   - Every flag set tried (angle gl-egl, d3d12, gles, channel chromium) fell back to SwiftShader.
   - Vulkan and ozone variants hung.
 
+## Pixel check: do the two renderers draw the same picture?
+- Result: yes for the 3D scenes; they differ a little in text and thin lines.
+- Method: four pages (Course, Editor, Slicer, Dojo) on a frozen clock, drawn by SwiftShader twice and by llvmpipe once, on Modal.
+  - The two SwiftShader runs give the noise floor: 0 to 0.11 percent of pixels differ.
+  - The Course timer still differed between runs (7.8 s and 4.9 s), so that page also differs in its text.
+- SwiftShader against llvmpipe:
+
+| Page | Pixels that differ at all | By more than 32 levels (of 255) |
+|---|---|---|
+| Course | 5.4 percent | 0.88 percent |
+| Editor | 10.9 percent | 0.21 percent |
+| Slicer | 4.0 percent | 0.04 percent |
+| Dojo | 10.5 percent | 0.001 percent (largest step 56) |
+
+- Where the differences are: only on text, thin lines and the changing timer; sky, ground, water and the 3D view in the Editor show none (see `evidence/pixel-check-course.png` and `evidence/pixel-check-editor.png`; the right picture marks pixels that differ by more than 32).
+- A likely cause is how each run draws text (the llvmpipe run also sets `--enable-gpu-rasterization`); this was not isolated.
+- So what: the look of 3D scenery is the same, and the difference shows as slightly different text edges.
+- Rule: render every shot of one film on the same renderer (Modal, llvmpipe), and do not mix frames from the laptop's SwiftShader into it.
+- Not tested: a moving 3D course scene at the same game tick (the clock was frozen but the Course timer was not); a run with the same flags on both sides.
+
 ## Next steps, ranked
-- Compare a few llvmpipe frames with SwiftShader frames, to be sure the films look the same.
+- Render each film entirely on one renderer (see the pixel check below), and repeat the check on a 3D course scene at the same game tick.
 - Try the same flags on a CPU-only Modal container (cheaper) and on the laptop (the flags may reach llvmpipe there too).
 - Try Windows-side Chrome over CDP to use the laptop's real GPU.
 
 ## Files
 - `bench.mjs`: launches Chromium with the flags, reports the renderer, live fps and seconds for 20 frames.
 - `modal_bench.py`: the Modal app (L4, CUDA image, Playwright 1.49.1, Xvfb) that runs both modes.
+- `frames2.mjs` and `modal_px2.py`: the pixel check (frozen clock, three renders, difference numbers).
+- `evidence/`: two side-by-side pictures (SwiftShader, llvmpipe, difference).
 - `run.json`: the numbers above.
 - Raw frames are not tracked.
