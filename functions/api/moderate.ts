@@ -4,6 +4,7 @@
 // 429/502/503 with the same review body when the check could not run), so a caller that only reads "verdict" never lets an upload through by accident.
 // CC-112's moderation queue should call askModeration from its own server code; this route is the same call for a quick test.
 // Same key and defences as /api/designer: the key lives only in the BASETEN_API_KEY secret, the reasoning text is dropped, and there is a light rate limit.
+import { sameSecret } from './admin-usage';
 import { CAPTION_MAX, FAIL_CLOSED, MODERATION_PROMPT, parseVerdict, type Moderation } from '../../src/slice/moderation';
 import { limited, MAX_TOKENS, MODEL, URL_CHAT } from './designer';
 import { json } from '../_lib/http';
@@ -11,7 +12,7 @@ import { featureOn, offWords, recordUsage, type UsageDb } from '../_lib/usage';
 
 const MORE_TOKENS = 8000; // Muse Spark Open thinks before it answers; if it spent all of MAX_TOKENS thinking, ask once more with more room
 
-interface Env { DB?: UsageDb; BASETEN_API_KEY?: string }
+interface Env { DB?: UsageDb; BASETEN_API_KEY?: string; ADMIN_TOKEN?: string }
 export const MAX_IMAGE = 600_000; // about a 768 px JPEG as base64
 type Answer = { status: number; body: Moderation & { error?: string } };
 
@@ -44,6 +45,8 @@ export async function askModeration(key: string, b: Record<string, unknown>, fet
 
 export const onRequestPost = async ({ request, env }: { request: Request; env: Env }): Promise<Response> => {
   if (!env.BASETEN_API_KEY || !(await featureOn(env.DB, 'moderation'))) return json({ ...FAIL_CLOSED, error: offWords('moderation') }, 503);
+  // The page never calls this route (the upload routes call askModeration themselves), so it is owner-only: anyone else gets a plain 404 and no paid call.
+  if (!env.ADMIN_TOKEN || !(await sameSecret(request.headers.get('x-admin-token') ?? '', env.ADMIN_TOKEN))) return new Response('not found', { status: 404 });
   const raw = await request.text();
   if (raw.length > MAX_IMAGE + 600) return json({ ...FAIL_CLOSED, error: 'too big' }, 413);
   let b: Record<string, unknown>;
