@@ -17,6 +17,7 @@ import type { LaneSummary, SliceAnswer, SliceAsk, StripRow } from '../slice/slic
 import { whyNot } from '../slice/why';
 import { explainNoPath, type Suggestion } from '../slice/suggest';
 import { LANE_DROP } from '../sim/drop';
+import { CLIMBABLE } from '../slice/slice';
 import { createPerf } from '../ui/perf';
 import { pageQuery } from '../flags';
 import { mountStreetPanel, type StreetPanel } from '../ui/street-panel';
@@ -109,7 +110,9 @@ export function startMap(host: HTMLElement): { backend: 'webgl2' } {
         <span title="The lane the runner takes. Dashed: the simulator is still checking it."><i style="background:#0f6b5c"></i>lane (dashed: checking)</span>
         <span title="Where the ground is exactly this high. Off until you tick 'Show the ground line'."><i style="background:#d35400"></i>ground at this height (optional)</span>
         <span title="Buildings the cut goes through: you see their floor plan."><i style="background:#e8622c"></i>cut buildings</span>
-        <span title="The part of a building above the cut."><i style="background:#c9cfcb"></i>above the cut</span>
+        <span title="The part of a building above the cut. This is what stays in your course."><i style="background:#8f9c94"></i>above the cut (stays)</span>
+        <span title="More than ${CLIMBABLE.toFixed(1)} m above the cut: a wall a runner cannot climb from the cut."><i style="background:#b5483a"></i>too tall to climb</span>
+        <span title="Everything below the cut is removed from the course. It is only drawn faint so you can see where it was."><i style="background:#dfe3e0;border:1px dashed #8f9c94"></i>below the cut (removed)</span>
         ${S2 ? `<span title="A height where the simulator ran a runner along the lane and it got through."><i style="background:#8fd3a8"></i>path found</span>
         <span title="The simulator is still checking this height."><i style="background:#e9ece9;border:1px dashed #7a847e"></i>checking</span>
         <span title="The simulator found no path at this height."><i style="background:#e6c4c0"></i>no path</span>` : `<span title="Heights to try. Shape only, the simulator has not checked them."><i style="background:#cfe8d8"></i>can jump this</span>
@@ -306,10 +309,11 @@ export function startMap(host: HTMLElement): { backend: 'webgl2' } {
   function ensureLayers() {
     if (layersReady) return;
     const add = (l: Record<string, unknown>) => map.addLayer(l as never); // the layer specs use expressions; the types are strict about them
-    for (const id of ['slope', 'below', 'above', 'face', 'plane', 'contour', 'ladder', 'lane', 'out', 'pick', 'skip', 'circle']) map.addSource('sl-' + id, { type: 'geojson', data: empty as never });
+    for (const id of ['slope', 'below', 'above', 'tall', 'face', 'plane', 'contour', 'ladder', 'lane', 'out', 'pick', 'skip', 'circle']) map.addSource('sl-' + id, { type: 'geojson', data: empty as never });
     const ext = (id: string, color: string, opacity: number) => add({ id: 'sl-' + id, type: 'fill-extrusion', source: 'sl-' + id, paint: { 'fill-extrusion-color': color, 'fill-extrusion-opacity': opacity, 'fill-extrusion-base': ['get', 'base'], 'fill-extrusion-height': ['get', 'height'] } });
     add({ id: 'sl-slope', type: 'fill', source: 'sl-slope', paint: { 'fill-color': ['interpolate', ['linear'], ['get', 'deg'], 0, '#7fbf7b', 8, '#f1e27a', 18, '#e8622c', 30, '#a50f15'], 'fill-opacity': 0.22 } });
-    ext('out', '#b8beb9', 0.1); ext('below', GREY, 0.9); ext('above', GREY, 0.14); ext('face', '#e8622c', 0.95); ext('plane', '#2aa198', 0.28);
+    // the part that stays is solid, the part that is removed is faded
+    ext('out', '#b8beb9', 0.1); ext('below', GREY, 0.2); ext('above', GREY, 0.9); ext('tall', '#b5483a', 0.9); ext('face', '#e8622c', 0.95); ext('plane', '#2aa198', 0.28);
     add({ id: 'sl-pick', type: 'line', source: 'sl-pick', paint: { 'line-color': '#e8622c', 'line-width': 2.5 } });
     add({ id: 'sl-skip', type: 'line', source: 'sl-skip', paint: { 'line-color': '#7a847e', 'line-width': 1.5, 'line-dasharray': [2, 2] } });
     add({ id: 'sl-circle', type: 'line', source: 'sl-circle', paint: { 'line-color': '#0f6b5c', 'line-width': 3, 'line-dasharray': [3, 2] } });
@@ -328,7 +332,7 @@ export function startMap(host: HTMLElement): { backend: 'webgl2' } {
     if (!S) return;
     $('cutv').textContent = num1(c);
     const cb = cutBuildings(S.tops, c), r = S.r;
-    const below: unknown[] = [], above: unknown[] = [], face: unknown[] = [], out: unknown[] = [], pickLines: Seg[] = [], skipLines: Seg[] = [];
+    const below: unknown[] = [], above: unknown[] = [], tall: unknown[] = [], face: unknown[] = [], out: unknown[] = [], pickLines: Seg[] = [], skipLines: Seg[] = [];
     let cutCount = 0;
     cb.forEach((b, i) => {
       const geometry = { type: 'Polygon' as const, coordinates: poly(b.ring) };
@@ -342,7 +346,8 @@ export function startMap(host: HTMLElement): { backend: 'webgl2' } {
       cutCount++;
       const lo = Math.max(0, c - 0.4);
       below.push(f(0, Math.max(0.02, lo))); face.push(f(lo, Math.max(lo + 0.02, c)));
-      if (b.top > c + 0.05) above.push(f(c, b.top));
+      if (b.top > c + CLIMBABLE) tall.push(f(c, b.top)); // a wall from the cut: taller than a runner can climb
+      else if (b.top > c + 0.05) above.push(f(c, b.top));
     });
     const picked = S.picked.size;
     dset('slicePicked', picked); dset('sliceTotal', cb.length);
@@ -351,7 +356,7 @@ export function startMap(host: HTMLElement): { backend: 'webgl2' } {
     const plane = { type: 'Feature' as const, properties: { base: Math.max(0, c - 0.2), height: Math.max(0.05, c) }, geometry: { type: 'Polygon' as const, coordinates: poly(sq) } };
     const col = (features: unknown[]) => ({ type: 'FeatureCollection' as const, features });
     src('sl-out').setData(col(out) as never); src('sl-pick').setData(col(pickLines.length ? [lines(pickLines)] : []) as never); src('sl-skip').setData(col(skipLines.length ? [lines(skipLines)] : []) as never);
-    src('sl-below').setData(col(below) as never); src('sl-above').setData(col(above) as never); src('sl-face').setData(col(face) as never); src('sl-plane').setData(col([plane]) as never);
+    src('sl-below').setData(col(below) as never); src('sl-above').setData(col(above) as never); src('sl-tall').setData(col(tall) as never); src('sl-face').setData(col(face) as never); src('sl-plane').setData(col([plane]) as never);
     const segs = S.fine ? contourSegments(S.fine, lowest(S.fine) + c, 99) : [];
     src('sl-contour').setData(col(segs.length ? [lines(segs)] : []) as never);
     dset('sliceCut', c); dset('sliceCutBuildings', cutCount); dset('sliceBelowBuildings', picked - cutCount); dset('sliceContourSegs', segs.length);
@@ -704,7 +709,7 @@ export function startMap(host: HTMLElement): { backend: 'webgl2' } {
   // ---- the flight (CC-79): steps 1 to 3 here; step 4 (the hand-over to the editor) is the Build button
   const setWave = (w: number | null) => {
     const k = w === null ? null : ['max', 0, ['min', 1, ['-', ['*', w, 1.6], ['*', ['get', 'reach'], 0.6]]]];
-    for (const id of ['sl-out', 'sl-below', 'sl-above', 'sl-face']) {
+    for (const id of ['sl-out', 'sl-below', 'sl-above', 'sl-tall', 'sl-face']) {
       map.setPaintProperty(id, 'fill-extrusion-height', (k ? ['*', ['get', 'height'], k] : ['get', 'height']) as never);
       map.setPaintProperty(id, 'fill-extrusion-base', (k ? ['*', ['get', 'base'], k] : ['get', 'base']) as never);
     }
@@ -732,7 +737,7 @@ export function startMap(host: HTMLElement): { backend: 'webgl2' } {
   window.addEventListener('keydown', (e) => { if (e.key === 'Escape' && skipFlight) skipFlight(); });
 
   // ---- picking: click a building, or hold Shift and drag a box (Alt takes buildings out)
-  const PICK_LAYERS = ['sl-below', 'sl-face', 'sl-above', 'sl-out'];
+  const PICK_LAYERS = ['sl-below', 'sl-face', 'sl-above', 'sl-tall', 'sl-out'];
   const ids = (fs: maplibregl.MapGeoJSONFeature[]) => [...new Set(fs.map((f) => Number(f.properties?.i)).filter((n) => Number.isFinite(n)))];
   function picksChanged() { if (!S) return; autoOn = false; rebuild(); paint(Number(cut.value)); clearTimeout(laneTimer); laneTimer = window.setTimeout(() => askLane(Number(cut.value)), 500); }
   function pickClick(pt: maplibregl.Point) {
