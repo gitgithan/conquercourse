@@ -174,6 +174,7 @@ export function filmPose(shot: FilmShot, t: number, c: FilmCtx): Pose {
     // the owner's script in one move: dive onto the start in side view (4.8 s), run in side view (3.6 s), then round behind the runner and into the eyes (3.6 s)
     case 'close': return close(t, c);
     case 'tour': return t < 4.8 ? dive(t, c) : t < 8.4 ? side(t, c) : eyes(t - 8.4, c);
+    case 'rig': return rig(t, c);
   }
 }
 
