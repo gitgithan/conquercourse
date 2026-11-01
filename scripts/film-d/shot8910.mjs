@@ -50,6 +50,7 @@ if (spec.shot === 8) {
   await p.waitForTimeout(800);
 } else {
   await p.waitForSelector('#ik-pic', { timeout: 60000 }); await p.waitForTimeout(3000);
+  await p.evaluate(() => document.querySelectorAll('button').forEach((x) => { if (/^(Feedback|Sound)/.test(x.textContent.trim())) x.style.display = 'none'; })); // the Sound label is added after load
   await p.evaluate(() => { const h = document.querySelector('#ik-h1'); const t = document.createElement('span'); t.textContent = 'University level'; t.style.cssText = 'margin-left:14px;padding:4px 12px;border-radius:999px;background:#0f6b5c;color:#fff;font:700 15px system-ui;vertical-align:middle'; h.append(t); });
   await shot('a');
   const bb = await p.evaluate(() => { const r = document.querySelector('#ik-pic').getBoundingClientRect(); return [r.x, r.y, r.width, r.height]; });
