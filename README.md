@@ -15,6 +15,7 @@ Live: https://conquercourse.pages.dev/
 
 ## Set it up
 - You do not need an API key to run the game itself.
+- For a quick look, `git clone --depth 1 https://github.com/gitgithan/conquercourse.git` downloads about 115 MB; a plain `git clone` also brings the whole history (about 440 MB), which shows how the work grew day by day.
 - Install the packages with `npm ci`.
 - Start the local site with `npm run dev`, then open http://localhost:5173.
 - For the Meta Model API tools, copy [.env.example](.env.example) to `.env` and put your key in `META_API_KEY`.
