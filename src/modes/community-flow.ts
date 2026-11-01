@@ -11,7 +11,6 @@ import type { PublicItem } from '../community/items';
 import { listSharedPage } from '../community/share-client';
 import { placeableShared, sharedSrc, useShared, LIFT_PARALLEL, MAX_PICKS, STEPS, TABS, allowedNow, buildFound, canEnter, dailyLine, editorHref, makeLabel, nextStep, prevStep, runQueue, queueWarning, startState, tabFor, toggleTick, whyNot, whyOff, type Box, type FlowState, type Found, type Kind, type PiecesToday, type Step, type Tab } from '../community/flow';
 import { openPrize } from '../ui/prize';
-import { startGallery } from './gallery';
 
 // Community (CC-247): one screen, two tabs: Explore (finished work first) and Make your own, a stepper: Photo, Mark, Segment, Choose, Make.
 // A photo gives objects only; courses come from World Slicing and the Editor. The finder looks at the whole photo and a click picks a found thing. Looks only: nothing here changes how a course is cleared.
@@ -74,13 +73,10 @@ export function startCommunityFlow(host: HTMLElement, params: URLSearchParams): 
   // Explore: finished work first (premade courses), then one clear button, then pieces (premade examples and yours)
   function explore() {
     const sec = (title: string, text: string, id: string) => { const p = el('div', body); p.className = 'panel'; p.id = id; p.style.marginBottom = '14px'; el('h2', p, title); el('div', p, text).className = 'muted'; return p; };
-    const courses = sec('Courses people made', 'Finished courses made from real places. Press Play on any card to try it.', 'ex-courses');
-    const holder = el('div', courses); holder.className = 'places'; startGallery(holder);
-
-    const mk = sec('Now make your own', 'Start with a photo of a place you know. You press one button and the finder outlines the things in your photo. You click the one you want, then turn it into a 3D piece or a wallpaper. Courses are made in the World Slicer and the World Editor.', 'ex-make');
+    const mk = sec('Now make your own', 'Start with a photo of a place you know. The finder outlines the things in it, you click the one you want, and it becomes a 3D piece you can place in the World Editor. Courses are made in the World Slicer and the Editor.', 'ex-make');
     el('button', mk, 'Make your own', { className: 'go', id: 'make-own' }).onclick = () => showTab('make');
 
-    const made = sec('Pieces', 'Finished examples first, then yours. Pieces go in the World Editor tray.', 'ex-objects');
+    const made = sec('Pieces people made', 'Each piece was made from a real photo, and the picture is the part of the photo it came from. Press Use to put one in your World Editor tray. Our examples come first, then yours, then the ones players shared.', 'ex-objects');
     const g = el('div', made); g.className = 'grid'; g.id = 'objgrid';
     const card = (img: string, title: string, sub: string, link?: [string, string]) => { const c = el('div', g); c.className = 'card'; if (img) el('img', c, '', { src: img, alt: title, loading: 'lazy' }); const d = el('div', c); el('strong', d, title); el('div', d, sub).className = 'muted'; if (link) el('a', d, link[0], { href: link[1] }); return c; };
     void (async () => {
@@ -98,30 +94,27 @@ export function startCommunityFlow(host: HTMLElement, params: URLSearchParams): 
       // shared in Community: yours (with Delete) and everyone's approved ones
       // a search box, a kind filter and Show more: the shared list is served one page at a time, searched by name on the server
       const bar = el('div', made); bar.className = 'row'; bar.id = 'shared-controls'; made.insertBefore(bar, g);
-      const find = el('input', bar, { id: 'shared-q', type: 'search', placeholder: 'Search shared things by name' } as never) as HTMLInputElement;
-      const kindSel = el('select', bar, { id: 'shared-kind' } as never) as HTMLSelectElement;
-      for (const [v, t] of [['', 'Everything'], ['piece', '3D pieces']]) el('option', kindSel, t, { value: v } as never);
+      const find = el('input', bar, { id: 'shared-q', type: 'search', placeholder: 'Search pieces by name' } as never) as HTMLInputElement;
       const more = el('button', made, 'Show more', { id: 'shared-more' }); more.style.display = 'none';
       let cursor: string | null = null;
       const loadPage = async (reset: boolean) => {
         if (reset) { for (const n of [...g.querySelectorAll('[data-shared]')]) n.remove(); cursor = null; }
         let pg: Awaited<ReturnType<typeof listSharedPage>> = { items: [], next: null };
-        try { pg = await listSharedPage({ q: find.value.trim(), kind: kindSel.value, cursor: cursor ?? undefined }); } catch { /* the list is a bonus */ }
+        try { pg = await listSharedPage({ q: find.value.trim(), cursor: cursor ?? undefined }); } catch { /* the list is a bonus */ }
         cursor = pg.next; more.style.display = pg.next ? '' : 'none';
         for (const it of pg.items) addItem(it);
       };
       let timer = 0;
       find.oninput = () => { clearTimeout(timer); timer = window.setTimeout(() => { void loadPage(true); }, 300); };
-      kindSel.onchange = () => { void loadPage(true); };
       more.onclick = () => { void loadPage(false); };
       const addItem = (it: PublicItem) => {
         const l = shared[it.id];
-        const c = card(it.thumb ?? '', it.mine ? `Yours: ${it.name}` : it.name, `3D piece${it.mine ? (it.status === 'approved' ? ', shared with everyone' : ', shared: waiting for the safety check, only you see it') : ', shared by a player'}`,
+        const c = card(it.thumb ?? '', it.mine ? `Yours: ${it.name}` : it.name, `3D piece${it.mine ? (it.status === 'approved' ? ', shared with everyone' : ', shared: waiting for the safety check, only you see it') : ', made from part of their own photo and shared by a player'}`,
           it.kind === 'piece' && it.mine ? ['Open the World Editor', l?.kind === 'piece' ? editorHref(l.local) : '?mode=editor&welcome=0&uploadobj=1'] : undefined);
         c.dataset.shared = it.id; c.dataset.kind = it.kind;
         if (!it.mine && placeableShared(it)) { // someone else's approved piece: add it to your own list, then place it in the World Editor
           const d = c.lastElementChild as HTMLElement; const row = el('div', d); row.className = 'row'; row.style.marginTop = '6px';
-          const use = el('button', row, 'Use in my course', { id: `use-${it.id}`, className: 'go', title: 'Adds it to Add pieces in the World Editor' });
+          const use = el('button', row, 'Use in my World Editor', { id: `use-${it.id}`, className: 'go', title: 'Adds it to Add pieces in the World Editor' });
           use.onclick = () => { useShared({ id: it.id, name: it.name }); row.replaceChildren(); el('span', row, 'Added to your pieces. ').className = 'muted'; el('a', row, 'Open the World Editor', { className: 'btn go', id: `use-open-${it.id}`, href: editorHref(sharedSrc(it.id)) }); };
         }
         if (it.mine) {
@@ -153,7 +146,7 @@ export function startCommunityFlow(host: HTMLElement, params: URLSearchParams): 
       bar.replaceChildren();
       STEPS.forEach((s, i) => { const li = el('li', bar); const b = el('button', li, `${i + 1}. ${s.label}`, { id: `step-${s.id}`, className: s.id === work.step ? 'on' : i < STEPS.findIndex((x) => x.id === work.step) ? 'done' : '', disabled: !canEnter(s.id, work.fs) }); b.title = whyNot(s.id, work.fs); b.onclick = () => go(s.id); });
       panel.replaceChildren(); document.onkeydown = null; panel.dataset.step = work.step;
-      ({ photo: stepPhoto, segment: stepSegment, choose: stepChoose, make: stepMake })[work.step]();
+      ({ photo: stepPhoto, segment: stepSegment, make: stepMake })[work.step]();
     };
     const go = (s: Step) => { if (!canEnter(s, work.fs)) return; work.step = s; paint(); };
     const navRow = (parent: HTMLElement, nextLabel: string | null, nextOk = true, nextId = 'cnext') => {
@@ -211,7 +204,7 @@ export function startCommunityFlow(host: HTMLElement, params: URLSearchParams): 
     function stepSegment() {
       if (!work.photo) return go('photo');
       const ph = work.photo;
-      addBadge(panel, 'cutter', { after: el('h2', panel, 'Step 2. Segment Region') }); // CC-243: SAM 3 finds and outlines the things
+      addBadge(panel, 'cutter', { after: el('h2', panel, 'Step 2. Pick the things') }); // CC-243: SAM 3 finds and outlines the things
       el('div', panel, 'The finder looks at the whole photo and outlines the separate things in it: a bench, stairs, a railing. You do not draw anything. When the outlines show up, you click the one you want. It usually takes under a minute; the first one after a quiet spell can take a bit longer.').className = 'muted';
       const msg = el('div', panel, work.segMsg); msg.className = 'muted'; msg.id = 'cseginfo';
       let hovered: number | null = null;
@@ -224,7 +217,7 @@ export function startCommunityFlow(host: HTMLElement, params: URLSearchParams): 
       const st = stage(ph, () => (work.cands.length ? view : undefined));
       const prog = el('div', panel); prog.id = 'cprog';
       const foundEl = el('div', panel); foundEl.id = 'cfound';
-      const nav = navRow(panel, 'Next: Choose', work.fs.segmented, 'cnext');
+      const nav = navRow(panel, 'Next: Make', work.fs.segmented, 'cnext');
       const run = el('button', row, work.cands.length ? 'Segment Region again' : 'Segment Region', { className: 'go', id: 'cseg' });
       const fall = el('div', panel); fall.className = 'row'; fall.id = 'cfall'; // shown only when nothing was found or the finder failed
       const showFall = () => {
@@ -238,8 +231,9 @@ export function startCommunityFlow(host: HTMLElement, params: URLSearchParams): 
       };
       const sync = () => {
         work.areas = work.ticked.map((i) => ({ id: i, box: work.cands[i].box, label: work.cands[i].label, cutout: work.cands[i].cutout }));
-        work.fs = { ...work.fs, segmented: work.ticked.length > 0, choices: Object.fromEntries([...work.kinds].filter(([id]) => work.ticked.includes(id))) };
-        if (nav.next) nav.next.disabled = !canEnter('choose', work.fs);
+        work.fs = { ...work.fs, segmented: work.ticked.length > 0, choices: Object.fromEntries(work.ticked.map((id) => [id, 'piece'])) };
+        for (const id of work.ticked) work.kinds.set(id, 'piece'); // every pick is a 3D piece
+        if (nav.next) nav.next.disabled = !canEnter('make', work.fs);
       };
       function tick(i: number) { work.ticked = toggleTick(work.ticked, i); sync(); showFound(); st.draw(); }
       function showFound() {
@@ -281,33 +275,10 @@ export function startCommunityFlow(host: HTMLElement, params: URLSearchParams): 
       if (work.cands.length) { sync(); showFound(); }
     }
 
-    function stepChoose() {
-      if (!work.photo) return go('photo');
-      const ph = work.photo;
-      el('h2', panel, 'Step 3. Choose what each pick becomes');
-      el('div', panel, '3D piece: a solid thing you place in the World Editor and run over.').className = 'muted';
-      const nav = navRow(panel, 'Next: Make', canEnter('make', work.fs), 'cnext');
-      const sync = () => { work.fs = { ...work.fs, choices: Object.fromEntries(work.kinds) }; if (nav.next) nav.next.disabled = !canEnter('make', work.fs); };
-      for (const r of work.areas) {
-        const it = el('div', panel); it.className = 'item'; it.dataset.id = String(r.id);
-        const th = el('img', it, '', { alt: r.label || 'area' }); void cropToThumb(ph.image, r.box).then((u) => { th.src = u; });
-        const side = el('div', it); side.style.display = 'grid'; side.style.gap = '8px';
-        const nm = el('input', side, '', { id: `cname-${r.id}`, placeholder: 'name it (bench)', value: work.names.get(r.id) ?? r.label, maxLength: 40 }); nm.setAttribute('list', 'cn');
-        nm.oninput = () => work.names.set(r.id, nm.value.trim().toLowerCase());
-        const bt = el('div', side); bt.className = 'row';
-        for (const [k, label, id] of [['piece', '3D piece', 'piece']] as [Kind, string, string][]) {
-          const b = el('button', bt, label, { id: `choose-${id}-${r.id}`, className: 'pick' }); b.setAttribute('aria-pressed', String(work.kinds.get(r.id) === k));
-          b.onclick = () => { if (work.kinds.get(r.id) === k) work.kinds.delete(r.id); else work.kinds.set(r.id, k); bt.querySelectorAll('.pick').forEach((x) => x.setAttribute('aria-pressed', String(x === b && work.kinds.get(r.id) === k))); sync(); };
-        }
-      }
-      const dl = el('datalist', panel, '', { id: 'cn' }); for (const l of ['bench', 'bollard', 'railing', 'stairs', 'planter', 'wall', 'log', 'pull-up bar']) el('option', dl, '', { value: l });
-      sync();
-    }
-
     function stepMake() {
       if (!work.photo) return go('photo');
       const ph = work.photo;
-      addBadge(panel, 'builder', { after: el('h2', panel, 'Step 4. Make them') }); // CC-243: SAM 3D Objects lifts a cut-out into a solid piece
+      addBadge(panel, 'builder', { after: el('h2', panel, 'Step 3. Make them') }); // CC-243: SAM 3D Objects lifts a cut-out into a solid piece
       const next = el('div', panel); next.id = 'cnow'; next.className = 'panel'; next.hidden = true;
       const showNext = (shared = false) => {
         next.hidden = false; next.replaceChildren(); el('h2', next, 'What next');
@@ -349,7 +320,7 @@ export function startCommunityFlow(host: HTMLElement, params: URLSearchParams): 
       const slots: Slot[] = [];
       const makeOne = async (sl: Slot): Promise<void> => {
         const { gen, msg, prog, r } = sl, label = sl.label();
-        if (!LABEL_RE.test(label)) { msg.textContent = 'Name the area with a plain word like bench, railing, stairs or wall (Step 3).'; msg.className = 'err'; throw new Error('name'); }
+        if (!LABEL_RE.test(label)) { msg.textContent = 'Name the area with a plain word like bench, railing, stairs or wall (in the name box).'; msg.className = 'err'; throw new Error('name'); }
         sl.busy = true; gen.disabled = true; gen.textContent = 'Making it…'; msg.textContent = ''; msg.className = 'muted'; prog.replaceChildren();
         const ctl = new AbortController(), bar = jobProgress(prog, LIFT_STEPS, () => ctl.abort());
         try {
@@ -387,13 +358,16 @@ export function startCommunityFlow(host: HTMLElement, params: URLSearchParams): 
         const label = () => (work.names.get(r.id) || r.label || '').toLowerCase();
         const msg = el('div', side); msg.className = 'muted'; msg.id = `cmsg-${r.id}`;
         if (kind === 'piece') {
-          el('strong', side, `3D piece: ${label() || '(name it in Step 3)'}`);
+          el('strong', side, '3D piece');
+          const nm = el('input', side, '', { id: `cname-${r.id}`, placeholder: 'name it (bench)', value: work.names.get(r.id) ?? r.label, maxLength: 40 }); nm.setAttribute('list', 'cn');
+          nm.oninput = () => work.names.set(r.id, nm.value.trim().toLowerCase());
           const gen = el('button', side, 'Generate Piece', { className: 'go', id: `gen-${r.id}` });
           const prog = el('div', side);
           const sl: Slot = { gen, msg, prog, r, label, busy: false, made: false, off: '' }; slots.push(sl);
           gen.onclick = () => { void makeOne(sl).catch(() => undefined); };
         }
       }
+      if (!document.getElementById('cn')) { const dl = el('datalist', panel, '', { id: 'cn' }); for (const l of ['bench', 'bollard', 'railing', 'stairs', 'planter', 'wall', 'log', 'pull-up bar']) el('option', dl, '', { value: l }); }
       // the daily count comes from the server before anything is pressed: a line by the button, a warning when the queue is longer than what is left, the extra ones switched off with a reason
       applyToday = () => {
         if (dailyEl) dailyEl.textContent = today ? dailyLine(today) : 'We could not read how many pieces you have left today. The 3D maker will tell you when you press the button.';
