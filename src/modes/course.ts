@@ -341,7 +341,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
       softenPlayer(next.object); // CC-180
       actor = next; body.visible = false; choice = which; custom = wear || !!url;
       if (params.get('nopush') !== '1') actor.setObstacle(makeObstacle(course));
-      if (!wear && !url) try { localStorage.setItem('cc.rookie', which); } catch { /* ok */ }
+      if (!wear && !url && params.get('nosave') !== '1') try { localStorage.setItem('cc.rookie', which); } catch { /* ok */ }
       return true;
     } catch (e) { console.warn('Rookie not loaded, using the capsule', e); return false; }
   }
@@ -363,7 +363,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
     if (!keepChoice) void fetch('/api/character', { method: 'POST', body: JSON.stringify({ action: 'pick', id }) }).catch(() => undefined);
     if (guardOn()) watchFrames(90, (ms) => { if (characterId === id && tooSlow(ms)) { noteLine('Your computer is slow with this character, so you are back to the Rookie.'); void wearCharacter(null); } });
   }
-  if (charactersOn()) { const asked = params.get('char'); const id = asked && /^[0-9a-f]{16}$/.test(asked) ? asked : savedChoice(); if (id) void wearCharacter(id); } // ?char=<id> wears one by address (the browser checks use it)
+  if (charactersOn()) { const asked = params.get('char'); const id = asked && /^[0-9a-f]{16}$/.test(asked) ? asked : params.get('nosave') === '1' ? null : savedChoice(); if (id) void wearCharacter(id); } // ?char=<id> wears one by address (the browser checks use it)
   // ?probe=1: what the player sees. For the facing check (docs/character-facing-bug.md): where the runner moved, where its toe bone points, and which way its SKIN faces, all on screen.
   if (params.get('probe') === '1') (window as unknown as { __heading: () => unknown }).__heading = () => {
     if (!actor) return null;

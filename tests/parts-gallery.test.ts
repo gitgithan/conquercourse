@@ -124,16 +124,17 @@ describe('the Parts card in the World picker', () => {
 
 describe('the demo runner of the Parts gallery', () => {
   const cast = (JSON.parse(readFileSync('public/assets/characters/cast/index.json', 'utf8')) as { items: { id: string; name: string }[] }).items;
-  it('is the Skater (the girl of the starter cast), a real cast file, and never the player\'s saved choice', () => {
-    expect(cast.find((c) => c.id === DEMO_CHAR)?.name).toBe('Skater');
-    expect(existsSync(`public/assets/characters/cast/${DEMO_CHAR}.glb`)).toBe(true);
+  it('is Juno (the Rookie B girl), worn by ?rookie=b, and never the player\'s saved choice', () => {
+    expect(DEMO_CHAR).toBe('juno');
+    expect(existsSync('public/assets/characters/rookie-b.glb')).toBe(true);
     const p = partById('gap')!;
-    expect(frameSrc(p)).toContain(`char=${DEMO_CHAR}`);
+    expect(frameSrc(p)).toContain('rookie=b');
+    expect(frameSrc(p)).not.toContain('char=');
     expect(frameSrc(p)).toContain('nosave=1');
     expect(frameSrc(p, cast[0].id)).toContain(`char=${cast[0].id}`);
   });
   it('is named in the address of every live card, so a saved choice (cc.character) cannot reach a frame', () => {
-    for (const p of PARTS) { const src = frameSrc(p); if (src) expect(src, p.id).toMatch(/[?&]char=[0-9a-f]{16}&nosave=1/); }
+    for (const p of PARTS) { const src = frameSrc(p); if (src) expect(src, p.id).toMatch(/[?&](char=[0-9a-f]{16}|rookie=b)&nosave=1/); }
   });
   it('is kept out of the saved choice by the Course: every saveChoice call in wearCharacter goes through the nosave guard', () => {
     const src = readFileSync('src/modes/course.ts', 'utf8');
