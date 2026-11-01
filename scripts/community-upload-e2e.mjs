@@ -51,7 +51,7 @@ try {
   await page.click('#go-objects'); await page.waitForSelector('[data-shared]', { timeout: 30000 });
   const mine = await page.$$eval('[data-shared]', (n) => n.map((e) => ({ id: e.dataset.shared, kind: e.dataset.kind, text: e.textContent.slice(0, 80) })));
   say('Explore shows my item', mine);
-  say('my item has Look around / Use buttons, or Delete only', await page.$$eval('[data-shared] button', (n) => n.map((b) => b.id.replace(/-[a-z0-9]{10}$/, ''))));
+  say('my item has See Object / Use buttons, or Delete only', await page.$$eval('[data-shared] button', (n) => n.map((b) => b.id.replace(/-[a-z0-9]{10}$/, ''))));
   await page.evaluate(() => document.querySelector('#ex-objects')?.scrollIntoView());
   await shot(page, '5-gallery');
   const pubList = await api('/api/community-items');
