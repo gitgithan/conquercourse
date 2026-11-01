@@ -188,8 +188,8 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
   const same = (a: Snap, b: Snap) => a.angle === b.angle && a.offset === b.offset && a.level === b.level && a.pieces.length === b.pieces.length && a.pieces.every((q, i) => { const r = b.pieces[i]; return q.id === r.id && q.x === r.x && q.z === r.z && q.y === r.y && q.yaw === r.yaw && q.scale === r.scale && q.mesh === r.mesh && q.role === r.role; });
   const remember = () => { const n = snapNow(); if (hi >= 0 && same(hist[hi], n)) return; hist.splice(hi + 1); hist.push(n); if (hist.length > 80) hist.shift(); hi = hist.length - 1; undoBtn.disabled = hi < 1; redoBtn.disabled = true; };
   const goto = (k: number) => { const t = hist[k]; if (!t) return; hi = k; pieces = t.pieces.map((q) => ({ ...q })); angle = t.angle; offset = t.offset; level = t.level; if (!pieces.some((q) => q.id === selected)) selected = null; undoBtn.disabled = hi < 1; redoBtn.disabled = hi >= hist.length - 1; changed(false); };
-  const undoBtn = el('button', top, { text: 'Ctrl+Z', id: 'undo', title: 'Undo' });
-  const redoBtn = el('button', top, { text: 'Ctrl+Y', id: 'redo', title: 'Redo' });
+  const undoBtn = el('button', top, { text: 'Undo (Ctrl+Z)', id: 'undo', title: 'Undo the last change (Ctrl+Z)' });
+  const redoBtn = el('button', top, { text: 'Redo (Ctrl+Y)', id: 'redo', title: 'Redo the change you just undid (Ctrl+Y)' });
   undoBtn.disabled = redoBtn.disabled = true;
   undoBtn.onclick = () => goto(hi - 1); redoBtn.onclick = () => goto(hi + 1);
   // the Courses gallery asks before leaving when there is work to lose: anything past the starting undo step
