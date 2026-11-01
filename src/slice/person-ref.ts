@@ -21,3 +21,5 @@ export const SCALE_LABEL_HEIGHT = 2.05; // m above the feet: just over a 1.75 m 
 
 // The marker stands exactly where the person stands, whatever moved them (first visit, Fit, a drag, a turn of the lane): it reads their place and keeps none of its own.
 export const markerAt = (person: { x: number; z: number }): { x: number; z: number } => ({ x: person.x, z: person.z });
+export const START_BEAM_HEIGHT = 14; // m, the glowing cone over the green Start person (CC-200)
+export const START_BEAM_RADIUS = 1.6; // m, at the top of the cone

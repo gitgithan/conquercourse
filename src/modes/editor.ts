@@ -1337,10 +1337,12 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
       const st = startMarkSide(prof, CELL);
       if (st) {
         const x = 10 + (st.u - uLo) * ppm, y = base - (st.h - vmin) * ph;
-        c.strokeStyle = '#0f6b5c'; c.fillStyle = '#0f6b5c'; c.lineWidth = 2;
-        c.beginPath(); c.moveTo(x, y); c.lineTo(x, y - 30); c.stroke();
-        c.beginPath(); c.moveTo(x, y - 30); c.lineTo(x + 14, y - 25); c.lineTo(x, y - 20); c.fill();
-        c.font = '700 12px system-ui'; c.textAlign = 'left'; c.fillText(START_SHORT, x + 4, y - 34);
+        const glowG = c.createLinearGradient(0, y - 80, 0, y); glowG.addColorStop(0, 'rgba(31,191,159,0)'); glowG.addColorStop(1, 'rgba(31,191,159,.45)'); // a glowing cone over the person
+        c.fillStyle = glowG; c.beginPath(); c.moveTo(x, y - 24); c.lineTo(x - 16, y - 80); c.lineTo(x + 16, y - 80); c.fill();
+        c.strokeStyle = '#0f6b5c'; c.fillStyle = '#0f6b5c'; c.lineWidth = 3; c.lineCap = 'round';
+        c.beginPath(); c.arc(x, y - 22, 3.5, 0, 7); c.fill(); // head
+        c.beginPath(); c.moveTo(x, y - 18); c.lineTo(x, y - 8); c.moveTo(x, y - 8); c.lineTo(x - 4, y); c.moveTo(x, y - 8); c.lineTo(x + 4, y); c.moveTo(x - 5, y - 15); c.lineTo(x + 5, y - 15); c.stroke(); c.lineCap = 'butt';
+        c.font = '700 12px system-ui'; c.textAlign = 'left'; c.fillText(START_SHORT, x + 8, y - 28);
       }
     }
     for (const b of bars) {
