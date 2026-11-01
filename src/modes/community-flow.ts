@@ -5,7 +5,7 @@ import { jobProgress } from '../ui/job-progress';
 import { LABEL_RE } from '../slice/object-lift';
 import { suggestRegions } from '../slice/segment-client';
 import { deleteUserObject, listUserObjects, saveUserObject, type UserObject } from '../slice/user-objects';
-import { deleteShared, forgetLink, links, rememberLink, shareItem } from '../community/share-client';
+import { deleteShared, forgetLink, links, rememberLink, sessionCode, shareItem } from '../community/share-client';
 import { cropToThumb } from '../community/crop';
 import type { PublicItem } from '../community/items';
 import { listSharedPage } from '../community/share-client';
@@ -82,11 +82,15 @@ export function startCommunityFlow(host: HTMLElement, params: URLSearchParams): 
     void (async () => {
       try {
         const [idx, prov] = await Promise.all([fetch('/assets/objects/index.json').then((r) => r.json()), fetch('/assets/objects/provenance.json').then((r) => r.json())]) as [{ objects: { name: string; photo: string; box: Box; label: string; glb: string }[] }, { objects: { glb: string; credit?: { line?: string } }[] }];
-        for (const o of idx.objects.slice(0, 8)) {
+        // an example only appears with its picture: some source photos are not shipped, so those pieces are skipped (the next ones fill the row)
+        const pics = await Promise.all(idx.objects.map((o) => cropToThumb(`/assets/park/${o.photo}.jpg`, o.box).catch(() => '')));
+        let shown = 0;
+        idx.objects.forEach((o, i) => {
+          if (!pics[i] || shown >= 8) return;
+          shown++;
           const credit = prov.objects.find((x) => x.glb.endsWith(o.glb))?.credit?.line ?? '';
-          const c = card('', `Example piece: ${o.label}`, credit || 'Made from a real photo', ['Use it in the World Editor', '?mode=editor&welcome=0']);
-          void cropToThumb(`/assets/park/${o.photo}.jpg`, o.box).then((u) => { c.prepend(Object.assign(document.createElement('img'), { src: u, alt: o.label })); }).catch(() => undefined);
-        }
+          card(pics[i], `Example piece: ${o.label}`, credit || 'Made from a real photo', ['Use it in the World Editor', '?mode=editor&welcome=0']);
+        });
       } catch { /* the examples are a bonus */ }
       const shared = links(), sharedLocal = new Set(Object.values(shared).map((l) => `${l.kind}:${l.local}`));
       let objs: UserObject[] = []; try { objs = await listUserObjects(); } catch { /* none kept */ }
@@ -94,7 +98,7 @@ export function startCommunityFlow(host: HTMLElement, params: URLSearchParams): 
       // shared in Community: yours (with Delete) and everyone's approved ones
       // a search box, a kind filter and Show more: the shared list is served one page at a time, searched by name on the server
       const bar = el('div', made); bar.className = 'row'; bar.id = 'shared-controls'; made.insertBefore(bar, g);
-      const find = el('input', bar, { id: 'shared-q', type: 'search', placeholder: 'Search pieces by name' } as never) as HTMLInputElement;
+      const find = el('input', bar, '', { id: 'shared-q', type: 'search', placeholder: 'Search pieces by name' }) as HTMLInputElement;
       const more = el('button', made, 'Show more', { id: 'shared-more' }); more.style.display = 'none';
       let cursor: string | null = null;
       const loadPage = async (reset: boolean) => {
@@ -112,6 +116,19 @@ export function startCommunityFlow(host: HTMLElement, params: URLSearchParams): 
         const c = card(it.thumb ?? '', it.mine ? `Yours: ${it.name}` : it.name, `3D piece${it.mine ? (it.status === 'approved' ? ', shared with everyone' : ', shared: waiting for the safety check, only you see it') : ', made from part of their own photo and shared by a player'}`,
           it.kind === 'piece' && it.mine ? ['Open the World Editor', l?.kind === 'piece' ? editorHref(l.local) : '?mode=editor&welcome=0&uploadobj=1'] : undefined);
         c.dataset.shared = it.id; c.dataset.kind = it.kind;
+        if (placeableShared(it)) { // CC-249: any approved piece opens on the same turntable as a new piece
+          const look = el('button', c.lastElementChild as HTMLElement, 'Look around', { id: `look-${it.id}`, title: 'See it turn on a turntable' });
+          look.style.marginTop = '6px';
+          look.onclick = async () => {
+            look.disabled = true;
+            try {
+              const res = await fetch(`/api/community-items?id=${encodeURIComponent(it.id)}&file=glb`, { headers: { 'x-cc-session': sessionCode() } });
+              if (!res.ok) throw new Error('no file');
+              await openPrize({ glb: await res.arrayBuffer(), name: it.name, editorHref: editorHref(sharedSrc(it.id)), view: { use: () => useShared({ id: it.id, name: it.name }) } });
+            } catch { look.textContent = 'Could not open it'; } finally { look.disabled = false; }
+          };
+          const img = c.querySelector('img'); if (img) { img.style.cursor = 'pointer'; img.title = 'Look around'; img.onclick = () => look.click(); }
+        }
         if (!it.mine && placeableShared(it)) { // someone else's approved piece: add it to your own list, then place it in the World Editor
           const d = c.lastElementChild as HTMLElement; const row = el('div', d); row.className = 'row'; row.style.marginTop = '6px';
           const use = el('button', row, 'Use in my World Editor', { id: `use-${it.id}`, className: 'go', title: 'Adds it to Add pieces in the World Editor' });

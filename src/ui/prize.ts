@@ -21,6 +21,8 @@ export interface PrizeInput {
   editorHref: string;
   /** Shares the piece; resolves with a plain-words note. */
   share?: () => Promise<string>;
+  /** Someone else's shared piece (CC-249): the same turntable, with "Add to my pieces" and "Close" in place of the maker's buttons. */
+  view?: { use: () => void };
 }
 export type PrizeEnd = 'kept' | 'again' | 'closed';
 
@@ -31,17 +33,19 @@ export function openPrize(p: PrizeInput): Promise<PrizeEnd> {
   if (!styled) { styled = true; document.head.append(Object.assign(document.createElement('style'), { textContent: STYLE })); }
   return new Promise((done) => {
     const shade = Object.assign(document.createElement('div'), { className: 'prize', id: 'prize' });
-    shade.setAttribute('role', 'dialog'); shade.setAttribute('aria-label', `Your new piece: ${p.name}`);
+    shade.setAttribute('role', 'dialog'); shade.setAttribute('aria-label', `${p.view ? 'Piece' : 'Your new piece'}: ${p.name}`);
     const card = document.createElement('div'); card.className = 'card'; shade.append(card);
     const h = Object.assign(document.createElement('h2'), { textContent: p.name }); h.id = 'prize-name';
-    const sub = Object.assign(document.createElement('p'), { textContent: 'Your new 3D piece. It is saved in this browser.' }); sub.className = 'sub'; sub.id = 'prize-sub';
+    const sub = Object.assign(document.createElement('p'), { textContent: p.view ? 'A piece a player made.' : 'Your new 3D piece. It is saved in this browser.' }); sub.className = 'sub'; sub.id = 'prize-sub';
     const canvas = document.createElement('canvas'); canvas.id = 'prize-canvas';
     const row = document.createElement('div'); row.className = 'row';
     const btn = (text: string, id: string, cls = '') => { const b = Object.assign(document.createElement('button'), { textContent: text, id, className: cls, type: 'button' }); row.append(b); return b; };
     const keep = btn('Keep in my pieces', 'prize-keep', 'go');
     const share = p.share ? btn('Share', 'prize-share') : null;
     const again = btn('Make another', 'prize-again');
+    if (p.view) { keep.textContent = 'Add to my pieces'; again.textContent = 'Close'; sub.textContent = 'Made by a player from their own photo. Watch it turn, then add it to your pieces.'; }
     const open = Object.assign(document.createElement('a'), { textContent: 'Open in the World Editor', href: p.editorHref, className: 'btn', id: 'prize-editor' }); row.append(open);
+    if (p.view) open.hidden = true;
     card.append(h, canvas, sub, row);
     addBadge(card, 'builder'); // CC-243
     document.body.append(shade);
@@ -78,7 +82,10 @@ export function openPrize(p: PrizeInput): Promise<PrizeEnd> {
     const end = (how: PrizeEnd) => { if (closed) return; closed = true; cancelAnimationFrame(raf); renderer.dispose(); shade.remove(); document.removeEventListener('keydown', onKey); done(how); };
     const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') end('closed'); };
     document.addEventListener('keydown', onKey);
-    keep.onclick = () => end('kept');
+    keep.onclick = () => {
+      if (!p.view) return end('kept');
+      p.view.use(); keep.disabled = true; keep.textContent = 'Added'; sub.textContent = 'Added to your pieces. Open the World Editor to place it.'; open.hidden = false; open.focus();
+    };
     again.onclick = () => end('again');
     open.addEventListener('click', () => { closed = true; });
     if (share && p.share) share.onclick = async () => { share.disabled = true; sub.textContent = 'Sharing…'; try { sub.textContent = await p.share!(); share.textContent = 'Shared'; } catch (e) { sub.textContent = (e as Error).message; share.disabled = false; } };
