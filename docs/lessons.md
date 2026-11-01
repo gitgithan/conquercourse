@@ -147,3 +147,10 @@
 - A big Mapillary search box can come back short without any error (a third of the photos, or more), so earlier coverage counts were too low.
   - Fix: fetch in tiles of about 50 m and split any tile that returns 600 or more (`scripts/photos_pool.py`); a VM's own fetch was also short, so pools are fetched on the laptop.
 - **Cut height should raise the ground.** The start deck stood at the cut height, so a high first roof was unreachable at low cuts; starting on the first roof took one place from 13 to 28 solvable heights out of 30 (see `docs/cut-height.md`).
+
+## Film frames draw 5 times faster with llvmpipe than SwiftShader (CC-209, 2026-11-01)
+- Chromium's default software path (SwiftShader) took 55 s for 20 frames on the laptop and 120 s on a Modal L4.
+- The flags `--use-gl=angle --use-angle=gl-egl` made the same Modal container use Mesa llvmpipe and finish in 10.5 s (about 17 fps live).
+- A GPU card did not help: Chromium never used it, so the gain is the renderer, not the hardware.
+- Rule: check `UNMASKED_RENDERER_WEBGL` before trusting a "GPU" run; a silent fall back to SwiftShader looks like a slow GPU.
+- Numbers, gaps and next steps: `data/eval/film-render-speed/README.md`.
