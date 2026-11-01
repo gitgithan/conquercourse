@@ -1,3 +1,4 @@
+import { trackStep } from '../ui/feedback';
 // The page side of /api/community-items (CC-247): share a finished piece, list what is shared, delete your own.
 // The browser's random player code (the same one the feedback form uses) is sent as a header; the server turns it into a one-way code and never keeps it.
 import type { PublicItem } from './items';
@@ -23,6 +24,7 @@ export async function shareItem(inp: ShareInput): Promise<Shared> {
   let d: Record<string, unknown> = {};
   try { d = (await res.json()) as Record<string, unknown>; } catch { /* a broken reply is a failure below */ }
   if (!res.ok || typeof d.id !== 'string') throw new Error(typeof d.message === 'string' && d.message ? d.message : 'Sharing did not work. Try again in a minute.');
+  trackStep('shared_piece'); // CC-108
   return { id: d.id, status: d.status === 'approved' ? 'approved' : 'pending' };
 }
 

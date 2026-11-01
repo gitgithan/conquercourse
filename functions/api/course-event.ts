@@ -1,4 +1,5 @@
 import { json } from '../_lib/http';
+import { normRef, recordStep } from '../_lib/analytics';
 // POST /api/course-event: one start, failure, or success event per course attempt.
 interface Env { DB: { prepare(sql: string): { bind(...v: unknown[]): { run(): Promise<unknown>; first<T>(): Promise<T | null> } } } }
 
@@ -23,10 +24,18 @@ export const onRequestPost = async ({ request, env }: { request: Request; env: E
   const row = [session, clip(b.build, 40), clip(b.mode, 20), clip(b.source, 30), clip(b.courseKey, 100), clip(b.courseName, 160), runId, event];
   // CC-108: the country (two letters, from Cloudflare; no address) and the zone of a failure; before migration 0009 the plain insert is used
   const country = String((request as { cf?: { country?: string } }).cf?.country ?? '').toUpperCase(), failAt = event === 'fail' ? clip(b.at, 40).replace(/[^a-zA-Z0-9 _-]/g, '') : '';
+  const ref = normRef(b.ref) || 'direct', cc = /^[A-Z]{2}$/.test(country) ? country : '';
   try {
-    await env.DB.prepare("INSERT OR IGNORE INTO course_events (ts, session, build, mode, source, course_key, course_name, run_id, event_type, country, fail_at) VALUES (datetime('now'), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)").bind(...row, /^[A-Z]{2}$/.test(country) ? country : '', failAt).run();
+    // CC-108: with the ref column (migration 0019); then without it (0009); then the plain insert of before
+    await env.DB.prepare("INSERT OR IGNORE INTO course_events (ts, session, build, mode, source, course_key, course_name, run_id, event_type, country, fail_at, ref) VALUES (datetime('now'), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)").bind(...row, cc, failAt, ref).run();
   } catch {
-    await env.DB.prepare('INSERT OR IGNORE INTO course_events (ts, session, build, mode, source, course_key, course_name, run_id, event_type) VALUES (datetime(\'now\'), ?, ?, ?, ?, ?, ?, ?, ?)').bind(...row).run();
+    try {
+      await env.DB.prepare("INSERT OR IGNORE INTO course_events (ts, session, build, mode, source, course_key, course_name, run_id, event_type, country, fail_at) VALUES (datetime('now'), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)").bind(...row, cc, failAt).run();
+    } catch {
+      await env.DB.prepare('INSERT OR IGNORE INTO course_events (ts, session, build, mode, source, course_key, course_name, run_id, event_type) VALUES (datetime(\'now\'), ?, ?, ?, ?, ?, ?, ?, ?)').bind(...row).run();
+    }
   }
+  // funnel steps seen from the server side; skipped quietly when the table is missing
+  if (event !== 'fail') await recordStep(env.DB as never, { session, step: event === 'start' ? 'start_run' : 'cleared', ref, country: cc });
   return json({ ok: true });
 };

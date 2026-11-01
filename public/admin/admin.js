@@ -99,6 +99,31 @@ async function showMade() {
 }
 document.getElementById('showmade').addEventListener('click', showMade);
 
+const sec = (ms) => (ms == null ? '-' : ms < 1000 ? `${ms} ms` : `${(ms / 1000).toFixed(1)} s`);
+function plainTable(heads, rows) {
+  const t = el('table'), h = t.createTHead().insertRow();
+  heads.forEach((x, i) => h.appendChild(el('th', x, i ? 'n' : '')));
+  const b = t.createTBody();
+  for (const r of rows) { const tr = b.insertRow(); r.forEach((v, i) => tr.insertCell().replaceChildren(el('span', String(v), i ? 'n' : ''))); }
+  return t;
+}
+async function showStats() {
+  const out = document.getElementById('stats');
+  try {
+    const d = await call('GET', undefined, '?view=analytics');
+    out.replaceChildren(
+      el('h3', d.recording ? 'Recording is on' : 'Recording is off'),
+      el('h3', 'Where visits came from'),
+      plainTable(['Tag', 'Visitors', 'Runs started', 'Clears'], d.sources.map((r) => [r.ref, r.visitors, r.runs, r.clears])),
+      el('h3', 'Funnel (visitor-days that reached each step)'),
+      plainTable(['Step', 'Total', 'By tag'], d.funnel.map((f) => [f.step, f.total, Object.entries(f.byRef).map(([k, v]) => `${k} ${v}`).join(', ')])),
+      el('h3', 'How long the rented services took (the call the site makes)'),
+      plainTable(['Service', 'Machine', 'Calls', 'Failed', 'Median', '90th percentile'], d.waits.map((w) => [w.service, w.cold ? 'cold' : 'warm', w.calls, w.failed, sec(w.median_ms), sec(w.p90_ms)])));
+  } catch (e) { msg.textContent = e.message; }
+}
+document.getElementById('showstats').addEventListener('click', showStats);
+
+
 async function load() {
   msg.textContent = '';
   try { render(await call('GET')); } catch (e) { msg.textContent = e.message; app.replaceChildren(); const b = el('button', 'Try again'); b.addEventListener('click', load); app.appendChild(b); }
