@@ -10,7 +10,7 @@ import { searchIdealRun, playPlan } from '../sim/ideal';
 import type { Ground } from '../world/terrain';
 
 /** Bump when the lane check or the piece reading changes: a stored default from an older version is re-verified before it is trusted. */
-export const CHECK_VERSION = 1;
+export const CHECK_VERSION = 2; // 2: roof start is on (CC-200), and a lane search that fails its first 4 proofs tries 40
 export const TICKS_PER_SECOND = 80;
 
 export type Line = [number, number, number, number]; // x0, z0, x1, z1 in real metres east and south of the pin
