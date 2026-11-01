@@ -40,7 +40,9 @@ export function cleanRequest(b: Record<string, unknown>): LiftRequest {
 export function moderationStops(verdict: string, reason: string): string {
   if (verdict === 'review' && ['error', 'unreadable'].includes(reason)) return 'The safety check could not run just now, so nothing was made. Try again in a few minutes.';
   if (verdict === 'block') return 'This photo cannot be used here.';
-  if (verdict === 'review' && ['minor', 'private_info', 'sexual', 'violence', 'hate', 'weapon'].includes(reason)) return 'This photo needs a person to look at it first, so it cannot be turned into an object now.';
+  if (verdict === 'review' && reason === 'minor') return 'A child looks close up or large in this photo, so we cannot use it. Try a photo where people are small and far away, or where nobody is in the picture.';
+  if (verdict === 'review' && reason === 'private_info') return 'Something private may be readable in this photo, like a number plate, an address, a document or a screen. Try a photo without readable writing.';
+  if (verdict === 'review' && ['sexual', 'violence', 'hate', 'weapon'].includes(reason)) return 'This photo may show something that is not allowed here. Try a different photo of a place or an object.';
   return '';
 }
 
