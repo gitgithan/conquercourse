@@ -25,11 +25,11 @@ export async function turnstileToken(f: typeof fetch = fetch): Promise<string | 
   });
 }
 
-// The pass from the outline step (the server gives it after one good check); the 3D step uses it so a person is asked once.
-let held: { pass: string; until: number } | null = null;
-export const rememberPass = (pass: string, now = Date.now()): void => { held = { pass, until: now + 25 * 60_000 }; };
-/** What to send with a paid call: a held pass when there is one, else a fresh check (undefined when the check is off). */
-export async function checkField(f: typeof fetch = fetch, now = Date.now()): Promise<{ pass: string } | { turnstile: string | undefined }> {
-  if (held && held.until > now) return { pass: held.pass };
+// The pass from the outline step (the server gives it after one good check); the 3D step uses it for the same photo, so a person is asked once.
+let held: { pass: string; photo: string; until: number } | null = null;
+export const rememberPass = (pass: string, photo: string, now = Date.now()): void => { held = { pass, photo, until: now + 25 * 60_000 }; };
+/** What to send with a paid call: the held pass when it was made for this photo, else a fresh check (undefined when the check is off). */
+export async function checkField(f: typeof fetch = fetch, now = Date.now(), photo?: string): Promise<{ pass: string } | { turnstile: string | undefined }> {
+  if (held && held.until > now && photo !== undefined && held.photo === photo) return { pass: held.pass };
   return { turnstile: await turnstileToken(f) };
 }

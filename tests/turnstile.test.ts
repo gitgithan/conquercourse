@@ -29,22 +29,34 @@ describe('bot check (Turnstile)', () => {
 
 import { makePass, passOk, PASS_MS } from '../functions/_lib/turnstile';
 describe('pass from the outline step', () => {
-  const env = { TURNSTILE_SECRET: 's3cret' };
-  it('is accepted by the 3D step and skips a second check', async () => {
-    const pass = await makePass(env);
-    expect(await passOk(env, pass)).toBe(true);
+  const env = { TURNSTILE_SECRET: 's3cret' }, photo = 'data:image/jpeg;base64,AAAA1111', other = 'data:image/jpeg;base64,BBBB2222';
+  it('is accepted by the 3D step for the same photo and skips a second check', async () => {
+    const pass = await makePass(env, photo);
+    expect(await passOk(env, pass, photo)).toBe(true);
     const f = vi.fn();
-    expect((await checkTurnstile(env, undefined, 'ip', f as never, pass)).ok).toBe(true);
+    expect((await checkTurnstile(env, undefined, 'ip', f as never, pass, photo)).ok).toBe(true);
     expect(f).not.toHaveBeenCalled();
   });
-  it('is refused when old, forged, or made with another secret', async () => {
-    const t = 1_700_000_000_000, pass = (await makePass(env, t))!;
-    expect(await passOk(env, pass, t + PASS_MS + 1)).toBe(false);
-    expect(await passOk(env, pass.replace(/.$/, (c) => (c === '0' ? '1' : '0')), t)).toBe(false);
-    expect(await passOk({ TURNSTILE_SECRET: 'other' }, pass, t)).toBe(false);
-    expect(await passOk(env, 'junk')).toBe(false);
+  it('can be used for several objects from the same photo', async () => {
+    const pass = await makePass(env, photo);
+    expect(await passOk(env, pass, photo)).toBe(true);
+    expect(await passOk(env, pass, photo)).toBe(true);
   });
-  it('does nothing when the check is off', async () => { expect(await makePass({})).toBeUndefined(); });
+  it('is refused for another photo, or when no photo is sent', async () => {
+    const pass = await makePass(env, photo);
+    expect(await passOk(env, pass, other)).toBe(false);
+    expect(await passOk(env, pass, undefined)).toBe(false);
+    const f = vi.fn(async () => ({ json: async () => ({ success: false }) }) as never);
+    expect((await checkTurnstile(env, 'x'.repeat(20), 'ip', f as never, pass, other)).ok).toBe(false);
+  });
+  it('is refused when old, forged, or made with another secret', async () => {
+    const t = 1_700_000_000_000, pass = (await makePass(env, photo, t))!;
+    expect(await passOk(env, pass, photo, t + PASS_MS + 1)).toBe(false);
+    expect(await passOk(env, pass.replace(/.$/, (c) => (c === '0' ? '1' : '0')), photo, t)).toBe(false);
+    expect(await passOk({ TURNSTILE_SECRET: 'other' }, pass, photo, t)).toBe(false);
+    expect(await passOk(env, 'junk', photo)).toBe(false);
+  });
+  it('does nothing when the check is off', async () => { expect(await makePass({}, photo)).toBeUndefined(); });
 });
 
 import { makeReceipt, receiptJob, spendReceipt, RECEIPT_MS } from '../functions/_lib/receipt';

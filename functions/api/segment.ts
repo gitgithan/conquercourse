@@ -55,7 +55,7 @@ export const onRequestPost = async ({ request, env }: { request: Request; env: E
   const ip = request.headers.get('cf-connecting-ip') ?? 'local';
   if (submit) { const c = await checkTurnstile(env, b.turnstile, ip); if (!c.ok) return json({ error: 'check', message: c.message }, 403); }
   const r = await handle(b, env, ip);
-  if (submit && r.status === 200) { const pass = await makePass(env); if (pass) (r.body as Record<string, unknown>).pass = pass; }
+  if (submit && r.status === 200) { const pass = await makePass(env, b.image); if (pass) (r.body as Record<string, unknown>).pass = pass; }
   if (submit && r.status === 200) await recordUsage(env.DB, 'segment');
   const wait = (r.body as { retryAfterSeconds?: number }).retryAfterSeconds;
   return json(r.body, r.status, typeof wait === 'number' ? { 'retry-after': String(wait) } : {});
