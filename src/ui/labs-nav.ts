@@ -1,4 +1,6 @@
 import { labsOn } from './labs';
+import { soundButton, startAudio } from './audio';
+import { mountWorldGallery } from './world-picker';
 
 // CC-118: one bar on every Lab page that lists the 12 Labs, marks the one you are in and switches with one click.
 // A switch is a plain link, so the browser itself closes the old Lab (workers, listeners, audio) and the Dojo music rule for lab-* modes runs again on the new page.
@@ -36,6 +38,8 @@ export function mountLabsNav(host: HTMLElement, mode: string, labsEnabled: boole
   style.textContent = `
     #labs-nav{position:fixed;top:0;left:0;right:0;height:${BAR_HEIGHT}px;z-index:40;display:flex;gap:6px;align-items:center;padding:0 10px;background:#17201d;color:#fff;font:13px/1.2 system-ui,sans-serif;box-sizing:border-box}
     #labs-nav a{color:#fff;text-decoration:none;border:1px solid #4a5650;border-radius:6px;padding:5px 8px;white-space:nowrap}
+    #labs-nav button{font:inherit;color:#fff;background:#0f6b5c;border:1px solid #0f6b5c;border-radius:6px;padding:5px 10px;font-weight:700;cursor:pointer}
+    #labs-nav button:hover{background:#12806d}#labs-nav button:focus-visible{outline:2px solid #ffd27a;outline-offset:1px}
     #labs-nav a:hover{background:#2c3833}#labs-nav a:focus-visible{outline:2px solid #ffd27a;outline-offset:1px}
     #labs-nav a[aria-current=page]{background:#0f6b5c;border-color:#0f6b5c;font-weight:700}
     #labs-nav a[aria-disabled=true]{opacity:.4;pointer-events:none}
@@ -65,8 +69,13 @@ export function mountLabsNav(host: HTMLElement, mode: string, labsEnabled: boole
     if (lab.mode === mode) { a.setAttribute('aria-current', 'page'); a.removeAttribute('href'); }
     list.appendChild(a);
   }
-  nav.append(prevA, list, nextA);
+  // Courses: the same gallery the other pages open, so a Lab is never a dead end (picking a course leaves the Lab)
+  const gallery = mountWorldGallery(host, { current: { value: null }, place: 'display:none' });
+  const courses = document.createElement('button');
+  courses.id = 'labs-courses'; courses.type = 'button'; courses.textContent = 'Courses'; courses.title = 'Pick a course and go back to the game'; courses.onclick = () => gallery.open();
+  nav.append(courses, prevA, list, nextA);
   host.appendChild(nav);
+  startAudio(); host.appendChild(soundButton()); // the Dojo loop already plays on Lab pages (src/ui/music.ts); this gives it the Dojo's Sound button and M key
   const root = document.getElementById(mode); // the Lab fills the screen; start it under the bar
   if (root) root.style.top = `${BAR_HEIGHT}px`;
   list.querySelector('[aria-current=page]')?.scrollIntoView({ inline: 'center', block: 'nearest' });

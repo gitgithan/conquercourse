@@ -1,5 +1,6 @@
 import { readdirSync, readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
+import { screenFor } from '../src/ui/music';
 import { LABS, labHref, labNeighbours, labNumber } from '../src/ui/labs-nav';
 
 // CC-118: the Labs bar lists all 12 Labs, knows which one is current, and every Lab page mounts it.
@@ -19,6 +20,13 @@ describe('labs bar', () => {
     expect(labNeighbours('lab-ik')).toEqual({ prev: 'lab-optimization', next: 'lab-vision' });
     expect(labNeighbours('lab-rl')).toEqual({ prev: 'lab-hashing', next: null });
     expect(labNeighbours('course')).toEqual({ prev: null, next: null });
+  });
+  it('has a Courses button that opens the gallery and a Sound button, and the Labs keep the Dojo music loop', () => {
+    const nav = readFileSync('src/ui/labs-nav.ts', 'utf8');
+    expect(nav).toContain("courses.id = 'labs-courses'");
+    expect(nav).toContain('mountWorldGallery(host');
+    expect(nav).toContain('soundButton()');
+    expect(screenFor('lab-ik')).toBe(screenFor('dojo'));
   });
   it('links keep the labs switch on', () => expect(labHref('lab-ik')).toBe('?mode=lab-ik&labs=1&welcome=0'));
   it('every lab-* mode file mounts the bar with its own mode', () => {
