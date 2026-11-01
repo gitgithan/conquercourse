@@ -1,12 +1,13 @@
 // /api/challenge-course (CC-108). POST: register a challenge course after the author's run clears it on the server replay. GET ?id=<id>: the course of a link. GET ?list=1: the Community list (promoted courses only).
 // The logic is in src/share/challenge-course.ts; this file is the D1 side. The Pages variable CHALLENGE=off answers 503.
+import { checkTurnstile, type TurnstileEnv } from '../_lib/turnstile';
 import { listCommunity, readChallenge, registerChallenge, type ChallengeEnv } from '../../src/share/challenge-course';
 import { d1Challenges, type Db } from '../_lib/challenge-db';
 import { playerCode } from '../_lib/player';
 import { json as base } from '../_lib/http';
 import { featureOn, offWords, recordUsage } from '../_lib/usage';
 
-export interface Env { DB: Db; CHALLENGE?: string; REPLAY?: string }
+export interface Env extends TurnstileEnv { DB: Db; CHALLENGE?: string; REPLAY?: string }
 const json = (body: unknown, status = 200, extra: Record<string, string> = {}) => base(body, status, { 'cache-control': 'no-store', ...extra });
 const hits = new Map<string, number[]>();
 
@@ -19,7 +20,11 @@ export const onRequestPost = async ({ request, env }: { request: Request; env: E
   if (env.CHALLENGE === 'off') return json({ error: 'off', reason: 'not-ready' }, 503);
   if (!(await featureOn(env.DB, 'community_share'))) return json({ error: 'off', reason: 'not-ready', message: offWords('community_share') }, 503);
   try {
-    const r = await registerChallenge(challengeEnv(env, request), await request.text(), env.REPLAY === 'off');
+    const text = await request.text();
+    let sent: unknown; try { sent = (JSON.parse(text) as { turnstile?: unknown }).turnstile; } catch { /* the register step answers a broken body */ }
+    const c = await checkTurnstile(env, sent, request.headers.get('cf-connecting-ip') ?? 'local');
+    if (!c.ok) return json({ error: 'check', reason: 'check', message: c.message }, 403);
+    const r = await registerChallenge(challengeEnv(env, request), text, env.REPLAY === 'off');
     if (r.status === 201) await recordUsage(env.DB, 'community_share', { created: 1 }); // a new course only; a repeat (200) is not new
     return json(r.body, r.status, r.headers);
   } catch (e) {
