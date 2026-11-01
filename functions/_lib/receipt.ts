@@ -38,6 +38,8 @@ export async function spendReceipt(env: ReceiptEnv & { DB?: Db }, receipt: unkno
   const job = await receiptJob(env, receipt, glbBase64, now);
   if (!job || !env.DB) return no;
   try {
+    // a receipt older than its lifetime (plus a day) can no longer be shown, so its row is dead weight
+    await env.DB.prepare('DELETE FROM lift_receipts WHERE used_at < ?').bind(Math.floor((now - RECEIPT_MS - 24 * 60 * 60_000) / 1000)).run().catch(() => undefined);
     const r = await env.DB.prepare('INSERT OR IGNORE INTO lift_receipts (id, used_at) VALUES (?, ?)').bind(job, Math.floor(now / 1000)).run();
     return (r.meta?.changes ?? 0) === 1 ? { ok: true } : { ok: false, message: 'That piece was already shared once. Make a new one from a photo to share again.' };
   } catch { return no; } // fails closed
