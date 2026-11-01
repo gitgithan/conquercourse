@@ -73,12 +73,12 @@ export function startMap(host: HTMLElement): { backend: 'webgl2' } {
   const side = document.createElement('div'); side.className = 'side'; root.appendChild(side);
   const HOW = q.get('slicehow') !== '0'; // first-timer steps; ?slicehow=0 hides them
   const S2 = q.get('slice2') !== 'old'; // CC-201 and the slicer fixes after it: ?slice2=old keeps the screen as it was
-  side.innerHTML = `${S2 ? '<button id="backcourses" type="button" title="Open the list of courses" style="width:calc(100% - 104px)">← Back to courses</button>' : ''}<div class="hrow"><h1>World Slicer: pick a place</h1>${HOW ? '<button id="help" type="button" class="helpbtn" title="Steps, tips, and what to do when the simulator says no path">? Help</button>' : ''}</div>
+  side.innerHTML = `${S2 ? '<button id="backcourses" type="button" title="Open the list of courses" style="width:calc(100% - 104px)">← Back to courses</button>' : ''}<div class="hrow"><h1>World Slicer: pick a place</h1></div>
     <div id="yourplace" class="yp" hidden><span class="ypl">Your place</span><b id="ypname"></b><button id="ypback" type="button" hidden title="Fly back to the place you used last time"></button></div>
     ${HOW ? `<div id="how" class="how"><h2><span>How it works</span><button id="howhide" type="button" title="Hide these steps">Got it</button></h2><ol>
       <li data-step="1"><b class="n">1</b><div><span class="t">Slice this place</span><span class="d">Search, or click the map to drop a pin, then press Slice.</span></div></li>
       <li data-step="2"><b class="n">2</b><div><span class="t">Shape it</span><span class="d">Tune what you cut: the radius and the shrink, the cut height (slide the bar or click a height), and which buildings stay (click one to leave it out, Shift and drag picks a box).</span></div></li>
-      <li data-step="3"><b class="n">3</b><div><span class="t">Find a solid green path</span><span class="d">Click a green height, then drag the white dots on the green line to turn or move it. No path? Press Help, or "Snap to the best line" to go back.</span></div></li>
+      <li data-step="3"><b class="n">3</b><div><span class="t">Find a solid green path</span><span class="d">Click a green height, then drag the white dots on the green line to turn or move it. No path? Try "Snap to the best line" to go back.</span></div></li>
       <li data-step="4"><b class="n">4</b><div><span class="t">Send to the World Editor</span><span class="d">Press the green button at the bottom. Your buildings and lane open there.</span></div></li></ol></div>` : ''}
     <form id="searchform" class="hits"><input type="search" id="search" placeholder="Search for a place" aria-label="Search for a place"><button id="searchgo" type="submit">Search</button></form>
     <div id="hits" class="hits"></div>
@@ -139,19 +139,13 @@ export function startMap(host: HTMLElement): { backend: 'webgl2' } {
   const flightskip = document.createElement('button'); flightskip.className = 'fskip'; flightskip.textContent = 'Skip the flight'; flightskip.hidden = true; mapEl.appendChild(flightskip);
   const sliceBtn = $<HTMLButtonElement>('slice'), slicer = $('slicer'), cut = $<HTMLInputElement>('cut'), read = $('sliceread');
   if (HOW) { // the three first-timer steps: the current one lights up as the player goes
-    const KEY = 'cc.slicerhow.hidden', how = $('how'), helpBtn = $<HTMLButtonElement>('help');
+    const KEY = 'cc.slicerhow.hidden', how = $('how');
     let touched = 0; // 0 nothing yet, 1 shaped, 2 chose a height
     const store = { get: () => { try { return localStorage.getItem(KEY); } catch { return null; } }, set: (v: string) => { try { localStorage.setItem(KEY, v); } catch { /* steps still work */ } } };
     const paint = () => { const step = slicer.hidden ? 1 : touched === 0 ? 2 : touched === 1 ? 3 : 4; how.querySelectorAll<HTMLElement>('li').forEach((li) => { const n = Number(li.dataset.step); li.classList.toggle('now', n === step); li.classList.toggle('done', n < step); }); };
     const vis = (on: boolean) => { how.hidden = !on; };
     vis(store.get() !== '1');
     $('howhide').onclick = () => { store.set('1'); vis(false); };
-    const flash = (el: Element) => { el.scrollIntoView({ block: 'center', behavior: 'smooth' }); el.classList.remove('flash'); void (el as HTMLElement).offsetWidth; el.classList.add('flash'); };
-    helpBtn.onclick = () => { // when the simulator said no path, go to its reason and fixes; otherwise open the steps
-      const fixes = side.querySelector('#slicewhy .say.bad, #slicewhy .fix');
-      if (!slicer.hidden && fixes) { flash(fixes); return; }
-      store.set('0'); vis(true); side.scrollTo({ top: 0, behavior: 'smooth' }); flash(how);
-    };
     new MutationObserver(paint).observe(slicer, { attributes: true, attributeFilter: ['hidden'] });
     side.querySelector('#cutstrip')!.addEventListener('click', () => { touched = 2; paint(); });
     for (const id of ['cut', 'radius', 'shrink', 'pickall', 'pickclear']) side.querySelector('#' + id)?.addEventListener(id.startsWith('pick') ? 'click' : 'input', () => { touched = Math.max(touched, 1); paint(); });
