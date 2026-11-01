@@ -1,7 +1,8 @@
 // CC-90: every prepared place opens in the World Slicer on a line and height that were proved offline on the real simulator.
 // The stored answer is replayed here on the real sim; the Slicer's first state is that answer; the World Editor gets the same line and height and agrees.
 import { readFileSync } from 'node:fs';
-import { describe, expect, it } from 'vitest';
+import { beforeAll, afterAll, describe, expect, it } from 'vitest';
+import { setRoofStart, roofStartOn } from '../src/slice/slice';
 import { handoverLane } from '../src/slice/slicer';
 import { roleCourse } from '../src/slice/roles';
 import { worldOf } from '../src/slice/slicer-core';
@@ -16,10 +17,16 @@ const input = (slug: string): PlaceInput => {
   return { answer: p.answer, lat: p.lat, lon: p.lon, ground: p.ground ? ({ radius: p.radius, ...p.ground } as Ground) : null };
 };
 const clear = file.places.filter((d) => d.clear);
-// a spread sample of at least 12 places; the VM check replays all of them
-const sample = clear.filter((_, i) => i % Math.max(1, Math.floor(clear.length / 12)) === 0).slice(0, 14);
+// a spread sample of at least 12 places; DEFAULTS_ALL=1 (the VM check) replays every stored clear place
+const sample = process.env.DEFAULTS_ALL ? clear : clear.filter((_, i) => i % Math.max(1, Math.floor(clear.length / 12)) === 0).slice(0, 14);
+
+// CC-200: the browser has roof start on, so the stored answers are proved under it; the same switch here makes "stored clear:true" mean what the live Slicer means.
+let wasOn = false;
+beforeAll(() => { wasOn = roofStartOn(); setRoofStart(true); });
+afterAll(() => setRoofStart(wasOn));
 
 describe('the stored Slicer defaults', () => {
+  it('roof start is on while the stored answers are checked (the rule the live Slicer uses)', () => { expect(roofStartOn()).toBe(true); });
   it('cover every prepared place and carry the check version and a clear time', () => {
     expect(file.checkVersion).toBe(CHECK_VERSION);
     expect(file.places.map((d) => d.slug).sort()).toEqual(index.map((p) => p.slug).sort());
