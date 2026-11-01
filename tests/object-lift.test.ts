@@ -59,7 +59,8 @@ describe('/api/object-lift handle', () => {
   });
   it('submits and returns the job id', async () => {
     const r = await handle({ ...good, action: 'submit' }, env, 'ip1', ok({ id: 'fc-ABCDEFGHIJKL' }));
-    expect(r).toEqual({ status: 200, body: { id: 'fc-ABCDEFGHIJKL', moderation: 'skipped' } });
+    expect(r).toMatchObject({ status: 200, body: { id: 'fc-ABCDEFGHIJKL', moderation: 'skipped' } });
+    expect(String((r.body as { receipt?: string }).receipt)).toMatch(/^fc-ABCDEFGHIJKL\.\d+\.[0-9a-f]{64}$/);
   });
   it('refuses bad boxes before paying for a job', async () => {
     const r = await handle({ ...good, action: 'submit', box: [0, 0, 5, 5] }, env, 'ip2', ok({}));
@@ -98,7 +99,7 @@ describe('/api/object-lift gates', () => {
     handle({ ...good, action: 'submit' }, e, ip, f, 99, ledger, limits, Date.UTC(2026, 9, 30, 12));
   const ok = { verdict: 'ok', reason: 'none' };
 
-  it('a clean photo goes through and says so', async () => expect((await submit('g1', net(ok))).body).toEqual({ id: 'fc-ABCDEFGHIJKL', moderation: 'ok:none' }));
+  it('a clean photo goes through and says so', async () => expect((await submit('g1', net(ok))).body).toMatchObject({ id: 'fc-ABCDEFGHIJKL', moderation: 'ok:none' }));
   it('a blocked photo is refused with plain words and starts no job', async () => {
     const r = await submit('g2', net({ verdict: 'block', reason: 'sexual' }));
     expect(r.status).toBe(403); expect(r.body).toMatchObject({ error: 'moderation', message: 'This photo cannot be used here.' });

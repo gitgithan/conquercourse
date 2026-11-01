@@ -15,11 +15,11 @@ export const forgetLink = (serverId: string): void => { try { const m = links();
 
 export const toBase64 = (buf: ArrayBuffer): string => { let s = ''; const b = new Uint8Array(buf); for (let i = 0; i < b.length; i += 0x8000) s += String.fromCharCode(...b.subarray(i, i + 0x8000)); return btoa(s); };
 
-export interface ShareInput { kind: 'piece'; name: string; thumb: string; glb?: ArrayBuffer; height_m?: number; course?: string }
+export interface ShareInput { kind: 'piece'; name: string; thumb: string; glb?: ArrayBuffer; height_m?: number; course?: string; receipt?: string }
 export interface Shared { id: string; status: 'approved' | 'pending' }
 
 export async function shareItem(inp: ShareInput): Promise<Shared> {
-  const res = await fetch('/api/community-items', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ action: 'publish', session: sessionCode(), kind: inp.kind, name: inp.name, thumb: inp.thumb, glb: inp.glb ? toBase64(inp.glb) : undefined, height_m: inp.height_m, course: inp.course }) });
+  const res = await fetch('/api/community-items', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ action: 'publish', session: sessionCode(), kind: inp.kind, name: inp.name, thumb: inp.thumb, glb: inp.glb ? toBase64(inp.glb) : undefined, height_m: inp.height_m, course: inp.course, receipt: inp.receipt }) });
   let d: Record<string, unknown> = {};
   try { d = (await res.json()) as Record<string, unknown>; } catch { /* a broken reply is a failure below */ }
   if (!res.ok || typeof d.id !== 'string') throw new Error(typeof d.message === 'string' && d.message ? d.message : 'Sharing did not work. Try again in a minute.');
@@ -43,3 +43,9 @@ export async function deleteShared(id: string): Promise<boolean> {
   const res = await fetch('/api/community-items', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ action: 'delete', session: sessionCode(), id }) });
   return res.ok;
 }
+
+// The lift receipt (CC-103): the 3D step gives one per piece; it is kept in this browser with the piece and shown once when the piece is shared.
+const RKEY = 'cc.liftReceipts';
+const readR = (): Record<string, string> => { try { return JSON.parse(localStorage.getItem(RKEY) ?? '{}') as Record<string, string>; } catch { return {}; } };
+export const rememberReceipt = (pieceId: string, receipt: string): void => { try { const m = readR(); m[pieceId] = receipt; localStorage.setItem(RKEY, JSON.stringify(Object.fromEntries(Object.entries(m).slice(-60)))); } catch { /* sharing then says to make it again */ } };
+export const receiptFor = (pieceId: string): string | undefined => readR()[pieceId];

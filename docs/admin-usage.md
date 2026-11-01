@@ -47,3 +47,10 @@
 - Put `TURNSTILE_SITE_KEY` and `TURNSTILE_SECRET` in `~/.config/ninja/turnstile.env`.
 - Run `scripts/set-turnstile-keys.sh`, then `npm run deploy:preview`.
 - With the keys set, a missing or wrong check is refused before any paid call.
+
+## Sharing a piece needs a lift receipt
+- Only pieces made from your own photo can be shared to Community.
+- The 3D step gives a signed receipt; sharing shows it once.
+- The switch is the setting `REQUIRE_LIFT_RECEIPT=1`; it is off by default so older pieces can still be shared.
+- It needs migration `0017_lift_receipts.sql` on that site's database first.
+- Turn it on only after the migration is applied there.
