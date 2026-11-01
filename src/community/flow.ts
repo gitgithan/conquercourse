@@ -1,10 +1,10 @@
-// The Community flow as plain logic (CC-247): the four steps, what each one needs before you may enter it, the tabs, the found things and the daily piece count.
+// The Community flow as plain logic (CC-247): the three steps, what each one needs before you may enter it, the tabs, the found things and the daily piece count.
 // No page code here, so the rules are tested without a browser (tests/community-flow.test.ts).
 import type { Suggestion } from '../slice/segment';
 
-export type Step = 'photo' | 'segment' | 'choose' | 'make';
+export type Step = 'photo' | 'segment' | 'make';
 export const STEPS: { id: Step; label: string }[] = [
-  { id: 'photo', label: 'Photo' }, { id: 'segment', label: 'Segment' }, { id: 'choose', label: 'Choose' }, { id: 'make', label: 'Make' },
+  { id: 'photo', label: 'Photo' }, { id: 'segment', label: 'Pick' }, { id: 'make', label: 'Make' },
 ];
 export type Kind = 'piece';
 export type Box = [number, number, number, number];
@@ -12,7 +12,7 @@ export type Box = [number, number, number, number];
 export interface FlowState {
   hasPhoto: boolean;
   segmented: boolean; // "Segment Region" has run and at least one found thing is picked
-  choices: Record<number, Kind>; // by mark id
+  choices: Record<number, Kind>; // by mark id; every pick is a piece now, filled in when it is picked
 }
 export const startState = (): FlowState => ({ hasPhoto: false, segmented: false, choices: {} });
 
@@ -21,8 +21,7 @@ export function whyNot(step: Step, s: FlowState): string {
   switch (step) {
     case 'photo': return '';
     case 'segment': return s.hasPhoto ? '' : 'Pick a photo first.';
-    case 'choose': return !s.hasPhoto ? 'Pick a photo first.' : !s.segmented ? 'Press Segment Region, then click the thing you want in the photo.' : '';
-    case 'make': return whyNot('choose', s) || (Object.keys(s.choices).length === 0 ? 'Choose 3D piece for your pick.' : '');
+    case 'make': return !s.hasPhoto ? 'Pick a photo first.' : !s.segmented ? 'Press Segment Region, then click the thing you want in the photo.' : '';
   }
 }
 export const canEnter = (step: Step, s: FlowState): boolean => whyNot(step, s) === '';
@@ -34,7 +33,7 @@ export const prevStep = (step: Step): Step | null => STEPS[stepIndex(step) - 1]?
 export type Tab = 'explore' | 'make';
 export const TABS: { id: Tab; label: string; hint: string }[] = [
   { id: 'explore', label: 'Explore', hint: 'Finished courses and pieces people made' },
-  { id: 'make', label: 'Make your own', hint: 'Photo, Segment, Choose, Make' },
+  { id: 'make', label: 'Make your own', hint: 'Photo, Pick, Make' },
 ];
 /** Which tab opens: Explore first, so a person sees finished work before the making flow. `?tab=make` (or the old `photos`) opens the flow; the old objects, places and gallery addresses open Explore. */
 export function tabFor(mode: string | null, params: URLSearchParams): Tab {

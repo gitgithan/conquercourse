@@ -5,17 +5,16 @@ const q = (s: string) => new URLSearchParams(s);
 const sug = (box: Box, label = 'bench') => ({ label, score: 0.9, box, cutout: '' });
 
 describe('the stepper', () => {
-  it('has the four steps in order: no box to draw, no upfront choice', () => {
-    expect(STEPS.map((s) => s.id)).toEqual(['photo', 'segment', 'choose', 'make']);
-    expect(nextStep('photo')).toBe('segment'); expect(nextStep('make')).toBeNull(); expect(prevStep('photo')).toBeNull(); expect(prevStep('choose')).toBe('segment');
+  it('has the three steps in order: no box to draw, no upfront choice', () => {
+    expect(STEPS.map((s) => s.id)).toEqual(['photo', 'segment', 'make']);
+    expect(nextStep('photo')).toBe('segment'); expect(nextStep('make')).toBeNull(); expect(prevStep('photo')).toBeNull(); expect(prevStep('make')).toBe('segment');
   });
   it('walks forward only as each step is earned', () => {
     let s = startState();
     expect(canEnter('photo', s)).toBe(true); expect(canEnter('segment', s)).toBe(false);
-    s = { ...s, hasPhoto: true }; expect(canEnter('segment', s)).toBe(true); expect(canEnter('choose', s)).toBe(false);
-    expect(whyNot('choose', s)).toMatch(/click the thing you want/);
-    s = { ...s, segmented: true }; expect(canEnter('choose', s)).toBe(true); expect(canEnter('make', s)).toBe(false);
-    s = { ...s, choices: { 1: 'piece' } }; expect(canEnter('make', s)).toBe(true);
+    s = { ...s, hasPhoto: true }; expect(canEnter('segment', s)).toBe(true); expect(canEnter('make', s)).toBe(false);
+    expect(whyNot('make', s)).toMatch(/click the thing you want/);
+    s = { ...s, segmented: true }; expect(canEnter('make', s)).toBe(true);
   });
 });
 
