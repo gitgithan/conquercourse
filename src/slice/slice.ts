@@ -59,6 +59,12 @@ export function laneSamples(mesh: Mesh, o: { angle: number; offset: number }, ce
   return surfaceSamples({ positions: p, indices: keep }, d);
 }
 
+// CC-200 (owner 2026-11-01, behind a switch): the runner starts on the first roof, and everything below the cut is hidden, so only the heights between roofs and the gaps decide.
+// Off by default; the editor and the Slicer turn it on from the page switch ?roofstart=1, and the experiment script turns it on to compare.
+let roofStart = false;
+export const setRoofStart = (on: boolean): void => { roofStart = on; };
+export const roofStartOn = (): boolean => roofStart;
+
 export interface SliceOptions { angle: number; offset: number; level: number } // radians about the vertical rod, metres sideways, metres up
 
 export interface Profile { cells: (number | null)[]; length: number; origin?: number } // origin: where cell 0 sits along the run in the editor's world, in metres // height above the level per 0.1 m along the run, null where there is no ground
@@ -69,7 +75,7 @@ export function sliceProfile(samples: Float32Array, centre: { x: number; z: numb
   let lo = Infinity, hi = -Infinity;
   for (let i = 0; i < samples.length; i += 3) {
     const x = samples[i] - centre.x, z = samples[i + 2] - centre.z, y = samples[i + 1] - o.level;
-    if (Math.abs(x * nx + z * nz - o.offset) > HALF_LANE || y < -LANE_DROP) continue; // outside the lane, or further below the level than a runner can drop (water)
+    if (Math.abs(x * nx + z * nz - o.offset) > HALF_LANE || y < (roofStart ? 0 : -LANE_DROP)) continue; // outside the lane, or below the cut (roof start: hidden) or further below it than a runner can drop (water)
     const u = Math.floor((x * dx + z * dz) / CELL);
     lo = Math.min(lo, u); hi = Math.max(hi, u);
     if (y > (tops.get(u) ?? -Infinity)) tops.set(u, y);
@@ -121,7 +127,8 @@ export interface LanePlank { u0: number; u1: number; thickness: number; width: n
 // opts.splits: u positions (along the run, in the editor's world) where a run of ground is cut into two platforms, so a wall face or the two ends of a trampoline bed are real platform edges.
 export interface LaneOptions { keepGaps?: boolean; splits?: number[] }
 export function laneToCourse(profile: Profile, name = 'Slice', holds: { u: number; y: number }[] = [], opts: LaneOptions = {}, planks: LanePlank[] = []): CourseData {
-  const c = profile.cells;
+  const h0 = roofStart ? (profile.cells.find((v) => v !== null) ?? 0) : 0; // roof start: the first roof is the height the start deck stands at
+  const c = roofStart ? profile.cells.map((v) => (v === null ? null : v - h0)) : profile.cells;
   const runs: { a: number; b: number }[] = [];
   let start = -1;
   for (let i = 0; i <= c.length; i++) {
@@ -176,7 +183,7 @@ export function laneToCourse(profile: Profile, name = 'Slice', holds: { u: numbe
   const mapped = holds.map((h) => {
     let best = uMap[0], d = Infinity;
     for (const r of uMap) { const dd = h.u < r.u0 ? r.u0 - h.u : h.u > r.u1 ? h.u - r.u1 : 0; if (dd < d) { d = dd; best = r; } }
-    return best ? { x: round(h.u + (best.x0 - best.u0)), y: round(h.y) } : null;
+    return best ? { x: round(h.u + (best.x0 - best.u0)), y: round(h.y - h0) } : null;
   }).filter((h): h is { x: number; y: number } => h !== null).sort((a, b) => a.x - b.x);
   // a plank lies across a gap: it starts where one run of ground ends and ends where the next begins (platform 0 is the start deck)
   const laid: NonNullable<CourseData['planks']> = [];
