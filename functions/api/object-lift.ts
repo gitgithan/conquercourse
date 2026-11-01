@@ -34,7 +34,11 @@ export async function handle(b: Record<string, unknown>, env: Env, ip: string, f
   if (b.action === 'status') {
     const id = typeof b.id === 'string' && /^fc-[A-Za-z0-9]{10,40}$/.test(b.id) ? b.id : '';
     if (!id) return { status: 400, body: { state: 'failed', reason: 'bad' } };
-    try { return { status: 200, body: await call(env.CC_UPLOAD_STATUS_URL, { token: env.CC_UPLOAD_TOKEN, id }) }; } catch { return { status: 502, body: { state: 'failed', reason: 'down' } }; }
+    try {
+      const body = (await call(env.CC_UPLOAD_STATUS_URL, { token: env.CC_UPLOAD_TOKEN, id })) as Record<string, unknown>;
+      if (body.state === 'done' && typeof body.glb === 'string') body.receipt = await makeReceipt(env, id, body.glb).catch(() => undefined); // made for exactly this piece
+      return { status: 200, body };
+    } catch { return { status: 502, body: { state: 'failed', reason: 'down' } }; }
   }
   if (b.action !== 'submit') return { status: 400, body: { error: 'bad' } };
   const problem = requestProblem(b);
@@ -54,7 +58,7 @@ export async function handle(b: Record<string, unknown>, env: Env, ip: string, f
   try {
     const out = (await call(env.CC_UPLOAD_SUBMIT_URL, { token: env.CC_UPLOAD_TOKEN, image: r.image.slice(r.image.indexOf(',') + 1), label: r.label, box: r.box, height_m: r.height_m, padretry: r.padretry })) as { id?: string; error?: string };
     if (!out.id) { await ledger.refund(who, day); return { status: 400, body: { error: out.error === 'not allowed' ? 'not allowed' : 'bad', message: out.error ?? '' } }; }
-    return { status: 200, body: { id: out.id, moderation, receipt: await makeReceipt(env, out.id, now) } };
+    return { status: 200, body: { id: out.id, moderation } };
   } catch { await ledger.refund(who, day); return { status: 502, body: refusalBody('down', 'The 3D service is busy. Try again in a minute.', 60) }; }
 }
 
