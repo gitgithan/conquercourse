@@ -7,7 +7,6 @@ export interface Platform {
   profile?: [number, number][]; // a curved top: [x, height] points from x0 to x1 (x rising), joined by straight pieces; `top` is then its highest point
   coasterRail?: boolean; // collision surface for landing on a coaster rail; the visible rail is drawn by src/render/track.ts
   gate?: number; // lane gate (CC-228): this stretch is solid only after the runner has stood on the platform with this index; without it the stretch is air. A fork's far floors need this so they cannot be reached by a jump from before the fork.
-  skin?: { image: string; crop: [number, number, number, number] }; // a picture painted on the front face: the image's address and the part of it (in pixels) to use; looks only, never collision
 }
 
 export interface Terrain {
