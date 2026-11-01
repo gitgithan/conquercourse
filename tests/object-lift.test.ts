@@ -104,9 +104,11 @@ describe('/api/object-lift gates', () => {
     const r = await submit('g2', net({ verdict: 'block', reason: 'sexual' }));
     expect(r.status).toBe(403); expect(r.body).toMatchObject({ error: 'moderation', message: 'This photo cannot be used here.' });
   });
-  it('a worry that needs a person is refused', async () => {
+  it('a worry that needs a person is refused, and the words say why and what to try', async () => {
     const r = await submit('g3', net({ verdict: 'review', reason: 'minor' }));
-    expect(r.status).toBe(403); expect((r.body as { message: string }).message).toMatch(/needs a person/);
+    expect(r.status).toBe(403); expect((r.body as { message: string }).message).toMatch(/child.*small and far away/);
+    for (const [reason, re] of [['private_info', /number plate.*readable writing/], ['weapon', /not allowed here/], ['sexual', /not allowed here/]] as const)
+      expect(moderationStops('review', reason)).toMatch(re);
   });
   it('a person in the photo is allowed (the pipeline blurs them)', async () => expect((await submit('g4', net({ verdict: 'review', reason: 'person' }))).status).toBe(200));
   it('a broken checker fails closed when a key is set', async () => {
