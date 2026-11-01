@@ -33,3 +33,6 @@ data/eval/**
 !data/eval/**/*.mjs
 !data/eval/**/*.txt
 !data/eval/**/*.csv
+
+# Generated local code graph; rebuild separately in each worktree.
+graphify-out/

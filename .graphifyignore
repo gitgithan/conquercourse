@@ -1,0 +1,11 @@
+data/
+public/
+dist/
+node_modules/
+.git/
+.claude/
+.agents/
+.codex/
+local-notes-q7/
+test-results/
+graphify-out/
