@@ -13,11 +13,11 @@ try { token = sessionStorage.getItem('cc-admin') || ''; } catch { /* no storage:
 const el = (tag, text, cls) => { const e = document.createElement(tag); if (text !== undefined) e.textContent = text; if (cls) e.className = cls; return e; };
 const dollars = (c) => `$${(c / 100).toFixed(2)}`;
 
-async function call(method, body) {
+async function call(method, body, query = '') {
   if (!token) {
     throw new Error('Paste your admin token in the box above, then press Show usage.');
   }
-  const res = await fetch(API, { method, headers: { 'x-admin-token': token, ...(body ? { 'content-type': 'application/json' } : {}) }, body: body ? JSON.stringify(body) : undefined, cache: 'no-store' });
+  const res = await fetch(API + query, { method, headers: { 'x-admin-token': token, ...(body ? { 'content-type': 'application/json' } : {}) }, body: body ? JSON.stringify(body) : undefined, cache: 'no-store' });
   if (res.status === 401 || res.status === 404) { token = ''; try { sessionStorage.removeItem('cc-admin'); } catch { /* ignore */ } throw new Error('That token was not accepted.'); }
   if (!res.ok) throw new Error('The server could not answer right now.');
   try { sessionStorage.setItem('cc-admin', token); } catch { /* ignore */ }
@@ -70,6 +70,32 @@ function render(data) {
     det.appendChild(table(d, byName)); app.appendChild(det);
   }
 }
+
+// Who made what: an anonymous player code (the same browser gives the same code), so you can see one person's pieces together.
+function madeTable(rows, cols) {
+  const t = el('table'), head = t.createTHead().insertRow();
+  for (const [h] of cols) head.appendChild(el('th', h));
+  const body = t.createTBody(), counts = {};
+  for (const r of rows) counts[r.owner] = (counts[r.owner] || 0) + 1;
+  for (const r of rows) {
+    const tr = body.insertRow();
+    if (counts[r.owner] >= 5) tr.className = 'hot';
+    for (const [, f] of cols) tr.appendChild(el('td', f(r, counts)));
+  }
+  return t;
+}
+const when = (v) => (typeof v === 'number' ? new Date(v * 1000) : new Date(v)).toISOString().slice(0, 16).replace('T', ' ');
+async function showMade() {
+  const box2 = document.getElementById('made');
+  try {
+    const d = await call('GET', undefined, '?view=made');
+    box2.replaceChildren(el('h2', `Shared to Community (${d.items.length}, newest first)`),
+      madeTable(d.items, [['When (UTC)', (r) => when(r.at)], ['Player', (r) => r.owner], ['Their total', (r, c) => String(c[r.owner])], ['Kind', (r) => r.kind], ['Name', (r) => r.name], ['Status', (r) => r.status], ['Safety check', (r) => r.moderation]]),
+      el('h2', `Characters (${d.characters.length}, newest first)`),
+      madeTable(d.characters, [['When (UTC)', (r) => when(r.at)], ['Player', (r) => r.owner], ['Their total', (r, c) => String(c[r.owner])], ['Name', (r) => r.name], ['Words they typed', (r) => r.prompt], ['Status', (r) => r.status], ['Reports', (r) => String(r.reports)]]));
+  } catch (e) { msg.textContent = e.message; }
+}
+document.getElementById('showmade').addEventListener('click', showMade);
 
 async function load() {
   msg.textContent = '';
