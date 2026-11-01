@@ -1,0 +1,287 @@
+{
+  "title": "Reference film storyboard (CC-143)",
+  "bpm": 100,
+  "bar_seconds": 2.4,
+  "total_seconds": 76.8,
+  "format": "16:9, 1280 x 720 desktop captures on the stepped clock",
+  "rules": [
+    "No formulas on screen except in the Dojo and Labs",
+    "No grading of technique",
+    "Mapillary photos only live, with Mapillary's blur, never stored",
+    "Credit OpenStreetMap contributors and every CC BY object on the end card"
+  ],
+  "music_plan": [
+    {
+      "name": "Bed",
+      "shots": "1-5",
+      "how": "One 100 bpm gentle bed: pad and light piano, drums join at shot 2 and build to shot 5."
+    },
+    {
+      "name": "Drop",
+      "shots": "6",
+      "how": "Cut the bed to one low note, then 1.2 s of true silence over black."
+    },
+    {
+      "name": "Burst",
+      "shots": "7",
+      "how": "Full drums at 100 bpm, one hit on every cut; same tempo so the grid never changes."
+    },
+    {
+      "name": "Calm",
+      "shots": "8-10",
+      "how": "Sparse light piano in the style of the Dojo loop, with fewer notes."
+    },
+    {
+      "name": "Theme",
+      "shots": "11",
+      "how": "The bed's tune returns in full, held chord on the end card."
+    }
+  ],
+  "shots": [
+    {
+      "id": 1,
+      "key": "earth",
+      "title": "Undim: Earth to street",
+      "bars": 4,
+      "overlay": [
+        "Explore a new world"
+      ],
+      "beat": "Fade up from black on the logo and the slogan, then the Earth seen from far. The camera dives to the ground until the map is an OSM street view. The slice plane sweeps and the buildings extrude, the camera tilts from straight-down to 45 degrees, and street photos pop up like a shuffled deck of cards and fan out.",
+      "camera": "Dolly-in from orbit to ground; then pitch from 90 to 45 degrees; photo cards fan out left to right on the beat.",
+      "source": "Slicer map mode (real); Earth zoom is a concept stand-in; photo cards use Mapillary live under its blur (never stored).",
+      "status": "Slicer real, globe concept",
+      "music": "Soft pad and single high piano notes; swell on the dive; a bell on the fan-out.",
+      "checks": [
+        "Logo and 'Train slow. Run fast.' are readable for at least 1.2 s before the dive",
+        "The OSM credit is on screen when the map shows",
+        "No photo shows a close-up person (our 0.2 rule) and none is stored or un-blurred"
+      ],
+      "risk": "Globe zoom is not built; fall back to a flat dive from a zoomed-out map.",
+      "seconds": 9.6,
+      "start": 0
+    },
+    {
+      "id": 2,
+      "key": "search",
+      "title": "A path is searched and found",
+      "bars": 2,
+      "overlay": [
+        "Find your path"
+      ],
+      "beat": "Over the extruded city, thin lines fan out from the start as the simulator searches. Dead ends fade, one line stays and glows. The glow dissolves into the World Editor.",
+      "camera": "High 45-degree view, slow push; match-cut from the glowing line to the editor lane.",
+      "source": "Ideal-run search overlay (real) and the Editor lane (real).",
+      "status": "Real",
+      "music": "Pulse starts: soft kick on every beat, plucked notes follow the search lines.",
+      "checks": [
+        "Several tried lines are visible before one wins",
+        "The winning line is the proved lane, not a drawn guess",
+        "The dissolve lands on the Editor with the same camera angle"
+      ],
+      "risk": "Search lines are drawn from the stored search log; if the log is missing, re-run it on the VM.",
+      "seconds": 4.8,
+      "start": 9.6
+    },
+    {
+      "id": 3,
+      "key": "editor",
+      "title": "Design your course",
+      "bars": 3,
+      "overlay": [
+        "Design your course, using your objects"
+      ],
+      "beat": "In the Editor: drag a piece, resize it, ask the Design Partner for help, flip Top view and 3D view, orbit from far to fit the whole lane, then add objects from the library with the 3D-generated pieces in focus (planter, railing, skate box).",
+      "camera": "Screen capture at 1280 wide, full frame, no zoom crop; orbit from far to near.",
+      "source": "World Editor, real; the pieces made from photos show their new pictures (CC-200).",
+      "status": "Real",
+      "music": "Gentle groove joins: warm bass, light shaker.",
+      "checks": [
+        "Every action is visible at full frame: the cursor, the piece and the panel together",
+        "At least three photo-made pieces appear in the library with pictures, not emoji",
+        "Text stays on through shot 4"
+      ],
+      "risk": "Keep the stepped clock; software drawing is slow, so record on the stepped clock only.",
+      "seconds": 7.2,
+      "start": 14.4
+    },
+    {
+      "id": 4,
+      "key": "lift",
+      "title": "From photo to 3D, then a run",
+      "bars": 3,
+      "overlay": [
+        "Design your course, using your objects"
+      ],
+      "beat": "Look at one 3D object, the iron railing: the photo, a box drawn round the railing, the cut-out, the lift into 3D, and a turntable. Then cut to the same real course with Rookie A jumping over at least one obstacle.",
+      "camera": "Locked frame for the cut-out; turntable orbit 360 degrees; then side-on tracking of the jump.",
+      "source": "Photo-lift steps from the CC-38 object pipeline (real inputs); Rookie A run on the stepped clock (real).",
+      "status": "Lift is a stand-in made from real intermediate files; run is real",
+      "music": "Same groove; a rising riser into the jump, then a short drum fill.",
+      "checks": [
+        "The railing in the turntable is the same one placed in the course",
+        "Rookie A clears at least one obstacle and lands, in a frame that shows the take-off and the landing",
+        "The clip uses the licensed railing credit on the final frame"
+      ],
+      "risk": "The railing is CC0; its credit must show in the end card.",
+      "seconds": 7.2,
+      "start": 21.6
+    },
+    {
+      "id": 5,
+      "key": "train",
+      "title": "Chase a record",
+      "bars": 4,
+      "overlay": [
+        "Chase a record",
+        "See the gaps",
+        "Experience in first-person"
+      ],
+      "beat": "The training course: a flyover of the full course first. Then the ghost runs ahead and the player chases it, the debug view shows the gaps, and the camera cycles through side, back and first-person views.",
+      "camera": "Flyover along the lane; split of ghost and runner; view cuts every bar.",
+      "source": "Course flyover, ghost, debug and camera modes (all real).",
+      "status": "Real",
+      "music": "Build: hats and a rising bass line; each overlay lands on a bar line.",
+      "checks": [
+        "The ghost and the runner are both in frame at once",
+        "The debug view shows the gaps with words only, no formulas",
+        "First-person view is shown for a full beat"
+      ],
+      "risk": "Three overlays in four bars: give each exactly one bar, in order.",
+      "seconds": 9.6,
+      "start": 28.8
+    },
+    {
+      "id": 6,
+      "key": "matrix",
+      "title": "The jump nobody sees land",
+      "bars": 3,
+      "overlay": [
+        "Practice your moves",
+        "Stretch your limits"
+      ],
+      "beat": "A lache: the runner lets go of one bar toward the next. Start on a front view, zoom out and orbit from behind the character to the side and then 45 degrees in front, at 360-degree matrix feel, then black out in silence. The viewer never sees if he caught the next bar.",
+      "camera": "Front close-up, pull back, 180 degrees of orbit at slow motion, cut to black on the release.",
+      "source": "Lache clip on the stepped clock with the orbit camera (real; the vault and climb clips stay locked).",
+      "status": "Real; the orbit move is new",
+      "music": "Everything drops except one low note; the last 1.2 s is true silence over black.",
+      "checks": [
+        "The release is visible before the blackout",
+        "The orbit shows back, side and front-45 views in that order",
+        "The silence is truly silent: no tail, no room tone"
+      ],
+      "risk": "Both ends are real physics: film the actual outcome, then end the clip before it shows.",
+      "seconds": 7.2,
+      "start": 38.4
+    },
+    {
+      "id": 7,
+      "key": "burst",
+      "title": "Fast beats: every kind of move",
+      "bars": 3,
+      "overlay": [
+        "Unleash your creativity"
+      ],
+      "beat": "Hard cuts on the beat: sliding below cannon balls, down the roller coaster, carried by the drone, pole vault, the trebuchet throw. Then a transition into a course shown on the course map.",
+      "camera": "One shot of about 0.6 s each; each cut lands on a beat; the last cut pulls back into the map.",
+      "source": "Existing demo courses and clips for each contraption (real).",
+      "status": "Real",
+      "music": "Full drums enter; one hit per cut; snare roll into the map.",
+      "checks": [
+        "All five moves show, one cut each, on a beat",
+        "Each clip shows its take-off and result",
+        "The final cut lands on a bar line"
+      ],
+      "risk": "Pole vault is the one clip that may not exist yet: check the Park moves list.",
+      "seconds": 7.2,
+      "start": 45.6
+    },
+    {
+      "id": 8,
+      "key": "courses",
+      "title": "The Courses page: Dojo and Labs",
+      "bars": 2,
+      "overlay": [
+        "Learn through play, for all ages"
+      ],
+      "beat": "Scroll the Courses page down past the real places to the new Dojo cards and then the Labs cards.",
+      "camera": "Smooth scroll, 1280 wide, full frame.",
+      "source": "Course picker (real, CC-200: Dojo cards above the Labs).",
+      "status": "Real",
+      "music": "Back to calm: piano and bell, sparse notes.",
+      "checks": [
+        "Dojo cards and Labs cards are both visible, with their headings",
+        "Scroll speed is slow enough to read the card titles"
+      ],
+      "risk": "Dojo cards have no pictures yet; make thumbnails before filming.",
+      "seconds": 4.8,
+      "start": 52.8
+    },
+    {
+      "id": 9,
+      "key": "dojo",
+      "title": "Train in the Dojo",
+      "bars": 3,
+      "overlay": [
+        "Train in the Dojo"
+      ],
+      "beat": "Open the Gap jump lesson and its Try It page. Move the sliders; the graph on the left updates live. Keep the whole page in frame.",
+      "camera": "Fixed full-page frame; no zoom, so no control or label is cut off.",
+      "source": "Dojo, gap lesson (real).",
+      "status": "Real",
+      "music": "Sparse piano, quiet; a soft note on each slider stop.",
+      "checks": [
+        "Sliders, graph, answer and Try It button are all inside the frame",
+        "The graph visibly changes while a slider moves",
+        "No formula shows before the last earned step"
+      ],
+      "risk": "Slider moves must be scripted, not hand-held, so the clip is repeatable.",
+      "seconds": 7.2,
+      "start": 57.6
+    },
+    {
+      "id": 10,
+      "key": "lab",
+      "title": "Lab 3: Posing a character",
+      "bars": 2,
+      "overlay": [
+        "Mastery in the Labs",
+        "University level"
+      ],
+      "beat": "Open Lab 3. Move a hand toward a bar and watch the arm bend; move a few limbs. A small tag says the Labs are university level.",
+      "camera": "Fixed full-page frame.",
+      "source": "Lab 3 (real); equations are allowed in the Labs.",
+      "status": "Real",
+      "music": "Same sparse piano with a slow low pad.",
+      "checks": [
+        "The arm visibly bends as the hand moves",
+        "The university-level tag is readable"
+      ],
+      "risk": "None known.",
+      "seconds": 4.8,
+      "start": 64.8
+    },
+    {
+      "id": 11,
+      "key": "group",
+      "title": "Group photo, then the call to play",
+      "bars": 3,
+      "overlay": [
+        "Play Now",
+        "https://conquercourse.pages.dev/"
+      ],
+      "beat": "All ten characters on one platform, the two Rookies in the middle, standing. Then each does a different move (jump shot and others) and freezes. Dim into the logo and slogan, with Play Now and the link below.",
+      "camera": "Wide, slightly low, locked; a slow push-in as they freeze; dim to the end card.",
+      "source": "The ten characters from the cast (real models; poses from the move library).",
+      "status": "Poses real; the group scene is new",
+      "music": "The theme returns, full; hits on each freeze; resolves on a held chord.",
+      "checks": [
+        "Ten characters are visible, the Rookies in the centre",
+        "Every pose is different and holds still for a beat",
+        "The link is spelled exactly: https://conquercourse.pages.dev/"
+      ],
+      "risk": "Ten rigs in one scene may be heavy; render on the VM.",
+      "seconds": 7.2,
+      "start": 69.6
+    }
+  ]
+}
