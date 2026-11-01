@@ -951,11 +951,16 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
     slider('Turn about the start', 'angle', 0, 180, 5, () => Math.round((angle * 180) / Math.PI), (v) => { angle = (v * Math.PI) / 180; pieces.filter(isDevice).forEach((p) => { p.yaw = angle; }); }, (v) => `${v}°`);
     slider('Sideways', 'offset', -30, 30, 0.5, () => offset, (v) => (offset = v), (v) => `${v.toFixed(1)} m`);
     slider('Where the water starts (level)', 'level', 0, 4, 0.05, () => level, (v) => (level = v), (v) => `${v.toFixed(2)} m`);
-    el('button', lanePanel, { text: 'Find the best lane for me', id: 'best' }).onclick = () => {
+    const bestBtn = el('button', lanePanel, { text: 'Find the best lane for me', id: 'best' });
+    bestBtn.onclick = async () => {
+      if (document.documentElement.dataset.laneClear === '1') { verdict = 'This lane is already proved by the simulator, so it stays.'; drawLanePanel(); return; } // a fix the simulator just proved is never swapped for a lane it has not
       const s = worldSamples(ground());
-      const found = bestSlices({ positions: Array.from(s) }, { top: 1, levels: [level], centre: { x: 0, z: 0 }, reprofile: (c) => laneProfile(ground(), c) }); // the editor's rod is the origin, so the lane it finds is the lane it shows
-      if (!found.length) { verdict = 'No lane the runner can clear was found: try other pieces or levels.'; drawLanePanel(); return; }
-      angle = found[0].angle; offset = found[0].offset; level = found[0].level; verdict = '';
+      const found = bestSlices({ positions: Array.from(s) }, { top: 8, prove: false, levels: [level], centre: { x: 0, z: 0 }, reprofile: (c) => laneProfile(ground(), c) }); // the editor's rod is the origin, so the lane it finds is the lane it shows
+      bestBtn.disabled = true; bestBtn.textContent = 'Checking lanes…';
+      let pick: (typeof found)[number] | null = null;
+      for (const c of found) { if (await searchClearable(laneCourseAt({ angle: c.angle, offset: c.offset, level: c.level })) === true) { pick = c; break; } } // each is proved on the same course the lane check uses (roles, bars and machines too), so the answer matches what the check says afterwards
+      if (!pick) { verdict = 'No lane the simulator can clear was found: try other pieces or levels.'; drawLanePanel(); return; }
+      angle = pick.angle; offset = pick.offset; level = pick.level; verdict = '';
       save(); drawLanePanel(); draw(); drawProfile(); verify();
     };
     const play = el('button', lanePanel, { text: 'Play this lane', className: 'go', id: 'play' });
@@ -1046,13 +1051,14 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
   const machineNow = (): Machine | null => (trebuchetKg ? { counterweight: trebuchetKg, ...trebuchetExtra } : null);
   const trebuchetPivot = (): number => { const p = pieces.find((q) => q.src?.startsWith('device:trebuchet:')); return p ? p.x * Math.cos(angle) + p.z * Math.sin(angle) + TREBUCHET_PIVOT_FROM_CENTRE * p.scale : 0; };
   const machineWrap = (m: Machine | null) => wrapFor(m, trebuchetPivot());
-  const laneCourse = (_p?: ReturnType<typeof currentProfile>) => {
-    const c = roleCourse(coursePieces(), { angle, offset, level }, 'My world').course;
+  const laneCourseAt = (ln: { angle: number; offset: number; level: number }) => {
+    const c = roleCourse(coursePieces(), ln, 'My world').course;
     const m = machineNow();
     if (m) return withTrebuchet(c, m, trebuchetPivot());
     if (droneCfg) return withDrone(c, droneCfg, droneRange());
     return recoilCfg ? withRecoil(c, recoilCfg, recoilRange()) : bandK ? withBand(c, bandK) : c;
   };
+  const laneCourse = (_p?: ReturnType<typeof currentProfile>) => laneCourseAt({ angle, offset, level }); // the course the lane check and Play prove: roles, bars and machines included
   // what this course was cut from, so the Course can open the same pieces again (CC-80); a world with a map piece cannot be kept: its mesh is too big
   const sourceNow = (): CourseSource | undefined => pieces.some((p) => p.src?.startsWith('map:')) ? undefined : { kind: 'editor', pieces: pieces.filter((p) => p.src).map((p) => ({ src: p.src as string, x: p.x, z: p.z, y: p.y, yaw: p.yaw, scale: p.scale, ...(p.role ? { role: p.role } : {}) })), angle, offset, level, floor: floorChoice };
   const courseNow = () => { const c = laneCourse(currentProfile()); if (floorChoice !== 'water') c.hazard = floorChoice; if (designed.size) c.designedShortcuts = [...designed]; const src = sourceNow(); if (src) c.source = src; return c; };
