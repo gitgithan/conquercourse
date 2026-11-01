@@ -2,6 +2,7 @@ import { pageQuery } from '../flags';
 import { shareWaitText, waitFromReply } from '../sim/slow-down';
 import { initFeedbackCard } from './feedback-card';
 import { turnstileToken } from './turnstile';
+import { trackStep as sendStep, visitRef } from './analytics';
 // A small "Feedback" button on every page. It asks the questions in public/feedback-questions.json (edit that file to change
 // the round) and posts the answers, a random session id, the build id and a few play counters to /api/submit.
 declare const __BUILD__: string;
@@ -16,7 +17,7 @@ export type CourseEvent = 'start' | 'fail' | 'success';
 export function trackCourseEvent(event: CourseEvent, courseKey: string, courseName: string, runId: string, mode: string, at = ''): void {
   void fetch('/api/course-event', {
     method: 'POST', headers: { 'content-type': 'application/json' }, keepalive: true,
-    body: JSON.stringify({ event, session: session(), build: __BUILD__, courseKey, courseName, runId, mode, source: courseSource(), at }),
+    body: JSON.stringify({ event, session: session(), build: __BUILD__, courseKey, courseName, runId, mode, source: courseSource(), at, ref: visitRef() }),
   }).catch(() => { /* telemetry must never interrupt a run */ });
 }
 
@@ -83,6 +84,9 @@ export function courseKey(name: string): string {
   if (path) return path.replace(/^\/assets\//, '').replace(/\.course\.json$/, '').replace(/[^a-zA-Z0-9_/-]/g, '-').slice(0, 100); // the slash stays: the server and the cards name a course 'demo/training' (a dash here dropped every start event)
   return name.toLowerCase().normalize('NFKD').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 100) || 'unnamed-course';
 }
+
+/** CC-108: one funnel step for this visitor (once per page load; the server keeps one per day). */
+export const trackStep = (step: string): void => sendStep(step, session());
 
 export function session(): string {
   try {

@@ -3,7 +3,8 @@ import { screenFor, startMusic } from './ui/music';
 import { startCourse } from './modes/course';
 import type { CourseData } from './course/course';
 import { startDojo } from './modes/dojo';
-import { initFeedback } from './ui/feedback';
+import { initFeedback, trackStep } from './ui/feedback';
+import { stepForMode } from './ui/analytics';
 import { mountSiteNav } from './ui/site-nav';
 import { browserStore, startRedirect } from './ui/onboarding-flags';
 import { installGalleryKeyGuard, mountWorldGallery, currentWorld, DEFAULT_PLACE, BUTTON_PLACE } from './ui/world-picker';
@@ -16,6 +17,7 @@ if (welcomeOn({ params: pageQuery(), automated: navigator.webdriver })) {
   const { startWelcome } = await import('./modes/welcome');
   startWelcome(document.body);
   initFeedback('welcome');
+  trackStep('landed'); // CC-108
   document.documentElement.dataset.ready = 'true';
   await new Promise<void>(() => {});
 }
@@ -90,3 +92,4 @@ mountSiteNav(document.body, mode); // CC-246: one top bar with the four features
 document.documentElement.dataset.ready = 'true';
 }
 initFeedback(pageQuery().get('mode') ?? 'course');
+trackStep('landed'); { const used = stepForMode(pageQuery().get('mode') ?? 'course'); if (used) trackStep(used); } // CC-108

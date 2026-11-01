@@ -1,11 +1,13 @@
 // /api/admin-usage: the owner-only usage numbers and feature switches (CC-103, CC-118). Not linked from the site.
 //   GET            -> {days:[{day, categories:[{category, calls, created, est_cents, cap, flag}]}], flags:[{name, label, on, note}]}  (last 14 days, newest first)
-//   POST {flag, on} -> flips one switch; the paid routes read it on every request
+//   GET ?view=analytics -> {sources, funnel, waits, recording} (CC-108)
+//   POST {flag, on} -> flips one switch (a paid route, or "analytics"); the paid routes read it on every request
 // Who may call it (nobody else sees that it exists, the answer is 404):
 //   - header x-admin-token equal to the Pages secret ADMIN_TOKEN (compared in constant time), or
 //   - header Cf-Access-Jwt-Assertion, when ACCESS_AUD and ACCESS_TEAM are set: the token's signature is checked against the team's Cloudflare Access keys, and so are its audience and its dates.
 // With neither way set up, every request is a plain 404. Replies are never stored, never indexed and carry no CORS header.
 import { DEFAULT_LIMITS } from '../../src/slice/upload-gates';
+import { STEPS, pct } from '../_lib/analytics';
 import { CATEGORIES, LABELS, PRICE_CENTS, isCategory, utcDay, type Category } from '../_lib/usage';
 
 interface Stmt { bind(...v: unknown[]): { run(): Promise<unknown>; all<T>(): Promise<{ results: T[] }> }; all<T>(): Promise<{ results: T[] }> }
@@ -107,18 +109,35 @@ export async function made(db: AdminDb): Promise<{ items: Record<string, unknown
   };
 }
 
+/** CC-108: visitors, runs and clears by source tag; the funnel by step and tag; the median and 90th percentile of the wait for each rented service, cold and warm apart. Every part is empty (not an error) when migration 0019 is not applied. */
+export async function analytics(db: AdminDb, now = Date.now()) {
+  const first = utcDay(now - (DAYS - 1) * 86_400_000);
+  const get = async <T>(sql: string): Promise<T[]> => { try { return (await db.prepare(sql).bind(first).all<T>()).results; } catch { return []; } };
+  const sources = await get<{ ref: string | null; visitors: number; runs: number; clears: number }>(
+    "SELECT COALESCE(ref, 'direct') AS ref, COUNT(DISTINCT session) AS visitors, SUM(event_type = 'start') AS runs, SUM(event_type = 'success') AS clears FROM course_events WHERE substr(ts, 1, 10) >= ? GROUP BY 1 ORDER BY visitors DESC");
+  const stepRows = await get<{ name: string; ref: string | null; n: number }>("SELECT name, COALESCE(ref, 'direct') AS ref, COUNT(*) AS n FROM analytics_events WHERE kind = 'step' AND day >= ? GROUP BY name, 2");
+  const funnel = STEPS.map((step) => ({ step, total: stepRows.filter((r) => r.name === step).reduce((a, r) => a + r.n, 0), byRef: Object.fromEntries(stepRows.filter((r) => r.name === step).map((r) => [r.ref, r.n])) }));
+  const waitRows = await get<{ name: string; ms: number; ok: number; cold: number }>("SELECT name, ms, ok, cold FROM analytics_events WHERE kind = 'wait' AND day >= ? ORDER BY ts DESC LIMIT 5000");
+  const waits = [...new Set(waitRows.map((r) => r.name))].sort().flatMap((service) => [1, 0].map((cold) => {
+    const rows = waitRows.filter((r) => r.name === service && Number(r.cold) === cold), ms = rows.map((r) => r.ms);
+    return { service, cold: cold === 1, calls: rows.length, failed: rows.filter((r) => !Number(r.ok)).length, median_ms: pct(ms, 0.5), p90_ms: pct(ms, 0.9) };
+  })).filter((w) => w.calls > 0);
+  const on = (await db.prepare('SELECT on_ FROM flags WHERE name = ?').bind('analytics').all<{ on_: number }>().catch(() => ({ results: [] as { on_: number }[] }))).results;
+  return { days: DAYS, recording: on.length ? Number(on[0].on_) !== 0 : true, sources, funnel, waits };
+}
+
 export async function route(request: Request, env: Env, fetcher: typeof fetch = fetch, now = Date.now()): Promise<Response> {
   const w = await who(request, env, fetcher, now);
   if (w === 'none') return notFound();
   if (w === 'denied') return reply({ error: 'not allowed' }, 401);
   if (!env.DB) return reply({ error: 'no database' }, 503);
   try {
-    if (request.method === 'GET') return reply(new URL(request.url).searchParams.get('view') === 'made' ? await made(env.DB) : await report(env.DB, env, now));
+    if (request.method === 'GET') { const view = new URL(request.url).searchParams.get('view'); return reply(view === 'made' ? await made(env.DB) : view === 'analytics' ? await analytics(env.DB, now) : await report(env.DB, env, now)); }
     if (request.method === 'POST') {
       const raw = await request.text();
       if (raw.length > 500) return reply({ error: 'bad' }, 413);
       const b = JSON.parse(raw) as { flag?: unknown; on?: unknown };
-      if (!isCategory(b.flag) || typeof b.on !== 'boolean') return reply({ error: 'bad' }, 400);
+      if (!(isCategory(b.flag) || b.flag === 'analytics') || typeof b.on !== 'boolean') return reply({ error: 'bad' }, 400);
       await setFlag(env.DB, b.flag, b.on, now);
       return reply({ ok: true, flag: b.flag, on: b.on });
     }

@@ -2,6 +2,7 @@
 //   POST {action:"submit", image, thumb} -> {id}
 //   POST {action:"status", id} -> {state:"running"} | {state:"done", items, privacy, seconds} | {state:"failed", reason}
 // The same switch and the same safety check as /api/object-lift: with no secret set the route answers 503, and the photo is checked by Muse Spark Open first.
+import { waitTimer } from '../_lib/analytics';
 import { playerCode } from '../_lib/player';
 import { recordStop } from '../_lib/stops';
 import { moderationStops } from '../../src/slice/object-lift';
@@ -56,7 +57,9 @@ export const onRequestPost = async ({ request, env }: { request: Request; env: E
   if (submit && !(await featureOn(env.DB, 'segment'))) return json({ error: 'off', message: offWords('segment') }, 503);
   const ip = request.headers.get('cf-connecting-ip') ?? 'local';
   if (submit) { const c = await checkTurnstile(env, b.turnstile, ip); if (!c.ok) return json({ error: 'check', message: c.message }, 403); }
-  const r = await handle(b, env, ip);
+  const wt = waitTimer('segment');
+  const r = await handle(b, env, ip, submit ? wt.fetcher : fetch);
+  if (submit) await wt.flush(env.DB);
   if (submit && r.status === 200) { const pass = await makePass(env, b.image); if (pass) (r.body as Record<string, unknown>).pass = pass; }
   if (submit && r.status === 200) await recordUsage(env.DB, 'segment');
   const wait = (r.body as { retryAfterSeconds?: number }).retryAfterSeconds;
