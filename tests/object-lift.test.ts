@@ -60,7 +60,7 @@ describe('/api/object-lift handle', () => {
   it('submits and returns the job id', async () => {
     const r = await handle({ ...good, action: 'submit' }, env, 'ip1', ok({ id: 'fc-ABCDEFGHIJKL' }));
     expect(r).toMatchObject({ status: 200, body: { id: 'fc-ABCDEFGHIJKL', moderation: 'skipped' } });
-    expect(String((r.body as { receipt?: string }).receipt)).toMatch(/^fc-ABCDEFGHIJKL\.\d+\.[0-9a-f]{64}$/);
+    expect((r.body as { receipt?: string }).receipt).toBeUndefined(); // the receipt comes with the finished piece, not at submit
   });
   it('refuses bad boxes before paying for a job', async () => {
     const r = await handle({ ...good, action: 'submit', box: [0, 0, 5, 5] }, env, 'ip2', ok({}));

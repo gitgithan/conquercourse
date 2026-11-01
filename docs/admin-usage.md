@@ -50,7 +50,8 @@
 
 ## Sharing a piece needs a lift receipt
 - Only pieces made from your own photo can be shared to Community.
-- The 3D step gives a signed receipt; sharing shows it once.
+- When a 3D lift finishes, the server signs a receipt for that exact piece; sharing shows it once.
+- A receipt cannot publish any other file: the piece sent must match the piece the lift made.
 - The switch is the setting `REQUIRE_LIFT_RECEIPT=1`; it is off by default so older pieces can still be shared.
 - It needs migration `0017_lift_receipts.sql` on that site's database first.
 - Turn it on only after the migration is applied there.
