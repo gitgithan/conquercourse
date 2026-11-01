@@ -5,8 +5,9 @@
 import { AGENT_SYSTEM } from '../../src/slice/course-agent';
 import { limited, MAX_TOKENS, MODEL, URL_CHAT } from './designer';
 import { json } from '../_lib/http';
+import { featureOn, offWords, recordUsage, type UsageDb } from '../_lib/usage';
 
-interface Env { BASETEN_API_KEY?: string }
+interface Env { DB?: UsageDb; BASETEN_API_KEY?: string }
 export const MAX_TURNS = 4, MAX_TURN_CHARS = 4_000, MAX_REQUEST_BODY = 20_000; // text only: no photo goes to this function
 
 export async function askAgent(key: string, b: Record<string, unknown>, fetcher: typeof fetch = fetch): Promise<{ status: number; body: { reply?: string; error?: string; usage?: { in: number; out: number } } }> {
@@ -28,11 +29,11 @@ export async function askAgent(key: string, b: Record<string, unknown>, fetcher:
 }
 
 export const onRequestPost = async ({ request, env }: { request: Request; env: Env }): Promise<Response> => {
-  if (!env.BASETEN_API_KEY) return json({ error: 'the course agent is not switched on here' }, 503);
+  if (!env.BASETEN_API_KEY || !(await featureOn(env.DB, 'agent'))) return json({ error: offWords('agent') }, 503);
   const raw = await request.text();
   if (raw.length > MAX_REQUEST_BODY) return json({ error: 'too big' }, 413);
   let b: Record<string, unknown>;
   try { b = JSON.parse(raw); } catch { return json({ error: 'bad json' }, 400); }
   if (limited(`agent:${request.headers.get('cf-connecting-ip') ?? 'local'}`, Date.now(), 30)) return json({ error: 'slow down a little' }, 429);
-  try { const r = await askAgent(env.BASETEN_API_KEY, b); return json(r.body, r.status); } catch { return json({ error: 'the course agent is unavailable' }, 502); }
+  try { const r = await askAgent(env.BASETEN_API_KEY, b); if (r.status === 200) await recordUsage(env.DB, 'agent'); return json(r.body, r.status); } catch { return json({ error: 'the course agent is unavailable' }, 502); }
 };

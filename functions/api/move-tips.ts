@@ -4,10 +4,11 @@
 import { MOVE_TIP_PROMPT, parseTip, type Tip } from '../../src/slice/move-tips';
 import { limited, MAX_TOKENS, MODEL, URL_CHAT } from './designer';
 import { json } from '../_lib/http';
+import { featureOn, offWords, recordUsage, type UsageDb } from '../_lib/usage';
 
 const MORE_TOKENS = 8000; // Muse Spark Open thinks before it answers; if it spent all of MAX_TOKENS thinking, ask once more with more room
 
-interface Env { BASETEN_API_KEY?: string }
+interface Env { DB?: UsageDb; BASETEN_API_KEY?: string }
 export const MAX_IMAGE = 600_000;
 
 export async function askTip(key: string, b: Record<string, unknown>, fetcher: typeof fetch = fetch): Promise<{ status: number; body: { tip: Tip | null; error?: string } }> {
@@ -36,11 +37,11 @@ export async function askTip(key: string, b: Record<string, unknown>, fetcher: t
 }
 
 export const onRequestPost = async ({ request, env }: { request: Request; env: Env }): Promise<Response> => {
-  if (!env.BASETEN_API_KEY) return json({ tip: null, error: 'the tip helper is not switched on here' }, 503);
+  if (!env.BASETEN_API_KEY || !(await featureOn(env.DB, 'tips'))) return json({ tip: null, error: offWords('tips') }, 503);
   const raw = await request.text();
   if (raw.length > MAX_IMAGE + 400) return json({ tip: null, error: 'too big' }, 413);
   let b: Record<string, unknown>;
   try { b = JSON.parse(raw); } catch { return json({ tip: null, error: 'bad json' }, 400); }
   if (limited(`tips:${request.headers.get('cf-connecting-ip') ?? 'local'}`, Date.now(), 30)) return json({ tip: null, error: 'slow down a little' }, 429);
-  try { const r = await askTip(env.BASETEN_API_KEY, b); return json(r.body, r.status); } catch { return json({ tip: null, error: 'the tip helper is unavailable' }, 502); }
+  try { const r = await askTip(env.BASETEN_API_KEY, b); if (r.status === 200) await recordUsage(env.DB, 'tips'); return json(r.body, r.status); } catch { return json({ tip: null, error: 'the tip helper is unavailable' }, 502); }
 };

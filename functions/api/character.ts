@@ -22,6 +22,7 @@ import { d1Ledger } from '../../src/slice/d1-ledger';
 import { memoryLedger, utcDay, type Ledger, type Limits } from '../../src/slice/upload-gates';
 import { playerCode } from '../_lib/player';
 import { json } from '../_lib/http';
+import { featureOn, offWords, recordUsage } from '../_lib/usage';
 
 interface Stmt { bind(...v: unknown[]): { run(): Promise<{ meta?: { changes?: number } }>; first<T>(): Promise<T | null>; all(): Promise<{ results: Record<string, unknown>[] }> } }
 export interface Db { prepare(sql: string): Stmt }
@@ -184,7 +185,10 @@ export const onRequestPost = async ({ request, env }: { request: Request; env: E
   let b: Record<string, unknown>;
   try { b = JSON.parse(raw); } catch { return json({ error: 'bad' }, 400); }
   if (!env.DB) return json({ error: 'not configured' }, 503);
+  const create = b.action === 'create';
+  if (create && !(await featureOn(env.DB, 'character'))) return json({ error: 'off', message: offWords('character') }, 503);
   const r = await handle(b, { db: env.DB, env, ip: request.headers.get('cf-connecting-ip') ?? 'local' });
+  if (create && r.status === 200 && typeof (r.body as { id?: unknown }).id === 'string') await recordUsage(env.DB, 'character'); // only a job that started; a repeat of an old prompt costs nothing
   const wait = (r.body as { retryAfterSeconds?: number }).retryAfterSeconds;
   return json(r.body, r.status, wait ? { 'retry-after': String(wait) } : {});
 };
