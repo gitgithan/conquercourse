@@ -146,3 +146,4 @@
   - What stays true: Mapillary's blur is not a guarantee and the detector can miss a person, so say so wherever the photos show.
 - A big Mapillary search box can come back short without any error (a third of the photos, or more), so earlier coverage counts were too low.
   - Fix: fetch in tiles of about 50 m and split any tile that returns 600 or more (`scripts/photos_pool.py`); a VM's own fetch was also short, so pools are fetched on the laptop.
+- **Cut height should raise the ground.** The start deck stood at the cut height, so a high first roof was unreachable at low cuts; starting on the first roof took one place from 13 to 28 solvable heights out of 30 (see `docs/cut-height.md`).
