@@ -40,3 +40,8 @@
 
 ## Tests
 - `tests/admin-usage.test.ts`: one 503 per switch, usage counted once per call, a broken counter never breaks a request, a many-player simulation, sign-in checks.
+
+## Guards on paid and sharing steps
+- Creation and sharing steps are guarded; the design is in the owner's private notes.
+- To set the bot-check keys: put them in `~/.config/ninja/turnstile.env`, run `scripts/set-turnstile-keys.sh`, then `npm run deploy:preview`.
+- The page has a "Who made what" button for the owner.
