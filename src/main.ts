@@ -37,6 +37,9 @@ if (pageQuery().get('demo') === 'captured-vault') {
 } else if (pageQuery().get('demo') === 'group') {
   const { startGroup } = await import('./modes/demo-group');
   await startGroup();
+} else if (pageQuery().get('demo') === 'groupmoves') {
+  const { startGroupMoves } = await import('./film/group-photo');
+  await startGroupMoves();
 } else if (pageQuery().get('demo') === 'poses') {
   const { startPoses } = await import('./modes/demo-poses');
   await startPoses();
