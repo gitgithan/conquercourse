@@ -12,7 +12,7 @@
 - The contact-target prompt is not saved as code anywhere in the repo; only its outline is in `docs/pipelines.md` section 6.
   - A rebuilt version on Spark Open was refused as unsafe advice, so that sample is a refusal (section 11).
 - Samples below are real saved outputs where the repo had them.
-  - Where it had none (designer, contact targets) one live call was made on the Baseten Spark Open path; see the marked samples and "Cost of this page".
+  - Where it had none (designer, contact targets) one live call was made on the Baseten Spark Open path; see the marked samples.
 - Baseten Spark Open cold starts: not seen in 6 timed calls; see [Cold start](#cold-start-baseten-spark-open) and `data/eval/cc-baseten-latency/README.md`.
 
 ## Plain answers
@@ -300,9 +300,3 @@ A friendly orange fox parkour runner in a teal headband and white running shoes.
   - Shared serverless means another user's calls may keep the model warm, and we cannot see that; this is only what we measured.
   - Longer gaps, busy hours, and real calls with photos (which take 3 to 40 s because the model reasons first) were not measured.
 - Numbers and the so-what: `data/eval/cc-baseten-latency/README.md` and `run.json`.
-
-## Cost of this page
-- Latency test: 912 tokens in and 484 out, about $0.0032.
-- Live samples (designer, contact-target rebuild): 1,013 tokens in and 3,458 out, about $0.016.
-- Total about $0.019 at the list price of $1.25 in and $4.25 out per million tokens, from the Baseten credit.
-- No call was made to the Meta API or Modal; every other sample is a saved output from an earlier run.
