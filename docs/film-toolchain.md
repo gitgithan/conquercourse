@@ -84,3 +84,33 @@ Every shot is a capture of the running game on the stepped clock, so it is frame
 - The beat grid uses a BPM set by hand; it has not been measured from the track.
 - Muse Spark Open shot-list drafting is not wired.
 - The character intro slot is empty.
+
+## Filming methods: what changed (2026-11-01)
+- The first test film (v0) only proved the pipeline; it did not follow the storyboard, so it was dropped.
+- Now each shot is a script that drives the real app, then the clip is cut to the storyboard.
+
+### Renderer
+- Browser: Chrome in Playwright on Modal CPU containers, flags `--use-gl=angle --use-angle=gl-egl`.
+- That runs Mesa llvmpipe, which is about 5 times faster than SwiftShader (about 17 frames a second live).
+- The 3D picture is the same on both renderers; only text edges differ a little.
+- No real GPU yet; one test on a Modal NVIDIA GPU is still to do.
+- Size: 1920 by 1080, the standard laptop size.
+- The page is scaled to 1706 by 960 and padded with a black band, so captions never cover the app.
+
+### Capture methods
+- Real-time recording (new default): Playwright `recordVideo` while a script plays the app like a person.
+  - Used for the Earth zoom: one take, about 16 distinct frames a second, accepted by the product owner.
+  - A silent warm-up pass first, so tiles are loaded; the warm-up is trimmed off.
+- Scripted controls: sliders set by value, the mouse dragged with `page.mouse`, keys pressed on a timeline.
+  - Used for Dojo gap jump (shot 9) and Lab 3 (shot 10); the product owner called the in-app demos smooth.
+- Frame by frame (old): each frame set from its index and screenshotted.
+  - Kept only for shots that cannot run live; it can be split across containers.
+  - It failed on the Earth zoom (memory), which is why real-time recording replaced it.
+
+### Captions and clean screen
+- Captions are drawn last, with ffmpeg drawtext, in the black band.
+- The Feedback and Sound buttons are hidden before recording.
+- Shots 3 and 4 share one overlay text, as the storyboard says.
+
+### Cost
+- About 1 dollar for a full pass on Modal CPU; the dev budget is 20 dollars.
