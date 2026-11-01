@@ -163,6 +163,13 @@
 - Two hard cuts remain in the live page and were handled: the first place click jumps the map (start the clip after it), and the flight starts from a wider view (a short cross-fade over 7 pictures).
 - The editor load shows one blank picture; it is replaced by its neighbour.
 
+## Film shot 2 v3: show the editor slowly, not the side panel (CC-143, 2026-11-02)
+- The side panel scroll was 9 s of little happening; v3 keeps the flight and a quick pass, then spends about 9 s in the real World Editor.
+- The sliced course already holds 31 pieces and the editor stops at 30, so a click on a real object adds nothing; the film shows the Real objects list and its by-move view instead.
+- The place click flies the map from the whole country: let it finish with the clock moving and no pictures taken, then start the clip.
+- The editor's Fit zooms so far out on a city-sized course that the picture washes out; use eased mouse turns instead.
+- A stepped-clock film cannot show the mouse, so a glide over a still list looks still; count on card previews and eased turns for motion.
+
 ## Film shot 2 waited for a lane that a live pin-drop did not give (CC-143, 2026-11-01)
 - What happened:
   - The first recorder for shot 2 dropped a pin at the Eixample centre, clicked Slice, and polled up to 180 times for the slicer to report a lane the simulator clears.
