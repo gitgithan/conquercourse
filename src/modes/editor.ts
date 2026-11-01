@@ -9,7 +9,7 @@ import { getUserObject, listUserObjects, saveUserObject, userObjectUrls, userSrc
 import { openPhotoObject, uploadObjOn } from '../ui/photo-object';
 import { isSharedSrc, placeParam, sharedGlbUrl, sharedSrc, useShared, usedShared } from '../community/flow';
 import { LIBRARY, box } from '../slice/shapes';
-import { bestSlices, describe as describeLane, sliceProfile, CELL, HALF_LANE } from '../slice/slice';
+import { bestSlices, describe as describeLane, sliceProfile, CELL, HALF_LANE, roofStartOn } from '../slice/slice';
 import { crop, centred, duplicate, hits, newPiece, realSize, scaleBy, scaleToHeight, size, worldSamples, laneProfile, type Piece } from '../slice/world';
 import type { CourseData } from '../course/course';
 import { workSeconds, xWindows, type SearchResult } from '../sim/ideal';
@@ -406,6 +406,7 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
   // the 3D view is the main picture; the flat plan is kept for exact dragging and cropping (button "Top plan")
   const view3d = createView3d(planWrap, {
     pieces: () => pieces, selected: () => selected, lane: () => ({ angle, offset, level }),
+    start: () => (roofStartOn() ? startMarkSide(currentProfile(), CELL) : null), // CC-200: with the roof start the flag stands on the first roof, at its height
     select: (id) => { if (!(multiOn && id !== null && chosen().length > 1 && chosen().includes(id))) group = []; selected = id; drawPanel(); draw(); drawProfile(); },
     selectedAll: () => { const c = chosen(); return c.length > 1 ? c : []; },
     toggle: (id) => chooseMany(toggleId(chosen(), id)),
