@@ -171,6 +171,11 @@
   - Fail fast: a wait loop prints what it waits for every few seconds and stops after a short limit with the reason.
   - A recorder that ends with no lane says "no proved lane" and stops; it never spends a long cloud run on nothing.
   - A blocked shot gets a note in its Linear issue at once, so the next agent does not rediscover it.
+- A second run failed for a plain reason: the place list shows name and city in separate elements, so a text match on "Piazza San Marco, Venice" found nothing.
+  - Test the click and the state locally for a minute before any cloud run.
+- A third run drew a line the slicer had not proved: the slicer says "clearable" for about 1.5 s and then "not-clearable" at Piazza San Marco.
+  - The recorder now needs a steady "clearable" for 3 s and stops with a message after about 10 s of "not-clearable".
+  - The stored place defaults may predate the roof-start rule; re-run them (open question, CC-200).
 - Parallel agents: they made this no worse, but they hid it.
   - The stall was written into a commit message and not into the issue.
   - The agent working on proved lanes was another agent, so the two facts never met.
