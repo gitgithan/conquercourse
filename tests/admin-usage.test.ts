@@ -30,7 +30,7 @@ const ROUTES: Record<string, Call> = {
   character: (env) => characterPost({ request: post({ action: 'create', prompt: `a calm owl ${Math.random().toString(36).slice(2, 8)}` }), env } as never),
   agent: (env) => agentPost({ request: post({ messages: [{ role: 'user', content: 'hi' }] }), env } as never),
   tips: (env) => tipsPost({ request: post({ name: 'bench' }), env } as never),
-  moderation: (env) => moderatePost({ request: post({ text: 'a bench' }), env } as never),
+  moderation: (env) => moderatePost({ request: new Request('https://x/api', { method: 'POST', headers: { 'cf-connecting-ip': 'ip-1', 'x-admin-token': 'owner-token' }, body: JSON.stringify({ text: 'a bench' }) }), env: { ...env, ADMIN_TOKEN: 'owner-token' } } as never),
   community_share: (env) => itemsPost({ request: post({ action: 'publish', session: 'player-aaaa-1111', kind: 'piece', name: 'railing', thumb: JPG, glb: btoa('glTF-fake'), height_m: 1 }), env } as never),
 };
 function upstream() {
@@ -241,5 +241,13 @@ describe('who made what', () => {
   it('answers 401 without the token and needs it for the made view', async () => {
     const res = await route(new Request('https://x/api/admin-usage?view=made', { headers: { 'x-admin-token': 'wrong' } }), { DB: localD1().db as never, ADMIN_TOKEN: 'right' });
     expect(res.status).toBe(401);
+  });
+});
+
+describe('the upload safety route is owner-only', () => {
+  it('answers a plain 404 to anyone without the owner token and makes no paid call', async () => {
+    const { db } = localD1(); const n = upstream();
+    const r = await moderatePost({ request: post({ text: 'a bench' }), env: { ...envOf(db), ADMIN_TOKEN: 'owner-token' } } as never);
+    expect(r.status).toBe(404); expect(n.calls).toBe(0);
   });
 });

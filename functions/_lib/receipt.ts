@@ -1,7 +1,7 @@
 // A lift receipt (CC-103): proof that a piece came from a photo lift that passed the checks (bot check, safety check, daily limit).
 // The 3D step hands it back with the job id; sharing a piece to Community must show it, once. It is "jobid.expiry.signature",
 // signed with a server secret that never leaves the server. Needs a table to remember used ones (migrations/0017_lift_receipts.sql).
-export const RECEIPT_MS = 24 * 60 * 60_000;
+export const RECEIPT_MS = 30 * 24 * 60 * 60_000; // a piece may be made today and shared weeks later; each receipt works once
 export interface ReceiptEnv { CC_UPLOAD_TOKEN?: string; REQUIRE_LIFT_RECEIPT?: string }
 interface Db { prepare(q: string): { bind(...v: unknown[]): { run(): Promise<{ meta?: { changes?: number } }> } } }
 
