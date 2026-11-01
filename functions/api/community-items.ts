@@ -12,11 +12,12 @@ import { limited, waitSeconds } from './designer';
 import { refusalBody } from '../../src/slice/stages';
 import { playerCode } from '../_lib/player';
 import { json } from '../_lib/http';
+import { spendReceipt } from '../_lib/receipt';
 import { featureOn, offWords, recordUsage } from '../_lib/usage';
 
 interface Stmt { bind(...v: unknown[]): { run(): Promise<{ meta?: { changes?: number } }>; first<T>(): Promise<T | null>; all<T>(): Promise<{ results: T[] }> } }
 export interface Db { prepare(sql: string): Stmt }
-interface Env { DB?: Db; BASETEN_API_KEY?: string }
+interface Env { DB?: Db; BASETEN_API_KEY?: string; CC_UPLOAD_TOKEN?: string; REQUIRE_LIFT_RECEIPT?: string }
 interface Row { id: string; kind: 'piece'; name: string; status: string; created_at: number; thumb: string; meta: string; owner?: string }
 
 const OWNER_SALT = 'cc-item';
@@ -47,6 +48,8 @@ export async function publish(b: Record<string, unknown>, env: Env, ip: string, 
     const v = visibilityFor(m.body.verdict, m.body.reason);
     visible = v === 'approved' ? 'approved' : 'pending';
   }
+  const spent = await spendReceipt(env as never, b.receipt, now);
+  if (!spent.ok) return { status: 403, body: { error: 'receipt', message: spent.message } };
   const id = newId();
   await env.DB.prepare("INSERT INTO community_items (id, owner, kind, name, status, created_at, thumb, glb, meta, moderation) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")
     .bind(id, owner, c.item.kind, c.item.name, visible, Math.floor(now / 1000), c.item.thumb, c.item.glb, JSON.stringify(c.item.meta), moderation).run();

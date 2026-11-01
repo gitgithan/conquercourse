@@ -12,6 +12,7 @@ import { LIMIT_WORDS, memoryLedger, utcDay, DEFAULT_LIMITS, type Ledger, type Li
 import { playerCode } from '../_lib/player';
 import { json } from '../_lib/http';
 import { featureOn, offWords, recordUsage } from '../_lib/usage';
+import { makeReceipt } from '../_lib/receipt';
 import { checkTurnstile, type TurnstileEnv } from '../_lib/turnstile';
 
 interface Env { DB?: Parameters<typeof d1Ledger>[0]; CC_UPLOAD_TOKEN?: string; CC_UPLOAD_SUBMIT_URL?: string; CC_UPLOAD_STATUS_URL?: string; BASETEN_API_KEY?: string }
@@ -53,7 +54,7 @@ export async function handle(b: Record<string, unknown>, env: Env, ip: string, f
   try {
     const out = (await call(env.CC_UPLOAD_SUBMIT_URL, { token: env.CC_UPLOAD_TOKEN, image: r.image.slice(r.image.indexOf(',') + 1), label: r.label, box: r.box, height_m: r.height_m, padretry: r.padretry })) as { id?: string; error?: string };
     if (!out.id) { await ledger.refund(who, day); return { status: 400, body: { error: out.error === 'not allowed' ? 'not allowed' : 'bad', message: out.error ?? '' } }; }
-    return { status: 200, body: { id: out.id, moderation } };
+    return { status: 200, body: { id: out.id, moderation, receipt: await makeReceipt(env, out.id, now) } };
   } catch { await ledger.refund(who, day); return { status: 502, body: refusalBody('down', 'The 3D service is busy. Try again in a minute.', 60) }; }
 }
 

@@ -5,7 +5,7 @@ import { jobProgress } from '../ui/job-progress';
 import { LABEL_RE } from '../slice/object-lift';
 import { suggestRegions } from '../slice/segment-client';
 import { deleteUserObject, listUserObjects, saveUserObject, type UserObject } from '../slice/user-objects';
-import { deleteShared, forgetLink, links, rememberLink, sessionCode, shareItem } from '../community/share-client';
+import { receiptFor, deleteShared, forgetLink, links, rememberLink, sessionCode, shareItem } from '../community/share-client';
 import { cropToThumb } from '../community/crop';
 import type { PublicItem } from '../community/items';
 import { listSharedPage } from '../community/share-client';
@@ -314,7 +314,7 @@ export function startCommunityFlow(host: HTMLElement, params: URLSearchParams): 
       };
       // Sharing is its own deliberate press: the piece is kept in this browser either way.
       const doShare = async (make: () => Promise<{ id: string; input: Parameters<typeof shareItem>[0]; local: { kind: 'piece'; local: string } }>): Promise<string> => {
-        const m = await make(); const out = await shareItem(m.input); rememberLink(out.id, m.local);
+        const m = await make(); const out = await shareItem({ ...m.input, receipt: receiptFor(m.id) }); rememberLink(out.id, m.local);
         return out.status === 'approved' ? 'Shared. Everyone can see it in Explore.' : 'Shared. You can see it in Explore now; everyone sees it after the safety check.';
       };
       const shareButton = (side: HTMLElement, rid: number, make: Parameters<typeof doShare>[0]) => {
