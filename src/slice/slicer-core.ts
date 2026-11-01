@@ -1,7 +1,7 @@
 // The Slicer's check, as plain functions (CC-179): the worker, the build script and the tests all call these, so the preview and the
 // built course cannot drift apart. The proof reads the lane from the very pieces "Build the picked buildings" hands to the editor
 // (src/slice/world.ts laneProfile), and the editor reads it the same way, so a lane the preview clears is the lane the editor gets.
-import { bestSlices, CLIMBABLE, describe, laneToCourse, sliceProfile, surfaceSamples, laneSamples, type Candidate, type Mesh, type Profile, type SliceOptions } from './slice';
+import { bestSlices, roofStartOn, CLIMBABLE, describe, laneToCourse, sliceProfile, surfaceSamples, laneSamples, type Candidate, type Mesh, type Profile, type SliceOptions } from './slice';
 import { LANE_DROP } from '../sim/drop';
 import { searchIdealRun } from '../sim/ideal';
 import { laneFacts, looksCrossable, type LaneFacts } from './why';
@@ -23,10 +23,14 @@ export function quickLane(place: Place, level: number): LaneSummary | null {
 }
 
 // the best lane the simulator can clear at this level, read from the editor's pieces
+// CC-200: with roof start on the ranking puts other lanes first, so 4 proofs can miss a path that exists (Eixample at 12 m and 15 m): when the first 4 fail, prove up to 40.
+export const FIRST_PROOFS = 4, MORE_PROOFS = 40;
 export function provedLane(place: Place, level: number): LaneSummary | null {
   const samples = surfaceSamples(place.mesh, 80), world = worldOf(place.pieces);
-  const proved = bestSlices({ positions: samples }, { levels: [level], top: 1, centre: { x: 0, z: 0 }, maxProofs: 4, reprofile: (c) => laneProfile(world, c) });
-  return proved[0] ? summary(proved[0]) : null;
+  const go = (maxProofs: number) => bestSlices({ positions: samples }, { levels: [level], top: 1, centre: { x: 0, z: 0 }, maxProofs, reprofile: (c) => laneProfile(world, c) });
+  const proved = go(FIRST_PROOFS);
+  const found = proved[0] ?? (roofStartOn() ? go(MORE_PROOFS)[0] : undefined);
+  return found ? summary(found) : null;
 }
 
 // the player's own line (CC-93): what is on it, and whether the simulator clears it

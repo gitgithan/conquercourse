@@ -10,6 +10,9 @@ import { CHECK_VERSION, replayDefault, stateAt, type DefaultsFile, type Line, ty
 import { laneLine } from '../src/slice/slicer';
 import { shrinkLadder } from '../src/world/place-lane';
 import { buildingsFrom } from '../src/world/osm';
+import { setRoofStart } from '../src/slice/slice';
+
+setRoofStart(true); // the browser has roof start on (CC-200, owner 2026-11-01): store what the live Slicer will confirm
 
 const args = process.argv.slice(2), arg = (n: string) => { const i = args.indexOf(n); return i >= 0 ? args[i + 1] : undefined; };
 const dir = 'public/assets/places', outFile = arg('--out') ?? `${dir}/slicer-defaults.json`, budgetS = Number(arg('--budget-s') ?? 600);
