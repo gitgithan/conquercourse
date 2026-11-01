@@ -1,5 +1,8 @@
 # Community flow: click by click
 
+- **Wallpapers removed (owner, 2026-11-01):** a photo gives 3D pieces only; pictures are easy to get elsewhere and the app is not a photo store.
+- Where the text below still says wallpaper, it is history and no longer in the app.
+
 ## So what
 - Community opens on finished work first, so you see what a completed creation looks like before you make one.
 - Then one clear button, **Make your own**, takes you into the making flow.

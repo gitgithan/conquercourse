@@ -6,16 +6,15 @@ import { LABEL_RE } from '../slice/object-lift';
 import { suggestRegions } from '../slice/segment-client';
 import { deleteUserObject, listUserObjects, saveUserObject, type UserObject } from '../slice/user-objects';
 import { deleteShared, forgetLink, links, rememberLink, shareItem } from '../community/share-client';
-import { DEMOS, worldHref } from '../ui/world-picker';
-import { SAMPLE_WALLPAPERS, cropToThumb, saveWallpaper, savedWallpapers } from '../community/wallpaper';
+import { cropToThumb } from '../community/crop';
 import type { PublicItem } from '../community/items';
 import { listSharedPage } from '../community/share-client';
-import { placeableShared, sharedSrc, useShared, LIFT_PARALLEL, MAX_PICKS, STEPS, TABS, allowedNow, buildFound, canEnter, dailyLine, editorHref, makeLabel, nextStep, prevStep, runQueue, queueWarning, startState, tabFor, toggleTick, wallpaperCrop, whyNot, whyOff, type Box, type FlowState, type Found, type Kind, type PiecesToday, type Step, type Tab } from '../community/flow';
+import { placeableShared, sharedSrc, useShared, LIFT_PARALLEL, MAX_PICKS, STEPS, TABS, allowedNow, buildFound, canEnter, dailyLine, editorHref, makeLabel, nextStep, prevStep, runQueue, queueWarning, startState, tabFor, toggleTick, whyNot, whyOff, type Box, type FlowState, type Found, type Kind, type PiecesToday, type Step, type Tab } from '../community/flow';
 import { openPrize } from '../ui/prize';
 import { startGallery } from './gallery';
 
 // Community (CC-247): one screen, two tabs: Explore (finished work first) and Make your own, a stepper: Photo, Mark, Segment, Choose, Make.
-// A photo gives objects and wallpapers only; courses come from World Slicing and the Editor. The finder looks at the whole photo and a click picks a found thing. Looks only: nothing here changes how a course is cleared.
+// A photo gives objects only; courses come from World Slicing and the Editor. The finder looks at the whole photo and a click picks a found thing. Looks only: nothing here changes how a course is cleared.
 const SAMPLES = ['park01', 'park02', 'park03', 'park06'];
 const STYLE = `
 .com{font:16px/1.4 system-ui,sans-serif;color:#17201d;background:#eef1ec;position:fixed;inset:0;overflow:auto;padding:56px 24px 24px}
@@ -63,8 +62,8 @@ export function startCommunityFlow(host: HTMLElement, params: URLSearchParams): 
   const body = el('div', root);
 
   // the photo work survives a tab change, so looking at Objects does not lose your picks
-  const work: { step: Step; photo: Shrunk | null; fs: FlowState; kinds: Map<number, Kind>; names: Map<number, string>; made: { pieces: string[]; walls: string[] }; cands: Found[]; ticked: number[]; areas: { id: number; box: Box; label: string; cutout?: string }[]; segMsg: string } =
-    { step: 'photo', photo: null, fs: startState(), kinds: new Map(), names: new Map(), made: { pieces: [], walls: [] }, cands: [], ticked: [], areas: [], segMsg: '' };
+  const work: { step: Step; photo: Shrunk | null; fs: FlowState; kinds: Map<number, Kind>; names: Map<number, string>; made: { pieces: string[] }; cands: Found[]; ticked: number[]; areas: { id: number; box: Box; label: string; cutout?: string }[]; segMsg: string } =
+    { step: 'photo', photo: null, fs: startState(), kinds: new Map(), names: new Map(), made: { pieces: [] }, cands: [], ticked: [], areas: [], segMsg: '' };
 
   function showTab(t: Tab) {
     for (const id of Object.keys(tabBtn) as Tab[]) tabBtn[id].setAttribute('aria-selected', String(id === t));
@@ -72,7 +71,7 @@ export function startCommunityFlow(host: HTMLElement, params: URLSearchParams): 
     if (t === 'make') photos(); else explore();
   }
 
-  // Explore: finished work first (premade courses), then one clear button, then pieces and wallpapers (premade examples and yours)
+  // Explore: finished work first (premade courses), then one clear button, then pieces (premade examples and yours)
   function explore() {
     const sec = (title: string, text: string, id: string) => { const p = el('div', body); p.className = 'panel'; p.id = id; p.style.marginBottom = '14px'; el('h2', p, title); el('div', p, text).className = 'muted'; return p; };
     const courses = sec('Courses people made', 'Finished courses made from real places. Press Play on any card to try it.', 'ex-courses');
@@ -81,10 +80,9 @@ export function startCommunityFlow(host: HTMLElement, params: URLSearchParams): 
     const mk = sec('Now make your own', 'Start with a photo of a place you know. You press one button and the finder outlines the things in your photo. You click the one you want, then turn it into a 3D piece or a wallpaper. Courses are made in the World Slicer and the World Editor.', 'ex-make');
     el('button', mk, 'Make your own', { className: 'go', id: 'make-own' }).onclick = () => showTab('make');
 
-    const made = sec('Pieces and wallpapers', 'Finished examples first, then yours. Pieces go in the World Editor tray; wallpapers go behind a course.', 'ex-objects');
+    const made = sec('Pieces', 'Finished examples first, then yours. Pieces go in the World Editor tray.', 'ex-objects');
     const g = el('div', made); g.className = 'grid'; g.id = 'objgrid';
     const card = (img: string, title: string, sub: string, link?: [string, string]) => { const c = el('div', g); c.className = 'card'; if (img) el('img', c, '', { src: img, alt: title, loading: 'lazy' }); const d = el('div', c); el('strong', d, title); el('div', d, sub).className = 'muted'; if (link) el('a', d, link[0], { href: link[1] }); return c; };
-    for (const id of SAMPLE_WALLPAPERS) card(`/assets/park/${id}.jpg`, `Example wallpaper ${id.slice(4)}`, 'A real place behind the lane', ['Play with it', `${worldHref(DEMOS[0][0])}&wallpaper=sample:${id}`]);
     void (async () => {
       try {
         const [idx, prov] = await Promise.all([fetch('/assets/objects/index.json').then((r) => r.json()), fetch('/assets/objects/provenance.json').then((r) => r.json())]) as [{ objects: { name: string; photo: string; box: Box; label: string; glb: string }[] }, { objects: { glb: string; credit?: { line?: string } }[] }];
@@ -95,7 +93,6 @@ export function startCommunityFlow(host: HTMLElement, params: URLSearchParams): 
         }
       } catch { /* the examples are a bonus */ }
       const shared = links(), sharedLocal = new Set(Object.values(shared).map((l) => `${l.kind}:${l.local}`));
-      for (const w of savedWallpapers()) if (!sharedLocal.has(`wallpaper:${w.id}`)) card(w.thumb, `Yours: ${w.name}`, 'Wallpaper, only in this browser', ['Play it', `${worldHref(w.course || DEMOS[0][0])}&wallpaper=${w.id}`]);
       let objs: UserObject[] = []; try { objs = await listUserObjects(); } catch { /* none kept */ }
       for (const o of objs) if (!sharedLocal.has(`piece:${o.id}`)) card('', `Yours: ${o.prov.name}`, '3D piece, only in this browser', ['Open the World Editor', editorHref(o.id)]);
       // shared in Community: yours (with Delete) and everyone's approved ones
@@ -166,7 +163,7 @@ export function startCommunityFlow(host: HTMLElement, params: URLSearchParams): 
       if (b && nx) b.onclick = () => go(nx);
       return { row, next: b };
     };
-    const useShrunk = (s: Shrunk) => { work.photo = s; work.fs = { ...startState(), hasPhoto: true }; work.kinds.clear(); work.names.clear(); work.cands = []; work.ticked = []; work.areas = []; work.segMsg = ''; work.made = { pieces: [], walls: [] }; go('segment'); };
+    const useShrunk = (s: Shrunk) => { work.photo = s; work.fs = { ...startState(), hasPhoto: true }; work.kinds.clear(); work.names.clear(); work.cands = []; work.ticked = []; work.areas = []; work.segMsg = ''; work.made = { pieces: [] }; go('segment'); };
 
     function stepPhoto() {
       el('h2', panel, 'Step 1. Pick a photo');
@@ -288,7 +285,7 @@ export function startCommunityFlow(host: HTMLElement, params: URLSearchParams): 
       if (!work.photo) return go('photo');
       const ph = work.photo;
       el('h2', panel, 'Step 3. Choose what each pick becomes');
-      el('div', panel, '3D piece: a solid thing you place in the World Editor and run over. Wallpaper: the area hangs behind a course as scenery. The course plays the same.').className = 'muted';
+      el('div', panel, '3D piece: a solid thing you place in the World Editor and run over.').className = 'muted';
       const nav = navRow(panel, 'Next: Make', canEnter('make', work.fs), 'cnext');
       const sync = () => { work.fs = { ...work.fs, choices: Object.fromEntries(work.kinds) }; if (nav.next) nav.next.disabled = !canEnter('make', work.fs); };
       for (const r of work.areas) {
@@ -298,7 +295,7 @@ export function startCommunityFlow(host: HTMLElement, params: URLSearchParams): 
         const nm = el('input', side, '', { id: `cname-${r.id}`, placeholder: 'name it (bench)', value: work.names.get(r.id) ?? r.label, maxLength: 40 }); nm.setAttribute('list', 'cn');
         nm.oninput = () => work.names.set(r.id, nm.value.trim().toLowerCase());
         const bt = el('div', side); bt.className = 'row';
-        for (const [k, label, id] of [['piece', '3D piece', 'piece'], ['wallpaper', 'Wallpaper', 'wall']] as [Kind, string, string][]) {
+        for (const [k, label, id] of [['piece', '3D piece', 'piece']] as [Kind, string, string][]) {
           const b = el('button', bt, label, { id: `choose-${id}-${r.id}`, className: 'pick' }); b.setAttribute('aria-pressed', String(work.kinds.get(r.id) === k));
           b.onclick = () => { if (work.kinds.get(r.id) === k) work.kinds.delete(r.id); else work.kinds.set(r.id, k); bt.querySelectorAll('.pick').forEach((x) => x.setAttribute('aria-pressed', String(x === b && work.kinds.get(r.id) === k))); sync(); };
         }
@@ -311,14 +308,12 @@ export function startCommunityFlow(host: HTMLElement, params: URLSearchParams): 
       if (!work.photo) return go('photo');
       const ph = work.photo;
       addBadge(panel, 'builder', { after: el('h2', panel, 'Step 4. Make them') }); // CC-243: SAM 3D Objects lifts a cut-out into a solid piece
-      const lastCourse: { id?: string } = {};
       const next = el('div', panel); next.id = 'cnow'; next.className = 'panel'; next.hidden = true;
       const showNext = (shared = false) => {
         next.hidden = false; next.replaceChildren(); el('h2', next, 'What next');
         const r = el('div', next); r.className = 'row';
         const lastPiece = work.made.pieces[work.made.pieces.length - 1];
         if (lastPiece) el('a', r, 'Open the World Editor', { className: 'btn go', id: 'go-editor', href: editorHref(lastPiece) });
-        if (work.made.walls.length) el('a', r, 'Play a course with the wallpaper', { className: 'btn go', id: 'go-course', href: `${worldHref(lastCourse.id ? (savedWallpapers().find((w) => w.id === lastCourse.id)?.course ?? '') : '')}&wallpaper=${lastCourse.id}` });
         el('button', r, shared ? 'See it in Explore' : 'See them in Explore', { id: 'go-objects' }).onclick = () => showTab('explore');
         el('button', r, 'Start with another photo', { id: 'go-again' }).onclick = () => { work.step = 'photo'; work.photo = null; work.fs = startState(); paint(); };
       };
@@ -387,7 +382,7 @@ export function startCommunityFlow(host: HTMLElement, params: URLSearchParams): 
       for (const r of work.areas) {
         const kind = work.kinds.get(r.id); if (!kind) continue;
         const it = el('div', panel); it.className = 'item'; it.dataset.id = String(r.id);
-        const th = el('img', it, '', { alt: r.label || 'area' }); void cropToThumb(ph.image, kind === 'wallpaper' ? wallpaperCrop(r.box, ph.width, ph.height) : r.box).then((u) => { th.src = u; });
+        const th = el('img', it, '', { alt: r.label || 'area' }); void cropToThumb(ph.image, r.box).then((u) => { th.src = u; });
         const side = el('div', it); side.style.display = 'grid'; side.style.gap = '8px';
         const label = () => (work.names.get(r.id) || r.label || '').toLowerCase();
         const msg = el('div', side); msg.className = 'muted'; msg.id = `cmsg-${r.id}`;
@@ -397,19 +392,6 @@ export function startCommunityFlow(host: HTMLElement, params: URLSearchParams): 
           const prog = el('div', side);
           const sl: Slot = { gen, msg, prog, r, label, busy: false, made: false, off: '' }; slots.push(sl);
           gen.onclick = () => { void makeOne(sl).catch(() => undefined); };
-        } else {
-          el('strong', side, 'Wallpaper');
-          const nm = el('input', side, '', { id: `wname-${r.id}`, placeholder: 'give it a name', maxLength: 40, value: label() || 'my photo' });
-          const sel = el('select', side, '', { id: `wcourse-${r.id}` }); for (const [v, l] of DEMOS) el('option', sel, l, { value: v });
-          const save = el('button', side, 'Save wallpaper', { className: 'go', id: `wsave-${r.id}` });
-          save.onclick = async () => {
-            save.disabled = true;
-            try {
-              const id = `w${Date.now().toString(36)}`, thumb = await cropToThumb(ph.image, wallpaperCrop(r.box, ph.width, ph.height));
-              if (!saveWallpaper({ id, name: nm.value.trim() || 'my photo', thumb, at: Date.now(), course: sel.value })) throw new Error('Your browser has no room to keep it.');
-              work.made.walls.push(id); lastCourse.id = id; msg.textContent = 'Saved in this browser, and attached to that course.'; showNext();
-            } catch (e) { msg.textContent = (e as Error).message; save.disabled = false; }
-          };
         }
       }
       // the daily count comes from the server before anything is pressed: a line by the button, a warning when the queue is longer than what is left, the extra ones switched off with a reason

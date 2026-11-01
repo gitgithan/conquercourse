@@ -1,11 +1,11 @@
 import { describe, expect, it } from 'vitest';
-import { STEPS, TABS, canEnter, nextStep, prevStep, startState, tabFor, wallpaperCrop, whyNot, type Box } from '../src/community/flow';
+import { STEPS, TABS, canEnter, nextStep, prevStep, startState, tabFor, whyNot, type Box } from '../src/community/flow';
 
 const q = (s: string) => new URLSearchParams(s);
 const sug = (box: Box, label = 'bench') => ({ label, score: 0.9, box, cutout: '' });
 
 describe('the stepper', () => {
-  it('has the four steps in order: no box to draw, no upfront wallpaper-or-object choice', () => {
+  it('has the four steps in order: no box to draw, no upfront choice', () => {
     expect(STEPS.map((s) => s.id)).toEqual(['photo', 'segment', 'choose', 'make']);
     expect(nextStep('photo')).toBe('segment'); expect(nextStep('make')).toBeNull(); expect(prevStep('photo')).toBeNull(); expect(prevStep('choose')).toBe('segment');
   });
@@ -31,18 +31,6 @@ describe('tabs and the feature switch', () => {
     expect(tabFor('communities', q('tab=objects'))).toBe('explore');
     expect(tabFor('communities', q('tab=places'))).toBe('explore');
     expect(tabFor('communities', q('tab=nope'))).toBe('explore');
-  });
-});
-
-describe('the wallpaper crop is the picked box, widened to 16:9 and kept inside the photo', () => {
-  it('widens a tall box and stays inside', () => {
-    const c = wallpaperCrop([100, 100, 200, 300], 1000, 600);
-    expect((c[2] - c[0]) / (c[3] - c[1])).toBeCloseTo(16 / 9, 1);
-    expect(c[0]).toBeGreaterThanOrEqual(0); expect(c[2]).toBeLessThanOrEqual(1000); expect(c[1]).toBeGreaterThanOrEqual(0); expect(c[3]).toBeLessThanOrEqual(600);
-  });
-  it('shifts a box at the edge back inside', () => {
-    const c = wallpaperCrop([0, 0, 50, 200], 800, 600);
-    expect(c[0]).toBe(0); expect(c[1]).toBe(0);
   });
 });
 
@@ -164,8 +152,7 @@ describe('shared pieces from other players (CC-247)', () => {
     expect(placeableShared({ kind: 'piece', status: 'approved' })).toBe(true);
     expect(placeableShared({ kind: 'piece' })).toBe(true);
     for (const status of ['pending', 'held', 'blocked', 'removed']) expect(placeableShared({ kind: 'piece', status })).toBe(false);
-    expect(placeableShared({ kind: 'wallpaper', status: 'approved' })).toBe(false);
-  });
+      });
   it('the shared source id round-trips and the place link accepts it', async () => {
     const { sharedSrc, isSharedSrc, sharedGlbUrl, placeParam, editorHref } = await import('../src/community/flow');
     expect(isSharedSrc(sharedSrc('abc_12-x'))).toBe(true);

@@ -18,7 +18,7 @@
 |---|---|---|---|
 | `feedback` | 0001 | one row per feedback form | session id |
 | `community`, `community_reports` | 0002 | a photo, boxes and a status for a shared Park course | session id |
-| `community_items` | 0014 | a shared piece or wallpaper: small picture, .glb for pieces, status (`pending`, `approved`, `removed`), owner as a one-way code | one-way code of the browser's random id |
+| `community_items` | 0014 | a shared piece (old wallpaper rows are never listed): small picture, .glb for pieces, status (`pending`, `approved`, `removed`), owner as a one-way code | one-way code of the browser's random id |
 | `course_events` | 0002 | start, fail, success per attempt | session id |
 | `course_clears` | 0003, 0004, 0005, 0007 | a cleared run the server replayed: course, hash, ticks, verified, beats_ideal, keys of verified runs, the optional tag (up to twelve characters) | none (owner decision, 2026-10-29) |
 | `challenge_courses` | 0013 | a challenge course (CC-108): cleaned course JSON by content hash, board hash, author code, created, promoted and expiry dates | drop the table; the clears stay in `course_clears` under `challenge/<id>` |
@@ -214,7 +214,7 @@
 | Small copy (thumbnail) for the safety check | sent to Baseten by `askModeration` | Baseten: no storage and no training, per its public terms (see trust-and-safety) | not kept (Baseten) |
 | Caption or character sentence | same | same | not kept (Baseten) |
 | Safety verdict | D1 `community_items.moderation` as `verdict:reason` | the word pair only | with the row |
-| Shared piece or wallpaper | D1 `community_items`: owner code, name, thumbnail, glb, meta | text in the database (not R2) | until the owner deletes it; deleting empties thumb, glb and meta and keeps the row marked `removed` |
+| Shared piece | D1 `community_items`: owner code, name, thumbnail, glb, meta | text in the database (not R2) | until the owner deletes it; deleting empties thumb, glb and meta and keeps the row marked `removed` |
 | Older community photos | D1 `community.image` | base64 photo and boxes, session id | no deletion rule written; see Retention above |
 | Characters | D1 `characters`: prompt, thumbnail, glb, owner code | text in the database | no deletion rule written |
 | Character jobs | D1 `character_jobs`: prompt, owner code, day, state | small rows | no deletion rule written |

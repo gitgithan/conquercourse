@@ -49,7 +49,7 @@
 
 ## Community obstacles (CC-37)
 - **What it is:** the gallery shows approved community courses (Explore, `?mode=communities`).
-  - The Park upload screen is gone (CC-247): photos now give objects and wallpapers only, and courses come from World Slicing and the Editor.
+  - The Park upload screen is gone (CC-247): photos now give objects only, and courses come from World Slicing and the Editor.
   - The approval commands below still work on courses already shared.
   - A shared course is stored as `pending` in the same D1 database and shows in the gallery (`?mode=gallery`, or the "Community courses" link on the Course) only after you approve it.
   - The five starter photos are always in the gallery, so it is never empty.
@@ -61,8 +61,8 @@
 - **Reports:** the Report button on a card hides the course once 3 different sessions have flagged it.
 - **Limits:** the photo is shrunk in the browser and its location data dropped; the numeric limits are in the private notes.
 
-## Shared pieces and wallpapers (CC-247)
-- **What it is:** players press Share in Community on a finished piece or wallpaper; it is stored in the D1 table `community_items` (`migrations/0014_community_items.sql`).
+## Shared pieces (CC-247)
+- **What it is:** players press Share in Community on a finished piece; it is stored in the D1 table `community_items` (`migrations/0014_community_items.sql`).
 - **One-time setup per database:** run the file with `wrangler d1 execute <database> --remote --file migrations/0014_community_items.sql`; the preview database already has it, the live one does not (needs the product owner's yes).
 - **Who sees it:** if the safety check (the same Baseten key as the upload check) says all clear, everyone; if it is unsure or the key is missing, only the player who shared it, until you approve it.
 - **Review:** `node scripts/community-review.mjs items` lists them; `item-approve ID` shows one to everyone; `item-remove ID` takes it down and empties its files; add `DB=conquercourse-preview` to work on the preview database.
