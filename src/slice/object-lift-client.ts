@@ -3,7 +3,7 @@
 import { failWords, retryNote } from './object-lift';
 import { LIFT_STEPS, progressOf, refusalWords, stageIndex, type Progress, type Refusal } from './stages';
 import { creditLine, PIPELINE, PROVENANCE_VERSION, sha256Hex, type Provenance } from './provenance';
-import { turnstileToken } from '../ui/turnstile';
+import { checkField } from '../ui/turnstile';
 
 export interface Shrunk { image: string; thumb: string; width: number; height: number; sha256: string }
 export interface LiftDone { glb: ArrayBuffer; prov: Provenance; notes: string[]; privacy: { people?: number; faces?: number; plates?: number }; seconds: number }
@@ -50,7 +50,7 @@ export async function liftObject(inp: LiftInput, progress: (s: string) => void, 
   const t0 = Date.now();
   const tell = (i: number) => onStage?.(progressOf(LIFT_STEPS, i, t0));
   progress('Sending your photo. People in it are blurred before anything is looked at.'); tell(0);
-  const sub = await post({ action: 'submit', turnstile: await turnstileToken(), image: inp.photo.image, thumb: inp.photo.thumb, label: inp.label, box: inp.box, width: inp.photo.width, height: inp.photo.height, height_m: inp.height_m, padretry: inp.padretry !== false });
+  const sub = await post({ action: 'submit', ...(await checkField()), image: inp.photo.image, thumb: inp.photo.thumb, label: inp.label, box: inp.box, width: inp.photo.width, height: inp.photo.height, height_m: inp.height_m, padretry: inp.padretry !== false });
   if (!sub.ok || typeof sub.data.id !== 'string') throw submitFailure(sub.status, sub.data);
   let at = 0, lost = 0;
   for (let i = 0; i < 600; i++) {

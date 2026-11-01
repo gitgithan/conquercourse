@@ -26,3 +26,23 @@ describe('bot check (Turnstile)', () => {
     expect(body).toContain('pub'); expect(body).not.toContain('priv');
   });
 });
+
+import { makePass, passOk, PASS_MS } from '../functions/_lib/turnstile';
+describe('pass from the outline step', () => {
+  const env = { TURNSTILE_SECRET: 's3cret' };
+  it('is accepted by the 3D step and skips a second check', async () => {
+    const pass = await makePass(env);
+    expect(await passOk(env, pass)).toBe(true);
+    const f = vi.fn();
+    expect((await checkTurnstile(env, undefined, 'ip', f as never, pass)).ok).toBe(true);
+    expect(f).not.toHaveBeenCalled();
+  });
+  it('is refused when old, forged, or made with another secret', async () => {
+    const t = 1_700_000_000_000, pass = (await makePass(env, t))!;
+    expect(await passOk(env, pass, t + PASS_MS + 1)).toBe(false);
+    expect(await passOk(env, pass.replace(/.$/, (c) => (c === '0' ? '1' : '0')), t)).toBe(false);
+    expect(await passOk({ TURNSTILE_SECRET: 'other' }, pass, t)).toBe(false);
+    expect(await passOk(env, 'junk')).toBe(false);
+  });
+  it('does nothing when the check is off', async () => { expect(await makePass({})).toBeUndefined(); });
+});
