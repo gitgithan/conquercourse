@@ -1,6 +1,7 @@
 import { pageQuery } from '../flags';
 import { shareWaitText, waitFromReply } from '../sim/slow-down';
 import { initFeedbackCard } from './feedback-card';
+import { turnstileToken } from './turnstile';
 // A small "Feedback" button on every page. It asks the questions in public/feedback-questions.json (edit that file to change
 // the round) and posts the answers, a random session id, the build id and a few play counters to /api/submit.
 declare const __BUILD__: string;
@@ -189,7 +190,7 @@ async function openForm(mode: string): Promise<void> {
     try {
       const res = await fetch('/api/submit', {
         method: 'POST', headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({ round: round.round, session: session(), build: __BUILD__, mode, answers, website: trap.value, context: { ...counters, w: innerWidth, h: innerHeight, rookie: safe('cc.rookie'), where: whereNow(mode) } }),
+        body: JSON.stringify({ turnstile: await turnstileToken(), round: round.round, session: session(), build: __BUILD__, mode, answers, website: trap.value, context: { ...counters, w: innerWidth, h: innerHeight, rookie: safe('cc.rookie'), where: whereNow(mode) } }),
       });
       if (!res.ok) throw new Error(String(res.status));
       card.innerHTML = '<h2 style="margin:0;font-size:20px">Thank you!</h2><p>Your answers were saved. You can keep playing.</p>';

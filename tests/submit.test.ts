@@ -31,7 +31,7 @@ describe('feedback endpoint', () => {
   it('rejects a bad session id and bad json and long bodies', async () => {
     expect((await post({ ...ok, session: 'x' })).status).toBe(400);
     expect((await post('not json')).status).toBe(400);
-    expect((await post({ ...ok, answers: { clear: 'y'.repeat(9000) } })).status).toBe(413);
+    expect((await post({ ...ok, answers: { clear: 'y'.repeat(13000) } })).status).toBe(413);
   });
   it('keeps only whitelisted answer keys and clips long text', async () => {
     const r = await post({ ...ok, answers: { 'Bad Key!': 'x', confusing: 'z'.repeat(2000), clear: 99 } });

@@ -1,4 +1,5 @@
 import { json } from '../_lib/http';
+import { checkTurnstile, type TurnstileEnv } from '../_lib/turnstile';
 import { KINDS, WHY_CHIPS, CONTEXT_KEYS, LIMITS, ROUND } from '../../src/ui/feedback-model';
 // POST /api/submit: store one structured feedback submission in D1.
 // Defences: small body, whitelisted fields, a honeypot, and at most 5 submissions per session per hour.
@@ -25,12 +26,13 @@ function structured(b: Record<string, unknown>): { answers: Record<string, strin
   return { answers, context };
 }
 
-export const onRequestPost = async ({ request, env }: { request: Request; env: Env }): Promise<Response> => {
+export const onRequestPost = async ({ request, env }: { request: Request; env: Env & TurnstileEnv }): Promise<Response> => {
   const raw = await request.text();
-  if (raw.length > 8000) return json({ error: 'too long' }, 413);
+  if (raw.length > 12000) return json({ error: 'too long' }, 413);
   let b: Record<string, unknown>;
   try { b = JSON.parse(raw); } catch { return json({ error: 'bad json' }, 400); }
   if (b.website) return json({ ok: true }); // honeypot: a person never fills this field
+  { const c = await checkTurnstile(env, b.turnstile, request.headers.get('cf-connecting-ip') ?? 'local'); if (!c.ok) return json({ error: 'check', message: c.message }, 403); }
   const session = clip(b.session, 64);
   if (!/^[a-zA-Z0-9-]{8,64}$/.test(session)) return json({ error: 'bad session' }, 400);
   const v2 = b.v === 2 ? structured(b) : null;
