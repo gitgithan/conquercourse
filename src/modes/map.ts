@@ -61,6 +61,8 @@ export function startMap(host: HTMLElement): { backend: 'webgl2' } {
     .mp .how li b.n{width:22px;height:22px;border-radius:50%;background:#dfe5e0;color:#58635d;display:grid;place-items:center;font-size:12px}.mp .how li.now{background:#e7f3ee;color:#17201d}.mp .how li.now b.n{background:#0f6b5c;color:#fff}.mp .how li.done b.n{background:#8fd3a8;color:#17201d}
     .mp .how li span.t{font-weight:700;display:block}.mp .how li span.d{font-size:12px}.mp .how button{padding:1px 8px;font-size:12px}
     .mp #slicer{background:#fff;border:1px solid #cfd8d1;border-radius:12px;padding:10px 12px}.mp #slicer:not([hidden]){display:grid;gap:8px}
+    .mp .act{position:sticky;bottom:-10px;z-index:5;display:grid;grid-template-columns:1fr;margin:0 -10px -10px;padding:8px 140px 8px 10px;background:#eef1ec;border-top:1px solid #cfd8d1;box-shadow:0 -6px 10px -6px rgba(23,32,29,.25)}
+    .mp .act .go,.mp #buildpieces{padding:9px 12px;font-size:15px;box-shadow:0 2px 0 #0a4a40}.mp #buildpieces{position:sticky;bottom:48px;z-index:4}
     @media(max-width:700px){.mp{grid-template-columns:minmax(0,1fr) 220px}}`;
   document.head.appendChild(style);
   const root = document.createElement('div'); root.className = 'mp'; host.appendChild(root);
@@ -83,8 +85,8 @@ export function startMap(host: HTMLElement): { backend: 'webgl2' } {
     <div class="muted">Real buildings are 15 to 40 m tall and a runner jumps under 1 m up, so the place is shrunk.</div>
     ${S2 ? `<label title="Tilt the camera from straight down (0) to a side view along the ground (88). Right-drag on the map does the same."><span>Tilt: <b id="tiltv">0</b>° <span class="muted">(0 = from above, 88 = along the ground; right-drag too)</span></span><input type="range" id="tilt" min="0" max="88" step="1" value="0" aria-label="Tilt"></label>` : ''}
     <div id="mapphotos"></div>
-    <button id="build" class="go" disabled>Build this place</button>
-    <button id="slice" disabled>Slice this place</button>
+    <div class="act"><button id="slice" class="go" disabled>Slice this place</button></div>
+    <button id="build" disabled>Build this place</button>
     <div id="slicer" hidden>
       <b>World Slicer</b>
       <div style="display:grid;grid-template-columns:auto 1fr;gap:10px;align-items:center;margin:6px 0">
