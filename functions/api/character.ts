@@ -23,6 +23,7 @@ import { memoryLedger, utcDay, type Ledger, type Limits } from '../../src/slice/
 import { playerCode } from '../_lib/player';
 import { json } from '../_lib/http';
 import { featureOn, offWords, recordUsage } from '../_lib/usage';
+import { checkTurnstile, type TurnstileEnv } from '../_lib/turnstile';
 
 interface Stmt { bind(...v: unknown[]): { run(): Promise<{ meta?: { changes?: number } }>; first<T>(): Promise<T | null>; all(): Promise<{ results: Record<string, unknown>[] }> } }
 export interface Db { prepare(sql: string): Stmt }
@@ -179,14 +180,15 @@ export const onRequestGet = async ({ request, env }: { request: Request; env: En
   return json({ items: page.items, more: page.more, mine: mineCards, left, limit: lim.perPlayer, canCreate: PROVIDERS[DEFAULT_PROVIDER].configured(env), providers }, 200, { 'cache-control': 'no-store' });
 };
 
-export const onRequestPost = async ({ request, env }: { request: Request; env: Env & { DB: Db } }): Promise<Response> => {
+export const onRequestPost = async ({ request, env }: { request: Request; env: Env & TurnstileEnv & { DB: Db } }): Promise<Response> => {
   const raw = await request.text();
-  if (raw.length > 2_000) return json({ error: 'bad', message: 'Too long.' }, 413);
+  if (raw.length > 6_000) return json({ error: 'bad', message: 'Too long.' }, 413);
   let b: Record<string, unknown>;
   try { b = JSON.parse(raw); } catch { return json({ error: 'bad' }, 400); }
   if (!env.DB) return json({ error: 'not configured' }, 503);
   const create = b.action === 'create';
   if (create && !(await featureOn(env.DB, 'character'))) return json({ error: 'off', message: offWords('character') }, 503);
+  if (create) { const c = await checkTurnstile(env, b.turnstile, request.headers.get('cf-connecting-ip') ?? 'local'); if (!c.ok) return json({ error: 'check', message: c.message }, 403); }
   const r = await handle(b, { db: env.DB, env, ip: request.headers.get('cf-connecting-ip') ?? 'local' });
   if (create && r.status === 200 && typeof (r.body as { id?: unknown }).id === 'string') await recordUsage(env.DB, 'character'); // only a job that started; a repeat of an old prompt costs nothing
   const wait = (r.body as { retryAfterSeconds?: number }).retryAfterSeconds;
