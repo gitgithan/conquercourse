@@ -10,7 +10,7 @@ export const METRIC_WORDS: Record<Metric, { menu: string; chip: string; one: str
   clears: { menu: 'Courses cleared', chip: 'cleared so far', one: 'cleared so far' },
 };
 
-export interface DailyStats { days: string[]; series: Record<Metric, number[]>; players?: number } // players: different browser codes ever, so a returning player counts once // every series has one number per day, oldest first
+export interface DailyStats { days: string[]; series: Record<Metric, number[]>; totals?: Partial<Record<Metric, number>> } // totals: all time, no start day (players = different browser codes, so a returning player counts once); every series has one number per day, oldest first
 export type Range = '7' | '30' | 'all';
 export const MAX_DAYS = 365;
 

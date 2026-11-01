@@ -19,6 +19,14 @@ export const QUERIES: Record<Metric, string[]> = {
   clears: ['SELECT date(ts) AS d, COUNT(*) AS n FROM course_clears WHERE ts >= ? GROUP BY date(ts)'],
 };
 
+/** The same four numbers over all time: one count each. */
+export const TOTALS: Record<Metric, string[]> = {
+  players: ['SELECT COUNT(DISTINCT session) AS n FROM course_events'],
+  runs: ["SELECT COUNT(*) AS n FROM course_events WHERE event_type = 'start'"],
+  assets: ["SELECT COALESCE(SUM(n), 0) AS n FROM upload_days WHERE player = '*'", 'SELECT COUNT(*) AS n FROM community'],
+  clears: ['SELECT COUNT(*) AS n FROM course_clears'],
+};
+
 export async function dailyStats(db: Env['DB'], now = Date.now()): Promise<DailyStats> {
   const to = utcDay(now), since = utcDay(now - (MAX_DAYS - 1) * 86_400_000);
   const rows: Record<Metric, Record<string, unknown>[]> = { players: [], runs: [], assets: [], clears: [] };
@@ -31,9 +39,13 @@ export async function dailyStats(db: Env['DB'], now = Date.now()): Promise<Daily
   const firstDay = Object.values(rows).flat().map((r) => String(r.d)).filter((d) => /^\d{4}-\d{2}-\d{2}$/.test(d)).sort()[0] ?? to;
   const days = dayList(firstDay, to);
   const fill = (m: Metric) => zeroFill(days, rows[m] as { d: unknown; n: unknown }[]);
-  let players: number | undefined; // different players ever (not the sum of the daily counts, which would count a returning player again)
-  try { players = Number(((await db.prepare('SELECT COUNT(DISTINCT session) AS n FROM course_events WHERE ts >= ?').bind(since).all()).results ?? [])[0]?.n) || 0; } catch { /* the tile falls back to the sum */ }
-  return { days, series: { players: fill('players'), runs: fill('runs'), assets: fill('assets'), clears: fill('clears') }, players };
+  const totals = {} as Record<Metric, number>; // all time, with no start day, so the tiles never forget old days (players: different codes, not a sum of daily counts)
+  for (const m of Object.keys(TOTALS) as Metric[]) {
+    let sum = 0, ok = false;
+    for (const sql of TOTALS[m]) { try { sum += Number((((await db.prepare(sql).bind().all()).results ?? [])[0]?.n)) || 0; ok = true; } catch { /* that part stays out */ } }
+    if (ok) totals[m] = sum;
+  }
+  return { days, series: { players: fill('players'), runs: fill('runs'), assets: fill('assets'), clears: fill('clears') }, totals };
 }
 
 export const onRequestGet = async ({ env }: { env: Env }): Promise<Response> =>
