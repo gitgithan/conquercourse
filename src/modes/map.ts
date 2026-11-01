@@ -56,7 +56,7 @@ export function startMap(host: HTMLElement): { backend: 'webgl2' } {
     .mp .map{position:relative}.mp .fcap{position:absolute;left:10px;bottom:34px;max-width:70%;background:rgba(23,32,29,.86);color:#fff;padding:6px 10px;border-radius:8px;font-size:14px;z-index:6}
     .mp .fskip{position:absolute;left:10px;top:84px;z-index:6}
     .mp .legend{display:flex;flex-wrap:wrap;gap:2px 8px;font-size:11px;color:#58635d}.mp .legend i{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:3px;vertical-align:-1px}.mp .legend span{cursor:help}.mp .fix{display:grid;gap:3px;margin-top:4px}.mp .fix button{text-align:left}.mp details summary{cursor:pointer;font-size:12px;color:#58635d}
-    .mp .hits{display:grid;gap:4px}.mp .hits button{text-align:left}.mp .say{border-left:4px solid #0f6b5c;padding:3px 6px;background:#f3f7f4;font-size:13px}.mp .say.bad{border-color:#c0392b;background:#fbeeee}
+    .mp .hits{display:grid;gap:4px}.mp .hits button{text-align:left}.mp .hits .hit.on{border-color:#0f6b5c;background:#e7f3ee;font-weight:700}.mp .say{border-left:4px solid #0f6b5c;padding:3px 6px;background:#f3f7f4;font-size:13px}.mp .say.bad{border-color:#c0392b;background:#fbeeee}
     .mp .hrow{display:flex;justify-content:space-between;align-items:center;gap:8px}.mp .helpbtn{background:#b4510a;color:#fff;border-color:#b4510a;font-weight:700;border-radius:999px;padding:5px 14px;white-space:nowrap;box-shadow:0 2px 0 #7a3607}.mp .flash{animation:ccflash 1.2s ease 2}@keyframes ccflash{50%{box-shadow:0 0 0 4px #b4510a66}}
     .mp .yp{position:sticky;top:-10px;z-index:5;margin:0 -10px;padding:6px 10px;background:#e7f3ee;border-bottom:1px solid #b9d3c8;display:flex;gap:8px;align-items:baseline;flex-wrap:wrap}.mp .yp[hidden]{display:none}.mp .ypl{font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:#0f6b5c;font-weight:700}.mp .yp b{font-size:15px}.mp .yp button{padding:1px 8px;font-size:12px}
     .mp .how{background:#fff;border:1px solid #cfd8d1;border-radius:12px;padding:10px 12px;display:grid;gap:6px}.mp .how h2{margin:0;font-size:13px;letter-spacing:.04em;text-transform:uppercase;color:#58635d;display:flex;justify-content:space-between;align-items:center}
@@ -82,7 +82,7 @@ export function startMap(host: HTMLElement): { backend: 'webgl2' } {
       <li data-step="4"><b class="n">4</b><div><span class="t">Send to the World Editor</span><span class="d">Press the green button at the bottom. Your buildings and lane open there.</span></div></li></ol></div>` : ''}
     <form id="searchform" class="hits"><input type="search" id="search" placeholder="Search for a place" aria-label="Search for a place"><button id="searchgo" type="submit">Search</button></form>
     <div id="hits" class="hits"></div>
-    <div class="muted">Or click the map to drop a pin.</div>
+    <div class="muted">Search above, or click the map to drop a pin. The green pin is your place.</div>
     <label><span>Radius: <b id="radiusv">120</b> m</span><input type="range" id="radius" min="80" max="250" step="10" value="120"></label>
     <label><span>Shrink: <b id="shrinkv">0.2</b> (1 = real size)</span><input type="range" id="shrink" min="0.02" max="1" step="0.01" value="0.2"></label>
     ${S2 ? '' : `<label style="grid-auto-flow:column;justify-content:start;gap:6px;align-items:center"><input type="checkbox" id="hills"${q.get('hills') === '0' ? '' : ' checked'}><span>Real hills (ground height from satellite maps)</span></label>
@@ -221,8 +221,12 @@ export function startMap(host: HTMLElement): { backend: 'webgl2' } {
   map.on('error', (e) => { if (!document.documentElement.dataset.mapready) tell(`The map tiles are slow to load (${String(e.error?.message ?? 'network').slice(0, 60)}).`, true); });
 
   // search: one Nominatim call per press of Search (their policy: at most one request a second, no autocomplete); the browser sends no Referer
-  const showHits = (list: { name: string; lat: number; lon: number }[]) => {
-    hits.replaceChildren(...list.map((h) => { const b = document.createElement('button'); b.type = 'button'; b.textContent = h.name; b.onclick = () => { map.flyTo({ center: [h.lon, h.lat], zoom: 16, duration: 800 }); dropPin(h.lat, h.lon, h.name); }; return b; }));
+  const showHits = (list: { name: string; lat: number; lon: number }[], auto = false) => {
+    const pick = (h: { name: string; lat: number; lon: number }) => { map.flyTo({ center: [h.lon, h.lat], zoom: 16, duration: 800 }); dropPin(h.lat, h.lon, h.name); };
+    const seen = new Set<string>(), uniq = list.filter((h) => { const k = h.name; if (seen.has(k)) return false; seen.add(k); return true; });
+    const head = document.createElement('div'); head.className = 'muted'; head.textContent = uniq.length > 1 ? 'Matches (the pin is on the first; click another to move it):' : 'Match (pin dropped here):';
+    hits.replaceChildren(head, ...uniq.map((h, i) => { const b = document.createElement('button'); b.type = 'button'; b.className = 'hit'; b.textContent = h.name; b.title = 'Drop the pin here'; b.onclick = () => pick(h); if (auto && i === 0) b.classList.add('on'); return b; }));
+    if (auto && uniq[0]) pick(uniq[0]); // a search drops the pin on its best match, so Slice works at once
   };
   const form = $<HTMLFormElement>('searchform');
   form.onsubmit = async (e) => {
@@ -233,8 +237,8 @@ export function startMap(host: HTMLElement): { backend: 'webgl2' } {
       const r = await fetch(`https://nominatim.openstreetmap.org/search?format=jsonv2&limit=5&q=${encodeURIComponent(text)}`, { referrerPolicy: 'no-referrer', signal: AbortSignal.timeout(15000) });
       if (!r.ok) throw new Error(`HTTP ${r.status}`);
       const j = (await r.json()) as { display_name: string; lat: string; lon: string }[];
-      showHits(j.map((x) => ({ name: x.display_name.split(',').slice(0, 3).join(','), lat: Number(x.lat), lon: Number(x.lon) })));
-      tell(j.length ? 'Pick a result, or click the map.' : 'Nothing found. Try another name.');
+      showHits(j.map((x) => ({ name: x.display_name.split(',').slice(0, 3).join(',').trim(), lat: Number(x.lat), lon: Number(x.lon) })), true);
+      if (!j.length) tell('Nothing found. Try another name.', true);
     } catch { showHits(PLACES); tell('Search is not answering. Here are some famous places.', true); }
     go.disabled = false;
   };
