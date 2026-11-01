@@ -1,4 +1,4 @@
-// The end-of-run report (CC-97): what happened, drawn on the course, next to the best line the simulator found. Facts only: no scores, no grades.
+// The end-of-run report (CC-97): what happened, drawn on the course, next to the best line. Facts only: no scores, no grades.
 // The path and the moves come from a RunLog filled every tick; the best line is the stored plan played again (the same ideal run as Shift+I).
 import type { CourseData } from '../course/course';
 import { CLIMB_COST } from '../sim/climb';
@@ -11,7 +11,6 @@ import { newWorld, stepWorld, type WorldState } from '../sim/world';
 import { ZONE_ICONS } from './zone-icons';
 import { column, TOPIC_ORDER } from '../course/obstacles';
 import { goldOld } from './hardest';
-import { addBadge } from './says';
 
 export type MoveKind = 'jump' | 'vault' | 'climb' | 'roll' | 'grab' | 'bounce' | 'fire';
 export interface LoggedMove { kind: MoveKind; x: number; y: number }
@@ -30,7 +29,7 @@ const COST_OF: Partial<Record<MoveKind, string>> = {
   roll: `a third of a jump of effort on the ground (${(GROUND_ROLL_COST / JUMP_COST).toFixed(1)} of one)`,
 };
 
-/** Adds this tick to the log: the path every few ticks, and every move the simulator reports. */
+/** Adds this tick to the log: the path every few ticks, and every move it reports. */
 export function logTick(l: RunLog, w: WorldState): void {
   if (w.runner.tick % 4 === 0) l.path.push({ x: w.runner.x, y: w.runner.y });
   for (const e of w.events) {
@@ -92,7 +91,7 @@ export function buildReport(course: CourseData, log: RunLog, w: WorldState, from
   if (cleared && !fromStart) headline = `You made it, starting partway (${f1(seconds)} s).`;
   const matched = !!use && seconds <= use.seconds + 0.25;
   const top = cleared && fromStart && !matched ? [...(course.shortcuts ?? [])].sort((a, b) => b.secondsSaved - a.secondsSaved)[0] : undefined;
-  const saving = top && top.secondsSaved >= 0.2 ? `The biggest change the simulator found: ${top.how}. It saves ${f1(top.secondsSaved)} s.` : null;
+  const saving = top && top.secondsSaved >= 0.2 ? `The biggest change to try: ${top.how}. It saves ${f1(top.secondsSaved)} s.` : null;
   const topic = topicOf(course);
   return { cleared, headline, seconds, spent, best: use, counts, saving, matched, learned: cleared && topic ? LEARNED[topic] ?? null : null, saying: cleared && topic ? SAYING[topic] ?? null : null, metres: Math.max(0, Math.round(w.runner.x)), finishX: course.finishX };
 }
@@ -170,7 +169,6 @@ export function renderReport(course: CourseData, log: RunLog, r: Report, a: Acti
   const box = document.createElement('section');
   box.setAttribute('aria-label', 'Run report');
   box.style.cssText = 'display:grid;gap:12px';
-  addBadge(box, 'simulator', { sub: compact ? null : undefined })?.classList.add('says-small'); // CC-243: the report is the Simulator's word; the live voice is in the editor and the slicer, so this one is the small one
   if (!compact) tx('h2', r.headline, 'margin:0;font:800 26px/1.2 system-ui,sans-serif;color:#0f6b5c', box);
   else tx('div', r.cleared ? r.headline : `You got ${r.metres} m of ${r.finishX} m.`, 'font-weight:700', box);
   box.appendChild(pathPicture(course, log, r.best, ghost, old, hard));
@@ -206,7 +204,7 @@ export function renderReport(course: CourseData, log: RunLog, r: Report, a: Acti
     }
     box.appendChild(ul);
   }
-  if (r.matched) tx('p', 'You took the best line the simulator found.', 'margin:0;font-size:15px;background:#e6f4ee;border-left:4px solid #0f6b5c;padding:8px 10px;border-radius:6px', box);
+  if (r.matched) tx('p', 'You took the best line.', 'margin:0;font-size:15px;background:#e6f4ee;border-left:4px solid #0f6b5c;padding:8px 10px;border-radius:6px', box);
   if (r.saving) tx('p', r.saving, `margin:0;font-size:15px;${goldOld() ? 'background:#fff8dc;border-left:4px solid #d9a521' : 'background:#eef1ec;border-left:4px solid #58635d'};padding:8px 10px;border-radius:6px`, box);
   if (r.learned) tx('p', `What you learned: ${r.learned}`, 'margin:0;font-weight:600', box);
   if (r.saying && r.saying !== r.learned?.replace('What you learned: ', '')) tx('p', `“${r.saying}”`, 'margin:0;font-style:italic;color:#58635d', box);
