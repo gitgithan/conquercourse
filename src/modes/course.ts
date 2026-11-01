@@ -1734,10 +1734,13 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
     if (film) { // ?film=<shot> (CC-130): the film camera takes over the view; play is unchanged without it
       filmAir += ((r.grounded ? 0 : 1) - filmAir) * (1 - Math.exp(-dtHead / 0.25));
       const p = film.pose({ runnerX: r.x, runnerY: r.y, airborne: filmAir });
+      if (filmShot === 'clean') { film.tick(camera); } else {
       if (camera.fov !== p.fov) { camera.fov = p.fov; camera.updateProjectionMatrix(); }
       camera.up.set(0, 1, 0); camera.position.set(...p.pos); camera.lookAt(...p.look); camPos.copy(camera.position);
       if (p.hideBody) { if (actor) actor.object.visible = false; body.visible = false; } // the eyes shot ends inside the head, as the First person camera does
       film.tick(camera);
+      if (filmShot === 'eyesC' && p.fov > 60) { if (actor) actor.object.visible = false; body.visible = false; }
+      }
     }
     floor.update(now / 1000);
     if (chunks.length > 8) cullFar(chunks, camera.position, 260); // far chunks of a big place are not drawn
