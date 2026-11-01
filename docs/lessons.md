@@ -153,4 +153,5 @@
 - The flags `--use-gl=angle --use-angle=gl-egl` made the same Modal container use Mesa llvmpipe and finish in 10.5 s (about 17 fps live).
 - A GPU card did not help: Chromium never used it, so the gain is the renderer, not the hardware.
 - Rule: check `UNMASKED_RENDERER_WEBGL` before trusting a "GPU" run; a silent fall back to SwiftShader looks like a slow GPU.
+- A pixel check on four pages found the same 3D picture and slightly different text edges, so draw a whole film on one renderer.
 - Numbers, gaps and next steps: `data/eval/film-render-speed/README.md`.
