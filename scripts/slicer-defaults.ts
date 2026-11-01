@@ -20,6 +20,7 @@ const index = JSON.parse(readFileSync(`${dir}/index.json`, 'utf8')) as { slug: s
 const only = arg('--slug')?.split(',');
 const prev: DefaultsFile | null = existsSync(outFile) ? JSON.parse(readFileSync(outFile, 'utf8')) : null;
 const r1 = (v: number) => Math.round(v * 10) / 10;
+const r2 = (v: number) => Math.round(v * 100) / 100;
 const snap = (v: number) => Math.round(v * 2) / 2; // the cut slider moves in halves
 
 function one(slug: string): SlicerDefault {
@@ -53,8 +54,9 @@ function one(slug: string): SlicerDefault {
       if (!quickLane(place, c * k)) continue;
       const lane = provedLane(place, c * k);
       if (!lane) continue;
-      const line = laneLine(lane, k).flat().map(r1) as Line;
-      const d = mk(k, c, line);
+      const raw = laneLine(lane, k).flat();
+      let d = mk(k, c, raw.map(r1) as Line);
+      if (!d.clear) d = mk(k, c, raw.map(r2) as Line); // a 0.1 m rounding can move a tight lane; try 0.01 m before giving up on this height
       console.error(`${slug}: k ${k} cut ${c} -> ${d.clear ? 'CLEARS' : 'replay differs'}`);
       if (d.clear) return d;
       tried.push(d);
