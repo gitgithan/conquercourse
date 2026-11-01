@@ -111,7 +111,10 @@ flowchart LR
 ## 4b. Upload check and move tips (Muse Spark Open)
 - **Upload check (CC-120):**
   - Data in: an uploaded photo or object preview, and an optional caption.
-  - Model: Muse Spark Open through Baseten, behind `/api/moderate`.
+  - Model: Muse Spark Open (`meta-models/muse-spark-open-1026`) through Baseten; the call lives in `functions/api/moderate.ts` and the other routes call it directly.
+  - Wording: small, far-away or unrecognisable people are fine; a child who is close or large, a readable plate, address, document or screen, or a recognisable person makes it ask for a person to look.
+  - It is a language model: the same photo can get different answers on different tries.
+  - Stopped photos and the reason are listed on the owner-only admin page.
   - Result: ok, review or block with one reason; the caption can only make the answer stricter; any error becomes review.
   - Measured: 19 of 19 safe photos ok, 7 of 7 text-only unsafe cases caught, 4 of 4 near misses not blocked, about $0.003 a call (`data/eval/cc-119-moderation/`).
   - Not tested: real harmful images (see [trust and safety](trust-and-safety.md)).

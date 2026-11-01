@@ -311,7 +311,8 @@ Diagrams are in [docs/meta-ai-pipelines.md](docs/meta-ai-pipelines.md); the full
 | Motion clips | **SAM 3D Body + MHR, DINOv3** | Measures body and pose from video | Build time |
 | Generated motion | **Meta-Llama-3-8B-Instruct** | Text encoder inside Kimodo (NVIDIA) for run, leap and hang motion | Build time |
 | World Editor: design partner, Fix it | **Muse Spark Open** (Baseten) | Proposes a layout; the simulator checks it | Live, server function |
-| Community and uploads | **Muse Spark Open** (Baseten) | Upload check and move tips | Live, server function |
+| Photo and upload review (outline step, 3D lift, characters, Share in Community) | **Muse Spark Open** (Baseten, `meta-models/muse-spark-open-1026`) | Reads each uploaded photo before anything is made or shared and answers ok, review or block with one reason; if it cannot answer, nothing is made | Live, server function |
+| Community: move tips | **Muse Spark Open** (Baseten) | Names the moves that fit a cut-out object | Live, server function |
 | Characters | **Muse Image, SAM 3.1** | A player's sentence becomes a picture (Muse Image), a cut-out (SAM 3.1) and a mesh (SAM 3D Objects on Modal); the two Rookies were built earlier with Tripo, with one Muse Image reference for Rookie B | Live: a Modal job calls the Meta Model API (Meta credit); see [docs/model-ledger.md](docs/model-ledger.md) |
 | Music | **MusicGen (AudioCraft)** | An original loop per screen | Build time |
 | World Slicer | **Mapillary** (owned by Meta) | Street photos along a built place, faces and plates blurred by Mapillary | Live, server proxy |
