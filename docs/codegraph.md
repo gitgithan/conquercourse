@@ -104,16 +104,22 @@ Installing extras does not activate paid APIs, connect accounts, download infere
 - All 233 communities now have names authored by the assistant in this chat from indexed paths and symbols, without a separate model API call.
 - These are not Graphify backend-generated labels and no semantic source extraction was performed.
 - Open `graphify-out/graph.html` and select a community to see purpose notes, filter member files and symbols, and follow connected communities in its sidebar.
-- The main graph search also matches member files and symbols. No separate explorer page is needed.
-- Larger communities have contextual purpose notes; smaller ones use brief title-based descriptions backed by member lists.
-- Names and purpose notes are interpretations, not a full source review. Mixed script groups should not be treated as intentional architecture.
+- The main graph search also matches member files and symbols.
+- No separate explorer page is needed.
+- Community names come from each community's busiest files; each community lists its member files and symbols.
+- Names and purpose notes are interpretations, not a full source review.
+- Mixed script groups should not be treated as intentional architecture.
 - Native Graphify label sidecars and membership signatures are saved for reuse.
 - The explorer builder is `tools/community-explorer.py`; run with the Python interpreter from the Graphify environment.
 - Its session-specific `community-names.txt` and generated notes stay under ignored `graphify-out/`.
-- Regenerate/review names when community membership changes. Do not reuse the numeric name mapping after reclustering.
-- Exporting HTML overwrites the embedded details; rerun the explorer builder after `graphify export html` to restore them. The builder embeds `tools/community-panel.js` and all community data into the one HTML file.
+- Regenerate/review names when community membership changes.
+- Do not reuse the numeric name mapping after reclustering.
+- Exporting HTML overwrites the embedded details; rerun the explorer builder after `graphify export html` to restore them.
+- The builder embeds `tools/community-panel.js` and all community data into the one HTML file.
 
-- Clicking a community highlights it, its immediate neighbors and only its incident edges. Other nodes, labels and edges dim; clicking the background resets the focus. Sidebar neighbor links and search selections also apply focus.
+- Clicking a community highlights it, its immediate neighbors and only its incident edges.
+- Other nodes, labels and edges dim; clicking the background resets the focus.
+- Sidebar neighbor links and search selections also apply focus.
 
 ## Tracked snapshot
 

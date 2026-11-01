@@ -108,6 +108,123 @@ conquercourse/
 └── CLAUDE.md     rules for agents
 ```
 
+## Database tables (D1)
+- The tables live in Cloudflare D1; `migrations/` has one numbered file per change.
+- No table uses a foreign key.
+- Tables link by shared values: a course key, a course hash, a run id, a random browser code or a row id.
+- Each line in the picture is labelled with the value that links two tables; dotted lines are looser links.
+
+```mermaid
+erDiagram
+    course_events }o--|| course_clears : "run_id, course_key"
+    course_clears }o--|| challenge_courses : "course_hash = board_hash"
+    shares }o..o| challenge_courses : "course_hash = board_hash"
+    community ||--o{ community_reports : "id = course"
+    community_items }o..o{ moderation_stops : "route, owner"
+    characters }o--|| character_jobs : "owner, day"
+    usage_events }o..o{ upload_days : "day"
+    course_events {
+        int id PK
+        text session "random browser code"
+        text course_key
+        text run_id
+        text event_type "start, fail, success"
+        text country "two letters"
+    }
+    course_clears {
+        int id PK
+        text course_key
+        text course_hash
+        text run_id UK
+        int ticks "time the server replay gave"
+    }
+    challenge_courses {
+        text id PK
+        text board_hash
+        text content_hash UK
+        int author_ticks
+        int promoted_at
+        int expires_at
+    }
+    shares {
+        text id PK
+        text kind "done or fell"
+        text course_key
+        text course_hash
+        text keys "the recorded run"
+    }
+    community {
+        int id PK
+        text status "pending, approved"
+        text name
+        int reports
+    }
+    community_reports {
+        int course FK
+        text session
+    }
+    community_items {
+        text id PK
+        text kind "piece or wallpaper"
+        text status "pending, approved, removed"
+        text owner
+        text moderation
+    }
+    characters {
+        text id PK
+        text owner
+        text status
+        text prompt
+        text provider
+    }
+    character_jobs {
+        text id PK
+        text owner
+        text day
+        text state
+    }
+    moderation_stops {
+        int id PK
+        text route
+        text owner
+        text verdict
+        text reason
+    }
+    lift_receipts {
+        text id PK
+        int used_at
+    }
+    usage_events {
+        text day PK
+        text category PK
+        int calls
+        real est_cents
+    }
+    upload_days {
+        text day PK
+        text player PK
+        int n
+    }
+    flags {
+        text name PK
+        int on_
+    }
+    feedback {
+        int id PK
+        text round
+        text session
+        text answers
+    }
+```
+
+- **Play record:** `course_events` logs starts, fails and successes; `course_clears` keeps only runs the server replayed; the board and the growth chart read these two.
+- **Sharing:** `shares` holds a recorded run, and `challenge_courses` holds a made course that others can try before it is promoted.
+- **Community:** `community` holds photo courses, `community_items` holds pieces and wallpapers, and `community_reports` holds one report per browser per course.
+- **Made things:** `characters` and `character_jobs` track make-a-character runs.
+- **Safety and cost:** `moderation_stops`, `lift_receipts`, `usage_events`, `upload_days` and `flags` support the safety check and the owner-only page.
+- **Feedback:** `feedback` stores answers from the in-page forms.
+- Migrations 0015 to 0018 are waiting for the owner's yes on the live database.
+
 ## Experiences that are not possible in real life
 - **Race a ghost of a stranger.**
   - A run is a list of key presses, so anyone's best run can run beside you, see-through, on the same clock.
