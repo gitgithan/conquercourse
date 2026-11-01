@@ -9,8 +9,7 @@ const dollars = (c) => `$${(c / 100).toFixed(2)}`;
 
 async function call(method, body) {
   if (!token) {
-    token = prompt('Admin token') || '';
-    if (!token) throw new Error('No token given.');
+    throw new Error('Paste your admin token in the box above, then press Show usage.');
   }
   const res = await fetch(API, { method, headers: { 'x-admin-token': token, ...(body ? { 'content-type': 'application/json' } : {}) }, body: body ? JSON.stringify(body) : undefined, cache: 'no-store' });
   if (res.status === 401 || res.status === 404) { token = ''; try { sessionStorage.removeItem('cc-admin'); } catch { /* ignore */ } throw new Error('That token was not accepted.'); }
@@ -70,4 +69,7 @@ async function load() {
   msg.textContent = '';
   try { render(await call('GET')); } catch (e) { msg.textContent = e.message; app.replaceChildren(); const b = el('button', 'Try again'); b.addEventListener('click', load); app.appendChild(b); }
 }
+const box = document.getElementById('tok');
+document.getElementById('go').addEventListener('click', () => { token = box.value.trim(); box.value = ''; load(); });
+box.addEventListener('keydown', (e) => { if (e.key === 'Enter') document.getElementById('go').click(); });
 load();
