@@ -53,7 +53,8 @@ describe('the world picker list (CC-89)', () => {
     expect(at('?mode=editor').value).toBe('editor');
     expect(at('?mode=coaster').value).toBe('coaster-builder');
     expect(at('?mode=map').value).toBe('map');
-    expect(at('?mode=dojo').value).toBeNull();
+    expect(at('?mode=dojo').value).toBe('dojo-gap');
+    expect(at('?mode=dojo&ex=wall').value).toBe('dojo-wall');
   });
   it('is mounted by every mode: main.ts for the others, the Course for itself', () => {
     expect(readFileSync('src/main.ts', 'utf8')).toMatch(/mountWorldGallery/);
