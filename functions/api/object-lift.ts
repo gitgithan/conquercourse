@@ -10,6 +10,7 @@ import { refusalBody, secondsToNextDay } from '../../src/slice/stages';
 import { d1Ledger } from '../../src/slice/d1-ledger';
 import { LIMIT_WORDS, memoryLedger, utcDay, DEFAULT_LIMITS, type Ledger, type Limits } from '../../src/slice/upload-gates';
 import { playerCode } from '../_lib/player';
+import { recordStop } from '../_lib/stops';
 import { json } from '../_lib/http';
 import { featureOn, offWords, recordUsage } from '../_lib/usage';
 import { makeReceipt } from '../_lib/receipt';
@@ -49,7 +50,7 @@ export async function handle(b: Record<string, unknown>, env: Env, ip: string, f
   if (env.BASETEN_API_KEY) {
     const m = await askModeration(env.BASETEN_API_KEY, { image: r.thumb }, fetcher);
     const stop = moderationStops(m.body.verdict, m.body.reason);
-    if (stop) return { status: 403, body: { error: 'moderation', message: stop } };
+    if (stop) { await recordStop(env.DB as never, 'photo3d', await playerCode(ip), m.body.verdict, m.body.reason, now); return { status: 403, body: { error: 'moderation', message: stop } }; }
     moderation = `${m.body.verdict}:${m.body.reason}`;
   }
   const day = utcDay(now), who = await playerCode(ip);
