@@ -84,7 +84,7 @@ export function startMap(host: HTMLElement): { backend: 'webgl2' } {
     <div id="hits" class="hits"></div>
     <div class="muted">Search above, or click the map to drop a pin. The green pin is your place.</div>
     <label><span>Radius: <b id="radiusv">120</b> m</span><input type="range" id="radius" min="80" max="250" step="10" value="120"></label>
-    <label><span>Shrink: <b id="shrinkv">0.2</b> (1 = real size)</span><input type="range" id="shrink" min="0.02" max="1" step="0.01" value="0.2"></label>
+    <label><span>Shrink: <b id="shrinkv">0.2</b> (smaller = easier)</span><input type="range" id="shrink" min="0.02" max="0.6" step="0.01" value="0.2"></label><div class="muted" style="font-size:12px;margin:-2px 0 6px">No path? Slide left first: a smaller place has lower walls, shorter falls and narrower gaps.</div>
     ${S2 ? '' : `<label style="grid-auto-flow:column;justify-content:start;gap:6px;align-items:center"><input type="checkbox" id="hills"${q.get('hills') === '0' ? '' : ' checked'}><span>Real hills (ground height from satellite maps)</span></label>
     <label style="grid-auto-flow:column;justify-content:start;gap:6px;align-items:center"><input type="checkbox" id="useready" checked><span>Use a ready place when one is near (loads at once)</span></label>`}
     <div class="muted">Real buildings are 15 to 40 m tall and a runner jumps under 1 m up, so the place is shrunk.</div>
