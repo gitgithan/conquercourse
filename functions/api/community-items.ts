@@ -1,4 +1,4 @@
-// /api/community-items: finished pieces and wallpapers that players share in Community (CC-247). Storage: D1 table community_items (migrations/0014).
+// /api/community-items: finished pieces that players share in Community (CC-247). Storage: D1 table community_items (migrations/0014).
 //   GET                          the approved items, newest first, without files: {items:[{id, kind, name, at, meta, thumb: "/api/community-items?id=..&file=thumb"}]}
 //   GET with header x-cc-session the same plus this browser's own items (pending ones too), each with its small picture inline and mine:true
 //   GET ?id=..&file=thumb|glb    one file; an approved item to anyone, any other only to its owner (header x-cc-session)
@@ -16,7 +16,7 @@ import { json } from '../_lib/http';
 interface Stmt { bind(...v: unknown[]): { run(): Promise<{ meta?: { changes?: number } }>; first<T>(): Promise<T | null>; all<T>(): Promise<{ results: T[] }> } }
 export interface Db { prepare(sql: string): Stmt }
 interface Env { DB?: Db; BASETEN_API_KEY?: string }
-interface Row { id: string; kind: 'piece' | 'wallpaper'; name: string; status: string; created_at: number; thumb: string; meta: string; owner?: string }
+interface Row { id: string; kind: 'piece'; name: string; status: string; created_at: number; thumb: string; meta: string; owner?: string }
 
 const OWNER_SALT = 'cc-item';
 const LIVE_PER_OWNER = 12;
@@ -72,7 +72,7 @@ const likeOf = (q: string | undefined): string => `%${String(q ?? '').replace(/[
 
 export async function list(env: Env, session: string | null, opt: ListQuery = {}): Promise<{ status: number; body: Record<string, unknown> }> {
   if (!env.DB) return { status: 200, body: { items: [], off: true } };
-  const cur = parseCursor(opt.cursor), kind = opt.kind === 'piece' || opt.kind === 'wallpaper' ? opt.kind : '';
+  const cur = parseCursor(opt.cursor), kind = 'piece'; // old wallpaper rows stay in the table but are never listed
   const word = likeOf(opt.q);
   // where-clause and values shared by both lists; the name is searched in SQL, so a page is only ever one page
   const where = (base: string, vals: unknown[]) => ({ sql: base + (kind ? ' AND kind = ?' : '') + (word !== '%%' ? ' AND name LIKE ?' : '') + (cur ? ' AND (created_at < ? OR (created_at = ? AND id < ?))' : ''), vals: [...vals, ...(kind ? [kind] : []), ...(word !== '%%' ? [word] : []), ...(cur ? [cur.at, cur.at, cur.id] : [])] });

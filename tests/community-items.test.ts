@@ -23,9 +23,9 @@ const said = (verdict: string, reason: string) => (async () => ({ ok: true, stat
 let n = 0; const ip = () => `ip-${n++}`; // each test gets its own address, so the burst limit never mixes tests
 
 describe('what a share may contain (CC-247)', () => {
-  it('accepts a piece and a wallpaper', () => {
+  it('accepts a piece and refuses a wallpaper (wallpapers stay in the maker\'s browser)', () => {
     expect(cleanItem(piece()).ok).toBe(true);
-    expect(cleanItem(wall()).ok).toBe(true);
+    expect(cleanItem(wall()).ok).toBe(false);
   });
   it('refuses bad names, files and kinds', () => {
     expect(cleanItem(piece({ name: 'a' })).ok).toBe(false);
@@ -34,8 +34,6 @@ describe('what a share may contain (CC-247)', () => {
     expect(cleanItem(piece({ glb: Buffer.from('not a model').toString('base64') })).ok).toBe(false);
     expect(cleanItem(piece({ glb: undefined })).ok).toBe(false);
     expect(cleanItem(piece({ height_m: 50 })).ok).toBe(false);
-    expect(cleanItem(wall({ glb: GLB })).ok).toBe(false);
-    expect(cleanItem(wall({ course: '../etc' })).ok).toBe(false);
     expect(cleanItem(piece({ thumb: 'http://x/y.jpg' })).ok).toBe(false);
     expect(cleanItem({ ...piece(), kind: 'course' }).ok).toBe(false);
   });
@@ -52,7 +50,7 @@ describe('sharing, the lists and deleting (CC-247)', () => {
     const db = makeDb(), env = { DB: db, BASETEN_API_KEY: 'k' };
     const a = await publish(piece(), env, ip(), said('ok', 'none'));
     expect(a.body.status).toBe('approved');
-    const b = await publish(wall({ session: 'player-bbbb-2222' }), env, ip(), said('review', 'person'));
+    const b = await publish(piece({ session: 'player-bbbb-2222' }), env, ip(), said('review', 'person'));
     expect(b.body.status).toBe('pending');
     const anon = (await list(env, null)).body.items as { id: string }[];
     expect(anon.map((i) => i.id)).toEqual([a.body.id]);
@@ -97,7 +95,7 @@ describe('sharing, the lists and deleting (CC-247)', () => {
   });
   it('a held item can be opened only by its owner', async () => {
     const env = { DB: makeDb() };
-    const id = String((await publish(wall(), env, ip())).body.id);
+    const id = String((await publish(piece(), env, ip())).body.id);
     expect((await file(env, id, 'thumb', null)).status).toBe(404);
     expect((await file(env, id, 'thumb', 'player-bbbb-2222')).status).toBe(404);
     expect((await file(env, id, 'thumb', 'player-aaaa-1111')).status).toBe(200);
@@ -133,7 +131,7 @@ describe('a long list is served in pages (CC-247)', () => {
       expect(JSON.stringify(body).length).toBeLessThan(40_000);
       seen.push(...body.items.map((i) => i.id)); cursor = body.next ?? undefined; pages++;
     } while (cursor && pages < 100);
-    const approved = 500 - Math.ceil(500 / 11);
+    const approved = Array.from({ length: 500 }, (_, i) => i).filter((i) => i % 5 !== 0 && i % 11 !== 0).length; // old wallpaper rows are never listed
     expect(seen.length).toBe(approved);
     expect(new Set(seen).size).toBe(approved);
     expect(pages).toBeGreaterThan(5);

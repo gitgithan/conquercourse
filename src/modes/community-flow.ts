@@ -7,7 +7,7 @@ import { suggestRegions } from '../slice/segment-client';
 import { deleteUserObject, listUserObjects, saveUserObject, type UserObject } from '../slice/user-objects';
 import { deleteShared, forgetLink, links, rememberLink, shareItem } from '../community/share-client';
 import { DEMOS, worldHref } from '../ui/world-picker';
-import { SAMPLE_WALLPAPERS, cropToThumb, deleteWallpaper, saveWallpaper, savedWallpapers } from '../community/wallpaper';
+import { SAMPLE_WALLPAPERS, cropToThumb, saveWallpaper, savedWallpapers } from '../community/wallpaper';
 import type { PublicItem } from '../community/items';
 import { listSharedPage } from '../community/share-client';
 import { placeableShared, sharedSrc, useShared, LIFT_PARALLEL, MAX_PICKS, STEPS, TABS, allowedNow, buildFound, canEnter, dailyLine, editorHref, makeLabel, nextStep, prevStep, runQueue, queueWarning, startState, tabFor, toggleTick, wallpaperCrop, whyNot, whyOff, type Box, type FlowState, type Found, type Kind, type PiecesToday, type Step, type Tab } from '../community/flow';
@@ -103,7 +103,7 @@ export function startCommunityFlow(host: HTMLElement, params: URLSearchParams): 
       const bar = el('div', made); bar.className = 'row'; bar.id = 'shared-controls'; made.insertBefore(bar, g);
       const find = el('input', bar, { id: 'shared-q', type: 'search', placeholder: 'Search shared things by name' } as never) as HTMLInputElement;
       const kindSel = el('select', bar, { id: 'shared-kind' } as never) as HTMLSelectElement;
-      for (const [v, t] of [['', 'Everything'], ['piece', '3D pieces'], ['wallpaper', 'Wallpapers']]) el('option', kindSel, t, { value: v } as never);
+      for (const [v, t] of [['', 'Everything'], ['piece', '3D pieces']]) el('option', kindSel, t, { value: v } as never);
       const more = el('button', made, 'Show more', { id: 'shared-more' }); more.style.display = 'none';
       let cursor: string | null = null;
       const loadPage = async (reset: boolean) => {
@@ -119,8 +119,8 @@ export function startCommunityFlow(host: HTMLElement, params: URLSearchParams): 
       more.onclick = () => { void loadPage(false); };
       const addItem = (it: PublicItem) => {
         const l = shared[it.id];
-        const c = card(it.thumb ?? '', it.mine ? `Yours: ${it.name}` : it.name, `${it.kind === 'piece' ? '3D piece' : 'Wallpaper'}${it.mine ? (it.status === 'approved' ? ', shared with everyone' : ', shared: waiting for the safety check, only you see it') : ', shared by a player'}`,
-          it.kind === 'wallpaper' && it.meta.course && l ? ['Play it', `${worldHref(it.meta.course)}&wallpaper=${l.local}`] : it.kind === 'piece' && it.mine ? ['Open the World Editor', l?.kind === 'piece' ? editorHref(l.local) : '?mode=editor&welcome=0&uploadobj=1'] : undefined);
+        const c = card(it.thumb ?? '', it.mine ? `Yours: ${it.name}` : it.name, `3D piece${it.mine ? (it.status === 'approved' ? ', shared with everyone' : ', shared: waiting for the safety check, only you see it') : ', shared by a player'}`,
+          it.kind === 'piece' && it.mine ? ['Open the World Editor', l?.kind === 'piece' ? editorHref(l.local) : '?mode=editor&welcome=0&uploadobj=1'] : undefined);
         c.dataset.shared = it.id; c.dataset.kind = it.kind;
         if (!it.mine && placeableShared(it)) { // someone else's approved piece: add it to your own list, then place it in the World Editor
           const d = c.lastElementChild as HTMLElement; const row = el('div', d); row.className = 'row'; row.style.marginTop = '6px';
@@ -138,7 +138,7 @@ export function startCommunityFlow(host: HTMLElement, params: URLSearchParams): 
               yes.disabled = true;
               if (!(await deleteShared(it.id))) { row.replaceChildren(); el('span', row, 'Could not delete it. Try again.').className = 'err'; return; }
               const link = links()[it.id]; forgetLink(it.id);
-              if (link?.kind === 'wallpaper') deleteWallpaper(link.local); else if (link) void deleteUserObject(link.local).catch(() => undefined);
+              if (link) void deleteUserObject(link.local).catch(() => undefined);
               c.remove();
             };
           };
@@ -322,8 +322,8 @@ export function startCommunityFlow(host: HTMLElement, params: URLSearchParams): 
         el('button', r, shared ? 'See it in Explore' : 'See them in Explore', { id: 'go-objects' }).onclick = () => showTab('explore');
         el('button', r, 'Start with another photo', { id: 'go-again' }).onclick = () => { work.step = 'photo'; work.photo = null; work.fs = startState(); paint(); };
       };
-      // Sharing is its own deliberate press: the piece or wallpaper is kept in this browser either way.
-      const doShare = async (make: () => Promise<{ id: string; input: Parameters<typeof shareItem>[0]; local: { kind: 'piece' | 'wallpaper'; local: string } }>): Promise<string> => {
+      // Sharing is its own deliberate press: the piece is kept in this browser either way.
+      const doShare = async (make: () => Promise<{ id: string; input: Parameters<typeof shareItem>[0]; local: { kind: 'piece'; local: string } }>): Promise<string> => {
         const m = await make(); const out = await shareItem(m.input); rememberLink(out.id, m.local);
         return out.status === 'approved' ? 'Shared. Everyone can see it in Explore.' : 'Shared. You can see it in Explore now; everyone sees it after the safety check.';
       };
@@ -408,7 +408,6 @@ export function startCommunityFlow(host: HTMLElement, params: URLSearchParams): 
               const id = `w${Date.now().toString(36)}`, thumb = await cropToThumb(ph.image, wallpaperCrop(r.box, ph.width, ph.height));
               if (!saveWallpaper({ id, name: nm.value.trim() || 'my photo', thumb, at: Date.now(), course: sel.value })) throw new Error('Your browser has no room to keep it.');
               work.made.walls.push(id); lastCourse.id = id; msg.textContent = 'Saved in this browser, and attached to that course.'; showNext();
-              shareButton(side, r.id, async () => ({ id, input: { kind: 'wallpaper', name: nm.value.trim() || 'my photo', thumb, course: sel.value }, local: { kind: 'wallpaper', local: id } }));
             } catch (e) { msg.textContent = (e as Error).message; save.disabled = false; }
           };
         }
