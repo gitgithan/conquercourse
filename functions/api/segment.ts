@@ -8,6 +8,7 @@ import { askModeration } from './moderate';
 import { limited, waitSeconds } from './designer';
 import { refusalBody } from '../../src/slice/stages';
 import { json } from '../_lib/http';
+import { checkTurnstile, makePass, type TurnstileEnv } from '../_lib/turnstile';
 import { featureOn, offWords, recordUsage, type UsageDb } from '../_lib/usage';
 
 interface Env { DB?: UsageDb; CC_UPLOAD_TOKEN?: string; CC_SEGMENT_SUBMIT_URL?: string; CC_SEGMENT_STATUS_URL?: string; BASETEN_API_KEY?: string }
@@ -44,14 +45,17 @@ export async function handle(b: Record<string, unknown>, env: Env, ip: string, f
   } catch { return { status: 502, body: refusalBody('down', 'The outline finder is busy. Try again in a minute.', 60) }; }
 }
 
-export const onRequestPost = async ({ request, env }: { request: Request; env: Env }): Promise<Response> => {
+export const onRequestPost = async ({ request, env }: { request: Request; env: Env & TurnstileEnv }): Promise<Response> => {
   const raw = await request.text();
   if (raw.length > 2_200_000) return json({ error: 'bad', message: 'The photo is too big.' }, 413);
   let b: Record<string, unknown>;
   try { b = JSON.parse(raw); } catch { return json({ error: 'bad' }, 400); }
   const submit = b.action === 'submit';
   if (submit && !(await featureOn(env.DB, 'segment'))) return json({ error: 'off', message: offWords('segment') }, 503);
-  const r = await handle(b, env, request.headers.get('cf-connecting-ip') ?? 'local');
+  const ip = request.headers.get('cf-connecting-ip') ?? 'local';
+  if (submit) { const c = await checkTurnstile(env, b.turnstile, ip); if (!c.ok) return json({ error: 'check', message: c.message }, 403); }
+  const r = await handle(b, env, ip);
+  if (submit && r.status === 200) { const pass = await makePass(env); if (pass) (r.body as Record<string, unknown>).pass = pass; }
   if (submit && r.status === 200) await recordUsage(env.DB, 'segment');
   const wait = (r.body as { retryAfterSeconds?: number }).retryAfterSeconds;
   return json(r.body, r.status, typeof wait === 'number' ? { 'retry-after': String(wait) } : {});
