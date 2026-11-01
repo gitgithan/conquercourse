@@ -535,6 +535,14 @@
   - Made by `scripts/make-place-tiles.ts` from the stored place files (OpenStreetMap, ODbL 1.0, https://www.openstreetmap.org/copyright).
   - Ours; no third-party picture.
 
+## Place cover photos, the last 20 (CC-90)
+- **`public/assets/places/thumbs/<slug>.jpg`** (20 new files; every Ready place now has a cover)
+  - What: a 320 by 180 centre crop of one Wikimedia Commons photo per place, each about 16 KB.
+  - Picked by `scripts/place_covers.py` (public search API, slow polite client, free licences only: CC0, public domain, CC BY, CC BY-SA) and checked by eye on a contact sheet.
+  - No licence or agreement was accepted; no login or cookie was used.
+  - The credit (title, author, licence, link) is in `public/assets/places/thumbs/index.json` and shows on the card.
+  - Swap before a sale: the CC BY-SA ones may stay only as a demo; the replacement plan is a CC0 or CC BY photo of the same place, or our own photo, as a file change.
+
 ## Place cover photos (CC-212)
 - **`public/assets/places/thumbs/<slug>.jpg`** (23 new files, one per Ready place that had only a skyline tile)
   - What: a 320 by 180 centre crop of one Wikimedia Commons photo per place, each under 40 KB.
