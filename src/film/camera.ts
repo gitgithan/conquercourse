@@ -1,8 +1,8 @@
 // The film camera: scripted shots for the demo video (CC-130). Each shot is a pure function of the time in seconds, so a film frame is the same every run.
 // It only runs with ?film=<shot> in the address; play never loads it.
 
-export type FilmShot = 'flyover' | 'orbit' | 'follow' | 'push' | 'hero' | 'macro' | 'spin' | 'skyline' | 'dive' | 'eyes' | 'aerial' | 'side' | 'tour' | 'close' | 'rig' | 'clean' | 'eyesC';
-export const FILM_SHOTS: FilmShot[] = ['flyover', 'orbit', 'follow', 'push', 'hero', 'macro', 'spin', 'skyline', 'dive', 'eyes', 'aerial', 'side', 'tour', 'close', 'rig', 'clean', 'eyesC'];
+export type FilmShot = 'flyover' | 'orbit' | 'follow' | 'push' | 'hero' | 'macro' | 'spin' | 'skyline' | 'dive' | 'eyes' | 'aerial' | 'side' | 'tour' | 'close' | 'rig' | 'clean' | 'eyesC' | 'matrix';
+export const FILM_SHOTS: FilmShot[] = ['flyover', 'orbit', 'follow', 'push', 'hero', 'macro', 'spin', 'skyline', 'dive', 'eyes', 'aerial', 'side', 'tour', 'close', 'rig', 'clean', 'eyesC', 'matrix'];
 
 export interface Pose { pos: [number, number, number]; look: [number, number, number]; fov: number; hideBody?: boolean }
 export interface FilmCtx {
@@ -15,7 +15,7 @@ export interface FilmCtx {
   rig?: Record<string, number>; // rig shot only: the numbers from the address (see rig below)
 }
 
-export const SHOT_SECONDS: Record<FilmShot, number> = { flyover: 12, orbit: 8, follow: 10, push: 7, hero: 11, macro: 4, spin: 1.1, skyline: 7.2, dive: 4.8, eyes: 3.6, aerial: 7.2, side: 60, tour: 12, close: 60, rig: 1, clean: 1, eyesC: 2.4 };
+export const SHOT_SECONDS: Record<FilmShot, number> = { flyover: 12, orbit: 8, follow: 10, push: 7, hero: 11, macro: 4, spin: 1.1, skyline: 7.2, dive: 4.8, eyes: 3.6, aerial: 7.2, side: 60, tour: 12, close: 60, rig: 1, clean: 1, eyesC: 2.4, matrix: 7.2 };
 
 const clamp01 = (x: number) => Math.max(0, Math.min(1, x));
 const ease = (x: number) => { const t = clamp01(x); return t * t * (3 - 2 * t); }; // smooth start and end
@@ -98,6 +98,14 @@ function eyesC(t: number, c: FilmCtx): Pose {
   return { pos, look, fov: mix(40, 75, u) };
 }
 
+// The matrix orbit (film shot 6): one slow, steady turn round the runner from straight behind, through the side, to 45 degrees in front of him (running to the right).
+// The look point is the runner himself, so he stays in the middle of the picture the whole way; the field of view never changes and the distance only grows, smoothly, so there is no zoom jerk and no shake.
+export const MATRIX_YAW: [number, number] = [-Math.PI / 2, Math.PI / 4]; // behind ... front-45
+function matrix(t: number, c: FilmCtx): Pose {
+  const u = ease(t / SHOT_SECONDS.matrix);
+  return around([c.runnerX, c.runnerY + 0.2, 0], mix(6.5, 9.5, u), mix(MATRIX_YAW[0], MATRIX_YAW[1], u), rad(mix(5, 9, u)), 38);
+}
+
 // Around one obstacle, from the front-left to the back-right, closing in a little.
 function orbit(t: number, c: FilmCtx): Pose {
   const u = ease(t / SHOT_SECONDS.orbit);
@@ -178,6 +186,7 @@ export function filmPose(shot: FilmShot, t: number, c: FilmCtx): Pose {
   switch (shot) {
     case 'flyover': return flyover(t, c);
     case 'orbit': return orbit(t, c);
+    case 'matrix': return matrix(t, c);
     case 'follow': return follow(t, c);
     case 'push': return push(t, c);
     case 'hero': return hero(t, c);
