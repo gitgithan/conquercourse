@@ -6,11 +6,13 @@
 //   POST {action:"status", id}           -> {state:"running", stage, index, total, words} | {state:"done", character} | {state:"failed", reason}
 //   POST {action:"pick", id}             -> {ok:true}   (counts a use; characters picked 10 times are kept)
 //   POST {action:"delete", id}           -> {ok:true}   (only the player who made it; ownership is a one-way code)
+//   POST {action:"publish", id}          -> {ok:true}   (only the maker; a private character becomes visible to everyone)
+// A made character starts private (status 'private': only its maker sees it, kept 30 days unused); Publish makes it 'ok'. GET also takes sort=newest|picked, q=<name search>, page=<0 based>.
 // The gates, in order: request shape -> burst limit -> prompt rules -> optional safety check -> same prompt already made -> daily slot -> start the job.
 // A slot is taken only after those pass and given back once if the job fails. Abuse limits: kept in the private notes.
 import { cardName, cleanPrompt, promptKey, promptProblem } from '../../src/characters/prompt';
 import { glbProblems, THUMB_OK } from '../../src/characters/limits';
-import { CHARACTER_STEPS, EXPIRY_DAYS, KEEPER_PICKS, PANEL_SIZE, type CharacterCard } from '../../src/characters/steps';
+import { CHARACTER_STEPS, EXPIRY_DAYS, KEEPER_PICKS, PANEL_SIZE, PRIVATE_DAYS, type CharacterCard } from '../../src/characters/steps';
 import { DEFAULT_PROVIDER, JOB_ID, PROVIDERS, type Env, type JobState } from '../../src/characters/providers';
 import { moderationStops } from '../../src/slice/object-lift';
 import { askModeration } from './moderate';
@@ -23,7 +25,7 @@ import { json } from '../_lib/http';
 
 interface Stmt { bind(...v: unknown[]): { run(): Promise<{ meta?: { changes?: number } }>; first<T>(): Promise<T | null>; all(): Promise<{ results: Record<string, unknown>[] }> } }
 export interface Db { prepare(sql: string): Stmt }
-type Row = { id: string; ts: string; kind: string; owner: string; name: string; prompt: string; provider: string; route: string; bytes: number; faces: number; thumb: string; picks: number; last_pick: string | null };
+type Row = { status?: string; id: string; ts: string; kind: string; owner: string; name: string; prompt: string; provider: string; route: string; bytes: number; faces: number; thumb: string; picks: number; last_pick: string | null };
 
 const SALT = 'cc-char';
 const sharedLedger = memoryLedger(); // only for local runs without a database
@@ -37,19 +39,31 @@ export function charLimits(env: Env): Limits {
   return m ? { perPlayer: Number(m[1]), perGame: Number(m[2]) } : { perPlayer: 1, perGame: 1 };
 }
 
-const card = (r: Row, who: string): CharacterCard => ({ id: r.id, kind: r.kind === 'object' ? 'object' : 'character', name: r.name, prompt: r.prompt, provider: r.provider, route: r.route, bytes: r.bytes, faces: r.faces, picks: r.picks, keeper: r.picks >= KEEPER_PICKS, ts: r.ts, mine: r.owner === who, thumb: `data:image/webp;base64,${r.thumb}` });
-const COLS = 'id, ts, kind, owner, name, prompt, provider, route, bytes, faces, thumb, picks, last_pick';
+const card = (r: Row, who: string): CharacterCard => ({ id: r.id, kind: r.kind === 'object' ? 'object' : 'character', name: r.name, prompt: r.prompt, provider: r.provider, route: r.route, bytes: r.bytes, faces: r.faces, picks: r.picks, keeper: r.picks >= KEEPER_PICKS, ts: r.ts, mine: r.owner === who, thumb: `data:image/webp;base64,${r.thumb}`, ...(r.status === 'private' ? { private: true } : {}) });
+const COLS = 'id, status, ts, kind, owner, name, prompt, provider, route, bytes, faces, thumb, picks, last_pick';
 
-/** Characters nobody picked for 14 days go; a Keeper (10 or more picks) stays. */
+/** Published characters nobody picked for 14 days go (a Keeper, 10 or more picks, stays); a private one goes after 30 days unused. */
 export async function expire(db: Db): Promise<number> {
-  const r = await db.prepare(`DELETE FROM characters WHERE picks < ? AND COALESCE(last_pick, ts) < datetime('now', ?)`).bind(KEEPER_PICKS, `-${EXPIRY_DAYS} days`).run();
-  return r.meta?.changes ?? 0;
+  const a = await db.prepare(`DELETE FROM characters WHERE status = 'private' AND COALESCE(last_pick, ts) < datetime('now', ?)`).bind(`-${PRIVATE_DAYS} days`).run();
+  const r = await db.prepare(`DELETE FROM characters WHERE status != 'private' AND picks < ? AND COALESCE(last_pick, ts) < datetime('now', ?)`).bind(KEEPER_PICKS, `-${EXPIRY_DAYS} days`).run();
+  return (r.meta?.changes ?? 0) + (a.meta?.changes ?? 0);
 }
 
-export async function list(db: Db, kind: string, who: string): Promise<CharacterCard[]> {
+export interface ListQuery { sort?: string; q?: string; page?: number }
+/** The shared panel: published ones only, newest or most picked, an optional name search, one page of PANEL_SIZE (`more` says whether another page follows). */
+export async function listPage(db: Db, kind: string, who: string, o: ListQuery = {}): Promise<{ items: CharacterCard[]; more: boolean }> {
   await expire(db);
-  const k = kind === 'object' ? 'object' : 'character';
-  const rows = await db.prepare(`SELECT ${COLS} FROM characters WHERE kind = ? AND status = 'ok' AND reports < 3 ORDER BY ts DESC, rowid DESC LIMIT ?`).bind(k, PANEL_SIZE).all();
+  const k = kind === 'object' ? 'object' : 'character', page = Math.max(0, Math.min(1000, Math.floor(o.page ?? 0)));
+  const like = (o.q ?? '').trim().slice(0, 40).replace(/[%_\\]/g, (c) => `\\${c}`);
+  const order = o.sort === 'picked' ? 'picks DESC, ts DESC, rowid DESC' : 'ts DESC, rowid DESC';
+  const rows = await db.prepare(`SELECT ${COLS} FROM characters WHERE kind = ? AND status = 'ok' AND reports < 3 AND name LIKE ? ESCAPE '\\' ORDER BY ${order} LIMIT ? OFFSET ?`).bind(k, `%${like}%`, PANEL_SIZE + 1, page * PANEL_SIZE).all();
+  const all = (rows.results as unknown as Row[]).map((r) => card(r, who));
+  return { items: all.slice(0, PANEL_SIZE), more: all.length > PANEL_SIZE };
+}
+export async function list(db: Db, kind: string, who: string): Promise<CharacterCard[]> { return (await listPage(db, kind, who)).items; }
+/** The maker's own private characters, newest first (never shown to anyone else). */
+export async function mine(db: Db, who: string): Promise<CharacterCard[]> {
+  const rows = await db.prepare(`SELECT ${COLS} FROM characters WHERE kind = 'character' AND status = 'private' AND owner = ? ORDER BY ts DESC, rowid DESC LIMIT ?`).bind(who, PANEL_SIZE).all();
   return (rows.results as unknown as Row[]).map((r) => card(r, who));
 }
 
@@ -62,12 +76,16 @@ export async function handle(b: Record<string, unknown>, d: Deps): Promise<{ sta
   const who = await playerCode(ip, SALT);
   const action = b.action;
 
-  if (action === 'pick' || action === 'delete') {
+  if (action === 'pick' || action === 'delete' || action === 'publish') {
     const id = typeof b.id === 'string' && /^[0-9a-f]{16}$/.test(b.id) ? b.id : '';
     if (!id) return refuse(400, { error: 'bad' });
     if (action === 'pick') {
-      const r = await db.prepare(`UPDATE characters SET picks = picks + 1, last_pick = datetime('now') WHERE id = ? AND status = 'ok'`).bind(id).run();
+      const r = await db.prepare(`UPDATE characters SET picks = picks + 1, last_pick = datetime('now') WHERE id = ? AND (status = 'ok' OR (status = 'private' AND owner = ?))`).bind(id, who).run();
       return (r.meta?.changes ?? 0) > 0 ? refuse(200, { ok: true }) : refuse(404, { error: 'not found' });
+    }
+    if (action === 'publish') { // the maker's one deliberate press; a character waiting for the safety check stays hidden
+      const p = await db.prepare(`UPDATE characters SET status = 'ok', ts = datetime('now') WHERE id = ? AND owner = ? AND status = 'private'`).bind(id, who).run();
+      return (p.meta?.changes ?? 0) > 0 ? refuse(200, { ok: true }) : refuse(404, { error: 'not found' });
     }
     const r = await db.prepare('DELETE FROM characters WHERE id = ? AND owner = ?').bind(id, who).run(); // only the maker's own code matches
     return (r.meta?.changes ?? 0) > 0 ? refuse(200, { ok: true }) : refuse(404, { error: 'not found' });
@@ -107,11 +125,11 @@ export async function handle(b: Record<string, unknown>, d: Deps): Promise<{ sta
     if (m.body.verdict !== 'ok') status = 'review';
   }
   const key = promptKey(prompt);
-  const dup = await db.prepare(`SELECT ${COLS} FROM characters WHERE prompt_key = ? AND kind = 'character' AND status = 'ok'`).bind(key).first<Row>();
+  const dup = await db.prepare(`SELECT ${COLS} FROM characters WHERE prompt_key = ? AND kind = 'character' AND (status = 'ok' OR (status = 'private' AND owner = ?))`).bind(key, who).first<Row>();
   if (dup) return refuse(200, { state: 'done', character: card(dup, who), duplicate: true });
   const day = utcDay(now);
   const slot = await ledger.take(who, dayKey(day), charLimits(env));
-  if (!slot.ok) return refuse(429, refusalBody(slot.limit === 'game' ? 'budget' : 'daily', slot.limit === 'game' ? "Everyone together has made today's characters." : 'You have made your character for today.', secondsToNextDay(now)));
+  if (!slot.ok) return refuse(429, refusalBody(slot.limit === 'game' ? 'budget' : 'daily', slot.limit === 'game' ? "Everyone together has made today's characters." : 'You have made all your characters for today.', secondsToNextDay(now)));
   try {
     const { id } = await provider.submit(prompt, env, fetcher);
     await db.prepare(`INSERT INTO character_jobs (id, ts, owner, day, provider, prompt, state) VALUES (?, datetime('now'), ?, ?, ?, ?, 'running')`).bind(id, who, day, provider.id, status === 'review' ? `review:${prompt}` : prompt).run();
@@ -134,7 +152,7 @@ async function store(db: Db, job: { prompt: string; state: string }, st: Extract
   const review = job.prompt.startsWith('review:'), prompt = review ? job.prompt.slice(7) : job.prompt;
   const route = st.meta.route === 'C' ? 'C' : 'A';
   await db.prepare(`INSERT OR IGNORE INTO characters (id, ts, kind, status, owner, name, prompt, prompt_key, provider, route, bytes, faces, thumb, glb) VALUES (?, datetime('now'), 'character', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`)
-    .bind(hash, review ? 'review' : 'ok', who, cardName(prompt), prompt, promptKey(prompt), provider, route, glb.length, Number(st.meta.faces) || 0, unb64(thumb), unb64(glb)).run();
+    .bind(hash, review ? 'review' : 'private', who, cardName(prompt), prompt, promptKey(prompt), provider, route, glb.length, Number(st.meta.faces) || 0, unb64(thumb), unb64(glb)).run();
   await db.prepare(`UPDATE character_jobs SET state = 'done' WHERE id = ? AND state = 'running'`).bind(jobId).run();
   const row = await db.prepare(`SELECT ${COLS} FROM characters WHERE id = ?`).bind(hash).first<Row>();
   return refuse(200, { state: 'done', character: card(row!, who), hidden: review, route, notes: st.meta.notes ?? [] });
@@ -147,14 +165,17 @@ export const onRequestGet = async ({ request, env }: { request: Request; env: En
   const id = q.get('id');
   if (id !== null) {
     if (!/^[0-9a-f]{16}$/.test(id)) return json({ error: 'bad' }, 400);
-    const row = await env.DB.prepare(`SELECT glb FROM characters WHERE id = ? AND status = 'ok' AND reports < 3`).bind(id).first<{ glb: string }>();
+    const row = await env.DB.prepare(`SELECT glb FROM characters WHERE id = ? AND (status = 'ok' OR (status = 'private' AND owner = ?)) AND reports < 3`).bind(id, await playerCode(ip, SALT)).first<{ glb: string }>();
     if (!row) return json({ error: 'not found' }, 404);
-    return new Response(b64(row.glb), { headers: { 'content-type': 'model/gltf-binary', 'cache-control': 'public, max-age=31536000, immutable' } });
+    return new Response(b64(row.glb), { headers: { 'content-type': 'model/gltf-binary', 'cache-control': 'private, max-age=31536000, immutable' } });
   }
   const who = await playerCode(ip, SALT);
-  const items = await list(env.DB, q.get('kind') ?? 'character', who);
+  const kind = q.get('kind') ?? 'character', page = await listPage(env.DB, kind, who, { sort: q.get('sort') ?? '', q: q.get('q') ?? '', page: Number(q.get('page')) || 0 });
+  const first = !(Number(q.get('page')) > 0);
+  const mineCards = first && kind === 'character' ? await mine(env.DB, who) : [];
+  const lim = charLimits(env), left = await d1Ledger(env.DB).left(who, dayKey(utcDay(Date.now())), lim); // so a refusal is never a surprise
   const providers = Object.values(PROVIDERS).map((p) => ({ id: p.id, label: p.label, configured: p.configured(env) }));
-  return json({ items, canCreate: PROVIDERS[DEFAULT_PROVIDER].configured(env), providers }, 200, { 'cache-control': 'no-store' });
+  return json({ items: page.items, more: page.more, mine: mineCards, left, limit: lim.perPlayer, canCreate: PROVIDERS[DEFAULT_PROVIDER].configured(env), providers }, 200, { 'cache-control': 'no-store' });
 };
 
 export const onRequestPost = async ({ request, env }: { request: Request; env: Env & { DB: Db } }): Promise<Response> => {

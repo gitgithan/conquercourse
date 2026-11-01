@@ -21,21 +21,20 @@
 | Community photo pieces | Server | Everyone once approved | Checker plus approval, size cap (about 340 KB) | The first page lists 60 for photo courses; items are paged with a Next cursor and name search |
 | Share links | Server | Whoever has the link | Rate limits (kept in the private notes) | Not listed anywhere |
 
-## Gaps found
-- Characters have no private mode, so "make just to play" quietly publishes; the player is never told.
-- A made character is not lost from the browser: it lives on the server, and only its maker can delete it.
-- The panel has no paging or search, so old characters cannot be found once 24 newer exist.
-- Photo courses list 60 with no paging.
-- No feature tells a player how long a thing is kept.
+## Gaps found (all closed on 2026-11-01)
+- Characters had no private mode: now a made character is private (only its maker sees it) until Publish.
+- The panel had no paging or search: now it has Newest and Most picked, a name search and page buttons.
+- Photo courses listed 60 with no paging: now a cursor ("Show older courses").
+- No feature told a player how long a thing is kept: a private character says it is kept 30 days without use.
 
-## Recommended shape
-- Make: the character appears only for its maker, with the words "Only you can see this".
-- Publish: a button, with a one-line check ("Everyone will see this and its name"), the same as challenge courses.
-- Keep time: a private character stays for 30 days without use, and the screen says so.
-- Panel: show "newest" and "most picked" and add a page button and name search like the community items already have.
-- Limits: keep the daily numbers; add a visible "2 of 3 left today" so a refusal is not a surprise.
-- Photo courses: add the same cursor paging as items.
+## What was built
+- Make: the character is private (status `private`), with "Only you can see this".
+- Publish: a button with the line "Everyone will see this and its name", then "Yes, publish".
+- Keep time: private 30 days unused; published 14 days unpicked; a Keeper (10 picks) stays.
+- Panel: Newest, Most picked, name search, page buttons.
+- Limits: the screen shows "N of M left today".
+- Photo courses: `GET /api/community?before=<id>` gives the next 60, `next` is the cursor.
 
-## Not done yet
-- No code was changed for this; it is the plan.
-- The server stores every made character as public today, so the Publish step needs a status column or a new status value, which is a database change for live (needs the product owner's approval).
+## Database
+- No schema change: the existing `status` column gets one new value, `private`.
+- Live still needs migration 0015 (characters), which needs the product owner's approval.
