@@ -73,7 +73,7 @@ export const onRequestPost = async ({ request, env }: { request: Request; env: E
   try { b = JSON.parse(raw); } catch { return json({ error: 'bad' }, 400); }
   const submit = b.action === 'submit';
   if (submit && !(await featureOn(env.DB, 'photo3d'))) return json({ error: 'off', message: offWords('photo3d') }, 503);
-  if (submit) { const c = await checkTurnstile(env, b.turnstile, request.headers.get('cf-connecting-ip') ?? 'local'); if (!c.ok) return json({ error: 'check', message: c.message }, 403); }
+  if (submit) { const c = await checkTurnstile(env, b.turnstile, request.headers.get('cf-connecting-ip') ?? 'local', fetch, b.pass); if (!c.ok) return json({ error: 'check', message: c.message }, 403); }
   const r = await handle(b, env, request.headers.get('cf-connecting-ip') ?? 'local', fetch, 6, env.DB ? d1Ledger(env.DB) : sharedLedger);
   if (submit && r.status === 200) await recordUsage(env.DB, 'photo3d');
   const wait = (r.body as { retryAfterSeconds?: number }).retryAfterSeconds;
