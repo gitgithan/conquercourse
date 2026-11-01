@@ -41,61 +41,71 @@ flowchart LR
   FRI --> CRS
 ```
 
-### Courses
-- **What it is about:** the place where the game is played; a gallery of ready courses, your own courses and challenge links from friends.
-- **What you can do:**
-  - Run, jump, vault, climb, hang, swing and ride, with the keys on the key card (H).
-  - Chase a ghost: the ideal run, your best run, or a friend's run on the same course.
-  - Read the end-of-run report, give a short name or tag (up to 12 characters, no spaces), copy a challenge link or make a 15 second clip.
-  - See the board of the fastest verified runs on a course; it scrolls through the top 100 and `?board=0` hides it.
-  - Press Publish to Leaderboard to put your run on the board under a name you chose; nothing is sent to the board before you press it.
-  - Press View Run on any row to see the obstacles and that player's path at once, then Chase Ghost to run against it.
-  - Read the card on each course: plays today and plays all time.
-  - Try the Cannonballs course: cannons fire a ball every 12 seconds and show a fill meter; jump the low ones, slide under the high ones, climb a wall to wait out a double shot.
-  - Try Two ways: swing high on two bars, or drop low and climb back up.
-  - Start from the welcome screen on a bare visit (`?welcome=0` skips it); the course list shows a small growth strip (`?growth=0` hides it).
-  - Watch a quiet line at the top for the newest published time on any course.
-- **What you can generate:** a time that the simulator replays and checks, a challenge link, a clip, a tag on the board.
-- **Why it is unique:**
-  - A time cannot be faked: the link carries only the keys, and the simulator plays them again.
-  - Every course has an ideal run that proves it can be cleared, so no course is unfair.
-  - Racing a ghost needs no live friend: the other person's run is data, so you can race a person from another day or country.
+### At a glance
+| | Courses | World Slicer | World Editor | Community |
+|---|---|---|---|---|
+| **What it is** | Where the game is played | A real place cut into a lane | Build a course from pieces | Your photos become pieces |
+| **You can** | Run, race a ghost, read your report, share a link or clip | Pick or pin a place, see street photos, choose buildings | Place 19 real objects and shapes, give roles, press Fix it | Pick a photo, pick a thing in it, make a 3D piece |
+| **You get** | A time the simulator replays, a link, a clip | A checked lane from a real place | A saved, proved course | A piece in your tray, or a wallpaper |
+| **Why it is unique** | A time cannot be faked; race a stranger's ghost | Your own street becomes a course | The simulator says in plain words what to change | A thing you walk past becomes something to jump over |
 
-### World Editor
-- **What it is about:** building a course from real objects and simple shapes on one lane.
-- **What you can do:**
-  - Place 19 real objects (bench, low wall, hydrant, pipe, railing, a green and a black pull-up frame and more), boxes, hang bars, coaster rails and devices.
-  - Give a piece a role: plain ground, Warped Wall, rope anchor, trampoline bed or swing bar.
-  - Start from a ready-made course: Hang bar and Lache (the default), Park run, Coaster to a deck, or the broken park.
-  - Ask the design partner why a course cannot be cleared, and press Fix it for one change the simulator has proved.
-- **What you can generate:** a saved course, a share link, a repaired course.
-- **Why it is unique:**
-  - You do not need to know level design: the simulator tells you in plain words what to change.
-  - A model may propose a layout, but the simulator decides; a course is only offered when it is proved clearable.
+- Details for each: [Courses](docs/obstacles.md), [World Slicer](docs/street-photos.md), [World Editor](docs/features.md), [Community](docs/community-flow-guide.md).
+- Community status: suggested outlines and the 3D lift need their server jobs switched on; the full path ran for real on the preview site ([click by click](docs/community-flow-guide.md)).
 
-### World Slicer
-- **What it is about:** cutting a playable lane out of a real place, the way a flat cut through a building shows its floor plan.
-- **What you can do:**
-  - Pick one of the ready places, or pin any spot on Earth.
-  - See the buildings and the ground become a lane, with real street photos along it (faces and plates blurred by Mapillary, close-up people left out).
-  - Pick which buildings to build, then play the lane or open it in the World Editor.
-- **What you can generate:** a course from a real place, with street photos, that the simulator has checked.
-- **Why it is unique:**
-  - Your own street becomes a course, and a friend far away runs the same lane from a link.
-  - A lane that cannot be cleared is told so before anyone plays it.
+## Folder tree
+- The top level, and one level inside each folder.
 
-### Community
-- **What it is about:** putting your own neighbourhood into the game, one photo at a time.
-- **What you can do:**
-  - Pick a photo (people are blurred and the photo is not kept on our side).
-  - Pick a thing in it from suggested outlines, or draw a box by hand.
-  - Choose a wallpaper (looks only) or a 3D object (a solid piece for the World Editor).
-  - Give it a name and make it.
-- **What you can generate:** a wallpaper or a 3D object saved in your browser as "Mine: name", ready to use in the World Editor.
-- **Why it is unique:**
-  - A photo of something you walk past every day becomes something you can jump over.
-  - Nobody has to label, model or measure anything.
-- **Status:** suggested outlines and the 3D lift need their server jobs switched on; the full path (photo, outline, piece or wallpaper, Share in Community, Delete) ran for real on the preview site ([click by click](docs/community-flow-guide.md)); other players cannot yet use your shared piece in their own editor.
+```text
+conquercourse/
+├── src/          the game (TypeScript, runs in the browser)
+│   ├── sim/        the 120 Hz simulator, one file per move
+│   ├── modes/      one screen per mode: course, editor, map, community, dojo
+│   ├── slice/      World Slicer: place to lane, ideal-run proof
+│   ├── world/      the lane and the objects in it
+│   ├── render/     drawing with three.js
+│   ├── motion/     body motion clips and the plausibility gate
+│   ├── characters/ the Rookies and user-made skins
+│   ├── community/  photo to piece, sharing
+│   ├── course/     course files, ghosts, challenge links
+│   ├── park/       the park scenes
+│   ├── share/      links and clips
+│   ├── film/       the film camera shots
+│   ├── lab/ labs/  the university Labs
+│   └── ui/         buttons, report, turntable, music
+├── functions/    the server (Cloudflare Pages Functions)
+│   ├── api/        one file per web address (courses, photos, admin)
+│   └── _lib/       shared server code
+├── migrations/   database tables, numbered 0001 and up
+├── public/       files the site serves
+│   ├── assets/     objects, music, park photos
+│   ├── brand/      logo and icons
+│   ├── film/       film pieces
+│   └── admin/      the private usage page
+├── pipelines/    build-time Python: photo to 3D, video to motion
+│   ├── ccpipe/ charmaker/ objbake/ partllm/   the tools
+│   └── posekimodo/ spectacle/ video_to_motion/ tests/
+├── scripts/      checks, film recorders, ship script
+│   ├── film-b/ film-c/ film-d/   film shots by round
+│   └── lib/        shared helpers
+├── tests/        Vitest tests (physics laws first)
+│   ├── fixtures/   saved inputs
+│   ├── golden/     golden hashes of the simulator
+│   └── helpers/    shared test code
+├── docs/         the spec, lessons, assets and one page per feature
+│   ├── spec/       SPEC.md, the source of truth
+│   ├── labs/       one page per Lab
+│   └── evidence/ feedback/ film-a/ film-b/ research/
+├── data/         experiment trail
+│   ├── eval/       README and run.json per experiment (raw output stays out of git)
+│   └── assets/ footage/
+├── demo/         small stand-alone demo (src, data)
+├── course/       the course file schema
+├── tools/        small helpers (fetch_commons.py, mhr_look)
+├── server/       local proxy for the model tools
+├── index.html    the page; vite.config.ts builds it
+├── wrangler.toml Cloudflare settings (live and preview)
+└── CLAUDE.md     rules for agents
+```
 
 ## Experiences that are not possible in real life
 - **Race a ghost of a stranger.**
