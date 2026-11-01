@@ -1,5 +1,5 @@
 {
-  "url": "https://preview.conquercourse.pages.dev/?course=/assets/demo/park-run.course.json&rookie=a&bot=ideal&front=0&film=side&welcome=0&nosave=1",
-  "fromX": 30.0, "frames": 96, "fps": 30, "creditFrom": 70,
+  "url": "https://preview.conquercourse.pages.dev/?course=/assets/demo/park-run.course.json&rookie=a&bot=ideal&front=0&film=close&welcome=0&nosave=1",
+  "fromX": 32.6, "ramp": [0.2, 2.2, 0.5], "frames": 96, "fps": 30, "creditFrom": 70,
   "credit": "Iron railing: photo by Peter Broster, CC0, Wikimedia Commons"
 }
