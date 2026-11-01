@@ -34,7 +34,9 @@
 |---|---|---|
 | review | error or unreadable | "The safety check could not run just now, so nothing was made. Try again in a few minutes." |
 | block | any | "This photo cannot be used here." |
-| review | minor, private_info, sexual, violence, hate, weapon | "This photo needs a person to look at it first, so it cannot be turned into an object now." |
+| review | minor | "A child looks close up or large in this photo, so we cannot use it. Try a photo where people are small and far away, or where nobody is in the picture." |
+| review | private_info | "Something private may be readable in this photo, like a number plate, an address, a document or a screen. Try a photo without readable writing." |
+| review | sexual, violence, hate, weapon | "This photo may show something that is not allowed here. Try a different photo of a place or an object." |
 | ok, or review for `person` or `other` | | nothing is shown; the job goes on |
 
 - **Where it is called:**
