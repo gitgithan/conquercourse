@@ -155,3 +155,23 @@
 - Rule: check `UNMASKED_RENDERER_WEBGL` before trusting a "GPU" run; a silent fall back to SwiftShader looks like a slow GPU.
 - A pixel check on four pages found the same 3D picture and slightly different text edges, so draw a whole film on one renderer.
 - Numbers, gaps and next steps: `data/eval/film-render-speed/README.md`.
+
+## Film shot 2 waited for a lane that a live pin-drop did not give (CC-143, 2026-11-01)
+- What happened:
+  - The first recorder for shot 2 dropped a pin at the Eixample centre, clicked Slice, and polled up to 180 times for the slicer to report a lane the simulator clears.
+  - No lane arrived, so there was nothing to animate and no clip.
+  - The script printed nothing while it waited, so it looked like a hang.
+- Likely cause (read from the script and the stored place data, not from the old run log):
+  - A fresh pin-drop often finds no cleared lane.
+  - Eixample has only 4 candidate lanes proven (`docs/cut-height.md`).
+- What we did: open a ready place whose stored result is a clear lane (Piazza San Marco, Venice, 68 m) and click Slice there.
+- How to prevent it:
+  - Order by dependencies: a shot that needs a proved lane first checks `public/assets/places/slicer-defaults.json` for a place with `clear: true`.
+  - Use a ready place for every film shot that needs a lane; a live pin-drop is for the product, not for a film.
+  - Fail fast: a wait loop prints what it waits for every few seconds and stops after a short limit with the reason.
+  - A recorder that ends with no lane says "no proved lane" and stops; it never spends a long cloud run on nothing.
+  - A blocked shot gets a note in its Linear issue at once, so the next agent does not rediscover it.
+- Parallel agents: they made this no worse, but they hid it.
+  - The stall was written into a commit message and not into the issue.
+  - The agent working on proved lanes was another agent, so the two facts never met.
+  - One agent reading the stored place data first would have avoided it; so would the dependency check above.
