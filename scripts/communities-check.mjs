@@ -27,7 +27,7 @@ try {
   await page.screenshot({ path: `${out}/1-explore.png` });
   checks.navMarked = await page.$eval('#sitenav [data-feature=community]', (e) => e.getAttribute('aria-current') === 'page');
   checks.exploreHasMakeOwnAndPieces = (await page.$('#make-own')) !== null && /Pieces people made/.test(await page.textContent('#ex-objects'));
-  checks.searchBox = (await page.getAttribute('#shared-q', 'placeholder')) === 'Search pieces by name';
+  checks.searchBox = (await page.$eval('#shared-q', (e) => e.placeholder).catch(() => '')) === 'Search pieces by name';
   checks.noKindFilterNoCourses = (await page.$('#shared-kind')) === null && (await page.$('#ex-courses')) === null;
   await page.click('#make-own'); await page.waitForSelector('#cfile');
   checks.threeSteps = (await page.$$eval('ol.steps button', (n) => n.map((x) => x.textContent))).join('|') === '1. Photo|2. Pick|3. Make';

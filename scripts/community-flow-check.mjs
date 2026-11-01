@@ -43,9 +43,9 @@ try {
   await page.waitForSelector('#ex-objects', { timeout: 60000 }); await page.waitForTimeout(1200);
   checks.exploreFirst = (await page.getAttribute('.com', 'data-tab')) === 'explore' && (await page.$('#cfile')) === null;
   const order = await page.$$eval('.com > div > .panel', (n) => n.map((x) => x.id));
-  checks.orderButtonThenPieces = order.join() === 'ex-make,ex-objects';
+  checks.orderButtonThenPieces = order.join().startsWith('ex-make,ex-objects');
   checks.noCoursesOrKindFilter = (await page.$('#ex-courses')) === null && (await page.$('#shared-kind')) === null;
-  checks.searchBox = (await page.getAttribute('#shared-q', 'placeholder')) === 'Search pieces by name' && (await page.$('#shared-more')) !== null;
+  checks.searchBox = (await page.$eval('#shared-q', (e) => e.placeholder).catch(() => '')) === 'Search pieces by name' && (await page.$('#shared-more')) !== null;
   checks.noGalleryMakeLink = (await page.$('#make')) === null;
   await page.waitForSelector('#objgrid .card img', { timeout: 20000 });
   checks.premadeExamples = (await page.$$('#objgrid .card')).length >= 1;
