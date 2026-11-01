@@ -56,6 +56,7 @@ export function startMap(host: HTMLElement): { backend: 'webgl2' } {
     .mp .fskip{position:absolute;left:10px;top:84px;z-index:6}
     .mp .legend{display:flex;flex-wrap:wrap;gap:2px 8px;font-size:11px;color:#58635d}.mp .legend i{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:3px;vertical-align:-1px}.mp .legend span{cursor:help}.mp .fix{display:grid;gap:3px;margin-top:4px}.mp .fix button{text-align:left}.mp details summary{cursor:pointer;font-size:12px;color:#58635d}
     .mp .hits{display:grid;gap:4px}.mp .hits button{text-align:left}.mp .say{border-left:4px solid #0f6b5c;padding:3px 6px;background:#f3f7f4;font-size:13px}.mp .say.bad{border-color:#c0392b;background:#fbeeee}
+    .mp .hrow{display:flex;justify-content:space-between;align-items:center;gap:8px}.mp .helpbtn{background:#b4510a;color:#fff;border-color:#b4510a;font-weight:700;border-radius:999px;padding:5px 14px;white-space:nowrap;box-shadow:0 2px 0 #7a3607}.mp .flash{animation:ccflash 1.2s ease 2}@keyframes ccflash{50%{box-shadow:0 0 0 4px #b4510a66}}
     .mp .how{background:#fff;border:1px solid #cfd8d1;border-radius:12px;padding:10px 12px;display:grid;gap:6px}.mp .how h2{margin:0;font-size:13px;letter-spacing:.04em;text-transform:uppercase;color:#58635d;display:flex;justify-content:space-between;align-items:center}
     .mp .how ol{list-style:none;margin:0;padding:0;display:grid;gap:4px}.mp .how li{display:grid;grid-template-columns:24px 1fr;gap:8px;align-items:start;padding:5px 6px;border-radius:8px;color:#58635d}
     .mp .how li b.n{width:22px;height:22px;border-radius:50%;background:#dfe5e0;color:#58635d;display:grid;place-items:center;font-size:12px}.mp .how li.now{background:#e7f3ee;color:#17201d}.mp .how li.now b.n{background:#0f6b5c;color:#fff}.mp .how li.done b.n{background:#8fd3a8;color:#17201d}
@@ -70,11 +71,12 @@ export function startMap(host: HTMLElement): { backend: 'webgl2' } {
   const side = document.createElement('div'); side.className = 'side'; root.appendChild(side);
   const HOW = q.get('slicehow') !== '0'; // first-timer steps; ?slicehow=0 hides them
   const S2 = q.get('slice2') !== 'old'; // CC-201 and the slicer fixes after it: ?slice2=old keeps the screen as it was
-  side.innerHTML = `${S2 ? '<button id="backcourses" type="button" title="Open the list of courses" style="width:calc(100% - 104px)">← Back to courses</button>' : ''}<h1>World Slicer: pick a place</h1>
+  side.innerHTML = `${S2 ? '<button id="backcourses" type="button" title="Open the list of courses" style="width:calc(100% - 104px)">← Back to courses</button>' : ''}<div class="hrow"><h1>World Slicer: pick a place</h1>${HOW ? '<button id="help" type="button" class="helpbtn" title="Steps, tips, and what to do when the simulator says no path">? Help</button>' : ''}</div>
     ${HOW ? `<div id="how" class="how"><h2><span>How it works</span><button id="howhide" type="button" title="Hide these steps">Got it</button></h2><ol>
-      <li data-step="1"><b class="n">1</b><div><span class="t">Slice this place</span><span class="d">Search or click the map to pick a place, then press Slice.</span></div></li>
-      <li data-step="2"><b class="n">2</b><div><span class="t">Find a solid green path</span><span class="d">Click a height with a green square. The green line on the map is the lane a runner can use.</span></div></li>
-      <li data-step="3"><b class="n">3</b><div><span class="t">Send to the World Editor</span><span class="d">Press the green button at the bottom. Your buildings and lane open there.</span></div></li></ol></div><button id="howshow" type="button" hidden>How it works</button>` : ''}
+      <li data-step="1"><b class="n">1</b><div><span class="t">Slice this place</span><span class="d">Search, or click the map to drop a pin, then press Slice.</span></div></li>
+      <li data-step="2"><b class="n">2</b><div><span class="t">Shape it</span><span class="d">Tune what you cut: the radius and the shrink, the cut height (slide the bar or click a height), and which buildings stay (click one to leave it out, Shift and drag picks a box).</span></div></li>
+      <li data-step="3"><b class="n">3</b><div><span class="t">Find a solid green path</span><span class="d">Click a green height, then drag the white dots on the green line to turn or move it. No path? Press Help, or "Snap to the best line" to go back.</span></div></li>
+      <li data-step="4"><b class="n">4</b><div><span class="t">Send to the World Editor</span><span class="d">Press the green button at the bottom. Your buildings and lane open there.</span></div></li></ol></div>` : ''}
     <form id="searchform" class="hits"><input type="search" id="search" placeholder="Search for a place" aria-label="Search for a place"><button id="searchgo" type="submit">Search</button></form>
     <div id="hits" class="hits"></div>
     <div class="muted">Or click the map to drop a pin.</div>
@@ -134,17 +136,22 @@ export function startMap(host: HTMLElement): { backend: 'webgl2' } {
   const flightskip = document.createElement('button'); flightskip.className = 'fskip'; flightskip.textContent = 'Skip the flight'; flightskip.hidden = true; mapEl.appendChild(flightskip);
   const sliceBtn = $<HTMLButtonElement>('slice'), slicer = $('slicer'), cut = $<HTMLInputElement>('cut'), read = $('sliceread');
   if (HOW) { // the three first-timer steps: the current one lights up as the player goes
-    const KEY = 'cc.slicerhow.hidden', how = $('how'), show = $<HTMLButtonElement>('howshow');
-    let touched = false;
+    const KEY = 'cc.slicerhow.hidden', how = $('how'), helpBtn = $<HTMLButtonElement>('help');
+    let touched = 0; // 0 nothing yet, 1 shaped, 2 chose a height
     const store = { get: () => { try { return localStorage.getItem(KEY); } catch { return null; } }, set: (v: string) => { try { localStorage.setItem(KEY, v); } catch { /* steps still work */ } } };
-    const paint = () => { const step = slicer.hidden ? 1 : touched ? 3 : 2; how.querySelectorAll<HTMLElement>('li').forEach((li) => { const n = Number(li.dataset.step); li.classList.toggle('now', n === step); li.classList.toggle('done', n < step); }); };
-    const vis = (on: boolean) => { how.hidden = !on; show.hidden = on; };
+    const paint = () => { const step = slicer.hidden ? 1 : touched === 0 ? 2 : touched === 1 ? 3 : 4; how.querySelectorAll<HTMLElement>('li').forEach((li) => { const n = Number(li.dataset.step); li.classList.toggle('now', n === step); li.classList.toggle('done', n < step); }); };
+    const vis = (on: boolean) => { how.hidden = !on; };
     vis(store.get() !== '1');
     $('howhide').onclick = () => { store.set('1'); vis(false); };
-    show.onclick = () => { store.set('0'); vis(true); };
+    const flash = (el: Element) => { el.scrollIntoView({ block: 'center', behavior: 'smooth' }); el.classList.remove('flash'); void (el as HTMLElement).offsetWidth; el.classList.add('flash'); };
+    helpBtn.onclick = () => { // when the simulator said no path, go to its reason and fixes; otherwise open the steps
+      const fixes = side.querySelector('#slicewhy .say.bad, #slicewhy .fix');
+      if (!slicer.hidden && fixes) { flash(fixes); return; }
+      store.set('0'); vis(true); side.scrollTo({ top: 0, behavior: 'smooth' }); flash(how);
+    };
     new MutationObserver(paint).observe(slicer, { attributes: true, attributeFilter: ['hidden'] });
-    side.querySelector('#cutstrip')!.addEventListener('click', () => { touched = true; paint(); });
-    cut.addEventListener('input', () => { touched = true; paint(); });
+    side.querySelector('#cutstrip')!.addEventListener('click', () => { touched = 2; paint(); });
+    for (const id of ['cut', 'radius', 'shrink', 'pickall', 'pickclear']) side.querySelector('#' + id)?.addEventListener(id.startsWith('pick') ? 'click' : 'input', () => { touched = Math.max(touched, 1); paint(); });
     paint();
   }
   const tell = (s: string, bad = false) => { say.textContent = s; say.classList.toggle('bad', bad); };
