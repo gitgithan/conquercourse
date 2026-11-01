@@ -81,9 +81,9 @@ export function startCommunityFlow(host: HTMLElement, params: URLSearchParams): 
     const card = (img: string, title: string, sub: string, link?: [string, string]) => { const c = el('div', g); c.className = 'card'; if (img) el('img', c, '', { src: img, alt: title, loading: 'lazy' }); const d = el('div', c); el('strong', d, title); el('div', d, sub).className = 'muted'; if (link) el('a', d, link[0], { href: link[1] }); return c; };
     // CC-249: every piece card opens the same turntable; its picture does the same
     const lookButton = (c: HTMLElement, id: string, getGlb: () => Promise<ArrayBuffer>, name: string, href: string) => {
-      const b = el('button', c.lastElementChild as HTMLElement, 'Look around', { id, title: 'See it turn on a turntable' }); b.style.marginTop = '6px';
+      const b = el('button', c.lastElementChild as HTMLElement, 'See Object', { id, title: 'See it turn on a turntable' }); b.style.marginTop = '6px';
       b.onclick = async () => { b.disabled = true; try { await openPrize({ glb: await getGlb(), name, editorHref: href, view: {} }); } catch { b.textContent = 'Could not open it'; } finally { b.disabled = false; } };
-      const img = c.querySelector('img'); if (img) { img.style.cursor = 'pointer'; img.title = 'Look around'; img.onclick = () => b.click(); }
+      const img = c.querySelector('img'); if (img) { img.style.cursor = 'pointer'; img.title = 'See Object'; img.onclick = () => b.click(); }
     };
     void (async () => {
       try {
@@ -124,7 +124,7 @@ export function startCommunityFlow(host: HTMLElement, params: URLSearchParams): 
           it.kind === 'piece' && it.mine ? ['Open the World Editor', l?.kind === 'piece' ? editorHref(l.local) : '?mode=editor&welcome=0&uploadobj=1'] : undefined);
         c.dataset.shared = it.id; c.dataset.kind = it.kind;
         if (placeableShared(it) || (it.mine && it.kind === 'piece')) { // CC-249: any approved piece opens on the same turntable as a new piece
-          const look = el('button', c.lastElementChild as HTMLElement, 'Look around', { id: `look-${it.id}`, title: 'See it turn on a turntable' });
+          const look = el('button', c.lastElementChild as HTMLElement, 'See Object', { id: `look-${it.id}`, title: 'See it turn on a turntable' });
           look.style.marginTop = '6px';
           look.onclick = async () => {
             look.disabled = true;
@@ -134,7 +134,7 @@ export function startCommunityFlow(host: HTMLElement, params: URLSearchParams): 
               await openPrize({ glb: await res.arrayBuffer(), name: it.name, editorHref: editorHref(sharedSrc(it.id)), view: it.mine ? {} : { use: () => useShared({ id: it.id, name: it.name }) } });
             } catch { look.textContent = 'Could not open it'; } finally { look.disabled = false; }
           };
-          const img = c.querySelector('img'); if (img) { img.style.cursor = 'pointer'; img.title = 'Look around'; img.onclick = () => look.click(); }
+          const img = c.querySelector('img'); if (img) { img.style.cursor = 'pointer'; img.title = 'See Object'; img.onclick = () => look.click(); }
         }
         if (!it.mine && placeableShared(it)) { // someone else's approved piece: add it to your own list, then place it in the World Editor
           const d = c.lastElementChild as HTMLElement; const row = el('div', d); row.className = 'row'; row.style.marginTop = '6px';

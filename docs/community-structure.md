@@ -13,8 +13,8 @@
 - Community opens on Explore, so a person sees what finished work looks like before making any.
 - Explore has two parts: **Make your own** (one button) and **Pieces people made**.
 - Pieces people made, top to bottom: our examples (only those with a picture), then yours, then pieces shared by players.
-- Each card has a small source crop picture, a **Look around** button and a **Use in my World Editor** button.
-- Look around opens the same 3D turntable as a new piece.
+- Each card has a small source crop picture, a **See Object** button and a **Use in my World Editor** button.
+- See Object opens the same 3D turntable as a new piece.
 - The list has a search box (by name) and a **Show more** button.
 - There is no courses block and no kind filter.
 - Owner (2026-10-31): the old Communities, Park and gallery screens are deleted; the flow is the only Community.
