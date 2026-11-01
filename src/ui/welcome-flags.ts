@@ -5,7 +5,7 @@ import { isReturning, type Store } from './onboarding-flags';
 export const WELCOME_ON = true; // the build switch; ?welcome=0 turns it off for one visit
 
 /** Query words a bare visit may carry and still get the welcome screen. */
-const QUIET = new Set(['welcome', 'onboarding', 'labs', 'cam', 'photos']);
+const QUIET = new Set(['welcome', 'onboarding', 'labs', 'cam', 'photos', 'ref', 'analytics']); // ref and analytics only tag a visit, so a tagged link still opens the welcome screen
 
 export interface WelcomeIn { params: URLSearchParams; automated: boolean; build?: boolean }
 
