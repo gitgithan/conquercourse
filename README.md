@@ -123,6 +123,7 @@ erDiagram
     community_items }o..o{ moderation_stops : "route, owner"
     characters }o--|| character_jobs : "owner, day"
     usage_events }o..o{ upload_days : "day"
+    analytics_events }o..o{ course_events : "session"
     course_events {
         int id PK
         text session "random browser code"
@@ -130,6 +131,7 @@ erDiagram
         text run_id
         text event_type "start, fail, success"
         text country "two letters"
+        text ref "where the visit came from"
     }
     course_clears {
         int id PK
@@ -200,6 +202,15 @@ erDiagram
         int calls
         real est_cents
     }
+    analytics_events {
+        text day
+        text kind "step or wait"
+        text name "funnel step or service"
+        text session "random browser code"
+        text ref "where the visit came from"
+        int ms "wait time"
+        int cold "machine was cold"
+    }
     upload_days {
         text day PK
         text player PK
@@ -223,7 +234,8 @@ erDiagram
 - **Made things:** `characters` and `character_jobs` track make-a-character runs.
 - **Safety and cost:** `moderation_stops`, `lift_receipts`, `usage_events`, `upload_days` and `flags` support the safety check and the owner-only page.
 - **Feedback:** `feedback` stores answers from the in-page forms.
-- Migrations 0015 to 0018 are waiting for the owner's yes on the live database.
+- **Visits and waits:** `analytics_events` holds funnel steps and how long the rented machines took to answer.
+- All migrations up to 0019 are applied on the live database.
 
 ## Experiences that are not possible in real life
 - **Race a ghost of a stranger.**
