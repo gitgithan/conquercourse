@@ -13,6 +13,9 @@ await p.goto(s.url);
 await p.waitForSelector('html[data-ready=true]', { timeout: 180000 });
 const step = (ms) => p.evaluate((ms) => { window.__stepClock(ms); return new Promise((r) => requestAnimationFrame(r)); }, ms);
 const ms = 1000 / s.fps;
+const sm = (x) => { const c = Math.min(1, Math.max(0, x)); return c * c * (3 - 2 * c); };
+const [rf, rt, rr] = s.ramp ?? [0, 0, 1]; // slow motion between output seconds rf and rt at rate rr, eased 0.25 s each way; every frame is still captured
+const rate = (sec) => 1 + (rr - 1) * sm((sec - rf) / 0.25) * sm((rt - sec) / 0.25);
 for (let k = 0; k < 40 * s.fps; k++) { if (await p.evaluate((x) => (window.__filmRunner?.x ?? -1e9) >= x, s.fromX)) break; await step(ms); }
 await p.evaluate(() => window.__filmZero?.());
 mkdirSync(out, { recursive: true });
@@ -22,6 +25,6 @@ for (let i = 0; i < s.frames; i++) {
   await two();
   await p.screenshot({ path: join(out, `r${String(i).padStart(5, '0')}.png`), timeout: 180000 });
   if (i % 10 === 0) console.log(i, JSON.stringify(await p.evaluate(() => window.__filmRunner)));
-  await step(ms);
+  await step(ms * rate(i / s.fps));
 }
 await b.close(); console.log('run frames', s.frames);
