@@ -185,10 +185,10 @@ export function startMap(host: HTMLElement): { backend: 'webgl2' } {
     const box = side.querySelector('#mapphotos') as HTMLElement | null;
     if (d && box) photos = mountPlacePhotos(box, d, { floating: false });
   }
-  const dropPin = (lat: number, lon: number, hint?: string) => {
+  const dropPin = (lat: number, lon: number, hint?: string, cc?: string) => {
     pin = { lat, lon }; marker.setLngLat([lon, lat]).addTo(map); build.disabled = false; sliceBtn.disabled = false;
     document.documentElement.dataset.pin = `${lat.toFixed(5)},${lon.toFixed(5)}`;
-    void showPhotos(lat, lon); void namePin(lat, lon, hint);
+    void showPhotos(lat, lon); void namePin(lat, lon, hint, cc);
     tell(`Pin at ${lat.toFixed(4)}, ${lon.toFixed(4)}.${places?.snapNote(lat, lon) ?? ''}`);
     places?.prefetch();
   };
@@ -196,11 +196,11 @@ export function startMap(host: HTMLElement): { backend: 'webgl2' } {
   const yp = $('yourplace'), ypName = $('ypname'), ypBack = $<HTMLButtonElement>('ypback'); let readyIdx: ReadyIndexEntry[] | null = null, nameToken = 0;
   const KEYP = 'cc.slicer.place', lastPlace = (): { name: string; lat: number; lon: number } | null => { try { return JSON.parse(localStorage.getItem(KEYP) ?? 'null'); } catch { return null; } };
   const showName = (name: string, lat: number, lon: number) => { yp.hidden = false; ypBack.hidden = true; ypName.textContent = name; dset('placeName', name); try { localStorage.setItem(KEYP, JSON.stringify({ name, lat, lon })); } catch { /* the name still shows */ } };
-  async function namePin(lat: number, lon: number, hint?: string) {
+  async function namePin(lat: number, lon: number, hint?: string, cc?: string) {
     const my = ++nameToken;
     try { readyIdx ??= (await (await fetch('/assets/places/index.json')).json()) as ReadyIndexEntry[]; } catch { readyIdx = []; }
     if (my !== nameToken) return;
-    const known = nameFor(lat, lon, readyIdx, hint); if (known) { showName(known, lat, lon); return; }
+    const known = nameFor(lat, lon, readyIdx, hint, cc); if (known) { showName(known, lat, lon); return; }
     showName(pinLabel(lat, lon), lat, lon); // until the map's address arrives
     try {
       const r = await fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&zoom=17&addressdetails=1&lat=${lat}&lon=${lon}`, { referrerPolicy: 'no-referrer', signal: AbortSignal.timeout(8000) });
@@ -221,11 +221,11 @@ export function startMap(host: HTMLElement): { backend: 'webgl2' } {
   map.on('error', (e) => { if (!document.documentElement.dataset.mapready) tell(`The map tiles are slow to load (${String(e.error?.message ?? 'network').slice(0, 60)}).`, true); });
 
   // search: one Nominatim call per press of Search (their policy: at most one request a second, no autocomplete); the browser sends no Referer
-  const showHits = (list: { name: string; lat: number; lon: number }[], auto = false) => {
-    const pick = (h: { name: string; lat: number; lon: number }) => { map.flyTo({ center: [h.lon, h.lat], zoom: 16, duration: 800 }); dropPin(h.lat, h.lon, h.name); };
-    const seen = new Set<string>(), uniq = list.filter((h) => { const k = h.name; if (seen.has(k)) return false; seen.add(k); return true; });
+  const showHits = (list: { name: string; lat: number; lon: number; cc?: string }[], auto = false) => {
+    const pick = (h: { name: string; lat: number; lon: number; cc?: string }) => { map.flyTo({ center: [h.lon, h.lat], zoom: 16, duration: 800 }); dropPin(h.lat, h.lon, h.name, h.cc); };
+    const seen = new Set<string>(), uniq = list.filter((h) => { const k = h.name + (h.cc ?? ''); if (seen.has(k)) return false; seen.add(k); return true; });
     const head = document.createElement('div'); head.className = 'muted'; head.textContent = uniq.length > 1 ? 'Matches (the pin is on the first; click another to move it):' : 'Match (pin dropped here):';
-    hits.replaceChildren(head, ...uniq.map((h, i) => { const b = document.createElement('button'); b.type = 'button'; b.className = 'hit'; b.textContent = h.name; b.title = 'Drop the pin here'; b.onclick = () => pick(h); if (auto && i === 0) b.classList.add('on'); return b; }));
+    hits.replaceChildren(head, ...uniq.map((h, i) => { const b = document.createElement('button'); b.type = 'button'; b.className = 'hit'; b.textContent = h.cc ? `${h.name} (${h.cc.toUpperCase()})` : h.name; b.title = 'Drop the pin here'; b.onclick = () => pick(h); if (auto && i === 0) b.classList.add('on'); return b; }));
     if (auto && uniq[0]) pick(uniq[0]); // a search drops the pin on its best match, so Slice works at once
   };
   const form = $<HTMLFormElement>('searchform');
@@ -234,10 +234,10 @@ export function startMap(host: HTMLElement): { backend: 'webgl2' } {
     const text = $<HTMLInputElement>('search').value.trim(); if (!text) return;
     const go = $<HTMLButtonElement>('searchgo'); go.disabled = true; tell('Searching...');
     try {
-      const r = await fetch(`https://nominatim.openstreetmap.org/search?format=jsonv2&limit=5&q=${encodeURIComponent(text)}`, { referrerPolicy: 'no-referrer', signal: AbortSignal.timeout(15000) });
+      const r = await fetch(`https://nominatim.openstreetmap.org/search?format=jsonv2&addressdetails=1&limit=5&q=${encodeURIComponent(text)}`, { referrerPolicy: 'no-referrer', signal: AbortSignal.timeout(15000) });
       if (!r.ok) throw new Error(`HTTP ${r.status}`);
-      const j = (await r.json()) as { display_name: string; lat: string; lon: string }[];
-      showHits(j.map((x) => ({ name: x.display_name.split(',').slice(0, 3).join(',').trim(), lat: Number(x.lat), lon: Number(x.lon) })), true);
+      const j = (await r.json()) as { display_name: string; lat: string; lon: string; address?: { country_code?: string } }[];
+      showHits(j.map((x) => ({ name: x.display_name.split(',').slice(0, 3).join(',').trim(), lat: Number(x.lat), lon: Number(x.lon), cc: x.address?.country_code })), true);
       if (!j.length) tell('Nothing found. Try another name.', true);
     } catch { showHits(PLACES); tell('Search is not answering. Here are some famous places.', true); }
     go.disabled = false;
