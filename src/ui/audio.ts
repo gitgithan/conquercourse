@@ -69,7 +69,7 @@ function paintButton() { if (button) { button.textContent = muted ? 'Sound: off 
 export function soundButton(): HTMLButtonElement {
   button = document.createElement('button');
   button.id = 'soundbutton';
-  button.style.cssText = 'position:fixed;right:10px;bottom:10px;z-index:5;font:12px system-ui;padding:4px 8px;opacity:.75;cursor:pointer';
+  button.style.cssText = 'position:fixed;left:62px;bottom:20px;z-index:5;font:12px system-ui;padding:4px 8px;opacity:.75;cursor:pointer';
   button.onclick = () => { setMuted(!muted); paintButton(); button?.blur(); };
   paintButton();
   return button;
