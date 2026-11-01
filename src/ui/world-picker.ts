@@ -51,6 +51,11 @@ export const DEMO_GROUPS: [string, Demo[]][] = [
   ]],
 ];
 
+// CC-200: one card for each Dojo lesson, just above the Labs; a card opens that lesson (?mode=dojo&ex=<id>)
+const DOJO_CARDS: Demo[] = EXPERIMENTS.map((e) => [`dojo-${e.id}`, `Dojo: ${e.name}`, e.question]);
+DEMO_GROUPS.splice(DEMO_GROUPS.findIndex(([g]) => g.startsWith('Labs')), 0, ['Dojo (learn the physics, then play)', DOJO_CARDS]);
+
+import { EXPERIMENTS } from '../sim/experiments';
 import { labsOn } from './labs';
 import { applyStats, loadStats, statsOn } from './course-stats';
 import { growthOn, mountGrowth } from './growth-strip';
@@ -65,13 +70,13 @@ export const partsCardOn = (params: URLSearchParams): boolean => params.get('par
 /** CC-201: the slicer card is always shown (it used to hide behind ?labs=1); ?slice2=old brings the old rule back. */
 export const sliceCardOn = (params: URLSearchParams): boolean => params.get('slice2') !== 'old';
 
-export const WORD_VALUES = ['parts', 'generate', 'editor', 'coaster-builder', 'map', 'lab-search', 'lab-optimization', 'lab-ik', 'lab-vision', 'lab-camera', 'lab-integration', 'lab-timing', 'lab-signal', 'lab-gentest', 'lab-detector', 'lab-hashing', 'lab-rl'];
+export const WORD_VALUES = [...EXPERIMENTS.map((e) => `dojo-${e.id}`), 'parts', 'generate', 'editor', 'coaster-builder', 'map', 'lab-search', 'lab-optimization', 'lab-ik', 'lab-vision', 'lab-camera', 'lab-integration', 'lab-timing', 'lab-signal', 'lab-gentest', 'lab-detector', 'lab-hashing', 'lab-rl'];
 export const DEMOS: [string, string][] = DEMO_GROUPS.flatMap(([, ds]) => ds.map((d) => [d[0], d[1]] as [string, string]));
 export const DEMO_ABOUT = new Map<string, string>(DEMO_GROUPS.flatMap(([, ds]) => ds.map((d) => [d[0], d[2]] as [string, string])));
 
 /** The picture file of a course card: public/assets/thumbs/<slug>.webp (made by npm run thumbs). */
 export const thumbSlug = (value: string): string => (value === '' ? 'stock' : value.split('/').pop()!.replace(/\.course\.json$/, ''));
-export const hasThumb = (value: string): boolean => value !== 'stay' && !value.startsWith('cid:');
+export const hasThumb = (value: string): boolean => value !== 'stay' && !value.startsWith('cid:') && !value.startsWith('dojo-'); // the Dojo cards have no picture yet
 export const thumbUrl = (value: string): string => `/assets/thumbs/${thumbSlug(value)}.webp`;
 
 /** Where a choice leads. 'generate-same' reloads the current page (a generated course, kept by its seed). */
@@ -82,6 +87,7 @@ export function worldHref(value: string, loc?: { pathname: string; search: strin
   if (value === 'editor') return `?mode=editor${suffix}`;
   if (value === 'coaster-builder') return `?mode=coaster${suffix}`;
   if (value === 'map') return `?mode=map${suffix}`;
+  if (value.startsWith('dojo-')) return `?mode=dojo&ex=${value.slice(5)}${suffix}`; // CC-200: a Dojo card opens its lesson
   if (value.startsWith('lab-')) return `?mode=${value}&labs=1${suffix}`; // CC-118: every Lab card opens its mode with the labs switch on
   if (value === 'generate') return `?generate=${seed}${suffix}`;
   if (value === 'generate-same') { const at = loc ?? location; return `${at.pathname}${at.search}${at.search.includes('?') ? '&' : '?'}welcome=0`; }
@@ -95,6 +101,7 @@ export function currentWorld(params: URLSearchParams, courseName?: string): { va
   if (mode === 'editor') return { value: 'editor' };
   if (mode === 'coaster') return { value: 'coaster-builder' };
   if (mode === 'map') return { value: 'map' };
+  if (mode === 'dojo') return { value: `dojo-${params.get('ex') ?? EXPERIMENTS[0].id}` };
   if (mode.startsWith('lab-')) return { value: mode };
   if (mode !== 'course') return { value: null };
   const seed = params.get('generate');
