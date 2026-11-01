@@ -1,0 +1,27 @@
+{
+  "url": "https://preview.conquercourse.pages.dev/?mode=map&welcome=0&hooks=1&slicehow=1",
+  "center": [
+    2.1649,
+    41.3917
+  ],
+  "debug": 1,
+  "zoom0": 16.6,
+  "zoom1": 17.2,
+  "pitch": 45,
+  "t": {
+    "tries": 0.6,
+    "growSecs": 2.0,
+    "fade": 2.7,
+    "win": 3.4
+  },
+  "seeds": [
+    -0.9,
+    -0.55,
+    -0.25,
+    0.2,
+    0.5,
+    0.85,
+    1.2
+  ],
+  "seconds": 6.5
+}
