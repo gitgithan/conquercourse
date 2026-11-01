@@ -14,7 +14,7 @@ def rec(name, spec):
     if not r.stdout.strip(): return name, b'', '{}'
     t = json.loads(r.stdout.strip().splitlines()[-1]); f = glob.glob("/b/v/*.webm")[0]
     ss = t["start"]/1000
-    subprocess.run(["ffmpeg","-y","-ss",str(ss),"-i",f,"-r","30","-c:v","libx264","-crf","18","-pix_fmt","yuv420p","/b/o.mp4"],check=True,capture_output=True)
+    subprocess.run(["ffmpeg","-y","-ss",str(ss),"-i",f,"-r","30","-vf","crop=1280:720:65:180,scale=1920:1080","-c:v","libx264","-crf","18","-pix_fmt","yuv420p","/b/o.mp4"],check=True,capture_output=True)
     return name, open("/b/o.mp4","rb").read(), json.dumps(t)
 @app.local_entrypoint()
 def main(only: str = "shot2,shot3", tag: str = "v1"):

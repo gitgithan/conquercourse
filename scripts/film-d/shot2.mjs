@@ -15,7 +15,7 @@ await p.waitForFunction('window.__ccMap', null, { timeout: 60000 }).catch(() => 
 await p.addStyleTag({ content: '#cc-feedback-btn{display:none!important} .maplibregl-ctrl-top-left,.maplibregl-ctrl-top-right{display:none!important}' });
 await p.evaluate(() => document.querySelectorAll('button').forEach((x) => { if (/^(Feedback|Sound)/.test(x.textContent.trim())) x.style.display = 'none'; }));
 const C = spec.center;
-await p.addStyleTag({ content: '[class*=toast],.stepnote{display:none!important}' });
+await p.addStyleTag({ content: '[class*=toast],.stepnote,.maplibregl-marker{display:none!important}' });
 if (spec.place) { await p.locator(`text=${spec.place}`).first().click({ timeout: 8000 }).catch((e) => console.error('place', e.message.split('\n')[0])); await p.waitForTimeout(2500); await p.click('#slice').catch((e) => console.error('slice', e.message.split('\n')[0])); }
 else { await p.evaluate(({ C, z }) => window.__ccMap.map.jumpTo({ center: C, zoom: z, pitch: 0, bearing: 0 }), { C, z: spec.zoom0 }); await p.waitForTimeout(6000);
   const box = await p.evaluate(() => { const r = document.querySelector('canvas.maplibregl-canvas').getBoundingClientRect(); return [r.x + r.width / 2, r.y + r.height / 2]; });
@@ -39,12 +39,12 @@ const setup = await p.evaluate(({ lane, seeds }) => {
   let s = 7; const rnd = () => (s = (s * 16807) % 2147483647) / 2147483647;
   const tries = seeds.map((ang, i) => { const n = 26, pts = [a]; let h = Math.atan2(dy, dx) + ang; const step = len / 22; let [x, y] = a; const stop = 8 + Math.floor(rnd() * 12);
     for (let k = 0; k < n && k < stop + 4; k++) { h += (rnd() - 0.5) * 0.7; x += Math.cos(h) * step; y += Math.sin(h) * step * 1; pts.push([x, y]); } return { pts, stop }; });
-  window.__tries = tries; window.__laneFull = L;
+  window.__tries = tries; window.__laneFull = L; window.__mid = [(a[0] + z[0]) / 2, (a[1] + z[1]) / 2];
   m.addSource('film-try', { type: 'geojson', data: { type: 'FeatureCollection', features: [] } });
   m.addSource('film-win', { type: 'geojson', data: { type: 'FeatureCollection', features: [] } });
-  m.addLayer({ id: 'film-try', type: 'line', source: 'film-try', paint: { 'line-color': '#e8622c', 'line-width': 2.5, 'line-opacity': ['get', 'op'] } });
+  m.addLayer({ id: 'film-try', type: 'line', source: 'film-try', paint: { 'line-color': '#e8622c', 'line-width': 5, 'line-opacity': ['get', 'op'] } });
   m.addLayer({ id: 'film-glow', type: 'line', source: 'film-win', paint: { 'line-color': '#7ff0d4', 'line-width': 22, 'line-blur': 14, 'line-opacity': ['get', 'g'] } });
-  m.addLayer({ id: 'film-win', type: 'line', source: 'film-win', paint: { 'line-color': '#0f6b5c', 'line-width': 6 } });
+  m.addLayer({ id: 'film-win', type: 'line', source: 'film-win', paint: { 'line-color': '#0f6b5c', 'line-width': 9 } });
   return 'ok';
 }, { lane: lane.pts, seeds: spec.seeds });
 console.error('setup', setup);
@@ -52,7 +52,7 @@ const start = spec.debug ? 0 : Date.now() - t0; const S = Date.now();
 await p.evaluate(({ T, pitch, z0, z1, C, secs }) => new Promise((res) => {
   const m = window.__ccMap.map, s0 = performance.now(); const e = (x) => x * x * (3 - 2 * x); const clamp = (v) => Math.max(0, Math.min(1, v));
   const f = () => { const t = (performance.now() - s0) / 1000, u = clamp(t / secs);
-    m.jumpTo({ pitch: pitch * e(clamp(t / 1.2)), zoom: z0 + (z1 - z0) * u });
+    m.jumpTo({ center: window.__mid, pitch: pitch * e(clamp(t / 1.2)), zoom: z0 + (z1 - z0) * u });
     // tried lines grow until each stops, then fade
     const feats = window.__tries.map((r, i) => { const grow = clamp((t - T.tries - i * 0.12) / T.growSecs); const k = Math.max(2, Math.round(grow * r.pts.length)); const fade = clamp((t - T.fade - i * 0.1) / 0.9); return { type: 'Feature', properties: { op: grow > 0 ? 0.95 * (1 - fade) : 0 }, geometry: { type: 'LineString', coordinates: r.pts.slice(0, k) } }; });
     m.getSource('film-try').setData({ type: 'FeatureCollection', features: feats });
