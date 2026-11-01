@@ -153,7 +153,7 @@ export function mountGrowth(host: HTMLElement, load: () => Promise<DailyStats | 
     };
     for (const [r, label] of RANGES) { const b = document.createElement('button'); b.type = 'button'; b.textContent = label; b.dataset.range = r; b.onclick = () => { range = r; draw(); }; rg.append(b); }
     for (const m of TILES) {
-      const xs = d.series[m], today = m === 'players' && d.players !== undefined ? d.players : xs.reduce((a, b) => a + b, 0); // all time, so every visitor sees the total grow
+      const xs = d.series[m], today = d.totals?.[m] ?? xs.reduce((a, b) => a + b, 0); // all time, so every visitor sees the total grow
       const b = document.createElement('button'); b.type = 'button'; b.className = 'gr-tile'; b.dataset.metric = m; b.style.setProperty('--c', COLOR[m]); b.setAttribute('aria-pressed', 'false');
       b.title = `${METRIC_WORDS[m].menu} each day, and the total so far above. Click to see the chart.`;
       const v = document.createElement('div'); v.className = 'gr-v'; v.textContent = n(today);
