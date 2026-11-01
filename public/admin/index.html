@@ -13,11 +13,15 @@
   tr.hot td { background: #fde2e2; color: #8a1010; }
   button { font: inherit; padding: 4px 12px; cursor: pointer; }
   .note { color: #555; font-size: 14px; }
+  #site { display: inline-block; padding: 4px 12px; border-radius: 6px; font-weight: 700; }
+  #site.live { background: #b00020; color: #fff; }
+  #site.preview { background: #1d4ed8; color: #fff; }
   #msg { min-height: 1.5em; color: #8a1010; }
 </style>
 </head>
 <body>
 <h1>Usage and switches</h1>
+<p id="site" role="note"></p>
 <p class="note">Owner only. Numbers are a rough estimate, not billing. A row turns red at 70% of its daily limit.</p>
 <p><input id="tok" type="password" placeholder="Paste admin token" autocomplete="off" size="52" aria-label="Admin token"> <button id="go">Show usage</button></p>
 <p id="msg" role="status"></p>
