@@ -1,3 +1,4 @@
+import { flag } from '../flags';
 import { LANE_DROP } from '../sim/drop';
 import type { CourseData } from '../course/course';
 import type { Platform } from '../sim/terrain';
@@ -60,8 +61,9 @@ export function laneSamples(mesh: Mesh, o: { angle: number; offset: number }, ce
 }
 
 // CC-200 (owner 2026-11-01, behind a switch): the runner starts on the first roof, and everything below the cut is hidden, so only the heights between roofs and the gaps decide.
-// Off by default; the editor and the Slicer turn it on from the page switch ?roofstart=1, and the experiment script turns it on to compare.
-let roofStart = false;
+// On in the browser since 2026-11-01 (owner); ?roofstart=0 turns it off.
+// Off outside a page, so the tests and the experiment script choose with setRoofStart.
+let roofStart = typeof location !== 'undefined' && flag('roofstart') !== '0';
 export const setRoofStart = (on: boolean): void => { roofStart = on; };
 export const roofStartOn = (): boolean => roofStart;
 
