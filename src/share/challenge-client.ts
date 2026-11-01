@@ -1,4 +1,5 @@
 // The page side of challenge courses (CC-108): register a course after a clear, open one by its id, list the Community. The rules live on the server (src/share/challenge-course.ts).
+import { checkField } from '../ui/turnstile';
 import type { CourseData } from '../course/course';
 import { waitFromReply, shareWaitText } from '../sim/slow-down';
 import type { InputLog } from '../sim/replay';
@@ -28,7 +29,7 @@ export async function registerCourse(course: CourseData, session: string, runId:
   const c = madeCourse(course);
   if (!c) return { ok: false, error: registerErrorText(422, 'bad-course') };
   try {
-    const res = await f('/api/challenge-course', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ session, runId, made: await packCourse(c), keys, claimedTicks }) });
+    const res = await f('/api/challenge-course', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ turnstile: await checkField(), session, runId, made: await packCourse(c), keys, claimedTicks }) });
     const d = await res.json().catch(() => ({})) as Record<string, unknown>;
     if (!res.ok) { const wait = waitFromReply(res.status, d, res.headers.get('retry-after')); return { ok: false, error: registerErrorText(res.status, String(d.reason ?? ''), wait), retryAfter: wait ?? undefined }; }
     return { ok: true, id: String(d.id), boardHash: String(d.boardHash), duplicate: d.duplicate === true, promoted: d.promoted === true };

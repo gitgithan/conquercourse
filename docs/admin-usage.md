@@ -62,3 +62,8 @@
 - A row turns red when one player has five or more.
 - It shows names, the words typed for characters, status and the safety-check result; it never shows the pictures or files.
 - Pieces made from a photo but never shared are not kept on the server, so they are not listed.
+
+## Other guarded routes
+- The upload safety route answers only the owner (a plain 404 to everyone else); the page never calls it.
+- Registering a challenge course asks for the same bot check as the other creation steps.
+- A receipt now lasts 30 days, and still works once.
