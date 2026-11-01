@@ -118,50 +118,17 @@
     ]
   },
   "coaster": {
-    "key": "7z6yxw",
+    "key": "1iyb0gu",
     "cleared": true,
     "plan": {
       "jumpXs": [
-        45.85
+        45.75
       ],
       "releaseAfter": 60,
       "bouncePress": 8,
-      "cartBrake": [],
-      "hands": true,
-      "hangTicks": [
-        15
-      ]
+      "cartBrake": []
     },
-    "windows": [],
-    "shortcuts": [
-      {
-        "id": "skip-bar-1",
-        "skipped": [
-          "Bar 1"
-        ],
-        "how": "jump past bar 1",
-        "secondsSaved": 1.08,
-        "seconds": 5.18,
-        "pumpSeconds": null,
-        "windowMs": null,
-        "designed": false,
-        "plan": {
-          "jumpXs": [
-            45.75
-          ],
-          "releaseAfter": 60,
-          "bouncePress": 8,
-          "cartBrake": [],
-          "hangTicks": [
-            0
-          ],
-          "noGrab": [
-            0
-          ],
-          "hands": true
-        }
-      }
-    ]
+    "windows": []
   },
   "failing": {
     "key": "1jlsb4l",

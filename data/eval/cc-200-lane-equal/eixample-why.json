@@ -1,0 +1,72 @@
+[
+  {
+    "cut": 12,
+    "lane": {
+      "turnDeg": 140,
+      "offset": 10.7
+    },
+    "off": {
+      "cleared": true,
+      "length": 19.5,
+      "gaps": 0,
+      "maxRise": 0.3,
+      "maxDrop": 0,
+      "filled": 195,
+      "cells": 195,
+      "firstFilledAt": 0,
+      "lowFloorCells": 0,
+      "minH": 0.5,
+      "maxH": 1.2
+    },
+    "on": {
+      "cleared": true,
+      "length": 19.5,
+      "gaps": 0,
+      "maxRise": 0.3,
+      "maxDrop": 0,
+      "filled": 195,
+      "cells": 195,
+      "firstFilledAt": 0,
+      "lowFloorCells": 0,
+      "minH": 0.5,
+      "maxH": 1.2
+    },
+    "onOtherLane": false,
+    "onWiderSearch": true
+  },
+  {
+    "cut": 15,
+    "lane": {
+      "turnDeg": 100,
+      "offset": 34.3
+    },
+    "off": {
+      "cleared": true,
+      "length": 17,
+      "gaps": 2,
+      "maxRise": 0.2,
+      "maxDrop": 0.1,
+      "filled": 108,
+      "cells": 170,
+      "firstFilledAt": 0,
+      "lowFloorCells": 35,
+      "minH": 0.4,
+      "maxH": 0.5
+    },
+    "on": {
+      "cleared": true,
+      "length": 17,
+      "gaps": 2,
+      "maxRise": 0.2,
+      "maxDrop": 0.1,
+      "filled": 108,
+      "cells": 170,
+      "firstFilledAt": 0,
+      "lowFloorCells": 35,
+      "minH": 0.4,
+      "maxH": 0.5
+    },
+    "onOtherLane": false,
+    "onWiderSearch": true
+  }
+]
