@@ -11,7 +11,8 @@ export const CHARACTER_STEPS: Step[] = [
 ];
 
 /** One creation as the list shows it. `thumb` is a data: URL of a small WebP; the glb is never in the list. */
-export interface CharacterCard { id: string; kind: 'character' | 'object'; name: string; prompt: string; provider: string; route: string; bytes: number; faces: number; picks: number; keeper: boolean; ts: string; mine: boolean; thumb: string }
+export interface CharacterCard { id: string; kind: 'character' | 'object'; name: string; prompt: string; provider: string; route: string; bytes: number; faces: number; picks: number; keeper: boolean; ts: string; mine: boolean; thumb: string; private?: boolean }
 export const KEEPER_PICKS = 10;
 export const PANEL_SIZE = 24;
 export const EXPIRY_DAYS = 14;
+export const PRIVATE_DAYS = 30; // a private character nobody used for this long is removed

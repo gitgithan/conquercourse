@@ -76,6 +76,9 @@ export const onRequestGet = async ({ request, env }: { request: Request; env: En
     if (!row) return json({ error: 'not found' }, 404);
     return json({ ...row, boxes: JSON.parse(String(row.boxes)) }, 200, cache);
   }
-  const rows = await env.DB.prepare("SELECT id, ts, name, nick, width, height, boxes FROM community WHERE status = 'approved' AND reports < 3 ORDER BY id DESC LIMIT 60").bind().all<Record<string, unknown>>();
-  return json({ courses: rows.results.map((r) => ({ ...r, boxes: JSON.parse(String(r.boxes)) })) }, 200, cache);
+  // paging by cursor: `before=<id>` gives the next 60 older ones; `next` is the cursor for the page after this one (null at the end)
+  const before = Number(new URL(request.url).searchParams.get('before')), cur = Number.isInteger(before) && before > 0 ? before : 2 ** 52;
+  const rows = await env.DB.prepare("SELECT id, ts, name, nick, width, height, boxes FROM community WHERE status = 'approved' AND reports < 3 AND id < ? ORDER BY id DESC LIMIT 61").bind(cur).all<Record<string, unknown>>();
+  const page = rows.results.slice(0, 60);
+  return json({ courses: page.map((r) => ({ ...r, boxes: JSON.parse(String(r.boxes)) })), next: rows.results.length > 60 ? page[59].id : null }, 200, cache);
 };

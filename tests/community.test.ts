@@ -66,6 +66,7 @@ describe('the gallery and the reports', () => {
     const body = await r.json() as { courses: { id: number; boxes: unknown[] }[] };
     expect(body.courses[0].id).toBe(4);
     expect(body.courses[0].boxes.length).toBe(2);
+    expect((body as { next?: number | null }).next).toBeNull(); // one short page: no cursor for a next page
   });
   it('says not found for a course that is not approved', async () => {
     const f = fakeDb({ rows: [] });

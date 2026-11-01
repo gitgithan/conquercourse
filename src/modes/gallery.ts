@@ -90,14 +90,17 @@ export function startGallery(host: HTMLElement): { backend: 'webgl2' } {
         offer({ key: id, name: `Starter: ${d.credit.split(',')[0].slice(0, 50)}`, by: 'ConquerCourse (openly licensed photo)', image: `/assets/park/${d.file}`, width: d.width, height: d.height, boxes }, false);
       } catch { /* a missing starter is skipped */ }
     }
-    try {
-      const r = await fetch('/api/community', { cache: 'no-cache' });
+    const more = Object.assign(document.createElement('button'), { type: 'button', id: 'gallery-more', textContent: 'Show older courses' }); more.hidden = true; grid.after(more);
+    const load = async (before: number | null) => {
+      const r = await fetch(`/api/community${before ? `?before=${before}` : ''}`, { cache: 'no-cache' });
       if (!r.ok) throw new Error(String(r.status));
-      const body = await r.json() as { courses: { id: number; name: string; nick: string; width: number; height: number; boxes: ParkObject[] }[] };
-      if (!body.courses.length) status.textContent = 'No community courses yet.';
-      for (const c of body.courses) offer({ key: `c${c.id}`, id: c.id, name: c.name, by: c.nick, image: `/api/community-image?id=${c.id}`, width: c.width, height: c.height, boxes: c.boxes }, true);
+      const body = await r.json() as { courses: { id: number; name: string; nick: string; width: number; height: number; boxes: ParkObject[] }[]; next?: number | null };
+      if (!before && !body.courses.length) status.textContent = 'No community courses yet.';
+      for (const c of body.courses) offer({ key: `c${c.id}`, id: c.id, name: c.name, by: c.nick, image: `/api/community-image?id=${c.id}`, width: c.width, height: c.height, boxes: c.boxes }, !before);
       await queue;
-    } catch { status.textContent = 'The community courses could not be loaded right now (they need the online site). The starters still work.'; }
+      more.hidden = !body.next; more.onclick = () => { more.disabled = true; load(body.next!).catch(() => { status.textContent = 'The older courses could not be loaded right now.'; }).finally(() => { more.disabled = false; }); };
+    };
+    try { await load(null); } catch { status.textContent = 'The community courses could not be loaded right now (they need the online site). The starters still work.'; }
     document.documentElement.dataset.galleryReady = 'true';
   })();
   return { backend: 'webgl2' };
