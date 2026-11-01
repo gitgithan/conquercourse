@@ -52,7 +52,7 @@ export function startGallery(host: HTMLElement): { backend: 'webgl2' } {
     const play = document.createElement('button'); play.className = 'go'; play.textContent = 'Play this course';
     const msg = document.createElement('div'); msg.className = 'muted';
     play.onclick = () => {
-      const proof = proveCourse(fitPrimitives(e.boxes), e.name, e.image); // the photo is painted on the obstacles
+      const proof = proveCourse(fitPrimitives(e.boxes), e.name);
       if (!proof.cleared) { msg.textContent = 'The simulator could not find a way to clear this one.'; return; }
       root.remove(); style.remove();
       void startCourse(document.body, proof.course);
@@ -77,7 +77,7 @@ export function startGallery(host: HTMLElement): { backend: 'webgl2' } {
   const offer = (e: Entry, front: boolean) => {
     if (!proofOn) { if (front) grid.prepend(card(e)); else grid.appendChild(card(e)); return; }
     queue = queue.then(() => new Promise<void>((done) => setTimeout(() => {
-      try { if (proveCourse(fitPrimitives(e.boxes), e.name, e.image).cleared) { if (front) grid.prepend(card(e)); else grid.appendChild(card(e)); } } catch { /* no proof, not offered */ }
+      try { if (proveCourse(fitPrimitives(e.boxes), e.name).cleared) { if (front) grid.prepend(card(e)); else grid.appendChild(card(e)); } } catch { /* no proof, not offered */ }
       document.documentElement.dataset.galleryShown = String(grid.children.length);
       done();
     }, 0)));

@@ -26,7 +26,7 @@ export interface Primitive {
   length: number; // m
   risers?: number;
   scale: { source: ScaleSource; uncertainty: number; reference?: string };
-  box?: [number, number, number, number]; // where it was in the photo (pixels), for painting that part of the photo on it
+  box?: [number, number, number, number]; // where it was in the photo (pixels)
 }
 
 // Typical sizes by phrase: height and length in metres (steps: height of one riser).
@@ -97,14 +97,14 @@ export const MIN_GAP = 1.5;
 export const MAX_GAP = 5;
 
 // One platform per primitive, left to right, each across a stretch of water; gapScale shrinks every gap.
-export function buildCourse(prims: Primitive[], name = 'Park Course', gapScale = 1, photo?: string): CourseData {
+export function buildCourse(prims: Primitive[], name = 'Park Course', gapScale = 1): CourseData {
   const platforms: CourseData['terrain']['platforms'] = [{ x0: -10, x1: 6, top: 0 }];
   let x = 6;
   for (const p of prims) {
     const len = clamp(p.length, 2.5, 6);
     const gap = clamp((PITCH - len) * gapScale, MIN_GAP, MAX_GAP);
     const px0 = round(x + gap), px1 = round(x + gap + len), ptop = round(Math.min(p.height, MAX_TOP));
-    platforms.push({ x0: px0, x1: px1, top: ptop, ...(p.kind === 'mound' ? { profile: bumpProfile(px0, px1, ptop) } : {}), ...(photo && p.box ? { skin: { image: photo, crop: [...p.box] as [number, number, number, number] } } : {}) });
+    platforms.push({ x0: px0, x1: px1, top: ptop, ...(p.kind === 'mound' ? { profile: bumpProfile(px0, px1, ptop) } : {}) });
     x += gap + len;
   }
   const gap = clamp((PITCH - 6) * gapScale + 1, MIN_GAP, MAX_GAP);
@@ -124,12 +124,12 @@ export interface Proof {
 }
 
 // Prove the course clearable with the simulator; if it is not, shrink the gaps (down to MIN_GAP) and try again.
-export function proveCourse(prims: Primitive[], name?: string, photo?: string): Proof {
+export function proveCourse(prims: Primitive[], name?: string): Proof {
   const notes: string[] = [];
   for (const p of prims) if (p.height > MAX_TOP) notes.push(`${p.phrase} (${p.height} m) is flattened to ${MAX_TOP} m so a run can step up`);
   let gapScale = 1;
   for (let i = 0; i < 8; i++) {
-    const course = buildCourse(prims, name, gapScale, photo);
+    const course = buildCourse(prims, name, gapScale);
     const found = searchIdealRun(course);
     const windows = found.windows.filter((w) => w.obstacle.startsWith('edge')).map((w) => ({ ...w, ms: Math.round(w.widthMs) }));
     if (found.cleared) {

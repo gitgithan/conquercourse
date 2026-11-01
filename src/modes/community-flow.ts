@@ -95,7 +95,7 @@ export function startCommunityFlow(host: HTMLElement, params: URLSearchParams): 
         }
       } catch { /* the examples are a bonus */ }
       const shared = links(), sharedLocal = new Set(Object.values(shared).map((l) => `${l.kind}:${l.local}`));
-      for (const w of savedWallpapers()) if (!sharedLocal.has(`wallpaper:${w.id}`)) card(w.thumb, `Yours: ${w.name}`, 'Wallpaper, only in this browser', w.course ? ['Play it', `${worldHref(w.course)}&wallpaper=${w.id}`] : undefined);
+      for (const w of savedWallpapers()) if (!sharedLocal.has(`wallpaper:${w.id}`)) card(w.thumb, `Yours: ${w.name}`, 'Wallpaper, only in this browser', ['Play it', `${worldHref(w.course || DEMOS[0][0])}&wallpaper=${w.id}`]);
       let objs: UserObject[] = []; try { objs = await listUserObjects(); } catch { /* none kept */ }
       for (const o of objs) if (!sharedLocal.has(`piece:${o.id}`)) card('', `Yours: ${o.prov.name}`, '3D piece, only in this browser', ['Open the World Editor', editorHref(o.id)]);
       // shared in Community: yours (with Delete) and everyone's approved ones
