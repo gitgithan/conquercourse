@@ -22,7 +22,7 @@ export interface PrizeInput {
   /** Shares the piece; resolves with a plain-words note. */
   share?: () => Promise<string>;
   /** Someone else's shared piece (CC-249): the same turntable, with "Add to my pieces" and "Close" in place of the maker's buttons. */
-  view?: { use: () => void };
+  view?: { use?: () => void };
 }
 export type PrizeEnd = 'kept' | 'again' | 'closed';
 
@@ -45,7 +45,8 @@ export function openPrize(p: PrizeInput): Promise<PrizeEnd> {
     const again = btn('Make another', 'prize-again');
     if (p.view) { keep.textContent = 'Add to my pieces'; again.textContent = 'Close'; sub.textContent = 'Made by a player from their own photo. Watch it turn, then add it to your pieces.'; }
     const open = Object.assign(document.createElement('a'), { textContent: 'Open in the World Editor', href: p.editorHref, className: 'btn', id: 'prize-editor' }); row.append(open);
-    if (p.view) open.hidden = true;
+    if (p.view) open.hidden = !!p.view.use;
+    if (p.view && !p.view.use) { keep.hidden = true; sub.textContent = 'Drag to turn it. Open the World Editor to place it.'; }
     card.append(h, canvas, sub, row);
     addBadge(card, 'builder'); // CC-243
     document.body.append(shade);
@@ -84,7 +85,7 @@ export function openPrize(p: PrizeInput): Promise<PrizeEnd> {
     document.addEventListener('keydown', onKey);
     keep.onclick = () => {
       if (!p.view) return end('kept');
-      p.view.use(); keep.disabled = true; keep.textContent = 'Added'; sub.textContent = 'Added to your pieces. Open the World Editor to place it.'; open.hidden = false; open.focus();
+      p.view.use?.(); keep.disabled = true; keep.textContent = 'Added'; sub.textContent = 'Added to your pieces. Open the World Editor to place it.'; open.hidden = false; open.focus();
     };
     again.onclick = () => end('again');
     open.addEventListener('click', () => { closed = true; });
