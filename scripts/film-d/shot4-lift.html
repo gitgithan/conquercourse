@@ -1,0 +1,95 @@
+<!doctype html><meta charset="utf-8"><title>shot4 lift</title>
+<style>
+html,body{margin:0;width:1920px;height:1080px;overflow:hidden;background:#c9d4e2;font-family:system-ui,sans-serif}
+#bg{position:absolute;inset:0;background:radial-gradient(ellipse at 50% 45%,#e6ecf4 0%,#b9c7da 70%,#9fb0c6 100%)}
+#photo,#card{position:absolute;left:0;top:0;transform-origin:0 0;will-change:transform}
+#photo img,#card img{display:block;width:100%;height:100%}
+#box{position:absolute;border:6px solid #ffd23f;box-shadow:0 0 18px #ffd23f99;box-sizing:border-box}
+#tag{position:absolute;background:#ffd23f;color:#222;font-weight:700;font-size:30px;padding:4px 14px;border-radius:6px}
+#card{box-shadow:0 18px 50px #0006;border:4px solid #fff}
+#gl{position:absolute;inset:0}
+#cap{position:absolute;left:0;right:0;bottom:70px;text-align:center;font-size:44px;font-weight:700;color:#1d2a3d;letter-spacing:.5px}
+</style>
+<div id="bg"></div>
+<div id="photo"><img id="pimg" src="rail01.jpg"><div id="box"></div><div id="tag">iron railing</div></div>
+<div id="card"><img src="rail01.jpg" id="cimg"></div>
+<canvas id="gl" width="1920" height="1080"></canvas>
+<div id="cap"></div>
+<script type="importmap">{"imports":{"three":"./three.module.js"}}</script>
+<script type="module">
+import * as THREE from 'three';
+import { GLTFLoader } from './GLTFLoader.js';
+const W = 1920, H = 1080, PW = 1024, PH = 684, BOX = [130, 150, 900, 480];
+const ease = (x) => { x = Math.min(1, Math.max(0, x)); return x * x * (3 - 2 * x); };
+const seg = (t, a, b) => ease((t - a) / (b - a));
+const mix = (a, b, u) => a + (b - a) * u;
+// timeline (s): photo 0-0.8, box draws 0.8-1.5, cut-out lifts 1.5-2.2, lifts into 3D 2.2-3.0, turntable 2.6-4.0 (360 degrees)
+const T = { box0: 0.8, box1: 1.5, cut0: 1.5, cut1: 2.2, lift0: 2.2, lift1: 3.0, spin0: 2.6, spin1: 4.0 };
+const renderer = new THREE.WebGLRenderer({ canvas: document.getElementById('gl'), alpha: true, antialias: true, preserveDrawingBuffer: true });
+renderer.setSize(W, H, false); renderer.setClearColor(0x000000, 0);
+const scene = new THREE.Scene();
+const cam = new THREE.PerspectiveCamera(30, W / H, 0.1, 100);
+scene.add(new THREE.HemisphereLight(0xffffff, 0x8899aa, 1.5));
+const sun = new THREE.DirectionalLight(0xffffff, 2.2); sun.position.set(3, 5, 6); scene.add(sun);
+const pivot = new THREE.Group(); scene.add(pivot);
+const ground = new THREE.Mesh(new THREE.CircleGeometry(1.9, 64), new THREE.MeshBasicMaterial({ color: 0x1d2a3d, transparent: true, opacity: 0 }));
+ground.rotation.x = -Math.PI / 2; scene.add(ground);
+const gltf = await new GLTFLoader().loadAsync('railing-iron.glb');
+const model = gltf.scene; pivot.add(model);
+const bb = new THREE.Box3().setFromObject(model); const ctr = bb.getCenter(new THREE.Vector3());
+model.position.sub(ctr); model.position.y += (bb.max.y - bb.min.y) / 2; // stands on y = 0
+const modelH = bb.max.y - bb.min.y, modelW = bb.max.x - bb.min.x;
+await new Promise((r) => { const i = document.getElementById('pimg'); i.complete ? r() : (i.onload = r); });
+// photo layout: fit height 900, centred
+const S = 900 / PH, px = (W - PW * S) / 2, py = (H - PH * S) / 2 - 20;
+const photo = document.getElementById('photo'); photo.style.width = PW + 'px'; photo.style.height = PH + 'px';
+const box = document.getElementById('box'), tag = document.getElementById('tag');
+Object.assign(box.style, { left: BOX[0] + 'px', top: BOX[1] + 'px' });
+tag.style.left = BOX[0] + 'px'; tag.style.top = (BOX[1] - 52) + 'px'; tag.style.fontSize = (30 / S) + 'px'; tag.style.transformOrigin = '0 0';
+box.style.borderWidth = (6 / S) + 'px';
+const card = document.getElementById('card'), cimg = document.getElementById('cimg');
+const bw = BOX[2] - BOX[0], bh = BOX[3] - BOX[1];
+card.style.width = bw + 'px'; card.style.height = bh + 'px'; card.style.overflow = 'hidden';
+cimg.style.cssText = `position:absolute;left:${-BOX[0]}px;top:${-BOX[1]}px;width:${PW}px;height:${PH}px`;
+// the 3D railing is framed so, face on, it fills the same footprint as the final card
+const CARD_S = 1.55; // final card scale on screen (px per photo px)
+const cardW = bw * CARD_S, cardH = bh * CARD_S;
+function frameCam(dist) { cam.position.set(0, modelH * 0.5 + 0.05, dist); cam.lookAt(0, modelH * 0.5, 0); }
+// distance so the model's width fills cardW px at the screen centre
+const fovR = cam.fov * Math.PI / 180; const distFace = (modelW / (cardW / H)) / (2 * Math.tan(fovR / 2));
+const cap = document.getElementById('cap');
+window.__t = (t) => {
+  // photo with a slow push-in
+  const pu = ease(t / 1.6), sc = S * mix(1, 1.06, pu);
+  const fadePhoto = 1 - seg(t, T.cut0 + 0.2, T.cut1);
+  photo.style.opacity = fadePhoto;
+  photo.style.transform = `translate(${W / 2 - PW * sc / 2}px,${H / 2 - PH * sc / 2 - 20}px) scale(${sc})`;
+  // box draws on (grows from its top-left corner)
+  const bu = seg(t, T.box0, T.box1);
+  box.style.width = bw * bu + 'px'; box.style.height = bh * bu + 'px'; box.style.opacity = bu > 0 ? 1 : 0;
+  tag.style.opacity = seg(t, T.box1 - 0.2, T.box1 + 0.1) * (1 - 0);
+  // cut-out: the card appears over the box, then moves to the centre and grows
+  const cu = seg(t, T.cut0, T.cut1);
+  const bx = W / 2 - PW * sc / 2 + BOX[0] * sc, by = H / 2 - PH * sc / 2 - 20 + BOX[1] * sc;
+  const cs = mix(sc, CARD_S, cu);
+  const cx = mix(bx, (W - cardW) / 2, cu), cy = mix(by, (H - cardH) / 2 - 20, cu);
+  const lu = seg(t, T.lift0, T.lift1);
+  card.style.opacity = t < T.cut0 ? 0 : 1 - seg(t, T.lift1 - 0.5, T.lift1);
+  // the card tilts a little as the lift starts
+  card.style.transform = `translate(${cx}px,${cy}px) scale(${cs}) perspective(1400px) rotateY(${mix(0, -38, lu)}deg)`;
+  card.style.transformOrigin = '50% 50%';
+  // the 3D railing: rises out of the card, then turns one full turn
+  const spin = seg(t, T.spin0, T.spin1);
+  const mu = seg(t, T.lift0, T.lift1);
+  pivot.rotation.y = mix(-0.66, 0, 1) * (1 - mu) + Math.PI * 2 * spin - 0 * 1;
+  pivot.position.y = mix(-0.35, 0, mu);
+  pivot.scale.setScalar(mix(0.9, 1, mu));
+  model.visible = mu > 0.02;
+  renderer.domElement.style.opacity = mu;
+  ground.material.opacity = 0.16 * seg(t, T.lift1 - 0.4, T.lift1 + 0.3);
+  frameCam(mix(distFace * 1.0, distFace * 1.18, seg(t, T.spin0, T.spin1)) );
+  renderer.render(scene, cam);
+  cap.textContent = '';
+};
+window.__ready = true;
+</script>
