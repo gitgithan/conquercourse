@@ -7,6 +7,7 @@ import { suggestRegions } from '../slice/segment-client';
 import { deleteUserObject, listUserObjects, saveUserObject, type UserObject } from '../slice/user-objects';
 import { receiptFor, deleteShared, forgetLink, links, rememberLink, sessionCode, shareItem } from '../community/share-client';
 import { cropToThumb } from '../community/crop';
+import { registerThumbSource, thumbOf } from '../ui/glb-thumb';
 import type { PublicItem } from '../community/items';
 import { listSharedPage } from '../community/share-client';
 import { placeableShared, sharedSrc, useShared, LIFT_PARALLEL, MAX_PICKS, STEPS, TABS, allowedNow, buildFound, canEnter, dailyLine, editorHref, makeLabel, nextStep, prevStep, runQueue, queueWarning, startState, tabFor, toggleTick, whyNot, whyOff, type Box, type FlowState, type Found, type Kind, type PiecesToday, type Step, type Tab } from '../community/flow';
@@ -101,7 +102,23 @@ export function startCommunityFlow(host: HTMLElement, params: URLSearchParams): 
       } catch { /* the examples are a bonus */ }
       const shared = links(), sharedLocal = new Set(Object.values(shared).map((l) => `${l.kind}:${l.local}`));
       let objs: UserObject[] = []; try { objs = await listUserObjects(); } catch { /* none kept */ }
-      for (const o of objs) if (!sharedLocal.has(`piece:${o.id}`)) { const oc = card('', `Yours: ${o.prov.name}`, '3D piece, only in this browser', ['Open the World Editor', editorHref(o.id)]); lookButton(oc, `look-mine-${o.id}`, async () => o.glb, o.prov.name, editorHref(o.id)); }
+      for (const o of objs) if (!sharedLocal.has(`piece:${o.id}`)) {
+        // a piece made here and not shared yet: it keeps its picture, and sharing is a button you press when you want to (CC-249)
+        registerThumbSource(`mine-${o.id}`, async () => o.glb);
+        const pic = o.thumb || (await thumbOf(`mine-${o.id}`)) || '';
+        const oc = card(pic, `Yours: ${o.prov.name}`, '3D piece, only in this browser', ['Open the World Editor', editorHref(o.id)]); lookButton(oc, `look-mine-${o.id}`, async () => o.glb, o.prov.name, editorHref(o.id));
+        const side = oc.lastElementChild as HTMLElement, row = el('div', side); row.className = 'row'; row.style.marginTop = '6px';
+        const sb = el('button', row, 'Share in Community', { id: `share-mine-${o.id}`, title: 'Show it in the Community gallery. You can delete it there any time.' });
+        const note = el('div', side); note.className = 'muted'; note.id = `share-mine-note-${o.id}`;
+        sb.onclick = async () => {
+          sb.disabled = true; note.className = 'muted'; note.textContent = 'Sharing…'; addBadge(side, 'safety', { before: note });
+          try {
+            const out = await shareItem({ kind: 'piece', name: o.prov.name, thumb: pic, glb: o.glb, height_m: o.prov.height_m, receipt: receiptFor(o.id) });
+            rememberLink(out.id, { kind: 'piece', local: o.id }); sb.textContent = 'Shared';
+            note.textContent = out.status === 'approved' ? 'Shared. Everyone can see it.' : 'Shared. You can see it now; everyone sees it after the safety check.';
+          } catch (e) { note.textContent = (e as Error).message; note.className = 'err'; note.setAttribute('role', 'alert'); sb.disabled = false; }
+        };
+      }
       // shared in Community: yours (with Delete) and everyone's approved ones
       // a search box, a kind filter and Show more: the shared list is served one page at a time, searched by name on the server
       const bar = el('div', made); bar.className = 'row'; bar.id = 'shared-controls'; made.insertBefore(bar, g);
@@ -350,7 +367,7 @@ export function startCommunityFlow(host: HTMLElement, params: URLSearchParams): 
         try {
           const res = await liftObject({ photo: ph, box: r.box, label, height_m: null }, () => undefined, ctl.signal, bar.update);
           bar.finish();
-          try { await saveUserObject({ id: res.prov.id, glb: res.glb, prov: res.prov }); } catch { /* not kept after this visit */ }
+          try { await saveUserObject({ id: res.prov.id, glb: res.glb, prov: res.prov, thumb: await cropToThumb(ph.image, r.box).catch(() => '') }); } catch { /* not kept after this visit */ }
           work.made.pieces.push(res.prov.id); sl.made = true; gen.textContent = 'Made'; if (today) today = { ...today, left: Math.max(0, today.left - 1) }; applyToday(); msg.textContent = `Done in ${res.seconds} s. It is in the World Editor under "My pieces" as "📷 Mine: ${res.prov.name}".`; showNext();
           shareButton(msg.parentElement as HTMLElement, r.id, async () => ({ id: res.prov.id, input: { kind: 'piece', name: res.prov.name, thumb: await cropToThumb(ph.image, r.box), glb: res.glb, height_m: res.prov.height_m }, local: { kind: 'piece', local: res.prov.id } }));
           showPrize(r, res);

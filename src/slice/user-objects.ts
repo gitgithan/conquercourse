@@ -2,7 +2,7 @@
 // Nothing is uploaded to share it. Saved worlds refer to an object as `user:<id>`. A browser without IndexedDB just does not keep them.
 import type { Provenance } from './provenance';
 
-export interface UserObject { id: string; glb: ArrayBuffer; prov: Provenance }
+export interface UserObject { id: string; glb: ArrayBuffer; prov: Provenance; thumb?: string } // thumb: a small picture cut from the photo when the piece was made (older pieces have none and get one drawn from the file)
 const DB = 'cc-user-objects', STORE = 'objects';
 
 const open = (): Promise<IDBDatabase> => new Promise((ok, no) => {
