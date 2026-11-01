@@ -7,7 +7,7 @@ cd "$(dirname "$0")/.."
 env_dir="$HOME/.config/ninja"
 [ -f "$env_dir/cloudflare.env" ] || { echo "Missing $env_dir/cloudflare.env (the Cloudflare token)." >&2; exit 1; }
 set -a; . "$env_dir/cloudflare.env"; set +a
-export CLOUDFLARE_ACCOUNT_ID="${CLOUDFLARE_ACCOUNT_ID:-ACCOUNT_ID_REMOVED}"
+export CLOUDFLARE_ACCOUNT_ID="${CLOUDFLARE_ACCOUNT_ID:?set CLOUDFLARE_ACCOUNT_ID in cloudflare.env}"
 token="$(openssl rand -hex 24)" # 48 hex characters
 printf '%s' "$token" | npx wrangler pages secret put ADMIN_TOKEN --project-name conquercourse --env preview >/dev/null
 umask 077

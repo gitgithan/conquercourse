@@ -19,7 +19,7 @@
   - If the switch table cannot be read, the route answers "off" (it fails closed).
   - A kind with no row in `flags` is on.
 - **The migration needs the owner's yes each time it goes to a live database;** until it is applied, the paid routes of that site stay off.
-- Numbers for the daily limits are read from the environment, not from the repo (`ADMIN_CAPS`, a JSON text such as `{"agent":50}`).
+- Numbers for the daily limits are read from the environment, not from the repo (`ADMIN_CAPS`, a JSON text with one number per kind).
 
 ## Set the token (owner runs it)
 - Run `! scripts/set-admin-token.sh` in the Claude Code prompt, or `scripts/set-admin-token.sh` in a terminal.
