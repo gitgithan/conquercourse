@@ -1,6 +1,12 @@
 // Owner-only usage page. The token is asked for once and kept only in this tab's sessionStorage.
 const API = '/api/admin-usage';
 const msg = document.getElementById('msg'), app = document.getElementById('app');
+// the banner says which site this page controls, taken from the address, so a switch is never flipped on the wrong one
+const live = location.hostname === 'conquercourse.pages.dev' || location.hostname === 'www.conquercourse.pages.dev';
+const site = document.getElementById('site');
+site.textContent = live ? 'LIVE SITE: switches here affect every player' : `PREVIEW (${location.hostname}): the live site is not affected`;
+site.className = live ? 'live' : 'preview';
+document.title = `${live ? 'LIVE' : 'PREVIEW'}: Usage (owner only)`;
 let token = '';
 try { token = sessionStorage.getItem('cc-admin') || ''; } catch { /* no storage: ask each time */ }
 
@@ -50,7 +56,7 @@ function render(data) {
     const li = el('li', `${f.label}: ${f.on ? 'ON' : 'OFF'} `);
     const b = el('button', f.on ? 'Turn off' : 'Turn on');
     b.addEventListener('click', async () => {
-      if (!confirm(`${f.on ? 'Turn OFF' : 'Turn ON'} "${f.label}" for every player, right now?`)) return;
+      if (!confirm(`${live ? 'LIVE SITE: ' : 'PREVIEW: '}${f.on ? 'Turn OFF' : 'Turn ON'} "${f.label}" for every player here, right now?`)) return;
       try { await call('POST', { flag: f.name, on: !f.on }); await load(); } catch (e) { msg.textContent = e.message; }
     });
     li.appendChild(b); ul.appendChild(li);
