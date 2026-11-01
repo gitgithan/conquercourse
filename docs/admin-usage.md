@@ -68,3 +68,4 @@
 - The upload safety route answers only the owner (a plain 404 to everyone else); the page never calls it.
 - Registering a challenge course asks for the same bot check as the other creation steps.
 - A receipt now lasts 30 days, and still works once.
+- Each share also deletes receipt rows older than 31 days, so the table stays small.
