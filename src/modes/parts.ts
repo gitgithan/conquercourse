@@ -55,14 +55,15 @@ const STYLE = `
 `;
 
 const FRAME_FLAGS = 'welcome=0&nav=0&music=0&photos=0&hud=old';
-/** The demo runner: the Skater (the girl of the starter cast; her arms and legs show the limb fit well). The gallery never reads the player's saved choice. */
-export const DEMO_CHAR = '8f72bd8e9c1937ce';
+/** The demo runner: Juno, the Rookie B girl (violet top, bun, orange headband), who has the built-in skeleton. The gallery never reads the player's saved choice. */
+export const DEMO_CHAR = 'juno';
 const CHAR_ID = /^[0-9a-f]{16}$/;
 let demoChar = DEMO_CHAR;
 /** The frame address for a part: the demo runner is named in the address (?char=) and ?nosave=1 keeps the player's own saved choice untouched. */
 export function frameSrc(p: Part, char: string = demoChar): string | null {
   if (p.live.how === 'none') return null;
-  return `/?course=${p.live.course}&${FRAME_FLAGS}&char=${char}&nosave=1${p.live.how === 'bot' ? '&bot=ideal' : ''}`;
+  const who = char === DEMO_CHAR ? 'rookie=b' : `char=${char}`; // Juno is the Rookie B button, not a made character
+  return `/?course=${p.live.course}&${FRAME_FLAGS}&${who}&nosave=1${p.live.how === 'bot' ? '&bot=ideal' : ''}`;
 }
 
 let playing: { iframe: HTMLIFrameElement; stop: () => void } | null = null;
@@ -183,15 +184,16 @@ export function startParts(root: HTMLElement): { backend: string } {
   all.onclick = () => show('all'); how.onclick = () => show('course');
   const q = pageQuery();
   const asked = q.get('char');
-  if (asked && CHAR_ID.test(asked)) demoChar = asked;
+  if (asked && (asked === DEMO_CHAR || CHAR_ID.test(asked))) demoChar = asked;
   const cs = page.querySelector('#pg-char') as HTMLSelectElement;
   const fill = (items: { id: string; name: string }[]) => {
     cs.replaceChildren();
     for (const c of items) { const o = document.createElement('option'); o.value = c.id; o.textContent = c.name; cs.append(o); }
     cs.value = demoChar;
   };
-  fill([{ id: demoChar, name: demoChar === DEMO_CHAR ? 'Skater' : 'Chosen runner' }]);
-  void loadCast().then((cast) => { if (cast.length) fill(cast.map((c) => ({ id: c.id, name: c.name }))); });
+  const juno = { id: DEMO_CHAR, name: 'Juno (the Rookie, default)' };
+  fill([juno, ...(demoChar === DEMO_CHAR ? [] : [{ id: demoChar, name: 'Chosen runner' }])]);
+  void loadCast().then((cast) => { if (cast.length) fill([juno, ...cast.map((c) => ({ id: c.id, name: c.name }))]); });
   cs.onchange = () => {
     demoChar = cs.value; playing?.stop();
     try { const u = new URL(location.href); u.searchParams.set('char', demoChar); history.replaceState(null, '', u); } catch { /* the pick still works */ }
