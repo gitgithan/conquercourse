@@ -6,6 +6,11 @@ const ready = [{ slug: 'speicherstadt-hamburg', name: 'Speicherstadt', lat: 53.5
 describe('a short name for the picked place', () => {
   it('a ready place keeps its own name', () => expect(nameFor(53.5436, 9.9886, ready, 'Somewhere else, Hamburg')).toBe('Speicherstadt'));
   it('a search hit becomes its first part', () => expect(nameFor(10, 10, ready, 'Piazza San Marco, San Marco, Venezia, Veneto, Italia')).toBe('Piazza San Marco'));
+  it('the country code tells same-named places apart', () => {
+    expect(nameFor(10, 10, ready, 'Sudbury, Suffolk, England', 'gb')).toBe('Sudbury (GB)');
+    expect(shortFromSearch('Sudbury, Ontario, Canada', 'ca')).toBe('Sudbury (CA)');
+    expect(shortFromAddress({ suburb: 'South Bank', municipality: 'Greater London', country_code: 'gb' })).toBe('South Bank, London (GB)');
+  });
   it('no hint and no ready place means the caller asks the map', () => expect(nameFor(10, 10, ready)).toBeNull());
   it('an address gives the quarter and the town when it fits', () => expect(shortFromAddress({ suburb: 'Alfama', city: 'Lisboa' })).toBe('Alfama, Lisboa'));
   it('a long name is cut, never longer than the limit', () => {
