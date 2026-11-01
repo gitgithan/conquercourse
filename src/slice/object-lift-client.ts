@@ -76,7 +76,7 @@ export async function liftObject(inp: LiftInput, progress: (s: string) => void, 
       };
       const note = retryNote(retry);
       tell(LIFT_STEPS.length - 1);
-      if (typeof sub.data.receipt === 'string') rememberReceipt(id, sub.data.receipt);
+      if (typeof d.receipt === 'string') rememberReceipt(id, d.receipt);
       return { glb, prov, notes: note ? [note] : [], privacy: (d.privacy as LiftDone['privacy']) ?? {}, seconds: Math.round((Date.now() - t0) / 1000) };
     }
     throw new JobError(failWords(String(d.reason ?? '')));

@@ -48,7 +48,7 @@ export async function publish(b: Record<string, unknown>, env: Env, ip: string, 
     const v = visibilityFor(m.body.verdict, m.body.reason);
     visible = v === 'approved' ? 'approved' : 'pending';
   }
-  const spent = await spendReceipt(env as never, b.receipt, now);
+  const spent = await spendReceipt(env as never, b.receipt, c.item.glb, now);
   if (!spent.ok) return { status: 403, body: { error: 'receipt', message: spent.message } };
   const id = newId();
   await env.DB.prepare("INSERT INTO community_items (id, owner, kind, name, status, created_at, thumb, glb, meta, moderation) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")

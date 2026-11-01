@@ -49,21 +49,40 @@ describe('pass from the outline step', () => {
 
 import { makeReceipt, receiptJob, spendReceipt, RECEIPT_MS } from '../functions/_lib/receipt';
 import { localD1 } from './helpers-d1';
+import { handle as lift } from '../functions/api/object-lift';
+const b64 = (t: string) => btoa(t);
 describe('lift receipt for sharing a piece', () => {
   const env = { CC_UPLOAD_TOKEN: 'srv-secret', REQUIRE_LIFT_RECEIPT: '1' };
-  const job = 'fc-AbCdEfGhIjKl';
+  const job = 'fc-AbCdEfGhIjKl', piece = b64('glTF-piece-bytes-one'), other = b64('glTF-some-other-file');
   it('is checked and single-use when required', async () => {
     const { db } = localD1(); const e = { ...env, DB: db as never };
-    const r = (await makeReceipt(env, job))!;
-    expect((await spendReceipt(e, r)).ok).toBe(true);
-    expect((await spendReceipt(e, r)).ok).toBe(false);
+    const r = (await makeReceipt(env, job, piece))!;
+    expect((await spendReceipt(e, r, piece)).ok).toBe(true);
+    expect((await spendReceipt(e, r, piece)).ok).toBe(false);
+  });
+  it('works only for the very piece the lift made', async () => {
+    const { db } = localD1(); const e = { ...env, DB: db as never };
+    const r = (await makeReceipt(env, job, piece))!;
+    expect((await spendReceipt(e, r, other)).ok).toBe(false);
+    expect((await spendReceipt(e, r, undefined)).ok).toBe(false);
+    expect((await spendReceipt(e, r, piece)).ok).toBe(true); // the refusals above did not spend it
   });
   it('refuses none, forged, old, and other-secret receipts', async () => {
-    const { db } = localD1(); const e = { ...env, DB: db as never }, t = 1_700_000_000_000, r = (await makeReceipt(env, job, t))!;
-    expect((await spendReceipt(e, undefined)).ok).toBe(false);
-    expect((await spendReceipt(e, r.replace(/.$/, (c) => (c === 'a' ? 'b' : 'a')), t)).ok).toBe(false);
-    expect(await receiptJob(env, r, t + RECEIPT_MS + 1)).toBeNull();
-    expect(await receiptJob({ CC_UPLOAD_TOKEN: 'other' }, r, t)).toBeNull();
+    const { db } = localD1(); const e = { ...env, DB: db as never }, t = 1_700_000_000_000, r = (await makeReceipt(env, job, piece, t))!;
+    expect((await spendReceipt(e, undefined, piece)).ok).toBe(false);
+    expect((await spendReceipt(e, r.replace(/.$/, (c) => (c === 'a' ? 'b' : 'a')), piece, t)).ok).toBe(false);
+    expect(await receiptJob(env, r, piece, t + RECEIPT_MS + 1)).toBeNull();
+    expect(await receiptJob({ CC_UPLOAD_TOKEN: 'other' }, r, piece, t)).toBeNull();
   });
-  it('lets everything through while the switch is off', async () => { expect((await spendReceipt({ CC_UPLOAD_TOKEN: 'x' }, undefined)).ok).toBe(true); });
+  it('lets everything through while the switch is off', async () => { expect((await spendReceipt({ CC_UPLOAD_TOKEN: 'x' }, undefined, undefined)).ok).toBe(true); });
+  it('the status of a finished lift carries a receipt for that piece, a running one does not', async () => {
+    const e = { CC_UPLOAD_TOKEN: 't', CC_UPLOAD_SUBMIT_URL: 'https://x--y.modal.run', CC_UPLOAD_STATUS_URL: 'https://x--z.modal.run' };
+    const reply = (body: unknown) => (async () => new Response(JSON.stringify(body))) as unknown as typeof fetch;
+    const done = await lift({ action: 'status', id: job }, e, 'ip', reply({ state: 'done', glb: piece }));
+    const receipt = (done.body as { receipt?: string }).receipt!;
+    expect(await receiptJob({ CC_UPLOAD_TOKEN: 't' }, receipt, piece)).toBe(job);
+    expect(await receiptJob({ CC_UPLOAD_TOKEN: 't' }, receipt, other)).toBeNull();
+    const running = await lift({ action: 'status', id: job }, e, 'ip', reply({ state: 'running' }));
+    expect((running.body as { receipt?: string }).receipt).toBeUndefined();
+  });
 });
