@@ -6,6 +6,7 @@ import { CHARACTER_STEPS, PRIVATE_DAYS, type CharacterCard } from './steps';
 import { promptProblem, cleanPrompt } from './prompt';
 import { refusalWords } from '../slice/stages';
 import { castOn, loadCast } from './cast';
+import { turnstileToken } from '../ui/turnstile';
 
 const STYLE = `
 #chars{position:fixed;inset:0;background:rgba(23,32,29,.55);display:grid;place-items:center;z-index:50;font:15px system-ui,sans-serif}
@@ -129,7 +130,7 @@ export function openCharacterPanel(o: PanelOptions): { close(): void; el: HTMLEl
     let cancelled = false;
     const bar = jobProgress(jobs, CHARACTER_STEPS, () => { cancelled = true; });
     try {
-      const start = await post({ action: 'create', prompt });
+      const start = await post({ action: 'create', prompt, turnstile: await turnstileToken(f) });
       if (start.body.state === 'done') { bar.fail(); say('That one is already made. Look for it in the list.'); return; }
       if (start.status !== 200 || !start.body.id) { bar.fail(); say(start.body.message || refusalWords(start.body as never) || 'Could not start.', true); return; }
       for (let i = 0; i < 120 && !cancelled; i++) {
