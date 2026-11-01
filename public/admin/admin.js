@@ -91,6 +91,8 @@ async function showMade() {
     const d = await call('GET', undefined, '?view=made');
     box2.replaceChildren(el('h2', `Shared to Community (${d.items.length}, newest first)`),
       madeTable(d.items, [['When (UTC)', (r) => when(r.at)], ['Player', (r) => r.owner], ['Their total', (r, c) => String(c[r.owner])], ['Kind', (r) => r.kind], ['Name', (r) => r.name], ['Status', (r) => r.status], ['Safety check', (r) => r.moderation]]),
+      el('h2', `Photos the safety check stopped (${d.stops.length}, newest first, last 14 days)`),
+      madeTable(d.stops, [['When (UTC)', (r) => when(r.at)], ['Player', (r) => r.owner], ['Their total', (r, c) => String(c[r.owner])], ['Step', (r) => r.route], ['Verdict', (r) => r.verdict], ['Reason', (r) => r.reason]]),
       el('h2', `Characters (${d.characters.length}, newest first)`),
       madeTable(d.characters, [['When (UTC)', (r) => when(r.at)], ['Player', (r) => r.owner], ['Their total', (r, c) => String(c[r.owner])], ['Name', (r) => r.name], ['Words they typed', (r) => r.prompt], ['Status', (r) => r.status], ['Reports', (r) => String(r.reports)]]));
   } catch (e) { msg.textContent = e.message; }

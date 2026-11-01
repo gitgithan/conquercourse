@@ -97,12 +97,13 @@ export async function setFlag(db: AdminDb, name: string, on: boolean, now = Date
 }
 
 /** Who made what, newest first (the last 200 of each): pieces and wallpapers shared to Community, and characters. "owner" is an anonymous code, never a name or an address. */
-export async function made(db: AdminDb): Promise<{ items: Record<string, unknown>[]; characters: Record<string, unknown>[] }> {
+export async function made(db: AdminDb): Promise<{ items: Record<string, unknown>[]; characters: Record<string, unknown>[]; stops: Record<string, unknown>[] }> {
   const get = async (sql: string): Promise<Record<string, unknown>[]> => { try { return (await db.prepare(sql).all<Record<string, unknown>>()).results; } catch { return []; } };
   const code = (r: Record<string, unknown>) => ({ ...r, owner: String(r.owner ?? '').slice(0, 8) });
   return {
     items: (await get('SELECT id, owner, kind, name, status, created_at AS at, moderation FROM community_items ORDER BY created_at DESC LIMIT 200')).map(code),
     characters: (await get('SELECT id, owner, name, prompt, provider, status, reports, picks, ts AS at FROM characters ORDER BY ts DESC LIMIT 200')).map(code),
+    stops: (await get('SELECT id, owner, route, verdict, reason, at FROM moderation_stops ORDER BY at DESC LIMIT 200')).map(code),
   };
 }
 

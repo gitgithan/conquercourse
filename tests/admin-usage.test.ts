@@ -228,6 +228,7 @@ describe('/api/admin-usage', () => {
 });
 
 import { made } from '../functions/api/admin-usage';
+import { recordStop } from '../functions/_lib/stops';
 describe('who made what', () => {
   it('lists shared items and characters newest first, with a short anonymous owner code and no files', async () => {
     const { db, sql } = localD1();
@@ -237,6 +238,20 @@ describe('who made what', () => {
     expect(r.items.map((i) => i.id)).toEqual(['b', 'a']);
     expect(r.items[0].owner).toBe('zzzzzzzz');
     expect(JSON.stringify(r)).not.toContain('THUMB'); expect(JSON.stringify(r)).not.toContain('GLB');
+  });
+  it('lists the photos the safety check stopped with the reason, newest first, and drops rows older than 14 days', async () => {
+    const { db } = localD1();
+    const now = Date.UTC(2026, 10, 1, 12), old = now - 15 * 86400_000;
+    await recordStop(db as never, 'segment', 'abcdefghijkl', 'review', 'minor', old);
+    await recordStop(db as never, 'segment', 'abcdefghijkl', 'review', 'minor', now - 1000);
+    await recordStop(db as never, 'photo3d', 'zzzzzzzzzzzz', 'block', 'weapon', now);
+    const r = await made(db as never);
+    expect(r.stops.map((x) => `${x.route}:${x.reason}`)).toEqual(['photo3d:weapon', 'segment:minor']);
+    expect(r.stops[0].owner).toBe('zzzzzzzz');
+  });
+  it('a missing table or database never breaks a request', async () => {
+    await expect(recordStop(undefined, 'segment', 'x', 'review', 'minor')).resolves.toBeUndefined();
+    await expect(recordStop({ prepare: () => { throw new Error('no table'); } } as never, 'segment', 'x', 'review', 'minor')).resolves.toBeUndefined();
   });
   it('answers 401 without the token and needs it for the made view', async () => {
     const res = await route(new Request('https://x/api/admin-usage?view=made', { headers: { 'x-admin-token': 'wrong' } }), { DB: localD1().db as never, ADMIN_TOKEN: 'right' });
