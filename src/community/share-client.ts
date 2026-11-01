@@ -1,4 +1,4 @@
-// The page side of /api/community-items (CC-247): share a finished piece or wallpaper, list what is shared, delete your own.
+// The page side of /api/community-items (CC-247): share a finished piece, list what is shared, delete your own.
 // The browser's random player code (the same one the feedback form uses) is sent as a header; the server turns it into a one-way code and never keeps it.
 import type { PublicItem } from './items';
 
@@ -8,14 +8,14 @@ export const sessionCode = (): string => {
 
 /** Which saved thing in this browser a shared item came from, so deleting the shared one also clears the local copy. */
 const KEY = 'cc.shared';
-export interface Link { kind: 'piece' | 'wallpaper'; local: string }
+export interface Link { kind: 'piece'; local: string }
 export const links = (): Record<string, Link> => { try { return JSON.parse(localStorage.getItem(KEY) ?? '{}') as Record<string, Link>; } catch { return {}; } };
 export const rememberLink = (serverId: string, l: Link): void => { try { localStorage.setItem(KEY, JSON.stringify({ ...links(), [serverId]: l })); } catch { /* the share still worked */ } };
 export const forgetLink = (serverId: string): void => { try { const m = links(); delete m[serverId]; localStorage.setItem(KEY, JSON.stringify(m)); } catch { /* nothing kept */ } };
 
 export const toBase64 = (buf: ArrayBuffer): string => { let s = ''; const b = new Uint8Array(buf); for (let i = 0; i < b.length; i += 0x8000) s += String.fromCharCode(...b.subarray(i, i + 0x8000)); return btoa(s); };
 
-export interface ShareInput { kind: 'piece' | 'wallpaper'; name: string; thumb: string; glb?: ArrayBuffer; height_m?: number; course?: string }
+export interface ShareInput { kind: 'piece'; name: string; thumb: string; glb?: ArrayBuffer; height_m?: number; course?: string }
 export interface Shared { id: string; status: 'approved' | 'pending' }
 
 export async function shareItem(inp: ShareInput): Promise<Shared> {
