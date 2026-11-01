@@ -7,6 +7,7 @@ import { readGlbMesh } from '../slice/glb';
 import { creditLine, type Provenance } from '../slice/provenance';
 import { getUserObject, listUserObjects, saveUserObject, userObjectUrls, userSrc } from '../slice/user-objects';
 import { openPhotoObject, uploadObjOn } from '../ui/photo-object';
+import { registerThumbSource } from '../ui/glb-thumb';
 import { isSharedSrc, placeParam, sharedGlbUrl, sharedSrc, useShared, usedShared } from '../community/flow';
 import { LIBRARY, box } from '../slice/shapes';
 import { bestSlices, describe as describeLane, sliceProfile, CELL, HALF_LANE, roofStartOn } from '../slice/slice';
@@ -211,7 +212,7 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
   // the pieces you made from your own photos are always listed (CC-247), under "My pieces" at the top of Add pieces; this used to need ?uploadobj=1 and had no card in the picture grid
   void (async () => { try {
     const mineIds = await listUserObjects();
-    for (const u of mineIds) { const b = el('button', photoBar, { text: `📷 Mine: ${u.prov.name}`, title: `From your photo. ${u.prov.credit.line}` }); b.dataset.object = u.id; b.dataset.fromPhoto = '1'; b.onclick = () => addUserPiece(u.id, u.glb, u.prov); }
+    for (const u of mineIds) { const b = el('button', photoBar, { text: `📷 Mine: ${u.prov.name}`, title: `From your photo. ${u.prov.credit.line}` }); b.dataset.object = u.id; b.dataset.fromPhoto = '1'; registerThumbSource(`mine-${u.id}`, async () => u.glb); b.onclick = () => addUserPiece(u.id, u.glb, u.prov); }
     const want = placeParam(pageSearch()); // ?place=<id>: the prize screen's "Open in the World Editor" has the piece ready to place
     const hit = want ? mineIds.find((u) => u.id === want) : undefined;
     if (hit) { addUserPiece(hit.id, hit.glb, hit.prov); try { const u = new URL(location.href); u.searchParams.delete('place'); history.replaceState(null, '', u); } catch { /* the address stays */ } }
