@@ -2,6 +2,7 @@
 // Mouse over, keyboard focus or a tap on a card changes the featured view; a click adds the piece by pressing the editor's own add button, so nothing else changes.
 import { MOVE_EMPTY, MOVE_NAME, MOVE_ORDER, SECTION_NAME, SECTION_ORDER, STATIC_PIECES, realInfo, type PieceInfo, type Section } from '../slice/piece-info';
 import { pageQuery } from '../flags';
+import { thumbOf } from './glb-thumb';
 import { listSharedPage } from '../community/share-client';
 import { GROUP_SHOWN } from '../community/flow';
 
@@ -48,10 +49,11 @@ export function mountPieceBrowser(menu: HTMLElement): void {
   const viewBtn = h('button', { class: 'pb-view', type: 'button', id: 'pbbymove' });
   viewBtn.onclick = () => { byMove = !byMove; try { localStorage.setItem('cc-pb-bymove', byMove ? '1' : '0'); } catch { /* no storage */ } paint(); };
   bar.insertBefore(viewBtn, search);
-  let pieces: PieceInfo[] = [...STATIC_PIECES], section: Section = 'ground', shown = pieces[0];
+  let pieces: PieceInfo[] = [...STATIC_PIECES], section: Section = 'real', shown = pieces[0];
   const tabBtn = new Map<Section, HTMLButtonElement>();
+  const mineThumb = new Map<string, string>();
   const feat = (p: PieceInfo) => {
-    shown = p; fImg.style.visibility = isMine(p) ? 'hidden' : ''; fImg.src = isMine(p) ? '' : `/assets/pieces/${p.id}-large.webp`; fImg.alt = p.name;
+    shown = p; const mt = mineThumb.get(p.id); fImg.style.visibility = isMine(p) && !mt ? 'hidden' : ''; fImg.src = isMine(p) ? (mt ?? '') : `/assets/pieces/${p.id}-large.webp`; fImg.alt = p.name;
     fText.replaceChildren(h('h3', { textContent: p.name }), h('p', { textContent: p.does }), h('p', { class: 'from', textContent: p.from }), h('p', { class: 'hint', textContent: 'Click the picture card to add it to the world.' }));
     for (const c of grid.querySelectorAll<HTMLElement>('.pb-card')) c.classList.toggle('on', c.dataset.piece === p.id);
   };
@@ -78,7 +80,11 @@ export function mountPieceBrowser(menu: HTMLElement): void {
     const list = pieces.filter((p) => (q ? `${p.name} ${p.does} ${SECTION_NAME[p.section]}`.toLowerCase().includes(q) : p.section === section));
     const card = (p: PieceInfo) => {
       const c = h('button', { class: 'pb-card', type: 'button' }); c.dataset.piece = p.id; c.title = p.name;
-      if (isMine(p)) c.append(h('div', { class: 'pb-mine', textContent: p.id.startsWith('shared-') ? '🌐' : '📷' }), h('span', { textContent: p.name }));
+      if (isMine(p)) {
+        const ph = h('div', { class: 'pb-mine', textContent: p.id.startsWith('shared-') ? '🌐' : '📷' });
+        c.append(ph, h('span', { textContent: p.name }));
+        void thumbOf(p.id).then((u) => { if (!u) return; const img = h('img', { src: u, alt: '' }); ph.replaceWith(img); mineThumb.set(p.id, u); if (shown === p) feat(p); });
+      }
       else { const img = h('img', { src: `/assets/pieces/${p.id}.webp`, alt: '' }); img.loading = 'lazy'; img.onerror = () => { img.style.visibility = 'hidden'; }; c.append(img, h('span', { textContent: p.name })); }
       c.onmouseenter = c.onfocus = () => feat(p);
       c.onclick = () => press(p);
