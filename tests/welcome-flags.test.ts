@@ -9,6 +9,9 @@ describe('welcome screen routing (CC-246)', () => {
   it('opens on a bare visit', () => {
     expect(welcomeOn({ params: q(''), automated: false })).toBe(true);
   });
+  it('a tagged link (?ref=, ?analytics=0) still opens it', () => {
+    for (const s of ['?ref=friend_whatsapp', '?ref=x&analytics=0']) expect(welcomeOn({ params: q(s), automated: false }), s).toBe(true);
+  });
   it('?welcome=0 skips it', () => {
     expect(welcomeOn({ params: q('?welcome=0'), automated: false })).toBe(false);
   });
