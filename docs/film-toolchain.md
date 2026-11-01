@@ -98,6 +98,12 @@ Every shot is a capture of the running game on the stepped clock, so it is frame
 - The page is scaled to 1706 by 960 and padded with a black band, so captions never cover the app.
 
 ### Capture methods
+- The simple way (now the default for every shot that can run live):
+  - Open the real page in a headless browser and record the screen, like a person with a screen recorder.
+  - A small spec file says the address, how many seconds, and a timeline of keys, clicks and mouse moves.
+  - The script `scripts/film-d/grec.mjs` plays the timeline while Playwright records; `scripts/film-d/modal_g.py` runs one container per shot, all at once.
+  - The app's own film camera (`?film=flyover` and the others) does the camera work, and `__filmZero` restarts its clock when recording starts.
+  - Before recording it waits until the runner exists, so no black start frames are filmed.
 - Real-time recording (new default): Playwright `recordVideo` while a script plays the app like a person.
   - Used for the Earth zoom: one take, about 16 distinct frames a second, accepted by the product owner.
   - A silent warm-up pass first, so tiles are loaded; the warm-up is trimmed off.
