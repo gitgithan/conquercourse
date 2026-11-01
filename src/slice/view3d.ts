@@ -23,6 +23,7 @@ export interface Host {
   toggle?(id: number): void; // CC-200: Shift+click on a piece
   marquee?(ids: number[], additive: boolean): void; // CC-200: Shift+drag on empty ground chose these pieces
   lane(): { angle: number; offset: number; level: number };
+  start?(): { u: number; h: number } | null; // CC-200: where the runner starts (metres along the lane, height above the water); none = the old spot at the rod
   select(id: number | null): void;
   moved(p: P3, x: number, z: number): void; // while dragging
   dropped(): void; // when the drag ends
@@ -235,6 +236,9 @@ export function createView3d(wrap: HTMLElement, host: Host): View3d {
     const { angle, offset, level } = host.lane();
     laneG.rotation.y = -angle; band.position.z = offset; mid.position.z = offset;
     water.visible = level > 0.001; water.position.y = level;
+    const st = host.start?.() ?? null; // the flag and the rod stand on the first roof, so a shrunk or cut roof brings them down with it
+    const sx = st ? st.u * Math.cos(angle) - offset * Math.sin(angle) : 0, sz = st ? st.u * Math.sin(angle) + offset * Math.cos(angle) : 0, sy = st ? level + st.h : 0;
+    startMark.position.set(sx, sy, sz); rod.position.set(sx, sy + 1.25, sz);
     syncGhosts();
     redraw();
   }
