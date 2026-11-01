@@ -59,6 +59,16 @@ describe('sharing, the lists and deleting (CC-247)', () => {
     expect(meB.find((i) => i.id === b.body.id)?.mine).toBe(true);
     expect(meB.find((i) => i.id === a.body.id)?.mine).toBeUndefined();
   });
+  it('one player shares at most three a day, deleting does not give one back, and the next day starts fresh', async () => {
+    const db = makeDb(), env = { DB: db, BASETEN_API_KEY: 'k' }, noon = Date.UTC(2026, 10, 2, 12);
+    const ids: string[] = [];
+    for (let i = 0; i < 3; i++) { const r = await publish(piece({ name: `rail ${i}` }), env, ip(), said('ok', 'none'), noon + i); expect(r.status).toBe(200); ids.push(String(r.body.id)); }
+    expect((await publish(piece(), env, ip(), said('ok', 'none'), noon + 9)).status).toBe(429);
+    await remove({ id: ids[0], session: 'player-aaaa-1111' }, env, noon + 10);
+    expect((await publish(piece(), env, ip(), said('ok', 'none'), noon + 11)).status).toBe(429);
+    expect((await publish(piece({ session: 'player-bbbb-2222' }), env, ip(), said('ok', 'none'), noon + 12)).status).toBe(200);
+    expect((await publish(piece(), env, ip(), said('ok', 'none'), noon + 86_400_000)).status).toBe(200);
+  });
   it('with no safety key the share is held, never public', async () => {
     const env = { DB: makeDb() };
     const r = await publish(piece(), env, ip());
