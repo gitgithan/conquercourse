@@ -175,7 +175,8 @@
   - Test the click and the state locally for a minute before any cloud run.
 - A third run drew a line the slicer had not proved: the slicer says "clearable" for about 1.5 s and then "not-clearable" at Piazza San Marco.
   - The recorder now needs a steady "clearable" for 3 s and stops with a message after about 10 s of "not-clearable".
-  - The stored place defaults may predate the roof-start rule; re-run them (open question, CC-200).
+  - The stored place defaults did predate the roof-start rule; they were re-run under it on 2026-11-01 (CC-200), check version 2, 47 of 47 places clear.
+  - `tests/slicer-default.test.ts` now turns roof start on, so a stored `clear: true` is checked by the rule the live Slicer uses (`DEFAULTS_ALL=1` replays every place).
 - Parallel agents: they made this no worse, but they hid it.
   - The stall was written into a commit message and not into the issue.
   - The agent working on proved lanes was another agent, so the two facts never met.

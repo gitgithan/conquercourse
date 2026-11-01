@@ -40,3 +40,17 @@
 
 ## Raw output
 - Per-place files: `../conquercourse-assets/eval-full/cc-200-lane-equal/`.
+
+## After: more lanes proved when roof start is on (2026-11-01)
+- Change: `provedLane` proves 4 lanes as before; when none clears and roof start is on, it proves up to 40.
+- Ran on VM2: `scripts/lane-equal-sweep.ts --modes on --step 3` for the 6 places that lost heights; numbers in `after-more-proofs.json`.
+- Recovered (heights that clear are back to the roof-start-off count or more): 4 of 6.
+  - Eixample: 8 before, 13 after (roof start off: 10).
+  - Jordaan: 2 before, 8 after (off: 3).
+  - Plaza Mayor: 3 before, 7 after (off: 4).
+  - Main Square Krakow: 8 before, 9 after (off: 8); 30 m and 33 m stay lost.
+- Not recovered: Parc Guell (13, off: 16) and Plaka (9, off: 10).
+  - For these, and for Krakow at 30 m and 33 m, up to 300 proofs and 72 turn angles (not 18) find no lane at all.
+  - So the heights are lost by the rule itself, not by the search: with roof start the runner starts on the first roof and a gap there cannot be crossed.
+- Slicer and Editor: 76 cases in these 6 places, 0 disagreements, 0 replay failures, 0 courses that differ.
+- The loss that remains is a real result of roof start, not a search limit; no more proofs are worth adding.
