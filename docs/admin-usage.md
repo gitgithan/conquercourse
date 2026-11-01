@@ -54,3 +54,11 @@
 - The switch is the setting `REQUIRE_LIFT_RECEIPT=1`; it is off by default so older pieces can still be shared.
 - It needs migration `0017_lift_receipts.sql` on that site's database first.
 - Turn it on only after the migration is applied there.
+
+## Who made what
+- The page has a "Who made what" button.
+- It lists the last 200 shared pieces and the last 200 characters, newest first.
+- A player is an anonymous code, the same for one browser; it is never a name, an email or an address.
+- A row turns red when one player has five or more.
+- It shows names, the words typed for characters, status and the safety-check result; it never shows the pictures or files.
+- Pieces made from a photo but never shared are not kept on the server, so they are not listed.
