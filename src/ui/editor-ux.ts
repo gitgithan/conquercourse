@@ -23,6 +23,9 @@ const CSS = `
   .ed.ux #selhint{position:absolute;left:10px;top:10px;z-index:5;background:#ffffffd9;border:1px solid #cfd6d0;border-radius:8px;padding:4px 8px;font-size:12px;color:#33403a;pointer-events:none}
   .ed.ux .top{padding:2px 128px 2px 0} /* the Courses button is fixed in the top right corner: keep the bar clear of it */
   .ed.ux .top .grp{display:inline-flex;gap:6px;align-items:center;flex:0 0 auto}
+  .ed.ux .top{flex-wrap:wrap;row-gap:4px} /* the longer button names do not fit one row at 1280 px: Undo and Redo drop to a second row on the right */
+  .ed.ux .top > .grp:has(#undo){margin-left:auto}
+  .ed.ux #presetpick{max-width:170px}
   .ed.ux .top .div{width:1px;align-self:stretch;background:#cfd6d0;margin:3px 2px}
   .ed.ux #fixmenubtn{font-size:15px;min-height:36px;padding:3px 16px}
   .ed.ux #fixmenubtn .dot{width:9px;height:9px;border-radius:50%;background:#c0392b;box-shadow:0 0 0 2px #fff6;display:none}
