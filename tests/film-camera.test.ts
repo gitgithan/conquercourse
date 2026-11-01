@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { FILM_SHOTS, HERO_DISSOLVE, HERO_PHOTO_HOLD, SHOT_SECONDS, filmPose, filmShotOf, heroPhotoOpacity, type FilmCtx } from '../src/film/camera';
+import { FILM_SHOTS, MATRIX_YAW, HERO_DISSOLVE, HERO_PHOTO_HOLD, SHOT_SECONDS, filmPose, filmShotOf, heroPhotoOpacity, type FilmCtx } from '../src/film/camera';
 
 const ctx: FilmCtx = { finishX: 46.8, focusX: 12, focusY: 0.7, runnerX: 10, runnerY: 0, airborne: 0 };
 const dist = (p: { pos: number[]; look: number[] }) => Math.hypot(p.pos[0] - p.look[0], p.pos[1] - p.look[1], p.pos[2] - p.look[2]);
@@ -27,6 +27,25 @@ describe('film camera', () => {
     const a = filmPose('orbit', 0, ctx), b = filmPose('orbit', SHOT_SECONDS.orbit, ctx);
     expect(a.look[0]).toBe(ctx.focusX);
     expect(Math.sign(a.pos[0] - ctx.focusX)).not.toBe(Math.sign(b.pos[0] - ctx.focusX));
+  });
+  it('matrix orbit keeps the runner centred, turns behind to side to front-45 in order, and never zooms in or jerks', () => {
+    const T = SHOT_SECONDS.matrix, run = { ...ctx, runnerX: 40, runnerY: 2.5 };
+    let lastYaw = -Infinity, lastDist = 0;
+    for (let i = 0; i <= 240; i++) {
+      const t = (T * i) / 240, p = filmPose('matrix', t, run);
+      expect(p.look).toEqual([40, 2.7, 0]); // the runner stays the aim point
+      expect(p.fov).toBe(38); // no zoom
+      const yaw = Math.atan2(p.pos[0] - p.look[0], p.pos[2] - p.look[2]), d = dist(p);
+      expect(yaw).toBeGreaterThanOrEqual(lastYaw); lastYaw = yaw; // turns one way only
+      expect(d).toBeGreaterThanOrEqual(lastDist - 1e-9); lastDist = d; // only pulls back
+    }
+    const at = (t: number) => { const p = filmPose('matrix', t, run); return Math.atan2(p.pos[0] - p.look[0], p.pos[2] - p.look[2]); };
+    expect(at(0)).toBeCloseTo(MATRIX_YAW[0], 5); // behind
+    expect(Math.abs(at(T * 0.5 + 0.0) - 0)).toBeLessThan(0.4); // about side-on in the middle
+    expect(at(T)).toBeCloseTo(MATRIX_YAW[1], 5); // front-45
+    // smooth: the turn between two frames at 30 fps never changes speed by more than a small fraction
+    const w = (t: number) => at(t + 1 / 30) - at(t);
+    for (let t = 0; t < T - 3 / 30; t += 1 / 30) expect(Math.abs(w(t + 1 / 30) - w(t))).toBeLessThan(0.004);
   });
   it('follow comes in while the runner is in the air and stands back on the ground', () => {
     expect(dist(filmPose('follow', 1, { ...ctx, airborne: 1 }))).toBeLessThan(dist(filmPose('follow', 1, ctx)));
