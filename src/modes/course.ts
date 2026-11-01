@@ -1,3 +1,4 @@
+import { backgroundOn, openBackgroundMenu, savedBackground } from '../ui/background';
 import { mountToasts } from '../ui/toast-stack';
 import { filmShotOf } from '../film/camera';
 import { hazardOf, HAZARD_INFO } from '../course/hazard';
@@ -139,6 +140,14 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
 
   const scene = new THREE.Scene();
   scene.background = new THREE.Color(/^[0-9a-f]{6}$/i.test(params.get('bg') ?? '') ? parseInt(params.get('bg')!, 16) : 0x9fc5e8); // ?bg=rrggbb only for pictures over other backgrounds (CC-167)
+  // CC-249: the player's own picture behind every course, kept in this browser only; ?bg= (pictures over other backgrounds) wins
+  const skyColor = scene.background;
+  const paintBackground = () => {
+    const url = backgroundOn(params) && !params.get('bg') ? savedBackground() : null;
+    if (!url) { scene.background = skyColor; return; }
+    new THREE.TextureLoader().load(url, (t) => { t.colorSpace = THREE.SRGBColorSpace; scene.background = t; });
+  };
+  paintBackground();
   const camera = new THREE.PerspectiveCamera(40, host.clientWidth / host.clientHeight, 0.1, 400);
   // the front view window (bottom right, above the drum lane's row): its frame is a div, its picture a second camera drawn in the same canvas
   const PIP_W = 260, PIP_H = 195, PIP_BOTTOM = 118;
@@ -413,7 +422,13 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
   // the two small buttons share one row, so they cannot overlap whatever their text widths are
   const rowBtns = document.createElement('div');
   rowBtns.id = 'coursebtns'; rowBtns.style.cssText = 'position:fixed;right:158px;top:56px;display:flex;gap:8px;align-items:center';
+  const bgBtn = document.createElement('button');
+  bgBtn.id = 'custombg'; bgBtn.textContent = 'Customize background';
+  bgBtn.title = 'Put your own picture behind every course. It stays in this browser only.';
+  bgBtn.style.cssText = editBtn.style.cssText;
+  bgBtn.onclick = () => { bgBtn.blur(); openBackgroundMenu(bgBtn, paintBackground); };
   rowBtns.append(editBtn, wholeBtn);
+  if (backgroundOn(params)) rowBtns.append(bgBtn);
   // choose your runner: the male or the female Rookie (remembered between visits)
   const pick = document.createElement('div');
   pick.id = 'pickrunner'; pick.style.cssText = 'position:fixed;right:262px;top:12px;display:flex;gap:6px';
