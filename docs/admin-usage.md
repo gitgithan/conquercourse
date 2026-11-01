@@ -41,31 +41,7 @@
 ## Tests
 - `tests/admin-usage.test.ts`: one 503 per switch, usage counted once per call, a broken counter never breaks a request, a many-player simulation, sign-in checks.
 
-## Bot check (Turnstile)
-- It guards "Make a character" and "Make a piece from a photo".
-- It is off until the two keys are set, so nothing changes by itself.
-- Put `TURNSTILE_SITE_KEY` and `TURNSTILE_SECRET` in `~/.config/ninja/turnstile.env`.
-- Run `scripts/set-turnstile-keys.sh`, then `npm run deploy:preview`.
-- With the keys set, a missing or wrong check is refused before any paid call.
-
-## Sharing a piece needs a lift receipt
-- Only pieces made from your own photo can be shared to Community.
-- When a 3D lift finishes, the server signs a receipt for that exact piece; sharing shows it once.
-- A receipt cannot publish any other file: the piece sent must match the piece the lift made.
-- The switch is the setting `REQUIRE_LIFT_RECEIPT=1`; it is off by default so older pieces can still be shared.
-- It needs migration `0017_lift_receipts.sql` on that site's database first.
-- Turn it on only after the migration is applied there.
-
-## Who made what
-- The page has a "Who made what" button.
-- It lists the last 200 shared pieces and the last 200 characters, newest first.
-- A player is an anonymous code, the same for one browser; it is never a name, an email or an address.
-- A row turns red when one player has five or more.
-- It shows names, the words typed for characters, status and the safety-check result; it never shows the pictures or files.
-- Pieces made from a photo but never shared are not kept on the server, so they are not listed.
-
-## Other guarded routes
-- The upload safety route answers only the owner (a plain 404 to everyone else); the page never calls it.
-- Registering a challenge course asks for the same bot check as the other creation steps.
-- A receipt now lasts 30 days, and still works once.
-- Each share also deletes receipt rows older than 31 days, so the table stays small.
+## Guards on paid and sharing steps
+- Creation and sharing steps are guarded; the design is in the owner's private notes.
+- To set the bot-check keys: put them in `~/.config/ninja/turnstile.env`, run `scripts/set-turnstile-keys.sh`, then `npm run deploy:preview`.
+- The page has a "Who made what" button for the owner.
