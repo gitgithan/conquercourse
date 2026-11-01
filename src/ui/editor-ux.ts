@@ -107,7 +107,7 @@ const GLOSSARY: [string, string][] = [
   ['Fit  (F)', 'Brings the camera to all your pieces. Click it when you are lost.'],
   ['Add pieces', 'The green button on the left. Puts a new shape, object, bar or machine in the world.'],
   ['Choose several', 'Hold Shift and drag a box on the picture, or Shift+click pieces one by one. Delete removes them all; Undo brings them back; Esc clears.'],
-  ['Undo / Redo', 'Steps back or forward. Nothing is lost.'],
+  ['Undo (Ctrl+Z) / Redo (Ctrl+Y)', 'Steps back or forward. Nothing is lost.'],
   ['Top plan', 'A flat map. Use it to crop a piece or place it exactly.'],
   ['Moves', 'Shows which moves your course has and which are missing.'],
   ['Design partner', 'A helper that answers in words. You choose what to apply.'],
