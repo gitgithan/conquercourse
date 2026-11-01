@@ -3,6 +3,7 @@
 import { failWords, retryNote } from './object-lift';
 import { LIFT_STEPS, progressOf, refusalWords, stageIndex, type Progress, type Refusal } from './stages';
 import { creditLine, PIPELINE, PROVENANCE_VERSION, sha256Hex, type Provenance } from './provenance';
+import { rememberReceipt } from '../community/share-client';
 import { checkField } from '../ui/turnstile';
 
 export interface Shrunk { image: string; thumb: string; width: number; height: number; sha256: string }
@@ -75,6 +76,7 @@ export async function liftObject(inp: LiftInput, progress: (s: string) => void, 
       };
       const note = retryNote(retry);
       tell(LIFT_STEPS.length - 1);
+      if (typeof sub.data.receipt === 'string') rememberReceipt(id, sub.data.receipt);
       return { glb, prov, notes: note ? [note] : [], privacy: (d.privacy as LiftDone['privacy']) ?? {}, seconds: Math.round((Date.now() - t0) / 1000) };
     }
     throw new JobError(failWords(String(d.reason ?? '')));

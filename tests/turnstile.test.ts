@@ -46,3 +46,24 @@ describe('pass from the outline step', () => {
   });
   it('does nothing when the check is off', async () => { expect(await makePass({})).toBeUndefined(); });
 });
+
+import { makeReceipt, receiptJob, spendReceipt, RECEIPT_MS } from '../functions/_lib/receipt';
+import { localD1 } from './helpers-d1';
+describe('lift receipt for sharing a piece', () => {
+  const env = { CC_UPLOAD_TOKEN: 'srv-secret', REQUIRE_LIFT_RECEIPT: '1' };
+  const job = 'fc-AbCdEfGhIjKl';
+  it('is checked and single-use when required', async () => {
+    const { db } = localD1(); const e = { ...env, DB: db as never };
+    const r = (await makeReceipt(env, job))!;
+    expect((await spendReceipt(e, r)).ok).toBe(true);
+    expect((await spendReceipt(e, r)).ok).toBe(false);
+  });
+  it('refuses none, forged, old, and other-secret receipts', async () => {
+    const { db } = localD1(); const e = { ...env, DB: db as never }, t = 1_700_000_000_000, r = (await makeReceipt(env, job, t))!;
+    expect((await spendReceipt(e, undefined)).ok).toBe(false);
+    expect((await spendReceipt(e, r.replace(/.$/, (c) => (c === 'a' ? 'b' : 'a')), t)).ok).toBe(false);
+    expect(await receiptJob(env, r, t + RECEIPT_MS + 1)).toBeNull();
+    expect(await receiptJob({ CC_UPLOAD_TOKEN: 'other' }, r, t)).toBeNull();
+  });
+  it('lets everything through while the switch is off', async () => { expect((await spendReceipt({ CC_UPLOAD_TOKEN: 'x' }, undefined)).ok).toBe(true); });
+});
