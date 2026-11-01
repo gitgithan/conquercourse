@@ -1689,8 +1689,8 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
     // three views, switched with C: from the side, from behind at 45 degrees, and through the runner's eyes
     const fov = camMode === 'first' ? 75 : 40;
     if (camera.fov !== fov) { camera.fov = fov; camera.updateProjectionMatrix(); }
-    if (actor) actor.object.visible = camMode !== 'first';
-    body.visible = !actor && camMode !== 'first';
+    if (actor) actor.object.visible = camMode !== 'first' && !(((window as unknown as { __filmEye?: number }).__filmEye ?? 0) > 0.85);
+    body.visible = !actor && camMode !== 'first' && !(((window as unknown as { __filmEye?: number }).__filmEye ?? 0) > 0.85);
     if (camMode === 'first') {
       camera.position.set(eye.x, eye.y, 0.1);
       const ch = Math.cos(orbit.pitch); // drag turns your head

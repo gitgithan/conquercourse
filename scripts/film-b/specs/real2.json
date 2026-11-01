@@ -1,0 +1,14 @@
+{
+ "port": 5461,
+ "shots": [
+  {
+   "id": "h-climb2",
+   "query": "course=/assets/demo/climb.course.json&welcome=0&music=0&front=0&bot=ideal&film=rig&d=13&yaw=-0.3&pitch=10&fov=42&ty=1.5&lead=3&char=8f72bd8e9c1937ce",
+   "w": 1280,
+   "h": 720,
+   "fps": 30,
+   "frames": 36,
+   "skip": 3.2
+  }
+ ]
+}

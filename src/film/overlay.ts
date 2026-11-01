@@ -16,6 +16,8 @@ export function startFilm(shot: FilmShot, params: URLSearchParams, canvas: HTMLC
   const t = () => (performance.now() - t0) / 1000;
   const isMacro = shot === 'macro'; // macro: filmx and filmy are the part's offset from the runner, md is the distance
   const focusX = Number(params.get('filmx') ?? (isMacro ? 0.2 : finishX / 2)), focusY = Number(params.get('filmy') ?? (isMacro ? 1 : 0.6)), macroDist = Number(params.get('md') ?? 2);
+  const rigNums: Record<string, number> = {};
+  if (shot === 'rig') params.forEach((v, k) => { if (v !== '' && !Number.isNaN(Number(v))) rigNums[k] = Number(v); });
   const timeScale = params.get('dur') ? SHOT_SECONDS[shot] / Number(params.get('dur')) : 1; // ?dur=2.2 plays the whole move in 2.2 s (a fast drone dash)
   document.documentElement.dataset.film = shot;
 
@@ -109,7 +111,7 @@ export function startFilm(shot: FilmShot, params: URLSearchParams, canvas: HTMLC
   };
   return {
     t,
-    pose: (c) => { (window as unknown as { __filmRunner: unknown }).__filmRunner = { x: c.runnerX, y: c.runnerY }; return filmPose(shot, t() * timeScale, { ...c, finishX, focusX, focusY, macroDist }); },
+    pose: (c) => { (window as unknown as { __filmRunner: unknown }).__filmRunner = { x: c.runnerX, y: c.runnerY }; return filmPose(shot, t() * timeScale, { ...c, finishX, focusX, focusY, macroDist, rig: rigNums }); },
     tick: (camera) => {
       frame++; hideChrome(); track(camera);
       if (photo) { layout(); const o = heroPhotoOpacity(t()); photo.style.opacity = String(o); photo.style.display = o <= 0 ? 'none' : 'block'; if (boxEl) boxEl.style.opacity = String(Math.min(1, o * 2) * (t() > 0.6 ? 1 : t() / 0.6)); }

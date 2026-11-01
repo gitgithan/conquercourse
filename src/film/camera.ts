@@ -1,8 +1,8 @@
 // The film camera: scripted shots for the demo video (CC-130). Each shot is a pure function of the time in seconds, so a film frame is the same every run.
 // It only runs with ?film=<shot> in the address; play never loads it.
 
-export type FilmShot = 'flyover' | 'orbit' | 'follow' | 'push' | 'hero' | 'macro' | 'spin' | 'skyline' | 'dive' | 'eyes' | 'aerial' | 'side' | 'tour' | 'close';
-export const FILM_SHOTS: FilmShot[] = ['flyover', 'orbit', 'follow', 'push', 'hero', 'macro', 'spin', 'skyline', 'dive', 'eyes', 'aerial', 'side', 'tour', 'close'];
+export type FilmShot = 'flyover' | 'orbit' | 'follow' | 'push' | 'hero' | 'macro' | 'spin' | 'skyline' | 'dive' | 'eyes' | 'aerial' | 'side' | 'tour' | 'close' | 'rig';
+export const FILM_SHOTS: FilmShot[] = ['flyover', 'orbit', 'follow', 'push', 'hero', 'macro', 'spin', 'skyline', 'dive', 'eyes', 'aerial', 'side', 'tour', 'close', 'rig'];
 
 export interface Pose { pos: [number, number, number]; look: [number, number, number]; fov: number; hideBody?: boolean }
 export interface FilmCtx {
@@ -12,9 +12,10 @@ export interface FilmCtx {
   runnerX: number; runnerY: number;
   macroDist?: number; // macro only: how far the camera stands from the part, m
   airborne: number; // 0 on the ground to 1 in the air; the caller eases it, so the follow shot zooms in at take-off and out at landing
+  rig?: Record<string, number>; // rig shot only: the numbers from the address (see rig below)
 }
 
-export const SHOT_SECONDS: Record<FilmShot, number> = { flyover: 12, orbit: 8, follow: 10, push: 7, hero: 11, macro: 4, spin: 1.1, skyline: 7.2, dive: 4.8, eyes: 3.6, aerial: 7.2, side: 60, tour: 12, close: 60 };
+export const SHOT_SECONDS: Record<FilmShot, number> = { flyover: 12, orbit: 8, follow: 10, push: 7, hero: 11, macro: 4, spin: 1.1, skyline: 7.2, dive: 4.8, eyes: 3.6, aerial: 7.2, side: 60, tour: 12, close: 60, rig: 1 };
 
 const clamp01 = (x: number) => Math.max(0, Math.min(1, x));
 const ease = (x: number) => { const t = clamp01(x); return t * t * (3 - 2 * t); }; // smooth start and end
@@ -114,6 +115,34 @@ function macro(t: number, c: FilmCtx): Pose {
 function spin(t: number, c: FilmCtx): Pose {
   const u = clamp01((t - 0.35) / 0.7); // film seconds are game seconds: the run-up lasts about 0.45 s, the leap to the rope about 0.7 s
   return around([c.runnerX, c.runnerY + 0.9, 0], mix(9, 5.5, ease(t / 0.8)), 2 * Math.PI * u, rad(8), 34);
+}
+
+
+// The rig (film B): a camera that rides with the runner at a set angle and distance, glides from one setting to another at a constant ease, and can end inside the runner's head (first person).
+// Numbers from the address, each with an end value `<name>2`: d (m from the runner), yaw (rad, 0 = plain side view, negative = from behind), pitch (deg), fov, lead (m ahead of the runner), ty (m above the runner).
+// rt0 and rt1 are the seconds the glide starts and ends; eye0 and eye1 are the seconds the camera swings round behind the runner and into the eyes, looking down the course (the side view turning into first person).
+// The aim point follows the runner with a short smoothing (sm seconds), so the view is steady while the runner bobs; the state depends on film time only, so every run of the same frames is the same.
+const rigState = { t: -1, x: 0, y: 0 };
+function rig(t: number, c: FilmCtx): Pose {
+  const p = c.rig ?? {};
+  const g = (k: string, d: number) => (p[k] ?? d);
+  const mixk = (k: string, d: number, u: number) => mix(g(k, d), g(k + '2', g(k, d)), u);
+  const u = ease((t - g('rt0', 0)) / Math.max(0.001, g('rt1', 1e9) - g('rt0', 0)));
+  const sm = g('sm', 0.2), dt = t - rigState.t;
+  if (rigState.t < 0 || dt <= 0 || dt > 0.5) { rigState.x = c.runnerX; rigState.y = c.runnerY; } else { const a = 1 - Math.exp(-dt / sm); rigState.x += (c.runnerX - rigState.x) * a; rigState.y += (c.runnerY - rigState.y) * a; }
+  rigState.t = t;
+  const tx = rigState.x + mixk('lead', 0, u), ty = rigState.y + mixk('ty', 1.1, u);
+  const dist = mixk('d', 10, u), yaw = mixk('yaw', 0, u), pitch = rad(mixk('pitch', 6, u)), fov = mixk('fov', 38, u);
+  const side = around([tx, ty, 0], dist, yaw, pitch, fov);
+  const e = ease((t - g('eye0', 1e9)) / Math.max(0.001, g('eye1', 1e9) - g('eye0', 1e9)));
+  if (e <= 0) return side;
+  const head: [number, number, number] = [c.runnerX, c.runnerY + 1.55, 0.08];
+  const ahead: [number, number, number] = [c.runnerX + 14, c.runnerY + 1.1, 0];
+  (window as unknown as { __filmEye?: number }).__filmEye = e; // the Course hides the body once the eyes are in the head
+  const dd = e < 0.6 ? mix(dist, Math.min(dist, 3), e / 0.6) : mix(Math.min(dist, 3), 0.25, (e - 0.6) / 0.4); // out round the runner, then in behind the head
+  const swing = around([head[0], head[1], 0], dd, mix(yaw, -Math.PI / 2, e), mix(pitch, rad(2), e), mix(fov, 70, e));
+  const look: [number, number, number] = [mix(tx, ahead[0], e), mix(ty, ahead[1], e), 0];
+  return { pos: [swing.pos[0], mix(swing.pos[1], head[1], e * e), mix(swing.pos[2], head[2], e * e)], look, fov: swing.fov };
 }
 
 // The hero shot: the camera starts close on the object the photo shows, then flies up and out over the whole course.

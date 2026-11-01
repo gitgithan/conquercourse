@@ -1,0 +1,77 @@
+{
+ "port": 5463,
+ "shots": [
+  {
+   "id": "l-vault",
+   "query": "course=/assets/demo/training.course.json&welcome=0&music=0&front=0&bot=ideal&film=rig&pitch=8&fov=42&ty=1.5&lead=3&d=12&yaw=0.25&char=8f72bd8e9c1937ce",
+   "w": 1280,
+   "h": 720,
+   "fps": 30,
+   "frames": 54,
+   "skip": 3.9
+  },
+  {
+   "id": "l-wall",
+   "query": "course=/assets/demo/training.course.json&welcome=0&music=0&front=0&bot=ideal&film=rig&pitch=8&fov=42&ty=1.5&lead=3&d=12&yaw=0.15&char=7c95df17d131f152",
+   "w": 1280,
+   "h": 720,
+   "fps": 30,
+   "frames": 54,
+   "skip": 8.0
+  },
+  {
+   "id": "l-hang",
+   "query": "course=/assets/demo/training.course.json&welcome=0&music=0&front=0&bot=ideal&film=rig&pitch=8&fov=42&ty=1.5&lead=3&d=14&yaw=0.2&char=9c187602415901db",
+   "w": 1280,
+   "h": 720,
+   "fps": 30,
+   "frames": 54,
+   "skip": 17.6
+  },
+  {
+   "id": "l-rope",
+   "query": "course=/assets/demo/training.course.json&welcome=0&music=0&front=0&bot=ideal&film=rig&pitch=8&fov=42&ty=1.5&lead=3&d=14&yaw=0.3&char=a6a03ad6b108a85c",
+   "w": 1280,
+   "h": 720,
+   "fps": 30,
+   "frames": 54,
+   "skip": 22.8
+  },
+  {
+   "id": "l-tramp",
+   "query": "course=/assets/demo/training.course.json&welcome=0&music=0&front=0&bot=ideal&film=rig&pitch=8&fov=42&ty=1.5&lead=3&d=12&yaw=0.2&char=03bceda6975ee7c7",
+   "w": 1280,
+   "h": 720,
+   "fps": 30,
+   "frames": 54,
+   "skip": 27.7
+  },
+  {
+   "id": "l-coaster",
+   "query": "course=/assets/demo/coaster.course.json&welcome=0&music=0&front=0&bot=ideal&film=rig&pitch=10&fov=42&ty=1.5&lead=3&d=15&yaw=0.3&char=e103cf0737a04d8e",
+   "w": 1280,
+   "h": 720,
+   "fps": 30,
+   "frames": 90,
+   "skip": 0.0
+  },
+  {
+   "id": "l-drone",
+   "query": "course=/assets/demo/drone.course.json&welcome=0&music=0&front=0&bot=ideal&film=rig&pitch=10&fov=42&ty=1.5&lead=3&d=15&yaw=0.25&char=03bceda6975ee7c7",
+   "w": 1280,
+   "h": 720,
+   "fps": 30,
+   "frames": 72,
+   "skip": 1.6
+  },
+  {
+   "id": "l-launch",
+   "query": "course=/assets/demo/launch.course.json&welcome=0&music=0&front=0&bot=ideal&film=rig&pitch=8&fov=42&ty=1.5&lead=3&d=14&yaw=0.2&char=8f72bd8e9c1937ce",
+   "w": 1280,
+   "h": 720,
+   "fps": 30,
+   "frames": 54,
+   "skip": 0.0
+  }
+ ]
+}

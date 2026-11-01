@@ -34,6 +34,9 @@ if (pageQuery().get('demo') === 'captured-vault') {
 } else if (pageQuery().get('demo') === 'rookie') {
   const { startRookieDemo } = await import('./modes/demo-rookie');
   await startRookieDemo();
+} else if (pageQuery().get('demo') === 'group') {
+  const { startGroup } = await import('./modes/demo-group');
+  await startGroup();
 } else if (pageQuery().get('demo') === 'poses') {
   const { startPoses } = await import('./modes/demo-poses');
   await startPoses();
