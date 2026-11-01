@@ -1,0 +1,894 @@
+{
+  "script": "scripts/lane-equal-sweep.ts",
+  "step": 3,
+  "scores": {
+    "places": 47,
+    "cases": 1176,
+    "slicerYes": 844,
+    "disagree": 0,
+    "courseDiffers": 21,
+    "replayFails": 0,
+    "heightsSolvableOff": 349,
+    "heightsSolvableOn": 495
+  },
+  "places": [
+    {
+      "slug": "alfama-lisbon",
+      "shrink": 0.333,
+      "range": 57,
+      "heights": 19,
+      "slicerYesOff": 12,
+      "slicerYesOn": 18,
+      "disagree": 0,
+      "courseDiffers": 1,
+      "replayFails": 0,
+      "lostWithRoofStart": [
+        57
+      ],
+      "disagreements": [
+        {
+          "cut": 45,
+          "roofStart": false,
+          "slicer": true,
+          "editor": true,
+          "sameCourse": false,
+          "replayClears": true
+        }
+      ]
+    },
+    {
+      "slug": "bo-kaap-cape-town",
+      "shrink": 0.556,
+      "range": 82,
+      "heights": 27,
+      "slicerYesOff": 9,
+      "slicerYesOn": 27,
+      "disagree": 0,
+      "courseDiffers": 0,
+      "replayFails": 0,
+      "lostWithRoofStart": [],
+      "disagreements": []
+    },
+    {
+      "slug": "boston-common-beacon-hill",
+      "shrink": 0.263,
+      "range": 35,
+      "heights": 11,
+      "slicerYesOff": 9,
+      "slicerYesOn": 11,
+      "disagree": 0,
+      "courseDiffers": 0,
+      "replayFails": 0,
+      "lostWithRoofStart": [],
+      "disagreements": []
+    },
+    {
+      "slug": "bryant-park-new-york",
+      "shrink": 0.556,
+      "range": 17,
+      "heights": 5,
+      "slicerYesOff": 3,
+      "slicerYesOn": 5,
+      "disagree": 0,
+      "courseDiffers": 0,
+      "replayFails": 0,
+      "lostWithRoofStart": [],
+      "disagreements": []
+    },
+    {
+      "slug": "bryggen-bergen",
+      "shrink": 0.333,
+      "range": 39,
+      "heights": 13,
+      "slicerYesOff": 10,
+      "slicerYesOn": 8,
+      "disagree": 0,
+      "courseDiffers": 1,
+      "replayFails": 0,
+      "lostWithRoofStart": [
+        18,
+        21,
+        24,
+        36,
+        39
+      ],
+      "disagreements": [
+        {
+          "cut": 15,
+          "roofStart": false,
+          "slicer": true,
+          "editor": true,
+          "sameCourse": false,
+          "replayClears": true
+        }
+      ]
+    },
+    {
+      "slug": "bukchon-seoul",
+      "shrink": 0.333,
+      "range": 32,
+      "heights": 10,
+      "slicerYesOff": 7,
+      "slicerYesOn": 9,
+      "disagree": 0,
+      "courseDiffers": 1,
+      "replayFails": 0,
+      "lostWithRoofStart": [
+        18
+      ],
+      "disagreements": [
+        {
+          "cut": 15,
+          "roofStart": false,
+          "slicer": true,
+          "editor": true,
+          "sameCourse": false,
+          "replayClears": true
+        }
+      ]
+    },
+    {
+      "slug": "caminito-buenos-aires",
+      "shrink": 0.556,
+      "range": 19,
+      "heights": 6,
+      "slicerYesOff": 4,
+      "slicerYesOn": 6,
+      "disagree": 0,
+      "courseDiffers": 0,
+      "replayFails": 0,
+      "lostWithRoofStart": [],
+      "disagreements": []
+    },
+    {
+      "slug": "castle-hill-budapest",
+      "shrink": 0.12,
+      "range": 42,
+      "heights": 14,
+      "slicerYesOff": 4,
+      "slicerYesOn": 13,
+      "disagree": 0,
+      "courseDiffers": 0,
+      "replayFails": 0,
+      "lostWithRoofStart": [
+        42
+      ],
+      "disagreements": []
+    },
+    {
+      "slug": "circular-quay-sydney",
+      "shrink": 0.333,
+      "range": 59,
+      "heights": 19,
+      "slicerYesOff": 12,
+      "slicerYesOn": 19,
+      "disagree": 0,
+      "courseDiffers": 2,
+      "replayFails": 0,
+      "lostWithRoofStart": [],
+      "disagreements": [
+        {
+          "cut": 15,
+          "roofStart": false,
+          "slicer": true,
+          "editor": true,
+          "sameCourse": false,
+          "replayClears": true
+        },
+        {
+          "cut": 45,
+          "roofStart": false,
+          "slicer": true,
+          "editor": true,
+          "sameCourse": false,
+          "replayClears": true
+        }
+      ]
+    },
+    {
+      "slug": "ciutadella-barcelona",
+      "shrink": 0.556,
+      "range": 15,
+      "heights": 5,
+      "slicerYesOff": 3,
+      "slicerYesOn": 4,
+      "disagree": 0,
+      "courseDiffers": 0,
+      "replayFails": 0,
+      "lostWithRoofStart": [
+        15
+      ],
+      "disagreements": []
+    },
+    {
+      "slug": "covent-garden-london",
+      "shrink": 0.417,
+      "range": 27,
+      "heights": 9,
+      "slicerYesOff": 7,
+      "slicerYesOn": 8,
+      "disagree": 0,
+      "courseDiffers": 1,
+      "replayFails": 0,
+      "lostWithRoofStart": [
+        27
+      ],
+      "disagreements": [
+        {
+          "cut": 15,
+          "roofStart": false,
+          "slicer": true,
+          "editor": true,
+          "sameCourse": false,
+          "replayClears": true
+        }
+      ]
+    },
+    {
+      "slug": "dolores-park-san-francisco",
+      "shrink": 0.455,
+      "range": 41,
+      "heights": 13,
+      "slicerYesOff": 10,
+      "slicerYesOn": 13,
+      "disagree": 0,
+      "courseDiffers": 6,
+      "replayFails": 0,
+      "lostWithRoofStart": [],
+      "disagreements": [
+        {
+          "cut": 9,
+          "roofStart": false,
+          "slicer": true,
+          "editor": true,
+          "sameCourse": false,
+          "replayClears": true
+        },
+        {
+          "cut": 15,
+          "roofStart": false,
+          "slicer": true,
+          "editor": true,
+          "sameCourse": false,
+          "replayClears": true
+        },
+        {
+          "cut": 21,
+          "roofStart": false,
+          "slicer": true,
+          "editor": true,
+          "sameCourse": false,
+          "replayClears": true
+        },
+        {
+          "cut": 27,
+          "roofStart": false,
+          "slicer": true,
+          "editor": true,
+          "sameCourse": false,
+          "replayClears": true
+        },
+        {
+          "cut": 33,
+          "roofStart": false,
+          "slicer": true,
+          "editor": true,
+          "sameCourse": false,
+          "replayClears": true
+        },
+        {
+          "cut": 39,
+          "roofStart": false,
+          "slicer": true,
+          "editor": true,
+          "sameCourse": false,
+          "replayClears": true
+        }
+      ]
+    },
+    {
+      "slug": "edinburgh-old-town",
+      "shrink": 0.2,
+      "range": 36,
+      "heights": 12,
+      "slicerYesOff": 6,
+      "slicerYesOn": 11,
+      "disagree": 0,
+      "courseDiffers": 0,
+      "replayFails": 0,
+      "lostWithRoofStart": [
+        36
+      ],
+      "disagreements": []
+    },
+    {
+      "slug": "eixample-barcelona",
+      "shrink": 0.238,
+      "range": 42,
+      "heights": 14,
+      "slicerYesOff": 10,
+      "slicerYesOn": 8,
+      "disagree": 0,
+      "courseDiffers": 0,
+      "replayFails": 0,
+      "lostWithRoofStart": [
+        12,
+        15
+      ],
+      "disagreements": []
+    },
+    {
+      "slug": "galata-istanbul",
+      "shrink": 0.333,
+      "range": 60,
+      "heights": 20,
+      "slicerYesOff": 16,
+      "slicerYesOn": 18,
+      "disagree": 0,
+      "courseDiffers": 1,
+      "replayFails": 0,
+      "lostWithRoofStart": [
+        57,
+        60
+      ],
+      "disagreements": [
+        {
+          "cut": 45,
+          "roofStart": false,
+          "slicer": true,
+          "editor": true,
+          "sameCourse": false,
+          "replayClears": true
+        }
+      ]
+    },
+    {
+      "slug": "gamla-stan-stockholm",
+      "shrink": 0.417,
+      "range": 28,
+      "heights": 9,
+      "slicerYesOff": 5,
+      "slicerYesOn": 9,
+      "disagree": 0,
+      "courseDiffers": 1,
+      "replayFails": 0,
+      "lostWithRoofStart": [],
+      "disagreements": [
+        {
+          "cut": 15,
+          "roofStart": false,
+          "slicer": true,
+          "editor": true,
+          "sameCourse": false,
+          "replayClears": true
+        }
+      ]
+    },
+    {
+      "slug": "gas-works-park-seattle",
+      "shrink": 0.333,
+      "range": 16,
+      "heights": 5,
+      "slicerYesOff": 3,
+      "slicerYesOn": 4,
+      "disagree": 0,
+      "courseDiffers": 0,
+      "replayFails": 0,
+      "lostWithRoofStart": [
+        15
+      ],
+      "disagreements": []
+    },
+    {
+      "slug": "gastown-vancouver",
+      "shrink": 0.417,
+      "range": 27,
+      "heights": 9,
+      "slicerYesOff": 7,
+      "slicerYesOn": 8,
+      "disagree": 0,
+      "courseDiffers": 1,
+      "replayFails": 0,
+      "lostWithRoofStart": [
+        27
+      ],
+      "disagreements": [
+        {
+          "cut": 15,
+          "roofStart": false,
+          "slicer": true,
+          "editor": true,
+          "sameCourse": false,
+          "replayClears": true
+        }
+      ]
+    },
+    {
+      "slug": "grand-place-brussels",
+      "shrink": 0.556,
+      "range": 22,
+      "heights": 7,
+      "slicerYesOff": 2,
+      "slicerYesOn": 5,
+      "disagree": 0,
+      "courseDiffers": 0,
+      "replayFails": 0,
+      "lostWithRoofStart": [],
+      "disagreements": []
+    },
+    {
+      "slug": "jordaan-amsterdam",
+      "shrink": 0.36,
+      "range": 26,
+      "heights": 8,
+      "slicerYesOff": 3,
+      "slicerYesOn": 2,
+      "disagree": 0,
+      "courseDiffers": 0,
+      "replayFails": 0,
+      "lostWithRoofStart": [
+        9,
+        12
+      ],
+      "disagreements": []
+    },
+    {
+      "slug": "lombard-street-san-francisco",
+      "shrink": 0.273,
+      "range": 81,
+      "heights": 27,
+      "slicerYesOff": 14,
+      "slicerYesOn": 25,
+      "disagree": 0,
+      "courseDiffers": 1,
+      "replayFails": 0,
+      "lostWithRoofStart": [
+        72,
+        81
+      ],
+      "disagreements": [
+        {
+          "cut": 75,
+          "roofStart": false,
+          "slicer": true,
+          "editor": true,
+          "sameCourse": false,
+          "replayClears": true
+        }
+      ]
+    },
+    {
+      "slug": "main-square-krakow",
+      "shrink": 0.25,
+      "range": 35,
+      "heights": 11,
+      "slicerYesOff": 8,
+      "slicerYesOn": 8,
+      "disagree": 0,
+      "courseDiffers": 0,
+      "replayFails": 0,
+      "lostWithRoofStart": [
+        12,
+        30,
+        33
+      ],
+      "disagreements": []
+    },
+    {
+      "slug": "montmartre-paris",
+      "shrink": 0.12,
+      "range": 103,
+      "heights": 34,
+      "slicerYesOff": 19,
+      "slicerYesOn": 34,
+      "disagree": 0,
+      "courseDiffers": 0,
+      "replayFails": 0,
+      "lostWithRoofStart": [],
+      "disagreements": []
+    },
+    {
+      "slug": "nyhavn-copenhagen",
+      "shrink": 0.556,
+      "range": 19,
+      "heights": 6,
+      "slicerYesOff": 4,
+      "slicerYesOn": 6,
+      "disagree": 0,
+      "courseDiffers": 0,
+      "replayFails": 0,
+      "lostWithRoofStart": [],
+      "disagreements": []
+    },
+    {
+      "slug": "old-town-square-prague",
+      "shrink": 0.417,
+      "range": 22,
+      "heights": 7,
+      "slicerYesOff": 4,
+      "slicerYesOn": 7,
+      "disagree": 0,
+      "courseDiffers": 1,
+      "replayFails": 0,
+      "lostWithRoofStart": [],
+      "disagreements": [
+        {
+          "cut": 15,
+          "roofStart": false,
+          "slicer": true,
+          "editor": true,
+          "sameCourse": false,
+          "replayClears": true
+        }
+      ]
+    },
+    {
+      "slug": "old-town-tallinn",
+      "shrink": 0.333,
+      "range": 38,
+      "heights": 12,
+      "slicerYesOff": 8,
+      "slicerYesOn": 12,
+      "disagree": 0,
+      "courseDiffers": 1,
+      "replayFails": 0,
+      "lostWithRoofStart": [],
+      "disagreements": [
+        {
+          "cut": 15,
+          "roofStart": false,
+          "slicer": true,
+          "editor": true,
+          "sameCourse": false,
+          "replayClears": true
+        }
+      ]
+    },
+    {
+      "slug": "parc-guell-barcelona",
+      "shrink": 0.2,
+      "range": 70,
+      "heights": 23,
+      "slicerYesOff": 16,
+      "slicerYesOn": 13,
+      "disagree": 0,
+      "courseDiffers": 2,
+      "replayFails": 0,
+      "lostWithRoofStart": [
+        42,
+        45,
+        51,
+        54,
+        60,
+        63,
+        66,
+        69
+      ],
+      "disagreements": [
+        {
+          "cut": 24,
+          "roofStart": false,
+          "slicer": true,
+          "editor": true,
+          "sameCourse": false,
+          "replayClears": true
+        },
+        {
+          "cut": 36,
+          "roofStart": false,
+          "slicer": true,
+          "editor": true,
+          "sameCourse": false,
+          "replayClears": true
+        }
+      ]
+    },
+    {
+      "slug": "piazza-navona-rome",
+      "shrink": 0.556,
+      "range": 21,
+      "heights": 7,
+      "slicerYesOff": 4,
+      "slicerYesOn": 6,
+      "disagree": 0,
+      "courseDiffers": 0,
+      "replayFails": 0,
+      "lostWithRoofStart": [
+        21
+      ],
+      "disagreements": []
+    },
+    {
+      "slug": "piazza-san-marco-venice",
+      "shrink": 0.333,
+      "range": 37,
+      "heights": 12,
+      "slicerYesOff": 7,
+      "slicerYesOn": 12,
+      "disagree": 0,
+      "courseDiffers": 0,
+      "replayFails": 0,
+      "lostWithRoofStart": [],
+      "disagreements": []
+    },
+    {
+      "slug": "place-des-vosges-paris",
+      "shrink": 0.556,
+      "range": 20,
+      "heights": 6,
+      "slicerYesOff": 3,
+      "slicerYesOn": 5,
+      "disagree": 0,
+      "courseDiffers": 0,
+      "replayFails": 0,
+      "lostWithRoofStart": [
+        12
+      ],
+      "disagreements": []
+    },
+    {
+      "slug": "plaka-athens",
+      "shrink": 0.556,
+      "range": 36,
+      "heights": 12,
+      "slicerYesOff": 10,
+      "slicerYesOn": 9,
+      "disagree": 0,
+      "courseDiffers": 0,
+      "replayFails": 0,
+      "lostWithRoofStart": [
+        30,
+        33,
+        36
+      ],
+      "disagreements": []
+    },
+    {
+      "slug": "plaza-mayor-madrid",
+      "shrink": 0.417,
+      "range": 26,
+      "heights": 8,
+      "slicerYesOff": 4,
+      "slicerYesOn": 3,
+      "disagree": 0,
+      "courseDiffers": 0,
+      "replayFails": 0,
+      "lostWithRoofStart": [
+        9,
+        18,
+        21,
+        24
+      ],
+      "disagreements": []
+    },
+    {
+      "slug": "positano-italy",
+      "shrink": 0.12,
+      "range": 100,
+      "heights": 33,
+      "slicerYesOff": 5,
+      "slicerYesOn": 5,
+      "disagree": 0,
+      "courseDiffers": 0,
+      "replayFails": 0,
+      "lostWithRoofStart": [
+        45,
+        48,
+        54,
+        57
+      ],
+      "disagreements": []
+    },
+    {
+      "slug": "retiro-park-madrid",
+      "shrink": 0.556,
+      "range": 16,
+      "heights": 5,
+      "slicerYesOff": 3,
+      "slicerYesOn": 4,
+      "disagree": 0,
+      "courseDiffers": 0,
+      "replayFails": 0,
+      "lostWithRoofStart": [
+        15
+      ],
+      "disagreements": []
+    },
+    {
+      "slug": "senate-square-helsinki",
+      "shrink": 0.333,
+      "range": 43,
+      "heights": 14,
+      "slicerYesOff": 9,
+      "slicerYesOn": 14,
+      "disagree": 0,
+      "courseDiffers": 0,
+      "replayFails": 0,
+      "lostWithRoofStart": [],
+      "disagreements": []
+    },
+    {
+      "slug": "shibuya-tokyo",
+      "shrink": 0.283,
+      "range": 48,
+      "heights": 16,
+      "slicerYesOff": 10,
+      "slicerYesOn": 15,
+      "disagree": 0,
+      "courseDiffers": 1,
+      "replayFails": 0,
+      "lostWithRoofStart": [
+        48
+      ],
+      "disagreements": [
+        {
+          "cut": 45,
+          "roofStart": false,
+          "slicer": true,
+          "editor": true,
+          "sameCourse": false,
+          "replayClears": true
+        }
+      ]
+    },
+    {
+      "slug": "spanish-steps-rome",
+      "shrink": 0.556,
+      "range": 30,
+      "heights": 10,
+      "slicerYesOff": 8,
+      "slicerYesOn": 9,
+      "disagree": 0,
+      "courseDiffers": 0,
+      "replayFails": 0,
+      "lostWithRoofStart": [
+        30
+      ],
+      "disagreements": []
+    },
+    {
+      "slug": "speicherstadt-hamburg",
+      "shrink": 0.417,
+      "range": 30,
+      "heights": 10,
+      "slicerYesOff": 9,
+      "slicerYesOn": 9,
+      "disagree": 0,
+      "courseDiffers": 0,
+      "replayFails": 0,
+      "lostWithRoofStart": [
+        30
+      ],
+      "disagreements": []
+    },
+    {
+      "slug": "stephansplatz-vienna",
+      "shrink": 0.164,
+      "range": 40,
+      "heights": 13,
+      "slicerYesOff": 10,
+      "slicerYesOn": 12,
+      "disagree": 0,
+      "courseDiffers": 0,
+      "replayFails": 0,
+      "lostWithRoofStart": [
+        39
+      ],
+      "disagreements": []
+    },
+    {
+      "slug": "stradun-dubrovnik",
+      "shrink": 0.333,
+      "range": 39,
+      "heights": 13,
+      "slicerYesOff": 8,
+      "slicerYesOn": 12,
+      "disagree": 0,
+      "courseDiffers": 0,
+      "replayFails": 0,
+      "lostWithRoofStart": [
+        39
+      ],
+      "disagreements": []
+    },
+    {
+      "slug": "temple-bar-dublin",
+      "shrink": 0.556,
+      "range": 28,
+      "heights": 9,
+      "slicerYesOff": 7,
+      "slicerYesOn": 9,
+      "disagree": 0,
+      "courseDiffers": 0,
+      "replayFails": 0,
+      "lostWithRoofStart": [],
+      "disagreements": []
+    },
+    {
+      "slug": "trafalgar-square-london",
+      "shrink": 0.556,
+      "range": 27,
+      "heights": 9,
+      "slicerYesOff": 6,
+      "slicerYesOn": 8,
+      "disagree": 0,
+      "courseDiffers": 0,
+      "replayFails": 0,
+      "lostWithRoofStart": [
+        27
+      ],
+      "disagreements": []
+    },
+    {
+      "slug": "tuileries-paris",
+      "shrink": 0.36,
+      "range": 18,
+      "heights": 6,
+      "slicerYesOff": 3,
+      "slicerYesOn": 4,
+      "disagree": 0,
+      "courseDiffers": 0,
+      "replayFails": 0,
+      "lostWithRoofStart": [
+        15,
+        18
+      ],
+      "disagreements": []
+    },
+    {
+      "slug": "union-square-san-francisco",
+      "shrink": 0.333,
+      "range": 38,
+      "heights": 12,
+      "slicerYesOff": 10,
+      "slicerYesOn": 12,
+      "disagree": 0,
+      "courseDiffers": 0,
+      "replayFails": 0,
+      "lostWithRoofStart": [],
+      "disagreements": []
+    },
+    {
+      "slug": "valletta-harbour-malta",
+      "shrink": 0.556,
+      "range": 32,
+      "heights": 10,
+      "slicerYesOff": 8,
+      "slicerYesOn": 10,
+      "disagree": 0,
+      "courseDiffers": 0,
+      "replayFails": 0,
+      "lostWithRoofStart": [],
+      "disagreements": []
+    },
+    {
+      "slug": "washington-square-new-york",
+      "shrink": 0.244,
+      "range": 37,
+      "heights": 12,
+      "slicerYesOff": 6,
+      "slicerYesOn": 12,
+      "disagree": 0,
+      "courseDiffers": 0,
+      "replayFails": 0,
+      "lostWithRoofStart": [],
+      "disagreements": []
+    },
+    {
+      "slug": "zocalo-mexico-city",
+      "shrink": 0.1,
+      "range": 49,
+      "heights": 16,
+      "slicerYesOff": 4,
+      "slicerYesOn": 14,
+      "disagree": 0,
+      "courseDiffers": 0,
+      "replayFails": 0,
+      "lostWithRoofStart": [
+        45,
+        48
+      ],
+      "disagreements": []
+    }
+  ]
+}

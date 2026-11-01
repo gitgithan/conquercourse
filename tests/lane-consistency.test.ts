@@ -10,7 +10,7 @@ import { searchIdealRun } from '../src/sim/ideal';
 import type { Ground } from '../src/world/terrain';
 
 const DIR = 'public/assets/places/';
-const slugs = readdirSync(DIR).filter((f) => f.endsWith('.json') && !['index.json', 'photos-index.json'].includes(f)).map((f) => f.replace('.json', ''));
+const slugs = readdirSync(DIR).filter((f) => f.endsWith('.json') && !['index.json', 'photos-index.json', 'slicer-defaults.json'].includes(f)).map((f) => f.replace('.json', ''));
 
 function load(slug: string) {
   const p = JSON.parse(readFileSync(DIR + slug + '.json', 'utf8'));
