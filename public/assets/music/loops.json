@@ -36,19 +36,16 @@
     "match_err": 0.2429,
     "centroid_hz": 939.29371,
     "onsets_per_s": 7.33334,
-    "hf_share_5k": 0.00006
+    "hf_share_5k": 6e-05
   },
   {
     "screen": "dojo",
-    "candidate": "dojo_44",
-    "bpm": 70,
-    "bars": 4,
-    "seconds": 13.714,
-    "seam_ratio": 0.57612,
-    "rms": 0.1,
-    "match_err": 0.1281,
-    "centroid_hz": 692.58441,
-    "onsets_per_s": 4.52083
+    "candidate": "dojo_piano_owner",
+    "bpm": 60,
+    "bars": 12,
+    "seconds": 47.994,
+    "seam_ratio": 0.446,
+    "rms": 0.1
   },
   {
     "screen": "report",

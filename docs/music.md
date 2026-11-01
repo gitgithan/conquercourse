@@ -49,7 +49,9 @@ Serves the demo mood and play feel; every track is original and made from text o
   - It is the same file under two names, `report.ogg` and `library.ogg`.
   - Its energy above 5 kHz is already 0.059%, under the 0.1% limit, so no filter is applied (the high-shelf of round 2 is not used).
 - Map: `map_11`, unchanged.
-- Dojo: `dojo_44`, unchanged.
+- Dojo and the university Labs: a calm solo piano chosen by the product owner on 2026-11-01 (replaces `dojo_44`).
+  - It is a track supplied by the product owner, cut into a 48 s loop with a 3 s crossfade; licence unclear, so demo only.
+  - The old MusicGen loop is `dojo_44`; the MusicGen piano candidates are the replacement plan.
 
 ## Wrap jump of each pick
 - The jump between the last and the first sample, as a multiple of an ordinary step of the wave; the test allows under 4.
