@@ -99,7 +99,7 @@ Every shot is a capture of the running game on the stepped clock, so it is frame
 
 ### Capture methods
 - The simple way (now the default for every shot that can run live):
-  - Open the real page in a headless browser and record the screen, like a person with a screen recorder.
+  - Open the real page in a headless browser and record the screen with a Playwright wrapper, like a person with a screen recorder.
   - A small spec file says the address, how many seconds, and a timeline of keys, clicks and mouse moves.
   - The script `scripts/film-d/grec.mjs` plays the timeline while Playwright records; `scripts/film-d/modal_g.py` runs one container per shot, all at once.
   - The app's own film camera (`?film=flyover` and the others) does the camera work, and `__filmZero` restarts its clock when recording starts.
