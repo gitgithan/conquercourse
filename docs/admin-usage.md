@@ -23,7 +23,7 @@
 
 ## Set the token (owner runs it)
 - Run `! scripts/set-admin-token.sh` in the Claude Code prompt, or `scripts/set-admin-token.sh` in a terminal.
-  - It makes a random 48-character token, stores it as the Pages secret `ADMIN_TOKEN` for the preview site, and prints it once.
+  - It makes a random 48-character token, stores it as the Pages secret `ADMIN_TOKEN` for both the preview and the live site (the same token), and prints it once.
   - It also saves a copy in `~/.config/ninja/admin.env` (mode 600); read it later with `cat`.
 - Deploy once so the running site sees the new secret.
 - Open `/admin/`, paste the token when asked; the tab keeps it until it closes.
