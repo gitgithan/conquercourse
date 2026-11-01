@@ -86,3 +86,16 @@ describe('lift receipt for sharing a piece', () => {
     expect((running.body as { receipt?: string }).receipt).toBeUndefined();
   });
 });
+
+describe('receipt table tidy-up', () => {
+  it('drops rows older than the lifetime plus a day, keeps newer ones, and a spent receipt stays spent', async () => {
+    const { db, sql } = localD1(); const env = { CC_UPLOAD_TOKEN: 's', REQUIRE_LIFT_RECEIPT: '1', DB: db as never };
+    const now = 1_800_000_000_000, day = 86_400;
+    sql.exec(`INSERT INTO lift_receipts (id, used_at) VALUES ('fc-OLDOLDOLDOLD', ${Math.floor(now / 1000) - 40 * day}), ('fc-NEWNEWNEWNEW', ${Math.floor(now / 1000) - 5 * day})`);
+    const piece = btoa('abc'), r = (await makeReceipt(env, 'fc-FRESHFRESH1', piece, now))!;
+    expect((await spendReceipt(env, r, piece, now)).ok).toBe(true);
+    const ids = (sql.prepare('SELECT id FROM lift_receipts ORDER BY id').all() as { id: string }[]).map((x) => x.id);
+    expect(ids).toEqual(['fc-FRESHFRESH1', 'fc-NEWNEWNEWNEW']);
+    expect((await spendReceipt(env, r, piece, now)).ok).toBe(false);
+  });
+});
