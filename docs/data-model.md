@@ -2,6 +2,8 @@
 
 *Owner, 2026-10-30: "design the right database structure that does not get limited by 2000 characters in the URL, and prepare the database schema for scale and future feature development."*
 
+- Every column of every table is explained in `docs/data-dictionary.md`.
+
 ## So what for the game
 - A shared run needs a short link of ten characters, whatever the run or the course looks like.
   - Before CC-219 a link carried the keys and, for a course made in the editor, the whole course, so it had to fit in 2000 characters; that kind of link is gone.
