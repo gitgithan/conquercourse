@@ -17,20 +17,25 @@
 
 ### 1. Undim: Earth to street (0 s, 9.6 s, 4 bars)
 - Overlay: Explore a new world
-- What happens: Fade up from black on the logo and the slogan, then the Earth seen from far. The camera dives to the ground until the map is an OSM street view. The slice plane sweeps and the buildings extrude, the camera tilts from straight-down to 45 degrees, and street photos pop up like a shuffled deck of cards and fan out.
+- What happens: Fade up from black on the logo and the slogan, then the Earth seen from far.
+  - The camera dives to the ground until the map is an OSM street view.
+  - The slice plane sweeps and the buildings extrude, the camera tilts from straight-down to 45 degrees, and street photos pop up like a shuffled deck of cards and fan out.
 - Camera: Dolly-in from orbit to ground; then pitch from 90 to 45 degrees; photo cards fan out left to right on the beat.
 - Source: Slicer map mode (real); Earth zoom is a concept stand-in; photo cards use Mapillary live under its blur (never stored).
 - Status: Slicer real, globe concept
 - Music: Soft pad and single high piano notes; swell on the dive; a bell on the fan-out.
 - Visual checkpoints:
-  - Logo and 'Train slow. Run fast.' are readable for at least 1.2 s before the dive
+  - Logo and 'Train slow.
+    - Run fast.' are readable for at least 1.2 s before the dive
   - The OSM credit is on screen when the map shows
   - No photo shows a close-up person (our 0.2 rule) and none is stored or un-blurred
 - Risk and fallback: Globe zoom is not built; fall back to a flat dive from a zoomed-out map.
 
 ### 2. A path is searched and found (9.6 s, 4.8 s, 2 bars)
 - Overlay: Find your path
-- What happens: Over the extruded city, thin lines fan out from the start as the simulator searches. Dead ends fade, one line stays and glows. The glow dissolves into the World Editor.
+- What happens: Over the extruded city, thin lines fan out from the start as the simulator searches.
+  - Dead ends fade, one line stays and glows.
+  - The glow dissolves into the World Editor.
 - Camera: High 45-degree view, slow push; match-cut from the glowing line to the editor lane.
 - Source: Ideal-run search overlay (real) and the Editor lane (real).
 - Status: Real
@@ -56,7 +61,8 @@
 
 ### 4. From photo to 3D, then a run (21.6 s, 7.2 s, 3 bars)
 - Overlay: Design your course, using your objects
-- What happens: Look at one 3D object, the iron railing: the photo, a box drawn round the railing, the cut-out, the lift into 3D, and a turntable. Then cut to the same real course with Rookie A jumping over at least one obstacle.
+- What happens: Look at one 3D object, the iron railing: the photo, a box drawn round the railing, the cut-out, the lift into 3D, and a turntable.
+  - Then cut to the same real course with Rookie A jumping over at least one obstacle.
 - Camera: Locked frame for the cut-out; turntable orbit 360 degrees; then side-on tracking of the jump.
 - Source: Photo-lift steps from the CC-38 object pipeline (real inputs); Rookie A run on the stepped clock (real).
 - Status: Lift is a stand-in made from real intermediate files; run is real
@@ -69,7 +75,8 @@
 
 ### 5. Chase a record (28.8 s, 9.6 s, 4 bars)
 - Overlay: Chase a record / See the gaps / Experience in first-person
-- What happens: The training course: a flyover of the full course first. Then the ghost runs ahead and the player chases it, the debug view shows the gaps, and the camera cycles through side, back and first-person views.
+- What happens: The training course: a flyover of the full course first.
+  - Then the ghost runs ahead and the player chases it, the debug view shows the gaps, and the camera cycles through side, back and first-person views.
 - Camera: Flyover along the lane; split of ghost and runner; view cuts every bar.
 - Source: Course flyover, ghost, debug and camera modes (all real).
 - Status: Real
@@ -82,7 +89,9 @@
 
 ### 6. The jump nobody sees land (38.4 s, 7.2 s, 3 bars)
 - Overlay: Practice your moves / Stretch your limits
-- What happens: A lache: the runner lets go of one bar toward the next. Start on a front view, zoom out and orbit from behind the character to the side and then 45 degrees in front, at 360-degree matrix feel, then black out in silence. The viewer never sees if he caught the next bar.
+- What happens: A lache: the runner lets go of one bar toward the next.
+  - Start on a front view, zoom out and orbit from behind the character to the side and then 45 degrees in front, at 360-degree matrix feel, then black out in silence.
+  - The viewer never sees if he caught the next bar.
 - Camera: Front close-up, pull back, 180 degrees of orbit at slow motion, cut to black on the release.
 - Source: Lache clip on the stepped clock with the orbit camera (real; the vault and climb clips stay locked).
 - Status: Real; the orbit move is new
@@ -95,7 +104,8 @@
 
 ### 7. Fast beats: every kind of move (45.6 s, 7.2 s, 3 bars)
 - Overlay: Unleash your creativity
-- What happens: Hard cuts on the beat: sliding below cannon balls, down the roller coaster, carried by the drone, pole vault, the trebuchet throw. Then a transition into a course shown on the course map.
+- What happens: Hard cuts on the beat: sliding below cannon balls, down the roller coaster, carried by the drone, pole vault, the trebuchet throw.
+  - Then a transition into a course shown on the course map.
 - Camera: One shot of about 0.6 s each; each cut lands on a beat; the last cut pulls back into the map.
 - Source: Existing demo courses and clips for each contraption (real).
 - Status: Real
@@ -120,7 +130,9 @@
 
 ### 9. Train in the Dojo (57.6 s, 7.2 s, 3 bars)
 - Overlay: Train in the Dojo
-- What happens: Open the Gap jump lesson and its Try It page. Move the sliders; the graph on the left updates live. Keep the whole page in frame.
+- What happens: Open the Gap jump lesson and its Try It page.
+  - Move the sliders; the graph on the left updates live.
+  - Keep the whole page in frame.
 - Camera: Fixed full-page frame; no zoom, so no control or label is cut off.
 - Source: Dojo, gap lesson (real).
 - Status: Real
@@ -133,7 +145,9 @@
 
 ### 10. Lab 3: Posing a character (64.8 s, 4.8 s, 2 bars)
 - Overlay: Mastery in the Labs / University level
-- What happens: Open Lab 3. Move a hand toward a bar and watch the arm bend; move a few limbs. A small tag says the Labs are university level.
+- What happens: Open Lab 3.
+  - Move a hand toward a bar and watch the arm bend; move a few limbs.
+  - A small tag says the Labs are university level.
 - Camera: Fixed full-page frame.
 - Source: Lab 3 (real); equations are allowed in the Labs.
 - Status: Real
@@ -145,7 +159,9 @@
 
 ### 11. Group photo, then the call to play (69.6 s, 7.2 s, 3 bars)
 - Overlay: Play Now / https://conquercourse.pages.dev/
-- What happens: All ten characters on one platform, the two Rookies in the middle, standing. Then each does a different move (jump shot and others) and freezes. Dim into the logo and slogan, with Play Now and the link below.
+- What happens: All ten characters on one platform, the two Rookies in the middle, standing.
+  - Then each does a different move (jump shot and others) and freezes.
+  - Dim into the logo and slogan, with Play Now and the link below.
 - Camera: Wide, slightly low, locked; a slow push-in as they freeze; dim to the end card.
 - Source: The ten characters from the cast (real models; poses from the move library).
 - Status: Poses real; the group scene is new
