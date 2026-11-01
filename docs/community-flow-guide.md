@@ -1,31 +1,22 @@
 # Community flow: click by click
 
-- **Wallpapers removed (owner, 2026-11-01):** a photo gives 3D pieces only; pictures are easy to get elsewhere and the app is not a photo store.
-- Where the text below still says wallpaper, it is history and no longer in the app.
-
 ## So what
-- Community opens on finished work first, so you see what a completed creation looks like before you make one.
-- Then one clear button, **Make your own**, takes you into the making flow.
-- The making flow is one screen: Photo, Segment, Choose, Make.
-- You never choose "wallpaper or object" up front.
+- Community opens on Explore, so you see what people made before you make one.
+- Then one clear button, **Make your own**, takes you into the Make tab.
+- Making is one screen with three steps: Photo, Pick, Make.
 - You never draw a box: the finder outlines the things in your photo and you click the one you want.
-- Your pick becomes a piece or a wallpaper.
-- A photo gives objects and wallpapers only; courses come from World Slicing and the Editor.
+- Every pick becomes a 3D piece.
+- Your finished piece can be shared: press **Share in Community**, see it in Explore as yours, and delete it any time.
 - It is the only Community now; the old screens are deleted.
-- Your finished piece or wallpaper can be shared: press **Share in Community**, see it in Explore as yours, and delete it any time.
 
 ## The whole path in one picture
 ```mermaid
 flowchart LR
-  A["Photo<br/>(shrunk in your browser)"] --> C["Segment Region<br/>/api/segment -> Modal suggest job"]
+  A["Photo<br/>(shrunk in your browser)"] --> C["Pick: Segment Region<br/>/api/segment -> Modal suggest job"]
   C --> C1["Click the thing you want<br/>(Tab and Enter work too)"]
-  C1 --> D{"Choose"}
-  D -->|3D piece| E["Generate Piece<br/>/api/object-lift -> Modal lift job"]
-  D -->|Wallpaper| F["Save wallpaper<br/>(crop in your browser)"]
+  C1 --> E["Make: name it, Generate Piece<br/>/api/object-lift -> Modal lift job"]
   E --> G["Kept in this browser<br/>(World Editor tray)"]
-  F --> G2["Kept in this browser<br/>(?wallpaper=id)"]
   G --> H["Share in Community<br/>/api/community-items"]
-  G2 --> H
   H --> I["Safety check on the small picture"]
   I -->|ok| J["Shown to everyone"]
   I -->|unsure| K["Held: only you see it"]
@@ -36,7 +27,7 @@ flowchart LR
 ```
 
 ## What your click does
-- The finder looks at the whole photo, and you click to choose.
+- The finder looks at the whole photo, and you click to pick.
   - Segment Region sends the whole photo, and the finder looks at all of it.
   - It reads no box at all (`Mask.suggest` takes the photo only).
   - It tries one plain word at a time (bench, stairs, railing, wall and so on) and keeps the best, non-repeating things.
@@ -49,7 +40,7 @@ flowchart LR
 - If the finder finds nothing, or fails, or is switched off:
   - The page says so in plain words.
   - It offers **Try again** and **Pick a different photo**.
-  - The old "Skip the finder" button is gone, because without a box there is nothing to skip to.
+  - There is no hand-drawn fallback.
 - The 3D maker later finds the real outline itself, from the photo, the picked box and the name you give it.
   - It looks for that name under the picked box, then falls back to the box alone, then to the plain box.
   - So the blue shape you see after Segment Region is a preview, not what is lifted.
@@ -68,13 +59,12 @@ flowchart LR
   - The cheaper option is to wake the machines while a person is on the Make tab: one small call when the tab opens, so the model is loaded by the time they press Segment Region, and nothing runs when nobody is on the page.
   - That call needs a new small Modal function, which is a deploy, so it is left for the product owner to approve.
 
-## The flow after this change
+## The flow in short
 ```mermaid
 flowchart LR
-  A["Photo"] --> C["Segment Region<br/>whole photo, one run"]
+  A["Photo"] --> C["Pick: Segment Region<br/>whole photo, one run"]
   C --> D["Click the things you want<br/>outlined on the photo, hover lights one"]
-  D --> E["Choose: piece or wallpaper for each"]
-  E --> F["Make N pieces<br/>one lift each, queued, per-piece bar"]
+  D --> F["Make N pieces<br/>one lift each, queued, per-piece bar"]
   F --> G["Prize: spinning turntable in the middle"]
   G --> H["Keep / Share / Make another"]
   G --> I["Open in the World Editor<br/>Add pieces, My pieces, already placed"]
@@ -89,7 +79,6 @@ flowchart LR
 - The editor's Add pieces window is a picture grid built from our own list, and the buttons for your pieces were hidden behind it, and only built when the address had `uploadobj=1`.
 - Now they are always read, and the grid shows them as cards under **My pieces** at the very top, on every tab.
 - The prize screen's **Open in the World Editor** opens `?mode=editor&place=<id>` and the piece is placed for you.
-- Wallpapers are not pieces: they hang behind a course, so they are attached to a course ("Play it") and cannot be placed in the editor.
 
 ## Where things are kept
 ```mermaid
@@ -97,20 +86,19 @@ flowchart TB
   subgraph Browser["Your browser"]
     S["cc.session: a random code, never sent anywhere else"]
     IDB["IndexedDB: your 3D pieces"]
-    LS["localStorage: your wallpapers and the share links"]
+    LS["localStorage: the share links"]
   end
   subgraph Pages["Cloudflare Pages Functions"]
     API["/api/community-items"]
   end
   subgraph D1["D1 table community_items"]
-    R["id, owner (one-way code), kind, name, status,<br/>small picture, .glb (pieces only), meta"]
+    R["id, owner (one-way code), kind, name, status,<br/>small picture, .glb, meta"]
   end
   S -->|header, hashed by the server| API
   IDB -. "Share: the .glb and a small picture" .-> API
-  LS -. "Share: a small picture" .-> API
   API --> R
 ```
-- The photo itself is never stored on our side; only the small picture of your area and, for a piece, the finished .glb.
+- The photo itself is never stored on our side; only the small picture of your area and the finished .glb.
 - The owner column is a one-way code of your browser's random code, not an address.
 - Status is `pending` (only you see it), `approved` (everyone sees it) or `removed` (you deleted it).
 
@@ -144,36 +132,35 @@ sequenceDiagram
 
 ## The two tabs
 - **Explore** (opens first), top to bottom:
-  - Courses people made: the finished courses, each card with a Play button.
-  - Now make your own: the **Make your own** button.
-  - Pieces and wallpapers: finished examples first (sample places as wallpapers, our example pieces with their credit lines), then yours from this browser.
-- **Make your own**: the stepper below. 
-  - Your mark stays if you look at Explore and come back.
+  - **Make your own**: the button that opens the Make tab.
+  - **Pieces people made**: our examples (only those with a picture), then yours from this browser, then pieces shared by players.
+  - Each card has a small source crop picture, **Look around** (opens the same 3D turntable as a new piece) and **Use in my World Editor**.
+  - A search box (by name) and **Show more** keep the list short.
+  - There is no courses block and no kind filter.
+- **Make**: the three steps below.
+  - Your pick stays if you look at Explore and come back.
 
-## Click by click (Make your own tab)
+## Click by click (Make tab)
 1. **Photo.**
    - Click "Choose file" and pick a JPEG, or click one of our sample place photos.
-   - You land on Segment by yourself.
-2. **Segment.**
+   - You land on Pick by yourself.
+2. **Pick.**
    - Press **Segment Region**.
    - A stepped bar shows the job: Checking the photo, Finding the things in it, Done.
    - The bar shows the seconds so far, and **Cancel** stops waiting.
    - The finder looks at the whole photo and outlines what it found; you draw nothing.
    - Hover lights one; click picks it; click again puts it back (see "What your click does").
-   - Pick several to make several at once, up to a small limit.
+   - Pick several to make several, up to a small limit.
    - Tab and Enter do the same without a mouse.
    - If nothing is found, or the finder fails or is off, the page offers **Try again** and **Pick a different photo**.
-3. **Choose.**
-   - Each picked thing has a small picture, a name box and two buttons: **3D piece** and **Wallpaper**.
+3. **Make.**
+   - Each picked thing has a small picture and a name box; every pick becomes a 3D piece.
    - Name a piece with a plain word (bench, railing, stairs, wall).
-   - Press a button again to un-choose it.
-   - "Next: Make" opens when the pick has a choice.
-4. **Make.**
-   - A 3D piece shows **Generate Piece**; press it and watch the bar (the first one of a day can take minutes).
+   - Press **Generate Piece** and watch the bar (the first one of a day can take minutes).
    - The bar steps through: Checking the photo, Cutting out the object, Building the 3D shape, Adding colour, Done.
    - The bar shows the seconds so far, and **Cancel** stops waiting.
    - The names come from the job itself, so the bar moves when the job moves.
-   - The piece is saved in this browser and appears in the World Editor tray as "📷 Mine: name".
+   - The piece is saved in this browser and appears in the World Editor tray as "Mine: name".
    - Before you press, a line beside the button says how many pieces you can make a day and how many are left today.
      - Both numbers are read from the server when the Make step opens, so the page never has its own copy.
      - If the page cannot read them, it says so, and the server still decides when you press.
@@ -182,16 +169,15 @@ sequenceDiagram
    - If you queued more pieces than are left today, a red warning says so.
      - **Make N pieces** counts only the ones that can start.
      - The extra pieces have their own button switched off, with the reason beside it ("try again tomorrow").
-   - A wallpaper shows a name, a course list and **Save wallpaper**; the crop is the picked area widened to the course's wide look.
-   - **Share in Community** (a button on each finished piece or wallpaper) sends the small picture, and for a piece the .glb, to the Community list.
+   - **Share in Community** (a button on each finished piece) sends the small picture and the .glb to the Community list.
      - The server looks at the small picture again with the safety check.
      - If it says all clear, everyone sees it in Explore.
      - If it is unsure, only you see it ("waiting for the safety check") until it is approved.
      - If it is blocked, nothing is stored and the page says so.
-   - "What next" then offers: Open the World Editor, Play a course with the wallpaper, See them in Explore, Start with another photo.
+   - "What next" then offers: Open the World Editor, See it in Explore, Start with another photo.
 
 ## Seeing and deleting what you shared
-- Explore, in "Pieces and wallpapers", shows your shared items first: "Yours: name", with a small picture and what it is.
+- Explore, in "Pieces people made", shows your shared items after our examples: "Yours: name", with a small picture.
 - Items that other players shared and the safety check cleared show below them, as "shared by a player".
 - Your own cards have a **Delete** button.
   - It asks "Delete "name" for good?" with **Yes, delete** and **Keep it**.
@@ -211,23 +197,13 @@ sequenceDiagram
 - The numbers behind the limits are in the private notes, not here.
 - The server sends `retryAfterSeconds` in the body and a `Retry-After` header; the page turns it into the clock time.
 
-## What the wallpaper path looks like
-- It is the same pick, so there is no second crop tool.
-- At Choose you press **Wallpaper** for that pick.
-- At Make you pick the course it hangs behind and press Save wallpaper.
-- "Play a course with the wallpaper" opens that course with `&wallpaper=<id>` and the crop is the sky behind the lane.
-- It is looks only; the course plays the same.
-
 ## Things to know (gaps)
 - Segmentation finds outlines on its own; a click only chooses among them.
 - If the thing you want is not outlined, press Segment Region again or pick a different photo; there is no way to draw one.
 - Cancel stops the page waiting; the job on the server may still finish, and it still counts for today.
-- Wallpapers and pieces stay in this browser until you press Share in Community.
+- Pieces stay in this browser until you press Share in Community.
 - A shared item is held for a person to approve whenever the safety check is unsure (`npm run community items` lists them; see `docs/deploy.md`).
-- Other players can see your shared item in Explore, but cannot yet put your piece in their World Editor tray or a wallpaper behind their course.
 - The World Editor "Share to Community" button and the contributed-photo rule are not built yet.
-- The example pieces in Explore are pictures with credits; they open the World Editor, not a 3D view.
-- The wallpaper shows only on the Course screen, and only with `?wallpaper=<id>` in the address.
 - The tray badge is a camera sign on the "Mine:" buttons; the place name is not on it yet.
 - Pieces appear in the tray only with `?uploadobj=1` (the "Open the World Editor" button adds it).
 - Generate Piece uses the paid photo-to-3D job; the existing daily limits and safety check apply.
@@ -236,27 +212,25 @@ sequenceDiagram
   - [Photo uploaded](evidence/cc-247-upload-1-upload.jpg)
   - [Outline found](evidence/cc-247-upload-2-segment.jpg)
   - [Piece generated](evidence/cc-247-upload-3-generated.jpg)
-  - [Wallpaper shared](evidence/cc-247-upload-4-wallpaper-shared.jpg)
-  - [Gallery shows both as yours](evidence/cc-247-upload-5-gallery.jpg)
+  - [Gallery shows it as yours](evidence/cc-247-upload-5-gallery.jpg)
   - [Delete asks first](evidence/cc-247-upload-6-delete-confirm.jpg)
   - [Gone after a reload](evidence/cc-247-upload-7-gone.jpg)
   - [Run record](evidence/cc-247-upload-run.json)
 - Desktop at 1280 px only.
 
 ## Using other players' pieces
-- In Explore, another player's piece (once it has passed the safety check) has a **Use in my course** button.
-- The button adds it to your own list, then offers **Open the World Editor**.
+- In Explore, another player's piece (once it has passed the safety check) has **Look around** and **Use in my World Editor**.
+- Use in my World Editor adds it to your own list, then offers **Open the World Editor**.
 - In the editor it sits under **Shared pieces** in Add pieces, and you place it like any other piece.
 - Pieces that are waiting, held or blocked never get the button, and the server will not hand their model to anyone but the maker.
 - A course with a shared piece keeps the piece's id.
 - When a friend opens the short link, the piece is fetched from the community store.
 - If it cannot be fetched, the course still loads and the piece shows as a plain grey shape.
 - If the maker deletes it, the editor says "no longer available" and skips it.
-- Wallpapers are not placeable pieces; they attach behind a whole course.
 
 ## Long lists
 - The shared list in Explore comes one page at a time, with a **Show more** button.
-- It has a search box (searched by name on the server) and a filter for 3D pieces or wallpapers.
+- It has a search box (searched by name on the server).
 - In the editor, **My pieces** and **Shared pieces** show a dozen cards at a time, then **Show more**.
 - Typing in the Add pieces search also looks through pieces other players shared, a page at a time.
 - The built-in object list (the 19 photo objects) is a shipped file and does not grow with players' work.
