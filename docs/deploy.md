@@ -28,6 +28,9 @@
 - `git pull`, then `npm run deploy:preview` (a separate preview address).
 - Production (`npm run deploy`) only on the product owner's explicit word.
 
+## Owner usage page and switches
+- See [admin usage](admin-usage.md) for the private usage page, the on/off switches and how to set the admin token.
+
 ## Collecting and reading feedback
 - Change the questions by editing `public/feedback-questions.json` and bumping its `round` (for example `public-3`); deploy.
   - Question types: `text`, `scale`, `choice` (one chip) and `multi` (several chips; the answer is stored as the ticked options joined with a comma).
