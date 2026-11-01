@@ -29,6 +29,7 @@
 - Suggested outlines need the server job (CC-248).
 - Wallpapers were removed (owner, 2026-11-01): pictures are easy to get elsewhere and the app is not a photo store.
 - Only 3D pieces go to the Community gallery; old wallpaper rows stay in the table but are never listed.
+- Separate from Community: the Course screen has a **Customize background** button; the player's own picture stays only in their browser (never uploaded) behind every course until **Remove background**.
 - Sharing: **Share in Community** stores a small picture (and the .glb for a piece) in D1; the safety check decides who sees it, and the owner can delete it (CC-247, `docs/community-flow-guide.md`).
 - Using another player's shared piece in your own editor or course is not built yet.
 
