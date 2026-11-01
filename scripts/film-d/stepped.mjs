@@ -11,7 +11,7 @@ await p.addInitScript(`(() => { let t = 0; performance.now = () => t; window.__s
 await p.goto(spec.url);
 await p.waitForSelector('html[data-ready=true]', { timeout: 120000 }).catch(() => console.log('not ready'));
 await p.addStyleTag({ content: '#cc-feedback-btn{display:none!important}' });
-await p.waitForFunction('window.__filmRunner', null, { timeout: 90000 }).catch(() => console.log('no runner'));
+await p.waitForFunction(spec.waitFor || 'window.__filmRunner', null, { timeout: 90000 }).catch(() => console.log('no runner'));
 const step = (ms) => p.evaluate((m) => { window.__stepClock(m); return new Promise((r) => requestAnimationFrame(r)); }, ms);
 const keys = (spec.keys || []).slice();
 const doKeys = async (tNow) => { for (const k of keys) { if (!k.done && tNow >= k.t) { k.done = true; if (k.key) await p.keyboard.press(k.key); if (k.down) await p.keyboard.down(k.down); if (k.up) await p.keyboard.up(k.up); } } };
@@ -27,6 +27,8 @@ if (!spec.probe) {
   const base = spec.skip ?? 0;
   for (let i = 0; i < spec.frames; i++) {
     await doKeys(base + i / fps);
+    if (spec.perFrame) await p.evaluate(`((i, n) => { ${spec.perFrame} })(${i}, ${spec.frames})`);
+    if (spec.settle) await p.waitForTimeout(spec.settle);
     await p.evaluate(() => new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r))));
     await p.screenshot({ path: `${out}/f${String(i).padStart(5, '0')}.jpg`, type: 'jpeg', quality: 92, timeout: 180000 });
     await p.evaluate((ms) => window.__stepClock(ms), 1000 / fps);
