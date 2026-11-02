@@ -1,4 +1,4 @@
-"""CC-132, new Dojo music: five gentle options from MusicGen, text prompt only (no melody input, no artist names).
+"""CC-132, new Dojo music: five cave options (xylophone, echo, romantic rubato) from MusicGen, text prompt only (no melody input, no artist names).
 
 Why: the old Dojo loop was a track with an unclear licence; the product owner says it is copyrighted, so it must go.
 Run: modal run pipelines/music_dojo.py --out ../conquercourse-assets/eval-full/cc-132-dojo-music
@@ -10,13 +10,13 @@ import modal
 
 MODEL = "facebook/musicgen-medium"
 JOBS = [
-    {"name": "dojo-a-piano-slow", "seed": 101, "prompt": "calm solo piano, slow gentle melody, soft and warm, spacious, relaxing study music, 60 bpm, instrumental, no vocals, no drums"},
-    {"name": "dojo-b-piano-strings", "seed": 202, "prompt": "gentle piano with a soft string pad, peaceful and tender, slow flowing arpeggios, calm morning, 66 bpm, instrumental, no vocals, no drums"},
-    {"name": "dojo-c-music-box", "seed": 303, "prompt": "soft music box and felt piano, quiet lullaby feel, simple sweet melody, dreamy and calm, 72 bpm, instrumental, no vocals, no drums"},
-    {"name": "dojo-d-guitar", "seed": 404, "prompt": "fingerpicked nylon guitar, soft and peaceful, slow warm melody, gentle room sound, relaxing, 70 bpm, instrumental, no vocals, no drums"},
-    {"name": "dojo-e-harp-piano", "seed": 505, "prompt": "soft harp and piano, quiet garden at dawn, slow gentle phrases, airy and calm, 64 bpm, instrumental, no vocals, no drums"},
+    {"name": "cave-a-xylo-echo", "seed": 611, "prompt": "light xylophone and celesta playing a slow dreamy melody with long echo and reverb, free flowing rubato tempo, romantic era expressive phrasing, soft ambient cave atmosphere with distant water drips and wide surround pad, instrumental, no drums"},
+    {"name": "cave-b-marimba-pad", "seed": 622, "prompt": "gentle marimba and glockenspiel, expressive romantic rubato, notes that stretch and hurry, big cavernous echo, deep warm ambient drone underneath, magical underground cave, wonder and calm, instrumental, no drums"},
+    {"name": "cave-c-xylo-romantic", "seed": 633, "prompt": "xylophone playing a tender romantic melody with varied rhythm, swelling and fading dynamics like a Chopin nocturne, shimmering echo, glassy ambient pad, spacious crystal cave, slow, instrumental, no drums"},
+    {"name": "cave-d-vibes-celesta", "seed": 644, "prompt": "vibraphone and celesta, light bell-like xylophone tones, flexible tempo with pauses and gentle accelerations, long reverb tails, soft choir-like pad far away, glowing cave walking atmosphere, instrumental, no drums"},
+    {"name": "cave-e-kalimba-harp", "seed": 655, "prompt": "kalimba and soft harp with light xylophone accents, romantic expressive timing, echoing in a large stone cave, subtle wind and dripping water ambience, warm slow pad, magical and peaceful, instrumental, no drums"},
 ]
-app = modal.App("cc132-dojo-music")
+app = modal.App("cc132-dojo-music2")
 image = (modal.Image.debian_slim(python_version="3.10").pip_install("torch", "transformers>=4.45", "numpy", "scipy", "accelerate").env({"HF_HOME": "/hf-cache"}))
 hf_cache = modal.Volume.from_name("hf-cache")
 
@@ -38,7 +38,7 @@ def make() -> dict:
 
 
 @app.local_entrypoint()
-def main(out: str = "../conquercourse-assets/eval-full/cc-132-dojo-music"):
+def main(out: str = "../conquercourse-assets/eval-full/cc-132-dojo-music2"):
     r = make.remote()
     o = pathlib.Path(out); o.mkdir(parents=True, exist_ok=True)
     for name, wav in r["clips"].items():

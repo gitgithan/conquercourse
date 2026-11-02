@@ -36,16 +36,16 @@
     "match_err": 0.2429,
     "centroid_hz": 939.29371,
     "onsets_per_s": 7.33334,
-    "hf_share_5k": 0.00006
+    "hf_share_5k": 6e-05
   },
   {
     "screen": "dojo",
-    "candidate": "dojo_piano_owner",
-    "bpm": 60,
-    "bars": 12,
-    "seconds": 47.994,
-    "seam_ratio": 0.446,
-    "rms": 0.1
+    "candidate": "cave-a-xylo-echo",
+    "bpm": 0,
+    "bars": 0,
+    "seconds": 26.94,
+    "seam_ratio": 0.0,
+    "rms": 0.05
   },
   {
     "screen": "report",
