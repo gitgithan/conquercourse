@@ -4,19 +4,11 @@ import { adviseLane } from '../src/slice/advice';
 import { fixBars } from '../src/slice/fixbars';
 import { barMesh, isHold, type P } from '../src/slice/holds-world';
 import { diffProposal, enabledCount, fromAdvice, fromEdits, labelsOf, resultOf } from '../src/slice/preview';
-import type { Mesh } from '../src/slice/slice';
 import { proves } from '../src/slice/photo-proof';
 import { newPiece } from '../src/slice/world';
+import { box, deck, lane } from './helpers/pieces';
 
-function box(w: number, h: number, d: number): Mesh {
-  const [x0, x1, y0, y1, z0, z1] = [-w / 2, w / 2, 0, h, -d / 2, d / 2];
-  const p = [x0, y0, z0, x1, y0, z0, x1, y1, z0, x0, y1, z0, x0, y0, z1, x1, y0, z1, x1, y1, z1, x0, y1, z1];
-  const q = [0, 1, 2, 0, 2, 3, 4, 6, 5, 4, 7, 6, 0, 4, 5, 0, 5, 1, 3, 2, 6, 3, 6, 7, 0, 3, 7, 0, 7, 4, 1, 5, 6, 1, 6, 2];
-  return { positions: p, indices: q };
-}
 const bar = (x: number, y: number): P => ({ ...newPiece('Bar', barMesh(), { x, z: 0 }), src: 'hold:bar', y });
-const deck = (x: number, w: number): P => ({ ...newPiece('Deck', box(w, 0.5, 1.8), { x, z: 0 }), src: 'x' });
-const lane = { angle: 0, offset: 0, level: 0 };
 const snapshot = (ps: P[]) => JSON.stringify(ps.map((p) => [p.id, p.x, p.y, p.z, p.yaw, p.scale]));
 
 describe('preview before apply', () => {
