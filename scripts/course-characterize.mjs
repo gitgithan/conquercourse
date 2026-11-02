@@ -97,7 +97,8 @@ await step('Escape', async () => { await key('Escape'); });
 // toasts: three at once through the page's own hook
 await open('welcome=0&tour=0&check=1');
 await step('three toasts', async () => { await page.evaluate(() => { window.__say('First toast', 200); window.__say('Second toast', 200); window.__say('Third toast', 200); }); await adv(300); });
-await step('toasts leave', async () => { await adv(4000); });
+// a leaving toast is removed by a wall-clock timer (480 ms, src/ui/toast-stack.ts), which the stepped page clock does not move: wait for it, or the step sees the stack before or after the removal
+await step('toasts leave', async () => { await adv(4000); await page.waitForFunction(() => !document.querySelector('#toasts .toast'), null, { timeout: 5000 }).catch(() => {}); });
 
 // a run that clears: the stored best line of lache played into the page as a friend's keys (the way scripts/report-check.mjs does)
 const link = execFileSync('node_modules/.bin/tsx', ['scripts/share-link.ts', 'public/assets/demo/lache.course.json', `http://localhost:${port}`]).toString().trim();
