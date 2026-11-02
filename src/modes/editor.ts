@@ -13,8 +13,6 @@ import { LIBRARY } from '../slice/shapes';
 import { bestSlices, describe as describeLane, CELL, HALF_LANE, roofStartOn } from '../slice/slice';
 import { crop, duplicate, hits, newPiece, realSize, scaleBy, scaleToHeight, size, worldSamples, laneProfile, liftToRoof } from '../slice/world';
 import type { CourseData } from '../course/course';
-import { xWindows, type SearchResult } from '../sim/ideal';
-import { searchInput, storedPlanFor, withStoredPlan, type PresetPlan } from '../slice/preset-plans';
 import { createView3d } from '../slice/view3d';
 import { sceneFor } from '../slice/scene';
 import { isTrack, TRACK_BLOCK_TEXT, type TrackBlock } from '../slice/track-world';
@@ -39,9 +37,10 @@ import { createHelper } from './editor/helper';
 import { createMoves } from './editor/moves';
 import { el } from './editor/dom';
 import { createLane } from './editor/lane';
+import { createSearch } from './editor/search';
 import { createSelection } from './editor/selection';
 import { createEditorState, isDevice, isSizeReference, type P, type Saved } from './editor/state';
-import { finalText, isStopped, type LaneProgress } from '../slice/lane-check';
+import { finalText, isStopped } from '../slice/lane-check';
 
 // The World editor: build a world from pieces on a plan view, scale them (a toy brick becomes a block), turn, copy, crop and move them,
 // choose the lane the runner takes (turn about the start, sideways, level), and play it. Everything is in metres.
@@ -565,48 +564,8 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
     location.href = location.pathname; // no ?mode: the Course puts itself back from the resume
   }
   backLink.onclick = (e) => { if (handoff) { e.preventDefault(); void goToCourse(); } };
-  let verifyTimer = 0, adviceRun = 0, verifyVersion = 0, searchVersion = 0;
-  let searchWorker: Worker | null = null, finishSearch: ((cleared: PresetPlan | null) => void) | null = null;
-  let activeSearch: { key: string; promise: Promise<PresetPlan | null> } | null = null;
-  let cachedSearch: { key: string; result: PresetPlan } | null = null;
-  // CC-243: the lane check. A ready-made course is answered at once from its stored proof (scripts/preset-plans.ts); an edited one is searched in a worker, and the plan it finds goes with the hand-off to the Course.
-  function searchResult(course: CourseData): Promise<PresetPlan | null> {
-    const stored = storedPlanFor(course);
-    document.documentElement.dataset.laneProof = stored ? 'stored' : 'search'; // for the timing check
-    if (stored) return Promise.resolve(stored);
-    const key = JSON.stringify(searchInput(course));
-    if (cachedSearch?.key === key) return Promise.resolve(cachedSearch.result);
-    if (activeSearch?.key === key) return activeSearch.promise;
-    stopSearch();
-    const id = ++searchVersion;
-    let worker: Worker;
-    try { worker = new Worker(new URL('../sim/ideal-worker.ts', import.meta.url), { type: 'module' }); }
-    catch { return Promise.resolve(null); }
-    const promise = new Promise<PresetPlan | null>((resolve) => {
-      searchWorker = worker; finishSearch = resolve;
-      worker.onmessage = (e: MessageEvent<{ id: number; progress?: LaneProgress } & Pick<SearchResult, 'plan' | 'cleared' | 'windows' | 'routes'>>) => {
-        if (e.data.id !== id) return;
-        if (e.data.progress) { laneCheck.progress(e.data.progress); return; }
-        const result: PresetPlan = { key, cleared: e.data.cleared, ...(e.data.cleared ? { plan: e.data.plan, windows: xWindows(e.data.windows ?? []), ...(e.data.routes ? { routes: e.data.routes } : {}) } : {}) };
-        cachedSearch = { key, result };
-        searchWorker = null; finishSearch = null; activeSearch = null; worker.terminate(); resolve(result);
-      };
-      worker.onerror = () => {
-        if (id !== searchVersion) return;
-        searchWorker = null; finishSearch = null; activeSearch = null; worker.terminate(); resolve(null);
-      };
-      worker.postMessage({ id, course });
-    });
-    activeSearch = { key, promise };
-    return promise;
-  }
-  /** Ends the search that is running, if any, at once: its worker is terminated and whoever waits on it gets null. */
-  function stopSearch() {
-    const done = finishSearch;
-    finishSearch = null; activeSearch = null;
-    searchWorker?.terminate(); searchWorker = null;
-    done?.(null);
-  }
+  let verifyTimer = 0, adviceRun = 0, verifyVersion = 0;
+  const { stopSearch, searchClearable, withProof } = createSearch({ progress: (p) => laneCheck.progress(p) });
   const launchCourse = (course: CourseData) => {
     // the real objects are drawn in the game instead of blocks (a cropped photo object is drawn whole; its collision is still the cropped lane)
     course.scene = sceneFor(ground(), { angle: ed.angle, offset: ed.offset, level: ed.level }, course.uMap ?? []);
@@ -625,12 +584,6 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
       if (v) { v.textContent = text; v.className = 'says-when bad'; }
     },
   });
-  const searchClearable = async (course: CourseData): Promise<boolean | null> => (await searchResult(course))?.cleared ?? null;
-  // the proof the lane check already holds for exactly this course, never a new search: the Course then does not search again
-  const withProof = (course: CourseData): CourseData => {
-    const r = storedPlanFor(course) ?? (cachedSearch?.key === JSON.stringify(searchInput(course)) ? cachedSearch.result : null);
-    return withStoredPlan(course, r);
-  };
   function interruptSearch() {
     clearTimeout(verifyTimer);
     verifyVersion++;
