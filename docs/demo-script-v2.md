@@ -26,6 +26,7 @@
 ## Say it if asked
 - **What is new:** the real world goes in, a proved course comes out, and a time can be replayed, not faked.
 - **What is not new:** map data, street photos and the models are third-party; each has a row in [ASSETS](ASSETS.md).
+- **Models that are not Meta's (say it in the demo):** NVIDIA Kimodo made the roll and slide clips, and Tripo (a closed service) made the two Rookie meshes once; both are build time only, and Meta's models do the live work.
 - **What is not done:** some Community steps need their server jobs switched on; the README says which.
 
 ## Before speaking

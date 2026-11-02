@@ -1,7 +1,7 @@
 // The provider slots of the character pipeline, as the server sees them (CC-108). A provider turns a prompt into a job and a job into a packaged character.
-// Route A runs on Modal (pipelines/character_maker.py: submit and status). Tripo is a stub that answers "not configured" until someone adds a key.
+// Route A runs on Modal (pipelines/character_maker.py: submit and status).
 // To add a provider: write one object that satisfies Provider, add it to PROVIDERS, and add its Python maker in pipelines/charmaker/providers/ (docs/character-pipeline.md).
-export interface Env { DB?: unknown; CC_CHAR_TOKEN?: string; CC_CHAR_SUBMIT_URL?: string; CC_CHAR_STATUS_URL?: string; CC_CHAR_LIMITS?: string; TRIPO_API_KEY?: string; BASETEN_API_KEY?: string }
+export interface Env { DB?: unknown; CC_CHAR_TOKEN?: string; CC_CHAR_SUBMIT_URL?: string; CC_CHAR_STATUS_URL?: string; CC_CHAR_LIMITS?: string; BASETEN_API_KEY?: string }
 
 export type JobState =
   | { state: 'running'; stage?: string; attempt?: number }
@@ -42,14 +42,5 @@ export const routeA: Provider = {
   },
 };
 
-/** The slot kept open for Tripo (about 110 credits a character; no credits are bought by this repo). It never starts a job. */
-export const tripo: Provider = {
-  id: 'tripo',
-  label: 'Tripo (not configured)',
-  configured: () => false,
-  async submit() { throw new Error('not configured'); },
-  async status() { return { state: 'failed', reason: 'not configured', refund: true }; },
-};
-
-export const PROVIDERS: Record<string, Provider> = { [routeA.id]: routeA, [tripo.id]: tripo };
+export const PROVIDERS: Record<string, Provider> = { [routeA.id]: routeA };
 export const DEFAULT_PROVIDER = routeA.id;
