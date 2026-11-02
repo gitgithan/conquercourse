@@ -3,7 +3,8 @@
 // These are detections of objects (lamp posts, benches, signs), not photos, so no person is ever in the answer.
 // Same pattern as /api/photos (CC-90): the token is the Pages secret MAPILLARY_TOKEN, sent in the Authorization header and never in an answer;
 // only the five fields above come back, only the classes in WANTED are kept, answers are cached 30 minutes on the edge, and each address gets 20 searches per ten minutes.
-import { limited, type Fetcher, type Store } from './photos';
+import { limited } from '../_lib/limit';
+import type { Fetcher, Store } from './photos';
 import { CORS, json as baseJson } from '../_lib/http';
 
 const GRAPH = 'https://graph.mapillary.com';

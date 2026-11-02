@@ -8,6 +8,7 @@
 // With neither way set up, every request is a plain 404. Replies are never stored, never indexed and carry no CORS header.
 import { DEFAULT_LIMITS } from '../../src/slice/upload-gates';
 import { STEPS, pct } from '../_lib/analytics';
+import { sameSecret } from '../_lib/secret';
 import { CATEGORIES, LABELS, PRICE_CENTS, isCategory, utcDay, type Category } from '../_lib/usage';
 
 interface Stmt { bind(...v: unknown[]): { run(): Promise<unknown>; all<T>(): Promise<{ results: T[] }> }; all<T>(): Promise<{ results: T[] }> }
@@ -20,14 +21,6 @@ const reply = (body: unknown, status = 200): Response => new Response(JSON.strin
 const notFound = (): Response => new Response('not found', { status: 404, headers: { 'cache-control': 'no-store', 'x-robots-tag': 'noindex, nofollow' } });
 
 const enc = new TextEncoder();
-/** Equal strings, in time that does not depend on where they differ (both are hashed first, so the length does not leak either). */
-export async function sameSecret(a: string, b: string): Promise<boolean> {
-  const [x, y] = await Promise.all([a, b].map(async (s) => new Uint8Array(await crypto.subtle.digest('SHA-256', enc.encode(s)))));
-  let d = a.length === b.length ? 0 : 1;
-  for (let i = 0; i < x.length; i++) d |= x[i] ^ y[i];
-  return d === 0;
-}
-
 const b64url = (s: string): Uint8Array<ArrayBuffer> => { const t = s.replace(/-/g, '+').replace(/_/g, '/'), bin = atob(t + '='.repeat((4 - (t.length % 4)) % 4)); return Uint8Array.from(bin, (c) => c.charCodeAt(0)); };
 interface Jwk { kid: string; kty: string; n: string; e: string; alg?: string }
 

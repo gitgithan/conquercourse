@@ -3,7 +3,8 @@
 // The loop itself (propose, test with the simulator, repair, stop) runs in the browser, where the simulator is; this function only holds the key.
 // Defences: key only in the BASETEN_API_KEY secret, reasoning text dropped, small bodies, a rate limit (a loop makes up to six calls).
 import { AGENT_SYSTEM } from '../../src/slice/course-agent';
-import { limited, MAX_TOKENS, MODEL, URL_CHAT } from './designer';
+import { limited } from '../_lib/limit';
+import { MAX_TOKENS, MODEL, URL_CHAT } from './designer';
 import { json } from '../_lib/http';
 import { featureOn, offWords, recordUsage, type UsageDb } from '../_lib/usage';
 

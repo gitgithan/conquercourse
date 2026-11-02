@@ -8,7 +8,7 @@
 import { cleanItem, SESSION_RE, visibilityFor, type PublicItem } from '../../src/community/items';
 import { moderationStops } from '../../src/slice/object-lift';
 import { askModeration } from './moderate';
-import { limited, waitSeconds } from './designer';
+import { limited, waitSeconds } from '../_lib/limit';
 import { refusalBody } from '../../src/slice/stages';
 import { playerCode } from '../_lib/player';
 import { json } from '../_lib/http';

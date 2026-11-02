@@ -2,7 +2,8 @@
 //   POST {name: "bench", image?: "data:image/jpeg;base64,..."} -> {tip: {moves: ["vault","jump"], idea: "..."} | null}
 // A broken or off-list answer gives {tip: null}: the card simply shows no tip. Same key and defences as /api/designer.
 import { MOVE_TIP_PROMPT, parseTip, type Tip } from '../../src/slice/move-tips';
-import { limited, MAX_TOKENS, MODEL, URL_CHAT } from './designer';
+import { limited } from '../_lib/limit';
+import { MAX_TOKENS, MODEL, URL_CHAT } from './designer';
 import { json } from '../_lib/http';
 import { featureOn, offWords, recordUsage, type UsageDb } from '../_lib/usage';
 

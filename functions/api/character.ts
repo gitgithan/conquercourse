@@ -17,7 +17,7 @@ import { CHARACTER_STEPS, EXPIRY_DAYS, KEEPER_PICKS, PANEL_SIZE, PRIVATE_DAYS, t
 import { DEFAULT_PROVIDER, JOB_ID, PROVIDERS, type Env, type JobState } from '../../src/characters/providers';
 import { moderationStops } from '../../src/slice/object-lift';
 import { askModeration } from './moderate';
-import { limited, waitSeconds } from './designer';
+import { limited, waitSeconds } from '../_lib/limit';
 import { refusalBody, secondsToNextDay, stageIndex } from '../../src/slice/stages';
 import { d1Ledger } from '../../src/slice/d1-ledger';
 import { memoryLedger, utcDay, type Ledger, type Limits } from '../../src/slice/upload-gates';

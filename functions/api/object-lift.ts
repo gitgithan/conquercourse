@@ -6,7 +6,7 @@
 import { waitTimer } from '../_lib/analytics';
 import { cleanRequest, moderationStops, requestProblem } from '../../src/slice/object-lift';
 import { askModeration } from './moderate';
-import { limited, waitSeconds } from './designer';
+import { limited, waitSeconds } from '../_lib/limit';
 import { refusalBody, secondsToNextDay } from '../../src/slice/stages';
 import { d1Ledger } from '../../src/slice/d1-ledger';
 import { LIMIT_WORDS, memoryLedger, utcDay, DEFAULT_LIMITS, type Ledger, type Limits } from '../../src/slice/upload-gates';
