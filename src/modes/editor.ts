@@ -54,6 +54,7 @@ import type { CourseSource } from '../course/course';
 import { pageQuery, pageSearch } from '../flags';
 import { createLaneCheck } from '../slice/lane-check-ui';
 import { onEditorKey } from './editor/keys';
+import { createHistory, type Snap } from './editor/history';
 import { finalText, isStopped, type LaneProgress } from '../slice/lane-check';
 
 // The World editor: build a world from pieces on a plan view, scale them (a toy brick becomes a block), turn, copy, crop and move them,
@@ -182,19 +183,17 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
   el('strong', addBar, { text: 'Basic shapes:' });
   for (const l of LIBRARY) el('button', addBar, { text: l.label, id: `add-${l.id}` }).onclick = () => { add(l.id, freeSpot(l.id)); changed(); };
   // undo and redo: a snapshot after every change (pieces are copied shallowly; a crop makes a new mesh, so old meshes stay valid)
-  interface Snap { pieces: P[]; angle: number; offset: number; level: number }
-  const hist: Snap[] = [];
-  let hi = -1;
-  const snapNow = (): Snap => ({ pieces: pieces.map((q) => ({ ...q })), angle, offset, level });
-  const same = (a: Snap, b: Snap) => a.angle === b.angle && a.offset === b.offset && a.level === b.level && a.pieces.length === b.pieces.length && a.pieces.every((q, i) => { const r = b.pieces[i]; return q.id === r.id && q.x === r.x && q.z === r.z && q.y === r.y && q.yaw === r.yaw && q.scale === r.scale && q.mesh === r.mesh && q.role === r.role; });
-  const remember = () => { const n = snapNow(); if (hi >= 0 && same(hist[hi], n)) return; hist.splice(hi + 1); hist.push(n); if (hist.length > 80) hist.shift(); hi = hist.length - 1; undoBtn.disabled = hi < 1; redoBtn.disabled = true; };
-  const goto = (k: number) => { const t = hist[k]; if (!t) return; hi = k; pieces = t.pieces.map((q) => ({ ...q })); angle = t.angle; offset = t.offset; level = t.level; if (!pieces.some((q) => q.id === selected)) selected = null; undoBtn.disabled = hi < 1; redoBtn.disabled = hi >= hist.length - 1; changed(false); };
+  const editHistory = createHistory({
+    getPieces: () => pieces, setPieces: (v) => { pieces = v; }, getLane: () => ({ angle, offset, level }), setLane: (v) => { angle = v.angle; offset = v.offset; level = v.level; },
+    getSelected: () => selected, setSelected: (v) => { selected = v; }, undoBtn: () => undoBtn, redoBtn: () => redoBtn, changed,
+  });
+  const { hist, remember, goto } = editHistory;
   const undoBtn = el('button', top, { text: 'Undo (Ctrl+Z)', id: 'undo', title: 'Undo the last change (Ctrl+Z)' });
   const redoBtn = el('button', top, { text: 'Redo (Ctrl+Y)', id: 'redo', title: 'Redo the change you just undid (Ctrl+Y)' });
   undoBtn.disabled = redoBtn.disabled = true;
-  undoBtn.onclick = () => goto(hi - 1); redoBtn.onclick = () => goto(hi + 1);
+  undoBtn.onclick = () => goto(editHistory.hi - 1); redoBtn.onclick = () => goto(editHistory.hi + 1);
   // the Courses gallery asks before leaving when there is work to lose: anything past the starting undo step
-  (window as unknown as { ccHasUnsavedChanges?: () => boolean }).ccHasUnsavedChanges = () => hi > 0;
+  (window as unknown as { ccHasUnsavedChanges?: () => boolean }).ccHasUnsavedChanges = () => editHistory.hi > 0;
   // objects lifted from real photos (SAM 3D Objects, CC-38): each is a baked .glb at its real size
   const photoBar = addBar;
   // which photo made which 3D piece (CC-221): the credit shows under the name of the selected piece
@@ -283,7 +282,7 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
         for (let k = 0; k <= 80 && best < 0; k++) for (const j of k ? [i0 - k, i0 + k] : [i0]) { if (best >= 0 || j - w < 0 || j + w >= nm) continue; let ok = true; for (let i = j - w; i <= j + w; i++) if (pr.cells[i] == null) { ok = false; break; } if (ok) best = j; }
         if (best >= 0) { const du = (best - i0) * CELL; d.x += du * Math.cos(angle); d.z += du * Math.sin(angle); d.y = level + Math.max(...pr.cells.slice(best - w, best + w + 1).map((h) => h as number)); }
       }
-      if (pendingObjects.length) { pendingObjects.length = 0; changed(false); hist.length = 0; hi = -1; remember(); onWorld(); fitAll(); } // the saved or first world is the starting point of the undo list
+      if (pendingObjects.length) { pendingObjects.length = 0; changed(false); hist.length = 0; editHistory.hi = -1; remember(); onWorld(); fitAll(); } // the saved or first world is the starting point of the undo list
       await firstVisitPerson(); // a first visit: the person for scale stands at the start of the lane
     } catch { /* no objects on this site */ }
   })();
@@ -440,7 +439,7 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
   // a first visit: the person stands at the start of the lane until the player hides them (the chip remembers the choice)
   async function firstVisitPerson() {
     let first = false; try { first = localStorage.getItem('cc.person') === null; } catch { /* no storage */ }
-    if (first && !personThere()) { personButton()?.click(); await waitForPerson(true); rememberPerson(true); hist.length = 0; hi = -1; remember(); onWorld(); }
+    if (first && !personThere()) { personButton()?.click(); await waitForPerson(true); rememberPerson(true); hist.length = 0; editHistory.hi = -1; remember(); onWorld(); }
   }
   const bar = el('div', planWrap, { className: 'piecebar', id: 'piecebar' }); // the selected piece's tools, on the picture next to the piece (CC-94)
   let topPlan = false;
@@ -1094,7 +1093,7 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
       if (pieces.some(heavy) || hist.some((h) => h.pieces.some(heavy))) { sessionStorage.removeItem(HIST_KEY); return; }
       const start = Math.max(0, hist.length - 25);
       const keep = (h: Snap): Saved => ({ pieces: h.pieces.filter((q) => q.src).map((q) => ({ src: q.src as string, x: q.x, z: q.z, y: q.y, yaw: q.yaw, scale: q.scale, ...(q.role ? { role: q.role } : {}) })), angle: h.angle, offset: h.offset, level: h.level });
-      sessionStorage.setItem(HIST_KEY, JSON.stringify({ snaps: hist.slice(start).map(keep), hi: Math.max(0, hi - start) }));
+      sessionStorage.setItem(HIST_KEY, JSON.stringify({ snaps: hist.slice(start).map(keep), hi: Math.max(0, editHistory.hi - start) }));
     } catch { /* the undo list starts again */ }
   }
   // back to the Course: the same course, rebuilt from the pieces now, at the same obstacle (the Course reads this the way it reads a return from the Dojo)
@@ -1553,7 +1552,7 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
   }
   addEventListener('keydown', (e) => onEditorKey(e, {
     getPieces: () => pieces, setPieces: (v) => { pieces = v; }, getSelected: () => selected, setSelected: (v) => { selected = v; }, setGroup: (v) => { group = v; },
-    getHi: () => hi, hasProposal: () => !!proposal, hasHandoff: () => !!handoff,
+    getHi: () => editHistory.hi, hasProposal: () => !!proposal, hasHandoff: () => !!handoff,
     goto, copyChosen, pasteClip, closePreview, chosen, drawPanel, draw, drawProfile, deleteChosen, fitAll, goToCourse, changed,
     leave: () => { location.href = '?'; },
   }));
@@ -1582,9 +1581,9 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
       const mine: Saved = { pieces: pieces.filter((q) => q.src).map((q) => ({ src: q.src as string, x: q.x, z: q.z, y: q.y, yaw: q.yaw, scale: q.scale })), angle, offset, level };
       if (h && last && key(last) === key(mine)) {
         const snaps: Snap[] = h.snaps.map((sn) => ({ pieces: buildPieces(sn.pieces), angle: sn.angle, offset: sn.offset, level: sn.level }));
-        hist.length = 0; hist.push(...snaps); hi = h.hi;
-        pieces = hist[hi].pieces.map((q) => ({ ...q })); selected = null;
-        undoBtn.disabled = hi < 1; redoBtn.disabled = hi >= hist.length - 1;
+        hist.length = 0; hist.push(...snaps); editHistory.hi = h.hi;
+        pieces = hist[editHistory.hi].pieces.map((q) => ({ ...q })); selected = null;
+        undoBtn.disabled = editHistory.hi < 1; redoBtn.disabled = editHistory.hi >= hist.length - 1;
         drawPanel(); drawLanePanel(); draw(); drawProfile(); verify();
       }
     } catch { /* no history to bring back */ }
