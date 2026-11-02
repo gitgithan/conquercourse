@@ -11,7 +11,7 @@ import { registerThumbSource } from '../ui/glb-thumb';
 import { isSharedSrc, placeParam, sharedGlbUrl, sharedSrc, useShared, usedShared } from '../community/flow';
 import { LIBRARY } from '../slice/shapes';
 import { bestSlices, describe as describeLane, CELL, HALF_LANE, roofStartOn } from '../slice/slice';
-import { crop, duplicate, hits, newPiece, realSize, scaleBy, scaleToHeight, size, worldSamples, laneProfile } from '../slice/world';
+import { crop, duplicate, hits, newPiece, realSize, scaleBy, scaleToHeight, size, worldSamples, laneProfile, liftToRoof } from '../slice/world';
 import type { CourseData } from '../course/course';
 import { xWindows, type SearchResult } from '../sim/ideal';
 import { searchInput, storedPlanFor, withStoredPlan, type PresetPlan } from '../slice/preset-plans';
@@ -131,6 +131,7 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
     if (m?.objects?.length) pendingObjects.push(...m.objects); // CC-238: photo objects that stand on the place (the film's start scene)
   } catch { /* no place waiting */ }
   if (['place', 'slicer', 'slicer-unproved'].includes(document.documentElement.dataset.laneFrom ?? '') && ed.level !== 0 && ed.pieces.length) { for (const q of ed.pieces) q.y -= ed.level; ed.level = 0; } // owner 2026-11-01: the water always starts at 0, whether the lane came from a prepared place or from the Slicer's own cut; the place sinks by the cut height instead, so the proved lane is the same lane
+  if (['place', 'slicer', 'slicer-unproved'].includes(document.documentElement.dataset.laneFrom ?? '') && ed.pieces.length) { const lift = liftToRoof(ground(), { angle: ed.angle, offset: ed.offset, level: ed.level }); if (lift > 0) for (const q of ed.pieces) q.y += lift; } // CC-165: a place proved under its cut (Valletta: roofs at 5.62 m, cut 6) must still read in the editor with the roof start
   // CC-80: coming from the Course ("Edit this course", "Make it easier"): the course's own pieces replace the saved world, and "Back to the Course" returns to it
   const handoff = readHandoff();
   if (handoff && !ed.pieces.some((q) => q.src?.startsWith('map:'))) {
