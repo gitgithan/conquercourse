@@ -195,3 +195,14 @@
   - The stall was written into a commit message and not into the issue.
   - The agent working on proved lanes was another agent, so the two facts never met.
   - One agent reading the stored place data first would have avoided it; so would the dependency check above.
+
+## A measured field changed a course's fingerprint (CC-224, 2026-11-02)
+- What happened:
+  - `windows` was stored in the course file and hashed by accident, so a plan re-measure would have moved the board of 8 courses.
+- What we did:
+  - `courseHash()` now leaves `windows` out, next to `plan`, `routes` and `shortcuts`.
+  - The rule and the better recipe are in `docs/hash-design.md`.
+- How to prevent it: before adding a field to the course file, decide if it changes play; if not, leave it out of the hash and add a test.
+- A slip in the clean-up:
+  - The first old-fingerprint list was made before this change, so 6 of its 14 fingerprints are in use again after it.
+  - Rule: decide the fingerprint recipe first, then list the stale ones.

@@ -21,7 +21,7 @@ describe("hash functions", () => {
     }
   });
   it("FNV-1a here is the loop the game names a course with", () => {
-    const text = JSON.stringify((({ plan: _p, shortcuts: _s, routes: _r, ...rest }) => rest)(course as unknown as Record<string, unknown>));
+    const text = JSON.stringify((({ plan: _p, windows: _w, shortcuts: _s, routes: _r, ...rest }) => rest)(course as unknown as Record<string, unknown>));
     expect(fnv1a32(new TextEncoder().encode(text)).toString(36)).toBe(courseHash(course));
   });
   it("a digest has the width it claims", () => { for (const h of HASHES) expect(h.digest(new Uint8Array([1, 2, 3])).length * 8).toBe(h.bits); });

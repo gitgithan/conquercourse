@@ -109,4 +109,10 @@ describe('a run as a link', () => {
     expect(courseHash(edited)).not.toBe(courseHash(course));
     expect(courseHash({ ...course, plan: undefined })).toBe(courseHash(course));
   });
+  it('what a search measured never changes the hash (plan, windows, routes, shortcuts)', () => {
+    const w = [{ obstacle: 'x (take-off)', best: 1, lo: 1, hi: 2, widthMs: 100 }];
+    expect(courseHash({ ...course, windows: w })).toBe(courseHash(course));
+    expect(courseHash({ ...course, windows: [{ ...w[0], widthMs: 999 }] })).toBe(courseHash({ ...course, windows: w }));
+    expect(courseHash({ ...course, routes: [], shortcuts: [] })).toBe(courseHash(course));
+  });
 });
