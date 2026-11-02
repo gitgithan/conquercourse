@@ -38,7 +38,7 @@ describe('music', () => {
       expect(row, s).toBeTruthy();
       expect(existsSync(`public/assets/music/${s}.ogg`), s).toBe(true);
       expect(row!.seam_ratio, `${s} seam`).toBeLessThan(4); // the jump at the wrap is within a few ordinary steps
-      expect(Math.abs(row!.seconds - row!.bars * 4 * 60 / row!.bpm), `${s} bars`).toBeLessThan(0.05);
+      if (row!.bpm > 0) expect(Math.abs(row!.seconds - row!.bars * 4 * 60 / row!.bpm), `${s} bars`).toBeLessThan(0.05); // bpm 0 = free tempo (the Dojo cave loop): only the smooth wrap counts
       expect(row!.rms).toBeCloseTo(0.1, 2); // the same loudness on every screen
     }
   });
