@@ -227,7 +227,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
   const speedGauge = gaugeStack.register({ id: 'speed', label: 'Speed', colour: '#0f6b5c', max: 10 });
   const batteryGauge = course.drone && params.get('gauges') !== 'old' ? gaugeStack.register({ id: 'battery', label: 'Drone battery', colour: '#2a6fb0', max: 100 }) : null;
   const hud = document.createElement('div');
-  hud.style.cssText = hudOn(params) ? `font:600 18px system-ui,sans-serif;font-variant-numeric:tabular-nums;min-width:31ch;white-space:nowrap;pointer-events:none;${panelCss('5px 12px')}${params.get('hud') === 'restart' ? ';min-width:26ch;font-size:16px' : ''}` : 'position:fixed;left:16px;top:12px;font:600 18px system-ui,sans-serif;color:#10141c;text-shadow:0 1px 0 #fff8;pointer-events:none';
+  hud.style.cssText = hudOn(params) ? `font:600 18px system-ui,sans-serif;font-variant-numeric:tabular-nums;min-width:31ch;white-space:nowrap;pointer-events:none;${panelCss('5px 12px')}${params.get('hud') === 'restart' ? ';min-width:25ch;font-size:15px' : ''}` : 'position:fixed;left:16px;top:12px;font:600 18px system-ui,sans-serif;color:#10141c;text-shadow:0 1px 0 #fff8;pointer-events:none';
   const msg = document.createElement('div');
   msg.id = 'msg';
   msg.style.cssText = hudOn(params) ? `position:fixed;left:50%;top:38%;transform:translateX(-50%);max-width:90vw;text-align:center;font:700 28px system-ui,sans-serif;pointer-events:none;${panelCss('8px 18px')}` : 'position:fixed;left:0;right:0;top:38%;text-align:center;font:700 28px system-ui,sans-serif;color:#10141c;text-shadow:0 1px 0 #fff;pointer-events:none';
@@ -436,7 +436,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
   restartChip.type = 'button'; restartChip.id = 'restart-chip';
   restartChip.innerHTML = `<kbd style="${keycapCss}">R</kbd> Restart`;
   restartChip.title = 'R starts again where you last began; Shift+R starts from the very start';
-  restartChip.style.cssText = `font:700 15px system-ui,sans-serif;cursor:pointer;white-space:nowrap;display:flex;gap:7px;align-items:center;${panelCss('4px 10px 4px 6px')}`;
+  restartChip.style.cssText = `font:700 13px system-ui,sans-serif;cursor:pointer;white-space:nowrap;display:flex;gap:7px;align-items:center;${panelCss('4px 10px 4px 6px')}`;
   restartChip.onclick = () => { restartChip.blur(); restart(); };
   const hudRow = document.createElement('div');
   hudRow.id = 'hudrow'; hudRow.style.cssText = 'position:fixed;left:16px;top:12px;display:flex;gap:8px;align-items:center;flex-wrap:wrap;max-width:calc(100vw - 32px);pointer-events:none';
