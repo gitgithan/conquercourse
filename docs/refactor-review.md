@@ -112,6 +112,8 @@
   - Other repeats: `world`, `mk`, `lane`, `box`, `deck` builders (13 `lane`, 13 `box`, 5 `deck`) and a `run` helper (11).
   - `tests/helpers/` does not exist; there is only `tests/fixtures/`.
 - Proposal: `tests/helpers/{course.ts,world.ts,pieces.ts}` with `loadDemo(name)`, `runTicks(course, inputs)`, `deck()`, `bar()`, `box()`; migrate one test file per commit.
+- Done in CC-133 (item 6): `tests/helpers/course.ts` (`loadDemo`, `loadDemoCourse`, `loadCourseFile`) already existed; `tests/helpers/pieces.ts` now holds `box`, `deck` and `lane`, pinned by `tests/pieces-helper.test.ts`, and seven editor and fix-it tests use it.
+  - Still open: the other `box` copies (`advice`, `fixit`, `golden-search`, `trebuchet-polish`) and the `load` copies that read clips or other file types.
 - Size: 3 h for the helpers and the 18 `load` copies; more for builders.
 - Risk to tests: low per file, but do not change what a test asserts; a moved helper must give the same value.
 - Risk to the sim: none (tests only read it).
