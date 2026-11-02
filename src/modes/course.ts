@@ -1,17 +1,20 @@
 import { backgroundOn, openBackgroundMenu, savedBackground } from '../ui/background';
 import { mountToasts } from '../ui/toast-stack';
 import { createKeydown } from './course/keydown';
+import { createCourseState } from './course/state';
+import { createSearch } from './course/search';
+import { createShortcutList } from './course/shortcuts';
+import { progressZonesOf } from './course/zones';
+import { buildCourseScene } from './course/scene';
 import { showClearedReport } from './course/report';
 import { createViewHooks } from './course/board';
 import { mountDrums } from './course/drums';
 import { mountCourseGhost } from './course/ghost';
 import { filmShotOf } from '../film/camera';
-import { hazardOf, HAZARD_INFO } from '../course/hazard';
-import { buildFloor } from '../course/floor';
+import { HAZARD_INFO } from '../course/hazard';
 import { setMusicScreen } from '../ui/music';
 import { playedSounds, soundButton, soundsFor, startAudio } from '../ui/audio';
 import * as THREE from 'three/webgpu';
-import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import courseJson from '../course/default-course.json';
 import type { CourseData } from '../course/course';
 import { NO_INPUT, type RunnerInput } from '../sim/runner';
@@ -22,7 +25,6 @@ import { weight } from '../sim/drone';
 import { DEFAULT_WALL } from '../sim/wall';
 import { DEFAULT_ROPE } from '../sim/rope';
 import { inputFor, searchIdealRun, workSeconds, xWindows, type Plan, type SearchResult, type Window } from '../sim/ideal';
-import { IdealPool } from '../sim/ideal-pool';
 import { createGhost } from '../ui/ghost';
 import { lookOfParam, softenPlayer } from '../ui/ghost-look';
 import { challengeWords, courseTooBig, isOldLongLink, makeLinkInfo, OLD_LINK_WORDS, offersIdeal, openChallenge, secondsWords, shareOn } from '../share/challenge';
@@ -75,22 +77,13 @@ import { mountFurniture } from '../render/furniture-view';
 import { mountBackdrop } from '../render/backdrop-view';
 import { FURNITURE_ON } from '../world/furniture';
 import { barName, predictBand, predictLaunch, predictRelease, predictShot, type Prediction } from '../sim/predict';
-import { createTrebuchetView } from '../ui/trebuchet-view';
-import { createRecoilView } from '../ui/recoil-view';
-import { createShotsView } from '../ui/shots-view';
-import { createPoleView } from '../ui/pole-view';
 import { ballsOn, BALL_LAUNCHERS } from '../sim/shots';
-import { createBandView } from '../ui/band-view';
 import { bandParams, stretchAt } from '../sim/band';
-import { createDroneView } from '../ui/drone-view';
-import { cupsGroup } from '../slice/cups';
-import { buildTrack, type TrackView } from '../render/track';
-import { buildPlanks } from '../render/plank';
 import { topAt } from '../sim/beam';
 import { crestSpeedLimit, railsOf } from '../sim/cart';
 import { installGraphStudio } from './graph-studio';
 import { createPerf, type PerfSource } from '../ui/perf';
-import { chunked, cullFar, mergeStatic, type Part } from '../render/static-merge';
+import { cullFar } from '../render/static-merge';
 import { EDIT_KEY, handoffCourse, type EditHandoff } from '../slice/roundtrip';
 import { startOnboarding, type Onboarding } from '../ui/onboarding';
 import { browserStore, rememberCourse, tourDecision } from '../ui/onboarding-flags';
@@ -99,7 +92,6 @@ import { pageQuery, pageSearch } from '../flags';
 // The Course: the five obstacles in a row. The simulator decides everything; this file only draws it
 // and turns keys into inputs. Time comes from the simulator's tick count, never from the browser's clock.
 const defaultCourse = courseJson as unknown as CourseData;
-const LANE_DEPTH = 2; // m, how thick the blocks and the wall are across the screen: thin enough that a camera ahead of the runner cannot hide them behind the block face
 
 export interface CourseGame {
   backend: 'webgpu' | 'webgl2';
@@ -131,6 +123,8 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
     const R0 = course.wall.radius ?? course.wall.height ?? 4.3;
     course = { ...course, wall: { ...course.wall, height: wallH, radius: R0 }, terrain: { ...course.terrain, platforms: course.terrain.platforms.map((q) => (Math.abs(q.x0 - (course.wall!.x0 + R0)) < 0.5 ? { ...q, top: wallH } : q)) } };
   }
+  const startAt = params.get('startx') === null ? undefined : Number(params.get('startx')); // ?startx=45 begins there (for tests and films)
+  const st = createCourseState({ world: resume?.world ?? newWorld(course, resume ? resume.retryX : startAt), paused: !!resume?.world, retryX: resume ? resume.retryX : course.startX, falls: resume ? resume.falls : 0, frontOverride: params.has('front') ? params.get('front') === '1' : null });
   const renderer = new THREE.WebGPURenderer({ antialias: true, forceWebGL: params.get('backend') === 'webgl2' });
   await renderer.init();
   renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
@@ -151,7 +145,6 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
   // the front view window (bottom right, above the drum lane's row): its frame is a div, its picture a second camera drawn in the same canvas
   const PIP_W = 260, PIP_H = 195, PIP_BOTTOM = 118;
   const frontCam = new THREE.PerspectiveCamera(75, PIP_W / PIP_H, 0.1, 200); // first person: wide, from the eyes
-  let frontOverride: boolean | null = params.has('front') ? params.get('front') === '1' : null;
   let camY = 0, camYSet = false, lastPlankNow = 0; // the camera's height target eases, so a fast dip (as on a plank) does not snap the view
   let pipRoll = 0, pipClock = 0; // the head's turn about the bar (rad) and the clock it settles by
   const pipFrame = document.createElement('div');
@@ -162,32 +155,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
   pipLabel.style.cssText = 'position:absolute;left:8px;top:6px;font:700 12px system-ui,sans-serif;color:#fff;text-shadow:0 1px 2px #000a';
   pipFrame.appendChild(pipLabel);
   document.body.appendChild(pipFrame);
-  scene.add(new THREE.HemisphereLight(0xffffff, 0x6b7f5a, 1.7));
-  const sun = new THREE.DirectionalLight(0xffffff, 2.2);
-  sun.position.set(20, 40, 30);
-  scene.add(sun);
-
-  // ground: platforms are boxes, water fills the gaps
-  const stone = new THREE.MeshStandardMaterial({ color: 0xb9b2a3 });
-  const grass = new THREE.MeshStandardMaterial({ color: 0x7aa95c });
-  const bed = new THREE.MeshStandardMaterial({ color: 0xd9453a });
-  // bars hanging in the air (holds): a thin metal bar across the lane with a soft glow so they read from far away
-  for (const h of course.holds ?? []) {
-    const bar = new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.06, LANE_DEPTH + 0.6, 12), new THREE.MeshStandardMaterial({ color: 0xffa21a, emissive: 0x6b3a00, metalness: 0.3, roughness: 0.4 })); // an amber rod, so the bar to grab can be found at a glance
-    bar.rotation.x = Math.PI / 2; bar.position.set(h.x, h.y, 0);
-    const halo = new THREE.Mesh(new THREE.TorusGeometry(0.28, 0.02, 8, 24), new THREE.MeshBasicMaterial({ color: 0xffd24a, transparent: true, opacity: 0.9 }));
-    halo.position.set(h.x, h.y, LANE_DEPTH / 2 + 0.32);
-    scene.add(bar, halo);
-  }
-  // a coaster: rails, ties, posts and the cart (src/render/track.ts); the Rookie sits in it
-  let trackView: TrackView | null = null;
-  if (course.track) { trackView = buildTrack(course); scene.add(trackView.group); }
-  const plankView = course.planks?.length ? buildPlanks(course) : null; // plank bridges: they bend under the runner (src/sim/beam.ts)
-  if (plankView) scene.add(plankView.group);
-  const trebView = course.trebuchet ? createTrebuchetView(scene, course) : null;
-  const shotsView = course.shots?.length ? createShotsView(scene, course) : null;
-  const poleView = course.pole ? createPoleView(scene, course) : null;
-  const recoilView = course.recoil ? createRecoilView(scene, course) : null;
+  const { trackView, plankView, trebView, shotsView, poleView, recoilView, bandView, droneView, hazard, floor, chunks, ropeMesh, ropeLen } = buildCourseScene(scene, course, params);
   let shotCache: { key: string; pr: Prediction } | null = null; // the dotted preview of a loaded cannon: the same prediction the debug view uses, worked out once per tick
   const shotPreview = (w: WorldState): Prediction | null => {
     if (!course.recoil || !isAimable(recoilParams(course)) || w.mode !== 'run' || (w.recoil?.armed ?? 0) <= 0) return null;
@@ -195,117 +163,6 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
     if (shotCache?.key !== key) shotCache = { key, pr: predictShot(w, course) };
     return shotCache.pr;
   };
-  const bandView = course.band ? createBandView(scene, course) : null;
-  const droneView = course.drone ? createDroneView(scene, course) : null;
-  // a course from the editor draws its real objects instead of blocks: only the start and finish decks stay as ground
-  const realObjects = !!course.scene?.length && !course.keepDecks && params.get('decks') !== '1';
-  const lastPlatform = course.terrain.platforms.length - 1;
-  // the decks are merged into one mesh per material (grass, stone, bed): a course with a dozen decks is three draws, not twelve
-  const deckParts: Part[] = [];
-  course.terrain.platforms.forEach((p, pi) => {
-    if (p.coasterRail) return; // the rails are already drawn by TrackView; this profile exists only for landing collision
-    if (realObjects && pi > 0 && pi < lastPlatform) return;
-    const bottom = course.terrain.waterY - 2;
-    const h = p.top - bottom;
-    let geo: THREE.BufferGeometry = new THREE.BoxGeometry(p.x1 - p.x0, h, LANE_DEPTH);
-    let at: [number, number, number] = [(p.x0 + p.x1) / 2, bottom + h / 2, 0];
-    if (p.profile) {
-      // a curved top: the side view's outline, pushed out across the lane
-      const shape = new THREE.Shape();
-      shape.moveTo(p.x0, bottom);
-      for (const [px, py] of p.profile) shape.lineTo(px, py);
-      shape.lineTo(p.x1, bottom);
-      shape.closePath();
-      geo = new THREE.ExtrudeGeometry(shape, { depth: LANE_DEPTH, bevelEnabled: false });
-      at = [0, 0, -LANE_DEPTH / 2];
-    }
-    geo.translate(...at);
-    deckParts.push({ geo, mat: p.bouncy ? bed : p.top === 0 ? grass : stone });
-  });
-  for (const m of mergeStatic(deckParts)) scene.add(m);
-  // the editor's pieces: raw meshes are merged into one mesh (cut into chunks when big, so the renderer skips what it cannot see); cups stay
-  // instanced; the same photo object used several times is loaded once and drawn as one instanced mesh per part
-  const chunks: THREE.Mesh[] = [];
-  if (course.scene) {
-    const gl = new GLTFLoader(), loads = new Map<string, Promise<{ scene: THREE.Group }>>();
-    const loadOnce = (url: string) => { let p = loads.get(url); if (!p) { p = gl.loadAsync(url); loads.set(url, p); } return p; }; // one download and parse per file, however many pieces use it
-    const INSTANCE_CELL = 8; // m along the run
-    const matte = new THREE.MeshStandardMaterial({ color: 0xa9a392, roughness: 0.95, flatShading: true });
-    const itemMatrix = (it: NonNullable<typeof course.scene>[number]) => new THREE.Matrix4().compose(
-      new THREE.Vector3(it.x, it.y, it.z), new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 1, 0), it.rotY), new THREE.Vector3(it.scale, it.scale, it.scale));
-    const meshParts: Part[] = [];
-    const byUrl = new Map<string, NonNullable<typeof course.scene>>();
-    for (const it of course.scene) {
-      if (it.url && (it.url.startsWith('/assets/') || it.url.startsWith('/api/community-items?'))) { const key = `${it.url}|${Math.floor(it.x / INSTANCE_CELL)}`; const l = byUrl.get(key) ?? []; l.push(it); byUrl.set(key, l); } // the same object, near each other, is one instanced mesh; far apart stays culled apart
-      else if (it.stack) {
-        const g = new THREE.Group();
-        g.position.set(it.x, it.y, it.z); g.rotation.y = it.rotY; g.scale.setScalar(it.scale);
-        g.add(cupsGroup(it.stack)); scene.add(g);
-      } else if (it.mesh) {
-        const geo = new THREE.BufferGeometry();
-        geo.setAttribute('position', new THREE.Float32BufferAttribute(it.mesh.positions, 3));
-        geo.setIndex(it.mesh.indices); geo.computeVertexNormals();
-        geo.applyMatrix4(itemMatrix(it));
-        meshParts.push({ geo, mat: matte });
-      }
-    }
-    for (const m of chunked(mergeStatic(meshParts))) { scene.add(m); chunks.push(m); }
-    for (const [key, items] of byUrl) {
-      const url = key.slice(0, key.lastIndexOf('|'));
-      const plainShape = () => { for (const it of items) if (it.mesh) { const geo = new THREE.BufferGeometry(); geo.setAttribute('position', new THREE.Float32BufferAttribute(it.mesh.positions, 3)); geo.setIndex(it.mesh.indices); geo.computeVertexNormals(); geo.applyMatrix4(itemMatrix(it)); const m = new THREE.Mesh(geo, matte); scene.add(m); } }; // a shared piece that cannot be fetched still stands there as its plain shape
-      void loadOnce(url).catch(() => { plainShape(); return null; }).then((got) => {
-        if (!got) return;
-        const obj = got.scene.clone(true), box = new THREE.Box3().setFromObject(obj), c = box.getCenter(new THREE.Vector3());
-        obj.position.set(-c.x, -box.min.y, -c.z);
-        if (items.length < 2) { // one use: as before
-          const it = items[0], g = new THREE.Group();
-          g.position.set(it.x, it.y, it.z); g.rotation.y = it.rotY; g.scale.setScalar(it.scale);
-          g.add(obj); scene.add(g);
-          return;
-        }
-        obj.updateMatrixWorld(true);
-        obj.traverse((o) => {
-          const part = o as THREE.Mesh;
-          if (!part.isMesh) return;
-          const inst = new THREE.InstancedMesh(part.geometry, part.material, items.length);
-          items.forEach((it, i) => inst.setMatrixAt(i, itemMatrix(it).multiply(part.matrixWorld)));
-          inst.instanceMatrix.needsUpdate = true; inst.computeBoundingSphere();
-          scene.add(inst);
-        });
-      }).catch(() => { /* no picture for this one; its collision still works */ });
-    }
-  }
-  const hazard = hazardOf(params.get('hazard') ?? course.hazard); // ?hazard=lava tries a floor without editing the course
-  const floor = buildFloor(hazard, course.terrain.waterY, course.finishX);
-  scene.add(floor.object);
-
-  // the warped wall: a quarter circle, flat at the bottom and upright at the top
-  if (course.wall) {
-    const H = course.wall.height ?? DEFAULT_WALL.height;
-    const shape = new THREE.Shape();
-    shape.moveTo(0, 0);
-    for (let i = 0; i <= 24; i++) {
-      const th = (i / 24) * (Math.PI / 2);
-      shape.lineTo(H * Math.sin(th), H * (1 - Math.cos(th)));
-    }
-    shape.lineTo(H, 0);
-    shape.lineTo(0, 0);
-    const wall = new THREE.Mesh(new THREE.ExtrudeGeometry(shape, { depth: LANE_DEPTH, bevelEnabled: false }), new THREE.MeshStandardMaterial({ color: 0xc9893b }));
-    wall.position.set(course.wall.x0, 0, -LANE_DEPTH / 2);
-    scene.add(wall);
-  }
-
-  // the rope hangs from its anchor; it is drawn straight down (it only swings with the runner)
-  const ropeLen = course.rope?.length ?? DEFAULT_ROPE.length;
-  let ropeMesh: THREE.Mesh | null = null;
-  if (course.rope) {
-    ropeMesh = new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.06, ropeLen, 8), new THREE.MeshStandardMaterial({ color: 0x8a5a2b }));
-    ropeMesh.position.set(course.rope.anchorX, course.rope.anchorY - ropeLen / 2, 0);
-    scene.add(ropeMesh);
-    const beam = new THREE.Mesh(new THREE.BoxGeometry(0.4, 0.4, LANE_DEPTH), stone);
-    beam.position.set(course.rope.anchorX, course.rope.anchorY + 0.2, 0);
-    scene.add(beam);
-  }
 
   // the runner (a capsule until the Rookie is wired in)
   const body = new THREE.Mesh(new THREE.CapsuleGeometry(0.28, 1.1, 6, 12), new THREE.MeshStandardMaterial({ color: 0xf07b1d }));
@@ -392,7 +249,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
     const main = newHud ? KEYS.filter(([k]) => !(k in MINOR)) : KEYS, rest = newHud ? KEYS.filter(([k]) => k in MINOR) : [];
     help.innerHTML = head + main.map(row).join('') + (rest.length ? `<div style="color:${HUD.soft};font-size:13px;line-height:1.9;margin-top:2px">Also: ${rest.map(([k]) => `<kbd style="${keycapCss}">${k}</kbd> ${MINOR[k]}`).join(' &nbsp; ')}</div>` : '');
   };
-  let keysOpen = true, keysTouched = false; paintKeys(true);
+  paintKeys(true);
   let reportWas = false;
   const panel = document.createElement('div');
   panel.style.cssText = 'position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);width:min(760px,94vw);max-height:88vh;overflow:auto;z-index:40;box-sizing:border-box;background:#fff;border:1px solid #cfd6d0;border-radius:12px;padding:16px;font:15px/1.4 system-ui,sans-serif;color:#17201d;display:none;gap:10px;box-shadow:0 8px 30px #0003';
@@ -406,7 +263,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
   idealBtn.id = 'idealbtn'; idealBtn.textContent = 'Ideal run (I)';
   idealBtn.style.cssText = 'position:fixed;right:120px;top:12px;font:600 15px system-ui,sans-serif;border:1px solid #17201d;background:#fff;color:#17201d;border-radius:8px;padding:6px 14px;cursor:pointer';
   idealBtn.title = 'Watch the ideal run of this obstacle (I)';
-  idealBtn.onclick = () => showIdeal(zoneAt(world.runner.x)?.id ?? 'gap');
+  idealBtn.onclick = () => showIdeal(zoneAt(st.world.runner.x)?.id ?? 'gap');
   // CC-80: from here back to the editor (the same pieces), at the obstacle the runner is at
   const editBtn = document.createElement('button');
   editBtn.id = 'editcourse'; editBtn.textContent = 'Edit this course';
@@ -502,34 +359,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
     #strip .ob.done{opacity:.35;filter:grayscale(1)}#strip .ob.done svg{background:#eef1ec}
     #strip .ob.hard{opacity:1;filter:none}#strip .ob.hard svg{background:#ffe38a;border-color:#d9a521;color:#6b4a00}`; // gold only on the obstacle you fell at most
   const ICONS = ZONE_ICONS;
-  const progressZones = course.zones?.length ? course.zones : (() => {
-    const found: { id: string; name: string; x0: number; x1: number }[] = [];
-    const add = (id: string, name: string, x0: number, x1: number) => {
-      if (x1 > x0) found.push({ id, name, x0, x1 });
-    };
-    const platforms = [...course.terrain.platforms].sort((a, b) => a.x0 - b.x0);
-    platforms.forEach((p, i) => {
-      const next = platforms[i + 1];
-      if (!next) return;
-      const gap = next.x0 - p.x1, rise = next.top - p.top;
-      if (gap > 0.15) add('gap', 'Gap', p.x1, next.x0 + 0.1);
-      else if (rise > 0.25) add('step', 'Step up', next.x0 - 1.5, next.x0 + 2);
-      else if (rise < -1.2) add('drop', 'Drop landing', p.x1 - 1.5, next.x0 + 2);
-    });
-    platforms.filter((p) => p.bouncy).forEach((p) => add('trampoline', 'Trampoline', p.x0, p.x1));
-    if (course.wall) add('wall', 'Warped wall', course.wall.x0, course.wall.x0 + Math.max(8, (course.wall.height ?? 4.3) * 2));
-    if (course.rope) add('rope', 'Rope swing', course.rope.anchorX - Math.max(6, course.rope.length ?? 9), course.rope.anchorX + 3);
-    if (course.holds?.length) add('lache', 'Bars', course.holds[0].x - 3, course.holds[course.holds.length - 1].x + 3);
-    if (course.trebuchet) add('launch', 'Trebuchet launch', course.trebuchet.x - 12, course.trebuchet.x + 5);
-    if (course.recoil) add('recoil', 'Recoil launcher', course.recoil.x0, course.recoil.x1);
-    if (course.track) add('coaster', 'Coaster', course.startX, course.finishX);
-    const ordered = found
-      .map((z) => ({ ...z, center: (z.x0 + z.x1) / 2 }))
-      .filter((z) => z.center >= course.startX && z.center <= course.finishX)
-      .sort((a, b) => a.center - b.center);
-    if (!ordered.length) return [{ id: 'course', name: course.name, x0: course.startX, x1: course.finishX }];
-    return ordered.map((z, i) => ({ ...z, x1: i + 1 < ordered.length ? (z.center + ordered[i + 1].center) / 2 : course.finishX }));
-  })();
+  const progressZones = course.zones?.length ? course.zones : progressZonesOf(course);
   const fallLog: string[] = []; // CC-183: one zone id per failed try this session; gold marks the zone with the most
   const hardestNow = () => { const h = hardestOf(fallLog); const z = h && progressZones.find((q) => q.id === h.id); return h && z ? { ...h, name: z.name } : null; };
   const hardBand = () => { const h = goldOld() ? null : hardestNow(); const z = h && progressZones.find((q) => q.id === h.id); return h && z ? { x0: z.x0, x1: z.x1, name: h.name, falls: h.falls } : null; }; // CC-183: the band on the report map
@@ -599,6 +429,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
   }
   // The drum lane is on by default wherever the course has a planned player route; a coaster is mostly passive cart motion.
   const forceDrums = params.get('drums') === '1';
+  const runSearch = createSearch();
   const { drumLane, toastDrums: toastDrumsNow } = mountDrums({ course, params, forceDrums, runSearch });
   const dbgBtn = document.createElement('button');
   dbgBtn.id = 'debugbtn'; dbgBtn.textContent = 'Debug (B)'; dbgBtn.title = 'Show the collision boxes and where a jump right now would go';
@@ -633,7 +464,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
   document.body.append(toast);
   const toasts = mountToasts();
   let toastUntil = 0, squashUntil = 0, squashDepth = 1;
-  const say = (text: string, ticks: number) => { if (toastsOld) { toast.textContent = text; toast.style.display = 'block'; toastUntil = world.runner.tick + ticks; } else toasts.show(text, ticks, world.runner.tick); };
+  const say = (text: string, ticks: number) => { if (toastsOld) { toast.textContent = text; toast.style.display = 'block'; toastUntil = st.world.runner.tick + ticks; } else toasts.show(text, ticks, st.world.runner.tick); };
   if (params.get('check') === '1') (window as unknown as { __say?: typeof say }).__say = say; // for scripts/toast-shot.mjs: three toasts at once
   let releasedAtX: number | null = null; const caughtSince = new Set<number>(); // the bars passed since the last release: a bar flown over without a grab is said to be skipped
   try { localStorage.setItem('cc.course', JSON.stringify(course)); } catch { /* the Dojo falls back to the default course */ }
@@ -653,8 +484,6 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
   if (course.rope) label(`rope ${ropeLen.toFixed(0)} m`, course.rope.anchorX, course.rope.anchorY + 1.6);
 
   // input
-  const keys = new Set<string>();
-  let jumpQueued = false, vaultQueued = false, rollQueued = false, slideQueued = false, fireQueued = false;
   type Cam = 'side' | 'angle' | 'first';
   const CAMS: { id: Cam; name: string }[] = [{ id: 'side', name: 'Side view' }, { id: 'angle', name: '45° view' }, { id: 'first', name: 'First person' }];
   let camMode: Cam = params.get('cam') === 'first' ? 'first' : 'side'; // ?cam=first starts in the runner's eyes (for pictures)
@@ -664,33 +493,20 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
     return document.getElementById('cc-feedback') !== null || (!!t && (/^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName) || t.isContentEditable));
   };
   addEventListener('keydown', createKeydown({
-    typing, keys,
-    get jumpQueued() { return jumpQueued; }, set jumpQueued(v) { jumpQueued = v; },
-    get vaultQueued() { return vaultQueued; }, set vaultQueued(v) { vaultQueued = v; },
-    get rollQueued() { return rollQueued; }, set rollQueued(v) { rollQueued = v; },
-    get slideQueued() { return slideQueued; }, set slideQueued(v) { slideQueued = v; },
-    get fireQueued() { return fireQueued; }, set fireQueued(v) { fireQueued = v; },
-    get paused() { return paused; }, set paused(v) { paused = v; },
-    get last() { return last; }, set last(v) { last = v; },
-    course, get world() { return world; },
-    get retryX() { return retryX; }, set retryX(v) { retryX = v; },
+    st, typing, course, VIEW_KEYS,
+    get botMode() { return botMode; },
     restart: (x) => restart(x),
-    get idealWhole() { return idealWhole; }, get botMode() { return botMode; }, VIEW_KEYS,
     stopWholeIdeal: () => stopWholeIdeal(), showWholeIdeal: () => showWholeIdeal(), showIdeal: (id) => showIdeal(id),
     zoneAt: (x) => zoneAt(x), openDojo: () => openDojo(),
-    get replay() { return replay; }, set replay(v) { replay = v as typeof replay; },
     clearGuides: () => clearGuides(), showAgain: () => showAgain(), nextCam: () => nextCam(),
     get drumLane() { return drumLane; },
-    get frontOverride() { return frontOverride; }, set frontOverride(v) { frontOverride = v; },
     toggleDebug: () => toggleDebug(),
     get ghostCtl() { return ghostCtl; },
-    get keysTouched() { return keysTouched; }, set keysTouched(v) { keysTouched = v; },
-    get keysOpen() { return keysOpen; }, set keysOpen(v) { keysOpen = v; },
     paintKeys: (o) => paintKeys(o),
   }));
-  addEventListener('keyup', (e) => keys.delete(e.code));
+  addEventListener('keyup', (e) => st.keys.delete(e.code));
   const touchControls = touchOn(params, browserPointing); // CC-139: on a touch device the buttons press the same keys; ?touch=0 turns them off
-  if (touchControls) { mountTouch(document.body, { cannon: !!course.recoil }); gaugeStack.lift(150); keysOpen = false; keysTouched = true; paintKeys(false); frontOverride = false; } // the keys card is for keyboards; the small corner view would hide the runner on a narrow screen
+  if (touchControls) { mountTouch(document.body, { cannon: !!course.recoil }); gaugeStack.lift(150); st.keysOpen = false; st.keysTouched = true; paintKeys(false); st.frontOverride = false; } // the keys card is for keyboards; the small corner view would hide the runner on a narrow screen
   addEventListener('resize', () => {
     renderer.setSize(host.clientWidth, host.clientHeight);
     camera.aspect = host.clientWidth / host.clientHeight;
@@ -698,12 +514,10 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
   });
 
   // bot: ?bot=ideal runs the ideal line the simulator found, so the whole course can be filmed hands-free
-  let plan: Plan | null = null;
   const botState = { next: 0, caught: null as number | null, bedAt: null as number | null };
-  const startAt = params.get('startx') === null ? undefined : Number(params.get('startx')); // ?startx=45 begins there (for tests and films)
-  if (params.get('bot') === 'ideal') plan = startAt === undefined && course.plan ? course.plan : searchIdealRun(startAt === undefined ? course : { ...course, startX: startAt }).plan;
+  if (params.get('bot') === 'ideal') st.plan = startAt === undefined && course.plan ? course.plan : searchIdealRun(startAt === undefined ? course : { ...course, startX: startAt }).plan;
 
-  if (params.get('bot') === 'shortcut') { const list = course.shortcuts?.length ? course.shortcuts : findShortcutsNow(course); if (list[0]) plan = list[0].plan; else plan = course.plan ?? searchIdealRun(course).plan; }
+  if (params.get('bot') === 'shortcut') { const list = course.shortcuts?.length ? course.shortcuts : findShortcutsNow(course); if (list[0]) st.plan = list[0].plan; else st.plan = course.plan ?? searchIdealRun(course).plan; }
   const botMode = params.get('bot') === 'ideal' || params.get('bot') === 'shortcut';
   const viewHooks = (): BoardHooks => createViewHooks(course, () => ghostCtl);
   // CC-108: the courses a run can be published on are the listed ones (src/share/board-courses.ts); the First Course with the timed balls is another course, so it is not one of them
@@ -711,10 +525,8 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
   const challengeId = challengeOn(params) ? cidOf(params) : null; // CC-108: a challenge course opened by its id
   const listedKey = (): string | null => rankedKey() ?? (challengeId && courseHash(course) === loadedHash ? challengeKey(challengeId) : null);
   { const bk = listedKey(); if (boardOn(params) && !botMode && bk) { document.body.append(boardCorner(bk, courseHash(course), session(), viewHooks()), newsStrip()); } } // CC-108: the board is on the Course, not only in the end report
-  let retryX = resume ? resume.retryX : course.startX; // "try this obstacle again" starts standing still just before it
-  let demo: { x1: number } | null = null;
   const idealCache = new Map<number, Plan>();
-  let idealWhole = false, idealToken = 0, idealPending = 0, idealPool: IdealPool | null = null, idealSignal = { cancelled: false }, idealNote = ''; // idealNote: the line shown while an ideal run is working or playing
+  let idealToken = 0, idealPending = 0, idealSignal = { cancelled: false };
   const cpFor = (zoneId: string) => course.checkpoints?.find((c) => c.id === zoneId)?.x ?? course.startX;
   const guides = new THREE.Group();
   scene.add(guides);
@@ -732,7 +544,6 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
   const grabHint = createGrabHint(scene, course, params.get('grabhint') !== '0');
   const toggleDebug = () => { debug.toggle(); dbgBtn.textContent = debug.shown ? 'Debug: on (B)' : 'Debug (B)'; dbgBtn.blur(); };
   dbgBtn.onclick = toggleDebug;
-  let world = resume?.world ?? newWorld(course, resume ? resume.retryX : startAt);
   const ghostBot = params.get('ghost') === 'bot'; // ?ghost=bot shows the ghost beside the bot too (for the check: the bot on the ideal line stays level with it)
   let ghostCtl: ReturnType<typeof createGhost> | null = null; // the ghost to chase (CC-99), made once the ideal-run search is defined
   type RunKind = 'attempt' | 'practice';
@@ -742,12 +553,12 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
   const summaries: Record<RunKind, RunSummary> = { attempt: summary(), practice: summary() };
   let runKind: RunKind = (resume ? resume.retryX : startAt ?? course.startX) > course.startX + 0.01 ? 'practice' : 'attempt';
   const runLog = newLog(); // the path and the moves of this run, for the report (src/ui/run-report.ts)
-  let runStartX = world.runner.x, runFurthestX = world.runner.x, runFailures = 0, runLandingOuch = 0, runLandings = 0, runBentLandings = 0;
-  let flowSampleTick = world.runner.tick, flowSampleVx = world.runner.vx, flowSampleVy = world.runner.vy;
+  let runStartX = st.world.runner.x, runFurthestX = st.world.runner.x, runFailures = 0, runLandingOuch = 0, runLandings = 0, runBentLandings = 0;
+  let flowSampleTick = st.world.runner.tick, flowSampleVx = st.world.runner.vx, flowSampleVy = st.world.runner.vy;
   let flowAccelX: number | null = null, flowAccelY: number | null = null, runJerkSum = 0, runJerkSamples = 0;
   let attemptEnded = false;
   const enteredZones = new Set<string>(), clearedZones = new Set<string>();
-  let previousRunX = world.runner.x;
+  let previousRunX = st.world.runner.x;
   const zones = course.zones?.length ? course.zones : [{ id: 'course', name: course.name, x0: course.startX, x1: course.finishX }];
   const countsFor = (bucket: RunSummary, zoneId: string): ObstacleCounts => bucket.obstacles[zoneId] ?? (bucket.obstacles[zoneId] = { attempts: 0, successes: 0, failures: 0 });
   const enterZone = (zoneId: string) => {
@@ -773,7 +584,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
     flowSampleTick = tick; flowSampleVx = vx; flowSampleVy = vy; flowAccelX = ax; flowAccelY = ay;
   }
   function resetFlowSample() {
-    flowSampleTick = world.runner.tick; flowSampleVx = world.runner.vx; flowSampleVy = world.runner.vy;
+    flowSampleTick = st.world.runner.tick; flowSampleVx = st.world.runner.vx; flowSampleVy = st.world.runner.vy;
     flowAccelX = null; flowAccelY = null; runJerkSum = 0; runJerkSamples = 0;
   }
   function clearFinishZone(x: number) {
@@ -783,9 +594,9 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
   function finishRun(success: boolean) {
     if (attemptEnded) return;
     attemptEnded = true;
-    noteRun({ lastRun: `${success ? 'Cleared' : 'Fell'} at ${(world.runner.tick * DT).toFixed(1)} s`, replay: analyticsRunId.slice(0, 8) });
+    noteRun({ lastRun: `${success ? 'Cleared' : 'Fell'} at ${(st.world.runner.tick * DT).toFixed(1)} s`, replay: analyticsRunId.slice(0, 8) });
     const bucket = summaries[runKind];
-    bucket.ticks += world.runner.tick;
+    bucket.ticks += st.world.runner.tick;
     bucket.progressSum += Math.max(0, Math.min(100, (runFurthestX - runStartX) / Math.max(1, course.finishX - runStartX) * 100)); bucket.progressCount++;
     if (success) bucket.completions++;
     else { bucket.failures++; runFailures++; }
@@ -797,24 +608,21 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
     attemptEnded = false; enteredZones.clear(); clearedZones.clear(); clearLog(runLog);
   };
   summaries[runKind].runs++;
-  updateRunProgress(world.runner.x);
+  updateRunProgress(st.world.runner.x);
   // ?hangtest=1.0 (radians) hangs the runner still on the first bar at that angle, for the pivot screenshots
   const hangTest = params.get('hangtest') !== null && course.holds?.length ? Number(params.get('hangtest')) : null;
   // ?planktest=0.5 stands the runner still on the first plank, that share of the way across, for the sag screenshots
   const plankTest = params.get('planktest') !== null && course.planks?.length ? Number(params.get('planktest')) : null;
   if (plankTest !== null) {
     const pk = course.planks![0], a = plankTest * (pk.x1 - pk.x0);
-    world = { ...world, mode: 'plank', plank: { i: 0, v: 0, sagged: true }, runner: { ...world.runner, x: pk.x0 + a, y: topAt(pk, a, pk.x0 + a), vx: 0, vy: 0, grounded: true } };
+    st.world = { ...st.world, mode: 'plank', plank: { i: 0, v: 0, sagged: true }, runner: { ...st.world.runner, x: pk.x0 + a, y: topAt(pk, a, pk.x0 + a), vx: 0, vy: 0, grounded: true } };
   }
   if (hangTest !== null) {
     const f = feetOf(course.holds![0], { hold: 0, theta: hangTest, omega: 0 });
-    world = { ...world, mode: 'hang', hang: { hold: 0, theta: hangTest, omega: 0 }, runner: { ...world.runner, x: f.x, y: f.y, vx: 0, vy: 0, grounded: false } };
+    st.world = { ...st.world, mode: 'hang', hang: { hold: 0, theta: hangTest, omega: 0 }, runner: { ...st.world.runner, x: f.x, y: f.y, vx: 0, vy: 0, grounded: false } };
   }
-  let paused = !!resume?.world; // a run that was in progress waits for a key, so the player is not dropped into the middle of a jump
   const log: GameEvent[] = [];
   const frames: { x: number; y: number }[] = [];
-  let replay: { i: number; from: number; to: number } | null = null; // i is a float: the replay runs at half speed
-  let falls = resume ? resume.falls : 0;
   const analyticsCourseKey = courseKey(course.name);
   const analyticsMode = pageQuery().get('mode') ?? 'course';
   let analyticsRunId = crypto.randomUUID();
@@ -826,7 +634,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
   function offerClear() {
     lastClear = null;
     const bk = listedKey();
-    if (!statsOn(params) || botMode || demo || idealWhole || !bk) return;
+    if (!statsOn(params) || botMode || st.demo || st.idealWhole || !bk) return;
     const mine = ghostCtl?.myRun();
     if (mine) {
       if (boardOn(params)) { rememberBest(bk, courseHash(course), logTicks(mine)); announceBest(); } // every board box redraws Your best now
@@ -860,42 +668,42 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
     if ((e.target as HTMLElement).closest?.('#sitenav, #courses-btn, #feedback-btn, .gallery')) return; // the top bar and open pop-ups keep their own clicks
     restart();
   });
-  function restart(x: number = retryX) {
+  function restart(x: number = st.retryX) {
     setMusicScreen('course');
     clearGuides();
-    if (!botMode) plan = null;
-    demo = null; idealWhole = false; idealPending = 0;
-    world = newWorld(course, x);
+    if (!botMode) st.plan = null;
+    st.demo = null; st.idealWhole = false; idealPending = 0;
+    st.world = newWorld(course, x);
     ghostCtl?.begin(x === course.startX && (!botMode || ghostBot), !botMode || ghostBot ? x : null); // a ghost chases a run from the start only; every try keeps its keys, so every try can be a clip (CC-157)
     resetRunStats(x);
     analyticsRunId = crypto.randomUUID(); failedThisAttempt = false;
     if (!clipping) trackCourseEvent('start', analyticsCourseKey, course.name, analyticsRunId, analyticsMode);
     log.length = 0;
     botState.next = 0; botState.caught = null; botState.bedAt = null;
-    idealNote = '';
+    st.idealNote = '';
     msg.textContent = '';
-    frames.length = 0; replay = null; panel.style.display = 'none';
+    frames.length = 0; st.replay = null; panel.style.display = 'none';
     squashUntil = 0; toastUntil = 0; toast.style.display = 'none'; toasts.clear(); releasedAtX = null; caughtSince.clear();
   }
 
   // The Dojo is reachable any time: it opens on the obstacle nearest the runner (R2-G4).
   function saveResume() {
-    try { sessionStorage.setItem('cc.resume', JSON.stringify({ course, world: world.outcome === 'running' ? world : null, retryX, facing, falls } satisfies Resume)); } catch { /* the Course starts again */ }
+    try { sessionStorage.setItem('cc.resume', JSON.stringify({ course, world: st.world.outcome === 'running' ? st.world : null, retryX: st.retryX, facing, falls: st.falls } satisfies Resume)); } catch { /* the Course starts again */ }
   }
   // The editor opens on the course's own pieces (its source, or a copy built from its ground and bars), at the obstacle the runner is at.
   // A coaster opens its track in the coaster builder. "Make it easier" opens the editor already looking for the smallest change.
   function openEditor(intent: 'edit' | 'easier') {
     track('edit_opens');
     if (course.track) { location.href = `?mode=coaster&coaster=${course.track.pts.map(([x, y]) => `${+x.toFixed(2)},${+y.toFixed(2)}`).join(';')}&push=${+(course.track.push ?? 1.5).toFixed(2)}`; return; }
-    const zone = world.outcome === 'running' ? zoneAt(world.runner.x)?.id ?? null : lastZone;
-    const h: EditHandoff = { course: handoffCourse(course), retryX, zone, x: world.runner.x, facing, falls, intent };
+    const zone = st.world.outcome === 'running' ? zoneAt(st.world.runner.x)?.id ?? null : lastZone;
+    const h: EditHandoff = { course: handoffCourse(course), retryX: st.retryX, zone, x: st.world.runner.x, facing, falls: st.falls, intent };
     try { sessionStorage.setItem(EDIT_KEY, JSON.stringify(h)); } catch { msg.textContent = 'This course is too big to hand to the World Editor.'; return; }
     location.search = '?mode=editor';
   }
   function openDojo() {
     track('dojo_opens');
     saveResume();
-    const x = world.runner.x;
+    const x = st.world.runner.x;
     const z = zoneAt(x)?.id ?? 'gap';
     location.search = trainLink(z, x);
   }
@@ -917,29 +725,18 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
   // The ideal run: the simulator's own best line from standing still at x0. A plan always runs on to the finish, so
   // "this obstacle" only stops it at the end of the zone (demo) and "the whole course" lets it run (Shift+I).
   // Shortcuts: routes the designer did not plan (src/sim/shortcuts.ts). Stored with a demo course, or worked out on first request in a worker.
-  let shortcuts: Shortcut[] | null = course.shortcuts ?? null, shortcutWorker: Worker | null = null, shortcutAsk: Promise<Shortcut[]> | null = null;
-  function ensureShortcuts(): Promise<Shortcut[]> {
-    if (shortcuts) return Promise.resolve(shortcuts);
-    shortcutAsk ??= new Promise<Shortcut[]>((resolve) => {
-      try {
-        shortcutWorker ??= new Worker(new URL('../sim/shortcuts-worker.ts', import.meta.url), { type: 'module' });
-        const w = shortcutWorker;
-        w.onmessage = (e: MessageEvent) => { shortcuts = (e.data.shortcuts as Shortcut[]) ?? []; resolve(shortcuts); };
-        w.postMessage({ course });
-      } catch { shortcuts = []; resolve(shortcuts); } // no worker here: no shortcut list
-    });
-    return shortcutAsk;
-  }
+  const shortcutList = createShortcutList(course);
+  const ensureShortcuts = shortcutList.ensure;
   function startShortcut(s: Shortcut) {
     clearGuides();
-    world = newWorld(course, course.startX);
-    log.length = 0; frames.length = 0; replay = null; panel.style.display = 'none';
-    plan = s.plan; botState.next = 0; botState.caught = null; botState.bedAt = null;
-    idealWhole = true; demo = null; retryX = course.startX;
-    idealNote = shortcutLine(s) + ' Watch it, press any key to take over.';
+    st.world = newWorld(course, course.startX);
+    log.length = 0; frames.length = 0; st.replay = null; panel.style.display = 'none';
+    st.plan = s.plan; botState.next = 0; botState.caught = null; botState.bedAt = null;
+    st.idealWhole = true; st.demo = null; st.retryX = course.startX;
+    st.idealNote = shortcutLine(s) + ' Watch it, press any key to take over.';
   }
   function shortcutRow(): HTMLElement | null {
-    const s = shortcuts?.[0];
+    const s = shortcutList.list()?.[0];
     if (!s) return null;
     const box = document.createElement('div'); box.style.cssText = 'display:grid;gap:6px;margin-top:6px;padding-top:6px;border-top:1px solid #d6dcd9';
     const t = document.createElement('span'); t.textContent = `${s.designed ? 'The course keeps a shortcut on purpose' : 'A shortcut exists'}: ${s.how}. It saves ${s.secondsSaved.toFixed(1)} s.`; t.id = 'shortcutnote';
@@ -951,22 +748,9 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
   }
   // The search runs in a pool of workers (src/sim/ideal-pool.ts): the page keeps drawing, the line says which obstacle it is on, and any key cancels.
   // One search at a time (the workers hold one course); each waits for the one before. Nothing here runs a search on the page's thread unless there are no workers at all.
-  let poolQueue: Promise<unknown> = Promise.resolve();
-  function runSearch(c: CourseData, sig: { cancelled: boolean }, onNote?: (label: string, step: number, of: number) => void, budget?: number): Promise<SearchResult> {
-    try {
-      idealPool ??= new IdealPool(() => {
-        const w = new Worker(new URL('../sim/ideal-eval-worker.ts', import.meta.url), { type: 'module' });
-        return { post: (m) => w.postMessage(m), listen: (cb) => w.addEventListener('message', (e) => cb((e as MessageEvent).data)), stop: () => w.terminate() };
-      }, Math.max(1, Math.min(6, (navigator.hardwareConcurrency || 4) - 1)));
-      const pool = idealPool;
-      const run = poolQueue.catch(() => undefined).then(() => (sig.cancelled ? Promise.reject(new Error('cancelled')) : pool.search(c, (b) => onNote?.(b.label, Math.min(b.step + 1, b.of), b.of), sig, { budget })));
-      poolQueue = run;
-      return run;
-    } catch { return Promise.resolve(searchIdealRun(c)); } // no worker here: search on the page's thread
-  }
   function findPlan(c: CourseData): Promise<SearchResult> {
     const sig = idealSignal = { cancelled: false };
-    return runSearch(c, sig, (label, step, of) => { idealNote = `Working out the ideal run… ${label} (${step} of ${of}) · any key cancels`; });
+    return runSearch(c, sig, (label, step, of) => { st.idealNote = `Working out the ideal run… ${label} (${step} of ${of}) · any key cancels`; });
   }
   // The fall tip needs how wide the window of good presses is. A course stores it with its plan; when it does not, the workers work it out within a budget (and the tip
   // says the generic thing until then): a whole-course search on the page's thread froze the page for up to half a minute after a fall.
@@ -988,7 +772,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
     for (const x of starts) {
       let q = idealCache.get(x) ?? (x === course.startX ? course.plan : undefined);
       if (!q) {
-        idealNote = 'Working out the ideal run… (any key cancels)';
+        st.idealNote = 'Working out the ideal run… (any key cancels)';
         idealPending = token;
         const r = await findPlan({ ...course, startX: x }).catch(() => undefined);
         if (idealPending !== token || !r) return; // cancelled while the search ran
@@ -1002,26 +786,26 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
     if (!p) { p = first; from = x0; } // nothing clears from a standing start: show the closest line from where it was asked
     if (!p) return;
     clearGuides();
-    world = newWorld(course, from);
-    log.length = 0; frames.length = 0; replay = null; panel.style.display = 'none';
-    plan = p; botState.next = 0; botState.caught = null; botState.bedAt = null;
-    idealWhole = zoneId === null;
-    demo = zoneId === null ? null : { x1: (course.zones?.find((z) => z.id === zoneId)?.x1 ?? 1e9) + 3 };
-    idealNote = zoneId === null ? 'Ideal run through every obstacle: watch it, press any key to take over.' : 'Ideal run: watch how it is done, then press R to try it yourself.';
-    if (from < x0) { const back = (course.checkpoints ?? []).filter((k) => k.x >= from && k.x < x0).length; idealNote += ` It starts ${back === 1 ? 'one obstacle' : `${back} obstacles`} back, to build up speed.`; }
-    if (zoneId === null) void ensureShortcuts().then((list) => { if (list[0] && plan === p && idealWhole) idealNote += ' ' + shortcutLine(list[0]); });
+    st.world = newWorld(course, from);
+    log.length = 0; frames.length = 0; st.replay = null; panel.style.display = 'none';
+    st.plan = p; botState.next = 0; botState.caught = null; botState.bedAt = null;
+    st.idealWhole = zoneId === null;
+    st.demo = zoneId === null ? null : { x1: (course.zones?.find((z) => z.id === zoneId)?.x1 ?? 1e9) + 3 };
+    st.idealNote = zoneId === null ? 'Ideal run through every obstacle: watch it, press any key to take over.' : 'Ideal run: watch how it is done, then press R to try it yourself.';
+    if (from < x0) { const back = (course.checkpoints ?? []).filter((k) => k.x >= from && k.x < x0).length; st.idealNote += ` It starts ${back === 1 ? 'one obstacle' : `${back} obstacles`} back, to build up speed.`; }
+    if (zoneId === null) void ensureShortcuts().then((list) => { if (list[0] && st.plan === p && st.idealWhole) st.idealNote += ' ' + shortcutLine(list[0]); });
   }
-  function showIdeal(zoneId: string) { idealWhole = false; void startIdeal(cpFor(zoneId), zoneId); }
+  function showIdeal(zoneId: string) { st.idealWhole = false; void startIdeal(cpFor(zoneId), zoneId); }
   // Shift+I: the whole course, always from the standing start (CC-241), so the first obstacle is in the film too
   function showWholeIdeal() { void startIdeal(course.startX, null); }
   function stopWholeIdeal() {
-    idealWhole = false; idealPending = 0; idealToken++; idealSignal.cancelled = true;
-    if (!botMode) plan = null;
-    idealNote = 'Your turn.'; setTimeout(() => { if (idealNote === 'Your turn.') idealNote = ''; }, 2500);
+    st.idealWhole = false; idealPending = 0; idealToken++; idealSignal.cancelled = true;
+    if (!botMode) st.plan = null;
+    st.idealNote = 'Your turn.'; setTimeout(() => { if (st.idealNote === 'Your turn.') st.idealNote = ''; }, 2500);
   }
   function demoEnd() {
-    const whole = idealWhole; idealNote = '';
-    plan = botMode ? plan : null; demo = null; idealWhole = false;
+    const whole = st.idealWhole; st.idealNote = '';
+    st.plan = botMode ? st.plan : null; st.demo = null; st.idealWhole = false;
     panel.innerHTML = ''; panel.style.display = 'grid';
     const h = document.createElement('strong'); h.textContent = whole ? 'That was the ideal run through every obstacle. Your turn.' : 'That was the ideal run. Your turn.';
     const row = document.createElement('div'); row.style.cssText = 'display:flex;gap:8px;flex-wrap:wrap';
@@ -1034,7 +818,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
   // after a clear: say a shortcut exists (a fact, never a grade)
   function clearedNote() {
     void ensureShortcuts().then(() => {
-      if (world.outcome !== 'cleared' || !shortcuts?.length) return;
+      if (st.world.outcome !== 'cleared' || !shortcutList.list()?.length) return;
       const sr = shortcutRow(); if (!sr) return;
       if (panel.style.display === 'none' || !panel.firstChild) { panel.innerHTML = ''; panel.style.display = 'grid'; const h = document.createElement('strong'); h.textContent = 'You made it!'; panel.append(h); }
       panel.appendChild(sr);
@@ -1055,16 +839,16 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
   }
   // The numbers behind a coaster fall: where the cart started, how fast it was, and what the hilltop could hold.
   function cartDiag(): string[] {
-    const rails = railsOf(course.track!, world.cart?.segment ?? Number(log.find((e) => e.type === 'cart-off')?.detail?.segment ?? 0)), L: string[] = [];
+    const rails = railsOf(course.track!, st.world.cart?.segment ?? Number(log.find((e) => e.type === 'cart-off')?.detail?.segment ?? 0)), L: string[] = [];
     const start = rails.y(rails.x0);
     L.push(`The cart started ${start.toFixed(1)} m up and was pushed off at ${(course.track!.push ?? 1.5).toFixed(1)} m/s.`);
-    const off = log.find((e) => e.type === 'cart-off'), st = log.find((e) => e.type === 'cart-stall');
+    const off = log.find((e) => e.type === 'cart-off'), stall = log.find((e) => e.type === 'cart-stall');
     if (off) {
       const x = off.detail!.x as number;
       L.push(`It left the rails at ${x.toFixed(0)} m, ${rails.y(x).toFixed(1)} m up, doing ${(off.detail!.v as number).toFixed(1)} m/s.`);
       L.push(`That hilltop lets go above ${crestSpeedLimit(rails, x).toFixed(1)} m/s: the sharper the top, the slower the limit.`);
     }
-    if (st) L.push(`It turned round on a hill ${(st.detail!.height as number).toFixed(1)} m up: the highest it could reach was about the height it started from.`);
+    if (stall) L.push(`It turned round on a hill ${(stall.detail!.height as number).toFixed(1)} m up: the highest it could reach was about the height it started from.`);
     return L;
   }
   // The elastic band: what the throw was, and what would have gone farther (never how well you did)
@@ -1135,8 +919,8 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
   }
   function cartTip(what: 'splash' | 'slide' | 'stall'): string {
     if (what === 'stall') {
-      const st = log.find((e) => e.type === 'cart-stall');
-      return `It turned round on a hill ${st ? (st.detail?.height as number).toFixed(1) + ' m high' : ''}. A cart can only climb as high as it started, plus a little from the push. Make the first hill higher, or the hill it stopped on lower.`;
+      const stall = log.find((e) => e.type === 'cart-stall');
+      return `It turned round on a hill ${stall ? (stall.detail?.height as number).toFixed(1) + ' m high' : ''}. A cart can only climb as high as it started, plus a little from the push. Make the first hill higher, or the hill it stopped on lower.`;
     }
     const off = log.find((e) => e.type === 'cart-off');
     return off ? `At ${(off.detail?.v as number).toFixed(1)} m/s the top of that hill bends away faster than gravity can hold the cart down, so the rails let go. Hold ↓ to brake before the crest, or make the crest broader.` : 'Try again.';
@@ -1145,9 +929,9 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
   // After a fall: retry at once, one tip, a skippable replay, and the offer to train that obstacle.
   let lastFall: 'splash' | 'slide' | 'hurt' | 'stall' = 'splash';
   function onFall(what: 'splash' | 'slide' | 'hurt' | 'stall') {
-    falls++; track('falls');
+    st.falls++; track('falls');
     lastFall = what;
-    const r = world.runner;
+    const r = st.world.runner;
     const zone = zoneAt(what === 'slide' && course.wall ? course.wall.x0 + 1 : r.x);
     lastZone = zone?.id ?? 'gap';
     if (!failedThisAttempt) {
@@ -1156,7 +940,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
       if (zone) fallLog.push(zone.id);
       enterZone(failedZone); countsFor(summaries[runKind], failedZone).failures++; finishRun(false);
     }
-    retryX = cpFor(lastZone);
+    st.retryX = cpFor(lastZone);
     const jump = [...log].reverse().find((e) => e.type === 'jump');
     let tip = 'Try again.', lateTip = false;
     if (what === 'slide') tip = OBSTACLES.wall.tips.slide;
@@ -1166,7 +950,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
     else if (course.track) tip = cartTip(what);
     else if (what === 'splash' && course.recoil && isAimable(recoilParams(course)) && zone?.id === 'recoil') tip = OBSTACLES.recoil.tips.aim;
     else if (course.drone && zone?.id === 'drone') tip = log.some((e) => e.type === 'drone-empty') ? OBSTACLES.drone.tips.empty : OBSTACLES.drone.tips.short;
-    else if (course.recoil && zone?.id === 'recoil') tip = world.recoil && world.recoil.fired > 0 ? OBSTACLES.recoil.tips.push : OBSTACLES.recoil.tips.pad;
+    else if (course.recoil && zone?.id === 'recoil') tip = st.world.recoil && st.world.recoil.fired > 0 ? OBSTACLES.recoil.tips.push : OBSTACLES.recoil.tips.pad;
     else if (log.some((e) => e.type === 'plank-break')) tip = plankTip();
     else if (course.band) tip = bandTip();
     else if (zone?.id === 'trampoline') tip = OBSTACLES.trampoline.tips.fall;
@@ -1181,7 +965,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
       const hit = ws && windowTip(ws, r.x);
       if (hit) tip = hit; else if (!ws) lateTip = true;
     }
-    const train = everCleared || falls >= 3;
+    const train = everCleared || st.falls >= 3;
     panel.innerHTML = '';
     panel.style.display = 'grid';
     const h = document.createElement('strong');
@@ -1196,34 +980,34 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
       b.style.cssText = `font:inherit;border:1px solid ${primary ? '#0f6b5c' : '#b9c2bb'};background:${primary ? '#0f6b5c' : '#fff'};color:${primary ? '#fff' : '#17201d'};border-radius:8px;padding:6px 12px;cursor:pointer;font-weight:${primary ? 700 : 400}`;
       b.onclick = fn; row.appendChild(b); return b;
     };
-    const retry = mk(`Try this ${zone?.name ?? 'obstacle'} again (R)`, () => restart(retryX), true);
-    if (retryX !== course.startX) mk('Start from the beginning (Shift+R)', () => { retryX = course.startX; restart(course.startX); });
+    const retry = mk(`Try this ${zone?.name ?? 'obstacle'} again (R)`, () => restart(st.retryX), true);
+    if (st.retryX !== course.startX) mk('Start from the beginning (Shift+R)', () => { st.retryX = course.startX; restart(course.startX); });
     mk('Watch what happened, with the numbers', () => {
       panel.style.display = 'none';
       const from = Math.max(0, frames.length - 300);
-      replay = { i: from, from, to: frames.length };
+      st.replay = { i: from, from, to: frames.length };
       const lines = course.track ? cartDiag() : buildDiag(lastZone, what === 'slide' ? 'slide' : 'splash');
       diagBox.innerHTML = `<strong>Slow-motion replay</strong><ul style="margin:6px 0 0;padding-left:18px">${lines.map((l) => `<li>${l}</li>`).join('')}</ul><div style="color:#58635d;font-size:13px;margin-top:6px">Esc to skip</div>`;
       diagBox.style.display = 'block';
     });
-    const tryClip = shareOn(params) && !botMode && !demo && !idealWhole && !params.get('mode') ? ghostCtl?.myClip() ?? null : null, tryTicks = world.runner.tick;
+    const tryClip = shareOn(params) && !botMode && !st.demo && !st.idealWhole && !params.get('mode') ? ghostCtl?.myClip() ?? null : null, tryTicks = st.world.runner.tick;
     const tryFrom = tryClip ? startOfX(course, tryClip.from) : null; // CC-242: a try from a checkpoint is shared with its start, so the friend begins at the same place
     const tryStart = tryFrom ?? 0;
-    const tryRun = shareOn(params) && !botMode && !demo && !idealWhole && !params.get('mode') ? (ghostCtl?.myRun() ?? (tryFrom ? tryClip?.log ?? null : null)) : null; // CC-181: a try that fell can be sent as a link too; it never counts for a time
+    const tryRun = shareOn(params) && !botMode && !st.demo && !st.idealWhole && !params.get('mode') ? (ghostCtl?.myRun() ?? (tryFrom ? tryClip?.log ?? null : null)) : null; // CC-181: a try that fell can be sent as a link too; it never counts for a time
     if (tryRun) row.append(...copyLinkButton({ link: (nick) => makeLinkInfo(location.origin, pageSearch(), course, tryRun, nick, choice, 'fell', undefined, tryStart), courseTooBig: () => courseTooBig(pageSearch(), course), label: 'Copy link to this try', id: 'share-copy-fall' }));
     if (tryClip && clipFits(tryTicks)) mk('Download a video of this try', () => void makeClip(tryClip.log, tryTicks, tryClip.from)).id = 'share-clip-fall'; // CC-157: a try that ended in a fall is worth a clip too
     mk('Show me the ideal run (I)', () => showIdeal(lastZone));
     if (!course.track) mk('Make it easier', () => openEditor('easier')).id = 'makeeasier';
     mk('Edit this course', () => openEditor('edit')).id = 'editfromfall';
     if (train) mk(`Train the ${zone?.name ?? 'obstacle'}`, () => { saveResume(); location.search = trainLink(zone?.id ?? 'gap', r.x); });
-    const failBody = renderReport(course, runLog, buildReport(course, runLog, world, false, null), {}, true, ghostCtl?.reportPath() ?? null, !reportSectionsOn(params), hardBand());
+    const failBody = renderReport(course, runLog, buildReport(course, runLog, st.world, false, null), {}, true, ghostCtl?.reportPath() ?? null, !reportSectionsOn(params), hardBand());
     addHardest(failBody);
     panel.append(h, t, floorNote, failBody, row);
-    if (falls === 1 && !idealWhole) onboarding.onFall(panel); // CC-100: the first fall gets one calm hint (CC-191: inside the report, not over it)
+    if (st.falls === 1 && !st.idealWhole) onboarding.onFall(panel); // CC-100: the first fall gets one calm hint (CC-191: inside the report, not over it)
     retry.focus({ preventScroll: true }); panel.scrollTop = 0;
   }
 
-  function showAgain() { falls--; onFall(lastFall); }
+  function showAgain() { st.falls--; onFall(lastFall); }
 
   // Controls are taught while you play: one short hint at a time, then none.
   // what the Rookie needs to know about the course: where the top edge of the wall is, and the next obstacle ahead
@@ -1300,8 +1084,8 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
     if (course.holds?.length && w.mode === 'run' && !r.grounded) { const next = course.holds.find((h) => h.x > r.x - 0.5); if (next && Math.abs(next.x - r.x) < 2.5) return 'Hold E to grab the bar'; }
     if (w.mode === 'climb') return 'Keep holding E: the arms pull you up';
     { const ca = w.mode === 'run' ? climbAhead(course.terrain, r.x, r.y, 2.5, course.jumpSpeed) : null; if (ca) return ca.standing ? 'A tall wall: hold E at the wall to grab the edge and climb' : 'A very tall wall: jump and hold E at the top of the jump'; }
-    { const at = w.mode === 'run' && r.tick >= 60 && toastDrumsNow().length ? approachToast(course, toastDrumsNow(), r.x) : null; if (at && at.kind !== 'bounce' && !(at.kind === 'jump' && (everCleared || falls > 0))) return at.text; }
-    if (everCleared || falls > 0) return '';
+    { const at = w.mode === 'run' && r.tick >= 60 && toastDrumsNow().length ? approachToast(course, toastDrumsNow(), r.x) : null; if (at && at.kind !== 'bounce' && !(at.kind === 'jump' && (everCleared || st.falls > 0))) return at.text; }
+    if (everCleared || st.falls > 0) return '';
     if (r.tick < 60 || (r.x < 4 && r.tick < 600)) return 'Hold → to run';
     const g = specs.find((q2) => q2.x + 0.2 >= r.x && q2.x - r.x < 6);
     if (g && r.grounded) return 'Press Space just before the edge to jump';
@@ -1324,22 +1108,22 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
     const text = { course: course.name, time: secondsWords(ticks), address: 'conquercourse.pages.dev' };
     let n = 0, pending: Promise<void> = Promise.resolve();
     try {
-      clipping = true; clipCam = null; paused = false; keys.clear();
+      clipping = true; clipCam = null; st.paused = false; st.keys.clear();
       restart(from);
       feed = { log, i: 0, left: 0 };
       let smallest = 1;
       clipHook = () => {
         // how tall the standing runner is in this picture, as a share of the picture's height (the camera has settled by the third picture)
-        const feet = new THREE.Vector3(world.runner.x, world.runner.y, 0).project(camera), head = new THREE.Vector3(world.runner.x, world.runner.y + RUNNER_M, 0).project(camera);
+        const feet = new THREE.Vector3(st.world.runner.x, st.world.runner.y, 0).project(camera), head = new THREE.Vector3(st.world.runner.x, st.world.runner.y + RUNNER_M, 0).project(camera);
         const share = (Math.abs(head.y - feet.y) / 2) * dom.height * (L.band.h / clipCrop(dom.width, dom.height, L).h) / L.h;
         const small = L.viewM !== null && share < MARKER_BELOW; // a small runner gets a soft ring
-        const mid = new THREE.Vector3(world.runner.x, world.runner.y + RUNNER_M / 2, 0).project(camera);
+        const mid = new THREE.Vector3(st.world.runner.x, st.world.runner.y + RUNNER_M / 2, 0).project(camera);
         drawClipFrame(ctx, dom, dom.width, dom.height, text, L, small ? { x: ((mid.x + 1) / 2) * dom.width, y: ((1 - mid.y) / 2) * dom.height, r: 0.9 * ((Math.abs(head.y - feet.y) / 2) * dom.height) + 10 } : undefined);
         if (n > 2) smallest = Math.min(smallest, share);
         pending = enc.add(cv, n++);
       };
       const step = (TICKS_PER_FRAME * DT * 1000 + 0.001) / timeScale;
-      let t = last;
+      let t = st.last;
       for (let k = 0; k < total; k++) {
         t += step; await new Promise<void>((done) => requestAnimationFrame(() => { frame(t, true); done(); })); await pending; // drawn inside a real animation frame: the renderer refreshes some camera values only once per frame
         if (k % 8 === 0) { card.say(`Making your clip… ${Math.round((100 * k) / total)}%`); await new Promise((r) => setTimeout(r, 0)); }
@@ -1354,8 +1138,8 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
       card.fail('The clip could not be made on this computer. Copy the challenge link instead.');
       console.warn('clip failed', e);
     } finally {
-      clipping = false; clipCam = null; clipHook = null; feed = null; acc = 0;
-      restart(course.startX); last = performance.now();
+      clipping = false; clipCam = null; clipHook = null; feed = null; st.acc = 0;
+      restart(course.startX); st.last = performance.now();
       requestAnimationFrame(frame);
     }
   }
@@ -1376,10 +1160,10 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
         return;
       }
       ghostCtl?.setFriend(c.track, c.nick, lookOfParam(params.get('rk')), c.start > 0 ? startXOf(course, c.start) : null);
-      if (c.start > 0 && !resume) { retryX = startXOf(course, c.start); restart(retryX); } // CC-242: begin where the friend began, standing still, so both bodies start together
+      if (c.start > 0 && !resume) { st.retryX = startXOf(course, c.start); restart(st.retryX); } // CC-242: begin where the friend began, standing still, so both bodies start together
       if (phoneMode(params, browserPointing) && !touchControls) {
         // A phone has no keys (CC-138): the page plays the friend's run by itself and says how to play it for real.
-        keysOpen = false; keysTouched = true; paintKeys(false); frontOverride = false; // the small corner view would hide the runner on a narrow screen
+        st.keysOpen = false; st.keysTouched = true; paintKeys(false); st.frontOverride = false; // the small corner view would hide the runner on a narrow screen
         showBanner(PHONE_WORDS(secondsWords(c.ticks)), [{ label: 'Copy link', go: () => void copyHere() }], 0);
         phoneWatch = c.log; feed = { log: c.log, i: 0, left: 0 };
         return;
@@ -1395,13 +1179,12 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
       if (params.get('clip') === 'auto') void makeClip(c.log, c.ticks);
     });
   }
-  let last = performance.now();
-  let acc = 0;
+  st.last = performance.now();
   let studioHold = false; // the Graph Studio has the clock stopped (not the Dojo's "press any key" pause)
   // Graph Studio (CC-86): Tab pauses the Course and opens the ground as a graph to drag; "Play from here" carries on with the edited course
-  if (!botMode) installGraphStudio({ env: () => ({ course, retryX, facing, falls, runnerX: world.runner.x }), pause: () => { studioHold = true; paused = true; }, resume: () => { studioHold = false; paused = false; last = performance.now(); keys.clear(); }, chipWhen: () => falls > 0 || params.get('edit') === '1' });
-  { let heldBefore = false; window.addEventListener(GALLERY_EVENT, (ev) => { if ((ev as CustomEvent).detail.open) { heldBefore = paused; paused = true; keys.clear(); } else { paused = heldBefore; last = performance.now(); } }); } // the Courses gallery stops the game while it is open
-  if (!botMode || params.get('next') === '1') onboarding = startOnboarding({ params, store: browserStore, course, tour: tour === 'tour', resetRun: () => { if (world.outcome === 'running' && Math.abs(world.runner.x - course.startX) < 0.01) restart(course.startX); }, openCourses: () => courseButton.open(), toggleKeys: () => { keysTouched = true; keysOpen = !keysOpen; paintKeys(keysOpen); } }); // CC-100: the Help chip, and the tour on a first visit
+  if (!botMode) installGraphStudio({ env: () => ({ course, retryX: st.retryX, facing, falls: st.falls, runnerX: st.world.runner.x }), pause: () => { studioHold = true; st.paused = true; }, resume: () => { studioHold = false; st.paused = false; st.last = performance.now(); st.keys.clear(); }, chipWhen: () => st.falls > 0 || params.get('edit') === '1' });
+  { let heldBefore = false; window.addEventListener(GALLERY_EVENT, (ev) => { if ((ev as CustomEvent).detail.open) { heldBefore = st.paused; st.paused = true; st.keys.clear(); } else { st.paused = heldBefore; st.last = performance.now(); } }); } // the Courses gallery stops the game while it is open
+  if (!botMode || params.get('next') === '1') onboarding = startOnboarding({ params, store: browserStore, course, tour: tour === 'tour', resetRun: () => { if (st.world.outcome === 'running' && Math.abs(st.world.runner.x - course.startX) < 0.01) restart(course.startX); }, openCourses: () => courseButton.open(), toggleKeys: () => { st.keysTouched = true; st.keysOpen = !st.keysOpen; paintKeys(st.keysOpen); } }); // CC-100: the Help chip, and the tour on a first visit
   const camPos = new THREE.Vector3();
   // ?fx=bloom,vignette,dof (or all): picture polish for stills (CC-188); off unless asked, loaded only then
   let fxPipe: { render(): void } | null = null;
@@ -1440,33 +1223,33 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
     if (filmShot) now = performance.now(); // a film runs the game on the stepped film clock; the real animation-frame time would let the run race ahead at the speed the machine draws
     if (clipping && !stepped) return; // the clip drives the game by hand; the loop starts again when it ends
     perf.frame(now);
-    acc = paused ? 0 : Math.min(acc + ((now - last) / 1000) * timeScale, 0.25);
-    last = now;
-    while (acc >= DT) {
-      acc -= DT;
+    st.acc = st.paused ? 0 : Math.min(st.acc + ((now - st.last) / 1000) * timeScale, 0.25);
+    st.last = now;
+    while (st.acc >= DT) {
+      st.acc -= DT;
       let input: RunnerInput = NO_INPUT;
-      if (feed) { input = fedInput(); if (!clipping && world.outcome === 'running') ghostCtl?.input(input); }
-      else if (plan) input = inputFor(plan, world, botState, course);
+      if (feed) { input = fedInput(); if (!clipping && st.world.outcome === 'running') ghostCtl?.input(input); }
+      else if (st.plan) input = inputFor(st.plan, st.world, botState, course);
       else {
-        input = { run: keys.has('ArrowRight') || keys.has('KeyD'), left: keys.has('ArrowLeft') || keys.has('KeyA'), jump: jumpQueued, jumpSpeed: 0, squat: keys.has('ArrowDown') || keys.has('KeyS'), handL: keys.has('KeyE'), handR: keys.has('KeyE'), vault: vaultQueued, roll: rollQueued || keys.has('KeyX'), slide: slideQueued, fire: fireQueued, aimUp: keys.has('ArrowUp') || keys.has('KeyW'), aimDown: keys.has('ArrowDown') || keys.has('KeyS'), up: keys.has('ArrowUp') || keys.has('KeyW') };
-        if (world.outcome === 'running') ghostCtl?.input(input);
-        jumpQueued = false; vaultQueued = false; rollQueued = false; slideQueued = false; fireQueued = false;
+        input = { run: st.keys.has('ArrowRight') || st.keys.has('KeyD'), left: st.keys.has('ArrowLeft') || st.keys.has('KeyA'), jump: st.jumpQueued, jumpSpeed: 0, squat: st.keys.has('ArrowDown') || st.keys.has('KeyS'), handL: st.keys.has('KeyE'), handR: st.keys.has('KeyE'), vault: st.vaultQueued, roll: st.rollQueued || st.keys.has('KeyX'), slide: st.slideQueued, fire: st.fireQueued, aimUp: st.keys.has('ArrowUp') || st.keys.has('KeyW'), aimDown: st.keys.has('ArrowDown') || st.keys.has('KeyS'), up: st.keys.has('ArrowUp') || st.keys.has('KeyW') };
+        if (st.world.outcome === 'running') ghostCtl?.input(input);
+        st.jumpQueued = false; st.vaultQueued = false; st.rollQueued = false; st.slideQueued = false; st.fireQueued = false;
       }
-      const prev = world.outcome;
-      noteRunning(prev === 'running' && (Math.abs(world.runner.vx) > 0.3 || world.mode !== 'run')); // CC-feedback: the Feedback button hides during a run
-      prevMode = world.mode; prevVx = world.runner.vx;
+      const prev = st.world.outcome;
+      noteRunning(prev === 'running' && (Math.abs(st.world.runner.vx) > 0.3 || st.world.mode !== 'run')); // CC-feedback: the Feedback button hides during a run
+      prevMode = st.world.mode; prevVx = st.world.runner.vx;
       perf.simStart();
-      if (hangTest === null && plankTest === null) world = stepWorld(world, input, course);
+      if (hangTest === null && plankTest === null) st.world = stepWorld(st.world, input, course);
       perf.simEnd();
-      updateRunProgress(world.runner.x);
-      updateFlow(world.runner.tick, world.runner.vx, world.runner.vy);
-      logTick(runLog, world);
-      if (prevMode === 'run' && world.mode === 'wall') wallEntry = prevVx;
-      if (demo && (world.outcome !== 'running' || world.runner.x > demo.x1)) demoEnd();
-      else if (idealWhole && world.outcome !== 'running') demoEnd();
-      log.push(...world.events);
-      if (world.events !== soundedEvents) { soundedEvents = world.events; if (!replay && !clipping) soundsFor(world.events, hazard); } // after the end the same events array stays: it sounds once
-      for (const e of world.events) {
+      updateRunProgress(st.world.runner.x);
+      updateFlow(st.world.runner.tick, st.world.runner.vx, st.world.runner.vy);
+      logTick(runLog, st.world);
+      if (prevMode === 'run' && st.world.mode === 'wall') wallEntry = prevVx;
+      if (st.demo && (st.world.outcome !== 'running' || st.world.runner.x > st.demo.x1)) demoEnd();
+      else if (st.idealWhole && st.world.outcome !== 'running') demoEnd();
+      log.push(...st.world.events);
+      if (st.world.events !== soundedEvents) { soundedEvents = st.world.events; if (!st.replay && !clipping) soundsFor(st.world.events, hazard); } // after the end the same events array stays: it sounds once
+      for (const e of st.world.events) {
         if (e.type === 'drone-board') { say('The drone lifts you. Lean with ← →, climb with ↑ and come down with ↓.', 240); }
         if (e.type === 'drone-empty') { say('The battery ran out: the rotors stopped and the drone is falling.', 240); }
         if (e.type === 'drone-land') { say('The drone sets you down.', 150); }
@@ -1474,14 +1257,14 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
         if (e.type === 'band-snap') { say(`The band snapped at ${(e.detail?.stretch as number).toFixed(0)} m: it can only stretch so far. Press R and turn round sooner.`, 360); }
         if (e.type === 'band-release') { say(`The band lets go: you leave it at ${(e.detail?.vx as number).toFixed(1)} m/s.`, 180); }
         if (e.type === 'launch-dud') { say('The counterweight is too light: the arm hardly moves. Try a heavier weight.', 240); }
-        if (e.type === 'hang-release') { releasedAtX = world.runner.x; caughtSince.clear(); }
+        if (e.type === 'hang-release') { releasedAtX = st.world.runner.x; caughtSince.clear(); }
         if (e.type === 'hang-catch') caughtSince.add(e.detail?.hold as number);
         if (e.type === 'land' && releasedAtX !== null) { // a bar flown over between the release and the landing, never held: a fact, not a grade
-          const skipped = (course.holds ?? []).map((h, k) => ({ h, k })).filter(({ h, k }) => !caughtSince.has(k) && h.x > releasedAtX! + 0.5 && h.x < world.runner.x - 0.3);
+          const skipped = (course.holds ?? []).map((h, k) => ({ h, k })).filter(({ h, k }) => !caughtSince.has(k) && h.x > releasedAtX! + 0.5 && h.x < st.world.runner.x - 0.3);
           if (skipped.length) { say(`You skipped the ${skipped.map(({ k }) => barName(k)).join(' and the ')}.`, 150); }
           releasedAtX = null;
         }
-        if (e.type === 'jump' && keysOpen && !keysTouched) { keysOpen = false; paintKeys(false); } // the controls card has done its job once you have jumped
+        if (e.type === 'jump' && st.keysOpen && !st.keysTouched) { st.keysOpen = false; paintKeys(false); } // the controls card has done its job once you have jumped
         if (e.type === 'hang-release' && e.detail?.slipped) { say('Your grip gave out: the bar pulled harder than your hands could hold.', 120); }
         if (e.type === 'land' && !e.detail?.bouncy) {
           const o = ouch(e.detail?.peakDecel as number);
@@ -1491,67 +1274,67 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
         }
         if (e.type === 'land' && (e.detail?.impact as number) > 2 && !e.detail?.bouncy) {
           const o = ouch(e.detail?.peakDecel as number);
-          squashUntil = world.runner.tick + 40; squashDepth = e.detail?.squat ? 0.7 : o >= 6 ? 0.6 : 0.88;
-          if (o >= 3 && (toastsOld ? toastUntil - world.runner.tick : toasts.remaining(world.runner.tick)) < 100) { // (a fresh 'You skipped the bar' stays)
+          squashUntil = st.world.runner.tick + 40; squashDepth = e.detail?.squat ? 0.7 : o >= 6 ? 0.6 : 0.88;
+          if (o >= 3 && (toastsOld ? toastUntil - st.world.runner.tick : toasts.remaining(st.world.runner.tick)) < 100) { // (a fresh 'You skipped the bar' stays)
             say(o >= 8 ? 'Ouch! Dangerous landing: bend your knees (↓) on big drops.' : o >= 6 ? 'Hard landing: you stumble. Hold ↓ to bend your knees.' : 'Firm landing.', 90);
           }
         }
       }
-      if (replay === null && prev === 'running') frames.push({ x: world.runner.x, y: world.runner.y });
+      if (st.replay === null && prev === 'running') frames.push({ x: st.world.runner.x, y: st.world.runner.y });
       if (frames.length > 1200) frames.shift();
-      if (prev === 'running' && world.outcome === 'splash') onFall('splash');
-      if (prev === 'running' && world.outcome === 'hurt') onFall('hurt');
-      if (prev === 'running' && world.outcome === 'stalled') onFall('stall');
-      if (world.events.some((e) => e.type === 'wall-slide')) { // CC-182: missing the top is not a fall: the body slides to the foot and the run goes on, run up again as often as you like
+      if (prev === 'running' && st.world.outcome === 'splash') onFall('splash');
+      if (prev === 'running' && st.world.outcome === 'hurt') onFall('hurt');
+      if (prev === 'running' && st.world.outcome === 'stalled') onFall('stall');
+      if (st.world.events.some((e) => e.type === 'wall-slide')) { // CC-182: missing the top is not a fall: the body slides to the foot and the run goes on, run up again as often as you like
         say([...log].some((e) => e.type === 'wall-no-grip') ? 'Your hands missed the edge. Run up again and hold E near the top.' : 'Not high enough. Run up again with more speed.', 240);
       }
-      if (phoneWatch && prev === 'running' && world.outcome === 'cleared') { // the friend's run, watched on a phone: no report, no What next card; play it again in a moment (CC-138)
+      if (phoneWatch && prev === 'running' && st.world.outcome === 'cleared') { // the friend's run, watched on a phone: no report, no What next card; play it again in a moment (CC-138)
         const again = phoneWatch;
         setTimeout(() => { if (again) { restart(course.startX); feed = { log: again, i: 0, left: 0 }; } }, 2500);
-      } else if (prev === 'running' && world.outcome === 'cleared' && !clipping) {
-        clearFinishZone(world.runner.x); everCleared = true; track('clears'); finishRun(true); trackCourseEvent('success', analyticsCourseKey, course.name, analyticsRunId, analyticsMode);
+      } else if (prev === 'running' && st.world.outcome === 'cleared' && !clipping) {
+        clearFinishZone(st.world.runner.x); everCleared = true; track('clears'); finishRun(true); trackCourseEvent('success', analyticsCourseKey, course.name, analyticsRunId, analyticsMode);
         offerClear();
         try { localStorage.setItem('cc.course.cleared', '1'); } catch { /* ok */ }
         panel.innerHTML = ''; panel.style.display = 'grid';
         showClearedReport({
           course, params, panel, runLog, hardBand, addHardest, listedKey, viewHooks, clearedNote,
-          get world() { return world; }, get runKind() { return runKind; }, get ghostCtl() { return ghostCtl; }, get lastClear() { return lastClear; },
-          get demo() { return demo; }, botMode, get idealWhole() { return idealWhole; }, loadedIsDefault, get analyticsRunId() { return analyticsRunId; },
+          get world() { return st.world; }, get runKind() { return runKind; }, get ghostCtl() { return ghostCtl; }, get lastClear() { return lastClear; },
+          get demo() { return st.demo; }, botMode, get idealWhole() { return st.idealWhole; }, loadedIsDefault, get analyticsRunId() { return analyticsRunId; },
           get onboarding() { return onboarding; }, get choice() { return choice; },
           restart: (x) => restart(x), startIdeal: (x0, z) => startIdeal(x0, z), openDojo: () => openDojo(), makeClip: (l, t, f) => makeClip(l, t, f),
         });
       }
     }
-    let r = world.runner;
-    if (replay) {
-      const f = frames[Math.floor(replay.i)];
-      replay.i += 0.5;
-      if (replay.i >= replay.to || !f) { replay = null; clearGuides(); if (world.outcome !== 'running') showAgain(); } else r = { ...r, x: f.x, y: f.y };
+    let r = st.world.runner;
+    if (st.replay) {
+      const f = frames[Math.floor(st.replay.i)];
+      st.replay.i += 0.5;
+      if (st.replay.i >= st.replay.to || !f) { st.replay = null; clearGuides(); if (st.world.outcome !== 'running') showAgain(); } else r = { ...r, x: f.x, y: f.y };
     }
-    const dtPlank = Math.min(0.05, Math.max(0, now - lastPlankNow) / 1000 * (paused ? 0 : timeScale)); lastPlankNow = now;
-    plankView?.place(world, dtPlank);
-    const plankY = replay ? null : plankView?.surfaceAt(world) ?? null; // the picture of the bend lags the physics a little: the feet stand on the drawn surface so they agree
+    const dtPlank = Math.min(0.05, Math.max(0, now - lastPlankNow) / 1000 * (st.paused ? 0 : timeScale)); lastPlankNow = now;
+    plankView?.place(st.world, dtPlank);
+    const plankY = st.replay ? null : plankView?.surfaceAt(st.world) ?? null; // the picture of the bend lags the physics a little: the feet stand on the drawn surface so they agree
     if (plankY !== null) r = { ...r, y: plankY };
-    const sq = world.runner.tick < squashUntil ? squashDepth : 1;
+    const sq = st.world.runner.tick < squashUntil ? squashDepth : 1;
     body.scale.set(1 / Math.sqrt(sq), sq, 1 / Math.sqrt(sq));
     body.position.set(r.x, r.y + 0.85 * sq, 0);
     trailPush?.(r.x, r.y + 0.95 * sq);
-    ghostCtl?.frame({ tick: world.runner.tick, x: world.runner.x, active: (!plan || ghostBot) && !demo && !idealWhole && !replay && !clipping, firstPerson: camMode === 'first' });
-    const facingSpeed = world.mode === 'cart' && world.cart ? world.cart.v : world.runner.vx;
-    if (Math.abs(facingSpeed) > 0.3 && world.mode !== 'hang') facing = facingSpeed < 0 ? -1 : 1; // on a bar the body keeps facing one way, whichever way it swings
+    ghostCtl?.frame({ tick: st.world.runner.tick, x: st.world.runner.x, active: (!st.plan || ghostBot) && !st.demo && !st.idealWhole && !st.replay && !clipping, firstPerson: camMode === 'first' });
+    const facingSpeed = st.world.mode === 'cart' && st.world.cart ? st.world.cart.v : st.world.runner.vx;
+    if (Math.abs(facingSpeed) > 0.3 && st.world.mode !== 'hang') facing = facingSpeed < 0 ? -1 : 1; // on a bar the body keeps facing one way, whichever way it swings
     // on a bar the actor is turned about its hands, so it is placed with the hands on the bar (feet straight below it before the turn), like the rope
-    const hangHold = world.mode === 'hang' && world.hang ? course.holds?.[world.hang.hold] : undefined;
-    const hOff = hangHold && world.hang ? handOffset(world.hang) : { x: 0, y: 0 }; // the hands ease onto the bar over a few ticks after a catch
+    const hangHold = st.world.mode === 'hang' && st.world.hang ? course.holds?.[st.world.hang.hold] : undefined;
+    const hOff = hangHold && st.world.hang ? handOffset(st.world.hang) : { x: 0, y: 0 }; // the hands ease onto the bar over a few ticks after a catch
     const ax = hangHold ? hangHold.x + hOff.x : r.x, ay = hangHold ? hangHold.y + hOff.y - DEFAULT_HANG.handHeight : r.y;
-    if (actor) actor.update({ ...actorStateFor(world, keys.has('ArrowDown') || keys.has('KeyS'), facing), x: ax, y: ay, ledge: world.mode === 'climb' && world.climb ? { x: world.climb.edge, y: world.climb.top } : ledge, next: world.mode === 'run' ? nextObstacle(r.x) : undefined });
-    trackView?.place(world);
-    if (world.runner.tick > toastUntil) toast.style.display = 'none';
-    toasts.update(world.runner.tick);
+    if (actor) actor.update({ ...actorStateFor(st.world, st.keys.has('ArrowDown') || st.keys.has('KeyS'), facing), x: ax, y: ay, ledge: st.world.mode === 'climb' && st.world.climb ? { x: st.world.climb.edge, y: st.world.climb.top } : ledge, next: st.world.mode === 'run' ? nextObstacle(r.x) : undefined });
+    trackView?.place(st.world);
+    if (st.world.runner.tick > toastUntil) toast.style.display = 'none';
+    toasts.update(st.world.runner.tick);
     paintStrip(r.x);
     drumLane.update(r.x);
-    debug.update(world);
-    grabHint.update(world, keys.has('KeyE'), performance.now());
-    if (params.get('check') === '1' && actor && ledge && world.mode === 'wall') {
+    debug.update(st.world);
+    grabHint.update(st.world, st.keys.has('KeyE'), performance.now());
+    if (params.get('check') === '1' && actor && ledge && st.world.mode === 'wall') {
       // how close the nearest hand gets to the wall's top edge while the climb is on
       const j = actor.joints();
       const hands = j.filter((_, i) => /Hand$/.test(actor!.names()[i]));
@@ -1562,55 +1345,55 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
     if (params.get('check') === '1' && actor) {
       // measurement for the tests: the deepest any joint sits inside a block or the wall, over the whole run (metres)
       const hit = makeObstacle(course);
-      actor.joints().forEach((j, i) => { const o = hit(j.x, j.y, 0); if (o && Math.hypot(o.dx, o.dy) > maxPen) { maxPen = Math.hypot(o.dx, o.dy); document.documentElement.dataset.maxPenWhere = `${world.mode} x=${r.x.toFixed(1)} y=${r.y.toFixed(1)} joint=${i} at (${j.x.toFixed(2)}, ${j.y.toFixed(2)})`; } });
+      actor.joints().forEach((j, i) => { const o = hit(j.x, j.y, 0); if (o && Math.hypot(o.dx, o.dy) > maxPen) { maxPen = Math.hypot(o.dx, o.dy); document.documentElement.dataset.maxPenWhere = `${st.world.mode} x=${r.x.toFixed(1)} y=${r.y.toFixed(1)} joint=${i} at (${j.x.toFixed(2)}, ${j.y.toFixed(2)})`; } });
       document.documentElement.dataset.maxPen = maxPen.toFixed(3);
     }
-    trebView?.update(world);
-    shotsView?.update(world);
-    poleView?.update(world);
-    recoilView?.update(world, facing, shotPreview(world)?.path);
-    bandView?.update(world);
-    droneView?.update(world, facing);
+    trebView?.update(st.world);
+    shotsView?.update(st.world);
+    poleView?.update(st.world);
+    recoilView?.update(st.world, facing, shotPreview(st.world)?.path);
+    bandView?.update(st.world);
+    droneView?.update(st.world, facing);
     const reportOpen = panel.style.display !== 'none'; // CC-191: while a report is open the hint, the controls card, the ghost chip and the second Edit button step aside
-    hint.textContent = reportOpen ? '' : hintFor(world);
+    hint.textContent = reportOpen ? '' : hintFor(st.world);
     hint.style.display = hint.textContent ? 'block' : 'none';
     if (reportOpen !== reportWas) { reportWas = reportOpen; if (reportOpen) help.style.visibility = 'hidden'; else if (!document.getElementById('helpmenu')) help.style.visibility = ''; rowBtns.style.visibility = reportOpen ? 'hidden' : ''; const gh = document.getElementById('ghost-hud'); if (gh) gh.style.visibility = reportOpen ? 'hidden' : ''; }
     if (ropeMesh && course.rope) {
       // the rope swings about its anchor with the runner: its middle is half a rope length along the swing
-      const th = world.swing ? world.swing.theta : 0;
+      const th = st.world.swing ? st.world.swing.theta : 0;
       ropeMesh.rotation.z = th;
       ropeMesh.position.set(course.rope.anchorX + (ropeLen / 2) * Math.sin(th), course.rope.anchorY - (ropeLen / 2) * Math.cos(th), 0);
       ropeMesh.updateMatrix(); ropeMesh.updateMatrixWorld(true);
     }
-    msg.textContent = paused && !studioHold ? 'Back from the Dojo. Press any key to carry on.' : world.outcome === 'cleared' ? MESSAGES.cleared : idealNote;
+    msg.textContent = st.paused && !studioHold ? 'Back from the Dojo. Press any key to carry on.' : st.world.outcome === 'cleared' ? MESSAGES.cleared : st.idealNote;
     msg.style.display = msg.textContent ? 'block' : 'none'; // CC-166: an empty message used to leave its dark panel, a black pill, in the middle of the screen
-    const onCoaster = world.mode === 'cart' && world.cart !== null;
-    const spd = onCoaster ? Math.abs(world.cart!.v) : Math.abs(r.vx);
+    const onCoaster = st.world.mode === 'cart' && st.world.cart !== null;
+    const spd = onCoaster ? Math.abs(st.world.cart!.v) : Math.abs(r.vx);
     const gaugeMax = onCoaster ? 40 : GAUGE_MAX;
     const nextGap = specs.find((g) => g.x + 0.2 >= r.x && g.x - r.x < 40 && ['gap', 'landing'].includes(zoneOf(g.x)?.id ?? ''));
     let need = 0, msgNext = '';
-    if (nextGap && world.mode === 'run') { need = nextGap.needed; msgNext = `Next gap: ${nextGap.width.toFixed(1)} m wide. You need at least ${need.toFixed(1)} m/s at the edge.`; }
-    else if (course.wall && world.mode === 'run' && r.x < course.wall.x0 && course.wall.x0 - r.x < 45) { need = wallNeed; msgNext = `Warped wall: ${(course.wall.height ?? DEFAULT_WALL.height).toFixed(1)} m high. You need at least ${need.toFixed(1)} m/s at its foot.`; }
+    if (nextGap && st.world.mode === 'run') { need = nextGap.needed; msgNext = `Next gap: ${nextGap.width.toFixed(1)} m wide. You need at least ${need.toFixed(1)} m/s at the edge.`; }
+    else if (course.wall && st.world.mode === 'run' && r.x < course.wall.x0 && course.wall.x0 - r.x < 45) { need = wallNeed; msgNext = `Warped wall: ${(course.wall.height ?? DEFAULT_WALL.height).toFixed(1)} m high. You need at least ${need.toFixed(1)} m/s at its foot.`; }
     speedGauge.set({ text: `${onCoaster ? 'Speed along track' : 'Speed'} ${spd.toFixed(1)} m/s`, max: gaugeMax, value: spd, mark: need, colour: need && spd < need ? '#c4572a' : '#0f6b5c', note: msgNext });
     if (batteryGauge) { // before boarding there is no drone state yet: the battery is full
       const full = droneParams(course).battery * 3600;
-      const left = world.drone ? (world.drone.empty ? 0 : Math.max(0, Math.min(1, world.drone.energy / full))) : 1;
+      const left = st.world.drone ? (st.world.drone.empty ? 0 : Math.max(0, Math.min(1, st.world.drone.energy / full))) : 1;
       const pct = Math.round(100 * left);
-      batteryGauge.set({ text: world.drone?.empty ? 'Drone battery empty' : `Drone battery ${pct}%`, max: 1, value: left, colour: pct <= 20 ? '#c4572a' : '#2a6fb0' });
+      batteryGauge.set({ text: st.world.drone?.empty ? 'Drone battery empty' : `Drone battery ${pct}%`, max: 1, value: left, colour: pct <= 20 ? '#c4572a' : '#2a6fb0' });
     }
     hud.textContent = `Time ${(r.tick / 120).toFixed(1)} s   ·   ${Math.max(0, Math.round(r.x))} m of ${course.finishX} m`;
     livePhotos?.update(r.x);
     // the head: the body's turn about the bar (swing angle theta, a rotation so it passes the top smoothly) and where the eyes are; the first-person camera and the corner window both use it.
     // After a release the head settles level over about 0.3 s (the body has no spin in flight); on the ground it is level.
     const nowS = performance.now() / 1000, dtHead = Math.min(0.05, Math.max(0, nowS - pipClock)); pipClock = nowS;
-    if (world.mode === 'hang' && world.hang) pipRoll = world.hang.theta;
+    if (st.world.mode === 'hang' && st.world.hang) pipRoll = st.world.hang.theta;
     else if (!r.grounded) pipRoll *= Math.exp(-dtHead / 0.1);
     else pipRoll = 0;
     const qRoll = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 0, 1), pipRoll);
     const nose = new THREE.Vector3(0.15 * facing, 0, 0).applyQuaternion(qRoll);
-    const headHold = world.hang ? course.holds?.[world.hang.hold] : undefined;
-    const eye = headHold && world.hang
-      ? { x: headHold.x + 0.4 * Math.sin(world.hang.theta) + nose.x, y: headHold.y - 0.4 * Math.cos(world.hang.theta) + nose.y } // just under the hands, along the arms
+    const headHold = st.world.hang ? course.holds?.[st.world.hang.hold] : undefined;
+    const eye = headHold && st.world.hang
+      ? { x: headHold.x + 0.4 * Math.sin(st.world.hang.theta) + nose.x, y: headHold.y - 0.4 * Math.cos(st.world.hang.theta) + nose.y } // just under the hands, along the arms
       : { x: r.x + nose.x, y: r.y + 1.62 + nose.y };
     // three views, switched with C: from the side, from behind at 45 degrees, and through the runner's eyes
     const fov = camMode === 'first' ? 75 : 40;
@@ -1675,13 +1458,13 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
     clipHook?.(); // the clip takes this picture before the front inset is drawn over it
     perf.renderEnd();
     // The front inset accompanies the default side view; F toggles it in every camera mode.
-    const showFront = frontOverride ?? true;
+    const showFront = st.frontOverride ?? true;
     pipFrame.style.display = showFront ? 'block' : 'none';
     if (showFront) {
       // On a coaster the inset rides with the cart and looks forward along its rails; elsewhere it shows the runner's eyes.
-      if (course.track && world.mode === 'cart' && world.cart) {
-        const direction = world.cart.v < -0.3 ? -1 : 1;
-        const rails = railsOf(course.track, world.cart?.segment ?? 0), aheadX = r.x + direction * 12;
+      if (course.track && st.world.mode === 'cart' && st.world.cart) {
+        const direction = st.world.cart.v < -0.3 ? -1 : 1;
+        const rails = railsOf(course.track, st.world.cart?.segment ?? 0), aheadX = r.x + direction * 12;
         frontCam.up.set(0, 1, 0);
         frontCam.position.set(r.x, r.y + 1.4, 0);
         frontCam.lookAt(aheadX, rails.y(aheadX) + 1.4, 0);
@@ -1703,10 +1486,10 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
       renderer.setScissorTest(false); renderer.setViewport(0, 0, W, H); renderer.autoClear = true;
     }
     document.documentElement.dataset.tick = String(r.tick);
-    document.documentElement.dataset.vault = world.mode === 'vault' && world.vault ? (world.vault.i / world.vault.n).toFixed(3) : ''; document.documentElement.dataset.climb = world.mode === 'climb' && world.climb ? (world.climb.i / world.climb.n).toFixed(3) : ''; document.documentElement.dataset.x = r.x.toFixed(2); document.documentElement.dataset.omega = (world.hang?.omega ?? 0).toFixed(3); document.documentElement.dataset.grounded = world.runner.grounded ? '1' : '0'; // for the keyboard check
-    document.documentElement.dataset.outcome = world.outcome;
+    document.documentElement.dataset.vault = st.world.mode === 'vault' && st.world.vault ? (st.world.vault.i / st.world.vault.n).toFixed(3) : ''; document.documentElement.dataset.climb = st.world.mode === 'climb' && st.world.climb ? (st.world.climb.i / st.world.climb.n).toFixed(3) : ''; document.documentElement.dataset.x = r.x.toFixed(2); document.documentElement.dataset.omega = (st.world.hang?.omega ?? 0).toFixed(3); document.documentElement.dataset.grounded = st.world.runner.grounded ? '1' : '0'; // for the keyboard check
+    document.documentElement.dataset.outcome = st.world.outcome;
     if (playedSounds().length !== soundCount) { soundCount = playedSounds().length; document.documentElement.dataset.sounds = playedSounds().join(','); } // for the bot check: headless cannot be heard
-    document.documentElement.dataset.mode = world.mode;
+    document.documentElement.dataset.mode = st.world.mode;
     if (!clipping) requestAnimationFrame(frame);
   }
   const perf = createPerf({ label: 'Course', backend: (renderer.backend as { isWebGPUBackend?: boolean }).isWebGPUBackend ? 'webgpu' : 'webgl2', renderer: renderer as unknown as PerfSource['renderer'], scene });
@@ -1714,5 +1497,5 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
   requestAnimationFrame(frame);
 
   const backend = (renderer.backend as { isWebGPUBackend?: boolean }).isWebGPUBackend ? 'webgpu' : 'webgl2';
-  return { backend, world: () => world, restart };
+  return { backend, world: () => st.world, restart };
 }
