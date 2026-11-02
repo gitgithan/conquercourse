@@ -31,7 +31,8 @@ try {
     return route.fulfill({ json: { top, players: 100, mine: null, resetAt: null, previous: null } });
   });
   await page.goto(`${base}/?course=${COURSE}&welcome=0&nav=0`);
-  await page.waitForSelector('#board-corner .board-row', { timeout: 120000 });
+  await page.waitForSelector('#board-corner .board-row', { state: 'attached', timeout: 120000 });
+  if ((await page.getAttribute('#board-toggle', 'aria-expanded')) !== 'true') await page.click('#board-toggle'); // the board starts folded to a pill when the screen is short (720 px)
   await page.click('#board-corner [data-win=all]');
   await page.waitForTimeout(500);
   const rows = await page.locator('#board-corner .board-row').count();

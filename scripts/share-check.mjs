@@ -12,6 +12,14 @@ console.log('link chars:', link.length);
 const results = []; const ok = (n, p, note = '') => { results.push(p); console.log(p ? 'PASS' : 'FAIL', n, note); };
 const b = await chromium.launch({ args: ['--use-gl=swiftshader', '--enable-unsafe-swiftshader', '--no-sandbox'] });
 const ctx = await b.newContext({ viewport: { width: 1280, height: 720 }, permissions: ['clipboard-read', 'clipboard-write'], acceptDownloads: true });
+// CC-219: a link is a short address (?c=<ten characters>) kept by the share server; this script answers the server itself, so nothing leaves the machine
+const kept = new Map();
+await ctx.route('**/api/share**', async (route) => {
+  const req = route.request(), u = new URL(req.url());
+  if (req.method() === 'POST') { const id = 'abcdefghjk'; kept.set(id, JSON.parse(req.postData() ?? '{}')); return route.fulfill({ status: 201, json: { id } }); }
+  const got = kept.get(u.pathname.split('/').pop());
+  return got ? route.fulfill({ json: got }) : route.fulfill({ status: 404, json: { error: 'no-share' } });
+});
 const page = await ctx.newPage(); const errs = []; page.on('pageerror', (e) => errs.push(String(e)));
 await page.goto(`${link}&autoplay=1&welcome=0&tour=0`, { waitUntil: 'load' });
 const banner = await page.waitForSelector('#challenge-banner', { timeout: 60000 }).then((e) => e.innerText()).catch(() => '');
@@ -23,12 +31,12 @@ ok('the friend\'s keys played as a run end in the report', got);
 if (got) {
   const t = await page.evaluate(() => document.querySelector('section[aria-label="Run report"]').innerText);
   ok('the report names the friend\'s run', /friend/.test(t), t.replace(/\n+/g, ' | ').slice(0, 260));
-  ok('both share buttons are on the report', /Copy link to challenge a friend/.test(t) && /Download a video/.test(t));
+  ok('both share buttons are on the report', /Download your clip/.test(t) && (await page.locator('#share-copy').count()) === 1);
   await page.screenshot({ path: `${out}/report.png` });
   await page.click('#share-copy');
   await page.waitForFunction(() => /copied|ready/i.test(document.querySelector('#share-copy').textContent), null, { timeout: 15000 }).catch(() => {});
   const copied = await page.evaluate(() => navigator.clipboard.readText()).catch(() => '');
-  ok('the copied link is a challenge link with no name or time in it', /\?course=[^&]+&challenge=1\.[a-z0-9]+\.\.[dr]/.test(copied) && !/name|time|email/i.test(copied), copied.slice(0, 120));
+  ok('the copied link is a short challenge link (?c= and ten characters) with no name or time in it', /^http:\/\/localhost:\d+\/\?c=[a-z2-9]{10}$/.test(copied) && !/name|time|email/i.test(copied), copied.slice(0, 120));
   const again = await ctx.newPage();
   await again.goto(`${copied}&welcome=0&tour=0`, { waitUntil: 'load' });
   const b2 = await again.waitForSelector('#challenge-banner', { timeout: 60000 }).then((e) => e.innerText()).catch(() => '');
@@ -36,7 +44,8 @@ if (got) {
   await again.close();
   const t0 = Date.now();
   await page.click('#share-clip');
-  const dl = await page.waitForSelector('#clip-download', { timeout: 280000 }).then(() => true).catch(() => false);
+  // software GL: the clip takes about 5 minutes on the VM
+  const dl = await page.waitForSelector('#clip-download', { timeout: 590000 }) .then(() => true).catch(() => false);
   const cardText = await page.evaluate(() => document.querySelector('#clip-card')?.innerText ?? '');
   ok('a clip is made and offered for download', dl, `${((Date.now() - t0) / 1000).toFixed(0)} s: ${cardText.replace(/\n/g, ' | ')}`);
   if (dl) {
@@ -52,11 +61,11 @@ if (got) {
     } catch (e) { console.log('ffprobe unavailable:', String(e).slice(0, 80)); }
   }
 }
-// a damaged link and a cut-short link are refused in plain words
+// a damaged short link is refused in plain words
 const bad = await ctx.newPage();
-await bad.goto(`${link.slice(0, -12)}&welcome=0&tour=0`, { waitUntil: 'load' });
+await bad.goto(`http://localhost:${port}/?c=zzzzzzzzzz&welcome=0&tour=0`, { waitUntil: 'load' }); // an id the share server does not know (the old long links are refused too, with their own words)
 const tb = await bad.waitForSelector('#challenge-banner', { timeout: 60000 }).then((e) => e.innerText()).catch(() => '');
-ok('a cut-short link is refused in plain words', /cannot be played|does not reach/.test(tb) && !/Beat this/.test(tb), tb.replace(/\n/g, ' | '));
+ok('a damaged link is refused in plain words', /damaged|cannot be played/.test(tb) && !/Beat this/.test(tb), tb.replace(/\n/g, ' | '));
 await bad.screenshot({ path: `${out}/refused.png` });
 ok('no page errors', errs.length === 0, errs.join(' | ').slice(0, 300));
 await b.close(); vite.kill(); process.exit(results.every(Boolean) ? 0 : 1);
