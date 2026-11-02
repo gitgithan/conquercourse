@@ -63,6 +63,13 @@
 - Risk to tests: low for 2a (type-checked, `strip-keys`, `run-report`, `zone` tests); medium for 2b.
 - Risk to the sim: 2a none; 2b must keep bit-identical output, so run `tests/replay.test.ts`, `tests/golden-search.test.ts` and `tests/golden/` before and after.
 - Done in this review: the two machine-mode chains in `src/ui/debug-view.ts` became `MACHINE_MODES` and `NEXT_LABEL` (see the end).
+- Done in CC-133 (item 2a): the table is `OBSTACLES` in `src/course/obstacles.ts`, and the UI readers now use it.
+  - Words and pictures: icon, learned line, saying and fixed tips were already rows; the strip, the report and the fall tips read them.
+  - New fields: `mode` (the sim mode the obstacle puts you in), `dojo` (the Train link lesson) and `card` (its Parts page card).
+  - `src/modes/course.ts` `trainLink` and `src/ui/parts-data.ts` `partsOfCourse` lost their id-to-word chains and call `dojoOf` and `cardOf`.
+  - Mode name, machine flag and next press stay in `MODE_INFO` (`src/course/modes.ts`), because that table must cover every sim mode, including ones with no obstacle (run, swing, pole); a test checks every machine mode has a row.
+  - `tests/obstacle-table.test.ts` pins the old maps (recorded from main before the change).
+  - Not done: the sim dispatch (2b) and the toast failure texts that quote numbers.
 
 ## 3. A new toast or key cue lives in three places
 - Evidence: the toast kinds are a union plus a text table in `src/ui/approach-toast.ts:9-36`; which drum maps to which kind is a separate `if` chain at `src/ui/approach-toast.ts:12-26`.
