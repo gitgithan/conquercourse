@@ -112,5 +112,5 @@ export function createRunnerLook(deps: LookDeps): RunnerLook {
     paintPick(); // after the model is loaded: custom and the choice may have changed
     if (charactersOn()) { const asked = params.get('char'); const id = asked && /^[0-9a-f]{16}$/.test(asked) ? asked : params.get('nosave') === '1' ? null : savedChoice(); if (id) void wearCharacter(id); } // ?char=<id> wears one by address (the browser checks use it)
   }
-  return { pick, choice: () => choice, state: () => ({ custom, characterId, choice }), start };
+  return { pick, choice: () => choice, state: () => ({ characterId, choice, custom }), start };
 }

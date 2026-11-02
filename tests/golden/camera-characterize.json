@@ -1,0 +1,3693 @@
+{
+  "errors": [],
+  "steps": [
+    {
+      "name": "start",
+      "probe": {
+        "pos": [
+          5,
+          3.877,
+          23.039
+        ],
+        "dir": [
+          0,
+          -0.06,
+          -0.998
+        ],
+        "up": [
+          0,
+          1,
+          0
+        ],
+        "fov": 40,
+        "aspect": 1.778,
+        "camMode": "side",
+        "orbit": {
+          "yaw": 0,
+          "pitch": 0,
+          "zoom": 1
+        },
+        "actor": true,
+        "body": false,
+        "characterId": null,
+        "choice": "a",
+        "custom": false,
+        "clipping": false,
+        "pip": "block",
+        "frontCam": [
+          0.15,
+          1.62,
+          0.1
+        ],
+        "frontDir": [
+          0.995,
+          -0.1,
+          0
+        ]
+      }
+    },
+    {
+      "name": "run 3 s",
+      "probe": {
+        "pos": [
+          20.779,
+          3.281,
+          24.978
+        ],
+        "dir": [
+          0.108,
+          -0.087,
+          -0.99
+        ],
+        "up": [
+          0,
+          1,
+          0
+        ],
+        "fov": 40,
+        "aspect": 1.778,
+        "camMode": "side",
+        "orbit": {
+          "yaw": 0,
+          "pitch": 0,
+          "zoom": 1
+        },
+        "actor": true,
+        "body": false,
+        "characterId": null,
+        "choice": "a",
+        "custom": false,
+        "clipping": false,
+        "pip": "block",
+        "frontCam": [
+          18.65,
+          0.091,
+          0.1
+        ],
+        "frontDir": [
+          0.995,
+          -0.1,
+          0
+        ]
+      }
+    },
+    {
+      "name": "jump in the air",
+      "probe": {
+        "pos": [
+          21.868,
+          2.979,
+          24.987
+        ],
+        "dir": [
+          0.065,
+          -0.079,
+          -0.995
+        ],
+        "up": [
+          0,
+          1,
+          0
+        ],
+        "fov": 40,
+        "aspect": 1.778,
+        "camMode": "side",
+        "orbit": {
+          "yaw": 0,
+          "pitch": 0,
+          "zoom": 1
+        },
+        "actor": true,
+        "body": false,
+        "characterId": null,
+        "choice": "a",
+        "custom": false,
+        "clipping": false,
+        "pip": "block",
+        "frontCam": [
+          18.65,
+          0.091,
+          0.1
+        ],
+        "frontDir": [
+          0.995,
+          -0.1,
+          0
+        ]
+      }
+    },
+    {
+      "name": "landed",
+      "probe": {
+        "pos": [
+          23.26,
+          2.548,
+          24.998
+        ],
+        "dir": [
+          0.01,
+          -0.063,
+          -0.998
+        ],
+        "up": [
+          0,
+          1,
+          0
+        ],
+        "fov": 40,
+        "aspect": 1.778,
+        "camMode": "side",
+        "orbit": {
+          "yaw": 0,
+          "pitch": 0,
+          "zoom": 1
+        },
+        "actor": true,
+        "body": false,
+        "characterId": null,
+        "choice": "a",
+        "custom": false,
+        "clipping": false,
+        "pip": "block",
+        "frontCam": [
+          18.65,
+          0.091,
+          0.1
+        ],
+        "frontDir": [
+          0.995,
+          -0.1,
+          0
+        ]
+      }
+    },
+    {
+      "name": "C 1, at once",
+      "probe": {
+        "pos": [
+          21.729,
+          2.685,
+          23.318
+        ],
+        "dir": [
+          0.033,
+          -0.085,
+          -0.996
+        ],
+        "up": [
+          0,
+          1,
+          0
+        ],
+        "fov": 40,
+        "aspect": 1.778,
+        "camMode": "angle",
+        "orbit": {
+          "yaw": 0,
+          "pitch": 0,
+          "zoom": 1
+        },
+        "actor": true,
+        "body": false,
+        "characterId": null,
+        "choice": "a",
+        "custom": false,
+        "clipping": false,
+        "pip": "block",
+        "frontCam": [
+          18.65,
+          0.091,
+          0.1
+        ],
+        "frontDir": [
+          0.995,
+          -0.1,
+          0
+        ]
+      }
+    },
+    {
+      "name": "C 1, settled",
+      "probe": {
+        "pos": [
+          12.15,
+          2.982,
+          12.81
+        ],
+        "dir": [
+          0.618,
+          -0.18,
+          -0.765
+        ],
+        "up": [
+          0,
+          1,
+          0
+        ],
+        "fov": 40,
+        "aspect": 1.778,
+        "camMode": "angle",
+        "orbit": {
+          "yaw": 0,
+          "pitch": 0,
+          "zoom": 1
+        },
+        "actor": true,
+        "body": false,
+        "characterId": null,
+        "choice": "a",
+        "custom": false,
+        "clipping": false,
+        "pip": "block",
+        "frontCam": [
+          18.65,
+          0.091,
+          0.1
+        ],
+        "frontDir": [
+          0.995,
+          -0.1,
+          0
+        ]
+      }
+    },
+    {
+      "name": "C 2, at once",
+      "probe": {
+        "pos": [
+          18.65,
+          0.091,
+          0.1
+        ],
+        "dir": [
+          0.999,
+          -0.042,
+          0
+        ],
+        "up": [
+          0,
+          1,
+          0
+        ],
+        "fov": 75,
+        "aspect": 1.778,
+        "camMode": "first",
+        "orbit": {
+          "yaw": 0,
+          "pitch": 0,
+          "zoom": 1
+        },
+        "actor": false,
+        "body": false,
+        "characterId": null,
+        "choice": "a",
+        "custom": false,
+        "clipping": false,
+        "pip": "block",
+        "frontCam": [
+          18.65,
+          0.091,
+          0.1
+        ],
+        "frontDir": [
+          0.995,
+          -0.1,
+          0
+        ]
+      }
+    },
+    {
+      "name": "C 2, settled",
+      "probe": {
+        "pos": [
+          18.65,
+          0.091,
+          0.1
+        ],
+        "dir": [
+          0.999,
+          -0.042,
+          0
+        ],
+        "up": [
+          0,
+          1,
+          0
+        ],
+        "fov": 75,
+        "aspect": 1.778,
+        "camMode": "first",
+        "orbit": {
+          "yaw": 0,
+          "pitch": 0,
+          "zoom": 1
+        },
+        "actor": false,
+        "body": false,
+        "characterId": null,
+        "choice": "a",
+        "custom": false,
+        "clipping": false,
+        "pip": "block",
+        "frontCam": [
+          18.65,
+          0.091,
+          0.1
+        ],
+        "frontDir": [
+          0.995,
+          -0.1,
+          0
+        ]
+      }
+    },
+    {
+      "name": "C 3, at once",
+      "probe": {
+        "pos": [
+          19.232,
+          0.291,
+          3.088
+        ],
+        "dir": [
+          0.81,
+          -0.006,
+          -0.586
+        ],
+        "up": [
+          0,
+          1,
+          0
+        ],
+        "fov": 40,
+        "aspect": 1.778,
+        "camMode": "side",
+        "orbit": {
+          "yaw": 0,
+          "pitch": 0,
+          "zoom": 1
+        },
+        "actor": true,
+        "body": false,
+        "characterId": null,
+        "choice": "a",
+        "custom": false,
+        "clipping": false,
+        "pip": "block",
+        "frontCam": [
+          18.65,
+          0.091,
+          0.1
+        ],
+        "frontDir": [
+          0.995,
+          -0.1,
+          0
+        ]
+      }
+    },
+    {
+      "name": "C 3, settled",
+      "probe": {
+        "pos": [
+          22.873,
+          2.098,
+          21.78
+        ],
+        "dir": [
+          0.029,
+          -0.052,
+          -0.998
+        ],
+        "up": [
+          0,
+          1,
+          0
+        ],
+        "fov": 40,
+        "aspect": 1.778,
+        "camMode": "side",
+        "orbit": {
+          "yaw": 0,
+          "pitch": 0,
+          "zoom": 1
+        },
+        "actor": true,
+        "body": false,
+        "characterId": null,
+        "choice": "a",
+        "custom": false,
+        "clipping": false,
+        "pip": "block",
+        "frontCam": [
+          18.65,
+          0.091,
+          0.1
+        ],
+        "frontDir": [
+          0.995,
+          -0.1,
+          0
+        ]
+      }
+    },
+    {
+      "name": "C 4, at once",
+      "probe": {
+        "pos": [
+          21.388,
+          2.288,
+          20.486
+        ],
+        "dir": [
+          0.054,
+          -0.078,
+          -0.995
+        ],
+        "up": [
+          0,
+          1,
+          0
+        ],
+        "fov": 40,
+        "aspect": 1.778,
+        "camMode": "angle",
+        "orbit": {
+          "yaw": 0,
+          "pitch": 0,
+          "zoom": 1
+        },
+        "actor": true,
+        "body": false,
+        "characterId": null,
+        "choice": "a",
+        "custom": false,
+        "clipping": false,
+        "pip": "block",
+        "frontCam": [
+          18.65,
+          0.091,
+          0.1
+        ],
+        "frontDir": [
+          0.995,
+          -0.1,
+          0
+        ]
+      }
+    },
+    {
+      "name": "C 4, settled",
+      "probe": {
+        "pos": [
+          12.1,
+          2.923,
+          12.394
+        ],
+        "dir": [
+          0.632,
+          -0.179,
+          -0.754
+        ],
+        "up": [
+          0,
+          1,
+          0
+        ],
+        "fov": 40,
+        "aspect": 1.778,
+        "camMode": "angle",
+        "orbit": {
+          "yaw": 0,
+          "pitch": 0,
+          "zoom": 1
+        },
+        "actor": true,
+        "body": false,
+        "characterId": null,
+        "choice": "a",
+        "custom": false,
+        "clipping": false,
+        "pip": "block",
+        "frontCam": [
+          18.65,
+          0.091,
+          0.1
+        ],
+        "frontDir": [
+          0.995,
+          -0.1,
+          0
+        ]
+      }
+    },
+    {
+      "name": "drag to turn",
+      "probe": {
+        "pos": [
+          10.735,
+          2.964,
+          11.205
+        ],
+        "dir": [
+          0.712,
+          -0.181,
+          -0.678
+        ],
+        "up": [
+          0,
+          1,
+          0
+        ],
+        "fov": 40,
+        "aspect": 1.778,
+        "camMode": "angle",
+        "orbit": {
+          "yaw": 0,
+          "pitch": 0,
+          "zoom": 1
+        },
+        "actor": true,
+        "body": false,
+        "characterId": null,
+        "choice": "a",
+        "custom": false,
+        "clipping": false,
+        "pip": "block",
+        "frontCam": [
+          18.65,
+          0.091,
+          0.1
+        ],
+        "frontDir": [
+          0.995,
+          -0.1,
+          0
+        ]
+      }
+    },
+    {
+      "name": "wheel in (zoom)",
+      "probe": {
+        "pos": [
+          10.535,
+          2.97,
+          11.03
+        ],
+        "dir": [
+          0.723,
+          -0.181,
+          -0.667
+        ],
+        "up": [
+          0,
+          1,
+          0
+        ],
+        "fov": 40,
+        "aspect": 1.778,
+        "camMode": "angle",
+        "orbit": {
+          "yaw": 0,
+          "pitch": 0,
+          "zoom": 1
+        },
+        "actor": true,
+        "body": false,
+        "characterId": null,
+        "choice": "a",
+        "custom": false,
+        "clipping": false,
+        "pip": "block",
+        "frontCam": [
+          18.65,
+          0.091,
+          0.1
+        ],
+        "frontDir": [
+          0.995,
+          -0.1,
+          0
+        ]
+      }
+    },
+    {
+      "name": "wheel in to the face",
+      "probe": {
+        "pos": [
+          10.501,
+          2.971,
+          11.001
+        ],
+        "dir": [
+          0.725,
+          -0.181,
+          -0.665
+        ],
+        "up": [
+          0,
+          1,
+          0
+        ],
+        "fov": 40,
+        "aspect": 1.778,
+        "camMode": "angle",
+        "orbit": {
+          "yaw": 0,
+          "pitch": 0,
+          "zoom": 1
+        },
+        "actor": true,
+        "body": false,
+        "characterId": null,
+        "choice": "a",
+        "custom": false,
+        "clipping": false,
+        "pip": "block",
+        "frontCam": [
+          18.65,
+          0.091,
+          0.1
+        ],
+        "frontDir": [
+          0.995,
+          -0.1,
+          0
+        ]
+      }
+    },
+    {
+      "name": "double click resets",
+      "probe": {
+        "pos": [
+          10.5,
+          2.971,
+          11
+        ],
+        "dir": [
+          0.725,
+          -0.181,
+          -0.665
+        ],
+        "up": [
+          0,
+          1,
+          0
+        ],
+        "fov": 40,
+        "aspect": 1.778,
+        "camMode": "angle",
+        "orbit": {
+          "yaw": 0,
+          "pitch": 0,
+          "zoom": 1
+        },
+        "actor": true,
+        "body": false,
+        "characterId": null,
+        "choice": "a",
+        "custom": false,
+        "clipping": false,
+        "pip": "block",
+        "frontCam": [
+          18.65,
+          0.091,
+          0.1
+        ],
+        "frontDir": [
+          0.995,
+          -0.1,
+          0
+        ]
+      }
+    },
+    {
+      "name": "wheel out",
+      "probe": {
+        "pos": [
+          10.5,
+          2.971,
+          11
+        ],
+        "dir": [
+          0.725,
+          -0.181,
+          -0.665
+        ],
+        "up": [
+          0,
+          1,
+          0
+        ],
+        "fov": 40,
+        "aspect": 1.778,
+        "camMode": "angle",
+        "orbit": {
+          "yaw": 0,
+          "pitch": 0,
+          "zoom": 1
+        },
+        "actor": true,
+        "body": false,
+        "characterId": null,
+        "choice": "a",
+        "custom": false,
+        "clipping": false,
+        "pip": "block",
+        "frontCam": [
+          18.65,
+          0.091,
+          0.1
+        ],
+        "frontDir": [
+          0.995,
+          -0.1,
+          0
+        ]
+      }
+    },
+    {
+      "name": "C to 45 degrees, drag",
+      "probe": {
+        "pos": [
+          18.65,
+          0.091,
+          0.1
+        ],
+        "dir": [
+          0.999,
+          -0.042,
+          0
+        ],
+        "up": [
+          0,
+          1,
+          0
+        ],
+        "fov": 75,
+        "aspect": 1.778,
+        "camMode": "first",
+        "orbit": {
+          "yaw": 0,
+          "pitch": 0,
+          "zoom": 1
+        },
+        "actor": false,
+        "body": false,
+        "characterId": null,
+        "choice": "a",
+        "custom": false,
+        "clipping": false,
+        "pip": "block",
+        "frontCam": [
+          18.65,
+          0.091,
+          0.1
+        ],
+        "frontDir": [
+          0.995,
+          -0.1,
+          0
+        ]
+      }
+    },
+    {
+      "name": "C to first person, drag",
+      "probe": {
+        "pos": [
+          22.873,
+          2.098,
+          21.78
+        ],
+        "dir": [
+          0.029,
+          -0.052,
+          -0.998
+        ],
+        "up": [
+          0,
+          1,
+          0
+        ],
+        "fov": 40,
+        "aspect": 1.778,
+        "camMode": "side",
+        "orbit": {
+          "yaw": 0,
+          "pitch": 0,
+          "zoom": 1
+        },
+        "actor": true,
+        "body": false,
+        "characterId": null,
+        "choice": "a",
+        "custom": false,
+        "clipping": false,
+        "pip": "block",
+        "frontCam": [
+          18.65,
+          0.091,
+          0.1
+        ],
+        "frontDir": [
+          0.995,
+          -0.1,
+          0
+        ]
+      }
+    },
+    {
+      "name": "F front inset off",
+      "probe": {
+        "pos": [
+          23.124,
+          2.246,
+          23.069
+        ],
+        "dir": [
+          0.016,
+          -0.055,
+          -0.998
+        ],
+        "up": [
+          0,
+          1,
+          0
+        ],
+        "fov": 40,
+        "aspect": 1.778,
+        "camMode": "side",
+        "orbit": {
+          "yaw": 0,
+          "pitch": 0,
+          "zoom": 1
+        },
+        "actor": true,
+        "body": false,
+        "characterId": null,
+        "choice": "a",
+        "custom": false,
+        "clipping": false,
+        "pip": "none",
+        "frontCam": [
+          18.65,
+          0.091,
+          0.1
+        ],
+        "frontDir": [
+          0.995,
+          -0.1,
+          0
+        ]
+      }
+    },
+    {
+      "name": "F front inset on",
+      "probe": {
+        "pos": [
+          23.274,
+          2.336,
+          23.842
+        ],
+        "dir": [
+          0.009,
+          -0.057,
+          -0.998
+        ],
+        "up": [
+          0,
+          1,
+          0
+        ],
+        "fov": 40,
+        "aspect": 1.778,
+        "camMode": "side",
+        "orbit": {
+          "yaw": 0,
+          "pitch": 0,
+          "zoom": 1
+        },
+        "actor": true,
+        "body": false,
+        "characterId": null,
+        "choice": "a",
+        "custom": false,
+        "clipping": false,
+        "pip": "block",
+        "frontCam": [
+          18.65,
+          0.091,
+          0.1
+        ],
+        "frontDir": [
+          0.995,
+          -0.1,
+          0
+        ]
+      }
+    },
+    {
+      "name": "R restart",
+      "probe": {
+        "pos": [
+          7.364,
+          3.685,
+          24.85
+        ],
+        "dir": [
+          -0.095,
+          -0.048,
+          -0.994
+        ],
+        "up": [
+          0,
+          1,
+          0
+        ],
+        "fov": 40,
+        "aspect": 1.778,
+        "camMode": "side",
+        "orbit": {
+          "yaw": 0,
+          "pitch": 0,
+          "zoom": 1
+        },
+        "actor": true,
+        "body": false,
+        "characterId": null,
+        "choice": "a",
+        "custom": false,
+        "clipping": false,
+        "pip": "block",
+        "frontCam": [
+          0.15,
+          1.62,
+          0.1
+        ],
+        "frontDir": [
+          0.995,
+          -0.1,
+          0
+        ]
+      }
+    },
+    {
+      "name": "resize to 1000 wide",
+      "probe": {
+        "pos": [
+          6.247,
+          3.832,
+          24.921
+        ],
+        "dir": [
+          -0.05,
+          -0.053,
+          -0.997
+        ],
+        "up": [
+          0,
+          1,
+          0
+        ],
+        "fov": 40,
+        "aspect": 1.778,
+        "camMode": "side",
+        "orbit": {
+          "yaw": 0,
+          "pitch": 0,
+          "zoom": 1
+        },
+        "actor": true,
+        "body": false,
+        "characterId": null,
+        "choice": "a",
+        "custom": false,
+        "clipping": false,
+        "pip": "block",
+        "frontCam": [
+          0.15,
+          1.62,
+          0.1
+        ],
+        "frontDir": [
+          0.995,
+          -0.1,
+          0
+        ]
+      }
+    },
+    {
+      "name": "lache, first person at the start",
+      "probe": {
+        "pos": [
+          0.15,
+          1.62,
+          0.1
+        ],
+        "dir": [
+          0.999,
+          -0.042,
+          0
+        ],
+        "up": [
+          0,
+          1,
+          0
+        ],
+        "fov": 75,
+        "aspect": 1.778,
+        "camMode": "first",
+        "orbit": {
+          "yaw": 0,
+          "pitch": 0,
+          "zoom": 1
+        },
+        "actor": false,
+        "body": false,
+        "characterId": null,
+        "choice": "a",
+        "custom": false,
+        "clipping": false,
+        "pip": "block",
+        "frontCam": [
+          0.15,
+          1.62,
+          0.1
+        ],
+        "frontDir": [
+          0.995,
+          -0.1,
+          0
+        ]
+      }
+    },
+    {
+      "name": "friend run, first, 2 s",
+      "probe": {
+        "pos": [
+          20.12,
+          1.66,
+          0.1
+        ],
+        "dir": [
+          0.999,
+          -0.042,
+          0
+        ],
+        "up": [
+          0,
+          1,
+          0
+        ],
+        "fov": 75,
+        "aspect": 1.778,
+        "camMode": "first",
+        "orbit": {
+          "yaw": 0,
+          "pitch": 0,
+          "zoom": 1
+        },
+        "actor": false,
+        "body": false,
+        "characterId": null,
+        "choice": "a",
+        "custom": false,
+        "clipping": false,
+        "pip": "block",
+        "frontCam": [
+          20.12,
+          1.66,
+          0.1
+        ],
+        "frontDir": [
+          0.995,
+          -0.1,
+          0
+        ]
+      }
+    },
+    {
+      "name": "friend run, first, 4 s",
+      "probe": {
+        "pos": [
+          35.577,
+          2.324,
+          0.1
+        ],
+        "dir": [
+          0.999,
+          -0.042,
+          0
+        ],
+        "up": [
+          0,
+          1,
+          0
+        ],
+        "fov": 75,
+        "aspect": 1.778,
+        "camMode": "first",
+        "orbit": {
+          "yaw": 0,
+          "pitch": 0,
+          "zoom": 1
+        },
+        "actor": false,
+        "body": false,
+        "characterId": null,
+        "choice": "a",
+        "custom": false,
+        "clipping": false,
+        "pip": "block",
+        "frontCam": [
+          35.577,
+          2.324,
+          0.1
+        ],
+        "frontDir": [
+          0.995,
+          -0.1,
+          0
+        ]
+      }
+    },
+    {
+      "name": "friend run, first, 6 s",
+      "probe": {
+        "pos": [
+          38.883,
+          2.489,
+          0.1
+        ],
+        "dir": [
+          0.778,
+          -0.628,
+          0
+        ],
+        "up": [
+          0.595,
+          0.804,
+          0
+        ],
+        "fov": 75,
+        "aspect": 1.778,
+        "camMode": "first",
+        "orbit": {
+          "yaw": 0,
+          "pitch": 0,
+          "zoom": 1
+        },
+        "actor": false,
+        "body": false,
+        "characterId": null,
+        "choice": "a",
+        "custom": false,
+        "clipping": false,
+        "pip": "block",
+        "frontCam": [
+          38.883,
+          2.489,
+          0.1
+        ],
+        "frontDir": [
+          0.741,
+          -0.672,
+          0
+        ]
+      }
+    },
+    {
+      "name": "friend run, first, 8 s",
+      "probe": {
+        "pos": [
+          54.017,
+          -0.38,
+          0.1
+        ],
+        "dir": [
+          0.999,
+          -0.042,
+          0
+        ],
+        "up": [
+          0,
+          1,
+          0
+        ],
+        "fov": 75,
+        "aspect": 1.778,
+        "camMode": "first",
+        "orbit": {
+          "yaw": 0,
+          "pitch": 0,
+          "zoom": 1
+        },
+        "actor": false,
+        "body": false,
+        "characterId": null,
+        "choice": "a",
+        "custom": false,
+        "clipping": false,
+        "pip": "block",
+        "frontCam": [
+          54.017,
+          -0.38,
+          0.1
+        ],
+        "frontDir": [
+          0.995,
+          -0.1,
+          0
+        ]
+      }
+    },
+    {
+      "name": "friend run, first, 10 s",
+      "probe": {
+        "pos": [
+          56.165,
+          -0.38,
+          0.1
+        ],
+        "dir": [
+          0.999,
+          -0.042,
+          0
+        ],
+        "up": [
+          0,
+          1,
+          0
+        ],
+        "fov": 75,
+        "aspect": 1.778,
+        "camMode": "first",
+        "orbit": {
+          "yaw": 0,
+          "pitch": 0,
+          "zoom": 1
+        },
+        "actor": false,
+        "body": false,
+        "characterId": null,
+        "choice": "a",
+        "custom": false,
+        "clipping": false,
+        "pip": "block",
+        "frontCam": [
+          56.165,
+          -0.38,
+          0.1
+        ],
+        "frontDir": [
+          0.995,
+          -0.1,
+          0
+        ]
+      }
+    },
+    {
+      "name": "friend run, first, 12 s",
+      "probe": {
+        "pos": [
+          56.165,
+          -0.38,
+          0.1
+        ],
+        "dir": [
+          0.999,
+          -0.042,
+          0
+        ],
+        "up": [
+          0,
+          1,
+          0
+        ],
+        "fov": 75,
+        "aspect": 1.778,
+        "camMode": "first",
+        "orbit": {
+          "yaw": 0,
+          "pitch": 0,
+          "zoom": 1
+        },
+        "actor": false,
+        "body": false,
+        "characterId": null,
+        "choice": "a",
+        "custom": false,
+        "clipping": false,
+        "pip": "block",
+        "frontCam": [
+          56.165,
+          -0.38,
+          0.1
+        ],
+        "frontDir": [
+          0.995,
+          -0.1,
+          0
+        ]
+      }
+    },
+    {
+      "name": "friend run, first, 14 s",
+      "probe": {
+        "pos": [
+          56.165,
+          -0.38,
+          0.1
+        ],
+        "dir": [
+          0.999,
+          -0.042,
+          0
+        ],
+        "up": [
+          0,
+          1,
+          0
+        ],
+        "fov": 75,
+        "aspect": 1.778,
+        "camMode": "first",
+        "orbit": {
+          "yaw": 0,
+          "pitch": 0,
+          "zoom": 1
+        },
+        "actor": false,
+        "body": false,
+        "characterId": null,
+        "choice": "a",
+        "custom": false,
+        "clipping": false,
+        "pip": "block",
+        "frontCam": [
+          56.165,
+          -0.38,
+          0.1
+        ],
+        "frontDir": [
+          0.995,
+          -0.1,
+          0
+        ]
+      }
+    },
+    {
+      "name": "friend run, first, 16 s",
+      "probe": {
+        "pos": [
+          56.165,
+          -0.38,
+          0.1
+        ],
+        "dir": [
+          0.999,
+          -0.042,
+          0
+        ],
+        "up": [
+          0,
+          1,
+          0
+        ],
+        "fov": 75,
+        "aspect": 1.778,
+        "camMode": "first",
+        "orbit": {
+          "yaw": 0,
+          "pitch": 0,
+          "zoom": 1
+        },
+        "actor": false,
+        "body": false,
+        "characterId": null,
+        "choice": "a",
+        "custom": false,
+        "clipping": false,
+        "pip": "block",
+        "frontCam": [
+          56.165,
+          -0.38,
+          0.1
+        ],
+        "frontDir": [
+          0.995,
+          -0.1,
+          0
+        ]
+      }
+    },
+    {
+      "name": "friend run, side, 2 s",
+      "probe": {
+        "pos": [
+          19.226,
+          3.992,
+          24.848
+        ],
+        "dir": [
+          0.225,
+          -0.058,
+          -0.973
+        ],
+        "up": [
+          0,
+          1,
+          0
+        ],
+        "fov": 40,
+        "aspect": 1.778,
+        "camMode": "side",
+        "orbit": {
+          "yaw": 0,
+          "pitch": 0,
+          "zoom": 1
+        },
+        "actor": true,
+        "body": false,
+        "characterId": null,
+        "choice": "a",
+        "custom": false,
+        "clipping": false,
+        "pip": "block",
+        "frontCam": [
+          20.12,
+          1.66,
+          0.1
+        ],
+        "frontDir": [
+          0.995,
+          -0.1,
+          0
+        ]
+      }
+    },
+    {
+      "name": "friend run, side, 4 s",
+      "probe": {
+        "pos": [
+          34.602,
+          4.691,
+          24.988
+        ],
+        "dir": [
+          0.227,
+          -0.064,
+          -0.972
+        ],
+        "up": [
+          0,
+          1,
+          0
+        ],
+        "fov": 40,
+        "aspect": 1.778,
+        "camMode": "side",
+        "orbit": {
+          "yaw": 0,
+          "pitch": 0,
+          "zoom": 1
+        },
+        "actor": true,
+        "body": false,
+        "characterId": null,
+        "choice": "a",
+        "custom": false,
+        "clipping": false,
+        "pip": "block",
+        "frontCam": [
+          35.577,
+          2.324,
+          0.1
+        ],
+        "frontDir": [
+          0.995,
+          -0.1,
+          0
+        ]
+      }
+    },
+    {
+      "name": "friend run, side, 6 s",
+      "probe": {
+        "pos": [
+          42.843,
+          6.989,
+          24.999
+        ],
+        "dir": [
+          -0.004,
+          -0.065,
+          -0.998
+        ],
+        "up": [
+          0,
+          1,
+          0
+        ],
+        "fov": 40,
+        "aspect": 1.778,
+        "camMode": "side",
+        "orbit": {
+          "yaw": 0,
+          "pitch": 0,
+          "zoom": 1
+        },
+        "actor": true,
+        "body": false,
+        "characterId": null,
+        "choice": "a",
+        "custom": false,
+        "clipping": false,
+        "pip": "block",
+        "frontCam": [
+          38.883,
+          2.489,
+          0.1
+        ],
+        "frontDir": [
+          0.741,
+          -0.672,
+          0
+        ]
+      }
+    },
+    {
+      "name": "friend run, side, 8 s",
+      "probe": {
+        "pos": [
+          53.373,
+          3.084,
+          25
+        ],
+        "dir": [
+          0.214,
+          -0.099,
+          -0.972
+        ],
+        "up": [
+          0,
+          1,
+          0
+        ],
+        "fov": 40,
+        "aspect": 1.778,
+        "camMode": "side",
+        "orbit": {
+          "yaw": 0,
+          "pitch": 0,
+          "zoom": 1
+        },
+        "actor": true,
+        "body": false,
+        "characterId": null,
+        "choice": "a",
+        "custom": false,
+        "clipping": false,
+        "pip": "block",
+        "frontCam": [
+          54.017,
+          -0.38,
+          0.1
+        ],
+        "frontDir": [
+          0.995,
+          -0.1,
+          0
+        ]
+      }
+    },
+    {
+      "name": "friend run, side, 10 s",
+      "probe": {
+        "pos": [
+          60.403,
+          2.086,
+          25
+        ],
+        "dir": [
+          0.024,
+          -0.063,
+          -0.998
+        ],
+        "up": [
+          0,
+          1,
+          0
+        ],
+        "fov": 40,
+        "aspect": 1.778,
+        "camMode": "side",
+        "orbit": {
+          "yaw": 0,
+          "pitch": 0,
+          "zoom": 1
+        },
+        "actor": true,
+        "body": false,
+        "characterId": null,
+        "choice": "a",
+        "custom": false,
+        "clipping": false,
+        "pip": "block",
+        "frontCam": [
+          56.165,
+          -0.38,
+          0.1
+        ],
+        "frontDir": [
+          0.995,
+          -0.1,
+          0
+        ]
+      }
+    },
+    {
+      "name": "friend run, side, 12 s",
+      "probe": {
+        "pos": [
+          60.967,
+          2.007,
+          25
+        ],
+        "dir": [
+          0.002,
+          -0.06,
+          -0.998
+        ],
+        "up": [
+          0,
+          1,
+          0
+        ],
+        "fov": 40,
+        "aspect": 1.778,
+        "camMode": "side",
+        "orbit": {
+          "yaw": 0,
+          "pitch": 0,
+          "zoom": 1
+        },
+        "actor": true,
+        "body": false,
+        "characterId": null,
+        "choice": "a",
+        "custom": false,
+        "clipping": false,
+        "pip": "block",
+        "frontCam": [
+          56.165,
+          -0.38,
+          0.1
+        ],
+        "frontDir": [
+          0.995,
+          -0.1,
+          0
+        ]
+      }
+    },
+    {
+      "name": "friend run, side, 14 s",
+      "probe": {
+        "pos": [
+          61.011,
+          2.001,
+          25
+        ],
+        "dir": [
+          0,
+          -0.06,
+          -0.998
+        ],
+        "up": [
+          0,
+          1,
+          0
+        ],
+        "fov": 40,
+        "aspect": 1.778,
+        "camMode": "side",
+        "orbit": {
+          "yaw": 0,
+          "pitch": 0,
+          "zoom": 1
+        },
+        "actor": true,
+        "body": false,
+        "characterId": null,
+        "choice": "a",
+        "custom": false,
+        "clipping": false,
+        "pip": "block",
+        "frontCam": [
+          56.165,
+          -0.38,
+          0.1
+        ],
+        "frontDir": [
+          0.995,
+          -0.1,
+          0
+        ]
+      }
+    },
+    {
+      "name": "friend run, side, 16 s",
+      "probe": {
+        "pos": [
+          61.014,
+          2,
+          25
+        ],
+        "dir": [
+          0,
+          -0.06,
+          -0.998
+        ],
+        "up": [
+          0,
+          1,
+          0
+        ],
+        "fov": 40,
+        "aspect": 1.778,
+        "camMode": "side",
+        "orbit": {
+          "yaw": 0,
+          "pitch": 0,
+          "zoom": 1
+        },
+        "actor": true,
+        "body": false,
+        "characterId": null,
+        "choice": "a",
+        "custom": false,
+        "clipping": false,
+        "pip": "block",
+        "frontCam": [
+          56.165,
+          -0.38,
+          0.1
+        ],
+        "frontDir": [
+          0.995,
+          -0.1,
+          0
+        ]
+      }
+    },
+    {
+      "name": "friend run, angle, 2 s",
+      "probe": {
+        "pos": [
+          19.226,
+          3.992,
+          24.848
+        ],
+        "dir": [
+          0.225,
+          -0.058,
+          -0.973
+        ],
+        "up": [
+          0,
+          1,
+          0
+        ],
+        "fov": 40,
+        "aspect": 1.778,
+        "camMode": "side",
+        "orbit": {
+          "yaw": 0,
+          "pitch": 0,
+          "zoom": 1
+        },
+        "actor": true,
+        "body": false,
+        "characterId": null,
+        "choice": "a",
+        "custom": false,
+        "clipping": false,
+        "pip": "block",
+        "frontCam": [
+          20.12,
+          1.66,
+          0.1
+        ],
+        "frontDir": [
+          0.995,
+          -0.1,
+          0
+        ]
+      }
+    },
+    {
+      "name": "friend run, angle, 4 s",
+      "probe": {
+        "pos": [
+          34.602,
+          4.691,
+          24.988
+        ],
+        "dir": [
+          0.227,
+          -0.064,
+          -0.972
+        ],
+        "up": [
+          0,
+          1,
+          0
+        ],
+        "fov": 40,
+        "aspect": 1.778,
+        "camMode": "side",
+        "orbit": {
+          "yaw": 0,
+          "pitch": 0,
+          "zoom": 1
+        },
+        "actor": true,
+        "body": false,
+        "characterId": null,
+        "choice": "a",
+        "custom": false,
+        "clipping": false,
+        "pip": "block",
+        "frontCam": [
+          35.577,
+          2.324,
+          0.1
+        ],
+        "frontDir": [
+          0.995,
+          -0.1,
+          0
+        ]
+      }
+    },
+    {
+      "name": "friend run, angle, 6 s",
+      "probe": {
+        "pos": [
+          42.843,
+          6.989,
+          24.999
+        ],
+        "dir": [
+          -0.004,
+          -0.065,
+          -0.998
+        ],
+        "up": [
+          0,
+          1,
+          0
+        ],
+        "fov": 40,
+        "aspect": 1.778,
+        "camMode": "side",
+        "orbit": {
+          "yaw": 0,
+          "pitch": 0,
+          "zoom": 1
+        },
+        "actor": true,
+        "body": false,
+        "characterId": null,
+        "choice": "a",
+        "custom": false,
+        "clipping": false,
+        "pip": "block",
+        "frontCam": [
+          38.883,
+          2.489,
+          0.1
+        ],
+        "frontDir": [
+          0.741,
+          -0.672,
+          0
+        ]
+      }
+    },
+    {
+      "name": "friend run, angle, 8 s",
+      "probe": {
+        "pos": [
+          53.373,
+          3.084,
+          25
+        ],
+        "dir": [
+          0.214,
+          -0.099,
+          -0.972
+        ],
+        "up": [
+          0,
+          1,
+          0
+        ],
+        "fov": 40,
+        "aspect": 1.778,
+        "camMode": "side",
+        "orbit": {
+          "yaw": 0,
+          "pitch": 0,
+          "zoom": 1
+        },
+        "actor": true,
+        "body": false,
+        "characterId": null,
+        "choice": "a",
+        "custom": false,
+        "clipping": false,
+        "pip": "block",
+        "frontCam": [
+          54.017,
+          -0.38,
+          0.1
+        ],
+        "frontDir": [
+          0.995,
+          -0.1,
+          0
+        ]
+      }
+    },
+    {
+      "name": "friend run, angle, 10 s",
+      "probe": {
+        "pos": [
+          60.403,
+          2.086,
+          25
+        ],
+        "dir": [
+          0.024,
+          -0.063,
+          -0.998
+        ],
+        "up": [
+          0,
+          1,
+          0
+        ],
+        "fov": 40,
+        "aspect": 1.778,
+        "camMode": "side",
+        "orbit": {
+          "yaw": 0,
+          "pitch": 0,
+          "zoom": 1
+        },
+        "actor": true,
+        "body": false,
+        "characterId": null,
+        "choice": "a",
+        "custom": false,
+        "clipping": false,
+        "pip": "block",
+        "frontCam": [
+          56.165,
+          -0.38,
+          0.1
+        ],
+        "frontDir": [
+          0.995,
+          -0.1,
+          0
+        ]
+      }
+    },
+    {
+      "name": "friend run, angle, 12 s",
+      "probe": {
+        "pos": [
+          60.967,
+          2.007,
+          25
+        ],
+        "dir": [
+          0.002,
+          -0.06,
+          -0.998
+        ],
+        "up": [
+          0,
+          1,
+          0
+        ],
+        "fov": 40,
+        "aspect": 1.778,
+        "camMode": "side",
+        "orbit": {
+          "yaw": 0,
+          "pitch": 0,
+          "zoom": 1
+        },
+        "actor": true,
+        "body": false,
+        "characterId": null,
+        "choice": "a",
+        "custom": false,
+        "clipping": false,
+        "pip": "block",
+        "frontCam": [
+          56.165,
+          -0.38,
+          0.1
+        ],
+        "frontDir": [
+          0.995,
+          -0.1,
+          0
+        ]
+      }
+    },
+    {
+      "name": "friend run, angle, 14 s",
+      "probe": {
+        "pos": [
+          61.011,
+          2.001,
+          25
+        ],
+        "dir": [
+          0,
+          -0.06,
+          -0.998
+        ],
+        "up": [
+          0,
+          1,
+          0
+        ],
+        "fov": 40,
+        "aspect": 1.778,
+        "camMode": "side",
+        "orbit": {
+          "yaw": 0,
+          "pitch": 0,
+          "zoom": 1
+        },
+        "actor": true,
+        "body": false,
+        "characterId": null,
+        "choice": "a",
+        "custom": false,
+        "clipping": false,
+        "pip": "block",
+        "frontCam": [
+          56.165,
+          -0.38,
+          0.1
+        ],
+        "frontDir": [
+          0.995,
+          -0.1,
+          0
+        ]
+      }
+    },
+    {
+      "name": "friend run, angle, 16 s",
+      "probe": {
+        "pos": [
+          61.014,
+          2,
+          25
+        ],
+        "dir": [
+          0,
+          -0.06,
+          -0.998
+        ],
+        "up": [
+          0,
+          1,
+          0
+        ],
+        "fov": 40,
+        "aspect": 1.778,
+        "camMode": "side",
+        "orbit": {
+          "yaw": 0,
+          "pitch": 0,
+          "zoom": 1
+        },
+        "actor": true,
+        "body": false,
+        "characterId": null,
+        "choice": "a",
+        "custom": false,
+        "clipping": false,
+        "pip": "block",
+        "frontCam": [
+          56.165,
+          -0.38,
+          0.1
+        ],
+        "frontDir": [
+          0.995,
+          -0.1,
+          0
+        ]
+      }
+    },
+    {
+      "name": "film orbit, 1 s",
+      "probe": {
+        "pos": [
+          50.392,
+          3.162,
+          7.958
+        ],
+        "dir": [
+          0.49,
+          -0.209,
+          -0.846
+        ],
+        "up": [
+          0,
+          1,
+          0
+        ],
+        "fov": 38,
+        "aspect": 1.778,
+        "camMode": "side",
+        "orbit": {
+          "yaw": 0,
+          "pitch": 0,
+          "zoom": 1
+        },
+        "actor": true,
+        "body": false,
+        "characterId": null,
+        "choice": "a",
+        "custom": false,
+        "clipping": false,
+        "pip": "block",
+        "frontCam": [
+          0.15,
+          1.62,
+          0.1
+        ],
+        "frontDir": [
+          0.995,
+          -0.1,
+          0
+        ]
+      },
+      "filmRunner": {
+        "x": 0,
+        "y": 0
+      }
+    },
+    {
+      "name": "film orbit, 2 s",
+      "probe": {
+        "pos": [
+          53.593,
+          3.338,
+          8.452
+        ],
+        "dir": [
+          0.159,
+          -0.242,
+          -0.957
+        ],
+        "up": [
+          0,
+          1,
+          0
+        ],
+        "fov": 38,
+        "aspect": 1.778,
+        "camMode": "side",
+        "orbit": {
+          "yaw": 0,
+          "pitch": 0,
+          "zoom": 1
+        },
+        "actor": true,
+        "body": false,
+        "characterId": null,
+        "choice": "a",
+        "custom": false,
+        "clipping": false,
+        "pip": "block",
+        "frontCam": [
+          0.15,
+          1.62,
+          0.1
+        ],
+        "frontDir": [
+          0.995,
+          -0.1,
+          0
+        ]
+      },
+      "filmRunner": {
+        "x": 0,
+        "y": 0
+      }
+    },
+    {
+      "name": "film orbit, 3 s",
+      "probe": {
+        "pos": [
+          56.877,
+          3.487,
+          7.631
+        ],
+        "dir": [
+          -0.229,
+          -0.279,
+          -0.932
+        ],
+        "up": [
+          0,
+          1,
+          0
+        ],
+        "fov": 38,
+        "aspect": 1.778,
+        "camMode": "side",
+        "orbit": {
+          "yaw": 0,
+          "pitch": 0,
+          "zoom": 1
+        },
+        "actor": true,
+        "body": false,
+        "characterId": null,
+        "choice": "a",
+        "custom": false,
+        "clipping": false,
+        "pip": "block",
+        "frontCam": [
+          0.15,
+          1.62,
+          0.1
+        ],
+        "frontDir": [
+          0.995,
+          -0.1,
+          0
+        ]
+      },
+      "filmRunner": {
+        "x": 0,
+        "y": 0
+      }
+    },
+    {
+      "name": "film orbit, 4 s",
+      "probe": {
+        "pos": [
+          59.289,
+          3.584,
+          5.733
+        ],
+        "dir": [
+          -0.568,
+          -0.316,
+          -0.76
+        ],
+        "up": [
+          0,
+          1,
+          0
+        ],
+        "fov": 38,
+        "aspect": 1.778,
+        "camMode": "side",
+        "orbit": {
+          "yaw": 0,
+          "pitch": 0,
+          "zoom": 1
+        },
+        "actor": true,
+        "body": false,
+        "characterId": null,
+        "choice": "a",
+        "custom": false,
+        "clipping": false,
+        "pip": "block",
+        "frontCam": [
+          0.15,
+          1.62,
+          0.1
+        ],
+        "frontDir": [
+          0.995,
+          -0.1,
+          0
+        ]
+      },
+      "filmRunner": {
+        "x": 0,
+        "y": 0
+      }
+    },
+    {
+      "name": "film follow, 1 s",
+      "probe": {
+        "pos": [
+          11.615,
+          5.02,
+          19.879
+        ],
+        "dir": [
+          -0.392,
+          -0.174,
+          -0.904
+        ],
+        "up": [
+          0,
+          1,
+          0
+        ],
+        "fov": 40,
+        "aspect": 1.778,
+        "camMode": "side",
+        "orbit": {
+          "yaw": 0,
+          "pitch": 0,
+          "zoom": 1
+        },
+        "actor": true,
+        "body": false,
+        "characterId": null,
+        "choice": "a",
+        "custom": false,
+        "clipping": false,
+        "pip": "block",
+        "frontCam": [
+          0.15,
+          1.62,
+          0.1
+        ],
+        "frontDir": [
+          0.995,
+          -0.1,
+          0
+        ]
+      },
+      "filmRunner": {
+        "x": 0,
+        "y": 0
+      }
+    },
+    {
+      "name": "film follow, 2 s",
+      "probe": {
+        "pos": [
+          12.035,
+          5.02,
+          19.692
+        ],
+        "dir": [
+          -0.411,
+          -0.174,
+          -0.895
+        ],
+        "up": [
+          0,
+          1,
+          0
+        ],
+        "fov": 40,
+        "aspect": 1.778,
+        "camMode": "side",
+        "orbit": {
+          "yaw": 0,
+          "pitch": 0,
+          "zoom": 1
+        },
+        "actor": true,
+        "body": false,
+        "characterId": null,
+        "choice": "a",
+        "custom": false,
+        "clipping": false,
+        "pip": "block",
+        "frontCam": [
+          0.15,
+          1.62,
+          0.1
+        ],
+        "frontDir": [
+          0.995,
+          -0.1,
+          0
+        ]
+      },
+      "filmRunner": {
+        "x": 0,
+        "y": 0
+      }
+    },
+    {
+      "name": "film follow, 3 s",
+      "probe": {
+        "pos": [
+          12.312,
+          5.02,
+          19.563
+        ],
+        "dir": [
+          -0.423,
+          -0.174,
+          -0.889
+        ],
+        "up": [
+          0,
+          1,
+          0
+        ],
+        "fov": 40,
+        "aspect": 1.778,
+        "camMode": "side",
+        "orbit": {
+          "yaw": 0,
+          "pitch": 0,
+          "zoom": 1
+        },
+        "actor": true,
+        "body": false,
+        "characterId": null,
+        "choice": "a",
+        "custom": false,
+        "clipping": false,
+        "pip": "block",
+        "frontCam": [
+          0.15,
+          1.62,
+          0.1
+        ],
+        "frontDir": [
+          0.995,
+          -0.1,
+          0
+        ]
+      },
+      "filmRunner": {
+        "x": 0,
+        "y": 0
+      }
+    },
+    {
+      "name": "film follow, 4 s",
+      "probe": {
+        "pos": [
+          12.422,
+          5.02,
+          19.51
+        ],
+        "dir": [
+          -0.428,
+          -0.174,
+          -0.887
+        ],
+        "up": [
+          0,
+          1,
+          0
+        ],
+        "fov": 40,
+        "aspect": 1.778,
+        "camMode": "side",
+        "orbit": {
+          "yaw": 0,
+          "pitch": 0,
+          "zoom": 1
+        },
+        "actor": true,
+        "body": false,
+        "characterId": null,
+        "choice": "a",
+        "custom": false,
+        "clipping": false,
+        "pip": "block",
+        "frontCam": [
+          0.15,
+          1.62,
+          0.1
+        ],
+        "frontDir": [
+          0.995,
+          -0.1,
+          0
+        ]
+      },
+      "filmRunner": {
+        "x": 0,
+        "y": 0
+      }
+    },
+    {
+      "name": "film eyes, 1 s",
+      "probe": {
+        "pos": [
+          -1.823,
+          1.784,
+          1.424
+        ],
+        "dir": [
+          0.986,
+          -0.076,
+          -0.15
+        ],
+        "up": [
+          0,
+          1,
+          0
+        ],
+        "fov": 42.593,
+        "aspect": 1.778,
+        "camMode": "side",
+        "orbit": {
+          "yaw": 0,
+          "pitch": 0,
+          "zoom": 1
+        },
+        "actor": true,
+        "body": false,
+        "characterId": null,
+        "choice": "a",
+        "custom": false,
+        "clipping": false,
+        "pip": "block",
+        "frontCam": [
+          0.15,
+          1.62,
+          0.1
+        ],
+        "frontDir": [
+          0.995,
+          -0.1,
+          0
+        ]
+      },
+      "filmRunner": {
+        "x": 0,
+        "y": 0
+      }
+    },
+    {
+      "name": "film eyes, 2 s",
+      "probe": {
+        "pos": [
+          -0.174,
+          1.63,
+          0.127
+        ],
+        "dir": [
+          0.999,
+          -0.04,
+          -0.003
+        ],
+        "up": [
+          0,
+          1,
+          0
+        ],
+        "fov": 68.398,
+        "aspect": 1.778,
+        "camMode": "side",
+        "orbit": {
+          "yaw": 0,
+          "pitch": 0,
+          "zoom": 1
+        },
+        "actor": false,
+        "body": false,
+        "characterId": null,
+        "choice": "a",
+        "custom": false,
+        "clipping": false,
+        "pip": "block",
+        "frontCam": [
+          0.15,
+          1.62,
+          0.1
+        ],
+        "frontDir": [
+          0.995,
+          -0.1,
+          0
+        ]
+      },
+      "filmRunner": {
+        "x": 0,
+        "y": 0
+      }
+    },
+    {
+      "name": "film eyes, 3 s",
+      "probe": {
+        "pos": [
+          0.03,
+          1.623,
+          0.1
+        ],
+        "dir": [
+          0.999,
+          -0.04,
+          0
+        ],
+        "up": [
+          0,
+          1,
+          0
+        ],
+        "fov": 75,
+        "aspect": 1.778,
+        "camMode": "side",
+        "orbit": {
+          "yaw": 0,
+          "pitch": 0,
+          "zoom": 1
+        },
+        "actor": false,
+        "body": false,
+        "characterId": null,
+        "choice": "a",
+        "custom": false,
+        "clipping": false,
+        "pip": "block",
+        "frontCam": [
+          0.15,
+          1.62,
+          0.1
+        ],
+        "frontDir": [
+          0.995,
+          -0.1,
+          0
+        ]
+      },
+      "filmRunner": {
+        "x": 0,
+        "y": 0
+      }
+    },
+    {
+      "name": "film eyes, 4 s",
+      "probe": {
+        "pos": [
+          0.03,
+          1.623,
+          0.1
+        ],
+        "dir": [
+          0.999,
+          -0.04,
+          0
+        ],
+        "up": [
+          0,
+          1,
+          0
+        ],
+        "fov": 75,
+        "aspect": 1.778,
+        "camMode": "side",
+        "orbit": {
+          "yaw": 0,
+          "pitch": 0,
+          "zoom": 1
+        },
+        "actor": false,
+        "body": false,
+        "characterId": null,
+        "choice": "a",
+        "custom": false,
+        "clipping": false,
+        "pip": "block",
+        "frontCam": [
+          0.15,
+          1.62,
+          0.1
+        ],
+        "frontDir": [
+          0.995,
+          -0.1,
+          0
+        ]
+      },
+      "filmRunner": {
+        "x": 0,
+        "y": 0
+      }
+    },
+    {
+      "name": "film hero, 1 s",
+      "probe": {
+        "pos": [
+          56.47,
+          1.623,
+          4.751
+        ],
+        "dir": [
+          -0.294,
+          -0.105,
+          -0.95
+        ],
+        "up": [
+          0,
+          1,
+          0
+        ],
+        "fov": 36,
+        "aspect": 1.778,
+        "camMode": "side",
+        "orbit": {
+          "yaw": 0,
+          "pitch": 0,
+          "zoom": 1
+        },
+        "actor": true,
+        "body": false,
+        "characterId": null,
+        "choice": "a",
+        "custom": false,
+        "clipping": false,
+        "pip": "block",
+        "frontCam": [
+          0.15,
+          1.62,
+          0.1
+        ],
+        "frontDir": [
+          0.995,
+          -0.1,
+          0
+        ]
+      },
+      "filmRunner": {
+        "x": 0,
+        "y": 0
+      }
+    },
+    {
+      "name": "film hero, 2 s",
+      "probe": {
+        "pos": [
+          56.47,
+          1.623,
+          4.751
+        ],
+        "dir": [
+          -0.294,
+          -0.105,
+          -0.95
+        ],
+        "up": [
+          0,
+          1,
+          0
+        ],
+        "fov": 36,
+        "aspect": 1.778,
+        "camMode": "side",
+        "orbit": {
+          "yaw": 0,
+          "pitch": 0,
+          "zoom": 1
+        },
+        "actor": true,
+        "body": false,
+        "characterId": null,
+        "choice": "a",
+        "custom": false,
+        "clipping": false,
+        "pip": "block",
+        "frontCam": [
+          0.15,
+          1.62,
+          0.1
+        ],
+        "frontDir": [
+          0.995,
+          -0.1,
+          0
+        ]
+      },
+      "filmRunner": {
+        "x": 0,
+        "y": 0
+      }
+    },
+    {
+      "name": "film hero, 3 s",
+      "probe": {
+        "pos": [
+          56.474,
+          1.627,
+          4.77
+        ],
+        "dir": [
+          -0.294,
+          -0.105,
+          -0.95
+        ],
+        "up": [
+          0,
+          1,
+          0
+        ],
+        "fov": 36.005,
+        "aspect": 1.778,
+        "camMode": "side",
+        "orbit": {
+          "yaw": 0,
+          "pitch": 0,
+          "zoom": 1
+        },
+        "actor": true,
+        "body": false,
+        "characterId": null,
+        "choice": "a",
+        "custom": false,
+        "clipping": false,
+        "pip": "block",
+        "frontCam": [
+          0.15,
+          1.62,
+          0.1
+        ],
+        "frontDir": [
+          0.995,
+          -0.1,
+          0
+        ]
+      },
+      "filmRunner": {
+        "x": 0,
+        "y": 0
+      }
+    },
+    {
+      "name": "film hero, 4 s",
+      "probe": {
+        "pos": [
+          56.832,
+          2.142,
+          6.881
+        ],
+        "dir": [
+          -0.255,
+          -0.137,
+          -0.957
+        ],
+        "up": [
+          0,
+          1,
+          0
+        ],
+        "fov": 36.531,
+        "aspect": 1.778,
+        "camMode": "side",
+        "orbit": {
+          "yaw": 0,
+          "pitch": 0,
+          "zoom": 1
+        },
+        "actor": true,
+        "body": false,
+        "characterId": null,
+        "choice": "a",
+        "custom": false,
+        "clipping": false,
+        "pip": "block",
+        "frontCam": [
+          0.15,
+          1.62,
+          0.1
+        ],
+        "frontDir": [
+          0.995,
+          -0.1,
+          0
+        ]
+      },
+      "filmRunner": {
+        "x": 0,
+        "y": 0
+      }
+    },
+    {
+      "name": "film clean, 1 s",
+      "probe": {
+        "pos": [
+          5,
+          3.966,
+          24.454
+        ],
+        "dir": [
+          0,
+          -0.06,
+          -0.998
+        ],
+        "up": [
+          0,
+          1,
+          0
+        ],
+        "fov": 40,
+        "aspect": 1.778,
+        "camMode": "side",
+        "orbit": {
+          "yaw": 0,
+          "pitch": 0,
+          "zoom": 1
+        },
+        "actor": true,
+        "body": false,
+        "characterId": null,
+        "choice": "a",
+        "custom": false,
+        "clipping": false,
+        "pip": "block",
+        "frontCam": [
+          0.15,
+          1.62,
+          0.1
+        ],
+        "frontDir": [
+          0.995,
+          -0.1,
+          0
+        ]
+      },
+      "filmRunner": {
+        "x": 0,
+        "y": 0
+      }
+    },
+    {
+      "name": "film clean, 2 s",
+      "probe": {
+        "pos": [
+          5,
+          3.99,
+          24.848
+        ],
+        "dir": [
+          0,
+          -0.06,
+          -0.998
+        ],
+        "up": [
+          0,
+          1,
+          0
+        ],
+        "fov": 40,
+        "aspect": 1.778,
+        "camMode": "side",
+        "orbit": {
+          "yaw": 0,
+          "pitch": 0,
+          "zoom": 1
+        },
+        "actor": true,
+        "body": false,
+        "characterId": null,
+        "choice": "a",
+        "custom": false,
+        "clipping": false,
+        "pip": "block",
+        "frontCam": [
+          0.15,
+          1.62,
+          0.1
+        ],
+        "frontDir": [
+          0.995,
+          -0.1,
+          0
+        ]
+      },
+      "filmRunner": {
+        "x": 0,
+        "y": 0
+      }
+    },
+    {
+      "name": "film clean, 3 s",
+      "probe": {
+        "pos": [
+          5,
+          3.997,
+          24.958
+        ],
+        "dir": [
+          0,
+          -0.06,
+          -0.998
+        ],
+        "up": [
+          0,
+          1,
+          0
+        ],
+        "fov": 40,
+        "aspect": 1.778,
+        "camMode": "side",
+        "orbit": {
+          "yaw": 0,
+          "pitch": 0,
+          "zoom": 1
+        },
+        "actor": true,
+        "body": false,
+        "characterId": null,
+        "choice": "a",
+        "custom": false,
+        "clipping": false,
+        "pip": "block",
+        "frontCam": [
+          0.15,
+          1.62,
+          0.1
+        ],
+        "frontDir": [
+          0.995,
+          -0.1,
+          0
+        ]
+      },
+      "filmRunner": {
+        "x": 0,
+        "y": 0
+      }
+    },
+    {
+      "name": "film clean, 4 s",
+      "probe": {
+        "pos": [
+          5,
+          3.999,
+          24.988
+        ],
+        "dir": [
+          0,
+          -0.06,
+          -0.998
+        ],
+        "up": [
+          0,
+          1,
+          0
+        ],
+        "fov": 40,
+        "aspect": 1.778,
+        "camMode": "side",
+        "orbit": {
+          "yaw": 0,
+          "pitch": 0,
+          "zoom": 1
+        },
+        "actor": true,
+        "body": false,
+        "characterId": null,
+        "choice": "a",
+        "custom": false,
+        "clipping": false,
+        "pip": "block",
+        "frontCam": [
+          0.15,
+          1.62,
+          0.1
+        ],
+        "frontDir": [
+          0.995,
+          -0.1,
+          0
+        ]
+      },
+      "filmRunner": {
+        "x": 0,
+        "y": 0
+      }
+    },
+    {
+      "name": "clip started",
+      "probe": {
+        "pos": [
+          4.048,
+          3.022,
+          24.422
+        ],
+        "dir": [
+          0,
+          0,
+          -1
+        ],
+        "up": [
+          0,
+          1,
+          0
+        ],
+        "fov": 40,
+        "aspect": 1.778,
+        "camMode": "side",
+        "orbit": {
+          "yaw": 0,
+          "pitch": 0,
+          "zoom": 1
+        },
+        "actor": true,
+        "body": false,
+        "characterId": null,
+        "choice": "a",
+        "custom": false,
+        "clipping": true,
+        "pip": "block",
+        "frontCam": [
+          0.198,
+          1.62,
+          0.1
+        ],
+        "frontDir": [
+          0.995,
+          -0.1,
+          0
+        ]
+      }
+    },
+    {
+      "name": "clip made",
+      "probe": {
+        "pos": [
+          60.015,
+          1.022,
+          24.422
+        ],
+        "dir": [
+          0,
+          0,
+          -1
+        ],
+        "up": [
+          0,
+          1,
+          0
+        ],
+        "fov": 40,
+        "aspect": 1.778,
+        "camMode": "side",
+        "orbit": {
+          "yaw": 0,
+          "pitch": 0,
+          "zoom": 1
+        },
+        "actor": true,
+        "body": false,
+        "characterId": null,
+        "choice": "a",
+        "custom": false,
+        "clipping": false,
+        "pip": "block",
+        "frontCam": [
+          56.165,
+          -0.38,
+          0.1
+        ],
+        "frontDir": [
+          0.995,
+          -0.1,
+          0
+        ]
+      },
+      "done": true,
+      "clip": {
+        "made": false,
+        "runner": null,
+        "metres": null,
+        "blob": false
+      },
+      "encoded": {
+        "pictures": 326,
+        "spots": [
+          [
+            4.005,
+            3.022,
+            24.422
+          ],
+          [
+            6.792,
+            3.022,
+            24.422
+          ],
+          [
+            12.425,
+            3.022,
+            24.422
+          ],
+          [
+            19.185,
+            3.022,
+            24.422
+          ],
+          [
+            25.544,
+            3.9,
+            24.422
+          ],
+          [
+            32.07,
+            4.022,
+            24.422
+          ],
+          [
+            38.925,
+            3.373,
+            24.422
+          ],
+          [
+            44.85,
+            4.514,
+            24.422
+          ],
+          [
+            41.916,
+            7.84,
+            24.422
+          ],
+          [
+            45.435,
+            3.851,
+            24.422
+          ],
+          [
+            51.801,
+            1.096,
+            24.422
+          ],
+          [
+            58.723,
+            1.022,
+            24.422
+          ],
+          [
+            60.015,
+            1.022,
+            24.422
+          ],
+          [
+            60.015,
+            1.022,
+            24.422
+          ]
+        ]
+      }
+    },
+    {
+      "name": "after the clip",
+      "probe": {
+        "pos": [
+          20.322,
+          3.171,
+          24.839
+        ],
+        "dir": [
+          -0.525,
+          -0.023,
+          -0.851
+        ],
+        "up": [
+          0,
+          1,
+          0
+        ],
+        "fov": 40,
+        "aspect": 1.778,
+        "camMode": "side",
+        "orbit": {
+          "yaw": 0,
+          "pitch": 0,
+          "zoom": 1
+        },
+        "actor": true,
+        "body": false,
+        "characterId": null,
+        "choice": "a",
+        "custom": false,
+        "clipping": false,
+        "pip": "block",
+        "frontCam": [
+          0.15,
+          1.62,
+          0.1
+        ],
+        "frontDir": [
+          0.995,
+          -0.1,
+          0
+        ]
+      }
+    },
+    {
+      "name": "character buttons at the start",
+      "probe": {
+        "pos": [
+          5,
+          3.877,
+          23.039
+        ],
+        "dir": [
+          0,
+          -0.06,
+          -0.998
+        ],
+        "up": [
+          0,
+          1,
+          0
+        ],
+        "fov": 40,
+        "aspect": 1.778,
+        "camMode": "side",
+        "orbit": {
+          "yaw": 0,
+          "pitch": 0,
+          "zoom": 1
+        },
+        "actor": true,
+        "body": false,
+        "characterId": null,
+        "choice": "a",
+        "custom": false,
+        "clipping": false,
+        "pip": "block",
+        "frontCam": [
+          0.15,
+          1.62,
+          0.1
+        ],
+        "frontDir": [
+          0.995,
+          -0.1,
+          0
+        ]
+      },
+      "pick": {
+        "pressed": [
+          "Run as the male Rookie|true",
+          "Run as the female Rookie|false",
+          "characters-btn|null"
+        ],
+        "note": "",
+        "noteShown": false,
+        "saved": "a"
+      }
+    },
+    {
+      "name": "female Rookie",
+      "probe": {
+        "pos": [
+          5,
+          3.997,
+          24.958
+        ],
+        "dir": [
+          0,
+          -0.06,
+          -0.998
+        ],
+        "up": [
+          0,
+          1,
+          0
+        ],
+        "fov": 40,
+        "aspect": 1.778,
+        "camMode": "side",
+        "orbit": {
+          "yaw": 0,
+          "pitch": 0,
+          "zoom": 1
+        },
+        "actor": true,
+        "body": false,
+        "characterId": null,
+        "choice": "a",
+        "custom": false,
+        "clipping": false,
+        "pip": "block",
+        "frontCam": [
+          0.15,
+          1.62,
+          0.1
+        ],
+        "frontDir": [
+          0.995,
+          -0.1,
+          0
+        ]
+      },
+      "pick": {
+        "pressed": [
+          "Run as the male Rookie|true",
+          "Run as the female Rookie|false",
+          "characters-btn|null"
+        ],
+        "note": "",
+        "noteShown": false,
+        "saved": "a"
+      }
+    },
+    {
+      "name": "male Rookie",
+      "probe": {
+        "pos": [
+          5,
+          4,
+          24.999
+        ],
+        "dir": [
+          0,
+          -0.06,
+          -0.998
+        ],
+        "up": [
+          0,
+          1,
+          0
+        ],
+        "fov": 40,
+        "aspect": 1.778,
+        "camMode": "side",
+        "orbit": {
+          "yaw": 0,
+          "pitch": 0,
+          "zoom": 1
+        },
+        "actor": true,
+        "body": false,
+        "characterId": null,
+        "choice": "a",
+        "custom": false,
+        "clipping": false,
+        "pip": "block",
+        "frontCam": [
+          0.15,
+          1.62,
+          0.1
+        ],
+        "frontDir": [
+          0.995,
+          -0.1,
+          0
+        ]
+      },
+      "pick": {
+        "pressed": [
+          "Run as the male Rookie|true",
+          "Run as the female Rookie|false",
+          "characters-btn|null"
+        ],
+        "note": "",
+        "noteShown": false,
+        "saved": "a"
+      }
+    },
+    {
+      "name": "?rookie=b",
+      "probe": {
+        "pos": [
+          5,
+          3.99,
+          24.848
+        ],
+        "dir": [
+          0,
+          -0.06,
+          -0.998
+        ],
+        "up": [
+          0,
+          1,
+          0
+        ],
+        "fov": 40,
+        "aspect": 1.778,
+        "camMode": "side",
+        "orbit": {
+          "yaw": 0,
+          "pitch": 0,
+          "zoom": 1
+        },
+        "actor": true,
+        "body": false,
+        "characterId": null,
+        "choice": "b",
+        "custom": false,
+        "clipping": false,
+        "pip": "block",
+        "frontCam": [
+          0.15,
+          1.62,
+          0.1
+        ],
+        "frontDir": [
+          0.995,
+          -0.1,
+          0
+        ]
+      },
+      "pick": {
+        "pressed": [
+          "Run as the male Rookie|false",
+          "Run as the female Rookie|true",
+          "characters-btn|null"
+        ],
+        "note": "",
+        "noteShown": false,
+        "saved": "a"
+      }
+    },
+    {
+      "name": "?char= with an unknown address",
+      "probe": {
+        "pos": [
+          5,
+          3.999,
+          24.988
+        ],
+        "dir": [
+          0,
+          -0.06,
+          -0.998
+        ],
+        "up": [
+          0,
+          1,
+          0
+        ],
+        "fov": 40,
+        "aspect": 1.778,
+        "camMode": "side",
+        "orbit": {
+          "yaw": 0,
+          "pitch": 0,
+          "zoom": 1
+        },
+        "actor": true,
+        "body": false,
+        "characterId": null,
+        "choice": "a",
+        "custom": false,
+        "clipping": false,
+        "pip": "block",
+        "frontCam": [
+          0.15,
+          1.62,
+          0.1
+        ],
+        "frontDir": [
+          0.995,
+          -0.1,
+          0
+        ]
+      },
+      "pick": {
+        "pressed": [
+          "Run as the male Rookie|true",
+          "Run as the female Rookie|false",
+          "characters-btn|null"
+        ],
+        "note": "",
+        "noteShown": false,
+        "saved": "a"
+      }
+    },
+    {
+      "name": "?look=custom",
+      "probe": {
+        "pos": [
+          5,
+          3.997,
+          24.958
+        ],
+        "dir": [
+          0,
+          -0.06,
+          -0.998
+        ],
+        "up": [
+          0,
+          1,
+          0
+        ],
+        "fov": 40,
+        "aspect": 1.778,
+        "camMode": "side",
+        "orbit": {
+          "yaw": 0,
+          "pitch": 0,
+          "zoom": 1
+        },
+        "actor": true,
+        "body": false,
+        "characterId": null,
+        "choice": "a",
+        "custom": true,
+        "clipping": false,
+        "pip": "block",
+        "frontCam": [
+          0.15,
+          1.62,
+          0.1
+        ],
+        "frontDir": [
+          0.995,
+          -0.1,
+          0
+        ]
+      },
+      "pick": {
+        "pressed": [
+          "Run as the male Rookie|false",
+          "Run as the female Rookie|false",
+          "look-custom|true",
+          "characters-btn|null"
+        ],
+        "note": "",
+        "noteShown": false,
+        "saved": "a"
+      }
+    }
+  ]
+}
