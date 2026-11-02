@@ -9,18 +9,12 @@ import { adviseMachineFor, armAngleAt, armRatio, fixMachineFor, laneCourseWith, 
 import { withTrebuchet, wrapFor } from '../src/slice/launch-lane';
 import { proves } from '../src/slice/photo-proof';
 import { diffProposal, enabledCount, fromAdvice, machineItems, resultOf } from '../src/slice/preview';
-import type { Mesh } from '../src/slice/slice';
 import { newPiece, type Piece } from '../src/slice/world';
 import { loadDemoCourse as load } from './helpers/course';
+import { box } from './helpers/pieces';
 
 const lane = { angle: 0, offset: 0, level: 0 };
 
-function box(w: number, h: number, d: number): Mesh {
-  const [x0, x1, y0, y1, z0, z1] = [-w / 2, w / 2, 0, h, -d / 2, d / 2];
-  const p = [x0, y0, z0, x1, y0, z0, x1, y1, z0, x0, y1, z0, x0, y0, z1, x1, y0, z1, x1, y1, z1, x0, y1, z1];
-  const q = [0, 1, 2, 0, 2, 3, 4, 6, 5, 4, 7, 6, 0, 4, 5, 0, 5, 1, 3, 2, 6, 3, 6, 7, 0, 3, 7, 0, 7, 4, 1, 5, 6, 1, 6, 2];
-  return { positions: p, indices: q };
-}
 const world = (): Piece[] => [newPiece('Deck', box(16, 0.5, 1.8), { x: 0, z: 0 }), newPiece('Tower', box(11, 4, 1.8), { x: 24, z: 0 })];
 // the editor's own lane (a first deck, a small gap, a landing deck 4 m up): known to clear with 1200 kg and not with 500 kg
 const editorLane = (top: number): CourseData => ({

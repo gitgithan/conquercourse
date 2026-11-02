@@ -1,15 +1,10 @@
 import { describe, expect, it } from 'vitest';
 import { adviseLane, type Advice, type LaneSetting } from '../src/slice/advice';
-import { laneToCourse, sliceProfile, type Mesh } from '../src/slice/slice';
+import { laneToCourse, sliceProfile } from '../src/slice/slice';
 import { meter, searchIdealRun, workSeconds } from '../src/sim/ideal';
 import { newPiece, worldSamples, type Piece } from '../src/slice/world';
+import { box } from './helpers/pieces';
 
-function box(w: number, h: number, d: number): Mesh {
-  const [x0, x1, y0, y1, z0, z1] = [-w / 2, w / 2, 0, h, -d / 2, d / 2];
-  const p = [x0, y0, z0, x1, y0, z0, x1, y1, z0, x0, y1, z0, x0, y0, z1, x1, y0, z1, x1, y1, z1, x0, y1, z1];
-  const q = [0, 1, 2, 0, 2, 3, 4, 6, 5, 4, 7, 6, 0, 4, 5, 0, 5, 1, 3, 2, 6, 3, 6, 7, 0, 3, 7, 0, 7, 4, 1, 5, 6, 1, 6, 2];
-  return { positions: p, indices: q };
-}
 const lane: LaneSetting = { angle: 0, offset: 0, level: 0 };
 const clears = (ps: Piece[], l: LaneSetting) => { const pr = sliceProfile(worldSamples(ps), { x: 0, z: 0 }, l); return pr.length >= 8 && searchIdealRun(laneToCourse({ cells: [...pr.cells], length: pr.length })).cleared; };
 const apply = (ps: Piece[], l: LaneSetting, a: Advice): { ps: Piece[]; lane: LaneSetting } => ({
