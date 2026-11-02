@@ -15,7 +15,8 @@ const state = (page) => page.evaluate(() => {
   const hit = (a, b) => a.left < b.right - 1 && b.left < a.right - 1 && a.top < b.bottom - 1 && b.top < a.bottom - 1;
   const panel = [...document.querySelectorAll('body > div')].find((d) => getComputedStyle(d).position === 'fixed' && getComputedStyle(d).zIndex === '40' && vis(d));
   const over = [];
-  if (panel) for (const id of ['ccfirstfall', 'keys']) { const e = document.getElementById(id); if (vis(e) && hit(rect(e), rect(panel))) over.push(id); }
+  // the first-fall card sits inside the panel since CC-191: that is the fix, not an overlap
+  if (panel) for (const id of ['ccfirstfall', 'keys']) { const e = document.getElementById(id); if (vis(e) && !panel.contains(e) && hit(rect(e), rect(panel))) over.push(id); }
   const edits = [...document.querySelectorAll('button')].filter((b) => vis(b) && b.textContent.trim() === 'Edit this course').length;
   const hint = [...document.querySelectorAll('body > div')].filter((d) => vis(d) && /hold E|Press Space/.test(d.textContent) && !d.contains(panel) && d !== panel && !panel?.contains(d) && getComputedStyle(d).fontSize === '20px').map((d) => d.textContent.slice(0, 30));
   return { panel: !!panel, over, edits, hint };
