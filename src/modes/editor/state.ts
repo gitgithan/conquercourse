@@ -50,6 +50,7 @@ export interface EditorState {
   leadText: string;
   // helpers
   routes: Shortcut[];
+  designed: Set<string>; // routes the designer kept (meant), by id
   adviceList: Advice[];
   pendingEdits: Edit[];
   movesBusy: string;
@@ -66,6 +67,6 @@ export function createEditorState(): EditorState {
     verdict: '',
     bandK: null, trebuchetKg: null, trebuchetExtra: {}, recoilCfg: null, droneCfg: null,
     proposal: null, preview: null, previewProfile: null, previewBars: [], proofRun: 0, leadText: '',
-    routes: [], adviceList: [], pendingEdits: [], movesBusy: '', movesList: null,
+    routes: [], designed: new Set(), adviceList: [], pendingEdits: [], movesBusy: '', movesList: null,
   };
 }

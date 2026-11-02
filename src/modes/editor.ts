@@ -11,50 +11,37 @@ import { registerThumbSource } from '../ui/glb-thumb';
 import { isSharedSrc, placeParam, sharedGlbUrl, sharedSrc, useShared, usedShared } from '../community/flow';
 import { LIBRARY, box } from '../slice/shapes';
 import { bestSlices, describe as describeLane, CELL, HALF_LANE, roofStartOn } from '../slice/slice';
-import { crop, centred, duplicate, hits, newPiece, realSize, scaleBy, scaleToHeight, size, worldSamples, laneProfile } from '../slice/world';
+import { crop, duplicate, hits, newPiece, realSize, scaleBy, scaleToHeight, size, worldSamples, laneProfile } from '../slice/world';
 import type { CourseData } from '../course/course';
-import { workSeconds, xWindows, type SearchResult } from '../sim/ideal';
+import { xWindows, type SearchResult } from '../sim/ideal';
 import { searchInput, storedPlanFor, withStoredPlan, type PresetPlan } from '../slice/preset-plans';
-import { createView3d, type Ghosts } from '../slice/view3d';
+import { createView3d } from '../slice/view3d';
 import { sceneFor } from '../slice/scene';
 import { isTrack, limitTrackPoint, parseTrackSrc, TRACK_BLOCK_TEXT, TRACK_TOP, type TrackBlock, sectionPoints, trackPiece, trackSrc, trackStartY, TRACK_SHAPES } from '../slice/track-world';
-import { barMesh, holdsOf, isHold, REACH_JUMPING, REACH_STANDING } from '../slice/holds-world';
+import { barMesh, isHold, REACH_JUMPING, REACH_STANDING } from '../slice/holds-world';
 import { DEFAULT_PLANK, isPlankPiece, plankPiece, plankSpecOf, planksOf, setPlank, type PlankSpec } from '../slice/plank-world';
 import { fixPlank, plankHolds, worstCase } from '../sim/beam';
-import { withTrebuchet, wrapFor, type Machine } from '../slice/launch-lane';
-import { withRecoil } from '../slice/recoil-lane';
-import { fixRecoil } from '../slice/fixrecoil';
-import { withBand } from '../slice/band-lane';
-import { fixBand } from '../slice/fixband';
-import { DRONE_PAD_LENGTH, withDrone } from '../slice/drone-lane';
-import { fixDrone } from '../slice/fixdrone';
+import { DRONE_PAD_LENGTH } from '../slice/drone-lane';
 import { PATTERNS, stackPiece, stackSrc } from '../slice/stack';
 import { personStart } from '../slice/person-ref';
-import { DEFAULT_WATER_LEVEL, PARTNER_PREF_KEY, START_LABEL, START_SHORT, levelOfSaved, partnerStartsOpen, startMarkSide } from '../slice/editor-defaults';
-import { proves } from '../slice/photo-proof';
-import { adviseMachine, fixMachine } from '../slice/fix-launch';
-import { fixBars } from '../slice/fixbars';
-import { fixLayout } from '../slice/fixit';
+import { DEFAULT_WATER_LEVEL, START_LABEL, START_SHORT, levelOfSaved, startMarkSide } from '../slice/editor-defaults';
+import { adviseMachine } from '../slice/fix-launch';
 import { PRESETS } from '../slice/presets';
-import { fixCoaster } from '../slice/fixcoaster';
-import { MAX_PIECES, suggestPrompt } from '../slice/suggest-prompt';
-import { adviseLane, type Advice } from '../slice/advice';
-import { addBadge, sayBadge, saysOn } from '../ui/says';
+import { MAX_PIECES } from '../slice/suggest-prompt';
+import { adviseLane } from '../slice/advice';
+import { addBadge } from '../ui/says';
 import { editorWords, simSaysPanel } from '../ui/sim-says';
-import { adviceInWorker, barsInWorker, fixInWorker, provesInWorker } from '../slice/proof-client';
-import { parseReply, worldBrief } from '../slice/designer';
-import { diffProposal, enabledCount, fromAdvice, fromEdits, resultOf, type Proposal } from '../slice/preview';
-import { ROLE_NAME, applySuggestion, movesInWorld, roleCourse, suggestRoles, type Role, type RoleSuggestion } from '../slice/roles';
+import { adviceInWorker } from '../slice/proof-client';
 import { deviceMesh, RECOIL_PAD_LENGTH, TREBUCHET_PIVOT_FROM_CENTRE } from '../slice/device';
-import { shortcutLine, type Shortcut } from '../sim/shortcuts';
-import { closeShortcut } from '../slice/shortcut-close';
-import { makeItEasier } from '../slice/easier';
 import { EDIT_KEY, HIST_KEY, checkpointFor, piecesFromSource, readHandoff } from '../slice/roundtrip';
-import type { CourseSource } from '../course/course';
 import { pageQuery, pageSearch } from '../flags';
 import { createLaneCheck } from '../slice/lane-check-ui';
 import { onEditorKey } from './editor/keys';
 import { createHistory, type Snap } from './editor/history';
+import { createHelper } from './editor/helper';
+import { createMoves } from './editor/moves';
+import { el } from './editor/dom';
+import { createLane } from './editor/lane';
 import { createEditorState, isDevice, isSizeReference, type P, type Saved } from './editor/state';
 import { finalText, isStopped, type LaneProgress } from '../slice/lane-check';
 
@@ -88,6 +75,8 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
   host.appendChild(root);
 
   const ed = createEditorState();
+  const lane = createLane(ed);
+  const { coursePieces, makeDevice, makeRecoilDevice, makeDroneDevice, updateDeviceSource, ground, currentProfile, barsNow, dronePiece, recoilPiece, machineNow, trebuchetPivot, machineWrap, laneCourseAt, laneCourse, courseNow, xOfPiece, startBefore } = lane;
   // CC-200: several pieces chosen at once (Shift+click, a box dragged on the picture). `selected` stays the main one; the group counts while it is in it.
   const multiOn = pageQuery().get('editorui') !== 'old';
   const chosen = (): number[] => (multiOn ? chosenIds(ed.group, ed.selected, (id) => ed.pieces.some((q) => q.id === id && !isSizeReference(q))) : ed.selected !== null ? [ed.selected] : []);
@@ -108,8 +97,6 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
   const deleteChosen = () => { const ids = chosen(); if (!ids.length) return; ed.pieces = withoutIds(ed.pieces, ids); ed.selected = null; ed.group = []; changed(); };
   let personChipReady = false; // the chip is built after the 3D view; the world redraws can run before that
   const personAt = () => personStart(ed.pieces, { angle: ed.angle, offset: ed.offset });
-  let helperReady = false; // the design partner's reply box exists
-  let movesReady = false; // the Moves window exists (changed() may run before it is built)
   const pendingObjects: Saved['pieces'] = []; // saved photo objects, loaded once the list is in
 
   // a new piece goes just past the last one, on the lane's line, so pieces do not pile up
@@ -158,7 +145,6 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
   if (ed.selected === null) { const tr = ed.pieces.find((q) => isTrack(q)); if (tr) ed.selected = tr.id; } // a coaster opens with its dots showing (CC-244)
   let focusId: number | null = null; // the piece nearest the place the player was at (chosen once the lane exists)
 
-  const el = <K extends keyof HTMLElementTagNameMap>(tag: K, parent: HTMLElement, props: Partial<HTMLElementTagNameMap[K]> & { text?: string } = {}) => { const { text, ...rest } = props as Record<string, unknown> & { text?: string }; const e = Object.assign(document.createElement(tag), rest); if (text) e.textContent = text; parent.appendChild(e); return e as HTMLElementTagNameMap[K]; };
 
   const top = el('div', root, { className: 'top' });
   el('h1', top, { text: 'World Editor' });
@@ -465,229 +451,10 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
     new MutationObserver(sync).observe(lanePanel, { childList: true, subtree: true, characterData: true });
     sync();
   }
-  // ---- helpers: what to shift when the lane cannot be cleared, and a design partner (Muse Spark Open) to talk it through
-  const helper = el('div', aside, { className: 'panel helper', id: 'helper' });
-  const head = el('div', helper, { className: 'row' });
-  const partnerTitle = el('strong', head, { text: 'Design partner' });
-  if (saysOn()) { const line = document.createElement('div'); line.className = 'says-line'; line.style.cssText = 'flex:1 0 100%;margin:0'; line.append(sayBadge('partner')); partnerTitle.replaceWith(line); } // CC-243: the badge names the speaker and its model
-  el('button', head, { text: 'Fix it', id: 'fixit', className: 'go', title: 'Show a layout the simulator can clear, before anything changes' }).onclick = () => runFix();
-  el('button', head, { text: 'Make it easier', id: 'easier', title: 'Show the smallest change that makes the hardest press easier to land' }).onclick = () => runEasier();
-  const closeHelper = el('button', head, { text: '✕', id: 'closehelper', title: 'Hide' });
-  const selRow = el('label', helper, { className: 'muted', title: 'Fix it and Suggest Fix move only the pieces you have chosen, and leave the lane where it is' });
-  const fixSel = el('input', selRow, { type: 'checkbox', id: 'fixsel' }); selRow.append('Move only the chosen pieces');
-  const adviceBox = el('div', helper, { id: 'advice' });
-  // CC-243: a ready question for the partner: Suggest Fix when the lane cannot be cleared, Suggest More when it can
-  const suggestBtn = el('button', head, { text: 'Suggest More', id: 'suggest', title: 'Ask the design partner, with the question already written' });
-  const setSuggest = (clear: boolean | null) => { suggestBtn.textContent = clear === false ? 'Suggest Fix' : 'Suggest More'; suggestBtn.classList.toggle('go', clear === false); suggestBtn.dataset.kind = clear === false ? 'fix' : 'more'; };
-  // ---- routes you did not plan (CC-71): the simulator looks for lines that skip an obstacle; Close it previews a change that shuts one, Keep it marks it as meant
-  const designed = new Set<string>();
-  let routesWorker: Worker | null = null;
-  const routesHead = el('div', helper, { className: 'row', id: 'routeshead' });
-  const findRoutesBtn = el('button', routesHead, { text: 'Look for routes you did not plan', id: 'findroutes', title: 'The simulator tries the course with each bar, wall or rope taken away and tells you which skips are faster' });
-  const routesBox = el('div', helper, { id: 'routes' });
-  const routesBrief = () => ed.routes.filter((r) => !designed.has(r.id)).map((r) => shortcutLine(r));
-  function renderRoutes() {
-    routesBox.replaceChildren();
-    if (!ed.routes.length) { el('div', routesBox, { className: 'muted', text: 'No route that skips an obstacle is faster than the planned line.' }); return; }
-    for (const s of ed.routes) {
-      const row = el('div', routesBox, { className: 'row', id: `route-${s.id}` });
-      el('span', row, { text: shortcutLine(s) + (designed.has(s.id) ? ' (kept: meant by the designer)' : '') });
-      el('button', row, { text: 'Close it', className: 'go', title: 'See a change that shuts this route before anything moves' }).onclick = () => closeRoute(s);
-      el('button', row, { text: designed.has(s.id) ? 'Unkeep' : 'Keep it', title: 'Mark this route as meant: it stays, and is drawn as a dashed arrow' }).onclick = () => { if (designed.has(s.id)) designed.delete(s.id); else designed.add(s.id); renderRoutes(); drawProfile(); };
-    }
-  }
-  function lookForRoutes() {
-    findRoutesBtn.disabled = true; routesBox.replaceChildren(); el('div', routesBox, { className: 'muted', text: 'Looking for routes (about a minute)…' });
-    const done = (list: Shortcut[]) => { ed.routes = list; findRoutesBtn.disabled = false; renderRoutes(); drawProfile(); document.documentElement.dataset.routes = String(list.length); };
-    try {
-      routesWorker ??= new Worker(new URL('../sim/shortcuts-worker.ts', import.meta.url), { type: 'module' });
-      routesWorker.onmessage = (e: MessageEvent) => done((e.data.shortcuts as Shortcut[]) ?? []);
-      routesWorker.postMessage({ course: courseNow() });
-    } catch { done([]); }
-  }
-  findRoutesBtn.onclick = lookForRoutes;
-  function closeRoute(s: Shortcut) {
-    reply.className = 'reply'; reply.textContent = 'Working out a change that closes it… (up to two minutes)'; helper.classList.remove('closed'); helperBtn.setAttribute('aria-pressed', 'true');
-    setTimeout(() => {
-      const now = { angle: ed.angle, offset: ed.offset, level: ed.level }, r = closeShortcut(ed.pieces as P[], now, s);
-      if (!r.ok) { reply.className = 'reply bad'; reply.textContent = r.steps.join(' '); return; }
-      ed.leadText = '';
-      showProposal(diffProposal('shortcut', `Close the shortcut: ${s.how}`, ed.pieces, now, r.pieces, now, r.steps, true));
-    }, 30);
-  }
-  const reply = el('div', helper, { className: 'reply muted', id: 'reply', text: 'Ask for a change, or press "What should I change?".' });
-  const askRow = el('div', helper, { className: 'row' });
-  const ask = el('textarea', askRow, { id: 'ask', rows: 2, placeholder: 'e.g. make the gap easier, or a harder second half' });
-  const sendBtn = el('button', askRow, { text: 'Ask', id: 'send', className: 'go' });
-  const whatBtn = el('button', askRow, { text: 'What should I change?', id: 'what' });
-  helperReady = true;
-  suggestBtn.onclick = () => {
-    const clear = document.documentElement.dataset.laneClear !== '0';
-    ask.value = suggestPrompt(clear, ed.pieces.filter((q) => !isSizeReference(q) && !isDevice(q)).map((q) => ({ name: q.name, x: q.x, heightM: realSize(q).h + q.y })));
-    helper.classList.remove('closed'); helperBtn.setAttribute('aria-pressed', 'true');
-    sendBtn.click();
-  };
-  const helperBtn = el('button', top, { text: 'Design partner', id: 'helperbtn', title: 'Show or hide the design partner' });
-  // CC-243: the partner slides in from the right edge; a tab rides its edge, Esc closes it, and the last choice is remembered
-  const partnerTab = el('button', root, { id: 'partnertab', text: 'Design partner', title: 'Show or hide the design partner' });
-  const syncPartner = () => {
-    const open = !helper.classList.contains('closed');
-    helperBtn.setAttribute('aria-pressed', String(open)); partnerTab.classList.toggle('open', open); partnerTab.setAttribute('aria-expanded', String(open));
-  };
-  // CC-200: hidden by default; only a hand choice (tab, bar button, close, Esc) is remembered, so a partner that opened itself to answer does not stay open next time
-  const rememberPartner = () => { try { localStorage.setItem(PARTNER_PREF_KEY, helper.classList.contains('closed') ? '0' : '1'); } catch { /* private window */ } };
-  let wasOpen = false; try { wasOpen = partnerStartsOpen(localStorage.getItem(PARTNER_PREF_KEY)); } catch { /* private window */ }
-  helper.classList.toggle('closed', !wasOpen); syncPartner();
-  new MutationObserver(syncPartner).observe(helper, { attributes: true, attributeFilter: ['class'] });
-  helperBtn.onclick = partnerTab.onclick = () => { helper.classList.toggle('closed'); rememberPartner(); };
-  closeHelper.onclick = () => { helper.classList.add('closed'); helperBtn.setAttribute('aria-pressed', 'false'); rememberPartner(); };
-  window.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !helper.classList.contains('closed') && helper.contains(document.activeElement)) { helper.classList.add('closed'); rememberPartner(); } });
+  const helperUi = createHelper({ ed, lane, root, top, aside, chosen, draw, drawProfile, changed, handoff, goToCourse, plankFixNow, syncRecoil, bandInput });
+  const { helper, helperBtn, reply, adviceBox, setSuggest, showAdvice, runEasier, closePreview, ghostData } = helperUi;
+  const movesUi = createMoves({ ed, lane, planWrap, addBarPiece, changed, helper: helperUi });
 
-  // ---- the Moves window (CC-43): which moves this world has and lacks, and what each piece could be; every suggestion is proved by the simulator and goes through the shared preview
-  const movesBox = el('div', planWrap, { className: 'panel moves closed', id: 'moves' });
-  const movesBtn = el('button', planWrap, { text: 'Moves', id: 'movesbtn', title: 'Which moves this world has, what each needs, and what your pieces could be' }); // a chip on the picture, so the top bar does not grow a line
-  movesBtn.style.cssText = 'position:absolute;left:10px;top:10px;z-index:6';
-  movesBtn.setAttribute('aria-pressed', 'false');
-  movesBtn.onclick = () => { const closed = movesBox.classList.toggle('closed'); movesBtn.setAttribute('aria-pressed', String(!closed)); if (!closed) renderMoves(); };
-  const laneNow = () => ({ angle: ed.angle, offset: ed.offset, level: ed.level });
-  function roleProposal(sg: RoleSuggestion): Proposal {
-    const next = applySuggestion(ed.pieces, sg);
-    return diffProposal('role', 'A way to use a piece', ed.pieces, laneNow(), next, laneNow(), [sg.words], sg.proved === true ? true : undefined);
-  }
-  function findWays(only?: number) {
-    if (ed.movesBusy) return;
-    ed.movesBusy = only === undefined ? 'the world' : 'this piece'; renderMoves();
-    setTimeout(() => {
-      const items = suggestRoles(coursePieces(), laneNow(), { budgetMs: 40000, ...(only !== undefined ? { only } : {}) }).filter((x) => x.proved);
-      ed.movesList = { label: only === undefined ? 'Ways to add a missing move (each one checked by the simulator)' : 'What this piece could be (each one checked by the simulator)', items };
-      ed.movesBusy = ''; document.documentElement.dataset.roleSuggestions = String(items.length); renderMoves();
-    }, 30);
-  }
-  function renderMoves() {
-    if (!movesReady || movesBox.classList.contains('closed')) return;
-    movesBox.replaceChildren();
-    const hd = el('div', movesBox, { className: 'row' });
-    el('strong', hd, { text: 'Moves in this world' });
-    el('button', hd, { text: '✕', id: 'closemoves', title: 'Hide' }).onclick = () => { movesBox.classList.add('closed'); movesBtn.setAttribute('aria-pressed', 'false'); };
-    const status = movesInWorld(coursePieces(), laneNow(), { trebuchet: !!ed.trebuchetKg });
-    document.documentElement.dataset.moves = JSON.stringify(Object.fromEntries(status.map((m) => [m.id, m.have])));
-    for (const m of status) {
-      const row = el('div', movesBox, { className: 'mv' });
-      el('span', row, { className: `mvicon ${m.have === 'yes' ? 'yes' : m.have === 'no' ? 'no' : 'muted'}`, text: m.have === 'yes' ? '✓' : m.have === 'no' ? '+' : '↗', title: m.have === 'yes' ? 'This world has it' : m.have === 'no' ? 'Missing: it can be added' : 'Built somewhere else' });
-      el('span', row, { className: 'mvtext', text: `${m.name}: ${m.detail}` });
-      if (m.have !== 'yes') el('span', row, { className: 'need', text: m.need });
-      if (m.have === 'no' && m.id === 'lache') el('button', row, { text: 'Add two bars', id: 'addbars', className: 'go' }).onclick = () => { addBarPiece(ed.view.cx - 1.6, 2.9); addBarPiece(ed.view.cx + 1.6, 2.9); changed(); };
-      if (m.have === 'no' && m.id === 'trebuchet') el('button', row, { text: 'Start in a trebuchet', id: 'movestreb' }).onclick = () => document.getElementById('addtreb')?.click();
-      if (m.have === 'elsewhere') { const a = el('a', row, { text: 'Open the coaster builder', href: '?mode=coaster' }); a.className = 'btn'; }
-    }
-    const sel = ed.pieces.find((q) => q.id === ed.selected);
-    if (sel && !isHold(sel) && !isSizeReference(sel) && !isDevice(sel)) {
-      const row = el('div', movesBox, { className: 'sg' });
-      el('div', row, { text: `Selected piece: ${sel.name}` });
-      const lab = el('label', row, { text: 'Use it as ' });
-      const pick = el('select', lab, { id: 'rolepick' });
-      for (const r of ['ground', 'wall', 'rope', 'trampoline', 'bar'] as Role[]) el('option', pick, { value: r, text: ROLE_NAME[r] });
-      pick.value = sel.role ?? 'ground';
-      pick.onchange = () => { sel.role = pick.value === 'ground' ? undefined : (pick.value as Role); changed(); };
-      el('button', row, { text: 'What could this be?', id: 'whatcould' }).onclick = () => findWays(sel.id);
-    }
-    el('button', movesBox, { text: ed.movesBusy ? `Checking ${ed.movesBusy} with the simulator…` : 'Find ways to add the missing moves', id: 'findways', className: 'go' }).onclick = () => findWays();
-    if (ed.movesBusy) (document.getElementById('findways') as HTMLButtonElement).disabled = true;
-    if (ed.movesList) {
-      el('strong', movesBox, { text: ed.movesList.label });
-      if (!ed.movesList.items.length) el('div', movesBox, { className: 'muted', text: 'No single change gives a missing move here. Try other pieces, or scale one by hand.' });
-      for (const sg of ed.movesList.items) {
-        const row = el('div', movesBox, { className: 'sg' });
-        el('div', row, { text: sg.words });
-        el('button', row, { text: 'Show it', className: 'go', title: 'See where it would go before anything changes' }).onclick = () => { ed.leadText = ''; showProposal(roleProposal(sg)); };
-      }
-    }
-  }
-  movesReady = true;
-  // ---- preview before apply: Fix it, the partner's changes and one piece of advice all become a Proposal that is drawn as outlines first
-  const proofs = new Map<string, boolean>();
-  const keyOf = (pr: Proposal) => pr.items.map((i) => (i.on ? '1' : '0')).join('');
-  const ghostData = (): Ghosts | null => {
-    if (!ed.proposal || !ed.preview) return null;
-    const items = ed.proposal.items.flatMap((i) => (i.kind === 'piece' && i.on ? [{ id: i.id, from: i.from, to: i.to }] : []));
-    const laneMoved = ed.proposal.items.some((i) => i.kind === 'lane' && i.on && i.key !== 'level');
-    return { items, lane: laneMoved ? { angle: ed.preview.lane.angle, offset: ed.preview.lane.offset } : null };
-  };
-  async function computeFix(ps: P[], lane: { angle: number; offset: number; level: number }): Promise<{ ok: boolean; pieces: P[]; lane: { angle: number; offset: number; level: number }; steps: string[]; machine: Machine | null }> {
-    const m = machineNow(), wrap = machineWrap(m); // a machine's wrap is a function, which a worker cannot be sent: with a machine the proofs run here, without one they run in a worker
-    ps = ps.filter((q) => !isSizeReference(q) && !isDevice(q)); // the machine and the size references are not ground
-    if (m) { const mf = fixMachine(ps, lane, m, 40000, trebuchetPivot()); if (mf.ok) return { ok: true, pieces: ps, lane, steps: mf.steps, machine: mf.machine }; } // the machine first: a counterweight or an arm is a smaller change than moving pieces
-    if (ps.some(isTrack)) { const fc = fixCoaster(ps, lane); return { ok: fc.ok, pieces: fc.pieces, lane, steps: fc.steps, machine: m }; } // CC-244: a coaster world moves sections and bars, never the lane
-    if (ps.some(isHold)) { const rb = m ? fixBars(ps, lane, workSeconds(40), wrap) : await barsInWorker(ps, lane, workSeconds(40)); return { ok: rb.ok, pieces: rb.pieces, lane, steps: rb.steps, machine: m }; }
-    const only = fixSel.checked ? chosen().filter((id) => ps.some((q) => q.id === id)) : []; // CC-243: with pieces chosen, only those may move and the lane stays
-    const r = m ? fixLayout(ps, lane, workSeconds(12), wrap, only.length ? { movable: only } : {}) : await fixInWorker(ps, lane, only.length ? only : undefined);
-    return { ok: r.ok, pieces: r.pieces as P[], lane: r.lane, steps: r.steps, machine: m };
-  }
-  function runFix(from?: { pieces: P[]; lane: { angle: number; offset: number; level: number } }) {
-    helper.classList.remove('closed'); helperBtn.setAttribute('aria-pressed', 'true');
-    reply.className = 'reply'; reply.textContent = 'Working it out…' + (ed.pieces.some(isHold) ? ' (bars take a while: up to 40 seconds)' : '');
-    setTimeout(async () => {
-      const pf = plankFixNow(); // a plank that would snap: the smallest change is a thicker plank or a post, said in words first
-      if (pf) {
-        reply.className = 'reply bad'; reply.textContent = 'The plank would snap. ' + pf.steps.join(' ') + ' ';
-        const mk = el('button', reply, { text: 'Make it so', className: 'go', id: 'plankfix' });
-        mk.onclick = () => { pf.apply(); changed(); reply.className = 'reply ok'; reply.textContent = 'Done: the plank is stronger now.'; };
-        document.documentElement.dataset.fixed = '0';
-        return;
-      }
-      if (ed.droneCfg && !ed.trebuchetKg && !ed.verdict.startsWith('The simulator can clear')) { // the drone is the first thing to change: a bigger battery or a lighter rider
-        const fd = fixDrone(courseNow(), ed.droneCfg, droneRange());
-        reply.className = fd.ok ? 'reply ok' : 'reply bad';
-        reply.textContent = fd.ok ? (fd.steps[0] ?? 'It already works.') : fd.steps.join(' ');
-        document.documentElement.dataset.fixed = fd.ok ? '1' : '0';
-        if (fd.ok && fd.steps.length) el('button', reply, { text: 'Use it', className: 'go', id: 'usedrone' }).onclick = () => { const len = dronePiece()?.src?.split(':')[4] ?? String(DRONE_PAD_LENGTH); updateDeviceSource('device:drone', `device:drone:${fd.cfg.payload}:${fd.cfg.battery}:${len}`); changed(); };
-        return;
-      }
-      if (ed.recoilCfg && !ed.trebuchetKg && !ed.verdict.startsWith('The simulator can clear')) { // the launcher is the first thing to change: a heavier or faster ball
-        const fr = fixRecoil(courseNow(), ed.recoilCfg);
-        reply.className = fr.ok ? 'reply ok' : 'reply bad';
-        reply.textContent = fr.ok ? (fr.steps[0] ?? 'It already works.') : fr.steps.join(' ');
-        document.documentElement.dataset.fixed = fr.ok ? '1' : '0';
-        if (fr.ok && fr.steps.length) el('button', reply, { text: 'Use it', className: 'go', id: 'userecoil' }).onclick = () => { const len = recoilPiece()?.src?.split(':')[4] ?? String(RECOIL_PAD_LENGTH); updateDeviceSource(`device:${fr.cfg.kind}`, `device:${fr.cfg.kind}:${fr.cfg.ballMass}:${fr.cfg.muzzle}:${len}`); syncRecoil(); changed(); };
-        return;
-      }
-      if (ed.bandK) { // the band: the only thing Fix it can change is its stiffness; it says so and waits for Apply
-        const bf = fixBand(laneCourse(currentProfile()));
-        document.documentElement.dataset.fixed = bf.ok ? '1' : '0';
-        reply.className = bf.ok ? 'reply ok' : 'reply bad';
-        reply.textContent = bf.ok ? (bf.steps.length ? bf.steps.join(' ') : 'It already works.') : bf.steps.join(' ');
-        if (bf.ok && bf.steps.length) el('button', reply, { text: 'Apply', id: 'applyband', className: 'go' }).onclick = () => { ed.bandK = bf.k; bandInput.value = String(bf.k); changed(); reply.textContent = 'Applied.'; };
-        return;
-      }
-      const now = { angle: ed.angle, offset: ed.offset, level: ed.level }, start = from ?? { pieces: ed.pieces, lane: now };
-      const r = await computeFix(start.pieces, start.lane).catch(() => null);
-      if (!r) { reply.className = 'reply bad'; reply.textContent = 'Fix it was stopped. Try again.'; return; }
-      document.documentElement.dataset.fixed = r.ok ? '1' : '0';
-      const prop = diffProposal('fixit', from ? 'Fix it, starting from your partner’s changes' : 'Fix it', ed.pieces, now, r.pieces, r.lane, r.steps, r.ok, machineNow(), r.machine);
-      if (!prop.items.length) {
-        reply.className = r.ok ? 'reply ok' : 'reply bad';
-        reply.textContent = r.ok ? 'It already works.' : ed.pieces.some(isHold) ? r.steps.join(' ') : 'I could not find a layout that works. ' + r.steps.join(' ') + ' Try other pieces.';
-        return;
-      }
-      ed.leadText = '';
-      showProposal(prop);
-    }, 30);
-  }
-  // Make it easier: the simulator knows the lane clears, but the hardest press is narrow; try the smallest changes near the obstacle and show the first that widens it
-  function runEasier() {
-    helper.classList.remove('closed'); helperBtn.setAttribute('aria-pressed', 'true');
-    reply.className = 'reply'; reply.textContent = 'Looking for the smallest change that makes the hardest press easier… (up to ' + (ed.pieces.some(isHold) ? '2 minutes' : '40 seconds') + ')';
-    setTimeout(async () => {
-      const c0 = courseNow(), lane = { angle: ed.angle, offset: ed.offset, level: ed.level };
-      const at = ed.pieces.find((q) => q.id === ed.selected);
-      const x = at ? xOfPiece(at, c0) : handoff?.x ?? c0.startX;
-      const r = await makeItEasier(ed.pieces, lane, x, { courseOf: courseFor, xOf: (q) => xOfPiece(q, c0) }, undefined, (n, total) => { reply.textContent = `Trying change ${n} of ${total}…`; });
-      document.documentElement.dataset.easier = r.proposal ? '1' : '0';
-      if (!r.proposal) { reply.className = 'reply muted'; reply.textContent = r.note; return; }
-      ed.leadText = '';
-      showProposal(r.proposal);
-    }, 30);
-  }
   // when the world is complete (its photo objects are in): open at the obstacle the player was at, and look for an easier way if that was asked
   let worldDone = false;
   function onWorld() {
@@ -700,108 +467,6 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
     document.documentElement.dataset.fromcourse = handoff.intent;
     if (handoff.intent === 'easier') runEasier();
   }
-  function showProposal(pr: Proposal) {
-    helper.classList.remove('closed'); helperBtn.setAttribute('aria-pressed', 'true');
-    ed.proposal = pr; proofs.clear();
-    if (pr.known !== undefined) proofs.set(keyOf(pr), pr.known);
-    renderProposal(); updatePreview();
-    document.documentElement.dataset.previewItems = String(pr.items.length);
-  }
-  function closePreview(message?: string) {
-    ed.proposal = null; ed.preview = null; ed.previewProfile = null; ed.previewBars = []; ed.proofRun++;
-    document.documentElement.dataset.preview = '';
-    if (message) { reply.className = 'reply muted'; reply.textContent = message; }
-    draw(); drawProfile();
-  }
-  function renderProposal() {
-    const pr = ed.proposal;
-    if (!pr) return;
-    reply.className = 'reply'; reply.replaceChildren();
-    if (ed.leadText) el('div', reply, { text: ed.leadText });
-    el('strong', reply, { text: pr.title });
-    el('div', reply, { className: 'muted', text: 'The outlines show where things would go (grey: now, teal: after). Nothing changes until you press Apply.' });
-    if (pr.source === 'easier') for (const st of pr.steps) el('div', reply, { className: 'ok', text: st });
-    for (const it of pr.items) {
-      const row = el('label', reply, { className: 'pvrow' });
-      const cb = el('input', row, { type: 'checkbox', checked: it.on });
-      cb.onchange = () => { it.on = cb.checked; updatePreview(); };
-      el('span', row, { text: it.words });
-    }
-    el('div', reply, { id: 'previewverdict', className: 'muted' });
-    const row = el('div', reply, { className: 'row', id: 'previewbuttons' });
-    el('button', row, { text: 'Apply', id: 'applypreview', className: 'go' }).onclick = applyProposal;
-    if (handoff) el('button', row, { text: 'Apply and try it', id: 'applytry', className: 'go', title: 'Apply the changes and play again from the last checkpoint' }).onclick = () => { applyProposal(); void goToCourse(true); };
-    el('button', row, { text: 'Cancel', id: 'cancelpreview' }).onclick = () => closePreview('Cancelled: nothing changed.');
-  }
-  function paintVerdict(state: 'checking' | 'clears' | 'blocked' | 'none') {
-    const v = document.getElementById('previewverdict'), apply = document.getElementById('applypreview') as HTMLButtonElement | null, rowEl = document.getElementById('previewbuttons');
-    if (!v || !apply || !rowEl) return;
-    document.documentElement.dataset.preview = state;
-    v.className = state === 'clears' ? 'ok' : state === 'blocked' ? 'bad' : 'muted';
-    v.textContent = state === 'checking' ? 'Checking with the simulator…' : state === 'clears' ? 'After this change the lane clears.' : state === 'blocked' ? 'After this change the lane does not clear.' : 'Nothing is switched on.';
-    apply.disabled = state === 'none';
-    const tryBtn = document.getElementById('applytry') as HTMLButtonElement | null; if (tryBtn) tryBtn.disabled = state === 'none';
-    rowEl.querySelector('#fixfromhere')?.remove();
-    if (state === 'blocked' && ed.proposal && ed.proposal.source !== 'fixit' && ed.preview) {
-      const from = { pieces: ed.preview.pieces, lane: ed.preview.lane };
-      el('button', rowEl, { text: 'Fix it from here', id: 'fixfromhere', title: 'Show the smallest further changes that make it clear' }).onclick = () => runFix(from);
-    }
-  }
-  function updatePreview() {
-    if (!ed.proposal) { ed.preview = null; ed.previewProfile = null; ed.previewBars = []; return; }
-    ed.preview = resultOf(ed.pieces, { angle: ed.angle, offset: ed.offset, level: ed.level }, ed.proposal, machineNow());
-    ed.previewProfile = laneProfile(ed.preview.pieces.filter((q) => !isHold(q) && q.role !== 'rope' && q.role !== 'bar'), ed.preview.lane);
-    ed.previewBars = holdsOf(ed.preview.pieces, ed.preview.lane);
-    draw(); drawProfile();
-    const key = keyOf(ed.proposal), mine = ++ed.proofRun;
-    if (!enabledCount(ed.proposal)) return paintVerdict('none');
-    const known = proofs.get(key);
-    if (known !== undefined) return paintVerdict(known ? 'clears' : 'blocked');
-    paintVerdict('checking');
-    const snapshot = ed.preview;
-    setTimeout(async () => { if (mine !== ed.proofRun || !ed.proposal) return; const mp = snapshot.pieces.filter((q) => !isSizeReference(q) && !isDevice(q)); const ok = snapshot.machine ? proves(mp, snapshot.lane, machineWrap(snapshot.machine)) : await provesInWorker(mp, snapshot.lane).catch(() => null); if (ok === null || mine !== ed.proofRun || !ed.proposal) return; proofs.set(key, ok); paintVerdict(ok ? 'clears' : 'blocked'); }, 30);
-  }
-  function applyProposal() {
-    if (!ed.proposal || !ed.preview) return;
-    const r = ed.preview, words = ed.proposal.items.filter((i) => i.on).map((i) => i.words).join(' ');
-    for (const q of r.pieces) { const mine = ed.pieces.find((x) => x.id === q.id); if (mine) { mine.x = q.x; mine.z = q.z; mine.y = q.y; mine.yaw = q.yaw; mine.scale = q.scale; mine.role = q.role; } }
-    ed.angle = r.lane.angle; ed.offset = r.lane.offset; ed.level = r.lane.level;
-    if (r.machine && ed.trebuchetKg) { updateDeviceSource('device:trebuchet', `device:trebuchet:${r.machine.counterweight}`); ed.trebuchetExtra = { ...(r.machine.short !== undefined ? { short: r.machine.short } : {}), ...(r.machine.pin !== undefined ? { pin: r.machine.pin } : {}) }; } // the counterweight lives in the machine piece
-    ed.proposal = null; ed.preview = null; ed.previewProfile = null; ed.previewBars = []; ed.proofRun++;
-    changed(); // one undo step
-    reply.className = 'reply ok'; reply.textContent = `Applied. ${words}`;
-    document.documentElement.dataset.preview = 'applied';
-  }
-  const chat: { role: 'user' | 'assistant'; content: string }[] = [];
-  const previewAdvice = (a: Advice) => { ed.leadText = ''; showProposal(fromAdvice(ed.pieces, { angle: ed.angle, offset: ed.offset, level: ed.level }, a, machineNow())); };
-  function showAdvice() {
-    adviceBox.textContent = '';
-    for (const a of ed.adviceList) {
-      const row = el('div', adviceBox, { className: 'row' });
-      el('span', row, { text: a.text });
-      el('button', row, { text: 'Show it', className: 'go', title: 'See where it would go before anything changes' }).onclick = () => previewAdvice(a);
-    }
-  }
-  async function askPartner(text: string) {
-    chat.push({ role: 'user', content: text });
-    reply.className = 'reply'; reply.textContent = 'Thinking…'; sendBtn.disabled = whatBtn.disabled = true;
-    try {
-      const r = await fetch('/api/designer', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ messages: chat.slice(-6), world: worldBrief(ed.pieces, { angle: ed.angle, offset: ed.offset, level: ed.level }, ed.verdict, ed.adviceList.map((a) => a.text), barsNow(), routesBrief()) }) });
-      if (r.status === 503) { reply.className = 'reply muted'; reply.textContent = 'The design partner is switched off on this site (no key set).'; return; }
-      if (!r.ok) throw new Error(String(r.status));
-      const got = parseReply(((await r.json()) as { reply: string }).reply, ed.pieces.map((q) => q.id));
-      chat.push({ role: 'assistant', content: got.text });
-      reply.textContent = got.text; ed.pendingEdits = got.edits;
-      if (got.edits.length) el('button', reply, { text: `Show these ${got.edits.length} change${got.edits.length > 1 ? 's' : ''}`, className: 'go', id: 'applyedits', title: 'See where the pieces would go before anything changes' }).onclick = () => {
-        const pr = fromEdits(ed.pieces, { angle: ed.angle, offset: ed.offset, level: ed.level }, ed.pendingEdits);
-        if (!pr.items.length) { reply.textContent = got.text + ' (Those changes would not move anything.)'; return; }
-        ed.leadText = got.text; showProposal(pr);
-      };
-    } catch { reply.className = 'reply bad'; reply.textContent = 'The design partner could not answer. Try again.'; }
-    finally { sendBtn.disabled = whatBtn.disabled = false; }
-  }
-  sendBtn.onclick = () => { const t = ask.value.trim(); if (t) { ask.value = ''; void askPartner(t); } };
-  whatBtn.onclick = () => void askPartner(ed.verdict.startsWith('The simulator can clear') ? 'The lane clears. Suggest one change that makes it more interesting to run.' : 'The lane does not clear. What should I change?');
 
   // the two pictures fill their boxes exactly, so nothing ever scrolls
   const fit = () => {
@@ -988,33 +653,6 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
     laneCheck.mount(lanePanel); // CC-243: progress line, Cancel and Play anyway under the verdict
   }
 
-  const coursePieces = () => ed.pieces.filter((q) => !isSizeReference(q) && !isDevice(q));
-  const makeDevice = (src: string, name: string, u: number): P => {
-    const c = Math.cos(ed.angle), s = Math.sin(ed.angle), x = u * c - ed.offset * s, z = u * s + ed.offset * c;
-    return { ...newPiece(name, deviceMesh(src), { x, z }), src, yaw: ed.angle };
-  };
-  const makeRecoilDevice = (kind: 'cannon' | 'bigcannon', mass: number, muzzle: number): P => {
-    const cfg = { kind, ballMass: mass, muzzle }, base = roleCourse(coursePieces(), { angle: ed.angle, offset: ed.offset, level: ed.level }, 'My world').course, withPad = withRecoil(base, cfg);
-    const pad = withPad.recoil, x0 = pad?.x0 ?? base.startX + 1.5, x1 = pad?.x1 ?? base.startX + 4;
-    const len = Math.max(0.8, x1 - x0), src = `device:${kind}:${mass}:${muzzle}:${len}`;
-    return makeDevice(src, kind === 'bigcannon' ? 'Cannon' : 'Launcher', (x0 + x1) / 2);
-  };
-  const makeDroneDevice = (payload: number, battery: number): P => {
-    const base = roleCourse(coursePieces(), { angle: ed.angle, offset: ed.offset, level: ed.level }, 'My world').course, withPad = withDrone(base, { payload, battery });
-    const pad = withPad.drone, x0 = pad?.x0 ?? base.startX + 1.5, x1 = pad?.x1 ?? base.startX + 1.5 + DRONE_PAD_LENGTH;
-    return makeDevice(`device:drone:${payload}:${battery}:${Math.max(2, x1 - x0)}`, 'Drone', (x0 + x1) / 2);
-  };
-  const updateDeviceSource = (prefix: string, src: string) => {
-    const p = ed.pieces.find((q) => q.src?.startsWith(prefix));
-    if (p) { p.src = src; p.mesh = centred(deviceMesh(src)); }
-  };
-  const ground = () => coursePieces().filter((q) => !isHold(q) && q.role !== 'rope' && q.role !== 'bar' && !isPlankPiece(q)); // references, bars, rope anchors and planks are not ground
-  const currentProfile = () => laneProfile(ground(), { angle: ed.angle, offset: ed.offset, level: ed.level });
-  const barsNow = () => holdsOf(ed.pieces, { angle: ed.angle, offset: ed.offset, level: ed.level });
-  const dronePiece = () => ed.pieces.find((p) => p.src?.startsWith('device:drone:'));
-  const droneRange = () => { const p = dronePiece(); if (!p) return undefined; const u = p.x * Math.cos(ed.angle) + p.z * Math.sin(ed.angle), length = Number(p.src?.split(':')[4]) || DRONE_PAD_LENGTH; return { x0: u - length / 2, x1: u + length / 2 }; };
-  const recoilPiece = () => ed.pieces.find((p) => p.src?.startsWith('device:cannon:') || p.src?.startsWith('device:bigcannon:'));
-  const recoilRange = () => { const p = recoilPiece(); if (!p) return undefined; const u = p.x * Math.cos(ed.angle) + p.z * Math.sin(ed.angle), length = Number(p.src?.split(':')[4]) || RECOIL_PAD_LENGTH; return { x0: u - length / 2, x1: u + length / 2 }; };
   function syncDeviceState() {
     const tre = ed.pieces.find((p) => p.src?.startsWith('device:trebuchet:'));
     ed.trebuchetKg = tre ? Number(tre.src!.split(':')[2]) || 1200 : null;
@@ -1026,41 +664,6 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
     trebLabel.style.display = ed.trebuchetKg ? '' : 'none'; trebInput.value = String(ed.trebuchetKg ?? 1200);
     syncRecoil(); syncDrone();
   }
-  const machineNow = (): Machine | null => (ed.trebuchetKg ? { counterweight: ed.trebuchetKg, ...ed.trebuchetExtra } : null);
-  const trebuchetPivot = (): number => { const p = ed.pieces.find((q) => q.src?.startsWith('device:trebuchet:')); return p ? p.x * Math.cos(ed.angle) + p.z * Math.sin(ed.angle) + TREBUCHET_PIVOT_FROM_CENTRE * p.scale : 0; };
-  const machineWrap = (m: Machine | null) => wrapFor(m, trebuchetPivot());
-  const laneCourseAt = (ln: { angle: number; offset: number; level: number }) => {
-    const c = roleCourse(coursePieces(), ln, 'My world').course;
-    const m = machineNow();
-    if (m) return withTrebuchet(c, m, trebuchetPivot());
-    if (ed.droneCfg) return withDrone(c, ed.droneCfg, droneRange());
-    return ed.recoilCfg ? withRecoil(c, ed.recoilCfg, recoilRange()) : ed.bandK ? withBand(c, ed.bandK) : c;
-  };
-  const laneCourse = (_p?: ReturnType<typeof currentProfile>) => laneCourseAt({ angle: ed.angle, offset: ed.offset, level: ed.level }); // the course the lane check and Play prove: roles, bars and machines included
-  // what this course was cut from, so the Course can open the same pieces again (CC-80); a world with a map piece cannot be kept: its mesh is too big
-  const sourceNow = (): CourseSource | undefined => ed.pieces.some((p) => p.src?.startsWith('map:')) ? undefined : { kind: 'editor', pieces: ed.pieces.filter((p) => p.src).map((p) => ({ src: p.src as string, x: p.x, z: p.z, y: p.y, yaw: p.yaw, scale: p.scale, ...(p.role ? { role: p.role } : {}) })), angle: ed.angle, offset: ed.offset, level: ed.level, floor: ed.floorChoice };
-  const courseNow = () => { const c = laneCourse(currentProfile()); if (ed.floorChoice !== 'water') c.hazard = ed.floorChoice; if (designed.size) c.designedShortcuts = [...designed]; const src = sourceNow(); if (src) c.source = src; return c; };
-  // the same lane for other pieces (Make it easier tries many small changes): ground, roles, bars, a trebuchet or a launcher if the world has one
-  const courseFor = (ps: P[], ln: { angle: number; offset: number; level: number }) => {
-    let c = roleCourse(ps.filter((q) => !isSizeReference(q) && !isDevice(q)), ln, 'My world').course;
-    const tre = ps.find((q) => q.src?.startsWith('device:trebuchet:')), rec = ps.find((q) => q.src?.startsWith('device:cannon:'));
-    if (tre) c = withTrebuchet(c, Number(tre.src!.split(':')[2]) || 1200, tre.x * Math.cos(ln.angle) + tre.z * Math.sin(ln.angle) + TREBUCHET_PIVOT_FROM_CENTRE * tre.scale);
-    else if (rec) {
-      const parts = rec.src!.split(':'), u = rec.x * Math.cos(ln.angle) + rec.z * Math.sin(ln.angle), length = Number(parts[4]) || RECOIL_PAD_LENGTH;
-      c = withRecoil(c, { kind: parts[1] as 'cannon', ballMass: Number(parts[2]) || 12, muzzle: Number(parts[3]) || 30 }, { x0: u - length / 2, x1: u + length / 2 });
-    }
-    if (ed.floorChoice !== 'water') c.hazard = ed.floorChoice;
-    return c;
-  };
-  // where along the run a piece is in the game (a bar by its place among the bars)
-  const xOfPiece = (q: P, c: ReturnType<typeof courseNow>) => (isHold(q) ? c.holds?.[barsNow().findIndex((b) => b.id === q.id)]?.x : sceneFor([q], { angle: ed.angle, offset: ed.offset, level: ed.level }, c.uMap ?? [])[0]?.x) ?? 0;
-  // the runner starts on the ground about 8 m before a place (the nearest ground at or before that spot)
-  const startBefore = (c: ReturnType<typeof courseNow>, gx: number) => {
-    const want = Math.max(c.startX, gx - 8);
-    const ps = [...c.terrain.platforms].sort((a, b) => a.x0 - b.x0);
-    const on = ps.find((r) => want >= r.x0 && want <= r.x1);
-    return on ? want : Math.max(c.startX, (ps.filter((r) => r.x1 <= want).pop()?.x1 ?? c.startX) - 1);
-  };
   // the undo list goes into the session so it survives a trip to the Course (pieces made from photos or maps are not kept: their meshes are too big)
   function persistHist() {
     try {
@@ -1343,7 +946,7 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
     if (!dotBlock) delete document.documentElement.dataset.dotBlock;
     if (flash) { const x = 10 + (flash.u - uLo) * ppm, y = base - (flash.y - vmin) * ph; c.font = '600 12px system-ui'; const w = c.measureText(flash.text).width + 12, lx = Math.min(Math.max(4, x - w / 2), profileCanvas.width - w - 4), ly = Math.max(26, y - 30); c.fillStyle = '#7a4a00'; c.fillRect(lx, ly, w, 20); c.fillStyle = '#fff'; c.textAlign = 'left'; c.fillText(flash.text, lx + 6, ly + 14); document.documentElement.dataset.dotFlash = flash.text; } else delete document.documentElement.dataset.dotFlash;
     for (const s of ed.routes) { // kept shortcuts: a dashed arrow from the bar before the skipped ones to the bar after them (or the end of the lane)
-      if (!designed.has(s.id)) continue;
+      if (!ed.designed.has(s.id)) continue;
       const ix = s.skipped.map((n) => /^Bar (\d+)$/.exec(n)).filter((m): m is RegExpExecArray => !!m).map((m) => Number(m[1]) - 1);
       if (!ix.length) continue;
       const sorted = [...bars].sort((a, b) => a.u - b.u), a0 = sorted[Math.min(...ix) - 1], a1 = sorted[Math.max(...ix) + 1];
@@ -1543,7 +1146,7 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
   function capPieces() { const real = ed.pieces.filter((q) => !isSizeReference(q) && !isDevice(q) && q.src !== 'hold:bar'); if (real.length <= MAX_PIECES) return; const drop = new Set(real.slice(MAX_PIECES).map((q) => q.id)); ed.pieces = ed.pieces.filter((q) => !drop.has(q.id)); if (ed.selected !== null && drop.has(ed.selected)) ed.selected = null; ed.verdict = `The editor keeps up to ${MAX_PIECES} pieces, so the last ones were not added. Delete one to make room.`; document.documentElement.dataset.capped = '1'; }
   // the person for scale cannot be dragged, so it always stands at the lane start: a world saved with the person on a rod, or far from the pieces, is put right (owner, 2026-11-01)
   function seatPerson() { const who = ed.pieces.find(isSizeReference); if (!who) return; const at = personAt(); if (Math.abs(at.x - who.x) > 0.005 || Math.abs(at.z - who.z) > 0.005) { who.x = at.x; who.z = at.z; } }
-  function changed(record = true) { seatPerson(); capPieces(); if (helperReady && reply.textContent?.startsWith('The simulator cannot')) { reply.className = 'reply muted'; reply.textContent = 'You changed the course, so the simulator is checking it again.'; }  if (ed.proposal) closePreview('The layout changed, so the preview was closed.'); if (record) remember(); syncDeviceState(); document.documentElement.dataset.pieces = String(ed.pieces.length); document.documentElement.dataset.band = ed.bandK ? String(ed.bandK) : ''; save(); drawPanel(); drawLanePanel(); draw(); drawProfile(); verify(); renderMoves(); }
+  function changed(record = true) { seatPerson(); capPieces(); helperUi.onChanged(); if (record) remember(); syncDeviceState(); document.documentElement.dataset.pieces = String(ed.pieces.length); document.documentElement.dataset.band = ed.bandK ? String(ed.bandK) : ''; save(); drawPanel(); drawLanePanel(); draw(); drawProfile(); verify(); movesUi.renderMoves(); }
   syncDeviceState();
   drawPanel(); drawLanePanel(); draw(); drawProfile(); verify();
   remember();
