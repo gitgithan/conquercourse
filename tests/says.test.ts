@@ -4,6 +4,7 @@ import { editorWords, slicerWords, SIM_STATE, simSaysPanel } from '../src/ui/sim
 import { BANNED_IN_COPY, CREW, SCREENS, SCREEN_ORDER, VOICES, VOICE_SCREENS, saysOn, type VoiceId } from '../src/ui/says';
 import { backdropGuard } from '../src/ui/backdrop';
 import { courseSource } from './helpers/course-source';
+import { editorSource } from './helpers/editor-source';
 
 // The voice badge table (CC-243): who speaks, in what colour, on which model. The words are checked against the model ledger and the never-list.
 const ledger = readFileSync('docs/model-ledger.md', 'utf8');
@@ -93,9 +94,9 @@ describe('Simulator says, live', () => {
     expect(simSaysPanel('editor', { params: new URLSearchParams('says=0') })).toBeNull();
   });
   it('is wired into the editor and the slicer and never into the Course', () => {
-    expect(readFileSync('src/modes/editor.ts', 'utf8')).toContain("simSaysPanel('editor')");
+    expect(editorSource()).toContain("simSaysPanel('editor')");
     expect(readFileSync('src/modes/map.ts', 'utf8')).toContain("simSaysPanel('slicer')");
-    for (const f of ['src/modes/course.ts', 'src/main.ts']) expect(f === 'src/modes/course.ts' ? courseSource() : readFileSync(f, 'utf8'), f).not.toContain('simSaysPanel');
+    for (const f of ['src/modes/course.ts', 'src/main.ts']) expect(f === 'src/modes/course.ts' ? courseSource() : f === 'src/modes/editor.ts' ? editorSource() : readFileSync(f, 'utf8'), f).not.toContain('simSaysPanel');
   });
 });
 
@@ -114,7 +115,7 @@ describe('screens where each voice shows up', () => {
     expect(new Set(Object.values(SCREENS).map((s) => s.name)).size).toBe(Object.keys(SCREENS).length);
   });
   it('is true to the code: the files that mount a badge are in the screens it claims', () => {
-    const has = (f: string, t: string) => expect(f === 'src/modes/course.ts' ? courseSource() : readFileSync(f, 'utf8'), `${f} ${t}`).toContain(t);
+    const has = (f: string, t: string) => expect(f === 'src/modes/course.ts' ? courseSource() : f === 'src/modes/editor.ts' ? editorSource() : readFileSync(f, 'utf8'), `${f} ${t}`).toContain(t);
     has('src/modes/editor.ts', "simSaysPanel('editor')"); has('src/modes/map.ts', "simSaysPanel('slicer')");
     has('src/modes/graph-studio.ts', "addBadge(verdictEl.parentElement!, 'simulator'"); has('src/modes/coaster.ts', "'simulator'");
     has('src/modes/editor.ts', "sayBadge('partner')");

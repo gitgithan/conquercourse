@@ -1,6 +1,7 @@
 import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 import { DEFAULT_WATER_LEVEL, START_LABEL, levelOfSaved, partnerStartsOpen, startMarkSide } from '../src/slice/editor-defaults';
+import { editorSource } from './helpers/editor-source';
 import { PRESETS } from '../src/slice/presets';
 
 describe('World Editor defaults (CC-200)', () => {
@@ -21,8 +22,8 @@ describe('World Editor defaults (CC-200)', () => {
     expect(levelOfSaved({ level: 0 })).toBe(0);
   });
   it('the editor reads the default and the saved level through these helpers', () => {
-    const src = readFileSync('src/modes/editor.ts', 'utf8');
-    expect(src).toContain('level = DEFAULT_WATER_LEVEL');
+    const src = editorSource();
+    expect(src).toMatch(/level(: | = )DEFAULT_WATER_LEVEL/);
     expect(src).toContain('level = levelOfSaved(s)');
     expect(src).toContain('partnerStartsOpen(');
   });
@@ -39,6 +40,6 @@ describe('the Start marker (CC-200)', () => {
   });
   it('the 3D view and the side view both draw it', () => {
     expect(readFileSync('src/slice/view3d.ts', 'utf8')).toContain('START_LABEL');
-    expect(readFileSync('src/modes/editor.ts', 'utf8')).toContain('startMarkSide(prof');
+    expect(editorSource()).toContain('startMarkSide(prof');
   });
 });
