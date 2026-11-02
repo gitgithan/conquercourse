@@ -1,7 +1,7 @@
 // The Parts gallery list (CC-118 family; docs/parts-gallery.md): every move and every obstacle the game has, one card each.
 // Pure data, no page code. tests/parts-gallery.test.ts checks it covers every obstacle kind, every course field that places something,
 // every input bit and every world mode, so a new part without a card fails the test.
-import { OBSTACLES, type ObstacleId, type ObstacleRow } from '../course/obstacles';
+import { cardOf, OBSTACLES, type ObstacleId, type ObstacleRow } from '../course/obstacles';
 
 export type PartGroup = 'move' | 'obstacle' | 'special';
 /** bot: the real Course plays the stored best run by itself. hand: the real Course opens and the viewer plays it with the keys. none: no live scene. */
@@ -123,8 +123,7 @@ export function partsOfCourse(c: {
   branches?: { forkX: number }[]; shots?: { x: number }[]; scene?: unknown[]; terrain: { platforms: { top: number; bouncy?: boolean; x0: number }[] };
 }): string[] {
   const at: [number, string][] = [];
-  const ZONE: Record<string, string> = { gap: 'gap', step: 'step', vault: 'vaultbox', wall: 'warped', climb: 'tallwall', rope: 'ropeswing', trampoline: 'trampoline', drop: 'drop', lache: 'lache', plank: 'plank', stack: 'stack', coaster: 'coaster', launch: 'trebuchet', band: 'band', drone: 'drone', recoil: 'recoil', fork: 'forks' };
-  for (const z of c.zones ?? []) { const k = ZONE[z.id.replace(/-\d+$/, '')]; if (k) at.push([z.x0, k]); }
+  for (const z of c.zones ?? []) { const k = z.id.replace(/-\d+$/, '') === 'fork' ? 'forks' : cardOf(z.id); if (k) at.push([z.x0, k]); }
   if (c.recoil?.kind === 'bigcannon') for (const a of at) if (a[1] === 'recoil') a[1] = 'cannon';
   const has = (k: string) => at.some(([, a]) => a === k);
   const add = (k: string, x: number) => { if (!has(k)) at.push([x, k]); };
