@@ -161,3 +161,11 @@
   - They are now two tables, `MACHINE_MODES` and `NEXT_LABEL`, at the top of the file; the output strings are the same.
   - A new machine mode now adds one word to each table instead of editing the middle of `update`.
 - Checks run: `tsc --noEmit` is clean; `tests/replay.test.ts`, `tests/golden-search.test.ts` and `tests/strip-keys.test.ts` pass (79 tests); the full suite was run on VM3.
+
+## Course safety net
+- Run `node scripts/course-characterize.mjs out.json` with the dev server up (`PORT=5300`), then diff `out.json` against `tests/golden/course-characterize.json`; a refactor of `src/modes/course.ts` must leave the diff empty.
+- The page clock is stepped by the script, so two runs on one build give the same file; numbers are turned into `#` and only words, ids and states are kept.
+- It covers: the first course, run, restart (R, Shift+R, the chip), the keys H C F B G N I Shift+I Escape, three toasts at once, a fall and its panel, a clear and the run report, the Courses picker (three courses), and the Edit handoff there and back.
+- It does not cover: the look of the picture, mouse drags and camera orbit, sound, the Dojo key T, the leaderboard server, live photos and phone widths.
+- It is a safety net and not a pass or fail check; a diff means "look at this", and a deliberate change re-records the golden file.
+- Run it on a test machine (`scripts/vm-run.sh`), not on a laptop that is busy.
