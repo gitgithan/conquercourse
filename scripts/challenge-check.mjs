@@ -11,7 +11,7 @@ const vite = spawn('node', ['node_modules/vite/bin/vite.js', '--port', String(po
 await new Promise((r) => setTimeout(r, 6000));
 const link = execFileSync('node_modules/.bin/tsx', ['scripts/share-link.ts', course, `http://localhost:${port}`], { env: { ...process.env, MADE: '1' } }).toString().trim();
 const results = []; const ok = (n, p, note = '') => { results.push(p); console.log(p ? 'PASS' : 'FAIL', n, note); };
-const ID = 'abcdefghjk';
+const ID = 'abcdefghjk'; const shared = [];
 const b = await chromium.launch({ args: ['--use-gl=swiftshader', '--enable-unsafe-swiftshader', '--no-sandbox'] });
 async function open(url, posts) {
   const page = await (await b.newContext({ viewport: { width: 1280, height: 720 }, permissions: ['clipboard-read', 'clipboard-write'] })).newPage();
@@ -22,7 +22,12 @@ async function open(url, posts) {
     if (u.searchParams.get('list')) return route.fulfill({ json: { courses: [{ id: 'bcdfghjkmn', name: 'Tall Wall Remix', players: 2, bestTicks: 1500 }] } });
     return route.fulfill({ status: 404, json: { error: 'no-course' } });
   });
-  await page.route('**/api/share', (route) => route.fulfill({ status: 500, json: {} })); // the share server is not needed here
+  // CC-219: a link is short (?c=<id>) and the share server keeps the words; this script answers for it and remembers what it was given
+  await page.route('**/api/share**', async (route) => {
+    const req = route.request();
+    if (req.method() === 'POST') { const body = JSON.parse(req.postData() ?? '{}'); shared.push(body); return route.fulfill({ status: 201, json: { id: 'abcdefghjk' } }); }
+    return shared.length ? route.fulfill({ json: shared[shared.length - 1] }) : route.fulfill({ status: 404, json: { error: 'no-share' } });
+  });
   await page.route('**/api/leaderboard**', (route) => route.fulfill({ json: { top: [], players: 0, mine: null, resetAt: null, previous: null } }));
   await page.route('**/api/course-clear', (route) => route.fulfill({ json: { ok: true } }));
   await page.goto(url, { waitUntil: 'load' });
@@ -48,7 +53,7 @@ if (strip) {
   await page.click('#copy-challenge');
   await page.waitForFunction(() => /Link copied/.test(document.getElementById('challenge-result')?.textContent ?? ''), null, { timeout: 30000 }).catch(() => {});
   const clip = await page.evaluate(() => navigator.clipboard.readText()).catch(() => '');
-  ok('the copied link names the challenge course', clip.includes(`cid=${ID}`), clip.slice(0, 80));
+  ok('the copied link is a short link, and what the server kept names the challenge course', /\?c=[a-z2-9]{10}$/.test(clip) && JSON.stringify(shared).includes(`cid=${ID}`), `${clip.slice(0, 80)} | kept ${JSON.stringify(shared).slice(0, 120)}`);
   await page.locator('#report-challenge').scrollIntoViewIfNeeded(); await page.waitForTimeout(300);
   await page.screenshot({ path: `${out}/published.png` });
 }
