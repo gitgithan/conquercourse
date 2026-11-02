@@ -120,6 +120,23 @@ function stepGated(w: WorldState, input: RunnerInput, course: CourseData, p: Run
   }
   return { ...n, stood };
 }
+// Which function steps the world while an obstacle holds the runner. 'run' is not here: it falls through to the ground physics below.
+// A new obstacle mode adds one line here (maybeEnterPlank only acts in 'run', so looking the mode up before it changes nothing).
+type ModeStep = (w: WorldState, input: RunnerInput, course: CourseData) => WorldState;
+const MODE_STEP: Record<Exclude<Mode, 'run'>, ModeStep> = {
+  wall: (w, input, course) => stepWall(w, input, course),
+  swing: (w, input, course) => stepSwing(w, input, course),
+  bounce: (w, input) => stepBounce(w, input),
+  hang: (w, input, course) => stepHang(w, input, course),
+  cart: (w, input, course) => stepCartWorld(w, input, course),
+  band: (w, input, course) => stepBandWorld(w, input, course),
+  vault: (w) => stepVault(w),
+  climb: (w, input) => stepClimb(w, input),
+  launch: (w, input, course) => stepLaunchMode(w, input, course),
+  plank: (w, input, course) => stepPlankWorld(w, input, course),
+  drone: (w, input, course) => stepDroneMode(w, input, course),
+  pole: (w, input, course) => stepPoleMode(w, input, course),
+};
 function stepWorldPlain(w: WorldState, input: RunnerInput, course: CourseData, p: RunnerParams = DEFAULT_PARAMS): WorldState {
   if (w.outcome !== 'running') return { ...w, runner: { ...w.runner, tick: w.runner.tick + 1 } };
   // the roll counts only if X was pressed inside the window before touchdown (an earlier press is ignored: no buffer); a course can switch the roll off
@@ -138,19 +155,8 @@ function stepWorldPlain(w: WorldState, input: RunnerInput, course: CourseData, p
     if (g.hurt) { n.outcome = 'hurt'; ev('hard-landing', { impact: g.impact, peakDecel: g.peakDecel, rolled: false, squat: g.squat }); return { ...n, events }; }
   }
 
-  if (w.mode === 'wall') return stepWall(w, input, course);
-  if (w.mode === 'swing') return stepSwing(w, input, course);
-  if (w.mode === 'bounce') return stepBounce(w, input);
-  if (w.mode === 'hang') return stepHang(w, input, course);
-  if (w.mode === 'cart') return stepCartWorld(w, input, course);
-  if (w.mode === 'band') return stepBandWorld(w, input, course);
-  if (w.mode === 'vault') return stepVault(w);
-  if (w.mode === 'climb') return stepClimb(w, input);
-  if (w.mode === 'launch') return stepLaunchMode(w, input, course);
-  if (w.mode === 'plank') return stepPlankWorld(w, input, course);
+  if (w.mode !== 'run') return MODE_STEP[w.mode](w, input, course);
   if (course.planks) { const onPlank = maybeEnterPlank(w, input, course); if (onPlank) return onPlank; }
-  if (w.mode === 'drone') return stepDroneMode(w, input, course);
-  if (w.mode === 'pole') return stepPoleMode(w, input, course);
 
   // the drone pad: standing on it with E held boards the cargo drone, which lifts a little way off the ground
   if (course.drone && w.runner.grounded && (input.handL || input.handR) && w.runner.x >= course.drone.x0 && w.runner.x <= course.drone.x1) {
