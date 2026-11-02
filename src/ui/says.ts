@@ -85,7 +85,7 @@ export const SCREENS: Record<ScreenId, Screen> = {
 export const SCREEN_ORDER: ScreenId[] = ['editor', 'slicer', 'course', 'coaster', 'report', 'make', 'characters'];
 
 export const VOICE_SCREENS: Record<VoiceId, ScreenId[]> = {
-  simulator: ['editor', 'slicer', 'course', 'coaster', 'report'], // sim-says in editor and map; Graph Studio verdict in the Course; coaster verdict; run-report
+  simulator: ['editor', 'slicer', 'course', 'coaster'], // sim-says in editor and map; Graph Studio verdict in the Course; coaster verdict (the end report has no badge since CC-97)
   partner: ['editor'],
   safety: ['make'], // the Share step
   cutter: ['make'],

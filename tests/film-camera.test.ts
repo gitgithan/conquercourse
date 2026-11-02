@@ -72,7 +72,7 @@ describe('film camera', () => {
     const a = filmPose('dive', 0, ctx), b = filmPose('dive', SHOT_SECONDS.dive, ctx);
     expect(a.pos[1]).toBeGreaterThan(10);
     expect(b.pos[1]).toBeLessThan(a.pos[1]);
-    expect(Math.abs(b.look[0] - ctx.runnerX)).toBeLessThan(2);
+    expect(b.look[0] - ctx.runnerX).toBeCloseTo(5, 0); // the side view leads the runner by 5 m, as the Course camera does
     expect(b.pos[2]).toBeGreaterThan(10); // beside the runner, the normal side view, not above or behind
     expect(b.pos[0] - b.look[0]).toBeLessThan(1);
   });
