@@ -65,7 +65,7 @@ import { branchesOf } from '../sim/branches';
 import { goldOld, hardestBlock, hardestLabel, hardestOf } from '../ui/hardest';
 import { buildReport, logTick, renderReport } from '../ui/run-report';
 import { ZONE_ICONS } from '../ui/zone-icons';
-import { OBSTACLES } from '../course/obstacles';
+import { dojoOf, OBSTACLES } from '../course/obstacles';
 import { BUTTON_PLACE, buildGallery, currentWorld, DEMOS, GALLERY_EVENT, modalAttrs, mountWorldGallery, worldHref } from '../ui/world-picker';
 import { createDebugView } from '../ui/debug-view';
 import { createGrabHint } from '../ui/grab-hint';
@@ -645,7 +645,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
 
   // The Dojo opens on the very obstacle the player fell at, with its real numbers (R1-L1, R1-L3).
   function trainLink(zoneId: string, x: number): string {
-    const q = new URLSearchParams({ mode: 'dojo', ex: zoneId === 'lache' ? 'bars' : zoneId === 'launch' ? 'lever' : zoneId === 'band' ? 'stored' : zoneId === 'plank' ? 'bridge' : zoneId === 'recoil' && course.recoil && isAimable(recoilParams(course)) ? 'cannon' : zoneId, from: 'course' }); // the lache pair trains on the bar swing
+    const q = new URLSearchParams({ mode: 'dojo', ex: zoneId === 'recoil' && course.recoil && isAimable(recoilParams(course)) ? 'cannon' : dojoOf(zoneId), from: 'course' }); // the lache pair trains on the bar swing
     const jump = [...log].reverse().find((e) => e.type === 'jump');
     if (jump?.detail?.vx) q.set('speed', (jump.detail.vx as number).toFixed(1));
     if (zoneId === 'gap' || zoneId === 'landing') {
