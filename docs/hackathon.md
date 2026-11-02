@@ -21,11 +21,8 @@ Blue-box diagrams for every pipeline are in [docs/meta-ai-pipelines.md](meta-ai-
 | **Mapillary** (owned by Meta) | Street photos along a built place, masked for people before they are shown | Live, through a server proxy (token never in the browser) |
 
 ### What is not Meta, said plainly
-- **NVIDIA:** Kimodo and the SOMA-X skeleton.
-- **Microsoft:** MoGe 2 (depth).
-- **Third parties:** Tripo (character mesh), TRELLIS.2, Pixal3D.
-- **PyTorch / torchvision:** Mask R-CNN and Faster R-CNN find people for the photo mask; they are Meta-originated open-source tools but not a hackathon model, and SAM 3 is the possible upgrade.
-- **Motion capture:** CMU Graphics Lab database, used under its licence.
+- The full table, with who made each model, how we use it and whether it runs at build time or live, is in `README.md` under "Models that are not Meta's".
+  - That table is the one source; this file does not repeat it.
 - **Film tools:** Remotion (cuts, captions), Playwright and ffmpeg (capture and encode), and the CC0 track "Scaling Up" by Ruskerdax; see [docs/film-toolchain.md](film-toolchain.md).
 
 ## Meta tools in development (not game features)

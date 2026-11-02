@@ -50,7 +50,7 @@
 | `docs/meta-ai-pipelines.md`: checks "not yet called from a screen" | fixed | four server routes call the check; text updated |
 | Upload check on real harmful images | unverified | only safe photos and text-only unsafe cases were tested (`data/eval/cc-119-moderation/README.md`) |
 | Baseten data terms for player photos | unverified | not recorded anywhere in the repo |
-| Whether the character maker is switched on in the preview or live site | unverified | the repo records the code and the secret names, not which secrets are set |
+| Whether the character maker is switched on in the preview or live site | partly verified (2026-11-02) | both sites have the three `CC_CHAR_*` secrets; the Meta key in the Modal job cannot be read, so a real run is still the last check |
 
 ### Older branches
 - All of these are obsolete and were left in place: `hanqi91/cc-char-muse`, `hanqi91/cc-208-truth-audit`, `hanqi91/cc-208-truth-audit-2`, `hanqi91/cc-208-readme`, `hanqi91/cc-208-readme-board`, `hanqi91/cc-208-readme-front-door`, `hanqi91/cc-readme-features`, `hanqi91/cc-readme-short`.

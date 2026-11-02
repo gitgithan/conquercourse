@@ -111,7 +111,7 @@ Legend:
 | 4 | Move tips | same | `src/slice/move-tips.ts` line 8 (`MOVE_TIP_PROMPT`); call in `functions/api/move-tips.ts` | Nothing in the pages calls it; tests and `scripts/cc121-move-tips-run.ts` do | function deployed, no page uses it |
 | 5 | Upload safety check | same | `src/slice/moderation.ts` line 12 (`MODERATION_PROMPT`); call `askModeration` in `functions/api/moderate.ts` | Player: photo upload and Share, through `/api/object-lift`, `/api/segment`, `/api/community-items` | yes |
 | 6 | Character prompt check | same | same prompt, text only; call in `functions/api/character.ts` line 104 | Player: Characters panel | yes |
-| 7 | Character maker, picture | Muse Image, Meta API, from a Modal job | `pipelines/charmaker/providers/route_a.py` line 15 (`STYLE`) and line 81 | Player: Characters panel | yes if the secret is set (unverified, see the ledger) |
+| 7 | Character maker, picture | Muse Image, Meta API, from a Modal job | `pipelines/charmaker/providers/route_a.py` line 15 (`STYLE`) and line 81 | Player: Characters panel | yes; the site secrets are set (checked 2026-11-02), the Meta key in the Modal job is not readable (see the ledger) |
 | 8 | Character maker, cut-out | SAM 3.1, Meta API, same job | `route_a.py` line 93 (noun phrase `character`) | Player, same request | same |
 | 9 | Contact-target extraction | Muse Spark 1.3, Meta API | not in code; outline in `docs/pipelines.md` section 6 | Developer, by hand, once | no |
 | 10 | Video ingest, adult check and move scan | Muse Spark 1.3, Meta API | `pipelines/ccpipe/vision.py` lines 52 and 85 | Developer: `pipelines/ingest_video.py` | no |

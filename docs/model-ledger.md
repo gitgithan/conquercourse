@@ -7,7 +7,8 @@
 - Only one thing a player can start spends Meta Model API credit: the character maker.
   - Each character makes one Muse Image call and one SAM 3.1 call from a Modal job that holds the Meta key.
   - Recorded cost: about $0.0125 of Meta credit per character (`docs/community-characters.md`).
-  - Whether the preview or live site has the secret set is not recorded in the repo, so whether it runs today is unverified.
+  - Checked 2026-11-02 with `wrangler pages secret list`: both the preview and the live site have `CC_CHAR_TOKEN`, `CC_CHAR_SUBMIT_URL` and `CC_CHAR_STATUS_URL`.
+  - The Meta key itself lives in the Modal job, where it cannot be read from here, so one last step stays unverified: a real character run on each site.
 - Everything else the Meta credit paid for was our own build-time work: Muse Wonder code review, SAM 3.1 on video frames, vision calls, evaluation runs.
   - The only total we have written down is Muse Wonder at $2.38.
   - No file records the Meta credit balance or the total spent, so "what is using my credit" cannot be answered as one number from the repo.
