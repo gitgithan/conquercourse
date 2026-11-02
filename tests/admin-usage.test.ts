@@ -1,7 +1,8 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { localD1 } from './helpers-d1';
 import { featureOn, offWords, recordUsage, CATEGORIES, PRICE_CENTS } from '../functions/_lib/usage';
-import { accessOk, capsOf, report, route, sameSecret } from '../functions/api/admin-usage';
+import { accessOk, capsOf, report, route } from '../functions/api/admin-usage';
+import { sameSecret } from '../functions/_lib/secret';
 import { onRequestPost as liftPost, handle as lift } from '../functions/api/object-lift';
 import { onRequestPost as segmentPost } from '../functions/api/segment';
 import { onRequestPost as characterPost } from '../functions/api/character';

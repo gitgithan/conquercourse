@@ -4,9 +4,10 @@
 // 429/502/503 with the same review body when the check could not run), so a caller that only reads "verdict" never lets an upload through by accident.
 // CC-112's moderation queue should call askModeration from its own server code; this route is the same call for a quick test.
 // Same key and defences as /api/designer: the key lives only in the BASETEN_API_KEY secret, the reasoning text is dropped, and there is a light rate limit.
-import { sameSecret } from './admin-usage';
+import { sameSecret } from '../_lib/secret';
 import { CAPTION_MAX, FAIL_CLOSED, MODERATION_PROMPT, parseVerdict, type Moderation } from '../../src/slice/moderation';
-import { limited, MAX_TOKENS, MODEL, URL_CHAT } from './designer';
+import { limited } from '../_lib/limit';
+import { MAX_TOKENS, MODEL, URL_CHAT } from './designer';
 import { json } from '../_lib/http';
 import { featureOn, offWords, recordUsage, type UsageDb } from '../_lib/usage';
 

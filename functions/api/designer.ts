@@ -1,4 +1,5 @@
 import { json } from '../_lib/http';
+import { limited } from '../_lib/limit';
 // /api/designer: the in-editor course-design partner, powered by Muse Spark Open on Baseten.
 //   POST {messages: [{role, content}], world: <worldBrief JSON string>} -> {reply: <model text, without its reasoning>}
 // The key lives only in the BASETEN_API_KEY secret (never in the page); the hackathon key works only with this one model.
@@ -17,20 +18,6 @@ const SYSTEM = [
   'Pieces named Bar hang in the air (no frame): hands reach a bar up to 2.7 m standing and 3.7 m with a jump, a swing between two bars crosses up to about 10 m of water, the V key vaults a 0.4 to 1.3 m step fast and saves energy, and a plain jump costs some speed on courses with bars.',
   'Reply with at most 3 short sentences. If you suggest changes, add one fenced ```json block with an array of {"piece": id, "dx": m, "dz": m, "dy": m, "scale": factor, "yaw": radians}; use only ids from the world; each move under 10 m.',
 ].join(' ');
-
-const hits = new Map<string, number[]>();
-export function limited(ip: string, now = Date.now(), max = 20, windowMs = 600_000): boolean {
-  const recent = (hits.get(ip) ?? []).filter((t) => now - t < windowMs);
-  if (recent.length >= max) { hits.set(ip, recent); return true; }
-  recent.push(now); hits.set(ip, recent);
-  return false;
-}
-
-/** Seconds until `limited` would let this key through again (0 when it already would). */
-export function waitSeconds(ip: string, now = Date.now(), windowMs = 600_000): number {
-  const recent = (hits.get(ip) ?? []).filter((t) => now - t < windowMs);
-  return recent.length ? Math.max(1, Math.ceil((Math.min(...recent) + windowMs - now) / 1000)) : 0;
-}
 
 // The model call, shared by the Pages Function and the local dev middleware. Returns the answer text only.
 export async function askSpark(key: string, b: Record<string, unknown>, fetcher: typeof fetch = fetch): Promise<{ status: number; body: { reply?: string; error?: string } }> {

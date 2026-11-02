@@ -8,7 +8,7 @@ import { recordStop } from '../_lib/stops';
 import { moderationStops } from '../../src/slice/object-lift';
 import { segmentProblem } from '../../src/slice/segment';
 import { askModeration } from './moderate';
-import { limited, waitSeconds } from './designer';
+import { limited, waitSeconds } from '../_lib/limit';
 import { refusalBody } from '../../src/slice/stages';
 import { json } from '../_lib/http';
 import { checkTurnstile, makePass, type TurnstileEnv } from '../_lib/turnstile';

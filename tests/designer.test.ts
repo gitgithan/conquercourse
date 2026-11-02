@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { applyEdits, parseReply, worldBrief } from '../src/slice/designer';
-import { askSpark, limited, MODEL } from '../functions/api/designer';
+import { askSpark, MODEL } from '../functions/api/designer';
+import { limited } from '../functions/_lib/limit';
 import { newPiece } from '../src/slice/world';
 
 const box = { positions: [0, 0, 0, 2, 0, 0, 2, 1, 0, 0, 1, 1], indices: [0, 1, 2, 0, 2, 3] };

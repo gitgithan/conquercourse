@@ -1,4 +1,5 @@
 import { CORS, json as baseJson } from '../_lib/http';
+import { limited } from '../_lib/limit';
 // /api/photos?id=123,456: a fresh picture address for up to three photos, from Mapillary (CC-90).
 // /api/photos?lat=55.9496&lon=-3.1904&r=60: the photos within r metres (10 to 100), used offline to refresh the allow-lists (scripts/photos_people.py).
 //   -> {photos: [{id, thumb, creator, capturedAt, compass}], cache: "hit" | "miss"}
@@ -20,14 +21,6 @@ export const trim = (r: Raw): Shown | null => {
   if (!r.id || !r.thumb_1024_url || !/^\d{5,20}$/.test(r.id) || !/^https:\/\//.test(r.thumb_1024_url)) return null;
   return { id: r.id, thumb: r.thumb_1024_url, creator: String(r.creator?.username ?? '').slice(0, 60), capturedAt: typeof r.captured_at === 'number' ? r.captured_at : null, compass: r.computed_compass_angle ?? r.compass_angle ?? null };
 };
-
-const hits = new Map<string, number[]>();
-export function limited(key: string, now = Date.now(), max = 120, windowMs = 600_000): boolean {
-  const recent = (hits.get(key) ?? []).filter((t) => now - t < windowMs);
-  if (recent.length >= max) { hits.set(key, recent); return true; }
-  recent.push(now); hits.set(key, recent);
-  return false;
-}
 
 export type Fetcher = (url: string, init: { headers: Record<string, string> }) => Promise<{ ok: boolean; status: number; json(): Promise<unknown> }>;
 export interface Store { get(key: string): Promise<string | null>; put(key: string, value: string): Promise<void> }
