@@ -2,6 +2,7 @@
 import { chromium } from 'playwright';
 import { spawn } from 'node:child_process';
 import { mkdirSync } from 'node:fs';
+import { settledPieces } from './editor-settle.mjs';
 const port = process.env.PORT ?? '5181';
 const server = spawn('node', ['node_modules/vite/bin/vite.js', '--port', port, '--strictPort'], { stdio: 'ignore' });
 const flags = ['--enable-unsafe-webgpu', '--enable-features=Vulkan', '--use-vulkan=swiftshader', '--use-angle=swiftshader', '--disable-vulkan-surface', '--ignore-gpu-blocklist'];
@@ -12,7 +13,7 @@ try {
   const errors = []; page.on('pageerror', (e) => { errors.push(e.message); console.log('PAGEERROR', e.message.slice(0, 200)); });
   await page.goto(`http://localhost:${port}/?mode=editor&editorui=old`);
   await page.waitForSelector('#view3d', { timeout: 60000 });
-  await page.waitForFunction(() => document.documentElement.dataset.pieces === '3', null, { timeout: 30000 });
+  await settledPieces(page);
   mkdirSync('test-results/treb-fixit', { recursive: true });
   const out = {};
   await page.click('#addpiece'); await page.$eval('#addtreb', (e) => e.click());
