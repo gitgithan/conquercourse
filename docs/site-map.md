@@ -27,15 +27,15 @@
   - **Real places**
     - You do: You run over the roofs of real streets such as Montmartre or Sydney.
     - How to get there: Courses picker, group "Real places".
-    - Leads to: The Course (play), World Slicer
+    - Leads to: The Course (play)
   - **Contraptions**
     - You do: You try a coaster, a trebuchet, a band, a drone and a cannon.
     - How to get there: Courses picker, group "Contraptions".
     - Leads to: The Course (play)
   - **Make your own**
-    - You do: You get a random course the simulator has proved clearable, or open a builder.
+    - You do: You get a random course the simulator has proved clearable, or open the World Slicer, the World Editor or the coaster builder.
     - How to get there: Courses picker, group "Make your own".
-    - Leads to: The Course (play), World Editor, Coaster builder
+    - Leads to: The Course (play), World Slicer, World Editor, Coaster builder
 - **The Course (play)**
   - You do: You run, jump, hang, swing and climb a small runner to the finish.
   - How to get there: Welcome screen (any key), or pick a course in the Courses picker.
