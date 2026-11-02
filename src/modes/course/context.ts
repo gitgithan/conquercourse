@@ -13,5 +13,6 @@ export interface CourseCtx {
   guides: THREE.Group; // the green and orange lines of the slow-motion replay
   specs: ReturnType<typeof gapSpecs>;
   wallNeed: number; // the slowest speed that clears the wall (Infinity when there is none)
+  everCleared: boolean; // the player has cleared a course before (kept in localStorage)
   wallEntry: number; // the speed at the foot of the wall on the last climb
 }

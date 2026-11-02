@@ -9,7 +9,7 @@ import type { GameEvent } from '../src/sim/world';
 const course = base as unknown as CourseData;
 const ev = (type: string, detail?: Record<string, unknown>) => ({ type, tick: 0, detail }) as unknown as GameEvent;
 const made: unknown[] = [];
-const ctxOf = (log: GameEvent[], c: CourseData = course): CourseCtx => ({ course: c, st: {} as CourseCtx['st'], log, guides: { add: (m: unknown) => made.push(m) } as unknown as CourseCtx['guides'], specs: [], wallNeed: 6, wallEntry: 5 });
+const ctxOf = (log: GameEvent[], c: CourseData = course): CourseCtx => ({ course: c, st: {} as CourseCtx['st'], log, guides: { add: (m: unknown) => made.push(m) } as unknown as CourseCtx['guides'], specs: [], wallNeed: 6, everCleared: false, wallEntry: 5 });
 
 describe('fall tips', () => {
   it('say early or late from where the runner was against the best press', () => {
