@@ -53,6 +53,7 @@ import { EDIT_KEY, HIST_KEY, checkpointFor, piecesFromSource, readHandoff } from
 import type { CourseSource } from '../course/course';
 import { pageQuery, pageSearch } from '../flags';
 import { createLaneCheck } from '../slice/lane-check-ui';
+import { onEditorKey } from './editor/keys';
 import { finalText, isStopped, type LaneProgress } from '../slice/lane-check';
 
 // The World editor: build a world from pieces on a plan view, scale them (a toy brick becomes a block), turn, copy, crop and move them,
@@ -1550,23 +1551,12 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
     } else view3d.fit(b);
     document.documentElement.dataset.fitted = String(Date.now());
   }
-  addEventListener('keydown', (e) => {
-    const t = e.target as HTMLElement | null;
-    if (t && /^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName) && (t as HTMLInputElement).type !== 'range') return;
-    if ((e.ctrlKey || e.metaKey) && e.code === 'KeyZ') { e.preventDefault(); goto(e.shiftKey ? hi + 1 : hi - 1); return; }
-    if ((e.ctrlKey || e.metaKey) && e.code === 'KeyY') { e.preventDefault(); goto(hi + 1); return; }
-    if ((e.ctrlKey || e.metaKey) && e.code === 'KeyC') { copyChosen(); return; }
-    if ((e.ctrlKey || e.metaKey) && e.code === 'KeyV') { e.preventDefault(); pasteClip(); return; }
-    if (e.code === 'Escape' && proposal) { closePreview('Cancelled: nothing changed.'); return; }
-    if (e.code === 'Escape' && chosen().length) { group = []; selected = null; drawPanel(); draw(); drawProfile(); return; }
-    if ((e.code === 'Delete' || e.code === 'Backspace') && chosen().length > 1) { e.preventDefault(); deleteChosen(); return; }
-    if (e.code === 'KeyF' && !e.ctrlKey && !e.metaKey && !e.altKey) { fitAll(); return; }
-    if (e.code === 'KeyT') { if (handoff) void goToCourse(); else location.href = '?'; }
-    const p = pieces.find((q) => q.id === selected);
-    if (!p) return;
-    if (e.code === 'Delete' || e.code === 'Backspace') { pieces = pieces.filter((q) => q !== p); selected = null; changed(); }
-    if (e.code === 'KeyD') { const q = duplicate(p, size(p.mesh).w * p.scale + 0.5, 0) as P; q.src = p.src; pieces.push(q); selected = q.id; changed(); }
-  });
+  addEventListener('keydown', (e) => onEditorKey(e, {
+    getPieces: () => pieces, setPieces: (v) => { pieces = v; }, getSelected: () => selected, setSelected: (v) => { selected = v; }, setGroup: (v) => { group = v; },
+    getHi: () => hi, hasProposal: () => !!proposal, hasHandoff: () => !!handoff,
+    goto, copyChosen, pasteClip, closePreview, chosen, drawPanel, draw, drawProfile, deleteChosen, fitAll, goToCourse, changed,
+    leave: () => { location.href = '?'; },
+  }));
 
   // for the scripted browser checks: where each piece is on the picture, in page pixels (a probe, it changes nothing)
   (window as unknown as { ccPieceScreen?: () => { id: number; x: number; y: number }[] }).ccPieceScreen = () => {
