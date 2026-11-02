@@ -83,15 +83,9 @@
             "lache",
             "drop"
           ],
-          "lines": [
-            {
-              "name": "bar to bar",
-              "ticks": 1284
-            }
-          ],
           "plan": {
             "jumpXs": [
-              21.3
+              21
             ],
             "releaseAfter": 60,
             "bouncePress": 8,
@@ -101,9 +95,15 @@
               210
             ]
           },
-          "effort": 1,
-          "ticks": 1284,
-          "narrowestMs": 100
+          "ticks": 1277,
+          "narrowestMs": 100,
+          "lines": [
+            {
+              "name": "bar to bar",
+              "ticks": 1277
+            }
+          ],
+          "effort": 1
         },
         {
           "id": "low",
@@ -134,13 +134,13 @@
             "releaseAfter": 60,
             "bouncePress": 8,
             "climbHands": true,
-            "vaultXs": [
-              36.64
+            "climbXs": [
+              36.5
             ]
           },
-          "effort": 7,
-          "ticks": 1333,
-          "narrowestMs": 354
+          "ticks": 1337,
+          "narrowestMs": 351,
+          "effort": 7
         }
       ]
     }
@@ -148,21 +148,14 @@
   "hazard": "lava",
   "plan": {
     "jumpXs": [
-      21,
-      27
+      21
     ],
     "releaseAfter": 60,
     "bouncePress": 8,
     "hands": true,
     "hangTicks": [
+      210,
       210
-    ],
-    "climbXs": [
-      34,
-      36.5
-    ],
-    "airHands": [
-      false
     ]
   },
   "windows": [

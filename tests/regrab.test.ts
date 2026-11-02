@@ -37,11 +37,16 @@ describe('regrabbing a bar', () => {
     const ws = flight(hangAt(0, 5), 0, 400); // 6 m/s along: the hands are 1.2 m away when the no-catch time ends and going on
     expect(ws.some((w) => w.mode === 'hang')).toBe(false);
   });
-  it('the first grab keeps the circle; the ellipse is only for a grab again', () => {
+  it('the first grab is a small forgiving ellipse (CC-243: 4.5 x 3.3 times the reach); a grab again has the wider regrab ellipse', () => {
     const bar = course.holds!;
     const handsAt = (dx: number, dy: number) => tryGrab(bar, bar[0].x + dx, bar[0].y + dy - DEFAULT_HANG.handHeight, 3, 0);
-    expect(handsAt(0.1, 0)).not.toBeNull(); // CC-193: the circle is 0.15 m, the hands must visibly reach the bar
-    expect(handsAt(0.3, 0)).toBeNull();
+    expect(handsAt(0.1, 0)).not.toBeNull();
+    expect(handsAt(0.6, 0)).not.toBeNull(); // inside 0.15 m x 4.5 along the run
+    expect(handsAt(0.8, 0)).toBeNull(); // outside it
+    expect(handsAt(0, 0.45)).not.toBeNull(); // inside 0.15 m x 3.3 up
+    expect(handsAt(0, -0.45)).not.toBeNull(); // and down: a jump that overshoots from above still catches
+    expect(handsAt(0, 0.55)).toBeNull();
+    expect(handsAt(1.0, 0)).toBeNull(); // the first grab never reaches as far as a grab again (1.2 m)
     const again = (dx: number, dy: number) => tryGrab(bar, bar[0].x + dx, bar[0].y + dy - DEFAULT_HANG.handHeight, 3, 0, DEFAULT_HANG, true);
     expect(again(1.0, 0)).not.toBeNull();
     expect(again(0, 0.5)).not.toBeNull();

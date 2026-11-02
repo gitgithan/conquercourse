@@ -75,10 +75,11 @@ describe('a run as a link', () => {
     expect(s.length).toBeLessThan(2000);
   });
   it('a challenge parameter round trips with a cleaned nickname and no personal data (CC-108: up to 12 characters, case kept)', async () => {
-    const p = await makeChallengeParam(course, log, 'sam!!x');
-    expect(p.startsWith(`${REPLAY_VERSION}.${courseHash(course)}.samx.`)).toBe(true);
+    // ccd03828 (CC-108): a name keeps its case, digits and symbols (printable ASCII, no spaces); symbols travel as %XX so a dot never breaks the link; spaces and non-ASCII letters go
+    const p = await makeChallengeParam(course, log, 'sam !!x\u00e9');
+    expect(p.startsWith(`${REPLAY_VERSION}.${courseHash(course)}.sam%21%21x.`)).toBe(true);
     const r = await readChallengeParam(p);
-    expect(r.ok && r.challenge.nick).toBe('samx');
+    expect(r.ok && r.challenge.nick).toBe('sam!!x');
     expect(r.ok && r.challenge.log).toEqual(log);
   });
   it('the time comes from playing the keys, so a link cannot claim a time', async () => {

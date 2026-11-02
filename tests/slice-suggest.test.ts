@@ -9,7 +9,8 @@ describe('why no path', () => {
   });
   it('offers a cut that the strip says is crossable', () => {
     const a = explainNoPath({ facts: null, k: 0.2, cut: 5, strip: [{ real: 20, lane: true, crossable: true }], picked: 4, total: 4 });
-    expect(a.suggestions[0].action).toEqual({ kind: 'cut', value: 20 });
+    expect(a.suggestions[0].action.kind).toBe('shrink'); // 32a49dc9 (CC-90): Shrink more is the first fix when no path is found
+    expect(a.suggestions.map((x) => x.action)).toContainEqual({ kind: 'cut', value: 20 });
     expect(a.reason).not.toContain('pick another place');
   });
   it('with a proven strip, a lane that only looks good is never offered as a cut (CC-202)', () => {
