@@ -206,10 +206,11 @@
 - Green once (long scripts): `challenge-check`, `ideal-all-check`.
 - `share-check`: green; it needs about 7 minutes because the clip is made in software GL.
 - `editor-check`: green; the Design partner answer is "not tested" there (the test machine has no model service), and the one-click advice steps are "not tested" (the editor now says "No single small shift clears it" for that lane).
-- `restart-chip-check`: red-real-bug; the chip works (R, click, both at once) but the site menu sits on top of the chip at 1280 px (CC-165 hid the chip behind `?hud=restart`; the overlap is still there).
-- `lane-handover-check`: red-real-bug (to confirm); the lane arrives right (level 0 by design), but the editor then says "Nothing is in the lane" and never proves it.
+- `restart-chip-check`: green (CC-165, 2026-11-03); the time box is narrower with `?hud=restart`, so the chip stays left of the site menu at 1280 px, and the check now compares the boxes, not one point.
+- `lane-handover-check`: green (CC-133, 2026-11-03); it was not the level-0 change: Valletta's roofs stand 5.62 m up but its stored cut is 6 m, and the roof start hides what lies under the cut; the editor now lifts such a place to the water line (`liftToRoof`).
 - `says-check`: red; the simulator badge is missing on the editor verdict and the end report screens, and `#make-own` cannot be clicked on the Community screen; not fixed in this round.
-- Left red on purpose (page problems, per the triage): `ghost-check`, `course-buttons-check`, `report-overlap-check`, and `lane-cancel-check` (the default editor course has no stored proof, so it searches; may be a real change).
+- Fixed after the triage (CC-165, 2026-11-03): `ghost-check` and `course-buttons-check` (the ghost chip sits under the obstacle strip) and `report-overlap-check` (the first-fall card is inside the report; the check was reading that as an overlap); each green on one run.
+- Left red on purpose (page problems, per the triage): `lane-cancel-check` (the default editor course has no stored proof, so it searches; may be a real change).
 - `treb-fixit-check` was not in this round and stays as it was (known red).
 - Steps removed or changed because they test something that changed:
   - Phone-width parts of `restart-chip-check` were deleted (all mobile work stopped).
