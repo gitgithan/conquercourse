@@ -153,6 +153,6 @@ describe('key reuse: the replay stores the two meanings as separate bits', () =>
 describe('S matches Arrow Down in the page', () => {
   it('the cannon tilt-down input reads both keys', () => {
     const src = courseSource();
-    expect(src).toContain("aimDown: keys.has('ArrowDown') || keys.has('KeyS')");
+    expect(src).toContain("aimDown: st.keys.has('ArrowDown') || st.keys.has('KeyS')");
   });
 });
