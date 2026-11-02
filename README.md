@@ -13,6 +13,32 @@ Live: https://conquercourse.pages.dev/
 - Four features, one top bar on every page: **Courses**, **World Editor**, **World Slicer**, **Community**.
 - We do not grade or coach a person's technique, use a chat tutor, or leave Earth's physics.
 
+## Core innovation
+- **A deterministic simulator is the judge, and AI only proposes.**
+  - Meta's models turn the real world into pieces (a photo into a 3D object, a street into a lane, a sentence into a character).
+  - The same fixed-step simulator plays every course, so the same keys always give the same result.
+  - That makes a time a fact: a friend can replay your run, and the server proves a clear by playing it again.
+- **A course you can prove.**
+  - The ideal-run search finds a plan of key presses that clears the course, and proves it.
+  - If a layout that an AI or a player made cannot be cleared, the game says so and offers a fix it has already checked.
+- **Real world in, real world out.**
+  - A pin on a map or a photo of a bench becomes a course, and the physics you learn on it is the physics of the real thing.
+  - Players learn by doing; the game never grades or coaches a person's technique.
+- **One clock.**
+  - Physics, motion, replay and film all run on the same 120 Hz clock, so a replay, a ghost and a shared link cannot drift apart.
+
+## Tech stack
+| Layer | What we use |
+|---|---|
+| Game and editor | TypeScript, Vite, three.js (3D), MapLibre (maps), mp4-muxer (film capture in the browser) |
+| Simulator | Pure TypeScript, fixed 120 Hz, no dependencies, guarded by golden hashes |
+| Server | Cloudflare Pages Functions and D1 (SQLite), wrangler for deploys |
+| Meta AI | Muse Spark Open (Baseten), Muse Image, SAM 3, SAM 3.1, SAM 3D Objects, SAM 3D Body, DINOv3, Meta-Llama-3-8B-Instruct (inside Kimodo), MusicGen, Mapillary |
+| Other open models | Kimodo (NVIDIA), MoGe 2, TRELLIS.2, torchvision detectors |
+| GPU jobs | Modal (Python), for build-time pipelines and the live photo-to-3D and character jobs |
+| Tests | Vitest (about 2,400 tests), Playwright browser checks, golden traces of the simulator |
+| Tooling | Node, Python, ffmpeg, Linear, GitHub pull requests |
+
 ## Set it up
 - You do not need an API key to run the game itself.
 - For a quick look, `git clone --depth 1 https://github.com/gitgithan/conquercourse.git` downloads about 115 MB; a plain `git clone` also brings the whole history (about 440 MB), which shows how the work grew day by day.
