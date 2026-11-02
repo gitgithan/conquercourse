@@ -25,7 +25,7 @@ async function runFor(page, ms) { await page.keyboard.down('ArrowRight'); await 
   // With the site menu on, it sits on top of the chip: a real overlap (reported, not hidden).
   {
     const { page: p2 } = await open('', 1280, 720, 1);
-    const hit = await p2.evaluate(() => { const r = document.querySelector('#restart-chip')?.getBoundingClientRect(); if (!r) return 'no chip'; const e = document.elementFromPoint(r.x + r.width / 2, r.y + r.height / 2); return e && (e.id === 'restart-chip' || e.closest('#restart-chip')) ? 'ok' : `covered by ${e?.closest('nav,[id]')?.id ?? e?.tagName}`; });
+    const hit = await p2.evaluate(() => { const r = document.querySelector('#restart-chip')?.getBoundingClientRect(); if (!r) return 'no chip'; const n = document.querySelector('#sitenav')?.getBoundingClientRect(); if (n && r.left < n.right && n.left < r.right && r.top < n.bottom && n.top < r.bottom) return `the chip box (${Math.round(r.left)}-${Math.round(r.right)}) overlaps the menu (${Math.round(n.left)}-${Math.round(n.right)})`; const e = document.elementFromPoint(r.x + r.width / 2, r.y + r.height / 2); return e && (e.id === 'restart-chip' || e.closest('#restart-chip')) ? 'ok' : `covered by ${e?.closest('nav,[id]')?.id ?? e?.tagName}`; });
     ok('the site menu does not cover the Restart chip', hit === 'ok', hit); await p2.close();
   }
   ok('the Restart chip is visible during the run', await page.locator('#restart-chip').isVisible(), (await page.locator('#restart-chip').innerText()).replace(/\n/g, ' '));
