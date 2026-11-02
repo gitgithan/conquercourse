@@ -4,10 +4,6 @@ import { type Ghosts } from '../../slice/view3d';
 import { isTrack } from '../../slice/track-world';
 import { holdsOf, isHold } from '../../slice/holds-world';
 import { type Machine } from '../../slice/launch-lane';
-import { fixRecoil } from '../../slice/fixrecoil';
-import { fixBand } from '../../slice/fixband';
-import { DRONE_PAD_LENGTH } from '../../slice/drone-lane';
-import { fixDrone } from '../../slice/fixdrone';
 import { PARTNER_PREF_KEY, partnerStartsOpen } from '../../slice/editor-defaults';
 import { proves } from '../../slice/photo-proof';
 import { fixMachine } from '../../slice/fix-launch';
@@ -20,11 +16,11 @@ import { sayBadge, saysOn } from '../../ui/says';
 import { barsInWorker, fixInWorker, provesInWorker } from '../../slice/proof-client';
 import { parseReply, worldBrief } from '../../slice/designer';
 import { diffProposal, enabledCount, fromAdvice, fromEdits, resultOf, type Proposal } from '../../slice/preview';
-import { RECOIL_PAD_LENGTH } from '../../slice/device';
 import { shortcutLine, type Shortcut } from '../../sim/shortcuts';
 import { closeShortcut } from '../../slice/shortcut-close';
 import { makeItEasier } from '../../slice/easier';
 import { el } from './dom';
+import type { Tools } from './tools';
 import { isDevice, isSizeReference, type EditorState, type P } from './state';
 import type { EditorLane } from './lane';
 import type { EditHandoff } from '../../slice/roundtrip';
@@ -36,15 +32,14 @@ export interface HelperEnv {
   root: HTMLElement; top: HTMLElement; aside: HTMLElement;
   chosen: () => number[]; draw: () => void; drawProfile: () => void; changed: () => void;
   handoff: EditHandoff | null; goToCourse: (check?: boolean) => Promise<void>;
-  plankFixNow: () => { steps: string[]; apply: () => void } | null;
-  syncRecoil: () => void; bandInput: HTMLInputElement;
+  tools: Tools;
 }
 
 // The design partner panel: Fix it, Make it easier, routes you did not plan, the partner's advice and chat, and the preview every proposal goes through before it changes anything.
 export function createHelper(env: HelperEnv) {
   const { ed, lane, root, top, aside } = env;
-  const { updateDeviceSource, currentProfile, barsNow, dronePiece, droneRange, recoilPiece, machineNow, trebuchetPivot, machineWrap, laneCourse, courseNow, courseFor, xOfPiece } = lane;
-  const { chosen, drawProfile, draw, changed, handoff, goToCourse, plankFixNow, syncRecoil, bandInput } = env;
+  const { updateDeviceSource, barsNow, machineNow, trebuchetPivot, machineWrap, courseNow, courseFor, xOfPiece } = lane;
+  const { chosen, drawProfile, draw, changed, handoff, goToCourse, tools } = env;
   // ---- helpers: what to shift when the lane cannot be cleared, and a design partner (Muse Spark Open) to talk it through
   const helper = el('div', aside, { className: 'panel helper', id: 'helper' });
   const head = el('div', helper, { className: 'row' });
@@ -144,38 +139,7 @@ export function createHelper(env: HelperEnv) {
     helper.classList.remove('closed'); helperBtn.setAttribute('aria-pressed', 'true');
     reply.className = 'reply'; reply.textContent = 'Working it out…' + (ed.pieces.some(isHold) ? ' (bars take a while: up to 40 seconds)' : '');
     setTimeout(async () => {
-      const pf = plankFixNow(); // a plank that would snap: the smallest change is a thicker plank or a post, said in words first
-      if (pf) {
-        reply.className = 'reply bad'; reply.textContent = 'The plank would snap. ' + pf.steps.join(' ') + ' ';
-        const mk = el('button', reply, { text: 'Make it so', className: 'go', id: 'plankfix' });
-        mk.onclick = () => { pf.apply(); changed(); reply.className = 'reply ok'; reply.textContent = 'Done: the plank is stronger now.'; };
-        document.documentElement.dataset.fixed = '0';
-        return;
-      }
-      if (ed.droneCfg && !ed.trebuchetKg && !ed.verdict.startsWith('The simulator can clear')) { // the drone is the first thing to change: a bigger battery or a lighter rider
-        const fd = fixDrone(courseNow(), ed.droneCfg, droneRange());
-        reply.className = fd.ok ? 'reply ok' : 'reply bad';
-        reply.textContent = fd.ok ? (fd.steps[0] ?? 'It already works.') : fd.steps.join(' ');
-        document.documentElement.dataset.fixed = fd.ok ? '1' : '0';
-        if (fd.ok && fd.steps.length) el('button', reply, { text: 'Use it', className: 'go', id: 'usedrone' }).onclick = () => { const len = dronePiece()?.src?.split(':')[4] ?? String(DRONE_PAD_LENGTH); updateDeviceSource('device:drone', `device:drone:${fd.cfg.payload}:${fd.cfg.battery}:${len}`); changed(); };
-        return;
-      }
-      if (ed.recoilCfg && !ed.trebuchetKg && !ed.verdict.startsWith('The simulator can clear')) { // the launcher is the first thing to change: a heavier or faster ball
-        const fr = fixRecoil(courseNow(), ed.recoilCfg);
-        reply.className = fr.ok ? 'reply ok' : 'reply bad';
-        reply.textContent = fr.ok ? (fr.steps[0] ?? 'It already works.') : fr.steps.join(' ');
-        document.documentElement.dataset.fixed = fr.ok ? '1' : '0';
-        if (fr.ok && fr.steps.length) el('button', reply, { text: 'Use it', className: 'go', id: 'userecoil' }).onclick = () => { const len = recoilPiece()?.src?.split(':')[4] ?? String(RECOIL_PAD_LENGTH); updateDeviceSource(`device:${fr.cfg.kind}`, `device:${fr.cfg.kind}:${fr.cfg.ballMass}:${fr.cfg.muzzle}:${len}`); syncRecoil(); changed(); };
-        return;
-      }
-      if (ed.bandK) { // the band: the only thing Fix it can change is its stiffness; it says so and waits for Apply
-        const bf = fixBand(laneCourse(currentProfile()));
-        document.documentElement.dataset.fixed = bf.ok ? '1' : '0';
-        reply.className = bf.ok ? 'reply ok' : 'reply bad';
-        reply.textContent = bf.ok ? (bf.steps.length ? bf.steps.join(' ') : 'It already works.') : bf.steps.join(' ');
-        if (bf.ok && bf.steps.length) el('button', reply, { text: 'Apply', id: 'applyband', className: 'go' }).onclick = () => { ed.bandK = bf.k; bandInput.value = String(bf.k); changed(); reply.textContent = 'Applied.'; };
-        return;
-      }
+      if (tools.fix({ reply, changed })) return; // a plank, drone, launcher or band the proof names: the smallest change is said in words first
       const now = { angle: ed.angle, offset: ed.offset, level: ed.level }, start = from ?? { pieces: ed.pieces, lane: now };
       const r = await computeFix(start.pieces, start.lane).catch(() => null);
       if (!r) { reply.className = 'reply bad'; reply.textContent = 'Fix it was stopped. Try again.'; return; }

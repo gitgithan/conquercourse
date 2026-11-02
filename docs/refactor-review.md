@@ -105,6 +105,12 @@
 - Proposal: a `PieceTool` interface `{ role, icon, defaults, toLane(piece), fix(course) }` with one file per tool, registered in an array; the editor loops over the array.
   - Do it after item 2a, because the tool and the obstacle row describe the same thing.
 - Size: 10 h.
+- Done in CC-133 (editor split): three designs were weighed, and the third was built on top of the first.
+  - A, one typed state object (`src/modes/editor/state.ts`): every module reads `ed.pieces`, `ed.selected` and so on; pro: nothing is passed around, and a test can build a state in one line; con: any module can write any field, so writes are kept to the module that owns the idea.
+  - B, a getter and setter pair per slice: rejected, because every field would need two lines in every module and the call sites got noisier than the closure they replaced.
+  - C, a `PieceTool` seam (`src/modes/editor/tools/`): each special piece is one function with `mount`, `sync`, `fix` and `panel`; a new piece is one more entry in a list, and Fix it asks the tools in a fixed order; con: the bar, coaster and stack buttons carry no state, so they use only `mount`.
+  - Chosen order: A first, then Fix it, Moves and the lane maths into their own files, then C tool by tool; each step kept the recorded editor run (`tests/golden/editor-characterize.json`) byte for byte the same.
+  - Still open: the 3D and side pictures, the piece panel and save and load are still in `editor.ts`; they read `ed` the same way and can move next.
 - Risk to tests: medium; editor browser checks (`scripts/editor-check.mjs` and friends) must be run once on the VM.
 - Risk to the sim: none (editor and slice code build courses, they do not step them).
 
