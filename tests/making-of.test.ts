@@ -21,11 +21,12 @@ const DENY: [string, RegExp][] = [
 ];
 
 describe('The Making Of public files', () => {
-  it('has the four files', () => {
-    expect(files.sort()).toEqual(['course-map.html', 'course-map.json', 'index.html', 'site-map.html']);
+  it('has the three pages and no data file', () => {
+    expect([...files].sort()).toEqual(['course-map.html', 'index.html', 'site-map.html']);
+    expect(files.some((f) => f.endsWith('.json'))).toBe(false);
   });
 
-  for (const f of ['index.html', 'site-map.html', 'course-map.html', 'course-map.json']) {
+  for (const f of ['index.html', 'site-map.html', 'course-map.html']) {
     it(`${f} holds nothing private`, () => {
       const t = read(f);
       for (const [name, re] of DENY) expect(t.match(re), `${f}: ${name}`).toBeNull();
@@ -33,10 +34,8 @@ describe('The Making Of public files', () => {
   }
 
   for (const f of ['index.html', 'site-map.html', 'course-map.html']) {
-    it(`${f} has a download control and no external requests`, () => {
+    it(`${f} has no external requests`, () => {
       const t = read(f);
-      expect(t).toContain('Download this page (.html)');
-      expect(t).toContain('new Blob');
       const urls = t.match(/https?:\/\/[^\s"'<>)]+/g) ?? [];
       for (const u of urls) expect(u, `${f} links ${u}`).toMatch(/openstreetmap\.org/);
       expect(t).not.toMatch(/<(script|link|img|iframe)[^>]+(src|href)=["']https?:/i);
@@ -49,8 +48,27 @@ describe('The Making Of public files', () => {
     expect(t).toContain('href="../?mode=parts"');
   });
 
-  it('the course map offers the data download too', () => {
-    expect(read('course-map.html')).toContain('Download data (.json)');
+  for (const f of ['site-map.html', 'course-map.html']) {
+    it(`${f} offers the page download and no data download`, () => {
+      const t = read(f);
+      expect(t).toContain('Download this page (.html)');
+      expect(t).toContain('new Blob');
+      expect(t).not.toMatch(/Download data|course-map\.json|\.json'/);
+    });
+  }
+
+  it('the index needs no download control', () => {
+    expect(read('index.html')).not.toContain('Download this page');
+  });
+
+  it('the course map has no URL at all, and offers Swimlanes and 3D', () => {
+    const t = read('course-map.html');
+    expect(t.match(/https?:\/\//)).toBeNull();
+    expect(t).toContain('id="v-lane"');
+    expect(t).toContain('id="v-3d"');
+    expect(t).toContain('Swimlanes');
+    expect(t).toContain('preserve-3d');
+    expect(t).toContain('prefers-reduced-motion');
   });
 
   it('the site map shows only Part 1: screens and journeys', () => {
@@ -59,8 +77,10 @@ describe('The Making Of public files', () => {
     expect(t).not.toMatch(/Where things live|refactor safety net|known red/i);
   });
 
-  it('the course map keeps ids, states, milestones and links, without URLs', () => {
-    const d = JSON.parse(read('course-map.json'));
+  it('the course map data is embedded: ids, states, milestones and links, without URLs', () => {
+    const m = read('course-map.html').match(/var DATA=(\{.*?\});\n/);
+    expect(m).not.toBeNull();
+    const d = JSON.parse(m![1]);
     expect(d.issues.length).toBeGreaterThan(100);
     const ids = new Set(d.issues.map((i: { id: string }) => i.id));
     for (const i of d.issues) {
@@ -68,6 +88,9 @@ describe('The Making Of public files', () => {
       expect(['Done', 'In Progress', 'Backlog', 'Canceled']).toContain(i.state);
       expect(i.milestone).toMatch(/^(M[0-5]|Later)$/);
       for (const r of [...i.dependsOn, ...i.affects]) expect(ids.has(r)).toBe(true);
+    }
+    for (const dropped of ['CC-107', 'CC-108', 'CC-112', 'CC-120', 'CC-134', 'CC-169', 'CC-174', 'CC-218', 'CC-242', 'CC-33', 'CC-176']) {
+      expect(ids.has(dropped), dropped).toBe(false);
     }
   });
 
