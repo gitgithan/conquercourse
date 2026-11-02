@@ -96,7 +96,7 @@ export async function handle(b: Record<string, unknown>, d: Deps): Promise<{ sta
 
   const provider = PROVIDERS[typeof b.provider === 'string' ? b.provider : DEFAULT_PROVIDER];
   if (!provider) return refuse(400, { error: 'bad', message: 'Unknown maker.' });
-  if (!provider.configured(env)) return refuse(provider.id === DEFAULT_PROVIDER ? 503 : 501, { error: 'not configured', message: 'The character maker is not switched on here.' });
+  if (!provider.configured(env)) return refuse(503, { error: 'not configured', message: 'The character maker is not switched on here.' });
 
   if (action === 'status') {
     const id = typeof b.id === 'string' && JOB_ID.test(b.id) ? b.id : '';

@@ -451,6 +451,21 @@ Diagrams are in [docs/meta-ai-pipelines.md](docs/meta-ai-pipelines.md); the full
 - Which credit pays for each call, and what a player can trigger: [docs/model-ledger.md](docs/model-ledger.md).
 - Meta tools used while building, not in the game: Muse Wonder reviewed the simulator code (13 real bugs in 21 claims, each checked by us).
 
+### Models that are not Meta's
+- Every model below is open source or open weights, except Tripo, which is a closed service used once while building.
+- Meta's models do the live work; these only helped make files that ship (details and licences: [docs/hackathon.md](docs/hackathon.md), [docs/ASSETS.md](docs/ASSETS.md)).
+
+| Model | Made by | How we use it | When |
+|---|---|---|---|
+| **Kimodo** and the **SOMA-X** skeleton | NVIDIA (NVIDIA Open Model License) | Makes the roll and slide motion clips from a text prompt; Meta-Llama-3-8B-Instruct is its text encoder | Build time on Modal; the clips ship, the model does not run in the game |
+| **Mask R-CNN, Faster R-CNN** (torchvision) | PyTorch (open source) | Finds people in a photo so they can be masked | Build time and in the upload pipeline on Modal |
+| **MoGe 2** | Microsoft (open weights) | Depth for the motion-from-video step | Build time on Modal |
+| **TRELLIS.2, Pixal3D** | Open source (MIT) | A side-by-side test of photo to 3D against SAM 3D Objects; nothing from them ships | Build time, one experiment |
+| **Tripo** | Tripo (closed web service) | Made the two Rookie meshes once in 2026-10; no Tripo code or key is in the game | Build time only, never at runtime |
+| **CMU motion capture** | CMU Graphics Lab (data, not a model) | Real moves for the clips | Build time |
+
+- No closed AI service runs while someone plays; the live calls go to Meta's models (Muse Image, SAM 3.1, SAM 3, SAM 3D Objects) and to Muse Spark Open, which Baseten hosts.
+
 ### How we meet the judging criteria
 - **Impact:** real world in, real world out; physics learned by doing; makers as well as players; no sign-in and no real names; our own captures are blurred, and Mapillary blurs its street photos.
 - **Use of Meta AI tooling:** ten Meta models and services (SAM 3 and 3.1, SAM 3D Objects, SAM 3D Body with MHR, DINOv3, Llama 3, Muse Spark Open, Muse Spark, Muse Image, MusicGen, Mapillary; Muse Wonder is development only and not counted), each doing one visible job; the models propose and the simulator decides.

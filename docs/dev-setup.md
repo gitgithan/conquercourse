@@ -11,7 +11,7 @@
 
 ## Keys (never in the repo)
 - `~/.config/ninja/meta.env`: `META_API_KEY`, `META_BASE_URL` (`https://api.meta.ai/v1`), `META_MODEL`.
-- `~/.config/ninja/tripo.env`: `TRIPO_API_KEY` (characters).
+- `~/.config/ninja/tripo.env`: `TRIPO_API_KEY` (build time only; the two Rookie meshes; the game never reads it).
 - `~/.config/ninja/linear.env`: `LINEAR_API_KEY` (agents on the VM).
 - `~/.modal.toml`: the Modal token.
 - Load with `set -a; . <file>; set +a`; never print a key; the browser never sees one (calls go through a server proxy).

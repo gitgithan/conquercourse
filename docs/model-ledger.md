@@ -58,7 +58,7 @@ Legend for "Credit":
 | Body from video, 3D objects, privacy masks | SAM 3D Body, SAM 3D Objects, SAM 3 (open weights) | Modal apps in `pipelines/` | Modal | per run in each experiment README; not summed |
 | Generated motion | Kimodo with a Llama 3 text encoder | Modal, `pipelines/kimodo_*.py` | Modal | "5-20 s on an L4" (`docs/experiments.md`); not summed |
 | Music loops | MusicGen medium | Modal, `pipelines/music_loops.py`, `music_film*.py` | Modal | not measured in a file I read |
-| Rookie meshes | Tripo | Tripo web service; `TRIPO_API_KEY` slot is a stub in `src/characters/providers.ts` | Tripo credits (60 left per `docs/community-characters.md`) | about 110 credits a character (`docs/lessons.md`) |
+| Rookie meshes | Tripo | Tripo web service, build time only; the game has no Tripo code or key | Tripo credits (60 left per `docs/community-characters.md`) | about 110 credits a character (`docs/lessons.md`) |
 
 ### 1c. Not in the repo's code
 - EgoBlur is **not used** in production.
@@ -138,7 +138,7 @@ Anything marked **assumption** has no written reason in the repo.
   - Cost to try: a few hours to switch the step and rerun the same 8 prompts.
 - Muse Image has no open replacement in the repo; open image models were **not researched**.
   - Cost to try: a research pass first (about half a day), because quality on a T-pose character is the whole point.
-- Tripo is the paid alternative that was tested for the Rookies; it costs about 110 credits a character and the slot is a stub (`docs/lessons.md`, `src/characters/providers.ts`).
+- Tripo is the paid alternative that was tested for the Rookies; it costs about 110 credits a character and the game has no Tripo code or key any more (`docs/lessons.md`).
 - The limits that cap how much Meta credit players can use are in the private notes folder, not here.
 
 ### 2d. Open weights on Modal vs an API key, for the build-time models

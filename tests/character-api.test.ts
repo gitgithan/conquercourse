@@ -61,11 +61,11 @@ describe('character API', () => {
     expect((await handle({ action: 'create', prompt: 'a red fox' }, d)).status).toBe(200);
     expect((await handle({ action: 'create', prompt: 'a blue whale' }, d)).status).toBe(429); // refunded once, not twice
   });
-  it('refuses bad prompts, unknown makers, the Tripo stub, and an unconfigured server', async () => {
+  it('refuses bad prompts, unknown makers (Tripo is not one), and an unconfigured server', async () => {
     const { db } = localD1(); const d = { ...mk(), db, fetcher: modal(done) };
     expect((await handle({ action: 'create', prompt: 'x' }, d)).status).toBe(400);
     expect((await handle({ action: 'create', prompt: 'a calm owl', provider: 'nope' }, d)).status).toBe(400);
-    expect((await handle({ action: 'create', prompt: 'a calm owl', provider: 'tripo' }, d)).status).toBe(501);
+    expect((await handle({ action: 'create', prompt: 'a calm owl', provider: 'tripo' }, d)).status).toBe(400);
     expect((await handle({ action: 'create', prompt: 'a calm owl' }, { ...d, env: {} })).status).toBe(503);
   });
   it('a file over the caps is refused and never stored', async () => {
