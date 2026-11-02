@@ -1,5 +1,6 @@
 // CC-110: the Real objects tab grouped by move, the flat view, and a hang bar that brings its own hold.
 import { chromium } from "playwright";
+import { settledPieces } from './editor-settle.mjs';
 import { spawn } from "node:child_process";
 import { mkdirSync } from "node:fs";
 const port = process.env.PORT ?? "5173";
@@ -13,7 +14,7 @@ try {
   const errors = []; page.on("pageerror", (e) => errors.push(e.message.slice(0, 200)));
   await page.goto(`http://localhost:${port}/?mode=editor`);
   await page.waitForSelector("#view3d", { timeout: 60000 });
-  await page.waitForFunction(() => document.documentElement.dataset.pieces === "3", null, { timeout: 30000 });
+  await settledPieces(page);
   mkdirSync("test-results/real-objects", { recursive: true });
   await page.waitForSelector("button[data-object=pullup-black]", { state: "attached", timeout: 20000 });
   await page.click("#addpiece"); await page.click("#pbtab-real"); await page.waitForTimeout(600);
