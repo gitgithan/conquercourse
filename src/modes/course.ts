@@ -6,6 +6,7 @@ import { createRunStats } from './course/stats';
 import { createHint } from './course/hint';
 import { bandTip, buildDiag, cartDiag, cartTip, plankTip, windowTip } from './course/tips';
 import { createCourseCamera } from './course/camera';
+import { createClipMaker } from './course/clip';
 import { createCourseState } from './course/state';
 import { createSearch } from './course/search';
 import { createShortcutList } from './course/shortcuts';
@@ -31,12 +32,12 @@ import { inputFor, searchIdealRun, workSeconds, xWindows, type Plan, type Search
 import { createGhost } from '../ui/ghost';
 import { lookOfParam, softenPlayer } from '../ui/ghost-look';
 import { challengeWords, courseTooBig, isOldLongLink, makeLinkInfo, OLD_LINK_WORDS, offersIdeal, openChallenge, secondsWords, shareOn } from '../share/challenge';
-import { MARKER_BELOW, RUNNER_M, TICKS_PER_FRAME, clipCameraDistance, clipCrop, clipFits, clipFrames, clipLayoutFor, createClipEncoder, drawClipFrame, clipViewMetres } from '../share/clip';
+import { clipFits, clipLayoutFor } from '../share/clip';
 import { mountTouch, touchOn } from '../share/touch';
 import { createGaugeStack } from '../ui/gauges';
 import { HUD, hudOn, keycapCss, panelCss } from '../ui/hud-style';
 import { PHONE_WORDS, browserPointing, phoneMode } from '../share/phone';
-import { clipCard, copyLinkButton, showBanner } from '../share/share-ui';
+import { copyLinkButton, showBanner } from '../share/share-ui';
 import { reportSectionsOn } from '../ui/report-sections';
 import { courseHash, encodeLog, inputOfMask, startOfX, startXOf, type InputLog } from '../sim/replay';
 import { findShortcuts, shortcutLine, type Shortcut } from '../sim/shortcuts';
@@ -559,7 +560,6 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
   }
   // Share (CC-128, CC-129): keys fed from a link play the run again; while a clip is made the game is stepped by hand and nothing is counted or heard.
   let feed: { log: InputLog; i: number; left: number } | null = null;
-    let clipHook: (() => void) | null = null;
   const fedInput = (): RunnerInput => {
     while (feed && feed.left === 0 && feed.i < feed.log.length) { feed.left = feed.log[feed.i][1]; feed.i++; }
     if (!feed || feed.left === 0) return NO_INPUT;
@@ -826,53 +826,8 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
 
   ghostCtl = mountCourseGhost({ scene, course, params, idealCache, runSearch, progressZones, strip, look: () => choice });
   ghostCtl.begin(!resume && startAt === undefined && (!botMode || ghostBot), (!botMode || ghostBot) && !resume?.world ? (resume ? resume.retryX : startAt ?? course.startX) : null);
-  // A run played again to make a clip (CC-129). The pictures come from the real game on a stepped clock: four ticks for each, whatever the speed of this computer.
-  async function makeClip(log: InputLog, ticks: number, from: number = course.startX): Promise<void> {
-    const card = clipCard();
-    card.say('Making your clip…');
-    st.clip.layout = clipLayoutFor(pageSearch());
-    const L = st.clip.layout, enc = await createClipEncoder(L);
-    if (!enc) { card.fail('This browser cannot make a video clip. Copy the challenge link instead.'); return; }
-    const cv = document.createElement('canvas'); cv.width = L.w; cv.height = L.h;
-    const ctx = cv.getContext('2d')!, dom = renderer.domElement, total = clipFrames(ticks);
-    const text = { course: course.name, time: secondsWords(ticks), address: 'conquercourse.pages.dev' };
-    let n = 0, pending: Promise<void> = Promise.resolve();
-    try {
-      st.clip.on = true; st.clip.cam = null; st.paused = false; st.keys.clear();
-      restart(from);
-      feed = { log, i: 0, left: 0 };
-      let smallest = 1;
-      clipHook = () => {
-        // how tall the standing runner is in this picture, as a share of the picture's height (the camera has settled by the third picture)
-        const feet = new THREE.Vector3(st.world.runner.x, st.world.runner.y, 0).project(camera), head = new THREE.Vector3(st.world.runner.x, st.world.runner.y + RUNNER_M, 0).project(camera);
-        const share = (Math.abs(head.y - feet.y) / 2) * dom.height * (L.band.h / clipCrop(dom.width, dom.height, L).h) / L.h;
-        const small = L.viewM !== null && share < MARKER_BELOW; // a small runner gets a soft ring
-        const mid = new THREE.Vector3(st.world.runner.x, st.world.runner.y + RUNNER_M / 2, 0).project(camera);
-        drawClipFrame(ctx, dom, dom.width, dom.height, text, L, small ? { x: ((mid.x + 1) / 2) * dom.width, y: ((1 - mid.y) / 2) * dom.height, r: 0.9 * ((Math.abs(head.y - feet.y) / 2) * dom.height) + 10 } : undefined);
-        if (n > 2) smallest = Math.min(smallest, share);
-        pending = enc.add(cv, n++);
-      };
-      const step = (TICKS_PER_FRAME * DT * 1000 + 0.001) / timeScale;
-      let t = st.last;
-      for (let k = 0; k < total; k++) {
-        t += step; await new Promise<void>((done) => requestAnimationFrame(() => { frame(t, true); done(); })); await pending; // drawn inside a real animation frame: the renderer refreshes some camera values only once per frame
-        if (k % 8 === 0) { card.say(`Making your clip… ${Math.round((100 * k) / total)}%`); await new Promise((r) => setTimeout(r, 0)); }
-      }
-      const blob = await enc.finish();
-      card.done(blob, 'conquercourse-run.mp4', `Your clip is ready (${(blob.size / 1e6).toFixed(1)} MB).`);
-      document.documentElement.dataset.clip = String(blob.size);
-      document.documentElement.dataset.clipRunner = smallest.toFixed(3);
-      document.documentElement.dataset.clipMetres = clipViewMetres(dom.width, dom.height, clipCameraDistance(dom.width, dom.height, L), L).toFixed(1); // metres of course across the picture
-      (window as unknown as { __clip?: Blob }).__clip = blob;
-    } catch (e) {
-      card.fail('The clip could not be made on this computer. Copy the challenge link instead.');
-      console.warn('clip failed', e);
-    } finally {
-      st.clip.on = false; st.clip.cam = null; clipHook = null; feed = null; st.acc = 0;
-      restart(course.startX); st.last = performance.now();
-      requestAnimationFrame(frame);
-    }
-  }
+  // A run played again to make a clip (CC-129): see course/clip.ts
+  const makeClip = createClipMaker({ renderer, camera, course, st, restart: (x) => restart(x), frame, timeScale: Number(params.get('timescale') ?? 1), setFeed: (f) => { feed = f; } });
   // A challenge link (CC-128): the sender's keys are played in the simulator, and that run becomes the ghost to beat.
   const copyHere = async () => { // the link of this page, so a phone can send it to a computer
     const btn = [...document.querySelectorAll<HTMLButtonElement>('#challenge-banner button')].find((x) => /Copy link|Link copied|Link ready/.test(x.textContent ?? ''));
@@ -1095,7 +1050,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
     if (chunks.length > 8) cullFar(chunks, camera.position, 260); // far chunks of a big place are not drawn
     perf.renderStart();
     if (fxPipe) fxPipe.render(); else renderer.render(scene, camera);
-    clipHook?.(); // the clip takes this picture before the front inset is drawn over it
+    st.clip.hook?.(); // the clip takes this picture before the front inset is drawn over it
     perf.renderEnd();
     cam.drawFront();
     document.documentElement.dataset.tick = String(r.tick);
