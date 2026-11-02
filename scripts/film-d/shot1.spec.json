@@ -1,5 +1,14 @@
 {
   "url": "https://preview.conquercourse.pages.dev/?mode=map&welcome=0&hooks=1&slicehow=1",
-  "t": { "zoomEnd": 9, "pin": 10.5, "slice": 12.5, "tilt": 15.5, "tiltMs": 9000, "photos": 26 },
-  "tiltTo": 80, "tiltZoom": 17.2, "seconds": 31
+  "t": {
+    "zoomEnd": 9,
+    "pin": 10.5,
+    "slice": 12.5,
+    "tilt": 15.5,
+    "tiltMs": 9000,
+    "photos": 26
+  },
+  "tiltTo": 80,
+  "tiltZoom": 17.2,
+  "seconds": 31
 }

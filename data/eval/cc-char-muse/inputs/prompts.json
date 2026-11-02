@@ -1,13 +1,45 @@
 {
   "style": "Cartoon sports-game art style, soft lighting, plain light-blue background, full body, front view, symmetrical T-pose with arms straight out at shoulder level and legs shoulder-width apart, clear gaps under the arms and between the legs, one character only, nothing else in the image, no text, no logos.",
   "characters": [
-    {"id": "c1-fox", "kind": "normal", "text": "A friendly orange fox parkour runner in a teal headband and white running shoes."},
-    {"id": "c2-hoodie", "kind": "normal", "text": "A cheerful teenage skater with a big pink hair puff, a yellow hoodie and green shorts."},
-    {"id": "c3-robot", "kind": "normal", "text": "A chunky toy robot with a round head, red boots and a blue chest panel."},
-    {"id": "c4-cactus", "kind": "normal", "text": "A walking cactus in round sunglasses and tiny sneakers."},
-    {"id": "c5-banana", "kind": "strange", "text": "A banana wearing big sneakers and a sweatband, with tiny arms."},
-    {"id": "c6-robocat", "kind": "strange", "text": "A four-armed robot cat standing on two legs."},
-    {"id": "c7-jelly", "kind": "strange", "text": "A wobbly purple jellyfish with a dome head and many short tentacles for arms and legs."},
-    {"id": "c8-blob", "kind": "strange", "text": "A round potato-shaped blob creature with huge eyes, short stubby legs and noodle arms."}
+    {
+      "id": "c1-fox",
+      "kind": "normal",
+      "text": "A friendly orange fox parkour runner in a teal headband and white running shoes."
+    },
+    {
+      "id": "c2-hoodie",
+      "kind": "normal",
+      "text": "A cheerful teenage skater with a big pink hair puff, a yellow hoodie and green shorts."
+    },
+    {
+      "id": "c3-robot",
+      "kind": "normal",
+      "text": "A chunky toy robot with a round head, red boots and a blue chest panel."
+    },
+    {
+      "id": "c4-cactus",
+      "kind": "normal",
+      "text": "A walking cactus in round sunglasses and tiny sneakers."
+    },
+    {
+      "id": "c5-banana",
+      "kind": "strange",
+      "text": "A banana wearing big sneakers and a sweatband, with tiny arms."
+    },
+    {
+      "id": "c6-robocat",
+      "kind": "strange",
+      "text": "A four-armed robot cat standing on two legs."
+    },
+    {
+      "id": "c7-jelly",
+      "kind": "strange",
+      "text": "A wobbly purple jellyfish with a dome head and many short tentacles for arms and legs."
+    },
+    {
+      "id": "c8-blob",
+      "kind": "strange",
+      "text": "A round potato-shaped blob creature with huge eyes, short stubby legs and noodle arms."
+    }
   ]
 }

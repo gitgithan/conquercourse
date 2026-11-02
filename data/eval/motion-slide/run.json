@@ -11,10 +11,10 @@
   },
   "kimodo": {
     "reused": "data/eval/motion-slide/inputs/kimodo",
-    "wall_s": 1023.0,
+    "wall_s": 1023,
     "estimated_usd": 0.227,
     "usd_per_hour_assumed": 0.8,
-    "cap_usd": 15.0
+    "cap_usd": 15
   },
   "candidates": [
     {
@@ -84,7 +84,7 @@
         "foot_ahead_m": 0.09,
         "travel_m": -0.06,
         "max_trunk_turn_deg": 55.6,
-        "longest_air_s": 0.0,
+        "longest_air_s": 0,
         "window_frames": [
           2,
           39
@@ -136,7 +136,7 @@
         "foot_ahead_m": 0.37,
         "travel_m": -0.09,
         "max_trunk_turn_deg": 37.1,
-        "longest_air_s": 0.0,
+        "longest_air_s": 0,
         "window_frames": [
           4,
           57
@@ -232,7 +232,7 @@
         "foot_ahead_m": 0.49,
         "travel_m": 0.26,
         "max_trunk_turn_deg": 15.5,
-        "longest_air_s": 0.0,
+        "longest_air_s": 0,
         "window_frames": [
           2,
           23
@@ -385,7 +385,7 @@
         "foot_ahead_m": 0.18,
         "travel_m": 0.2,
         "max_trunk_turn_deg": 90.6,
-        "longest_air_s": 0.0,
+        "longest_air_s": 0,
         "window_frames": [
           2,
           45
@@ -411,7 +411,7 @@
         "foot_ahead_m": -0.04,
         "travel_m": 1.43,
         "max_trunk_turn_deg": 343.3,
-        "longest_air_s": 0.0,
+        "longest_air_s": 0,
         "window_frames": [
           4,
           44
@@ -514,8 +514,8 @@
         "low_s": 0.6,
         "foot_ahead_m": 0.43,
         "travel_m": 0.85,
-        "max_trunk_turn_deg": 316.0,
-        "longest_air_s": 0.0,
+        "max_trunk_turn_deg": 316,
+        "longest_air_s": 0,
         "window_frames": [
           6,
           36

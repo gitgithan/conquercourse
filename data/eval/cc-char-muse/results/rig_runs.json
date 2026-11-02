@@ -67,7 +67,7 @@
     },
     "bake": {
       "height_m": 1.752,
-      "yaw_deg": 8.0,
+      "yaw_deg": 8,
       "tilt_deg": 1.17
     }
   },
@@ -103,7 +103,7 @@
     },
     "bake": {
       "height_m": 1.752,
-      "yaw_deg": 15.0,
+      "yaw_deg": 15,
       "tilt_deg": 1.66
     }
   },
@@ -121,7 +121,7 @@
     },
     "bake": {
       "height_m": 1.75,
-      "yaw_deg": 0.0,
+      "yaw_deg": 0,
       "tilt_deg": 0.76
     }
   },

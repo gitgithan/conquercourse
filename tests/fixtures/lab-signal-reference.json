@@ -6,7 +6,7 @@
       "clip": "run",
       "kind": "triangle",
       "strength": 0,
-      "noiseCm": 0.0,
+      "noiseCm": 0,
       "fixBones": false,
       "pass": true,
       "values": {
@@ -14,7 +14,7 @@
         "legs_not_twisted": 20.7033,
         "knees_within_range": 115.6557,
         "flight_is_ballistic": null,
-        "feet_dont_sink": -0.0,
+        "feet_dont_sink": 0,
         "no_teleport": 4.0016,
         "bones_keep_length": 0.0019,
         "feet_dont_slide": 0.022,
@@ -339,7 +339,7 @@
       "clip": "run",
       "kind": "triangle",
       "strength": 2,
-      "noiseCm": 4.0,
+      "noiseCm": 4,
       "fixBones": true,
       "pass": false,
       "values": {
@@ -349,7 +349,7 @@
         "flight_is_ballistic": null,
         "feet_dont_sink": 0.0499,
         "no_teleport": 4.2319,
-        "bones_keep_length": 0.0,
+        "bones_keep_length": 0,
         "feet_dont_slide": 0.0507,
         "no_jitter": 120.8748
       },
@@ -376,7 +376,7 @@
       "clip": "leap",
       "kind": "triangle",
       "strength": 0,
-      "noiseCm": 0.0,
+      "noiseCm": 0,
       "fixBones": false,
       "pass": true,
       "values": {
@@ -384,7 +384,7 @@
         "legs_not_twisted": 36.3945,
         "knees_within_range": 116.0357,
         "flight_is_ballistic": 9.8105,
-        "feet_dont_sink": -0.0,
+        "feet_dont_sink": 0,
         "no_teleport": 3.4969,
         "bones_keep_length": 0.0019,
         "feet_dont_slide": 0.0316,
@@ -709,7 +709,7 @@
       "clip": "leap",
       "kind": "triangle",
       "strength": 2,
-      "noiseCm": 4.0,
+      "noiseCm": 4,
       "fixBones": true,
       "pass": false,
       "values": {
@@ -719,7 +719,7 @@
         "flight_is_ballistic": 9.2635,
         "feet_dont_sink": 0.0415,
         "no_teleport": 3.6427,
-        "bones_keep_length": 0.0,
+        "bones_keep_length": 0,
         "feet_dont_slide": 0.0481,
         "no_jitter": 144.4919
       },
@@ -746,7 +746,7 @@
       "clip": "vault",
       "kind": "triangle",
       "strength": 0,
-      "noiseCm": 0.0,
+      "noiseCm": 0,
       "fixBones": false,
       "pass": true,
       "values": {
@@ -755,7 +755,7 @@
         "knees_within_range": 127.6797,
         "flight_is_ballistic": null,
         "held_clips_are_held": 0.9676,
-        "feet_dont_sink": -0.0,
+        "feet_dont_sink": 0,
         "no_teleport": 4.7724,
         "bones_keep_length": 0.0032,
         "feet_dont_slide": 0.0962,
@@ -1097,7 +1097,7 @@
       "clip": "vault",
       "kind": "triangle",
       "strength": 2,
-      "noiseCm": 4.0,
+      "noiseCm": 4,
       "fixBones": true,
       "pass": false,
       "values": {
@@ -1108,7 +1108,7 @@
         "held_clips_are_held": 0.9676,
         "feet_dont_sink": 0.0712,
         "no_teleport": 4.7345,
-        "bones_keep_length": 0.0,
+        "bones_keep_length": 0,
         "feet_dont_slide": 0.1291,
         "no_jitter": 112.3157
       },
@@ -1210,7 +1210,7 @@
       "clip": "leap",
       "kind": "average",
       "strength": 1,
-      "noiseCm": 0.0,
+      "noiseCm": 0,
       "fixBones": false,
       "pass": true,
       "values": {

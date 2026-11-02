@@ -11,6 +11,6 @@ describe('mode table', () => {
   it('keeps the names the debug panel has always shown', () => {
     expect(MODE_INFO.drone.name).toBe('On the drone');
     expect(MODE_INFO.launch.next).toBe('Let go now');
-    expect(Object.keys(MODE_INFO).length).toBe(12);
+    expect(Object.keys(MODE_INFO).length).toBe(13);
   });
 });
