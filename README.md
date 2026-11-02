@@ -550,6 +550,12 @@ Diagrams are in [docs/meta-ai-pipelines.md](docs/meta-ai-pipelines.md); the full
 - Third-party material and licences: [docs/PRIOR-WORK.md](docs/PRIOR-WORK.md).
 - Every asset, its source and licence: [docs/ASSETS.md](docs/ASSETS.md).
 
+## Licence
+- The code is under the [MIT licence](LICENSE).
+- The code licence covers code only, not the art, models, motion clips, photos or music.
+- Each of those files keeps the licence in [docs/ASSETS.md](docs/ASSETS.md): ours, CC0, CC BY, CC BY-SA, or demo only.
+- Demo-only items (for example the MusicGen music, whose weights are CC BY-NC) must be swapped before any sale; the list is in [docs/copyright-audit.md](docs/copyright-audit.md).
+
 ## Where to read more
 - Source of truth: [docs/spec/SPEC.md](docs/spec/SPEC.md)
 - What we learned and why: [docs/lessons.md](docs/lessons.md)
