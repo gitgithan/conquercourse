@@ -1,6 +1,6 @@
 import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import { afterEach, describe, expect, it } from 'vitest';
-import { sliceCardOn, DEMOS, DEMO_GROUPS, LEAVE_MESSAGE, WORD_VALUES, currentWorld, hasThumb, mayLeaveCourse, thumbSlug, thumbUrl, worldHref } from '../src/ui/world-picker';
+import { makingOfOn, MAKING_OF_CARDS, sliceCardOn, DEMOS, DEMO_GROUPS, LEAVE_MESSAGE, WORD_VALUES, currentWorld, hasThumb, mayLeaveCourse, thumbSlug, thumbUrl, worldHref } from '../src/ui/world-picker';
 import { courseSource } from './helpers/course-source';
 
 describe('the world picker list (CC-89)', () => {
@@ -116,6 +116,16 @@ describe('the menu stays small (CC-97)', () => {
     for (const f of ['lache', 'lache-wide', 'climb', 'drop', 'bench-and-stairs', 'skate-box-and-rail', 'coaster-low', 'launch', 'launch-bar-hard', 'recoil', 'plank-thin', 'plank', 'coaster', 'coaster-sharp', 'park-rail-run']) {
       expect(existsSync(`public/assets/demo/${f}.course.json`), f).toBe(true);
       expect(DEMOS.some(([v]) => v.endsWith(`/${f}.course.json`)), `${f} should be out of the menu`).toBe(false);
+    }
+  });
+  it('The Making Of group: three real links to pages that exist, hidden by ?making=0, kept out of the course list', () => {
+    expect(makingOfOn(new URLSearchParams(''))).toBe(true);
+    expect(makingOfOn(new URLSearchParams('making=0'))).toBe(false);
+    expect(MAKING_OF_CARDS.map((c) => c[1])).toEqual(['Site map', 'Course map', 'How it was made']);
+    for (const [href, t, about] of MAKING_OF_CARDS) {
+      expect(about.length, t).toBeGreaterThan(10);
+      expect(existsSync(`public${href.endsWith('/') ? href + 'index.html' : href}`), href).toBe(true);
+      expect(DEMOS.some(([v]) => v === href)).toBe(false);
     }
   });
 });

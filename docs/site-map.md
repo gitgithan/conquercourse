@@ -36,6 +36,10 @@
     - You do: You get a random course the simulator has proved clearable, or open the World Slicer, the World Editor or the coaster builder.
     - How to get there: Courses picker, group "Make your own".
     - Leads to: The Course (play), World Slicer, World Editor, Coaster builder
+  - **The Making Of**
+    - You do: You open the maps of how the game was made, the site map and the course map, as ordinary pages.
+    - How to get there: Courses picker, last group "The Making Of" (`?making=0` hides it).
+    - Leads to: Courses picker, The Course (play)
 - **The Course (play)**
   - You do: You run, jump, hang, swing and climb a small runner to the finish.
   - How to get there: Welcome screen (any key), or pick a course in the Courses picker.

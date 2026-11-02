@@ -70,6 +70,16 @@ export const partsCardOn = (params: URLSearchParams): boolean => params.get('par
 /** CC-201: the slicer card is always shown (it used to hide behind ?labs=1); ?slice2=old brings the old rule back. */
 export const sliceCardOn = (params: URLSearchParams): boolean => params.get('slice2') !== 'old';
 
+/** CC-132: the last group, "The Making Of", links to the static pages in public/making-of/; ?making=0 hides it. */
+export const makingOfOn = (params: URLSearchParams): boolean => params.get('making') !== '0';
+export const MAKING_OF_GROUP = 'The Making Of';
+/** [address, title, about, tile colour]; these are real links, not courses, so they stay out of DEMO_GROUPS. */
+export const MAKING_OF_CARDS: [string, string, string, string][] = [
+  ['/making-of/site-map.html', 'Site map', 'Every screen a player can see, how to get there and where it leads.', '#d9ead8'],
+  ['/making-of/course-map.html', 'Course map', 'The building tasks of the project in plan order, and which wait on which.', '#e6e1f2'],
+  ['/making-of/', 'How it was made', 'The story behind the game, with the two maps above.', '#f3e6cf'],
+];
+
 export const WORD_VALUES = [...EXPERIMENTS.map((e) => `dojo-${e.id}`), 'parts', 'generate', 'editor', 'coaster-builder', 'map', 'lab-search', 'lab-optimization', 'lab-ik', 'lab-vision', 'lab-camera', 'lab-integration', 'lab-timing', 'lab-signal', 'lab-gentest', 'lab-detector', 'lab-hashing', 'lab-rl'];
 export const DEMOS: [string, string][] = DEMO_GROUPS.flatMap(([, ds]) => ds.map((d) => [d[0], d[1]] as [string, string]));
 export const DEMO_ABOUT = new Map<string, string>(DEMO_GROUPS.flatMap(([, ds]) => ds.map((d) => [d[0], d[2]] as [string, string])));
@@ -150,6 +160,7 @@ const STYLE = `
 .wg-board:focus-visible{outline:3px solid #f0a020;outline-offset:1px}
 .wg-card:focus-visible{outline:3px solid #f0a020;outline-offset:1px}
 .wg-card[aria-current=true]{border-color:#0f6b5c;box-shadow:0 0 0 3px #0f6b5c55}
+.wg-card{text-decoration:none}
 .wg-pic{display:grid;place-items:center;aspect-ratio:16/9;background:#e3e9e4;color:#0f6b5c;overflow:hidden}
 .wg-pic img{width:100%;height:100%;object-fit:cover;display:block}
 .wg-pic svg{width:44%;height:70%}
@@ -248,6 +259,18 @@ export function buildGallery(o: GalleryOptions): { el: HTMLElement; focusStart()
     for (const [v, label, about] of ds) {
       if (hiddenItem(v)) continue; // CC-78: the map and the Labs are behind the labs switch (?labs=1)
       cards.push({ card: addCard(grid, v, label, about, cur.value === v), sec: grid.parentElement!, text: `${label} ${about} ${group}`.toLowerCase() });
+    }
+  }
+  if (makingOfOn(pageQuery())) { // CC-132: plain links (same tab) to the Making Of pages, last on the list
+    const grid = section(MAKING_OF_GROUP);
+    for (const [href, title, about, tile] of MAKING_OF_CARDS) {
+      const a = document.createElement('a'); a.className = 'wg-card'; a.href = href; a.dataset.value = href; a.dataset.making = '1'; a.title = about;
+      const pic = document.createElement('div'); pic.className = 'wg-pic'; pic.style.background = tile;
+      const t = document.createElement('b'); t.textContent = title; t.style.cssText = 'font-size:1.3em;color:#17201d'; pic.append(t);
+      const txt = document.createElement('div'); txt.className = 'wg-txt';
+      const b = document.createElement('b'); b.textContent = title; const sp = document.createElement('span'); sp.textContent = about;
+      txt.append(b, sp); a.append(pic, txt); grid.append(a);
+      cards.push({ card: a as unknown as HTMLButtonElement, sec: grid.parentElement!, text: `${title} ${about} ${MAKING_OF_GROUP}`.toLowerCase() });
     }
   }
   const none = document.createElement('div'); none.className = 'wg-none'; none.textContent = 'No course matches that. Try another word.'; none.hidden = true; body.append(none);
