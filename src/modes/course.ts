@@ -6,6 +6,7 @@ import { createRunStats } from './course/stats';
 import { createHint } from './course/hint';
 import { bandTip, buildDiag, cartDiag, cartTip, plankTip, windowTip } from './course/tips';
 import { createCourseCamera } from './course/camera';
+import { createRunnerLook } from './course/characters';
 import { createClipMaker } from './course/clip';
 import { createCourseState } from './course/state';
 import { createSearch } from './course/search';
@@ -30,7 +31,7 @@ import { DEFAULT_WALL } from '../sim/wall';
 import { DEFAULT_ROPE } from '../sim/rope';
 import { inputFor, searchIdealRun, workSeconds, xWindows, type Plan, type SearchResult, type Window } from '../sim/ideal';
 import { createGhost } from '../ui/ghost';
-import { lookOfParam, softenPlayer } from '../ui/ghost-look';
+import { lookOfParam } from '../ui/ghost-look';
 import { challengeWords, courseTooBig, isOldLongLink, makeLinkInfo, OLD_LINK_WORDS, offersIdeal, openChallenge, secondsWords, shareOn } from '../share/challenge';
 import { clipFits, clipLayoutFor } from '../share/clip';
 import { mountTouch, touchOn } from '../share/touch';
@@ -53,10 +54,6 @@ import { challengeKey, challengeOn, cidOf } from '../share/challenge-course';
 import { touchStreak } from '../ui/streak';
 import { announceBest, boardCorner, boardOn, newsStrip, rememberBest, type BoardHooks } from '../ui/leaderboard';
 import { createRookieActor } from '../render/actor';
-import { lookSwitchOn, lookUrl } from '../render/look';
-import { charactersOn, fetchCharacterUrl, guardOn, saveChoice, savedChoice, tooSlow, watchFrames } from '../characters/runner';
-import { openCharacterPanel } from '../characters/panel';
-import { castOn, loadCast } from '../characters/cast';
 import { measureFacing } from '../characters/facing';
 import { makeObstacle } from '../course/collide';
 import { DEFAULT_HANG, feetOf, handOffset } from '../sim/holds';
@@ -158,43 +155,8 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
   scene.add(body);
   bodyMesh = body;
   // the real Rookie replaces the capsule when its model loads; the capsule stays as the fallback
-  let choice: 'a' | 'b' = 'a';
-  try { const saved = localStorage.getItem('cc.rookie'); if (saved === 'a' || saved === 'b') choice = saved; } catch { /* keep going */ }
-  if (params.get('rookie') === 'a' || params.get('rookie') === 'b') choice = params.get('rookie') as 'a' | 'b';
-  // CC-41: with ?look=custom a third button wears the MHR body (skinned to the Rookie's bones); nothing changes without the switch
-  const look = lookSwitchOn(pageSearch());
-  let custom = false;
-  let characterId: string | null = null; // CC-108: a community character the player picked (loaded only when picked)
-  async function loadRookie(which: 'a' | 'b', wear = false, url?: string) {
-    try {
-      const next = await createRookieActor(scene, { rookie: which, url: url ?? (wear ? lookUrl(look ?? 'custom') : undefined), fit: !!url });
-      actor?.dispose();
-      softenPlayer(next.object); // CC-180
-      actor = next; body.visible = false; choice = which; custom = wear || !!url;
-      if (params.get('nopush') !== '1') actor.setObstacle(makeObstacle(course));
-      if (!wear && !url && params.get('nosave') !== '1') try { localStorage.setItem('cc.rookie', which); } catch { /* ok */ }
-      return true;
-    } catch (e) { console.warn('Rookie not loaded, using the capsule', e); return false; }
-  }
-  await loadRookie(choice, look !== null);
-  // CC-108: wear a community character. Any failure, or a slow machine, goes back to the Rookie with a plain line.
-  const charNote = document.createElement('div');
-  charNote.id = 'charnote'; charNote.style.cssText = 'position:fixed;right:262px;top:52px;font:600 13px system-ui,sans-serif;background:#fff;border:1px solid #17201d;border-radius:8px;padding:4px 10px;display:none';
-  document.body.appendChild(charNote);
-  const noteLine = (t: string) => { charNote.textContent = t; charNote.style.display = t ? 'block' : 'none'; if (t) setTimeout(() => { charNote.style.display = 'none'; }, 6000); };
-  const keepChoice = params.get('nosave') === '1'; // ?nosave=1: a demo frame (the Parts gallery) wears a character without touching the player's saved choice or the pick count
-  const remember = (id: string | null) => { if (!keepChoice) saveChoice(id); };
-  async function wearCharacter(id: string | null) {
-    if (!id) { characterId = null; remember(null); await loadRookie(choice); return; }
-    const got = await fetchCharacterUrl(id, fetch, castOn() ? await loadCast() : []);
-    if ('error' in got) { noteLine(got.error); characterId = null; remember(null); return; }
-    const ok = await loadRookie('a', false, got.url);
-    if (!ok) { noteLine('That character would not load. You are running as the Rookie.'); await loadRookie(choice); characterId = null; remember(null); return; }
-    characterId = id; remember(id);
-    if (!keepChoice) void fetch('/api/character', { method: 'POST', body: JSON.stringify({ action: 'pick', id }) }).catch(() => undefined);
-    if (guardOn()) watchFrames(90, (ms) => { if (characterId === id && tooSlow(ms)) { noteLine('Your computer is slow with this character, so you are back to the Rookie.'); void wearCharacter(null); } });
-  }
-  if (charactersOn()) { const asked = params.get('char'); const id = asked && /^[0-9a-f]{16}$/.test(asked) ? asked : params.get('nosave') === '1' ? null : savedChoice(); if (id) void wearCharacter(id); } // ?char=<id> wears one by address (the browser checks use it)
+  const wear = createRunnerLook({ scene, course, params, body, setActor: (a) => { actor = a; }, actor: () => actor });
+  await wear.start();
   // ?probe=1: what the player sees. For the facing check (docs/character-facing-bug.md): where the runner moved, where its toe bone points, and which way its SKIN faces, all on screen.
   if (params.get('probe') === '1') (window as unknown as { __heading: () => unknown }).__heading = () => {
     if (!actor) return null;
@@ -273,44 +235,6 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
   bgBtn.onclick = () => { bgBtn.blur(); openBackgroundMenu(bgBtn, paintBackground); };
   rowBtns.append(editBtn, wholeBtn);
   if (backgroundOn(params)) rowBtns.append(bgBtn);
-  // choose your runner: the male or the female Rookie (remembered between visits)
-  const pick = document.createElement('div');
-  pick.id = 'pickrunner'; pick.style.cssText = 'position:fixed;right:262px;top:12px;display:flex;gap:6px';
-  const icon = (kind: 'a' | 'b') => `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${kind === 'a'
-    ? '<circle cx="10" cy="14" r="5.5"/><path d="M14 10 L20 4 M15 4 H20 V9"/>'
-    : '<circle cx="12" cy="9" r="5.5"/><path d="M12 14.5 V21 M9 18 H15"/>'}</svg>`;
-  const pickBtns = (['a', 'b'] as const).map((k) => {
-    const b = document.createElement('button');
-    b.innerHTML = icon(k);
-    b.title = k === 'a' ? 'Run as the male Rookie' : 'Run as the female Rookie';
-    b.setAttribute('aria-label', b.title);
-    b.onclick = async () => { characterId = null; saveChoice(null); await loadRookie(k); paintPick(); };
-    pick.appendChild(b); return b;
-  });
-  if (look !== null) {
-    const b = document.createElement('button');
-    b.id = 'look-custom';
-    b.innerHTML = '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="5" r="2.5"/><path d="M12 8 V16 M5 11 H19 M12 16 L8 21 M12 16 L16 21"/></svg>';
-    b.title = 'Run as your own look';
-    b.setAttribute('aria-label', b.title);
-    b.onclick = async () => { characterId = null; saveChoice(null); await loadRookie('a', true); paintPick(); };
-    pick.appendChild(b); pickBtns.push(b);
-  }
-  function paintPick() {
-    pickBtns.forEach((b, i) => {
-      const on = i === 2 ? custom && !characterId : !custom && (i === 0 ? 'a' : 'b') === choice;
-      b.setAttribute('aria-pressed', String(on));
-      b.style.cssText = `display:grid;place-items:center;width:38px;height:34px;border-radius:8px;cursor:pointer;border:2px solid ${on ? '#0f6b5c' : '#b9c2bb'};background:${on ? '#0f6b5c' : '#fff'};color:${on ? '#fff' : '#17201d'}`;
-    });
-  }
-  if (charactersOn()) {
-    const cb = document.createElement('button');
-    cb.id = 'characters-btn'; cb.textContent = 'Characters'; cb.title = 'Latest creations: pick a runner or make one';
-    cb.style.cssText = 'font:600 13px system-ui,sans-serif;border:2px solid #b9c2bb;background:#fff;color:#17201d;border-radius:8px;padding:4px 10px;cursor:pointer';
-    cb.onclick = () => { cb.blur(); openCharacterPanel({ current: characterId, onPick: (c) => { void wearCharacter(c?.id ?? null).then(paintPick); } }); };
-    pick.appendChild(cb);
-  }
-  paintPick();
   const nextCam = cam.nextCam;
   // the obstacle strip: one icon per obstacle; cleared ones dim, the next one is biggest; gold marks only the obstacle you fell at most (CC-183; ?gold=old: the rest glow gold)
   const strip = document.createElement('div');
@@ -421,7 +345,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
   narrow.textContent = '@media (max-width:700px){#hudrow>div{font-size:14px!important}#pickrunner,#coursebtns,#debugbtn,#idealbtn,#community{display:none!important}#dojobtn{top:52px!important;right:12px!important;font-size:13px!important;padding:5px 10px!important}#ghost-hud{left:12px!important;top:52px!important;transform:none!important}#cam{top:92px!important;right:12px!important}#strip{top:160px!important}#keys{top:225px!important}}';
   document.head.append(narrow);
   const hudBox = hudOn(params) ? hudRow : hud;
-  document.body.append(hudBox, msg, help, panel, hint, gaugeStack.el, dojoBtn, idealBtn, rowBtns, pick, cam.button, dbgBtn);
+  document.body.append(hudBox, msg, help, panel, hint, gaugeStack.el, dojoBtn, idealBtn, rowBtns, wear.pick, cam.button, dbgBtn);
   // CC-85: a real place shows its real photos (credit under each, a large view on click); ?photos=0 or the Hide switch turns them off
   const placeSlug = slugOfCourse(course.name);
   let livePhotos: { update(x: number): void } | null = null; // CC-90: street photos from the allow-list change as the runner moves; the CC-85 strip is the fallback
@@ -791,7 +715,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
     const tryFrom = tryClip ? startOfX(course, tryClip.from) : null; // CC-242: a try from a checkpoint is shared with its start, so the friend begins at the same place
     const tryStart = tryFrom ?? 0;
     const tryRun = shareOn(params) && !botMode && !st.demo && !st.idealWhole && !params.get('mode') ? (ghostCtl?.myRun() ?? (tryFrom ? tryClip?.log ?? null : null)) : null; // CC-181: a try that fell can be sent as a link too; it never counts for a time
-    if (tryRun) row.append(...copyLinkButton({ link: (nick) => makeLinkInfo(location.origin, pageSearch(), course, tryRun, nick, choice, 'fell', undefined, tryStart), courseTooBig: () => courseTooBig(pageSearch(), course), label: 'Copy link to this try', id: 'share-copy-fall' }));
+    if (tryRun) row.append(...copyLinkButton({ link: (nick) => makeLinkInfo(location.origin, pageSearch(), course, tryRun, nick, wear.choice(), 'fell', undefined, tryStart), courseTooBig: () => courseTooBig(pageSearch(), course), label: 'Copy link to this try', id: 'share-copy-fall' }));
     if (tryClip && clipFits(tryTicks)) mk('Download a video of this try', () => void makeClip(tryClip.log, tryTicks, tryClip.from)).id = 'share-clip-fall'; // CC-157: a try that ended in a fall is worth a clip too
     mk('Show me the ideal run (I)', () => showIdeal(lastZone));
     if (!course.track) mk('Make it easier', () => openEditor('easier')).id = 'makeeasier';
@@ -824,7 +748,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
   let maxPen = 0, handErr = 9;
   const hintFor = createHint(ctx, { toastDrums: toastDrumsNow, shotPreview });
 
-  ghostCtl = mountCourseGhost({ scene, course, params, idealCache, runSearch, progressZones, strip, look: () => choice });
+  ghostCtl = mountCourseGhost({ scene, course, params, idealCache, runSearch, progressZones, strip, look: () => wear.choice() });
   ghostCtl.begin(!resume && startAt === undefined && (!botMode || ghostBot), (!botMode || ghostBot) && !resume?.world ? (resume ? resume.retryX : startAt ?? course.startX) : null);
   // A run played again to make a clip (CC-129): see course/clip.ts
   const makeClip = createClipMaker({ renderer, camera, course, st, restart: (x) => restart(x), frame, timeScale: Number(params.get('timescale') ?? 1), setFeed: (f) => { feed = f; } });
@@ -873,7 +797,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
     // ?camprobe=1: what the camera and the runner's look are doing now, for scripts/course-camera-characterize.mjs (CC-133); nothing else changes
   if (params.get('camprobe') === '1') (window as unknown as { __probe: () => unknown }).__probe = () => {
     const d = camera.getWorldDirection(new THREE.Vector3());
-    return { pos: camera.position.toArray(), dir: d.toArray(), up: camera.up.toArray(), fov: camera.fov, aspect: camera.aspect, camMode: cam.mode(), orbit: { ...cam.orbit }, actor: actor ? actor.object.visible : null, body: body.visible, characterId, choice, custom, clipping: st.clip.on, pip: cam.pipFrame.style.display, frontCam: frontCam.position.toArray(), frontDir: frontCam.getWorldDirection(new THREE.Vector3()).toArray() };
+    return { pos: camera.position.toArray(), dir: d.toArray(), up: camera.up.toArray(), fov: camera.fov, aspect: camera.aspect, camMode: cam.mode(), orbit: { ...cam.orbit }, actor: actor ? actor.object.visible : null, body: body.visible, ...wear.state(), clipping: st.clip.on, pip: cam.pipFrame.style.display, frontCam: frontCam.position.toArray(), frontDir: frontCam.getWorldDirection(new THREE.Vector3()).toArray() };
   };
   // ?fx=bloom,vignette,dof (or all): picture polish for stills (CC-188); off unless asked, loaded only then
   let fxPipe: { render(): void } | null = null;
@@ -962,7 +886,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
           course, params, panel, runLog, hardBand, addHardest, listedKey, viewHooks, clearedNote,
           get world() { return st.world; }, get runKind() { return stats.kind; }, get ghostCtl() { return ghostCtl; }, get lastClear() { return lastClear; },
           get demo() { return st.demo; }, botMode, get idealWhole() { return st.idealWhole; }, loadedIsDefault, get analyticsRunId() { return analyticsRunId; },
-          get onboarding() { return onboarding; }, get choice() { return choice; },
+          get onboarding() { return onboarding; }, get choice() { return wear.choice(); },
           restart: (x) => restart(x), startIdeal: (x0, z) => startIdeal(x0, z), openDojo: () => openDojo(), makeClip: (l, t, f) => makeClip(l, t, f),
         });
       }
