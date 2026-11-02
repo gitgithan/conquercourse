@@ -1,5 +1,5 @@
 // CC-89: one small picture per course card in the Courses gallery.
-//   npm run thumbs                 every course in the list
+//   npm run thumbs -- --all        every card except the hand-made ones (World Slicer, Dojo); with no names and no --all it only prints how to use it
 //   npm run thumbs -- lache band   only the courses whose file name contains one of the words
 // Each picture is the course with the runner mid-move at its first obstacle (the ideal run, zoomed out, no buttons), 640x360 WebP, in public/assets/thumbs/.
 // A card that opens a tool (World Editor, coaster builder, World Slicer, generator, Lab) gets a picture of that tool's page.
@@ -9,7 +9,11 @@ import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { DEMOS, hasThumb, thumbSlug, WORD_VALUES } from '../src/ui/world-picker';
 
 const port = process.env.PORT ?? '5173';
-const only = process.argv.slice(2);
+const args = process.argv.slice(2), force = args.includes('--force'), all = args.includes('--all');
+const only = args.filter((a) => !a.startsWith('--'));
+// CC-165: cards whose picture is made by hand are never rewritten by this script (the World Slicer card shows 3D buildings from street level; the Dojo cards are lesson drawings); --force names them on purpose
+const HAND_MADE = (slug: string) => slug === 'map' || slug.startsWith('dojo-');
+if (!only.length && !all) { console.log('Name the cards to redraw: npm run thumbs -- lache band   (or --all for every card that is not hand-made; --force also redraws the hand-made ones when named)'); process.exit(0); }
 const server = spawn('node', ['node_modules/vite/bin/vite.js', '--port', port, '--strictPort'], { stdio: 'ignore' });
 const flags = ['--enable-unsafe-webgpu', '--enable-features=Vulkan', '--use-vulkan=swiftshader', '--use-angle=swiftshader', '--disable-vulkan-surface', '--ignore-gpu-blocklist'];
 const out: Record<string, string> = {};
@@ -21,6 +25,7 @@ try {
     if (!hasThumb(value)) continue;
     const slug = thumbSlug(value);
     if (only.length && !only.some((w) => slug.includes(w))) continue;
+    if (HAND_MADE(slug) && !(force && only.some((w) => slug.includes(w)))) { out[slug] = 'kept (hand-made picture)'; continue; }
     const page = await browser.newPage({ viewport: { width: 1280, height: 720 } });
     let url = `http://localhost:${port}/?welcome=0&photos=0&bot=ideal`;
     const tool = WORD_VALUES.includes(value);
