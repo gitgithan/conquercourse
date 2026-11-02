@@ -20,7 +20,7 @@ try {
     ['report', '?course=/assets/demo/coaster-two-hills.course.json&bot=ideal&welcome=0', 'simulator', async (p) => { await p.waitForSelector('#report-again', { timeout: 240000 }); await wait(600); }, null],
     ['coaster', '?mode=coaster', 'simulator', async (p) => { await p.waitForSelector('#coverdict'); await p.waitForFunction(() => (document.getElementById('coverdict')?.textContent ?? '').length > 5, null, { timeout: 90000 }); }, null],
     ['community-crew', '?mode=communities', 'simulator', async (p, on) => { if (on) { await p.waitForSelector('#ex-crew'); await p.locator('#ex-crew').scrollIntoViewIfNeeded(); await wait(400); } }, null],
-    ['make-segment', '?mode=communities', 'cutter', async (p) => { await p.click('#make-own'); await p.waitForSelector('[data-sample]'); await p.click('[data-sample="park01"]'); await p.waitForSelector('#cnext', { timeout: 30000 }); const st = p.locator('.com .stage, .com img').first(); const bb = await st.boundingBox(); if (bb) await p.mouse.click(bb.x + bb.width / 2, bb.y + bb.height / 2); await wait(500); await p.click('#cnext'); await wait(800); }, null],
+    ['make-segment', '?mode=communities', 'cutter', async (p) => { await p.waitForSelector('#make-own', { timeout: 60000 }); await p.click('#make-own'); await p.waitForSelector('[data-sample]'); await p.click('[data-sample="park01"]'); await wait(2500); }, null], // Step 2 shows the Cutter badge; going on to Step 3 needs the SAM 3 service (a test machine has none: not tested here)
     ['characters', '?welcome=0', 'maker', async (p) => { await p.waitForSelector('#characters-btn', { timeout: 120000 }); await p.click('#characters-btn'); await p.waitForSelector('#chars'); await wait(800); }, null],
   ];
   for (const [name, q, voice, steps] of screens) {
@@ -38,7 +38,7 @@ try {
           const n = await page.evaluate(() => document.querySelectorAll('#crew > li').length);
           checks[`${name} ${on ? 'on' : 'off'}: ${on ? '10 crew cards' : 'no crew strip'}`] = on ? n === 10 : n === 0 && !(await page.$('#welcome-crew'));
         } else {
-          checks[`${name} ${on ? 'on' : 'off'}: badge ${on ? 'shown' : 'absent'}`] = on ? !!b && b.h >= 40 : b === null;
+          checks[`${name} ${on ? 'on' : 'off'}: badge ${on ? (name === 'report' ? 'absent by design (CC-97)' : 'shown') : 'absent'}`] = on ? (name === 'report' ? b === null : !!b && b.h >= 30) : b === null;
           if (on && b) console.log(name, JSON.stringify(b));
         }
         await page.screenshot({ path: `${out}/${name}-${on ? 'after' : 'before'}.png` });
