@@ -1,4 +1,5 @@
-import { laneSamples, sliceProfile, surfaceSamples, type Mesh, type Profile, type SliceOptions } from './slice';
+import { LANE_DROP } from '../sim/drop';
+import { laneSamples, roofStartOn, sliceProfile, surfaceSamples, type Mesh, type Profile, type SliceOptions } from './slice';
 
 // A world made of pieces. A piece is a mesh with a place (x, z on the ground, a height off the ground), a turn about the vertical,
 // and a scale: the same toy brick can be a 3 cm model or a half-metre block. The course is a lane cut from the whole world.
@@ -161,4 +162,14 @@ export function laneProfile(pieces: Piece[], lane: SliceOptions, centre: { x: nu
   let at = 0;
   for (const a of parts) { all.set(a, at); at += a.length; }
   return sliceProfile(all, centre, lane);
+}
+
+/** CC-165: how far to lift a place so its lane stands on the water line. A place's proof can come from a cut a little above its roofs (the lane then sits under the cut by a few decimetres); with the roof start those samples are hidden and the lane reads empty. Returns 0 when the lane already reads, or when nothing lies within a drop below the cut. */
+export function liftToRoof(pieces: Piece[], lane: SliceOptions): number {
+  if (!roofStartOn() || laneProfile(pieces, lane).length > 0) return 0;
+  const probe = laneProfile(pieces, { ...lane, level: lane.level - LANE_DROP });
+  const tops = probe.cells.filter((c): c is number => c !== null);
+  if (!tops.length) return 0;
+  const top = Math.max(...tops) - LANE_DROP;
+  return top < 0 ? -top + 0.001 : 0;
 }
