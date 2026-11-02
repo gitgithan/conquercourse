@@ -5,9 +5,9 @@
 // Knobs (env, for the tuning sweep scripts/ways-sweep.sh): JOIN, BARS (x of each bar), BAR_Y, LOWTOP (top of the deep floors), LEDGES (steps up to the join, each one a climb).
 import { writeFileSync } from 'node:fs';
 const EDGE = 24, JOIN = Number(process.env.JOIN ?? 38);
-const BARS = (process.env.BARS ?? '27,30.5').split(',').map(Number); // x of each bar on the high way
+const BARS = (process.env.BARS ?? '29,32.5').split(',').map(Number); // x of each bar on the high way
 const NB = BARS.length;
-const BAR_Y = Number(process.env.BAR_Y ?? 2.8);
+const BAR_Y = Number(process.env.BAR_Y ?? 3.2);
 const LOWTOP = Number(process.env.LOWTOP ?? -6.7);
 const LEDGES = Number(process.env.LEDGES ?? 1); // steps between the deep floor and the join (each is one climb)
 const GATE = process.env.GATE === '1'; // CC-228 (off by default; the shipped course is built without it): the far low floors are solid only after standing on the deep floor, so a jump from the high deck cannot skip the low way

@@ -9,9 +9,9 @@
   },
   "demo/two-ways": {
     "obstacles": 1,
-    "idealTicks": 1277,
+    "idealTicks": 1275,
     "routeTicks": {
-      "high": 1277,
+      "high": 1275,
       "low": 1337
     }
   },
