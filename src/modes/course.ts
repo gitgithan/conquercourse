@@ -1,5 +1,10 @@
 import { backgroundOn, openBackgroundMenu, savedBackground } from '../ui/background';
 import { mountToasts } from '../ui/toast-stack';
+import { createKeydown } from './course/keydown';
+import { showClearedReport } from './course/report';
+import { createViewHooks } from './course/board';
+import { mountDrums } from './course/drums';
+import { mountCourseGhost } from './course/ghost';
 import { filmShotOf } from '../film/camera';
 import { hazardOf, HAZARD_INFO } from '../course/hazard';
 import { buildFloor } from '../course/floor';
@@ -26,8 +31,8 @@ import { mountTouch, touchOn } from '../share/touch';
 import { createGaugeStack } from '../ui/gauges';
 import { HUD, hudOn, keycapCss, panelCss } from '../ui/hud-style';
 import { PHONE_WORDS, browserPointing, phoneMode } from '../share/phone';
-import { clipCard, copyLinkButton, shareButtons, showBanner } from '../share/share-ui';
-import { organiseReport, reportSectionsOn } from '../ui/report-sections';
+import { clipCard, copyLinkButton, showBanner } from '../share/share-ui';
+import { reportSectionsOn } from '../ui/report-sections';
 import { courseHash, encodeLog, inputOfMask, startOfX, startXOf, type InputLog } from '../sim/replay';
 import { findShortcuts, shortcutLine, type Shortcut } from '../sim/shortcuts';
 const findShortcutsNow = (c: CourseData): Shortcut[] => findShortcuts(c, { moveChoices: false }).shortcuts; // ?bot=shortcut only: blocks the page while it searches
@@ -39,14 +44,10 @@ import { logTicks } from '../sim/run-checks';
 import { noteRun, noteRunning } from '../ui/feedback-model';
 import { track, trackCourseEvent, courseKey, publishClear, sendClear, session } from '../ui/feedback';
 import { statsOn } from '../ui/course-stats';
-import { boardKeyOfPage, boardPathOf, FIRST_COURSE_KEY } from '../share/board-courses';
+import { boardKeyOfPage, FIRST_COURSE_KEY } from '../share/board-courses';
 import { challengeKey, challengeOn, cidOf } from '../share/challenge-course';
-import { challengeLink, registerCourse } from '../share/challenge-client';
-import { challengeStrip } from '../ui/challenge-card';
-import { madeCourse } from '../share/made-course';
 import { touchStreak } from '../ui/streak';
-import { announceBest, boardBox, boardCorner, boardOn, newsStrip, publishStrip, rememberBest, type BoardHooks } from '../ui/leaderboard';
-import { chaseRun, loadRun, openRunView } from '../ui/run-view';
+import { announceBest, boardCorner, boardOn, newsStrip, rememberBest, type BoardHooks } from '../ui/leaderboard';
 import { createRookieActor } from '../render/actor';
 import { lookSwitchOn, lookUrl } from '../render/look';
 import { charactersOn, fetchCharacterUrl, guardOn, saveChoice, savedChoice, tooSlow, watchFrames } from '../characters/runner';
@@ -58,16 +59,14 @@ import { climbAhead } from '../sim/climb';
 import { DEFAULT_HANG, feetOf, handOffset } from '../sim/holds';
 import { actorStateFor } from '../motion/actor-state';
 import { groundAt } from '../sim/terrain';
-import { drumsFor, drumsForPaths, type Drum } from '../sim/drums';
 import { approachToast } from '../ui/approach-toast';
-import { forkCell, pathsOn, waysOf } from '../ui/paths';
+import { forkCell, pathsOn } from '../ui/paths';
 import { branchesOf } from '../sim/branches';
-import { createDrumLane } from '../ui/drum-lane';
 import { goldOld, hardestBlock, hardestLabel, hardestOf } from '../ui/hardest';
-import { bestLine, buildReport, clearLog, logTick, newLog, renderReport } from '../ui/run-report';
+import { buildReport, clearLog, logTick, newLog, renderReport } from '../ui/run-report';
 import { ZONE_ICONS } from '../ui/zone-icons';
 import { OBSTACLES } from '../course/obstacles';
-import { BUTTON_PLACE, buildGallery, currentWorld, DEMOS, GALLERY_EVENT, modalAttrs, mountWorldGallery, WORD_VALUES, worldHref } from '../ui/world-picker';
+import { BUTTON_PLACE, buildGallery, currentWorld, DEMOS, GALLERY_EVENT, modalAttrs, mountWorldGallery, worldHref } from '../ui/world-picker';
 import { createDebugView } from '../ui/debug-view';
 import { createGrabHint } from '../ui/grab-hint';
 import { slugOfCourse } from '../ui/place-photos';
@@ -600,31 +599,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
   }
   // The drum lane is on by default wherever the course has a planned player route; a coaster is mostly passive cart motion.
   const forceDrums = params.get('drums') === '1';
-  const drumLane = createDrumLane(document.body, !course.track);
-  let toastDrums: Drum[] = []; // the same drums as the key strip: each obstacle's toast starts a fixed lead before its key (CC-195)
-  const showDrums = (result: { plan: Plan; cleared: boolean }): void => {
-    try {
-      const forkDrums = pathsOn(params) ? drumsForPaths(course) : null; // CC-225: both ways of a fork, each in its own row
-      const fb = branchesOf(course)[0];
-      const drums = forkDrums ?? (result.cleared ? drumsFor(course, result.plan) : []);
-      drumLane.set(drums, forkDrums && fb ? [{ x: fb.forkX, label: `Fork: top ${fb.routes[0].name.split(':')[0]}, bottom ${fb.routes[1].name.split(':')[0]}` }, { x: fb.joinX, label: 'Join' }] : []);
-      toastDrums = drums;
-      const show = forceDrums || drums.length > 0;
-      if (drumLane.shown !== show) drumLane.toggle();
-    } catch {
-      drumLane.set([]);
-      if (drumLane.shown !== forceDrums) drumLane.toggle();
-    }
-  };
-  setTimeout(() => {
-    if (course.track) { drumLane.set([]); if (drumLane.shown) drumLane.toggle(); return; }
-    // CC-243: a course that carries its plan (a demo course, a ready-made editor course, or an edited one the lane check already proved) shows its drums at once;
-    // any other is searched in the workers, never on the page's thread (a whole-course search there froze the Course for up to two minutes)
-    if (course.plan) { showDrums({ plan: course.plan, cleared: true }); return; }
-    if (pathsOn(params)) { showDrums({ plan: undefined as unknown as Plan, cleared: false }); return; }
-    drumLane.set([]);
-    void runSearch(course, { cancelled: false }, undefined, workSeconds(60)).then((r) => showDrums(r)).catch(() => showDrums({ plan: undefined as unknown as Plan, cleared: false }));
-  }, 0);
+  const { drumLane, toastDrums: toastDrumsNow } = mountDrums({ course, params, forceDrums, runSearch });
   const dbgBtn = document.createElement('button');
   dbgBtn.id = 'debugbtn'; dbgBtn.textContent = 'Debug (B)'; dbgBtn.title = 'Show the collision boxes and where a jump right now would go';
   dbgBtn.style.cssText = 'position:fixed;left:-9999px;top:0;opacity:0;pointer-events:none'; dbgBtn.tabIndex = -1; dbgBtn.setAttribute('aria-hidden', 'true'); // CC-246: no label on the screen; B still toggles it, and the tests use this node as the "course is ready" mark
@@ -688,31 +663,31 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
     const t = e.target as HTMLElement | null;
     return document.getElementById('cc-feedback') !== null || (!!t && (/^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName) || t.isContentEditable));
   };
-  addEventListener('keydown', (e) => {
-    if (typing(e)) { keys.clear(); jumpQueued = false; vaultQueued = false; rollQueued = false; slideQueued = false; fireQueued = false; return; }
-    if (paused && !e.repeat) { paused = false; last = performance.now(); }
-    if (e.repeat) return;
-    keys.add(e.code);
-    if (e.code === 'Space' || ((e.code === 'ArrowUp' || e.code === 'KeyW') && !(course.recoil && isAimable(recoilParams(course)) && (world.recoil?.armed ?? 0) > 0))) { jumpQueued = true; e.preventDefault(); } // a loaded cannon takes Up and W to tilt the barrel instead of jumping
-    if (e.code === 'KeyV') vaultQueued = true;
-    if (e.code === 'KeyX') rollQueued = true;
-    if (e.code === 'ArrowDown' || e.code === 'KeyS') slideQueued = true; // a fresh press; the world slides only on the ground at a jog's speed
-    if (e.code === 'KeyK') fireQueued = true;
-    if (e.code === 'KeyR') { if (e.shiftKey) { retryX = course.startX; restart(course.startX); } else restart(); }
-    if (idealWhole && !botMode && e.code !== 'KeyI' && !VIEW_KEYS.includes(e.code) && !/^(Shift|Control|Alt|Meta)/.test(e.code)) stopWholeIdeal(); // a move key takes the run back; the view keys (camera, front view, drum lane) do not
-    if (e.code === 'KeyI') { if (e.shiftKey) showWholeIdeal(); else showIdeal(zoneAt(world.runner.x)?.id ?? 'gap'); }
-    if (e.code === 'KeyT') openDojo();
-    if (e.code === 'Escape' && replay) { replay = null; clearGuides(); showAgain(); }
-    if (e.code === 'KeyC') nextCam();
-    if (e.code === 'KeyG') drumLane.toggle();
-    if (e.code === 'KeyF') {
-      frontOverride = !(frontOverride ?? true);
-      e.preventDefault();
-    }
-    if (e.code === 'KeyB') toggleDebug();
-    if (e.code === 'KeyN') ghostCtl?.cycle();
-    if (e.code === 'KeyH') { keysTouched = true; keysOpen = !keysOpen; paintKeys(keysOpen); }
-  });
+  addEventListener('keydown', createKeydown({
+    typing, keys,
+    get jumpQueued() { return jumpQueued; }, set jumpQueued(v) { jumpQueued = v; },
+    get vaultQueued() { return vaultQueued; }, set vaultQueued(v) { vaultQueued = v; },
+    get rollQueued() { return rollQueued; }, set rollQueued(v) { rollQueued = v; },
+    get slideQueued() { return slideQueued; }, set slideQueued(v) { slideQueued = v; },
+    get fireQueued() { return fireQueued; }, set fireQueued(v) { fireQueued = v; },
+    get paused() { return paused; }, set paused(v) { paused = v; },
+    get last() { return last; }, set last(v) { last = v; },
+    course, get world() { return world; },
+    get retryX() { return retryX; }, set retryX(v) { retryX = v; },
+    restart: (x) => restart(x),
+    get idealWhole() { return idealWhole; }, get botMode() { return botMode; }, VIEW_KEYS,
+    stopWholeIdeal: () => stopWholeIdeal(), showWholeIdeal: () => showWholeIdeal(), showIdeal: (id) => showIdeal(id),
+    zoneAt: (x) => zoneAt(x), openDojo: () => openDojo(),
+    get replay() { return replay; }, set replay(v) { replay = v as typeof replay; },
+    clearGuides: () => clearGuides(), showAgain: () => showAgain(), nextCam: () => nextCam(),
+    get drumLane() { return drumLane; },
+    get frontOverride() { return frontOverride; }, set frontOverride(v) { frontOverride = v; },
+    toggleDebug: () => toggleDebug(),
+    get ghostCtl() { return ghostCtl; },
+    get keysTouched() { return keysTouched; }, set keysTouched(v) { keysTouched = v; },
+    get keysOpen() { return keysOpen; }, set keysOpen(v) { keysOpen = v; },
+    paintKeys: (o) => paintKeys(o),
+  }));
   addEventListener('keyup', (e) => keys.delete(e.code));
   const touchControls = touchOn(params, browserPointing); // CC-139: on a touch device the buttons press the same keys; ?touch=0 turns them off
   if (touchControls) { mountTouch(document.body, { cannon: !!course.recoil }); gaugeStack.lift(150); keysOpen = false; keysTouched = true; paintKeys(false); frontOverride = false; } // the keys card is for keyboards; the small corner view would hide the runner on a narrow screen
@@ -730,11 +705,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
 
   if (params.get('bot') === 'shortcut') { const list = course.shortcuts?.length ? course.shortcuts : findShortcutsNow(course); if (list[0]) plan = list[0].plan; else plan = course.plan ?? searchIdealRun(course).plan; }
   const botMode = params.get('bot') === 'ideal' || params.get('bot') === 'shortcut';
-  const viewHooks = (): BoardHooks => ({
-    onView: (row) => { if (row.id) void openRunView(course, { id: row.id, nick: row.nick, ticks: row.ticks }, (t, nick) => ghostCtl?.setFriend(t, nick)); },
-    onChase: (row) => { if (row.id) void chaseRun(course, { id: row.id, nick: row.nick, ticks: row.ticks }, (t, nick) => ghostCtl?.setFriend(t, nick)); },
-    onStats: async (row) => { const r = row.id ? await loadRun(course, row.id) : null; return r ? { moves: r.moves } : null; },
-  }); // CC-108: View Run, then Race Ghost
+  const viewHooks = (): BoardHooks => createViewHooks(course, () => ghostCtl);
   // CC-108: the courses a run can be published on are the listed ones (src/share/board-courses.ts); the First Course with the timed balls is another course, so it is not one of them
   const rankedKey = (): string | null => { const k = boardKeyOfPage(params); return (k === FIRST_COURSE_KEY && course !== defaultCourse) || courseHash(course) !== loadedHash ? null : k; }; // CC-108: only the official course, exactly, is on a ranked board
   const challengeId = challengeOn(params) ? cidOf(params) : null; // CC-108: a challenge course opened by its id
@@ -1329,7 +1300,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
     if (course.holds?.length && w.mode === 'run' && !r.grounded) { const next = course.holds.find((h) => h.x > r.x - 0.5); if (next && Math.abs(next.x - r.x) < 2.5) return 'Hold E to grab the bar'; }
     if (w.mode === 'climb') return 'Keep holding E: the arms pull you up';
     { const ca = w.mode === 'run' ? climbAhead(course.terrain, r.x, r.y, 2.5, course.jumpSpeed) : null; if (ca) return ca.standing ? 'A tall wall: hold E at the wall to grab the edge and climb' : 'A very tall wall: jump and hold E at the top of the jump'; }
-    { const at = w.mode === 'run' && r.tick >= 60 && toastDrums.length ? approachToast(course, toastDrums, r.x) : null; if (at && at.kind !== 'bounce' && !(at.kind === 'jump' && (everCleared || falls > 0))) return at.text; }
+    { const at = w.mode === 'run' && r.tick >= 60 && toastDrumsNow().length ? approachToast(course, toastDrumsNow(), r.x) : null; if (at && at.kind !== 'bounce' && !(at.kind === 'jump' && (everCleared || falls > 0))) return at.text; }
     if (everCleared || falls > 0) return '';
     if (r.tick < 60 || (r.x < 4 && r.tick < 600)) return 'Hold → to run';
     const g = specs.find((q2) => q2.x + 0.2 >= r.x && q2.x - r.x < 6);
@@ -1337,13 +1308,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
     return '';
   }
 
-  ghostCtl = createGhost({
-    scene, parent: document.body, course,
-    idealPlan: async () => idealCache.get(course.startX) ?? course.plan ?? (await runSearch(course, { cancelled: false }).then((r) => r.plan).catch(() => null)),
-    zoneIndexAt: (x) => progressZones.findIndex((z) => x >= z.x0 && x < z.x1),
-    strip: () => strip,
-    look: () => choice, oldLook: params.get('ghost') === 'old',
-  });
+  ghostCtl = mountCourseGhost({ scene, course, params, idealCache, runSearch, progressZones, strip, look: () => choice });
   ghostCtl.begin(!resume && startAt === undefined && (!botMode || ghostBot), (!botMode || ghostBot) && !resume?.world ? (resume ? resume.retryX : startAt ?? course.startX) : null);
   // A run played again to make a clip (CC-129). The pictures come from the real game on a stepped clock: four ticks for each, whatever the speed of this computer.
   let clipCam: { x: number; y: number } | null = null; // where the clip camera is looking, kept between pictures
@@ -1548,44 +1513,13 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
         offerClear();
         try { localStorage.setItem('cc.course.cleared', '1'); } catch { /* ok */ }
         panel.innerHTML = ''; panel.style.display = 'grid';
-        const ghostLine = ghostCtl?.reportLine(world.runner.tick) ?? null;
-        const ways = pathsOn(params) && runKind === 'attempt' ? waysOf(course, runLog.path) : null; // CC-225: the way taken, and the best line of that way
-        const rep = buildReport(course, runLog, world, runKind === 'attempt', bestLine(course, ways?.takenPlan ?? undefined));
-        if (ways) rep.ways = ways;
-        const courses = DEMOS.filter((d) => !WORD_VALUES.includes(d[0])), here = courses.findIndex((d) => (d[0] || null) === currentWorld(params, course.name).value), nxt = courses[here + 1];
-        const body = renderReport(course, runLog, rep, {
-          again: () => restart(course.startX),
-          watch: course.plan ? () => { panel.style.display = 'none'; void startIdeal(course.startX, null); } : undefined,
-          next: here >= 0 && nxt ? { name: nxt[1].split(':')[0], go: () => { location.href = worldHref(nxt[0]); } } : undefined,
-          close: () => { panel.style.display = 'none'; },
-        }, false, ghostCtl?.reportPath() ?? null, !reportSectionsOn(params), hardBand());
-        addHardest(body);
-        { const bk = listedKey(); if (boardOn(params) && !botMode && !demo && !idealWhole && bk) { body.querySelector('#report-actions')?.before(boardBox(bk, courseHash(course), session(), viewHooks())); if (lastClear) body.querySelector('h2')?.after(publishStrip(lastClear, bk, courseHash(course))); } } // CC-108: the name and Publish sit at the top, next to the result
-        const myRunNow = ghostCtl?.myRun() ?? null;
-        if (!lastClear && world.outcome === 'cleared' && myRunNow && challengeOn(params) && !botMode && !demo && !idealWhole && !listedKey() && madeCourse(course)) { // CC-108: not a ranked course: say why, and offer a challenge course or the official one
-          const rankedBase = boardKeyOfPage(params), startedRanked = !!rankedBase && (rankedBase !== FIRST_COURSE_KEY || loadedIsDefault) && !['made', 'generate', 'coaster', 'cid'].some((k) => params.has(k)), keysP = encodeLog(myRunNow), runId = analyticsRunId, mineLog = myRunNow, played = course;
-          body.querySelector('h2')?.after(challengeStrip({
-            changed: startedRanked,
-            publish: async () => registerCourse(played, session(), runId, await keysP, logTicks(mineLog)),
-            link: (id) => challengeLink(location.origin, id, played, mineLog, localStorage.getItem('cc.nick') ?? '', choice),
-            official: () => { location.href = worldHref((rankedBase && boardPathOf(rankedBase)) ?? ''); },
-          }));
-        } else if (!lastClear && world.outcome === 'cleared' && (ghostCtl?.myRun() || ghostCtl?.myClip()) && !body.querySelector('#report-publish') && !botMode && !demo && !idealWhole) { // a clear that cannot be published: the button is off and the reason sits next to it
-          const listed = !!listedKey();
-          const why = !listed ? 'Only runs on the listed courses can be published.' : !ghostCtl?.myRun() ? 'Only full runs from the start of the course can be published.' : !boardOn(params) ? 'The leaderboard is switched off here.' : 'This run cannot be published.';
-          body.querySelector('h2')?.after(publishStrip({ ticks: world.runner.tick, send: async () => ({ published: false }) }, listedKey() ?? '', courseHash(course), why));
-        }
-        if (ghostLine) body.querySelector('#report-ghost-slot')?.append(ghostLine);
-        if (shareOn(params) && !botMode && !demo && !idealWhole && !params.get('mode')) {
-          const mine = ghostCtl?.myRun() ?? null, mineClip = ghostCtl?.myClip() ?? null, ticks = world.runner.tick; // a link needs a run from the start; a clip can be made of any try (CC-157)
-          const partialStart = !mine && mineClip ? startOfX(course, mineClip.from) : null, partial = partialStart && mineClip ? { log: mineClip.log, start: partialStart } : null; // CC-242: a cleared run from a checkpoint can be shared with its start; it never reaches a board
-          if (mine || mineClip) body.querySelector('#report-actions')?.append(...shareButtons({ link: mine ? (nick) => makeLinkInfo(location.origin, pageSearch(), course, mine, nick, choice) : partial ? (nick) => makeLinkInfo(location.origin, pageSearch(), course, partial.log, nick, choice, 'done', undefined, partial.start) : undefined, courseTooBig: () => courseTooBig(pageSearch(), course), clip: mineClip && clipFits(ticks) ? () => void makeClip(mineClip.log, ticks, mineClip.from) : undefined }));
-        }
-        if (reportSectionsOn(params)) organiseReport(body, !botMode && !demo && !idealWhole ? { dojo: () => openDojo() } : {}); // CC-158
-        setMusicScreen('report');
-        panel.append(body); (body.querySelector('#report-again') as HTMLElement | null)?.focus({ preventScroll: true });
-        if (!botMode && !demo && !idealWhole || params.get('next') === '1') onboarding.onCleared(panel); // CC-100: the one-time What next card, at the top of the report
-        if (!botMode && !demo && !idealWhole && !rep.saving) clearedNote(); // a shortcut, if the simulator knows one (a fact, never a grade)
+        showClearedReport({
+          course, params, panel, runLog, hardBand, addHardest, listedKey, viewHooks, clearedNote,
+          get world() { return world; }, get runKind() { return runKind; }, get ghostCtl() { return ghostCtl; }, get lastClear() { return lastClear; },
+          get demo() { return demo; }, botMode, get idealWhole() { return idealWhole; }, loadedIsDefault, get analyticsRunId() { return analyticsRunId; },
+          get onboarding() { return onboarding; }, get choice() { return choice; },
+          restart: (x) => restart(x), startIdeal: (x0, z) => startIdeal(x0, z), openDojo: () => openDojo(), makeClip: (l, t, f) => makeClip(l, t, f),
+        });
       }
     }
     let r = world.runner;
