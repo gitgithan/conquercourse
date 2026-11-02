@@ -26,6 +26,7 @@
 | Course picker | Press `T` in the Dojo to pick a course | `T` | [onboarding](onboarding.md) |
 | University Labs | Equations are allowed here, nowhere else | On by default; `?labs=0` hides them (the browser remembers it), `?labs=1` brings them back | [university labs](university-labs.md) |
 | Course cards with stats | Plays, simulator-verified clears, best verified time, difficulty | Always on; `?stats=0` hides them | [course stats](course-stats.md) |
+| The Making Of cards (CC-132) | Last group in the Courses gallery: links to the site map, the course map and the story of how the game was made | On by default; `?making=0` hides it | [site map](site-map.md) |
 
 ## 3. Make
 | Feature | What the player sees | Turn it on | Diagram or doc |

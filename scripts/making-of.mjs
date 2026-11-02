@@ -229,6 +229,7 @@ function shell({ title, file, body, script = '', css = '', wide = false, cleanId
 <a href="index.html">The Making Of</a>
 <a href="site-map.html">Site map</a>
 <a href="course-map.html">Course map</a>
+<a href="/">Back to the game</a>
 <span class="sp"></span>
 ${download ? '<span class="dl"><button type="button" id="dl-page">Download this page (.html)</button></span>' : ''}
 </nav>
