@@ -67,7 +67,7 @@ export function createGhost(o: GhostOpts): Ghost {
 
   const style = document.createElement('style');
   style.textContent = `
-    #ghost-hud{position:fixed;left:50%;top:46px;transform:translateX(-50%);z-index:12;display:flex;flex-direction:column;align-items:center;gap:4px;font:600 13px system-ui,sans-serif;color:#17201d;white-space:nowrap} /* stacked: the gap words sit under the chip, clear of the Edit this course button */
+    #ghost-hud{position:fixed;left:50%;top:172px;transform:translateX(-50%);z-index:12;display:flex;flex-direction:column;align-items:center;gap:4px;font:600 13px system-ui,sans-serif;color:#17201d;white-space:nowrap} /* stacked: the gap words sit under the chip, clear of the Edit this course button */
     #ghost-chip{display:inline-flex;align-items:center;gap:6px;border:2px solid #17201d;background:#fff;color:#17201d;border-radius:10px;padding:3px 10px;cursor:pointer;font:inherit}
     #ghost-chip[aria-pressed=true]{border-color:${COLOR};color:${COLOR};background:#eaf6fc}
     #ghost-gap{background:#fffffff0;border-radius:8px;padding:3px 9px;display:none}
