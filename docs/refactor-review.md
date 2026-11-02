@@ -30,7 +30,7 @@
 - Risk to tests: medium; many browser smoke checks read this file, so run them once on the VM.
 - Risk to the sim: none if only UI code moves (the sim is imported, not edited).
 - Payoff: high but slow; do it in slices of one feature per pull request.
-- Done in CC-133 (course split): `src/modes/course.ts` went from 1,718 lines to about 1,500, and `src/modes/course/` grew from five small files to eleven.
+- Done in CC-133 (course split): `src/modes/course.ts` went from 1,718 lines to 992, and `src/modes/course/` grew from five small files to fourteen.
   - `state.ts`: one typed `CourseState` (world, pause, clock, retry spot, falls, replay, held and queued keys, the ideal run on screen); the key handler and the frame loop read `st.world`, `st.keys` and so on.
   - `scene.ts`: the lights, bars, coaster, planks, machine views, decks, editor pieces, floor, wall and rope are built in one call that returns the views the frame loop moves.
   - `zones.ts`: the progress strip's zones for a course that stores none, as a pure function with its own test.
@@ -40,12 +40,18 @@
   - `context.ts` and `tips.ts` (second slice, `src/modes/course.ts` 1,501 lines to 1,393): one typed `CourseCtx` holds the course, the state, the run log, the guide meshes and the wall facts; the fall tips (`windowTip`, `plankTip`, `cartTip`, `bandTip`), the replay numbers (`buildDiag`, `cartDiag`) and the guide lines take it as their first argument, with a unit test (`tests/course-tips.test.ts`).
   - `hint.ts` (third slice, 1,393 to 1,324 lines): `createHint(ctx, deps)` returns the one-line help under the picture and keeps the trampoline cue timer to itself; "the player has cleared a course before" moved into `CourseCtx`; a unit test (`tests/course-hint.test.ts`) covers the first hint and the quiet cases.
   - `stats.ts` (fourth slice, 1,324 to 1,262 lines): `createRunStats(ctx, firstKind)` holds the run summaries, the zone counts, the flow (jerk) samples and the landing counts, and closes a run once; the Course feeds it each frame and when a run ends (`tests/course-run-stats.test.ts`).
-  - Still open: the camera and film hooks, the clip maker and the character loader stay in `course.ts`.
+  - `camera.ts`, `clip.ts` and `characters.ts` (fifth slice, `src/modes/course.ts` 1,262 to 992 lines):
+    - `camera.ts`: the three views (side, 45 degrees, first person), the mouse orbit, the film camera, the clip's own camera pose and the front-view inset; `createCourseCamera(deps)` returns `update()` (places the camera) and `drawFront()`.
+    - `clip.ts`: `createClipMaker(deps)` returns `makeClip`; the clip's state (`on`, the camera spot, the layout, the hook that takes each picture) and the friend's watched keys moved into `CourseState`.
+    - `characters.ts`: `createRunnerLook(deps)` loads the Rookie or a community character, keeps the choice, and builds the runner buttons.
+  - Nothing is left in `course.ts` for the camera, the clip maker or the character loader; what remains is the frame loop, the HUD and the wiring.
+  - Camera safety net: `scripts/course-camera-characterize.mjs` (stepped clock) records the camera position, direction and field of view for every C view, the mouse, first person on a bar course, five film shots, the clip numbers and the character buttons; the page adds `window.__probe()` only with `?camprobe=1`.
+  - The golden `tests/golden/camera-characterize.json` was recorded from the unmodified main plus the probe hook (the hook changes nothing else).
   - Safety net: the course run (`scripts/course-characterize.mjs`) was identical to the run on the unmodified main after the state, scene and zones moves; one toast step differed once and not on the rerun (cause and fix below).
   - The recorded `tests/golden/course-characterize.json` was re-recorded from the unmodified main after the Courses picker card order changed (World Slicer moved, the random-course card last, a new group "The Making Of"); three runs gave the same file.
   - The flake: the old script sometimes saw the toast text in the "toasts leave" step; a leaving toast is removed by a 480 ms wall-clock timer that the stepped page clock does not move.
   - The fix is in the script, which now waits until the stack is empty after the game time has passed; the golden does not hold the toast text any more.
-  - Not covered by the run: the camera orbit, the clip maker, the film hooks and sound.
+  - Not covered by either run: sound and the look of the picture.
 
 ## 2. Adding a new obstacle kind touches 30+ files
 - Evidence (drone): `src/sim/world.ts` (32 mentions), `src/sim/drone.ts` (31), `src/modes/editor.ts` (28), `src/ui/drone-view.ts` (23), `src/modes/course.ts` (22), `src/sim/experiments.ts` (14), `src/sim/ideal.ts` (12), `src/modes/diagrams.ts` (11), `src/slice/drone-lane.ts`, `src/modes/lessons.ts`, `src/sim/predict.ts`, `src/ui/debug-view.ts`, `src/ui/zone-icons.ts`, `src/ui/run-report.ts`, `src/ui/editor-layout.ts`, `src/ui/onboarding.ts`, `src/ui/world-picker.ts`, `src/motion/actor-state.ts`, `src/sim/drums.ts`, `src/sim/replay.ts`, `src/sim/runner.ts`, `src/film/camera.ts`.
