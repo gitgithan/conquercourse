@@ -248,10 +248,12 @@
 ## Where things live (for testing and refactoring)
 - This part is for people and agents who change the code; the player page does not show it.
 - Paths are from the repo root.
-- Browser check status, as told by the product owner on 2026-11-03:
-  - Known red on main: `board-publish-check`, `board-top100-check`, `challenge-check`, `course-buttons-check`, `ghost-check`, `ideal-all-check`, `lane-cancel-check`, `lane-handover-check`, `report-overlap-check`, `restart-chip-check`, `says-check`, `share-check`, `editor-check`, `editor-layout-check`, `editor-ux-check`, `band-editor-check`, `treb-fixit-check`.
-  - Flaky: `editor-return-check`.
-  - Works: `smoke`, `board-best`, `drums`, `event-key`, `report`, `restart`, `shortcut`, `real-objects`, `editor-flow`, `editor-select`, `editor-defaults`.
+- Browser check status (the product owner's list of 2026-11-03, updated by CC-133 after a second look; details in `docs/refactor-review.md`):
+  - Works: `smoke`, `board-best`, `drums`, `event-key`, `report`, `restart`, `shortcut`, `editor-flow`, `editor-select`, `editor-defaults`.
+  - Fixed and green (two runs): `board-publish`, `board-top100`, `band-editor`, `real-objects`, `editor-return`, `editor-layout`, `editor-ux`, `editor`, `share`.
+  - Green once (long scripts): `challenge`, `ideal-all`.
+  - Red, the page is wrong: `restart-chip-check` (the site menu covers the chip), `lane-handover-check` (the editor says "Nothing is in the lane" after the handover), `ghost-check`, `course-buttons-check`, `report-overlap-check`.
+  - Red, not fixed yet: `says-check` (badge missing on two screens, `#make-own` click), `lane-cancel-check` (may be a real change), `treb-fixit-check`.
   - Any other check script has no recorded status; treat it as not tested.
 - A red script is "not passing"; do not read it as a sign that the code you changed broke it.
 - Run at most one browser check at a time on the laptop.
@@ -275,7 +277,7 @@
 - **The Course (play)**
   - Source: `src/modes/course.ts` and the files in `src/modes/course/` (`state.ts`, `keydown.ts`, `scene.ts`, `zones.ts`, `search.ts`, `shortcuts.ts`, `board.ts`, `drums.ts`, `ghost.ts`, `report.ts`, `context.ts`, `tips.ts`, `hint.ts`, `stats.ts`), the physics in `src/sim/`, the tour in `src/ui/onboarding.ts`.
   - Unit tests: `tests/course.test.ts`, `tests/course-keydown.test.ts`, `tests/drums.test.ts`, `tests/drum-roll.test.ts`, `tests/finish-after-drums.test.ts`, `tests/sim.test.ts`, `tests/says.test.ts`, `tests/sayings.test.ts`, `tests/onboarding-flags.test.ts`.
-  - Browser checks: works: `smoke`, `drums`, `event-key`, `restart`, `shortcut`; known red: `course-buttons-check`, `restart-chip-check`, `says-check`, `ideal-all-check`; no status recorded: `onboarding-check`.
+  - Browser checks: works: `smoke`, `drums`, `event-key`, `restart`, `shortcut`; green: `ideal-all-check`; known red: `course-buttons-check`, `restart-chip-check` (the site menu covers the chip), `says-check`; no status recorded: `onboarding-check`.
   - Docs: `docs/onboarding.md`, `docs/input-design.md`, `docs/obstacles.md`, `docs/sayings.md`.
 - **Characters picker**
   - Source: `src/characters/` (`panel.ts`, `cast.ts`, `runner.ts`, `fit.ts`, `facing.ts`).
@@ -295,12 +297,12 @@
 - **Leaderboard**
   - Source: `src/ui/leaderboard.ts`, `src/modes/course/board.ts`, `src/share/board-courses.ts`, `src/share/windows.ts`.
   - Unit tests: `tests/leaderboard.test.ts`, `tests/board-courses.test.ts`, `tests/board-windows.test.ts`.
-  - Browser checks: works: `board-best`; known red: `board-publish-check`, `board-top100-check`.
+  - Browser checks: works: `board-best`; green: `board-publish-check`, `board-top100-check`.
   - Docs: `docs/challenge.md`, `docs/hash-design.md`.
 - **Share a run and a friend's challenge link**
   - Source: `src/share/` (`challenge.ts`, `challenge-client.ts`, `challenge-course.ts`, `clip.ts`, `share-ui.ts`, `nick.ts`).
   - Unit tests: `tests/share.test.ts`, `tests/share-short.test.ts`, `tests/share-fell.test.ts`, `tests/share-look.test.ts`, `tests/share-made.test.ts`, `tests/share-nick.test.ts`, `tests/share-offer.test.ts`, `tests/share-clipcam.test.ts`, `tests/challenge-course.test.ts`.
-  - Browser checks: known red: `share-check`, `challenge-check`; no status recorded: `share-short-check`, `share-made-check`, `share-nick-check`, `share-offer-check`, `share-cam-check`, `clip-wide-check`.
+  - Browser checks: green: `share-check`, `challenge-check`; no status recorded: `share-short-check`, `share-made-check`, `share-nick-check`, `share-offer-check`, `share-cam-check`, `clip-wide-check`.
   - Docs: `docs/challenge.md`, `docs/challenges.md`, `docs/challenge-courses.md`, `docs/viral-plan.md`.
 - **Parts gallery**
   - Source: `src/modes/parts.ts`, `src/ui/parts-data.ts`.
@@ -315,7 +317,7 @@
 - **World Editor**
   - Source: `src/modes/editor.ts` and the files in `src/modes/editor/` (`history.ts`, `keys.ts`), `src/ui/editor-layout.ts`, `src/ui/editor-ux.ts`, `src/ui/piece-browser.ts`, `src/slice/` (Fix it: `fixit.ts`, `fixbars.ts`, `easier.ts`, `designer.ts`).
   - Unit tests: `tests/editor-defaults.test.ts`, `tests/editor-history.test.ts`, `tests/editor-keys.test.ts`, `tests/editor-holds.test.ts`, `tests/editor-presets.test.ts`, `tests/editor-plank.test.ts`, `tests/editor-trebuchet.test.ts`, `tests/fixit.test.ts`, `tests/fixbars.test.ts`, `tests/easier.test.ts`, `tests/designer.test.ts`, `tests/roles.test.ts`, `tests/selection.test.ts`.
-  - Browser checks: works: `real-objects`, `editor-flow`, `editor-select`, `editor-defaults`; known red: `editor-check`, `editor-layout-check`, `editor-ux-check`, `band-editor-check`, `treb-fixit-check`, `lane-cancel-check`, `lane-handover-check`; flaky: `editor-return-check`.
+  - Browser checks: works: `real-objects`, `editor-flow`, `editor-select`, `editor-defaults`; green: `editor-check`, `editor-layout-check`, `editor-ux-check`, `band-editor-check`, `editor-return-check`; known red: `treb-fixit-check`, `lane-cancel-check`, `lane-handover-check` (the editor says "Nothing is in the lane" after the handover).
   - Docs: `docs/editor-ui.md`, `docs/editor-buttons.md`, `docs/features.md`, `docs/multi-path.md`.
 - **World Slicer**
   - Source: `src/modes/map.ts`, `src/modes/map-flight.ts`, `src/modes/map-place.ts`, `src/slice/slicer.ts`, `src/slice/slicer-core.ts`, `src/slice/slicer-worker.ts`, `src/ui/place-photos.ts`, `src/ui/live-photos.ts`.
