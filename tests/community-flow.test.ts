@@ -1,3 +1,4 @@
+import { editorSource } from './helpers/editor-source';
 import { describe, expect, it } from 'vitest';
 import { STEPS, TABS, canEnter, nextStep, prevStep, startState, tabFor, whyNot, type Box } from '../src/community/flow';
 
@@ -138,7 +139,7 @@ describe('the prize turntable and finding your piece', () => {
     expect(placeParam('?place=../../x')).toBe(''); expect(placeParam('?mode=editor')).toBe('');
   });
   it('the editor lists your pieces without a switch, and the Add pieces browser gives them cards', () => {
-    const ed = readFileSync('src/modes/editor.ts', 'utf8'), pb = readFileSync('src/ui/piece-browser.ts', 'utf8');
+    const ed = editorSource(), pb = readFileSync('src/ui/piece-browser.ts', 'utf8');
     const block = ed.slice(ed.indexOf('if (uploadObjOn()) {'), ed.indexOf('const mineIds'));
     expect(block).not.toMatch(/listUserObjects/); // listing is outside the switch
     expect(ed).toMatch(/dataset\.fromPhoto = '1'/); expect(pb).toMatch(/My pieces/); expect(pb).toMatch(/data-from-photo/);
@@ -170,7 +171,7 @@ describe('shared pieces from other players (CC-247)', () => {
   });
   it('the editor lists shared pieces, places them and loads them back', async () => {
     const { readFileSync } = await import('node:fs');
-    const ed = readFileSync('src/modes/editor.ts', 'utf8'), pb = readFileSync('src/ui/piece-browser.ts', 'utf8');
+    const ed = editorSource(), pb = readFileSync('src/ui/piece-browser.ts', 'utf8');
     expect(ed).toContain('data-shared-piece'.replace('data-shared-piece', 'dataset.sharedPiece'));
     expect(ed).toContain('isSharedSrc(q.src)');
     expect(pb).toContain('Shared pieces');

@@ -10,8 +10,8 @@ import { openPhotoObject, uploadObjOn } from '../ui/photo-object';
 import { registerThumbSource } from '../ui/glb-thumb';
 import { isSharedSrc, placeParam, sharedGlbUrl, sharedSrc, useShared, usedShared } from '../community/flow';
 import { LIBRARY, box } from '../slice/shapes';
-import { bestSlices, describe as describeLane, sliceProfile, CELL, HALF_LANE, roofStartOn } from '../slice/slice';
-import { crop, centred, duplicate, hits, newPiece, realSize, scaleBy, scaleToHeight, size, worldSamples, laneProfile, type Piece } from '../slice/world';
+import { bestSlices, describe as describeLane, CELL, HALF_LANE, roofStartOn } from '../slice/slice';
+import { crop, centred, duplicate, hits, newPiece, realSize, scaleBy, scaleToHeight, size, worldSamples, laneProfile } from '../slice/world';
 import type { CourseData } from '../course/course';
 import { workSeconds, xWindows, type SearchResult } from '../sim/ideal';
 import { searchInput, storedPlanFor, withStoredPlan, type PresetPlan } from '../slice/preset-plans';
@@ -22,11 +22,11 @@ import { barMesh, holdsOf, isHold, REACH_JUMPING, REACH_STANDING } from '../slic
 import { DEFAULT_PLANK, isPlankPiece, plankPiece, plankSpecOf, planksOf, setPlank, type PlankSpec } from '../slice/plank-world';
 import { fixPlank, plankHolds, worstCase } from '../sim/beam';
 import { withTrebuchet, wrapFor, type Machine } from '../slice/launch-lane';
-import { withRecoil, type RecoilCfg } from '../slice/recoil-lane';
+import { withRecoil } from '../slice/recoil-lane';
 import { fixRecoil } from '../slice/fixrecoil';
 import { withBand } from '../slice/band-lane';
 import { fixBand } from '../slice/fixband';
-import { DRONE_PAD_LENGTH, withDrone, type DroneCfg } from '../slice/drone-lane';
+import { DRONE_PAD_LENGTH, withDrone } from '../slice/drone-lane';
 import { fixDrone } from '../slice/fixdrone';
 import { PATTERNS, stackPiece, stackSrc } from '../slice/stack';
 import { personStart } from '../slice/person-ref';
@@ -42,7 +42,7 @@ import { adviseLane, type Advice } from '../slice/advice';
 import { addBadge, sayBadge, saysOn } from '../ui/says';
 import { editorWords, simSaysPanel } from '../ui/sim-says';
 import { adviceInWorker, barsInWorker, fixInWorker, provesInWorker } from '../slice/proof-client';
-import { parseReply, worldBrief, type Edit } from '../slice/designer';
+import { parseReply, worldBrief } from '../slice/designer';
 import { diffProposal, enabledCount, fromAdvice, fromEdits, resultOf, type Proposal } from '../slice/preview';
 import { ROLE_NAME, applySuggestion, movesInWorld, roleCourse, suggestRoles, type Role, type RoleSuggestion } from '../slice/roles';
 import { deviceMesh, RECOIL_PAD_LENGTH, TREBUCHET_PIVOT_FROM_CENTRE } from '../slice/device';
@@ -55,15 +55,12 @@ import { pageQuery, pageSearch } from '../flags';
 import { createLaneCheck } from '../slice/lane-check-ui';
 import { onEditorKey } from './editor/keys';
 import { createHistory, type Snap } from './editor/history';
+import { createEditorState, isDevice, isSizeReference, type P, type Saved } from './editor/state';
 import { finalText, isStopped, type LaneProgress } from '../slice/lane-check';
 
 // The World editor: build a world from pieces on a plan view, scale them (a toy brick becomes a block), turn, copy, crop and move them,
 // choose the lane the runner takes (turn about the start, sideways, level), and play it. Everything is in metres.
 const KEY = 'cc.world.v1';
-interface Saved { pieces: { src: string; x: number; z: number; y: number; yaw: number; scale: number; role?: Role; decor?: boolean }[]; angle: number; offset: number; level: number; floor?: string }
-type P = Piece & { src?: string };
-const isSizeReference = (p: P) => p.src === 'obj:../characters/rookie-a.glb' || p.src === 'obj:../characters/rookie-b.glb';
-const isDevice = (p: P) => p.src?.startsWith('device:') ?? false;
 
 export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
   const style = document.createElement('style');
@@ -90,49 +87,42 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
   root.className = 'ed';
   host.appendChild(root);
 
-  let pieces: P[] = [];
-  let selected: number | null = null;
+  const ed = createEditorState();
   // CC-200: several pieces chosen at once (Shift+click, a box dragged on the picture). `selected` stays the main one; the group counts while it is in it.
   const multiOn = pageQuery().get('editorui') !== 'old';
-  let group: number[] = [];
-  const chosen = (): number[] => (multiOn ? chosenIds(group, selected, (id) => pieces.some((q) => q.id === id && !isSizeReference(q))) : selected !== null ? [selected] : []);
-  const chooseMany = (ids: number[]) => { group = ids; selected = ids.length ? ids[ids.length - 1] : null; drawPanel(); draw(); drawProfile(); };
+  const chosen = (): number[] => (multiOn ? chosenIds(ed.group, ed.selected, (id) => ed.pieces.some((q) => q.id === id && !isSizeReference(q))) : ed.selected !== null ? [ed.selected] : []);
+  const chooseMany = (ids: number[]) => { ed.group = ids; ed.selected = ids.length ? ids[ids.length - 1] : null; drawPanel(); draw(); drawProfile(); };
   // dragging one piece of a chosen group moves the whole group by the same step
-  const moveWith = (p: P, x: number, z: number) => moveGroup(pieces, chosen(), p, x, z);
+  const moveWith = (p: P, x: number, z: number) => moveGroup(ed.pieces, chosen(), p, x, z);
   // Ctrl+C keeps the chosen pieces, Ctrl+V puts copies beside them (a group stays a group); pasting again goes one step further along
   let clip: P[] = [], pastes = 0;
-  const copyChosen = () => { const ids = chosen(); if (!ids.length) return false; clip = pieces.filter((q) => ids.includes(q.id)).map((q) => ({ ...q })); pastes = 0; return true; };
+  const copyChosen = () => { const ids = chosen(); if (!ids.length) return false; clip = ed.pieces.filter((q) => ids.includes(q.id)).map((q) => ({ ...q })); pastes = 0; return true; };
   const pasteClip = () => {
     if (!clip.length) return;
     pastes++;
     const w = Math.max(...clip.map((q) => q.x + (size(q.mesh).w * q.scale) / 2)) - Math.min(...clip.map((q) => q.x - (size(q.mesh).w * q.scale) / 2)), dx = (w + 0.5) * pastes;
     const made = clip.map((q) => duplicate(q, dx, 0) as P);
-    pieces.push(...made); selected = made[made.length - 1].id; group = made.length > 1 ? made.map((q) => q.id) : [];
+    ed.pieces.push(...made); ed.selected = made[made.length - 1].id; ed.group = made.length > 1 ? made.map((q) => q.id) : [];
     changed();
   };
-  const deleteChosen = () => { const ids = chosen(); if (!ids.length) return; pieces = withoutIds(pieces, ids); selected = null; group = []; changed(); };
-  let angle = 0, offset = 0, level = DEFAULT_WATER_LEVEL; // the lane: turn about the rod (radians), sideways (m), level (m)
-  let view = { cx: 8, cz: 0, ppm: 36 }; // plan view: the world point in the middle, pixels per metre
+  const deleteChosen = () => { const ids = chosen(); if (!ids.length) return; ed.pieces = withoutIds(ed.pieces, ids); ed.selected = null; ed.group = []; changed(); };
   let personChipReady = false; // the chip is built after the 3D view; the world redraws can run before that
-  const personAt = () => personStart(pieces, { angle, offset });
-  let cropMode = false;
-  let verdict = '';
+  const personAt = () => personStart(ed.pieces, { angle: ed.angle, offset: ed.offset });
   let helperReady = false; // the design partner's reply box exists
   let movesReady = false; // the Moves window exists (changed() may run before it is built)
   const pendingObjects: Saved['pieces'] = []; // saved photo objects, loaded once the list is in
 
   // a new piece goes just past the last one, on the lane's line, so pieces do not pile up
-  const freeSpot = (id: string) => { const m = lib(id).mesh(); const w = size(m).w * (id === 'brick' ? 15 : 1); const right = pieces.reduce((r, p) => Math.max(r, p.x + (size(p.mesh).w * p.scale) / 2), 0); return { x: right + 1.5 + w / 2, z: 0 }; };
+  const freeSpot = (id: string) => { const m = lib(id).mesh(); const w = size(m).w * (id === 'brick' ? 15 : 1); const right = ed.pieces.reduce((r, p) => Math.max(r, p.x + (size(p.mesh).w * p.scale) / 2), 0); return { x: right + 1.5 + w / 2, z: 0 }; };
   const lib = (id: string) => LIBRARY.find((l) => l.id === id)!;
-  const add = (id: string, at = { x: 0, z: 0 }): P => { const p: P = { ...newPiece(lib(id).label, lib(id).mesh(), at), src: id }; if (id === 'brick') p.scale = 15; pieces.push(p); selected = p.id; return p; };
+  const add = (id: string, at = { x: 0, z: 0 }): P => { const p: P = { ...newPiece(lib(id).label, lib(id).mesh(), at), src: id }; if (id === 'brick') p.scale = 15; ed.pieces.push(p); ed.selected = p.id; return p; };
   // the pieces of a saved world, built again from their sources (the photo objects come later, once their list is in)
   const buildPieces = (list: Saved['pieces']): P[] => piecesFromSource(list);
-  let startFloor: Hazard = 'water'; // the floor of a restored world (applied where it is declared)
   function restore(s: Saved) {
     pendingObjects.push(...s.pieces.filter((q) => q.src.startsWith('obj:') || q.src.startsWith('user:') || isSharedSrc(q.src)));
-    pieces = buildPieces(s.pieces);
-    angle = s.angle; offset = s.offset; level = levelOfSaved(s);
-    startFloor = (HAZARDS as readonly string[]).includes(s.floor ?? '') ? (s.floor as Hazard) : 'water';
+    ed.pieces = buildPieces(s.pieces);
+    ed.angle = s.angle; ed.offset = s.offset; ed.level = levelOfSaved(s);
+    ed.floorChoice = (HAZARDS as readonly string[]).includes(s.floor ?? '') ? (s.floor as Hazard) : 'water';
   }
   function load() {
     try {
@@ -140,32 +130,32 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
     } catch {
       // a first world made of real objects (no blocks): a short run with one of each kind, loaded once the object list is in
       restore({ pieces: PRESETS[0].pieces, angle: 0, offset: 0, level: DEFAULT_WATER_LEVEL }); // CC-243: the default course has a real hang bar and the Lache, and the simulator swings on both
-      selected = null;
+      ed.selected = null;
     }
   }
-  const save = () => { try { localStorage.setItem(KEY, JSON.stringify({ pieces: pieces.filter((p) => p.src && !p.src.startsWith('map:')).map((p) => ({ src: p.src as string, x: p.x, z: p.z, y: p.y, yaw: p.yaw, scale: p.scale, ...(p.role ? { role: p.role } : {}) })), angle, offset, level, floor: floorChoice } satisfies Saved)); } catch { /* private window */ } };
+  const save = () => { try { localStorage.setItem(KEY, JSON.stringify({ pieces: ed.pieces.filter((p) => p.src && !p.src.startsWith('map:')).map((p) => ({ src: p.src as string, x: p.x, z: p.z, y: p.y, yaw: p.yaw, scale: p.scale, ...(p.role ? { role: p.role } : {}) })), angle: ed.angle, offset: ed.offset, level: ed.level, floor: ed.floorChoice } satisfies Saved)); } catch { /* private window */ } };
   load();
   let mapCamera: { heading: number; pitch: number; distance?: number; target?: { x: number; z: number } } | null = null;
   try { // a place built in ?mode=map arrives once, as the whole world or as the buildings the player picked; it is not saved
     const m = JSON.parse(sessionStorage.getItem('cc.map.piece') ?? 'null') as { name: string; positions: number[]; indices: number[]; pieces?: { name: string; positions: number[]; indices: number[]; x: number; z: number }[]; camera?: { heading: number; pitch: number; distance?: number; target?: { x: number; z: number } }; lane?: { angle: number; offset: number; level: number; from: string }; objects?: Saved['pieces'] } | null;
     sessionStorage.removeItem('cc.map.piece');
-    if (m?.lane && [m.lane.angle, m.lane.offset, m.lane.level].every(Number.isFinite)) { angle = m.lane.angle; offset = m.lane.offset; level = m.lane.level; document.documentElement.dataset.laneFrom = m.lane.from; } // CC-91: the lane the map proved, not the editor's own start
+    if (m?.lane && [m.lane.angle, m.lane.offset, m.lane.level].every(Number.isFinite)) { ed.angle = m.lane.angle; ed.offset = m.lane.offset; ed.level = m.lane.level; document.documentElement.dataset.laneFrom = m.lane.from; } // CC-91: the lane the map proved, not the editor's own start
     if (m?.pieces?.length) { // picked buildings from the map flight (CC-79): separate pieces, each where it stood
       pendingObjects.length = 0;
-      pieces = m.pieces.map((q) => ({ ...newPiece(q.name, { positions: q.positions, indices: q.indices }), x: q.x, z: q.z, src: `map:${q.name}` }));
-      selected = pieces[0].id; mapCamera = m.camera ?? null;
-    } else if (m) { pendingObjects.length = 0; pieces = [{ ...newPiece(m.name, { positions: m.positions, indices: m.indices }), src: `map:${m.name}` }]; selected = pieces[0].id; mapCamera = m.camera ?? null; }
+      ed.pieces = m.pieces.map((q) => ({ ...newPiece(q.name, { positions: q.positions, indices: q.indices }), x: q.x, z: q.z, src: `map:${q.name}` }));
+      ed.selected = ed.pieces[0].id; mapCamera = m.camera ?? null;
+    } else if (m) { pendingObjects.length = 0; ed.pieces = [{ ...newPiece(m.name, { positions: m.positions, indices: m.indices }), src: `map:${m.name}` }]; ed.selected = ed.pieces[0].id; mapCamera = m.camera ?? null; }
     if (m?.objects?.length) pendingObjects.push(...m.objects); // CC-238: photo objects that stand on the place (the film's start scene)
   } catch { /* no place waiting */ }
-  if (['place', 'slicer', 'slicer-unproved'].includes(document.documentElement.dataset.laneFrom ?? '') && level !== 0 && pieces.length) { for (const q of pieces) q.y -= level; level = 0; } // owner 2026-11-01: the water always starts at 0, whether the lane came from a prepared place or from the Slicer's own cut; the place sinks by the cut height instead, so the proved lane is the same lane
+  if (['place', 'slicer', 'slicer-unproved'].includes(document.documentElement.dataset.laneFrom ?? '') && ed.level !== 0 && ed.pieces.length) { for (const q of ed.pieces) q.y -= ed.level; ed.level = 0; } // owner 2026-11-01: the water always starts at 0, whether the lane came from a prepared place or from the Slicer's own cut; the place sinks by the cut height instead, so the proved lane is the same lane
   // CC-80: coming from the Course ("Edit this course", "Make it easier"): the course's own pieces replace the saved world, and "Back to the Course" returns to it
   const handoff = readHandoff();
-  if (handoff && !pieces.some((q) => q.src?.startsWith('map:'))) {
+  if (handoff && !ed.pieces.some((q) => q.src?.startsWith('map:'))) {
     pendingObjects.length = 0;
     restore({ pieces: handoff.course.source!.pieces as Saved['pieces'], angle: handoff.course.source!.angle, offset: handoff.course.source!.offset, level: handoff.course.source!.level, floor: handoff.course.source!.floor });
-    selected = null;
+    ed.selected = null;
   }
-  if (selected === null) { const tr = pieces.find((q) => isTrack(q)); if (tr) selected = tr.id; } // a coaster opens with its dots showing (CC-244)
+  if (ed.selected === null) { const tr = ed.pieces.find((q) => isTrack(q)); if (tr) ed.selected = tr.id; } // a coaster opens with its dots showing (CC-244)
   let focusId: number | null = null; // the piece nearest the place the player was at (chosen once the lane exists)
 
   const el = <K extends keyof HTMLElementTagNameMap>(tag: K, parent: HTMLElement, props: Partial<HTMLElementTagNameMap[K]> & { text?: string } = {}) => { const { text, ...rest } = props as Record<string, unknown> & { text?: string }; const e = Object.assign(document.createElement(tag), rest); if (text) e.textContent = text; parent.appendChild(e); return e as HTMLElementTagNameMap[K]; };
@@ -184,8 +174,8 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
   for (const l of LIBRARY) el('button', addBar, { text: l.label, id: `add-${l.id}` }).onclick = () => { add(l.id, freeSpot(l.id)); changed(); };
   // undo and redo: a snapshot after every change (pieces are copied shallowly; a crop makes a new mesh, so old meshes stay valid)
   const editHistory = createHistory({
-    getPieces: () => pieces, setPieces: (v) => { pieces = v; }, getLane: () => ({ angle, offset, level }), setLane: (v) => { angle = v.angle; offset = v.offset; level = v.level; },
-    getSelected: () => selected, setSelected: (v) => { selected = v; }, undoBtn: () => undoBtn, redoBtn: () => redoBtn, changed,
+    getPieces: () => ed.pieces, setPieces: (v) => { ed.pieces = v; }, getLane: () => ({ angle: ed.angle, offset: ed.offset, level: ed.level }), setLane: (v) => { ed.angle = v.angle; ed.offset = v.offset; ed.level = v.level; },
+    getSelected: () => ed.selected, setSelected: (v) => { ed.selected = v; }, undoBtn: () => undoBtn, redoBtn: () => redoBtn, changed,
   });
   const { hist, remember, goto } = editHistory;
   const undoBtn = el('button', top, { text: 'Undo (Ctrl+Z)', id: 'undo', title: 'Undo the last change (Ctrl+Z)' });
@@ -203,7 +193,7 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
     rememberUser(id, glb, prov);
     const p: P = { ...newPiece(prov.name, readGlbMesh(glb), freeSpot('bench')), src: userSrc(id) };
     p.x = freeSpot('bench').x + size(p.mesh).w / 2;
-    pieces.push(p); selected = p.id; changed();
+    ed.pieces.push(p); ed.selected = p.id; changed();
   };
   void (async () => { try { const r = (await (await fetch('/assets/objects/provenance.json')).json()) as { objects: Provenance[] }; for (const o of r.objects) provOf.set(`obj:${o.glb}`, o); draw(); } catch { /* no provenance file: no credit line */ } })();
   if (uploadObjOn()) {
@@ -221,13 +211,13 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
   const addSharedPiece = async (id: string, name: string): Promise<boolean> => {
     try {
       const r = await fetch(sharedGlbUrl(id));
-      if (!r.ok) { verdict = 'That shared piece is no longer available.'; draw(); return false; }
+      if (!r.ok) { ed.verdict = 'That shared piece is no longer available.'; draw(); return false; }
       const glb = await r.arrayBuffer(), src = sharedSrc(id);
       userObjectUrls.set(src, URL.createObjectURL(new Blob([glb], { type: 'model/gltf-binary' })));
       const p: P = { ...newPiece(name, readGlbMesh(glb), freeSpot('bench')), src };
       p.x = freeSpot('bench').x + size(p.mesh).w / 2;
-      pieces.push(p); selected = p.id; changed(); return true;
-    } catch { verdict = 'That shared piece could not be loaded.'; draw(); return false; }
+      ed.pieces.push(p); ed.selected = p.id; changed(); return true;
+    } catch { ed.verdict = 'That shared piece could not be loaded.'; draw(); return false; }
   };
   (window as unknown as { ccAddShared?: (id: string, name: string) => void }).ccAddShared = (id, name) => { void addSharedPiece(id, name).then((ok) => { if (ok) useShared({ id, name }); }); }; // a card found by searching the community in Add pieces
   for (const u of usedShared()) { const b = el('button', photoBar, { text: `🌐 Shared: ${u.name}`, title: 'Made by another player' }); b.dataset.sharedPiece = u.id; b.dataset.object = `shared-${u.id}`; b.onclick = () => { void addSharedPiece(u.id, u.name); }; }
@@ -245,21 +235,21 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
             const p: P = { ...newPiece(o.name, readGlbMesh(await (await fetch(`/assets/objects/${o.glb}`)).arrayBuffer()), freeSpot('bench')), src: `obj:${o.glb}` };
             p.x = freeSpot('bench').x + size(p.mesh).w / 2;
             // a hang bar (CC-110): the frame is scenery turned across the lane, and its crossbar is a hold at the real height, so collision is a bar and never the frame's mesh
-            if (o.hang_m) { p.noGround = true; p.yaw = Math.PI / 2; p.x = freeSpot('bench').x + 0.5; pieces.push(p); pieces.push(addBarPiece(p.x, o.hang_m - 0.04, p.z)); selected = p.id; changed(); return; }
-            pieces.push(p); selected = p.id; changed();
-          } catch { verdict = 'That object could not be loaded.'; draw(); }
+            if (o.hang_m) { p.noGround = true; p.yaw = Math.PI / 2; p.x = freeSpot('bench').x + 0.5; ed.pieces.push(p); ed.pieces.push(addBarPiece(p.x, o.hang_m - 0.04, p.z)); ed.selected = p.id; changed(); return; }
+            ed.pieces.push(p); ed.selected = p.id; changed();
+          } catch { ed.verdict = 'That object could not be loaded.'; draw(); }
         };
       }
       // pieces saved from a past visit
       for (const q of pendingObjects) {
-        if (isSizeReference({ src: q.src } as P) && pieces.some(isSizeReference)) continue;
+        if (isSizeReference({ src: q.src } as P) && ed.pieces.some(isSizeReference)) continue;
         try {
           const reference = isSizeReference({ src: q.src } as P);
           if (isSharedSrc(q.src)) { // another player's piece, fetched from the community store; skipped if it is gone or not approved
             const r = await fetch(sharedGlbUrl(q.src.slice(7))); if (!r.ok) continue;
             const glb = await r.arrayBuffer(); const name = usedShared().find((x) => sharedSrc(x.id) === q.src)?.name ?? 'Shared piece';
             userObjectUrls.set(q.src, URL.createObjectURL(new Blob([glb], { type: 'model/gltf-binary' })));
-            pieces.push({ ...newPiece(name, readGlbMesh(glb), { x: q.x, z: q.z }), src: q.src, y: q.y, yaw: q.yaw, scale: q.scale, ...(q.role ? { role: q.role } : {}) });
+            ed.pieces.push({ ...newPiece(name, readGlbMesh(glb), { x: q.x, z: q.z }), src: q.src, y: q.y, yaw: q.yaw, scale: q.scale, ...(q.role ? { role: q.role } : {}) });
             continue;
           }
           const mine = q.src.startsWith('user:') ? await getUserObject(q.src.slice(5)) : undefined; // the player's own object, kept in this browser (CC-221)
@@ -271,16 +261,16 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
           if (reference) Object.assign(p, scaleToHeight(p, 1.75));
           if (q.decor) p.noGround = true; // scenery: seen, but the lane check ignores it (the film's photo box, CC-238)
           if (hangOf.has(q.src)) p.noGround = true; // its crossbar is a saved hold of its own
-          pieces.push(p);
+          ed.pieces.push(p);
         } catch { /* a missing object is skipped */ }
       }
-      for (const d of pieces.filter((q) => q.noGround && q.src?.startsWith('obj:') && !hangOf.has(q.src))) { // scenery sits on the roof under it, not in the air (CC-238)
-        const pr = laneProfile(pieces.filter((q) => !q.noGround), { angle, offset, level }), u = d.x * Math.cos(angle) + d.z * Math.sin(angle), i0 = Math.floor(u / CELL) - Math.round((pr.origin ?? 0) / CELL);
+      for (const d of ed.pieces.filter((q) => q.noGround && q.src?.startsWith('obj:') && !hangOf.has(q.src))) { // scenery sits on the roof under it, not in the air (CC-238)
+        const pr = laneProfile(ed.pieces.filter((q) => !q.noGround), { angle: ed.angle, offset: ed.offset, level: ed.level }), u = d.x * Math.cos(ed.angle) + d.z * Math.sin(ed.angle), i0 = Math.floor(u / CELL) - Math.round((pr.origin ?? 0) / CELL);
         const w = Math.min(6, Math.ceil((size(d.mesh).w * d.scale) / 2 / CELL)), nm = pr.cells.length; // the nearest stretch of real roof wide enough to hold it (a street gap has none)
         let best = -1;
 
         for (let k = 0; k <= 80 && best < 0; k++) for (const j of k ? [i0 - k, i0 + k] : [i0]) { if (best >= 0 || j - w < 0 || j + w >= nm) continue; let ok = true; for (let i = j - w; i <= j + w; i++) if (pr.cells[i] == null) { ok = false; break; } if (ok) best = j; }
-        if (best >= 0) { const du = (best - i0) * CELL; d.x += du * Math.cos(angle); d.z += du * Math.sin(angle); d.y = level + Math.max(...pr.cells.slice(best - w, best + w + 1).map((h) => h as number)); }
+        if (best >= 0) { const du = (best - i0) * CELL; d.x += du * Math.cos(ed.angle); d.z += du * Math.sin(ed.angle); d.y = ed.level + Math.max(...pr.cells.slice(best - w, best + w + 1).map((h) => h as number)); }
       }
       if (pendingObjects.length) { pendingObjects.length = 0; changed(false); hist.length = 0; editHistory.hi = -1; remember(); onWorld(); fitAll(); } // the saved or first world is the starting point of the undo list
       await firstVisitPerson(); // a first visit: the person for scale stands at the start of the lane
@@ -288,9 +278,9 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
   })();
   // overhead: bars hanging in the air (a game, not real: they need no frame); the side view is where they are dragged
   el('strong', addBar, { text: 'Overhead:' });
-  const nextX = () => pieces.reduce((r, q) => Math.max(r, q.x + (size(q.mesh).w * q.scale) / 2), 0) + 3;
-  const nextLaneU = () => { const c = Math.cos(angle), s = Math.sin(angle); return pieces.reduce((r, p) => Math.max(r, p.x * c + p.z * s + (size(p.mesh).w * p.scale) / 2), 0) + 3; };
-  const addBarPiece = (x: number, y: number, z = 0): P => { const q: P = { ...newPiece('Bar', barMesh(), { x, z }), src: 'hold:bar', y }; pieces.push(q); selected = q.id; return q; };
+  const nextX = () => ed.pieces.reduce((r, q) => Math.max(r, q.x + (size(q.mesh).w * q.scale) / 2), 0) + 3;
+  const nextLaneU = () => { const c = Math.cos(ed.angle), s = Math.sin(ed.angle); return ed.pieces.reduce((r, p) => Math.max(r, p.x * c + p.z * s + (size(p.mesh).w * p.scale) / 2), 0) + 3; };
+  const addBarPiece = (x: number, y: number, z = 0): P => { const q: P = { ...newPiece('Bar', barMesh(), { x, z }), src: 'hold:bar', y }; ed.pieces.push(q); ed.selected = q.id; return q; };
   el('button', addBar, { text: 'Bar', id: 'addbar' }).onclick = () => { addBarPiece(nextX(), 2.86); changed(); };
   // coaster sections (CC-244): rails the rider rides; leave a short gap between two sections and the rider flies across it (bars and ropes can catch them)
   const coasterOn = pageQuery().get('coaster') !== '0'; // on by default; ?coaster=0 hides the piece
@@ -302,24 +292,24 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
     const shape = TRACK_SHAPES.find((t) => t.id === trackShape.value) ?? TRACK_SHAPES[0];
     const q = trackPiece(shape.pts, { x: 0, z: 0 });
     const w = size(q.mesh).w;
-    const sections = pieces.filter(isTrack);
+    const sections = ed.pieces.filter(isTrack);
     q.y = trackStartY(sections.sort((m, n) => m.x - n.x)[sections.length - 1], shape.pts);
     q.x = sections.length ? Math.max(...sections.map((o) => o.x + (size(o.mesh).w * o.scale) / 2)) + 3 + w / 2 : w / 2;
-    pieces.push(q); selected = q.id; changed();
+    ed.pieces.push(q); ed.selected = q.id; changed();
   };
   coasterBtn.style.display = coasterOn ? '' : 'none';
   el('button', addBar, { text: 'Lache pair', id: 'addlache', title: 'Two bars to swing between' }).onclick = () => { const x = nextX(); addBarPiece(x, 2.86); addBarPiece(x + 3.5, 2.86); changed(); };
   // a rope swing: a post whose top is the rope anchor (role rope); put it over a gap and the simulator checks the swing
-  el('button', addBar, { text: 'Rope swing', id: 'addrope', title: 'A post with a rope on top: put it over a gap between two pieces of ground and swing across' }).onclick = () => { const q: P = { ...newPiece('Rope anchor', box(0.5, 6.6, 0.5), { x: nextX() + 3, z: 0 }), role: 'rope' }; pieces.push(q); selected = q.id; changed(); };
+  el('button', addBar, { text: 'Rope swing', id: 'addrope', title: 'A post with a rope on top: put it over a gap between two pieces of ground and swing across' }).onclick = () => { const q: P = { ...newPiece('Rope anchor', box(0.5, 6.6, 0.5), { x: nextX() + 3, z: 0 }), role: 'rope' }; ed.pieces.push(q); ed.selected = q.id; changed(); };
   // a trebuchet at the start: the rider is thrown to the lane; the counterweight is the knob (the proof says whether it reaches)
   el('button', addBar, { text: 'Trebuchet', id: 'addtreb', title: 'Start the lane in a trebuchet: the character is thrown onto it' }).onclick = () => {
     const treMesh = deviceMesh('device:trebuchet:1200');
-    const first = !pieces.some((p) => p.src?.startsWith('device:trebuchet:'));
+    const first = !ed.pieces.some((p) => p.src?.startsWith('device:trebuchet:'));
     const centerU = first ? -TREBUCHET_PIVOT_FROM_CENTRE : nextLaneU() + size(treMesh).w / 2;
     const device = makeDevice('device:trebuchet:1200', 'Trebuchet', centerU);
-    pieces.push(device); selected = device.id;
+    ed.pieces.push(device); ed.selected = device.id;
     changed();
-    view.cx = device.x; view.cz = device.z; view3d.look(0, 65, { x: device.x, z: device.z }, 22);
+    ed.view.cx = device.x; ed.view.cz = device.z; view3d.look(0, 65, { x: device.x, z: device.z }, 22);
   };
   const trebLabel = el('label', addBar, { text: 'Counterweight (kg) ' }); trebLabel.style.display = 'none';
   const trebInput = el('input', trebLabel, { type: 'number', min: '300', max: '4000', step: '50', value: '1200', id: 'trebkg' });
@@ -328,48 +318,48 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
   const recoilKnobs = el('span', addBar, {}); recoilKnobs.style.display = 'none';
   const recoilKg = el('input', el('label', recoilKnobs, { text: 'Ball (kg) ' }), { type: 'number', min: '2', max: '150', step: '1', value: '12', id: 'recoilkg' });
   const recoilSpeed = el('input', el('label', recoilKnobs, { text: 'Speed (m/s) ' }), { type: 'number', min: '3', max: '60', step: '1', value: '30', id: 'recoilspeed' });
-  const syncRecoil = () => { recoilKnobs.style.display = recoilCfg ? '' : 'none'; if (recoilCfg) { recoilKg.value = String(recoilCfg.ballMass); recoilSpeed.value = String(recoilCfg.muzzle); } };
+  const syncRecoil = () => { recoilKnobs.style.display = ed.recoilCfg ? '' : 'none'; if (ed.recoilCfg) { recoilKg.value = String(ed.recoilCfg.ballMass); recoilSpeed.value = String(ed.recoilCfg.muzzle); } };
   for (const [kind, text, id, mass, speed, title] of [['bigcannon', 'Cannon', 'addcannon', 80, 45, 'A pad on the start deck with a big wheeled air cannon: aim it with Up and Down, fire it with K; the ball goes back, you fly forward and up (the proof searches the angle)'], ['cannon', 'Launcher', 'addrecoil', 12, 30, 'A pad on the start deck clips on an air launcher: the ball goes back, you go forward (momentum is conserved)']] as const) {
     el('button', addBar, { text, id, title }).onclick = () => {
       const first = !recoilPiece();
       const device = first
         ? makeRecoilDevice(kind, mass, speed)
         : makeDevice(`device:${kind}:${mass}:${speed}:${RECOIL_PAD_LENGTH}`, kind === 'bigcannon' ? 'Cannon' : 'Launcher', nextLaneU() + RECOIL_PAD_LENGTH / 2);
-      pieces.push(device); selected = device.id;
+      ed.pieces.push(device); ed.selected = device.id;
       changed(); syncRecoil();
-      view.cx = device.x; view.cz = device.z; view3d.look(0, 65, { x: device.x, z: device.z }, 13);
+      ed.view.cx = device.x; ed.view.cz = device.z; view3d.look(0, 65, { x: device.x, z: device.z }, 13);
     };
   }
-  const recoilEdit = () => { const m = Number(recoilKg.value), u = Number(recoilSpeed.value); if (recoilCfg && m >= 2 && m <= 150 && u >= 3 && u <= 60) { const p = recoilPiece(), len = p?.src?.split(':')[4] ?? String(RECOIL_PAD_LENGTH); updateDeviceSource(`device:${recoilCfg.kind}`, `device:${recoilCfg.kind}:${m}:${u}:${len}`); changed(); } };
+  const recoilEdit = () => { const m = Number(recoilKg.value), u = Number(recoilSpeed.value); if (ed.recoilCfg && m >= 2 && m <= 150 && u >= 3 && u <= 60) { const p = recoilPiece(), len = p?.src?.split(':')[4] ?? String(RECOIL_PAD_LENGTH); updateDeviceSource(`device:${ed.recoilCfg.kind}`, `device:${ed.recoilCfg.kind}:${m}:${u}:${len}`); changed(); } };
   recoilKg.onchange = recoilEdit; recoilSpeed.onchange = recoilEdit;
   // an elastic band at the start: stretch it by running away from the post, turn round, and be thrown to the lane; the stiffness is the knob (the proof says whether it reaches)
-  el('button', addBar, { text: 'Band', id: 'addband', title: 'Start the lane at an elastic band: stretch it, turn round, and it throws you onto the lane' }).onclick = () => { bandK = bandK ? null : 35; bandLabel.style.display = bandK ? '' : 'none'; bandInput.value = String(bandK ?? 35); changed(); };
+  el('button', addBar, { text: 'Band', id: 'addband', title: 'Start the lane at an elastic band: stretch it, turn round, and it throws you onto the lane' }).onclick = () => { ed.bandK = ed.bandK ? null : 35; bandLabel.style.display = ed.bandK ? '' : 'none'; bandInput.value = String(ed.bandK ?? 35); changed(); };
   const bandLabel = el('label', addBar, { text: 'Stiffness (N/m) ' }); bandLabel.style.display = 'none';
   const bandInput = el('input', bandLabel, { type: 'number', min: '20', max: '300', step: '5', value: '35', id: 'bandk' });
-  bandInput.onchange = () => { const v = Number(bandInput.value); if (v >= 20 && v <= 300) { bandK = v; changed(); } };
+  bandInput.onchange = () => { const v = Number(bandInput.value); if (v >= 20 && v <= 300) { ed.bandK = v; changed(); } };
   // a drone pad (CC-87): hold E on it to board a cargo drone; the rider's weight and the battery are the knobs (the proof says whether it reaches)
   const droneKnobs = el('span', addBar, {}); droneKnobs.style.display = 'none';
   const droneKg = el('input', el('label', droneKnobs, { text: 'Rider (kg) ' }), { type: 'number', min: '30', max: '250', step: '5', value: '70', id: 'dronekg' });
   const droneWh = el('input', el('label', droneKnobs, { text: 'Battery (Wh) ' }), { type: 'number', min: '10', max: '1000', step: '10', value: '50', id: 'dronewh' });
-  const syncDrone = () => { droneKnobs.style.display = droneCfg ? '' : 'none'; if (droneCfg) { droneKg.value = String(droneCfg.payload); droneWh.value = String(droneCfg.battery); } };
+  const syncDrone = () => { droneKnobs.style.display = ed.droneCfg ? '' : 'none'; if (ed.droneCfg) { droneKg.value = String(ed.droneCfg.payload); droneWh.value = String(ed.droneCfg.battery); } };
   el('button', addBar, { text: 'Drone', id: 'adddrone', title: 'A pad with a cargo drone: hold E on it to board and fly across (thrust against weight, battery, lean)' }).onclick = () => {
     if (dronePiece()) return;
     const device = makeDroneDevice(70, 50);
-    pieces.push(device); selected = device.id;
+    ed.pieces.push(device); ed.selected = device.id;
     changed(); syncDrone();
-    view.cx = device.x; view.cz = device.z; view3d.look(0, 65, { x: device.x, z: device.z }, 13);
+    ed.view.cx = device.x; ed.view.cz = device.z; view3d.look(0, 65, { x: device.x, z: device.z }, 13);
   };
-  const droneEdit = () => { const m = Number(droneKg.value), b = Number(droneWh.value); if (droneCfg && m >= 30 && m <= 250 && b >= 10 && b <= 1000) { const len = dronePiece()?.src?.split(':')[4] ?? String(DRONE_PAD_LENGTH); updateDeviceSource('device:drone', `device:drone:${m}:${b}:${len}`); changed(); } };
+  const droneEdit = () => { const m = Number(droneKg.value), b = Number(droneWh.value); if (ed.droneCfg && m >= 30 && m <= 250 && b >= 10 && b <= 1000) { const len = dronePiece()?.src?.split(':')[4] ?? String(DRONE_PAD_LENGTH); updateDeviceSource('device:drone', `device:drone:${m}:${b}:${len}`); changed(); } };
   droneKg.onchange = droneEdit; droneWh.onchange = droneEdit;
   // stacks: sport-stacking cups (mouth down, pyramids) as obstacle shapes; the piece scale makes a 9 cm cup runner-sized
   el('strong', addBar, { text: 'Stacks:' });
   for (const pt of PATTERNS) {
     el('button', addBar, { text: pt.label, id: `addstack-${pt.id}`, title: `Sport-stacking cups piled ${pt.label}: climb the steps they make` }).onclick = () => {
-      const q = stackPiece(stackSrc(pt.id), { x: nextX() + 1, z: 0 })!; pieces.push(q); selected = q.id; changed();
+      const q = stackPiece(stackSrc(pt.id), { x: nextX() + 1, z: 0 })!; ed.pieces.push(q); ed.selected = q.id; changed();
     };
   }
   // a plank bridge: lay it across a gap between two pieces of ground; it sags and can break (the knobs are in the piece panel)
-  el('button', addBar, { text: 'Plank', id: 'addplank', title: 'A plank bridge laid across a gap: it sags under the runner and breaks if it is too thin or too long' }).onclick = () => { const q = plankPiece(DEFAULT_PLANK, { x: nextX() + 1, z: 0 }); pieces.push(q); selected = q.id; changed(); };
+  el('button', addBar, { text: 'Plank', id: 'addplank', title: 'A plank bridge laid across a gap: it sags under the runner and breaks if it is too thin or too long' }).onclick = () => { const q = plankPiece(DEFAULT_PLANK, { x: nextX() + 1, z: 0 }); ed.pieces.push(q); ed.selected = q.id; changed(); };
   // size references: a Rookie (1.75 m, T-pose) and the demo scene, so a piece can be judged against a person
   el('strong', addBar, { text: 'Size references:' });
   for (const r of [{ id: 'person', label: 'Person reference (toggle)', url: '', src: '' }, { id: 'demo-scene', label: 'Demo scene', url: '/assets/demo/demo-scene.glb', src: 'obj:../demo/demo-scene.glb' }]) {
@@ -377,18 +367,18 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
     b.dataset.object = r.id;
     b.onclick = async () => {
       if (r.id === 'person') {
-        const person = pieces.find(isSizeReference);
-        if (person) { pieces = pieces.filter((p) => !isSizeReference(p)); if (selected === person.id) selected = null; changed(); return; }
+        const person = ed.pieces.find(isSizeReference);
+        if (person) { ed.pieces = ed.pieces.filter((p) => !isSizeReference(p)); if (ed.selected === person.id) ed.selected = null; changed(); return; }
       }
       b.disabled = true;
       try {
         const rookie = localStorage.getItem('cc.rookie') === 'b' ? 'b' : 'a';
         const url = r.id === 'person' ? `/assets/characters/rookie-${rookie}.glb` : r.url;
         const src = r.id === 'person' ? `obj:../characters/rookie-${rookie}.glb` : r.src;
-        const at = r.id === 'person' ? personAt() : { x: view.cx - 3 * Math.sin(angle), z: view.cz + 3 * Math.cos(angle) };
+        const at = r.id === 'person' ? personAt() : { x: ed.view.cx - 3 * Math.sin(ed.angle), z: ed.view.cz + 3 * Math.cos(ed.angle) };
         const p: P = { ...scaleToHeight(newPiece(r.id === 'person' ? 'Person' : r.id, readGlbMesh(await (await fetch(url)).arrayBuffer()), at), 1.75), src };
-        pieces.push(p); if (r.id !== 'person') selected = p.id; changed();
-      } catch { verdict = 'That reference could not be loaded.'; draw(); }
+        ed.pieces.push(p); if (r.id !== 'person') ed.selected = p.id; changed();
+      } catch { ed.verdict = 'That reference could not be loaded.'; draw(); }
       finally { b.disabled = false; }
     };
   }
@@ -398,7 +388,7 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
   file.onchange = async () => {
     const f = file.files?.[0];
     if (!f) return;
-    try { const p = scaleToHeight(newPiece(f.name.replace(/\.glb$/i, ''), readGlbMesh(await f.arrayBuffer()), { x: view.cx, z: view.cz }), 1); pieces.push(p); p.x = freeSpot('bench').x; selected = p.id; changed(); } catch { verdict = 'That file could not be read as a .glb.'; draw(); }
+    try { const p = scaleToHeight(newPiece(f.name.replace(/\.glb$/i, ''), readGlbMesh(await f.arrayBuffer()), { x: ed.view.cx, z: ed.view.cz }), 1); ed.pieces.push(p); p.x = freeSpot('bench').x; ed.selected = p.id; changed(); } catch { ed.verdict = 'That file could not be read as a .glb.'; draw(); }
   };
 
   const main = el('div', root, { className: 'main' });
@@ -406,9 +396,9 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
   const plan = el('canvas', planWrap, { width: 900, height: 520, id: 'plan' });
   // the 3D view is the main picture; the flat plan is kept for exact dragging and cropping (button "Top plan")
   const view3d = createView3d(planWrap, {
-    pieces: () => pieces, selected: () => selected, lane: () => ({ angle, offset, level }),
+    pieces: () => ed.pieces, selected: () => ed.selected, lane: () => ({ angle: ed.angle, offset: ed.offset, level: ed.level }),
     start: () => (roofStartOn() ? startMarkSide(currentProfile(), CELL) : null), // CC-200: with the roof start the flag stands on the first roof, at its height
-    select: (id) => { if (!(multiOn && id !== null && chosen().length > 1 && chosen().includes(id))) group = []; selected = id; drawPanel(); draw(); drawProfile(); },
+    select: (id) => { if (!(multiOn && id !== null && chosen().length > 1 && chosen().includes(id))) ed.group = []; ed.selected = id; drawPanel(); draw(); drawProfile(); },
     selectedAll: () => { const c = chosen(); return c.length > 1 ? c : []; },
     toggle: (id) => chooseMany(toggleId(chosen(), id)),
     marquee: (ids, additive) => chooseMany(applyMarquee(chosen(), ids, additive)),
@@ -423,10 +413,10 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
   const personChip = el('div', planWrap, { id: 'personchip' });
   const personFind = el('button', personChip, { text: 'Show a person', id: 'personfind', title: 'Show a person for scale, or find them in the picture' });
   const personHide = el('button', personChip, { text: 'Hide', id: 'personhide', title: 'Hide the person' });
-  const personThere = () => pieces.some(isSizeReference);
+  const personThere = () => ed.pieces.some(isSizeReference);
   const rememberPerson = (on: boolean) => { try { localStorage.setItem('cc.person', on ? '1' : '0'); } catch { /* the chip still works */ } };
   const personButton = () => addBar.querySelector<HTMLElement>('[data-object="person"]');
-  const framePerson = () => { const p = pieces.find(isSizeReference); if (!p) return; view.cx = p.x; view.cz = p.z; view3d.look(25, 58, { x: p.x, z: p.z }, 7); view3d.pulse(p.x, p.z); };
+  const framePerson = () => { const p = ed.pieces.find(isSizeReference); if (!p) return; ed.view.cx = p.x; ed.view.cz = p.z; view3d.look(25, 58, { x: p.x, z: p.z }, 7); view3d.pulse(p.x, p.z); };
   const waitForPerson = async (want: boolean) => { for (let i = 0; i < 60 && personThere() !== want; i++) await new Promise((r) => setTimeout(r, 100)); };
   personFind.onclick = async () => { if (!personThere()) { personButton()?.click(); rememberPerson(true); await waitForPerson(true); } framePerson(); syncPersonChip(); };
   personHide.onclick = async () => { if (personThere()) personButton()?.click(); rememberPerson(false); await waitForPerson(false); syncPersonChip(); };
@@ -442,10 +432,9 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
     if (first && !personThere()) { personButton()?.click(); await waitForPerson(true); rememberPerson(true); hist.length = 0; editHistory.hi = -1; remember(); onWorld(); }
   }
   const bar = el('div', planWrap, { className: 'piecebar', id: 'piecebar' }); // the selected piece's tools, on the picture next to the piece (CC-94)
-  let topPlan = false;
-  const setView = (plan2d: boolean) => { topPlan = plan2d; plan.style.display = plan2d ? 'block' : 'none'; view3d.show(!plan2d); viewBtn.textContent = plan2d ? '3D view' : 'Top plan'; viewBtn.setAttribute('aria-pressed', String(plan2d)); if (plan2d) fit(); };
+  const setView = (plan2d: boolean) => { ed.topPlan = plan2d; plan.style.display = plan2d ? 'block' : 'none'; view3d.show(!plan2d); viewBtn.textContent = plan2d ? '3D view' : 'Top plan'; viewBtn.setAttribute('aria-pressed', String(plan2d)); if (plan2d) fit(); };
   const viewBtn = el('button', top, { text: 'Top plan', id: 'viewmode', title: 'Switch between the 3D view and the flat plan (the plan is for cropping)' });
-  viewBtn.onclick = () => setView(!topPlan);
+  viewBtn.onclick = () => setView(!ed.topPlan);
   // CC-177: Fit frames every piece (key F): a short smooth move in the 3D view, an instant zoom in the flat plan
   const fitBtn = el('button', top, { text: 'Fit', id: 'fitview', title: 'Bring the camera to your pieces so they all fit on the picture (key F)' });
   fitBtn.onclick = () => fitAll();
@@ -456,9 +445,9 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
   presetPick.onchange = () => {
     const pr = PRESETS.find((q) => q.id === presetPick.value);
     if (!pr) return;
-    if (pieces.length > 1 && !confirm('Replace the pieces on the screen with this course? Ctrl+Z will not bring them back.')) { presetPick.value = ''; return; }
+    if (ed.pieces.length > 1 && !confirm('Replace the pieces on the screen with this course? Ctrl+Z will not bring them back.')) { presetPick.value = ''; return; }
     try { sessionStorage.removeItem(EDIT_KEY); } catch { /* the editor was not opened from a course */ } // a hand-off from the Course would put the old pieces back on reload
-    try { localStorage.setItem(KEY, JSON.stringify({ pieces: pr.pieces, angle: 0, offset: 0, level: 0, floor: floorChoice } satisfies Saved)); } catch { /* private window */ }
+    try { localStorage.setItem(KEY, JSON.stringify({ pieces: pr.pieces, angle: 0, offset: 0, level: 0, floor: ed.floorChoice } satisfies Saved)); } catch { /* private window */ }
     location.reload();
   };
   const profileWrap = el('div', main, { className: 'profilewrap' });
@@ -492,15 +481,15 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
   const setSuggest = (clear: boolean | null) => { suggestBtn.textContent = clear === false ? 'Suggest Fix' : 'Suggest More'; suggestBtn.classList.toggle('go', clear === false); suggestBtn.dataset.kind = clear === false ? 'fix' : 'more'; };
   // ---- routes you did not plan (CC-71): the simulator looks for lines that skip an obstacle; Close it previews a change that shuts one, Keep it marks it as meant
   const designed = new Set<string>();
-  let routes: Shortcut[] = [], routesWorker: Worker | null = null;
+  let routesWorker: Worker | null = null;
   const routesHead = el('div', helper, { className: 'row', id: 'routeshead' });
   const findRoutesBtn = el('button', routesHead, { text: 'Look for routes you did not plan', id: 'findroutes', title: 'The simulator tries the course with each bar, wall or rope taken away and tells you which skips are faster' });
   const routesBox = el('div', helper, { id: 'routes' });
-  const routesBrief = () => routes.filter((r) => !designed.has(r.id)).map((r) => shortcutLine(r));
+  const routesBrief = () => ed.routes.filter((r) => !designed.has(r.id)).map((r) => shortcutLine(r));
   function renderRoutes() {
     routesBox.replaceChildren();
-    if (!routes.length) { el('div', routesBox, { className: 'muted', text: 'No route that skips an obstacle is faster than the planned line.' }); return; }
-    for (const s of routes) {
+    if (!ed.routes.length) { el('div', routesBox, { className: 'muted', text: 'No route that skips an obstacle is faster than the planned line.' }); return; }
+    for (const s of ed.routes) {
       const row = el('div', routesBox, { className: 'row', id: `route-${s.id}` });
       el('span', row, { text: shortcutLine(s) + (designed.has(s.id) ? ' (kept: meant by the designer)' : '') });
       el('button', row, { text: 'Close it', className: 'go', title: 'See a change that shuts this route before anything moves' }).onclick = () => closeRoute(s);
@@ -509,7 +498,7 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
   }
   function lookForRoutes() {
     findRoutesBtn.disabled = true; routesBox.replaceChildren(); el('div', routesBox, { className: 'muted', text: 'Looking for routes (about a minute)…' });
-    const done = (list: Shortcut[]) => { routes = list; findRoutesBtn.disabled = false; renderRoutes(); drawProfile(); document.documentElement.dataset.routes = String(list.length); };
+    const done = (list: Shortcut[]) => { ed.routes = list; findRoutesBtn.disabled = false; renderRoutes(); drawProfile(); document.documentElement.dataset.routes = String(list.length); };
     try {
       routesWorker ??= new Worker(new URL('../sim/shortcuts-worker.ts', import.meta.url), { type: 'module' });
       routesWorker.onmessage = (e: MessageEvent) => done((e.data.shortcuts as Shortcut[]) ?? []);
@@ -520,10 +509,10 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
   function closeRoute(s: Shortcut) {
     reply.className = 'reply'; reply.textContent = 'Working out a change that closes it… (up to two minutes)'; helper.classList.remove('closed'); helperBtn.setAttribute('aria-pressed', 'true');
     setTimeout(() => {
-      const now = { angle, offset, level }, r = closeShortcut(pieces as P[], now, s);
+      const now = { angle: ed.angle, offset: ed.offset, level: ed.level }, r = closeShortcut(ed.pieces as P[], now, s);
       if (!r.ok) { reply.className = 'reply bad'; reply.textContent = r.steps.join(' '); return; }
-      leadText = '';
-      showProposal(diffProposal('shortcut', `Close the shortcut: ${s.how}`, pieces, now, r.pieces, now, r.steps, true));
+      ed.leadText = '';
+      showProposal(diffProposal('shortcut', `Close the shortcut: ${s.how}`, ed.pieces, now, r.pieces, now, r.steps, true));
     }, 30);
   }
   const reply = el('div', helper, { className: 'reply muted', id: 'reply', text: 'Ask for a change, or press "What should I change?".' });
@@ -534,7 +523,7 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
   helperReady = true;
   suggestBtn.onclick = () => {
     const clear = document.documentElement.dataset.laneClear !== '0';
-    ask.value = suggestPrompt(clear, pieces.filter((q) => !isSizeReference(q) && !isDevice(q)).map((q) => ({ name: q.name, x: q.x, heightM: realSize(q).h + q.y })));
+    ask.value = suggestPrompt(clear, ed.pieces.filter((q) => !isSizeReference(q) && !isDevice(q)).map((q) => ({ name: q.name, x: q.x, heightM: realSize(q).h + q.y })));
     helper.classList.remove('closed'); helperBtn.setAttribute('aria-pressed', 'true');
     sendBtn.click();
   };
@@ -560,19 +549,18 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
   movesBtn.style.cssText = 'position:absolute;left:10px;top:10px;z-index:6';
   movesBtn.setAttribute('aria-pressed', 'false');
   movesBtn.onclick = () => { const closed = movesBox.classList.toggle('closed'); movesBtn.setAttribute('aria-pressed', String(!closed)); if (!closed) renderMoves(); };
-  let movesBusy = '', movesList: { label: string; items: RoleSuggestion[] } | null = null;
-  const laneNow = () => ({ angle, offset, level });
+  const laneNow = () => ({ angle: ed.angle, offset: ed.offset, level: ed.level });
   function roleProposal(sg: RoleSuggestion): Proposal {
-    const next = applySuggestion(pieces, sg);
-    return diffProposal('role', 'A way to use a piece', pieces, laneNow(), next, laneNow(), [sg.words], sg.proved === true ? true : undefined);
+    const next = applySuggestion(ed.pieces, sg);
+    return diffProposal('role', 'A way to use a piece', ed.pieces, laneNow(), next, laneNow(), [sg.words], sg.proved === true ? true : undefined);
   }
   function findWays(only?: number) {
-    if (movesBusy) return;
-    movesBusy = only === undefined ? 'the world' : 'this piece'; renderMoves();
+    if (ed.movesBusy) return;
+    ed.movesBusy = only === undefined ? 'the world' : 'this piece'; renderMoves();
     setTimeout(() => {
       const items = suggestRoles(coursePieces(), laneNow(), { budgetMs: 40000, ...(only !== undefined ? { only } : {}) }).filter((x) => x.proved);
-      movesList = { label: only === undefined ? 'Ways to add a missing move (each one checked by the simulator)' : 'What this piece could be (each one checked by the simulator)', items };
-      movesBusy = ''; document.documentElement.dataset.roleSuggestions = String(items.length); renderMoves();
+      ed.movesList = { label: only === undefined ? 'Ways to add a missing move (each one checked by the simulator)' : 'What this piece could be (each one checked by the simulator)', items };
+      ed.movesBusy = ''; document.documentElement.dataset.roleSuggestions = String(items.length); renderMoves();
     }, 30);
   }
   function renderMoves() {
@@ -581,18 +569,18 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
     const hd = el('div', movesBox, { className: 'row' });
     el('strong', hd, { text: 'Moves in this world' });
     el('button', hd, { text: '✕', id: 'closemoves', title: 'Hide' }).onclick = () => { movesBox.classList.add('closed'); movesBtn.setAttribute('aria-pressed', 'false'); };
-    const status = movesInWorld(coursePieces(), laneNow(), { trebuchet: !!trebuchetKg });
+    const status = movesInWorld(coursePieces(), laneNow(), { trebuchet: !!ed.trebuchetKg });
     document.documentElement.dataset.moves = JSON.stringify(Object.fromEntries(status.map((m) => [m.id, m.have])));
     for (const m of status) {
       const row = el('div', movesBox, { className: 'mv' });
       el('span', row, { className: `mvicon ${m.have === 'yes' ? 'yes' : m.have === 'no' ? 'no' : 'muted'}`, text: m.have === 'yes' ? '✓' : m.have === 'no' ? '+' : '↗', title: m.have === 'yes' ? 'This world has it' : m.have === 'no' ? 'Missing: it can be added' : 'Built somewhere else' });
       el('span', row, { className: 'mvtext', text: `${m.name}: ${m.detail}` });
       if (m.have !== 'yes') el('span', row, { className: 'need', text: m.need });
-      if (m.have === 'no' && m.id === 'lache') el('button', row, { text: 'Add two bars', id: 'addbars', className: 'go' }).onclick = () => { addBarPiece(view.cx - 1.6, 2.9); addBarPiece(view.cx + 1.6, 2.9); changed(); };
+      if (m.have === 'no' && m.id === 'lache') el('button', row, { text: 'Add two bars', id: 'addbars', className: 'go' }).onclick = () => { addBarPiece(ed.view.cx - 1.6, 2.9); addBarPiece(ed.view.cx + 1.6, 2.9); changed(); };
       if (m.have === 'no' && m.id === 'trebuchet') el('button', row, { text: 'Start in a trebuchet', id: 'movestreb' }).onclick = () => document.getElementById('addtreb')?.click();
       if (m.have === 'elsewhere') { const a = el('a', row, { text: 'Open the coaster builder', href: '?mode=coaster' }); a.className = 'btn'; }
     }
-    const sel = pieces.find((q) => q.id === selected);
+    const sel = ed.pieces.find((q) => q.id === ed.selected);
     if (sel && !isHold(sel) && !isSizeReference(sel) && !isDevice(sel)) {
       const row = el('div', movesBox, { className: 'sg' });
       el('div', row, { text: `Selected piece: ${sel.name}` });
@@ -603,32 +591,27 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
       pick.onchange = () => { sel.role = pick.value === 'ground' ? undefined : (pick.value as Role); changed(); };
       el('button', row, { text: 'What could this be?', id: 'whatcould' }).onclick = () => findWays(sel.id);
     }
-    el('button', movesBox, { text: movesBusy ? `Checking ${movesBusy} with the simulator…` : 'Find ways to add the missing moves', id: 'findways', className: 'go' }).onclick = () => findWays();
-    if (movesBusy) (document.getElementById('findways') as HTMLButtonElement).disabled = true;
-    if (movesList) {
-      el('strong', movesBox, { text: movesList.label });
-      if (!movesList.items.length) el('div', movesBox, { className: 'muted', text: 'No single change gives a missing move here. Try other pieces, or scale one by hand.' });
-      for (const sg of movesList.items) {
+    el('button', movesBox, { text: ed.movesBusy ? `Checking ${ed.movesBusy} with the simulator…` : 'Find ways to add the missing moves', id: 'findways', className: 'go' }).onclick = () => findWays();
+    if (ed.movesBusy) (document.getElementById('findways') as HTMLButtonElement).disabled = true;
+    if (ed.movesList) {
+      el('strong', movesBox, { text: ed.movesList.label });
+      if (!ed.movesList.items.length) el('div', movesBox, { className: 'muted', text: 'No single change gives a missing move here. Try other pieces, or scale one by hand.' });
+      for (const sg of ed.movesList.items) {
         const row = el('div', movesBox, { className: 'sg' });
         el('div', row, { text: sg.words });
-        el('button', row, { text: 'Show it', className: 'go', title: 'See where it would go before anything changes' }).onclick = () => { leadText = ''; showProposal(roleProposal(sg)); };
+        el('button', row, { text: 'Show it', className: 'go', title: 'See where it would go before anything changes' }).onclick = () => { ed.leadText = ''; showProposal(roleProposal(sg)); };
       }
     }
   }
   movesReady = true;
   // ---- preview before apply: Fix it, the partner's changes and one piece of advice all become a Proposal that is drawn as outlines first
-  let proposal: Proposal | null = null;
-  let preview: { pieces: P[]; lane: { angle: number; offset: number; level: number }; machine: Machine | null } | null = null;
-  let previewProfile: ReturnType<typeof sliceProfile> | null = null;
-  let previewBars: ReturnType<typeof holdsOf> = [];
-  let proofRun = 0, leadText = '';
   const proofs = new Map<string, boolean>();
   const keyOf = (pr: Proposal) => pr.items.map((i) => (i.on ? '1' : '0')).join('');
   const ghostData = (): Ghosts | null => {
-    if (!proposal || !preview) return null;
-    const items = proposal.items.flatMap((i) => (i.kind === 'piece' && i.on ? [{ id: i.id, from: i.from, to: i.to }] : []));
-    const laneMoved = proposal.items.some((i) => i.kind === 'lane' && i.on && i.key !== 'level');
-    return { items, lane: laneMoved ? { angle: preview.lane.angle, offset: preview.lane.offset } : null };
+    if (!ed.proposal || !ed.preview) return null;
+    const items = ed.proposal.items.flatMap((i) => (i.kind === 'piece' && i.on ? [{ id: i.id, from: i.from, to: i.to }] : []));
+    const laneMoved = ed.proposal.items.some((i) => i.kind === 'lane' && i.on && i.key !== 'level');
+    return { items, lane: laneMoved ? { angle: ed.preview.lane.angle, offset: ed.preview.lane.offset } : null };
   };
   async function computeFix(ps: P[], lane: { angle: number; offset: number; level: number }): Promise<{ ok: boolean; pieces: P[]; lane: { angle: number; offset: number; level: number }; steps: string[]; machine: Machine | null }> {
     const m = machineNow(), wrap = machineWrap(m); // a machine's wrap is a function, which a worker cannot be sent: with a machine the proofs run here, without one they run in a worker
@@ -642,7 +625,7 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
   }
   function runFix(from?: { pieces: P[]; lane: { angle: number; offset: number; level: number } }) {
     helper.classList.remove('closed'); helperBtn.setAttribute('aria-pressed', 'true');
-    reply.className = 'reply'; reply.textContent = 'Working it out…' + (pieces.some(isHold) ? ' (bars take a while: up to 40 seconds)' : '');
+    reply.className = 'reply'; reply.textContent = 'Working it out…' + (ed.pieces.some(isHold) ? ' (bars take a while: up to 40 seconds)' : '');
     setTimeout(async () => {
       const pf = plankFixNow(); // a plank that would snap: the smallest change is a thicker plank or a post, said in words first
       if (pf) {
@@ -652,56 +635,56 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
         document.documentElement.dataset.fixed = '0';
         return;
       }
-      if (droneCfg && !trebuchetKg && !verdict.startsWith('The simulator can clear')) { // the drone is the first thing to change: a bigger battery or a lighter rider
-        const fd = fixDrone(courseNow(), droneCfg, droneRange());
+      if (ed.droneCfg && !ed.trebuchetKg && !ed.verdict.startsWith('The simulator can clear')) { // the drone is the first thing to change: a bigger battery or a lighter rider
+        const fd = fixDrone(courseNow(), ed.droneCfg, droneRange());
         reply.className = fd.ok ? 'reply ok' : 'reply bad';
         reply.textContent = fd.ok ? (fd.steps[0] ?? 'It already works.') : fd.steps.join(' ');
         document.documentElement.dataset.fixed = fd.ok ? '1' : '0';
         if (fd.ok && fd.steps.length) el('button', reply, { text: 'Use it', className: 'go', id: 'usedrone' }).onclick = () => { const len = dronePiece()?.src?.split(':')[4] ?? String(DRONE_PAD_LENGTH); updateDeviceSource('device:drone', `device:drone:${fd.cfg.payload}:${fd.cfg.battery}:${len}`); changed(); };
         return;
       }
-      if (recoilCfg && !trebuchetKg && !verdict.startsWith('The simulator can clear')) { // the launcher is the first thing to change: a heavier or faster ball
-        const fr = fixRecoil(courseNow(), recoilCfg);
+      if (ed.recoilCfg && !ed.trebuchetKg && !ed.verdict.startsWith('The simulator can clear')) { // the launcher is the first thing to change: a heavier or faster ball
+        const fr = fixRecoil(courseNow(), ed.recoilCfg);
         reply.className = fr.ok ? 'reply ok' : 'reply bad';
         reply.textContent = fr.ok ? (fr.steps[0] ?? 'It already works.') : fr.steps.join(' ');
         document.documentElement.dataset.fixed = fr.ok ? '1' : '0';
         if (fr.ok && fr.steps.length) el('button', reply, { text: 'Use it', className: 'go', id: 'userecoil' }).onclick = () => { const len = recoilPiece()?.src?.split(':')[4] ?? String(RECOIL_PAD_LENGTH); updateDeviceSource(`device:${fr.cfg.kind}`, `device:${fr.cfg.kind}:${fr.cfg.ballMass}:${fr.cfg.muzzle}:${len}`); syncRecoil(); changed(); };
         return;
       }
-      if (bandK) { // the band: the only thing Fix it can change is its stiffness; it says so and waits for Apply
+      if (ed.bandK) { // the band: the only thing Fix it can change is its stiffness; it says so and waits for Apply
         const bf = fixBand(laneCourse(currentProfile()));
         document.documentElement.dataset.fixed = bf.ok ? '1' : '0';
         reply.className = bf.ok ? 'reply ok' : 'reply bad';
         reply.textContent = bf.ok ? (bf.steps.length ? bf.steps.join(' ') : 'It already works.') : bf.steps.join(' ');
-        if (bf.ok && bf.steps.length) el('button', reply, { text: 'Apply', id: 'applyband', className: 'go' }).onclick = () => { bandK = bf.k; bandInput.value = String(bf.k); changed(); reply.textContent = 'Applied.'; };
+        if (bf.ok && bf.steps.length) el('button', reply, { text: 'Apply', id: 'applyband', className: 'go' }).onclick = () => { ed.bandK = bf.k; bandInput.value = String(bf.k); changed(); reply.textContent = 'Applied.'; };
         return;
       }
-      const now = { angle, offset, level }, start = from ?? { pieces, lane: now };
+      const now = { angle: ed.angle, offset: ed.offset, level: ed.level }, start = from ?? { pieces: ed.pieces, lane: now };
       const r = await computeFix(start.pieces, start.lane).catch(() => null);
       if (!r) { reply.className = 'reply bad'; reply.textContent = 'Fix it was stopped. Try again.'; return; }
       document.documentElement.dataset.fixed = r.ok ? '1' : '0';
-      const prop = diffProposal('fixit', from ? 'Fix it, starting from your partner’s changes' : 'Fix it', pieces, now, r.pieces, r.lane, r.steps, r.ok, machineNow(), r.machine);
+      const prop = diffProposal('fixit', from ? 'Fix it, starting from your partner’s changes' : 'Fix it', ed.pieces, now, r.pieces, r.lane, r.steps, r.ok, machineNow(), r.machine);
       if (!prop.items.length) {
         reply.className = r.ok ? 'reply ok' : 'reply bad';
-        reply.textContent = r.ok ? 'It already works.' : pieces.some(isHold) ? r.steps.join(' ') : 'I could not find a layout that works. ' + r.steps.join(' ') + ' Try other pieces.';
+        reply.textContent = r.ok ? 'It already works.' : ed.pieces.some(isHold) ? r.steps.join(' ') : 'I could not find a layout that works. ' + r.steps.join(' ') + ' Try other pieces.';
         return;
       }
-      leadText = '';
+      ed.leadText = '';
       showProposal(prop);
     }, 30);
   }
   // Make it easier: the simulator knows the lane clears, but the hardest press is narrow; try the smallest changes near the obstacle and show the first that widens it
   function runEasier() {
     helper.classList.remove('closed'); helperBtn.setAttribute('aria-pressed', 'true');
-    reply.className = 'reply'; reply.textContent = 'Looking for the smallest change that makes the hardest press easier… (up to ' + (pieces.some(isHold) ? '2 minutes' : '40 seconds') + ')';
+    reply.className = 'reply'; reply.textContent = 'Looking for the smallest change that makes the hardest press easier… (up to ' + (ed.pieces.some(isHold) ? '2 minutes' : '40 seconds') + ')';
     setTimeout(async () => {
-      const c0 = courseNow(), lane = { angle, offset, level };
-      const at = pieces.find((q) => q.id === selected);
+      const c0 = courseNow(), lane = { angle: ed.angle, offset: ed.offset, level: ed.level };
+      const at = ed.pieces.find((q) => q.id === ed.selected);
       const x = at ? xOfPiece(at, c0) : handoff?.x ?? c0.startX;
-      const r = await makeItEasier(pieces, lane, x, { courseOf: courseFor, xOf: (q) => xOfPiece(q, c0) }, undefined, (n, total) => { reply.textContent = `Trying change ${n} of ${total}…`; });
+      const r = await makeItEasier(ed.pieces, lane, x, { courseOf: courseFor, xOf: (q) => xOfPiece(q, c0) }, undefined, (n, total) => { reply.textContent = `Trying change ${n} of ${total}…`; });
       document.documentElement.dataset.easier = r.proposal ? '1' : '0';
       if (!r.proposal) { reply.className = 'reply muted'; reply.textContent = r.note; return; }
-      leadText = '';
+      ed.leadText = '';
       showProposal(r.proposal);
     }, 30);
   }
@@ -711,30 +694,30 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
     if (worldDone || !handoff) return;
     worldDone = true;
     const c0 = courseNow();
-    const solid = pieces.filter((q) => isHold(q) || realSize(q).h > 0.05);
-    const near = [...(solid.length ? solid : pieces)].sort((a, b) => Math.abs(xOfPiece(a, c0) - handoff.x) - Math.abs(xOfPiece(b, c0) - handoff.x))[0];
-    if (near) { focusId = near.id; selected = near.id; view3d.focus(near.x, near.z); drawPanel(); draw(); drawProfile(); }
+    const solid = ed.pieces.filter((q) => isHold(q) || realSize(q).h > 0.05);
+    const near = [...(solid.length ? solid : ed.pieces)].sort((a, b) => Math.abs(xOfPiece(a, c0) - handoff.x) - Math.abs(xOfPiece(b, c0) - handoff.x))[0];
+    if (near) { focusId = near.id; ed.selected = near.id; view3d.focus(near.x, near.z); drawPanel(); draw(); drawProfile(); }
     document.documentElement.dataset.fromcourse = handoff.intent;
     if (handoff.intent === 'easier') runEasier();
   }
   function showProposal(pr: Proposal) {
     helper.classList.remove('closed'); helperBtn.setAttribute('aria-pressed', 'true');
-    proposal = pr; proofs.clear();
+    ed.proposal = pr; proofs.clear();
     if (pr.known !== undefined) proofs.set(keyOf(pr), pr.known);
     renderProposal(); updatePreview();
     document.documentElement.dataset.previewItems = String(pr.items.length);
   }
   function closePreview(message?: string) {
-    proposal = null; preview = null; previewProfile = null; previewBars = []; proofRun++;
+    ed.proposal = null; ed.preview = null; ed.previewProfile = null; ed.previewBars = []; ed.proofRun++;
     document.documentElement.dataset.preview = '';
     if (message) { reply.className = 'reply muted'; reply.textContent = message; }
     draw(); drawProfile();
   }
   function renderProposal() {
-    const pr = proposal;
+    const pr = ed.proposal;
     if (!pr) return;
     reply.className = 'reply'; reply.replaceChildren();
-    if (leadText) el('div', reply, { text: leadText });
+    if (ed.leadText) el('div', reply, { text: ed.leadText });
     el('strong', reply, { text: pr.title });
     el('div', reply, { className: 'muted', text: 'The outlines show where things would go (grey: now, teal: after). Nothing changes until you press Apply.' });
     if (pr.source === 'easier') for (const st of pr.steps) el('div', reply, { className: 'ok', text: st });
@@ -759,43 +742,41 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
     apply.disabled = state === 'none';
     const tryBtn = document.getElementById('applytry') as HTMLButtonElement | null; if (tryBtn) tryBtn.disabled = state === 'none';
     rowEl.querySelector('#fixfromhere')?.remove();
-    if (state === 'blocked' && proposal && proposal.source !== 'fixit' && preview) {
-      const from = { pieces: preview.pieces, lane: preview.lane };
+    if (state === 'blocked' && ed.proposal && ed.proposal.source !== 'fixit' && ed.preview) {
+      const from = { pieces: ed.preview.pieces, lane: ed.preview.lane };
       el('button', rowEl, { text: 'Fix it from here', id: 'fixfromhere', title: 'Show the smallest further changes that make it clear' }).onclick = () => runFix(from);
     }
   }
   function updatePreview() {
-    if (!proposal) { preview = null; previewProfile = null; previewBars = []; return; }
-    preview = resultOf(pieces, { angle, offset, level }, proposal, machineNow());
-    previewProfile = laneProfile(preview.pieces.filter((q) => !isHold(q) && q.role !== 'rope' && q.role !== 'bar'), preview.lane);
-    previewBars = holdsOf(preview.pieces, preview.lane);
+    if (!ed.proposal) { ed.preview = null; ed.previewProfile = null; ed.previewBars = []; return; }
+    ed.preview = resultOf(ed.pieces, { angle: ed.angle, offset: ed.offset, level: ed.level }, ed.proposal, machineNow());
+    ed.previewProfile = laneProfile(ed.preview.pieces.filter((q) => !isHold(q) && q.role !== 'rope' && q.role !== 'bar'), ed.preview.lane);
+    ed.previewBars = holdsOf(ed.preview.pieces, ed.preview.lane);
     draw(); drawProfile();
-    const key = keyOf(proposal), mine = ++proofRun;
-    if (!enabledCount(proposal)) return paintVerdict('none');
+    const key = keyOf(ed.proposal), mine = ++ed.proofRun;
+    if (!enabledCount(ed.proposal)) return paintVerdict('none');
     const known = proofs.get(key);
     if (known !== undefined) return paintVerdict(known ? 'clears' : 'blocked');
     paintVerdict('checking');
-    const snapshot = preview;
-    setTimeout(async () => { if (mine !== proofRun || !proposal) return; const mp = snapshot.pieces.filter((q) => !isSizeReference(q) && !isDevice(q)); const ok = snapshot.machine ? proves(mp, snapshot.lane, machineWrap(snapshot.machine)) : await provesInWorker(mp, snapshot.lane).catch(() => null); if (ok === null || mine !== proofRun || !proposal) return; proofs.set(key, ok); paintVerdict(ok ? 'clears' : 'blocked'); }, 30);
+    const snapshot = ed.preview;
+    setTimeout(async () => { if (mine !== ed.proofRun || !ed.proposal) return; const mp = snapshot.pieces.filter((q) => !isSizeReference(q) && !isDevice(q)); const ok = snapshot.machine ? proves(mp, snapshot.lane, machineWrap(snapshot.machine)) : await provesInWorker(mp, snapshot.lane).catch(() => null); if (ok === null || mine !== ed.proofRun || !ed.proposal) return; proofs.set(key, ok); paintVerdict(ok ? 'clears' : 'blocked'); }, 30);
   }
   function applyProposal() {
-    if (!proposal || !preview) return;
-    const r = preview, words = proposal.items.filter((i) => i.on).map((i) => i.words).join(' ');
-    for (const q of r.pieces) { const mine = pieces.find((x) => x.id === q.id); if (mine) { mine.x = q.x; mine.z = q.z; mine.y = q.y; mine.yaw = q.yaw; mine.scale = q.scale; mine.role = q.role; } }
-    angle = r.lane.angle; offset = r.lane.offset; level = r.lane.level;
-    if (r.machine && trebuchetKg) { updateDeviceSource('device:trebuchet', `device:trebuchet:${r.machine.counterweight}`); trebuchetExtra = { ...(r.machine.short !== undefined ? { short: r.machine.short } : {}), ...(r.machine.pin !== undefined ? { pin: r.machine.pin } : {}) }; } // the counterweight lives in the machine piece
-    proposal = null; preview = null; previewProfile = null; previewBars = []; proofRun++;
+    if (!ed.proposal || !ed.preview) return;
+    const r = ed.preview, words = ed.proposal.items.filter((i) => i.on).map((i) => i.words).join(' ');
+    for (const q of r.pieces) { const mine = ed.pieces.find((x) => x.id === q.id); if (mine) { mine.x = q.x; mine.z = q.z; mine.y = q.y; mine.yaw = q.yaw; mine.scale = q.scale; mine.role = q.role; } }
+    ed.angle = r.lane.angle; ed.offset = r.lane.offset; ed.level = r.lane.level;
+    if (r.machine && ed.trebuchetKg) { updateDeviceSource('device:trebuchet', `device:trebuchet:${r.machine.counterweight}`); ed.trebuchetExtra = { ...(r.machine.short !== undefined ? { short: r.machine.short } : {}), ...(r.machine.pin !== undefined ? { pin: r.machine.pin } : {}) }; } // the counterweight lives in the machine piece
+    ed.proposal = null; ed.preview = null; ed.previewProfile = null; ed.previewBars = []; ed.proofRun++;
     changed(); // one undo step
     reply.className = 'reply ok'; reply.textContent = `Applied. ${words}`;
     document.documentElement.dataset.preview = 'applied';
   }
-  let adviceList: Advice[] = [];
-  let pendingEdits: Edit[] = [];
   const chat: { role: 'user' | 'assistant'; content: string }[] = [];
-  const previewAdvice = (a: Advice) => { leadText = ''; showProposal(fromAdvice(pieces, { angle, offset, level }, a, machineNow())); };
+  const previewAdvice = (a: Advice) => { ed.leadText = ''; showProposal(fromAdvice(ed.pieces, { angle: ed.angle, offset: ed.offset, level: ed.level }, a, machineNow())); };
   function showAdvice() {
     adviceBox.textContent = '';
-    for (const a of adviceList) {
+    for (const a of ed.adviceList) {
       const row = el('div', adviceBox, { className: 'row' });
       el('span', row, { text: a.text });
       el('button', row, { text: 'Show it', className: 'go', title: 'See where it would go before anything changes' }).onclick = () => previewAdvice(a);
@@ -805,22 +786,22 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
     chat.push({ role: 'user', content: text });
     reply.className = 'reply'; reply.textContent = 'Thinking…'; sendBtn.disabled = whatBtn.disabled = true;
     try {
-      const r = await fetch('/api/designer', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ messages: chat.slice(-6), world: worldBrief(pieces, { angle, offset, level }, verdict, adviceList.map((a) => a.text), barsNow(), routesBrief()) }) });
+      const r = await fetch('/api/designer', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ messages: chat.slice(-6), world: worldBrief(ed.pieces, { angle: ed.angle, offset: ed.offset, level: ed.level }, ed.verdict, ed.adviceList.map((a) => a.text), barsNow(), routesBrief()) }) });
       if (r.status === 503) { reply.className = 'reply muted'; reply.textContent = 'The design partner is switched off on this site (no key set).'; return; }
       if (!r.ok) throw new Error(String(r.status));
-      const got = parseReply(((await r.json()) as { reply: string }).reply, pieces.map((q) => q.id));
+      const got = parseReply(((await r.json()) as { reply: string }).reply, ed.pieces.map((q) => q.id));
       chat.push({ role: 'assistant', content: got.text });
-      reply.textContent = got.text; pendingEdits = got.edits;
+      reply.textContent = got.text; ed.pendingEdits = got.edits;
       if (got.edits.length) el('button', reply, { text: `Show these ${got.edits.length} change${got.edits.length > 1 ? 's' : ''}`, className: 'go', id: 'applyedits', title: 'See where the pieces would go before anything changes' }).onclick = () => {
-        const pr = fromEdits(pieces, { angle, offset, level }, pendingEdits);
+        const pr = fromEdits(ed.pieces, { angle: ed.angle, offset: ed.offset, level: ed.level }, ed.pendingEdits);
         if (!pr.items.length) { reply.textContent = got.text + ' (Those changes would not move anything.)'; return; }
-        leadText = got.text; showProposal(pr);
+        ed.leadText = got.text; showProposal(pr);
       };
     } catch { reply.className = 'reply bad'; reply.textContent = 'The design partner could not answer. Try again.'; }
     finally { sendBtn.disabled = whatBtn.disabled = false; }
   }
   sendBtn.onclick = () => { const t = ask.value.trim(); if (t) { ask.value = ''; void askPartner(t); } };
-  whatBtn.onclick = () => void askPartner(verdict.startsWith('The simulator can clear') ? 'The lane clears. Suggest one change that makes it more interesting to run.' : 'The lane does not clear. What should I change?');
+  whatBtn.onclick = () => void askPartner(ed.verdict.startsWith('The simulator can clear') ? 'The lane clears. Suggest one change that makes it more interesting to run.' : 'The lane does not clear. What should I change?');
 
   // the two pictures fill their boxes exactly, so nothing ever scrolls
   const fit = () => {
@@ -833,9 +814,9 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
   setView(false);
 
   function plankFixNow(): { steps: string[]; apply: () => void } | null {
-    const c = courseNow(), laid = planksOf(pieces as P[], { angle, offset, level });
+    const c = courseNow(), laid = planksOf(ed.pieces as P[], { angle: ed.angle, offset: ed.offset, level: ed.level });
     const fixes: { piece: P; spec: PlankSpec; fix: ReturnType<typeof fixPlank> }[] = [];
-    (c.planks ?? []).forEach((pk, i) => { const pc = laid[i] ? (pieces.find((q) => q.id === laid[i].id) as P | undefined) : undefined; if (pc && !plankHolds(pk)) fixes.push({ piece: pc, spec: plankSpecOf(pc.src)!, fix: fixPlank(pk) }); });
+    (c.planks ?? []).forEach((pk, i) => { const pc = laid[i] ? (ed.pieces.find((q) => q.id === laid[i].id) as P | undefined) : undefined; if (pc && !plankHolds(pk)) fixes.push({ piece: pc, spec: plankSpecOf(pc.src)!, fix: fixPlank(pk) }); });
     if (!fixes.length) return null;
     return { steps: fixes.flatMap((f) => f.fix.steps), apply: () => fixes.forEach((f) => { if (f.fix.ok) setPlank(f.piece, { ...f.spec, thickness: f.fix.plank.thickness, support: !!f.fix.plank.support }); }) };
   }
@@ -864,14 +845,14 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
   const selChip = el('div', planWrap, { id: 'selchip' });
   const selCount = el('strong', selChip, { id: 'selcount' });
   el('button', selChip, { text: 'Delete', id: 'seldelete', title: 'Delete every chosen piece (Delete key)' }).onclick = () => deleteChosen();
-  el('button', selChip, { text: 'Clear', id: 'selclear', title: 'Choose nothing (Esc)' }).onclick = () => { group = []; selected = null; drawPanel(); draw(); drawProfile(); };
+  el('button', selChip, { text: 'Clear', id: 'selclear', title: 'Choose nothing (Esc)' }).onclick = () => { ed.group = []; ed.selected = null; drawPanel(); draw(); drawProfile(); };
   const selHint = multiOn ? el('div', planWrap, { id: 'selhint', text: 'Shift + drag: choose several. Shift + click: add or drop one.' }) : null;
   function syncSelChip() {
     const n = chosen().length;
     selChip.style.display = n > 1 ? 'flex' : 'none';
     selCount.textContent = countText(n);
     document.documentElement.dataset.selected = String(n);
-    if (selHint) selHint.style.display = n > 1 || topPlan ? 'none' : 'block';
+    if (selHint) selHint.style.display = n > 1 || ed.topPlan ? 'none' : 'block';
   }
   // ---- the selected piece's tools, on the picture (CC-94): turn, scale, copy, crop, delete
   function pieceBar(p: P | null) {
@@ -884,22 +865,22 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
       el('span', bar, { className: 'sep' });
       for (const [t, k] of [['× 0.5', 0.5], ['× 2', 2], ['× 10', 10]] as const) b(t, undefined, `Make the piece ${k} times its size`, () => { Object.assign(p, scaleBy(p, k)); changed(); });
       el('span', bar, { className: 'sep' });
-      b('Copy', 'dup', 'Copy and paste the piece next to itself', () => { const q = duplicate(p, size(p.mesh).w * p.scale + 0.5, 0) as P; q.src = p.src; pieces.push(q); selected = q.id; changed(); });
-      const cb = b(cropMode ? 'Drag a box on the plan' : 'Crop', 'crop', 'Cut away what you do not need: drag a box on the flat plan', () => { cropMode = !cropMode; if (cropMode && !topPlan) setView(true); drawPanel(); });
-      cb.setAttribute('aria-pressed', String(cropMode));
+      b('Copy', 'dup', 'Copy and paste the piece next to itself', () => { const q = duplicate(p, size(p.mesh).w * p.scale + 0.5, 0) as P; q.src = p.src; ed.pieces.push(q); ed.selected = q.id; changed(); });
+      const cb = b(ed.cropMode ? 'Drag a box on the plan' : 'Crop', 'crop', 'Cut away what you do not need: drag a box on the flat plan', () => { ed.cropMode = !ed.cropMode; if (ed.cropMode && !ed.topPlan) setView(true); drawPanel(); });
+      cb.setAttribute('aria-pressed', String(ed.cropMode));
       el('span', bar, { className: 'sep' });
     }
-    b('Delete', 'del', 'Delete the piece (Delete key)', () => { pieces = pieces.filter((q) => q !== p); selected = null; changed(); });
+    b('Delete', 'del', 'Delete the piece (Delete key)', () => { ed.pieces = ed.pieces.filter((q) => q !== p); ed.selected = null; changed(); });
     bar.style.display = 'flex'; placeBar();
   }
   // next to the selected piece: above its top on the 3D picture (below it when there is no room), clamped inside the picture
   function placeBar() {
-    const p = pieces.find((q) => q.id === selected && !isSizeReference(q));
+    const p = ed.pieces.find((q) => q.id === ed.selected && !isSizeReference(q));
     if (!p || bar.style.display === 'none') return;
     const W = planWrap.clientWidth, H = planWrap.clientHeight, bw = bar.offsetWidth, bh = bar.offsetHeight;
     const r = realSize(p);
     let cx: number, top: number, bottom: number;
-    if (topPlan) { const k = plan.clientWidth / plan.width, half = (Math.max(r.w, r.d) / 2) * view.ppm * k; cx = sx(p.x) * k; top = sz(p.z) * k - half - bh - 8; bottom = sz(p.z) * k + half + 8; }
+    if (ed.topPlan) { const k = plan.clientWidth / plan.width, half = (Math.max(r.w, r.d) / 2) * ed.view.ppm * k; cx = sx(p.x) * k; top = sz(p.z) * k - half - bh - 8; bottom = sz(p.z) * k + half + 8; }
     else { const a = view3d.project(p.x, p.y + r.h, p.z), g = view3d.project(p.x, p.y, p.z); if (!a || !g) { bar.style.visibility = 'hidden'; return; } cx = a.x; top = a.y - bh - 10; bottom = g.y + 10; }
     bar.style.visibility = 'visible';
     bar.style.left = `${Math.round(Math.min(Math.max(cx - bw / 2, 4), Math.max(4, W - bw - 4)))}px`;
@@ -913,12 +894,12 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
     side.replaceChildren();
     syncSelChip();
     if (chosen().length > 1) { el('strong', side, { text: countText(chosen().length) }); el('div', side, { className: 'muted', text: 'Delete removes them all. Ctrl+C then Ctrl+V copies them. Esc clears the choice. Shift+click adds or drops one.' }); pieceBar(null); return; }
-    const p = pieces.find((q) => q.id === selected && !isSizeReference(q));
+    const p = ed.pieces.find((q) => q.id === ed.selected && !isSizeReference(q));
     el('strong', side, { text: p ? p.name : 'No piece chosen' });
     if (!p) { pieceBar(null); el('div', side, { className: 'muted', text: 'Click a piece on the picture to choose it. Drag it to move it. Scroll to zoom, drag the background to pan.' }); return; }
     if (isDevice(p)) {
-      const u = p.x * Math.cos(angle) + p.z * Math.sin(angle);
-      const sameKind = pieces.filter((q) => p.src?.startsWith('device:trebuchet:') ? q.src?.startsWith('device:trebuchet:') : p.src?.startsWith('device:drone:') ? q.src?.startsWith('device:drone:') : q.src?.startsWith('device:cannon:'));
+      const u = p.x * Math.cos(ed.angle) + p.z * Math.sin(ed.angle);
+      const sameKind = ed.pieces.filter((q) => p.src?.startsWith('device:trebuchet:') ? q.src?.startsWith('device:trebuchet:') : p.src?.startsWith('device:drone:') ? q.src?.startsWith('device:drone:') : q.src?.startsWith('device:cannon:'));
       const active = sameKind[0]?.id === p.id;
       el('div', side, { className: 'muted', text: `${active ? 'Active in the course simulation' : 'Extra movable copy; the course currently simulates the first device of this type'} at ${u.toFixed(1)} m along the lane. Drag it in the 3D view or top plan. Size and orientation stay fixed.` });
       pieceBar(p);
@@ -934,7 +915,7 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
     const h = el('input', lab, { type: 'number', min: '0.02', max: '60', step: '0.05', value: r.h.toFixed(2), id: 'realheight' });
     h.onchange = () => { const v = Number(h.value); if (v > 0) { Object.assign(p, scaleToHeight(p, v)); changed(); } };
     const lift = el('label', sizes, { text: `Height off the ground: ${p.y.toFixed(2)} m` });
-    const ly = el('input', lift, { type: 'range', min: isTrack(p) ? String(Math.max(0, level)) : '0', max: (isHold(p) || p.role === 'bar') ? '8' : '4', step: '0.05', value: String(p.y), id: 'lift' });
+    const ly = el('input', lift, { type: 'range', min: isTrack(p) ? String(Math.max(0, ed.level)) : '0', max: (isHold(p) || p.role === 'bar') ? '8' : '4', step: '0.05', value: String(p.y), id: 'lift' });
     ly.oninput = () => { p.y = Number(ly.value); lift.firstChild!.textContent = `Height off the ground: ${p.y.toFixed(2)} m`; drawProfile(); };
     ly.onchange = () => changed();
     pieceBar(p);
@@ -951,19 +932,19 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
       i.oninput = () => { set(Number(i.value)); l.firstChild!.textContent = `${label}: ${fmt(get())}`; draw(); drawProfile(); };
       i.onchange = () => { save(); verify(); };
     };
-    slider('Turn about the start', 'angle', 0, 180, 5, () => Math.round((angle * 180) / Math.PI), (v) => { angle = (v * Math.PI) / 180; pieces.filter(isDevice).forEach((p) => { p.yaw = angle; }); }, (v) => `${v}°`);
-    slider('Sideways', 'offset', -30, 30, 0.5, () => offset, (v) => (offset = v), (v) => `${v.toFixed(1)} m`);
-    slider('Where the water starts (level)', 'level', 0, 4, 0.05, () => level, (v) => (level = v), (v) => `${v.toFixed(2)} m`);
+    slider('Turn about the start', 'angle', 0, 180, 5, () => Math.round((ed.angle * 180) / Math.PI), (v) => { ed.angle = (v * Math.PI) / 180; ed.pieces.filter(isDevice).forEach((p) => { p.yaw = ed.angle; }); }, (v) => `${v}°`);
+    slider('Sideways', 'offset', -30, 30, 0.5, () => ed.offset, (v) => (ed.offset = v), (v) => `${v.toFixed(1)} m`);
+    slider('Where the water starts (level)', 'level', 0, 4, 0.05, () => ed.level, (v) => (ed.level = v), (v) => `${v.toFixed(2)} m`);
     const bestBtn = el('button', lanePanel, { text: 'Find the best lane for me', id: 'best' });
     bestBtn.onclick = async () => {
-      if (document.documentElement.dataset.laneClear === '1') { verdict = 'This lane is already proved by the simulator, so it stays.'; drawLanePanel(); return; } // a fix the simulator just proved is never swapped for a lane it has not
+      if (document.documentElement.dataset.laneClear === '1') { ed.verdict = 'This lane is already proved by the simulator, so it stays.'; drawLanePanel(); return; } // a fix the simulator just proved is never swapped for a lane it has not
       const s = worldSamples(ground());
-      const found = bestSlices({ positions: Array.from(s) }, { top: 8, prove: false, levels: [level], centre: { x: 0, z: 0 }, reprofile: (c) => laneProfile(ground(), c) }); // the editor's rod is the origin, so the lane it finds is the lane it shows
+      const found = bestSlices({ positions: Array.from(s) }, { top: 8, prove: false, levels: [ed.level], centre: { x: 0, z: 0 }, reprofile: (c) => laneProfile(ground(), c) }); // the editor's rod is the origin, so the lane it finds is the lane it shows
       bestBtn.disabled = true; bestBtn.textContent = 'Checking lanes…';
       let pick: (typeof found)[number] | null = null;
       for (const c of found) { if (await searchClearable(laneCourseAt({ angle: c.angle, offset: c.offset, level: c.level })) === true) { pick = c; break; } } // each is proved on the same course the lane check uses (roles, bars and machines too), so the answer matches what the check says afterwards
-      if (!pick) { verdict = 'No lane the simulator can clear was found: try other pieces or levels.'; drawLanePanel(); return; }
-      angle = pick.angle; offset = pick.offset; level = pick.level; verdict = '';
+      if (!pick) { ed.verdict = 'No lane the simulator can clear was found: try other pieces or levels.'; drawLanePanel(); return; }
+      ed.angle = pick.angle; ed.offset = pick.offset; ed.level = pick.level; ed.verdict = '';
       save(); drawLanePanel(); draw(); drawProfile(); verify();
     };
     const play = el('button', lanePanel, { text: 'Play this lane', className: 'go', id: 'play' });
@@ -976,23 +957,23 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
       const clear = await searchClearable(course);
       play.disabled = false; play.textContent = 'Play this lane';
       if (isStopped(laneCheck.state()) || version !== verifyVersion) return; // Cancel, the cap or a newer edit answered for this check
-      if (clear === null) { laneCheck.reset(); verdict = 'The lane check could not finish. Try again after editing stops.'; drawLanePanel(); return; }
+      if (clear === null) { laneCheck.reset(); ed.verdict = 'The lane check could not finish. Try again after editing stops.'; drawLanePanel(); return; }
       laneCheck.done(clear);
-      if (!clear) { verdict = 'The simulator cannot find a way to clear this lane: widen a gap or lower a step.'; drawLanePanel(); return; }
+      if (!clear) { ed.verdict = 'The simulator cannot find a way to clear this lane: widen a gap or lower a step.'; drawLanePanel(); return; }
       // the real objects are drawn in the game instead of blocks (a cropped photo object is drawn whole; its collision is still the cropped lane)
       launchCourse(course); // the plan the check just found goes along: the Course does not search again
     };
     const floorRow = el('label', lanePanel, { className: 'muted', text: 'Floor you must not touch: ' }); floorRow.style.cssText = 'display:flex;align-items:center;gap:6px'; // one line, not two (the panel must fit at 1024 x 640)
     const floorSel = el('select', floorRow, { id: 'floor', title: 'What is painted under the gaps (the run ends the same way on every floor)' });
-    for (const h of HAZARDS) floorSel.add(new Option(HAZARD_INFO[h].label, h, false, h === floorChoice));
-    floorSel.onchange = () => { floorChoice = floorSel.value as Hazard; document.documentElement.dataset.floor = floorChoice; save(); };
+    for (const h of HAZARDS) floorSel.add(new Option(HAZARD_INFO[h].label, h, false, h === ed.floorChoice));
+    floorSel.onchange = () => { ed.floorChoice = floorSel.value as Hazard; document.documentElement.dataset.floor = ed.floorChoice; save(); };
     const testBtn = el('button', lanePanel, { text: 'Test from the selected piece', id: 'testhere', title: 'Start the runner a few metres before the selected piece and play from there' });
     testBtn.onclick = () => {
-      const q = pieces.find((x) => x.id === selected);
+      const q = ed.pieces.find((x) => x.id === ed.selected);
       const course = courseNow();
-      if (!q) { verdict = 'Select a piece first: the test starts just before it.'; drawLanePanel(); return; }
-      course.scene = sceneFor(ground(), { angle, offset, level }, course.uMap ?? []);
-      const gx = isHold(q) ? (course.holds?.[barsNow().findIndex((b) => b.id === q.id)]?.x ?? 0) : sceneFor([q], { angle, offset, level }, course.uMap ?? [])[0]?.x ?? 0;
+      if (!q) { ed.verdict = 'Select a piece first: the test starts just before it.'; drawLanePanel(); return; }
+      course.scene = sceneFor(ground(), { angle: ed.angle, offset: ed.offset, level: ed.level }, course.uMap ?? []);
+      const gx = isHold(q) ? (course.holds?.[barsNow().findIndex((b) => b.id === q.id)]?.x ?? 0) : sceneFor([q], { angle: ed.angle, offset: ed.offset, level: ed.level }, course.uMap ?? [])[0]?.x ?? 0;
       // start on the ground about 8 m before it (on the nearest ground at or before that spot)
       const want = Math.max(course.startX, gx - 8);
       const ps = [...course.terrain.platforms].sort((a, b) => a.x0 - b.x0);
@@ -1002,69 +983,63 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
       root.remove(); style.remove();
       void startCourse(document.body, course);
     };
-    const verdictEl = el('div', lanePanel, { id: 'verdict', className: `says-when ${verdict.startsWith('The simulator can clear') ? 'ok' : verdict ? 'bad' : 'muted'}`, text: verdict });
+    const verdictEl = el('div', lanePanel, { id: 'verdict', className: `says-when ${ed.verdict.startsWith('The simulator can clear') ? 'ok' : ed.verdict ? 'bad' : 'muted'}`, text: ed.verdict });
     if (!simSays) addBadge(lanePanel, 'simulator', { before: verdictEl }); // CC-243: whose words these are; the live strip above now says it, so this small badge is only for ?says=0 (where it is off too)
     laneCheck.mount(lanePanel); // CC-243: progress line, Cancel and Play anyway under the verdict
   }
 
-  const coursePieces = () => pieces.filter((q) => !isSizeReference(q) && !isDevice(q));
+  const coursePieces = () => ed.pieces.filter((q) => !isSizeReference(q) && !isDevice(q));
   const makeDevice = (src: string, name: string, u: number): P => {
-    const c = Math.cos(angle), s = Math.sin(angle), x = u * c - offset * s, z = u * s + offset * c;
-    return { ...newPiece(name, deviceMesh(src), { x, z }), src, yaw: angle };
+    const c = Math.cos(ed.angle), s = Math.sin(ed.angle), x = u * c - ed.offset * s, z = u * s + ed.offset * c;
+    return { ...newPiece(name, deviceMesh(src), { x, z }), src, yaw: ed.angle };
   };
   const makeRecoilDevice = (kind: 'cannon' | 'bigcannon', mass: number, muzzle: number): P => {
-    const cfg = { kind, ballMass: mass, muzzle }, base = roleCourse(coursePieces(), { angle, offset, level }, 'My world').course, withPad = withRecoil(base, cfg);
+    const cfg = { kind, ballMass: mass, muzzle }, base = roleCourse(coursePieces(), { angle: ed.angle, offset: ed.offset, level: ed.level }, 'My world').course, withPad = withRecoil(base, cfg);
     const pad = withPad.recoil, x0 = pad?.x0 ?? base.startX + 1.5, x1 = pad?.x1 ?? base.startX + 4;
     const len = Math.max(0.8, x1 - x0), src = `device:${kind}:${mass}:${muzzle}:${len}`;
     return makeDevice(src, kind === 'bigcannon' ? 'Cannon' : 'Launcher', (x0 + x1) / 2);
   };
   const makeDroneDevice = (payload: number, battery: number): P => {
-    const base = roleCourse(coursePieces(), { angle, offset, level }, 'My world').course, withPad = withDrone(base, { payload, battery });
+    const base = roleCourse(coursePieces(), { angle: ed.angle, offset: ed.offset, level: ed.level }, 'My world').course, withPad = withDrone(base, { payload, battery });
     const pad = withPad.drone, x0 = pad?.x0 ?? base.startX + 1.5, x1 = pad?.x1 ?? base.startX + 1.5 + DRONE_PAD_LENGTH;
     return makeDevice(`device:drone:${payload}:${battery}:${Math.max(2, x1 - x0)}`, 'Drone', (x0 + x1) / 2);
   };
   const updateDeviceSource = (prefix: string, src: string) => {
-    const p = pieces.find((q) => q.src?.startsWith(prefix));
+    const p = ed.pieces.find((q) => q.src?.startsWith(prefix));
     if (p) { p.src = src; p.mesh = centred(deviceMesh(src)); }
   };
   const ground = () => coursePieces().filter((q) => !isHold(q) && q.role !== 'rope' && q.role !== 'bar' && !isPlankPiece(q)); // references, bars, rope anchors and planks are not ground
-  const currentProfile = () => laneProfile(ground(), { angle, offset, level });
-  const barsNow = () => holdsOf(pieces, { angle, offset, level });
-  let floorChoice: Hazard = startFloor; // the floor you must not touch (saved in the course)
-  let bandK: number | null = null; // the lane starts at an elastic band (its stiffness in N/m)
-  let trebuchetKg: number | null = null; // the lane starts in a trebuchet (the counterweight in kg), or on a plain deck
-  let recoilCfg: RecoilCfg | null = null; // the start deck carries a launcher pad (CC-66), or not
-  let droneCfg: DroneCfg | null = null; // the lane has a drone pad (CC-87), or not
-  const dronePiece = () => pieces.find((p) => p.src?.startsWith('device:drone:'));
-  const droneRange = () => { const p = dronePiece(); if (!p) return undefined; const u = p.x * Math.cos(angle) + p.z * Math.sin(angle), length = Number(p.src?.split(':')[4]) || DRONE_PAD_LENGTH; return { x0: u - length / 2, x1: u + length / 2 }; };
-  const recoilPiece = () => pieces.find((p) => p.src?.startsWith('device:cannon:') || p.src?.startsWith('device:bigcannon:'));
-  const recoilRange = () => { const p = recoilPiece(); if (!p) return undefined; const u = p.x * Math.cos(angle) + p.z * Math.sin(angle), length = Number(p.src?.split(':')[4]) || RECOIL_PAD_LENGTH; return { x0: u - length / 2, x1: u + length / 2 }; };
+  const currentProfile = () => laneProfile(ground(), { angle: ed.angle, offset: ed.offset, level: ed.level });
+  const barsNow = () => holdsOf(ed.pieces, { angle: ed.angle, offset: ed.offset, level: ed.level });
+  const dronePiece = () => ed.pieces.find((p) => p.src?.startsWith('device:drone:'));
+  const droneRange = () => { const p = dronePiece(); if (!p) return undefined; const u = p.x * Math.cos(ed.angle) + p.z * Math.sin(ed.angle), length = Number(p.src?.split(':')[4]) || DRONE_PAD_LENGTH; return { x0: u - length / 2, x1: u + length / 2 }; };
+  const recoilPiece = () => ed.pieces.find((p) => p.src?.startsWith('device:cannon:') || p.src?.startsWith('device:bigcannon:'));
+  const recoilRange = () => { const p = recoilPiece(); if (!p) return undefined; const u = p.x * Math.cos(ed.angle) + p.z * Math.sin(ed.angle), length = Number(p.src?.split(':')[4]) || RECOIL_PAD_LENGTH; return { x0: u - length / 2, x1: u + length / 2 }; };
   function syncDeviceState() {
-    const tre = pieces.find((p) => p.src?.startsWith('device:trebuchet:'));
-    trebuchetKg = tre ? Number(tre.src!.split(':')[2]) || 1200 : null;
-    if (!tre) trebuchetExtra = {};
+    const tre = ed.pieces.find((p) => p.src?.startsWith('device:trebuchet:'));
+    ed.trebuchetKg = tre ? Number(tre.src!.split(':')[2]) || 1200 : null;
+    if (!tre) ed.trebuchetExtra = {};
     const recoil = recoilPiece(), parts = recoil?.src?.split(':');
-    recoilCfg = recoil && parts ? { kind: parts[1] as 'cannon' | 'bigcannon', ballMass: Number(parts[2]) || 12, muzzle: Number(parts[3]) || 30 } : null;
+    ed.recoilCfg = recoil && parts ? { kind: parts[1] as 'cannon' | 'bigcannon', ballMass: Number(parts[2]) || 12, muzzle: Number(parts[3]) || 30 } : null;
     const dr = dronePiece(), dparts = dr?.src?.split(':');
-    droneCfg = dr && dparts ? { payload: Number(dparts[2]) || 70, battery: Number(dparts[3]) || 50 } : null;
-    trebLabel.style.display = trebuchetKg ? '' : 'none'; trebInput.value = String(trebuchetKg ?? 1200);
+    ed.droneCfg = dr && dparts ? { payload: Number(dparts[2]) || 70, battery: Number(dparts[3]) || 50 } : null;
+    trebLabel.style.display = ed.trebuchetKg ? '' : 'none'; trebInput.value = String(ed.trebuchetKg ?? 1200);
     syncRecoil(); syncDrone();
   }
-  let trebuchetExtra: { short?: number; pin?: number } = {}; // the arm's short end (m) and the pin angle (degrees), when Fix it or advice changed them
-  const machineNow = (): Machine | null => (trebuchetKg ? { counterweight: trebuchetKg, ...trebuchetExtra } : null);
-  const trebuchetPivot = (): number => { const p = pieces.find((q) => q.src?.startsWith('device:trebuchet:')); return p ? p.x * Math.cos(angle) + p.z * Math.sin(angle) + TREBUCHET_PIVOT_FROM_CENTRE * p.scale : 0; };
+  const machineNow = (): Machine | null => (ed.trebuchetKg ? { counterweight: ed.trebuchetKg, ...ed.trebuchetExtra } : null);
+  const trebuchetPivot = (): number => { const p = ed.pieces.find((q) => q.src?.startsWith('device:trebuchet:')); return p ? p.x * Math.cos(ed.angle) + p.z * Math.sin(ed.angle) + TREBUCHET_PIVOT_FROM_CENTRE * p.scale : 0; };
   const machineWrap = (m: Machine | null) => wrapFor(m, trebuchetPivot());
   const laneCourseAt = (ln: { angle: number; offset: number; level: number }) => {
     const c = roleCourse(coursePieces(), ln, 'My world').course;
     const m = machineNow();
     if (m) return withTrebuchet(c, m, trebuchetPivot());
-    if (droneCfg) return withDrone(c, droneCfg, droneRange());
-    return recoilCfg ? withRecoil(c, recoilCfg, recoilRange()) : bandK ? withBand(c, bandK) : c;
+    if (ed.droneCfg) return withDrone(c, ed.droneCfg, droneRange());
+    return ed.recoilCfg ? withRecoil(c, ed.recoilCfg, recoilRange()) : ed.bandK ? withBand(c, ed.bandK) : c;
   };
-  const laneCourse = (_p?: ReturnType<typeof currentProfile>) => laneCourseAt({ angle, offset, level }); // the course the lane check and Play prove: roles, bars and machines included
+  const laneCourse = (_p?: ReturnType<typeof currentProfile>) => laneCourseAt({ angle: ed.angle, offset: ed.offset, level: ed.level }); // the course the lane check and Play prove: roles, bars and machines included
   // what this course was cut from, so the Course can open the same pieces again (CC-80); a world with a map piece cannot be kept: its mesh is too big
-  const sourceNow = (): CourseSource | undefined => pieces.some((p) => p.src?.startsWith('map:')) ? undefined : { kind: 'editor', pieces: pieces.filter((p) => p.src).map((p) => ({ src: p.src as string, x: p.x, z: p.z, y: p.y, yaw: p.yaw, scale: p.scale, ...(p.role ? { role: p.role } : {}) })), angle, offset, level, floor: floorChoice };
-  const courseNow = () => { const c = laneCourse(currentProfile()); if (floorChoice !== 'water') c.hazard = floorChoice; if (designed.size) c.designedShortcuts = [...designed]; const src = sourceNow(); if (src) c.source = src; return c; };
+  const sourceNow = (): CourseSource | undefined => ed.pieces.some((p) => p.src?.startsWith('map:')) ? undefined : { kind: 'editor', pieces: ed.pieces.filter((p) => p.src).map((p) => ({ src: p.src as string, x: p.x, z: p.z, y: p.y, yaw: p.yaw, scale: p.scale, ...(p.role ? { role: p.role } : {}) })), angle: ed.angle, offset: ed.offset, level: ed.level, floor: ed.floorChoice };
+  const courseNow = () => { const c = laneCourse(currentProfile()); if (ed.floorChoice !== 'water') c.hazard = ed.floorChoice; if (designed.size) c.designedShortcuts = [...designed]; const src = sourceNow(); if (src) c.source = src; return c; };
   // the same lane for other pieces (Make it easier tries many small changes): ground, roles, bars, a trebuchet or a launcher if the world has one
   const courseFor = (ps: P[], ln: { angle: number; offset: number; level: number }) => {
     let c = roleCourse(ps.filter((q) => !isSizeReference(q) && !isDevice(q)), ln, 'My world').course;
@@ -1074,11 +1049,11 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
       const parts = rec.src!.split(':'), u = rec.x * Math.cos(ln.angle) + rec.z * Math.sin(ln.angle), length = Number(parts[4]) || RECOIL_PAD_LENGTH;
       c = withRecoil(c, { kind: parts[1] as 'cannon', ballMass: Number(parts[2]) || 12, muzzle: Number(parts[3]) || 30 }, { x0: u - length / 2, x1: u + length / 2 });
     }
-    if (floorChoice !== 'water') c.hazard = floorChoice;
+    if (ed.floorChoice !== 'water') c.hazard = ed.floorChoice;
     return c;
   };
   // where along the run a piece is in the game (a bar by its place among the bars)
-  const xOfPiece = (q: P, c: ReturnType<typeof courseNow>) => (isHold(q) ? c.holds?.[barsNow().findIndex((b) => b.id === q.id)]?.x : sceneFor([q], { angle, offset, level }, c.uMap ?? [])[0]?.x) ?? 0;
+  const xOfPiece = (q: P, c: ReturnType<typeof courseNow>) => (isHold(q) ? c.holds?.[barsNow().findIndex((b) => b.id === q.id)]?.x : sceneFor([q], { angle: ed.angle, offset: ed.offset, level: ed.level }, c.uMap ?? [])[0]?.x) ?? 0;
   // the runner starts on the ground about 8 m before a place (the nearest ground at or before that spot)
   const startBefore = (c: ReturnType<typeof courseNow>, gx: number) => {
     const want = Math.max(c.startX, gx - 8);
@@ -1090,7 +1065,7 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
   function persistHist() {
     try {
       const heavy = (q: P) => q.src?.startsWith('obj:') || q.src?.startsWith('user:') || isSharedSrc(q.src) || q.src?.startsWith('map:');
-      if (pieces.some(heavy) || hist.some((h) => h.pieces.some(heavy))) { sessionStorage.removeItem(HIST_KEY); return; }
+      if (ed.pieces.some(heavy) || hist.some((h) => h.pieces.some(heavy))) { sessionStorage.removeItem(HIST_KEY); return; }
       const start = Math.max(0, hist.length - 25);
       const keep = (h: Snap): Saved => ({ pieces: h.pieces.filter((q) => q.src).map((q) => ({ src: q.src as string, x: q.x, z: q.z, y: q.y, yaw: q.yaw, scale: q.scale, ...(q.role ? { role: q.role } : {}) })), angle: h.angle, offset: h.offset, level: h.level });
       sessionStorage.setItem(HIST_KEY, JSON.stringify({ snaps: hist.slice(start).map(keep), hi: Math.max(0, editHistory.hi - start) }));
@@ -1104,9 +1079,9 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
     const clear = check ? await searchClearable(base) : null;
     const course = withProof(base); // the plan of the lane check (stored, or just found) goes with the course: the Course does not search again
     // null: no check, or it was cut short (a change in the editor starts a newer one); that is no reason to stay, only a proof that the lane does not clear is
-    if (clear === false) { verdict = 'The simulator cannot find a way to clear this lane: widen a gap or lower a step.'; drawLanePanel(); reply.className = 'reply bad'; reply.textContent = verdict; helper.classList.remove('closed'); helperBtn.setAttribute('aria-pressed', 'true'); return; }
-    course.scene = sceneFor(ground(), { angle, offset, level }, course.uMap ?? []);
-    const focus = pieces.find((q) => q.id === selected) ?? pieces.find((q) => q.id === focusId);
+    if (clear === false) { ed.verdict = 'The simulator cannot find a way to clear this lane: widen a gap or lower a step.'; drawLanePanel(); reply.className = 'reply bad'; reply.textContent = ed.verdict; helper.classList.remove('closed'); helperBtn.setAttribute('aria-pressed', 'true'); return; }
+    course.scene = sceneFor(ground(), { angle: ed.angle, offset: ed.offset, level: ed.level }, course.uMap ?? []);
+    const focus = ed.pieces.find((q) => q.id === ed.selected) ?? ed.pieces.find((q) => q.id === focusId);
     const retryX = focus ? startBefore(course, xOfPiece(focus, course)) : checkpointFor(course, handoff.zone);
     persistHist();
     try { sessionStorage.setItem('cc.resume', JSON.stringify({ course, world: null, retryX, facing: handoff.facing, falls: handoff.falls })); sessionStorage.removeItem(EDIT_KEY); } catch { /* the Course starts again */ }
@@ -1157,7 +1132,7 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
   }
   const launchCourse = (course: CourseData) => {
     // the real objects are drawn in the game instead of blocks (a cropped photo object is drawn whole; its collision is still the cropped lane)
-    course.scene = sceneFor(ground(), { angle, offset, level }, course.uMap ?? []);
+    course.scene = sceneFor(ground(), { angle: ed.angle, offset: ed.offset, level: ed.level }, course.uMap ?? []);
     persistHist();
     root.remove(); style.remove();
     void startCourse(document.body, withProof(course));
@@ -1167,7 +1142,7 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
     playAnyway: () => { stopSearch(); launchCourse(courseNow()); }, // no plan goes along: the Course searches in its own worker and shows its own progress
     checkAgain: () => verify(0),
     stopped: (st) => {
-      const text = finalText(st)?.line ?? ''; verdict = text;
+      const text = finalText(st)?.line ?? ''; ed.verdict = text;
       delete document.documentElement.dataset.laneClear; document.documentElement.dataset.verdict = text; setSuggest(null);
       const v = lanePanel.querySelector('#verdict') as HTMLElement | null;
       if (v) { v.textContent = text; v.className = 'says-when bad'; }
@@ -1190,48 +1165,48 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
     interruptSearch();
     laneCheck.reset(); // CC-243: an edit throws the last verdict away; the new search starts only after the pause, and the old worker is ended when the new one starts
     const version = verifyVersion;
-    document.documentElement.dataset.lane = JSON.stringify({ angle, offset, level }); // for the checks: the lane being verified
+    document.documentElement.dataset.lane = JSON.stringify({ angle: ed.angle, offset: ed.offset, level: ed.level }); // for the checks: the lane being verified
     verifyTimer = window.setTimeout(async () => {
       const p = currentProfile();
-      if (p.length < 8) { stopSearch(); verdict = 'Nothing is in the lane: move the lane or the pieces.'; }
+      if (p.length < 8) { stopSearch(); ed.verdict = 'Nothing is in the lane: move the lane or the pieces.'; }
       else {
         const r = describeLane(p);
-        verdict = 'Checking this lane…';
+        ed.verdict = 'Checking this lane…';
         const v = lanePanel.querySelector('#verdict') as HTMLElement | null;
-        if (v) { v.textContent = verdict; v.className = 'says-when muted'; }
+        if (v) { v.textContent = ed.verdict; v.className = 'says-when muted'; }
         laneCheck.start();
         const clear = await searchClearable(laneCourse(p));
         if (version !== verifyVersion || isStopped(laneCheck.state())) return; // a newer edit, Cancel or the cap answered for this check
-        if (clear === null) { laneCheck.reset(); verdict = 'The lane check could not finish. Try again after editing stops.'; document.documentElement.dataset.verdict = verdict; if (v) { v.textContent = verdict; v.className = 'says-when bad'; } return; }
+        if (clear === null) { laneCheck.reset(); ed.verdict = 'The lane check could not finish. Try again after editing stops.'; document.documentElement.dataset.verdict = ed.verdict; if (v) { v.textContent = ed.verdict; v.className = 'says-when bad'; } return; }
         laneCheck.done(clear);
         document.documentElement.dataset.laneClear = clear ? '1' : '0'; setSuggest(clear);
-        verdict = clear ? `The simulator can clear this lane (${r.gaps} gaps, ${r.steps} steps, ${r.curves} curves, ${r.faces} faces, ${r.length.toFixed(0)} m).` : 'The simulator cannot find a way to clear this lane: widen a gap or lower a step.';
+        ed.verdict = clear ? `The simulator can clear this lane (${r.gaps} gaps, ${r.steps} steps, ${r.curves} curves, ${r.faces} faces, ${r.length.toFixed(0)} m).` : 'The simulator cannot find a way to clear this lane: widen a gap or lower a step.';
       }
       const v = lanePanel.querySelector('#verdict') as HTMLElement | null;
-      if (v) { v.textContent = verdict; v.className = verdict.startsWith('The simulator can clear') ? 'says-when ok' : 'says-when bad'; }
-      document.documentElement.dataset.verdict = verdict;
+      if (v) { v.textContent = ed.verdict; v.className = ed.verdict.startsWith('The simulator can clear') ? 'says-when ok' : 'says-when bad'; }
+      document.documentElement.dataset.verdict = ed.verdict;
       // when it cannot be cleared, say what to shift (each suggestion was proved by the simulator)
-      adviceList = []; showAdvice();
+      ed.adviceList = []; showAdvice();
       if (machineNow() && p.length >= 8) { // a trebuchet at the start: its counterweight and arm come first, and a narrow release window gets a pin
-        const mine = ++adviceRun, m = machineNow()!, lane = { angle, offset, level }, clear = verdict.startsWith('The simulator can clear');
-        setTimeout(() => { if (mine !== adviceRun) return; adviceList = adviseMachine(coursePieces(), lane, m, { budgetMs: 8000, max: 1 }, trebuchetPivot()); if (!clear && !barsNow().length) adviceList.push(...adviseLane(coursePieces(), lane, { wrap: machineWrap(m) })); showAdvice(); if (!adviceList.length) adviceBox.textContent = clear ? '' : 'No single change to the machine or a piece clears it. Press Fix it to look further.'; document.documentElement.dataset.advice = String(adviceList.length); }, 30);
-      } else if (!verdict.startsWith('The simulator can clear') && p.length >= 8 && barsNow().length) {
+        const mine = ++adviceRun, m = machineNow()!, lane = { angle: ed.angle, offset: ed.offset, level: ed.level }, clear = ed.verdict.startsWith('The simulator can clear');
+        setTimeout(() => { if (mine !== adviceRun) return; ed.adviceList = adviseMachine(coursePieces(), lane, m, { budgetMs: 8000, max: 1 }, trebuchetPivot()); if (!clear && !barsNow().length) ed.adviceList.push(...adviseLane(coursePieces(), lane, { wrap: machineWrap(m) })); showAdvice(); if (!ed.adviceList.length) adviceBox.textContent = clear ? '' : 'No single change to the machine or a piece clears it. Press Fix it to look further.'; document.documentElement.dataset.advice = String(ed.adviceList.length); }, 30);
+      } else if (!ed.verdict.startsWith('The simulator can clear') && p.length >= 8 && barsNow().length) {
         adviceBox.textContent = 'This lane has bars. Drag them in the side view (position and height), or press Fix it to try small moves of the bars.';
-      } else if (!verdict.startsWith('The simulator can clear') && p.length >= 8 && pieces.some((q) => q.role && q.role !== 'ground')) {
+      } else if (!ed.verdict.startsWith('The simulator can clear') && p.length >= 8 && ed.pieces.some((q) => q.role && q.role !== 'ground')) {
         adviceBox.textContent = 'This lane uses roles (wall, rope anchor or trampoline bed). Open Moves to see what each needs, or press Fix it.';
-      } else if (!verdict.startsWith('The simulator can clear') && p.length >= 8) {
+      } else if (!ed.verdict.startsWith('The simulator can clear') && p.length >= 8) {
         const mine = ++adviceRun;
         adviceBox.textContent = 'Working out what to shift…';
-        setTimeout(async () => { if (mine !== adviceRun) return; const got = await adviceInWorker(coursePieces() as P[], { angle, offset, level }).catch(() => null); if (!got || mine !== adviceRun) return; adviceList = got; showAdvice(); if (!adviceList.length) adviceBox.textContent = 'No single small shift clears it. Press "What should I change?" to think it through together.'; document.documentElement.dataset.advice = String(adviceList.length); }, 30);
+        setTimeout(async () => { if (mine !== adviceRun) return; const got = await adviceInWorker(coursePieces() as P[], { angle: ed.angle, offset: ed.offset, level: ed.level }).catch(() => null); if (!got || mine !== adviceRun) return; ed.adviceList = got; showAdvice(); if (!ed.adviceList.length) adviceBox.textContent = 'No single small shift clears it. Press "What should I change?" to think it through together.'; document.documentElement.dataset.advice = String(ed.adviceList.length); }, 30);
       } else document.documentElement.dataset.advice = '0';
     }, pause);
   }
 
   // ---- drawing
-  const sx = (x: number) => plan.width / 2 + (x - view.cx) * view.ppm;
-  const sz = (z: number) => plan.height / 2 + (z - view.cz) * view.ppm;
-  const wx = (px: number) => (px - plan.width / 2) / view.ppm + view.cx;
-  const wz = (py: number) => (py - plan.height / 2) / view.ppm + view.cz;
+  const sx = (x: number) => plan.width / 2 + (x - ed.view.cx) * ed.view.ppm;
+  const sz = (z: number) => plan.height / 2 + (z - ed.view.cz) * ed.view.ppm;
+  const wx = (px: number) => (px - plan.width / 2) / ed.view.ppm + ed.view.cx;
+  const wz = (py: number) => (py - plan.height / 2) / ed.view.ppm + ed.view.cz;
   const COLORS = ['#c9893b', '#6fa3c9', '#8bb36b', '#b779b0', '#d96a5b', '#7b8f9c'];
   function draw() {
     view3d.sync();
@@ -1239,20 +1214,20 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
     const c = plan.getContext('2d')!;
     c.clearRect(0, 0, plan.width, plan.height);
     c.strokeStyle = '#e3e8e4'; c.lineWidth = 1; c.fillStyle = '#58635d'; c.font = '11px system-ui';
-    const step = view.ppm > 25 ? 1 : view.ppm > 8 ? 5 : 20;
+    const step = ed.view.ppm > 25 ? 1 : ed.view.ppm > 8 ? 5 : 20;
     for (let x = Math.floor(wx(0) / step) * step; x < wx(plan.width); x += step) { c.beginPath(); c.moveTo(sx(x), 0); c.lineTo(sx(x), plan.height); c.stroke(); if (x % (step * 2) === 0) c.fillText(`${x} m`, sx(x) + 2, 12); }
     for (let z = Math.floor(wz(0) / step) * step; z < wz(plan.height); z += step) { c.beginPath(); c.moveTo(0, sz(z)); c.lineTo(plan.width, sz(z)); c.stroke(); }
     // the lane: a band 2 m wide through the rod's turn and sideways step
-    c.save(); c.translate(sx(0), sz(0)); c.rotate(angle);
-    c.fillStyle = '#f0a02033'; c.fillRect(-400 * view.ppm, (offset - HALF_LANE) * view.ppm, 800 * view.ppm, 2 * HALF_LANE * view.ppm);
-    c.strokeStyle = '#f0a020'; c.lineWidth = 2; c.beginPath(); c.moveTo(-400 * view.ppm, offset * view.ppm); c.lineTo(400 * view.ppm, offset * view.ppm); c.stroke();
+    c.save(); c.translate(sx(0), sz(0)); c.rotate(ed.angle);
+    c.fillStyle = '#f0a02033'; c.fillRect(-400 * ed.view.ppm, (ed.offset - HALF_LANE) * ed.view.ppm, 800 * ed.view.ppm, 2 * HALF_LANE * ed.view.ppm);
+    c.strokeStyle = '#f0a020'; c.lineWidth = 2; c.beginPath(); c.moveTo(-400 * ed.view.ppm, ed.offset * ed.view.ppm); c.lineTo(400 * ed.view.ppm, ed.offset * ed.view.ppm); c.stroke();
     c.restore();
     c.fillStyle = '#17201d'; c.beginPath(); c.arc(sx(0), sz(0), 5, 0, 7); c.fill(); c.fillStyle = '#0f6b5c'; c.beginPath(); c.moveTo(sx(0), sz(0)); c.lineTo(sx(0), sz(0) - 22); c.lineTo(sx(0) + 16, sz(0) - 16); c.lineTo(sx(0), sz(0) - 10); c.fill(); c.font = '600 11px system-ui'; c.fillText(START_LABEL.replace(/^Start/, 'START'), sx(0) + 8, sz(0) + 14);
-    pieces.forEach((p, i) => {
+    ed.pieces.forEach((p, i) => {
       const s = size(p.mesh);
       if (isSizeReference(p)) {
         c.save(); c.translate(sx(p.x), sz(p.z)); c.rotate(p.yaw);
-        const k = view.ppm, lw = Math.max(2, 0.07 * k);
+        const k = ed.view.ppm, lw = Math.max(2, 0.07 * k);
         c.strokeStyle = '#8a2d29'; c.fillStyle = '#e65a50'; c.lineWidth = lw; c.lineCap = 'round'; c.lineJoin = 'round';
         c.beginPath(); c.arc(0, -0.34 * k, 0.12 * k, 0, Math.PI * 2); c.fill();
         c.beginPath(); c.moveTo(0, -0.2 * k); c.lineTo(0, 0.22 * k); c.moveTo(-0.34 * k, -0.12 * k); c.lineTo(0.34 * k, -0.12 * k); c.moveTo(0, 0.22 * k); c.lineTo(-0.22 * k, 0.48 * k); c.moveTo(0, 0.22 * k); c.lineTo(0.22 * k, 0.48 * k); c.stroke();
@@ -1261,51 +1236,51 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
         return;
       }
       c.save(); c.translate(sx(p.x), sz(p.z)); c.rotate(p.yaw);
-      const w = s.w * p.scale * view.ppm, d = s.d * p.scale * view.ppm;
-      c.fillStyle = COLORS[i % COLORS.length] + ((p.id === selected || chosen().includes(p.id)) ? 'dd' : '99'); c.fillRect(-w / 2, -d / 2, w, d);
-      { const on = p.id === selected || chosen().includes(p.id); c.strokeStyle = on ? '#0f6b5c' : '#17201d'; c.lineWidth = on ? 3 : 1; } c.strokeRect(-w / 2, -d / 2, w, d);
+      const w = s.w * p.scale * ed.view.ppm, d = s.d * p.scale * ed.view.ppm;
+      c.fillStyle = COLORS[i % COLORS.length] + ((p.id === ed.selected || chosen().includes(p.id)) ? 'dd' : '99'); c.fillRect(-w / 2, -d / 2, w, d);
+      { const on = p.id === ed.selected || chosen().includes(p.id); c.strokeStyle = on ? '#0f6b5c' : '#17201d'; c.lineWidth = on ? 3 : 1; } c.strokeRect(-w / 2, -d / 2, w, d);
       c.restore();
       c.fillStyle = '#17201d'; c.font = '12px system-ui'; c.fillText(p.name, sx(p.x) - 28, sz(p.z) + 4);
     });
-    if (proposal && preview) { // the preview: grey outline where a piece is now, teal outline where it would be, an arrow between
+    if (ed.proposal && ed.preview) { // the preview: grey outline where a piece is now, teal outline where it would be, an arrow between
       const arrow = (x0: number, y0: number, x1: number, y1: number) => {
         const a = Math.atan2(y1 - y0, x1 - x0);
         c.beginPath(); c.moveTo(x0, y0); c.lineTo(x1, y1); c.stroke();
         c.beginPath(); c.moveTo(x1, y1); c.lineTo(x1 - 10 * Math.cos(a - 0.4), y1 - 10 * Math.sin(a - 0.4)); c.lineTo(x1 - 10 * Math.cos(a + 0.4), y1 - 10 * Math.sin(a + 0.4)); c.closePath(); c.fillStyle = '#0f9d84'; c.fill();
       };
       c.lineWidth = 2; c.setLineDash([6, 4]);
-      for (const it of proposal.items) {
+      for (const it of ed.proposal.items) {
         if (!it.on || it.kind !== 'piece') continue;
-        const mine = pieces.find((q) => q.id === it.id);
+        const mine = ed.pieces.find((q) => q.id === it.id);
         if (!mine) continue;
         const s2 = size(mine.mesh);
         for (const [st, col] of [[it.from, '#7d8a84'], [it.to, '#0f9d84']] as const) {
           c.save(); c.translate(sx(st.x), sz(st.z)); c.rotate(st.yaw);
-          c.strokeStyle = col; c.strokeRect((-s2.w * st.scale * view.ppm) / 2, (-s2.d * st.scale * view.ppm) / 2, s2.w * st.scale * view.ppm, s2.d * st.scale * view.ppm);
+          c.strokeStyle = col; c.strokeRect((-s2.w * st.scale * ed.view.ppm) / 2, (-s2.d * st.scale * ed.view.ppm) / 2, s2.w * st.scale * ed.view.ppm, s2.d * st.scale * ed.view.ppm);
           c.restore();
         }
         if (Math.hypot(it.to.x - it.from.x, it.to.z - it.from.z) > 0.05) { c.strokeStyle = '#0f9d84'; c.setLineDash([]); arrow(sx(it.from.x), sz(it.from.z), sx(it.to.x), sz(it.to.z)); c.setLineDash([6, 4]); }
       }
-      if (proposal.items.some((i) => i.kind === 'lane' && i.on && i.key !== 'level')) { // the lane would turn or step sideways: a dashed line where it would run
-        c.save(); c.translate(sx(0), sz(0)); c.rotate(preview.lane.angle); c.strokeStyle = '#0f9d84';
-        c.beginPath(); c.moveTo(-400 * view.ppm, preview.lane.offset * view.ppm); c.lineTo(400 * view.ppm, preview.lane.offset * view.ppm); c.stroke(); c.restore();
+      if (ed.proposal.items.some((i) => i.kind === 'lane' && i.on && i.key !== 'level')) { // the lane would turn or step sideways: a dashed line where it would run
+        c.save(); c.translate(sx(0), sz(0)); c.rotate(ed.preview.lane.angle); c.strokeStyle = '#0f9d84';
+        c.beginPath(); c.moveTo(-400 * ed.view.ppm, ed.preview.lane.offset * ed.view.ppm); c.lineTo(400 * ed.view.ppm, ed.preview.lane.offset * ed.view.ppm); c.stroke(); c.restore();
       }
       c.setLineDash([]);
     }
-    if (rubber) { c.strokeStyle = '#0f6b5c'; c.setLineDash([5, 4]); c.strokeRect(sx(rubber.x0), sz(rubber.z0), (rubber.x1 - rubber.x0) * view.ppm, (rubber.z1 - rubber.z0) * view.ppm); c.setLineDash([]); }
+    if (rubber) { c.strokeStyle = '#0f6b5c'; c.setLineDash([5, 4]); c.strokeRect(sx(rubber.x0), sz(rubber.z0), (rubber.x1 - rubber.x0) * ed.view.ppm, (rubber.z1 - rubber.z0) * ed.view.ppm); c.setLineDash([]); }
   }
   // the side view: the lane's ground, the bars (drag them here), and where a person can reach
   let sideMap = { uMin: 0, ppm: 20, ph: 20, base: 100, vmin: 0 };
   const vzoom = pageQuery().get('vzoom') === '1'; // film: stretch the height so a few metres of real drops are readable
   function drawProfile() {
-    howto.style.display = pieces.some((q) => isTrack(q)) ? '' : 'none';
+    howto.style.display = ed.pieces.some((q) => isTrack(q)) ? '' : 'none';
     const c = profileCanvas.getContext('2d')!;
     const W = profileCanvas.width, H = profileCanvas.height;
     c.clearRect(0, 0, W, H);
     const prof = currentProfile();
     const bars = barsNow();
     const o = prof.origin ?? 0;
-    const pv = proposal && preview ? { prof: previewProfile!, bars: previewBars } : null;
+    const pv = ed.proposal && ed.preview ? { prof: ed.previewProfile!, bars: ed.previewBars } : null;
     const po = pv?.prof?.origin ?? 0;
     const uLo = Math.min(prof.length ? o : 0, ...bars.map((b) => b.u), ...(pv ? [pv.prof.length ? po : Infinity, ...pv.bars.map((b) => b.u)] : []));
     const uHi = Math.max(prof.length ? o + prof.length : -Infinity, ...bars.map((b) => b.u), ...(pv ? [pv.prof.length ? po + pv.prof.length : -Infinity, ...pv.bars.map((b) => b.u)] : []), uLo + 10);
@@ -1346,7 +1321,7 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
       }
     }
     for (const b of bars) {
-      const x = 10 + (b.u - uLo) * ppm, y = base - (b.y - vmin) * ph, sel = b.id === selected;
+      const x = 10 + (b.u - uLo) * ppm, y = base - (b.y - vmin) * ph, sel = b.id === ed.selected;
       c.strokeStyle = '#c9ced4'; c.lineWidth = 4; c.beginPath(); c.moveTo(x - 12, y); c.lineTo(x + 12, y); c.stroke();
       c.strokeStyle = sel ? '#0f6b5c' : '#f0a020'; c.lineWidth = 3; c.beginPath(); c.arc(x, y, 9, 0, 7); c.stroke();
       c.fillStyle = '#17201d'; c.fillText(`${b.y.toFixed(2)} m`, x + 12, y - 8);
@@ -1367,7 +1342,7 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
     }
     if (!dotBlock) delete document.documentElement.dataset.dotBlock;
     if (flash) { const x = 10 + (flash.u - uLo) * ppm, y = base - (flash.y - vmin) * ph; c.font = '600 12px system-ui'; const w = c.measureText(flash.text).width + 12, lx = Math.min(Math.max(4, x - w / 2), profileCanvas.width - w - 4), ly = Math.max(26, y - 30); c.fillStyle = '#7a4a00'; c.fillRect(lx, ly, w, 20); c.fillStyle = '#fff'; c.textAlign = 'left'; c.fillText(flash.text, lx + 6, ly + 14); document.documentElement.dataset.dotFlash = flash.text; } else delete document.documentElement.dataset.dotFlash;
-    for (const s of routes) { // kept shortcuts: a dashed arrow from the bar before the skipped ones to the bar after them (or the end of the lane)
+    for (const s of ed.routes) { // kept shortcuts: a dashed arrow from the bar before the skipped ones to the bar after them (or the end of the lane)
       if (!designed.has(s.id)) continue;
       const ix = s.skipped.map((n) => /^Bar (\d+)$/.exec(n)).filter((m): m is RegExpExecArray => !!m).map((m) => Number(m[1]) - 1);
       if (!ix.length) continue;
@@ -1404,19 +1379,19 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
   /** The points of the chosen coaster section in the side view: u along the run, y above the lane's level. */
   const trackDots = (): { id: number; i: number; u: number; y: number }[] => {
     // every coaster section shows its dots, chosen or not: a click on the 3D picture (to turn the camera) clears the choice and must not hide them
-    return pieces.filter((q) => isTrack(q)).flatMap((p) => {
+    return ed.pieces.filter((q) => isTrack(q)).flatMap((p) => {
       const pts = parseTrackSrc(p.src ?? '');
-      return pts ? sectionPoints(p, pts, p.x * Math.cos(angle) + p.z * Math.sin(angle), level).map(([u, y], i) => ({ id: p.id, i, u, y, })) : [];
+      return pts ? sectionPoints(p, pts, p.x * Math.cos(ed.angle) + p.z * Math.sin(ed.angle), ed.level).map(([u, y], i) => ({ id: p.id, i, u, y, })) : [];
     });
   };
   const dotAtPx = (px: number, py: number) => trackDots().find((d) => Math.hypot(10 + (d.u - sideMap.uMin) * sideMap.ppm - px, sideMap.base - (d.y - sideMap.vmin) * sideMap.ph - py) < 11);
   /** Move point i of a section to (u, y) in the side view and keep every other point where it is. */
   function moveTrackPoint(p: P, i: number, u: number, y: number): TrackBlock {
     const pts = parseTrackSrc(p.src ?? ''); if (!pts) return '';
-    const c = Math.cos(angle), s = Math.sin(angle), uc0 = p.x * c + p.z * s;
+    const c = Math.cos(ed.angle), s = Math.sin(ed.angle), uc0 = p.x * c + p.z * s;
     const mid0 = (pts[0][0] + pts[pts.length - 1][0]) / 2, low0 = Math.min(...pts.map((q) => q[1]));
-    const nx = (u - uc0) / p.scale + mid0, ny = (y - p.y + level) / p.scale + low0;
-    const lim = limitTrackPoint(pts, i, nx, ny, p.y - level, p.scale);
+    const nx = (u - uc0) / p.scale + mid0, ny = (y - p.y + ed.level) / p.scale + low0;
+    const lim = limitTrackPoint(pts, i, nx, ny, p.y - ed.level, p.scale);
     pts[i] = [lim.x, lim.y];
     const mid1 = (pts[0][0] + pts[pts.length - 1][0]) / 2, low1 = Math.min(...pts.map((q) => q[1]));
     const du = (mid1 - mid0) * p.scale, v = -p.x * s + p.z * c, uc1 = uc0 + du;
@@ -1427,10 +1402,10 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
   /** Add a point to a section at (u, y) in the side view; the ends and every other point stay where they are. */
   function addTrackPoint(p: P, u: number, y: number): TrackBlock {
     const pts = parseTrackSrc(p.src ?? ''); if (!pts) return '';
-    const c = Math.cos(angle), uc0 = p.x * c + p.z * Math.sin(angle);
+    const c = Math.cos(ed.angle), uc0 = p.x * c + p.z * Math.sin(ed.angle);
     const mid0 = (pts[0][0] + pts[pts.length - 1][0]) / 2, low0 = Math.min(...pts.map((q) => q[1]));
-    const nx = (u - uc0) / p.scale + mid0, wantY = (y - p.y + level) / p.scale + low0;
-    const floorY = Math.max(0, low0 - Math.max(0, p.y - level) / p.scale), ny = Math.min(TRACK_TOP, Math.max(floorY, wantY));
+    const nx = (u - uc0) / p.scale + mid0, wantY = (y - p.y + ed.level) / p.scale + low0;
+    const floorY = Math.max(0, low0 - Math.max(0, p.y - ed.level) / p.scale), ny = Math.min(TRACK_TOP, Math.max(floorY, wantY));
     const k = pts.findIndex((q) => q[0] > nx);
     if (k <= 0 || nx - pts[k - 1][0] < 0.5 || pts[k][0] - nx < 0.5) return 'spacing';
     pts.splice(k, 0, [nx, ny]);
@@ -1447,12 +1422,12 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
   let dotDrag: { p: P; i: number } | null = null;
   profileCanvas.addEventListener('pointerdown', (e) => {
     const r = profileCanvas.getBoundingClientRect();
-    const dot = dotAtPx(e.clientX - r.left, e.clientY - r.top), tp = dot && pieces.find((q) => q.id === dot.id);
-    if (dot && tp) { if (selected !== tp.id) { selected = tp.id; group = []; drawPanel(); } dotDrag = { p: tp, i: dot.i }; profileCanvas.setPointerCapture(e.pointerId); return; }
+    const dot = dotAtPx(e.clientX - r.left, e.clientY - r.top), tp = dot && ed.pieces.find((q) => q.id === dot.id);
+    if (dot && tp) { if (ed.selected !== tp.id) { ed.selected = tp.id; ed.group = []; drawPanel(); } dotDrag = { p: tp, i: dot.i }; profileCanvas.setPointerCapture(e.pointerId); return; }
     const b = barAtPx(e.clientX - r.left, e.clientY - r.top);
-    const p = b && pieces.find((q) => q.id === b.id);
+    const p = b && ed.pieces.find((q) => q.id === b.id);
     if (!p) return;
-    selected = p.id; barDrag = { p }; profileCanvas.setPointerCapture(e.pointerId); drawPanel(); draw(); drawProfile();
+    ed.selected = p.id; barDrag = { p }; profileCanvas.setPointerCapture(e.pointerId); drawPanel(); draw(); drawProfile();
   });
   profileCanvas.addEventListener('pointermove', (e) => {
     const r = profileCanvas.getBoundingClientRect();
@@ -1463,7 +1438,7 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
       draw(); drawProfile(); return;
     }
     if (!barDrag) { profileCanvas.style.cursor = dotAtPx(e.clientX - r.left, e.clientY - r.top) ? 'grab' : barAtPx(e.clientX - r.left, e.clientY - r.top) ? 'grab' : 'default'; return; }
-    const p = barDrag.p, c = Math.cos(angle), s = Math.sin(angle);
+    const p = barDrag.p, c = Math.cos(ed.angle), s = Math.sin(ed.angle);
     const u = Math.round((sideMap.uMin + (e.clientX - r.left - 10) / sideMap.ppm) * 20) / 20;
     const y = Math.min(4.3, Math.max(0.35, Math.round(((sideMap.base - (e.clientY - r.top)) / sideMap.ph + sideMap.vmin - 0.04) * 20) / 20));
     const v = -p.x * s + p.z * c; // keep the sideways place, move along the run
@@ -1473,7 +1448,7 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
   profileCanvas.addEventListener('dblclick', (e) => {
     const r = profileCanvas.getBoundingClientRect(), x = e.clientX - r.left, gapTo = (d: { u: number }) => Math.abs(10 + (d.u - sideMap.uMin) * sideMap.ppm - x);
     const near = trackDots().reduce<ReturnType<typeof trackDots>[number] | null>((best, d) => (!best || gapTo(d) < gapTo(best) ? d : best), null); // the section whose dots are closest along the run
-    const tp = near && pieces.find((q) => q.id === near.id);
+    const tp = near && ed.pieces.find((q) => q.id === near.id);
     if (!tp || dotAtPx(x, e.clientY - r.top)) return;
     const au = Math.round((sideMap.uMin + (e.clientX - r.left - 10) / sideMap.ppm) * 10) / 10, ay = Math.round(((sideMap.base - (e.clientY - r.top)) / sideMap.ph + sideMap.vmin) * 10) / 10;
     const blk = addTrackPoint(tp, au, ay);
@@ -1490,12 +1465,12 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
     const r = plan.getBoundingClientRect(), k = plan.width / r.width;
     const px = (e.clientX - r.left) * k, py = (e.clientY - r.top) * k, x = wx(px), z = wz(py);
     plan.setPointerCapture(e.pointerId);
-    if (cropMode && selected !== null) { drag = { kind: 'rubber', ox: x, oz: z, sx0: 0, sz0: 0, cx: 0, cz: 0 }; rubber = { x0: x, z0: z, x1: x, z1: z }; return; }
-    const hit = [...pieces].reverse().find((p) => !isSizeReference(p) && hits(p, x, z));
+    if (ed.cropMode && ed.selected !== null) { drag = { kind: 'rubber', ox: x, oz: z, sx0: 0, sz0: 0, cx: 0, cz: 0 }; rubber = { x0: x, z0: z, x1: x, z1: z }; return; }
+    const hit = [...ed.pieces].reverse().find((p) => !isSizeReference(p) && hits(p, x, z));
     if (multiOn && e.shiftKey && hit) { chooseMany(toggleId(chosen(), hit.id)); drag = null; return; }
     if (multiOn && !hit && e.button === 0 && !e.altKey) { drag = { kind: 'marq', ox: x, oz: z, sx0: px, sz0: py, cx: e.shiftKey ? 1 : 0, cz: 0 }; rubber = { x0: x, z0: z, x1: x, z1: z }; return; }
-    if (hit) { if (!(multiOn && chosen().length > 1 && chosen().includes(hit.id))) group = []; selected = hit.id; drag = { kind: 'move', p: hit, ox: x - hit.x, oz: z - hit.z, sx0: 0, sz0: 0, cx: 0, cz: 0 }; }
-    else { selected = null; group = []; drag = { kind: 'pan', ox: 0, oz: 0, sx0: px, sz0: py, cx: view.cx, cz: view.cz }; }
+    if (hit) { if (!(multiOn && chosen().length > 1 && chosen().includes(hit.id))) ed.group = []; ed.selected = hit.id; drag = { kind: 'move', p: hit, ox: x - hit.x, oz: z - hit.z, sx0: 0, sz0: 0, cx: 0, cz: 0 }; }
+    else { ed.selected = null; ed.group = []; drag = { kind: 'pan', ox: 0, oz: 0, sx0: px, sz0: py, cx: ed.view.cx, cz: ed.view.cz }; }
     drawPanel(); draw();
   });
   plan.addEventListener('pointermove', (e) => {
@@ -1503,7 +1478,7 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
     const r = plan.getBoundingClientRect(), k = plan.width / r.width;
     const px = (e.clientX - r.left) * k, py = (e.clientY - r.top) * k;
     if (drag.kind === 'move' && drag.p) { moveWith(drag.p, Math.round((wx(px) - drag.ox) * 20) / 20, Math.round((wz(py) - drag.oz) * 20) / 20); draw(); drawProfile(); }
-    else if (drag.kind === 'pan') { view.cx = drag.cx - (px - drag.sx0) / view.ppm; view.cz = drag.cz - (py - drag.sz0) / view.ppm; draw(); }
+    else if (drag.kind === 'pan') { ed.view.cx = drag.cx - (px - drag.sx0) / ed.view.ppm; ed.view.cz = drag.cz - (py - drag.sz0) / ed.view.ppm; draw(); }
     else if ((drag.kind === 'rubber' || drag.kind === 'marq') && rubber) { rubber = { x0: Math.min(drag.ox, wx(px)), z0: Math.min(drag.oz, wz(py)), x1: Math.max(drag.ox, wx(px)), z1: Math.max(drag.oz, wz(py)) }; draw(); }
   });
   const end = () => {
@@ -1511,23 +1486,23 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
     const d = drag; drag = null;
     if (d.kind === 'marq') {
       const rb = rubber; rubber = null;
-      const px = rb ? (rb.x1 - rb.x0) * view.ppm : 0, py = rb ? (rb.z1 - rb.z0) * view.ppm : 0;
+      const px = rb ? (rb.x1 - rb.x0) * ed.view.ppm : 0, py = rb ? (rb.z1 - rb.z0) * ed.view.ppm : 0;
       if (rb && isMarquee(rectFrom(0, 0, px, py))) {
-        const items = pieces.filter((q) => !isSizeReference(q)).map((q) => ({ id: q.id, x: q.x, y: q.z, r: Math.max(realSize(q).w, realSize(q).d) / 2 }));
+        const items = ed.pieces.filter((q) => !isSizeReference(q)).map((q) => ({ id: q.id, x: q.x, y: q.z, r: Math.max(realSize(q).w, realSize(q).d) / 2 }));
         chooseMany(applyMarquee(chosen(), pickInRect(items, { x0: rb.x0, y0: rb.z0, x1: rb.x1, y1: rb.z1 }), d.cx === 1));
-      } else if (!d.cx) { selected = null; group = []; drawPanel(); }
+      } else if (!d.cx) { ed.selected = null; ed.group = []; drawPanel(); }
       draw(); return;
     }
-    if (d.kind === 'rubber' && rubber && selected !== null) {
-      const p = pieces.find((q) => q.id === selected);
+    if (d.kind === 'rubber' && rubber && ed.selected !== null) {
+      const p = ed.pieces.find((q) => q.id === ed.selected);
       if (p && rubber.x1 - rubber.x0 > 0.05 && rubber.z1 - rubber.z0 > 0.05) {
         // the box in the piece's own units: the four corners turned back, then their bounds
         const c = Math.cos(-p.yaw), s = Math.sin(-p.yaw), xs: number[] = [], zs: number[] = [];
         for (const [x, z] of [[rubber.x0, rubber.z0], [rubber.x1, rubber.z0], [rubber.x1, rubber.z1], [rubber.x0, rubber.z1]]) { const dx = x - p.x, dz = z - p.z; xs.push((dx * c - dz * s) / p.scale); zs.push((dx * s + dz * c) / p.scale); }
         const cut = crop(p, { x0: Math.min(...xs), z0: Math.min(...zs), x1: Math.max(...xs), z1: Math.max(...zs) });
-        if (cut) { Object.assign(p, cut, { id: p.id }); } else verdict = 'Nothing of the piece is inside that box.';
+        if (cut) { Object.assign(p, cut, { id: p.id }); } else ed.verdict = 'Nothing of the piece is inside that box.';
       }
-      rubber = null; cropMode = false; changed(); return;
+      rubber = null; ed.cropMode = false; changed(); return;
     }
     changed();
   };
@@ -1536,39 +1511,39 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
   plan.addEventListener('wheel', (e) => {
     e.preventDefault();
     const r = plan.getBoundingClientRect(), k = plan.width / r.width, px = (e.clientX - r.left) * k, py = (e.clientY - r.top) * k, x = wx(px), z = wz(py);
-    view.ppm = Math.min(400, Math.max(0.5, view.ppm * Math.exp(-Math.sign(e.deltaY) * Math.min(Math.abs(e.deltaY), 240) * 0.002)));
-    view.cx = x - (px - plan.width / 2) / view.ppm; view.cz = z - (py - plan.height / 2) / view.ppm; draw();
+    ed.view.ppm = Math.min(400, Math.max(0.5, ed.view.ppm * Math.exp(-Math.sign(e.deltaY) * Math.min(Math.abs(e.deltaY), 240) * 0.002)));
+    ed.view.cx = x - (px - plan.width / 2) / ed.view.ppm; ed.view.cz = z - (py - plan.height / 2) / ed.view.ppm; draw();
   }, { passive: false });
   function fitAll() {
-    const ps = pieces.filter((q) => !isSizeReference(q) || pieces.length === 1);
+    const ps = ed.pieces.filter((q) => !isSizeReference(q) || ed.pieces.length === 1);
     const b = ps.length ? { x0: Infinity, x1: -Infinity, z0: Infinity, z1: -Infinity, top: 1 } : { x0: 0, x1: 30, z0: -3, z1: 3, top: 3 };
     for (const q of ps) { const s = size(q.mesh), h = Math.max(s.w, s.d) * q.scale / 2; b.x0 = Math.min(b.x0, q.x - h); b.x1 = Math.max(b.x1, q.x + h); b.z0 = Math.min(b.z0, q.z - h); b.z1 = Math.max(b.z1, q.z + h); b.top = Math.max(b.top, q.y + s.h * q.scale); }
-    if (topPlan) {
-      view.cx = (b.x0 + b.x1) / 2; view.cz = (b.z0 + b.z1) / 2;
-      view.ppm = Math.min(400, Math.max(0.5, Math.min(plan.width / Math.max(2, b.x1 - b.x0 + 2), plan.height / Math.max(2, b.z1 - b.z0 + 2))));
+    if (ed.topPlan) {
+      ed.view.cx = (b.x0 + b.x1) / 2; ed.view.cz = (b.z0 + b.z1) / 2;
+      ed.view.ppm = Math.min(400, Math.max(0.5, Math.min(plan.width / Math.max(2, b.x1 - b.x0 + 2), plan.height / Math.max(2, b.z1 - b.z0 + 2))));
       draw();
     } else view3d.fit(b);
     document.documentElement.dataset.fitted = String(Date.now());
   }
   addEventListener('keydown', (e) => onEditorKey(e, {
-    getPieces: () => pieces, setPieces: (v) => { pieces = v; }, getSelected: () => selected, setSelected: (v) => { selected = v; }, setGroup: (v) => { group = v; },
-    getHi: () => editHistory.hi, hasProposal: () => !!proposal, hasHandoff: () => !!handoff,
+    getPieces: () => ed.pieces, setPieces: (v) => { ed.pieces = v; }, getSelected: () => ed.selected, setSelected: (v) => { ed.selected = v; }, setGroup: (v) => { ed.group = v; },
+    getHi: () => editHistory.hi, hasProposal: () => !!ed.proposal, hasHandoff: () => !!handoff,
     goto, copyChosen, pasteClip, closePreview, chosen, drawPanel, draw, drawProfile, deleteChosen, fitAll, goToCourse, changed,
     leave: () => { location.href = '?'; },
   }));
 
   // for the scripted browser checks: where each piece is on the picture, in page pixels (a probe, it changes nothing)
   (window as unknown as { ccPieceScreen?: () => { id: number; x: number; y: number }[] }).ccPieceScreen = () => {
-    const host = topPlan ? plan : view3d.el, r = host.getBoundingClientRect();
-    return pieces.filter((q) => !isSizeReference(q)).flatMap((q) => {
-      const s = topPlan ? { x: (sx(q.x) * r.width) / plan.width, y: (sz(q.z) * r.height) / plan.height } : view3d.project(q.x, q.y + realSize(q).h / 2, q.z);
+    const host = ed.topPlan ? plan : view3d.el, r = host.getBoundingClientRect();
+    return ed.pieces.filter((q) => !isSizeReference(q)).flatMap((q) => {
+      const s = ed.topPlan ? { x: (sx(q.x) * r.width) / plan.width, y: (sz(q.z) * r.height) / plan.height } : view3d.project(q.x, q.y + realSize(q).h / 2, q.z);
       return s ? [{ id: q.id, x: r.left + s.x, y: r.top + s.y }] : [];
     });
   };
-  function capPieces() { const real = pieces.filter((q) => !isSizeReference(q) && !isDevice(q) && q.src !== 'hold:bar'); if (real.length <= MAX_PIECES) return; const drop = new Set(real.slice(MAX_PIECES).map((q) => q.id)); pieces = pieces.filter((q) => !drop.has(q.id)); if (selected !== null && drop.has(selected)) selected = null; verdict = `The editor keeps up to ${MAX_PIECES} pieces, so the last ones were not added. Delete one to make room.`; document.documentElement.dataset.capped = '1'; }
+  function capPieces() { const real = ed.pieces.filter((q) => !isSizeReference(q) && !isDevice(q) && q.src !== 'hold:bar'); if (real.length <= MAX_PIECES) return; const drop = new Set(real.slice(MAX_PIECES).map((q) => q.id)); ed.pieces = ed.pieces.filter((q) => !drop.has(q.id)); if (ed.selected !== null && drop.has(ed.selected)) ed.selected = null; ed.verdict = `The editor keeps up to ${MAX_PIECES} pieces, so the last ones were not added. Delete one to make room.`; document.documentElement.dataset.capped = '1'; }
   // the person for scale cannot be dragged, so it always stands at the lane start: a world saved with the person on a rod, or far from the pieces, is put right (owner, 2026-11-01)
-  function seatPerson() { const who = pieces.find(isSizeReference); if (!who) return; const at = personAt(); if (Math.abs(at.x - who.x) > 0.005 || Math.abs(at.z - who.z) > 0.005) { who.x = at.x; who.z = at.z; } }
-  function changed(record = true) { seatPerson(); capPieces(); if (helperReady && reply.textContent?.startsWith('The simulator cannot')) { reply.className = 'reply muted'; reply.textContent = 'You changed the course, so the simulator is checking it again.'; }  if (proposal) closePreview('The layout changed, so the preview was closed.'); if (record) remember(); syncDeviceState(); document.documentElement.dataset.pieces = String(pieces.length); document.documentElement.dataset.band = bandK ? String(bandK) : ''; save(); drawPanel(); drawLanePanel(); draw(); drawProfile(); verify(); renderMoves(); }
+  function seatPerson() { const who = ed.pieces.find(isSizeReference); if (!who) return; const at = personAt(); if (Math.abs(at.x - who.x) > 0.005 || Math.abs(at.z - who.z) > 0.005) { who.x = at.x; who.z = at.z; } }
+  function changed(record = true) { seatPerson(); capPieces(); if (helperReady && reply.textContent?.startsWith('The simulator cannot')) { reply.className = 'reply muted'; reply.textContent = 'You changed the course, so the simulator is checking it again.'; }  if (ed.proposal) closePreview('The layout changed, so the preview was closed.'); if (record) remember(); syncDeviceState(); document.documentElement.dataset.pieces = String(ed.pieces.length); document.documentElement.dataset.band = ed.bandK ? String(ed.bandK) : ''; save(); drawPanel(); drawLanePanel(); draw(); drawProfile(); verify(); renderMoves(); }
   syncDeviceState();
   drawPanel(); drawLanePanel(); draw(); drawProfile(); verify();
   remember();
@@ -1578,11 +1553,11 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
       const h = JSON.parse(sessionStorage.getItem(HIST_KEY) ?? 'null') as { snaps: Saved[]; hi: number } | null;
       const last = h?.snaps[h.hi];
       const key = (x: { pieces: Saved['pieces']; angle: number; offset: number; level: number }) => JSON.stringify([x.pieces.map((q) => [q.src, q.x, q.z, q.y, q.yaw, q.scale]), x.angle, x.offset, x.level]);
-      const mine: Saved = { pieces: pieces.filter((q) => q.src).map((q) => ({ src: q.src as string, x: q.x, z: q.z, y: q.y, yaw: q.yaw, scale: q.scale })), angle, offset, level };
+      const mine: Saved = { pieces: ed.pieces.filter((q) => q.src).map((q) => ({ src: q.src as string, x: q.x, z: q.z, y: q.y, yaw: q.yaw, scale: q.scale })), angle: ed.angle, offset: ed.offset, level: ed.level };
       if (h && last && key(last) === key(mine)) {
         const snaps: Snap[] = h.snaps.map((sn) => ({ pieces: buildPieces(sn.pieces), angle: sn.angle, offset: sn.offset, level: sn.level }));
         hist.length = 0; hist.push(...snaps); editHistory.hi = h.hi;
-        pieces = hist[editHistory.hi].pieces.map((q) => ({ ...q })); selected = null;
+        ed.pieces = hist[editHistory.hi].pieces.map((q) => ({ ...q })); ed.selected = null;
         undoBtn.disabled = editHistory.hi < 1; redoBtn.disabled = editHistory.hi >= hist.length - 1;
         drawPanel(); drawLanePanel(); draw(); drawProfile(); verify();
       }
@@ -1591,6 +1566,6 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
   organizeEditor(root); // CC-94: the controls in one bar, one add menu, one dock, a command palette
   if (pageQuery().get('editorui') !== 'old') styleEditor(root); // CC-177: button levels, one Fix menu, a glossary (?editorui=old keeps the CC-94 look)
   if (!pendingObjects.length) onWorld(); // else onWorld runs when the saved photo objects are in
-  document.documentElement.dataset.pieces = String(pieces.length);
+  document.documentElement.dataset.pieces = String(ed.pieces.length);
   return { backend: 'webgl2' };
 }
