@@ -53,3 +53,9 @@ export function createKeydown(c: KeydownCtx): (e: KeyboardEvent) => void {
     if (e.code === 'KeyH') { st.keysTouched = true; st.keysOpen = !st.keysOpen; c.paintKeys(st.keysOpen); }
   };
 }
+
+// While the feedback form is open, or a text box has the focus, no game key does anything (typing a T must not open the Dojo).
+export const isTyping = (e: KeyboardEvent): boolean => {
+  const t = e.target as HTMLElement | null;
+  return document.getElementById('cc-feedback') !== null || (!!t && (/^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName) || t.isContentEditable));
+};

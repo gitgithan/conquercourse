@@ -1,4 +1,5 @@
 import * as THREE from 'three/webgpu';
+import type { gapSpecs } from '../../sim/needs';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import type { CourseData } from '../../course/course';
 import { hazardOf } from '../../course/hazard';
@@ -175,4 +176,17 @@ export function buildCourseScene(scene: THREE.Scene, course: CourseData, params:
     scene.add(beam);
   }
   return { trackView, plankView, trebView, shotsView, poleView, recoilView, bandView, droneView, hazard, floor, chunks, ropeMesh, ropeLen };
+}
+
+// Numbers painted on the course so the player can see how wide a gap is and how high the wall is.
+export function addLabels(course: CourseData, specs: ReturnType<typeof gapSpecs>, zoneOf: (x: number) => { id: string } | undefined, ropeLen: number) {
+  function label(text: string, x: number, y: number) {
+    const c = document.createElement('canvas'); c.width = 400; c.height = 96;
+    const g = c.getContext('2d')!; g.fillStyle = '#fffffff0'; g.fillRect(0, 0, 400, 96); g.fillStyle = '#10141c'; g.font = '700 50px system-ui'; g.textAlign = 'center'; g.fillText(text, 200, 66);
+    const sp = new THREE.Sprite(new THREE.SpriteMaterial({ map: new THREE.CanvasTexture(c) }));
+    sp.scale.set(4.6, 1.1, 1); sp.position.set(x, y, -0.6); // behind the runner and the ghost, never over them scene.add(sp);
+  }
+  for (const g of specs) { const z = zoneOf(g.x); if (z && (z.id === 'gap' || z.id === 'landing')) label(`${g.width.toFixed(1)} m`, g.x + g.width / 2, Math.max(0, g.rise) + 3); }
+  if (course.wall) label(`${(course.wall.height ?? DEFAULT_WALL.height).toFixed(1)} m high`, course.wall.x0 + 2, (course.wall.height ?? DEFAULT_WALL.height) + 1.2);
+  if (course.rope) label(`rope ${ropeLen.toFixed(0)} m`, course.rope.anchorX, course.rope.anchorY + 1.6);
 }
