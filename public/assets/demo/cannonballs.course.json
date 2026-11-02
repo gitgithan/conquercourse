@@ -84,18 +84,18 @@
       "id": "landing",
       "name": "precision block",
       "x0": 18.5,
-      "x1": 38
+      "x1": 46
     },
     {
       "id": "wall",
       "name": "warped wall",
-      "x0": 38,
-      "x1": 62
+      "x0": 46,
+      "x1": 63.1
     },
     {
       "id": "rope",
       "name": "rope swing",
-      "x0": 62,
+      "x0": 63.1,
       "x1": 86
     },
     {
