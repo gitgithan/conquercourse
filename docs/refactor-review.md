@@ -38,8 +38,10 @@
   - `shortcuts.ts`: the shortcut list and its worker; both worker paths now start with `../../sim/` and `tests/worker-urls.test.ts` guards them.
   - `keydown.ts` takes the state instead of a getter and setter for each value.
   - Still open: the fall tips (`windowTip`, `plankTip`, `cartTip`, `bandTip`, `buildDiag`), the hint line, the camera and film hooks, and the run statistics stay in `course.ts`; they read the state, the log and the guide meshes together and need a context object first.
-  - Safety net: the course run (`scripts/course-characterize.mjs`) was identical to the run on the unmodified main after the state, scene and zones moves; one toast step differed once and not on the rerun, so the script is not perfectly deterministic.
-  - The recorded `tests/golden/course-characterize.json` is older than the Courses picker card order, so compare against a run of the unmodified main until it is re-recorded.
+  - Safety net: the course run (`scripts/course-characterize.mjs`) was identical to the run on the unmodified main after the state, scene and zones moves; one toast step differed once and not on the rerun (cause and fix below).
+  - The recorded `tests/golden/course-characterize.json` was re-recorded from the unmodified main after the Courses picker card order changed (World Slicer moved, the random-course card last, a new group "The Making Of"); three runs gave the same file.
+  - The flake: the old script sometimes saw the toast text in the "toasts leave" step; a leaving toast is removed by a 480 ms wall-clock timer that the stepped page clock does not move.
+  - The fix is in the script, which now waits until the stack is empty after the game time has passed; the golden does not hold the toast text any more.
   - Not covered by the run: the camera orbit, the clip maker, the film hooks and sound.
 
 ## 2. Adding a new obstacle kind touches 30+ files
