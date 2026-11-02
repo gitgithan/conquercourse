@@ -11,7 +11,7 @@ const checks = {}, errors = [], log = {};
 try {
   await new Promise((r) => setTimeout(r, 5000));
   const browser = await chromium.launch({ args: ['--use-angle=swiftshader', '--ignore-gpu-blocklist'] });
-  const page = await (await browser.newContext({ viewport: { width: 1280, height: 720 } })).newPage();
+  const page = await (await browser.newContext({ viewport: { width: 1280, height: 720 } })).newPage(); page.setDefaultTimeout(300000); // software GL is slow
   page.on('pageerror', (e) => errors.push(e.message.slice(0, 100)));
   const url = `http://localhost:${port}/?mode=editor&welcome=0`;
   const cam = async () => JSON.parse(await page.evaluate(() => document.documentElement.dataset.cam));
@@ -27,7 +27,7 @@ try {
     checks['Hide closes the glossary'] = !(await page.isVisible('#edglossary'));
     await page.click('#glossarybtn');
     checks['? brings it back'] = await page.isVisible('#edglossary');
-    await page.click('#glossaryhide'); await page.reload(); await page.waitForSelector('#view3d'); await page.waitForTimeout(2500);
+    await page.click('#glossaryhide'); await page.reload(); await page.waitForSelector('#view3d', { timeout: 90000 }); await page.waitForSelector('#fixmenubtn', { state: 'attached', timeout: 90000 }); await page.waitForFunction(() => (document.documentElement.dataset.verdict ?? '') !== '', null, { timeout: 240000 }); await page.waitForTimeout(2500); // the proof search keeps the page busy until it answers
     checks['hidden choice is remembered after a reload'] = !(await page.isVisible('#edglossary'));
     await page.click('#fixmenubtn'); await page.waitForTimeout(200);
     checks['Fix menu lists 4 actions'] = (await page.locator('#fixmenu button').count()) === 4;
