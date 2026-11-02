@@ -101,6 +101,8 @@
   - The most-read words: `mode` (11), `course` (7), `demo` (6), `slice2`, `generate`, `check`, `bot` (4, 4, 3, 3).
 - Proposal: one `src/flags.ts` that parses once, lists every switch with `{ name, default, doc, quiet }`, and exports typed getters; `main.ts` uses a `Record<mode, loader>` instead of the ternary.
   - A test fails if a file outside `flags.ts` reads `location.search` (a ratchet, with an allow-list that only shrinks).
+- Done in CC-133 (item 5): `src/flags.ts` reads the address once, `tests/flags.test.ts` is the ratchet (only the locked `src/render/actor.ts` still reads it directly), and `src/main-loaders.ts` holds `MODE_LOADERS` and `DEMO_LOADERS`, so `src/main.ts` looks the word up; `tests/main-loaders.test.ts` pins the words.
+  - Not done: the typed list of every switch with its default and doc (`{ name, default, doc, quiet }`); it needs a pass over the 81 words.
 - Size: 3 h for `flags.ts` and `main.ts`; 1 more h per 10 files migrated.
 - Risk to tests: low; behaviour stays the same.
 - Risk to the sim: none.

@@ -1,8 +1,7 @@
-import { createStage } from './render/scene';
 import { screenFor, startMusic } from './ui/music';
 import { startCourse } from './modes/course';
 import type { CourseData } from './course/course';
-import { startDojo } from './modes/dojo';
+import { DEMO_LOADERS, MODE_LOADERS } from './main-loaders';
 import { initFeedback, trackStep } from './ui/feedback';
 import { stepForMode } from './ui/analytics';
 import { mountSiteNav } from './ui/site-nav';
@@ -27,36 +26,10 @@ if (welcomeOn({ params: pageQuery(), automated: navigator.webdriver })) {
 if (pageQuery().has('c')) { const { expandShortSearch } = await import('./share/challenge'); const long = await expandShortSearch(pageSearch()); if (long) history.replaceState(null, '', location.pathname + long); }
 
 // ?mode=dojo, ?mode=rookie, ?demo=rookie (the Rookie demo), ?demo=captured-vault (captured move review); the default is the Course.
-if (pageQuery().get('demo') === 'captured-vault') {
-  const { startCapturedVaultDemo } = await import('./modes/demo-captured-vault');
-  await startCapturedVaultDemo();
-} else if (pageQuery().get('demo') === 'welcome-tile') {
-  const { startWelcomeTile } = await import('./modes/demo-welcome-tile');
-  await startWelcomeTile();
-} else if (pageQuery().get('demo') === 'rookie') {
-  const { startRookieDemo } = await import('./modes/demo-rookie');
-  await startRookieDemo();
-} else if (pageQuery().get('demo') === 'group') {
-  const { startGroup } = await import('./modes/demo-group');
-  await startGroup();
-} else if (pageQuery().get('demo') === 'groupmoves') {
-  const { startGroupMoves } = await import('./film/group-photo');
-  await startGroupMoves();
-} else if (pageQuery().get('demo') === 'poses') {
-  const { startPoses } = await import('./modes/demo-poses');
-  await startPoses();
-} else if (pageQuery().get('demo') === 'hurt-ab') {
-  const { startHurtAB } = await import('./modes/demo-poses');
-  await startHurtAB();
-} else if (pageQuery().get('demo') === 'roll-ab') {
-  const { startRollAB } = await import('./modes/demo-roll-ab');
-  await startRollAB();
-} else if (pageQuery().get('demo') === 'lineup') {
-  const { startLineup } = await import('./modes/demo-lineup');
-  await startLineup();
-} else if (pageQuery().get('demo') === 'actor') {
-  const { startActorDemo } = await import('./modes/demo-actor');
-  await startActorDemo();
+const demoWord = pageQuery().get('demo') ?? '';
+const demoLoader = Object.hasOwn(DEMO_LOADERS, demoWord) ? DEMO_LOADERS[demoWord] : undefined;
+if (demoLoader) {
+  await demoLoader();
 } else {
 // ?course=/assets/demo/lane-1.course.json opens a course file from this site (a lane cut from a 3D scene, for example)
 async function courseFromUrl(): Promise<CourseData | undefined> {
@@ -84,7 +57,8 @@ async function courseFromUrl(): Promise<CourseData | undefined> {
 const mode = pageQuery().get('mode') ?? 'course';
 const heroSlug = /^hero:([\w-]+)$/.exec(pageQuery().get('start') ?? '')?.[1]; // CC-238: the film's editor start scene
 if (mode === 'editor' && heroSlug) { try { sessionStorage.setItem('cc.map.piece', JSON.stringify(await (await import('./slice/hero-start')).heroStart(heroSlug, fetch, pageQuery().get('box') === '1', Number(pageQuery().get('boxscale') ?? 1), Number(pageQuery().get('boxacross') ?? 0)))); } catch { /* the editor opens on its own world */ } }
-const game = mode === 'diagrams' ? (await import('./modes/diagrams-page')).startDiagrams(document.body) : mode === 'parts' ? (await import('./modes/parts')).startParts(document.body) : mode === 'rookie' ? await createStage(document.body) : mode === 'lineup' ? await (await import('./film/lineup')).startLineup(document.body) : mode === 'dojo' ? startDojo(document.body) : mode === 'editor' ? (await import('./modes/editor')).startEditor(document.body) : mode === 'map' ? (await import('./modes/map')).startMap(document.body) : mode === 'coaster' ? (await import('./modes/coaster')).startCoaster(document.body) : mode === 'lab-search' ? (await import('./modes/lab-search')).startLabSearch(document.body) : mode === 'lab-vision' ? (await import('./modes/lab-vision')).startLabVision(document.body) : mode === 'lab-gentest' ? (await import('./modes/lab-gentest')).startLabGentest(document.body) : mode === 'lab-signal' ? (await import('./modes/lab-signal')).startLabSignal(document.body) : mode === 'lab-ik' ? await (await import('./modes/lab-ik')).startLabIk(document.body) : mode === 'lab-rl' ? (await import('./modes/lab-rl')).startLabRl(document.body) : mode === 'lab-optimization' ? (await import('./modes/lab-optimization')).startLabOptimization(document.body) : mode === 'lab-integration' ? (await import('./modes/lab-integration')).startLabIntegration(document.body) : mode === 'lab-camera' ? (await import('./modes/lab-camera')).startLabCamera(document.body) : mode === 'lab-hashing' ? (await import('./modes/lab-hashing')).startLabHashing(document.body) : mode === 'lab-detector' ? (await import('./modes/lab-detector')).startLabDetector(document.body) : mode === 'lab-timing' ? (await import('./modes/lab-timing')).startLabTiming(document.body) : (mode === 'communities' || mode === 'gallery' || mode === 'park') ? (await import('./modes/community-flow')).startCommunityFlow(document.body, pageQuery()) : await startCourse(document.body, await courseFromUrl());
+const loader = Object.hasOwn(MODE_LOADERS, mode) ? MODE_LOADERS[mode] : undefined; // every word but the default Course is in the table (src/main-loaders.ts)
+const game = loader ? await loader(document.body, pageQuery()) : await startCourse(document.body, await courseFromUrl());
 document.documentElement.dataset.backend = game.backend;
 startMusic(screenFor(mode)); // CC-132: a loop per screen, only with ?music=1
 if (mode !== 'course' && !(mode === 'dojo' && pageQuery().get('dojo') !== 'old')) mountWorldGallery(document.body, { current: currentWorld(pageQuery()), place: BUTTON_PLACE[mode] ?? DEFAULT_PLACE }); // CC-89: every other mode has the Courses button too (the Course mounts its own)
