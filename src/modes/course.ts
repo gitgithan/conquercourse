@@ -4,7 +4,6 @@ import { createKeydown } from './course/keydown';
 import type { CourseCtx } from './course/context';
 import { createRunStats } from './course/stats';
 import { createHint } from './course/hint';
-import { bandTip, buildDiag, cartDiag, cartTip, plankTip, windowTip } from './course/tips';
 import { createCourseCamera } from './course/camera';
 import { createRunnerLook } from './course/characters';
 import { createClipMaker } from './course/clip';
@@ -12,6 +11,7 @@ import { createCourseState } from './course/state';
 import { createSearch } from './course/search';
 import { createIdealRun } from './course/ideal';
 import { createNav, type Resume } from './course/nav';
+import { createFall, type Analytics } from './course/fall';
 import { createShortcutList } from './course/shortcuts';
 import { progressZonesOf } from './course/zones';
 import { buildCourseScene } from './course/scene';
@@ -19,7 +19,6 @@ import { showClearedReport } from './course/report';
 import { createViewHooks } from './course/board';
 import { mountDrums } from './course/drums';
 import { mountCourseGhost } from './course/ghost';
-import { HAZARD_INFO } from '../course/hazard';
 import { setMusicScreen } from '../ui/music';
 import { playedSounds, soundButton, soundsFor, startAudio } from '../ui/audio';
 import * as THREE from 'three/webgpu';
@@ -33,15 +32,14 @@ import { DEFAULT_WALL } from '../sim/wall';
 import { inputFor, searchIdealRun, type Plan } from '../sim/ideal';
 import { createGhost } from '../ui/ghost';
 import { lookOfParam } from '../ui/ghost-look';
-import { challengeWords, courseTooBig, isOldLongLink, makeLinkInfo, OLD_LINK_WORDS, offersIdeal, openChallenge, secondsWords, shareOn } from '../share/challenge';
-import { clipFits, clipLayoutFor } from '../share/clip';
+import { challengeWords, isOldLongLink, OLD_LINK_WORDS, offersIdeal, openChallenge, secondsWords, shareOn } from '../share/challenge';
+import { clipLayoutFor } from '../share/clip';
 import { mountTouch, touchOn } from '../share/touch';
 import { createGaugeStack } from '../ui/gauges';
 import { HUD, hudOn, keycapCss, panelCss } from '../ui/hud-style';
 import { PHONE_WORDS, browserPointing, phoneMode } from '../share/phone';
-import { copyLinkButton, showBanner } from '../share/share-ui';
-import { reportSectionsOn } from '../ui/report-sections';
-import { courseHash, encodeLog, inputOfMask, startOfX, startXOf, type InputLog } from '../sim/replay';
+import { showBanner } from '../share/share-ui';
+import { courseHash, encodeLog, inputOfMask, startXOf, type InputLog } from '../sim/replay';
 import { findShortcuts, type Shortcut } from '../sim/shortcuts';
 const findShortcutsNow = (c: CourseData): Shortcut[] => findShortcuts(c, { moveChoices: false }).shortcuts; // ?bot=shortcut only: blocks the page while it searches
 import { gapSpecs, minSpeedForWall } from '../sim/needs';
@@ -62,9 +60,8 @@ import { actorStateFor } from '../motion/actor-state';
 import { forkCell, pathsOn } from '../ui/paths';
 import { branchesOf } from '../sim/branches';
 import { goldOld, hardestBlock, hardestLabel, hardestOf } from '../ui/hardest';
-import { buildReport, logTick, renderReport } from '../ui/run-report';
+import { logTick } from '../ui/run-report';
 import { ZONE_ICONS } from '../ui/zone-icons';
-import { OBSTACLES } from '../course/obstacles';
 import { BUTTON_PLACE, buildGallery, currentWorld, DEMOS, GALLERY_EVENT, modalAttrs, mountWorldGallery, worldHref } from '../ui/world-picker';
 import { createDebugView } from '../ui/debug-view';
 import { createGrabHint } from '../ui/grab-hint';
@@ -437,7 +434,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
   const log: GameEvent[] = [];
   const ctx: CourseCtx = { course, st, log, guides, specs, wallNeed, everCleared: false, wallEntry: 0 };
   const stats = createRunStats(ctx, (resume ? resume.retryX : startAt ?? course.startX) > course.startX + 0.01 ? 'practice' : 'attempt');
-  const { runLog, summaries, countsFor, enterZone } = stats;
+  const { runLog } = stats;
   // ?hangtest=1.0 (radians) hangs the runner still on the first bar at that angle, for the pivot screenshots
   const hangTest = params.get('hangtest') !== null && course.holds?.length ? Number(params.get('hangtest')) : null;
   // ?planktest=0.5 stands the runner still on the first plank, that share of the way across, for the sag screenshots
@@ -451,12 +448,9 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
     st.world = { ...st.world, mode: 'hang', hang: { hold: 0, theta: hangTest, omega: 0 }, runner: { ...st.world.runner, x: f.x, y: f.y, vx: 0, vy: 0, grounded: false } };
   }
   const frames: { x: number; y: number }[] = [];
-  const analyticsCourseKey = courseKey(course.name);
-  const analyticsMode = pageQuery().get('mode') ?? 'course';
-  let analyticsRunId = crypto.randomUUID();
-  let failedThisAttempt = false;
+  const analytics: Analytics = { courseKey: courseKey(course.name), mode: pageQuery().get('mode') ?? 'course', runId: crypto.randomUUID(), failed: false };
   touchStreak(); // CC-108
-  if (!resume) trackCourseEvent('start', analyticsCourseKey, course.name, analyticsRunId, analyticsMode);
+  if (!resume) trackCourseEvent('start', analytics.courseKey, course.name, analytics.runId, analytics.mode);
   // CC-149: a cleared run on a listed course is offered to the server, which plays the keys again before it counts (a run with anything but plain keys has no log and is not offered)
   let lastClear: BoardHooks['publish'] | null = null;
   function offerClear() {
@@ -466,7 +460,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
     const mine = ghostCtl?.myRun();
     if (mine) {
       if (boardOn(params)) { rememberBest(bk, courseHash(course), logTicks(mine)); announceBest(); } // every board box redraws Your best now
-      const runId = analyticsRunId, ticks = logTicks(mine), keysReady = encodeLog(mine);
+      const runId = analytics.runId, ticks = logTicks(mine), keysReady = encodeLog(mine);
       void keysReady.then((keys) => sendClear(bk, runId, courseHash(course), keys, ticks)); // counted only; the board gets it when the player clicks Publish (CC-108)
       lastClear = { ticks, send: (nick) => keysReady.then((keys) => publishClear(bk, runId, courseHash(course), keys, ticks, nick)) };
     }
@@ -499,8 +493,8 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
     st.world = newWorld(course, x);
     ghostCtl?.begin(x === course.startX && (!botMode || ghostBot), !botMode || ghostBot ? x : null); // a ghost chases a run from the start only; every try keeps its keys, so every try can be a clip (CC-157)
     stats.resetRunStats(x);
-    analyticsRunId = crypto.randomUUID(); failedThisAttempt = false;
-    if (!st.clip.on) trackCourseEvent('start', analyticsCourseKey, course.name, analyticsRunId, analyticsMode);
+    analytics.runId = crypto.randomUUID(); analytics.failed = false;
+    if (!st.clip.on) trackCourseEvent('start', analytics.courseKey, course.name, analytics.runId, analytics.mode);
     log.length = 0;
     botState.next = 0; botState.caught = null; botState.bedAt = null;
     st.idealNote = '';
@@ -510,95 +504,14 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
   }
 
   const nav = createNav({ course, st, log, specs, msg, facing: () => facing, zoneAt: (x) => zoneAt(x) });
-  const { saveResume, openEditor, openDojo, trainLink } = nav;
+  const { openEditor, openDojo } = nav;
   // The ideal run: the simulator's own best line from standing still at x0. A plan always runs on to the finish, so
   // "this obstacle" only stops it at the end of the zone (demo) and "the whole course" lets it run (Shift+I).
   // Shortcuts: routes the designer did not plan (src/sim/shortcuts.ts). Stored with a demo course, or worked out on first request in a worker.
   const shortcutList = createShortcutList(course);
   const ideal = createIdealRun({ course, st, log, frames, botState, panel, runSearch, shortcutList, idealCache, botMode: () => botMode, clearGuides: () => clearGuides(), restart: () => restart() });
-
-  // After a fall: retry at once, one tip, a skippable replay, and the offer to train that obstacle.
-  let lastFall: 'splash' | 'slide' | 'hurt' | 'stall' = 'splash';
-  function onFall(what: 'splash' | 'slide' | 'hurt' | 'stall') {
-    st.falls++; track('falls');
-    lastFall = what;
-    const r = st.world.runner;
-    const zone = zoneAt(what === 'slide' && course.wall ? course.wall.x0 + 1 : r.x);
-    st.lastZone = zone?.id ?? 'gap';
-    if (!failedThisAttempt) {
-      failedThisAttempt = true; trackCourseEvent('fail', analyticsCourseKey, course.name, analyticsRunId, analyticsMode, st.lastZone);
-      const failedZone = zone?.id ?? st.lastZone;
-      if (zone) fallLog.push(zone.id);
-      enterZone(failedZone); countsFor(summaries[stats.kind], failedZone).failures++; stats.finishRun(false, analyticsRunId);
-    }
-    st.retryX = ideal.cpFor(st.lastZone);
-    const jump = [...log].reverse().find((e) => e.type === 'jump');
-    let tip = 'Try again.', lateTip = false;
-    if (what === 'slide') tip = OBSTACLES.wall.tips.slide;
-    else if (what === 'hurt' && log.some((e) => e.type === 'ball-hit')) tip = 'The balls come at the same moments every time, for everyone. Wait for a gap between two balls, then go: too fast or too slow both meet the next one.';
-    else if (what === 'hurt' && log.some((e) => e.type === 'drone-crash')) tip = OBSTACLES.drone.tips.crash;
-    else if (what === 'hurt') tip = OBSTACLES.drop.tips.hurt;
-    else if (course.track) tip = cartTip(ctx, what);
-    else if (what === 'splash' && course.recoil && isAimable(recoilParams(course)) && zone?.id === 'recoil') tip = OBSTACLES.recoil.tips.aim;
-    else if (course.drone && zone?.id === 'drone') tip = log.some((e) => e.type === 'drone-empty') ? OBSTACLES.drone.tips.empty : OBSTACLES.drone.tips.short;
-    else if (course.recoil && zone?.id === 'recoil') tip = st.world.recoil && st.world.recoil.fired > 0 ? OBSTACLES.recoil.tips.push : OBSTACLES.recoil.tips.pad;
-    else if (log.some((e) => e.type === 'plank-break')) tip = plankTip(ctx);
-    else if (course.band) tip = bandTip(ctx);
-    else if (zone?.id === 'trampoline') tip = OBSTACLES.trampoline.tips.fall;
-    else if (zone?.id === 'rope') tip = OBSTACLES.rope.tips.fall;
-    else if (!jump) tip = OBSTACLES.gap.tips.noJump;
-    else if (jump && (jump.detail?.vx as number) !== undefined && (zone?.id === 'gap' || zone?.id === 'landing')) {
-      const g = specs.find((q2) => r.x >= q2.x - 0.5 && r.x <= q2.x + q2.width + 1) ?? specs.find((q2) => q2.x >= r.x - 12);
-      const v = jump.detail!.vx as number;
-      tip = g && v < g.needed ? `You left the edge at ${v.toFixed(1)} m/s, but this ${g.width.toFixed(1)} m gap needs at least ${g.needed.toFixed(1)} m/s. Run longer before you jump.` : OBSTACLES.gap.tips.fast;
-    } else {
-      const ws = course.windows ?? ideal.windows(); // stored with the plan; otherwise asked of the workers below, never worked out on this thread
-      const hit = ws && windowTip(ws, r.x);
-      if (hit) tip = hit; else if (!ws) lateTip = true;
-    }
-    const train = ctx.everCleared || st.falls >= 3;
-    panel.innerHTML = '';
-    panel.style.display = 'grid';
-    const h = document.createElement('strong');
-    h.textContent = what === 'slide' ? 'You slid back down the wall.' : what === 'hurt' ? (log.some((e) => e.type === 'ball-hit') ? `A ball hit you at the ${zone?.name ?? 'course'}.` : `Hard landing at the ${zone?.name ?? 'course'}.`) : what === 'stall' ? 'The cart ran out of speed on a hill.' : log.some((e) => e.type === 'plank-break') ? 'The plank broke under you.' : log.some((e) => e.type === 'cart-off') ? 'The cart left the track at a hilltop.' : HAZARD_INFO[hazard].headline(zone?.name ?? 'course');
-    const t = document.createElement('div'); t.textContent = tip;
-    if (lateTip) void ideal.ensureWindows().then((ws) => { const hit = ws && windowTip(ws, r.x); if (hit && t.isConnected) t.textContent = hit; });
-    const floorNote = document.createElement('div'); floorNote.style.cssText = 'color:#58635d;font-size:13px'; floorNote.textContent = what === 'slide' || what === 'hurt' ? '' : HAZARD_INFO[hazard].hint;
-    const row = document.createElement('div'); row.style.cssText = 'display:flex;flex-wrap:wrap;gap:8px';
-    const mk = (label: string, fn: () => void, primary = false) => {
-      const b = document.createElement('button');
-      b.textContent = label;
-      b.style.cssText = `font:inherit;border:1px solid ${primary ? '#0f6b5c' : '#b9c2bb'};background:${primary ? '#0f6b5c' : '#fff'};color:${primary ? '#fff' : '#17201d'};border-radius:8px;padding:6px 12px;cursor:pointer;font-weight:${primary ? 700 : 400}`;
-      b.onclick = fn; row.appendChild(b); return b;
-    };
-    const retry = mk(`Try this ${zone?.name ?? 'obstacle'} again (R)`, () => restart(st.retryX), true);
-    if (st.retryX !== course.startX) mk('Start from the beginning (Shift+R)', () => { st.retryX = course.startX; restart(course.startX); });
-    mk('Watch what happened, with the numbers', () => {
-      panel.style.display = 'none';
-      const from = Math.max(0, frames.length - 300);
-      st.replay = { i: from, from, to: frames.length };
-      const lines = course.track ? cartDiag(ctx) : buildDiag(ctx, st.lastZone, what === 'slide' ? 'slide' : 'splash');
-      diagBox.innerHTML = `<strong>Slow-motion replay</strong><ul style="margin:6px 0 0;padding-left:18px">${lines.map((l) => `<li>${l}</li>`).join('')}</ul><div style="color:#58635d;font-size:13px;margin-top:6px">Esc to skip</div>`;
-      diagBox.style.display = 'block';
-    });
-    const tryClip = shareOn(params) && !botMode && !st.demo && !st.idealWhole && !params.get('mode') ? ghostCtl?.myClip() ?? null : null, tryTicks = st.world.runner.tick;
-    const tryFrom = tryClip ? startOfX(course, tryClip.from) : null; // CC-242: a try from a checkpoint is shared with its start, so the friend begins at the same place
-    const tryStart = tryFrom ?? 0;
-    const tryRun = shareOn(params) && !botMode && !st.demo && !st.idealWhole && !params.get('mode') ? (ghostCtl?.myRun() ?? (tryFrom ? tryClip?.log ?? null : null)) : null; // CC-181: a try that fell can be sent as a link too; it never counts for a time
-    if (tryRun) row.append(...copyLinkButton({ link: (nick) => makeLinkInfo(location.origin, pageSearch(), course, tryRun, nick, wear.choice(), 'fell', undefined, tryStart), courseTooBig: () => courseTooBig(pageSearch(), course), label: 'Copy link to this try', id: 'share-copy-fall' }));
-    if (tryClip && clipFits(tryTicks)) mk('Download a video of this try', () => void makeClip(tryClip.log, tryTicks, tryClip.from)).id = 'share-clip-fall'; // CC-157: a try that ended in a fall is worth a clip too
-    mk('Show me the ideal run (I)', () => ideal.showIdeal(st.lastZone));
-    if (!course.track) mk('Make it easier', () => openEditor('easier')).id = 'makeeasier';
-    mk('Edit this course', () => openEditor('edit')).id = 'editfromfall';
-    if (train) mk(`Train the ${zone?.name ?? 'obstacle'}`, () => { saveResume(); location.search = trainLink(zone?.id ?? 'gap', r.x); });
-    const failBody = renderReport(course, runLog, buildReport(course, runLog, st.world, false, null), {}, true, ghostCtl?.reportPath() ?? null, !reportSectionsOn(params), hardBand());
-    addHardest(failBody);
-    panel.append(h, t, floorNote, failBody, row);
-    if (st.falls === 1 && !st.idealWhole) onboarding.onFall(panel); // CC-100: the first fall gets one calm hint (CC-191: inside the report, not over it)
-    retry.focus({ preventScroll: true }); panel.scrollTop = 0;
-  }
-
-  function showAgain() { st.falls--; onFall(lastFall); }
+  const fall = createFall({ ctx, params, panel, diagBox, frames, hazard, analytics, stats, runLog, fallLog, ideal, nav, botMode, zoneAt: (x) => zoneAt(x), hardBand, addHardest, choice: () => wear.choice(), ghostCtl: () => ghostCtl, makeClip: (l, t, f) => makeClip(l, t, f), restart: (x) => restart(x), onboarding: () => onboarding });
+  const { onFall, showAgain } = fall;
 
   // Controls are taught while you play: one short hint at a time, then none.
   // what the Rookie needs to know about the course: where the top edge of the wall is, and the next obstacle ahead
@@ -748,14 +661,14 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
         const again = st.phoneWatch;
         setTimeout(() => { if (again) { restart(course.startX); feed = { log: again, i: 0, left: 0 }; } }, 2500);
       } else if (prev === 'running' && st.world.outcome === 'cleared' && !st.clip.on) {
-        stats.clearFinishZone(st.world.runner.x); ctx.everCleared = true; track('clears'); stats.finishRun(true, analyticsRunId); trackCourseEvent('success', analyticsCourseKey, course.name, analyticsRunId, analyticsMode);
+        stats.clearFinishZone(st.world.runner.x); ctx.everCleared = true; track('clears'); stats.finishRun(true, analytics.runId); trackCourseEvent('success', analytics.courseKey, course.name, analytics.runId, analytics.mode);
         offerClear();
         try { localStorage.setItem('cc.course.cleared', '1'); } catch { /* ok */ }
         panel.innerHTML = ''; panel.style.display = 'grid';
         showClearedReport({
           course, params, panel, runLog, hardBand, addHardest, listedKey, viewHooks, clearedNote: ideal.clearedNote,
           get world() { return st.world; }, get runKind() { return stats.kind; }, get ghostCtl() { return ghostCtl; }, get lastClear() { return lastClear; },
-          get demo() { return st.demo; }, botMode, get idealWhole() { return st.idealWhole; }, loadedIsDefault, get analyticsRunId() { return analyticsRunId; },
+          get demo() { return st.demo; }, botMode, get idealWhole() { return st.idealWhole; }, loadedIsDefault, get analyticsRunId() { return analytics.runId; },
           get onboarding() { return onboarding; }, get choice() { return wear.choice(); },
           restart: (x) => restart(x), startIdeal: (x0, z) => ideal.startIdeal(x0, z), openDojo: () => openDojo(), makeClip: (l, t, f) => makeClip(l, t, f),
         });
