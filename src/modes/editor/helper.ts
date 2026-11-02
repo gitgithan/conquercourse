@@ -74,7 +74,7 @@ export function createHelper(env: HelperEnv) {
     findRoutesBtn.disabled = true; routesBox.replaceChildren(); el('div', routesBox, { className: 'muted', text: 'Looking for routes (about a minute)…' });
     const done = (list: Shortcut[]) => { ed.routes = list; findRoutesBtn.disabled = false; renderRoutes(); drawProfile(); document.documentElement.dataset.routes = String(list.length); };
     try {
-      routesWorker ??= new Worker(new URL('../sim/shortcuts-worker.ts', import.meta.url), { type: 'module' });
+      routesWorker ??= new Worker(new URL('../../sim/shortcuts-worker.ts', import.meta.url), { type: 'module' });
       routesWorker.onmessage = (e: MessageEvent) => done((e.data.shortcuts as Shortcut[]) ?? []);
       routesWorker.postMessage({ course: courseNow() });
     } catch { done([]); }
