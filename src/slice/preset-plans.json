@@ -1,11 +1,11 @@
 {
   "swing": {
-    "key": "evcjei",
+    "key": "1h8ci4n",
     "cleared": true,
     "plan": {
       "jumpXs": [
-        4.6,
-        14,
+        4.22,
+        14.2,
         30.9,
         49.28
       ],
@@ -13,7 +13,7 @@
       "bouncePress": 8,
       "hands": true,
       "hangTicks": [
-        378,
+        240,
         390,
         240
       ]
@@ -21,16 +21,16 @@
     "windows": [
       {
         "obstacle": "edge at 6 m",
-        "best": 4.6,
-        "lo": 4.58,
-        "hi": 4.6,
+        "best": 4.22,
+        "lo": 4.2,
+        "hi": 4.22,
         "widthMs": 5.405405405405348
       },
       {
         "obstacle": "edge at 17 m (take-off)",
-        "best": 14,
-        "lo": 14,
-        "hi": 14,
+        "best": 14.2,
+        "lo": 14.2,
+        "hi": 14.2,
         "widthMs": 0
       },
       {
@@ -51,22 +51,22 @@
     "routes": [
       {
         "name": "bar to bar",
-        "ticks": 2017,
+        "ticks": 1958,
         "bars": 2,
         "chosen": true
       }
     ]
   },
   "passing": {
-    "key": "xw6h85",
+    "key": "fy4u7w",
     "cleared": true,
     "plan": {
       "jumpXs": [
-        5,
+        4.72,
         11.98,
-        17,
+        16.98,
         23.8,
-        31.6,
+        32.4,
         35.2
       ],
       "releaseAfter": 60,
@@ -75,24 +75,24 @@
     "windows": [
       {
         "obstacle": "edge at 6 m",
-        "best": 5,
-        "lo": 4.04,
+        "best": 4.72,
+        "lo": 3.48,
         "hi": 5.96,
-        "widthMs": 262.16216216216213
+        "widthMs": 337.8378378378378
       },
       {
         "obstacle": "edge at 13.5 m",
         "best": 11.98,
         "lo": 10.5,
-        "hi": 13.44,
-        "widthMs": 399.9999999999999
+        "hi": 13.46,
+        "widthMs": 402.7027027027028
       },
       {
         "obstacle": "edge at 18.5 m",
-        "best": 17,
+        "best": 16.98,
         "lo": 15.5,
-        "hi": 18.48,
-        "widthMs": 405.4054054054054
+        "hi": 18.44,
+        "widthMs": 400.0000000000001
       },
       {
         "obstacle": "edge at 25.3 m",
@@ -103,10 +103,10 @@
       },
       {
         "obstacle": "edge at 33.1 m",
-        "best": 31.6,
-        "lo": 31.32,
+        "best": 32.4,
+        "lo": 31.68,
         "hi": 33.1,
-        "widthMs": 243.2432432432434
+        "widthMs": 194.59459459459484
       },
       {
         "obstacle": "edge at 36.7 m",
@@ -118,20 +118,11 @@
     ]
   },
   "coaster": {
-    "key": "1iyb0gu",
-    "cleared": true,
-    "plan": {
-      "jumpXs": [
-        45.75
-      ],
-      "releaseAfter": 60,
-      "bouncePress": 8,
-      "cartBrake": []
-    },
-    "windows": []
+    "key": "1dw10rt",
+    "cleared": false
   },
   "failing": {
-    "key": "1jlsb4l",
+    "key": "h5zoqn",
     "cleared": false
   }
 }
