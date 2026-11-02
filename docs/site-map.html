@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ConquerCourse Site Map</title>
+<style>
+:root{--bg:#f6f4ee;--panel:#fffdf7;--ink:#17201d;--mute:#58635d;--line:#cfd6d0;--accent:#0f6b5c;--hi:#ffe38a;--hiink:#4a3600}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#121715;--panel:#1b2420;--ink:#e8eee9;--mute:#9fb0a6;--line:#33413a;--accent:#4cc3ac;--hi:#5a4710;--hiink:#ffe9a8}}
+:root[data-theme="dark"]{--bg:#121715;--panel:#1b2420;--ink:#e8eee9;--mute:#9fb0a6;--line:#33413a;--accent:#4cc3ac;--hi:#5a4710;--hiink:#ffe9a8}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.45 system-ui,sans-serif}
+main{max-width:1100px;margin:0 auto;padding:24px 16px 64px}
+h1{margin:0 0 4px;font-size:26px}
+.sub{color:var(--mute);margin:0 0 16px}
+.bar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:12px}
+input[type=search],select,button{font:inherit;color:var(--ink);background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:7px 10px}
+input[type=search]{flex:1;min-width:220px}
+button{cursor:pointer}
+button:hover{border-color:var(--accent)}
+:focus-visible{outline:3px solid #f0a020;outline-offset:1px}
+.journey{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:10px 14px;margin-bottom:14px}
+.journey ol{margin:6px 0 0;padding-left:22px}
+.journey li{margin:2px 0}
+.journey li button{border:0;background:none;padding:0;color:var(--accent);text-decoration:underline;font-weight:600}
+ul.tree{list-style:none;margin:0;padding:0}
+ul.tree ul{list-style:none;margin:0;padding-left:22px;border-left:2px solid var(--line)}
+.node{margin:6px 0}
+.head{display:flex;gap:8px;align-items:center}
+.tog{width:28px;height:28px;padding:0;line-height:1;flex:none}
+.tog.empty{visibility:hidden}
+.title{font-weight:700;font-size:16px;background:none;border:0;padding:2px 4px;text-align:left}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:8px 12px;margin:4px 0 4px 36px}
+.card p{margin:2px 0}
+.card .k{color:var(--mute);font-weight:600}
+.card a{color:var(--accent);font-weight:600;margin-right:10px;cursor:pointer;text-decoration:underline}
+.node.hl>.head .title,.node.hl>.card{background:var(--hi);color:var(--hiink);border-radius:8px}
+.node.hl>.card{border-color:var(--accent)}
+.node.dim>.head .title{opacity:.45}
+.badge{font-size:12px;background:var(--accent);color:var(--bg);border-radius:999px;padding:1px 8px;margin-left:6px}
+.none{color:var(--mute);padding:12px 0}
+</style>
+</head>
+<body>
+<main>
+<h1>ConquerCourse site map</h1>
+<p class="sub">Every screen you can reach, how to get there and where it leads. Train slow. Run fast.</p>
+<div class="bar">
+  <input id="q" type="search" placeholder="Search screens, buttons and words" aria-label="Search screens">
+  <label for="j">Journey</label>
+  <select id="j" aria-label="Pick a journey"><option value="">No journey</option></select>
+  <button id="open" type="button">Open all</button>
+  <button id="close" type="button">Close all</button>
+  <button id="theme" type="button">Light / dark</button>
+</div>
+<div id="jbox" class="journey" hidden></div>
+<div id="none" class="none" hidden>No screen matches that search.</div>
+<ul id="tree" class="tree"></ul>
+</main>
+<script>
+const TREE=[{"id":"welcome","name":"Welcome screen","what":"You see the logo, two runners in a park and four big tiles.","how":"Open the game with no extra words in the address.","next":["course","gallery","editor","slicer","community"],"kids":[],"depth":0},{"id":"topbar","name":"Top bar","what":"You jump between the four main places from one bar at the top of the page.","how":"It is on the Course, World Editor, World Slicer, Community and Dojo pages.","next":["gallery","editor","slicer","community"],"kids":[],"depth":0},{"id":"gallery","name":"Courses picker","what":"You pick a course, a lesson or a tool from cards with pictures.","how":"Press the Courses button in the top bar.","next":["course","parts","coaster","editor","slicer","dojo","labs"],"kids":[{"id":"g-start","name":"Start here","what":"You find the gentle first course and the harder showcase courses.","how":"Courses picker, group \"Start here\".","next":["course"],"kids":[],"depth":1},{"id":"g-places","name":"Real places","what":"You run over the roofs of real streets such as Montmartre or Sydney.","how":"Courses picker, group \"Real places\".","next":["course","slicer"],"kids":[],"depth":1},{"id":"g-things","name":"Contraptions","what":"You try a coaster, a trebuchet, a band, a drone and a cannon.","how":"Courses picker, group \"Contraptions\".","next":["course"],"kids":[],"depth":1},{"id":"g-make","name":"Make your own","what":"You get a random course the simulator has proved clearable, or open a builder.","how":"Courses picker, group \"Make your own\".","next":["course","editor","coaster"],"kids":[],"depth":1}],"depth":0},{"id":"course","name":"The Course (play)","what":"You run, jump, hang, swing and climb a small runner to the finish.","how":"Welcome screen (any key), or pick a course in the Courses picker.","next":["report","editor","gallery","friendlink"],"kids":[{"id":"tour","name":"First-visit tour","what":"A short guide shows the camera, the keys, retry and the best line.","how":"It opens by itself on your first course; the ? button plays it again.","next":["course"],"kids":[],"depth":1},{"id":"help","name":"Help chip (?)","what":"You see your controls, replay the tour or go to Courses.","how":"Round ? button, bottom left of any course.","next":["gallery"],"kids":[],"depth":1},{"id":"characters","name":"Characters picker","what":"You change who runs: a Rookie, a starter character or one you made.","how":"Characters button at the top of the course.","next":["community","course"],"kids":[],"depth":1},{"id":"ghost","name":"Ghost chip","what":"You race a see-through runner: the best line, or a friend.","how":"Ghost chip at the top, or press N.","next":["course"],"kids":[],"depth":1},{"id":"fall","name":"Fall panel","what":"You see where you fell and can retry, edit the course or save a clip.","how":"It appears when you fall; press R to retry at once.","next":["course","editor"],"kids":[],"depth":1},{"id":"report","name":"End report","what":"You see your time, publish it, copy a link and save a video.","how":"Reach the finish line.","next":["board","share","editor","course"],"kids":[{"id":"board","name":"Leaderboard","what":"You see the best times on this course and where you stand.","how":"Press \"Publish to Leaderboard\" in the end report, or look at the board in the corner.","next":["course"],"kids":[],"depth":2},{"id":"share","name":"Share a run","what":"You copy a short link, or save a video, so a friend can chase you.","how":"End report: \"Copy link\" or \"Download video\".","next":["friendlink"],"kids":[],"depth":2}],"depth":1}],"depth":0},{"id":"friendlink","name":"A friend's challenge link","what":"You open a short link and the course plays your friend's run as a ghost.","how":"Open a link that someone copied from their end report.","next":["course"],"kids":[],"depth":0},{"id":"parts","name":"Parts gallery","what":"You see every move and every obstacle on one page, each playing live.","how":"Courses picker, card \"Parts: moves and obstacles\".","next":["course"],"kids":[],"depth":0},{"id":"coaster","name":"Coaster builder","what":"You drag dots to shape a track and then ride it.","how":"Courses picker, group \"Make your own\", card \"Build your own coaster\".","next":["course"],"kids":[],"depth":0},{"id":"editor","name":"World Editor","what":"You place real objects and bars into a lane and the simulator checks it can be cleared.","how":"Top bar: World Editor. In a course: \"Edit this course\".","next":["course","community","slicer"],"kids":[{"id":"e-add","name":"Add pieces","what":"You pick shapes, real objects, bars, machines or your own pieces.","how":"World Editor, \"Add pieces\" button.","next":["editor"],"kids":[],"depth":1},{"id":"e-fix","name":"Fix menu","what":"The simulator says in plain words why a lane cannot be cleared and shows a small change.","how":"World Editor, \"Fix\" button at the top.","next":["editor"],"kids":[],"depth":1},{"id":"e-moves","name":"Moves and Design partner","what":"You see which moves your lane has and ask a helper what to change.","how":"World Editor, \"Moves\" and \"Design partner\" buttons.","next":["editor"],"kids":[],"depth":1},{"id":"e-play","name":"Play this lane","what":"You run the lane you built.","how":"World Editor, right column, \"Play this lane\".","next":["course"],"kids":[],"depth":1}],"depth":0},{"id":"slicer","name":"World Slicer","what":"You pick a real place and cut a lane out of its buildings.","how":"Top bar: World Slicer.","next":["course","editor"],"kids":[{"id":"s-pick","name":"Pick a place","what":"You search for a place or choose a ready one, with street photos if it has them.","how":"World Slicer, search box or place cards.","next":["s-cut"],"kids":[],"depth":1},{"id":"s-cut","name":"Cut and slice","what":"You choose the height line and the buildings, then slice the place.","how":"World Slicer, \"Slice this place\".","next":["s-build"],"kids":[],"depth":1},{"id":"s-build","name":"Build this place","what":"The place becomes a course you can run.","how":"World Slicer, \"Build this place\".","next":["course","editor"],"kids":[],"depth":1}],"depth":0},{"id":"community","name":"Community","what":"You turn a photo into a 3D piece and see pieces other people made.","how":"Top bar: Community.","next":["editor"],"kids":[{"id":"c-explore","name":"Explore","what":"You look at pieces people made and add one to your editor.","how":"Community opens here first.","next":["c-make","editor"],"kids":[],"depth":1},{"id":"c-make","name":"Make","what":"You pick a photo, click the thing you want, and make a 3D piece.","how":"Explore, button \"Make your own\".","next":["c-prize"],"kids":[],"depth":1},{"id":"c-prize","name":"Prize screen","what":"Your new piece spins on a turntable and you can keep it, share it or use it.","how":"It opens when a piece is ready.","next":["editor","c-explore"],"kids":[],"depth":1}],"depth":0},{"id":"dojo","name":"Dojo","what":"You learn one bit of physics at a time by trying, guessing and testing.","how":"Courses picker, group \"Dojo (learn the physics, then play)\".","next":["course","gallery"],"kids":[{"id":"d-lesson","name":"A Dojo lesson","what":"You move the knobs, guess the result, watch the test and then see the shape of the rule.","how":"Pick a lesson card, such as \"Gap jump\" or \"Rope swing\".","next":["course"],"kids":[],"depth":1}],"depth":0},{"id":"labs","name":"University Labs","what":"You explore twelve bigger ideas, such as search or camera maths, and equations are allowed here.","how":"Courses picker, group \"Labs (university level)\".","next":["gallery"],"kids":[{"id":"l-lab","name":"A Lab","what":"You change settings and read the numbers in one hands-on page.","how":"Pick a Lab card; the Labs bar at the top switches Labs.","next":["labs"],"kids":[],"depth":1}],"depth":0},{"id":"feedback","name":"Feedback card","what":"You tell the team what was fun or confusing in a short form.","how":"The small Feedback button on every screen.","next":[],"kids":[],"depth":0}];const JOURNEYS=[{"id":"first","name":"Play your first course","steps":[["welcome","Open the game and press any key."],["tour","Read the short tour (Next, or Skip)."],["course","Run with the arrow keys and jump with Space."],["fall","Fell? Press R and try again."],["report","Reach the finish and read your time."],["gallery","Press Courses to pick the next one."]]},{"id":"make","name":"Make your own course","steps":[["gallery","Press Courses, or go straight to the top bar."],["editor","Press World Editor."],["e-add","Press \"Add pieces\" and place a bench, a wall or a bar."],["e-fix","Press Fix to see if it can be cleared and what to change."],["e-play","Press \"Play this lane\"."],["course","Run your own course."]]},{"id":"place","name":"Run over a real place","steps":[["topbar","Use the top bar."],["slicer","Press World Slicer."],["s-pick","Search for a place, or choose a ready one."],["s-cut","Choose the height and buildings, then press \"Slice this place\"."],["s-build","Press \"Build this place\"."],["course","Run the lane you cut."]]},{"id":"dojo","name":"Learn the physics in the Dojo","steps":[["gallery","Press Courses."],["dojo","Scroll to the Dojo group."],["d-lesson","Pick a lesson, move the knobs, guess, then test."],["course","Go back to a course and use what you learned."]]},{"id":"share","name":"Share a run","steps":[["course","Clear a course."],["report","Open the end report."],["board","Optionally type a three-letter tag and publish to the leaderboard."],["share","Press \"Copy link\" or \"Download video\"."],["friendlink","Your friend opens the link and chases your ghost."]]},{"id":"photo","name":"Turn a photo into a jump","steps":[["topbar","Use the top bar."],["community","Press Community."],["c-explore","Look at what others made."],["c-make","Press \"Make your own\", pick a photo and click the thing you want."],["c-prize","Wait for the spinning prize screen."],["editor","Press \"Open in the World Editor\" and place your piece."],["course","Press \"Play this lane\" and jump over it."]]}];
+const byId = {};
+const el = (t, props = {}, ...kids) => { const e = document.createElement(t); Object.assign(e, props); kids.forEach(k => e.append(k)); return e; };
+const index = (ns, parent) => ns.forEach(n => { byId[n.id] = n; n.parent = parent; index(n.kids, n); });
+index(TREE, null);
+const open = new Set(TREE.map(n => n.id));
+let journey = null;
+const treeEl = document.getElementById('tree');
+
+function expandTo(id) { for (let p = byId[id].parent; p; p = p.parent) open.add(p.id); }
+
+function render() {
+  const q = document.getElementById('q').value.trim().toLowerCase();
+  const stepsOf = journey ? journey.steps.map(s => s[0]) : [];
+  const match = n => !q || (n.name + ' ' + n.what + ' ' + n.how).toLowerCase().includes(q);
+  const keep = n => match(n) || n.kids.some(keep);
+  treeEl.replaceChildren();
+  let shown = 0;
+  const draw = (n, ul) => {
+    if (!keep(n)) return;
+    shown++;
+    const li = el('li', { className: 'node' });
+    li.id = 'n-' + n.id;
+    const stepNo = stepsOf.indexOf(n.id);
+    if (journey) li.classList.add(stepNo >= 0 ? 'hl' : 'dim');
+    const isOpen = q ? true : open.has(n.id);
+    const tog = el('button', { className: 'tog' + (n.kids.length ? '' : ' empty'), type: 'button', textContent: isOpen ? '−' : '+' });
+    tog.setAttribute('aria-expanded', String(isOpen));
+    tog.setAttribute('aria-label', (isOpen ? 'Close ' : 'Open ') + n.name);
+    tog.onclick = () => { open.has(n.id) ? open.delete(n.id) : open.add(n.id); render(); };
+    const title = el('button', { className: 'title', type: 'button', textContent: n.name });
+    title.onclick = () => { open.has(n.id) ? open.delete(n.id) : open.add(n.id); render(); };
+    const head = el('div', { className: 'head' }, tog, title);
+    if (stepNo >= 0) head.append(el('span', { className: 'badge', textContent: 'Step ' + (stepNo + 1) }));
+    li.append(head);
+    if (isOpen) {
+      const card = el('div', { className: 'card' },
+        el('p', {}, el('span', { className: 'k', textContent: 'You do: ' }), n.what),
+        el('p', {}, el('span', { className: 'k', textContent: 'How to get there: ' }), n.how));
+      const nx = el('p', {}, el('span', { className: 'k', textContent: 'Leads to: ' }));
+      if (!n.next.length) nx.append('back to where you were');
+      n.next.forEach(id => { const a = el('a', { textContent: byId[id].name, tabIndex: 0, role: 'link' });
+        const go = () => { expandTo(id); document.getElementById('q').value = ''; render(); const t = document.getElementById('n-' + id); if (t) { t.scrollIntoView({ block: 'center' }); t.querySelector('.title').focus(); } };
+        a.onclick = go; a.onkeydown = e => { if (e.key === 'Enter') go(); }; nx.append(a); });
+      card.append(nx);
+      if (stepNo >= 0) card.append(el('p', {}, el('span', { className: 'k', textContent: 'On this journey: ' }), journey.steps[stepNo][1]));
+      li.append(card);
+      if (n.kids.length) { const sub = el('ul', { className: 'tree' }); n.kids.forEach(k => draw(k, sub)); li.append(sub); }
+    }
+    ul.append(li);
+  };
+  TREE.forEach(n => draw(n, treeEl));
+  document.getElementById('none').hidden = shown > 0;
+}
+
+const sel = document.getElementById('j');
+JOURNEYS.forEach(j => sel.append(el('option', { value: j.id, textContent: j.name })));
+sel.onchange = () => {
+  journey = JOURNEYS.find(j => j.id === sel.value) || null;
+  const box = document.getElementById('jbox');
+  box.hidden = !journey;
+  box.replaceChildren();
+  if (journey) {
+    journey.steps.forEach(s => expandTo(s[0]));
+    box.append(el('strong', { textContent: journey.name }));
+    const ol = el('ol');
+    journey.steps.forEach(([id, t]) => { const b = el('button', { type: 'button', textContent: byId[id].name });
+      b.onclick = () => { const x = document.getElementById('n-' + id); if (x) { x.scrollIntoView({ block: 'center' }); x.querySelector('.title').focus(); } };
+      ol.append(el('li', {}, b, ': ' + t)); });
+    box.append(ol);
+  }
+  render();
+};
+document.getElementById('q').oninput = render;
+document.getElementById('open').onclick = () => { Object.keys(byId).forEach(id => open.add(id)); render(); };
+document.getElementById('close').onclick = () => { open.clear(); render(); };
+document.getElementById('theme').onclick = () => {
+  const r = document.documentElement;
+  const dark = r.dataset.theme ? r.dataset.theme === 'dark' : matchMedia('(prefers-color-scheme:dark)').matches;
+  r.dataset.theme = dark ? 'light' : 'dark';
+};
+render();
+</script>
+</body>
+</html>
