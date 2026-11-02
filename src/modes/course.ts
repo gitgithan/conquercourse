@@ -1,6 +1,8 @@
 import { backgroundOn, openBackgroundMenu, savedBackground } from '../ui/background';
 import { mountToasts } from '../ui/toast-stack';
 import { createKeydown } from './course/keydown';
+import type { CourseCtx } from './course/context';
+import { bandTip, buildDiag, cartDiag, cartTip, plankTip, windowTip } from './course/tips';
 import { createCourseState } from './course/state';
 import { createSearch } from './course/search';
 import { createShortcutList } from './course/shortcuts';
@@ -38,9 +40,7 @@ import { reportSectionsOn } from '../ui/report-sections';
 import { courseHash, encodeLog, inputOfMask, startOfX, startXOf, type InputLog } from '../sim/replay';
 import { findShortcuts, shortcutLine, type Shortcut } from '../sim/shortcuts';
 const findShortcutsNow = (c: CourseData): Shortcut[] => findShortcuts(c, { moveChoices: false }).shortcuts; // ?bot=shortcut only: blocks the page while it searches
-import { flightPath, gapSpecs, minSpeedForWall, pressBand } from '../sim/needs';
-import { bounce } from '../sim/trampoline';
-import { DEFAULT_TRAMPOLINE } from '../sim/trampoline';
+import { gapSpecs, minSpeedForWall } from '../sim/needs';
 import { ouch } from '../sim/landing';
 import { logTicks } from '../sim/run-checks';
 import { noteRun, noteRunning } from '../ui/feedback-model';
@@ -60,7 +60,6 @@ import { makeObstacle } from '../course/collide';
 import { climbAhead } from '../sim/climb';
 import { DEFAULT_HANG, feetOf, handOffset } from '../sim/holds';
 import { actorStateFor } from '../motion/actor-state';
-import { groundAt } from '../sim/terrain';
 import { approachToast } from '../ui/approach-toast';
 import { forkCell, pathsOn } from '../ui/paths';
 import { branchesOf } from '../sim/branches';
@@ -80,7 +79,7 @@ import { barName, predictBand, predictLaunch, predictRelease, predictShot, type 
 import { ballsOn, BALL_LAUNCHERS } from '../sim/shots';
 import { bandParams, stretchAt } from '../sim/band';
 import { topAt } from '../sim/beam';
-import { crestSpeedLimit, railsOf } from '../sim/cart';
+import { railsOf } from '../sim/cart';
 import { installGraphStudio } from './graph-studio';
 import { createPerf, type PerfSource } from '../ui/perf';
 import { cullFar } from '../render/static-merge';
@@ -533,7 +532,6 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
   const diagBox = document.createElement('div');
   diagBox.style.cssText = 'position:fixed;left:16px;top:70px;width:min(460px,90vw);background:#fffffff2;border:1px solid #cfd6d0;border-radius:10px;padding:10px 14px;font:15px/1.4 system-ui,sans-serif;color:#17201d;display:none;box-shadow:0 4px 18px #0002';
   document.body.append(diagBox);
-  let wallEntry = 0;
   let prevMode: string = 'run', prevVx = 0;
   let soundCount = 0;
   let soundedEvents: ReturnType<typeof newWorld>['events'] | null = null;
@@ -623,6 +621,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
   }
   const log: GameEvent[] = [];
   const frames: { x: number; y: number }[] = [];
+  const ctx: CourseCtx = { course, st, log, guides, specs, wallNeed, wallEntry: 0 };
   const analyticsCourseKey = courseKey(course.name);
   const analyticsMode = pageQuery().get('mode') ?? 'course';
   let analyticsRunId = crypto.randomUUID();
@@ -752,12 +751,6 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
     const sig = idealSignal = { cancelled: false };
     return runSearch(c, sig, (label, step, of) => { st.idealNote = `Working out the ideal run… ${label} (${step} of ${of}) · any key cancels`; });
   }
-  // The fall tip needs how wide the window of good presses is. A course stores it with its plan; when it does not, the workers work it out within a budget (and the tip
-  // says the generic thing until then): a whole-course search on the page's thread froze the page for up to half a minute after a fall.
-  const windowTip = (ws: Window[], x: number): string | undefined => {
-    const w = ws.find((q) => q.obstacle.startsWith('edge') && Math.abs(q.best - x) < 9);
-    return w ? (x < w.best ? 'You jumped a bit late. Try pressing Space a little earlier.' : 'You jumped a bit early. Try pressing Space a little later.') : undefined;
-  };
   let windowsAsk: Promise<Window[] | null> | null = null;
   function ensureWindows(): Promise<Window[] | null> {
     windowsAsk ??= runSearch(course, { cancelled: false }, undefined, workSeconds(60)).then((r) => (windows = xWindows(r.windows))).catch(() => null);
@@ -825,107 +818,6 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
     });
   }
 
-  // Replay numbers and guiding lines, so the player learns something new instead of watching the same thing again.
-  function guideBand(x0: number, x1: number, y: number, color: number) {
-    const m = new THREE.Mesh(new THREE.BoxGeometry(Math.max(0.05, x1 - x0), 0.06, 1.6), new THREE.MeshBasicMaterial({ color, transparent: true, opacity: 0.55 }));
-    m.position.set((x0 + x1) / 2, y + 0.04, 0.4); guides.add(m);
-  }
-  function guideLine(x: number, y: number, h: number, color: number) {
-    const m = new THREE.Mesh(new THREE.BoxGeometry(0.07, h, 0.07), new THREE.MeshBasicMaterial({ color })); m.position.set(x, y + h / 2, 0.4); guides.add(m);
-  }
-  function guidePath(pts: { x: number; y: number }[], color: number) {
-    const g = new THREE.BufferGeometry().setFromPoints(pts.filter((_, i) => i % 3 === 0).map((q) => new THREE.Vector3(q.x, q.y + 0.9, 0.5)));
-    guides.add(new THREE.Line(g, new THREE.LineBasicMaterial({ color })));
-  }
-  // The numbers behind a coaster fall: where the cart started, how fast it was, and what the hilltop could hold.
-  function cartDiag(): string[] {
-    const rails = railsOf(course.track!, st.world.cart?.segment ?? Number(log.find((e) => e.type === 'cart-off')?.detail?.segment ?? 0)), L: string[] = [];
-    const start = rails.y(rails.x0);
-    L.push(`The cart started ${start.toFixed(1)} m up and was pushed off at ${(course.track!.push ?? 1.5).toFixed(1)} m/s.`);
-    const off = log.find((e) => e.type === 'cart-off'), stall = log.find((e) => e.type === 'cart-stall');
-    if (off) {
-      const x = off.detail!.x as number;
-      L.push(`It left the rails at ${x.toFixed(0)} m, ${rails.y(x).toFixed(1)} m up, doing ${(off.detail!.v as number).toFixed(1)} m/s.`);
-      L.push(`That hilltop lets go above ${crestSpeedLimit(rails, x).toFixed(1)} m/s: the sharper the top, the slower the limit.`);
-    }
-    if (stall) L.push(`It turned round on a hill ${(stall.detail!.height as number).toFixed(1)} m up: the highest it could reach was about the height it started from.`);
-    return L;
-  }
-  // The elastic band: what the throw was, and what would have gone farther (never how well you did)
-  function bandTip(): string {
-    const rel = [...log].reverse().find((e) => e.type === 'band-release');
-    const snap = [...log].reverse().find((e) => e.type === 'band-snap');
-    const bp = bandParams(course);
-    if (snap) return `The band snapped at ${(snap.detail!.stretch as number).toFixed(0)} m: it takes ${bp.snap.toFixed(0)} m at most. Turn round (hold \u2192) a little sooner.`;
-    if (!rel) return OBSTACLES.band.tips.noRelease;
-    return `You left the band at ${(rel.detail!.vx as number).toFixed(1)} m/s after stretching it ${(rel.detail!.stretch as number).toFixed(0)} m. A longer stretch throws faster: hold \u2190 a little longer before you turn round (it snaps at ${bp.snap.toFixed(0)} m).`;
-  }
-  function buildDiag(zoneId: string, what: 'splash' | 'slide'): string[] {
-    const L: string[] = [];
-    const jump = [...log].reverse().find((e) => e.type === 'jump');
-    const push = course.jumpSpeed;
-    if (what === 'slide' && course.wall) {
-      const wp = { ...DEFAULT_WALL, ...course.wall };
-      const need = wp.height - wp.hipHeight - wp.reach;
-      const ev = [...log].reverse().find((e) => e.type === 'wall-slide');
-      const margin = (ev?.detail?.margin as number) ?? 0;
-      if ([...log].some((e) => e.type === 'wall-no-grip')) L.push('Your feet climbed high enough, but the hands never held on: hold E near the top to grab the edge.');
-      else L.push(`Speed at the foot of the wall: ${wallEntry.toFixed(1)} m/s. This wall needs at least ${wallNeed.toFixed(1)} m/s.`);
-      if (![...log].some((e) => e.type === 'wall-no-grip')) L.push(`Your feet climbed ${(need + margin).toFixed(1)} m; they had to climb ${need.toFixed(1)} m for your hands to reach the top.`);
-      guideBand(course.wall.x0, course.wall.x0 + 3, need, 0x2ca66f); guideBand(course.wall.x0, course.wall.x0 + 3, need + margin, 0xe8622c);
-      L.push('Green line: the height you needed. Orange line: the height you reached.');
-    } else if ((zoneId === 'gap' || zoneId === 'landing') && jump) {
-      const v = jump.detail?.vx as number, px = jump.detail?.x as number;
-      const g = specs.find((q2) => px >= q2.x - 6.5 && px <= q2.x + 0.2) ?? specs.find((q2) => q2.x >= px - 1);
-      if (g) {
-        const y0 = groundAt(course.terrain, g.x - 0.1);
-        L.push(`Speed when you jumped: ${v.toFixed(1)} m/s. This ${g.width.toFixed(1)} m gap needs at least ${g.needed.toFixed(1)} m/s.`);
-        L.push(`You pressed Space ${Math.max(0, g.x - px).toFixed(1)} m before the edge.`);
-        const band = pressBand(course.terrain, g.x, y0, g.width, v, push);
-        if (band) { L.push(`At ${v.toFixed(1)} m/s, pressing between ${(g.x - band.hi).toFixed(1)} and ${(g.x - band.lo).toFixed(1)} m before the edge works (green strip).`); guideBand(band.lo, band.hi, y0, 0x2ca66f); }
-        else L.push(`At ${v.toFixed(1)} m/s no press works: even at the very edge you fall short. Run longer first.`);
-        const mine = flightPath(course.terrain, px, y0, v, push);
-        const ideal = flightPath(course.terrain, g.x - 0.2, y0, Math.max(g.needed + 0.4, v), push);
-        L.push(`Your jump flew ${(mine.x - px).toFixed(1)} m; the far side is ${(g.x + g.width - px).toFixed(1)} m from where you jumped.`);
-        guidePath(mine.pts, 0xe8622c); guidePath(ideal.pts, 0x2ca66f); guideLine(px, y0, 2.5, 0xd33);
-        L.push('Orange: your flight. Green: a flight that works. Red post: where you pressed.');
-      }
-    } else if (zoneId === 'trampoline') {
-      const ev = [...log].reverse().find((e) => e.type === 'bounce' && e.detail?.vyOut !== undefined);
-      const bedTop = groundAt(course.terrain, course.terrain.platforms.find((q2) => q2.bouncy)?.x0 ?? 0);
-      const top = course.terrain.platforms[course.terrain.platforms.length - 1].top;
-      const vIn = Math.sqrt(2 * 9.81 * (course.terrain.platforms.find((q2) => q2.bouncy) ? Math.max(0.1, top - bedTop) : 4));
-      const base = bounce(vIn, DEFAULT_TRAMPOLINE).vyOut;
-      const needV = Math.sqrt(2 * 9.81 * (top - bedTop + 0.3));
-      L.push(`Your press added ${((ev?.detail?.gain as number) ?? 0).toFixed(1)} of a possible ${DEFAULT_TRAMPOLINE.pump.toFixed(1)} m/s.`);
-      L.push(`Without a press the trampoline throws you ${((base * base) / (2 * 9.81)).toFixed(1)} m high; the far platform is ${(top - bedTop).toFixed(1)} m up, so you need an extra ${Math.max(0, needV - base).toFixed(1)} m/s.`);
-      L.push('Press Space while you are pressing into the trampoline (the bottom of the bounce is best).');
-    } else if (zoneId === 'rope') {
-      const ev = [...log].reverse().find((e) => e.type === 'rope-release');
-      if (ev) L.push((ev.detail?.vy as number) > 0 ? 'You let go while rising: good. If you fell short, let go a little later.' : 'You let go while falling back down: let go earlier, while you are still rising.');
-      else L.push('You never grabbed the rope. Jump from the end of the deck so your hands meet it.');
-    }
-    return L;
-  }
-
-  // Coaster tips: what the track did, and what would have worked. Nothing about how well the rider played.
-  // The plank broke: what bent it too far, in plain words (no formulas on the Course).
-  function plankTip(): string {
-    const br = log.find((e) => e.type === 'plank-break');
-    const pk = course.planks?.[0];
-    if (!br || !pk) return OBSTACLES.plank.tips.weak;
-    const cm = ((br.detail?.sag as number) * 100).toFixed(0);
-    return `The plank bent ${cm} cm under you, more than it can take, and snapped ${(br.detail?.at as number).toFixed(1)} m from the edge. A thicker plank, a shorter gap, or a post under the middle each make it bend less. Try the Dojo bridge lesson to find out how much.`;
-  }
-  function cartTip(what: 'splash' | 'slide' | 'stall'): string {
-    if (what === 'stall') {
-      const stall = log.find((e) => e.type === 'cart-stall');
-      return `It turned round on a hill ${stall ? (stall.detail?.height as number).toFixed(1) + ' m high' : ''}. A cart can only climb as high as it started, plus a little from the push. Make the first hill higher, or the hill it stopped on lower.`;
-    }
-    const off = log.find((e) => e.type === 'cart-off');
-    return off ? `At ${(off.detail?.v as number).toFixed(1)} m/s the top of that hill bends away faster than gravity can hold the cart down, so the rails let go. Hold ↓ to brake before the crest, or make the crest broader.` : 'Try again.';
-  }
-
   // After a fall: retry at once, one tip, a skippable replay, and the offer to train that obstacle.
   let lastFall: 'splash' | 'slide' | 'hurt' | 'stall' = 'splash';
   function onFall(what: 'splash' | 'slide' | 'hurt' | 'stall') {
@@ -947,12 +839,12 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
     else if (what === 'hurt' && log.some((e) => e.type === 'ball-hit')) tip = 'The balls come at the same moments every time, for everyone. Wait for a gap between two balls, then go: too fast or too slow both meet the next one.';
     else if (what === 'hurt' && log.some((e) => e.type === 'drone-crash')) tip = OBSTACLES.drone.tips.crash;
     else if (what === 'hurt') tip = OBSTACLES.drop.tips.hurt;
-    else if (course.track) tip = cartTip(what);
+    else if (course.track) tip = cartTip(ctx, what);
     else if (what === 'splash' && course.recoil && isAimable(recoilParams(course)) && zone?.id === 'recoil') tip = OBSTACLES.recoil.tips.aim;
     else if (course.drone && zone?.id === 'drone') tip = log.some((e) => e.type === 'drone-empty') ? OBSTACLES.drone.tips.empty : OBSTACLES.drone.tips.short;
     else if (course.recoil && zone?.id === 'recoil') tip = st.world.recoil && st.world.recoil.fired > 0 ? OBSTACLES.recoil.tips.push : OBSTACLES.recoil.tips.pad;
-    else if (log.some((e) => e.type === 'plank-break')) tip = plankTip();
-    else if (course.band) tip = bandTip();
+    else if (log.some((e) => e.type === 'plank-break')) tip = plankTip(ctx);
+    else if (course.band) tip = bandTip(ctx);
     else if (zone?.id === 'trampoline') tip = OBSTACLES.trampoline.tips.fall;
     else if (zone?.id === 'rope') tip = OBSTACLES.rope.tips.fall;
     else if (!jump) tip = OBSTACLES.gap.tips.noJump;
@@ -986,7 +878,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
       panel.style.display = 'none';
       const from = Math.max(0, frames.length - 300);
       st.replay = { i: from, from, to: frames.length };
-      const lines = course.track ? cartDiag() : buildDiag(lastZone, what === 'slide' ? 'slide' : 'splash');
+      const lines = course.track ? cartDiag(ctx) : buildDiag(ctx, lastZone, what === 'slide' ? 'slide' : 'splash');
       diagBox.innerHTML = `<strong>Slow-motion replay</strong><ul style="margin:6px 0 0;padding-left:18px">${lines.map((l) => `<li>${l}</li>`).join('')}</ul><div style="color:#58635d;font-size:13px;margin-top:6px">Esc to skip</div>`;
       diagBox.style.display = 'block';
     });
@@ -1244,7 +1136,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
       updateRunProgress(st.world.runner.x);
       updateFlow(st.world.runner.tick, st.world.runner.vx, st.world.runner.vy);
       logTick(runLog, st.world);
-      if (prevMode === 'run' && st.world.mode === 'wall') wallEntry = prevVx;
+      if (prevMode === 'run' && st.world.mode === 'wall') ctx.wallEntry = prevVx;
       if (st.demo && (st.world.outcome !== 'running' || st.world.runner.x > st.demo.x1)) demoEnd();
       else if (st.idealWhole && st.world.outcome !== 'running') demoEnd();
       log.push(...st.world.events);

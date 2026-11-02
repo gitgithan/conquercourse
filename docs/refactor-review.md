@@ -37,7 +37,8 @@
   - `search.ts`: the worker pool for the ideal-run search and its one-at-a-time queue.
   - `shortcuts.ts`: the shortcut list and its worker; both worker paths now start with `../../sim/` and `tests/worker-urls.test.ts` guards them.
   - `keydown.ts` takes the state instead of a getter and setter for each value.
-  - Still open: the fall tips (`windowTip`, `plankTip`, `cartTip`, `bandTip`, `buildDiag`), the hint line, the camera and film hooks, and the run statistics stay in `course.ts`; they read the state, the log and the guide meshes together and need a context object first.
+  - `context.ts` and `tips.ts` (second slice, `src/modes/course.ts` 1,501 lines to 1,393): one typed `CourseCtx` holds the course, the state, the run log, the guide meshes and the wall facts; the fall tips (`windowTip`, `plankTip`, `cartTip`, `bandTip`), the replay numbers (`buildDiag`, `cartDiag`) and the guide lines take it as their first argument, with a unit test (`tests/course-tips.test.ts`).
+  - Still open: the hint line, the camera and film hooks, the run statistics, the clip maker and the character loader stay in `course.ts`.
   - Safety net: the course run (`scripts/course-characterize.mjs`) was identical to the run on the unmodified main after the state, scene and zones moves; one toast step differed once and not on the rerun (cause and fix below).
   - The recorded `tests/golden/course-characterize.json` was re-recorded from the unmodified main after the Courses picker card order changed (World Slicer moved, the random-course card last, a new group "The Making Of"); three runs gave the same file.
   - The flake: the old script sometimes saw the toast text in the "toasts leave" step; a leaving toast is removed by a 480 ms wall-clock timer that the stepped page clock does not move.
