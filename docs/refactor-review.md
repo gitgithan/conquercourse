@@ -196,3 +196,22 @@
 - It does not cover: the look of the picture, mouse drags and camera orbit, sound, the Dojo key T, the leaderboard server, live photos and phone widths.
 - It is a safety net and not a pass or fail check; a diff means "look at this", and a deliberate change re-records the golden file.
 - Run it on a test machine (`scripts/vm-run.sh`), not on a laptop that is busy.
+
+## Browser check status (CC-133, 2026-11-03)
+- The 18 red scripts from the triage were looked at again; each fixed script ran twice on a test machine (long ones once).
+- Status values: green, red-real-bug (the page itself is wrong), not tested.
+- Fixed and green (2 runs): `board-publish-check`, `board-top100-check`, `band-editor-check`, `real-objects-check`, `editor-return-check`, `editor-layout-check`, `editor-ux-check`.
+- Green once (long scripts): `challenge-check`, `ideal-all-check`.
+- `share-check`: green; it needs about 7 minutes because the clip is made in software GL.
+- `editor-check`: green; the Design partner answer is "not tested" there (the test machine has no model service), and the one-click advice steps are "not tested" (the editor now says "No single small shift clears it" for that lane).
+- `restart-chip-check`: red-real-bug; the chip works (R, click, both at once) but the site menu sits on top of the chip at 1280 px (CC-165 hid the chip behind `?hud=restart`; the overlap is still there).
+- `lane-handover-check`: red-real-bug (to confirm); the lane arrives right (level 0 by design), but the editor then says "Nothing is in the lane" and never proves it.
+- `says-check`: red; the simulator badge is missing on the editor verdict and the end report screens, and `#make-own` cannot be clicked on the Community screen; not fixed in this round.
+- Left red on purpose (page problems, per the triage): `ghost-check`, `course-buttons-check`, `report-overlap-check`, and `lane-cancel-check` (the default editor course has no stored proof, so it searches; may be a real change).
+- `treb-fixit-check` was not in this round and stays as it was (known red).
+- Steps removed or changed because they test something that changed:
+  - Phone-width parts of `restart-chip-check` were deleted (all mobile work stopped).
+  - "No scroll" in `editor-check` is now "the page does not scroll"; the right column scrolls at small sizes while the checking card is open, and that is printed as a note.
+  - `share-check` "cut-short link" is now "damaged short link", because the old long links are refused since CC-219.
+- The editor scripts wait for the piece count to settle (`scripts/editor-settle.mjs`) instead of waiting for exactly 3 pieces.
+- Software GL on the test machine is slow: the editor proof search takes about 40 s, so waits are long on purpose.
