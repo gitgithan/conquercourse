@@ -11,6 +11,7 @@ import { createClipMaker } from './course/clip';
 import { createCourseState } from './course/state';
 import { createSearch } from './course/search';
 import { createIdealRun } from './course/ideal';
+import { createNav, type Resume } from './course/nav';
 import { createShortcutList } from './course/shortcuts';
 import { progressZonesOf } from './course/zones';
 import { buildCourseScene } from './course/scene';
@@ -29,7 +30,6 @@ import { DT } from '../sim/units';
 import { droneParams, newWorld, recoilParams, stepWorld, type GameEvent, type WorldState } from '../sim/world';
 import { isAimable } from '../sim/recoil';
 import { DEFAULT_WALL } from '../sim/wall';
-import { DEFAULT_ROPE } from '../sim/rope';
 import { inputFor, searchIdealRun, type Plan } from '../sim/ideal';
 import { createGhost } from '../ui/ghost';
 import { lookOfParam } from '../ui/ghost-look';
@@ -64,7 +64,7 @@ import { branchesOf } from '../sim/branches';
 import { goldOld, hardestBlock, hardestLabel, hardestOf } from '../ui/hardest';
 import { buildReport, logTick, renderReport } from '../ui/run-report';
 import { ZONE_ICONS } from '../ui/zone-icons';
-import { dojoOf, OBSTACLES } from '../course/obstacles';
+import { OBSTACLES } from '../course/obstacles';
 import { BUTTON_PLACE, buildGallery, currentWorld, DEMOS, GALLERY_EVENT, modalAttrs, mountWorldGallery, worldHref } from '../ui/world-picker';
 import { createDebugView } from '../ui/debug-view';
 import { createGrabHint } from '../ui/grab-hint';
@@ -79,7 +79,6 @@ import { topAt } from '../sim/beam';
 import { installGraphStudio } from './graph-studio';
 import { createPerf, type PerfSource } from '../ui/perf';
 import { cullFar } from '../render/static-merge';
-import { EDIT_KEY, handoffCourse, type EditHandoff } from '../slice/roundtrip';
 import { startOnboarding, type Onboarding } from '../ui/onboarding';
 import { browserStore, rememberCourse, tourDecision } from '../ui/onboarding-flags';
 import { pageQuery, pageSearch } from '../flags';
@@ -94,7 +93,6 @@ export interface CourseGame {
   restart: () => void;
 }
 
-interface Resume { course: CourseData; world: WorldState | null; retryX: number; facing: 1 | -1; falls: number }
 const MESSAGES: Record<string, string> = {
   cleared: 'You made it! Press R to run it again.',
 };
@@ -429,7 +427,6 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
   let soundCount = 0;
   let soundedEvents: ReturnType<typeof newWorld>['events'] | null = null;
   startAudio(); document.body.append(soundButton());
-  let lastZone = 'gap';
 
   const debug = createDebugView(scene, course, document.body, params.get('debug') === '1');
   const grabHint = createGrabHint(scene, course, params.get('grabhint') !== '0');
@@ -512,42 +509,8 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
     squashUntil = 0; toastUntil = 0; toast.style.display = 'none'; toasts.clear(); releasedAtX = null; caughtSince.clear();
   }
 
-  // The Dojo is reachable any time: it opens on the obstacle nearest the runner (R2-G4).
-  function saveResume() {
-    try { sessionStorage.setItem('cc.resume', JSON.stringify({ course, world: st.world.outcome === 'running' ? st.world : null, retryX: st.retryX, facing, falls: st.falls } satisfies Resume)); } catch { /* the Course starts again */ }
-  }
-  // The editor opens on the course's own pieces (its source, or a copy built from its ground and bars), at the obstacle the runner is at.
-  // A coaster opens its track in the coaster builder. "Make it easier" opens the editor already looking for the smallest change.
-  function openEditor(intent: 'edit' | 'easier') {
-    track('edit_opens');
-    if (course.track) { location.href = `?mode=coaster&coaster=${course.track.pts.map(([x, y]) => `${+x.toFixed(2)},${+y.toFixed(2)}`).join(';')}&push=${+(course.track.push ?? 1.5).toFixed(2)}`; return; }
-    const zone = st.world.outcome === 'running' ? zoneAt(st.world.runner.x)?.id ?? null : lastZone;
-    const h: EditHandoff = { course: handoffCourse(course), retryX: st.retryX, zone, x: st.world.runner.x, facing, falls: st.falls, intent };
-    try { sessionStorage.setItem(EDIT_KEY, JSON.stringify(h)); } catch { msg.textContent = 'This course is too big to hand to the World Editor.'; return; }
-    location.search = '?mode=editor';
-  }
-  function openDojo() {
-    track('dojo_opens');
-    saveResume();
-    const x = st.world.runner.x;
-    const z = zoneAt(x)?.id ?? 'gap';
-    location.search = trainLink(z, x);
-  }
-
-  // The Dojo opens on the very obstacle the player fell at, with its real numbers (R1-L1, R1-L3).
-  function trainLink(zoneId: string, x: number): string {
-    const q = new URLSearchParams({ mode: 'dojo', ex: zoneId === 'recoil' && course.recoil && isAimable(recoilParams(course)) ? 'cannon' : dojoOf(zoneId), from: 'course' }); // the lache pair trains on the bar swing
-    const jump = [...log].reverse().find((e) => e.type === 'jump');
-    if (jump?.detail?.vx) q.set('speed', (jump.detail.vx as number).toFixed(1));
-    if (zoneId === 'gap' || zoneId === 'landing') {
-      const g = specs.find((q2) => x >= q2.x - 0.5 && x <= q2.x + q2.width + 1) ?? specs.find((q2) => q2.x >= x - 12);
-      if (g) { q.set('ex', 'gap'); q.set('width', g.width.toFixed(1)); q.set('rise', g.rise.toFixed(1)); q.set('needed', g.needed.toFixed(1)); }
-    }
-    if (zoneId === 'wall') { q.set('ex', 'wall'); q.set('wallh', String(course.wall?.height ?? DEFAULT_WALL.height)); }
-    if (zoneId === 'rope') { q.set('ex', 'rope'); q.set('length', String(course.rope?.length ?? DEFAULT_ROPE.length)); }
-    return '?' + q.toString();
-  }
-
+  const nav = createNav({ course, st, log, specs, msg, facing: () => facing, zoneAt: (x) => zoneAt(x) });
+  const { saveResume, openEditor, openDojo, trainLink } = nav;
   // The ideal run: the simulator's own best line from standing still at x0. A plan always runs on to the finish, so
   // "this obstacle" only stops it at the end of the zone (demo) and "the whole course" lets it run (Shift+I).
   // Shortcuts: routes the designer did not plan (src/sim/shortcuts.ts). Stored with a demo course, or worked out on first request in a worker.
@@ -561,14 +524,14 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
     lastFall = what;
     const r = st.world.runner;
     const zone = zoneAt(what === 'slide' && course.wall ? course.wall.x0 + 1 : r.x);
-    lastZone = zone?.id ?? 'gap';
+    st.lastZone = zone?.id ?? 'gap';
     if (!failedThisAttempt) {
-      failedThisAttempt = true; trackCourseEvent('fail', analyticsCourseKey, course.name, analyticsRunId, analyticsMode, lastZone);
-      const failedZone = zone?.id ?? lastZone;
+      failedThisAttempt = true; trackCourseEvent('fail', analyticsCourseKey, course.name, analyticsRunId, analyticsMode, st.lastZone);
+      const failedZone = zone?.id ?? st.lastZone;
       if (zone) fallLog.push(zone.id);
       enterZone(failedZone); countsFor(summaries[stats.kind], failedZone).failures++; stats.finishRun(false, analyticsRunId);
     }
-    st.retryX = ideal.cpFor(lastZone);
+    st.retryX = ideal.cpFor(st.lastZone);
     const jump = [...log].reverse().find((e) => e.type === 'jump');
     let tip = 'Try again.', lateTip = false;
     if (what === 'slide') tip = OBSTACLES.wall.tips.slide;
@@ -614,7 +577,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
       panel.style.display = 'none';
       const from = Math.max(0, frames.length - 300);
       st.replay = { i: from, from, to: frames.length };
-      const lines = course.track ? cartDiag(ctx) : buildDiag(ctx, lastZone, what === 'slide' ? 'slide' : 'splash');
+      const lines = course.track ? cartDiag(ctx) : buildDiag(ctx, st.lastZone, what === 'slide' ? 'slide' : 'splash');
       diagBox.innerHTML = `<strong>Slow-motion replay</strong><ul style="margin:6px 0 0;padding-left:18px">${lines.map((l) => `<li>${l}</li>`).join('')}</ul><div style="color:#58635d;font-size:13px;margin-top:6px">Esc to skip</div>`;
       diagBox.style.display = 'block';
     });
@@ -624,7 +587,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
     const tryRun = shareOn(params) && !botMode && !st.demo && !st.idealWhole && !params.get('mode') ? (ghostCtl?.myRun() ?? (tryFrom ? tryClip?.log ?? null : null)) : null; // CC-181: a try that fell can be sent as a link too; it never counts for a time
     if (tryRun) row.append(...copyLinkButton({ link: (nick) => makeLinkInfo(location.origin, pageSearch(), course, tryRun, nick, wear.choice(), 'fell', undefined, tryStart), courseTooBig: () => courseTooBig(pageSearch(), course), label: 'Copy link to this try', id: 'share-copy-fall' }));
     if (tryClip && clipFits(tryTicks)) mk('Download a video of this try', () => void makeClip(tryClip.log, tryTicks, tryClip.from)).id = 'share-clip-fall'; // CC-157: a try that ended in a fall is worth a clip too
-    mk('Show me the ideal run (I)', () => ideal.showIdeal(lastZone));
+    mk('Show me the ideal run (I)', () => ideal.showIdeal(st.lastZone));
     if (!course.track) mk('Make it easier', () => openEditor('easier')).id = 'makeeasier';
     mk('Edit this course', () => openEditor('edit')).id = 'editfromfall';
     if (train) mk(`Train the ${zone?.name ?? 'obstacle'}`, () => { saveResume(); location.search = trainLink(zone?.id ?? 'gap', r.x); });

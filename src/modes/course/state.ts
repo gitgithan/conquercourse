@@ -23,6 +23,7 @@ export interface CourseState {
   demo: { x1: number } | null;
   idealWhole: boolean;
   idealNote: string; // the line shown while an ideal run is working or playing
+  lastZone: string; // the obstacle the runner last fell at (the retry, the Dojo link and the editor hand-off use it)
   // the clip being made (the game is stepped by hand and the clip's own camera is used) and the friend's keys watched over and over
   clip: { on: boolean; cam: { x: number; y: number } | null; layout: ClipLayout; hook: (() => void) | null }; // hook takes each picture of the clip
   phoneWatch: InputLog | null;
@@ -35,7 +36,7 @@ export function createCourseState(init: CourseStateInit): CourseState {
     world: init.world, paused: init.paused, last: 0, acc: 0, retryX: init.retryX, falls: init.falls, replay: null,
     keys: new Set(), jumpQueued: false, vaultQueued: false, rollQueued: false, slideQueued: false, fireQueued: false,
     keysOpen: true, keysTouched: false, frontOverride: init.frontOverride,
-    plan: null, demo: null, idealWhole: false, idealNote: '',
+    plan: null, demo: null, idealWhole: false, idealNote: '', lastZone: 'gap',
     clip: { on: false, cam: null, layout: init.clipLayout ?? clipLayoutFor(''), hook: null }, phoneWatch: null,
   };
 }
