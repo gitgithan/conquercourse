@@ -106,8 +106,13 @@ export async function made(db: AdminDb): Promise<{ items: Record<string, unknown
 export async function analytics(db: AdminDb, now = Date.now()) {
   const first = utcDay(now - (DAYS - 1) * 86_400_000);
   const get = async <T>(sql: string): Promise<T[]> => { try { return (await db.prepare(sql).bind(first).all<T>()).results; } catch { return []; } };
-  const sources = await get<{ ref: string | null; visitors: number; runs: number; clears: number }>(
-    "SELECT COALESCE(ref, 'direct') AS ref, COUNT(DISTINCT session) AS visitors, SUM(event_type = 'start') AS runs, SUM(event_type = 'success') AS clears FROM course_events WHERE substr(ts, 1, 10) >= ? GROUP BY 1 ORDER BY visitors DESC");
+  // Two tables, two bases: everyone who opened the game (analytics_events, "landed") and the people who played at least once (course_events).
+  const played = await get<{ ref: string; players: number; runs: number; clears: number }>(
+    "SELECT COALESCE(ref, 'direct') AS ref, COUNT(DISTINCT session) AS players, SUM(event_type = 'start') AS runs, SUM(event_type = 'success') AS clears FROM course_events WHERE substr(ts, 1, 10) >= ? GROUP BY 1");
+  const landed = await get<{ ref: string; landed: number }>("SELECT COALESCE(ref, 'direct') AS ref, COUNT(DISTINCT session) AS landed FROM analytics_events WHERE kind = 'step' AND name = 'landed' AND day >= ? GROUP BY 1");
+  const refs = [...new Set([...landed.map((r) => r.ref), ...played.map((r) => r.ref)])];
+  const sources = refs.map((ref) => ({ ref, landed: landed.find((r) => r.ref === ref)?.landed ?? 0, players: played.find((r) => r.ref === ref)?.players ?? 0, runs: played.find((r) => r.ref === ref)?.runs ?? 0, clears: played.find((r) => r.ref === ref)?.clears ?? 0 }))
+    .sort((a, b) => b.landed - a.landed || b.players - a.players);
   const stepRows = await get<{ name: string; ref: string | null; n: number }>("SELECT name, COALESCE(ref, 'direct') AS ref, COUNT(*) AS n FROM analytics_events WHERE kind = 'step' AND day >= ? GROUP BY name, 2");
   const funnel = STEPS.map((step) => ({ step, total: stepRows.filter((r) => r.name === step).reduce((a, r) => a + r.n, 0), byRef: Object.fromEntries(stepRows.filter((r) => r.name === step).map((r) => [r.ref, r.n])) }));
   const waitRows = await get<{ name: string; ms: number; ok: number; cold: number }>("SELECT name, ms, ok, cold FROM analytics_events WHERE kind = 'wait' AND day >= ? ORDER BY ts DESC LIMIT 5000");
