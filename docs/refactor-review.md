@@ -30,6 +30,17 @@
 - Risk to tests: medium; many browser smoke checks read this file, so run them once on the VM.
 - Risk to the sim: none if only UI code moves (the sim is imported, not edited).
 - Payoff: high but slow; do it in slices of one feature per pull request.
+- Done in CC-133 (course split): `src/modes/course.ts` went from 1,718 lines to about 1,500, and `src/modes/course/` grew from five small files to eleven.
+  - `state.ts`: one typed `CourseState` (world, pause, clock, retry spot, falls, replay, held and queued keys, the ideal run on screen); the key handler and the frame loop read `st.world`, `st.keys` and so on.
+  - `scene.ts`: the lights, bars, coaster, planks, machine views, decks, editor pieces, floor, wall and rope are built in one call that returns the views the frame loop moves.
+  - `zones.ts`: the progress strip's zones for a course that stores none, as a pure function with its own test.
+  - `search.ts`: the worker pool for the ideal-run search and its one-at-a-time queue.
+  - `shortcuts.ts`: the shortcut list and its worker; both worker paths now start with `../../sim/` and `tests/worker-urls.test.ts` guards them.
+  - `keydown.ts` takes the state instead of a getter and setter for each value.
+  - Still open: the fall tips (`windowTip`, `plankTip`, `cartTip`, `bandTip`, `buildDiag`), the hint line, the camera and film hooks, and the run statistics stay in `course.ts`; they read the state, the log and the guide meshes together and need a context object first.
+  - Safety net: the course run (`scripts/course-characterize.mjs`) was identical to the run on the unmodified main after the state, scene and zones moves; one toast step differed once and not on the rerun, so the script is not perfectly deterministic.
+  - The recorded `tests/golden/course-characterize.json` is older than the Courses picker card order, so compare against a run of the unmodified main until it is re-recorded.
+  - Not covered by the run: the camera orbit, the clip maker, the film hooks and sound.
 
 ## 2. Adding a new obstacle kind touches 30+ files
 - Evidence (drone): `src/sim/world.ts` (32 mentions), `src/sim/drone.ts` (31), `src/modes/editor.ts` (28), `src/ui/drone-view.ts` (23), `src/modes/course.ts` (22), `src/sim/experiments.ts` (14), `src/sim/ideal.ts` (12), `src/modes/diagrams.ts` (11), `src/slice/drone-lane.ts`, `src/modes/lessons.ts`, `src/sim/predict.ts`, `src/ui/debug-view.ts`, `src/ui/zone-icons.ts`, `src/ui/run-report.ts`, `src/ui/editor-layout.ts`, `src/ui/onboarding.ts`, `src/ui/world-picker.ts`, `src/motion/actor-state.ts`, `src/sim/drums.ts`, `src/sim/replay.ts`, `src/sim/runner.ts`, `src/film/camera.ts`.
