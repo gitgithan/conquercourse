@@ -949,6 +949,11 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
   { let heldBefore = false; window.addEventListener(GALLERY_EVENT, (ev) => { if ((ev as CustomEvent).detail.open) { heldBefore = st.paused; st.paused = true; st.keys.clear(); } else { st.paused = heldBefore; st.last = performance.now(); } }); } // the Courses gallery stops the game while it is open
   if (!botMode || params.get('next') === '1') onboarding = startOnboarding({ params, store: browserStore, course, tour: tour === 'tour', resetRun: () => { if (st.world.outcome === 'running' && Math.abs(st.world.runner.x - course.startX) < 0.01) restart(course.startX); }, openCourses: () => courseButton.open(), toggleKeys: () => { st.keysTouched = true; st.keysOpen = !st.keysOpen; paintKeys(st.keysOpen); } }); // CC-100: the Help chip, and the tour on a first visit
   const camPos = new THREE.Vector3();
+  // ?camprobe=1: what the camera and the runner's look are doing now, for scripts/course-camera-characterize.mjs (CC-133); nothing else changes
+  if (params.get('camprobe') === '1') (window as unknown as { __probe: () => unknown }).__probe = () => {
+    const d = camera.getWorldDirection(new THREE.Vector3());
+    return { pos: camera.position.toArray(), dir: d.toArray(), up: camera.up.toArray(), fov: camera.fov, aspect: camera.aspect, camMode, orbit: { ...orbit }, actor: actor ? actor.object.visible : null, body: body.visible, characterId, choice, custom, clipping, pip: pipFrame.style.display, frontCam: frontCam.position.toArray(), frontDir: frontCam.getWorldDirection(new THREE.Vector3()).toArray() };
+  };
   // ?fx=bloom,vignette,dof (or all): picture polish for stills (CC-188); off unless asked, loaded only then
   let fxPipe: { render(): void } | null = null;
   if (pageQuery().get('fx')) void import('../render/fx').then((m) => { const on = m.fxOf(pageSearch()); if (on.size) fxPipe = m.createFx(renderer as any, scene, camera, on, () => camera.position.distanceTo(body.position)); });
