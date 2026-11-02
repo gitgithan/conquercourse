@@ -273,7 +273,7 @@
   - Browser checks: `scripts/picker-check.mjs`, `scripts/stats-check.mjs`, `scripts/world-strip-check.mjs` (no status recorded).
   - Docs: `docs/course-stats.md`, `docs/course-design.md`.
 - **The Course (play)**
-  - Source: `src/modes/course.ts` and the files in `src/modes/course/` (`state.ts`, `keydown.ts`, `scene.ts`, `zones.ts`, `search.ts`, `shortcuts.ts`, `board.ts`, `drums.ts`, `ghost.ts`, `report.ts`), the physics in `src/sim/`, the tour in `src/ui/onboarding.ts`.
+  - Source: `src/modes/course.ts` and the files in `src/modes/course/` (`state.ts`, `keydown.ts`, `scene.ts`, `zones.ts`, `search.ts`, `shortcuts.ts`, `board.ts`, `drums.ts`, `ghost.ts`, `report.ts`, `context.ts`, `tips.ts`), the physics in `src/sim/`, the tour in `src/ui/onboarding.ts`.
   - Unit tests: `tests/course.test.ts`, `tests/course-keydown.test.ts`, `tests/drums.test.ts`, `tests/drum-roll.test.ts`, `tests/finish-after-drums.test.ts`, `tests/sim.test.ts`, `tests/says.test.ts`, `tests/sayings.test.ts`, `tests/onboarding-flags.test.ts`.
   - Browser checks: works: `smoke`, `drums`, `event-key`, `restart`, `shortcut`; known red: `course-buttons-check`, `restart-chip-check`, `says-check`, `ideal-all-check`; no status recorded: `onboarding-check`.
   - Docs: `docs/onboarding.md`, `docs/input-design.md`, `docs/obstacles.md`, `docs/sayings.md`.
