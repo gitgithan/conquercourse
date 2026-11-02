@@ -453,7 +453,7 @@ Diagrams are in [docs/meta-ai-pipelines.md](docs/meta-ai-pipelines.md); the full
 
 ### Models that are not Meta's
 - Every model below is open source or open weights, except Tripo, which is a closed service used once while building.
-- Meta's models do the live work; these only helped make files that ship (details and licences: [docs/hackathon.md](docs/hackathon.md), [docs/ASSETS.md](docs/ASSETS.md)).
+- Meta's models do the live work; these only helped make files that ship (licences: [docs/ASSETS.md](docs/ASSETS.md); what calls which model: [docs/model-ledger.md](docs/model-ledger.md)).
 
 | Model | Made by | How we use it | When |
 |---|---|---|---|
