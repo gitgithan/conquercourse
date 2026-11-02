@@ -133,7 +133,7 @@ describe('percentiles and the owner view', () => {
     await eventPost({ request: req({ session: SID, runId: 'run-12345678', event: 'start', courseKey: 'demo/training', ref: 'reddit' }), env: { DB: db } } as never);
     const w = waitTimer('segment', (async () => new Response('{}')) as never); await w.fetcher('https://a--b.modal.run'); await w.flush(db);
     const a = await analytics(db as never);
-    expect(a.sources).toEqual([{ ref: 'reddit', visitors: 1, runs: 1, clears: 0 }]);
+    expect(a.sources).toEqual([{ ref: 'reddit', landed: 0, players: 1, runs: 1, clears: 0 }]);
     expect(a.funnel.find((f) => f.step === 'start_run')?.byRef).toEqual({ reddit: 1 });
     expect(a.waits).toEqual([expect.objectContaining({ service: 'segment', cold: true, calls: 1 })]);
     void sql;

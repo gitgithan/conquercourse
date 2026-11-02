@@ -102,9 +102,10 @@ document.getElementById('showmade').addEventListener('click', showMade);
 const sec = (ms) => (ms == null ? '-' : ms < 1000 ? `${ms} ms` : `${(ms / 1000).toFixed(1)} s`);
 function plainTable(heads, rows) {
   const t = el('table'), h = t.createTHead().insertRow();
-  heads.forEach((x, i) => h.appendChild(el('th', x, i ? 'n' : '')));
+  const num = heads.map((_, i) => rows.length > 0 && rows.every((r) => typeof r[i] === 'number')); // numbers line up on the right, under their heading; words stay on the left
+  heads.forEach((x, i) => h.appendChild(el('th', x, num[i] ? 'n' : '')));
   const b = t.createTBody();
-  for (const r of rows) { const tr = b.insertRow(); r.forEach((v, i) => tr.insertCell().replaceChildren(el('span', String(v), i ? 'n' : ''))); }
+  for (const r of rows) { const tr = b.insertRow(); r.forEach((v, i) => { const td = tr.insertCell(); td.textContent = String(v); if (num[i]) td.className = 'n'; }); }
   return t;
 }
 async function showStats() {
@@ -114,8 +115,9 @@ async function showStats() {
     out.replaceChildren(
       el('h3', d.recording ? 'Recording is on' : 'Recording is off'),
       el('h3', 'Where visits came from'),
-      plainTable(['Tag', 'Visitors', 'Runs started', 'Clears'], d.sources.map((r) => [r.ref, r.visitors, r.runs, r.clears])),
-      el('h3', 'Funnel (visitor-days that reached each step)'),
+      el('p', 'Landed = browsers that opened the game. People who played = browsers that started a course. Runs = every start, so one person can add many. Clears = finished courses.'),
+      plainTable(['Tag', 'Landed', 'People who played', 'Runs', 'Clears'], d.sources.map((r) => [r.ref, r.landed, r.players, r.runs, r.clears])),
+      el('h3', 'Funnel (visitor-days that reached each step: one person counts once per step per day)'),
       plainTable(['Step', 'Total', 'By tag'], d.funnel.map((f) => [f.step, f.total, Object.entries(f.byRef).map(([k, v]) => `${k} ${v}`).join(', ')])),
       el('h3', 'How long the rented services took (the call the site makes)'),
       plainTable(['Service', 'Machine', 'Calls', 'Failed', 'Median', '90th percentile'], d.waits.map((w) => [w.service, w.cold ? 'cold' : 'warm', w.calls, w.failed, sec(w.median_ms), sec(w.p90_ms)])));
