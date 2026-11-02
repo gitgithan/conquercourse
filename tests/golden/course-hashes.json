@@ -1,22 +1,22 @@
 {
   "public/assets/demo/band.course.json": {
-    "hash": "zdmdup",
+    "hash": "87vafi",
     "link": "87vafi"
   },
   "public/assets/demo/bench-and-stairs.course.json": {
-    "hash": "a8s3vs",
+    "hash": "om0gz6",
     "link": "5cnh61"
   },
   "public/assets/demo/cannon.course.json": {
-    "hash": "1rplnhv",
+    "hash": "uq7his",
     "link": "uq7his"
   },
   "public/assets/demo/cannonballs.course.json": {
-    "hash": "e41vxc",
+    "hash": "s8l8vg",
     "link": "s8l8vg"
   },
   "public/assets/demo/climb.course.json": {
-    "hash": "1nacfl2",
+    "hash": "d1tfdf",
     "link": "d1tfdf"
   },
   "public/assets/demo/coaster-low.course.json": {
@@ -24,67 +24,67 @@
     "link": "16azifg"
   },
   "public/assets/demo/coaster-sharp.course.json": {
-    "hash": "dvegba",
+    "hash": "1r6tnj7",
     "link": "1r6tnj7"
   },
   "public/assets/demo/coaster-two-hills.course.json": {
-    "hash": "w21jze",
+    "hash": "1mp39mv",
     "link": "1mp39mv"
   },
   "public/assets/demo/coaster.course.json": {
-    "hash": "itdjh",
+    "hash": "1gb24pi",
     "link": "1gb24pi"
   },
   "public/assets/demo/drone.course.json": {
-    "hash": "14msha8",
+    "hash": "nccowd",
     "link": "nccowd"
   },
   "public/assets/demo/drop.course.json": {
-    "hash": "1nx7ap0",
+    "hash": "lz8kgh",
     "link": "lz8kgh"
   },
   "public/assets/demo/generated-1.course.json": {
-    "hash": "10xims9",
+    "hash": "1s2miji",
     "link": "1s2miji"
   },
   "public/assets/demo/hero-montmartre-paris.course.json": {
-    "hash": "1j7t6w7",
+    "hash": "jgutw7",
     "link": "1dps243"
   },
   "public/assets/demo/lache-wide.course.json": {
-    "hash": "1k4xcwd",
+    "hash": "1av48tu",
     "link": "1av48tu"
   },
   "public/assets/demo/lache.course.json": {
-    "hash": "oy8gna",
+    "hash": "1j1i76r",
     "link": "115u7cz"
   },
   "public/assets/demo/lane-1.course.json": {
-    "hash": "1wc4ifr",
+    "hash": "3h0rv9",
     "link": "3h0rv9"
   },
   "public/assets/demo/lane-2.course.json": {
-    "hash": "q7vj3u",
+    "hash": "yd7s4g",
     "link": "yd7s4g"
   },
   "public/assets/demo/launch-bar-hard.course.json": {
-    "hash": "10y4jcv",
+    "hash": "1eycy68",
     "link": "1eycy68"
   },
   "public/assets/demo/launch-bar.course.json": {
-    "hash": "qhuftu",
+    "hash": "mjkinz",
     "link": "mjkinz"
   },
   "public/assets/demo/launch.course.json": {
-    "hash": "11cbzb7",
+    "hash": "jmhmjo",
     "link": "jmhmjo"
   },
   "public/assets/demo/park-rail-run.course.json": {
-    "hash": "1kt1bo0",
+    "hash": "1qiej4q",
     "link": "1qmb8q8"
   },
   "public/assets/demo/park-run.course.json": {
-    "hash": "1pjv87q",
+    "hash": "1viibmt",
     "link": "1m2s2op"
   },
   "public/assets/demo/plank-thin.course.json": {
@@ -92,27 +92,27 @@
     "link": "1riw7hb"
   },
   "public/assets/demo/plank-two.course.json": {
-    "hash": "qmjkv7",
+    "hash": "xdhn7o",
     "link": "xdhn7o"
   },
   "public/assets/demo/plank.course.json": {
-    "hash": "vlcb9e",
+    "hash": "1r6k89r",
     "link": "1r6k89r"
   },
   "public/assets/demo/recoil.course.json": {
-    "hash": "231o6v",
+    "hash": "1qsc46z",
     "link": "1qsc46z"
   },
   "public/assets/demo/skate-box-and-rail.course.json": {
-    "hash": "17nc17u",
+    "hash": "1ofi3zk",
     "link": "187d4s9"
   },
   "public/assets/demo/stack.course.json": {
-    "hash": "hta0ma",
+    "hash": "1sg28jr",
     "link": "1rvfe7g"
   },
   "public/assets/demo/training.course.json": {
-    "hash": "umcst1",
+    "hash": "wqlcbp",
     "link": "wqlcbp"
   },
   "public/assets/demo/two-ways.course.json": {
@@ -120,7 +120,7 @@
     "link": null
   },
   "src/course/default-course.ideal.json": {
-    "hash": "cpdy59",
+    "hash": "1w6d534",
     "link": null
   },
   "src/course/default-course.json": {
