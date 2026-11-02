@@ -10,6 +10,7 @@ import { createRunnerLook } from './course/characters';
 import { createClipMaker } from './course/clip';
 import { createCourseState } from './course/state';
 import { createSearch } from './course/search';
+import { createIdealRun } from './course/ideal';
 import { createShortcutList } from './course/shortcuts';
 import { progressZonesOf } from './course/zones';
 import { buildCourseScene } from './course/scene';
@@ -29,7 +30,7 @@ import { droneParams, newWorld, recoilParams, stepWorld, type GameEvent, type Wo
 import { isAimable } from '../sim/recoil';
 import { DEFAULT_WALL } from '../sim/wall';
 import { DEFAULT_ROPE } from '../sim/rope';
-import { inputFor, searchIdealRun, workSeconds, xWindows, type Plan, type SearchResult, type Window } from '../sim/ideal';
+import { inputFor, searchIdealRun, type Plan } from '../sim/ideal';
 import { createGhost } from '../ui/ghost';
 import { lookOfParam } from '../ui/ghost-look';
 import { challengeWords, courseTooBig, isOldLongLink, makeLinkInfo, OLD_LINK_WORDS, offersIdeal, openChallenge, secondsWords, shareOn } from '../share/challenge';
@@ -41,7 +42,7 @@ import { PHONE_WORDS, browserPointing, phoneMode } from '../share/phone';
 import { copyLinkButton, showBanner } from '../share/share-ui';
 import { reportSectionsOn } from '../ui/report-sections';
 import { courseHash, encodeLog, inputOfMask, startOfX, startXOf, type InputLog } from '../sim/replay';
-import { findShortcuts, shortcutLine, type Shortcut } from '../sim/shortcuts';
+import { findShortcuts, type Shortcut } from '../sim/shortcuts';
 const findShortcutsNow = (c: CourseData): Shortcut[] => findShortcuts(c, { moveChoices: false }).shortcuts; // ?bot=shortcut only: blocks the page while it searches
 import { gapSpecs, minSpeedForWall } from '../sim/needs';
 import { ouch } from '../sim/landing';
@@ -213,7 +214,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
   idealBtn.id = 'idealbtn'; idealBtn.textContent = 'Ideal run (I)';
   idealBtn.style.cssText = 'position:fixed;right:120px;top:12px;font:600 15px system-ui,sans-serif;border:1px solid #17201d;background:#fff;color:#17201d;border-radius:8px;padding:6px 14px;cursor:pointer';
   idealBtn.title = 'Watch the ideal run of this obstacle (I)';
-  idealBtn.onclick = () => showIdeal(zoneAt(st.world.runner.x)?.id ?? 'gap');
+  idealBtn.onclick = () => ideal.showIdeal(zoneAt(st.world.runner.x)?.id ?? 'gap');
   // CC-80: from here back to the editor (the same pieces), at the obstacle the runner is at
   const editBtn = document.createElement('button');
   editBtn.id = 'editcourse'; editBtn.textContent = 'Edit this course';
@@ -224,7 +225,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
   wholeBtn.id = 'wholeideal'; wholeBtn.textContent = 'Whole course (Shift+I)';
   wholeBtn.title = 'Watch one ideal run through every obstacle; a move key stops it (the camera keys do not)';
   wholeBtn.style.cssText = 'font:600 13px system-ui,sans-serif;border:1px solid #17201d;background:#fff;color:#17201d;border-radius:8px;padding:4px 10px;cursor:pointer;white-space:nowrap';
-  wholeBtn.onclick = () => { wholeBtn.blur(); showWholeIdeal(); };
+  wholeBtn.onclick = () => { wholeBtn.blur(); ideal.showWholeIdeal(); };
   // the two small buttons share one row, so they cannot overlap whatever their text widths are
   const rowBtns = document.createElement('div');
   rowBtns.id = 'coursebtns'; rowBtns.style.cssText = 'position:fixed;right:158px;top:56px;display:flex;gap:8px;align-items:center';
@@ -389,7 +390,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
     st, typing, course, VIEW_KEYS,
     get botMode() { return botMode; },
     restart: (x) => restart(x),
-    stopWholeIdeal: () => stopWholeIdeal(), showWholeIdeal: () => showWholeIdeal(), showIdeal: (id) => showIdeal(id),
+    stopWholeIdeal: () => ideal.stopWholeIdeal(), showWholeIdeal: () => ideal.showWholeIdeal(), showIdeal: (id) => ideal.showIdeal(id),
     zoneAt: (x) => zoneAt(x), openDojo: () => openDojo(),
     clearGuides: () => clearGuides(), showAgain: () => showAgain(), nextCam: () => nextCam(),
     get drumLane() { return drumLane; },
@@ -419,8 +420,6 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
   const listedKey = (): string | null => rankedKey() ?? (challengeId && courseHash(course) === loadedHash ? challengeKey(challengeId) : null);
   { const bk = listedKey(); if (boardOn(params) && !botMode && bk) { document.body.append(boardCorner(bk, courseHash(course), session(), viewHooks()), newsStrip()); } } // CC-108: the board is on the Course, not only in the end report
   const idealCache = new Map<number, Plan>();
-  let idealToken = 0, idealPending = 0, idealSignal = { cancelled: false };
-  const cpFor = (zoneId: string) => course.checkpoints?.find((c) => c.id === zoneId)?.x ?? course.startX;
   const guides = new THREE.Group();
   scene.add(guides);
   const diagBox = document.createElement('div');
@@ -476,7 +475,6 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
     }
   }
   try { ctx.everCleared = localStorage.getItem('cc.course.cleared') === '1'; } catch { /* keep going */ }
-  let windows: ReturnType<typeof searchIdealRun>['windows'] | null = null;
   const zoneAt = (x: number) => course.zones?.find((z) => x >= z.x0 && x < z.x1);
   function clearGuides() {
     while (guides.children.length) { const c = guides.children[0] as THREE.Mesh; guides.remove(c); c.geometry?.dispose(); }
@@ -500,7 +498,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
     setMusicScreen('course');
     clearGuides();
     if (!botMode) st.plan = null;
-    st.demo = null; st.idealWhole = false; idealPending = 0;
+    st.demo = null; st.idealWhole = false; ideal.cancelPending();
     st.world = newWorld(course, x);
     ghostCtl?.begin(x === course.startX && (!botMode || ghostBot), !botMode || ghostBot ? x : null); // a ghost chases a run from the start only; every try keeps its keys, so every try can be a clip (CC-157)
     stats.resetRunStats(x);
@@ -554,98 +552,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
   // "this obstacle" only stops it at the end of the zone (demo) and "the whole course" lets it run (Shift+I).
   // Shortcuts: routes the designer did not plan (src/sim/shortcuts.ts). Stored with a demo course, or worked out on first request in a worker.
   const shortcutList = createShortcutList(course);
-  const ensureShortcuts = shortcutList.ensure;
-  function startShortcut(s: Shortcut) {
-    clearGuides();
-    st.world = newWorld(course, course.startX);
-    log.length = 0; frames.length = 0; st.replay = null; panel.style.display = 'none';
-    st.plan = s.plan; botState.next = 0; botState.caught = null; botState.bedAt = null;
-    st.idealWhole = true; st.demo = null; st.retryX = course.startX;
-    st.idealNote = shortcutLine(s) + ' Watch it, press any key to take over.';
-  }
-  function shortcutRow(): HTMLElement | null {
-    const s = shortcutList.list()?.[0];
-    if (!s) return null;
-    const box = document.createElement('div'); box.style.cssText = 'display:grid;gap:6px;margin-top:6px;padding-top:6px;border-top:1px solid #d6dcd9';
-    const t = document.createElement('span'); t.textContent = `${s.designed ? 'The course keeps a shortcut on purpose' : 'A shortcut exists'}: ${s.how}. It saves ${s.secondsSaved.toFixed(1)} s.`; t.id = 'shortcutnote';
-    const b = document.createElement('button'); b.textContent = 'Watch the shortcut'; b.id = 'watchshortcut';
-    b.style.cssText = 'font:inherit;border:1px solid #17201d;background:#fff;color:#17201d;border-radius:8px;padding:6px 12px;cursor:pointer;font-weight:700;justify-self:start';
-    b.onclick = () => startShortcut(s);
-    box.append(t, b);
-    return box;
-  }
-  // The search runs in a pool of workers (src/sim/ideal-pool.ts): the page keeps drawing, the line says which obstacle it is on, and any key cancels.
-  // One search at a time (the workers hold one course); each waits for the one before. Nothing here runs a search on the page's thread unless there are no workers at all.
-  function findPlan(c: CourseData): Promise<SearchResult> {
-    const sig = idealSignal = { cancelled: false };
-    return runSearch(c, sig, (label, step, of) => { st.idealNote = `Working out the ideal run… ${label} (${step} of ${of}) · any key cancels`; });
-  }
-  let windowsAsk: Promise<Window[] | null> | null = null;
-  function ensureWindows(): Promise<Window[] | null> {
-    windowsAsk ??= runSearch(course, { cancelled: false }, undefined, workSeconds(60)).then((r) => (windows = xWindows(r.windows))).catch(() => null);
-    return windowsAsk;
-  }
-  // CC-241: a standing start has to clear the rest of the course. When the one just before the obstacle cannot (a pair that needs a run-up),
-  // the start moves back to the nearest earlier checkpoint that can, and the line says so.
-  async function startIdeal(x0: number, zoneId: string | null) {
-    const token = ++idealToken;
-    const starts = [x0, ...(course.checkpoints ?? []).map((k) => k.x).filter((x) => x < x0).sort((m, n) => n - m), ...(x0 > course.startX ? [course.startX] : [])].filter((x, i, a) => a.indexOf(x) === i);
-    let p: Plan | undefined, from = x0, first: Plan | undefined;
-    for (const x of starts) {
-      let q = idealCache.get(x) ?? (x === course.startX ? course.plan : undefined);
-      if (!q) {
-        st.idealNote = 'Working out the ideal run… (any key cancels)';
-        idealPending = token;
-        const r = await findPlan({ ...course, startX: x }).catch(() => undefined);
-        if (idealPending !== token || !r) return; // cancelled while the search ran
-        idealPending = 0;
-        first ??= r.plan;
-        if (!r.cleared) continue;
-        q = r.plan; idealCache.set(x, q);
-      }
-      p = q; from = x; break;
-    }
-    if (!p) { p = first; from = x0; } // nothing clears from a standing start: show the closest line from where it was asked
-    if (!p) return;
-    clearGuides();
-    st.world = newWorld(course, from);
-    log.length = 0; frames.length = 0; st.replay = null; panel.style.display = 'none';
-    st.plan = p; botState.next = 0; botState.caught = null; botState.bedAt = null;
-    st.idealWhole = zoneId === null;
-    st.demo = zoneId === null ? null : { x1: (course.zones?.find((z) => z.id === zoneId)?.x1 ?? 1e9) + 3 };
-    st.idealNote = zoneId === null ? 'Ideal run through every obstacle: watch it, press any key to take over.' : 'Ideal run: watch how it is done, then press R to try it yourself.';
-    if (from < x0) { const back = (course.checkpoints ?? []).filter((k) => k.x >= from && k.x < x0).length; st.idealNote += ` It starts ${back === 1 ? 'one obstacle' : `${back} obstacles`} back, to build up speed.`; }
-    if (zoneId === null) void ensureShortcuts().then((list) => { if (list[0] && st.plan === p && st.idealWhole) st.idealNote += ' ' + shortcutLine(list[0]); });
-  }
-  function showIdeal(zoneId: string) { st.idealWhole = false; void startIdeal(cpFor(zoneId), zoneId); }
-  // Shift+I: the whole course, always from the standing start (CC-241), so the first obstacle is in the film too
-  function showWholeIdeal() { void startIdeal(course.startX, null); }
-  function stopWholeIdeal() {
-    st.idealWhole = false; idealPending = 0; idealToken++; idealSignal.cancelled = true;
-    if (!botMode) st.plan = null;
-    st.idealNote = 'Your turn.'; setTimeout(() => { if (st.idealNote === 'Your turn.') st.idealNote = ''; }, 2500);
-  }
-  function demoEnd() {
-    const whole = st.idealWhole; st.idealNote = '';
-    st.plan = botMode ? st.plan : null; st.demo = null; st.idealWhole = false;
-    panel.innerHTML = ''; panel.style.display = 'grid';
-    const h = document.createElement('strong'); h.textContent = whole ? 'That was the ideal run through every obstacle. Your turn.' : 'That was the ideal run. Your turn.';
-    const row = document.createElement('div'); row.style.cssText = 'display:flex;gap:8px;flex-wrap:wrap';
-    const b = document.createElement('button'); b.textContent = 'Try it myself (R)';
-    b.style.cssText = 'font:inherit;border:1px solid #0f6b5c;background:#0f6b5c;color:#fff;border-radius:8px;padding:6px 12px;cursor:pointer;font-weight:700';
-    b.onclick = () => restart(); row.appendChild(b); panel.append(h, row); b.focus();
-    if (whole) void ensureShortcuts().then(() => { const sr = shortcutRow(); if (sr && panel.contains(h)) panel.appendChild(sr); });
-  }
-
-  // after a clear: say a shortcut exists (a fact, never a grade)
-  function clearedNote() {
-    void ensureShortcuts().then(() => {
-      if (st.world.outcome !== 'cleared' || !shortcutList.list()?.length) return;
-      const sr = shortcutRow(); if (!sr) return;
-      if (panel.style.display === 'none' || !panel.firstChild) { panel.innerHTML = ''; panel.style.display = 'grid'; const h = document.createElement('strong'); h.textContent = 'You made it!'; panel.append(h); }
-      panel.appendChild(sr);
-    });
-  }
+  const ideal = createIdealRun({ course, st, log, frames, botState, panel, runSearch, shortcutList, idealCache, botMode: () => botMode, clearGuides: () => clearGuides(), restart: () => restart() });
 
   // After a fall: retry at once, one tip, a skippable replay, and the offer to train that obstacle.
   let lastFall: 'splash' | 'slide' | 'hurt' | 'stall' = 'splash';
@@ -661,7 +568,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
       if (zone) fallLog.push(zone.id);
       enterZone(failedZone); countsFor(summaries[stats.kind], failedZone).failures++; stats.finishRun(false, analyticsRunId);
     }
-    st.retryX = cpFor(lastZone);
+    st.retryX = ideal.cpFor(lastZone);
     const jump = [...log].reverse().find((e) => e.type === 'jump');
     let tip = 'Try again.', lateTip = false;
     if (what === 'slide') tip = OBSTACLES.wall.tips.slide;
@@ -682,7 +589,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
       const v = jump.detail!.vx as number;
       tip = g && v < g.needed ? `You left the edge at ${v.toFixed(1)} m/s, but this ${g.width.toFixed(1)} m gap needs at least ${g.needed.toFixed(1)} m/s. Run longer before you jump.` : OBSTACLES.gap.tips.fast;
     } else {
-      const ws = course.windows ?? windows; // stored with the plan; otherwise asked of the workers below, never worked out on this thread
+      const ws = course.windows ?? ideal.windows(); // stored with the plan; otherwise asked of the workers below, never worked out on this thread
       const hit = ws && windowTip(ws, r.x);
       if (hit) tip = hit; else if (!ws) lateTip = true;
     }
@@ -692,7 +599,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
     const h = document.createElement('strong');
     h.textContent = what === 'slide' ? 'You slid back down the wall.' : what === 'hurt' ? (log.some((e) => e.type === 'ball-hit') ? `A ball hit you at the ${zone?.name ?? 'course'}.` : `Hard landing at the ${zone?.name ?? 'course'}.`) : what === 'stall' ? 'The cart ran out of speed on a hill.' : log.some((e) => e.type === 'plank-break') ? 'The plank broke under you.' : log.some((e) => e.type === 'cart-off') ? 'The cart left the track at a hilltop.' : HAZARD_INFO[hazard].headline(zone?.name ?? 'course');
     const t = document.createElement('div'); t.textContent = tip;
-    if (lateTip) void ensureWindows().then((ws) => { const hit = ws && windowTip(ws, r.x); if (hit && t.isConnected) t.textContent = hit; });
+    if (lateTip) void ideal.ensureWindows().then((ws) => { const hit = ws && windowTip(ws, r.x); if (hit && t.isConnected) t.textContent = hit; });
     const floorNote = document.createElement('div'); floorNote.style.cssText = 'color:#58635d;font-size:13px'; floorNote.textContent = what === 'slide' || what === 'hurt' ? '' : HAZARD_INFO[hazard].hint;
     const row = document.createElement('div'); row.style.cssText = 'display:flex;flex-wrap:wrap;gap:8px';
     const mk = (label: string, fn: () => void, primary = false) => {
@@ -717,7 +624,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
     const tryRun = shareOn(params) && !botMode && !st.demo && !st.idealWhole && !params.get('mode') ? (ghostCtl?.myRun() ?? (tryFrom ? tryClip?.log ?? null : null)) : null; // CC-181: a try that fell can be sent as a link too; it never counts for a time
     if (tryRun) row.append(...copyLinkButton({ link: (nick) => makeLinkInfo(location.origin, pageSearch(), course, tryRun, nick, wear.choice(), 'fell', undefined, tryStart), courseTooBig: () => courseTooBig(pageSearch(), course), label: 'Copy link to this try', id: 'share-copy-fall' }));
     if (tryClip && clipFits(tryTicks)) mk('Download a video of this try', () => void makeClip(tryClip.log, tryTicks, tryClip.from)).id = 'share-clip-fall'; // CC-157: a try that ended in a fall is worth a clip too
-    mk('Show me the ideal run (I)', () => showIdeal(lastZone));
+    mk('Show me the ideal run (I)', () => ideal.showIdeal(lastZone));
     if (!course.track) mk('Make it easier', () => openEditor('easier')).id = 'makeeasier';
     mk('Edit this course', () => openEditor('edit')).id = 'editfromfall';
     if (train) mk(`Train the ${zone?.name ?? 'obstacle'}`, () => { saveResume(); location.search = trainLink(zone?.id ?? 'gap', r.x); });
@@ -833,8 +740,8 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
       stats.updateFlow(st.world.runner.tick, st.world.runner.vx, st.world.runner.vy);
       logTick(runLog, st.world);
       if (prevMode === 'run' && st.world.mode === 'wall') ctx.wallEntry = prevVx;
-      if (st.demo && (st.world.outcome !== 'running' || st.world.runner.x > st.demo.x1)) demoEnd();
-      else if (st.idealWhole && st.world.outcome !== 'running') demoEnd();
+      if (st.demo && (st.world.outcome !== 'running' || st.world.runner.x > st.demo.x1)) ideal.demoEnd();
+      else if (st.idealWhole && st.world.outcome !== 'running') ideal.demoEnd();
       log.push(...st.world.events);
       if (st.world.events !== soundedEvents) { soundedEvents = st.world.events; if (!st.replay && !st.clip.on) soundsFor(st.world.events, hazard); } // after the end the same events array stays: it sounds once
       for (const e of st.world.events) {
@@ -883,11 +790,11 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
         try { localStorage.setItem('cc.course.cleared', '1'); } catch { /* ok */ }
         panel.innerHTML = ''; panel.style.display = 'grid';
         showClearedReport({
-          course, params, panel, runLog, hardBand, addHardest, listedKey, viewHooks, clearedNote,
+          course, params, panel, runLog, hardBand, addHardest, listedKey, viewHooks, clearedNote: ideal.clearedNote,
           get world() { return st.world; }, get runKind() { return stats.kind; }, get ghostCtl() { return ghostCtl; }, get lastClear() { return lastClear; },
           get demo() { return st.demo; }, botMode, get idealWhole() { return st.idealWhole; }, loadedIsDefault, get analyticsRunId() { return analyticsRunId; },
           get onboarding() { return onboarding; }, get choice() { return wear.choice(); },
-          restart: (x) => restart(x), startIdeal: (x0, z) => startIdeal(x0, z), openDojo: () => openDojo(), makeClip: (l, t, f) => makeClip(l, t, f),
+          restart: (x) => restart(x), startIdeal: (x0, z) => ideal.startIdeal(x0, z), openDojo: () => openDojo(), makeClip: (l, t, f) => makeClip(l, t, f),
         });
       }
     }
