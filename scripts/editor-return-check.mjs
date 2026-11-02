@@ -2,6 +2,7 @@
 //   PORT=5936 node scripts/editor-return-check.mjs   (screenshot in test-results/editor-return/)
 import { chromium } from 'playwright';
 import { spawn } from 'node:child_process';
+import { settledPieces } from './editor-settle.mjs';
 import { mkdirSync } from 'node:fs';
 const port = Number(process.env.PORT ?? 5936), out = 'test-results/editor-return';
 mkdirSync(out, { recursive: true });
@@ -14,6 +15,7 @@ let code = 0;
 const ok = (n, p, note = '') => { console.log(p ? 'PASS' : 'FAIL', n, note); if (!p) code = 1; };
 await page.goto(`http://localhost:${port}/?mode=editor&welcome=0`, { waitUntil: 'load' });
 await page.waitForSelector('.ed #play', { timeout: 60000 });
+await settledPieces(page); // the first-visit Person piece lands after the editor opens; read the count only once it has settled
 const before = await page.evaluate(() => JSON.parse(localStorage.getItem('cc.world.v1') ?? 'null')?.pieces?.length ?? -1);
 await page.click('#play');
 await page.waitForFunction(() => !document.querySelector('.ed'), null, { timeout: 150000 });

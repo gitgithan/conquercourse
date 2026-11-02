@@ -1,6 +1,7 @@
 // The Band piece in the editor on its own (the long editor-check also has these steps): a Band button starts the lane at a band with a stiffness box,
 // the stiffness is kept, and Fix it speaks (a softer band, or that it already works, or that no band reaches).
 import { chromium } from "playwright";
+import { settledPieces } from './editor-settle.mjs';
 import { spawn } from "node:child_process";
 import { mkdirSync } from "node:fs";
 const port = process.env.PORT ?? "5173";
@@ -16,7 +17,7 @@ try {
   await page.evaluate(() => localStorage.removeItem("cc.world.v1"));
   await page.reload();
   await page.waitForSelector("#view3d", { timeout: 60000 });
-  await page.waitForFunction(() => document.documentElement.dataset.pieces === "3", null, { timeout: 30000 });
+  await settledPieces(page);
   const checks = {};
   await page.click('#addpiece'); await page.$eval('#addband', (e) => e.click());
   checks.bandOn = await page.waitForFunction(() => document.documentElement.dataset.band === "35", null, { timeout: 10000 }).then(() => true, () => false);
@@ -24,6 +25,7 @@ try {
   await page.fill("#bandk", "150"); await page.dispatchEvent("#bandk", "change");
   checks.bandStiffnessKept = await page.waitForFunction(() => document.documentElement.dataset.band === "150", null, { timeout: 10000 }).then(() => true, () => false);
   await page.screenshot({ path: "test-results/editor/band.png" });
+  await page.evaluate(() => { if (document.getElementById("helper").classList.contains("closed")) document.getElementById("helperbtn").click(); }); // the design partner starts closed and Fix it lives in it
   await page.click("#fixit", { noWaitAfter: true, timeout: 120000 });
   await page.waitForFunction(() => document.documentElement.dataset.fixed !== undefined && /band|works/i.test(document.getElementById("reply")?.textContent ?? ""), null, { timeout: 240000 }).catch(() => {});
   const reply = await page.textContent("#reply");

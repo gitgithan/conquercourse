@@ -2,6 +2,7 @@
 // Runs at three window sizes and in each panel state (nothing open, Moves, Design partner, Add menu, overflow menu, command palette).
 // OUT=<dir> chooses where the screenshots and layout.json go; PORT picks the dev-server port.
 import { chromium } from 'playwright';
+import { settledPieces } from './editor-settle.mjs';
 import { spawn } from 'node:child_process';
 import { mkdirSync, writeFileSync } from 'node:fs';
 const port = process.env.PORT ?? '5180';
@@ -11,15 +12,16 @@ const server = spawn('node', ['node_modules/vite/bin/vite.js', '--port', port, '
 const flags = ['--enable-unsafe-webgpu', '--enable-features=Vulkan', '--use-vulkan=swiftshader', '--use-angle=swiftshader', '--disable-vulkan-surface', '--ignore-gpu-blocklist'];
 const sizes = [[1280, 720], [1024, 640], [1920, 1080]];
 // the states: how to open each one (a state that does not exist on the old layout is skipped, and says so)
+// the order matters: the piece and machine states leave a piece and a machine panel behind, which push the lane card down for the states after them
 const states = {
   closed: async () => {},
   moves: async (page) => { await page.click('#movesbtn'); await page.waitForTimeout(500); },
   partner: async (page) => { await page.click('#helperbtn'); await page.waitForTimeout(400); },
   addmenu: async (page) => { if (await page.$('#addpiece')) { await page.click('#addpiece'); await page.waitForTimeout(300); } else throw new Error('no Add piece menu'); },
   overflow: async (page) => { if (await page.$('#overflow')) { await page.click('#overflow'); await page.waitForTimeout(300); } else throw new Error('no overflow menu'); },
-  piece: async (page) => { await page.click('#addpiece'); await page.click('.pb-card[data-piece=bench]'); await page.waitForTimeout(500); }, // a piece is chosen: the piece panel shows its controls
-  machine: async (page) => { await page.click('#addpiece'); await page.click('#pbtab-contraptions'); await page.click('.pb-card[data-piece=band]'); await page.waitForTimeout(500); }, // a machine is in the world: its settings panel shows
   palette: async (page) => { await page.keyboard.press('/'); await page.waitForTimeout(300); if (!(await page.$('#palette'))) throw new Error('no command palette'); },
+  piece: async (page) => { await page.click('#addpiece'); await page.click('#pbtab-ground'); await page.click('.pb-card[data-piece=bench]'); await page.waitForTimeout(500); }, // a piece is chosen: the piece panel shows its controls
+  machine: async (page) => { await page.click('#addpiece'); await page.click('#pbtab-contraptions'); await page.click('.pb-card[data-piece=band]'); await page.waitForTimeout(500); }, // a machine is in the world: its settings panel shows
 };
 const measure = () => {
   const vis = (e) => { const r = e.getBoundingClientRect(); const s = getComputedStyle(e); return r.width > 0 && r.height > 0 && s.visibility !== 'hidden' && s.display !== 'none'; };
@@ -27,15 +29,16 @@ const measure = () => {
   const controls = [...ed.querySelectorAll('button, a.btn, select, textarea, input:not([type=hidden]):not([type=file])')].filter(vis);
   const bad = [];
   for (const b of controls.filter((c) => c.matches('button, a.btn') && !c.matches('.pb-card'))) { // the picture cards of the add browser are not text buttons
+    if (getComputedStyle(b).writingMode.startsWith('vertical')) continue; // the Design partner tab on the right edge reads top to bottom on purpose
     const r = b.getBoundingClientRect(), lh = parseFloat(getComputedStyle(b).lineHeight) || 18, label = (b.textContent || b.title || b.id).trim().slice(0, 40);
     if (b.scrollWidth > b.clientWidth + 1) bad.push(`clipped: ${label}`);
     else if (r.height > lh * 2.4) bad.push(`wrapped: ${label}`);
     else if (r.width < 28 && label.length > 2) bad.push(`squeezed: ${label}`);
   }
   const card = (sel, name) => { const e = document.querySelector(sel); if (!e || !vis(e)) return null; const r = e.getBoundingClientRect(); return { name, x0: r.left, y0: r.top, x1: r.right, y1: r.bottom }; };
-  const cards = [card('.top', 'topbar'), card('#machinepanel', 'machine settings'), card('#panel', 'piece panel'), card('.aside > .panel:last-child', 'lane panel'), card('.profilewrap', 'side view'), card('#helper', 'partner'), card('#moves', 'moves'), card('.addmenu', 'add menu'), card('.overflow', 'overflow menu'), card('#palette', 'palette')].filter(Boolean);
+  const cards = [card('.top', 'topbar'), card('#machinepanel', 'machine settings'), card('#panel', 'piece panel'), card('.aside > .panel:not(#helper):not(#moves):not(#panel):not(#machinepanel)', 'lane panel'), card('.profilewrap', 'side view'), card('#helper', 'partner'), card('#moves', 'moves'), card('.addmenu', 'add menu'), card('.overflow', 'overflow menu'), card('#palette', 'palette')].filter(Boolean);
   const overlaps = [];
-  const menus = new Set(['add menu', 'overflow menu', 'palette']); // menus are meant to float over the cards
+  const menus = new Set(['add menu', 'overflow menu', 'palette', 'partner']); // menus and the Design partner drawer (a slide-in since CC-243) are meant to float over the cards
   for (let i = 0; i < cards.length; i++) for (let j = i + 1; j < cards.length; j++) {
     const a = cards[i], b = cards[j];
     if (menus.has(a.name) || menus.has(b.name)) continue;
@@ -63,7 +66,7 @@ try {
     const errors = []; page.on('pageerror', (e) => errors.push(e.message));
     await page.goto(`http://localhost:${port}/?mode=editor`);
     await page.waitForSelector('#view3d', { timeout: 60000 });
-    await page.waitForFunction(() => document.documentElement.dataset.pieces === '3', null, { timeout: 30000 });
+    await settledPieces(page);
     await page.waitForTimeout(1200);
     for (const [name, open] of Object.entries(states)) {
       try { await page.keyboard.press('Escape'); await page.evaluate(() => { for (const [id, btn] of [['moves', 'movesbtn'], ['helper', 'helperbtn']]) { const e = document.getElementById(id); if (e && !e.classList.contains('closed')) document.getElementById(btn).click(); } }); await page.waitForTimeout(150); await open(page); }
