@@ -5,6 +5,7 @@ import type { CourseCtx } from './course/context';
 import { createRunStats } from './course/stats';
 import { createHint } from './course/hint';
 import { bandTip, buildDiag, cartDiag, cartTip, plankTip, windowTip } from './course/tips';
+import { createCourseCamera } from './course/camera';
 import { createCourseState } from './course/state';
 import { createSearch } from './course/search';
 import { createShortcutList } from './course/shortcuts';
@@ -14,7 +15,6 @@ import { showClearedReport } from './course/report';
 import { createViewHooks } from './course/board';
 import { mountDrums } from './course/drums';
 import { mountCourseGhost } from './course/ghost';
-import { filmShotOf } from '../film/camera';
 import { HAZARD_INFO } from '../course/hazard';
 import { setMusicScreen } from '../ui/music';
 import { playedSounds, soundButton, soundsFor, startAudio } from '../ui/audio';
@@ -31,7 +31,7 @@ import { inputFor, searchIdealRun, workSeconds, xWindows, type Plan, type Search
 import { createGhost } from '../ui/ghost';
 import { lookOfParam, softenPlayer } from '../ui/ghost-look';
 import { challengeWords, courseTooBig, isOldLongLink, makeLinkInfo, OLD_LINK_WORDS, offersIdeal, openChallenge, secondsWords, shareOn } from '../share/challenge';
-import { MARKER_BELOW, RUNNER_M, TICKS_PER_FRAME, clipCameraDistance, clipCrop, clipFits, clipFrames, clipLayoutFor, createClipEncoder, drawClipFrame, clipViewMetres, type ClipLayout } from '../share/clip';
+import { MARKER_BELOW, RUNNER_M, TICKS_PER_FRAME, clipCameraDistance, clipCrop, clipFits, clipFrames, clipLayoutFor, createClipEncoder, drawClipFrame, clipViewMetres } from '../share/clip';
 import { mountTouch, touchOn } from '../share/touch';
 import { createGaugeStack } from '../ui/gauges';
 import { HUD, hudOn, keycapCss, panelCss } from '../ui/hud-style';
@@ -77,7 +77,6 @@ import { FURNITURE_ON } from '../world/furniture';
 import { barName, predictShot, type Prediction } from '../sim/predict';
 import { ballsOn, BALL_LAUNCHERS } from '../sim/shots';
 import { topAt } from '../sim/beam';
-import { railsOf } from '../sim/cart';
 import { installGraphStudio } from './graph-studio';
 import { createPerf, type PerfSource } from '../ui/perf';
 import { cullFar } from '../render/static-merge';
@@ -121,7 +120,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
     course = { ...course, wall: { ...course.wall, height: wallH, radius: R0 }, terrain: { ...course.terrain, platforms: course.terrain.platforms.map((q) => (Math.abs(q.x0 - (course.wall!.x0 + R0)) < 0.5 ? { ...q, top: wallH } : q)) } };
   }
   const startAt = params.get('startx') === null ? undefined : Number(params.get('startx')); // ?startx=45 begins there (for tests and films)
-  const st = createCourseState({ world: resume?.world ?? newWorld(course, resume ? resume.retryX : startAt), paused: !!resume?.world, retryX: resume ? resume.retryX : course.startX, falls: resume ? resume.falls : 0, frontOverride: params.has('front') ? params.get('front') === '1' : null });
+  const st = createCourseState({ world: resume?.world ?? newWorld(course, resume ? resume.retryX : startAt), paused: !!resume?.world, retryX: resume ? resume.retryX : course.startX, falls: resume ? resume.falls : 0, frontOverride: params.has('front') ? params.get('front') === '1' : null, clipLayout: clipLayoutFor(pageSearch()) });
   const renderer = new THREE.WebGPURenderer({ antialias: true, forceWebGL: params.get('backend') === 'webgl2' });
   await renderer.init();
   renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
@@ -138,20 +137,12 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
     new THREE.TextureLoader().load(url, (t) => { t.colorSpace = THREE.SRGBColorSpace; scene.background = t; });
   };
   paintBackground();
-  const camera = new THREE.PerspectiveCamera(40, host.clientWidth / host.clientHeight, 0.1, 400);
-  // the front view window (bottom right, above the drum lane's row): its frame is a div, its picture a second camera drawn in the same canvas
-  const PIP_W = 260, PIP_H = 195, PIP_BOTTOM = 118;
-  const frontCam = new THREE.PerspectiveCamera(75, PIP_W / PIP_H, 0.1, 200); // first person: wide, from the eyes
-  let camY = 0, camYSet = false, lastPlankNow = 0; // the camera's height target eases, so a fast dip (as on a plank) does not snap the view
-  let pipRoll = 0, pipClock = 0; // the head's turn about the bar (rad) and the clock it settles by
-  const pipFrame = document.createElement('div');
-  pipFrame.id = 'frontview';
-  pipFrame.style.cssText = `position:fixed;right:16px;bottom:${PIP_BOTTOM}px;width:${PIP_W}px;height:${PIP_H}px;box-sizing:border-box;border:3px solid #17201d;border-radius:10px;pointer-events:none;display:none;box-shadow:0 4px 14px #0004`;
-  const pipLabel = document.createElement('div');
-  pipLabel.textContent = 'Looking ahead (F)';
-  pipLabel.style.cssText = 'position:absolute;left:8px;top:6px;font:700 12px system-ui,sans-serif;color:#fff;text-shadow:0 1px 2px #000a';
-  pipFrame.appendChild(pipLabel);
-  document.body.appendChild(pipFrame);
+  let actor: Awaited<ReturnType<typeof createRookieActor>> | null = null;
+  let facing: 1 | -1 = course.track ? 1 : resume ? resume.facing : 1;
+  let bodyMesh: THREE.Mesh | null = null; // the capsule, made below
+  let sayNow: (text: string, ticks: number) => void = () => undefined; // the toast line, made below
+  const cam = await createCourseCamera({ host, renderer, scene, course, params, st, body: () => bodyMesh!, facing: () => facing, actor: () => actor, say: (t, n) => sayNow(t, n) });
+  const { camera, frontCam } = cam;
   const { trackView, plankView, trebView, shotsView, poleView, recoilView, bandView, droneView, hazard, floor, chunks, ropeMesh, ropeLen } = buildCourseScene(scene, course, params);
   let shotCache: { key: string; pr: Prediction } | null = null; // the dotted preview of a loaded cannon: the same prediction the debug view uses, worked out once per tick
   const shotPreview = (w: WorldState): Prediction | null => {
@@ -164,8 +155,8 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
   // the runner (a capsule until the Rookie is wired in)
   const body = new THREE.Mesh(new THREE.CapsuleGeometry(0.28, 1.1, 6, 12), new THREE.MeshStandardMaterial({ color: 0xf07b1d }));
   scene.add(body);
+  bodyMesh = body;
   // the real Rookie replaces the capsule when its model loads; the capsule stays as the fallback
-  let actor: Awaited<ReturnType<typeof createRookieActor>> | null = null;
   let choice: 'a' | 'b' = 'a';
   try { const saved = localStorage.getItem('cc.rookie'); if (saved === 'a' || saved === 'b') choice = saved; } catch { /* keep going */ }
   if (params.get('rookie') === 'a' || params.get('rookie') === 'b') choice = params.get('rookie') as 'a' | 'b';
@@ -220,7 +211,6 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
     const hips = at('Hips'), sp = (new (hips.constructor as new () => { x: number; y: number; z: number; set(x: number, y: number, z: number): unknown; project(c: unknown): unknown })()); sp.set(hips.x, hips.y, hips.z); sp.project(camera);
     return { screen: { x: (sp.x * 0.5 + 0.5) * renderer.domElement.clientWidth, y: (-sp.y * 0.5 + 0.5) * renderer.domElement.clientHeight }, heading: Math.cos(actor.object.rotation.y), hipsX: hips.x, x: actor.object.position.x, rotY: actor.object.rotation.y, boneToeDx: toe.x - foot.x, skinScoreRight: f.score, skinConfidenceRight: f.confidence, votes: f.votes.map((q) => [q.name, +q.score.toFixed(3)]) };
   };
-  let facing: 1 | -1 = course.track ? 1 : resume ? resume.facing : 1;
 
   // HUD
   const gaugeStack = createGaugeStack(params.get('gauges') === 'old' ? 'old' : 'bottom-left'); // CC-148: one bottom-left stack for everything about the runner
@@ -320,24 +310,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
     pick.appendChild(cb);
   }
   paintPick();
-  // the camera switch: a ring with three nodes (side, 45°, first person); the ring turns a third each time
-  const camBtn = document.createElement('button');
-  camBtn.id = 'cam';
-  camBtn.setAttribute('aria-label', 'Change the camera (C)'); camBtn.title = 'Camera: Side view';
-  camBtn.style.cssText = 'position:fixed;right:16px;top:56px;display:grid;justify-items:center;gap:0;border:2px solid #17201d;background:#fff;color:#17201d;border-radius:12px;padding:3px 8px 2px;cursor:pointer;font:600 11px system-ui,sans-serif';
-  const node = (a: number) => `<circle cx="${(20 + 13 * Math.sin((a * Math.PI) / 180)).toFixed(1)}" cy="${(20 - 13 * Math.cos((a * Math.PI) / 180)).toFixed(1)}" r="4.2" class="n"/>`;
-  camBtn.innerHTML = `<svg width="40" height="40" viewBox="0 0 40 40" aria-hidden="true"><g id="ring" style="transform-origin:20px 20px;transition:transform .35s ease"><circle cx="20" cy="20" r="13" fill="none" stroke="currentColor" stroke-width="2.4"/>${node(0)}${node(120)}${node(240)}</g><path d="M20 2 L24 7 L16 7 Z" fill="#c4572a"/></svg><span id="camname">Rotate Camera (C)</span>`;
-  camBtn.querySelectorAll('.n').forEach((n) => { (n as SVGElement).style.fill = '#17201d'; });
-  let camTurn = 0;
-  const nextCam = () => {
-    const next = CAMS[(CAMS.findIndex((c2) => c2.id === camMode) + 1) % CAMS.length];
-    camMode = next.id; camTurn += 120; resetOrbit();
-    (camBtn.querySelector('#ring') as SVGElement).style.transform = `rotate(${camTurn}deg)`;
-    camBtn.title = `Camera: ${next.name}`;
-    say(`Camera: ${next.name}`, 100);
-    camBtn.blur();
-  };
-  camBtn.onclick = nextCam;
+  const nextCam = cam.nextCam;
   // the obstacle strip: one icon per obstacle; cleared ones dim, the next one is biggest; gold marks only the obstacle you fell at most (CC-183; ?gold=old: the rest glow gold)
   const strip = document.createElement('div');
   strip.id = 'strip';
@@ -447,7 +420,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
   narrow.textContent = '@media (max-width:700px){#hudrow>div{font-size:14px!important}#pickrunner,#coursebtns,#debugbtn,#idealbtn,#community{display:none!important}#dojobtn{top:52px!important;right:12px!important;font-size:13px!important;padding:5px 10px!important}#ghost-hud{left:12px!important;top:52px!important;transform:none!important}#cam{top:92px!important;right:12px!important}#strip{top:160px!important}#keys{top:225px!important}}';
   document.head.append(narrow);
   const hudBox = hudOn(params) ? hudRow : hud;
-  document.body.append(hudBox, msg, help, panel, hint, gaugeStack.el, dojoBtn, idealBtn, rowBtns, pick, camBtn, dbgBtn);
+  document.body.append(hudBox, msg, help, panel, hint, gaugeStack.el, dojoBtn, idealBtn, rowBtns, pick, cam.button, dbgBtn);
   // CC-85: a real place shows its real photos (credit under each, a large view on click); ?photos=0 or the Hide switch turns them off
   const placeSlug = slugOfCourse(course.name);
   let livePhotos: { update(x: number): void } | null = null; // CC-90: street photos from the allow-list change as the runner moves; the CC-85 strip is the fallback
@@ -462,6 +435,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
   const toasts = mountToasts();
   let toastUntil = 0, squashUntil = 0, squashDepth = 1;
   const say = (text: string, ticks: number) => { if (toastsOld) { toast.textContent = text; toast.style.display = 'block'; toastUntil = st.world.runner.tick + ticks; } else toasts.show(text, ticks, st.world.runner.tick); };
+  sayNow = say;
   if (params.get('check') === '1') (window as unknown as { __say?: typeof say }).__say = say; // for scripts/toast-shot.mjs: three toasts at once
   let releasedAtX: number | null = null; const caughtSince = new Set<number>(); // the bars passed since the last release: a bar flown over without a grab is said to be skipped
   try { localStorage.setItem('cc.course', JSON.stringify(course)); } catch { /* the Dojo falls back to the default course */ }
@@ -481,9 +455,6 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
   if (course.rope) label(`rope ${ropeLen.toFixed(0)} m`, course.rope.anchorX, course.rope.anchorY + 1.6);
 
   // input
-  type Cam = 'side' | 'angle' | 'first';
-  const CAMS: { id: Cam; name: string }[] = [{ id: 'side', name: 'Side view' }, { id: 'angle', name: '45° view' }, { id: 'first', name: 'First person' }];
-  let camMode: Cam = params.get('cam') === 'first' ? 'first' : 'side'; // ?cam=first starts in the runner's eyes (for pictures)
   // while the feedback form is open, or a text box has the focus, no game key does anything (typing a T must not open the Dojo)
   const typing = (e: KeyboardEvent): boolean => {
     const t = e.target as HTMLElement | null;
@@ -588,9 +559,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
   }
   // Share (CC-128, CC-129): keys fed from a link play the run again; while a clip is made the game is stepped by hand and nothing is counted or heard.
   let feed: { log: InputLog; i: number; left: number } | null = null;
-  let phoneWatch: InputLog | null = null; // the friend's keys, replayed over and over while a phone watches (CC-138)
-  let clipping = false;
-  let clipHook: (() => void) | null = null;
+    let clipHook: (() => void) | null = null;
   const fedInput = (): RunnerInput => {
     while (feed && feed.left === 0 && feed.i < feed.log.length) { feed.left = feed.log[feed.i][1]; feed.i++; }
     if (!feed || feed.left === 0) return NO_INPUT;
@@ -612,7 +581,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
     ghostCtl?.begin(x === course.startX && (!botMode || ghostBot), !botMode || ghostBot ? x : null); // a ghost chases a run from the start only; every try keeps its keys, so every try can be a clip (CC-157)
     stats.resetRunStats(x);
     analyticsRunId = crypto.randomUUID(); failedThisAttempt = false;
-    if (!clipping) trackCourseEvent('start', analyticsCourseKey, course.name, analyticsRunId, analyticsMode);
+    if (!st.clip.on) trackCourseEvent('start', analyticsCourseKey, course.name, analyticsRunId, analyticsMode);
     log.length = 0;
     botState.next = 0; botState.caught = null; botState.bedAt = null;
     st.idealNote = '';
@@ -858,20 +827,18 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
   ghostCtl = mountCourseGhost({ scene, course, params, idealCache, runSearch, progressZones, strip, look: () => choice });
   ghostCtl.begin(!resume && startAt === undefined && (!botMode || ghostBot), (!botMode || ghostBot) && !resume?.world ? (resume ? resume.retryX : startAt ?? course.startX) : null);
   // A run played again to make a clip (CC-129). The pictures come from the real game on a stepped clock: four ticks for each, whatever the speed of this computer.
-  let clipCam: { x: number; y: number } | null = null; // where the clip camera is looking, kept between pictures
-  let clipLayout: ClipLayout = clipLayoutFor(pageSearch()); // the view of the clip: about 20 m across by default (CC-160), ?clipzoom=close the older close view, ?clipshape=wide a 1280 x 720 picture
   async function makeClip(log: InputLog, ticks: number, from: number = course.startX): Promise<void> {
     const card = clipCard();
     card.say('Making your clip…');
-    clipLayout = clipLayoutFor(pageSearch());
-    const L = clipLayout, enc = await createClipEncoder(L);
+    st.clip.layout = clipLayoutFor(pageSearch());
+    const L = st.clip.layout, enc = await createClipEncoder(L);
     if (!enc) { card.fail('This browser cannot make a video clip. Copy the challenge link instead.'); return; }
     const cv = document.createElement('canvas'); cv.width = L.w; cv.height = L.h;
     const ctx = cv.getContext('2d')!, dom = renderer.domElement, total = clipFrames(ticks);
     const text = { course: course.name, time: secondsWords(ticks), address: 'conquercourse.pages.dev' };
     let n = 0, pending: Promise<void> = Promise.resolve();
     try {
-      clipping = true; clipCam = null; st.paused = false; st.keys.clear();
+      st.clip.on = true; st.clip.cam = null; st.paused = false; st.keys.clear();
       restart(from);
       feed = { log, i: 0, left: 0 };
       let smallest = 1;
@@ -901,7 +868,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
       card.fail('The clip could not be made on this computer. Copy the challenge link instead.');
       console.warn('clip failed', e);
     } finally {
-      clipping = false; clipCam = null; clipHook = null; feed = null; st.acc = 0;
+      st.clip.on = false; st.clip.cam = null; clipHook = null; feed = null; st.acc = 0;
       restart(course.startX); st.last = performance.now();
       requestAnimationFrame(frame);
     }
@@ -928,7 +895,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
         // A phone has no keys (CC-138): the page plays the friend's run by itself and says how to play it for real.
         st.keysOpen = false; st.keysTouched = true; paintKeys(false); st.frontOverride = false; // the small corner view would hide the runner on a narrow screen
         showBanner(PHONE_WORDS(secondsWords(c.ticks)), [{ label: 'Copy link', go: () => void copyHere() }], 0);
-        phoneWatch = c.log; feed = { log: c.log, i: 0, left: 0 };
+        st.phoneWatch = c.log; feed = { log: c.log, i: 0, left: 0 };
         return;
       }
       if (c.kind === 'fell') { // CC-181: a try that did not finish: a ghost that falls where the player fell; nothing is sent anywhere
@@ -948,11 +915,10 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
   if (!botMode) installGraphStudio({ env: () => ({ course, retryX: st.retryX, facing, falls: st.falls, runnerX: st.world.runner.x }), pause: () => { studioHold = true; st.paused = true; }, resume: () => { studioHold = false; st.paused = false; st.last = performance.now(); st.keys.clear(); }, chipWhen: () => st.falls > 0 || params.get('edit') === '1' });
   { let heldBefore = false; window.addEventListener(GALLERY_EVENT, (ev) => { if ((ev as CustomEvent).detail.open) { heldBefore = st.paused; st.paused = true; st.keys.clear(); } else { st.paused = heldBefore; st.last = performance.now(); } }); } // the Courses gallery stops the game while it is open
   if (!botMode || params.get('next') === '1') onboarding = startOnboarding({ params, store: browserStore, course, tour: tour === 'tour', resetRun: () => { if (st.world.outcome === 'running' && Math.abs(st.world.runner.x - course.startX) < 0.01) restart(course.startX); }, openCourses: () => courseButton.open(), toggleKeys: () => { st.keysTouched = true; st.keysOpen = !st.keysOpen; paintKeys(st.keysOpen); } }); // CC-100: the Help chip, and the tour on a first visit
-  const camPos = new THREE.Vector3();
-  // ?camprobe=1: what the camera and the runner's look are doing now, for scripts/course-camera-characterize.mjs (CC-133); nothing else changes
+    // ?camprobe=1: what the camera and the runner's look are doing now, for scripts/course-camera-characterize.mjs (CC-133); nothing else changes
   if (params.get('camprobe') === '1') (window as unknown as { __probe: () => unknown }).__probe = () => {
     const d = camera.getWorldDirection(new THREE.Vector3());
-    return { pos: camera.position.toArray(), dir: d.toArray(), up: camera.up.toArray(), fov: camera.fov, aspect: camera.aspect, camMode, orbit: { ...orbit }, actor: actor ? actor.object.visible : null, body: body.visible, characterId, choice, custom, clipping, pip: pipFrame.style.display, frontCam: frontCam.position.toArray(), frontDir: frontCam.getWorldDirection(new THREE.Vector3()).toArray() };
+    return { pos: camera.position.toArray(), dir: d.toArray(), up: camera.up.toArray(), fov: camera.fov, aspect: camera.aspect, camMode: cam.mode(), orbit: { ...cam.orbit }, actor: actor ? actor.object.visible : null, body: body.visible, characterId, choice, custom, clipping: st.clip.on, pip: cam.pipFrame.style.display, frontCam: frontCam.position.toArray(), frontDir: frontCam.getWorldDirection(new THREE.Vector3()).toArray() };
   };
   // ?fx=bloom,vignette,dof (or all): picture polish for stills (CC-188); off unless asked, loaded only then
   let fxPipe: { render(): void } | null = null;
@@ -960,43 +926,18 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
   // ?trail=1: a light trail behind the runner for film shots (CC-209); loaded only then
   let trailPush: ((x: number, y: number) => void) | null = null;
   if (pageQuery().get('trail') === '1') void import('../render/trail').then((m) => { trailPush = m.createTrail(scene).push; });
-  const filmShot = filmShotOf(pageSearch()); // the film camera (CC-130): only with ?film=<shot>
-  const film = filmShot ? (await import('../film/overlay')).startFilm(filmShot, params, renderer.domElement as HTMLCanvasElement, course.finishX) : null;
-  let filmAir = 0;
-  // Mouse: drag turns the view around the runner, the wheel zooms, a double-click (or C) goes back to the preset.
-  // The numbers are changes on top of the preset view, so zero means the preset exactly.
-  // the wheel zooms in to the normal closest view (0.45), and on: the target glides to the head and the camera swings round to the front of the face (about 0.7 m away)
-  const FACE_START = 0.45, FACE_END = 0.05, FACE_DIST = 0.7;
-  const orbit = { yaw: 0, pitch: 0, zoom: 1 };
-  const resetOrbit = () => { orbit.yaw = 0; orbit.pitch = 0; orbit.zoom = 1; };
-  const clamp = (v: number, lo: number, hi: number) => Math.min(hi, Math.max(lo, v));
-  const dom = renderer.domElement;
-  let dragging: { x: number; y: number } | null = null;
-  dom.addEventListener('pointerdown', (e) => { if (e.button === 0) { dragging = { x: e.clientX, y: e.clientY }; dom.setPointerCapture(e.pointerId); dom.style.cursor = 'grabbing'; } });
-  dom.addEventListener('pointermove', (e) => {
-    if (!dragging) return;
-    const dx = e.clientX - dragging.x, dy = e.clientY - dragging.y;
-    dragging = { x: e.clientX, y: e.clientY };
-    if (camMode === 'first') { orbit.yaw = clamp(orbit.yaw + dx * 0.006, -1.4, 1.4); orbit.pitch = clamp(orbit.pitch - dy * 0.004, -0.6, 0.6); }
-    else { orbit.yaw = clamp(orbit.yaw - dx * 0.006, -1.4, 1.4); orbit.pitch = clamp(orbit.pitch + dy * 0.004, -0.5, 1.0); }
-  });
-  const stopDrag = () => { dragging = null; dom.style.cursor = 'grab'; };
-  dom.addEventListener('pointerup', stopDrag); dom.addEventListener('pointercancel', stopDrag);
-  dom.addEventListener('wheel', (e) => { e.preventDefault(); if (camMode !== 'first') orbit.zoom = clamp(orbit.zoom * Math.exp(e.deltaY * 0.001), FACE_END, 1.7); }, { passive: false });
-  dom.addEventListener('dblclick', resetOrbit);
-  dom.addEventListener('contextmenu', (e) => e.preventDefault());
-  dom.style.cursor = 'grab';
+  let lastPlankNow = 0; // the clock of the last plank step
   const timeScale = Number(params.get('timescale') ?? 1); // ?timescale=0.1 runs the game at a tenth of its speed (for stills)
   function frame(now: number, stepped = false) {
-    if (filmShot) now = performance.now(); // a film runs the game on the stepped film clock; the real animation-frame time would let the run race ahead at the speed the machine draws
-    if (clipping && !stepped) return; // the clip drives the game by hand; the loop starts again when it ends
+    if (cam.filmShot) now = performance.now(); // a film runs the game on the stepped film clock; the real animation-frame time would let the run race ahead at the speed the machine draws
+    if (st.clip.on && !stepped) return; // the clip drives the game by hand; the loop starts again when it ends
     perf.frame(now);
     st.acc = st.paused ? 0 : Math.min(st.acc + ((now - st.last) / 1000) * timeScale, 0.25);
     st.last = now;
     while (st.acc >= DT) {
       st.acc -= DT;
       let input: RunnerInput = NO_INPUT;
-      if (feed) { input = fedInput(); if (!clipping && st.world.outcome === 'running') ghostCtl?.input(input); }
+      if (feed) { input = fedInput(); if (!st.clip.on && st.world.outcome === 'running') ghostCtl?.input(input); }
       else if (st.plan) input = inputFor(st.plan, st.world, botState, course);
       else {
         input = { run: st.keys.has('ArrowRight') || st.keys.has('KeyD'), left: st.keys.has('ArrowLeft') || st.keys.has('KeyA'), jump: st.jumpQueued, jumpSpeed: 0, squat: st.keys.has('ArrowDown') || st.keys.has('KeyS'), handL: st.keys.has('KeyE'), handR: st.keys.has('KeyE'), vault: st.vaultQueued, roll: st.rollQueued || st.keys.has('KeyX'), slide: st.slideQueued, fire: st.fireQueued, aimUp: st.keys.has('ArrowUp') || st.keys.has('KeyW'), aimDown: st.keys.has('ArrowDown') || st.keys.has('KeyS'), up: st.keys.has('ArrowUp') || st.keys.has('KeyW') };
@@ -1016,7 +957,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
       if (st.demo && (st.world.outcome !== 'running' || st.world.runner.x > st.demo.x1)) demoEnd();
       else if (st.idealWhole && st.world.outcome !== 'running') demoEnd();
       log.push(...st.world.events);
-      if (st.world.events !== soundedEvents) { soundedEvents = st.world.events; if (!st.replay && !clipping) soundsFor(st.world.events, hazard); } // after the end the same events array stays: it sounds once
+      if (st.world.events !== soundedEvents) { soundedEvents = st.world.events; if (!st.replay && !st.clip.on) soundsFor(st.world.events, hazard); } // after the end the same events array stays: it sounds once
       for (const e of st.world.events) {
         if (e.type === 'drone-board') { say('The drone lifts you. Lean with ← →, climb with ↑ and come down with ↓.', 240); }
         if (e.type === 'drone-empty') { say('The battery ran out: the rotors stopped and the drone is falling.', 240); }
@@ -1054,10 +995,10 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
       if (st.world.events.some((e) => e.type === 'wall-slide')) { // CC-182: missing the top is not a fall: the body slides to the foot and the run goes on, run up again as often as you like
         say([...log].some((e) => e.type === 'wall-no-grip') ? 'Your hands missed the edge. Run up again and hold E near the top.' : 'Not high enough. Run up again with more speed.', 240);
       }
-      if (phoneWatch && prev === 'running' && st.world.outcome === 'cleared') { // the friend's run, watched on a phone: no report, no What next card; play it again in a moment (CC-138)
-        const again = phoneWatch;
+      if (st.phoneWatch && prev === 'running' && st.world.outcome === 'cleared') { // the friend's run, watched on a phone: no report, no What next card; play it again in a moment (CC-138)
+        const again = st.phoneWatch;
         setTimeout(() => { if (again) { restart(course.startX); feed = { log: again, i: 0, left: 0 }; } }, 2500);
-      } else if (prev === 'running' && st.world.outcome === 'cleared' && !clipping) {
+      } else if (prev === 'running' && st.world.outcome === 'cleared' && !st.clip.on) {
         stats.clearFinishZone(st.world.runner.x); ctx.everCleared = true; track('clears'); stats.finishRun(true, analyticsRunId); trackCourseEvent('success', analyticsCourseKey, course.name, analyticsRunId, analyticsMode);
         offerClear();
         try { localStorage.setItem('cc.course.cleared', '1'); } catch { /* ok */ }
@@ -1085,7 +1026,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
     body.scale.set(1 / Math.sqrt(sq), sq, 1 / Math.sqrt(sq));
     body.position.set(r.x, r.y + 0.85 * sq, 0);
     trailPush?.(r.x, r.y + 0.95 * sq);
-    ghostCtl?.frame({ tick: st.world.runner.tick, x: st.world.runner.x, active: (!st.plan || ghostBot) && !st.demo && !st.idealWhole && !st.replay && !clipping, firstPerson: camMode === 'first' });
+    ghostCtl?.frame({ tick: st.world.runner.tick, x: st.world.runner.x, active: (!st.plan || ghostBot) && !st.demo && !st.idealWhole && !st.replay && !st.clip.on, firstPerson: cam.mode() === 'first' });
     const facingSpeed = st.world.mode === 'cart' && st.world.cart ? st.world.cart.v : st.world.runner.vx;
     if (Math.abs(facingSpeed) > 0.3 && st.world.mode !== 'hang') facing = facingSpeed < 0 ? -1 : 1; // on a bar the body keeps facing one way, whichever way it swings
     // on a bar the actor is turned about its hands, so it is placed with the hands on the bar (feet straight below it before the turn), like the rope
@@ -1149,117 +1090,22 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
     }
     hud.textContent = `Time ${(r.tick / 120).toFixed(1)} s   ·   ${Math.max(0, Math.round(r.x))} m of ${course.finishX} m`;
     livePhotos?.update(r.x);
-    // the head: the body's turn about the bar (swing angle theta, a rotation so it passes the top smoothly) and where the eyes are; the first-person camera and the corner window both use it.
-    // After a release the head settles level over about 0.3 s (the body has no spin in flight); on the ground it is level.
-    const nowS = performance.now() / 1000, dtHead = Math.min(0.05, Math.max(0, nowS - pipClock)); pipClock = nowS;
-    if (st.world.mode === 'hang' && st.world.hang) pipRoll = st.world.hang.theta;
-    else if (!r.grounded) pipRoll *= Math.exp(-dtHead / 0.1);
-    else pipRoll = 0;
-    const qRoll = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 0, 1), pipRoll);
-    const nose = new THREE.Vector3(0.15 * facing, 0, 0).applyQuaternion(qRoll);
-    const headHold = st.world.hang ? course.holds?.[st.world.hang.hold] : undefined;
-    const eye = headHold && st.world.hang
-      ? { x: headHold.x + 0.4 * Math.sin(st.world.hang.theta) + nose.x, y: headHold.y - 0.4 * Math.cos(st.world.hang.theta) + nose.y } // just under the hands, along the arms
-      : { x: r.x + nose.x, y: r.y + 1.62 + nose.y };
-    // three views, switched with C: from the side, from behind at 45 degrees, and through the runner's eyes
-    const fov = camMode === 'first' ? 75 : 40;
-    if (camera.fov !== fov) { camera.fov = fov; camera.updateProjectionMatrix(); }
-    if (actor) actor.object.visible = camMode !== 'first' && !(((window as unknown as { __filmEye?: number }).__filmEye ?? 0) > 0.85);
-    body.visible = !actor && camMode !== 'first' && !(((window as unknown as { __filmEye?: number }).__filmEye ?? 0) > 0.85);
-    if (camMode === 'first') {
-      camera.position.set(eye.x, eye.y, 0.1);
-      const ch = Math.cos(orbit.pitch); // drag turns your head
-      const dir = new THREE.Vector3(facing * Math.cos(orbit.yaw) * ch, Math.sin(orbit.pitch) - 0.042, facing * Math.sin(orbit.yaw) * ch).applyQuaternion(qRoll);
-      camera.up.set(0, 1, 0).applyQuaternion(qRoll); // the whole view tilts with the body, through the top of a full circle
-      camera.lookAt(eye.x + 10 * dir.x, eye.y + 10 * dir.y, 0.1 + 10 * dir.z);
-      camPos.copy(camera.position);
-    } else if (clipping) {
-      // The clip's own camera (CC-137): side-on and close, glued to the runner. It moves once for each picture, so it is the same on every computer.
-      const dom = renderer.domElement, L = clipLayout, dist = clipCameraDistance(dom.width, dom.height, L);
-      const bandM = (L.viewM ?? 0) * L.band.h / L.w, ahead = L.viewM !== null ? 0.2 * L.viewM : 0.45, lift = L.viewM !== null ? 0.17 * bandM : 1.05, slack = L.viewM !== null ? 0.1 * bandM : 0.8;
-      // the wide view looks a fifth of the picture ahead of the runner, so the next obstacle is in frame, and keeps the runner low so there is sky for a swing or a jump
-      const wantX = r.x + ahead * facing, wantY = r.y + lift;
-      if (!clipCam) clipCam = { x: wantX, y: wantY };
-      else { // follow quickly, and never let the runner drift more than a metre from the middle (a long fall must not leave the picture)
-        clipCam.x = wantX; clipCam.y += (wantY - clipCam.y) * 0.25; // x is locked to the runner so the body does not slide about the picture; y is eased so a bob or a hop is not copied
-        clipCam.x = clamp(clipCam.x, wantX - 0.6, wantX + 0.6); clipCam.y = clamp(clipCam.y, wantY - slack, wantY + slack);
-      }
-      camera.up.set(0, 1, 0);
-      camera.position.set(clipCam.x, clipCam.y, dist);
-      camera.lookAt(clipCam.x, clipCam.y, 0);
-      camPos.copy(camera.position);
-    } else {
-      camera.up.set(0, 1, 0);
-      // the preset is a target point and an offset from it; the mouse turns and scales the offset around the target
-      const off = camMode === 'side' ? new THREE.Vector3(0, 1.5, 25) : new THREE.Vector3(-12, 3, 11);
-      const ft0 = clamp((FACE_START - orbit.zoom) / (FACE_START - FACE_END), 0, 1), ft = ft0 * ft0 * (3 - 2 * ft0); // 0 normal view, 1 face close-up
-      const headX = eye.x - nose.x, headY = eye.y - nose.y; // the middle of the head (under the hands while hanging)
-      const tx = (camMode === 'side' ? r.x + (phoneWatch ? 0.5 : 5) : r.x + 4) * (1 - ft) + headX * ft, wantY = camMode === 'side' ? r.y + 2.5 : r.y + 1.5;
-      camY = !camYSet || Math.abs(wantY - camY) > 4 ? wantY : camY + (wantY - camY) * (1 - Math.exp(-dtHead / 0.15)); camYSet = true; // a retry or a big drop snaps; a dip eases
-      const ty = camY * (1 - ft) + headY * ft;
-      const len = off.length() * Math.max(orbit.zoom, FACE_START) * (1 - ft) + FACE_DIST * ft;
-      const yaw = Math.atan2(off.x, off.z) + orbit.yaw + facing * 1.05 * ft; // swing round to the front of the face
-      const pitch = clamp(Math.asin(off.y / off.length()) + orbit.pitch, 0.03, 1.35) * (1 - ft) + 0.08 * ft;
-      const want = new THREE.Vector3(tx + len * Math.cos(pitch) * Math.sin(yaw), Math.max(0.5, ty + len * Math.sin(pitch)), len * Math.cos(pitch) * Math.cos(yaw));
-      camPos.lerp(want, 0.12);
-      camera.position.copy(camPos);
-      camera.lookAt(tx, ty, 0);
-      document.documentElement.dataset.camdist = camPos.distanceTo(new THREE.Vector3(tx, ty, 0)).toFixed(2); // for the face-zoom check
-    }
-    if (film) { // ?film=<shot> (CC-130): the film camera takes over the view; play is unchanged without it
-      filmAir += ((r.grounded ? 0 : 1) - filmAir) * (1 - Math.exp(-dtHead / 0.25));
-      const p = film.pose({ runnerX: r.x, runnerY: r.y, airborne: filmAir });
-      if (filmShot === 'clean') { film.tick(camera); } else {
-      if (camera.fov !== p.fov) { camera.fov = p.fov; camera.updateProjectionMatrix(); }
-      camera.up.set(0, 1, 0); camera.position.set(...p.pos); camera.lookAt(...p.look); camPos.copy(camera.position);
-      if (p.hideBody) { if (actor) actor.object.visible = false; body.visible = false; } // the eyes shot ends inside the head, as the First person camera does
-      film.tick(camera);
-      if (filmShot === 'eyesC' && p.fov > 60) { if (actor) actor.object.visible = false; body.visible = false; }
-      }
-    }
+    cam.update(); // the camera (and the film camera) for this picture
     floor.update(now / 1000);
     if (chunks.length > 8) cullFar(chunks, camera.position, 260); // far chunks of a big place are not drawn
     perf.renderStart();
     if (fxPipe) fxPipe.render(); else renderer.render(scene, camera);
     clipHook?.(); // the clip takes this picture before the front inset is drawn over it
     perf.renderEnd();
-    // The front inset accompanies the default side view; F toggles it in every camera mode.
-    const showFront = st.frontOverride ?? true;
-    pipFrame.style.display = showFront ? 'block' : 'none';
-    if (showFront) {
-      // On a coaster the inset rides with the cart and looks forward along its rails; elsewhere it shows the runner's eyes.
-      if (course.track && st.world.mode === 'cart' && st.world.cart) {
-        const direction = st.world.cart.v < -0.3 ? -1 : 1;
-        const rails = railsOf(course.track, st.world.cart?.segment ?? 0), aheadX = r.x + direction * 12;
-        frontCam.up.set(0, 1, 0);
-        frontCam.position.set(r.x, r.y + 1.4, 0);
-        frontCam.lookAt(aheadX, rails.y(aheadX) + 1.4, 0);
-      } else {
-        // First person: the eyes, looking the way the body faces and a little down, turned with the body about the bar.
-        const fwd = new THREE.Vector3(facing * Math.cos(0.1), -Math.sin(0.1), 0).applyQuaternion(qRoll);
-        frontCam.up.set(0, 1, 0).applyQuaternion(qRoll);
-        frontCam.position.set(eye.x, eye.y, 0.1); frontCam.lookAt(eye.x + 10 * fwd.x, eye.y + 10 * fwd.y, 0.1);
-      }
-      const actorWasVisible = actor?.object.visible ?? false;
-      if (actor) actor.object.visible = false; // no body in front of the eyes
-      const W = host.clientWidth, H = host.clientHeight;
-      renderer.autoClear = false;
-      renderer.setScissorTest(true);
-      const py = H - PIP_BOTTOM - PIP_H; // the WebGPU viewport counts from the top
-      renderer.setViewport(W - PIP_W - 16, py, PIP_W, PIP_H); renderer.setScissor(W - PIP_W - 16, py, PIP_W, PIP_H);
-      renderer.render(scene, frontCam);
-      if (actor) actor.object.visible = actorWasVisible;
-      renderer.setScissorTest(false); renderer.setViewport(0, 0, W, H); renderer.autoClear = true;
-    }
+    cam.drawFront();
     document.documentElement.dataset.tick = String(r.tick);
     document.documentElement.dataset.vault = st.world.mode === 'vault' && st.world.vault ? (st.world.vault.i / st.world.vault.n).toFixed(3) : ''; document.documentElement.dataset.climb = st.world.mode === 'climb' && st.world.climb ? (st.world.climb.i / st.world.climb.n).toFixed(3) : ''; document.documentElement.dataset.x = r.x.toFixed(2); document.documentElement.dataset.omega = (st.world.hang?.omega ?? 0).toFixed(3); document.documentElement.dataset.grounded = st.world.runner.grounded ? '1' : '0'; // for the keyboard check
     document.documentElement.dataset.outcome = st.world.outcome;
     if (playedSounds().length !== soundCount) { soundCount = playedSounds().length; document.documentElement.dataset.sounds = playedSounds().join(','); } // for the bot check: headless cannot be heard
     document.documentElement.dataset.mode = st.world.mode;
-    if (!clipping) requestAnimationFrame(frame);
+    if (!st.clip.on) requestAnimationFrame(frame);
   }
   const perf = createPerf({ label: 'Course', backend: (renderer.backend as { isWebGPUBackend?: boolean }).isWebGPUBackend ? 'webgpu' : 'webgl2', renderer: renderer as unknown as PerfSource['renderer'], scene });
-  camPos.set(5, 3.5, 17);
   requestAnimationFrame(frame);
 
   const backend = (renderer.backend as { isWebGPUBackend?: boolean }).isWebGPUBackend ? 'webgpu' : 'webgl2';
