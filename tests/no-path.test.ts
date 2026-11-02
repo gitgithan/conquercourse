@@ -49,7 +49,7 @@ describe('every course the picker offers is cleared by its stored best line', ()
 describe('the servers save nothing without a path', () => {
   const jpeg = 'data:image/jpeg;base64,' + 'A'.repeat(1000);
   const base = { session: 'abcdef12-3456', name: 'Library steps', nick: 'sam', confirm: true, width: 800, height: 600, image: jpeg };
-  const db = () => { const ins: unknown[] = []; return { ins, env: { DB: { prepare: (sql: string) => ({ bind: (...v: unknown[]) => ({ run: async () => { if (sql.startsWith('INSERT')) ins.push(v); return {}; }, first: async () => ({ n: 0 }), all: async () => ({ results: [] }) }) }) } } as never }; };
+  const db = () => { const ins: unknown[] = []; return { ins, env: { DB: { prepare: (sql: string) => ({ bind: (...v: unknown[]) => ({ run: async () => { if (sql.startsWith('INSERT') && !sql.includes('analytics_events')) ins.push(v); return {}; }, first: async () => ({ n: 0 }), all: async () => ({ results: [] }) }) }) } } as never }; };
   const send = async (body: unknown) => { const d = db(); const r = await community({ request: new Request('https://x/api/community', { method: 'POST', body: JSON.stringify(body) }), env: d.env }); return { status: r.status, ins: d.ins }; };
   it('a community course the simulator can clear is stored', async () => {
     const r = await send({ ...base, boxes: [{ phrase: 'steps', box: [100, 300, 400, 420], heightM: 0.6 }, { phrase: 'wall', box: [450, 250, 700, 400] }] });

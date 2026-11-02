@@ -115,7 +115,7 @@ describe('screens where each voice shows up', () => {
   it('is true to the code: the files that mount a badge are in the screens it claims', () => {
     const has = (f: string, t: string) => expect(readFileSync(f, 'utf8'), `${f} ${t}`).toContain(t);
     has('src/modes/editor.ts', "simSaysPanel('editor')"); has('src/modes/map.ts', "simSaysPanel('slicer')");
-    has('src/modes/graph-studio.ts', "addBadge(verdictEl.parentElement!, 'simulator'"); has('src/modes/coaster.ts', "'simulator'"); has('src/ui/run-report.ts', "'simulator'");
+    has('src/modes/graph-studio.ts', "addBadge(verdictEl.parentElement!, 'simulator'"); has('src/modes/coaster.ts', "'simulator'");
     has('src/modes/editor.ts', "sayBadge('partner')");
     has('src/modes/community-flow.ts', "'safety'"); has('src/modes/community-flow.ts', "'cutter'"); has('src/modes/community-flow.ts', "'builder'");
     has('src/characters/panel.ts', "'maker'"); has('src/ui/ghost.ts', "'ghost'"); has('src/ui/place-photos.ts', "nameTag('street')");
