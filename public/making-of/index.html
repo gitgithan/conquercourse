@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>The Making Of</title>
+<style>
+:root{--bg:#f6f4ee;--panel:#fffdf7;--ink:#17201d;--mute:#56625b;--line:#cfd6d0;--accent:#0f6b5c;--hi:#ffe38a;--hiink:#4a3600;--c-done:#2f7d4f;--c-prog:#b86e00;--c-back:#6a6f8a;--c-can:#8a5a5a}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#121715;--panel:#1b2420;--ink:#e8eee9;--mute:#a3b4aa;--line:#33413a;--accent:#4cc3ac;--hi:#5a4710;--hiink:#ffe9a8;--c-done:#62c98a;--c-prog:#f0b45a;--c-back:#a3a8c8;--c-can:#d09a9a}}
+:root[data-theme="dark"]{--bg:#121715;--panel:#1b2420;--ink:#e8eee9;--mute:#a3b4aa;--line:#33413a;--accent:#4cc3ac;--hi:#5a4710;--hiink:#ffe9a8;--c-done:#62c98a;--c-prog:#f0b45a;--c-back:#a3a8c8;--c-can:#d09a9a}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif}
+main{max-width:1180px;margin:0 auto;padding:24px 16px 64px}
+nav.top{display:flex;gap:14px;flex-wrap:wrap;align-items:center;margin-bottom:18px;font-size:14px}
+nav.top a{color:var(--accent);text-decoration:none;font-weight:600}
+nav.top a:hover{text-decoration:underline}
+nav.top .sp{flex:1}
+h1{margin:0 0 4px;font-size:28px}
+h2{font-size:19px;margin:26px 0 8px}
+.sub{color:var(--mute);margin:0 0 16px}
+.bar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:0 0 12px}
+input[type=search],select,button,.btn{font:inherit;color:var(--ink);background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:7px 11px}
+input[type=search]{flex:1;min-width:220px}
+button,.btn{cursor:pointer;text-decoration:none;display:inline-block}
+button:hover,.btn:hover{border-color:var(--accent)}
+button[aria-pressed=true]{background:var(--accent);color:var(--bg);border-color:var(--accent)}
+:focus-visible{outline:3px solid #f0a020;outline-offset:1px}
+.cards{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin:18px 0}
+.card{display:block;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:18px;color:inherit;text-decoration:none}
+.card:hover{border-color:var(--accent)}
+.card h2{margin:0 0 6px}
+.slogan{font-size:20px;font-weight:700;color:var(--accent);margin:20px 0}
+.dl{display:flex;gap:8px;flex-wrap:wrap}
+.hidden{display:none!important}
+.note{color:var(--mute);font-size:13px}
+</style>
+</head>
+<body>
+<main>
+<nav class="top" aria-label="The Making Of">
+<a href="index.html">The Making Of</a>
+<a href="site-map.html">Site map</a>
+<a href="course-map.html">Course map</a>
+<span class="sp"></span>
+<span class="dl"><button type="button" id="dl-page">Download this page (.html)</button></span>
+</nav>
+<h1>The Making Of</h1>
+<p class="sub">ConquerCourse is a game where real parks and real moves become a ninja-warrior course, and the physics is real too. We built it in about nine days for a hackathon. These pages show what the game is and how it was built, and you can download the maps.</p>
+<p class="slogan">Train slow. Run fast.</p>
+<div class="cards">
+<a class="card" href="site-map.html"><h2>Site map</h2><p>Every screen a player can see, how to get there and where it leads, with six short journeys such as making your own course.</p><p class="note">Search, open and close branches, follow a journey.</p></a>
+<a class="card" href="course-map.html"><h2>Course map</h2><p>233 building tasks of the project in plan order, with what each one is for and which ones wait on which.</p><p class="note">Search, filter by state, jump between linked tasks.</p></a>
+<a class="card" href="../?mode=parts"><h2>How a course is made</h2><p>See the real pieces of a course play live, and how they snap together into a run.</p><p class="note">Opens the game, on the Parts gallery.</p></a>
+</div>
+</main>
+<script>
+function dl(name,type,text){var a=document.createElement('a');a.href=URL.createObjectURL(new Blob([text],{type:type}));a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(function(){URL.revokeObjectURL(a.href)},1000)}
+function dlPage(name){dl(name,'text/html;charset=utf-8','<!doctype html>\n'+document.documentElement.outerHTML)}
+
+document.getElementById('dl-page').addEventListener('click',function(){dlPage('making-of.html')});
+
+</script>
+</body>
+</html>
