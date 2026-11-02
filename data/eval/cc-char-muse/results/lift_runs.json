@@ -3,8 +3,8 @@
     "id": "c1-fox",
     "ok": true,
     "padded": false,
-    "gpu_seconds": 12.0,
-    "load_seconds": 45.0,
+    "gpu_seconds": 12,
+    "load_seconds": 45,
     "wall_seconds": 109.1,
     "raw_faces": 281696,
     "gaussians": 217792
@@ -14,7 +14,7 @@
     "ok": true,
     "padded": false,
     "gpu_seconds": 8.7,
-    "load_seconds": 45.0,
+    "load_seconds": 45,
     "wall_seconds": 78.1,
     "raw_faces": 222576,
     "gaussians": 172768
@@ -24,7 +24,7 @@
     "ok": true,
     "padded": false,
     "gpu_seconds": 9.1,
-    "load_seconds": 45.0,
+    "load_seconds": 45,
     "wall_seconds": 82.5,
     "raw_faces": 351852,
     "gaussians": 239872
@@ -34,7 +34,7 @@
     "ok": true,
     "padded": false,
     "gpu_seconds": 8.9,
-    "load_seconds": 45.0,
+    "load_seconds": 45,
     "wall_seconds": 89.8,
     "raw_faces": 300576,
     "gaussians": 198400
@@ -44,7 +44,7 @@
     "ok": true,
     "padded": false,
     "gpu_seconds": 8.8,
-    "load_seconds": 45.0,
+    "load_seconds": 45,
     "wall_seconds": 84.8,
     "raw_faces": 255464,
     "gaussians": 198432
@@ -67,7 +67,7 @@
     "padded": false,
     "gpu_seconds": 16.4,
     "load_seconds": 44.2,
-    "wall_seconds": 109.0,
+    "wall_seconds": 109,
     "raw_faces": 584272,
     "gaussians": 440576
   },
@@ -83,7 +83,7 @@
     "seed": 7,
     "ok": true,
     "padded": false,
-    "gpu_seconds": 11.0,
+    "gpu_seconds": 11,
     "load_seconds": 53.6,
     "wall_seconds": 148.4,
     "raw_faces": 182316,
@@ -102,7 +102,7 @@
     "scale": 0.6,
     "ok": true,
     "padded": false,
-    "gpu_seconds": 18.0,
+    "gpu_seconds": 18,
     "load_seconds": 45.4,
     "wall_seconds": 169.7,
     "raw_faces": 368128,

@@ -1,8 +1,32 @@
 {
- "s5": {"url":"https://preview.conquercourse.pages.dev/?course=/assets/demo/park-run.course.json&front=0&bot=ideal&film=flyover&welcome=0","lead":2,"seconds":12},
- "s6": {"url":"https://preview.conquercourse.pages.dev/?course=/assets/demo/lache.course.json&front=0&bot=ideal&film=orbit&timescale=0.4&welcome=0","lead":2,"seconds":8},
- "s7a": {"url":"https://preview.conquercourse.pages.dev/?course=/assets/demo/coaster.course.json&front=0&bot=ideal&film=follow&welcome=0","lead":2,"seconds":4},
- "s7b": {"url":"https://preview.conquercourse.pages.dev/?course=/assets/demo/drone.course.json&front=0&bot=ideal&film=follow&welcome=0","lead":2,"seconds":4},
- "s7c": {"url":"https://preview.conquercourse.pages.dev/?course=/assets/demo/cannonballs.course.json&front=0&bot=ideal&film=follow&welcome=0","lead":2,"seconds":4},
- "s7d": {"url":"https://preview.conquercourse.pages.dev/?course=/assets/demo/launch.course.json&front=0&bot=ideal&film=follow&welcome=0","lead":2,"seconds":4}
+  "s5": {
+    "url": "https://preview.conquercourse.pages.dev/?course=/assets/demo/park-run.course.json&front=0&bot=ideal&film=flyover&welcome=0",
+    "lead": 2,
+    "seconds": 12
+  },
+  "s6": {
+    "url": "https://preview.conquercourse.pages.dev/?course=/assets/demo/lache.course.json&front=0&bot=ideal&film=orbit&timescale=0.4&welcome=0",
+    "lead": 2,
+    "seconds": 8
+  },
+  "s7a": {
+    "url": "https://preview.conquercourse.pages.dev/?course=/assets/demo/coaster.course.json&front=0&bot=ideal&film=follow&welcome=0",
+    "lead": 2,
+    "seconds": 4
+  },
+  "s7b": {
+    "url": "https://preview.conquercourse.pages.dev/?course=/assets/demo/drone.course.json&front=0&bot=ideal&film=follow&welcome=0",
+    "lead": 2,
+    "seconds": 4
+  },
+  "s7c": {
+    "url": "https://preview.conquercourse.pages.dev/?course=/assets/demo/cannonballs.course.json&front=0&bot=ideal&film=follow&welcome=0",
+    "lead": 2,
+    "seconds": 4
+  },
+  "s7d": {
+    "url": "https://preview.conquercourse.pages.dev/?course=/assets/demo/launch.course.json&front=0&bot=ideal&film=follow&welcome=0",
+    "lead": 2,
+    "seconds": 4
+  }
 }

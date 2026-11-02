@@ -1,1 +1,13 @@
-{"url":"http://localhost:8123/?course=/assets/demo/lache.course.json&front=0&bot=ideal&film=matrix&dur=6&timescale=0.45&welcome=0","zeroX":30,"seconds":7.0,"shots":[0.1,1.5,3,4.5,5.2,5.9]}
+{
+  "url": "http://localhost:8123/?course=/assets/demo/lache.course.json&front=0&bot=ideal&film=matrix&dur=6&timescale=0.45&welcome=0",
+  "zeroX": 30,
+  "seconds": 7,
+  "shots": [
+    0.1,
+    1.5,
+    3,
+    4.5,
+    5.2,
+    5.9
+  ]
+}

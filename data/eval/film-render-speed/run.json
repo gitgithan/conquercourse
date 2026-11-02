@@ -38,8 +38,8 @@
         "over32_pct": 0.023
       },
       "dojo": {
-        "differing_pct": 0.0,
-        "over32_pct": 0.0
+        "differing_pct": 0,
+        "over32_pct": 0
       },
       "editor": {
         "differing_pct": 0.02,
@@ -59,7 +59,7 @@
       },
       "dojo": {
         "differing_pct": 10.53,
-        "over8_pct": 0.0,
+        "over8_pct": 0,
         "over32_pct": 0.001,
         "max": 56
       },
@@ -70,7 +70,7 @@
         "max": 208
       },
       "slicer": {
-        "differing_pct": 4.0,
+        "differing_pct": 4,
         "over8_pct": 0.28,
         "over32_pct": 0.042,
         "max": 208

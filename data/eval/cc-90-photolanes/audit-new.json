@@ -6,7 +6,7 @@
     "photosUsable": 477,
     "facing": 74,
     "facingPer100m": 131.3,
-    "shareOfLaneCovered": 1.0,
+    "shareOfLaneCovered": 1,
     "slug": "jordaan-amsterdam",
     "name": "Jordaan canals, Amsterdam"
   },
@@ -17,7 +17,7 @@
     "photosUsable": 1358,
     "facing": 265,
     "facingPer100m": 276.7,
-    "shareOfLaneCovered": 1.0,
+    "shareOfLaneCovered": 1,
     "slug": "stephansplatz-vienna",
     "name": "Stephansplatz, Vienna"
   },
@@ -27,7 +27,7 @@
     "name": "Union Square, San Francisco"
   },
   {
-    "laneRealM": 247.0,
+    "laneRealM": 247,
     "steps10m": 25,
     "photosInBox": 930,
     "photosUsable": 724,
@@ -44,7 +44,7 @@
     "photosUsable": 851,
     "facing": 367,
     "facingPer100m": 157.4,
-    "shareOfLaneCovered": 1.0,
+    "shareOfLaneCovered": 1,
     "slug": "main-square-krakow",
     "name": "Main Square, Krakow"
   },
@@ -54,8 +54,8 @@
     "photosInBox": 1405,
     "photosUsable": 1344,
     "facing": 245,
-    "facingPer100m": 120.0,
-    "shareOfLaneCovered": 1.0,
+    "facingPer100m": 120,
+    "shareOfLaneCovered": 1,
     "slug": "castle-hill-budapest",
     "name": "Castle Hill, Budapest"
   },
@@ -66,7 +66,7 @@
     "photosUsable": 735,
     "facing": 92,
     "facingPer100m": 158.1,
-    "shareOfLaneCovered": 1.0,
+    "shareOfLaneCovered": 1,
     "slug": "gamla-stan-stockholm",
     "name": "Gamla Stan, Stockholm"
   },
@@ -77,7 +77,7 @@
     "photosUsable": 498,
     "facing": 128,
     "facingPer100m": 133.5,
-    "shareOfLaneCovered": 1.0,
+    "shareOfLaneCovered": 1,
     "slug": "temple-bar-dublin",
     "name": "Temple Bar, Dublin"
   },
@@ -88,18 +88,18 @@
     "photosUsable": 711,
     "facing": 69,
     "facingPer100m": 85.6,
-    "shareOfLaneCovered": 1.0,
+    "shareOfLaneCovered": 1,
     "slug": "plaka-athens",
     "name": "Plaka, Athens"
   },
   {
-    "laneRealM": 194.0,
+    "laneRealM": 194,
     "steps10m": 20,
     "photosInBox": 1545,
     "photosUsable": 1545,
     "facing": 502,
     "facingPer100m": 258.8,
-    "shareOfLaneCovered": 1.0,
+    "shareOfLaneCovered": 1,
     "slug": "stradun-dubrovnik",
     "name": "Stradun, Dubrovnik"
   },
@@ -110,7 +110,7 @@
     "photosUsable": 1271,
     "facing": 237,
     "facingPer100m": 153.4,
-    "shareOfLaneCovered": 1.0,
+    "shareOfLaneCovered": 1,
     "slug": "galata-istanbul",
     "name": "Galata, Istanbul"
   },
@@ -121,12 +121,12 @@
     "photosUsable": 199,
     "facing": 78,
     "facingPer100m": 93.7,
-    "shareOfLaneCovered": 1.0,
+    "shareOfLaneCovered": 1,
     "slug": "gastown-vancouver",
     "name": "Gastown, Vancouver"
   },
   {
-    "laneRealM": 195.0,
+    "laneRealM": 195,
     "steps10m": 20,
     "photosInBox": 1297,
     "photosUsable": 1297,
@@ -143,7 +143,7 @@
     "photosUsable": 397,
     "facing": 132,
     "facingPer100m": 125.8,
-    "shareOfLaneCovered": 1.0,
+    "shareOfLaneCovered": 1,
     "slug": "caminito-buenos-aires",
     "name": "La Boca, Buenos Aires"
   },
@@ -154,7 +154,7 @@
     "photosUsable": 482,
     "facing": 74,
     "facingPer100m": 53.6,
-    "shareOfLaneCovered": 1.0,
+    "shareOfLaneCovered": 1,
     "slug": "bukchon-seoul",
     "name": "Bukchon, Seoul"
   },
@@ -164,8 +164,8 @@
     "photosInBox": 864,
     "photosUsable": 815,
     "facing": 380,
-    "facingPer100m": 228.0,
-    "shareOfLaneCovered": 1.0,
+    "facingPer100m": 228,
+    "shareOfLaneCovered": 1,
     "slug": "senate-square-helsinki",
     "name": "Senate Square, Helsinki"
   },
@@ -176,7 +176,7 @@
     "photosUsable": 217,
     "facing": 22,
     "facingPer100m": 29.5,
-    "shareOfLaneCovered": 1.0,
+    "shareOfLaneCovered": 1,
     "slug": "old-town-tallinn",
     "name": "Old Town, Tallinn"
   },
@@ -198,7 +198,7 @@
     "photosUsable": 1289,
     "facing": 370,
     "facingPer100m": 387.2,
-    "shareOfLaneCovered": 1.0,
+    "shareOfLaneCovered": 1,
     "slug": "bryggen-bergen",
     "name": "Bryggen, Bergen"
   }

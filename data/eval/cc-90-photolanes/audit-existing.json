@@ -6,7 +6,7 @@
     "photosUsable": 455,
     "facing": 122,
     "facingPer100m": 68.7,
-    "shareOfLaneCovered": 1.0,
+    "shareOfLaneCovered": 1,
     "slug": "montmartre-paris",
     "name": "Montmartre steps, Paris"
   },
@@ -28,7 +28,7 @@
     "photosUsable": 368,
     "facing": 44,
     "facingPer100m": 38.7,
-    "shareOfLaneCovered": 1.0,
+    "shareOfLaneCovered": 1,
     "slug": "circular-quay-sydney",
     "name": "Circular Quay, Sydney"
   },
@@ -38,19 +38,19 @@
     "photosInBox": 822,
     "photosUsable": 87,
     "facing": 0,
-    "facingPer100m": 0.0,
-    "shareOfLaneCovered": 0.0,
+    "facingPer100m": 0,
+    "shareOfLaneCovered": 0,
     "slug": "lombard-street-san-francisco",
     "name": "Lombard Street, San Francisco"
   },
   {
-    "laneRealM": 52.0,
+    "laneRealM": 52,
     "steps10m": 6,
     "photosInBox": 815,
     "photosUsable": 619,
     "facing": 127,
     "facingPer100m": 244.3,
-    "shareOfLaneCovered": 1.0,
+    "shareOfLaneCovered": 1,
     "slug": "shibuya-tokyo",
     "name": "Shibuya, Tokyo"
   },
@@ -61,18 +61,18 @@
     "photosUsable": 551,
     "facing": 221,
     "facingPer100m": 293.1,
-    "shareOfLaneCovered": 1.0,
+    "shareOfLaneCovered": 1,
     "slug": "ciutadella-barcelona",
     "name": "Ciutadella Park, Barcelona"
   },
   {
-    "laneRealM": 167.0,
+    "laneRealM": 167,
     "steps10m": 17,
     "photosInBox": 1210,
     "photosUsable": 1208,
     "facing": 304,
     "facingPer100m": 182.1,
-    "shareOfLaneCovered": 1.0,
+    "shareOfLaneCovered": 1,
     "slug": "edinburgh-old-town",
     "name": "Old Town, Edinburgh"
   },
@@ -82,8 +82,8 @@
     "photosInBox": 1188,
     "photosUsable": 1178,
     "facing": 420,
-    "facingPer100m": 140.0,
-    "shareOfLaneCovered": 1.0,
+    "facingPer100m": 140,
+    "shareOfLaneCovered": 1,
     "slug": "positano-italy",
     "name": "Positano, Italy"
   },
@@ -94,7 +94,7 @@
     "photosUsable": 95,
     "facing": 25,
     "facingPer100m": 58.4,
-    "shareOfLaneCovered": 1.0,
+    "shareOfLaneCovered": 1,
     "slug": "valletta-harbour-malta",
     "name": "Grand Harbour, Valletta"
   },
@@ -105,7 +105,7 @@
     "photosUsable": 1300,
     "facing": 522,
     "facingPer100m": 210.7,
-    "shareOfLaneCovered": 1.0,
+    "shareOfLaneCovered": 1,
     "slug": "speicherstadt-hamburg",
     "name": "Speicherstadt, Hamburg"
   },
@@ -116,7 +116,7 @@
     "photosUsable": 1217,
     "facing": 410,
     "facingPer100m": 521.1,
-    "shareOfLaneCovered": 1.0,
+    "shareOfLaneCovered": 1,
     "slug": "alfama-lisbon",
     "name": "Alfama, Lisbon"
   },
@@ -127,7 +127,7 @@
     "photosUsable": 837,
     "facing": 112,
     "facingPer100m": 89.2,
-    "shareOfLaneCovered": 1.0,
+    "shareOfLaneCovered": 1,
     "slug": "spanish-steps-rome",
     "name": "Spanish Steps, Rome"
   },
@@ -138,9 +138,9 @@
     "photosUsable": 775,
     "facing": 198,
     "facingPer100m": 179.1,
-    "shareOfLaneCovered": 1.0,
+    "shareOfLaneCovered": 1,
     "slug": "parc-guell-barcelona",
-    "name": "Park G\u00fcell, Barcelona"
+    "name": "Park Güell, Barcelona"
   },
   {
     "laneRealM": 59.7,
@@ -149,18 +149,18 @@
     "photosUsable": 105,
     "facing": 27,
     "facingPer100m": 45.2,
-    "shareOfLaneCovered": 1.0,
+    "shareOfLaneCovered": 1,
     "slug": "tuileries-paris",
     "name": "Tuileries Garden, Paris"
   },
   {
-    "laneRealM": 41.0,
+    "laneRealM": 41,
     "steps10m": 5,
     "photosInBox": 337,
     "photosUsable": 335,
     "facing": 51,
     "facingPer100m": 124.4,
-    "shareOfLaneCovered": 1.0,
+    "shareOfLaneCovered": 1,
     "slug": "retiro-park-madrid",
     "name": "Retiro Park, Madrid"
   },
@@ -171,7 +171,7 @@
     "photosUsable": 367,
     "facing": 73,
     "facingPer100m": 105.2,
-    "shareOfLaneCovered": 1.0,
+    "shareOfLaneCovered": 1,
     "slug": "bryant-park-new-york",
     "name": "Bryant Park, New York"
   },
@@ -182,18 +182,18 @@
     "photosUsable": 283,
     "facing": 15,
     "facingPer100m": 22.8,
-    "shareOfLaneCovered": 1.0,
+    "shareOfLaneCovered": 1,
     "slug": "gas-works-park-seattle",
     "name": "Gas Works Park, Seattle"
   },
   {
-    "laneRealM": 84.0,
+    "laneRealM": 84,
     "steps10m": 9,
     "photosInBox": 685,
     "photosUsable": 501,
     "facing": 155,
     "facingPer100m": 184.6,
-    "shareOfLaneCovered": 1.0,
+    "shareOfLaneCovered": 1,
     "slug": "dolores-park-san-francisco",
     "name": "Dolores Park, San Francisco"
   },
@@ -204,7 +204,7 @@
     "photosUsable": 965,
     "facing": 338,
     "facingPer100m": 165.3,
-    "shareOfLaneCovered": 1.0,
+    "shareOfLaneCovered": 1,
     "slug": "piazza-san-marco-venice",
     "name": "Piazza San Marco, Venice"
   },
@@ -225,8 +225,8 @@
     "photosInBox": 47,
     "photosUsable": 13,
     "facing": 0,
-    "facingPer100m": 0.0,
-    "shareOfLaneCovered": 0.0,
+    "facingPer100m": 0,
+    "shareOfLaneCovered": 0,
     "slug": "place-des-vosges-paris",
     "name": "Place des Vosges, Paris"
   },
@@ -237,7 +237,7 @@
     "photosUsable": 954,
     "facing": 74,
     "facingPer100m": 459.6,
-    "shareOfLaneCovered": 1.0,
+    "shareOfLaneCovered": 1,
     "slug": "trafalgar-square-london",
     "name": "Trafalgar Square, London"
   },
@@ -248,7 +248,7 @@
     "photosUsable": 1264,
     "facing": 225,
     "facingPer100m": 199.3,
-    "shareOfLaneCovered": 1.0,
+    "shareOfLaneCovered": 1,
     "slug": "covent-garden-london",
     "name": "Covent Garden, London"
   },
@@ -259,7 +259,7 @@
     "photosUsable": 1671,
     "facing": 1049,
     "facingPer100m": 521.2,
-    "shareOfLaneCovered": 1.0,
+    "shareOfLaneCovered": 1,
     "slug": "washington-square-new-york",
     "name": "Washington Square, New York"
   },
@@ -275,7 +275,7 @@
     "photosUsable": 682,
     "facing": 58,
     "facingPer100m": 64.7,
-    "shareOfLaneCovered": 1.0,
+    "shareOfLaneCovered": 1,
     "slug": "old-town-square-prague",
     "name": "Old Town Square, Prague"
   },
@@ -286,18 +286,18 @@
     "photosUsable": 332,
     "facing": 115,
     "facingPer100m": 483.4,
-    "shareOfLaneCovered": 1.0,
+    "shareOfLaneCovered": 1,
     "slug": "piazza-navona-rome",
     "name": "Piazza Navona, Rome"
   },
   {
-    "laneRealM": 119.0,
+    "laneRealM": 119,
     "steps10m": 12,
     "photosInBox": 1628,
     "photosUsable": 1576,
     "facing": 511,
     "facingPer100m": 429.3,
-    "shareOfLaneCovered": 1.0,
+    "shareOfLaneCovered": 1,
     "slug": "nyhavn-copenhagen",
     "name": "Nyhavn, Copenhagen"
   },
@@ -308,7 +308,7 @@
     "photosUsable": 966,
     "facing": 254,
     "facingPer100m": 120.1,
-    "shareOfLaneCovered": 1.0,
+    "shareOfLaneCovered": 1,
     "slug": "boston-common-beacon-hill",
     "name": "Beacon Hill, Boston"
   }

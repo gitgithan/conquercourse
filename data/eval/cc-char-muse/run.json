@@ -2,11 +2,35 @@
   "experiment": "cc-char-muse",
   "date": "2026-10-31",
   "characters": 8,
-  "muse_image": { "ok": 8, "usd_each": 0.01, "seconds": [10.6, 25.3] },
-  "sam31": { "ok": 8, "usd_each_approx": 0.0025 },
-  "route_a": { "ok": 8, "usd_per_character_cold": 0.048, "usd_per_character_warm": 0.02, "glb_kb_6000_faces": [287, 403], "glb_kb_3000_faces": 207 },
-  "route_b": { "ok": 1, "note": "hoodie only; others not completed at write time" },
-  "route_c": { "ok": 4 },
+  "muse_image": {
+    "ok": 8,
+    "usd_each": 0.01,
+    "seconds": [
+      10.6,
+      25.3
+    ]
+  },
+  "sam31": {
+    "ok": 8,
+    "usd_each_approx": 0.0025
+  },
+  "route_a": {
+    "ok": 8,
+    "usd_per_character_cold": 0.048,
+    "usd_per_character_warm": 0.02,
+    "glb_kb_6000_faces": [
+      287,
+      403
+    ],
+    "glb_kb_3000_faces": 207
+  },
+  "route_b": {
+    "ok": 1,
+    "note": "hoodie only; others not completed at write time"
+  },
+  "route_c": {
+    "ok": 4
+  },
   "route_d": "not run",
   "route_e": "not reachable",
   "total_usd_upper": 1.7
