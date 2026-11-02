@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ConquerCourse Site Map</title>
+<style>
+:root{--bg:#f6f4ee;--panel:#fffdf7;--ink:#17201d;--mute:#56625b;--line:#cfd6d0;--accent:#0f6b5c;--hi:#ffe38a;--hiink:#4a3600;--c-done:#2f7d4f;--c-prog:#b86e00;--c-back:#6a6f8a;--c-can:#8a5a5a}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#121715;--panel:#1b2420;--ink:#e8eee9;--mute:#a3b4aa;--line:#33413a;--accent:#4cc3ac;--hi:#5a4710;--hiink:#ffe9a8;--c-done:#62c98a;--c-prog:#f0b45a;--c-back:#a3a8c8;--c-can:#d09a9a}}
+:root[data-theme="dark"]{--bg:#121715;--panel:#1b2420;--ink:#e8eee9;--mute:#a3b4aa;--line:#33413a;--accent:#4cc3ac;--hi:#5a4710;--hiink:#ffe9a8;--c-done:#62c98a;--c-prog:#f0b45a;--c-back:#a3a8c8;--c-can:#d09a9a}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif}
+main{max-width:1180px;margin:0 auto;padding:24px 16px 64px}
+nav.top{display:flex;gap:14px;flex-wrap:wrap;align-items:center;margin-bottom:18px;font-size:14px}
+nav.top a{color:var(--accent);text-decoration:none;font-weight:600}
+nav.top a:hover{text-decoration:underline}
+nav.top .sp{flex:1}
+h1{margin:0 0 4px;font-size:28px}
+h2{font-size:19px;margin:26px 0 8px}
+.sub{color:var(--mute);margin:0 0 16px}
+.bar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:0 0 12px}
+input[type=search],select,button,.btn{font:inherit;color:var(--ink);background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:7px 11px}
+input[type=search]{flex:1;min-width:220px}
+button,.btn{cursor:pointer;text-decoration:none;display:inline-block}
+button:hover,.btn:hover{border-color:var(--accent)}
+button[aria-pressed=true]{background:var(--accent);color:var(--bg);border-color:var(--accent)}
+:focus-visible{outline:3px solid #f0a020;outline-offset:1px}
+.cards{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin:18px 0}
+.card{display:block;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:18px;color:inherit;text-decoration:none}
+.card:hover{border-color:var(--accent)}
+.card h2{margin:0 0 6px}
+.slogan{font-size:20px;font-weight:700;color:var(--accent);margin:20px 0}
+.dl{display:flex;gap:8px;flex-wrap:wrap}
+.hidden{display:none!important}
+.note{color:var(--mute);font-size:13px}
+</style>
+</head>
+<body>
+<main>
+<nav class="top" aria-label="The Making Of">
+<a href="index.html">The Making Of</a>
+<a href="site-map.html">Site map</a>
+<a href="course-map.html">Course map</a>
+<span class="sp"></span>
+<span class="dl"><button type="button" id="dl-page">Download this page (.html)</button></span>
+</nav>
+<h1>Site map</h1>
+<p class="sub">Every player screen, how you get there and where it leads. Open a branch to see what is inside it.</p>
+<div class="bar"><input type="search" id="q" placeholder="Search screens and journeys" aria-label="Search"><button type="button" id="expand">Open all</button><button type="button" id="collapse">Close all</button></div>
+<h2>The screens</h2>
+<div id="tree"></div>
+<h2>Journeys</h2>
+<div id="journeys"></div>
+</main>
+<script>
+function dl(name,type,text){var a=document.createElement('a');a.href=URL.createObjectURL(new Blob([text],{type:type}));a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(function(){URL.revokeObjectURL(a.href)},1000)}
+function dlPage(name){dl(name,'text/html;charset=utf-8','<!doctype html>\n'+document.documentElement.outerHTML)}
+
+document.getElementById('dl-page').addEventListener('click',function(){dlPage('site-map.html')});
+
+var DATA={"tree":[{"name":"Welcome screen","doText":"You see the logo, two runners in a park and four big tiles.","how":"Open the game with no extra words in the address.","leads":["The Course (play)","Courses picker","World Editor","World Slicer","Community"],"children":[]},{"name":"Top bar","doText":"You jump between the four main places from one bar at the top of the page.","how":"It is on the Course, World Editor, World Slicer, Community and Dojo pages.","leads":["Courses picker","World Editor","World Slicer","Community"],"children":[]},{"name":"Courses picker","doText":"You pick a course, a lesson or a tool from cards with pictures.","how":"Press the Courses button in the top bar.","leads":["The Course (play)","Parts gallery","Coaster builder","World Editor","World Slicer","Dojo","University Labs"],"children":[{"name":"Start here","doText":"You find the gentle first course and the harder showcase courses.","how":"Courses picker, group \"Start here\".","leads":["The Course (play)"],"children":[]},{"name":"Real places","doText":"You run over the roofs of real streets such as Montmartre or Sydney.","how":"Courses picker, group \"Real places\".","leads":["The Course (play)","World Slicer"],"children":[]},{"name":"Contraptions","doText":"You try a coaster, a trebuchet, a band, a drone and a cannon.","how":"Courses picker, group \"Contraptions\".","leads":["The Course (play)"],"children":[]},{"name":"Make your own","doText":"You get a random course the simulator has proved clearable, or open a builder.","how":"Courses picker, group \"Make your own\".","leads":["The Course (play)","World Editor","Coaster builder"],"children":[]}]},{"name":"The Course (play)","doText":"You run, jump, hang, swing and climb a small runner to the finish.","how":"Welcome screen (any key), or pick a course in the Courses picker.","leads":["End report","World Editor","Courses picker","A friend's challenge link"],"children":[{"name":"First-visit tour","doText":"A short guide shows the camera, the keys, retry and the best line.","how":"It opens by itself on your first course; the ? button plays it again.","leads":["The Course (play)"],"children":[]},{"name":"Help chip (?)","doText":"You see your controls, replay the tour or go to Courses.","how":"Round ? button, bottom left of any course.","leads":["Courses picker"],"children":[]},{"name":"Characters picker","doText":"You change who runs: a Rookie, a starter character or one you made.","how":"Characters button at the top of the course.","leads":["Community","The Course (play)"],"children":[]},{"name":"Ghost chip","doText":"You race a see-through runner: the best line, or a friend.","how":"Ghost chip at the top, or press N.","leads":["The Course (play)"],"children":[]},{"name":"Fall panel","doText":"You see where you fell and can retry, edit the course or save a clip.","how":"It appears when you fall; press R to retry at once.","leads":["The Course (play)","World Editor"],"children":[]},{"name":"End report","doText":"You see your time, publish it, copy a link and save a video.","how":"Reach the finish line.","leads":["Leaderboard","Share a run","World Editor","The Course (play)"],"children":[{"name":"Leaderboard","doText":"You see the best times on this course and where you stand.","how":"Press \"Publish to Leaderboard\" in the end report, or look at the board in the corner.","leads":["The Course (play)"],"children":[]},{"name":"Share a run","doText":"You copy a short link, or save a video, so a friend can chase you.","how":"End report: \"Copy link\" or \"Download video\".","leads":["A friend's challenge link"],"children":[]}]}]},{"name":"A friend's challenge link","doText":"You open a short link and the course plays your friend's run as a ghost.","how":"Open a link that someone copied from their end report.","leads":["The Course (play)"],"children":[]},{"name":"Parts gallery","doText":"You see every move and every obstacle on one page, each playing live.","how":"Courses picker, card \"Parts: moves and obstacles\".","leads":["The Course (play)"],"children":[]},{"name":"Coaster builder","doText":"You drag dots to shape a track and then ride it.","how":"Courses picker, group \"Make your own\", card \"Build your own coaster\".","leads":["The Course (play)"],"children":[]},{"name":"World Editor","doText":"You place real objects and bars into a lane and the simulator checks it can be cleared.","how":"Top bar: World Editor, or inside a course: \"Edit this course\".","leads":["The Course (play)","Community","World Slicer"],"children":[{"name":"Add pieces","doText":"You pick shapes, real objects, bars, machines or your own pieces.","how":"World Editor, \"Add pieces\" button.","leads":["World Editor"],"children":[]},{"name":"Fix menu","doText":"The simulator says in plain words why a lane cannot be cleared and shows a small change.","how":"World Editor, \"Fix\" button at the top.","leads":["World Editor"],"children":[]},{"name":"Moves and Design partner","doText":"You see which moves your lane has and ask a helper what to change.","how":"World Editor, \"Moves\" and \"Design partner\" buttons.","leads":["World Editor"],"children":[]},{"name":"Play this lane","doText":"You run the lane you built.","how":"World Editor, right column, \"Play this lane\".","leads":["The Course (play)"],"children":[]}]},{"name":"World Slicer","doText":"You pick a real place and cut a lane out of its buildings.","how":"Top bar: World Slicer.","leads":["The Course (play)","World Editor"],"children":[{"name":"Pick a place","doText":"You search for a place or choose a ready one, with street photos if it has them.","how":"World Slicer, search box or place cards.","leads":["Cut and slice"],"children":[]},{"name":"Cut and slice","doText":"You choose the height line and the buildings, then slice the place.","how":"World Slicer, \"Slice this place\".","leads":["Build this place"],"children":[]},{"name":"Build this place","doText":"The place becomes a course you can run.","how":"World Slicer, \"Build this place\".","leads":["The Course (play)","World Editor"],"children":[]}]},{"name":"Community","doText":"You turn a photo into a 3D piece and see pieces other people made.","how":"Top bar: Community.","leads":["World Editor"],"children":[{"name":"Explore","doText":"You look at pieces people made and add one to your editor.","how":"Community opens here first.","leads":["Make","World Editor"],"children":[]},{"name":"Make","doText":"You pick a photo, click the thing you want, and make a 3D piece.","how":"Explore, button \"Make your own\".","leads":["Prize screen"],"children":[]},{"name":"Prize screen","doText":"Your new piece spins on a turntable and you can keep it, share it or use it.","how":"It opens when a piece is ready.","leads":["World Editor","Explore"],"children":[]}]},{"name":"Dojo","doText":"You learn one bit of physics at a time by trying, guessing and testing.","how":"Courses picker, group \"Dojo (learn the physics, then play)\".","leads":["The Course (play)","Courses picker"],"children":[{"name":"A Dojo lesson","doText":"You move the knobs, guess the result, watch the test and then see the shape of the rule.","how":"Pick a lesson card, such as \"Gap jump\" or \"Rope swing\".","leads":["The Course (play)"],"children":[]}]},{"name":"University Labs","doText":"You explore twelve bigger ideas, such as search or camera maths, and equations are allowed here.","how":"Courses picker, group \"Labs (university level)\".","leads":["Courses picker"],"children":[{"name":"A Lab","doText":"You change settings and read the numbers in one hands-on page.","how":"Pick a Lab card; the Labs bar at the top switches Labs.","leads":["University Labs"],"children":[]}]},{"name":"Feedback card","doText":"You tell the team what was fun or confusing in a short form.","how":"The small Feedback button on every screen.","leads":["back to where you were"],"children":[]}],"journeys":[{"name":"Play your first course","steps":[{"name":"Welcome screen","text":"Open the game and press any key."},{"name":"First-visit tour","text":"Read the short tour (Next, or Skip)."},{"name":"The Course (play)","text":"Run with the arrow keys and jump with Space."},{"name":"Fall panel","text":"Fell? Press R and try again."},{"name":"End report","text":"Reach the finish and read your time."},{"name":"Courses picker","text":"Press Courses to pick the next one."}]},{"name":"Make your own course","steps":[{"name":"Courses picker","text":"Press Courses, or go straight to the top bar."},{"name":"World Editor","text":"Press World Editor."},{"name":"Add pieces","text":"Press \"Add pieces\" and place a bench, a wall or a bar."},{"name":"Fix menu","text":"Press Fix to see if it can be cleared and what to change."},{"name":"Play this lane","text":"Press \"Play this lane\"."},{"name":"The Course (play)","text":"Run your own course."}]},{"name":"Run over a real place","steps":[{"name":"Top bar","text":"Use the top bar."},{"name":"World Slicer","text":"Press World Slicer."},{"name":"Pick a place","text":"Search for a place, or choose a ready one."},{"name":"Cut and slice","text":"Choose the height and buildings, then press \"Slice this place\"."},{"name":"Build this place","text":"Press \"Build this place\"."},{"name":"The Course (play)","text":"Run the lane you cut."}]},{"name":"Learn the physics in the Dojo","steps":[{"name":"Courses picker","text":"Press Courses."},{"name":"Dojo","text":"Scroll to the Dojo group."},{"name":"A Dojo lesson","text":"Pick a lesson, move the knobs, guess, then test."},{"name":"The Course (play)","text":"Go back to a course and use what you learned."}]},{"name":"Share a run","steps":[{"name":"The Course (play)","text":"Clear a course."},{"name":"End report","text":"Open the end report."},{"name":"Leaderboard","text":"Optionally type a three-letter tag and publish to the leaderboard."},{"name":"Share a run","text":"Press \"Copy link\" or \"Download video\"."},{"name":"A friend's challenge link","text":"Your friend opens the link and chases your ghost."}]},{"name":"Turn a photo into a jump","steps":[{"name":"Top bar","text":"Use the top bar."},{"name":"Community","text":"Press Community."},{"name":"Explore","text":"Look at what others made."},{"name":"Make","text":"Press \"Make your own\", pick a photo and click the thing you want."},{"name":"Prize screen","text":"Wait for the spinning prize screen."},{"name":"World Editor","text":"Press \"Open in the World Editor\" and place your piece."},{"name":"The Course (play)","text":"Press \"Play this lane\" and jump over it."}]}]};
+var tree=document.getElementById('tree'),jr=document.getElementById('journeys'),q=document.getElementById('q');
+function slug(s){return 'n-'+s.toLowerCase().replace(/[^a-z0-9]+/g,'-')}
+function el(t,c,x){var e=document.createElement(t);if(c)e.className=c;if(x!=null)e.textContent=x;return e}
+function find(n){var f=null;(function w(a){a.forEach(function(x){if(!f&&x.name.toLowerCase()===n.toLowerCase())f=x;w(x.children)})})(DATA.tree);return f}
+function go(name){var n=find(name);if(!n)return;var e=document.getElementById(slug(n.name));if(!e)return;q.value='';filter();
+ var p=e;while(p&&p!==tree){if(p.tagName==='DETAILS')p.open=true;p=p.parentNode}
+ e.scrollIntoView({block:'center'});e.style.outline='3px solid #f0a020';setTimeout(function(){e.style.outline=''},1400)}
+function link(name){var b=el('button','lk',name);b.type='button';b.style.cssText='padding:1px 8px;margin:2px 4px 2px 0;font-size:13px';b.addEventListener('click',function(){go(name)});return b}
+function node(n,depth){var d=el('details','node');d.id=slug(n.name);d.style.cssText='margin:4px 0 4px '+(depth?16:0)+'px;background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:6px 10px';
+ d.dataset.text=(n.name+' '+n.doText+' '+n.how+' '+n.leads.join(' ')).toLowerCase();
+ var s=el('summary',null,n.name);s.style.cssText='cursor:pointer;font-weight:600';d.appendChild(s);
+ var b=el('div');b.style.cssText='padding:4px 0 2px';
+ [['You do',n.doText],['How to get there',n.how]].forEach(function(r){if(r[1]){var p=el('div');p.appendChild(el('b',null,r[0]+': '));p.appendChild(document.createTextNode(r[1]));b.appendChild(p)}});
+ if(n.leads.length){var p=el('div');p.appendChild(el('b',null,'Leads to: '));n.leads.forEach(function(l){p.appendChild(find(l)?link(l):el('span',null,l+' '))});b.appendChild(p)}
+ d.appendChild(b);n.children.forEach(function(c){d.appendChild(node(c,1))});return d}
+function render(){tree.textContent='';jr.textContent='';DATA.tree.forEach(function(n){tree.appendChild(node(n,0))});
+ DATA.journeys.forEach(function(j){var c=el('details','jny');c.style.cssText='background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:8px 14px;margin:8px 0';
+  c.dataset.text=(j.name+' '+j.steps.map(function(s){return s.name+' '+s.text}).join(' ')).toLowerCase();
+  var s=el('summary',null,j.name);s.style.cssText='cursor:pointer;font-weight:600';c.appendChild(s);
+  var ol=el('ol');j.steps.forEach(function(st){var li=el('li');if(find(st.name)){li.appendChild(link(st.name))}else{li.appendChild(el('b',null,st.name))}
+   if(st.text){li.appendChild(document.createTextNode(' '+st.text))}ol.appendChild(li)});c.appendChild(ol);jr.appendChild(c)})}
+function filter(){var t=q.value.trim().toLowerCase();
+ document.querySelectorAll('details.node').forEach(function(d){d.classList.remove('hidden')});
+ document.querySelectorAll('details.jny').forEach(function(d){d.classList.toggle('hidden',!!t&&d.dataset.text.indexOf(t)<0)});
+ if(!t)return;
+ [].slice.call(document.querySelectorAll('details.node')).forEach(function(d){var own=d.dataset.text.indexOf(t)>=0;var kid=[].slice.call(d.querySelectorAll('details.node')).some(function(k){return k.dataset.text.indexOf(t)>=0});
+  d.classList.toggle('hidden',!own&&!kid);if(kid)d.open=true})}
+q.addEventListener('input',filter);
+document.getElementById('expand').addEventListener('click',function(){document.querySelectorAll('#tree details').forEach(function(d){d.open=true})});
+document.getElementById('collapse').addEventListener('click',function(){document.querySelectorAll('#tree details').forEach(function(d){d.open=false})});
+render();
+</script>
+</body>
+</html>

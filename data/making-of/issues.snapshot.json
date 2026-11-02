@@ -1,0 +1,2696 @@
+{
+  "source": "Linear team ConquerCourse (key CC), project conquercourse",
+  "takenOn": "2026-11-03",
+  "note": "Relations come from the Links block at the top of each issue text; when that text was cut short, later relations may be missing.",
+  "issues": [
+    {
+      "id": "CC-1",
+      "title": "Transfer knowledge and assets into the new repo (spec, lessons, pipelines, experiments, challenges, characters, footage manifest, prior-work disclosure)",
+      "state": "Done",
+      "milestone": "M0 Repo skeleton",
+      "dependsOn": [],
+      "affects": [
+        "CC-2",
+        "CC-17"
+      ],
+      "purpose": ""
+    },
+    {
+      "id": "CC-2",
+      "title": "App skeleton: Vite + TypeScript + three.js WebGPU page shows the ground and Rookie A standing; `npm run test:quick` runs",
+      "state": "Done",
+      "milestone": "M0 Repo skeleton",
+      "dependsOn": [
+        "CC-1"
+      ],
+      "affects": [
+        "CC-3"
+      ],
+      "purpose": ""
+    },
+    {
+      "id": "CC-3",
+      "title": "Browser smoke test and true-speed film helper (Playwright, headless WebGPU; runs on the VM)",
+      "state": "Done",
+      "milestone": "M0 Repo skeleton",
+      "dependsOn": [
+        "CC-2"
+      ],
+      "affects": [
+        "CC-28"
+      ],
+      "purpose": ""
+    },
+    {
+      "id": "CC-4",
+      "title": "Merge path for VM agents: one branch per task, rebase, quick tests, fast-forward main",
+      "state": "In Progress",
+      "milestone": "M0 Repo skeleton",
+      "dependsOn": [
+        "CC-2"
+      ],
+      "affects": [
+        "CC-17"
+      ],
+      "purpose": ""
+    },
+    {
+      "id": "CC-5",
+      "title": "Simulator core: fixed 1/120 s step, sprint toward Top speed, grip-limited braking, ballistic flight; each law tested against its closed form",
+      "state": "Done",
+      "milestone": "M1 Simulator",
+      "dependsOn": [
+        "CC-2"
+      ],
+      "affects": [
+        "CC-6"
+      ],
+      "purpose": ""
+    },
+    {
+      "id": "CC-6",
+      "title": "Obstacles in the simulator: gap with water, precision steps, landing squat and stumble",
+      "state": "Done",
+      "milestone": "M1 Simulator",
+      "dependsOn": [
+        "CC-5"
+      ],
+      "affects": [
+        "CC-10"
+      ],
+      "purpose": ""
+    },
+    {
+      "id": "CC-7",
+      "title": "Warped Wall in the simulator: run up the curve, grab the top when the hands reach it, slide back otherwise",
+      "state": "Done",
+      "milestone": "M1 Simulator",
+      "dependsOn": [
+        "CC-5"
+      ],
+      "affects": [
+        "CC-10"
+      ],
+      "purpose": ""
+    },
+    {
+      "id": "CC-8",
+      "title": "Rope Swing in the simulator: honest catch where the hands meet the rope, pendulum swing, release",
+      "state": "Done",
+      "milestone": "M1 Simulator",
+      "dependsOn": [
+        "CC-5"
+      ],
+      "affects": [
+        "CC-10"
+      ],
+      "purpose": ""
+    },
+    {
+      "id": "CC-9",
+      "title": "Trampoline in the simulator: spring bounce with energy return",
+      "state": "Done",
+      "milestone": "M1 Simulator",
+      "dependsOn": [
+        "CC-5"
+      ],
+      "affects": [
+        "CC-10"
+      ],
+      "purpose": ""
+    },
+    {
+      "id": "CC-10",
+      "title": "Ideal-run search: each obstacle's ideal input timing and its clearing window in milliseconds",
+      "state": "Done",
+      "milestone": "M1 Simulator",
+      "dependsOn": [
+        "CC-6",
+        "CC-7"
+      ],
+      "affects": [],
+      "purpose": ""
+    },
+    {
+      "id": "CC-11",
+      "title": "The Course: five obstacles in a row, keyboard controls, side camera, one take",
+      "state": "In Progress",
+      "milestone": "M2 Course and Dojo",
+      "dependsOn": [
+        "CC-6",
+        "CC-7"
+      ],
+      "affects": [],
+      "purpose": ""
+    },
+    {
+      "id": "CC-12",
+      "title": "After a fall: instant retry, a skippable 2-second replay with one nudge, and the offer to train the obstacle",
+      "state": "Backlog",
+      "milestone": "M2 Course and Dojo",
+      "dependsOn": [
+        "CC-10",
+        "CC-11"
+      ],
+      "affects": [],
+      "purpose": ""
+    },
+    {
+      "id": "CC-13",
+      "title": "The Dojo: one obstacle, its knobs, predict then test, ghost of the last run and the ideal line",
+      "state": "In Progress",
+      "milestone": "M2 Course and Dojo",
+      "dependsOn": [
+        "CC-10",
+        "CC-11"
+      ],
+      "affects": [],
+      "purpose": ""
+    },
+    {
+      "id": "CC-14",
+      "title": "Physics sayings: earned when the player's predictions for an obstacle get close; collected in a trophy cabinet",
+      "state": "In Progress",
+      "milestone": "M2 Course and Dojo",
+      "dependsOn": [
+        "CC-13"
+      ],
+      "affects": [
+        "CC-28"
+      ],
+      "purpose": ""
+    },
+    {
+      "id": "CC-15",
+      "title": "First-time flow: a new player clears a short course within 3 minutes",
+      "state": "In Progress",
+      "milestone": "M2 Course and Dojo",
+      "dependsOn": [
+        "CC-11",
+        "CC-12"
+      ],
+      "affects": [],
+      "purpose": ""
+    },
+    {
+      "id": "CC-16",
+      "title": "Rookies on the simulator's path: load either character and pose it from a clip, hips on the simulated path",
+      "state": "In Progress",
+      "milestone": "M3 Characters and motion",
+      "dependsOn": [
+        "CC-2",
+        "CC-5"
+      ],
+      "affects": [],
+      "purpose": ""
+    },
+    {
+      "id": "CC-17",
+      "title": "Starter clip set through the plausibility check: run, leap, land, hang, swing, wall run-up and grab",
+      "state": "In Progress",
+      "milestone": "M3 Characters and motion",
+      "dependsOn": [
+        "CC-1",
+        "CC-7"
+      ],
+      "affects": [],
+      "purpose": ""
+    },
+    {
+      "id": "CC-18",
+      "title": "Contacts and collisions in the game: hands and feet on the obstacle with IK, skin pushed out of obstacles",
+      "state": "Backlog",
+      "milestone": "M3 Characters and motion",
+      "dependsOn": [
+        "CC-7",
+        "CC-16"
+      ],
+      "affects": [],
+      "purpose": ""
+    },
+    {
+      "id": "CC-24",
+      "title": "Spike: SAM 3.1 on 10 openly licensed park photos through a server proxy",
+      "state": "Done",
+      "milestone": "M4 Park",
+      "dependsOn": [
+        "CC-1"
+      ],
+      "affects": [
+        "CC-25"
+      ],
+      "purpose": ""
+    },
+    {
+      "id": "CC-25",
+      "title": "Photo → course: segmented objects become primitives with roles and real sizes; editable boxes as the fallback",
+      "state": "In Progress",
+      "milestone": "M4 Park",
+      "dependsOn": [
+        "CC-2",
+        "CC-24",
+        "CC-29"
+      ],
+      "affects": [],
+      "purpose": ""
+    },
+    {
+      "id": "CC-26",
+      "title": "Filmed move → measured motion: the four Pexels clips through privacy masking and SAM 3D Body on Modal",
+      "state": "In Progress",
+      "milestone": "M4 Park",
+      "dependsOn": [
+        "CC-1"
+      ],
+      "affects": [
+        "CC-29"
+      ],
+      "purpose": ""
+    },
+    {
+      "id": "CC-27",
+      "title": "Strobe overlay: the simulator's predicted arc drawn over a real jump on footage",
+      "state": "Backlog",
+      "milestone": "M4 Park",
+      "dependsOn": [
+        "CC-5",
+        "CC-26"
+      ],
+      "affects": [],
+      "purpose": ""
+    },
+    {
+      "id": "CC-28",
+      "title": "Demo beat films and three vertical cuts for X",
+      "state": "Backlog",
+      "milestone": "M5 Demo capture",
+      "dependsOn": [
+        "CC-3",
+        "CC-11"
+      ],
+      "affects": [],
+      "purpose": ""
+    },
+    {
+      "id": "CC-29",
+      "title": "Video ingest: any CC-licensed video → obstacles (SAM 3.1) + motion (SAM 3D Body) → reusable primitives and move clips",
+      "state": "In Progress",
+      "milestone": "M4 Park",
+      "dependsOn": [
+        "CC-24",
+        "CC-26"
+      ],
+      "affects": [],
+      "purpose": ""
+    },
+    {
+      "id": "CC-30",
+      "title": "Playtest feedback, round 1: game, Dojo and links between them",
+      "state": "In Progress",
+      "milestone": "M2 Course and Dojo",
+      "dependsOn": [
+        "CC-11",
+        "CC-13"
+      ],
+      "affects": [],
+      "purpose": ""
+    },
+    {
+      "id": "CC-31",
+      "title": "Playtest feedback, round 2: movement, flow, landing feel, Dojo navigation and visuals",
+      "state": "In Progress",
+      "milestone": "M2 Course and Dojo",
+      "dependsOn": [
+        "CC-30"
+      ],
+      "affects": [
+        "CC-11"
+      ],
+      "purpose": ""
+    },
+    {
+      "id": "CC-32",
+      "title": "Playtest feedback, round 3: trampoline, retry from this obstacle, replay numbers",
+      "state": "In Progress",
+      "milestone": "M2 Course and Dojo",
+      "dependsOn": [
+        "CC-31"
+      ],
+      "affects": [
+        "CC-11"
+      ],
+      "purpose": ""
+    },
+    {
+      "id": "CC-33",
+      "title": "Public deployment and structured feedback: one always-on address, owner-controlled updates",
+      "state": "In Progress",
+      "milestone": "M5 Demo capture",
+      "dependsOn": [
+        "CC-11",
+        "CC-13"
+      ],
+      "affects": [],
+      "purpose": ""
+    },
+    {
+      "id": "CC-34",
+      "title": "Playtest feedback, round 4: cameras, standing pose, ideal-run warm-ups, Dojo graph, dynamic Dojo, predict-then-scrub",
+      "state": "In Progress",
+      "milestone": "M2 Course and Dojo",
+      "dependsOn": [
+        "CC-32"
+      ],
+      "affects": [
+        "CC-11"
+      ],
+      "purpose": ""
+    },
+    {
+      "id": "CC-35",
+      "title": "Playtest round 5: upright stand, camera switch, key card, live Dojo, Landing push graph, optional feedback form",
+      "state": "In Progress",
+      "milestone": null,
+      "dependsOn": [
+        "CC-34"
+      ],
+      "affects": [],
+      "purpose": "Serves the player on the Course and the Dojo learner: the owner's round-5 playtest notes (docs/feedback/round-05.md)."
+    },
+    {
+      "id": "CC-36",
+      "title": "Wall climb in two lowered stages: Kimodo run-up clip and hang-and-pull-up clip, joined in the game",
+      "state": "Canceled",
+      "milestone": null,
+      "dependsOn": [
+        "CC-17"
+      ],
+      "affects": [],
+      "purpose": "Serves the Warped Wall demo beat: a realistic climb for the Rookie instead of the run clip with blended arms."
+    },
+    {
+      "id": "CC-37",
+      "title": "Community obstacles: anyone digitises a real obstacle from their own photo, shares it, and others play it in the game",
+      "state": "In Progress",
+      "milestone": null,
+      "dependsOn": [
+        "CC-25"
+      ],
+      "affects": [],
+      "purpose": "Serves the public demo and the hackathon story: real-world obstacles become game content, made by the community, visible in the game. Feedback already asked for more content."
+    },
+    {
+      "id": "CC-38",
+      "title": "Photo to 3D object: SAM mask, SAM 3D Objects lift, baked game asset with its size from the maker (pipeline 7 rebuilt)",
+      "state": "Done",
+      "milestone": null,
+      "dependsOn": [
+        "CC-25"
+      ],
+      "affects": [],
+      "purpose": "Serves the community-obstacles epic: a railing or someone's favourite painted wall photographed, lifted to a textured 3D object, and placed in the obstacle world."
+    },
+    {
+      "id": "CC-39",
+      "title": "Photo skins and placing community objects in the obstacle world (the painted wall)",
+      "state": "In Progress",
+      "milestone": null,
+      "dependsOn": [
+        "CC-37"
+      ],
+      "affects": [],
+      "purpose": "Serves the community-obstacles epic: a maker's favourite wall, with its painting, stands in the game."
+    },
+    {
+      "id": "CC-40",
+      "title": "World editor: build a course from pieces at any scale (crop, copy, move, scale, turn), choose the lane, play it",
+      "state": "In Progress",
+      "milestone": null,
+      "dependsOn": [
+        "CC-39"
+      ],
+      "affects": [],
+      "purpose": "Serves the product vision: people photograph or scan their surroundings (even drone footage, even a desk of toy bricks), edit the world like an image, and characters run on it."
+    },
+    {
+      "id": "CC-41",
+      "title": "Custom player look from MHR: a body shaped like a person, from a consented photo",
+      "state": "Done",
+      "milestone": null,
+      "dependsOn": [
+        "CC-26"
+      ],
+      "affects": [],
+      "purpose": "Serves the player who wants a Rookie that looks like them, and the demo beat \"photo → SAM 3D Body → MHR → my runner\"."
+    },
+    {
+      "id": "CC-42",
+      "title": "Real-object library for the editor: where whole 3D objects come from (SA-3DAO and others)",
+      "state": "Backlog",
+      "milestone": null,
+      "dependsOn": [],
+      "affects": [],
+      "purpose": "Serves the world editor (CC-40): the player drops whole real objects, not a 2 m lane extrusion."
+    },
+    {
+      "id": "CC-43",
+      "title": "Smart world editor: suggest scale and rotation so a world can use every move (wall, rope, trampoline, gap, steps)",
+      "state": "In Progress",
+      "milestone": null,
+      "dependsOn": [
+        "CC-40"
+      ],
+      "affects": [],
+      "purpose": "Serves the player who builds a world from real objects and wants each move of the game to appear in it, and the demo beat \"my park becomes a course with all the moves\"."
+    },
+    {
+      "id": "CC-44",
+      "title": "Arms engine and the lache pair: holds in the air, hand keys (Q/E), swing pumping, side-view editing, front-view window, vault move",
+      "state": "In Progress",
+      "milestone": null,
+      "dependsOn": [
+        "CC-40"
+      ],
+      "affects": [],
+      "purpose": "Serves the player who wants real skill from the keyboard (hands, swing, vault) and the demo beat \"swing from one bar to the next, hands on screen\"."
+    },
+    {
+      "id": "CC-45",
+      "title": "Spike: shrink SA-3DAO structures into parkour terrain (licence first)",
+      "state": "In Progress",
+      "milestone": null,
+      "dependsOn": [
+        "CC-42"
+      ],
+      "affects": [],
+      "purpose": "Serves the world-scale idea: real structures (churches, ski lifts) shrunk to parkour size, run through the editor's lane search."
+    },
+    {
+      "id": "CC-46",
+      "title": "Spike: a place on the map becomes a course (OpenStreetMap buildings, terrain tiles, no keys)",
+      "state": "In Progress",
+      "milestone": null,
+      "dependsOn": [
+        "CC-39"
+      ],
+      "affects": [],
+      "purpose": "Serves the next big feature: drop a pin on a world map, get a course for that place; this spike does one place end to end as a script."
+    },
+    {
+      "id": "CC-47",
+      "title": "Course generator v1: compose a course from the move library with a difficulty ramp, proved by the simulator",
+      "state": "In Progress",
+      "milestone": null,
+      "dependsOn": [
+        "CC-44"
+      ],
+      "affects": [],
+      "purpose": "Serves the player who wants a fresh course on demand and the demo beat \"the game designs a course for me\"."
+    },
+    {
+      "id": "CC-48",
+      "title": "Map mode: drop a pin on a world map, build the place from OpenStreetMap, send it to the editor",
+      "state": "In Progress",
+      "milestone": null,
+      "dependsOn": [
+        "CC-46"
+      ],
+      "affects": [],
+      "purpose": "Serves the next big feature: a world map where a pin brings a city into the editor as a course."
+    },
+    {
+      "id": "CC-49",
+      "title": "PartLLM spike: find grabbable parts on our object meshes (holds from real objects)",
+      "state": "Backlog",
+      "milestone": null,
+      "dependsOn": [
+        "CC-42"
+      ],
+      "affects": [],
+      "purpose": "Serves the editor beat: a real object becomes a hold, so \"what can I hang from?\" comes from the object, not from us."
+    },
+    {
+      "id": "CC-50",
+      "title": "Mesh census: catch scale and broken-mesh bugs before an object enters the world",
+      "state": "Done",
+      "milestone": null,
+      "dependsOn": [
+        "CC-42"
+      ],
+      "affects": [],
+      "purpose": "Serves the editor and Course: collision comes from the same mesh as the picture, so a 100x scale bug or a hole makes a jump \"work\" on something that is not there."
+    },
+    {
+      "id": "CC-51",
+      "title": "Real terrain heights: map courses get true slopes and hills (AWS terrain tiles)",
+      "state": "In Progress",
+      "milestone": null,
+      "dependsOn": [
+        "CC-46"
+      ],
+      "affects": [],
+      "purpose": "Serves the map beat of the demo: a real place becomes a course, and its hills are real."
+    },
+    {
+      "id": "CC-52",
+      "title": "Photo to course draft with Muse Spark: drop a park photo, get a layout",
+      "state": "In Progress",
+      "milestone": null,
+      "dependsOn": [
+        "CC-40"
+      ],
+      "affects": [],
+      "purpose": "Serves the editor beat: a photo of a real park becomes a first course layout that the simulator then proves or fixes."
+    },
+    {
+      "id": "CC-53",
+      "title": "Sounds as timing feedback: vault, landing, grab, let-go, splash (CC0 only)",
+      "state": "In Progress",
+      "milestone": null,
+      "dependsOn": [
+        "CC-44"
+      ],
+      "affects": [],
+      "purpose": "Serves the lesson that timing is learned by feel: a sound on the grab and the let-go tells the player when they were right."
+    },
+    {
+      "id": "CC-54",
+      "title": "Pose-conditioned Kimodo: arm poses for hang, swing and vault from key poses",
+      "state": "In Progress",
+      "milestone": null,
+      "dependsOn": [
+        "CC-44"
+      ],
+      "affects": [],
+      "purpose": "Serves the lache beat: the Rookie's arms should look like the swing the simulator proves. The product owner's decision (2026-10-27) keeps motion capture for the Rookie, so this is an experiment only."
+    },
+    {
+      "id": "CC-55",
+      "title": "Object bake-off: SAM 3D Objects vs Tripo on the same park photos",
+      "state": "In Progress",
+      "milestone": null,
+      "dependsOn": [
+        "CC-42"
+      ],
+      "affects": [],
+      "purpose": "Serves the world: which source gives the objects that collide and look right, for the object library."
+    },
+    {
+      "id": "CC-56",
+      "title": "Roll and survivable drops: lanes no longer capped at 4.3 m, a hard landing ends the run",
+      "state": "In Progress",
+      "milestone": null,
+      "dependsOn": [
+        "CC-44"
+      ],
+      "affects": [],
+      "purpose": "Serves the lesson that a drop costs speed or hurts, and the roll is how a person survives a big one. The map and editor lanes stop being cut at 4.3 m (an arbitrary limit, product owner 2026-10-28)."
+    },
+    {
+      "id": "CC-57",
+      "title": "Shift+I: one ideal run through every obstacle; hazard floors beyond water",
+      "state": "In Progress",
+      "milestone": null,
+      "dependsOn": [
+        "CC-44"
+      ],
+      "affects": [],
+      "purpose": "Serves the demo: press one key and watch the whole course done right, without the run handing back to the player after each obstacle. The floor you must not touch becomes more interesting than water."
+    },
+    {
+      "id": "CC-58",
+      "title": "Lache swing: pivot exactly at the bar, full circles with pumping, and a real release flight",
+      "state": "Done",
+      "milestone": null,
+      "dependsOn": [
+        "CC-44"
+      ],
+      "affects": [],
+      "purpose": "Serves the lache beat of the demo: the swing must look and feel like a real swing, and a bigger pump must make a longer jump to the next bar. Found by the product owner playing the lache demo (2026-10-28)."
+    },
+    {
+      "id": "CC-59",
+      "title": "Contraptions: any object or setup becomes an obstacle world (stacks, roller coaster, trebuchet)",
+      "state": "Backlog",
+      "milestone": null,
+      "dependsOn": [],
+      "affects": [],
+      "purpose": "Serves the pitch (real world to game to real world) and the education goal: students set up a real thing, and the game turns it into a course whose physics they can predict and test. Product owner vision (2026-10-28): sport stacking shapes, science experiments, a trebuchet that launches the character, a cart for roller coasters."
+    },
+    {
+      "id": "CC-60",
+      "title": "Stacks: sport-stacking cup shapes (pyramids, 3-6-3, cycles) become obstacle shapes",
+      "state": "In Progress",
+      "milestone": null,
+      "dependsOn": [
+        "CC-40"
+      ],
+      "affects": [],
+      "purpose": "Serves the world beat: a familiar real set-up (cups stacked in sport stacking) becomes a course the player runs, vaults and jumps. The cheapest contraption, because the simulator already has steps and vaults."
+    },
+    {
+      "id": "CC-61",
+      "title": "Roller coaster: the character in a cart on a track, the energy lesson",
+      "state": "In Progress",
+      "milestone": null,
+      "dependsOn": [
+        "CC-40"
+      ],
+      "affects": [],
+      "purpose": "Serves the education beat: height is stored speed. A first hill that is too low stalls the cart; a crest that is too sharp throws it off; the player learns why without a formula (the formula is the last Dojo step only)."
+    },
+    {
+      "id": "CC-62",
+      "title": "Trebuchet: the character sits in the sling and launches himself across a gap",
+      "state": "In Progress",
+      "milestone": null,
+      "dependsOn": [],
+      "affects": [],
+      "purpose": "Serves the education beat: a lever turns a falling weight into a long throw, and the release moment decides how far you go. Waits for the swing release fix (CC-58) because both are flights from a moving release point."
+    },
+    {
+      "id": "CC-63",
+      "title": "Preview before apply: hollow ghosts show what moves where for Fix it, the partner's changes and advice",
+      "state": "In Progress",
+      "milestone": null,
+      "dependsOn": [
+        "CC-40"
+      ],
+      "affects": [],
+      "purpose": "Serves the editor beat and the education goal: the player decides, with the change in front of them, instead of a layout that changes behind their back."
+    },
+    {
+      "id": "CC-64",
+      "title": "Motion on demand: a pipeline from \"I need this move\" to a gated clip on the Rookie",
+      "state": "In Progress",
+      "milestone": null,
+      "dependsOn": [],
+      "affects": [],
+      "purpose": "Serves every new move in the demo: roll, vault, giant swing, seated cart, launch and hard landing all need a body that moves like the simulator says. First customer: the roll (key X), which has no clip today. Product owner request (2026-10-28): \"Design a pipeline so we get any motion we want.\""
+    },
+    {
+      "id": "CC-65",
+      "title": "Elastic band: run against it, stretch it, and be thrown forward beyond running speed",
+      "state": "In Progress",
+      "milestone": null,
+      "dependsOn": [
+        "CC-44"
+      ],
+      "affects": [],
+      "purpose": "Serves the education beat: stored energy. A stretched band stores the work you did and gives it back as speed, so a soft, long stretch can throw you faster than you can run."
+    },
+    {
+      "id": "CC-66",
+      "title": "Recoil: conservation of momentum, a heavy slug goes back slowly and the character is thrown forward fast",
+      "state": "In Progress",
+      "milestone": null,
+      "dependsOn": [
+        "CC-44"
+      ],
+      "affects": [],
+      "purpose": "Serves the education beat: momentum is conserved. Whatever is thrown one way gives the thrower the same momentum the other way, so a heavy thing moving slowly and a light character moving fast balance."
+    },
+    {
+      "id": "CC-67",
+      "title": "Lache playtest fixes: first-person mini camera, release flight matches the body, roll on any landing and roll drums",
+      "state": "In Progress",
+      "milestone": null,
+      "dependsOn": [
+        "CC-58"
+      ],
+      "affects": [],
+      "purpose": "Serves the lache beat of the demo: what the player sees, what the flight does after letting go, and the roll drum strip must match the body. Found by the product owner playing the lache demo (2026-10-28)."
+    },
+    {
+      "id": "CC-68",
+      "title": "Vault: take off further back, arc over the obstacle, stop sliding on the elevated level",
+      "state": "Done",
+      "milestone": null,
+      "dependsOn": [
+        "CC-44"
+      ],
+      "affects": [],
+      "purpose": "Serves the vault beat of the lache demo: a vault should look and feel like a speed vault, not a late reach followed by a long slide. Owner playtest (2026-10-28)."
+    },
+    {
+      "id": "CC-69",
+      "title": "Search got 35 to 45% slower after CC-56 (roll check and landing in every simulated step)",
+      "state": "In Progress",
+      "milestone": null,
+      "dependsOn": [
+        "CC-56"
+      ],
+      "affects": [],
+      "purpose": "Serves the editor and demo: Fix it, the ideal run and the generator all run the simulator many times, so every slowdown is waiting time for the player."
+    },
+    {
+      "id": "CC-70",
+      "title": "Advice and Fix it depend on machine speed: run them in a worker with a budget that does not hang the page",
+      "state": "In Progress",
+      "milestone": null,
+      "dependsOn": [
+        "CC-40"
+      ],
+      "affects": [],
+      "purpose": "Serves the editor beat: the player should get the same advice on a slow laptop as on a fast one, without the page freezing while it is worked out."
+    },
+    {
+      "id": "CC-71",
+      "title": "Shortcut discovery: the ideal run finds routes the designer did not plan, and course planning uses them",
+      "state": "In Progress",
+      "milestone": null,
+      "dependsOn": [],
+      "affects": [],
+      "purpose": "Serves the pitch (\"the simulator knows more than you do\") and the course designer: players and designers see routes nobody thought possible, such as a hard pump on the first bar skipping the second. Product owner request (2026-10-28): \"I want the ideal run to show shortcuts players didn't think was possible. Course planning needs such intelligence.\""
+    },
+    {
+      "id": "CC-72",
+      "title": "Atlas: one learning experience across physics, geography, architecture and maths, taught by slicing the world",
+      "state": "Done",
+      "milestone": null,
+      "dependsOn": [],
+      "affects": [],
+      "purpose": "Serves the pitch (real world to game to real world) and the education goal: the lessons stop being a button per obstacle and become one experience in which the player explores, slices, runs and discovers. Product owner idea (2026-10-28): \"If we can show horizontal slices of the map, that's exactly contour slicing. Let's pack all those lessons together. They don't have to show up in current state l"
+    },
+    {
+      "id": "CC-73",
+      "title": "The Slicer: a cut-height slider in map mode shows contours, floor plans and the lane at that height",
+      "state": "In Progress",
+      "milestone": null,
+      "dependsOn": [],
+      "affects": [],
+      "purpose": "Serves the Atlas loop (CC-72): the player drags a cut height and sees a hill as contour lines and a building as a floor plan, and sees the lane the Course would use at that height. First, cheapest build of the Atlas."
+    },
+    {
+      "id": "CC-74",
+      "title": "Trebuchet polish: Fix it and advice know the machine, a wider release window, accurate cue",
+      "state": "In Progress",
+      "milestone": null,
+      "dependsOn": [],
+      "affects": [],
+      "purpose": "Serves the trebuchet demo beat: a first-time player should be able to win the launch, and the editor should help them tune the machine. Findings from the CC-62 report (2026-10-28)."
+    },
+    {
+      "id": "CC-75",
+      "title": "Performance: ?perf=1 overlay, fewer draw calls in big worlds, and a draw-call budget check",
+      "state": "In Progress",
+      "milestone": null,
+      "dependsOn": [],
+      "affects": [],
+      "purpose": "Serves the demo on weak laptops and the Slicer (CC-72), which will draw more: big map worlds must stay smooth, and a slow scene must be visible at a glance."
+    },
+    {
+      "id": "CC-76",
+      "title": "Climb: jump, grab the edge with E and pull up onto steps from 1.0 to about 2.5 m",
+      "state": "In Progress",
+      "milestone": null,
+      "dependsOn": [],
+      "affects": [],
+      "purpose": "Serves the map beat of the demo: steep real places (Montmartre, San Francisco) give lanes of only 8 to 9 m because the next roof uphill is more than 0.9 m up, which no jump makes; the vault handles rises of 0.35 to 1.3 m only. A climb makes the steep streets playable."
+    },
+    {
+      "id": "CC-77",
+      "title": "Poses for the cart rider, the trebuchet rider, a hard landing and the giant swing",
+      "state": "In Progress",
+      "milestone": null,
+      "dependsOn": [
+        "CC-64"
+      ],
+      "affects": [],
+      "purpose": "Serves the coaster, trebuchet and lache beats of the demo: the Rookie's body should move the way the simulator says. Owner playtests (2026-10-28) showed wrong or missing motions."
+    },
+    {
+      "id": "CC-78",
+      "title": "Map mode reliability: no timeouts after dropping a pin, pre-built places, progress you can see",
+      "state": "In Progress",
+      "milestone": null,
+      "dependsOn": [
+        "CC-48"
+      ],
+      "affects": [],
+      "purpose": "Serves the map beat of the demo: dropping a pin must always give a place within seconds. Found by the product owner (2026-10-28): \"In map mode I am getting timed out after dropping a pin.\""
+    },
+    {
+      "id": "CC-79",
+      "title": "Map flight: bird's eye, painted into the real map, tilting down to a ground-level 3D view; zoom for scale and pick the pieces",
+      "state": "In Progress",
+      "milestone": null,
+      "dependsOn": [],
+      "affects": [],
+      "purpose": "Serves the map beat and the Atlas: the player sees a real place turn into a course. Product owner vision (2026-10-28): \"starting from the bird's eye view, it gets painted into the real world map, then rotates down to a ground level 3D view. Players can zoom in and out to determine the scale they want to build the course from, and drag or click to pick which elements they want from some pre-segment"
+    },
+    {
+      "id": "CC-80",
+      "title": "Two-way editor and Course: go from a course back to the editor, and \"make it easier\" from a fall",
+      "state": "In Progress",
+      "milestone": null,
+      "dependsOn": [],
+      "affects": [],
+      "purpose": "Serves the loop \"build, run, change, run again\" and the education goal: changing the world and seeing the result is the experiment. Product owner request (2026-10-28): \"I want to see 2-way updates between editor and course. How to go from course back to editor? UX is maybe the simulator says it's possible to solve but someone wants it easier by moving objects around.\""
+    },
+    {
+      "id": "CC-81",
+      "title": "Players describe obstacles and moves in words; the game fills templates and the simulator proves them",
+      "state": "Backlog",
+      "milestone": null,
+      "dependsOn": [
+        "CC-52"
+      ],
+      "affects": [],
+      "purpose": "Serves the creative side of the pitch: players tell the game what they want. Product owner request (2026-10-28): users may want to communicate to the game and generate their own moves and obstacles."
+    },
+    {
+      "id": "CC-82",
+      "title": "Dojo and Notebook: the plank bridge (a beam sags before it breaks) as the first architecture lesson",
+      "state": "In Progress",
+      "milestone": null,
+      "dependsOn": [
+        "CC-72"
+      ],
+      "affects": [],
+      "purpose": "Serves the Atlas: architecture taught by building something the character must cross."
+    },
+    {
+      "id": "CC-83",
+      "title": "Skyline puzzle: choose the cut through a real city in 3D and find the fastest way through",
+      "state": "Backlog",
+      "milestone": null,
+      "dependsOn": [],
+      "affects": [],
+      "purpose": "Serves the map beat and the Atlas: the player rotates the world and chooses a route; the best route is a puzzle, and the simulator knows the answer. Product owner idea (2026-10-28): \"What do you think about rotating the world sideways now into 3D? It becomes a puzzle problem, the fastest way through a city skyline.\""
+    },
+    {
+      "id": "CC-84",
+      "title": "Course experience pass: real-object demo menu, front view on every course, zoom to the face",
+      "state": "In Progress",
+      "milestone": null,
+      "dependsOn": [],
+      "affects": [],
+      "purpose": "Serves the first minute of the demo: what a player sees when they open the Course. Found by the product owner testing every course (2026-10-28): the first two demo scenes show meaningless shapes, some courses miss the front-view window, and the camera cannot zoom onto the character's face."
+    },
+    {
+      "id": "CC-85",
+      "title": "Real photos beside the real worlds: licensed skyline photos, expandable, with visible credit",
+      "state": "In Progress",
+      "milestone": null,
+      "dependsOn": [],
+      "affects": [],
+      "purpose": "Serves the map beat and the Atlas: the player sees the real place next to the course made from it, so the skyline is appreciated, not only the blocks. Product owner request (2026-10-28): \"For the 3 real worlds, can we have their original real photos beside, expandable, so we appreciate the city skyline.\""
+    },
+    {
+      "id": "CC-86",
+      "title": "Graph Studio: drag-the-graph editing outside the world editor, starting with \"pause and drag the ground\" in the Course",
+      "state": "In Progress",
+      "milestone": null,
+      "dependsOn": [],
+      "affects": [],
+      "purpose": "Serves the editor beat and the education goal: the coaster builder (drag the dots, the verdict updates under the picture) is the most fun editing the product owner has used, so the same pattern should reach other things and live inside the Course. Product owner feedback (2026-10-28): \"very fun to drag graph, great UX and quick course edits. Double down on such designs and think about how to edit o"
+    },
+    {
+      "id": "CC-87",
+      "title": "Drone: fly a drone and teach thrust, weight, lift, energy and control",
+      "state": "In Progress",
+      "milestone": null,
+      "dependsOn": [],
+      "affects": [],
+      "purpose": "Serves the education beat (a lot of physics and other principles live in a drone) and the Atlas (the drone is how you scout a real place). Product owner request (2026-10-28): \"I also want a drone. I think we can teach a lot of physics and other principles from drones.\""
+    },
+    {
+      "id": "CC-88",
+      "title": "Feedback round public-3: open questions that point to moments and ask what players want next",
+      "state": "In Progress",
+      "milestone": null,
+      "dependsOn": [],
+      "affects": [],
+      "purpose": "Serves every tester: the form must work for all the features we now have and keep working as we add more. Product owner request (2026-10-28): more general questions across our variety of features, open-ended, asking people to point to specific experiences and what more they want, on the existing schema, with deploy steps."
+    },
+    {
+      "id": "CC-89",
+      "title": "Courses gallery in every mode: pick any world from pictures",
+      "state": "Done",
+      "milestone": null,
+      "dependsOn": [
+        "CC-84"
+      ],
+      "affects": [],
+      "purpose": "Serves the player who finishes, falls in or gets lost in one world and wants another one by looking at pictures, not by reading a drop-down list."
+    },
+    {
+      "id": "CC-90",
+      "title": "Live nearby photos as the character moves through a built place (giant touring the world)",
+      "state": "In Progress",
+      "milestone": null,
+      "dependsOn": [
+        "CC-85"
+      ],
+      "affects": [],
+      "purpose": "Serves the player who runs a real-place course and wants to see what the real buildings look like as they pass."
+    },
+    {
+      "id": "CC-91",
+      "title": "Slicer says \"clear\" but the editor lane is not along the proved lane (inconsistency bug)",
+      "state": "In Progress",
+      "milestone": null,
+      "dependsOn": [
+        "CC-73"
+      ],
+      "affects": [],
+      "purpose": "Serves the player who slices a real place, sees \"the simulator found a way\", opens the editor and finds pieces off the lane that fail."
+    },
+    {
+      "id": "CC-92",
+      "title": "Slicer explains why no path is found, with a per-cut-height strip and clickable fixes",
+      "state": "In Progress",
+      "milestone": null,
+      "dependsOn": [
+        "CC-91"
+      ],
+      "affects": [],
+      "purpose": "Serves the player who slices a real place, gets \"no path\", and does not know what to change."
+    },
+    {
+      "id": "CC-93",
+      "title": "Drag and rotate the green tour line in the Slicer; explain how it was chosen",
+      "state": "Backlog",
+      "milestone": null,
+      "dependsOn": [
+        "CC-91"
+      ],
+      "affects": [],
+      "purpose": "Serves the player who wants to choose how to tour the city instead of taking the line the simulator picked."
+    },
+    {
+      "id": "CC-94",
+      "title": "World editor UI cleanup: fewer buttons, one organised layout, readable Moves pane",
+      "state": "In Progress",
+      "milestone": null,
+      "dependsOn": [
+        "CC-43"
+      ],
+      "affects": [],
+      "purpose": "Serves the player who builds a course in the world editor and today meets a scattered row of about thirty buttons and a squeezed, unreadable Moves pane."
+    },
+    {
+      "id": "CC-95",
+      "title": "Fast test tiers: test:fast, test:slow, test:changed, slowest-10 report",
+      "state": "Done",
+      "milestone": null,
+      "dependsOn": [
+        "CC-70"
+      ],
+      "affects": [],
+      "purpose": "Serves every agent and the owner: tests run in about a minute instead of five, so fixes get checked on a VM before shipping."
+    },
+    {
+      "id": "CC-96",
+      "title": "Editor piece browser: icons, a featured view with words, no height numbers, a findable person",
+      "state": "In Progress",
+      "milestone": null,
+      "dependsOn": [
+        "CC-94"
+      ],
+      "affects": [],
+      "purpose": "Serves the player who builds a lane in the editor and needs to see and choose what to put in it (owner request, 2026-10-29)."
+    },
+    {
+      "id": "CC-97",
+      "title": "Fewer, better courses: a Training course that demos every move, merged contraption courses, efficiency lines",
+      "state": "Done",
+      "milestone": null,
+      "dependsOn": [
+        "CC-84"
+      ],
+      "affects": [],
+      "purpose": "Serves the new player who opens the Courses gallery and should see a few clearly different courses, each teaching one move or idea, instead of 28 near-duplicates."
+    },
+    {
+      "id": "CC-98",
+      "title": "Debug panel (B): one organised card with sections, a colour legend and a readable readout",
+      "state": "In Progress",
+      "milestone": null,
+      "dependsOn": [
+        "CC-44"
+      ],
+      "affects": [],
+      "purpose": "Serves the tester and the product owner who press B in the Course to see what the simulator uses; it must be readable at a glance."
+    },
+    {
+      "id": "CC-99",
+      "title": "Challenge: a ghost to chase (the ideal run, your best, a friend's link) and shareable runs",
+      "state": "In Progress",
+      "milestone": null,
+      "dependsOn": [
+        "CC-57"
+      ],
+      "affects": [],
+      "purpose": "Serves the player who has cleared a course and wants a reason to run it again, and the demo beat \"chase the best line\"."
+    },
+    {
+      "id": "CC-100",
+      "title": "Onboarding: a 30-second first-visit tour on the stock course, a Help chip, and a What next card after the first clear",
+      "state": "In Progress",
+      "milestone": null,
+      "dependsOn": [
+        "CC-84"
+      ],
+      "affects": [],
+      "purpose": "Serves the brand-new player who opens the game and does not know what to do: the big world chooser is replaced by a short guided tour on the stock course."
+    },
+    {
+      "id": "CC-101",
+      "title": "Show the hidden limits before the run (drone battery first), then a tool-choice course",
+      "state": "Backlog",
+      "milestone": null,
+      "dependsOn": [
+        "CC-87"
+      ],
+      "affects": [],
+      "purpose": "Serves the player who fails a contraption course without knowing why: the limit was hidden until it ran out."
+    },
+    {
+      "id": "CC-102",
+      "title": "Camera: fit tall coasters, and look up from below or down from above",
+      "state": "Backlog",
+      "milestone": null,
+      "dependsOn": [
+        "CC-61"
+      ],
+      "affects": [],
+      "purpose": "Serves the player riding the coaster: they cannot judge the height or the scale of the drop."
+    },
+    {
+      "id": "CC-103",
+      "title": "Feedback form: four questions instead of nine",
+      "state": "Done",
+      "milestone": null,
+      "dependsOn": [
+        "CC-100"
+      ],
+      "affects": [],
+      "purpose": "Serves the tester who opens Feedback after playing and gives up at nine questions."
+    },
+    {
+      "id": "CC-104",
+      "title": "demos-check crashes at the lache course, also on main",
+      "state": "Backlog",
+      "milestone": null,
+      "dependsOn": [
+        "CC-95"
+      ],
+      "affects": [],
+      "purpose": "Serves the tester who runs the browser demo checks before a deploy."
+    },
+    {
+      "id": "CC-105",
+      "title": "Guided 3D slicing: start from the ready places, free pins are the slow way",
+      "state": "Backlog",
+      "milestone": null,
+      "dependsOn": [
+        "CC-78"
+      ],
+      "affects": [],
+      "purpose": "Serves the player who opens map mode, drops a pin anywhere and waits a minute for OpenStreetMap data."
+    },
+    {
+      "id": "CC-106",
+      "title": "Dojo redesign: predict first, ghost trails, scrub the run, a notebook page per lesson",
+      "state": "Backlog",
+      "milestone": null,
+      "dependsOn": [
+        "CC-99"
+      ],
+      "affects": [],
+      "purpose": "Serves the player who presses T to understand one obstacle and finds only sliders and a curve."
+    },
+    {
+      "id": "CC-107",
+      "title": "Leaderboard: name#tag, device token, a board per score, verified by replay",
+      "state": "Backlog",
+      "milestone": null,
+      "dependsOn": [
+        "CC-99"
+      ],
+      "affects": [],
+      "purpose": "Serves the player who has a good run and wants to be seen, and the demo beat \"compete with the ideal run\"."
+    },
+    {
+      "id": "CC-108",
+      "title": "Community photo upload: a queue with a daily budget, quotas and expiry",
+      "state": "In Progress",
+      "milestone": null,
+      "dependsOn": [
+        "CC-107"
+      ],
+      "affects": [],
+      "purpose": "Serves the player who wants their own photo's objects in a course without waiting, and the demo beat \"your world becomes a course\"."
+    },
+    {
+      "id": "CC-109",
+      "title": "One design system for the app, starting with the fall screen",
+      "state": "In Progress",
+      "milestone": null,
+      "dependsOn": [
+        "CC-84"
+      ],
+      "affects": [],
+      "purpose": "Serves the player who falls and sees seven buttons and does not know which one restarts."
+    },
+    {
+      "id": "CC-110",
+      "title": "More real objects from photos with SAM 3D, organised by the move that gets past them",
+      "state": "Done",
+      "milestone": null,
+      "dependsOn": [
+        "CC-96"
+      ],
+      "affects": [],
+      "purpose": "Serves the player who builds a course in the editor and the demo beat \"real world in, playable course out\"."
+    },
+    {
+      "id": "CC-111",
+      "title": "Game analytics: implicit signals in D1 (events, funnel, where players fall) next to the feedback form",
+      "state": "Backlog",
+      "milestone": null,
+      "dependsOn": [],
+      "affects": [
+        "CC-100"
+      ],
+      "purpose": "Serves the product owner who needs to improve the game from what players do, not only from what they say; demo beat: \"we measured and fixed it\"."
+    },
+    {
+      "id": "CC-112",
+      "title": "Community safety: moderation queue, report review and an abuse view (who is messing up)",
+      "state": "Backlog",
+      "milestone": null,
+      "dependsOn": [],
+      "affects": [],
+      "purpose": "Serves the product owner who must keep shared objects, photos and names clean; blocks public sharing in CC-108."
+    },
+    {
+      "id": "CC-113",
+      "title": "Stages: stage 1 teaches one move at a time, stage 2 chains moves; design doc",
+      "state": "Done",
+      "milestone": null,
+      "dependsOn": [
+        "CC-97"
+      ],
+      "affects": [],
+      "purpose": "Serves the player who finishes the first courses and wants more challenge, and the demo beat \"it gets harder in a way you can feel\"."
+    },
+    {
+      "id": "CC-114",
+      "title": "A new visit starts on the Training course, not the stock course",
+      "state": "Done",
+      "milestone": null,
+      "dependsOn": [
+        "CC-97"
+      ],
+      "affects": [],
+      "purpose": "Serves the first-time player: the first thing they see teaches every move."
+    },
+    {
+      "id": "CC-115",
+      "title": "Merged courses: Park run, Coaster with two sections, Plank bridge thick and thin",
+      "state": "Done",
+      "milestone": null,
+      "dependsOn": [
+        "CC-97"
+      ],
+      "affects": [],
+      "purpose": "Serves the player who picks a contraption: one good course per contraption, not three near-copies."
+    },
+    {
+      "id": "CC-116",
+      "title": "Coaster courses get stored plans so the end report compares with the best line",
+      "state": "Done",
+      "milestone": null,
+      "dependsOn": [
+        "CC-97"
+      ],
+      "affects": [],
+      "purpose": "Serves the player who finishes a coaster: the report shows the same you-vs-best line as other courses."
+    },
+    {
+      "id": "CC-117",
+      "title": "README for judges: Meta models by feature, pipelines with diagrams",
+      "state": "Done",
+      "milestone": null,
+      "dependsOn": [
+        "CC-110"
+      ],
+      "affects": [],
+      "purpose": "Serves the demo beat and the judging read-through: a judge opens the repo and sees at once which Meta models power which features."
+    },
+    {
+      "id": "CC-118",
+      "title": "University labs: design the game's own algorithms (design + Lab 1 Search)",
+      "state": "In Progress",
+      "milestone": null,
+      "dependsOn": [
+        "CC-109"
+      ],
+      "affects": [],
+      "purpose": "Serves the learning side of the pitch: a player who has finished courses can design the algorithms behind them (search first)."
+    },
+    {
+      "id": "CC-119",
+      "title": "Use Baseten and the Meta Model API more: development aids and live checks",
+      "state": "Done",
+      "milestone": null,
+      "dependsOn": [
+        "CC-117"
+      ],
+      "affects": [],
+      "purpose": "Serves the \"Use of Meta AI tooling\" score (25%) and the Best Build on Meta Open Weights bonus: more of the build, and more live features, run on Meta models."
+    },
+    {
+      "id": "CC-120",
+      "title": "Upload moderation: Muse Spark Open returns ok, review or block for a photo or object",
+      "state": "Done",
+      "milestone": null,
+      "dependsOn": [
+        "CC-119"
+      ],
+      "affects": [],
+      "purpose": "Serves the community upload beat: an offensive photo or object never reaches the shared area unseen."
+    },
+    {
+      "id": "CC-121",
+      "title": "Move tips: Muse Spark Open says which moves get past an object and why it makes a course fun",
+      "state": "Done",
+      "milestone": null,
+      "dependsOn": [
+        "CC-119"
+      ],
+      "affects": [],
+      "purpose": "Serves the upload beat: after a player's photo is cut into objects, each card says what moves it asks for."
+    },
+    {
+      "id": "CC-122",
+      "title": "Bulk course ideas: Muse Spark Open drafts 100 layouts, the simulator keeps the clearable ones",
+      "state": "Done",
+      "milestone": null,
+      "dependsOn": [
+        "CC-119"
+      ],
+      "affects": [],
+      "purpose": "Serves the course-menu work: candidate courses that each demand a different move, found by a Meta model and proven by the simulator."
+    },
+    {
+      "id": "CC-123",
+      "title": "Photo triage: Muse Spark Open ranks candidate photos for real objects",
+      "state": "Done",
+      "milestone": null,
+      "dependsOn": [
+        "CC-119"
+      ],
+      "affects": [],
+      "purpose": "Serves the real-objects set: spend SAM 3D money only on photos likely to lift well and demand a move."
+    },
+    {
+      "id": "CC-124",
+      "title": "Feedback clustering: group the free-text answers into themes",
+      "state": "Done",
+      "milestone": null,
+      "dependsOn": [
+        "CC-119"
+      ],
+      "affects": [],
+      "purpose": "Serves the next playtest round: see at once which complaints and wishes repeat."
+    },
+    {
+      "id": "CC-125",
+      "title": "Muse Wonder: what it does, what it costs, is there a small on-brief use",
+      "state": "Done",
+      "milestone": null,
+      "dependsOn": [
+        "CC-119"
+      ],
+      "affects": [],
+      "purpose": "Serves the Best Creative Build bonus (Muse Image / Wonder) and the Meta tooling score."
+    },
+    {
+      "id": "CC-126",
+      "title": "Hit all five bonus prizes: plan and checklist",
+      "state": "Backlog",
+      "milestone": null,
+      "dependsOn": [
+        "CC-117"
+      ],
+      "affects": [],
+      "purpose": "Serves the whole submission: $50K of bonus prizes sit on top of the four scored criteria."
+    },
+    {
+      "id": "CC-127",
+      "title": "Course Agent: propose, test with the simulator, repair, stop when proven",
+      "state": "In Progress",
+      "milestone": null,
+      "dependsOn": [
+        "CC-52"
+      ],
+      "affects": [],
+      "purpose": "Serves the Best Agentic Use-Case prize and the demo beat \"the design partner fixes an unclearable course\": a player gives a photo and watches an agent build a course that the simulator proves."
+    },
+    {
+      "id": "CC-128",
+      "title": "Challenge link: open a course with a friend's run as the ghost",
+      "state": "Done",
+      "milestone": null,
+      "dependsOn": [
+        "CC-99"
+      ],
+      "affects": [],
+      "purpose": "Serves the Most Viral prize: a player copies a link after a clear, a friend opens it and chases that exact run."
+    },
+    {
+      "id": "CC-129",
+      "title": "Share clip: a 10-20 s vertical mp4 of a cleared run",
+      "state": "Done",
+      "milestone": null,
+      "dependsOn": [
+        "CC-99"
+      ],
+      "affects": [],
+      "purpose": "Serves the Most Viral prize: X posts need a short clip, and a player should get one in a click."
+    },
+    {
+      "id": "CC-130",
+      "title": "Demo cinematography: film camera director, real-to-course hero shot, Remotion project",
+      "state": "In Progress",
+      "milestone": null,
+      "dependsOn": [
+        "CC-79"
+      ],
+      "affects": [],
+      "purpose": "Serves the demo beat \"a real place becomes a playable course\" and the 20-second hook clip for X."
+    },
+    {
+      "id": "CC-131",
+      "title": "Character intro clips: the entry movement before a run (for the demo)",
+      "state": "Backlog",
+      "milestone": null,
+      "dependsOn": [
+        "CC-126"
+      ],
+      "affects": [],
+      "purpose": "Serves the demo beat \"meet the course and our character\": the athlete's start-line ritual before the run, used in the 3-minute video and the 20 s hook."
+    },
+    {
+      "id": "CC-132",
+      "title": "Music: a looping track per screen (AudioCraft with the owner's piano motif)",
+      "state": "Done",
+      "milestone": null,
+      "dependsOn": [
+        "CC-126"
+      ],
+      "affects": [],
+      "purpose": "Serves the demo mood and play feel: each screen has its own looping music, and the demo has a theme no one else has."
+    },
+    {
+      "id": "CC-133",
+      "title": "Muse Wonder reviews the simulator code (a Meta tool in our development)",
+      "state": "In Progress",
+      "milestone": null,
+      "dependsOn": [
+        "CC-125"
+      ],
+      "affects": [],
+      "purpose": "Serves the judges' Meta tooling criterion and the demo's \"built with Meta tools\" beat: Muse Wonder reads our simulator and reports bugs, and we check every claim."
+    },
+    {
+      "id": "CC-134",
+      "title": "Challenge link: an optional three-letter nickname, checked against a blocklist",
+      "state": "Done",
+      "milestone": null,
+      "dependsOn": [
+        "CC-128"
+      ],
+      "affects": [],
+      "purpose": "Serves the Most Viral prize: the friend sees who they are chasing (\"Beat AMY: 9.36 s\") without anyone giving a real name."
+    },
+    {
+      "id": "CC-135",
+      "title": "Challenge link: when the course changed, offer the ideal ghost beside the message",
+      "state": "Done",
+      "milestone": null,
+      "dependsOn": [
+        "CC-128"
+      ],
+      "affects": [],
+      "purpose": "Serves the Most Viral prize: an old link must not be a dead end."
+    },
+    {
+      "id": "CC-136",
+      "title": "Share editor-made courses: the course rides in the link, proved clearable first",
+      "state": "In Progress",
+      "milestone": null,
+      "dependsOn": [
+        "CC-128"
+      ],
+      "affects": [],
+      "purpose": "Serves the Most Viral prize and the maker story: a player builds a course in the editor and sends a friend a link to run it."
+    },
+    {
+      "id": "CC-137",
+      "title": "Share clip: follow the runner closely (runner at least a third of the frame height)",
+      "state": "Done",
+      "milestone": null,
+      "dependsOn": [
+        "CC-129"
+      ],
+      "affects": [],
+      "purpose": "Serves the Most Viral prize: on a phone feed the runner must be easy to see."
+    },
+    {
+      "id": "CC-138",
+      "title": "Phone: a challenge link opened on a phone shows the course and the ghost, and says how to play",
+      "state": "Done",
+      "milestone": null,
+      "dependsOn": [
+        "CC-128"
+      ],
+      "affects": [],
+      "purpose": "Serves the Most Viral prize: most people open an X link on a phone, and a game that needs a keyboard is a dead end there."
+    },
+    {
+      "id": "CC-139",
+      "title": "Touch controls: on-screen buttons for every key action, behind a switch (plan and estimate first)",
+      "state": "In Progress",
+      "milestone": null,
+      "dependsOn": [],
+      "affects": [],
+      "purpose": "Serves the Most Viral prize: a friend who opens the link on a phone can play the run, not only watch it."
+    },
+    {
+      "id": "CC-140",
+      "title": "Fix the 11 confirmed simulator findings from the Muse Wonder review",
+      "state": "Backlog",
+      "milestone": null,
+      "dependsOn": [
+        "CC-133"
+      ],
+      "affects": [],
+      "purpose": "Serves the demo beat \"the simulator proves a course can be cleared\": the checks must be right in the corners too."
+    },
+    {
+      "id": "CC-141",
+      "title": "Share clip: draw each picture inside a real animation frame so the runner stays put and motion is smooth",
+      "state": "Backlog",
+      "milestone": null,
+      "dependsOn": [
+        "CC-129"
+      ],
+      "affects": [],
+      "purpose": "Serves the share clip (the viral beat): the owner said the sample clip looks very laggy."
+    },
+    {
+      "id": "CC-142",
+      "title": "Welcome screen: lively cinematic music and a slowly rotating 3D world behind a dimmed card",
+      "state": "Backlog",
+      "milestone": null,
+      "dependsOn": [
+        "CC-132"
+      ],
+      "affects": [],
+      "purpose": "Serves the first-visit player and the demo opening: the first 10 seconds feel epic, and the music has an obvious on/off icon."
+    },
+    {
+      "id": "CC-143",
+      "title": "Demo wow: a shot-by-shot storyboard and a first full cut that matches the reference video's energy",
+      "state": "In Progress",
+      "milestone": null,
+      "dependsOn": [
+        "CC-130"
+      ],
+      "affects": [],
+      "purpose": "Serves the demo (25% of the score) and the Most Viral entry: the first 20 seconds must feel like the reference product video, not like a screen recording."
+    },
+    {
+      "id": "CC-144",
+      "title": "Play the tuned captured vault and climb clips in the game by default",
+      "state": "In Progress",
+      "milestone": null,
+      "dependsOn": [
+        "CC-64"
+      ],
+      "affects": [],
+      "purpose": "This serves the demo and the player who vaults and climbs: they should see the real captured moves, not the made-up pose."
+    },
+    {
+      "id": "CC-145",
+      "title": "Photo triage v2: cheap mask checks and narrow model questions as a gate before the 3D lift",
+      "state": "Done",
+      "milestone": null,
+      "dependsOn": [
+        "CC-123"
+      ],
+      "affects": [],
+      "purpose": "Serves the photo-to-object tool: a gate before the SAM 3D lift saves 3D generation cost and is engineering worth showing in the demo."
+    },
+    {
+      "id": "CC-146",
+      "title": "Dojo redesign: a polished lesson screen that matches the game",
+      "state": "In Progress",
+      "milestone": null,
+      "dependsOn": [
+        "CC-132"
+      ],
+      "affects": [],
+      "purpose": "Serves the player who falls on an obstacle and opens the Dojo (T) to learn why, and the demo beat where the saying is earned."
+    },
+    {
+      "id": "CC-147",
+      "title": "World editor: \"Back to the Course\" does nothing when the simulator cannot prove the lane clears",
+      "state": "Done",
+      "milestone": null,
+      "dependsOn": [
+        "CC-80"
+      ],
+      "affects": [],
+      "purpose": "Serves the player who edits a course and wants to try it again; the owner reported that the button \"does not work\"."
+    },
+    {
+      "id": "CC-148",
+      "title": "Character gauges: speed bar, drone battery and future gauges in one bottom-left stack",
+      "state": "Done",
+      "milestone": null,
+      "dependsOn": [
+        "CC-139"
+      ],
+      "affects": [],
+      "purpose": "Serves the player on the Course (and the drone course): they can see how fast they are going and how much battery is left without the ghost panel covering it."
+    },
+    {
+      "id": "CC-149",
+      "title": "Course cards show plays, completions and best verified time; cards ordered by difficulty",
+      "state": "In Progress",
+      "milestone": null,
+      "dependsOn": [
+        "CC-89"
+      ],
+      "affects": [],
+      "purpose": "This serves a player choosing a course, and the Most Viral and leaderboard story (a card that says \"311 cleared, best 41.2 s\" invites a challenge)."
+    },
+    {
+      "id": "CC-150",
+      "title": "Film-craft notes and a revised 20 s hook shot list for the owner to approve",
+      "state": "Done",
+      "milestone": null,
+      "dependsOn": [
+        "CC-143"
+      ],
+      "affects": [],
+      "purpose": "Serves the 20 s hook demo beat: the owner found the foot close-up meaningless and the hand and gameplay shots had a camera flying everywhere."
+    },
+    {
+      "id": "CC-151",
+      "title": "Promotion plan: real players and public feedback before Nov 4, ready for the Viral contest",
+      "state": "Backlog",
+      "milestone": null,
+      "dependsOn": [
+        "CC-126"
+      ],
+      "affects": [],
+      "purpose": "Serves the Most Viral bonus prize (post by Nov 8, 11:59 PM ET) and the Impact score (real players)."
+    },
+    {
+      "id": "CC-152",
+      "title": "Map pin speed: measure every stage of a pin, then cache so the demo pin answers in seconds",
+      "state": "In Progress",
+      "milestone": null,
+      "dependsOn": [
+        "CC-78"
+      ],
+      "affects": [],
+      "purpose": "Serves the map beat of the demo: the product owner pins anywhere and waits too long for the place."
+    },
+    {
+      "id": "CC-153",
+      "title": "Training course: one more X roll after the second lache bar's big drop",
+      "state": "Done",
+      "milestone": null,
+      "dependsOn": [
+        "CC-97"
+      ],
+      "affects": [],
+      "purpose": "Serves the all-obstacles demo course (\"Training course: every move\") and the player who drops off the second lache bar."
+    },
+    {
+      "id": "CC-154",
+      "title": "Dojo round 2: warmer lighter theme, one graph in four steps, T opens the course picker",
+      "state": "Done",
+      "milestone": null,
+      "dependsOn": [
+        "CC-146"
+      ],
+      "affects": [],
+      "purpose": "Serves the player learning one idea at a time in the Dojo (press T), on desktop and on a phone."
+    },
+    {
+      "id": "CC-155",
+      "title": "Dojo round 2 follow-up: show the formula once, confirm step-1 and picker checks, shorter Landing label",
+      "state": "Backlog",
+      "milestone": null,
+      "dependsOn": [
+        "CC-154"
+      ],
+      "affects": [],
+      "purpose": "Serves the player learning in the Dojo (press T): the exact-formula step shows the formula once."
+    },
+    {
+      "id": "CC-156",
+      "title": "Readable HUD: bright text on a dark panel for the gauges and key hints",
+      "state": "Done",
+      "milestone": null,
+      "dependsOn": [
+        "CC-148"
+      ],
+      "affects": [],
+      "purpose": "Serves every player on the Course: the speed bar and the key hints must be readable on any course colour."
+    },
+    {
+      "id": "CC-157",
+      "title": "Every run is downloadable, on every course",
+      "state": "Done",
+      "milestone": null,
+      "dependsOn": [
+        "CC-126"
+      ],
+      "affects": [],
+      "purpose": "Serves the Most Viral beat: any run on any course can be saved and shared."
+    },
+    {
+      "id": "CC-158",
+      "title": "End report: buttons in labelled sections, Download and Copy link first",
+      "state": "Done",
+      "milestone": null,
+      "dependsOn": [
+        "CC-157"
+      ],
+      "affects": [],
+      "purpose": "Serves the Most Viral beat: the end of a run is where players share."
+    },
+    {
+      "id": "CC-159",
+      "title": "Restart during a run is obvious (R chip and a touch button)",
+      "state": "Done",
+      "milestone": null,
+      "dependsOn": [
+        "CC-139"
+      ],
+      "affects": [],
+      "purpose": "Serves every player: a bad start must be easy to redo."
+    },
+    {
+      "id": "CC-160",
+      "title": "Clip shows about 20 m of course, so obstacles and what is coming can be seen",
+      "state": "Done",
+      "milestone": null,
+      "dependsOn": [
+        "CC-137"
+      ],
+      "affects": [],
+      "purpose": "Serves the Most Viral clip: a viewer must see the obstacle ahead, not only the runner."
+    },
+    {
+      "id": "CC-161",
+      "title": "Training course: the roll goes after the second lache bar's drop (redo of CC-153; the rope stays as it was)",
+      "state": "Done",
+      "milestone": null,
+      "dependsOn": [
+        "CC-153"
+      ],
+      "affects": [],
+      "purpose": "Serves the all-obstacles demo course (\"Training course: every move\") and the player who drops off the second bar of the lache pair."
+    },
+    {
+      "id": "CC-162",
+      "title": "README: feature map in the player's order with diagram links, and a What to playtest checklist",
+      "state": "Done",
+      "milestone": null,
+      "dependsOn": [
+        "CC-149"
+      ],
+      "affects": [],
+      "purpose": "Serves the judges reading the README first, and the product owner's playtest before the deploy."
+    },
+    {
+      "id": "CC-163",
+      "title": "Top-right buttons must not cover the time line or the Restart chip on a phone",
+      "state": "Done",
+      "milestone": null,
+      "dependsOn": [
+        "CC-159"
+      ],
+      "affects": [],
+      "purpose": "Serves the phone player who needs to see the time and the R Restart chip during a run."
+    },
+    {
+      "id": "CC-164",
+      "title": "Ideal-run search misses the shortcut line on Training: every move after a roll follows the lache pair",
+      "state": "Done",
+      "milestone": null,
+      "dependsOn": [
+        "CC-161"
+      ],
+      "affects": [],
+      "purpose": "Serves the demo beat \"the search finds a shortcut\" on the all-moves course."
+    },
+    {
+      "id": "CC-165",
+      "title": "Restart chip: no jitter, and only on the fall panel by default",
+      "state": "Done",
+      "milestone": null,
+      "dependsOn": [
+        "CC-159"
+      ],
+      "affects": [],
+      "purpose": "Serves the player on the default run screen, who should see a calm, steady time line."
+    },
+    {
+      "id": "CC-166",
+      "title": "Black pill in the middle of the screen during play",
+      "state": "Done",
+      "milestone": null,
+      "dependsOn": [
+        "CC-156"
+      ],
+      "affects": [],
+      "purpose": "Serves the player, who sees a black pill covering the middle of the screen while playing."
+    },
+    {
+      "id": "CC-167",
+      "title": "Ghost looks like the runner and stays visible on sky, grass and dark",
+      "state": "Done",
+      "milestone": null,
+      "dependsOn": [
+        "CC-157"
+      ],
+      "affects": [],
+      "purpose": "Serves the player chasing a ghost, who loses a light-blue ghost against the blue sky."
+    },
+    {
+      "id": "CC-168",
+      "title": "Hold-E ledge grab: a small distance tolerance, and show which ledges respond",
+      "state": "Done",
+      "milestone": null,
+      "dependsOn": [
+        "CC-97"
+      ],
+      "affects": [],
+      "purpose": "Serves the all-moves demo: a trampoline jump that falls just short of the high deck should still let the player catch the ledge with E and climb."
+    },
+    {
+      "id": "CC-169",
+      "title": "Measure the Cloudflare Pages Functions CPU limit for replaying a run (preview only)",
+      "state": "In Progress",
+      "milestone": null,
+      "dependsOn": [
+        "CC-149"
+      ],
+      "affects": [],
+      "purpose": "Serves the decision on how the server counts cleared runs (the demo beat where the course page shows how many players cleared it)."
+    },
+    {
+      "id": "CC-170",
+      "title": "Photo upload: never reject for border contact; pad the photo and retry the mask and lift",
+      "state": "In Progress",
+      "milestone": null,
+      "dependsOn": [
+        "CC-145"
+      ],
+      "affects": [],
+      "purpose": "Serves the player who uploads a photo of a real bench or wall that runs into the photo edge."
+    },
+    {
+      "id": "CC-171",
+      "title": "Obstacle strip icons lost their look after the phone-width fix (restore the old icons)",
+      "state": "Done",
+      "milestone": null,
+      "dependsOn": [
+        "CC-163"
+      ],
+      "affects": [],
+      "purpose": "Serves the player on the Course screen: the obstacle strip under the time line shows one icon per obstacle."
+    },
+    {
+      "id": "CC-172",
+      "title": "Document the decision to stop mobile work (which commit it applies from)",
+      "state": "Done",
+      "milestone": null,
+      "dependsOn": [
+        "CC-163"
+      ],
+      "affects": [],
+      "purpose": "Serves every agent and the product owner: one place that says phones are out of scope and from which commit."
+    },
+    {
+      "id": "CC-173",
+      "title": "End report picture: two coloured lines (You, Ghost), no straight start-to-end line",
+      "state": "Done",
+      "milestone": null,
+      "dependsOn": [
+        "CC-158"
+      ],
+      "affects": [],
+      "purpose": "Serves the player who finishes a run and reads the end report (demo beat: the report after a clear)."
+    },
+    {
+      "id": "CC-174",
+      "title": "Cheap run checks before and after the server replay of a clear",
+      "state": "In Progress",
+      "milestone": null,
+      "dependsOn": [],
+      "affects": [],
+      "purpose": "Serves the course cards (CC-149): a cleared run is never lost or trusted as a record when Cloudflare cuts the replay."
+    },
+    {
+      "id": "CC-175",
+      "title": "Training course holds every basic obstacle: add the warped wall, step and plank",
+      "state": "Done",
+      "milestone": null,
+      "dependsOn": [
+        "CC-161"
+      ],
+      "affects": [],
+      "purpose": "Serves the demo beat \"Training: every move\" (the all-obstacles run a player watches or plays). Owner feedback: \"Why I don't see warped wall in the all obstacles run? Ensure it's really all the basic obstacles, minus the fancy 3D items.\""
+    },
+    {
+      "id": "CC-176",
+      "title": "Seed the ideal-run search with verified human lines that beat the stored plan",
+      "state": "In Progress",
+      "milestone": null,
+      "dependsOn": [
+        "CC-174"
+      ],
+      "affects": [],
+      "purpose": "Serves the course cards and the ghost: the stored best line is a search result, so a faster human run should improve it."
+    },
+    {
+      "id": "CC-177",
+      "title": "World editor UX: clear hierarchy, one Fix menu, glossary, Fit button, camera zoom and pan bugs",
+      "state": "In Progress",
+      "milestone": null,
+      "dependsOn": [
+        "CC-94"
+      ],
+      "affects": [],
+      "purpose": "Serves the world-builder player: a game-design beginner who does not know which button to press and why."
+    },
+    {
+      "id": "CC-178",
+      "title": "Ready places: honest table, photo+path filter, cut sweep, 3D/Mapillary sources, skins",
+      "state": "In Progress",
+      "milestone": null,
+      "dependsOn": [
+        "CC-78"
+      ],
+      "affects": [],
+      "purpose": "Serves the map-mode player (and the demo beat \"drop a pin on a real place\"): the 18 ready places must each have photos and a lane."
+    },
+    {
+      "id": "CC-179",
+      "title": "Slicing screen: fewer words, colour legend, why-no-path with rule-based suggestions, preview equals built course",
+      "state": "Done",
+      "milestone": null,
+      "dependsOn": [
+        "CC-92"
+      ],
+      "affects": [],
+      "purpose": "Serves the player on the slicing screen in map mode (demo beat: pick a place, slice it, send it to the editor)."
+    },
+    {
+      "id": "CC-180",
+      "title": "Ghost and player always both visible (see-through, ghost on by default)",
+      "state": "Backlog",
+      "milestone": null,
+      "dependsOn": [
+        "CC-167"
+      ],
+      "affects": [],
+      "purpose": "Serves: the player chasing a ghost on the Course; the end-report and challenge-link views."
+    },
+    {
+      "id": "CC-181",
+      "title": "Share: the link is the share; video is a download; links for tries that fell",
+      "state": "Done",
+      "milestone": null,
+      "dependsOn": [
+        "CC-128"
+      ],
+      "affects": [],
+      "purpose": "Serves: the viral loop, a player sends a friend a link that plays the run in the browser."
+    },
+    {
+      "id": "CC-182",
+      "title": "Training course polish: tighter lache grab, wall never fails, E only near the wall top, E on the strip, taller first vault, shorter runs",
+      "state": "In Progress",
+      "milestone": null,
+      "dependsOn": [],
+      "affects": [],
+      "purpose": "Serves the demo beat \"Training: every move\": a run that looks real and wastes no time. Product owner follow-up after CC-175."
+    },
+    {
+      "id": "CC-183",
+      "title": "Gold means one thing: the obstacle you fell at most this session",
+      "state": "Done",
+      "milestone": null,
+      "dependsOn": [
+        "CC-158"
+      ],
+      "affects": [],
+      "purpose": "Serves the player reading the end report and the obstacle strip: gold must mean something."
+    },
+    {
+      "id": "CC-184",
+      "title": "Full test suite green on main: json-format, lane-consistency, place-photos, editor-holds, course-stats; docs sync",
+      "state": "Done",
+      "milestone": null,
+      "dependsOn": [
+        "CC-168"
+      ],
+      "affects": [],
+      "purpose": "Serves every player and the demo: a green suite means the next change is trusted."
+    },
+    {
+      "id": "CC-185",
+      "title": "Course music loops course-b_8 trimmed to 5 bars",
+      "state": "Backlog",
+      "milestone": null,
+      "dependsOn": [
+        "CC-132"
+      ],
+      "affects": [],
+      "purpose": "Serves: the player on the Course screen, who hears one loop that fits the run."
+    },
+    {
+      "id": "CC-186",
+      "title": "Verify today's merged changes in the real game page (Playwright, screenshots)",
+      "state": "In Progress",
+      "milestone": null,
+      "dependsOn": [
+        "CC-161"
+      ],
+      "affects": [],
+      "purpose": "Serves the demo: a player must see the Training course, ghost, report, share links, slicer/editor and music work in the real page, not only in scripts."
+    },
+    {
+      "id": "CC-187",
+      "title": "Real street furniture along a place's lane from Mapillary map features (?furniture=1)",
+      "state": "Done",
+      "milestone": null,
+      "dependsOn": [],
+      "affects": [],
+      "purpose": "Serves the player who picks a real place and wants it to look like that place (owner asked for real-world visual spectacle; the CC-178 places audit recommended it)."
+    },
+    {
+      "id": "CC-188",
+      "title": "Spectacle plan: what After Effects, Blender and Cinema 4D (and free tools) can do for the demo",
+      "state": "In Progress",
+      "milestone": null,
+      "dependsOn": [
+        "CC-143"
+      ],
+      "affects": [],
+      "purpose": "Serves the demo film and the viral post: the product owner asked for \"a visual spectacle\". Plan and still images only; no new videos (film is paused until the shot list is approved)."
+    },
+    {
+      "id": "CC-189",
+      "title": "README: pain points, motivation and solution up front",
+      "state": "Done",
+      "milestone": null,
+      "dependsOn": [
+        "CC-151"
+      ],
+      "affects": [],
+      "purpose": "Serves: the judges and first-time readers, who must see the real need before the features (Impact 30% of the score)."
+    },
+    {
+      "id": "CC-190",
+      "title": "Challenge link on the default course shows the Choose Your World chooser over the banner",
+      "state": "Backlog",
+      "milestone": null,
+      "dependsOn": [
+        "CC-186"
+      ],
+      "affects": [],
+      "purpose": "Serves the friend who opens a shared challenge link for the first time."
+    },
+    {
+      "id": "CC-191",
+      "title": "Fall panel: onboarding card sits on top of the run report; hint bleeds through the panel",
+      "state": "Backlog",
+      "milestone": null,
+      "dependsOn": [
+        "CC-186"
+      ],
+      "affects": [],
+      "purpose": "Serves a new player after the first fall, and the first finished run."
+    },
+    {
+      "id": "CC-192",
+      "title": "Gold on a first run with no falls: check every place and remove any gold that shows",
+      "state": "Backlog",
+      "milestone": null,
+      "dependsOn": [
+        "CC-183"
+      ],
+      "affects": [],
+      "purpose": "Serves the player on a first clean run: the end report must not highlight any obstacle in gold when they never fell."
+    },
+    {
+      "id": "CC-193",
+      "title": "First lache bar: the hands look far from the bar when it grabs; shrink the E grab tolerance",
+      "state": "Backlog",
+      "milestone": null,
+      "dependsOn": [
+        "CC-182"
+      ],
+      "affects": [],
+      "purpose": "Serves the lache beat of Training: the player grabs with E and the drawn hands must visibly touch the bar."
+    },
+    {
+      "id": "CC-194",
+      "title": "Warped wall: the hold-E hint and window start too early, far below the top",
+      "state": "Backlog",
+      "milestone": null,
+      "dependsOn": [
+        "CC-182"
+      ],
+      "affects": [],
+      "purpose": "Serves the warped wall beat: E should be due only when the hands are near the lip."
+    },
+    {
+      "id": "CC-195",
+      "title": "Key strip timing: each key and each toast must come before its obstacle",
+      "state": "Backlog",
+      "milestone": null,
+      "dependsOn": [
+        "CC-182"
+      ],
+      "affects": [],
+      "purpose": "Serves every course: the player must read the toast, then see the key, then meet the obstacle."
+    },
+    {
+      "id": "CC-196",
+      "title": "Remove the pointless second V on a low bump",
+      "state": "Backlog",
+      "milestone": null,
+      "dependsOn": [
+        "CC-182"
+      ],
+      "affects": [],
+      "purpose": "Serves the Training run: a low bump that needs a second V press teaches nothing."
+    },
+    {
+      "id": "CC-197",
+      "title": "One toast stack: toasts queue below each other, leave upward and fading",
+      "state": "Backlog",
+      "milestone": null,
+      "dependsOn": [
+        "CC-177"
+      ],
+      "affects": [],
+      "purpose": "Serves the player on the Course who gets two messages at once (a landing note and a skipped-bar note) and today sees them overlap."
+    },
+    {
+      "id": "CC-198",
+      "title": "Design partner card: nicer look, fixed bottom-right anchor, never pushed or covered",
+      "state": "Backlog",
+      "milestone": null,
+      "dependsOn": [
+        "CC-177"
+      ],
+      "affects": [],
+      "purpose": "Serves the person designing a world in the editor who opens the Design partner and finds it low, cramped or covered by the top-right block."
+    },
+    {
+      "id": "CC-199",
+      "title": "Pattern panel text: no overlap, wrapped, consistent type sizes",
+      "state": "Done",
+      "milestone": null,
+      "dependsOn": [
+        "CC-177"
+      ],
+      "affects": [],
+      "purpose": "Serves the person picking a pattern or reading the partner's panels, who sees text on top of text."
+    },
+    {
+      "id": "CC-200",
+      "title": "World editor: Add pieces as a top-bar primary button, and multi-select (marquee, Shift+click, delete all)",
+      "state": "Done",
+      "milestone": null,
+      "dependsOn": [
+        "CC-177"
+      ],
+      "affects": [],
+      "purpose": "Serves the builder who makes a course in the World editor: they could not find \"Add pieces\", and they could only move or delete one object at a time."
+    },
+    {
+      "id": "CC-201",
+      "title": "Slicer route: a \"Slice a real place\" card in Courses and a \"Back to courses\" button in the slicer",
+      "state": "Done",
+      "milestone": null,
+      "dependsOn": [
+        "CC-179"
+      ],
+      "affects": [],
+      "purpose": "Serves the player who wants to turn a real street into a course (the World explorer beat) and could not find the slicing screen."
+    },
+    {
+      "id": "CC-202",
+      "title": "Slicer: show a height or fix only when it is proven to give a path",
+      "state": "Done",
+      "milestone": null,
+      "dependsOn": [
+        "CC-179"
+      ],
+      "affects": [],
+      "purpose": "Serves the player who clicks a green \"try a height\" and still reads \"no path\"."
+    },
+    {
+      "id": "CC-203",
+      "title": "Slicer: say what the three dots change, warn when moved, add \"reset the line\"",
+      "state": "Backlog",
+      "milestone": null,
+      "dependsOn": [
+        "CC-179"
+      ],
+      "affects": [],
+      "purpose": "Serves the player who drags the dotted line and cannot tell why the path changes."
+    },
+    {
+      "id": "CC-204",
+      "title": "Slicer: all three line dots drag",
+      "state": "Backlog",
+      "milestone": null,
+      "dependsOn": [
+        "CC-179"
+      ],
+      "affects": [],
+      "purpose": "Serves the player who shapes the lane with the dots."
+    },
+    {
+      "id": "CC-205",
+      "title": "Slicer: hide the curvy ground line, say plainly what the cut height means",
+      "state": "Backlog",
+      "milestone": null,
+      "dependsOn": [
+        "CC-179"
+      ],
+      "affects": [],
+      "purpose": "Serves the player who reads the slicing screen for the first time."
+    },
+    {
+      "id": "CC-206",
+      "title": "Slicer map: tilt down to a horizontal side view",
+      "state": "Backlog",
+      "milestone": null,
+      "dependsOn": [
+        "CC-177"
+      ],
+      "affects": [],
+      "purpose": "Serves the player who wants to see buildings from the side, as the runner would."
+    },
+    {
+      "id": "CC-207",
+      "title": "Slicer: a gallery of place cards with a photo, name, city and \"ready\" badge",
+      "state": "Done",
+      "milestone": null,
+      "dependsOn": [
+        "CC-178"
+      ],
+      "affects": [],
+      "purpose": "Serves the player who picks a place to slice."
+    },
+    {
+      "id": "CC-208",
+      "title": "Compress the root README into a front door",
+      "state": "Done",
+      "milestone": null,
+      "dependsOn": [
+        "CC-189"
+      ],
+      "affects": [],
+      "purpose": "Serves the judge and first-time reader who opens the repo: the pitch and every headline achievement in under a minute."
+    },
+    {
+      "id": "CC-209",
+      "title": "Build the top 3 spectacle clips: slow-motion let-go with light trail, park-to-course fly-over, Blender sunset end card",
+      "state": "In Progress",
+      "milestone": null,
+      "dependsOn": [],
+      "affects": [],
+      "purpose": "Serves the demo film hook and the viral post: the product owner approved the spectacle shot list on 2026-10-29 (\"try doing something now, we can always change later\"). The video pause is lifted for these three shots only. Silent clips, no vault/climb or actor.ts clip changes."
+    },
+    {
+      "id": "CC-210",
+      "title": "Hero course for the film: Montmartre rooftop lane + proven rope section + one photo-lifted object, ideal run proven",
+      "state": "In Progress",
+      "milestone": null,
+      "dependsOn": [
+        "CC-178"
+      ],
+      "affects": [],
+      "purpose": "Serves the 80 s film (beats 3 to 7): the leap-to-rope beat must come from a real run that really clears."
+    },
+    {
+      "id": "CC-211",
+      "title": "Offer and save only worlds with a proven path; drop the Real hills and Use a ready place boxes",
+      "state": "Done",
+      "milestone": null,
+      "dependsOn": [
+        "CC-202"
+      ],
+      "affects": [],
+      "purpose": "Serves the player who opens Courses or the slicing screen and wants to cross obstacles from the map, not look at a map."
+    },
+    {
+      "id": "CC-212",
+      "title": "Place gallery: one cover photo for every Ready place that has a usable photo",
+      "state": "Backlog",
+      "milestone": null,
+      "dependsOn": [
+        "CC-207"
+      ],
+      "affects": [],
+      "purpose": "Serves the player who opens the slicing screen and picks a real place by picture (owner question: \"Is it impossible to just pick a cover photo for each?\")."
+    },
+    {
+      "id": "CC-213",
+      "title": "Make street furniture visible from the default camera, and say how to open it",
+      "state": "Done",
+      "milestone": null,
+      "dependsOn": [
+        "CC-187"
+      ],
+      "affects": [],
+      "purpose": "Serves the product owner's look at ?furniture=1: \"I don't see these street level items; the scale difference is big.\""
+    },
+    {
+      "id": "CC-214",
+      "title": "docs/obstacles.md: Hold-E numbers match docs/inputs.md and src/sim",
+      "state": "Backlog",
+      "milestone": null,
+      "dependsOn": [
+        "CC-193"
+      ],
+      "affects": [],
+      "purpose": "Serves: the owner reading the obstacle table before a playtest."
+    },
+    {
+      "id": "CC-215",
+      "title": "Report gold: trampoline must not be gold unless it is the most-failed obstacle",
+      "state": "Backlog",
+      "milestone": null,
+      "dependsOn": [
+        "CC-192"
+      ],
+      "affects": [],
+      "purpose": "Serves: the end-of-run report for every player (gold means the obstacle that cost the most falls)."
+    },
+    {
+      "id": "CC-216",
+      "title": "Training: second ledge must be reachable by a plain human jump",
+      "state": "Done",
+      "milestone": null,
+      "dependsOn": [
+        "CC-196"
+      ],
+      "affects": [],
+      "purpose": "Serves: the first-time player on the Training course (all obstacles)."
+    },
+    {
+      "id": "CC-217",
+      "title": "First lache bar: accept the grab only when the hands visibly touch the bar",
+      "state": "Backlog",
+      "milestone": null,
+      "dependsOn": [
+        "CC-193"
+      ],
+      "affects": [],
+      "purpose": "Serves: the first-time player on the Training course (lache)."
+    },
+    {
+      "id": "CC-218",
+      "title": "Data model for scale: entities, keys, limits, migration plan (docs/data-model.md)",
+      "state": "In Progress",
+      "milestone": null,
+      "dependsOn": [
+        "CC-128"
+      ],
+      "affects": [],
+      "purpose": "Serves the sharing-runs feature (owner: a database structure not limited by 2000 characters in the URL, ready for scale and later features). Player-facing outcome: none yet; this is the design the share slice and later features build on."
+    },
+    {
+      "id": "CC-219",
+      "title": "Short share links: POST/GET /api/share and ?c=id (behind a switch)",
+      "state": "Done",
+      "milestone": null,
+      "dependsOn": [
+        "CC-128"
+      ],
+      "affects": [],
+      "purpose": "Serves a player who sends a friend a run: the link stays short whatever the run or course size, and the old long links keep working."
+    },
+    {
+      "id": "CC-220",
+      "title": "Honest audit of the 19 lifted objects and a HARD photo test set (rich scenes) through the SAM 3D pipeline",
+      "state": "In Progress",
+      "milestone": null,
+      "dependsOn": [
+        "CC-38"
+      ],
+      "affects": [],
+      "purpose": "Serves the demo beat \"photo to 3D object\": does it work on a real street photo, not only on easy product shots?"
+    },
+    {
+      "id": "CC-221",
+      "title": "Player upload to 3D object end to end: drop a photo, draw a box, get a placeable .glb with its credit",
+      "state": "In Progress",
+      "milestone": null,
+      "dependsOn": [
+        "CC-38"
+      ],
+      "affects": [],
+      "purpose": "Serves the player who photographs a real object in their park and places it in the world editor."
+    },
+    {
+      "id": "CC-222",
+      "title": "Motion from you: a filmed move becomes an in-game roll clip on the Rookie (doc + thinnest slice behind a switch)",
+      "state": "In Progress",
+      "milestone": null,
+      "dependsOn": [],
+      "affects": [],
+      "purpose": "Serves the player who films themselves doing one move (a roll) with a phone or webcam and sees the Rookie do it in the game; also the demo beat \"real world to browser to real world\". Owner's feature 1 (2026-10-30): \"Motion pipeline to let users generate in-game motions from their own movements.\""
+    },
+    {
+      "id": "CC-223",
+      "title": "Multiple paths design: forks with two routes through a stretch (docs/multi-path.md)",
+      "state": "Backlog",
+      "milestone": null,
+      "dependsOn": [
+        "CC-71"
+      ],
+      "affects": [],
+      "purpose": "Serves the player who wants to choose how to get through a stretch (risk against reward, like the Hercules training montage) and the demo beat \"there is more than one way\"."
+    },
+    {
+      "id": "CC-224",
+      "title": "Multi-path slice: branches in the course JSON, a \"Two ways\" course, an ideal run for each route",
+      "state": "In Progress",
+      "milestone": null,
+      "dependsOn": [
+        "CC-71"
+      ],
+      "affects": [],
+      "purpose": "Serves the player who reaches a fork and picks a way, and the demo beat \"the simulator proved both ways\"."
+    },
+    {
+      "id": "CC-225",
+      "title": "Multi-path screens: fork on the strip and drum lane, route in the end report (?paths=1)",
+      "state": "In Progress",
+      "milestone": null,
+      "dependsOn": [],
+      "affects": [
+        "CC-182"
+      ],
+      "purpose": "Serves the player at the fork: sees both ways before choosing, and after the run sees which way they took and how long each takes at best."
+    },
+    {
+      "id": "CC-226",
+      "title": "Make the full test suite green again: course-stats keys column, unformatted beats.json, lache check",
+      "state": "Done",
+      "milestone": null,
+      "dependsOn": [
+        "CC-176"
+      ],
+      "affects": [],
+      "purpose": "Serves the demo beat \"the build is trustworthy\": every merge starts from a green suite."
+    },
+    {
+      "id": "CC-227",
+      "title": "Roll check: measure the turn along the direction of travel",
+      "state": "Done",
+      "milestone": null,
+      "dependsOn": [
+        "CC-222"
+      ],
+      "affects": [],
+      "purpose": "Serves the \"film your own move\" feature: a player's head-on roll must be able to pass the roll check."
+    },
+    {
+      "id": "CC-228",
+      "title": "Lane-aware ground (option C) so the two ways of a fork can start at the fork",
+      "state": "In Progress",
+      "milestone": null,
+      "dependsOn": [
+        "CC-224"
+      ],
+      "affects": [],
+      "purpose": "Serves the player who picks between a quick risky way and a safe longer way (Hercules-style choice)."
+    },
+    {
+      "id": "CC-229",
+      "title": "Per-route effect so the high way pays back its risk",
+      "state": "Backlog",
+      "milestone": null,
+      "dependsOn": [
+        "CC-224"
+      ],
+      "affects": [],
+      "purpose": "Serves the player weighing a risky quick way against a safe slow one."
+    },
+    {
+      "id": "CC-230",
+      "title": "Make the low way forgiving: 90%+ of human-timed tries clear it",
+      "state": "Done",
+      "milestone": null,
+      "dependsOn": [
+        "CC-224"
+      ],
+      "affects": [],
+      "purpose": "Serves the player who takes the safe way and should be able to clear it."
+    },
+    {
+      "id": "CC-231",
+      "title": "Route ghosts in the end report and a leaderboard per route",
+      "state": "Backlog",
+      "milestone": null,
+      "dependsOn": [
+        "CC-225"
+      ],
+      "affects": [],
+      "purpose": "Serves the player who wants to see the way they did not take."
+    },
+    {
+      "id": "CC-232",
+      "title": "Editor tool to author a fork (fork line, join line, stones per way)",
+      "state": "Backlog",
+      "milestone": null,
+      "dependsOn": [
+        "CC-224"
+      ],
+      "affects": [],
+      "purpose": "Serves the creator who builds a course with a choice in it."
+    },
+    {
+      "id": "CC-233",
+      "title": "Risk-versus-reward sayings for forks in docs/sayings.md",
+      "state": "Backlog",
+      "milestone": null,
+      "dependsOn": [
+        "CC-224"
+      ],
+      "affects": [],
+      "purpose": "Serves the Dojo player who learns why a quick way is risky."
+    },
+    {
+      "id": "CC-234",
+      "title": "Film backdrop: place skin and street furniture sit on the hero lane",
+      "state": "In Progress",
+      "milestone": null,
+      "dependsOn": [
+        "CC-210"
+      ],
+      "affects": [],
+      "purpose": "Serves the film (demo beat: fly-by and run look like a real street, not plain blocks)."
+    },
+    {
+      "id": "CC-235",
+      "title": "Format the 12 unformatted motion-from-you JSON files so test:quick passes",
+      "state": "Done",
+      "milestone": null,
+      "dependsOn": [],
+      "affects": [
+        "CC-222"
+      ],
+      "purpose": "Serves the team: every change runs `npm run test:quick`, and `tests/json-format.test.ts` fails on main."
+    },
+    {
+      "id": "CC-236",
+      "title": "Slow the low way by design (no deep drop) so the high way wins by 1.5 s with both windows over 60 ms",
+      "state": "In Progress",
+      "milestone": null,
+      "dependsOn": [
+        "CC-228"
+      ],
+      "affects": [],
+      "purpose": "Serves the player who picks a way at the fork: the safe low way should cost time, and the fast high way should be harder, so the choice is real."
+    },
+    {
+      "id": "CC-237",
+      "title": "Film scale: smaller backdrop lamps and a flatter skyline fly-by (v6)",
+      "state": "Done",
+      "milestone": null,
+      "dependsOn": [
+        "CC-234"
+      ],
+      "affects": [],
+      "purpose": "Serves film beat 4 (fly-by of the hero course), rough-cut-v6."
+    },
+    {
+      "id": "CC-238",
+      "title": "Editor start scene: placed lane with the photo box and buildings, side strip with real heights",
+      "state": "In Progress",
+      "milestone": null,
+      "dependsOn": [
+        "CC-210"
+      ],
+      "affects": [],
+      "purpose": "Serves film beat 3 (the editor shot) and a player opening \"Edit this course\" on a real place."
+    },
+    {
+      "id": "CC-239",
+      "title": "Pole vault: pick up a pole, run, plant, hold to bend, let go over the bar, land on a cushion (physics, controls, motion)",
+      "state": "In Progress",
+      "milestone": null,
+      "dependsOn": [
+        "CC-64"
+      ],
+      "affects": [],
+      "purpose": "Serves the player who wants a fun way up: speed bent into a pole and given back as height. Also the first test of the motion pipeline on a new move (pick-up, carry, plant, rise, release, land, fall back, roll)."
+    },
+    {
+      "id": "CC-240",
+      "title": "Timed balls on the First Course: a fixed beat every player shares",
+      "state": "In Progress",
+      "milestone": null,
+      "dependsOn": [
+        "CC-239"
+      ],
+      "affects": [],
+      "purpose": "Serves the player who runs the First Course: it makes people plan their timing, not just run fast or jump high."
+    },
+    {
+      "id": "CC-241",
+      "title": "Shift+I from anywhere: back up to a standing start that can build speed, and clear the lache pair",
+      "state": "In Progress",
+      "milestone": null,
+      "dependsOn": [
+        "CC-240"
+      ],
+      "affects": [],
+      "purpose": "Serves the player who presses Shift+I mid-course and watches the ideal run."
+    },
+    {
+      "id": "CC-242",
+      "title": "Shared partial runs: ghost and new player start from the same standing spot; only complete runs reach the board",
+      "state": "In Progress",
+      "milestone": null,
+      "dependsOn": [
+        "CC-241"
+      ],
+      "affects": [],
+      "purpose": "Serves the player who opens a shared link and races the sender's ghost."
+    },
+    {
+      "id": "CC-243",
+      "title": "World Editor: richer default course, start marker, \"Suggest Fix\" and \"Suggest More\" buttons into the design partner, 30-obstacle limit",
+      "state": "In Progress",
+      "milestone": null,
+      "dependsOn": [
+        "CC-241"
+      ],
+      "affects": [],
+      "purpose": "Serves the player who opens the World Editor for the first time and does not know what to place, what the rod is, or why the simulator says a lane cannot be cleared."
+    },
+    {
+      "id": "CC-244",
+      "title": "World Editor: a Coaster piece the rider can leave to grab ropes and bars, bars at any height",
+      "state": "In Progress",
+      "milestone": null,
+      "dependsOn": [
+        "CC-243"
+      ],
+      "affects": [],
+      "purpose": "Serves the player who builds a park course in the World Editor and wants a coaster ride that ends in a flight to a rope or a bar."
+    },
+    {
+      "id": "CC-245",
+      "title": "Rope needs E held: no auto-attach; let go of E to swing",
+      "state": "In Progress",
+      "milestone": null,
+      "dependsOn": [
+        "CC-8"
+      ],
+      "affects": [],
+      "purpose": "Serves the rope beat of the Course and every world with a rope: the player chooses to hold on, as with a bar."
+    },
+    {
+      "id": "CC-246",
+      "title": "One top bar on every page: World Editor, World Slicer, Courses, Community; clean up the Courses page (no debug label)",
+      "state": "In Progress",
+      "milestone": null,
+      "dependsOn": [
+        "CC-89"
+      ],
+      "affects": [],
+      "purpose": "Serves every player on arrival: the four main features must be one click away from every page, with the same names everywhere."
+    },
+    {
+      "id": "CC-247",
+      "title": "Communities page: browse and contribute wallpapers and 3D objects made from real photos (replaces the Park labelling page)",
+      "state": "In Progress",
+      "milestone": null,
+      "dependsOn": [
+        "CC-246"
+      ],
+      "affects": [],
+      "purpose": "Serves the player who wants to add a piece of the real world to the game, and the demo beat \"my photo becomes part of the game\"."
+    },
+    {
+      "id": "CC-248",
+      "title": "SAM-style picking: suggested segments to click, then manual boxes with copy, paste and delete",
+      "state": "In Progress",
+      "milestone": null,
+      "dependsOn": [
+        "CC-247"
+      ],
+      "affects": [],
+      "purpose": "Serves the contributor who should not have to label by hand: they see what SAM found, click what they want, and may still draw boxes."
+    },
+    {
+      "id": "CC-249",
+      "title": "Choose Wallpaper or 3D object with a preview of each; wallpapers show behind the Course; wire the lift to the page",
+      "state": "In Progress",
+      "milestone": null,
+      "dependsOn": [
+        "CC-248"
+      ],
+      "affects": [],
+      "purpose": "Serves the contributor who must know what they get before they wait, and every player who sees the result in the game."
+    },
+    {
+      "id": "CC-250",
+      "title": "Dojo lesson strip as a carousel with arrows and a clear \"more\" edge",
+      "state": "Backlog",
+      "milestone": null,
+      "dependsOn": [
+        "CC-146"
+      ],
+      "affects": [],
+      "purpose": "Serves the player who opens the Dojo and cannot see that more lessons sit past the right edge."
+    }
+  ]
+}
