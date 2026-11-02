@@ -1,19 +1,11 @@
 import { describe, expect, it } from 'vitest';
 import { barMesh, holdsOf, isHold, type P } from '../src/slice/holds-world';
-import { laneToCourse, sliceProfile, type Mesh } from '../src/slice/slice';
+import { laneToCourse, sliceProfile } from '../src/slice/slice';
 import { newPiece, worldSamples } from '../src/slice/world';
 import { playPlan, searchIdealRun } from '../src/sim/ideal';
 
 // CC-243: the green hang bar (crossbar 2.2 m) and the black one (2.05 m) from the editor's object list: the runner jumps, holds E and swings on, like the Lache.
-function box(w: number, h: number, d: number): Mesh {
-  const [x0, x1, y0, y1, z0, z1] = [-w / 2, w / 2, 0, h, -d / 2, d / 2];
-  const p = [x0, y0, z0, x1, y0, z0, x1, y1, z0, x0, y1, z0, x0, y0, z1, x1, y0, z1, x1, y1, z1, x0, y1, z1];
-  const q = [0, 1, 2, 0, 2, 3, 4, 6, 5, 4, 7, 6, 0, 4, 5, 0, 5, 1, 3, 2, 6, 3, 6, 7, 0, 3, 7, 0, 7, 4, 1, 5, 6, 1, 6, 2];
-  return { positions: p, indices: q };
-}
-const lane = { angle: 0, offset: 0, level: 0 };
 const bar = (x: number, hang: number): P => ({ ...newPiece('Bar', barMesh(), { x, z: 0 }), src: 'hold:bar', y: hang - 0.04 }); // the editor puts the crossbar piece at hang_m - 0.04
-const deck = (x: number, w: number): P => ({ ...newPiece('Deck', box(w, 0.5, 1.8), { x, z: 0 }), src: 'x' });
 const courseOf = (hang: number | null) => {
   const ps: P[] = [deck(0, 8), deck(17, 8), ...(hang === null ? [] : [bar(8.5, hang)])]; // a 9 m gap with the bar in the middle
   return laneToCourse(sliceProfile(worldSamples(ps.filter((p) => !isHold(p))), { x: 0, z: 0 }, lane), 'test', holdsOf(ps, lane));
@@ -40,6 +32,7 @@ import { readGlbMesh } from '../src/slice/glb';
 import { PRESETS } from '../src/slice/presets';
 import { roleCourse } from '../src/slice/roles';
 import { piecesFromSource } from '../src/slice/roundtrip';
+import { box, deck, lane } from './helpers/pieces';
 
 describe('the default editor course', () => {
   it('has a real hang bar and the Lache, and the ideal run swings on both', () => {
