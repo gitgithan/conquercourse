@@ -6,6 +6,7 @@ import type { P } from '../src/slice/holds-world';
 import { PRESETS, type Preset } from '../src/slice/presets';
 import { roleCourse } from '../src/slice/roles';
 import { piecesFromSource } from '../src/slice/roundtrip';
+import { setRoofStart } from '../src/slice/slice';
 import { newPiece } from '../src/slice/world';
 
 const idx = JSON.parse(readFileSync('public/assets/objects/index.json', 'utf8')) as { objects: { glb: string; hang_m?: number }[] };
@@ -20,6 +21,8 @@ export function presetCourse(pre: Preset): CourseData {
     return p;
   });
   const ps = [...(piecesFromSource(pre.pieces.filter((q) => !q.src.startsWith('obj:'))) as P[]), ...objs].filter((p) => !isDevice(p));
+  // The page runs with the roof start on, and the proof key follows the lane it makes.
+  setRoofStart(true);
   return roleCourse(ps as never[], { angle: 0, offset: 0, level: 0 }, 'My world').course;
 }
 export const presetCourses = (): Record<string, CourseData> => Object.fromEntries(PRESETS.map((p) => [p.id, presetCourse(p)]));
