@@ -1,0 +1,1818 @@
+{
+  "errors": [],
+  "steps": [
+    {
+      "name": "start",
+      "pieces": 8,
+      "knobs": {
+        "trebkg": null,
+        "recoilkg": null,
+        "recoilspeed": null,
+        "bandk": null,
+        "dronekg": null,
+        "dronewh": null,
+        "trackshape": null
+      },
+      "panel": "No piece chosen Click a piece on the picture to choose it. Drag it to move it. Scroll to zoom, drag the background to pan.",
+      "lane": [
+        "0",
+        "0",
+        "0"
+      ],
+      "undoDisabled": true,
+      "redoDisabled": true,
+      "fix": {
+        "fixit": false,
+        "easier": false
+      },
+      "saved": {
+        "n": 8,
+        "lane": [
+          0,
+          0,
+          0
+        ]
+      },
+      "redo": true,
+      "suggest": "",
+      "advice": "",
+      "helperOpen": false
+    },
+    {
+      "name": "add add-bench",
+      "pieces": 9,
+      "knobs": {
+        "trebkg": null,
+        "recoilkg": null,
+        "recoilspeed": null,
+        "bandk": null,
+        "dronekg": null,
+        "dronewh": null,
+        "trackshape": null
+      },
+      "panel": "Bench Size and height",
+      "lane": [
+        "0",
+        "0",
+        "0"
+      ],
+      "undoDisabled": false,
+      "redoDisabled": true,
+      "fix": {
+        "fixit": false,
+        "easier": false
+      },
+      "saved": {
+        "n": 9,
+        "lane": [
+          0,
+          0,
+          0
+        ]
+      },
+      "redo": true,
+      "suggest": "",
+      "advice": "",
+      "helperOpen": false
+    },
+    {
+      "name": "add add-low-wall",
+      "pieces": 10,
+      "knobs": {
+        "trebkg": null,
+        "recoilkg": null,
+        "recoilspeed": null,
+        "bandk": null,
+        "dronekg": null,
+        "dronewh": null,
+        "trackshape": null
+      },
+      "panel": "Low wall Size and height",
+      "lane": [
+        "0",
+        "0",
+        "0"
+      ],
+      "undoDisabled": false,
+      "redoDisabled": true,
+      "fix": {
+        "fixit": false,
+        "easier": false
+      },
+      "saved": {
+        "n": 10,
+        "lane": [
+          0,
+          0,
+          0
+        ]
+      },
+      "redo": true,
+      "suggest": "",
+      "advice": "",
+      "helperOpen": false
+    },
+    {
+      "name": "add add-block",
+      "pieces": 11,
+      "knobs": {
+        "trebkg": null,
+        "recoilkg": null,
+        "recoilspeed": null,
+        "bandk": null,
+        "dronekg": null,
+        "dronewh": null,
+        "trackshape": null
+      },
+      "panel": "Block Size and height",
+      "lane": [
+        "0",
+        "0",
+        "0"
+      ],
+      "undoDisabled": false,
+      "redoDisabled": true,
+      "fix": {
+        "fixit": false,
+        "easier": false
+      },
+      "saved": {
+        "n": 11,
+        "lane": [
+          0,
+          0,
+          0
+        ]
+      },
+      "redo": true,
+      "suggest": "",
+      "advice": "",
+      "helperOpen": false
+    },
+    {
+      "name": "add add-steps",
+      "pieces": 12,
+      "knobs": {
+        "trebkg": null,
+        "recoilkg": null,
+        "recoilspeed": null,
+        "bandk": null,
+        "dronekg": null,
+        "dronewh": null,
+        "trackshape": null
+      },
+      "panel": "Steps Size and height",
+      "lane": [
+        "0",
+        "0",
+        "0"
+      ],
+      "undoDisabled": false,
+      "redoDisabled": true,
+      "fix": {
+        "fixit": false,
+        "easier": false
+      },
+      "saved": {
+        "n": 12,
+        "lane": [
+          0,
+          0,
+          0
+        ]
+      },
+      "redo": true,
+      "suggest": "",
+      "advice": "",
+      "helperOpen": false
+    },
+    {
+      "name": "add add-rail",
+      "pieces": 13,
+      "knobs": {
+        "trebkg": null,
+        "recoilkg": null,
+        "recoilspeed": null,
+        "bandk": null,
+        "dronekg": null,
+        "dronewh": null,
+        "trackshape": null
+      },
+      "panel": "Rail Size and height",
+      "lane": [
+        "0",
+        "0",
+        "0"
+      ],
+      "undoDisabled": false,
+      "redoDisabled": true,
+      "fix": {
+        "fixit": false,
+        "easier": false
+      },
+      "saved": {
+        "n": 13,
+        "lane": [
+          0,
+          0,
+          0
+        ]
+      },
+      "redo": true,
+      "suggest": "",
+      "advice": "",
+      "helperOpen": false
+    },
+    {
+      "name": "add add-brick",
+      "pieces": 14,
+      "knobs": {
+        "trebkg": null,
+        "recoilkg": null,
+        "recoilspeed": null,
+        "bandk": null,
+        "dronekg": null,
+        "dronewh": null,
+        "trackshape": null
+      },
+      "panel": "Toy brick Size and height",
+      "lane": [
+        "0",
+        "0",
+        "0"
+      ],
+      "undoDisabled": false,
+      "redoDisabled": true,
+      "fix": {
+        "fixit": false,
+        "easier": false
+      },
+      "saved": {
+        "n": 14,
+        "lane": [
+          0,
+          0,
+          0
+        ]
+      },
+      "redo": true,
+      "suggest": "",
+      "advice": "",
+      "helperOpen": false
+    },
+    {
+      "name": "add addbar",
+      "pieces": 15,
+      "knobs": {
+        "trebkg": null,
+        "recoilkg": null,
+        "recoilspeed": null,
+        "bandk": null,
+        "dronekg": null,
+        "dronewh": null,
+        "trackshape": null
+      },
+      "panel": "Bar Size and height",
+      "lane": [
+        "0",
+        "0",
+        "0"
+      ],
+      "undoDisabled": false,
+      "redoDisabled": true,
+      "fix": {
+        "fixit": false,
+        "easier": false
+      },
+      "saved": {
+        "n": 15,
+        "lane": [
+          0,
+          0,
+          0
+        ]
+      },
+      "redo": true,
+      "suggest": "",
+      "advice": "",
+      "helperOpen": false
+    },
+    {
+      "name": "add addcoaster",
+      "pieces": 16,
+      "knobs": {
+        "trebkg": null,
+        "recoilkg": null,
+        "recoilspeed": null,
+        "bandk": null,
+        "dronekg": null,
+        "dronewh": null,
+        "trackshape": null
+      },
+      "panel": "Coaster Size and height",
+      "lane": [
+        "0",
+        "0",
+        "0"
+      ],
+      "undoDisabled": false,
+      "redoDisabled": true,
+      "fix": {
+        "fixit": false,
+        "easier": false
+      },
+      "saved": {
+        "n": 16,
+        "lane": [
+          0,
+          0,
+          0
+        ]
+      },
+      "redo": true,
+      "suggest": "",
+      "advice": "",
+      "helperOpen": false
+    },
+    {
+      "name": "add addlache",
+      "pieces": 18,
+      "knobs": {
+        "trebkg": null,
+        "recoilkg": null,
+        "recoilspeed": null,
+        "bandk": null,
+        "dronekg": null,
+        "dronewh": null,
+        "trackshape": null
+      },
+      "panel": "Bar Size and height",
+      "lane": [
+        "0",
+        "0",
+        "0"
+      ],
+      "undoDisabled": false,
+      "redoDisabled": true,
+      "fix": {
+        "fixit": false,
+        "easier": false
+      },
+      "saved": {
+        "n": 18,
+        "lane": [
+          0,
+          0,
+          0
+        ]
+      },
+      "redo": true,
+      "suggest": "",
+      "advice": "",
+      "helperOpen": false
+    },
+    {
+      "name": "add addrope",
+      "pieces": 19,
+      "knobs": {
+        "trebkg": null,
+        "recoilkg": null,
+        "recoilspeed": null,
+        "bandk": null,
+        "dronekg": null,
+        "dronewh": null,
+        "trackshape": null
+      },
+      "panel": "Rope anchor Size and height",
+      "lane": [
+        "0",
+        "0",
+        "0"
+      ],
+      "undoDisabled": false,
+      "redoDisabled": true,
+      "fix": {
+        "fixit": false,
+        "easier": false
+      },
+      "saved": {
+        "n": 18,
+        "lane": [
+          0,
+          0,
+          0
+        ]
+      },
+      "redo": true,
+      "suggest": "",
+      "advice": "",
+      "helperOpen": false
+    },
+    {
+      "name": "add addtreb",
+      "pieces": 20,
+      "knobs": {
+        "trebkg": "1200",
+        "recoilkg": null,
+        "recoilspeed": null,
+        "bandk": null,
+        "dronekg": null,
+        "dronewh": null,
+        "trackshape": null
+      },
+      "panel": "Trebuchet Active in the course simulation at -# m along the lane. Drag it in the #D view or top plan. Size and orientation stay fixed.",
+      "lane": [
+        "0",
+        "0",
+        "0"
+      ],
+      "undoDisabled": false,
+      "redoDisabled": true,
+      "fix": {
+        "fixit": false,
+        "easier": false
+      },
+      "saved": {
+        "n": 19,
+        "lane": [
+          0,
+          0,
+          0
+        ]
+      },
+      "redo": true,
+      "suggest": "",
+      "advice": "",
+      "helperOpen": false
+    },
+    {
+      "name": "add addcannon",
+      "pieces": 21,
+      "knobs": {
+        "trebkg": "1200",
+        "recoilkg": "80",
+        "recoilspeed": "45",
+        "bandk": null,
+        "dronekg": null,
+        "dronewh": null,
+        "trackshape": null
+      },
+      "panel": "Cannon Extra movable copy; the course currently simulates the first device of this type at # m along the lane. Drag it in the #D view or top plan. Size and orientation stay fixed.",
+      "lane": [
+        "0",
+        "0",
+        "0"
+      ],
+      "undoDisabled": false,
+      "redoDisabled": true,
+      "fix": {
+        "fixit": false,
+        "easier": false
+      },
+      "saved": {
+        "n": 20,
+        "lane": [
+          0,
+          0,
+          0
+        ]
+      },
+      "redo": true,
+      "suggest": "",
+      "advice": "",
+      "helperOpen": false
+    },
+    {
+      "name": "add addrecoil",
+      "pieces": 22,
+      "knobs": {
+        "trebkg": "1200",
+        "recoilkg": "80",
+        "recoilspeed": "45",
+        "bandk": null,
+        "dronekg": null,
+        "dronewh": null,
+        "trackshape": null
+      },
+      "panel": "Launcher Active in the course simulation at # m along the lane. Drag it in the #D view or top plan. Size and orientation stay fixed.",
+      "lane": [
+        "0",
+        "0",
+        "0"
+      ],
+      "undoDisabled": false,
+      "redoDisabled": true,
+      "fix": {
+        "fixit": false,
+        "easier": false
+      },
+      "saved": {
+        "n": 21,
+        "lane": [
+          0,
+          0,
+          0
+        ]
+      },
+      "redo": true,
+      "suggest": "",
+      "advice": "",
+      "helperOpen": false
+    },
+    {
+      "name": "add addband",
+      "pieces": 22,
+      "knobs": {
+        "trebkg": "1200",
+        "recoilkg": "80",
+        "recoilspeed": "45",
+        "bandk": "35",
+        "dronekg": null,
+        "dronewh": null,
+        "trackshape": null
+      },
+      "panel": "Launcher Active in the course simulation at # m along the lane. Drag it in the #D view or top plan. Size and orientation stay fixed.",
+      "lane": [
+        "0",
+        "0",
+        "0"
+      ],
+      "undoDisabled": false,
+      "redoDisabled": true,
+      "fix": {
+        "fixit": false,
+        "easier": false
+      },
+      "saved": {
+        "n": 21,
+        "lane": [
+          0,
+          0,
+          0
+        ]
+      },
+      "redo": true,
+      "suggest": "",
+      "advice": "",
+      "helperOpen": false
+    },
+    {
+      "name": "add adddrone",
+      "pieces": 23,
+      "knobs": {
+        "trebkg": "1200",
+        "recoilkg": "80",
+        "recoilspeed": "45",
+        "bandk": "35",
+        "dronekg": "70",
+        "dronewh": "50",
+        "trackshape": null
+      },
+      "panel": "Drone Active in the course simulation at # m along the lane. Drag it in the #D view or top plan. Size and orientation stay fixed.",
+      "lane": [
+        "0",
+        "0",
+        "0"
+      ],
+      "undoDisabled": false,
+      "redoDisabled": true,
+      "fix": {
+        "fixit": false,
+        "easier": false
+      },
+      "saved": {
+        "n": 22,
+        "lane": [
+          0,
+          0,
+          0
+        ]
+      },
+      "redo": true,
+      "suggest": "",
+      "advice": "",
+      "helperOpen": false
+    },
+    {
+      "name": "add addplank",
+      "pieces": 24,
+      "knobs": {
+        "trebkg": "1200",
+        "recoilkg": "80",
+        "recoilspeed": "45",
+        "bandk": "35",
+        "dronekg": "70",
+        "dronewh": "50",
+        "trackshape": null
+      },
+      "panel": "Plank bridge Material Pine plank Steel plate Thickness (cm) Width (cm) Length (m, drawing only: the gap decides) Post under the middle Over # m it holds: # cm of sag at the worst place, #% of what it can take. Size and height",
+      "lane": [
+        "0",
+        "0",
+        "0"
+      ],
+      "undoDisabled": false,
+      "redoDisabled": true,
+      "fix": {
+        "fixit": false,
+        "easier": false
+      },
+      "saved": {
+        "n": 23,
+        "lane": [
+          0,
+          0,
+          0
+        ]
+      },
+      "redo": true,
+      "suggest": "",
+      "advice": "",
+      "helperOpen": false
+    },
+    {
+      "name": "add addstack-3-3-3",
+      "pieces": 25,
+      "knobs": {
+        "trebkg": "1200",
+        "recoilkg": "80",
+        "recoilspeed": "45",
+        "bandk": "35",
+        "dronekg": "70",
+        "dronewh": "50",
+        "trackshape": null
+      },
+      "panel": "Stack #-#-# Size and height",
+      "lane": [
+        "0",
+        "0",
+        "0"
+      ],
+      "undoDisabled": false,
+      "redoDisabled": true,
+      "fix": {
+        "fixit": false,
+        "easier": false
+      },
+      "saved": {
+        "n": 24,
+        "lane": [
+          0,
+          0,
+          0
+        ]
+      },
+      "redo": true,
+      "suggest": "",
+      "advice": "",
+      "helperOpen": false
+    },
+    {
+      "name": "add addstack-3-6-3",
+      "pieces": 26,
+      "knobs": {
+        "trebkg": "1200",
+        "recoilkg": "80",
+        "recoilspeed": "45",
+        "bandk": "35",
+        "dronekg": "70",
+        "dronewh": "50",
+        "trackshape": null
+      },
+      "panel": "Stack #-#-# Size and height",
+      "lane": [
+        "0",
+        "0",
+        "0"
+      ],
+      "undoDisabled": false,
+      "redoDisabled": true,
+      "fix": {
+        "fixit": false,
+        "easier": false
+      },
+      "saved": {
+        "n": 25,
+        "lane": [
+          0,
+          0,
+          0
+        ]
+      },
+      "redo": true,
+      "suggest": "",
+      "advice": "",
+      "helperOpen": false
+    },
+    {
+      "name": "add addstack-6-6",
+      "pieces": 27,
+      "knobs": {
+        "trebkg": "1200",
+        "recoilkg": "80",
+        "recoilspeed": "45",
+        "bandk": "35",
+        "dronekg": "70",
+        "dronewh": "50",
+        "trackshape": null
+      },
+      "panel": "Stack #-# Size and height",
+      "lane": [
+        "0",
+        "0",
+        "0"
+      ],
+      "undoDisabled": false,
+      "redoDisabled": true,
+      "fix": {
+        "fixit": false,
+        "easier": false
+      },
+      "saved": {
+        "n": 26,
+        "lane": [
+          0,
+          0,
+          0
+        ]
+      },
+      "redo": true,
+      "suggest": "",
+      "advice": "",
+      "helperOpen": false
+    },
+    {
+      "name": "add addstack-1-10-1",
+      "pieces": 28,
+      "knobs": {
+        "trebkg": "1200",
+        "recoilkg": "80",
+        "recoilspeed": "45",
+        "bandk": "35",
+        "dronekg": "70",
+        "dronewh": "50",
+        "trackshape": null
+      },
+      "panel": "Stack #-#-# Size and height",
+      "lane": [
+        "0",
+        "0",
+        "0"
+      ],
+      "undoDisabled": false,
+      "redoDisabled": true,
+      "fix": {
+        "fixit": false,
+        "easier": false
+      },
+      "saved": {
+        "n": 27,
+        "lane": [
+          0,
+          0,
+          0
+        ]
+      },
+      "redo": true,
+      "suggest": "",
+      "advice": "",
+      "helperOpen": false
+    },
+    {
+      "name": "add addstack-cycle",
+      "pieces": 29,
+      "knobs": {
+        "trebkg": "1200",
+        "recoilkg": "80",
+        "recoilspeed": "45",
+        "bandk": "35",
+        "dronekg": "70",
+        "dronewh": "50",
+        "trackshape": null
+      },
+      "panel": "Stack Cycle (#-#-#, #-#) Size and height",
+      "lane": [
+        "0",
+        "0",
+        "0"
+      ],
+      "undoDisabled": false,
+      "redoDisabled": true,
+      "fix": {
+        "fixit": false,
+        "easier": false
+      },
+      "saved": {
+        "n": 28,
+        "lane": [
+          0,
+          0,
+          0
+        ]
+      },
+      "redo": true,
+      "suggest": "",
+      "advice": "",
+      "helperOpen": false
+    },
+    {
+      "name": "knob trebkg",
+      "pieces": 29,
+      "knobs": {
+        "trebkg": "1500",
+        "recoilkg": "80",
+        "recoilspeed": "45",
+        "bandk": "35",
+        "dronekg": "70",
+        "dronewh": "50",
+        "trackshape": null
+      },
+      "panel": "Stack Cycle (#-#-#, #-#) Size and height",
+      "lane": [
+        "0",
+        "0",
+        "0"
+      ],
+      "undoDisabled": false,
+      "redoDisabled": true,
+      "fix": {
+        "fixit": false,
+        "easier": false
+      },
+      "saved": {
+        "n": 28,
+        "lane": [
+          0,
+          0,
+          0
+        ]
+      },
+      "redo": true,
+      "suggest": "",
+      "advice": "",
+      "helperOpen": false
+    },
+    {
+      "name": "knob recoilkg",
+      "pieces": 29,
+      "knobs": {
+        "trebkg": "1500",
+        "recoilkg": "20",
+        "recoilspeed": "45",
+        "bandk": "35",
+        "dronekg": "70",
+        "dronewh": "50",
+        "trackshape": null
+      },
+      "panel": "Stack Cycle (#-#-#, #-#) Size and height",
+      "lane": [
+        "0",
+        "0",
+        "0"
+      ],
+      "undoDisabled": false,
+      "redoDisabled": true,
+      "fix": {
+        "fixit": false,
+        "easier": false
+      },
+      "saved": {
+        "n": 28,
+        "lane": [
+          0,
+          0,
+          0
+        ]
+      },
+      "redo": true,
+      "suggest": "",
+      "advice": "",
+      "helperOpen": false
+    },
+    {
+      "name": "knob recoilspeed",
+      "pieces": 29,
+      "knobs": {
+        "trebkg": "1500",
+        "recoilkg": "20",
+        "recoilspeed": "25",
+        "bandk": "35",
+        "dronekg": "70",
+        "dronewh": "50",
+        "trackshape": null
+      },
+      "panel": "Stack Cycle (#-#-#, #-#) Size and height",
+      "lane": [
+        "0",
+        "0",
+        "0"
+      ],
+      "undoDisabled": false,
+      "redoDisabled": true,
+      "fix": {
+        "fixit": false,
+        "easier": false
+      },
+      "saved": {
+        "n": 28,
+        "lane": [
+          0,
+          0,
+          0
+        ]
+      },
+      "redo": true,
+      "suggest": "",
+      "advice": "",
+      "helperOpen": false
+    },
+    {
+      "name": "knob bandk",
+      "pieces": 29,
+      "knobs": {
+        "trebkg": "1500",
+        "recoilkg": "20",
+        "recoilspeed": "25",
+        "bandk": "60",
+        "dronekg": "70",
+        "dronewh": "50",
+        "trackshape": null
+      },
+      "panel": "Stack Cycle (#-#-#, #-#) Size and height",
+      "lane": [
+        "0",
+        "0",
+        "0"
+      ],
+      "undoDisabled": false,
+      "redoDisabled": true,
+      "fix": {
+        "fixit": false,
+        "easier": false
+      },
+      "saved": {
+        "n": 28,
+        "lane": [
+          0,
+          0,
+          0
+        ]
+      },
+      "redo": true,
+      "suggest": "",
+      "advice": "",
+      "helperOpen": false
+    },
+    {
+      "name": "knob dronekg",
+      "pieces": 29,
+      "knobs": {
+        "trebkg": "1500",
+        "recoilkg": "20",
+        "recoilspeed": "25",
+        "bandk": "60",
+        "dronekg": "80",
+        "dronewh": "50",
+        "trackshape": null
+      },
+      "panel": "Stack Cycle (#-#-#, #-#) Size and height",
+      "lane": [
+        "0",
+        "0",
+        "0"
+      ],
+      "undoDisabled": false,
+      "redoDisabled": true,
+      "fix": {
+        "fixit": false,
+        "easier": false
+      },
+      "saved": {
+        "n": 28,
+        "lane": [
+          0,
+          0,
+          0
+        ]
+      },
+      "redo": true,
+      "suggest": "",
+      "advice": "",
+      "helperOpen": false
+    },
+    {
+      "name": "knob dronewh",
+      "pieces": 29,
+      "knobs": {
+        "trebkg": "1500",
+        "recoilkg": "20",
+        "recoilspeed": "25",
+        "bandk": "60",
+        "dronekg": "80",
+        "dronewh": "60",
+        "trackshape": null
+      },
+      "panel": "Stack Cycle (#-#-#, #-#) Size and height",
+      "lane": [
+        "0",
+        "0",
+        "0"
+      ],
+      "undoDisabled": false,
+      "redoDisabled": true,
+      "fix": {
+        "fixit": false,
+        "easier": false
+      },
+      "saved": {
+        "n": 28,
+        "lane": [
+          0,
+          0,
+          0
+        ]
+      },
+      "redo": true,
+      "suggest": "",
+      "advice": "",
+      "helperOpen": false
+    },
+    {
+      "name": "undo x3",
+      "pieces": 29,
+      "knobs": {
+        "trebkg": "1500",
+        "recoilkg": "20",
+        "recoilspeed": "25",
+        "bandk": "60",
+        "dronekg": "80",
+        "dronewh": "50",
+        "trackshape": null
+      },
+      "panel": "Stack Cycle (#-#-#, #-#) Size and height",
+      "lane": [
+        "0",
+        "0",
+        "0"
+      ],
+      "undoDisabled": false,
+      "redoDisabled": false,
+      "fix": {
+        "fixit": false,
+        "easier": false
+      },
+      "saved": {
+        "n": 28,
+        "lane": [
+          0,
+          0,
+          0
+        ]
+      },
+      "redo": false,
+      "suggest": "",
+      "advice": "",
+      "helperOpen": false
+    },
+    {
+      "name": "redo x2",
+      "pieces": 29,
+      "knobs": {
+        "trebkg": "1500",
+        "recoilkg": "20",
+        "recoilspeed": "25",
+        "bandk": "60",
+        "dronekg": "80",
+        "dronewh": "60",
+        "trackshape": null
+      },
+      "panel": "Stack Cycle (#-#-#, #-#) Size and height",
+      "lane": [
+        "0",
+        "0",
+        "0"
+      ],
+      "undoDisabled": false,
+      "redoDisabled": false,
+      "fix": {
+        "fixit": false,
+        "easier": false
+      },
+      "saved": {
+        "n": 28,
+        "lane": [
+          0,
+          0,
+          0
+        ]
+      },
+      "redo": false,
+      "suggest": "",
+      "advice": "",
+      "helperOpen": false
+    },
+    {
+      "name": "ctrl+z",
+      "pieces": 29,
+      "knobs": {
+        "trebkg": "1500",
+        "recoilkg": "20",
+        "recoilspeed": "25",
+        "bandk": "60",
+        "dronekg": "80",
+        "dronewh": "50",
+        "trackshape": null
+      },
+      "panel": "Stack Cycle (#-#-#, #-#) Size and height",
+      "lane": [
+        "0",
+        "0",
+        "0"
+      ],
+      "undoDisabled": false,
+      "redoDisabled": false,
+      "fix": {
+        "fixit": false,
+        "easier": false
+      },
+      "saved": {
+        "n": 28,
+        "lane": [
+          0,
+          0,
+          0
+        ]
+      },
+      "redo": false,
+      "suggest": "",
+      "advice": "",
+      "helperOpen": false
+    },
+    {
+      "name": "ctrl+y",
+      "pieces": 29,
+      "knobs": {
+        "trebkg": "1500",
+        "recoilkg": "20",
+        "recoilspeed": "25",
+        "bandk": "60",
+        "dronekg": "80",
+        "dronewh": "60",
+        "trackshape": null
+      },
+      "panel": "Stack Cycle (#-#-#, #-#) Size and height",
+      "lane": [
+        "0",
+        "0",
+        "0"
+      ],
+      "undoDisabled": false,
+      "redoDisabled": false,
+      "fix": {
+        "fixit": false,
+        "easier": false
+      },
+      "saved": {
+        "n": 28,
+        "lane": [
+          0,
+          0,
+          0
+        ]
+      },
+      "redo": false,
+      "suggest": "",
+      "advice": "",
+      "helperOpen": false
+    },
+    {
+      "name": "lane angle",
+      "pieces": 29,
+      "knobs": {
+        "trebkg": "1500",
+        "recoilkg": "20",
+        "recoilspeed": "25",
+        "bandk": "60",
+        "dronekg": "80",
+        "dronewh": "60",
+        "trackshape": null
+      },
+      "panel": "Stack Cycle (#-#-#, #-#) Size and height",
+      "lane": [
+        "10",
+        "0",
+        "0"
+      ],
+      "undoDisabled": false,
+      "redoDisabled": false,
+      "fix": {
+        "fixit": false,
+        "easier": false
+      },
+      "saved": {
+        "n": 28,
+        "lane": [
+          0.17453292519943295,
+          0,
+          0
+        ]
+      },
+      "redo": false,
+      "suggest": "",
+      "advice": "",
+      "helperOpen": false
+    },
+    {
+      "name": "floor lava",
+      "pieces": 29,
+      "knobs": {
+        "trebkg": "1500",
+        "recoilkg": "20",
+        "recoilspeed": "25",
+        "bandk": "60",
+        "dronekg": "80",
+        "dronewh": "60",
+        "trackshape": null
+      },
+      "panel": "Stack Cycle (#-#-#, #-#) Size and height",
+      "lane": [
+        "10",
+        "0",
+        "0"
+      ],
+      "undoDisabled": false,
+      "redoDisabled": false,
+      "fix": {
+        "fixit": false,
+        "easier": false
+      },
+      "saved": {
+        "n": 28,
+        "lane": [
+          0.17453292519943295,
+          0,
+          0
+        ]
+      },
+      "redo": false,
+      "suggest": "",
+      "advice": "",
+      "helperOpen": false
+    },
+    {
+      "name": "top plan",
+      "pieces": 29,
+      "knobs": {
+        "trebkg": "1500",
+        "recoilkg": "20",
+        "recoilspeed": "25",
+        "bandk": "60",
+        "dronekg": "80",
+        "dronewh": "60",
+        "trackshape": null
+      },
+      "panel": "Stack Cycle (#-#-#, #-#) Size and height",
+      "lane": [
+        "10",
+        "0",
+        "0"
+      ],
+      "undoDisabled": false,
+      "redoDisabled": false,
+      "fix": {
+        "fixit": false,
+        "easier": false
+      },
+      "saved": {
+        "n": 28,
+        "lane": [
+          0.17453292519943295,
+          0,
+          0
+        ]
+      },
+      "redo": false,
+      "suggest": "",
+      "advice": "",
+      "helperOpen": false
+    },
+    {
+      "name": "3d view",
+      "pieces": 29,
+      "knobs": {
+        "trebkg": "1500",
+        "recoilkg": "20",
+        "recoilspeed": "25",
+        "bandk": "60",
+        "dronekg": "80",
+        "dronewh": "60",
+        "trackshape": null
+      },
+      "panel": "Stack Cycle (#-#-#, #-#) Size and height",
+      "lane": [
+        "10",
+        "0",
+        "0"
+      ],
+      "undoDisabled": false,
+      "redoDisabled": false,
+      "fix": {
+        "fixit": false,
+        "easier": false
+      },
+      "saved": {
+        "n": 28,
+        "lane": [
+          0.17453292519943295,
+          0,
+          0
+        ]
+      },
+      "redo": false,
+      "suggest": "",
+      "advice": "",
+      "helperOpen": false
+    },
+    {
+      "name": "fit",
+      "pieces": 29,
+      "knobs": {
+        "trebkg": "1500",
+        "recoilkg": "20",
+        "recoilspeed": "25",
+        "bandk": "60",
+        "dronekg": "80",
+        "dronewh": "60",
+        "trackshape": null
+      },
+      "panel": "Stack Cycle (#-#-#, #-#) Size and height",
+      "lane": [
+        "10",
+        "0",
+        "0"
+      ],
+      "undoDisabled": false,
+      "redoDisabled": false,
+      "fix": {
+        "fixit": false,
+        "easier": false
+      },
+      "saved": {
+        "n": 28,
+        "lane": [
+          0.17453292519943295,
+          0,
+          0
+        ]
+      },
+      "redo": false,
+      "suggest": "",
+      "advice": "",
+      "helperOpen": false
+    },
+    {
+      "name": "copy+paste",
+      "pieces": 30,
+      "knobs": {
+        "trebkg": "1500",
+        "recoilkg": "20",
+        "recoilspeed": "25",
+        "bandk": "60",
+        "dronekg": "80",
+        "dronewh": "60",
+        "trackshape": null
+      },
+      "panel": "Stack Cycle (#-#-#, #-#) Size and height",
+      "lane": [
+        "10",
+        "0",
+        "0"
+      ],
+      "undoDisabled": false,
+      "redoDisabled": true,
+      "fix": {
+        "fixit": false,
+        "easier": false
+      },
+      "saved": {
+        "n": 29,
+        "lane": [
+          0.17453292519943295,
+          0,
+          0
+        ]
+      },
+      "redo": true,
+      "suggest": "",
+      "advice": "",
+      "helperOpen": false
+    },
+    {
+      "name": "delete",
+      "pieces": 29,
+      "knobs": {
+        "trebkg": "1500",
+        "recoilkg": "20",
+        "recoilspeed": "25",
+        "bandk": "60",
+        "dronekg": "80",
+        "dronewh": "60",
+        "trackshape": null
+      },
+      "panel": "No piece chosen Click a piece on the picture to choose it. Drag it to move it. Scroll to zoom, drag the background to pan.",
+      "lane": [
+        "10",
+        "0",
+        "0"
+      ],
+      "undoDisabled": false,
+      "redoDisabled": true,
+      "fix": {
+        "fixit": false,
+        "easier": false
+      },
+      "saved": {
+        "n": 28,
+        "lane": [
+          0.17453292519943295,
+          0,
+          0
+        ]
+      },
+      "redo": true,
+      "suggest": "",
+      "advice": "",
+      "helperOpen": false
+    },
+    {
+      "name": "moves open",
+      "pieces": 29,
+      "knobs": {
+        "trebkg": "1500",
+        "recoilkg": "20",
+        "recoilspeed": "25",
+        "bandk": "60",
+        "dronekg": "80",
+        "dronewh": "60",
+        "trackshape": null
+      },
+      "panel": "No piece chosen Click a piece on the picture to choose it. Drag it to move it. Scroll to zoom, drag the background to pan.",
+      "lane": [
+        "10",
+        "0",
+        "0"
+      ],
+      "undoDisabled": false,
+      "redoDisabled": true,
+      "fix": {
+        "fixit": false,
+        "easier": false
+      },
+      "saved": {
+        "n": 28,
+        "lane": [
+          0.17453292519943295,
+          0,
+          0
+        ]
+      },
+      "redo": true,
+      "suggest": "",
+      "advice": "",
+      "helperOpen": false
+    },
+    {
+      "name": "moves close",
+      "pieces": 29,
+      "knobs": {
+        "trebkg": "1500",
+        "recoilkg": "20",
+        "recoilspeed": "25",
+        "bandk": "60",
+        "dronekg": "80",
+        "dronewh": "60",
+        "trackshape": null
+      },
+      "panel": "No piece chosen Click a piece on the picture to choose it. Drag it to move it. Scroll to zoom, drag the background to pan.",
+      "lane": [
+        "10",
+        "0",
+        "0"
+      ],
+      "undoDisabled": false,
+      "redoDisabled": true,
+      "fix": {
+        "fixit": false,
+        "easier": false
+      },
+      "saved": {
+        "n": 28,
+        "lane": [
+          0.17453292519943295,
+          0,
+          0
+        ]
+      },
+      "redo": true,
+      "suggest": "",
+      "advice": "",
+      "helperOpen": false
+    },
+    {
+      "name": "design partner toggle",
+      "pieces": 29,
+      "knobs": {
+        "trebkg": "1500",
+        "recoilkg": "20",
+        "recoilspeed": "25",
+        "bandk": "60",
+        "dronekg": "80",
+        "dronewh": "60",
+        "trackshape": null
+      },
+      "panel": "No piece chosen Click a piece on the picture to choose it. Drag it to move it. Scroll to zoom, drag the background to pan.",
+      "lane": [
+        "10",
+        "0",
+        "0"
+      ],
+      "undoDisabled": false,
+      "redoDisabled": true,
+      "fix": {
+        "fixit": false,
+        "easier": false
+      },
+      "saved": {
+        "n": 28,
+        "lane": [
+          0.17453292519943295,
+          0,
+          0
+        ]
+      },
+      "redo": true,
+      "suggest": "Suggest More",
+      "advice": "#c35d538e18:true",
+      "helperOpen": false
+    },
+    {
+      "name": "fix menu fixit",
+      "pieces": 29,
+      "knobs": {
+        "trebkg": "1500",
+        "recoilkg": "20",
+        "recoilspeed": "25",
+        "bandk": "60",
+        "dronekg": "80",
+        "dronewh": "60",
+        "trackshape": null
+      },
+      "panel": "No piece chosen Click a piece on the picture to choose it. Drag it to move it. Scroll to zoom, drag the background to pan.",
+      "lane": [
+        "10",
+        "0",
+        "0"
+      ],
+      "undoDisabled": false,
+      "redoDisabled": true,
+      "fix": {
+        "fixit": false,
+        "easier": false
+      },
+      "saved": {
+        "n": 28,
+        "lane": [
+          0.17453292519943295,
+          0,
+          0
+        ]
+      },
+      "redo": true,
+      "suggest": "Suggest More",
+      "advice": "#c35d538e18:true",
+      "helperOpen": false
+    },
+    {
+      "name": "fix menu easier",
+      "pieces": 29,
+      "knobs": {
+        "trebkg": "1500",
+        "recoilkg": "20",
+        "recoilspeed": "25",
+        "bandk": "60",
+        "dronekg": "80",
+        "dronewh": "60",
+        "trackshape": null
+      },
+      "panel": "No piece chosen Click a piece on the picture to choose it. Drag it to move it. Scroll to zoom, drag the background to pan.",
+      "lane": [
+        "10",
+        "0",
+        "0"
+      ],
+      "undoDisabled": false,
+      "redoDisabled": true,
+      "fix": {
+        "fixit": false,
+        "easier": false
+      },
+      "saved": {
+        "n": 28,
+        "lane": [
+          0.17453292519943295,
+          0,
+          0
+        ]
+      },
+      "redo": true,
+      "suggest": "Suggest More",
+      "advice": "#c35d538e18:true",
+      "helperOpen": false
+    },
+    {
+      "name": "fix menu findroutes",
+      "pieces": 29,
+      "knobs": {
+        "trebkg": "1500",
+        "recoilkg": "20",
+        "recoilspeed": "25",
+        "bandk": "60",
+        "dronekg": "80",
+        "dronewh": "60",
+        "trackshape": null
+      },
+      "panel": "No piece chosen Click a piece on the picture to choose it. Drag it to move it. Scroll to zoom, drag the background to pan.",
+      "lane": [
+        "10",
+        "0",
+        "0"
+      ],
+      "undoDisabled": false,
+      "redoDisabled": true,
+      "fix": {
+        "fixit": false,
+        "easier": false
+      },
+      "saved": {
+        "n": 28,
+        "lane": [
+          0.17453292519943295,
+          0,
+          0
+        ]
+      },
+      "redo": true,
+      "suggest": "Suggest More",
+      "advice": "#c35d538e18:true",
+      "helperOpen": false
+    },
+    {
+      "name": "fix menu what",
+      "pieces": 29,
+      "knobs": {
+        "trebkg": "1500",
+        "recoilkg": "20",
+        "recoilspeed": "25",
+        "bandk": "60",
+        "dronekg": "80",
+        "dronewh": "60",
+        "trackshape": null
+      },
+      "panel": "No piece chosen Click a piece on the picture to choose it. Drag it to move it. Scroll to zoom, drag the background to pan.",
+      "lane": [
+        "10",
+        "0",
+        "0"
+      ],
+      "undoDisabled": false,
+      "redoDisabled": true,
+      "fix": {
+        "fixit": false,
+        "easier": false
+      },
+      "saved": {
+        "n": 28,
+        "lane": [
+          0.17453292519943295,
+          0,
+          0
+        ]
+      },
+      "redo": true,
+      "suggest": "Suggest More",
+      "advice": "#c35d538e18:true",
+      "helperOpen": false
+    },
+    {
+      "name": "suggest",
+      "pieces": 29,
+      "knobs": {
+        "trebkg": "1500",
+        "recoilkg": "20",
+        "recoilspeed": "25",
+        "bandk": "60",
+        "dronekg": "80",
+        "dronewh": "60",
+        "trackshape": null
+      },
+      "panel": "No piece chosen Click a piece on the picture to choose it. Drag it to move it. Scroll to zoom, drag the background to pan.",
+      "lane": [
+        "10",
+        "0",
+        "0"
+      ],
+      "undoDisabled": false,
+      "redoDisabled": true,
+      "fix": {
+        "fixit": false,
+        "easier": false
+      },
+      "saved": {
+        "n": 28,
+        "lane": [
+          0.17453292519943295,
+          0,
+          0
+        ]
+      },
+      "redo": true,
+      "suggest": "Suggest More",
+      "advice": "#c35d538e18:true",
+      "helperOpen": false
+    },
+    {
+      "name": "reset to starter",
+      "pieces": 29,
+      "knobs": {
+        "trebkg": "1500",
+        "recoilkg": "20",
+        "recoilspeed": "25",
+        "bandk": "60",
+        "dronekg": "80",
+        "dronewh": "60",
+        "trackshape": null
+      },
+      "panel": "No piece chosen Click a piece on the picture to choose it. Drag it to move it. Scroll to zoom, drag the background to pan.",
+      "lane": [
+        "10",
+        "0",
+        "0"
+      ],
+      "undoDisabled": false,
+      "redoDisabled": true,
+      "fix": {
+        "fixit": false,
+        "easier": false
+      },
+      "saved": {
+        "n": 28,
+        "lane": [
+          0.17453292519943295,
+          0,
+          0
+        ]
+      },
+      "redo": true,
+      "suggest": "Suggest More",
+      "advice": "#c35d538e18:true",
+      "helperOpen": false
+    },
+    {
+      "name": "preset",
+      "pieces": 29,
+      "knobs": {
+        "trebkg": "1500",
+        "recoilkg": "20",
+        "recoilspeed": "25",
+        "bandk": "60",
+        "dronekg": "80",
+        "dronewh": "60",
+        "trackshape": null
+      },
+      "panel": "No piece chosen Click a piece on the picture to choose it. Drag it to move it. Scroll to zoom, drag the background to pan.",
+      "lane": [
+        "10",
+        "0",
+        "0"
+      ],
+      "undoDisabled": false,
+      "redoDisabled": true,
+      "fix": {
+        "fixit": false,
+        "easier": false
+      },
+      "saved": {
+        "n": 28,
+        "lane": [
+          0.17453292519943295,
+          0,
+          0
+        ]
+      },
+      "redo": true,
+      "suggest": "Suggest More",
+      "advice": "#c35d538e18:true",
+      "helperOpen": false
+    }
+  ]
+}
