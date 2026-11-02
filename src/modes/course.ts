@@ -14,6 +14,8 @@ import { createNav, type Resume } from './course/nav';
 import { createFall, type Analytics } from './course/fall';
 import { createHud } from './course/hud';
 import { createWelcome } from './course/welcome';
+import { createFeed } from './course/feed';
+import { openChallengeLink } from './course/challenge';
 import { createShortcutList } from './course/shortcuts';
 import { buildCourseScene } from './course/scene';
 import { showClearedReport } from './course/report';
@@ -32,14 +34,11 @@ import { isAimable } from '../sim/recoil';
 import { DEFAULT_WALL } from '../sim/wall';
 import { inputFor, searchIdealRun, type Plan } from '../sim/ideal';
 import { createGhost } from '../ui/ghost';
-import { lookOfParam } from '../ui/ghost-look';
-import { challengeWords, isOldLongLink, OLD_LINK_WORDS, offersIdeal, openChallenge, secondsWords, shareOn } from '../share/challenge';
 import { clipLayoutFor } from '../share/clip';
 import { mountTouch, touchOn } from '../share/touch';
 import { hudOn, keycapCss, panelCss } from '../ui/hud-style';
-import { PHONE_WORDS, browserPointing, phoneMode } from '../share/phone';
-import { showBanner } from '../share/share-ui';
-import { courseHash, encodeLog, inputOfMask, startXOf, type InputLog } from '../sim/replay';
+import { browserPointing } from '../share/phone';
+import { courseHash, encodeLog } from '../sim/replay';
 import { findShortcuts, type Shortcut } from '../sim/shortcuts';
 const findShortcutsNow = (c: CourseData): Shortcut[] => findShortcuts(c, { moveChoices: false }).shortcuts; // ?bot=shortcut only: blocks the page while it searches
 import { gapSpecs, minSpeedForWall } from '../sim/needs';
@@ -326,14 +325,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
     while (guides.children.length) { const c = guides.children[0] as THREE.Mesh; guides.remove(c); c.geometry?.dispose(); }
     diagBox.style.display = 'none';
   }
-  // Share (CC-128, CC-129): keys fed from a link play the run again; while a clip is made the game is stepped by hand and nothing is counted or heard.
-  let feed: { log: InputLog; i: number; left: number } | null = null;
-  const fedInput = (): RunnerInput => {
-    while (feed && feed.left === 0 && feed.i < feed.log.length) { feed.left = feed.log[feed.i][1]; feed.i++; }
-    if (!feed || feed.left === 0) return NO_INPUT;
-    feed.left--;
-    return inputOfMask(feed.log[feed.i - 1][0]);
-  };
+  const feed = createFeed();
   // CC-158: a click outside the end report does what R does (a try again, with the ghost); there is no Close button
   document.addEventListener('pointerdown', (e) => {
     if (panel.style.display === 'none' || !panel.querySelector('#report-actions') || panel.contains(e.target as Node)) return;
@@ -389,43 +381,8 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
   ghostCtl = mountCourseGhost({ scene, course, params, idealCache, runSearch, progressZones, strip, look: () => wear.choice() });
   ghostCtl.begin(!resume && startAt === undefined && (!botMode || ghostBot), (!botMode || ghostBot) && !resume?.world ? (resume ? resume.retryX : startAt ?? course.startX) : null);
   // A run played again to make a clip (CC-129): see course/clip.ts
-  const makeClip = createClipMaker({ renderer, camera, course, st, restart: (x) => restart(x), frame, timeScale: Number(params.get('timescale') ?? 1), setFeed: (f) => { feed = f; } });
-  // A challenge link (CC-128): the sender's keys are played in the simulator, and that run becomes the ghost to beat.
-  const copyHere = async () => { // the link of this page, so a phone can send it to a computer
-    const btn = [...document.querySelectorAll<HTMLButtonElement>('#challenge-banner button')].find((x) => /Copy link|Link copied|Link ready/.test(x.textContent ?? ''));
-    try { await navigator.clipboard.writeText(location.href); if (btn) btn.textContent = 'Link copied'; }
-    catch { window.prompt('Copy this link', location.href); if (btn) btn.textContent = 'Link ready'; }
-  };
-  const challengeParam = shareOn(params) && !botMode && params.get('challenge') !== '0' ? params.get('challenge') : null; // ?challenge=0 is the switch for challenge courses, not a link (CC-108)
-  if (challengeParam && isOldLongLink(params)) showBanner(OLD_LINK_WORDS, [], 20000); // CC-219: only short links are made and opened; an old long address says so in one line
-  else if (challengeParam) {
-    void openChallenge(course, challengeParam).then((c) => {
-      if (document.documentElement.dataset.madeRefused) { showBanner(challengeWords('too-big'), [], 20000); return; } // the course in the link could not be opened (CC-136)
-      if (!c.ok) {
-        const offer = offersIdeal(c.why) && ghostCtl ? [{ label: 'Chase the ideal run instead', go: () => { ghostCtl?.chaseIdeal(); document.getElementById('challenge-banner')?.remove(); } }] : [];
-        showBanner(challengeWords(c.why), offer, 20000);
-        return;
-      }
-      ghostCtl?.setFriend(c.track, c.nick, lookOfParam(params.get('rk')), c.start > 0 ? startXOf(course, c.start) : null);
-      if (c.start > 0 && !resume) { st.retryX = startXOf(course, c.start); restart(st.retryX); } // CC-242: begin where the friend began, standing still, so both bodies start together
-      if (phoneMode(params, browserPointing) && !touchControls) {
-        // A phone has no keys (CC-138): the page plays the friend's run by itself and says how to play it for real.
-        st.keysOpen = false; st.keysTouched = true; paintKeys(false); st.frontOverride = false; // the small corner view would hide the runner on a narrow screen
-        showBanner(PHONE_WORDS(secondsWords(c.ticks)), [{ label: 'Copy link', go: () => void copyHere() }], 0);
-        st.phoneWatch = c.log; feed = { log: c.log, i: 0, left: 0 };
-        return;
-      }
-      if (c.kind === 'fell') { // CC-181: a try that did not finish: a ghost that falls where the player fell; nothing is sent anywhere
-        const at = c.track.xs[c.track.ticks].toFixed(0);
-        showBanner(`${c.nick ? `${c.nick} fell` : 'A friend fell'} ${at} m along the course. Can you get further?`, [{ label: 'Download video of this try', go: () => void makeClip(c.log, c.ticks) }]);
-        if (params.get('autoplay') === '1') feed = { log: c.log, i: 0, left: 0 };
-        return;
-      }
-      showBanner(c.nick ? `Beat ${c.nick}: ${secondsWords(c.ticks)}` : `Beat this time: ${secondsWords(c.ticks)}`, [{ label: 'Download video of this run', go: () => void makeClip(c.log, c.ticks) }]);
-      if (params.get('autoplay') === '1') feed = { log: c.log, i: 0, left: 0 }; // for the browser check: play the friend's keys as if by hand
-      if (params.get('clip') === 'auto') void makeClip(c.log, c.ticks);
-    });
-  }
+  const makeClip = createClipMaker({ renderer, camera, course, st, restart: (x) => restart(x), frame, timeScale: Number(params.get('timescale') ?? 1), setFeed: feed.set });
+  openChallengeLink({ course, params, st, resume: !!resume, touchControls, botMode, feed, ghostCtl: () => ghostCtl, restart: (x) => restart(x), paintKeys, makeClip: (l, t, f) => makeClip(l, t, f) });
   st.last = performance.now();
   let studioHold = false; // the Graph Studio has the clock stopped (not the Dojo's "press any key" pause)
   // Graph Studio (CC-86): Tab pauses the Course and opens the ground as a graph to drag; "Play from here" carries on with the edited course
@@ -454,7 +411,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
     while (st.acc >= DT) {
       st.acc -= DT;
       let input: RunnerInput = NO_INPUT;
-      if (feed) { input = fedInput(); if (!st.clip.on && st.world.outcome === 'running') ghostCtl?.input(input); }
+      if (feed.active()) { input = feed.input(); if (!st.clip.on && st.world.outcome === 'running') ghostCtl?.input(input); }
       else if (st.plan) input = inputFor(st.plan, st.world, botState, course);
       else {
         input = { run: st.keys.has('ArrowRight') || st.keys.has('KeyD'), left: st.keys.has('ArrowLeft') || st.keys.has('KeyA'), jump: st.jumpQueued, jumpSpeed: 0, squat: st.keys.has('ArrowDown') || st.keys.has('KeyS'), handL: st.keys.has('KeyE'), handR: st.keys.has('KeyE'), vault: st.vaultQueued, roll: st.rollQueued || st.keys.has('KeyX'), slide: st.slideQueued, fire: st.fireQueued, aimUp: st.keys.has('ArrowUp') || st.keys.has('KeyW'), aimDown: st.keys.has('ArrowDown') || st.keys.has('KeyS'), up: st.keys.has('ArrowUp') || st.keys.has('KeyW') };
@@ -514,7 +471,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
       }
       if (st.phoneWatch && prev === 'running' && st.world.outcome === 'cleared') { // the friend's run, watched on a phone: no report, no What next card; play it again in a moment (CC-138)
         const again = st.phoneWatch;
-        setTimeout(() => { if (again) { restart(course.startX); feed = { log: again, i: 0, left: 0 }; } }, 2500);
+        setTimeout(() => { if (again) { restart(course.startX); feed.play(again); } }, 2500);
       } else if (prev === 'running' && st.world.outcome === 'cleared' && !st.clip.on) {
         stats.clearFinishZone(st.world.runner.x); ctx.everCleared = true; track('clears'); stats.finishRun(true, analytics.runId); trackCourseEvent('success', analytics.courseKey, course.name, analytics.runId, analytics.mode);
         offerClear();
