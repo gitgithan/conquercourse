@@ -1,14 +1,8 @@
 import { describe, expect, it } from 'vitest';
 import { clears, fixLayout } from '../src/slice/fixit';
 import { newPiece, scaleBy, type Piece } from '../src/slice/world';
-import type { Mesh } from '../src/slice/slice';
+import { box } from './helpers/pieces';
 
-function box(w: number, h: number, d: number): Mesh {
-  const [x0, x1, y0, y1, z0, z1] = [-w / 2, w / 2, 0, h, -d / 2, d / 2];
-  const p = [x0, y0, z0, x1, y0, z0, x1, y1, z0, x0, y1, z0, x0, y0, z1, x1, y0, z1, x1, y1, z1, x0, y1, z1];
-  const q = [0, 1, 2, 0, 2, 3, 4, 6, 5, 4, 7, 6, 0, 4, 5, 0, 5, 1, 3, 2, 6, 3, 6, 7, 0, 3, 7, 0, 7, 4, 1, 5, 6, 1, 6, 2];
-  return { positions: p, indices: q };
-}
 const lane = { angle: 0, offset: 0, level: 0 };
 
 describe('fix it', () => {
