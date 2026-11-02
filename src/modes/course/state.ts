@@ -1,3 +1,5 @@
+import type { InputLog } from '../../sim/replay';
+import { clipLayoutFor, type ClipLayout } from '../../share/clip';
 import type { Plan } from '../../sim/ideal';
 import type { WorldState } from '../../sim/world';
 
@@ -21,9 +23,12 @@ export interface CourseState {
   demo: { x1: number } | null;
   idealWhole: boolean;
   idealNote: string; // the line shown while an ideal run is working or playing
+  // the clip being made (the game is stepped by hand and the clip's own camera is used) and the friend's keys watched over and over
+  clip: { on: boolean; cam: { x: number; y: number } | null; layout: ClipLayout };
+  phoneWatch: InputLog | null;
 }
 
-export interface CourseStateInit { world: WorldState; paused: boolean; retryX: number; falls: number; frontOverride: boolean | null }
+export interface CourseStateInit { world: WorldState; paused: boolean; retryX: number; falls: number; frontOverride: boolean | null; clipLayout?: ClipLayout }
 
 export function createCourseState(init: CourseStateInit): CourseState {
   return {
@@ -31,6 +36,7 @@ export function createCourseState(init: CourseStateInit): CourseState {
     keys: new Set(), jumpQueued: false, vaultQueued: false, rollQueued: false, slideQueued: false, fireQueued: false,
     keysOpen: true, keysTouched: false, frontOverride: init.frontOverride,
     plan: null, demo: null, idealWhole: false, idealNote: '',
+    clip: { on: false, cam: null, layout: init.clipLayout ?? clipLayoutFor('') }, phoneWatch: null,
   };
 }
 
