@@ -61,14 +61,14 @@ describe('The Making Of public files', () => {
     expect(read('index.html')).not.toContain('Download this page');
   });
 
-  it('the course map has no URL at all, is swimlanes only (no 3D toggle) and names the late lanes', () => {
+  it('the course map has no URL at all, is lanes by theme only (no 3D toggle, no milestone lanes)', () => {
     const t = read('course-map.html');
     expect(t.match(/https?:\/\//)).toBeNull();
     expect(t).not.toMatch(/preserve-3d|id="v-3d"|id="v-lane"|rotateX|perspective/);
     expect(t).not.toMatch(/>3D</);
-    expect(t).toContain('Added after the plan');
-    expect(t).toContain('The spec planned M0 to M5; these tasks came later, from findings, new ideas and fixes.');
-    expect(t).not.toMatch(/After the plan/);
+    expect(t).toContain('ConquerCourse issue map');
+    expect(t).toContain('Kind of work');
+    expect(t).toContain('NEXT');
   });
 
   it('the site map shows only Part 1: screens and journeys', () => {
@@ -89,14 +89,20 @@ describe('The Making Of public files', () => {
       expect(i.milestone).toMatch(/^(M[0-5]|Later)$/);
       for (const r of [...i.dependsOn, ...i.affects]) expect(ids.has(r)).toBe(true);
     }
-    const later = d.issues.filter((i: { milestone: string }) => i.milestone === 'Later');
     const byTheme: Record<string, number> = {};
-    for (const i of later) byTheme[i.theme] = (byTheme[i.theme] ?? 0) + 1;
+    const byKind: Record<string, number> = {};
+    for (const i of d.issues) {
+      byTheme[i.theme] = (byTheme[i.theme] ?? 0) + 1;
+      byKind[i.kind] = (byKind[i.kind] ?? 0) + 1;
+      expect(i.col).toBeGreaterThanOrEqual(0);
+      expect(i.col).toBeLessThan(d.phases.length);
+    }
     const themes = Object.keys(byTheme);
-    expect(themes.length).toBeGreaterThanOrEqual(8);
-    expect(themes.length).toBeLessThanOrEqual(12);
-    for (const [name, n] of Object.entries(byTheme)) expect(n, name).toBeLessThanOrEqual(36);
-    expect(byTheme['Other'] ?? 0).toBeLessThan(later.length * 0.1);
+    expect(themes.length).toBeGreaterThanOrEqual(10);
+    expect(themes.length).toBeLessThanOrEqual(15);
+    for (const [name, n] of Object.entries(byTheme)) expect(n, name).toBeLessThanOrEqual(30);
+    expect(byTheme['Other'] ?? 0).toBeLessThan(d.issues.length * 0.08);
+    expect(Object.keys(byKind).length).toBe(7);
     for (const dropped of ['CC-107', 'CC-108', 'CC-112', 'CC-120', 'CC-134', 'CC-169', 'CC-174', 'CC-218', 'CC-242', 'CC-33', 'CC-176']) {
       expect(ids.has(dropped), dropped).toBe(false);
     }

@@ -49,26 +49,43 @@ function firstSentences(text, max = 170) {
   return stop > 60 ? cut.slice(0, stop + 1) : cut.replace(/\s+\S*$/, '') + '...';
 }
 
-// ---------- themes for the tasks added after the plan ----------
-// Ordered list, first match wins; the title is tried first, then the purpose line.
-export const THEMES = [
-  ['Film, music and sound', /\bfilm|video|cinema|storyboard|spectacle|hook shot|demo wow|hero|backdrop|fly-?over|remotion|promotion|viral|share clip|clip shows|\bmusic|\bsounds?\b|audio|loops?\b/i],
-  ['Rules, licences and phones', /licen|privacy|mobile|phone|touch|decision/i],
-  ['Meta AI tools and judging', /muse |meta model|baseten|wonder|bonus prize|readme for judges|photo triage/i],
-  ['Tests and speed', /\btests?\b|green|unformatted|format the|crash|verify today|demos-check|faster|slower|performance|draw call|machine speed|worker/i],
-  ['Site, docs and feedback', /readme|document|docs\b|front door|audit|feedback|playtest|top bar on every page/i],
-  ['Community and sharing', /communit|share|\blink\b|challenge|leaderboard|upload|wallpaper|downloadable|plays, completions/i],
-  ['World Slicer and maps', /slic|\bmaps?\b|places?\b|terrain|atlas|skyline|street|mapillary|openstreetmap|\bpin\b|real photos beside|nearby photos/i],
-  ['Forks and routes', /multi-?paths?|\bforks?\b|\broutes?\b|two ways|low way|high way/i],
-  ['World Editor and pieces', /editor|\bpieces?\b|objects?\b|mesh|\bSAM\b|3D lift|photo to|stacks|part ?llm|obstacle world|contraptions|course agent|course generator|generator|words/i],
-  ['Contraptions and physics toys', /coaster|trebuchet|drone|elastic|recoil|sport-stacking|cup|gauges?\b|cart rider/i],
-  ['Courses, Dojo and Labs', /course|dojo|labs?\b|university|training|ghost|\bgold\b|\bhud\b|toast|report|restart|onboarding|stages?\b|panel|screen|camera|design system|key strip|card|chip|timed balls|graph|lesson|plank|notebook|\bv\b/i],
-  ['Motion and characters', /motion|\bposes?\b|kimodo|character|\barms?\b|lache|vault|climb|\broll\b|swing|pole|\bholds?\b|ledge|\brope\b|grab|rookie|\bbar\b|player look|mhr|shift\+i|ideal.run|simulator|search|shortcut|drops?\b|preview before|obstacle/i],
+// ---------- classification: theme lanes and kind of work ----------
+// Both tables are ordered, first match wins; the title is tried first, then the purpose line.
+// Lane order here is the order on the board.
+export const LANES = [
+  { name: 'Foundation', caption: 'Rules, repo and the plain basics', re: /transfer knowledge|app skeleton|merge path|readme|document the decision|front door|design system|top bar on every page|mobile|\bphones?\b|touch controls|phone-width/i },
+  { name: 'Tests and speed', caption: 'Keeping the build honest and fast', re: /\btests?\b|test suite|green|unformatted|format the|crash|verify today|demos-check|performance|draw call|machine speed|slower|\bworker\b|census|smoke/i },
+  { name: 'Film and music', caption: 'The promo film, the sound and the music', re: /\bfilm|video clip|cinema|storyboard|spectacle|hook shot|demo wow|hero|backdrop|fly-?by|remotion|promotion|viral|share clip|clip shows|\bmusic|\bsounds?\b|audio|loops?\b|welcome screen|intro clips/i },
+  { name: 'Meta AI tools', caption: 'Where Meta models help build and check', re: /muse |meta model|baseten|wonder|bonus prize|triage|clustering|move tips|bulk course/i },
+  { name: 'Community and sharing', caption: 'Share runs and courses, hear what players think', re: /communit|share|\blink\b|challenge|leaderboard|upload|downloadable|plays, completions|feedback|^playtest|\bghost to chase/i },
+  { name: 'Dojo and Labs', caption: 'Learning by predicting, testing and tuning', re: /dojo|\blabs?\b|university|atlas|notebook|graph studio|\bgraph\b|lesson|plank|sayings|stages?\b|predict/i },
+  { name: 'Contraptions and physics toys', caption: 'Coasters, drones and slings that teach', re: /coaster|trebuchet|drone|elastic|recoil|contraptions|\bcups?\b|gauges?\b|cart rider|hidden limits/i },
+  { name: 'Forks and routes', caption: 'Two ways through, risk against reward', re: /multi-?paths?|\bforks?\b|\broutes?\b|low way|high way|two ways/i },
+  { name: 'World Slicer and maps', caption: 'Cut a real place and find the way through', re: /slic|\bmaps?\b|places?\b|terrain|skyline|mapillary|openstreetmap|\bpin\b|ready places|tour line|nearby photos|photos beside/i },
+  { name: 'Course pieces and the editor', caption: 'Build your own course from pieces', re: /editor|\bpieces?\b|stacks|generator|course agent|\bwords\b|multi-select|segments to click/i },
+  { name: 'Courses and run flow', caption: 'What a player sees and does on a run', re: /\btraining\b|first-time|first course|the course:|after a fall|fall panel|restart|toast|\bhud\b|\bgold\b|onboarding|report|courses gallery|gallery in every|debug panel|key strip|\bpanel\b|course cards|\bchip\b|\bpill\b|ghost looks|ghost and player|design partner|obstacle strip|preview before apply|new visit|course experience|merged courses|fewer, better courses|second v\b|hold-e numbers|front view|every run is|clip shows|timed balls/i },
+  { name: 'Rookie motion', caption: 'Makes the runner look like a person', re: /motion|\bposes?\b|kimodo|character|arms engine|lache|vault|climb|pole|hold-e|ledge|rookies|clip set|contacts|\bmhr\b|player look|captured|roll clip|\bgrab\b|first lache/i },
+  { name: 'Real world in', caption: 'Photos, videos and objects become courses', re: /photo|video ingest|filmed|strobe|\bSAM\b|3d object|real objects?|real-object|\blift|mesh|bake-off|partllm|wallpaper|street furniture|objects?\b/i },
+  { name: 'Physics engine', caption: 'The truth every lesson rests on', re: /simulator|ideal-run|\bsearch\b|trampoline|\broll\b|shortcut|shift\+i|hazard|survivable|warped wall|\brope\b|pendulum|landing|ideal run/i },
 ];
-export function themeOf(i) {
-  for (const text of [i.title, i.purpose]) for (const [name, re] of THEMES) if (re.test(text)) return name;
+export const KINDS = [
+  { name: 'Demo', re: /\bfilm|video clip|demo|storyboard|hook shot|hero|spectacle|share clip|cinema|music|\bsounds?\b|promotion|backdrop|welcome screen|intro clips/i },
+  { name: 'Research spike', re: /spike|bake-off|census|audit|honest|plan and|wonder|\bmeasure|clustering|design:|design doc|multiple paths design|what it does/i },
+  { name: 'Tooling and setup', re: /transfer knowledge|app skeleton|smoke|merge path|\btests?\b|test suite|green|unformatted|format the|readme|crash|verify today|document|performance|draw call|machine speed|slower|\bworker\b|front door|design system/i },
+  { name: 'Character motion', re: /motion|\bposes?\b|kimodo|character|\barms?\b|clips?\b|contacts|player look|mhr|rookies|first lache|hold-e|\broll\b/i },
+  { name: 'Pipeline', re: /photo|video ingest|filmed|\bSAM\b|3d object|real objects?|real-object|\blift|mesh|partllm|triage|mapillary|openstreetmap|terrain|\bpin\b|generator|bulk|upload|pipeline|course agent|\bmap mode/i },
+  { name: 'Physics law', re: /simulator|ideal-run|\bsearch\b|trampoline|pendulum|momentum|recoil|elastic|energy|drone|coaster|trebuchet|lache|vault|climb|pole|\bbar\b|rope|warped wall|landing|slope|shortcut|shift\+i|forks?\b|route/i },
+  { name: 'Game feature', re: /./ },
+];
+const PHASES = [0, 1, 2, 4, 8, 11];
+export const themeOf = (i) => {
+  for (const text of [i.title, i.purpose]) for (const l of LANES) if (l.re.test(text)) return l.name;
   return 'Other';
-}
+};
+export const kindOf = (i) => {
+  for (const text of [i.title, i.purpose]) for (const k of KINDS) if (k.re.test(text)) return k.name;
+  return 'Game feature';
+};
 
 export function buildCourseMap(snapshot) {
   const keptRaw = snapshot.issues.filter((i) => !DROP_IDS.has(i.id) && !SENSITIVE.test(`${i.title} ${i.purpose}`));
@@ -86,7 +103,7 @@ export function buildCourseMap(snapshot) {
       purpose: firstSentences(i.purpose),
     };
   });
-  for (const i of issues) if (i.milestone === 'Later') i.theme = themeOf(i);
+  for (const i of issues) { i.theme = themeOf(i); i.kind = kindOf(i); }
   // A second look at the cleaned text.
   issues = issues.filter((i) => !SENSITIVE.test(`${i.title} ${i.purpose}`) && !/(^|\W)(src|docs|scripts|tests)\//.test(`${i.title} ${i.purpose}`));
   const ids = new Set(issues.map((i) => i.id));
@@ -94,7 +111,22 @@ export function buildCourseMap(snapshot) {
     i.dependsOn = i.dependsOn.filter((x) => ids.has(x));
     i.affects = i.affects.filter((x) => ids.has(x));
   }
-  return { takenOn: snapshot.takenOn, project: 'ConquerCourse', droppedCount: snapshot.issues.length - issues.length, issues };
+  // Column = how deep a task sits in the chain of "needed first" (longest path), grouped into six phases.
+  const need = new Map(issues.map((i) => [i.id, new Set(i.dependsOn)]));
+  for (const i of issues) for (const a of i.affects) need.get(a).add(i.id);
+  const depth = new Map();
+  const walk = (id, stack) => {
+    if (depth.has(id)) return depth.get(id);
+    if (stack.has(id)) return 0;
+    stack.add(id);
+    let d = 0;
+    for (const p of need.get(id)) d = Math.max(d, walk(p, stack) + 1);
+    stack.delete(id);
+    depth.set(id, d);
+    return d;
+  };
+  for (const i of issues) i.col = PHASES.filter((t) => walk(i.id, new Set()) >= t).length - 1;
+  return { takenOn: snapshot.takenOn, project: 'ConquerCourse', phases: ['START', 'BASE', 'CORE', 'LAWS', 'BUILD', 'SHOW'], lanes: LANES.map(({ name, caption }) => ({ name, caption })), droppedCount: snapshot.issues.length - issues.length, issues };
 }
 
 // ---------- site map: Part 1 of docs/site-map.md ----------
@@ -269,128 +301,140 @@ render();`;
 }
 
 const CM_CSS = `
+:root{--k-tool:#8a8f98;--k-phys:#2f6fd6;--k-feat:#7a4fc9;--k-pipe:#16938a;--k-res:#e0801a;--k-mot:#82921f;--k-demo:#d6453d;--card:#f1f0ec;--board:#fff;--lane:#faf9f6}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--k-tool:#a3a9b3;--k-phys:#6da0ff;--k-feat:#b394ff;--k-pipe:#3fd0c3;--k-res:#ffa84d;--k-mot:#c4d44a;--k-demo:#ff7d73;--card:#27312c;--board:#1b2420;--lane:#202b26}}
+:root[data-theme="dark"]{--k-tool:#a3a9b3;--k-phys:#6da0ff;--k-feat:#b394ff;--k-pipe:#3fd0c3;--k-res:#ffa84d;--k-mot:#c4d44a;--k-demo:#ff7d73;--card:#27312c;--board:#1b2420;--lane:#202b26}
 main.wide{max-width:none}
-.wrap{display:flex;gap:12px;align-items:flex-start}
-.board{position:relative;flex:1;min-width:0;height:calc(100vh - 300px);min-height:480px;overflow:auto;border:1px solid var(--line);border-radius:10px;background:var(--bg)}
+h1.big{font-size:30px;margin:0 0 4px}
+.counts{display:flex;gap:22px;flex-wrap:wrap;align-items:baseline;font-size:16px;margin:12px 0 8px}
+.counts b{font-weight:700}
+.dot{display:inline-block;width:11px;height:11px;border-radius:50%;margin-right:6px;vertical-align:-1px;background:var(--c);border:2px solid var(--c)}
+.dot.hollow{background:transparent}
+.seg{display:flex;height:8px;border-radius:5px;overflow:hidden;background:var(--line);margin:0 0 14px;max-width:640px}
+.seg i{display:block;height:100%}
+.frow{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:0 0 8px}
+.frow .lbl{width:112px;font-size:12px;letter-spacing:.06em;color:var(--mute);font-weight:700;text-transform:uppercase}
+.pill{display:inline-flex;align-items:center;gap:7px;border-radius:999px;padding:5px 13px;font-size:14px;background:var(--board);border:1px solid var(--line);color:var(--ink)}
+.pill[aria-pressed=false]{opacity:.45;background:transparent}
+.pill[aria-pressed=true]{background:var(--board);color:var(--ink);border-color:var(--mute)}
+.sq{width:11px;height:11px;border-radius:3px;background:var(--c);display:inline-block}
+.wrap{display:flex;gap:12px;align-items:flex-start;margin-top:12px}
+.board{position:relative;flex:1;min-width:0;overflow-x:auto;border:1px solid var(--line);border-radius:16px;background:var(--board)}
 .canvas{position:relative}
-.lane{position:absolute;left:0;border-bottom:1px solid var(--line);background:var(--panel)}
-.lane:nth-child(even){background:color-mix(in srgb,var(--panel) 80%,var(--bg))}
-.lane .lab{position:sticky;left:10px;display:inline-block;margin:6px 0 0 10px;font-weight:700;font-size:14px;background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:1px 10px;z-index:3}
-.lane .lab small{color:var(--mute);font-weight:400;margin-left:8px}
+.ch{position:absolute;top:0;height:34px;line-height:34px;text-align:center;font-size:12px;font-weight:700;letter-spacing:.1em;color:var(--mute);border-bottom:1px solid var(--line)}
+.lane{position:absolute;left:0;border-top:1px solid var(--line)}
+.lane.alt{background:var(--lane)}
+.lane .lab{position:sticky;left:0;display:block;width:196px;padding:10px 12px 8px 16px;z-index:3;background:var(--board);border-radius:0 0 10px 0}
+.lane.alt .lab{background:var(--lane)}
+.lane .lab b{display:block;font-size:16px;line-height:1.2}
+.lane .lab span{display:block;color:var(--mute);font-size:13px;line-height:1.3;margin-top:3px}
+.lane .lab small{display:block;color:var(--mute);font-size:12px;margin-top:6px}
 svg.links{position:absolute;left:0;top:0;pointer-events:none;overflow:visible}
-svg.links path{fill:none;stroke:var(--mute);stroke-width:1.2;opacity:.28}
-svg.links path.hot{stroke:var(--accent);stroke-width:2.4;opacity:1}
+svg.links path{fill:none;stroke:var(--mute);stroke-width:1.3;opacity:.4}
+svg.links path.aff{stroke-dasharray:5 4}
+svg.links path.hot{stroke:var(--accent);stroke-width:2.6;opacity:1}
 svg.links.sel path:not(.hot){opacity:.07}
-.tk{position:absolute;width:164px;height:58px;text-align:left;padding:4px 7px 4px 8px;border-radius:7px;border:1px solid var(--line);border-left:6px solid var(--st);background:var(--panel);overflow:hidden;font-size:12px;line-height:1.25;display:block}
-.tk b{font-size:12px}
-.tk .m{color:var(--st);font-weight:700;margin-left:6px;font-size:11px}
-.tk .t{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;margin-top:1px}
+.tk{position:absolute;width:188px;height:96px;text-align:left;padding:6px 8px 5px 10px;border-radius:9px;border:1px solid var(--line);border-left:7px solid var(--kc);background:var(--card);overflow:hidden;font-size:13px;line-height:1.3;display:block;color:var(--ink)}
+.tk .id{font:700 13px ui-monospace,Menlo,Consolas,monospace}
+.tk .tag{color:var(--mute);font-size:11px;margin-left:6px}
+.tk .nx{position:absolute;top:5px;right:6px;background:#d8f2e0;color:#1c7a45;font-size:11px;font-weight:700;border-radius:5px;padding:0 6px;letter-spacing:.04em}
+.tk .t{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;font-weight:700;font-size:13px;line-height:1.25;margin-top:2px}
+.tk .s{position:absolute;left:10px;bottom:5px;font-size:12.5px;color:var(--mute)}
 .tk.dim{opacity:.22}
 .tk.rel{outline:2px solid var(--accent);outline-offset:0}
 .tk.on{outline:3px solid #f0a020;outline-offset:0}
-.panel{width:330px;flex:none;position:sticky;top:12px;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:14px;max-height:calc(100vh - 40px);overflow:auto}
+.panel{width:340px;flex:none;position:sticky;top:12px;background:var(--board);border:1px solid var(--line);border-radius:14px;padding:14px;max-height:calc(100vh - 40px);overflow:auto}
 .panel h3{margin:6px 0;font-size:17px;line-height:1.3}
-.panel .chip{display:inline-block;font-size:12px;font-weight:700;border:1px solid var(--st);color:var(--st);border-radius:999px;padding:1px 9px}
+.panel .chip{display:inline-block;font-size:12px;font-weight:700;border:1px solid var(--c);color:var(--ink);border-radius:999px;padding:1px 10px;margin:0 6px 4px 0}
 .panel .row{margin:10px 0}
 .panel .row b{display:block;font-size:12px;color:var(--mute);text-transform:uppercase;letter-spacing:.04em;margin-bottom:3px}
 .panel ul{margin:0;padding:0;list-style:none}
 .panel li button{width:100%;text-align:left;margin:2px 0;padding:3px 8px;font-size:13px}
 .panel .x{float:right;padding:1px 9px}
-.ghead{position:absolute;left:0;border-bottom:1px solid var(--line);background:var(--bg)}
-.ghead button{position:sticky;left:10px;margin:8px 0 0 10px;text-align:left;font-size:16px;font-weight:700;padding:5px 14px;display:block}
-.ghead .cap{position:sticky;left:10px;margin:2px 0 0 12px;color:var(--mute);font-size:13px;display:block;width:max-content}
-.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:13px;color:var(--mute);margin:0 0 10px}
-.legend i{font-style:normal;font-weight:700}
+.legend{font-size:13px;color:var(--mute);margin:8px 0 0}
 `;
 
 function courseMapPage(cm) {
-  const body = `<h1>Course map</h1>
-<p class="sub">The whole build as a map of tasks, a snapshot of ${esc(cm.takenOn)}. Each row is a stage of the plan, each card is a task, and an arrow means "needed first". Click a card to see what it is for.</p>
-<div class="bar"><input type="search" id="q" placeholder="Search tasks (words or CC-number)" aria-label="Search tasks"><span id="states" role="group" aria-label="Filter by state"></span><span class="note" id="count"></span></div>
-<div class="legend" id="legend"></div>
+  const body = `<h1 class="big">ConquerCourse issue map</h1>
+<p class="sub">What each issue is, what it needs first, what it unlocks, and why it is worth the time. Click any card. Arrows point from "needs this first" to "can start after". A snapshot of ${esc(cm.takenOn)}.</p>
+<div class="counts" id="counts"></div>
+<div class="seg" id="seg" aria-hidden="true"></div>
+<div class="frow"><span class="lbl">Kind of work</span><span id="kf" class="frow" style="margin:0"></span></div>
+<div class="frow"><span class="lbl">Status</span><span id="sf" class="frow" style="margin:0"></span><input type="search" id="q" placeholder="Search (words or CC-number)" aria-label="Search tasks" style="max-width:260px;margin-left:12px"><span class="note" id="count"></span></div>
 <div class="wrap"><div class="board" id="board"><div class="canvas" id="canvas"></div></div><aside class="panel hidden" id="panel" aria-live="polite"></aside></div>
+<p class="legend">Cards are grouped in lanes by theme; the stripe colour is the kind of work. NEXT means it is not started and everything it needs is done. Solid arrows: needs first. Dashed arrows: affects.</p>
 <p class="note">Some tasks are left out of this public copy; links between the rest are kept. Task numbers are plain labels, not web links.</p>`;
   const script = `
 var DATA=${jsonIn(cm)};
-var STATES=['Done','In Progress','Backlog','Canceled'];
-var on={'Done':true,'In Progress':true,'Backlog':true,'Canceled':true};
-var colr={'Done':'var(--c-done)','In Progress':'var(--c-prog)','Backlog':'var(--c-back)','Canceled':'var(--c-can)'};
-var mark={'Done':'\\u2713','In Progress':'\\u25d0','Backlog':'\\u25cb','Canceled':'\\u00d7'};
+var STATES=[['Done','Done'],['In Progress','In progress'],['Backlog','Not started'],['Canceled','Canceled']];
+var SC={'Done':'#2f9e5b','In Progress':'#e0a020','Backlog':'#9a9a94','Canceled':'#b07070'};
+var KC={'Tooling and setup':'var(--k-tool)','Physics law':'var(--k-phys)','Game feature':'var(--k-feat)','Pipeline':'var(--k-pipe)','Research spike':'var(--k-res)','Character motion':'var(--k-mot)','Demo':'var(--k-demo)'};
+var KORDER=['Tooling and setup','Physics law','Game feature','Pipeline','Research spike','Character motion','Demo'];
+var onS={'Done':true,'In Progress':true,'Backlog':true,'Canceled':true},onK={};KORDER.forEach(function(k){onK[k]=true});
 var SVGNS='http:'+'//www.w3.org/2000/svg';
-var CW=164,CH=58,GX=46,GY=8,HEAD=40,PAD=12,ROWS=6;
+var CW=188,CH=96,GX=10,GY=10,LW=212,HH=34,PADB=14,SLOTS=3,ROWCAP=5;
 function el(t,c,x){var e=document.createElement(t);if(c)e.className=c;if(x!=null)e.textContent=x;return e}
 var byId={},inc={},out={},E=[],seen={},sel=null;
 DATA.issues.forEach(function(i){byId[i.id]=i;inc[i.id]=[];out[i.id]=[]});
-function edge(a,b){if(!byId[a]||!byId[b]||a===b||seen[a+'>'+b])return;seen[a+'>'+b]=1;E.push([a,b]);out[a].push(b);inc[b].push(a)}
-DATA.issues.forEach(function(i){i.dependsOn.forEach(function(d){edge(d,i.id)});i.affects.forEach(function(a){edge(i.id,a)})});
-var depth={},busy={};
-function dep(id){if(depth[id]!=null)return depth[id];if(busy[id])return 0;busy[id]=1;var m=0;inc[id].forEach(function(p){m=Math.max(m,dep(p)+1)});busy[id]=0;return depth[id]=m}
-DATA.issues.forEach(function(i){dep(i.id)});
-var LANES=[];['M0','M1','M2','M3','M4','M5'].forEach(function(k){var l=DATA.issues.filter(function(i){return i.milestone===k});if(l.length)LANES.push({key:k,name:k+' '+l[0].milestoneName,items:l})});
-var THEMES=[];DATA.issues.forEach(function(i){if(i.milestone==='Later'&&THEMES.indexOf(i.theme)<0)THEMES.push(i.theme)});
-var LATER=DATA.issues.filter(function(i){return i.milestone==='Later'});
-THEMES.sort(function(a,b){return LATER.filter(function(i){return i.theme===b}).length-LATER.filter(function(i){return i.theme===a}).length});
-if(THEMES.length)LANES.push({key:'later-head',head:true,name:'Added after the plan',caption:'The spec planned M0 to M5; these tasks came later, from findings, new ideas and fixes. '+LATER.length+' tasks in '+THEMES.length+' themes.',items:[]});
-THEMES.forEach(function(t){LANES.push({key:'later:'+t,name:t,grp:true,items:LATER.filter(function(i){return i.theme===t})})});
-var groupOpen=true;
-// layout: columns follow the order of work; rows stack inside a lane
-var maxD=0;DATA.issues.forEach(function(i){maxD=Math.max(maxD,depth[i.id])});
-var sub=[];for(var d=0;d<=maxD;d++){sub[d]=0}
-LANES.forEach(function(L){L.by={};var mc=0;L.items.forEach(function(i){var k=depth[i.id];L.by[k]=1+(L.by[k]||0);mc=Math.max(mc,L.by[k])});L.R=mc<=6?mc:Math.ceil(mc/2);L.by={};L.items.forEach(function(i){(L.by[depth[i.id]]=L.by[depth[i.id]]||[]).push(i)});
- Object.keys(L.by).forEach(function(d){L.by[d].sort(function(a,b){return parseInt(a.id.slice(3))-parseInt(b.id.slice(3))});sub[d]=Math.max(sub[d],Math.ceil(L.by[d].length/L.R))})});
-var colX=[],W=PAD;for(var d=0;d<=maxD;d++){colX[d]=W;W+=sub[d]*(CW+GX*0.5)+GX*0.5}
-W+=PAD;var H=0,pos={},GH=64;
-function layout(){var y=0;pos={};
- LANES.forEach(function(L){L.vis=!(L.grp&&!groupOpen);if(!L.vis)return;
-  if(L.head){L.y=y;L.h=GH;y+=GH;return}
-  var rows=1;Object.keys(L.by).forEach(function(d){rows=Math.max(rows,Math.min(L.R,L.by[d].length))});
-  L.y=y;L.h=HEAD+rows*(CH+GY)+PAD-(rows>1?0:0);y+=L.h;
-  Object.keys(L.by).forEach(function(d){L.by[d].forEach(function(i,k){var c=Math.floor(k/L.R),r=k%L.R;pos[i.id]={x:colX[d]+c*(CW+GX*0.5),y:L.y+HEAD+r*(CH+GY),lane:L}})})});
- H=y}
-var q=document.getElementById('q'),sb=document.getElementById('states'),canvas=document.getElementById('canvas'),panel=document.getElementById('panel'),board=document.getElementById('board');
-function tcard(i){var b=el('button','tk');b.type='button';b.dataset.id=i.id;b.style.setProperty('--st',colr[i.state]);
- b.title=i.id+': '+i.title;var h=el('div');h.appendChild(el('b',null,i.id));h.appendChild(el('span','m',mark[i.state]+' '+i.state));b.appendChild(h);b.appendChild(el('div','t',i.title));
- b.addEventListener('click',function(){choose(sel===i.id?null:i.id)});return b}
-// ----- swimlanes -----
+function edge(a,b,aff){if(!byId[a]||!byId[b]||a===b)return;var k=a+'>'+b;if(seen[k]){if(!aff)seen[k][2]=false;return}seen[k]=[a,b,aff];E.push(seen[k]);out[a].push(b);inc[b].push(a)}
+DATA.issues.forEach(function(i){i.dependsOn.forEach(function(d){edge(d,i.id,false)})});
+DATA.issues.forEach(function(i){i.affects.forEach(function(a){edge(i.id,a,true)})});
+function isNext(i){return i.state==='Backlog'&&inc[i.id].every(function(p){return byId[p].state==='Done'||byId[p].state==='Canceled'})}
+// ----- counts -----
+var cnt={};DATA.issues.forEach(function(i){cnt[i.state]=(cnt[i.state]||0)+1});
+var cd=document.getElementById('counts');
+[['Done','done'],['In Progress','in progress'],['Backlog','not started'],['Canceled','canceled']].forEach(function(s){if(!cnt[s[0]])return;var sp=el('span');var d=el('span','dot'+(s[0]==='Backlog'?' hollow':''));d.style.setProperty('--c',SC[s[0]]);sp.appendChild(d);sp.appendChild(el('b',null,cnt[s[0]]));sp.appendChild(document.createTextNode(' '+s[1]));cd.appendChild(sp)});
+cd.appendChild(el('span',null,DATA.issues.length+' issues'));
+var sg=document.getElementById('seg');['Done','In Progress','Backlog','Canceled'].forEach(function(s){if(!cnt[s])return;var b=el('i');b.style.width=(100*cnt[s]/DATA.issues.length)+'%';b.style.background=SC[s];sg.appendChild(b)});
+// ----- layout: lanes by theme, columns by phase, cards wrap inside a cell -----
+var LANES=DATA.lanes.map(function(l){return {name:l.name,caption:l.caption,items:DATA.issues.filter(function(i){return i.theme===l.name}).sort(function(a,b){return parseInt(a.id.slice(3))-parseInt(b.id.slice(3))})}}).filter(function(l){return l.items.length});
+var NC=DATA.phases.length,slots=[];for(var c=0;c<NC;c++)slots[c]=1;
+LANES.forEach(function(L){L.cell={};L.items.forEach(function(i){(L.cell[i.col]=L.cell[i.col]||[]).push(i)});Object.keys(L.cell).forEach(function(c){slots[c]=Math.max(slots[c],Math.min(SLOTS,Math.ceil(L.cell[c].length/ROWCAP)))})});
+var colX=[],colW=[],W=LW;for(var c=0;c<NC;c++){colX[c]=W;colW[c]=slots[c]*(CW+GX)+GX+14;W+=colW[c]}
+var H=HH,pos={};
+LANES.forEach(function(L){var rows=1;Object.keys(L.cell).forEach(function(c){rows=Math.max(rows,Math.ceil(L.cell[c].length/slots[c]))});L.y=H;L.h=Math.max(rows*(CH+GY)+GY+PADB,112);H+=L.h;
+ Object.keys(L.cell).forEach(function(c){L.cell[c].forEach(function(i,k){pos[i.id]={x:colX[c]+GX+(k%slots[c])*(CW+GX),y:L.y+GY+Math.floor(k/slots[c])*(CH+GY)}})})});
+var q=document.getElementById('q'),canvas=document.getElementById('canvas'),panel=document.getElementById('panel'),board=document.getElementById('board');
 var svg;
-function buildLanes(){layout();canvas.textContent='';canvas.style.width=W+'px';canvas.style.height=H+'px';
- LANES.forEach(function(L){if(!L.vis)return;
-  if(L.head){var g=el('div','ghead');g.style.top=L.y+'px';g.style.height=L.h+'px';g.style.width=W+'px';
-   var bt=el('button',null,(groupOpen?'▾ ':'▸ ')+L.name);bt.type='button';bt.setAttribute('aria-expanded',groupOpen);bt.title=groupOpen?'Click to collapse':'Click to expand';bt.addEventListener('click',function(){groupOpen=!groupOpen;if(!groupOpen&&sel&&byId[sel].milestone==='Later')sel=null;buildLanes();showPanel();paint()});
-   g.appendChild(bt);g.appendChild(el('span','cap',L.caption));canvas.appendChild(g);return}
-  var d=el('div','lane');d.style.top=L.y+'px';d.style.height=L.h+'px';d.style.width=W+'px';var lab=el('span','lab',L.name);lab.appendChild(el('small',null,L.items.length+' tasks, '+L.items.filter(function(i){return i.state==='Done'}).length+' done'));d.appendChild(lab);canvas.appendChild(d)});
+function card(i){var b=el('button','tk');b.type='button';b.dataset.id=i.id;b.style.setProperty('--kc',KC[i.kind]);b.title=i.id+': '+i.title;
+ var h=el('div');h.appendChild(el('span','id',i.id));if(i.milestone!=='Later')h.appendChild(el('span','tag',i.milestone));b.appendChild(h);
+ if(isNext(i))b.appendChild(el('span','nx','NEXT'));
+ b.appendChild(el('div','t',i.title));
+ var s=el('div','s');var d=el('span','dot'+(i.state==='Backlog'?' hollow':''));d.style.setProperty('--c',SC[i.state]);s.appendChild(d);s.appendChild(document.createTextNode(stName(i.state)));b.appendChild(s);
+ b.addEventListener('click',function(){choose(sel===i.id?null:i.id)});return b}
+function stName(s){return s==='Backlog'?'Not started':s==='In Progress'?'In progress':s}
+function build(){canvas.textContent='';canvas.style.width=W+'px';canvas.style.height=H+'px';
+ DATA.phases.forEach(function(p,c){var h=el('div','ch',p);h.style.left=colX[c]+'px';h.style.width=colW[c]+'px';canvas.appendChild(h)});
+ LANES.forEach(function(L,n){var d=el('div','lane'+(n%2?' alt':''));d.style.top=L.y+'px';d.style.height=L.h+'px';d.style.width=W+'px';var lab=el('div','lab');lab.appendChild(el('b',null,L.name));lab.appendChild(el('span',null,L.caption));lab.appendChild(el('small',null,L.items.length+' issues, '+L.items.filter(function(i){return i.state==='Done'}).length+' done'));d.appendChild(lab);canvas.appendChild(d)});
  svg=document.createElementNS(SVGNS,'svg');svg.setAttribute('class','links');svg.setAttribute('width',W);svg.setAttribute('height',H);
- var defs=document.createElementNS(SVGNS,'defs');[['a','var(--mute)'],['h','var(--accent)']].forEach(function(m){var mk=document.createElementNS(SVGNS,'marker');mk.setAttribute('id','ar-'+m[0]);mk.setAttribute('viewBox','0 0 8 8');mk.setAttribute('refX','7');mk.setAttribute('refY','4');mk.setAttribute('markerWidth','7');mk.setAttribute('markerHeight','7');mk.setAttribute('orient','auto');var p=document.createElementNS(SVGNS,'path');p.setAttribute('d','M0 0L8 4L0 8z');p.style.fill=m[1];p.style.stroke='none';p.style.opacity=1;mk.appendChild(p);defs.appendChild(mk)});svg.appendChild(defs);
- E.forEach(function(e){var a=pos[e[0]],b=pos[e[1]];if(!a||!b)return;var x1=a.x+CW,y1=a.y+CH/2,x2=b.x-2,y2=b.y+CH/2,dx=Math.max(24,(x2-x1)/2);
-  var p=document.createElementNS(SVGNS,'path');p.setAttribute('d','M'+x1+' '+y1+' C'+(x1+dx)+' '+y1+' '+(x2-dx)+' '+y2+' '+x2+' '+y2);p.setAttribute('marker-end','url(#ar-a)');p.dataset.a=e[0];p.dataset.b=e[1];svg.appendChild(p)});
+ var defs=document.createElementNS(SVGNS,'defs');[['a','#8d908c'],['h','#0f6b5c']].forEach(function(m){var mk=document.createElementNS(SVGNS,'marker');mk.setAttribute('id','ar-'+m[0]);mk.setAttribute('viewBox','0 0 8 8');mk.setAttribute('refX','7');mk.setAttribute('refY','4');mk.setAttribute('markerWidth','7');mk.setAttribute('markerHeight','7');mk.setAttribute('orient','auto');var p=document.createElementNS(SVGNS,'path');p.setAttribute('d','M0 0L8 4L0 8z');p.style.fill=m[1];p.style.stroke='none';p.style.opacity=1;mk.appendChild(p);defs.appendChild(mk)});svg.appendChild(defs);
+ E.forEach(function(e){var a=pos[e[0]],b=pos[e[1]];if(!a||!b)return;var x1=a.x+CW,y1=a.y+CH/2,x2=b.x-2,y2=b.y+CH/2,dx=Math.max(30,Math.abs(x2-x1)/2);
+  var p=document.createElementNS(SVGNS,'path');p.setAttribute('d','M'+x1+' '+y1+' C'+(x1+dx)+' '+y1+' '+(x2-dx)+' '+y2+' '+x2+' '+y2);p.setAttribute('marker-end','url(#ar-a)');if(e[2])p.setAttribute('class','aff');p.dataset.a=e[0];p.dataset.b=e[1];svg.appendChild(p)});
  canvas.appendChild(svg);
- DATA.issues.forEach(function(i){if(!pos[i.id])return;var c=tcard(i);c.style.left=pos[i.id].x+'px';c.style.top=pos[i.id].y+'px';canvas.appendChild(c)})}
-// ----- shared -----
-function nameOf(id){return byId[id]?id+': '+byId[id].title:id}
-function list(label,ids){var r=el('div','row');r.appendChild(el('b',null,label));if(!ids.length){r.appendChild(el('span','note','Nothing.'));return r}var u=el('ul');ids.forEach(function(id){var li=el('li');var b=el('button',null,mark[byId[id].state]+' '+id+'  '+byId[id].title);b.type='button';b.addEventListener('click',function(){choose(id,true)});li.appendChild(b);u.appendChild(li)});r.appendChild(u);return r}
-function showPanel(){panel.textContent='';if(!sel){panel.classList.add('hidden');return}var i=byId[sel];panel.classList.remove('hidden');panel.style.setProperty('--st',colr[i.state]);
+ DATA.issues.forEach(function(i){var c=card(i);c.style.left=pos[i.id].x+'px';c.style.top=pos[i.id].y+'px';canvas.appendChild(c)})}
+function list(label,ids){var r=el('div','row');r.appendChild(el('b',null,label));if(!ids.length){r.appendChild(el('span','note','Nothing.'));return r}var u=el('ul');ids.forEach(function(id){var li=el('li');var b=el('button',null,id+'  '+byId[id].title+'  ('+stName(byId[id].state)+')');b.type='button';b.addEventListener('click',function(){choose(id,true)});li.appendChild(b);u.appendChild(li)});r.appendChild(u);return r}
+function showPanel(){panel.textContent='';if(!sel){panel.classList.add('hidden');return}var i=byId[sel];panel.classList.remove('hidden');
  var x=el('button','x','Close');x.type='button';x.addEventListener('click',function(){choose(null)});panel.appendChild(x);
  panel.appendChild(el('b',null,i.id));panel.appendChild(el('h3',null,i.title));
- var r=el('div','row');r.appendChild(el('span','chip',mark[i.state]+' '+i.state));panel.appendChild(r);
- var m=el('div','row');m.appendChild(el('b',null,'Stage of the plan'));m.appendChild(document.createTextNode(i.milestone==='Later'?'Added after the plan, '+i.theme:i.milestone+' '+i.milestoneName));panel.appendChild(m);
+ var r=el('div','row');var c1=el('span','chip',stName(i.state)+(isNext(i)?', can start now':''));c1.style.setProperty('--c',SC[i.state]);r.appendChild(c1);var c2=el('span','chip',i.kind);c2.style.setProperty('--c',KC[i.kind]);r.appendChild(c2);panel.appendChild(r);
+ var m=el('div','row');m.appendChild(el('b',null,'Lane and stage of the plan'));m.appendChild(document.createTextNode(i.theme+' | '+(i.milestone==='Later'?'Added after the plan':i.milestone+' '+i.milestoneName)));panel.appendChild(m);
  var p=el('div','row');p.appendChild(el('b',null,'What it is for'));p.appendChild(document.createTextNode(i.purpose||'No purpose line was saved for this task.'));panel.appendChild(p);
  panel.appendChild(list('Needs first',inc[i.id]));panel.appendChild(list('Feeds',out[i.id]))}
-function choose(id,scroll){sel=id;showPanel();paint();if(id&&scroll&&pos[id]){var p=pos[id];board.scrollTo({left:Math.max(0,p.x-200),top:Math.max(0,p.y-150),behavior:'smooth'})}}
+function choose(id,scroll){sel=id;showPanel();paint();if(id&&scroll&&pos[id]){var p=pos[id];board.scrollTo({left:Math.max(0,p.x-260),behavior:'smooth'});window.scrollTo({top:board.getBoundingClientRect().top+window.scrollY+p.y-120,behavior:'smooth'})}}
 function paint(){var t=q.value.trim().toLowerCase(),shown=0,rel={};
  if(sel){rel[sel]=1;inc[sel].forEach(function(a){rel[a]=1});out[sel].forEach(function(a){rel[a]=1})}
- document.querySelectorAll('.tk').forEach(function(c){var i=byId[c.dataset.id];var ok=on[i.state]&&(!t||(i.id+' '+i.title+' '+i.purpose).toLowerCase().indexOf(t)>=0);c.classList.toggle('dim',!ok||(!!sel&&!rel[i.id]));c.classList.toggle('on',sel===i.id);c.classList.toggle('rel',!!sel&&sel!==i.id&&!!rel[i.id]);if(ok&&canvas.contains(c))shown++});
- document.querySelectorAll('svg.links path[data-a]').forEach(function(p){p.classList.toggle('hot',!!sel&&(p.dataset.a===sel||p.dataset.b===sel));if(p.tagName==='path')p.setAttribute('marker-end',p.classList.contains('hot')?'url(#ar-h)':'url(#ar-a)')});
+ document.querySelectorAll('.tk').forEach(function(c){var i=byId[c.dataset.id];var ok=onS[i.state]&&onK[i.kind]&&(!t||(i.id+' '+i.title+' '+i.purpose).toLowerCase().indexOf(t)>=0);c.classList.toggle('dim',!ok||(!!sel&&!rel[i.id]));c.classList.toggle('on',sel===i.id);c.classList.toggle('rel',!!sel&&sel!==i.id&&!!rel[i.id]);if(ok)shown++});
+ document.querySelectorAll('svg.links path[data-a]').forEach(function(p){var h=!!sel&&(p.dataset.a===sel||p.dataset.b===sel);p.classList.toggle('hot',h);p.setAttribute('marker-end',h?'url(#ar-h)':'url(#ar-a)')});
  if(svg)svg.classList.toggle('sel',!!sel);
- document.getElementById('count').textContent=shown+' of '+DATA.issues.length+' tasks'}
-
-STATES.forEach(function(s){var b=el('button',null,mark[s]+' '+s);b.type='button';b.setAttribute('aria-pressed',true);b.addEventListener('click',function(){on[s]=!on[s];b.setAttribute('aria-pressed',on[s]);paint()});sb.appendChild(b);sb.appendChild(document.createTextNode(' '))});
-var lg=document.getElementById('legend');STATES.forEach(function(s){var sp=el('span');var i=el('i',null,mark[s]);i.style.color=colr[s];sp.appendChild(i);sp.appendChild(document.createTextNode(' '+s));lg.appendChild(sp)});
-lg.appendChild(el('span',null,'Arrow: the task on the left is needed before the task on the right.'));
+ document.getElementById('count').textContent=shown+' of '+DATA.issues.length+' shown'}
+function pill(host,label,color,hollow,state,key){var b=el('button','pill');b.type='button';b.setAttribute('aria-pressed',true);var s=el('span',hollow?'dot hollow':'sq');s.style.setProperty('--c',color);b.appendChild(s);b.appendChild(document.createTextNode(label));b.addEventListener('click',function(){state[key]=!state[key];b.setAttribute('aria-pressed',state[key]);paint()});host.appendChild(b)}
+KORDER.forEach(function(k){pill(document.getElementById('kf'),k,KC[k],false,onK,k)});
+STATES.forEach(function(s){if(s[0]==='Canceled'&&!cnt[s[0]])return;pill(document.getElementById('sf'),s[1],SC[s[0]],s[0]==='Backlog',onS,s[0])});
 q.addEventListener('input',paint);
 document.addEventListener('keydown',function(e){if(e.key==='Escape'&&sel)choose(null)});
-buildLanes();paint();
+build();paint();
 `;
-  return shell({ title: 'ConquerCourse Course Map', file: 'course-map.html', body, script, css: CM_CSS, wide: true, cleanIds: ['canvas', 'scene', 'panel', 'states', 'legend'] });
+  return shell({ title: 'ConquerCourse Course Map', file: 'course-map.html', body, script, css: CM_CSS, wide: true, cleanIds: ['counts', 'seg', 'kf', 'sf', 'canvas', 'panel'] });
 }
 
 // The copy for the claude.ai artifact: same page, nav links to other pages turned into plain labels.
