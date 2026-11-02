@@ -24,7 +24,7 @@ export interface CourseState {
   idealWhole: boolean;
   idealNote: string; // the line shown while an ideal run is working or playing
   // the clip being made (the game is stepped by hand and the clip's own camera is used) and the friend's keys watched over and over
-  clip: { on: boolean; cam: { x: number; y: number } | null; layout: ClipLayout };
+  clip: { on: boolean; cam: { x: number; y: number } | null; layout: ClipLayout; hook: (() => void) | null }; // hook takes each picture of the clip
   phoneWatch: InputLog | null;
 }
 
@@ -36,7 +36,7 @@ export function createCourseState(init: CourseStateInit): CourseState {
     keys: new Set(), jumpQueued: false, vaultQueued: false, rollQueued: false, slideQueued: false, fireQueued: false,
     keysOpen: true, keysTouched: false, frontOverride: init.frontOverride,
     plan: null, demo: null, idealWhole: false, idealNote: '',
-    clip: { on: false, cam: null, layout: init.clipLayout ?? clipLayoutFor('') }, phoneWatch: null,
+    clip: { on: false, cam: null, layout: init.clipLayout ?? clipLayoutFor(''), hook: null }, phoneWatch: null,
   };
 }
 
