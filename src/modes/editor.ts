@@ -1,6 +1,6 @@
 import { HAZARDS, HAZARD_INFO, type Hazard } from '../course/hazard';
 import { styleEditor } from '../ui/editor-ux';
-import { applyMarquee, chosenIds, countText, isMarquee, moveGroup, pickInRect, rectFrom, toggleId, withoutIds } from '../ui/selection';
+import { applyMarquee, countText, isMarquee, pickInRect, rectFrom, toggleId } from '../ui/selection';
 import { organizeEditor } from '../ui/editor-layout';
 import { startCourse } from './course';
 import { readGlbMesh } from '../slice/glb';
@@ -39,6 +39,7 @@ import { createHelper } from './editor/helper';
 import { createMoves } from './editor/moves';
 import { el } from './editor/dom';
 import { createLane } from './editor/lane';
+import { createSelection } from './editor/selection';
 import { createEditorState, isDevice, isSizeReference, type P, type Saved } from './editor/state';
 import { finalText, isStopped, type LaneProgress } from '../slice/lane-check';
 
@@ -74,24 +75,8 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
   const ed = createEditorState();
   const lane = createLane(ed);
   const { coursePieces, ground, currentProfile, barsNow, dronePiece, recoilPiece, machineNow, trebuchetPivot, machineWrap, laneCourseAt, laneCourse, courseNow, xOfPiece, startBefore } = lane;
-  // CC-200: several pieces chosen at once (Shift+click, a box dragged on the picture). `selected` stays the main one; the group counts while it is in it.
   const multiOn = pageQuery().get('editorui') !== 'old';
-  const chosen = (): number[] => (multiOn ? chosenIds(ed.group, ed.selected, (id) => ed.pieces.some((q) => q.id === id && !isSizeReference(q))) : ed.selected !== null ? [ed.selected] : []);
-  const chooseMany = (ids: number[]) => { ed.group = ids; ed.selected = ids.length ? ids[ids.length - 1] : null; drawPanel(); draw(); drawProfile(); };
-  // dragging one piece of a chosen group moves the whole group by the same step
-  const moveWith = (p: P, x: number, z: number) => moveGroup(ed.pieces, chosen(), p, x, z);
-  // Ctrl+C keeps the chosen pieces, Ctrl+V puts copies beside them (a group stays a group); pasting again goes one step further along
-  let clip: P[] = [], pastes = 0;
-  const copyChosen = () => { const ids = chosen(); if (!ids.length) return false; clip = ed.pieces.filter((q) => ids.includes(q.id)).map((q) => ({ ...q })); pastes = 0; return true; };
-  const pasteClip = () => {
-    if (!clip.length) return;
-    pastes++;
-    const w = Math.max(...clip.map((q) => q.x + (size(q.mesh).w * q.scale) / 2)) - Math.min(...clip.map((q) => q.x - (size(q.mesh).w * q.scale) / 2)), dx = (w + 0.5) * pastes;
-    const made = clip.map((q) => duplicate(q, dx, 0) as P);
-    ed.pieces.push(...made); ed.selected = made[made.length - 1].id; ed.group = made.length > 1 ? made.map((q) => q.id) : [];
-    changed();
-  };
-  const deleteChosen = () => { const ids = chosen(); if (!ids.length) return; ed.pieces = withoutIds(ed.pieces, ids); ed.selected = null; ed.group = []; changed(); };
+  const { chosen, chooseMany, moveWith, copyChosen, pasteClip, deleteChosen } = createSelection({ ed, multiOn, changed: () => changed(), redraw: () => { drawPanel(); draw(); drawProfile(); } });
   let personChipReady = false; // the chip is built after the 3D view; the world redraws can run before that
   const personAt = () => personStart(ed.pieces, { angle: ed.angle, offset: ed.offset });
   const pendingObjects: Saved['pieces'] = []; // saved photo objects, loaded once the list is in
