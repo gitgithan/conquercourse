@@ -1,6 +1,5 @@
 import { backgroundOn, savedBackground } from '../ui/background';
-import { mountToasts } from '../ui/toast-stack';
-import { createKeydown } from './course/keydown';
+import { createKeydown, isTyping } from './course/keydown';
 import type { CourseCtx } from './course/context';
 import { createRunStats } from './course/stats';
 import { createHint } from './course/hint';
@@ -15,46 +14,45 @@ import { createFall, type Analytics } from './course/fall';
 import { createHud } from './course/hud';
 import { createWelcome } from './course/welcome';
 import { createFeed } from './course/feed';
+import { createSay } from './course/say';
+import { createStepEvents } from './course/events';
+import { createOutcome } from './course/outcome';
+import { createGaugeUpdate } from './course/gauges';
+import { createViews } from './course/views';
+import { mountProbes, poseForShots } from './course/probes';
+import { mountChrome } from './course/chrome';
 import { openChallengeLink } from './course/challenge';
 import { createShortcutList } from './course/shortcuts';
-import { buildCourseScene } from './course/scene';
-import { showClearedReport } from './course/report';
+import { addLabels, buildCourseScene } from './course/scene';
 import { createViewHooks } from './course/board';
 import { mountDrums } from './course/drums';
 import { mountCourseGhost } from './course/ghost';
 import { setMusicScreen } from '../ui/music';
-import { playedSounds, soundButton, soundsFor, startAudio } from '../ui/audio';
+import { playedSounds, soundButton, startAudio } from '../ui/audio';
 import * as THREE from 'three/webgpu';
 import courseJson from '../course/default-course.json';
 import type { CourseData } from '../course/course';
 import { NO_INPUT, type RunnerInput } from '../sim/runner';
 import { DT } from '../sim/units';
-import { droneParams, newWorld, recoilParams, stepWorld, type GameEvent, type WorldState } from '../sim/world';
-import { isAimable } from '../sim/recoil';
+import { newWorld, stepWorld, type GameEvent, type WorldState } from '../sim/world';
 import { DEFAULT_WALL } from '../sim/wall';
 import { inputFor, searchIdealRun, type Plan } from '../sim/ideal';
 import { createGhost } from '../ui/ghost';
 import { clipLayoutFor } from '../share/clip';
 import { mountTouch, touchOn } from '../share/touch';
-import { hudOn, keycapCss, panelCss } from '../ui/hud-style';
 import { browserPointing } from '../share/phone';
-import { courseHash, encodeLog } from '../sim/replay';
+import { courseHash } from '../sim/replay';
 import { findShortcuts, type Shortcut } from '../sim/shortcuts';
 const findShortcutsNow = (c: CourseData): Shortcut[] => findShortcuts(c, { moveChoices: false }).shortcuts; // ?bot=shortcut only: blocks the page while it searches
 import { gapSpecs, minSpeedForWall } from '../sim/needs';
-import { ouch } from '../sim/landing';
-import { logTicks } from '../sim/run-checks';
 import { noteRunning } from '../ui/feedback-model';
-import { track, trackCourseEvent, courseKey, publishClear, sendClear, session } from '../ui/feedback';
-import { statsOn } from '../ui/course-stats';
+import { trackCourseEvent, courseKey, session } from '../ui/feedback';
 import { boardKeyOfPage, FIRST_COURSE_KEY } from '../share/board-courses';
 import { challengeKey, challengeOn, cidOf } from '../share/challenge-course';
 import { touchStreak } from '../ui/streak';
-import { announceBest, boardCorner, boardOn, newsStrip, rememberBest, type BoardHooks } from '../ui/leaderboard';
+import { boardCorner, boardOn, newsStrip, type BoardHooks } from '../ui/leaderboard';
 import { createRookieActor } from '../render/actor';
-import { measureFacing } from '../characters/facing';
-import { makeObstacle } from '../course/collide';
-import { DEFAULT_HANG, feetOf, handOffset } from '../sim/holds';
+import { DEFAULT_HANG, handOffset } from '../sim/holds';
 import { actorStateFor } from '../motion/actor-state';
 import { logTick } from '../ui/run-report';
 import { GALLERY_EVENT } from '../ui/world-picker';
@@ -65,9 +63,7 @@ import { mountLivePhotos } from '../ui/live-photos';
 import { mountFurniture } from '../render/furniture-view';
 import { mountBackdrop } from '../render/backdrop-view';
 import { FURNITURE_ON } from '../world/furniture';
-import { barName, predictShot, type Prediction } from '../sim/predict';
 import { ballsOn, BALL_LAUNCHERS } from '../sim/shots';
-import { topAt } from '../sim/beam';
 import { installGraphStudio } from './graph-studio';
 import { createPerf, type PerfSource } from '../ui/perf';
 import { cullFar } from '../render/static-merge';
@@ -84,10 +80,6 @@ export interface CourseGame {
   world: () => WorldState;
   restart: () => void;
 }
-
-const MESSAGES: Record<string, string> = {
-  cleared: 'You made it! Press R to run it again.',
-};
 
 export async function startCourse(host: HTMLElement, course: CourseData = defaultCourse): Promise<CourseGame> {
   const params = pageQuery();
@@ -132,14 +124,10 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
   let sayNow: (text: string, ticks: number) => void = () => undefined; // the toast line, made below
   const cam = await createCourseCamera({ host, renderer, scene, course, params, st, body: () => bodyMesh!, facing: () => facing, actor: () => actor, say: (t, n) => sayNow(t, n) });
   const { camera, frontCam } = cam;
-  const { trackView, plankView, trebView, shotsView, poleView, recoilView, bandView, droneView, hazard, floor, chunks, ropeMesh, ropeLen } = buildCourseScene(scene, course, params);
-  let shotCache: { key: string; pr: Prediction } | null = null; // the dotted preview of a loaded cannon: the same prediction the debug view uses, worked out once per tick
-  const shotPreview = (w: WorldState): Prediction | null => {
-    if (!course.recoil || !isAimable(recoilParams(course)) || w.mode !== 'run' || (w.recoil?.armed ?? 0) <= 0) return null;
-    const key = `${w.runner.tick}:${w.recoil!.aim}`;
-    if (shotCache?.key !== key) shotCache = { key, pr: predictShot(w, course) };
-    return shotCache.pr;
-  };
+  const built = buildCourseScene(scene, course, params);
+  const { trackView, plankView, hazard, floor, chunks, ropeLen } = built;
+  const views = createViews(course, built);
+  const shotPreview = views.shotPreview;
 
   // the runner (a capsule until the Rookie is wired in)
   const body = new THREE.Mesh(new THREE.CapsuleGeometry(0.28, 1.1, 6, 12), new THREE.MeshStandardMaterial({ color: 0xf07b1d }));
@@ -148,26 +136,10 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
   // the real Rookie replaces the capsule when its model loads; the capsule stays as the fallback
   const wear = createRunnerLook({ scene, course, params, body, setActor: (a) => { actor = a; }, actor: () => actor });
   await wear.start();
-  // ?probe=1: what the player sees. For the facing check (docs/character-facing-bug.md): where the runner moved, where its toe bone points, and which way its SKIN faces, all on screen.
-  if (params.get('probe') === '1') (window as unknown as { __heading: () => unknown }).__heading = () => {
-    if (!actor) return null;
-    const names = actor.names(), J = actor.joints(), at = (n: string) => J[names.indexOf(n)];
-    const toe = at('LeftToeBase'), foot = at('LeftFoot');
-    const skinned: any[] = []; actor.object.traverse((o: any) => { if (o.isSkinnedMesh) skinned.push(o); }); // eslint-disable-line @typescript-eslint/no-explicit-any
-    const m = skinned.sort((a, b) => b.geometry.attributes.position.count - a.geometry.attributes.position.count)[0];
-    if (!m) return { x: actor.object.position.x, boneToeDx: toe.x - foot.x, skin: null };
-    m.updateMatrixWorld(true); m.skeleton.update();
-    const n = m.geometry.attributes.position.count, P = new Float32Array(n * 3), v = new (actor.joints()[0].constructor as new () => { x: number; y: number; z: number })();
-    for (let i = 0; i < n; i++) { m.getVertexPosition(i, v); (v as any).applyMatrix4(m.matrixWorld); P[i * 3] = v.x; P[i * 3 + 1] = v.y; P[i * 3 + 2] = v.z; } // eslint-disable-line @typescript-eslint/no-explicit-any
-    const bn: string[] = m.skeleton.bones.map((b: any) => b.name), rest = bn.map((nm) => { const j = at(nm); return j ? [j.x, j.y, j.z] as [number, number, number] : [0, 0, 0] as [number, number, number]; }); // eslint-disable-line @typescript-eslint/no-explicit-any
-    const toward = (dir: 1 | -1) => measureFacing(P, bn, rest, [dir, 0]);
-    const f = toward(1);
-    const hips = at('Hips'), sp = (new (hips.constructor as new () => { x: number; y: number; z: number; set(x: number, y: number, z: number): unknown; project(c: unknown): unknown })()); sp.set(hips.x, hips.y, hips.z); sp.project(camera);
-    return { screen: { x: (sp.x * 0.5 + 0.5) * renderer.domElement.clientWidth, y: (-sp.y * 0.5 + 0.5) * renderer.domElement.clientHeight }, heading: Math.cos(actor.object.rotation.y), hipsX: hips.x, x: actor.object.position.x, rotY: actor.object.rotation.y, boneToeDx: toe.x - foot.x, skinScoreRight: f.score, skinConfidenceRight: f.confidence, votes: f.votes.map((q) => [q.name, +q.score.toFixed(3)]) };
-  };
 
   // HUD
-  const { VIEW_KEYS, paintStrip, gaugeStack, speedGauge, batteryGauge, hud, msg, help, panel, hint, dojoBtn, idealBtn, rowBtns, paintKeys, strip, progressZones, fallLog, hardBand, addHardest } = createHud({ course, defaultCourse, params, st, paintBackground, openDojo: () => openDojo(), openEditor: (i) => openEditor(i), showIdeal: (z) => ideal.showIdeal(z), showWholeIdeal: () => ideal.showWholeIdeal(), zoneAt: (x) => zoneAt(x) });
+  const hudParts = createHud({ course, defaultCourse, params, st, paintBackground, openDojo: () => openDojo(), openEditor: (i) => openEditor(i), showIdeal: (z) => ideal.showIdeal(z), showWholeIdeal: () => ideal.showWholeIdeal(), zoneAt: (x) => zoneAt(x) });
+  const { VIEW_KEYS, paintStrip, gaugeStack, msg, help, panel, hint, rowBtns, paintKeys, strip, progressZones, fallLog, hardBand, addHardest } = hudParts;
   let reportWas = false;
   const nextCam = cam.nextCam;
   const { courseButton, tour } = createWelcome({ course, params, resume: !!resume });
@@ -176,67 +148,25 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
   const forceDrums = params.get('drums') === '1';
   const runSearch = createSearch();
   const { drumLane, toastDrums: toastDrumsNow } = mountDrums({ course, params, forceDrums, runSearch });
-  const dbgBtn = document.createElement('button');
-  dbgBtn.id = 'debugbtn'; dbgBtn.textContent = 'Debug (B)'; dbgBtn.title = 'Show the collision boxes and where a jump right now would go';
-  dbgBtn.style.cssText = 'position:fixed;left:-9999px;top:0;opacity:0;pointer-events:none'; dbgBtn.tabIndex = -1; dbgBtn.setAttribute('aria-hidden', 'true'); // CC-246: no label on the screen; B still toggles it, and the tests use this node as the "course is ready" mark
-  // CC-159: how to start again is on the screen all the time, as a key cap you can also press with a finger or the mouse
-  const restartChip = document.createElement('button');
-  restartChip.type = 'button'; restartChip.id = 'restart-chip';
-  restartChip.innerHTML = `<kbd style="${keycapCss}">R</kbd> Restart`;
-  restartChip.title = 'R starts again where you last began; Shift+R starts from the very start';
-  restartChip.style.cssText = `font:700 13px system-ui,sans-serif;cursor:pointer;white-space:nowrap;display:flex;gap:7px;align-items:center;${panelCss('4px 10px 4px 6px')}`;
-  restartChip.onclick = () => { restartChip.blur(); restart(); };
-  const hudRow = document.createElement('div');
-  hudRow.id = 'hudrow'; hudRow.style.cssText = 'position:fixed;left:16px;top:12px;display:flex;gap:8px;align-items:center;flex-wrap:wrap;max-width:calc(100vw - 32px);pointer-events:none';
-  hudRow.append(hud); // CC-165: the time has a fixed width so nothing beside it moves; the R Restart chip is only there with ?hud=restart (a fall already shows R, and phones have the touch Restart button)
-  if (params.get('hud') === 'restart') { hudRow.append(restartChip); restartChip.style.pointerEvents = 'auto'; }
-  // CC-163: on a phone-width screen the top-right buttons used to sit on the time line and the Restart chip: they move to a second row, and the rarely used ones (runner pick, edit, whole course, debug) step aside (their keys still work; Ideal run is on the fall panel too)
-  const narrow = document.createElement('style');
-  narrow.textContent = '@media (max-width:700px){#hudrow>div{font-size:14px!important}#pickrunner,#coursebtns,#debugbtn,#idealbtn,#community{display:none!important}#dojobtn{top:52px!important;right:12px!important;font-size:13px!important;padding:5px 10px!important}#ghost-hud{left:12px!important;top:52px!important;transform:none!important}#cam{top:92px!important;right:12px!important}#strip{top:160px!important}#keys{top:225px!important}}';
-  document.head.append(narrow);
-  const hudBox = hudOn(params) ? hudRow : hud;
-  document.body.append(hudBox, msg, help, panel, hint, gaugeStack.el, dojoBtn, idealBtn, rowBtns, wear.pick, cam.button, dbgBtn);
+  const { dbgBtn } = mountChrome({ params, hud: hudParts, pick: wear.pick, camButton: cam.button, restart: () => restart() });
   // CC-85: a real place shows its real photos (credit under each, a large view on click); ?photos=0 or the Hide switch turns them off
   const placeSlug = slugOfCourse(course.name);
   let livePhotos: { update(x: number): void } | null = null; // CC-90: street photos from the allow-list change as the runner moves; the CC-85 strip is the fallback
   if (placeSlug && pageQuery().get('photos') !== '0') void mountLivePhotos(document.body, course).then((h) => { livePhotos = h; });
   if (placeSlug && FURNITURE_ON(pageQuery())) void mountFurniture(scene, course); // CC-187: real street furniture, looks only, off by default
   { const bd = params.get('backdrop'); if (bd) void mountBackdrop(scene, course, bd); } // CC-234: the place's buildings and street furniture behind the hero lane, looks only, off by default
-  // CC-197: every short message goes through one stack (new ones below, old ones leave upward); ?toasts=old keeps the single centred toast
-  const toastsOld = params.get('toasts') === 'old';
-  const toast = document.createElement('div');
-  toast.style.cssText = 'position:fixed;left:50%;top:44%;transform:translateX(-50%);font:700 22px system-ui,sans-serif;color:#10141c;background:#fffffff0;border-radius:10px;padding:6px 14px;pointer-events:none;display:none';
-  document.body.append(toast);
-  const toasts = mountToasts();
-  let toastUntil = 0, squashUntil = 0, squashDepth = 1;
-  const say = (text: string, ticks: number) => { if (toastsOld) { toast.textContent = text; toast.style.display = 'block'; toastUntil = st.world.runner.tick + ticks; } else toasts.show(text, ticks, st.world.runner.tick); };
+  const sayer = createSay(params, st);
+  const say = sayer.say;
   sayNow = say;
-  if (params.get('check') === '1') (window as unknown as { __say?: typeof say }).__say = say; // for scripts/toast-shot.mjs: three toasts at once
-  let releasedAtX: number | null = null; const caughtSince = new Set<number>(); // the bars passed since the last release: a bar flown over without a grab is said to be skipped
   try { localStorage.setItem('cc.course', JSON.stringify(course)); } catch { /* the Dojo falls back to the default course */ }
   const specs = gapSpecs(course);
   const zoneOf = (x: number) => course.zones?.find((z) => x >= z.x0 && x < z.x1);
   const wallNeed = course.wall ? minSpeedForWall(course.wall) : Infinity;
-  const GAUGE_MAX = 10;
-  // numbers painted on the course so the player can see how wide a gap is and how high the wall is
-  function label(text: string, x: number, y: number) {
-    const c = document.createElement('canvas'); c.width = 400; c.height = 96;
-    const g = c.getContext('2d')!; g.fillStyle = '#fffffff0'; g.fillRect(0, 0, 400, 96); g.fillStyle = '#10141c'; g.font = '700 50px system-ui'; g.textAlign = 'center'; g.fillText(text, 200, 66);
-    const sp = new THREE.Sprite(new THREE.SpriteMaterial({ map: new THREE.CanvasTexture(c) }));
-    sp.scale.set(4.6, 1.1, 1); sp.position.set(x, y, -0.6); // behind the runner and the ghost, never over them scene.add(sp);
-  }
-  for (const g of specs) { const z = zoneOf(g.x); if (z && (z.id === 'gap' || z.id === 'landing')) label(`${g.width.toFixed(1)} m`, g.x + g.width / 2, Math.max(0, g.rise) + 3); }
-  if (course.wall) label(`${(course.wall.height ?? DEFAULT_WALL.height).toFixed(1)} m high`, course.wall.x0 + 2, (course.wall.height ?? DEFAULT_WALL.height) + 1.2);
-  if (course.rope) label(`rope ${ropeLen.toFixed(0)} m`, course.rope.anchorX, course.rope.anchorY + 1.6);
+  addLabels(course, specs, zoneOf, ropeLen);
 
   // input
-  // while the feedback form is open, or a text box has the focus, no game key does anything (typing a T must not open the Dojo)
-  const typing = (e: KeyboardEvent): boolean => {
-    const t = e.target as HTMLElement | null;
-    return document.getElementById('cc-feedback') !== null || (!!t && (/^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName) || t.isContentEditable));
-  };
   addEventListener('keydown', createKeydown({
-    st, typing, course, VIEW_KEYS,
+    st, typing: isTyping, course, VIEW_KEYS,
     get botMode() { return botMode; },
     restart: (x) => restart(x),
     stopWholeIdeal: () => ideal.stopWholeIdeal(), showWholeIdeal: () => ideal.showWholeIdeal(), showIdeal: (id) => ideal.showIdeal(id),
@@ -276,7 +206,6 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
   document.body.append(diagBox);
   let prevMode: string = 'run', prevVx = 0;
   let soundCount = 0;
-  let soundedEvents: ReturnType<typeof newWorld>['events'] | null = null;
   startAudio(); document.body.append(soundButton());
 
   const debug = createDebugView(scene, course, document.body, params.get('debug') === '1');
@@ -289,38 +218,14 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
   const ctx: CourseCtx = { course, st, log, guides, specs, wallNeed, everCleared: false, wallEntry: 0 };
   const stats = createRunStats(ctx, (resume ? resume.retryX : startAt ?? course.startX) > course.startX + 0.01 ? 'practice' : 'attempt');
   const { runLog } = stats;
-  // ?hangtest=1.0 (radians) hangs the runner still on the first bar at that angle, for the pivot screenshots
-  const hangTest = params.get('hangtest') !== null && course.holds?.length ? Number(params.get('hangtest')) : null;
-  // ?planktest=0.5 stands the runner still on the first plank, that share of the way across, for the sag screenshots
-  const plankTest = params.get('planktest') !== null && course.planks?.length ? Number(params.get('planktest')) : null;
-  if (plankTest !== null) {
-    const pk = course.planks![0], a = plankTest * (pk.x1 - pk.x0);
-    st.world = { ...st.world, mode: 'plank', plank: { i: 0, v: 0, sagged: true }, runner: { ...st.world.runner, x: pk.x0 + a, y: topAt(pk, a, pk.x0 + a), vx: 0, vy: 0, grounded: true } };
-  }
-  if (hangTest !== null) {
-    const f = feetOf(course.holds![0], { hold: 0, theta: hangTest, omega: 0 });
-    st.world = { ...st.world, mode: 'hang', hang: { hold: 0, theta: hangTest, omega: 0 }, runner: { ...st.world.runner, x: f.x, y: f.y, vx: 0, vy: 0, grounded: false } };
-  }
+  const events = createStepEvents(ctx, { say: sayer, stats, hazard, paintKeys });
+  const posed = poseForShots(course, params, st); // ?hangtest and ?planktest hold the runner still for the pivot and sag screenshots
   const frames: { x: number; y: number }[] = [];
   const analytics: Analytics = { courseKey: courseKey(course.name), mode: pageQuery().get('mode') ?? 'course', runId: crypto.randomUUID(), failed: false };
   touchStreak(); // CC-108
   if (!resume) trackCourseEvent('start', analytics.courseKey, course.name, analytics.runId, analytics.mode);
-  // CC-149: a cleared run on a listed course is offered to the server, which plays the keys again before it counts (a run with anything but plain keys has no log and is not offered)
-  let lastClear: BoardHooks['publish'] | null = null;
-  function offerClear() {
-    lastClear = null;
-    const bk = listedKey();
-    if (!statsOn(params) || botMode || st.demo || st.idealWhole || !bk) return;
-    const mine = ghostCtl?.myRun();
-    if (mine) {
-      if (boardOn(params)) { rememberBest(bk, courseHash(course), logTicks(mine)); announceBest(); } // every board box redraws Your best now
-      const runId = analytics.runId, ticks = logTicks(mine), keysReady = encodeLog(mine);
-      void keysReady.then((keys) => sendClear(bk, runId, courseHash(course), keys, ticks)); // counted only; the board gets it when the player clicks Publish (CC-108)
-      lastClear = { ticks, send: (nick) => keysReady.then((keys) => publishClear(bk, runId, courseHash(course), keys, ticks, nick)) };
-    }
-  }
   try { ctx.everCleared = localStorage.getItem('cc.course.cleared') === '1'; } catch { /* keep going */ }
-  const zoneAt = (x: number) => course.zones?.find((z) => x >= z.x0 && x < z.x1);
+  const zoneAt = zoneOf;
   function clearGuides() {
     while (guides.children.length) { const c = guides.children[0] as THREE.Mesh; guides.remove(c); c.geometry?.dispose(); }
     diagBox.style.display = 'none';
@@ -347,7 +252,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
     st.idealNote = '';
     msg.textContent = '';
     frames.length = 0; st.replay = null; panel.style.display = 'none';
-    squashUntil = 0; toastUntil = 0; toast.style.display = 'none'; toasts.clear(); releasedAtX = null; caughtSince.clear();
+    events.reset(); sayer.clear();
   }
 
   const nav = createNav({ course, st, log, specs, msg, facing: () => facing, zoneAt: (x) => zoneAt(x) });
@@ -359,11 +264,14 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
   const ideal = createIdealRun({ course, st, log, frames, botState, panel, runSearch, shortcutList, idealCache, botMode: () => botMode, clearGuides: () => clearGuides(), restart: () => restart() });
   const fall = createFall({ ctx, params, panel, diagBox, frames, hazard, analytics, stats, runLog, fallLog, ideal, nav, botMode, zoneAt: (x) => zoneAt(x), hardBand, addHardest, choice: () => wear.choice(), ghostCtl: () => ghostCtl, makeClip: (l, t, f) => makeClip(l, t, f), restart: (x) => restart(x), onboarding: () => onboarding });
   const { onFall, showAgain } = fall;
+  const outcome = createOutcome(ctx, { params, panel, say: sayer, stats, analytics, runLog, hardBand, addHardest, listedKey, viewHooks, ideal, feed, loadedIsDefault, botMode, onFall, ghostCtl: () => ghostCtl, onboarding: () => onboarding, choice: () => wear.choice(), restart: (x) => restart(x), openDojo: () => openDojo(), makeClip: (l, t, f) => makeClip(l, t, f) });
+  const updateGauges = createGaugeUpdate(ctx, hudParts, zoneOf);
 
   // Controls are taught while you play: one short hint at a time, then none.
   // what the Rookie needs to know about the course: where the top edge of the wall is, and the next obstacle ahead
   const wallR = course.wall ? course.wall.radius ?? course.wall.height ?? DEFAULT_WALL.height : 0;
   const ledge = course.wall ? { x: course.wall.x0 + wallR, y: course.wall.height ?? DEFAULT_WALL.height } : undefined;
+  const measure = mountProbes({ course, params, st, camera, frontCam, renderer, cam, body, wear, actor: () => actor, ledge });
   const aheadOf: { kind: 'gap' | 'wall' | 'rope' | 'bounce'; x: number }[] = [
     ...specs.map((g) => ({ kind: 'gap' as const, x: g.x })),
     ...(course.wall ? [{ kind: 'wall' as const, x: course.wall.x0 }] : []),
@@ -375,7 +283,6 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
     for (const o of aheadOf) { const d = o.x - x; if (d > -0.2 && (!best || d < best.distance)) best = { kind: o.kind, distance: Math.max(0, d) }; }
     return best;
   }
-  let maxPen = 0, handErr = 9;
   const hintFor = createHint(ctx, { toastDrums: toastDrumsNow, shotPreview });
 
   ghostCtl = mountCourseGhost({ scene, course, params, idealCache, runSearch, progressZones, strip, look: () => wear.choice() });
@@ -389,11 +296,6 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
   if (!botMode) installGraphStudio({ env: () => ({ course, retryX: st.retryX, facing, falls: st.falls, runnerX: st.world.runner.x }), pause: () => { studioHold = true; st.paused = true; }, resume: () => { studioHold = false; st.paused = false; st.last = performance.now(); st.keys.clear(); }, chipWhen: () => st.falls > 0 || params.get('edit') === '1' });
   { let heldBefore = false; window.addEventListener(GALLERY_EVENT, (ev) => { if ((ev as CustomEvent).detail.open) { heldBefore = st.paused; st.paused = true; st.keys.clear(); } else { st.paused = heldBefore; st.last = performance.now(); } }); } // the Courses gallery stops the game while it is open
   if (!botMode || params.get('next') === '1') onboarding = startOnboarding({ params, store: browserStore, course, tour: tour === 'tour', resetRun: () => { if (st.world.outcome === 'running' && Math.abs(st.world.runner.x - course.startX) < 0.01) restart(course.startX); }, openCourses: () => courseButton.open(), toggleKeys: () => { st.keysTouched = true; st.keysOpen = !st.keysOpen; paintKeys(st.keysOpen); } }); // CC-100: the Help chip, and the tour on a first visit
-    // ?camprobe=1: what the camera and the runner's look are doing now, for scripts/course-camera-characterize.mjs (CC-133); nothing else changes
-  if (params.get('camprobe') === '1') (window as unknown as { __probe: () => unknown }).__probe = () => {
-    const d = camera.getWorldDirection(new THREE.Vector3());
-    return { pos: camera.position.toArray(), dir: d.toArray(), up: camera.up.toArray(), fov: camera.fov, aspect: camera.aspect, camMode: cam.mode(), orbit: { ...cam.orbit }, actor: actor ? actor.object.visible : null, body: body.visible, ...wear.state(), clipping: st.clip.on, pip: cam.pipFrame.style.display, frontCam: frontCam.position.toArray(), frontDir: frontCam.getWorldDirection(new THREE.Vector3()).toArray() };
-  };
   // ?fx=bloom,vignette,dof (or all): picture polish for stills (CC-188); off unless asked, loaded only then
   let fxPipe: { render(): void } | null = null;
   if (pageQuery().get('fx')) void import('../render/fx').then((m) => { const on = m.fxOf(pageSearch()); if (on.size) fxPipe = m.createFx(renderer as any, scene, camera, on, () => camera.position.distanceTo(body.position)); });
@@ -422,7 +324,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
       noteRunning(prev === 'running' && (Math.abs(st.world.runner.vx) > 0.3 || st.world.mode !== 'run')); // CC-feedback: the Feedback button hides during a run
       prevMode = st.world.mode; prevVx = st.world.runner.vx;
       perf.simStart();
-      if (hangTest === null && plankTest === null) st.world = stepWorld(st.world, input, course);
+      if (!posed) st.world = stepWorld(st.world, input, course);
       perf.simEnd();
       stats.updateRunProgress(st.world.runner.x);
       stats.updateFlow(st.world.runner.tick, st.world.runner.vx, st.world.runner.vy);
@@ -431,60 +333,10 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
       if (st.demo && (st.world.outcome !== 'running' || st.world.runner.x > st.demo.x1)) ideal.demoEnd();
       else if (st.idealWhole && st.world.outcome !== 'running') ideal.demoEnd();
       log.push(...st.world.events);
-      if (st.world.events !== soundedEvents) { soundedEvents = st.world.events; if (!st.replay && !st.clip.on) soundsFor(st.world.events, hazard); } // after the end the same events array stays: it sounds once
-      for (const e of st.world.events) {
-        if (e.type === 'drone-board') { say('The drone lifts you. Lean with ← →, climb with ↑ and come down with ↓.', 240); }
-        if (e.type === 'drone-empty') { say('The battery ran out: the rotors stopped and the drone is falling.', 240); }
-        if (e.type === 'drone-land') { say('The drone sets you down.', 150); }
-        if (e.type === 'recoil') { say(`Shot! The ball flies back and you are pushed forward by ${(e.detail?.dvx as number).toFixed(1)} m/s${(e.detail?.dvy as number) > 0.5 ? ` and up by ${(e.detail?.dvy as number).toFixed(1)} m/s` : ''}.`, 180); }
-        if (e.type === 'band-snap') { say(`The band snapped at ${(e.detail?.stretch as number).toFixed(0)} m: it can only stretch so far. Press R and turn round sooner.`, 360); }
-        if (e.type === 'band-release') { say(`The band lets go: you leave it at ${(e.detail?.vx as number).toFixed(1)} m/s.`, 180); }
-        if (e.type === 'launch-dud') { say('The counterweight is too light: the arm hardly moves. Try a heavier weight.', 240); }
-        if (e.type === 'hang-release') { releasedAtX = st.world.runner.x; caughtSince.clear(); }
-        if (e.type === 'hang-catch') caughtSince.add(e.detail?.hold as number);
-        if (e.type === 'land' && releasedAtX !== null) { // a bar flown over between the release and the landing, never held: a fact, not a grade
-          const skipped = (course.holds ?? []).map((h, k) => ({ h, k })).filter(({ h, k }) => !caughtSince.has(k) && h.x > releasedAtX! + 0.5 && h.x < st.world.runner.x - 0.3);
-          if (skipped.length) { say(`You skipped the ${skipped.map(({ k }) => barName(k)).join(' and the ')}.`, 150); }
-          releasedAtX = null;
-        }
-        if (e.type === 'jump' && st.keysOpen && !st.keysTouched) { st.keysOpen = false; paintKeys(false); } // the controls card has done its job once you have jumped
-        if (e.type === 'hang-release' && e.detail?.slipped) { say('Your grip gave out: the bar pulled harder than your hands could hold.', 120); }
-        if (e.type === 'land' && !e.detail?.bouncy) {
-          const o = ouch(e.detail?.peakDecel as number);
-          stats.noteLanding(o, !!e.detail?.squat);
-        }
-        if (e.type === 'land' && (e.detail?.impact as number) > 2 && !e.detail?.bouncy) {
-          const o = ouch(e.detail?.peakDecel as number);
-          squashUntil = st.world.runner.tick + 40; squashDepth = e.detail?.squat ? 0.7 : o >= 6 ? 0.6 : 0.88;
-          if (o >= 3 && (toastsOld ? toastUntil - st.world.runner.tick : toasts.remaining(st.world.runner.tick)) < 100) { // (a fresh 'You skipped the bar' stays)
-            say(o >= 8 ? 'Ouch! Dangerous landing: bend your knees (↓) on big drops.' : o >= 6 ? 'Hard landing: you stumble. Hold ↓ to bend your knees.' : 'Firm landing.', 90);
-          }
-        }
-      }
+      events.handle();
       if (st.replay === null && prev === 'running') frames.push({ x: st.world.runner.x, y: st.world.runner.y });
       if (frames.length > 1200) frames.shift();
-      if (prev === 'running' && st.world.outcome === 'splash') onFall('splash');
-      if (prev === 'running' && st.world.outcome === 'hurt') onFall('hurt');
-      if (prev === 'running' && st.world.outcome === 'stalled') onFall('stall');
-      if (st.world.events.some((e) => e.type === 'wall-slide')) { // CC-182: missing the top is not a fall: the body slides to the foot and the run goes on, run up again as often as you like
-        say([...log].some((e) => e.type === 'wall-no-grip') ? 'Your hands missed the edge. Run up again and hold E near the top.' : 'Not high enough. Run up again with more speed.', 240);
-      }
-      if (st.phoneWatch && prev === 'running' && st.world.outcome === 'cleared') { // the friend's run, watched on a phone: no report, no What next card; play it again in a moment (CC-138)
-        const again = st.phoneWatch;
-        setTimeout(() => { if (again) { restart(course.startX); feed.play(again); } }, 2500);
-      } else if (prev === 'running' && st.world.outcome === 'cleared' && !st.clip.on) {
-        stats.clearFinishZone(st.world.runner.x); ctx.everCleared = true; track('clears'); stats.finishRun(true, analytics.runId); trackCourseEvent('success', analytics.courseKey, course.name, analytics.runId, analytics.mode);
-        offerClear();
-        try { localStorage.setItem('cc.course.cleared', '1'); } catch { /* ok */ }
-        panel.innerHTML = ''; panel.style.display = 'grid';
-        showClearedReport({
-          course, params, panel, runLog, hardBand, addHardest, listedKey, viewHooks, clearedNote: ideal.clearedNote,
-          get world() { return st.world; }, get runKind() { return stats.kind; }, get ghostCtl() { return ghostCtl; }, get lastClear() { return lastClear; },
-          get demo() { return st.demo; }, botMode, get idealWhole() { return st.idealWhole; }, loadedIsDefault, get analyticsRunId() { return analytics.runId; },
-          get onboarding() { return onboarding; }, get choice() { return wear.choice(); },
-          restart: (x) => restart(x), startIdeal: (x0, z) => ideal.startIdeal(x0, z), openDojo: () => openDojo(), makeClip: (l, t, f) => makeClip(l, t, f),
-        });
-      }
+      outcome(prev);
     }
     let r = st.world.runner;
     if (st.replay) {
@@ -496,7 +348,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
     plankView?.place(st.world, dtPlank);
     const plankY = st.replay ? null : plankView?.surfaceAt(st.world) ?? null; // the picture of the bend lags the physics a little: the feet stand on the drawn surface so they agree
     if (plankY !== null) r = { ...r, y: plankY };
-    const sq = st.world.runner.tick < squashUntil ? squashDepth : 1;
+    const sq = events.squash();
     body.scale.set(1 / Math.sqrt(sq), sq, 1 / Math.sqrt(sq));
     body.position.set(r.x, r.y + 0.85 * sq, 0);
     trailPush?.(r.x, r.y + 0.95 * sq);
@@ -509,60 +361,20 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
     const ax = hangHold ? hangHold.x + hOff.x : r.x, ay = hangHold ? hangHold.y + hOff.y - DEFAULT_HANG.handHeight : r.y;
     if (actor) actor.update({ ...actorStateFor(st.world, st.keys.has('ArrowDown') || st.keys.has('KeyS'), facing), x: ax, y: ay, ledge: st.world.mode === 'climb' && st.world.climb ? { x: st.world.climb.edge, y: st.world.climb.top } : ledge, next: st.world.mode === 'run' ? nextObstacle(r.x) : undefined });
     trackView?.place(st.world);
-    if (st.world.runner.tick > toastUntil) toast.style.display = 'none';
-    toasts.update(st.world.runner.tick);
+    sayer.update(st.world.runner.tick);
     paintStrip(r.x);
     drumLane.update(r.x);
     debug.update(st.world);
     grabHint.update(st.world, st.keys.has('KeyE'), performance.now());
-    if (params.get('check') === '1' && actor && ledge && st.world.mode === 'wall') {
-      // how close the nearest hand gets to the wall's top edge while the climb is on
-      const j = actor.joints();
-      const hands = j.filter((_, i) => /Hand$/.test(actor!.names()[i]));
-      const err = Math.min(...hands.map((h) => Math.hypot(h.x - ledge.x, h.y - ledge.y)));
-      handErr = Math.min(handErr, err);
-      document.documentElement.dataset.handErr = handErr.toFixed(3);
-    }
-    if (params.get('check') === '1' && actor) {
-      // measurement for the tests: the deepest any joint sits inside a block or the wall, over the whole run (metres)
-      const hit = makeObstacle(course);
-      actor.joints().forEach((j, i) => { const o = hit(j.x, j.y, 0); if (o && Math.hypot(o.dx, o.dy) > maxPen) { maxPen = Math.hypot(o.dx, o.dy); document.documentElement.dataset.maxPenWhere = `${st.world.mode} x=${r.x.toFixed(1)} y=${r.y.toFixed(1)} joint=${i} at (${j.x.toFixed(2)}, ${j.y.toFixed(2)})`; } });
-      document.documentElement.dataset.maxPen = maxPen.toFixed(3);
-    }
-    trebView?.update(st.world);
-    shotsView?.update(st.world);
-    poleView?.update(st.world);
-    recoilView?.update(st.world, facing, shotPreview(st.world)?.path);
-    bandView?.update(st.world);
-    droneView?.update(st.world, facing);
+    measure(r);
+    views.update(st.world, facing);
     const reportOpen = panel.style.display !== 'none'; // CC-191: while a report is open the hint, the controls card, the ghost chip and the second Edit button step aside
     hint.textContent = reportOpen ? '' : hintFor(st.world);
     hint.style.display = hint.textContent ? 'block' : 'none';
     if (reportOpen !== reportWas) { reportWas = reportOpen; if (reportOpen) help.style.visibility = 'hidden'; else if (!document.getElementById('helpmenu')) help.style.visibility = ''; rowBtns.style.visibility = reportOpen ? 'hidden' : ''; const gh = document.getElementById('ghost-hud'); if (gh) gh.style.visibility = reportOpen ? 'hidden' : ''; }
-    if (ropeMesh && course.rope) {
-      // the rope swings about its anchor with the runner: its middle is half a rope length along the swing
-      const th = st.world.swing ? st.world.swing.theta : 0;
-      ropeMesh.rotation.z = th;
-      ropeMesh.position.set(course.rope.anchorX + (ropeLen / 2) * Math.sin(th), course.rope.anchorY - (ropeLen / 2) * Math.cos(th), 0);
-      ropeMesh.updateMatrix(); ropeMesh.updateMatrixWorld(true);
-    }
-    msg.textContent = st.paused && !studioHold ? 'Back from the Dojo. Press any key to carry on.' : st.world.outcome === 'cleared' ? MESSAGES.cleared : st.idealNote;
+    msg.textContent = st.paused && !studioHold ? 'Back from the Dojo. Press any key to carry on.' : st.world.outcome === 'cleared' ? 'You made it! Press R to run it again.' : st.idealNote;
     msg.style.display = msg.textContent ? 'block' : 'none'; // CC-166: an empty message used to leave its dark panel, a black pill, in the middle of the screen
-    const onCoaster = st.world.mode === 'cart' && st.world.cart !== null;
-    const spd = onCoaster ? Math.abs(st.world.cart!.v) : Math.abs(r.vx);
-    const gaugeMax = onCoaster ? 40 : GAUGE_MAX;
-    const nextGap = specs.find((g) => g.x + 0.2 >= r.x && g.x - r.x < 40 && ['gap', 'landing'].includes(zoneOf(g.x)?.id ?? ''));
-    let need = 0, msgNext = '';
-    if (nextGap && st.world.mode === 'run') { need = nextGap.needed; msgNext = `Next gap: ${nextGap.width.toFixed(1)} m wide. You need at least ${need.toFixed(1)} m/s at the edge.`; }
-    else if (course.wall && st.world.mode === 'run' && r.x < course.wall.x0 && course.wall.x0 - r.x < 45) { need = wallNeed; msgNext = `Warped wall: ${(course.wall.height ?? DEFAULT_WALL.height).toFixed(1)} m high. You need at least ${need.toFixed(1)} m/s at its foot.`; }
-    speedGauge.set({ text: `${onCoaster ? 'Speed along track' : 'Speed'} ${spd.toFixed(1)} m/s`, max: gaugeMax, value: spd, mark: need, colour: need && spd < need ? '#c4572a' : '#0f6b5c', note: msgNext });
-    if (batteryGauge) { // before boarding there is no drone state yet: the battery is full
-      const full = droneParams(course).battery * 3600;
-      const left = st.world.drone ? (st.world.drone.empty ? 0 : Math.max(0, Math.min(1, st.world.drone.energy / full))) : 1;
-      const pct = Math.round(100 * left);
-      batteryGauge.set({ text: st.world.drone?.empty ? 'Drone battery empty' : `Drone battery ${pct}%`, max: 1, value: left, colour: pct <= 20 ? '#c4572a' : '#2a6fb0' });
-    }
-    hud.textContent = `Time ${(r.tick / 120).toFixed(1)} s   ·   ${Math.max(0, Math.round(r.x))} m of ${course.finishX} m`;
+    updateGauges(r);
     livePhotos?.update(r.x);
     cam.update(); // the camera (and the film camera) for this picture
     floor.update(now / 1000);
