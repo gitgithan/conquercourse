@@ -31,6 +31,7 @@
 - Risk to the sim: none if only UI code moves (the sim is imported, not edited).
 - Payoff: high but slow; do it in slices of one feature per pull request.
 - Done in CC-133 (editor split, first slices): `src/modes/editor/` now has `track.ts` (coaster points), `selection.ts` (choose, copy, paste, delete) and `search.ts` (the lane-check search and its state).
+- Done in CC-133 (editor split, fourth slice): `editor/plan-mouse.ts` holds the mouse on the flat plan; `startEditor` is now 913 lines, and `advice`, `fixit`, `golden-search` and `trebuchet-polish` tests use the shared `box`.
 - The browser characterize run (`scripts/editor-characterize.mjs`) matched `tests/golden/editor-characterize.json` after each slice; hints, keyboard and scene are still inside `startEditor`.
 - Done in CC-133 (course split): `src/modes/course.ts` went from 1,718 lines to 992, and `src/modes/course/` grew from five small files to fourteen.
   - `state.ts`: one typed `CourseState` (world, pause, clock, retry spot, falls, replay, held and queued keys, the ideal run on screen); the key handler and the frame loop read `st.world`, `st.keys` and so on.
