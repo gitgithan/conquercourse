@@ -86,7 +86,8 @@
   - Leads to: The Course (play)
 - **World Editor**
   - You do: You place real objects and bars into a lane and the simulator checks it can be cleared.
-  - How to get there: Top bar: World Editor. In a course: "Edit this course".
+  - How to get there: Top bar: World Editor.
+  - In a course: "Edit this course".
   - Leads to: The Course (play), Community, World Slicer
   - **Add pieces**
     - You do: You pick shapes, real objects, bars, machines or your own pieces.
