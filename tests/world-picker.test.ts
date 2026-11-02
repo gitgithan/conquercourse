@@ -1,6 +1,7 @@
 import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import { afterEach, describe, expect, it } from 'vitest';
 import { sliceCardOn, DEMOS, DEMO_GROUPS, LEAVE_MESSAGE, WORD_VALUES, currentWorld, hasThumb, mayLeaveCourse, thumbSlug, thumbUrl, worldHref } from '../src/ui/world-picker';
+import { courseSource } from './helpers/course-source';
 
 describe('the world picker list (CC-89)', () => {
   it('the slicer card is on the list without ?labs=1 and ?slice2=old hides it again (CC-201)', () => {
@@ -59,7 +60,7 @@ describe('the world picker list (CC-89)', () => {
   it('is mounted by every mode: main.ts for the others, the Course for itself', () => {
     expect(readFileSync('src/main.ts', 'utf8')).toMatch(/mountWorldGallery/);
     expect(readFileSync('src/main.ts', 'utf8')).toMatch(/installGalleryKeyGuard\(\)/);
-    expect(readFileSync('src/modes/course.ts', 'utf8')).toMatch(/mountWorldGallery\(document\.body/);
+    expect(courseSource()).toMatch(/mountWorldGallery\(document\.body/);
   });
 });
 
