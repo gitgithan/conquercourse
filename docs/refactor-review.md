@@ -77,6 +77,8 @@
   - Obstacle ids are matched by `id === k || id.startsWith(k + '-')`, a string convention with no type.
 - Evidence: toast text for failures is a third copy, inline in `src/modes/course.ts:1096`.
 - Proposal: put toast text, lead distance and the drum it follows on the obstacle table from item 2a, so a new obstacle adds one row.
+- Done in CC-133 (item 3): `TOASTS` in `src/course/obstacles.ts` holds each cue's text, lead distance and the drum it follows, and `src/ui/approach-toast.ts` only reads it; `tests/obstacle-rows.test.ts` pins the texts and leads.
+  - The fixed failure texts are rows too (`tips`); the ones that quote numbers stay in `src/modes/course/tips.ts` and `course.ts`.
 - Size: 3 h after 2a.
 - Risk to tests: low; `tests/strip-keys.test.ts` already walks every course and fails if a cue is missing.
 - Risk to the sim: none (UI only).
