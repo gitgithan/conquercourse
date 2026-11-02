@@ -90,13 +90,22 @@ for (const shot of ['orbit', 'follow', 'eyes', 'hero', 'clean']) {
 
 // 4. the clip maker: a friend's run turned into a clip; the clip's own camera sets how big the runner is and how many metres the picture spans
 await fresh();
+// headless Chromium has no video encoder, so a stand-in counts the pictures the clip hands over and keeps the camera spot of every 25th one: the clip's own camera and the picture loop are what this part checks
+await page.addInitScript(() => {
+  window.__enc = 0; window.__encPos = [];
+  window.VideoFrame = class { close() {} };
+  window.VideoEncoder = class { static async isConfigSupported() { return { supported: true }; } configure() {} encode() { if (window.__enc++ % 25 === 0) window.__encPos.push(window.__probe().pos.map((v) => Math.round(v * 1000) / 1000)); } async flush() {} get encodeQueueSize() { return 0; } };
+});
 await page.goto(`${link}&clip=auto&welcome=0&tour=0&camprobe=1`, { waitUntil: 'commit', timeout: 60000 });
 await ready();
 await step('clip started', async () => { await adv(300); });
 await step('clip made', async () => {
-  const done = await until(() => !!document.documentElement.dataset.clip, 240000);
+  // the clip is drawn one picture per animation frame and waits for the encoder, so give it many frames at a time; it ends with the clip made, or with the encoder missing (the card then says so)
+  let done = false;
+  for (let i = 0; i < 40 && !(await page.evaluate(() => window.__probe().clipping)); i++) { await adv(500); await page.waitForTimeout(50); } // the clip has started
+  for (let i = 0; i < 600 && !done; i++) { await adv(5000, 50); await page.waitForTimeout(20); done = await page.evaluate(() => !!document.documentElement.dataset.clip || !window.__probe().clipping); }
   const d = await page.evaluate(() => ({ made: Number(document.documentElement.dataset.clip) > 0, runner: document.documentElement.dataset.clipRunner ?? null, metres: document.documentElement.dataset.clipMetres ?? null, blob: !!window.__clip }));
-  return { done, clip: d };
+  return { done, clip: d, encoded: await page.evaluate(() => ({ pictures: window.__enc, spots: window.__encPos })) };
 });
 await step('after the clip', async () => { await adv(1000); });
 

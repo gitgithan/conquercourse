@@ -139,7 +139,7 @@ describe('the demo runner of the Parts gallery', () => {
   });
   it('is kept out of the saved choice by the Course: every saveChoice call in wearCharacter goes through the nosave guard', () => {
     const src = courseSource();
-    const a = src.indexOf('async function wearCharacter'), b = src.indexOf("if (charactersOn()) { const asked");
+    const a = src.indexOf('async function wearCharacter'), b = src.indexOf('// choose your runner');
     expect(src).toContain("params.get('nosave') === '1'");
     expect(src.slice(a, b)).not.toMatch(/\bsaveChoice\(/);
     expect(src.slice(a, b)).toMatch(/if \(!keepChoice\) void fetch\('\/api\/character'/);
