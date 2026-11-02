@@ -30,10 +30,10 @@ export const DEMO_GROUPS: [string, Demo[]][] = [
     ['/assets/demo/plank-two.course.json', 'Plank bridge: thick, then thin', 'A thick plank bends and holds; a thin one needs a post in the middle.'],
   ]],
   ['Make your own', [
-    ['generate', 'Make me a new course (random)', 'A random course the simulator has proved clearable.'],
     ['map', 'World Slicer', 'Pick a real street, cut it at a height and turn its roofs into a course.'],
     ['editor', 'World Editor', 'Place real objects and bars; the simulator checks the lane.'],
     ['coaster-builder', 'Build your own coaster', 'Drag the dots of the track and ride it.'],
+    ['generate', 'Make me a new course (random)', 'A random course the simulator has proved clearable.'],
   ]],
   ['Labs (university level)', [
     ['lab-search', 'Lab 1: Search', 'Choose how the game looks for a clear run: greedy, beam, A* or everything. Mix a heuristic, set a budget, read the numbers.'],
