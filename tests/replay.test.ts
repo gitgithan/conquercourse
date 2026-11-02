@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { playPlan } from '../src/sim/ideal';
 import {
-  REPLAY_VERSION, courseHash, decodeLog, encodeLog, gapSeconds, gapWords, makeChallengeParam, readChallengeParam, recordPlan, reachTick, trackFromPlan, verifyLog,
+  MEASURED_FIELDS, REPLAY_VERSION, courseHash, decodeLog, encodeLog, gapSeconds, gapWords, makeChallengeParam, readChallengeParam, recordPlan, reachTick, trackFromPlan, verifyLog,
 } from '../src/sim/replay';
 import { loadCourseFile as load } from './helpers/course';
 
@@ -114,5 +114,6 @@ describe('a run as a link', () => {
     expect(courseHash({ ...course, windows: w })).toBe(courseHash(course));
     expect(courseHash({ ...course, windows: [{ ...w[0], widthMs: 999 }] })).toBe(courseHash({ ...course, windows: w }));
     expect(courseHash({ ...course, routes: [], shortcuts: [] })).toBe(courseHash(course));
+    expect([...MEASURED_FIELDS].sort()).toEqual(['plan', 'routes', 'shortcuts', 'windows']); // adding to the list is a decision: update docs/hash-design.md and the golden file
   });
 });

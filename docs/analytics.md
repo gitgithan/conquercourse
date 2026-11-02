@@ -32,7 +32,8 @@
 
 ## How to read it
 - Open the owner-only usage page and press "Show visits, funnel and waits".
-- Sources: visitors, runs started and clears for each tag, last 14 days.
+- Sources: for each tag, how many landed, how many people played, runs started and clears, last 14 days.
+  - "Landed" counts everyone who opened the game; the others count people who played.
 - Funnel: how many visitor-days reached each step, and from which tag.
 - Waits: median and 90th percentile for each service, cold and warm apart.
 - Automated runs are in the `test` row, so they never mix with real players.

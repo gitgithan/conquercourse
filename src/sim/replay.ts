@@ -157,10 +157,12 @@ export async function decodeLog(s: string): Promise<InputLog> {
 
 // ---- who made the course (a changed course makes an old run meaningless) ----
 // CC-224: the fingerprint covers only what changes how the course plays (the world and the rules).
-// What a search measured about the course (plan, windows, routes, shortcuts) is left out, so a re-measure never moves a board, a clear or a shared link.
-// See docs/hash-design.md before adding a field to the course file.
+// What a search measured about the course is left out, so a re-measure never moves a board, a clear or a shared link.
+// Add a field here when it is measured, not played. See docs/hash-design.md before adding a field to the course file.
+export const MEASURED_FIELDS = ['plan', 'windows', 'routes', 'shortcuts'] as const;
 export function courseHash(course: CourseData): string {
-  const { plan: _p, windows: _w, shortcuts: _s, routes: _r, ...rest } = course as CourseData & { plan?: unknown; windows?: unknown; shortcuts?: unknown; routes?: unknown };
+  const rest: Record<string, unknown> = { ...course };
+  for (const f of MEASURED_FIELDS) delete rest[f];
   const text = JSON.stringify(rest);
   let h = 0x811c9dc5;
   for (let i = 0; i < text.length; i++) { h ^= text.charCodeAt(i); h = Math.imul(h, 0x01000193); }
