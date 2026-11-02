@@ -42,7 +42,7 @@ button[aria-pressed=true]{background:var(--accent);color:var(--bg);border-color:
 <a href="site-map.html">Site map</a>
 <a href="course-map.html">Course map</a>
 <span class="sp"></span>
-<span class="dl"><button type="button" id="dl-page">Download this page (.html)</button></span>
+
 </nav>
 <h1>The Making Of</h1>
 <p class="sub">ConquerCourse is a game where real parks and real moves become a ninja-warrior course, and the physics is real too. We built it in about nine days for a hackathon. These pages show what the game is and how it was built, and you can download the maps.</p>
@@ -55,9 +55,9 @@ button[aria-pressed=true]{background:var(--accent);color:var(--bg);border-color:
 </main>
 <script>
 function dl(name,type,text){var a=document.createElement('a');a.href=URL.createObjectURL(new Blob([text],{type:type}));a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(function(){URL.revokeObjectURL(a.href)},1000)}
-function dlPage(name){dl(name,'text/html;charset=utf-8','<!doctype html>\n'+document.documentElement.outerHTML)}
+function dlPage(name,clean){var c=document.documentElement.cloneNode(true);(clean||[]).forEach(function(i){var e=c.querySelector('#'+i);if(e)e.textContent=''});dl(name,'text/html;charset=utf-8','<!doctype html>\n'+c.outerHTML)}
 
-document.getElementById('dl-page').addEventListener('click',function(){dlPage('making-of.html')});
+
 
 </script>
 </body>
