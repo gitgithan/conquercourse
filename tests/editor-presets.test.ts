@@ -17,7 +17,7 @@ const build = (id: string): Piece[] => PRESETS.find((p) => p.id === id)!.pieces.
 });
 const jumps = (ps: Piece[], l = lane) => { const d = describeLane(laneProfile(ps, l)); return d.gaps + d.steps; };
 
-describe('the editor course list', () => {
+describe('the editor course list', { timeout: 120000 }, () => { // the Fix search takes about 20 s alone and over 50 s when the whole suite runs at once
   it('the passing course clears and has jumps in it', () => {
     const ps = build('passing');
     expect(clears(ps, lane)).toBe(true);
