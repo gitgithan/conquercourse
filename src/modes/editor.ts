@@ -9,7 +9,7 @@ import { getUserObject, listUserObjects, saveUserObject, userObjectUrls, userSrc
 import { openPhotoObject, uploadObjOn } from '../ui/photo-object';
 import { registerThumbSource } from '../ui/glb-thumb';
 import { isSharedSrc, placeParam, sharedGlbUrl, sharedSrc, useShared, usedShared } from '../community/flow';
-import { LIBRARY, box } from '../slice/shapes';
+import { LIBRARY } from '../slice/shapes';
 import { bestSlices, describe as describeLane, CELL, HALF_LANE, roofStartOn } from '../slice/slice';
 import { crop, duplicate, hits, newPiece, realSize, scaleBy, scaleToHeight, size, worldSamples, laneProfile } from '../slice/world';
 import type { CourseData } from '../course/course';
@@ -17,14 +17,11 @@ import { xWindows, type SearchResult } from '../sim/ideal';
 import { searchInput, storedPlanFor, withStoredPlan, type PresetPlan } from '../slice/preset-plans';
 import { createView3d } from '../slice/view3d';
 import { sceneFor } from '../slice/scene';
-import { isTrack, limitTrackPoint, parseTrackSrc, TRACK_BLOCK_TEXT, TRACK_TOP, type TrackBlock, sectionPoints, trackPiece, trackSrc, trackStartY, TRACK_SHAPES } from '../slice/track-world';
-import { barMesh, isHold, REACH_JUMPING, REACH_STANDING } from '../slice/holds-world';
-import { DEFAULT_PLANK, isPlankPiece, plankPiece, plankSpecOf, planksOf, setPlank, type PlankSpec } from '../slice/plank-world';
-import { fixPlank, plankHolds, worstCase } from '../sim/beam';
-import { DRONE_PAD_LENGTH } from '../slice/drone-lane';
-import { PATTERNS, stackPiece, stackSrc } from '../slice/stack';
+import { isTrack, limitTrackPoint, parseTrackSrc, TRACK_BLOCK_TEXT, TRACK_TOP, type TrackBlock, sectionPoints, trackPiece, trackSrc } from '../slice/track-world';
+import { isHold, REACH_JUMPING, REACH_STANDING } from '../slice/holds-world';
 import { personStart } from '../slice/person-ref';
 import { DEFAULT_WATER_LEVEL, START_LABEL, START_SHORT, levelOfSaved, startMarkSide } from '../slice/editor-defaults';
+import { createTools } from './editor/tools';
 import { adviseMachine } from '../slice/fix-launch';
 import { PRESETS } from '../slice/presets';
 import { MAX_PIECES } from '../slice/suggest-prompt';
@@ -32,7 +29,6 @@ import { adviseLane } from '../slice/advice';
 import { addBadge } from '../ui/says';
 import { editorWords, simSaysPanel } from '../ui/sim-says';
 import { adviceInWorker } from '../slice/proof-client';
-import { deviceMesh, RECOIL_PAD_LENGTH, TREBUCHET_PIVOT_FROM_CENTRE } from '../slice/device';
 import { EDIT_KEY, HIST_KEY, checkpointFor, piecesFromSource, readHandoff } from '../slice/roundtrip';
 import { pageQuery, pageSearch } from '../flags';
 import { createLaneCheck } from '../slice/lane-check-ui';
@@ -76,7 +72,7 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
 
   const ed = createEditorState();
   const lane = createLane(ed);
-  const { coursePieces, makeDevice, makeRecoilDevice, makeDroneDevice, updateDeviceSource, ground, currentProfile, barsNow, dronePiece, recoilPiece, machineNow, trebuchetPivot, machineWrap, laneCourseAt, laneCourse, courseNow, xOfPiece, startBefore } = lane;
+  const { coursePieces, ground, currentProfile, barsNow, dronePiece, recoilPiece, machineNow, trebuchetPivot, machineWrap, laneCourseAt, laneCourse, courseNow, xOfPiece, startBefore } = lane;
   // CC-200: several pieces chosen at once (Shift+click, a box dragged on the picture). `selected` stays the main one; the group counts while it is in it.
   const multiOn = pageQuery().get('editorui') !== 'old';
   const chosen = (): number[] => (multiOn ? chosenIds(ed.group, ed.selected, (id) => ed.pieces.some((q) => q.id === id && !isSizeReference(q))) : ed.selected !== null ? [ed.selected] : []);
@@ -262,90 +258,10 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
       await firstVisitPerson(); // a first visit: the person for scale stands at the start of the lane
     } catch { /* no objects on this site */ }
   })();
-  // overhead: bars hanging in the air (a game, not real: they need no frame); the side view is where they are dragged
-  el('strong', addBar, { text: 'Overhead:' });
-  const nextX = () => ed.pieces.reduce((r, q) => Math.max(r, q.x + (size(q.mesh).w * q.scale) / 2), 0) + 3;
-  const nextLaneU = () => { const c = Math.cos(ed.angle), s = Math.sin(ed.angle); return ed.pieces.reduce((r, p) => Math.max(r, p.x * c + p.z * s + (size(p.mesh).w * p.scale) / 2), 0) + 3; };
-  const addBarPiece = (x: number, y: number, z = 0): P => { const q: P = { ...newPiece('Bar', barMesh(), { x, z }), src: 'hold:bar', y }; ed.pieces.push(q); ed.selected = q.id; return q; };
-  el('button', addBar, { text: 'Bar', id: 'addbar' }).onclick = () => { addBarPiece(nextX(), 2.86); changed(); };
-  // coaster sections (CC-244): rails the rider rides; leave a short gap between two sections and the rider flies across it (bars and ropes can catch them)
-  const coasterOn = pageQuery().get('coaster') !== '0'; // on by default; ?coaster=0 hides the piece
-  const trackShape = el('select', addBar, { id: 'trackshape', title: 'The shape of the next coaster section' }) as HTMLSelectElement;
-  for (const t of TRACK_SHAPES) el('option', trackShape, { text: t.name, value: t.id });
-  trackShape.style.display = coasterOn ? '' : 'none';
-  const coasterBtn = el('button', addBar, { text: 'Coaster', id: 'addcoaster', title: 'A stretch of rail the character rides in a cart. The ride starts at the first section; a gap of about 3 m between sections is a flight.' });
-  coasterBtn.onclick = () => {
-    const shape = TRACK_SHAPES.find((t) => t.id === trackShape.value) ?? TRACK_SHAPES[0];
-    const q = trackPiece(shape.pts, { x: 0, z: 0 });
-    const w = size(q.mesh).w;
-    const sections = ed.pieces.filter(isTrack);
-    q.y = trackStartY(sections.sort((m, n) => m.x - n.x)[sections.length - 1], shape.pts);
-    q.x = sections.length ? Math.max(...sections.map((o) => o.x + (size(o.mesh).w * o.scale) / 2)) + 3 + w / 2 : w / 2;
-    ed.pieces.push(q); ed.selected = q.id; changed();
-  };
-  coasterBtn.style.display = coasterOn ? '' : 'none';
-  el('button', addBar, { text: 'Lache pair', id: 'addlache', title: 'Two bars to swing between' }).onclick = () => { const x = nextX(); addBarPiece(x, 2.86); addBarPiece(x + 3.5, 2.86); changed(); };
-  // a rope swing: a post whose top is the rope anchor (role rope); put it over a gap and the simulator checks the swing
-  el('button', addBar, { text: 'Rope swing', id: 'addrope', title: 'A post with a rope on top: put it over a gap between two pieces of ground and swing across' }).onclick = () => { const q: P = { ...newPiece('Rope anchor', box(0.5, 6.6, 0.5), { x: nextX() + 3, z: 0 }), role: 'rope' }; ed.pieces.push(q); ed.selected = q.id; changed(); };
-  // a trebuchet at the start: the rider is thrown to the lane; the counterweight is the knob (the proof says whether it reaches)
-  el('button', addBar, { text: 'Trebuchet', id: 'addtreb', title: 'Start the lane in a trebuchet: the character is thrown onto it' }).onclick = () => {
-    const treMesh = deviceMesh('device:trebuchet:1200');
-    const first = !ed.pieces.some((p) => p.src?.startsWith('device:trebuchet:'));
-    const centerU = first ? -TREBUCHET_PIVOT_FROM_CENTRE : nextLaneU() + size(treMesh).w / 2;
-    const device = makeDevice('device:trebuchet:1200', 'Trebuchet', centerU);
-    ed.pieces.push(device); ed.selected = device.id;
-    changed();
-    ed.view.cx = device.x; ed.view.cz = device.z; view3d.look(0, 65, { x: device.x, z: device.z }, 22);
-  };
-  const trebLabel = el('label', addBar, { text: 'Counterweight (kg) ' }); trebLabel.style.display = 'none';
-  const trebInput = el('input', trebLabel, { type: 'number', min: '300', max: '4000', step: '50', value: '1200', id: 'trebkg' });
-  trebInput.onchange = () => { const v = Number(trebInput.value); if (v >= 300 && v <= 4000) { updateDeviceSource('device:trebuchet', `device:trebuchet:${v}`); changed(); } };
-  // a launcher on the start deck (recoil): the ball goes back, the runner goes forward; the ball's mass and speed are the knobs (the proof says whether it reaches)
-  const recoilKnobs = el('span', addBar, {}); recoilKnobs.style.display = 'none';
-  const recoilKg = el('input', el('label', recoilKnobs, { text: 'Ball (kg) ' }), { type: 'number', min: '2', max: '150', step: '1', value: '12', id: 'recoilkg' });
-  const recoilSpeed = el('input', el('label', recoilKnobs, { text: 'Speed (m/s) ' }), { type: 'number', min: '3', max: '60', step: '1', value: '30', id: 'recoilspeed' });
-  const syncRecoil = () => { recoilKnobs.style.display = ed.recoilCfg ? '' : 'none'; if (ed.recoilCfg) { recoilKg.value = String(ed.recoilCfg.ballMass); recoilSpeed.value = String(ed.recoilCfg.muzzle); } };
-  for (const [kind, text, id, mass, speed, title] of [['bigcannon', 'Cannon', 'addcannon', 80, 45, 'A pad on the start deck with a big wheeled air cannon: aim it with Up and Down, fire it with K; the ball goes back, you fly forward and up (the proof searches the angle)'], ['cannon', 'Launcher', 'addrecoil', 12, 30, 'A pad on the start deck clips on an air launcher: the ball goes back, you go forward (momentum is conserved)']] as const) {
-    el('button', addBar, { text, id, title }).onclick = () => {
-      const first = !recoilPiece();
-      const device = first
-        ? makeRecoilDevice(kind, mass, speed)
-        : makeDevice(`device:${kind}:${mass}:${speed}:${RECOIL_PAD_LENGTH}`, kind === 'bigcannon' ? 'Cannon' : 'Launcher', nextLaneU() + RECOIL_PAD_LENGTH / 2);
-      ed.pieces.push(device); ed.selected = device.id;
-      changed(); syncRecoil();
-      ed.view.cx = device.x; ed.view.cz = device.z; view3d.look(0, 65, { x: device.x, z: device.z }, 13);
-    };
-  }
-  const recoilEdit = () => { const m = Number(recoilKg.value), u = Number(recoilSpeed.value); if (ed.recoilCfg && m >= 2 && m <= 150 && u >= 3 && u <= 60) { const p = recoilPiece(), len = p?.src?.split(':')[4] ?? String(RECOIL_PAD_LENGTH); updateDeviceSource(`device:${ed.recoilCfg.kind}`, `device:${ed.recoilCfg.kind}:${m}:${u}:${len}`); changed(); } };
-  recoilKg.onchange = recoilEdit; recoilSpeed.onchange = recoilEdit;
-  // an elastic band at the start: stretch it by running away from the post, turn round, and be thrown to the lane; the stiffness is the knob (the proof says whether it reaches)
-  el('button', addBar, { text: 'Band', id: 'addband', title: 'Start the lane at an elastic band: stretch it, turn round, and it throws you onto the lane' }).onclick = () => { ed.bandK = ed.bandK ? null : 35; bandLabel.style.display = ed.bandK ? '' : 'none'; bandInput.value = String(ed.bandK ?? 35); changed(); };
-  const bandLabel = el('label', addBar, { text: 'Stiffness (N/m) ' }); bandLabel.style.display = 'none';
-  const bandInput = el('input', bandLabel, { type: 'number', min: '20', max: '300', step: '5', value: '35', id: 'bandk' });
-  bandInput.onchange = () => { const v = Number(bandInput.value); if (v >= 20 && v <= 300) { ed.bandK = v; changed(); } };
-  // a drone pad (CC-87): hold E on it to board a cargo drone; the rider's weight and the battery are the knobs (the proof says whether it reaches)
-  const droneKnobs = el('span', addBar, {}); droneKnobs.style.display = 'none';
-  const droneKg = el('input', el('label', droneKnobs, { text: 'Rider (kg) ' }), { type: 'number', min: '30', max: '250', step: '5', value: '70', id: 'dronekg' });
-  const droneWh = el('input', el('label', droneKnobs, { text: 'Battery (Wh) ' }), { type: 'number', min: '10', max: '1000', step: '10', value: '50', id: 'dronewh' });
-  const syncDrone = () => { droneKnobs.style.display = ed.droneCfg ? '' : 'none'; if (ed.droneCfg) { droneKg.value = String(ed.droneCfg.payload); droneWh.value = String(ed.droneCfg.battery); } };
-  el('button', addBar, { text: 'Drone', id: 'adddrone', title: 'A pad with a cargo drone: hold E on it to board and fly across (thrust against weight, battery, lean)' }).onclick = () => {
-    if (dronePiece()) return;
-    const device = makeDroneDevice(70, 50);
-    ed.pieces.push(device); ed.selected = device.id;
-    changed(); syncDrone();
-    ed.view.cx = device.x; ed.view.cz = device.z; view3d.look(0, 65, { x: device.x, z: device.z }, 13);
-  };
-  const droneEdit = () => { const m = Number(droneKg.value), b = Number(droneWh.value); if (ed.droneCfg && m >= 30 && m <= 250 && b >= 10 && b <= 1000) { const len = dronePiece()?.src?.split(':')[4] ?? String(DRONE_PAD_LENGTH); updateDeviceSource('device:drone', `device:drone:${m}:${b}:${len}`); changed(); } };
-  droneKg.onchange = droneEdit; droneWh.onchange = droneEdit;
-  // stacks: sport-stacking cups (mouth down, pyramids) as obstacle shapes; the piece scale makes a 9 cm cup runner-sized
-  el('strong', addBar, { text: 'Stacks:' });
-  for (const pt of PATTERNS) {
-    el('button', addBar, { text: pt.label, id: `addstack-${pt.id}`, title: `Sport-stacking cups piled ${pt.label}: climb the steps they make` }).onclick = () => {
-      const q = stackPiece(stackSrc(pt.id), { x: nextX() + 1, z: 0 })!; ed.pieces.push(q); ed.selected = q.id; changed();
-    };
-  }
-  // a plank bridge: lay it across a gap between two pieces of ground; it sags and can break (the knobs are in the piece panel)
-  el('button', addBar, { text: 'Plank', id: 'addplank', title: 'A plank bridge laid across a gap: it sags under the runner and breaks if it is too thin or too long' }).onclick = () => { const q = plankPiece(DEFAULT_PLANK, { x: nextX() + 1, z: 0 }); ed.pieces.push(q); ed.selected = q.id; changed(); };
+  // the special pieces (bar, coaster, rope, devices, stacks, plank): each one is a module in editor/tools, mounted in toolbar order
+  const tools = createTools({ ed, lane, addBar, changed, focusOn: (d, dist) => { ed.view.cx = d.x; ed.view.cz = d.z; view3d.look(0, 65, { x: d.x, z: d.z }, dist); } });
+  const { addBarPiece } = tools;
+  tools.mount();
   // size references: a Rookie (1.75 m, T-pose) and the demo scene, so a piece can be judged against a person
   el('strong', addBar, { text: 'Size references:' });
   for (const r of [{ id: 'person', label: 'Person reference (toggle)', url: '', src: '' }, { id: 'demo-scene', label: 'Demo scene', url: '/assets/demo/demo-scene.glb', src: 'obj:../demo/demo-scene.glb' }]) {
@@ -451,7 +367,7 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
     new MutationObserver(sync).observe(lanePanel, { childList: true, subtree: true, characterData: true });
     sync();
   }
-  const helperUi = createHelper({ ed, lane, root, top, aside, chosen, draw, drawProfile, changed, handoff, goToCourse, plankFixNow, syncRecoil, bandInput });
+  const helperUi = createHelper({ ed, lane, root, top, aside, chosen, draw, drawProfile, changed, handoff, goToCourse, tools });
   const { helper, helperBtn, reply, adviceBox, setSuggest, showAdvice, runEasier, closePreview, ghostData } = helperUi;
   const movesUi = createMoves({ ed, lane, planWrap, addBarPiece, changed, helper: helperUi });
 
@@ -477,34 +393,6 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
   new ResizeObserver(fit).observe(planWrap);
   new ResizeObserver(fit).observe(profileWrap);
   setView(false);
-
-  function plankFixNow(): { steps: string[]; apply: () => void } | null {
-    const c = courseNow(), laid = planksOf(ed.pieces as P[], { angle: ed.angle, offset: ed.offset, level: ed.level });
-    const fixes: { piece: P; spec: PlankSpec; fix: ReturnType<typeof fixPlank> }[] = [];
-    (c.planks ?? []).forEach((pk, i) => { const pc = laid[i] ? (ed.pieces.find((q) => q.id === laid[i].id) as P | undefined) : undefined; if (pc && !plankHolds(pk)) fixes.push({ piece: pc, spec: plankSpecOf(pc.src)!, fix: fixPlank(pk) }); });
-    if (!fixes.length) return null;
-    return { steps: fixes.flatMap((f) => f.fix.steps), apply: () => fixes.forEach((f) => { if (f.fix.ok) setPlank(f.piece, { ...f.spec, thickness: f.fix.plank.thickness, support: !!f.fix.plank.support }); }) };
-  }
-
-  // ---- a plank bridge's knobs: material, thickness, width, a post in the middle (the length is the gap it lies across)
-  function plankKnobs(p: P) {
-    const spec = plankSpecOf(p.src)!;
-    const set = (patch: Partial<PlankSpec>) => { setPlank(p, { ...spec, ...patch }); changed(); };
-    const mat = el('label', side, { text: 'Material ' });
-    const sel = el('select', mat, { id: 'plankmat' }) as HTMLSelectElement;
-    for (const [v, t] of [['wood', 'Pine plank'], ['steel', 'Steel plate']] as const) { const o = el('option', sel, { text: t }); o.value = v; if (v === spec.material) o.selected = true; }
-    sel.onchange = () => set({ material: sel.value === 'steel' ? 'steel' : 'wood' });
-    const num = (label: string, id: string, v: number, min: number, max: number, step: number, apply: (n: number) => Partial<PlankSpec>) => {
-      const l = el('label', side, { text: label }); const i = el('input', l, { type: 'number', id, min: String(min), max: String(max), step: String(step), value: String(v) });
-      i.onchange = () => { const n = Number(i.value); if (n >= min && n <= max) set(apply(n)); };
-    };
-    num('Thickness (cm) ', 'plankthick', Math.round(spec.thickness * 1000) / 10, 0.5, 20, 0.5, (n) => ({ thickness: n / 100 }));
-    num('Width (cm) ', 'plankwidth', Math.round(spec.width * 100), 20, 200, 5, (n) => ({ width: n / 100 }));
-    num('Length (m, drawing only: the gap decides) ', 'plankspan', spec.span, 1, 20, 0.5, (n) => ({ span: n }));
-    const post = el('label', side, { text: 'Post under the middle ' }); const cb = el('input', post, { type: 'checkbox', id: 'plankpost' }) as HTMLInputElement; cb.checked = spec.support; cb.onchange = () => set({ support: cb.checked });
-    const span = spec.span * p.scale, w = worstCase({ x0: 0, x1: span, y: 0, thickness: spec.thickness, width: spec.width, material: spec.material, ...(spec.support ? { support: true } : {}) });
-    el('div', side, { id: 'plankinfo', className: w.ratio >= 1 ? 'bad' : 'muted', text: w.ratio >= 1 ? `Over ${span.toFixed(1)} m it would snap (${(w.sag * 100).toFixed(0)} cm of sag at the worst place).` : `Over ${span.toFixed(1)} m it holds: ${(w.sag * 100).toFixed(0)} cm of sag at the worst place, ${(w.ratio * 100).toFixed(0)}% of what it can take.` });
-  }
 
   // ---- several pieces chosen (CC-200): a chip on the picture with the count, Delete and Clear, and a one-line hint for the box
   const selChip = el('div', planWrap, { id: 'selchip' });
@@ -572,7 +460,7 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
     }
     const prov = p.src ? provOf.get(p.src) : undefined;
     if (prov) { const c = el('div', side, { id: 'credit', className: 'muted', text: prov.credit.line || creditLine(prov.credit, prov.source) }); c.title = `Made from a photo (${prov.photo.width} x ${prov.photo.height}) with ${prov.pipeline.model}; box ${prov.box.join(', ')}; photo fingerprint ${prov.photo.sha256.slice(0, 12)}`; }
-    if (isPlankPiece(p as P)) plankKnobs(p as P);
+    tools.panel(p as P, side);
     const r = realSize(p);
     const sizes = el('details', side, { id: 'sizes' }); el('summary', sizes, { text: 'Size and height' }); // the numbers stay here, folded: the simulator says whether the lane clears
     el('div', sizes, { id: 'realsize', className: 'muted', text: `Real size: ${r.w.toFixed(2)} × ${r.d.toFixed(2)} m, ${r.h.toFixed(2)} m high (scale ×${p.scale.toPrecision(3)})` });
@@ -661,8 +549,7 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
     ed.recoilCfg = recoil && parts ? { kind: parts[1] as 'cannon' | 'bigcannon', ballMass: Number(parts[2]) || 12, muzzle: Number(parts[3]) || 30 } : null;
     const dr = dronePiece(), dparts = dr?.src?.split(':');
     ed.droneCfg = dr && dparts ? { payload: Number(dparts[2]) || 70, battery: Number(dparts[3]) || 50 } : null;
-    trebLabel.style.display = ed.trebuchetKg ? '' : 'none'; trebInput.value = String(ed.trebuchetKg ?? 1200);
-    syncRecoil(); syncDrone();
+    tools.sync();
   }
   // the undo list goes into the session so it survives a trip to the Course (pieces made from photos or maps are not kept: their meshes are too big)
   function persistHist() {
