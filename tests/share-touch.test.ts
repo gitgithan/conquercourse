@@ -1,6 +1,6 @@
-import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 import { PadState, TOUCH_BUTTONS, touchOn } from '../src/share/touch';
+import { courseSource } from './helpers/course-source';
 
 const ask = (coarse: boolean) => () => ({ coarse, hover: !coarse });
 const q = (s: string) => new URLSearchParams(s);
@@ -12,7 +12,7 @@ describe('touch controls (CC-139)', () => {
   });
   it('the buttons have their own ids and the keys exist in the game', () => {
     expect(new Set(TOUCH_BUTTONS.map((b) => b.id)).size).toBe(TOUCH_BUTTONS.length);
-    const course = readFileSync('src/modes/course.ts', 'utf8');
+    const course = courseSource();
     for (const b of TOUCH_BUTTONS) expect(course.includes(`'${b.code}'`), b.code).toBe(true);
   });
   it('two fingers at once press two keys (run and jump)', () => {

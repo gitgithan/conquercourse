@@ -9,6 +9,7 @@ import { BITS } from '../src/sim/replay';
 import { COVERED_BY_VIEW, GROUP_TITLES, PARTS, PLAIN_FIELDS, partById, partsOfCourse } from '../src/ui/parts-data';
 import { DEMO_CHAR, frameSrc } from '../src/modes/parts';
 import { DEMOS, currentWorld, partsCardOn, worldHref } from '../src/ui/world-picker';
+import { courseSource } from './helpers/course-source';
 
 const cov = <K extends 'bits' | 'modes' | 'obstacles' | 'fields'>(k: K): Set<string> => new Set(PARTS.flatMap((p) => (p.covers[k] ?? []) as string[]));
 const modes = (): string[] => {
@@ -137,7 +138,7 @@ describe('the demo runner of the Parts gallery', () => {
     for (const p of PARTS) { const src = frameSrc(p); if (src) expect(src, p.id).toMatch(/[?&](char=[0-9a-f]{16}|rookie=b)&nosave=1/); }
   });
   it('is kept out of the saved choice by the Course: every saveChoice call in wearCharacter goes through the nosave guard', () => {
-    const src = readFileSync('src/modes/course.ts', 'utf8');
+    const src = courseSource();
     const a = src.indexOf('async function wearCharacter'), b = src.indexOf("if (charactersOn()) { const asked");
     expect(src).toContain("params.get('nosave') === '1'");
     expect(src.slice(a, b)).not.toMatch(/\bsaveChoice\(/);

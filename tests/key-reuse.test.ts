@@ -8,6 +8,7 @@ import { NO_INPUT, type RunnerInput } from '../src/sim/runner';
 import { SLIDE_MIN_SPEED, SLIDE_RECOVERY } from '../src/sim/slide';
 import { FLAT } from '../src/sim/terrain';
 import { newWorld, stepWorld, type WorldState } from '../src/sim/world';
+import { courseSource } from './helpers/course-source';
 
 const flat = { ...(base as unknown as CourseData), terrain: FLAT, startX: 0, checkpoints: [], shots: undefined } as CourseData;
 const step = (w: WorldState, i: Partial<RunnerInput>, c = flat): WorldState => stepWorld(w, { ...NO_INPUT, ...i }, c);
@@ -151,7 +152,7 @@ describe('key reuse: the replay stores the two meanings as separate bits', () =>
 // The page must treat S exactly like Arrow Down for the cannon tilt (and the squat, slide and drone descent).
 describe('S matches Arrow Down in the page', () => {
   it('the cannon tilt-down input reads both keys', () => {
-    const src = readFileSync('src/modes/course.ts', 'utf8');
+    const src = courseSource();
     expect(src).toContain("aimDown: keys.has('ArrowDown') || keys.has('KeyS')");
   });
 });
