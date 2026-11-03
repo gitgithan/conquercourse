@@ -25,7 +25,7 @@ export async function shrinkPhoto(f: Blob): Promise<Shrunk> {
   return { image: big.url, thumb: thumb.url, width: big.w, height: big.h, sha256: await sha256Hex(bytes) };
 }
 
-export interface LiftInput { photo: Shrunk; box: [number, number, number, number]; label: string; height_m: number | null; padretry?: boolean; photoId?: string | null }
+export interface LiftInput { photo: Shrunk; box: [number, number, number, number]; label: string; height_m: number | null; padretry?: boolean; photoId?: string | null; resumeId?: string; startedAt?: number; onSubmitted?: (id: string) => void }
 const post = async (body: unknown): Promise<{ ok: boolean; status: number; data: Record<string, unknown> }> => {
   const res = await fetch('/api/object-lift', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(body) });
   let data: Record<string, unknown> = {};
@@ -48,11 +48,12 @@ export function submitFailure(status: number, data: Record<string, unknown>, now
  * Throws a JobError with a plain-words message.
  */
 export async function liftObject(inp: LiftInput, progress: (s: string) => void, signal?: AbortSignal, onStage?: (p: Progress) => void): Promise<LiftDone> {
-  const t0 = Date.now();
+  const t0 = inp.startedAt ?? Date.now();
   const tell = (i: number) => onStage?.(progressOf(LIFT_STEPS, i, t0));
-  progress('Sending your photo. People in it are blurred before anything is looked at.'); tell(0);
-  const sub = await post({ action: 'submit', ...(await checkField(fetch, Date.now(), inp.photo.image)), image: inp.photo.image, thumb: inp.photo.thumb, label: inp.label, box: inp.box, width: inp.photo.width, height: inp.photo.height, height_m: inp.height_m, padretry: inp.padretry !== false });
+  progress(inp.resumeId ? 'Checking on your piece.' : 'Sending your photo. People in it are blurred before anything is looked at.'); tell(0);
+  const sub = inp.resumeId ? { ok: true, status: 200, data: { id: inp.resumeId } as Record<string, unknown> } : await post({ action: 'submit', ...(await checkField(fetch, Date.now(), inp.photo.image)), image: inp.photo.image, thumb: inp.photo.thumb, label: inp.label, box: inp.box, width: inp.photo.width, height: inp.photo.height, height_m: inp.height_m, padretry: inp.padretry !== false });
   if (!sub.ok || typeof sub.data.id !== 'string') throw submitFailure(sub.status, sub.data);
+  if (!inp.resumeId) inp.onSubmitted?.(sub.data.id);
   let at = 0, lost = 0;
   for (let i = 0; i < 600; i++) {
     if (signal?.aborted) throw new JobError('Stopped.', false, null, true);

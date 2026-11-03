@@ -17,6 +17,8 @@ import { awaitsConfirm, confirm, cutProblem, liftable } from '../slice/markprevi
 import { openMarkTool } from '../ui/mark-box';
 import { pageQuery } from '../flags';
 import { openPrize } from '../ui/prize';
+import { addJob, browserStore, findJob, readJobs, removeJob, type PendingJob } from '../community/job-store';
+import { clearSession, loadSession, saveSession, snapshotWork, workSignature } from '../community/session-store';
 
 // Community (CC-247): one screen, two tabs: Explore (finished work first) and Make your own, a stepper: Photo, Mark, Segment, Choose, Make.
 // A photo gives objects only; courses come from World Slicing and the Editor. The finder looks at the whole photo and a click picks a found thing. Looks only: nothing here changes how a course is cleared.
@@ -68,8 +70,8 @@ export function startCommunityFlow(host: HTMLElement, params: URLSearchParams): 
   const body = el('div', root);
 
   // the photo work survives a tab change, so looking at Objects does not lose your picks
-  const work: { step: Step; photo: Shrunk | null; fs: FlowState; kinds: Map<number, Kind>; names: Map<number, string>; made: { pieces: string[] }; cands: Found[]; people: Box[]; ticked: number[]; areas: { id: number; box: Box; label: string; cutout?: string }[]; segMsg: string } =
-    { step: 'photo', photo: null, fs: startState(), kinds: new Map(), names: new Map(), made: { pieces: [] }, cands: [], people: [], ticked: [], areas: [], segMsg: '' };
+  const work: { step: Step; photo: Shrunk | null; fs: FlowState; kinds: Map<number, Kind>; names: Map<number, string>; made: { pieces: string[] }; madeAreas: number[]; cands: Found[]; people: Box[]; ticked: number[]; areas: { id: number; box: Box; label: string; cutout?: string }[]; segMsg: string } =
+    { step: 'photo', photo: null, fs: startState(), kinds: new Map(), names: new Map(), made: { pieces: [] }, madeAreas: [], cands: [], people: [], ticked: [], areas: [], segMsg: '' };
 
   function showTab(t: Tab) {
     for (const id of Object.keys(tabBtn) as Tab[]) tabBtn[id].setAttribute('aria-selected', String(id === t));
@@ -203,7 +205,7 @@ export function startCommunityFlow(host: HTMLElement, params: URLSearchParams): 
       if (b && nx) b.onclick = () => go(nx);
       return { row, next: b };
     };
-    const useShrunk = (s: Shrunk) => { work.photo = s; work.fs = { ...startState(), hasPhoto: true }; work.kinds.clear(); work.names.clear(); work.cands = []; work.people = []; work.ticked = []; work.areas = []; work.segMsg = ''; work.made = { pieces: [] }; go('segment'); };
+    const useShrunk = (s: Shrunk) => { work.photo = s; work.fs = { ...startState(), hasPhoto: true }; work.kinds.clear(); work.names.clear(); work.cands = []; work.people = []; work.ticked = []; work.areas = []; work.segMsg = ''; work.made = { pieces: [] }; work.madeAreas = []; go('segment'); };
 
     function stepPhoto() {
       el('h2', panel, 'Step 1. Pick a photo');
@@ -348,21 +350,27 @@ export function startCommunityFlow(host: HTMLElement, params: URLSearchParams): 
         say(note); run.disabled = false; sync(); showFound(); st.draw();
         if (!found.length && !work.cands.length) showFall();
       };
-      run.onclick = async () => {
-        run.disabled = true; prog.replaceChildren(); fall.replaceChildren(); say('');
+      // CC-133 (owner 2026-11-04): the outline job is remembered by its id, so leaving this page does not lose it; coming back asks the server about the same job.
+      const runSeg = async (resume?: PendingJob) => {
+        run.disabled = true; prog.replaceChildren(); fall.replaceChildren(); say(resume ? 'Your outlines were still being found while you were away. Checking on them.' : '');
         const ctl = new AbortController(), bar = jobProgress(prog, SEGMENT_STEPS, () => ctl.abort());
+        let jobId = resume?.id;
         try {
-          const found = await suggestRegions(ph, () => undefined, ctl.signal, bar.update, (p) => { work.people = p; });
+          const found = await suggestRegions(ph, () => undefined, ctl.signal, bar.update, (p) => { work.people = p; }, undefined, { resumeId: resume?.id, startedAt: resume?.startedAt, onSubmitted: (id) => { jobId = id; addJob(browserStore(), { kind: 'segment', id, startedAt: Date.now(), photoSha: ph.sha256 }); } });
+          if (jobId) removeJob(browserStore(), jobId);
           bar.finish();
           done(buildFound(found), found.length ? `Found ${found.length} thing${found.length === 1 ? '' : 's'} in the photo. Click the one you want.` : `The finder did not find anything it could name in this photo. Try again, ${markOn(pageQuery()) ? 'mark the thing yourself, ' : ''}or pick a different photo.`);
         } catch (e) {
+          if (jobId) removeJob(browserStore(), jobId);
           bar.fail();
           const err = e as JobError;
           if (err.stopped) say('Stopped. You can try again or pick a different photo.'); else say(`${err.message} You can try again, or pick a different photo.`, true);
           run.disabled = false; showFall();
         }
       };
+      run.onclick = () => { void runSeg(); };
       if (work.cands.length) { sync(); showFound(); }
+      else { const waiting = findJob(readJobs(browserStore()), 'segment', ph.sha256); if (waiting) void runSeg(waiting); }
     }
 
     function stepMake() {
@@ -407,20 +415,23 @@ export function startCommunityFlow(host: HTMLElement, params: URLSearchParams): 
 
       type Slot = { gen: HTMLButtonElement; msg: HTMLElement; prog: HTMLElement; r: (typeof work.areas)[number]; label: () => string; busy: boolean; made: boolean; off: string };
       let today: PiecesToday | null = null, queueRunning = false, applyToday = () => undefined as void;
-      const slots: Slot[] = [];
-      const makeOne = async (sl: Slot): Promise<void> => {
+      const slots: Slot[] = [], resumeLater: [Slot, PendingJob][] = [];
+      const makeOne = async (sl: Slot, resume?: PendingJob): Promise<void> => {
         const { gen, msg, prog, r } = sl, label = sl.label();
         if (!LABEL_RE.test(label)) { msg.textContent = 'Name the area with a plain word like bench, railing, stairs or wall (in the name box).'; msg.className = 'err'; throw new Error('name'); }
         sl.busy = true; gen.disabled = true; gen.textContent = 'Making it…'; msg.textContent = ''; msg.className = 'muted'; prog.replaceChildren();
         const ctl = new AbortController(), bar = jobProgress(prog, LIFT_STEPS, () => ctl.abort());
+        let jobId = resume?.id;
         try {
-          const res = await liftObject({ photo: ph, box: r.box, label, height_m: null }, () => undefined, ctl.signal, bar.update);
+          const res = await liftObject({ photo: ph, box: r.box, label, height_m: null, resumeId: resume?.id, startedAt: resume?.startedAt, onSubmitted: (id) => { jobId = id; addJob(browserStore(), { kind: 'lift', id, startedAt: Date.now(), photoSha: ph.sha256, areaId: r.id, label }); } }, () => undefined, ctl.signal, bar.update);
+          if (jobId) removeJob(browserStore(), jobId);
           bar.finish();
           try { await saveUserObject({ id: res.prov.id, glb: res.glb, prov: res.prov, thumb: await cropToThumb(ph.image, r.box).catch(() => '') }); } catch { /* not kept after this visit */ }
-          work.made.pieces.push(res.prov.id); sl.made = true; gen.textContent = 'Made'; if (today) today = { ...today, left: Math.max(0, today.left - 1) }; applyToday(); msg.textContent = `Done in ${res.seconds} s. It is in the World Editor under "My pieces" as "📷 Mine: ${res.prov.name}".`; showNext();
+          work.made.pieces.push(res.prov.id); work.madeAreas.push(r.id); sl.made = true; gen.textContent = 'Made'; if (today) today = { ...today, left: Math.max(0, today.left - 1) }; applyToday(); msg.textContent = `Done in ${res.seconds} s. It is in the World Editor under "My pieces" as "📷 Mine: ${res.prov.name}".`; showNext();
           shareButton(msg.parentElement as HTMLElement, r.id, async () => ({ id: res.prov.id, input: { kind: 'piece', name: res.prov.name, thumb: await cropToThumb(ph.image, r.box), glb: res.glb, height_m: res.prov.height_m }, local: { kind: 'piece', local: res.prov.id } }));
           showPrize(r, res);
         } catch (e) {
+          if (jobId) removeJob(browserStore(), jobId);
           bar.fail();
           const err = e as JobError; gen.textContent = 'Generate Piece';
           msg.className = err.stopped ? 'muted' : 'err'; msg.setAttribute('role', 'alert');
@@ -455,6 +466,8 @@ export function startCommunityFlow(host: HTMLElement, params: URLSearchParams): 
           const prog = el('div', side);
           const sl: Slot = { gen, msg, prog, r, label, busy: false, made: false, off: '' }; slots.push(sl);
           gen.onclick = () => { void makeOne(sl).catch(() => undefined); };
+          if (work.madeAreas.includes(r.id)) { sl.made = true; gen.textContent = 'Made'; gen.disabled = true; msg.textContent = 'Made earlier. It is in the World Editor under "My pieces".'; }
+          else { const waiting = findJob(readJobs(browserStore()), 'lift', ph.sha256, r.id); if (waiting) resumeLater.push([sl, waiting]); }
         }
       }
       if (!document.getElementById('cn')) { const dl = el('datalist', panel, '', { id: 'cn' }); for (const l of ['bench', 'bollard', 'railing', 'stairs', 'planter', 'wall', 'log', 'pull-up bar']) el('option', dl, '', { value: l }); }
@@ -472,6 +485,7 @@ export function startCommunityFlow(host: HTMLElement, params: URLSearchParams): 
         });
       };
       void piecesToday().then((t) => { today = t; applyToday(); });
+      for (const [sl, job] of resumeLater) { sl.msg.textContent = 'This piece was still being made while you were away. Checking on it.'; void makeOne(sl, job).catch(() => undefined); } // CC-133: the 3D job is picked up where it was left
       if (allBtn) {
         const btn = allBtn;
         btn.onclick = async () => {
@@ -492,6 +506,27 @@ export function startCommunityFlow(host: HTMLElement, params: URLSearchParams): 
     paint();
   }
 
-  showTab(tabFor(params.get('mode'), params));
+  // CC-133 (owner 2026-11-04): leave the page and come back to the same step. The work is saved in this browser while it changes; the waiting jobs are picked up by their ids.
+  let lastSig = '';
+  const autosave = () => {
+    if (!work.photo) { if (lastSig) { lastSig = ''; void clearSession(); } return; }
+    const sig = workSignature(work);
+    if (sig === lastSig) return;
+    lastSig = sig; const snap = snapshotWork(work); if (snap) void saveSession(snap);
+  };
+  const timer = window.setInterval(autosave, 1000);
+  window.addEventListener('pagehide', autosave);
+  const first = tabFor(params.get('mode'), params);
+  let started = false;
+  const begin = () => { if (started) return; started = true; showTab(first); };
+  if (first !== 'make') begin();
+  else {
+    window.setTimeout(begin, 500); // a slow or blocked browser store never holds the page back
+    void loadSession().then((saved) => {
+      if (saved && !started) { Object.assign(work, saved); lastSig = workSignature(work); }
+      begin();
+    }).catch(begin);
+  }
+  void timer;
   return { backend: 'webgl2' };
 }
