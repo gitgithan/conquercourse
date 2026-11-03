@@ -59,6 +59,27 @@ describe('the fork with one gate', () => {
   });
 });
 
+describe('the pits: no floor between the run-up, the benches and the join', () => {
+  const ps = course.terrain.platforms;
+  it('only the run-up, the three benches and the join are floor; every gap between them is a pit', () => {
+    expect(ps).toHaveLength(5);
+    expect(ps.slice(1, 4).every((p) => p.top === DEFAULT_FORK.benches[0].top)).toBe(true);
+    for (let i = 0; i < ps.length - 1; i++) expect(ps[i + 1].x0 - ps[i].x1, `gap ${i}`).toBeGreaterThan(1);
+  });
+  it('each gap is short enough to clear: at most 2.3 m', () => {
+    for (let i = 0; i < ps.length - 1; i++) expect(ps[i + 1].x0 - ps[i].x1).toBeLessThanOrEqual(2.3);
+  });
+  it('walking off the run-up without a jump falls into the pit, not onto a floor', () => {
+    let w = newWorld(course, DEFAULT_FORK.poleX - 3);
+    for (let i = 0; i < 600 && w.runner.y > course.terrain.waterY + 0.5 && w.outcome === 'running'; i++) w = stepWorld(w, { ...NO_INPUT, run: true } as never, course);
+    expect(w.runner.y).toBeLessThan(0);
+  });
+  it('the benches are drawn as scene items by default (no fork=1 needed)', () => {
+    expect(course.scene!.filter((s) => s.id?.startsWith('bench'))).toHaveLength(3);
+    expect(course.scene!.some((s) => s.id === 'pole-1')).toBe(true);
+  });
+});
+
 describe('the gate: the first move picks the lane, nothing else does', () => {
   const run = (x: number, inp: object, n: number) => { let w = newWorld(course, x); for (let i = 0; i < n; i++) w = stepWorld(w, { ...NO_INPUT, ...inp } as never, course); return w; };
   it('running past the pole without E stays on the ground: the bench lane', () => {

@@ -27,19 +27,27 @@ for (const a of args.filter((q, i) => !q.startsWith('--') && !skip.has(q) && !(i
 }
 
 // a plain box standing on y = 0, centred: the placeholder for an object with no lift yet
-const box = (w, h, d) => {
-  const [x, z] = [w / 2, d / 2], p = [];
-  for (const [sx, sy, sz] of [[-1, 0, -1], [1, 0, -1], [1, 0, 1], [-1, 0, 1], [-1, 1, -1], [1, 1, -1], [1, 1, 1], [-1, 1, 1]]) p.push(sx * x, sy * h, sz * z);
-  const i = [0, 2, 1, 0, 3, 2, 4, 5, 6, 4, 6, 7, 0, 1, 5, 0, 5, 4, 1, 2, 6, 1, 6, 5, 2, 3, 7, 2, 7, 6, 3, 0, 4, 3, 4, 7];
+const BOX_I = [0, 2, 1, 0, 3, 2, 4, 5, 6, 4, 6, 7, 0, 1, 5, 0, 5, 4, 1, 2, 6, 1, 6, 5, 2, 3, 7, 2, 7, 6, 3, 0, 4, 3, 4, 7];
+const CORNERS = [[-1, 0, -1], [1, 0, -1], [1, 0, 1], [-1, 0, 1], [-1, 1, -1], [1, 1, -1], [1, 1, 1], [-1, 1, 1]];
+// several boxes in one mesh: each part is [centre x, base y, centre z, width, height, depth]
+const boxes = (parts) => {
+  const p = [], i = [];
+  parts.forEach(([cx, by, cz, w, h, d], n) => {
+    for (const [sx, sy, sz] of CORNERS) p.push(cx + sx * w / 2, by + sy * h, cz + sz * d / 2);
+    i.push(...BOX_I.map((k) => k + 8 * n));
+  });
   return { positions: p.map((v) => Math.round(v * 1e4) / 1e4), indices: i };
 };
+const box = (w, h, d) => boxes([[0, 0, 0, w, h, d]]);
+// a park bench that still reads as one from the side: a seat on two long legs that stand down in the pit, with a back (looks only; the walkable top is the platform at the seat height)
+const benchShape = (w, top) => boxes([[0, top - 0.08, 0, w, 0.08, 0.6], [-w / 2 + 0.15, -3, 0, 0.1, top + 2.92, 0.5], [w / 2 - 0.15, -3, 0, 0.1, top + 2.92, 0.5], [0, top, -0.28, w, 0.4, 0.06]]);
 const spec = DEFAULT_FORK;
 const course = buildForkCourse(spec);
 const item = (id, x, y, shape) => ({ id, ...(files[id.split('-')[0]] ? { url: files[id.split('-')[0]] } : { mesh: shape }), x, y, z: 0, rotY: 0, scale: 1 });
 const lastBar = spec.barXs[spec.barXs.length - 1];
 course.scene = [
-  ...spec.benches.map((b, i) => item(`bench-${i + 1}`, (b.x0 + b.x1) / 2, b.top - 0.45, box(b.x1 - b.x0, 0.45, 0.6))), // the bench stands on its floor piece
-  item('pole-1', spec.poleX, 0, box(0.12, spec.barY, 0.12)),
+  ...spec.benches.map((b, i) => item(`bench-${i + 1}`, (b.x0 + b.x1) / 2, 0, benchShape(b.x1 - b.x0, b.top))), // each bench stands in the water's pit on its own legs: there is no floor between the benches
+  item('pole-1', spec.poleX, 0, box(0.22, spec.barY, 0.22)),
   item('bulbs-1', (spec.barXs[0] + lastBar) / 2, spec.barY, box(lastBar - spec.barXs[0], 0.06, 0.06)),
 ];
 

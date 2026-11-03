@@ -7,18 +7,17 @@
     {
       "lane": "bench",
       "cleared": true,
-      "ticks": 701,
-      "seconds": 5.84,
-      "effortJumps": 2,
-      "narrowestMs": 43,
+      "ticks": 829,
+      "seconds": 6.91,
+      "effortJumps": 4,
+      "narrowestMs": 368,
       "readAs": "bench",
       "keys": {
         "jumpXs": [
-          12.96,
-          17.88
-        ],
-        "vaultXs": [
-          21.64
+          8.94,
+          13.38,
+          17.98,
+          22.58
         ]
       }
     },

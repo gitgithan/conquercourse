@@ -6,19 +6,20 @@ Serves the demo beat for demo photo 1 (a dance floor with two benches and a pole
 - **Yes: the existing branch model carries the fork.
   - No new lane physics is needed.**
   - A fork is two sets of floor, bars and poles that belong to one lane each, over the same x range, joining again at the end.
-  - The bench lane is floor pieces with benches on them; the bulb lane is the pole and a row of bars flying over a gap.
+  - The bench lane is three benches with a pit between each pair (and between the run-up, the first bench and the join): no floor there, so the gaps lead into the hazard below (`terrain.waterY`, drawn as lava in this demo).
+  - The bulb lane is the pole and a row of bars flying over the same pits.
   - The lane is told apart by the lowest height between the fork and the join, as in `docs/multi-path.md`.
 - **Cost: small.**
   - One new move (the pole climb, `src/sim/pole-climb.ts`), one new mode in the world loop, one builder and prover (`src/sim/fork.ts`).
   - Old courses and their golden hashes do not change: a course with no `climbPoles` never reaches the new code.
 - **Both lanes are proved by the ideal-run search and replay exactly.**
-  - Bench lane: 5.84 s, narrowest room 43 ms, about 2 jumps of effort.
+  - Bench lane: 6.91 s, narrowest room 368 ms, about 4 jumps of effort.
   - Bulb lane: 11.72 s, narrowest room 325 ms, about 1.7 jumps of effort.
   - A server replay of the keys clears either lane in exactly the stored time, and reads which lane was taken.
 - **The choice is real and the pay-back is clear.**
-  - The bench lane is quick and tight.
-  - The bulb lane is long and forgiving (nearly eight times the room).
-  - This is the opposite of the old "two ways" finding, where the bars were slower than the ground and the gap stayed small; here the gap is the point.
+  - The bench lane is quick and costs more jumps (about 4 against 1.7).
+  - The bulb lane is long and gentle on the energy store, with about the same room for error (325 ms against 368 ms).
+  - The gap in time (4.8 s) is the point of the choice.
 - **Recommendation:** ship the fork behind `?fork=1`, use `public/assets/demo/fork-bench-bulb.course.json` for the demo film, and replace the three placeholder shapes with real lifts.
 - **Next step:** the bar row becomes `src/sim/bars.ts` (hand over hand) when that lands; the pole's top hand-over already points at "the first bar of the row" by index, so only that index is touched.
 - No fallback ("two short courses") was needed.
@@ -32,7 +33,7 @@ Serves the demo beat for demo photo 1 (a dance floor with two benches and a pole
   - That is the bulb lane.
 - Let go of E on the pole and the body slides down to the run-up, so the choice can be made again.
 - No higher jump: the bars hang 4.3 m up, above the hands' reach from a jump off the ground or off a bench (test: no jump from any x on the bench lane grabs a bar).
-- If you fall off the bars you splash: under the bars there is no floor in the bulb lane (the bench floor belongs to the other lane, and is not under the bars' span in the proof).
+- If you fall off the bars you splash: under the bars there is no floor in either lane (only the benches, which belong to the bench lane).
 
 ## Does the ideal run and the proof still work?
 - `routeCourse` closes the other lane (removes its floor pieces, bars and poles), so the usual search proves each lane alone.
@@ -52,6 +53,17 @@ Serves the demo beat for demo photo 1 (a dance floor with two benches and a pole
 - At the top with E held, the hands pass to the first bar (the bar row); the hands ease the last bit sideways, so nothing jumps.
 - `E` is the only key.
 - It is the same press-and-hold as the rope and the wall.
+
+## The pits (owner, 2026-11-03)
+- A bench is only something to jump on or vault over; there is no ground between the run-up, the benches and the join.
+- Numbers (`DEFAULT_FORK`): benches 2.4 m wide, top 0.45 m, at 12.5-14.9, 17.1-19.5 and 21.7-24.1; the run-up ends at 10.3 and the join starts at 26.
+  - Gaps: 2.2 m, 2.2 m, 2.2 m and 1.9 m.
+- The bar row is 8 bars from 10.4 m, 2 m apart, so the last bar (24.4 m) is 1.6 m before the join.
+- The ideal-run search is greedy and the result is touchy to the geometry: with 1.6 m wide benches and gaps of 1.8 m or more it failed to find a bench line, and the bulb lane's room swung between 17 ms and 342 ms for small changes of the join or the bar spacing.
+  - This set was chosen from a sweep because both lanes clear and both keep a room of 325 ms or more.
+- The benches in the scene are a seat on two long legs with a back, so they read as benches standing in the pit; the physics is only the seat-height platform.
+- The scene items (benches, pole, bulbs) are drawn on every open of the course file; `?fork=1` only adds the fork strip and report.
+  - Evidence: `docs/evidence/cc-133-fork-pits/` (debug off and on, 1280 px).
 
 ## Files
 - `src/sim/pole-climb.ts`: the climb as pure functions.
