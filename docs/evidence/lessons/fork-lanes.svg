@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="940" height="340" viewBox="0 0 940 340" font-family="sans-serif" role="img" aria-labelledby="t d"><title id="t">The fork: bench lane and bulb lane</title><desc id="d">One shared run-up with a pole at the gate. Without E the runner takes the bench lane (5.84 s, 43 ms of room). Holding E at the pole climbs into the bulb lane (11.72 s, 325 ms of room). Both lanes meet again at the join.</desc>
+<rect width="940" height="340" fill="#fff"/>
+<style>.t{font-size:14px;fill:#222}.b{font-size:16px;font-weight:bold}.lane{fill:none;stroke-width:6}</style>
+<rect x="20" y="230" width="150" height="14" fill="#cfae7a"/><rect x="770" y="230" width="150" height="14" fill="#cfae7a"/>
+<rect x="190" y="232" width="50" height="12" fill="#cfae7a"/><rect x="240" y="214" width="40" height="18" fill="#b88c50"/><rect x="280" y="232" width="110" height="12" fill="#cfae7a"/><rect x="390" y="214" width="40" height="18" fill="#b88c50"/><rect x="430" y="232" width="110" height="12" fill="#cfae7a"/><rect x="540" y="214" width="40" height="18" fill="#b88c50"/><rect x="580" y="232" width="190" height="12" fill="#cfae7a"/>
+<rect x="168" y="232" width="24" height="12" fill="#cfae7a"/>
+<line x1="170" y1="232" x2="170" y2="70" stroke="#777" stroke-width="6"/>
+<text x="140" y="262" class="t">pole (the gate)</text>
+<g fill="#1f77b4"><circle cx="190" cy="70" r="5"/><circle cx="270" cy="70" r="5"/><circle cx="350" cy="70" r="5"/><circle cx="430" cy="70" r="5"/><circle cx="510" cy="70" r="5"/><circle cx="590" cy="70" r="5"/><circle cx="670" cy="70" r="5"/><circle cx="750" cy="70" r="5"/></g>
+<path class="lane" stroke="#2ca02c" d="M60 224 L168 224 L235 208 L430 208 L585 208 L800 224 L880 224"/>
+<path class="lane" stroke="#d62728" d="M60 224 L168 224 L168 78 L190 78 L750 78 L790 150 L800 224" stroke-dasharray="1 0"/>
+<line x1="20" y1="30" x2="20" y2="300" stroke="#999" stroke-dasharray="5 4"/><text x="26" y="24" class="t">shared run-up</text>
+<line x1="170" y1="150" x2="170" y2="150" stroke="#000"/>
+<text x="300" y="196" class="b" fill="#2ca02c">Bench lane: run, no E</text>
+<text x="300" y="296" class="t">5.84 s, narrowest room 43 ms, about 2 jumps of effort</text>
+<text x="300" y="52" class="b" fill="#d62728">Bulb lane: hold E at the pole, climb, hang along the bars</text>
+<text x="300" y="104" class="t">11.72 s, narrowest room 325 ms, about 1.7 jumps of effort</text>
+<text x="760" y="320" class="t">join</text><text x="20" y="320" class="t">start</text>
+<text x="20" y="190" class="t" font-size="12">no E: the pole does nothing</text>
+<text x="560" y="130" class="t">no floor under the bars:</text><text x="560" y="148" class="t">a fall is a splash, not a way</text>
+</svg>

@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="940" height="320" viewBox="0 0 940 320" font-family="sans-serif" role="img" aria-labelledby="t d"><title id="t">Where the monkey-bar motion came from</title><desc id="d">Results of each motion source for hand-over-hand travel. CMU capture: 0 of 22 hang stretches pass travel. Kimodo: 0 of 8 pass the bar check because the hands stay near 1.1 m while the rungs are at 2.2 m. Our procedural clip passes the gate and the bar check.</desc>
+<rect width="940" height="320" fill="#fff"/>
+<style>.t{font-size:14px;fill:#222}.b{font-size:16px;font-weight:bold}.s{font-size:12px;fill:#555}</style>
+<text x="20" y="26" class="b">Hand-over-hand travel: who could do it?</text>
+<text x="20" y="64" class="t">CMU capture (22 hang stretches)</text><rect x="300" y="48" width="22" height="22" fill="#d62728"/><text x="332" y="65" class="t">0 pass travel (12 pass idle, 11 pass kip)</text>
+<text x="20" y="104" class="t">Kimodo, 8 samples, travel</text><rect x="300" y="88" width="22" height="22" fill="#d62728"/><text x="332" y="105" class="t">3 pass the gate, 0 pass the bar check</text>
+<text x="20" y="144" class="t">Kimodo, 8 samples, kip</text><rect x="300" y="128" width="22" height="22" fill="#d62728"/><text x="332" y="145" class="t">1 passes the gate, 0 pass the bar check</text>
+<text x="20" y="184" class="t">Our procedural clips</text><rect x="300" y="168" width="22" height="22" fill="#2ca02c"/><text x="332" y="185" class="t">travel, idle and kip all pass the gate and the bar check</text>
+<line x1="60" y1="296" x2="260" y2="296" stroke="#999"/><line x1="60" y1="296" x2="60" y2="215" stroke="#999"/>
+<text x="20" y="214" class="s">why Kimodo failed:</text>
+<g stroke="#1f77b4" stroke-width="3"><line x1="300" y1="225" x2="560" y2="225"/></g><text x="570" y="229" class="t">rungs at 2.2 m</text>
+<g stroke="#d62728" stroke-width="3"><line x1="300" y1="262" x2="560" y2="262"/></g><text x="570" y="266" class="t">its hands stay near 1.1 m (grip error about 1 m)</text>
+<text x="300" y="296" class="s">it has no hangs in its training labels, so it ignores the hand pins</text>
+</svg>

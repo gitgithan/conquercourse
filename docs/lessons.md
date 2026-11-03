@@ -3,6 +3,7 @@
 *Knowledge from a practice project and from experiments during the event (see `docs/PRIOR-WORK.md`).*
 *Each lesson is a rule plus the reason; none of it is code.*
 *Draft v0.1, 2026-10-27.*
+*Worked lessons with pictures: [move creation](lessons-move-creation.md), [obstacle creation](lessons-obstacle-creation.md), [moves meeting obstacles](lessons-move-obstacle-interactions.md).*
 *Reference, not requirements: the spec decides; numbers are starting points to re-measure in this project.*
 
 ## Physics and time
