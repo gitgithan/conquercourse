@@ -426,7 +426,7 @@ flowchart LR
 flowchart LR
   A["Photo"] --> B["Safety check<br/>Muse Spark Open"]
   B --> C["SAM 3<br/>outlines"]
-  C --> D["Pick or draw a box"]
+  C --> D["Click a found object<br/>(you draw nothing)"]
   D --> E["SAM 3D Objects<br/>photo to mesh"]
   E --> F["Clean-up and scale<br/>(our code)"]
   F --> G["Mine: name<br/>in the browser"]

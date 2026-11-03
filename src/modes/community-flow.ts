@@ -259,7 +259,7 @@ export function startCommunityFlow(host: HTMLElement, params: URLSearchParams): 
       const prog = el('div', panel); prog.id = 'cprog';
       const foundEl = el('div', panel); foundEl.id = 'cfound';
       const nav = navRow(panel, 'Next: Make', work.fs.segmented, 'cnext');
-      const run = el('button', row, work.cands.length ? 'Segment Region again' : 'Segment Region', { className: 'go', id: 'cseg' });
+      const run = el('button', row, work.cands.length ? 'Segment Objects again' : 'Segment Objects', { className: 'go', id: 'cseg' });
       const fall = el('div', panel); fall.className = 'row'; fall.id = 'cfall'; // shown only when nothing was found or the finder failed
       const showFall = () => {
         fall.replaceChildren();

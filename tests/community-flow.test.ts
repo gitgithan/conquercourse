@@ -56,7 +56,7 @@ describe('the found things keep one fixed order', () => {
   });
 });
 
-describe('ticking several after Segment Region', () => {
+describe('ticking several after Segment Objects', () => {
   it('ticks and unticks, keeps list order, and stops at the limit', () => {
     let t: number[] = [];
     t = toggleTick(t, 3); t = toggleTick(t, 1); expect(t).toEqual([1, 3]);

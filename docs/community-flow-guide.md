@@ -12,7 +12,7 @@
 ## The whole path in one picture
 ```mermaid
 flowchart LR
-  A["Photo<br/>(shrunk in your browser)"] --> C["Pick: Segment Region<br/>/api/segment -> Modal suggest job"]
+  A["Photo<br/>(shrunk in your browser)"] --> C["Pick: Segment Objects<br/>/api/segment -> Modal suggest job"]
   C --> C1["Click the thing you want<br/>(Tab and Enter work too)"]
   C1 --> E["Make: name it, Generate Piece<br/>/api/object-lift -> Modal lift job"]
   E --> G["Kept in this browser<br/>(World Editor tray)"]
@@ -28,7 +28,7 @@ flowchart LR
 
 ## What your click does
 - The finder looks at the whole photo, and you click to pick.
-  - Segment Region sends the whole photo, and the finder looks at all of it.
+  - Segment Objects sends the whole photo, and the finder looks at all of it.
   - It reads no box at all (`Mask.suggest` takes the photo only).
   - It tries one plain word at a time (bench, stairs, railing, wall and so on) and keeps the best, non-repeating things.
   - Each found thing is outlined on the photo.
@@ -43,33 +43,33 @@ flowchart LR
   - There is no hand-drawn fallback.
 - The 3D maker later finds the real outline itself, from the photo, the picked box and the name you give it.
   - It looks for that name under the picked box, then falls back to the box alone, then to the plain box.
-  - So the blue shape you see after Segment Region is a preview, not what is lifted.
+  - So the blue shape you see after Segment Objects is a preview, not what is lifted.
 - One 3D run makes one piece.
   - A lift takes one photo, one box and one name, and returns one .glb.
   - Several pieces are several runs, one after another, and each costs its own GPU seconds.
   - The recorded price is about 2 cents for a warm piece and 3 to 4 cents for the first one after a quiet spell (`docs/pipelines.md`, `docs/community-characters.md`).
-  - Segment Region is one run for the whole photo, however many things it finds, so choosing among them is free.
+  - Segment Objects is one run for the whole photo, however many things it finds, so choosing among them is free.
 - Why both jobs are slow sometimes: it is a cold start.
   - Each of the two GPU programs (finder and 3D maker) is set to keep one machine, `max_containers=1`, and to switch it off after 240 s with nobody asking (`scaledown_window=240`).
   - After a quiet spell the first call has to start a machine and load the model: a first piece took 90 to 100 s and the model load alone was 45 to 54 s (`data/eval/cc-38-photo-to-3d/README.md`, `docs/community-characters.md`).
-  - A warm run is quick: in the live run of 2026-10-31 (`docs/evidence/cc-247-upload-run.json`) Segment Region took about 18 s and a piece 32 s.
+  - A warm run is quick: in the live run of 2026-10-31 (`docs/evidence/cc-247-upload-run.json`) Segment Objects took about 18 s and a piece 32 s.
   - Only one machine each means two people at once wait in line; this page also queues your own pieces one at a time.
 - Money, as a recommendation only (nothing was changed on Modal):
   - Keeping one machine always on costs about $1.95 an hour for each of the two programs (L40S), about $47 a day each.
-  - The cheaper option is to wake the machines while a person is on the Make tab: one small call when the tab opens, so the model is loaded by the time they press Segment Region, and nothing runs when nobody is on the page.
+  - The cheaper option is to wake the machines while a person is on the Make tab: one small call when the tab opens, so the model is loaded by the time they press Segment Objects, and nothing runs when nobody is on the page.
   - That call needs a new small Modal function, which is a deploy, so it is left for the product owner to approve.
 
 ## The flow in short
 ```mermaid
 flowchart LR
-  A["Photo"] --> C["Pick: Segment Region<br/>whole photo, one run"]
+  A["Photo"] --> C["Pick: Segment Objects<br/>whole photo, one run"]
   C --> D["Click the things you want<br/>outlined on the photo, hover lights one"]
   D --> F["Make N pieces<br/>one lift each, queued, per-piece bar"]
   F --> G["Prize: spinning turntable in the middle"]
   G --> H["Keep / Share / Make another"]
   G --> I["Open in the World Editor<br/>Add pieces, My pieces, already placed"]
 ```
-- You draw nothing: press Segment Region and the finder outlines the things.
+- You draw nothing: press Segment Objects and the finder outlines the things.
 - After it you may click several things, up to a small limit, and each picked piece is its own run.
 - The list of found things is in one fixed order: biggest first, then top to bottom, then left to right.
 - Pointing at a thing lights it; nothing is rebuilt, so nothing moves under the mouse.
@@ -145,7 +145,7 @@ sequenceDiagram
    - Click "Choose file" and pick a JPEG, or click one of our sample place photos.
    - You land on Pick by yourself.
 2. **Pick.**
-   - Press **Segment Region**.
+   - Press **Segment Objects**.
    - A stepped bar shows the job: Checking the photo, Finding the things in it, Done.
    - The bar shows the seconds so far, and **Cancel** stops waiting.
    - The finder looks at the whole photo and outlines what it found; you draw nothing.
@@ -199,7 +199,7 @@ sequenceDiagram
 
 ## Things to know (gaps)
 - Segmentation finds outlines on its own; a click only chooses among them.
-- If the thing you want is not outlined, press Segment Region again or pick a different photo; there is no way to draw one.
+- If the thing you want is not outlined, press Segment Objects again or pick a different photo; there is no way to draw one.
 - Cancel stops the page waiting; the job on the server may still finish, and it still counts for today.
 - Pieces stay in this browser until you press Share in Community.
 - A shared item is held for a person to approve whenever the safety check is unsure (`npm run community items` lists them; see `docs/deploy.md`).
