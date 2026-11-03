@@ -17,7 +17,8 @@
 - **Names and arrays must have the same length; assert it.** An off-by-one joint list shifted every joint by one and drew a body bending the wrong way.
 - **Nothing is shown before a plausibility check:** knees bend forward, knee range at most 165°, bones keep their length, feet don't sink or slide, flight is ballistic, no teleport, no jitter; hand-supported and hanging phases are marked so they aren't judged as free flight.
 - **Experiments live apart from shipped clips,** so a guard test can require every shipped clip to pass.
-- **Monkey-bar arms (CC-133):** CMU trial set 01 has hangs and kips but no hand-over-hand (22 hang stretches, none pass the travel check), and Kimodo ignores hand pins at 2.2 m overhead (hands stay near 1.1 m, grip error about 1 m, 0 of 16 samples pass); the procedural `src/motion/bars-pose.ts` is the clip source until a filmed capture exists. Details: `data/eval/bar-motion/README.md`.
+- **Monkey-bar arms (CC-133):** CMU trial set 01 has hangs and kips but no hand-over-hand (22 hang stretches, none pass the travel check), and Kimodo ignores hand pins at 2.2 m overhead (hands stay near 1.1 m, grip error about 1 m, 0 of 16 samples pass); the procedural `src/motion/bars-pose.ts` is the clip source until a filmed capture exists.
+  - Details: `data/eval/bar-motion/README.md`.
 - **Kimodo (NVIDIA's motion model) facts:**
   - It follows the simulator's path closely when given keyframes and a ground path; text alone can't produce unusual gravity.
   - Its constraints act through joint rotations: editing positions alone is ignored.
