@@ -14,6 +14,11 @@ for p in photo1 photo2; do
 done
 MODAL="uv run --no-project --with modal --with numpy<2 --with pillow --with scipy python -I $D/scripts/modal_calls.py"
 $MODAL suggest
+# --via-flow (owner principle 2026-11-03): lifts go through segment-then-confirm, as the product does.
+#   1. maskbox writes evidence/maskbox_<name>.jpg for every lab box (a cheap cut-out preview, no lift).
+#   2. Look at the pictures; delete the picture of any cut-out that is wrong and fix its box in objects.json.
+#   3. Only then run the lift; it refuses an object without a preview picture.
+$MODAL maskbox
 $MODAL lift
 uv run --no-project --with numpy --with scipy --with pillow --with matplotlib --with xatlas --with fast-simplification python -I $D/scripts/bake_previews.py
 uv run --no-project --with numpy --with pillow --with matplotlib python -I $D/scripts/make_evidence.py

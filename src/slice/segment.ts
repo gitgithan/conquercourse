@@ -1,5 +1,6 @@
 // Suggested things to pick on a photo (CC-248): the request checks and the reply, shared by the page, the server route and the tests.
 import { MAX_PHOTO_CHARS } from './object-lift';
+import { boxProblem } from './markpreview';
 
 export interface Suggestion { label: string; score: number; box: [number, number, number, number]; cutout: string } // cutout: a small PNG (base64) that is white where the thing is
 
@@ -9,7 +10,7 @@ export function segmentProblem(b: Record<string, unknown>): string {
   if (typeof img !== 'string' || !/^data:image\/jpeg;base64,[A-Za-z0-9+/=]+$/.test(img)) return 'Use a JPEG photo.';
   if (img.length > MAX_PHOTO_CHARS) return 'The photo is too big. Pick a smaller one.';
   if (typeof thumb !== 'string' || !/^data:image\/jpeg;base64,[A-Za-z0-9+/=]+$/.test(thumb) || thumb.length > 600_000) return 'The small copy of the photo is missing.';
-  return '';
+  return boxProblem(b.box);
 }
 
 /** Keeps only well-formed suggestions inside the photo, at most 12, so a odd reply cannot break the page. */

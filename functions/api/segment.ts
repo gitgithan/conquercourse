@@ -1,5 +1,6 @@
 // /api/segment: a player's photo -> suggested things to pick (CC-248), through the Modal job (pipelines/photo_to_object.py: suggest_submit and suggest_status).
 //   POST {action:"submit", image, thumb} -> {id}
+//   POST {action:"submit", image, thumb, box:[x0,y0,x1,y1]} -> {id}; the reply of status then holds one item, the cut-out of that box (CC-133, "Mark it yourself")
 //   POST {action:"status", id} -> {state:"running"} | {state:"done", items, privacy, seconds} | {state:"failed", reason}
 // The same switch and the same safety check as /api/object-lift: with no secret set the route answers 503, and the photo is checked by Muse Spark Open first.
 import { waitTimer } from '../_lib/analytics';
@@ -51,7 +52,7 @@ export async function handle(b: Record<string, unknown>, env: Env, ip: string, f
   }
   try {
     const img = b.image as string;
-    const out = await call(env.CC_SEGMENT_SUBMIT_URL, { token: env.CC_UPLOAD_TOKEN, image: img.slice(img.indexOf(',') + 1) });
+    const out = await call(env.CC_SEGMENT_SUBMIT_URL, { token: env.CC_UPLOAD_TOKEN, image: img.slice(img.indexOf(',') + 1), ...(Array.isArray(b.box) ? { box: b.box } : {}) });
     if (typeof out.id !== 'string') return { status: 400, body: { error: 'bad', message: String(out.error ?? '') } };
     return { status: 200, body: { id: out.id, moderation } };
   } catch { return { status: 502, body: refusalBody('down', 'The outline finder is busy. Try again in a minute.', 60) }; }

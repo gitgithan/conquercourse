@@ -48,17 +48,26 @@ flowchart LR
   - Press the button under the photo, then drag a rectangle round the thing.
   - Without a mouse: Tab to the photo layer, Enter starts a box in the middle, arrow keys move it, Shift with arrow keys resizes it, Enter confirms, Esc cancels.
   - Then say what it is: bar, bench, pole, other, or your own word; the word must pass the same rule as a name (letters, spaces, hyphens).
-  - The box joins the list as "(marked by you)", is ticked for you, and counts toward the same small pick limit as outlines.
-  - From there it is exactly a picked outline: the same lift, the same price, the same daily count.
+  - Then the finder cuts out what is inside your box (owner principle, 2026-11-03: always segment first, show what is about to be lifted, then the player chooses):
+    - It is one quick cut-out call on the blurred photo; the original photo is never used.
+    - The cut-out is lit up on the photo in the same style as the finder's outlines, and the list says "waiting for your OK".
+    - Nothing is ticked, made or paid for yet, and a click on the outline does not pick it.
+    - Press **Use this** to tick it and add it to your picks, or **Redraw** to throw it away and draw the box again.
+    - If the finder cannot find a clear shape, finds only a speck, lands somewhere else or lands on a person, the page says so in plain words and offers **Draw it again**; nothing is added.
+    - If the finder is switched off or fails, a marked box cannot be used, because there is no cut-out to look at; the page says so and offers **Draw it again**.
+  - After **Use this** it is exactly a picked outline: the same lift, the same price, the same daily count.
   - Guards:
     - The safety check and the privacy blur run on the whole photo first; the lift only ever sees the blurred photo, so a person inside a box stays blurred (nothing is un-blurred).
     - The finder also returns where it blurred people and faces (`person_boxes` in the privacy receipt); a box that mostly sits on a person, or covers a quarter of one, is refused with plain words.
-    - If the finder was never run or did not return those boxes (an older deployed finder), only the blur protects the box; the person-box part needs the finder to be redeployed.
+    - The finder (Segment Objects and the box cut-out) both return those boxes; the app was redeployed on 2026-11-03 with the box cut-out, so the person refusal now has data to work with.
+    - The cut-out is checked again against the person boxes before it is offered.
     - Size: at least 24 photo pixels or 3 percent of the shorter side, and at most 80 percent of the photo.
     - The server repeats the box limits (`requestProblem`): inside the photo, not tiny, a valid label.
-  - Pictures at 1280 px, from a real browser run: [dragging a box round the monkey bars](evidence/cc-133-markbox/1-dragging.jpg) and [the marked bar added to the picks](evidence/cc-133-markbox/3-added.jpg).
-  - Browser check: `scripts/markbox-check.mjs` (drag, too small, too big, keyboard, bad word, Esc).
-  - Rules and tests: `src/slice/markbox.ts`, `tests/markbox.test.ts`; the tool is `src/ui/mark-box.ts`.
+  - Pictures at 1280 px, from a real browser run (the server stubbed with a real cut-out made by the deployed app): [dragging a box round the monkey bars](evidence/cc-133-markbox/1-dragging.jpg), [the cut-out waiting for Use this](evidence/cc-133-markbox/3-cutout.jpg) and [after Use this](evidence/cc-133-markbox/4-used.jpg).
+  - The real cut-out on photo 2: [monkey bars lit up inside the drawn box](evidence/cc-133-markbox/real-cutout-monkey-bars.jpg); the call took 0.5 s on the L4 once warm.
+  - Browser check: `scripts/markbox-check.mjs` (drag, name, cut-out shown and not ticked, Redraw, Use this, no clear shape, too small, too big, keyboard, bad word, Esc; counts lift calls and requires 0 before Use this).
+  - Rules and tests: `src/slice/markbox.ts` and `src/slice/markpreview.ts` (the confirm gate), `tests/markbox.test.ts`, `tests/markpreview.test.ts`; the tool is `src/ui/mark-box.ts`.
+  - Server: `/api/segment` takes an optional `box`; Modal `suggest_submit` then starts `box_job`, which runs `Mask.mask_box` (about a second on an L4 once warm, a fraction of a cent) and returns one item.
 - The 3D maker later finds the real outline itself, from the photo, the picked box and the name you give it.
   - It looks for that name under the picked box, then falls back to the box alone, then to the plain box.
   - So the blue shape you see after Segment Objects is a preview, not what is lifted.
