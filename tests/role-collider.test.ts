@@ -79,8 +79,11 @@ describe('role-first collider: other roles', () => {
 // The real lifts live outside the repo (../conquercourse-assets/bar-photos/best/, with SHA256SUMS); the test skips when they are not there.
 const GLB = '../conquercourse-assets/bar-photos/best/monkey-bars-1-saienji-CC0.glb';
 describe.skipIf(!existsSync(GLB))('role-first collider: the Saienji CC0 lift', () => {
-  const b = readFileSync(GLB);
-  const r = roleCollider(readGlbMesh(b.buffer.slice(b.byteOffset, b.byteOffset + b.byteLength)), 'bar', { knownHeight: 2.2 });
+  const r = (() => { // read lazily: describe.skipIf still runs this body when the file is absent
+    if (!existsSync(GLB)) return { bars: { run: { gap: 0.5, n: 9, y: 2.1 }, peaks: new Array(15) } } as unknown as ReturnType<typeof roleCollider>;
+    const b = readFileSync(GLB);
+    return roleCollider(readGlbMesh(b.buffer.slice(b.byteOffset, b.byteOffset + b.byteLength)), 'bar', { knownHeight: 2.2 });
+  })();
   it('finds a swingable row: evenly spaced rungs between 0.3 and 1.0 m, at a height the hands can swing from', () => {
     expect(r.bars!.run.gap).toBeGreaterThanOrEqual(GAP_MIN); expect(r.bars!.run.gap).toBeLessThanOrEqual(GAP_MAX);
     expect(r.bars!.run.n).toBeGreaterThanOrEqual(6);
