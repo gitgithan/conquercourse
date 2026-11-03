@@ -2,6 +2,7 @@ import { turnstileToken, rememberPass } from '../ui/turnstile';
 import { JobError, submitFailure, type Shrunk } from './object-lift-client';
 import { SEGMENT_STEPS, progressOf, stageIndex, type Progress } from './stages';
 import { cleanSuggestions, type Suggestion } from './segment';
+import { cleanPeople, type Box } from './markbox';
 
 // The page side of /api/segment (CC-248): send the shrunk photo, poll every 2 s, and get clickable suggestions back. Throws a JobError with a plain-words message.
 const post = async (body: unknown): Promise<{ ok: boolean; status: number; data: Record<string, unknown> }> => {
@@ -14,7 +15,7 @@ const post = async (body: unknown): Promise<{ ok: boolean; status: number; data:
 /** `off` is true when the job is not switched on here (the page then uses the marked box itself as the outline). */
 export class SegmentOff extends JobError {}
 
-export async function suggestRegions(photo: Shrunk, progress: (s: string) => void, signal?: AbortSignal, onStage?: (p: Progress) => void): Promise<Suggestion[]> {
+export async function suggestRegions(photo: Shrunk, progress: (s: string) => void, signal?: AbortSignal, onStage?: (p: Progress) => void, onPeople?: (people: Box[]) => void): Promise<Suggestion[]> {
   const t0 = Date.now();
   const tell = (i: number) => onStage?.(progressOf(SEGMENT_STEPS, i, t0));
   progress('Looking for the outline. People in the photo are blurred first.'); tell(0);
@@ -35,7 +36,7 @@ export async function suggestRegions(photo: Shrunk, progress: (s: string) => voi
     lost = 0;
     const s = r.data;
     if (s.state === 'running') { at = stageIndex(SEGMENT_STEPS, s.stage, at); tell(at); progress(`${SEGMENT_STEPS[at].words}. (${Math.round((Date.now() - t0) / 1000)} s)`); continue; }
-    if (s.state === 'done') { tell(SEGMENT_STEPS.length - 1); return cleanSuggestions(s.items, photo.width, photo.height); }
+    if (s.state === 'done') { tell(SEGMENT_STEPS.length - 1); onPeople?.(cleanPeople((s.privacy as { person_boxes?: unknown } | undefined)?.person_boxes, photo.width, photo.height)); return cleanSuggestions(s.items, photo.width, photo.height); }
     break;
   }
   throw new JobError('No outline this time. Your box can be used as it is.');

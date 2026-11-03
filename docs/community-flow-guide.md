@@ -4,7 +4,9 @@
 - Community opens on Explore, so you see what people made before you make one.
 - Then one clear button, **Make your own**, takes you into the Make tab.
 - Making is one screen with three steps: Photo, Pick, Make.
-- You never draw a box: the finder outlines the things in your photo and you click the one you want.
+- The finder outlines the things in your photo and you click the one you want.
+- If the thing you want is not outlined, press **Mark it yourself** and drag a box round it (owner decision, 2026-11-03).
+  - This reverses the old drawing ban; the click path is still the first choice.
 - Every pick becomes a 3D piece.
 - Your finished piece can be shared: press **Share in Community**, see it in Explore as yours, and delete it any time.
 - It is the only Community now; the old screens are deleted.
@@ -40,7 +42,23 @@ flowchart LR
 - If the finder finds nothing, or fails, or is switched off:
   - The page says so in plain words.
   - It offers **Try again** and **Pick a different photo**.
-  - There is no hand-drawn fallback.
+  - **Mark it yourself** is the fallback (owner decision, 2026-11-03; it replaces the old ban on drawing).
+  - It stays on the page, so it can also be used any time, not only after a failure.
+- **Mark it yourself** (CC-133, owner decision 2026-11-03; switch `markbox`, on by default, `?markbox=0` hides it):
+  - Press the button under the photo, then drag a rectangle round the thing.
+  - Without a mouse: Tab to the photo layer, Enter starts a box in the middle, arrow keys move it, Shift with arrow keys resizes it, Enter confirms, Esc cancels.
+  - Then say what it is: bar, bench, pole, other, or your own word; the word must pass the same rule as a name (letters, spaces, hyphens).
+  - The box joins the list as "(marked by you)", is ticked for you, and counts toward the same small pick limit as outlines.
+  - From there it is exactly a picked outline: the same lift, the same price, the same daily count.
+  - Guards:
+    - The safety check and the privacy blur run on the whole photo first; the lift only ever sees the blurred photo, so a person inside a box stays blurred (nothing is un-blurred).
+    - The finder also returns where it blurred people and faces (`person_boxes` in the privacy receipt); a box that mostly sits on a person, or covers a quarter of one, is refused with plain words.
+    - If the finder was never run or did not return those boxes (an older deployed finder), only the blur protects the box; the person-box part needs the finder to be redeployed.
+    - Size: at least 24 photo pixels or 3 percent of the shorter side, and at most 80 percent of the photo.
+    - The server repeats the box limits (`requestProblem`): inside the photo, not tiny, a valid label.
+  - Pictures at 1280 px, from a real browser run: [dragging a box round the monkey bars](evidence/cc-133-markbox/1-dragging.jpg) and [the marked bar added to the picks](evidence/cc-133-markbox/3-added.jpg).
+  - Browser check: `scripts/markbox-check.mjs` (drag, too small, too big, keyboard, bad word, Esc).
+  - Rules and tests: `src/slice/markbox.ts`, `tests/markbox.test.ts`; the tool is `src/ui/mark-box.ts`.
 - The 3D maker later finds the real outline itself, from the photo, the picked box and the name you give it.
   - It looks for that name under the picked box, then falls back to the box alone, then to the plain box.
   - So the blue shape you see after Segment Objects is a preview, not what is lifted.
@@ -75,7 +93,8 @@ flowchart LR
   G --> H["Keep / Share / Make another"]
   G --> I["Open in the World Editor<br/>Add pieces, My pieces, already placed"]
 ```
-- You draw nothing: press Segment Objects and the finder outlines the things.
+- You normally draw nothing: press Segment Objects and the finder outlines the things.
+- If it missed yours, **Mark it yourself** adds a box you drag (see the next section).
 - After it you may click several things, up to a small limit, and each picked piece is its own run.
 - The list of found things is in one fixed order: biggest first, then top to bottom, then left to right.
 - Pointing at a thing lights it; nothing is rebuilt, so nothing moves under the mouse.
@@ -154,7 +173,7 @@ sequenceDiagram
    - Press **Segment Objects**.
    - A stepped bar shows the job: Checking the photo, Finding the things in it, Done.
    - The bar shows the seconds so far, and **Cancel** stops waiting.
-   - The finder looks at the whole photo and outlines what it found; you draw nothing.
+   - The finder looks at the whole photo and outlines what it found.
    - Hover lights one; click picks it; click again puts it back (see "What your click does").
    - Pick several to make several, up to a small limit.
    - Tab and Enter do the same without a mouse.
