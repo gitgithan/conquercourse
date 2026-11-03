@@ -39,6 +39,9 @@ flowchart TD
 
 ## Data flow
 
+- The only Design Partner system prompt is `SYSTEM` in [the server API](../functions/api/designer.ts).
+- The server appends the world description and conversation when it calls Muse Spark Open.
+- [designer.ts](../src/slice/designer.ts) builds that world description and validates returned edits; it contains no second prompt.
 - [helper.ts](../src/modes/editor/helper.ts) turns accepted model edits into a proposal and a preview snapshot.
 - [lane.ts](../src/modes/editor/lane.ts) builds both preview and live courses through `courseFor`.
 - [search.ts](../src/modes/editor/search.ts) gives preview and live checks independent workers with a shared result store.
@@ -55,6 +58,7 @@ flowchart TD
 
 ```mermaid
 flowchart LR
+  INPUT["Server SYSTEM<br/>world description and conversation"] --> AI
   AI["Muse Spark Open<br/>proposed edits"] --> P["Proposal and preview snapshot"]
   W["Current editor pieces<br/>lane and active device settings"] --> P
   P --> B["courseFor<br/>shared course builder"]

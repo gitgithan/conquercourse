@@ -44,3 +44,10 @@
 - The app endpoint does not return provider token usage or billing information.
 - This live case covers a plain course; device coverage comes from builder-parity regression tests.
 - A failed search means no clear run was found, rather than a proof that no run is possible.
+
+## Single prompt cleanup check (2026-11-04)
+
+- The only Design Partner prompt now lives in `functions/api/designer.ts`.
+- One additional real Muse Spark Open call returned only the requested `piece` and `dx` fields.
+- Preview verification, Apply and Play passed with the consolidated prompt.
+- The [cleanup check record](../designer-single-prompt/run.json) records the result and estimated budget.
