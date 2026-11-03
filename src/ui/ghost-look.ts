@@ -65,7 +65,8 @@ export function createGhostFigure(scene: THREE.Scene, first: RookieLook): GhostF
       if (!fill || !rim) return;
       const x = track.xs[i], y = track.ys[i], p = Math.max(0, i - 6), n = Math.min(track.ticks, i + 6);
       const vx = ((track.xs[n] - track.xs[p]) / Math.max(1, n - p)) * 120, vy = ((track.ys[n] - track.ys[p]) / Math.max(1, n - p)) * 120;
-      const s = { tick: i, x, y, vx, vy, grounded: Math.abs(vy) < 0.4, mode: 'run' as const, squat: false, landedTicksAgo: null, facing: (vx < -0.1 ? -1 : 1) as 1 | -1 };
+      const rec = track.states?.[i];
+      const s = rec ? rec : { tick: i, x, y, vx, vy, grounded: Math.abs(vy) < 0.4, mode: 'run' as const, squat: false, landedTicksAgo: null, facing: (vx < -0.1 ? -1 : 1) as 1 | -1 };
       fill.update(s); rim.update(s);
       fill.object.visible = true; rim.object.visible = true;
     },

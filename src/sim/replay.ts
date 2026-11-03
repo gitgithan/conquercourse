@@ -3,6 +3,8 @@
 import type { CourseData } from '../course/course';
 import { inputFor, playPlan, type Plan } from './ideal';
 import { NO_INPUT, type RunnerInput } from './runner';
+import { courseActorState, nextFacing } from '../motion/actor-state';
+import type { ActorState } from '../motion/actor-pose';
 import { newWorld, stepWorld, type WorldState } from './world';
 
 export const REPLAY_VERSION = 1; // bump when a change to the simulator makes old recordings play differently
@@ -34,19 +36,31 @@ export class InputRecorder {
 }
 
 // Where the runner was at every tick of a run (index = tick since the start): the ghost is drawn from this.
-export interface GhostTrack { xs: Float32Array; ys: Float32Array; cleared: boolean; ticks: number; maxX: Float32Array }
-function trackOf(xs: number[], ys: number[], cleared: boolean): GhostTrack {
+// states (CC-133): the actor state the Course would give the player at each tick, so the ghost is posed the same (bars, rope, vault, climb, slide, cart, drone). Absent on old tracks: the ghost then guesses from the positions.
+export interface GhostTrack { xs: Float32Array; ys: Float32Array; cleared: boolean; ticks: number; maxX: Float32Array; states?: ActorState[] }
+/** Records the actor state of every tick of a replay, with the Course's own facing rule. */
+class StateTape {
+  states: ActorState[] = [];
+  private facing: 1 | -1 = 1;
+  constructor(private course: CourseData) {}
+  push(w: WorldState, squat: boolean): void {
+    this.facing = nextFacing(w, this.facing);
+    this.states.push(courseActorState(w, this.course, squat, this.facing));
+  }
+}
+function trackOf(xs: number[], ys: number[], cleared: boolean, states?: ActorState[]): GhostTrack {
   const maxX = new Float32Array(xs.length);
   let m = -Infinity;
   xs.forEach((x, i) => { m = Math.max(m, x); maxX[i] = m; });
-  return { xs: Float32Array.from(xs), ys: Float32Array.from(ys), cleared, ticks: xs.length - 1, maxX };
+  return { xs: Float32Array.from(xs), ys: Float32Array.from(ys), cleared, ticks: xs.length - 1, maxX, ...(states ? { states } : {}) };
 }
 
 // The ideal line: play the plan once and keep every tick's place. A contraption (cart, drone, cannon) is the same: the world states are kept, not the keys.
 export function trackFromPlan(course: CourseData, plan: Plan, maxTicks = MAX_REPLAY_TICKS): GhostTrack {
   const xs: number[] = [], ys: number[] = [];
-  const r = playPlan(course, plan, maxTicks, (w) => { xs.push(w.runner.x); ys.push(w.runner.y); });
-  return trackOf(xs, ys, r.world.outcome === 'cleared');
+  const tape = new StateTape(course);
+  const r = playPlan(course, plan, maxTicks, (w, input) => { xs.push(w.runner.x); ys.push(w.runner.y); tape.push(w, !!input?.squat); });
+  return trackOf(xs, ys, r.world.outcome === 'cleared', tape.states);
 }
 
 export interface Verified { cleared: boolean; ticks: number; track: GhostTrack; world: WorldState }
@@ -54,6 +68,8 @@ export interface Verified { cleared: boolean; ticks: number; track: GhostTrack; 
 export function verifyLog(course: CourseData, log: InputLog, maxTicks = MAX_REPLAY_TICKS, startX = course.startX): Verified {
   let w = newWorld(course, startX);
   const xs = [w.runner.x], ys = [w.runner.y];
+  const tape = new StateTape(course);
+  tape.push(w, false);
   let n = 0;
   outer: for (const [m, count] of log) {
     const input = inputOfMask(m);
@@ -61,11 +77,11 @@ export function verifyLog(course: CourseData, log: InputLog, maxTicks = MAX_REPL
       if (w.outcome !== 'running' || n >= maxTicks) break outer;
       w = stepWorld(w, input, course);
       n++;
-      xs.push(w.runner.x); ys.push(w.runner.y);
+      xs.push(w.runner.x); ys.push(w.runner.y); tape.push(w, input.squat);
     }
   }
   const cleared = w.outcome === 'cleared';
-  return { cleared, ticks: w.runner.tick, track: trackOf(xs, ys, cleared), world: w };
+  return { cleared, ticks: w.runner.tick, track: trackOf(xs, ys, cleared, tape.states), world: w };
 }
 
 // How the same plan would be keys: used by the tests to check that recording and replaying agree on the demo courses.

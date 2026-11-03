@@ -92,10 +92,19 @@
   - The ghost appears and stays level with the bot (about 0.5 s ahead, as the chip says).
 - Found: the Course never drew the rungs (only the editor did); another change landed the same fix in `src/modes/course/scene.ts` (rungs and end posts) while this check ran, so this change keeps that one.
 
+## The ghost is posed like the player (CC-133, 2026-11-03)
+- The ghost track now keeps the actor state the Course gives the player at every tick (`states` in `src/sim/replay.ts`, built with `courseActorState` in `src/motion/actor-state.ts`).
+- `src/ui/ghost-look.ts` poses the figure from it, so the ghost hangs with its hands on the rungs, swings, vaults and climbs like the player.
+- A track with no states (an old one) still falls back to the running guess.
+- Tests: `tests/ghost-states.test.ts`.
+- Browser check on a VM, stepped clock, 1280 x 720 (`scripts/ghost-pose-check.mjs`), pictures in `docs/evidence/cc-133-ghost-pose/`:
+  - `ghost-bars-sheet.jpg` and `ghost-swing-to-bars-sheet.jpg`: the bot on the bars; the ghost sits exactly under the player, so no upright figure floats beside the swing any more (see `ghost-bars-hang-crop.png`).
+  - `ghost-rope-sheet.jpg` (wide lache) and `ghost-vault-sheet.jpg` (training): nothing regressed.
+  - Gap: the ghost runs about a second ahead later on, so a frame with both figures on the rungs at once was not captured; the plain lache course timed out on the software renderer, so the wide lache was used.
+
 ## Looks wrong, not fixed
-- The ghost is drawn in the running or leaping pose all the way along, so beside the bars it floats upright next to the swinging Rookie; it needs the swing mode in its track (`src/ui/ghost.ts`).
 - The kip builds a swing of about 80 degrees, so the body is nearly flat along the rungs at the top of the swing.
-- After the release at a high swing the body turns head over heels once (upside down in the air).
+- After the release at a high swing the body turns head over heels once (upside down in the air); the ghost plays the same state, so it turns the same way (not fixed here).
 
 ## What is not done
 - The arms pose for reaching hands is the procedural `src/motion/bars-pose.ts`; a filmed capture does not exist yet.
