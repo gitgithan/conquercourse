@@ -780,3 +780,9 @@
   - `plaza-parkour-cochabamba.jpg`: the old slaughterhouse (mARTadero), by VASQUEZ RODRIGUEZ RAUL, CC BY-SA 4.0, https://commons.wikimedia.org/wiki/File:Ex_matadero_exterior_2.jpg
   - No person is in any of them (looked at one by one); one candidate with three young people was rejected.
   - Swap before a sale: the four CC BY-SA ones may stay only as a demo; the replacement plan is a CC0 or CC BY photo of the same park, or our own photo, as a file change.
+
+## Promo video (ours, 2026-11-04, CC-133)
+| File | What it is | Made | How | Licence | Notes |
+|---|---|---|---|---|---|
+| `docs/promo/conquercourse-promo.mp4` (1920 x 1080, 30 fps, 85 s, about 9 MB) | The latest promo cut, with the chase-shot lag fixed | 2026-11-03 | Recorded from the real game and assembled with `scripts/film-d/assemble.mjs`; music from MusicGen clips and the product owner's own loop | Ours; the MusicGen clips are CC BY-NC 4.0 weights, so swap them before a sale | Over the 300 KB line on purpose: it is the video the README shows, so it is committed (said in the pull request). Photos in it carry their credits on screen |
+| `docs/promo/poster.jpg` (1280 px, about 100 KB) | One frame of the promo, the picture that opens the video in the README | 2026-11-04 | `ffmpeg -ss 20 -frames:v 1` on the promo | Ours | Frame of our own recording |

@@ -1,30 +1,44 @@
-# ConquerCourse
+<div align="center">
 
-*Train slow. Run fast.*
+# 🥷 ConquerCourse
+
+# Train slow. Run fast.
 
 A ninja-warrior physics game where real parks, real streets and real objects become the course.
-Built for the Meta Global AI Developer Hackathon (2026-10-26 to 2026-11-04), indie track.
-Live: https://conquercourse.pages.dev/
 
-## In one minute
+### 🎮 **Play it now: [conquercourse.pages.dev](https://conquercourse.pages.dev/)**
+
+Built for the Meta Global AI Developer Hackathon (2026-10-26 to 2026-11-04), indie track.
+
+</div>
+
+## 🎬 Promo video
+- 85 seconds, recorded from the real game: press the picture to play it.
+
+[![ConquerCourse promo video: press to play](docs/promo/poster.jpg)](docs/promo/conquercourse-promo.mp4)
+
+- ▶️ **[Play the promo video](docs/promo/conquercourse-promo.mp4)** (1920 by 1080, with sound)
+- 📖 **[Read the demo script](docs/demo-script-v2.md)** or **[click by click through Community](docs/community-flow-guide.md)**
+
+## ⏱️ In one minute
 - You run, jump, hang, swing and climb a small runner through obstacles.
 - The obstacles come from the real world: a pin on a map, a photo of a bench, a park you know.
 - The physics is the same on every run, so a time is a fact and a friend can race your run.
 - Four features, one top bar on every page: **Courses**, **World Editor**, **World Slicer**, **Community**.
 - We do not grade or coach a person's technique, use a chat tutor, or leave Earth's physics.
 
-## 60-second judge path
+## 🧭 60-second judge path
 | Time | Do this | You will see |
 |---|---|---|
 | 0-10 s | Open https://conquercourse.pages.dev/ and press **Courses**, then run the First Course (arrows or A/D, Space to jump) | A runner on real-object obstacles; falling costs one key press (R) |
 | 10-20 s | Press **I** | The ideal run, found and proved by the simulator, as a ghost to chase |
 | 20-35 s | Open **World Editor** (`?mode=editor`), place a piece, press **Fix it** | The design partner (Muse Spark Open) proposes; the simulator checks and says in plain words what to change |
 | 35-45 s | Open **World Slicer** (`?mode=map`), pin a place | A real street becomes a lane, with Mapillary street photos |
-| 45-60 s | Open **Community** (`?mode=communities`) and press **Segment Objects** on a photo | SAM 3 outlines the objects; pick one and SAM 3D Objects lifts it to a 3D piece (needs the server jobs on; otherwise watch the [promo video](#promo-video) or read [click by click](docs/community-flow-guide.md)) |
+| 45-60 s | Open **Community** (`?mode=communities`) and press **Segment Objects** on a photo | SAM 3 outlines the objects; pick one and SAM 3D Objects lifts it to a 3D piece (needs the server jobs on; otherwise watch the [promo video](#-promo-video) or read [click by click](docs/community-flow-guide.md)) |
 
 - Prefer to read: [demo script](docs/demo-script-v2.md), [Meta tool use](#meta-tool-use), [what is new](#what-is-new-and-what-is-not).
 
-## Modelling decisions, and why
+## 🧠 Modelling decisions, and why
 - One rule runs through all of them: **models propose, the simulator decides.**
 
 | Decision | What we chose | Why this setup |
@@ -43,7 +57,7 @@ Live: https://conquercourse.pages.dev/
 
 - The full list of which model calls which, and who pays: [model ledger](docs/model-ledger.md) and [Meta AI pipelines](docs/meta-ai-pipelines.md).
 
-## Core innovation
+## 💡 Core innovation
 - **A deterministic simulator is the judge, and AI only proposes.**
   - Meta's models turn the real world into pieces (a photo into a 3D object, a street into a lane, a sentence into a character).
   - The same fixed-step simulator plays every course, so the same keys always give the same result.
@@ -57,7 +71,7 @@ Live: https://conquercourse.pages.dev/
 - **One clock.**
   - Physics, motion, replay and film all run on the same 120 Hz clock, so a replay, a ghost and a shared link cannot drift apart.
 
-## Tech stack
+## 🛠️ Tech stack
 | Layer | What we use |
 |---|---|
 | Game and editor | TypeScript, Vite, three.js (3D), MapLibre (maps), mp4-muxer (film capture in the browser) |
@@ -69,7 +83,7 @@ Live: https://conquercourse.pages.dev/
 | Tests | Vitest (about 2,400 tests), Playwright browser checks, golden traces of the simulator |
 | Tooling | Node, Python, ffmpeg, Linear, GitHub pull requests |
 
-## Set it up
+## 🚀 Set it up
 - You do not need an API key to run the game itself.
 - For a quick look, `git clone --depth 1 https://github.com/gitgithan/conquercourse.git` downloads about 115 MB; a plain `git clone` also brings the whole history (about 440 MB), which shows how the work grew day by day.
 - Install the packages with `npm ci`.
@@ -79,7 +93,7 @@ Live: https://conquercourse.pages.dev/
 - Keep `.env` private: git ignores it, and keys stay on the server side, never in the browser.
 - Checks and more detail: `npm run test:quick`, [testing](docs/testing.md), [dev setup](docs/dev-setup.md), [deploying](docs/deploy.md) and [trust and safety](docs/trust-and-safety.md) and the [feedback card](docs/feedback.md).
 
-## The four experiences
+## 🕹️ The four experiences
 
 ### How they fit together
 - Community turns your photos into wallpapers and 3D objects.
@@ -109,7 +123,7 @@ flowchart LR
 - Details for each: [Courses](docs/obstacles.md), [World Slicer](docs/street-photos.md), [World Editor](docs/features.md), [Community](docs/community-flow-guide.md).
 - Community status: suggested outlines and the 3D lift need their server jobs switched on; the full path ran for real on the preview site ([click by click](docs/community-flow-guide.md)).
 
-## Folder tree
+## 🌳 Folder tree
 - The top level, and one level inside each folder.
 
 ```text
@@ -136,7 +150,7 @@ conquercourse/
 ├── public/       files the site serves
 │   ├── assets/     objects, music, park photos
 │   ├── brand/      logo and icons
-│   ├── film/       film pieces
+│   ├── film/ making-of/   film pieces
 │   └── admin/      the private usage page
 ├── pipelines/    build-time Python: photo to 3D, video to motion
 │   ├── ccpipe/ charmaker/ objbake/ partllm/   the tools
@@ -151,10 +165,11 @@ conquercourse/
 ├── docs/         the spec, lessons, assets and one page per feature
 │   ├── spec/       SPEC.md, the source of truth
 │   ├── labs/       one page per Lab
-│   └── evidence/ feedback/ film-a/ film-b/ research/
+│   ├── promo/      the promo video and its poster
+│   └── codegraph/ evidence/ feedback/ film-a/ film-b/ research/
 ├── data/         experiment trail
 │   ├── eval/       README and run.json per experiment (raw output stays out of git)
-│   └── assets/ footage/
+│   └── assets/ footage/ making-of/
 ├── demo/         small stand-alone demo (src, data)
 ├── course/       the course file schema
 ├── tools/        small helpers (fetch_commons.py, mhr_look)
@@ -164,7 +179,7 @@ conquercourse/
 └── CLAUDE.md     rules for agents
 ```
 
-## Experiences that are not possible in real life
+## ✨ Experiences that are not possible in real life
 - **Race a ghost of a stranger.**
   - A run is a list of key presses, so anyone's best run can run beside you, see-through, on the same clock.
   - The gap is a plain fact ("Ghost is 0.8 s ahead"), never a grade ([challenge](docs/challenge.md)).
@@ -185,7 +200,7 @@ conquercourse/
 - **Share a run that nobody can fake.**
   - The challenge link carries the keys, so the time is what the simulator says.
 
-## Technical introduction
+## 🔬 Technical introduction
 
 ### The simulator
 - Pure TypeScript, fixed 120 Hz, deterministic: the same keys give the same result, guarded by golden hashes (`src/sim`).
@@ -355,9 +370,10 @@ flowchart LR
   class B,C,D meta;
 ```
 
-## Promo video
-- The 85-second promo shows the four experiences in one run: a real place becomes a course, the editor, the record chase, the Dojo and the Labs.
-- It is 1920 by 1080 at 30 frames per second, about 9 MB, so GitHub can embed it (GitHub allows 10 MB).
+## 🎞️ About the promo video
+- The file is `docs/promo/conquercourse-promo.mp4`, the latest cut (2026-11-03) with the chase-shot lag fixed.
+- It is 1920 by 1080 at 30 frames per second, 85 seconds, about 9 MB.
+- It shows the four experiences in one run: a real place becomes a course, the editor, the record chase, the Dojo and the Labs.
 - Every shot is recorded from the real game; the chase shot uses the stepped clock so it has no repeated frames.
 - The chase shot once lagged at about 14 distinct frames per second; it was re-recorded and now has none (the check counts repeated frames per second).
 - The music is generated by us, in five parts:
@@ -369,9 +385,9 @@ flowchart LR
 - MusicGen is Meta's AudioCraft model; the clips come from a written prompt only, with no melody or recording as input.
 - The MusicGen weights are CC BY-NC 4.0, so these clips are a demo: swap them before a sale (see `docs/copyright-audit.md`).
 - The film rebuild script is `scripts/film-d/assemble.mjs`; the music scripts are `pipelines/music_film*.py`.
-- To show the video on the README: edit the README on GitHub, drag the mp4 into the text box, and keep the link GitHub makes.
+- GitHub shows an mp4 inside the page only when it is uploaded through its own editor; the picture above opens the file in GitHub's player instead.
 
-## Hackathon
+## 🏆 Hackathon
 
 ### Meta tool use
 Diagrams are in [docs/meta-ai-pipelines.md](docs/meta-ai-pipelines.md); the full table and what is not Meta are in [docs/hackathon.md](docs/hackathon.md).
