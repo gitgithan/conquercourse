@@ -1,0 +1,26 @@
+{
+  "experiment": "crop-finder",
+  "issue": "CC-133",
+  "date": "2026-11-03",
+  "photo": "demo-lifts photo 2 (1280x960, privacy-blurred copy)",
+  "modal": {
+    "app": "cc-crop-finder-lab (throw-away, same image and weights as cc-photo-to-object)",
+    "gpu": "L4 (A10G fallback allowed)",
+    "runs": 1,
+    "wall_seconds_incl_cold_start": 175.9,
+    "estimated_usd": 0.04,
+    "failed_launches": 1,
+    "failed_launch_note": "missing file in the image at startup; no GPU time billed"
+  },
+  "views": 17,
+  "phrases": 25,
+  "floor": 0.1,
+  "classic_cv": {"seconds_cpu": 1.04, "cost_usd": 0},
+  "headline": {
+    "loops_found": "V4: upper-half 2x, new phrases, floor 0.10 to 0.35, shape check: IoU 0.40 at rank 2 of 12",
+    "left_grid_found": "V4 at floor 0.10 or 0.20 only: IoU 0.57 at rank 12 of 12; not found at 0.35",
+    "not_helpful": ["2x full photo", "nine tiles", "classic Hough lines"]
+  },
+  "inputs": "prep/photo2.jpg from demo-lifts (../conquercourse-assets/eval-full/demo-lifts/prep/)",
+  "outputs": "scores.json, classic_cv.json; raw in ../conquercourse-assets/eval-full/crop-finder/"
+}

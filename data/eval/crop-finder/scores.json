@@ -1,0 +1,1877 @@
+{
+  "red_boxes_1280": {
+    "loops_top": [
+      570,
+      264,
+      1039,
+      375
+    ],
+    "left_grid": [
+      57,
+      345,
+      406,
+      425
+    ]
+  },
+  "variants": {
+    "V0 baseline: full photo, old phrases, floor 0.35": {
+      "views": 1,
+      "seconds_gpu": 3.2,
+      "candidates": 24,
+      "red": {
+        "loops_top": {
+          "bar_labelled": {
+            "best_iou": 0.0,
+            "cover": 0.0,
+            "best_phrase": "pull-up bar",
+            "best_score": 0.355,
+            "best_box": [
+              270,
+              391,
+              398,
+              415
+            ],
+            "n": 2
+          },
+          "any_phrase": {
+            "best_iou": 0.022,
+            "cover": 0.04,
+            "best_phrase": "pole",
+            "best_score": 0.676,
+            "best_box": [
+              1019,
+              304,
+              1043,
+              825
+            ],
+            "n": 24
+          }
+        },
+        "left_grid": {
+          "bar_labelled": {
+            "best_iou": 0.11,
+            "cover": 0.11,
+            "best_phrase": "pull-up bar",
+            "best_score": 0.355,
+            "best_box": [
+              270,
+              391,
+              398,
+              415
+            ],
+            "n": 2
+          },
+          "any_phrase": {
+            "best_iou": 0.11,
+            "cover": 0.292,
+            "best_phrase": "pull-up bar",
+            "best_score": 0.355,
+            "best_box": [
+              270,
+              391,
+              398,
+              415
+            ],
+            "n": 24
+          }
+        }
+      },
+      "top12_all_phrases": {
+        "loops_top": {
+          "best_iou": 0.022,
+          "first_hit_rank": null,
+          "hit_phrase": null,
+          "hit_score": null
+        },
+        "left_grid": {
+          "best_iou": 0.053,
+          "first_hit_rank": null,
+          "hit_phrase": null,
+          "hit_score": null
+        }
+      },
+      "top12_bar_phrases_only": {
+        "loops_top": {
+          "best_iou": 0.0,
+          "first_hit_rank": null,
+          "hit_phrase": null,
+          "hit_score": null
+        },
+        "left_grid": {
+          "best_iou": 0.11,
+          "first_hit_rank": null,
+          "hit_phrase": null,
+          "hit_score": null
+        }
+      }
+    },
+    "V0b full photo, old phrases, floor 0.10": {
+      "views": 1,
+      "seconds_gpu": 3.2,
+      "candidates": 185,
+      "red": {
+        "loops_top": {
+          "bar_labelled": {
+            "best_iou": 0.408,
+            "cover": 0.982,
+            "best_phrase": "pull-up bar",
+            "best_score": 0.226,
+            "best_box": [
+              574,
+              291,
+              1007,
+              340
+            ],
+            "n": 96
+          },
+          "any_phrase": {
+            "best_iou": 0.408,
+            "cover": 0.982,
+            "best_phrase": "pull-up bar",
+            "best_score": 0.226,
+            "best_box": [
+              574,
+              291,
+              1007,
+              340
+            ],
+            "n": 185
+          }
+        },
+        "left_grid": {
+          "bar_labelled": {
+            "best_iou": 0.481,
+            "cover": 1.0,
+            "best_phrase": "pull-up bar",
+            "best_score": 0.104,
+            "best_box": [
+              65,
+              340,
+              396,
+              388
+            ],
+            "n": 96
+          },
+          "any_phrase": {
+            "best_iou": 0.481,
+            "cover": 1.0,
+            "best_phrase": "pull-up bar",
+            "best_score": 0.104,
+            "best_box": [
+              65,
+              340,
+              396,
+              388
+            ],
+            "n": 185
+          }
+        }
+      },
+      "top12_all_phrases": {
+        "loops_top": {
+          "best_iou": 0.022,
+          "first_hit_rank": null,
+          "hit_phrase": null,
+          "hit_score": null
+        },
+        "left_grid": {
+          "best_iou": 0.053,
+          "first_hit_rank": null,
+          "hit_phrase": null,
+          "hit_score": null
+        }
+      },
+      "top12_bar_phrases_only": {
+        "loops_top": {
+          "best_iou": 0.069,
+          "first_hit_rank": null,
+          "hit_phrase": null,
+          "hit_score": null
+        },
+        "left_grid": {
+          "best_iou": 0.11,
+          "first_hit_rank": null,
+          "hit_phrase": null,
+          "hit_score": null
+        }
+      }
+    },
+    "V0c full photo, old phrases, floor 0.10, geometry check": {
+      "views": 1,
+      "seconds_gpu": 3.2,
+      "candidates": 47,
+      "red": {
+        "loops_top": {
+          "bar_labelled": {
+            "best_iou": 0.408,
+            "cover": 0.804,
+            "best_phrase": "pull-up bar",
+            "best_score": 0.226,
+            "best_box": [
+              574,
+              291,
+              1007,
+              340
+            ],
+            "n": 37
+          },
+          "any_phrase": {
+            "best_iou": 0.408,
+            "cover": 0.804,
+            "best_phrase": "pull-up bar",
+            "best_score": 0.226,
+            "best_box": [
+              574,
+              291,
+              1007,
+              340
+            ],
+            "n": 47
+          }
+        },
+        "left_grid": {
+          "bar_labelled": {
+            "best_iou": 0.481,
+            "cover": 0.734,
+            "best_phrase": "pull-up bar",
+            "best_score": 0.104,
+            "best_box": [
+              65,
+              340,
+              396,
+              388
+            ],
+            "n": 37
+          },
+          "any_phrase": {
+            "best_iou": 0.481,
+            "cover": 0.766,
+            "best_phrase": "pull-up bar",
+            "best_score": 0.104,
+            "best_box": [
+              65,
+              340,
+              396,
+              388
+            ],
+            "n": 47
+          }
+        }
+      },
+      "top12_all_phrases": {
+        "loops_top": {
+          "best_iou": 0.408,
+          "first_hit_rank": 12,
+          "hit_phrase": "pull-up bar",
+          "hit_score": 0.226
+        },
+        "left_grid": {
+          "best_iou": 0.155,
+          "first_hit_rank": null,
+          "hit_phrase": null,
+          "hit_score": null
+        }
+      },
+      "top12_bar_phrases_only": {
+        "loops_top": {
+          "best_iou": 0.408,
+          "first_hit_rank": 12,
+          "hit_phrase": "pull-up bar",
+          "hit_score": 0.226
+        },
+        "left_grid": {
+          "best_iou": 0.155,
+          "first_hit_rank": null,
+          "hit_phrase": null,
+          "hit_score": null
+        }
+      }
+    },
+    "V1 upper-half crop, old phrases, 0.35": {
+      "views": 1,
+      "seconds_gpu": 2.2,
+      "candidates": 20,
+      "red": {
+        "loops_top": {
+          "bar_labelled": {
+            "best_iou": 0.195,
+            "cover": 0.982,
+            "best_phrase": "pull-up bar",
+            "best_score": 0.404,
+            "best_box": [
+              0,
+              266,
+              1221,
+              480
+            ],
+            "n": 7
+          },
+          "any_phrase": {
+            "best_iou": 0.195,
+            "cover": 0.982,
+            "best_phrase": "pull-up bar",
+            "best_score": 0.404,
+            "best_box": [
+              0,
+              266,
+              1221,
+              480
+            ],
+            "n": 20
+          }
+        },
+        "left_grid": {
+          "bar_labelled": {
+            "best_iou": 0.108,
+            "cover": 1.0,
+            "best_phrase": "pull-up bar",
+            "best_score": 0.434,
+            "best_box": [
+              268,
+              392,
+              399,
+              415
+            ],
+            "n": 7
+          },
+          "any_phrase": {
+            "best_iou": 0.108,
+            "cover": 1.0,
+            "best_phrase": "pull-up bar",
+            "best_score": 0.434,
+            "best_box": [
+              268,
+              392,
+              399,
+              415
+            ],
+            "n": 20
+          }
+        }
+      },
+      "top12_all_phrases": {
+        "loops_top": {
+          "best_iou": 0.027,
+          "first_hit_rank": null,
+          "hit_phrase": null,
+          "hit_score": null
+        },
+        "left_grid": {
+          "best_iou": 0.084,
+          "first_hit_rank": null,
+          "hit_phrase": null,
+          "hit_score": null
+        }
+      },
+      "top12_bar_phrases_only": {
+        "loops_top": {
+          "best_iou": 0.195,
+          "first_hit_rank": null,
+          "hit_phrase": null,
+          "hit_score": null
+        },
+        "left_grid": {
+          "best_iou": 0.108,
+          "first_hit_rank": null,
+          "hit_phrase": null,
+          "hit_score": null
+        }
+      }
+    },
+    "V1b upper-half crop at 2x, old phrases, 0.35": {
+      "views": 1,
+      "seconds_gpu": 4.4,
+      "candidates": 20,
+      "red": {
+        "loops_top": {
+          "bar_labelled": {
+            "best_iou": 0.195,
+            "cover": 0.982,
+            "best_phrase": "pull-up bar",
+            "best_score": 0.412,
+            "best_box": [
+              0,
+              266,
+              1221,
+              480
+            ],
+            "n": 7
+          },
+          "any_phrase": {
+            "best_iou": 0.195,
+            "cover": 0.982,
+            "best_phrase": "pull-up bar",
+            "best_score": 0.412,
+            "best_box": [
+              0,
+              266,
+              1221,
+              480
+            ],
+            "n": 20
+          }
+        },
+        "left_grid": {
+          "bar_labelled": {
+            "best_iou": 0.112,
+            "cover": 1.0,
+            "best_phrase": "pull-up bar",
+            "best_score": 0.416,
+            "best_box": [
+              268,
+              392,
+              398,
+              416
+            ],
+            "n": 7
+          },
+          "any_phrase": {
+            "best_iou": 0.112,
+            "cover": 1.0,
+            "best_phrase": "pull-up bar",
+            "best_score": 0.416,
+            "best_box": [
+              268,
+              392,
+              398,
+              416
+            ],
+            "n": 20
+          }
+        }
+      },
+      "top12_all_phrases": {
+        "loops_top": {
+          "best_iou": 0.027,
+          "first_hit_rank": null,
+          "hit_phrase": null,
+          "hit_score": null
+        },
+        "left_grid": {
+          "best_iou": 0.086,
+          "first_hit_rank": null,
+          "hit_phrase": null,
+          "hit_score": null
+        }
+      },
+      "top12_bar_phrases_only": {
+        "loops_top": {
+          "best_iou": 0.195,
+          "first_hit_rank": null,
+          "hit_phrase": null,
+          "hit_score": null
+        },
+        "left_grid": {
+          "best_iou": 0.112,
+          "first_hit_rank": null,
+          "hit_phrase": null,
+          "hit_score": null
+        }
+      }
+    },
+    "V1c region crops (loops + left) at 1x, old phrases, 0.35": {
+      "views": 2,
+      "seconds_gpu": 3.3,
+      "candidates": 48,
+      "red": {
+        "loops_top": {
+          "bar_labelled": {
+            "best_iou": 0.404,
+            "cover": 0.982,
+            "best_phrase": "pull-up bar",
+            "best_score": 0.379,
+            "best_box": [
+              450,
+              287,
+              1150,
+              343
+            ],
+            "n": 12
+          },
+          "any_phrase": {
+            "best_iou": 0.404,
+            "cover": 0.982,
+            "best_phrase": "pull-up bar",
+            "best_score": 0.379,
+            "best_box": [
+              450,
+              287,
+              1150,
+              343
+            ],
+            "n": 48
+          }
+        },
+        "left_grid": {
+          "bar_labelled": {
+            "best_iou": 0.106,
+            "cover": 0.137,
+            "best_phrase": "pull-up bar",
+            "best_score": 0.445,
+            "best_box": [
+              270,
+              393,
+              399,
+              416
+            ],
+            "n": 12
+          },
+          "any_phrase": {
+            "best_iou": 0.159,
+            "cover": 0.468,
+            "best_phrase": "pole",
+            "best_score": 0.373,
+            "best_box": [
+              258,
+              354,
+              401,
+              385
+            ],
+            "n": 48
+          }
+        }
+      },
+      "top12_all_phrases": {
+        "loops_top": {
+          "best_iou": 0.026,
+          "first_hit_rank": null,
+          "hit_phrase": null,
+          "hit_score": null
+        },
+        "left_grid": {
+          "best_iou": 0.059,
+          "first_hit_rank": null,
+          "hit_phrase": null,
+          "hit_score": null
+        }
+      },
+      "top12_bar_phrases_only": {
+        "loops_top": {
+          "best_iou": 0.404,
+          "first_hit_rank": 3,
+          "hit_phrase": "pull-up bar",
+          "hit_score": 0.508
+        },
+        "left_grid": {
+          "best_iou": 0.106,
+          "first_hit_rank": null,
+          "hit_phrase": null,
+          "hit_score": null
+        }
+      }
+    },
+    "V1d region crops at 2x, old phrases, 0.35": {
+      "views": 2,
+      "seconds_gpu": 4.5,
+      "candidates": 45,
+      "red": {
+        "loops_top": {
+          "bar_labelled": {
+            "best_iou": 0.339,
+            "cover": 0.982,
+            "best_phrase": "pull-up bar",
+            "best_score": 0.531,
+            "best_box": [
+              450,
+              266,
+              1150,
+              480
+            ],
+            "n": 11
+          },
+          "any_phrase": {
+            "best_iou": 0.339,
+            "cover": 0.982,
+            "best_phrase": "pull-up bar",
+            "best_score": 0.531,
+            "best_box": [
+              450,
+              266,
+              1150,
+              480
+            ],
+            "n": 45
+          }
+        },
+        "left_grid": {
+          "bar_labelled": {
+            "best_iou": 0.102,
+            "cover": 0.128,
+            "best_phrase": "pull-up bar",
+            "best_score": 0.414,
+            "best_box": [
+              270,
+              394,
+              399,
+              416
+            ],
+            "n": 11
+          },
+          "any_phrase": {
+            "best_iou": 0.155,
+            "cover": 0.458,
+            "best_phrase": "pole",
+            "best_score": 0.42,
+            "best_box": [
+              258,
+              354,
+              402,
+              384
+            ],
+            "n": 45
+          }
+        }
+      },
+      "top12_all_phrases": {
+        "loops_top": {
+          "best_iou": 0.025,
+          "first_hit_rank": null,
+          "hit_phrase": null,
+          "hit_score": null
+        },
+        "left_grid": {
+          "best_iou": 0.061,
+          "first_hit_rank": null,
+          "hit_phrase": null,
+          "hit_score": null
+        }
+      },
+      "top12_bar_phrases_only": {
+        "loops_top": {
+          "best_iou": 0.339,
+          "first_hit_rank": 3,
+          "hit_phrase": "pull-up bar",
+          "hit_score": 0.531
+        },
+        "left_grid": {
+          "best_iou": 0.102,
+          "first_hit_rank": null,
+          "hit_phrase": null,
+          "hit_score": null
+        }
+      }
+    },
+    "V2 full photo at 2x, old phrases, 0.35": {
+      "views": 1,
+      "seconds_gpu": 8.3,
+      "candidates": 31,
+      "red": {
+        "loops_top": {
+          "bar_labelled": {
+            "best_iou": 0.0,
+            "cover": 0.0,
+            "best_phrase": "pull-up bar",
+            "best_score": 0.369,
+            "best_box": [
+              516,
+              324,
+              554,
+              680
+            ],
+            "n": 3
+          },
+          "any_phrase": {
+            "best_iou": 0.022,
+            "cover": 0.04,
+            "best_phrase": "pole",
+            "best_score": 0.688,
+            "best_box": [
+              1019,
+              304,
+              1044,
+              825
+            ],
+            "n": 31
+          }
+        },
+        "left_grid": {
+          "bar_labelled": {
+            "best_iou": 0.115,
+            "cover": 0.119,
+            "best_phrase": "pull-up bar",
+            "best_score": 0.371,
+            "best_box": [
+              270,
+              391,
+              398,
+              416
+            ],
+            "n": 3
+          },
+          "any_phrase": {
+            "best_iou": 0.115,
+            "cover": 0.306,
+            "best_phrase": "pull-up bar",
+            "best_score": 0.371,
+            "best_box": [
+              270,
+              391,
+              398,
+              416
+            ],
+            "n": 31
+          }
+        }
+      },
+      "top12_all_phrases": {
+        "loops_top": {
+          "best_iou": 0.022,
+          "first_hit_rank": null,
+          "hit_phrase": null,
+          "hit_score": null
+        },
+        "left_grid": {
+          "best_iou": 0.054,
+          "first_hit_rank": null,
+          "hit_phrase": null,
+          "hit_score": null
+        }
+      },
+      "top12_bar_phrases_only": {
+        "loops_top": {
+          "best_iou": 0.0,
+          "first_hit_rank": null,
+          "hit_phrase": null,
+          "hit_score": null
+        },
+        "left_grid": {
+          "best_iou": 0.115,
+          "first_hit_rank": null,
+          "hit_phrase": null,
+          "hit_score": null
+        }
+      }
+    },
+    "V2b nine 2x tiles, old phrases, 0.35": {
+      "views": 9,
+      "seconds_gpu": 22.5,
+      "candidates": 186,
+      "red": {
+        "loops_top": {
+          "bar_labelled": {
+            "best_iou": 0.341,
+            "cover": 0.946,
+            "best_phrase": "pull-up bar",
+            "best_score": 0.535,
+            "best_box": [
+              640,
+              290,
+              1208,
+              342
+            ],
+            "n": 35
+          },
+          "any_phrase": {
+            "best_iou": 0.341,
+            "cover": 0.946,
+            "best_phrase": "pull-up bar",
+            "best_score": 0.535,
+            "best_box": [
+              640,
+              290,
+              1208,
+              342
+            ],
+            "n": 186
+          }
+        },
+        "left_grid": {
+          "bar_labelled": {
+            "best_iou": 0.128,
+            "cover": 0.29,
+            "best_phrase": "pull-up bar",
+            "best_score": 0.359,
+            "best_box": [
+              320,
+              364,
+              530,
+              415
+            ],
+            "n": 35
+          },
+          "any_phrase": {
+            "best_iou": 0.128,
+            "cover": 0.445,
+            "best_phrase": "pull-up bar",
+            "best_score": 0.359,
+            "best_box": [
+              320,
+              364,
+              530,
+              415
+            ],
+            "n": 186
+          }
+        }
+      },
+      "top12_all_phrases": {
+        "loops_top": {
+          "best_iou": 0.027,
+          "first_hit_rank": null,
+          "hit_phrase": null,
+          "hit_score": null
+        },
+        "left_grid": {
+          "best_iou": 0.053,
+          "first_hit_rank": null,
+          "hit_phrase": null,
+          "hit_score": null
+        }
+      },
+      "top12_bar_phrases_only": {
+        "loops_top": {
+          "best_iou": 0.341,
+          "first_hit_rank": 7,
+          "hit_phrase": "pull-up bar",
+          "hit_score": 0.535
+        },
+        "left_grid": {
+          "best_iou": 0.065,
+          "first_hit_rank": null,
+          "hit_phrase": null,
+          "hit_score": null
+        }
+      }
+    },
+    "V3 full photo, old + new phrases, 0.35": {
+      "views": 1,
+      "seconds_gpu": 3.2,
+      "candidates": 49,
+      "red": {
+        "loops_top": {
+          "bar_labelled": {
+            "best_iou": 0.406,
+            "cover": 0.501,
+            "best_phrase": "overhead bars",
+            "best_score": 0.355,
+            "best_box": [
+              574,
+              290,
+              1202,
+              343
+            ],
+            "n": 27
+          },
+          "any_phrase": {
+            "best_iou": 0.406,
+            "cover": 0.501,
+            "best_phrase": "overhead bars",
+            "best_score": 0.355,
+            "best_box": [
+              574,
+              290,
+              1202,
+              343
+            ],
+            "n": 49
+          }
+        },
+        "left_grid": {
+          "bar_labelled": {
+            "best_iou": 0.11,
+            "cover": 0.304,
+            "best_phrase": "pull-up bar",
+            "best_score": 0.355,
+            "best_box": [
+              270,
+              391,
+              398,
+              415
+            ],
+            "n": 27
+          },
+          "any_phrase": {
+            "best_iou": 0.11,
+            "cover": 0.307,
+            "best_phrase": "pull-up bar",
+            "best_score": 0.355,
+            "best_box": [
+              270,
+              391,
+              398,
+              415
+            ],
+            "n": 49
+          }
+        }
+      },
+      "top12_all_phrases": {
+        "loops_top": {
+          "best_iou": 0.022,
+          "first_hit_rank": null,
+          "hit_phrase": null,
+          "hit_score": null
+        },
+        "left_grid": {
+          "best_iou": 0.053,
+          "first_hit_rank": null,
+          "hit_phrase": null,
+          "hit_score": null
+        }
+      },
+      "top12_bar_phrases_only": {
+        "loops_top": {
+          "best_iou": 0.022,
+          "first_hit_rank": null,
+          "hit_phrase": null,
+          "hit_score": null
+        },
+        "left_grid": {
+          "best_iou": 0.051,
+          "first_hit_rank": null,
+          "hit_phrase": null,
+          "hit_score": null
+        }
+      }
+    },
+    "V3b full photo, old + new phrases, 0.10": {
+      "views": 1,
+      "seconds_gpu": 3.2,
+      "candidates": 424,
+      "red": {
+        "loops_top": {
+          "bar_labelled": {
+            "best_iou": 0.427,
+            "cover": 0.982,
+            "best_phrase": "metal bars",
+            "best_score": 0.242,
+            "best_box": [
+              575,
+              291,
+              1011,
+              342
+            ],
+            "n": 335
+          },
+          "any_phrase": {
+            "best_iou": 0.427,
+            "cover": 0.982,
+            "best_phrase": "metal bars",
+            "best_score": 0.242,
+            "best_box": [
+              575,
+              291,
+              1011,
+              342
+            ],
+            "n": 424
+          }
+        },
+        "left_grid": {
+          "bar_labelled": {
+            "best_iou": 0.636,
+            "cover": 1.0,
+            "best_phrase": "overhead bars",
+            "best_score": 0.243,
+            "best_box": [
+              68,
+              344,
+              520,
+              413
+            ],
+            "n": 335
+          },
+          "any_phrase": {
+            "best_iou": 0.636,
+            "cover": 1.0,
+            "best_phrase": "overhead bars",
+            "best_score": 0.243,
+            "best_box": [
+              68,
+              344,
+              520,
+              413
+            ],
+            "n": 424
+          }
+        }
+      },
+      "top12_all_phrases": {
+        "loops_top": {
+          "best_iou": 0.022,
+          "first_hit_rank": null,
+          "hit_phrase": null,
+          "hit_score": null
+        },
+        "left_grid": {
+          "best_iou": 0.053,
+          "first_hit_rank": null,
+          "hit_phrase": null,
+          "hit_score": null
+        }
+      },
+      "top12_bar_phrases_only": {
+        "loops_top": {
+          "best_iou": 0.022,
+          "first_hit_rank": null,
+          "hit_phrase": null,
+          "hit_score": null
+        },
+        "left_grid": {
+          "best_iou": 0.051,
+          "first_hit_rank": null,
+          "hit_phrase": null,
+          "hit_score": null
+        }
+      }
+    },
+    "V4 upper-half 2x, old + new phrases, 0.10, geometry check": {
+      "views": 1,
+      "seconds_gpu": 4.4,
+      "candidates": 151,
+      "red": {
+        "loops_top": {
+          "bar_labelled": {
+            "best_iou": 0.465,
+            "cover": 0.786,
+            "best_phrase": "pull-up bar",
+            "best_score": 0.221,
+            "best_box": [
+              572,
+              290,
+              1042,
+              342
+            ],
+            "n": 134
+          },
+          "any_phrase": {
+            "best_iou": 0.465,
+            "cover": 0.786,
+            "best_phrase": "pull-up bar",
+            "best_score": 0.221,
+            "best_box": [
+              572,
+              290,
+              1042,
+              342
+            ],
+            "n": 151
+          }
+        },
+        "left_grid": {
+          "bar_labelled": {
+            "best_iou": 0.596,
+            "cover": 1.0,
+            "best_phrase": "bar grid",
+            "best_score": 0.111,
+            "best_box": [
+              22,
+              348,
+              520,
+              412
+            ],
+            "n": 134
+          },
+          "any_phrase": {
+            "best_iou": 0.596,
+            "cover": 1.0,
+            "best_phrase": "bar grid",
+            "best_score": 0.111,
+            "best_box": [
+              22,
+              348,
+              520,
+              412
+            ],
+            "n": 151
+          }
+        }
+      },
+      "top12_all_phrases": {
+        "loops_top": {
+          "best_iou": 0.401,
+          "first_hit_rank": 2,
+          "hit_phrase": "overhead bars",
+          "hit_score": 0.574
+        },
+        "left_grid": {
+          "best_iou": 0.574,
+          "first_hit_rank": 12,
+          "hit_phrase": "overhead bars",
+          "hit_score": 0.338
+        }
+      },
+      "top12_bar_phrases_only": {
+        "loops_top": {
+          "best_iou": 0.401,
+          "first_hit_rank": 2,
+          "hit_phrase": "overhead bars",
+          "hit_score": 0.574
+        },
+        "left_grid": {
+          "best_iou": 0.574,
+          "first_hit_rank": 12,
+          "hit_phrase": "overhead bars",
+          "hit_score": 0.338
+        }
+      }
+    },
+    "V4b upper-half 2x, old + new phrases, 0.35, geometry check": {
+      "views": 1,
+      "seconds_gpu": 4.4,
+      "candidates": 22,
+      "red": {
+        "loops_top": {
+          "bar_labelled": {
+            "best_iou": 0.402,
+            "cover": 0.462,
+            "best_phrase": "metal bars",
+            "best_score": 0.473,
+            "best_box": [
+              572,
+              290,
+              1200,
+              342
+            ],
+            "n": 22
+          },
+          "any_phrase": {
+            "best_iou": 0.402,
+            "cover": 0.462,
+            "best_phrase": "metal bars",
+            "best_score": 0.473,
+            "best_box": [
+              572,
+              290,
+              1200,
+              342
+            ],
+            "n": 22
+          }
+        },
+        "left_grid": {
+          "bar_labelled": {
+            "best_iou": 0.158,
+            "cover": 0.267,
+            "best_phrase": "overhead bars",
+            "best_score": 0.412,
+            "best_box": [
+              258,
+              354,
+              400,
+              385
+            ],
+            "n": 22
+          },
+          "any_phrase": {
+            "best_iou": 0.158,
+            "cover": 0.267,
+            "best_phrase": "overhead bars",
+            "best_score": 0.412,
+            "best_box": [
+              258,
+              354,
+              400,
+              385
+            ],
+            "n": 22
+          }
+        }
+      },
+      "top12_all_phrases": {
+        "loops_top": {
+          "best_iou": 0.401,
+          "first_hit_rank": 2,
+          "hit_phrase": "overhead bars",
+          "hit_score": 0.574
+        },
+        "left_grid": {
+          "best_iou": 0.158,
+          "first_hit_rank": null,
+          "hit_phrase": null,
+          "hit_score": null
+        }
+      },
+      "top12_bar_phrases_only": {
+        "loops_top": {
+          "best_iou": 0.401,
+          "first_hit_rank": 2,
+          "hit_phrase": "overhead bars",
+          "hit_score": 0.574
+        },
+        "left_grid": {
+          "best_iou": 0.158,
+          "first_hit_rank": null,
+          "hit_phrase": null,
+          "hit_score": null
+        }
+      }
+    },
+    "V4c upper-half 1x, old + new phrases, 0.35, geometry check": {
+      "views": 1,
+      "seconds_gpu": 2.2,
+      "candidates": 23,
+      "red": {
+        "loops_top": {
+          "bar_labelled": {
+            "best_iou": 0.401,
+            "cover": 0.462,
+            "best_phrase": "overhead bars",
+            "best_score": 0.5,
+            "best_box": [
+              572,
+              291,
+              1202,
+              343
+            ],
+            "n": 23
+          },
+          "any_phrase": {
+            "best_iou": 0.401,
+            "cover": 0.462,
+            "best_phrase": "overhead bars",
+            "best_score": 0.5,
+            "best_box": [
+              572,
+              291,
+              1202,
+              343
+            ],
+            "n": 23
+          }
+        },
+        "left_grid": {
+          "bar_labelled": {
+            "best_iou": 0.168,
+            "cover": 0.287,
+            "best_phrase": "metal bars",
+            "best_score": 0.365,
+            "best_box": [
+              258,
+              355,
+              400,
+              388
+            ],
+            "n": 23
+          },
+          "any_phrase": {
+            "best_iou": 0.168,
+            "cover": 0.287,
+            "best_phrase": "metal bars",
+            "best_score": 0.365,
+            "best_box": [
+              258,
+              355,
+              400,
+              388
+            ],
+            "n": 23
+          }
+        }
+      },
+      "top12_all_phrases": {
+        "loops_top": {
+          "best_iou": 0.401,
+          "first_hit_rank": 2,
+          "hit_phrase": "overhead bars",
+          "hit_score": 0.5
+        },
+        "left_grid": {
+          "best_iou": 0.158,
+          "first_hit_rank": null,
+          "hit_phrase": null,
+          "hit_score": null
+        }
+      },
+      "top12_bar_phrases_only": {
+        "loops_top": {
+          "best_iou": 0.401,
+          "first_hit_rank": 2,
+          "hit_phrase": "overhead bars",
+          "hit_score": 0.5
+        },
+        "left_grid": {
+          "best_iou": 0.158,
+          "first_hit_rank": null,
+          "hit_phrase": null,
+          "hit_score": null
+        }
+      }
+    },
+    "V4d upper-half 2x, old + new phrases, 0.20, geometry check": {
+      "views": 1,
+      "seconds_gpu": 4.4,
+      "candidates": 62,
+      "red": {
+        "loops_top": {
+          "bar_labelled": {
+            "best_iou": 0.465,
+            "cover": 0.768,
+            "best_phrase": "pull-up bar",
+            "best_score": 0.221,
+            "best_box": [
+              572,
+              290,
+              1042,
+              342
+            ],
+            "n": 55
+          },
+          "any_phrase": {
+            "best_iou": 0.465,
+            "cover": 0.768,
+            "best_phrase": "pull-up bar",
+            "best_score": 0.221,
+            "best_box": [
+              572,
+              290,
+              1042,
+              342
+            ],
+            "n": 62
+          }
+        },
+        "left_grid": {
+          "bar_labelled": {
+            "best_iou": 0.574,
+            "cover": 0.87,
+            "best_phrase": "overhead bars",
+            "best_score": 0.338,
+            "best_box": [
+              0,
+              349,
+              521,
+              413
+            ],
+            "n": 55
+          },
+          "any_phrase": {
+            "best_iou": 0.574,
+            "cover": 0.87,
+            "best_phrase": "overhead bars",
+            "best_score": 0.338,
+            "best_box": [
+              0,
+              349,
+              521,
+              413
+            ],
+            "n": 62
+          }
+        }
+      },
+      "top12_all_phrases": {
+        "loops_top": {
+          "best_iou": 0.401,
+          "first_hit_rank": 2,
+          "hit_phrase": "overhead bars",
+          "hit_score": 0.574
+        },
+        "left_grid": {
+          "best_iou": 0.574,
+          "first_hit_rank": 12,
+          "hit_phrase": "overhead bars",
+          "hit_score": 0.338
+        }
+      },
+      "top12_bar_phrases_only": {
+        "loops_top": {
+          "best_iou": 0.401,
+          "first_hit_rank": 2,
+          "hit_phrase": "overhead bars",
+          "hit_score": 0.574
+        },
+        "left_grid": {
+          "best_iou": 0.574,
+          "first_hit_rank": 12,
+          "hit_phrase": "overhead bars",
+          "hit_score": 0.338
+        }
+      }
+    },
+    "V4e full photo, old + new phrases, 0.35, geometry check": {
+      "views": 1,
+      "seconds_gpu": 3.2,
+      "candidates": 13,
+      "red": {
+        "loops_top": {
+          "bar_labelled": {
+            "best_iou": 0.406,
+            "cover": 0.478,
+            "best_phrase": "overhead bars",
+            "best_score": 0.355,
+            "best_box": [
+              574,
+              290,
+              1202,
+              343
+            ],
+            "n": 13
+          },
+          "any_phrase": {
+            "best_iou": 0.406,
+            "cover": 0.478,
+            "best_phrase": "overhead bars",
+            "best_score": 0.355,
+            "best_box": [
+              574,
+              290,
+              1202,
+              343
+            ],
+            "n": 13
+          }
+        },
+        "left_grid": {
+          "bar_labelled": {
+            "best_iou": 0.11,
+            "cover": 0.11,
+            "best_phrase": "pull-up bar",
+            "best_score": 0.355,
+            "best_box": [
+              270,
+              391,
+              398,
+              415
+            ],
+            "n": 13
+          },
+          "any_phrase": {
+            "best_iou": 0.11,
+            "cover": 0.11,
+            "best_phrase": "pull-up bar",
+            "best_score": 0.355,
+            "best_box": [
+              270,
+              391,
+              398,
+              415
+            ],
+            "n": 13
+          }
+        }
+      },
+      "top12_all_phrases": {
+        "loops_top": {
+          "best_iou": 0.406,
+          "first_hit_rank": 7,
+          "hit_phrase": "overhead bars",
+          "hit_score": 0.355
+        },
+        "left_grid": {
+          "best_iou": 0.11,
+          "first_hit_rank": null,
+          "hit_phrase": null,
+          "hit_score": null
+        }
+      },
+      "top12_bar_phrases_only": {
+        "loops_top": {
+          "best_iou": 0.406,
+          "first_hit_rank": 7,
+          "hit_phrase": "overhead bars",
+          "hit_score": 0.355
+        },
+        "left_grid": {
+          "best_iou": 0.11,
+          "first_hit_rank": null,
+          "hit_phrase": null,
+          "hit_score": null
+        }
+      }
+    },
+    "V5 region crops 2x, old + new phrases, 0.10, geometry check": {
+      "views": 2,
+      "seconds_gpu": 4.5,
+      "candidates": 210,
+      "red": {
+        "loops_top": {
+          "bar_labelled": {
+            "best_iou": 0.447,
+            "cover": 0.5,
+            "best_phrase": "overhead bars",
+            "best_score": 0.473,
+            "best_box": [
+              572,
+              292,
+              1042,
+              342
+            ],
+            "n": 162
+          },
+          "any_phrase": {
+            "best_iou": 0.447,
+            "cover": 0.5,
+            "best_phrase": "overhead bars",
+            "best_score": 0.473,
+            "best_box": [
+              572,
+              292,
+              1042,
+              342
+            ],
+            "n": 210
+          }
+        },
+        "left_grid": {
+          "bar_labelled": {
+            "best_iou": 0.657,
+            "cover": 0.96,
+            "best_phrase": "metal bars",
+            "best_score": 0.187,
+            "best_box": [
+              0,
+              352,
+              400,
+              412
+            ],
+            "n": 162
+          },
+          "any_phrase": {
+            "best_iou": 0.657,
+            "cover": 1.0,
+            "best_phrase": "metal bars",
+            "best_score": 0.187,
+            "best_box": [
+              0,
+              352,
+              400,
+              412
+            ],
+            "n": 210
+          }
+        }
+      },
+      "top12_all_phrases": {
+        "loops_top": {
+          "best_iou": 0.408,
+          "first_hit_rank": 2,
+          "hit_phrase": "overhead bars",
+          "hit_score": 0.562
+        },
+        "left_grid": {
+          "best_iou": 0.155,
+          "first_hit_rank": null,
+          "hit_phrase": null,
+          "hit_score": null
+        }
+      },
+      "top12_bar_phrases_only": {
+        "loops_top": {
+          "best_iou": 0.408,
+          "first_hit_rank": 2,
+          "hit_phrase": "overhead bars",
+          "hit_score": 0.562
+        },
+        "left_grid": {
+          "best_iou": 0.155,
+          "first_hit_rank": null,
+          "hit_phrase": null,
+          "hit_score": null
+        }
+      }
+    },
+    "V6 everything (all views, all phrases), 0.10": {
+      "views": 17,
+      "seconds_gpu": 48.4,
+      "candidates": 4953,
+      "red": {
+        "loops_top": {
+          "bar_labelled": {
+            "best_iou": 0.465,
+            "cover": 0.984,
+            "best_phrase": "pull-up bar",
+            "best_score": 0.221,
+            "best_box": [
+              572,
+              290,
+              1042,
+              342
+            ],
+            "n": 3566
+          },
+          "any_phrase": {
+            "best_iou": 0.481,
+            "cover": 0.988,
+            "best_phrase": "pole",
+            "best_score": 0.121,
+            "best_box": [
+              552,
+              267,
+              1040,
+              480
+            ],
+            "n": 4953
+          }
+        },
+        "left_grid": {
+          "bar_labelled": {
+            "best_iou": 0.738,
+            "cover": 1.0,
+            "best_phrase": "pull-up bar",
+            "best_score": 0.115,
+            "best_box": [
+              0,
+              344,
+              402,
+              414
+            ],
+            "n": 3566
+          },
+          "any_phrase": {
+            "best_iou": 0.738,
+            "cover": 1.0,
+            "best_phrase": "pull-up bar",
+            "best_score": 0.115,
+            "best_box": [
+              0,
+              344,
+              402,
+              414
+            ],
+            "n": 4953
+          }
+        }
+      },
+      "top12_all_phrases": {
+        "loops_top": {
+          "best_iou": 0.025,
+          "first_hit_rank": null,
+          "hit_phrase": null,
+          "hit_score": null
+        },
+        "left_grid": {
+          "best_iou": 0.059,
+          "first_hit_rank": null,
+          "hit_phrase": null,
+          "hit_score": null
+        }
+      },
+      "top12_bar_phrases_only": {
+        "loops_top": {
+          "best_iou": 0.342,
+          "first_hit_rank": 4,
+          "hit_phrase": "overhead bars",
+          "hit_score": 0.664
+        },
+        "left_grid": {
+          "best_iou": 0.049,
+          "first_hit_rank": null,
+          "hit_phrase": null,
+          "hit_score": null
+        }
+      }
+    },
+    "V6b everything, 0.10, geometry check": {
+      "views": 17,
+      "seconds_gpu": 48.4,
+      "candidates": 1587,
+      "red": {
+        "loops_top": {
+          "bar_labelled": {
+            "best_iou": 0.465,
+            "cover": 0.836,
+            "best_phrase": "pull-up bar",
+            "best_score": 0.221,
+            "best_box": [
+              572,
+              290,
+              1042,
+              342
+            ],
+            "n": 1315
+          },
+          "any_phrase": {
+            "best_iou": 0.465,
+            "cover": 0.836,
+            "best_phrase": "pull-up bar",
+            "best_score": 0.221,
+            "best_box": [
+              572,
+              290,
+              1042,
+              342
+            ],
+            "n": 1587
+          }
+        },
+        "left_grid": {
+          "bar_labelled": {
+            "best_iou": 0.738,
+            "cover": 1.0,
+            "best_phrase": "pull-up bar",
+            "best_score": 0.115,
+            "best_box": [
+              0,
+              344,
+              402,
+              414
+            ],
+            "n": 1315
+          },
+          "any_phrase": {
+            "best_iou": 0.738,
+            "cover": 1.0,
+            "best_phrase": "pull-up bar",
+            "best_score": 0.115,
+            "best_box": [
+              0,
+              344,
+              402,
+              414
+            ],
+            "n": 1587
+          }
+        }
+      },
+      "top12_all_phrases": {
+        "loops_top": {
+          "best_iou": 0.378,
+          "first_hit_rank": 2,
+          "hit_phrase": "overhead bars",
+          "hit_score": 0.664
+        },
+        "left_grid": {
+          "best_iou": 0.128,
+          "first_hit_rank": null,
+          "hit_phrase": null,
+          "hit_score": null
+        }
+      },
+      "top12_bar_phrases_only": {
+        "loops_top": {
+          "best_iou": 0.378,
+          "first_hit_rank": 2,
+          "hit_phrase": "overhead bars",
+          "hit_score": 0.664
+        },
+        "left_grid": {
+          "best_iou": 0.128,
+          "first_hit_rank": null,
+          "hit_phrase": null,
+          "hit_score": null
+        }
+      }
+    },
+    "V6c everything, 0.35, geometry check": {
+      "views": 17,
+      "seconds_gpu": 48.4,
+      "candidates": 177,
+      "red": {
+        "loops_top": {
+          "bar_labelled": {
+            "best_iou": 0.447,
+            "cover": 0.515,
+            "best_phrase": "overhead bars",
+            "best_score": 0.473,
+            "best_box": [
+              572,
+              292,
+              1042,
+              342
+            ],
+            "n": 155
+          },
+          "any_phrase": {
+            "best_iou": 0.447,
+            "cover": 0.515,
+            "best_phrase": "overhead bars",
+            "best_score": 0.473,
+            "best_box": [
+              572,
+              292,
+              1042,
+              342
+            ],
+            "n": 177
+          }
+        },
+        "left_grid": {
+          "bar_labelled": {
+            "best_iou": 0.487,
+            "cover": 0.682,
+            "best_phrase": "metal bars",
+            "best_score": 0.369,
+            "best_box": [
+              0,
+              344,
+              398,
+              389
+            ],
+            "n": 155
+          },
+          "any_phrase": {
+            "best_iou": 0.487,
+            "cover": 0.687,
+            "best_phrase": "metal bars",
+            "best_score": 0.369,
+            "best_box": [
+              0,
+              344,
+              398,
+              389
+            ],
+            "n": 177
+          }
+        }
+      },
+      "top12_all_phrases": {
+        "loops_top": {
+          "best_iou": 0.378,
+          "first_hit_rank": 2,
+          "hit_phrase": "overhead bars",
+          "hit_score": 0.664
+        },
+        "left_grid": {
+          "best_iou": 0.128,
+          "first_hit_rank": null,
+          "hit_phrase": null,
+          "hit_score": null
+        }
+      },
+      "top12_bar_phrases_only": {
+        "loops_top": {
+          "best_iou": 0.378,
+          "first_hit_rank": 2,
+          "hit_phrase": "overhead bars",
+          "hit_score": 0.664
+        },
+        "left_grid": {
+          "best_iou": 0.128,
+          "first_hit_rank": null,
+          "hit_phrase": null,
+          "hit_score": null
+        }
+      }
+    }
+  },
+  "classic_cv": {
+    "seconds_cpu": 1.04,
+    "boxes": [
+      [
+        0,
+        136,
+        1280,
+        515
+      ],
+      [
+        994,
+        436,
+        1251,
+        474
+      ],
+      [
+        1038,
+        499,
+        1202,
+        528
+      ],
+      [
+        843,
+        526,
+        1044,
+        587
+      ]
+    ],
+    "red": {
+      "loops_top": {
+        "best_iou": 0.107,
+        "cover": 1.0
+      },
+      "left_grid": {
+        "best_iou": 0.058,
+        "cover": 1.0
+      }
+    }
+  }
+}
