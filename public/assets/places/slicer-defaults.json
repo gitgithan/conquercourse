@@ -706,6 +706,186 @@
       "lengthM": 52.8,
       "clearS": 12.8,
       "checkVersion": 2
+    },
+    {
+      "slug": "bgi-akademiet-hornsyld",
+      "clear": true,
+      "shrink": 0.556,
+      "cutM": 11,
+      "line": [
+        -198.2,
+        -45.7,
+        -227.6,
+        34.9
+      ],
+      "lengthM": 47.6,
+      "clearS": 8.1,
+      "checkVersion": 2
+    },
+    {
+      "slug": "gerlev-parkour-park",
+      "clear": true,
+      "shrink": 0.333,
+      "cutM": 18,
+      "line": [
+        -58.3,
+        -144.7,
+        52,
+        -144.7
+      ],
+      "lengthM": 36.7,
+      "clearS": 10.2,
+      "checkVersion": 2
+    },
+    {
+      "slug": "flowpark-brumunddal",
+      "clear": true,
+      "shrink": 0.556,
+      "cutM": 10.5,
+      "line": [
+        5.2,
+        -79.3,
+        5.2,
+        56.8
+      ],
+      "lengthM": 75.6,
+      "clearS": 6.2,
+      "checkVersion": 2
+    },
+    {
+      "slug": "regents-park-london",
+      "clear": true,
+      "shrink": 0.556,
+      "cutM": 11,
+      "line": [
+        103.1,
+        153.7,
+        40.4,
+        164.7
+      ],
+      "lengthM": 35.4,
+      "clearS": 10.7,
+      "checkVersion": 2
+    },
+    {
+      "slug": "lakeside-garden-skatepark",
+      "clear": true,
+      "shrink": 0.36,
+      "cutM": 12.5,
+      "line": [
+        -1.9,
+        -41.5,
+        34.4,
+        -41.5
+      ],
+      "lengthM": 13.1,
+      "clearS": 6.5,
+      "checkVersion": 2
+    },
+    {
+      "slug": "axelsberg-parkour-stockholm",
+      "clear": true,
+      "shrink": 0.2,
+      "cutM": 30,
+      "line": [
+        -8.1,
+        -106.4,
+        -105.4,
+        -71
+      ],
+      "lengthM": 12.3,
+      "clearS": 6.5,
+      "checkVersion": 2
+    },
+    {
+      "slug": "zollverein-parkour-essen",
+      "clear": true,
+      "shrink": 0.333,
+      "cutM": 18,
+      "line": [
+        -36.5,
+        76.2,
+        -70.9,
+        88.7
+      ],
+      "lengthM": 12.3,
+      "clearS": 6.3,
+      "checkVersion": 2
+    },
+    {
+      "slug": "freerun-park-netherlands",
+      "clear": true,
+      "shrink": 0.556,
+      "cutM": 11,
+      "line": [
+        -154.9,
+        -43.7,
+        14,
+        157.6
+      ],
+      "lengthM": 18.4,
+      "clearS": 7.1,
+      "checkVersion": 2
+    },
+    {
+      "slug": "plaza-parkour-cochabamba",
+      "clear": true,
+      "shrink": 0.556,
+      "cutM": 11,
+      "line": [
+        -100.4,
+        -45.6,
+        50.5,
+        -45.6
+      ],
+      "lengthM": 84,
+      "clearS": 13.2,
+      "checkVersion": 2
+    },
+    {
+      "slug": "bellingham-parkour-wa",
+      "clear": true,
+      "shrink": 0.556,
+      "cutM": 11,
+      "line": [
+        -35.6,
+        -128.6,
+        -35.6,
+        -24.1
+      ],
+      "lengthM": 58.1,
+      "clearS": 10.7,
+      "checkVersion": 2
+    },
+    {
+      "slug": "junction-street-plaza-sydney",
+      "clear": true,
+      "shrink": 0.333,
+      "cutM": 18,
+      "line": [
+        -68.62,
+        -140.17,
+        -130.96,
+        -87.86
+      ],
+      "lengthM": 27.1,
+      "clearS": 8.3,
+      "checkVersion": 2
+    },
+    {
+      "slug": "brahenpuisto-kuopio",
+      "clear": true,
+      "shrink": 0.333,
+      "cutM": 18,
+      "line": [
+        138.4,
+        -75.1,
+        158.3,
+        37.9
+      ],
+      "lengthM": 9,
+      "clearS": 5.7,
+      "checkVersion": 2
     }
   ]
 }
