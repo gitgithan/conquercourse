@@ -22,23 +22,21 @@ export interface ForkSpec {
 }
 export const DEFAULT_FORK: ForkSpec = {
   startX: 2, poleX: 10, barY: 4.3, barXs: Array.from({ length: 8 }, (_, i) => 10.4 + 2 * i), joinX: 26, finishX: 40,
-  benches: [{ x0: 14, x1: 15.6, top: 0.45 }, { x0: 18.5, x1: 20.1, top: 0.45 }, { x0: 23, x1: 24.6, top: 0.45 }],
+  benches: [{ x0: 12.5, x1: 14.9, top: 0.45 }, { x0: 17.1, x1: 19.5, top: 0.45 }, { x0: 21.7, x1: 24.1, top: 0.45 }],
 };
 /** The band that tells the lanes apart: the lowest height the runner reaches between the fork and the join (feet). Below it is the bench lane, at or above it the bulb lane. */
 export const BULB_BAND_LO = 1.0;
 
-/** The course for a spec: platforms 0 (run-up) and the last (the join and the finish) are shared; the floor pieces between belong to the bench lane. */
+/** The course for a spec: platforms 0 (run-up) and the last (the join and the finish) are shared; the benches belong to the bench lane, and between them there is no floor: the gaps are pits that lead into the water. */
 export function buildForkCourse(spec: ForkSpec = DEFAULT_FORK, name = 'Bench lane and bulb lane'): CourseData {
   const forkX = spec.poleX + 0.3;
   const platforms: { x0: number; x1: number; top: number }[] = [{ x0: -10, x1: forkX, top: 0 }];
   const own: number[] = [];
   let x = forkX;
   for (const b of spec.benches) {
-    if (b.x0 > x) { own.push(platforms.length); platforms.push({ x0: x, x1: b.x0, top: 0 }); }
     own.push(platforms.length); platforms.push({ x0: b.x0, x1: b.x1, top: b.top });
     x = b.x1;
   }
-  if (spec.joinX > x) { own.push(platforms.length); platforms.push({ x0: x, x1: spec.joinX, top: 0 }); }
   platforms.push({ x0: spec.joinX, x1: spec.finishX + 30, top: 0 });
   const bars = spec.barXs.map((bx) => ({ x: bx, y: spec.barY }));
   const branch: Branch = {
