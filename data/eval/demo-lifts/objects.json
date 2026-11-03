@@ -77,5 +77,18 @@
     ],
     "height_m": 2.4,
     "box_source": "our box: Segment Objects did not find it (a weak pull-up bar 0.37 was found top left)"
+  },
+  {
+    "name": "p1_bench_mid",
+    "photo": "photo1",
+    "label": "bench",
+    "box_original": [
+      595,
+      450,
+      715,
+      520
+    ],
+    "height_m": 0.8,
+    "box_source": "drawn by hand beside two people (CC-133 person-guard lift)"
   }
 ]

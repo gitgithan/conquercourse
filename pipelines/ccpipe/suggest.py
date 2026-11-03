@@ -4,7 +4,9 @@ Pure numpy, so it is tested without a GPU. photo_to_object.py runs SAM 3 once pe
 import io
 
 # What people usually want from a park or street photo; one SAM 3 text prompt each. People, faces and plates are blurred before and never offered.
-PHRASES = ["bench", "stairs", "railing", "wall", "bollard", "planter", "tree trunk", "log", "pull-up bar", "fence", "picnic table", "slide", "ledge", "box", "pole", "monkey bars", "string lights"]
+PHRASES = ["bench", "stairs", "railing", "wall", "bollard", "planter", "tree trunk", "log", "pull-up bar", "fence", "picnic table", "slide", "ledge", "box", "pole", "monkey bars", "string lights", "overhead bars", "metal bars", "bar grid"]
+BAR_PHRASES = ("overhead bars", "metal bars", "bar grid")   # crop-finder result: these three also need a bar-like shape
+BAR_MIN_W, BAR_MIN_RATIO, BAR_MAX_H = 120, 2.5, 160
 MAX_ITEMS = 12
 MIN_FRAC = 0.002          # a region smaller than this share of the photo is noise
 IOU_SAME = 0.6            # two masks this alike are one thing
@@ -26,12 +28,23 @@ def iou(a, b):
     return inter / union if union else 0.0
 
 
+def bar_shaped(mask):
+    """True for a wide, low region: box width >= 120 px, wide:high >= 2.5, height <= 160 px."""
+    b = box_of(mask)
+    if not b:
+        return False
+    w, h = b[2] - b[0], b[3] - b[1]
+    return w >= BAR_MIN_W and h > 0 and w / h >= BAR_MIN_RATIO and h <= BAR_MAX_H
+
+
 def pick(cands, shape, limit=MAX_ITEMS):
     """cands: [{label, mask (bool HxW), score}] -> the best, no two the same thing, biggest-first among equals, at most `limit`."""
     h, w = shape
     kept = []
     for c in sorted(cands, key=lambda c: -c["score"]):
         if c["mask"].sum() < MIN_FRAC * h * w:
+            continue
+        if c.get("label") in BAR_PHRASES and not bar_shaped(c["mask"]):
             continue
         if any(iou(c["mask"], k["mask"]) >= IOU_SAME for k in kept):
             continue
