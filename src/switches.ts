@@ -35,6 +35,7 @@ export const SWITCHES: readonly Switch[] = [
   { name: 'coaster', default: 'on', doc: "a track as points, e.g. 0,9;7,5; in the editor, 0 hides the coaster piece", quiet: false },
   { name: 'course', default: 'none', doc: "a course file to play", quiet: false },
   { name: 'credit', default: 'none', doc: "credit text in a film", quiet: false },
+  { name: 'crewcards', default: 'on', doc: "old brings back the strip of voice pills in Meet the crew", quiet: false },
   { name: 'debug', default: 'off', doc: "1 shows the debug view", quiet: false },
   { name: 'decks', default: 'off', doc: "1 keeps decks instead of the real objects", quiet: false },
   { name: 'demo', default: 'none', doc: "a demo screen word", quiet: false },

@@ -55,9 +55,13 @@
 - Screens: World Editor, World Slicer, Course, Coaster builder, End report, Make your own, Characters.
 - Explore and the Dojo are not icons: the crew strip itself lives on Explore, and no voice has a badge in the Dojo.
 - Clicking outside the dialog closes it, like Esc and Close.
-- The welcome page has a "Meet the crew" button (top right) that opens the strip in a dialog.
+- The welcome page has a "Meet the crew" button (top right) that opens a dialog of ten character cards (the eight starter characters, Pip and Juno), each with a name and a short animated run loop.
+- The voice pills are not in that dialog: each shows where it speaks.
+- A "Make a character" button in the dialog opens the character maker on top of it, with the same limits and checks as in the Course.
+- `?crewcards=old` brings back the strip of voice pills in the dialog.
 - The Community page, Explore tab, has the same strip as its last section.
 - One card per voice: the badge, a one-line job, and the powered-by line.
+- [crew cards, 1280 px](evidence/cc-243-crew-cards-1280.png); `node scripts/crew-cards-check.mjs` takes it.
 - The Rookies are named Pip and Juno (plain names, no real people).
 
 ## What is not badged on purpose
