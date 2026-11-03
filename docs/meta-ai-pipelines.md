@@ -119,7 +119,8 @@ flowchart LR
   - Stopped photos and the reason are listed on the owner-only admin page.
   - Result: ok, review or block with one reason; the caption can only make the answer stricter; any error becomes review.
   - Measured: 19 of 19 safe photos ok, 7 of 7 text-only unsafe cases caught, 4 of 4 near misses not blocked, about $0.003 a call (`data/eval/cc-119-moderation/`).
-  - Not tested: real harmful images (see [trust and safety](trust-and-safety.md)).
+  - Real borderline images (CC-120, `data/eval/cc-120-safety-real/`): 37 of 38 must-flag runs were not "ok"; 2 of 23 must-pass runs held for review, none blocked; median 7 s, worst 78 s (one later demo call took 88.9 s).
+  - Not tested: child safety (on purpose; it needs a hash-matching service) and a real picture of a weapon pointed at a person (text only).
 - **Move tips (CC-121):**
   - Data in: the object's name and its cropped photo.
   - Model: Muse Spark Open through Baseten, behind `/api/move-tips`.
@@ -186,18 +187,20 @@ flowchart LR
 
 ## 6. Real places and photos (Mapillary, masking)
 - **Data in:** OpenStreetMap for the place, and Mapillary street photos (Mapillary is owned by Meta).
-- **Our code:** the photo proxy keeps the Mapillary token on the server; people in photos are masked before they are shown (a Mask R-CNN person cut-out, then a second detector), and a photo is rejected when masking fails.
-- **Detector note:** Mask R-CNN and Faster R-CNN come from torchvision (PyTorch); they are Meta-originated open-source tools, not part of the hackathon model list.
-- **Result:** three places with photos (Edinburgh 65, Montmartre 27, Eixample 41 kept photos).
+- **Our code:** the photo proxy keeps the Mapillary token on the server; we do not mask street photos.
+  - Mapillary's own blur of faces and plates is the base standard (not a guarantee); we never store, copy or un-blur the pictures.
+  - On top of that, `scripts/photos_people.py` leaves out a photo with a close-up or large person (tallest person over 0.2 of the picture height); small, far figures pass (owner, 2026-11-01, `data/eval/cc-90-no-filter/README.md`).
+- **Detector note:** the person detector is Faster R-CNN from torchvision (PyTorch); it is a Meta-originated open-source tool, not part of the hackathon model list.
+- **Result:** the 0.2 limit keeps 100% lane coverage on 17 of 20 places (Montmartre 72%, Eixample 88%); the earlier "any person rejects" rule kept far fewer (`data/eval/cc-90-no-filter/README.md`).
 
 ```mermaid
 flowchart LR
   O["OpenStreetMap"] --> SL["Slicer<br/>our code"]
   MP["Mapillary photos<br/>(Meta-owned)"] --> PX["Photo proxy<br/>token on the server"]
-  PX --> MK["Mask people<br/>Mask R-CNN + second detector"]
-  MK --> OK{"Masking worked?"}
-  OK -- yes --> SL
-  OK -- no --> RJ["Photo rejected"]
+  PX --> MK["Person size check<br/>Faster R-CNN, limit 0.2"]
+  MK --> OK{"Large person?"}
+  OK -- no --> SL
+  OK -- yes --> RJ["Photo left out"]
   SL --> CRS["Course from a real place"]
   classDef meta fill:#dbeafe,stroke:#1d4ed8,color:#0f172a;
   class MP meta;
