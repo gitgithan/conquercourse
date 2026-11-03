@@ -50,3 +50,9 @@
 - `scripts/run_demo_lifts.sh` reproduces everything (not re-run end to end after the final edits; each step was run on its own).
 - `run.json`, `chips.json`, `objects.json`, `safety/`, `people_check.json`, `suggest/*/suggest.json`, `lifts/*/lift.json`, `lifts/*/mesh.json`.
 - Raw GLBs, raw lifts, masks and prepped photos: `../conquercourse-assets/eval-full/demo-lifts/` with `SHA256SUMS`.
+
+## Rerun with the phrases "monkey bars" and "string lights" (2026-11-03)
+- Photo 1: "string lights" is now found by Segment Objects (score 0.61, a wide strip across the top), so the bulb string can be a real pick; its lift is still weak (look only, no collision).
+- Photo 2: "monkey bars" is still not found; "pull-up bar" is found with a low score (0.37).
+- So the film shows the monkey bars from a box, not as a one-click pick.
+- Next: try a box-free phrase such as "overhead ladder" or "horizontal ladder" before giving up.
