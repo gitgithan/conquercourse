@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="940" height="340" viewBox="0 0 940 340" font-family="sans-serif" role="img" aria-labelledby="t d"><title id="t">Two hand-offs between moves</title><desc id="d">Left: a pole climb whose top hands over to the first bar by index. Right: a swing bar, a release window, then a regrab on the first rung of the monkey bars.</desc>
+<rect width="940" height="340" fill="#fff"/>
+<style>.t{font-size:14px;fill:#222}.b{font-size:16px;font-weight:bold}.s{font-size:12px;fill:#555}</style>
+<text x="20" y="26" class="b">A. Pole top to bars</text>
+<rect x="20" y="270" width="200" height="12" fill="#cfae7a"/>
+<line x1="70" y1="270" x2="70" y2="90" stroke="#777" stroke-width="6"/>
+<g fill="#1f77b4"><circle cx="100" cy="90" r="5"/><circle cx="150" cy="90" r="5"/><circle cx="200" cy="90" r="5"/></g>
+<path d="M70 250 L70 100" stroke="#ff7f0e" stroke-width="4" marker-end="url(#a)"/><defs><marker id="a" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="12" refX="6" refY="6" orient="auto"><path d="M0 0 L12 6 L0 12z" fill="#ff7f0e"/></marker></defs>
+<path d="M72 90 L98 90" stroke="#d62728" stroke-width="4" marker-end="url(#a)"/>
+<text x="20" y="298" class="t">E held: feet climb at a fixed 1 m/s</text>
+<text x="20" y="316" class="s">at the top the hands ease over (0.025 m a tick) to bar 0; nothing jumps</text>
+<text x="20" y="44" class="t">The pole stores the index of the first bar (toHold),</text><text x="20" y="62" class="t">so the bar row can change without touching the pole.</text>
+<line x1="470" y1="20" x2="470" y2="310" stroke="#ccc"/>
+<text x="490" y="26" class="b">B. Pull-up bar to monkey bars</text>
+<rect x="490" y="270" width="80" height="12" fill="#cfae7a"/><rect x="800" y="270" width="130" height="12" fill="#cfae7a"/>
+<line x1="540" y1="270" x2="540" y2="110" stroke="#444" stroke-width="4"/><circle cx="540" cy="110" r="6" fill="#222"/>
+<g fill="#1f77b4"><circle cx="680" cy="110" r="4"/><circle cx="702" cy="110" r="4"/><circle cx="724" cy="110" r="4"/><circle cx="746" cy="110" r="4"/><circle cx="768" cy="110" r="4"/><circle cx="790" cy="110" r="4"/></g>
+<path d="M540 110 Q 600 160 650 135" fill="none" stroke="#d62728" stroke-width="3" stroke-dasharray="6 4"/>
+<rect x="640" y="85" width="62" height="50" fill="none" stroke="#2ca02c" stroke-width="2" stroke-dasharray="4 3"/>
+<text x="490" y="60" class="t">hang, swing, let go of E near the first rung</text>
+<text x="560" y="180" class="t">in the air, E held again</text>
+<text x="600" y="200" class="s">green box: regrab zone, 1.2 m along, 0.6 m up and down</text>
+<text x="490" y="298" class="t">Release window (our recorded-run policy, swept one tick at a time):</text>
+<text x="490" y="314" class="s">let go at hang tick 32 to 68: all clear (37 ticks, 308 ms)</text><text x="490" y="328" class="s">the stored run lets go at tick 28, a one-tick spot</text>
+</svg>

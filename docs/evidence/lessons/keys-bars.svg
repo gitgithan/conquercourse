@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="250" viewBox="0 0 900 250" font-family="sans-serif" role="img" aria-labelledby="t d"><title id="t">Keys for the monkey bars</title><desc id="d">Q reaches the left hand, T reaches the right hand, E holds on, the left and right arrows kip the swing.</desc>
+<rect width="900" height="250" fill="#fff"/>
+<style>.k{fill:#f4f4f4;stroke:#333;stroke-width:2;rx:8}.n{fill:#e8f3ff;stroke:#1f77b4;stroke-width:3;rx:8}.o{fill:#fff;stroke:#bbb;stroke-width:1.5;rx:8}.l{font-size:30px;font-weight:bold;text-anchor:middle;fill:#222}.g{font-size:30px;text-anchor:middle;fill:#bbb}.t{font-size:15px;fill:#222}.h{font-size:16px;font-weight:bold;fill:#1f77b4}</style>
+<text x="20" y="28" class="h">New keys: Q and T (blue). Old keys keep their meaning.</text>
+<rect class="n" x="60" y="60" width="64" height="64"/><text class="l" x="92" y="103">Q</text>
+<rect class="o" x="132" y="60" width="64" height="64"/><text class="g" x="164" y="103">W</text>
+<rect class="k" x="204" y="60" width="64" height="64"/><text class="l" x="236" y="103">E</text>
+<rect class="o" x="276" y="60" width="64" height="64"/><text class="g" x="308" y="103">R</text>
+<rect class="n" x="348" y="60" width="64" height="64"/><text class="l" x="380" y="103">T</text>
+<rect class="k" x="520" y="130" width="64" height="64"/><text class="l" x="552" y="172">&#8592;</text>
+<rect class="k" x="592" y="130" width="64" height="64"/><text class="l" x="624" y="172">&#8594;</text>
+<text class="t" x="60" y="150">Q: left hand reaches (a fresh press)</text>
+<text class="t" x="60" y="172">T: right hand reaches (a fresh press)</text>
+<text class="t" x="60" y="194">Both on one tick: neither reaches (a stall)</text>
+<text class="t" x="204" y="216">E: hold on, let go to fly on</text>
+<text class="t" x="480" y="94">Arrows: kip (push with the swing).</text>
+<text class="t" x="480" y="116">Same as on a single bar.</text>
+<text class="t" x="480" y="222">Replay mask: Q and T are two new bits (13 and 14),</text>
+<text class="t" x="480" y="242">so old recordings and golden hashes do not change.</text>
+</svg>

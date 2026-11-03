@@ -476,6 +476,7 @@ Diagrams are in [docs/meta-ai-pipelines.md](docs/meta-ai-pipelines.md); the full
 ## Where to read more
 - Source of truth: [docs/spec/SPEC.md](docs/spec/SPEC.md)
 - What we learned and why: [docs/lessons.md](docs/lessons.md)
+- Learn how we build it, three shareable lessons: [create a move](docs/lessons-move-creation.md), [create an obstacle](docs/lessons-obstacle-creation.md), [moves meeting obstacles](docs/lessons-move-obstacle-interactions.md)
 - Pipelines with diagrams: [docs/meta-ai-pipelines.md](docs/meta-ai-pipelines.md), recipes in [docs/pipelines.md](docs/pipelines.md)
 - Stages and courses: [docs/stages.md](docs/stages.md), [docs/course-design.md](docs/course-design.md)
 - The Making Of (public maps; each page can be downloaded as one .html file): [site map](public/making-of/site-map.html) and [course map](public/making-of/course-map.html), built by `scripts/making-of.mjs` from [docs/site-map.md](docs/site-map.md) and a saved task snapshot
