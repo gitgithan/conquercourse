@@ -173,6 +173,7 @@ if modal is not None:
             faces = [c["mask"] for c in self._find(state, "face", privacy.FACE_T)]
             plates = [c["mask"] for c in self._find(state, "license plate", privacy.PLATE_T)]
             safe, receipt = privacy.apply_privacy(img, people, faces, plates)
+            receipt["person_boxes"] = privacy.mask_boxes(list(people) + list(faces))  # CC-133: the page refuses a hand-marked box that covers a person or a face
             state = self.p.set_image(Image.fromarray(safe))
             cands = [{"label": ph, "mask": c["mask"], "score": c["score"]} for ph in sg.PHRASES for c in self._find(state, ph, 0.35)]
             items = [sg.describe(c) for c in sg.pick(cands, (h, w))]

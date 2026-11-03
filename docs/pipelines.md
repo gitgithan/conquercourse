@@ -213,6 +213,8 @@
 - **Pitfall:** without trimming, the generated clips were noticeably longer than mocap; keep obstacles, if any, drawn in both versions.
 
 ## 12. Player photo → 3D object (CC-221)
+- **Mark it yourself (CC-133, owner decision 2026-11-03):** the Community Pick step lets a player drag a box when the finder missed the thing; it goes down this same path as a picked outline (switch `markbox`, on by default; rules in `src/slice/markbox.ts`).
+  - It reverses the old "you never draw a box" rule; every gate below still applies, and the finder's `person_boxes` let the page refuse a box that covers a person or a face.
 - **Purpose:** a player drops a photo in the editor, draws a box round one real thing, and a few minutes later it is a 3D piece with its credit.
 - **Switch:** the editor shows "Make an object from my photo" only with `?uploadobj=1`; the server route answers 503 until its secrets are set.
 - **Steps:**

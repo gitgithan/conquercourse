@@ -76,6 +76,7 @@ export const SWITCHES: readonly Switch[] = [
   { name: 'look', default: 'none', doc: "a character look file", quiet: false },
   { name: 'made', default: 'none', doc: "a course made in the editor, carried in the link", quiet: false },
   { name: 'making', default: 'on', doc: "0 hides the Site map and Course map cards of The Making Of (the Parts card there has its own switch, parts)", quiet: false },
+  { name: 'markbox', default: 'on', doc: "0 hides the Mark it yourself box tool in the Community Pick step", quiet: false },
   { name: 'md', default: '2', doc: "macro film distance", quiet: false },
   { name: 'mode', default: 'course', doc: "which screen to open", quiet: false },
   { name: 'nav', default: 'on', doc: "0 hides the site bar", quiet: false },

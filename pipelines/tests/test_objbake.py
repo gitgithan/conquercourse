@@ -280,3 +280,10 @@ def test_bake_with_texture_meets_the_pass_lines(tmp_path):
     assert c2 is None and "TEXCOORD_0" in doc["meshes"][0]["primitives"][0]["attributes"]
     assert doc["materials"][0]["pbrMetallicRoughness"]["baseColorTexture"]["index"] == 0
     assert doc["images"][0]["mimeType"] == "image/jpeg" and len(doc["images"]) == 1 and (f2 == fb).all()
+
+
+def test_mask_boxes_round_masks_and_skip_empty_ones():
+    import numpy as np
+    a = np.zeros((20, 30), bool); a[2:5, 3:10] = True
+    out = P.mask_boxes([a, np.zeros((20, 30), bool)])
+    assert out == [[3, 2, 10, 5]]

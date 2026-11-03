@@ -133,7 +133,7 @@ Folder: [data/eval/demo-lifts](../data/eval/demo-lifts/README.md).
   - The picture holds exactly 12 outlines and `MAX_ITEMS` in `pipelines/ccpipe/suggest.py` is 12, so a lower-scoring bar outline may have been cut by the cap; the raw per-phrase candidates were not saved, so this is **not recorded**.
 - `evidence/lifts_turntables.jpg` is the **lift** stage (SAM 3D Objects), six turning views per object.
   - `p2_monkey_bars` and `p2_pullup_bar` were run from boxes the lab script drew.
-  - The product has no player box tool: `docs/community-flow-guide.md` says "You never draw a box".
+  - When this was written the product had no player box tool; since 2026-11-03 it has **Mark it yourself** (`docs/community-flow-guide.md`).
   - For the monkey bars the text prompt under the lab box had 0 candidates, so the mask came from the box prompt (score 0.91).
 
 ### What the finder missed, with numbers
@@ -181,7 +181,7 @@ Costs use recorded job times: a finder run is 1.1 to 4.2 s on an L4 at about $0.
 | 9 | Lift from a top-down or second photo | **NOT TRIED** (the lift's own top view was used for the film, not a second photo) | The loops show from above | Needs a second photo | Few park photos have an overhead view |
 | 10 | Lower the score threshold, with a geometry sanity check | **NOT TRIED**; today's floor is 0.35 per phrase and 0.3 inside the model | Weak real hits (the pull-up bar was 0.37) may surface | Free in code, one finder run to see | More false hits; the sanity check (a long thin shape between two uprights) must be written |
 | 11 | Clean primitive bar for collision, mesh for looks | **TRIED** (demo-lifts rows use a primitive bar for monkey bars and pull-up bar) | Collision is right even if the mesh is weak | Free | The look stays medium for thin things |
-| 12 | A player "mark it yourself" box | **NOT BUILT**; a product decision for the product owner, currently against the rule "you never draw a box" in `docs/community-flow-guide.md` | The most direct fix for anything the finder misses | A box tool in the Make step | Breaks the rule and the "one click" promise; the lab box already shows the lift works from one |
+| 12 | A player "mark it yourself" box | **BUILT** (CC-133, owner decision 2026-11-03, switch `markbox`, on by default); it reverses the old rule "you never draw a box" | The most direct fix for anything the finder misses | A box tool in the Pick step | Adds a step for the player; the lab box already shows the lift works from one |
 
 - Suggested order if the product owner agrees: 1, 3, 10 and 6 first (cheap, no new player step), then 2, then 4 (exemplars) if those fail, and 12 last.
 - Nothing here was run in this change; option 6 could run free on a CPU.
@@ -189,7 +189,7 @@ Costs use recorded job times: a finder run is 1.1 to 4.2 s on an L4 at about $0.
 ## E. Places where the docs disagree
 
 - **Hand-drawn box.**
-  - `docs/community-flow-guide.md`: "You never draw a box" and "There is no hand-drawn fallback".
+  - Settled 2026-11-03: the guide now has **Mark it yourself**, a hand-drawn fallback, and the old rule is gone.
   - `data/eval/demo-lifts/README.md`: lab boxes are "the flow's fallback"; `docs/pipelines.md` section 12 still says the player "draws a box round one real thing".
   - The code reads: `Mask.suggest` takes the photo only and the lift takes a box that comes from the clicked outline.
 - **Real harmful images.**

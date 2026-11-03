@@ -12,6 +12,9 @@ import { registerThumbSource, thumbOf } from '../ui/glb-thumb';
 import type { PublicItem } from '../community/items';
 import { listSharedPage } from '../community/share-client';
 import { placeableShared, sharedSrc, useShared, LIFT_PARALLEL, MAX_PICKS, STEPS, TABS, allowedNow, buildFound, canEnter, dailyLine, editorHref, makeLabel, nextStep, prevStep, runQueue, queueWarning, startState, tabFor, toggleTick, whyNot, whyOff, type Box, type FlowState, type Found, type Kind, type PiecesToday, type Step, type Tab } from '../community/flow';
+import { markOn } from '../slice/markbox';
+import { openMarkTool } from '../ui/mark-box';
+import { pageQuery } from '../flags';
 import { openPrize } from '../ui/prize';
 
 // Community (CC-247): one screen, two tabs: Explore (finished work first) and Make your own, a stepper: Photo, Mark, Segment, Choose, Make.
@@ -30,9 +33,10 @@ const STYLE = `
 .com .steps .on{background:#0f6b5c;color:#fff;font-weight:700}.com .steps .done{background:#cfe6df;color:#0f6b5c}
 .com .panel{background:#fff;border:1px solid #cfd6d0;border-radius:14px;padding:16px;display:grid;gap:12px}
 .com .muted{color:#58635d;font-size:14px}.com .err{color:#b3261e;font-weight:600}.com .row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
-.com .stage{position:relative;display:inline-block;user-select:none;touch-action:none;max-width:100%}
+.com .stage{justify-self:start;position:relative;display:inline-block;user-select:none;touch-action:none;max-width:100%}
 .com .stage img{max-width:100%;max-height:52vh;display:block}
 .com .box{position:absolute;border:2px solid #7a8a80;background:rgba(122,138,128,.10);cursor:pointer;box-sizing:border-box}.com .box:focus-visible{outline:3px solid #0f6b5c;outline-offset:2px}
+.com .markzone{position:absolute;inset:0;cursor:crosshair;z-index:5;outline:2px dashed #0f6b5c;outline-offset:-2px}.com .markzone:focus-visible{outline:3px solid #0f6b5c}.com .markrect{position:absolute;border:3px solid #d9480f;background:rgba(217,72,15,.15);box-sizing:border-box;pointer-events:none}.com .markpanel{display:grid;gap:8px}
 .com .box.cut::before{content:'';position:absolute;inset:0;background:#2d9cdb;opacity:.5;-webkit-mask:var(--cut) center/100% 100% no-repeat;mask:var(--cut) center/100% 100% no-repeat}
 .com .box.hl{z-index:2;border-color:#ffd166;background:rgba(255,209,102,.30)}
 .com .found{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:8px;margin:8px 0}.com .found label{display:flex;gap:8px;align-items:center;border:1px solid #cfd6d0;border-radius:10px;padding:6px 10px;background:#fff;cursor:pointer}.com .found label.hl{border-color:#ffd166;box-shadow:0 0 0 2px #ffd166}.com .found label.on{border-color:#0f6b5c;background:#e7f3ef}.com .found s{display:inline-block;width:28px;height:28px;border-radius:4px;background:#2d9cdb;flex:none;-webkit-mask:var(--cut) center/100% 100% no-repeat;mask:var(--cut) center/100% 100% no-repeat}
@@ -63,8 +67,8 @@ export function startCommunityFlow(host: HTMLElement, params: URLSearchParams): 
   const body = el('div', root);
 
   // the photo work survives a tab change, so looking at Objects does not lose your picks
-  const work: { step: Step; photo: Shrunk | null; fs: FlowState; kinds: Map<number, Kind>; names: Map<number, string>; made: { pieces: string[] }; cands: Found[]; ticked: number[]; areas: { id: number; box: Box; label: string; cutout?: string }[]; segMsg: string } =
-    { step: 'photo', photo: null, fs: startState(), kinds: new Map(), names: new Map(), made: { pieces: [] }, cands: [], ticked: [], areas: [], segMsg: '' };
+  const work: { step: Step; photo: Shrunk | null; fs: FlowState; kinds: Map<number, Kind>; names: Map<number, string>; made: { pieces: string[] }; cands: Found[]; people: Box[]; ticked: number[]; areas: { id: number; box: Box; label: string; cutout?: string }[]; segMsg: string } =
+    { step: 'photo', photo: null, fs: startState(), kinds: new Map(), names: new Map(), made: { pieces: [] }, cands: [], people: [], ticked: [], areas: [], segMsg: '' };
 
   function showTab(t: Tab) {
     for (const id of Object.keys(tabBtn) as Tab[]) tabBtn[id].setAttribute('aria-selected', String(id === t));
@@ -198,7 +202,7 @@ export function startCommunityFlow(host: HTMLElement, params: URLSearchParams): 
       if (b && nx) b.onclick = () => go(nx);
       return { row, next: b };
     };
-    const useShrunk = (s: Shrunk) => { work.photo = s; work.fs = { ...startState(), hasPhoto: true }; work.kinds.clear(); work.names.clear(); work.cands = []; work.ticked = []; work.areas = []; work.segMsg = ''; work.made = { pieces: [] }; go('segment'); };
+    const useShrunk = (s: Shrunk) => { work.photo = s; work.fs = { ...startState(), hasPhoto: true }; work.kinds.clear(); work.names.clear(); work.cands = []; work.people = []; work.ticked = []; work.areas = []; work.segMsg = ''; work.made = { pieces: [] }; go('segment'); };
 
     function stepPhoto() {
       el('h2', panel, 'Step 1. Pick a photo');
@@ -247,7 +251,7 @@ export function startCommunityFlow(host: HTMLElement, params: URLSearchParams): 
       if (!work.photo) return go('photo');
       const ph = work.photo;
       addBadge(panel, 'cutter', { after: el('h2', panel, 'Step 2. Pick the things') }); // CC-243: SAM 3 finds and outlines the things
-      el('div', panel, 'The finder looks at the whole photo and outlines the separate things in it: a bench, stairs, a railing. You do not draw anything. When the outlines show up, you click the one you want. It usually takes under a minute; the first one after a quiet spell can take a bit longer.').className = 'muted';
+      el('div', panel, 'The finder looks at the whole photo and outlines the separate things in it: a bench, stairs, a railing. When the outlines show up, you click the one you want. If the thing you want is not outlined, press Mark it yourself and drag a box round it. It usually takes under a minute; the first one after a quiet spell can take a bit longer.').className = 'muted';
       const msg = el('div', panel, work.segMsg); msg.className = 'muted'; msg.id = 'cseginfo';
       let hovered: number | null = null;
       const row = el('div', panel); row.className = 'row';
@@ -262,6 +266,21 @@ export function startCommunityFlow(host: HTMLElement, params: URLSearchParams): 
       const nav = navRow(panel, 'Next: Make', work.fs.segmented, 'cnext');
       const run = el('button', row, work.cands.length ? 'Segment Objects again' : 'Segment Objects', { className: 'go', id: 'cseg' });
       run.addEventListener('click', () => { warmUp('mask'); warmUp('lift'); }); // CC-133: the 3D maker loads while the outlines are found and a thing is picked
+      if (markOn(pageQuery())) { // CC-133: mark it yourself, owner decision 2026-11-03
+        const mk = el('button', row, 'Mark it yourself', { id: 'cmark', title: 'Drag a box round a thing the finder missed' });
+        mk.onclick = () => {
+          if (st.root.querySelector('#markzone')) return;
+          mk.disabled = true;
+          openMarkTool({ stage: st.root, img: st.root.querySelector('img') as HTMLImageElement, width: ph.width, height: ph.height, people: work.people,
+            onUse: (box, label) => {
+              work.cands = [...work.cands, { label, box, marked: true }]; const i = work.cands.length - 1;
+              if (work.ticked.length < MAX_PICKS) work.ticked = toggleTick(work.ticked, i);
+              say(`Added your ${label}.${work.ticked.includes(i) ? '' : ` It is in the list; put one back first to pick it (the most is ${MAX_PICKS}).`}`);
+              fall.replaceChildren(); sync(); showFound(); st.draw();
+            },
+            onClose: () => { mk.disabled = false; mk.focus(); } });
+        };
+      }
       const fall = el('div', panel); fall.className = 'row'; fall.id = 'cfall'; // shown only when nothing was found or the finder failed
       const showFall = () => {
         fall.replaceChildren();
@@ -288,7 +307,7 @@ export function startCommunityFlow(host: HTMLElement, params: URLSearchParams): 
           const l = el('label', grid); l.dataset.i = String(i); l.className = work.ticked.includes(i) ? 'on' : '';
           const cb = el('input', l, '', { type: 'checkbox', checked: work.ticked.includes(i), id: `found-${i}` });
           const sw = el('s', l); if (c.cutout) sw.style.setProperty('--cut', `url(data:image/png;base64,${c.cutout})`);
-          el('span', l, c.label);
+          el('span', l, c.marked ? `${c.label} (marked by you)` : c.label);
           l.onmouseenter = () => { hovered = i; paintHover(); }; l.onmouseleave = () => { hovered = null; paintHover(); };
           cb.onchange = () => tick(i);
         });
@@ -297,17 +316,17 @@ export function startCommunityFlow(host: HTMLElement, params: URLSearchParams): 
       }
       const say = (t: string, bad = false) => { work.segMsg = t; msg.textContent = t; msg.className = bad ? 'err' : 'muted'; if (bad) msg.setAttribute('role', 'alert'); else msg.removeAttribute('role'); };
       const done = (found: Found[], note: string) => {
-        work.cands = found; work.ticked = []; work.kinds.clear();
+        work.cands = [...found, ...work.cands.filter((c) => c.marked)]; work.ticked = []; work.kinds.clear();
         say(note); run.disabled = false; sync(); showFound(); st.draw();
-        if (!found.length) showFall();
+        if (!found.length && !work.cands.length) showFall();
       };
       run.onclick = async () => {
         run.disabled = true; prog.replaceChildren(); fall.replaceChildren(); say('');
         const ctl = new AbortController(), bar = jobProgress(prog, SEGMENT_STEPS, () => ctl.abort());
         try {
-          const found = await suggestRegions(ph, () => undefined, ctl.signal, bar.update);
+          const found = await suggestRegions(ph, () => undefined, ctl.signal, bar.update, (p) => { work.people = p; });
           bar.finish();
-          done(buildFound(found), found.length ? `Found ${found.length} thing${found.length === 1 ? '' : 's'} in the photo. Click the one you want.` : 'The finder did not find anything it could name in this photo. Try again, or pick a different photo.');
+          done(buildFound(found), found.length ? `Found ${found.length} thing${found.length === 1 ? '' : 's'} in the photo. Click the one you want.` : `The finder did not find anything it could name in this photo. Try again, ${markOn(pageQuery()) ? 'mark the thing yourself, ' : ''}or pick a different photo.`);
         } catch (e) {
           bar.fail();
           const err = e as JobError;

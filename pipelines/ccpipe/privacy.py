@@ -54,3 +54,13 @@ def apply_privacy(img, people, faces, plates):
             continue
         out = pixelate(out, grow(m, g), max(8, int((xs.max() - xs.min() + 1) // 6)))
     return out, {"people": len(people), "faces": len(faces), "plates": len(plates), "changed": bool(people or faces or plates)}
+
+
+def mask_boxes(masks, limit=60):
+    """Boxes [x0, y0, x1, y1] (whole pixels) round boolean masks; empty masks are skipped. Used to tell the page where people and faces are."""
+    out = []
+    for m in masks:
+        ys, xs = np.nonzero(m)
+        if len(xs):
+            out.append([int(xs.min()), int(ys.min()), int(xs.max()) + 1, int(ys.max()) + 1])
+    return out[:limit]
