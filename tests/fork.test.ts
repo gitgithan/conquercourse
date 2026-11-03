@@ -1,3 +1,4 @@
+import { existsSync, statSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 import { routeCourse, routeOfTrack } from '../src/sim/branches';
 import { BULB_BAND_LO, DEFAULT_FORK, buildForkCourse } from '../src/sim/fork';
@@ -107,5 +108,15 @@ describe('the gate: the first move picks the lane, nothing else does', () => {
     expect(b.routes[0].band[1]).toBe(BULB_BAND_LO);
     expect(b.routes[1].band[0]).toBe(BULB_BAND_LO);
     expect(buildForkCourse().branches![0].forkX).toBeGreaterThan(DEFAULT_FORK.poleX);
+  });
+  it('every scene item draws a real lifted object from a file, not a hand-built shape', () => {
+    const items = (course as { scene?: { id?: string; url?: string; mesh?: unknown }[] }).scene ?? [];
+    expect(items.map((i) => i.id)).toEqual(['bench-1', 'bench-2', 'bench-3', 'pole-1', 'bulbs-1']);
+    for (const it of items) {
+      expect(it.mesh, it.id).toBeUndefined();
+      expect(it.url, it.id).toMatch(/^\/assets\/demo\/fork-objects\/fork-(bench|pole|bulbs)\.glb$/);
+      expect(existsSync(`public${it.url}`), it.id).toBe(true);
+      expect(statSync(`public${it.url}`).size, `${it.id} stays small`).toBeLessThan(300 * 1024);
+    }
   });
 });
