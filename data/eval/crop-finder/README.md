@@ -16,7 +16,8 @@
   - **Add the three bar phrases and the shape check to the finder now**: free, no extra pass, one more phrase per pass costs about 0.1 s on an L4.
   - **Add a second finder pass over the upper half** (1 extra image, 2 to 4 s, about $0.001 on an L4) as an option behind a feature switch; it found the loops on this photo and the left grid only at the very bottom of the list.
   - Do **not** add 2x upscaling or nine tiles: no gain here, 22 s to 48 s per photo.
-  - The "upper half" rule is a guess that fits this photo (bars against sky); it is **one photo, so not proven**. Run it on the other park photos before the switch goes on for everyone.
+  - The "upper half" rule is a guess that fits this photo (bars against sky); it is **one photo, so not proven**.
+    - Run it on the other park photos before the switch goes on for everyone.
   - Still not found: the left grid at a normal score; the lower bars and the right-hand bars were not scored (no red box); a clean per-bar mask (boxes only here).
 - Classic computer vision (Canny + Hough long horizontal lines) **does not work as a proposal**: it returns one box covering the whole upper half (trees and the building make the same lines), IoU 0.11 and 0.06.
 
