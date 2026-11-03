@@ -16,6 +16,26 @@
 
 ![Same keys, three machines, same outcome, a different last digit](evidence/lessons/same-keys-two-machines.svg)
 
+## The ways to say "these two runs match"
+- Same keys can be checked at four levels, from loosest to strictest.
+- Each level answers a different question, so pick the one that fits the claim.
+
+| Level | What must be equal | Question it answers | Held across Node 22, Node 24 and `workerd`? |
+|---|---|---|---|
+| 1. Outcome | Cleared or fell | "Did your run clear the course?" | Yes, 7,525 runs |
+| 2. Tick count and end place | Level 1, plus the tick count and the end position to 6 decimals | "Is it the same run, to the eye and the clock?" | Yes, 7,525 runs |
+| 3. Close enough | Every tick's state within a small tolerance (about 1e-9) | "Did the physics stay on the same path?" | Yes in the probes (the biggest gap seen was about 1e-13) |
+| 4. Exact bits | Every number identical to the last digit, as one hash | "Are the two engines doing the same arithmetic?" | No: six courses differ |
+
+- Level 4 is the strictest and the least useful for our promise.
+  - A friend replaying your run, and the server proving a clear, only need levels 1 and 2.
+  - A last-digit difference of about 1e-13 never flipped a result in any of the 7,525 runs.
+- So the exact-bits check was too strict for the question we ask.
+  - It still earns its place as a tripwire on one engine family: it tells us the moment our own code changes the physics.
+  - It must not be the thing that says "the promise is broken" on another machine.
+- What we do: levels 1 and 2 on every machine, and level 4 only on V8 13.x (see section 5).
+- A run that sits on a razor-thin margin could in theory flip at level 1 on another engine; none did, and the `pow-fix.patch` option removes that risk.
+
 ## 1. Why test on another machine
 - A game that only runs well on the author's laptop is not a shared game.
 - The question we ask is narrow:
