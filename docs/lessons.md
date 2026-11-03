@@ -224,3 +224,19 @@
 - How to prevent it: use only `+ - * /` and `Math.sqrt` in the sim step when you can; avoid `**` above 2 and `Math.pow`.
 - Details: `data/eval/trace-machines/README.md`.
 - Worked lesson with a picture: [test on a different machine](lessons-cross-hardware-testing.md).
+
+
+## The ideal run now takes the monkey bars (CC-133, 2026-11-03)
+- What happened:
+  - The search knew bars and ropes but not rungs, so "Race the ideal run" had no ghost on the two bars demo courses.
+- What works:
+  - Both demo courses clear from the search alone (about 15 to 20 s of work on the laptop).
+  - Windows, in ms of game time: bars course: take-off 84, release after the last reach 350, narrowest reach 42; pull-up bar to bars: take-off 84, hang on the bar 450 (ticks 22 to 74, plan 48), release 467, narrowest reach 50.
+  - "Hang before the first reach" is wide (over 2 s) because a hang only costs time, so the plan takes the early side of it.
+- Why a kip chosen by "first that clears" fails:
+  - It clears by one tick: the narrowest reach window was 8 ms (one tick) until the kip and release were picked by most clearing neighbours.
+  - Rule: pick the middle of a plateau, not the first point that works.
+- Why the hands stay off after the last bar:
+  - The hands-up rule caught the bar just let go of, a second hang that was not in the plan.
+- Still open: row after row (more than one row on a course) and a row that needs a different kip per rung are not searched; the window widths are one timing at a time with the others at their best.
+- Details: `docs/bars.md`, `tests/ideal-bars.test.ts`.

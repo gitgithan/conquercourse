@@ -5,7 +5,7 @@ import { fieldsOk } from '../src/course/schema';
 import { inputOfMask, verifyLog, type InputLog } from '../src/sim/replay';
 import { newWorld, stepWorld } from '../src/sim/world';
 
-// A pull-up bar, then a row of monkey bars (docs/bars.md). The ideal-run search does not know monkey bars, so the recorded keys are the proof.
+// A pull-up bar, then a row of monkey bars (docs/bars.md). The recorded keys are the ideal-run search's own plan (tests/ideal-bars.test.ts), played once.
 const course = JSON.parse(readFileSync('public/assets/demo/swing-to-bars.course.json', 'utf8')) as CourseData;
 const run = JSON.parse(readFileSync('public/assets/demo/swing-to-bars.run.json', 'utf8')) as { log: InputLog; ticks: number };
 

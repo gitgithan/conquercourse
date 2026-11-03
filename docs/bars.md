@@ -71,8 +71,16 @@
 - Swing bar to bars clears with a recorded key list (`public/assets/demo/swing-to-bars.run.json`, `tests/swing-to-bars.test.ts`).
 - The editor piece: knobs in the src, not ground, found along the lane, course and save round trips, fit to an object, 15 degree turns (`tests/editor-bars.test.ts`).
 
+## The ideal run on monkey bars (CC-133)
+- `src/sim/ideal.ts` finds the run by trying the simulator, as for the other obstacles; "Race the ideal run" plays that plan as the ghost.
+- Plan fields: `barsStart` (ticks hanging from the first rung before the first reach), `barsWait` (per reach: ticks to wait after the swing allows it), `barsKip` (the swing angle the kip builds to), `barsRelease` (ticks after the last reach to let go).
+- Search order: a coarse joint grid (press, hang on the bar before, kip, release); then the kip and release with the most clearing neighbours; then each timing on its own, twice.
+- The windows are measured in ticks of 1/120 s, reported in ms; the plan sits inside each one, not on its edge.
+- After the last bar, the plan keeps its hands off until the first rung is within the catch zone, so it does not grab the bar it just let go of.
+- Windows found: see `docs/lessons.md` (monkey bars entry) for the numbers.
+- `public/assets/demo/swing-to-bars.run.json` is now the plan's own keys, played once (re-recorded 2026-11-03); `bars.run.json` is unchanged.
+
 ## What is not done
-- The ideal-run search (`src/sim/ideal.ts`) knows bars and ropes but not monkey bars, so the demo course is proved by a recorded run, not by the search.
 - The arms pose for reaching hands comes later (`src/render/bars-pose.ts`); today the hang pose is drawn.
 
 ## How the body looks on the bars

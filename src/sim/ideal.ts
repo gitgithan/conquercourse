@@ -9,6 +9,7 @@ import { VAULT_MAX_RISE } from './vault';
 import { groundAt, heightAt } from './terrain';
 import { AIM_MAX, AIM_RATE, isAimable, type RecoilParams } from './recoil';
 import { bandParams, reachableStretch, slackX, stretchAt } from './band';
+import { DEFAULT_BARS, canReach, swingEnergy } from './bars';
 
 // The ideal run: where to press Space at each obstacle, found by trying the simulator, and how wide the
 // window of good presses is. It is the difficulty of each obstacle as a number.
@@ -31,6 +32,10 @@ export interface Plan {
   droneBrakeX?: number; // a drone ferry: lean back (brake) from this x
   droneDescendX?: number; // and climb down from this x onto the far deck
   cartBrake?: [number, number][]; // a coaster: hold the brake between these x values (the first push is always given at the start)
+  barsStart?: number; // monkey bars (src/sim/bars.ts): ticks to hang from the first rung (kipping) before the first reach
+  barsWait?: number[]; // per reach (left, right, left...): ticks to wait after the swing allows it, so a reach is made at the best moment of the swing
+  barsKip?: number; // the swing angle (rad) the kip builds up to; past it the arms rest
+  barsRelease?: number; // ticks after the last reach to let go and fly on
   bandStretch?: number; // the elastic band: run away from the post until the band is stretched this many metres, then turn round and run toward it
 }
 
@@ -42,7 +47,7 @@ export interface Window {
   widthMs: number; // how long the clearing window lasts, in milliseconds of game time
 }
 
-type PlanState = { next: number; caught: number | null; bedAt: number | null; hangAt?: number | null; hangs?: number; vnext?: number; cnext?: number; inClimb?: boolean; fnext?: number; airSince?: number | null; bandTurned?: boolean };
+type PlanState = { next: number; caught: number | null; bedAt: number | null; hangAt?: number | null; hangs?: number; vnext?: number; cnext?: number; inClimb?: boolean; fnext?: number; airSince?: number | null; bandTurned?: boolean; barsAt?: number | null; barsOk?: number; barsDoneAt?: number | null; barsLast?: number; barsOff?: boolean };
 // The launcher (recoil): fire at a place along the run, or a number of ticks after the take-off (a shot in the air adds to a jump)
 export function inputFor(plan: Plan, w: WorldState, state: PlanState, course?: CourseData): RunnerInput {
   if (plan.startDelay && w.runner.tick < plan.startDelay) return NO_INPUT;
@@ -91,9 +96,12 @@ function inputForBase(plan: Plan, w: WorldState, state: PlanState, course?: Cour
     return { ...NO_INPUT, squat: true, handL: true, handR: true, run: forward, left: !forward };
   }
   state.hangAt = null;
-  const barsAhead = !course?.holds?.length || course.holds.some((h) => h.x + 1.5 > w.runner.x); // past the last bar the hands stay off, so a fall beside a ledge is a fall, not a grab
+  if (w.mode === 'bars' && w.bars && course?.bars) return barsInput(plan, w, state, course);
+  state.barsAt = null; state.barsOk = 0; state.barsDoneAt = null;
+  if (w.runner.grounded) state.barsOff = false;
+  const barsAhead = (!course?.holds?.length && !course?.bars?.length) || !!course.holds?.some((h) => h.x + 1.5 > w.runner.x) || !!course.bars?.some((r) => r.x + (r.n - 1) * r.gap > w.runner.x); // past the last bar the hands stay off, so a fall beside a ledge is a fall, not a grab
   if (course?.rope && w.mode === 'run' && !w.runner.grounded && !course.off?.includes('rope')) return { ...base, handR: true }; // the rope: hands up in the air, it only catches a held E
-  if (((plan.hands && barsAhead) || plan.climbHands) && w.mode === 'run' && !w.runner.grounded && plan.airHands?.[(state.hangs ?? 0) - 1] !== false && !skipsNext(plan, w, course)) return { ...base, handR: true };
+  if (((plan.hands && barsAhead) || plan.climbHands) && w.mode === 'run' && !w.runner.grounded && plan.airHands?.[(state.hangs ?? 0) - 1] !== false && !state.barsOff && !handsOffForRow(w, state, course) && !skipsNext(plan, w, course)) return { ...base, handR: true };
   if (w.mode === 'swing') {
     if (state.caught === null) state.caught = w.runner.tick;
     return w.runner.tick - state.caught >= plan.releaseAfter ? base : { ...base, handL: true, handR: true }; // hold E to hold on; letting go of E is the release
@@ -114,6 +122,31 @@ function inputForBase(plan: Plan, w: WorldState, state: PlanState, course?: Cour
     return { ...base, jump: true };
   }
   return base;
+}
+
+// After the last bar the hands stay off until the first rung is within the catch zone (1.2 m), or the bar just let go of would be caught again.
+function handsOffForRow(w: WorldState, state: PlanState, course?: CourseData): boolean {
+  if (!course?.bars?.length || !course.holds?.length || (state.hangs ?? 0) < course.holds.length) return false;
+  const next = course.bars.filter((r) => r.x + (r.n - 1) * r.gap > w.runner.x).sort((a, b) => a.x - b.x)[0];
+  return !!next && w.runner.x < next.x - 1.2;
+}
+
+// Hanging from a row of monkey bars: kip to the planned swing, reach with the hand whose turn it is when the swing allows it (and the planned wait is over), let go after the last rung.
+function barsInput(plan: Plan, w: WorldState, state: PlanState, course: CourseData): RunnerInput {
+  const b = w.bars!, run = course.bars![b.run];
+  if (state.barsAt == null) { state.barsAt = w.runner.tick; state.barsOk = 0; state.barsDoneAt = null; state.barsLast = -99; }
+  const done = b.l >= run.n - 1 && b.r >= run.n - 1;
+  if (done && state.barsDoneAt == null) state.barsDoneAt = w.runner.tick;
+  if (done && w.runner.tick - state.barsDoneAt! >= (plan.barsRelease ?? 0)) { state.barsOff = true; return { ...NO_INPUT, run: true, squat: true }; } // let go
+  const hand = b.last === 1 ? 2 : 1;
+  const ok = !done && canReach(run, b, hand).ok;
+  state.barsOk = ok ? (state.barsOk ?? 0) + 1 : 0;
+  const wait = plan.barsWait?.[b.reaches] ?? 0;
+  const press = ok && w.runner.tick - (state.barsLast ?? -99) > 4 && w.runner.tick - state.barsAt >= (plan.barsStart ?? 0) && state.barsOk > wait;
+  if (press) state.barsLast = w.runner.tick;
+  const e0 = (DEFAULT_BARS.hang.gravity / ((2 / 3) * DEFAULT_BARS.hang.handHeight)) * (1 - Math.cos(plan.barsKip ?? 1.0));
+  const kip = done || swingEnergy(b) < e0 ? (b.omega >= 0 ? 1 : -1) : 0;
+  return { ...NO_INPUT, handL: true, handR: true, run: kip > 0, left: kip < 0, reachL: press && hand === 1, reachR: press && hand === 2 };
 }
 
 // the next bar ahead of the runner is one the plan flies past: do not hold the hand key for it
@@ -150,7 +183,7 @@ export function clearedCached(course: CourseData): boolean {
 
 export function playPlan(course: CourseData, plan: Plan, maxTicks = 120 * 80 + (plan.startDelay ?? 0), trace?: (w: WorldState) => void): RunResult { // trace sees the world before the first tick and after every tick (the ghost keeps where the runner was)
   let w = newWorld(course);
-  const st = { next: 0, caught: null as number | null, bedAt: null as number | null, hangAt: null as number | null, hangs: 0, vnext: 0, cnext: 0, inClimb: false, fnext: 0, airSince: null as number | null, bandTurned: false };
+  const st = { next: 0, caught: null as number | null, bedAt: null as number | null, hangAt: null as number | null, hangs: 0, vnext: 0, cnext: 0, inClimb: false, fnext: 0, airSince: null as number | null, bandTurned: false, barsAt: null as number | null, barsOk: 0, barsDoneAt: null as number | null, barsLast: -99, barsOff: false };
   const events: GameEvent[] = [];
   let maxX = 0;
   let still = 0;
@@ -290,7 +323,7 @@ export function* searchGenBase(course: CourseData, opts: { routes?: boolean; alt
   if (course.track) return searchCartRun(course);
   if (course.drone) return searchDroneRun(course);
   const holds = course.holds ?? [];
-  const plan: Plan = { jumpXs: [], releaseAfter: 60, bouncePress: 8, ...(opts.delay ? { startDelay: opts.delay } : {}), ...(holds.length ? { hands: true, hangTicks: holds.map(() => 90) } : {}) };
+  const plan: Plan = { jumpXs: [], releaseAfter: 60, bouncePress: 8, ...(opts.delay ? { startDelay: opts.delay } : {}), ...(holds.length ? { hands: true, hangTicks: holds.map(() => 90) } : {}), ...(course.bars?.length ? { hands: true } : {}) };
   const windows: Window[] = [];
   const ties: number[] = []; // the plain take-off edges that were planned: where the greedy choice may strand a later edge
   const tre = course.trebuchet;
@@ -306,6 +339,12 @@ export function* searchGenBase(course: CourseData, opts: { routes?: boolean; alt
     if (handled !== null && Math.abs(e.x - handled) < 0.01) continue;
     if (bandEdge !== null && Math.abs(e.x - bandEdge) < 0.01) continue;
     const at = (jobs: Job[], stopOnClear = false): Batch => ({ jobs, stopOnClear, label: e.name, step: k, of: es.length });
+    // a row of monkey bars within a swing of this edge (docs/bars.md): the press, the hang on a bar before it (if there is one), the kip and the release are found together,
+    // then each timing is tuned on its own and its window measured
+    if (!e.riser && course.bars?.some((r) => r.x > e.x - 1 && r.x < e.x + 12)) {
+      yield* searchBarsGen(course, plan, windows, e, k, es.length);
+      continue;
+    }
     // bars within a swing of this edge: a joint search over the press and the hang times on the first two bars (a swing and the next catch depend on each other,
     // so tuning one at a time misses lines that clear), coarse first, then finer around the best few
     if (!e.riser && holds.some((h) => h.x > e.x - 1 && h.x < e.x + 9) && plan.hangTicks) {
@@ -431,6 +470,82 @@ export function* searchGenBase(course: CourseData, opts: { routes?: boolean; alt
 }
 
 type AtFn = (jobs: Job[], stopOnClear?: boolean) => Batch;
+
+// The centre and the ends of the longest run of consecutive values that all score best (a window is one stretch of times, not scattered lucky ones).
+function bestRun(vals: number[], sc: number[]): { mid: number; lo: number; hi: number } {
+  const best = Math.max(...sc);
+  let bs = 0, bl = 0, s0 = -1;
+  for (let i = 0; i <= sc.length; i++) {
+    const hit = i < sc.length && sc[i] >= best - 1e-9;
+    if (hit && s0 < 0) s0 = i;
+    if (!hit && s0 >= 0) { if (i - s0 > bl) { bl = i - s0; bs = s0; } s0 = -1; }
+  }
+  return { mid: vals[bs + Math.floor((bl - 1) / 2)], lo: vals[bs], hi: vals[bs + bl - 1] };
+}
+const rangeOf = (from: number, to: number, step: number): number[] => { const o: number[] = []; for (let t = from; t <= to + 1e-9; t += step) o.push(Math.round(t * 1000) / 1000); return o; };
+
+// The monkey bars: a coarse joint grid (press x hang on the bar before it x kip x release), then one timing at a time: the first-rung wait, the release, and the wait before each reach.
+function* searchBarsGen(course: CourseData, plan: Plan, windows: Window[], e: { x: number; name: string }, k: number, of: number): Gen<void> {
+  const at = (jobs: Job[], stopOnClear = false): Batch => ({ jobs, stopOnClear, label: `${e.name} (monkey bars)`, step: k, of });
+  const maxTicks = 120 * 30 + lead(course, e.x);
+  const hasHold = !!plan.hangTicks?.length;
+  const jxs = candidates(e.x - 3, e.x, 0.3), kips = [0.7, 1.0, 1.3], rels = rangeOf(0, 600, 30), hangs = hasHold ? rangeOf(0, 480, 30) : [0];
+  const jobs: Job[] = [];
+  for (const jx of jxs) for (const hg of hangs) for (const kip of kips) for (const rel of rels) jobs.push({ plan: { ...plan, jumpXs: [...plan.jumpXs, jx], ...(hasHold ? { hangTicks: plan.hangTicks!.map((t, i) => (i === 0 ? hg : t)) } : {}), barsKip: kip, barsRelease: rel }, maxTicks });
+  const sc: number[] = yield at(jobs, true);
+  let bi = 0;
+  sc.forEach((v, i) => { if (v > sc[bi]) bi = i; });
+  const win = jobs[bi].plan;
+  plan.jumpXs = win.jumpXs; plan.hangTicks = win.hangTicks; plan.barsKip = win.barsKip; plan.barsRelease = win.barsRelease;
+  // a kip that only just clears leaves the reaches no room: over a fine grid of kips and releases, take the one with the most clearing neighbours
+  const kg = rangeOf(0.5, 1.4, 0.1), rg = rangeOf(0, 600, 10);
+  const kj: Job[] = [];
+  for (const kip of kg) for (const rel of rg) kj.push({ plan: { ...plan, barsKip: kip, barsRelease: rel }, maxTicks });
+  const ks: number[] = yield at(kj);
+  if (ks.some((v) => v >= CLEARED)) {
+    let bn = -1, bk = 0;
+    kg.forEach((_, a) => rg.forEach((_r, b) => {
+      if (ks[a * rg.length + b] < CLEARED) return;
+      let n = 0;
+      for (let da = -1; da <= 1; da++) for (let db = -1; db <= 1; db++) { const q = a + da, r = b + db; if (q >= 0 && q < kg.length && r >= 0 && r < rg.length && ks[q * rg.length + r] >= CLEARED) n++; }
+      if (n > bn) { bn = n; bk = a * rg.length + b; }
+    }));
+    plan.barsKip = kj[bk].plan.barsKip; plan.barsRelease = kj[bk].plan.barsRelease;
+  }
+  const one = function* (vals: number[], make: (v: number) => Plan): Gen<{ mid: number; lo: number; hi: number }> {
+    const r: number[] = yield at(vals.map((v) => ({ plan: make(v), maxTicks })));
+    return bestRun(vals, r);
+  };
+  const ms = (r: { lo: number; hi: number }, step: number) => (r.hi - r.lo + step) * DT * 1000;
+  const jx = plan.jumpXs[plan.jumpXs.length - 1];
+  const jr = yield* one(candidates(jx - 0.3, jx + 0.3, 0.02), (v) => ({ ...plan, jumpXs: [...plan.jumpXs.slice(0, -1), v] }));
+  plan.jumpXs = [...plan.jumpXs.slice(0, -1), jr.mid];
+  windows.push({ obstacle: `${e.name} (take-off)`, best: jr.mid, lo: jr.lo, hi: jr.hi, widthMs: ((jr.hi - jr.lo + 0.02) / 7.4) * 1000 });
+  if (hasHold) {
+    const h = yield* one(rangeOf(0, 480, 2), (v) => ({ ...plan, hangTicks: plan.hangTicks!.map((t, i) => (i === 0 ? v : t)) }));
+    plan.hangTicks = plan.hangTicks!.map((t, i) => (i === 0 ? h.mid : t));
+    windows.push({ obstacle: 'hang on bar 1', best: h.mid, lo: h.lo, hi: h.hi, widthMs: ms(h, 2) });
+  }
+  const rows = course.bars!.filter((r) => r.x > e.x - 1);
+  const reaches = (rows[0]?.n ?? 1) - 1 === 0 ? 0 : 2 * ((rows[0]?.n ?? 1) - 1);
+  plan.barsWait = Array.from({ length: reaches }, () => 0);
+  const st = yield* one(rangeOf(0, 600, 2), (v) => ({ ...plan, barsStart: v }));
+  plan.barsStart = st.lo + Math.min(Math.floor((st.hi - st.lo) / 2), 24); // a hang that only waits is time lost: take the early side of the window, 0.2 s inside its edge, not the middle
+  st.mid = plan.barsStart;
+  windows.push({ obstacle: 'bars: hang before the first reach', best: st.mid, lo: st.lo, hi: st.hi, widthMs: ms(st, 2) });
+  const rl = yield* one(rangeOf(0, 900, 2), (v) => ({ ...plan, barsRelease: v }));
+  plan.barsRelease = rl.mid;
+  windows.push({ obstacle: 'bars: release after the last reach', best: rl.mid, lo: rl.lo, hi: rl.hi, widthMs: ms(rl, 2) });
+  let narrow: Window | null = null;
+  for (let pass = 0; pass < 2; pass++) for (let i = 0; i < reaches; i++) { // twice: a wait moves the swing, so the next one's window moves
+    if (pass === 0 && i === 0) narrow = null;
+    const wr = yield* one(rangeOf(0, 12, 1), (v) => ({ ...plan, barsWait: plan.barsWait!.map((q, j) => (j === i ? v : q)) }));
+    plan.barsWait[i] = wr.mid;
+    const w: Window = { obstacle: 'bars: narrowest reach', best: wr.mid, lo: wr.lo, hi: wr.hi, widthMs: ms(wr, 1) };
+    if (pass === 1 && (!narrow || w.widthMs < narrow.widthMs)) narrow = w;
+  }
+  if (narrow) windows.push(narrow);
+}
 
 // Two ways through a pair of bars (asked for with `{ routes: true }`: it adds about 250 runs, so the stored plans and the tests that need it use it, not every search):
 // bar to bar (the plan the search found), or a full pump on the first bar and a flight over the second (a skip).
