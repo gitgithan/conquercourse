@@ -1,0 +1,12 @@
+{
+  "issue": "CC-133",
+  "date": "2026-11-04",
+  "voxel_m": 0.05,
+  "close_iterations": 1,
+  "band_m": 0.3,
+  "fixture": { "truth": { "rungs": 10, "gap_m": 0.5, "height_m": 2.1 }, "measured": { "rungs": 10, "gap_m": 0.5, "height_m": 2.08 } },
+  "saienji_cc0": { "known_height_m": 2.2, "raw_peaks": 15, "raw_gap_m": 0.288, "used": { "x": 12, "y": 2.08, "n": 9, "gap": 0.575 }, "note": "raw gap under 0.3 m, every second rung used" },
+  "kenpei_by_sa": { "peaks": 6, "used": { "n": 11, "gap": 0.35 }, "trusted": false },
+  "demo_course": "public/assets/demo/bars-lift.course.json",
+  "demo_ticks": 1265
+}
