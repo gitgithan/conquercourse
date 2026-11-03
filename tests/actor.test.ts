@@ -1,12 +1,12 @@
-import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
-import { parseClip, sampleClip, type Clip } from '../src/motion/clip';
+import { sampleClip } from '../src/motion/clip';
 import {
   advanceDistance, chooseClip, crouchDepth, facingYaw, flightProgress, leapSeconds, localAngle, reachSeconds, runSeconds, runWeight,
   LAND_TICKS, type ActorState,
 } from '../src/motion/actor-pose';
+import { loadClip } from './helpers/clips';
 
-const load = (n: string): Clip => parseClip(JSON.parse(readFileSync(`public/assets/motion/${n}.json`, 'utf8')));
+const load = loadClip;
 const run = load('run');
 const leap = load('leap');
 const reach = load('reach');
