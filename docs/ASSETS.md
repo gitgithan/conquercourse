@@ -328,6 +328,7 @@
 ## Cup stacks (CC-60)
 - `public/assets/demo/stack.course.json`: our own course, made by `scripts/make-stack-demo.ts`; no third-party content.
 - `public/assets/demo/bars.course.json` and `bars.run.json`: our own monkey-bars course and its recorded key list, made by `scripts/make-bars-demo.ts`; no third-party content (CC-133).
+- `public/assets/demo/swing-to-bars.course.json` and `swing-to-bars.run.json`: our own pull-up bar then monkey bars course and its recorded key list, made by `scripts/make-swing-to-bars-demo.ts`; no third-party content (CC-133).
 - `public/assets/demo/climb.course.json`: our own course (a 2 m wall and a 5 m drop), written by hand; no third-party content.
 - The cups are drawn from code (instanced cones, standard colours, no logos); there are no image or model files.
 

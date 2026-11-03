@@ -1,6 +1,7 @@
 import { parseTrackSrc, trackPiece } from './track-world';
 import type { CourseData, CourseSource } from '../course/course';
 import { deviceMesh } from './device';
+import { barsPiece, barsSpecOf, barsSrc, RUNG_THICK } from './bars-world';
 import { barMesh } from './holds-world';
 import { pieceFromSrc } from './layout-draft';
 import { LIBRARY } from './shapes';
@@ -47,6 +48,7 @@ export function copySourceFrom(course: CourseData): CourseSource {
     box(runStart, p.x1, runH);
   }
   for (const h of course.holds ?? []) pieces.push({ src: 'hold:bar', x: h.x, z: 0, y: +(h.y - base).toFixed(2), yaw: 0, scale: 1 });
+  for (const b of course.bars ?? []) { pieces.push({ src: barsSrc({ n: b.n, gap: b.gap }), x: +(b.x + ((b.n - 1) * b.gap) / 2).toFixed(2), z: 0, y: +(b.y - RUNG_THICK / 2 - base).toFixed(3), yaw: 0, scale: 1 }); }
   return { kind: 'copy', pieces, angle: 0, offset: 0, level: 0, floor: course.hazard ?? 'water' }; // machines (a trebuchet, a launcher) and planks are not copied
 }
 
@@ -79,6 +81,7 @@ export function piecesFromSource(list: CourseSource['pieces']): (Piece & { src?:
     else if (patternOf(q.src)) p = stackPiece(q.src, at);
     else if (q.src.startsWith('box:')) p = pieceFromSrc(q.src, at);
     else if (q.src.startsWith('track:')) { const pts = parseTrackSrc(q.src); if (pts) p = trackPiece(pts, at); }
+    else if (barsSpecOf(q.src)) p = barsPiece(barsSpecOf(q.src)!, at);
     else if (q.src === 'hold:bar') p = { ...newPiece('Bar', barMesh(), at), src: q.src };
     else { const id = q.src === 'dome' ? 'block' : q.src; /* the dome piece was removed (CC-96): an old world keeps a block in its place */ const l = LIBRARY.find((x) => x.id === id); if (l) p = { ...newPiece(l.label, l.mesh(), at), src: id }; }
     if (p) out.push({ ...p, y: q.y, yaw: q.yaw, scale: q.scale, ...(q.role ? { role: q.role as Piece['role'] } : {}) });

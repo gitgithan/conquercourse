@@ -2,6 +2,7 @@ import type { CourseData } from '../course/course';
 import { searchIdealRun } from '../sim/ideal';
 import { groundAt } from '../sim/terrain';
 import { DEFAULT_WALL } from '../sim/wall';
+import { barsOf, toBarRuns } from './bars-world';
 import { lanePlanks } from './plank-world';
 import { holdsOf, isHold, type P } from './holds-world';
 import { describe, HALF_LANE, laneToCourse } from './slice';
@@ -76,11 +77,12 @@ export function roleCourse(pieces: P[], lane: LaneSetting, name = 'My world'): R
   const ground = pieces.filter((p) => !isHold(p) && p.role !== 'rope' && p.role !== 'bar'); // bars and rope anchors are not ground
   const pr = laneProfile(ground, lane);
   const walls = pieces.filter((p) => p.role === 'wall' && inLane(p, lane)), beds = pieces.filter((p) => p.role === 'trampoline' && inLane(p, lane)), ropes = pieces.filter((p) => p.role === 'rope' && inLane(p, lane));
+  const rows = barsOf(pieces, lane);
   const splits: number[] = [];
   for (const p of walls) splits.push(footprint(p, lane).u - footprint(p, lane).alongHalf);
   for (const p of beds) { const f = footprint(p, lane); splits.push(f.u - f.alongHalf, f.u + f.alongHalf); }
   for (const p of pieces) if (isTrack(p) && inLane(p, lane)) { const f = footprint(p, lane); splits.push(f.u - f.alongHalf, f.u + f.alongHalf); }
-  const course = laneToCourse({ cells: [...pr.cells], length: pr.length, origin: pr.origin }, name, holdsOf(pieces, lane), { keepGaps: ropes.length > 0, splits }, lanePlanks(pieces, lane));
+  const course = laneToCourse({ cells: [...pr.cells], length: pr.length, origin: pr.origin }, name, holdsOf(pieces, lane), { keepGaps: ropes.length > 0 || rows.length > 0, splits }, lanePlanks(pieces, lane));
   const notes: string[] = [], uMap = course.uMap ?? [], plats = course.terrain.platforms;
   if (!uMap.length) return { course, notes, length: pr.length };
   const wall = walls[0];
@@ -98,6 +100,7 @@ export function roleCourse(pieces: P[], lane: LaneSetting, name = 'My world'): R
   }
   const rails = pieces.filter((p) => isTrack(p) && inLane(p, lane)).flatMap((p) => { const pts = parseTrackSrc(p.src!); if (!pts) return []; const f = footprint(p, lane), x = toX(uMap, f.u); return [sectionPoints(p, pts, f.u, lane.level).map(([u, y]) => [u + (x - f.u), y] as [number, number])]; });
   if (rails.length) notes.push(...applyTracks(course, rails));
+  if (rows.length) course.bars = toBarRuns(rows, (u) => toX(uMap, u));
   const rope = ropes[0];
   if (rope) {
     const f = footprint(rope, lane);
