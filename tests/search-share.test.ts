@@ -5,7 +5,7 @@ import { searchIdealRun, type SearchResult } from "../src/sim/ideal";
 import { searchKey, shareSearches, type NoteFn, type PanelHandle, type Sig } from "../src/modes/course/search-share";
 
 // CC-133: one shared result cache for the ideal-run search. A fake search stands in for the pool so the sharing rules can be checked without playing the simulator.
-const course = JSON.parse(readFileSync("public/assets/demo/training.course.json", "utf8")) as CourseData;
+const course = JSON.parse(readFileSync("public/assets/demo/drop.course.json", "utf8")) as CourseData;
 const noPlan = (c: CourseData): CourseData => { const d = { ...c }; delete d.plan; return d; };
 const fake = (n: number): SearchResult => ({ plan: { jumpXs: [n] } as SearchResult["plan"], windows: [], cleared: true });
 
