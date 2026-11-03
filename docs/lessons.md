@@ -215,14 +215,20 @@
 - What happened:
   - `tests/sim-trace.test.ts` failed on a VM with Node 22 and passed on Node 24, for six courses.
 - Why:
-  - `x ** 3` and `Math.pow(x, 1.5)` round differently in V8 12.4 and 13.6; sin, cos, exp, atan2, sqrt and the rest are identical.
+  - `x ** 3` and `Math.pow(x, 1.5)` round differently in V8 12.4 and 13.6; sin, cos, exp, atan2, sqrt and the rest are identical between those two Node versions.
+  - In workerd (Cloudflare's runtime) sin, cos, tan, exp, log, atan and the inverse trig functions give other last digits than in Node (found 2026-11-03); sqrt and hypot match.
   - The CPU does not matter.
 - What is guaranteed:
-  - Tick count, outcome and end place are identical on Node 22, Node 24 and workerd in 7,525 runs; the stored hash is exact only on V8 13.x.
+  - Tick count, outcome and end place are identical on Node 22, Node 24 and workerd in 7,525 runs.
+  - After the fix below, the stored hash is exact on Node 22 and Node 24.
+  - In workerd the hash is exact for plank and plank-two, but not where the tick uses sin, cos, tan or exp (drone, lache, lache-wide and training plans).
 - What we did:
-  - The trace test checks outcome everywhere and the hash on V8 13.x only.
-  - A bit-exact fix (`x * x * x`, `T * Math.sqrt(T)`) is ready in `data/eval/trace-machines/pow-fix.patch`, waiting for the owner.
-- How to prevent it: use only `+ - * /` and `Math.sqrt` in the sim step when you can; avoid `**` above 2 and `Math.pow`.
+  - The owner chose the fix on 2026-11-03: every `**` and `Math.pow` in the sim became multiplication and `Math.sqrt` (the patch missed some sites, so all of `src` was searched).
+  - `tests/sim-no-pow.test.ts` fails if a power comes back anywhere a tick, a replay or a fingerprint can reach.
+  - `tests/sim-trace.test.ts` now compares the hash on every Node; 15 of its 100 stored entries changed, no outcome, tick count or course hash did.
+  - All 7,525 runs and both recorded runs gave the same ticks, outcome and end place (6 decimals) before and after.
+- How to prevent it: use only `+ - * /` and `Math.sqrt` in the sim step when you can; avoid `**` and `Math.pow`.
+- Still open: exact bits in workerd need our own sin, cos, tan and exp in the sim step (or a tolerance there).
 - Details: `data/eval/trace-machines/README.md`.
 - Worked lesson with a picture: [test on a different machine](lessons-cross-hardware-testing.md).
 

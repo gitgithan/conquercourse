@@ -77,12 +77,12 @@ export function planVault(t: Terrain, x: number, y: number, vx: number, within =
 //   up: a smooth rise (no push-off jump: speed 0 at the start) to VAULT_LIFT above the top at 60 to 70% of the vault, then a smooth drop onto the top (speed 0 at the end).
 export function vaultAt(v: Vault, i: number): { x: number; y: number; vx: number; vy: number } {
   const T = v.n / 120, t = Math.min(1, i / v.n), D = v.x1 - v.x0, v0 = v.vx, v1 = vaultExitSpeed(v);
-  const h01 = -2 * t ** 3 + 3 * t ** 2, h10 = t ** 3 - 2 * t ** 2 + t, h11 = t ** 3 - t ** 2;
-  const dh01 = -6 * t ** 2 + 6 * t, dh10 = 3 * t ** 2 - 4 * t + 1, dh11 = 3 * t ** 2 - 2 * t;
+  const h01 = -2 * t * t * t + 3 * t * t, h10 = t * t * t - 2 * t * t + t, h11 = t * t * t - t * t;
+  const dh01 = -6 * t * t + 6 * t, dh10 = 3 * t * t - 4 * t + 1, dh11 = 3 * t * t - 2 * t;
   const x = v.x0 + D * h01 + v0 * T * h10 + v1 * T * h11;
   const vx = (D * dh01 + v0 * T * dh10 + v1 * T * dh11) / T;
   const rise = v.y1 - v.y0, r = Math.sqrt(1 + rise / VAULT_LIFT), tp = r / (1 + r), apex = v.y1 + VAULT_LIFT;
-  const S = (u: number) => 3 * u * u - 2 * u ** 3, dS = (u: number) => 6 * u - 6 * u * u;
+  const S = (u: number) => 3 * u * u - 2 * u * u * u, dS = (u: number) => 6 * u - 6 * u * u;
   if (t < tp) { const u = t / tp; return { x, vx, y: v.y0 + (apex - v.y0) * S(u), vy: ((apex - v.y0) * dS(u)) / (tp * T) }; }
   const u = (t - tp) / (1 - tp);
   return { x, vx, y: apex - VAULT_LIFT * S(u), vy: (-VAULT_LIFT * dS(u)) / ((1 - tp) * T) };

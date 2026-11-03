@@ -716,7 +716,7 @@ function* tuneTicksGen(plan: Plan, key: 'releaseAfter' | 'bouncePress', from: nu
 // means starting again. Returns the game seconds until the first clear, or null if it never clears in `limitS`.
 export function playImperfect(course: CourseData, plan: Plan, seed: number, sigmaMs: number, limitS = 180): number | null {
   let state = seed >>> 0 || 1;
-  const rnd = () => { state = (Math.imul(state, 1664525) + 1013904223) >>> 0; return state / 2 ** 32; };
+  const rnd = () => { state = (Math.imul(state, 1664525) + 1013904223) >>> 0; return state / 4294967296; };
   const gauss = () => Math.sqrt(-2 * Math.log(Math.max(rnd(), 1e-12))) * Math.cos(2 * Math.PI * rnd());
   const sigmaX = (sigmaMs / 1000) * 7.4; // metres of run at about 7.4 m/s
   let total = 0;

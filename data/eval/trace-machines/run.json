@@ -12,5 +12,12 @@
   "cause": "V8 Math.pow / ** rounding differs between V8 12.4 and 13.6",
   "cpu_is_cause": false,
   "vultr_vm": "not reachable (shut down by owner)",
-  "fix_proposed": "pow-fix.patch (needs owner decision and golden regeneration)"
+  "fix_proposed": "pow-fix.patch (applied 2026-11-03, plus all other sites found by searching src)",
+  "update_2026_11_03": {
+    "golden_sim_trace_entries_changed": "15 of 100",
+    "course_hashes_changed": false,
+    "outcome_flips": 0,
+    "node22_vs_node24_hash_identical": true,
+    "workerd_hash_identical": "plank, plank-two only; sin/cos/tan/exp differ in workerd"
+  }
 }

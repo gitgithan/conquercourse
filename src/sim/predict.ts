@@ -150,7 +150,7 @@ export function predictShot(w: WorldState, course: CourseData, maxTicks = 900): 
     return { path, result: 'lands', why: 'Still in the air at the end of the preview.' };
   };
   const plain = fly(false);
-  const needsRoll = plain.result === 'hurt' || (plain.result === 'lands' && (plain.impact ?? 0) ** 2 / (2 * GRAVITY) > 1.8);
+  const needsRoll = plain.result === 'hurt' || (plain.result === 'lands' && (plain.impact ?? 0) * (plain.impact ?? 0) / (2 * GRAVITY) > 1.8);
   if (!needsRoll) return plain; // a clean landing (or a splash): nothing more to say
   const rolled = fly(true);
   return rolled.result === 'lands' ? { ...rolled, why: `You land at ${rolled.landX!.toFixed(1)} m, ${plain.result === 'hurt' ? 'a hard landing unless you tap X just before the ground to roll it out' : 'a stumble unless you tap X just before the ground to roll it out'}.` } : { ...plain, why: 'You come down too hard: tilt the barrel flatter, or a slower ball.' };

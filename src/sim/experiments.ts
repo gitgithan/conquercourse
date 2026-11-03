@@ -450,7 +450,7 @@ export function classify(pts: Point[]): { shape: Shape; slope: number } {
   const fit = (xs: number[], zs: number[]) => {
     const n = xs.length, mx = xs.reduce((a, b) => a + b) / n, mz = zs.reduce((a, b) => a + b) / n;
     let sxx = 0, sxz = 0, szz = 0;
-    for (let i = 0; i < n; i++) { sxx += (xs[i] - mx) ** 2; sxz += (xs[i] - mx) * (zs[i] - mz); szz += (zs[i] - mz) ** 2; }
+    for (let i = 0; i < n; i++) { sxx += (xs[i] - mx) * (xs[i] - mx); sxz += (xs[i] - mx) * (zs[i] - mz); szz += (zs[i] - mz) * (zs[i] - mz); }
     return { slope: sxz / sxx, r2: (sxz * sxz) / (sxx * szz) };
   };
   const lx = ok.map((p) => Math.log(p.x)), ly = ok.map((p) => Math.log(p.y));

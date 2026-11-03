@@ -37,7 +37,7 @@ export interface PlankData {
 }
 
 export const materialOf = (pk: PlankData) => MATERIALS[pk.material ?? 'wood'];
-export const secondMoment = (pk: PlankData): number => (pk.width * pk.thickness ** 3) / 12; // m^4
+export const secondMoment = (pk: PlankData): number => (pk.width * pk.thickness * pk.thickness * pk.thickness) / 12; // m^4
 export const spanOf = (pk: PlankData): number => pk.x1 - pk.x0;
 export const weightPerMetre = (pk: PlankData): number => materialOf(pk).density * pk.width * pk.thickness * GRAVITY; // N/m
 
@@ -55,11 +55,11 @@ export function sagAt(pk: PlankData, a: number, x: number, mass: number = RIDER_
   const seg = segOf(pk, x), l = seg.l, xl = x - seg.s0;
   // own weight, spread evenly: q x (l^3 - 2 l x^2 + x^3) / (24 EI)
   const q = weightPerMetre(pk);
-  let d = (q * xl * (l ** 3 - 2 * l * xl * xl + xl ** 3)) / (24 * EI);
+  let d = (q * xl * (l * l * l - 2 * l * xl * xl + xl * xl * xl)) / (24 * EI);
   // the rider, if on this segment: a point load
   if (a >= 0 && a <= spanOf(pk) && segOf(pk, a).s0 === seg.s0) {
     const F = mass * GRAVITY, al = a - seg.s0, b = l - al;
-    d += xl <= al ? (F * b * xl * (l * l - b * b - xl * xl)) / (6 * EI * l) : (F * al * (l - xl) * (l * l - al * al - (l - xl) ** 2)) / (6 * EI * l);
+    d += xl <= al ? (F * b * xl * (l * l - b * b - xl * xl)) / (6 * EI * l) : (F * al * (l - xl) * (l * l - al * al - (l - xl) * (l - xl))) / (6 * EI * l);
   }
   return d;
 }

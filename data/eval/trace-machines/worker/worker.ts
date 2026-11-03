@@ -10,12 +10,20 @@ import training from "../../../../public/assets/demo/training.course.json";
 import lache from "../../../../public/assets/demo/lache.course.json";
 import lacheWide from "../../../../public/assets/demo/lache-wide.course.json";
 
+import { hashLines, probeLines } from "../hashlines";
 function mash(seed: number) { let a = seed >>> 0; return () => { a = (a + 0x6d2b79f5) >>> 0; let t = a; t = Math.imul(t ^ (t >>> 15), t | 1); t ^= t + Math.imul(t ^ (t >>> 7), t | 61); return ((t ^ (t >>> 14)) >>> 0) / 4294967296; }; }
 const bits = (w: { runner: { x: number; y: number } }) => `${w.runner.x.toFixed(6)},${w.runner.y.toFixed(6)}`;
 const courses: Record<string, unknown> = { "drone.course.json": drone, "plank.course.json": plank, "plank-two.course.json": plank2, "training.course.json": training, "lache.course.json": lache, "lache-wide.course.json": lacheWide };
 
 export default {
-  async fetch(): Promise<Response> {
+  async fetch(req: Request): Promise<Response> {
+    const u = new URL(req.url);
+    if (u.pathname === "/trace") { // the world after every tick of the plan of one course, JSON lines
+      const lines: string[] = []; playPlan(courses[u.searchParams.get("c")!] as CourseData, (courses[u.searchParams.get("c")!] as CourseData).plan!, undefined, (w) => { lines.push(JSON.stringify(w)); });
+      return new Response(lines.join("\n") + "\n");
+    }
+    if (u.pathname === "/probe") return new Response(probeLines().join("\n") + "\n");
+    if (u.pathname === "/hashes") return new Response(hashLines(courses as Record<string, CourseData>).join("\n") + "\n");
     const seeds = 300; const out: string[] = [];
     for (const [name, c] of Object.entries(courses)) {
       const course = c as CourseData;

@@ -57,7 +57,7 @@ export const batteryJoules = (p: DroneParams): number => p.battery * 3600;
 
 // The electric power for a thrust.
 export function rotorPower(T: number, p: DroneParams): number {
-  return Math.pow(Math.max(0, T), 1.5) / Math.sqrt(2 * AIR_DENSITY * p.rotorArea) / p.merit + p.avionics;
+  return (Math.max(0, T) * Math.sqrt(Math.max(0, T))) / Math.sqrt(2 * AIR_DENSITY * p.rotorArea) / p.merit + p.avionics;
 }
 export const hoverPower = (p: DroneParams): number => rotorPower(weight(p), p);
 export const hoverSeconds = (p: DroneParams): number => batteryJoules(p) / hoverPower(p);

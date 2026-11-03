@@ -18,6 +18,17 @@
   - It changes the stored golden hashes of those six courses (not the course hashes, which hash the course data), so it needs `UPDATE_GOLDEN` and a note in the pull request.
   - Risk: a real clear that lands on a razor-thin margin could move by a tick; check the recorded runs and plans after regenerating.
 
+## Update 2026-11-03: the pow fix is applied
+- The owner chose to make the sim bit-exact; the patch listed six sites, a search of all of `src` found about twenty more, all changed (see `docs/lessons-cross-hardware-testing.md`).
+- Outcome check before regenerating: `outcomes.ts 300` (7,525 runs) and `runs.ts` (both recorded runs) gave identical lines on old and new arithmetic (Node 24).
+- Golden: `tests/golden/course-hashes.json` unchanged; `tests/golden/sim-trace.json` 15 of 100 entries changed (hash only).
+- Bit check: `hashes.ts` (FNV hash of the world after every tick, 100 runs) gives byte-identical output on Node 22.23 (V8 12.4) and Node 24.22 (V8 13.6).
+- workerd: the same hash on plank and plank-two; different on the drone mashes and the drone, lache, lache-wide and training plans.
+  - Cause found with `probe.ts`: `Math.sin`, `cos`, `tan`, `atan`, `exp`, `log`, `asin`, `acos` and `atan2` give other last digits in workerd than in Node; `sqrt` and `hypot` match.
+  - First difference: drone plan, tick 144, `drone.thrust` (uses `Math.cos`).
+  - The outcome lines of the 1,806 runs on these six courses are still identical to Node's.
+- New scripts: `hashlines.ts`, `hashes.ts`, `probe.ts`, `runs.ts`; the Worker has `/hashes`, `/probe` and `/trace?c=<course>`.
+
 ## What we ran
 - `dump.ts` writes the world after every tick; `firstdiff.mjs` finds the first tick and field that differ.
   - Node 22 vs 24: first difference at tick 292 (drone, field `drone.power`, 1 unit in the last place) and tick 628 (plank, `runner.y`, then `runner.vy` 3e-13).

@@ -37,7 +37,7 @@ export function makeStepper(rails: Rails, method: Method, dt: number, p: CartPar
     const smooth = Math.tanh(vv / 0.05);
     return -p.gravity * sinPhi - p.rolling * p.gravity * c * smooth - p.drag * vv * Math.abs(vv) - (brake ? p.brake * smooth : 0);
   };
-  const vel = (xx: number, vv: number): number => vv / Math.sqrt(1 + rails.slope(xx) ** 2);
+  const vel = (xx: number, vv: number): number => vv / Math.sqrt(1 + rails.slope(xx) * rails.slope(xx));
   if (method === "euler") return (x, v) => ({ x: x + dt * vel(x, v), v: v + dt * acc(x, v) });
   if (method === "semi") return (x, v) => { const nv = v + dt * acc(x, v); return { x: x + dt * vel(x, nv), v: nv }; };
   return (x, v) => {

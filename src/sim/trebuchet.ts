@@ -52,7 +52,7 @@ export function startLaunch(p: TrebuchetParams, deck: number): Launch {
 
 function accel(p: TrebuchetParams, al: number, be: number, dal: number, dbe: number): [number, number] {
   const { long: b, short: a, sling: s, counterweight: M, armMass: ma, riderMass: m, gravity: g } = p;
-  const Iarm = (ma / 12) * (a + b) ** 2 + ma * ((b - a) / 2) ** 2;
+  const Iarm = (ma / 12) * (a + b) * (a + b) + ma * ((b - a) / 2) * ((b - a) / 2);
   const K = -M * a + (ma * (b - a)) / 2 + m * b;
   const M11 = Iarm + M * a * a + m * b * b, M12 = m * b * s * Math.cos(be - al), M22 = m * s * s;
   const r1 = m * b * s * Math.sin(be - al) * dbe * dbe - g * K * Math.cos(al);
@@ -145,9 +145,9 @@ export function swingPath(p: TrebuchetParams, deck: number, maxTicks = 120 * 6):
 // Total mechanical energy of the machine (J): kinetic plus potential of the arm, the counterweight and the rider. With no friction it is constant.
 export function mechanicalEnergy(p: TrebuchetParams, s: Launch): number {
   const { long: b, short: a, sling: l, counterweight: M, armMass: ma, riderMass: m, gravity: g, axleHeight: H } = p;
-  const Iarm = (ma / 12) * (a + b) ** 2 + ma * ((b - a) / 2) ** 2;
+  const Iarm = (ma / 12) * (a + b) * (a + b) + ma * ((b - a) / 2) * ((b - a) / 2);
   const M11 = Iarm + M * a * a + m * b * b, M12 = m * b * l * Math.cos(s.beta - s.alpha), M22 = m * l * l;
-  const T = 0.5 * M11 * s.dalpha ** 2 + M12 * s.dalpha * s.dbeta + 0.5 * M22 * s.dbeta ** 2;
+  const T = 0.5 * M11 * s.dalpha * s.dalpha + M12 * s.dalpha * s.dbeta + 0.5 * M22 * s.dbeta * s.dbeta;
   const V = g * (M * (H - a * Math.sin(s.alpha)) + ma * (H + ((b - a) / 2) * Math.sin(s.alpha)) + m * (H + b * Math.sin(s.alpha) + l * Math.sin(s.beta)));
   return T + V;
 }
