@@ -1,0 +1,613 @@
+{
+  "kind": "travel",
+  "prompt": "A person hangs from overhead monkey bars and moves hand over hand along them, reaching one hand forward to the next bar at a time, legs hanging.",
+  "model": "kimodo-soma-rp",
+  "kimodo_commit": "e1c219c99b4b94ba48be1fb6a1cbc64ecee4c954",
+  "steps": 100,
+  "summary": {
+    "sample": {
+      "gate_pass": 3,
+      "bar_check_ok": 0,
+      "both": 0,
+      "of": 8
+    },
+    "baseline": {
+      "gate_pass": 6,
+      "bar_check_ok": 0,
+      "both": 0,
+      "of": 8
+    }
+  },
+  "samples": [
+    {
+      "seed": 7,
+      "sample": {
+        "gate_pass": true,
+        "gate_failed": [],
+        "soft_failed": [
+          "feet_dont_slide",
+          "no_jitter"
+        ],
+        "bar_check_ok": false,
+        "bar_numbers": {
+          "hang_share": 0.0,
+          "hips_travel_m": 3.283,
+          "LeftHand": {
+            "grips": 0,
+            "forward_steps": 0,
+            "other_hand_holds_share": 0.45,
+            "backward_steps": 0
+          },
+          "RightHand": {
+            "grips": 1,
+            "forward_steps": 0,
+            "other_hand_holds_share": 0.415,
+            "backward_steps": 0
+          },
+          "both_hands_moving_share": 0.367
+        },
+        "grip_error_m": {
+          "mean": 1.032,
+          "max": 1.159
+        },
+        "repairs": {
+          "fix_knees": 0,
+          "lift_to_floor": 0,
+          "limit_knee_bend": 0
+        }
+      },
+      "baseline": {
+        "gate_pass": true,
+        "gate_failed": [],
+        "soft_failed": [],
+        "bar_check_ok": false,
+        "bar_numbers": {
+          "hang_share": 0.0,
+          "hips_travel_m": 2.521,
+          "LeftHand": {
+            "grips": 0,
+            "forward_steps": 0,
+            "other_hand_holds_share": 0.155,
+            "backward_steps": 0
+          },
+          "RightHand": {
+            "grips": 0,
+            "forward_steps": 0,
+            "other_hand_holds_share": 0.216,
+            "backward_steps": 0
+          },
+          "both_hands_moving_share": 0.58
+        },
+        "grip_error_m": {
+          "mean": 0.768,
+          "max": 1.426
+        },
+        "repairs": {
+          "fix_knees": 0,
+          "lift_to_floor": 0,
+          "limit_knee_bend": 0
+        }
+      }
+    },
+    {
+      "seed": 8,
+      "sample": {
+        "gate_pass": false,
+        "gate_failed": [
+          "held_clips_are_held"
+        ],
+        "soft_failed": [
+          "feet_dont_slide",
+          "no_jitter"
+        ],
+        "bar_check_ok": false,
+        "bar_numbers": {
+          "hang_share": 0.0,
+          "hips_travel_m": 3.272,
+          "LeftHand": {
+            "grips": 0,
+            "forward_steps": 0,
+            "other_hand_holds_share": 0.272,
+            "backward_steps": 0
+          },
+          "RightHand": {
+            "grips": 0,
+            "forward_steps": 0,
+            "other_hand_holds_share": 0.165,
+            "backward_steps": 0
+          },
+          "both_hands_moving_share": 0.607
+        },
+        "grip_error_m": {
+          "mean": 1.153,
+          "max": 1.591
+        },
+        "repairs": {
+          "fix_knees": 38,
+          "lift_to_floor": 0,
+          "limit_knee_bend": 0
+        }
+      },
+      "baseline": {
+        "gate_pass": false,
+        "gate_failed": [
+          "legs_not_twisted"
+        ],
+        "soft_failed": [
+          "feet_dont_slide",
+          "no_jitter"
+        ],
+        "bar_check_ok": false,
+        "bar_numbers": {
+          "hang_share": 0.0,
+          "hips_travel_m": 3.901,
+          "LeftHand": {
+            "grips": 1,
+            "forward_steps": 0,
+            "other_hand_holds_share": 0.107,
+            "backward_steps": 0
+          },
+          "RightHand": {
+            "grips": 1,
+            "forward_steps": 0,
+            "other_hand_holds_share": 0.018,
+            "backward_steps": 0
+          },
+          "both_hands_moving_share": 0.72
+        },
+        "grip_error_m": {
+          "mean": 1.93,
+          "max": 2.454
+        },
+        "repairs": {
+          "fix_knees": 7,
+          "lift_to_floor": 51,
+          "limit_knee_bend": 5
+        }
+      }
+    },
+    {
+      "seed": 9,
+      "sample": {
+        "gate_pass": false,
+        "gate_failed": [
+          "held_clips_are_held"
+        ],
+        "soft_failed": [
+          "feet_dont_slide",
+          "no_jitter"
+        ],
+        "bar_check_ok": false,
+        "bar_numbers": {
+          "hang_share": 0.0,
+          "hips_travel_m": 3.266,
+          "LeftHand": {
+            "grips": 0,
+            "forward_steps": 0,
+            "other_hand_holds_share": 0.172,
+            "backward_steps": 0
+          },
+          "RightHand": {
+            "grips": 0,
+            "forward_steps": 0,
+            "other_hand_holds_share": 0.109,
+            "backward_steps": 0
+          },
+          "both_hands_moving_share": 0.707
+        },
+        "grip_error_m": {
+          "mean": 1.139,
+          "max": 1.27
+        },
+        "repairs": {
+          "fix_knees": 4,
+          "lift_to_floor": 0,
+          "limit_knee_bend": 0
+        }
+      },
+      "baseline": {
+        "gate_pass": false,
+        "gate_failed": [
+          "held_clips_are_held"
+        ],
+        "soft_failed": [
+          "no_jitter"
+        ],
+        "bar_check_ok": false,
+        "bar_numbers": {
+          "hang_share": 0.0,
+          "hips_travel_m": 4.139,
+          "LeftHand": {
+            "grips": 1,
+            "forward_steps": 0,
+            "other_hand_holds_share": 0.0,
+            "backward_steps": 0
+          },
+          "RightHand": {
+            "grips": 1,
+            "forward_steps": 0,
+            "other_hand_holds_share": 0.125,
+            "backward_steps": 0
+          },
+          "both_hands_moving_share": 0.7
+        },
+        "grip_error_m": {
+          "mean": 1.637,
+          "max": 2.03
+        },
+        "repairs": {
+          "fix_knees": 6,
+          "lift_to_floor": 0,
+          "limit_knee_bend": 20
+        }
+      }
+    },
+    {
+      "seed": 10,
+      "sample": {
+        "gate_pass": true,
+        "gate_failed": [],
+        "soft_failed": [
+          "feet_dont_slide",
+          "no_jitter"
+        ],
+        "bar_check_ok": false,
+        "bar_numbers": {
+          "hang_share": 0.0,
+          "hips_travel_m": 3.275,
+          "LeftHand": {
+            "grips": 1,
+            "forward_steps": 0,
+            "other_hand_holds_share": 0.394,
+            "backward_steps": 0
+          },
+          "RightHand": {
+            "grips": 0,
+            "forward_steps": 0,
+            "other_hand_holds_share": 0.406,
+            "backward_steps": 0
+          },
+          "both_hands_moving_share": 0.42
+        },
+        "grip_error_m": {
+          "mean": 1.043,
+          "max": 1.086
+        },
+        "repairs": {
+          "fix_knees": 0,
+          "lift_to_floor": 0,
+          "limit_knee_bend": 0
+        }
+      },
+      "baseline": {
+        "gate_pass": true,
+        "gate_failed": [],
+        "soft_failed": [
+          "feet_dont_slide"
+        ],
+        "bar_check_ok": false,
+        "bar_numbers": {
+          "hang_share": 0.0,
+          "hips_travel_m": 5.521,
+          "LeftHand": {
+            "grips": 1,
+            "forward_steps": 0,
+            "other_hand_holds_share": 0.122,
+            "backward_steps": 0
+          },
+          "RightHand": {
+            "grips": 0,
+            "forward_steps": 0,
+            "other_hand_holds_share": 0.009,
+            "backward_steps": 0
+          },
+          "both_hands_moving_share": 0.72
+        },
+        "grip_error_m": {
+          "mean": 1.855,
+          "max": 2.579
+        },
+        "repairs": {
+          "fix_knees": 0,
+          "lift_to_floor": 0,
+          "limit_knee_bend": 0
+        }
+      }
+    },
+    {
+      "seed": 11,
+      "sample": {
+        "gate_pass": true,
+        "gate_failed": [],
+        "soft_failed": [
+          "feet_dont_slide",
+          "no_jitter"
+        ],
+        "bar_check_ok": false,
+        "bar_numbers": {
+          "hang_share": 0.0,
+          "hips_travel_m": 3.27,
+          "LeftHand": {
+            "grips": 0,
+            "forward_steps": 0,
+            "other_hand_holds_share": 0.147,
+            "backward_steps": 0
+          },
+          "RightHand": {
+            "grips": 0,
+            "forward_steps": 0,
+            "other_hand_holds_share": 0.091,
+            "backward_steps": 0
+          },
+          "both_hands_moving_share": 0.733
+        },
+        "grip_error_m": {
+          "mean": 1.041,
+          "max": 1.102
+        },
+        "repairs": {
+          "fix_knees": 0,
+          "lift_to_floor": 0,
+          "limit_knee_bend": 0
+        }
+      },
+      "baseline": {
+        "gate_pass": true,
+        "gate_failed": [],
+        "soft_failed": [
+          "feet_dont_slide",
+          "no_jitter"
+        ],
+        "bar_check_ok": false,
+        "bar_numbers": {
+          "hang_share": 0.0,
+          "hips_travel_m": 4.658,
+          "LeftHand": {
+            "grips": 1,
+            "forward_steps": 0,
+            "other_hand_holds_share": 0.029,
+            "backward_steps": 0
+          },
+          "RightHand": {
+            "grips": 1,
+            "forward_steps": 0,
+            "other_hand_holds_share": 0.116,
+            "backward_steps": 0
+          },
+          "both_hands_moving_share": 0.66
+        },
+        "grip_error_m": {
+          "mean": 1.597,
+          "max": 2.318
+        },
+        "repairs": {
+          "fix_knees": 3,
+          "lift_to_floor": 0,
+          "limit_knee_bend": 5
+        }
+      }
+    },
+    {
+      "seed": 12,
+      "sample": {
+        "gate_pass": false,
+        "gate_failed": [
+          "held_clips_are_held"
+        ],
+        "soft_failed": [
+          "feet_dont_slide",
+          "no_jitter"
+        ],
+        "bar_check_ok": false,
+        "bar_numbers": {
+          "hang_share": 0.0,
+          "hips_travel_m": 3.274,
+          "LeftHand": {
+            "grips": 0,
+            "forward_steps": 0,
+            "other_hand_holds_share": 0.076,
+            "backward_steps": 0
+          },
+          "RightHand": {
+            "grips": 0,
+            "forward_steps": 0,
+            "other_hand_holds_share": 0.069,
+            "backward_steps": 0
+          },
+          "both_hands_moving_share": 0.813
+        },
+        "grip_error_m": {
+          "mean": 1.184,
+          "max": 1.35
+        },
+        "repairs": {
+          "fix_knees": 9,
+          "lift_to_floor": 0,
+          "limit_knee_bend": 0
+        }
+      },
+      "baseline": {
+        "gate_pass": true,
+        "gate_failed": [],
+        "soft_failed": [
+          "feet_dont_slide",
+          "no_jitter"
+        ],
+        "bar_check_ok": false,
+        "bar_numbers": {
+          "hang_share": 0.0,
+          "hips_travel_m": 2.712,
+          "LeftHand": {
+            "grips": 2,
+            "forward_steps": 1,
+            "other_hand_holds_share": 0.327,
+            "backward_steps": 0
+          },
+          "RightHand": {
+            "grips": 2,
+            "forward_steps": 1,
+            "other_hand_holds_share": 0.213,
+            "backward_steps": 0
+          },
+          "both_hands_moving_share": 0.247
+        },
+        "grip_error_m": {
+          "mean": 1.935,
+          "max": 2.341
+        },
+        "repairs": {
+          "fix_knees": 7,
+          "lift_to_floor": 74,
+          "limit_knee_bend": 2
+        }
+      }
+    },
+    {
+      "seed": 13,
+      "sample": {
+        "gate_pass": false,
+        "gate_failed": [
+          "held_clips_are_held"
+        ],
+        "soft_failed": [
+          "feet_dont_slide",
+          "no_jitter"
+        ],
+        "bar_check_ok": false,
+        "bar_numbers": {
+          "hang_share": 0.0,
+          "hips_travel_m": 3.273,
+          "LeftHand": {
+            "grips": 0,
+            "forward_steps": 0,
+            "other_hand_holds_share": 0.082,
+            "backward_steps": 0
+          },
+          "RightHand": {
+            "grips": 0,
+            "forward_steps": 0,
+            "other_hand_holds_share": 0.164,
+            "backward_steps": 0
+          },
+          "both_hands_moving_share": 0.747
+        },
+        "grip_error_m": {
+          "mean": 1.175,
+          "max": 1.353
+        },
+        "repairs": {
+          "fix_knees": 27,
+          "lift_to_floor": 0,
+          "limit_knee_bend": 0
+        }
+      },
+      "baseline": {
+        "gate_pass": true,
+        "gate_failed": [],
+        "soft_failed": [
+          "feet_dont_slide"
+        ],
+        "bar_check_ok": false,
+        "bar_numbers": {
+          "hang_share": 0.0,
+          "hips_travel_m": 1.853,
+          "LeftHand": {
+            "grips": 3,
+            "forward_steps": 2,
+            "other_hand_holds_share": 0.036,
+            "backward_steps": 0
+          },
+          "RightHand": {
+            "grips": 2,
+            "forward_steps": 1,
+            "other_hand_holds_share": 0.0,
+            "backward_steps": 0
+          },
+          "both_hands_moving_share": 0.36
+        },
+        "grip_error_m": {
+          "mean": 2.047,
+          "max": 2.323
+        },
+        "repairs": {
+          "fix_knees": 0,
+          "lift_to_floor": 82,
+          "limit_knee_bend": 0
+        }
+      }
+    },
+    {
+      "seed": 14,
+      "sample": {
+        "gate_pass": false,
+        "gate_failed": [
+          "held_clips_are_held"
+        ],
+        "soft_failed": [
+          "feet_dont_slide"
+        ],
+        "bar_check_ok": false,
+        "bar_numbers": {
+          "hang_share": 0.0,
+          "hips_travel_m": 3.279,
+          "LeftHand": {
+            "grips": 0,
+            "forward_steps": 0,
+            "other_hand_holds_share": 0.159,
+            "backward_steps": 0
+          },
+          "RightHand": {
+            "grips": 0,
+            "forward_steps": 0,
+            "other_hand_holds_share": 0.246,
+            "backward_steps": 0
+          },
+          "both_hands_moving_share": 0.633
+        },
+        "grip_error_m": {
+          "mean": 1.167,
+          "max": 1.344
+        },
+        "repairs": {
+          "fix_knees": 37,
+          "lift_to_floor": 0,
+          "limit_knee_bend": 0
+        }
+      },
+      "baseline": {
+        "gate_pass": true,
+        "gate_failed": [],
+        "soft_failed": [
+          "no_jitter"
+        ],
+        "bar_check_ok": false,
+        "bar_numbers": {
+          "hang_share": 0.0,
+          "hips_travel_m": 4.679,
+          "LeftHand": {
+            "grips": 1,
+            "forward_steps": 0,
+            "other_hand_holds_share": 0.183,
+            "backward_steps": 0
+          },
+          "RightHand": {
+            "grips": 1,
+            "forward_steps": 0,
+            "other_hand_holds_share": 0.262,
+            "backward_steps": 0
+          },
+          "both_hands_moving_share": 0.507
+        },
+        "grip_error_m": {
+          "mean": 1.993,
+          "max": 2.215
+        },
+        "repairs": {
+          "fix_knees": 11,
+          "lift_to_floor": 46,
+          "limit_knee_bend": 11
+        }
+      }
+    }
+  ]
+}

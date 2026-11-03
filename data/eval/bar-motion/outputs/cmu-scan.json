@@ -1,0 +1,1057 @@
+{
+  "source": "CMU Graphics Lab Motion Capture, subject 01 (playground), trials 01_01 to 01_14",
+  "stretches": [
+    {
+      "trial": "01_04",
+      "frames": [
+        218,
+        386
+      ],
+      "seconds": 5.6,
+      "gate_pass": true,
+      "gate_failed": [],
+      "checks": {
+        "travel": {
+          "ok": false,
+          "hang_share": 1.0,
+          "hips_travel_m": -0.231,
+          "LeftHand": {
+            "grips": 4,
+            "forward_steps": 0,
+            "other_hand_holds_share": 0.0,
+            "backward_steps": 0
+          },
+          "RightHand": {
+            "grips": 2,
+            "forward_steps": 0,
+            "other_hand_holds_share": 0.0,
+            "backward_steps": 0
+          },
+          "both_hands_moving_share": 0.0
+        },
+        "idle": {
+          "ok": true,
+          "hang_share": 1.0,
+          "hips_travel_m": -0.231,
+          "grip_share": 1.0
+        },
+        "kip": {
+          "ok": true,
+          "hang_share": 1.0,
+          "hips_travel_m": -0.231,
+          "grip_share": 1.0,
+          "swing_p2p_m": 0.592,
+          "reversals": 4
+        }
+      }
+    },
+    {
+      "trial": "01_04",
+      "frames": [
+        723,
+        873
+      ],
+      "seconds": 5.0,
+      "gate_pass": true,
+      "gate_failed": [],
+      "checks": {
+        "travel": {
+          "ok": false,
+          "hang_share": 1.0,
+          "hips_travel_m": -0.054,
+          "LeftHand": {
+            "grips": 3,
+            "forward_steps": 0,
+            "other_hand_holds_share": 0.0,
+            "backward_steps": 0
+          },
+          "RightHand": {
+            "grips": 5,
+            "forward_steps": 0,
+            "other_hand_holds_share": 1.0,
+            "backward_steps": 0
+          },
+          "both_hands_moving_share": 0.0
+        },
+        "idle": {
+          "ok": true,
+          "hang_share": 1.0,
+          "hips_travel_m": -0.054,
+          "grip_share": 1.0
+        },
+        "kip": {
+          "ok": true,
+          "hang_share": 1.0,
+          "hips_travel_m": -0.054,
+          "grip_share": 1.0,
+          "swing_p2p_m": 0.578,
+          "reversals": 5
+        }
+      }
+    },
+    {
+      "trial": "01_05",
+      "frames": [
+        317,
+        364
+      ],
+      "seconds": 1.57,
+      "gate_pass": true,
+      "gate_failed": [],
+      "checks": {
+        "travel": {
+          "ok": false,
+          "hang_share": 1.0,
+          "hips_travel_m": 0.169,
+          "LeftHand": {
+            "grips": 1,
+            "forward_steps": 0,
+            "other_hand_holds_share": 0.0,
+            "backward_steps": 0
+          },
+          "RightHand": {
+            "grips": 1,
+            "forward_steps": 0,
+            "other_hand_holds_share": 0.0,
+            "backward_steps": 0
+          },
+          "both_hands_moving_share": 0.0
+        },
+        "idle": {
+          "ok": true,
+          "hang_share": 1.0,
+          "hips_travel_m": 0.169,
+          "grip_share": 1.0
+        },
+        "kip": {
+          "ok": false,
+          "hang_share": 1.0,
+          "hips_travel_m": 0.169,
+          "grip_share": 1.0,
+          "swing_p2p_m": 0.21,
+          "reversals": 1
+        }
+      }
+    },
+    {
+      "trial": "01_06",
+      "frames": [
+        197,
+        361
+      ],
+      "seconds": 5.47,
+      "gate_pass": true,
+      "gate_failed": [],
+      "checks": {
+        "travel": {
+          "ok": false,
+          "hang_share": 1.0,
+          "hips_travel_m": 0.608,
+          "LeftHand": {
+            "grips": 2,
+            "forward_steps": 0,
+            "other_hand_holds_share": 0.111,
+            "backward_steps": 0
+          },
+          "RightHand": {
+            "grips": 2,
+            "forward_steps": 0,
+            "other_hand_holds_share": 0.111,
+            "backward_steps": 0
+          },
+          "both_hands_moving_share": 0.049
+        },
+        "idle": {
+          "ok": false,
+          "hang_share": 1.0,
+          "hips_travel_m": 0.608,
+          "grip_share": 0.973
+        },
+        "kip": {
+          "ok": true,
+          "hang_share": 1.0,
+          "hips_travel_m": 0.608,
+          "grip_share": 0.973,
+          "swing_p2p_m": 0.566,
+          "reversals": 10
+        }
+      }
+    },
+    {
+      "trial": "01_06",
+      "frames": [
+        658,
+        703
+      ],
+      "seconds": 1.5,
+      "gate_pass": true,
+      "gate_failed": [],
+      "checks": {
+        "travel": {
+          "ok": false,
+          "hang_share": 1.0,
+          "hips_travel_m": -0.028,
+          "LeftHand": {
+            "grips": 1,
+            "forward_steps": 0,
+            "other_hand_holds_share": 1.0,
+            "backward_steps": 0
+          },
+          "RightHand": {
+            "grips": 1,
+            "forward_steps": 0,
+            "other_hand_holds_share": 0.0,
+            "backward_steps": 0
+          },
+          "both_hands_moving_share": 0.0
+        },
+        "idle": {
+          "ok": true,
+          "hang_share": 1.0,
+          "hips_travel_m": -0.028,
+          "grip_share": 0.967
+        },
+        "kip": {
+          "ok": false,
+          "hang_share": 1.0,
+          "hips_travel_m": -0.028,
+          "grip_share": 0.967,
+          "swing_p2p_m": 0.058,
+          "reversals": 3
+        }
+      }
+    },
+    {
+      "trial": "01_06",
+      "frames": [
+        1002,
+        1129
+      ],
+      "seconds": 4.23,
+      "gate_pass": true,
+      "gate_failed": [],
+      "checks": {
+        "travel": {
+          "ok": false,
+          "hang_share": 1.0,
+          "hips_travel_m": -0.113,
+          "LeftHand": {
+            "grips": 3,
+            "forward_steps": 0,
+            "other_hand_holds_share": 0.0,
+            "backward_steps": 0
+          },
+          "RightHand": {
+            "grips": 1,
+            "forward_steps": 0,
+            "other_hand_holds_share": 1.0,
+            "backward_steps": 0
+          },
+          "both_hands_moving_share": 0.0
+        },
+        "idle": {
+          "ok": true,
+          "hang_share": 1.0,
+          "hips_travel_m": -0.113,
+          "grip_share": 0.992
+        },
+        "kip": {
+          "ok": true,
+          "hang_share": 1.0,
+          "hips_travel_m": -0.113,
+          "grip_share": 0.992,
+          "swing_p2p_m": 0.525,
+          "reversals": 2
+        }
+      }
+    },
+    {
+      "trial": "01_07",
+      "frames": [
+        1021,
+        1167
+      ],
+      "seconds": 4.87,
+      "gate_pass": true,
+      "gate_failed": [],
+      "checks": {
+        "travel": {
+          "ok": false,
+          "hang_share": 1.0,
+          "hips_travel_m": 0.517,
+          "LeftHand": {
+            "grips": 2,
+            "forward_steps": 0,
+            "other_hand_holds_share": 0.0,
+            "backward_steps": 0
+          },
+          "RightHand": {
+            "grips": 1,
+            "forward_steps": 0,
+            "other_hand_holds_share": 0.0,
+            "backward_steps": 0
+          },
+          "both_hands_moving_share": 0.027
+        },
+        "idle": {
+          "ok": false,
+          "hang_share": 1.0,
+          "hips_travel_m": 0.517,
+          "grip_share": 0.979
+        },
+        "kip": {
+          "ok": true,
+          "hang_share": 1.0,
+          "hips_travel_m": 0.517,
+          "grip_share": 0.979,
+          "swing_p2p_m": 0.54,
+          "reversals": 7
+        }
+      }
+    },
+    {
+      "trial": "01_08",
+      "frames": [
+        439,
+        529
+      ],
+      "seconds": 3.0,
+      "gate_pass": true,
+      "gate_failed": [],
+      "checks": {
+        "travel": {
+          "ok": false,
+          "hang_share": 1.0,
+          "hips_travel_m": -0.0,
+          "LeftHand": {
+            "grips": 2,
+            "forward_steps": 0,
+            "other_hand_holds_share": 0.0,
+            "backward_steps": 0
+          },
+          "RightHand": {
+            "grips": 2,
+            "forward_steps": 0,
+            "other_hand_holds_share": 0.0,
+            "backward_steps": 0
+          },
+          "both_hands_moving_share": 0.0
+        },
+        "idle": {
+          "ok": true,
+          "hang_share": 1.0,
+          "hips_travel_m": -0.0,
+          "grip_share": 1.0
+        },
+        "kip": {
+          "ok": false,
+          "hang_share": 1.0,
+          "hips_travel_m": -0.0,
+          "grip_share": 1.0,
+          "swing_p2p_m": 0.029,
+          "reversals": 4
+        }
+      }
+    },
+    {
+      "trial": "01_09",
+      "frames": [
+        398,
+        449
+      ],
+      "seconds": 1.7,
+      "gate_pass": true,
+      "gate_failed": [],
+      "checks": {
+        "travel": {
+          "ok": false,
+          "hang_share": 1.0,
+          "hips_travel_m": -0.369,
+          "LeftHand": {
+            "grips": 2,
+            "forward_steps": 0,
+            "other_hand_holds_share": 0.0,
+            "backward_steps": 0
+          },
+          "RightHand": {
+            "grips": 2,
+            "forward_steps": 0,
+            "other_hand_holds_share": 1.0,
+            "backward_steps": 0
+          },
+          "both_hands_moving_share": 0.0
+        },
+        "idle": {
+          "ok": false,
+          "hang_share": 1.0,
+          "hips_travel_m": -0.369,
+          "grip_share": 0.941
+        },
+        "kip": {
+          "ok": false,
+          "hang_share": 1.0,
+          "hips_travel_m": -0.369,
+          "grip_share": 0.941,
+          "swing_p2p_m": 0.939,
+          "reversals": 1
+        }
+      }
+    },
+    {
+      "trial": "01_10",
+      "frames": [
+        76,
+        122
+      ],
+      "seconds": 1.53,
+      "gate_pass": true,
+      "gate_failed": [],
+      "checks": {
+        "travel": {
+          "ok": false,
+          "hang_share": 1.0,
+          "hips_travel_m": -0.254,
+          "LeftHand": {
+            "grips": 1,
+            "forward_steps": 0,
+            "other_hand_holds_share": 0.0,
+            "backward_steps": 0
+          },
+          "RightHand": {
+            "grips": 1,
+            "forward_steps": 0,
+            "other_hand_holds_share": 1.0,
+            "backward_steps": 0
+          },
+          "both_hands_moving_share": 0.0
+        },
+        "idle": {
+          "ok": true,
+          "hang_share": 1.0,
+          "hips_travel_m": -0.254,
+          "grip_share": 1.0
+        },
+        "kip": {
+          "ok": false,
+          "hang_share": 1.0,
+          "hips_travel_m": -0.254,
+          "grip_share": 1.0,
+          "swing_p2p_m": 0.696,
+          "reversals": 1
+        }
+      }
+    },
+    {
+      "trial": "01_10",
+      "frames": [
+        382,
+        442
+      ],
+      "seconds": 2.0,
+      "gate_pass": true,
+      "gate_failed": [],
+      "checks": {
+        "travel": {
+          "ok": false,
+          "hang_share": 1.0,
+          "hips_travel_m": 0.002,
+          "LeftHand": {
+            "grips": 1,
+            "forward_steps": 0,
+            "other_hand_holds_share": 0.0,
+            "backward_steps": 0
+          },
+          "RightHand": {
+            "grips": 2,
+            "forward_steps": 0,
+            "other_hand_holds_share": 1.0,
+            "backward_steps": 0
+          },
+          "both_hands_moving_share": 0.0
+        },
+        "idle": {
+          "ok": true,
+          "hang_share": 1.0,
+          "hips_travel_m": 0.002,
+          "grip_share": 1.0
+        },
+        "kip": {
+          "ok": false,
+          "hang_share": 1.0,
+          "hips_travel_m": 0.002,
+          "grip_share": 1.0,
+          "swing_p2p_m": 0.034,
+          "reversals": 3
+        }
+      }
+    },
+    {
+      "trial": "01_10",
+      "frames": [
+        696,
+        745
+      ],
+      "seconds": 1.63,
+      "gate_pass": true,
+      "gate_failed": [],
+      "checks": {
+        "travel": {
+          "ok": false,
+          "hang_share": 1.0,
+          "hips_travel_m": -0.238,
+          "LeftHand": {
+            "grips": 1,
+            "forward_steps": 0,
+            "other_hand_holds_share": 0.0,
+            "backward_steps": 0
+          },
+          "RightHand": {
+            "grips": 1,
+            "forward_steps": 0,
+            "other_hand_holds_share": 0.0,
+            "backward_steps": 0
+          },
+          "both_hands_moving_share": 0.0
+        },
+        "idle": {
+          "ok": true,
+          "hang_share": 1.0,
+          "hips_travel_m": -0.238,
+          "grip_share": 1.0
+        },
+        "kip": {
+          "ok": false,
+          "hang_share": 1.0,
+          "hips_travel_m": -0.238,
+          "grip_share": 1.0,
+          "swing_p2p_m": 0.909,
+          "reversals": 1
+        }
+      }
+    },
+    {
+      "trial": "01_11",
+      "frames": [
+        154,
+        239
+      ],
+      "seconds": 2.83,
+      "gate_pass": true,
+      "gate_failed": [],
+      "checks": {
+        "travel": {
+          "ok": false,
+          "hang_share": 1.0,
+          "hips_travel_m": 0.293,
+          "LeftHand": {
+            "grips": 2,
+            "forward_steps": 0,
+            "other_hand_holds_share": 0.0,
+            "backward_steps": 0
+          },
+          "RightHand": {
+            "grips": 2,
+            "forward_steps": 0,
+            "other_hand_holds_share": 1.0,
+            "backward_steps": 0
+          },
+          "both_hands_moving_share": 0.0
+        },
+        "idle": {
+          "ok": false,
+          "hang_share": 1.0,
+          "hips_travel_m": 0.293,
+          "grip_share": 0.947
+        },
+        "kip": {
+          "ok": false,
+          "hang_share": 1.0,
+          "hips_travel_m": 0.293,
+          "grip_share": 0.947,
+          "swing_p2p_m": 0.484,
+          "reversals": 1
+        }
+      }
+    },
+    {
+      "trial": "01_11",
+      "frames": [
+        246,
+        310
+      ],
+      "seconds": 2.13,
+      "gate_pass": true,
+      "gate_failed": [],
+      "checks": {
+        "travel": {
+          "ok": false,
+          "hang_share": 1.0,
+          "hips_travel_m": -0.145,
+          "LeftHand": {
+            "grips": 2,
+            "forward_steps": 0,
+            "other_hand_holds_share": 1.0,
+            "backward_steps": 0
+          },
+          "RightHand": {
+            "grips": 1,
+            "forward_steps": 0,
+            "other_hand_holds_share": 1.0,
+            "backward_steps": 0
+          },
+          "both_hands_moving_share": 0.0
+        },
+        "idle": {
+          "ok": false,
+          "hang_share": 1.0,
+          "hips_travel_m": -0.145,
+          "grip_share": 0.945
+        },
+        "kip": {
+          "ok": false,
+          "hang_share": 1.0,
+          "hips_travel_m": -0.145,
+          "grip_share": 0.945,
+          "swing_p2p_m": 0.391,
+          "reversals": 1
+        }
+      }
+    },
+    {
+      "trial": "01_11",
+      "frames": [
+        614,
+        740
+      ],
+      "seconds": 4.2,
+      "gate_pass": true,
+      "gate_failed": [],
+      "checks": {
+        "travel": {
+          "ok": false,
+          "hang_share": 1.0,
+          "hips_travel_m": 0.665,
+          "LeftHand": {
+            "grips": 3,
+            "forward_steps": 0,
+            "other_hand_holds_share": 0.75,
+            "backward_steps": 0
+          },
+          "RightHand": {
+            "grips": 3,
+            "forward_steps": 0,
+            "other_hand_holds_share": 0.167,
+            "backward_steps": 0
+          },
+          "both_hands_moving_share": 0.04
+        },
+        "idle": {
+          "ok": false,
+          "hang_share": 1.0,
+          "hips_travel_m": 0.665,
+          "grip_share": 0.925
+        },
+        "kip": {
+          "ok": true,
+          "hang_share": 1.0,
+          "hips_travel_m": 0.665,
+          "grip_share": 0.925,
+          "swing_p2p_m": 0.67,
+          "reversals": 7
+        }
+      }
+    },
+    {
+      "trial": "01_11",
+      "frames": [
+        912,
+        960
+      ],
+      "seconds": 1.6,
+      "gate_pass": true,
+      "gate_failed": [],
+      "checks": {
+        "travel": {
+          "ok": false,
+          "hang_share": 1.0,
+          "hips_travel_m": -0.233,
+          "LeftHand": {
+            "grips": 1,
+            "forward_steps": 0,
+            "other_hand_holds_share": 1.0,
+            "backward_steps": 0
+          },
+          "RightHand": {
+            "grips": 1,
+            "forward_steps": 0,
+            "other_hand_holds_share": 0.0,
+            "backward_steps": 0
+          },
+          "both_hands_moving_share": 0.0
+        },
+        "idle": {
+          "ok": true,
+          "hang_share": 1.0,
+          "hips_travel_m": -0.233,
+          "grip_share": 0.969
+        },
+        "kip": {
+          "ok": false,
+          "hang_share": 1.0,
+          "hips_travel_m": -0.233,
+          "grip_share": 0.969,
+          "swing_p2p_m": 0.272,
+          "reversals": 1
+        }
+      }
+    },
+    {
+      "trial": "01_12",
+      "frames": [
+        66,
+        148
+      ],
+      "seconds": 2.73,
+      "gate_pass": true,
+      "gate_failed": [],
+      "checks": {
+        "travel": {
+          "ok": false,
+          "hang_share": 1.0,
+          "hips_travel_m": -0.054,
+          "LeftHand": {
+            "grips": 2,
+            "forward_steps": 0,
+            "other_hand_holds_share": 0.0,
+            "backward_steps": 0
+          },
+          "RightHand": {
+            "grips": 2,
+            "forward_steps": 0,
+            "other_hand_holds_share": 1.0,
+            "backward_steps": 0
+          },
+          "both_hands_moving_share": 0.0
+        },
+        "idle": {
+          "ok": true,
+          "hang_share": 1.0,
+          "hips_travel_m": -0.054,
+          "grip_share": 1.0
+        },
+        "kip": {
+          "ok": true,
+          "hang_share": 1.0,
+          "hips_travel_m": -0.054,
+          "grip_share": 1.0,
+          "swing_p2p_m": 0.422,
+          "reversals": 3
+        }
+      }
+    },
+    {
+      "trial": "01_12",
+      "frames": [
+        180,
+        328
+      ],
+      "seconds": 4.93,
+      "gate_pass": true,
+      "gate_failed": [],
+      "checks": {
+        "travel": {
+          "ok": false,
+          "hang_share": 1.0,
+          "hips_travel_m": 0.381,
+          "LeftHand": {
+            "grips": 5,
+            "forward_steps": 0,
+            "other_hand_holds_share": 1.0,
+            "backward_steps": 0
+          },
+          "RightHand": {
+            "grips": 4,
+            "forward_steps": 0,
+            "other_hand_holds_share": 1.0,
+            "backward_steps": 0
+          },
+          "both_hands_moving_share": 0.0
+        },
+        "idle": {
+          "ok": false,
+          "hang_share": 1.0,
+          "hips_travel_m": 0.381,
+          "grip_share": 0.997
+        },
+        "kip": {
+          "ok": true,
+          "hang_share": 1.0,
+          "hips_travel_m": 0.381,
+          "grip_share": 0.997,
+          "swing_p2p_m": 0.506,
+          "reversals": 4
+        }
+      }
+    },
+    {
+      "trial": "01_12",
+      "frames": [
+        529,
+        595
+      ],
+      "seconds": 2.2,
+      "gate_pass": true,
+      "gate_failed": [],
+      "checks": {
+        "travel": {
+          "ok": false,
+          "hang_share": 1.0,
+          "hips_travel_m": 0.261,
+          "LeftHand": {
+            "grips": 1,
+            "forward_steps": 0,
+            "other_hand_holds_share": 0.0,
+            "backward_steps": 0
+          },
+          "RightHand": {
+            "grips": 1,
+            "forward_steps": 0,
+            "other_hand_holds_share": 0.5,
+            "backward_steps": 0
+          },
+          "both_hands_moving_share": 0.03
+        },
+        "idle": {
+          "ok": true,
+          "hang_share": 1.0,
+          "hips_travel_m": 0.261,
+          "grip_share": 0.985
+        },
+        "kip": {
+          "ok": false,
+          "hang_share": 1.0,
+          "hips_travel_m": 0.261,
+          "grip_share": 0.985,
+          "swing_p2p_m": 0.25,
+          "reversals": 3
+        }
+      }
+    },
+    {
+      "trial": "01_12",
+      "frames": [
+        605,
+        751
+      ],
+      "seconds": 4.87,
+      "gate_pass": true,
+      "gate_failed": [],
+      "checks": {
+        "travel": {
+          "ok": false,
+          "hang_share": 1.0,
+          "hips_travel_m": 1.019,
+          "LeftHand": {
+            "grips": 4,
+            "forward_steps": 0,
+            "other_hand_holds_share": 0.5,
+            "backward_steps": 0
+          },
+          "RightHand": {
+            "grips": 3,
+            "forward_steps": 0,
+            "other_hand_holds_share": 0.688,
+            "backward_steps": 0
+          },
+          "both_hands_moving_share": 0.034
+        },
+        "idle": {
+          "ok": false,
+          "hang_share": 1.0,
+          "hips_travel_m": 1.019,
+          "grip_share": 0.942
+        },
+        "kip": {
+          "ok": true,
+          "hang_share": 1.0,
+          "hips_travel_m": 1.019,
+          "grip_share": 0.942,
+          "swing_p2p_m": 1.001,
+          "reversals": 4
+        }
+      }
+    },
+    {
+      "trial": "01_14",
+      "frames": [
+        110,
+        217
+      ],
+      "seconds": 3.57,
+      "gate_pass": true,
+      "gate_failed": [],
+      "checks": {
+        "travel": {
+          "ok": false,
+          "hang_share": 1.0,
+          "hips_travel_m": 0.378,
+          "LeftHand": {
+            "grips": 5,
+            "forward_steps": 0,
+            "other_hand_holds_share": 1.0,
+            "backward_steps": 0
+          },
+          "RightHand": {
+            "grips": 3,
+            "forward_steps": 0,
+            "other_hand_holds_share": 0.0,
+            "backward_steps": 0
+          },
+          "both_hands_moving_share": 0.0
+        },
+        "idle": {
+          "ok": false,
+          "hang_share": 1.0,
+          "hips_travel_m": 0.378,
+          "grip_share": 0.981
+        },
+        "kip": {
+          "ok": true,
+          "hang_share": 1.0,
+          "hips_travel_m": 0.378,
+          "grip_share": 0.981,
+          "swing_p2p_m": 0.647,
+          "reversals": 4
+        }
+      }
+    },
+    {
+      "trial": "01_14",
+      "frames": [
+        302,
+        446
+      ],
+      "seconds": 4.8,
+      "gate_pass": true,
+      "gate_failed": [],
+      "checks": {
+        "travel": {
+          "ok": false,
+          "hang_share": 1.0,
+          "hips_travel_m": 0.328,
+          "LeftHand": {
+            "grips": 4,
+            "forward_steps": 0,
+            "other_hand_holds_share": 0.667,
+            "backward_steps": 0
+          },
+          "RightHand": {
+            "grips": 5,
+            "forward_steps": 0,
+            "other_hand_holds_share": 0.0,
+            "backward_steps": 0
+          },
+          "both_hands_moving_share": 0.007
+        },
+        "idle": {
+          "ok": false,
+          "hang_share": 1.0,
+          "hips_travel_m": 0.328,
+          "grip_share": 1.0
+        },
+        "kip": {
+          "ok": true,
+          "hang_share": 1.0,
+          "hips_travel_m": 0.328,
+          "grip_share": 1.0,
+          "swing_p2p_m": 0.743,
+          "reversals": 4
+        }
+      }
+    }
+  ],
+  "shipped": {
+    "hang": {
+      "gate_pass": true,
+      "gate_failed": [],
+      "checks": {
+        "travel": {
+          "ok": false,
+          "hang_share": 0.727,
+          "hips_travel_m": -0.005,
+          "LeftHand": {
+            "grips": 1,
+            "forward_steps": 0,
+            "other_hand_holds_share": 0.0,
+            "backward_steps": 0
+          },
+          "RightHand": {
+            "grips": 2,
+            "forward_steps": 0,
+            "other_hand_holds_share": 1.0,
+            "backward_steps": 0
+          },
+          "both_hands_moving_share": 0.0
+        },
+        "idle": {
+          "ok": false,
+          "hang_share": 0.727,
+          "hips_travel_m": -0.005,
+          "grip_share": 1.0
+        },
+        "kip": {
+          "ok": false,
+          "hang_share": 0.727,
+          "hips_travel_m": -0.005,
+          "grip_share": 1.0,
+          "swing_p2p_m": 0.029,
+          "reversals": 3
+        }
+      }
+    },
+    "swing": {
+      "gate_pass": true,
+      "gate_failed": [],
+      "checks": {
+        "travel": {
+          "ok": false,
+          "hang_share": 0.54,
+          "hips_travel_m": 0.036,
+          "LeftHand": {
+            "grips": 2,
+            "forward_steps": 0,
+            "other_hand_holds_share": 0.0,
+            "backward_steps": 0
+          },
+          "RightHand": {
+            "grips": 4,
+            "forward_steps": 0,
+            "other_hand_holds_share": 1.0,
+            "backward_steps": 0
+          },
+          "both_hands_moving_share": 0.0
+        },
+        "idle": {
+          "ok": false,
+          "hang_share": 0.54,
+          "hips_travel_m": 0.036,
+          "grip_share": 1.0
+        },
+        "kip": {
+          "ok": false,
+          "hang_share": 0.54,
+          "hips_travel_m": 0.036,
+          "grip_share": 1.0,
+          "swing_p2p_m": 0.102,
+          "reversals": 3
+        }
+      }
+    }
+  },
+  "summary": {
+    "stretches": 22,
+    "pass_gate_and_travel": 0,
+    "pass_gate_and_idle": 12,
+    "pass_gate_and_kip": 11
+  }
+}

@@ -1,0 +1,433 @@
+{
+  "kind": "kip",
+  "prompt": "A person hangs from an overhead bar with both hands and swings their legs forward and back to build up a swing.",
+  "model": "kimodo-soma-rp",
+  "kimodo_commit": "e1c219c99b4b94ba48be1fb6a1cbc64ecee4c954",
+  "steps": 100,
+  "summary": {
+    "sample": {
+      "gate_pass": 1,
+      "bar_check_ok": 0,
+      "both": 0,
+      "of": 8
+    },
+    "baseline": {
+      "gate_pass": 8,
+      "bar_check_ok": 0,
+      "both": 0,
+      "of": 8
+    }
+  },
+  "samples": [
+    {
+      "seed": 7,
+      "sample": {
+        "gate_pass": true,
+        "gate_failed": [],
+        "soft_failed": [
+          "feet_dont_slide"
+        ],
+        "bar_check_ok": false,
+        "bar_numbers": {
+          "hang_share": 0.0,
+          "hips_travel_m": -0.156,
+          "grip_share": 0.363,
+          "swing_p2p_m": 0.926,
+          "reversals": 6
+        },
+        "grip_error_m": {
+          "mean": 1.056,
+          "max": 1.073
+        },
+        "repairs": {
+          "fix_knees": 0,
+          "lift_to_floor": 0,
+          "limit_knee_bend": 0
+        }
+      },
+      "baseline": {
+        "gate_pass": true,
+        "gate_failed": [],
+        "soft_failed": [],
+        "bar_check_ok": false,
+        "bar_numbers": {
+          "hang_share": 0.0,
+          "hips_travel_m": 0.22,
+          "grip_share": 0.959,
+          "swing_p2p_m": 0.234,
+          "reversals": 6
+        },
+        "grip_error_m": {
+          "mean": 0.418,
+          "max": 0.43
+        },
+        "repairs": {
+          "fix_knees": 0,
+          "lift_to_floor": 0,
+          "limit_knee_bend": 0
+        }
+      }
+    },
+    {
+      "seed": 8,
+      "sample": {
+        "gate_pass": false,
+        "gate_failed": [
+          "held_clips_are_held"
+        ],
+        "soft_failed": [
+          "feet_dont_slide"
+        ],
+        "bar_check_ok": false,
+        "bar_numbers": {
+          "hang_share": 0.0,
+          "hips_travel_m": -0.156,
+          "grip_share": 0.37,
+          "swing_p2p_m": 0.928,
+          "reversals": 6
+        },
+        "grip_error_m": {
+          "mean": 1.192,
+          "max": 1.21
+        },
+        "repairs": {
+          "fix_knees": 54,
+          "lift_to_floor": 0,
+          "limit_knee_bend": 0
+        }
+      },
+      "baseline": {
+        "gate_pass": true,
+        "gate_failed": [],
+        "soft_failed": [
+          "feet_dont_slide",
+          "no_jitter"
+        ],
+        "bar_check_ok": false,
+        "bar_numbers": {
+          "hang_share": 0.0,
+          "hips_travel_m": 0.706,
+          "grip_share": 0.752,
+          "swing_p2p_m": 0.813,
+          "reversals": 3
+        },
+        "grip_error_m": {
+          "mean": 1.957,
+          "max": 2.006
+        },
+        "repairs": {
+          "fix_knees": 5,
+          "lift_to_floor": 0,
+          "limit_knee_bend": 3
+        }
+      }
+    },
+    {
+      "seed": 9,
+      "sample": {
+        "gate_pass": false,
+        "gate_failed": [
+          "held_clips_are_held"
+        ],
+        "soft_failed": [],
+        "bar_check_ok": false,
+        "bar_numbers": {
+          "hang_share": 0.0,
+          "hips_travel_m": -0.156,
+          "grip_share": 0.307,
+          "swing_p2p_m": 0.928,
+          "reversals": 6
+        },
+        "grip_error_m": {
+          "mean": 1.039,
+          "max": 1.041
+        },
+        "repairs": {
+          "fix_knees": 2,
+          "lift_to_floor": 0,
+          "limit_knee_bend": 0
+        }
+      },
+      "baseline": {
+        "gate_pass": true,
+        "gate_failed": [],
+        "soft_failed": [],
+        "bar_check_ok": false,
+        "bar_numbers": {
+          "hang_share": 0.0,
+          "hips_travel_m": -0.199,
+          "grip_share": 1.0,
+          "swing_p2p_m": 0.203,
+          "reversals": 5
+        },
+        "grip_error_m": {
+          "mean": 1.288,
+          "max": 1.298
+        },
+        "repairs": {
+          "fix_knees": 0,
+          "lift_to_floor": 0,
+          "limit_knee_bend": 0
+        }
+      }
+    },
+    {
+      "seed": 10,
+      "sample": {
+        "gate_pass": false,
+        "gate_failed": [
+          "held_clips_are_held"
+        ],
+        "soft_failed": [
+          "feet_dont_slide"
+        ],
+        "bar_check_ok": false,
+        "bar_numbers": {
+          "hang_share": 0.0,
+          "hips_travel_m": -0.156,
+          "grip_share": 0.296,
+          "swing_p2p_m": 0.928,
+          "reversals": 6
+        },
+        "grip_error_m": {
+          "mean": 0.984,
+          "max": 1.007
+        },
+        "repairs": {
+          "fix_knees": 15,
+          "lift_to_floor": 0,
+          "limit_knee_bend": 0
+        }
+      },
+      "baseline": {
+        "gate_pass": true,
+        "gate_failed": [],
+        "soft_failed": [
+          "feet_dont_slide"
+        ],
+        "bar_check_ok": false,
+        "bar_numbers": {
+          "hang_share": 0.0,
+          "hips_travel_m": 0.28,
+          "grip_share": 0.767,
+          "swing_p2p_m": 0.473,
+          "reversals": 2
+        },
+        "grip_error_m": {
+          "mean": 1.261,
+          "max": 1.284
+        },
+        "repairs": {
+          "fix_knees": 0,
+          "lift_to_floor": 0,
+          "limit_knee_bend": 0
+        }
+      }
+    },
+    {
+      "seed": 11,
+      "sample": {
+        "gate_pass": false,
+        "gate_failed": [
+          "held_clips_are_held"
+        ],
+        "soft_failed": [
+          "feet_dont_slide"
+        ],
+        "bar_check_ok": false,
+        "bar_numbers": {
+          "hang_share": 0.0,
+          "hips_travel_m": -0.156,
+          "grip_share": 0.274,
+          "swing_p2p_m": 0.928,
+          "reversals": 6
+        },
+        "grip_error_m": {
+          "mean": 0.948,
+          "max": 0.957
+        },
+        "repairs": {
+          "fix_knees": 18,
+          "lift_to_floor": 0,
+          "limit_knee_bend": 0
+        }
+      },
+      "baseline": {
+        "gate_pass": true,
+        "gate_failed": [],
+        "soft_failed": [],
+        "bar_check_ok": false,
+        "bar_numbers": {
+          "hang_share": 0.0,
+          "hips_travel_m": 0.705,
+          "grip_share": 0.989,
+          "swing_p2p_m": 0.692,
+          "reversals": 2
+        },
+        "grip_error_m": {
+          "mean": 1.171,
+          "max": 1.185
+        },
+        "repairs": {
+          "fix_knees": 0,
+          "lift_to_floor": 0,
+          "limit_knee_bend": 0
+        }
+      }
+    },
+    {
+      "seed": 12,
+      "sample": {
+        "gate_pass": false,
+        "gate_failed": [
+          "held_clips_are_held"
+        ],
+        "soft_failed": [],
+        "bar_check_ok": false,
+        "bar_numbers": {
+          "hang_share": 0.0,
+          "hips_travel_m": -0.156,
+          "grip_share": 0.211,
+          "swing_p2p_m": 0.927,
+          "reversals": 6
+        },
+        "grip_error_m": {
+          "mean": 0.973,
+          "max": 0.996
+        },
+        "repairs": {
+          "fix_knees": 33,
+          "lift_to_floor": 0,
+          "limit_knee_bend": 0
+        }
+      },
+      "baseline": {
+        "gate_pass": true,
+        "gate_failed": [],
+        "soft_failed": [],
+        "bar_check_ok": false,
+        "bar_numbers": {
+          "hang_share": 0.178,
+          "hips_travel_m": -0.213,
+          "grip_share": 1.0,
+          "swing_p2p_m": 0.244,
+          "reversals": 3
+        },
+        "grip_error_m": {
+          "mean": 1.276,
+          "max": 1.314
+        },
+        "repairs": {
+          "fix_knees": 0,
+          "lift_to_floor": 0,
+          "limit_knee_bend": 0
+        }
+      }
+    },
+    {
+      "seed": 13,
+      "sample": {
+        "gate_pass": false,
+        "gate_failed": [
+          "held_clips_are_held"
+        ],
+        "soft_failed": [
+          "no_jitter"
+        ],
+        "bar_check_ok": false,
+        "bar_numbers": {
+          "hang_share": 0.0,
+          "hips_travel_m": -0.153,
+          "grip_share": 0.522,
+          "swing_p2p_m": 0.928,
+          "reversals": 6
+        },
+        "grip_error_m": {
+          "mean": 1.248,
+          "max": 1.256
+        },
+        "repairs": {
+          "fix_knees": 73,
+          "lift_to_floor": 0,
+          "limit_knee_bend": 0
+        }
+      },
+      "baseline": {
+        "gate_pass": true,
+        "gate_failed": [],
+        "soft_failed": [],
+        "bar_check_ok": false,
+        "bar_numbers": {
+          "hang_share": 0.0,
+          "hips_travel_m": 0.121,
+          "grip_share": 1.0,
+          "swing_p2p_m": 0.116,
+          "reversals": 6
+        },
+        "grip_error_m": {
+          "mean": 2.079,
+          "max": 2.089
+        },
+        "repairs": {
+          "fix_knees": 0,
+          "lift_to_floor": 135,
+          "limit_knee_bend": 0
+        }
+      }
+    },
+    {
+      "seed": 14,
+      "sample": {
+        "gate_pass": false,
+        "gate_failed": [
+          "held_clips_are_held"
+        ],
+        "soft_failed": [
+          "feet_dont_slide"
+        ],
+        "bar_check_ok": false,
+        "bar_numbers": {
+          "hang_share": 0.0,
+          "hips_travel_m": -0.151,
+          "grip_share": 0.352,
+          "swing_p2p_m": 0.928,
+          "reversals": 6
+        },
+        "grip_error_m": {
+          "mean": 1.304,
+          "max": 1.309
+        },
+        "repairs": {
+          "fix_knees": 51,
+          "lift_to_floor": 0,
+          "limit_knee_bend": 0
+        }
+      },
+      "baseline": {
+        "gate_pass": true,
+        "gate_failed": [],
+        "soft_failed": [
+          "feet_dont_slide",
+          "no_jitter"
+        ],
+        "bar_check_ok": false,
+        "bar_numbers": {
+          "hang_share": 0.0,
+          "hips_travel_m": 1.211,
+          "grip_share": 0.674,
+          "swing_p2p_m": 1.217,
+          "reversals": 3
+        },
+        "grip_error_m": {
+          "mean": 2.152,
+          "max": 2.163
+        },
+        "repairs": {
+          "fix_knees": 6,
+          "lift_to_floor": 60,
+          "limit_knee_bend": 0
+        }
+      }
+    }
+  ]
+}
