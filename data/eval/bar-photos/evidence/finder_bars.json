@@ -1,0 +1,74 @@
+{
+  "photo1": [],
+  "photo2": [
+    {
+      "label": "pull-up bar",
+      "score": 0.75,
+      "box": [
+        310,
+        228,
+        868,
+        773
+      ]
+    }
+  ],
+  "photo3": [
+    {
+      "label": "pull-up bar",
+      "score": 0.38,
+      "box": [
+        192,
+        181,
+        1265,
+        757
+      ]
+    }
+  ],
+  "photo4": [],
+  "photo5": [
+    {
+      "label": "metal bars",
+      "score": 0.47,
+      "box": [
+        93,
+        86,
+        691,
+        158
+      ]
+    },
+    {
+      "label": "pull-up bar",
+      "score": 0.4,
+      "box": [
+        51,
+        85,
+        699,
+        541
+      ]
+    },
+    {
+      "label": "metal bars",
+      "score": 0.39,
+      "box": [
+        455,
+        93,
+        691,
+        157
+      ]
+    }
+  ],
+  "photo6": [],
+  "photo7": [
+    {
+      "label": "pull-up bar",
+      "score": 0.75,
+      "box": [
+        278,
+        368,
+        1115,
+        756
+      ]
+    }
+  ],
+  "photo8": []
+}

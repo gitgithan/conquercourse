@@ -1,0 +1,487 @@
+{
+  "experiment": "bar-photos",
+  "issue": "CC-133",
+  "date": "2026-11-03",
+  "model": "SAM 3 (finder, cut-out), SAM 3D Objects seed 42, deployed app cc-photo-to-object",
+  "lifts": 8,
+  "lift_limit": 12,
+  "total_usd_estimate_lifts": 0.0407,
+  "finder_usd_estimate": 0.004,
+  "cost_note": "Container seconds only; cold starts, dropped streams that were asked again (a few repeated finder and cut-out calls) and idle scale-down are not counted; total stays well under the 0.50 USD cap",
+  "safety_check": "Muse Spark Open safety check not run (offline lab run; the pages show no person)",
+  "people_check": "by eye: no person in any of the 8 photos",
+  "runs": [
+    {
+      "photo": "photo1",
+      "file": "photo1_flickr_old_school_monkey_bars.jpg",
+      "title": "Old school monkey bars",
+      "author": "Nels Olsen",
+      "licence": "CC BY-SA 2.0",
+      "source": "https://www.flickr.com/photos/7776581@N04/4616583051",
+      "angle": "three-quarter, arch frame with ladder legs",
+      "finder_found_bars": false,
+      "finder_bar_outlines": [],
+      "finder_outlines": 2,
+      "privacy": {
+        "people": 0,
+        "faces": 0,
+        "plates": 0,
+        "changed": false,
+        "person_boxes": []
+      },
+      "finder_job_seconds": 3.3,
+      "box_sent": [
+        160,
+        90,
+        835,
+        745
+      ],
+      "box_source": "Mark it yourself (finder found no bar)",
+      "typed_height_m": 2.4,
+      "mask": {
+        "how": "text",
+        "score": 0.31640625,
+        "iou_with_box": 0.963,
+        "candidates": 1,
+        "pixels": 51399
+      },
+      "lift_seconds": 10.5,
+      "gaussians": 42944,
+      "lift_check": {
+        "extent_aspect": 1.919,
+        "mask_aspect": 1.02,
+        "bad": false
+      },
+      "glb_bytes": 492868,
+      "extent_xyz_m": [
+        4.606,
+        2.399,
+        0.768
+      ],
+      "usd_estimate": 0.0061,
+      "quality_1to5": 4,
+      "quality_reason": "clean arch with separate rungs on both ladders, but a plain arch: no posts and no flat top"
+    },
+    {
+      "photo": "photo2",
+      "file": "photo2_hikone_parkB_bar1.jpg",
+      "title": "Hikone Newtown Dai1 ParkB Monkey bar1(20250405).jpg",
+      "author": "Salada220422",
+      "licence": "CC0",
+      "source": "https://commons.wikimedia.org/wiki/File:Hikone_Newtown_Dai1_ParkB_Monkey_bar1(20250405).jpg",
+      "angle": "three-quarter, blue frame with ladder end",
+      "finder_found_bars": true,
+      "finder_bar_outlines": [
+        {
+          "label": "pull-up bar",
+          "score": 0.75,
+          "box": [
+            310,
+            228,
+            868,
+            773
+          ]
+        }
+      ],
+      "finder_outlines": 12,
+      "privacy": {
+        "people": 0,
+        "faces": 0,
+        "plates": 1,
+        "changed": true,
+        "person_boxes": []
+      },
+      "finder_job_seconds": 2.1,
+      "box_sent": [
+        310,
+        228,
+        868,
+        773
+      ],
+      "box_source": "Segment Objects pick: \"pull-up bar\" 0.75",
+      "typed_height_m": 2.2,
+      "mask": {
+        "how": "box-prompt",
+        "score": 0.9921875,
+        "iou_with_box": 0,
+        "candidates": 0,
+        "pixels": 43330
+      },
+      "lift_seconds": 9.1,
+      "gaussians": 64608,
+      "lift_check": {
+        "extent_aspect": 1.612,
+        "mask_aspect": 1.026,
+        "bad": false
+      },
+      "glb_bytes": 419296,
+      "extent_xyz_m": [
+        3.546,
+        2.2,
+        1.13
+      ],
+      "usd_estimate": 0.0051,
+      "quality_1to5": 3,
+      "quality_reason": "clean rectangular frame, 6 separate rungs, but only one end has legs and a ladder (the far end was out of the photo)"
+    },
+    {
+      "photo": "photo3",
+      "file": "photo3_saienji_mamedecca.jpg",
+      "title": "Monkey bar Saienji Mamedecca Park(20250412).jpg",
+      "author": "Salada220422",
+      "licence": "CC0",
+      "source": "https://commons.wikimedia.org/wiki/File:Monkey_bar_Saienji_Mamedecca_Park(20250412).jpg",
+      "angle": "three-quarter from low, blue frame",
+      "finder_found_bars": true,
+      "finder_bar_outlines": [
+        {
+          "label": "pull-up bar",
+          "score": 0.38,
+          "box": [
+            192,
+            181,
+            1265,
+            757
+          ]
+        }
+      ],
+      "finder_outlines": 10,
+      "privacy": {
+        "people": 0,
+        "faces": 0,
+        "plates": 0,
+        "changed": false,
+        "person_boxes": []
+      },
+      "finder_job_seconds": 1.9,
+      "box_sent": [
+        192,
+        181,
+        1265,
+        757
+      ],
+      "box_source": "Segment Objects pick: \"pull-up bar\" 0.38",
+      "typed_height_m": 2.2,
+      "mask": {
+        "how": "box-prompt",
+        "score": 0.9921875,
+        "iou_with_box": 0,
+        "candidates": 0,
+        "pixels": 68421
+      },
+      "lift_seconds": 9,
+      "gaussians": 42752,
+      "lift_check": {
+        "extent_aspect": 2.377,
+        "mask_aspect": 1.863,
+        "bad": false
+      },
+      "glb_bytes": 504792,
+      "extent_xyz_m": [
+        5.29,
+        2.2,
+        1.959
+      ],
+      "usd_estimate": 0.005,
+      "quality_1to5": 5,
+      "quality_reason": "posts, A-legs, cross rails and about 14 separate rungs; true proportions; CC0"
+    },
+    {
+      "photo": "photo4",
+      "file": "photo4_hiroomote_es_1.jpg",
+      "title": "Hiroomote ES Monkey Bars.jpg",
+      "author": "Ntsctalk",
+      "licence": "CC BY-SA 4.0",
+      "source": "https://commons.wikimedia.org/wiki/File:Hiroomote_ES_Monkey_Bars.jpg",
+      "angle": "side-on, blue frame with red joints",
+      "finder_found_bars": false,
+      "finder_bar_outlines": [],
+      "finder_outlines": 12,
+      "privacy": {
+        "people": 0,
+        "faces": 0,
+        "plates": 0,
+        "changed": false,
+        "person_boxes": []
+      },
+      "finder_job_seconds": 1.9,
+      "box_sent": [
+        120,
+        150,
+        1100,
+        630
+      ],
+      "box_source": "Mark it yourself (finder found no bar)",
+      "typed_height_m": 2.2,
+      "mask": {
+        "how": "box-prompt",
+        "score": 0.98046875,
+        "iou_with_box": 0,
+        "candidates": 0,
+        "pixels": 48670
+      },
+      "lift_seconds": 8.9,
+      "gaussians": 36672,
+      "lift_check": {
+        "extent_aspect": 2.571,
+        "mask_aspect": 2.097,
+        "bad": false
+      },
+      "glb_bytes": 584748,
+      "extent_xyz_m": [
+        5.659,
+        2.203,
+        1.728
+      ],
+      "usd_estimate": 0.005,
+      "quality_1to5": 3,
+      "quality_reason": "frame and rungs readable, but junk blobs on the ladders and the top view is blotchy"
+    },
+    {
+      "photo": "photo5",
+      "file": "photo5_kenpei_unthei2.jpg",
+      "title": "雲梯2.jpg",
+      "author": "KENPEI",
+      "licence": "CC BY-SA 3.0",
+      "source": "https://commons.wikimedia.org/wiki/File:%E9%9B%B2%E6%A2%AF2.jpg",
+      "angle": "three-quarter, blue frame",
+      "finder_found_bars": true,
+      "finder_bar_outlines": [
+        {
+          "label": "metal bars",
+          "score": 0.47,
+          "box": [
+            93,
+            86,
+            691,
+            158
+          ]
+        },
+        {
+          "label": "pull-up bar",
+          "score": 0.4,
+          "box": [
+            51,
+            85,
+            699,
+            541
+          ]
+        },
+        {
+          "label": "metal bars",
+          "score": 0.39,
+          "box": [
+            455,
+            93,
+            691,
+            157
+          ]
+        }
+      ],
+      "finder_outlines": 12,
+      "privacy": {
+        "people": 0,
+        "faces": 0,
+        "plates": 0,
+        "changed": false,
+        "person_boxes": []
+      },
+      "finder_job_seconds": 1.8,
+      "box_sent": [
+        51,
+        85,
+        699,
+        541
+      ],
+      "box_source": "Segment Objects pick: \"pull-up bar\" 0.40",
+      "typed_height_m": 2.2,
+      "mask": {
+        "how": "text",
+        "score": 0.341796875,
+        "iou_with_box": 1,
+        "candidates": 1,
+        "pixels": 37228
+      },
+      "lift_seconds": 8.7,
+      "gaussians": 38464,
+      "lift_check": {
+        "extent_aspect": 2.599,
+        "mask_aspect": 1.421,
+        "bad": false
+      },
+      "glb_bytes": 558084,
+      "extent_xyz_m": [
+        5.719,
+        2.199,
+        1.637
+      ],
+      "usd_estimate": 0.0048,
+      "quality_1to5": 5,
+      "quality_reason": "ladder at each end, A-legs, about 14 separate rungs, natural proportions"
+    },
+    {
+      "photo": "photo6",
+      "file": "photo6_balfour_blue.jpg",
+      "title": "Blue monkey bars, Balfour Park.jpg",
+      "author": "Michael Rivera",
+      "licence": "CC BY-SA 4.0",
+      "source": "https://commons.wikimedia.org/wiki/File:Blue_monkey_bars,_Balfour_Park.jpg",
+      "angle": "front, blue frame with two ladders",
+      "finder_found_bars": false,
+      "finder_bar_outlines": [],
+      "finder_outlines": 3,
+      "privacy": {
+        "people": 0,
+        "faces": 0,
+        "plates": 0,
+        "changed": false,
+        "person_boxes": []
+      },
+      "finder_job_seconds": 1.8,
+      "box_sent": [
+        360,
+        120,
+        960,
+        730
+      ],
+      "box_source": "Mark it yourself (finder found no bar)",
+      "typed_height_m": 2.2,
+      "mask": {
+        "how": "box-prompt",
+        "score": 0.984375,
+        "iou_with_box": 0,
+        "candidates": 0,
+        "pixels": 64584
+      },
+      "lift_seconds": 9,
+      "gaussians": 64832,
+      "lift_check": {
+        "extent_aspect": 1.611,
+        "mask_aspect": 0.99,
+        "bad": false
+      },
+      "glb_bytes": 520612,
+      "extent_xyz_m": [
+        3.774,
+        2.198,
+        1.879
+      ],
+      "usd_estimate": 0.005,
+      "quality_1to5": 2,
+      "quality_reason": "three frames fused into one tangle; rungs hard to tell apart"
+    },
+    {
+      "photo": "photo7",
+      "file": "photo7_miyakohara4_unthei.jpg",
+      "title": "都原第4街区公園 うんてい 01.jpg",
+      "author": "あじさか",
+      "licence": "CC BY-SA 4.0",
+      "source": "https://commons.wikimedia.org/wiki/File:%E9%83%BD%E5%8E%9F%E7%AC%AC4%E8%A1%97%E5%8C%BA%E5%85%AC%E5%9C%92_%E3%81%86%E3%82%93%E3%81%A6%E3%81%84_01.jpg",
+      "angle": "side-on, long low frame",
+      "finder_found_bars": true,
+      "finder_bar_outlines": [
+        {
+          "label": "pull-up bar",
+          "score": 0.75,
+          "box": [
+            278,
+            368,
+            1115,
+            756
+          ]
+        }
+      ],
+      "finder_outlines": 8,
+      "privacy": {
+        "people": 0,
+        "faces": 0,
+        "plates": 0,
+        "changed": false,
+        "person_boxes": []
+      },
+      "finder_job_seconds": 1.9,
+      "box_sent": [
+        278,
+        368,
+        1115,
+        756
+      ],
+      "box_source": "Segment Objects pick: \"pull-up bar\" 0.75",
+      "typed_height_m": 2.2,
+      "mask": {
+        "how": "text",
+        "score": 0.45703125,
+        "iou_with_box": 1,
+        "candidates": 1,
+        "pixels": 31626
+      },
+      "lift_seconds": 8.8,
+      "gaussians": 31136,
+      "lift_check": {
+        "extent_aspect": 3.738,
+        "mask_aspect": 2.157,
+        "bad": false
+      },
+      "glb_bytes": 534040,
+      "extent_xyz_m": [
+        8.221,
+        2.202,
+        1.424
+      ],
+      "usd_estimate": 0.0049,
+      "quality_1to5": 3,
+      "quality_reason": "frame, ladders and rungs there, but 8.2 m long and the surface is rough and speckled"
+    },
+    {
+      "photo": "photo8",
+      "file": "photo8_brastad_outdoor_gym.jpg",
+      "title": "Brastad outdoor gym, Lysekil Municipality 6.jpg",
+      "author": "W.carter",
+      "licence": "CC BY-SA 4.0",
+      "source": "https://commons.wikimedia.org/wiki/File:Brastad_outdoor_gym,_Lysekil_Municipality_6.jpg",
+      "angle": "from below, wooden posts",
+      "finder_found_bars": false,
+      "finder_bar_outlines": [],
+      "finder_outlines": 12,
+      "privacy": {
+        "people": 0,
+        "faces": 0,
+        "plates": 0,
+        "changed": false,
+        "person_boxes": []
+      },
+      "finder_job_seconds": 1.9,
+      "box_sent": [
+        90,
+        220,
+        650,
+        1110
+      ],
+      "box_source": "Mark it yourself (finder found no bar); the cut-out kept only the blue overhead bars, the wooden posts are not in it",
+      "typed_height_m": 0.8,
+      "mask": {
+        "how": "box-prompt",
+        "score": 0.95703125,
+        "iou_with_box": 0,
+        "candidates": 1,
+        "pixels": 36647
+      },
+      "lift_seconds": 8.7,
+      "gaussians": 13088,
+      "lift_check": {
+        "extent_aspect": 38.797,
+        "mask_aspect": 0.747,
+        "bad": true
+      },
+      "glb_bytes": 456764,
+      "extent_xyz_m": [
+        31.092,
+        0.797,
+        6.93
+      ],
+      "usd_estimate": 0.0048,
+      "quality_1to5": 1,
+      "quality_reason": "failed: a flat bar 31 m long (only the blue bars were cut out, the posts hide them); lift_check flagged it"
+    }
+  ]
+}
