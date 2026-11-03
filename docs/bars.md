@@ -90,7 +90,7 @@
 - The ghost (the "Ghost: Ideal run" chip, on by default; there is no button named "Race the ideal run"):
   - `ghost-race-bars.mp4` and `ghost-race-swing-to-bars.mp4` (sheets beside them).
   - The ghost appears and stays level with the bot (about 0.5 s ahead, as the chip says).
-- Found and fixed: the Course never drew the rungs (only the editor did); `src/modes/course/scene.ts` now draws each rung and two side rails.
+- Found: the Course never drew the rungs (only the editor did); another change landed the same fix in `src/modes/course/scene.ts` (rungs and end posts) while this check ran, so this change keeps that one.
 
 ## Looks wrong, not fixed
 - The ghost is drawn in the running or leaping pose all the way along, so beside the bars it floats upright next to the swinging Rookie; it needs the swing mode in its track (`src/ui/ghost.ts`).
