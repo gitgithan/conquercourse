@@ -1,0 +1,81 @@
+[
+  {
+    "name": "p1_bench_left",
+    "photo": "photo1",
+    "label": "bench",
+    "box_original": [
+      530,
+      591,
+      850,
+      727
+    ],
+    "height_m": 0.8,
+    "box_source": "Segment Objects pick (bench 0.96)"
+  },
+  {
+    "name": "p1_bench_right",
+    "photo": "photo1",
+    "label": "bench",
+    "box_original": [
+      954,
+      586,
+      1272,
+      722
+    ],
+    "height_m": 0.8,
+    "box_source": "Segment Objects pick (bench 0.96)"
+  },
+  {
+    "name": "p1_pole",
+    "photo": "photo1",
+    "label": "pole",
+    "box_original": [
+      200,
+      58,
+      255,
+      765
+    ],
+    "height_m": 4,
+    "box_source": "Segment Objects pick (pole 0.82)"
+  },
+  {
+    "name": "p1_light_bulbs",
+    "photo": "photo1",
+    "label": "string of light bulbs",
+    "box_original": [
+      0,
+      88,
+      1550,
+      180
+    ],
+    "height_m": 1,
+    "box_source": "our box: no phrase in Segment Objects finds a bulb string"
+  },
+  {
+    "name": "p2_monkey_bars",
+    "photo": "photo2",
+    "label": "monkey bars",
+    "box_original": [
+      1115,
+      583,
+      2475,
+      707
+    ],
+    "height_m": 0.25,
+    "box_source": "our box: Segment Objects did not find monkey bars",
+    "height_note": "typed so the loop bar is about 5 m long (the first try, 2.4 m, gave a 52 m bar because the height is the thin direction)"
+  },
+  {
+    "name": "p2_pullup_bar",
+    "photo": "photo2",
+    "label": "pull-up bar",
+    "box_original": [
+      2061,
+      771,
+      2482,
+      1186
+    ],
+    "height_m": 2.4,
+    "box_source": "our box: Segment Objects did not find it (a weak pull-up bar 0.37 was found top left)"
+  }
+]

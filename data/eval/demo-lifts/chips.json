@@ -1,0 +1,44 @@
+{
+  "note": "One line per step for the film chips; model names as the product shows them.",
+  "steps": [
+    {
+      "step": "safety",
+      "chip": "Safety check: Muse Spark Open looks at the photo first",
+      "model": "Muse Spark Open"
+    },
+    {
+      "step": "privacy",
+      "chip": "Privacy: SAM 3 finds every person, face and plate and blurs them",
+      "model": "SAM 3"
+    },
+    {
+      "step": "segment",
+      "chip": "Segment Objects: SAM 3 outlines the benches, poles and bars",
+      "model": "SAM 3"
+    },
+    {
+      "step": "pick",
+      "chip": "You click the thing you want",
+      "model": null
+    },
+    {
+      "step": "cut",
+      "chip": "Cutter: SAM 3 cuts the picked object out of the photo",
+      "model": "SAM 3"
+    },
+    {
+      "step": "lift",
+      "chip": "Builder: SAM 3D Objects lifts it into a 3D piece",
+      "model": "SAM 3D Objects"
+    },
+    {
+      "step": "bake",
+      "chip": "Our baker makes it upright, to size, with its colours",
+      "model": null
+    }
+  ],
+  "credits": {
+    "photo1": "Photo: Jonn Leffmann, CC BY 3.0, Wikimedia Commons",
+    "photo2": "Photo: Koefbac, CC BY-SA 4.0, Wikimedia Commons"
+  }
+}

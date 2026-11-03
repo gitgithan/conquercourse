@@ -1,0 +1,50 @@
+{
+  "object": {
+    "name": "p2_pullup_bar",
+    "photo": "photo2",
+    "label": "pull-up bar",
+    "box_original": [
+      2061,
+      771,
+      2482,
+      1186
+    ],
+    "height_m": 2.4,
+    "box_source": "our box: Segment Objects did not find it (a weak pull-up bar 0.37 was found top left)"
+  },
+  "box_sent": [
+    1018,
+    381,
+    1226,
+    586
+  ],
+  "label": "pull-up bar",
+  "privacy": {
+    "people": 0,
+    "faces": 0,
+    "plates": 0,
+    "changed": false
+  },
+  "mask": {
+    "how": "box-prompt",
+    "score": 0.93359375,
+    "iou_with_box": 0,
+    "candidates": 9,
+    "pixels": 8538
+  },
+  "touches_border": false,
+  "padded": false,
+  "lift_check": {
+    "extent_aspect": 0.994,
+    "mask_aspect": 1.02,
+    "bad": false
+  },
+  "mask_seconds": 0.3,
+  "lift_seconds": 8.9,
+  "n_faces_raw": 228524,
+  "n_gaussians": 173952,
+  "mask_load_seconds": 11.8,
+  "lift_load_seconds": 43.7,
+  "wall_seconds": 77.4,
+  "usd_estimate": 0.0049
+}

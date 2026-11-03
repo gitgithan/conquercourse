@@ -1,0 +1,50 @@
+{
+  "object": {
+    "name": "p1_bench_right",
+    "photo": "photo1",
+    "label": "bench",
+    "box_original": [
+      954,
+      586,
+      1272,
+      722
+    ],
+    "height_m": 0.8,
+    "box_source": "Segment Objects pick (bench 0.96)"
+  },
+  "box_sent": [
+    788,
+    484,
+    1050,
+    596
+  ],
+  "label": "bench",
+  "privacy": {
+    "people": 10,
+    "faces": 6,
+    "plates": 0,
+    "changed": true
+  },
+  "mask": {
+    "how": "text",
+    "score": 0.96484375,
+    "iou_with_box": 1,
+    "candidates": 5,
+    "pixels": 15393
+  },
+  "touches_border": false,
+  "padded": false,
+  "lift_check": {
+    "extent_aspect": 2.24,
+    "mask_aspect": 2.339,
+    "bad": false
+  },
+  "mask_seconds": 2.8,
+  "lift_seconds": 8.7,
+  "n_faces_raw": 201196,
+  "n_gaussians": 156768,
+  "mask_load_seconds": 14.4,
+  "lift_load_seconds": 45.9,
+  "wall_seconds": 70.3,
+  "usd_estimate": 0.0053
+}

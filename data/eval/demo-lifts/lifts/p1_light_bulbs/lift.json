@@ -1,0 +1,50 @@
+{
+  "object": {
+    "name": "p1_light_bulbs",
+    "photo": "photo1",
+    "label": "string of light bulbs",
+    "box_original": [
+      0,
+      88,
+      1550,
+      180
+    ],
+    "height_m": 1,
+    "box_source": "our box: no phrase in Segment Objects finds a bulb string"
+  },
+  "box_sent": [
+    0,
+    73,
+    1280,
+    149
+  ],
+  "label": "string of light bulbs",
+  "privacy": {
+    "people": 10,
+    "faces": 6,
+    "plates": 0,
+    "changed": true
+  },
+  "mask": {
+    "how": "text",
+    "score": 0.7109375,
+    "iou_with_box": 0.891,
+    "candidates": 5,
+    "pixels": 9371
+  },
+  "touches_border": false,
+  "padded": false,
+  "lift_check": {
+    "extent_aspect": 8.381,
+    "mask_aspect": 18.735,
+    "bad": true
+  },
+  "mask_seconds": 2.8,
+  "lift_seconds": 7.9,
+  "n_faces_raw": 8328,
+  "n_gaussians": 5440,
+  "mask_load_seconds": 14.4,
+  "lift_load_seconds": 45.9,
+  "wall_seconds": 65.7,
+  "usd_estimate": 0.0049
+}

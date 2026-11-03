@@ -1,0 +1,27 @@
+{
+  "label": "pull-up bar",
+  "extents_m": {
+    "x": 2.388,
+    "y": 2.4,
+    "z": 0.347
+  },
+  "height_m": 2.4,
+  "target_height_m": 2.4,
+  "scale_source": "typed",
+  "scale_factor": 2.3991,
+  "raw_height": 1.0004,
+  "yaw_deg": 0,
+  "tilt_deg": 0.67,
+  "faces": 5820,
+  "vertices": 5276,
+  "width_to_height": 0.995,
+  "texture": "1024x1024",
+  "bytes": 495464,
+  "raw_faces": 228524,
+  "model": "SAM 3D Objects (seed 42)",
+  "extent_xyz_m": [
+    2.388,
+    2.4,
+    0.347
+  ]
+}

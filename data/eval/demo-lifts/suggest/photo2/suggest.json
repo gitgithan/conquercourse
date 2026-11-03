@@ -1,0 +1,145 @@
+{
+  "photo": "photo2",
+  "items": [
+    {
+      "label": "pole",
+      "score": 0.69,
+      "box": [
+        549,
+        265,
+        576,
+        891
+      ],
+      "cutout_file": "cutout_00.png"
+    },
+    {
+      "label": "pole",
+      "score": 0.68,
+      "box": [
+        1019,
+        304,
+        1043,
+        825
+      ],
+      "cutout_file": "cutout_01.png"
+    },
+    {
+      "label": "pole",
+      "score": 0.68,
+      "box": [
+        233,
+        288,
+        260,
+        854
+      ],
+      "cutout_file": "cutout_02.png"
+    },
+    {
+      "label": "pole",
+      "score": 0.66,
+      "box": [
+        1199,
+        318,
+        1224,
+        797
+      ],
+      "cutout_file": "cutout_03.png"
+    },
+    {
+      "label": "pole",
+      "score": 0.66,
+      "box": [
+        209,
+        336,
+        231,
+        782
+      ],
+      "cutout_file": "cutout_04.png"
+    },
+    {
+      "label": "pole",
+      "score": 0.66,
+      "box": [
+        36,
+        340,
+        60,
+        767
+      ],
+      "cutout_file": "cutout_05.png"
+    },
+    {
+      "label": "pole",
+      "score": 0.62,
+      "box": [
+        395,
+        379,
+        414,
+        721
+      ],
+      "cutout_file": "cutout_06.png"
+    },
+    {
+      "label": "pole",
+      "score": 0.59,
+      "box": [
+        255,
+        393,
+        271,
+        712
+      ],
+      "cutout_file": "cutout_07.png"
+    },
+    {
+      "label": "pole",
+      "score": 0.59,
+      "box": [
+        517,
+        325,
+        554,
+        680
+      ],
+      "cutout_file": "cutout_08.png"
+    },
+    {
+      "label": "wall",
+      "score": 0.52,
+      "box": [
+        0,
+        496,
+        145,
+        573
+      ],
+      "cutout_file": "cutout_09.png"
+    },
+    {
+      "label": "wall",
+      "score": 0.39,
+      "box": [
+        998,
+        438,
+        1119,
+        597
+      ],
+      "cutout_file": "cutout_10.png"
+    },
+    {
+      "label": "pull-up bar",
+      "score": 0.37,
+      "box": [
+        246,
+        288,
+        554,
+        316
+      ],
+      "cutout_file": "cutout_11.png"
+    }
+  ],
+  "privacy": {
+    "people": 0,
+    "faces": 0,
+    "plates": 0,
+    "changed": false
+  },
+  "job_seconds": 0.9,
+  "wall_seconds": 58.1
+}

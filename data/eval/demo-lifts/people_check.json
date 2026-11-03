@@ -1,0 +1,142 @@
+{
+  "rule": "scripts/photos_people.py",
+  "rows": [
+    {
+      "photo": "photo1_dansbana_ystad.jpg",
+      "persons": 12,
+      "person_max_height_share": 0.1595,
+      "limit_height_share": 0.2,
+      "kept": true,
+      "person_boxes": [
+        {
+          "box": [
+            1162,
+            411,
+            1241,
+            535
+          ],
+          "score": 0.996,
+          "height_share": 0.1564
+        },
+        {
+          "box": [
+            540,
+            385,
+            590,
+            495
+          ],
+          "score": 0.993,
+          "height_share": 0.1398
+        },
+        {
+          "box": [
+            487,
+            434,
+            538,
+            521
+          ],
+          "score": 0.991,
+          "height_share": 0.1094
+        },
+        {
+          "box": [
+            1275,
+            409,
+            1319,
+            535
+          ],
+          "score": 0.991,
+          "height_share": 0.1595
+        },
+        {
+          "box": [
+            896,
+            376,
+            915,
+            414
+          ],
+          "score": 0.985,
+          "height_share": 0.0489
+        },
+        {
+          "box": [
+            688,
+            360,
+            727,
+            418
+          ],
+          "score": 0.972,
+          "height_share": 0.0739
+        },
+        {
+          "box": [
+            772,
+            346,
+            803,
+            420
+          ],
+          "score": 0.963,
+          "height_share": 0.0925
+        },
+        {
+          "box": [
+            999,
+            382,
+            1018,
+            408
+          ],
+          "score": 0.939,
+          "height_share": 0.0331
+        },
+        {
+          "box": [
+            866,
+            384,
+            885,
+            424
+          ],
+          "score": 0.918,
+          "height_share": 0.0501
+        },
+        {
+          "box": [
+            842,
+            379,
+            885,
+            423
+          ],
+          "score": 0.892,
+          "height_share": 0.0559
+        },
+        {
+          "box": [
+            528,
+            378,
+            546,
+            413
+          ],
+          "score": 0.836,
+          "height_share": 0.0444
+        },
+        {
+          "box": [
+            1269,
+            321,
+            1284,
+            359
+          ],
+          "score": 0.612,
+          "height_share": 0.0481
+        }
+      ]
+    },
+    {
+      "photo": "photo2_rataje_workout.jpg",
+      "persons": 0,
+      "person_max_height_share": 0,
+      "limit_height_share": 0.2,
+      "kept": true,
+      "person_boxes": []
+    }
+  ]
+}

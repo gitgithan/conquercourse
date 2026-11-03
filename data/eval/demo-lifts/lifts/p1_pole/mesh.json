@@ -1,0 +1,27 @@
+{
+  "label": "pole",
+  "extents_m": {
+    "x": 0.438,
+    "y": 4,
+    "z": 0.436
+  },
+  "height_m": 4,
+  "target_height_m": 4,
+  "scale_source": "typed",
+  "scale_factor": 3.9991,
+  "raw_height": 1.0002,
+  "yaw_deg": 100.5,
+  "tilt_deg": 0.08,
+  "faces": 5820,
+  "vertices": 3546,
+  "width_to_height": 0.11,
+  "texture": "1024x1024",
+  "bytes": 264248,
+  "raw_faces": 16204,
+  "model": "SAM 3D Objects (seed 42)",
+  "extent_xyz_m": [
+    0.438,
+    4,
+    0.436
+  ]
+}

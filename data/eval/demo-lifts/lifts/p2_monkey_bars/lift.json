@@ -1,0 +1,50 @@
+{
+  "object": {
+    "name": "p2_monkey_bars",
+    "photo": "photo2",
+    "label": "monkey bars",
+    "box_original": [
+      1115,
+      583,
+      2475,
+      707
+    ],
+    "height_m": 2.4,
+    "box_source": "our box: Segment Objects did not find monkey bars"
+  },
+  "box_sent": [
+    551,
+    288,
+    1222,
+    349
+  ],
+  "label": "monkey bars",
+  "privacy": {
+    "people": 0,
+    "faces": 0,
+    "plates": 0,
+    "changed": false
+  },
+  "mask": {
+    "how": "box-prompt",
+    "score": 0.9140625,
+    "iou_with_box": 0,
+    "candidates": 0,
+    "pixels": 13730
+  },
+  "touches_border": false,
+  "padded": false,
+  "lift_check": {
+    "extent_aspect": 21.704,
+    "mask_aspect": 12,
+    "bad": false
+  },
+  "mask_seconds": 1.1,
+  "lift_seconds": 9.2,
+  "n_faces_raw": 35968,
+  "n_gaussians": 28416,
+  "mask_load_seconds": 11.8,
+  "lift_load_seconds": 43.7,
+  "wall_seconds": 117.2,
+  "usd_estimate": 0.0052
+}

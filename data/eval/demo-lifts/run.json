@@ -1,0 +1,473 @@
+{
+  "experiment": "demo-lifts",
+  "issue": "CC-133",
+  "date": "2026-11-03",
+  "seed": 42,
+  "pipeline": "deployed Modal app cc-photo-to-object (Mask.suggest, Mask.run, Lift.run) + ccpipe bake; same jobs the Community flow calls through /api/segment and /api/object-lift",
+  "safety": {
+    "photo1": {
+      "verdict": "ok",
+      "reason": "none",
+      "seconds": 4.965,
+      "model": "Muse Spark Open (Baseten)"
+    },
+    "photo2": {
+      "verdict": "ok",
+      "reason": "none",
+      "seconds": 88.865,
+      "model": "Muse Spark Open (Baseten)"
+    }
+  },
+  "privacy_receipts": {
+    "photo1": {
+      "people": 10,
+      "faces": 6,
+      "plates": 0,
+      "changed": true
+    },
+    "photo2": {
+      "people": 0,
+      "faces": 0,
+      "plates": 0,
+      "changed": false
+    }
+  },
+  "segment_objects": {
+    "photo1": {
+      "job_seconds": 4.2,
+      "items": [
+        [
+          "bench",
+          0.96,
+          [
+            438,
+            488,
+            702,
+            600
+          ]
+        ],
+        [
+          "bench",
+          0.96,
+          [
+            788,
+            484,
+            1050,
+            596
+          ]
+        ],
+        [
+          "bench",
+          0.93,
+          [
+            618,
+            379,
+            722,
+            425
+          ]
+        ],
+        [
+          "bench",
+          0.93,
+          [
+            486,
+            380,
+            583,
+            426
+          ]
+        ],
+        [
+          "bench",
+          0.91,
+          [
+            1186,
+            396,
+            1280,
+            465
+          ]
+        ],
+        [
+          "pole",
+          0.82,
+          [
+            165,
+            48,
+            211,
+            632
+          ]
+        ],
+        [
+          "pole",
+          0.71,
+          [
+            1209,
+            210,
+            1222,
+            457
+          ]
+        ]
+      ]
+    },
+    "photo2": {
+      "job_seconds": 0.9,
+      "items": [
+        [
+          "pole",
+          0.69,
+          [
+            549,
+            265,
+            576,
+            891
+          ]
+        ],
+        [
+          "pole",
+          0.68,
+          [
+            1019,
+            304,
+            1043,
+            825
+          ]
+        ],
+        [
+          "pole",
+          0.68,
+          [
+            233,
+            288,
+            260,
+            854
+          ]
+        ],
+        [
+          "pole",
+          0.66,
+          [
+            1199,
+            318,
+            1224,
+            797
+          ]
+        ],
+        [
+          "pole",
+          0.66,
+          [
+            209,
+            336,
+            231,
+            782
+          ]
+        ],
+        [
+          "pole",
+          0.66,
+          [
+            36,
+            340,
+            60,
+            767
+          ]
+        ],
+        [
+          "pole",
+          0.62,
+          [
+            395,
+            379,
+            414,
+            721
+          ]
+        ],
+        [
+          "pole",
+          0.59,
+          [
+            255,
+            393,
+            271,
+            712
+          ]
+        ],
+        [
+          "pole",
+          0.59,
+          [
+            517,
+            325,
+            554,
+            680
+          ]
+        ],
+        [
+          "wall",
+          0.52,
+          [
+            0,
+            496,
+            145,
+            573
+          ]
+        ],
+        [
+          "wall",
+          0.39,
+          [
+            998,
+            438,
+            1119,
+            597
+          ]
+        ],
+        [
+          "pull-up bar",
+          0.37,
+          [
+            246,
+            288,
+            554,
+            316
+          ]
+        ]
+      ]
+    }
+  },
+  "lifts": [
+    {
+      "mask": {
+        "how": "text",
+        "score": 0.96484375,
+        "iou_with_box": 1,
+        "candidates": 5,
+        "pixels": 16195
+      },
+      "padded": false,
+      "lift_check": {
+        "extent_aspect": 2.219,
+        "mask_aspect": 2.357,
+        "bad": false
+      },
+      "mask_seconds": 2.7,
+      "lift_seconds": 12.6,
+      "n_faces_raw": 206670,
+      "n_gaussians": 168512,
+      "usd_estimate": 0.0074,
+      "name": "p1_bench_left",
+      "label": "bench",
+      "box_original": [
+        530,
+        591,
+        850,
+        727
+      ],
+      "box_source": "Segment Objects pick (bench 0.96)",
+      "height_m_typed": 0.8,
+      "faces": 5820,
+      "glb_bytes": 465412,
+      "extent_xyz_m": [
+        1.775,
+        0.8,
+        0.62
+      ],
+      "tilt_deg": 6.17
+    },
+    {
+      "mask": {
+        "how": "text",
+        "score": 0.96484375,
+        "iou_with_box": 1,
+        "candidates": 5,
+        "pixels": 15393
+      },
+      "padded": false,
+      "lift_check": {
+        "extent_aspect": 2.24,
+        "mask_aspect": 2.339,
+        "bad": false
+      },
+      "mask_seconds": 2.8,
+      "lift_seconds": 8.7,
+      "n_faces_raw": 201196,
+      "n_gaussians": 156768,
+      "usd_estimate": 0.0053,
+      "name": "p1_bench_right",
+      "label": "bench",
+      "box_original": [
+        954,
+        586,
+        1272,
+        722
+      ],
+      "box_source": "Segment Objects pick (bench 0.96)",
+      "height_m_typed": 0.8,
+      "faces": 5820,
+      "glb_bytes": 487300,
+      "extent_xyz_m": [
+        1.791,
+        0.8,
+        0.588
+      ],
+      "tilt_deg": 5.31
+    },
+    {
+      "mask": {
+        "how": "text",
+        "score": 0.8203125,
+        "iou_with_box": 1,
+        "candidates": 17,
+        "pixels": 8057
+      },
+      "padded": false,
+      "lift_check": {
+        "extent_aspect": 0.11,
+        "mask_aspect": 0.079,
+        "bad": false
+      },
+      "mask_seconds": 2.8,
+      "lift_seconds": 8,
+      "n_faces_raw": 16204,
+      "n_gaussians": 15360,
+      "usd_estimate": 0.0049,
+      "name": "p1_pole",
+      "label": "pole",
+      "box_original": [
+        200,
+        58,
+        255,
+        765
+      ],
+      "box_source": "Segment Objects pick (pole 0.82)",
+      "height_m_typed": 4,
+      "faces": 5820,
+      "glb_bytes": 264248,
+      "extent_xyz_m": [
+        0.438,
+        4,
+        0.436
+      ],
+      "tilt_deg": 0.08
+    },
+    {
+      "mask": {
+        "how": "text",
+        "score": 0.7109375,
+        "iou_with_box": 0.891,
+        "candidates": 5,
+        "pixels": 9371
+      },
+      "padded": false,
+      "lift_check": {
+        "extent_aspect": 8.381,
+        "mask_aspect": 18.735,
+        "bad": true
+      },
+      "mask_seconds": 2.8,
+      "lift_seconds": 7.9,
+      "n_faces_raw": 8328,
+      "n_gaussians": 5440,
+      "usd_estimate": 0.0049,
+      "name": "p1_light_bulbs",
+      "label": "string of light bulbs",
+      "box_original": [
+        0,
+        88,
+        1550,
+        180
+      ],
+      "box_source": "our box: no phrase in Segment Objects finds a bulb string",
+      "height_m_typed": 1,
+      "faces": 5820,
+      "glb_bytes": 471092,
+      "extent_xyz_m": [
+        8.382,
+        1,
+        0.232
+      ],
+      "tilt_deg": 0.87
+    },
+    {
+      "mask": {
+        "how": "box-prompt",
+        "score": 0.9140625,
+        "iou_with_box": 0,
+        "candidates": 0,
+        "pixels": 13730
+      },
+      "padded": false,
+      "lift_check": {
+        "extent_aspect": 21.704,
+        "mask_aspect": 12,
+        "bad": false
+      },
+      "mask_seconds": 1.1,
+      "lift_seconds": 9.2,
+      "n_faces_raw": 35968,
+      "n_gaussians": 28416,
+      "usd_estimate": 0.0052,
+      "name": "p2_monkey_bars",
+      "label": "monkey bars",
+      "box_original": [
+        1115,
+        583,
+        2475,
+        707
+      ],
+      "box_source": "our box: Segment Objects did not find monkey bars",
+      "height_m_typed": 0.25,
+      "faces": 5820,
+      "glb_bytes": 487200,
+      "extent_xyz_m": [
+        5.425,
+        0.251,
+        1.035
+      ],
+      "tilt_deg": 1.65
+    },
+    {
+      "mask": {
+        "how": "box-prompt",
+        "score": 0.93359375,
+        "iou_with_box": 0,
+        "candidates": 9,
+        "pixels": 8538
+      },
+      "padded": false,
+      "lift_check": {
+        "extent_aspect": 0.994,
+        "mask_aspect": 1.02,
+        "bad": false
+      },
+      "mask_seconds": 0.3,
+      "lift_seconds": 8.9,
+      "n_faces_raw": 228524,
+      "n_gaussians": 173952,
+      "usd_estimate": 0.0049,
+      "name": "p2_pullup_bar",
+      "label": "pull-up bar",
+      "box_original": [
+        2061,
+        771,
+        2482,
+        1186
+      ],
+      "box_source": "our box: Segment Objects did not find it (a weak pull-up bar 0.37 was found top left)",
+      "height_m_typed": 2.4,
+      "faces": 5820,
+      "glb_bytes": 495464,
+      "extent_xyz_m": [
+        2.388,
+        2.4,
+        0.347
+      ],
+      "tilt_deg": 0.67
+    }
+  ],
+  "cost": {
+    "modal_estimate_usd_sum_of_job_seconds": 0.0337,
+    "basis": "L4 $0.80/h for SAM 3 seconds, L40S $1.95/h for SAM 3D Objects seconds; job seconds only; model loads (about 14 s L4, 46 s L40S per cold start), the three cold starts that dropped the client stream for the two photo-2 lifts, and 60 to 240 s idle scale-down are not in it",
+    "modal_realistic_total_usd_estimate_range": "0.30 to 0.60",
+    "baseten_muse_spark_open": "2 small calls; covered by the sponsor credits"
+  }
+}

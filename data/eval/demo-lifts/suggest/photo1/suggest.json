@@ -1,0 +1,90 @@
+{
+  "photo": "photo1",
+  "items": [
+    {
+      "label": "bench",
+      "score": 0.96,
+      "box": [
+        438,
+        488,
+        702,
+        600
+      ],
+      "cutout_file": "cutout_00.png"
+    },
+    {
+      "label": "bench",
+      "score": 0.96,
+      "box": [
+        788,
+        484,
+        1050,
+        596
+      ],
+      "cutout_file": "cutout_01.png"
+    },
+    {
+      "label": "bench",
+      "score": 0.93,
+      "box": [
+        618,
+        379,
+        722,
+        425
+      ],
+      "cutout_file": "cutout_02.png"
+    },
+    {
+      "label": "bench",
+      "score": 0.93,
+      "box": [
+        486,
+        380,
+        583,
+        426
+      ],
+      "cutout_file": "cutout_03.png"
+    },
+    {
+      "label": "bench",
+      "score": 0.91,
+      "box": [
+        1186,
+        396,
+        1280,
+        465
+      ],
+      "cutout_file": "cutout_04.png"
+    },
+    {
+      "label": "pole",
+      "score": 0.82,
+      "box": [
+        165,
+        48,
+        211,
+        632
+      ],
+      "cutout_file": "cutout_05.png"
+    },
+    {
+      "label": "pole",
+      "score": 0.71,
+      "box": [
+        1209,
+        210,
+        1222,
+        457
+      ],
+      "cutout_file": "cutout_06.png"
+    }
+  ],
+  "privacy": {
+    "people": 10,
+    "faces": 6,
+    "plates": 0,
+    "changed": true
+  },
+  "job_seconds": 4.2,
+  "wall_seconds": 47.6
+}
