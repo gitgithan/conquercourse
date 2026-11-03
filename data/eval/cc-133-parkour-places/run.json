@@ -1,0 +1,17 @@
+{
+  "experiment": "cc-133-parkour-places",
+  "date": "2026-11-03",
+  "inputs": {
+    "source": "OpenStreetMap through the Overpass API (box and tile queries) and public web pages for the owner's five parks",
+    "visible_threshold_m2": 1500
+  },
+  "outputs": {
+    "parks_added": 12,
+    "visible_at_editor_zoom": 5,
+    "small_flagged": 7,
+    "lane_cleared": 12,
+    "enclosing_area_used": 5,
+    "tests": "tests/parkour-places.test.ts (65 tests), tests/curated-places.test.ts, tests/place-gallery.test.ts: 73 passed"
+  },
+  "compute": "existing VM cc-worker-3 (new snapshot VMs stayed locked)"
+}

@@ -84,9 +84,27 @@ export async function askMirrors(
 }
 
 // ---- ready places: built once, shipped as files, load at once
-export interface ReadyIndexEntry { slug: string; name: string; lat: number; lon: number; radius: number; hill_m: number; buildings: number; bytes: number; blurb: string; listed?: boolean; path?: boolean; photos?: number; live?: boolean /* CC-90: an offline street-photo list exists */ }
+export interface ReadyIndexEntry { slug: string; name: string; lat: number; lon: number; radius: number; hill_m: number; buildings: number; bytes: number; blurb: string; listed?: boolean; path?: boolean; photos?: number; live?: boolean /* CC-90: an offline street-photo list exists */;
+  country?: string;
+  /** CC-133: a parkour park (a real mapped park for training), listed in its own group, by region. `osm` is the OpenStreetMap element ("way/123") and `areaM2` its mapped area. */
+  kind?: 'parkour'; region?: string; osm?: string; areaM2?: number; mapped?: 'parkour' | 'enclosing'; visible?: boolean /* the OpenStreetMap element is the parkour area itself, or the bigger place (campus, park) it lies in */ }
 // CC-178: the list shows only places with a lane found by default AND street photos the game may show (listed is set by scripts/places-list.ts); ?places=all shows every place.
-export const shownReady = (index: ReadyIndexEntry[], all: boolean, proven = false): ReadyIndexEntry[] => (proven ? index.filter((p) => p.path === true) : index).filter((p) => all || p.listed !== false);
+// CC-133: a parkour park is never hidden for lacking a lane; its card says so and Build explains it (flag, do not hide).
+export const shownReady = (index: ReadyIndexEntry[], all: boolean, proven = false): ReadyIndexEntry[] => (proven ? index.filter((p) => p.path === true || p.kind === 'parkour') : index).filter((p) => all || p.listed !== false);
+
+export const REGIONS = ['Europe', 'Asia', 'Africa', 'North America', 'South America', 'Oceania'] as const;
+/** CC-133: the gallery groups: the street places first, then the parkour parks under one heading per region (REGIONS order), each region sorted by country then name. */
+export function groupShown(list: ReadyIndexEntry[]): { title: string; items: ReadyIndexEntry[] }[] {
+  const street = list.filter((p) => p.kind !== 'parkour'), parks = list.filter((p) => p.kind === 'parkour');
+  const groups = street.length ? [{ title: parks.length ? 'Street places' : '', items: street }] : [];
+  for (const r of REGIONS) {
+    const items = parks.filter((p) => p.region === r).sort((a, b) => (a.country ?? '').localeCompare(b.country ?? '') || a.name.localeCompare(b.name));
+    if (items.length) groups.push({ title: `Parkour parks: ${r}`, items });
+  }
+  const other = parks.filter((p) => !REGIONS.includes(p.region as never));
+  if (other.length) groups.push({ title: 'Parkour parks: other', items: other });
+  return groups;
+}
 /** CC-211: a ready place has a path when the simulator cleared the lane stored with it (`path` in the index, written from the place file by scripts/places-list.ts). */
 export const hasPath = (p: ReadyIndexEntry): boolean => p.path === true;
 export interface PlaceLane {

@@ -9,7 +9,8 @@ import { laneForPlace, rolesFromSummary } from '../src/world/place-lane';
 import { buildingsFrom, type OverpassAnswer } from '../src/world/osm';
 import { fetchGround, relief, type Ground } from '../src/world/terrain';
 
-interface Spec { slug: string; name: string; lat: number; lon: number; radius: number; blurb: string; saved?: string }
+// CC-133: a parkour park carries kind/region/country and the OpenStreetMap element it was checked against (see data/eval/cc-133-parkour-places/README.md); it is saved and listed even when the lane search finds no path, and the card says so.
+interface Spec { slug: string; name: string; lat: number; lon: number; radius: number; blurb: string; saved?: string; kind?: 'parkour'; region?: string; country?: string; osm?: string; areaM2?: number; mapped?: 'parkour' | 'enclosing' }
 export const PLACES: Spec[] = [
   { slug: 'montmartre-paris', name: 'Montmartre steps, Paris', lat: 48.8867, lon: 2.3431, radius: 120, blurb: 'A hill of stairs and narrow streets.', saved: 'montmartre-paris' },
   { slug: 'eixample-barcelona', name: 'Eixample, Barcelona', lat: 41.3917, lon: 2.1649, radius: 120, blurb: 'A grid of tall blocks with cut corners.', saved: 'eixample-barcelona' },
@@ -61,6 +62,19 @@ export const PLACES: Spec[] = [
   { slug: 'old-town-tallinn', name: 'Old Town, Tallinn', lat: 59.4370, lon: 24.7454, radius: 120, blurb: 'Medieval lanes under towers and town walls.' },
   { slug: 'bo-kaap-cape-town', name: 'Bo-Kaap, Cape Town', lat: -33.9166, lon: 18.4155, radius: 120, blurb: 'Steep cobbled streets of bright painted houses.' },
   { slug: 'bryggen-bergen', name: 'Bryggen, Bergen', lat: 60.3979, lon: 5.3243, radius: 120, blurb: 'Wooden harbour houses in a row on the old wharf.' },
+  // CC-133: parkour parks, each checked against the OpenStreetMap element named in osm (data/eval/cc-133-parkour-places/README.md)
+  { slug: 'bgi-akademiet-hornsyld', name: 'BGI akademiet Parkour Park', lat: 55.7754, lon: 9.8702, radius: 200, blurb: 'The school grounds in Hornsyld that hold the parkour park; the map only has the whole campus.', kind: 'parkour', region: 'Europe', country: 'Denmark', osm: 'way/100191425', areaM2: 203784, mapped: 'enclosing' },
+  { slug: 'gerlev-parkour-park', name: 'Gerlev Parkour Park', lat: 55.3519, lon: 11.3271, radius: 200, blurb: 'Built at Gerlev sports school in 2007; the map only has the whole school area.', kind: 'parkour', region: 'Europe', country: 'Denmark', osm: 'way/1274319354', areaM2: 90840, mapped: 'enclosing' },
+  { slug: 'flowpark-brumunddal', name: 'FlowPark Brumunddal', lat: 60.8777, lon: 10.9219, radius: 150, blurb: "The Mjosparken skate park next to the town's parkour area; the map has no parkour shape here.", kind: 'parkour', region: 'Europe', country: 'Norway', osm: 'way/607719660', areaM2: 2317, mapped: 'enclosing' },
+  { slug: 'regents-park-london', name: "Regent's Park Parkour Hub", lat: 51.5302, lon: -0.1556, radius: 250, blurb: 'The big royal park in London; the map only has the whole park.', kind: 'parkour', region: 'Europe', country: 'United Kingdom', osm: 'relation/1384127', areaM2: 1600000, mapped: 'enclosing' },
+  { slug: 'lakeside-garden-skatepark', name: 'Lakeside Garden SkatePark', lat: 1.343, lon: 103.7271, radius: 150, blurb: 'A skate park with a parkour pod, mapped as one pitch beside Jurong Lake.', kind: 'parkour', region: 'Asia', country: 'Singapore', osm: 'way/1159195814', areaM2: 15029, mapped: 'parkour' },
+  { slug: 'axelsberg-parkour-stockholm', name: 'Axelsbergs Parkour, Stockholm', lat: 59.3056, lon: 17.9682, radius: 150, blurb: 'A city parkour yard in the south of Stockholm.', kind: 'parkour', region: 'Europe', country: 'Sweden', osm: 'way/818042918', areaM2: 1146, mapped: 'parkour' },
+  { slug: 'zollverein-parkour-essen', name: 'Parkour at Zollverein, Essen', lat: 51.4913, lon: 7.0398, radius: 150, blurb: 'A parkour pitch on an old coal mine site.', kind: 'parkour', region: 'Europe', country: 'Germany', osm: 'way/879920257', areaM2: 510, mapped: 'parkour' },
+  { slug: 'freerun-park-netherlands', name: 'Calisthenics and Freerun Park', lat: 51.9778, lon: 5.6764, radius: 150, blurb: 'A small freerunning and calisthenics park.', kind: 'parkour', region: 'Europe', country: 'Netherlands', osm: 'way/849453743', areaM2: 750, mapped: 'parkour' },
+  { slug: 'plaza-parkour-cochabamba', name: 'Plaza Parkour, Cochabamba', lat: -17.4003, lon: -66.1661, radius: 150, blurb: 'A concrete parkour plaza in Cochabamba.', kind: 'parkour', region: 'South America', country: 'Bolivia', osm: 'way/730118541', areaM2: 201, mapped: 'parkour' },
+  { slug: 'bellingham-parkour-wa', name: 'Parkour pitch, Bellingham', lat: 48.8049, lon: -122.4947, radius: 150, blurb: 'A woodchip parkour yard in Washington state.', kind: 'parkour', region: 'North America', country: 'United States', osm: 'way/895145811', areaM2: 333, mapped: 'parkour' },
+  { slug: 'junction-street-plaza-sydney', name: 'Junction Street Plaza, Sydney', lat: -33.8268, lon: 151.007, radius: 150, blurb: 'A city parkour plaza in western Sydney.', kind: 'parkour', region: 'Oceania', country: 'Australia', osm: 'way/1415868149', areaM2: 295, mapped: 'parkour' },
+  { slug: 'brahenpuisto-kuopio', name: 'Brahenpuisto parkour area, Kuopio', lat: 62.887, lon: 27.6853, radius: 150, blurb: 'An artificial turf parkour area in a Kuopio park.', kind: 'parkour', region: 'Europe', country: 'Finland', osm: 'way/944150009', areaM2: 261, mapped: 'parkour' },
 ];
 
 const out = 'public/assets/places';
@@ -118,15 +132,19 @@ for (const s of PLACES) {
   const g = await groundFor(s);
   const ground = g ? { step: g.step, n: g.n, h: g.h } : null;
   const lane = laneForPlace(answer, s.lat, s.lon, g);
-  if (!lane?.cleared) { console.log('  not saved: the simulator found no lane (CC-211)'); continue; } // a place with no path is not written and not listed
-  const place: ReadyPlace = { slug: s.slug, name: s.name, lat: s.lat, lon: s.lon, radius: s.radius, blurb: s.blurb, answer, ground, lane };
+  if (!lane?.cleared && s.kind !== 'parkour') { console.log('  not saved: the simulator found no lane (CC-211)'); continue; } // a place with no path is not written and not listed
+  const place: ReadyPlace = { slug: s.slug, name: s.name, lat: s.lat, lon: s.lon, radius: s.radius, blurb: s.blurb, answer, ground, lane: lane ?? null };
   const text = JSON.stringify(place, null, 2) + '\n'; // tracked JSON is committed pretty-printed (npm run format:json)
   writeFileSync(`${out}/${s.slug}.json`, text);
   console.log(`  ${text.length} bytes, ${buildingsFrom(answer, s.lat, s.lon).length} buildings, hill ${Math.round(relief(g))} m, lane ${lane ? `${lane.lengthM} m at ${lane.shrink} (${lane.secondsTaken} s)` : 'none'}`);
   index.push(entry(place, text.length));
 }
+function parkour(slug: string, path: boolean): Partial<ReadyIndexEntry> {
+  const s = PLACES.find((x) => x.slug === slug);
+  return s?.kind === 'parkour' ? { kind: 'parkour', region: s.region, country: s.country, osm: s.osm, areaM2: s.areaM2, visible: (s.areaM2 ?? 0) >= 1500, mapped: s.mapped, path, listed: true, photos: 0, live: false } : {};
+}
 function entry(p: ReadyPlace, bytes: number): ReadyIndexEntry {
-  return { slug: p.slug, name: p.name, lat: p.lat, lon: p.lon, radius: p.radius, hill_m: Math.round(relief(p.ground ? { radius: p.radius, ...p.ground } : null)), buildings: buildingsFrom(p.answer, p.lat, p.lon).length, bytes, blurb: p.blurb, ...Object.fromEntries(Object.entries(oldIndex.find((o) => o.slug === p.slug) ?? {}).filter(([k]) => ['listed', 'path', 'photos'].includes(k))) };
+  return { slug: p.slug, name: p.name, lat: p.lat, lon: p.lon, radius: p.radius, hill_m: Math.round(relief(p.ground ? { radius: p.radius, ...p.ground } : null)), buildings: buildingsFrom(p.answer, p.lat, p.lon).length, bytes, blurb: p.blurb, ...Object.fromEntries(Object.entries(oldIndex.find((o) => o.slug === p.slug) ?? {}).filter(([k]) => ['listed', 'path', 'photos', 'live', 'country'].includes(k))), ...parkour(p.slug, p.lane?.cleared === true) };
 }
 if (fetchOnly) { console.log('answers fetched'); process.exit(0); }
 index.sort((a, b) => PLACES.findIndex((p) => p.slug === a.slug) - PLACES.findIndex((p) => p.slug === b.slug));

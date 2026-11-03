@@ -171,6 +171,11 @@
   - The search is the same family as the shortcut search (CC-71), and runs in the worker pool with a step budget (CC-69).
 - **Where it sits in the Atlas loop:** place, flight, pick buildings, choose the cut (the puzzle), run, then the ghost route, then a Notebook entry ("A route exists that you did not see").
 - **Ready places:** each of the ten ready places (CC-78) keeps a stored best route as the reference, so the ghost line appears at once.
+- **Parkour parks (CC-133):** the Ready places list also has a group of real parkour parks, under one heading per region and sorted by country.
+  - Each is tied to a real OpenStreetMap element (id and mapped area in `data/eval/cc-133-parkour-places/README.md`).
+  - A park whose mapped shape is under 1500 m2 is flagged as small on the map, not hidden.
+  - A park where the simulator finds no lane is still listed, with a "no lane found yet" badge.
+  - Five of the twelve are mapped only as the bigger place around them (campus, park), and the card says so.
 - **Honest limit:** the runner moves along one line (the simulator is 2D along that line), so moves across the street, or a lane that bends, are not modelled.
   - A bent line is flattened into one run along its length.
 - **Depends on:** places that load (CC-78), the flight and picking (CC-79, built), the shortcut search (CC-71), and the worker pool (CC-69).
