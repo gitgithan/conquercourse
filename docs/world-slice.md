@@ -1866,3 +1866,17 @@ The set of obstacle shapes is fixed, and each shape offers a fixed set of moves.
   - The shapes are fixed (no dot dragging yet); size and height can be changed like any piece.
   - The side view shows only the lowest part of tall sections until the side-view fit lands.
 - **Checks:** `tests/coaster-editor.test.ts` (chains clear, a long flight with little height does not), `tests/coaster-bar.test.ts` (bars at four heights), `scripts/coaster-editor-shot.mjs` (screenshot at 1280 px).
+
+## Search progress panel (CC-133)
+- **Why:** a course with no stored plan is searched live in the workers (bars stages take 15 to 20 s); the player only saw one line of text, or nothing for the ghost.
+- **What shows:** a panel with the title "Working out the best run for your course", the obstacle it is on (step N of M), a bar, and the time left.
+- **When:** only while a live search runs (`src/modes/course/search.ts`); a stored plan (`course.plan`) or a remembered one (`idealCache`) never opens it; the quiet background searches (take-off windows, shortcut list) never open it.
+- **Cancel:** the Cancel button stops any of them; any key also stops the `I` and `Shift+I` search (the ghost and the drum lane search while you play, so a key does not).
+- **No way through:** the panel says so plainly and goes after 7 s.
+- **Time left** (`src/modes/course/search-eta.ts`, pure, `tests/search-eta.test.ts`):
+  - It blends the average of the finished steps with a moving average of the latest ones, so uneven steps do not fool it.
+  - It rises at most 3 s and falls at most 4 s per second, and is never negative.
+  - It says "a few seconds left" until a step has finished, "a little longer" after 10 s with none finished, "about N s left" (rounded to 5 s, 10 s above 30 s) and "more than a minute left".
+- **Switch:** `?searchpanel=0` hides the panel.
+- **Check:** `scripts/search-progress-check.mjs` (1280 px; panel, Cancel, stored plan, switch); picture in [evidence](evidence/cc-133-search-progress/search-progress-1280.png).
+- **Known gap:** with the ghost on its ideal mode, the ghost and the drum lane each search the same course one after the other, so the panel shows twice.

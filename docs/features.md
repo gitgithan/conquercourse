@@ -14,6 +14,7 @@
 | Generated motion | Run, leap and hang motion from text, shown only after the plausibility check | Always on | [pipelines 3](meta-ai-pipelines.md#3-generated-motion-kimodo-with-a-llama-3-encoder) |
 | Obstacles with one saying each | The saying is earned by playing the obstacle; no formula | Always on | [sayings](sayings.md), [stages](stages.md) |
 | Ideal run and shortcuts | A ghost line that shows the best way and any shortcut | `I` for one try, `Shift+I` for the whole course; `?bot=ideal` | [pipelines 7](meta-ai-pipelines.md#7-not-ai-but-the-core-of-the-game), [world-slice](world-slice.md#shortcut-discovery-cc-71) |
+| Search progress panel (CC-133) | While the best run is worked out live (ghost, `I`, drums; never for a stored plan), a panel says what it is looking at, shows a bar and the time left, and has a Cancel button; any key cancels the `I` search | On by default; `?searchpanel=0` hides it | [world-slice](world-slice.md#search-progress-panel-cc-133), [evidence](evidence/cc-133-search-progress/search-progress-1280.png) |
 | Gauges and readable HUD | Bright text on dark panels for speed, time and hints | Always on; `?gauges=old` for the old look | [course design](course-design.md) |
 | Touch controls | On-screen buttons on a phone | Automatic; `?touch=1` or `?touch=0` | [onboarding](onboarding.md) |
 | First visit help | A short welcome and the Help chip | `?welcome` or `?onboarding` | [onboarding](onboarding.md) |

@@ -105,6 +105,7 @@ export const SWITCHES: readonly Switch[] = [
   { name: 'share', default: 'on', doc: "0 hides sharing", quiet: false },
   { name: 'size', default: '1024,760', doc: "film picture size", quiet: false },
   { name: 'skin', default: 'none', doc: "none, tags or full: how the ground is dressed", quiet: false },
+  { name: 'searchpanel', default: 'on', doc: "0 hides the progress panel shown while the best run is worked out", quiet: false },
   { name: 'slice2', default: 'new', doc: "old brings back the old Slicer", quiet: false },
   { name: 'slicehow', default: 'on', doc: "0 hides the first-timer steps", quiet: false },
   { name: 'slicewords', default: 'new', doc: "old keeps the long text", quiet: false },

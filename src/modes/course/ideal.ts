@@ -52,7 +52,7 @@ export function createIdealRun(deps: IdealDeps) {
   // One search at a time (the workers hold one course); each waits for the one before. Nothing here runs a search on the page's thread unless there are no workers at all.
   function findPlan(c: CourseData): Promise<SearchResult> {
     const sig = idealSignal = { cancelled: false };
-    return runSearch(c, sig, (label, step, of) => { st.idealNote = `Working out the ideal run… ${label} (${step} of ${of}) · any key cancels`; });
+    return runSearch(c, sig, undefined, undefined, 'ideal'); // the progress panel (src/ui/search-panel.ts) shows the obstacle, the bar and the time left; any key cancels
   }
   let windowsAsk: Promise<Window[] | null> | null = null;
   function ensureWindows(): Promise<Window[] | null> {
@@ -68,7 +68,7 @@ export function createIdealRun(deps: IdealDeps) {
     for (const x of starts) {
       let q = idealCache.get(x) ?? (x === course.startX ? course.plan : undefined);
       if (!q) {
-        st.idealNote = 'Working out the ideal run… (any key cancels)';
+        st.idealNote = '';
         idealPending = token;
         const r = await findPlan({ ...course, startX: x }).catch(() => undefined);
         if (idealPending !== token || !r) return; // cancelled while the search ran
