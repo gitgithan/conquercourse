@@ -16,6 +16,8 @@ import { cupsGroup } from '../../slice/cups';
 import { buildTrack, type TrackView } from '../../render/track';
 import { buildPlanks } from '../../render/plank';
 import { chunked, mergeStatic, type Part } from '../../render/static-merge';
+import { rungX } from '../../sim/bars';
+import { groundAt } from '../../sim/terrain';
 
 export const LANE_DEPTH = 2; // m, how thick the blocks and the wall are across the screen: thin enough that a camera ahead of the runner cannot hide them behind the block face
 
@@ -54,6 +56,22 @@ export function buildCourseScene(scene: THREE.Scene, course: CourseData, params:
     const halo = new THREE.Mesh(new THREE.TorusGeometry(0.28, 0.02, 8, 24), new THREE.MeshBasicMaterial({ color: 0xffd24a, transparent: true, opacity: 0.9 }));
     halo.position.set(h.x, h.y, LANE_DEPTH / 2 + 0.32);
     scene.add(bar, halo);
+  }
+  // monkey bars (course.bars, docs/bars.md): one amber rung per grab point across the lane, and a post at each end down to the ground, so the row reads as a frame
+  for (const row of course.bars ?? []) {
+    const rungMat = new THREE.MeshStandardMaterial({ color: 0xffa21a, emissive: 0x6b3a00, metalness: 0.3, roughness: 0.4 });
+    for (let i = 0; i < row.n; i++) {
+      const rung = new THREE.Mesh(new THREE.CylinderGeometry(0.035, 0.035, LANE_DEPTH + 0.6, 10), rungMat);
+      rung.rotation.x = Math.PI / 2; rung.position.set(rungX(row, i), row.y, 0);
+      scene.add(rung);
+    }
+    const post = (x: number) => {
+      const h = Math.max(0.5, row.y - groundAt(course.terrain, x));
+      const m = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.05, h, 10), new THREE.MeshStandardMaterial({ color: 0x3b4650, metalness: 0.4, roughness: 0.5 }));
+      m.position.set(x, row.y - h / 2, 0);
+      scene.add(m);
+    };
+    post(rungX(row, 0) - row.gap * 0.5); post(rungX(row, row.n - 1) + row.gap * 0.5);
   }
   // a coaster: rails, ties, posts and the cart (src/render/track.ts); the Rookie sits in it
   let trackView: TrackView | null = null;
