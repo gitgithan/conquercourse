@@ -25,7 +25,7 @@
     },
     {
       "label": "pole",
-      "score": 0.68,
+      "score": 0.67,
       "box": [
         233,
         288,
@@ -91,7 +91,7 @@
     },
     {
       "label": "pole",
-      "score": 0.59,
+      "score": 0.58,
       "box": [
         517,
         325,
@@ -112,24 +112,24 @@
       "cutout_file": "cutout_09.png"
     },
     {
-      "label": "wall",
-      "score": 0.39,
+      "label": "overhead bars",
+      "score": 0.46,
       "box": [
-        998,
-        438,
-        1119,
-        597
+        252,
+        288,
+        554,
+        315
       ],
       "cutout_file": "cutout_10.png"
     },
     {
-      "label": "pull-up bar",
-      "score": 0.37,
+      "label": "wall",
+      "score": 0.38,
       "box": [
-        246,
-        288,
-        554,
-        316
+        998,
+        438,
+        1120,
+        597
       ],
       "cutout_file": "cutout_11.png"
     }
@@ -138,8 +138,9 @@
     "people": 0,
     "faces": 0,
     "plates": 0,
-    "changed": false
+    "changed": false,
+    "person_boxes": []
   },
-  "job_seconds": 1.1,
-  "wall_seconds": 77.3
+  "job_seconds": 2.8,
+  "wall_seconds": 225.7
 }
