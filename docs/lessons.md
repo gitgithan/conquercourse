@@ -227,6 +227,7 @@
   - `tests/sim-no-pow.test.ts` fails if a power comes back anywhere a tick, a replay or a fingerprint can reach.
   - `tests/sim-trace.test.ts` now compares the hash on every Node; 15 of its 100 stored entries changed, no outcome, tick count or course hash did.
   - All 7,525 runs and both recorded runs gave the same ticks, outcome and end place (6 decimals) before and after.
+  - The ready-made editor course `coaster` builds its rails with the changed arithmetic, so its stored key in `src/slice/preset-plans.json` moved (verdict unchanged: not cleared); `npm run plans:presets` was rerun and no other entry changed.
 - How to prevent it: use only `+ - * /` and `Math.sqrt` in the sim step when you can; avoid `**` and `Math.pow`.
 - Still open: exact bits in workerd need our own sin, cos, tan and exp in the sim step (or a tolerance there).
 - Details: `data/eval/trace-machines/README.md`.
