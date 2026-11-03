@@ -4,6 +4,7 @@ import type { ActorState } from './actor-pose';
 import { vaultHand } from '../sim/vault';
 import { SLIDE_RECOVERY } from '../sim/slide';
 import { DT } from '../sim/units';
+import { rungX, type BarRun } from '../sim/bars';
 
 export const SLIDE_RISE_TICKS = Math.round(0.25 / DT); // the body gets up from a slide over this long (the box is standing again at once)
 
@@ -14,7 +15,7 @@ function slideRisingTicks(w: WorldState): number | undefined {
   return since >= 0 && since < SLIDE_RISE_TICKS ? since : undefined;
 }
 
-export function actorStateFor(w: WorldState, squat: boolean, facing: 1 | -1 = 1): ActorState {
+export function actorStateFor(w: WorldState, squat: boolean, facing: 1 | -1 = 1, barRow?: BarRun): ActorState {
   const r = w.runner;
   return {
     tick: r.tick,
@@ -38,6 +39,7 @@ export function actorStateFor(w: WorldState, squat: boolean, facing: 1 | -1 = 1)
     wallProgress: w.wall ? w.wall.index / Math.max(1, w.wall.path.length - 1) : undefined,
     swingTheta: w.swing?.theta ?? w.hang?.theta ?? w.bars?.theta ?? (w.polec ? 0 : undefined), // a pole climber hangs like a bar hanger until a climbing pose is made
     swingOmega: w.hang?.omega ?? w.bars?.omega,
+    bars: barRow && w.mode === 'bars' && w.bars ? { left: rungX(barRow, w.bars.l), right: rungX(barRow, w.bars.r), y: barRow.y } : undefined, // only when the caller asks for the hands-on-the-rungs pose
     hurt: w.outcome === 'hurt',
     facing,
   };

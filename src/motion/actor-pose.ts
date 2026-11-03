@@ -25,6 +25,7 @@ export interface ActorState {
   swingTheta?: number; // rad from straight down; positive swings toward +x
   hurt?: boolean; // the run ended in a hard landing (outcome 'hurt'): the body crumples, stays down, then gets up slowly (src/motion/poses.ts)
   swingOmega?: number; // rad/s on a bar: the legs lag behind a fast swing and tuck over the top (CC-77)
+  bars?: { left: number; right: number; y: number }; // monkey bars: the world x of the rung under each hand and the rung height; the hands go on them (src/motion/bars-actor.ts)
   tilt?: number; // rad the rails rise here; the seated rider in a cart leans with it
   facing: 1 | -1;
   ledge?: { x: number; y: number }; // the top edge of the wall in the world: the hands reach for it, whatever its height
