@@ -71,6 +71,7 @@ import { cullFar } from '../render/static-merge';
 import { startOnboarding, type Onboarding } from '../ui/onboarding';
 import { browserStore } from '../ui/onboarding-flags';
 import { pageQuery, pageSearch } from '../flags';
+const barsPoseOn = pageQuery().get('barspose') !== '0'; // the hands-on-the-rungs pose on the monkey bars (CC-133); 0 keeps the old hang
 
 // The Course: the five obstacles in a row. The simulator decides everything; this file only draws it
 // and turns keys into inputs. Time comes from the simulator's tick count, never from the browser's clock.
@@ -362,7 +363,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
     const hangState = st.world.mode === 'bars' ? st.world.bars : st.world.hang;
     const hOff = hangHold && hangState ? handOffset({ hold: 0, theta: 0, omega: 0, ox: hangState.ox, oy: hangState.oy, et: hangState.et }) : { x: 0, y: 0 }; // the hands ease onto the bar over a few ticks after a catch
     const ax = hangHold ? hangHold.x + hOff.x : r.x, ay = hangHold ? hangHold.y + hOff.y - DEFAULT_HANG.handHeight : r.y;
-    if (actor) actor.update({ ...actorStateFor(st.world, st.keys.has('ArrowDown') || st.keys.has('KeyS'), facing), x: ax, y: ay, ledge: st.world.mode === 'climb' && st.world.climb ? { x: st.world.climb.edge, y: st.world.climb.top } : ledge, next: st.world.mode === 'run' ? nextObstacle(r.x) : undefined });
+    if (actor) actor.update({ ...actorStateFor(st.world, st.keys.has('ArrowDown') || st.keys.has('KeyS'), facing, barsPoseOn ? barsRow : undefined), x: ax, y: ay, ledge: st.world.mode === 'climb' && st.world.climb ? { x: st.world.climb.edge, y: st.world.climb.top } : ledge, next: st.world.mode === 'run' ? nextObstacle(r.x) : undefined });
     trackView?.place(st.world);
     sayer.update(st.world.runner.tick);
     paintStrip(r.x);

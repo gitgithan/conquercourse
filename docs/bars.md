@@ -74,3 +74,12 @@
 ## What is not done
 - The ideal-run search (`src/sim/ideal.ts`) knows bars and ropes but not monkey bars, so the demo course is proved by a recorded run, not by the search.
 - The arms pose for reaching hands comes later (`src/render/bars-pose.ts`); today the hang pose is drawn.
+
+## How the body looks on the bars
+- The actor hangs from the rungs with the procedural pose of `src/motion/bars-pose.ts` (hands pinned on the rungs, the shoulders one arm under them); the hook is `src/motion/bars-actor.ts`, called from the actor when the world is in the `bars` mode.
+- Each hand takes about a tenth of a second to travel to its rung (the world moves it in one tick); quick keys can have both hands travelling at once.
+- The legs lead the swing a little (the kip) and the knees draw up in a big forward swing.
+- Switch `?barspose=0` brings the old hang back; every other pose (vault, climb, bar, rope) is untouched.
+- Picture (a side view of the pose's own skeleton on the demo run, stepped clock; not the game's look): [contact sheet](evidence/bars-pose-sheet.jpg), [clip](evidence/bars-pose.mp4).
+
+![The monkey bars pose, eight frames of the demo run: the hands on the rungs, the right hand travelling on, the body swinging.](evidence/bars-pose-sheet.jpg)

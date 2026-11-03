@@ -18,6 +18,9 @@ import { anticipation, getReady, ik2, ledgeReach } from '../motion/compose';
 import { settleNeck } from '../motion/neck';
 import { SLIDE_RISE_TICKS } from '../motion/actor-state';
 import { DT } from '../sim/units';
+import { BarsPlayer } from '../motion/bars-actor';
+import { rigFromFrame } from '../motion/bars-pose';
+import { flag } from '../flags';
 const SLIDE_DROP_S = 0.2; // the clip's drop is played over this long: the simulator's body is low from the first tick
 
 export type { ActorState } from '../motion/actor-pose';
@@ -332,6 +335,10 @@ export async function createRookieActor(scene: Scene, opts: { rookie: RookieId; 
   }
   const legIx = (['Left', 'Right'] as const).map((side) => ({ hip: ix(side + 'Leg'), knee: ix(side + 'Shin'), foot: ix(side + 'Foot'), toe: ix(side + 'ToeBase') }));
 
+  // monkey bars (CC-133): the hands go on the rungs and the body hangs from them (src/motion/bars-pose.ts); ?barspose=0 keeps the old hang
+  const barsPlayer = flag('barspose') === '0' ? null : new BarsPlayer(rigFromFrame(names, run.parents, run.frames[13].map((p) => p.map((v) => v * scale))));
+  const barsHere = (s: ActorState): boolean => barsPlayer !== null && s.mode === 'swing' && s.bars !== undefined;
+
   let obstacle: Obstacle | null = null;
   const shift = { x: 0, y: 0 }; // how far the whole body is moved out of an obstacle (local axes: x along the run)
 
@@ -395,6 +402,10 @@ export async function createRookieActor(scene: Scene, opts: { rookie: RookieId; 
         return body;
       }
       case 'swing': {
+        if (barsHere(s)) {
+          const b = barsPlayer!.pose({ ...s.bars!, theta: s.swingTheta ?? 0, omega: s.swingOmega ?? 0 }, s, s.tick, s.facing, footClear);
+          return b.joints.map((p) => new Vector3(p[2], p[1], -p[0])); // the clips' axes to the game's
+        }
         const h = hanging(sample(swing, s.tick / 120, true).rel);
         // on a bar the legs lag behind a fast swing and tuck over the top (giant swing); the rope keeps the plain hang
         if (s.swingOmega !== undefined) giantSwingLegs(h, legIx, 0, localAngle(s.swingTheta ?? 0, s.facing), localAngle(s.swingOmega, s.facing));
@@ -554,7 +565,7 @@ export async function createRookieActor(scene: Scene, opts: { rookie: RookieId; 
       joints = joints.map((p, i) => blendFrom![i].clone().lerp(p, w));
     }
     // the grab, the let-go and the grab again blend a folded pose into a hang: keep the neck and the shoulders where the trunk says
-    if (k === 'climb' || k === 'swing' || s.mode === 'wall' || (blendFrom && into < BLEND_TICKS)) settleNeck(joints, standPose().joints, ix);
+    if (k === 'climb' || (k === 'swing' && !barsHere(s)) || s.mode === 'wall' || (blendFrom && into < BLEND_TICKS)) settleNeck(joints, standPose().joints, ix);
     last = joints.map((p) => p.clone());
 
     // tilt: the wall leans the body with the slope under it; the rope turns it about the grip
@@ -565,7 +576,7 @@ export async function createRookieActor(scene: Scene, opts: { rookie: RookieId; 
     } else if (s.mode !== 'wall') slope = 0;
     lean += (WALL_LEAN * Math.sin(2 * slope) - WALL_BACK * Math.sin(slope) ** 3 - lean) * (1 - Math.pow(0.9, dticks));
     if (Math.abs(lean) > 1e-4) rotateZ(joints, new Vector3(0, 0, 0), -lean);
-    if (s.mode === 'swing') rotateZ(joints, new Vector3(0, HAND_HEIGHT, 0), localAngle(s.swingTheta ?? 0, s.facing));
+    if (s.mode === 'swing' && !barsHere(s)) rotateZ(joints, new Vector3(0, HAND_HEIGHT, 0), localAngle(s.swingTheta ?? 0, s.facing));
     if (s.mode === 'cart') rotateZ(joints, new Vector3(0, 0, 0), localAngle(s.tilt ?? 0, s.facing)); // the cart pitches with the rails
 
     // composing: the arms reach for the real ledge, and the body gets ready for the next obstacle before it arrives

@@ -22,6 +22,7 @@ export interface Reach {
 export interface BarsPoseIn {
   grips: { left: V3; right: V3 }; // where each hand holds (world metres); the reaching hand's entry is ignored while it travels
   reach?: Reach;
+  reach2?: Reach; // the other hand, when both are travelling at once (quick keys): it goes along its own path
   swing?: number; // rad the body swings from straight under the hands; positive toward +z
   kick?: number; // rad the legs swing ahead of the body (kip); positive toward +z
   tuck?: number; // 0 to 1: knees drawn up (kip)
@@ -84,6 +85,7 @@ export function barsPose(rig: BarsRig, inp: BarsPoseIn): BarsPoseOut {
   const reaching = inp.reach;
   const hold: Record<'left' | 'right', V3> = { left: inp.grips.left, right: inp.grips.right };
   if (reaching) hold[reaching.side] = reachPoint(reaching);
+  if (inp.reach2) hold[inp.reach2.side] = reachPoint(inp.reach2);
   const anchor = mul(add(hold.left, hold.right), 0.5); // the body hangs from the middle of the two hands (the reaching one where it is now)
   if (inp.bodyZ !== undefined) anchor[2] = inp.bodyZ;
 

@@ -115,6 +115,11 @@ stateDiagram-v2
 *Notice: the two coloured arms take turns, and the hips stay under the hands.*
 
 - Clips: [travel](../data/eval/bar-motion/evidence/bars_travel.mp4) and [idle](../data/eval/bar-motion/evidence/bars_idle.mp4); the full story and the ranked next steps are in [data/eval/bar-motion/README.md](../data/eval/bar-motion/README.md).
+- The pose now drives the actor on the bars (hook `src/motion/bars-actor.ts`, switch `?barspose=0` brings the old hang back), the hands on the rungs the world says they hold:
+
+![The actor's bars pose on the recorded demo run: eight frames, the left hand red and the right hand blue travelling along the rungs.](evidence/bars-pose-sheet.jpg)
+
+*Notice: the hands sit on rungs and the body swings under them; the legs still look like a stick figure.* Clip: [bars-pose.mp4](evidence/bars-pose.mp4).
 - The switch: `?bars=1` shows the Monkey bars editor piece; a course that already has monkey bars always plays them (`src/switches.ts`).
 - The key card shows a "Q  T" row only on a course that has monkey bars.
 - The Parts gallery row lists the code, the saying and the bits it covers ([parts-gallery.md](parts-gallery.md)).
