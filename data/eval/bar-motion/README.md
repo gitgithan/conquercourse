@@ -27,10 +27,14 @@
 - Modal L4 about 0.80 USD per hour, 2 runs of about 2 minutes each, about 0.10 USD in all; no spending cap (owner, 2026-10-25).
 
 ## Ranked next steps
-- 1. Wire `barsPose` into the actor behind a feature switch (a minimal hook; `src/render/actor.ts` was not touched).
-- 2. Film a real hand-over-hand clip (adult, our own footage) and run it through video to motion and the gate.
-- 3. Kimodo round 2: stronger guidance (cfg [2.0, 6.0]), a hang as the source pose; low odds given 0 hangs in its labels.
-- 4. Check the CMU kip candidates by eye (render with `pipelines/bars_render.py`) for a more natural kip.
+- 1.
+  - Wire `barsPose` into the actor behind a feature switch (a minimal hook; `src/render/actor.ts` was not touched).
+- 2.
+  - Film a real hand-over-hand clip (adult, our own footage) and run it through video to motion and the gate.
+- 3.
+  - Kimodo round 2: stronger guidance (cfg [2.0, 6.0]), a hang as the source pose; low odds given 0 hangs in its labels.
+- 4.
+  - Check the CMU kip candidates by eye (render with `pipelines/bars_render.py`) for a more natural kip.
 
 ## Files
 - Inputs: `inputs/` (Kimodo targets from `pipelines/bars_targets.py`; `*_r1.json` are the round-1 versions).
