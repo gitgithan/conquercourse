@@ -15,6 +15,7 @@ export const MODE_INFO: Record<Mode, ModeInfo> = {
   swing: { name: 'Swinging' },
   bounce: { name: 'Bouncing' },
   hang: { name: 'Hanging', next: 'Let go now' },
+  bars: { name: 'On the monkey bars', next: 'Reach, or let go' },
   vault: { name: 'Vaulting' },
   cart: { name: 'In the cart', machine: true, next: 'Cart rolls on' },
   launch: { name: 'In the sling', machine: true, next: 'Let go now' },

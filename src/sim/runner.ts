@@ -24,6 +24,8 @@ export interface RunnerInput {
   slide?: boolean; // Down or S, a fresh press: slide along the ground low (ground and a jog's speed needed; src/sim/slide.ts)
   handL?: boolean; // E: the hands hold on (a bar); both fields come from the one hold key
   handR?: boolean; // E: the right hand holds on (a bar)
+  reachL?: boolean; // Q: on monkey bars the left hand reaches for the next rung (a fresh press; src/sim/bars.ts)
+  reachR?: boolean; // T: the right hand reaches
   vault?: boolean; // V: go over the obstacle just ahead with a hand on top (keeps the speed)
   aim?: number; // a big cannon: set the barrel angle (rad), for the bot and tests; the player tilts it with aimUp and aimDown
   aimUp?: boolean; // Up arrow or W: tilt the barrel so the push goes higher

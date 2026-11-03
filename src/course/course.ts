@@ -37,6 +37,7 @@ export interface CourseData {
   jumpKeep?: number; // share of the forward speed kept when a jump takes off (default 1: none lost); below 1, a jump costs speed and a vault, which keeps more, pays
   grabReach?: number; // m, how close the hands must be to a bar for the first grab (default 0.15, src/sim/holds.ts, so the drawn hands touch the bar; CC-193)
   holds?: { x: number; y: number }[]; // bars hanging in the air: where along the run and how high (side view)
+  bars?: import('../sim/bars').BarRun[]; // monkey bars: rows of rungs overhead, crossed hand over hand with Q and T (src/sim/bars.ts)
   track?: import('../sim/cart').TrackData; // a coaster: the cart rolls along these rails from the first push (src/sim/cart.ts)
   uMap?: { u0: number; u1: number; x0: number }[]; // editor lanes: where each run of ground came from
   scene?: SceneItem[]; // editor lanes: the real objects, drawn instead of blocks

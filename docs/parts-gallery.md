@@ -35,6 +35,7 @@
 | `drone` | Drone ferry | Lean a cargo drone across a gap | `src/sim/drone.ts`, `src/ui/drone-view.ts` | drone | Own machine; saying (in sayings.md) | Built poses |
 | `coaster` | Coaster | A cart on rails with no engine | `src/sim/cart.ts`, `src/slice/coaster.ts` | coaster, coaster-two-hills, coaster-sharp, coaster-low | Energy lesson; saying; own builder page | Built poses |
 | `pole` | Pole vault | Plant the pole and hand your speed back as height | `src/sim/pole.ts`, `src/sim/pole-ride.ts`, `src/ui/pole-view.ts` | pole (experiments) | Newest machine; saying | Tried, not shown yet |
+| `bars` | Monkey bars | Reach hand over hand along a row of rungs | `src/sim/bars.ts`, `src/sim/bars-world.ts` | bars (docs/bars.md) | Own machine; saying (in sayings.md) | Built poses |
 | `plank` | Plank bridge | A plank sags under you and breaks if thin | `src/sim/beam.ts`, `src/render/plank.ts` | plank, plank-two, plank-thin, training | Saying about length; made in the editor | Built poses |
 | `stack` | Cup stacks | Sport-stacking cups as stairs | `scene.stack` in `src/course/course.ts` | stack | Real sport object; saying | Built poses |
 | `shots` | Timed balls | A cannon fires on a shared clock | `src/sim/shots.ts` | cannonballs, First course with `?balls=1` | Saying about beats (CC-240) | Slide clip |
@@ -71,15 +72,16 @@
 | `ride` | Ride the cart | S brakes, Space jumps out | `src/sim/cart.ts` | two-hills coaster | none |
 | (aim and fire) | Aim and fire | Up, Down, K | `src/sim/recoil.ts` | shown by the `recoil` and `cannon` cards | built poses |
 
-- The input bits and world modes behind the moves are checked by the test: bits `run left jump squat roll handL handR vault aimUp aimDown up fire slide`; modes `run wall swing bounce hang vault cart launch plank climb band drone pole`.
+- The input bits and world modes behind the moves are checked by the test: bits `run left jump squat roll handL handR vault aimUp aimDown up fire slide reachL reachR`; modes `run wall swing bounce hang bars vault cart launch plank climb band drone pole`.
 - Aim, fire, fly (up) and the mode-only moves (launch, plank, band, pole) are covered by the special cards, not by a move card of their own.
 
 ## Gaps (honest list)
 - `slide`: the stored best run never slides, so there is no automatic demo; the card opens Cannonballs for the viewer to play.
+- `bars`: the ideal-run search does not know monkey bars, so the card opens the bars course for the viewer to play (a recorded run proves it clears).
 - `pole`: the ideal-run search does not know the pole yet, so the card opens the pole course for the viewer to play; its motion clips are tried but not shown yet (CC-239).
 - `forks`: no physics saying yet.
 - `step`, `objects`: no saying.
-- `warped`, `trampoline`, `bounce`, `ride`, `wallrun`, `band`, `drone`, `coaster`, `cannon`, `recoil`, `trebuchet`, `stack`, `plank`: no recorded motion clip; the runner uses the built poses.
+- `warped`, `trampoline`, `bounce`, `ride`, `wallrun`, `band`, `drone`, `coaster`, `cannon`, `recoil`, `trebuchet`, `stack`, `plank`, `bars`: no recorded motion clip; the runner uses the built poses.
 - Cards for a part that needs the Rookie's real motion (vault, climb) show the locked captured clips unchanged; this page never edits a clip.
 - The Training course has no "Rope plus bar" hero cut; the Montmartre hero course is not split into cards (its parts show in "How a course is made").
 

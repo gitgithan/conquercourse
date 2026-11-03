@@ -53,6 +53,7 @@ import { touchStreak } from '../ui/streak';
 import { boardCorner, boardOn, newsStrip, type BoardHooks } from '../ui/leaderboard';
 import { createRookieActor } from '../render/actor';
 import { DEFAULT_HANG, handOffset } from '../sim/holds';
+import { pivotOf } from '../sim/bars';
 import { actorStateFor } from '../motion/actor-state';
 import { logTick } from '../ui/run-report';
 import { GALLERY_EVENT } from '../ui/world-picker';
@@ -316,7 +317,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
       if (feed.active()) { input = feed.input(); if (!st.clip.on && st.world.outcome === 'running') ghostCtl?.input(input); }
       else if (st.plan) input = inputFor(st.plan, st.world, botState, course);
       else {
-        input = { run: st.keys.has('ArrowRight') || st.keys.has('KeyD'), left: st.keys.has('ArrowLeft') || st.keys.has('KeyA'), jump: st.jumpQueued, jumpSpeed: 0, squat: st.keys.has('ArrowDown') || st.keys.has('KeyS'), handL: st.keys.has('KeyE'), handR: st.keys.has('KeyE'), vault: st.vaultQueued, roll: st.rollQueued || st.keys.has('KeyX'), slide: st.slideQueued, fire: st.fireQueued, aimUp: st.keys.has('ArrowUp') || st.keys.has('KeyW'), aimDown: st.keys.has('ArrowDown') || st.keys.has('KeyS'), up: st.keys.has('ArrowUp') || st.keys.has('KeyW') };
+        input = { run: st.keys.has('ArrowRight') || st.keys.has('KeyD'), left: st.keys.has('ArrowLeft') || st.keys.has('KeyA'), jump: st.jumpQueued, jumpSpeed: 0, squat: st.keys.has('ArrowDown') || st.keys.has('KeyS'), handL: st.keys.has('KeyE'), handR: st.keys.has('KeyE'), reachL: st.keys.has('KeyQ'), reachR: st.keys.has('KeyT'), vault: st.vaultQueued, roll: st.rollQueued || st.keys.has('KeyX'), slide: st.slideQueued, fire: st.fireQueued, aimUp: st.keys.has('ArrowUp') || st.keys.has('KeyW'), aimDown: st.keys.has('ArrowDown') || st.keys.has('KeyS'), up: st.keys.has('ArrowUp') || st.keys.has('KeyW') };
         if (st.world.outcome === 'running') ghostCtl?.input(input);
         st.jumpQueued = false; st.vaultQueued = false; st.rollQueued = false; st.slideQueued = false; st.fireQueued = false;
       }
@@ -354,10 +355,12 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
     trailPush?.(r.x, r.y + 0.95 * sq);
     ghostCtl?.frame({ tick: st.world.runner.tick, x: st.world.runner.x, active: (!st.plan || ghostBot) && !st.demo && !st.idealWhole && !st.replay && !st.clip.on, firstPerson: cam.mode() === 'first' });
     const facingSpeed = st.world.mode === 'cart' && st.world.cart ? st.world.cart.v : st.world.runner.vx;
-    if (Math.abs(facingSpeed) > 0.3 && st.world.mode !== 'hang') facing = facingSpeed < 0 ? -1 : 1; // on a bar the body keeps facing one way, whichever way it swings
+    if (Math.abs(facingSpeed) > 0.3 && st.world.mode !== 'hang' && st.world.mode !== 'bars') facing = facingSpeed < 0 ? -1 : 1; // on a bar the body keeps facing one way, whichever way it swings
     // on a bar the actor is turned about its hands, so it is placed with the hands on the bar (feet straight below it before the turn), like the rope
-    const hangHold = st.world.mode === 'hang' && st.world.hang ? course.holds?.[st.world.hang.hold] : undefined;
-    const hOff = hangHold && st.world.hang ? handOffset(st.world.hang) : { x: 0, y: 0 }; // the hands ease onto the bar over a few ticks after a catch
+    const barsRow = st.world.mode === 'bars' && st.world.bars ? course.bars?.[st.world.bars.run] : undefined; // monkey bars: the hands are at the point between the two rungs
+    const hangHold = st.world.mode === 'hang' && st.world.hang ? course.holds?.[st.world.hang.hold] : barsRow && st.world.bars ? pivotOf(barsRow, st.world.bars) : undefined;
+    const hangState = st.world.mode === 'bars' ? st.world.bars : st.world.hang;
+    const hOff = hangHold && hangState ? handOffset({ hold: 0, theta: 0, omega: 0, ox: hangState.ox, oy: hangState.oy, et: hangState.et }) : { x: 0, y: 0 }; // the hands ease onto the bar over a few ticks after a catch
     const ax = hangHold ? hangHold.x + hOff.x : r.x, ay = hangHold ? hangHold.y + hOff.y - DEFAULT_HANG.handHeight : r.y;
     if (actor) actor.update({ ...actorStateFor(st.world, st.keys.has('ArrowDown') || st.keys.has('KeyS'), facing), x: ax, y: ay, ledge: st.world.mode === 'climb' && st.world.climb ? { x: st.world.climb.edge, y: st.world.climb.top } : ledge, next: st.world.mode === 'run' ? nextObstacle(r.x) : undefined });
     trackView?.place(st.world);
