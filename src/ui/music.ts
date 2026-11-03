@@ -124,7 +124,7 @@ function speakerButton() {
   };
   const b = document.createElement('button');
   b.id = 'music-button'; b.type = 'button';
-  b.style.cssText = 'position:fixed;left:10px;bottom:10px;z-index:5;width:44px;height:44px;display:grid;place-items:center;border:1px solid rgba(0,0,0,.25);border-radius:50%;background:rgba(255,255,255,.9);color:#17201d;cursor:pointer;padding:0';
+  b.style.cssText = 'position:fixed;left:10px;bottom:60px;z-index:5;width:44px;height:44px;display:grid;place-items:center;border:1px solid rgba(0,0,0,.25);border-radius:50%;background:rgba(255,255,255,.9);color:#17201d;cursor:pointer;padding:0';
   b.onclick = () => { setMuted(!isMuted()); b.blur(); };
   paint(b); onMuteChange(() => paint(b));
   document.body.append(b);
