@@ -1,0 +1,106 @@
+[
+  {
+    "photo": "photo1",
+    "file": "photo1_flickr_old_school_monkey_bars.jpg",
+    "title": "Old school monkey bars",
+    "author": "Nels Olsen",
+    "licence": "CC BY-SA 2.0",
+    "page": "https://www.flickr.com/photos/7776581@N04/4616583051",
+    "size": [
+      1024,
+      768
+    ],
+    "angle": "three-quarter, arch frame with ladder legs"
+  },
+  {
+    "photo": "photo2",
+    "file": "photo2_hikone_parkB_bar1.jpg",
+    "title": "Hikone Newtown Dai1 ParkB Monkey bar1(20250405).jpg",
+    "author": "Salada220422",
+    "licence": "CC0",
+    "page": "https://commons.wikimedia.org/wiki/File:Hikone_Newtown_Dai1_ParkB_Monkey_bar1(20250405).jpg",
+    "size": [
+      4080,
+      3060
+    ],
+    "angle": "three-quarter, blue frame with ladder end"
+  },
+  {
+    "photo": "photo3",
+    "file": "photo3_saienji_mamedecca.jpg",
+    "title": "Monkey bar Saienji Mamedecca Park(20250412).jpg",
+    "author": "Salada220422",
+    "licence": "CC0",
+    "page": "https://commons.wikimedia.org/wiki/File:Monkey_bar_Saienji_Mamedecca_Park(20250412).jpg",
+    "size": [
+      4080,
+      3060
+    ],
+    "angle": "three-quarter from low, blue frame"
+  },
+  {
+    "photo": "photo4",
+    "file": "photo4_hiroomote_es_1.jpg",
+    "title": "Hiroomote ES Monkey Bars.jpg",
+    "author": "Ntsctalk",
+    "licence": "CC BY-SA 4.0",
+    "page": "https://commons.wikimedia.org/wiki/File:Hiroomote_ES_Monkey_Bars.jpg",
+    "size": [
+      1920,
+      1080
+    ],
+    "angle": "side-on, blue frame with red joints"
+  },
+  {
+    "photo": "photo5",
+    "file": "photo5_kenpei_unthei2.jpg",
+    "title": "雲梯2.jpg",
+    "author": "KENPEI",
+    "licence": "CC BY-SA 3.0",
+    "page": "https://commons.wikimedia.org/wiki/File:%E9%9B%B2%E6%A2%AF2.jpg",
+    "size": [
+      752,
+      561
+    ],
+    "angle": "three-quarter, blue frame"
+  },
+  {
+    "photo": "photo6",
+    "file": "photo6_balfour_blue.jpg",
+    "title": "Blue monkey bars, Balfour Park.jpg",
+    "author": "Michael Rivera",
+    "licence": "CC BY-SA 4.0",
+    "page": "https://commons.wikimedia.org/wiki/File:Blue_monkey_bars,_Balfour_Park.jpg",
+    "size": [
+      5184,
+      3456
+    ],
+    "angle": "front, blue frame with two ladders"
+  },
+  {
+    "photo": "photo7",
+    "file": "photo7_miyakohara4_unthei.jpg",
+    "title": "都原第4街区公園 うんてい 01.jpg",
+    "author": "あじさか",
+    "licence": "CC BY-SA 4.0",
+    "page": "https://commons.wikimedia.org/wiki/File:%E9%83%BD%E5%8E%9F%E7%AC%AC4%E8%A1%97%E5%8C%BA%E5%85%AC%E5%9C%92_%E3%81%86%E3%82%93%E3%81%A6%E3%81%84_01.jpg",
+    "size": [
+      5712,
+      4284
+    ],
+    "angle": "side-on, long low frame"
+  },
+  {
+    "photo": "photo8",
+    "file": "photo8_brastad_outdoor_gym.jpg",
+    "title": "Brastad outdoor gym, Lysekil Municipality 6.jpg",
+    "author": "W.carter",
+    "licence": "CC BY-SA 4.0",
+    "page": "https://commons.wikimedia.org/wiki/File:Brastad_outdoor_gym,_Lysekil_Municipality_6.jpg",
+    "size": [
+      3283,
+      4534
+    ],
+    "angle": "from below, wooden posts"
+  }
+]

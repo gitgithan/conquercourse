@@ -1,0 +1,154 @@
+[
+  {
+    "name": "photo1_bars",
+    "photo": "photo1",
+    "label": "monkey bars",
+    "box_original": [
+      160,
+      90,
+      835,
+      745
+    ],
+    "box_sent": [
+      160,
+      90,
+      835,
+      745
+    ],
+    "height_m": 2.4,
+    "box_source": "Mark it yourself (finder found no bar)"
+  },
+  {
+    "name": "photo2_bars",
+    "photo": "photo2",
+    "label": "monkey bars",
+    "box_original": [
+      988,
+      727,
+      2767,
+      2464
+    ],
+    "box_sent": [
+      310,
+      228,
+      868,
+      773
+    ],
+    "height_m": 2.2,
+    "box_source": "Segment Objects pick: \"pull-up bar\" 0.75"
+  },
+  {
+    "name": "photo3_bars",
+    "photo": "photo3",
+    "label": "monkey bars",
+    "box_original": [
+      612,
+      577,
+      4032,
+      2413
+    ],
+    "box_sent": [
+      192,
+      181,
+      1265,
+      757
+    ],
+    "height_m": 2.2,
+    "box_source": "Segment Objects pick: \"pull-up bar\" 0.38"
+  },
+  {
+    "name": "photo4_bars",
+    "photo": "photo4",
+    "label": "monkey bars",
+    "box_original": [
+      180,
+      225,
+      1650,
+      945
+    ],
+    "box_sent": [
+      120,
+      150,
+      1100,
+      630
+    ],
+    "height_m": 2.2,
+    "box_source": "Mark it yourself (finder found no bar)"
+  },
+  {
+    "name": "photo5_bars",
+    "photo": "photo5",
+    "label": "monkey bars",
+    "box_original": [
+      51,
+      85,
+      699,
+      541
+    ],
+    "box_sent": [
+      51,
+      85,
+      699,
+      541
+    ],
+    "height_m": 2.2,
+    "box_source": "Segment Objects pick: \"pull-up bar\" 0.40"
+  },
+  {
+    "name": "photo6_bars",
+    "photo": "photo6",
+    "label": "monkey bars",
+    "box_original": [
+      1458,
+      486,
+      3888,
+      2956
+    ],
+    "box_sent": [
+      360,
+      120,
+      960,
+      730
+    ],
+    "height_m": 2.2,
+    "box_source": "Mark it yourself (finder found no bar)"
+  },
+  {
+    "name": "photo7_bars",
+    "photo": "photo7",
+    "label": "monkey bars",
+    "box_original": [
+      1241,
+      1642,
+      4976,
+      3374
+    ],
+    "box_sent": [
+      278,
+      368,
+      1115,
+      756
+    ],
+    "height_m": 2.2,
+    "box_source": "Segment Objects pick: \"pull-up bar\" 0.75"
+  },
+  {
+    "name": "photo8_bars",
+    "photo": "photo8",
+    "label": "monkey bars",
+    "box_original": [
+      319,
+      779,
+      2302,
+      3931
+    ],
+    "box_sent": [
+      90,
+      220,
+      650,
+      1110
+    ],
+    "height_m": 0.8,
+    "box_source": "Mark it yourself (finder found no bar); the cut-out kept only the blue overhead bars, the wooden posts are not in it"
+  }
+]
