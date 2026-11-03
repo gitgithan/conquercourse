@@ -77,6 +77,28 @@
         457
       ],
       "cutout_file": "cutout_06.png"
+    },
+    {
+      "label": "string lights",
+      "score": 0.61,
+      "box": [
+        11,
+        77,
+        1280,
+        138
+      ],
+      "cutout_file": "cutout_07.png"
+    },
+    {
+      "label": "string lights",
+      "score": 0.35,
+      "box": [
+        505,
+        203,
+        807,
+        250
+      ],
+      "cutout_file": "cutout_08.png"
     }
   ],
   "privacy": {
@@ -86,5 +108,5 @@
     "changed": true
   },
   "job_seconds": 4.2,
-  "wall_seconds": 47.6
+  "wall_seconds": 53.8
 }
