@@ -94,6 +94,10 @@
   - Anything the customer switches on, such as logging, retention or abuse monitoring, or third-party products, sits outside the zero-retention promise; we have switched none of these on.
   - Residual copies of customer content may remain in backups for a limited period.
   - Security logs of access and actions are kept up to 4 years; they are not the content of requests.
+- **Modal keeps the job result for 7 days and drops the input after a successful call** ([Modal function invocation methods](https://modal.com/docs/guide/function-invocation-methods)):
+  - Our photo-to-object job starts with `spawn`, so the player's raw photo is the job input until the job succeeds.
+  - The kept result is the GLB, the mask and the privacy receipt, all made from the blurred image.
+  - Not verified: what Modal does with the input of a call that fails.
 - **Not verified:** a figure of "usage metadata kept 92 days" was given to us, but none of the four pages above contains it.
   - Until we find the source, we do not state a number.
   - The DPA only says usage and billing metadata may be kept if it holds no personal data.
