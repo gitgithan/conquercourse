@@ -4,7 +4,7 @@ Pure numpy, so it is tested without a GPU. photo_to_object.py runs SAM 3 once pe
 import io
 
 # What people usually want from a park or street photo; one SAM 3 text prompt each. People, faces and plates are blurred before and never offered.
-PHRASES = ["bench", "stairs", "railing", "wall", "bollard", "planter", "tree trunk", "log", "pull-up bar", "fence", "picnic table", "slide", "ledge", "box", "pole"]
+PHRASES = ["bench", "stairs", "railing", "wall", "bollard", "planter", "tree trunk", "log", "pull-up bar", "fence", "picnic table", "slide", "ledge", "box", "pole", "monkey bars", "string lights"]
 MAX_ITEMS = 12
 MIN_FRAC = 0.002          # a region smaller than this share of the photo is noise
 IOU_SAME = 0.6            # two masks this alike are one thing
