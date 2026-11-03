@@ -1,0 +1,50 @@
+{
+  "items": [
+    {
+      "label": "classic-lines",
+      "score": 1.0,
+      "box": [
+        0,
+        136,
+        1280,
+        515
+      ],
+      "lines": 417
+    },
+    {
+      "label": "classic-lines",
+      "score": 0.1,
+      "box": [
+        994,
+        436,
+        1251,
+        474
+      ],
+      "lines": 3
+    },
+    {
+      "label": "classic-lines",
+      "score": 0.03,
+      "box": [
+        1038,
+        499,
+        1202,
+        528
+      ],
+      "lines": 1
+    },
+    {
+      "label": "classic-lines",
+      "score": 0.07,
+      "box": [
+        843,
+        526,
+        1044,
+        587
+      ],
+      "lines": 2
+    }
+  ],
+  "n_lines": 419,
+  "seconds": 1.04
+}
