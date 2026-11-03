@@ -1,6 +1,8 @@
 import { el } from '../dom';
 import type { P } from '../state';
 import { pageQuery } from '../../../flags';
+import { roleColliderOn } from '../../../slice/role-collider';
+const roleFirst = (): boolean => roleColliderOn(pageQuery(), typeof location === 'undefined' ? '' : location.hostname);
 import { barsAfterBar, barsPiece, barsSpecOf, DEFAULT_BARS_SPEC, fitBars, isBarsPiece, RUNG_THICK, RUNGS_MAX, RUNGS_MIN, setBars, type BarsSpec } from '../../../slice/bars-world';
 import { isHold } from '../../../slice/holds-world';
 import { GAP_MAX, GAP_MIN } from '../../../sim/bars';
@@ -25,7 +27,7 @@ export const barsTool = (c: ToolCtx): PieceTool => {
       el('button', addBar, { text: 'Fit to selected', id: 'fitbars', title: 'Lay a row of monkey bars along the top of the chosen piece (a box, or an object lifted from a photo)' }).onclick = () => {
         const obj = ed.pieces.find((p) => p.id === ed.selected) as P | undefined;
         if (!obj || !isObject(obj)) return;
-        const q = barsPiece(DEFAULT_BARS_SPEC, { x: obj.x, z: obj.z }); fitBars(q, obj); ed.pieces.push(q); ed.selected = q.id; changed();
+        const q = barsPiece(DEFAULT_BARS_SPEC, { x: obj.x, z: obj.z }); fitBars(q, obj, roleFirst()); ed.pieces.push(q); ed.selected = q.id; changed();
       };
     },
     panel(p, side) {
@@ -43,7 +45,7 @@ export const barsTool = (c: ToolCtx): PieceTool => {
       const fit = el('button', side, { text: 'Fit to the piece under it', id: 'fitbarsunder', title: 'Lay the row along the top of the nearest piece' });
       fit.onclick = () => {
         const near = (ed.pieces as P[]).filter(isObject).sort((a, b) => Math.hypot(a.x - p.x, a.z - p.z) - Math.hypot(b.x - p.x, b.z - p.z))[0];
-        if (near) { fitBars(p, near); changed(); }
+        if (near) { fitBars(p, near, roleFirst()); changed(); }
       };
       el('div', side, { className: 'muted', id: 'barshint', text: BARS_HINT });
     },

@@ -57,6 +57,8 @@ export const SWITCHES: readonly Switch[] = [
   { name: 'from', default: 'none', doc: "course: the Dojo was opened from the Course", quiet: false },
   { name: 'front', default: 'auto', doc: "1 forces the front lane, any other value the back lane", quiet: false },
   { name: 'furniture', default: 'off', doc: "1 shows furniture, if built in", quiet: false },
+  { name: 'collider', default: 'off', doc: "1 draws the amber collider rungs over a photo skin (the monkey bars made from a lift)", quiet: false },
+  { name: 'rolecollider', default: 'on in dev and preview, off in production', doc: "1 builds a bar collider from the measured height, span and one rung spacing of a cleaned lift; 0 keeps the old box fit", quiet: false },
   { name: 'fx', default: 'none', doc: "extra picture effects, comma separated", quiet: false },
   { name: 'gauges', default: 'bottom-left', doc: "old brings back the old gauges", quiet: false },
   { name: 'generate', default: 'none', doc: "a seed that builds a course", quiet: false },

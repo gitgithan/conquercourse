@@ -1,0 +1,42 @@
+{
+  "version": 1,
+  "name": "Monkey bars from a photo: the collider is measured, the photo is the skin",
+  "startX": 0,
+  "finishX": 25,
+  "jumpSpeed": 4.5,
+  "terrain": {
+    "waterY": -6,
+    "platforms": [
+      {
+        "x0": -10,
+        "x1": 9,
+        "top": 0
+      },
+      {
+        "x0": 21,
+        "x1": 43,
+        "top": 0
+      }
+    ]
+  },
+  "grabReach": 0.4,
+  "bars": [
+    {
+      "x": 12,
+      "y": 2.08,
+      "n": 9,
+      "gap": 0.575
+    }
+  ],
+  "scene": [
+    {
+      "url": "/assets/objects/monkey-bars-saienji-cc0.glb",
+      "x": 14.26,
+      "y": 0,
+      "z": 0,
+      "rotY": 0,
+      "scale": 0.9998931893004499,
+      "id": "bars-skin"
+    }
+  ]
+}

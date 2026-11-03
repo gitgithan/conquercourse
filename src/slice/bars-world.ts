@@ -3,6 +3,7 @@ import type { BarRun } from '../sim/bars';
 import { HALF_LANE } from './slice';
 import type { Mesh } from './slice';
 import { centred, newPiece, realSize, type Piece } from './world';
+import { roleCollider } from './role-collider';
 
 // Monkey bars in the editor (docs/bars.md): a piece whose src is "bars:<rungs>:<gap>" is a row of rungs overhead. The knobs live in the src,
 // so saving, copying and undo need no extra fields. It is not ground (noGround); in the course it becomes a row { x, y, n, gap }.
@@ -56,15 +57,31 @@ export function setBars(p: P, spec: BarsSpec): void {
 
 // 'Fit to selected': the row that lies along the top of an object (a lifted photo object, a box): along its longer side, at its top height,
 // with as many rungs as fit at the default spacing (the spacing stretches inside its limits to cover the whole length).
-export function fitBarsTo(obj: P): { spec: BarsSpec; x: number; z: number; y: number; yaw: number } {
+export function fitBarsTo(obj: P, roleFirst = false): { spec: BarsSpec; x: number; z: number; y: number; yaw: number } {
+  if (roleFirst) { const f = fitBarsByRole(obj); if (f) return f; } // behind ?rolecollider: measured bars from the cleaned lift; off, the old shape-box fit below is unchanged
   const r = realSize(obj);
   const long = Math.max(r.w, r.d), turned = r.d > r.w;
   const n = Math.round(clamp(Math.round(long / DEFAULT_BARS_SPEC.gap) + 1, RUNGS_MIN, RUNGS_MAX));
   const gap = clamp(Math.round((long / (n - 1)) * 20) / 20, GAP_MIN, GAP_MAX);
   return { spec: { n, gap }, x: obj.x, z: obj.z, y: r3(obj.y + r.h), yaw: obj.yaw + (turned ? Math.PI / 2 : 0) };
 }
-export function fitBars(p: P, obj: P): void {
-  const f = fitBarsTo(obj);
+
+// Role first (CC-133, src/slice/role-collider.ts): the object is a bar frame, so clean the lift and measure only height, span and one spacing.
+// The row lies where the measured rungs are (not the middle of the box), at the measured rung height, with the measured spacing.
+export function fitBarsByRole(obj: P): { spec: BarsSpec; x: number; z: number; y: number; yaw: number } | null {
+  const r = realSize(obj);
+  if (!(r.h > 0.3) || !obj.mesh.positions.length) return null;
+  const c = roleCollider(obj.mesh, 'bar', { knownHeight: r.h });
+  const b = c.bars;
+  if (!b || b.rungs < RUNGS_MIN) return null;
+  const n = Math.min(RUNGS_MAX, b.rungs), gap = clamp(b.gap, GAP_MIN, GAP_MAX);
+  const mid = b.first + ((n - 1) * gap) / 2; // from the object's middle along its long axis to the middle of the row
+  const turned = b.axis === 'z', yaw = obj.yaw + (turned ? Math.PI / 2 : 0);
+  const k = Math.cos(obj.yaw + (turned ? Math.PI / 2 : 0)), l = Math.sin(obj.yaw + (turned ? Math.PI / 2 : 0));
+  return { spec: { n, gap }, x: r3(obj.x + mid * k), z: r3(obj.z + mid * l), y: r3(obj.y + b.height - RUNG_THICK / 2), yaw };
+}
+export function fitBars(p: P, obj: P, roleFirst = false): void {
+  const f = fitBarsTo(obj, roleFirst);
   setBars(p, f.spec);
   p.x = f.x; p.z = f.z; p.y = f.y; p.yaw = f.yaw;
 }

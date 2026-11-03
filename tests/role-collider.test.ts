@@ -1,8 +1,10 @@
 import { existsSync, readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 import { GAP_MAX, GAP_MIN } from '../src/sim/bars';
+import { fitBarsTo } from '../src/slice/bars-world';
+import { newPiece, scaleToHeight } from '../src/slice/world';
 import { readGlbMesh } from '../src/slice/glb';
-import { BAR_HEIGHT_MAX, BAR_HEIGHT_MIN, cleanLift, extentOf, largestComponent, regulariseRungs, roleCollider, voxelise, closing } from '../src/slice/role-collider';
+import { BAR_HEIGHT_MAX, BAR_HEIGHT_MIN, cleanLift, extentOf, largestComponent, regulariseRungs, roleCollider, roleColliderOn, voxelise, closing } from '../src/slice/role-collider';
 
 const fx = JSON.parse(readFileSync('tests/fixtures/noisy-bars.json', 'utf8')) as { truth: Record<string, number>; positions: number[]; indices: number[] };
 const noisy = { positions: fx.positions, indices: fx.indices };
@@ -90,3 +92,26 @@ describe.skipIf(!existsSync(GLB))('role-first collider: the Saienji CC0 lift', (
   });
 });
 if (!existsSync(GLB)) console.warn(`role-collider test: ${GLB} is not here, so the real-lift checks are skipped (the fixture checks still run)`);
+
+describe('role-first collider: wired into "Fit to selected" behind its switch', () => {
+  const piece = () => ({ ...newPiece('lift', { positions: noisy.positions, indices: noisy.indices }), src: 'x' });
+  it('off: the old box fit is byte for byte what it was', () => {
+    const o = piece();
+    expect(fitBarsTo(o, false)).toEqual(fitBarsTo(o));
+  });
+  it('on: the row has the measured spacing and rung count, not the box-and-default-gap guess', () => {
+    const o = scaleToHeight(piece(), 2.2) as ReturnType<typeof piece>;
+    const f = fitBarsTo(o, true);
+    expect(f.spec.n).toBe(10);
+    expect(Math.abs(f.spec.gap - 0.5)).toBeLessThanOrEqual(0.05);
+    expect(f.y).toBeGreaterThan(1.9); expect(f.y).toBeLessThan(2.2);
+  });
+  it('the switch: on at home and on the preview site, off on the real site, and the link word wins', () => {
+    const q = (s: string) => new URLSearchParams(s);
+    expect(roleColliderOn(q(''), 'localhost')).toBe(true);
+    expect(roleColliderOn(q(''), 'preview.conquercourse.pages.dev')).toBe(true);
+    expect(roleColliderOn(q(''), 'conquercourse.com')).toBe(false);
+    expect(roleColliderOn(q('rolecollider=1'), 'conquercourse.com')).toBe(true);
+    expect(roleColliderOn(q('rolecollider=0'), 'localhost')).toBe(false);
+  });
+});
