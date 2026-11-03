@@ -50,7 +50,13 @@
 
 ## Course data and the editor
 - Course field `bars`: a list of rows `{ x, y, n, gap }` (first rung x, height, how many rungs, spacing).
-- Editor piece "Monkey bars" (behind `?bars=1`): rung count, spacing and height are sliders; "Fit to selected" lays the row over the selected object's top.
+- Editor piece "Monkey bars" (behind `?bars=1`; code `src/slice/bars-world.ts`, `src/modes/editor/tools/bars.ts`): rung count, spacing and height are sliders in the piece panel.
+- Its src is `bars:<rungs>:<gap>`, so saving, copying and undo keep the knobs; `roleCourse` turns it into `course.bars` and `piecesFromSource` brings it back.
+- "Fit to selected" (toolbar) lays a new row along the top of the chosen piece (a box, or an object lifted from a photo): its longer side, its top height, rungs and spacing to cover the length.
+- In the piece panel, "Fit to the piece under it" does the same for a row already placed.
+- "Bar then bars" puts a swing bar and a row after it (first rung 2.4 m on, same height): the pull-up bar to monkey bars flow.
+- The panel says how to play it: hold E near the first rung, then Q and T.
+- Turning: the piece bar's 15 degree buttons turn any piece, the swing bar and the row included; a row turned across the lane is ignored, like a plank.
 - The piece is overhead scenery (`noGround`), so it never changes the ground lane.
 
 ## Tests (physics laws first)
@@ -62,6 +68,8 @@
 - Replay equals live: the recorded keys, packed into the mask and run again, end in the same place.
 - Bar to bars: release near the first rung, hold E, and the hands close.
 - A whole course clears with a recorded key list (`public/assets/demo/bars.run.json`).
+- Swing bar to bars clears with a recorded key list (`public/assets/demo/swing-to-bars.run.json`, `tests/swing-to-bars.test.ts`).
+- The editor piece: knobs in the src, not ground, found along the lane, course and save round trips, fit to an object, 15 degree turns (`tests/editor-bars.test.ts`).
 
 ## What is not done
 - The ideal-run search (`src/sim/ideal.ts`) knows bars and ropes but not monkey bars, so the demo course is proved by a recorded run, not by the search.

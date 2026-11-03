@@ -1,0 +1,37 @@
+{
+  "version": 1,
+  "name": "Pull-up bar to monkey bars: swing, let go, catch the first rung",
+  "startX": 0,
+  "finishX": 40,
+  "jumpSpeed": 4.5,
+  "terrain": {
+    "waterY": -6,
+    "platforms": [
+      {
+        "x0": -10,
+        "x1": 5,
+        "top": 0
+      },
+      {
+        "x0": 14.5,
+        "x1": 44,
+        "top": 0
+      }
+    ]
+  },
+  "grabReach": 0.4,
+  "holds": [
+    {
+      "x": 6.5,
+      "y": 3
+    }
+  ],
+  "bars": [
+    {
+      "x": 8.9,
+      "y": 3,
+      "n": 6,
+      "gap": 0.6
+    }
+  ]
+}

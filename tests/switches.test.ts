@@ -6,7 +6,7 @@ import { SWITCHES, SWITCH_NAMES, QUIET_WORDS } from '../src/switches';
 // Every URL word the code reads must be registered with a doc line, and every registered word must be read (or be a listed link-only word).
 const walk = (d: string): string[] => readdirSync(d).flatMap((f) => { const p = join(d, f); return statSync(p).isDirectory() ? walk(p) : p.endsWith('.ts') ? [p] : []; });
 const READ = /(?:pageQuery\(\)|params|query|\bq|\bsp|search)\.(?:get|has|getAll)\('([A-Za-z0-9_-]+)'\)|\bflag\('([A-Za-z0-9_-]+)'\)/g;
-const LINK_ONLY = new Set(['labs', 'bars']); // 'bars' is read by the editor tool in the next change; carried in a link, never read by name in src/
+const LINK_ONLY = new Set(['labs']);
 const read = new Set<string>();
 for (const f of walk('src')) for (const m of readFileSync(f, 'utf8').matchAll(READ)) read.add((m[1] ?? m[2])!);
 
