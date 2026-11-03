@@ -105,7 +105,7 @@ export const PUBLISHED_EVENT = 'board-published';
 /** The name box and the Publish to Leaderboard button, one strip at the top of the end report next to the result. It is the only place the name is typed. A run goes on the board only when the button is clicked. */
 export function publishStrip(spec: NonNullable<BoardHooks['publish']>, key: string, hash: string, blocked?: string): HTMLElement {
   const row = document.createElement('div'); row.id = 'report-publish'; row.style.cssText = 'display:flex;gap:8px;flex-wrap:wrap;align-items:center;background:#e9f5f1;border-left:4px solid #0f6b5c;border-radius:8px;padding:8px 10px';
-  const nick = document.createElement('input'); nick.id = 'publish-nick'; nick.maxLength = 12; nick.size = 14; nick.placeholder = 'NAME'; nick.autocomplete = 'off'; nick.spellcheck = false; nick.setAttribute('aria-label', 'Name for the leaderboard');
+  const nick = document.createElement('input'); nick.id = 'publish-nick'; nick.maxLength = 12; nick.size = 14; nick.placeholder = 'Your Name'; nick.autocomplete = 'off'; nick.spellcheck = false; nick.setAttribute('aria-label', 'Name for the leaderboard');
   nick.title = 'Up to 12 letters (any case), digits or symbols, no spaces. It shows on the leaderboard and in your challenge link. Not your real name.';
   nick.style.cssText = 'font:inherit;font-weight:700;border:1px solid #17201d;border-radius:8px;padding:6px 8px;width:14ch;min-width:14ch;box-sizing:content-box;text-align:center';
   try { nick.value = tidyNick(localStorage.getItem('cc.nick') ?? ''); } catch { /* keep going */ }
