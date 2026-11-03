@@ -1,6 +1,6 @@
 # Voices: who is speaking in the game (CC-243)
 
-- The product owner asked for the main tech and characters to pop, with titles like "Simulator says".
+- The product owner asked for the main tech and characters to pop, with titles like "Simulator".
 - One small badge sits above each message the main tech makes: an icon disc, the title, and a "powered by" line.
 - The code is `src/ui/says.ts`; the table of voices is `VOICES` in that file and the test `tests/says.test.ts` checks it.
 - Turn all badges and the crew strip off with `?says=0`; the messages stay as they were (default on).
@@ -16,7 +16,7 @@
 ## Where the Simulator speaks (changed 2026-11-01)
 - The first pass put the Simulator badge on the end report and the verdicts.
 - The product owner said the Simulator shows up most while a person edits, in the World Editor and the World Slicer, not on the report card.
-- Now a "Simulator says" strip sits first in the side panel of both screens, always in view (it sticks to the top while the panel scrolls).
+- Now a "Simulator" strip sits first in the side panel of both screens, always in view (it sticks to the top while the panel scrolls).
 - It speaks in the first person and follows the lane check as the lane changes.
 - Editor states: waiting, checking (a ghost runs your lane), can clear (with the counts that were already in the verdict), cannot clear, not checked (Stopped, Timed out, could not finish).
 - Slicer states: the same five, driven by the live lane read as the cut height or the line changes.
@@ -35,14 +35,14 @@
 ## The table
 | Title | Colour | Powered by | Speaks when | Screens | Where the words live |
 |---|---|---|---|---|---|
-| Simulator says (live) | green, blue, red, gold by state | our own physics, not an AI | the World Editor and the World Slicer: a strip at the top of the side panel that follows the lane check as you edit or drag the line | World Editor, World Slicer, Course, Coaster builder, End report | `src/ui/sim-says.ts`, `src/modes/editor.ts`, `src/modes/map.ts` |
-| Simulator says (small) | green | our own physics, not an AI | the end-of-run report and the fall panel, the coaster and graph verdicts | End report, Coaster builder, Course | `src/ui/run-report.ts`, `src/modes/coaster.ts`, `src/modes/graph-studio.ts`, `src/slice/lane-check-ui.ts` |
-| Design partner says | orange | Muse Spark Open | the Design partner panel: notes, Fix it, Suggest | World Editor | `src/modes/editor.ts` |
-| Safety check says | red | Muse Spark Open | when you press Share in Community | Make your own | `src/modes/community-flow.ts` |
-| Cutter says | blue | SAM 3 | Make your own, step 3: Segment Objects | Make your own | `src/modes/community-flow.ts` |
-| Builder says | gold | SAM 3D Objects | Make your own, step 5: Make them, and the prize screen | Make your own | `src/modes/community-flow.ts`, `src/ui/prize.ts` |
-| Character maker says | pink | Muse Image, SAM 3.1 and SAM 3D Objects | the Characters panel | Characters | `src/characters/panel.ts` |
-| Ghost says | amber | a replay of a real run, not an AI | the ghost line in the end report | End report | `src/ui/ghost.ts` |
+| Simulator (live) | green, blue, red, gold by state | our own physics, not an AI | the World Editor and the World Slicer: a strip at the top of the side panel that follows the lane check as you edit or drag the line | World Editor, World Slicer, Course, Coaster builder, End report | `src/ui/sim-says.ts`, `src/modes/editor.ts`, `src/modes/map.ts` |
+| Simulator (small) | green | our own physics, not an AI | the end-of-run report and the fall panel, the coaster and graph verdicts | End report, Coaster builder, Course | `src/ui/run-report.ts`, `src/modes/coaster.ts`, `src/modes/graph-studio.ts`, `src/slice/lane-check-ui.ts` |
+| Design partner | orange | Muse Spark Open | the Design partner panel: notes, Fix it, Suggest | World Editor | `src/modes/editor.ts` |
+| Safety check | red | Muse Spark Open | when you press Share in Community | Make your own | `src/modes/community-flow.ts` |
+| Cutter | blue | SAM 3 | Make your own, step 3: Segment Objects | Make your own | `src/modes/community-flow.ts` |
+| Builder | gold | SAM 3D Objects | Make your own, step 5: Make them, and the prize screen | Make your own | `src/modes/community-flow.ts`, `src/ui/prize.ts` |
+| Character maker | pink | Muse Image, SAM 3.1 and SAM 3D Objects | the Characters panel | Characters | `src/characters/panel.ts` |
+| Ghost | amber | a replay of a real run, not an AI | the ghost line in the end report | End report | `src/ui/ghost.ts` |
 | Street photos say | green | Mapillary photos, people masked | the name tag on a live photo strip | Course, World Slicer | `src/ui/place-photos.ts` |
 | Pip | orange | Rookie A | the first card in the Characters panel; the crew strip | Course, Characters | `src/characters/panel.ts` |
 | Juno | violet | Rookie B | the crew strip | Course | `src/characters/panel.ts` |

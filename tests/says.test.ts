@@ -12,11 +12,12 @@ const ids = Object.keys(VOICES) as VoiceId[];
 const MODELS = ['Muse Spark Open', 'Muse Image', 'SAM 3D Objects', 'SAM 3.1', 'SAM 3'];
 
 describe('voices', () => {
-  it('has a title ending in "says"/"say" for every tech voice, and every voice is on the crew strip once', () => {
+  it('has a plain title (no "says") for every voice, and every voice is on the crew strip once', () => {
     for (const id of ids) {
       const v = VOICES[id];
       expect(v.id).toBe(id);
-      if (id !== 'pip' && id !== 'juno') expect(v.title).toMatch(/ says?$/);
+      expect(v.title).not.toMatch(/ says?$/);
+      expect(v.title).toBe(v.name);
     }
     expect([...CREW].sort()).toEqual([...ids].sort());
   });
