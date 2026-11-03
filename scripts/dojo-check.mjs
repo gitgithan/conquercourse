@@ -55,12 +55,12 @@ try {
   checks.backIsTopRight = box.top < 60 && box.right < 80 && box.w > 150;
   checks.hintShown = (await page.textContent('#thint')).includes('T: back to courses');
   checks.noCoursesPill = await page.$eval('#courses-btn', (e) => getComputedStyle(e).display === 'none').catch(() => true);
-  await page.keyboard.press('KeyT');
+  await page.keyboard.press('KeyL');
   await page.waitForSelector('#world-gallery .wg-card', { timeout: 20000 });
   checks.tOpensThePicker = true;
   await page.keyboard.press('Escape'); await page.waitForTimeout(300);
   checks.escClosesIt = (await page.$('#world-gallery')) === null;
-  await page.keyboard.press('KeyT'); await page.waitForSelector('#world-gallery .wg-card');
+  await page.keyboard.press('KeyL'); await page.waitForSelector('#world-gallery .wg-card');
   await page.click('#world-gallery .wg-card[data-value="/assets/demo/band.course.json"]');
   await page.waitForFunction(() => !document.querySelector('.dojo'), null, { timeout: 60000 });
   checks.pickingACourseLeavesTheDojo = true;

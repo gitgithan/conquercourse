@@ -43,7 +43,7 @@ export function organiseReport(body: HTMLElement, o: { dojo?: () => void } = {})
     g.append(l, ...kids); return g;
   };
   let dojo: HTMLButtonElement | null = null;
-  if (o.dojo) { dojo = document.createElement('button'); dojo.type = 'button'; dojo.id = 'report-dojo'; dojo.textContent = 'Dojo (T)'; dojo.style.cssText = again?.style.cssText.replace(/background:[^;]+;/, 'background:#fff;').replace(/color:[^;]+;/, 'color:#17201d;') ?? ''; dojo.onclick = o.dojo; }
+  if (o.dojo) { dojo = document.createElement('button'); dojo.type = 'button'; dojo.id = 'report-dojo'; dojo.textContent = 'Dojo (L)'; dojo.style.cssText = again?.style.cssText.replace(/background:[^;]+;/, 'background:#fff;').replace(/color:[^;]+;/, 'color:#17201d;') ?? ''; dojo.onclick = o.dojo; }
   const play = group('Play', [again, next]), others = [group('Learn', [watch, dojo])].filter((g): g is HTMLDivElement => !!g);
   if (others.length) { const more = document.createElement('div'); more.style.cssText = 'display:grid;gap:8px'; more.append(...others); row.before(more); } // only Play stays pinned at the bottom, so the Share card is never covered
   row.replaceChildren(...(play ? [play] : []));

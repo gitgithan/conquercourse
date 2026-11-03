@@ -40,7 +40,7 @@ export function createKeydown(c: KeydownCtx): (e: KeyboardEvent) => void {
     if (e.code === 'KeyR') { if (e.shiftKey) { st.retryX = c.course.startX; c.restart(c.course.startX); } else c.restart(); }
     if (st.idealWhole && !c.botMode && e.code !== 'KeyI' && !c.VIEW_KEYS.includes(e.code) && !/^(Shift|Control|Alt|Meta)/.test(e.code)) c.stopWholeIdeal(); // a move key takes the run back; the view keys (camera, front view, drum lane) do not
     if (e.code === 'KeyI') { if (e.shiftKey) c.showWholeIdeal(); else c.showIdeal(c.zoneAt(st.world.runner.x)?.id ?? 'gap'); }
-    if (e.code === 'KeyT') c.openDojo();
+    if (e.code === 'KeyL') c.openDojo();
     if (e.code === 'Escape' && st.replay) { st.replay = null; c.clearGuides(); c.showAgain(); }
     if (e.code === 'KeyC') c.nextCam();
     if (e.code === 'KeyG') c.drumLane.toggle();

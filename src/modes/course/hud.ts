@@ -56,7 +56,7 @@ export function createHud(deps: HudDeps) {
   const hint = document.createElement('div');
   hint.style.cssText = `position:fixed;left:50%;bottom:${params.get('gauges') === 'old' ? 124 : 190}px;transform:translateX(-50%);font:600 20px system-ui,sans-serif;pointer-events:none;${hudOn(params) ? panelCss('8px 16px') : 'color:#10141c;background:#fffc;border-radius:10px;padding:8px 16px'}`;
   const dojoBtn = document.createElement('button');
-  dojoBtn.id = 'dojobtn'; dojoBtn.textContent = 'Dojo (T)';
+  dojoBtn.id = 'dojobtn'; dojoBtn.textContent = 'Dojo (L)';
   dojoBtn.style.cssText = 'position:fixed;right:16px;top:12px;font:600 15px system-ui,sans-serif;border:1px solid #0f6b5c;background:#0f6b5c;color:#fff;border-radius:8px;padding:6px 14px;cursor:pointer';
   dojoBtn.onclick = () => deps.openDojo();
   const idealBtn = document.createElement('button');

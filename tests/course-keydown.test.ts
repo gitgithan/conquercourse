@@ -41,7 +41,7 @@ describe('course keydown handler (CC-133 slice 1)', () => {
   it('typing in a box clears the keys and queues and ignores the key', () => {
     const { st, press } = mk({ typing: () => true });
     st.keys.add('ArrowLeft'); st.jumpQueued = true;
-    press('KeyT');
+    press('KeyL');
     expect(st.keys.size).toBe(0); expect(st.jumpQueued).toBe(false);
   });
   it('R restarts at the retry point, Shift+R from the very start', () => {
@@ -52,7 +52,7 @@ describe('course keydown handler (CC-133 slice 1)', () => {
     const a = mk(); a.press('KeyI'); expect(a.calls).toEqual(['ideal:gap']);
     const b = mk({ zoneAt: () => ({ id: 'wall' }) }); b.press('KeyI'); expect(b.calls).toEqual(['ideal:wall']);
     const c = mk(); c.press('KeyI', { shiftKey: true }); expect(c.calls).toEqual(['whole']);
-    const d = mk(); d.press('KeyT'); expect(d.calls).toEqual(['dojo']);
+    const d = mk(); d.press('KeyL'); expect(d.calls).toEqual(['dojo']);
   });
   it('a move key stops the whole-course ideal run; view keys and I do not', () => {
     const a = mk({}, { idealWhole: true }); a.press('ArrowRight'); expect(a.calls).toEqual(['stopWhole']);

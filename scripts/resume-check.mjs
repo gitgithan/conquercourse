@@ -18,11 +18,11 @@ try {
   const before = await state();
   const checks = {};
   for (const way of ['T', 'button']) {
-    if (way === 'T') await page.keyboard.press('KeyT'); else await page.click('text=Community courses').catch(() => {}); 
+    if (way === 'T') await page.keyboard.press('KeyL'); else await page.click('text=Community courses').catch(() => {}); 
     if (way === 'button') { await page.goBack().catch(() => {}); }
     if (way === 'T') {
       await page.waitForSelector('.dojo', { timeout: 60000 });
-      await page.keyboard.press('KeyT');
+      await page.keyboard.press('KeyL');
     }
     await page.waitForSelector('#strip', { timeout: 120000 });
     await page.waitForTimeout(1500);
@@ -36,7 +36,7 @@ try {
   const going = await state();
   checks['carries on after a key'] = !going.paused && going.tick > before.tick;
   // the button: back to the Dojo, then the big back button
-  await page.keyboard.press('KeyT');
+  await page.keyboard.press('KeyL');
   await page.waitForSelector('.dojo', { timeout: 60000 });
   await page.click('#back');
   await page.waitForSelector('#strip', { timeout: 120000 });
