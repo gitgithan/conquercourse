@@ -1,0 +1,27 @@
+{
+  "label": "monkey bars",
+  "extents_m": {
+    "x": 5.425,
+    "y": 0.251,
+    "z": 1.035
+  },
+  "height_m": 0.251,
+  "target_height_m": 0.25,
+  "scale_source": "typed",
+  "scale_factor": 5.4243,
+  "raw_height": 0.0461,
+  "yaw_deg": 0,
+  "tilt_deg": 1.65,
+  "faces": 5820,
+  "vertices": 4341,
+  "width_to_height": 21.6,
+  "texture": "1024x1024",
+  "bytes": 487200,
+  "raw_faces": 35968,
+  "model": "SAM 3D Objects (seed 42)",
+  "extent_xyz_m": [
+    5.425,
+    0.251,
+    1.035
+  ]
+}

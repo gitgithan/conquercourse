@@ -1,0 +1,27 @@
+{
+  "label": "bench",
+  "extents_m": {
+    "x": 1.791,
+    "y": 0.8,
+    "z": 0.588
+  },
+  "height_m": 0.8,
+  "target_height_m": 0.8,
+  "scale_source": "typed",
+  "scale_factor": 1.7893,
+  "raw_height": 0.4471,
+  "yaw_deg": 0,
+  "tilt_deg": 5.31,
+  "faces": 5820,
+  "vertices": 5158,
+  "width_to_height": 2.238,
+  "texture": "1024x1024",
+  "bytes": 487300,
+  "raw_faces": 201196,
+  "model": "SAM 3D Objects (seed 42)",
+  "extent_xyz_m": [
+    1.791,
+    0.8,
+    0.588
+  ]
+}

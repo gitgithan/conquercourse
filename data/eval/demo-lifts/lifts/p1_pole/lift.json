@@ -1,0 +1,50 @@
+{
+  "object": {
+    "name": "p1_pole",
+    "photo": "photo1",
+    "label": "pole",
+    "box_original": [
+      200,
+      58,
+      255,
+      765
+    ],
+    "height_m": 4,
+    "box_source": "Segment Objects pick (pole 0.82)"
+  },
+  "box_sent": [
+    165,
+    48,
+    211,
+    632
+  ],
+  "label": "pole",
+  "privacy": {
+    "people": 10,
+    "faces": 6,
+    "plates": 0,
+    "changed": true
+  },
+  "mask": {
+    "how": "text",
+    "score": 0.8203125,
+    "iou_with_box": 1,
+    "candidates": 17,
+    "pixels": 8057
+  },
+  "touches_border": false,
+  "padded": false,
+  "lift_check": {
+    "extent_aspect": 0.11,
+    "mask_aspect": 0.079,
+    "bad": false
+  },
+  "mask_seconds": 2.8,
+  "lift_seconds": 8,
+  "n_faces_raw": 16204,
+  "n_gaussians": 15360,
+  "mask_load_seconds": 14.4,
+  "lift_load_seconds": 45.9,
+  "wall_seconds": 98.5,
+  "usd_estimate": 0.0049
+}

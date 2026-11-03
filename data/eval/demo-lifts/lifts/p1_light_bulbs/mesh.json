@@ -1,0 +1,27 @@
+{
+  "label": "string of light bulbs",
+  "extents_m": {
+    "x": 8.382,
+    "y": 1,
+    "z": 0.232
+  },
+  "height_m": 1,
+  "target_height_m": 1,
+  "scale_source": "typed",
+  "scale_factor": 8.3891,
+  "raw_height": 0.1192,
+  "yaw_deg": 91,
+  "tilt_deg": 0.87,
+  "faces": 5820,
+  "vertices": 4424,
+  "width_to_height": 8.382,
+  "texture": "1024x1024",
+  "bytes": 471092,
+  "raw_faces": 8328,
+  "model": "SAM 3D Objects (seed 42)",
+  "extent_xyz_m": [
+    8.382,
+    1,
+    0.232
+  ]
+}
