@@ -3,7 +3,7 @@
 *Knowledge from a practice project and from experiments during the event (see `docs/PRIOR-WORK.md`).*
 *Each lesson is a rule plus the reason; none of it is code.*
 *Draft v0.1, 2026-10-27.*
-*Worked lessons with pictures: [move creation](lessons-move-creation.md), [obstacle creation](lessons-obstacle-creation.md), [moves meeting obstacles](lessons-move-obstacle-interactions.md).*
+*Worked lessons with pictures: [move creation](lessons-move-creation.md), [obstacle creation](lessons-obstacle-creation.md), [moves meeting obstacles](lessons-move-obstacle-interactions.md), [test on a different machine](lessons-cross-hardware-testing.md).*
 *Reference, not requirements: the spec decides; numbers are starting points to re-measure in this project.*
 
 ## Physics and time
@@ -223,3 +223,4 @@
   - A bit-exact fix (`x * x * x`, `T * Math.sqrt(T)`) is ready in `data/eval/trace-machines/pow-fix.patch`, waiting for the owner.
 - How to prevent it: use only `+ - * /` and `Math.sqrt` in the sim step when you can; avoid `**` above 2 and `Math.pow`.
 - Details: `data/eval/trace-machines/README.md`.
+- Worked lesson with a picture: [test on a different machine](lessons-cross-hardware-testing.md).
