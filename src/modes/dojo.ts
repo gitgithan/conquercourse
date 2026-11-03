@@ -94,7 +94,7 @@ export function startDojo(host: HTMLElement): { backend: 'webgl2' } {
     const head = el('div', root, { className: legacy ? 'head' : 'head bar' });
     if (legacy) el('h1', head, { text: 'The Dojo' });
     else { const brand = el('div', head, { className: 'brand' }); el('span', brand, { className: 'kicker', text: 'Train slow. Run fast.' }); el('h1', brand, { text: 'The Dojo' }); el('span', brand, { className: 'hint', id: 'thint', text: 'T: back to courses' }); }
-    const back = el<HTMLAnchorElement>('a', head, { text: legacy ? 'Back to the Course (T)' : 'Back to the Course', href: returnToCourse, className: 'btn go' });
+    const back = el<HTMLAnchorElement>('a', head, { text: legacy ? 'Back to the Course (L)' : 'Back to the Course', href: returnToCourse, className: 'btn go' });
     back.id = 'back';
     if (legacy) back.style.cssText = 'position:fixed;top:12px;right:16px;z-index:30;font-size:18px;padding:10px 18px;box-shadow:0 2px 10px #0003'; // always in the same corner, easy to find
     if (fromCourse && (ctx.width || ctx.wallHeight || ctx.ropeLength)) {
@@ -428,7 +428,7 @@ export function startDojo(host: HTMLElement): { backend: 'webgl2' } {
   // T opens the Dojo from the Course, so it closes it here too (not while typing in a box)
   addEventListener('keydown', (e) => {
     const t = e.target as HTMLElement | null;
-    if (e.code !== 'KeyT' || e.repeat || e.ctrlKey || e.metaKey || e.altKey || document.getElementById('cc-feedback') || (t && /^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName) && (t as HTMLInputElement).type !== 'range')) return;
+    if (e.code !== 'KeyL' || e.repeat || e.ctrlKey || e.metaKey || e.altKey || document.getElementById('cc-feedback') || (t && /^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName) && (t as HTMLInputElement).type !== 'range')) return;
     if (!picker) { location.href = returnToCourse; return; } // the old layout keeps its old route
     if (document.getElementById('world-gallery')) return; // already open: the picker has its own keys
     picker.open(); // T takes the player to the course picker, where they choose a course (CC-154)

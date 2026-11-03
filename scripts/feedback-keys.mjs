@@ -24,7 +24,7 @@ try {
     runnerDidNotMove: Number(await page.evaluate(() => document.documentElement.dataset.tick)) >= 0 && (await page.textContent('body')).includes('0 m of'),
   };
   await page.click('text=Close');
-  await page.keyboard.press('KeyT');
+  await page.keyboard.press('KeyL');
   await page.waitForTimeout(1500);
   checks.keysWorkAfterClose = (await page.$$('.dojo')).length === 1 || page.url().includes('dojo');
   console.log(checks, 'errors:', errors);
