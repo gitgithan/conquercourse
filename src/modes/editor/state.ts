@@ -10,12 +10,13 @@ import type { Role, RoleSuggestion } from '../../slice/roles';
 import type { Shortcut } from '../../sim/shortcuts';
 import type { holdsOf } from '../../slice/holds-world';
 import type { sliceProfile } from '../../slice/slice';
+import type { StartPoint } from './start';
 import { DEFAULT_WATER_LEVEL } from '../../slice/editor-defaults';
 
 export type P = Piece & { src?: string };
 export interface Lane { angle: number; offset: number; level: number }
 // What a saved world holds (localStorage `cc.world.v1`, and the source a Course carries so the editor can open the same pieces again).
-export interface Saved { pieces: { src: string; x: number; z: number; y: number; yaw: number; scale: number; role?: Role; decor?: boolean }[]; angle: number; offset: number; level: number; floor?: string }
+export interface Saved { start?: StartPoint; pieces: { src: string; x: number; z: number; y: number; yaw: number; scale: number; role?: Role; decor?: boolean }[]; angle: number; offset: number; level: number; floor?: string }
 export interface Preview { pieces: P[]; lane: Lane; machine: Machine | null }
 
 export const isSizeReference = (p: P) => p.src === 'obj:../characters/rookie-a.glb' || p.src === 'obj:../characters/rookie-b.glb';
@@ -23,6 +24,7 @@ export const isDevice = (p: P) => p.src?.startsWith('device:') ?? false;
 
 // The state of one World editor session: one object that every module of the editor reads and writes by property, so no module needs a getter or setter per value.
 export interface EditorState {
+  start?: StartPoint; // fixed world pivot after turning the lane
   // the world
   pieces: P[];
   selected: number | null; // the main chosen piece; `group` is the several chosen at once while `selected` is in it

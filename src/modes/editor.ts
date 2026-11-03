@@ -10,15 +10,16 @@ import { openPhotoObject, uploadObjOn } from '../ui/photo-object';
 import { registerThumbSource } from '../ui/glb-thumb';
 import { isSharedSrc, placeParam, sharedGlbUrl, sharedSrc, useShared, usedShared } from '../community/flow';
 import { LIBRARY } from '../slice/shapes';
-import { CELL, roofStartOn } from '../slice/slice';
+import { CELL } from '../slice/slice';
 import { newPiece, realSize, scaleToHeight, size, laneProfile, liftToRoof } from '../slice/world';
 import type { CourseData } from '../course/course';
 import { createView3d } from '../slice/view3d';
 import { sceneFor } from '../slice/scene';
 import { isHold } from '../slice/holds-world';
 import { isTrack } from '../slice/track-world';
-import { personStart } from '../slice/person-ref';
-import { DEFAULT_WATER_LEVEL, levelOfSaved, startMarkSide } from '../slice/editor-defaults';
+import { editorStart } from './editor/start';
+import { pieceBounds } from '../slice/view-fit';
+import { DEFAULT_WATER_LEVEL, levelOfSaved } from '../slice/editor-defaults';
 import { createTools } from './editor/tools';
 import { PRESETS } from '../slice/presets';
 import { MAX_PIECES } from '../slice/suggest-prompt';
@@ -77,8 +78,7 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
   const { coursePieces, ground, currentProfile, barsNow, dronePiece, recoilPiece, machineNow, trebuchetPivot, machineWrap, laneCourseAt, laneCourse, courseNow, xOfPiece, startBefore } = lane;
   const multiOn = pageQuery().get('editorui') !== 'old';
   const { chosen, chooseMany, moveWith, copyChosen, pasteClip, deleteChosen } = createSelection({ ed, multiOn, changed: () => changed(), redraw: () => { drawPanel(); draw(); drawProfile(); } });
-  let personChipReady = false; // the chip is built after the 3D view; the world redraws can run before that
-  const personAt = () => personStart(ed.pieces, { angle: ed.angle, offset: ed.offset });
+  const startAt = () => editorStart(ed, currentProfile());
   const pendingObjects: Saved['pieces'] = []; // saved photo objects, loaded once the list is in
 
   // a new piece goes just past the last one, on the lane's line, so pieces do not pile up
@@ -88,6 +88,8 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
   // the pieces of a saved world, built again from their sources (the photo objects come later, once their list is in)
   const buildPieces = (list: Saved['pieces']): P[] => piecesFromSource(list);
   function restore(s: Saved) {
+    s = { ...s, pieces: s.pieces.filter((q) => !isSizeReference(q as P)) };
+    ed.start = s.start;
     pendingObjects.push(...s.pieces.filter((q) => q.src.startsWith('obj:') || q.src.startsWith('user:') || isSharedSrc(q.src)));
     ed.pieces = buildPieces(s.pieces);
     ed.angle = s.angle; ed.offset = s.offset; ed.level = levelOfSaved(s);
@@ -102,12 +104,13 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
       ed.selected = null;
     }
   }
-  const save = () => { try { localStorage.setItem(KEY, JSON.stringify({ pieces: ed.pieces.filter((p) => p.src && !p.src.startsWith('map:')).map((p) => ({ src: p.src as string, x: p.x, z: p.z, y: p.y, yaw: p.yaw, scale: p.scale, ...(p.role ? { role: p.role } : {}) })), angle: ed.angle, offset: ed.offset, level: ed.level, floor: ed.floorChoice } satisfies Saved)); } catch { /* private window */ } };
+  const save = () => { try { localStorage.setItem(KEY, JSON.stringify({ pieces: ed.pieces.filter((p) => p.src && !p.src.startsWith('map:')).map((p) => ({ src: p.src as string, x: p.x, z: p.z, y: p.y, yaw: p.yaw, scale: p.scale, ...(p.role ? { role: p.role } : {}) })), angle: ed.angle, offset: ed.offset, level: ed.level, floor: ed.floorChoice, ...(ed.start ? { start: ed.start } : {}) } satisfies Saved)); } catch { /* private window */ } };
   load();
   let mapCamera: { heading: number; pitch: number; distance?: number; target?: { x: number; z: number } } | null = null;
   try { // a place built in ?mode=map arrives once, as the whole world or as the buildings the player picked; it is not saved
     const m = JSON.parse(sessionStorage.getItem('cc.map.piece') ?? 'null') as { name: string; positions: number[]; indices: number[]; pieces?: { name: string; positions: number[]; indices: number[]; x: number; z: number }[]; camera?: { heading: number; pitch: number; distance?: number; target?: { x: number; z: number } }; lane?: { angle: number; offset: number; level: number; from: string }; objects?: Saved['pieces'] } | null;
     sessionStorage.removeItem('cc.map.piece');
+    if (m) ed.start = undefined; // a new place chooses its own start
     if (m?.lane && [m.lane.angle, m.lane.offset, m.lane.level].every(Number.isFinite)) { ed.angle = m.lane.angle; ed.offset = m.lane.offset; ed.level = m.lane.level; document.documentElement.dataset.laneFrom = m.lane.from; } // CC-91: the lane the map proved, not the editor's own start
     if (m?.pieces?.length) { // picked buildings from the map flight (CC-79): separate pieces, each where it stood
       pendingObjects.length = 0;
@@ -122,7 +125,7 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
   const handoff = readHandoff();
   if (handoff && !ed.pieces.some((q) => q.src?.startsWith('map:'))) {
     pendingObjects.length = 0;
-    restore({ pieces: handoff.course.source!.pieces as Saved['pieces'], angle: handoff.course.source!.angle, offset: handoff.course.source!.offset, level: handoff.course.source!.level, floor: handoff.course.source!.floor });
+    restore({ pieces: handoff.course.source!.pieces as Saved['pieces'], angle: handoff.course.source!.angle, offset: handoff.course.source!.offset, level: handoff.course.source!.level, floor: handoff.course.source!.floor, start: handoff.course.source!.start });
     ed.selected = null;
   }
   if (ed.selected === null) { const tr = ed.pieces.find((q) => isTrack(q)); if (tr) ed.selected = tr.id; } // a coaster opens with its dots showing (CC-244)
@@ -143,7 +146,7 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
   for (const l of LIBRARY) el('button', addBar, { text: l.label, id: `add-${l.id}` }).onclick = () => { add(l.id, freeSpot(l.id)); changed(); };
   // undo and redo: a snapshot after every change (pieces are copied shallowly; a crop makes a new mesh, so old meshes stay valid)
   const editHistory = createHistory({
-    getPieces: () => ed.pieces, setPieces: (v) => { ed.pieces = v; }, getLane: () => ({ angle: ed.angle, offset: ed.offset, level: ed.level }), setLane: (v) => { ed.angle = v.angle; ed.offset = v.offset; ed.level = v.level; },
+    getPieces: () => ed.pieces, setPieces: (v) => { ed.pieces = v; }, getLane: () => ({ angle: ed.angle, offset: ed.offset, level: ed.level, ...(ed.start ? { start: ed.start } : {}) }), setLane: (v) => { ed.angle = v.angle; ed.offset = v.offset; ed.level = v.level; ed.start = v.start; },
     getSelected: () => ed.selected, setSelected: (v) => { ed.selected = v; }, undoBtn: () => undoBtn, redoBtn: () => redoBtn, changed,
   });
   const { hist, remember, goto } = editHistory;
@@ -242,35 +245,24 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
         if (best >= 0) { const du = (best - i0) * CELL; d.x += du * Math.cos(ed.angle); d.z += du * Math.sin(ed.angle); d.y = ed.level + Math.max(...pr.cells.slice(best - w, best + w + 1).map((h) => h as number)); }
       }
       if (pendingObjects.length) { pendingObjects.length = 0; changed(false); hist.length = 0; editHistory.hi = -1; remember(); onWorld(); fitAll(); } // the saved or first world is the starting point of the undo list
-      await firstVisitPerson(); // a first visit: the person for scale stands at the start of the lane
     } catch { /* no objects on this site */ }
   })();
   // the special pieces (bar, coaster, rope, devices, stacks, plank): each one is a module in editor/tools, mounted in toolbar order
   const tools = createTools({ ed, lane, addBar, changed, focusOn: (d, dist) => { ed.view.cx = d.x; ed.view.cz = d.z; view3d.look(0, 65, { x: d.x, z: d.z }, dist); } });
   const { addBarPiece } = tools;
   tools.mount();
-  // size references: a Rookie (1.75 m, T-pose) and the demo scene, so a piece can be judged against a person
   el('strong', addBar, { text: 'Size references:' });
-  for (const r of [{ id: 'person', label: 'Person reference (toggle)', url: '', src: '' }, { id: 'demo-scene', label: 'Demo scene', url: '/assets/demo/demo-scene.glb', src: 'obj:../demo/demo-scene.glb' }]) {
-    const b = el('button', addBar, { text: r.label });
-    b.dataset.object = r.id;
-    b.onclick = async () => {
-      if (r.id === 'person') {
-        const person = ed.pieces.find(isSizeReference);
-        if (person) { ed.pieces = ed.pieces.filter((p) => !isSizeReference(p)); if (ed.selected === person.id) ed.selected = null; changed(); return; }
-      }
-      b.disabled = true;
-      try {
-        const rookie = localStorage.getItem('cc.rookie') === 'b' ? 'b' : 'a';
-        const url = r.id === 'person' ? `/assets/characters/rookie-${rookie}.glb` : r.url;
-        const src = r.id === 'person' ? `obj:../characters/rookie-${rookie}.glb` : r.src;
-        const at = r.id === 'person' ? personAt() : { x: ed.view.cx - 3 * Math.sin(ed.angle), z: ed.view.cz + 3 * Math.cos(ed.angle) };
-        const p: P = { ...scaleToHeight(newPiece(r.id === 'person' ? 'Person' : r.id, readGlbMesh(await (await fetch(url)).arrayBuffer()), at), 1.75), src };
-        ed.pieces.push(p); if (r.id !== 'person') ed.selected = p.id; changed();
-      } catch { ed.verdict = 'That reference could not be loaded.'; draw(); }
-      finally { b.disabled = false; }
-    };
-  }
+  const demoScene = el('button', addBar, { text: 'Demo scene' });
+  demoScene.dataset.object = 'demo-scene';
+  demoScene.onclick = async () => {
+    demoScene.disabled = true;
+    try {
+      const mesh = readGlbMesh(await (await fetch('/assets/demo/demo-scene.glb')).arrayBuffer());
+      const p: P = { ...scaleToHeight(newPiece('demo-scene', mesh, { x: ed.view.cx - 3 * Math.sin(ed.angle), z: ed.view.cz + 3 * Math.cos(ed.angle) }), 1.75), src: 'obj:../demo/demo-scene.glb' };
+      ed.pieces.push(p); ed.selected = p.id; changed();
+    } catch { ed.verdict = 'That reference could not be loaded.'; draw(); }
+    finally { demoScene.disabled = false; }
+  };
   const file = el('input', addBar, { type: 'file', accept: '.glb' });
   file.hidden = true;
   el('button', addBar, { text: 'Import a .glb…', id: 'import' }).onclick = () => file.click();
@@ -286,7 +278,7 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
   // the 3D view is the main picture; the flat plan is kept for exact dragging and cropping (button "Top plan")
   const view3d = createView3d(planWrap, {
     pieces: () => ed.pieces, selected: () => ed.selected, lane: () => ({ angle: ed.angle, offset: ed.offset, level: ed.level }),
-    start: () => (roofStartOn() ? startMarkSide(currentProfile(), CELL) : null), // CC-200: with the roof start the flag stands on the first roof, at its height
+    start: startAt,
     select: (id) => { if (!(multiOn && id !== null && chosen().length > 1 && chosen().includes(id))) ed.group = []; ed.selected = id; drawPanel(); draw(); drawProfile(); },
     selectedAll: () => { const c = chosen(); return c.length > 1 ? c : []; },
     toggle: (id) => chooseMany(toggleId(chosen(), id)),
@@ -298,28 +290,6 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
     ghosts: () => ghostData(),
   });
   if (mapCamera) view3d.look(mapCamera.heading, mapCamera.pitch, mapCamera.target ?? { x: 0, z: 0 }, mapCamera.distance); // the 3D view starts where the map flight ended
-  // the person for scale: a chip on the picture (bottom left) that shows them, finds them and hides them (CC-96)
-  const personChip = el('div', planWrap, { id: 'personchip' });
-  const personFind = el('button', personChip, { text: 'Show a person', id: 'personfind', title: 'Show a person for scale, or find them in the picture' });
-  const personHide = el('button', personChip, { text: 'Hide', id: 'personhide', title: 'Hide the person' });
-  const personThere = () => ed.pieces.some(isSizeReference);
-  const rememberPerson = (on: boolean) => { try { localStorage.setItem('cc.person', on ? '1' : '0'); } catch { /* the chip still works */ } };
-  const personButton = () => addBar.querySelector<HTMLElement>('[data-object="person"]');
-  const framePerson = () => { const p = ed.pieces.find(isSizeReference); if (!p) return; ed.view.cx = p.x; ed.view.cz = p.z; view3d.look(25, 58, { x: p.x, z: p.z }, 7); view3d.pulse(p.x, p.z); };
-  const waitForPerson = async (want: boolean) => { for (let i = 0; i < 60 && personThere() !== want; i++) await new Promise((r) => setTimeout(r, 100)); };
-  personFind.onclick = async () => { if (!personThere()) { personButton()?.click(); rememberPerson(true); await waitForPerson(true); } framePerson(); syncPersonChip(); };
-  personHide.onclick = async () => { if (personThere()) personButton()?.click(); rememberPerson(false); await waitForPerson(false); syncPersonChip(); };
-  function syncPersonChip() {
-    if (!personChipReady) return;
-    const on = personThere();
-    personFind.textContent = on ? 'Find the person' : 'Show a person'; personFind.setAttribute('aria-pressed', String(on)); personHide.style.display = on ? '' : 'none';
-  }
-  personChipReady = true; syncPersonChip();
-  // a first visit: the person stands at the start of the lane until the player hides them (the chip remembers the choice)
-  async function firstVisitPerson() {
-    let first = false; try { first = localStorage.getItem('cc.person') === null; } catch { /* no storage */ }
-    if (first && !personThere()) { personButton()?.click(); await waitForPerson(true); rememberPerson(true); hist.length = 0; editHistory.hi = -1; remember(); onWorld(); }
-  }
   const bar = el('div', planWrap, { className: 'piecebar', id: 'piecebar' }); // the selected piece's tools, on the picture next to the piece (CC-94)
   const setView = (plan2d: boolean) => { ed.topPlan = plan2d; plan.style.display = plan2d ? 'block' : 'none'; view3d.show(!plan2d); viewBtn.textContent = plan2d ? '3D view' : 'Top plan'; viewBtn.setAttribute('aria-pressed', String(plan2d)); if (plan2d) fit(); };
   const viewBtn = el('button', top, { text: 'Top plan', id: 'viewmode', title: 'Switch between the 3D view and the flat plan (the plan is for cropping)' });
@@ -388,7 +358,7 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
   el('button', selChip, { text: 'Delete', id: 'seldelete', title: 'Delete every chosen piece (Delete key)' }).onclick = () => deleteChosen();
   el('button', selChip, { text: 'Clear', id: 'selclear', title: 'Choose nothing (Esc)' }).onclick = () => { ed.group = []; ed.selected = null; drawPanel(); draw(); drawProfile(); };
   const selHint = multiOn ? el('div', planWrap, { id: 'selhint', text: 'Shift + drag: choose several. Shift + click: add or drop one.' }) : null;
-  const piecePanel = createPiecePanel({ ed, side, bar, planWrap, plan, selChip, selCount, selHint, view3d, tools, provOf, chosen, setView, syncPersonChip, sx: (x) => sx(x), sz: (z) => sz(z), drawProfile, changed: () => changed() });
+  const piecePanel = createPiecePanel({ ed, side, bar, planWrap, plan, selChip, selCount, selHint, view3d, tools, provOf, chosen, setView, sx: (x) => sx(x), sz: (z) => sz(z), drawProfile, changed: () => changed() });
   function drawPanel() { piecePanel.drawPanel(); }
   function placeBar() { piecePanel.placeBar(); }
 
@@ -447,16 +417,19 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
   function verify(pause = 800) { verifyUi.verify(pause); }
 
   // ---- drawing
-  const planDraw = createPlanDraw({ ed, plan, view3d, chosen, placeBar, rubber: () => planMouse.rubber() });
+  const planDraw = createPlanDraw({ ed, plan, view3d, chosen, placeBar, start: startAt, rubber: () => planMouse.rubber() });
   const { sx, sz, wx, wz } = planDraw;
   function draw() { planDraw.draw(); }
 
-  const lanePanelUi = createLanePanel({ ed, lanePanel, root, style, simSays, ground, courseNow, laneCourseAt, barsNow, searchClearable, laneCheck, verifyVersion: () => verifyUi.verifyVersion(), draw, drawProfile, save, verify, interruptSearch, launchCourse, persistHist });
+  const lanePanelUi = createLanePanel({ ed, lanePanel, root, style, remember, simSays, ground, courseNow, laneCourseAt, barsNow, searchClearable, laneCheck, verifyVersion: () => verifyUi.verifyVersion(), draw, drawProfile, save, verify, interruptSearch, launchCourse, persistHist });
   const planMouse = attachPlanMouse({ ed, plan, multiOn, wx, wz, chosen, chooseMany, moveWith, draw, drawProfile, drawPanel, changed: () => changed() });
   function fitAll() {
     const ps = ed.pieces.filter((q) => !isSizeReference(q) || ed.pieces.length === 1);
-    const b = ps.length ? { x0: Infinity, x1: -Infinity, z0: Infinity, z1: -Infinity, top: 1 } : { x0: 0, x1: 30, z0: -3, z1: 3, top: 3 };
-    for (const q of ps) { const s = size(q.mesh), h = Math.max(s.w, s.d) * q.scale / 2; b.x0 = Math.min(b.x0, q.x - h); b.x1 = Math.max(b.x1, q.x + h); b.z0 = Math.min(b.z0, q.z - h); b.z1 = Math.max(b.z1, q.z + h); b.top = Math.max(b.top, q.y + s.h * q.scale); }
+    const b = pieceBounds(ps);
+    const start = startAt();
+    b.x0 = Math.min(b.x0, start.x - 0.6); b.x1 = Math.max(b.x1, start.x + 0.6);
+    b.z0 = Math.min(b.z0, start.z - 0.6); b.z1 = Math.max(b.z1, start.z + 0.6);
+    b.bottom = Math.min(b.bottom ?? 0, start.y); b.top = Math.max(b.top, start.y + 1.75);
     if (ed.topPlan) {
       ed.view.cx = (b.x0 + b.x1) / 2; ed.view.cz = (b.z0 + b.z1) / 2;
       ed.view.ppm = Math.min(400, Math.max(0.5, Math.min(plan.width / Math.max(2, b.x1 - b.x0 + 2), plan.height / Math.max(2, b.z1 - b.z0 + 2))));
@@ -480,9 +453,7 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
     });
   };
   function capPieces() { const real = ed.pieces.filter((q) => !isSizeReference(q) && !isDevice(q) && q.src !== 'hold:bar'); if (real.length <= MAX_PIECES) return; const drop = new Set(real.slice(MAX_PIECES).map((q) => q.id)); ed.pieces = ed.pieces.filter((q) => !drop.has(q.id)); if (ed.selected !== null && drop.has(ed.selected)) ed.selected = null; ed.verdict = `The editor keeps up to ${MAX_PIECES} pieces, so the last ones were not added. Delete one to make room.`; document.documentElement.dataset.capped = '1'; }
-  // the person for scale cannot be dragged, so it always stands at the lane start: a world saved with the person on a rod, or far from the pieces, is put right (owner, 2026-11-01)
-  function seatPerson() { const who = ed.pieces.find(isSizeReference); if (!who) return; const at = personAt(); if (Math.abs(at.x - who.x) > 0.005 || Math.abs(at.z - who.z) > 0.005) { who.x = at.x; who.z = at.z; } }
-  function changed(record = true) { seatPerson(); capPieces(); helperUi.onChanged(); if (record) remember(); syncDeviceState(); document.documentElement.dataset.pieces = String(ed.pieces.length); document.documentElement.dataset.band = ed.bandK ? String(ed.bandK) : ''; save(); drawPanel(); drawLanePanel(); draw(); drawProfile(); verify(); movesUi.renderMoves(); }
+  function changed(record = true) { capPieces(); helperUi.onChanged(); if (record) remember(); syncDeviceState(); document.documentElement.dataset.pieces = String(ed.pieces.length); document.documentElement.dataset.band = ed.bandK ? String(ed.bandK) : ''; save(); drawPanel(); drawLanePanel(); draw(); drawProfile(); verify(); movesUi.renderMoves(); }
   syncDeviceState();
   drawPanel(); drawLanePanel(); draw(); drawProfile(); verify();
   remember();
@@ -494,7 +465,7 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
       const key = (x: { pieces: Saved['pieces']; angle: number; offset: number; level: number }) => JSON.stringify([x.pieces.map((q) => [q.src, q.x, q.z, q.y, q.yaw, q.scale]), x.angle, x.offset, x.level]);
       const mine: Saved = { pieces: ed.pieces.filter((q) => q.src).map((q) => ({ src: q.src as string, x: q.x, z: q.z, y: q.y, yaw: q.yaw, scale: q.scale })), angle: ed.angle, offset: ed.offset, level: ed.level };
       if (h && last && key(last) === key(mine)) {
-        const snaps: Snap[] = h.snaps.map((sn) => ({ pieces: buildPieces(sn.pieces), angle: sn.angle, offset: sn.offset, level: sn.level }));
+        const snaps: Snap[] = h.snaps.map((sn) => ({ pieces: buildPieces(sn.pieces), angle: sn.angle, offset: sn.offset, level: sn.level, ...(sn.start ? { start: sn.start } : {}) }));
         hist.length = 0; hist.push(...snaps); editHistory.hi = h.hi;
         ed.pieces = hist[editHistory.hi].pieces.map((q) => ({ ...q })); ed.selected = null;
         undoBtn.disabled = editHistory.hi < 1; redoBtn.disabled = editHistory.hi >= hist.length - 1;

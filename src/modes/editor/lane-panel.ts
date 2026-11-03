@@ -10,6 +10,7 @@ import type { LaneCheck } from '../../slice/lane-check-ui';
 import type { CourseData } from '../../course/course';
 import type { createLane } from './lane';
 import { el } from './dom';
+import { turnLane, shiftLane } from './start';
 import { isDevice, type EditorState } from './state';
 
 type Lane = ReturnType<typeof createLane>;
@@ -22,7 +23,7 @@ export interface LanePanelEnv {
   searchClearable: (course: CourseData) => Promise<boolean | null>;
   laneCheck: LaneCheck; verifyVersion: () => number;
   draw: () => void; drawProfile: () => void; save: () => void; verify: () => void;
-  interruptSearch: () => void; launchCourse: (course: CourseData) => void; persistHist: () => void;
+  remember: () => void; interruptSearch: () => void; launchCourse: (course: CourseData) => void; persistHist: () => void;
 }
 
 // The lane panel: the sliders, "Find the best lane", "Play this lane", the floor choice, "Test from the selected piece" and the verdict.
@@ -37,10 +38,10 @@ export function createLanePanel(env: LanePanelEnv) {
       const l = el('label', lanePanel, { text: `${label}: ${fmt(get())}` });
       const i = el('input', l, { type: 'range', id, min: String(min), max: String(max), step: String(step), value: String(get()) });
       i.oninput = () => { set(Number(i.value)); l.firstChild!.textContent = `${label}: ${fmt(get())}`; draw(); drawProfile(); };
-      i.onchange = () => { save(); verify(); };
+      i.onchange = () => { env.remember(); save(); verify(); };
     };
-    slider('Turn about the start', 'angle', 0, 180, 5, () => Math.round((ed.angle * 180) / Math.PI), (v) => { ed.angle = (v * Math.PI) / 180; ed.pieces.filter(isDevice).forEach((p) => { p.yaw = ed.angle; }); }, (v) => `${v}°`);
-    slider('Sideways', 'offset', -30, 30, 0.5, () => ed.offset, (v) => (ed.offset = v), (v) => `${v.toFixed(1)} m`);
+    slider('Turn about the start', 'angle', 0, 180, 5, () => Math.round((ed.angle * 180) / Math.PI), (v) => { turnLane(ed, (v * Math.PI) / 180, laneProfile(ground(), ed)); const sideways = lanePanel.querySelector<HTMLInputElement>('#offset'); if (sideways) { sideways.min = String(Math.min(-30, Math.floor(ed.offset))); sideways.max = String(Math.max(30, Math.ceil(ed.offset))); sideways.value = String(ed.offset); sideways.parentElement!.firstChild!.textContent = `Sideways: ${ed.offset.toFixed(1)} m`; } ed.pieces.filter(isDevice).forEach((p) => { p.yaw = ed.angle; }); }, (v) => `${v}°`);
+    slider('Sideways', 'offset', Math.min(-30, Math.floor(ed.offset)), Math.max(30, Math.ceil(ed.offset)), 0.5, () => ed.offset, (v) => shiftLane(ed, v), (v) => `${v.toFixed(1)} m`);
     slider('Where the water starts (level)', 'level', 0, 4, 0.05, () => ed.level, (v) => (ed.level = v), (v) => `${v.toFixed(2)} m`);
     const bestBtn = el('button', lanePanel, { text: 'Find the best lane for me', id: 'best' });
     bestBtn.onclick = async () => {
@@ -51,7 +52,7 @@ export function createLanePanel(env: LanePanelEnv) {
       let pick: (typeof found)[number] | null = null;
       for (const c of found) { if (await searchClearable(laneCourseAt({ angle: c.angle, offset: c.offset, level: c.level })) === true) { pick = c; break; } } // each is proved on the same course the lane check uses (roles, bars and machines too), so the answer matches what the check says afterwards
       if (!pick) { ed.verdict = 'No lane the simulator can clear was found: try other pieces or levels.'; drawLanePanel(); return; }
-      ed.angle = pick.angle; ed.offset = pick.offset; ed.level = pick.level; ed.verdict = '';
+      ed.start = undefined; ed.angle = pick.angle; ed.offset = pick.offset; ed.level = pick.level; ed.verdict = '';
       save(); drawLanePanel(); draw(); drawProfile(); verify();
     };
     const play = el('button', lanePanel, { text: 'Play this lane', className: 'go', id: 'play' });

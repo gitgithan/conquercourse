@@ -12,7 +12,7 @@ export interface PiecePanelEnv {
   ed: EditorState; side: HTMLElement; bar: HTMLElement; planWrap: HTMLElement; plan: HTMLCanvasElement;
   selChip: HTMLElement; selCount: HTMLElement; selHint: HTMLElement | null;
   view3d: View3d; tools: Tools; provOf: Map<string, Provenance>;
-  chosen: () => number[]; setView: (plan2d: boolean) => void; syncPersonChip: () => void;
+  chosen: () => number[]; setView: (plan2d: boolean) => void;
   sx: (x: number) => number; sz: (z: number) => number;
   drawProfile: () => void; changed: () => void;
 }
@@ -20,7 +20,7 @@ export interface PiecePanelEnv {
 // The panel for the chosen piece (name, size, height), its bar on the picture (turn, scale, copy, crop, delete) and the chip for several chosen.
 // Moved out of editor.ts unchanged (CC-133).
 export function createPiecePanel(env: PiecePanelEnv) {
-  const { ed, side, bar, planWrap, plan, selChip, selCount, selHint, view3d, tools, provOf, chosen, setView, syncPersonChip, sx, sz, drawProfile, changed } = env;
+  const { ed, side, bar, planWrap, plan, selChip, selCount, selHint, view3d, tools, provOf, chosen, setView, sx, sz, drawProfile, changed } = env;
   function syncSelChip() {
     const n = chosen().length;
     selChip.style.display = n > 1 ? 'flex' : 'none';
@@ -64,7 +64,6 @@ export function createPiecePanel(env: PiecePanelEnv) {
 
   // ---- the selected piece
   function drawPanel() {
-    syncPersonChip();
     side.replaceChildren();
     syncSelChip();
     if (chosen().length > 1) { el('strong', side, { text: countText(chosen().length) }); el('div', side, { className: 'muted', text: 'Delete removes them all. Ctrl+C then Ctrl+V copies them. Esc clears the choice. Shift+click adds or drops one.' }); pieceBar(null); return; }
