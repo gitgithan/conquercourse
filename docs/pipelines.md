@@ -245,6 +245,8 @@
 - **Secrets:** Modal secret `cc-upload` (key `CC_UPLOAD_TOKEN`) and the same token in the Pages secret of the same name, plus `CC_UPLOAD_SUBMIT_URL` and `CC_UPLOAD_STATUS_URL` (the two Modal web urls); keys live in `~/.config/ninja/upload.env`, never in the repo.
 - **Deploy:** `modal deploy pipelines/photo_to_object.py` (the web functions need a deployed app).
 - **Box cut-out (CC-133):** `suggest_submit` with an optional `box` starts `box_job` (`Mask.mask_box`: privacy blur, then one box-prompted SAM 3 pass on the blurred photo, no lift); `suggest_status` returns it like a finder item.
+- **Finder phrases (CC-133, owner 2026-11-03):** the 17 phrases plus "overhead bars", "metal bars" and "bar grid"; an outline for those three is kept only if it is wide and low (box width 120 px or more, wide:high 2.5 or more, height 160 px or less; `ccpipe/suggest.py` `bar_shaped`, tested in `pipelines/tests/test_suggest.py`).
+  - No upper-half second pass, no upscaling, no tiles (`data/eval/crop-finder/README.md`).
 - **Batch runs survive a dropped link:** `main` spawns one job per photo and writes the call ids to `<exp>/<round>/calls.json`.
 - **To resume or collect:** run `modal run --detach pipelines/photo_to_object.py::main ...` again; finished photos and spawned calls are reused (`pipelines/ccpipe/calls.py`).
 - **Pitfalls:**
