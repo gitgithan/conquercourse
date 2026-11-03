@@ -10,7 +10,7 @@ import { openPhotoObject, uploadObjOn } from '../ui/photo-object';
 import { registerThumbSource } from '../ui/glb-thumb';
 import { isSharedSrc, placeParam, sharedGlbUrl, sharedSrc, useShared, usedShared } from '../community/flow';
 import { LIBRARY } from '../slice/shapes';
-import { describe as describeLane, CELL, roofStartOn } from '../slice/slice';
+import { CELL, roofStartOn } from '../slice/slice';
 import { newPiece, realSize, scaleToHeight, size, laneProfile, liftToRoof } from '../slice/world';
 import type { CourseData } from '../course/course';
 import { createView3d } from '../slice/view3d';
@@ -20,12 +20,9 @@ import { isTrack } from '../slice/track-world';
 import { personStart } from '../slice/person-ref';
 import { DEFAULT_WATER_LEVEL, levelOfSaved, startMarkSide } from '../slice/editor-defaults';
 import { createTools } from './editor/tools';
-import { adviseMachine } from '../slice/fix-launch';
 import { PRESETS } from '../slice/presets';
 import { MAX_PIECES } from '../slice/suggest-prompt';
-import { adviseLane } from '../slice/advice';
 import { editorWords, simSaysPanel } from '../ui/sim-says';
-import { adviceInWorker } from '../slice/proof-client';
 import { EDIT_KEY, HIST_KEY, checkpointFor, piecesFromSource, readHandoff } from '../slice/roundtrip';
 import { pageQuery, pageSearch } from '../flags';
 import { createLaneCheck } from '../slice/lane-check-ui';
@@ -38,12 +35,13 @@ import { createLane } from './editor/lane';
 import { createSearch } from './editor/search';
 import { attachPlanMouse } from './editor/plan-mouse';
 import { createLanePanel } from './editor/lane-panel';
+import { createVerify } from './editor/verify';
 import { createPlanDraw } from './editor/plan-draw';
 import { createProfile } from './editor/profile';
 import { createPiecePanel } from './editor/piece-panel';
 import { createSelection } from './editor/selection';
 import { createEditorState, isDevice, isSizeReference, type P, type Saved } from './editor/state';
-import { finalText, isStopped } from '../slice/lane-check';
+import { finalText } from '../slice/lane-check';
 
 // The World editor: build a world from pieces on a plan view, scale them (a toy brick becomes a block), turn, copy, crop and move them,
 // choose the lane the runner takes (turn about the start, sideways, level), and play it. Everything is in metres.
@@ -434,7 +432,6 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
     location.href = location.pathname; // no ?mode: the Course puts itself back from the resume
   }
   backLink.onclick = (e) => { if (handoff) { e.preventDefault(); void goToCourse(); } };
-  let verifyTimer = 0, adviceRun = 0, verifyVersion = 0;
   const { stopSearch, searchClearable, withProof } = createSearch({ progress: (p) => laneCheck.progress(p) });
   const launchCourse = (course: CourseData) => {
     // the real objects are drawn in the game instead of blocks (a cropped photo object is drawn whole; its collision is still the cropped lane)
@@ -454,60 +451,16 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
       if (v) { v.textContent = text; v.className = 'says-when bad'; }
     },
   });
-  function interruptSearch() {
-    clearTimeout(verifyTimer);
-    verifyVersion++;
-    // Keep useful work running while the user rotates or drags. The result is
-    // version-checked and discarded if the course changed; verify() restarts
-    // for the settled course after the debounce.
-  }
-  function verify(pause = 800) {
-    interruptSearch();
-    laneCheck.reset(); // CC-243: an edit throws the last verdict away; the new search starts only after the pause, and the old worker is ended when the new one starts
-    const version = verifyVersion;
-    document.documentElement.dataset.lane = JSON.stringify({ angle: ed.angle, offset: ed.offset, level: ed.level }); // for the checks: the lane being verified
-    verifyTimer = window.setTimeout(async () => {
-      const p = currentProfile();
-      if (p.length < 8) { stopSearch(); ed.verdict = 'Nothing is in the lane: move the lane or the pieces.'; }
-      else {
-        const r = describeLane(p);
-        ed.verdict = 'Checking this lane…';
-        const v = lanePanel.querySelector('#verdict') as HTMLElement | null;
-        if (v) { v.textContent = ed.verdict; v.className = 'says-when muted'; }
-        laneCheck.start();
-        const clear = await searchClearable(laneCourse(p));
-        if (version !== verifyVersion || isStopped(laneCheck.state())) return; // a newer edit, Cancel or the cap answered for this check
-        if (clear === null) { laneCheck.reset(); ed.verdict = 'The lane check could not finish. Try again after editing stops.'; document.documentElement.dataset.verdict = ed.verdict; if (v) { v.textContent = ed.verdict; v.className = 'says-when bad'; } return; }
-        laneCheck.done(clear);
-        document.documentElement.dataset.laneClear = clear ? '1' : '0'; setSuggest(clear);
-        ed.verdict = clear ? `The simulator can clear this lane (${r.gaps} gaps, ${r.steps} steps, ${r.curves} curves, ${r.faces} faces, ${r.length.toFixed(0)} m).` : 'The simulator cannot find a way to clear this lane: widen a gap or lower a step.';
-      }
-      const v = lanePanel.querySelector('#verdict') as HTMLElement | null;
-      if (v) { v.textContent = ed.verdict; v.className = ed.verdict.startsWith('The simulator can clear') ? 'says-when ok' : 'says-when bad'; }
-      document.documentElement.dataset.verdict = ed.verdict;
-      // when it cannot be cleared, say what to shift (each suggestion was proved by the simulator)
-      ed.adviceList = []; showAdvice();
-      if (machineNow() && p.length >= 8) { // a trebuchet at the start: its counterweight and arm come first, and a narrow release window gets a pin
-        const mine = ++adviceRun, m = machineNow()!, lane = { angle: ed.angle, offset: ed.offset, level: ed.level }, clear = ed.verdict.startsWith('The simulator can clear');
-        setTimeout(() => { if (mine !== adviceRun) return; ed.adviceList = adviseMachine(coursePieces(), lane, m, { budgetMs: 8000, max: 1 }, trebuchetPivot()); if (!clear && !barsNow().length) ed.adviceList.push(...adviseLane(coursePieces(), lane, { wrap: machineWrap(m) })); showAdvice(); if (!ed.adviceList.length) adviceBox.textContent = clear ? '' : 'No single change to the machine or a piece clears it. Press Fix it to look further.'; document.documentElement.dataset.advice = String(ed.adviceList.length); }, 30);
-      } else if (!ed.verdict.startsWith('The simulator can clear') && p.length >= 8 && barsNow().length) {
-        adviceBox.textContent = 'This lane has bars. Drag them in the side view (position and height), or press Fix it to try small moves of the bars.';
-      } else if (!ed.verdict.startsWith('The simulator can clear') && p.length >= 8 && ed.pieces.some((q) => q.role && q.role !== 'ground')) {
-        adviceBox.textContent = 'This lane uses roles (wall, rope anchor or trampoline bed). Open Moves to see what each needs, or press Fix it.';
-      } else if (!ed.verdict.startsWith('The simulator can clear') && p.length >= 8) {
-        const mine = ++adviceRun;
-        adviceBox.textContent = 'Working out what to shift…';
-        setTimeout(async () => { if (mine !== adviceRun) return; const got = await adviceInWorker(coursePieces() as P[], { angle: ed.angle, offset: ed.offset, level: ed.level }).catch(() => null); if (!got || mine !== adviceRun) return; ed.adviceList = got; showAdvice(); if (!ed.adviceList.length) adviceBox.textContent = 'No single small shift clears it. Press "What should I change?" to think it through together.'; document.documentElement.dataset.advice = String(ed.adviceList.length); }, 30);
-      } else document.documentElement.dataset.advice = '0';
-    }, pause);
-  }
+  const verifyUi = createVerify({ ed, lanePanel, laneCheck: () => laneCheck, searchClearable, stopSearch, currentProfile, laneCourse, coursePieces, machineNow, trebuchetPivot, machineWrap, barsNow, adviceBox, setSuggest, showAdvice });
+  function interruptSearch() { verifyUi.interruptSearch(); }
+  function verify(pause = 800) { verifyUi.verify(pause); }
 
   // ---- drawing
   const planDraw = createPlanDraw({ ed, plan, view3d, chosen, placeBar, rubber: () => planMouse.rubber() });
   const { sx, sz, wx, wz } = planDraw;
   function draw() { planDraw.draw(); }
 
-  const lanePanelUi = createLanePanel({ ed, lanePanel, root, style, simSays, ground, courseNow, laneCourseAt, barsNow, searchClearable, laneCheck, verifyVersion: () => verifyVersion, draw, drawProfile, save, verify, interruptSearch, launchCourse, persistHist });
+  const lanePanelUi = createLanePanel({ ed, lanePanel, root, style, simSays, ground, courseNow, laneCourseAt, barsNow, searchClearable, laneCheck, verifyVersion: () => verifyUi.verifyVersion(), draw, drawProfile, save, verify, interruptSearch, launchCourse, persistHist });
   const planMouse = attachPlanMouse({ ed, plan, multiOn, wx, wz, chosen, chooseMany, moveWith, draw, drawProfile, drawPanel, changed: () => changed() });
   function fitAll() {
     const ps = ed.pieces.filter((q) => !isSizeReference(q) || ed.pieces.length === 1);
