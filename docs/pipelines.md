@@ -21,7 +21,7 @@
 | 9 | Filming at true speed | Laptop or VM (headless Chromium) | Every clip in the video |
 | 10 | Ideal-run search, par times, size ideals | CPU (Node) | Timing windows, difficulty, the "line that would have made it" |
 | 11 | Blind-test pages | CPU + a static page | Deciding looks by evidence |
-| 12 | Player photo → 3D object | Pages Function + Modal (L40S) + CPU | A player's own photo becomes a piece in the editor |
+| 12 | Player photo → 3D object | Pages Function + Modal (L4 + L40S) + CPU | A player's own photo becomes a piece in the editor |
 
 ## Shared conventions
 - **Skeleton:** NVIDIA SOMA, the 30 joints Kimodo uses as its model skeleton (Hips, Spine1, Spine2, Chest, Neck1, Neck2, Head, Jaw, LeftEye, RightEye, Left/Right Shoulder, Arm, ForeArm, Hand, HandThumbEnd, HandMiddleEnd, Left/Right Leg (hip joint), Shin (knee), Foot (ankle), ToeBase).
