@@ -20,7 +20,6 @@ import { SLIDE_RISE_TICKS } from '../motion/actor-state';
 import { DT } from '../sim/units';
 import { BarsPlayer } from '../motion/bars-actor';
 import { rigFromFrame } from '../motion/bars-pose';
-import { flag } from '../flags';
 const SLIDE_DROP_S = 0.2; // the clip's drop is played over this long: the simulator's body is low from the first tick
 
 export type { ActorState } from '../motion/actor-pose';
@@ -335,9 +334,9 @@ export async function createRookieActor(scene: Scene, opts: { rookie: RookieId; 
   }
   const legIx = (['Left', 'Right'] as const).map((side) => ({ hip: ix(side + 'Leg'), knee: ix(side + 'Shin'), foot: ix(side + 'Foot'), toe: ix(side + 'ToeBase') }));
 
-  // monkey bars (CC-133): the hands go on the rungs and the body hangs from them (src/motion/bars-pose.ts); ?barspose=0 keeps the old hang
-  const barsPlayer = flag('barspose') === '0' ? null : new BarsPlayer(rigFromFrame(names, run.parents, run.frames[13].map((p) => p.map((v) => v * scale))));
-  const barsHere = (s: ActorState): boolean => barsPlayer !== null && s.mode === 'swing' && s.bars !== undefined;
+  // monkey bars (CC-133): the hands go on the rungs and the body hangs from them (src/motion/bars-pose.ts)
+  const barsPlayer = new BarsPlayer(rigFromFrame(names, run.parents, run.frames[13].map((p) => p.map((v) => v * scale))));
+  const barsHere = (s: ActorState): boolean => s.mode === 'swing' && s.bars !== undefined;
 
   let obstacle: Obstacle | null = null;
   const shift = { x: 0, y: 0 }; // how far the whole body is moved out of an obstacle (local axes: x along the run)
@@ -403,7 +402,7 @@ export async function createRookieActor(scene: Scene, opts: { rookie: RookieId; 
       }
       case 'swing': {
         if (barsHere(s)) {
-          const b = barsPlayer!.pose({ ...s.bars!, theta: s.swingTheta ?? 0, omega: s.swingOmega ?? 0 }, s, s.tick, s.facing, footClear);
+          const b = barsPlayer.pose({ ...s.bars!, theta: s.swingTheta ?? 0, omega: s.swingOmega ?? 0 }, s, s.tick, s.facing, footClear);
           return b.joints.map((p) => new Vector3(p[2], p[1], -p[0])); // the clips' axes to the game's
         }
         const h = hanging(sample(swing, s.tick / 120, true).rel);
