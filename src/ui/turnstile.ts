@@ -27,9 +27,21 @@ export async function turnstileToken(f: typeof fetch = fetch): Promise<string | 
 
 // The pass from the outline step (the server gives it after one good check); the 3D step uses it for the same photo, so a person is asked once.
 let held: { pass: string; photo: string; until: number } | null = null;
-export const rememberPass = (pass: string, photo: string, now = Date.now()): void => { held = { pass, photo, until: now + 25 * 60_000 }; };
+/** A short stand-in for the photo (its length and last characters), so the stored pass does not carry a whole picture. */
+const printOf = (photo: string): string => `${photo.length}:${photo.slice(-160)}`;
+// The pass also lives in this tab's session storage, so a player who leaves the Make screen and comes back is not asked again (it is signed for this photo and runs out in 25 minutes).
+const PASS_KEY = 'cc.pass';
+const loadHeld = (now: number): void => {
+  if (held) return;
+  try { const v = JSON.parse(sessionStorage.getItem(PASS_KEY) ?? 'null') as { pass?: unknown; photo?: unknown; until?: unknown } | null; if (v && typeof v.pass === 'string' && typeof v.photo === 'string' && typeof v.until === 'number' && v.until > now) held = { pass: v.pass, photo: v.photo, until: v.until }; } catch { /* asked again */ }
+};
+export const rememberPass = (pass: string, photo: string, now = Date.now()): void => {
+  held = { pass, photo: printOf(photo), until: now + 25 * 60_000 };
+  try { sessionStorage.setItem(PASS_KEY, JSON.stringify(held)); } catch { /* asked again after a reload */ }
+};
 /** What to send with a paid call: the held pass when it was made for this photo, else a fresh check (undefined when the check is off). */
 export async function checkField(f: typeof fetch = fetch, now = Date.now(), photo?: string): Promise<{ pass: string } | { turnstile: string | undefined }> {
-  if (held && held.until > now && photo !== undefined && held.photo === photo) return { pass: held.pass };
+  loadHeld(now);
+  if (held && held.until > now && photo !== undefined && held.photo === printOf(photo)) return { pass: held.pass };
   return { turnstile: await turnstileToken(f) };
 }

@@ -63,6 +63,7 @@ document.documentElement.dataset.backend = game.backend;
 startMusic(screenFor(mode)); // CC-132: a loop per screen, only with ?music=1
 if (mode !== 'course' && !(mode === 'dojo' && pageQuery().get('dojo') !== 'old')) mountWorldGallery(document.body, { current: currentWorld(pageQuery()), place: BUTTON_PLACE[mode] ?? DEFAULT_PLACE }); // CC-89: every other mode has the Courses button too (the Course mounts its own)
 mountSiteNav(document.body, mode); // CC-246: one top bar with the four features on every page
+void import('./ui/job-chip').then((m) => m.mountJobChip(document.body, mode)); // CC-133: a waiting cut-out or 3D job shows as a chip on every other page
 document.documentElement.dataset.ready = 'true';
 }
 initFeedback(pageQuery().get('mode') ?? 'course');
