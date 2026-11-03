@@ -66,14 +66,21 @@ This note says where each control lives now, and the rule for adding a new one.
 - Heights and sizes are gone from buttons, the Moves rows and the plan labels: the simulator says whether a lane clears, not a number on a card.
 - The chosen piece's real size, height and lift sit inside a folded "Size and height" section of its panel.
 
-## The person for scale (CC-96)
-- A chip in the bottom left corner of the 3D picture shows the person, finds them and hides them.
-- The first time someone opens the editor the person is already standing beside the start of the lane.
-- The person has a bright ring on the ground and a label that says "You, a person for scale", so they are easy to see from far away.
-- "Find the person" moves the camera to them and sends out a growing ring.
-- "Hide" removes them; the choice is remembered in the browser (`cc.person`), and a saved world that has the person keeps them.
-- Where they stand is `personStart` in `src/slice/person-ref.ts`: a little before the first piece, beside the lane's middle line.
-- `scripts/person-check.mjs` walks first visit, find, hide, reload and show again.
+## The permanent start person
+- A Rookie and a gold cone always mark the lane start.
+- The old Show a person, Find the person and Hide controls are removed.
+- Old hidden-person preferences and saved reference objects do not hide or duplicate the new start marker.
+- Turning the lane keeps this start point fixed and changes the lane offset to pass through it.
+- Fit uses the actual turned piece bounds and the camera perspective to frame a long lane more closely.
+- `scripts/person-check.mjs` checks the fixed pivot, save/reload, undo/redo and close camera fit.
+
+## Design Partner suggestions and simulator results
+- The Partner presents proposed edits without claiming they have been verified.
+- Show these changes previews the edits against the current world and its currently added devices.
+- The simulator owns the clearance message and keeps the successful run with the checked course.
+- Apply waits for the preview check and reuses its matching result in the main Simulator panel.
+- Play reuses the successful run instead of launching another search for the same course.
+- The [proof flow guide](editor-proof-flow.md) contains the current UX and data-flow diagrams, device scope and invalidation rules.
 
 ## Use my own photo (CC-96), dropped 2026-10-31
 - The Tools card "Use my own photo" and the "Photo to course (labs)" button were removed: the scope is photo to object only (Make your own).

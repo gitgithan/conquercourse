@@ -36,8 +36,10 @@ export function createLane(ed: EditorState) {
     const p = ed.pieces.find((q) => q.src?.startsWith(prefix));
     if (p) { p.src = src; p.mesh = centred(deviceMesh(src)); }
   };
-  const ground = () => coursePieces().filter((q) => !isHold(q) && q.role !== 'rope' && q.role !== 'bar' && !isPlankPiece(q) && !isBarsPiece(q)); // references, bars, rope anchors and planks are not ground
-  const currentProfile = () => laneProfile(ground(), { angle: ed.angle, offset: ed.offset, level: ed.level });
+  const groundOf = (ps: P[]) => ps.filter((q) => !isSizeReference(q) && !isDevice(q)).filter((q) => !isHold(q) && q.role !== 'rope' && q.role !== 'bar' && !isPlankPiece(q) && !isBarsPiece(q)); // references, bars, rope anchors and planks are not ground
+  const ground = () => groundOf(ed.pieces);
+  const profileFor = (ps: P[], ln: { angle: number; offset: number; level: number }) => laneProfile(groundOf(ps), ln);
+  const currentProfile = () => profileFor(ed.pieces, { angle: ed.angle, offset: ed.offset, level: ed.level });
   const barsNow = () => holdsOf(ed.pieces, { angle: ed.angle, offset: ed.offset, level: ed.level });
   const dronePiece = () => ed.pieces.find((p) => p.src?.startsWith('device:drone:'));
   const droneRange = () => { const p = dronePiece(); if (!p) return undefined; const u = p.x * Math.cos(ed.angle) + p.z * Math.sin(ed.angle), length = Number(p.src?.split(':')[4]) || DRONE_PAD_LENGTH; return { x0: u - length / 2, x1: u + length / 2 }; };
@@ -46,26 +48,32 @@ export function createLane(ed: EditorState) {
   const machineNow = (): Machine | null => (ed.trebuchetKg ? { counterweight: ed.trebuchetKg, ...ed.trebuchetExtra } : null);
   const trebuchetPivot = (): number => { const p = ed.pieces.find((q) => q.src?.startsWith('device:trebuchet:')); return p ? p.x * Math.cos(ed.angle) + p.z * Math.sin(ed.angle) + TREBUCHET_PIVOT_FROM_CENTRE * p.scale : 0; };
   const machineWrap = (m: Machine | null) => wrapFor(m, trebuchetPivot());
-  const laneCourseAt = (ln: { angle: number; offset: number; level: number }) => {
-    const c = roleCourse(coursePieces(), ln, 'My world').course;
-    const m = machineNow();
-    if (m) return withTrebuchet(c, m, trebuchetPivot());
-    if (ed.droneCfg) return withDrone(c, ed.droneCfg, droneRange());
-    return ed.recoilCfg ? withRecoil(c, ed.recoilCfg, recoilRange()) : ed.bandK ? withBand(c, ed.bandK) : c;
-  };
+  const laneCourseAt = (ln: { angle: number; offset: number; level: number }) => courseFor(ed.pieces, ln, machineNow());
   const laneCourse = (_p?: ReturnType<typeof currentProfile>) => laneCourseAt({ angle: ed.angle, offset: ed.offset, level: ed.level }); // the course the lane check and Play prove: roles, bars and machines included
   // what this course was cut from, so the Course can open the same pieces again (CC-80); a world with a map piece cannot be kept: its mesh is too big
   const sourceNow = (): CourseSource | undefined => ed.pieces.some((p) => p.src?.startsWith('map:')) ? undefined : { kind: 'editor', pieces: ed.pieces.filter((p) => p.src).map((p) => ({ src: p.src as string, x: p.x, z: p.z, y: p.y, yaw: p.yaw, scale: p.scale, ...(p.role ? { role: p.role } : {}) })), angle: ed.angle, offset: ed.offset, level: ed.level, floor: ed.floorChoice, ...(ed.start ? { start: ed.start } : {}) };
   const courseNow = () => { const c = laneCourse(currentProfile()); if (ed.floorChoice !== 'water') c.hazard = ed.floorChoice; if (ed.designed.size) c.designedShortcuts = [...ed.designed]; const src = sourceNow(); if (src) c.source = src; return c; };
-  // the same lane for other pieces (Make it easier tries many small changes): ground, roles, bars, a trebuchet or a launcher if the world has one
-  const courseFor = (ps: P[], ln: { angle: number; offset: number; level: number }) => {
+  // One builder for the live lane and a preview: only devices present in these pieces are included.
+  const courseFor = (ps: P[], ln: { angle: number; offset: number; level: number }, machine?: Machine | null) => {
     let c = roleCourse(ps.filter((q) => !isSizeReference(q) && !isDevice(q)), ln, 'My world').course;
-    const tre = ps.find((q) => q.src?.startsWith('device:trebuchet:')), rec = ps.find((q) => q.src?.startsWith('device:cannon:'));
-    if (tre) c = withTrebuchet(c, Number(tre.src!.split(':')[2]) || 1200, tre.x * Math.cos(ln.angle) + tre.z * Math.sin(ln.angle) + TREBUCHET_PIVOT_FROM_CENTRE * tre.scale);
-    else if (rec) {
-      const parts = rec.src!.split(':'), u = rec.x * Math.cos(ln.angle) + rec.z * Math.sin(ln.angle), length = Number(parts[4]) || RECOIL_PAD_LENGTH;
-      c = withRecoil(c, { kind: parts[1] as 'cannon', ballMass: Number(parts[2]) || 12, muzzle: Number(parts[3]) || 30 }, { x0: u - length / 2, x1: u + length / 2 });
-    }
+    const tre = ps.find((q) => q.src?.startsWith('device:trebuchet:'));
+    const drone = ps.find((q) => q.src?.startsWith('device:drone:'));
+    const rec = ps.find((q) => q.src?.startsWith('device:cannon:') || q.src?.startsWith('device:bigcannon:'));
+    const range = (p: P, fallback: number) => {
+      const u = p.x * Math.cos(ln.angle) + p.z * Math.sin(ln.angle), length = Number(p.src?.split(':')[4]) || fallback;
+      return { x0: u - length / 2, x1: u + length / 2 };
+    };
+    // Preserve the same device precedence as Play: trebuchet, drone, recoil, then band.
+    if (tre) {
+      const cfg = machine ?? { counterweight: Number(tre.src!.split(':')[2]) || 1200, ...ed.trebuchetExtra };
+      c = withTrebuchet(c, cfg, tre.x * Math.cos(ln.angle) + tre.z * Math.sin(ln.angle) + TREBUCHET_PIVOT_FROM_CENTRE * tre.scale);
+    } else if (drone) {
+      const parts = drone.src!.split(':');
+      c = withDrone(c, { payload: Number(parts[2]) || 70, battery: Number(parts[3]) || 50 }, range(drone, DRONE_PAD_LENGTH));
+    } else if (rec) {
+      const parts = rec.src!.split(':');
+      c = withRecoil(c, { kind: parts[1] as 'cannon' | 'bigcannon', ballMass: Number(parts[2]) || 12, muzzle: Number(parts[3]) || 30 }, range(rec, RECOIL_PAD_LENGTH));
+    } else if (ed.bandK) c = withBand(c, ed.bandK);
     if (ed.floorChoice !== 'water') c.hazard = ed.floorChoice;
     return c;
   };
@@ -78,6 +86,6 @@ export function createLane(ed: EditorState) {
     const on = ps.find((r) => want >= r.x0 && want <= r.x1);
     return on ? want : Math.max(c.startX, (ps.filter((r) => r.x1 <= want).pop()?.x1 ?? c.startX) - 1);
   };
-  return { coursePieces, makeDevice, makeRecoilDevice, makeDroneDevice, updateDeviceSource, ground, currentProfile, barsNow, dronePiece, droneRange, recoilPiece, recoilRange, machineNow, trebuchetPivot, machineWrap, laneCourseAt, laneCourse, sourceNow, courseNow, courseFor, xOfPiece, startBefore };
+  return { coursePieces, makeDevice, makeRecoilDevice, makeDroneDevice, updateDeviceSource, ground, profileFor, currentProfile, barsNow, dronePiece, droneRange, recoilPiece, recoilRange, machineNow, trebuchetPivot, machineWrap, laneCourseAt, laneCourse, sourceNow, courseNow, courseFor, xOfPiece, startBefore };
 }
 export type EditorLane = ReturnType<typeof createLane>;

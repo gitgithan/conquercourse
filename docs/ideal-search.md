@@ -4,6 +4,14 @@
 - Every number below comes from a repo file, or from the code itself (a count of trials a loop makes).
 - Anything we did not measure says "not measured".
 
+## Editor proof handoff update (2026-11-04)
+- Preview and the main editor now share complete results for the same search input.
+- Apply and Play reuse a preview's successful run without another ideal-run search.
+- The shared builder includes only devices already added to the editor and their current settings.
+- A changed search input requires a new result.
+- See the [proof flow guide and diagrams](editor-proof-flow.md) for the current path.
+- The original investigation below records the earlier repeated-search problem.
+
 ## So what (read this first)
 
 - **What it means for the game:**

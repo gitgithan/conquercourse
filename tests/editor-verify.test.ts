@@ -4,7 +4,31 @@ import { createEditorState } from '../src/modes/editor/state';
 
 // Pins the lane check moved out of editor.ts (CC-133): an empty lane gets its verdict after the pause, and an edit cancels the older check.
 describe('editor lane check', () => {
-  afterEach(() => { vi.useRealTimers(); });
+  afterEach(() => { vi.useRealTimers(); vi.unstubAllGlobals(); });
+  it('publishes a preview proof immediately without searching again or showing a checking verdict', () => {
+    vi.useFakeTimers();
+    const dataset: Record<string, string> = {};
+    vi.stubGlobal('window', { setTimeout: (f: () => void, ms: number) => setTimeout(f, ms) });
+    vi.stubGlobal('document', { documentElement: { dataset } });
+    const ed = createEditorState(), search = vi.fn(), done = vi.fn();
+    const text = { textContent: '', className: '' };
+    const v = createVerify({
+      ed, lanePanel: { querySelector: () => text } as never,
+      laneCheck: () => ({ reset: () => {}, start: () => {}, done, state: () => ({ kind: 'searching' }) } as never),
+      proofFor: () => ({ key: 'same course', cleared: true, plan: { jumpXs: [], releaseAfter: 0, bouncePress: 0 } }),
+      searchClearable: search, stopSearch: () => {},
+      currentProfile: () => ({ cells: Array(100).fill(0), length: 10 }), laneCourse: (() => ({})) as never,
+      coursePieces: () => [], machineNow: () => null, trebuchetPivot: () => 0, machineWrap: (() => undefined) as never, barsNow: () => [],
+      adviceBox: { textContent: '' } as HTMLDivElement, setSuggest: () => {}, showAdvice: () => {},
+    });
+    v.verify();
+    expect(search).not.toHaveBeenCalled();
+    expect(done).toHaveBeenCalledWith(true);
+    expect(ed.verdict).toMatch(/^The simulator can clear/);
+    expect(text.textContent).toBe(ed.verdict);
+    expect(dataset.laneClear).toBe('1');
+    expect(vi.getTimerCount()).toBe(0);
+  });
   it('says nothing is in the lane after the pause, and bumps the version on interrupt', async () => {
     vi.useFakeTimers();
     const g = globalThis as unknown as { window?: unknown; document?: unknown };
