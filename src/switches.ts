@@ -50,6 +50,7 @@ export const SWITCHES: readonly Switch[] = [
   { name: 'filmx', default: 'middle', doc: "film focus along the lane", quiet: false },
   { name: 'filmy', default: '0.6', doc: "film focus height", quiet: false },
   { name: 'fit', default: 'on', doc: "0 stops fitting a made character to the rig", quiet: false },
+  { name: 'fork', default: 'off', doc: "1 shows the fork (bench lane or bulb lane) on the strip and in the end report, like paths=1", quiet: false },
   { name: 'freeze', default: 'off', doc: "present: stops the demo clock", quiet: false },
   { name: 'from', default: 'none', doc: "course: the Dojo was opened from the Course", quiet: false },
   { name: 'front', default: 'auto', doc: "1 forces the front lane, any other value the back lane", quiet: false },

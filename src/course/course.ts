@@ -9,6 +9,7 @@ export interface SceneItem {
   mesh?: { positions: number[]; indices: number[] }; // or an inline mesh (basic shapes, cropped pieces), already standing on y = 0 and centred
   stack?: string; // or a sport-stacking pattern ("3-6-3"): drawn as instanced cups, scale = metres per cup metre
   x: number; y: number; z: number; rotY: number; scale: number;
+  id?: string; // the lifted object this stands for (the fork demo course keys its placeholders by these ids, so a real lift can replace one without touching the physics)
 }
 
 // What the editor made the course from, so the Course can open the same pieces again (CC-80). 'copy': rebuilt from a course that had no source.
@@ -49,6 +50,7 @@ export interface CourseData {
   source?: CourseSource; // editor lanes: the pieces and lane this course was cut from (CC-80)
   pole?: import('../sim/pole-ride').PoleSetup; // a pole vault (src/sim/pole-ride.ts): pick the pole up, run, hold E in the box, let go at the top
   drone?: Partial<import('../sim/drone').DroneParams> & { x0: number; x1: number }; // a drone pad (src/sim/drone.ts): hold E on it to board the cargo drone and fly across
+  climbPoles?: import('../sim/pole-climb').ClimbPole[]; // standing poles to climb with E held (src/sim/pole-climb.ts, CC-133): the fork's bulb lane starts on one
   branches?: import('../sim/branches').Branch[]; // forks with two or three ways through a stretch (src/sim/branches.ts, CC-224); a course without it has one way
   keepDecks?: boolean; // a course with photo objects normally draws only the first and last deck (the objects are the ground); true keeps every deck as well (the hero course: one object on a lane of decks)
   shots?: import('../sim/shots').ShotLauncher[]; // timed ball launchers: a ball every few seconds on the simulator's clock, the same for every player (src/sim/shots.ts)

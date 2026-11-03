@@ -9,7 +9,7 @@ export interface BranchRoute {
   id: string;
   name: string; // "High way: the bars"
   band: [lo: number, hi: number]; // the lowest height (m) the runner reaches between the fork and the join says which way it is on: lo <= lowest < hi
-  own?: { platforms?: number[]; holds?: number[] }; // indexes into terrain.platforms and holds that exist only for this way (the search closes the other ways by removing them)
+  own?: { platforms?: number[]; holds?: number[]; poles?: number[] }; // indexes into terrain.platforms and holds that exist only for this way (the search closes the other ways by removing them); poles: indexes into climbPoles (CC-133, the fork's bulb lane)
   icons: string[]; // the strip shows these (ZONE_ICONS keys), in order along the way
   plan?: Plan; // the proved line for the whole course taking this way, from the start
   ticks?: number; // the time of that line (120 ticks a second)
@@ -49,11 +49,24 @@ export const routeOfTrack = (b: Branch, xs: ArrayLike<number>, ys: ArrayLike<num
 export function routeCourse(course: CourseData, branchId: string, routeId: string): CourseData {
   const b = branchesOf(course).find((q) => q.id === branchId);
   if (!b) throw new Error(`no branch ${branchId}`);
-  const dropP = new Set<number>(), dropH = new Set<number>();
-  for (const r of b.routes) if (r.id !== routeId) { r.own?.platforms?.forEach((i) => dropP.add(i)); r.own?.holds?.forEach((i) => dropH.add(i)); }
+  const dropP = new Set<number>(), dropH = new Set<number>(), dropC = new Set<number>();
+  for (const r of b.routes) if (r.id !== routeId) { r.own?.platforms?.forEach((i) => dropP.add(i)); r.own?.holds?.forEach((i) => dropH.add(i)); r.own?.poles?.forEach((i) => dropC.add(i)); }
   const c: CourseData = JSON.parse(JSON.stringify(course));
   c.terrain.platforms = c.terrain.platforms.filter((_, i) => !dropP.has(i));
+  const oldHolds = c.holds;
   if (c.holds) c.holds = c.holds.filter((_, i) => !dropH.has(i));
+  if (c.climbPoles) { // a pole points at its first bar by index: keep the pointer right after bars are removed, and a pole whose bar is gone goes too
+    const newIndex = new Map<number, number>();
+    let k = 0;
+    (oldHolds ?? []).forEach((_, i) => { if (!dropH.has(i)) newIndex.set(i, k++); });
+    c.climbPoles = c.climbPoles.flatMap((p, i) => {
+      if (dropC.has(i)) return [];
+      if (p.toHold === undefined) return [p];
+      const j = newIndex.get(p.toHold);
+      return j === undefined ? [] : [{ ...p, toHold: j }];
+    });
+    if (!c.climbPoles.length) delete c.climbPoles;
+  }
   delete c.plan; delete c.routes; delete c.windows; delete c.shortcuts; delete c.branches;
   return c;
 }

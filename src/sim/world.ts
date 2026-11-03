@@ -18,17 +18,18 @@ import { maybeEnterPlank, stepPlankWorld, type PlankState } from './beam';
 import { CLIMB_CATCH_TICKS, CLIMB_COST, CLIMB_EXIT_SPEED, CLIMB_HOLD_TICKS, findClimb, type Climb } from './climb';
 import { enterBand, stepBandWorld, type Band } from './band';
 import { NO_POLE, POLE_MIN_SPEED, POLE_PICKUP_REACH, plant as polePlant, poleFeetAt, release as poleRelease, type PoleWorld } from './pole-ride';
+import { poleNear, startPoleClimb, stepPoleClimb, topHang, type PoleClimbState } from './pole-climb';
 import { DEFAULT_DRONE, boardDrone, droneStep, feetOfDrone, softTouchdown, type DroneParams, type DroneState } from './drone';
 import { DEFAULT_TREBUCHET, deg, feetAt, isDud, launchStep, startLaunch, type Launch, type TrebuchetParams } from './trebuchet';
 
 // One world for the Course: the runner plus whichever obstacle has hold of the runner right now.
 // The simulator is the truth: everything the screen shows comes from this state, one tick at a time.
-export type Mode = 'run' | 'wall' | 'swing' | 'bounce' | 'hang' | 'vault' | 'cart' | 'launch' | 'plank' | 'climb' | 'band' | 'drone' | 'pole';
+export type Mode = 'run' | 'wall' | 'swing' | 'bounce' | 'hang' | 'vault' | 'cart' | 'launch' | 'plank' | 'climb' | 'band' | 'drone' | 'pole' | 'polec';
 export type Outcome = 'running' | 'cleared' | 'splash' | 'hurt' | 'stalled'; // hurt: a landing harder than the body can take; stalled: the cart ran out of speed on a hill
 
 export interface GameEvent {
   tick: number;
-  type: 'pole-pickup' | 'pole-plant' | 'pole-release' | 'pole-fell-back' | 'bar-down' | 'pole-land' | 'jump' | 'roll' | 'slide' | 'land' | 'stumble' | 'hard-landing' | 'splash' | 'wall-grab' | 'wall-no-grip' | 'wall-slide' | 'rope-catch' | 'rope-release' | 'hang-catch' | 'hang-release' | 'vault' | 'climb' | 'climb-drop' | 'bounce' | 'cleared' | 'cart-start' | 'cart-stall' | 'cart-off' | 'cart-catch' | 'launch-fire' | 'launch-release' | 'launch-dud' | 'recoil' | 'plank-sag' | 'plank-break' | 'plank-off' | 'band-release' | 'band-snap' | 'drone-board' | 'drone-land' | 'drone-drop' | 'drone-crash' | 'drone-empty' | 'ball-hit';
+  type: 'polec-grab' | 'polec-top' | 'polec-down' | 'pole-pickup' | 'pole-plant' | 'pole-release' | 'pole-fell-back' | 'bar-down' | 'pole-land' | 'jump' | 'roll' | 'slide' | 'land' | 'stumble' | 'hard-landing' | 'splash' | 'wall-grab' | 'wall-no-grip' | 'wall-slide' | 'rope-catch' | 'rope-release' | 'hang-catch' | 'hang-release' | 'vault' | 'climb' | 'climb-drop' | 'bounce' | 'cleared' | 'cart-start' | 'cart-stall' | 'cart-off' | 'cart-catch' | 'launch-fire' | 'launch-release' | 'launch-dud' | 'recoil' | 'plank-sag' | 'plank-break' | 'plank-off' | 'band-release' | 'band-snap' | 'drone-board' | 'drone-land' | 'drone-drop' | 'drone-crash' | 'drone-empty' | 'ball-hit';
   detail?: Record<string, number | boolean>;
 }
 
@@ -46,6 +47,7 @@ export interface WorldState {
   climb: Climb | null; // hanging from a wall's top edge and pulling up (src/sim/climb.ts)
   launch: Launch | null; // sitting in the trebuchet's sling (before the pin and while it swings)
   drone?: DroneState | null; // riding the cargo drone (src/sim/drone.ts)
+  polec?: PoleClimbState | null; // climbing a standing pole (src/sim/pole-climb.ts, CC-133)
   pole?: PoleWorld; // carrying the pole, and the ride from the plant to the let-go (src/sim/pole-ride.ts)
   recoil?: RecoilState; // the launcher clipped on at a recoil pad: loads left, shots fired, balls in flight (src/sim/recoil.ts)
   cart: Cart | null; // riding the rails of a track (src/sim/cart.ts)
@@ -136,6 +138,7 @@ const MODE_STEP: Record<Exclude<Mode, 'run'>, ModeStep> = {
   plank: (w, input, course) => stepPlankWorld(w, input, course),
   drone: (w, input, course) => stepDroneMode(w, input, course),
   pole: (w, input, course) => stepPoleMode(w, input, course),
+  polec: (w, input, course) => stepPoleClimbMode(w, input, course),
 };
 function stepWorldPlain(w: WorldState, input: RunnerInput, course: CourseData, p: RunnerParams = DEFAULT_PARAMS): WorldState {
   if (w.outcome !== 'running') return { ...w, runner: { ...w.runner, tick: w.runner.tick + 1 } };
@@ -312,6 +315,16 @@ function stepWorldPlain(w: WorldState, input: RunnerInput, course: CourseData, p
     }
   }
 
+  // the standing pole (fork): E held next to it starts the climb (src/sim/pole-climb.ts); a course with no climbPoles never gets here
+  if (course.climbPoles?.length && n.mode === 'run' && n.outcome === 'running' && r.grounded && (input.handL || input.handR) && r.tick >= w.noCatchUntil) {
+    const i = poleNear(course.climbPoles, r.x);
+    if (i >= 0) {
+      n.mode = 'polec'; n.polec = startPoleClimb(i, r.x, r.y);
+      n.runner = { ...r, vx: 0, vy: 0, grounded: false };
+      ev('polec-grab', { pole: i });
+    }
+  }
+
   // the pole: E on the pole lying on the ground picks it up; carrying it, E held in the plant box jams it and the runner rises (src/sim/pole-ride.ts)
   if (course.pole && n.mode === 'run' && n.outcome === 'running' && r.grounded) {
     const ps = course.pole, held = !!(input.handL || input.handR), pw = n.pole ?? NO_POLE;
@@ -398,6 +411,22 @@ function stepSwing(w: WorldState, input: RunnerInput, course: CourseData): World
   const hand = ropePoint(rp, sw.grip, sw.theta);
   const speed = sw.omega * sw.grip;
   return { ...w, swing: sw, events, runner: { ...w.runner, tick, x: hand.x, y: hand.y - rp.handHeight, vx: speed * Math.cos(sw.theta), vy: speed * Math.sin(sw.theta), grounded: false } };
+}
+
+function stepPoleClimbMode(w: WorldState, input: RunnerInput, course: CourseData): WorldState {
+  const s = w.polec!, pole = course.climbPoles![s.pole];
+  const tick = w.runner.tick + 1;
+  const held = !!(input.handL || input.handR);
+  const st = stepPoleClimb(s, pole, held, w.energy);
+  const energy = Math.max(0, w.energy - st.spent);
+  if (st.end === 'ground') {
+    return { ...w, mode: 'run', polec: null, energy, noCatchUntil: tick + 12, events: [{ tick, type: 'polec-down' }], runner: { ...w.runner, tick, x: pole.x, y: s.base, vx: 0, vy: 0, grounded: true } };
+  }
+  const bar = course.holds?.[pole.toHold ?? 0];
+  if (st.end === 'top' && bar) { // the hands pass from the pole to the first bar
+    return { ...w, mode: 'hang', polec: null, hang: topHang(bar, pole, st.s), energy, events: [{ tick, type: 'polec-top' }], runner: { ...w.runner, tick, x: st.s.x, y: s.base + st.s.h, vx: 0, vy: 0, grounded: false } };
+  }
+  return { ...w, polec: st.s, energy, events: [], runner: { ...w.runner, tick, x: st.s.x, y: s.base + st.s.h, vx: 0, vy: 0, grounded: false } };
 }
 
 function stepVault(w: WorldState): WorldState {
