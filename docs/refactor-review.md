@@ -33,7 +33,7 @@
 - Done in CC-133 (editor split, first slices): `src/modes/editor/` now has `track.ts` (coaster points), `selection.ts` (choose, copy, paste, delete) and `search.ts` (the lane-check search and its state).
 - Done in CC-133 (editor split, fourth slice): `editor/plan-mouse.ts` holds the mouse on the flat plan; `startEditor` is now 913 lines, and `advice`, `fixit`, `golden-search` and `trebuchet-polish` tests use the shared `box`.
 - The browser characterize run (`scripts/editor-characterize.mjs`) matched `tests/golden/editor-characterize.json` after each slice; hints, keyboard and scene are still inside `startEditor`.
-- Done in CC-133 (course split): `src/modes/course.ts` went from 1,718 lines to 992, and `src/modes/course/` grew from five small files to fourteen.
+- Done in CC-133 (course split): `src/modes/course.ts` went from 1,718 lines to 399, and `src/modes/course/` grew from five small files to thirty-one (the last 992 to 399 lines are the sixth to the twelfth slice below).
   - `state.ts`: one typed `CourseState` (world, pause, clock, retry spot, falls, replay, held and queued keys, the ideal run on screen); the key handler and the frame loop read `st.world`, `st.keys` and so on.
   - `scene.ts`: the lights, bars, coaster, planks, machine views, decks, editor pieces, floor, wall and rope are built in one call that returns the views the frame loop moves.
   - `zones.ts`: the progress strip's zones for a course that stores none, as a pure function with its own test.
@@ -47,7 +47,17 @@
     - `camera.ts`: the three views (side, 45 degrees, first person), the mouse orbit, the film camera, the clip's own camera pose and the front-view inset; `createCourseCamera(deps)` returns `update()` (places the camera) and `drawFront()`.
     - `clip.ts`: `createClipMaker(deps)` returns `makeClip`; the clip's state (`on`, the camera spot, the layout, the hook that takes each picture) and the friend's watched keys moved into `CourseState`.
     - `characters.ts`: `createRunnerLook(deps)` loads the Rookie or a community character, keeps the choice, and builds the runner buttons.
-  - Nothing is left in `course.ts` for the camera, the clip maker or the character loader; what remains is the frame loop, the HUD and the wiring.
+  - Nothing is left in `course.ts` for the camera, the clip maker or the character loader; what remained was the frame loop, the HUD and the wiring.
+  - Sixth to twelfth slices (`src/modes/course.ts` 992 to 399 lines, one commit each):
+    - `ideal.ts`: the ideal run, the shortcuts and the windows.
+    - `nav.ts`: leaving for the Dojo or the editor, and the saved place to come back to.
+    - `fall.ts`: the fall panel and its tips.
+    - `hud.ts`: the time line, the controls card, the buttons, the gauges and the obstacle strip.
+    - `welcome.ts`, `feed.ts` and `challenge.ts`: the first-visit chooser, the keys fed from a link, and the challenge link.
+    - `say.ts`, `events.ts`, `outcome.ts`, `gauges.ts`, `views.ts`, `probes.ts` and `chrome.ts`: the toasts, what each step tells the player, what happens when a run ends, the gauge numbers, the moving machines, the test hooks, and the buttons put on the page.
+  - `course.ts` is now wiring: it builds the pieces, hands them what they share (`CourseState`, `CourseCtx`) and runs `frame()`.
+  - Both goldens (course and camera) were identical after each slice, run on the VM.
+  - Known leftover found on the way: the number labels over gaps, the wall and the rope are built but never added to the scene (the `scene.add` sits inside a comment); the move kept that as it was, since adding them would change the picture.
   - Camera safety net: `scripts/course-camera-characterize.mjs` (stepped clock) records the camera position, direction and field of view for every C view, the mouse, first person on a bar course, five film shots, the clip numbers and the character buttons; the page adds `window.__probe()` only with `?camprobe=1`.
   - The golden `tests/golden/camera-characterize.json` was recorded from the unmodified main plus the probe hook (the hook changes nothing else).
   - Safety net: the course run (`scripts/course-characterize.mjs`) was identical to the run on the unmodified main after the state, scene and zones moves; one toast step differed once and not on the rerun (cause and fix below).
