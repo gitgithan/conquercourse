@@ -1,7 +1,8 @@
 import { FEATURES, type Feature } from '../ui/site-nav';
 import { browserStore } from '../ui/onboarding-flags';
 import { startHref } from '../ui/welcome-flags';
-import { openCrewDialog, saysOn } from '../ui/says';
+import { saysOn } from '../ui/says';
+import { crewCardsOn, openCrewDialog } from '../ui/crew-dialog';
 import { mountWorldGallery } from '../ui/world-picker';
 
 // The welcome screen (CC-246): the logo, the two Rookies, and the four features as a 2x2 grid.
@@ -64,7 +65,7 @@ export function startWelcome(host: HTMLElement): void {
   }
   const hint = document.createElement('div'); hint.id = 'welcome-hint'; hint.textContent = 'Press any key or click to start the first course';
   ui.append(grid, hint);
-  if (saysOn()) { // CC-243: who speaks in the game, one card each
+  if (saysOn() || crewCardsOn()) { // the ten built-in characters (old look: CC-243, who speaks in the game)
     const crew = Object.assign(document.createElement('button'), { type: 'button', id: 'welcome-crew', textContent: 'Meet the crew' });
     crew.onclick = () => openCrewDialog();
     root.append(crew);
