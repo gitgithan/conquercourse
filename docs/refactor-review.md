@@ -1,5 +1,7 @@
 # Refactor review: what slows down adding features (CC-133)
 
+- Story of the second refactoring, with diagrams and the reasons: `docs/refactoring-story.md`.
+
 ## So what
 - Adding one new obstacle today touches about 33 source files, 8 scripts, 4 tests plus 2 stored data files, and 15 docs.
   - Measured on the drone: `grep -rli drone` gives 33 files under `src/`, 8 under `scripts/`, 6 under `tests/` and 15 under `docs/`.
