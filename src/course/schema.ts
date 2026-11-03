@@ -34,6 +34,7 @@ export const COURSE_FIELDS: Record<keyof CourseData, FieldRule> = {
   jumpKeep: { check: (v) => range(v, 0.01, 1) },
   grabReach: { check: (v) => range(v, 0, 5) },
   holds: { check: (v) => arr(v, (h) => nums(h, ['x', 'y'])) },
+  bars: { check: (v) => arr(v, (b) => nums(b, ['x', 'y', 'n', 'gap']) && range((b as { n: number }).n, 2, 40) && range((b as { gap: number }).gap, 0.2, 1.4), 20) },
   track: { check: (v) => isObj(v) && arr(v.pts, pair) && (v.pts as unknown[]).length >= 2 && (v.segments === undefined || arr(v.segments, (s) => arr(s, pair))) && opt(v, ['push']) },
   trebuchet: { check: placed(['x']) },
   recoil: { check: placed(['x0', 'x1']) },

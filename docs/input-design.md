@@ -67,6 +67,16 @@
   - A future key-rebinding screen must keep the two signals apart and remap actions, not raw codes.
 - The cannon tilt reads both S and Arrow Down, so the two keys match everywhere (fixed 2026-11-01; before that the cannon read Arrow Down only).
 
+## Monkey bars: two reach keys (CC-133)
+- Q reaches the left hand and T reaches the right hand to the next rung; E still holds on, the arrows still kip the swing.
+- Each is a fresh-press signal (`reachL`, `reachR`): holding the key reaches once, never twice.
+- Both on one tick is a stall, so the simulator never has to guess which hand the player meant.
+- Q and T do nothing anywhere else, and the arrows mean the same on a bar and on the monkey bars.
+- The meaning is settled by the state: off the bars the two bits are read by nobody.
+- They are bits 13 and 14 of the replay mask, so old recordings are unchanged.
+- The keys card shows a "Q  T" row only on a course that has monkey bars (`course.bars`).
+- Design: `docs/bars.md`.
+
 ## Onboarding hint
 - The keys card says "Bend your knees (hold, on big drops) / tap while running: slide low under a head-high ball".
 - The first-visit tour shows a "Slide" step with the S key only on courses that have head-high balls (`src/ui/onboarding.ts`).

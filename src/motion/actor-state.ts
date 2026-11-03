@@ -23,7 +23,7 @@ export function actorStateFor(w: WorldState, squat: boolean, facing: 1 | -1 = 1)
     vx: r.vx,
     vy: r.vy,
     grounded: r.grounded,
-    mode: w.mode === 'hang' || w.mode === 'polec' ? 'swing' : w.mode === 'vault' || w.mode === 'plank' || w.mode === 'climb' || w.mode === 'band' || w.mode === 'pole' ? 'run' : w.mode === 'drone' ? 'cart' : w.mode, // a cart seats the rider (pose 'sit'); the trebuchet's sling holds the rider (pose 'sling'); a plank is crossed in the running pose
+    mode: w.mode === 'hang' || w.mode === 'bars' || w.mode === 'polec' ? 'swing' : w.mode === 'vault' || w.mode === 'plank' || w.mode === 'climb' || w.mode === 'band' || w.mode === 'pole' ? 'run' : w.mode === 'drone' ? 'cart' : w.mode, // a cart seats the rider (pose 'sit'); the trebuchet's sling holds the rider (pose 'sling'); a plank is crossed in the running pose
     tilt: w.cart?.tilt ?? (w.drone ? -w.drone.lean : undefined), // a drone rider sits on the skids and leans with the drone
     // hanging from a bar uses the rope's swing pose, turned about the hands
     squat,
@@ -36,8 +36,8 @@ export function actorStateFor(w: WorldState, squat: boolean, facing: 1 | -1 = 1)
     vaultProgress: w.mode === 'vault' && w.vault ? w.vault.i / w.vault.n : undefined,
     vaultContact: w.mode === 'vault' && w.vault ? vaultHand(w.vault) : undefined,
     wallProgress: w.wall ? w.wall.index / Math.max(1, w.wall.path.length - 1) : undefined,
-    swingTheta: w.swing?.theta ?? w.hang?.theta ?? (w.polec ? 0 : undefined), // a pole climber hangs like a bar hanger until a climbing pose is made
-    swingOmega: w.hang?.omega,
+    swingTheta: w.swing?.theta ?? w.hang?.theta ?? w.bars?.theta ?? (w.polec ? 0 : undefined), // a pole climber hangs like a bar hanger until a climbing pose is made
+    swingOmega: w.hang?.omega ?? w.bars?.omega,
     hurt: w.outcome === 'hurt',
     facing,
   };

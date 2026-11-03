@@ -12,6 +12,8 @@ import { ROLL_FORGIVE_TICKS, rollWindowOpen } from './drop';
 import { SLIDE_COST, SLIDE_RECOVERY, canSlide, startSlide, stepSlide, type Slide } from './slide';
 import { GROUND_ROLL_COST, GROUND_ROLL_RECOVERY, startGroundRoll, stepGroundRoll, type GroundRoll } from './roll';
 import { DEFAULT_HANG, bodyVelocity, feetOf, gripSlips, hangStep, releaseHang, tryGrab, type Hang } from './holds';
+import { stepBarsWorld, tryBarsGrab } from './bars-world';
+import type { BarsHang } from './bars';
 import { enterCart, railsOf, stepCartWorld, trackParams, trackSegments, type Cart } from './cart';
 import { AIM_RATE, DEFAULT_RECOIL, NO_RECOIL, clampAim, isAimable, padHas, shot, stepBall, type RecoilParams, type RecoilState } from './recoil';
 import { maybeEnterPlank, stepPlankWorld, type PlankState } from './beam';
@@ -24,12 +26,12 @@ import { DEFAULT_TREBUCHET, deg, feetAt, isDud, launchStep, startLaunch, type La
 
 // One world for the Course: the runner plus whichever obstacle has hold of the runner right now.
 // The simulator is the truth: everything the screen shows comes from this state, one tick at a time.
-export type Mode = 'run' | 'wall' | 'swing' | 'bounce' | 'hang' | 'vault' | 'cart' | 'launch' | 'plank' | 'climb' | 'band' | 'drone' | 'pole' | 'polec';
+export type Mode = 'run' | 'wall' | 'swing' | 'bounce' | 'hang' | 'bars' | 'vault' | 'cart' | 'launch' | 'plank' | 'climb' | 'band' | 'drone' | 'pole' | 'polec';
 export type Outcome = 'running' | 'cleared' | 'splash' | 'hurt' | 'stalled'; // hurt: a landing harder than the body can take; stalled: the cart ran out of speed on a hill
 
 export interface GameEvent {
   tick: number;
-  type: 'polec-grab' | 'polec-top' | 'polec-down' | 'pole-pickup' | 'pole-plant' | 'pole-release' | 'pole-fell-back' | 'bar-down' | 'pole-land' | 'jump' | 'roll' | 'slide' | 'land' | 'stumble' | 'hard-landing' | 'splash' | 'wall-grab' | 'wall-no-grip' | 'wall-slide' | 'rope-catch' | 'rope-release' | 'hang-catch' | 'hang-release' | 'vault' | 'climb' | 'climb-drop' | 'bounce' | 'cleared' | 'cart-start' | 'cart-stall' | 'cart-off' | 'cart-catch' | 'launch-fire' | 'launch-release' | 'launch-dud' | 'recoil' | 'plank-sag' | 'plank-break' | 'plank-off' | 'band-release' | 'band-snap' | 'drone-board' | 'drone-land' | 'drone-drop' | 'drone-crash' | 'drone-empty' | 'ball-hit';
+  type: 'polec-grab' | 'polec-top' | 'polec-down' | 'pole-pickup' | 'pole-plant' | 'pole-release' | 'pole-fell-back' | 'bar-down' | 'pole-land' | 'jump' | 'roll' | 'slide' | 'land' | 'stumble' | 'hard-landing' | 'splash' | 'wall-grab' | 'wall-no-grip' | 'wall-slide' | 'rope-catch' | 'rope-release' | 'hang-catch' | 'hang-release' | 'bars-grab' | 'bars-reach' | 'bars-stall' | 'bars-release' | 'vault' | 'climb' | 'climb-drop' | 'bounce' | 'cleared' | 'cart-start' | 'cart-stall' | 'cart-off' | 'cart-catch' | 'launch-fire' | 'launch-release' | 'launch-dud' | 'recoil' | 'plank-sag' | 'plank-break' | 'plank-off' | 'band-release' | 'band-snap' | 'drone-board' | 'drone-land' | 'drone-drop' | 'drone-crash' | 'drone-empty' | 'ball-hit';
   detail?: Record<string, number | boolean>;
 }
 
@@ -43,6 +45,7 @@ export interface WorldState {
   wall: { result: WallResult; path: { x: number; y: number }[]; index: number; x0: number; v?: number; held?: boolean } | null; // v: the entry speed; held: E was down in the last WALL_HOLD_TICKS before the hands reach the top (CC-168)
   swing: Swing | null;
   hang: Hang | null; // hanging from a bar in the air
+  bars?: BarsHang | null; // hanging from a row of monkey bars (src/sim/bars.ts)
   vault: Vault | null; // going over an obstacle with a hand on top
   climb: Climb | null; // hanging from a wall's top edge and pulling up (src/sim/climb.ts)
   launch: Launch | null; // sitting in the trebuchet's sling (before the pin and while it swings)
@@ -130,6 +133,7 @@ const MODE_STEP: Record<Exclude<Mode, 'run'>, ModeStep> = {
   swing: (w, input, course) => stepSwing(w, input, course),
   bounce: (w, input) => stepBounce(w, input),
   hang: (w, input, course) => stepHang(w, input, course),
+  bars: (w, input, course) => stepBarsWorld(w, input, course),
   cart: (w, input, course) => stepCartWorld(w, input, course),
   band: (w, input, course) => stepBandWorld(w, input, course),
   vault: (w) => stepVault(w),
@@ -303,6 +307,12 @@ function stepWorldPlain(w: WorldState, input: RunnerInput, course: CourseData, p
       n.hang = g;
       ev('hang-catch', { hold: g.hold, omega: g.omega });
     }
+  }
+
+  // monkey bars: the same catch as a bar, onto the nearest rung (src/sim/bars-world.ts)
+  if (course.bars?.length && n.mode === 'run' && !r.grounded && r.tick >= w.noCatchUntil && (input.handL || input.handR)) {
+    const g = tryBarsGrab(course, r, w.noCatchUntil > 0);
+    if (g) { n.mode = 'bars'; n.bars = g; ev('bars-grab', { run: g.run, rung: g.l, omega: g.omega }); }
   }
 
   // a wall's top edge: the hands (hold key) meet it, from the ground or in the air (src/sim/climb.ts); the run speed is lost

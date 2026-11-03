@@ -7,7 +7,7 @@ const DOJO_BEFORE: Record<string, string> = { lache: 'bars', launch: 'lever', ba
 const CARD_BEFORE: Record<string, string> = { gap: 'gap', step: 'step', vault: 'vaultbox', wall: 'warped', climb: 'tallwall', rope: 'ropeswing', trampoline: 'trampoline', drop: 'drop', lache: 'lache', plank: 'plank', stack: 'stack', coaster: 'coaster', launch: 'trebuchet', band: 'band', drone: 'drone', recoil: 'recoil' };
 const MODES_BEFORE: Record<string, [string, boolean, string | undefined]> = {
   run: ['Running', false, undefined], wall: ['On the wall', false, undefined], swing: ['Swinging', false, undefined], bounce: ['Bouncing', false, undefined],
-  hang: ['Hanging', false, 'Let go now'], vault: ['Vaulting', false, undefined], cart: ['In the cart', true, 'Cart rolls on'], launch: ['In the sling', true, 'Let go now'],
+  hang: ['Hanging', false, 'Let go now'], bars: ['On the monkey bars', false, 'Reach, or let go'], vault: ['Vaulting', false, undefined], cart: ['In the cart', true, 'Cart rolls on'], launch: ['In the sling', true, 'Let go now'],
   plank: ['plank', false, undefined], climb: ['Climbing', false, undefined], band: ['On the band', true, 'Turn round now'], drone: ['On the drone', true, 'Come down now'], pole: ['On the pole', false, 'Let go now'], polec: ['Climbing the pole', false, 'Keep holding E'],
 };
 

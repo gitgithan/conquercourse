@@ -12,6 +12,7 @@ export const SWITCHES: readonly Switch[] = [
   { name: 'backend', default: 'auto', doc: "webgl2 forces the WebGL 2 renderer", quiet: false },
   { name: 'background', default: 'on', doc: "0 ignores the custom picture saved in this browser", quiet: false },
   { name: 'balls', default: 'off', doc: "1 turns on the ball shots", quiet: false },
+  { name: 'bars', default: 'off', doc: "1 shows the Monkey bars piece in the editor (a course that has monkey bars always plays them)", quiet: false },
   { name: 'bg', default: 'sky blue', doc: "six hex digits set the sky colour", quiet: false },
   { name: 'board', default: 'on', doc: "0 hides the leaderboard", quiet: false },
   { name: 'body', default: 'none', doc: "a made character file to wear in the demo", quiet: false },
