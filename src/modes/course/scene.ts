@@ -58,7 +58,9 @@ export function buildCourseScene(scene: THREE.Scene, course: CourseData, params:
     scene.add(bar, halo);
   }
   // monkey bars (course.bars, docs/bars.md): one amber rung per grab point across the lane, and a post at each end down to the ground, so the row reads as a frame
-  for (const row of course.bars ?? []) {
+  // a row with a photo skin (a scene item called bars-skin, CC-133) is drawn by the photo; the amber collider shows only with ?collider=1
+  const skinned = !!course.scene?.some((it) => it.id === 'bars-skin') && params.get('collider') !== '1';
+  for (const row of skinned ? [] : course.bars ?? []) {
     const rungMat = new THREE.MeshStandardMaterial({ color: 0xffa21a, emissive: 0x6b3a00, metalness: 0.3, roughness: 0.4 });
     for (let i = 0; i < row.n; i++) {
       const rung = new THREE.Mesh(new THREE.CylinderGeometry(0.035, 0.035, LANE_DEPTH + 0.6, 10), rungMat);

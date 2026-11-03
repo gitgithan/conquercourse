@@ -233,3 +233,12 @@ export function roleCollider(mesh: Mesh, role: ColliderRole, opts: RoleOpts = {}
   void e;
   return { role, primitive: { type: 'platform', kind: 'platform', roles: ['stand'], height: w.height, length: w.width, width: w.depth, scale: sc }, scaleUsed: k, clean: report, notes };
 }
+
+// The feature switch (new feature: off in production). ?rolecollider=1 turns it on anywhere, =0 off anywhere;
+// with no word it is on for the laptop and the preview site and off on the real site.
+export function roleColliderOn(params: URLSearchParams, host: string): boolean {
+  const w = params.get('rolecollider');
+  if (w === '1') return true;
+  if (w === '0') return false;
+  return host === 'localhost' || host === '127.0.0.1' || host.startsWith('preview.') || host.includes('.preview.');
+}
