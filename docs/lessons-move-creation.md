@@ -115,7 +115,7 @@ stateDiagram-v2
 *Notice: the two coloured arms take turns, and the hips stay under the hands.*
 
 - Clips: [travel](../data/eval/bar-motion/evidence/bars_travel.mp4) and [idle](../data/eval/bar-motion/evidence/bars_idle.mp4); the full story and the ranked next steps are in [data/eval/bar-motion/README.md](../data/eval/bar-motion/README.md).
-- The pose now drives the actor on the bars (hook `src/motion/bars-actor.ts`, switch `?barspose=0` brings the old hang back), the hands on the rungs the world says they hold:
+- The pose now drives the actor on the bars (hook `src/motion/bars-actor.ts`, always on), the hands on the rungs the world says they hold:
 
 ![The actor's bars pose on the recorded demo run: eight frames, the left hand red and the right hand blue travelling along the rungs.](evidence/bars-pose-sheet.jpg)
 
