@@ -1880,3 +1880,12 @@ The set of obstacle shapes is fixed, and each shape offers a fixed set of moves.
 - **Switch:** `?searchpanel=0` hides the panel.
 - **Check:** `scripts/search-progress-check.mjs` (1280 px; panel, Cancel, stored plan, switch); picture in [evidence](evidence/cc-133-search-progress/search-progress-1280.png).
 - **Known gap:** with the ghost on its ideal mode, the ghost and the drum lane each search the same course one after the other, so the panel shows twice.
+
+## Preview proof shared with Apply and Play (2026-11-04)
+- The Design Partner supplies proposed edits; its raw answer is not rendered as a clearance claim.
+- Preview, Apply and Play now use one course builder for the currently added pieces and active device settings.
+- A completed preview keeps the simulator verdict and successful run, including timing windows and routes.
+- Apply reuses that result only when the applied course matches its search input exactly.
+- The main Simulator panel updates immediately from a matching proof, and Play receives its run plan.
+- Changed device settings, terrain or movement parameters require a fresh check.
+- The current [proof flow guide](editor-proof-flow.md) includes the UX and data-flow diagrams and regression checks.

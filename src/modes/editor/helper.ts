@@ -1,11 +1,10 @@
-import { realSize, laneProfile } from '../../slice/world';
+import { realSize } from '../../slice/world';
 import { workSeconds } from '../../sim/ideal';
 import { type Ghosts } from '../../slice/view3d';
 import { isTrack } from '../../slice/track-world';
 import { holdsOf, isHold } from '../../slice/holds-world';
 import { type Machine } from '../../slice/launch-lane';
 import { PARTNER_PREF_KEY, partnerStartsOpen } from '../../slice/editor-defaults';
-import { proves } from '../../slice/photo-proof';
 import { fixMachine } from '../../slice/fix-launch';
 import { fixBars } from '../../slice/fixbars';
 import { fixLayout } from '../../slice/fixit';
@@ -13,7 +12,7 @@ import { fixCoaster } from '../../slice/fixcoaster';
 import { suggestPrompt } from '../../slice/suggest-prompt';
 import { type Advice } from '../../slice/advice';
 import { sayBadge, saysOn } from '../../ui/says';
-import { barsInWorker, fixInWorker, provesInWorker } from '../../slice/proof-client';
+import { barsInWorker, fixInWorker } from '../../slice/proof-client';
 import { parseReply, worldBrief } from '../../slice/designer';
 import { diffProposal, enabledCount, fromAdvice, fromEdits, resultOf, type Proposal } from '../../slice/preview';
 import { shortcutLine, type Shortcut } from '../../sim/shortcuts';
@@ -23,6 +22,10 @@ import { el } from './dom';
 import type { Tools } from './tools';
 import { isDevice, isSizeReference, type EditorState, type P } from './state';
 import type { EditorLane } from './lane';
+import type { CourseData } from '../../course/course';
+import type { PresetPlan } from '../../slice/preset-plans';
+import { searchInput } from '../../slice/preset-plans';
+import type { EditorSearch } from './search';
 import type { EditHandoff } from '../../slice/roundtrip';
 
 // What the helper panel needs from the editor: the state, what is derived from it, and a few things only the editor's closure owns.
@@ -33,13 +36,14 @@ export interface HelperEnv {
   chosen: () => number[]; draw: () => void; drawProfile: () => void; changed: () => void;
   handoff: EditHandoff | null; goToCourse: (check?: boolean) => Promise<void>;
   tools: Tools;
+  previewSearch: EditorSearch;
 }
 
 // The design partner panel: Fix it, Make it easier, routes you did not plan, the partner's advice and chat, and the preview every proposal goes through before it changes anything.
 export function createHelper(env: HelperEnv) {
   const { ed, lane, root, top, aside } = env;
-  const { updateDeviceSource, barsNow, machineNow, trebuchetPivot, machineWrap, courseNow, courseFor, xOfPiece } = lane;
-  const { chosen, drawProfile, draw, changed, handoff, goToCourse, tools } = env;
+  const { updateDeviceSource, barsNow, machineNow, trebuchetPivot, machineWrap, courseNow, courseFor, profileFor, xOfPiece } = lane;
+  const { chosen, drawProfile, draw, changed, handoff, goToCourse, tools, previewSearch } = env;
   // ---- helpers: what to shift when the lane cannot be cleared, and a design partner (Muse Spark Open) to talk it through
   const helper = el('div', aside, { className: 'panel helper', id: 'helper' });
   const head = el('div', helper, { className: 'row' });
@@ -117,8 +121,7 @@ export function createHelper(env: HelperEnv) {
   window.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !helper.classList.contains('closed') && helper.contains(document.activeElement)) { helper.classList.add('closed'); rememberPartner(); } });
 
   // ---- preview before apply: Fix it, the partner's changes and one piece of advice all become a Proposal that is drawn as outlines first
-  const proofs = new Map<string, boolean>();
-  const keyOf = (pr: Proposal) => pr.items.map((i) => (i.on ? '1' : '0')).join('');
+  let previewProof: { course: CourseData; result: PresetPlan } | null = null;
   const ghostData = (): Ghosts | null => {
     if (!ed.proposal || !ed.preview) return null;
     const items = ed.proposal.items.flatMap((i) => (i.kind === 'piece' && i.on ? [{ id: i.id, from: i.from, to: i.to }] : []));
@@ -171,12 +174,12 @@ export function createHelper(env: HelperEnv) {
   }
   function showProposal(pr: Proposal) {
     helper.classList.remove('closed'); helperBtn.setAttribute('aria-pressed', 'true');
-    ed.proposal = pr; proofs.clear();
-    if (pr.known !== undefined) proofs.set(keyOf(pr), pr.known);
+    ed.proposal = pr;
     renderProposal(); updatePreview();
     document.documentElement.dataset.previewItems = String(pr.items.length);
   }
   function closePreview(message?: string) {
+    previewProof = null; previewSearch.stopSearch();
     ed.proposal = null; ed.preview = null; ed.previewProfile = null; ed.previewBars = []; ed.proofRun++;
     document.documentElement.dataset.preview = '';
     if (message) { reply.className = 'reply muted'; reply.textContent = message; }
@@ -199,17 +202,17 @@ export function createHelper(env: HelperEnv) {
     el('div', reply, { id: 'previewverdict', className: 'muted' });
     const row = el('div', reply, { className: 'row', id: 'previewbuttons' });
     el('button', row, { text: 'Apply', id: 'applypreview', className: 'go' }).onclick = applyProposal;
-    if (handoff) el('button', row, { text: 'Apply and try it', id: 'applytry', className: 'go', title: 'Apply the changes and play again from the last checkpoint' }).onclick = () => { applyProposal(); void goToCourse(true); };
+    if (handoff) el('button', row, { text: 'Apply and try it', id: 'applytry', className: 'go', title: 'Apply the changes and play again from the last checkpoint' }).onclick = () => { if (applyProposal()) void goToCourse(true); };
     el('button', row, { text: 'Cancel', id: 'cancelpreview' }).onclick = () => closePreview('Cancelled: nothing changed.');
   }
-  function paintVerdict(state: 'checking' | 'clears' | 'blocked' | 'none') {
+  function paintVerdict(state: 'checking' | 'clears' | 'blocked' | 'none' | 'unavailable') {
     const v = document.getElementById('previewverdict'), apply = document.getElementById('applypreview') as HTMLButtonElement | null, rowEl = document.getElementById('previewbuttons');
     if (!v || !apply || !rowEl) return;
     document.documentElement.dataset.preview = state;
     v.className = state === 'clears' ? 'ok' : state === 'blocked' ? 'bad' : 'muted';
-    v.textContent = state === 'checking' ? 'Checking with the simulator…' : state === 'clears' ? 'After this change the lane clears.' : state === 'blocked' ? 'After this change the lane does not clear.' : 'Nothing is switched on.';
-    apply.disabled = state === 'none';
-    const tryBtn = document.getElementById('applytry') as HTMLButtonElement | null; if (tryBtn) tryBtn.disabled = state === 'none';
+    v.textContent = state === 'checking' ? 'Checking with the simulator…' : state === 'clears' ? 'Simulator verified: this lane can clear.' : state === 'blocked' ? 'The simulator did not find a clear run for these changes.' : state === 'unavailable' ? 'The simulator could not finish this check. Reopen the preview to try again.' : 'Nothing is switched on.';
+    apply.disabled = state !== 'clears' && state !== 'blocked';
+    const tryBtn = document.getElementById('applytry') as HTMLButtonElement | null; if (tryBtn) tryBtn.disabled = state !== 'clears';
     rowEl.querySelector('#fixfromhere')?.remove();
     if (state === 'blocked' && ed.proposal && ed.proposal.source !== 'fixit' && ed.preview) {
       const from = { pieces: ed.preview.pieces, lane: ed.preview.lane };
@@ -219,27 +222,41 @@ export function createHelper(env: HelperEnv) {
   function updatePreview() {
     if (!ed.proposal) { ed.preview = null; ed.previewProfile = null; ed.previewBars = []; return; }
     ed.preview = resultOf(ed.pieces, { angle: ed.angle, offset: ed.offset, level: ed.level }, ed.proposal, machineNow());
-    ed.previewProfile = laneProfile(ed.preview.pieces.filter((q) => !isHold(q) && q.role !== 'rope' && q.role !== 'bar'), ed.preview.lane);
+    ed.previewProfile = profileFor(ed.preview.pieces, ed.preview.lane);
     ed.previewBars = holdsOf(ed.preview.pieces, ed.preview.lane);
     draw(); drawProfile();
-    const key = keyOf(ed.proposal), mine = ++ed.proofRun;
+    previewProof = null;
+    const mine = ++ed.proofRun;
+    previewSearch.stopSearch();
     if (!enabledCount(ed.proposal)) return paintVerdict('none');
-    const known = proofs.get(key);
-    if (known !== undefined) return paintVerdict(known ? 'clears' : 'blocked');
+    if (ed.previewProfile.length < 8) return paintVerdict('unavailable');
     paintVerdict('checking');
     const snapshot = ed.preview;
-    setTimeout(async () => { if (mine !== ed.proofRun || !ed.proposal) return; const mp = snapshot.pieces.filter((q) => !isSizeReference(q) && !isDevice(q)); const ok = snapshot.machine ? proves(mp, snapshot.lane, machineWrap(snapshot.machine)) : await provesInWorker(mp, snapshot.lane).catch(() => null); if (ok === null || mine !== ed.proofRun || !ed.proposal) return; proofs.set(key, ok); paintVerdict(ok ? 'clears' : 'blocked'); }, 30);
+    const course = courseFor(snapshot.pieces, snapshot.lane, snapshot.machine);
+    void previewSearch.searchResult(course).then((result) => {
+      if (mine !== ed.proofRun || !ed.proposal) return;
+      if (!result) return paintVerdict('unavailable');
+      previewProof = { course, result };
+      paintVerdict(result.cleared ? 'clears' : 'blocked');
+    }).catch(() => { if (mine === ed.proofRun && ed.proposal) paintVerdict('unavailable'); });
   }
+
   function applyProposal() {
-    if (!ed.proposal || !ed.preview) return;
+    if (!ed.proposal || !ed.preview || !previewProof) return;
+    const current = courseFor(ed.preview.pieces, ed.preview.lane, ed.preview.machine);
+    if (JSON.stringify(searchInput(current)) !== JSON.stringify(searchInput(previewProof.course))) { updatePreview(); return; }
     const r = ed.preview, words = ed.proposal.items.filter((i) => i.on).map((i) => i.words).join(' ');
     for (const q of r.pieces) { const mine = ed.pieces.find((x) => x.id === q.id); if (mine) { mine.x = q.x; mine.z = q.z; mine.y = q.y; mine.yaw = q.yaw; mine.scale = q.scale; mine.role = q.role; } }
     ed.angle = r.lane.angle; ed.offset = r.lane.offset; ed.level = r.lane.level;
     if (r.machine && ed.trebuchetKg) { updateDeviceSource('device:trebuchet', `device:trebuchet:${r.machine.counterweight}`); ed.trebuchetExtra = { ...(r.machine.short !== undefined ? { short: r.machine.short } : {}), ...(r.machine.pin !== undefined ? { pin: r.machine.pin } : {}) }; } // the counterweight lives in the machine piece
     ed.proposal = null; ed.preview = null; ed.previewProfile = null; ed.previewBars = []; ed.proofRun++;
-    changed(); // one undo step
-    reply.className = 'reply ok'; reply.textContent = `Applied. ${words}`;
+    previewProof = null;
+    changed(); // one undo step; the editor reuses the exact preview result and plan
+    const appliedProof = previewSearch.proofFor(courseNow());
+    reply.className = appliedProof?.cleared ? 'reply ok' : 'reply muted';
+    reply.textContent = appliedProof ? (appliedProof.cleared ? `Applied. The simulator's verified run is ready. ${words}` : `Applied. The simulator has not found a clear run. ${words}`) : `Applied. The simulator is checking the changed layout. ${words}`;
     document.documentElement.dataset.preview = 'applied';
+    return true;
   }
   const chat: { role: 'user' | 'assistant'; content: string }[] = [];
   const previewAdvice = (a: Advice) => { ed.leadText = ''; showProposal(fromAdvice(ed.pieces, { angle: ed.angle, offset: ed.offset, level: ed.level }, a, machineNow())); };
@@ -255,16 +272,18 @@ export function createHelper(env: HelperEnv) {
     chat.push({ role: 'user', content: text });
     reply.className = 'reply'; reply.textContent = 'Thinking…'; sendBtn.disabled = whatBtn.disabled = true;
     try {
-      const r = await fetch('/api/designer', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ messages: chat.slice(-6), world: worldBrief(ed.pieces, { angle: ed.angle, offset: ed.offset, level: ed.level }, ed.verdict, ed.adviceList.map((a) => a.text), barsNow(), routesBrief()) }) });
+      const proof = previewSearch.proofFor(courseNow());
+      const verdict = proof ? (proof.cleared ? 'The simulator verified a clear run for this exact course.' : 'The simulator did not find a clear run for this exact course.') : 'This course has not been checked yet.';
+      const r = await fetch('/api/designer', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ messages: chat.slice(-6), world: worldBrief(ed.pieces, { angle: ed.angle, offset: ed.offset, level: ed.level }, verdict, ed.adviceList.map((a) => a.text), barsNow(), routesBrief()) }) });
       if (r.status === 503) { reply.className = 'reply muted'; reply.textContent = 'The design partner is switched off on this site (no key set).'; return; }
       if (!r.ok) throw new Error(String(r.status));
       const got = parseReply(((await r.json()) as { reply: string }).reply, ed.pieces.map((q) => q.id));
       chat.push({ role: 'assistant', content: got.text });
-      reply.textContent = got.text; ed.pendingEdits = got.edits;
+      reply.textContent = got.edits.length ? 'The design partner suggests changes. The simulator has not checked them yet.' : 'The design partner suggested no piece changes. The Simulator panel shows whether the current course has a verified run.'; ed.pendingEdits = got.edits;
       if (got.edits.length) el('button', reply, { text: `Show these ${got.edits.length} change${got.edits.length > 1 ? 's' : ''}`, className: 'go', id: 'applyedits', title: 'See where the pieces would go before anything changes' }).onclick = () => {
         const pr = fromEdits(ed.pieces, { angle: ed.angle, offset: ed.offset, level: ed.level }, ed.pendingEdits);
-        if (!pr.items.length) { reply.textContent = got.text + ' (Those changes would not move anything.)'; return; }
-        ed.leadText = got.text; showProposal(pr);
+        if (!pr.items.length) { reply.textContent = 'Those suggestions would not move any pieces. The current simulator result still applies.'; return; }
+        ed.leadText = ''; showProposal(pr);
       };
     } catch { reply.className = 'reply bad'; reply.textContent = 'The design partner could not answer. Try again.'; }
     finally { sendBtn.disabled = whatBtn.disabled = false; }

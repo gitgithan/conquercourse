@@ -6,6 +6,7 @@ import { isStopped } from '../../slice/lane-check';
 import type { LaneCheck } from '../../slice/lane-check-ui';
 import type { CourseData } from '../../course/course';
 import type { createLane } from './lane';
+import type { EditorSearch } from './search';
 import type { createHelper } from './helper';
 import type { EditorState, P } from './state';
 
@@ -14,6 +15,7 @@ type Helper = ReturnType<typeof createHelper>;
 
 // laneCheck is made after this module in editor.ts, so it comes as a callback.
 export interface VerifyEnv {
+  proofFor?: EditorSearch['proofFor'];
   ed: EditorState; lanePanel: HTMLElement; laneCheck: () => LaneCheck;
   searchClearable: (course: CourseData) => Promise<boolean | null>; stopSearch: () => void;
   currentProfile: Lane['currentProfile']; laneCourse: Lane['laneCourse']; coursePieces: Lane['coursePieces'];
@@ -38,16 +40,21 @@ export function createVerify(env: VerifyEnv) {
     env.laneCheck().reset(); // CC-243: an edit throws the last verdict away; the new search starts only after the pause, and the old worker is ended when the new one starts
     const version = verifyVersion;
     document.documentElement.dataset.lane = JSON.stringify({ angle: ed.angle, offset: ed.offset, level: ed.level }); // for the checks: the lane being verified
-    verifyTimer = window.setTimeout(async () => {
+    const check = async () => {
       const p = currentProfile();
       if (p.length < 8) { stopSearch(); ed.verdict = 'Nothing is in the lane: move the lane or the pieces.'; }
       else {
         const r = describeLane(p);
-        ed.verdict = 'Checking this lane…';
+        const course = laneCourse(p), proof = env.proofFor?.(course);
         const v = lanePanel.querySelector('#verdict') as HTMLElement | null;
-        if (v) { v.textContent = ed.verdict; v.className = 'says-when muted'; }
-        env.laneCheck().start();
-        const clear = await searchClearable(laneCourse(p));
+        let clear: boolean | null;
+        if (proof) { stopSearch(); env.laneCheck().start(); clear = proof.cleared; }
+        else {
+          ed.verdict = 'Checking this lane…';
+          if (v) { v.textContent = ed.verdict; v.className = 'says-when muted'; }
+          env.laneCheck().start();
+          clear = await searchClearable(course);
+        }
         if (version !== verifyVersion || isStopped(env.laneCheck().state())) return; // a newer edit, Cancel or the cap answered for this check
         if (clear === null) { env.laneCheck().reset(); ed.verdict = 'The lane check could not finish. Try again after editing stops.'; document.documentElement.dataset.verdict = ed.verdict; if (v) { v.textContent = ed.verdict; v.className = 'says-when bad'; } return; }
         env.laneCheck().done(clear);
@@ -71,7 +78,10 @@ export function createVerify(env: VerifyEnv) {
         adviceBox.textContent = 'Working out what to shift…';
         setTimeout(async () => { if (mine !== adviceRun) return; const got = await adviceInWorker(coursePieces() as P[], { angle: ed.angle, offset: ed.offset, level: ed.level }).catch(() => null); if (!got || mine !== adviceRun) return; ed.adviceList = got; showAdvice(); if (!ed.adviceList.length) adviceBox.textContent = 'No single small shift clears it. Press "What should I change?" to think it through together.'; document.documentElement.dataset.advice = String(ed.adviceList.length); }, 30);
       } else document.documentElement.dataset.advice = '0';
-    }, pause);
+    };
+    // Apply can reuse the preview proof immediately, without a new worker or a checking message.
+    if (env.proofFor?.(laneCourse())) void check();
+    else verifyTimer = window.setTimeout(() => { void check(); }, pause);
   }
   return { interruptSearch, verify, verifyVersion: () => verifyVersion };
 }

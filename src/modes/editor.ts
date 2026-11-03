@@ -33,6 +33,7 @@ import { createHelper } from './editor/helper';
 import { createMoves } from './editor/moves';
 import { el } from './editor/dom';
 import { createLane } from './editor/lane';
+import type { PresetPlan } from '../slice/preset-plans';
 import { createSearch } from './editor/search';
 import { attachPlanMouse } from './editor/plan-mouse';
 import { createLanePanel } from './editor/lane-panel';
@@ -325,7 +326,9 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
     sync();
   }
   const { drawProfile } = createProfile({ ed, profileCanvas, howto, currentProfile, barsNow, draw, drawPanel, changed: () => changed() });
-  const helperUi = createHelper({ ed, lane, root, top, aside, chosen, draw, drawProfile, changed, handoff, goToCourse, tools });
+  const proofResults = new Map<string, PresetPlan>();
+  const previewSearch = createSearch({ progress: () => {}, results: proofResults, preview: true });
+  const helperUi = createHelper({ ed, lane, root, top, aside, chosen, draw, drawProfile, changed, handoff, goToCourse, tools, previewSearch });
   const { helper, helperBtn, reply, adviceBox, setSuggest, showAdvice, runEasier, closePreview, ghostData } = helperUi;
   const movesUi = createMoves({ ed, lane, planWrap, addBarPiece, changed, helper: helperUi });
 
@@ -393,7 +396,7 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
     location.href = location.pathname; // no ?mode: the Course puts itself back from the resume
   }
   backLink.onclick = (e) => { if (handoff) { e.preventDefault(); void goToCourse(); } };
-  const { stopSearch, searchClearable, withProof } = createSearch({ progress: (p) => laneCheck.progress(p) });
+  const { stopSearch, searchClearable, withProof, proofFor } = createSearch({ progress: (p) => laneCheck.progress(p), results: proofResults });
   const launchCourse = (course: CourseData) => {
     // the real objects are drawn in the game instead of blocks (a cropped photo object is drawn whole; its collision is still the cropped lane)
     course.scene = sceneFor(ground(), { angle: ed.angle, offset: ed.offset, level: ed.level }, course.uMap ?? []);
@@ -412,7 +415,7 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
       if (v) { v.textContent = text; v.className = 'says-when bad'; }
     },
   });
-  const verifyUi = createVerify({ ed, lanePanel, laneCheck: () => laneCheck, searchClearable, stopSearch, currentProfile, laneCourse, coursePieces, machineNow, trebuchetPivot, machineWrap, barsNow, adviceBox, setSuggest, showAdvice });
+  const verifyUi = createVerify({ proofFor, ed, lanePanel, laneCheck: () => laneCheck, searchClearable, stopSearch, currentProfile, laneCourse, coursePieces, machineNow, trebuchetPivot, machineWrap, barsNow, adviceBox, setSuggest, showAdvice });
   function interruptSearch() { verifyUi.interruptSearch(); }
   function verify(pause = 800) { verifyUi.verify(pause); }
 

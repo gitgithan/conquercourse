@@ -29,13 +29,13 @@ Levels: primary is filled green, secondary is outlined, quiet is plain text.
 - Fix it: when the check says the runner cannot clear the course; shows the smallest changes as outlines, nothing moves until Apply.
 - Make it easier: when it clears but the hardest press is tight; shows one small change.
 - Look for routes you did not plan: when it works and you wonder if an obstacle can be skipped; about a minute; a list with Close it / Keep it.
-- What should I change?: when you are not sure what is wrong; the design partner answers in words.
+- What should I change?: when you are not sure what is wrong; the design partner suggests edits that the simulator checks in a preview.
 - Each item is a stand-in for the original button (same id, hidden), so tests and the palette keep working.
 - Context buttons that appear only when needed stay where they appear: Apply, Apply and try it, Cancel (the preview row), Fix it from here (after a partner change blocks the lane), Close it and Keep it (each route), Make it so (a plank that would snap), Use it (drone and launcher advice).
 
 ## On the picture
 - Moves card: Add two bars, Start in a trebuchet, What could this be?, Find ways to add the missing moves, Show it.
-- Person chip (bottom left): Show a person / Find the person, Hide.
+- Start marker: a permanent Rookie and gold cone, with no Show, Find or Hide button.
 - Piece bar (next to the chosen piece): delete, copy, scale, turn, crop.
 
 ## Right column
@@ -69,3 +69,12 @@ Levels: primary is filled green, secondary is outlined, quiet is plain text.
 - Before, a world saved with the person on a piece (a rail or a rod) showed the figure standing on it, and a person left far away put the ring and the cone off the picture.
 - A fresh scene with a rail, a bar, a rope swing, a hang bar or a bollard already showed the person beside the lane with the cone at their feet.
 - Evidence: `docs/evidence/cc-multiselect/person-on-rail-before-after.png`.
+
+## Verified preview and Apply (2026-11-04)
+- Show these changes opens the proposed edits without moving the current world.
+- Apply is disabled while the preview check is unfinished.
+- Only the simulator may show a successful clearance result.
+- After a completed check, Apply carries the matching result into the main editor in one undo step.
+- Apply and try it requires a verified clear run.
+- Play receives that same successful run without a duplicate search.
+- See the [UX and data-flow diagrams](editor-proof-flow.md).

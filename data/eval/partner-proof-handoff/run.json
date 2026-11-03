@@ -1,0 +1,49 @@
+{
+  "date": "2026-11-04",
+  "provider": "Baseten",
+  "model": "meta-models/muse-spark-open-1026",
+  "live_model_calls": 2,
+  "mocked_model_calls": 0,
+  "max_output_tokens_per_call": 4000,
+  "estimated_total_budget_usd": 0.05,
+  "actual_cost_usd": null,
+  "billing_note": "The app endpoint does not return provider token usage or billing; actual spend was not measured.",
+  "credits": "Configured Baseten account; not Meta Model API credit; remaining Baseten credit not verified.",
+  "input": {
+    "pieces": [
+      {
+        "src": "block",
+        "x": 12,
+        "z": 0,
+        "y": 0,
+        "yaw": 0,
+        "scale": 10
+      }
+    ],
+    "lane": {
+      "angle": 0,
+      "offset": 0,
+      "level": 0
+    },
+    "request": "Move the existing ground block 0.5 metres further along; keep scale, height, turn and sideways position unchanged."
+  },
+  "final_run": {
+    "passed": true,
+    "ideal_searches": 2,
+    "searches_after_apply": 0,
+    "searches_after_play": 0,
+    "checks": [
+      "model advice is not shown as a proof",
+      "Apply waits for the actual simulator",
+      "toggling back reuses the checked selection",
+      "Apply reuses the verified run immediately",
+      "Play reuses the same verified run",
+      "no browser page errors"
+    ]
+  },
+  "evidence": [
+    "docs/evidence/partner-proof/checking.jpg",
+    "docs/evidence/partner-proof/verified.jpg",
+    "docs/evidence/partner-proof/applied.jpg"
+  ]
+}
