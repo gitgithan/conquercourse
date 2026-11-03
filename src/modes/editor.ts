@@ -405,16 +405,7 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
     ed.droneCfg = dr && dparts ? { payload: Number(dparts[2]) || 70, battery: Number(dparts[3]) || 50 } : null;
     tools.sync();
   }
-  // the undo list goes into the session so it survives a trip to the Course (pieces made from photos or maps are not kept: their meshes are too big)
-  function persistHist() {
-    try {
-      const heavy = (q: P) => q.src?.startsWith('obj:') || q.src?.startsWith('user:') || isSharedSrc(q.src) || q.src?.startsWith('map:');
-      if (ed.pieces.some(heavy) || hist.some((h) => h.pieces.some(heavy))) { sessionStorage.removeItem(HIST_KEY); return; }
-      const start = Math.max(0, hist.length - 25);
-      const keep = (h: Snap): Saved => ({ pieces: h.pieces.filter((q) => q.src).map((q) => ({ src: q.src as string, x: q.x, z: q.z, y: q.y, yaw: q.yaw, scale: q.scale, ...(q.role ? { role: q.role } : {}) })), angle: h.angle, offset: h.offset, level: h.level });
-      sessionStorage.setItem(HIST_KEY, JSON.stringify({ snaps: hist.slice(start).map(keep), hi: Math.max(0, editHistory.hi - start) }));
-    } catch { /* the undo list starts again */ }
-  }
+  const persistHist = () => editHistory.persist();
   // back to the Course: the same course, rebuilt from the pieces now, at the same obstacle (the Course reads this the way it reads a return from the Dojo)
   // check: wait for the simulator and stay when it proves the lane cannot be cleared ('Apply and try it'); 'Back to the Course' and T never wait and never refuse (CC-147)
   async function goToCourse(check = false) {
