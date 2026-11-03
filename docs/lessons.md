@@ -78,6 +78,7 @@
 - **Long GPU jobs run in the background** with a log and a status check, never in a blocking call.
 
 ## Models and services
+- **Where each model is weak, with numbers and evidence:** see [model limits](model-limits.md).
 - **Muse Spark reasons before answering and counts that against `max_tokens`;** a small limit returns an empty answer.
 - **Muse Image edits** (`/images/edits`) keep a style when given a reference image.
 - **Meta API "contributor" models are cheaper but Meta may train on the inputs;** never send private data to them.
