@@ -61,14 +61,32 @@ Serves the demo beat for demo photo 1 (a dance floor with two benches and a pole
 - The bar row is 8 bars from 10.4 m, 2 m apart, so the last bar (24.4 m) is 1.6 m before the join.
 - The ideal-run search is greedy and the result is touchy to the geometry: with 1.6 m wide benches and gaps of 1.8 m or more it failed to find a bench line, and the bulb lane's room swung between 17 ms and 342 ms for small changes of the join or the bar spacing.
   - This set was chosen from a sweep because both lanes clear and both keep a room of 325 ms or more.
-- The benches in the scene are a seat on two long legs with a back, so they read as benches standing in the pit; the physics is only the seat-height platform.
+- The benches in the scene are the real lifted bench (see Real objects), standing in the pit on long legs; the physics is only the seat-height platform.
 - The scene items (benches, pole, bulbs) are drawn on every open of the course file; `?fork=1` only adds the fork strip and report.
   - Evidence: `docs/evidence/cc-133-fork-pits/` (debug off and on, 1280 px).
+
+## Real objects (CC-133, 2026-11-03)
+- Every scene item of the fork course is a real object lifted from demo photo 1 (Jonn Leffmann, CC BY 3.0): no hand-built box is left.
+- The lifts are stretched by `scripts/bake-fork-objects.mjs` so the proved distances hold; the factors are in `public/assets/demo/fork-objects/fork-real.json`.
+- Bench (`fork-bench.glb`, from `p1_bench_left`):
+  - The left bench was chosen: a clean slatted bench with four legs; the right bench has arm hoops that would poke through the lane.
+  - Seat, slats and back are grown 1.35 times on every axis (1.77 m to 2.4 m wide); the seat top lands at 0.45 m.
+  - The legs are stretched about 9 times, down to the pit floor 3 m below, as the old stand-in bench had.
+  - The same file is used three times.
+- Pole (`fork-pole.glb`, from `p1_pole`): a clean thin lamp pole; grown 1.075 times on every axis to reach the bar height of 4.3 m.
+- Bulbs (`fork-bulbs.glb`, from `p1_light_bulbs`):
+  - The lift is a sagging cable with bulbs hanging from it, but it is squeezed in depth (the lift check says so).
+  - Stretched 1.75 times along the run to 14 m (10.4 m to 24.4 m, the bar row) and 1.3 times in height.
+  - Its two end posts are cut off; the real pole already stands at the left end.
+  - The cable ends hang at the bar height (4.3 m) and the middle sags below it.
+- The physics did not change (platforms, pole and bars are the same), so both lanes still clear with the same times; only the course fingerprint in `tests/golden/course-hashes.json` changed, because it counts the scene items.
+- Evidence: `docs/evidence/cc-133-fork-real/` (1280 px, debug off).
 
 ## Files
 - `src/sim/pole-climb.ts`: the climb as pure functions.
 - `src/sim/fork.ts`: the course builder, the bulb-lane search, `proveFork`.
-- `scripts/demo-fork-course.mjs`: builds the demo course from lifted-object GLB paths (`bench=…glb pole=…glb bulbs=…glb`), proves both lanes, records `data/eval/fork/run.json`.
+- `scripts/bake-fork-objects.mjs`: stretches the three real lifts and writes `public/assets/demo/fork-objects/fork-*.glb`.
+- `scripts/demo-fork-course.mjs`: builds the demo course from the real objects, proves both lanes, records `data/eval/fork/run.json`.
 - Shared files touched (small): `src/sim/world.ts` (one mode, one entry block, one step function), `src/sim/ideal.ts` (3 lines: hold E while climbing the pole), `src/sim/branches.ts` (poles in `own`), `src/course/{course,schema,modes}.ts`, `src/motion/actor-state.ts` (a pole climber uses the hanging pose for now), `src/ui/paths.ts` (`fork=1` turns on the same fork display as `paths=1`).
 
 ## Honest limits
@@ -77,4 +95,4 @@ Serves the demo beat for demo photo 1 (a dance floor with two benches and a pole
 - The pole climber is drawn with the bar-hanging pose; a climbing pose needs its own clip.
 - Bars are the existing swinging bars.
   - When hand-over-hand bars arrive the bulb lane's time and window must be proved again with `node scripts/demo-fork-course.mjs`.
-- The three objects are placeholder shapes (boxes) until real lifts replace them.
+- The string of bulbs is the weakest lift: its depth is squeezed (the lift check flags it) and its end posts are cut off.
