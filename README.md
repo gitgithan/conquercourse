@@ -444,7 +444,7 @@ flowchart LR
 flowchart LR
   A["Photos and video"] --> B["SAM 3 / 3.1<br/>masks"]
   B --> C["SAM 3D Objects<br/>19 objects"]
-  B --> D["SAM 3D Body + MHR<br/>poses from video"]
+  B --> D["SAM 3D Body + MHR<br/>vault and climb from video"]
   D --> E["Plausibility gate"]
   F["Kimodo<br/>Llama 3 encoder"] --> E
   E --> G["Motion clips"]
@@ -480,8 +480,8 @@ Diagrams are in [docs/meta-ai-pipelines.md](docs/meta-ai-pipelines.md); the full
 | Community, World Editor objects | **SAM 3 (open weights)** | Cuts a real object out of a player's photo; blurs people in video | Live job on Modal, and build time |
 | Characters, video ingest | **SAM 3.1 (Meta Model API)** | Cuts the figure out of a Muse Image picture; segments obstacles in filmed video | Live for characters (Meta credit), build time for video |
 | Community, World Editor objects | **SAM 3D Objects** | Photo and mask to a 3D object (the 19 editor objects and "Mine" objects) | Modal GPU |
-| Motion clips | **SAM 3D Body + MHR, DINOv3** | Measures body and pose from video | Build time |
-| Generated motion | **Meta-Llama-3-8B-Instruct** | Text encoder inside Kimodo (NVIDIA) for run, leap and hang motion | Build time |
+| Motion clips (2 of 12: vault and climb), custom-look body | **SAM 3D Body + MHR, DINOv3** | Measures body and pose from filmed parkour; the other clips are CMU motion capture and Kimodo | Build time |
+| Generated motion | **Meta-Llama-3-8B-Instruct** | Text encoder inside Kimodo (NVIDIA) for the roll and slide clips | Build time |
 | World Editor: design partner, Fix it | **Muse Spark Open** (Baseten) | Proposes a layout; the simulator checks it | Live, server function |
 | Photo and upload review (outline step, 3D lift, characters, Share in Community) | **Muse Spark Open** (Baseten, `meta-models/muse-spark-open-1026`) | Reads each uploaded photo before anything is made or shared and answers ok, review or block with one reason; if it cannot answer, nothing is made | Live, server function |
 | Community: move tips | **Muse Spark Open** (Baseten) | Names the moves that fit a cut-out object | Live, server function |

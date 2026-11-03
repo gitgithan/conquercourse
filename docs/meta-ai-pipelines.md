@@ -63,6 +63,7 @@ flowchart LR
 ```
 
 ## 2. Video to motion (SAM 3, SAM 3D Body, MHR)
+- **Shipped from this pipeline:** the vault and climb clips (London Parkour film, CC BY), the custom-look body shape (one Pexels frame) and the measured-but-withheld Pexels clips; run, leap, land, hang, swing, reach and hurt are CMU motion capture.
 - **Data in:** short real clips of a move (Pexels and Commons, credited).
 - **Models:** SAM 3 blurs faces and people first (privacy); SAM 3D Body measures the body in each frame as MHR (Meta's Momentum Human Rig) parameters; its encoder is DINOv3.
 - **Our code:** MHR is turned into the 30-joint skeleton (SOMA-X), put on the clip's own clock, checked by the plausibility gate and pinned to the obstacle by contact IK.
@@ -87,7 +88,8 @@ flowchart LR
 - **Models:** Kimodo (NVIDIA) makes the motion; its text encoder is Meta-Llama-3-8B-Instruct.
 - **Our code:** the simulator's physics decides where the body goes; Kimodo only fills in how it looks, and the gate checks the result.
 - **Where it runs:** Modal L4, build time.
-- **Result:** the run, leap and hang clips on the Rookies, chosen over real motion capture 3 times out of 3 in a blind test by the product owner.
+- **Result:** the roll and slide clips on the Rookies.
+- A Kimodo leap won a blind test against motion capture 3 times out of 3, but the product owner kept CMU motion capture for run, leap, land, hang and swing (2026-10-27); `kimodo_leap.json` is kept, unused.
 
 ## 4. Course design partner (Muse Spark Open)
 - **Data in:** the course as the editor describes it.
