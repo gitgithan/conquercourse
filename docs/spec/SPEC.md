@@ -98,7 +98,7 @@
   4. The course is spaced so a run can be timed, and the simulator proves it's clearable.
   - **Fallback (must exist):** the photo as backdrop with editable boxes the player drags onto the objects.
 - **Filmed move → measured:**
-  1. Privacy first: faces and bystanders masked (SAM 3.1) before any other model sees a frame; adults only; the video is deleted after processing.
+  1. Privacy first: faces and bystanders masked (SAM 3, our own open copy on Modal) before any other model sees a frame; adults only; the video is deleted after processing.
   2. SAM 3D Body (Modal) → 30-joint motion on the clip's own clock; contacts found; the gate runs.
   3. The game overlays its prediction on the footage in a strobe style (Marey's chronophotography): the simulator's arc over the real jump.
 - **Never framed as coaching:** the overlay compares physics, not technique.

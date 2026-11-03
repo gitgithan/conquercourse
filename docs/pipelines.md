@@ -146,7 +146,7 @@
 - **Outputs:** a masked photo plus a privacy receipt; a mask; a mesh with a layout (rotation, translation, scale in the camera's frame from MoGe's point map); a baked game asset (GLB, at most 6,000 faces); `mesh.json` (extents, photo height, typical height); a primitive in a world file.
 - **Steps:**
   1. **Privacy (Modal L4):** as in pipeline 1, for people, faces and plates.
-  2. **Mask (L4):** SAM 3 from the text prompt; keep the best mask; on the Meta Model API, SAM 3.1 takes one noun phrase per request, up to 16 objects, masks as base85 text.
+  2. **Mask (Modal L4, with A10G and L40S as fallbacks; scaledown window 60 s):** SAM 3 from the text prompt; keep the best mask; on the Meta Model API, SAM 3.1 takes one noun phrase per request, up to 16 objects, masks as base85 text.
   3. **Lift (Modal L40S, 48 GB; the model needs about 32 GB):** SAM 3D Objects turns photo + mask into a mesh and its Gaussian splat, seed 42.
   4. **Bake (CPU):** the lift's mesh is upright in its own frame (z up); turn it to y up and don't apply the camera layout (it tilts objects by the camera's pitch); turn it so its widest side faces the side-on camera (smallest horizontal bounding box, longer side along x); centre it and stand it on the ground; reduce to at most 6,000 faces (quadric, retrying until under the cap); take colour from the splat, not the mesh (the degree-0 colour of each Gaussian, 0.5 + 0.282 x dc); scale so the height is the typed height, else a typical one for the label (bench 0.8 m with its back, wall and low wall 0.9, rail and handrail 1.0, ledge and platform 0.5, steps 0.7).
      - Colour goes into a 1024 x 1024 UV texture (xatlas unwrap, each texel from its 4 nearest Gaussians, gutter filled), stored as an embedded JPEG: vertex colours on about 2,900 vertices smeared a mural.
@@ -166,6 +166,7 @@
   - Build pytorch3d from the pinned commit with `--no-build-isolation` (about 10 minutes); the flash-attn 2.8.3 and kaolin 0.17 wheels install in seconds; gsplat compiles in about 4 minutes.
   - Call the pipeline's `run` directly (`with_layout_postprocess=False`, no mesh post-processing, no texture baking) instead of the notebook wrapper, which imports gradio and a viewer.
   - SAM 3 needs `torch.autocast("cuda", dtype=torch.bfloat16)`, or the first matrix multiply fails on mixed dtypes.
+  - The mask class is limited to one container and released after 60 s idle; the lift class waits 240 s.
   - Give GPU classes a fallback list (`["L4", "A10G", "L40S"]`, `["L40S", "A100-80GB"]`): one run waited 10 minutes with no container; a killed local run can leave its container alive, so stop the app (`modal app stop --yes <id>`).
 - **Photo tricks that mattered:** a wall that fills the frame was lifted as a table until the photo was pasted onto a 1.5 x canvas (edge pixels repeated); a thin box (a shadow strip) is lifted as a slab and scaled by its typical height to 33 m, so check the box before the lift.
 - **Fallback that must exist:** the photo as a backdrop with editable boxes the player drags onto the objects.

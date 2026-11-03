@@ -188,31 +188,18 @@ Costs use recorded job times: a finder run is 1.1 to 4.2 s on an L4 at about $0.
 
 ## E. Places where the docs disagree
 
-- **Hand-drawn box.**
-  - Settled 2026-11-03: the guide now has **Mark it yourself**, a hand-drawn fallback, and the old rule is gone.
-  - `data/eval/demo-lifts/README.md`: lab boxes are "the flow's fallback"; `docs/pipelines.md` section 12 still says the player "draws a box round one real thing".
-  - The code reads: `Mask.suggest` takes the photo only and the lift takes a box that comes from the clicked outline.
-- **Real harmful images.**
-  - `docs/trust-and-safety.md`, `docs/meta-ai-pipelines.md` and `docs/model-ledger.md` say real harmful images were not tested, and the trust page says CC-120 is "still running".
-  - `data/eval/cc-120-safety-real/README.md` has the run: 84 calls plus 8 more, 37 of 38 must-flag not "ok".
-  - Still true in both: child safety was not tested.
-- **Street-photo masking.**
-  - `docs/meta-ai-pipelines.md` section 6 says people are masked before they are shown and a photo is rejected when masking fails.
-  - `CLAUDE.md` and `data/eval/cc-90-no-filter/README.md` (2026-11-01) make Mapillary's blur the base and reject only large people.
-- **People in photo 1.**
-  - `data/eval/demo-lifts/README.md` says 12 people for the people rule and 10 blurred by SAM 3.
-  - They are two different detectors; no file says which two people SAM 3 did not blur, or whether the difference is a miss.
-- **Safety latency.**
-  - `data/eval/cc-120-safety-real/README.md` gives a worst call of 78 s.
-  - `data/eval/demo-lifts/run.json` records 88.9 s for photo 2.
-- **Stale demo files.**
-  - `data/eval/demo-lifts/run.json`, `objects.json` and the `photo1_segment_objects.jpg` picture were made before the rerun with new phrases.
-  - They still say no phrase finds the bulb string; `suggest/photo1/suggest.json` (the rerun) has "string lights" at 0.61.
-  - The README's top section says the same as the old run, and its last section gives the rerun result.
-- **Thin things.**
-  - `docs/lessons.md` says thin or long things fail.
-  - `data/eval/cc-upload-hard-set/README.md` says thin frames "keep only part of the object but stay placeable".
-  - Both are consistent if "fail" means "not a good skin".
+- Checked and fixed on 2026-11-03 (CC-133), deciding each from the saved data:
+  - Stale demo files: `data/eval/demo-lifts/run.json`, `objects.json`, the README top and `photo1_segment_objects.jpg` now say the rerun finds "string lights" (0.61 and 0.35).
+  - Real harmful images: `docs/trust-and-safety.md`, `docs/meta-ai-pipelines.md` and `docs/model-ledger.md` now give the CC-120 result (37 of 38 must-flag not "ok"); child safety is still untested.
+  - Street-photo masking: `docs/meta-ai-pipelines.md` section 6 now states Mapillary's blur plus the 0.2 height limit, and no masking by us.
+  - Safety latency: the worst call seen is 88.9 s (demo photo 2); CC-120 had 78 s over 84 calls. Both now say so.
+  - Thin things: `docs/lessons.md` now says "fail as a good skin", still placeable.
+  - Hand-drawn box: settled by the product owner on 2026-11-03; the guide has "Mark it yourself" and the demo-lifts README no longer calls the lab box "the flow's fallback".
+  - Also fixed: `docs/spec/SPEC.md` privacy masking is SAM 3; `docs/pipelines.md` section 7 mask stage runs on L4 (scaledown 60 s).
+- Still open:
+  - **People in photo 1.**
+    - 12 by the size rule (Faster R-CNN) against 10 blurred by SAM 3.
+    - Only SAM 3's counts were saved, not its boxes, so whether it missed any is not recorded; answering it needs one more run of the privacy step on a GPU.
 
 ## F. Weaknesses we did not measure
 - **Mask edge quality** of SAM 3 and 3.1 (only looked at by eye) and **repeat-run variation** (`data/eval/sam31-park/README.md`).
