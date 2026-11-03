@@ -1,14 +1,42 @@
 {
   "issue": "CC-133",
   "date": "2026-11-03",
-  "kimodo": {"model": "kimodo-soma-rp", "gpu": "Modal L4", "runs": ["travel", "kip", "idle (never started, stopped)"], "samples_per_run": 8, "constrained_lead_s": 0.45, "cost_usd_estimate": 0.1},
+  "kimodo": {
+    "model": "kimodo-soma-rp",
+    "gpu": "Modal L4",
+    "runs": [
+      "travel",
+      "kip",
+      "idle (never started, stopped)"
+    ],
+    "samples_per_run": 8,
+    "constrained_lead_s": 0.45,
+    "cost_usd_estimate": 0.1
+  },
   "gate": "pipelines/ccpipe/gate.py run_gate, unchanged",
   "bar_checks": "pipelines/ccpipe/barscheck.py",
   "results": {
-    "cmu_01": {"stretches": 22, "pass_travel": 0, "pass_idle": 12, "pass_kip": 11},
-    "kimodo_travel": {"gate_pass": 3, "bar_pass": 0, "of": 8},
-    "kimodo_kip": {"gate_pass": 1, "bar_pass": 0, "of": 8},
-    "procedural": {"travel": "pass", "idle": "pass", "kip": "pass"}
+    "cmu_01": {
+      "stretches": 22,
+      "pass_travel": 0,
+      "pass_idle": 12,
+      "pass_kip": 11
+    },
+    "kimodo_travel": {
+      "gate_pass": 3,
+      "bar_pass": 0,
+      "of": 8
+    },
+    "kimodo_kip": {
+      "gate_pass": 1,
+      "bar_pass": 0,
+      "of": 8
+    },
+    "procedural": {
+      "travel": "pass",
+      "idle": "pass",
+      "kip": "pass"
+    }
   },
   "outputs": "../conquercourse-assets/eval-full/bar-motion/"
 }

@@ -13,33 +13,33 @@
       "checks": {
         "travel": {
           "ok": false,
-          "hang_share": 1.0,
+          "hang_share": 1,
           "hips_travel_m": -0.231,
           "LeftHand": {
             "grips": 4,
             "forward_steps": 0,
-            "other_hand_holds_share": 0.0,
+            "other_hand_holds_share": 0,
             "backward_steps": 0
           },
           "RightHand": {
             "grips": 2,
             "forward_steps": 0,
-            "other_hand_holds_share": 0.0,
+            "other_hand_holds_share": 0,
             "backward_steps": 0
           },
-          "both_hands_moving_share": 0.0
+          "both_hands_moving_share": 0
         },
         "idle": {
           "ok": true,
-          "hang_share": 1.0,
+          "hang_share": 1,
           "hips_travel_m": -0.231,
-          "grip_share": 1.0
+          "grip_share": 1
         },
         "kip": {
           "ok": true,
-          "hang_share": 1.0,
+          "hang_share": 1,
           "hips_travel_m": -0.231,
-          "grip_share": 1.0,
+          "grip_share": 1,
           "swing_p2p_m": 0.592,
           "reversals": 4
         }
@@ -51,39 +51,39 @@
         723,
         873
       ],
-      "seconds": 5.0,
+      "seconds": 5,
       "gate_pass": true,
       "gate_failed": [],
       "checks": {
         "travel": {
           "ok": false,
-          "hang_share": 1.0,
+          "hang_share": 1,
           "hips_travel_m": -0.054,
           "LeftHand": {
             "grips": 3,
             "forward_steps": 0,
-            "other_hand_holds_share": 0.0,
+            "other_hand_holds_share": 0,
             "backward_steps": 0
           },
           "RightHand": {
             "grips": 5,
             "forward_steps": 0,
-            "other_hand_holds_share": 1.0,
+            "other_hand_holds_share": 1,
             "backward_steps": 0
           },
-          "both_hands_moving_share": 0.0
+          "both_hands_moving_share": 0
         },
         "idle": {
           "ok": true,
-          "hang_share": 1.0,
+          "hang_share": 1,
           "hips_travel_m": -0.054,
-          "grip_share": 1.0
+          "grip_share": 1
         },
         "kip": {
           "ok": true,
-          "hang_share": 1.0,
+          "hang_share": 1,
           "hips_travel_m": -0.054,
-          "grip_share": 1.0,
+          "grip_share": 1,
           "swing_p2p_m": 0.578,
           "reversals": 5
         }
@@ -101,33 +101,33 @@
       "checks": {
         "travel": {
           "ok": false,
-          "hang_share": 1.0,
+          "hang_share": 1,
           "hips_travel_m": 0.169,
           "LeftHand": {
             "grips": 1,
             "forward_steps": 0,
-            "other_hand_holds_share": 0.0,
+            "other_hand_holds_share": 0,
             "backward_steps": 0
           },
           "RightHand": {
             "grips": 1,
             "forward_steps": 0,
-            "other_hand_holds_share": 0.0,
+            "other_hand_holds_share": 0,
             "backward_steps": 0
           },
-          "both_hands_moving_share": 0.0
+          "both_hands_moving_share": 0
         },
         "idle": {
           "ok": true,
-          "hang_share": 1.0,
+          "hang_share": 1,
           "hips_travel_m": 0.169,
-          "grip_share": 1.0
+          "grip_share": 1
         },
         "kip": {
           "ok": false,
-          "hang_share": 1.0,
+          "hang_share": 1,
           "hips_travel_m": 0.169,
-          "grip_share": 1.0,
+          "grip_share": 1,
           "swing_p2p_m": 0.21,
           "reversals": 1
         }
@@ -145,7 +145,7 @@
       "checks": {
         "travel": {
           "ok": false,
-          "hang_share": 1.0,
+          "hang_share": 1,
           "hips_travel_m": 0.608,
           "LeftHand": {
             "grips": 2,
@@ -163,13 +163,13 @@
         },
         "idle": {
           "ok": false,
-          "hang_share": 1.0,
+          "hang_share": 1,
           "hips_travel_m": 0.608,
           "grip_share": 0.973
         },
         "kip": {
           "ok": true,
-          "hang_share": 1.0,
+          "hang_share": 1,
           "hips_travel_m": 0.608,
           "grip_share": 0.973,
           "swing_p2p_m": 0.566,
@@ -189,31 +189,31 @@
       "checks": {
         "travel": {
           "ok": false,
-          "hang_share": 1.0,
+          "hang_share": 1,
           "hips_travel_m": -0.028,
           "LeftHand": {
             "grips": 1,
             "forward_steps": 0,
-            "other_hand_holds_share": 1.0,
+            "other_hand_holds_share": 1,
             "backward_steps": 0
           },
           "RightHand": {
             "grips": 1,
             "forward_steps": 0,
-            "other_hand_holds_share": 0.0,
+            "other_hand_holds_share": 0,
             "backward_steps": 0
           },
-          "both_hands_moving_share": 0.0
+          "both_hands_moving_share": 0
         },
         "idle": {
           "ok": true,
-          "hang_share": 1.0,
+          "hang_share": 1,
           "hips_travel_m": -0.028,
           "grip_share": 0.967
         },
         "kip": {
           "ok": false,
-          "hang_share": 1.0,
+          "hang_share": 1,
           "hips_travel_m": -0.028,
           "grip_share": 0.967,
           "swing_p2p_m": 0.058,
@@ -233,31 +233,31 @@
       "checks": {
         "travel": {
           "ok": false,
-          "hang_share": 1.0,
+          "hang_share": 1,
           "hips_travel_m": -0.113,
           "LeftHand": {
             "grips": 3,
             "forward_steps": 0,
-            "other_hand_holds_share": 0.0,
+            "other_hand_holds_share": 0,
             "backward_steps": 0
           },
           "RightHand": {
             "grips": 1,
             "forward_steps": 0,
-            "other_hand_holds_share": 1.0,
+            "other_hand_holds_share": 1,
             "backward_steps": 0
           },
-          "both_hands_moving_share": 0.0
+          "both_hands_moving_share": 0
         },
         "idle": {
           "ok": true,
-          "hang_share": 1.0,
+          "hang_share": 1,
           "hips_travel_m": -0.113,
           "grip_share": 0.992
         },
         "kip": {
           "ok": true,
-          "hang_share": 1.0,
+          "hang_share": 1,
           "hips_travel_m": -0.113,
           "grip_share": 0.992,
           "swing_p2p_m": 0.525,
@@ -277,31 +277,31 @@
       "checks": {
         "travel": {
           "ok": false,
-          "hang_share": 1.0,
+          "hang_share": 1,
           "hips_travel_m": 0.517,
           "LeftHand": {
             "grips": 2,
             "forward_steps": 0,
-            "other_hand_holds_share": 0.0,
+            "other_hand_holds_share": 0,
             "backward_steps": 0
           },
           "RightHand": {
             "grips": 1,
             "forward_steps": 0,
-            "other_hand_holds_share": 0.0,
+            "other_hand_holds_share": 0,
             "backward_steps": 0
           },
           "both_hands_moving_share": 0.027
         },
         "idle": {
           "ok": false,
-          "hang_share": 1.0,
+          "hang_share": 1,
           "hips_travel_m": 0.517,
           "grip_share": 0.979
         },
         "kip": {
           "ok": true,
-          "hang_share": 1.0,
+          "hang_share": 1,
           "hips_travel_m": 0.517,
           "grip_share": 0.979,
           "swing_p2p_m": 0.54,
@@ -315,39 +315,39 @@
         439,
         529
       ],
-      "seconds": 3.0,
+      "seconds": 3,
       "gate_pass": true,
       "gate_failed": [],
       "checks": {
         "travel": {
           "ok": false,
-          "hang_share": 1.0,
-          "hips_travel_m": -0.0,
+          "hang_share": 1,
+          "hips_travel_m": 0,
           "LeftHand": {
             "grips": 2,
             "forward_steps": 0,
-            "other_hand_holds_share": 0.0,
+            "other_hand_holds_share": 0,
             "backward_steps": 0
           },
           "RightHand": {
             "grips": 2,
             "forward_steps": 0,
-            "other_hand_holds_share": 0.0,
+            "other_hand_holds_share": 0,
             "backward_steps": 0
           },
-          "both_hands_moving_share": 0.0
+          "both_hands_moving_share": 0
         },
         "idle": {
           "ok": true,
-          "hang_share": 1.0,
-          "hips_travel_m": -0.0,
-          "grip_share": 1.0
+          "hang_share": 1,
+          "hips_travel_m": 0,
+          "grip_share": 1
         },
         "kip": {
           "ok": false,
-          "hang_share": 1.0,
-          "hips_travel_m": -0.0,
-          "grip_share": 1.0,
+          "hang_share": 1,
+          "hips_travel_m": 0,
+          "grip_share": 1,
           "swing_p2p_m": 0.029,
           "reversals": 4
         }
@@ -365,31 +365,31 @@
       "checks": {
         "travel": {
           "ok": false,
-          "hang_share": 1.0,
+          "hang_share": 1,
           "hips_travel_m": -0.369,
           "LeftHand": {
             "grips": 2,
             "forward_steps": 0,
-            "other_hand_holds_share": 0.0,
+            "other_hand_holds_share": 0,
             "backward_steps": 0
           },
           "RightHand": {
             "grips": 2,
             "forward_steps": 0,
-            "other_hand_holds_share": 1.0,
+            "other_hand_holds_share": 1,
             "backward_steps": 0
           },
-          "both_hands_moving_share": 0.0
+          "both_hands_moving_share": 0
         },
         "idle": {
           "ok": false,
-          "hang_share": 1.0,
+          "hang_share": 1,
           "hips_travel_m": -0.369,
           "grip_share": 0.941
         },
         "kip": {
           "ok": false,
-          "hang_share": 1.0,
+          "hang_share": 1,
           "hips_travel_m": -0.369,
           "grip_share": 0.941,
           "swing_p2p_m": 0.939,
@@ -409,33 +409,33 @@
       "checks": {
         "travel": {
           "ok": false,
-          "hang_share": 1.0,
+          "hang_share": 1,
           "hips_travel_m": -0.254,
           "LeftHand": {
             "grips": 1,
             "forward_steps": 0,
-            "other_hand_holds_share": 0.0,
+            "other_hand_holds_share": 0,
             "backward_steps": 0
           },
           "RightHand": {
             "grips": 1,
             "forward_steps": 0,
-            "other_hand_holds_share": 1.0,
+            "other_hand_holds_share": 1,
             "backward_steps": 0
           },
-          "both_hands_moving_share": 0.0
+          "both_hands_moving_share": 0
         },
         "idle": {
           "ok": true,
-          "hang_share": 1.0,
+          "hang_share": 1,
           "hips_travel_m": -0.254,
-          "grip_share": 1.0
+          "grip_share": 1
         },
         "kip": {
           "ok": false,
-          "hang_share": 1.0,
+          "hang_share": 1,
           "hips_travel_m": -0.254,
-          "grip_share": 1.0,
+          "grip_share": 1,
           "swing_p2p_m": 0.696,
           "reversals": 1
         }
@@ -447,39 +447,39 @@
         382,
         442
       ],
-      "seconds": 2.0,
+      "seconds": 2,
       "gate_pass": true,
       "gate_failed": [],
       "checks": {
         "travel": {
           "ok": false,
-          "hang_share": 1.0,
+          "hang_share": 1,
           "hips_travel_m": 0.002,
           "LeftHand": {
             "grips": 1,
             "forward_steps": 0,
-            "other_hand_holds_share": 0.0,
+            "other_hand_holds_share": 0,
             "backward_steps": 0
           },
           "RightHand": {
             "grips": 2,
             "forward_steps": 0,
-            "other_hand_holds_share": 1.0,
+            "other_hand_holds_share": 1,
             "backward_steps": 0
           },
-          "both_hands_moving_share": 0.0
+          "both_hands_moving_share": 0
         },
         "idle": {
           "ok": true,
-          "hang_share": 1.0,
+          "hang_share": 1,
           "hips_travel_m": 0.002,
-          "grip_share": 1.0
+          "grip_share": 1
         },
         "kip": {
           "ok": false,
-          "hang_share": 1.0,
+          "hang_share": 1,
           "hips_travel_m": 0.002,
-          "grip_share": 1.0,
+          "grip_share": 1,
           "swing_p2p_m": 0.034,
           "reversals": 3
         }
@@ -497,33 +497,33 @@
       "checks": {
         "travel": {
           "ok": false,
-          "hang_share": 1.0,
+          "hang_share": 1,
           "hips_travel_m": -0.238,
           "LeftHand": {
             "grips": 1,
             "forward_steps": 0,
-            "other_hand_holds_share": 0.0,
+            "other_hand_holds_share": 0,
             "backward_steps": 0
           },
           "RightHand": {
             "grips": 1,
             "forward_steps": 0,
-            "other_hand_holds_share": 0.0,
+            "other_hand_holds_share": 0,
             "backward_steps": 0
           },
-          "both_hands_moving_share": 0.0
+          "both_hands_moving_share": 0
         },
         "idle": {
           "ok": true,
-          "hang_share": 1.0,
+          "hang_share": 1,
           "hips_travel_m": -0.238,
-          "grip_share": 1.0
+          "grip_share": 1
         },
         "kip": {
           "ok": false,
-          "hang_share": 1.0,
+          "hang_share": 1,
           "hips_travel_m": -0.238,
-          "grip_share": 1.0,
+          "grip_share": 1,
           "swing_p2p_m": 0.909,
           "reversals": 1
         }
@@ -541,31 +541,31 @@
       "checks": {
         "travel": {
           "ok": false,
-          "hang_share": 1.0,
+          "hang_share": 1,
           "hips_travel_m": 0.293,
           "LeftHand": {
             "grips": 2,
             "forward_steps": 0,
-            "other_hand_holds_share": 0.0,
+            "other_hand_holds_share": 0,
             "backward_steps": 0
           },
           "RightHand": {
             "grips": 2,
             "forward_steps": 0,
-            "other_hand_holds_share": 1.0,
+            "other_hand_holds_share": 1,
             "backward_steps": 0
           },
-          "both_hands_moving_share": 0.0
+          "both_hands_moving_share": 0
         },
         "idle": {
           "ok": false,
-          "hang_share": 1.0,
+          "hang_share": 1,
           "hips_travel_m": 0.293,
           "grip_share": 0.947
         },
         "kip": {
           "ok": false,
-          "hang_share": 1.0,
+          "hang_share": 1,
           "hips_travel_m": 0.293,
           "grip_share": 0.947,
           "swing_p2p_m": 0.484,
@@ -585,31 +585,31 @@
       "checks": {
         "travel": {
           "ok": false,
-          "hang_share": 1.0,
+          "hang_share": 1,
           "hips_travel_m": -0.145,
           "LeftHand": {
             "grips": 2,
             "forward_steps": 0,
-            "other_hand_holds_share": 1.0,
+            "other_hand_holds_share": 1,
             "backward_steps": 0
           },
           "RightHand": {
             "grips": 1,
             "forward_steps": 0,
-            "other_hand_holds_share": 1.0,
+            "other_hand_holds_share": 1,
             "backward_steps": 0
           },
-          "both_hands_moving_share": 0.0
+          "both_hands_moving_share": 0
         },
         "idle": {
           "ok": false,
-          "hang_share": 1.0,
+          "hang_share": 1,
           "hips_travel_m": -0.145,
           "grip_share": 0.945
         },
         "kip": {
           "ok": false,
-          "hang_share": 1.0,
+          "hang_share": 1,
           "hips_travel_m": -0.145,
           "grip_share": 0.945,
           "swing_p2p_m": 0.391,
@@ -629,7 +629,7 @@
       "checks": {
         "travel": {
           "ok": false,
-          "hang_share": 1.0,
+          "hang_share": 1,
           "hips_travel_m": 0.665,
           "LeftHand": {
             "grips": 3,
@@ -647,13 +647,13 @@
         },
         "idle": {
           "ok": false,
-          "hang_share": 1.0,
+          "hang_share": 1,
           "hips_travel_m": 0.665,
           "grip_share": 0.925
         },
         "kip": {
           "ok": true,
-          "hang_share": 1.0,
+          "hang_share": 1,
           "hips_travel_m": 0.665,
           "grip_share": 0.925,
           "swing_p2p_m": 0.67,
@@ -673,31 +673,31 @@
       "checks": {
         "travel": {
           "ok": false,
-          "hang_share": 1.0,
+          "hang_share": 1,
           "hips_travel_m": -0.233,
           "LeftHand": {
             "grips": 1,
             "forward_steps": 0,
-            "other_hand_holds_share": 1.0,
+            "other_hand_holds_share": 1,
             "backward_steps": 0
           },
           "RightHand": {
             "grips": 1,
             "forward_steps": 0,
-            "other_hand_holds_share": 0.0,
+            "other_hand_holds_share": 0,
             "backward_steps": 0
           },
-          "both_hands_moving_share": 0.0
+          "both_hands_moving_share": 0
         },
         "idle": {
           "ok": true,
-          "hang_share": 1.0,
+          "hang_share": 1,
           "hips_travel_m": -0.233,
           "grip_share": 0.969
         },
         "kip": {
           "ok": false,
-          "hang_share": 1.0,
+          "hang_share": 1,
           "hips_travel_m": -0.233,
           "grip_share": 0.969,
           "swing_p2p_m": 0.272,
@@ -717,33 +717,33 @@
       "checks": {
         "travel": {
           "ok": false,
-          "hang_share": 1.0,
+          "hang_share": 1,
           "hips_travel_m": -0.054,
           "LeftHand": {
             "grips": 2,
             "forward_steps": 0,
-            "other_hand_holds_share": 0.0,
+            "other_hand_holds_share": 0,
             "backward_steps": 0
           },
           "RightHand": {
             "grips": 2,
             "forward_steps": 0,
-            "other_hand_holds_share": 1.0,
+            "other_hand_holds_share": 1,
             "backward_steps": 0
           },
-          "both_hands_moving_share": 0.0
+          "both_hands_moving_share": 0
         },
         "idle": {
           "ok": true,
-          "hang_share": 1.0,
+          "hang_share": 1,
           "hips_travel_m": -0.054,
-          "grip_share": 1.0
+          "grip_share": 1
         },
         "kip": {
           "ok": true,
-          "hang_share": 1.0,
+          "hang_share": 1,
           "hips_travel_m": -0.054,
-          "grip_share": 1.0,
+          "grip_share": 1,
           "swing_p2p_m": 0.422,
           "reversals": 3
         }
@@ -761,31 +761,31 @@
       "checks": {
         "travel": {
           "ok": false,
-          "hang_share": 1.0,
+          "hang_share": 1,
           "hips_travel_m": 0.381,
           "LeftHand": {
             "grips": 5,
             "forward_steps": 0,
-            "other_hand_holds_share": 1.0,
+            "other_hand_holds_share": 1,
             "backward_steps": 0
           },
           "RightHand": {
             "grips": 4,
             "forward_steps": 0,
-            "other_hand_holds_share": 1.0,
+            "other_hand_holds_share": 1,
             "backward_steps": 0
           },
-          "both_hands_moving_share": 0.0
+          "both_hands_moving_share": 0
         },
         "idle": {
           "ok": false,
-          "hang_share": 1.0,
+          "hang_share": 1,
           "hips_travel_m": 0.381,
           "grip_share": 0.997
         },
         "kip": {
           "ok": true,
-          "hang_share": 1.0,
+          "hang_share": 1,
           "hips_travel_m": 0.381,
           "grip_share": 0.997,
           "swing_p2p_m": 0.506,
@@ -805,12 +805,12 @@
       "checks": {
         "travel": {
           "ok": false,
-          "hang_share": 1.0,
+          "hang_share": 1,
           "hips_travel_m": 0.261,
           "LeftHand": {
             "grips": 1,
             "forward_steps": 0,
-            "other_hand_holds_share": 0.0,
+            "other_hand_holds_share": 0,
             "backward_steps": 0
           },
           "RightHand": {
@@ -823,13 +823,13 @@
         },
         "idle": {
           "ok": true,
-          "hang_share": 1.0,
+          "hang_share": 1,
           "hips_travel_m": 0.261,
           "grip_share": 0.985
         },
         "kip": {
           "ok": false,
-          "hang_share": 1.0,
+          "hang_share": 1,
           "hips_travel_m": 0.261,
           "grip_share": 0.985,
           "swing_p2p_m": 0.25,
@@ -849,7 +849,7 @@
       "checks": {
         "travel": {
           "ok": false,
-          "hang_share": 1.0,
+          "hang_share": 1,
           "hips_travel_m": 1.019,
           "LeftHand": {
             "grips": 4,
@@ -867,13 +867,13 @@
         },
         "idle": {
           "ok": false,
-          "hang_share": 1.0,
+          "hang_share": 1,
           "hips_travel_m": 1.019,
           "grip_share": 0.942
         },
         "kip": {
           "ok": true,
-          "hang_share": 1.0,
+          "hang_share": 1,
           "hips_travel_m": 1.019,
           "grip_share": 0.942,
           "swing_p2p_m": 1.001,
@@ -893,31 +893,31 @@
       "checks": {
         "travel": {
           "ok": false,
-          "hang_share": 1.0,
+          "hang_share": 1,
           "hips_travel_m": 0.378,
           "LeftHand": {
             "grips": 5,
             "forward_steps": 0,
-            "other_hand_holds_share": 1.0,
+            "other_hand_holds_share": 1,
             "backward_steps": 0
           },
           "RightHand": {
             "grips": 3,
             "forward_steps": 0,
-            "other_hand_holds_share": 0.0,
+            "other_hand_holds_share": 0,
             "backward_steps": 0
           },
-          "both_hands_moving_share": 0.0
+          "both_hands_moving_share": 0
         },
         "idle": {
           "ok": false,
-          "hang_share": 1.0,
+          "hang_share": 1,
           "hips_travel_m": 0.378,
           "grip_share": 0.981
         },
         "kip": {
           "ok": true,
-          "hang_share": 1.0,
+          "hang_share": 1,
           "hips_travel_m": 0.378,
           "grip_share": 0.981,
           "swing_p2p_m": 0.647,
@@ -937,7 +937,7 @@
       "checks": {
         "travel": {
           "ok": false,
-          "hang_share": 1.0,
+          "hang_share": 1,
           "hips_travel_m": 0.328,
           "LeftHand": {
             "grips": 4,
@@ -948,22 +948,22 @@
           "RightHand": {
             "grips": 5,
             "forward_steps": 0,
-            "other_hand_holds_share": 0.0,
+            "other_hand_holds_share": 0,
             "backward_steps": 0
           },
           "both_hands_moving_share": 0.007
         },
         "idle": {
           "ok": false,
-          "hang_share": 1.0,
+          "hang_share": 1,
           "hips_travel_m": 0.328,
-          "grip_share": 1.0
+          "grip_share": 1
         },
         "kip": {
           "ok": true,
-          "hang_share": 1.0,
+          "hang_share": 1,
           "hips_travel_m": 0.328,
-          "grip_share": 1.0,
+          "grip_share": 1,
           "swing_p2p_m": 0.743,
           "reversals": 4
         }
@@ -982,28 +982,28 @@
           "LeftHand": {
             "grips": 1,
             "forward_steps": 0,
-            "other_hand_holds_share": 0.0,
+            "other_hand_holds_share": 0,
             "backward_steps": 0
           },
           "RightHand": {
             "grips": 2,
             "forward_steps": 0,
-            "other_hand_holds_share": 1.0,
+            "other_hand_holds_share": 1,
             "backward_steps": 0
           },
-          "both_hands_moving_share": 0.0
+          "both_hands_moving_share": 0
         },
         "idle": {
           "ok": false,
           "hang_share": 0.727,
           "hips_travel_m": -0.005,
-          "grip_share": 1.0
+          "grip_share": 1
         },
         "kip": {
           "ok": false,
           "hang_share": 0.727,
           "hips_travel_m": -0.005,
-          "grip_share": 1.0,
+          "grip_share": 1,
           "swing_p2p_m": 0.029,
           "reversals": 3
         }
@@ -1020,28 +1020,28 @@
           "LeftHand": {
             "grips": 2,
             "forward_steps": 0,
-            "other_hand_holds_share": 0.0,
+            "other_hand_holds_share": 0,
             "backward_steps": 0
           },
           "RightHand": {
             "grips": 4,
             "forward_steps": 0,
-            "other_hand_holds_share": 1.0,
+            "other_hand_holds_share": 1,
             "backward_steps": 0
           },
-          "both_hands_moving_share": 0.0
+          "both_hands_moving_share": 0
         },
         "idle": {
           "ok": false,
           "hang_share": 0.54,
           "hips_travel_m": 0.036,
-          "grip_share": 1.0
+          "grip_share": 1
         },
         "kip": {
           "ok": false,
           "hang_share": 0.54,
           "hips_travel_m": 0.036,
-          "grip_share": 1.0,
+          "grip_share": 1,
           "swing_p2p_m": 0.102,
           "reversals": 3
         }
