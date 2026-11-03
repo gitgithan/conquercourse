@@ -32,7 +32,9 @@
 - Payoff: high but slow; do it in slices of one feature per pull request.
 - Done in CC-133 (editor split, first slices): `src/modes/editor/` now has `track.ts` (coaster points), `selection.ts` (choose, copy, paste, delete) and `search.ts` (the lane-check search and its state).
 - Done in CC-133 (editor split, slices 5 and 6): `editor/profile.ts` holds the side view and its mouse, and `editor/piece-panel.ts` holds the piece panel, its bar and the chip for several chosen.
-- `src/modes/editor.ts` is now 692 lines (it was about 1,365); the lane panel, the plan drawing, the lane check and the save/load code are still inside `startEditor`.
+- Done in CC-133 (editor split, slices 7 and 8): `editor/plan-draw.ts` holds the plan drawing and its coordinate helpers (`tests/editor-plan-draw.test.ts`), `editor/lane-panel.ts` holds the lane panel, `editor/verify.ts` holds the lane check (verify and interrupt), and `editor/history.ts` now also saves the undo list for the trip to the Course.
+  - The switch registry was checked against the code, and the wrong doc lines were fixed.
+- `src/modes/editor.ts` is now 510 lines (it was about 1,365); hints, keyboard, scene and the load code are still inside `startEditor`.
 - Done in CC-133 (item 5, finished): `src/switches.ts` lists every URL word with `{ name, default, doc, quiet }`, `tests/switches.test.ts` fails when a word read in `src/` is missing, and the quiet list of the first visit now comes from it.
 - Done in CC-133 (item 6, more): `tests/helpers/clips.ts` gives `loadClip` and `loadClipJson`; `motion`, `actor`, `lab-signal`, `lab-timing` and `strip-keys` use the shared readers.
 - The other `box` and `load` functions in tests (`slice`, `vault`, `terrain`, `designer`, `place-water-zero`, `board-courses`, `lane-consistency`) do different jobs, so they are not copies and stay.
