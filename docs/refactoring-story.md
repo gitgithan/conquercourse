@@ -99,7 +99,7 @@ flowchart LR
     i3 -->|"... 12 deep"| i4["..."]
   end
   subgraph a["After"]
-    s2["step(world)"] --> t["STEP[mode](world)"]
+    s2["step(world)"] --> t["the step function for the mode, called with the world"]
     t --> f["run / swing / pole / drone / ..."]
   end
 ```
