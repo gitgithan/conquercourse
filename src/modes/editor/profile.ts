@@ -95,10 +95,13 @@ export function createProfile(env: ProfileEnv) {
       const ix = s.skipped.map((n) => /^Bar (\d+)$/.exec(n)).filter((m): m is RegExpExecArray => !!m).map((m) => Number(m[1]) - 1);
       if (!ix.length) continue;
       const sorted = [...bars].sort((a, b) => a.u - b.u), a0 = sorted[Math.min(...ix) - 1], a1 = sorted[Math.max(...ix) + 1];
-      if (!a0) continue;
-      const x0 = 10 + (a0.u - uLo) * ppm, y0 = base - (a0.y - vmin) * ph, x1 = a1 ? 10 + (a1.u - uLo) * ppm : 10 + (o + prof.length - uLo) * ppm, y1 = a1 ? base - (a1.y - vmin) * ph : base;
+      const st0 = a0 ? null : editorStart(ed, prof); // no bar before the skipped ones: the jump starts at the runner's start (CC-133, owner 2026-11-04)
+      if (!a0 && !st0) continue;
+      const fromU = a0 ? a0.u : st0!.u, fromY = a0 ? a0.y : st0!.h;
+      const x0 = 10 + (fromU - uLo) * ppm, y0 = base - (fromY - vmin) * ph, x1 = a1 ? 10 + (a1.u - uLo) * ppm : 10 + (o + prof.length - uLo) * ppm, y1 = a1 ? base - (a1.y - vmin) * ph : base;
       c.save(); c.strokeStyle = '#7a4fd1'; c.fillStyle = '#7a4fd1'; c.lineWidth = 2; c.setLineDash([5, 5]); c.beginPath(); c.moveTo(x0, y0); c.quadraticCurveTo((x0 + x1) / 2, Math.min(y0, y1) - 40, x1, y1); c.stroke(); c.setLineDash([]);
-      const a = Math.atan2(y1 - (Math.min(y0, y1) - 20), x1 - (x0 + x1) / 2); c.beginPath(); c.moveTo(x1, y1); c.lineTo(x1 - 9 * Math.cos(a - 0.45), y1 - 9 * Math.sin(a - 0.45)); c.lineTo(x1 - 9 * Math.cos(a + 0.45), y1 - 9 * Math.sin(a + 0.45)); c.closePath(); c.fill(); c.restore();
+      const a = Math.atan2(y1 - (Math.min(y0, y1) - 20), x1 - (x0 + x1) / 2); c.beginPath(); c.moveTo(x1, y1); c.lineTo(x1 - 9 * Math.cos(a - 0.45), y1 - 9 * Math.sin(a - 0.45)); c.lineTo(x1 - 9 * Math.cos(a + 0.45), y1 - 9 * Math.sin(a + 0.45)); c.closePath(); c.fill();
+      c.font = '600 12px system-ui'; c.textAlign = 'center'; c.fillText(`kept shortcut: saves ${s.secondsSaved.toFixed(1)} s`, (x0 + x1) / 2, Math.min(y0, y1) - 48); c.restore();
     }
     if (pv) { // the preview: the ground after the change (dashed teal) and the bars where they would hang, with an arrow from where they are now
       c.save(); c.strokeStyle = '#0f9d84'; c.lineWidth = 2; c.setLineDash([6, 4]); c.beginPath();
