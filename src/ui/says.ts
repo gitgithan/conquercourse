@@ -10,7 +10,7 @@ export type VoiceId = 'simulator' | 'partner' | 'safety' | 'cutter' | 'builder' 
 
 export interface Voice {
   id: VoiceId;
-  /** The badge title, for example "Simulator says". */
+  /** The badge title, for example "Simulator". */
   title: string;
   /** The short name used on a crew card. */
   name: string;
@@ -44,14 +44,14 @@ const I = {
 };
 
 export const VOICES: Record<VoiceId, Voice> = {
-  simulator: { id: 'simulator', title: 'Simulator says', name: 'Simulator', accent: '#0f6b5c', tint: '#e6f4ee', poweredBy: 'Our own physics, not an AI. It plays the same way every time.', meta: false, job: 'Plays a course with real physics and tells you if it can be cleared.', where: 'src/ui/sim-says.ts, src/modes/editor.ts, src/modes/map.ts, src/ui/run-report.ts, src/slice/lane-check-ui.ts', icon: I.gears },
-  partner: { id: 'partner', title: 'Design partner says', name: 'Design partner', accent: '#b4510a', tint: '#fdeede', poweredBy: 'Powered by Muse Spark Open', meta: true, job: 'Explains why a course cannot be cleared and offers one change the Simulator proved.', where: 'src/modes/editor.ts', icon: I.pencil },
-  safety: { id: 'safety', title: 'Safety check says', name: 'Safety check', accent: '#b3261e', tint: '#fbe9e7', poweredBy: 'Powered by Muse Spark Open', meta: true, job: 'Looks at every upload and every share before anyone else sees it.', where: 'src/modes/community-flow.ts', icon: I.shield },
-  cutter: { id: 'cutter', title: 'Cutter says', name: 'Cutter', accent: '#1565c0', tint: '#e5effb', poweredBy: 'Powered by SAM 3', meta: true, job: 'Cuts the things in your photo out, one outline each.', where: 'src/modes/community-flow.ts', icon: I.scissors },
-  builder: { id: 'builder', title: 'Builder says', name: 'Builder', accent: '#8a6a00', tint: '#fbf3d6', poweredBy: 'Powered by SAM 3D Objects', meta: true, job: 'Turns a cut-out into a solid 3D piece you can place and run over.', where: 'src/modes/community-flow.ts, src/ui/prize.ts', icon: I.cube },
-  maker: { id: 'maker', title: 'Character maker says', name: 'Character maker', accent: '#ad1457', tint: '#fbe6ef', poweredBy: 'Powered by Muse Image, SAM 3.1 and SAM 3D Objects', meta: true, job: 'Draws a new character from your words and rigs it so it can run.', where: 'src/characters/panel.ts', icon: I.brush },
-  ghost: { id: 'ghost', title: 'Ghost says', name: 'Ghost', accent: '#b86e00', tint: '#fff1d6', poweredBy: 'A replay of a real run, not an AI', meta: false, job: 'Runs your best try, or a friend’s, beside you.', where: 'src/ui/ghost.ts', icon: I.ghost },
-  street: { id: 'street', title: 'Street photos say', name: 'Street photos', accent: '#2e7d32', tint: '#e6f3e7', poweredBy: 'Mapillary photos, faces and plates blurred by Mapillary', meta: false, job: 'Shows real photos taken along the place you built.', where: 'src/ui/live-photos.ts', icon: I.photo },
+  simulator: { id: 'simulator', title: 'Simulator', name: 'Simulator', accent: '#0f6b5c', tint: '#e6f4ee', poweredBy: 'Our own physics, not an AI. It plays the same way every time.', meta: false, job: 'Plays a course with real physics and tells you if it can be cleared.', where: 'src/ui/sim-says.ts, src/modes/editor.ts, src/modes/map.ts, src/ui/run-report.ts, src/slice/lane-check-ui.ts', icon: I.gears },
+  partner: { id: 'partner', title: 'Design partner', name: 'Design partner', accent: '#b4510a', tint: '#fdeede', poweredBy: 'Powered by Muse Spark Open', meta: true, job: 'Explains why a course cannot be cleared and offers one change the Simulator proved.', where: 'src/modes/editor.ts', icon: I.pencil },
+  safety: { id: 'safety', title: 'Safety check', name: 'Safety check', accent: '#b3261e', tint: '#fbe9e7', poweredBy: 'Powered by Muse Spark Open', meta: true, job: 'Looks at every upload and every share before anyone else sees it.', where: 'src/modes/community-flow.ts', icon: I.shield },
+  cutter: { id: 'cutter', title: 'Cutter', name: 'Cutter', accent: '#1565c0', tint: '#e5effb', poweredBy: 'Powered by SAM 3', meta: true, job: 'Cuts the things in your photo out, one outline each.', where: 'src/modes/community-flow.ts', icon: I.scissors },
+  builder: { id: 'builder', title: 'Builder', name: 'Builder', accent: '#8a6a00', tint: '#fbf3d6', poweredBy: 'Powered by SAM 3D Objects', meta: true, job: 'Turns a cut-out into a solid 3D piece you can place and run over.', where: 'src/modes/community-flow.ts, src/ui/prize.ts', icon: I.cube },
+  maker: { id: 'maker', title: 'Character maker', name: 'Character maker', accent: '#ad1457', tint: '#fbe6ef', poweredBy: 'Powered by Muse Image, SAM 3.1 and SAM 3D Objects', meta: true, job: 'Draws a new character from your words and rigs it so it can run.', where: 'src/characters/panel.ts', icon: I.brush },
+  ghost: { id: 'ghost', title: 'Ghost', name: 'Ghost', accent: '#b86e00', tint: '#fff1d6', poweredBy: 'A replay of a real run, not an AI', meta: false, job: 'Runs your best try, or a friend’s, beside you.', where: 'src/ui/ghost.ts', icon: I.ghost },
+  street: { id: 'street', title: 'Street photos', name: 'Street photos', accent: '#2e7d32', tint: '#e6f3e7', poweredBy: 'Mapillary photos, faces and plates blurred by Mapillary', meta: false, job: 'Shows real photos taken along the place you built.', where: 'src/ui/live-photos.ts', icon: I.photo },
   pip: { id: 'pip', title: 'Pip', name: 'Pip', accent: '#e8710a', tint: '#fff0e0', poweredBy: 'Rookie A: orange top, teal headband', meta: false, job: 'The first Rookie. Runs, jumps, vaults and climbs the Course.', where: 'src/characters/panel.ts', icon: I.person },
   juno: { id: 'juno', title: 'Juno', name: 'Juno', accent: '#7b3fbf', tint: '#f1e8fb', poweredBy: 'Rookie B: violet top, bun and orange headband', meta: false, job: 'The second Rookie, drawn in Pip’s style.', where: 'src/characters/panel.ts', icon: I.person },
 };
