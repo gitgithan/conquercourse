@@ -13,6 +13,36 @@ Live: https://conquercourse.pages.dev/
 - Four features, one top bar on every page: **Courses**, **World Editor**, **World Slicer**, **Community**.
 - We do not grade or coach a person's technique, use a chat tutor, or leave Earth's physics.
 
+## 60-second judge path
+| Time | Do this | You will see |
+|---|---|---|
+| 0-10 s | Open https://conquercourse.pages.dev/ and press **Courses**, then run the First Course (arrows or A/D, Space to jump) | A runner on real-object obstacles; falling costs one key press (R) |
+| 10-20 s | Press **I** | The ideal run, found and proved by the simulator, as a ghost to chase |
+| 20-35 s | Open **World Editor** (`?mode=editor`), place a piece, press **Fix it** | The design partner (Muse Spark Open) proposes; the simulator checks and says in plain words what to change |
+| 35-45 s | Open **World Slicer** (`?mode=map`), pin a place | A real street becomes a lane, with Mapillary street photos |
+| 45-60 s | Open **Community** (`?mode=communities`) and press **Segment Objects** on a photo | SAM 3 outlines the objects; pick one and SAM 3D Objects lifts it to a 3D piece (needs the server jobs on; otherwise watch the [promo video](#promo-video) or read [click by click](docs/community-flow-guide.md)) |
+
+- Prefer to read: [demo script](docs/demo-script-v2.md), [Meta tool use](#meta-tool-use), [what is new](#what-is-new-and-what-is-not).
+
+## Modelling decisions, and why
+- One rule runs through all of them: **models propose, the simulator decides.**
+
+| Decision | What we chose | Why this setup |
+|---|---|---|
+| Who judges a run | A fixed 120 Hz TypeScript simulator, never a model | The same keys give the same result, so a time is a fact, a ghost can replay it and the server can prove a clear |
+| Photo to 3D piece | SAM 3 cuts the object, then SAM 3D Objects lifts it | A cut-out gives the lifter one clean object and drops the background; SAM 3D Objects is Meta's photo-to-3D model |
+| Privacy | People blurred and faces and plates pixelated (SAM 3 masks, edited on the CPU) before any other model sees the photo | A recognisable face never leaves the first step; street photos use Mapillary's own blur |
+| Safety check first | Muse Spark Open reads each upload and answers ok, review or block; if it cannot answer, nothing is made | Cheap, fast, and it runs before any GPU is paid for |
+| Mask step vs lift step | Two Modal containers: the mask step on a small L4 GPU that scales down after 60 s, the lift step on a big GPU (L40S or A100) | The two models need different libraries (the lifter pins an older torch), so they cannot share one image; the small GPU is the one players wake most |
+| Cold start | We wake both containers early (the Make tab opens, then Segment Objects is pressed) | The player spends seconds choosing an object anyway, so the wait is hidden, not removed |
+| Mesh file | The GLB is baked on the CPU from the lifter's mesh and colours | The lifter returns raw mesh and splat colours; baking needs no GPU, so the big GPU is released sooner |
+| Characters | A player's sentence goes to Muse Image, then SAM 3.1 (Meta Model API), then SAM 3D Objects | The API needs no GPU of ours and is paid by Meta credit; one fixed skeleton and one set of physics rules fit every creation |
+| Motion | SAM 3D Body with MHR measures filmed moves at build time; Kimodo and CMU capture make the rest | Motion is a build-time file, so the game needs no body model while you play; every clip passes a plausibility check before it is shown |
+| Open weights vs API | SAM 3 runs as open weights on Modal; SAM 3.1 and Muse Image use the Meta Model API | Weights give us box prompts and the privacy step; the API gives one-off calls with no machine to keep warm |
+| Keys and trust | Keys stay on the server; nothing is stored from street photos | Safe to run in public; see [trust and safety](docs/trust-and-safety.md) |
+
+- The full list of which model calls which, and who pays: [model ledger](docs/model-ledger.md) and [Meta AI pipelines](docs/meta-ai-pipelines.md).
+
 ## Core innovation
 - **A deterministic simulator is the judge, and AI only proposes.**
   - Meta's models turn the real world into pieces (a photo into a 3D object, a street into a lane, a sentence into a character).
@@ -133,135 +163,6 @@ conquercourse/
 ├── wrangler.toml Cloudflare settings (live and preview)
 └── CLAUDE.md     rules for agents
 ```
-
-## Database tables (D1)
-- The tables live in Cloudflare D1; `migrations/` has one numbered file per change.
-- No table uses a foreign key.
-- Tables link by shared values: a course key, a course hash, a run id, a random browser code or a row id.
-- Each line in the picture is labelled with the value that links two tables; dotted lines are looser links.
-
-```mermaid
-erDiagram
-    course_events }o--|| course_clears : "run_id, course_key"
-    course_clears }o--|| challenge_courses : "course_hash = board_hash"
-    shares }o..o| challenge_courses : "course_hash = board_hash"
-    community ||--o{ community_reports : "id = course"
-    community_items }o..o{ moderation_stops : "route, owner"
-    characters }o--|| character_jobs : "owner, day"
-    usage_events }o..o{ upload_days : "day"
-    analytics_events }o..o{ course_events : "session"
-    course_events {
-        int id PK
-        text session "random browser code"
-        text course_key
-        text run_id
-        text event_type "start, fail, success"
-        text country "two letters"
-        text ref "where the visit came from"
-    }
-    course_clears {
-        int id PK
-        text course_key
-        text course_hash
-        text run_id UK
-        int ticks "time the server replay gave"
-    }
-    challenge_courses {
-        text id PK
-        text board_hash
-        text content_hash UK
-        int author_ticks
-        int promoted_at
-        int expires_at
-    }
-    shares {
-        text id PK
-        text kind "done or fell"
-        text course_key
-        text course_hash
-        text keys "the recorded run"
-    }
-    community {
-        int id PK
-        text status "pending, approved"
-        text name
-        int reports
-    }
-    community_reports {
-        int course FK
-        text session
-    }
-    community_items {
-        text id PK
-        text kind "piece or wallpaper"
-        text status "pending, approved, removed"
-        text owner
-        text moderation
-    }
-    characters {
-        text id PK
-        text owner
-        text status
-        text prompt
-        text provider
-    }
-    character_jobs {
-        text id PK
-        text owner
-        text day
-        text state
-    }
-    moderation_stops {
-        int id PK
-        text route
-        text owner
-        text verdict
-        text reason
-    }
-    lift_receipts {
-        text id PK
-        int used_at
-    }
-    usage_events {
-        text day PK
-        text category PK
-        int calls
-        real est_cents
-    }
-    analytics_events {
-        text day
-        text kind "step or wait"
-        text name "funnel step or service"
-        text session "random browser code"
-        text ref "where the visit came from"
-        int ms "wait time"
-        int cold "machine was cold"
-    }
-    upload_days {
-        text day PK
-        text player PK
-        int n
-    }
-    flags {
-        text name PK
-        int on_
-    }
-    feedback {
-        int id PK
-        text round
-        text session
-        text answers
-    }
-```
-
-- **Play record:** `course_events` logs starts, fails and successes; `course_clears` keeps only runs the server replayed; the board and the growth chart read these two.
-- **Sharing:** `shares` holds a recorded run, and `challenge_courses` holds a made course that others can try before it is promoted.
-- **Community:** `community` holds photo courses, `community_items` holds pieces and wallpapers, and `community_reports` holds one report per browser per course.
-- **Made things:** `characters` and `character_jobs` track make-a-character runs.
-- **Safety and cost:** `moderation_stops`, `lift_receipts`, `usage_events`, `upload_days` and `flags` support the safety check and the owner-only page.
-- **Feedback:** `feedback` stores answers from the in-page forms.
-- **Visits and waits:** `analytics_events` holds funnel steps and how long the rented machines took to answer.
-- All migrations up to 0019 are applied on the live database.
 
 ## Experiences that are not possible in real life
 - **Race a ghost of a stranger.**
