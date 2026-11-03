@@ -38,7 +38,7 @@
     - Leads to: The Course (play), World Slicer, World Editor, Coaster builder
   - **The Making Of**
     - You do: You open the maps of how the game was made, the site map and the course map, as ordinary pages.
-    - How to get there: Courses picker, last group "The Making Of" (`?making=0` hides it).
+    - How to get there: Courses picker, last group "The Making Of" (`?making=0` hides the two map cards; the story page stays at `/making-of/`, linked from the maps).
     - Leads to: Courses picker, The Course (play)
 - **The Course (play)**
   - You do: You run, jump, hang, swing and climb a small runner to the finish.
@@ -82,7 +82,7 @@
   - Leads to: The Course (play)
 - **Parts gallery**
   - You do: You see every move and every obstacle on one page, each playing live.
-  - How to get there: Courses picker, card "Parts: moves and obstacles".
+  - How to get there: Courses picker, last group "The Making Of", card "Parts: moves and obstacles" (`?parts=0` hides it).
   - Leads to: The Course (play)
 - **Coaster builder**
   - You do: You drag dots to shape a track and then ride it.
