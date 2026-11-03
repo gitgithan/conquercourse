@@ -209,3 +209,17 @@
 - A slip in the clean-up:
   - The first old-fingerprint list was made before this change, so 6 of its 14 fingerprints are in use again after it.
   - Rule: decide the fingerprint recipe first, then list the stale ones.
+
+## The same keys give the same result, but not the same digits on every V8 (CC-133, 2026-11-03)
+- What happened:
+  - `tests/sim-trace.test.ts` failed on a VM with Node 22 and passed on Node 24, for six courses.
+- Why:
+  - `x ** 3` and `Math.pow(x, 1.5)` round differently in V8 12.4 and 13.6; sin, cos, exp, atan2, sqrt and the rest are identical.
+  - The CPU does not matter.
+- What is guaranteed:
+  - Tick count, outcome and end place are identical on Node 22, Node 24 and workerd in 7,525 runs; the stored hash is exact only on V8 13.x.
+- What we did:
+  - The trace test checks outcome everywhere and the hash on V8 13.x only.
+  - A bit-exact fix (`x * x * x`, `T * Math.sqrt(T)`) is ready in `data/eval/trace-machines/pow-fix.patch`, waiting for the owner.
+- How to prevent it: use only `+ - * /` and `Math.sqrt` in the sim step when you can; avoid `**` above 2 and `Math.pow`.
+- Details: `data/eval/trace-machines/README.md`.
