@@ -1,3 +1,4 @@
+import { QUIET_WORDS } from '../switches';
 // Who gets the first-visit tour (CC-100): the rules in one pure place, so a unit test can walk every case.
 // A first visit gets the tour; a returning player gets their last course; automation and explicit links keep today's behaviour.
 export const ONBOARDING_ON = true; // the build switch; ?onboarding=0 turns it off for one visit
@@ -11,7 +12,7 @@ export const LAST_COURSE = 'cc.lastCourse';
 const OLD_WELCOME = 'cc.worldWelcome.seen'; // players who saw the old world chooser are returning players
 
 /** The only query words a plain first visit may carry; any other one is an explicit link and is left alone. */
-const QUIET = new Set(['onboarding', 'tour', 'labs', 'cam', 'photos', 'next', 'tourstep']);
+const QUIET = QUIET_WORDS;
 
 export interface Store { get(key: string): string | null; set(key: string, value: string): void }
 export const browserStore: Store = {
