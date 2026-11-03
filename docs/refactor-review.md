@@ -31,6 +31,11 @@
 - Risk to the sim: none if only UI code moves (the sim is imported, not edited).
 - Payoff: high but slow; do it in slices of one feature per pull request.
 - Done in CC-133 (editor split, first slices): `src/modes/editor/` now has `track.ts` (coaster points), `selection.ts` (choose, copy, paste, delete) and `search.ts` (the lane-check search and its state).
+- Done in CC-133 (editor split, slices 5 and 6): `editor/profile.ts` holds the side view and its mouse, and `editor/piece-panel.ts` holds the piece panel, its bar and the chip for several chosen.
+- `src/modes/editor.ts` is now 692 lines (it was about 1,365); the lane panel, the plan drawing, the lane check and the save/load code are still inside `startEditor`.
+- Done in CC-133 (item 5, finished): `src/switches.ts` lists every URL word with `{ name, default, doc, quiet }`, `tests/switches.test.ts` fails when a word read in `src/` is missing, and the quiet list of the first visit now comes from it.
+- Done in CC-133 (item 6, more): `tests/helpers/clips.ts` gives `loadClip` and `loadClipJson`; `motion`, `actor`, `lab-signal`, `lab-timing` and `strip-keys` use the shared readers.
+- The other `box` and `load` functions in tests (`slice`, `vault`, `terrain`, `designer`, `place-water-zero`, `board-courses`, `lane-consistency`) do different jobs, so they are not copies and stay.
 - Done in CC-133 (editor split, fourth slice): `editor/plan-mouse.ts` holds the mouse on the flat plan; `startEditor` is now 913 lines, and `advice`, `fixit`, `golden-search` and `trebuchet-polish` tests use the shared `box`.
 - The browser characterize run (`scripts/editor-characterize.mjs`) matched `tests/golden/editor-characterize.json` after each slice; hints, keyboard and scene are still inside `startEditor`.
 - Done in CC-133 (course split): `src/modes/course.ts` went from 1,718 lines to 399, and `src/modes/course/` grew from five small files to thirty-one (the last 992 to 399 lines are the sixth to the twelfth slice below).
