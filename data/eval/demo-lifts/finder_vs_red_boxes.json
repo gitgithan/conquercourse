@@ -1,0 +1,154 @@
+{
+  "scale_from_view": 1.2673267326732673,
+  "red_boxes_1280": {
+    "loops_top": [
+      570,
+      264,
+      1039,
+      375
+    ],
+    "left_grid": [
+      57,
+      345,
+      406,
+      425
+    ]
+  },
+  "lab_box_sent": [
+    551,
+    288,
+    1222,
+    349
+  ],
+  "red": {
+    "loops_top": {
+      "box": [
+        570,
+        264,
+        1039,
+        375
+      ],
+      "best_iou": 0.0225,
+      "all_finder_boxes_cover_share": 0.04,
+      "cover_share_by_label": {
+        "pole": 0.04,
+        "pull-up bar": 0,
+        "wall": 0
+      },
+      "bar_labels_only_cover_share": 0,
+      "rows_touching": [
+        {
+          "label": "pole",
+          "score": 0.69,
+          "box": [
+            549,
+            265,
+            576,
+            891
+          ],
+          "inter_px": 660,
+          "share_of_red_box": 0.013,
+          "iou": 0.0097
+        },
+        {
+          "label": "pole",
+          "score": 0.68,
+          "box": [
+            1019,
+            304,
+            1043,
+            825
+          ],
+          "inter_px": 1420,
+          "share_of_red_box": 0.027,
+          "iou": 0.0225
+        }
+      ],
+      "lab_box_covers_share": 0.55
+    },
+    "left_grid": {
+      "box": [
+        57,
+        345,
+        406,
+        425
+      ],
+      "best_iou": 0.0526,
+      "all_finder_boxes_cover_share": 0.18,
+      "cover_share_by_label": {
+        "pole": 0.18,
+        "pull-up bar": 0,
+        "wall": 0
+      },
+      "bar_labels_only_cover_share": 0,
+      "rows_touching": [
+        {
+          "label": "pole",
+          "score": 0.68,
+          "box": [
+            233,
+            288,
+            260,
+            854
+          ],
+          "inter_px": 2160,
+          "share_of_red_box": 0.077,
+          "iou": 0.0526
+        },
+        {
+          "label": "pole",
+          "score": 0.66,
+          "box": [
+            209,
+            336,
+            231,
+            782
+          ],
+          "inter_px": 1760,
+          "share_of_red_box": 0.063,
+          "iou": 0.0489
+        },
+        {
+          "label": "pole",
+          "score": 0.66,
+          "box": [
+            36,
+            340,
+            60,
+            767
+          ],
+          "inter_px": 240,
+          "share_of_red_box": 0.009,
+          "iou": 0.0063
+        },
+        {
+          "label": "pole",
+          "score": 0.62,
+          "box": [
+            395,
+            379,
+            414,
+            721
+          ],
+          "inter_px": 506,
+          "share_of_red_box": 0.018,
+          "iou": 0.0149
+        },
+        {
+          "label": "pole",
+          "score": 0.59,
+          "box": [
+            255,
+            393,
+            271,
+            712
+          ],
+          "inter_px": 512,
+          "share_of_red_box": 0.018,
+          "iou": 0.0157
+        }
+      ],
+      "lab_box_covers_share": 0
+    }
+  }
+}

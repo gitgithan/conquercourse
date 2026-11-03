@@ -476,6 +476,7 @@ Diagrams are in [docs/meta-ai-pipelines.md](docs/meta-ai-pipelines.md); the full
 ## Where to read more
 - Source of truth: [docs/spec/SPEC.md](docs/spec/SPEC.md)
 - What we learned and why: [docs/lessons.md](docs/lessons.md)
+- Where the models are weak, on which inputs, and what we do about it: [docs/model-limits.md](docs/model-limits.md)
 - Learn how we build it, four shareable lessons: [create a move](docs/lessons-move-creation.md), [create an obstacle](docs/lessons-obstacle-creation.md), [moves meeting obstacles](docs/lessons-move-obstacle-interactions.md), [test on a different machine](docs/lessons-cross-hardware-testing.md)
 - Pipelines with diagrams: [docs/meta-ai-pipelines.md](docs/meta-ai-pipelines.md), recipes in [docs/pipelines.md](docs/pipelines.md)
 - Stages and courses: [docs/stages.md](docs/stages.md), [docs/course-design.md](docs/course-design.md)
