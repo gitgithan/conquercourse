@@ -244,23 +244,16 @@
   - Source: built with `scripts/make-places.ts` from the Overpass and AWS Terrain Tiles sources above, fetched 2026-11-01
   - Licence: (c) OpenStreetMap contributors, ODbL 1.0; terrain as above
   - Only the places named in `index.json` with `listed: true` show in the list; the others stay as files
-- **Twelve parkour parks** (`public/assets/places/<slug>.json`, `tiles/*.svg` and `index.json` entries with `kind: parkour`, CC-133)
-  - What they hold: the Overpass answer, ground heights and the lane search result for BGI akademiet Parkour Park, Gerlev Parkour Park, FlowPark Brumunddal, Regent's Park Parkour Hub, Lakeside Garden SkatePark, Axelsbergs Parkour, Stockholm, Parkour at Zollverein, Essen, Calisthenics and Freerun Park, Plaza Parkour, Cochabamba, Parkour pitch, Bellingham, Junction Street Plaza, Sydney, Brahenpuisto parkour area, Kuopio
+- **Five parkour parks** (`public/assets/places/<slug>.json`, `tiles/*.svg` and `index.json` entries with `kind: parkour`, CC-133)
+  - What they hold: the Overpass answer, ground heights and the lane search result for Gerlev Parkour Park, Regent's Park Parkour Hub, Lakeside Garden SkatePark, Parkour at Zollverein, Essen and Plaza Parkour, Cochabamba
   - Source: built with `scripts/make-places.ts` from the Overpass and AWS Terrain Tiles sources above, fetched 2026-11-03; each park is tied to the OpenStreetMap element below, checked with the Overpass API (area computed from its outline)
-  - BGI akademiet Parkour Park (Denmark): OpenStreetMap way/100191425, 203,784 m2, enclosing campus, visible at the editor zoom: yes
   - Gerlev Parkour Park (Denmark): OpenStreetMap way/1274319354, 90,840 m2, enclosing school area, visible at the editor zoom: yes
-  - FlowPark Brumunddal (Norway): OpenStreetMap way/607719660, 2,317 m2, Mjosparken skate park beside the parkour area, visible at the editor zoom: yes
   - Regent's Park Parkour Hub (United Kingdom): OpenStreetMap relation/1384127, about 1,600,000 (bounding box 1186 x 1427 m) m2, enclosing park, visible at the editor zoom: yes
   - Lakeside Garden SkatePark (Singapore): OpenStreetMap way/1159195814, 15,029 m2, the park itself (a 341 m2 parkour pitch, way/1159195817, lies inside), visible at the editor zoom: yes
-  - Axelsbergs Parkour, Stockholm (Sweden): OpenStreetMap way/818042918, 1,146 m2, parkour pitch, visible at the editor zoom: no
   - Parkour at Zollverein, Essen (Germany): OpenStreetMap way/879920257, 510 m2, parkour pitch, visible at the editor zoom: no
-  - Calisthenics and Freerun Park (Netherlands): OpenStreetMap way/849453743, 750 m2, parkour pitch, visible at the editor zoom: no
   - Plaza Parkour, Cochabamba (Bolivia): OpenStreetMap way/730118541, 201 m2, parkour pitch, visible at the editor zoom: no
-  - Parkour pitch, Bellingham (United States): OpenStreetMap way/895145811, 333 m2, parkour pitch, visible at the editor zoom: no
-  - Junction Street Plaza, Sydney (Australia): OpenStreetMap way/1415868149, 295 m2, parkour pitch, visible at the editor zoom: no
-  - Brahenpuisto parkour area, Kuopio (Finland): OpenStreetMap way/944150009, 261 m2, parkour pitch, visible at the editor zoom: no
   - Licence: (c) OpenStreetMap contributors, ODbL 1.0 (https://www.openstreetmap.org/copyright); terrain as above
-  - No third-party photo is stored for these places (the cards show the clean skyline tile)
+  - Each of the five has a Wikimedia Commons cover photo (rows under "Parkour park cover photos (CC-133)" below); seven more parks were removed for lack of a free photo (see `data/eval/cc-133-park-pictures/README.md`)
 - **Lane photo counts** (`data/eval/cc-90-photolanes/`)
   - What it holds: counts of photos facing each lane before and after the person filter, no pictures
   - Source: Mapillary Graph API, 2026-11-01, `scripts/photos_lane_audit.py`
@@ -774,3 +767,16 @@
 | `data/eval/bar-photos/evidence/*.jpg` (3 pictures, 200 to 300 KB) | Contact sheets of eight bar photos: Segment Objects bar outlines, box cut-outs, and six-view turntables of the eight lifted GLBs | The eight photo authors in the rows above; sheets ours | the eight source pages above | CC0 (photos 2, 3), CC BY-SA 2.0 to 4.0 (the rest), ours (sheets) | Evidence only, shrunk. Swap before a sale: redo the sheets from CC0 photos only |
 | `../conquercourse-assets/eval-full/bar-photos/glb/photo*_bars.glb` and `../conquercourse-assets/bar-photos/best/*.glb` (8 and 2 GLBs, 420 to 590 KB each; not in git) | 3D monkey-bars objects lifted from the photos above (SAM 3D Objects, seed 42, 5,820 faces, 1024 texture); the best two are photo 3 (CC0) and photo 5 (CC BY-SA 3.0) | Photo authors (Salada220422 for photo 3; KENPEI for photo 5); lift ours | the source pages above | Photo 3 lift: CC0. Photo 5 lift: CC BY-SA 3.0 (carries the photo licence) | Not shipped in the game yet (over 300 KB). Photo 3 can ship as it is; photo 5 and the others are demo only, swap before a sale: use the photo 3 lift. Credits: Salada220422, KENPEI |
 | `data/eval/demo-lifts/` (README, run.json, verdict and receipt JSONs, evidence pictures; raw GLBs in `../conquercourse-assets/eval-full/demo-lifts/`) | Outputs of the two runs above | ours | n/a | The lifted meshes of photo 1 follow CC BY 3.0 credit; those of photo 2 follow CC BY-SA 4.0 | Demo only |
+
+## Parkour park cover photos (CC-133)
+- **`public/assets/places/thumbs/<slug>.jpg`** (5 files: gerlev-parkour-park, lakeside-garden-skatepark, regents-park-london, zollverein-parkour-essen, plaza-parkour-cochabamba)
+  - What: a 320 by 180 crop of one Wikimedia Commons photo each, under 25 KB; resized and cropped only.
+  - Made by `scripts/make-parkour-thumbs.py`; the credit, source link and what the picture shows are in `public/assets/places/thumbs/index.json` and show on the card as "Photo of the area nearby".
+  - None is a photo of the parkour course itself (Commons has none); each shows the site or building next to it, and the card says so.
+  - `gerlev-parkour-park.jpg`: Gerlev Idrætshøjskole, by XYZA-2400, CC BY-SA 4.0, https://commons.wikimedia.org/wiki/File:Gerlev_Idrætshøjskole,_Gerlev,_Slagelse_Kommune._Foto_fra_10._maj_2022._Fotograf_Hans_Christian_Hansen.jpg
+  - `lakeside-garden-skatepark.jpg`: Jurong Lake Gardens, by LN9267, CC BY-SA 4.0, https://commons.wikimedia.org/wiki/File:Jurong_Lake_Gardens_10-11-2023(39).jpg
+  - `regents-park-london.jpg`: the Hub, Regent's Park, by David Howard (geograph), CC BY-SA 2.0, https://commons.wikimedia.org/wiki/File:The_Regent's_Park_Hub_cafe_-_geograph.org.uk_-_3362814.jpg
+  - `zollverein-parkour-essen.jpg`: Zeche Zollverein, by dronepicr, CC BY 2.0, https://commons.wikimedia.org/wiki/File:Zeche_Zollverein_Essen_(21228047316).jpg
+  - `plaza-parkour-cochabamba.jpg`: the old slaughterhouse (mARTadero), by VASQUEZ RODRIGUEZ RAUL, CC BY-SA 4.0, https://commons.wikimedia.org/wiki/File:Ex_matadero_exterior_2.jpg
+  - No person is in any of them (looked at one by one); one candidate with three young people was rejected.
+  - Swap before a sale: the four CC BY-SA ones may stay only as a demo; the replacement plan is a CC0 or CC BY photo of the same park, or our own photo, as a file change.

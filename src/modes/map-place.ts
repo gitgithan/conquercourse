@@ -81,7 +81,7 @@ export function installPlaces(ctx: PlaceCtx) {
     const qs = pageQuery(), strict = ctx.strict === true;
     const showAll = qs.get('places') === 'all' && (!strict || qs.get('debug') === 'places'), shown = shownReady(index, showAll, strict); // CC-211: the no-path cards need ?places=all&debug=places
     const gallery = pageQuery().get('slice2') !== 'old', streetSet = await loadStreetPlaces(pageQuery());
-    let thumbs: Record<string, { author: string; licence: string; source: string }> = {};
+    let thumbs: Record<string, { author: string; licence: string; source: string; shows?: string }> = {};
     if (gallery) { try { thumbs = await (await fetch('/assets/places/thumbs/index.json')).json(); } catch { thumbs = {}; } }
     const pick = (p: ReadyIndexEntry) => { map.flyTo({ center: [p.lon, p.lat], zoom: 16, duration: 700 }); ctx.setRadius(p.radius); ctx.setPin(p.lat, p.lon); ctx.tell(`${p.name}: ready. Press Build.`); };
     const head = document.createElement('summary'); head.textContent = `Ready places (${shown.length}, they load at once)`;
@@ -98,9 +98,9 @@ export function installPlaces(ctx: PlaceCtx) {
       img.className = 'ph'; img.loading = 'lazy'; img.alt = ''; img.src = th ? `/assets/places/thumbs/${p.slug}.jpg` : `/assets/places/tiles/${p.slug}.svg`; img.dataset.kind = th ? 'photo' : 'tile';
       const ready = p.listed !== false && (p.kind !== 'parkour' || p.path === true);
       b.className = 'card'; b.setAttribute('aria-pressed', 'false');
-      if (th) b.title = `Photo: ${th.author}, ${th.licence}`;
+      if (th) b.title = `Photo: ${th.author}, ${th.licence}${th.shows ? `. The picture shows ${th.shows}.` : ''}`;
       b.append(img);
-      b.insertAdjacentHTML('beforeend', `<span class="nm"></span><span class="ct"></span><span class="bd"><span class="rd${ready ? '' : ' no'}">${ready ? 'ready' : p.kind === 'parkour' ? 'no lane found yet' : 'no photos or no lane'}</span>${p.kind === 'parkour' && p.visible === false ? '<span class="sp" title="The mapped shape is under 1500 square metres, so it is a small patch at the editor zoom">small on the map</span>' : ''}${streetSet.has(p.slug) ? `<span class="sp" title="${STREET_CHIP_TITLE}">${STREET_CHIP}</span>` : ''}${p.hill_m >= 3 ? `hill ${p.hill_m} m` : 'flat'}</span>${th ? `<span class="cr">Photo: ${th.author.replace(/<[^>]*>/g, '')}, ${th.licence}</span>` : ''}`);
+      b.insertAdjacentHTML('beforeend', `<span class="nm"></span><span class="ct"></span><span class="bd"><span class="rd${ready ? '' : ' no'}">${ready ? 'ready' : p.kind === 'parkour' ? 'no lane found yet' : 'no photos or no lane'}</span>${p.kind === 'parkour' && p.visible === false ? '<span class="sp" title="The mapped shape is under 1500 square metres, so it is a small patch at the editor zoom">small on the map</span>' : ''}${streetSet.has(p.slug) ? `<span class="sp" title="${STREET_CHIP_TITLE}">${STREET_CHIP}</span>` : ''}${p.hill_m >= 3 ? `hill ${p.hill_m} m` : 'flat'}</span>${th ? `<span class="cr">${p.kind === 'parkour' ? 'Photo of the area nearby' : 'Photo'}: ${th.author.replace(/<[^>]*>/g, '')}, ${th.licence}</span>` : ''}`);
       (b.querySelector('.nm') as HTMLElement).textContent = nm; (b.querySelector('.ct') as HTMLElement).textContent = p.kind === 'parkour' ? [city, p.country].filter(Boolean).join(', ') : city;
       b.onclick = () => { list.querySelectorAll('button.card').forEach((x) => x.setAttribute('aria-pressed', String(x === b))); pick(p); };
       return b;
