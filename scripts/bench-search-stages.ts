@@ -45,6 +45,7 @@ const result: Record<string, unknown> = {
 const pool = poolSize > 0 ? nodePool(poolSize) : null;
 for (const name of NAMES) {
   const course = JSON.parse(readFileSync(`public/assets/demo/${name}.course.json`, "utf8")) as CourseData; delete course.plan;
+  const loadBefore = Math.round(os.loadavg()[0] * 100) / 100;
   const all = Array.from({ length: runs }, () => profile(course));
   const med = all.map((a) => a.total).sort((x, y) => x - y)[Math.floor(runs / 2)];
   const pick = all.find((a) => a.total === med)!; // the median run's stages
@@ -54,6 +55,7 @@ for (const name of NAMES) {
   const stages = Object.fromEntries(Object.entries(pick.stages).map(([k, v]) => [k, { ...v, ms: Math.round(v.ms), medianMs: Math.round(median(all.map((a) => a.stages[k]?.ms ?? 0))) }]));
   const totalTicks = Object.values(pick.stages).reduce((s, v) => s + v.ticks, 0);
   (result.courses as Record<string, unknown>)[name] = {
+    loadBefore,
     oneThreadMedianMs: Math.round(med), oneThreadRunsMs: all.map((a) => Math.round(a.total)), totalTicks, ticksPerSecond: Math.round(totalTicks / (med / 1000)),
     poolMedianMs: pool ? Math.round(median(poolMs)) : null, poolRunsMs: poolMs.map(Math.round), sameAnswerEveryRun: answers.size === 1 && (!pool || poolAnswer === [...answers][0]), answer: [...answers][0], stages,
   };

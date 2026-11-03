@@ -1,0 +1,341 @@
+{
+  "machine": {
+    "cpus": 4,
+    "model": "Intel Xeon Processor (Skylake, IBRS)",
+    "node": "v24.20.0",
+    "load1": 1.44,
+    "poolWorkers": 3
+  },
+  "runs": 3,
+  "courses": {
+    "bars": {
+      "loadBefore": 1.44,
+      "oneThreadMedianMs": 9691,
+      "oneThreadRunsMs": [
+        11610,
+        9691,
+        8447
+      ],
+      "totalTicks": 1875950,
+      "ticksPerSecond": 193581,
+      "poolMedianMs": 1819,
+      "poolRunsMs": [
+        5734,
+        1764,
+        1819
+      ],
+      "sameAnswerEveryRun": true,
+      "answer": "332574120c649061",
+      "stages": {
+        "between batches": {
+          "ms": 7,
+          "ticks": 0,
+          "jobs": 0,
+          "batches": 0,
+          "medianMs": 7
+        },
+        "monkey bars": {
+          "ms": 9677,
+          "ticks": 1874713,
+          "jobs": 1662,
+          "batches": 25,
+          "medianMs": 9677
+        },
+        "final run": {
+          "ms": 6,
+          "ticks": 1237,
+          "jobs": 1,
+          "batches": 1,
+          "medianMs": 6
+        }
+      }
+    },
+    "swing-to-bars": {
+      "loadBefore": 1.83,
+      "oneThreadMedianMs": 10143,
+      "oneThreadRunsMs": [
+        10334,
+        10143,
+        9895
+      ],
+      "totalTicks": 2197613,
+      "ticksPerSecond": 216671,
+      "poolMedianMs": 2358,
+      "poolRunsMs": [
+        2467,
+        2358,
+        2340
+      ],
+      "sameAnswerEveryRun": true,
+      "answer": "6170436637901099",
+      "stages": {
+        "between batches": {
+          "ms": 19,
+          "ticks": 0,
+          "jobs": 0,
+          "batches": 0,
+          "medianMs": 21
+        },
+        "monkey bars": {
+          "ms": 10116,
+          "ticks": 2196244,
+          "jobs": 1966,
+          "batches": 26,
+          "medianMs": 10116
+        },
+        "final run": {
+          "ms": 7,
+          "ticks": 1369,
+          "jobs": 1,
+          "batches": 1,
+          "medianMs": 6
+        }
+      }
+    },
+    "training": {
+      "loadBefore": 1.62,
+      "oneThreadMedianMs": 74817,
+      "oneThreadRunsMs": [
+        73494,
+        74817,
+        75719
+      ],
+      "totalTicks": 16685746,
+      "ticksPerSecond": 223021,
+      "poolMedianMs": 15947,
+      "poolRunsMs": [
+        19808,
+        15947,
+        15692
+      ],
+      "sameAnswerEveryRun": true,
+      "answer": "4a3a1d16c7590093",
+      "stages": {
+        "between batches": {
+          "ms": 84,
+          "ticks": 14070,
+          "jobs": 0,
+          "batches": 0,
+          "medianMs": 82
+        },
+        "edges and steps": {
+          "ms": 74713,
+          "ticks": 16667515,
+          "jobs": 4641,
+          "batches": 11,
+          "medianMs": 74713
+        },
+        "final run": {
+          "ms": 20,
+          "ticks": 4161,
+          "jobs": 1,
+          "batches": 1,
+          "medianMs": 18
+        }
+      }
+    },
+    "lache": {
+      "loadBefore": 2.88,
+      "oneThreadMedianMs": 2513,
+      "oneThreadRunsMs": [
+        2630,
+        2513,
+        2329
+      ],
+      "totalTicks": 552978,
+      "ticksPerSecond": 220050,
+      "poolMedianMs": 466,
+      "poolRunsMs": [
+        614,
+        404,
+        466
+      ],
+      "sameAnswerEveryRun": true,
+      "answer": "ed2302f59f169ef9",
+      "stages": {
+        "between batches": {
+          "ms": 5,
+          "ticks": 0,
+          "jobs": 0,
+          "batches": 0,
+          "medianMs": 5
+        },
+        "edges and steps": {
+          "ms": 2503,
+          "ticks": 551649,
+          "jobs": 516,
+          "batches": 6,
+          "medianMs": 2503
+        },
+        "final run": {
+          "ms": 5,
+          "ticks": 1329,
+          "jobs": 1,
+          "batches": 1,
+          "medianMs": 5
+        }
+      }
+    },
+    "fork-bench-bulb": {
+      "loadBefore": 2.59,
+      "oneThreadMedianMs": 131122,
+      "oneThreadRunsMs": [
+        129455,
+        134547,
+        131122
+      ],
+      "totalTicks": 31815655,
+      "ticksPerSecond": 242642,
+      "poolMedianMs": 32660,
+      "poolRunsMs": [
+        34076,
+        30418,
+        32660
+      ],
+      "sameAnswerEveryRun": true,
+      "answer": "318457f11cfb84d1",
+      "stages": {
+        "between batches": {
+          "ms": 51,
+          "ticks": 0,
+          "jobs": 0,
+          "batches": 0,
+          "medianMs": 51
+        },
+        "edges and steps": {
+          "ms": 131063,
+          "ticks": 31814026,
+          "jobs": 27546,
+          "batches": 86,
+          "medianMs": 131063
+        },
+        "final run": {
+          "ms": 6,
+          "ticks": 1629,
+          "jobs": 1,
+          "batches": 1,
+          "medianMs": 6
+        }
+      }
+    },
+    "launch-bar": {
+      "loadBefore": 2.48,
+      "oneThreadMedianMs": 5793,
+      "oneThreadRunsMs": [
+        6531,
+        5793,
+        5701
+      ],
+      "totalTicks": 1260096,
+      "ticksPerSecond": 217519,
+      "poolMedianMs": 1499,
+      "poolRunsMs": [
+        1714,
+        1499,
+        1270
+      ],
+      "sameAnswerEveryRun": true,
+      "answer": "270fbd18bbd98406",
+      "stages": {
+        "between batches": {
+          "ms": 68,
+          "ticks": 0,
+          "jobs": 0,
+          "batches": 0,
+          "medianMs": 86
+        },
+        "trebuchet": {
+          "ms": 5722,
+          "ticks": 1259291,
+          "jobs": 1905,
+          "batches": 2,
+          "medianMs": 5722
+        },
+        "final run": {
+          "ms": 4,
+          "ticks": 805,
+          "jobs": 1,
+          "batches": 1,
+          "medianMs": 4
+        }
+      }
+    },
+    "cannon": {
+      "loadBefore": 2.19,
+      "oneThreadMedianMs": 1634,
+      "oneThreadRunsMs": [
+        1634,
+        1688,
+        1623
+      ],
+      "totalTicks": 355268,
+      "ticksPerSecond": 217357,
+      "poolMedianMs": 1631,
+      "poolRunsMs": [
+        1575,
+        1631,
+        1753
+      ],
+      "sameAnswerEveryRun": true,
+      "answer": "645af23c5889e097",
+      "stages": {
+        "between batches": {
+          "ms": 1632,
+          "ticks": 354818,
+          "jobs": 0,
+          "batches": 0,
+          "medianMs": 1632
+        },
+        "final run": {
+          "ms": 2,
+          "ticks": 450,
+          "jobs": 1,
+          "batches": 1,
+          "medianMs": 2
+        }
+      }
+    },
+    "cannonballs": {
+      "loadBefore": 2.01,
+      "oneThreadMedianMs": 36695,
+      "oneThreadRunsMs": [
+        36695,
+        36961,
+        35355
+      ],
+      "totalTicks": 8490097,
+      "ticksPerSecond": 231371,
+      "poolMedianMs": 7723,
+      "poolRunsMs": [
+        9223,
+        7723,
+        6892
+      ],
+      "sameAnswerEveryRun": true,
+      "answer": "3bff279359621c1f",
+      "stages": {
+        "between batches": {
+          "ms": 134,
+          "ticks": 18069,
+          "jobs": 0,
+          "batches": 0,
+          "medianMs": 91
+        },
+        "edges and steps": {
+          "ms": 36542,
+          "ticks": 8469627,
+          "jobs": 3987,
+          "batches": 6,
+          "medianMs": 36542
+        },
+        "final run": {
+          "ms": 19,
+          "ticks": 2401,
+          "jobs": 1,
+          "batches": 1,
+          "medianMs": 11
+        }
+      }
+    }
+  }
+}
