@@ -15,6 +15,7 @@ export interface SceneItem {
 // What the editor made the course from, so the Course can open the same pieces again (CC-80). 'copy': rebuilt from a course that had no source.
 export interface CourseSource {
   kind: 'editor' | 'copy';
+  start?: { x: number; z: number; y: number }; // the editor lane's fixed pivot
   pieces: { src: string; x: number; z: number; y: number; yaw: number; scale: number; role?: string }[]; // machines (trebuchet, launcher) are pieces too: their src carries the numbers
   angle: number; offset: number; level: number; // the lane: turn about the rod (radians), sideways (m), level (m)
   floor?: string; // the floor you must not touch

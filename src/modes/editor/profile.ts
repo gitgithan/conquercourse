@@ -3,7 +3,8 @@ import { type EditorState, type P } from './state';
 import { isTrack, TRACK_BLOCK_TEXT, type TrackBlock } from '../../slice/track-world';
 import { addTrackPoint, moveTrackPoint, trackDots } from './track';
 import { REACH_JUMPING, REACH_STANDING } from '../../slice/holds-world';
-import { START_SHORT, startMarkSide } from '../../slice/editor-defaults';
+import { editorStart } from './start';
+import { START_SHORT } from '../../slice/editor-defaults';
 import { CELL } from '../../slice/slice';
 
 export interface ProfileEnv {
@@ -55,13 +56,13 @@ export function createProfile(env: ProfileEnv) {
     let pen = false;
     prof.cells.forEach((h, i) => { if (h === null) { pen = false; return; } const x = 10 + (o - uLo + i * CELL) * ppm, y = base - (h - vmin) * ph; if (!pen) { c.moveTo(x, y); pen = true; } else c.lineTo(x, y); });
     c.stroke();
-    { // CC-200: a green Start flag where the runner begins (not the yellow person for scale)
-      const st = startMarkSide(prof, CELL);
+    { // The same start person and gold cone as the 3D picture.
+      const st = editorStart(ed, prof);
       if (st) {
         const x = 10 + (st.u - uLo) * ppm, y = base - (st.h - vmin) * ph;
-        const glowG = c.createLinearGradient(0, y - 80, 0, y); glowG.addColorStop(0, 'rgba(31,191,159,0)'); glowG.addColorStop(1, 'rgba(31,191,159,.45)'); // a glowing cone over the person
+        const glowG = c.createLinearGradient(0, y - 80, 0, y); glowG.addColorStop(0, 'rgba(255,196,0,0)'); glowG.addColorStop(1, 'rgba(255,196,0,.45)'); // a glowing cone over the person
         c.fillStyle = glowG; c.beginPath(); c.moveTo(x, y - 24); c.lineTo(x - 16, y - 80); c.lineTo(x + 16, y - 80); c.fill();
-        c.strokeStyle = '#0f6b5c'; c.fillStyle = '#0f6b5c'; c.lineWidth = 3; c.lineCap = 'round';
+        c.strokeStyle = '#c76a26'; c.fillStyle = '#c76a26'; c.lineWidth = 3; c.lineCap = 'round';
         c.beginPath(); c.arc(x, y - 22, 3.5, 0, 7); c.fill(); // head
         c.beginPath(); c.moveTo(x, y - 18); c.lineTo(x, y - 8); c.moveTo(x, y - 8); c.lineTo(x - 4, y); c.moveTo(x, y - 8); c.lineTo(x + 4, y); c.moveTo(x - 5, y - 15); c.lineTo(x + 5, y - 15); c.stroke(); c.lineCap = 'butt';
         c.font = '700 12px system-ui'; c.textAlign = 'left'; c.fillText(START_SHORT, x + 8, y - 28);

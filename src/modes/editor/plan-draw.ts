@@ -1,3 +1,4 @@
+import { editorStart } from './start';
 import { HALF_LANE } from '../../slice/slice';
 import { size } from '../../slice/world';
 import { START_LABEL } from '../../slice/editor-defaults';
@@ -7,6 +8,7 @@ import { isSizeReference, type EditorState } from './state';
 export interface PlanDrawEnv {
   ed: EditorState; plan: HTMLCanvasElement; view3d: View3d;
   chosen: () => number[]; placeBar: () => void;
+  start?: () => ReturnType<typeof editorStart>;
   rubber: () => { x0: number; z0: number; x1: number; z1: number } | null | undefined;
 }
 
@@ -33,7 +35,8 @@ export function createPlanDraw(env: PlanDrawEnv) {
     c.fillStyle = '#f0a02033'; c.fillRect(-400 * ed.view.ppm, (ed.offset - HALF_LANE) * ed.view.ppm, 800 * ed.view.ppm, 2 * HALF_LANE * ed.view.ppm);
     c.strokeStyle = '#f0a020'; c.lineWidth = 2; c.beginPath(); c.moveTo(-400 * ed.view.ppm, ed.offset * ed.view.ppm); c.lineTo(400 * ed.view.ppm, ed.offset * ed.view.ppm); c.stroke();
     c.restore();
-    c.fillStyle = '#17201d'; c.beginPath(); c.arc(sx(0), sz(0), 5, 0, 7); c.fill(); c.fillStyle = '#0f6b5c'; c.beginPath(); c.moveTo(sx(0), sz(0)); c.lineTo(sx(0), sz(0) - 22); c.lineTo(sx(0) + 16, sz(0) - 16); c.lineTo(sx(0), sz(0) - 10); c.fill(); c.font = '600 11px system-ui'; c.fillText(START_LABEL.replace(/^Start/, 'START'), sx(0) + 8, sz(0) + 14);
+    const start = env.start?.() ?? { x: 0, z: 0 };
+    c.fillStyle = '#17201d'; c.beginPath(); c.arc(sx(start.x), sz(start.z), 5, 0, 7); c.fill(); c.fillStyle = '#c69500'; c.beginPath(); c.moveTo(sx(start.x), sz(start.z)); c.lineTo(sx(start.x), sz(start.z) - 22); c.lineTo(sx(start.x) + 16, sz(start.z) - 16); c.lineTo(sx(start.x), sz(start.z) - 10); c.fill(); c.font = '600 11px system-ui'; c.fillText(START_LABEL.replace(/^Start/, 'START'), sx(start.x) + 8, sz(start.z) + 14);
     ed.pieces.forEach((p, i) => {
       const s = size(p.mesh);
       if (isSizeReference(p)) {

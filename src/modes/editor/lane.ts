@@ -55,7 +55,7 @@ export function createLane(ed: EditorState) {
   };
   const laneCourse = (_p?: ReturnType<typeof currentProfile>) => laneCourseAt({ angle: ed.angle, offset: ed.offset, level: ed.level }); // the course the lane check and Play prove: roles, bars and machines included
   // what this course was cut from, so the Course can open the same pieces again (CC-80); a world with a map piece cannot be kept: its mesh is too big
-  const sourceNow = (): CourseSource | undefined => ed.pieces.some((p) => p.src?.startsWith('map:')) ? undefined : { kind: 'editor', pieces: ed.pieces.filter((p) => p.src).map((p) => ({ src: p.src as string, x: p.x, z: p.z, y: p.y, yaw: p.yaw, scale: p.scale, ...(p.role ? { role: p.role } : {}) })), angle: ed.angle, offset: ed.offset, level: ed.level, floor: ed.floorChoice };
+  const sourceNow = (): CourseSource | undefined => ed.pieces.some((p) => p.src?.startsWith('map:')) ? undefined : { kind: 'editor', pieces: ed.pieces.filter((p) => p.src).map((p) => ({ src: p.src as string, x: p.x, z: p.z, y: p.y, yaw: p.yaw, scale: p.scale, ...(p.role ? { role: p.role } : {}) })), angle: ed.angle, offset: ed.offset, level: ed.level, floor: ed.floorChoice, ...(ed.start ? { start: ed.start } : {}) };
   const courseNow = () => { const c = laneCourse(currentProfile()); if (ed.floorChoice !== 'water') c.hazard = ed.floorChoice; if (ed.designed.size) c.designedShortcuts = [...ed.designed]; const src = sourceNow(); if (src) c.source = src; return c; };
   // the same lane for other pieces (Make it easier tries many small changes): ground, roles, bars, a trebuchet or a launcher if the world has one
   const courseFor = (ps: P[], ln: { angle: number; offset: number; level: number }) => {

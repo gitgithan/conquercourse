@@ -6,7 +6,7 @@ import { newPiece } from '../src/slice/world';
 // Undo and redo of the World editor, driven with a fake editor state.
 function rig() {
   const mesh = box(1, 1, 1);
-  const st = { pieces: [newPiece('a', mesh, { x: 0, z: 0 })], lane: { angle: 0, offset: 0, level: 0 }, selected: null as number | null, changed: [] as (boolean | undefined)[] };
+  const st = { pieces: [newPiece('a', mesh, { x: 0, z: 0 })], lane: { angle: 0, offset: 0, level: 0 } as { angle: number; offset: number; level: number; start?: { x: number; z: number; y: number } }, selected: null as number | null, changed: [] as (boolean | undefined)[] };
   const undo = { disabled: true } as HTMLButtonElement, redo = { disabled: true } as HTMLButtonElement;
   const h = createHistory({
     getPieces: () => st.pieces as never, setPieces: (v) => { st.pieces = v as never; }, getLane: () => st.lane, setLane: (v) => { st.lane = v; },
@@ -41,9 +41,18 @@ describe('editor undo history', () => {
   });
   it('the lane comes back with the pieces and a gone selection is cleared', () => {
     const r = rig(); r.h.remember();
-    r.st.lane = { angle: 1, offset: 2, level: 3 }; r.st.selected = 12345; r.h.remember();
+    r.st.lane = { angle: 1, offset: 2, level: 3, start: undefined }; r.st.selected = 12345; r.h.remember();
     r.h.goto(0);
     expect(r.st.lane).toEqual({ angle: 0, offset: 0, level: 0 }); expect(r.st.selected).toBeNull();
+  });
+  it('undo and redo restore the fixed pivot without sharing a mutable point', () => {
+    const r = rig(); r.h.remember();
+    r.st.lane.start = { x: 12, z: 4, y: 2 }; r.h.remember();
+    r.st.lane.start.x = 20;
+    r.h.goto(0); expect(r.st.lane.start).toBeUndefined();
+    r.h.goto(1); expect(r.st.lane.start).toEqual({ x: 12, z: 4, y: 2 });
+    r.st.lane.start!.x = 30;
+    expect(r.h.hist[1].start?.x).toBe(12);
   });
   it('goto outside the list does nothing; the list keeps at most 80 steps', () => {
     const r = rig(); r.h.remember(); r.h.goto(5);

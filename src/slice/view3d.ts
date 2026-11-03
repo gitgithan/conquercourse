@@ -8,8 +8,9 @@ import { size as meshSize, type Piece } from './world';
 import { patternOf } from './stack';
 import { cupsGroup } from './cups';
 import { createPerf } from '../ui/perf';
+import { fitDistance, type ViewBounds } from './view-fit';
 import { START_LABEL } from './editor-defaults';
-import { START_BEAM_HEIGHT, START_BEAM_RADIUS, SCALE_BEAM_HEIGHT, SCALE_BEAM_RADIUS, SCALE_RING_INNER, SCALE_RING_OUTER, SCALE_LABEL_HEIGHT } from './person-ref';
+import { SCALE_BEAM_HEIGHT, SCALE_BEAM_RADIUS, SCALE_RING_INNER, SCALE_RING_OUTER, SCALE_LABEL_HEIGHT } from './person-ref';
 import { clone as cloneSkinned } from 'three/examples/jsm/utils/SkeletonUtils.js';
 
 // The editor's 3D view: the pieces are drawn as the real baked objects (their own meshes and photo textures), on a textured ground,
@@ -23,7 +24,7 @@ export interface Host {
   toggle?(id: number): void; // CC-200: Shift+click on a piece
   marquee?(ids: number[], additive: boolean): void; // CC-200: Shift+drag on empty ground chose these pieces
   lane(): { angle: number; offset: number; level: number };
-  start?(): { u: number; h: number } | null; // CC-200: where the runner starts (metres along the lane, height above the water); none = the old spot at the rod
+  start?(): { u: number; h: number; x?: number; z?: number } | null; // CC-200: where the runner starts (metres along the lane, height above the water); none = the old spot at the rod
   select(id: number | null): void;
   moved(p: P3, x: number, z: number): void; // while dragging
   dropped(): void; // when the drag ends
@@ -34,7 +35,7 @@ export interface Host {
 }
 export interface GhostState { x: number; y: number; z: number; yaw: number; scale: number }
 export interface Ghosts { items: { id: number; from: GhostState; to: GhostState }[]; lane: { angle: number; offset: number } | null }
-export interface View3d { look(heading: number, pitch: number, target?: { x: number; z: number }, distance?: number): void; sync(): void; show(on: boolean): void; readonly el: HTMLCanvasElement; resize(): void; focus(x: number, z: number): void; pulse(x: number, z: number): void; project(x: number, y: number, z: number): { x: number; y: number } | null; onCamera(cb: () => void): void; fit(box: { x0: number; x1: number; z0: number; z1: number; top: number }): void }
+export interface View3d { look(heading: number, pitch: number, target?: { x: number; z: number }, distance?: number): void; sync(): void; show(on: boolean): void; readonly el: HTMLCanvasElement; resize(): void; focus(x: number, z: number): void; pulse(x: number, z: number): void; project(x: number, y: number, z: number): { x: number; y: number } | null; onCamera(cb: () => void): void; fit(box: ViewBounds): void }
 
 const loader = new GLTFLoader();
 const cache = new Map<string, Promise<THREE.Object3D>>();
@@ -43,7 +44,7 @@ const isPersonReference = (p: P3) => p.src === 'obj:../characters/rookie-a.glb' 
 
 // A see-through yellow cone from the person's feet up to SCALE_BEAM_HEIGHT, a bright line down its middle, a small ring at the feet and the label at head height.
 // It is a child of the person's group, so it stands where they stand (markerAt), and it is drawn over everything: no depth test, no pointer hits.
-function personMarker(pieceScale: number): THREE.Group {
+function personMarker(pieceScale: number, text = START_LABEL): THREE.Group {
   const none = () => { /* the marker never takes a click or a drag */ };
   const marker = new THREE.Group(); marker.scale.setScalar(1 / Math.max(0.01, pieceScale)); marker.renderOrder = 20; marker.raycast = none;
   const glass = (opacity: number) => new THREE.MeshBasicMaterial({ color: 0xffc400, side: THREE.DoubleSide, depthTest: false, depthWrite: false, transparent: true, opacity });
@@ -54,7 +55,7 @@ function personMarker(pieceScale: number): THREE.Group {
   const ring = new THREE.Mesh(new THREE.RingGeometry(SCALE_RING_INNER, SCALE_RING_OUTER, 40), glass(0.95));
   ring.rotation.x = -Math.PI / 2; ring.position.y = 0.04; ring.renderOrder = 20; ring.raycast = none;
   const cv = document.createElement('canvas'); cv.width = 512; cv.height = 96;
-  const g2 = cv.getContext('2d')!; g2.fillStyle = '#ffc400'; g2.beginPath(); g2.roundRect(2, 2, 508, 92, 20); g2.fill(); g2.fillStyle = '#17201d'; g2.font = '700 38px system-ui,sans-serif'; g2.textAlign = 'center'; g2.textBaseline = 'middle'; g2.fillText('You, a person for scale', 256, 50);
+  const g2 = cv.getContext('2d')!; g2.fillStyle = '#ffc400'; g2.beginPath(); g2.roundRect(2, 2, 508, 92, 20); g2.fill(); g2.fillStyle = '#17201d'; g2.font = '700 38px system-ui,sans-serif'; g2.textAlign = 'center'; g2.textBaseline = 'middle'; g2.fillText(text, 256, 50);
   const label = new THREE.Sprite(new THREE.SpriteMaterial({ map: new THREE.CanvasTexture(cv), depthTest: false, transparent: true, sizeAttenuation: false }));
   label.scale.set(0.3, 0.056, 1); label.position.y = SCALE_LABEL_HEIGHT; label.renderOrder = 21; label.raycast = none;
   marker.add(cone, core, ring, label);
@@ -107,23 +108,19 @@ export function createView3d(wrap: HTMLElement, host: Host): View3d {
   mid.rotation.x = -Math.PI / 2; mid.position.y = 0.025;
   laneG.add(band, mid); scene.add(laneG);
   const rod = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.05, 2.5, 12), new THREE.MeshStandardMaterial({ color: 0x17201d })); rod.position.y = 1.25; scene.add(rod);
-  // CC-200: the rod is where the runner starts: a green flag and a green label say so (the yellow marker is the person for scale)
-  const startMark = new THREE.Group(); startMark.position.set(0, 0, 0);
-  // CC-200 (owner, 2026-11-01): the start is a green person with a glowing cone, a view-only marker: no collision, no click, not in the top view, not saved, never an object to jump over.
-  const none = () => { /* the start marker never takes a click or a drag */ };
-  const glow = (opacity: number) => new THREE.MeshBasicMaterial({ color: 0x1fbf9f, side: THREE.DoubleSide, depthTest: false, depthWrite: false, transparent: true, opacity });
-  const flag = new THREE.Group(); flag.renderOrder = 22; flag.raycast = none;
-  const body = new THREE.Mesh(new THREE.CapsuleGeometry(0.22, 0.9, 4, 12), new THREE.MeshBasicMaterial({ color: 0x0f6b5c, depthTest: false, transparent: true })); body.position.y = 0.95; body.renderOrder = 22; body.raycast = none;
-  const head = new THREE.Mesh(new THREE.SphereGeometry(0.15, 16, 12), new THREE.MeshBasicMaterial({ color: 0x0f6b5c, depthTest: false, transparent: true })); head.position.y = 1.62; head.renderOrder = 22; head.raycast = none;
-  const cone = new THREE.Mesh(new THREE.CylinderGeometry(START_BEAM_RADIUS, 0.02, START_BEAM_HEIGHT, 32, 1, true), glow(0.24)); cone.position.y = START_BEAM_HEIGHT / 2; cone.renderOrder = 18; cone.raycast = none;
-  const core = new THREE.Mesh(new THREE.CylinderGeometry(0.03, 0.03, START_BEAM_HEIGHT, 6), glow(0.9)); core.position.y = START_BEAM_HEIGHT / 2; core.renderOrder = 19; core.raycast = none;
-  const ring = new THREE.Mesh(new THREE.RingGeometry(0.55, 0.72, 40), glow(0.95)); ring.rotation.x = -Math.PI / 2; ring.position.y = 0.04; ring.renderOrder = 20; ring.raycast = none;
-  flag.add(body, head, cone, core, ring);
-  const scv = document.createElement('canvas'); scv.width = 512; scv.height = 96;
-  const sg = scv.getContext('2d')!; sg.fillStyle = '#0f6b5c'; sg.beginPath(); sg.roundRect(2, 2, 508, 92, 20); sg.fill(); sg.fillStyle = '#ffffff'; sg.font = '700 32px system-ui,sans-serif'; sg.textAlign = 'center'; sg.textBaseline = 'middle'; sg.fillText(START_LABEL, 256, 50);
-  const startLabel = new THREE.Sprite(new THREE.SpriteMaterial({ map: new THREE.CanvasTexture(scv), depthTest: false, transparent: true, sizeAttenuation: false }));
-  startLabel.scale.set(0.3, 0.056, 1); startLabel.position.y = 2.4; startLabel.renderOrder = 23; startLabel.raycast = () => { /* no clicks */ };
-  startMark.add(flag, startLabel); startMark.userData.startMark = true; scene.add(startMark);
+  // One permanent, view-only Rookie and gold cone mark the lane start.
+  const startMark = new THREE.Group();
+  startMark.add(personMarker(1, 'Start · person for scale')); startMark.userData.startMark = true; scene.add(startMark);
+  if (!host.icon) {
+    const rookie = localStorage.getItem('cc.rookie') === 'b' ? 'b' : 'a';
+    void loadObject(`/assets/characters/rookie-${rookie}.glb`).then((source) => {
+      const person = cloneSkinned(source), box = new THREE.Box3().setFromObject(person);
+      const scale = 1.75 / Math.max(1e-6, box.max.y - box.min.y), centre = box.getCenter(new THREE.Vector3());
+      person.scale.setScalar(scale); person.position.set(-centre.x * scale, -box.min.y * scale, -centre.z * scale);
+      person.traverse((o) => { o.raycast = () => {}; });
+      startMark.add(person); renderer.domElement.dataset.startCharacter = rookie; redraw();
+    }).catch(() => { renderer.domElement.dataset.startCharacter = 'unavailable'; });
+  }
 
   if (host.icon) { (ground as THREE.Mesh).material = new THREE.MeshBasicMaterial({ color: 0xe6ede9 }); scene.background = new THREE.Color(0xe6ede9); for (const o of [grid, laneG, rod, startMark]) o.visible = false; scene.fog = null; }
   // the preview of a change: a hollow outline at the new place (teal), a faint one where the piece is now (grey), an arrow between, a dashed new lane line
@@ -245,8 +242,10 @@ export function createView3d(wrap: HTMLElement, host: Host): View3d {
     laneG.rotation.y = -angle; band.position.z = offset; mid.position.z = offset;
     water.visible = level > 0.001; water.position.y = level;
     const st = host.start?.() ?? null; // the flag and the rod stand on the first roof, so a shrunk or cut roof brings them down with it
-    const sx = st ? st.u * Math.cos(angle) - offset * Math.sin(angle) : 0, sz = st ? st.u * Math.sin(angle) + offset * Math.cos(angle) : 0, sy = st ? level + st.h : 0;
-    startMark.position.set(sx, sy, sz); rod.position.set(sx, sy + 1.25, sz); rod.visible = false; // the person replaces the rod
+    const sx = st?.x ?? (st ? st.u * Math.cos(angle) - offset * Math.sin(angle) : 0), sz = st?.z ?? (st ? st.u * Math.sin(angle) + offset * Math.cos(angle) : 0), sy = st ? level + st.h : 0;
+    startMark.position.set(sx, sy, sz);
+    renderer.domElement.dataset.start = JSON.stringify({ x: sx, y: sy, z: sz });
+    rod.position.set(sx, sy + 1.25, sz); rod.visible = false; // the person replaces the rod
     syncGhosts();
     redraw();
   }
@@ -324,12 +323,10 @@ export function createView3d(wrap: HTMLElement, host: Host): View3d {
   const project = (x: number, y: number, z: number) => { camera.updateMatrixWorld(); const v = new THREE.Vector3(x, y, z).project(camera); return v.z > 1 ? null : { x: ((v.x + 1) / 2) * renderer.domElement.clientWidth, y: ((1 - v.y) / 2) * renderer.domElement.clientHeight }; };
   // frame a box of the world (metres): keep the viewing direction, slide the look-at point and the distance there over a short time
   let fitRun = 0;
-  function fit(b: { x0: number; x1: number; z0: number; z1: number; top: number }) {
-    const cx = (b.x0 + b.x1) / 2, cz = (b.z0 + b.z1) / 2, cy = Math.max(0.3, b.top / 2);
-    const radius = Math.max(1.5, Math.hypot(b.x1 - b.x0, b.z1 - b.z0, b.top) / 2);
-    const vf = (camera.fov * Math.PI) / 180, hf = 2 * Math.atan(Math.tan(vf / 2) * camera.aspect);
-    const dist = Math.min(controls.maxDistance, Math.max(controls.minDistance, (radius * 1.15) / Math.sin(Math.min(vf, hf) / 2)));
+  function fit(b: ViewBounds) {
+    const cx = (b.x0 + b.x1) / 2, cz = (b.z0 + b.z1) / 2, cy = ((b.bottom ?? 0) + b.top) / 2;
     const dir = camera.position.clone().sub(controls.target).normalize();
+    const dist = Math.min(controls.maxDistance, Math.max(controls.minDistance, fitDistance(b, dir, camera.fov, camera.aspect)));
     const t0 = controls.target.clone(), d0 = camera.position.distanceTo(controls.target), t1 = new THREE.Vector3(cx, cy, cz);
     const run = ++fitRun, start = performance.now(), ms = 450;
     const step = () => {
