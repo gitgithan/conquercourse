@@ -43,7 +43,7 @@ export function drumsFor(course: CourseData, plan: Plan = course.plan ?? searchI
     // one X drum per landing that the roll is for: a fall that would stumble or hurt with straight legs and no roll, or one the line rolls out of.
     // The drum sits where the roll window opens (the key is due there: a press earlier does nothing), not at the landing.
     const land = w.events.find((e) => e.type === 'land');
-    if (land && (land.detail?.rolled || ((land.detail?.impact as number) ** 2) / (2 * GRAVITY) > safeDrop('stiff', DEFAULT_LANDING).clean)) {
+    if (land && (land.detail?.rolled || ((land.detail?.impact as number) * (land.detail?.impact as number)) / (2 * GRAVITY) > safeDrop('stiff', DEFAULT_LANDING).clean)) {
       drums.push({ x: windowX ?? w.runner.x, what: 'roll' });
     }
     // the warped wall: E is due in the last moment of the climb (CC-182), so the drum sits there, near the top, not at the foot

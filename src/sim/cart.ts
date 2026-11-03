@@ -85,7 +85,7 @@ export function makeRails(pts: [number, number][]): Rails {
   const pick = (x: number): Piece => { let k = 0; while (k < pieces.length - 1 && x > pieces[k].xs[pieces[k].xs.length - 1]) k++; return pieces[k]; };
   const cell = (pc: Piece, x: number) => { let i = 0; while (i < pc.xs.length - 2 && x > pc.xs[i + 1]) i++; return i; };
   // after a steep drop the smooth curve can swing under its lowest dot: the rail is never lower than that dot (a flat stretch of ground-level rail there), so it is never underground (CC-244)
-  const raw = (x: number): number => { const pc = pick(x), i = cell(pc, x), { M, xs: X, ys: Y } = pc, h = X[i + 1] - X[i], l = X[i + 1] - x, r = x - X[i]; return (M[i] * l ** 3) / (6 * h) + (M[i + 1] * r ** 3) / (6 * h) + (Y[i] / h - (M[i] * h) / 6) * l + (Y[i + 1] / h - (M[i + 1] * h) / 6) * r; };
+  const raw = (x: number): number => { const pc = pick(x), i = cell(pc, x), { M, xs: X, ys: Y } = pc, h = X[i + 1] - X[i], l = X[i + 1] - x, r = x - X[i]; return (M[i] * l * l * l) / (6 * h) + (M[i + 1] * r * r * r) / (6 * h) + (Y[i] / h - (M[i] * h) / 6) * l + (Y[i + 1] / h - (M[i + 1] * h) / 6) * r; };
   return {
     x0: xs[0], x1: xs[n - 1],
     y(x) {
@@ -123,13 +123,13 @@ const railsSetsCache = new WeakMap<object, Rails[]>();
 // At zero or below the cart is no longer held on and leaves the track.
 export function railPush(rails: Rails, x: number, v: number, g: number = GRAVITY): number {
   const s = rails.slope(x), c = 1 / Math.sqrt(1 + s * s);
-  const kappa = rails.bend(x) * c ** 3;
+  const kappa = rails.bend(x) * c * c * c;
   return g * c + kappa * v * v;
 }
 
 // The speed along the rails at which a crest of this bend lets go (the cart would leave the track above it).
 export function crestSpeedLimit(rails: Rails, x: number, g: number = GRAVITY): number {
-  const s = rails.slope(x), c = 1 / Math.sqrt(1 + s * s), kappa = rails.bend(x) * c ** 3;
+  const s = rails.slope(x), c = 1 / Math.sqrt(1 + s * s), kappa = rails.bend(x) * c * c * c;
   return kappa < 0 ? Math.sqrt((g * c) / -kappa) : Infinity;
 }
 
@@ -140,7 +140,7 @@ export function cartStep(rails: Rails, x: number, v: number, brake: boolean, p: 
     const smooth = Math.tanh(vv / 0.05); // resistance opposes the motion, and fades to nothing at rest (no jitter)
     return -p.gravity * sinPhi - p.rolling * p.gravity * c * smooth - p.drag * vv * Math.abs(vv) - (brake ? p.brake * smooth : 0);
   };
-  const vel = (xx: number, vv: number): number => vv / Math.sqrt(1 + rails.slope(xx) ** 2);
+  const vel = (xx: number, vv: number): number => vv / Math.sqrt(1 + rails.slope(xx) * rails.slope(xx));
   const k1x = vel(x, v), k1v = acc(x, v);
   const k2x = vel(x + 0.5 * DT * k1x, v + 0.5 * DT * k1v), k2v = acc(x + 0.5 * DT * k1x, v + 0.5 * DT * k1v);
   const k3x = vel(x + 0.5 * DT * k2x, v + 0.5 * DT * k2v), k3v = acc(x + 0.5 * DT * k2x, v + 0.5 * DT * k2v);

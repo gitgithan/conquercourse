@@ -32,7 +32,7 @@ export interface Bar { x: number; height: number; cushion?: number }
 
 /** Total energy per unit mass of the spring pendulum: kinetic, height and the bent spring. Constant when damping is 0. */
 export function poleEnergy(s: { r: number; dr: number; theta: number; dtheta: number }, p: PoleParams = DEFAULT_POLE): number {
-  return 0.5 * (s.dr * s.dr + s.r * s.r * s.dtheta * s.dtheta) + p.gravity * s.r * Math.cos(s.theta) + 0.5 * p.stiffness * (p.length - s.r) ** 2;
+  return 0.5 * (s.dr * s.dr + s.r * s.r * s.dtheta * s.dtheta) + p.gravity * s.r * Math.cos(s.theta) + 0.5 * p.stiffness * (p.length - s.r) * (p.length - s.r);
 }
 
 /** The state at the plant: hands at `gripY`, the pole straight, the body moving at `vx` along the ground. */

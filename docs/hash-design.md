@@ -27,6 +27,10 @@
 - **Golden file.** `tests/golden/course-hashes.json` holds every shipped course's fingerprint.
   - A diff in it is a decision: say in the pull request why each course moved.
   - Regenerate it by deleting the file and running `UPDATE_GOLDEN=1 npx vitest run tests/course-schema.test.ts`.
+- **Golden trace.** `tests/golden/sim-trace.json` holds a hash of the world after every tick for plans and seeded key mashes.
+  - It is a play fingerprint, not a course fingerprint: it moves when the physics arithmetic moves, the course hashes do not.
+  - Regenerate it by deleting the file and running `UPDATE_GOLDEN=1 npx vitest run tests/sim-trace.test.ts`; list which entries moved in the pull request.
+  - It is exact on Node 22 and Node 24 (the sim uses no `**` or `Math.pow`; `tests/sim-no-pow.test.ts` guards that); workerd differs where a tick uses sin, cos, tan or exp.
 - **Version the recipe.** If the fingerprint recipe must change, change it on purpose, once, and list which boards move.
 - **Plan the clean-up before the change.**
   - Count the rows under the old fingerprints first (read-only).

@@ -50,18 +50,14 @@ const now = (): Record<string, string> => {
   return out;
 };
 
-// What is guaranteed across machines (CC-133, data/eval/trace-machines/README.md):
-// - Always: the same keys give the same tick count and the same outcome (cleared, splash, ...), on every Node/V8 we tried.
-// - Bit for bit: only on the V8 the golden file was made with (V8 13.6, Node 24).
-//   V8 12.4 (Node 22) rounds `x ** 3` and `Math.pow(x, 1.5)` one step differently, so the plank and drone states differ in the 16th digit there.
-const GOLDEN_V8_MAJOR = "13";
-const bitExact = process.versions.v8.split(".")[0] === GOLDEN_V8_MAJOR;
-const outcomeOf = (v: string): string => (bitExact ? v : v.split(":").slice(0, -1).join(":")); // drop the hash
+// Bit for bit on Node 22 and Node 24 (CC-133, 2026-11-03): the sim no longer uses `**` or Math.pow, only + - * / and Math.sqrt, which IEEE fixes exactly.
+// Not yet bit-exact in workerd where a course uses sin, cos, tan or exp (the drone, lache and training plans): see data/eval/trace-machines/README.md.
+// Before the fix, `x ** 3` and `Math.pow(x, 1.5)` rounded one step differently in V8 12.4 (Node 22) and V8 13.6 (Node 24).
+// tests/sim-no-pow.test.ts keeps those out; data/eval/trace-machines/README.md has the evidence.
 
 describe("the world after every tick is unchanged (bit for bit)", () => {
-  it("matches the stored traces for every shipped course (same ticks and outcome everywhere; same hash on the golden V8)", () => {
+  it("matches the stored traces for every shipped course (same ticks, outcome and hash on Node 22 and 24)", () => {
     if (!existsSync(GOLDEN) && process.env.UPDATE_GOLDEN) writeFileSync(GOLDEN, JSON.stringify(now(), null, 2) + "\n");
-    const strip = (o: Record<string, string>) => Object.fromEntries(Object.entries(o).map(([k, v]) => [k, outcomeOf(v)]));
-    expect(strip(now())).toEqual(strip(JSON.parse(readFileSync(GOLDEN, "utf8"))));
+    expect(now()).toEqual(JSON.parse(readFileSync(GOLDEN, "utf8")));
   }, 300000);
 });

@@ -9,10 +9,13 @@
   - The server can prove you cleared a course by replaying your keys.
 - We tested that promise on a second machine with another Node version, and in Cloudflare's runtime.
 - The outcome held: 7,525 runs gave the same tick count, the same clear or fall, and the same end place on Node 22, Node 24 and local `workerd`.
-- The exact bits did not hold: the fingerprint (hash) of a run differs between Node 22 and Node 24 on six courses.
+- The exact bits did not hold at first: the fingerprint (hash) of a run differed between Node 22 and Node 24 on six courses.
+- Fixed on 2026-11-03: the sim now uses only `+ - * /` and `Math.sqrt` where it used `**` and `Math.pow`.
+  - Node 22 and Node 24 now give the same hash for every course in the trace test (100 runs).
+  - Workerd still differs in the last digit on courses where the tick uses sin, cos, tan or exp (found while checking the fix).
 - So the rule for the game is:
-  - Judge a run by its outcome.
-  - Compare bit-for-bit fingerprints only on one engine family, or make the sim bit-exact first.
+  - Judge a run by its outcome (levels 1 and 2); that holds everywhere.
+  - Exact bits (level 4) can be the cross-machine check between Node versions; for workerd it needs our own sin, cos, tan and exp first.
 
 ![Same keys, three machines, same outcome, a different last digit](evidence/lessons/same-keys-two-machines.svg)
 
@@ -25,16 +28,16 @@
 | 1. Outcome | Cleared or fell | "Did your run clear the course?" | Yes, 7,525 runs |
 | 2. Tick count and end place | Level 1, plus the tick count and the end position to 6 decimals | "Is it the same run, to the eye and the clock?" | Yes, 7,525 runs |
 | 3. Close enough | Every tick's state within a small tolerance (about 1e-9) | "Did the physics stay on the same path?" | Yes in the probes (the biggest gap seen was about 1e-13) |
-| 4. Exact bits | Every number identical to the last digit, as one hash | "Are the two engines doing the same arithmetic?" | No: six courses differ |
+| 4. Exact bits | Every number identical to the last digit, as one hash | "Are the two engines doing the same arithmetic?" | Before the fix: no, six courses differed. After the fix (2026-11-03): Node 22 and Node 24 yes; `workerd` yes on plank and plank-two, no where the tick uses sin, cos, tan or exp |
 
-- Level 4 is the strictest and the least useful for our promise.
+- Level 4 is the strictest and the least useful for our promise, though it is now cheap between Node versions.
   - A friend replaying your run, and the server proving a clear, only need levels 1 and 2.
   - A last-digit difference of about 1e-13 never flipped a result in any of the 7,525 runs.
 - So the exact-bits check was too strict for the question we ask.
   - It still earns its place as a tripwire on one engine family: it tells us the moment our own code changes the physics.
   - It must not be the thing that says "the promise is broken" on another machine.
-- What we do: levels 1 and 2 on every machine, and level 4 only on V8 13.x (see section 5).
-- A run that sits on a razor-thin margin could in theory flip at level 1 on another engine; none did, and the `pow-fix.patch` option removes that risk.
+- What we do: levels 1 and 2 on every machine, and level 4 on Node 22 and Node 24 (see section 5).
+- A run that sits on a razor-thin margin could in theory flip at level 1 on another engine; none did, and the pow fix removed the Node-version source of that risk.
 
 ## 1. Why test on another machine
 - A game that only runs well on the author's laptop is not a shared game.
@@ -59,7 +62,8 @@
 
 ## 3. Where differences can come from, in general
 - **The JavaScript engine version.**
-  - What we hit: `x ** 3` and `Math.pow(x, 1.5)` round one step differently in V8 12.4 and V8 13.6.
+  - What we hit: `x ** 3` and `Math.pow(x, 1.5)` round one step differently in V8 12.4 and V8 13.6 (fixed 2026-11-03).
+  - What we found next: in workerd, `sin`, `cos`, `tan`, `atan`, `exp`, `log`, `asin` and `acos` give other last digits than in Node; `sqrt` and `hypot` match.
 - **Math functions the spec lets differ.**
   - `sin`, `cos`, `exp`, `pow` and friends may give slightly different last digits on different engines.
   - `+ - * /` and `sqrt` are exact by the IEEE rule, so they are the same everywhere.
@@ -96,17 +100,20 @@
 - In the sim step, use only `+ - * /` and `Math.sqrt` where you can.
   - Avoid `**` above 2 and `Math.pow`.
   - If you must use a fuzzy function, accept a tolerance.
-- The trace test (`tests/sim-trace.test.ts`) checks tick count and outcome on every engine, and the stored hash only on V8 13.x.
-- The option we did not take yet: `data/eval/trace-machines/pow-fix.patch`.
-  - `x ** 3` becomes `x * x * x`.
-  - `Math.pow(T, 1.5)` becomes `T * Math.sqrt(T)`.
-  - With it, Node 22 and Node 24 gave identical states at every tick of all 75 mash runs.
-  - The cost: the stored golden hashes of the six courses change, so they need `UPDATE_GOLDEN` and a note in the pull request.
-  - The risk: a clear on a razor-thin margin could move by a tick, so recorded runs and plans must be rechecked after regenerating.
-  - It is the product owner's call.
+- The trace test (`tests/sim-trace.test.ts`) checks tick count, outcome and the stored hash on Node 22 and Node 24.
+- A source scan (`tests/sim-no-pow.test.ts`) fails if `**` or `Math.pow` comes back where a tick, a replay or a course fingerprint can reach.
+- The fix we took (2026-11-03, the owner's call):
+  - `x ** 3` became `x * x * x`, `x ** 2` became `x * x`, and `Math.pow(T, 1.5)` became `T * Math.sqrt(T)`.
+  - `data/eval/trace-machines/pow-fix.patch` listed six sites; a search of all of `src` found about twenty more (cart splines, vault curve, pole, trebuchet, drums, predict, experiments), and all were changed.
+  - 15 of the 100 stored trace hashes changed (the plank, plank-two, drone, lache, lache-wide and training entries); the tick counts and outcomes in them did not.
+  - Before regenerating, 7,525 runs and both recorded runs (`bars`, `swing-to-bars`) were replayed on old and new arithmetic: no run changed its tick count, outcome or end place (6 decimals).
+  - `tests/golden/course-hashes.json` did not change: it hashes course data, not play.
+- What is still open: workerd's `Math.sin`, `cos`, `tan` and `exp` differ from Node's in the last digit.
+  - Our drone, lache and training plans use them, so their hashes differ in workerd although the outcomes match (1,806 runs).
+  - The next step is our own sin, cos, tan and exp (a fixed-formula version) used in the sim step, or a tolerance for those courses on workerd.
 
 ## 6. What this does not cover
-- Real production `workerd`; we ran it locally.
+- Real production `workerd`; we ran it locally (wrangler 4.153, workerd 1.20261023.1).
 - Chrome, Firefox and Safari.
   - Chrome follows V8, so it lands on one side of the same change.
   - Firefox and Safari use other engines and are untested.
