@@ -90,7 +90,7 @@ if modal is not None:
         return b.getvalue()
 
     # ---------- privacy and mask (L4) ----------
-    @app.cls(gpu=["L40S", "A100-80GB"], image=mask_image, volumes={CK: ck_vol}, timeout=1800, max_containers=1, scaledown_window=240)
+    @app.cls(gpu=["L4", "A10G", "L40S"], image=mask_image, volumes={CK: ck_vol}, timeout=1800, max_containers=1, scaledown_window=60)  # SAM 3 peaks at 5.4 GB and a phrase takes ~0.08 s on an L4 (data/eval/sam-compare): a cheap GPU, released after 60 s
     class Mask:
         @modal.enter()
         def load(self):
