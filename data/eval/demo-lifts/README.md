@@ -7,10 +7,12 @@
 - Two are weak:
   - The light-bulb string (photo 1) is a thin, sagging wire; it is recognisable only from far away and has no collision.
   - The monkey bars (photo 2) read as a flat dark plank from the side; the top view shows the loops.
-- Segment Objects did NOT find the photo 2 objects (no monkey bars, no useful pull-up bar), nor the light-bulb string on photo 1.
-  - In the demo film, those three must be shown as "our own box" picks (the flow's fallback), not as one-click picks.
+- The first run of Segment Objects found neither the photo 2 objects (no monkey bars, no useful pull-up bar) nor the light-bulb string on photo 1.
+  - The rerun with new phrases (last section) finds the string ("string lights", 0.61), so it can be a one-click pick.
+  - The monkey bars and the pull-up bar are still not found; the lifts of all three were made from our own boxes, drawn by us to test the lift.
+  - In the demo film, the monkey bars and pull-up bar must be shown as lifted from a box (the lab box; whether players get a box tool is decided in `docs/community-flow-guide.md`), not as one-click picks.
 - Recommendation: put benches, pole and pull-up bar in the film; show the monkey bars from above or as a primitive; leave the bulb string out or use it only as far-away scenery.
-- Next step: add phrases "monkey bars" and "string lights" to `ccpipe/suggest.py` (extra issue or a CC-133 comment), then rerun `scripts/run_demo_lifts.sh`.
+- Next step: the two phrases were added and rerun (last section); try "overhead ladder" or "horizontal ladder" for the monkey bars.
 
 ## Photos (originals stay outside git, with checksums)
 - Photo 1: `Dansbana_-_Ystad-2016.jpg`, CC BY 3.0, credit "Jonn Leffmann", 1550x793.
@@ -23,9 +25,13 @@
   - Photo 1: 12 people, tallest 0.16, passes.
   - Photo 2: no people, passes.
 - Safety check (Muse Spark Open): both `ok`, reason `none` (5.0 s and 88.9 s).
+  - 88.9 s is slower than the worst call in `data/eval/cc-120-safety-real/README.md` (78 s of 84 calls), so the worst seen so far is 88.9 s.
 - Privacy (SAM 3): photo 1 blurred 10 people, 6 faces, 0 plates; photo 2 unchanged.
-- Segment Objects (SAM 3 text phrases):
-  - Photo 1: 5 benches (0.91 to 0.96), 2 poles (0.71, 0.82); no bulb string.
+  - The people rule above counts 12 with a different detector (Faster R-CNN, score 0.4 or more), and SAM 3 blurred 10.
+  - Only the counts were saved for SAM 3, not its boxes, so which 2 were not blurred, or whether it missed them, is not recorded.
+  - Several of the 12 are tiny (the smallest box is 15 px wide), so a miss on far figures is possible but unproven.
+- Segment Objects (SAM 3 text phrases), first run:
+  - Photo 1: 5 benches (0.91 to 0.96), 2 poles (0.71, 0.82); no bulb string (the rerun finds it: below).
   - Photo 2: 9 poles, 2 walls, one weak pull-up bar (0.37, wrong place); no monkey bars.
 - Lifts (SAM 3D Objects, seed 42):
 
@@ -34,7 +40,7 @@
 | Bench left | Segment Objects pick | Excellent (slats, legs, curved back) | Box | none needed |
 | Bench right | Segment Objects pick | Excellent (armrests) | Box | none needed |
 | Pole | Segment Objects pick | Good (tapered, base plate) | Capsule | none needed |
-| Light bulbs | our box | Weak; `lift_check` flagged it (aspect 8.4 vs mask 18.7) | none | leave out |
+| Light bulbs | our box (made before the rerun) | Weak; `lift_check` flagged it (aspect 8.4 vs mask 18.7) | none | leave out, or far-away scenery |
 | Monkey bars | our box (box prompt) | Medium; loops show from above, flat plank from the side | Primitive bar | show the plan view |
 | Pull-up bar | our box (box prompt) | Good (4 rungs, 2 uprights, clamps) | Primitive bar | none needed |
 
@@ -52,7 +58,7 @@
 - Raw GLBs, raw lifts, masks and prepped photos: `../conquercourse-assets/eval-full/demo-lifts/` with `SHA256SUMS`.
 
 ## Rerun with the phrases "monkey bars" and "string lights" (2026-11-03)
-- Photo 1: "string lights" is now found by Segment Objects (score 0.61, a wide strip across the top), so the bulb string can be a real pick; its lift is still weak (look only, no collision).
+- Photo 1: "string lights" is now found by Segment Objects (score 0.61, a wide strip across the top, and a weak 0.35 hit in the middle; `suggest/photo1/suggest.json`), so the bulb string can be a real pick; its lift is still weak (look only, no collision).
 - Photo 2: "monkey bars" is still not found; "pull-up bar" is found with a low score (0.37).
 - So the film shows the monkey bars from a box, not as a one-click pick.
 - Next: try a box-free phrase such as "overhead ladder" or "horizontal ladder" before giving up.
