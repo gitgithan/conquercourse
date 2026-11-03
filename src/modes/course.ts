@@ -147,7 +147,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
   let onboarding: Pick<Onboarding, 'onCleared' | 'onFall'> = { onCleared() {}, onFall() {} };
   // The drum lane is on by default wherever the course has a planned player route; a coaster is mostly passive cart motion.
   const forceDrums = params.get('drums') === '1';
-  const runSearch = createSearch();
+  const runSearch = createSearch(params);
   const { drumLane, toastDrums: toastDrumsNow } = mountDrums({ course, params, forceDrums, runSearch });
   const { dbgBtn } = mountChrome({ params, hud: hudParts, pick: wear.pick, camButton: cam.button, restart: () => restart() });
   // CC-85: a real place shows its real photos (credit under each, a large view on click); ?photos=0 or the Hide switch turns them off
