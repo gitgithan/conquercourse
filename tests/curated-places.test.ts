@@ -3,7 +3,8 @@ import { describe, it, expect } from 'vitest';
 import { readFileSync, existsSync } from 'node:fs';
 const idx = JSON.parse(readFileSync('public/assets/places/index.json', 'utf8'));
 const entries: any[] = Array.isArray(idx) ? idx : (idx.places ?? idx.ready ?? []);
-const listed = entries.filter((e) => e.listed === true);
+// CC-133: parkour parks are a separate group (kind: 'parkour', see tests/parkour-places.test.ts); the street-place rules below are for the street places only, on purpose
+const listed = entries.filter((e) => e.listed === true && e.kind !== 'parkour');
 describe('curated places (CC-90)', () => {
   it('lists 12 to 20 places', () => { expect(listed.length).toBeGreaterThanOrEqual(12); expect(listed.length).toBeLessThanOrEqual(20); });
   it('at most 2 per country', () => {
@@ -14,5 +15,5 @@ describe('curated places (CC-90)', () => {
   it('every listed place has a street-photo list with photos', () => {
     for (const e of listed) { const f = `public/assets/photos-live/${e.slug}.json`; expect(existsSync(f), e.slug).toBe(true); expect(JSON.parse(readFileSync(f, 'utf8')).photos.length, e.slug).toBeGreaterThan(0); }
   });
-  it('the unlisted places keep their files', () => { expect(entries.length).toBeGreaterThan(listed.length); for (const e of entries) expect(existsSync(`public/assets/places/${e.slug}.json`), e.slug).toBe(true); });
+  it('the unlisted places keep their files', () => { expect(entries.filter((e) => e.kind !== 'parkour').length).toBeGreaterThan(listed.length); for (const e of entries) expect(existsSync(`public/assets/places/${e.slug}.json`), e.slug).toBe(true); });
 });

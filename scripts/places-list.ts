@@ -49,8 +49,9 @@ type Row = { slug: string; photosFacingLane?: number; facing?: number; path?: bo
 const rows = new Map<string, Row>();
 for (const f of files) for (const r of JSON.parse(readFileSync(f, 'utf8')) as Row[]) rows.set(r.slug, { ...rows.get(r.slug), ...r, photosFacingLane: r.photosFacingLane ?? r.facing ?? rows.get(r.slug)?.photosFacingLane });
 const idxPath = 'public/assets/places/index.json';
-const index = JSON.parse(readFileSync(idxPath, 'utf8')) as { slug: string; listed?: boolean; path?: boolean; photos?: number; live?: boolean; country?: string }[];
+const index = JSON.parse(readFileSync(idxPath, 'utf8')) as { slug: string; listed?: boolean; path?: boolean; photos?: number; live?: boolean; country?: string; kind?: string }[];
 for (const e of index) {
+  if (e.kind === 'parkour') continue; // CC-133: parkour parks are listed by scripts/make-places.ts (no street-photo list, and a flagged card when no lane is found)
   const placeFile = JSON.parse(readFileSync(`public/assets/places/${e.slug}.json`, 'utf8')) as { lane?: { cleared?: boolean } };
   const r = rows.get(e.slug), path = placeFile.lane?.cleared === true;
   // Lombard's bbox is too dense for Mapillary's search (HTTP 500 even split in four); it has stored credited photos, so it counts as having photos.

@@ -6,7 +6,7 @@
 import type { GeoJSONSource, Map as MapLibreMap } from 'maplibre-gl';
 import { photoStatus, type Prepared } from '../world/photo-status';
 import type { AllowList } from '../world/live-photos';
-import { askMirrors, hasPath, nearestReady, shownReady, placeKey, type PlaceLane, type ReadyIndexEntry, type ReadyPlace } from '../world/places';
+import { askMirrors, groupShown, hasPath, nearestReady, shownReady, placeKey, type PlaceLane, type ReadyIndexEntry, type ReadyPlace } from '../world/places';
 import { buildingsFrom, type OverpassAnswer } from '../world/osm';
 import { relief, type Ground } from '../world/terrain';
 import { toLonLat } from '../slice/slicer';
@@ -52,7 +52,7 @@ export function installPlaces(ctx: PlaceCtx) {
   style.textContent = `
     .mp .ready summary{cursor:pointer;font-size:13px;color:#2d3a34;font-weight:600}.mp .ready-list{display:grid;gap:3px;margin-top:4px}.mp .ready button{text-align:left;font-size:13px;padding:3px 8px}.mp .ready small{color:#58635d}
     .mp .gal{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:6px;max-height:340px;overflow:auto}.mp .gal button.card{display:grid;gap:2px;padding:0;overflow:hidden;border:2px solid #b9c2bb;border-radius:8px;background:#fff;text-align:left;cursor:pointer}.mp .gal button.card[aria-pressed=true]{border-color:#2f7d5b;box-shadow:0 0 0 2px #bfe3cf}
-    .mp .gal .ph{width:100%;aspect-ratio:16/9;object-fit:cover;display:block;background:#e8eee9}.mp .gal .nm{font-size:13px;font-weight:700;padding:0 6px;line-height:1.2}.mp .gal .ct{font-size:12px;color:#58635d;padding:0 6px}.mp .gal .bd{display:flex;gap:4px;align-items:center;padding:0 6px 4px;font-size:11px;color:#58635d}.mp .gal .rd{background:#2f7d5b;color:#fff;border-radius:8px;padding:0 6px}.mp .gal .sp{background:#2f74c0;color:#fff;border-radius:8px;padding:0 6px}.mp .gal .cr{font-size:10px;color:#6d7872;padding:0 6px 4px}
+    .mp .gal .ph{width:100%;aspect-ratio:16/9;object-fit:cover;display:block;background:#e8eee9}.mp .gal .nm{font-size:13px;font-weight:700;padding:0 6px;line-height:1.2}.mp .gal .ct{font-size:12px;color:#58635d;padding:0 6px}.mp .gal .bd{display:flex;gap:4px;align-items:center;padding:0 6px 4px;font-size:11px;color:#58635d}.mp .gal .rd{background:#2f7d5b;color:#fff;border-radius:8px;padding:0 6px}.mp .gal .sp{background:#2f74c0;color:#fff;border-radius:8px;padding:0 6px}.mp .gal .gh{grid-column:1/-1;font-size:12px;font-weight:700;color:#2d3a34;margin:4px 0 0;padding-top:4px;border-top:1px solid #d5dcd7}.mp .gal .gh:first-child{border-top:0;margin-top:0}.mp .gal .rd.no{background:#b5651d}.mp .gal .cr{font-size:10px;color:#6d7872;padding:0 6px 4px}
     .mp .steps{border:1px solid #b9c2bb;border-radius:8px;background:#fff;padding:6px 8px;display:grid;gap:3px;font-size:13px}.mp .steps ol{margin:0;padding:0;list-style:none;display:grid;gap:2px}
     .mp .steps li{display:grid;grid-template-columns:18px 1fr auto;gap:4px}.mp .steps li[data-s=todo]{color:#8a948e}.mp .steps li[data-s=doing]{font-weight:700}.mp .steps li[data-s=failed]{color:#c0392b}
     .mp .explain{border:1px solid #b9c2bb;border-radius:8px;background:#fff;padding:6px 8px;display:grid;gap:4px;font-size:13px}.mp .explain ul{margin:0;padding-left:16px;display:grid;gap:2px}
@@ -86,7 +86,7 @@ export function installPlaces(ctx: PlaceCtx) {
     const pick = (p: ReadyIndexEntry) => { map.flyTo({ center: [p.lon, p.lat], zoom: 16, duration: 700 }); ctx.setRadius(p.radius); ctx.setPin(p.lat, p.lon); ctx.tell(`${p.name}: ready. Press Build.`); };
     const head = document.createElement('summary'); head.textContent = `Ready places (${shown.length}, they load at once)`;
     const list = document.createElement('div'); list.className = gallery ? 'ready-list gal' : 'ready-list';
-    list.replaceChildren(...shown.map((p) => {
+    const card = (p: ReadyIndexEntry) => {
       const b = document.createElement('button'); b.type = 'button'; b.dataset.slug = p.slug;
       if (!gallery) {
         b.innerHTML = `${p.name} <small>${p.hill_m >= 3 ? `hill ${p.hill_m} m` : 'flat'}${showAll && p.listed === false ? ', no photos or no lane' : ''}</small>`;
@@ -96,15 +96,18 @@ export function installPlaces(ctx: PlaceCtx) {
       const cut = p.name.lastIndexOf(','), nm = cut > 0 ? p.name.slice(0, cut) : p.name, city = cut > 0 ? p.name.slice(cut + 1).trim() : '';
       const th = thumbs[p.slug], img = document.createElement('img');
       img.className = 'ph'; img.loading = 'lazy'; img.alt = ''; img.src = th ? `/assets/places/thumbs/${p.slug}.jpg` : `/assets/places/tiles/${p.slug}.svg`; img.dataset.kind = th ? 'photo' : 'tile';
-      const ready = p.listed !== false;
+      const ready = p.listed !== false && (p.kind !== 'parkour' || p.path === true);
       b.className = 'card'; b.setAttribute('aria-pressed', 'false');
       if (th) b.title = `Photo: ${th.author}, ${th.licence}`;
       b.append(img);
-      b.insertAdjacentHTML('beforeend', `<span class="nm"></span><span class="ct"></span><span class="bd"><span class="rd">${ready ? 'ready' : 'no photos or no lane'}</span>${streetSet.has(p.slug) ? `<span class="sp" title="${STREET_CHIP_TITLE}">${STREET_CHIP}</span>` : ''}${p.hill_m >= 3 ? `hill ${p.hill_m} m` : 'flat'}</span>${th ? `<span class="cr">Photo: ${th.author.replace(/<[^>]*>/g, '')}, ${th.licence}</span>` : ''}`);
-      (b.querySelector('.nm') as HTMLElement).textContent = nm; (b.querySelector('.ct') as HTMLElement).textContent = city;
+      b.insertAdjacentHTML('beforeend', `<span class="nm"></span><span class="ct"></span><span class="bd"><span class="rd${ready ? '' : ' no'}">${ready ? 'ready' : p.kind === 'parkour' ? 'no lane found yet' : 'no photos or no lane'}</span>${p.kind === 'parkour' && p.visible === false ? '<span class="sp" title="The mapped shape is under 1500 square metres, so it is a small patch at the editor zoom">small on the map</span>' : ''}${streetSet.has(p.slug) ? `<span class="sp" title="${STREET_CHIP_TITLE}">${STREET_CHIP}</span>` : ''}${p.hill_m >= 3 ? `hill ${p.hill_m} m` : 'flat'}</span>${th ? `<span class="cr">Photo: ${th.author.replace(/<[^>]*>/g, '')}, ${th.licence}</span>` : ''}`);
+      (b.querySelector('.nm') as HTMLElement).textContent = nm; (b.querySelector('.ct') as HTMLElement).textContent = p.kind === 'parkour' ? [city, p.country].filter(Boolean).join(', ') : city;
       b.onclick = () => { list.querySelectorAll('button.card').forEach((x) => x.setAttribute('aria-pressed', String(x === b))); pick(p); };
       return b;
-    }));
+    };
+    // CC-133: with parkour parks in the list the cards sit under headings (street places, then one heading per region); with none it is the plain grid as before
+    const groups = groupShown(shown);
+    list.replaceChildren(...groups.flatMap((g) => [...(g.title && gallery ? [Object.assign(document.createElement('div'), { className: 'gh', textContent: g.title })] : []), ...g.items.map(card)]));
     readyEl.replaceChildren(head, list);
     if (gallery) readyEl.open = true;
     dset('readyPlaces', shown.length); dset('readyPlacesAll', index.length);

@@ -22,7 +22,7 @@ describe('place gallery pictures', () => {
     }
   });
   it('every listed place has a cover photo with a credit (CC-212)', () => {
-    for (const p of shownReady(index, false)) {
+    for (const p of shownReady(index, false).filter((x) => x.kind !== 'parkour')) { // CC-133: parkour parks use the clean tile, no stored third-party photo (see tests/parkour-places.test.ts)
       expect(thumbs[p.slug], p.slug).toBeDefined();
       expect(existsSync(`${DIR}/thumbs/${p.slug}.jpg`), p.slug).toBe(true);
     }

@@ -244,6 +244,23 @@
   - Source: built with `scripts/make-places.ts` from the Overpass and AWS Terrain Tiles sources above, fetched 2026-11-01
   - Licence: (c) OpenStreetMap contributors, ODbL 1.0; terrain as above
   - Only the places named in `index.json` with `listed: true` show in the list; the others stay as files
+- **Twelve parkour parks** (`public/assets/places/<slug>.json`, `tiles/*.svg` and `index.json` entries with `kind: parkour`, CC-133)
+  - What they hold: the Overpass answer, ground heights and the lane search result for BGI akademiet Parkour Park, Gerlev Parkour Park, FlowPark Brumunddal, Regent's Park Parkour Hub, Lakeside Garden SkatePark, Axelsbergs Parkour, Stockholm, Parkour at Zollverein, Essen, Calisthenics and Freerun Park, Plaza Parkour, Cochabamba, Parkour pitch, Bellingham, Junction Street Plaza, Sydney, Brahenpuisto parkour area, Kuopio
+  - Source: built with `scripts/make-places.ts` from the Overpass and AWS Terrain Tiles sources above, fetched 2026-11-03; each park is tied to the OpenStreetMap element below, checked with the Overpass API (area computed from its outline)
+  - BGI akademiet Parkour Park (Denmark): OpenStreetMap way/100191425, 203,784 m2, enclosing campus, visible at the editor zoom: yes
+  - Gerlev Parkour Park (Denmark): OpenStreetMap way/1274319354, 90,840 m2, enclosing school area, visible at the editor zoom: yes
+  - FlowPark Brumunddal (Norway): OpenStreetMap way/607719660, 2,317 m2, Mjosparken skate park beside the parkour area, visible at the editor zoom: yes
+  - Regent's Park Parkour Hub (United Kingdom): OpenStreetMap relation/1384127, about 1,600,000 (bounding box 1186 x 1427 m) m2, enclosing park, visible at the editor zoom: yes
+  - Lakeside Garden SkatePark (Singapore): OpenStreetMap way/1159195814, 15,029 m2, the park itself (a 341 m2 parkour pitch, way/1159195817, lies inside), visible at the editor zoom: yes
+  - Axelsbergs Parkour, Stockholm (Sweden): OpenStreetMap way/818042918, 1,146 m2, parkour pitch, visible at the editor zoom: no
+  - Parkour at Zollverein, Essen (Germany): OpenStreetMap way/879920257, 510 m2, parkour pitch, visible at the editor zoom: no
+  - Calisthenics and Freerun Park (Netherlands): OpenStreetMap way/849453743, 750 m2, parkour pitch, visible at the editor zoom: no
+  - Plaza Parkour, Cochabamba (Bolivia): OpenStreetMap way/730118541, 201 m2, parkour pitch, visible at the editor zoom: no
+  - Parkour pitch, Bellingham (United States): OpenStreetMap way/895145811, 333 m2, parkour pitch, visible at the editor zoom: no
+  - Junction Street Plaza, Sydney (Australia): OpenStreetMap way/1415868149, 295 m2, parkour pitch, visible at the editor zoom: no
+  - Brahenpuisto parkour area, Kuopio (Finland): OpenStreetMap way/944150009, 261 m2, parkour pitch, visible at the editor zoom: no
+  - Licence: (c) OpenStreetMap contributors, ODbL 1.0 (https://www.openstreetmap.org/copyright); terrain as above
+  - No third-party photo is stored for these places (the cards show the clean skyline tile)
 - **Lane photo counts** (`data/eval/cc-90-photolanes/`)
   - What it holds: counts of photos facing each lane before and after the person filter, no pictures
   - Source: Mapillary Graph API, 2026-11-01, `scripts/photos_lane_audit.py`
