@@ -17,7 +17,8 @@ try {
   await page.waitForSelector('html[data-ready=true]', { timeout: 90000 });
   await page.waitForTimeout(1500);
   mkdirSync('test-results', { recursive: true });
-  await page.screenshot({ path: `test-results/skeleton-${backend}.png` });
+  // webgl2 on software rendering (SwiftShader) needs over 30 s for one frame; measured 2026-11-03 on a quiet 8 vCPU VM: the whole script takes 84 s and the default 30 s screenshot timeout failed on both of two machines, on 2026-11-01 code too (not a regression)
+  await page.screenshot({ timeout: 180000, path: `test-results/skeleton-${backend}.png` });
   console.log('backend in use:', await page.evaluate(() => document.documentElement.dataset.backend));
   await browser.close();
 } finally {
