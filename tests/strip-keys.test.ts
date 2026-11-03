@@ -1,14 +1,15 @@
-import { readdirSync, readFileSync } from 'node:fs';
+import { readdirSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 import type { CourseData } from '../src/course/course';
 import { drumsFor, type Drum } from '../src/sim/drums';
+import { loadCourseFile } from './helpers/course';
 
 // CC-182: the key strip (the drum lane) must list every key an obstacle needs, per docs/inputs.md:
 // E for the warped wall, a climb, a lache bar and a rope; V for a vault; X for a roll after a big drop; Space for a jump and the trampoline press.
 const NEEDS: Record<string, Drum['what'][]> = { wall: ['grab'], climb: ['grab'], lache: ['grab'], rope: ['grab'], vault: ['vault'] };
 const STRICT: Record<string, Drum['what'][]> = { gap: ['jump'], trampoline: ['bounce'], drop: ['roll'] }; // on the Training course, where every zone is a real beat
 const dir = 'public/assets/demo/';
-const load = (n: string) => JSON.parse(readFileSync(dir + n, 'utf8')) as CourseData;
+const load = (n: string) => loadCourseFile(dir + n);
 const missing = (c: CourseData, need: Record<string, Drum['what'][]>) => {
   const drums = drumsFor(c, c.plan!);
   const out: string[] = [];

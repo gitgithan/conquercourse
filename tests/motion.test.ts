@@ -1,11 +1,11 @@
-import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 import { Quaternion, Vector3 } from 'three/webgpu';
-import { PHASE_FILES, clipDuration, loopDistance, parseClip, sampleClip, type Clip, type Phase } from '../src/motion/clip';
+import { PHASE_FILES, clipDuration, loopDistance, parseClip, sampleClip, type Phase } from '../src/motion/clip';
 import { clipToWorld, solveBones, type Rig } from '../src/motion/pose';
 import { DemoMotion, legLength, type Clips } from '../src/motion/timeline';
+import { loadClip } from './helpers/clips';
 
-const load = (name: string): Clip => parseClip(JSON.parse(readFileSync(`public/assets/motion/${name}.json`, 'utf8')));
+const load = loadClip;
 const clips = Object.fromEntries((Object.keys(PHASE_FILES) as Phase[]).map((p) => [p, load(PHASE_FILES[p])])) as Clips;
 
 describe('clip loader', () => {
