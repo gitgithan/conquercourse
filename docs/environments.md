@@ -14,6 +14,7 @@
 | `MAPILLARY_TOKEN` | street photos in the Slicer | private env file `mapillary.env` |
 | `CC_UPLOAD_TOKEN`, `CC_UPLOAD_SUBMIT_URL`, `CC_UPLOAD_STATUS_URL` | photo to object | `upload.env` |
 | `CC_SEGMENT_SUBMIT_URL`, `CC_SEGMENT_STATUS_URL` | photo cut-out | Modal endpoint addresses |
+| `CC_SEGMENT_WARM_URL` | early wake-up of the photo machines | Modal endpoint address of `warm` |
 | `CC_CHAR_TOKEN`, `CC_CHAR_SUBMIT_URL`, `CC_CHAR_STATUS_URL`, `CC_CHAR_LIMITS` | character maker | `char.env` (the daily numbers are kept in the private notes) |
 
 ## How the character token is shared

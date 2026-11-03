@@ -56,8 +56,14 @@ flowchart LR
   - Only one machine each means two people at once wait in line; this page also queues your own pieces one at a time.
 - Money, as a recommendation only (nothing was changed on Modal):
   - Keeping one machine always on costs about $1.95 an hour for each of the two programs (L40S), about $47 a day each.
-  - The cheaper option is to wake the machines while a person is on the Make tab: one small call when the tab opens, so the model is loaded by the time they press Segment Objects, and nothing runs when nobody is on the page.
-  - That call needs a new small Modal function, which is a deploy, so it is left for the product owner to approve.
+  - Built instead (CC-133): the page wakes the machines early, so the cold start is hidden while the person is busy.
+  - Opening the Make tab wakes the finder (Mask, an L4).
+  - Pressing Segment Objects wakes the 3D maker (Lift) while the outlines are computed and the person picks a thing.
+  - Each page load asks at most once for each machine, and `?warmup=0` turns it off.
+  - The call goes to `/api/segment` with `{action: "warm", which}`; it sends no photo and nothing is processed.
+  - It uses the same on/off switch as the outline finder and a small per-visitor burst limit.
+  - The cost is a short idle window (60 s for the finder, 240 s for the 3D maker) for each visit that wakes a machine; it is not measured yet.
+  - It needs the Modal function `warm` deployed and the setting `CC_SEGMENT_WARM_URL` (`docs/environments.md`); without them the call is quietly skipped.
 
 ## The flow in short
 ```mermaid

@@ -4,6 +4,7 @@ import { LIFT_STEPS, SEGMENT_STEPS } from '../slice/stages';
 import { jobProgress } from '../ui/job-progress';
 import { LABEL_RE } from '../slice/object-lift';
 import { suggestRegions } from '../slice/segment-client';
+import { warmUp } from '../slice/warm-client';
 import { deleteUserObject, listUserObjects, saveUserObject, type UserObject } from '../slice/user-objects';
 import { receiptFor, deleteShared, forgetLink, links, rememberLink, sessionCode, shareItem } from '../community/share-client';
 import { cropToThumb } from '../community/crop';
@@ -68,7 +69,7 @@ export function startCommunityFlow(host: HTMLElement, params: URLSearchParams): 
   function showTab(t: Tab) {
     for (const id of Object.keys(tabBtn) as Tab[]) tabBtn[id].setAttribute('aria-selected', String(id === t));
     body.replaceChildren(); document.onkeydown = null; root.dataset.tab = t;
-    if (t === 'make') photos(); else explore();
+    if (t === 'make') { warmUp('mask'); photos(); } else explore();
   }
 
   // Explore: finished work first (premade courses), then one clear button, then pieces (premade examples and yours)
@@ -260,6 +261,7 @@ export function startCommunityFlow(host: HTMLElement, params: URLSearchParams): 
       const foundEl = el('div', panel); foundEl.id = 'cfound';
       const nav = navRow(panel, 'Next: Make', work.fs.segmented, 'cnext');
       const run = el('button', row, work.cands.length ? 'Segment Objects again' : 'Segment Objects', { className: 'go', id: 'cseg' });
+      run.addEventListener('click', () => { warmUp('mask'); warmUp('lift'); }); // CC-133: the 3D maker loads while the outlines are found and a thing is picked
       const fall = el('div', panel); fall.className = 'row'; fall.id = 'cfall'; // shown only when nothing was found or the finder failed
       const showFall = () => {
         fall.replaceChildren();

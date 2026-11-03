@@ -102,6 +102,10 @@ if modal is not None:
             self.p = Sam3Processor(build_sam3_image_model(checkpoint_path=f"{CK}/hf/sam3/sam3.pt", load_from_HF=False), confidence_threshold=0.3)
             self.load_s = time.time() - t0
 
+        @modal.method()
+        def ping(self):
+            return "ok"  # the enter hook above has loaded the model by the time this runs: it only exists to wake the container (CC-133)
+
         def _find(self, state, prompt, thr):
             import numpy as np
             self.p.reset_all_prompts(state)
@@ -189,6 +193,10 @@ if modal is not None:
             cfg.workspace_dir = f"{CK}/objects/hf"
             self.pipe = instantiate(cfg)
             self.load_s = time.time() - t0
+
+        @modal.method()
+        def ping(self):
+            return "ok"  # wakes the container so the model is loaded before a lift is asked for (CC-133)
 
         @modal.method()
         def run(self, masked_jpeg, mask_png, seed=SEED):
@@ -342,6 +350,21 @@ if modal is not None:
         if len(jpeg) > upload.MAX_BYTES or jpeg[:3] != b"\xff\xd8\xff" or not (upload.MIN_SIDE <= min(size) and max(size) <= upload.MAX_SIDE):
             return {"error": "the photo size is not allowed"}
         return {"id": suggest_job.spawn(jpeg).object_id}
+
+    @app.function(image=web_image, secrets=upload_secrets)
+    @modal.fastapi_endpoint(method="POST")
+    def warm(item: dict):
+        """{token, which: 'mask'|'lift'} -> {ok: true} at once: starts that GPU container so its model is loaded, and never waits for it (CC-133)."""
+        if not _check_token(item.get("token")):
+            return {"ok": False, "error": "not allowed"}
+        which = item.get("which")
+        if which == "mask":
+            Mask().ping.spawn()
+        elif which == "lift":
+            Lift().ping.spawn()
+        else:
+            return {"ok": False, "error": "bad"}
+        return {"ok": True}
 
     @app.function(image=web_image, secrets=upload_secrets)
     @modal.fastapi_endpoint(method="POST")

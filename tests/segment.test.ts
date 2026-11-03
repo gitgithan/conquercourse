@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { cleanSuggestions, segmentProblem } from '../src/slice/segment';
-import { handle } from '../functions/api/segment';
+import { handle, warm, onRequestPost } from '../functions/api/segment';
 
 const JPG = 'data:image/jpeg;base64,/9j/4AAQSkZJRg==';
 const ENV = { CC_UPLOAD_TOKEN: 't', CC_SEGMENT_SUBMIT_URL: 'https://x--seg-submit.modal.run', CC_SEGMENT_STATUS_URL: 'https://x--seg-status.modal.run' };
@@ -42,5 +42,30 @@ describe('suggested regions (CC-248)', () => {
     expect(r.status).toBe(200);
     const again = await handle({ action: 'submit', image: JPG, thumb: JPG }, ENV, 'ip-wait', f, 1, 65_000);
     expect(again).toMatchObject({ status: 429, body: { error: 'busy', retryAfterSeconds: 540 } });
+  });
+});
+
+describe('warm-up (CC-133)', () => {
+  const WARM = { ...ENV, CC_SEGMENT_WARM_URL: 'https://x--seg-warm.modal.run' };
+  it('asks Modal to wake the machine and answers ok', async () => {
+    let sent = '';
+    const f = (async (_u: string, init: { body: string }) => { sent = init.body; return { ok: true, status: 200, json: async () => ({ ok: true }) }; }) as unknown as typeof fetch;
+    expect(await warm({ action: 'warm', which: 'lift' }, WARM, 'w-ok', f)).toMatchObject({ status: 200, body: { ok: true } });
+    expect(JSON.parse(sent)).toEqual({ token: 't', which: 'lift' });
+  });
+  it('refuses an unknown machine and stays quiet when no address is set', async () => {
+    expect((await warm({ action: 'warm', which: 'gpu' }, WARM, 'w-bad')).status).toBe(400);
+    expect((await warm({ action: 'warm', which: 'mask' }, ENV, 'w-none')).status).toBe(204);
+  });
+  it('is limited per visitor', async () => {
+    const f = reply({ ok: true });
+    const out = [];
+    for (let i = 0; i < 3; i++) out.push((await warm({ which: 'mask' }, WARM, 'w-lim', f, 2, 1000)).status);
+    expect(out).toEqual([200, 200, 429]);
+  });
+  it('answers 503 when the outline finder switch is off', async () => {
+    const db = { prepare: () => ({ bind: () => ({ first: async () => ({ on_: 0 }), run: async () => ({}), all: async () => ({ results: [] }) }) }) };
+    const r = await onRequestPost({ request: new Request('https://x/api/segment', { method: 'POST', body: JSON.stringify({ action: 'warm', which: 'mask' }) }), env: { ...WARM, DB: db as never } });
+    expect(r.status).toBe(503);
   });
 });
