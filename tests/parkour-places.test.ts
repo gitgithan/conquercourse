@@ -9,13 +9,15 @@ const index = JSON.parse(readFileSync(`${DIR}/index.json`, 'utf8')) as ReadyInde
 const parks = index.filter((p) => p.kind === 'parkour');
 const MIN_AREA_M2 = 1500; // about 16 by 16 pixels at the editor's zoom 16 (2.4 m a pixel at the equator, less far north): the smallest area still seen as a patch of map
 const ASSETS = readFileSync('docs/ASSETS.md', 'utf8');
+const THUMBS = JSON.parse(readFileSync(`${DIR}/thumbs/index.json`, 'utf8')) as Record<string, { author: string; licence: string; source: string; shows?: string }>;
 
 describe('parkour places (CC-133)', () => {
-  it('there are at least the five found by the owner plus more, and they are spread over regions', () => {
+  it('there are at least five parks, and they are spread over regions', () => {
     expect(parks.length).toBeGreaterThanOrEqual(5);
     expect(new Set(parks.map((p) => p.region)).size).toBeGreaterThanOrEqual(2);
   });
-  it('at least five parks are big enough to see on the map (the small ones are flagged, not hidden)', () => { expect(parks.filter((p) => p.visible).length).toBeGreaterThanOrEqual(5); });
+  // Owner, 2026-11-04: a park with no free photo is removed, so seven of the twelve left; three of the five kept are big enough to see (was: at least five)
+  it('at least three parks are big enough to see on the map (the small ones are flagged, not hidden)', () => { expect(parks.filter((p) => p.visible).length).toBeGreaterThanOrEqual(3); });
   it('no duplicates: slug, OpenStreetMap element and name are each used once', () => {
     for (const key of ['slug', 'osm', 'name'] as const) { const v = parks.map((p) => p[key]); expect(new Set(v).size, key).toBe(v.length); }
   });
@@ -37,7 +39,13 @@ describe('parkour places (CC-133)', () => {
         const file = JSON.parse(readFileSync(`${DIR}/${p.slug}.json`, 'utf8')) as { lane: { cleared?: boolean } | null };
         expect(p.path, 'index path matches the place file').toBe(file.lane?.cleared === true);
       });
-      it('stores no third-party photo', () => { expect(existsSync(`${DIR}/thumbs/${p.slug}.jpg`)).toBe(false); expect(existsSync(`public/assets/photos/${p.slug}.json`)).toBe(false); });
+      it('has a cover photo with a free licence, an author, a source link, what it shows and a row in docs/ASSETS.md (a park without a free photo is not kept)', () => {
+        const th = THUMBS[p.slug];
+        expect(th, 'a parkour park is kept only with a free photo').toBeDefined();
+        expect(existsSync(`${DIR}/thumbs/${p.slug}.jpg`)).toBe(true);
+        { expect(th.licence).toMatch(/^(CC0|CC BY(-SA)? [0-9]\.[0-9])$/); expect(th.author.length).toBeGreaterThan(0); expect(th.source).toMatch(/^https:\/\/commons\.wikimedia\.org\/wiki\/File:/); expect(th.shows, 'says what the picture shows').toBeTruthy(); expect(ASSETS).toContain(p.slug + '.jpg'); }
+        expect(existsSync(`public/assets/photos/${p.slug}.json`)).toBe(false);
+      });
     });
   }
   it('the gallery groups street places first, then one heading per region in order, sorted by country', () => {

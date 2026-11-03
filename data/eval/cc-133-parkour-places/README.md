@@ -1,5 +1,7 @@
 # CC-133: parkour parks as their own group of Ready places
 
+> Update 2026-11-04: seven of these twelve parks were removed because no free photo was found; five remain (Gerlev, Regent's Park, Lakeside Garden, Zollverein, Cochabamba). See `data/eval/cc-133-park-pictures/README.md`. The tables below are the original twelve.
+
 ## So what
 - The World Editor list now has a "Parkour parks" group, one heading per region, sorted by country.
 - Twelve real parks are in it, each tied to a real OpenStreetMap element.

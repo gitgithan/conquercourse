@@ -1,0 +1,159 @@
+{
+  "experiment": "cc-133-park-pictures",
+  "date": "2026-11-04",
+  "inputs": {
+    "source": "Wikimedia Commons MediaWiki API (geosearch within 400 and 1000 m of each park, and name searches), polite client, free licences only (CC0, CC BY, CC BY-SA)",
+    "privacy_gate": "every candidate was looked at; any person close-up, identifiable face or young-looking person means rejected",
+    "picked": [
+      {
+        "slug": "gerlev-parkour-park",
+        "file": "Gerlev Idrætshøjskole, Gerlev, Slagelse Kommune. Foto fra 10. maj 2022. Fotograf Hans Christian Hansen.jpg",
+        "author": "XYZA-2400",
+        "licence": "CC BY-SA 4.0",
+        "shows": "the school that hosts the park, about 220 m away",
+        "why": "no people, the park's own school"
+      },
+      {
+        "slug": "lakeside-garden-skatepark",
+        "file": "Jurong Lake Gardens 10-11-2023(39).jpg",
+        "author": "LN9267",
+        "licence": "CC BY-SA 4.0",
+        "shows": "the path in Jurong Lake Gardens, about 30 m away",
+        "why": "closest photo, no people"
+      },
+      {
+        "slug": "regents-park-london",
+        "file": "The Regent's Park Hub cafe - geograph.org.uk - 3362814.jpg",
+        "author": "David Howard",
+        "licence": "CC BY-SA 2.0",
+        "shows": "the Hub sports pavilion, about 250 m away",
+        "why": "sports site in the same park, no people (other Hub photos had people)"
+      },
+      {
+        "slug": "zollverein-parkour-essen",
+        "file": "Zeche Zollverein Essen (21228047316).jpg",
+        "author": "dronepicr",
+        "licence": "CC BY 2.0",
+        "shows": "the empty pool and coal works of the Zollverein site, about 100 m away",
+        "why": "no people; the photos with swimmers were rejected"
+      },
+      {
+        "slug": "plaza-parkour-cochabamba",
+        "file": "Ex matadero exterior 2.jpg",
+        "author": "VASQUEZ RODRIGUEZ RAUL",
+        "licence": "CC BY-SA 4.0",
+        "shows": "the courtyard of the old slaughterhouse (mARTadero), about 40 m away",
+        "why": "nearest site, no people"
+      }
+    ],
+    "rejected": [
+      {
+        "slug": "bgi-akademiet-hornsyld",
+        "file": "BGI akademiet, Højhuset 2022.jpg",
+        "licence": "CC BY-SA 4.0",
+        "why": "three young-looking people walk in front of the building; when in doubt, rejected"
+      },
+      {
+        "slug": "regents-park-london",
+        "file": "The Hub, Regent's Park (several geograph photos)",
+        "why": "people visible or a worse view; the cafe photo was used instead"
+      },
+      {
+        "slug": "zollverein-parkour-essen",
+        "file": "Zeche Zollverein (Essen) - Freibad im Sommer (2011).jpg",
+        "why": "children and adults in the pool"
+      },
+      {
+        "slug": "plaza-parkour-cochabamba",
+        "file": "Ex matadero interior photos",
+        "why": "sculpture figures and a poor view of the site"
+      },
+      {
+        "slug": "gerlev-parkour-park",
+        "file": "Gerlev Legepark ved Gerlev Idrætshøjskole. 2025.jpg",
+        "why": "a playground, children may be in it"
+      },
+      {
+        "slug": "axelsberg-parkour-stockholm",
+        "file": "Stockholm subway axelsberg 20060912 001.jpg (public domain)",
+        "why": "a metro station 350 m away, not the park"
+      },
+      {
+        "slug": "brahenpuisto-kuopio",
+        "file": "Kuopio - park.jpg and Piispanpuisto photos",
+        "why": "a different park, 200 m away"
+      }
+    ],
+    "removed_for_no_free_photo": [
+      {
+        "slug": "bgi-akademiet-hornsyld",
+        "name": "BGI akademiet Parkour Park",
+        "country": "Denmark",
+        "lat": 55.7754,
+        "lon": 9.8702,
+        "osm": "way/100191425",
+        "reason": "no free photo found"
+      },
+      {
+        "slug": "flowpark-brumunddal",
+        "name": "FlowPark Brumunddal",
+        "country": "Norway",
+        "lat": 60.8777,
+        "lon": 10.9219,
+        "osm": "way/607719660",
+        "reason": "no free photo found"
+      },
+      {
+        "slug": "axelsberg-parkour-stockholm",
+        "name": "Axelsbergs Parkour, Stockholm",
+        "country": "Sweden",
+        "lat": 59.3056,
+        "lon": 17.9682,
+        "osm": "way/818042918",
+        "reason": "no free photo found"
+      },
+      {
+        "slug": "freerun-park-netherlands",
+        "name": "Calisthenics and Freerun Park",
+        "country": "Netherlands",
+        "lat": 51.9778,
+        "lon": 5.6764,
+        "osm": "way/849453743",
+        "reason": "no free photo found"
+      },
+      {
+        "slug": "bellingham-parkour-wa",
+        "name": "Parkour pitch, Bellingham",
+        "country": "United States",
+        "lat": 48.8049,
+        "lon": -122.4947,
+        "osm": "way/895145811",
+        "reason": "no free photo found"
+      },
+      {
+        "slug": "junction-street-plaza-sydney",
+        "name": "Junction Street Plaza, Sydney",
+        "country": "Australia",
+        "lat": -33.8268,
+        "lon": 151.007,
+        "osm": "way/1415868149",
+        "reason": "no free photo found"
+      },
+      {
+        "slug": "brahenpuisto-kuopio",
+        "name": "Brahenpuisto parkour area, Kuopio",
+        "country": "Finland",
+        "lat": 62.887,
+        "lon": 27.6853,
+        "osm": "way/944150009",
+        "reason": "no free photo found"
+      }
+    ]
+  },
+  "outputs": {
+    "parks_kept_with_photo": 5,
+    "parks_removed": 7,
+    "thumbs_bytes": "7 to 24 KB each",
+    "tests": "see README"
+  }
+}
