@@ -23,7 +23,8 @@
   - The product still makes the lift when a box is given, so the demo shows it from a lab box and says so.
 - Next step, cheap and not yet run: crop to the bar region and re-run the finder, then try more phrases (section D, options 1 to 3).
 - Folded in (CC-133, 2026-11-03): the finder now also asks for "overhead bars", "metal bars" and "bar grid", and keeps an outline for those three only if it is wide and low (box width 120 px or more, wide:high 2.5 or more, height 160 px or less).
-  - Result on photo 2 with the redeployed finder: 12 outlines, and one is now bar-labelled, "overhead bars" (score 0.46, a wide low box at the left bar pattern, about 300 x 27 px in the 1280 px copy); before, none touched a bar pattern. The right-hand bar pattern the lab box covers is still not found.
+  - Result on photo 2 with the redeployed finder: 12 outlines, and one is now bar-labelled, "overhead bars" (score 0.46, a wide low box at the left bar pattern, about 300 x 27 px in the 1280 px copy); before, none touched a bar pattern.
+    - The right-hand bar pattern the lab box covers is still not found.
   - Not folded in: the upper-half second pass, upscaling and tiles (see `data/eval/crop-finder/README.md`).
   - From recorded job times (1.1 to 4.2 s per finder run in `data/eval/demo-lifts/run.json`) a few dozen finder runs are cents of GPU time, plus a cold start of about 14 s.
   - Nothing in this page was run on a paid job.
