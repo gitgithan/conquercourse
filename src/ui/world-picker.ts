@@ -9,7 +9,6 @@ export const DEMO_GROUPS: [string, Demo[]][] = [
     ['/assets/demo/training.course.json', 'Training course: every move', 'A gap jump, a vault, the lache bars, a rope, a climb, a trampoline and a rolled drop in one run. The best line is faster than the obvious one.'],
     ['/assets/demo/cannonballs.course.json', 'Cannonballs: slip between the shots', 'Cannons fire a ball every 12 seconds and show it filling up. Jump the low ones, slide under the high ones, and climb the wall to wait out a double shot.'],
     ['/assets/demo/two-ways.course.json', 'Two ways: swing high or drop low', 'The course splits once. Swing over a gap on two bars, or drop to a deep floor and climb back up. Both ways are proved to work; the better one depends on how you run.'],
-    ['parts', 'Parts: moves and obstacles', 'Every move and every obstacle on one page, each playing the real game on its own. See what a course is made of.'],
   ]],
   ['Real places', [
     ['/assets/experiments/osm/montmartre-paris.course.json', 'Montmartre, Paris', 'Real streets and roofs on a hill, cut at one level and shrunk to run on.'],
@@ -73,15 +72,16 @@ export const sliceCardOn = (params: URLSearchParams): boolean => params.get('sli
 /** CC-132: the last group, "The Making Of", links to the static pages in public/making-of/; ?making=0 hides it. */
 export const makingOfOn = (params: URLSearchParams): boolean => params.get('making') !== '0';
 export const MAKING_OF_GROUP = 'The Making Of';
-/** [address, title, about, tile colour]; these are real links, not courses, so they stay out of DEMO_GROUPS. */
+/** [address, title, about, picture name in public/assets/thumbs/]; these are real links, not courses, so they stay out of DEMO_GROUPS. */
 export const MAKING_OF_CARDS: [string, string, string, string][] = [
-  ['/making-of/site-map.html', 'Site map', 'Every screen a player can see, how to get there and where it leads.', '#d9ead8'],
-  ['/making-of/course-map.html', 'Course map', 'The building tasks of the project in plan order, and which wait on which.', '#e6e1f2'],
-  ['/making-of/', 'How it was made', 'The story behind the game, with the two maps above.', '#f3e6cf'],
+  ['/making-of/site-map.html', 'Site map', 'Every screen a player can see, how to get there and where it leads.', 'making-site-map'],
+  ['/making-of/course-map.html', 'Course map', 'The building tasks of the project in plan order, and which wait on which.', 'making-course-map'],
 ];
 
 export const WORD_VALUES = [...EXPERIMENTS.map((e) => `dojo-${e.id}`), 'parts', 'generate', 'editor', 'coaster-builder', 'map', 'lab-search', 'lab-optimization', 'lab-ik', 'lab-vision', 'lab-camera', 'lab-integration', 'lab-timing', 'lab-signal', 'lab-gentest', 'lab-detector', 'lab-hashing', 'lab-rl'];
-export const DEMOS: [string, string][] = DEMO_GROUPS.flatMap(([, ds]) => ds.map((d) => [d[0], d[1]] as [string, string]));
+/** The Parts card is the third card of The Making Of; it opens ?mode=parts through onPick like a course card. */
+export const PARTS_CARD: Demo = ['parts', 'Parts: moves and obstacles', 'Every move and every obstacle on one page, each playing the real game on its own. See what a course is made of.'];
+export const DEMOS: [string, string][] = [...DEMO_GROUPS, ['', [PARTS_CARD]] as [string, Demo[]]].flatMap(([, ds]) => ds.map((d) => [d[0], d[1]] as [string, string]));
 export const DEMO_ABOUT = new Map<string, string>(DEMO_GROUPS.flatMap(([, ds]) => ds.map((d) => [d[0], d[2]] as [string, string])));
 
 /** The picture file of a course card: public/assets/thumbs/<slug>.webp (made by npm run thumbs). */
@@ -253,7 +253,7 @@ export function buildGallery(o: GalleryOptions): { el: HTMLElement; focusStart()
     cards.push({ card: grid.lastElementChild as HTMLButtonElement, sec: grid.parentElement!, text: `${cur.label ?? ''} this course`.toLowerCase() });
   }
   for (const [group, ds] of DEMO_GROUPS) {
-    const hiddenItem = (v: string): boolean => (v === 'parts' ? !partsCardOn(pageQuery()) && cur.value !== v : v === 'map' ? !sliceCardOn(pageQuery()) && cur.value !== v && !labsOn() : v.startsWith('lab-') && cur.value !== v && !labsOn());
+    const hiddenItem = (v: string): boolean => (v === 'map' ? !sliceCardOn(pageQuery()) && cur.value !== v && !labsOn() : v.startsWith('lab-') && cur.value !== v && !labsOn());
     if (ds.every(([v]) => hiddenItem(v))) continue; // a group whose items are all switched off shows no heading
     const grid = section(group);
     for (const [v, label, about] of ds) {
@@ -261,16 +261,21 @@ export function buildGallery(o: GalleryOptions): { el: HTMLElement; focusStart()
       cards.push({ card: addCard(grid, v, label, about, cur.value === v), sec: grid.parentElement!, text: `${label} ${about} ${group}`.toLowerCase() });
     }
   }
-  if (makingOfOn(pageQuery())) { // CC-132: plain links (same tab) to the Making Of pages, last on the list
+  const showLinks = makingOfOn(pageQuery()), showParts = partsCardOn(pageQuery()) || cur.value === 'parts';
+  if (showLinks || showParts) { // CC-132: The Making Of, last on the list: two plain links (same tab) and the Parts card, all drawn like the other cards
     const grid = section(MAKING_OF_GROUP);
-    for (const [href, title, about, tile] of MAKING_OF_CARDS) {
+    if (showLinks) for (const [href, title, about, thumb] of MAKING_OF_CARDS) {
       const a = document.createElement('a'); a.className = 'wg-card'; a.href = href; a.dataset.value = href; a.dataset.making = '1'; a.title = about;
-      const pic = document.createElement('div'); pic.className = 'wg-pic'; pic.style.background = tile;
-      const t = document.createElement('b'); t.textContent = title; t.style.cssText = 'font-size:1.3em;color:#17201d'; pic.append(t);
+      const pic = document.createElement('div'); pic.className = 'wg-pic';
+      const img = new Image(); img.src = `/assets/thumbs/${thumb}.webp`; img.alt = ''; img.loading = 'lazy'; img.decoding = 'async'; img.onerror = () => img.remove(); pic.append(img);
       const txt = document.createElement('div'); txt.className = 'wg-txt';
       const b = document.createElement('b'); b.textContent = title; const sp = document.createElement('span'); sp.textContent = about;
       txt.append(b, sp); a.append(pic, txt); grid.append(a);
       cards.push({ card: a as unknown as HTMLButtonElement, sec: grid.parentElement!, text: `${title} ${about} ${MAKING_OF_GROUP}`.toLowerCase() });
+    }
+    if (showParts) {
+      const [v, label, about] = PARTS_CARD;
+      cards.push({ card: addCard(grid, v, label, about, cur.value === v), sec: grid.parentElement!, text: `${label} ${about} ${MAKING_OF_GROUP}`.toLowerCase() });
     }
   }
   const none = document.createElement('div'); none.className = 'wg-none'; none.textContent = 'No course matches that. Try another word.'; none.hidden = true; body.append(none);

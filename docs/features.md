@@ -26,7 +26,7 @@
 | Course picker | Press `T` in the Dojo to pick a course | `T` | [onboarding](onboarding.md) |
 | University Labs | Equations are allowed here, nowhere else | On by default; `?labs=0` hides them (the browser remembers it), `?labs=1` brings them back | [university labs](university-labs.md) |
 | Course cards with stats | Plays, simulator-verified clears, best verified time, difficulty | Always on; `?stats=0` hides them | [course stats](course-stats.md) |
-| The Making Of cards (CC-132) | Last group in the Courses gallery: links to the site map, the course map and the story of how the game was made | On by default; `?making=0` hides it | [site map](site-map.md) |
+| The Making Of cards (CC-132) | Last group in the Courses gallery: two picture cards (site map, course map) and the Parts card; the story page stays at `/making-of/`, linked from the maps | On by default; `?making=0` hides the two map cards, `?parts=0` the Parts card | [site map](site-map.md) |
 
 ## 3. Make
 | Feature | What the player sees | Turn it on | Diagram or doc |
@@ -40,7 +40,7 @@
 | Generate a course | A course from a seed | `?generate=<seed>` | [world-slice](world-slice.md#course-generator-v1-cc-47) |
 | Characters | The Rookie and a second Rookie in the first one's style | Always on | [pipelines 5](meta-ai-pipelines.md#5-characters-muse-image) |
 | Starter cast (CC-108) | Eight ready-made characters (Fox, Skater, Toy Robot, Cactus, Banana, Robo Cat, Jelly, Potato Blob) in the Characters picker, fitted to the runner's skeleton at load | On by default; `?cast=0` hides them | [ugc fit](ugc-fit.md) |
-| Parts gallery | A page of every move and obstacle, special ones first, each played live in the real game, plus a strip showing how a course is made | On by default (`?mode=parts`, World picker card); `?parts=0` hides the card | [parts gallery](parts-gallery.md) |
+| Parts gallery | A page of every move and obstacle, special ones first, each played live in the real game, plus a strip showing how a course is made | On by default (`?mode=parts`, third card of The Making Of in the World picker); `?parts=0` hides the card | [parts gallery](parts-gallery.md) |
 
 ## 4. Share
 | Feature | What the player sees | Turn it on | Diagram or doc |

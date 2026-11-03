@@ -1515,7 +1515,6 @@
         "button|Training course: every moveYou are here ",
         "button|Cannonballs: slip between the shots Cann",
         "button|Two ways: swing high or drop low The cou",
-        "button|Parts: moves and obstacles Every move an",
         "button|Montmartre, Paris Real streets and roofs",
         "button|Barcelona block The Eixample grid: rooft",
         "button|Sydney quay Waterfront buildings at Circ",
@@ -1557,9 +1556,9 @@
         "button|Lab #: Evaluating a detector Check wheth",
         "button|Lab #: Verification and hashing Change o",
         "button|Lab #: Reinforcement learning Write the ",
-        "a|Site map Site map Every screen a player ",
-        "a|Course map Course map The building tasks",
-        "a|How it was made How it was made The stor"
+        "a|Site map Every screen a player can see, ",
+        "a|Course map The building tasks of the pro",
+        "button|Parts: moves and obstacles Every move an"
       ],
       "cards": true,
       "drumsShown": true,
