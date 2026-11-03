@@ -106,7 +106,39 @@
             457
           ]
         ]
-      ]
+      ],
+      "first_run_note": "first run (2026-11-02) had no string-lights phrase; items above are from that run",
+      "rerun_2026_11_03": {
+        "source": "suggest/photo1/suggest.json",
+        "new_phrases": [
+          "monkey bars",
+          "string lights"
+        ],
+        "job_seconds": 4.2,
+        "items_found_new": [
+          [
+            "string lights",
+            0.61,
+            [
+              11,
+              77,
+              1280,
+              138
+            ]
+          ],
+          [
+            "string lights",
+            0.35,
+            [
+              505,
+              203,
+              807,
+              250
+            ]
+          ]
+        ],
+        "note": "string lights found (0.61 wide strip along the top, 0.35 weak); the lift below still used our own box, made before the rerun"
+      }
     },
     "photo2": {
       "job_seconds": 0.9,

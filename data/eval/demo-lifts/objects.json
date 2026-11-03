@@ -49,7 +49,7 @@
       180
     ],
     "height_m": 1,
-    "box_source": "our box: no phrase in Segment Objects finds a bulb string"
+    "box_source": "our box, made before the rerun; the rerun phrase 'string lights' finds the string (0.61), so it can now be a one-click pick"
   },
   {
     "name": "p2_monkey_bars",
@@ -62,7 +62,7 @@
       707
     ],
     "height_m": 0.25,
-    "box_source": "our box: Segment Objects did not find monkey bars",
+    "box_source": "our box: Segment Objects did not find monkey bars (still not found in the rerun)",
     "height_note": "typed so the loop bar is about 5 m long (the first try, 2.4 m, gave a 52 m bar because the height is the thin direction)"
   },
   {
