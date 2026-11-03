@@ -32,10 +32,8 @@ export function buildForkCourse(spec: ForkSpec = DEFAULT_FORK, name = 'Bench lan
   const forkX = spec.poleX + 0.3;
   const platforms: { x0: number; x1: number; top: number }[] = [{ x0: -10, x1: forkX, top: 0 }];
   const own: number[] = [];
-  let x = forkX;
   for (const b of spec.benches) {
     own.push(platforms.length); platforms.push({ x0: b.x0, x1: b.x1, top: b.top });
-    x = b.x1;
   }
   platforms.push({ x0: spec.joinX, x1: spec.finishX + 30, top: 0 });
   const bars = spec.barXs.map((bx) => ({ x: bx, y: spec.barY }));
