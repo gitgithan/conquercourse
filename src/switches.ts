@@ -127,6 +127,7 @@ export const SWITCHES: readonly Switch[] = [
   { name: 'vzoom', default: 'off', doc: "1 stretches the side view heights for films", quiet: false },
   { name: 'wallh', default: 'none', doc: "a wall height from 3 to 6 m", quiet: false },
   { name: 'warpedE', default: 'on', doc: "0 returns to the old wall rule", quiet: false },
+  { name: 'warmup', default: 'on', doc: "0 stops the Community page waking the photo machines early", quiet: false },
   { name: 'welcome', default: 'on', doc: "0 skips the welcome screen; 1 opens it for tests", quiet: false },
   { name: 'z', default: '15', doc: "map zoom", quiet: false },
   { name: 'labs', default: 'on', doc: "never read by name; kept in the quiet list so a Labs link keeps the first visit", quiet: true },

@@ -245,5 +245,6 @@
 - **To resume or collect:** run `modal run --detach pipelines/photo_to_object.py::main ...` again; finished photos and spawned calls are reused (`pipelines/ccpipe/calls.py`).
 - **Pitfalls:**
   - Modal asks for the GPU only when a job starts; a cold start (two GPU containers) can take minutes, and a busy workspace can wait longer.
+  - The Community page hides this by calling the `warm` endpoint early (Make tab opens: Mask; Segment Objects pressed: Lift); the extra cost is a short idle window per visit and is not measured yet (`docs/community-flow-guide.md`).
   - The Modal call id lives for a limited time; the page gives up after about 20 minutes.
   - Player objects are drawn in the 3D view from a blob url; in the Course (scene export) they fall back to their plain mesh.
