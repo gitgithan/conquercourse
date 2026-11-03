@@ -29,4 +29,17 @@
 - Tests: `tests/role-collider.test.ts` (fixture always; the real GLB when `../conquercourse-assets/bar-photos/best/` exists), `tests/bars-lift-course.test.ts`.
 - Scripts: `scripts/make-noisy-bars-fixture.ts`, `scripts/shrink-glb-texture.py`, `scripts/make-bars-lift-demo.ts`, `scripts/cc133-bars-lift-shots.mjs`.
 - Pictures and film: `docs/evidence/cc-133-role-collider/`.
+  - `bars-skin.jpg`: the photo skin with the figure hanging on it.
+  - `bars-skin-and-collider.jpg`: the same moment with the amber collider rungs drawn over the skin (`?collider=1`).
+  - `bars-lift-ideal.mp4`: the ideal run (the ghost) on the stepped clock, 347 frames at 30 fps, about 11.6 s.
+  - `film-contact-sheet.jpg`: nine frames from the film.
 - `run.json` has the numbers.
+
+## What the pictures show (looked at by eye)
+- The amber rungs sit on the top bars of the photo frame and run along its length, so skin and collider agree.
+- The run reads right as a course beat: run up, jump the gap, grab, swing across hand over hand, let go at the far end, land and finish in 10.5 s.
+- The skin is a thin blue frame, so the rungs are hard to see without the overlay.
+- The hanging figure looks stretched out flat along the frame in some frames, more a lie-along than a hang.
+- The legs of the photo frame float over the water gap; they are skin only.
+- The film shows no person close-up; the figure is small.
+- The top of the photo frame tilts a little, so the flat collider is a touch off at one end.
