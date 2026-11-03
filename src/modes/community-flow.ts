@@ -267,6 +267,8 @@ export function startCommunityFlow(host: HTMLElement, params: URLSearchParams): 
       const prog = el('div', panel); prog.id = 'cprog';
       const foundEl = el('div', panel); foundEl.id = 'cfound';
       const nav = navRow(panel, 'Next: Make', work.fs.segmented, 'cnext');
+      // CC-133: a cut-out still waiting for "Use this" cannot be answered after the screen is rebuilt or restored (its buttons are gone), so it is dropped: it would leave Next: Make stuck
+      work.cands = work.cands.filter((c) => !awaitsConfirm(c)); work.ticked = liftable(work.cands, work.ticked);
       const run = el('button', row, work.cands.length ? 'Segment Objects again' : 'Segment Objects', { className: 'go', id: 'cseg' });
       run.addEventListener('click', () => { warmUp('mask'); warmUp('lift'); }); // CC-133: the 3D maker loads while the outlines are found and a thing is picked
       // CC-133 (owner principle 2026-11-03): segment first, show what would be lifted, then the player chooses. Nothing is picked or made before "Use this".
