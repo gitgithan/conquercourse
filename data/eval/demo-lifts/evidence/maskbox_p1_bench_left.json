@@ -1,0 +1,21 @@
+{
+  "object": "p1_bench_left",
+  "box_sent": [
+    438,
+    488,
+    702,
+    600
+  ],
+  "found": true,
+  "item": {
+    "label": "thing",
+    "score": 0.98,
+    "box": [
+      438,
+      488,
+      702,
+      599
+    ]
+  },
+  "seconds": 3.8
+}

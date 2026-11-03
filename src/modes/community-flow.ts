@@ -3,7 +3,7 @@ import { JobError, liftObject, piecesToday, shrinkPhoto, type Shrunk } from '../
 import { LIFT_STEPS, SEGMENT_STEPS } from '../slice/stages';
 import { jobProgress } from '../ui/job-progress';
 import { LABEL_RE } from '../slice/object-lift';
-import { suggestRegions } from '../slice/segment-client';
+import { maskBox, suggestRegions } from '../slice/segment-client';
 import { warmUp } from '../slice/warm-client';
 import { deleteUserObject, listUserObjects, saveUserObject, type UserObject } from '../slice/user-objects';
 import { receiptFor, deleteShared, forgetLink, links, rememberLink, sessionCode, shareItem } from '../community/share-client';
@@ -13,6 +13,7 @@ import type { PublicItem } from '../community/items';
 import { listSharedPage } from '../community/share-client';
 import { placeableShared, sharedSrc, useShared, LIFT_PARALLEL, MAX_PICKS, STEPS, TABS, allowedNow, buildFound, canEnter, dailyLine, editorHref, makeLabel, nextStep, prevStep, runQueue, queueWarning, startState, tabFor, toggleTick, whyNot, whyOff, type Box, type FlowState, type Found, type Kind, type PiecesToday, type Step, type Tab } from '../community/flow';
 import { markOn } from '../slice/markbox';
+import { awaitsConfirm, confirm, cutProblem, liftable } from '../slice/markpreview';
 import { openMarkTool } from '../ui/mark-box';
 import { pageQuery } from '../flags';
 import { openPrize } from '../ui/prize';
@@ -256,9 +257,9 @@ export function startCommunityFlow(host: HTMLElement, params: URLSearchParams): 
       let hovered: number | null = null;
       const row = el('div', panel); row.className = 'row';
       const view: View = {
-        list: () => work.cands.map((c, i) => ({ id: i, box: c.box, label: c.label, cutout: c.cutout, cls: `${work.ticked.includes(i) ? 'sel' : ''} ${hovered === i ? 'hl' : ''}` })),
+        list: () => work.cands.map((c, i) => ({ id: i, box: c.box, label: c.label, cutout: c.cutout, cls: `${work.ticked.includes(i) ? 'sel' : ''} ${hovered === i || awaitsConfirm(c) ? 'hl' : ''}` })),
         hover: (id) => { hovered = id; paintHover(); },
-        click: (id) => tick(id),
+        click: (id) => { if (!awaitsConfirm(work.cands[id])) tick(id); }, // a marked thing is picked only with Use this
       };
       const st = stage(ph, () => (work.cands.length ? view : undefined));
       const prog = el('div', panel); prog.id = 'cprog';
@@ -266,19 +267,45 @@ export function startCommunityFlow(host: HTMLElement, params: URLSearchParams): 
       const nav = navRow(panel, 'Next: Make', work.fs.segmented, 'cnext');
       const run = el('button', row, work.cands.length ? 'Segment Objects again' : 'Segment Objects', { className: 'go', id: 'cseg' });
       run.addEventListener('click', () => { warmUp('mask'); warmUp('lift'); }); // CC-133: the 3D maker loads while the outlines are found and a thing is picked
+      // CC-133 (owner principle 2026-11-03): segment first, show what would be lifted, then the player chooses. Nothing is picked or made before "Use this".
+      let marking = false, mkBtn: HTMLButtonElement | undefined;
+      const review = document.createElement('div'); review.className = 'row'; review.id = 'mreview'; st.root.after(review); // the buttons sit right under the photo, next to the lit-up cut-out
+      async function previewMark(box: Box, label: string) {
+        marking = true; (mkBtn as HTMLButtonElement).disabled = true; review.replaceChildren(); say(`Cutting out your ${label}. Nothing is made yet.`);
+        const ctl = new AbortController(), bar = jobProgress(prog, SEGMENT_STEPS, () => ctl.abort());
+        const redraw = () => { review.replaceChildren(); marking = false; (mkBtn as HTMLButtonElement).disabled = false; mkBtn?.click(); };
+        try {
+          const cut = await maskBox(ph, box, ctl.signal, (p) => { work.people = p; });
+          const why = cutProblem(box, cut, work.people);
+          if (why || !cut) { bar.fail(); say(why, true); el('button', review, 'Draw it again', { id: 'mredo' }).onclick = redraw; return; }
+          bar.finish();
+          work.cands = [...work.cands, { label, box: cut.box, cutout: cut.cutout, marked: true, confirmed: false }]; const i = work.cands.length - 1;
+          say(`This is the cut-out of your ${label}, lit up in the photo. If it is the thing you wanted, press Use this. If it is wrong, press Redraw. Nothing is made until you press Use this.`);
+          el('button', review, 'Use this', { id: 'muse' }).className = 'go';
+          el('button', review, 'Redraw', { id: 'mredo' });
+          (review.querySelector('#muse') as HTMLButtonElement).onclick = () => {
+            work.cands[i] = confirm(work.cands[i]); if (work.ticked.length < MAX_PICKS) work.ticked = toggleTick(work.ticked, i);
+            review.replaceChildren(); marking = false; (mkBtn as HTMLButtonElement).disabled = false;
+            say(`Added your ${label}.${work.ticked.includes(i) ? '' : ` It is in the list; put one back first to pick it (the most is ${MAX_PICKS}).`}`);
+            fall.replaceChildren(); sync(); showFound(); st.draw();
+          };
+          (review.querySelector('#mredo') as HTMLButtonElement).onclick = () => { work.cands = work.cands.slice(0, i); sync(); showFound(); st.draw(); redraw(); };
+          sync(); showFound(); st.draw();
+        } catch (e) {
+          bar.fail(); const err = e as JobError;
+          say(err.stopped ? 'Stopped.' : `${err.message} Nothing was made. You can draw the box again.`, true);
+          el('button', review, 'Draw it again', { id: 'mredo' }).onclick = redraw;
+        } finally { if (!review.childElementCount) { marking = false; (mkBtn as HTMLButtonElement).disabled = false; } }
+      }
       if (markOn(pageQuery())) { // CC-133: mark it yourself, owner decision 2026-11-03
         const mk = el('button', row, 'Mark it yourself', { id: 'cmark', title: 'Drag a box round a thing the finder missed' });
+        mkBtn = mk;
         mk.onclick = () => {
           if (st.root.querySelector('#markzone')) return;
           mk.disabled = true;
           openMarkTool({ stage: st.root, img: st.root.querySelector('img') as HTMLImageElement, width: ph.width, height: ph.height, people: work.people,
-            onUse: (box, label) => {
-              work.cands = [...work.cands, { label, box, marked: true }]; const i = work.cands.length - 1;
-              if (work.ticked.length < MAX_PICKS) work.ticked = toggleTick(work.ticked, i);
-              say(`Added your ${label}.${work.ticked.includes(i) ? '' : ` It is in the list; put one back first to pick it (the most is ${MAX_PICKS}).`}`);
-              fall.replaceChildren(); sync(); showFound(); st.draw();
-            },
-            onClose: () => { mk.disabled = false; mk.focus(); } });
+            onUse: (box, label) => { void previewMark(box, label); },
+            onClose: () => { if (!marking) { mk.disabled = false; mk.focus(); } } });
         };
       }
       const fall = el('div', panel); fall.className = 'row'; fall.id = 'cfall'; // shown only when nothing was found or the finder failed
@@ -292,6 +319,7 @@ export function startCommunityFlow(host: HTMLElement, params: URLSearchParams): 
         foundEl.querySelectorAll('label').forEach((l) => l.classList.toggle('hl', Number((l as HTMLElement).dataset.i) === hovered));
       };
       const sync = () => {
+        work.ticked = liftable(work.cands, work.ticked); // the confirm gate: nothing the player has not confirmed goes on to the lift
         work.areas = work.ticked.map((i) => ({ id: i, box: work.cands[i].box, label: work.cands[i].label, cutout: work.cands[i].cutout }));
         work.fs = { ...work.fs, segmented: work.ticked.length > 0, choices: Object.fromEntries(work.ticked.map((id) => [id, 'piece'])) };
         for (const id of work.ticked) work.kinds.set(id, 'piece'); // every pick is a 3D piece
@@ -307,16 +335,16 @@ export function startCommunityFlow(host: HTMLElement, params: URLSearchParams): 
           const l = el('label', grid); l.dataset.i = String(i); l.className = work.ticked.includes(i) ? 'on' : '';
           const cb = el('input', l, '', { type: 'checkbox', checked: work.ticked.includes(i), id: `found-${i}` });
           const sw = el('s', l); if (c.cutout) sw.style.setProperty('--cut', `url(data:image/png;base64,${c.cutout})`);
-          el('span', l, c.marked ? `${c.label} (marked by you)` : c.label);
+          el('span', l, c.marked ? `${c.label} (${awaitsConfirm(c) ? 'waiting for your OK' : 'marked by you'})` : c.label);
           l.onmouseenter = () => { hovered = i; paintHover(); }; l.onmouseleave = () => { hovered = null; paintHover(); };
-          cb.onchange = () => tick(i);
+          cb.disabled = awaitsConfirm(c); cb.onchange = () => tick(i);
         });
         const left = MAX_PICKS - work.ticked.length;
         el('div', foundEl, work.ticked.length ? `${work.ticked.length} picked${left ? '' : ' (the most you can make at once)'}.` : 'Pick at least one thing to go on.').className = 'muted';
       }
       const say = (t: string, bad = false) => { work.segMsg = t; msg.textContent = t; msg.className = bad ? 'err' : 'muted'; if (bad) msg.setAttribute('role', 'alert'); else msg.removeAttribute('role'); };
       const done = (found: Found[], note: string) => {
-        work.cands = [...found, ...work.cands.filter((c) => c.marked)]; work.ticked = []; work.kinds.clear();
+        work.cands = [...found, ...work.cands.filter((c) => c.marked && c.confirmed)]; work.ticked = []; work.kinds.clear();
         say(note); run.disabled = false; sync(); showFound(); st.draw();
         if (!found.length && !work.cands.length) showFall();
       };

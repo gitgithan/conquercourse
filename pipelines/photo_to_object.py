@@ -179,6 +179,34 @@ if modal is not None:
             items = [sg.describe(c) for c in sg.pick(cands, (h, w))]
             return {"items": items, "privacy": receipt, "seconds": time.time() - t0}
 
+        @modal.method()
+        def mask_box(self, jpeg, box):
+            import torch
+            with torch.autocast("cuda", dtype=torch.bfloat16):
+                return self._mask_box(jpeg, box)
+
+        def _mask_box(self, jpeg, box):
+            """The cut-out preview for one box a player drew (CC-133): privacy blur first, then one box-prompted SAM 3 pass on the blurred photo only. No lift."""
+            import numpy as np
+            from PIL import Image
+            from ccpipe import privacy, suggest as sg
+            t0 = time.time()
+            img = np.asarray(Image.open(io.BytesIO(jpeg)).convert("RGB"))
+            h, w = img.shape[:2]
+            state = self.p.set_image(Image.fromarray(img))
+            people = [c["mask"] for c in self._find(state, "person", privacy.PERSON_T)]
+            faces = [c["mask"] for c in self._find(state, "face", privacy.FACE_T)]
+            plates = [c["mask"] for c in self._find(state, "license plate", privacy.PLATE_T)]
+            safe, receipt = privacy.apply_privacy(img, people, faces, plates)
+            receipt["person_boxes"] = privacy.mask_boxes(list(people) + list(faces))
+            state = self.p.set_image(Image.fromarray(safe))  # from here on only the blurred photo is used
+            x0, y0, x1, y1 = box
+            self.p.reset_all_prompts(state)
+            st = self.p.add_geometric_prompt(box=[(x0 + x1) / 2 / w, (y0 + y1) / 2 / h, (x1 - x0) / w, (y1 - y0) / h], label=True, state=state)
+            cands = [{"mask": m.squeeze().cpu().numpy().astype(bool), "score": float(s)} for m, s in zip(st["masks"], st["scores"])]
+            item = sg.box_item(cands, box, (h, w))
+            return {"items": [item] if item else [], "privacy": receipt, "seconds": time.time() - t0}
+
     # ---------- lift (L40S) ----------
     @app.cls(gpu=["L40S", "A100-80GB"], image=lift_image, volumes={CK: ck_vol}, timeout=1800, max_containers=1, scaledown_window=240)
     class Lift:
@@ -334,10 +362,16 @@ if modal is not None:
         _stage("finding")
         return Mask().suggest.remote(jpeg)
 
+    @app.function(image=web_image, timeout=600, secrets=upload_secrets)
+    def box_job(jpeg: bytes, box: list) -> dict:
+        """photo + a box the player drew -> {items: [one cut-out] or [], privacy, seconds}: the preview before any lift (CC-133)."""
+        _stage("finding")
+        return Mask().mask_box.remote(jpeg, box)
+
     @app.function(image=web_image, secrets=upload_secrets)
     @modal.fastapi_endpoint(method="POST")
     def suggest_submit(item: dict):
-        """{token, image: base64 jpeg} -> {id} to poll, or {error}."""
+        """{token, image: base64 jpeg, box?: [x0, y0, x1, y1]} -> {id} to poll, or {error}. With a box the job is one cheap cut-out (mask_box); without, the full finder."""
         import base64
         from PIL import Image
         from ccpipe import upload
@@ -350,6 +384,12 @@ if modal is not None:
             return {"error": "bad photo"}
         if len(jpeg) > upload.MAX_BYTES or jpeg[:3] != b"\xff\xd8\xff" or not (upload.MIN_SIDE <= min(size) and max(size) <= upload.MAX_SIDE):
             return {"error": "the photo size is not allowed"}
+        box = item.get("box")
+        if box is not None:
+            ok = isinstance(box, list) and len(box) == 4 and all(isinstance(v, (int, float)) and not isinstance(v, bool) for v in box)
+            if not ok or not (0 <= box[0] < box[2] <= size[0] and 0 <= box[1] < box[3] <= size[1]):
+                return {"error": "bad box"}
+            return {"id": box_job.spawn(jpeg, [float(v) for v in box]).object_id}
         return {"id": suggest_job.spawn(jpeg).object_id}
 
     @app.function(image=web_image, secrets=upload_secrets)

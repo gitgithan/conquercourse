@@ -14,6 +14,15 @@
 - Recommendation: put benches, pole and pull-up bar in the film; show the monkey bars from above or as a primitive; leave the bulb string out or use it only as far-away scenery.
 - Next step: the two phrases were added and rerun (last section); try "overhead ladder" or "horizontal ladder" for the monkey bars.
 
+## Method rule: segment, show, then lift
+- Lifts must go through segment-then-confirm (owner principle, 2026-11-03), as the product does.
+  - Step 1: a cut-out of the box (`modal_calls.py maskbox`) writes `evidence/maskbox_<name>.jpg`, a cheap L4 call with no lift.
+  - Step 2: someone looks at the picture; a wrong cut-out means a new box, not a lift.
+  - Step 3: only then the lift; `modal_calls.py lift` refuses an object with no cut-out picture.
+- The earlier lifts in this folder were made straight from lab boxes, before this rule; the cut-out pictures were added afterwards (below).
+- Real cut-outs, 2026-11-03: monkey bars score 0.91 (0.5 s), pull-up bar 0.93 (0.5 s), left bench 0.98 (3.8 s with a cold start).
+  - The monkey bars cut-out follows the loops along the top bar and ignores the posts, so the lift would get the bar and not the frame.
+
 ## Photos (originals stay outside git, with checksums)
 - Photo 1: `Dansbana_-_Ystad-2016.jpg`, CC BY 3.0, credit "Jonn Leffmann", 1550x793.
 - Photo 2: `Street_Workout_&_Parkour_Park_w_Parku_Rataje_-_marzec_2017_-_1.jpg`, CC BY-SA 4.0, credit "Koefbac", 2592x1944.

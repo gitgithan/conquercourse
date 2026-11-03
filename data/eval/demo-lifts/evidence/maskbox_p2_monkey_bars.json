@@ -1,0 +1,21 @@
+{
+  "object": "p2_monkey_bars",
+  "box_sent": [
+    551,
+    288,
+    1222,
+    349
+  ],
+  "found": true,
+  "item": {
+    "label": "thing",
+    "score": 0.91,
+    "box": [
+      573,
+      290,
+      1221,
+      344
+    ]
+  },
+  "seconds": 0.5
+}

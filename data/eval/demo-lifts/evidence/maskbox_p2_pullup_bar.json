@@ -1,0 +1,21 @@
+{
+  "object": "p2_pullup_bar",
+  "box_sent": [
+    1018,
+    381,
+    1226,
+    586
+  ],
+  "found": true,
+  "item": {
+    "label": "thing",
+    "score": 0.93,
+    "box": [
+      1018,
+      381,
+      1225,
+      584
+    ]
+  },
+  "seconds": 0.5
+}

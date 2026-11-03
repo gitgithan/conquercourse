@@ -1,5 +1,5 @@
 """Steps 2 to 4 on Modal (the deployed app cc-photo-to-object, the same jobs the site calls): privacy + Segment Objects suggestions, then per object mask + lift.
-usage: uv run --no-project --with modal --with 'numpy<2' --with pillow --with scipy python -I modal_calls.py suggest|lift [--only name,name]
+usage: uv run --no-project --with modal --with 'numpy<2' --with pillow --with scipy python -I modal_calls.py suggest|maskbox|lift [--only name,name]
 Run from the repo root. Reads prep/prep.json and objects.json; writes suggest/<photo>/ and lifts/<name>/ (masked.jpg, mask.png, privacy.json, lift_input.jpg, raw.npz, calls.json).
 Costs are the container seconds returned by the jobs: L4 $0.80/h (SAM 3), L40S $1.95/h (SAM 3D Objects); model-load and idle scale-down time are not in the seconds."""
 import io, json, os, sys, time
@@ -26,7 +26,32 @@ prep = {r["photo"]: r for r in json.load(open(f"{D}/prep/prep.json"))}
 mode = sys.argv[1]
 only = (sys.argv[sys.argv.index("--only") + 1].split(",") if "--only" in sys.argv else [])
 
-if mode == "suggest":
+if mode == "maskbox":
+    # Segment first, show, then lift (owner principle 2026-11-03): for each lab box, the same cheap box-prompted cut-out the product shows before a lift.
+    # It writes evidence/maskbox_<name>.jpg (the cut-out lit up on the blurred photo, with the box). The lift mode refuses an object whose picture is missing.
+    import numpy as np
+    from PIL import Image
+    os.makedirs(f"{D}/evidence", exist_ok=True)
+    for o in json.load(open(f"{D}/objects.json")):
+        if only and o["name"] not in only:
+            continue
+        s = prep[o["photo"]]["scale"]
+        box = [round(v * s) for v in o["box_original"]]
+        res = retry(lambda: Mask.mask_box.remote(open(f"{D}/prep/{o['photo']}.jpg", "rb").read(), [float(v) for v in box]))
+        im = Image.open(f"{D}/prep/{o['photo']}.jpg").convert("RGB")  # the lab photo is the shrunk original; the product shows the same photo, blurred on the server
+        if res["items"]:
+            it = res["items"][0]; cut = Image.open(io.BytesIO(it["cutout"])).convert("L")
+            x0, y0, x1, y1 = it["box"]; cut = cut.resize((x1 - x0, y1 - y0))
+            a = np.asarray(im).astype("float32"); m = np.zeros(a.shape[:2], bool); m[y0:y1, x0:x1] = np.asarray(cut) > 127
+            a[m] = a[m] * 0.5 + np.array([45, 156, 219]) * 0.5; im = Image.fromarray(a.astype("uint8"))
+        from PIL import ImageDraw
+        ImageDraw.Draw(im).rectangle(box, outline=(255, 209, 102), width=3)
+        im.save(f"{D}/evidence/maskbox_{o['name']}.jpg", quality=85)
+        if res["items"]:
+            open(f"{D}/evidence/maskbox_{o['name']}_cutout.png", "wb").write(res["items"][0]["cutout"])  # small; the browser check replays it
+        json.dump({"object": o["name"], "box_sent": box, "found": bool(res["items"]), "item": {k: v for k, v in (res["items"][0] if res["items"] else {}).items() if k != "cutout"}, "seconds": round(res["seconds"], 1)}, open(f"{D}/evidence/maskbox_{o['name']}.json", "w"), indent=2)
+        print(o["name"], "cut-out" if res["items"] else "NO CLEAR SHAPE", round(res["seconds"], 1), "s")
+elif mode == "suggest":
     for name, r in prep.items():
         out = f"{D}/suggest/{name}"; os.makedirs(out, exist_ok=True)
         t0 = time.time()
@@ -41,6 +66,8 @@ else:
     for o in json.load(open(f"{D}/objects.json")):
         if only and o["name"] not in only:
             continue
+        if not os.path.exists(f"{D}/evidence/maskbox_{o['name']}.jpg"):
+            sys.exit(f"{o['name']}: no cut-out picture yet. Run the maskbox step first and look at {D}/evidence/maskbox_{o['name']}.jpg; a lift is made only from a cut-out that was seen and confirmed.")
         d = f"{D}/lifts/{o['name']}"; os.makedirs(d, exist_ok=True)
         s = prep[o["photo"]]["scale"]
         box = [round(v * s) for v in o["box_original"]]

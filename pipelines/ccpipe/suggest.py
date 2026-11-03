@@ -53,3 +53,26 @@ def describe(c):
     b = io.BytesIO()
     im.save(b, "PNG")
     return {"label": c["label"], "score": round(float(c["score"]), 2), "box": box, "cutout": b.getvalue()}
+
+
+def box_item(cands, box, shape, label="thing"):
+    """The cut-out for one box the player drew (CC-133): of the box-prompted masks, the best-scoring one that mostly lies in the box. None when no clear shape.
+
+    cands: [{mask (bool HxW), score}]; box: [x0, y0, x1, y1] in photo pixels. Pure numpy, so it is tested without a GPU."""
+    import numpy as np
+    h, w = shape
+    x0, y0, x1, y1 = [int(round(v)) for v in box]
+    inside = np.zeros((h, w), bool)
+    inside[max(0, y0):min(h, y1), max(0, x0):min(w, x1)] = True
+    best = None
+    for c in cands:
+        n = int(c["mask"].sum())
+        if n < MIN_FRAC * h * w or n < 0.05 * inside.sum():
+            continue
+        if int(np.logical_and(c["mask"], inside).sum()) < 0.6 * n:
+            continue  # the shape spills far outside the box: it is something else
+        if best is None or c["score"] > best["score"]:
+            best = c
+    if best is None:
+        return None
+    return describe({"label": label, "mask": best["mask"], "score": best["score"]})

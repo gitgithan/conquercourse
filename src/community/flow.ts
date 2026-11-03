@@ -52,7 +52,7 @@ export const LIFT_PARALLEL = 1;
 export const COST_WORDS = 'about 2 to 4 cents each';
 
 const area = (b: Box): number => Math.max(0, b[2] - b[0]) * Math.max(0, b[3] - b[1]);
-export interface Found { label: string; box: Box; cutout?: string; score?: number; marked?: boolean }
+export interface Found { label: string; box: Box; cutout?: string; score?: number; marked?: boolean; confirmed?: boolean }
 
 /**
  * One fixed order for the found things: biggest first, then top to bottom, left to right, then by name.

@@ -133,7 +133,8 @@ Folder: [data/eval/demo-lifts](../data/eval/demo-lifts/README.md).
   - The picture holds exactly 12 outlines and `MAX_ITEMS` in `pipelines/ccpipe/suggest.py` is 12, so a lower-scoring bar outline may have been cut by the cap; the raw per-phrase candidates were not saved, so this is **not recorded**.
 - `evidence/lifts_turntables.jpg` is the **lift** stage (SAM 3D Objects), six turning views per object.
   - `p2_monkey_bars` and `p2_pullup_bar` were run from boxes the lab script drew.
-  - When this was written the product had no player box tool; since 2026-11-03 it has **Mark it yourself** (`docs/community-flow-guide.md`).
+  - When this was written the product had no player box tool; since 2026-11-03 it has **Mark it yourself** (`docs/community-flow-guide.md`), which shows a box-prompted cut-out first and lifts only after the player presses Use this.
+  - Lab lifts must follow the same order: cut-out picture first (`evidence/maskbox_*.jpg`), then the lift.
   - For the monkey bars the text prompt under the lab box had 0 candidates, so the mask came from the box prompt (score 0.91).
 
 ### What the finder missed, with numbers
