@@ -6,7 +6,8 @@
 - A player's photo is looked at by a safety check before anything is made or shared.
   - The check is Muse Spark Open on Baseten; if it cannot run, nothing is made (it fails closed).
 - People, faces and number plates are blurred or pixelated on our own GPU job before the 3D model sees the photo.
-- The check has been tested on words and ordinary photos only, not on real harmful images (see "Honest limits").
+- The check was tested on words, ordinary photos and real borderline images from Wikimedia Commons: 37 of 38 must-flag runs were not "ok" ([cc-120](../data/eval/cc-120-safety-real/README.md)).
+- Child safety was NOT tested, on purpose; it needs a hash-matching service we do not have (see "Honest limits").
 - Abuse limits: kept in the private notes.
 
 ## 1. The safety check (Muse Spark Open)
@@ -109,8 +110,12 @@
 
 ## Honest limits
 - The check was measured on 19 safe photos (all `ok`), 7 text-only unsafe cases (all caught) and 4 near misses (none blocked) ([cc-119-moderation](../data/eval/cc-119-moderation/README.md)).
-- It has not been tested on real harmful images.
-  - A harmful-image test (CC-120) is still running; when its result is merged under `data/eval/`, this page will link it.
+- Real borderline images were tested (CC-120, 84 calls plus 8 with a caption, [result](../data/eval/cc-120-safety-real/README.md)).
+  - 37 of 38 must-flag runs were not "ok" (19 blocked, 18 sent to review); the one miss was an invented street sign with a house number.
+  - 2 of 23 must-pass runs were held for review (a Botticelli painting, one photo of the David); none were blocked.
+  - A weapon pointed at a person was tested only as text, not as a real picture.
+  - Child safety was not tested, on purpose; the check is not a substitute for hash-matching.
+  - Latency was median 7 s, 90th percentile 36 s and worst 78 s there, and 88.9 s for one later call (CC-133 demo photo 2).
 - There is no hash-matching child-safety service; a model judging one small picture can miss things.
 - People and faces that SAM 3 misses stay visible in the lifted object's source photo.
 - Street photos rely on Mapillary's blur, which can miss a face or a child (section 2b).

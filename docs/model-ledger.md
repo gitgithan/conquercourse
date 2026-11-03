@@ -104,7 +104,8 @@ Anything marked **assumption** has no written reason in the repo.
 - **Today:**
   - A reasoning model of the size above reads each photo and answers ok, review or block (`functions/api/moderate.ts`).
   - Measured: 19 of 19 safe photos ok, 7 of 7 text-only unsafe cases caught, 4 of 4 near misses not blocked, about $0.003 a call (`data/eval/cc-119-moderation/README.md`).
-  - Not tested: real harmful images (`docs/meta-ai-pipelines.md`, section 4b).
+  - Real borderline images (CC-120, `data/eval/cc-120-safety-real/README.md`): 37 of 38 must-flag runs not "ok"; 2 of 23 must-pass runs held for review, none blocked; median 7 s, worst 78 s (88.9 s on one later call).
+  - Not tested: child safety (on purpose) and a real picture of a weapon pointed at a person.
   - It fails closed: any error becomes review.
 - **Why it was chosen:**
   - It was already wired and paid for, and one prompt handles pictures and captions.
@@ -128,7 +129,7 @@ Anything marked **assumption** has no written reason in the repo.
   - Likely gains: lower cost and delay, a fixed answer format, and no reasoning budget to run out.
   - Likely losses: pictures may need a second model, and our near-miss cases (a person in the background, a private place) may need tuning.
   - Cost to try: about half a day; run the same cases in `data/eval/cc-119-moderation/inputs/cases.json` and compare the table; money is near zero on the free allowance.
-  - Do this before leaning on the check for real harmful images, because that is the case nobody has tested.
+  - Do this before leaning on the check for child safety, which nobody has tested (and a model check cannot replace hash-matching).
 
 ### 2c. Character maker: Meta API credit, by design
 - Muse Image is a closed model that only the Meta API serves, so the picture step has to use an API key (SPEC section 7; `docs/character-pipeline.md`).
@@ -157,7 +158,7 @@ Anything marked **assumption** has no written reason in the repo.
 
 | Idea | What it could fix | What it would cost to try | Status |
 |---|---|---|---|
-| Small guard model for the upload check | cost, delay, fixed output; the check is currently unproven on real harmful images | about half a day, near-zero money | not tried |
+| Small guard model for the upload check | cost, delay, fixed output; the check caught 37 of 38 real must-flag runs (CC-120) but child safety is untested | about half a day, near-zero money | not tried |
 | Our Modal SAM 3 for the character cut-out | less Meta credit per character, one fewer key use | a few hours | not tried |
 | The built fallback from Baseten to the Meta API Muse Spark | live features survive a Baseten outage or a spent credit | about half a day; spends Meta credit when used | SPEC promised it; not built |
 | Spark Open in our own Modal endpoint | no third-party host for player photos; the prize's "own hardware" route | a Modal endpoint for a 4-GPU class model; hourly price not in the repo | not tried, not priced |
