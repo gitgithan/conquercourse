@@ -1,0 +1,12 @@
+{
+  "experiment": "trace-machines",
+  "issue": "CC-133",
+  "runtimes": ["node 24.20.0 (V8 13.6, Ryzen)", "node 22.23.4 (V8 12.4, same Ryzen)", "workerd 1.20261023.1 via wrangler 4.153 (local)"],
+  "runs_compared": 7525,
+  "outcome_differences": 0,
+  "bit_differences": "six courses: plank, plank-two, drone (mash), plus plan runs of training, lache, lache-wide",
+  "cause": "V8 Math.pow / ** rounding differs between V8 12.4 and 13.6",
+  "cpu_is_cause": false,
+  "vultr_vm": "not reachable (shut down by owner)",
+  "fix_proposed": "pow-fix.patch (needs owner decision and golden regeneration)"
+}

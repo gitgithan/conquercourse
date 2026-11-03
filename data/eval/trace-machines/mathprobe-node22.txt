@@ -1,0 +1,18 @@
+v22.23.4 12.4.254.21-node.57 x64
+sin      56493a72c13e96fd
+cos      318cfceee2669469
+tan      790a984271864ad4
+atan     9f86ca802189cc38
+exp      0ed83fe7336ba62b
+log      e82f332113c71d1c
+sqrt     15e1ce4d87140e08
+cbrt     d56cfb77f6fe7b72
+pow15    88e7e7d63cfa97f5
+pow2     325b828183f4227f
+powInt3  3e0174a9a99bd468
+pow05    15e1ce4d87140e08
+pow      b5e2aeb94390ca14
+atan2    bba269850f954a0e
+hypot    f35a6fbc9a53613c
+asin     65eab947a052e049
+acos     cefc00d19cbfe61c

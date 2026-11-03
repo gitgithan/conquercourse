@@ -1,0 +1,68 @@
+diff --git a/src/sim/beam.ts b/src/sim/beam.ts
+index c71b308a..b7264192 100644
+--- a/src/sim/beam.ts
++++ b/src/sim/beam.ts
+@@ -37,7 +37,7 @@ export interface PlankData {
+ }
+ 
+ export const materialOf = (pk: PlankData) => MATERIALS[pk.material ?? 'wood'];
+-export const secondMoment = (pk: PlankData): number => (pk.width * pk.thickness ** 3) / 12; // m^4
++export const secondMoment = (pk: PlankData): number => (pk.width * pk.thickness * pk.thickness * pk.thickness) / 12; // m^4
+ export const spanOf = (pk: PlankData): number => pk.x1 - pk.x0;
+ export const weightPerMetre = (pk: PlankData): number => materialOf(pk).density * pk.width * pk.thickness * GRAVITY; // N/m
+ 
+@@ -55,7 +55,7 @@ export function sagAt(pk: PlankData, a: number, x: number, mass: number = RIDER_
+   const seg = segOf(pk, x), l = seg.l, xl = x - seg.s0;
+   // own weight, spread evenly: q x (l^3 - 2 l x^2 + x^3) / (24 EI)
+   const q = weightPerMetre(pk);
+-  let d = (q * xl * (l ** 3 - 2 * l * xl * xl + xl ** 3)) / (24 * EI);
++  let d = (q * xl * (l * l * l - 2 * l * xl * xl + xl * xl * xl)) / (24 * EI);
+   // the rider, if on this segment: a point load
+   if (a >= 0 && a <= spanOf(pk) && segOf(pk, a).s0 === seg.s0) {
+     const F = mass * GRAVITY, al = a - seg.s0, b = l - al;
+diff --git a/src/sim/cart.ts b/src/sim/cart.ts
+index 5037c794..bc72096b 100644
+--- a/src/sim/cart.ts
++++ b/src/sim/cart.ts
+@@ -123,13 +123,13 @@ const railsSetsCache = new WeakMap<object, Rails[]>();
+ // At zero or below the cart is no longer held on and leaves the track.
+ export function railPush(rails: Rails, x: number, v: number, g: number = GRAVITY): number {
+   const s = rails.slope(x), c = 1 / Math.sqrt(1 + s * s);
+-  const kappa = rails.bend(x) * c ** 3;
++  const kappa = rails.bend(x) * c * c * c;
+   return g * c + kappa * v * v;
+ }
+ 
+ // The speed along the rails at which a crest of this bend lets go (the cart would leave the track above it).
+ export function crestSpeedLimit(rails: Rails, x: number, g: number = GRAVITY): number {
+-  const s = rails.slope(x), c = 1 / Math.sqrt(1 + s * s), kappa = rails.bend(x) * c ** 3;
++  const s = rails.slope(x), c = 1 / Math.sqrt(1 + s * s), kappa = rails.bend(x) * c * c * c;
+   return kappa < 0 ? Math.sqrt((g * c) / -kappa) : Infinity;
+ }
+ 
+diff --git a/src/sim/drone.ts b/src/sim/drone.ts
+index 526a41fc..ff1bc357 100644
+--- a/src/sim/drone.ts
++++ b/src/sim/drone.ts
+@@ -57,7 +57,7 @@ export const batteryJoules = (p: DroneParams): number => p.battery * 3600;
+ 
+ // The electric power for a thrust.
+ export function rotorPower(T: number, p: DroneParams): number {
+-  return Math.pow(Math.max(0, T), 1.5) / Math.sqrt(2 * AIR_DENSITY * p.rotorArea) / p.merit + p.avionics;
++  return (Math.max(0, T) * Math.sqrt(Math.max(0, T))) / Math.sqrt(2 * AIR_DENSITY * p.rotorArea) / p.merit + p.avionics;
+ }
+ export const hoverPower = (p: DroneParams): number => rotorPower(weight(p), p);
+ export const hoverSeconds = (p: DroneParams): number => batteryJoules(p) / hoverPower(p);
+diff --git a/src/sim/vault.ts b/src/sim/vault.ts
+index a3bae6d8..8b033ab2 100644
+--- a/src/sim/vault.ts
++++ b/src/sim/vault.ts
+@@ -82,7 +82,7 @@ export function vaultAt(v: Vault, i: number): { x: number; y: number; vx: number
+   const x = v.x0 + D * h01 + v0 * T * h10 + v1 * T * h11;
+   const vx = (D * dh01 + v0 * T * dh10 + v1 * T * dh11) / T;
+   const rise = v.y1 - v.y0, r = Math.sqrt(1 + rise / VAULT_LIFT), tp = r / (1 + r), apex = v.y1 + VAULT_LIFT;
+-  const S = (u: number) => 3 * u * u - 2 * u ** 3, dS = (u: number) => 6 * u - 6 * u * u;
++  const S = (u: number) => 3 * u * u - 2 * u * u * u, dS = (u: number) => 6 * u - 6 * u * u;
+   if (t < tp) { const u = t / tp; return { x, vx, y: v.y0 + (apex - v.y0) * S(u), vy: ((apex - v.y0) * dS(u)) / (tp * T) }; }
+   const u = (t - tp) / (1 - tp);
+   return { x, vx, y: apex - VAULT_LIFT * S(u), vy: (-VAULT_LIFT * dS(u)) / ((1 - tp) * T) };
