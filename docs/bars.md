@@ -80,14 +80,22 @@
 - Windows found: see `docs/lessons.md` (monkey bars entry) for the numbers.
 - `public/assets/demo/swing-to-bars.run.json` is now the plan's own keys, played once (re-recorded 2026-11-03); `bars.run.json` is unchanged.
 
+## Browser check on a VM (2026-11-03, stepped clock, 960 x 540)
+- Evidence is in `docs/evidence/bars-browser/`; the films are retimed to the game clock because every picture is one clock step.
+- Editor (`?bars=1`): "Bar then bars" places a bar and a row, the panel shows rungs, spacing and height, the side view shows both, "Play this lane" checks the lane (about 5 minutes on a software renderer) and opens the Course with the Q and T line on the controls card.
+  - Pictures: `editor-1-bar-then-bars.png`, `editor-2-lane-check.png`, `editor-3-course-from-editor.png` (the 3D canvas is blank on the software renderer, only the page is real).
+- The Rookie on both courses, from the ideal-run plan with the bot:
+  - `rookie-bars-course.mp4` with `rookie-bars-sheet.jpg`, and `rookie-swing-to-bars-course.mp4` with `rookie-swing-to-bars-sheet.jpg`.
+  - Hands are on the rungs, the arms follow the rung, and the bar to bars hand-off looks right.
+- The ghost (the "Ghost: Ideal run" chip, on by default; there is no button named "Race the ideal run"):
+  - `ghost-race-bars.mp4` and `ghost-race-swing-to-bars.mp4` (sheets beside them).
+  - The ghost appears and stays level with the bot (about 0.5 s ahead, as the chip says).
+- Found and fixed: the Course never drew the rungs (only the editor did); `src/modes/course/scene.ts` now draws each rung and two side rails.
+
+## Looks wrong, not fixed
+- The ghost is drawn in the running or leaping pose all the way along, so beside the bars it floats upright next to the swinging Rookie; it needs the swing mode in its track (`src/ui/ghost.ts`).
+- The kip builds a swing of about 80 degrees, so the body is nearly flat along the rungs at the top of the swing.
+- After the release at a high swing the body turns head over heels once (upside down in the air).
+
 ## What is not done
-- The arms pose for reaching hands comes later (`src/render/bars-pose.ts`); today the hang pose is drawn.
-
-## How the body looks on the bars
-- The actor hangs from the rungs with the procedural pose of `src/motion/bars-pose.ts` (hands pinned on the rungs, the shoulders one arm under them); the hook is `src/motion/bars-actor.ts`, called from the actor when the world is in the `bars` mode.
-- Each hand takes about a tenth of a second to travel to its rung (the world moves it in one tick); quick keys can have both hands travelling at once.
-- The legs lead the swing a little (the kip) and the knees draw up in a big forward swing.
-- No switch (owner, 2026-11-03: the old hang was never shown); every other pose (vault, climb, bar, rope) is untouched.
-- Picture (a side view of the pose's own skeleton on the demo run, stepped clock; not the game's look): [contact sheet](evidence/bars-pose-sheet.jpg), [clip](evidence/bars-pose.mp4).
-
-![The monkey bars pose, eight frames of the demo run: the hands on the rungs, the right hand travelling on, the body swinging.](evidence/bars-pose-sheet.jpg)
+- The arms pose for reaching hands is the procedural `src/motion/bars-pose.ts`; a filmed capture does not exist yet.
