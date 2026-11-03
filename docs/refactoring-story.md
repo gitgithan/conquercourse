@@ -252,7 +252,13 @@ flowchart LR
 - Keep the plan document updated after each slice, so the story is not rebuilt from memory.
 
 ## What is still open
-- The editor's 3D and side pictures, its hints, keyboard and save and load still sit in `editor.ts`.
-- The sim `if` chains outside `world.ts` (`ideal.ts`, `predict.ts`, `drums.ts`) still branch on mode.
-- The course JSON field list needs a builder so a new field is added in one place.
-- The server routes repeat their `json` helper in 15 files.
+- The editor's 3D and side pictures, its hints, keyboard and save and load still sit in `editor.ts` (510 lines).
+- The sim `if` chains outside `world.ts` still branch on mode.
+  - Counts of `mode ===` checks today: `ideal.ts` 18, `drums.ts` 8, `predict.ts` 5.
+  - Left alone on purpose: a mistake there changes every score and share link, and the payoff for the demo is small.
+- The course JSON has a field list (`src/course/schema.ts`, `COURSE_FIELDS`, one row per field with its check), but not yet a builder.
+  - Still open: a `makeCourse(partial)` for the four course builders, so a new field is added in one place.
+- The server routes share `functions/_lib/http.ts`, but six files still define their own `json` helper.
+  - Those files are `places.ts`, `features.ts`, `photos.ts`, `challenge-course.ts` and `share.ts`, besides `http.ts` itself.
+- Corrected 2026-11-03: an earlier version of this list said the field list had no home and that 15 routes repeated `json`.
+  - It was written from `docs/refactor-review.md` without rechecking the code.
