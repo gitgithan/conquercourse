@@ -15,11 +15,18 @@
   "views": 17,
   "phrases": 25,
   "floor": 0.1,
-  "classic_cv": {"seconds_cpu": 1.04, "cost_usd": 0},
+  "classic_cv": {
+    "seconds_cpu": 1.04,
+    "cost_usd": 0
+  },
   "headline": {
     "loops_found": "V4: upper-half 2x, new phrases, floor 0.10 to 0.35, shape check: IoU 0.40 at rank 2 of 12",
     "left_grid_found": "V4 at floor 0.10 or 0.20 only: IoU 0.57 at rank 12 of 12; not found at 0.35",
-    "not_helpful": ["2x full photo", "nine tiles", "classic Hough lines"]
+    "not_helpful": [
+      "2x full photo",
+      "nine tiles",
+      "classic Hough lines"
+    ]
   },
   "inputs": "prep/photo2.jpg from demo-lifts (../conquercourse-assets/eval-full/demo-lifts/prep/)",
   "outputs": "scores.json, classic_cv.json; raw in ../conquercourse-assets/eval-full/crop-finder/"
