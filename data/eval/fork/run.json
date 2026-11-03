@@ -1,0 +1,51 @@
+{
+  "experiment": "fork",
+  "photo": "demo photo 1",
+  "files": {},
+  "course": "public/assets/demo/fork-bench-bulb.course.json",
+  "lanes": [
+    {
+      "lane": "bench",
+      "cleared": true,
+      "ticks": 701,
+      "seconds": 5.84,
+      "effortJumps": 2,
+      "narrowestMs": 43,
+      "readAs": "bench",
+      "keys": {
+        "jumpXs": [
+          12.96,
+          17.88
+        ],
+        "vaultXs": [
+          21.64
+        ]
+      }
+    },
+    {
+      "lane": "bulb",
+      "cleared": true,
+      "ticks": 1406,
+      "seconds": 11.72,
+      "effortJumps": 1.7,
+      "narrowestMs": 325,
+      "readAs": "bulb",
+      "keys": {
+        "climbXs": [
+          9.6
+        ],
+        "jumpXs": [],
+        "hangTicks": [
+          56,
+          43,
+          43,
+          43,
+          49,
+          269,
+          0,
+          0
+        ]
+      }
+    }
+  ]
+}

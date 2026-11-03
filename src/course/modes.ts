@@ -23,4 +23,5 @@ export const MODE_INFO: Record<Mode, ModeInfo> = {
   band: { name: 'On the band', machine: true, next: 'Turn round now' },
   drone: { name: 'On the drone', machine: true, next: 'Come down now' },
   pole: { name: 'On the pole', next: 'Let go now' },
+  polec: { name: 'Climbing the pole', next: 'Keep holding E' },
 };
