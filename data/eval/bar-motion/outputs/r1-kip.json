@@ -29,7 +29,7 @@
         ],
         "bar_check_ok": false,
         "bar_numbers": {
-          "hang_share": 0.0,
+          "hang_share": 0,
           "hips_travel_m": -0.156,
           "grip_share": 0.363,
           "swing_p2p_m": 0.926,
@@ -51,7 +51,7 @@
         "soft_failed": [],
         "bar_check_ok": false,
         "bar_numbers": {
-          "hang_share": 0.0,
+          "hang_share": 0,
           "hips_travel_m": 0.22,
           "grip_share": 0.959,
           "swing_p2p_m": 0.234,
@@ -80,7 +80,7 @@
         ],
         "bar_check_ok": false,
         "bar_numbers": {
-          "hang_share": 0.0,
+          "hang_share": 0,
           "hips_travel_m": -0.156,
           "grip_share": 0.37,
           "swing_p2p_m": 0.928,
@@ -105,7 +105,7 @@
         ],
         "bar_check_ok": false,
         "bar_numbers": {
-          "hang_share": 0.0,
+          "hang_share": 0,
           "hips_travel_m": 0.706,
           "grip_share": 0.752,
           "swing_p2p_m": 0.813,
@@ -132,7 +132,7 @@
         "soft_failed": [],
         "bar_check_ok": false,
         "bar_numbers": {
-          "hang_share": 0.0,
+          "hang_share": 0,
           "hips_travel_m": -0.156,
           "grip_share": 0.307,
           "swing_p2p_m": 0.928,
@@ -154,9 +154,9 @@
         "soft_failed": [],
         "bar_check_ok": false,
         "bar_numbers": {
-          "hang_share": 0.0,
+          "hang_share": 0,
           "hips_travel_m": -0.199,
-          "grip_share": 1.0,
+          "grip_share": 1,
           "swing_p2p_m": 0.203,
           "reversals": 5
         },
@@ -183,7 +183,7 @@
         ],
         "bar_check_ok": false,
         "bar_numbers": {
-          "hang_share": 0.0,
+          "hang_share": 0,
           "hips_travel_m": -0.156,
           "grip_share": 0.296,
           "swing_p2p_m": 0.928,
@@ -207,7 +207,7 @@
         ],
         "bar_check_ok": false,
         "bar_numbers": {
-          "hang_share": 0.0,
+          "hang_share": 0,
           "hips_travel_m": 0.28,
           "grip_share": 0.767,
           "swing_p2p_m": 0.473,
@@ -236,7 +236,7 @@
         ],
         "bar_check_ok": false,
         "bar_numbers": {
-          "hang_share": 0.0,
+          "hang_share": 0,
           "hips_travel_m": -0.156,
           "grip_share": 0.274,
           "swing_p2p_m": 0.928,
@@ -258,7 +258,7 @@
         "soft_failed": [],
         "bar_check_ok": false,
         "bar_numbers": {
-          "hang_share": 0.0,
+          "hang_share": 0,
           "hips_travel_m": 0.705,
           "grip_share": 0.989,
           "swing_p2p_m": 0.692,
@@ -285,7 +285,7 @@
         "soft_failed": [],
         "bar_check_ok": false,
         "bar_numbers": {
-          "hang_share": 0.0,
+          "hang_share": 0,
           "hips_travel_m": -0.156,
           "grip_share": 0.211,
           "swing_p2p_m": 0.927,
@@ -309,7 +309,7 @@
         "bar_numbers": {
           "hang_share": 0.178,
           "hips_travel_m": -0.213,
-          "grip_share": 1.0,
+          "grip_share": 1,
           "swing_p2p_m": 0.244,
           "reversals": 3
         },
@@ -336,7 +336,7 @@
         ],
         "bar_check_ok": false,
         "bar_numbers": {
-          "hang_share": 0.0,
+          "hang_share": 0,
           "hips_travel_m": -0.153,
           "grip_share": 0.522,
           "swing_p2p_m": 0.928,
@@ -358,9 +358,9 @@
         "soft_failed": [],
         "bar_check_ok": false,
         "bar_numbers": {
-          "hang_share": 0.0,
+          "hang_share": 0,
           "hips_travel_m": 0.121,
-          "grip_share": 1.0,
+          "grip_share": 1,
           "swing_p2p_m": 0.116,
           "reversals": 6
         },
@@ -387,7 +387,7 @@
         ],
         "bar_check_ok": false,
         "bar_numbers": {
-          "hang_share": 0.0,
+          "hang_share": 0,
           "hips_travel_m": -0.151,
           "grip_share": 0.352,
           "swing_p2p_m": 0.928,
@@ -412,7 +412,7 @@
         ],
         "bar_check_ok": false,
         "bar_numbers": {
-          "hang_share": 0.0,
+          "hang_share": 0,
           "hips_travel_m": 1.211,
           "grip_share": 0.674,
           "swing_p2p_m": 1.217,
