@@ -76,3 +76,11 @@
 - With crops, extra phrases and a shape check, the finder does find the loops across the top (rank 2 of 12, IoU 0.40, score 0.57) and the left grid only weakly (rank 12, IoU 0.57, floor 0.10 to 0.20).
 - 2x upscaling, nine tiles and classic Hough lines did not help.
 - Details and numbers: [crop-finder](../crop-finder/README.md); one run, about $0.04.
+
+## Two confirmed lifts after the cut-out preview (CC-133, 2026-11-03)
+
+- Cost before the run: about $0.006 each in Modal seconds (L4 mask plus L40S lift at $1.95 per hour; about 10 s warm), at most about $0.03 each with a cold start; the Modal credits cover it, and no other paid service was used.
+- Monkey bars (a box the player draws): the cut-out was shown first (score 0.91), then the lift ran; 28,416 splats, estimated $0.0051; picture: `docs/evidence/cc-133-lifts/monkey-bars-preview-then-lift-input.jpg`.
+- Bench beside two people (photo 1, a box drawn next to them): the people are grey blobs in the lifted picture; mask score 0.94, 171,168 splats, estimated $0.0056; picture: `docs/evidence/cc-133-lifts/bench-beside-people-preview-then-lift-input.jpg`.
+- The same box drawn on a person is refused by the page rule (checked with the real person boxes).
+- No photo in our licensed set has a person standing next to a bar; the bench is the nearest case.

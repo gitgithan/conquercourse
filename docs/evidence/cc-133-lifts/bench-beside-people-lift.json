@@ -1,0 +1,50 @@
+{
+  "object": {
+    "name": "p1_bench_mid",
+    "photo": "photo1",
+    "label": "bench",
+    "box_original": [
+      595,
+      450,
+      715,
+      520
+    ],
+    "height_m": 0.8,
+    "box_source": "drawn by hand beside two people (CC-133 person-guard lift)"
+  },
+  "box_sent": [
+    491,
+    372,
+    590,
+    429
+  ],
+  "label": "bench",
+  "privacy": {
+    "people": 10,
+    "faces": 5,
+    "plates": 0,
+    "changed": true
+  },
+  "mask": {
+    "how": "text",
+    "score": 0.9375,
+    "iou_with_box": 0.721,
+    "candidates": 5,
+    "pixels": 2578
+  },
+  "touches_border": false,
+  "padded": false,
+  "lift_check": {
+    "extent_aspect": 2.245,
+    "mask_aspect": 2.109,
+    "bad": false
+  },
+  "mask_seconds": 4.6,
+  "lift_seconds": 8.4,
+  "n_faces_raw": 222288,
+  "n_gaussians": 171168,
+  "mask_load_seconds": 17.3,
+  "lift_load_seconds": 44.3,
+  "wall_seconds": 99.8,
+  "usd_estimate": 0.0056
+}

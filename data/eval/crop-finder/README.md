@@ -78,3 +78,10 @@
 - Scripts: [finder_lab.py](scripts/finder_lab.py) (Modal), [score_variants.py](scripts/score_variants.py), [classic_cv.py](scripts/classic_cv.py), [make_evidence.py](scripts/make_evidence.py).
 - Outputs: [scores.json](scores.json), [classic_cv.json](classic_cv.json), [run.json](run.json).
 - Raw lab output (4953 candidates, 17 views) and the classic CV picture: `../conquercourse-assets/eval-full/crop-finder/` (not in git).
+
+## What went into the live finder (CC-133, 2026-11-03)
+
+- Added: the phrases "overhead bars", "metal bars", "bar grid", and the shape check on those three phrases only (width at least 120 px, wide:high at least 2.5, height at most 160 px).
+  - Code: `pipelines/ccpipe/suggest.py` (`bar_shaped`, `pick`); test: `pipelines/tests/test_suggest.py`.
+- Not added: the upper-half second pass, upscaling and tiles (owner's call: more cost and time for the same finder).
+- Why this is safe: it only adds three phrases and drops three-phrase outlines that are not bar-shaped; other phrases behave as before.

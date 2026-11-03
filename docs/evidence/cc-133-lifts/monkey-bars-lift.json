@@ -1,0 +1,51 @@
+{
+  "object": {
+    "name": "p2_monkey_bars",
+    "photo": "photo2",
+    "label": "monkey bars",
+    "box_original": [
+      1115,
+      583,
+      2475,
+      707
+    ],
+    "height_m": 0.25,
+    "box_source": "our box: Segment Objects did not find monkey bars (still not found in the rerun)",
+    "height_note": "typed so the loop bar is about 5 m long (the first try, 2.4 m, gave a 52 m bar because the height is the thin direction)"
+  },
+  "box_sent": [
+    551,
+    288,
+    1222,
+    349
+  ],
+  "label": "monkey bars",
+  "privacy": {
+    "people": 0,
+    "faces": 0,
+    "plates": 0,
+    "changed": false
+  },
+  "mask": {
+    "how": "box-prompt",
+    "score": 0.9140625,
+    "iou_with_box": 0.0,
+    "candidates": 0,
+    "pixels": 13730
+  },
+  "touches_border": false,
+  "padded": false,
+  "lift_check": {
+    "extent_aspect": 21.702,
+    "mask_aspect": 12.0,
+    "bad": false
+  },
+  "mask_seconds": 0.3,
+  "lift_seconds": 9.2,
+  "n_faces_raw": 35968,
+  "n_gaussians": 28416,
+  "mask_load_seconds": 14.5,
+  "lift_load_seconds": 44.3,
+  "wall_seconds": 113.2,
+  "usd_estimate": 0.0051
+}
