@@ -5,7 +5,7 @@ import { branchesOf, routeOfPath, type Branch, type BranchRoute } from '../sim/b
 import type { Plan } from '../sim/ideal';
 import { ZONE_ICONS } from './zone-icons';
 
-export const pathsOn = (p: URLSearchParams): boolean => p.get('paths') === '1' || p.get('fork') === '1'; // fork=1 (CC-133) turns the same fork display on
+export const pathsOn = (p: URLSearchParams): boolean => { const search = p; return p.get('paths') === '1' || search.get('fork') === '1'; }; // fork=1 (CC-133) turns the same fork display on
 
 export interface WayRow { id: string; name: string; seconds: number; effort: number | null; roomMs: number | null; mine: boolean }
 export interface Ways { branch: string; taken: string | null; takenPlan: Plan | null; rows: WayRow[] }

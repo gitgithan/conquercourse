@@ -95,7 +95,7 @@ export const PARTS: Part[] = [
   { id: 'vault', group: 'move', name: 'Vault', line: 'Keep your speed and go over a box with one hand on it.', keys: 'V as you reach the box',
     covers: { bits: ['vault'], modes: ['vault'] }, live: bot(P + 'vault.course.json'), clip: 'vault.json' },
   { id: 'climb', group: 'move', name: 'Climb', line: 'Speed gets you to the wall; arms get you over it.', keys: 'Hold E at the wall',
-    covers: { bits: ['handL', 'handR'], modes: ['climb'] }, live: bot(P + 'climb.course.json'), clip: 'climb.json' },
+    covers: { bits: ['handL', 'handR'], modes: ['climb', 'polec'], fields: ['climbPoles'] }, live: bot(P + 'climb.course.json'), clip: 'climb.json' },
   { id: 'hang', group: 'move', name: 'Hang and swing', line: 'Hold a bar with your hands, swing your legs to move your hands, let go to fly.', keys: 'Hold E, ← → to pump, let go of E',
     covers: { modes: ['hang'] }, live: bot(P + 'lache.course.json'), clip: 'hang.json' },
   { id: 'ropegrab', group: 'move', name: 'Catch the rope', line: 'Fall to rise: the rope gives back every bit of height you give it.', keys: 'Hold E to catch, Space to let go',
