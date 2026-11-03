@@ -62,3 +62,8 @@
 - Photo 2: "monkey bars" is still not found; "pull-up bar" is found with a low score (0.37).
 - So the film shows the monkey bars from a box, not as a one-click pick.
 - Next: try a box-free phrase such as "overhead ladder" or "horizontal ladder" before giving up.
+
+## Crop trial for the monkey bars (2026-11-03)
+- With crops, extra phrases and a shape check, the finder does find the loops across the top (rank 2 of 12, IoU 0.40, score 0.57) and the left grid only weakly (rank 12, IoU 0.57, floor 0.10 to 0.20).
+- 2x upscaling, nine tiles and classic Hough lines did not help.
+- Details and numbers: [crop-finder](../crop-finder/README.md); one run, about $0.04.
