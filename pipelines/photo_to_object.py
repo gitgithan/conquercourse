@@ -1,5 +1,7 @@
 """Photo -> object (pipeline 7, CC-38): a photo, a box and a label become a textured, upright, sized GLB skin.
 
+The box is never drawn by a player: in the Community flow it is the box of the object the player clicked after "Segment Objects" (the suggest job), and in experiments it comes from photos.json.
+
 Steps:  privacy and mask (Modal L4, SAM 3)  ->  lift (Modal L40S, SAM 3D Objects, seed 42)  ->  bake and sheet (CPU, here).
 Weights come from the read-only Modal volume `sam-checkpoints`; nothing is downloaded at run time.
 

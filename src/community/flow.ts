@@ -11,7 +11,7 @@ export type Box = [number, number, number, number];
 
 export interface FlowState {
   hasPhoto: boolean;
-  segmented: boolean; // "Segment Region" has run and at least one found thing is picked
+  segmented: boolean; // "Segment Objects" has run and at least one found thing is picked
   choices: Record<number, Kind>; // by mark id; every pick is a piece now, filled in when it is picked
 }
 export const startState = (): FlowState => ({ hasPhoto: false, segmented: false, choices: {} });
@@ -21,7 +21,7 @@ export function whyNot(step: Step, s: FlowState): string {
   switch (step) {
     case 'photo': return '';
     case 'segment': return s.hasPhoto ? '' : 'Pick a photo first.';
-    case 'make': return !s.hasPhoto ? 'Pick a photo first.' : !s.segmented ? 'Press Segment Region, then click the thing you want in the photo.' : '';
+    case 'make': return !s.hasPhoto ? 'Pick a photo first.' : !s.segmented ? 'Press Segment Objects, then click the thing you want in the photo.' : '';
   }
 }
 export const canEnter = (step: Step, s: FlowState): boolean => whyNot(step, s) === '';
@@ -62,7 +62,7 @@ export function stableOrder<T extends Found>(items: T[]): T[] {
   return [...items].sort((a, b) => area(b.box) - area(a.box) || a.box[1] - b.box[1] || a.box[0] - b.box[0] || a.label.localeCompare(b.label));
 }
 
-/** The things to click after Segment Region: everything the finder saw, in the fixed order. Nothing is picked until the player clicks. */
+/** The things to click after Segment Objects: everything the finder saw, in the fixed order. Nothing is picked until the player clicks. */
 export const buildFound = (found: Suggestion[]): Found[] => stableOrder(found.map((s) => ({ label: s.label, box: s.box, cutout: s.cutout || undefined, score: s.score })));
 
 /** Tick or untick one item by its place in the list; a tick past the limit is ignored. Returns the new list of ticks, in list order. */

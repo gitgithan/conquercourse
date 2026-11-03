@@ -39,7 +39,7 @@
 | Simulator says (small) | green | our own physics, not an AI | the end-of-run report and the fall panel, the coaster and graph verdicts | End report, Coaster builder, Course | `src/ui/run-report.ts`, `src/modes/coaster.ts`, `src/modes/graph-studio.ts`, `src/slice/lane-check-ui.ts` |
 | Design partner says | orange | Muse Spark Open | the Design partner panel: notes, Fix it, Suggest | World Editor | `src/modes/editor.ts` |
 | Safety check says | red | Muse Spark Open | when you press Share in Community | Make your own | `src/modes/community-flow.ts` |
-| Cutter says | blue | SAM 3 | Make your own, step 3: Segment Region | Make your own | `src/modes/community-flow.ts` |
+| Cutter says | blue | SAM 3 | Make your own, step 3: Segment Objects | Make your own | `src/modes/community-flow.ts` |
 | Builder says | gold | SAM 3D Objects | Make your own, step 5: Make them, and the prize screen | Make your own | `src/modes/community-flow.ts`, `src/ui/prize.ts` |
 | Character maker says | pink | Muse Image, SAM 3.1 and SAM 3D Objects | the Characters panel | Characters | `src/characters/panel.ts` |
 | Ghost says | amber | a replay of a real run, not an AI | the ghost line in the end report | End report | `src/ui/ghost.ts` |
