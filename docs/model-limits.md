@@ -192,7 +192,8 @@ Costs use recorded job times: a finder run is 1.1 to 4.2 s on an L4 at about $0.
   - Stale demo files: `data/eval/demo-lifts/run.json`, `objects.json`, the README top and `photo1_segment_objects.jpg` now say the rerun finds "string lights" (0.61 and 0.35).
   - Real harmful images: `docs/trust-and-safety.md`, `docs/meta-ai-pipelines.md` and `docs/model-ledger.md` now give the CC-120 result (37 of 38 must-flag not "ok"); child safety is still untested.
   - Street-photo masking: `docs/meta-ai-pipelines.md` section 6 now states Mapillary's blur plus the 0.2 height limit, and no masking by us.
-  - Safety latency: the worst call seen is 88.9 s (demo photo 2); CC-120 had 78 s over 84 calls. Both now say so.
+  - Safety latency: the worst call seen is 88.9 s (demo photo 2); CC-120 had 78 s over 84 calls.
+    - Both now say so.
   - Thin things: `docs/lessons.md` now says "fail as a good skin", still placeable.
   - Hand-drawn box: settled by the product owner on 2026-11-03; the guide has "Mark it yourself" and the demo-lifts README no longer calls the lab box "the flow's fallback".
   - Also fixed: `docs/spec/SPEC.md` privacy masking is SAM 3; `docs/pipelines.md` section 7 mask stage runs on L4 (scaledown 60 s).
