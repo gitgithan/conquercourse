@@ -111,10 +111,10 @@ Legend: "clear" = the yes/no; "plan" = the key timings; "windows" = how wide the
 
 | Caller | Where | Uses | Cached or stored? | Recomputed live? |
 |---|---|---|---|---|
-| Ghost to chase | `src/modes/course/ghost.ts` | plan | reads `idealCache` (by start x), then `course.plan`; the answer is not written back | live search in the pool (`kind: ghost`) if neither exists |
-| Drum lane | `src/modes/course/drums.ts`, `src/sim/drums.ts` | plan, clear | uses `course.plan` at once if present | otherwise a pool search with a 60 work-second budget (`kind: drums`); a second search next to the ghost's |
+| Ghost to chase | `src/modes/course/ghost.ts` | plan | reads `idealCache` (by start x), then `course.plan`; else the shared search cache (CC-133) | one shared pool search (`kind: ghost`) if nothing is stored; joins a search already running |
+| Drum lane | `src/modes/course/drums.ts`, `src/sim/drums.ts` | plan, clear | uses `course.plan` at once if present | otherwise the shared search cache (CC-133): joins the ghost's search or starts the one both use (`kind: drums`, 60 work-second budget) |
 | Ideal run watch (`I`, `Shift+I`) | `src/modes/course/ideal.ts` | plan, clear | `idealCache` (per start x) and `course.plan` for the standing start | live search per checkpoint start, falling back to earlier checkpoints if one cannot clear |
-| Take-off windows (fall tip) | `src/modes/course/ideal.ts` (`ensureWindows`) | windows | `course.windows` if stored; else the first answer is kept for the visit | quiet pool search with a 60 work-second budget, no panel |
+| Take-off windows (fall tip) | `src/modes/course/ideal.ts` (`ensureWindows`) | windows | `course.windows` if stored; else the shared search cache (CC-133) | joins the shared search, quiet, no panel |
 | Shortcuts list | `src/sim/shortcuts.ts`, `src/modes/course/shortcuts.ts` | clear, plan, windows | `course.shortcuts`, `course.plan`, `course.routes` | `findShortcuts`: the ideal run, then one search per variant (bars, wall, rope, vault, roll); about a minute in the worker for a course without stored shortcuts (`docs/world-slice.md`) |
 | `?bot=ideal`, `?bot=shortcut` | `src/modes/course.ts` | plan | `course.plan` | `searchIdealRun` on the page thread (blocks) |
 | Release window (trebuchet) | `src/sim/launch-window.ts` | plan, then windows by its own scan | none | one search, plus its own scan of releases |
@@ -134,14 +134,14 @@ Legend: "clear" = the yes/no; "plan" = the key timings; "windows" = how wide the
   - Stored: `course.plan`, `course.windows`, `course.routes`, `course.shortcuts` (course files and the hand-off from the editor), `src/slice/preset-plans.json` (ready-made editor courses), `tests/golden/search.json` (hashes only).
   - Remembered for one visit: `idealCache` (Course, per start x), `cachedSearch` (editor, the last course), `proved` (Fix it and the advice, by course JSON).
   - Recomputed live: everything else in the table.
-- **No single result cache:** the Course, the editor and Fix it each have their own small memory with their own key.
-  - The Course keeps one map by start x; the ghost reads it but never fills it.
+- **One result cache for the Course (CC-133), none across screens:** the Course now has one cache for the visit, keyed by `courseHash` of the search input (the start x is part of it); the editor and Fix it still have their own small memories with their own keys.
+  - The Course's old map by start x (`idealCache`) still exists for the `I` key and the ghost; the shared cache sits under every `runSearch` call.
   - The editor keys by `JSON.stringify(searchInput(course))`; the stored proofs key by `courseHash`; `clearedCached` keys by the whole course JSON.
   - They do not share, so a result found by one is not seen by the others.
 
 ### What it costs
 
-Only numbers found in the repo; none were re-measured for this page.
+The first list is numbers found in the repo; the last section was measured on 2026-11-03.
 
 - Monkey bars stage: 15 to 20 s of work on the laptop (`docs/lessons.md`, `docs/world-slice.md`).
 - A whole-course proof with a lache: about 38 s (`docs/world-slice.md`).
@@ -153,11 +153,29 @@ Only numbers found in the repo; none were re-measured for this page.
 - Speed work (CC-69): the same answers 1.5 to 3 times faster on one thread and 5 to 14 times faster in a pool (`docs/world-slice.md`, details in `data/eval/cc-69-speed/README.md`).
 - Fix it for a cannon: 10 to 60 s (`docs/world-slice.md`).
 - Pool size: up to 6 workers in the page.
-- Drone, cart, recoil, band, cannon, start delay, routes: not measured.
-- Cost per trial (ticks per second on the reference machine): 330,000 ticks per second is the number the budget uses; it is a unit, not a fresh measurement.
-- **A fresh timing was not taken for this page:** the machine's load average was about 20 at 2026-11-03 19:39, so any number would have been noise.
-  - `npx tsx scripts/bench-search.ts` (one thread) and `npx tsx scripts/bench-pool.ts` (pool) already exist and write seconds and answer hashes per demo course.
-  - Run them on a quiet machine and paste the table here (see next steps).
+- Cannon: 1.6 s, all of it on the calling thread (measured 2026-11-03, below).
+- Drone, cart, recoil, band, routes: not measured.
+- Start delay: 0.13 s on `cannonballs` (measured 2026-11-03, below).
+- Cost per trial: 190 to 240 thousand ticks per second on one thread of the benchmark machine; the budget unit (330,000 ticks per second) is the reference machine's number, not this one.
+
+#### Measured 2026-11-03 (CC-133 step 2)
+
+- Machine class: a 4 vCPU Vultr VM (Intel Xeon Skylake class, Node 24), nothing else of ours running; 3 runs per course, median reported; the answers were identical in every run and in the pool.
+- Full tables, per-stage ticks and the script: `data/eval/search-bench/README.md`, `run.json`.
+- Whole-course search, one thread / pool of 3 workers:
+  - `lache`: 2.5 s / 0.47 s.
+  - `cannon`: 1.6 s / 1.6 s (a loop on the calling thread, the pool does not help).
+  - `launch-bar`: 5.8 s / 1.5 s.
+  - `bars`: 9.7 s / 1.8 s.
+  - `swing-to-bars`: 10.1 s / 2.4 s.
+  - `cannonballs`: 36.7 s / 7.7 s.
+  - `training`: 74.8 s / 15.9 s.
+  - `fork-bench-bulb`: 131.1 s / 32.7 s.
+- Per stage: the trials are 99.7% or more of the ticks on every course that goes through batches; the generator's own work and the start delay scan are under 0.2 s.
+- The slow courses are the ones with many plain take-off edges (`training`, `fork-bench-bulb`, `cannonballs`), not the monkey-bars ones: a bars stage is about 10 s, a whole `training` is 75 s.
+- Average trial: 1,100 ticks (`bars`) to 3,600 ticks (`training`), that is 9 to 30 s of game time, because a trial that fails still runs until it falls or sticks.
+- The pool is 3.9 to 5.4 times faster than one thread with 3 workers.
+- The page's pool size is `min(6, cores - 1)`, so 3 here; a player's machine will differ.
 
 ### Known limits (honest list)
 
@@ -177,9 +195,9 @@ Only numbers found in the repo; none were re-measured for this page.
   - In the joint stages the take-off window is written as 0 ms (the joint grid does not measure it).
   - The hang-time window is the range of all good values, plus one step, and is not required to be one unbroken stretch (the bars stage uses `bestRun`, the unbroken stretch; the older hang tuner does not).
   - So "difficulty" numbers from windows are comparable between courses searched the same way, not absolute.
-- **Double search:** the ghost and the drum lane each start their own full search for a course with no stored plan, then the `I` key starts another, and the take-off windows a fourth.
-  - They queue (one pool), they do not share, and none of them fills `idealCache` except `I`.
-- **Machine-style searches do not use the workers:** drone, cart, recoil, band, cannon, the start delay and routes play on the calling thread.
+- **Double search (fixed by CC-133, step 1):** the ghost, the drum lane, the `I` key and the take-off windows now share one search and one panel per course per page visit (`src/modes/course/search-share.ts`).
+  - The search still repeats across page visits; storing the result with the course (next step 4) is what removes that.
+- **Machine-style searches do not use the workers:** drone, cart, recoil, band, cannon, the start delay and routes play on the calling thread (only the cannon's 1.6 s is measured).
 - **Plan state is not saved between trials:** every trial replays from tick 0, so a trial for the 5th edge replays the first four.
   - This is deliberate for exactness (a plan is a real run), but it is where a state snapshot could save work; it is not measured how much.
 
@@ -197,9 +215,9 @@ Only numbers found in the repo; none were re-measured for this page.
 
 | # | Option | What it is (one plain sentence) | What it would fix here | Cost and risk | Fit with our rules | Verdict |
 |---|---|---|---|---|---|---|
-| 1 | Shared result cache by course hash | Remember each search answer under `courseHash(searchInput(course))` and give it to anyone who asks later. | The double panel and double work (ghost, drums, `I`, windows); `idealCache` filled by every caller; Fix it and the editor see each other's answers. | Small. Risk: the key must include the start x, the budget (a cut-short answer must not stand in for a full one) and the build/physics version; a stale entry is wrong, so keep it in memory for the visit first. | Fine: it returns the exact stored result; replays and golden hashes are untouched. | Do now |
+| 1 | Shared result cache by course hash | Remember each search answer under `courseHash(searchInput(course))` and give it to anyone who asks later. | The double panel and double work (ghost, drums, `I`, windows); `idealCache` filled by every caller; Fix it and the editor see each other's answers. | Small. Risk: the key must include the start x, the budget (a cut-short answer must not stand in for a full one) and the build/physics version; a stale entry is wrong, so keep it in memory for the visit first. | Fine: it returns the exact stored result; replays and golden hashes are untouched. | Done for the Course (CC-133, 2026-11-03); the editor and Fix it keys are not joined yet |
 | 2 | Precompute at save or publish time and store `course.plan` | Run the search once when a course is saved, and keep plan, windows, routes and shortcuts with the course. | No wait for players of a shared course; drums and ghost appear at once; the "clearable" label is ready for the course list. | Medium. A stored plan goes stale when physics or the course changes, so the key must carry a hash (as `src/slice/preset-plans.ts` already does for ready-made courses). | Fine: it stores what the simulator proved; a changed hash forces a new search. | Do now, after 1 |
-| 3 | Incremental re-search of the changed segment | Save the simulator state at each obstacle and, when one part changes, search again only from that part on. | Editor edits late in a course (move the 4th obstacle: the first 3 need no search); faster Fix it loops (many small edits). | Medium to high. Needs a copyable world state and plan state at each take-off; a change early in the course invalidates everything after it; the saved prefix must be exactly what a fresh run would give. How much it saves: not measured. | Fine if it gives the same plan as a full search (a golden test can check this). | Later; measure first (see benchmark below) |
+| 3 | Incremental re-search of the changed segment | Save the simulator state at each obstacle and, when one part changes, search again only from that part on. | Editor edits late in a course (move the 4th obstacle: the first 3 need no search); faster Fix it loops (many small edits). | Medium to high. Needs a copyable world state and plan state at each take-off; a change early in the course invalidates everything after it; the saved prefix must be exactly what a fresh run would give. How much it saves: not measured, but the benchmark (2026-11-03) shows nearly all time is trials that each replay from tick 0 (1,100 to 3,600 ticks per trial), so the prefix replay is the biggest known waste. | Fine if it gives the same plan as a full search (a golden test can check this). | Promoted: prototype a saved start state for the edges stage and measure the saving, before beam search |
 | 4 | Beam search / keep the top-k plans | At each obstacle keep several good choices (not just the middle of one), and carry them forward. | The greedy stranding case: a landing that leaves the next press no room, now patched by a second-best branch at the last two edges only. Also gives the best of several clearing plans (fastest, widest window). | Medium. Cost grows with k times the trials per obstacle; the plan would change for many courses, so the golden hashes are re-made on purpose. | Fine: still only simulator-played plans. | Later (a small k, only where greedy fails) |
 | 5 | Joint tuning: coordinate descent, then random restarts | After the first plan, sweep each timing again with the others fixed, repeat until nothing improves, and restart from a few random values if it is stuck. | The "one timing at a time" limit; local optima; windows that are only lower bounds (a second sweep shows more room). | Low to medium. Extra passes cost the same as the passes now (the code already does two hang passes and two reach passes). Random restarts need a fixed seed to stay deterministic. | Fine with a seeded generator, same trials in the same order. | Do now for the reach and hang timings; later for the rest |
 | 6 | Bayesian optimisation or CMA-ES over the Plan fields | A general optimiser that learns where good timings lie from the trials so far and picks the next ones. | Courses with many coupled timings, where a grid is too big. | High. Plan fields are mixed (x metres, ticks, flags, per-bar lists); a score that is 'how far you got' is flat until a plan clears; a new dependency; needs seeding to stay deterministic. No evidence that grid size is the limit. | Weak: results depend on the optimiser's random draws; hard to keep golden hashes. | Not worth it now |
@@ -208,7 +226,7 @@ Only numbers found in the repo; none were re-measured for this page.
 | 9 | Learned proposals (a model suggests timings, the simulator checks) | A small model guesses good starting timings for a new course, and the grid search runs around the guess. | Fewer trials for a new course if the guess is close; a good first plan for the editor's wait screen. | High for the benefit. Needs training data (the stored plans of many courses, which we do not have in volume), and a bad guess still falls back to the full search; we have no measure that the guess helps. | Fits the rule "models propose, the simulator decides" if the guess is only a starting point and rejected when wrong; must stay deterministic (fixed model, fixed seed). | Not worth it now; revisit after more stored plans exist |
 | 10 | Time budget and anytime results | Report the best plan found so far while searching, so something can be shown before the end. | The waiting screen: the ghost could run the part of the course already planned; the panel could say "found up to obstacle 4 of 7"; cancel keeps the progress. | Low to medium. The greedy search already has a plan prefix after each obstacle; the batch callback needs to pass it out. A partial plan is not a proof, so it must be labelled so (no 'cleared' claim). | Fine: a prefix is a real set of timings played by the simulator. | Do now (small first version: show progress in the panel with the farthest x reached) |
 | 11 | Run the search server-side on publish | When a course is published, a server job searches it and writes the result next to the course. | The player never searches; the course list can show "clearable" and a difficulty number; CI can re-check all published courses after a physics change. | Medium. Needs a runnable search on the server (the search is plain TypeScript and `src/sim/ideal-pool-node.ts` already runs it in Node worker threads); jobs, storage and a way to re-run after a physics change. Money steps need the amount stated first. | Fine, as long as the server runs the same code and writes the same hash. Any limits and identity rules stay in the private notes folder, not here. | Later, after 2 |
-| 12 | Cheaper trials: a cheaper trial cap or an early stop for a run that cannot win | End a trial earlier when it has already fallen or gets stuck, and cap the time per edge. | Time on failing trials (already cut by the 1.5 s stuck rule and `lead`). | Low gain left unless the benchmark shows long failing trials. Not measured. | Fine, if the answer is unchanged. | Only if the benchmark shows it |
+| 12 | Cheaper trials: a cheaper trial cap or an early stop for a run that cannot win | End a trial earlier when it has already fallen or gets stuck, and cap the time per edge. | Time on failing trials (already cut by the 1.5 s stuck rule and `lead`). | The benchmark shows trials are 99.7% or more of the ticks and the average trial is 9 to 30 s of game time, so the lever is real; how many ticks failing trials spend after the point where they could still pass is not measured. | Fine, if the answer is unchanged (golden hashes). | Promoted: measure the failing-trial ticks, then try an early stop |
 
 ### Who each option helps
 
@@ -247,13 +265,15 @@ Only numbers found in the repo; none were re-measured for this page.
 Sizes are in half-days (1 unit = about half a day). No Linear issues have been created; the titles below are suggestions.
 
 1. **Shared search result cache by course hash** (1 unit).
+   - **Done 2026-11-03 for the Course (CC-133).**
    - Memoise `runSearch` in `src/modes/course/search.ts` by `courseHash(searchInput(course))` plus start x, and share in-flight searches, so the ghost, drums and `I` use one answer.
    - Fill `idealCache` from every full result, and give the editor's `cachedSearch` and `clearedCached` the same key.
    - Keep a budget-cut result out of the cache as "complete".
    - Linear title: "One shared ideal-run result cache keyed by course hash (fixes the double search and the double panel)".
 2. **Benchmark with a per-stage profile on a quiet machine** (1 unit).
+   - **Done 2026-11-03 (4 vCPU VM); see the measured section.**
    - Run `scripts/bench-search.ts` and `scripts/bench-pool.ts`, add ticks per stage (greedy edges, bars stages, machine searches, routes, start delay) with the `meter`, and record seconds, ticks and the machine's conditions in `data/eval/`.
-   - This settles options 3, 4 and 12 with numbers instead of guesses.
+   - Result: option 12 and the prefix replay of option 3 are promoted; option 4 (beam) is unchanged, since a wider search multiplies the trial cost the benchmark shows to be the problem; option 6 and the other optimisers stay not worth it (the grid size is not the lever, the cost per trial is).
    - Linear title: "Ideal-run search benchmark with a per-stage tick profile (decides incremental re-search, beam, cheaper trials)".
 3. **Anytime progress in the panel and the ghost** (2 units).
    - Pass the plan prefix and the farthest x out of the batch callback; the panel can say how far along the course it has got, and Cancel keeps it.
@@ -271,7 +291,6 @@ Sizes are in half-days (1 unit = about half a day). No Linear issues have been c
 
 ## Gaps in this page
 
-- No new timings (the machine was busy); the cost section quotes the repo's own earlier numbers.
-- The time of the drone, cart, recoil, band, cannon and start-delay searches is not measured.
-- How much a state snapshot (option 3) would save is not measured.
-- A check that the budget-cut result is never taken as a full one is part of step 1 and is not done yet.
+- The timings are from one 4 vCPU virtual machine, 3 runs each; the laptop and a player's machine were not measured.
+- Not measured: the drone, cart, recoil, band and routes searches; the split of failing and clearing trial ticks; how much a state snapshot (option 3) or an early stop (option 12) would save; the cost of the second-best branch inside `fork-bench-bulb`.
+- The shared cache lives for one page visit; it is not joined to the editor's `cachedSearch` or to `clearedCached`, and a budget-cut search gives no answer and is not stored (tested in `tests/search-share.test.ts`).
