@@ -1,7 +1,11 @@
 {
   "experiment": "trace-machines",
   "issue": "CC-133",
-  "runtimes": ["node 24.20.0 (V8 13.6, Ryzen)", "node 22.23.4 (V8 12.4, same Ryzen)", "workerd 1.20261023.1 via wrangler 4.153 (local)"],
+  "runtimes": [
+    "node 24.20.0 (V8 13.6, Ryzen)",
+    "node 22.23.4 (V8 12.4, same Ryzen)",
+    "workerd 1.20261023.1 via wrangler 4.153 (local)"
+  ],
   "runs_compared": 7525,
   "outcome_differences": 0,
   "bit_differences": "six courses: plank, plank-two, drone (mash), plus plan runs of training, lache, lache-wide",
