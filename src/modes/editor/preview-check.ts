@@ -1,26 +1,12 @@
 import type { LaneProgress } from '../../slice/lane-check';
 import { el } from './dom';
+import { searchActivity } from '../../slice/search-activity';
 
 // Obstacle progress is not a time estimate: a bar search can take longer than several jumps.
 export function previewCheckView(p: LaneProgress | null, elapsedMs: number) {
   const seconds = Math.max(0, Math.floor(elapsedMs / 1000));
   const elapsed = `${seconds} ${seconds === 1 ? 'second' : 'seconds'} elapsed`;
-  if (!p) return { stage: 'Trying movement timings to find a complete run through these edits.', elapsed, fraction: null };
-  if (p.label === 'the whole course') return { stage: 'Replaying a complete run through the proposed course.', elapsed, fraction: null };
-  const at = /(?:edge|step) at (-?[\d.]+) m/.exec(p.label);
-  const place = at ? ` at ${at[1]} m` : '';
-  const task = p.label.includes('monkey bars') ? `Trying bar swing and reach timings${place}`
-    : p.label.includes('trebuchet') ? 'Trying trebuchet release timings'
-    : p.label.includes('step at') ? `Trying vault and climb timings${place}`
-    : p.label.includes('edge at') ? `Trying jump and grab timings${place}` : `Testing ${p.label}`;
-  const total = Number.isFinite(p.of) ? Math.max(0, Math.floor(p.of)) : 0;
-  const step = Number.isFinite(p.step) ? Math.min(total, Math.max(0, Math.floor(p.step))) : 0;
-  return {
-    stage: total ? `Obstacle ${Math.min(total, step + 1)} of ${total}: ${task}.` : `${task}.`,
-    elapsed,
-    // Stay indeterminate until an obstacle has been passed. Completion requires the actual verdict.
-    fraction: total && step > 0 ? Math.min(0.95, step / total) : null,
-  };
+  return { ...searchActivity(p, true), elapsed };
 }
 
 /** A persistent card outside the scrolling edits: the check remains visible even with a long proposal. */

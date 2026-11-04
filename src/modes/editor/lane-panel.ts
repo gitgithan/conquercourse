@@ -93,7 +93,7 @@ export function createLanePanel(env: LanePanelEnv) {
     };
     const verdictEl = el('div', lanePanel, { id: 'verdict', className: `says-when ${ed.verdict.startsWith('The simulator can clear') ? 'ok' : ed.verdict ? 'bad' : 'muted'}`, text: ed.verdict });
     if (!simSays) addBadge(lanePanel, 'simulator', { before: verdictEl }); // CC-243: whose words these are; the live strip above now says it, so this small badge is only for ?says=0 (where it is off too)
-    laneCheck.mount(lanePanel); // CC-243: progress line, Cancel and Play anyway under the verdict
+    laneCheck.mount(lanePanel, simSays ? simSays.el.nextSibling : lanePanel.firstChild); // Keep active search details above the controls, in view.
   }
   return { drawLanePanel };
 }

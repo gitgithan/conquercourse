@@ -44,15 +44,16 @@ describe('lane check state machine', () => {
   });
   it('the progress line says step, total and seconds in plain words', () => {
     let s = begin(0);
-    expect(progressText(s, 4200)).toBe('Searching for a way through: 4 seconds so far');
-    s = withProgress(s, { label: 'a', step: 3, of: 12 });
-    expect(progressText(s, 1000)).toBe('Searching for a way through: step 3 of 12, 1 second so far');
+    expect(progressText(s, 4200)).toBe('Trying movement timings to find a complete run through this lane. 4 seconds so far.');
+    s = withProgress(s, { label: 'edge at 6 m', step: 3, of: 12 });
+    expect(progressText(s, 1000)).toBe('Obstacle 4 of 12: Trying jump and grab timings at 6 m. 1 second so far.');
     expect(progressText(IDLE, 1000)).toBe('');
   });
   it('the bar is determinate only when the search reports a measure', () => {
     expect(barFraction(begin(0))).toBeNull();
-    expect(barFraction(withProgress(begin(0), { label: 'a', step: 3, of: 12 }))).toBe(0.25);
-    expect(barFraction(withProgress(begin(0), { label: 'a', step: 20, of: 12 }))).toBe(1);
+    expect(barFraction(withProgress(begin(0), { label: 'edge at 6 m', step: 3, of: 12 }))).toBe(0.25);
+    expect(barFraction(withProgress(begin(0), { label: 'a', step: 20, of: 12 }))).toBe(0.95);
+    expect(barFraction(withProgress(begin(0), { label: 'the whole course', step: 12, of: 12 }))).toBeNull();
     expect(barFraction(IDLE)).toBeNull();
   });
   it('the four final states are named', () => {
