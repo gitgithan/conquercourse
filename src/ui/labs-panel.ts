@@ -1,7 +1,7 @@
 import { labHref } from './labs-nav-data';
-import { layoutPanel } from './labs-panel-layout';
+import { layoutPanel, panelEdges } from './labs-panel-layout';
 import { labIconSvg } from './labs-icons';
-import { mapEdges, focusState, neighboursOf, type LabsMap } from './labs-map-layout';
+import { focusState, neighboursOf, type LabsMap } from './labs-map-layout';
 import { LAB_LIST } from './labs-series';
 
 // CC-133: the Labs panel. It slides down from the top bar and holds the whole map on one page:
@@ -14,7 +14,7 @@ export const panelNext = (open: boolean, ev: PanelEvent): boolean => (ev === 'op
 
 /** The lines and the dimming rule use the same connection data as the old map; the positions come from labs-panel-layout.ts. */
 export function panelMap(): LabsMap {
-  return { nodes: LAB_LIST.map((l, i) => ({ mode: l.mode, n: i + 1, name: l.name, tier: '', group: '', column: 0, x: 0, y: 0, w: 0, h: 0 })), edges: mapEdges(), columns: [], width: 0, height: 0 };
+  return { nodes: LAB_LIST.map((l, i) => ({ mode: l.mode, n: i + 1, name: l.name, tier: '', group: '', column: 0, x: 0, y: 0, w: 0, h: 0 })), edges: panelEdges(), columns: [], width: 0, height: 0 };
 }
 
 const STYLE = `
@@ -32,7 +32,7 @@ const STYLE = `
   #labs-panel .lp-box{position:absolute;box-sizing:border-box;background:#fff;box-shadow:inset 0 0 0 1.5px #b9c4bb;border-radius:12px}
   #labs-panel .lp-box[data-tier=pipelines]{background:#eef6f3;box-shadow:inset 0 0 0 1.5px #0f6b5c}
   #labs-panel .lp-box[data-tier=finale]{background:#fff6e4;box-shadow:inset 0 0 0 1.5px #d9741a}
-  #labs-panel .lp-box h3{margin:0;padding:6px 10px;font-size:14px;line-height:16px}
+  #labs-panel .lp-box h3{white-space:nowrap;margin:0;padding:6px 10px;font-size:14px;line-height:16px}
   #labs-panel a.lp-tile{position:absolute;z-index:2;box-sizing:border-box;display:flex;flex-direction:column;align-items:center;gap:4px;text-align:center;text-decoration:none;color:#17201d;font-size:11.5px;line-height:1.2;border-radius:8px;padding:4px;transition:opacity .12s}
   #labs-panel a.lp-tile:hover,#labs-panel a.lp-tile:focus-visible{background:#e6f2ee;outline:none}#labs-panel a.lp-tile:focus-visible{box-shadow:0 0 0 2px #ffb347}
   #labs-panel a.lp-tile[aria-current=page]{background:#d7f0e4;box-shadow:inset 0 0 0 2px #0f6b5c}
