@@ -19,9 +19,9 @@
 |---|---|---|---|
 | 1. Photo | One photo, one camera, no depth | Lab 5, Camera and perspective | Teaches (why one photo cannot say how far each part is) |
 | 2. Cut-out | A mask finds the thing (or the people to blur) | Lab 4, Computer vision; Lab 10, Evaluating a detector | Lab 4 teaches masks and thresholds on street photos (people to hide, not objects to cut); Lab 10 teaches whether a find is good enough |
-| 3. Lift to 3D | The cut-out becomes a 3D shape | Lab 13 (lift), arriving | Not yet on `main`; Lab 5 explains why the lift needs a guess |
-| 4. Bake | The 3D shape becomes a game object | none | Not yet |
-| 5. Collision | A collider is fitted from the 3D | Lab 14 (collision), arriving | Not yet on `main`; written up in [collision from 3D](../collision-from-3d.md) |
+| 3. Lift to 3D | The cut-out becomes a 3D shape | Lab 14, Cut-out, lift and bake (recorded lifts); Lab 5 explains why the lift needs a guess | Teaches (the lift itself is recorded, not run: see its Limits) |
+| 4. Bake | The 3D shape becomes a game object | Lab 14, Cut-out, lift and bake | Teaches (the seven bake rules run live on a recorded object) |
+| 5. Collision | A collider is fitted from the 3D | Lab 15 (collision), arriving | Not yet on `main`; written up in [collision from 3D](../collision-from-3d.md) |
 | 6. Place and prove | The object goes on a course and the simulator proves it can be cleared | Lab 9, Generate and test; Lab 7, Statistics of timing; Lab 1, Search | Lab 9 teaches proposing and throwing out; Lab 7 teaches how wide the press window is; Lab 1 teaches how the proof finds a run |
 
 ## 2. Video to motion

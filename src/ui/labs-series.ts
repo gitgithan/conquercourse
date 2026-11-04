@@ -26,6 +26,7 @@ export const LAB_LIST: readonly LabEntry[] = [
   { mode: 'lab-hashing', name: 'Verification and hashing', pipeline: 'run', stage: 'Hash' },
   { mode: 'lab-rl', name: 'Reinforcement learning', pipeline: 'methods', stage: 'Learn' },
   { mode: 'lab-motion', name: 'Video to motion', pipeline: 'video', stage: 'Gate' },
+  { mode: 'lab-lift', name: 'Cut-out, lift and bake', pipeline: 'photo', stage: 'Bake' },
 ];
 
 /** The Labs of one section, in number order, each with its number. */
