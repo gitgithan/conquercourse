@@ -58,6 +58,7 @@ describe('labs panel layout', () => {
     const n = new Set(L.lines.map((l) => l.id));
     expect(n.size).toBe(L.lines.length);
     expect(layoutPanel(DEFAULT_SOURCE).lines.map((l) => l.id)).toEqual(L.lines.map((l) => l.id));
+    expect(L.lines.filter((l) => l.to === 'lab-systemdesign').length).toBeGreaterThan(3); // the finale is joined to the Labs it sums up
   });
 });
 
