@@ -1,5 +1,5 @@
 import { FEATURES, type Feature } from '../ui/site-nav';
-import { browserStore } from '../ui/onboarding-flags';
+import { browserStore, entranceOn } from '../ui/onboarding-flags';
 import { startHref } from '../ui/welcome-flags';
 import { saysOn } from '../ui/says';
 import { crewCardsOn, openCrewDialog } from '../ui/crew-dialog';
@@ -27,6 +27,10 @@ const CSS = `
 #welcome-logo{width:360px;height:auto;border-radius:18px;box-shadow:0 8px 28px #10182055}
 #welcome-tag{margin:8px 0 14px;font:800 30px system-ui,sans-serif;color:#fff;text-shadow:0 2px 0 #14181f,0 4px 14px #14181f99;letter-spacing:.5px}
 #welcome-grid{display:grid;grid-template-columns:repeat(2,420px);gap:18px 20px}
+.wtile.wide{grid-column:1 / -1;height:84px}
+.wtile.wide img{width:150px;height:78px;border-radius:15px 0 0 15px}
+.wtile.wide .wtext{padding:8px 14px;gap:2px}
+.wtile.wide .wtext b{font-size:20px}
 .wtile{position:relative;display:flex;gap:0;height:170px;padding:0;text-align:left;font:inherit;color:inherit;text-decoration:none;background:#fffdf7;border:3px solid #17201d;border-radius:18px;box-shadow:0 6px 0 #17201d,0 10px 24px #10182040;cursor:pointer;transition:transform .15s ease,box-shadow .15s ease}
 .wtile:hover,.wtile:focus-visible{transform:translateY(-4px) scale(1.04);box-shadow:0 10px 0 #17201d,0 16px 30px #10182055;z-index:5;outline:none}
 .wtile:focus-visible{border-color:#f0a020}
@@ -62,6 +66,13 @@ export function startWelcome(host: HTMLElement): void {
     el.querySelector('img')!.addEventListener('error', (e) => { (e.target as HTMLElement).style.visibility = 'hidden'; });
     if (f.href === null) el.onclick = () => mountWorldGallery(document.body, { current: { value: null }, place: 'display:none' }).open();
     grid.append(el);
+  }
+  if (entranceOn(new URLSearchParams(location.search), location.hostname)) { // the fifth tile: the Making Of tunnel (CC-133)
+    const a = Object.assign(document.createElement('a'), { href: '/making-of/timeline.html', className: 'wtile wide' });
+    a.dataset.feature = 'entrance';
+    a.innerHTML = `<img src="/assets/thumbs/making-timeline.webp" alt="" width="150" height="78" loading="eager" decoding="async"><span class="wtext"><b>The Grand Entrance</b><span>Walk the story of how this game was made.</span></span>`;
+    a.querySelector('img')!.addEventListener('error', (e) => { (e.target as HTMLElement).style.visibility = 'hidden'; });
+    grid.append(a);
   }
   const hint = document.createElement('div'); hint.id = 'welcome-hint'; hint.textContent = 'Press any key or click to start the first course';
   ui.append(grid, hint);
