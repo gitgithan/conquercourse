@@ -138,7 +138,7 @@ var mp=e.model?'<div class="mp">'+esc(e.model)+'</div>':'';
 if(pl||mp)el.classList.add('big');
 el.innerHTML='<div class="hr"><b>'+esc(CATS[e.category])+'</b><span>'+esc(e.when)+'</span></div><h3>'+esc(e.title)+'</h3>'+mp+pl+'<p>'+esc(e.text)+'</p>'+body;
 world.appendChild(el);cards.push({el:el,depth:depth,left:left});});
-var gts=cards.filter(function(c){return c.gate});junoAt=gts[3]?gts[3].depth-200:1e9;
+var gts=cards.filter(function(c){return c.gate});junoAt=(gts[0]?gts[0].depth:0)+2*SPACING;
 juno=rookie.cloneNode(true);juno.id='junoFig';juno.className='';juno.title='Juno';juno.style.cssText='position:absolute;left:50%;bottom:22px;width:60px;height:128px;margin-left:50px;z-index:5;opacity:0';
 juno.querySelector('.torso').style.background='#3b82f6';juno.querySelectorAll('.arm').forEach(function(a){a.style.background='#2f6fd8'});juno.querySelectorAll('.leg').forEach(function(a){a.style.background='#3a3f4d'});juno.querySelector('.head').style.borderTopColor='#ffd37a';
 rookie.parentNode.appendChild(juno);
