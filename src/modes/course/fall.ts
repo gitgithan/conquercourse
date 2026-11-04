@@ -101,20 +101,29 @@ export function createFall(deps: FallDeps) {
     const train = ctx.everCleared || st.falls >= 3;
     panel.innerHTML = '';
     panel.style.display = 'grid';
-    const h = document.createElement('strong');
+    const h = document.createElement('h2'); h.style.cssText = 'margin:0;font:800 24px/1.25 system-ui,sans-serif;color:#17201d';
     h.textContent = what === 'slide' ? 'You slid back down the wall.' : what === 'hurt' ? (log.some((e) => e.type === 'ball-hit') ? `A ball hit you at the ${zone?.name ?? 'course'}.` : `Hard landing at the ${zone?.name ?? 'course'}.`) : what === 'stall' ? 'The cart ran out of speed on a hill.' : log.some((e) => e.type === 'plank-break') ? 'The plank broke under you.' : log.some((e) => e.type === 'cart-off') ? 'The cart left the track at a hilltop.' : HAZARD_INFO[hazard].headline(zone?.name ?? 'course');
-    const t = document.createElement('div'); t.textContent = tip;
+    const t = document.createElement('p'); t.style.cssText = 'margin:0;font-size:17px;line-height:1.45;color:#17201d'; t.textContent = tip;
     if (lateTip) void ideal.ensureWindows().then((ws) => { const hit = ws && windowTip(ws, r.x); if (hit && t.isConnected) t.textContent = hit; });
-    const floorNote = document.createElement('div'); floorNote.style.cssText = 'color:#58635d;font-size:13px'; floorNote.textContent = what === 'slide' || what === 'hurt' ? '' : HAZARD_INFO[hazard].hint;
-    const row = document.createElement('div'); row.style.cssText = 'display:flex;flex-wrap:wrap;gap:8px';
-    const mk = (label: string, fn: () => void, primary = false) => {
-      const b = document.createElement('button');
-      b.textContent = label;
-      b.style.cssText = `font:inherit;border:1px solid ${primary ? '#0f6b5c' : '#b9c2bb'};background:${primary ? '#0f6b5c' : '#fff'};color:${primary ? '#fff' : '#17201d'};border-radius:8px;padding:6px 12px;cursor:pointer;font-weight:${primary ? 700 : 400}`;
-      b.onclick = fn; row.appendChild(b); return b;
+    const floorNote = document.createElement('div'); floorNote.style.cssText = 'margin:-4px 0 0;color:#58635d;font-size:14px'; floorNote.textContent = what === 'slide' || what === 'hurt' ? '' : HAZARD_INFO[hazard].hint;
+    // CC-133: three tiers, no boxes. One big primary (try again), a row of learning actions, and a quiet row of share and tools.
+    const actions = document.createElement('div'); actions.id = 'fall-actions'; actions.style.cssText = 'display:grid;gap:12px;margin:4px 0';
+    const mkRow = (id: string, css: string) => { const r2 = document.createElement('div'); r2.id = id; r2.style.cssText = css; actions.appendChild(r2); return r2; };
+    const prim = mkRow('fall-primary', 'display:flex;flex-wrap:wrap;gap:6px 16px;align-items:center');
+    const learn = mkRow('fall-learn', 'display:flex;flex-wrap:wrap;gap:8px');
+    const tools = mkRow('fall-tools', 'display:flex;flex-wrap:wrap;gap:2px 14px;align-items:center;padding-top:8px;border-top:1px solid #e5e9e5');
+    const TIER = {
+      primary: 'font:800 20px system-ui,sans-serif;border:0;background:#0f6b5c;color:#fff;border-radius:10px;padding:14px 32px;cursor:pointer;box-shadow:0 2px 6px #0f6b5c55',
+      learn: 'font:600 15px system-ui,sans-serif;border:0;background:#e9f5f1;color:#0f6b5c;border-radius:8px;padding:9px 16px;cursor:pointer',
+      quiet: 'font:400 13px system-ui,sans-serif;border:0;background:none;color:#58635d;text-decoration:underline;padding:4px 0;cursor:pointer',
     };
-    const retry = mk(`Try this ${zone?.name ?? 'obstacle'} again (R)`, () => restart(st.retryX), true);
-    if (st.retryX !== course.startX) mk('Start from the beginning (Shift+R)', () => { st.retryX = course.startX; restart(course.startX); });
+    const mk = (label: string, fn: () => void, tier: keyof typeof TIER = 'learn', into?: HTMLElement) => {
+      const b = document.createElement('button');
+      b.textContent = label; b.style.cssText = TIER[tier];
+      b.onclick = fn; (into ?? (tier === 'primary' ? prim : tier === 'learn' ? learn : tools)).appendChild(b); return b;
+    };
+    const retry = mk(`Try this ${zone?.name ?? 'obstacle'} again (R)`, () => restart(st.retryX), 'primary');
+    if (st.retryX !== course.startX) mk('Start from the beginning (Shift+R)', () => { st.retryX = course.startX; restart(course.startX); }, 'quiet', prim);
     mk('Watch what happened, with the numbers', () => {
       panel.style.display = 'none';
       const from = Math.max(0, frames.length - 300);
@@ -127,15 +136,16 @@ export function createFall(deps: FallDeps) {
     const tryFrom = tryClip ? startOfX(course, tryClip.from) : null; // CC-242: a try from a checkpoint is shared with its start, so the friend begins at the same place
     const tryStart = tryFrom ?? 0;
     const tryRun = shareOn(params) && !botMode && !st.demo && !st.idealWhole && !params.get('mode') ? (ghostCtl?.myRun() ?? (tryFrom ? tryClip?.log ?? null : null)) : null; // CC-181: a try that fell can be sent as a link too; it never counts for a time
-    if (tryRun) row.append(...copyLinkButton({ link: (nick) => makeLinkInfo(location.origin, pageSearch(), course, tryRun, nick, wear.choice(), 'fell', undefined, tryStart), courseTooBig: () => courseTooBig(pageSearch(), course), label: 'Copy link to this try', id: 'share-copy-fall' }));
-    if (tryClip && clipFits(tryTicks)) mk('Download a video of this try', () => void makeClip(tryClip.log, tryTicks, tryClip.from)).id = 'share-clip-fall'; // CC-157: a try that ended in a fall is worth a clip too
     mk('Show me the ideal run (I)', () => ideal.showIdeal(st.lastZone));
-    if (!course.track) mk('Make it easier', () => openEditor('easier')).id = 'makeeasier';
-    mk('Edit this course', () => openEditor('edit')).id = 'editfromfall';
     if (train) mk(`Train the ${zone?.name ?? 'obstacle'}`, () => { saveResume(); location.search = trainLink(zone?.id ?? 'gap', r.x); });
+    if (!course.track) mk('Make it easier', () => openEditor('easier')).id = 'makeeasier';
+    if (tryRun) tools.append(...copyLinkButton({ link: (nick) => makeLinkInfo(location.origin, pageSearch(), course, tryRun, nick, wear.choice(), 'fell', undefined, tryStart), courseTooBig: () => courseTooBig(pageSearch(), course), label: 'Copy link to this try', id: 'share-copy-fall' }).map((el) => { if (el instanceof HTMLButtonElement) el.style.cssText = TIER.quiet; return el; }));
+    if (tryClip && clipFits(tryTicks)) mk('Download a video of this try', () => void makeClip(tryClip.log, tryTicks, tryClip.from), 'quiet').id = 'share-clip-fall'; // CC-157: a try that ended in a fall is worth a clip too
+    mk('Edit this course', () => openEditor('edit'), 'quiet').id = 'editfromfall';
     const failBody = renderReport(course, runLog, buildReport(course, runLog, st.world, false, null), {}, true, ghostCtl?.reportPath() ?? null, !reportSectionsOn(params), hardBand());
     addHardest(failBody);
-    panel.append(h, t, floorNote, failBody, row);
+    const metres = failBody.firstElementChild as HTMLElement | null; if (metres) metres.style.cssText = 'font:700 15px system-ui,sans-serif;color:#0f6b5c'; // the one key number: how far you got
+    panel.append(h, ...(metres ? [metres] : []), t, floorNote, actions, failBody);
     if (st.falls === 1 && !st.idealWhole) onboarding.onFall(panel); // CC-100: the first fall gets one calm hint (CC-191: inside the report, not over it)
     retry.focus({ preventScroll: true }); panel.scrollTop = 0;
   }
