@@ -39,7 +39,7 @@ describe('the monkey bars made from a photo lift', () => {
       for (const e of w.events) if (e.type === 'bars-reach') { rungs.push(e.detail!.rung as number); hands.push(e.detail!.hand as number); }
     }
     const steps = course.bars![0].n - 1;
-    expect(rungs.length).toBe(2 * steps);
+    expect(rungs.length).toBe(steps + 1); // one reach per rung (the hands leapfrog); the last closes the back hand on the last rung
     hands.forEach((h, i) => expect(h).toBe(i % 2 === 0 ? 1 : 2));
     expect(Math.max(...rungs)).toBe(steps);
   });

@@ -22,7 +22,7 @@ describe('the ideal run on monkey bars', () => {
     for (const [c, r] of [[barsC, barsR], [swingC, swingR]] as const) {
       const run = playPlan(c, r.plan);
       const reaches = run.events.filter((e) => e.type === 'bars-reach');
-      expect(reaches.length).toBe(10);
+      expect(reaches.length).toBe(c.bars![0].n); // the hands leapfrog: one reach per rung, the last one closes the back hand on the last rung
       reaches.forEach((e, i) => expect(e.detail!.hand).toBe(i % 2 === 0 ? 1 : 2));
       expect(run.events.some((e) => e.type === 'bars-stall')).toBe(false);
     }

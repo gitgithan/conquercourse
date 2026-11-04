@@ -1,4 +1,4 @@
-import { canReach, DEFAULT_BARS } from '../sim/bars';
+import { nextHand, canReach, DEFAULT_BARS } from '../sim/bars';
 import type { WorldState } from '../sim/world';
 import type { CourseData } from '../course/course';
 
@@ -18,7 +18,7 @@ export function createBarsKeys(parent: HTMLElement): { update(w: WorldState, cou
       const b = w.mode === 'bars' && w.bars && course.bars?.[w.bars.run] ? w.bars : null;
       box.style.display = b ? 'flex' : 'none';
       if (!b) return;
-      const row = course.bars![b.run], next: 1 | 2 = b.last === 1 ? 2 : 1, ok = canReach(row, b, next, DEFAULT_BARS).ok;
+      const row = course.bars![b.run], next: 1 | 2 = nextHand(row, b) ?? 1, ok = canReach(row, b, next, DEFAULT_BARS).ok;
       paint(q, next === 1 ? (ok ? 'go' : 'wait') : 'other'); paint(t, next === 2 ? (ok ? 'go' : 'wait') : 'other');
       note.textContent = b.l >= row.n - 1 && b.r >= row.n - 1 ? 'Last rung: let go of E to fly off' : ok ? 'Reach now!' : 'Swing forward (→ ←), then reach with the other hand. Alternate Q, T, Q, T.';
     },

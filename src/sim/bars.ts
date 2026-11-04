@@ -11,7 +11,7 @@ export interface BarsParams {
   keep: number; // share of the swing speed kept when a hand catches a rung (the catch absorbs the rest)
   hang: HangParams; // the pendulum is the same body as on a bar
 }
-export const DEFAULT_BARS: BarsParams = { arm: 0.7, keep: 0.93, rhythm: 0.015, hang: DEFAULT_HANG };
+export const DEFAULT_BARS: BarsParams = { arm: 0.8, keep: 0.93, rhythm: 0.015, hang: DEFAULT_HANG };
 export const GAP_MIN = 0.3, GAP_MAX = 1.0; // m, what the editor allows between rungs
 
 export interface BarsHang {
@@ -33,16 +33,29 @@ export const rungX = (r: BarRun, i: number): number => r.x + i * r.gap;
 export const pivotOf = (r: BarRun, s: Pick<BarsHang, 'l' | 'r'>): Hold => ({ x: (rungX(r, s.l) + rungX(r, s.r)) / 2, y: r.y });
 const asHang = (s: BarsHang): Hang => ({ hold: 0, theta: s.theta, omega: s.omega, ox: s.ox, oy: s.oy, et: s.et });
 
-// Can this hand reach its next rung now? The shoulder is `arm` down the body from the point between the hands; a straight arm
+// The rung a hand takes when it reaches: the one just past the front hand, so the hands leapfrog (the back hand overtakes the front one).
+// On the last rung there is nothing past it: the hand that is still behind closes on the last rung and the run is done (both hands on the last rung).
+export const targetRung = (run: BarRun, s: Pick<BarsHang, 'l' | 'r'>): number => Math.min(Math.max(s.l, s.r) + 1, run.n - 1);
+// The hand whose turn it is: the one that did not reach last. A hand already on the last rung has no turn: the other hand goes.
+export function nextHand(run: BarRun, s: Pick<BarsHang, 'l' | 'r' | 'last'>): 1 | 2 | null {
+  const lEnd = s.l >= run.n - 1, rEnd = s.r >= run.n - 1;
+  if (lEnd && rEnd) return null;
+  if (lEnd) return 2;
+  if (rEnd) return 1;
+  return s.last === 1 ? 2 : 1;
+}
+
+// Can this hand reach its target rung now? The shoulder is `arm` down the body from the point between the hands; a straight arm
 // reaches a circle of radius `arm` about it, so a rung at the height of the hands is within reach when it is between 0 and 2 arm sin(theta) ahead.
-// It needs a forward swing (angle ahead of the hang and speed forward), so the swing carries the hand there.
+// It needs the body swung forward of the hang (theta > 0); the bigger the swing the farther the arm goes, so a big pump first makes a fast chain possible.
+// It does not matter which way the body is moving: a player may alternate as fast as they like while the swing is big enough.
 export function canReach(run: BarRun, s: BarsHang, hand: 1 | 2, p: BarsParams = DEFAULT_BARS): { ok: boolean; why?: 'order' | 'swing' | 'end' } {
-  if (s.last === hand) return { ok: false, why: 'order' };
-  const next = (hand === 1 ? s.l : s.r) + 1;
-  if (next >= run.n) return { ok: false, why: 'end' };
-  const dx = rungX(run, next) - pivotOf(run, s).x;
+  const own = hand === 1 ? s.l : s.r;
+  if (own >= run.n - 1) return { ok: false, why: 'end' };
+  if (nextHand(run, s) !== hand) return { ok: false, why: 'order' };
+  const dx = rungX(run, targetRung(run, s)) - pivotOf(run, s).x;
   const sin = Math.sin(s.theta);
-  if (s.theta <= 0 || s.omega < 0 || dx < 0 || dx > 2 * p.arm * sin) return { ok: false, why: 'swing' };
+  if (s.theta <= 0 || dx < 0 || dx > 2 * p.arm * sin) return { ok: false, why: 'swing' };
   return { ok: true };
 }
 
@@ -68,14 +81,15 @@ export function barsStep(s: BarsHang, run: BarRun, reachL: boolean, reachR: bool
     if (!c.ok) { events.push({ type: 'bars-stall', hand, why: c.why }); n = { ...n, streak: 0 }; continue; }
     const before = pivotOf(run, n);
     const o = handOffset(asHang(n));
-    n = hand === 1 ? { ...n, l: n.l + 1 } : { ...n, r: n.r + 1 };
+    const to = targetRung(run, n);
+    n = hand === 1 ? { ...n, l: to } : { ...n, r: to };
     n.last = hand;
     const after = pivotOf(run, n);
     n.ox = o.x + (before.x - after.x); n.oy = o.y; n.et = EASE_TICKS; // the pivot moves on; the body is carried over to it, not thrown
     n.streak = (n.streak ?? 0) + 1;
     n.omega *= Math.min(1, p.keep + p.rhythm * (n.streak - 1));
     n.reaches++;
-    events.push({ type: 'bars-reach', hand, rung: hand === 1 ? n.l : n.r });
+    events.push({ type: 'bars-reach', hand, rung: to });
   }
   const h = hangStep(asHang(n), pump, p.hang);
   return { s: { ...n, theta: h.theta, omega: h.omega, et: h.et ?? 0 }, events };

@@ -5,7 +5,7 @@ import type { Drum } from '../../sim/drums';
 import { droneParams, recoilParams, type WorldState } from '../../sim/world';
 import { energyWords, isAimable, shotEnergy } from '../../sim/recoil';
 import { weight } from '../../sim/drone';
-import { canReach } from '../../sim/bars';
+import { nextHand, canReach } from '../../sim/bars';
 import { climbAhead } from '../../sim/climb';
 import { bandParams, stretchAt } from '../../sim/band';
 import { predictBand, predictLaunch, predictRelease, type Prediction } from '../../sim/predict';
@@ -28,7 +28,7 @@ export function createHint(ctx: CourseCtx, deps: HintDeps): (w: WorldState) => s
       }
     }
     if (w.mode === 'bars' && w.bars && course.bars?.[w.bars.run]) { // the monkey bars: say which key is due, and when the swing allows it
-      const b = w.bars, row = course.bars[b.run], next = b.last === 1 ? 2 : 1;
+      const b = w.bars, row = course.bars[b.run], next = nextHand(row, b) ?? 1;
       if (b.l >= row.n - 1 && b.r >= row.n - 1) return 'Last rung: let go of E to fly off';
       return canReach(row, b, next).ok ? `Press ${next === 1 ? 'Q (left hand)' : 'T (right hand)'} now` : `Swing forward with → and ←, then ${next === 1 ? 'Q (left hand)' : 'T (right hand)'}. Hold E to stay on.`;
     }
