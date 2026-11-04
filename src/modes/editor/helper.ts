@@ -2,20 +2,12 @@ import { EDITOR_ACTIONS as ACTIONS, actionTitle } from '../../ui/editor-actions'
 import { createPreviewCheck } from './preview-check';
 import type { LaneProgress } from '../../slice/lane-check';
 import { realSize } from '../../slice/world';
-import { workSeconds } from '../../sim/ideal';
 import { type Ghosts } from '../../slice/view3d';
-import { isTrack } from '../../slice/track-world';
-import { holdsOf, isHold } from '../../slice/holds-world';
-import { type Machine } from '../../slice/launch-lane';
+import { holdsOf } from '../../slice/holds-world';
 import { PARTNER_PREF_KEY, partnerStartsOpen } from '../../slice/editor-defaults';
-import { fixMachine } from '../../slice/fix-launch';
-import { fixBars } from '../../slice/fixbars';
-import { fixLayout } from '../../slice/fixit';
-import { fixCoaster } from '../../slice/fixcoaster';
 import { suggestPrompt } from '../../slice/suggest-prompt';
 import { type Advice } from '../../slice/advice';
 import { sayBadge, saysOn } from '../../ui/says';
-import { barsInWorker, fixInWorker } from '../../slice/proof-client';
 import { parseReply, worldBrief } from '../../slice/designer';
 import { diffProposal, enabledCount, fromAdvice, fromEdits, pieceWordLines, resultOf, type Proposal } from '../../slice/preview';
 import { shortcutLine, type Shortcut } from '../../sim/shortcuts';
@@ -25,7 +17,6 @@ import { easierProgress } from './easier-progress';
 import { flag } from '../../flags';
 import { makeItEasier } from '../../slice/easier';
 import { el } from './dom';
-import type { Tools } from './tools';
 import { isDevice, isSizeReference, type EditorState, type P } from './state';
 import type { EditorLane } from './lane';
 import type { CourseData } from '../../course/course';
@@ -39,29 +30,25 @@ export interface HelperEnv {
   ed: EditorState;
   lane: EditorLane;
   root: HTMLElement; top: HTMLElement; aside: HTMLElement;
-  chosen: () => number[]; draw: () => void; drawProfile: () => void; changed: () => void;
+  draw: () => void; drawProfile: () => void; changed: () => void;
   handoff: EditHandoff | null;
   animateApply: (items: Ghosts['items']) => void;
-  tools: Tools;
   previewSearch: EditorSearch;
 }
 
-// The design partner panel: Fix it, Make it easier, routes you did not plan, the partner's advice and chat, and the preview every proposal goes through before it changes anything.
+// The design partner panel: Make it easier, routes you did not plan, the partner's advice and chat, and the preview every proposal goes through before it changes anything.
 export function createHelper(env: HelperEnv) {
   const { ed, lane, root, top, aside } = env;
-  const { updateDeviceSource, barsNow, machineNow, trebuchetPivot, machineWrap, courseNow, courseFor, profileFor, xOfPiece } = lane;
-  const { chosen, drawProfile, draw, changed, handoff, tools, previewSearch } = env;
+  const { updateDeviceSource, barsNow, machineNow, courseNow, courseFor, profileFor, xOfPiece } = lane;
+  const { drawProfile, draw, changed, handoff, previewSearch } = env;
   // ---- helpers: what to shift when the lane cannot be cleared, and a design partner (Muse Spark Open) to talk it through
   const helper = el('div', aside, { className: 'panel helper', id: 'helper' });
   const head = el('div', helper, { className: 'row' });
   el('strong', head, { text: 'Course help' });
 
-  el('button', head, { text: ACTIONS.fixit.label, id: 'fixit', className: 'go', title: actionTitle(ACTIONS.fixit) }).onclick = () => runFix();
   el('button', head, { text: ACTIONS.easier.label, id: 'easier', title: actionTitle(ACTIONS.easier) }).onclick = () => runEasier();
   const closeHelper = el('button', head, { text: '✕', id: 'closehelper', title: 'Hide' });
-  el('div', helper, { className: 'helper-engines', text: 'Simulator tools search for repairs. Muse Spark Open suggests ideas. The simulator checks every preview.' });
-  const selRow = el('label', helper, { className: 'muted', title: 'Limits the simulator’s platform layout repair to selected pieces. Bars and devices use separate repair searches. AI ideas are independent.' });
-  const fixSel = el('input', selRow, { type: 'checkbox', id: 'fixsel' }); selRow.append('Limit layout repair to selected pieces');
+  el('div', helper, { className: 'helper-engines', text: 'Muse Spark Open suggests ideas. Simulator tools explore easier timings and shortcut routes. The simulator checks every preview.' });
   const adviceBox = el('div', helper, { id: 'advice' });
   // CC-243: a ready question for the partner: Suggest Fix when the lane cannot be cleared, Suggest More when it can
   const suggestBtn = el('button', head, { text: 'Ask AI for more ideas', id: 'suggest', title: 'Muse Spark Open: send a ready-written design question; the simulator checks any preview' });
@@ -102,7 +89,7 @@ export function createHelper(env: HelperEnv) {
       showProposal(diffProposal('shortcut', `Close the shortcut: ${s.how}`, ed.pieces, now, r.pieces, now, r.steps, true));
     }, 30);
   }
-  const reply = el('div', helper, { className: 'reply muted', id: 'reply', text: 'Choose Find a repair for a simulator search, or Ask AI for ideas from Muse Spark Open.' });
+  const reply = el('div', helper, { className: 'reply muted', id: 'reply', text: 'Ask AI for ideas from Muse Spark Open, then preview the suggested changes with the simulator.' });
   const previewCheck = createPreviewCheck(helper, {
     stop: () => { ed.proofRun++; previewSearch.stopSearch(); paintVerdict('unavailable', 'Check stopped. Retry to test the same preview again.'); },
     retry: () => updatePreview(),
@@ -137,7 +124,7 @@ export function createHelper(env: HelperEnv) {
   closeHelper.onclick = () => { helper.classList.add('closed'); helperBtn.setAttribute('aria-pressed', 'false'); rememberPartner(); };
   window.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !helper.classList.contains('closed') && helper.contains(document.activeElement)) { helper.classList.add('closed'); rememberPartner(); } });
 
-  // ---- preview before apply: Fix it, the partner's changes and one piece of advice all become a Proposal that is drawn as outlines first
+  // ---- preview before apply: The partner's changes and one piece of advice all become a Proposal that is drawn as outlines first
   let previewProof: { course: CourseData; result: PresetPlan } | null = null;
   const ghostData = (): Ghosts | null => {
     if (!ed.proposal || !ed.preview) return null;
@@ -145,36 +132,6 @@ export function createHelper(env: HelperEnv) {
     const laneMoved = ed.proposal.items.some((i) => i.kind === 'lane' && i.on && i.key !== 'level');
     return { items, lane: laneMoved ? { angle: ed.preview.lane.angle, offset: ed.preview.lane.offset } : null };
   };
-  async function computeFix(ps: P[], lane: { angle: number; offset: number; level: number }): Promise<{ ok: boolean; pieces: P[]; lane: { angle: number; offset: number; level: number }; steps: string[]; machine: Machine | null }> {
-    const m = machineNow(), wrap = machineWrap(m); // a machine's wrap is a function, which a worker cannot be sent: with a machine the proofs run here, without one they run in a worker
-    ps = ps.filter((q) => !isSizeReference(q) && !isDevice(q)); // the machine and the size references are not ground
-    if (m) { const mf = fixMachine(ps, lane, m, 40000, trebuchetPivot()); if (mf.ok) return { ok: true, pieces: ps, lane, steps: mf.steps, machine: mf.machine }; } // the machine first: a counterweight or an arm is a smaller change than moving pieces
-    if (ps.some(isTrack)) { const fc = fixCoaster(ps, lane); return { ok: fc.ok, pieces: fc.pieces, lane, steps: fc.steps, machine: m }; } // CC-244: a coaster world moves sections and bars, never the lane
-    if (ps.some(isHold)) { const rb = m ? fixBars(ps, lane, workSeconds(40), wrap) : await barsInWorker(ps, lane, workSeconds(40)); return { ok: rb.ok, pieces: rb.pieces, lane, steps: rb.steps, machine: m }; }
-    const only = fixSel.checked ? chosen().filter((id) => ps.some((q) => q.id === id)) : []; // CC-243: with pieces chosen, only those may move and the lane stays
-    const r = m ? fixLayout(ps, lane, workSeconds(12), wrap, only.length ? { movable: only } : {}) : await fixInWorker(ps, lane, only.length ? only : undefined);
-    return { ok: r.ok, pieces: r.pieces as P[], lane: r.lane, steps: r.steps, machine: m };
-  }
-  function runFix(from?: { pieces: P[]; lane: { angle: number; offset: number; level: number } }) {
-    cancelEasier(); closePreview();
-    helper.classList.remove('closed'); helperBtn.setAttribute('aria-pressed', 'true');
-    reply.className = 'reply'; reply.textContent = 'Simulator: searching for a repair…' + (ed.pieces.some(isHold) ? ' (bars take a while: up to 40 seconds)' : '');
-    setTimeout(async () => {
-      if (tools.fix({ reply, changed })) return; // a plank, drone, launcher or band the proof names: the smallest change is said in words first
-      const now = { angle: ed.angle, offset: ed.offset, level: ed.level }, start = from ?? { pieces: ed.pieces, lane: now };
-      const r = await computeFix(start.pieces, start.lane).catch(() => null);
-      if (!r) { reply.className = 'reply bad'; reply.textContent = 'The simulator repair search was stopped. Try again.'; return; }
-      document.documentElement.dataset.fixed = r.ok ? '1' : '0';
-      const prop = diffProposal('fixit', from ? 'Simulator repair, starting from the preview' : 'Simulator repair', ed.pieces, now, r.pieces, r.lane, r.steps, r.ok, machineNow(), r.machine);
-      if (!prop.items.length) {
-        reply.className = r.ok ? 'reply ok' : 'reply bad';
-        reply.textContent = r.ok ? 'It already works.' : ed.pieces.some(isHold) ? r.steps.join(' ') : 'I could not find a layout that works. ' + r.steps.join(' ') + ' Try other pieces.';
-        return;
-      }
-      ed.leadText = '';
-      showProposal(prop);
-    }, 30);
-  }
   let easierSession: { cancel: () => void } | null = null;
   function cancelEasier(message?: string) {
     easierSession?.cancel(); easierSession = null;
@@ -247,7 +204,7 @@ export function createHelper(env: HelperEnv) {
     reply.className = 'reply'; reply.replaceChildren();
     if (ed.leadText) el('div', reply, { text: ed.leadText });
     const engines = el('div', reply, { className: 'action-engines' });
-    for (const e of (pr.source === 'partner' ? ACTIONS.what : ACTIONS.fixit).engines) {
+    for (const e of (pr.source === 'partner' ? ACTIONS.what : ACTIONS.easier).engines) {
       const pill = el('span', engines, { className: 'action-engine', text: e.label }); pill.dataset.kind = e.kind;
     }
     el('strong', reply, { text: pr.title });
@@ -275,11 +232,7 @@ export function createHelper(env: HelperEnv) {
     else previewCheck.hide();
     v.textContent = message ?? (state === 'checking' ? 'Apply is waiting for the simulator check below.' : state === 'clears' ? 'Simulator verified: this lane can clear.' : state === 'blocked' ? 'The simulator did not find a clear run for these changes.' : state === 'unavailable' ? 'The simulator could not finish this check. Retry the check below.' : 'Nothing is switched on.');
     apply.disabled = state !== 'clears' && state !== 'blocked';
-    rowEl.querySelector('#fixfromhere')?.remove();
-    if (state === 'blocked' && ed.proposal && ed.proposal.source !== 'fixit' && ed.preview) {
-      const from = { pieces: ed.preview.pieces, lane: ed.preview.lane };
-      el('button', rowEl, { text: 'Find a repair from here', id: 'fixfromhere', title: 'Simulator: search for further changes starting from this preview' }).onclick = () => runFix(from);
-    }
+
   }
   function updatePreview() {
     if (!ed.proposal) { previewCheck.hide(); ed.preview = null; ed.previewProfile = null; ed.previewBars = []; return; }
@@ -380,6 +333,6 @@ export function createHelper(env: HelperEnv) {
   const removal = new MutationObserver(() => { if (!helper.isConnected) { cancelEasier(); previewCheck.hide(); previewSearch.stopSearch(); removal.disconnect(); } });
   removal.observe(document.body, { childList: true, subtree: true });
   const previewProgress = (p: LaneProgress) => previewCheck.progress(p);
-  return { previewProgress, helper, helperBtn, reply, adviceBox, setSuggest, showAdvice, runFix, runEasier, showProposal, closePreview, ghostData, onChanged };
+  return { previewProgress, helper, helperBtn, reply, adviceBox, setSuggest, showAdvice, runEasier, showProposal, closePreview, ghostData, onChanged };
 }
 export type Helper = ReturnType<typeof createHelper>;
