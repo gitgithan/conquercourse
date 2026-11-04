@@ -21,7 +21,7 @@ try {
     await page.waitForSelector('#labs-nav', { timeout: 10000 });
     await page.waitForTimeout(800);
     const cur = await page.locator('#labs-nav [aria-current=page]').getAttribute('data-lab');
-    const n = await page.locator('#labs-nav .tiers a').count();
+    const n = await page.locator('#labs-panel a.lp-tile').count();
     if (cur !== modes[i] || n !== 12) fail.push(`${modes[i]}: current=${cur} count=${n}`);
     if (i === 0 || i === 6 || i === 11) await page.screenshot({ path: `${out}/${modes[i]}.png` });
   }
