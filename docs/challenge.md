@@ -13,9 +13,9 @@
 
 ## Parts
 - **Part 1, the ideal ghost (built):** replays the line the simulator found (the plan stored with the course, or the workers' search).
-- **Part 2, your best (next):** each cleared run is kept in the browser as its keys, and replayed as a second ghost choice.
-- **Part 3, share without a server (after that):** a link carries the course, the build and the keys.
-- **Part 4, a leaderboard (design only, below):** needs a server step and the owner's yes.
+- **Part 2, your best (design only, not built):** each cleared run would be kept in the browser as its keys, and replayed as a second ghost choice; the chip today cycles Off, Ideal and a friend's run.
+- **Part 3, share (built):** a link carries the course, the build and the keys; since CC-219 the server keeps it behind a short link.
+- **Part 4, a leaderboard (built, CC-108):** approved by the owner on 2026-10-30; details below.
 
 ## How a run is replayed (`src/sim/replay.ts`)
 - The simulator is deterministic at 120 Hz.
@@ -43,7 +43,7 @@
 - Only plain key presses are recorded (the bot's take-off speed and the cannon angle are not keys, so a bot run is never "a person's run").
 - When a run clears, replay the recording once to check it gives the same time, then keep it if it is the fastest for that course.
 - Stored in `localStorage` by course (a hash of the course, without its stored plan), with the time and the date.
-- The Ghost chip cycles Off, Ideal, My best.
+- The Ghost chip would cycle Off, Ideal, My best (not built: today it cycles Off, Ideal and a friend's run).
 
 ## Part 3: the challenge text a share holds (design; since CC-219 the server keeps it behind a short link)
 - "Copy link to challenge a friend" is the main share button on the end report (CC-181).
@@ -165,8 +165,8 @@
 - **Cost:** within the free tier of Pages Functions and D1 at hackathon volume (a run is about 1 KB; 10,000 runs is about 10 MB).
   - The compute is a few milliseconds per run.
 - **Privacy:** no names, no accounts, no location; the nickname is optional.
-- **Daily challenge:** the day's seed gives a generated course (`generateChecked`); every player gets the same course; times are compared the same way.
-- **Decision for the owner:** whether to build this before 2026-11-04, and whether to show a leaderboard to the public at all (a list of nicknames is the only social feature in the game).
+- **Daily challenge (not built; the board has day, week and all-time windows instead):** the day's seed gives a generated course (`generateChecked`); every player gets the same course; times are compared the same way.
+- **Decision for the owner (2026-10-30):** the leaderboard was approved and built; the daily challenge course was not.
 
 ## Not in this change
 - The ghost is a plain translucent capsule, not the Rookie.

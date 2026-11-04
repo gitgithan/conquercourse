@@ -191,7 +191,7 @@ flowchart LR
   - Mapillary's own blur of faces and plates is the base standard (not a guarantee); we never store, copy or un-blur the pictures.
   - On top of that, `scripts/photos_people.py` leaves out a photo with a close-up or large person (tallest person over 0.2 of the picture height); small, far figures pass (owner, 2026-11-01, `data/eval/cc-90-no-filter/README.md`).
 - **Detector note:** the person detector is Faster R-CNN from torchvision (PyTorch); it is a Meta-originated open-source tool, not part of the hackathon model list.
-- **Result:** the 0.2 limit keeps 100% lane coverage on 17 of 20 places (Montmartre 72%, Eixample 88%); the earlier "any person rejects" rule kept far fewer (`data/eval/cc-90-no-filter/README.md`).
+- **Result:** the 0.2 limit keeps 100% lane coverage on 16 of 20 places (Montmartre 72%, Eixample 88%, Bryggen 90%, Piazza San Marco 95%); the earlier "any person rejects" rule kept far fewer (`data/eval/cc-90-no-filter/README.md`).
 
 ```mermaid
 flowchart LR
