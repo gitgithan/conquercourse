@@ -63,7 +63,7 @@ export const DEMO_GROUPS: [string, Demo[]][] = [
   const at = DEMO_GROUPS.findIndex(([g]) => g.startsWith('Labs'));
   const cards = DEMO_GROUPS[at][1];
   const parts: [string, Demo[]][] = LAB_GROUPS.map((g) => [`Labs, ${TIERS.find((t) => t.id === g.tier)!.title}: ${g.title}`, g.modes.flatMap((m) => cards.filter((c) => c[0] === m))] as [string, Demo[]]).filter(([, d]) => d.length);
-  DEMO_GROUPS.splice(at, 1, ...parts);
+  DEMO_GROUPS.splice(at, 1, ['Labs, the map', [['labs-map', 'Map of the Labs', 'Every Lab as a box in a tree: point at one to see the Labs it uses and the Labs that use it.']]], ...parts);
 }
 
 // CC-200: one card for each Dojo lesson, just above the Labs; a card opens that lesson (?mode=dojo&ex=<id>)
@@ -115,7 +115,7 @@ export function worldHref(value: string, loc?: { pathname: string; search: strin
   if (value === 'coaster-builder') return `?mode=coaster${suffix}`;
   if (value === 'map') return `?mode=map${suffix}`;
   if (value.startsWith('dojo-')) return `?mode=dojo&ex=${value.slice(5)}${suffix}`; // CC-200: a Dojo card opens its lesson
-  if (value.startsWith('lab-')) return `?mode=${value}&labs=1${suffix}`; // CC-118: every Lab card opens its mode with the labs switch on
+  if (/^labs?-/.test(value)) return `?mode=${value}&labs=1${suffix}`; // CC-118: every Lab card opens its mode with the labs switch on
   if (value === 'generate') return `?generate=${seed}${suffix}`;
   if (value === 'generate-same') { const at = loc ?? location; return `${at.pathname}${at.search}${at.search.includes('?') ? '&' : '?'}welcome=0`; }
   return value ? `?course=${value}${suffix}` : `?welcome=0`;
@@ -276,7 +276,7 @@ export function buildGallery(o: GalleryOptions): { el: HTMLElement; focusStart()
     cards.push({ card: grid.lastElementChild as HTMLButtonElement, sec: grid.parentElement!, text: `${cur.label ?? ''} this course`.toLowerCase() });
   }
   for (const [group, ds] of DEMO_GROUPS) {
-    const hiddenItem = (v: string): boolean => (v === 'map' ? !sliceCardOn(pageQuery()) && cur.value !== v && !labsOn() : v.startsWith('lab-') && cur.value !== v && !labsOn());
+    const hiddenItem = (v: string): boolean => (v === 'map' ? !sliceCardOn(pageQuery()) && cur.value !== v && !labsOn() : /^labs?-/.test(v) && cur.value !== v && !labsOn());
     if (ds.every(([v]) => hiddenItem(v))) continue; // a group whose items are all switched off shows no heading
     const grid = section(group);
     for (const [v, label, about] of ds) {

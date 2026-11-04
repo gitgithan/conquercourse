@@ -103,7 +103,8 @@ export function mountLabsNav(host: HTMLElement, mode: string, labsEnabled: boole
   courses.id = 'labs-courses'; courses.type = 'button'; courses.textContent = 'Courses'; courses.title = 'Pick a course and go back to the game'; courses.onclick = () => gallery.open();
   const ctl = document.createElement('div');
   ctl.className = 'ctl';
-  ctl.append(courses, prevA, nextA);
+  const mapA = document.createElement('a'); mapA.id = 'labs-map-link'; mapA.href = '?mode=labs-map&labs=1&welcome=0'; mapA.textContent = 'Map'; mapA.title = 'See how the Labs connect'; mapA.setAttribute('aria-label', 'Map of the Labs');
+  ctl.append(courses, mapA, prevA, nextA);
   nav.append(ctl, list);
   host.appendChild(nav);
   startAudio(); host.appendChild(soundButton()); // the Dojo loop already plays on Lab pages (src/ui/music.ts); this gives it the Dojo's Sound button and M key
