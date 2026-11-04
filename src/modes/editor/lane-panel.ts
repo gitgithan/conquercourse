@@ -24,7 +24,6 @@ export interface LanePanelEnv {
   searchClearable: (course: CourseData) => Promise<boolean | null>;
   laneCheck: LaneCheck; verifyVersion: () => number;
   draw: () => void; drawProfile: () => void; save: () => void; verify: () => void;
-  findRepair: () => void;
   remember: () => void; interruptSearch: () => void; launchCourse: (course: CourseData) => void; persistHist: () => void;
 }
 
@@ -35,7 +34,6 @@ export function createLanePanel(env: LanePanelEnv) {
   function drawLanePanel() {
     lanePanel.replaceChildren();
     if (simSays) lanePanel.prepend(simSays.el);
-    el('button', lanePanel, { text: 'Find a repair', id: 'lane-repair-next', className: 'go', title: 'Search for course changes with the simulator, then review them before Apply' }).onclick = () => env.findRepair();
     el('strong', lanePanel, { text: 'The lane the runner takes', title: 'The runner goes left to right along the orange band; the shapes in it are what you see underneath.' }); // the long help line moved here: the panel must fit at 1024 x 640
     const slider = (label: string, id: string, min: number, max: number, step: number, get: () => number, set: (v: number) => void, fmt: (v: number) => string) => {
       const l = el('label', lanePanel, { text: `${label}: ${fmt(get())}` });

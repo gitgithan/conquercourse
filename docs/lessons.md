@@ -323,3 +323,9 @@
 - Stage-specific pills credit both suggestion and checking without implying that every search is a model call.
 - A negative check should lead to a concrete action: Find a repair searches and previews changes.
 - Generic advice to widen a gap points in the wrong direction for many blocked lanes; use the repair workflow instead.
+
+### Shared panels can hide different operations (2026-11-04)
+
+- Find a repair and Ask AI for ideas both opened Course help, which made them look like duplicate actions even though one ran a physics search and the other called Muse Spark Open.
+- The owner chose to remove the standalone repair action; blocked-course guidance now points to Ask AI for ideas.
+- Removing a proposal source does not remove verification: the simulator still checks the exact preview and hands its result through Apply.

@@ -32,7 +32,7 @@ https://github.com/user-attachments/assets/891a2fe2-3eff-49f7-8459-aeff440a24d9
 |---|---|---|
 | 0-10 s | Open https://conquercourse.pages.dev/ and press **Courses**, then run the First Course (arrows or A/D, Space to jump) | A runner on real-object obstacles; falling costs one key press (R) |
 | 10-20 s | Press **I** | The ideal run, found and proved by the simulator, as a ghost to chase |
-| 20-35 s | Open **World Editor** (`?mode=editor`), place a piece, press **Fix it** | The design partner (Muse Spark Open) proposes; the simulator checks and says in plain words what to change |
+| 20-35 s | Open **World Editor** (`?mode=editor`), place a piece, choose **Ask AI for ideas** | The design partner (Muse Spark Open) proposes; the simulator checks and says in plain words what to change |
 | 35-45 s | Open **World Slicer** (`?mode=map`), pin a place | A real street becomes a lane, with Mapillary street photos |
 | 45-60 s | Open **Community** (`?mode=communities`) and press **Segment Objects** on a photo | SAM 3 outlines the objects; pick one and SAM 3D Objects lifts it to a 3D piece (needs the server jobs on; otherwise watch the [promo video](#-promo-video) or read [click by click](docs/community-flow-guide.md)) |
 

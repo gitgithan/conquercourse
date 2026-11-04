@@ -5,7 +5,7 @@ import { EDITOR_ACTIONS, actionTitle } from './editor-actions';
 //  - three levels of button: primary (filled), secondary (outlined), quiet (plain), so the eye finds the important ones first
 //  - the side-view designer (the strip under the picture) gets a strong frame and a title: it is where the run is shaped
 //  - "+ Add pieces" is the first, primary button on the bar (CC-200); Fit is an outlined secondary
-//  - every repair action (Fix it, Make it easier, Look for routes, What should I change?) sits in ONE Fix menu with "when" and "what to expect"
+//  - every improvement action (Make it easier, Find shortcut routes, Ask AI for ideas) sits in ONE Fix menu with "when" and "what to expect"
 //  - a glossary card, open on the first visit, hidden from its own button or the ? button, remembered in localStorage
 // The original buttons keep their ids and stay in the page (hidden), so the Fix menu presses them and nothing else changes.
 
@@ -67,7 +67,7 @@ const CSS = `
   .ed.ux .helper>.row:first-child #closehelper{position:absolute;top:8px;right:8px;min-height:26px;width:26px;padding:0;border-radius:50%;line-height:1}
   .ed.ux .helper>.row:first-child strong{padding-right:30px;grid-column:1/-1;justify-self:start;max-width:calc(100% - 34px);box-sizing:border-box}
   .ed.ux .helper>.row:first-child button:not(#closehelper){grid-row:2;min-height:30px;padding:3px 10px;font-size:12.5px;white-space:nowrap}
-  .ed.ux .helper>.row:first-child #fixit{grid-column:1}.ed.ux .helper>.row:first-child #easier{grid-column:2}
+  .ed.ux .helper>.row:first-child #easier{grid-column:2}
   .ed.ux .helper #advice:empty,.ed.ux .helper #routes:empty{display:none}
   .ed.ux .helper #advice{padding:8px 14px 0;display:grid;gap:6px}
   .ed.ux .helper #advice .row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;align-items:center}
@@ -90,7 +90,7 @@ const CSS = `
   .ed.ux .aside{padding-bottom:8px}
   .ed.ux .helper>.row:first-child{grid-template-columns:repeat(3,auto) minmax(0,1fr);justify-content:start}
   .ed.ux .helper>.row:first-child #suggest{grid-row:2;grid-column:1/-1;min-height:36px;font-size:14px}
-  .ed.ux .helper>.row:first-child #fixit{grid-row:3;grid-column:1}.ed.ux .helper>.row:first-child #easier{grid-row:3;grid-column:2/-1;justify-self:start}
+  .ed.ux .helper>.row:first-child #easier{grid-row:3;grid-column:2/-1;justify-self:start}
   .ed.ux .helper>label{display:flex;align-items:center;gap:8px;padding:8px 14px 0;font-size:13px;color:#33403a}
   .ed.ux .helper>label input{margin:0;flex:none}
   .ed.ux .helper #reply{flex:1 1 0;min-height:120px;font-size:14px}
@@ -172,7 +172,7 @@ export function styleEditor(root: HTMLElement): void {
   const syncFix = () => {
     const s = document.documentElement.dataset.laneClear; // '1' clears, '0' does not, unset not checked yet
     fixBtn.dataset.state = s === '1' ? 'ok' : s === '0' ? 'bad' : '';
-    for (const f of FIXES) items.get(f.id)?.classList.toggle('rec', s === '0' ? f.id === 'fixit' : s === '1' ? f.id === 'easier' : false);
+    for (const f of FIXES) items.get(f.id)?.classList.toggle('rec', s === '0' ? f.id === 'what' : s === '1' ? f.id === 'easier' : false);
   };
   new MutationObserver(syncFix).observe(document.documentElement, { attributes: true, attributeFilter: ['data-lane-clear'] });
   syncFix();

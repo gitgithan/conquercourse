@@ -26,12 +26,11 @@ Levels: primary is filled green, secondary is outlined, quiet is plain text.
 - ... (quiet): Search actions (`/` or Ctrl+K), Reset to the starter scene, labs buttons.
 
 ## The Fix menu (one place for every repair)
-- Fix it: when the check says the runner cannot clear the course; shows the smallest changes as outlines, nothing moves until Apply.
 - Make it easier: when it clears but the hardest press is tight; shows one small change.
-- Look for routes you did not plan: when it works and you wonder if an obstacle can be skipped; about a minute; a list with Close it / Keep it.
-- What should I change?: when you are not sure what is wrong; the design partner suggests edits that the simulator checks in a preview.
+- Find shortcut routes: when it works and you wonder if an obstacle can be skipped; about a minute; a list with Close it / Keep it.
+- Ask AI for ideas: when you are not sure what is wrong; the design partner suggests edits that the simulator checks in a preview.
 - Each item is a stand-in for the original button (same id, hidden), so tests and the palette keep working.
-- Context buttons that appear only when needed stay where they appear: Apply, Cancel (the preview row), Fix it from here (after a partner change blocks the lane), Close it and Keep it (each route), Make it so (a plank that would snap), Use it (drone and launcher advice).
+- Context buttons that appear only when needed stay where they appear: Apply, Cancel (the preview row), Close it and Keep it (each route), Make it so (a plank that would snap), Use it (drone and launcher advice).
 
 ## On the picture
 - Moves card: Add two bars, Start in a trebuchet, What could this be?, Find ways to add the missing moves, Show it.
@@ -81,8 +80,8 @@ Levels: primary is filled green, secondary is outlined, quiet is plain text.
 
 ## Repair guidance and stage-specific engine pills (2026-11-04)
 
-- A blocked lane points to Find a repair and offers that button beside the Simulator result.
-- Find a repair, Make it easier and Find shortcut routes use the simulator directly.
+- A blocked lane points to Ask AI for ideas; there is no separate Find a repair button.
+- Make it easier and Find shortcut routes use the simulator directly.
 - Ask AI for ideas shows Muse Spark Open for its suggestion stage and Simulator for its later Preview check.
 - Model suggestions use the current layout and available simulator findings as context.
 - Badges describe actual stages; the direct simulator tools are not labelled as model calls.

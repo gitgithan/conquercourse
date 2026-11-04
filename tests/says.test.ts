@@ -76,7 +76,7 @@ describe('Simulator says, live', () => {
     verdicts.forEach((v, i) => { const w = editorWords(v); expect(w.state, v).toBe(want[i]); expect(w.words, v).not.toMatch(BANNED_IN_COPY); expect(w.words.length).toBeGreaterThan(10); });
     expect(editorWords(verdicts[2]).words).toMatch(/^I can clear this lane \(2 gaps/);
     expect(editorWords('', 'searching').state).toBe('checking');
-    expect(editorWords(BLOCKED_LANE_GUIDANCE)).toMatchObject({ state: 'blocked', words: expect.stringContaining('Choose Find a repair') });
+    expect(editorWords(BLOCKED_LANE_GUIDANCE)).toMatchObject({ state: 'blocked', words: expect.stringContaining('Choose Ask AI for ideas') });
   });
   it('maps every slicer state to words, and says the length and height', () => {
     for (const k of ['clearable', 'not-clearable', 'checking', 'working', 'none', '']) { const w = slicerWords(k, 90, '12'); expect(w.words, k).not.toMatch(BANNED_IN_COPY); }

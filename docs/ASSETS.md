@@ -925,3 +925,10 @@ Photo dots on the Slicer map (CC-133): no new files; the dots and cones are draw
 | `public/assets/thumbs/lab-wait.webp` | the Hide the wait card picture in the Courses gallery (640x360) | 2026-11-04 | Cropped from our own screenshot of our own page `?mode=lab-wait&labs=1` at 1280 px | None | Ours |
 | `public/assets/lab/determinism-real.json` | recorded results of the game's golden traces on real engines (Node 24 and 22, Chromium, Firefox, WebKit) for Lab 19 | 2026-11-04 | `data/eval/cc-133-determinism-real/` (`modal_run.py`, `compare.mjs`) on Modal CPU containers | None | Ours (hashes and counts only, no third-party content) |
 | `src/ui/labs-icons.ts` | one square picture per Lab (inline SVG, 48 x 48, noon colours), shown in the Labs panel tiles and the slim Labs bar | 2026-11-04 | Drawn by us for this project; no outside picture or font | None | Ours (CC0, inline code) |
+
+## Simplified editor actions (ours, 2026-11-04)
+
+| File | What | Made | How | Cost | Licence and notes |
+| --- | --- | --- | --- | --- | --- |
+| `docs/evidence/editor-no-repair-menu.jpg` | Improve menu with three actions and stage-specific engine pills | 2026-11-04 | Our desktop editor at 1280 px, headless Chromium with the stepped clock | None | Ours; evidence only |
+| `docs/evidence/editor-no-repair-help.jpg` | Course help without the standalone repair button or repair-only checkbox | 2026-11-04 | Same browser check, real simulator and no model calls | None | Ours; evidence only |
