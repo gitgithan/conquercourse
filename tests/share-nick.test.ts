@@ -23,9 +23,9 @@ describe('the nickname in a challenge link (CC-134)', () => {
     const o = await openChallenge(course, param(url!));
     expect(o.ok && o.nick).toBe('Ni.a/Amy-9%');
   });
-  it('cuts to twelve and drops spaces, keeps symbols', () => {
+  it('cuts to sixteen and drops spaces, keeps symbols', () => {
     expect(shownNick(' a-m y!z ')).toBe('a-my!z');
-    expect(shownNick('abcdefghijklmnop')).toBe('abcdefghijkl');
+    expect(shownNick('abcdefghijklmnopqrst')).toBe('abcdefghijklmnop');
   });
   it('refuses a blocked word, also with digits for letters', () => {
     for (const bad of ['ass', 'ASS', 'a55', 'f4g', 'S3X', 'fuk']) expect(nickOk(bad), bad).toBe(false);

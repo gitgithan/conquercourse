@@ -18,14 +18,14 @@ const send = async (db: unknown, n: number, nick: string) => {
 };
 const top = async (db: unknown) => ((await (await boardGet({ request: new Request(`https://x/api/leaderboard?course=demo/training&hash=${hash}`), env: { DB: db } as never })).json()) as { top: { nick: string }[] }).top;
 
-// every one is cut to twelve characters, so the dangerous part is put first
+// every one is cut to sixteen characters, so the dangerous part is put first
 const ATTACKS = [`';DROP TABLE course_clears;--`, `" OR 1=1 --`, `x');DELETE FROM course_clears;--`, `<script>alert(1)</script>`, `<img/src=x>`, `%00%27\\'"`, `a.b.c/d?e=f&g`, `Zed_9-Ace!@#$%^&*`];
 
 describe('the name', () => {
-  it('keeps upper and lower case, digits and symbols; drops spaces and anything outside printable ASCII; cuts to twelve', () => {
-    expect(tidyNick('Ab9!@#$%^&*()_+-=')).toBe('Ab9!@#$%^&*(');
+  it('keeps upper and lower case, digits and symbols; drops spaces and anything outside printable ASCII; cuts to sixteen', () => {
+    expect(tidyNick('Ab9!@#$%^&*()_+-=')).toBe('Ab9!@#$%^&*()_+-');
     expect(tidyNick(' a b\tc\u0000é😀d ')).toBe('abcd');
-    expect(tidyNick('abcdefghijklmnop')).toBe('abcdefghijkl');
+    expect(tidyNick('abcdefghijklmnopqrst')).toBe('abcdefghijklmnop');
   });
   it('still refuses blocked words, also written with symbols', () => {
     for (const bad of ['a$$', 'sh!t', 'S3X', 'f.u.c.k', 'N4zi!']) expect(nickOk(bad), bad).toBe(false);
