@@ -6,7 +6,10 @@
   "a": {
     "clip": "1a-drop-a-pin",
     "overlay": "Drop a pin anywhere",
-    "startCenter": [-40, 18],
+    "startCenter": [
+      -40,
+      18
+    ],
     "startZoom": 0.9,
     "endZoom": 16.4,
     "zoomSecs": 3.4,

@@ -159,7 +159,7 @@ describe('the worker job gives the same suggestions as the plain search (CC-133)
     const ps = wallWorld();
     const plain = suggestRoles(ps, flat, { budgetMs: 60000 });
     const msgs: unknown[] = [];
-    runRolesJob({ id: 7, pieces: JSON.parse(JSON.stringify(ps)), lane: flat, opts: { budgetMs: 60000 } }, (m) => msgs.push(m));
+    runRolesJob({ id: 7, pieces: structuredClone(ps), lane: flat, opts: { budgetMs: 60000 } }, (m) => msgs.push(m));
     const last = msgs[msgs.length - 1] as { id: number; items: unknown };
     expect(last.id).toBe(7);
     expect(JSON.stringify(last.items)).toBe(JSON.stringify(plain));
