@@ -1,0 +1,308 @@
+[
+  {
+    "id": "m1",
+    "category": 1,
+    "when": "10-27 04:17",
+    "title": "The first commit",
+    "text": "The plan, the two Rookie characters and the physics sayings.",
+    "kind": "text"
+  },
+  {
+    "id": "m2",
+    "category": 1,
+    "when": "10-27 11:56",
+    "title": "The Dojo opens",
+    "text": "Five experiments you can play with: guess, then run.",
+    "kind": "picture",
+    "image": "../assets/thumbs/dojo-gap.webp"
+  },
+  {
+    "id": "m3",
+    "category": 1,
+    "when": "10-27 13:43",
+    "title": "A photo becomes a 3D object",
+    "text": "SAM 3 cuts the thing out and SAM 3D Objects lifts it to 3D.",
+    "kind": "text"
+  },
+  {
+    "id": "m4",
+    "category": 1,
+    "when": "10-27 15:05",
+    "title": "First public site",
+    "text": "Live on Cloudflare Pages, with a feedback button.",
+    "kind": "text"
+  },
+  {
+    "id": "m5",
+    "category": 1,
+    "when": "10-29 06:25",
+    "title": "Muse Wonder checks the simulator",
+    "text": "It read our physics and checked 21 claims. 13 were real.",
+    "kind": "stat",
+    "stat": "13 of 21",
+    "caption": "claims were real; 2 were fixed at once"
+  },
+  {
+    "id": "m6",
+    "category": 1,
+    "when": "11-01 18:55",
+    "title": "The character maker names its models",
+    "text": "The badge shows Muse Image, SAM 3.1 and SAM 3D Objects.",
+    "kind": "text"
+  },
+  {
+    "id": "t1",
+    "category": 2,
+    "when": "10-28 02:31",
+    "title": "Monkey bars",
+    "text": "Bars in the air: grab, hang like a pendulum, pump, let go.",
+    "kind": "picture",
+    "image": "../assets/thumbs/dojo-bars.webp"
+  },
+  {
+    "id": "t2",
+    "category": 2,
+    "when": "10-28 14:25",
+    "title": "Full-circle swings",
+    "text": "On the lache bar the body can turn all the way round.",
+    "kind": "stat",
+    "stat": "5.5",
+    "caption": "body weights of grip: the most a full circle asks for"
+  },
+  {
+    "id": "t3",
+    "category": 2,
+    "when": "10-29 05:18",
+    "title": "Lab 1: four search engines",
+    "text": "Greedy, beam, A* and exhaustive search run on the real simulator.",
+    "kind": "picture",
+    "image": "../assets/thumbs/lab-search.webp"
+  },
+  {
+    "id": "t4",
+    "category": 2,
+    "when": "11-03 14:36",
+    "title": "The fork course",
+    "text": "Two lanes over one picture: a bench lane and a pole-and-bulb lane.",
+    "kind": "picture",
+    "image": "../assets/thumbs/fork-bench-bulb.webp"
+  },
+  {
+    "id": "t5",
+    "category": 2,
+    "when": "11-04 16:05",
+    "title": "Lab 18: World Slicer",
+    "text": "From a map to a lane, with the simulator trying it.",
+    "kind": "picture",
+    "image": "../assets/thumbs/lab-slicer.webp"
+  },
+  {
+    "id": "u1",
+    "category": 3,
+    "when": "10-29 18:46",
+    "title": "A warmer Dojo",
+    "text": "A warm light look, four steps and one graph.",
+    "kind": "text"
+  },
+  {
+    "id": "u2",
+    "category": 3,
+    "when": "10-31 15:05",
+    "title": "Make your own, in five steps",
+    "text": "Photo, Mark, Segment, Choose, Make.",
+    "kind": "picture",
+    "image": "timeline/stepper-mark.jpg"
+  },
+  {
+    "id": "u3",
+    "category": 3,
+    "when": "11-01 17:52",
+    "title": "A clearer cut slider",
+    "text": "It now says: Hide everything below this height.",
+    "kind": "text"
+  },
+  {
+    "id": "u4",
+    "category": 3,
+    "when": "11-03 01:44",
+    "title": "A new sound for the Dojo and Labs",
+    "text": "A xylophone cave loop, made by us, replaced a track we could not use.",
+    "kind": "picture",
+    "wave": [
+      0.24,
+      0.19,
+      0.15,
+      0.21,
+      0.15,
+      0.15,
+      0.14,
+      0.17,
+      0.17,
+      0.17,
+      0.2,
+      0.17,
+      0.19,
+      0.17,
+      0.17,
+      0.19,
+      0.21,
+      0.14,
+      0.1,
+      0.11,
+      0.07,
+      0.06,
+      0.08,
+      0.08,
+      0.08,
+      0.08,
+      0.1,
+      0.15,
+      0.15,
+      0.23,
+      0.19,
+      0.2,
+      0.16,
+      0.16,
+      0.16,
+      0.19,
+      0.16,
+      0.18,
+      0.18,
+      0.18,
+      0.16,
+      0.19,
+      0.17,
+      0.17,
+      0.18,
+      0.18,
+      0.2,
+      0.19
+    ]
+  },
+  {
+    "id": "u5",
+    "category": 3,
+    "when": "11-04 23:18",
+    "title": "A calmer code map",
+    "text": "Thinner edges and a slider that hides small groups.",
+    "kind": "text"
+  },
+  {
+    "id": "b1",
+    "category": 4,
+    "when": "10-28 16:14",
+    "title": "The vault teleport",
+    "text": "The runner jumped in a blink. Now position and speed stay smooth every tick.",
+    "kind": "stat",
+    "stat": "36",
+    "caption": "vault cases tested for no teleport"
+  },
+  {
+    "id": "b2",
+    "category": 4,
+    "when": "10-29 22:51",
+    "title": "The ghost hid the player",
+    "text": "The ghost covered the player's colours, so it is now drawn behind.",
+    "kind": "text"
+  },
+  {
+    "id": "b3",
+    "category": 4,
+    "when": "11-03 18:36",
+    "title": "A key clash",
+    "text": "T was the right hand on the bars, so the Dojo key moved to L.",
+    "kind": "text"
+  },
+  {
+    "id": "b4",
+    "category": 4,
+    "when": "11-03 19:41",
+    "title": "Floor in the gaps",
+    "text": "The fork course had floor between the benches. Now there are pits.",
+    "kind": "picture",
+    "image": "timeline/fork-pits.jpg"
+  },
+  {
+    "id": "b5",
+    "category": 4,
+    "when": "10-29 07:17",
+    "title": "Repeated pictures in a clip",
+    "text": "The proof clip now takes every frame and checks for repeats.",
+    "kind": "text"
+  },
+  {
+    "id": "p1",
+    "category": 5,
+    "when": "10-26 22:08",
+    "title": "Faces masked first",
+    "text": "Faces are hidden before any motion is read from the first clips.",
+    "kind": "text"
+  },
+  {
+    "id": "p2",
+    "category": 5,
+    "when": "10-30 14:38",
+    "title": "No personal details in the repo",
+    "text": "A rule and an automatic check keep them out.",
+    "kind": "text"
+  },
+  {
+    "id": "p3",
+    "category": 5,
+    "when": "11-01 05:54",
+    "title": "Street photos, live only",
+    "text": "We use Mapillary's own blur, skip close-ups and never store the pictures.",
+    "kind": "picture",
+    "diagram": "mapillary"
+  },
+  {
+    "id": "p4",
+    "category": 5,
+    "when": "11-01 00:00",
+    "title": "A smaller promise",
+    "text": "Photo to course was cut, so the game asks for less.",
+    "kind": "text"
+  },
+  {
+    "id": "x1",
+    "category": 6,
+    "when": "10-27 04:17",
+    "title": "Rules and linked issues",
+    "text": "CLAUDE.md sets the rules, and every task links to what it needs.",
+    "kind": "text"
+  },
+  {
+    "id": "x2",
+    "category": 6,
+    "when": "10-27 12:05",
+    "title": "One command to ship",
+    "text": "Test, rebase, open a pull request, merge.",
+    "kind": "text",
+    "lines": [
+      "$ ship",
+      "tests ........ ok",
+      "rebase ....... ok",
+      "pull request . opened",
+      "merge ........ done"
+    ]
+  },
+  {
+    "id": "x3",
+    "category": 6,
+    "when": "11-04 23:18",
+    "title": "A map of the whole code",
+    "text": "Every file and how they connect, in groups you can open.",
+    "kind": "picture",
+    "image": "../assets/thumbs/making-code-map.webp"
+  },
+  {
+    "id": "x4",
+    "category": 6,
+    "when": "10-27 to 11-05",
+    "title": "Rented test machines",
+    "text": "Cloud machines ran our tests and renders.",
+    "kind": "stat",
+    "stat": "8",
+    "caption": "cloud machines counted on 11-05, some only short-lived"
+  }
+]
