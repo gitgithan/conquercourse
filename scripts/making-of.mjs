@@ -230,7 +230,7 @@ function shell({ title, file, body, script = '', css = '', wide = false, cleanId
 <a href="site-map.html">Site map</a>
 <a href="course-map.html">Course map</a>
 <a href="code-map.html">Code map</a>
-<a href="timeline.html">Timeline</a>
+<a href="timeline.html">The Grand Entrance</a>
 <a href="/">Back to the game</a>
 <span class="sp"></span>
 ${download ? '<span class="dl"><button type="button" id="dl-page">Download this page (.html)</button></span>' : ''}
@@ -255,7 +255,7 @@ function indexPage(stats) {
 <a class="card" href="site-map.html"><h2>Site map</h2><p>Every screen a player can see, how to get there and where it leads, with six short journeys such as making your own course.</p><p class="note">Search, open and close branches, follow a journey.</p></a>
 <a class="card" href="course-map.html"><h2>Course map</h2><p>${stats.n} building tasks of the project in plan order, with what each one is for and which ones wait on which.</p><p class="note">Search, filter by state, jump between linked tasks.</p></a>
 <a class="card" href="code-map.html"><h2>Code map</h2><p>The whole codebase as a graph of related files and symbols, grouped into communities you can open one by one.</p><p class="note">Click a group to see its files. Needs an internet connection to draw.</p></a>
-<a class="card" href="timeline.html"><h2>Timeline</h2><p>Walk a tunnel of cards, from the first commit to today, then step out onto the Training course.</p><p class="note">Hold W or scroll to walk. Space walks for you.</p></a>
+<a class="card" href="timeline.html"><h2>The Grand Entrance</h2><p>Walk a tunnel of cards, from the first commit to today, then step out onto the Training course.</p><p class="note">Hold W or scroll to walk. Space walks for you.</p></a>
 <a class="card" href="../?mode=parts"><h2>How a course is made</h2><p>See the real pieces of a course play live, and how they snap together into a run.</p><p class="note">Opens the game, on the Parts gallery.</p></a>
 </div>`;
   return shell({ title: 'The Making Of', file: 'making-of.html', body, download: false });

@@ -121,7 +121,7 @@ describe('the menu stays small (CC-97)', () => {
   it('The Making Of group: four real links with a picture each, plus the Parts card; ?making=0 hides the links, ?parts=0 the Parts card', () => {
     expect(makingOfOn(new URLSearchParams(''))).toBe(true);
     expect(makingOfOn(new URLSearchParams('making=0'))).toBe(false);
-    expect(MAKING_OF_CARDS.map((c) => c[1])).toEqual(['Site map', 'Course map', 'Code map', 'Timeline']);
+    expect(MAKING_OF_CARDS.map((c) => c[1])).toEqual(['Site map', 'Course map', 'Code map', 'The Grand Entrance']);
     expect(timelineCardOn(new URLSearchParams(''))).toBe(true);
     expect(timelineCardOn(new URLSearchParams('timeline=0'))).toBe(false);
     expect(DEMOS.some(([v]) => v === 'parts')).toBe(true);

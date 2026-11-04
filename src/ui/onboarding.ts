@@ -2,7 +2,7 @@
 // The Course keeps its own keys: while the tour is open the game waits (the same event the Courses gallery uses),
 // the camera keys still work so the first step can be tried, and every other key only lights up its chip.
 import type { CourseData } from '../course/course';
-import { FALL_SEEN, NEXT_SEEN, TOUR_DONE, TOUR_STEP_S, onboardingOn, type Store } from './onboarding-flags';
+import { FALL_SEEN, NEXT_SEEN, TOUR_DONE, TOUR_STEP_S, onboardingOn, entranceOn, type Store } from './onboarding-flags';
 
 export interface Move { keys: string[]; label: string; codes: string[] }
 
@@ -61,6 +61,7 @@ const CSS = `
 #tour .place:hover,#tour .place:focus-visible{border-color:#0f6b5c;background:#f0f8f5}
 #tour .place svg{grid-row:span 2;width:34px;height:34px;color:#0f6b5c}
 #tour .place b{font:700 14px system-ui,sans-serif}#tour .place span{font-size:12.5px;color:#58635d;line-height:1.25}
+#tour .place.wide{grid-column:span 2;grid-template-columns:64px 1fr}#tour .place .pic{grid-row:span 2;width:64px;height:36px;object-fit:cover;border-radius:6px}
 #tour .hop{width:100%;height:42px}
 #chelp{position:fixed;z-index:60;right:16px;top:236px;width:36px;height:36px;border-radius:50%;border:2px solid #17201d;background:#fff;color:#17201d;font:800 18px system-ui,sans-serif;cursor:pointer;box-shadow:0 2px 8px #0003}
 #chelp:focus-visible{outline:3px solid #f0b400;outline-offset:2px}
@@ -152,11 +153,13 @@ export function startOnboarding(env: OnboardingEnv): Onboarding {
     if (s.chips.length) { const row = h('div', { cls: 'chips' }); s.chips.forEach(([k, l]) => { const c = chip(k, l); c.dataset.keys = k; row.append(c); }); card.append(row); }
     if (s.extra === 'places') {
       const place = (icon: string, name: string, line: string, go: () => void) => { const b = h('button', { cls: 'place', type: 'button' }, svgIcon(icon), h('b', {}, name), h('span', {}, line)); b.onclick = go; return b; };
+      const grand = (go: () => void) => { const img = new Image(); img.src = '/assets/thumbs/making-timeline.webp'; img.alt = ''; img.className = 'pic'; const b = h('button', { cls: 'place wide', type: 'button' }, img, h('b', {}, 'The Grand Entrance'), h('span', {}, 'Walk the story of how this game was made.')); b.onclick = go; return b; };
       card.append(h('div', { cls: 'places' },
         place(ICON.courses, 'Courses', 'Pick any course by picture.', () => { finish(); env.openCourses(); }),
         place(ICON.editor, 'World Editor', 'Build your own course.', () => goTo(env.store, '?mode=editor')),
         place(ICON.explorer, 'World Slicer', 'Any real place becomes a course.', () => goTo(env.store, '?mode=map')),
-        place(ICON.community, 'Community', 'Play what others built.', () => goTo(env.store, '?mode=gallery'))));
+        place(ICON.community, 'Community', 'Play what others built.', () => goTo(env.store, '?mode=gallery')),
+        ...(entranceOn(env.params, location.hostname) ? [grand(() => { location.href = '/making-of/timeline.html'; })] : [])));
     }
     const bar = h('div', { cls: 'bar' }, h('b', {})); bar.style.setProperty('--s', `${stepS}s`);
     const next = btn(last ? "Let's go" : 'Next', () => (last ? finish() : show(i + 1)), true); next.id = 'tour-next';
