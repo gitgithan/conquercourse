@@ -43,3 +43,7 @@ docs/promo/
 scripts/film-d/out/
 **/post.md
 **/poster.jpg
+
+# videos live in ../conquercourse-assets/videos-untracked (owner 2026-11-04)
+docs/evidence/**/*.mp4
+data/eval/**/*.mp4

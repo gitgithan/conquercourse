@@ -89,7 +89,7 @@ stateDiagram-v2
 
 *Notice: the recorded run is a real path from the simulator, so a reader can see where the body lets go and where it lands on the row.*
 
-- A short clip of the same run, drawn from the simulator one picture per four ticks (a stepped clock): [swing-to-bars.mp4](evidence/lessons/swing-to-bars.mp4).
+- A short clip of the same run, drawn from the simulator one picture per four ticks (a stepped clock): swing-to-bars.mp4 (video kept outside git).
 
 ![Four snapshots of the recorded run: run, hang on the bar, flight, monkey bars.](evidence/lessons/swing-to-bars-sheet.png)
 
@@ -114,12 +114,12 @@ stateDiagram-v2
 
 *Notice: the two coloured arms take turns, and the hips stay under the hands.*
 
-- Clips: [travel](../data/eval/bar-motion/evidence/bars_travel.mp4) and [idle](../data/eval/bar-motion/evidence/bars_idle.mp4); the full story and the ranked next steps are in [data/eval/bar-motion/README.md](../data/eval/bar-motion/README.md).
+- Clips: travel (video kept outside git) and idle (video kept outside git); the full story and the ranked next steps are in [data/eval/bar-motion/README.md](../data/eval/bar-motion/README.md).
 - The pose now drives the actor on the bars (hook `src/motion/bars-actor.ts`, always on), the hands on the rungs the world says they hold:
 
 ![The actor's bars pose on the recorded demo run: eight frames, the left hand red and the right hand blue travelling along the rungs.](evidence/bars-pose-sheet.jpg)
 
-*Notice: the hands sit on rungs and the body swings under them; the legs still look like a stick figure.* Clip: [bars-pose.mp4](evidence/bars-pose.mp4).
+*Notice: the hands sit on rungs and the body swings under them; the legs still look like a stick figure.* Clip: bars-pose.mp4 (video kept outside git).
 - The switch: `?bars=1` shows the Monkey bars editor piece; a course that already has monkey bars always plays them (`src/switches.ts`).
 - The key card shows a "Q  T" row only on a course that has monkey bars.
 - The Parts gallery row lists the code, the saying and the bits it covers ([parts-gallery.md](parts-gallery.md)).
