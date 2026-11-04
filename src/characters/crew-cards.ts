@@ -8,7 +8,7 @@ export interface CrewCard {
   /** A stable key: the cast id, or rookie-a / rookie-b. */
   key: string;
   name: string;
-  /** The picture shown first, and kept if the 3D loop cannot run; null for a Rookie (it has no picture file, the card draws a colour disc). */
+  /** The picture shown first (the T-pose), and kept if the 3D loop cannot run. */
   thumb: string | null;
   /** The model file for a cast character; null for a Rookie. */
   model: string | null;
@@ -24,7 +24,7 @@ interface CastItem { id: string; name: string; prompt: string; thumb: string }
 /** Ten cards: the eight starter cast first, then the two Rookies. Names come from the cast list and the Rookie voices, never typed twice. */
 export function crewCards(items: CastItem[]): CrewCard[] {
   const cast = items.map((c): CrewCard => ({ key: c.id, name: c.name, thumb: `${CAST_BASE}/${c.thumb}`, model: castUrl(c.id), rookie: 'a', accent: '#0f6b5c', blurb: c.prompt }));
-  const rookie = (r: 'a' | 'b', v: 'pip' | 'juno'): CrewCard => ({ key: `rookie-${r}`, name: VOICES[v].name, thumb: null, model: null, rookie: r, accent: VOICES[v].accent, blurb: VOICES[v].poweredBy });
+  const rookie = (r: 'a' | 'b', v: 'pip' | 'juno'): CrewCard => ({ key: `rookie-${r}`, name: VOICES[v].name, thumb: `${CAST_BASE}/${v}.webp`, model: null, rookie: r, accent: VOICES[v].accent, blurb: VOICES[v].poweredBy });
   return [...cast, rookie('a', 'pip'), rookie('b', 'juno')];
 }
 

@@ -1,9 +1,9 @@
-// Meet the crew (owner request, 2026-11-03): ten cards, one per built-in character, each with a name and a short run loop,
-// and the character maker one press away. The "X says" pills are not here: they show up on the page where each one speaks.
+// Meet the crew (owner request, 2026-11-03; split in two 2026-11-04): Main Characters (ten runners, each with a T-pose picture and a short run loop,
+// and the character maker one press away) and Supporting Characters (the AI and the simulator behind the game, with the legend of where each one speaks).
 // ?crewcards=old brings back the strip of voice pills (src/ui/says.ts).
 import { flag } from '../flags';
 import { closeOnBackdrop } from './backdrop';
-import { openCrewDialog as openCrewStrip } from './says';
+import { openCrewDialog as openCrewStrip, meetTheCrew, saysOn } from './says';
 import { loadCrewCards, startCrewLoop, type CrewCard, type CrewLoop } from '../characters/crew-cards';
 import { openCharacterPanel } from '../characters/panel';
 import { saveChoice } from '../characters/runner';
@@ -17,7 +17,11 @@ const CSS = `
 #crew-dialog .cc-sub{margin:0;color:#44504a;font-size:15px}
 #crew-dialog button.cc-make{font:800 16px system-ui,sans-serif;border:3px solid #17201d;border-radius:999px;padding:7px 18px;background:#ffd23f;color:#17201d;box-shadow:0 3px 0 #17201d;cursor:pointer}
 #crew-dialog button.cc-close{justify-self:end;font:700 15px system-ui,sans-serif;border:0;border-radius:10px;padding:8px 18px;background:#0f6b5c;color:#fff;cursor:pointer}
-#crew-cards{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px;margin:0;padding:2px;list-style:none;overflow:auto;min-height:0;align-content:start}
+#crew-body{overflow:auto;min-height:0;display:grid;gap:14px;align-content:start;padding:2px}
+#crew-dialog h3{margin:0;font-size:19px}
+#crew-dialog .cc-sec{display:grid;gap:8px}
+#crew-dialog .cc-sec>p{margin:0;color:#44504a;font-size:14px}
+#crew-cards{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px;margin:0;padding:2px;list-style:none;align-content:start}
 #crew-cards>li{display:grid;justify-items:center;gap:4px;padding:8px 6px 10px;border-radius:12px;background:#fff;border:1px solid #d6ddd6;border-top:5px solid var(--a)}
 #crew-cards .cc-pic{position:relative;width:min(150px,100%);aspect-ratio:1;border-radius:10px;background:#e1e7e2;overflow:hidden;display:grid;place-items:center}
 #crew-cards .cc-pic>*{position:absolute;inset:0;width:100%;height:100%;object-fit:contain}
@@ -51,10 +55,21 @@ export function openCrewDialog(doc: Document = document): HTMLElement {
   const h = doc.createElement('h2'); h.textContent = 'Meet the crew';
   const make = doc.createElement('button'); make.type = 'button'; make.id = 'crew-make'; make.className = 'cc-make'; make.textContent = 'Make a character';
   top.append(h, make);
-  const p = doc.createElement('p'); p.className = 'cc-sub'; p.textContent = 'Ten runners ship with the game. Describe your own and it joins them.';
+  const p = doc.createElement('p'); p.className = 'cc-sub'; p.textContent = 'Who you play, and who helps behind the scenes.';
+  const body = doc.createElement('div'); body.id = 'crew-body';
+  const main = doc.createElement('section'); main.className = 'cc-sec'; main.id = 'crew-main';
+  const mh = doc.createElement('h3'); mh.textContent = 'Main Characters';
+  const mp = doc.createElement('p'); mp.textContent = 'Ten runners ship with the game. Describe your own and it joins them.';
   const list = doc.createElement('ul'); list.id = 'crew-cards'; list.setAttribute('aria-label', 'The ten built-in characters');
+  main.append(mh, mp, list); body.append(main);
+  if (saysOn()) {
+    const sup = doc.createElement('section'); sup.className = 'cc-sec'; sup.id = 'crew-supporting';
+    const sh = doc.createElement('h3'); sh.textContent = 'Supporting Characters';
+    const sp = doc.createElement('p'); sp.textContent = 'The AI and the simulator behind the checks, the cut-outs and the characters. Every message in the game says who is speaking.';
+    sup.append(sh, sp, meetTheCrew(doc)); body.append(sup);
+  }
   const close = doc.createElement('button'); close.type = 'button'; close.id = 'crew-close'; close.className = 'cc-close'; close.textContent = 'Close';
-  card.append(top, p, list, close); shade.append(card); doc.body.append(shade);
+  card.append(top, p, body, close); shade.append(card); doc.body.append(shade);
 
   const canvases = new Map<string, HTMLCanvasElement>();
   let loop: CrewLoop | null = null, shut = false;

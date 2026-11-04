@@ -1,4 +1,4 @@
-import { addBadge, meetTheCrew, saysOn } from '../ui/says';
+import { addBadge } from '../ui/says';
 import { JobError, liftObject, piecesToday, shrinkPhoto, type Shrunk } from '../slice/object-lift-client';
 import { LIFT_STEPS, SEGMENT_STEPS } from '../slice/stages';
 import { jobProgress } from '../ui/job-progress';
@@ -185,7 +185,6 @@ export function startCommunityFlow(host: HTMLElement, params: URLSearchParams): 
       };
       await loadPage(true);
     })();
-    if (saysOn()) { const cr = sec('Meet the crew', 'Every message in the game says who is speaking. These are the guys behind the checks, the cut-outs and the characters.', 'ex-crew'); cr.append(meetTheCrew()); } // CC-243
   }
 
   function photos() {
