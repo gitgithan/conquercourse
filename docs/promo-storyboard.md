@@ -106,6 +106,7 @@
 - Overlay "Add moves by tweaking obstacles" (7 s max):
   - Click Moves, then Find ways to add missing moves, then Show it; mouse over to highlight the suggested changes.
   - Close the Design partner, click Play this lane, and end on a natural transition into the next scene.
+  - For that transition, use the already prepared "Bench lane or bulb lane" course (`public/assets/demo/fork-bench-bulb.course.json`, with its drawn pole) and not the course the editor builds (owner, 2026-11-05).
   - The wait at Find ways is cut after filming (the hang is fixed in PR 806).
 - Total: about 31 s with the caps above; time still to be confirmed by the owner.
 - **Music lane:** not decided.
