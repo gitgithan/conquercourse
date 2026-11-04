@@ -1,0 +1,107 @@
+import type { Mesh } from "../../slice/slice";
+
+// Lab 14: Cut-out and lift, then bake (pipeline stages 2 to 3 of the photo-to-object path).
+// The real bake runs on the CPU in pipelines/ccpipe (Python) on a raw lift that came from a GPU, and the raw lifts are too big to ship.
+// So this file writes the bake RULES from docs/pipelines.md step 4 in TypeScript, and the Lab proves them on a recorded, baked game object:
+// "unbake" a recorded GLB into a raw-looking lift (z up, turned, tilted by the camera layout, wrong size, off the ground), then bake it again and check we get the recorded object back.
+
+export const FACE_CAP = 6000;
+/** Typical heights per label, metres (docs/pipelines.md step 4). */
+export const TYPICAL_HEIGHT: Record<string, number> = { bench: 0.8, wall: 0.9, "low wall": 0.9, rail: 1.0, handrail: 1.0, ledge: 0.5, platform: 0.5, steps: 0.7, stairs: 0.7 };
+export const typicalHeight = (label: string): number | null => TYPICAL_HEIGHT[label.trim().toLowerCase()] ?? null;
+
+export interface Steps { noLayout: boolean; upright: boolean; face: boolean; ground: boolean; reduce: boolean; scale: boolean; colour: boolean }
+export const ALL_STEPS: Steps = { noLayout: true, upright: true, face: true, ground: true, reduce: true, scale: true, colour: true };
+export const STEP_NAMES: { key: keyof Steps; name: string; rule: string; breaks: string }[] = [
+  { key: "noLayout", name: "Ignore the camera layout", rule: "The lift also gives a layout (turn, move, size in the camera's frame). The layout tilts the object by the camera's pitch, so the bake does not apply it.", breaks: "The object leans back by the camera's tilt, so its top is no longer flat and its height is wrong." },
+  { key: "upright", name: "Turn z-up to y-up", rule: "The lift's mesh stands upright with z as up. The game has y as up, so turn it a quarter turn.", breaks: "The object lies on its side: its height becomes its depth." },
+  { key: "face", name: "Face the side camera", rule: "Turn it about the vertical until its flat box on the floor is the smallest possible, with the longer side along x (the side camera's view).", breaks: "The object stays at whatever angle the lift gave it, so the side camera sees it cut across." },
+  { key: "ground", name: "Centre and stand on the ground", rule: "Move it so its middle is at x = 0, z = 0 and its lowest point is at y = 0.", breaks: "The object floats, or sinks, or sits off to one side of where the course expects it." },
+  { key: "reduce", name: "Reduce to 6,000 faces", rule: "Merge triangles (quadric reduction, tried again until under the cap) so a browser draws many objects.", breaks: "The object keeps its raw triangles: 84,204 to 387,796 of them for our four photos, many times what the game allows." },
+  { key: "scale", name: "Scale to the typed height", rule: "Scale so the height is the number typed, else the typical height for the label.", breaks: "The object keeps the lift's own size, which is a guess in arbitrary units (a bench at 0.42)." },
+  { key: "colour", name: "Take colour from the splat", rule: "Each texel of a 1024 x 1024 picture is coloured from its 4 nearest Gaussians (degree-0 colour 0.5 + 0.282 x dc).", breaks: "The object is plain grey." },
+];
+
+export interface Raw { mesh: Mesh; rawFaces: number; layoutPitchDeg: number }
+export interface Bounds { min: [number, number, number]; max: [number, number, number]; size: [number, number, number] }
+
+export function bounds(m: Mesh): Bounds {
+  const p = m.positions, min: [number, number, number] = [Infinity, Infinity, Infinity], max: [number, number, number] = [-Infinity, -Infinity, -Infinity];
+  for (let i = 0; i < p.length; i += 3) for (let k = 0; k < 3; k++) { if (p[i + k] < min[k]) min[k] = p[i + k]; if (p[i + k] > max[k]) max[k] = p[i + k]; }
+  return { min, max, size: [max[0] - min[0], max[1] - min[1], max[2] - min[2]] };
+}
+export const faceCount = (m: Mesh): number => (m.indices ? m.indices.length / 3 : m.positions.length / 9);
+
+const map = (m: Mesh, f: (x: number, y: number, z: number) => [number, number, number]): Mesh => {
+  const p = m.positions, out: number[] = new Array(p.length);
+  for (let i = 0; i < p.length; i += 3) { const r = f(p[i], p[i + 1], p[i + 2]); out[i] = r[0]; out[i + 1] = r[1]; out[i + 2] = r[2]; }
+  return { positions: out, indices: m.indices };
+};
+const rad = (d: number) => (d * Math.PI) / 180;
+
+export interface UnbakeRecipe { yawDeg: number; pitchDeg: number; rawHeight: number; rawFaces: number; offset: [number, number, number] }
+/** Turn a baked game object back into something that looks like a raw lift: z up, turned about the vertical, off the ground, in the lift's own size, carrying the camera layout's tilt. */
+export function unbake(baked: Mesh, r: UnbakeRecipe): Raw {
+  const b = bounds(baked), s = r.rawHeight / b.size[1], c = Math.cos(rad(r.yawDeg)), sn = Math.sin(rad(r.yawDeg));
+  const mesh = map(baked, (x, y, z) => {
+    // y-up to z-up: (x, y, z) -> (x, -z, y), then turn about z, then scale, then move off the ground
+    const ux = x, uy = -z, uz = y;
+    const tx = ux * c - uy * sn, ty = ux * sn + uy * c;
+    return [tx * s + r.offset[0], ty * s + r.offset[1], uz * s + r.offset[2]];
+  });
+  return { mesh, rawFaces: r.rawFaces, layoutPitchDeg: r.pitchDeg };
+}
+
+export interface BakeOptions { label: string; typedHeight: number | null; steps: Steps }
+export interface BakeResult { mesh: Mesh; size: [number, number, number]; heightM: number; scaleSource: string; factor: number; faces: number; minY: number; centreOffset: number; tiltDeg: number; yawDeg: number }
+
+/** The bake rules, in the order the pipeline applies them. Each step can be switched off to see what it was for. */
+export function bake(raw: Raw, o: BakeOptions): BakeResult {
+  const st = o.steps;
+  let m = raw.mesh, tilt = 0;
+  if (!st.noLayout) { const c = Math.cos(rad(raw.layoutPitchDeg)), s = Math.sin(rad(raw.layoutPitchDeg)); m = map(m, (x, y, z) => [x, y * c - z * s, y * s + z * c]); tilt = raw.layoutPitchDeg; } // applying the layout: tilt about x
+  if (st.upright) m = map(m, (x, y, z) => [x, z, -y]); // z up to y up
+  let yaw = 0;
+  if (st.face) {
+    let best = Infinity;
+    for (let d = 0; d < 180; d += 0.5) { // smallest horizontal bounding box over turns about the vertical
+      const c = Math.cos(rad(d)), s = Math.sin(rad(d));
+      const t = map(m, (x, y, z) => [x * c - z * s, y, x * s + z * c]), b = bounds(t), area = b.size[0] * b.size[2];
+      if (area < best - 1e-12) { best = area; yaw = d; }
+    }
+    const c = Math.cos(rad(yaw)), s = Math.sin(rad(yaw));
+    m = map(m, (x, y, z) => [x * c - z * s, y, x * s + z * c]);
+    const b = bounds(m);
+    if (b.size[2] > b.size[0]) m = map(m, (x, y, z) => [z, y, -x]); // longer side along x
+  }
+  if (st.ground) { const b = bounds(m); m = map(m, (x, y, z) => [x - (b.min[0] + b.max[0]) / 2, y - b.min[1], z - (b.min[2] + b.max[2]) / 2]); }
+  const target = o.typedHeight ?? typicalHeight(o.label), h0 = bounds(m).size[1];
+  let factor = 1, source = "none (the lift's own size)";
+  if (st.scale && target !== null && h0 > 0) { factor = target / h0; source = o.typedHeight !== null ? "typed" : `typical:${o.label.trim().toLowerCase()}`; m = map(m, (x, y, z) => [x * factor, y * factor, z * factor]); }
+  const b = bounds(m);
+  return { mesh: m, size: b.size, heightM: b.size[1], scaleSource: source, factor, faces: st.reduce ? Math.min(raw.rawFaces, FACE_CAP) : raw.rawFaces, minY: b.min[1], centreOffset: Math.hypot((b.min[0] + b.max[0]) / 2, (b.min[2] + b.max[2]) / 2), tiltDeg: tilt, yawDeg: yaw };
+}
+
+/** The thin-box lesson: a long thin bar is "height" in its thin direction, so a bigger typed height stretches the bar by the same factor. */
+export const barLength = (typedHeight: number, extentAspect: number): number => typedHeight * extentAspect;
+export const SIZE_LIMIT_M = 12;
+export const sizeWarning = (size: [number, number, number]): string => Math.max(...size) > SIZE_LIMIT_M ? `${Math.max(...size).toFixed(1)} m is longer than any piece in the game; check the box and the typed height.` : "";
+
+/** Recorded numbers (not computed here). Sources: docs/pipelines.md pipeline 7, the mesh.json files in data/eval/cc-38-photo-to-3d/r3, and the lift json files in docs/evidence/cc-133-lifts. */
+export const RECORDED_COST = {
+  lift_seconds_range: [8, 10] as [number, number], mask_seconds_range: [0.3, 2] as [number, number], per_object_seconds: 15, first_object_seconds: [90, 100] as [number, number], per_object_usd: 0.02,
+  bakeSeconds: { bench01: 7.85, mural01: 5.59, mural02: 7.27, rail01: 8.98 } as Record<string, number>,
+  monkeyBars: { mask_load_seconds: 14.5, lift_load_seconds: 44.3, mask_seconds: 0.3, lift_seconds: 9.2, wall_seconds: 113.2, usd_estimate: 0.0051, extent_aspect: 21.702 },
+};
+/** What we kept of the real lifts, per object in public/assets/objects (CC-38 round 3). */
+export const RECORDED_LIFTS: Record<string, { photo: string; rawHeight: number; yawDeg: number; tiltDeg: number; rawFaces: number; bakedFaces: number; factor: number }> = {
+  "bench-concrete": { photo: "bench01", rawHeight: 0.4246, yawDeg: 0, tiltDeg: 1.7, rawFaces: 387796, bakedFaces: 5820, factor: 1.8842 },
+  "railing-iron": { photo: "rail01", rawHeight: 0.397, yawDeg: 90.5, tiltDeg: 1.55, rawFaces: 84204, bakedFaces: 5820, factor: 2.5186 },
+};
+/** Stand-in recipe for objects whose raw lift we did not keep. */
+export const STAND_IN: UnbakeRecipe = { yawDeg: 37, pitchDeg: 12, rawHeight: 0.45, rawFaces: 150000, offset: [0.8, -1.1, 0.35] };
+export function recipeFor(name: string): { recipe: UnbakeRecipe; recorded: boolean } {
+  const r = RECORDED_LIFTS[name];
+  // recorded raw size, turn and tilt where we have them; the turn is nudged off 0 so the "face the camera" step has work to do
+  return r ? { recipe: { yawDeg: r.yawDeg || 37, pitchDeg: Math.max(r.tiltDeg, 12), rawHeight: r.rawHeight, rawFaces: r.rawFaces, offset: [0.8, -1.1, 0.35] }, recorded: true } : { recipe: STAND_IN, recorded: false };
+}

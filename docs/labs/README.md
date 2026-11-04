@@ -14,6 +14,7 @@
 | 4 | Cut-out | [Computer vision](vision.md) | Which mask threshold trades photos kept against people missed? | `?mode=lab-vision&labs=1` | `tests/lab-vision.test.ts` (9) | The table counts overlapping masks twice (125 photos against the game's 131) and the photos are COCO, not the game's |
 | 10 | Cut-out | [Evaluating a detector](detector.md) | Is this detector good enough to place holds? | `?mode=lab-detector&labs=1` | `tests/lab-detector.test.ts` (8) | 22 scored cases from one run on six hand-labelled objects |
 | 5 | Lift to 3D | [Camera and perspective](camera.md) | Why can one photo not give depth? | `?mode=lab-camera&labs=1` | `tests/lab-camera.test.ts` (14) | Hand-made bodies and no real photo; the compare card is not checked against the game |
+| 14 | Bake | [Cut-out, lift and bake](lift.md) | What is each bake step for when a photo becomes a game object? | `?mode=lab-lift&labs=1` | `tests/lab-lift.test.ts` (19) | The raw lift is a stand-in made from the baked object (recorded raw size only for the bench and the railing) |
 | 9 | Place and prove | [Generate and test](gentest.md) | How many proposals does the simulator throw out? | `?mode=lab-gentest&labs=1` | `tests/lab-gentest.test.ts` (10) | Recorded replies of one model only, and a simple easing instead of the editor's Fix it |
 
 ### Video to motion

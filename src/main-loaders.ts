@@ -24,6 +24,7 @@ export const MODE_LOADERS: Record<string, ScreenLoader> = {
   'lab-integration': async (h) => (await import('./modes/lab-integration')).startLabIntegration(h),
   'lab-camera': async (h) => (await import('./modes/lab-camera')).startLabCamera(h),
   'lab-hashing': async (h) => (await import('./modes/lab-hashing')).startLabHashing(h),
+  'lab-lift': async (h) => (await import('./modes/lab-lift')).startLabLift(h),
   'lab-detector': async (h) => (await import('./modes/lab-detector')).startLabDetector(h),
   'lab-timing': async (h) => (await import('./modes/lab-timing')).startLabTiming(h),
   communities: async (h, q) => (await import('./modes/community-flow')).startCommunityFlow(h, q),
