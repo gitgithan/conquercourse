@@ -4,11 +4,47 @@
 - The Design Partner proposes edits; the TypeScript simulator supplies every clearance verdict.
 - Preview, the applied editor lane and Play use the same course builder and share complete simulator results.
 
+## Choose the action and engine
+
+| Old label | New label | Engine | What happens |
+| --- | --- | --- | --- |
+| Fix it | Find a repair | Simulator · game physics | Searches for layout or device changes and tests them. Review any result before Apply. |
+| What should I change? | Ask AI for ideas | AI · Muse Spark Open | Suggests object moves from the course and question. The simulator checks the exact preview. |
+| Suggest Fix / Suggest More | Ask AI for repair ideas / Ask AI for more ideas | AI · Muse Spark Open | Sends a ready-written question to the model. |
+| Ask | Send to AI | AI · Muse Spark Open | Sends the question in the input box. |
+| Make it easier | Make it easier | Simulator · game physics | Searches for a wider press window. |
+| Look for routes you did not plan | Find shortcut routes | Simulator · game physics | Simulates alternate routes that skip obstacles. |
+
+- The toolbar menu is Improve because it includes both simulator tools and AI ideas.
+- Every menu action shows its engine, when to use it and what to expect.
+- The menu opens below the toolbar and navigation, above the help panel, keeping its explanations readable.
+- The shared panel says Course help; the Muse Spark Open badge sits beside the AI input, rather than above simulator tools.
+- Proposal headers name the source of the edits; the separate simulator verdict describes the exact preview.
+- Verify Suggestions would imply checking a fixed proposal, while Find a repair searches for changes itself.
+- Verification already happens automatically in Preview; no extra verification button is needed.
+- Labels and explanations share one source in [editor-actions.ts](../src/ui/editor-actions.ts).
+- Action IDs, prompts, engines and proof handoff are unchanged.
+- The selected-pieces checkbox names its actual scope: simulator platform-layout repair, rather than AI ideas or every device/bar search.
+
+```mermaid
+flowchart TD
+  MENU["Improve · choose an engine"] --> REPAIR["Find a repair<br/>Simulator · game physics"]
+  MENU --> IDEAS["Ask AI for ideas<br/>Muse Spark Open"]
+  REPAIR --> SEARCH["Search for and test changes"]
+  IDEAS --> AI["Suggest object moves from course and question"]
+  AI --> SHOW["Preview suggested changes"]
+  SEARCH --> PREVIEW["Exact proposed course"]
+  SHOW --> PREVIEW
+  PREVIEW --> CHECK["Simulator checks or reuses matching proof"]
+  CHECK --> VERDICT["Simulator verdict · separate from edit source"]
+  VERDICT --> APPLY["User chooses Apply"]
+```
+
 ## What changed in the editor
 
-- Ask shows that the Partner has suggested changes that are not checked yet.
+- Send to AI shows that the Partner has suggested changes that are not checked yet.
 - The UI shows concrete edits instead of displaying the model's free-text answer as a clearance claim.
-- Show these changes builds a preview without moving the current pieces.
+- Preview suggested changes builds a preview without moving the current pieces.
 - Apply stays disabled while the simulator is checking the preview.
 - A successful check says "Simulator verified: this lane can clear."
 - A failed search says it did not find a clear run; it does not claim the course is impossible.
@@ -23,12 +59,12 @@
 
 ```mermaid
 flowchart TD
-  A["Ask Design Partner"] --> B["Suggested edits: not checked"]
-  B --> C["Show these changes"]
+  A["Ask AI for ideas · Muse Spark Open"] --> B["Suggested edits: not checked"]
+  B --> C["Preview suggested changes"]
   C --> D["Preview the current world with those edits"]
   D --> E["Simulator checks the exact course<br/>Apply disabled"]
   E -->|"Clear run and plan found"| F["Simulator verified<br/>Apply or Apply and try it"]
-  E -->|"No clear run found"| G["Search did not find a clear run<br/>Apply or Fix it from here"]
+  E -->|"No clear run found"| G["Search did not find a clear run<br/>Apply or Find a repair from here"]
   E -->|"Check could not finish"| H["Not verified<br/>Apply disabled"]
   F --> I["Apply changes"]
   G --> I
@@ -107,3 +143,8 @@ flowchart LR
 - The winner's complete proof is inserted into the same cache used by Preview, Apply and Play.
 - No additional winner search is needed when the proposed course matches.
 - [Before/after, blockers and measurements](easier-search.md).
+
+## Action attribution pictures
+
+- [Improve menu with engine labels](evidence/editor-action-engines-menu.jpg).
+- [Course help with model attribution beside the AI input](evidence/editor-action-engines-panel.jpg).

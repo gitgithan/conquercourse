@@ -68,15 +68,15 @@ export function createVerify(env: VerifyEnv) {
       ed.adviceList = []; showAdvice();
       if (machineNow() && p.length >= 8) { // a trebuchet at the start: its counterweight and arm come first, and a narrow release window gets a pin
         const mine = ++adviceRun, m = machineNow()!, lane = { angle: ed.angle, offset: ed.offset, level: ed.level }, clear = ed.verdict.startsWith('The simulator can clear');
-        setTimeout(() => { if (mine !== adviceRun) return; ed.adviceList = adviseMachine(coursePieces(), lane, m, { budgetMs: 8000, max: 1 }, trebuchetPivot()); if (!clear && !barsNow().length) ed.adviceList.push(...adviseLane(coursePieces(), lane, { wrap: machineWrap(m) })); showAdvice(); if (!ed.adviceList.length) adviceBox.textContent = clear ? '' : 'No single change to the machine or a piece clears it. Press Fix it to look further.'; document.documentElement.dataset.advice = String(ed.adviceList.length); }, 30);
+        setTimeout(() => { if (mine !== adviceRun) return; ed.adviceList = adviseMachine(coursePieces(), lane, m, { budgetMs: 8000, max: 1 }, trebuchetPivot()); if (!clear && !barsNow().length) ed.adviceList.push(...adviseLane(coursePieces(), lane, { wrap: machineWrap(m) })); showAdvice(); if (!ed.adviceList.length) adviceBox.textContent = clear ? '' : 'No single change to the machine or a piece clears it. Choose Find a repair to look further.'; document.documentElement.dataset.advice = String(ed.adviceList.length); }, 30);
       } else if (!ed.verdict.startsWith('The simulator can clear') && p.length >= 8 && barsNow().length) {
-        adviceBox.textContent = 'This lane has bars. Drag them in the side view (position and height), or press Fix it to try small moves of the bars.';
+        adviceBox.textContent = 'This lane has bars. Drag them in the side view (position and height), or choose Find a repair to try small moves of the bars.';
       } else if (!ed.verdict.startsWith('The simulator can clear') && p.length >= 8 && ed.pieces.some((q) => q.role && q.role !== 'ground')) {
-        adviceBox.textContent = 'This lane uses roles (wall, rope anchor or trampoline bed). Open Moves to see what each needs, or press Fix it.';
+        adviceBox.textContent = 'This lane uses roles (wall, rope anchor or trampoline bed). Open Moves to see what each needs, or choose Find a repair.';
       } else if (!ed.verdict.startsWith('The simulator can clear') && p.length >= 8) {
         const mine = ++adviceRun;
         adviceBox.textContent = 'Working out what to shift…';
-        setTimeout(async () => { if (mine !== adviceRun) return; const got = await adviceInWorker(coursePieces() as P[], { angle: ed.angle, offset: ed.offset, level: ed.level }).catch(() => null); if (!got || mine !== adviceRun) return; ed.adviceList = got; showAdvice(); if (!ed.adviceList.length) adviceBox.textContent = 'No single small shift clears it. Press "What should I change?" to think it through together.'; document.documentElement.dataset.advice = String(ed.adviceList.length); }, 30);
+        setTimeout(async () => { if (mine !== adviceRun) return; const got = await adviceInWorker(coursePieces() as P[], { angle: ed.angle, offset: ed.offset, level: ed.level }).catch(() => null); if (!got || mine !== adviceRun) return; ed.adviceList = got; showAdvice(); if (!ed.adviceList.length) adviceBox.textContent = 'No single small shift clears it. Choose Ask AI for ideas to ask Muse Spark Open.'; document.documentElement.dataset.advice = String(ed.adviceList.length); }, 30);
       } else document.documentElement.dataset.advice = '0';
     };
     // Apply can reuse the preview proof immediately, without a new worker or a checking message.

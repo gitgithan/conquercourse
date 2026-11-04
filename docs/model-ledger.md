@@ -36,7 +36,7 @@ Legend for "Credit":
 | **Character maker, step 2: cut-out** | SAM 3.1 (`sam-3.1`) | `api.meta.ai/v1/responses`, same Modal job | **Meta** | about $0.0025 a call (`docs/community-characters.md`) | Player, same request |
 | Character maker, step 3: mesh | SAM 3D Objects | Modal app `cc-photo-to-object`, class `Lift` | Modal | about $0.005 to $0.04 of GPU time depending on cold start (`docs/community-characters.md`) | Player, same request |
 | Character maker, prompt check | Muse Spark Open | Baseten, `/api/character` calls `askModeration` on the text | Baseten | about $0.003 a call for the check (`data/eval/cc-119-moderation/README.md`) | Player |
-| Designer and Fix it | Muse Spark Open | Baseten, `functions/api/designer.ts` | Baseten | "well under 1 cent" estimated from token counts in `docs/deploy.md`; not measured per call | Player: World Editor |
+| Design Partner ideas | Muse Spark Open | Baseten, `functions/api/designer.ts` | Baseten | "well under 1 cent" estimated from token counts in `docs/deploy.md`; not measured per call | Player: World Editor |
 | Course Agent (no player entry since 2026-10-31) | Muse Spark Open | Baseten, `functions/api/course-agent.ts` (text only; the photo input was dropped) | Baseten | $0.26 for 40 photo-in runs and 36 model calls (`data/eval/cc-126-course-agent/README.md`) | Nobody: no button in the editor |
 | Move tips | Muse Spark Open | Baseten, `functions/api/move-tips.ts` | Baseten | about $0.01 an object (`data/eval/cc-119-move-tips/README.md`) | Player: object cards |
 | Upload safety check | Muse Spark Open | Baseten, `askModeration` in `functions/api/moderate.ts`; called by `/api/object-lift`, `/api/segment`, `/api/community-items` and `/api/character` | Baseten | about $0.003 a call (`data/eval/cc-119-moderation/README.md`) | Player: every photo upload and every Share in Community |
@@ -165,3 +165,11 @@ Anything marked **assumption** has no written reason in the repo.
 | A smaller hosted model (Muse Glimmer 30B) for the checks | cheaper and faster, Apache 2.0 licence | Glimmer is dedicated-GPU only on the sponsors (`docs/research/meta-rules-api.md`); the only serverless host listed there is Together AI, which is not a sponsor | not tried |
 | Measuring latency of Baseten Spark Open against Meta API Muse Spark on the same 10 designer prompts | answers "is Baseten faster" with data | an hour, a few cents | not tried |
 | Recording credit balances in a file after each paid run | answers "what is using my credit" from the repo | minutes per run | not done |
+
+## World Editor action attribution
+
+- Find a repair (formerly Fix it), Make it easier and Find shortcut routes use simulator searches without a model call.
+- Ask AI for ideas and Send to AI call Muse Spark Open through the designer API.
+- AI ideas become proposed edits; Preview runs the simulator check before Apply is enabled.
+- The model badge belongs beside the AI input, not above mixed simulator tools.
+- [Action labels and proof flow](editor-proof-flow.md).

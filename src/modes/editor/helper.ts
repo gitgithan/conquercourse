@@ -1,3 +1,4 @@
+import { EDITOR_ACTIONS as ACTIONS, actionTitle } from '../../ui/editor-actions';
 import { realSize } from '../../slice/world';
 import { workSeconds } from '../../sim/ideal';
 import { type Ghosts } from '../../slice/view3d';
@@ -50,21 +51,22 @@ export function createHelper(env: HelperEnv) {
   // ---- helpers: what to shift when the lane cannot be cleared, and a design partner (Muse Spark Open) to talk it through
   const helper = el('div', aside, { className: 'panel helper', id: 'helper' });
   const head = el('div', helper, { className: 'row' });
-  const partnerTitle = el('strong', head, { text: 'Design partner' });
-  if (saysOn()) { const line = document.createElement('div'); line.className = 'says-line'; line.style.cssText = 'flex:1 0 100%;margin:0'; line.append(sayBadge('partner')); partnerTitle.replaceWith(line); } // CC-243: the badge names the speaker and its model
-  el('button', head, { text: 'Fix it', id: 'fixit', className: 'go', title: 'Show a layout the simulator can clear, before anything changes' }).onclick = () => runFix();
-  el('button', head, { text: 'Make it easier', id: 'easier', title: 'Show the smallest change that makes the hardest press easier to land' }).onclick = () => runEasier();
+  el('strong', head, { text: 'Course help' });
+
+  el('button', head, { text: ACTIONS.fixit.label, id: 'fixit', className: 'go', title: actionTitle(ACTIONS.fixit) }).onclick = () => runFix();
+  el('button', head, { text: ACTIONS.easier.label, id: 'easier', title: actionTitle(ACTIONS.easier) }).onclick = () => runEasier();
   const closeHelper = el('button', head, { text: '✕', id: 'closehelper', title: 'Hide' });
-  const selRow = el('label', helper, { className: 'muted', title: 'Fix it and Suggest Fix move only the pieces you have chosen, and leave the lane where it is' });
-  const fixSel = el('input', selRow, { type: 'checkbox', id: 'fixsel' }); selRow.append('Move only the chosen pieces');
+  el('div', helper, { className: 'helper-engines', text: 'Simulator tools search for repairs. Muse Spark Open suggests ideas. The simulator checks every preview.' });
+  const selRow = el('label', helper, { className: 'muted', title: 'Limits the simulator’s platform layout repair to selected pieces. Bars and devices use separate repair searches. AI ideas are independent.' });
+  const fixSel = el('input', selRow, { type: 'checkbox', id: 'fixsel' }); selRow.append('Limit layout repair to selected pieces');
   const adviceBox = el('div', helper, { id: 'advice' });
   // CC-243: a ready question for the partner: Suggest Fix when the lane cannot be cleared, Suggest More when it can
-  const suggestBtn = el('button', head, { text: 'Suggest More', id: 'suggest', title: 'Ask the design partner, with the question already written' });
-  const setSuggest = (clear: boolean | null) => { suggestBtn.textContent = clear === false ? 'Suggest Fix' : 'Suggest More'; suggestBtn.classList.toggle('go', clear === false); suggestBtn.dataset.kind = clear === false ? 'fix' : 'more'; };
+  const suggestBtn = el('button', head, { text: 'Ask AI for more ideas', id: 'suggest', title: 'Muse Spark Open: send a ready-written design question; the simulator checks any preview' });
+  const setSuggest = (clear: boolean | null) => { suggestBtn.textContent = clear === false ? 'Ask AI for repair ideas' : 'Ask AI for more ideas'; suggestBtn.classList.toggle('go', clear === false); suggestBtn.dataset.kind = clear === false ? 'fix' : 'more'; };
   // ---- routes you did not plan (CC-71): the simulator looks for lines that skip an obstacle; Close it previews a change that shuts one, Keep it marks it as meant
   let routesWorker: Worker | null = null;
   const routesHead = el('div', helper, { className: 'row', id: 'routeshead' });
-  const findRoutesBtn = el('button', routesHead, { text: 'Look for routes you did not plan', id: 'findroutes', title: 'The simulator tries the course with each bar, wall or rope taken away and tells you which skips are faster' });
+  const findRoutesBtn = el('button', routesHead, { text: ACTIONS.findroutes.label, id: 'findroutes', title: actionTitle(ACTIONS.findroutes) });
   const routesBox = el('div', helper, { id: 'routes' });
   const routesBrief = () => ed.routes.filter((r) => !ed.designed.has(r.id)).map((r) => shortcutLine(r));
   function renderRoutes() {
@@ -97,11 +99,15 @@ export function createHelper(env: HelperEnv) {
       showProposal(diffProposal('shortcut', `Close the shortcut: ${s.how}`, ed.pieces, now, r.pieces, now, r.steps, true));
     }, 30);
   }
-  const reply = el('div', helper, { className: 'reply muted', id: 'reply', text: 'Ask for a change, or press "What should I change?".' });
+  const reply = el('div', helper, { className: 'reply muted', id: 'reply', text: 'Choose Find a repair for a simulator search, or Ask AI for ideas from Muse Spark Open.' });
   const askRow = el('div', helper, { className: 'row' });
+  const aiLabel = el('div', askRow); aiLabel.style.gridColumn = '1 / -1';
+  if (saysOn()) { const badge = sayBadge('partner'); badge.classList.add('says-small'); aiLabel.append(badge); }
+  else aiLabel.textContent = ACTIONS.what.engine;
+  el('div', aiLabel, { className: 'muted', text: 'AI suggests edits. Preview checks them with the simulator.' });
   const ask = el('textarea', askRow, { id: 'ask', rows: 2, placeholder: 'e.g. make the gap easier, or a harder second half' });
-  const sendBtn = el('button', askRow, { text: 'Ask', id: 'send', className: 'go' });
-  const whatBtn = el('button', askRow, { text: 'What should I change?', id: 'what' });
+  const sendBtn = el('button', askRow, { text: 'Send to AI', id: 'send', className: 'go' });
+  const whatBtn = el('button', askRow, { text: ACTIONS.what.label, id: 'what', title: actionTitle(ACTIONS.what) });
   suggestBtn.onclick = () => {
     const clear = document.documentElement.dataset.laneClear !== '0';
     ask.value = suggestPrompt(clear, ed.pieces.filter((q) => !isSizeReference(q) && !isDevice(q)).map((q) => ({ name: q.name, x: q.x, heightM: realSize(q).h + q.y })));
@@ -145,14 +151,14 @@ export function createHelper(env: HelperEnv) {
   function runFix(from?: { pieces: P[]; lane: { angle: number; offset: number; level: number } }) {
     cancelEasier();
     helper.classList.remove('closed'); helperBtn.setAttribute('aria-pressed', 'true');
-    reply.className = 'reply'; reply.textContent = 'Working it out…' + (ed.pieces.some(isHold) ? ' (bars take a while: up to 40 seconds)' : '');
+    reply.className = 'reply'; reply.textContent = 'Simulator: searching for a repair…' + (ed.pieces.some(isHold) ? ' (bars take a while: up to 40 seconds)' : '');
     setTimeout(async () => {
       if (tools.fix({ reply, changed })) return; // a plank, drone, launcher or band the proof names: the smallest change is said in words first
       const now = { angle: ed.angle, offset: ed.offset, level: ed.level }, start = from ?? { pieces: ed.pieces, lane: now };
       const r = await computeFix(start.pieces, start.lane).catch(() => null);
-      if (!r) { reply.className = 'reply bad'; reply.textContent = 'Fix it was stopped. Try again.'; return; }
+      if (!r) { reply.className = 'reply bad'; reply.textContent = 'The simulator repair search was stopped. Try again.'; return; }
       document.documentElement.dataset.fixed = r.ok ? '1' : '0';
-      const prop = diffProposal('fixit', from ? 'Fix it, starting from your partner’s changes' : 'Fix it', ed.pieces, now, r.pieces, r.lane, r.steps, r.ok, machineNow(), r.machine);
+      const prop = diffProposal('fixit', from ? 'Simulator repair, starting from the preview' : 'Simulator repair', ed.pieces, now, r.pieces, r.lane, r.steps, r.ok, machineNow(), r.machine);
       if (!prop.items.length) {
         reply.className = r.ok ? 'reply ok' : 'reply bad';
         reply.textContent = r.ok ? 'It already works.' : ed.pieces.some(isHold) ? r.steps.join(' ') : 'I could not find a layout that works. ' + r.steps.join(' ') + ' Try other pieces.';
@@ -232,6 +238,8 @@ export function createHelper(env: HelperEnv) {
     if (!pr) return;
     reply.className = 'reply'; reply.replaceChildren();
     if (ed.leadText) el('div', reply, { text: ed.leadText });
+    const engine = el('div', reply, { className: 'action-engine', text: pr.source === 'partner' ? ACTIONS.what.engine : ACTIONS.fixit.engine });
+    engine.dataset.kind = pr.source === 'partner' ? 'ai' : 'simulator';
     el('strong', reply, { text: pr.title });
     el('div', reply, { className: 'muted', text: 'The outlines show where things would go (grey: now, teal: after). Nothing changes until you press Apply.' });
     if (pr.source === 'easier') for (const st of pr.steps) el('div', reply, { className: 'ok', text: st });
@@ -258,7 +266,7 @@ export function createHelper(env: HelperEnv) {
     rowEl.querySelector('#fixfromhere')?.remove();
     if (state === 'blocked' && ed.proposal && ed.proposal.source !== 'fixit' && ed.preview) {
       const from = { pieces: ed.preview.pieces, lane: ed.preview.lane };
-      el('button', rowEl, { text: 'Fix it from here', id: 'fixfromhere', title: 'Show the smallest further changes that make it clear' }).onclick = () => runFix(from);
+      el('button', rowEl, { text: 'Find a repair from here', id: 'fixfromhere', title: 'Simulator: search for further changes starting from this preview' }).onclick = () => runFix(from);
     }
   }
   function updatePreview() {
@@ -313,7 +321,7 @@ export function createHelper(env: HelperEnv) {
   async function askPartner(text: string) {
     cancelEasier();
     chat.push({ role: 'user', content: text });
-    reply.className = 'reply'; reply.textContent = 'Thinking…'; sendBtn.disabled = whatBtn.disabled = true;
+    reply.className = 'reply'; reply.textContent = 'Muse Spark Open: thinking of design ideas…'; sendBtn.disabled = whatBtn.disabled = true;
     try {
       const proof = previewSearch.proofFor(courseNow());
       const verdict = proof ? (proof.cleared ? 'The simulator verified a clear run for this exact course.' : 'The simulator did not find a clear run for this exact course.') : 'This course has not been checked yet.';
@@ -322,8 +330,8 @@ export function createHelper(env: HelperEnv) {
       if (!r.ok) throw new Error(String(r.status));
       const got = parseReply(((await r.json()) as { reply: string }).reply, ed.pieces.map((q) => q.id));
       chat.push({ role: 'assistant', content: got.text });
-      reply.textContent = got.edits.length ? 'The design partner suggests changes. The simulator has not checked them yet.' : 'The design partner suggested no piece changes. The Simulator panel shows whether the current course has a verified run.'; ed.pendingEdits = got.edits;
-      if (got.edits.length) el('button', reply, { text: `Show these ${got.edits.length} change${got.edits.length > 1 ? 's' : ''}`, className: 'go', id: 'applyedits', title: 'See where the pieces would go before anything changes' }).onclick = () => {
+      reply.textContent = got.edits.length ? 'Muse Spark Open suggested changes. The simulator checks them when you preview.' : 'Muse Spark Open suggested no piece changes. The Simulator panel shows whether the current course has a verified run.'; ed.pendingEdits = got.edits;
+      if (got.edits.length) el('button', reply, { text: `Preview ${got.edits.length} suggested change${got.edits.length > 1 ? 's' : ''}`, className: 'go', id: 'applyedits', title: 'See where the pieces would go before anything changes' }).onclick = () => {
         const pr = fromEdits(ed.pieces, { angle: ed.angle, offset: ed.offset, level: ed.level }, ed.pendingEdits);
         if (!pr.items.length) { reply.textContent = 'Those suggestions would not move any pieces. The current simulator result still applies.'; return; }
         ed.leadText = ''; showProposal(pr);

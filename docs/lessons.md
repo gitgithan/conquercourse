@@ -271,3 +271,13 @@
 - Prefix reuse needs full controller and world snapshots, plus the loop's event and stuck bookkeeping.
 - Identical-course replay equivalence does not establish safe reuse across changed geometry.
 - [Methods, before/after diagrams and evidence](easier-search.md).
+
+
+## Name the action and its engine (2026-11-04)
+
+- Find a repair searches for changes; Verify Suggestions would imply checking an existing proposal.
+- Put Simulator or AI · Muse Spark Open beside the action, not only in a tooltip.
+- A model badge above mixed tools wrongly credits simulator work to the model.
+- Keep the model badge beside the AI input and edit provenance separate from the simulator verdict.
+- Share action labels and explanations between the menu, glossary and underlying controls.
+- [Current action names and flow diagram](editor-proof-flow.md).

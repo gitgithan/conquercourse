@@ -22,7 +22,7 @@ export const PRESETS: Preset[] = [
     pieces: [raw(COASTER_START, 11), raw('box:10:0.4:2', 32, -0.8)],
   },
   {
-    id: 'failing', label: 'Broken park (needs Fix it)', note: 'The same kind of objects, but a gap is too wide and a wall too tall. Press Fix it to see the partner repair it.',
+    id: 'failing', label: 'Broken park (needs a repair)', note: 'The same kind of objects, but a gap is too wide and a wall too tall. Choose Find a repair to let the simulator search for changes.',
     pieces: [at('box-skate-03', 3), at('picnic-table', 12), at('stairs-park-07', 17), at('gabion-wall', 22, { y: 0.9 }), at('planter-concrete', 31)],
   },
 ];
