@@ -21,6 +21,8 @@ export const DEMO_COURSE_FILES = [
   'public/assets/demo/park-rail-run.course.json',
   'public/assets/demo/bench-and-stairs.course.json',
   'public/assets/demo/skate-box-and-rail.course.json',
+  'public/assets/demo/bars-lift.course.json',
+  'public/assets/demo/fork-bench-bulb.course.json',
   'public/assets/demo/generated-1.course.json',
   'public/assets/experiments/osm/eixample-barcelona.course.json',
   'public/assets/experiments/osm/montmartre-paris.course.json',

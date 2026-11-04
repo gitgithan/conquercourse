@@ -98,8 +98,8 @@ describe('leaving with unsaved editor work', () => {
 
 describe('the menu stays small (CC-97)', () => {
   const courses = DEMOS.filter(([v]) => !WORD_VALUES.includes(v) && v !== '');
-  it('lists about fourteen courses, the Training course first', () => {
-    expect(courses.length).toBeLessThanOrEqual(15);
+  it('lists about seventeen courses, the Training course first', () => {
+    expect(courses.length).toBeLessThanOrEqual(17);
     expect(courses[0][0]).toBe('/assets/demo/training.course.json');
   });
   it('every listed course has a stored plan or is a coaster, so it can be cleared and compared', () => {

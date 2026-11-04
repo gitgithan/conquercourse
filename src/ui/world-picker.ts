@@ -17,6 +17,8 @@ export const DEMO_GROUPS: [string, Demo[]][] = [
     ['/assets/experiments/osm/san-francisco-lombard.course.json', 'San Francisco hill (62 m of hill)', 'Lombard Street: the hill is real and so are the roofs.'],
   ]],
   ['Real objects, built in the World Editor', [
+    ['/assets/demo/bars-lift.course.json', 'Monkey bars from a photo', 'Jump, hold E and cross hand over hand with Q and T. The bars are measured from a photo lift, so the rungs you grab are the rungs in the picture. Build a big swing first, then alternate fast.'],
+    ['/assets/demo/fork-bench-bulb.course.json', 'Bench lane or bulb lane', 'The course forks once: a bench lane or a lightbulb lane, both lifted from photos. Both are proved clearable; pick the one that suits you.'],
     ['/assets/demo/park-run.course.json', 'Park run', 'Stairs, a skate box, two rails, a bench and a handrail in one line: vault, jump, repeat.'],
   ]],
   ['Contraptions', [
