@@ -15,7 +15,7 @@
 | `platform` | stand | stopping and starting on a deck | length, width, height |
 | `gap` | hazard | flight is decided at take-off | span, drop |
 | `wall` | vault, grab | height is spent from speed or reach | height, width, thickness, topEdge (`flat` or `ledge`) |
-| `mound` | stand | speed and slope: running over a curved top | length, height, profile (a list of heights along the run) |
+| `mound` (in the Park a kind that becomes a `platform` with a `profile`; not its own type in the schema) | stand | speed and slope: running over a curved top | length, height, profile (a list of heights along the run) |
 | `ramp` | stand, grab | speed becomes height (the curve) | height, run, width, profile (`line` or `arc`), radius (arc), topLedge |
 | `spring` | stand | stored energy returns | width, restHeight, travel, stiffness (N/m) |
 | `ropeAnchor` | grab | a pendulum swaps height and speed | anchorHeight, ropeLength |

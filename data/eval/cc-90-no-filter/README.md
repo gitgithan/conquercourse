@@ -4,7 +4,7 @@
 - Mapillary's own blur is the base standard for faces and plates.
 - On top of it we reject a photo only when a person is large in the picture, so far-off figures pass.
 - Limit 0.2 (tallest person over a fifth of the picture height) is the loosest limit that still stops close-ups, and it restores the crowd places.
-- Coverage at 0.2 is 100% on 17 of 20 places, 95% at Piazza San Marco, 90% at Bryggen, 88% at Eixample and 72% at Montmartre.
+- Coverage at 0.2 is 100% on 16 of 20 places, 95% at Piazza San Marco, 90% at Bryggen, 88% at Eixample and 72% at Montmartre.
 - Evidence: `docs/evidence/cc-90-no-filter/` (strip and large view with the Mapillary mark at 1280 px, fake photo service, no real pictures stored).
 
 ## What was measured
