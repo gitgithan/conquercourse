@@ -21,7 +21,7 @@ scene.add(sun);
 const place = (window as unknown as { __skin: unknown }).__skin = { ready: false, stats: null as unknown, ms: 0 };
 function frame() { const a = (az * Math.PI) / 180, e = (el * Math.PI) / 180; cam.position.set(Math.sin(a) * Math.cos(e) * dist, Math.sin(e) * dist, Math.cos(a) * Math.cos(e) * dist); cam.lookAt(0, 8, 0); renderer.render(scene, cam); }
 (async () => {
-  // CC-133: with the ground colour on, the file with the extra ground tags is used when there is one; off, the saved CC-178 file as always (the shipped copy, Bryant Park, is under assets/places/skin)
+  // CC-133: with the ground colour on, the file with the extra ground tags is used when there is one; off, the saved CC-178 file as always
   const first = gc ? 'cc-133-ground-colour' : 'cc-178-places', second = gc ? 'cc-178-places' : 'cc-133-ground-colour';
   const ok = (r: Response) => r.ok && (r.headers.get('content-type') ?? '').includes('json');
   let res = await fetch(`/data/eval/${first}/skin/${slug}-osm.json`);

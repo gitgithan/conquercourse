@@ -8,7 +8,7 @@ import { roleCourse } from '../src/slice/roles';
 import { searchIdealRun } from '../src/sim/ideal';
 import type { Ground } from '../src/world/terrain';
 
-const PLACES = ['eixample-barcelona', 'montmartre-paris', 'circular-quay-sydney', 'shibuya-tokyo', 'bryant-park-new-york', 'tuileries-paris'];
+const PLACES = ['eixample-barcelona', 'montmartre-paris', 'circular-quay-sydney', 'shibuya-tokyo', 'tuileries-paris'];
 const K = 0.2;
 function open(slug: string) {
   const p = JSON.parse(readFileSync(`public/assets/places/${slug}.json`, 'utf8'));

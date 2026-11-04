@@ -40,7 +40,6 @@ try {
     const places = [
       { slug: 'montmartre-paris', kind: 'street', cam: { heading: 30, pitch: 62, zoom: 0.55 } },
       { slug: 'gerlev-parkour-park', kind: 'parkour park', cam: { heading: 30, pitch: 62, zoom: 0.8 } },
-      { slug: 'bryant-park-new-york', kind: 'street and park', cam: { heading: 30, pitch: 62, zoom: 0.7 } },
     ];
     for (const p of places) {
       for (const sky of [false, true]) { const page = await openEditor(browser, p.slug, sky, null, p.cam); await shot(page, `editor-${p.slug}-${sky ? 'on' : 'off'}`, { place: p.slug, kind: p.kind, view: 'editor', sky }); await page.close(); }

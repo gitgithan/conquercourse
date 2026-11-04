@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { applyH, facadeAspect, facadeOn, homography, pickWall, rectifyMap, wallQuad, FACADES, type Quad } from '../src/world/facade';
+import { applyH, facadeAspect, facadeOn, homography, pickWall, rectifyMap, wallQuad, type Quad } from '../src/world/facade';
 
 const near = (a: number[], b: number[], eps = 1e-6) => a.forEach((v, i) => expect(Math.abs(v - b[i])).toBeLessThan(eps));
 
@@ -42,16 +42,6 @@ describe('picking the wall', () => {
     expect(pickWall([...ring].reverse(), 10, 90)?.length).toBeCloseTo(10);
   });
   it('refuses a wall of the wrong width', () => { expect(pickWall(ring, 18, 180)).toBeNull(); });
-  it('finds the library portico in the real footprint of the Bryant Park scenery', async () => {
-    const { readFileSync } = await import('node:fs');
-    const osm = JSON.parse(readFileSync('public/assets/places/skin/bryant-park-new-york-osm.json', 'utf8'));
-    const f = FACADES[0], e = osm.elements.find((x: { tags?: { name?: string } }) => x.tags?.name === f.building);
-    const mLon = 111320 * Math.cos((osm.lat * Math.PI) / 180);
-    const ring = e.geometry.slice(0, -1).map((p: { lat: number; lon: number }) => ({ x: (p.lon - osm.lon) * mLon, z: -(p.lat - osm.lat) * 111320 }));
-    const w = pickWall(ring, f.width, f.facing);
-    expect(w).not.toBeNull(); expect(Math.abs(w!.length - f.width)).toBeLessThan(0.7);
-    expect(f.aspect).toBeGreaterThan(1.3); expect(f.aspect).toBeLessThan(1.5);
-  });
 });
 
 describe('the quad on the wall', () => {
@@ -88,11 +78,26 @@ describe('in the scenery', async () => {
   const THREE = await import('three');
   const { buildSkin } = await import('../src/world/skin');
   const { readFileSync } = await import('node:fs');
-  const osm = JSON.parse(readFileSync('public/assets/places/skin/bryant-park-new-york-osm.json', 'utf8'));
+  // the stored map answer of Montmartre stands in until a place has its own photo facade
+  const pl = JSON.parse(readFileSync('public/assets/places/montmartre-paris.json', 'utf8'));
+  const osm = { lat: pl.lat, lon: pl.lon, radius: pl.radius, elements: pl.answer.elements };
+  const mLon = 111320 * Math.cos((osm.lat * Math.PI) / 180);
+  const spec = (() => {
+    for (const e of osm.elements) {
+      if (!e.tags?.building || !e.geometry) continue;
+      const ring = e.geometry.slice(0, -1).map((q: { lat: number; lon: number }) => ({ x: (q.lon - osm.lon) * mLon, z: -(q.lat - osm.lat) * 111320 }));
+      for (let i = 0; i < ring.length; i++) {
+        const w = Math.hypot(ring[(i + 1) % ring.length].x - ring[i].x, ring[(i + 1) % ring.length].z - ring[i].z);
+        if (w < 5) continue;
+        for (let f = 0; f < 360; f += 5) if (pickWall(ring, w, f)) return { place: 'montmartre-paris', building: (e.tags.name ??= 'Test building'), width: w, facing: f, image: '', aspect: 1.4 };
+      }
+    }
+    throw new Error('no wall');
+  })();
   const names = (g: import('three').Group) => { const n: string[] = []; g.traverse((o) => { if (o.name === 'facade') n.push(o.name); }); return n; };
   it('off: no facade mesh and the same buildings; on: exactly one facade mesh, the prism only taller', () => {
     const off = buildSkin(osm, { skin: 'tags', noLand: true });
-    const on = buildSkin(osm, { skin: 'tags', noLand: true, facades: [{ spec: FACADES[0], texture: new THREE.Texture() }] });
+    const on = buildSkin(osm, { skin: 'tags', noLand: true, facades: [{ spec: spec, texture: new THREE.Texture() }] });
     expect(names(off.group)).toHaveLength(0); expect(names(on.group)).toHaveLength(1);
     expect(on.stats.buildings).toBe(off.stats.buildings); expect(on.stats.facades).toBe(1);
     const box = (g: import('three').Group) => new THREE.Box3().setFromObject(g);

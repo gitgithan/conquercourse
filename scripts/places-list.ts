@@ -10,7 +10,7 @@ const COUNTRY: Record<string, string> = {
   'montmartre-paris': 'France', 'tuileries-paris': 'France', 'place-des-vosges-paris': 'France',
   'eixample-barcelona': 'Spain', 'ciutadella-barcelona': 'Spain', 'parc-guell-barcelona': 'Spain', 'plaza-mayor-madrid': 'Spain', 'retiro-park-madrid': 'Spain',
   'circular-quay-sydney': 'Australia', 'lombard-street-san-francisco': 'United States', 'dolores-park-san-francisco': 'United States', 'union-square-san-francisco': 'United States',
-  'bryant-park-new-york': 'United States', 'washington-square-new-york': 'United States', 'gas-works-park-seattle': 'United States', 'boston-common-beacon-hill': 'United States',
+  'washington-square-new-york': 'United States', 'gas-works-park-seattle': 'United States', 'boston-common-beacon-hill': 'United States',
   'shibuya-tokyo': 'Japan', 'edinburgh-old-town': 'United Kingdom', 'trafalgar-square-london': 'United Kingdom', 'covent-garden-london': 'United Kingdom',
   'positano-italy': 'Italy', 'piazza-san-marco-venice': 'Italy', 'spanish-steps-rome': 'Italy', 'piazza-navona-rome': 'Italy', 'valletta-harbour-malta': 'Malta',
   'speicherstadt-hamburg': 'Germany', 'alfama-lisbon': 'Portugal', 'old-town-square-prague': 'Czechia', 'nyhavn-copenhagen': 'Denmark',
