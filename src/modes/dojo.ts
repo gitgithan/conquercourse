@@ -3,7 +3,7 @@ import { EXPERIMENTS, GAP_WIDTH, classify, defaults, sweep, type Context, type E
 import { LESSONS } from './lessons';
 import { diagram } from './diagrams';
 import { DOJO_V2_CSS } from './dojo-style';
-import { currentWorld, mountWorldGallery } from '../ui/world-picker';
+
 import defaultCourse from '../course/default-course.json';
 import type { CourseData } from '../course/course';
 import { courseFacts } from '../course/facts';
@@ -425,16 +425,12 @@ export function startDojo(host: HTMLElement): { backend: 'webgl2' } {
     void maxX;
   }
 
-  // T opens the Dojo from the Course, so it closes it here too (not while typing in a box)
+  // L opens the Dojo from the Course, so it closes it here too (not while typing in a box)
   addEventListener('keydown', (e) => {
     const t = e.target as HTMLElement | null;
     if (e.code !== 'KeyL' || e.repeat || e.ctrlKey || e.metaKey || e.altKey || document.getElementById('cc-feedback') || (t && /^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName) && (t as HTMLInputElement).type !== 'range')) return;
-    if (!picker) { location.href = returnToCourse; return; } // the old layout keeps its old route
-    if (document.getElementById('world-gallery')) return; // already open: the picker has its own keys
-    picker.open(); // T takes the player to the course picker, where they choose a course (CC-154)
+    location.href = returnToCourse; // owner 2026-11-04: L goes back to the Course that was running (it comes back as it was), never to the course picker; the Dojo is only opened from a Course
   });
-  // the Courses pill is not shown in the new Dojo: T opens the same picker (main.ts skips the pill here)
-  const picker = legacy ? null : mountWorldGallery(document.body, { current: currentWorld(q), place: 'display:none' });
   startAudio(); document.body.append(soundButton()); // the Dojo shares the mute switch with the Course
   render();
   return { backend: 'webgl2' };

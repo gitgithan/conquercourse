@@ -69,7 +69,7 @@ export function createOutcome(ctx: CourseCtx, d: OutcomeDeps) {
       const again = st.phoneWatch;
       setTimeout(() => { if (again) { d.restart(course.startX); feed.play(again); } }, 2500);
     } else if (prev === 'running' && st.world.outcome === 'cleared' && !st.clip.on) {
-      stats.clearFinishZone(st.world.runner.x); ctx.everCleared = true; track('clears'); stats.finishRun(true, analytics.runId); trackCourseEvent('success', analytics.courseKey, course.name, analytics.runId, analytics.mode);
+      if (!st.plan && !st.demo && !st.idealWhole) { stats.clearFinishZone(st.world.runner.x); ctx.everCleared = true; track('clears'); stats.finishRun(true, analytics.runId); trackCourseEvent('success', analytics.courseKey, course.name, analytics.runId, analytics.mode); } // an Ideal run is watched, not played: it is not counted
       offerClear();
       try { localStorage.setItem('cc.course.cleared', '1'); } catch { /* ok */ }
       panel.innerHTML = ''; panel.style.display = 'grid';
