@@ -82,7 +82,7 @@ Serves the demo mood and play feel; every track is original and made from text o
 | Course (`/`, `?generate=`, `?course=`, `?mode=rookie`, `?mode=diagrams`) | `course.ogg` |
 | Report page (a run ends) | `report.ogg` |
 | Retry (back to the run) | `course.ogg` |
-| `?mode=dojo`, `?mode=lab-search` | `dojo.ogg` |
+| `?mode=dojo`, `?mode=lab-search`, the Grand Entrance (`making-of/timeline.html`) | `dojo.ogg` |
 | `?mode=editor`, `?mode=coaster` | `editor.ogg` |
 | `?mode=map`, the Slicer (part of the map) | `map.ogg` |
 | `?mode=gallery` (the community gallery, our photo library) | `library.ogg` |

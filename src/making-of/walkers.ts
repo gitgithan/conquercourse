@@ -11,7 +11,7 @@ export interface WalkInput { moving: boolean; juno: boolean; crew: number } // c
 interface Walker { actor: RookieActor; x: number; tick: number }
 
 const FACE_AWAY = Math.PI / 2; // the actor faces +x; this turns it to walk away from the camera (-z)
-const SLOTS = [-1.5, -2.5, -3.5, -4.5, 1.5, 2.5, 3.5, 4.5]; // the eight, four each side of Pip and Juno
+const SLOTS = [-0.9, -1.5, -2.1, -2.7, 0.9, 1.5, 2.1, 2.7]; // the eight, four each side of Pip and Juno
 const ease = (u: number) => { const c = Math.max(0, Math.min(1, u)); return c * c * (3 - 2 * c); };
 
 async function start(): Promise<void> {
@@ -29,8 +29,8 @@ async function start(): Promise<void> {
 
   const scene = new THREE.Scene();
   const camera = new THREE.PerspectiveCamera(34, 4, 0.1, 60);
-  camera.position.set(0, 1.5, 5.6);
-  camera.lookAt(0, 1.05, 0);
+  camera.position.set(0, 0.95, 3.76);
+  camera.lookAt(0, 0.7, 0);
   size();
   addEventListener('resize', size);
   scene.add(new THREE.HemisphereLight(0xcfd8ff, 0x3a2a1c, 1.5));
@@ -57,12 +57,12 @@ async function start(): Promise<void> {
         w.actor.object.position.set(x, 0, z);
         w.actor.object.rotation.y = FACE_AWAY;
       };
-      if (pipW) run(pipW, inp.moving, -0.5 * arrive, 0, true);
-      if (junoW) run(junoW, inp.moving, 0.8 - 0.3 * arrive, 0, inp.juno);
+      if (pipW) run(pipW, inp.moving, -0.3 * arrive, 0, true);
+      if (junoW) run(junoW, inp.moving, 0.6 - 0.3 * arrive, 0, inp.juno);
       for (let i = 0; i < SLOTS.length; i++) {
         const w = crewW[i];
         if (!w) continue;
-        run(w, !settled && inp.crew > 0, SLOTS[i], 3.2 * (1 - arrive), inp.crew > 0);
+        run(w, !settled && inp.crew > 0, SLOTS[i], 2.2 * (1 - arrive), inp.crew > 0);
       }
       renderer.render(scene, camera);
     },

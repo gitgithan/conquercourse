@@ -151,7 +151,7 @@ describe('The Making Of public files', () => {
     const page = read('timeline.html');
     expect(page).toContain('Enter the course');
     expect(page).toContain('?course=/assets/demo/training.course.json');
-    expect(page).toContain('/assets/music/course.ogg');
+    expect(page).toContain('/assets/music/dojo.ogg');
     expect(page).not.toMatch(/music[^;\n]*(pause|stop\()/i);
     expect(read('index.html')).toContain('href="timeline.html"');
   });
