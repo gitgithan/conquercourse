@@ -1,6 +1,7 @@
 import { isHold } from '../../slice/holds-world';
 import { diffProposal, type Proposal } from '../../slice/preview';
 import { ROLE_NAME, applySuggestion, movesInWorld, suggestRoles, type Role, type RoleSuggestion } from '../../slice/roles';
+import type { RolesJob, RolesReply } from '../../slice/roles-job';
 import { el } from './dom';
 import { isDevice, isSizeReference, type EditorState, type P } from './state';
 import type { EditorLane } from './lane';
@@ -25,14 +26,28 @@ export function createMoves(env: MovesEnv) {
     const next = applySuggestion(ed.pieces, sg);
     return diffProposal('role', 'A way to use a piece', ed.pieces, laneNow(), next, laneNow(), [sg.words], sg.proved === true ? true : undefined);
   }
+  // CC-133: the search runs in a worker, so the page keeps answering; a newer click or Stop makes the older answer stale
+  let roleWorker: Worker | null = null, roleRun = 0, roleProgress = '';
+  const stopWays = () => { roleRun++; roleWorker?.terminate(); roleWorker = null; ed.movesBusy = ''; roleProgress = ''; renderMoves(); };
+  function finishWays(only: number | undefined, items: RoleSuggestion[]) {
+    ed.movesList = { label: only === undefined ? 'Ways to add a missing move (each one checked by the simulator)' : 'What this piece could be (each one checked by the simulator)', items: items.filter((x) => x.proved) };
+    ed.movesBusy = ''; roleProgress = ''; document.documentElement.dataset.roleSuggestions = String(ed.movesList.items.length); renderMoves();
+  }
   function findWays(only?: number) {
     if (ed.movesBusy) return;
-    ed.movesBusy = only === undefined ? 'the world' : 'this piece'; renderMoves();
-    setTimeout(() => {
-      const items = suggestRoles(coursePieces(), laneNow(), { budgetMs: 40000, ...(only !== undefined ? { only } : {}) }).filter((x) => x.proved);
-      ed.movesList = { label: only === undefined ? 'Ways to add a missing move (each one checked by the simulator)' : 'What this piece could be (each one checked by the simulator)', items };
-      ed.movesBusy = ''; document.documentElement.dataset.roleSuggestions = String(items.length); renderMoves();
-    }, 30);
+    ed.movesBusy = only === undefined ? 'the world' : 'this piece'; roleProgress = ''; renderMoves();
+    const id = ++roleRun, opts = { budgetMs: 40000, ...(only !== undefined ? { only } : {}) };
+    let worker: Worker;
+    try { worker = new Worker(new URL('../../sim/roles-worker.ts', import.meta.url), { type: 'module' }); }
+    catch { setTimeout(() => { if (id === roleRun) finishWays(only, suggestRoles(coursePieces(), laneNow(), opts)); }, 30); return; } // no worker here: the old way, on the page's thread
+    roleWorker = worker;
+    worker.onmessage = (e: MessageEvent<RolesReply>) => {
+      if (e.data.id !== id || id !== roleRun) return;
+      if ('progress' in e.data) { roleProgress = ` (${e.data.progress.done} of ${e.data.progress.of})`; const b = document.getElementById('findways'); if (b) b.textContent = `Checking ${ed.movesBusy} with the simulator${roleProgress}…`; return; }
+      worker.terminate(); roleWorker = null; finishWays(only, e.data.items);
+    };
+    worker.onerror = () => { if (id !== roleRun) return; worker.terminate(); roleWorker = null; ed.movesBusy = ''; renderMoves(); };
+    worker.postMessage({ id, pieces: JSON.parse(JSON.stringify(coursePieces())), lane: laneNow(), opts } satisfies RolesJob);
   }
   function renderMoves() {
     if (movesBox.classList.contains('closed')) return;
@@ -62,8 +77,8 @@ export function createMoves(env: MovesEnv) {
       pick.onchange = () => { sel.role = pick.value === 'ground' ? undefined : (pick.value as Role); changed(); };
       el('button', row, { text: 'What could this be?', id: 'whatcould' }).onclick = () => findWays(sel.id);
     }
-    el('button', movesBox, { text: ed.movesBusy ? `Checking ${ed.movesBusy} with the simulator…` : 'Find ways to add the missing moves', id: 'findways', className: 'go' }).onclick = () => findWays();
-    if (ed.movesBusy) (document.getElementById('findways') as HTMLButtonElement).disabled = true;
+    el('button', movesBox, { text: ed.movesBusy ? `Checking ${ed.movesBusy} with the simulator${roleProgress}…` : 'Find ways to add the missing moves', id: 'findways', className: 'go' }).onclick = () => findWays();
+    if (ed.movesBusy) { (document.getElementById('findways') as HTMLButtonElement).disabled = true; el('button', movesBox, { text: 'Stop', id: 'stopways', title: 'Stop checking' }).onclick = stopWays; }
     if (ed.movesList) {
       el('strong', movesBox, { text: ed.movesList.label });
       if (!ed.movesList.items.length) el('div', movesBox, { className: 'muted', text: 'No single change gives a missing move here. Try other pieces, or scale one by hand.' });
