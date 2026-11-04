@@ -10,6 +10,10 @@ A ninja-warrior physics game where real parks, real streets and real objects bec
 
 Built for the Meta Global AI Developer Hackathon (2026-10-26 to 2026-11-04), indie track.
 
+### 🏁 **Take a challenge: [a sample run to beat](https://conquercourse.pages.dev/?c=segdhyvk63)**
+- It opens the course with a ghost of the run that made the link.
+- Beat its time, then press **N** to share your own run as a link.
+
 </div>
 
 ## 🎬 Promo video
