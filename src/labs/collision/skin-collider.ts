@@ -158,7 +158,9 @@ export const COLLIDERS: { kind: ColliderKind; name: string }[] = [
   { kind: 'box-exact', name: 'A box as tight as the skin' }, { kind: 'box-snapped', name: 'A box rounded to a 5 cm cell' }, { kind: 'box-big', name: 'A loose, big box' },
 ];
 export const OBJECTS: { id: string; name: string; url: string; credit: string }[] = [
-  { id: 'box-skate-03', name: 'Skate box', url: '/assets/objects/box-skate-03.glb', credit: 'Photo by Alexis Jazz, CC BY 4.0' },
-  { id: 'gabion-wall', name: 'Gabion wall', url: '/assets/objects/gabion-wall.glb', credit: 'Photo by Encik Tekateki, CC0' },
-  { id: 'picnic-table', name: 'Picnic table', url: '/assets/objects/picnic-table.glb', credit: 'Photo by Hu Nhu, CC0' },
+  { id: 'box-skate-03', name: 'Skate box', url: '/assets/lab/lift/real/box-skate-03.glb', credit: 'Photo by Alexis Jazz, CC BY 4.0' },
+  { id: 'gabion-wall', name: 'Gabion wall', url: '/assets/lab/lift/real/gabion-wall.glb', credit: 'Photo by Encik Tekateki, CC0' },
+  { id: 'bollard-iron', name: 'Iron bollard', url: '/assets/lab/lift/real/bollard-iron.glb', credit: 'Photo by Simon Cobb, CC0' },
+  { id: 'stump-spruce', name: 'Spruce stump', url: '/assets/lab/lift/real/stump-spruce.glb', credit: 'Photo by W.carter, CC0' },
+  { id: 'planter-concrete', name: 'Concrete planter', url: '/assets/lab/lift/real/planter-concrete.glb', credit: 'Photo by Tony Webster, CC BY 2.0' },
 ];
