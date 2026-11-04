@@ -1,6 +1,6 @@
 import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import { afterEach, describe, expect, it } from 'vitest';
-import { makingOfOn, MAKING_OF_CARDS, sliceCardOn, DEMOS, DEMO_GROUPS, LEAVE_MESSAGE, WORD_VALUES, currentWorld, hasThumb, mayLeaveCourse, thumbSlug, thumbUrl, worldHref } from '../src/ui/world-picker';
+import { makingOfOn, timelineCardOn, MAKING_OF_CARDS, sliceCardOn, DEMOS, DEMO_GROUPS, LEAVE_MESSAGE, WORD_VALUES, currentWorld, hasThumb, mayLeaveCourse, thumbSlug, thumbUrl, worldHref } from '../src/ui/world-picker';
 import { courseSource } from './helpers/course-source';
 
 describe('the world picker list (CC-89)', () => {
@@ -118,10 +118,12 @@ describe('the menu stays small (CC-97)', () => {
       expect(DEMOS.some(([v]) => v.endsWith(`/${f}.course.json`)), `${f} should be out of the menu`).toBe(false);
     }
   });
-  it('The Making Of group: three real links with a picture each, plus the Parts card; ?making=0 hides the links, ?parts=0 the Parts card', () => {
+  it('The Making Of group: four real links with a picture each, plus the Parts card; ?making=0 hides the links, ?parts=0 the Parts card', () => {
     expect(makingOfOn(new URLSearchParams(''))).toBe(true);
     expect(makingOfOn(new URLSearchParams('making=0'))).toBe(false);
-    expect(MAKING_OF_CARDS.map((c) => c[1])).toEqual(['Site map', 'Course map', 'Code map']);
+    expect(MAKING_OF_CARDS.map((c) => c[1])).toEqual(['Site map', 'Course map', 'Code map', 'Timeline']);
+    expect(timelineCardOn(new URLSearchParams(''))).toBe(true);
+    expect(timelineCardOn(new URLSearchParams('timeline=0'))).toBe(false);
     expect(DEMOS.some(([v]) => v === 'parts')).toBe(true);
     expect(DEMO_GROUPS.some(([, ds]) => ds.some(([v]) => v === 'parts'))).toBe(false);
     expect(existsSync('public/assets/thumbs/parts.webp')).toBe(true);

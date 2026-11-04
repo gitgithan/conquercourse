@@ -1,4 +1,4 @@
-import { readFileSync, readdirSync } from 'node:fs';
+import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
 // @ts-expect-error plain .mjs script
@@ -21,9 +21,9 @@ const DENY: [string, RegExp][] = [
 ];
 
 describe('The Making Of public files', () => {
-  it('has the three pages and no data file', () => {
-    expect([...files].sort()).toEqual(['code-map.html', 'course-map.html', 'index.html', 'site-map.html']);
-    expect(files.some((f) => f.endsWith('.json'))).toBe(false);
+  it('has the pages, the timeline data and its pictures', () => {
+    expect([...files].sort()).toEqual(['code-map.html', 'course-map.html', 'index.html', 'site-map.html', 'timeline', 'timeline-events.json', 'timeline.html']);
+    expect(files.filter((f) => f.endsWith('.json'))).toEqual(['timeline-events.json']);
   });
 
   for (const f of ['index.html', 'site-map.html', 'course-map.html']) {
@@ -121,8 +121,33 @@ describe('The Making Of public files', () => {
     for (const [name, text] of Object.entries(built)) expect(read(name), name).toBe(text);
   });
 
+  it('the timeline: six categories, short plain cards, real pictures, nothing private, no external requests', () => {
+    const ev = JSON.parse(read('timeline-events.json')) as { id: string; category: number; when: string; title: string; text: string; kind: string; image?: string; stat?: string; caption?: string }[];
+    expect(ev.length).toBeGreaterThanOrEqual(24);
+    expect(new Set(ev.map((e) => e.id)).size).toBe(ev.length);
+    expect([...new Set(ev.map((e) => e.category))].sort()).toEqual([1, 2, 3, 4, 5, 6]);
+    for (const e of ev) {
+      expect(['picture', 'stat', 'text']).toContain(e.kind);
+      expect(e.when, e.id).toMatch(/^\d\d-\d\d( \d\d:\d\d| to \d\d-\d\d)?$/);
+      expect(e.text.length, e.id).toBeLessThanOrEqual(110);
+      if (e.kind === 'stat') expect(e.stat && e.caption, e.id).toBeTruthy();
+      if (e.image) expect(existsSync(join(DIR, e.image)), e.image).toBe(true);
+    }
+    for (const f of ['timeline.html', 'timeline-events.json']) {
+      const t = read(f);
+      for (const [name, re] of DENY) expect(t.match(re), `${f}: ${name}`).toBeNull();
+      expect(t).not.toMatch(/<(script|link|img|iframe)[^>]+(src|href)=["']https?:/i);
+    }
+    const page = read('timeline.html');
+    expect(page).toContain('Enter the course');
+    expect(page).toContain('?course=/assets/demo/training.course.json');
+    expect(page).toContain('/assets/music/course.ogg');
+    expect(page).not.toMatch(/music[^;\n]*(pause|stop\()/i);
+    expect(read('index.html')).toContain('href="timeline.html"');
+  });
+
   it('passes the personal-details check', () => {
-    const paths = files.map((f) => join(DIR, f));
+    const paths = files.filter((f) => !f.endsWith('.jpg') && f !== 'timeline').map((f) => join(DIR, f));
     expect(findings(paths)).toEqual([]);
   });
 });

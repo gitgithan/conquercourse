@@ -107,7 +107,10 @@ export const MAKING_OF_CARDS: [string, string, string, string][] = [
   ['/making-of/site-map.html', 'Site map', 'Every screen a player can see, how to get there and where it leads.', 'making-site-map'],
   ['/making-of/course-map.html', 'Course map', 'The building tasks of the project in plan order, and which wait on which.', 'making-course-map'],
   ['/making-of/code-map.html', 'Code map', 'The whole codebase as a graph, grouped into communities you can open one by one.', 'making-code-map'],
+  ['/making-of/timeline.html', 'Timeline', 'Walk a tunnel of cards, six kinds of moments in time order, and step out onto the Training course.', 'making-timeline'],
 ];
+/** CC-133: the Timeline card is shown by default; ?timeline=0 hides it (the page itself stays reachable). */
+export const timelineCardOn = (params: URLSearchParams): boolean => params.get('timeline') !== '0';
 
 export const WORD_VALUES = [...EXPERIMENTS.map((e) => `dojo-${e.id}`), 'parts', 'generate', 'editor', 'coaster-builder', 'map', 'lab-search', 'lab-optimization', 'lab-ik', 'lab-vision', 'lab-camera', 'lab-integration', 'lab-timing', 'lab-signal', 'lab-gentest', 'lab-detector', 'lab-hashing', 'lab-rl', 'lab-motion', 'lab-lift', 'lab-collision', 'lab-partner', 'lab-systemdesign', 'lab-slicer', 'lab-determinism', 'lab-spike', 'lab-limits', 'lab-wait'];
 /** The Parts card is the third card of The Making Of; it opens ?mode=parts through onPick like a course card. */
@@ -306,6 +309,7 @@ export function buildGallery(o: GalleryOptions): { el: HTMLElement; focusStart()
   if (showLinks || showParts) { // CC-132: The Making Of, last on the list: two plain links (same tab) and the Parts card, all drawn like the other cards
     const grid = section(MAKING_OF_GROUP);
     if (showLinks) for (const [href, title, about, thumb] of MAKING_OF_CARDS) {
+      if (thumb === 'making-timeline' && !timelineCardOn(pageQuery())) continue;
       const a = document.createElement('a'); a.className = 'wg-card'; a.href = href; a.dataset.value = href; a.dataset.making = '1'; a.title = about;
       const pic = document.createElement('div'); pic.className = 'wg-pic';
       const img = new Image(); img.src = `/assets/thumbs/${thumb}.webp`; img.alt = ''; img.loading = 'lazy'; img.decoding = 'async'; img.onerror = () => img.remove(); pic.append(img);
