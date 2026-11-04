@@ -79,6 +79,7 @@ export function createHint(ctx: CourseCtx, deps: HintDeps): (w: WorldState) => s
       return `${fwd ? 'Push →' : 'Push ←'} with the swing (hold E)  ·  ${rel.result === 'lands' && /reach the .* bar|ground/.test(rel.why) ? 'LET GO NOW: ' + rel.why : 'keep swinging: ' + rel.why}`;
     }
     if (course.holds?.length && w.mode === 'run' && !r.grounded) { const next = course.holds.find((h) => h.x > r.x - 0.5); if (next && Math.abs(next.x - r.x) < 2.5) return 'Hold E to grab the bar'; }
+    if (w.mode === 'polec') return 'Keep holding E: the arms pull you up. Let go and you slide back down';
     if (w.mode === 'climb') return 'Keep holding E: the arms pull you up';
     { const ca = w.mode === 'run' ? climbAhead(course.terrain, r.x, r.y, 2.5, course.jumpSpeed) : null; if (ca) return ca.standing ? 'A tall wall: hold E at the wall to grab the edge and climb' : 'A very tall wall: jump and hold E at the top of the jump'; }
     { const at = w.mode === 'run' && r.tick >= 60 && toastDrumsNow().length ? approachToast(course, toastDrumsNow(), r.x) : null; if (at && at.kind !== 'bounce' && !(at.kind === 'jump' && (ctx.everCleared || st.falls > 0))) return at.text; }

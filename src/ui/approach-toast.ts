@@ -17,6 +17,7 @@ export function toastKindOf(course: CourseData, d: Drum): ToastKind | null {
   const z = (course.zones ?? []).find((q) => d.x >= q.x0 - 1 && d.x <= q.x1 + 1);
   const id = z?.id ?? '';
   for (const [k, r] of TOAST_ROWS) if (r.grab && (id === k || id.startsWith(k + '-'))) return k;
+  if (course.climbPoles?.some((p) => Math.abs(p.x - d.x) < 1.5)) return 'pole'; // a standing pole: E closes on it (CC-133, the bulb lane)
   if (course.holds?.some((h) => Math.abs(h.x - d.x) < 3)) return 'lache';
   if (course.rope && Math.abs(course.rope.anchorX - d.x) < 6) return 'rope';
   if (course.wall && d.x >= course.wall.x0) return 'wall';
@@ -35,11 +36,12 @@ export function toastsFor(course: CourseData, drums: Drum[]): Toast[] {
   drums.forEach((d, i) => {
     let k = toastKindOf(course, d);
     if (!k || merged.has(d)) return;
-    if (d.what === 'grab' && i > 0 && drums[i - 1].what === 'release' && d.x - drums[i - 1].x < 8) return; // the next bar of a chain: the first bar's toast covers it
+    const prev = drums.slice(0, i).filter((q) => !q.route || !d.route || q.route === d.route).pop(); // on a fork, the drums of the other way are not this way's neighbours
+    if (d.what === 'grab' && prev && prev.what === 'release' && d.x - prev.x < 8) return; // the next bar of a chain: the first bar's toast covers it
     if (k === 'jump') {
       const nx = drums.slice(i + 1).find((q) => q.what !== 'jump');
       const nk = nx && nx.x - d.x < 14 ? toastKindOf(course, nx) : null; // a flight to the bar or the rope: up to 14 m
-      if (nx && (nk === 'lache' || nk === 'rope' || nk === 'climb')) { k = nk; merged.add(nx); }
+      if (nx && nx.route === d.route && (nk === 'lache' || nk === 'rope' || nk === 'climb')) { k = nk; merged.add(nx); }
     }
     let startX = d.x - leadOf(k);
     if (k === 'roll') { const before = drums.slice(0, i).filter((q) => q.x < d.x - 0.5 && q.what !== 'roll').pop(); if (before) startX = Math.min(startX, before.x - 4); }
@@ -50,5 +52,6 @@ export function toastsFor(course: CourseData, drums: Drum[]): Toast[] {
 
 // The toast to show with the runner at x: the first one that has started and whose key is not yet behind.
 export function approachToast(course: CourseData, drums: Drum[], x: number): Toast | null {
-  return toastsFor(course, drums).find((t) => x >= t.startX && t.drum.x >= x - 0.3) ?? null;
+  const on = toastsFor(course, drums).filter((t) => x >= t.startX && t.drum.x >= x - 0.3);
+  return on.find((t) => t.kind !== 'jump') ?? on[0] ?? null; // a pole or a bar teaches more than a plain gap when both are close (the fork's two ways)
 }
