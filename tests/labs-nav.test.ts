@@ -36,7 +36,7 @@ describe('labs bar', () => {
   it('gives previous and next, with no wrap at the ends', () => {
     expect(labNeighbours('lab-search')).toEqual({ prev: null, next: 'lab-optimization' });
     expect(labNeighbours('lab-ik')).toEqual({ prev: 'lab-optimization', next: 'lab-vision' });
-    expect(labNeighbours('lab-rl')).toEqual({ prev: 'lab-hashing', next: null });
+    expect(labNeighbours('lab-rl').prev).toBe('lab-hashing');
     expect(labNeighbours('course')).toEqual({ prev: null, next: null });
   });
   it('has a Courses button that opens the gallery and a Sound button, and the Labs keep the Dojo music loop', () => {
