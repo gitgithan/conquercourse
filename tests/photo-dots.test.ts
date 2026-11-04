@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { coneRing, dotsGeoJSON, nearest, photoDotsOn, DOTS_MAX, CONE_M } from '../src/world/photo-dots';
+import { coneRing, dotsGeoJSON, nearest, nearestDotOnScreen, photoDotsOn, DOTS_MAX, CONE_M } from '../src/world/photo-dots';
 import { positionOf, trim } from '../functions/api/photos';
 import type { AllowedPhoto } from '../src/world/live-photos';
 
@@ -40,5 +40,14 @@ describe('photo dots (CC-133)', () => {
     expect(photoDotsOn(q(''), 'preview.conquercourse.pages.dev')).toBe(true);
     expect(photoDotsOn(q('photodots=1'), 'conquercourse.pages.dev')).toBe(true);
     expect(photoDotsOn(q('photodots=0'), 'localhost')).toBe(false);
+  });
+  it('a click picks the nearest dot within 14 px on screen, whatever the tilt', () => {
+    const dots = [{ id: 'a', x: 100, y: 100 }, { id: 'b', x: 108, y: 100 }, { id: 'c', x: 300, y: 300 }];
+    expect(nearestDotOnScreen(dots, 105, 102)).toBe('b');
+    expect(nearestDotOnScreen(dots, 90, 100)).toBe('a');
+    expect(nearestDotOnScreen(dots, 300, 314)).toBe(null); // exactly 14 px away is outside
+    expect(nearestDotOnScreen(dots, 300, 313)).toBe('c');
+    expect(nearestDotOnScreen(dots, 200, 200)).toBe(null);
+    expect(nearestDotOnScreen([], 0, 0)).toBe(null);
   });
 });

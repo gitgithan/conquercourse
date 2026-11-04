@@ -31,6 +31,19 @@ export function nearest(list: AllowedPhoto[], lat: number, lon: number, max = DO
   return [...list].sort((a, b) => d2(a) - d2(b) || (a.id < b.id ? -1 : 1)).slice(0, max);
 }
 
+/** How far (screen pixels) a click may be from a dot's centre and still count as on it. */
+export const DOT_HIT_PX = 14;
+
+/** The id of the dot nearest a click in screen space within `r` pixels, or null. Ties go to the smaller id. */
+export function nearestDotOnScreen(dots: { id: string; x: number; y: number }[], x: number, y: number, r = DOT_HIT_PX): string | null {
+  let best: string | null = null, bd = r * r;
+  for (const d of dots) {
+    const q = (d.x - x) ** 2 + (d.y - y) ** 2;
+    if (q < bd || (q === bd && best !== null && d.id < best)) { best = d.id; bd = q; }
+  }
+  return best;
+}
+
 export interface Collection { type: 'FeatureCollection'; features: unknown[] }
 export function dotsGeoJSON(list: AllowedPhoto[]): { dots: Collection; cones: Collection } {
   const dots: unknown[] = [], cones: unknown[] = [];

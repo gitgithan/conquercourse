@@ -64,14 +64,13 @@ const TILES = {
   } },
   tile3: { file: 'slicer-3-shibuya-street-photo', run: async (b) => {
     const p = await slice(b, 'shibuya-tokyo');
-    // The map cannot hit-test a photo dot at its full tilt (72 degrees), so: tilt back to 60, click a dot, then tilt to the default again; the photo panel stays open.
-    // (A finding, not a fake: the same click does nothing at 72 degrees in the game.) Dots are read from the map's own data, never invented.
+    // Dots are read from the map's own data and clicked at the default tilt (72 degrees); the click used to fail there (fixed, CC-133).
     const dots = async (pitch) => p.evaluate(async (pt) => {
       const m = window.__ccMap.map; m.jumpTo({ pitch: pt }); await new Promise((r) => setTimeout(r, 2500));
       const cv = m.getCanvas().getBoundingClientRect(), seen = new Set();
       return m.querySourceFeatures('pd-dot').filter((f) => !seen.has(f.properties.id) && seen.add(f.properties.id)).map((f) => { const q = m.project(f.geometry.coordinates); return { x: Math.round(cv.left + q.x), y: Math.round(cv.top + q.y), id: f.properties.id }; }).filter((d) => d.x > 60 && d.x < 1350 && d.y > 100 && d.y < 960);
     }, pitch);
-    const found = await dots(Number(process.env.CLICK_PITCH ?? 60));
+    const found = await dots(Number(process.env.CLICK_PITCH ?? 72));
     console.log('dots', JSON.stringify(found));
     if (!found.length) { console.log('NO PHOTO DOT FOUND'); return p; }
     const d = found.sort((a, b) => Math.hypot(a.x - 700, a.y - 500) - Math.hypot(b.x - 700, b.y - 500))[Number(process.env.DOT_INDEX ?? 0)] ?? found[0];
