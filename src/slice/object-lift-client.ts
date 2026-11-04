@@ -26,12 +26,25 @@ export async function shrinkPhoto(f: Blob): Promise<Shrunk> {
 }
 
 export interface LiftInput { photo: Shrunk; box: [number, number, number, number]; label: string; height_m: number | null; padretry?: boolean; photoId?: string | null; resumeId?: string; startedAt?: number; onSubmitted?: (id: string) => void }
-const post = async (body: unknown): Promise<{ ok: boolean; status: number; data: Record<string, unknown> }> => {
-  const res = await fetch('/api/object-lift', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(body) });
+export type Reply = { ok: boolean; status: number; data: Record<string, unknown> };
+/** One call to a job route. A dropped connection comes back as status 0 (never a throw), so the callers can ask again. */
+export const postJson = async (url: string, body: unknown): Promise<Reply> => {
+  let res: Response;
+  try { res = await fetch(url, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(body) }); } catch { return { ok: false, status: 0, data: {} }; }
   let data: Record<string, unknown> = {};
   try { data = (await res.json()) as Record<string, unknown>; } catch { /* a broken reply is a failure below */ }
   return { ok: res.ok, status: res.status, data };
 };
+const post = (body: unknown): Promise<Reply> => postJson('/api/object-lift', body);
+
+/** A failed answer that says nothing about why (a dropped connection, or a server error with no words): a cold or busy machine, worth asking again. A refusal with a reason is final for this try. */
+export const transient = (r: Reply): boolean => !r.ok && (r.status === 0 || r.status >= 500) && !r.data.error && !r.data.message;
+/** Ask again after a short wait when the answer was transient (twice at most, 3 s then 6 s), so a machine that is waking up is not reported as down. */
+export async function withRetry(go: () => Promise<Reply>, signal?: AbortSignal, wait = (ms: number) => new Promise<void>((r) => setTimeout(r, ms))): Promise<Reply> {
+  let r = await go();
+  for (const ms of [3000, 6000]) { if (!transient(r) || signal?.aborted) break; await wait(ms); r = await go(); }
+  return r;
+}
 
 /** An Error whose message is already plain words. `final`: trying again cannot help. `retryAt`: the time (ms) it may work again, when the server said. */
 export class JobError extends Error { constructor(message: string, readonly final = false, readonly retryAt: number | null = null, readonly stopped = false) { super(message); } }
@@ -51,7 +64,7 @@ export async function liftObject(inp: LiftInput, progress: (s: string) => void, 
   const t0 = inp.startedAt ?? Date.now();
   const tell = (i: number) => onStage?.(progressOf(LIFT_STEPS, i, t0));
   progress(inp.resumeId ? 'Checking on your piece.' : 'Sending your photo. People in it are blurred before anything is looked at.'); tell(0);
-  const sub = inp.resumeId ? { ok: true, status: 200, data: { id: inp.resumeId } as Record<string, unknown> } : await post({ action: 'submit', ...(await checkField(fetch, Date.now(), inp.photo.image)), image: inp.photo.image, thumb: inp.photo.thumb, label: inp.label, box: inp.box, width: inp.photo.width, height: inp.photo.height, height_m: inp.height_m, padretry: inp.padretry !== false });
+  const sub = inp.resumeId ? { ok: true, status: 200, data: { id: inp.resumeId } as Record<string, unknown> } : await withRetry(async () => post({ action: 'submit', ...(await checkField(fetch, Date.now(), inp.photo.image)), image: inp.photo.image, thumb: inp.photo.thumb, label: inp.label, box: inp.box, width: inp.photo.width, height: inp.photo.height, height_m: inp.height_m, padretry: inp.padretry !== false }), signal);
   if (!sub.ok || typeof sub.data.id !== 'string') throw submitFailure(sub.status, sub.data);
   if (!inp.resumeId) inp.onSubmitted?.(sub.data.id);
   let at = 0, lost = 0;
@@ -61,7 +74,7 @@ export async function liftObject(inp: LiftInput, progress: (s: string) => void, 
     if (signal?.aborted) throw new JobError('Stopped.', false, null, true);
     const s = await post({ action: 'status', id: sub.data.id });
     const d = s.data;
-    if (!s.ok) { if (++lost > 3) throw new JobError(failWords('down')); continue; } // one dropped answer is not a failure
+    if (!s.ok) { if (++lost > 8) throw new JobError(failWords('down')); progress('The 3D maker is waking up. Still trying. (' + Math.round((Date.now() - t0) / 1000) + ' s)'); continue; } // dropped answers are not a failure: a waking machine can miss a few asks in a row (about 16 s)
     lost = 0;
     if (d.state === 'running') { at = stageIndex(LIFT_STEPS, d.stage, at); tell(at); progress(`${LIFT_STEPS[at].words}. (${Math.round((Date.now() - t0) / 1000)} s)`); continue; }
     if (d.state === 'done' && typeof d.glb === 'string') {
