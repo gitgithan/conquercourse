@@ -1,6 +1,6 @@
 // Promo v2 capture library (CC-133). One browser per machine.
 // Stepped clock: performance.now is ours, one step per picture, so a slow software GPU only makes capture slower, never choppier.
-// Pictures are 1920x1080: the page lays out at 1280x720 (the product owner's desktop width) with a device scale of 1.5.
+// Pictures are 1920x1080: the page lays out at 1920x1080 with a device scale of 1 (owner, 2026-11-05: zoomed out, nothing cropped).
 import { mkdirSync, writeFileSync, existsSync, readdirSync } from 'node:fs';
 import { spawnSync } from 'node:child_process';
 
@@ -38,7 +38,7 @@ export const CLICK_MARKER = `(() => {
 
 export const ease = (k) => k * k * (3 - 2 * k);
 
-export async function openSession({ url, out, pw = 'playwright', fps = 30, w = 1280, h = 720, dsf = 1.5, clock = true, gl = 'gl-egl', rafStep = false, marker = true }) {
+export async function openSession({ url, out, pw = 'playwright', fps = 30, w = 1920, h = 1080, dsf = 1, clock = true, gl = 'gl-egl', rafStep = false, marker = true }) {
   const { chromium } = await import(pw);
   const browser = await chromium.launch({ args: ["--ignore-gpu-blocklist", "--use-gl=angle", `--use-angle=${process.env.CC_GL || gl}`, '--enable-unsafe-swiftshader'] });
   const ctx = await browser.newContext({ viewport: { width: w, height: h }, deviceScaleFactor: dsf });
