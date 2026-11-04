@@ -153,7 +153,19 @@
 - The formula is the last, earned step of a Dojo lesson, which the rules allow (owner, 2026-10-27).
 - **Music lane:** not decided.
 
-## Scene 7: Close (time not set)
+## Scene 7: Go for Mastery (time depends on the number of Pipelines cards)
+
+- Overlay: not set.
+- Start from the mindmap of the Labs.
+- Mouse over each Pipelines card for 1 s, so the edges are seen updating.
+- After the last second, click Know the limits; the yellow click circle must be visible.
+- In the Know the limits lab:
+  - Drag some cards across columns, 3 s.
+  - Press Page Down twice, with a 2 s pause after each.
+- The Labs may show equations (owner, 2026-10-29).
+- **Music lane:** not decided.
+
+## Scene 8: Close (time not set)
 
 - Zoom out of the globe and darken
 - The splash screen again, with the website link added
