@@ -13,12 +13,8 @@ Built for the Meta Global AI Developer Hackathon (2026-10-26 to 2026-11-04), ind
 </div>
 
 ## 🎬 Promo video
-- 85 seconds, recorded from the real game; the picture below plays by itself (no sound).
 
-[![ConquerCourse promo: it plays here; press it to open the full video with sound](docs/promo/promo-inline.gif)](docs/promo/conquercourse-promo.mp4)
-
-- ▶️ **[Play the promo video](docs/promo/conquercourse-promo.mp4)** (1920 by 1080, with sound)
-- 📖 **[Read the demo script](docs/demo-script-v2.md)** or **[click by click through Community](docs/community-flow-guide.md)**
+https://github.com/user-attachments/assets/891a2fe2-3eff-49f7-8459-aeff440a24d9
 
 ## ⏱️ In one minute
 - You run, jump, hang, swing and climb a small runner through obstacles.
