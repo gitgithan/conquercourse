@@ -244,8 +244,8 @@ flowchart TB
 - The game itself, the simulator and the Dojo run the same everywhere: they are all in the browser.
 - The server routes (`functions/api/`) are Cloudflare Pages Functions, and `npm run dev` (Vite) does not run them.
 - Vite only has small stand-ins for five routes: the designer, the course agent, the design partner, places and street photos. Those need a key file (`baseten.env`, `mapillary.env`) outside the repo.
-- These need the real functions, so they fail on plain localhost: photo to 3D and the cut-out finder (Modal), the character maker, sharing, Community, leaderboard, the feature switches and the daily limits (they use the database).
-- To copy the Cloudflare site on your machine, build the game and run the real functions with Cloudflare's local runner (`npm run build`, then `npx wrangler pages dev dist`), with the settings and a local database from [docs/deploy.md](docs/deploy.md#running-the-cloudflare-site-on-localhost).
+- These need the real functions, so they fail on plain localhost: photo to 3D and the cut-out finder (Modal), the character maker, sharing, Community, leaderboard, street objects and the daily limits (they use the database or a key).
+- To copy the Cloudflare site on your machine, build the game and run the real functions with Cloudflare's local runner (`npm run build`, apply the local database, then `npx wrangler pages dev dist` and open http://localhost:8788), with the exact steps in [docs/deploy.md](docs/deploy.md#running-the-cloudflare-site-on-localhost).
 - Without a Turnstile secret the bot check is skipped, so the local copy needs no Turnstile account.
 - Easiest path for a judge: use the live site or the preview site, which already hold every setting.
 
