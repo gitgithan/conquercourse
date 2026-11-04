@@ -50,12 +50,21 @@ export const DEMO_GROUPS: [string, Demo[]][] = [
   ]],
 ];
 
+// CC-133: the Labs card list is split into the pipeline sections (same cards, same numbers; order inside a section is the number order)
+{
+  const at = DEMO_GROUPS.findIndex(([g]) => g.startsWith('Labs'));
+  const cards = DEMO_GROUPS[at][1];
+  const parts: [string, Demo[]][] = PIPELINES.map((p) => [`Labs: ${p.title}`, labsOfPipeline(p.id).flatMap(({ lab }) => cards.filter((c) => c[0] === lab.mode))] as [string, Demo[]]).filter(([, d]) => d.length);
+  DEMO_GROUPS.splice(at, 1, ...parts);
+}
+
 // CC-200: one card for each Dojo lesson, just above the Labs; a card opens that lesson (?mode=dojo&ex=<id>)
 const DOJO_CARDS: Demo[] = EXPERIMENTS.map((e) => [`dojo-${e.id}`, `Dojo: ${e.name}`, e.question]);
 DEMO_GROUPS.splice(DEMO_GROUPS.findIndex(([g]) => g.startsWith('Labs')), 0, ['Dojo (learn the physics, then play)', DOJO_CARDS]);
 
 import { EXPERIMENTS } from '../sim/experiments';
 import { labsOn } from './labs';
+import { PIPELINES, labsOfPipeline } from './labs-series';
 import { applyStats, loadStats, statsOn } from './course-stats';
 import { growthOn, mountGrowth } from './growth-strip';
 import { showWorldStats } from './world-stats';
