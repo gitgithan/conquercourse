@@ -22,7 +22,7 @@ export function createTools(base: Omit<ToolCtx, 'nextX' | 'nextLaneU' | 'addBarP
     list, addBarPiece,
     mount: () => list.forEach((t) => t.mount()),
     sync: () => list.forEach((t) => t.sync?.()),
-    // the first tool that answers for the layout ends Fix it; false means the general search goes on
+    // the first tool that answers for the layout ends the fix search; false means the general search goes on
     fix: (f: FixEnv) => fixers.some((t) => t.fix!(f)),
     panel: (p: P, side: HTMLElement) => list.forEach((t) => t.panel?.(p, side)),
   };

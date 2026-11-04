@@ -15,7 +15,7 @@ export interface ToolCtx {
   focusOn: (device: P, dist: number) => void;
 }
 
-// What Fix it hands a tool: the reply line to write in, and the change signal.
+// What the fix search hands a tool: the reply line to write in, and the change signal.
 export interface FixEnv { reply: HTMLElement; changed: () => void; }
 
 // One special piece: its toolbar part, its knobs, and what the editor asks of it.
@@ -23,7 +23,7 @@ export interface PieceTool {
   id: string;
   mount(): void; // adds the buttons and knobs to the toolbar, in the order the page shows them
   sync?(): void; // the state changed: show or hide the knobs and set them from the state
-  fixOrder?: number; // Fix it asks the tools in this order; the first to answer true ends the run
+  fixOrder?: number; // the fix search asks the tools in this order; the first to answer true ends the run
   fix?(f: FixEnv): boolean;
   panel?(p: P, side: HTMLElement): void; // knobs for a chosen piece, in the piece panel
 }

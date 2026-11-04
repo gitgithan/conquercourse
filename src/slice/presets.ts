@@ -1,4 +1,4 @@
-// Predesigned worlds for the World Editor's course list: a passing one to see what a good lane looks like, and a broken one to try Fix it and the design partner on.
+// Predesigned worlds for the World Editor's course list: a passing one to see what a good lane looks like, and a broken one to try Make it easier and the design partner on.
 export interface PresetPiece { src: string; x: number; z: number; y: number; yaw: number; scale: number; decor?: boolean; stay?: boolean } // decor: seen but not ground; stay: the editor leaves it exactly where it is
 export interface Preset { id: string; label: string; note: string; pieces: PresetPiece[] }
 
